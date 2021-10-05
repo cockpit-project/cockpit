@@ -17,39 +17,31 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import $ from 'jquery';
 import React, { useState, useContext, useEffect } from 'react';
 import cockpit from 'cockpit';
 import {
     Button,
-    Checkbox,
-    Form, FormGroup,
+    FormGroup,
     FormSelect, FormSelectOption,
-    Modal, Popover,
+    Popover,
     Select, SelectOption, SelectVariant,
-    Stack,
     TextInput,
 } from '@patternfly/react-core';
 import { ExternalLinkSquareAltIcon, HelpIcon } from '@patternfly/react-icons';
 
-import { ModalError } from 'cockpit-components-inline-notification.jsx';
+import { MemberInterfaceChoices, NetworkModal, Name, dialogApply } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';
 
 import { v4 as uuidv4 } from 'uuid';
 import {
-    apply_group_member,
     bond_mode_choices, bond_monitoring_choices,
-    connection_devices,
     member_connection_for_interface,
     member_interface_choices,
-    settings_applier,
-    syn_click,
-    with_checkpoint, with_settings_checkpoint,
 } from './interfaces.js';
 
 const _ = cockpit.gettext;
 
-const BondDialog = ({ connection, dev, done, setIsOpen, settings }) => {
+export const BondDialog = ({ connection, dev, setIsOpen, settings }) => {
     const model = useContext(ModelContext);
     const options = settings.bond.options;
 
@@ -102,47 +94,16 @@ const BondDialog = ({ connection, dev, done, setIsOpen, settings }) => {
             }
         });
 
-        const apply_settings = settings_applier(model, dev, connection);
-
-        const modify = () => {
-            // When all dialogs are ported to React this helper should stop using jquery
-            return apply_group_member($('#network-bond-settings-body'),
-                                      model,
-                                      apply_settings,
-                                      connection,
-                                      createSettingsObj(),
-                                      "bond")
-                    .then(() => {
-                        setIsOpen(false);
-                        if (connection)
-                            cockpit.location.go([iface]);
-                        if (done)
-                            return done();
-                    })
-                    .catch(ex => setDialogError(ex.message));
-        };
-
-        const membersChanged = Object.keys(memberChoicesInit).some(iface => memberChoicesInit[iface] != memberChoices[iface]);
-
-        if (connection) {
-            with_settings_checkpoint(model, modify,
-                                     {
-                                         devices: (membersChanged
-                                             ? [] : connection_devices(connection)),
-                                         hack_does_add_or_remove: membersChanged,
-                                         rollback_on_failure: membersChanged
-                                     });
-        } else {
-            with_checkpoint(
-                model,
-                modify,
-                {
-                    fail_text: _("Creating this bond will break the connection to the server, and will make the administration UI unavailable."),
-                    anyway_text: _("Create it"),
-                    hack_does_add_or_remove: true,
-                    rollback_on_failure: true
-                });
-        }
+        dialogApply({
+            model,
+            dev,
+            connection,
+            members: memberChoices,
+            membersInit: memberChoicesInit,
+            settings: createSettingsObj(),
+            setDialogError,
+            setIsOpen,
+        });
 
         // Prevent dialog from closing because of <form> onsubmit event
         if (event)
@@ -152,53 +113,41 @@ const BondDialog = ({ connection, dev, done, setIsOpen, settings }) => {
     };
 
     return (
-        <Modal id="network-bond-settings-dialog" position="top" variant="medium"
-            isOpen
-            onClose={() => setIsOpen(false)}
-            title={_("Bond settings")}
-            help={
-                <Popover
-                    headerContent={_("Network bond")}
-                    id="bond-help"
-                    bodyContent={
-                        <div>
-                            {_("A network bond combines multiple network interfaces into one logical interface with higher throughput or redundancy.")}
-                        </div>
-                    }
-                    footerContent={
-                        <Button component='a'
-                                rel="noopener noreferrer" target="_blank"
-                                variant='link'
-                                isInline
-                                icon={<ExternalLinkSquareAltIcon />} iconPosition="right"
-                                href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/configuring-network-bonds-using-the-web-console_system-management-using-the-rhel-8-web-console">
-                            {_("Learn more")}
-                        </Button>
-                    }
-                >
-                    <Button id="bond-help-popup-button" variant="plain" aria-label="Help">
-                        <HelpIcon />
-                    </Button>
-                </Popover>
-            }
-            footer={
-                <>
-                    {dialogError && <ModalError id="network-bond-settings-error" dialogError={_("Failed to apply settings")} dialogErrorDetail={dialogError} />}
-                    <Button variant='primary' id="network-bond-settings-apply" onClick={onSubmit}>
-                        {_("Apply")}
-                    </Button>
-                    <Button variant='link' id="network-bond-settings-cancel" onClick={() => setIsOpen(false)}>
-                        {_("Cancel")}
-                    </Button>
-                </>
-            }
+        <NetworkModal dialogError={dialogError}
+                      idPrefix="network-bond-settings"
+                      onSubmit={onSubmit}
+                      setIsOpen={setIsOpen}
+                      title={_("Bond settings")}
+                      help={
+                          <Popover
+                              headerContent={_("Network bond")}
+                              id="bond-help"
+                              bodyContent={
+                                  <div>
+                                      {_("A network bond combines multiple network interfaces into one logical interface with higher throughput or redundancy.")}
+                                  </div>
+                              }
+                              footerContent={
+                                  <Button component='a'
+                                          rel="noopener noreferrer" target="_blank"
+                                          variant='link'
+                                          isInline
+                                          icon={<ExternalLinkSquareAltIcon />} iconPosition="right"
+                                          href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/configuring-network-bonds-using-the-web-console_system-management-using-the-rhel-8-web-console">
+                                      {_("Learn more")}
+                                  </Button>
+                              }
+                          >
+                              <Button id="bond-help-popup-button" variant="plain" aria-label="Help">
+                                  <HelpIcon />
+                              </Button>
+                          </Popover>
+                      }
         >
-            <Form id="network-bond-settings-body" onSubmit={onSubmit} isHorizontal>
-                <FormGroup fieldId="network-bond-settings-interface-name-input" label={_("Name")}>
-                    <TextInput id="network-bond-settings-interface-name-input" value={iface} onChange={setIface} />
-                </FormGroup>
+            <>
+                <Name idPrefix="network-bond-settings" iface={iface} setIface={setIface} />
                 <FormGroup label={_("Interfaces")} fieldId="network-bond-settings-interface-members-lis" hasNoPaddingTop>
-                    <MemberInterfaceChoices memberChoices={memberChoices} setMemberChoices={setMemberChoices} model={model} group={connection} />
+                    <MemberInterfaceChoices idPrefix="network-bond-settings" memberChoices={memberChoices} setMemberChoices={setMemberChoices} model={model} group={connection} />
                 </FormGroup>
                 <FormGroup fieldId="network-bond-settings-mac-input" label={_("MAC")}>
                     <MacMenu model={model} mac={mac} setMAC={setMAC} />
@@ -240,8 +189,8 @@ const BondDialog = ({ connection, dev, done, setIsOpen, settings }) => {
                 {linkMonitoring == 'arp' && <FormGroup fieldId="network-bond-settings-monitoring-targets-input" label={_("Monitoring targets")}>
                     <TextInput id="network-bond-settings-monitoring-targets-input" value={monitoringTargets} onChange={setMonitoringTargets} />
                 </FormGroup>}
-            </Form>
-        </Modal>
+            </>
+        </NetworkModal>
     );
 };
 
@@ -308,72 +257,22 @@ const MacMenu = ({ model, mac, setMAC }) => {
     );
 };
 
-const MemberInterfaceChoices = ({ memberChoices, setMemberChoices, model, group }) => {
+export const getGhostSettings = ({ newIfaceName }) => {
     return (
-        <Stack hasGutter id="network-bond-settings-interface-members-list">
-            {Object.keys(memberChoices).map((iface, idx) => (
-                <Checkbox data-iface={iface}
-                          id={"network-bond-settings-interface-members-" + iface}
-                          isChecked={memberChoices[iface]}
-                          key={iface}
-                          label={iface}
-                          onChange={checked => setMemberChoices({ ...memberChoices, [iface]: checked })}
-                />
-            ))}
-        </Stack>
-    );
-};
-
-export const BondAction = ({ iface, done, connectionSettings }) => {
-    const [isBondOpen, setIsBondOpen] = useState(false);
-
-    const con = iface && iface.MainConnection;
-    const dev = iface && iface.Device;
-    const model = useContext(ModelContext);
-    const getName = () => {
-        let name;
-        // Find the first free interface name
-        for (let i = 0; i < 100; i++) {
-            name = "bond" + i;
-            if (!model.find_interface(name))
-                break;
-        }
-        return name;
-    };
-
-    const newIfaceName = !iface ? getName() : undefined;
-    const settings = (
-        iface
-            ? connectionSettings
-            : {
-                connection: {
-                    id: newIfaceName,
-                    autoconnect: true,
-                    type: "bond",
-                    uuid: uuidv4(),
-                    interface_name: newIfaceName,
+        {
+            connection: {
+                id: newIfaceName,
+                autoconnect: true,
+                type: "bond",
+                uuid: uuidv4(),
+                interface_name: newIfaceName,
+            },
+            bond: {
+                options: {
+                    mode: "active-backup"
                 },
-                bond: {
-                    options: {
-                        mode: "active-backup"
-                    },
-                    interface_name: newIfaceName
-                }
+                interface_name: newIfaceName
             }
-    );
-
-    return (
-        <>
-            <Button id="networking-add-bond"
-                    isInline={!!iface}
-                    onClick={syn_click(model, setIsBondOpen, true)}
-                    variant={!iface ? "secondary" : "link"}>
-                {!iface ? _("Add bond") : _("edit")}
-            </Button>
-            {isBondOpen ? <BondDialog connection={con}
-                                      dev={dev} done={done}
-                                      setIsOpen={setIsBondOpen}
-                                      settings={settings} /> : null}
-        </>
+        }
     );
 };

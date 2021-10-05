@@ -2007,33 +2007,6 @@ export function member_interface_choices(model, group) {
     });
 }
 
-export function render_member_interface_choices(model, group) {
-    return $('<ul class="list-group dialog-list-ct">').append(
-        member_interface_choices(model, group).map(function (iface) {
-            return $('<li class="list-group-item">').append(
-                $('<div class="checkbox">')
-                        .css('margin', "0px")
-                        .append(
-                            $('<label>').append(
-                                $('<input>', {
-                                    type: "checkbox",
-                                    'data-iface': iface.Name
-                                })
-                                        .prop('checked', !!member_connection_for_interface(group, iface)),
-                                $('<span>').text(iface.Name))));
-        }));
-}
-
-export function member_chooser_btn(change, member_choices) {
-    const choices = [{ title: "-", choice: "", is_default: true }];
-    member_choices.find('input[data-iface]').each(function (i, elt) {
-        const name = $(elt).attr("data-iface");
-        if ($(elt).prop('checked'))
-            choices.push({ title: name, choice: name });
-    });
-    return select_btn(change, choices, "form-control");
-}
-
 export function free_member_connection(con) {
     const cs = connection_settings(con);
     if (cs.member_type) {
@@ -2128,14 +2101,14 @@ export function apply_group_member(choices, model, apply_group, group_connection
             if (iface && iface.MainConnection)
                 active_settings.push(iface.MainConnection.Settings);
         } else {
-            choices.find('input[data-iface]').map(function (i, elt) {
-                if ($(elt).prop('checked')) {
-                    const iface = model.find_interface($(elt).attr("data-iface"));
-                    if (iface && iface.Device && iface.Device.ActiveConnection && iface.Device.ActiveConnection.Connection) {
-                        active_settings.push(iface.Device.ActiveConnection.Connection.Settings);
-                    }
-                }
-            });
+            Object.keys(choices)
+                    .filter(choice => choices[choice])
+                    .forEach(choice => {
+                        const iface = model.find_interface(choice);
+                        if (iface && iface.Device && iface.Device.ActiveConnection && iface.Device.ActiveConnection.Connection) {
+                            active_settings.push(iface.Device.ActiveConnection.Connection.Settings);
+                        }
+                    });
         }
 
         if (active_settings.length == 1) {
@@ -2153,13 +2126,13 @@ export function apply_group_member(choices, model, apply_group, group_connection
      */
 
     function set_all_members() {
-        const deferreds = choices.find('input[data-iface]').map(function (i, elt) {
+        const deferreds = Object.keys(choices).map(iface => {
             return model.synchronize().then(function () {
                 return set_member(model, group_connection, group_settings, member_type,
-                                  $(elt).attr("data-iface"), $(elt).prop('checked'));
+                                  iface, choices[iface]);
             });
         });
-        return Promise.all(deferreds.get());
+        return Promise.all(deferreds);
     }
 
     return set_all_members().then(function () {

@@ -18,35 +18,26 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import $ from 'jquery';
 import React, { useState, useContext } from 'react';
 import cockpit from 'cockpit';
 import {
-    Button,
     Checkbox,
-    Form, FormGroup,
-    Modal,
-    Stack,
+    FormGroup,
     TextInput,
 } from '@patternfly/react-core';
 
-import { ModalError } from 'cockpit-components-inline-notification.jsx';
+import { MemberInterfaceChoices, NetworkModal, Name, dialogApply } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';
 
 import { v4 as uuidv4 } from 'uuid';
 import {
-    apply_group_member,
-    connection_devices,
     member_connection_for_interface,
     member_interface_choices,
-    settings_applier,
-    syn_click,
-    with_checkpoint, with_settings_checkpoint,
 } from './interfaces.js';
 
 const _ = cockpit.gettext;
 
-const BridgeDialog = ({ connection, dev, done, setIsOpen, settings }) => {
+export const BridgeDialog = ({ connection, dev, setIsOpen, settings }) => {
     const model = useContext(ModelContext);
     const memberChoicesInit = {};
 
@@ -79,46 +70,16 @@ const BridgeDialog = ({ connection, dev, done, setIsOpen, settings }) => {
             }
         });
 
-        const apply_settings = settings_applier(model, dev, connection);
-
-        const modify = () => {
-            // When all dialogs are ported to React this helper should stop using jquery
-            return apply_group_member($('#network-bridge-settings-body'),
-                                      model,
-                                      apply_settings,
-                                      connection,
-                                      createSettingsObj(),
-                                      "bridge")
-                    .then(() => {
-                        setIsOpen(false);
-                        if (connection)
-                            cockpit.location.go([iface]);
-                        if (done)
-                            return done();
-                    })
-                    .catch(ex => setDialogError(ex.message));
-        };
-        const membersChanged = Object.keys(memberChoicesInit).some(iface => memberChoicesInit[iface] != memberChoices[iface]);
-
-        if (connection) {
-            with_settings_checkpoint(model, modify,
-                                     {
-                                         devices: (membersChanged
-                                             ? [] : connection_devices(connection)),
-                                         hack_does_add_or_remove: membersChanged,
-                                         rollback_on_failure: membersChanged
-                                     });
-        } else {
-            with_checkpoint(
-                model,
-                modify,
-                {
-                    fail_text: _("Creating this bridge will break the connection to the server, and will make the administration UI unavailable."),
-                    anyway_text: _("Create it"),
-                    hack_does_add_or_remove: true,
-                    rollback_on_failure: true
-                });
-        }
+        dialogApply({
+            model,
+            dev,
+            connection,
+            members: memberChoices,
+            membersInit: memberChoicesInit,
+            settings: createSettingsObj(),
+            setDialogError,
+            setIsOpen,
+        });
 
         // Prevent dialog from closing because of <form> onsubmit event
         if (event)
@@ -128,28 +89,16 @@ const BridgeDialog = ({ connection, dev, done, setIsOpen, settings }) => {
     };
 
     return (
-        <Modal id="network-bridge-settings-dialog" position="top" variant="medium"
-            isOpen
-            onClose={() => setIsOpen(false)}
-            title={_("Bridge settings")}
-            footer={
-                <>
-                    {dialogError && <ModalError id="network-bridge-settings-error" dialogError={_("Failed to apply settings")} dialogErrorDetail={dialogError} />}
-                    <Button variant='primary' id="network-bridge-settings-apply" onClick={onSubmit}>
-                        {_("Apply")}
-                    </Button>
-                    <Button variant='link' id="network-bridge-settings-cancel" onClick={() => setIsOpen(false)}>
-                        {_("Cancel")}
-                    </Button>
-                </>
-            }
+        <NetworkModal dialogError={dialogError}
+                      idPrefix="network-bridge-settings"
+                      onSubmit={onSubmit}
+                      setIsOpen={setIsOpen}
+                      title={_("Bridge settings")}
         >
-            <Form id="network-bridge-settings-body" onSubmit={onSubmit} isHorizontal>
-                <FormGroup fieldId="network-bridge-settings-name-input" label={_("Name")}>
-                    <TextInput id="network-bridge-settings-name-input" value={iface} onChange={setIface} />
-                </FormGroup>
+            <>
+                <Name idPrefix="network-bridge-settings" iface={iface} setIface={setIface} />
                 <FormGroup label={_("Ports")} fieldId="network-bridge-settings-interface-members-list" hasNoPaddingTop>
-                    <MemberInterfaceChoices memberChoices={memberChoices} setMemberChoices={setMemberChoices} model={model} group={connection} />
+                    <MemberInterfaceChoices idPrefix="network-bridge-settings" memberChoices={memberChoices} setMemberChoices={setMemberChoices} model={model} group={connection} />
                 </FormGroup>
                 <FormGroup label={_("Options")} fieldId="network-bridge-settings-stp-enabled-input" hasNoPaddingTop>
                     <Checkbox id="network-bridge-settings-stp-enabled-input" isChecked={stp} onChange={setStp} label={_("Spanning tree protocol (STP)")} />
@@ -168,80 +117,30 @@ const BridgeDialog = ({ connection, dev, done, setIsOpen, settings }) => {
                         </FormGroup>
                     </>}
                 </FormGroup>
-            </Form>
-        </Modal>
+            </>
+        </NetworkModal>
     );
 };
 
-const MemberInterfaceChoices = ({ memberChoices, setMemberChoices, model, group }) => {
+export const getGhostSettings = ({ newIfaceName }) => {
     return (
-        <Stack hasGutter id="network-bridge-settings-interface-members-list">
-            {Object.keys(memberChoices).map((iface, idx) => (
-                <Checkbox data-iface={iface}
-                          id={"network-bridge-settings-interface-members-" + iface}
-                          isChecked={memberChoices[iface]}
-                          key={iface}
-                          label={iface}
-                          onChange={checked => setMemberChoices({ ...memberChoices, [iface]: checked })}
-                />
-            ))}
-        </Stack>
-    );
-};
-
-export const BridgeAction = ({ iface, done, connectionSettings }) => {
-    const [isBridgeOpen, setIsBridgeOpen] = useState(false);
-
-    const con = iface && iface.MainConnection;
-    const dev = iface && iface.Device;
-    const model = useContext(ModelContext);
-    const getName = () => {
-        let name;
-        // Find the first free interface name
-        for (let i = 0; i < 100; i++) {
-            name = "bridge" + i;
-            if (!model.find_interface(name))
-                break;
-        }
-        return name;
-    };
-
-    const newIfaceName = !iface ? getName() : undefined;
-    const settings = (
-        iface
-            ? connectionSettings
-            : {
-                connection: {
-                    id: newIfaceName,
-                    autoconnect: true,
-                    type: "bridge",
-                    uuid: uuidv4(),
-                    interface_name: newIfaceName
-                },
-                bridge: {
-                    interface_name: newIfaceName,
-                    stp: false,
-                    priority: 32768,
-                    forward_delay: 15,
-                    hello_time: 2,
-                    max_age: 20,
-                    ageing_time: 300
-                }
+        {
+            connection: {
+                id: newIfaceName,
+                autoconnect: true,
+                type: "bridge",
+                uuid: uuidv4(),
+                interface_name: newIfaceName
+            },
+            bridge: {
+                interface_name: newIfaceName,
+                stp: false,
+                priority: 32768,
+                forward_delay: 15,
+                hello_time: 2,
+                max_age: 20,
+                ageing_time: 300
             }
-    );
-
-    return (
-        <>
-            <Button id="networking-add-bridge"
-                    isInline={!!iface}
-                    onClick={syn_click(model, setIsBridgeOpen, true)}
-                    variant={!iface ? "secondary" : "link"}>
-                {!iface ? _("Add bridge") : _("edit")}
-            </Button>
-            {isBridgeOpen ? <BridgeDialog connection={con}
-                                      dev={dev} done={done}
-                                      setIsOpen={setIsBridgeOpen}
-                                      settings={settings} /> : null}
-        </>
+        }
     );
 };

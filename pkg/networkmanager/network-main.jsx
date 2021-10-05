@@ -31,10 +31,7 @@ import {
 
 import { FirewallSwitch } from "./firewall-switch.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
-import { BondAction } from './bond.jsx';
-import { TeamAction } from './team.jsx';
-import { BridgeAction } from './bridge.jsx';
-import { VlanAction } from './vlan.jsx';
+import { NetworkAction } from "./dialogs-common.jsx";
 import { LogsPanel } from "cockpit-components-logs-panel.jsx";
 import { NetworkPlots } from "./plots";
 
@@ -175,10 +172,10 @@ export const NetworkPage = ({ privileged, usage_monitor, plot_state, interfaces 
                         <CardHeader>
                             <CardTitle><Text component={TextVariants.h2}>{_("Interfaces")}</Text></CardTitle>
                             {privileged && <CardActions>
-                                <BondAction />
-                                <TeamAction />
-                                <BridgeAction />
-                                <VlanAction />
+                                <NetworkAction addButtonText={_("Add bond")} type='bond' />
+                                <NetworkAction addButtonText={_("Add team")} type='team' />
+                                <NetworkAction addButtonText={_("Add bridge")} type='bridge' />
+                                <NetworkAction addButtonText={_("Add VLAN")} type='vlan' />
                             </CardActions>}
                         </CardHeader>
                         <ListingTable aria-label={_("Managed interfaces")}

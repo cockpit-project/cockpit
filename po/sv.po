@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-21 18:06+0000\n"
+"POT-Creation-Date: 2021-09-29 15:37+0000\n"
 "PO-Revision-Date: 2020-06-11 12:40+0000\n"
 "Last-Translator: Jakob Sundberg <jakob@mress.se>\n"
 "Language-Team: Swedish <https://translate.fedoraproject.org/projects/cockpit/"
@@ -25,20 +25,20 @@ msgstr ""
 msgid "$0 (encrypted)"
 msgstr "Krypterad $0"
 
-#: pkg/metrics/metrics.jsx:419
+#: pkg/metrics/metrics.jsx:420
 #, fuzzy
 msgid "$0 CPU"
 msgid_plural "$0 CPUs"
 msgstr[0] "av $0 CPU-kärna"
 msgstr[1] "av $0 CPU-kärnor"
 
-#: pkg/metrics/metrics.jsx:442 pkg/metrics/metrics.jsx:513
+#: pkg/metrics/metrics.jsx:443 pkg/metrics/metrics.jsx:514
 #, fuzzy
 #| msgid "Not available"
 msgid "$0 GiB available"
 msgstr "Inte tillgängligt"
 
-#: pkg/metrics/metrics.jsx:434 pkg/metrics/metrics.jsx:504
+#: pkg/metrics/metrics.jsx:435 pkg/metrics/metrics.jsx:505
 msgid "$0 GiB total"
 msgstr ""
 
@@ -58,7 +58,7 @@ msgstr "$0 blockenhet"
 msgid "$0 chunk size"
 msgstr "$0 styckesstorlek"
 
-#: pkg/systemd/overview-cards/insights.jsx:157
+#: pkg/systemd/overview-cards/insights.jsx:159
 msgid "$0 critical hit"
 msgid_plural "$0 hits, including critical"
 msgstr[0] ""
@@ -92,21 +92,29 @@ msgstr[1] "$0 diskar saknas"
 msgid "$0 disks"
 msgstr "$0 diskar"
 
-#: pkg/shell/indexes.js:414
+#: pkg/shell/indexes.js:412
 msgid "$0 documentation"
 msgstr "$0 dokumentation"
 
-#: pkg/static/login.js:372 pkg/static/login.js:820
+#: pkg/static/login.js:365 pkg/static/login.js:804
 msgid "$0 error"
 msgstr "$0 fel"
 
-#: pkg/base1/cockpit.js:2776
+#: pkg/base1/cockpit.js:2727
 msgid "$0 exited with code $1"
 msgstr "$0 avslutade med kod $1"
 
-#: pkg/base1/cockpit.js:2778
+#: pkg/base1/cockpit.js:2729
 msgid "$0 failed"
 msgstr "$0 misslyckades"
+
+#: pkg/systemd/overview-cards/lastLogin.jsx:102
+#, fuzzy
+#| msgid "Last failed login:"
+msgid "$0 failed login attempt"
+msgid_plural "$0 failed login attempts"
+msgstr[0] "Senaste misslyckade inloggning:"
+msgstr[1] "Senaste misslyckade inloggning:"
 
 #: pkg/storaged/content-views.jsx:423
 msgctxt "storage-id-desc"
@@ -125,21 +133,11 @@ msgstr "$0 filsystem kan inte göras mindre."
 msgid "$0 filesystems can not be resized here."
 msgstr "$0 filsystem kan inte storleksändras här."
 
-#: pkg/metrics/metrics.jsx:555
+#: pkg/metrics/metrics.jsx:556
 #, fuzzy
 #| msgid "$0, $1 free"
 msgid "$0 free"
 msgstr "$0, $1 fritt"
-
-#: pkg/systemd/overview.jsx:98
-msgctxt "<date> from <host>"
-msgid "$0 from $1"
-msgstr "$0 från $1"
-
-#: pkg/systemd/overview.jsx:96
-msgctxt "<date> from <host> on <terminal>"
-msgid "$0 from $1 on $2"
-msgstr "$0 från $1 på $2"
 
 #: pkg/lib/cockpit-components-plot.jsx:234
 msgid "$0 hour"
@@ -147,7 +145,7 @@ msgid_plural "$0 hours"
 msgstr[0] "$0 timme"
 msgstr[1] "$0 timmar"
 
-#: pkg/systemd/overview-cards/insights.jsx:162
+#: pkg/systemd/overview-cards/insights.jsx:164
 msgid "$0 important hit"
 msgid_plural "$0 hits, including important"
 msgstr[0] ""
@@ -165,17 +163,17 @@ msgstr "$0 används aktivt"
 msgid "$0 is not available from any repository."
 msgstr "$0 är inte tillgängligt från något förråd."
 
-#: pkg/static/login.js:638
+#: pkg/static/login.js:628
 #, fuzzy
 #| msgid "Force change"
 msgid "$0 key changed"
 msgstr "Framtvinga ändring"
 
-#: pkg/base1/cockpit.js:2774
+#: pkg/base1/cockpit.js:2725
 msgid "$0 killed with signal $1"
 msgstr "$0 dödad med signal $1"
 
-#: pkg/systemd/overview-cards/insights.jsx:172
+#: pkg/systemd/overview-cards/insights.jsx:174
 msgid "$0 low severity hit"
 msgid_plural "$0 low severity hits"
 msgstr[0] ""
@@ -187,7 +185,7 @@ msgid_plural "$0 minutes"
 msgstr[0] "$0 minut"
 msgstr[1] "$0 minuter"
 
-#: pkg/systemd/overview-cards/insights.jsx:167
+#: pkg/systemd/overview-cards/insights.jsx:169
 #, fuzzy
 msgid "$0 moderate hit"
 msgid_plural "$0 hits, including moderate"
@@ -204,11 +202,6 @@ msgstr[1] "$0 månader"
 msgid "$0 of $1"
 msgstr "$0 av $1"
 
-#: pkg/systemd/overview.jsx:100
-msgctxt "<date> on <terminal>"
-msgid "$0 on $1"
-msgstr "$0 på $1"
-
 #: pkg/packagekit/history.jsx:85
 #, fuzzy
 msgid "$0 package"
@@ -222,7 +215,7 @@ msgid_plural "$0 packages need a system reboot"
 msgstr[0] ""
 msgstr[1] ""
 
-#: pkg/metrics/metrics.jsx:121
+#: pkg/metrics/metrics.jsx:122
 #, fuzzy
 msgid "$0 page"
 msgid_plural "$0 pages"
@@ -260,7 +253,7 @@ msgid_plural "$0 slots remain"
 msgstr[0] "$0 fack återstår"
 msgstr[1] "$0 fack återstår"
 
-#: pkg/metrics/metrics.jsx:563
+#: pkg/metrics/metrics.jsx:564
 #, fuzzy
 #| msgid "Total"
 msgid "$0 total"
@@ -338,7 +331,7 @@ msgstr "1 dag"
 msgid "1 hour"
 msgstr "1 timme"
 
-#: pkg/metrics/metrics.jsx:325
+#: pkg/metrics/metrics.jsx:326
 msgid "1 min"
 msgstr "1 min"
 
@@ -374,7 +367,7 @@ msgstr "13:e"
 msgid "14th"
 msgstr "14:e"
 
-#: pkg/metrics/metrics.jsx:325
+#: pkg/metrics/metrics.jsx:326
 #, fuzzy
 #| msgid "5 min"
 msgid "15 min"
@@ -488,7 +481,7 @@ msgstr "40 minuter"
 msgid "4th"
 msgstr "4:e"
 
-#: pkg/metrics/metrics.jsx:325
+#: pkg/metrics/metrics.jsx:326
 msgid "5 min"
 msgstr "5 min"
 
@@ -529,11 +522,11 @@ msgstr "7:e"
 msgid "8 KiB"
 msgstr "8 KiB"
 
-#: pkg/networkmanager/interfaces.js:1468
+#: pkg/networkmanager/interfaces.js:1460
 msgid "802.3ad"
 msgstr "802.3ad"
 
-#: pkg/networkmanager/interfaces.js:1485
+#: pkg/networkmanager/interfaces.js:1477
 msgid "802.3ad LACP"
 msgstr "802.3ad LACP"
 
@@ -596,7 +589,7 @@ msgstr[1] ""
 msgid "A spare disk needs to be added first before this disk can be removed."
 msgstr "En reservdisk behöver läggas till först före denna disk kan tas bort."
 
-#: pkg/networkmanager/interfaces.js:1476
+#: pkg/networkmanager/interfaces.js:1468
 msgid "ARP"
 msgstr "ARP"
 
@@ -604,11 +597,11 @@ msgstr "ARP"
 msgid "ARP monitoring"
 msgstr "ARP-övervakning"
 
-#: pkg/networkmanager/interfaces.js:1497
+#: pkg/networkmanager/interfaces.js:1489
 msgid "ARP ping"
 msgstr "ARP-ping"
 
-#: pkg/shell/indexes.js:432
+#: pkg/shell/indexes.js:430
 msgid "About Web Console"
 msgstr "Om webkonsollen"
 
@@ -621,11 +614,11 @@ msgstr "Frånvarande"
 msgid "Accept key and connect"
 msgstr ""
 
-#: pkg/static/login.js:559
+#: pkg/static/login.js:549
 msgid "Accept key and log in"
 msgstr ""
 
-#: pkg/users/account-create-dialog.js:69 pkg/users/account-details.js:314
+#: pkg/users/account-create-dialog.js:69 pkg/users/account-details.js:315
 msgid "Access"
 msgstr "Åtkomst"
 
@@ -633,16 +626,16 @@ msgstr "Åtkomst"
 msgid "Account expiration"
 msgstr "Utgång av konto"
 
-#: pkg/users/account-details.js:224
+#: pkg/users/account-details.js:225
 msgid "Account not available or cannot be edited."
 msgstr "Kontot är inte tillgängligt eller kan inte redigeras."
 
-#: pkg/playground/translate.html:95 pkg/users/account-details.js:260
+#: pkg/playground/translate.html:95 pkg/users/account-details.js:261
 #: pkg/users/manifest.json:0
 msgid "Accounts"
 msgstr "Konton"
 
-#: pkg/storaged/content-views.jsx:675 pkg/storaged/content-views.jsx:844
+#: pkg/storaged/content-views.jsx:675 pkg/storaged/content-views.jsx:842
 #: pkg/apps/application-list.jsx:112
 #, fuzzy
 msgid "Actions"
@@ -656,16 +649,16 @@ msgstr "Aktivera"
 msgid "Activating $target"
 msgstr "Aktivera $target"
 
-#: pkg/networkmanager/interfaces.js:759 pkg/networkmanager/interfaces.js:1491
+#: pkg/networkmanager/interfaces.js:757 pkg/networkmanager/interfaces.js:1483
 msgid "Active"
 msgstr "Aktivt"
 
-#: pkg/networkmanager/interfaces.js:1465 pkg/networkmanager/interfaces.js:1482
+#: pkg/networkmanager/interfaces.js:1457 pkg/networkmanager/interfaces.js:1474
 msgid "Active backup"
 msgstr "Aktiv reserv"
 
 #: pkg/shell/index.html:75 pkg/shell/active-pages-dialog.jsx:68
-#: pkg/shell/active-pages.js:95
+#: pkg/shell/active-pages.js:94
 msgid "Active pages"
 msgstr "Aktiva sidor"
 
@@ -684,11 +677,11 @@ msgstr "Aktiv sedan"
 msgid "Active state"
 msgstr "Aktivera"
 
-#: pkg/networkmanager/interfaces.js:1470
+#: pkg/networkmanager/interfaces.js:1462
 msgid "Adaptive load balancing"
 msgstr "Adaptiv lastbalansering"
 
-#: pkg/networkmanager/interfaces.js:1469
+#: pkg/networkmanager/interfaces.js:1461
 msgid "Adaptive transmit load balancing"
 msgstr "Adaptiv lastbalansering av sändning"
 
@@ -797,7 +790,7 @@ msgstr ""
 "Att lägga till egna portar startar om firewalld . En omstart gör att "
 "osparade ändringar försvinner!"
 
-#: pkg/users/authorized-keys.js:113
+#: pkg/users/authorized-keys.js:112
 msgid "Adding key"
 msgstr "Lägger till nyckel"
 
@@ -845,7 +838,7 @@ msgstr "Adressen kan inte vara tom"
 msgid "Address is not a valid URL"
 msgstr "Adressen är inte en giltig URL"
 
-#: pkg/networkmanager/firewall.jsx:179 pkg/networkmanager/interfaces.js:1884
+#: pkg/networkmanager/firewall.jsx:179 pkg/networkmanager/interfaces.js:1876
 msgid "Addresses"
 msgstr "Adresser"
 
@@ -857,7 +850,7 @@ msgstr "Administration med Cockpits webbkonsol"
 msgid "Administrative access"
 msgstr "Administrativ tillgång"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:339
+#: pkg/systemd/overview-cards/realmd-operation.js:332
 msgid "Administrator password"
 msgstr "Administratörslösenord"
 
@@ -889,7 +882,7 @@ msgstr ""
 msgid "After system boot"
 msgstr "Efter systemstart"
 
-#: pkg/selinux/setroubleshoot-view.jsx:415
+#: pkg/selinux/setroubleshoot-view.jsx:410
 msgid "Alert"
 msgstr ""
 
@@ -942,18 +935,18 @@ msgid ""
 "can be comma separated list of possible values."
 msgstr ""
 
-#: pkg/systemd/terminal.jsx:146
+#: pkg/systemd/terminal.jsx:144
 #, fuzzy
 #| msgid "Appearance:"
 msgid "Appearance"
 msgstr "Utseende:"
 
-#: pkg/apps/index.html:23 pkg/apps/application-list.jsx:183
-#: pkg/apps/application.jsx:163 pkg/apps/manifest.json:0
+#: pkg/apps/index.html:23 pkg/apps/application-list.jsx:182
+#: pkg/apps/application.jsx:162 pkg/apps/manifest.json:0
 msgid "Applications"
 msgstr "Program"
 
-#: pkg/apps/application-list.jsx:194
+#: pkg/apps/application-list.jsx:193
 #, fuzzy
 msgid "Applications list"
 msgstr "Program"
@@ -965,7 +958,7 @@ msgstr "Program"
 #: pkg/networkmanager/index.html:534 pkg/storaged/nfs-details.jsx:199
 #: pkg/storaged/crypto-tab.jsx:163 pkg/storaged/crypto-tab.jsx:207
 #: pkg/storaged/fsys-tab.jsx:369 pkg/storaged/fsys-tab.jsx:468
-#: pkg/kdump/kdump-view.jsx:354 pkg/packagekit/kpatch.jsx:286
+#: pkg/kdump/kdump-view.jsx:360 pkg/packagekit/kpatch.jsx:286
 msgid "Apply"
 msgstr "Lägg på"
 
@@ -991,7 +984,7 @@ msgstr "Lägger på uppdateringar"
 msgid "Applying updates failed"
 msgstr "Att lägga på uppdateringar misslyckades"
 
-#: pkg/shell/indexes.js:331
+#: pkg/shell/indexes.js:329
 msgid "Apps"
 msgstr ""
 
@@ -1027,7 +1020,7 @@ msgstr "1 minut"
 msgid "At specific time"
 msgstr "Vid en specifik tidpunkt"
 
-#: pkg/selinux/setroubleshoot-view.jsx:360
+#: pkg/selinux/setroubleshoot-view.jsx:355
 msgid "Audit log"
 msgstr "Granskningslogg"
 
@@ -1035,7 +1028,7 @@ msgstr "Granskningslogg"
 msgid "Authenticate"
 msgstr "Autentisera"
 
-#: pkg/networkmanager/interfaces.js:751
+#: pkg/networkmanager/interfaces.js:749
 msgid "Authenticating"
 msgstr "Autentiserar"
 
@@ -1044,11 +1037,11 @@ msgstr "Autentiserar"
 msgid "Authentication"
 msgstr "Autentisering"
 
-#: pkg/shell/machines/machine-auth-failed.html:2 pkg/static/login.js:810
+#: pkg/shell/machines/machine-auth-failed.html:2 pkg/static/login.js:794
 msgid "Authentication failed"
 msgstr "Autentisering misslyckades"
 
-#: pkg/static/login.js:800
+#: pkg/static/login.js:784
 msgid "Authentication failed: Server closed connection"
 msgstr "Autentiseringen misslyckades: servern stängde ner förbindelsen"
 
@@ -1075,17 +1068,17 @@ msgstr "Auktoriserade publika SSH-nycklar"
 
 #: pkg/networkmanager/index.html:65
 #: pkg/networkmanager/network-interface.jsx:426
-#: pkg/networkmanager/interfaces.js:1455 pkg/networkmanager/interfaces.js:1892
-#: pkg/networkmanager/interfaces.js:1896 pkg/networkmanager/interfaces.js:1902
-#: pkg/systemd/overview-cards/realmd-operation.js:342
+#: pkg/networkmanager/interfaces.js:1447 pkg/networkmanager/interfaces.js:1884
+#: pkg/networkmanager/interfaces.js:1888 pkg/networkmanager/interfaces.js:1894
+#: pkg/systemd/overview-cards/realmd-operation.js:335
 msgid "Automatic"
 msgstr "Automatisk"
 
-#: pkg/networkmanager/interfaces.js:1456
+#: pkg/networkmanager/interfaces.js:1448
 msgid "Automatic (DHCP only)"
 msgstr "Automatiskt (endast DHCP)"
 
-#: pkg/networkmanager/interfaces.js:1446
+#: pkg/networkmanager/interfaces.js:1438
 msgid "Automatic (DHCP)"
 msgstr "Automatiskt (DHCP)"
 
@@ -1104,11 +1097,11 @@ msgstr "Automatiska uppdateringar"
 msgid "Automatically starts"
 msgstr "Startar automatiskt"
 
-#: pkg/lib/serverTime.js:509
+#: pkg/lib/serverTime.js:513
 msgid "Automatically using NTP"
 msgstr "Använder automatiskt NTP"
 
-#: pkg/lib/serverTime.js:510
+#: pkg/lib/serverTime.js:514
 msgid "Automatically using specific NTP servers"
 msgstr "Använder automatiskt specifika NTP-servrar"
 
@@ -1136,7 +1129,7 @@ msgstr "BIOS-datum"
 msgid "BIOS version"
 msgstr "BIOS-version"
 
-#: pkg/users/account-details.js:228
+#: pkg/users/account-details.js:229
 msgid "Back to accounts"
 msgstr "Tilllbaka till konton"
 
@@ -1173,7 +1166,7 @@ msgctxt "storage"
 msgid "Bitmap"
 msgstr "bitmap"
 
-#: pkg/systemd/terminal.jsx:152
+#: pkg/systemd/terminal.jsx:150
 msgid "Black"
 msgstr "Svart"
 
@@ -1235,7 +1228,7 @@ msgstr "Bryggportinställningar"
 msgid "Bridge settings"
 msgstr "Brygginställningar"
 
-#: pkg/networkmanager/interfaces.js:1467 pkg/networkmanager/interfaces.js:1484
+#: pkg/networkmanager/interfaces.js:1459 pkg/networkmanager/interfaces.js:1476
 msgid "Broadcast"
 msgstr "Utsändning"
 
@@ -1264,7 +1257,7 @@ msgid ""
 "can log in to ${rhost} without password in the future."
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:469 pkg/metrics/metrics.jsx:1378
+#: pkg/metrics/metrics.jsx:470 pkg/metrics/metrics.jsx:1379
 #: pkg/systemd/overview-cards/usageCard.jsx:121 pkg/systemd/hwinfo.jsx:119
 msgid "CPU"
 msgstr "CPU"
@@ -1277,13 +1270,13 @@ msgstr "CPU-säkerhet"
 msgid "CPU security toggles"
 msgstr "CPU-säkerhetsinställningar"
 
-#: pkg/metrics/metrics.jsx:96
+#: pkg/metrics/metrics.jsx:97
 #, fuzzy
 #| msgid "CPU type"
 msgid "CPU spike"
 msgstr "CPU-typ"
 
-#: pkg/metrics/metrics.jsx:95
+#: pkg/metrics/metrics.jsx:96
 #, fuzzy
 #| msgid "CPU usage:"
 msgid "CPU usage"
@@ -1321,7 +1314,7 @@ msgstr "Hittade inga loggar med dessa filter aktiva."
 #: pkg/lib/cockpit-components-shutdown.jsx:172
 #: pkg/lib/cockpit-components-dialog.jsx:128 pkg/packagekit/autoupdates.jsx:419
 #: pkg/packagekit/kpatch.jsx:291 pkg/packagekit/updates.jsx:461
-#: pkg/packagekit/updates.jsx:532 pkg/metrics/metrics.jsx:1034
+#: pkg/packagekit/updates.jsx:532 pkg/metrics/metrics.jsx:1035
 #: pkg/systemd/overview-cards/motdCard.jsx:102
 #: pkg/systemd/overview-cards/configurationCard.jsx:328
 #: pkg/systemd/reporting.jsx:421 pkg/systemd/hwinfo.jsx:246
@@ -1334,16 +1327,16 @@ msgstr "Avbryt"
 msgid "Cannot be enabled"
 msgstr "Kan inte slås på"
 
-#: pkg/shell/indexes.js:511
+#: pkg/shell/indexes.js:508
 #, fuzzy
 msgid "Cannot connect to an unknown host"
 msgstr "Kan inte ansluta till en okänd maskin"
 
-#: pkg/base1/cockpit.js:4048
+#: pkg/base1/cockpit.js:3982
 msgid "Cannot forward login credentials"
 msgstr "Kan inte vidarebefordra inloggningsuppgifterna"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:594
+#: pkg/systemd/overview-cards/realmd-operation.js:592
 msgid "Cannot join a domain because realmd is not available on this system"
 msgstr ""
 "Kan inte ansluta till en domän eftersom realmd inte finns på detta system"
@@ -1363,7 +1356,7 @@ msgid "Carrier"
 msgstr "Transport"
 
 #: pkg/storaged/iscsi-panel.jsx:191 pkg/users/expiration-dialogs.js:105
-#: pkg/users/expiration-dialogs.js:209 pkg/lib/serverTime.js:660
+#: pkg/users/expiration-dialogs.js:209 pkg/lib/serverTime.js:652
 #: pkg/systemd/overview-cards/configurationCard.jsx:327
 msgid "Change"
 msgstr "Ändra"
@@ -1392,7 +1385,7 @@ msgstr "Ändra prestandaprofil"
 msgid "Change profile"
 msgstr "Ändra profil"
 
-#: pkg/lib/serverTime.js:653
+#: pkg/lib/serverTime.js:645
 msgid "Change system time"
 msgstr "Ändra systemtid"
 
@@ -1401,7 +1394,7 @@ msgstr "Ändra systemtid"
 msgid "Change the password of ${key}."
 msgstr "Ändra lösenord"
 
-#: pkg/networkmanager/interfaces.js:1725
+#: pkg/networkmanager/interfaces.js:1717
 msgid "Change the settings"
 msgstr "Ändra inställningarna"
 
@@ -1412,7 +1405,7 @@ msgid ""
 "intercept your connection."
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:1724
+#: pkg/networkmanager/interfaces.js:1716
 msgid ""
 "Changing the settings will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -1428,7 +1421,7 @@ msgstr "Kontrollera om det finns uppdateringar"
 msgid "Checking $target"
 msgstr "Kontrollerar $target"
 
-#: pkg/networkmanager/interfaces.js:755
+#: pkg/networkmanager/interfaces.js:753
 msgid "Checking IP"
 msgstr "Kontrollerar IP"
 
@@ -1496,7 +1489,7 @@ msgstr "Nollställ sökning"
 msgid "Cleartext device"
 msgstr "Skapa enheter"
 
-#: pkg/users/account-create-dialog.js:212 pkg/users/password-dialogs.js:216
+#: pkg/users/account-create-dialog.js:212 pkg/users/password-dialogs.js:214
 msgid "Click $0 again to use the password anyway."
 msgstr ""
 
@@ -1521,7 +1514,7 @@ msgstr "Klientprogramvara"
 msgid "Close"
 msgstr "Stäng"
 
-#: pkg/shell/active-pages.js:104
+#: pkg/shell/active-pages.js:103
 msgid "Close selected pages"
 msgstr "Stäng valda sidor"
 
@@ -1529,11 +1522,11 @@ msgstr "Stäng valda sidor"
 msgid "Cockpit"
 msgstr "Cockpit"
 
-#: pkg/static/login.js:392
+#: pkg/static/login.js:385
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "Cockpit-autentisering är felaktigt konfigurerad."
 
-#: pkg/base1/cockpit.js:4054
+#: pkg/base1/cockpit.js:3988
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit kunde inte kontakta den angivna värden."
 
@@ -1559,7 +1552,7 @@ msgstr ""
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit är ett interaktivt administratörsgränssnitt för Linuxservrar."
 
-#: pkg/base1/cockpit.js:4052
+#: pkg/base1/cockpit.js:3986
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit är inte kompatibelt med programvaran på systemet."
 
@@ -1567,7 +1560,7 @@ msgstr "Cockpit är inte kompatibelt med programvaran på systemet."
 msgid "Cockpit is not installed"
 msgstr "Cockpit är inte installerat"
 
-#: pkg/base1/cockpit.js:4046
+#: pkg/base1/cockpit.js:3980
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit är inte installerat på systemet."
 
@@ -1585,7 +1578,7 @@ msgstr ""
 "servrar på samma gång.  Lägg bara till dem med ett enda klick och dina "
 "maskiner kommer se efter sina kompisar."
 
-#: pkg/metrics/metrics.jsx:1043
+#: pkg/metrics/metrics.jsx:1044
 #, fuzzy
 #| msgid "Store metrics"
 msgid "Collect metrics"
@@ -1623,12 +1616,12 @@ msgstr "Kompatibel med alla system och enheter (MBR)"
 msgid "Compatible with modern system and hard disks > 2TB (GPT)"
 msgstr "Kompatibel med moderna system och hårddiskar > 2 TB (GPT)"
 
-#: pkg/kdump/kdump-view.jsx:163
+#: pkg/kdump/kdump-view.jsx:171
 msgid "Compress crash dumps to save space"
 msgstr "Komprimera kraschdumpar för att spara utrymme"
 
 #: pkg/storaged/vdos-panel.jsx:119 pkg/storaged/vdo-details.jsx:317
-#: pkg/kdump/kdump-view.jsx:158
+#: pkg/kdump/kdump-view.jsx:166
 msgid "Compression"
 msgstr "Komprimering"
 
@@ -1648,11 +1641,11 @@ msgstr "Villkoret misslyckades"
 msgid "Configuration"
 msgstr "Konfiguration"
 
-#: pkg/networkmanager/interfaces.js:749
+#: pkg/networkmanager/interfaces.js:747
 msgid "Configuring"
 msgstr "Konfigurerar"
 
-#: pkg/networkmanager/interfaces.js:753
+#: pkg/networkmanager/interfaces.js:751
 msgid "Configuring IP"
 msgstr "Konfigurerar IP"
 
@@ -1681,7 +1674,7 @@ msgstr "Bekräfta nytt lösenord"
 msgid "Confirm new key password"
 msgstr "Bekräfta nytt lösenord"
 
-#: pkg/users/password-dialogs.js:151
+#: pkg/users/password-dialogs.js:149
 #, fuzzy
 msgid "Confirm new password"
 msgstr "Bekräfta nytt lösenord"
@@ -1717,11 +1710,11 @@ msgid ""
 "Connecting simultaneously to more than {{ limit }} machines is unsupported."
 msgstr "Att ansluta till mer än {{ limit }} maskiner samtidigt stödjs inte."
 
-#: pkg/selinux/setroubleshoot-view.jsx:333
+#: pkg/selinux/setroubleshoot-view.jsx:328
 msgid "Connecting to SETroubleshoot daemon..."
 msgstr "Anslut till SETroubleshoot-demonen …"
 
-#: pkg/shell/indexes.js:506
+#: pkg/shell/indexes.js:503
 msgid "Connecting to the machine"
 msgstr "Ansluter till maskinen"
 
@@ -1733,7 +1726,7 @@ msgstr "Anslutningsfel"
 msgid "Connection failed"
 msgstr "Anslutningen misslyckades"
 
-#: pkg/base1/cockpit.js:4044
+#: pkg/base1/cockpit.js:3978
 msgid "Connection has timed out."
 msgstr "Anslutningens tidsgräns överskreds."
 
@@ -1745,11 +1738,11 @@ msgstr "Anslutningen kommer gå förlorad"
 msgid "Consists of"
 msgstr "Består av"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:279
+#: pkg/systemd/overview-cards/realmd-operation.js:285
 msgid "Contacted domain"
 msgstr "Kontaktade domänen"
 
-#: pkg/users/account-roles.js:64
+#: pkg/users/account-roles.js:59
 msgid "Container administrator"
 msgstr "Behållaradministratör"
 
@@ -1759,7 +1752,7 @@ msgid "Contains:"
 msgstr "Behållare:"
 
 #: pkg/storaged/content-views.jsx:663 pkg/storaged/content-views.jsx:673
-#: pkg/storaged/content-views.jsx:675 pkg/storaged/content-views.jsx:844
+#: pkg/storaged/content-views.jsx:675 pkg/storaged/content-views.jsx:842
 msgid "Content"
 msgstr "Innehåll"
 
@@ -1795,7 +1788,7 @@ msgstr "Kopiera"
 msgid "Copy to clipboard"
 msgstr "Kopiera till urklipp"
 
-#: pkg/metrics/metrics.jsx:451
+#: pkg/metrics/metrics.jsx:452
 #, fuzzy
 #| msgid "Remove $0"
 msgid "Core $0"
@@ -1805,7 +1798,7 @@ msgstr "Ta bort $0"
 msgid "Could not contact {{host}}"
 msgstr "Kunde inte kontakta {{host}}"
 
-#: pkg/kdump/kdump-view.jsx:337 pkg/kdump/kdump-view.jsx:530
+#: pkg/kdump/kdump-view.jsx:343 pkg/kdump/kdump-view.jsx:533
 msgid "Crash dump location"
 msgstr "Kraschdumpplats"
 
@@ -1813,7 +1806,7 @@ msgstr "Kraschdumpplats"
 msgid "Crash reporting"
 msgstr "Rapportera krasher"
 
-#: pkg/kdump/kdump-view.jsx:304
+#: pkg/kdump/kdump-view.jsx:310
 msgid "Crash system"
 msgstr "Krashsystem"
 
@@ -1848,8 +1841,8 @@ msgstr "Skapa enheter"
 msgid "Create diagnostic report                    "
 msgstr "Skapa en diagnostisk rapport"
 
-#: pkg/networkmanager/interfaces.js:2404 pkg/networkmanager/interfaces.js:2608
-#: pkg/networkmanager/interfaces.js:2859 pkg/networkmanager/interfaces.js:3067
+#: pkg/networkmanager/interfaces.js:2387 pkg/networkmanager/interfaces.js:2590
+#: pkg/networkmanager/interfaces.js:2837 pkg/networkmanager/interfaces.js:3042
 msgid "Create it"
 msgstr "Skapa den"
 
@@ -1861,7 +1854,7 @@ msgstr "Skapa en logisk volym"
 msgid "Create new account"
 msgstr "Skapa ett nytt konto"
 
-#: pkg/storaged/content-views.jsx:831
+#: pkg/storaged/content-views.jsx:829
 msgid "Create new logical volume"
 msgstr "Skapa en ny logisk volym"
 
@@ -1922,7 +1915,7 @@ msgstr "Skapar en partition på $target"
 msgid "Creating snapshot of $target"
 msgstr "Skapar en ögonblicksbild av $target"
 
-#: pkg/networkmanager/interfaces.js:3066
+#: pkg/networkmanager/interfaces.js:3041
 msgid ""
 "Creating this VLAN will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -1930,7 +1923,7 @@ msgstr ""
 "Att skapa detta VLAN kommer bryta anslutningen till servern, och kommer göra "
 "administrationsgränssnittet otillgängligt."
 
-#: pkg/networkmanager/interfaces.js:2403
+#: pkg/networkmanager/interfaces.js:2386
 msgid ""
 "Creating this bond will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -1938,7 +1931,7 @@ msgstr ""
 "Att skapa denna bindning kommer bryta anslutningen till servern, och kommer "
 "göra administrationsgränssnittet otillgängligt."
 
-#: pkg/networkmanager/interfaces.js:2858
+#: pkg/networkmanager/interfaces.js:2836
 msgid ""
 "Creating this bridge will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -1946,7 +1939,7 @@ msgstr ""
 "Att skapa denna brygga kommer bryta anslutningen till servern, och kommer "
 "göra administrationsgränssnittet otillgängligt."
 
-#: pkg/networkmanager/interfaces.js:2607
+#: pkg/networkmanager/interfaces.js:2589
 msgid ""
 "Creating this team will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -1991,7 +1984,7 @@ msgstr "Egna zoner"
 msgid "DISK IS FAILING"
 msgstr "DISKEN GÅR SÖNDER"
 
-#: pkg/networkmanager/interfaces.js:1891
+#: pkg/networkmanager/interfaces.js:1883
 msgid "DNS"
 msgstr "DNS"
 
@@ -1999,7 +1992,7 @@ msgstr "DNS"
 msgid "DNS $val"
 msgstr "DNS $val"
 
-#: pkg/networkmanager/interfaces.js:1895
+#: pkg/networkmanager/interfaces.js:1887
 msgid "DNS search domains"
 msgstr "DNS-sökdomäner"
 
@@ -2015,7 +2008,7 @@ msgstr ""
 msgid "Danger alert:"
 msgstr ""
 
-#: pkg/systemd/terminal.jsx:153
+#: pkg/systemd/terminal.jsx:151
 msgid "Dark"
 msgstr "Mörk"
 
@@ -2035,7 +2028,7 @@ msgstr ""
 msgid "Deactivate"
 msgstr "Avaktivera"
 
-#: pkg/networkmanager/interfaces.js:761
+#: pkg/networkmanager/interfaces.js:759
 msgid "Deactivating"
 msgstr "Avaktiverar"
 
@@ -2047,7 +2040,7 @@ msgstr "Avaktiverar $target"
 msgid "Debug and above"
 msgstr "Felsökning och högre"
 
-#: pkg/systemd/terminal.jsx:140
+#: pkg/systemd/terminal.jsx:138
 msgid "Decrease by one"
 msgstr ""
 
@@ -2073,7 +2066,7 @@ msgstr "Storleken måste vara ett tal"
 #: pkg/storaged/vdo-details.jsx:201 pkg/storaged/vdo-details.jsx:264
 #: pkg/networkmanager/firewall.jsx:798
 #: pkg/networkmanager/network-interface.jsx:772
-#: pkg/users/account-details.js:277 pkg/users/delete-account-dialog.js:60
+#: pkg/users/account-details.js:278 pkg/users/delete-account-dialog.js:60
 #: pkg/systemd/abrtLog.jsx:242
 msgid "Delete"
 msgstr "Ta bort"
@@ -2179,7 +2172,8 @@ msgstr "Diagnostikrapporter"
 msgid "Diagnostic reports"
 msgstr "Diagnostikrapporter"
 
-#: pkg/kdump/kdump-view.jsx:85 pkg/kdump/kdump-view.jsx:124
+#: pkg/kdump/kdump-view.jsx:85 pkg/kdump/kdump-view.jsx:103
+#: pkg/kdump/kdump-view.jsx:132
 msgid "Directory"
 msgstr "Katalog"
 
@@ -2199,7 +2193,7 @@ msgstr "Stäng av brandväggen"
 msgid "Disable tuned"
 msgstr "Avaktivera tuned"
 
-#: pkg/networkmanager/interfaces.js:1450 pkg/packagekit/autoupdates.jsx:332
+#: pkg/networkmanager/interfaces.js:1442 pkg/packagekit/autoupdates.jsx:332
 #: pkg/packagekit/kpatch.jsx:231 pkg/systemd/services/service-details.jsx:346
 #: pkg/systemd/services/services.jsx:187 pkg/systemd/services/services.jsx:840
 msgid "Disabled"
@@ -2217,11 +2211,11 @@ msgstr "Frånkopplad"
 msgid "Disk"
 msgstr "Disk"
 
-#: pkg/metrics/metrics.jsx:124 pkg/metrics/metrics.jsx:1380
+#: pkg/metrics/metrics.jsx:125 pkg/metrics/metrics.jsx:1381
 msgid "Disk I/O"
 msgstr "Disk-I/O"
 
-#: pkg/metrics/metrics.jsx:125
+#: pkg/metrics/metrics.jsx:126
 #, fuzzy
 #| msgid "Disk I/O"
 msgid "Disk I/O spike"
@@ -2237,11 +2231,11 @@ msgstr "Disklösenfras"
 
 #: pkg/storaged/mdraids-panel.jsx:127 pkg/storaged/vgroup-details.jsx:66
 #: pkg/storaged/vgroups-panel.jsx:79 pkg/storaged/mdraid-details.jsx:62
-#: pkg/storaged/mdraid-details.jsx:166 pkg/metrics/metrics.jsx:533
+#: pkg/storaged/mdraid-details.jsx:166 pkg/metrics/metrics.jsx:534
 msgid "Disks"
 msgstr "Diskar"
 
-#: pkg/selinux/setroubleshoot-view.jsx:404
+#: pkg/selinux/setroubleshoot-view.jsx:399
 #, fuzzy
 #| msgid "Dismiss"
 msgid "Dismiss $0 alert"
@@ -2249,7 +2243,7 @@ msgid_plural "Dismiss $0 alerts"
 msgstr[0] "Avfärda"
 msgstr[1] "Avfärda"
 
-#: pkg/selinux/setroubleshoot-view.jsx:404
+#: pkg/selinux/setroubleshoot-view.jsx:399
 #, fuzzy
 #| msgid "Close selected pages"
 msgid "Dismiss selected alerts"
@@ -2273,15 +2267,15 @@ msgstr "Startar inte automatiskt"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:12
 #: pkg/systemd/overview-cards/configurationCard.jsx:101
-#: pkg/systemd/overview-cards/realmd-operation.js:124
+#: pkg/systemd/overview-cards/realmd-operation.js:123
 msgid "Domain"
 msgstr "Domän"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:193
+#: pkg/systemd/overview-cards/realmd-operation.js:192
 msgid "Domain $0 could not be contacted"
 msgstr "Domänen $0 kunde inte kontaktas"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:284
+#: pkg/systemd/overview-cards/realmd-operation.js:290
 msgid "Domain $0 is not supported"
 msgstr "Domänen $0 stödjs inte"
 
@@ -2342,7 +2336,7 @@ msgid "Dual rank"
 msgstr "Dubbelrad"
 
 #: pkg/storaged/nfs-details.jsx:318 pkg/storaged/crypto-keyslots.jsx:573
-#: pkg/storaged/iscsi-panel.jsx:255 pkg/shell/indexes.js:343
+#: pkg/storaged/iscsi-panel.jsx:255 pkg/shell/indexes.js:341
 #: pkg/packagekit/autoupdates.jsx:399 pkg/packagekit/kpatch.jsx:223
 msgid "Edit"
 msgstr "Redigera"
@@ -2459,7 +2453,11 @@ msgstr "Krypteringsalternativ"
 msgid "Encryption type"
 msgstr "Kryptering"
 
-#: pkg/selinux/setroubleshoot-view.jsx:263
+#: pkg/users/account-logs-panel.jsx:83
+msgid "Ended"
+msgstr ""
+
+#: pkg/selinux/setroubleshoot-view.jsx:260
 msgid "Enforcing"
 msgstr "Tvingande"
 
@@ -2490,7 +2488,7 @@ msgstr "Errata:"
 
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
 #: pkg/storaged/multipath.jsx:61 pkg/storaged/storage-controls.jsx:90
-#: pkg/storaged/storage-controls.jsx:167 pkg/storaged/fsys-tab.jsx:385
+#: pkg/storaged/storage-controls.jsx:166 pkg/storaged/fsys-tab.jsx:385
 #: pkg/apps/utils.jsx:87 pkg/systemd/services/service-details.jsx:497
 #: pkg/systemd/services/services.jsx:165
 msgid "Error"
@@ -2500,13 +2498,13 @@ msgstr "Fel"
 msgid "Error and above"
 msgstr "Fel och högre"
 
-#: pkg/metrics/metrics.jsx:1324
+#: pkg/metrics/metrics.jsx:1325
 #, fuzzy
 #| msgid "Error and above"
 msgid "Error has occurred"
 msgstr "Fel och högre"
 
-#: pkg/selinux/setroubleshoot-view.jsx:415
+#: pkg/selinux/setroubleshoot-view.jsx:410
 #: pkg/systemd/overview-cards/configurationCard.jsx:207
 #, fuzzy
 #| msgid "Log messages"
@@ -2517,7 +2515,7 @@ msgstr "Loggmeddelanden"
 msgid "Error running semanage to discover system modifications"
 msgstr "Ett fel inträffade när semanage sökte efter ändringar i systemet"
 
-#: pkg/users/authorized-keys.js:121
+#: pkg/users/authorized-keys.js:120
 msgid "Error saving authorized keys: "
 msgstr "Fel när auktoriserade nycklar sparades: "
 
@@ -2537,15 +2535,15 @@ msgstr "Ethernet-MAC"
 msgid "Ethernet MTU"
 msgstr "Ethernet-MTU"
 
-#: pkg/networkmanager/interfaces.js:1496
+#: pkg/networkmanager/interfaces.js:1488
 msgid "Ethtool"
 msgstr "Ethtool"
 
-#: pkg/metrics/metrics.jsx:764
+#: pkg/metrics/metrics.jsx:765
 msgid "Event"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:756
+#: pkg/metrics/metrics.jsx:757
 #, fuzzy
 msgid "Event logs"
 msgstr "Nätverksloggar"
@@ -2572,13 +2570,13 @@ msgstr "Expansionschassin"
 msgid "Expire account on"
 msgstr "Lås kontot på $0"
 
-#: pkg/users/account-details.js:111
+#: pkg/users/account-details.js:112
 #, fuzzy
 #| msgid "Lock account on $0"
 msgid "Expire account on $0"
 msgstr "Lås kontot på $0"
 
-#: pkg/metrics/metrics.jsx:1060
+#: pkg/metrics/metrics.jsx:1061
 #, fuzzy
 #| msgid "Create virtual network"
 msgid "Export to network"
@@ -2592,7 +2590,7 @@ msgstr "Utökad information"
 msgid "Extended partition"
 msgstr "Utökad partition"
 
-#: pkg/storaged/mdraid-details.jsx:108 pkg/networkmanager/interfaces.js:763
+#: pkg/storaged/mdraid-details.jsx:108 pkg/networkmanager/interfaces.js:761
 msgid "Failed"
 msgstr "Misslyckades"
 
@@ -2612,12 +2610,12 @@ msgstr "Kunde inte lägga till tjänst"
 msgid "Failed to add zone"
 msgstr "Kunde inte lägga till zon"
 
-#: pkg/users/password-dialogs.js:103 pkg/users/password-dialogs.js:125
+#: pkg/users/password-dialogs.js:101 pkg/users/password-dialogs.js:123
 #: pkg/lib/credentials.js:232
 msgid "Failed to change password"
 msgstr "Misslyckades att ändra lösenord"
 
-#: pkg/metrics/metrics.jsx:1028
+#: pkg/metrics/metrics.jsx:1029
 #, fuzzy
 #| msgid "Failed to add machine: $0"
 msgid "Failed to configure PCP"
@@ -2756,7 +2754,7 @@ msgctxt "storage"
 msgid "Firmware version"
 msgstr "Version på hårdvaruprogrammet"
 
-#: pkg/systemd/terminal.jsx:129 pkg/systemd/terminal.jsx:139
+#: pkg/systemd/terminal.jsx:127 pkg/systemd/terminal.jsx:137
 #, fuzzy
 #| msgid "Chunk size"
 msgid "Font size"
@@ -2771,11 +2769,11 @@ msgstr "Bara för gamla program. Går långsamt."
 msgid "Forbidden from running"
 msgstr "Kan ej köras"
 
-#: pkg/users/account-details.js:351
+#: pkg/users/account-details.js:352
 msgid "Force change"
 msgstr "Framtvinga ändring"
 
-#: pkg/users/password-dialogs.js:272
+#: pkg/users/password-dialogs.js:270
 msgid "Force password change"
 msgstr "Framtvinga lösenordsändring"
 
@@ -2834,7 +2832,11 @@ msgstr "Nollställ sökning"
 msgid "Fridays"
 msgstr "Fredagar"
 
-#: pkg/users/account-create-dialog.js:40 pkg/users/account-details.js:284
+#: pkg/users/account-logs-panel.jsx:84
+msgid "From"
+msgstr ""
+
+#: pkg/users/account-create-dialog.js:40 pkg/users/account-details.js:285
 msgid "Full name"
 msgstr "Fullständigt namn"
 
@@ -2858,7 +2860,7 @@ msgstr "Genererar en rapport"
 msgid "Go to $0"
 msgstr "Gå till"
 
-#: pkg/apps/application.jsx:119
+#: pkg/apps/application.jsx:118
 msgid "Go to application"
 msgstr "Gå till programmet"
 
@@ -2909,7 +2911,7 @@ msgstr "Handhållen"
 msgid "Hardware information"
 msgstr "Hårdvaruinformation"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:35
+#: pkg/systemd/overview-cards/healthCard.jsx:36
 msgid "Health"
 msgstr "Hälsa"
 
@@ -2930,11 +2932,11 @@ msgstr "Lås kontot"
 msgid "Host"
 msgstr "Värd"
 
-#: pkg/base1/cockpit.js:4040
+#: pkg/base1/cockpit.js:3974
 msgid "Host key is incorrect"
 msgstr "Värdnyckeln är felaktig"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:571
+#: pkg/systemd/overview-cards/realmd-operation.js:564
 msgid "Host name should not be changed in a domain"
 msgstr "Datornamn skall inte ändras i en domän"
 
@@ -2956,11 +2958,6 @@ msgstr "Timmar"
 #: pkg/systemd/services/timer-dialog.jsx:198
 msgid "Hours"
 msgstr "Timmar"
-
-#: pkg/lib/serverTime.js:611
-#, fuzzy
-msgid "Hours must be a number between 0 and 23"
-msgstr "Timmen måste vara ett tal mellan 0-23"
 
 #: pkg/networkmanager/firewall.jsx:613 pkg/systemd/hwinfo.jsx:312
 msgid "ID"
@@ -2994,7 +2991,7 @@ msgstr "IPv4-inställningar"
 msgid "IPv4"
 msgstr "IPv4"
 
-#: pkg/networkmanager/interfaces.js:1934
+#: pkg/networkmanager/interfaces.js:1926
 msgid "IPv4 settings"
 msgstr "IPv4-inställningar"
 
@@ -3002,7 +2999,7 @@ msgstr "IPv4-inställningar"
 msgid "IPv6"
 msgstr "IPv6"
 
-#: pkg/networkmanager/interfaces.js:1934
+#: pkg/networkmanager/interfaces.js:1926
 msgid "IPv6 settings"
 msgstr "IPv6-inställningar"
 
@@ -3031,16 +3028,16 @@ msgid ""
 "the filesystem but booting is unattended."
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:1459 pkg/packagekit/updates.jsx:625
+#: pkg/networkmanager/interfaces.js:1451 pkg/packagekit/updates.jsx:625
 #: pkg/packagekit/updates.jsx:700
 msgid "Ignore"
 msgstr "Ignorera"
 
-#: pkg/users/account-roles.js:65
+#: pkg/users/account-roles.js:60
 msgid "Image builder"
 msgstr "Avbildsbyggare"
 
-#: pkg/metrics/metrics.jsx:584
+#: pkg/metrics/metrics.jsx:585
 msgid "In"
 msgstr ""
 
@@ -3056,8 +3053,8 @@ msgid "In sync"
 msgstr "I synk"
 
 #: pkg/networkmanager/network-interface.jsx:262
-#: pkg/networkmanager/interfaces.js:745 pkg/networkmanager/interfaces.js:1331
-#: pkg/networkmanager/interfaces.js:1338
+#: pkg/networkmanager/interfaces.js:743 pkg/networkmanager/interfaces.js:1324
+#: pkg/networkmanager/interfaces.js:1331
 msgid "Inactive"
 msgstr "Inaktiv"
 
@@ -3073,7 +3070,7 @@ msgstr "Inkluderade tjänster"
 msgid "Inconsistent filesystem mount"
 msgstr "Felaktig monteringsinformation"
 
-#: pkg/systemd/terminal.jsx:141
+#: pkg/systemd/terminal.jsx:139
 msgid "Increase by one"
 msgstr ""
 
@@ -3099,11 +3096,11 @@ msgstr "Info och högre"
 msgid "Initializing..."
 msgstr "Initierar …"
 
-#: pkg/systemd/overview-cards/insights.jsx:190
+#: pkg/systemd/overview-cards/insights.jsx:193
 msgid "Insights: "
 msgstr "Detaljer: "
 
-#: pkg/apps/application-list.jsx:92 pkg/apps/application.jsx:123
+#: pkg/apps/application-list.jsx:92 pkg/apps/application.jsx:122
 #: pkg/lib/cockpit-components-install-dialog.jsx:121
 #: pkg/packagekit/kpatch.jsx:228
 msgid "Install"
@@ -3121,7 +3118,7 @@ msgstr "Installera stöd för VDO"
 msgid "Install all updates"
 msgstr "Installera alla uppdateringar"
 
-#: pkg/metrics/metrics.jsx:1294
+#: pkg/metrics/metrics.jsx:1295
 msgid "Install cockpit-pcp"
 msgstr ""
 
@@ -3129,7 +3126,7 @@ msgstr ""
 msgid "Install security updates"
 msgstr "Installera säkerhetsuppdateringar"
 
-#: pkg/selinux/setroubleshoot-view.jsx:337
+#: pkg/selinux/setroubleshoot-view.jsx:332
 msgid "Install setroubleshoot-server to troubleshoot SELinux events."
 msgstr "Installera setroubleshoot-server för att felsöka SELinux-händelser."
 
@@ -3141,7 +3138,7 @@ msgstr "Installera programvara"
 msgid "Installed"
 msgstr "Installerad"
 
-#: pkg/apps/application-list.jsx:57 pkg/apps/application.jsx:63
+#: pkg/apps/application-list.jsx:57 pkg/apps/application.jsx:62
 #: pkg/packagekit/updates.jsx:81
 msgid "Installing"
 msgstr "Installerar"
@@ -3150,7 +3147,7 @@ msgstr "Installerar"
 msgid "Installing $0"
 msgstr "Installerar $0"
 
-#: pkg/metrics/metrics.jsx:584
+#: pkg/metrics/metrics.jsx:585
 #, fuzzy
 #| msgid "Interfaces"
 msgid "Interface"
@@ -3169,11 +3166,11 @@ msgstr "Gränssnitt"
 msgid "Interfaces"
 msgstr "Gränssnitt"
 
-#: pkg/base1/cockpit.js:4042
+#: pkg/base1/cockpit.js:3976
 msgid "Internal error"
 msgstr "Internt fel"
 
-#: pkg/static/login.js:792
+#: pkg/static/login.js:776
 msgid "Internal error: Invalid challenge header"
 msgstr "Internt fel: felaktig utmaningshuvud"
 
@@ -3183,7 +3180,7 @@ msgstr "Internt fel: felaktig utmaningshuvud"
 msgid "Invalid"
 msgstr "Felaktig nyckel"
 
-#: pkg/networkmanager/utils.js:90 pkg/networkmanager/utils.js:175
+#: pkg/networkmanager/utils.js:89 pkg/networkmanager/utils.js:173
 msgid "Invalid address $0"
 msgstr "Felaktig adress $0"
 
@@ -3223,7 +3220,7 @@ msgstr "Felaktigt portnummer"
 msgid "Invalid prefix $0"
 msgstr "Felaktigt prefix $0"
 
-#: pkg/networkmanager/utils.js:136
+#: pkg/networkmanager/utils.js:134
 msgid "Invalid prefix or netmask $0"
 msgstr "Felaktigt prefix eller nätmask $0"
 
@@ -3231,7 +3228,7 @@ msgstr "Felaktigt prefix eller nätmask $0"
 msgid "Invalid range"
 msgstr "Felaktigt område"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:103
+#: pkg/lib/serverTime.js:609 pkg/lib/cockpit-components-shutdown.jsx:103
 #: pkg/packagekit/autoupdates.jsx:320
 msgid "Invalid time format"
 msgstr "Felaktigt tidsformat"
@@ -3257,23 +3254,23 @@ msgstr "Kör sshd på en annan port?"
 msgid "Jobs"
 msgstr "Jobb"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:118
+#: pkg/systemd/overview-cards/realmd-operation.html:91
 msgid "Join"
 msgstr "Gå med"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:117
+#: pkg/systemd/overview-cards/realmd-operation.js:118
 msgid "Join a domain"
 msgstr "Gå med i en domän"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:565
+#: pkg/systemd/overview-cards/realmd-operation.js:558
 msgid "Join domain"
 msgstr "Gå med i domän"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:589
+#: pkg/systemd/overview-cards/realmd-operation.js:587
 msgid "Joining a domain requires installation of realmd"
 msgstr "Att gå med i en domän kräver installation av realmd"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:473
+#: pkg/systemd/overview-cards/realmd-operation.js:466
 msgid "Joining this domain is not supported"
 msgstr "Att gå med i denna domän stödjs inte"
 
@@ -3293,11 +3290,11 @@ msgstr "Journalpost"
 msgid "Journal entry not found"
 msgstr "Journalposten hittades inte"
 
-#: pkg/metrics/metrics.jsx:1368
+#: pkg/metrics/metrics.jsx:1369
 msgid "Jump to"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:465
+#: pkg/kdump/kdump-view.jsx:468
 msgid ""
 "Kdump service not installed. Please ensure package kexec-tools is installed."
 msgstr ""
@@ -3317,7 +3314,7 @@ msgstr "Kerberos-baserad SSO"
 msgid "Kernel Dump"
 msgstr "Kärndump"
 
-#: pkg/kdump/kdump-view.jsx:500
+#: pkg/kdump/kdump-view.jsx:503
 #, fuzzy
 #| msgid "Kernel dump"
 msgid "Kernel crash dump"
@@ -3399,23 +3396,21 @@ msgstr "Senaste 7 datgarna"
 msgid "Last checked: $0"
 msgstr "Senast kontrollerad: $0 sedan"
 
-#: pkg/systemd/overview.jsx:145
-msgid "Last failed login:"
-msgstr "Senaste misslyckade inloggning:"
-
-#: pkg/users/account-details.js:311
+#: pkg/users/account-details.js:312
 msgid "Last login"
 msgstr "Senaste inloggning"
-
-#: pkg/systemd/overview.jsx:144
-msgid "Last login:"
-msgstr "Senaste inloggningen:"
 
 #: pkg/storaged/crypto-tab.jsx:51
 #, fuzzy
 #| msgid "Last checked: $0"
 msgid "Last modified: $0"
 msgstr "Senast kontrollerad: $0 sedan"
+
+#: pkg/systemd/overview-cards/lastLogin.jsx:89
+#, fuzzy
+#| msgid "Last failed login:"
+msgid "Last successful login:"
+msgstr "Senaste misslyckade inloggning:"
 
 #: pkg/networkmanager/network-main-dialogs.jsx:73
 #: pkg/lib/cockpit-components-dialog.jsx:222
@@ -3432,7 +3427,7 @@ msgstr "Lämna domänen"
 msgid "Licensed under GNU LGPL version 2.1"
 msgstr ""
 
-#: pkg/systemd/terminal.jsx:154
+#: pkg/systemd/terminal.jsx:152
 msgid "Light"
 msgstr "Ljust"
 
@@ -3454,7 +3449,7 @@ msgstr "Begränsat läge tar bort viss funktionalitet i webkonsollen."
 msgid "Link down delay"
 msgstr "Länk nere fördröjning"
 
-#: pkg/networkmanager/interfaces.js:1447 pkg/networkmanager/interfaces.js:1457
+#: pkg/networkmanager/interfaces.js:1439 pkg/networkmanager/interfaces.js:1449
 msgid "Link local"
 msgstr "Länklokal"
 
@@ -3480,16 +3475,16 @@ msgstr "Länkar"
 msgid "Listen"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:102 pkg/metrics/metrics.jsx:480
-#: pkg/metrics/metrics.jsx:1378
+#: pkg/metrics/metrics.jsx:103 pkg/metrics/metrics.jsx:481
+#: pkg/metrics/metrics.jsx:1379
 msgid "Load"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:1483
+#: pkg/networkmanager/interfaces.js:1475
 msgid "Load balancing"
 msgstr "Lastbalansering"
 
-#: pkg/metrics/metrics.jsx:1397
+#: pkg/metrics/metrics.jsx:1398
 #, fuzzy
 #| msgid "Load earlier entries"
 msgid "Load earlier data"
@@ -3499,7 +3494,7 @@ msgstr "Läs in tidigare poster"
 msgid "Load earlier entries"
 msgstr "Läs in tidigare poster"
 
-#: pkg/metrics/metrics.jsx:103
+#: pkg/metrics/metrics.jsx:104
 msgid "Load spike"
 msgstr ""
 
@@ -3539,8 +3534,8 @@ msgstr "Läser in …"
 msgid "Loading system modifications..."
 msgstr "Laddar anpassningar till systemet..."
 
-#: pkg/storaged/devices.jsx:75 pkg/kdump/kdump-view.jsx:369
-#: pkg/metrics/metrics.jsx:744 pkg/metrics/metrics.jsx:1396
+#: pkg/storaged/devices.jsx:75 pkg/kdump/kdump-view.jsx:375
+#: pkg/metrics/metrics.jsx:745 pkg/metrics/metrics.jsx:1397
 #: pkg/systemd/logDetails.jsx:153 pkg/systemd/logsJournal.jsx:269
 #: pkg/systemd/services/services.jsx:816
 msgid "Loading..."
@@ -3550,7 +3545,7 @@ msgstr "Läser in …"
 msgid "Local accounts"
 msgstr "Lokala konton"
 
-#: pkg/kdump/kdump-view.jsx:135
+#: pkg/kdump/kdump-view.jsx:143
 msgid "Local filesystem"
 msgstr "Lokala filsystem"
 
@@ -3558,7 +3553,7 @@ msgstr "Lokala filsystem"
 msgid "Local mount point"
 msgstr "Lokal monteringspunkt"
 
-#: pkg/kdump/kdump-view.jsx:143
+#: pkg/kdump/kdump-view.jsx:151
 msgid "Location"
 msgstr "Plats"
 
@@ -3566,7 +3561,7 @@ msgstr "Plats"
 msgid "Lock"
 msgstr "Lås"
 
-#: pkg/users/account-create-dialog.js:71 pkg/users/account-details.js:320
+#: pkg/users/account-create-dialog.js:71 pkg/users/account-details.js:321
 msgid "Lock account"
 msgstr "Lås kontot"
 
@@ -3589,7 +3584,7 @@ msgid "Locking $target"
 msgstr "Låser $target"
 
 #: pkg/static/login.html:105 pkg/shell/index.html:308
-#: pkg/shell/machines/machine-change-auth.html:74 pkg/static/login.js:559
+#: pkg/shell/machines/machine-change-auth.html:74 pkg/static/login.js:549
 msgid "Log in"
 msgstr "Logga in"
 
@@ -3597,19 +3592,19 @@ msgstr "Logga in"
 msgid "Log in to {{host}}"
 msgstr "Logga in på {{host}}"
 
-#: pkg/static/login.js:589
+#: pkg/static/login.js:579
 msgid "Log in with your server user account."
 msgstr "Logga in med ditt serveranvändarkonto."
 
-#: pkg/lib/serverTime.js:385
+#: pkg/lib/serverTime.js:388
 msgid "Log messages"
 msgstr "Loggmeddelanden"
 
-#: pkg/shell/index.html:81 pkg/metrics/metrics.jsx:1288
+#: pkg/shell/index.html:81 pkg/metrics/metrics.jsx:1289
 msgid "Log out"
 msgstr "Logga ut"
 
-#: pkg/users/account-details.js:248
+#: pkg/users/account-details.js:249
 msgid "Logged in"
 msgstr "Inloggad"
 
@@ -3633,16 +3628,16 @@ msgstr "Logisk volym (ögonblicksbild)"
 msgid "Logical volume of $0"
 msgstr "Logisk voly av $0"
 
-#: pkg/storaged/content-views.jsx:838 pkg/storaged/content-views.jsx:843
+#: pkg/storaged/content-views.jsx:836 pkg/storaged/content-views.jsx:841
 #, fuzzy
 msgid "Logical volumes"
 msgstr "Logisk volym"
 
-#: pkg/static/login.js:346
+#: pkg/static/login.js:339
 msgid "Login again"
 msgstr "Logga in igen"
 
-#: pkg/base1/cockpit.js:4032
+#: pkg/base1/cockpit.js:3966
 msgid "Login failed"
 msgstr "Inloggningen misslyckades"
 
@@ -3650,7 +3645,19 @@ msgstr "Inloggningen misslyckades"
 msgid "Login format"
 msgstr "Inloggningsformat"
 
-#: pkg/static/login.js:347
+#: pkg/users/account-logs-panel.jsx:77
+#, fuzzy
+#| msgid "Update history"
+msgid "Login history"
+msgstr "Uppdatera historiken"
+
+#: pkg/users/account-logs-panel.jsx:80
+#, fuzzy
+#| msgid "Login format"
+msgid "Login history list"
+msgstr "Inloggningsformat"
+
+#: pkg/static/login.js:340
 msgid "Logout successful"
 msgstr "Utloggningen lyckades"
 
@@ -3670,7 +3677,7 @@ msgstr "Lunchlåda"
 msgid "MAC"
 msgstr "MAC"
 
-#: pkg/networkmanager/interfaces.js:1475
+#: pkg/networkmanager/interfaces.js:1467
 msgid "MII (recommended)"
 msgstr "MII (Rekommenderas)"
 
@@ -3678,7 +3685,7 @@ msgstr "MII (Rekommenderas)"
 msgid "MTU"
 msgstr "MTU"
 
-#: pkg/networkmanager/interfaces.js:3133
+#: pkg/networkmanager/interfaces.js:3108
 msgid "MTU must be a positive number"
 msgstr "MTU måste vara ett positivt tal"
 
@@ -3785,11 +3792,11 @@ msgstr "Hantera programuppdateringar"
 msgid "Managing user accounts"
 msgstr "Hantera användarkonton"
 
-#: pkg/networkmanager/interfaces.js:1448 pkg/networkmanager/interfaces.js:1458
+#: pkg/networkmanager/interfaces.js:1440 pkg/networkmanager/interfaces.js:1450
 msgid "Manual"
 msgstr "Manuell"
 
-#: pkg/lib/serverTime.js:508
+#: pkg/lib/serverTime.js:512
 msgid "Manually"
 msgstr "Manuellt"
 
@@ -3833,14 +3840,14 @@ msgstr "Medlem i RAID-enhet"
 msgid "Member of RAID device $0"
 msgstr "Medlem i RAID-enhet $0"
 
-#: pkg/playground/translate.html:90 pkg/metrics/metrics.jsx:500
-#: pkg/metrics/metrics.jsx:1379 pkg/systemd/overview-cards/usageCard.jsx:133
+#: pkg/playground/translate.html:90 pkg/metrics/metrics.jsx:501
+#: pkg/metrics/metrics.jsx:1380 pkg/systemd/overview-cards/usageCard.jsx:133
 #: pkg/systemd/hwinfo.jsx:311 pkg/systemd/hwinfo.jsx:355
 #: pkg/systemd/services/service-details.jsx:538
 msgid "Memory"
 msgstr "Minne"
 
-#: pkg/metrics/metrics.jsx:110
+#: pkg/metrics/metrics.jsx:111
 #, fuzzy
 #| msgid "Memory & swap"
 msgid "Memory spike"
@@ -3850,13 +3857,13 @@ msgstr "Minne och växling"
 msgid "Memory technology"
 msgstr "Minnesteknologi"
 
-#: pkg/metrics/metrics.jsx:109
+#: pkg/metrics/metrics.jsx:110
 #, fuzzy
 #| msgid "Memory usage:"
 msgid "Memory usage"
 msgstr "Minnesanvändning:"
 
-#: pkg/storaged/content-views.jsx:675 pkg/storaged/content-views.jsx:844
+#: pkg/storaged/content-views.jsx:675 pkg/storaged/content-views.jsx:842
 msgid "Menu"
 msgstr ""
 
@@ -3876,13 +3883,13 @@ msgstr "Meddelanden angående detta fel kan finnas i journalen:"
 msgid "Metadata used"
 msgstr "Metadata använt"
 
-#: pkg/metrics/metrics.jsx:1316
+#: pkg/metrics/metrics.jsx:1317
 #, fuzzy
 #| msgid "Memory could not be saved"
 msgid "Metrics history could not be loaded"
 msgstr "Minnet kunde inte sparas"
 
-#: pkg/metrics/metrics.jsx:1007 pkg/metrics/metrics.jsx:1014
+#: pkg/metrics/metrics.jsx:1008 pkg/metrics/metrics.jsx:1015
 #, fuzzy
 #| msgid "Bridge settings"
 msgid "Metrics settings"
@@ -3903,11 +3910,6 @@ msgstr "Minuterna måste vara ett tal mellan 0-59"
 #: pkg/systemd/services/timer-dialog.jsx:197
 msgid "Minutes"
 msgstr "Minuter"
-
-#: pkg/lib/serverTime.js:616
-#, fuzzy
-msgid "Minutes must be a number between 0 and 59"
-msgstr "Minuterna måste vara ett tal mellan 0-59"
 
 #: pkg/systemd/hwinfo.jsx:74
 msgid "Mitigations"
@@ -3948,7 +3950,7 @@ msgstr "Övervakningsmål"
 msgid "Monthly"
 msgstr ""
 
-#: pkg/systemd/overview-cards/realmd-operation.js:498
+#: pkg/systemd/overview-cards/realmd-operation.js:491
 msgid "More"
 msgstr "Mera"
 
@@ -3960,7 +3962,7 @@ msgstr "Mer information"
 
 #: pkg/storaged/nfs-details.jsx:313 pkg/storaged/content-views.jsx:274
 #: pkg/storaged/content-views.jsx:395 pkg/storaged/fsys-tab.jsx:367
-#: pkg/kdump/kdump-view.jsx:97
+#: pkg/kdump/kdump-view.jsx:98
 msgid "Mount"
 msgstr "Montering"
 
@@ -4049,11 +4051,11 @@ msgstr "NFS-monteringar"
 msgid "NFS support not installed"
 msgstr "Stöd för NFS är inte installerat"
 
-#: pkg/networkmanager/interfaces.js:1498
+#: pkg/networkmanager/interfaces.js:1490
 msgid "NSNA ping"
 msgstr "NSNA-ping"
 
-#: pkg/lib/serverTime.js:472
+#: pkg/lib/serverTime.js:476
 msgid "NTP server"
 msgstr "NTP-server"
 
@@ -4062,7 +4064,7 @@ msgstr "NTP-server"
 #: pkg/storaged/lvol-tabs.jsx:45 pkg/storaged/lvol-tabs.jsx:409
 #: pkg/storaged/lvol-tabs.jsx:470 pkg/storaged/content-views.jsx:149
 #: pkg/storaged/content-views.jsx:292 pkg/storaged/content-views.jsx:675
-#: pkg/storaged/content-views.jsx:759 pkg/storaged/content-views.jsx:844
+#: pkg/storaged/content-views.jsx:759 pkg/storaged/content-views.jsx:842
 #: pkg/storaged/fsys-panel.jsx:106 pkg/storaged/mdraids-panel.jsx:75
 #: pkg/storaged/vgroup-details.jsx:167 pkg/storaged/vgroups-panel.jsx:74
 #: pkg/storaged/vdos-panel.jsx:81 pkg/storaged/format-dialog.jsx:221
@@ -4103,25 +4105,25 @@ msgstr "Namnet får inte innehålla tecknet ”$0”."
 msgid "Name cannot contain whitespace."
 msgstr "Namnet får inte innehålla blanktecken."
 
-#: pkg/lib/serverTime.js:621
+#: pkg/lib/serverTime.js:614
 msgid "Need at least one NTP server"
 msgstr "Behöver åtminstone en NTP-server"
 
-#: pkg/metrics/metrics.jsx:574 pkg/metrics/metrics.jsx:1381
+#: pkg/metrics/metrics.jsx:575 pkg/metrics/metrics.jsx:1382
 #, fuzzy
 #| msgid "Network"
 #| msgid_plural "Networks"
 msgid "Network"
 msgstr "Nätverk"
 
-#: pkg/metrics/metrics.jsx:131
+#: pkg/metrics/metrics.jsx:132
 #, fuzzy
 #| msgid "Network"
 #| msgid_plural "Networks"
 msgid "Network I/O"
 msgstr "Nätverk"
 
-#: pkg/metrics/metrics.jsx:132
+#: pkg/metrics/metrics.jsx:133
 #, fuzzy
 #| msgid "Networks"
 msgid "Network I/O spike"
@@ -4143,7 +4145,7 @@ msgstr "Nätverksenheter och -grafer behöver NetworkManager."
 msgid "Network logs"
 msgstr "Nätverksloggar"
 
-#: pkg/metrics/metrics.jsx:583
+#: pkg/metrics/metrics.jsx:584
 #, fuzzy
 #| msgid "Networks"
 msgid "Network usage"
@@ -4167,17 +4169,17 @@ msgstr "NetworkManager kör inte."
 msgid "Networking"
 msgstr "Nätverk"
 
-#: pkg/users/account-details.js:250
+#: pkg/users/account-details.js:251
 msgid "Never"
 msgstr "Aldrig"
 
-#: pkg/users/account-details.js:108 pkg/users/expiration-dialogs.js:36
+#: pkg/users/account-details.js:109 pkg/users/expiration-dialogs.js:36
 #, fuzzy
 #| msgid "Never lock account"
 msgid "Never expire account"
 msgstr "Lås aldrig konton"
 
-#: pkg/users/account-details.js:100 pkg/users/expiration-dialogs.js:144
+#: pkg/users/account-details.js:101 pkg/users/expiration-dialogs.js:144
 msgid "Never expire password"
 msgstr "Låt aldrig lösenord gå ut"
 
@@ -4191,7 +4193,7 @@ msgstr "Montera vid uppstart"
 msgid "New NFS mount"
 msgstr "Ny NFS-montering"
 
-#: pkg/shell/machines/machine-unknown-hostkey.html:2 pkg/static/login.js:642
+#: pkg/shell/machines/machine-unknown-hostkey.html:2 pkg/static/login.js:632
 #, fuzzy
 msgid "New host"
 msgstr "Lägg till zon"
@@ -4205,15 +4207,14 @@ msgstr "Nytt lösenord"
 msgid "New passphrase"
 msgstr "Ny lösenfras"
 
-#: pkg/shell/index.html:252 pkg/users/password-dialogs.js:150
+#: pkg/shell/index.html:252 pkg/users/password-dialogs.js:148
 msgid "New password"
 msgstr "Nytt lösenord"
 
-#: pkg/users/password-dialogs.js:86 pkg/lib/credentials.js:241
+#: pkg/users/password-dialogs.js:84 pkg/lib/credentials.js:241
 msgid "New password was not accepted"
 msgstr "Det nya lösenordet godtogs inte"
 
-#: pkg/systemd/overview-cards/realmd-operation.html:91
 #: pkg/storaged/iscsi-panel.jsx:53
 msgid "Next"
 msgstr "Nästa"
@@ -4226,7 +4227,7 @@ msgstr "Nej"
 msgid "No NFS mounts set up"
 msgstr "Inga NFS-monteringar uppsatta"
 
-#: pkg/selinux/setroubleshoot-view.jsx:329
+#: pkg/selinux/setroubleshoot-view.jsx:323
 msgid "No SELinux alerts."
 msgstr "Inga SELinux-larm."
 
@@ -4242,21 +4243,21 @@ msgstr "Inget arkiv har skapats."
 msgid "No available slots"
 msgstr "Inga tillgängliga platser"
 
-#: pkg/networkmanager/interfaces.js:1333
+#: pkg/networkmanager/interfaces.js:1326
 msgid "No carrier"
 msgstr "Ingen bärvåg"
 
-#: pkg/kdump/kdump-view.jsx:398
+#: pkg/kdump/kdump-view.jsx:403
 msgid "No configuration found"
 msgstr "Ingen konfiguration hittad"
 
-#: pkg/metrics/metrics.jsx:1341
+#: pkg/metrics/metrics.jsx:1342
 #, fuzzy
 #| msgid "Not available"
 msgid "No data available"
 msgstr "Inte tillgängligt"
 
-#: pkg/metrics/metrics.jsx:1337
+#: pkg/metrics/metrics.jsx:1338
 #, fuzzy
 #| msgid "Occurred between $0 and $1"
 msgid "No data available between $0 and $1"
@@ -4270,7 +4271,7 @@ msgstr "Ingen fördröjning"
 msgid "No description available"
 msgstr ""
 
-#: pkg/apps/application.jsx:90
+#: pkg/apps/application.jsx:89
 msgid "No description provided."
 msgstr "Ingen besrkivning tillhandahållen."
 
@@ -4326,11 +4327,11 @@ msgstr "Inga nycklar tillagda"
 msgid "No log entries"
 msgstr "Läs in tidigare poster"
 
-#: pkg/storaged/content-views.jsx:842
+#: pkg/storaged/content-views.jsx:840
 msgid "No logical volumes"
 msgstr "Inga logiska volymer"
 
-#: pkg/metrics/metrics.jsx:744 pkg/systemd/logsJournal.jsx:282
+#: pkg/metrics/metrics.jsx:745 pkg/systemd/logsJournal.jsx:282
 #: pkg/systemd/logsJournal.jsx:325
 msgid "No logs found"
 msgstr ""
@@ -4343,7 +4344,7 @@ msgstr ""
 msgid "No media inserted"
 msgstr "Inget medium isatt"
 
-#: pkg/kdump/kdump-view.jsx:450
+#: pkg/kdump/kdump-view.jsx:453
 msgid ""
 "No memory reserved. Append a crashkernel option to the kernel command line "
 "(e.g. in /etc/default/grub) to reserve memory at boot time. Example: "
@@ -4370,7 +4371,7 @@ msgid ""
 "No results match the filter criteria. Clear all filters to show results."
 msgstr ""
 
-#: pkg/systemd/overview-cards/insights.jsx:145
+#: pkg/systemd/overview-cards/insights.jsx:147
 msgid "No rule hits"
 msgstr ""
 
@@ -4395,7 +4396,7 @@ msgid "No user name specified"
 msgstr "Inget användarnamn angivet."
 
 #: pkg/tuned/dialog.js:230 pkg/networkmanager/firewall.jsx:746
-#: pkg/kdump/kdump-view.jsx:421
+#: pkg/kdump/kdump-view.jsx:424
 msgid "None"
 msgstr "Inga"
 
@@ -4415,19 +4416,19 @@ msgstr ""
 msgid "Not authorized to remove zone $0"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:743
+#: pkg/networkmanager/interfaces.js:741
 msgid "Not available"
 msgstr "Inte tillgängligt"
 
-#: pkg/selinux/setroubleshoot.js:252
+#: pkg/selinux/setroubleshoot.js:247
 msgid "Not connected"
 msgstr "Inte ansluten"
 
-#: pkg/systemd/overview-cards/insights.jsx:127
+#: pkg/systemd/overview-cards/insights.jsx:128
 msgid "Not connected to Insights"
 msgstr ""
 
-#: pkg/shell/indexes.js:509
+#: pkg/shell/indexes.js:506
 #, fuzzy
 msgid "Not connected to host"
 msgstr "Inte ansluten"
@@ -4455,7 +4456,7 @@ msgstr "Inte monterat"
 msgid "Not mounted"
 msgstr "Inte monterat"
 
-#: pkg/base1/cockpit.js:4030
+#: pkg/base1/cockpit.js:3964
 msgid "Not permitted to perform this action."
 msgstr "Inte tillåtet att utföra denna åtgärd."
 
@@ -4480,7 +4481,7 @@ msgstr "Kör inte"
 msgid "Not set up"
 msgstr "Inga NFS-monteringar uppsatta"
 
-#: pkg/lib/serverTime.js:379
+#: pkg/lib/serverTime.js:382
 msgid "Not synchronized"
 msgstr "Inte synkroniserad"
 
@@ -4496,18 +4497,18 @@ msgstr "Bärbar (notebook)"
 msgid "Notice and above"
 msgstr "Notering och högre"
 
-#: pkg/selinux/setroubleshoot-view.jsx:415
+#: pkg/selinux/setroubleshoot-view.jsx:410
 #, fuzzy
 #| msgid "$0 occurrence"
 #| msgid_plural "$1 occurrences"
 msgid "Occurances"
 msgstr "$0 förekomst"
 
-#: pkg/selinux/setroubleshoot-view.jsx:350
+#: pkg/selinux/setroubleshoot-view.jsx:345
 msgid "Occurred $0"
 msgstr "Hände $0"
 
-#: pkg/selinux/setroubleshoot-view.jsx:345
+#: pkg/selinux/setroubleshoot-view.jsx:340
 msgid "Occurred between $0 and $1"
 msgstr "Hände mellan $0 och $1"
 
@@ -4519,7 +4520,7 @@ msgstr "Ok"
 msgid "Old passphrase"
 msgstr "Gammal lösenfras"
 
-#: pkg/shell/index.html:243 pkg/users/password-dialogs.js:141
+#: pkg/shell/index.html:243 pkg/users/password-dialogs.js:139
 msgid "Old password"
 msgstr "Gammalt lösenord"
 
@@ -4527,7 +4528,7 @@ msgstr "Gammalt lösenord"
 msgid "Old password not accepted"
 msgstr "Det gamla lösenordet accepterades inte"
 
-#: pkg/kdump/kdump-view.jsx:395
+#: pkg/kdump/kdump-view.jsx:400
 msgid "On a mounted device"
 msgstr "På en monterad enhet"
 
@@ -4544,7 +4545,7 @@ msgstr ""
 "socket”."
 
 #: pkg/systemd/overview-cards/realmd-operation.html:69
-#: pkg/systemd/overview-cards/realmd-operation.js:341
+#: pkg/systemd/overview-cards/realmd-operation.js:334
 msgid "One time password"
 msgstr "Engångslösenord"
 
@@ -4566,7 +4567,7 @@ msgstr "Endast nödläge"
 msgid "Ooops!"
 msgstr "Hoppsan!"
 
-#: pkg/metrics/metrics.jsx:977
+#: pkg/metrics/metrics.jsx:978
 msgid "Open the pmproxy service in the firewall to share metrics."
 msgstr ""
 
@@ -4605,11 +4606,11 @@ msgstr "Andra enheter"
 msgid "Other options"
 msgstr "Andra alternativ"
 
-#: pkg/metrics/metrics.jsx:584
+#: pkg/metrics/metrics.jsx:585
 msgid "Out"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:1414 pkg/systemd/hwinfo.jsx:325
+#: pkg/metrics/metrics.jsx:1415 pkg/systemd/hwinfo.jsx:325
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "Översikt"
@@ -4622,7 +4623,7 @@ msgstr "Skriv över befintliga data med nollor"
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/metrics/metrics.jsx:1293
+#: pkg/metrics/metrics.jsx:1294
 msgid "Package cockpit-pcp is missing for metrics history"
 msgstr ""
 
@@ -4665,7 +4666,7 @@ msgstr "Förälder $parent"
 msgid "Part of"
 msgstr "Del av"
 
-#: pkg/networkmanager/interfaces.js:1364
+#: pkg/networkmanager/interfaces.js:1356
 msgid "Part of "
 msgstr "Del av"
 
@@ -4687,7 +4688,7 @@ msgstr "Partitionering"
 msgid "Partitions"
 msgstr "Partition"
 
-#: pkg/networkmanager/interfaces.js:1490
+#: pkg/networkmanager/interfaces.js:1482
 msgid "Passive"
 msgstr "Passiv"
 
@@ -4731,7 +4732,7 @@ msgstr "Lösenfraserna stämmer inte överens"
 #: pkg/shell/machines/machine-change-auth.html:50
 #: pkg/storaged/iscsi-panel.jsx:50 pkg/storaged/iscsi-panel.jsx:160
 #: pkg/shell/superuser.jsx:52 pkg/users/account-create-dialog.js:60
-#: pkg/users/account-details.js:338
+#: pkg/users/account-details.js:339
 msgid "Password"
 msgstr "Lösenord"
 
@@ -4739,7 +4740,7 @@ msgstr "Lösenord"
 msgid "Password expiration"
 msgstr "Utgång av lösenord"
 
-#: pkg/users/account-create-dialog.js:205 pkg/users/password-dialogs.js:211
+#: pkg/users/account-create-dialog.js:205 pkg/users/password-dialogs.js:209
 #, fuzzy
 #| msgid "Name cannot be longer than 127 characters."
 msgid "Password is longer than 256 characters"
@@ -4753,7 +4754,7 @@ msgstr "Lösenordet är inte godtagbart"
 msgid "Password is too weak"
 msgstr "Lösenordet är för svagt"
 
-#: pkg/users/account-details.js:102
+#: pkg/users/account-details.js:103
 msgid "Password must be changed"
 msgstr "Lösenordet måste ändras"
 
@@ -4811,13 +4812,13 @@ msgstr "Sökvägar"
 msgid "Pause"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:1017
+#: pkg/metrics/metrics.jsx:1018
 msgid ""
 "Performance Co-Pilot collects and analyzes performance metrics from your "
 "system."
 msgstr ""
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1415
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1416
 #, fuzzy
 #| msgid "Store metrics"
 msgid "Performance Metrics"
@@ -4831,15 +4832,15 @@ msgstr ""
 msgid "Peripheral chassis"
 msgstr "Periferichassi"
 
-#: pkg/networkmanager/interfaces.js:2209
+#: pkg/networkmanager/interfaces.js:2192
 msgid "Permanent"
 msgstr "Permanent"
 
-#: pkg/static/login.js:816
+#: pkg/static/login.js:800
 msgid "Permission denied"
 msgstr "Åtkomst nekas"
 
-#: pkg/selinux/setroubleshoot-view.jsx:264
+#: pkg/selinux/setroubleshoot-view.jsx:261
 msgid "Permissive"
 msgstr ""
 
@@ -4863,7 +4864,7 @@ msgstr "Fysiska volymer"
 msgid "Physical volumes can not be resized here."
 msgstr "Storleken på fysiska volymer kan inte ändras här."
 
-#: pkg/lib/serverTime.js:516 pkg/lib/cockpit-components-shutdown.jsx:192
+#: pkg/lib/serverTime.js:520 pkg/lib/cockpit-components-shutdown.jsx:192
 msgid "Pick date"
 msgstr ""
 
@@ -4908,7 +4909,7 @@ msgstr ""
 msgid "Please specify an expiration date"
 msgstr "Ange ett utgångsdatum"
 
-#: pkg/static/login.js:508
+#: pkg/static/login.js:498
 msgid "Please specify the host to connect to"
 msgstr "Ange värden att ansluta till"
 
@@ -4946,15 +4947,15 @@ msgstr "Bärbar"
 msgid "Ports"
 msgstr "Portar"
 
-#: pkg/networkmanager/interfaces.js:1881
+#: pkg/networkmanager/interfaces.js:1873
 msgid "Prefix length"
 msgstr "Prefixlängd"
 
-#: pkg/networkmanager/interfaces.js:1881
+#: pkg/networkmanager/interfaces.js:1873
 msgid "Prefix length or netmask"
 msgstr "Nätmaskens prefixlängd"
 
-#: pkg/networkmanager/interfaces.js:747
+#: pkg/networkmanager/interfaces.js:745
 msgid "Preparing"
 msgstr "Förbereder"
 
@@ -4962,7 +4963,7 @@ msgstr "Förbereder"
 msgid "Present"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2210
+#: pkg/networkmanager/interfaces.js:2193
 msgid "Preserve"
 msgstr "Bevara"
 
@@ -5010,7 +5011,7 @@ msgstr "Process"
 msgid "Project website"
 msgstr "Projektwebbsajt"
 
-#: pkg/users/password-dialogs.js:58
+#: pkg/users/password-dialogs.js:56
 msgid "Prompting via passwd timed out"
 msgstr "Tidsgränsen överskreds vid fråga via passwd"
 
@@ -5112,7 +5113,7 @@ msgstr "RAID-nivå"
 msgid "RAID member"
 msgstr "RAID-medlem"
 
-#: pkg/metrics/metrics.jsx:508
+#: pkg/metrics/metrics.jsx:509
 msgid "RAM"
 msgstr ""
 
@@ -5120,7 +5121,7 @@ msgstr ""
 msgid "Rack mount chassis"
 msgstr "Rackmonteringschassi"
 
-#: pkg/networkmanager/interfaces.js:2211
+#: pkg/networkmanager/interfaces.js:2194
 msgid "Random"
 msgstr "Slumpvis"
 
@@ -5136,17 +5137,17 @@ msgstr ""
 msgid "Rank"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:390
+#: pkg/kdump/kdump-view.jsx:395
 msgid "Raw to a device"
 msgstr "Rå till en enhet"
 
-#: pkg/metrics/metrics.jsx:537
+#: pkg/metrics/metrics.jsx:538
 #, fuzzy
 #| msgid "Ready"
 msgid "Read"
 msgstr "Klar"
 
-#: pkg/metrics/metrics.jsx:1023 pkg/systemd/hwinfo.jsx:222
+#: pkg/metrics/metrics.jsx:1024 pkg/systemd/hwinfo.jsx:222
 msgid "Read more..."
 msgstr ""
 
@@ -5154,7 +5155,7 @@ msgstr ""
 msgid "Read-only"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:415
+#: pkg/kdump/kdump-view.jsx:418
 msgid "Reading..."
 msgstr "Läser …"
 
@@ -5185,8 +5186,8 @@ msgstr "Det verkliga värdnamnet får bara vara 64 tecken eller mindre"
 
 #: pkg/lib/cockpit-components-shutdown.jsx:169
 #: pkg/lib/cockpit-components-shutdown.jsx:171
-#: pkg/lib/cockpit-components-logs-panel.jsx:103 pkg/systemd/overview.jsx:217
-#: pkg/systemd/overview.jsx:234
+#: pkg/lib/cockpit-components-logs-panel.jsx:103 pkg/systemd/overview.jsx:100
+#: pkg/systemd/overview.jsx:117
 msgid "Reboot"
 msgstr "Starta om"
 
@@ -5223,15 +5224,15 @@ msgstr "Återställer RAID-enhet $target"
 msgid "Refreshing package information"
 msgstr "Uppdaterar paketinformation"
 
-#: pkg/static/login.js:806
+#: pkg/static/login.js:790
 msgid "Refusing to connect. Host is unknown"
 msgstr "Vägrar att ansluta.  Värden är okänd"
 
-#: pkg/static/login.js:808
+#: pkg/static/login.js:792
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "Vägrar att ansluta.  Värdnyckeln stämmer inte"
 
-#: pkg/static/login.js:804
+#: pkg/static/login.js:788
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "Vägrar att ansluta.  Värdnyckeln är okänd"
 
@@ -5257,11 +5258,11 @@ msgstr "Läser"
 msgid "Reloading the state of remaining services"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:136 pkg/kdump/kdump-view.jsx:388
+#: pkg/kdump/kdump-view.jsx:144 pkg/kdump/kdump-view.jsx:393
 msgid "Remote over NFS"
 msgstr "Fjärr över NFS"
 
-#: pkg/kdump/kdump-view.jsx:137 pkg/kdump/kdump-view.jsx:386
+#: pkg/kdump/kdump-view.jsx:145 pkg/kdump/kdump-view.jsx:391
 msgid "Remote over SSH"
 msgstr "Fjärr över SSH"
 
@@ -5278,7 +5279,7 @@ msgstr "Borttagningar:"
 #: pkg/storaged/crypto-keyslots.jsx:497 pkg/storaged/crypto-keyslots.jsx:581
 #: pkg/storaged/vgroup-details.jsx:121 pkg/storaged/mdraid-details.jsx:142
 #: pkg/users/authorized-keys-panel.js:137 pkg/apps/application-list.jsx:90
-#: pkg/apps/application.jsx:120 pkg/systemd/services/timer-dialog.jsx:321
+#: pkg/apps/application.jsx:119 pkg/systemd/services/timer-dialog.jsx:321
 msgid "Remove"
 msgstr "Ta bort"
 
@@ -5322,7 +5323,7 @@ msgstr ""
 msgid "Remove zone $0"
 msgstr ""
 
-#: pkg/apps/application-list.jsx:61 pkg/apps/application.jsx:67
+#: pkg/apps/application-list.jsx:61 pkg/apps/application.jsx:66
 msgid "Removing"
 msgstr "Tar bort"
 
@@ -5434,7 +5435,7 @@ msgstr ""
 msgid "Require password change every $0 days"
 msgstr "Begär en lösenordsändring var $0:e dag"
 
-#: pkg/users/account-details.js:104
+#: pkg/users/account-details.js:105
 msgid "Require password change on $0"
 msgstr "Begär lösenordsändring den $0"
 
@@ -5462,15 +5463,15 @@ msgstr "Behov"
 msgid "Requisite of"
 msgstr "Behov av"
 
-#: pkg/kdump/kdump-view.jsx:523
+#: pkg/kdump/kdump-view.jsx:526
 msgid "Reserved memory"
 msgstr "Reserverat minne"
 
-#: pkg/systemd/logs.jsx:404 pkg/systemd/terminal.jsx:161
+#: pkg/systemd/logs.jsx:404 pkg/systemd/terminal.jsx:159
 msgid "Reset"
 msgstr "Återställ"
 
-#: pkg/users/password-dialogs.js:279
+#: pkg/users/password-dialogs.js:277
 #, fuzzy
 #| msgid "Set password"
 msgid "Reset password"
@@ -5530,15 +5531,15 @@ msgstr ""
 msgid "Reviewing logs"
 msgstr "Nätverksloggar"
 
-#: pkg/users/account-details.js:302
+#: pkg/users/account-details.js:303
 msgid "Roles"
 msgstr "Roller"
 
-#: pkg/networkmanager/interfaces.js:1464 pkg/networkmanager/interfaces.js:1481
+#: pkg/networkmanager/interfaces.js:1456 pkg/networkmanager/interfaces.js:1473
 msgid "Round robin"
 msgstr "Turas om"
 
-#: pkg/networkmanager/interfaces.js:1900
+#: pkg/networkmanager/interfaces.js:1892
 msgid "Routes"
 msgstr "Rutter"
 
@@ -5568,23 +5569,23 @@ msgstr "Kör"
 msgid "SELinux"
 msgstr ""
 
-#: pkg/selinux/setroubleshoot-view.jsx:328
+#: pkg/selinux/setroubleshoot-view.jsx:322
 msgid "SELinux access control errors"
 msgstr "SELinux-fel vid åtkomstkontroller"
 
-#: pkg/selinux/setroubleshoot-view.jsx:322
+#: pkg/selinux/setroubleshoot-view.jsx:319
 msgid "SELinux is disabled on the system"
 msgstr "SELinux är avaktiverat på systemet"
 
-#: pkg/selinux/setroubleshoot-view.jsx:247
+#: pkg/selinux/setroubleshoot-view.jsx:244
 msgid "SELinux is disabled on the system."
 msgstr "SELinux är avaktiverat på systemet."
 
-#: pkg/selinux/setroubleshoot-view.jsx:261
+#: pkg/selinux/setroubleshoot-view.jsx:258
 msgid "SELinux policy"
 msgstr "SELinux-policy"
 
-#: pkg/selinux/setroubleshoot-view.jsx:239
+#: pkg/selinux/setroubleshoot-view.jsx:236
 msgid "SELinux system status is unknown."
 msgstr "SELinux systemstatus är okänd."
 
@@ -5640,7 +5641,7 @@ msgid "Saturdays"
 msgstr ""
 
 #: pkg/storaged/crypto-keyslots.jsx:340 pkg/storaged/crypto-keyslots.jsx:359
-#: pkg/metrics/metrics.jsx:1031 pkg/systemd/services/timer-dialog.jsx:132
+#: pkg/metrics/metrics.jsx:1032 pkg/systemd/services/timer-dialog.jsx:132
 msgid "Save"
 msgstr "Spara"
 
@@ -5734,7 +5735,7 @@ msgid "Serial number"
 msgstr ""
 
 #: pkg/static/login.html:145 pkg/storaged/nfs-details.jsx:329
-#: pkg/storaged/nfs-panel.jsx:102 pkg/kdump/kdump-view.jsx:112
+#: pkg/storaged/nfs-panel.jsx:102 pkg/kdump/kdump-view.jsx:120
 msgid "Server"
 msgstr "Server"
 
@@ -5746,7 +5747,7 @@ msgstr "Serveradress"
 msgid "Server address cannot be empty."
 msgstr "Serveradressen får inte vara tom."
 
-#: pkg/users/account-roles.js:62 pkg/users/account-roles.js:63
+#: pkg/users/account-roles.js:57 pkg/users/account-roles.js:58
 msgid "Server administrator"
 msgstr "Serveradministratör"
 
@@ -5754,7 +5755,7 @@ msgstr "Serveradministratör"
 msgid "Server cannot be empty."
 msgstr "Servern får inte vara tom."
 
-#: pkg/base1/cockpit.js:4050
+#: pkg/base1/cockpit.js:3984
 msgid "Server has closed the connection."
 msgstr "Servern har stängt förbindelsen."
 
@@ -5763,27 +5764,27 @@ msgid "Server software"
 msgstr ""
 
 #: pkg/storaged/dialog.jsx:1086 pkg/networkmanager/firewall.jsx:186
-#: pkg/metrics/metrics.jsx:491 pkg/metrics/metrics.jsx:524
+#: pkg/metrics/metrics.jsx:492 pkg/metrics/metrics.jsx:525
 msgid "Service"
 msgstr "Tjänst"
 
-#: pkg/kdump/kdump-view.jsx:444
+#: pkg/kdump/kdump-view.jsx:447
 msgid "Service has an error"
 msgstr "Tjänsten har ett fel"
 
-#: pkg/kdump/kdump-view.jsx:440
+#: pkg/kdump/kdump-view.jsx:443
 msgid "Service is running"
 msgstr "Tjänster kör"
 
-#: pkg/kdump/kdump-view.jsx:446
+#: pkg/kdump/kdump-view.jsx:449
 msgid "Service is starting"
 msgstr "Tjänsten startar"
 
-#: pkg/kdump/kdump-view.jsx:442
+#: pkg/kdump/kdump-view.jsx:445
 msgid "Service is stopped"
 msgstr "Tjänsten är stoppad"
 
-#: pkg/kdump/kdump-view.jsx:448
+#: pkg/kdump/kdump-view.jsx:451
 msgid "Service is stopping"
 msgstr "Tjänsten stoppas"
 
@@ -5812,12 +5813,12 @@ msgstr "Sätt"
 msgid "Set hostname"
 msgstr ""
 
-#: pkg/users/account-details.js:344 pkg/users/password-dialogs.js:216
-#: pkg/users/password-dialogs.js:226 pkg/users/password-dialogs.js:233
+#: pkg/users/account-details.js:345 pkg/users/password-dialogs.js:214
+#: pkg/users/password-dialogs.js:224 pkg/users/password-dialogs.js:231
 msgid "Set password"
 msgstr "Sätt lösenord"
 
-#: pkg/lib/serverTime.js:503
+#: pkg/lib/serverTime.js:507
 msgid "Set time"
 msgstr "Ställ in tiden"
 
@@ -5829,7 +5830,7 @@ msgstr "Sätt till"
 msgid "Set up"
 msgstr "Sätt upp"
 
-#: pkg/selinux/setroubleshoot-view.jsx:256
+#: pkg/selinux/setroubleshoot-view.jsx:253
 msgid ""
 "Setting deviates from the configured state and will revert on the next boot."
 msgstr ""
@@ -5854,7 +5855,7 @@ msgstr "Sätter upp"
 msgid "Severity"
 msgstr "Allvarsgrad"
 
-#: pkg/networkmanager/interfaces.js:1449
+#: pkg/networkmanager/interfaces.js:1441
 msgid "Shared"
 msgstr "Delad"
 
@@ -5931,7 +5932,7 @@ msgstr ""
 msgid "Shut down"
 msgstr "Stäng av"
 
-#: pkg/systemd/overview.jsx:220
+#: pkg/systemd/overview.jsx:103
 msgid "Shutdown"
 msgstr ""
 
@@ -6017,7 +6018,7 @@ msgstr "Lösningen verkställd"
 msgid "Solution failed"
 msgstr "Lösningen misslyckades"
 
-#: pkg/selinux/setroubleshoot-view.jsx:355
+#: pkg/selinux/setroubleshoot-view.jsx:350
 msgid "Solutions"
 msgstr "Lösningar"
 
@@ -6059,7 +6060,7 @@ msgstr "Specifik tid"
 msgid "Speed"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:2212
+#: pkg/networkmanager/interfaces.js:2195
 msgid "Stable"
 msgstr "Stabilt"
 
@@ -6089,6 +6090,12 @@ msgstr ""
 msgid "Start showing entries on or older than the specified date."
 msgstr ""
 
+#: pkg/users/account-logs-panel.jsx:82
+#, fuzzy
+#| msgid "Start"
+msgid "Started"
+msgstr "Starta"
+
 #: pkg/storaged/jobs-panel.jsx:66
 msgid "Starting RAID device $target"
 msgstr "Starta RAID-enhet $target"
@@ -6113,7 +6120,7 @@ msgstr "Tillstånd"
 msgid "Static"
 msgstr "Statisk"
 
-#: pkg/networkmanager/network-interface.jsx:271 pkg/kdump/kdump-view.jsx:513
+#: pkg/networkmanager/network-interface.jsx:271 pkg/kdump/kdump-view.jsx:516
 #: pkg/packagekit/updates.jsx:844 pkg/systemd/services/service-details.jsx:528
 msgid "Status"
 msgstr "Status"
@@ -6216,12 +6223,12 @@ msgstr ""
 msgid "Support is installed."
 msgstr "Stöd är installerat."
 
-#: pkg/storaged/content-views.jsx:197 pkg/metrics/metrics.jsx:117
-#: pkg/metrics/metrics.jsx:437 pkg/metrics/metrics.jsx:1379
+#: pkg/storaged/content-views.jsx:197 pkg/metrics/metrics.jsx:118
+#: pkg/metrics/metrics.jsx:438 pkg/metrics/metrics.jsx:1380
 msgid "Swap"
 msgstr "Växlingsutrymme"
 
-#: pkg/metrics/metrics.jsx:116
+#: pkg/metrics/metrics.jsx:117
 #, fuzzy
 #| msgid "Swap used"
 msgid "Swap out"
@@ -6283,16 +6290,16 @@ msgstr ""
 "Att sätta på <b>$0</b> kommer bryta anslutningen till servern, och kommer "
 "göra administrationsgränssnittet otillgängligt."
 
-#: pkg/lib/serverTime.js:369
+#: pkg/lib/serverTime.js:372
 msgid "Synchronized"
 msgstr "Synkroniserad"
 
-#: pkg/lib/serverTime.js:371
+#: pkg/lib/serverTime.js:374
 #, fuzzy
 msgid "Synchronized with $0"
 msgstr "Synkroniserad med {{Server}}"
 
-#: pkg/lib/serverTime.js:375
+#: pkg/lib/serverTime.js:378
 #, fuzzy
 msgid "Synchronizing"
 msgstr "Synkronisera"
@@ -6301,7 +6308,7 @@ msgstr "Synkronisera"
 msgid "Synchronizing RAID device $target"
 msgstr "Synkroniserar RAID-enheten $target"
 
-#: pkg/shell/index.html:21 pkg/shell/indexes.js:334
+#: pkg/shell/index.html:21 pkg/shell/indexes.js:332
 msgid "System"
 msgstr "System"
 
@@ -6314,7 +6321,7 @@ msgstr "Systeminformation"
 msgid "System is up to date"
 msgstr "Systemet är uppdaterat"
 
-#: pkg/selinux/setroubleshoot-view.jsx:425
+#: pkg/selinux/setroubleshoot-view.jsx:420
 msgid "System modifications"
 msgstr ""
 
@@ -6369,19 +6376,19 @@ msgstr "Team-inställningar"
 msgid "Terminal"
 msgstr "Terminal"
 
-#: pkg/users/account-details.js:272
+#: pkg/users/account-details.js:273
 msgid "Terminate session"
 msgstr "Avsluta sessionen"
 
-#: pkg/kdump/kdump-view.jsx:481 pkg/kdump/kdump-view.jsx:489
+#: pkg/kdump/kdump-view.jsx:484 pkg/kdump/kdump-view.jsx:492
 msgid "Test configuration"
 msgstr "Testa konfigurationen"
 
-#: pkg/kdump/kdump-view.jsx:485
+#: pkg/kdump/kdump-view.jsx:488
 msgid "Test is only available while the kdump service is running."
 msgstr "Testet är endast tillgängligt medans tjänsten kdump kör."
 
-#: pkg/kdump/kdump-view.jsx:294
+#: pkg/kdump/kdump-view.jsx:300
 msgid "Test kdump settings"
 msgstr "Testa kdump-inställningar"
 
@@ -6430,7 +6437,7 @@ msgid ""
 "well."
 msgstr ""
 
-#: pkg/users/password-dialogs.js:267
+#: pkg/users/password-dialogs.js:265
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr ""
 "Kontot ”$0” kommer att tvingas ändra sitt lösenord vid nästa inloggning"
@@ -6443,7 +6450,7 @@ msgstr ""
 msgid "The collected information will be stored locally on the system."
 msgstr "Den insamlade informationen kommer lagras lokalt på systemet."
 
-#: pkg/selinux/setroubleshoot-view.jsx:254
+#: pkg/selinux/setroubleshoot-view.jsx:251
 msgid "The configured state is unknown, it might change on the next boot."
 msgstr ""
 "Det konfigurerade tillståndet är okänt, det kan ändra sig vid nästa uppstart."
@@ -6560,7 +6567,7 @@ msgstr "Detta fält får inte vara tomt."
 msgid "The key passwords do not match"
 msgstr "Lösenorden stämmer inte överens"
 
-#: pkg/users/authorized-keys.js:124
+#: pkg/users/authorized-keys.js:123
 msgid "The key you provided was not valid."
 msgstr "Nyckeln du angav var inte giltig."
 
@@ -6580,7 +6587,7 @@ msgstr "Den sista fysiska volymen i en volymgrupp kan inte tas bort."
 msgid "The logged in user is not permitted to view system modifications"
 msgstr ""
 
-#: pkg/shell/indexes.js:503
+#: pkg/shell/indexes.js:500
 #, fuzzy
 #| msgid "The machine is restarting"
 msgid "The machine is rebooting"
@@ -6596,7 +6603,7 @@ msgstr "Det sista nyckelfacket kan inte tas bort"
 msgid "The new key passwords do not match"
 msgstr "Lösenorden stämmer inte överens"
 
-#: pkg/users/account-create-dialog.js:202 pkg/users/password-dialogs.js:208
+#: pkg/users/account-create-dialog.js:202 pkg/users/password-dialogs.js:206
 msgid "The passwords do not match"
 msgstr "Lösenorden stämmer inte överens"
 
@@ -6611,7 +6618,7 @@ msgid ""
 "email."
 msgstr ""
 
-#: pkg/static/login.js:798
+#: pkg/static/login.js:782
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -6619,7 +6626,7 @@ msgstr ""
 "Servern vägrade att autentisera ”$0” med lösenordsautentisering, och inga "
 "andra stödda autentiseringsmetoder är tillgängliga."
 
-#: pkg/base1/cockpit.js:4034
+#: pkg/base1/cockpit.js:3968
 msgid "The server refused to authenticate using any supported methods."
 msgstr "Servern vägrade att autentisera med några stödda metoder."
 
@@ -6627,7 +6634,7 @@ msgstr "Servern vägrade att autentisera med några stödda metoder."
 msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr ""
 
-#: pkg/users/account-roles.js:95
+#: pkg/users/account-roles.js:90
 msgid "The user must log out and log back in to fully change roles."
 msgstr ""
 
@@ -6639,7 +6646,7 @@ msgstr ""
 "Användarnamnet får endast bestå av bokstäver från a-z, siffror, punkter, "
 "bindestreck och understrykningstecken."
 
-#: pkg/static/login.js:174
+#: pkg/static/login.js:168
 msgid ""
 "The web browser configuration prevents Cockpit from running (inaccessible $0)"
 msgstr ""
@@ -6672,13 +6679,6 @@ msgid ""
 msgstr ""
 "Det finns inte tillräckligt med fritt utrymme någon annanstans för att ta "
 "bort dennay fysiska volym.  Åtminstone $0 mer ledigt utrymme behövs."
-
-#: pkg/systemd/overview.jsx:136
-msgid "There was $0 failed login attempt since the last successful login."
-msgid_plural ""
-"There were $0 failed login attempts since the last successful login."
-msgstr[0] ""
-msgstr[1] ""
 
 #: pkg/shell/index.html:320
 msgid "There was an unexpected error while connecting to the machine."
@@ -6806,7 +6806,7 @@ msgstr "Detta användarnamn finns redan"
 msgid "This volume needs to be activated before it can be resized."
 msgstr "Denna volym behöver aktiveras före dess storlek kan ändras."
 
-#: pkg/static/login.js:159
+#: pkg/static/login.js:153
 #, fuzzy
 #| msgid "This web browser is too old to run Cockpit (missing $0)"
 msgid "This web browser is too old to run the Web Console (missing $0)"
@@ -6834,7 +6834,7 @@ msgstr ""
 msgid "This will allow you to log in without password in the future."
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:296
+#: pkg/kdump/kdump-view.jsx:302
 msgid ""
 "This will test kdump settings by crashing the kernel and thereby the system. "
 "Depending on the settings, the system may not automatically reboot and the "
@@ -6844,7 +6844,7 @@ msgstr ""
 "systemet.  Beroende på inställningarna kanske inte systemet kommer starta om "
 "automatiskt och processen kan ta en stund."
 
-#: pkg/kdump/kdump-view.jsx:494
+#: pkg/kdump/kdump-view.jsx:497
 msgid "This will test the kdump configuration by crashing the kernel."
 msgstr "Detta kommer testa kdump-inställningarna genom att krascha kärnan."
 
@@ -6863,7 +6863,7 @@ msgstr ""
 msgid "Time"
 msgstr "Timrar"
 
-#: pkg/lib/serverTime.js:493
+#: pkg/lib/serverTime.js:497
 msgid "Time zone"
 msgstr "Tidszon"
 
@@ -6901,7 +6901,7 @@ msgstr ""
 "Hat, antingen genom att använda Red Hats kundportal eller en lokal "
 "prenumerationsserver."
 
-#: pkg/static/login.js:647
+#: pkg/static/login.js:637
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
 "the machine or through a trusted network:"
@@ -6914,7 +6914,7 @@ msgid ""
 "sitting at the machine or through a trusted network:"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:1347
+#: pkg/metrics/metrics.jsx:1348
 msgid "Today"
 msgstr ""
 
@@ -6926,7 +6926,7 @@ msgstr ""
 msgid "Toggle bitmap"
 msgstr ""
 
-#: pkg/lib/serverTime.js:517 pkg/lib/cockpit-components-shutdown.jsx:193
+#: pkg/lib/serverTime.js:521 pkg/lib/cockpit-components-shutdown.jsx:193
 msgid "Toggle date picker"
 msgstr ""
 
@@ -6936,21 +6936,21 @@ msgstr ""
 msgid "Toggle filters"
 msgstr "Göm filter"
 
-#: pkg/base1/cockpit.js:4056
+#: pkg/base1/cockpit.js:3990
 msgid "Too much data"
 msgstr "För mycket data"
 
-#: pkg/shell/indexes.js:337
+#: pkg/shell/indexes.js:335
 msgid "Tools"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:490
+#: pkg/metrics/metrics.jsx:491
 #, fuzzy
 #| msgid "Add services"
 msgid "Top 5 CPU services"
 msgstr "Lägg till tjänster"
 
-#: pkg/metrics/metrics.jsx:523
+#: pkg/metrics/metrics.jsx:524
 #, fuzzy
 #| msgid "Filter services"
 msgid "Top 5 memory services"
@@ -6983,7 +6983,7 @@ msgstr "Utlöst av"
 msgid "Triggers"
 msgstr "Utlösare"
 
-#: pkg/metrics/metrics.jsx:1311
+#: pkg/metrics/metrics.jsx:1312
 msgid "Troubleshoot"
 msgstr "Felsök"
 
@@ -7005,7 +7005,7 @@ msgstr ""
 msgid "Try again"
 msgstr "Försök igen"
 
-#: pkg/lib/serverTime.js:376
+#: pkg/lib/serverTime.js:379
 #, fuzzy
 msgid "Trying to synchronize with $0"
 msgstr "Försök att synkronisera med {{Server}}"
@@ -7067,7 +7067,7 @@ msgctxt "storage"
 msgid "UUID"
 msgstr "UUID"
 
-#: pkg/kdump/kdump-view.jsx:279
+#: pkg/kdump/kdump-view.jsx:286
 msgid "Unable to apply settings: $0"
 msgstr "Kan inte verkställa inställningarna: $0"
 
@@ -7075,7 +7075,7 @@ msgstr "Kan inte verkställa inställningarna: $0"
 msgid "Unable to apply this solution automatically"
 msgstr "Kan inte verkställa denna lösning automatiskt"
 
-#: pkg/static/login.js:802
+#: pkg/static/login.js:786
 msgid "Unable to connect to that address"
 msgstr "Kan inte ansluta till den adressen"
 
@@ -7180,14 +7180,14 @@ msgstr "Enhet"
 msgid "Unit not found"
 msgstr "Finns inte"
 
-#: pkg/users/account-roles.js:83
+#: pkg/users/account-roles.js:78
 msgid "Unix group: $0"
 msgstr ""
 
 #: pkg/storaged/fsys-tab.jsx:491 pkg/storaged/swap-tab.jsx:62
 #: pkg/networkmanager/network-interface.jsx:198
 #: pkg/networkmanager/network-interface.jsx:200
-#: pkg/networkmanager/interfaces.js:512 pkg/networkmanager/interfaces.js:988
+#: pkg/networkmanager/interfaces.js:510 pkg/networkmanager/interfaces.js:982
 #: pkg/lib/machine-info.js:59 pkg/lib/machine-info.js:243
 #: pkg/lib/machine-info.js:251 pkg/lib/machine-info.js:253
 #: pkg/lib/machine-info.js:260 pkg/lib/machine-info.js:262
@@ -7204,7 +7204,7 @@ msgstr "Okänt ”$0”"
 msgid "Unknown ($0)"
 msgstr "Okänt ($0)"
 
-#: pkg/apps/application.jsx:109
+#: pkg/apps/application.jsx:108
 msgid "Unknown application"
 msgstr "Okänt program"
 
@@ -7300,7 +7300,7 @@ msgstr "Volym som ej stöds"
 msgid "Until"
 msgstr ""
 
-#: pkg/base1/cockpit.js:4036 pkg/base1/cockpit.js:4038
+#: pkg/base1/cockpit.js:3970 pkg/base1/cockpit.js:3972
 msgid "Untrusted host"
 msgstr "Ej betrodd värd"
 
@@ -7370,13 +7370,13 @@ msgstr ""
 msgid "Uptime"
 msgstr ""
 
-#: pkg/storaged/unrecognized-tab.jsx:37 pkg/metrics/metrics.jsx:1378
-#: pkg/metrics/metrics.jsx:1379 pkg/metrics/metrics.jsx:1380
-#: pkg/metrics/metrics.jsx:1381 pkg/systemd/overview-cards/usageCard.jsx:116
+#: pkg/storaged/unrecognized-tab.jsx:37 pkg/metrics/metrics.jsx:1379
+#: pkg/metrics/metrics.jsx:1380 pkg/metrics/metrics.jsx:1381
+#: pkg/metrics/metrics.jsx:1382 pkg/systemd/overview-cards/usageCard.jsx:116
 msgid "Usage"
 msgstr "Användning"
 
-#: pkg/storaged/storage-controls.jsx:207
+#: pkg/storaged/storage-controls.jsx:206
 #, fuzzy
 #| msgid "Usage of $0 CPU core"
 #| msgid_plural "Usage of $0 CPU cores"
@@ -7410,7 +7410,7 @@ msgid "Use the following keys to authenticate against other systems"
 msgstr "Använd följande nycklar för att autentisera mot andra system"
 
 #: pkg/storaged/fsys-tab.jsx:695 pkg/storaged/swap-tab.jsx:70
-#: pkg/metrics/metrics.jsx:524
+#: pkg/metrics/metrics.jsx:525
 msgid "Used"
 msgstr "Använt"
 
@@ -7420,16 +7420,16 @@ msgstr "Användare"
 
 #: pkg/static/login.html:76 pkg/shell/machines/machine-add.html:29
 #: pkg/systemd/overview-cards/realmd-operation.html:57
-#: pkg/users/account-create-dialog.js:49 pkg/users/account-details.js:298
+#: pkg/users/account-create-dialog.js:49 pkg/users/account-details.js:299
 msgid "User name"
 msgstr "Användarnamn"
 
-#: pkg/static/login.js:506
+#: pkg/static/login.js:496
 msgid "User name cannot be empty"
 msgstr "Användarnamnet får inte vara tomt"
 
 #: pkg/systemd/overview-cards/realmd-operation.html:60
-#: pkg/systemd/overview-cards/realmd-operation.js:340
+#: pkg/systemd/overview-cards/realmd-operation.js:333
 msgid "User password"
 msgstr "Användarens lösenord"
 
@@ -7483,7 +7483,7 @@ msgstr "VLAN-id"
 msgid "VLAN settings"
 msgstr "VLAN-inställningar"
 
-#: pkg/systemd/overview-cards/realmd-operation.js:166
+#: pkg/systemd/overview-cards/realmd-operation.js:165
 msgid "Validating address"
 msgstr ""
 
@@ -7491,7 +7491,7 @@ msgstr ""
 msgid "Validating authentication token"
 msgstr "Validerar autentiseringselementet"
 
-#: pkg/users/authorized-keys.js:108
+#: pkg/users/authorized-keys.js:107
 msgid "Validating key"
 msgstr "Validerar nyckeln"
 
@@ -7519,7 +7519,7 @@ msgstr "Version"
 msgid "Very securely erasing $target"
 msgstr "Raderar mycket säkert $target"
 
-#: pkg/lib/cockpit-components-logs-panel.jsx:162 pkg/metrics/metrics.jsx:737
+#: pkg/lib/cockpit-components-logs-panel.jsx:162 pkg/metrics/metrics.jsx:738
 #, fuzzy
 #| msgid "All logs"
 msgid "View all logs"
@@ -7537,7 +7537,11 @@ msgstr ""
 msgid "View hardware details"
 msgstr ""
 
-#: pkg/apps/application.jsx:78
+#: pkg/systemd/overview-cards/lastLogin.jsx:137
+msgid "View login history"
+msgstr ""
+
+#: pkg/apps/application.jsx:77
 #, fuzzy
 msgid "View project website"
 msgstr "Projektwebbsajt"
@@ -7569,7 +7573,7 @@ msgstr "Volymgrupp $0"
 msgid "Volume size is $0. Content size is $1."
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:757
+#: pkg/networkmanager/interfaces.js:755
 msgid "Waiting"
 msgstr "Väntar"
 
@@ -7607,7 +7611,7 @@ msgstr "Önskar"
 msgid "Warning and above"
 msgstr "Varning och högre"
 
-#: pkg/shell/indexes.js:416 pkg/shell/shell-modals.jsx:82
+#: pkg/shell/indexes.js:414 pkg/shell/shell-modals.jsx:82
 #, fuzzy
 msgid "Web Console"
 msgstr "Konsoler"
@@ -7660,7 +7664,7 @@ msgid ""
 "Reconnect to continue watching the update process."
 msgstr ""
 
-#: pkg/systemd/terminal.jsx:155
+#: pkg/systemd/terminal.jsx:153
 msgid "White"
 msgstr ""
 
@@ -7669,7 +7673,7 @@ msgctxt "storage"
 msgid "World wide name"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:541
+#: pkg/metrics/metrics.jsx:542
 #, fuzzy
 #| msgid "ReadWrite"
 msgid "Write"
@@ -7679,11 +7683,11 @@ msgstr "LäsSkriv"
 msgid "Write-mostly"
 msgstr "Skriv huvudsakligen"
 
-#: pkg/static/login.js:812
+#: pkg/static/login.js:796
 msgid "Wrong user name or password"
 msgstr "Fel användarnamn eller lösenord"
 
-#: pkg/networkmanager/interfaces.js:1466
+#: pkg/networkmanager/interfaces.js:1458
 msgid "XOR"
 msgstr "XOR"
 
@@ -7695,7 +7699,7 @@ msgstr ""
 msgid "Yes"
 msgstr "Ja"
 
-#: pkg/static/login.js:644
+#: pkg/static/login.js:634
 msgid "You are connecting to $0 for the first time."
 msgstr ""
 
@@ -7716,7 +7720,7 @@ msgstr ""
 "Du har inte rättigheter att se de auktoriserade publika nycklarna för detta "
 "konto."
 
-#: pkg/shell/base_index.js:546
+#: pkg/shell/base_index.js:540
 msgid "You have been logged out due to inactivity."
 msgstr ""
 
@@ -7729,11 +7733,11 @@ msgstr ""
 msgid "You may want to change the password of the key for automatic login."
 msgstr ""
 
-#: pkg/users/password-dialogs.js:79
+#: pkg/users/password-dialogs.js:77
 msgid "You must wait longer to change your password"
 msgstr "Du måste vänta längre på att ändra ditt lösenord"
 
-#: pkg/metrics/metrics.jsx:1287
+#: pkg/metrics/metrics.jsx:1288
 msgid "You need to relogin to be able to see metrics history"
 msgstr ""
 
@@ -7746,7 +7750,7 @@ msgstr ""
 msgid "You now have administrative access."
 msgstr ""
 
-#: pkg/shell/base_index.js:524
+#: pkg/shell/base_index.js:518
 msgid "You will be logged out in $0 seconds."
 msgstr ""
 
@@ -7773,11 +7777,11 @@ msgstr ""
 "Din server kommer stänga förbindelsen snart.  Du kan återansluta efter att "
 "den har startat om."
 
-#: pkg/base1/cockpit.js:4026
+#: pkg/base1/cockpit.js:3960
 msgid "Your session has been terminated."
 msgstr "Din session har avslutats."
 
-#: pkg/base1/cockpit.js:4028
+#: pkg/base1/cockpit.js:3962
 msgid "Your session has expired. Please log in again."
 msgstr "Din session har gått ut.  Logga in igen."
 
@@ -7929,16 +7933,11 @@ msgstr ""
 msgid "drive"
 msgstr ""
 
-#: pkg/systemd/overview-cards/realmd-operation.js:302
-#: pkg/systemd/overview-cards/realmd-operation.js:308
-msgid "e.g. \"$0\""
-msgstr "t.ex. ”$0”"
-
 #: pkg/storaged/lvol-tabs.jsx:413 pkg/storaged/lvol-tabs.jsx:474
 #: pkg/storaged/crypto-tab.jsx:255 pkg/storaged/crypto-tab.jsx:264
 #: pkg/storaged/fsys-tab.jsx:672 pkg/storaged/fsys-tab.jsx:686
 #: pkg/networkmanager/network-interface.jsx:398
-#: pkg/users/account-details.js:332 pkg/users/account-details.js:364
+#: pkg/users/account-details.js:333 pkg/users/account-details.js:365
 #: pkg/systemd/overview-cards/configurationCard.jsx:61
 msgid "edit"
 msgstr ""
@@ -8040,6 +8039,22 @@ msgstr "Montera skrivskyddat"
 msgid "format"
 msgstr ""
 
+#: pkg/systemd/overview-cards/lastLogin.jsx:37
+#, fuzzy
+#| msgctxt "<date> from <host>"
+#| msgid "$0 from $1"
+msgctxt "from <host>"
+msgid "from $0"
+msgstr "$0 från $1"
+
+#: pkg/systemd/overview-cards/lastLogin.jsx:35
+#, fuzzy
+#| msgctxt "<date> on <terminal>"
+#| msgid "$0 on $1"
+msgctxt "from <host> on <terminal>"
+msgid "from $0 on $1"
+msgstr "$0 på $1"
+
 #: pkg/storaged/manifest.json:0
 msgid "fstab"
 msgstr ""
@@ -8078,7 +8093,7 @@ msgstr ""
 msgid "interface"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:378
+#: pkg/kdump/kdump-view.jsx:383
 msgid "invalid: multiple targets defined"
 msgstr "felaktigt: flera mål definierade"
 
@@ -8106,7 +8121,7 @@ msgstr ""
 msgid "kdump"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:504
+#: pkg/kdump/kdump-view.jsx:507
 msgid "kdump status"
 msgstr "kdump-status"
 
@@ -8114,7 +8129,7 @@ msgstr "kdump-status"
 msgid "keys"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:382 pkg/kdump/kdump-view.jsx:384
+#: pkg/kdump/kdump-view.jsx:387 pkg/kdump/kdump-view.jsx:389
 msgid "locally in $0"
 msgstr "lokalt i $0"
 
@@ -8160,7 +8175,7 @@ msgstr ""
 msgid "mkfs"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:461
+#: pkg/kdump/kdump-view.jsx:464
 #, fuzzy
 #| msgid "More details"
 msgid "more details"
@@ -8192,7 +8207,7 @@ msgstr ""
 msgid "nfs dump target isn't formatted as server:path"
 msgstr "nfs-dumpmålet är inte formaterat som server:sökväg"
 
-#: pkg/metrics/metrics.jsx:99
+#: pkg/metrics/metrics.jsx:100
 msgid "nice"
 msgstr ""
 
@@ -8207,6 +8222,14 @@ msgid "of $0 CPU"
 msgid_plural "of $0 CPUs"
 msgstr[0] "av $0 CPU-kärna"
 msgstr[1] "av $0 CPU-kärnor"
+
+#: pkg/systemd/overview-cards/lastLogin.jsx:39
+#, fuzzy
+#| msgctxt "<date> on <terminal>"
+#| msgid "$0 on $1"
+msgctxt "on <terminal>"
+msgid "on $0"
+msgstr "$0 på $1"
 
 #: pkg/systemd/manifest.json:0
 msgid "operating system"
@@ -8260,18 +8283,18 @@ msgstr ""
 msgid "plugin"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:1308
+#: pkg/metrics/metrics.jsx:1309
 #, fuzzy
 #| msgid "$0 service has failed"
 #| msgid_plural "$0 services have failed"
 msgid "pmlogger.service has failed"
 msgstr "$0 tjänsten har inte startat"
 
-#: pkg/metrics/metrics.jsx:1310
+#: pkg/metrics/metrics.jsx:1311
 msgid "pmlogger.service is failing to collect data"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:1301
+#: pkg/metrics/metrics.jsx:1302
 #, fuzzy
 #| msgid "Service is running"
 msgid "pmlogger.service is not running"
@@ -8309,7 +8332,7 @@ msgstr ""
 msgid "roles"
 msgstr ""
 
-#: pkg/systemd/overview.jsx:266
+#: pkg/systemd/overview.jsx:149
 msgid "running $0"
 msgstr ""
 
@@ -8373,7 +8396,7 @@ msgstr ""
 msgid "ssh"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:118
+#: pkg/kdump/kdump-view.jsx:126
 msgid "ssh key"
 msgstr "ssh-nyckel"
 
@@ -8385,7 +8408,7 @@ msgstr "ssh-nyckeln är inte en sökväg"
 msgid "ssh server is empty"
 msgstr "ssh-servern är tom"
 
-#: pkg/metrics/metrics.jsx:99
+#: pkg/metrics/metrics.jsx:100
 #, fuzzy
 #| msgid "yes"
 msgid "sys"
@@ -8456,7 +8479,7 @@ msgstr ""
 msgid "unpartitioned space on $0"
 msgstr "opartitionerat utrymmer på $0"
 
-#: pkg/metrics/metrics.jsx:99 pkg/users/manifest.json:0
+#: pkg/metrics/metrics.jsx:100 pkg/users/manifest.json:0
 msgid "user"
 msgstr "användare"
 
@@ -8509,6 +8532,24 @@ msgstr "zon"
 #| msgid "Force change"
 msgid "{{host}} key changed"
 msgstr "Framtvinga ändring"
+
+#~ msgctxt "<date> from <host> on <terminal>"
+#~ msgid "$0 from $1 on $2"
+#~ msgstr "$0 från $1 på $2"
+
+#, fuzzy
+#~ msgid "Hours must be a number between 0 and 23"
+#~ msgstr "Timmen måste vara ett tal mellan 0-23"
+
+#~ msgid "Last login:"
+#~ msgstr "Senaste inloggningen:"
+
+#, fuzzy
+#~ msgid "Minutes must be a number between 0 and 59"
+#~ msgstr "Minuterna måste vara ett tal mellan 0-59"
+
+#~ msgid "e.g. \"$0\""
+#~ msgstr "t.ex. ”$0”"
 
 #~ msgid "$0 active zones"
 #~ msgstr "$0 Aktiva zoner"

@@ -626,10 +626,10 @@ const BlockContent = ({ client, block, allow_partitions }) => {
                                   { value: "empty", title: _("No partitioning") }
                               ]
                           }),
-                CheckBoxes("erase", _("Erase"),
+                CheckBoxes("erase", _("Overwrite"),
                            {
                                fields: [
-                                   { tag: "on", title: _("Overwrite existing data with zeros") }
+                                   { tag: "on", title: _("Overwrite existing data with zeros (slower)") }
                                ],
                            }),
             ],

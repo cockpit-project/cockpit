@@ -41,6 +41,7 @@ import {
 const _ = cockpit.gettext;
 
 export const TeamDialog = ({ connection, dev, setIsOpen, settings }) => {
+    const idPrefix = "network-team-settings";
     const model = useContext(ModelContext);
     const config = settings.team.config || {};
     if (!config.runner)
@@ -129,30 +130,30 @@ export const TeamDialog = ({ connection, dev, setIsOpen, settings }) => {
 
     return (
         <NetworkModal dialogError={dialogError}
-                      idPrefix="network-team-settings"
+                      idPrefix={idPrefix}
                       onSubmit={onSubmit}
                       setIsOpen={setIsOpen}
                       title={_("Team settings")}
         >
             <>
-                <Name idPrefix="network-team-settings" iface={iface} setIface={setIface} />
-                <FormGroup label={_("Ports")} fieldId="network-team-settings-interface-members-list" hasNoPaddingTop>
-                    <MemberInterfaceChoices idPrefix="network-team-settings" memberChoices={memberChoices} setMemberChoices={setMemberChoices} model={model} group={connection} />
+                <Name idPrefix={idPrefix} iface={iface} setIface={setIface} />
+                <FormGroup label={_("Ports")} fieldId={idPrefix + "-interface-members-list"} hasNoPaddingTop>
+                    <MemberInterfaceChoices idPrefix={idPrefix} memberChoices={memberChoices} setMemberChoices={setMemberChoices} model={model} group={connection} />
                 </FormGroup>
-                <FormGroup fieldId="network-team-settings-runner-select" label={_("Runner")}>
-                    <FormSelect id="network-team-settings-runner-select" onChange={setRunner}
+                <FormGroup fieldId={idPrefix + "-runner-select"} label={_("Runner")}>
+                    <FormSelect id={idPrefix + "-runner-select"} onChange={setRunner}
                                 value={runner}>
                         {team_runner_choices.map(choice => <FormSelectOption value={choice.choice} label={choice.title} key={choice.choice} />)}
                     </FormSelect>
                 </FormGroup>
-                {(runner == "loadbalance" || runner == "lacp") && <FormGroup fieldId="network-team-settings-balancer-select" label={_("Balancer")}>
-                    <FormSelect id="network-team-settings-balancer-select" onChange={setBalancer}
+                {(runner == "loadbalance" || runner == "lacp") && <FormGroup fieldId={idPrefix + "-balancer-select"} label={_("Balancer")}>
+                    <FormSelect id={idPrefix + "-balancer-select"} onChange={setBalancer}
                                 value={balancer}>
                         {team_balancer_choices.map(choice => <FormSelectOption value={choice.choice} label={choice.title} key={choice.choice} />)}
                     </FormSelect>
                 </FormGroup>}
-                {runner == "active-backup" && <FormGroup fieldId="network-team-settings-primary-select" label={_("Primary")}>
-                    <FormSelect id="network-team-settings-primary-select" onChange={setPrimary}
+                {runner == "active-backup" && <FormGroup fieldId={idPrefix + "-primary-select"} label={_("Primary")}>
+                    <FormSelect id={idPrefix + "-primary-select"} onChange={setPrimary}
                                 value={primary}>
                         <>
                             <FormSelectOption key='-' value={null} label='-' />
@@ -162,26 +163,26 @@ export const TeamDialog = ({ connection, dev, setIsOpen, settings }) => {
                         </>
                     </FormSelect>
                 </FormGroup>}
-                <FormGroup fieldId="network-team-settings-link-watch-select" label={_("Link watch")}>
-                    <FormSelect id="network-team-settings-link-watch-select" onChange={setLinkWatch}
+                <FormGroup fieldId={idPrefix + "-link-watch-select"} label={_("Link watch")}>
+                    <FormSelect id={idPrefix + "-link-watch-select"} onChange={setLinkWatch}
                                 value={linkWatch}>
                         {team_watch_choices.map(choice => <FormSelectOption value={choice.choice} label={choice.title} key={choice.choice} />)}
                     </FormSelect>
                 </FormGroup>
                 {linkWatch == 'ethtool' && <>
-                    <FormGroup fieldId="network-team-settings-link-up-delay-input" label={_("Link up delay")}>
-                        <TextInput id="network-team-settings-link-up-delay-input" className="network-number-field" value={linkUpDelay} onChange={setLinkUpDelay} />
+                    <FormGroup fieldId={idPrefix + "-link-up-delay-input"} label={_("Link up delay")}>
+                        <TextInput id={idPrefix + "-link-up-delay-input"} className="network-number-field" value={linkUpDelay} onChange={setLinkUpDelay} />
                     </FormGroup>
-                    <FormGroup fieldId="network-team-settings-link-down-delay-input" label={_("Link down delay")}>
-                        <TextInput id="network-team-settings-link-down-delay-input" className="network-number-field" value={linkDownDelay} onChange={setLinkDownDelay} />
+                    <FormGroup fieldId={idPrefix + "-link-down-delay-input"} label={_("Link down delay")}>
+                        <TextInput id={idPrefix + "-link-down-delay-input"} className="network-number-field" value={linkDownDelay} onChange={setLinkDownDelay} />
                     </FormGroup>
                 </>}
                 {linkWatch != 'ethtool' && <>
-                    <FormGroup fieldId="network-team-settings-ping-interval-input" label={_("Ping interval")}>
-                        <TextInput id="network-team-settings-ping-interval-input" className="network-number-field" value={pingInterval} onChange={setPingInterval} />
+                    <FormGroup fieldId={idPrefix + "-ping-interval-input"} label={_("Ping interval")}>
+                        <TextInput id={idPrefix + "-ping-interval-input"} className="network-number-field" value={pingInterval} onChange={setPingInterval} />
                     </FormGroup>
-                    <FormGroup fieldId="network-team-settings-ping-target-input" label={_("Ping target")}>
-                        <TextInput id="network-team-settings-ping-target-input" value={pingTarget} onChange={setPingTarget} />
+                    <FormGroup fieldId={idPrefix + "-ping-target-input"} label={_("Ping target")}>
+                        <TextInput id={idPrefix + "-ping-target-input"} value={pingTarget} onChange={setPingTarget} />
                     </FormGroup>
                 </>}
             </>

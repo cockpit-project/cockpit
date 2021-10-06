@@ -42,6 +42,7 @@ import {
 const _ = cockpit.gettext;
 
 export const BondDialog = ({ connection, dev, setIsOpen, settings }) => {
+    const idPrefix = "network-bond-settings";
     const model = useContext(ModelContext);
     const options = settings.bond.options;
 
@@ -114,7 +115,7 @@ export const BondDialog = ({ connection, dev, setIsOpen, settings }) => {
 
     return (
         <NetworkModal dialogError={dialogError}
-                      idPrefix="network-bond-settings"
+                      idPrefix={idPrefix}
                       onSubmit={onSubmit}
                       setIsOpen={setIsOpen}
                       title={_("Bond settings")}
@@ -145,21 +146,21 @@ export const BondDialog = ({ connection, dev, setIsOpen, settings }) => {
                       }
         >
             <>
-                <Name idPrefix="network-bond-settings" iface={iface} setIface={setIface} />
-                <FormGroup label={_("Interfaces")} fieldId="network-bond-settings-interface-members-lis" hasNoPaddingTop>
-                    <MemberInterfaceChoices idPrefix="network-bond-settings" memberChoices={memberChoices} setMemberChoices={setMemberChoices} model={model} group={connection} />
+                <Name idPrefix={idPrefix} iface={iface} setIface={setIface} />
+                <FormGroup label={_("Interfaces")} fieldId={idPrefix + "-interface-members-list"} hasNoPaddingTop>
+                    <MemberInterfaceChoices idPrefix={idPrefix} memberChoices={memberChoices} setMemberChoices={setMemberChoices} model={model} group={connection} />
                 </FormGroup>
-                <FormGroup fieldId="network-bond-settings-mac-input" label={_("MAC")}>
+                <FormGroup fieldId={idPrefix + "-mac-input"} label={_("MAC")}>
                     <MacMenu model={model} mac={mac} setMAC={setMAC} />
                 </FormGroup>
-                <FormGroup fieldId="network-bond-settings-mode-select" label={_("Mode")}>
-                    <FormSelect id="network-bond-settings-mode-select" onChange={setMode}
+                <FormGroup fieldId={idPrefix + "-mode-select"} label={_("Mode")}>
+                    <FormSelect id={idPrefix + "-mode-select"} onChange={setMode}
                                 value={mode}>
                         {bond_mode_choices.map(choice => <FormSelectOption value={choice.choice} label={choice.title} key={choice.choice} />)}
                     </FormSelect>
                 </FormGroup>
-                {mode == "active-backup" && <FormGroup fieldId="network-bond-settings-primary-select" label={_("Primary")}>
-                    <FormSelect id="network-bond-settings-primary-select" onChange={setPrimary}
+                {mode == "active-backup" && <FormGroup fieldId={idPrefix + "-primary-select"} label={_("Primary")}>
+                    <FormSelect id={idPrefix + "-primary-select"} onChange={setPrimary}
                                 value={primary}>
                         <>
                             <FormSelectOption key='-' value={null} label='-' />
@@ -169,25 +170,25 @@ export const BondDialog = ({ connection, dev, setIsOpen, settings }) => {
                         </>
                     </FormSelect>
                 </FormGroup>}
-                <FormGroup fieldId="network-bond-settings-link-monitoring-select" label={_("Link monitoring")}>
-                    <FormSelect id="network-bond-settings-link-monitoring-select" onChange={setLinkMonitoring}
+                <FormGroup fieldId={idPrefix + "-link-monitoring-select"} label={_("Link monitoring")}>
+                    <FormSelect id={idPrefix + "-link-monitoring-select"} onChange={setLinkMonitoring}
                                 value={linkMonitoring}>
                         {bond_monitoring_choices.map(choice => <FormSelectOption value={choice.choice} label={choice.title} key={choice.choice} />)}
                     </FormSelect>
                 </FormGroup>
-                <FormGroup fieldId="network-bond-settings-link-monitoring-interval-input" label={_("Monitoring interval")}>
-                    <TextInput id="network-bond-settings-link-monitoring-interval-input" className="network-number-field" value={linkMonitoringInterval} onChange={setLinkMonitoringInterval} />
+                <FormGroup fieldId={idPrefix + "-link-monitoring-interval-input"} label={_("Monitoring interval")}>
+                    <TextInput id={idPrefix + "-link-monitoring-interval-input"} className="network-number-field" value={linkMonitoringInterval} onChange={setLinkMonitoringInterval} />
                 </FormGroup>
                 {linkMonitoring == 'mii' && <>
-                    <FormGroup fieldId="network-bond-settings-link-up-delay-input" label={_("Link up delay")}>
-                        <TextInput id="network-bond-settings-link-up-delay-input" className="network-number-field" value={linkUpDelay} onChange={setLinkUpDelay} />
+                    <FormGroup fieldId={idPrefix + "-link-up-delay-input"} label={_("Link up delay")}>
+                        <TextInput id={idPrefix + "-link-up-delay-input"} className="network-number-field" value={linkUpDelay} onChange={setLinkUpDelay} />
                     </FormGroup>
-                    <FormGroup fieldId="network-bond-settings-link-down-delay-input" label={_("Link down delay")}>
-                        <TextInput id="network-bond-settings-link-down-delay-input" className="network-number-field" value={linkDownDelay} onChange={setLinkDownDelay} />
+                    <FormGroup fieldId={idPrefix + "-link-down-delay-input"} label={_("Link down delay")}>
+                        <TextInput id={idPrefix + "-link-down-delay-input"} className="network-number-field" value={linkDownDelay} onChange={setLinkDownDelay} />
                     </FormGroup>
                 </>}
-                {linkMonitoring == 'arp' && <FormGroup fieldId="network-bond-settings-monitoring-targets-input" label={_("Monitoring targets")}>
-                    <TextInput id="network-bond-settings-monitoring-targets-input" value={monitoringTargets} onChange={setMonitoringTargets} />
+                {linkMonitoring == 'arp' && <FormGroup fieldId={idPrefix + "-monitoring-targets-input"} label={_("Monitoring targets")}>
+                    <TextInput id={idPrefix + "-monitoring-targets-input"} value={monitoringTargets} onChange={setMonitoringTargets} />
                 </FormGroup>}
             </>
         </NetworkModal>

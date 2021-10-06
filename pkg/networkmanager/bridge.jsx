@@ -38,6 +38,7 @@ import {
 const _ = cockpit.gettext;
 
 export const BridgeDialog = ({ connection, dev, setIsOpen, settings }) => {
+    const idPrefix = "network-bridge-settings";
     const model = useContext(ModelContext);
     const memberChoicesInit = {};
 
@@ -96,12 +97,12 @@ export const BridgeDialog = ({ connection, dev, setIsOpen, settings }) => {
                       title={_("Bridge settings")}
         >
             <>
-                <Name idPrefix="network-bridge-settings" iface={iface} setIface={setIface} />
-                <FormGroup label={_("Ports")} fieldId="network-bridge-settings-interface-members-list" hasNoPaddingTop>
-                    <MemberInterfaceChoices idPrefix="network-bridge-settings" memberChoices={memberChoices} setMemberChoices={setMemberChoices} model={model} group={connection} />
+                <Name idPrefix={idPrefix} iface={iface} setIface={setIface} />
+                <FormGroup label={_("Ports")} fieldId={idPrefix + "-interface-members-list"} hasNoPaddingTop>
+                    <MemberInterfaceChoices idPrefix={idPrefix} memberChoices={memberChoices} setMemberChoices={setMemberChoices} model={model} group={connection} />
                 </FormGroup>
-                <FormGroup label={_("Options")} fieldId="network-bridge-settings-stp-enabled-input" hasNoPaddingTop>
-                    <Checkbox id="network-bridge-settings-stp-enabled-input" isChecked={stp} onChange={setStp} label={_("Spanning tree protocol (STP)")} />
+                <FormGroup label={_("Options")} fieldId={idPrefix + "-stp-enabled-input"} hasNoPaddingTop>
+                    <Checkbox id={idPrefix + "-stp-enabled-input"} isChecked={stp} onChange={setStp} label={_("Spanning tree protocol (STP)")} />
                     {stp && <>
                         <FormGroup fieldId="network-bridge-stp-settings-priority-input" label={_("STP priority")}>
                             <TextInput id="network-bridge-stp-settings-priority-input" className="network-number-field" value={priority} onChange={setPriority} />

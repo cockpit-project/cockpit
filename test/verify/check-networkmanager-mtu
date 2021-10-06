@@ -45,17 +45,17 @@ class TestNetworkingMTU(NetworkCase):
         b.wait_visible("#network-interface")
 
         self.configure_iface_setting('MTU')
-        b.wait_popup("network-mtu-settings-dialog")
+        b.wait_visible("#network-mtu-settings-dialog")
 
         # wait until dialog initialized
-        b.wait_visible("#network-mtu-settings-close-button")
+        b.wait_visible("#network-mtu-settings-dialog > button[aria-label=Close]")
         b.wait_visible("#network-mtu-settings-custom")
-        b.assert_pixels("#network-mtu-settings-dialog .pf-c-modal-box", "networking-mtu-settings-dialog")
+        b.assert_pixels("#network-mtu-settings-dialog", "networking-mtu-settings-dialog")
 
         b.set_checked('#network-mtu-settings-custom', True)
-        b.set_val('#network-mtu-settings-input', "1400")
+        b.set_input_text('#network-mtu-settings-input', "1400")
         b.click("#network-mtu-settings-apply")
-        b.wait_popdown("network-mtu-settings-dialog")
+        b.wait_not_present("#network-mtu-settings-dialog")
         self.wait_for_iface_setting('MTU', '1400')
 
         # We're debugging failures here log status to journal for diagnosis

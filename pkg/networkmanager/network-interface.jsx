@@ -39,7 +39,6 @@ import {
     PageNetworkBridgePortSettings,
     PageNetworkIpSettings,
     PageNetworkMacSettings,
-    PageNetworkMtuSettings,
     PageNetworkTeamPortSettings,
     array_join,
     bond_mode_choices,
@@ -350,10 +349,6 @@ export const NetworkInterfacePage = ({
             show_dialog(PageNetworkBridgePortSettings, '#network-bridgeport-settings-dialog');
         }
 
-        function configureMtuSettings() {
-            show_dialog(PageNetworkMtuSettings, '#network-mtu-settings-dialog');
-        }
-
         function renderAutoconnectRow() {
             if (settings.connection.autoconnect !== undefined) {
                 return (
@@ -419,7 +414,8 @@ export const NetworkInterfacePage = ({
             else
                 addRow(_("Automatic"), options);
 
-            return renderSettingsRow(_("MTU"), rows, configureMtuSettings);
+            const configure = <NetworkAction type="mtu" iface={iface} connectionSettings={settings} />;
+            return renderSettingsRow(_("MTU"), rows, configure);
         }
 
         function render_connection_link(con, key) {

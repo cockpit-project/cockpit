@@ -2343,86 +2343,6 @@ export function PageNetworkBridgePortSettings() {
     this._init();
 }
 
-PageNetworkMtuSettings.prototype = {
-    _init: function () {
-        this.id = "network-mtu-settings-dialog";
-        this.ethernet_settings_template = $("#network-mtu-settings-template").html();
-        mustache.parse(this.ethernet_settings_template);
-    },
-
-    setup: function () {
-        $('#network-mtu-settings-close-button').click($.proxy(this, "cancel"));
-        $('#network-mtu-settings-cancel').click($.proxy(this, "cancel"));
-        $('#network-mtu-settings-apply').click($.proxy(this, "apply"));
-    },
-
-    enter: function () {
-        $('#network-mtu-settings-error').prop('hidden', true);
-        this.settings = PageNetworkMtuSettings.ghost_settings || PageNetworkMtuSettings.connection.copy_settings();
-        this.update();
-    },
-
-    show: function() {
-    },
-
-    leave: function() {
-    },
-
-    update: function() {
-        const self = this;
-        const options = self.settings.ethernet;
-
-        const body = $(mustache.render(self.ethernet_settings_template, options));
-        $('#network-mtu-settings-body').html(body);
-        $('#network-mtu-settings-input').focus(function () {
-            $('#network-mtu-settings-custom').prop('checked', true);
-        });
-    },
-
-    cancel: function() {
-        $('#network-mtu-settings-dialog').trigger('hide');
-    },
-
-    apply: function() {
-        const self = this;
-        const model = PageNetworkMtuSettings.model;
-
-        function show_error(error) {
-            show_dialog_error('#network-mtu-settings-error', error);
-        }
-
-        if ($("#network-mtu-settings-auto").prop('checked'))
-            self.settings.ethernet.mtu = 0;
-        else {
-            const mtu = $("#network-mtu-settings-input").val();
-            if (/^[0-9]+$/.test(mtu))
-                self.settings.ethernet.mtu = parseInt(mtu, 10);
-            else {
-                show_error(_("MTU must be a positive number"));
-                return;
-            }
-        }
-
-        function modify () {
-            return PageNetworkMtuSettings.apply_settings(self.settings)
-                    .then(function () {
-                        $('#network-mtu-settings-dialog').trigger('hide');
-                        if (PageNetworkMtuSettings.done)
-                            return PageNetworkMtuSettings.done();
-                    })
-                    .fail(show_error);
-        }
-
-        with_settings_checkpoint(model, modify,
-                                 { devices: connection_devices(PageNetworkMtuSettings.connection) });
-    }
-
-};
-
-export function PageNetworkMtuSettings() {
-    this._init();
-}
-
 PageNetworkMacSettings.prototype = {
     _init: function () {
         this.id = "network-mac-settings-dialog";
@@ -2526,7 +2446,6 @@ export function init() {
     dialog_setup(new PageNetworkIpSettings());
     dialog_setup(new PageNetworkTeamPortSettings());
     dialog_setup(new PageNetworkBridgePortSettings());
-    dialog_setup(new PageNetworkMtuSettings());
     dialog_setup(new PageNetworkMacSettings());
 
     $('#confirm-breaking-change-popup [data-dismiss]').click(() =>

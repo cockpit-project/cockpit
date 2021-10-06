@@ -26,6 +26,7 @@ import { BondDialog, getGhostSettings as getBondGhostSettings } from './bond.jsx
 import { BridgeDialog, getGhostSettings as getBridgeGhostSettings } from './bridge.jsx';
 import { TeamDialog, getGhostSettings as getTeamGhostSettings } from './team.jsx';
 import { VlanDialog, getGhostSettings as getVlanGhostSettings } from './vlan.jsx';
+import { MtuDialog } from './mtu.jsx';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { ModelContext } from './model-context.jsx';
 
@@ -154,6 +155,7 @@ export const NetworkAction = ({ addButtonText, iface, connectionSettings, type }
             {isOpen && type == 'vlan' ? <VlanDialog {...properties} /> : null}
             {isOpen && type == 'team' ? <TeamDialog {...properties} /> : null}
             {isOpen && type == 'bridge' ? <BridgeDialog {...properties} /> : null}
+            {isOpen && type == 'mtu' ? <MtuDialog {...properties} /> : null}
         </>
     );
 };
@@ -166,7 +168,7 @@ export const dialogApply = ({ model, dev, connection, members, membersInit, sett
     const membersChanged = members ? Object.keys(membersInit).some(iface => membersInit[iface] != members[iface]) : false;
 
     const modify = () => {
-        return (type != 'vlan'
+        return ((members !== undefined)
             ? apply_group_member(members,
                                  model,
                                  apply_settings,

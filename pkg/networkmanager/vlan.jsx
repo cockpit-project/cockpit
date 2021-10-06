@@ -38,6 +38,7 @@ import {
 const _ = cockpit.gettext;
 
 export const VlanDialog = ({ connection, dev, setIsOpen, settings }) => {
+    const idPrefix = "network-vlan-settings";
     const model = useContext(ModelContext);
     const parentChoices = [];
     model.list_interfaces().forEach(iface => {
@@ -85,14 +86,14 @@ export const VlanDialog = ({ connection, dev, setIsOpen, settings }) => {
 
     return (
         <NetworkModal dialogError={dialogError}
-                      idPrefix="network-vlan-settings"
+                      idPrefix={idPrefix}
                       onSubmit={onSubmit}
                       setIsOpen={setIsOpen}
                       title={_("VLAN settings")}
         >
             <>
-                <FormGroup fieldId="network-vlan-settings-parent-select" label={_("Parent")}>
-                    <FormSelect id="network-vlan-settings-parent-select" onChange={value => {
+                <FormGroup fieldId={idPrefix + "-parent-select"} label={_("Parent")}>
+                    <FormSelect id={idPrefix + "-parent-select"} onChange={value => {
                         setParent(value);
                         if (iface == (parent + "." + vlanId))
                             setIface(value + "." + vlanId);
@@ -101,14 +102,14 @@ export const VlanDialog = ({ connection, dev, setIsOpen, settings }) => {
                         {parentChoices.map(choice => <FormSelectOption value={choice} label={choice} key={choice} />)}
                     </FormSelect>
                 </FormGroup>
-                <FormGroup fieldId="network-vlan-settings-vlan-id-input" label={_("VLAN ID")}>
-                    <TextInput id="network-vlan-settings-vlan-id-input" value={vlanId} onChange={value => {
+                <FormGroup fieldId={idPrefix + "-vlan-id-input"} label={_("VLAN ID")}>
+                    <TextInput id={idPrefix + "-vlan-id-input"} value={vlanId} onChange={value => {
                         setVlanId(value);
                         if (iface == (parent + "." + vlanId))
                             setIface(parent + "." + value);
                     }} />
                 </FormGroup>
-                <Name idPrefix="network-vlan-settings" iface={iface} setIface={setIface} />
+                <Name idPrefix={idPrefix} iface={iface} setIface={setIface} />
             </>
         </NetworkModal>
     );

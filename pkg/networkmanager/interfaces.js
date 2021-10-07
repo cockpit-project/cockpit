@@ -1447,45 +1447,6 @@ export const ipv6_method_choices =
         { choice: 'ignore', title: _("Ignore") }
     ];
 
-export const bond_mode_choices =
-    [
-        { choice: 'balance-rr', title: _("Round robin") },
-        { choice: 'active-backup', title: _("Active backup") },
-        { choice: 'balance-xor', title: _("XOR") },
-        { choice: 'broadcast', title: _("Broadcast") },
-        { choice: '802.3ad', title: _("802.3ad") },
-        { choice: 'balance-tlb', title: _("Adaptive transmit load balancing") },
-        { choice: 'balance-alb', title: _("Adaptive load balancing") }
-    ];
-
-export const bond_monitoring_choices =
-    [
-        { choice: 'mii', title: _("MII (recommended)") },
-        { choice: 'arp', title: _("ARP") }
-    ];
-
-export const team_runner_choices =
-    [
-        { choice: 'roundrobin', title: _("Round robin") },
-        { choice: 'activebackup', title: _("Active backup") },
-        { choice: 'loadbalance', title: _("Load balancing") },
-        { choice: 'broadcast', title: _("Broadcast") },
-        { choice: 'lacp', title: _("802.3ad LACP") },
-    ];
-
-export const team_balancer_choices =
-    [
-        { choice: 'none', title: _("Passive") },
-        { choice: 'basic', title: _("Active") }
-    ];
-
-export const team_watch_choices =
-    [
-        { choice: 'ethtool', title: _("Ethtool") },
-        { choice: 'arp-ping', title: _("ARP ping") },
-        { choice: 'nsna-ping', title: _("NSNA ping") }
-    ];
-
 export function choice_title(choices, choice, def) {
     for (let i = 0; i < choices.length; i++) {
         if (choices[i].choice == choice)

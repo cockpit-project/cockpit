@@ -31,14 +31,33 @@ import { ModelContext } from './model-context.jsx';
 
 import { v4 as uuidv4 } from 'uuid';
 import {
-    team_balancer_choices,
-    team_runner_choices,
-    team_watch_choices,
     member_connection_for_interface,
     member_interface_choices,
 } from './interfaces.js';
 
 const _ = cockpit.gettext;
+
+export const team_runner_choices =
+    [
+        { choice: 'roundrobin', title: _("Round robin") },
+        { choice: 'activebackup', title: _("Active backup") },
+        { choice: 'loadbalance', title: _("Load balancing") },
+        { choice: 'broadcast', title: _("Broadcast") },
+        { choice: 'lacp', title: _("802.3ad LACP") },
+    ];
+
+export const team_balancer_choices =
+    [
+        { choice: 'none', title: _("Passive") },
+        { choice: 'basic', title: _("Active") }
+    ];
+
+export const team_watch_choices =
+    [
+        { choice: 'ethtool', title: _("Ethtool") },
+        { choice: 'arp-ping', title: _("ARP ping") },
+        { choice: 'nsna-ping', title: _("NSNA ping") }
+    ];
 
 export const TeamDialog = ({ connection, dev, setIsOpen, settings }) => {
     const idPrefix = "network-team-settings";

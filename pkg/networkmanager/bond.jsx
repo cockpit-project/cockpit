@@ -34,12 +34,28 @@ import { ModelContext } from './model-context.jsx';
 
 import { v4 as uuidv4 } from 'uuid';
 import {
-    bond_mode_choices, bond_monitoring_choices,
     member_connection_for_interface,
     member_interface_choices,
 } from './interfaces.js';
 
 const _ = cockpit.gettext;
+
+export const bond_mode_choices =
+    [
+        { choice: 'balance-rr', title: _("Round robin") },
+        { choice: 'active-backup', title: _("Active backup") },
+        { choice: 'balance-xor', title: _("XOR") },
+        { choice: 'broadcast', title: _("Broadcast") },
+        { choice: '802.3ad', title: _("802.3ad") },
+        { choice: 'balance-tlb', title: _("Adaptive transmit load balancing") },
+        { choice: 'balance-alb', title: _("Adaptive load balancing") }
+    ];
+
+const bond_monitoring_choices =
+    [
+        { choice: 'mii', title: _("MII (recommended)") },
+        { choice: 'arp', title: _("ARP") }
+    ];
 
 export const BondDialog = ({ connection, dev, setIsOpen, settings }) => {
     const idPrefix = "network-bond-settings";

@@ -41,7 +41,6 @@ import {
     PageNetworkMacSettings,
     PageNetworkTeamPortSettings,
     array_join,
-    bond_mode_choices,
     choice_title,
     complete_settings,
     connection_settings,
@@ -52,9 +51,15 @@ import {
     settings_applier,
     show_unexpected_error,
     syn_click,
-    team_runner_choices, team_watch_choices,
     with_checkpoint,
 } from './interfaces.js';
+import {
+    team_runner_choices,
+    team_watch_choices,
+} from './team.jsx';
+import {
+    bond_mode_choices,
+} from './bond.jsx';
 
 const _ = cockpit.gettext;
 

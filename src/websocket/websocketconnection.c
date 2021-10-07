@@ -349,10 +349,11 @@ xor_with_mask_rfc6455 (const guint8 *mask,
                        guint8 *data,
                        gsize len)
 {
-  gsize n;
+  g_assert (mask != NULL);
+  g_assert (data != NULL);
 
   /* Do the masking */
-  for (n = 0; n < len; n++)
+  for (gsize n = 0; n < len; n++)
     data[n] ^= mask[n & 3];
 }
 
@@ -428,7 +429,8 @@ send_prefixed_message_rfc6455 (WebSocketConnection *self,
    * The server side doesn't need to mask, so we don't. There's
    * probably a client somewhere that's not expecting it.
    */
-  if (!self->pv->server_side)
+  const gboolean is_client_side = !self->pv->server_side;
+  if (is_client_side)
     {
       guint32 rand = g_random_int ();
       outer[1] |= 0x80;
@@ -441,7 +443,7 @@ send_prefixed_message_rfc6455 (WebSocketConnection *self,
   g_byte_array_append (bytes, prefix, prefix_len);
   g_byte_array_append (bytes, payload, payload_len);
 
-  if (!self->pv->server_side)
+  if (is_client_side)
     xor_with_mask_rfc6455 (mask, at, len);
 
   frame_len = bytes->len;

@@ -113,7 +113,7 @@ test_expand (TestCase *tc,
   output = cockpit_template_expand (input, fixture->start, fixture->end, lookup_table, tc->variables);
   g_bytes_unref (input);
 
-  for (i = 0, l = output; fixture->output[i] != NULL; i++, l = g_list_next (l))
+  for (i = 0, l = output; l && fixture->output[i] != NULL; i++, l = g_list_next (l))
     cockpit_assert_bytes_eq (l->data, fixture->output[i], -1);
   g_assert_cmpint (g_list_length (output), ==, i);
 

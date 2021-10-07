@@ -19,10 +19,6 @@
 import '../lib/patternfly/patternfly-4-cockpit.scss';
 import 'polyfills'; // once per application
 
-// This is needed by the bootstrap bits pulled in by various
-// Patternfly React components.
-import 'jquery';
-
 import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
@@ -36,8 +32,6 @@ import { MultipathAlert } from "./multipath.jsx";
 import { Overview } from "./overview.jsx";
 import { Details } from "./details.jsx";
 import { update_plot_state } from "./plot.jsx";
-
-import "bootstrap/dist/js/bootstrap";
 
 import "table.css";
 import "journal.css";

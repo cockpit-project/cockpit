@@ -380,11 +380,13 @@ export const NetworkInterfacePage = ({
                 <DescriptionListGroup>
                     <DescriptionListTerm>{title}</DescriptionListTerm>
                     <DescriptionListDescription>
-                        {link_text.length && <span className="network-interface-settings-text">
-                            {link_text}
-                        </span>}
-                        {privileged &&
-                        (typeof configure === 'function' ? <Button variant="link" isInline onClick={syn_click(model, configure)}>{_("edit")}</Button> : configure)}
+                        {link_text.length
+                            ? <span className="network-interface-settings-text">
+                                {link_text}
+                            </span>
+                            : null}
+                        {privileged
+                            ? (typeof configure === 'function' ? <Button variant="link" isInline onClick={syn_click(model, configure)}>{_("edit")}</Button> : configure) : null}
                     </DescriptionListDescription>
                 </DescriptionListGroup>
             );

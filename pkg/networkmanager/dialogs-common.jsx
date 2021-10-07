@@ -74,7 +74,6 @@ export const NetworkModal = ({ dialogError, help, idPrefix, setIsOpen, title, on
             title={title}
             footer={
                 <>
-                    {dialogError && <ModalError id={idPrefix + "-error"} dialogError={_("Failed to apply settings")} dialogErrorDetail={dialogError} />}
                     <Button variant='primary' id={idPrefix + "-apply"} onClick={onSubmit}>
                         {_("Apply")}
                     </Button>
@@ -85,6 +84,7 @@ export const NetworkModal = ({ dialogError, help, idPrefix, setIsOpen, title, on
             }
         >
             <Form id={idPrefix + "-body"} onSubmit={onSubmit} isHorizontal>
+                {dialogError && <ModalError id={idPrefix + "-error"} dialogError={_("Failed to apply settings")} dialogErrorDetail={dialogError} />}
                 {children}
             </Form>
         </Modal>

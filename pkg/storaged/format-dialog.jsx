@@ -265,50 +265,50 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
             SelectOne("crypto", _("Encryption"),
                       {
                           choices: crypto_types,
-                          value: offer_keep_keys ? " keep" : "none"
-                      }),
-            [
-                PassInput("passphrase", _("Passphrase"),
-                          {
-                              validate: function (phrase, vals) {
-                                  if (vals.crypto != " keep" && phrase === "")
-                                      return _("Passphrase cannot be empty");
-                              },
-                              visible: vals => is_encrypted(vals) && vals.crypto != " keep",
-                          }),
-                PassInput("passphrase2", _("Confirm"),
-                          {
-                              validate: function (phrase2, vals) {
-                                  if (vals.crypto != " keep" && phrase2 != vals.passphrase)
-                                      return _("Passphrases do not match");
-                              },
-                              visible: vals => is_encrypted(vals) && vals.crypto != " keep",
-                          }),
-                CheckBoxes("store_passphrase", "",
-                           {
-                               visible: vals => is_encrypted(vals) && vals.crypto != " keep",
-                               value: {
-                                   on: false,
-                               },
-                               fields: [
-                                   { title: _("Store passphrase"), tag: "on" }
-                               ]
-                           }),
-                PassInput("old_passphrase", _("Passphrase"),
-                          {
-                              validate: function (phrase) {
-                                  if (phrase === "")
-                                      return _("Passphrase cannot be empty");
-                              },
-                              visible: vals => vals.crypto == " keep" && vals.needs_explicit_passphrase,
-                              explanation: _("The disk needs to be unlocked before formatting.  Please provide a existing passphrase.")
-                          }),
-                TextInput("crypto_options", _("Encryption options"),
-                          {
-                              visible: is_encrypted,
-                              value: crypto_extra_options
-                          })
-            ],
+                          value: offer_keep_keys ? " keep" : "none",
+                          nested_fields: [
+                              PassInput("passphrase", _("Passphrase"),
+                                        {
+                                            validate: function (phrase, vals) {
+                                                if (vals.crypto != " keep" && phrase === "")
+                                                    return _("Passphrase cannot be empty");
+                                            },
+                                            visible: vals => is_encrypted(vals) && vals.crypto != " keep",
+                                        }),
+                              PassInput("passphrase2", _("Confirm"),
+                                        {
+                                            validate: function (phrase2, vals) {
+                                                if (vals.crypto != " keep" && phrase2 != vals.passphrase)
+                                                    return _("Passphrases do not match");
+                                            },
+                                            visible: vals => is_encrypted(vals) && vals.crypto != " keep",
+                                        }),
+                              CheckBoxes("store_passphrase", "",
+                                         {
+                                             visible: vals => is_encrypted(vals) && vals.crypto != " keep",
+                                             value: {
+                                                 on: false,
+                                             },
+                                             fields: [
+                                                 { title: _("Store passphrase"), tag: "on" }
+                                             ]
+                                         }),
+                              PassInput("old_passphrase", _("Passphrase"),
+                                        {
+                                            validate: function (phrase) {
+                                                if (phrase === "")
+                                                    return _("Passphrase cannot be empty");
+                                            },
+                                            visible: vals => vals.crypto == " keep" && vals.needs_explicit_passphrase,
+                                            explanation: _("The disk needs to be unlocked before formatting.  Please provide a existing passphrase.")
+                                        }),
+                              TextInput("crypto_options", _("Encryption options"),
+                                        {
+                                            visible: is_encrypted,
+                                            value: crypto_extra_options
+                                        })
+                          ]
+                      })
         ],
         Action: {
             Title: create_partition ? _("Create partition") : teardown_and_format_title(usage),

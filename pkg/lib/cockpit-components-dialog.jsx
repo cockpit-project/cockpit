@@ -207,6 +207,8 @@ DialogFooter.propTypes = {
  *      action is triggered.
  *  - footer (react element, top element should be of class modal-footer)
  *  - id optional, id that is assigned to the top level dialog node, but not the backdrop
+ *  - variant: See PF4 Modal component's 'variant' property
+ *  - titleIconVariant: See PF4 Modal component's 'titleIconVariant' property
  */
 export class Dialog extends React.Component {
     componentDidMount() {
@@ -233,6 +235,7 @@ export class Dialog extends React.Component {
 
         return (
             <Modal position="top" variant={this.props.variant || "medium"}
+                   titleIconVariant={this.props.titleIconVariant}
                    onEscapePress={() => undefined}
                    showClose={false}
                    id={this.props.id}

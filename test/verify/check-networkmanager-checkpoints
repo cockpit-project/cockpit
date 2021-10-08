@@ -49,7 +49,7 @@ class TestNetworkingCheckpoints(NetworkCase):
 
         # Wait for dialog to appear and dismiss it
         b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
-        b.wait_not_visible("#confirm-breaking-change-popup")
+        b.wait_not_present("#confirm-breaking-change-popup")
 
         if m.image not in ["debian-testing", "debian-stable"]:
             # Change IP
@@ -60,7 +60,7 @@ class TestNetworkingCheckpoints(NetworkCase):
             b.set_input_text('#network-ip-settings-netmask-0', "24")
             b.click("#network-ip-settings-apply")
             b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
-            b.wait_not_visible("#confirm-breaking-change-popup")
+            b.wait_not_present("#confirm-breaking-change-popup")
 
     @skipImage("Main interface settings are read-only", "debian-stable", "debian-testing")
     @skipImage("not using dhclient", "fedora-coreos")
@@ -131,7 +131,7 @@ class TestNetworkingCheckpoints(NetworkCase):
         self.toggle_onoff(".pf-c-card__header:contains('%s')" % iface)
         with b.wait_timeout(120):
             b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
-            b.wait_not_visible("#confirm-breaking-change-popup")
+            b.wait_not_present("#confirm-breaking-change-popup")
 
 
 if __name__ == '__main__':

@@ -55,6 +55,28 @@ export function show_unexpected_error(error) {
     show_error_dialog(_("Unexpected error"), error.message || error);
 }
 
+function show_breaking_change_dialog({ fail_text, anyway_text, action }) {
+    const props = {
+        titleIconVariant: "warning",
+        id: "confirm-breaking-change-popup",
+        title: _("Connection will be lost"),
+        body: <p>{fail_text}</p>
+    };
+
+    const footer = {
+        actions: [
+            {
+                caption: anyway_text,
+                clicked: action,
+                style: "danger",
+            }
+        ],
+        cancel_caption: _("Keep connection")
+    };
+
+    show_modal_dialog(props, footer);
+}
+
 export function connection_settings(c) {
     if (c && c.Settings && c.Settings.connection) {
         return c.Settings.connection;
@@ -1508,7 +1530,6 @@ export function with_checkpoint(model, modify, options) {
     const curtain = $('#testing-connection-curtain');
     const curtain_testing = $('#testing-connection-curtain-testing');
     const curtain_restoring = $('#testing-connection-curtain-restoring');
-    const dialog = $('#confirm-breaking-change-popup');
 
     let curtain_timeout;
     let curtain_title_timeout;
@@ -1569,15 +1590,14 @@ export function with_checkpoint(model, modify, options) {
                                 manager.checkpoint_destroy(cp)
                                         .always(hide_curtain)
                                         .fail(function () {
-                                            dialog.find('#confirm-breaking-change-text').html(options.fail_text);
-                                            dialog.find('.pf-c-modal-box__footer button.pf-m-danger')
-                                                    .off('click')
-                                                    .text(options.anyway_text)
-                                                    .syn_click(model, function () {
-                                                        dialog.prop('hidden', true);
+                                            show_breaking_change_dialog({
+                                                ...options,
+                                                action: () => {
+                                                    syn_click(model, function () {
                                                         modify();
                                                     });
-                                            dialog.prop('hidden', false);
+                                                }
+                                            });
                                         });
                             }, settle_time * 1000);
                         })
@@ -1797,7 +1817,4 @@ export function apply_group_member(choices, model, apply_group, group_connection
 
 export function init() {
     cockpit.translate();
-
-    $('#confirm-breaking-change-popup [data-dismiss]').click(() =>
-        $('#confirm-breaking-change-popup').prop('hidden', true));
 }

@@ -17,6 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import $ from 'jquery';
+import React from "react";
 import cockpit from 'cockpit';
 
 import * as utils from './utils';
@@ -31,14 +32,27 @@ import "table.css";
 import "./networking.scss";
 import "form-layout.scss";
 
+import { show_modal_dialog } from "cockpit-components-dialog.jsx";
+
 const _ = cockpit.gettext;
 
+function show_error_dialog(title, message) {
+    const props = {
+        id: "error-popup",
+        title: title,
+        body: <p>{message}</p>
+    };
+
+    const footer = {
+        actions: [],
+        cancel_caption: _("Close")
+    };
+
+    show_modal_dialog(props, footer);
+}
+
 export function show_unexpected_error(error) {
-    const msg = error.message || error || "???";
-    console.warn(msg);
-    $("#error-popup-message").text(msg);
-    $('#error-popup').prop('hidden', false);
-    $('#error-popup-cancel').click(() => $('#error-popup').prop('hidden', true));
+    show_error_dialog(_("Unexpected error"), error.message || error);
 }
 
 export function connection_settings(c) {

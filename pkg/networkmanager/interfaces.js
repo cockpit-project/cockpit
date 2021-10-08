@@ -190,6 +190,11 @@ export function NetworkManagerModel() {
 
     const objects = { };
 
+    self.set_curtain = (state) => {
+        self.curtain = state;
+        self.dispatchEvent("changed");
+    };
+
     function complain() {
         self.ready = false;
         console.warn.apply(console, arguments);
@@ -1265,6 +1270,7 @@ export function NetworkManagerModel() {
     get_object("/org/freedesktop/NetworkManager/Settings", type_Settings);
 
     self.ready = undefined;
+    self.curtain = undefined;
     return self;
 }
 
@@ -1499,16 +1505,12 @@ export function choice_title(choices, choice, def) {
  *                          this much time.  Windows seems to have
  *                          less patience than Linux in this regard.
  */
-
 const curtain_time = 1.5;
 let settle_time = 1.0;
 const rollback_time = 7.0;
 
 export function with_checkpoint(model, modify, options) {
     const manager = model.get_manager();
-    const curtain = $('#testing-connection-curtain');
-    const curtain_testing = $('#testing-connection-curtain-testing');
-    const curtain_restoring = $('#testing-connection-curtain-restoring');
 
     let curtain_timeout;
     let curtain_title_timeout;
@@ -1517,14 +1519,11 @@ export function with_checkpoint(model, modify, options) {
         cockpit.hint("ignore_transport_health_check", { data: true });
         curtain_timeout = window.setTimeout(function () {
             curtain_timeout = null;
-            curtain_testing.prop('hidden', false);
-            curtain_restoring.prop('hidden', true);
-            curtain.prop('hidden', false);
+            model.set_curtain('testing');
         }, curtain_time * 1000);
         curtain_title_timeout = window.setTimeout(function () {
             curtain_title_timeout = null;
-            curtain_testing.prop('hidden', true);
-            curtain_restoring.prop('hidden', false);
+            model.set_curtain('restoring');
         }, rollback_time * 1000);
     }
 
@@ -1534,8 +1533,9 @@ export function with_checkpoint(model, modify, options) {
         curtain_timeout = null;
         if (curtain_title_timeout)
             window.clearTimeout(curtain_title_timeout);
-        curtain.prop('hidden', true);
         cockpit.hint("ignore_transport_health_check", { data: false });
+
+        model.set_curtain(undefined);
     }
 
     // HACK - Let's not use checkpoints for changes that involve

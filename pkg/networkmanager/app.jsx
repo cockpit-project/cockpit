@@ -59,6 +59,10 @@ const App = () => {
     const plot_state_main = useObject(() => new PlotState(), null, []);
     const plot_state_iface = useObject(() => new PlotState(), null, []);
 
+    if (model.curtain == 'testing' || model.curtain == 'restoring') {
+        return <EmptyStatePanel loading title={model.curtain == 'testing' ? _("Testing connection") : _("Restoring connection")} />;
+    }
+
     if (model.ready === undefined)
         return <EmptyStatePanel loading />;
 

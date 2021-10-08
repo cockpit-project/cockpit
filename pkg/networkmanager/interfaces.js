@@ -23,14 +23,8 @@ import cockpit from 'cockpit';
 import * as utils from './utils';
 import { v4 as uuidv4 } from 'uuid';
 
-/* jQuery extensions */
-import 'patterns';
-import 'bootstrap/dist/js/bootstrap';
-
 import "page.scss";
-import "table.css";
 import "./networking.scss";
-import "form-layout.scss";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 

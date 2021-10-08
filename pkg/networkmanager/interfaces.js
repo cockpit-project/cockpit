@@ -525,7 +525,7 @@ export function NetworkManagerModel() {
                https://www.kernel.org/doc/Documentation/networking/bonding.txt
             */
             result.bond = {
-                options:        $.extend({}, get("bond", "options", { })),
+                options:        { ...get("bond", "options", { }) },
                 interface_name: get("bond", "interface-name")
             };
         }
@@ -581,7 +581,7 @@ export function NetworkManagerModel() {
     }
 
     function settings_to_nm(settings, orig) {
-        const result = $.extend(true, {}, orig);
+        const result = JSON.parse(JSON.stringify(orig || { }));
 
         function set(first, second, sig, val, def) {
             if (val === undefined)
@@ -858,7 +858,7 @@ export function NetworkManagerModel() {
 
         prototype: {
             copy_settings: function () {
-                return $.extend(true, { }, this.Settings);
+                return JSON.parse(JSON.stringify(this.Settings));
             },
 
             apply_settings: function (settings) {
@@ -1274,21 +1274,6 @@ export function NetworkManagerModel() {
     return self;
 }
 
-// Add a "syn_click" method to jQuery.  This will invoke the event
-// handler with the additional guarantee that the model is consistent.
-
-$.fn.extend({
-    syn_click: function(model, fun) {
-        return this.click(function() {
-            const self = this;
-            const self_args = arguments;
-            model.synchronize().then(function() {
-                fun.apply(self, self_args);
-            });
-        });
-    }
-});
-
 export function syn_click(model, fun) {
     return function() {
         const self = this;
@@ -1624,11 +1609,11 @@ export function with_checkpoint(model, modify, options) {
 
 export function with_settings_checkpoint(model, modify, options) {
     with_checkpoint(model, modify,
-                    $.extend(
-                        {
-                            fail_text: _("Changing the settings will break the connection to the server, and will make the administration UI unavailable."),
-                            anyway_text: _("Change the settings"),
-                        }, options));
+                    {
+                        ...options,
+                        fail_text: _("Changing the settings will break the connection to the server, and will make the administration UI unavailable."),
+                        anyway_text: _("Change the settings"),
+                    });
 }
 
 export function connection_devices(con) {
@@ -1787,8 +1772,8 @@ export function apply_group_member(choices, model, apply_group, group_connection
         }
 
         if (active_settings.length == 1) {
-            group_settings.ipv4 = $.extend(true, { }, active_settings[0].ipv4);
-            group_settings.ipv6 = $.extend(true, { }, active_settings[0].ipv6);
+            group_settings.ipv4 = JSON.parse(JSON.stringify(active_settings[0].ipv4));
+            group_settings.ipv6 = JSON.parse(JSON.stringify(active_settings[0].ipv6));
         }
 
         group_settings.connection.autoconnect_members = 1;

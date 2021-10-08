@@ -245,8 +245,20 @@ import "@patternfly/patternfly/components/HelperText/helper-text.css";
 
 const _ = cockpit.gettext;
 
+function make_rows(fields, values, errors, onChange) {
+    return fields.map((f, i) => <Row key={i} field={f} values={values} errors={errors} onChange={onChange} />)
+            .filter(r => r);
+}
+
+function is_visible(field, values) {
+    return !field.options || field.options.visible == undefined || field.options.visible(values);
+}
+
 const Row = ({ field, values, errors, onChange }) => {
     const { tag, title, options } = field;
+
+    if (!is_visible(field, values))
+        return null;
 
     const error = errors && errors[tag];
     const explanation = options && options.explanation;
@@ -257,7 +269,10 @@ const Row = ({ field, values, errors, onChange }) => {
         onChange(tag);
     }
 
-    const children = field.render(values[tag], change, validated, error);
+    const field_elts = field.render(values[tag], change, validated, error);
+    const nested_elts = (options && options.nested_fields
+        ? make_rows(options.nested_fields, values, errors, onChange)
+        : []);
 
     if (title || title == "") {
         let titleLabel = title;
@@ -272,23 +287,21 @@ const Row = ({ field, values, errors, onChange }) => {
         return (
             <FormGroup label={titleLabel} validated={validated}
                        helperTextInvalid={error} helperText={explanation} hasNoPaddingTop={field.hasNoPaddingTop}>
-                { children }
+                { field_elts }
+                { nested_elts }
             </FormGroup>
         );
     } else if (!field.bare) {
         return (
             <FormGroup validated={validated}
                        helperTextInvalid={error} helperText={explanation} hasNoPaddingTop={field.hasNoPaddingTop}>
-                { children }
+                { field_elts }
+                { nested_elts }
             </FormGroup>
         );
     } else
-        return children;
+        return field_elts;
 };
-
-function is_visible(field, values) {
-    return !field.options || field.options.visible == undefined || field.options.visible(values);
-}
 
 const Body = ({ body, teardown, fields, values, errors, isFormHorizontal, onChange }) => {
     let error_alert = null;
@@ -299,42 +312,32 @@ const Body = ({ body, teardown, fields, values, errors, isFormHorizontal, onChan
         errors = null;
     }
 
-    function make_row(field, index) {
-        if (field.length !== undefined)
-            return make_rows(field, index);
-
-        if (is_visible(field, values))
-            return <Row key={index} field={field} values={values} errors={errors} onChange={onChange} />;
-    }
-
-    function make_rows(fields, index) {
-        const rows = fields.map(make_row).filter(r => r);
-        if (rows.length === 0)
-            return null;
-        else if (index === undefined) // top-level
-            return <Form onSubmit={apply_modal_dialog}
-                         isHorizontal={isFormHorizontal !== false}>{ rows }</Form>;
-        else // nested
-            return <FormGroup key={index}>{ rows }</FormGroup>;
-    }
-
     return (
         <>
             { error_alert }
             { body || null }
-            { make_rows(fields) }
+            { fields.length > 0
+                ? <Form onSubmit={apply_modal_dialog}
+                        isHorizontal={isFormHorizontal !== false}>
+                    { make_rows(fields, values, errors, onChange) }
+                </Form>
+                : null }
             { teardown }
         </>
     );
 };
 
-function flatten(arr1) {
-    return arr1.reduce((acc, val) => Array.isArray(val) ? acc.concat(flatten(val)) : acc.concat(val), []);
+function flatten_fields(fields) {
+    return fields.reduce(
+        (acc, val) => acc.concat([val]).concat(val.options && val.options.nested_fields
+            ? flatten_fields(val.options.nested_fields)
+            : []),
+        []);
 }
 
 export const dialog_open = (def) => {
     const nested_fields = def.Fields || [];
-    const fields = flatten(nested_fields);
+    const fields = flatten_fields(nested_fields);
     const values = { };
 
     fields.forEach(f => { values[f.tag] = f.initial_value });

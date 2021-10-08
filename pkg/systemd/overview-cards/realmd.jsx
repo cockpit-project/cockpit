@@ -60,6 +60,7 @@ export class RealmdClient {
 
         cockpit.event_target(this);
         this.initProxy();
+        superuser.addEventListener("changed", () => this.initProxy());
     }
 
     onClose(ev, options) {

@@ -43,7 +43,6 @@ export class ConfigurationCard extends React.Component {
         };
 
         this.realmd_client = new RealmdClient();
-        superuser.addEventListener("changed", () => this.realmd_client.initProxy());
     }
 
     componentDidMount() {

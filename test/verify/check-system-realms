@@ -326,6 +326,7 @@ class CommonTests:
         self.login_and_go("/system")
         b.click("#system_information_domain_button")
         b.wait_popup("realms-join-dialog")
+        b.wait_attr("#realms-op-address", "data-discover", "done")
         b.set_input_text("#realms-op-address", "cockpit.lan")
         b.wait_text("#realms-op-address-helper", "Contacted domain")
         b.set_input_text("#realms-op-admin", self.admin_user)

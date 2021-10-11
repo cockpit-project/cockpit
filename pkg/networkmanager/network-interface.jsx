@@ -33,6 +33,7 @@ import { ModelContext } from './model-context.jsx';
 import { NetworkInterfaceMembers } from "./network-interface-members.jsx";
 import { NetworkAction } from './dialogs-common.jsx';
 import { NetworkPlots } from "./plots";
+import { fmt_to_fragments } from 'utils.jsx';
 
 import {
     array_join,
@@ -125,7 +126,7 @@ export const NetworkInterfacePage = ({
             with_checkpoint(model, modify,
                             {
                                 devices: dev ? [dev] : [],
-                                fail_text: cockpit.format(_("Deleting <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), dev_name),
+                                fail_text: fmt_to_fragments(_("Deleting $0 will break the connection to the server, and will make the administration UI unavailable."), <b>{dev_name}</b>),
                                 anyway_text: cockpit.format(_("Delete $0"), dev_name),
                                 hack_does_add_or_remove: true,
                                 rollback_on_failure: true
@@ -152,7 +153,7 @@ export const NetworkInterfacePage = ({
         with_checkpoint(model, modify,
                         {
                             devices: dev ? [dev] : [],
-                            fail_text: cockpit.format(_("Switching on <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), dev_name),
+                            fail_text: fmt_to_fragments(_("Switching on $0 will break the connection to the server, and will make the administration UI unavailable."), <b>{dev_name}</b>),
                             anyway_text: cockpit.format(_("Switch on $0"), dev_name)
                         });
     }
@@ -173,7 +174,7 @@ export const NetworkInterfacePage = ({
         with_checkpoint(model, modify,
                         {
                             devices: [dev],
-                            fail_text: cockpit.format(_("Switching off <b>$0</b>  will break the connection to the server, and will make the administration UI unavailable."), dev_name),
+                            fail_text: fmt_to_fragments(_("Switching off $0 will break the connection to the server, and will make the administration UI unavailable."), <b>{dev_name}</b>),
                             anyway_text: cockpit.format(_("Switch off $0"), dev_name)
                         });
     }

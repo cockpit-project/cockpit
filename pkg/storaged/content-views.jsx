@@ -43,7 +43,7 @@ import { FilesystemTab, is_mounted, mounting_dialog, get_fstab_config } from "./
 import { CryptoTab, edit_config } from "./crypto-tab.jsx";
 import { get_existing_passphrase, unlock_with_type } from "./crypto-keyslots.jsx";
 import { BlockVolTab, PoolVolTab } from "./lvol-tabs.jsx";
-import { PVolTab, MDRaidMemberTab, VDOBackingTab } from "./pvol-tabs.jsx";
+import { PVolTab, MDRaidMemberTab, VDOBackingTab, StratisBlockdevTab } from "./pvol-tabs.jsx";
 import { PartitionTab } from "./part-tab.jsx";
 import { SwapTab } from "./swap-tab.jsx";
 import { UnrecognizedTab } from "./unrecognized-tab.jsx";
@@ -100,7 +100,7 @@ function create_tabs(client, target, is_partition) {
     }
 
     const block = endsWith(target.iface, ".Block") ? target : null;
-    const is_crypto = (block && block.IdUsage == 'crypto');
+    let is_crypto = (block && block.IdUsage == 'crypto');
     const content_block = is_crypto ? client.blocks_cleartext[block.path] : block;
 
     const block_fsys = content_block && client.blocks_fsys[content_block.path];
@@ -108,11 +108,21 @@ function create_tabs(client, target, is_partition) {
     const block_pvol = content_block && client.blocks_pvol[content_block.path];
     const block_swap = content_block && client.blocks_swap[content_block.path];
 
+    const block_stratis_blockdev = block && client.blocks_stratis_blockdev[block.path];
+    const block_stratis_locked_pool = block && client.blocks_stratis_locked_pool[block.path];
+
     const lvol = (endsWith(target.iface, ".LogicalVolume")
         ? target
         : block_lvm2 && client.lvols[block_lvm2.LogicalVolume]);
 
     const is_filesystem = (content_block && content_block.IdUsage == 'filesystem');
+    const is_stratis = ((content_block && content_block.IdUsage == "raid" && content_block.IdType == "stratis") ||
+                      (block_stratis_blockdev && client.stratis_pools[block_stratis_blockdev.Pool]) ||
+                      block_stratis_locked_pool);
+
+    // Adjust for encryption leaking out of Stratis
+    if (is_crypto && is_stratis)
+        is_crypto = false;
 
     let warnings = client.path_warnings[target.path] || [];
     if (content_block)
@@ -190,6 +200,8 @@ function create_tabs(client, target, is_partition) {
     } else if ((content_block && content_block.IdUsage == "raid" && content_block.IdType == "LVM2_member") ||
                (block_pvol && client.vgroups[block_pvol.VolumeGroup])) {
         add_tab(_("Physical volume"), PVolTab, true);
+    } else if (is_stratis) {
+        add_tab(_("Stratis pool"), StratisBlockdevTab, false);
     } else if ((content_block && content_block.IdUsage == "raid") ||
                (content_block && client.mdraids[content_block.MDRaidMember])) {
         add_tab(_("RAID member"), MDRaidMemberTab, true);
@@ -412,6 +424,8 @@ function create_tabs(client, target, is_partition) {
 
 function block_description(client, block) {
     let usage;
+    const block_stratis_blockdev = client.blocks_stratis_blockdev[block.path];
+    const block_stratis_locked_pool = client.blocks_stratis_locked_pool[block.path];
     const cleartext = client.blocks_cleartext[block.path];
     if (cleartext)
         block = cleartext;
@@ -422,6 +436,8 @@ function block_description(client, block) {
         const [config] = get_fstab_config(block, true);
         if (config)
             usage = C_("storage-id-desc", "Filesystem (encrypted)");
+        else if (block_stratis_locked_pool)
+            usage = cockpit.format(_("Blockdev of locked Stratis pool $0"), block_stratis_locked_pool);
         else
             usage = C_("storage-id-desc", "Locked encrypted data");
     } else if (block.IdUsage == "filesystem") {
@@ -433,8 +449,13 @@ function block_description(client, block) {
         } else if (client.mdraids[block.MDRaidMember]) {
             const mdraid = client.mdraids[block.MDRaidMember];
             usage = cockpit.format(_("Member of RAID device $0"), utils.mdraid_name(mdraid));
+        } else if (block_stratis_blockdev && client.stratis_pools[block_stratis_blockdev.Pool]) {
+            const pool = client.stratis_pools[block_stratis_blockdev.Pool];
+            usage = cockpit.format(_("Blockdev of Stratis pool $0"), pool.Name);
         } else if (block.IdType == "LVM2_member") {
             usage = _("Physical volume");
+        } else if (block.IdType == "stratis") {
+            usage = _("Member of Stratis Pool");
         } else {
             usage = _("Member of RAID device");
         }

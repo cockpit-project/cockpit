@@ -49,6 +49,10 @@ export class FilesystemsPanel extends React.Component {
         function is_mount(path) {
             const block = client.blocks[path];
 
+            // Stratis filesystems are handled separate
+            if (client.blocks_stratis_fsys[path])
+                return false;
+
             if (block.HintIgnore)
                 return false;
 
@@ -78,7 +82,7 @@ export class FilesystemsPanel extends React.Component {
                         title: fsys_size
                             ? <StorageUsageBar stats={fsys_size} critical={0.95} block={block.IdLabel || block_name(block)} />
                             : fmt_size(block.Size),
-                        props: { className: "ct-text-align-right" },
+                        props: { className: "ct-text-align-right" }
                     }
                 ]
             };
@@ -87,10 +91,77 @@ export class FilesystemsPanel extends React.Component {
         const mounts = Object.keys(client.blocks).filter(is_mount)
                 .map(make_mount);
 
+        function has_filesystems(path) {
+            return client.stratis_pool_filesystems[path].length > 0;
+        }
+
+        function make_pool(path) {
+            const pool = client.stratis_pools[path];
+            const use = [Number(pool.data.TotalPhysicalUsed), Number(pool.data.TotalPhysicalSize)];
+            const filesystems = client.stratis_pool_filesystems[path].sort((a, b) => a.Devnode.localeCompare(b.Devnode));
+            const prefix = "/dev/stratis/" + pool.Name;
+
+            const suffices = [];
+            const mount_points = [];
+            const offsets = [];
+            let total = 0;
+            filesystems.forEach(fs => {
+                const block = client.slashdevs_block[fs.Devnode];
+                if (!block)
+                    mount_points.push("-");
+                else {
+                    const [, mp] = get_fstab_config(block, true);
+                    mount_points.push(mp || "-");
+                }
+                offsets.push(total);
+                total += Number(fs.data.Used);
+                if (fs.Devnode.indexOf(prefix) == 0)
+                    suffices.push(<span>&emsp;...{fs.Devnode.substr(prefix.length)}</span>);
+                else
+                    suffices.push(fs.Devnode);
+            });
+
+            return {
+                props: { path, client, key: path },
+                columns: [
+                    {
+                        sortKey: prefix,
+                        title: <>
+                            <div>{prefix}</div>
+                            { filesystems.map((fs, i) => <div key={fs.Devnode}>{suffices[i]}</div>) }
+                        </>
+                    },
+                    {
+                        sortKey: "",
+                        title: <>
+                            <div><span style={{ visibility: "hidden" }}>X</span></div>
+                            { mount_points.map(mp => <div key={mp}>{mp}</div>) }
+                        </>
+                    },
+                    {
+                        title: <>
+                            <div><StorageUsageBar stats={use} critical={0.95} /></div>
+                            { filesystems.map((fs, i) => <div key={i}><StorageUsageBar stats={[Number(fs.data.Used), use[1]]} critical={1} small total={total} offset={offsets[i]} /></div>) }
+                        </>,
+                        props: { className: "ct-text-align-right" }
+
+                    }
+                ]
+            };
+        }
+
+        const pools = Object.keys(client.stratis_pools).filter(has_filesystems)
+                .map(make_pool);
+
         function onRowClick(event, row) {
             if (!event || event.button !== 0)
                 return;
-            go_to_block(row.props.client, row.props.path);
+
+            const stratis_pool = row.props.client.stratis_pools[row.props.path];
+            if (stratis_pool) {
+                cockpit.location.go(["pool", stratis_pool.Name]);
+            } else
+                go_to_block(row.props.client, row.props.path);
         }
 
         // table-hover class is needed till PF4 Table has proper support for clickable rows
@@ -108,7 +179,7 @@ export class FilesystemsPanel extends React.Component {
                         { title: _("Mount point"), transforms: [cellWidth(30)], sortable: true },
                         { title:  _("Size"), transforms: [cellWidth(40)] }
                     ]}
-                    rows={mounts} />
+                    rows={mounts.concat(pools)} />
             </OptionalPanel>
         );
     }

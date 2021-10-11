@@ -453,6 +453,8 @@ export class FilesystemTab extends React.Component {
         const forced_options = self.props.forced_options;
         const is_locked = block && block.IdUsage == 'crypto';
         const block_fsys = block && self.props.client.blocks_fsys[block.path];
+        const stratis_fsys = block && self.props.client.blocks_stratis_fsys[block.path];
+
         const mismounted_fsys_warning = self.props.warnings.find(w => w.warning == "mismounted-fsys");
 
         function rename_dialog() {
@@ -486,7 +488,9 @@ export class FilesystemTab extends React.Component {
                 extract_option(split_options, opt);
 
         let used;
-        if (is_filesystem_mounted) {
+        if (stratis_fsys) {
+            used = utils.fmt_size(Number(stratis_fsys.data.Used));
+        } else if (is_filesystem_mounted) {
             const samples = self.props.client.fsys_sizes.data[old_dir];
             if (samples)
                 used = cockpit.format(_("$0 of $1"),
@@ -672,6 +676,7 @@ export class FilesystemTab extends React.Component {
         return (
             <div>
                 <DescriptionList className="pf-m-horizontal-on-sm">
+                    { !stratis_fsys &&
                     <DescriptionListGroup>
                         <DescriptionListTerm>{_("Name")}</DescriptionListTerm>
                         <DescriptionListDescription>
@@ -685,7 +690,7 @@ export class FilesystemTab extends React.Component {
                                 </FlexItem>
                             </Flex>
                         </DescriptionListDescription>
-                    </DescriptionListGroup>
+                    </DescriptionListGroup> }
                     <DescriptionListGroup>
                         <DescriptionListTerm>{_("Mount point")}</DescriptionListTerm>
                         <DescriptionListDescription>

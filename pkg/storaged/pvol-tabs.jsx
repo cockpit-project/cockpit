@@ -98,3 +98,26 @@ export class VDOBackingTab extends React.Component {
         );
     }
 }
+
+export const StratisBlockdevTab = ({ client, block }) => {
+    const stratis_blockdev = client.blocks_stratis_blockdev[block.path];
+    const pool = stratis_blockdev && client.stratis_pools[stratis_blockdev.Pool];
+    const stratis_locked_pool_uuid = client.blocks_stratis_locked_pool[block.path];
+
+    const name = pool ? pool.Name : stratis_locked_pool_uuid;
+
+    return (
+        <div>
+            <div className="ct-form">
+                <label className="control-label">{_("Stratis Pool")}</label>
+                <div>{name
+                    ? <Button variant="link" isInline role="link" onClick={() => cockpit.location.go(["pool", name])}>
+                        {name}
+                    </Button>
+                    : "-"
+                }
+                </div>
+            </div>
+        </div>
+    );
+};

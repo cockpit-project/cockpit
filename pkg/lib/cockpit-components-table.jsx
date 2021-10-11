@@ -113,7 +113,7 @@ export class ListingTable extends React.Component {
 
     sortRows(rows) {
         const { index, direction } = this.state.sortBy;
-        const sortedRows = rows.sort((a, b) => (a.cells[index].title.localeCompare(b.cells[index].title)));
+        const sortedRows = rows.sort((a, b) => ((a.cells[index].sortKey || a.cells[index].title).localeCompare(b.cells[index].sortKey || b.cells[index].title)));
         return direction === SortByDirection.asc ? sortedRows : sortedRows.reverse();
     }
 

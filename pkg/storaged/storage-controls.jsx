@@ -207,7 +207,7 @@ export const StorageUsageBar = ({ stats, critical, block, offset, total, small }
             <div className="pf-c-progress__status" aria-hidden="true">
                 <span className="pf-c-progress__measure">{labelText}</span>
             </div>
-            <div className="pf-c-progress__bar" role="progressbar"
+            <div className="pf-c-progress__bar ct-thin-progress" role="progressbar"
                  aria-valuemin="0" aria-valuemax={stats[1]} aria-valuenow={stats[0]}
                  aria-label={cockpit.format(_("Usage of $0"), block)}
                  aria-valuetext={labelText}>

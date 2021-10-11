@@ -504,6 +504,8 @@ export function get_parent(client, path) {
         return client.blocks_lvm2[path].LogicalVolume;
     if (client.lvols[path] && client.vgroups[client.lvols[path].VolumeGroup])
         return client.lvols[path].VolumeGroup;
+    if (client.blocks_stratis_fsys[path])
+        return client.blocks_stratis_fsys[path].Pool;
 }
 
 export function get_direct_parent_blocks(client, path) {
@@ -518,6 +520,8 @@ export function get_direct_parent_blocks(client, path) {
         parent = client.lvols[parent].VolumeGroup;
     if (client.vgroups[parent])
         return client.vgroups_pvols[parent].map(function (pv) { return pv.path });
+    if (client.stratis_pools[parent])
+        return client.stratis_pool_blockdevs[parent].map(bd => client.slashdevs_block[bd.Devnode].path);
     return [];
 }
 
@@ -568,6 +572,14 @@ function get_children(client, path) {
         });
     }
 
+    if (client.stratis_pools[path]) {
+        client.stratis_pool_filesystems[path].forEach(function (fsys) {
+            const block = client.slashdevs_block[fsys.Devnode];
+            if (block)
+                children.push(block.path);
+        });
+    }
+
     return children;
 }
 
@@ -579,6 +591,8 @@ export function get_active_usage(client, path) {
         const pvol = client.blocks_pvol[path];
         const vgroup = pvol && client.vgroups[pvol.VolumeGroup];
         const vdo = block && client.vdo_overlay.find_by_backing_block(block);
+        const stratis_blockdev = block && client.blocks_stratis_blockdev[path];
+        const stratis_pool = stratis_blockdev && client.stratis_pools[stratis_blockdev.Pool];
 
         const usage = flatten(get_children(client, path).map(get_usage));
 
@@ -611,6 +625,13 @@ export function get_active_usage(client, path) {
                 vdo: vdo
             });
 
+        if (stratis_pool)
+            usage.push({
+                usage: 'stratis-pool-member',
+                block: block,
+                stratis_pool: stratis_pool
+            });
+
         return usage;
     }
 
@@ -629,7 +650,8 @@ export function get_active_usage(client, path) {
             Mounts: [],
             MDRaidMembers: [],
             PhysicalVolumes: [],
-            VDOs: []
+            VDOs: [],
+            Pools: []
         }
     };
 
@@ -637,8 +659,9 @@ export function get_active_usage(client, path) {
         let entry, active_state;
 
         if (use.usage == 'mounted') {
+            const fsys = client.blocks_stratis_fsys[use.block.path];
             res.Teardown.Mounts.push({
-                Name: block_name(client.blocks[use.block.CryptoBackingDevice] || use.block),
+                Name: fsys ? fsys.Devnode : block_name(client.blocks[use.block.CryptoBackingDevice] || use.block),
                 MountPoint: decode_filename(use.fsys.MountPoints[0])
             });
         } else if (use.usage == 'mdraid-member') {
@@ -669,6 +692,12 @@ export function get_active_usage(client, path) {
                 VDO: use.vdo.name
             };
             res.Blocking.VDOs.push(entry);
+        } else if (use.usage == 'stratis-pool-member') {
+            entry = {
+                Name: block_name(use.block),
+                Pool: use.stratis_pool.Name
+            };
+            res.Blocking.Pools.push(entry);
         }
     });
 
@@ -683,9 +712,10 @@ export function get_active_usage(client, path) {
     res.Blocking.HasMDRaidMembers = res.Blocking.MDRaidMembers.length > 0;
     res.Blocking.HasPhysicalVolumes = res.Blocking.PhysicalVolumes.length > 0;
     res.Blocking.HasVDOs = res.Blocking.VDOs.length > 0;
+    res.Blocking.HasPools = res.Blocking.Pools.length > 0;
 
     if (!res.Blocking.HasMounts && !res.Blocking.HasMDRaidMembers && !res.Blocking.HasPhysicalVolumes &&
-        !res.Blocking.HasVDOs)
+        !res.Blocking.HasVDOs && !res.Blocking.HasPools)
         res.Blocking = null;
 
     return res;

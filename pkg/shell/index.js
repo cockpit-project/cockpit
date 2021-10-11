@@ -21,14 +21,11 @@ import '../lib/patternfly/patternfly-cockpit.scss';
 
 import { machines } from "./machines/machines";
 import { new_machine_dialog_manager } from "./machines/machine-dialogs";
-import * as credentials from "./credentials";
 import * as indexes from "./indexes";
 
 const machines_inst = machines.instance();
 const loader = machines.loader(machines_inst);
 const dialogs = new_machine_dialog_manager(machines_inst);
-
-credentials.setup();
 
 /* When alt is held down we display debugging menu items */
 document.addEventListener("click", function(ev) {

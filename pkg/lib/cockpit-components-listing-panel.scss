@@ -1,54 +1,25 @@
 .ct-listing-panel {
-  &-head {
-    background: linear-gradient(to top,
-      var(--pf-global--BorderColor--100) 0,
-      var(--pf-global--BorderColor--100) 1px,
-      transparent 1px
-    );
-    align-items: flex-end;
-    padding-right: var(--pf-global--spacer--lg);
-    gap: var(--pf-global--spacer--sm);
-
-    .pf-c-nav {
-      margin-left: var(--pf-global--spacer--xs);
-    }
-
-    .pf-c-nav__item {
-      --pf-c-nav__list-item--MarginRight: 0;
-      cursor: pointer;
-    }
-
-    // For now, let's use tertiary until PF4 tab is reworked
-    // meanwhile, let's force restyle the tertiary to look like the upcoming tabs.
-    // See https://patternfly-next-pr-2757.surge.sh/documentation/core/components/tabs/
-    // Setting padding height to be 1/2, however for being embedded in the list.
-    .pf-c-nav .pf-c-nav__list {
-      flex-wrap: wrap;
-
-      .pf-c-nav__link {
-        --pf-c-nav__link--PaddingTop: var(--pf-global--spacer--sm);
-        --pf-c-nav__link--PaddingBottom: var(--pf-global--spacer--sm);
-        --pf-c-nav__link--PaddingLeft: var(--pf-global--spacer--md);
-        --pf-c-nav__link--PaddingRight: var(--pf-global--spacer--md);
-        padding: var(--pf-global--spacer--sm) var(--pf-global--spacer--md);
-
-        &:hover {
-          --pf-c-nav__link--Color: inherit;
-
-          &::after {
-            --pf-c-nav__link--hover--after--BackgroundColor: var(--pf-global--BorderColor--light-100);
-          }
-        }
-      }
-    }
-
-    .dropdown, .btn-group, .pf-c-button, input, select {
-      margin-left: var(--pf-global--spacer--xs);
-    }
-  }
+  display: flex;
+  flex-wrap: wrap;
 
   &-actions {
-      padding: var(--pf-global--spacer--sm) 0 var(--pf-global--spacer--sm) var(--pf-global--spacer--md);
+      order: 2;
+      flex-grow: 1;
+      padding: var(--pf-global--spacer--sm) var(--pf-global--spacer--lg) var(--pf-global--spacer--sm) var(--pf-global--spacer--md);
+  }
+
+  &-caption {
+      margin-left: auto;
+  }
+
+  &-tabs {
+      flex-grow: 1;
+      order: 1;
+  }
+
+  .pf-c-tab-content {
+      order: 3;
+      flex-basis: 100%
   }
 
   &-body {

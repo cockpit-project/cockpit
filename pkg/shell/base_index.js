@@ -24,6 +24,7 @@ import ReactDOM from "react-dom";
 
 import { showDialog } from "./active-pages";
 import { LangModal, TimeoutModal, OopsModal } from "./shell-modals.jsx";
+import { CredentialsModal } from './credentials.jsx';
 
 const shell_embedded = window.location.pathname.indexOf(".html") !== -1;
 const _ = cockpit.gettext;
@@ -837,6 +838,14 @@ function Index() {
                 ReactDOM.unmountComponentAtNode(document.getElementById('display-language'))
         }),
                         document.getElementById('display-language'));
+    });
+
+    $("#credentials-item").click(() => {
+        ReactDOM.render(React.createElement(CredentialsModal, {
+            onClose: () =>
+                ReactDOM.unmountComponentAtNode(document.getElementById('credentials'))
+        }),
+                        document.getElementById('credentials'));
     });
 }
 

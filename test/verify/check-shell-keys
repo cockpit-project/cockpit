@@ -165,11 +165,39 @@ class TestKeys(MachineCase):
         def list_keys():
             return b.eval_js("cockpit.spawn([ '/bin/sh', '-c', 'ssh-add -l || true' ])")
 
-        def assertKeyState(selector, enabled):
-            b.wait_visible("%s input[type=checkbox]%s" % (selector, enabled and ":checked" or ":not(:checked)"))
+        def toggleExpandedStateKey(identifier):
+            b.click(f"tr[data-name='{identifier}'] .pf-c-table__toggle > button")
 
-        def toggleKeyState(selector, on_area=False):
-            b.click(selector + " .pf-c-switch__input")
+        def waitKeyPresent(identifier, present):
+            if present:
+                b.wait_visible(f"tr[data-name='{identifier}']")
+            else:
+                b.wait_not_present(f"tr[data-name='{identifier}']")
+
+        def waitKeyLoaded(identifier, enabled):
+            b.wait_visible(f"tr[data-name='{identifier}'] input[type=checkbox]" + (":checked" if enabled else ":not(checked)"))
+            b.wait_visible(f"tr[data-name='{identifier}'][data-loaded={'true' if enabled else 'false'}]")
+
+        def toggleKeyState(identifier, on_area=False):
+            b.click(f"tr[data-name='{identifier}'] .pf-c-switch__input")
+
+        def selectTab(identifier, title):
+            b.click(f"tr[data-name='{identifier}'] + tr li > a:contains('{title}')")
+
+        def waitTabActive(identifier, title):
+            b.wait_visible(f"tr[data-name='{identifier}'] + tr li > a.pf-m-current:contains('{title}')")
+
+        def waitKeyRowExpanded(identifier, expanded):
+            if expanded:
+                b.wait_visible(f"tr[data-name='{identifier}'] + tr .ct-listing-panel-body:not([hidden])")
+            else:
+                b.wait_not_visible(f"tr[data-name='{identifier}'] + tr")
+
+        def waitKeyDetail(identifier, dtype, value):
+            b.wait_in_text(f"tr[data-name='{identifier}'] + tr dt:contains({dtype}) + dd > div", value)
+
+        def getKeyDetail(identifier, dtype):
+            return b.text(f"tr[data-name='{identifier}'] + tr dt:contains({dtype}) + dd > div")
 
         # Operating systems where auto loading doesn't work
         auto_load = not m.ostree_image
@@ -211,44 +239,36 @@ class TestKeys(MachineCase):
         b.click("#navbar-dropdown")
         b.click("#credentials-item")
 
-        # Check the key display
-        b.wait_visible("tbody[data-name=id_rsa]")
-
         # Automatically loaded
-        if auto_load:
-            assertKeyState("tbody[data-name=id_rsa]", True)
-        b.click("tbody[data-name=id_rsa] tr.listing-ct-item")
-        self.assertTrue(b.is_visible("tbody[data-name=id_rsa] .listing-ct-body"))
-        self.assertTrue(b.is_visible("tbody[data-name=id_rsa] ul"))
-        self.assertTrue(b.is_present("tbody[data-name=id_rsa] li.active:contains('Details')"))
-        self.assertEqual(b.text("tbody[data-name=id_rsa] .credential-comment"), "test@test")
-        self.assertEqual(b.text("tbody[data-name=id_rsa] .credential-type"), "RSA")
-        text = b.text("tbody[data-name=id_rsa] .credential-fingerprint")
+        waitKeyLoaded('id_rsa', auto_load)
+        toggleExpandedStateKey('id_rsa')
+        waitKeyRowExpanded('id_rsa', True)
+        waitTabActive('id_rsa', 'Details')
+        waitKeyDetail('id_rsa', 'Comment', "test@test")
+        waitKeyDetail('id_rsa', 'Type', "RSA")
+        text = b.text("tr[data-name=id_rsa] + tr dt:contains(Fingerprint) + dd > div")
         if "SHA256" in text:
             self.assertEqual(text, id_rsa[5:])
         else:
             self.assertEqual(text, old_rsa[5:])
 
-        b.click("tbody[data-name=id_rsa] li:contains('Public key') a")
-        self.assertTrue(b.is_visible("tbody[data-name=id_rsa] textarea"))
-        self.assertEqual(b.text("tbody[data-name=id_rsa] textarea"),
-                         "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDG4iipTovcMg0xn+089QLNKVGpP"
-                         "2Pgq2duxHgAXre2XgA3dZL+kooioGFwBQSEjbWssKy82hKIN/W82/lQtL6krf7JQW"
-                         "nT3LZwD5DPsvHFKhOLghbiFzSI0uEL4NFFcZOMo5tGLrM5LsZsaIkkv5QkAE0tHIy"
-                         "eYinK6dQ2d8ZsfmgqxHDUQUWnz1T75X9fWQsUugSWI+8xAe0cfa4qZRz/IC+K7DEB"
-                         "3x4Ot5pl8FBuydJj/gb+Lwo2Vs27/d87W/0KHCqOHNwaVC8RBb1WcmXRDDetLGH1A"
-                         "9m5x7Ip/KU/cyvWWxw8S4VKZkTIcrGUhFYJDnjtE3Axz+D7agtps41t test@test\n")
-        b.click("tbody[data-name=id_rsa] tr.listing-ct-item")
-        self.assertFalse(b.is_visible("tbody[data-name=id_rsa] .listing-ct-body"))
+        selectTab('id_rsa', 'Public key')
+        b.wait_val("tr[data-name=id_rsa] + tr .pf-c-clipboard-copy input",
+                   "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDG4iipTovcMg0xn+089QLNKVGpP"
+                   "2Pgq2duxHgAXre2XgA3dZL+kooioGFwBQSEjbWssKy82hKIN/W82/lQtL6krf7JQW"
+                   "nT3LZwD5DPsvHFKhOLghbiFzSI0uEL4NFFcZOMo5tGLrM5LsZsaIkkv5QkAE0tHIy"
+                   "eYinK6dQ2d8ZsfmgqxHDUQUWnz1T75X9fWQsUugSWI+8xAe0cfa4qZRz/IC+K7DEB"
+                   "3x4Ot5pl8FBuydJj/gb+Lwo2Vs27/d87W/0KHCqOHNwaVC8RBb1WcmXRDDetLGH1A"
+                   "9m5x7Ip/KU/cyvWWxw8S4VKZkTIcrGUhFYJDnjtE3Axz+D7agtps41t test@test")
+        toggleExpandedStateKey('id_rsa')
+        waitKeyRowExpanded('id_rsa', False)
 
         # Load the id_dsa key
-        assertKeyState("tbody[data-name=id_dsa]", False)
-        toggleKeyState("tbody[data-name=id_dsa]", True)
-        self.assertTrue(b.is_present("tbody[data-name=id_dsa] .credential-unlock"))
-        b.set_val("tbody[data-name=id_dsa] .credential-password", "badbad")
-        b.click("tbody[data-name=id_dsa] .credential-unlock button")
-        b.wait_visible("tbody[data-name=id_dsa][data-loaded=1]")
-        assertKeyState("tbody[data-name=id_dsa]", True)
+        waitKeyLoaded('id_dsa', False)
+        toggleKeyState('id_dsa', True)
+        b.set_input_text("#id_dsa-password", "badbad")
+        b.click("#id_dsa-unlock")
+        waitKeyLoaded('id_dsa', True)
 
         # Both keys are now loaded
         keys = list_keys()
@@ -262,8 +282,9 @@ class TestKeys(MachineCase):
             self.assertIn(old_dsa, keys)
 
         # Unload the RSA key
-        toggleKeyState("tbody[data-name=id_rsa]")
-        b.wait_visible("tbody[data-name=id_rsa][data-loaded=0]")
+        if auto_load:
+            toggleKeyState('id_rsa')
+            waitKeyLoaded('id_rsa', False)
 
         # Only DSA keys now loaded
         keys = list_keys()
@@ -275,12 +296,13 @@ class TestKeys(MachineCase):
         self.assertNotIn(old_rsa, keys)
 
         # Change password of DSA key
-        b.click("tbody[data-name=id_dsa] li:contains('Password') a")
-        b.set_val("tbody[data-name=id_dsa] .credential-old", "badbad")
-        b.set_val("tbody[data-name=id_dsa] .credential-new", "foobar")
-        b.set_val("tbody[data-name=id_dsa] .credential-two", "foobar")
-        b.click("tbody[data-name=id_dsa] .credential-change")
-        b.wait_visible("tbody[data-name=id_dsa] li.active:contains('Details')")
+        toggleExpandedStateKey('id_dsa')
+        selectTab('id_dsa', 'Password')
+        b.set_input_text("#id_dsa-old-password", "badbad")
+        b.set_input_text("#id_dsa-new-password", "foobar")
+        b.set_input_text("#id_dsa-confirm-password", "foobar")
+        b.click("#id_dsa-change-password")
+        b.wait_visible('#credentials-modal .pf-c-helper-text__item.pf-m-success')
 
         # Log off and log back in, and we should have both loaded automatically
         if auto_load:
@@ -296,7 +318,7 @@ class TestKeys(MachineCase):
 
             b.click("#navbar-dropdown")
             b.click("#credentials-item")
-            b.wait_popup("credentials-dialog")
+            b.wait_visible("#credentials-modal")
 
         # Add bad keys
         # generate a new key
@@ -305,58 +327,56 @@ class TestKeys(MachineCase):
         new_pk = m.execute("cat /tmp/new.rsa.pub").strip().split()[0]
         m.execute("rm /tmp/new.rsa.pub")
 
-        b.wait_visible("tbody[data-name=id_rsa]")
+        waitKeyPresent('id_rsa', True)
 
         b.wait_visible("#credential-keys")
-        b.wait_visible("#credential-keys a")
-        b.wait_not_visible("#ssh-file-add")
-        b.click("#credential-keys a")
-        b.wait_visible("tr.load-custom-key")
-        b.wait_visible("#ssh-file-add")
-        b.wait_visible("#ssh-file-container")
-        b.set_val("#ssh-file-container input[type=text]", "/bad")
+        b.wait_not_present("#ssh-file-add")
+        b.click("#ssh-file-add-custom")
+        b.set_input_text("#credentials-modal .pf-c-select__toggle-typeahead", "/bad")
         b.click("#ssh-file-add")
-        b.wait_text("tr.load-custom-key div.dialog-error", "Not a valid private key")
+        b.wait_text("#credentials-modal .pf-m-error > .pf-c-helper-text__item-text", "Not a valid private key")
 
-        b.set_val("#ssh-file-container input[type=text]", "/tmp/new.rsa")
+        b.set_file_autocomplete_val("#ssh-file-add-key", "/tmp/new.rsa")
         b.click("#ssh-file-add")
-        b.wait_not_visible("tr.load-custom-key")
+        b.wait_not_present("#ssh-file-add")
         # OpenSSH 7.8 and up has a new default key format where
         # keys are marked as "agent_only", thereby limiting functionality
-
+        keys = list_keys()
+        keys_length = 3 if auto_load else 2
         if openssh_version >= [7, 8]:
-            new_key_tbody = "tbody:contains('root@')"
+            # Keys are like: 1024 SHA256:x6S6fxMuEyqhpwNRAIK7ms6bZDY6xK9wzdDr2kCaWVY id_dsa (DSA)
+            # We need the id_dsa part, (name or comment)
+            new_key = keys.splitlines()[keys_length - 1].split(' ')[2]
         else:
-            new_key_tbody = "tbody[data-name='/tmp/new.rsa']"
-        b.click(new_key_tbody)
-        b.click(new_key_tbody + " tr.listing-ct-head")
+            new_key = "new.rsa"
+        toggleKeyState(new_key, True)
 
-        self.assertTrue(b.is_visible(new_key_tbody + " .listing-ct-body"))
-        self.assertTrue(b.is_visible(new_key_tbody + " ul"))
-        self.assertTrue(b.is_present(new_key_tbody + " li.active:contains('Details')"))
-        self.assertEqual(b.text(new_key_tbody + " .credential-type"), "RSA")
-        b.wait_text_not(new_key_tbody + " .credential-fingerprint", "")
-        b.click(new_key_tbody + " li:contains('Public key') a")
-        self.assertTrue(b.is_visible(new_key_tbody + " textarea"))
-        self.assertTrue(b.text(new_key_tbody + " textarea").startswith(new_pk))
+        toggleExpandedStateKey(new_key)
+        waitKeyRowExpanded(new_key, True)
+        waitTabActive(new_key, 'Details')
+        waitKeyDetail(new_key, 'Type', 'RSA')
+        self.assertNotEqual(getKeyDetail(new_key, 'Fingerprint'), "")
+        selectTab(new_key, 'Public key')
+        self.assertTrue(b.val(f"tr[data-name='{new_key}'] + tr .pf-c-clipboard-copy input").startswith(new_pk))
 
         # OpenSSH 7.8 and up has a new default key format where
         # keys are marked as "agent_only", thereby limiting functionality
         if openssh_version >= [7, 8]:
             # "agent_only" keys cannot be turned off, or have their passwords changed
-            assertKeyState(new_key_tbody, True)
+            waitKeyLoaded(new_key, True)
         else:
             # Change password of key
-            b.click(new_key_tbody + " li:contains('Password') a")
-            b.set_val(new_key_tbody + " .credential-old", "")
-            b.set_val(new_key_tbody + " .credential-new", "foobar")
-            b.set_val(new_key_tbody + " .credential-two", "foobar")
-            b.click(new_key_tbody + " .credential-change")
-            b.wait_visible(new_key_tbody + " li.active:contains('Details')")
+            selectTab('new.rsa', 'Password')
+            b.set_input_text("#" + new_key + "-old-password", "")
+            b.set_input_text("#" + new_key + "-old-new", "foobar")
+            b.set_input_text("#" + new_key + "-old-two", "foobar")
+            b.click("#" + new_key + "-change-password")
+
+            waitTabActive(new_key, 'Details')
 
             # Turn key off, it goes away
-            toggleKeyState(new_key_tbody)
-            b.wait_not_present(new_key_tbody)
+            toggleKeyState(new_key)
+            waitKeyPresent(new_key, False)
 
             # Key now has password that needs to be entered to add
             b.wait_not_visible("tr.load-custom-key")
@@ -371,17 +391,15 @@ class TestKeys(MachineCase):
             b.wait_not_visible("tr.load-custom-key")
             b.wait_visible("tbody.ssh-add-key-body[data-name='/tmp/new.rsa']")
 
-            self.assertTrue(b.is_present(new_key_tbody + " .credential-unlock"))
-            b.set_val(new_key_tbody + " .credential-password", "badbad")
-            b.click(new_key_tbody + " .credential-unlock button")
+            b.set_input_text(f"{new_key}-password", "badbad")
+            b.click(f"{new_key}-unlock")
 
-            b.wait_visible(new_key_tbody + " .credential-alert")
-            b.wait_in_text(new_key_tbody + " .credential-alert", "Password")
-            b.set_val(new_key_tbody + " .credential-password", "foobar")
-            b.click(new_key_tbody + " .credential-unlock button")
+            b.wait_in_text("#credential-dialog .pf-c-alert", "Password not accepted")
+            b.set_input_text(f"#{new_key}-password", "foobar")
+            b.click("#{new_key}-unlock")
 
-            b.wait_visible(new_key_tbody + "[data-loaded=1]")
-            b.wait_not_present("tbody.ssh-add-key-body[data-name='/tmp/new.rsa']")
+            waitKeyLoaded(new_key, True)
+            waitKeyPresent(new_key, False)
 
 
 if __name__ == '__main__':

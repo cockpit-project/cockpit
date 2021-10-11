@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import React from 'react';
+import React, { useState } from 'react';
 import {
     Card, CardBody, Button, CardTitle, Modal, Alert,
     Form, FormGroup, TextInput
@@ -25,6 +25,7 @@ import {
 import host_keys_script from "raw-loader!./ssh-list-host-keys.sh";
 import cockpit from "cockpit";
 import { superuser } from "superuser";
+import { useObject, useEvent } from "hooks.js";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { ServerTimeConfig } from 'serverTime.js';
 import { RealmdClient, RealmButton } from "./realmd.jsx";
@@ -33,81 +34,70 @@ import "./configurationCard.scss";
 
 const _ = cockpit.gettext;
 
-export class ConfigurationCard extends React.Component {
-    constructor(props) {
-        super(props);
+export const ConfigurationCard = ({ hostname }) => {
+    const [hostEditModal, setHostEditModal] = useState(false);
+    const [showKeysModal, setShowKeysModal] = useState(false);
 
-        this.state = {
-            hostEditModal: false,
-            showKeysModal: false,
-        };
+    const realmd_client = useObject(() => new RealmdClient(), null, []);
+    useEvent(realmd_client, "changed");
 
-        this.realmd_client = new RealmdClient();
-    }
+    const hostname_button = (superuser.allowed && realmd_client.allowHostnameChange())
+        ? (
+            <Button id="system_information_hostname_button" variant="link"
+                    onClick={ () => setHostEditModal(true) }
+                    isInline aria-label="edit hostname">
+                {hostname !== "" ? _("edit") : _("Set hostname")}
+            </Button>)
+        : null;
 
-    componentDidMount() {
-        this.realmd_client.addEventListener("changed", () => this.setState({}));
-    }
+    return (
+        <>
+            {hostEditModal && <PageSystemInformationChangeHostname onClose={() => setHostEditModal(false)} />}
+            {showKeysModal && <SystemInformationSshKeys onClose={() => setShowKeysModal(false)} />}
+            <Card className="system-configuration">
+                <CardTitle>{_("Configuration")}</CardTitle>
+                <CardBody>
+                    <table className="pf-c-table pf-m-grid-md pf-m-compact">
+                        <tbody>
+                            <tr>
+                                <th scope="row">{_("Hostname")}</th>
+                                <td>
+                                    {hostname && <span id="system_information_hostname_text">{hostname}</span>}
+                                    <span>{hostname_button}</span>
+                                </td>
+                            </tr>
 
-    render() {
-        let hostname_button = null;
-        if (superuser.allowed && this.realmd_client.allowHostnameChange())
-            hostname_button = (
-                <Button id="system_information_hostname_button" variant="link"
-                        onClick={ () => this.setState({ hostEditModal: true }) }
-                        isInline aria-label="edit hostname">
-                    {this.props.hostname !== "" ? _("edit") : _("Set hostname")}
-                </Button>);
+                            <tr>
+                                <th scope="row">{_("System time")}</th>
+                                <td><ServerTimeConfig /></td>
+                            </tr>
 
-        return (
-            <>
-                {this.state.hostEditModal && <PageSystemInformationChangeHostname onClose={() => this.setState({ hostEditModal: false })} />}
-                {this.state.showKeysModal && <SystemInformationSshKeys onClose={() => this.setState({ showKeysModal: false })} />}
-                <Card className="system-configuration">
-                    <CardTitle>{_("Configuration")}</CardTitle>
-                    <CardBody>
-                        <table className="pf-c-table pf-m-grid-md pf-m-compact">
-                            <tbody>
-                                <tr>
-                                    <th scope="row">{_("Hostname")}</th>
-                                    <td>
-                                        {this.props.hostname && <span id="system_information_hostname_text">{this.props.hostname}</span>}
-                                        <span>{hostname_button}</span>
-                                    </td>
-                                </tr>
+                            <tr>
+                                <th scope="row">{_("Domain")}</th>
+                                <td><RealmButton realmd_client={realmd_client} /></td>
+                            </tr>
 
-                                <tr>
-                                    <th scope="row">{_("System time")}</th>
-                                    <td><ServerTimeConfig /></td>
-                                </tr>
+                            <tr>
+                                <th scope="row">{_("Performance profile")}</th>
+                                <td><span id="system-info-performance" /></td>
+                            </tr>
 
-                                <tr>
-                                    <th scope="row">{_("Domain")}</th>
-                                    <td><RealmButton realmd_client={this.realmd_client} /></td>
-                                </tr>
-
-                                <tr>
-                                    <th scope="row">{_("Performance profile")}</th>
-                                    <td><span id="system-info-performance" /></td>
-                                </tr>
-
-                                <tr>
-                                    <th scope="row">{_("Secure shell keys")}</th>
-                                    <td>
-                                        <Button variant="link" isInline id="system-ssh-keys-link"
-                                                onClick={() => this.setState({ showKeysModal: true })}>
-                                            {_("Show fingerprints")}
-                                        </Button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </CardBody>
-                </Card>
-            </>
-        );
-    }
-}
+                            <tr>
+                                <th scope="row">{_("Secure shell keys")}</th>
+                                <td>
+                                    <Button variant="link" isInline id="system-ssh-keys-link"
+                                            onClick={() => setShowKeysModal(true)}>
+                                        {_("Show fingerprints")}
+                                    </Button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </CardBody>
+            </Card>
+        </>
+    );
+};
 
 class SystemInformationSshKeys extends React.Component {
     constructor(props) {

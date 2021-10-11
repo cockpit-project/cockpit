@@ -38,7 +38,7 @@ import {
     SelectOneRadio, TextInput, PassInput, Skip
 } from "./dialog.jsx";
 import { array_find, decode_filename, block_name } from "./utils.js";
-import { fmt_to_fragments } from "./utilsx.jsx";
+import { fmt_to_fragments } from "utils.jsx";
 import { StorageButton } from "./storage-controls.jsx";
 
 import clevis_luks_passphrase_sh from "raw-loader!./clevis-luks-passphrase.sh";

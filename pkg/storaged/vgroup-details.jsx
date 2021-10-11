@@ -30,7 +30,7 @@ import {
 import { PlusIcon, MinusIcon } from "@patternfly/react-icons";
 
 import * as utils from "./utils.js";
-import { fmt_to_fragments } from "./utilsx.jsx";
+import { fmt_to_fragments } from "utils.jsx";
 import { StdDetailsLayout } from "./details.jsx";
 import { SidePanel, SidePanelBlockRow } from "./side-panel.jsx";
 import { VGroup } from "./content-views.jsx";

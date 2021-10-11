@@ -42,6 +42,7 @@ import {
     with_checkpoint,
     is_managed,
 } from './interfaces.js';
+import { fmt_to_fragments } from 'utils.jsx';
 
 const _ = cockpit.gettext;
 
@@ -79,7 +80,7 @@ export const NetworkInterfaceMembers = ({
                                 },
                                 {
                                     devices: dev ? [dev] : [],
-                                    fail_text: cockpit.format(_("Switching on <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), iface.Name),
+                                    fail_text: fmt_to_fragments(_("Switching on $0 will break the connection to the server, and will make the administration UI unavailable."), <b>{iface.Name}</b>),
                                     anyway_text: cockpit.format(_("Switch on $0"), iface.Name)
                                 });
                         } else if (dev) {
@@ -91,7 +92,7 @@ export const NetworkInterfaceMembers = ({
                                 },
                                 {
                                     devices: [dev],
-                                    fail_text: cockpit.format(_("Switching off <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), iface.Name),
+                                    fail_text: fmt_to_fragments(_("Switching off $0 will break the connection to the server, and will make the administration UI unavailable."), <b>{iface.Name}</b>),
                                     anyway_text: cockpit.format(_("Switch off $0"), iface.Name)
                                 });
                         }
@@ -117,7 +118,7 @@ export const NetworkInterfaceMembers = ({
                                             },
                                             {
                                                 devices: dev ? [dev] : [],
-                                                fail_text: cockpit.format(_("Removing <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), iface.Name),
+                                                fail_text: fmt_to_fragments(_("Removing $0 will break the connection to the server, and will make the administration UI unavailable."), <b>{iface.Name}</b>),
                                                 anyway_text: cockpit.format(_("Remove $0"), iface.Name),
                                                 hack_does_add_or_remove: true
                                             });
@@ -171,7 +172,7 @@ export const NetworkInterfaceMembers = ({
                             },
                             {
                                 devices: iface.Device ? [iface.Device] : [],
-                                fail_text: cockpit.format(_("Adding <b>$0</b> will break the connection to the server, and will make the administration UI unavailable."), iface.Name),
+                                fail_text: fmt_to_fragments(_("Adding $0 will break the connection to the server, and will make the administration UI unavailable."), <b>{iface.Name}</b>),
                                 anyway_text: cockpit.format(_("Add $0"), iface.Name),
                                 hack_does_add_or_remove: true
                             }

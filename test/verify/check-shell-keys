@@ -182,10 +182,10 @@ class TestKeys(MachineCase):
             b.click(f"tr[data-name='{identifier}'] .pf-c-switch__input")
 
         def selectTab(identifier, title):
-            b.click(f"tr[data-name='{identifier}'] + tr li > a:contains('{title}')")
+            b.click(f"tr[data-name='{identifier}'] + tr li > button:contains('{title}')")
 
         def waitTabActive(identifier, title):
-            b.wait_visible(f"tr[data-name='{identifier}'] + tr li > a.pf-m-current:contains('{title}')")
+            b.wait_visible(f"tr[data-name='{identifier}'] + tr li.pf-m-current > button:contains('{title}')")
 
         def waitKeyRowExpanded(identifier, expanded):
             if expanded:

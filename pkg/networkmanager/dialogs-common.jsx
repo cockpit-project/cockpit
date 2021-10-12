@@ -44,8 +44,8 @@ import {
     with_checkpoint, with_settings_checkpoint,
     connection_devices,
     settings_applier,
+    show_unexpected_error,
 } from './interfaces.js';
-import { reactivateConnection } from './network-interface.jsx';
 
 const _ = cockpit.gettext;
 
@@ -236,11 +236,21 @@ export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) =
     );
 };
 
+function reactivateConnection({ con, dev }) {
+    if (con.Settings.connection.interface_name &&
+        con.Settings.connection.interface_name != dev.Interface) {
+        return dev.disconnect().then(function () { return con.activate(null, null) })
+                .fail(show_unexpected_error);
+    } else {
+        return con.activate(dev, null)
+                .fail(show_unexpected_error);
+    }
+}
+
 export const dialogApply = ({ model, dev, connection, members, membersInit, settings, setDialogError, setIsOpen }) => {
     const apply_settings = settings_applier(model, dev, connection);
     const iface = settings.connection.interface_name;
     const type = settings.connection.type;
-    const done = () => reactivateConnection({ con: connection, dev });
     const membersChanged = members ? Object.keys(membersInit).some(iface => membersInit[iface] != members[iface]) : false;
 
     const modify = () => {
@@ -256,8 +266,8 @@ export const dialogApply = ({ model, dev, connection, members, membersInit, sett
                     setIsOpen(false);
                     if (connection)
                         cockpit.location.go([iface]);
-                    if (dev)
-                        return done();
+                    if (connection && dev && dev.ActiveConnection && dev.ActiveConnection.Connection === connection)
+                        return reactivateConnection({ con: connection, dev });
                 })
                 .catch(ex => setDialogError(typeof ex === 'string' ? ex : ex.message));
     };

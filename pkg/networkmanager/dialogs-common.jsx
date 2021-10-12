@@ -253,6 +253,8 @@ export const dialogApply = ({ model, dev, connection, members, membersInit, sett
     const type = settings.connection.type;
     const membersChanged = members ? Object.keys(membersInit).some(iface => membersInit[iface] != members[iface]) : false;
 
+    model.set_operation_in_progress(true);
+
     const modify = () => {
         return ((members !== undefined)
             ? apply_group_member(members,
@@ -269,7 +271,8 @@ export const dialogApply = ({ model, dev, connection, members, membersInit, sett
                     if (connection && dev && dev.ActiveConnection && dev.ActiveConnection.Connection === connection)
                         return reactivateConnection({ con: connection, dev });
                 })
-                .catch(ex => setDialogError(typeof ex === 'string' ? ex : ex.message));
+                .catch(ex => setDialogError(typeof ex === 'string' ? ex : ex.message))
+                .then(() => model.set_operation_in_progress(false));
     };
     if (connection) {
         with_settings_checkpoint(model, modify,

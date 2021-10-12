@@ -44,7 +44,7 @@ import {
 
 const _ = cockpit.gettext;
 
-export const NetworkPage = ({ privileged, usage_monitor, plot_state, interfaces }) => {
+export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, plot_state, interfaces }) => {
     useEvent(firewall, "changed");
     useEvent(usage_monitor.grid, "notify");
 
@@ -139,7 +139,7 @@ export const NetworkPage = ({ privileged, usage_monitor, plot_state, interfaces 
     /* End of properties for the LogsPanel component */
 
     return (
-        <Page id="networking">
+        <Page data-test-wait={operationInProgress} id="networking">
             <PageSection id="networking-graphs" className="networking-graphs" variant={PageSectionVariants.light}>
                 <NetworkPlots plot_state={plot_state} />
             </PageSection>

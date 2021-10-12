@@ -135,6 +135,8 @@ class TestNetworkingSettings(NetworkCase):
         # original link-local route still exists
         self.assertIn("fe80::/64", out)
 
+        b.wait_attr("#network-interface", "data-test-wait", "false")
+
         # dialog prefills fields with current settings
         self.configure_iface_setting('IPv6')
         b.wait_visible("#network-ip-settings-dialog")

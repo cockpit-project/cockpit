@@ -63,6 +63,7 @@ const _ = cockpit.gettext;
 
 export const NetworkInterfacePage = ({
     privileged,
+    operationInProgress,
     usage_monitor,
     plot_state,
     interfaces,
@@ -687,6 +688,7 @@ export const NetworkInterfacePage = ({
         <Page groupProps={{ sticky: 'top' }}
               isBreadcrumbGrouped
               id="network-interface"
+              data-test-wait={operationInProgress}
               breadcrumb={
                   <Breadcrumb>
                       <BreadcrumbItem to='#'>

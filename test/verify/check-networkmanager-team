@@ -58,6 +58,8 @@ class TestTeam(NetworkCase):
         b.set_checked("input[data-iface='%s']" % iface2, True)
         b.click("#network-team-settings-dialog button:contains('Apply')")
         b.wait_not_present("#network-team-settings-dialog")
+
+        b.wait_attr("#networking", "data-test-wait", "false")
         b.wait_visible("#networking-interfaces tr[data-interface='tteam']")
 
         # Check that the configuration file has the expected sane name
@@ -118,6 +120,8 @@ class TestTeam(NetworkCase):
         b.click("#network-team-settings-dialog button:contains('Apply')")
         b.wait_not_present("#network-team-settings-dialog")
 
+        b.wait_attr("#networking", "data-test-wait", "false")
+
         # Check that it has the interface and the right IP address
         self.select_iface('tteam')
         b.wait_visible("#network-interface")
@@ -133,8 +137,13 @@ class TestTeam(NetworkCase):
         b.click("#network-team-port-settings-apply")
         b.wait_not_present("#network-team-port-settings-dialog")
 
+        b.wait_attr("#network-interface", "data-test-wait", "false")
+
         # Confirm that team port settings are applied
-        team_port_config = json.loads(m.execute("teamdctl tteam port config dump cockpit1"))
+        dump_config_cmd = "teamdctl tteam port config dump cockpit1 || true"
+        b.wait(lambda: "sticky" in m.execute(dump_config_cmd))
+        cockpit1_config = m.execute(dump_config_cmd)
+        team_port_config = json.loads(cockpit1_config)
         self.assertEqual(team_port_config.get("prio"), "10")
         self.assertTrue(team_port_config.get("sticky"))
 

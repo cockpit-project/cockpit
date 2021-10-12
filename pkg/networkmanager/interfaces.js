@@ -195,6 +195,12 @@ export function NetworkManagerModel() {
         self.dispatchEvent("changed");
     };
 
+    /* This is a test helper so that we wait for operations to finish before moving forward with the test */
+    self.set_operation_in_progress = (value) => {
+        self.operationInProgress = value;
+        self.dispatchEvent("changed");
+    };
+
     function complain() {
         self.ready = false;
         console.warn.apply(console, arguments);
@@ -1270,6 +1276,7 @@ export function NetworkManagerModel() {
     get_object("/org/freedesktop/NetworkManager/Settings", type_Settings);
 
     self.ready = undefined;
+    self.operationInProgress = undefined;
     self.curtain = undefined;
     return self;
 }

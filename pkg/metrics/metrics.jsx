@@ -1420,25 +1420,24 @@ export const Application = () => {
     const [firewalldRequest, setFirewalldRequest] = useState(null);
     const [needsLogout, setNeedsLogout] = useState(false);
 
-    return <Page groupProps={{ sticky: 'top' }}
-          additionalGroupedContent={
-              <PageSection id="metrics-header-section" variant={PageSectionVariants.light}>
-                  <Flex>
-                      <FlexItem>
-                          <Breadcrumb>
-                              <BreadcrumbItem onClick={() => cockpit.jump("/system")} className="pf-c-breadcrumb__link">{_("Overview")}</BreadcrumbItem>
-                              <BreadcrumbItem isActive>{_("Performance Metrics")}</BreadcrumbItem>
-                          </Breadcrumb>
-                      </FlexItem>
-                      <FlexItem align={{ default: 'alignRight' }}>
-                          <PCPConfig buttonVariant="secondary"
+    return <Page additionalGroupedContent={
+        <PageSection id="metrics-header-section" variant={PageSectionVariants.light}>
+            <Flex>
+                <FlexItem>
+                    <Breadcrumb>
+                        <BreadcrumbItem onClick={() => cockpit.jump("/system")} className="pf-c-breadcrumb__link">{_("Overview")}</BreadcrumbItem>
+                        <BreadcrumbItem isActive>{_("Performance Metrics")}</BreadcrumbItem>
+                    </Breadcrumb>
+                </FlexItem>
+                <FlexItem align={{ default: 'alignRight' }}>
+                    <PCPConfig buttonVariant="secondary"
                                      firewalldRequest={setFirewalldRequest}
                                      needsLogout={needsLogout}
                                      setNeedsLogout={setNeedsLogout} />
-                      </FlexItem>
-                  </Flex>
-              </PageSection>
-          }>
+                </FlexItem>
+            </Flex>
+        </PageSection>
+    }>
         { firewalldRequest &&
             <FirewalldRequest service={firewalldRequest.service} title={firewalldRequest.title} pageSection /> }
         <PageSection className="ct-pagesection-mobile">

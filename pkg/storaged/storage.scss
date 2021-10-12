@@ -419,3 +419,24 @@ td.storage-action {
 td.ct-text-align-right {
     text-align: right;
 }
+
+// Hatched effect for progressbars that are parts of a group, but not the main
+.ct-progress-other {
+    // Use the page's default background color
+    --bg-light: var(--pf-global--BackgroundColor--100);
+    // Alternate with the used color of the progress bar
+    --bg-dark: var(--pf-c-progress__indicator--BackgroundColor);
+    // Repeat a gradient with hard stops, a perfect slant, and a consistency
+    // with all "other" hatched backgrounds (fixed, so they repeat the same)
+    background: repeating-linear-gradient(
+        -45deg,
+        var(--bg-light),
+        var(--bg-light) 25%,
+        var(--bg-dark) 25%,
+        var(--bg-dark) 50%,
+        var(--bg-light) 50%
+    ) top left fixed;
+    background-size: var(--pf-global--spacer--sm) var(--pf-global--spacer--sm);
+    // Overlay at 1/3  to mix the light and dark against the trough color
+    opacity: 0.333;
+}

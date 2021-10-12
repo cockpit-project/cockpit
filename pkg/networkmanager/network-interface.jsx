@@ -61,19 +61,6 @@ import {
 
 const _ = cockpit.gettext;
 
-export function reactivateConnection({ con, dev }) {
-    if (con && dev && dev.ActiveConnection && dev.ActiveConnection.Connection === con) {
-        if (con.Settings.connection.interface_name &&
-            con.Settings.connection.interface_name != dev.Interface) {
-            return dev.disconnect().then(function () { return con.activate(null, null) })
-                    .fail(show_unexpected_error);
-        } else {
-            return con.activate(dev, null)
-                    .fail(show_unexpected_error);
-        }
-    }
-}
-
 export const NetworkInterfacePage = ({
     privileged,
     usage_monitor,

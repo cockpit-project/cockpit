@@ -404,6 +404,24 @@ class TestConnection(MachineCase):
         m.execute("sed -i '/---BEGIN PRIVATE KEY/,$ d' /etc/cockpit/ws-certs.d/cert-chain.crt")
         check_cert_chain()
 
+        # certmonger generated certificate; asciibetically later than the above
+        # not all images have certmonger
+        if m.image not in ["debian-stable", "debian-testing", "fedora-coreos"]:
+            # on RHEL 8 we need to fix the context as that does not have our own SELinux policy
+            if m.image.startswith("rhel-8") or m.image in ["centos-8-stream"]:
+                m.execute("semanage fcontext -a -t cert_t '/etc/cockpit/ws-certs\.d(/.*)?' && restorecon -v /etc/cockpit/ws-certs.d")
+            hostname = m.execute("hostname --fqdn").strip()
+            m.execute(f"getcert request -f /etc/cockpit/ws-certs.d/monger.cert -k /etc/cockpit/ws-certs.d/monger.key -D {hostname} -m 640 -o root:cockpit-ws -M 644 --ca=local --wait")
+            # cert generation succeeded, and it is being tracked
+            self.assertIn("MONITORING", m.execute("getcert list"))
+            self.assertIn("/etc/cockpit/ws-certs.d/monger.cert",
+                          m.execute(f"{self.libexecdir}/cockpit-certificate-ensure --check"))
+            m.restart_cockpit()
+            output = m.execute('openssl s_client -connect 172.27.0.15:9090 2>&1')
+            self.assertIn("DONE", output)
+            self.assertRegex(output, f"s:/?CN *= {hostname}")
+            self.assertRegex(output, "i:/?CN *= Local Signing Authority.*")
+
         # login handler: correct password
         m.execute("curl -k -c cockpit.jar -s --head --header 'Authorization: Basic {}' https://127.0.0.1:9090/cockpit/login".format(
             base64.b64encode(b"admin:foobar").decode(), ))

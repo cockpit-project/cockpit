@@ -77,14 +77,20 @@ $ sudo /usr/lib/cockpit/cockpit-certificate-ensure --check
 </programlisting>
 
     <para>If using <code>certmonger</code> to manage certificates, following command can
-    be used to automatically prepare concatenated .cert file:</para>
+    be used to automatically prepare a certificate/key file pair:</para>
 
     <programlisting>
-CERT_FILE=/etc/pki/tls/certs/$(hostname).pem
-KEY_FILE=/etc/pki/tls/private/$(hostname).key
+getcert request -f /etc/cockpit/ws-certs.d/50-certmonger.cert \
+                -k /etc/cockpit/ws-certs.d/50-certmonger.key \
+                -D myhostname.example.com \
+                -m 640 -o root:cockpit-ws -M 644 \
+                [--ca=...]</programlisting>
 
-getcert request -f ${CERT_FILE} -k ${KEY_FILE} -D $(hostname --fqdn) -C "sed -n w/etc/cockpit/ws-certs.d/50-from-certmonger.cert ${CERT_FILE} ${KEY_FILE}"
-    </programlisting>
+    <para>This will not work on Red Hat Enterprise Linux/CentOS 8 by default. Adjust the SELinux type of the certificate directory to <code>cert_t</code> to allow certmonger to write its certificates there:</para>
+
+    <programlisting>
+semanage fcontext -a -t cert_t '/etc/cockpit/ws-certs\.d(/.*)?'
+restorecon -v /etc/cockpit/ws-certs.d</programlisting>
   </section>
 
 </chapter>

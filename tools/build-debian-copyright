@@ -118,7 +118,14 @@ def module_copyright(moddir):
         # fall back to package.json's author
         try:
             with open(os.path.join(moddir, 'package.json')) as f:
-                copyrights.add(' ' + json.load(f)['author']['name'])
+                author = json.load(f)['author']
+                if isinstance(author, dict):
+                    # with npm < 7 author is an object
+                    copyrights.add(' ' + author['name'])
+                else:
+                    # with npm ≥ 7 author is a plain "Name <email>" string
+                    copyrights.add(' ' + author.split('<')[0].strip())
+
         except (IOError, KeyError):
             pass
 

@@ -115,6 +115,7 @@ const App = () => {
         return (
             <ModelContext.Provider value={model}>
                 <NetworkPage privileged={superuser.allowed}
+                             operationInProgress={model.operationInProgress}
                              usage_monitor={usage_monitor}
                              plot_state={plot_state_main}
                              interfaces={interfaces} />
@@ -127,6 +128,7 @@ const App = () => {
             return (
                 <ModelContext.Provider value={model}>
                     <NetworkInterfacePage privileged={superuser.allowed}
+                                          operationInProgress={model.operationInProgress}
                                           usage_monitor={usage_monitor}
                                           plot_state={plot_state_iface}
                                           interfaces={interfaces}

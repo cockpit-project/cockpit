@@ -42,8 +42,9 @@ if test ${npm_version%%.*} -lt 3; then
 fi
 
 # Development dependencies: See node_modules/README
-npm prune
-npm install # see package.json
+# npm 7 has stricter module resolution, use the legacy method for this old stable branch
+npm prune --legacy-peer-deps
+npm install --legacy-peer-deps # see package.json
 
 find node_modules -name test | xargs rm -rf
 

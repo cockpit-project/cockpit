@@ -11,6 +11,11 @@
      }
 }
 
+// Remove doubled-up padding on "main" sections, when two+ sections are used.
+.pf-c-page__main-section + .pf-c-page__main-section {
+    padding-top: 0;
+}
+
 // FIXME: More styles from ct-system-overview
 .current-metrics {
   --card-width: 200px;

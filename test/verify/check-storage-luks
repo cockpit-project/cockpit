@@ -259,7 +259,6 @@ class TestStorageLuks(StorageCase):
         self.confirm()
         b.wait_not_present(panel + "ul li:nth-child(2)")
 
-    @skipImage("No clevis/tang", "debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-stable")
     def testLuks1Slots(self):
         self.allow_journal_messages("Device is not initialized.*", ".*could not be opened.")
         m = self.machine
@@ -507,6 +506,34 @@ class TestStorageLuks(StorageCase):
         b.wait_visible("#storage-detail")
 
         self.wait_mounted(1, 1)
+
+    def testNoClevis(self):
+        m = self.machine
+        b = self.browser
+
+        # Remove luksmeta and all the clevis bits.  The monitoring and
+        # version detection should still work for LUKS1.
+
+        m.execute("rm /usr/bin/luksmeta /usr/bin/clevis*")
+
+        self.login_and_go("/storage")
+
+        # Add a disk and format it with LUKS1
+
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#drives", "MYDISK")
+        b.click('.sidepanel-row:contains("MYDISK")')
+        b.wait_visible("#storage-detail")
+
+        self.content_row_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "crypto": "luks1",
+                     "name": "ENCRYPTED",
+                     "mount_point": "/run/foo",
+                     "passphrase": "vainu-reku-toma-rolle-kaja",
+                     "passphrase2": "vainu-reku-toma-rolle-kaja"})
+        self.content_row_wait_in_col(1, 1, "ext4 file system (encrypted)")
+        self.content_tab_wait_in_info(1, 2, "Encryption type", "LUKS1")
 
 
 if __name__ == '__main__':

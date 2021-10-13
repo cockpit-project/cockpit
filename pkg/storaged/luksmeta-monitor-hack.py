@@ -85,7 +85,7 @@ def info(dev):
                     entry["ClevisConfig"] = {
                         "v": json.dumps(get_clevis_config_from_jwe(luksmeta.decode("utf-8")))
                     }
-                except subprocess.CalledProcessError:
+                except (subprocess.CalledProcessError, FileNotFoundError):
                     pass
             if slot not in slots:
                 slots[slot] = entry

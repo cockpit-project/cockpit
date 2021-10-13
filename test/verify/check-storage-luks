@@ -264,6 +264,9 @@ class TestStorageLuks(StorageCase):
         m = self.machine
         b = self.browser
 
+        # This should work without any of the Clevis stuff.
+        m.execute("rm /usr/bin/luksmeta /usr/bin/clevis*")
+
         mount_point_secret = "/run/secret"
 
         error_base = "Error unlocking /dev/sda: Failed to activate device: "
@@ -287,6 +290,7 @@ class TestStorageLuks(StorageCase):
                      "passphrase2": "vainu-reku-toma-rolle-kaja"})
         self.content_row_wait_in_col(1, 1, "Filesystem (encrypted)")
         self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
+        self.content_tab_wait_in_info(1, 2, "Encryption type", "LUKS1")
         self.content_tab_wait_in_info(1, 2, "Options", "none")
 
         # add one more passphrase
@@ -296,7 +300,6 @@ class TestStorageLuks(StorageCase):
         b.click(panel + "[aria-label=Add]")
         self.dialog_wait_open()
         self.dialog_wait_apply_enabled()
-        self.dialog_set_val("type", "luks-passphrase")
         self.dialog_set_val("new_passphrase", "vainu-reku-toma-rolle-kaja-1")
         self.dialog_set_val("new_passphrase2", "vainu-reku-toma-rolle-kaja-1")
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
@@ -338,7 +341,6 @@ class TestStorageLuks(StorageCase):
             b.click(panel + "button[aria-label=Add]")
             self.dialog_wait_open()
             self.dialog_wait_apply_enabled()
-            self.dialog_set_val("type", "luks-passphrase")
             self.dialog_set_val("new_passphrase", "vainu-reku-toma-rolle-kaja-%s" % i)
             self.dialog_set_val("new_passphrase2", "vainu-reku-toma-rolle-kaja-%s" % i)
             self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
@@ -506,34 +508,6 @@ class TestStorageLuks(StorageCase):
         b.wait_visible("#storage-detail")
 
         self.wait_mounted(1, 1)
-
-    def testNoClevis(self):
-        m = self.machine
-        b = self.browser
-
-        # Remove luksmeta and all the clevis bits.  The monitoring and
-        # version detection should still work for LUKS1.
-
-        m.execute("rm /usr/bin/luksmeta /usr/bin/clevis*")
-
-        self.login_and_go("/storage")
-
-        # Add a disk and format it with LUKS1
-
-        m.add_disk("50M", serial="MYDISK")
-        b.wait_in_text("#drives", "MYDISK")
-        b.click('.sidepanel-row:contains("MYDISK")')
-        b.wait_visible("#storage-detail")
-
-        self.content_row_action(1, "Format")
-        self.dialog({"type": "ext4",
-                     "crypto": "luks1",
-                     "name": "ENCRYPTED",
-                     "mount_point": "/run/foo",
-                     "passphrase": "vainu-reku-toma-rolle-kaja",
-                     "passphrase2": "vainu-reku-toma-rolle-kaja"})
-        self.content_row_wait_in_col(1, 1, "ext4 file system (encrypted)")
-        self.content_tab_wait_in_info(1, 2, "Encryption type", "LUKS1")
 
 
 if __name__ == '__main__':

@@ -409,7 +409,7 @@ class TestConnection(MachineCase):
         if m.image not in ["debian-stable", "debian-testing", "fedora-coreos"]:
             # on RHEL 8 we need to fix the context as that does not have our own SELinux policy
             if m.image.startswith("rhel-8") or m.image in ["centos-8-stream"]:
-                m.execute("semanage fcontext -a -t cert_t '/etc/cockpit/ws-certs\.d(/.*)?' && restorecon -v /etc/cockpit/ws-certs.d")
+                m.execute(r"semanage fcontext -a -t cert_t '/etc/cockpit/ws-certs\.d(/.*)?' && restorecon -v /etc/cockpit/ws-certs.d")
             hostname = m.execute("hostname --fqdn").strip()
             m.execute(f"getcert request -f /etc/cockpit/ws-certs.d/monger.cert -k /etc/cockpit/ws-certs.d/monger.key -D {hostname} -m 640 -o root:cockpit-ws -M 644 --ca=local --wait")
             # cert generation succeeded, and it is being tracked

@@ -33,6 +33,13 @@
   }
 
   .pf-c-card {
+      // Make sure the cards do not get taller than 50% of the screen
+      // ...and when they do, they should scroll
+      @media screen and (orientation: landscape) {
+        max-height: 50vh;
+        overflow: auto;
+      }
+
       &__title {
           font-size: var(--pf-global--FontSize--xl);
           font-weight: var(--pf-global--FontWeight--normal);

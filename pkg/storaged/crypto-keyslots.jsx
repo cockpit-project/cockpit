@@ -278,6 +278,7 @@ function add_dialog(client, block) {
             SelectOneRadio("type", _("Key source"),
                            {
                                value: "tang",
+                               visible: vals => client.features.clevis,
                                widest_title: _("Repeat passphrase"),
                                choices: [
                                    { value: "luks-passphrase", title: _("Passphrase") },
@@ -287,12 +288,12 @@ function add_dialog(client, block) {
             Skip("medskip"),
             PassInput("new_passphrase", _("New passphrase"),
                       {
-                          visible: vals => vals.type == "luks-passphrase",
+                          visible: vals => !client.features.clevis || vals.type == "luks-passphrase",
                           validate: val => !val.length && _("Passphrase cannot be empty"),
                       }),
             PassInput("new_passphrase2", _("Repeat passphrase"),
                       {
-                          visible: vals => vals.type == "luks-passphrase",
+                          visible: vals => !client.features.clevis || vals.type == "luks-passphrase",
                           validate: (val, vals) => {
                               return (vals.new_passphrase.length &&
                                                         vals.new_passphrase != val &&
@@ -301,7 +302,7 @@ function add_dialog(client, block) {
                       }),
             TextInput("tang_url", _("Keyserver address"),
                       {
-                          visible: vals => vals.type == "tang",
+                          visible: vals => client.features.clevis && vals.type == "tang",
                           validate: validate_url
                       })
         ].concat(existing_passphrase_fields(_("Saving a new passphrase requires unlocking the disk. Please provide a current disk passphrase."))),
@@ -309,7 +310,7 @@ function add_dialog(client, block) {
             Title: _("Add"),
             action: function (vals) {
                 const existing_passphrase = vals.passphrase || recovered_passphrase;
-                if (vals.type == "luks-passphrase") {
+                if (!client.features.clevis || vals.type == "luks-passphrase") {
                     return passphrase_add(block, vals.new_passphrase, existing_passphrase);
                 } else {
                     return get_tang_adv(vals.tang_url).then(function (adv) {
@@ -505,9 +506,6 @@ function remove_clevis_dialog(client, block, key) {
 export class CryptoKeyslots extends React.Component {
     render() {
         const { client, block, slots, slot_error, max_slots } = this.props;
-
-        if (!client.features.clevis)
-            return null;
 
         if ((slots == null && slot_error == null) || slot_error == "not-found")
             return null;

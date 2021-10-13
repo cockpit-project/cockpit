@@ -241,7 +241,14 @@ function setupFrameTracking(client) {
         debug("executionContextCreated " + JSON.stringify(info));
         frameIdToContextId[info.context.auxData.frameId] = info.context.id;
         scriptsOnNewContext.forEach(s => {
-            client.Runtime.evaluate({expression: s, contextId:info.context.id});
+            client.Runtime.evaluate({expression: s, contextId: info.context.id})
+                .catch(ex => {
+                    // race condition with short-lived frames -- OK if the frame is already gone
+                    if (ex.response && ex.response.message && ex.response.message.indexOf("Cannot find context") >= 0)
+                        debug(`scriptsOnNewContext for context ${info.context.id} failed, ignoring: ${JSON.stringify(ex.response)}`);
+                    else
+                        throw ex;
+                });
         });
     });
 

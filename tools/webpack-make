@@ -97,6 +97,12 @@ function generateDeps(makefile, stats) {
         if (fs.lstatSync(file).isDirectory())
             continue;
 
+        // HACK: webpack looks at files in parent dir: https://github.com/webpack/webpack/issues/14481
+        if (!file.startsWith(srcdir)) {
+            process.stderr.write(`webpack-make: Ignoring file dependency ${file} outside of project directory: ${srcdir}\n`);
+            continue;
+        }
+
         inputs.add(path.relative(srcdir, file));
     }
 

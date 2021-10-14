@@ -1,5 +1,5 @@
 #!/bin/bash
-# run static code checks like pyflakes and pep8
+# run static code checks like pyflakes and pycodestyle
 set -eu
 
 echo "1..8"
@@ -110,11 +110,9 @@ else
     echo "ok 6 json-verify # SKIP not a git tree"
 fi
 
-# pycodestyle/pep8 python syntax check
+# pycodestyle python syntax check
 if python3 -m pycodestyle /dev/null >/dev/null 2>&1; then
     PYTHON_STYLE_CHECKER="pycodestyle"
-elif python3 -m pep8 /dev/null >/dev/null 2>&1; then
-    PYTHON_STYLE_CHECKER="pep8"
 fi
 
 if [ -z "${PYTHON_STYLE_CHECKER-}" ]; then

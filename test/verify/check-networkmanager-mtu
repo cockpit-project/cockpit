@@ -55,7 +55,7 @@ class TestNetworkingMTU(NetworkCase):
 
         b.set_checked('#network-mtu-settings-custom', True)
         b.set_input_text('#network-mtu-settings-input', "1400")
-        b.click("#network-mtu-settings-apply")
+        b.click("#network-mtu-settings-save")
         b.wait_not_present("#network-mtu-settings-dialog")
         self.wait_for_iface_setting('MTU', '1400')
 

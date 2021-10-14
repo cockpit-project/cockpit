@@ -53,7 +53,7 @@ class TestNetworkingMAC(NetworkCase):
             b.wait_visible("#network-mac-settings-dialog")
             b.set_input_text('#network-mac-settings-mac-input-select-typeahead', new_mac)
             b.click(".pf-c-select ul > li > button")
-            b.click("#network-mac-settings-apply")
+            b.click("#network-mac-settings-save")
             b.wait_not_present("#network-mac-settings-dialog")
 
             b.wait_text("#network-interface-mac", new_mac.upper())
@@ -79,7 +79,7 @@ class TestNetworkingMAC(NetworkCase):
         b.set_input_text("#network-bond-settings-interface-name-input", "tbond")
         b.set_checked(f"input[data-iface='{iface1}']", True)
         b.set_checked(f"input[data-iface='{iface2}']", True)
-        b.click("#network-bond-settings-dialog button:contains('Apply')")
+        b.click("#network-bond-settings-dialog button:contains('Save')")
         b.wait_not_present("#network-bond-settings-dialog")
 
         self.select_iface('tbond')
@@ -94,7 +94,7 @@ class TestNetworkingMAC(NetworkCase):
             b.wait_visible("#network-mac-settings-dialog")
             b.set_input_text('#network-mac-settings-mac-input-select-typeahead', new_mac)
             b.click(".pf-c-select ul > li > button")
-            b.click("#network-mac-settings-apply")
+            b.click("#network-mac-settings-save")
             b.wait_not_present("#network-mac-settings-dialog")
 
             b.wait_text("#network-interface-mac", new_mac.upper())

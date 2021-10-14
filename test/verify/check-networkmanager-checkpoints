@@ -59,7 +59,7 @@ class TestNetworkingCheckpoints(NetworkCase):
             b.select_from_dropdown("#network-ip-settings-select-method", "manual")
             b.set_input_text('#network-ip-settings-address-0', "1.2.3.4")
             b.set_input_text('#network-ip-settings-netmask-0', "24")
-            b.click("#network-ip-settings-apply")
+            b.click("#network-ip-settings-save")
             b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
             b.wait_not_present("#confirm-breaking-change-popup")
 

@@ -37,7 +37,7 @@ const initStore = function(rootElement) {
 
     dataStore.kdumpClient = new kdumpClient.KdumpClient();
 
-    dataStore.applySettings = settings =>
+    dataStore.saveSettings = settings =>
         dataStore.kdumpClient.validateSettings(settings)
                 .then(() => dataStore.kdumpClient.writeSettings(settings));
 
@@ -63,7 +63,7 @@ const initStore = function(rootElement) {
             stateChanging: dataStore.stateChanging,
             reservedMemory: dataStore.kdumpMemory,
             kdumpStatus: dataStore.kdumpStatus,
-            onApplySettings: dataStore.applySettings,
+            onSaveSettings: dataStore.saveSettings,
             onCrashKernel: dataStore.kdumpClient.crashKernel,
         }), rootElement);
     };

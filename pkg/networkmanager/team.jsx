@@ -26,7 +26,7 @@ import {
     TextInput,
 } from '@patternfly/react-core';
 
-import { MemberInterfaceChoices, NetworkModal, Name, dialogApply } from './dialogs-common.jsx';
+import { MemberInterfaceChoices, NetworkModal, Name, dialogSave } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';
 
 import { v4 as uuidv4 } from 'uuid';
@@ -129,7 +129,7 @@ export const TeamDialog = ({ connection, dev, setIsOpen, settings }) => {
             }
         });
 
-        dialogApply({
+        dialogSave({
             model,
             dev,
             connection,

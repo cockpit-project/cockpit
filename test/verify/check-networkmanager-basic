@@ -86,10 +86,10 @@ class TestNetworkingBasic(NetworkCase):
 
         b.set_input_text('#network-ip-settings-address-0', "1.2.3.4")
         b.set_input_text('#network-ip-settings-netmask-0', "255.255.0.8")
-        b.click("#network-ip-settings-apply")
+        b.click("#network-ip-settings-save")
         b.wait_text_not("#network-ip-settings-error h4", "")
         b.set_input_text('#network-ip-settings-netmask-0', "255.255.192.0")
-        b.click("#network-ip-settings-apply")
+        b.click("#network-ip-settings-save")
         b.wait_not_present("#network-ip-settings-dialog")
         b.wait_in_text(f"#network-interface .pf-c-card:contains('{iface}')", "1.2.3.4/18")
 
@@ -123,7 +123,7 @@ class TestNetworkingBasic(NetworkCase):
         self.toggle_onoff("#network-ip-settings-dialog [data-field='dns']")
         # The "DNS search domains" setting should follow suit
         self.wait_onoff("#network-ip-settings-dialog [data-field='dns_search']", False)
-        b.click("#network-ip-settings-apply")
+        b.click("#network-ip-settings-save")
         b.wait_not_present("#network-ip-settings-dialog")
 
         wait(lambda: "yes" in m.execute(f"nmcli -f ipv4.ignore-auto-dns connection show '{con_id}'"))

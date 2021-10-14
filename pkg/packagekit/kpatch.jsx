@@ -302,7 +302,7 @@ export class KpatchSettings extends React.Component {
                                 isLoading={ this.state.updating }
                                 isDisabled={ this.state.updating }
                                 onClick={ this.handleChange }>
-                            {_("Apply")}
+                            {_("Save")}
                         </Button>
                         <Button variant="link"
                                 isDisabled={ this.state.updating }

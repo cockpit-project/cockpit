@@ -56,7 +56,7 @@ class TestBridge(NetworkCase):
         b.set_input_text("#network-bridge-settings-interface-name-input", "tbridge")
         b.set_checked(f"input[data-iface='{iface1}']", True)
         b.set_checked(f"input[data-iface='{iface2}']", True)
-        b.click("#network-bridge-settings-dialog button:contains('Apply')")
+        b.click("#network-bridge-settings-dialog button:contains('Save')")
         b.wait_not_present("#network-bridge-settings-dialog")
         b.wait_visible("#networking-interfaces tr[data-interface='tbridge']")
 
@@ -104,7 +104,7 @@ class TestBridge(NetworkCase):
         b.wait_visible("#network-bridge-settings-dialog")
         b.set_input_text("#network-bridge-settings-interface-name-input", "tbridge")
         b.set_checked(f"input[data-iface='{iface}']", True)
-        b.click("#network-bridge-settings-dialog button:contains('Apply')")
+        b.click("#network-bridge-settings-dialog button:contains('Save')")
         b.wait_not_present("#network-bridge-settings-dialog")
 
         # Check that it has the interface and the right IP address
@@ -120,7 +120,7 @@ class TestBridge(NetworkCase):
         b.set_input_text("#network-bridge-port-settings-prio-input", "35")
         b.set_input_text("#network-bridge-port-settings-path-cost-input", "90")
         b.set_checked("#network-bridge-port-settings-hairPin-mode-input", True)
-        b.click("#network-bridge-port-settings-apply")
+        b.click("#network-bridge-port-settings-save")
         b.wait_not_present("#network-bridge-port-settings-dialog")
 
         # Confirm that bridge port settings are applied

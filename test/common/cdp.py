@@ -21,6 +21,8 @@ class Browser(abc.ABC):
     NAME: str
     # The executable names available for the browser
     EXECUTABLES: typing.List[str]
+    # The filename of the cdp driver JS file
+    CDP_DRIVER_FILENAME: str
 
     @property
     def name(self):
@@ -57,6 +59,7 @@ class Browser(abc.ABC):
 class Chromium(Browser):
     NAME = "chromium"
     EXECUTABLES = ["chromium-browser", "chromium", "google-chrome"]
+    CDP_DRIVER_FILENAME = "chromium-cdp-driver.js"
 
     def _path(self, show_browser):
         """Return path to chromium browser.
@@ -87,6 +90,7 @@ class Chromium(Browser):
 class Firefox(Browser):
     NAME = "firefox"
     EXECUTABLES = ["firefox-nightly", "firefox"]
+    CDP_DRIVER_FILENAME = "firefox-cdp-driver.js"
 
     def _path(self, show_browser):
         """Return path to Firefox browser."""
@@ -299,7 +303,7 @@ class CDP:
         if self.trace:
             # enable frame/execution context debugging if tracing is on
             environ["TEST_CDP_DEBUG"] = "1"
-        self._driver = subprocess.Popen(["{0}/{1}-cdp-driver.js".format(os.path.dirname(__file__), self.browser.name), str(cdp_port)],
+        self._driver = subprocess.Popen([os.path.join(os.path.dirname(__file__), self.browser.CDP_DRIVER_FILENAME), str(cdp_port)],
                                         env=environ,
                                         stdout=subprocess.PIPE,
                                         stdin=subprocess.PIPE,

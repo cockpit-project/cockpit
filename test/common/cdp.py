@@ -55,6 +55,11 @@ class Browser(abc.ABC):
             return p
         raise SystemError(f"{self.name} is not installed")
 
+    @abc.abstractmethod
+    def cmd(self, cdp_port, env, show_browser, window_width, window_height,
+            browser_home, download_dir):
+        pass
+
 
 class Chromium(Browser):
     NAME = "chromium"
@@ -86,6 +91,16 @@ class Chromium(Browser):
 
         return None
 
+    def cmd(self, cdp_port, env, show_browser, window_width, window_height,
+            browser_home, download_dir):
+        exe = self.path(show_browser)
+
+        return [exe, "--headless" if not show_browser else "", "--disable-gpu", "--no-sandbox", "--disable-setuid-sandbox",
+                "--disable-namespace-sandbox", "--disable-seccomp-filter-sandbox",
+                "--disable-sandbox-denial-logging", "--disable-pushstate-throttle",
+                "--font-render-hinting=none",
+                "--v=0", f"--window-size={window_width}x{window_height}", f"--remote-debugging-port={cdp_port}", "about:blank"]
+
 
 class Firefox(Browser):
     NAME = "firefox"
@@ -95,6 +110,35 @@ class Firefox(Browser):
     def _path(self, show_browser):
         """Return path to Firefox browser."""
         return self.find_exe()
+
+    def cmd(self, cdp_port, env, show_browser, window_width, window_height,
+            browser_home, download_dir):
+        exe = self.path(show_browser)
+
+        subprocess.Popen([exe, "--headless", "--no-remote", "-CreateProfile", "blank"], env=env).communicate()
+        profile = glob.glob(os.path.join(browser_home, ".mozilla/firefox/*.blank"))[0]
+
+        with open(os.path.join(profile, "user.js"), "w") as f:
+            f.write("""
+                user_pref("remote.enabled", true);
+                user_pref("remote.frames.enabled", true);
+                user_pref("app.update.auto", false);
+                user_pref("datareporting.policy.dataSubmissionEnabled", false);
+                user_pref("toolkit.telemetry.reportingpolicy.firstRun", false);
+                user_pref("dom.disable_beforeunload", true);
+                user_pref("browser.download.dir", "{0}");
+                user_pref("browser.download.folderList", 2);
+                user_pref("signon.rememberSignons", false);
+                user_pref("dom.navigation.locationChangeRateLimit.count", 9999);
+                """.format(download_dir))
+
+        with open(os.path.join(profile, "handlers.json"), "w") as f:
+            f.write('{"defaultHandlersVersion":{"en-US":4},"mimeTypes":{"application/xz":{"action":0,"extensions":["xz"]}}}')
+
+        cmd = [exe, "-P", "blank", f"--window-size={window_width},{window_height}", f"--remote-debugging-port={cdp_port}", "--no-remote", "localhost"]
+        if not show_browser:
+            cmd.insert(3, "--headless")
+        return cmd
 
 
 def get_browser(browser):
@@ -220,39 +264,12 @@ class CDP:
         return self._browser_path
 
     def browser_cmd(self, cdp_port, env):
-        exe = self.get_browser_path()
+        exe = self.get_browser_path()  # noqa: F841
 
-        if self.browser.name == "chromium":
-            return [exe, "--headless" if not self.show_browser else "", "--disable-gpu", "--no-sandbox", "--disable-setuid-sandbox",
-                    "--disable-namespace-sandbox", "--disable-seccomp-filter-sandbox",
-                    "--disable-sandbox-denial-logging", "--disable-pushstate-throttle",
-                    "--font-render-hinting=none",
-                    "--v=0", f"--window-size={self.window_width}x{self.window_height}", f"--remote-debugging-port={cdp_port}", "about:blank"]
-        elif self.browser.name == "firefox":
-            subprocess.Popen([exe, "--headless", "--no-remote", "-CreateProfile", "blank"], env=env).communicate()
-            profile = glob.glob(os.path.join(self._browser_home, ".mozilla/firefox/*.blank"))[0]
-
-            with open(os.path.join(profile, "user.js"), "w") as f:
-                f.write("""
-                    user_pref("remote.enabled", true);
-                    user_pref("remote.frames.enabled", true);
-                    user_pref("app.update.auto", false);
-                    user_pref("datareporting.policy.dataSubmissionEnabled", false);
-                    user_pref("toolkit.telemetry.reportingpolicy.firstRun", false);
-                    user_pref("dom.disable_beforeunload", true);
-                    user_pref("browser.download.dir", "{0}");
-                    user_pref("browser.download.folderList", 2);
-                    user_pref("signon.rememberSignons", false);
-                    user_pref("dom.navigation.locationChangeRateLimit.count", 9999);
-                    """.format(self.download_dir))
-
-            with open(os.path.join(profile, "handlers.json"), "w") as f:
-                f.write('{"defaultHandlersVersion":{"en-US":4},"mimeTypes":{"application/xz":{"action":0,"extensions":["xz"]}}}')
-
-            cmd = [exe, "-P", "blank", f"--window-size={self.window_width},{self.window_height}", f"--remote-debugging-port={cdp_port}", "--no-remote", "localhost"]
-            if not self.show_browser:
-                cmd.insert(3, "--headless")
-            return cmd
+        cmd = self.browser.cmd(cdp_port, env, self.show_browser,
+                               self.window_width, self.window_height,
+                               self._browser_home, self.download_dir)
+        return cmd
 
     def start(self):
         environ = os.environ.copy()

@@ -846,9 +846,9 @@ password=foobar
             profile_button_name = shown_profile_text(new_profile)
             b.click(f".pf-c-menu__item-main .pf-c-menu__item-text:contains('{profile_button_name}')")
             if reboot:
-                b.click("#crypto-policy-apply-reboot")
+                b.click("#crypto-policy-save-reboot")
             else:
-                b.click("#crypto-policy-apply-reboot-later")
+                b.click("#crypto-policy-save-reboot-later")
                 b.wait_text("#crypto-policy-button", shown_profile_text(new_profile))
                 profile = m.execute(cmd + " --show").strip()
                 self.assertEqual(new_profile, profile)

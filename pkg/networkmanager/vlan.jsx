@@ -26,7 +26,7 @@ import {
     TextInput,
 } from '@patternfly/react-core';
 
-import { Name, NetworkModal, dialogApply } from './dialogs-common.jsx';
+import { Name, NetworkModal, dialogSave } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';
 
 import { v4 as uuidv4 } from 'uuid';
@@ -68,7 +68,7 @@ export const VlanDialog = ({ connection, dev, setIsOpen, settings }) => {
             }
         });
 
-        dialogApply({
+        dialogSave({
             model,
             dev,
             connection,

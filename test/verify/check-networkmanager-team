@@ -57,7 +57,7 @@ class TestTeam(NetworkCase):
         b.set_input_text("#network-team-settings-interface-name-input", "tteam")
         b.set_checked(f"input[data-iface='{iface1}']", True)
         b.set_checked(f"input[data-iface='{iface2}']", True)
-        b.click("#network-team-settings-dialog button:contains('Apply')")
+        b.click("#network-team-settings-dialog button:contains('Save')")
         b.wait_not_present("#network-team-settings-dialog")
 
         b.wait_attr("#networking", "data-test-wait", "false")
@@ -119,7 +119,7 @@ class TestTeam(NetworkCase):
         b.wait_visible("#network-team-settings-dialog")
         b.set_input_text("#network-team-settings-interface-name-input", "tteam")
         b.set_checked(f"input[data-iface='{iface}']", True)
-        b.click("#network-team-settings-dialog button:contains('Apply')")
+        b.click("#network-team-settings-dialog button:contains('Save')")
         b.wait_not_present("#network-team-settings-dialog")
 
         b.wait_attr("#networking", "data-test-wait", "false")
@@ -137,7 +137,7 @@ class TestTeam(NetworkCase):
         b.wait_visible("#network-team-port-settings-dialog")
         b.set_input_text("#network-team-port-settings-activebackup-prio-input", "10")
         b.set_checked("#network-team-port-settings-activebackup-sticky-input", True)
-        b.click("#network-team-port-settings-apply")
+        b.click("#network-team-port-settings-save")
         b.wait_not_present("#network-team-port-settings-dialog")
 
         b.wait_attr("#network-interface", "data-test-wait", "false")

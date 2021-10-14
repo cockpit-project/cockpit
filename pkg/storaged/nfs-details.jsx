@@ -183,7 +183,7 @@ export function nfs_fstab_dialog(client, entry) {
                     check_server(dlg, vals.server, 500);
             },
             Action: {
-                Title: entry ? _("Apply") : _("Add"),
+                Title: entry ? _("Save") : _("Add"),
                 action: function (vals) {
                     const location = cockpit.location;
                     const fields = [vals.server + ":" + vals.remote,

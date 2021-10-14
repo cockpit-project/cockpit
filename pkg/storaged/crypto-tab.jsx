@@ -155,7 +155,7 @@ export class CryptoTab extends React.Component {
                                   })
                     ],
                     Action: {
-                        Title: _("Apply"),
+                        Title: _("Save"),
                         action: function (vals) {
                             config["passphrase-contents"] = {
                                 t: 'ay',
@@ -199,7 +199,7 @@ export class CryptoTab extends React.Component {
                     ],
                     isFormHorizontal: false,
                     Action: {
-                        Title: _("Apply"),
+                        Title: _("Save"),
                         action: function (vals) {
                             let opts = [];
                             if (is_fsys && content_block)

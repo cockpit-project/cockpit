@@ -368,7 +368,7 @@ export function mounting_dialog(client, block, mode, forced_options) {
     const mode_action = {
         mount: _("Mount"),
         unmount: _("Unmount"),
-        update: _("Apply")
+        update: _("Save")
     };
 
     function do_unmount() {
@@ -484,7 +484,7 @@ export class FilesystemTab extends React.Component {
                               })
                 ],
                 Action: {
-                    Title: _("Apply"),
+                    Title: _("Save"),
                     action: function (vals) {
                         return block_fsys.SetLabel(vals.name, {});
                     }

@@ -25,7 +25,7 @@ import {
     TextInput,
 } from '@patternfly/react-core';
 
-import { NetworkModal, dialogApply } from './dialogs-common.jsx';
+import { NetworkModal, dialogSave } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';
 
 const _ = cockpit.gettext;
@@ -59,7 +59,7 @@ export const TeamPortDialog = ({ connection, dev, setIsOpen, settings }) => {
             }
         });
 
-        dialogApply({
+        dialogSave({
             model,
             dev,
             connection,

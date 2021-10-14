@@ -32,7 +32,7 @@ import {
 
 import { MinusIcon, PlusIcon } from '@patternfly/react-icons';
 
-import { NetworkModal, dialogApply } from './dialogs-common.jsx';
+import { NetworkModal, dialogSave } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';
 
 const _ = cockpit.gettext;
@@ -113,7 +113,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, setIsOpen, settings }
             }
         });
 
-        dialogApply({
+        dialogSave({
             model,
             dev,
             connection,

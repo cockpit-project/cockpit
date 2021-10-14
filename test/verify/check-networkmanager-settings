@@ -57,7 +57,7 @@ class TestNetworkingSettings(NetworkCase):
         b.select_from_dropdown("#network-ip-settings-select-method", "manual")
         b.set_input_text('#network-ip-settings-address-0', "1.2.3.4")
         b.set_input_text('#network-ip-settings-netmask-0', "24")
-        b.click("#network-ip-settings-apply")
+        b.click("#network-ip-settings-save")
         b.wait_not_present("#network-ip-settings-dialog")
         self.wait_for_iface_setting('IPv4', 'Address 1.2.3.4/24')
 
@@ -99,7 +99,7 @@ class TestNetworkingSettings(NetworkCase):
         b.set_input_text("#network-ip-settings-dns-server-0", "1.2.3.4")
         b.click("#network-ip-settings-dns-search-add")
         b.set_input_text("#network-ip-settings-search-domain-0", "foo.com")
-        b.click("#network-ip-settings-apply")
+        b.click("#network-ip-settings-save")
         b.wait_not_present("#network-ip-settings-dialog")
 
         assert_connection_setting(con_id, "ipv4.ignore-auto-dns", "yes")
@@ -117,7 +117,7 @@ class TestNetworkingSettings(NetworkCase):
         self.configure_iface_setting('IPv6')
         b.wait_visible("#network-ip-settings-dialog")
         b.select_from_dropdown("#network-ip-settings-select-method", "disabled")
-        b.click("#network-ip-settings-apply")
+        b.click("#network-ip-settings-save")
         b.wait_not_present("#network-ip-settings-dialog")
 
         assert_connection_setting(con_id, "ipv6.method", "disabled")
@@ -141,7 +141,7 @@ class TestNetworkingSettings(NetworkCase):
         self.configure_iface_setting('IPv4')
         b.wait_visible("#network-ip-settings-dialog")
         b.select_from_dropdown("#network-ip-settings-select-method", "shared")
-        b.click("#network-ip-settings-apply")
+        b.click("#network-ip-settings-save")
         b.wait_not_present("#network-ip-settings-dialog")
 
         self.assertEqual(m.execute(f"nmcli -m tabular -t -f ipv4.method con show '{con_id}'").strip(),
@@ -162,7 +162,7 @@ class TestNetworkingSettings(NetworkCase):
         b.set_input_text('#network-ip-settings-route-netmask-0', "60")
         b.set_input_text('#network-ip-settings-route-gateway-0', "fe80:2::3")
         b.set_input_text('#network-ip-settings-route-metric-0', "42")
-        b.click('#network-ip-settings-apply')
+        b.click('#network-ip-settings-save')
         b.wait_not_present("#network-ip-settings-dialog")
 
         # setting should be applied

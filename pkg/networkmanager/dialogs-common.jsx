@@ -145,8 +145,8 @@ export const NetworkModal = ({ dialogError, help, idPrefix, setIsOpen, title, on
             title={title}
             footer={
                 <>
-                    <Button variant='primary' id={idPrefix + "-apply"} onClick={onSubmit}>
-                        {_("Apply")}
+                    <Button variant='primary' id={idPrefix + "-save"} onClick={onSubmit}>
+                        {_("Save")}
                     </Button>
                     <Button variant='link' id={idPrefix + "-cancel"} onClick={() => setIsOpen(false)}>
                         {_("Cancel")}
@@ -155,7 +155,7 @@ export const NetworkModal = ({ dialogError, help, idPrefix, setIsOpen, title, on
             }
         >
             <Form id={idPrefix + "-body"} onSubmit={onSubmit} isHorizontal={isFormHorizontal !== false}>
-                {dialogError && <ModalError id={idPrefix + "-error"} dialogError={_("Failed to apply settings")} dialogErrorDetail={dialogError} />}
+                {dialogError && <ModalError id={idPrefix + "-error"} dialogError={_("Failed to save settings")} dialogErrorDetail={dialogError} />}
                 {children}
             </Form>
         </Modal>
@@ -247,7 +247,7 @@ function reactivateConnection({ con, dev }) {
     }
 }
 
-export const dialogApply = ({ model, dev, connection, members, membersInit, settings, setDialogError, setIsOpen }) => {
+export const dialogSave = ({ model, dev, connection, members, membersInit, settings, setDialogError, setIsOpen }) => {
     const apply_settings = settings_applier(model, dev, connection);
     const iface = settings.connection.interface_name;
     const type = settings.connection.type;

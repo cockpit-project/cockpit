@@ -160,10 +160,10 @@ const CryptoPolicyDialog = ({
                footer={
                    <>
                        {error && <ModalError dialogError={typeof error == 'string' ? error : error.message} />}
-                       <Button id="crypto-policy-apply-reboot" variant='primary' onClick={() => setPolicy(true)}>
+                       <Button id="crypto-policy-save-reboot" variant='primary' onClick={() => setPolicy(true)}>
                            {_("Save and reboot")}
                        </Button>
-                       <Button id="crypto-policy-apply-reboot-later" variant='secondary' onClick={() => setPolicy(false)}>
+                       <Button id="crypto-policy-save-reboot-later" variant='secondary' onClick={() => setPolicy(false)}>
                            {_("Save only")}
                        </Button>
                        <Button variant='link' onClick={close}>

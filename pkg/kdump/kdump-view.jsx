@@ -181,7 +181,7 @@ class KdumpTargetBody extends React.Component {
  * kdumpActive       kdump service status
  * onSetServiceState called when the OnOff state is toggled (for kdumpActive), parameter: desired state
  * stateChanging     whether we're currently waiting for our last change to take effect
- * onApplySettings   called with current dialog settings when the user clicks apply
+ * onSaveSettings   called with current dialog settings when the user clicks Save
  * kdumpStatus       object as described in kdump-client
  * reservedMemory    memory reserved at boot time for kdump use
  * onCrashKernel     callback to crash the kernel via kdumpClient, expects a promise
@@ -279,11 +279,11 @@ export class KdumpPage extends React.Component {
         this.state.dialogObj.render();
     }
 
-    handleApplyClick() {
+    handleSaveClick() {
         return new Promise((resolve, reject) => {
-            this.props.onApplySettings(this.state.dialogSettings)
+            this.props.onSaveSettings(this.state.dialogSettings)
                     .then(resolve)
-                    .catch(error => reject(cockpit.format(_("Unable to apply settings: $0"), String(error))));
+                    .catch(error => reject(cockpit.format(_("Unable to save settings: $0"), String(error))));
         });
     }
 
@@ -356,8 +356,8 @@ export class KdumpPage extends React.Component {
         const footerProps = {
             actions: [
                 {
-                    clicked: this.handleApplyClick.bind(this),
-                    caption: _("Apply"),
+                    clicked: this.handleSaveClick.bind(this),
+                    caption: _("Save"),
                     style: 'primary',
                 },
             ],

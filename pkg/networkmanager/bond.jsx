@@ -28,7 +28,7 @@ import {
 } from '@patternfly/react-core';
 import { ExternalLinkSquareAltIcon, HelpIcon } from '@patternfly/react-icons';
 
-import { MacMenu, MemberInterfaceChoices, NetworkModal, Name, dialogApply } from './dialogs-common.jsx';
+import { MacMenu, MemberInterfaceChoices, NetworkModal, Name, dialogSave } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';
 
 import { v4 as uuidv4 } from 'uuid';
@@ -110,7 +110,7 @@ export const BondDialog = ({ connection, dev, setIsOpen, settings }) => {
             }
         });
 
-        dialogApply({
+        dialogSave({
             model,
             dev,
             connection,

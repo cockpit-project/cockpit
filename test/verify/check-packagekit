@@ -174,7 +174,7 @@ class TestUpdates(NoSubManCase):
         b.wait_visible("#apply-kpatch:checked")
         b.wait_visible("#current-future:checked")
 
-        b.click("button:contains('Apply')")
+        b.click("button:contains('Save')")
         b.wait_not_present("#kpatch-setup")
 
         self.assertIn("True", m.execute("grep autoupdate /etc/dnf/plugins/kpatch.conf"))
@@ -211,7 +211,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         b.wait_visible("#current-future:not(:checked)")
         b.wait_visible("#current-only:checked")
 
-        b.click("button:contains('Apply')")
+        b.click("button:contains('Save')")
         b.wait_not_present("#kpatch-setup")
 
         self.assertIn("False", m.execute("grep autoupdate /etc/dnf/plugins/kpatch.conf"))
@@ -226,7 +226,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         b.click("#apply-kpatch")
         b.wait_visible("#apply-kpatch:not(:checked)")
 
-        b.click("button:contains('Apply')")
+        b.click("button:contains('Save')")
         b.wait_not_present("#kpatch-setup")
 
         b.wait_in_text("#kpatch-settings", "Disabled")
@@ -258,7 +258,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         b.wait_visible("#current-future:not(:checked)")
         b.wait_visible("#current-only:checked")
 
-        b.click("button:contains('Apply')")
+        b.click("button:contains('Save')")
         b.wait_not_present("#kpatch-setup")
 
         self.assertIn("False", m.execute("grep autoupdate /etc/dnf/plugins/kpatch.conf"))

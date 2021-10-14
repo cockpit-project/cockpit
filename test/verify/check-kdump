@@ -110,10 +110,10 @@ class TestKdump(KdumpHelpers):
         mountInput = "#kdump-settings-nfs-mount"
         b.set_input_text(mountInput, ":/var/crash")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
-        b.wait_visible(".pf-c-alert__title:contains('Unable to apply settings')")
+        b.wait_visible(".pf-c-alert__title:contains('Unable to save settings')")
         b.set_input_text(mountInput, "localhost:")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
-        b.wait_visible(".pf-c-alert__title:contains('Unable to apply settings')")
+        b.wait_visible(".pf-c-alert__title:contains('Unable to save settings')")
         b.click("#kdump-settings-dialog button.cancel")
         b.wait_not_present("#kdump-settings-dialog")
 
@@ -153,7 +153,7 @@ class TestKdump(KdumpHelpers):
         b.set_input_text(pathInput, customPath)
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
         # we should get an error
-        b.wait_visible("h4.pf-c-alert__title:contains('Unable to apply settings')")
+        b.wait_visible("h4.pf-c-alert__title:contains('Unable to save settings')")
         # also allow the journal message about failed touch
         self.allow_journal_messages(".*mktemp: failed to create file via template.*")
         # create the directory and try again
@@ -191,7 +191,7 @@ class TestKdump(KdumpHelpers):
         b.set_input_text("#kdump-settings-ssh-server", "admin@localhost")
         b.set_input_text("#kdump-settings-ssh-key", "/home/admin/.ssh/id_rsa")
         b.set_input_text("#kdump-settings-ssh-directory", "/var/tmp/crash")
-        b.click("button:contains('Apply')")
+        b.click("button:contains('Save')")
         b.wait_not_present("#kdump-settings-dialog")
         conf = m.execute("cat /etc/kdump.conf")
         self.assertIn("path /var/tmp/crash", conf)
@@ -203,7 +203,7 @@ class TestKdump(KdumpHelpers):
         b.wait_visible("#kdump-settings-dialog")
         b.set_val("#kdump-settings-location", "nfs")
         b.set_input_text("#kdump-settings-nfs-mount", "someserver:/srv")
-        b.click("button:contains('Apply')")
+        b.click("button:contains('Save')")
         b.wait_not_present("#kdump-settings-dialog")
         conf = m.execute("cat /etc/kdump.conf")
         self.assertIn("nfs someserver:/srv", conf)
@@ -215,7 +215,7 @@ class TestKdump(KdumpHelpers):
         b.click("#kdump-change-target")
         b.wait_visible("#kdump-settings-dialog")
         b.set_input_text("#kdump-settings-nfs-directory", "dumps")
-        b.click("button:contains('Apply')")
+        b.click("button:contains('Save')")
         b.wait_not_present("#kdump-settings-dialog")
         conf = m.execute("cat /etc/kdump.conf")
         self.assertIn("nfs someserver:/srv", conf)
@@ -226,7 +226,7 @@ class TestKdump(KdumpHelpers):
         b.wait_visible("#kdump-settings-dialog")
         b.set_val("#kdump-settings-location", "local")
         b.set_input_text("#kdump-settings-local-directory", "/var/tmp")
-        b.click("button:contains('Apply')")
+        b.click("button:contains('Save')")
         b.wait_not_present("#kdump-settings-dialog")
         conf = m.execute("cat /etc/kdump.conf")
         self.assertIn("path /var/tmp", conf)
@@ -237,7 +237,7 @@ class TestKdump(KdumpHelpers):
         b.click("#kdump-change-target")
         b.wait_visible("#kdump-settings-dialog")
         b.set_checked("#kdump-settings-compression", True)
-        b.click("button:contains('Apply')")
+        b.click("button:contains('Save')")
         b.wait_not_present("#kdump-settings-dialog")
         conf = m.execute("cat /etc/kdump.conf")
         self.assertIn(current + " -c", conf)
@@ -304,7 +304,7 @@ class TestKdumpNFS(KdumpHelpers):
         b.set_input_text("#kdump-settings-nfs-directory", "dumps")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
         # dumps directory does not exist, error
-        b.wait_visible("h4.pf-c-alert__title:contains('Unable to apply settings')")
+        b.wait_visible("h4.pf-c-alert__title:contains('Unable to save settings')")
         # create the directory on the NFS server
         self.machines["nfs"].execute("mkdir /srv/kdump/dumps")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")

@@ -170,6 +170,15 @@ html:not(.index-page) body {
     color: var(--pf-global--danger-color--100);
 }
 
+// Action buttons in headers add extra space. Offset that with a negative margin
+// to compensate, so headings are always the same height regardless of action
+// buttons or not.
+.pf-c-page__main-breadcrumb .pf-c-button {
+    --offset: calc(-1 * var(--pf-global--spacer--sm));
+    margin-top: var(--offset);
+    margin-bottom: var(--offset);
+}
+
 // Drop side padding in mobile mode,
 // intended mainly for PF PageSection elements (pf-c-page__main-section).
 // It's similar to adding padding={{ default: 'noPadding', sm: 'padding' }},

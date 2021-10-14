@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import typing
 
 TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(os.path.join(__file__, ".."))))
 
@@ -18,18 +19,30 @@ TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(os.path.join(__file
 class Browser(abc.ABC):
     # The name of the browser
     NAME: str
+    # The executable names available for the browser
+    EXECUTABLES: typing.List[str]
 
     @property
     def name(self):
         return self.NAME
 
+    def find_exe(self):
+        """Try to find the path of the browser, or None if not found."""
+        for name in self.EXECUTABLES:
+            exe = shutil.which(name)
+            if exe is not None:
+                return exe
+        return None
+
 
 class Chromium(Browser):
     NAME = "chromium"
+    EXECUTABLES = ["chromium-browser", "chromium", "google-chrome"]
 
 
 class Firefox(Browser):
     NAME = "firefox"
+    EXECUTABLES = ["firefox-nightly", "firefox"]
 
 
 def get_browser(browser):

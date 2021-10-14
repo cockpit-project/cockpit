@@ -73,8 +73,7 @@ class Chromium(Browser):
             if g:
                 return g[0]
 
-        p = subprocess.check_output("which chromium-browser || which chromium || which google-chrome || true",
-                                    shell=True, universal_newlines=True).strip()
+        p = self.find_exe()
         if p:
             return p
 
@@ -91,11 +90,7 @@ class Firefox(Browser):
 
     def _path(self, show_browser):
         """Return path to Firefox browser."""
-        p = subprocess.check_output("which firefox-nightly || which firefox || true",
-                                    shell=True, universal_newlines=True).strip()
-        if p:
-            return p
-        return None
+        return self.find_exe()
 
 
 def get_browser(browser):

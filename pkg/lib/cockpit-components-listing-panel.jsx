@@ -81,7 +81,7 @@ export class ListingPanel extends React.Component {
         const links = this.props.tabRenderers.map((itm, idx) => {
             return (
                 <NavItem key={idx} itemId={idx} isActive={idx === this.state.activeTab}>
-                    <a id={itm.id} href="#">{itm.name}</a>
+                    <a id={itm.id}>{itm.name}</a>
                 </NavItem>
             );
         });

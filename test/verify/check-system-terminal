@@ -129,7 +129,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
 
         # Firefox does not support setting of permissions
         # and therefore we cannot test copy/paste with context menu
-        if b.cdp.browser != "firefox":
+        if b.cdp.browser_name != "firefox":
             try:
                 b.grant_permissions("clipboardReadWrite", "clipboardSanitizedWrite")
             except RuntimeError:

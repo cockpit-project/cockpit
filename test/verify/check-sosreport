@@ -60,7 +60,7 @@ only-plugins=release,date,host,cgroups,networking
             b.wait(lambda: b.eval_js('ph_find(".progress-bar").offsetWidth') > 0)
             b.wait_visible("#sos-download")
 
-        if b.cdp.browser == "chromium":
+        if b.cdp.browser_name == "chromium":
             b.cdp.invoke("Page.setDownloadBehavior", behavior="allow", downloadPath=b.cdp.download_dir)
 
         b.click("#sos-download button")

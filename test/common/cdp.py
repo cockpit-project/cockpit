@@ -1,3 +1,4 @@
+import abc
 import fcntl
 import glob
 import json
@@ -12,6 +13,34 @@ import tempfile
 import time
 
 TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(os.path.join(__file__, ".."))))
+
+
+class Browser(abc.ABC):
+    # The name of the browser
+    NAME: str
+
+    @property
+    def name(self):
+        return self.NAME
+
+
+class Chromium(Browser):
+    NAME = "chromium"
+
+
+class Firefox(Browser):
+    NAME = "firefox"
+
+
+def get_browser(browser):
+    browser_classes = [
+        Chromium,
+        Firefox,
+    ]
+    for klass in browser_classes:
+        if browser == klass.NAME:
+            return klass()
+    raise SystemError(f"Unsupported browser: {browser}")
 
 
 def browser_path(browser, show_browser):

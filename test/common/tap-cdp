@@ -63,7 +63,9 @@ if sys.version[0] >= '3':
     sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
     sys.stderr = codecs.getwriter("utf-8")(sys.stderr.detach())
 
-if not cdp.get_browser_path():
+try:
+    cdp.browser.path(cdp.show_browser)
+except SystemError:
     print('1..0 # skip web browser not found')
     sys.exit(0)
 

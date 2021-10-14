@@ -34,15 +34,68 @@ class Browser(abc.ABC):
                 return exe
         return None
 
+    @abc.abstractmethod
+    def _path(self, show_browser):
+        """Return the path of the browser if available, or None.
+
+        Reimplement this in subclasses, so it is easier to return None
+        than to raise the proper exception (done at once in path()).
+        """
+        pass
+
+    def path(self, show_browser):
+        """Return the path of the browser, if available.
+
+        In case it is not found, this raises SystemError.
+        """
+        p = self._path(show_browser)
+        if p is not None:
+            return p
+        raise SystemError(f"{self.name} is not installed")
+
 
 class Chromium(Browser):
     NAME = "chromium"
     EXECUTABLES = ["chromium-browser", "chromium", "google-chrome"]
 
+    def _path(self, show_browser):
+        """Return path to chromium browser.
+
+        Support the following locations:
+         - /usr/lib*/chromium-browser/headless_shell (chromium-headless RPM)
+         - the executables in self.EXECUTABLES available in $PATH (distro package)
+         - node_modules/chromium/lib/chromium/chrome-linux/chrome (npm install chromium)
+        """
+
+        # If we want to have interactive chromium, we don't want to use headless_shell
+        if not show_browser:
+            g = glob.glob("/usr/lib*/chromium-browser/headless_shell")
+            if g:
+                return g[0]
+
+        p = subprocess.check_output("which chromium-browser || which chromium || which google-chrome || true",
+                                    shell=True, universal_newlines=True).strip()
+        if p:
+            return p
+
+        p = os.path.join(os.path.dirname(TEST_DIR), "node_modules/chromium/lib/chromium/chrome-linux/chrome")
+        if os.access(p, os.X_OK):
+            return p
+
+        return None
+
 
 class Firefox(Browser):
     NAME = "firefox"
     EXECUTABLES = ["firefox-nightly", "firefox"]
+
+    def _path(self, show_browser):
+        """Return path to Firefox browser."""
+        p = subprocess.check_output("which firefox-nightly || which firefox || true",
+                                    shell=True, universal_newlines=True).strip()
+        if p:
+            return p
+        return None
 
 
 def get_browser(browser):
@@ -54,53 +107,6 @@ def get_browser(browser):
         if browser == klass.NAME:
             return klass()
     raise SystemError(f"Unsupported browser: {browser}")
-
-
-def browser_path(browser, show_browser):
-    if browser == "chromium":
-        return browser_path_chromium(show_browser)
-    elif browser == "firefox":
-        return browser_path_firefox()
-    else:
-        raise SystemError("Unsupported browser")
-
-
-def browser_path_firefox():
-    """ Return path to Firefox browser """
-    p = subprocess.check_output("which firefox-nightly || which firefox || true",
-                                shell=True, universal_newlines=True).strip()
-    if p:
-        return p
-    return None
-
-
-def browser_path_chromium(show_browser):
-    """Return path to chromium browser.
-
-    Support the following locations:
-     - /usr/lib*/chromium-browser/headless_shell (chromium-headless RPM)
-     - "chromium-browser", "chromium", or "google-chrome"  in $PATH (distro package)
-     - node_modules/chromium/lib/chromium/chrome-linux/chrome (npm install chromium)
-
-    Exit with an error if none is found.
-    """
-
-    # If we want to have interactive chromium, we don't want to use headless_shell
-    if not show_browser:
-        g = glob.glob("/usr/lib*/chromium-browser/headless_shell")
-        if g:
-            return g[0]
-
-    p = subprocess.check_output("which chromium-browser || which chromium || which google-chrome || true",
-                                shell=True, universal_newlines=True).strip()
-    if p:
-        return p
-
-    p = os.path.join(os.path.dirname(TEST_DIR), "node_modules/chromium/lib/chromium/chrome-linux/chrome")
-    if os.access(p, os.X_OK):
-        return p
-
-    return None
 
 
 def jsquote(str):
@@ -210,14 +216,12 @@ class CDP:
 
     def get_browser_path(self):
         if self._browser_path is None:
-            self._browser_path = browser_path(self.browser.name, self.show_browser)
+            self._browser_path = self.browser.path(self.show_browser)
 
         return self._browser_path
 
     def browser_cmd(self, cdp_port, env):
         exe = self.get_browser_path()
-        if not exe:
-            raise SystemError(self.browser.name + " is not installed")
 
         if self.browser.name == "chromium":
             return [exe, "--headless" if not self.show_browser else "", "--disable-gpu", "--no-sandbox", "--disable-setuid-sandbox",

@@ -182,7 +182,7 @@ OnCalendar=daily
         b.click('#display-language-modal li[data-value=de-de] button')
         b.click("#display-language-modal footer button.pf-m-primary")
         b.expect_load()
-        if b.cdp.browser_name in ["chrome", "chromium"]:
+        if b.cdp.browser.name in ["chrome", "chromium"]:
             # HACK: work around language switching in Chrome not working in current session (issue #8160)
             b.reload(ignore_cache=True)
         b.wait_visible("#content")
@@ -285,7 +285,7 @@ OnCalendar=daily
             b.click("#display-language-modal li[data-value=%s] button" % language)
             b.click("#display-language-modal footer button.pf-m-primary")
             b.expect_load()
-            if b.cdp.browser_name in ["chrome", "chromium"]:
+            if b.cdp.browser.name in ["chrome", "chromium"]:
                 # HACK: work around language switching in Chrome not working in current session (issue #8160)
                 b.reload(ignore_cache=True)
             b.wait_visible("#content")
@@ -337,7 +337,7 @@ OnCalendar=daily
         b.click('#display-language-modal li[data-value=pt-br] button')
         b.click('#display-language-modal footer button.pf-m-primary')
         b.expect_load()
-        if b.cdp.browser_name in ["chrome", "chromium"]:
+        if b.cdp.browser.name in ["chrome", "chromium"]:
             # HACK: work around language switching in Chrome not working in current session (issue #8160)
             b.reload(ignore_cache=True)
         b.wait_visible('#content')
@@ -544,7 +544,7 @@ OnCalendar=daily
         b.click('#display-language-modal li[data-value=de-de] button')
         b.click("#display-language-modal footer button.pf-m-primary")
         b.expect_load()
-        if b.cdp.browser_name in ["chrome", "chromium"]:
+        if b.cdp.browser.name in ["chrome", "chromium"]:
             # HACK: work around language switching in Chrome not working in current session (issue #8160)
             b.reload(ignore_cache=True)
         b.wait_visible("#content")

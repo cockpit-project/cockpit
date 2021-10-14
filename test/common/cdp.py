@@ -115,7 +115,7 @@ class CDP:
         self.verbose = verbose
         self.trace = trace
         self.inject_helpers = inject_helpers
-        self.browser_name = os.environ.get("TEST_BROWSER", "chromium")
+        self.browser = get_browser(os.environ.get("TEST_BROWSER", "chromium"))
         self.show_browser = bool(os.environ.get("TEST_SHOW_BROWSER", ""))
         self.mobile = bool(os.environ.get("TEST_MOBILE", ""))
         self.download_dir = tempfile.mkdtemp()
@@ -210,22 +210,22 @@ class CDP:
 
     def get_browser_path(self):
         if self._browser_path is None:
-            self._browser_path = browser_path(self.browser_name, self.show_browser)
+            self._browser_path = browser_path(self.browser.name, self.show_browser)
 
         return self._browser_path
 
     def browser_cmd(self, cdp_port, env):
         exe = self.get_browser_path()
         if not exe:
-            raise SystemError(self.browser_name + " is not installed")
+            raise SystemError(self.browser.name + " is not installed")
 
-        if self.browser_name == "chromium":
+        if self.browser.name == "chromium":
             return [exe, "--headless" if not self.show_browser else "", "--disable-gpu", "--no-sandbox", "--disable-setuid-sandbox",
                     "--disable-namespace-sandbox", "--disable-seccomp-filter-sandbox",
                     "--disable-sandbox-denial-logging", "--disable-pushstate-throttle",
                     "--font-render-hinting=none",
                     "--v=0", f"--window-size={self.window_width}x{self.window_height}", f"--remote-debugging-port={cdp_port}", "about:blank"]
-        elif self.browser_name == "firefox":
+        elif self.browser.name == "firefox":
             subprocess.Popen([exe, "--headless", "--no-remote", "-CreateProfile", "blank"], env=env).communicate()
             profile = glob.glob(os.path.join(self._browser_home, ".mozilla/firefox/*.blank"))[0]
 
@@ -300,7 +300,7 @@ class CDP:
         if self.trace:
             # enable frame/execution context debugging if tracing is on
             environ["TEST_CDP_DEBUG"] = "1"
-        self._driver = subprocess.Popen(["{0}/{1}-cdp-driver.js".format(os.path.dirname(__file__), self.browser_name), str(cdp_port)],
+        self._driver = subprocess.Popen(["{0}/{1}-cdp-driver.js".format(os.path.dirname(__file__), self.browser.name), str(cdp_port)],
                                         env=environ,
                                         stdout=subprocess.PIPE,
                                         stdin=subprocess.PIPE,
@@ -314,7 +314,7 @@ class CDP:
             src = src.replace('function assert( fn ) {', 'function assert( fn ) { if (true) return true; else ')
             # HACK: sizzle tracks document and when we switch frames, it sees the old document
             # although we execute it in different context.
-            if (self.browser_name == "firefox"):
+            if (self.browser.name == "firefox"):
                 src = src.replace('context = context || document;', 'context = context || window.document;')
             self.invoke("Page.addScriptToEvaluateOnNewDocument", source=src, no_trace=True)
 

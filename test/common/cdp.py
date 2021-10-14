@@ -171,7 +171,6 @@ class CDP:
         self._driver = None
         self._browser = None
         self._browser_home = None
-        self._browser_path = None
         self._cdp_port_lockfile = None
         if not self.mobile:
             self.window_width = "1920"
@@ -257,20 +256,6 @@ class CDP:
         else:
             raise RuntimeError("unable to find free port")
 
-    def get_browser_path(self):
-        if self._browser_path is None:
-            self._browser_path = self.browser.path(self.show_browser)
-
-        return self._browser_path
-
-    def browser_cmd(self, cdp_port, env):
-        exe = self.get_browser_path()  # noqa: F841
-
-        cmd = self.browser.cmd(cdp_port, env, self.show_browser,
-                               self.window_width, self.window_height,
-                               self._browser_home, self.download_dir)
-        return cmd
-
     def start(self):
         environ = os.environ.copy()
         if self.lang:
@@ -298,12 +283,16 @@ class CDP:
             except KeyError:
                 pass
 
+            cmd = self.browser.cmd(cdp_port, environ, self.show_browser,
+                                   self.window_width, self.window_height,
+                                   self._browser_home, self.download_dir)
+
             # sandboxing does not work in Docker container
             self._browser = subprocess.Popen(
-                self.browser_cmd(cdp_port, environ), env=environ, close_fds=True,
+                cmd, env=environ, close_fds=True,
                 preexec_fn=lambda: resource.setrlimit(resource.RLIMIT_CORE, (0, 0)))
             if self.verbose:
-                sys.stderr.write("Started %s (pid %i) on port %i\n" % (self._browser_path, self._browser.pid, cdp_port))
+                sys.stderr.write("Started %s (pid %i) on port %i\n" % (cmd[0], self._browser.pid, cdp_port))
 
         # wait for CDP to be up
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

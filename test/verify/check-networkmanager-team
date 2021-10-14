@@ -60,6 +60,7 @@ class TestTeam(NetworkCase):
         b.wait_not_present("#network-team-settings-dialog")
 
         b.wait_attr("#networking", "data-test-wait", "false")
+        b.wait(lambda: 'nmcli con show | grep tteam')
         b.wait_visible("#networking-interfaces tr[data-interface='tteam']")
 
         # Check that the configuration file has the expected sane name
@@ -121,6 +122,7 @@ class TestTeam(NetworkCase):
         b.wait_not_present("#network-team-settings-dialog")
 
         b.wait_attr("#networking", "data-test-wait", "false")
+        b.wait(lambda: 'nmcli con show | grep tteam')
 
         # Check that it has the interface and the right IP address
         self.select_iface('tteam')

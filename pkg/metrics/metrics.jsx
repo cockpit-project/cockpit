@@ -1421,7 +1421,7 @@ export const Application = () => {
     const [needsLogout, setNeedsLogout] = useState(false);
 
     return <Page additionalGroupedContent={
-        <PageSection id="metrics-header-section" variant={PageSectionVariants.light}>
+        <PageSection id="metrics-header-section" variant={PageSectionVariants.light} type='breadcrumb'>
             <Flex>
                 <FlexItem>
                     <Breadcrumb>

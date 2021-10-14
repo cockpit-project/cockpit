@@ -41,7 +41,7 @@ dependencies="\
     pkg-config \
     pyflakes3 \
     python3 \
-    python3-pep8 \
+    python3-pycodestyle \
     sassc \
     ssh \
     strace \

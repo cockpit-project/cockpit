@@ -17,8 +17,13 @@
 
 import re
 import os.path
+import json
 
 from testlib import *
+
+
+def from_udisks_ascii(bytes):
+    return ''.join(map(chr, bytes[:-1]))
 
 
 class StorageHelpers:
@@ -362,12 +367,12 @@ class StorageHelpers:
     # below, and we offer some functions to help with that.
     #
     # - Waiting until a expected change to fstab or crypttab has
-    #   arrived in storaged.  This is important so that it will mount
-    #   filesystems to the expected places, and will clean up fstab in
-    #   the expected ways, among other things.
+    #   arrived in udisksd.  This is important so that subsequent
+    #   changes to fstab or crypttab will start from the right values
+    #   among other things.
     #
-    #   This is done with wait_in_storaged_configuration and
-    #   wait_not_in_storaged_configuration.
+    #   This is done with wait_in_configuration and
+    #   wait_not_in_configuration.
     #
     # - Waiting until a expected change to fstab or crypttab has
     #   arrived in Cockpit.  This is important so that dialogs will
@@ -426,11 +431,65 @@ class StorageHelpers:
             self.dialog_cancel()
         self.dialog_wait_close()
 
-    def wait_in_storaged_configuration(self, mount_point):
-        wait(lambda: mount_point in self.machine.execute("%s dump | grep Configuration" % self.storagectl_cmd))
+    def udisks_objects(self):
+        return json.loads(self.machine.execute("""python3 -c 'import dbus, json; print(json.dumps(dbus.SystemBus().call_blocking("org.freedesktop.UDisks2", "/org/freedesktop/UDisks2", "org.freedesktop.DBus.ObjectManager", "GetManagedObjects", "", [])))'"""))
 
-    def wait_not_in_storaged_configuration(self, mount_point):
-        wait(lambda: mount_point not in self.machine.execute("%s dump | grep Configuration" % self.storagectl_cmd))
+    def configuration_field(self, dev, tab, field):
+        all = self.udisks_objects()
+        for path in all:
+            if "org.freedesktop.UDisks2.Block" in all[path]:
+                iface = all[path]["org.freedesktop.UDisks2.Block"]
+                if from_udisks_ascii(iface["Device"]) == dev or from_udisks_ascii(iface["PreferredDevice"]) == dev:
+                    for entry in iface["Configuration"]:
+                        if entry[0] == tab:
+                            if field in entry[1]:
+                                print("%s/%s/%s = %s" % (path, tab, field, from_udisks_ascii(entry[1][field])))
+                                return from_udisks_ascii(entry[1][field])
+        return ""
+
+    def wait_in_configuration(self, dev, tab, field, text):
+        self.browser.wait(lambda: text in self.configuration_field(dev, tab, field))
+
+    def wait_not_in_configuration(self, dev, tab, field, text):
+        self.browser.wait(lambda: text not in self.configuration_field(dev, tab, field))
+
+    def child_configuration_field(self, dev, tab, field):
+        all = self.udisks_objects()
+        for path in all:
+            if "org.freedesktop.UDisks2.Encrypted" in all[path]:
+                block_iface = all[path]["org.freedesktop.UDisks2.Block"]
+                crypto_iface = all[path]["org.freedesktop.UDisks2.Encrypted"]
+                if from_udisks_ascii(block_iface["Device"]) == dev or from_udisks_ascii(block_iface["PreferredDevice"]) == dev:
+                    for entry in crypto_iface["ChildConfiguration"]:
+                        if entry[0] == tab:
+                            if field in entry[1]:
+                                print("%s/child/%s/%s = %s" % (path, tab, field,
+                                                               from_udisks_ascii(entry[1][field])))
+                                return from_udisks_ascii(entry[1][field])
+        return ""
+
+    def wait_in_child_configuration(self, dev, tab, field, text):
+        self.browser.wait(lambda: text in self.child_configuration_field(dev, tab, field))
+
+    def wait_not_in_child_configuration(self, dev, tab, field, text):
+        self.browser.wait(lambda: text not in self.child_configuration_field(dev, tab, field))
+
+    def lvol_child_configuration_field(self, lvol, tab, field):
+        all = self.udisks_objects()
+        for path in all:
+            if "org.freedesktop.UDisks2.LogicalVolume" in all[path]:
+                iface = all[path]["org.freedesktop.UDisks2.LogicalVolume"]
+                if iface["Name"] == lvol:
+                    for entry in iface["ChildConfiguration"]:
+                        if entry[0] == tab:
+                            if field in entry[1]:
+                                print("%s/child/%s/%s = %s" % (path, tab, field,
+                                                               from_udisks_ascii(entry[1][field])))
+                                return from_udisks_ascii(entry[1][field])
+        return ""
+
+    def wait_in_lvol_child_configuration(self, lvol, tab, field, text):
+        self.browser.wait(lambda: text in self.lvol_child_configuration_field(lvol, tab, field))
 
     def wait_mounted(self, row, col):
         self.content_tab_wait_in_info(row, col, "Mount point",

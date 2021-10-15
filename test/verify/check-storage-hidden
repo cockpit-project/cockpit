@@ -66,25 +66,15 @@ class TestStorageHidden(StorageCase):
                      "mount_options.auto": False,
                      "crypto_options": "my-crypto-tag"})
         self.content_row_wait_in_col(1, 1, "Filesystem (encrypted)")
-        self.wait_in_storaged_configuration(mount_point_1)
-        self.wait_in_storaged_configuration("my-crypto-tag")
+        self.wait_in_configuration("/dev/TEST/lvol", "crypttab", "options", "my-crypto-tag")
+        self.wait_in_child_configuration("/dev/TEST/lvol", "fstab", "dir", mount_point_1)
+        self.wait_in_lvol_child_configuration("lvol", "crypttab", "options", "my-crypto-tag")
+        self.wait_in_lvol_child_configuration("lvol", "fstab", "dir", mount_point_1)
 
         # Now the filesystem is hidden because the LUKS device is
         # locked.  Doubly hide it by deactivating /dev/TEST/lvol
         self.content_dropdown_action(1, "Deactivate")
         self.content_row_wait_in_col(1, 1, "48 MiB Inactive volume")
-
-        # HACK - https://github.com/storaged-project/storaged/issues/17
-        #
-        # Calling wait_in_storaged_configuration above should be
-        # enough to ensure that storaged has picked up the changed
-        # fstab and that all ChildConfiguration properties are
-        # up-to-date.  However, this doesn't happen for LogicalVolume
-        # interfaces.  They only pick up the changes somewhere along
-        # the Lock/Deactivate activities, so we explicitly wait for
-        # that to have happened.
-        #
-        wait(lambda: "my-crypto-tag" in m.execute("%s dump | grep ChildConfiguration" % self.storagectl_cmd))
 
         # Deleting the volume group should still remove the fstab entry
         b.click('.pf-c-card__header:contains("Volume group") button:contains("Delete")')
@@ -123,7 +113,7 @@ class TestStorageHidden(StorageCase):
                      "name": "FS2",
                      "mount_point": mount_point_2})
         self.content_row_wait_in_col(1, 1, "ext4 file system")
-        self.wait_in_storaged_configuration(mount_point_2)
+        self.wait_in_configuration("/dev/md127", "fstab", "dir", mount_point_2)
 
         # we need to wait for mdadm --monitor to stop using the device before delete
         m.execute("while fuser -s /dev/md127; do sleep 0.2; done", timeout=20)

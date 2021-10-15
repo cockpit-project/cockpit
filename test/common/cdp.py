@@ -63,7 +63,7 @@ class Browser(abc.ABC):
 
 class Chromium(Browser):
     NAME = "chromium"
-    EXECUTABLES = ["chromium-browser", "chromium", "google-chrome"]
+    EXECUTABLES = ["chromium-browser", "chromium", "google-chrome", "chromium-freeworld"]
     CDP_DRIVER_FILENAME = "chromium-cdp-driver.js"
 
     def _path(self, show_browser):

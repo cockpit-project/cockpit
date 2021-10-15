@@ -289,14 +289,13 @@ export class Terminal extends React.Component {
     }
 
     calculateDimensions() {
-        const padding = 2 * 11;
-
+        const padding = 10; // Leave a bit of space around terminal
         const realHeight = this.state.terminal._core._renderService.dimensions.actualCellHeight;
         const realWidth = this.state.terminal._core._renderService.dimensions.actualCellWidth;
         if (realHeight && realWidth && realWidth !== 0 && realHeight !== 0)
             return {
                 rows: Math.floor((this.terminalRef.current.parentElement.clientHeight - padding) / realHeight),
-                cols: Math.floor((this.terminalRef.current.parentElement.clientWidth - padding) / realWidth)
+                cols: Math.floor((this.terminalRef.current.parentElement.clientWidth - padding - 12) / realWidth) // Remove 12px for scrollbar
             };
 
         return { rows: this.state.rows, cols: this.state.cols };

@@ -148,7 +148,7 @@ class TestStorageLvm2(StorageCase):
         self.dialog({"type": "ext4",
                      "mount_point": mount_point_one})
         self.content_row_wait_in_col(1, 1, "ext4 file system")
-        self.wait_in_storaged_configuration(mount_point_one)
+        self.wait_in_configuration("/dev/vgroup0/lvol0", "fstab", "dir", mount_point_one)
         self.content_tab_wait_in_info(1, 2, "Mount point", mount_point_one)
 
         # unmount it
@@ -209,7 +209,7 @@ class TestStorageLvm2(StorageCase):
                      "type": "ext4",
                      "mount_point": mount_point_thin})
         self.content_row_wait_in_col(2, 1, "ext4 file system")
-        self.wait_in_storaged_configuration(mount_point_thin)
+        self.wait_in_configuration("/dev/vgroup0/thin", "fstab", "dir", mount_point_thin)
 
         # remove volume group
         b.click('.pf-c-card__header:contains("Volume group") button:contains("Delete")')

@@ -343,8 +343,7 @@ const JoinDialog = ({ realmd_client, onClose }) => {
                         if (name == "") {
                             if (!address)
                                 setAddress(reply.realm.Name);
-                        } else if (name != reply.realm.Name)
-                            throw new Error("checkRealm returned domain", reply.realm.Name, "for query", name);
+                        }
 
                         if (reply.kerberos_membership && reply.kerberos_membership.valid) {
                             setAddressValid("success");

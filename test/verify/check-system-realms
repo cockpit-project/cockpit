@@ -250,6 +250,20 @@ class CommonTests:
         b.click("#realms-join-dialog button.pf-m-link")
         b.wait_not_present("#realms-join-dialog")
 
+        # Join a domain with the server as address (input differs from domain name)
+        b.click(self.domain_sel)
+        b.wait_popup("realms-join-dialog")
+        b.wait_attr("#realms-op-address", "data-discover", "done")
+        b.set_input_text(self.op_address, "f0.cockpit.lan")
+        b.wait_text("#realms-op-address-helper", "Contacted domain")
+        # admin gets auto-detected
+        b.wait_val(self.op_admin, self.admin_user)
+        b.set_input_text(self.op_admin_password, self.admin_password)
+        b.click(f"#realms-join-dialog button{self.primary_btn_class}")
+        with b.wait_timeout(300):
+            b.wait_not_present("#realms-join-dialog")
+        wait_number_domains(1)
+
         self.allow_journal_messages(".*No authentication agent found.*")
         self.allow_restart_journal_messages()
         # sometimes polling for info and joining a domain creates this noise

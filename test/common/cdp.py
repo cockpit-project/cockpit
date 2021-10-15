@@ -115,7 +115,7 @@ class Firefox(Browser):
             browser_home, download_dir):
         exe = self.path(show_browser)
 
-        subprocess.Popen([exe, "--headless", "--no-remote", "-CreateProfile", "blank"], env=env).communicate()
+        subprocess.check_call([exe, "--headless", "--no-remote", "-CreateProfile", "blank"], env=env)
         profile = glob.glob(os.path.join(browser_home, ".mozilla/firefox/*.blank"))[0]
 
         with open(os.path.join(profile, "user.js"), "w") as f:

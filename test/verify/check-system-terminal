@@ -122,11 +122,10 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
 
         def select_line(sel, width):
             # Select line by dragging mouse
-            # 10px padding on all sides
             # Height on a line is around 14px, so start approx. in the middle of line
-            b.mouse(sel, "mousedown", 10, 17)
-            b.mouse(sel, "mousemove", 10 + width, 17)
-            b.mouse(sel, "mouseup", 10 + width, 17)
+            b.mouse(sel, "mousedown", 0, 17)
+            b.mouse(sel, "mousemove", width, 17)
+            b.mouse(sel, "mouseup", width, 17)
 
         # Firefox does not support setting of permissions
         # and therefore we cannot test copy/paste with context menu

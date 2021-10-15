@@ -1119,6 +1119,7 @@ class MetricsHistory extends React.Component {
                 .then(out => {
                     const now = parseInt(out.trim()) * 1000;
                     const current_hour = Math.floor(now / MSEC_PER_H) * MSEC_PER_H;
+                    this.most_recent = current_hour;
                     this.load_data(current_hour - LOAD_HOURS * MSEC_PER_H, undefined, true);
                     this.today_midnight = new Date(current_hour).setHours(0, 0, 0, 0);
                     this.setState({

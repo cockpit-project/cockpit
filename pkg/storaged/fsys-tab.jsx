@@ -303,10 +303,6 @@ export function mounting_dialog(client, block, mode) {
                 .then(utils.reload_systemd));
     }
 
-    function remove() {
-        dlg.run(null, maybe_update_config("", "").then(() => dlg.close()));
-    }
-
     let fields = null;
     if (mode == "mount" || mode == "update") {
         fields = [
@@ -344,9 +340,6 @@ export function mounting_dialog(client, block, mode) {
     }
 
     let teardown = null;
-    const show_clear_button = false;
-    if (old_dir && mode == "update" && show_clear_button)
-        teardown = <div className="modal-footer-teardown"><button className="pf-c-button pf-m-link" onClick={remove}>{_("Clear mount point configuration")}</button></div>;
     if (!is_filesystem_mounted && block_fsys && block_fsys.MountPoints.length > 0)
         teardown = (
             <>

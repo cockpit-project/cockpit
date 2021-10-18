@@ -34,7 +34,7 @@ import {
     Switch,
     TextInput,
 } from '@patternfly/react-core';
-import { InfoCircleIcon, PlusCircleIcon } from '@patternfly/react-icons';
+import { InfoCircleIcon } from '@patternfly/react-icons';
 
 import * as credentials from "credentials";
 import { FileAutoComplete } from "cockpit-components-file-autocomplete.jsx";
@@ -85,7 +85,7 @@ export const CredentialsModal = ({ onClose }) => {
                     {dialogError && <ModalError dialogError={dialogError} />}
                     <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
                         <FlexItem>{_("Use the following keys to authenticate against other systems")}</FlexItem>
-                        <Button variant="link" icon={<PlusCircleIcon />}
+                        <Button variant='secondary'
                                 id="ssh-file-add-custom"
                                 onClick={() => setAddNewKey(true)}>
                             {_("Add key")}

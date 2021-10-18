@@ -16,10 +16,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import $ from 'jquery';
 import React from "react";
 import cockpit from 'cockpit';
 
+import { Button } from '@patternfly/react-core';
+
+import { fmt_to_fragments } from 'utils.jsx';
 import * as utils from './utils';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -1277,11 +1279,9 @@ export function is_managed(dev) {
 }
 
 function render_interface_link(iface) {
-    return $('<a tabindex="0">')
-            .text(iface)
-            .click(function () {
-                cockpit.location.go([iface]);
-            });
+    return <Button variant='link' tabindex="0"
+                   isInline
+                   onClick={() => cockpit.location.go([iface])}>{iface}</Button>;
 }
 
 export function device_state_text(dev) {
@@ -1317,9 +1317,7 @@ export function render_active_connection(dev, with_link, hide_link_local) {
     const con = dev.ActiveConnection;
 
     if (con && con.Group) {
-        return $('<span>').append(
-            $('<span>').text(_("Part of ")),
-            (with_link ? render_interface_link(con.Group.Interface) : con.Group.Interface));
+        return fmt_to_fragments(_("Part of $0"), with_link ? render_interface_link(con.Group.Interface) : con.Group.Interface);
     }
 
     const ip4config = con ? con.Ip4Config : dev.Ip4Config;
@@ -1344,7 +1342,7 @@ export function render_active_connection(dev, with_link, hide_link_local) {
         });
     }
 
-    return $('<span>').text(parts.join(", "));
+    return parts.join(", ");
 }
 
 /* Resource usage monitoring

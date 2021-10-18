@@ -263,7 +263,7 @@ export const NetworkInterfacePage = ({
             <DescriptionListGroup>
                 <DescriptionListTerm>{_("Status")}</DescriptionListTerm>
                 <DescriptionListDescription>
-                    {activeConnection ? activeConnection[0].innerHTML : activeConnection}
+                    {activeConnection}
                     {state ? <span>{state}</span> : null}
                 </DescriptionListDescription>
             </DescriptionListGroup>

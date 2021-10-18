@@ -94,6 +94,7 @@ export const CredentialsModal = ({ onClose }) => {
                     {addNewKey && <AddNewKey load={keys.load} onClose={() => setAddNewKey(false)} />}
                     <ListingTable
                         aria-label={ _("SSH keys") }
+                        gridBreakPoint=''
                         id="credential-keys"
                         showHeader={false}
                         variant="compact"
@@ -127,11 +128,9 @@ export const CredentialsModal = ({ onClose }) => {
                             return ({
                                 columns: [
                                     {
-                                        props: { className: 'hide-before' },
                                         title: currentKey.name,
                                     },
                                     {
-                                        props: { className: 'hide-before' },
                                         title: <Switch aria-label={_("Use key")}
                                                        isChecked={!!currentKey.loaded}
                                                        key={"switch-" + index}

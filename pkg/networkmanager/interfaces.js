@@ -174,8 +174,7 @@ export function NetworkManagerModel() {
         client.call("/org/freedesktop/NetworkManager",
                     "org.freedesktop.DBus.Properties", "Get",
                     ["org.freedesktop.NetworkManager", "State"], { flags: "" })
-                .fail(complain)
-                .done((reply, options) => {
+                .then((reply, options) => {
                     if (options.flags) {
                         if (options.flags.indexOf(">") !== -1)
                             utils.set_byteorder("be");
@@ -183,7 +182,8 @@ export function NetworkManagerModel() {
                             utils.set_byteorder("le");
                         resolve();
                     }
-                });
+                })
+                .catch(complain);
     });
 
     /* Mostly generic D-Bus stuff.  */
@@ -303,15 +303,7 @@ export function NetworkManagerModel() {
     }
 
     function call_object_method(obj, iface, method) {
-        const dfd = new $.Deferred();
-        client.call(objpath(obj), iface, method, Array.prototype.slice.call(arguments, 3))
-                .fail(function(ex) {
-                    dfd.reject(ex);
-                })
-                .done(function(reply) {
-                    dfd.resolve.apply(dfd, reply);
-                });
-        return dfd.promise();
+        return client.call(objpath(obj), iface, method, Array.prototype.slice.call(arguments, 3));
     }
 
     const interface_types = { };
@@ -773,15 +765,15 @@ export function NetworkManagerModel() {
     function refresh_settings(obj) {
         push_refresh();
         client.call(objpath(obj), "org.freedesktop.NetworkManager.Settings.Connection", "GetSettings")
-                .always(pop_refresh)
-                .fail(complain)
-                .done(function(reply) {
+                .then(function(reply) {
                     const result = reply[0];
                     if (result) {
                         priv(obj).orig = result;
                         set_settings(obj, settings_from_nm(result));
                     }
-                });
+                })
+                .catch(complain)
+                .finally(pop_refresh);
     }
 
     function refresh_udev(obj) {
@@ -790,7 +782,7 @@ export function NetworkManagerModel() {
 
         push_refresh();
         cockpit.spawn(["udevadm", "info", obj.Udi], { err: 'message' })
-                .done(function(res) {
+                .then(function(res) {
                     const props = { };
                     function snarf_prop(line, env, prop) {
                         const prefix = "E: " + env + "=";
@@ -804,14 +796,14 @@ export function NetworkManagerModel() {
                     });
                     set_object_properties(obj, props);
                 })
-                .fail(function(ex) {
+                .catch(function(ex) {
                 /* udevadm info exits with 4 when device doesn't exist */
                     if (ex.exit_status !== 4) {
                         console.warn(ex.message);
                         console.warn(ex);
                     }
                 })
-                .always(pop_refresh);
+                .finally(pop_refresh);
     }
 
     function handle_updated(obj) {
@@ -872,7 +864,7 @@ export function NetworkManagerModel() {
                     return call_object_method(self,
                                               "org.freedesktop.NetworkManager.Settings.Connection", "Update",
                                               settings_to_nm(settings, priv(self).orig))
-                            .done(function () {
+                            .then(function () {
                                 set_settings(self, settings);
                             });
                 } catch (e) {
@@ -1106,22 +1098,11 @@ export function NetworkManagerModel() {
 
         prototype: {
             add_connection: function (conf) {
-                const dfd = $.Deferred();
-                try {
-                    call_object_method(this,
-                                       'org.freedesktop.NetworkManager.Settings',
-                                       'AddConnection',
-                                       settings_to_nm(conf, { }))
-                            .done(function (path) {
-                                dfd.resolve(get_object(path, type_Connection));
-                            })
-                            .fail(function (error) {
-                                dfd.reject(error);
-                            });
-                } catch (e) {
-                    dfd.reject(e);
-                }
-                return dfd.promise();
+                return call_object_method(this,
+                                          'org.freedesktop.NetworkManager.Settings',
+                                          'AddConnection',
+                                          settings_to_nm(conf, { }))
+                        .then(path => get_object(path, type_Connection));
             }
         },
 
@@ -1175,22 +1156,16 @@ export function NetworkManagerModel() {
 
         prototype: {
             checkpoint_create: function (devices, timeout) {
-                const dfd = $.Deferred();
-                call_object_method(this,
-                                   'org.freedesktop.NetworkManager',
-                                   'CheckpointCreate',
-                                   devices.map(objpath),
-                                   timeout,
-                                   0)
-                        .done(function (path) {
-                            dfd.resolve(path);
-                        })
-                        .fail(function (error) {
+                return call_object_method(this,
+                                          'org.freedesktop.NetworkManager',
+                                          'CheckpointCreate',
+                                          devices.map(objpath),
+                                          timeout,
+                                          0)
+                        .catch(function (error) {
                             if (error.name != "org.freedesktop.DBus.Error.UnknownMethod")
                                 console.warn(error.message || error);
-                            dfd.resolve(null);
                         });
-                return dfd.promise();
             },
 
             checkpoint_destroy: function (checkpoint) {
@@ -1200,7 +1175,7 @@ export function NetworkManagerModel() {
                                               'CheckpointDestroy',
                                               checkpoint);
                 } else
-                    return $.when();
+                    return Promise.resolve();
             },
 
             checkpoint_rollback: function (checkpoint) {
@@ -1210,7 +1185,7 @@ export function NetworkManagerModel() {
                                               'CheckpointRollback',
                                               checkpoint);
                 } else
-                    return $.when();
+                    return Promise.resolve();
             }
         },
 
@@ -1563,7 +1538,7 @@ export function with_checkpoint(model, modify, options) {
         settle_time = window.cockpit_tests_checkpoints_settle_time;
 
     manager.checkpoint_create(options.devices || [], rollback_time)
-            .done(function (cp) {
+            .then(function (cp) {
                 if (!cp) {
                     modify();
                     return;
@@ -1574,8 +1549,7 @@ export function with_checkpoint(model, modify, options) {
                         .then(function () {
                             window.setTimeout(function () {
                                 manager.checkpoint_destroy(cp)
-                                        .always(hide_curtain)
-                                        .fail(function () {
+                                        .catch(function () {
                                             show_breaking_change_dialog({
                                                 ...options,
                                                 action: () => {
@@ -1584,7 +1558,8 @@ export function with_checkpoint(model, modify, options) {
                                                     });
                                                 }
                                             });
-                                        });
+                                        })
+                                        .finally(hide_curtain);
                             }, settle_time * 1000);
                         })
                         .catch(function () {

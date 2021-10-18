@@ -386,25 +386,31 @@ export function NetworkManagerModel() {
     let subscription;
     let watch;
 
+    function onNotifyEventHandler(event, data) {
+        Object.keys(data).forEach(path => {
+            const interfaces = data[path];
+
+            Object.keys(interfaces).forEach(iface => {
+                const props = interfaces[iface];
+
+                if (props)
+                    interface_properties(path, iface, props);
+                else
+                    interface_removed(path, iface);
+            });
+        });
+    }
+
     self.preinit.then(() => {
         subscription = client.subscribe({ }, signal_emitted);
         watch = client.watch({ });
-        $(client).on("notify", function(event, data) {
-            $.each(data, function(path, ifaces) {
-                $.each(ifaces, function(iface, props) {
-                    if (props)
-                        interface_properties(path, iface, props);
-                    else
-                        interface_removed(path, iface);
-                });
-            });
-        });
+        client.addEventListener("notify", onNotifyEventHandler);
     });
 
     self.close = function close() {
         subscription.remove();
         watch.remove();
-        $(client).off("notify");
+        client.removeEventListener("notify", onNotifyEventHandler);
         client.close("unused");
     };
 

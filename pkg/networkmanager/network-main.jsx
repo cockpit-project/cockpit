@@ -80,7 +80,7 @@ export const NetworkPage = ({ privileged, operationInProgress, usage_monitor, pl
         const row = {
             columns: [
                 { title: (!dev || is_managed(dev)) ? <Button variant="link" isInline onClick={() => cockpit.location.go([iface.Name])}>{iface.Name}</Button> : iface.Name },
-                { title: activeConnection ? activeConnection[0].innerHTML : activeConnection },
+                { title: activeConnection },
             ],
             props: {
                 key: iface.Name,

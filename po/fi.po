@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-10-12 18:03+0000\n"
-"PO-Revision-Date: 2021-10-03 14:51+0000\n"
+"PO-Revision-Date: 2021-10-14 15:05+0000\n"
 "Last-Translator: Jan Kuparinen <copper_fin@hotmail.com>\n"
 "Language-Team: Finnish <https://translate.fedoraproject.org/projects/cockpit/"
 "main/fi/>\n"
@@ -2030,22 +2030,16 @@ msgid "Deleting a partition will delete all data in it."
 msgstr "Osion poistaminen tuhoaa kaiken sillä olevan datan."
 
 #: pkg/storaged/mdraid-details.jsx:306
-#, fuzzy
-#| msgid "Deleting a VDO device will erase all data on it."
 msgid "Deleting erases all data on a RAID device."
-msgstr "VDO-laitteen poistaminen tuhoaa kaiken sillä olevan datan."
+msgstr "Poistaminen tuhoaa kaiken RAID-laitteella olevan datan."
 
 #: pkg/storaged/vdo-details.jsx:201
-#, fuzzy
-#| msgid "Deleting a VDO device will erase all data on it."
 msgid "Deleting erases all data on a VDO device."
 msgstr "VDO-laitteen poistaminen tuhoaa kaiken sillä olevan datan."
 
 #: pkg/storaged/vgroup-details.jsx:203
-#, fuzzy
-#| msgid "Deleting a VDO device will erase all data on it."
 msgid "Deleting erases all data on a volume group."
-msgstr "VDO-laitteen poistaminen tuhoaa kaiken sillä olevan datan."
+msgstr "Poistaminen poistaa kaikki taltioryhmässä olevat tiedot."
 
 #: pkg/storaged/jobs-panel.jsx:79
 msgid "Deleting volume group $target"
@@ -2201,8 +2195,6 @@ msgid "Domain"
 msgstr "Toimialue"
 
 #: pkg/systemd/overview-cards/realmd.jsx:264
-#, fuzzy
-#| msgid "Domain"
 msgctxt "dialog-title"
 msgid "Domain"
 msgstr "Toimialue"
@@ -2220,16 +2212,12 @@ msgid "Domain administrator password"
 msgstr "Toimialueen ylläpitäjän salasana"
 
 #: pkg/systemd/overview-cards/realmd.jsx:310
-#, fuzzy
-#| msgid "Domain $0 could not be contacted"
 msgid "Domain could not be contacted"
-msgstr "Toimialueeseen $0 ei saatu yhteyttä"
+msgstr "Toimialueeseen ei saatu yhteyttä"
 
 #: pkg/systemd/overview-cards/realmd.jsx:311
-#, fuzzy
-#| msgid "Domain $0 is not supported"
 msgid "Domain is not supported"
-msgstr "Toimialue $0 ei ole tuettu"
+msgstr "Toimialue ei ole tuettu"
 
 #: pkg/systemd/services/timer-dialog.jsx:225
 msgid "Don't repeat"
@@ -2682,10 +2670,8 @@ msgid "Format $0"
 msgstr "Alusta $0"
 
 #: pkg/storaged/format-dialog.jsx:315
-#, fuzzy
-#| msgid "Formatting a disk will erase all data on it."
 msgid "Formatting erases all data on a storage device."
-msgstr "Taltion alustaminen tuhoaa kaiken sillä olevan datan."
+msgstr "Talletuslaitteen alustaminen tuhoaa kaiken sillä olevan datan."
 
 #: pkg/networkmanager/network-interface.jsx:544
 msgid "Forward delay $forward_delay"
@@ -2975,22 +2961,16 @@ msgid "Info and above"
 msgstr "Tiedot ja yli"
 
 #: pkg/storaged/content-views.jsx:638
-#, fuzzy
-#| msgid "Initializing..."
 msgid "Initialize"
-msgstr "Alustetaan ..."
+msgstr "Alusta"
 
 #: pkg/storaged/content-views.jsx:614
-#, fuzzy
-#| msgid "Initializing..."
 msgid "Initialize disk $0"
-msgstr "Alustetaan ..."
+msgstr "Alusta levy $0"
 
 #: pkg/storaged/content-views.jsx:641
-#, fuzzy
-#| msgid "Formatting a disk will erase all data on it."
 msgid "Initializing erases all data on a disk."
-msgstr "Taltion alustaminen tuhoaa kaiken sillä olevan datan."
+msgstr "Taltion alustaminen tuhoaa kaikki sillä olevat tiedot."
 
 #: pkg/packagekit/updates.jsx:536
 msgid "Initializing..."
@@ -3154,8 +3134,6 @@ msgid "Join"
 msgstr "Liity"
 
 #: pkg/systemd/overview-cards/realmd.jsx:421
-#, fuzzy
-#| msgid "Join a domain"
 msgctxt "dialog-title"
 msgid "Join a Domain"
 msgstr "Liity toimialueeseen"
@@ -3166,10 +3144,8 @@ msgid "Join domain"
 msgstr "Liity toimialueeseen"
 
 #: pkg/systemd/overview-cards/realmd.jsx:414
-#, fuzzy
-#| msgid "Join"
 msgid "Joining"
-msgstr "Liity"
+msgstr "Liitytään"
 
 #: pkg/systemd/overview-cards/realmd.jsx:71
 msgid "Joining a domain requires installation of realmd"
@@ -3311,10 +3287,8 @@ msgid "Learn more"
 msgstr "Opi lisää"
 
 #: pkg/systemd/overview-cards/realmd.jsx:297
-#, fuzzy
-#| msgid "Remove $0"
 msgid "Leave $0"
-msgstr "Poista $0"
+msgstr "Poistu $0:sta"
 
 #: pkg/systemd/overview-cards/realmd.jsx:294
 #: pkg/systemd/overview-cards/realmd.jsx:297
@@ -4263,10 +4237,8 @@ msgid "Not mounted"
 msgstr "Ei liitetty"
 
 #: pkg/systemd/overview-cards/realmd.jsx:448
-#, fuzzy
-#| msgid "The user <b>$0</b> is not permitted to modify realms"
 msgid "Not permitted to configure realms"
-msgstr "Käyttäjällä <b>$0</b> ei ole oikeutta muokata realmeja"
+msgstr "Alueen määrittäminen ei ole sallittua"
 
 #: pkg/base1/cockpit.js:3964
 msgid "Not permitted to perform this action."
@@ -4416,16 +4388,12 @@ msgid "Overview"
 msgstr "Esittely"
 
 #: pkg/storaged/content-views.jsx:629 pkg/storaged/format-dialog.jsx:234
-#, fuzzy
-#| msgid "Overview"
 msgid "Overwrite"
-msgstr "Esittely"
+msgstr "Korvaa"
 
 #: pkg/storaged/content-views.jsx:632 pkg/storaged/format-dialog.jsx:237
-#, fuzzy
-#| msgid "Overwrite existing data with zeros"
 msgid "Overwrite existing data with zeros (slower)"
-msgstr "Korvaa olemassa olevat tiedot nollilla"
+msgstr "Korvaa olemassa olevat tiedot nollilla (hitaampi)"
 
 #: pkg/systemd/hwinfo.jsx:294 pkg/systemd/hwinfo.jsx:345
 msgid "PCI"
@@ -4634,7 +4602,7 @@ msgstr "Pysyvä"
 #: pkg/storaged/mdraid-details.jsx:299 pkg/storaged/content-views.jsx:363
 #: pkg/storaged/vgroup-details.jsx:200 pkg/storaged/vdo-details.jsx:197
 msgid "Permanently delete $0?"
-msgstr ""
+msgstr "Poista $0 pysyvästi?"
 
 #: pkg/static/login.js:800
 msgid "Permission denied"
@@ -5083,55 +5051,41 @@ msgid "Remove $0?"
 msgstr "Poistetaanko $0?"
 
 #: pkg/storaged/crypto-keyslots.jsx:491
-#, fuzzy
-#| msgid "Remove Tang keyserver"
 msgid "Remove Tang keyserver?"
-msgstr "Poista Tang-avainpalvelin"
+msgstr "Poista Tang-avainpalvelin?"
 
 #: pkg/storaged/mdraid-details.jsx:305 pkg/storaged/content-views.jsx:370
 #: pkg/storaged/vgroup-details.jsx:207
-#, fuzzy
-#| msgid "Remove and format"
 msgid "Remove and delete"
-msgstr "Poista ja alusta"
+msgstr "Poista ja tyhjennä"
 
 #: pkg/storaged/format-dialog.jsx:90
 msgid "Remove and format"
 msgstr "Poista ja alusta"
 
 #: pkg/storaged/lvol-tabs.jsx:272
-#, fuzzy
-#| msgid "Remove and format"
 msgid "Remove and grow"
-msgstr "Poista ja alusta"
+msgstr "Poista ja kasvata"
 
 #: pkg/storaged/content-views.jsx:640
-#, fuzzy
-#| msgid "Remove and format"
 msgid "Remove and initialize"
 msgstr "Poista ja alusta"
 
 #: pkg/storaged/lvol-tabs.jsx:361
-#, fuzzy
-#| msgid "Remove and format"
 msgid "Remove and shrink"
-msgstr "Poista ja alusta"
+msgstr "Poista ja kutista"
 
 #: pkg/storaged/mdraid-details.jsx:252
-#, fuzzy
-#| msgid "Remove device"
 msgid "Remove and stop device"
-msgstr "Poista laite"
+msgstr "Poista ja pysäytä laite"
 
 #: pkg/storaged/vdo-details.jsx:107
 msgid "Remove device"
 msgstr "Poista laite"
 
 #: pkg/storaged/crypto-keyslots.jsx:455
-#, fuzzy
-#| msgid "Remove passphrase in key slot $0"
 msgid "Remove passphrase in key slot $0?"
-msgstr "Poista tunnuslause avainpaikasta $0"
+msgstr "Poista tunnuslause avainpaikasta $0?"
 
 #: pkg/networkmanager/firewall.jsx:73
 msgid "Remove service $0"
@@ -7052,38 +7006,28 @@ msgstr "Irroita"
 
 #: pkg/storaged/mdraid-details.jsx:304 pkg/storaged/content-views.jsx:369
 #: pkg/storaged/vgroup-details.jsx:206
-#, fuzzy
-#| msgid "Unmount and format"
 msgid "Unmount and delete"
-msgstr "Irrota ja alusta"
+msgstr "Irrota ja poista"
 
 #: pkg/storaged/format-dialog.jsx:89
 msgid "Unmount and format"
 msgstr "Irrota ja alusta"
 
 #: pkg/storaged/lvol-tabs.jsx:271
-#, fuzzy
-#| msgid "Unmount now"
 msgid "Unmount and grow"
-msgstr "Irrota nyt"
+msgstr "Irrota ja kasvata"
 
 #: pkg/storaged/content-views.jsx:639
-#, fuzzy
-#| msgid "Unmount and format"
 msgid "Unmount and initialize"
 msgstr "Irrota ja alusta"
 
 #: pkg/storaged/lvol-tabs.jsx:360
-#, fuzzy
-#| msgid "Unmount and format"
 msgid "Unmount and shrink"
-msgstr "Irrota ja alusta"
+msgstr "Irrota ja kutista"
 
 #: pkg/storaged/mdraid-details.jsx:251
-#, fuzzy
-#| msgid "On a mounted device"
 msgid "Unmount and stop device"
-msgstr "Liitetyllä laitteella"
+msgstr "Irrota ja pysäytä laite"
 
 #: pkg/storaged/fsys-tab.jsx:362
 msgid "Unmount filesystem"

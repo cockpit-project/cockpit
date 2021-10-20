@@ -122,7 +122,7 @@ const info = {
             "systemd/hwinfo.scss",
         ],
         "tuned/performance": [
-            "tuned/dialog.js",
+            "tuned/dialog.jsx",
         ],
 
         "packagekit/updates": [
@@ -433,18 +433,6 @@ module.exports = {
                 loader: 'expose-loader',
                 options: {
                     exposes: 'jQuery'
-                }
-            },
-            // tuned is embedded into overview, but both require global jQuery; overriding is ok
-            {
-                issuer: /tuned/,
-                test: require.resolve('jquery'),
-                loader: 'expose-loader',
-                options: {
-                    exposes: {
-                        globalName: 'jQuery',
-                        override: true,
-                    }
                 }
             },
             {

@@ -559,13 +559,13 @@ ExecStart=/bin/true
         b.click("button:contains('Add new host')")
         b.wait_popup('hosts_setup_server_dialog')
         b.set_input_text('#add-machine-address', "x0.cockpit.lan")
-        b.click('#hosts_setup_server_dialog .modal-footer button:contains(Add)')
+        b.click('#hosts_setup_server_dialog button:contains(Add)')
 
         # with --pubkey support this should Just Work, otherwise confirm fingerprint
         if '--pubkey' not in m.execute("sss_ssh_knownhostsproxy --help || true"):
             b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to x0.cockpit.lan for the first time.")
-            b.click('#hosts_setup_server_dialog .modal-footer button:contains(Accept key and connect)')
-        b.wait_popdown('hosts_setup_server_dialog')
+            b.click('#hosts_setup_server_dialog button:contains(Accept key and connect)')
+        b.wait_not_present('#hosts_setup_server_dialog')
         b.wait_visible("a[href='/@x0.cockpit.lan']")
         b.logout()
 
@@ -784,7 +784,7 @@ ipa-advise enable-admins-sudo | sh -ex
         b.switch_to_top()
         b.click("#hosts-sel button")
         b.click(".nav-hosts-actions button")
-        b.set_val("#add-machine-address", "x0.cockpit.lan")
+        b.set_input_text("#add-machine-address", "x0.cockpit.lan")
         b.click("#hosts_setup_server_dialog .pf-m-primary")
         b.click(".view-hosts a[href='/@x0.cockpit.lan']")
         b.wait_js_cond("window.location.pathname == '/@x0.cockpit.lan/system'")
@@ -1041,13 +1041,13 @@ ExecStart=/bin/true
         b.switch_to_top()
         b.go("/@x0.cockpit.lan/system/terminal")
         b.click("#machine-troubleshoot")
-        b.wait_popup('troubleshoot-dialog')
-        b.click('#troubleshoot-dialog .modal-footer button:contains(Add)')
+        b.wait_visible('#hosts_setup_server_dialog')
+        b.click('#hosts_setup_server_dialog button:contains(Add)')
         # with --pubkey support the fingerprint is already known, otherwise confirm fingerprint
         if '--pubkey' not in m.execute("sss_ssh_knownhostsproxy --help || true"):
-            b.wait_in_text('#troubleshoot-dialog', "You are connecting to x0.cockpit.lan for the first time.")
-            b.click('#troubleshoot-dialog .modal-footer button:contains(Accept key and connect)')
-        b.wait_popdown('troubleshoot-dialog')
+            b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to x0.cockpit.lan for the first time.")
+            b.click('#hosts_setup_server_dialog button:contains(Accept key and connect)')
+        b.wait_not_present('#hosts_setup_server_dialog')
 
         b.enter_page("/system/terminal", host="x0.cockpit.lan")
         b.wait_visible(".terminal")

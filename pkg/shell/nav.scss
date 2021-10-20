@@ -168,7 +168,7 @@ $desktop: $phone + 1px;
         bottom: 0;
         left: 0;
         background: var(--pf-global--BackgroundColor--dark-200);
-        z-index: 999;
+        z-index: 399; // Modals have 400 and modals should be in front of host switcher
 
         &.edit-hosts {
             .pf-c-nav__list {

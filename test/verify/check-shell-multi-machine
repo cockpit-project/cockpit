@@ -55,38 +55,38 @@ def fix_bridge(m):
 
 
 def check_failed_state(b, expected_title):
-    b.wait_in_text('#troubleshoot-dialog h4', expected_title)
-    b.click("#troubleshoot-dialog .modal-footer button:contains(Close)")
-    b.wait_popdown('troubleshoot-dialog')
+    b.wait_in_text('#hosts_setup_server_dialog h1', expected_title)
+    b.click("#hosts_setup_server_dialog button:contains(Close)")
+    b.wait_not_present('#hosts_setup_server_dialog')
 
 
 def start_machine_troubleshoot(b, new=False, known_host=False, password=None):
     b.wait_visible("#machine-troubleshoot")
     b.click('#machine-troubleshoot')
-    b.wait_popup('troubleshoot-dialog')
+    b.wait_visible('#hosts_setup_server_dialog')
     if new:
-        b.click('#troubleshoot-dialog .modal-footer button:contains(Add)')
+        b.click('#hosts_setup_server_dialog button:contains(Add)')
         if not known_host:
-            b.wait_in_text('#troubleshoot-dialog', "You are connecting to")
-            b.wait_in_text('#troubleshoot-dialog', "for the first time.")
-            b.click('#troubleshoot-dialog .modal-footer button:contains(Accept key and connect)')
+            b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to")
+            b.wait_in_text('#hosts_setup_server_dialog', "for the first time.")
+            b.click('#hosts_setup_server_dialog button:contains(Accept key and connect)')
     if password:
-        b.wait_in_text('#troubleshoot-dialog', "Unable to log in")
-        b.set_val('#login-custom-password', password)
-        b.click('#troubleshoot-dialog .modal-footer button:contains(Log in)')
+        b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
+        b.set_input_text('#login-custom-password', password)
+        b.click('#hosts_setup_server_dialog button:contains(Log in)')
 
 
 def fail_login(b):
-    b.click('#troubleshoot-dialog .modal-footer button:contains(Log in)')
-    b.wait_visible('#troubleshoot-dialog .modal-footer button:contains(Log in):not([disabled])')
-    b.wait_in_text("#troubleshoot-dialog .dialog-error", "Login failed")
+    b.click('#hosts_setup_server_dialog button:contains(Log in)')
+    b.wait_visible('#hosts_setup_server_dialog button:contains(Log in):not([disabled])')
+    b.wait_in_text("#hosts_setup_server_dialog .pf-c-alert", "Login failed")
 
 
 def add_machine(b, address, known_host=False, password="foobar"):
     b.switch_to_top()
     b.go("/@%s" % address)
     start_machine_troubleshoot(b, new=True, known_host=known_host, password=password)
-    b.wait_popdown('troubleshoot-dialog')
+    b.wait_not_present('#hosts_setup_server_dialog')
     b.enter_page("/system", host=address)
 
 
@@ -286,8 +286,8 @@ class TestMultiMachine(MachineCase):
         b.wait_not_visible("#brand")
         b.wait_in_text("#server-name", "10.111.113.2")
         b.wait_val("#server-field", "10.111.113.2")
-        b.set_val("#login-user-input", "admin")
-        b.set_val("#login-password-input", "alt-password")
+        b.set_input_text("#login-user-input", "admin")
+        b.set_input_text("#login-password-input", "alt-password")
         b.click('#login-button')
         if not known_host:
             b.wait_in_text("#hostkey-message-1", "10.111.113.2")
@@ -321,8 +321,8 @@ class TestMultiMachine(MachineCase):
         m.execute("echo '10.111.113.2 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDgPMmTosSQ4NxMtq+aL2NKLC+W4I9/jbD1e74cnOKTW' > /etc/ssh/ssh_known_hosts")
         b.open("{0}=10.111.113.2".format(root))
         b.wait_visible("#login")
-        b.set_val("#login-user-input", "admin")
-        b.set_val("#login-password-input", "alt-password")
+        b.set_input_text("#login-user-input", "admin")
+        b.set_input_text("#login-password-input", "alt-password")
         b.click('#login-button')
 
         b.wait_not_visible("#conversation-group")
@@ -336,8 +336,8 @@ class TestMultiMachine(MachineCase):
         # localStorage.
         m.execute("echo '' > /etc/ssh/ssh_known_hosts")
         b.eval_js("""window.localStorage.setItem("known_hosts", '{"10.111.113.2":"BAD"}')""")
-        b.set_val("#login-user-input", "admin")
-        b.set_val("#login-password-input", "alt-password")
+        b.set_input_text("#login-user-input", "admin")
+        b.set_input_text("#login-password-input", "alt-password")
         b.click('#login-button')
         b.wait_visible("#hostkey-group")
         b.wait_in_text("#hostkey-title", "10.111.113.2 key changed")
@@ -351,8 +351,8 @@ class TestMultiMachine(MachineCase):
         # Clear localStorage and set correct host key in /etc
         b.eval_js("""window.localStorage.setItem("known_hosts", '{}')""")
         m.execute("ssh-keyscan 10.111.113.2 > /etc/ssh/ssh_known_hosts")
-        b.set_val("#login-user-input", "admin")
-        b.set_val("#login-password-input", "alt-password")
+        b.set_input_text("#login-user-input", "admin")
+        b.set_input_text("#login-password-input", "alt-password")
         b.click('#login-button')
         b.expect_load()
         b.enter_page("/system")
@@ -363,11 +363,11 @@ class TestMultiMachine(MachineCase):
 
         # Connect to bad machine
         b.open("{0}other".format(root))
-        b.set_val("#login-user-input", "admin")
-        b.set_val("#login-password-input", "bad-password")
+        b.set_input_text("#login-user-input", "admin")
+        b.set_input_text("#login-password-input", "bad-password")
         b.click(login_options)
         b.wait_visible("#server-group")
-        b.set_val("#server-field", "bad")
+        b.set_input_text("#server-field", "bad")
         b.click(login_options)
         b.wait_not_visible("#server-group")
         b.click('#login-button')
@@ -423,8 +423,8 @@ class TestMultiMachine(MachineCase):
 
         b.open("/cockpit-new/system")
         b.wait_visible("#login")
-        b.set_val("#login-user-input", "admin")
-        b.set_val("#login-password-input", "foobar")
+        b.set_input_text("#login-user-input", "admin")
+        b.set_input_text("#login-password-input", "foobar")
         b.click('#login-button')
         b.expect_load()
         b.enter_page("/system")
@@ -461,8 +461,8 @@ class TestMultiMachine(MachineCase):
 
         b.open("/cockpit-new/system?access_token=XXXX")
         b.wait_visible("#login")
-        b.set_val("#login-user-input", "admin")
-        b.set_val("#login-password-input", "foobar")
+        b.set_input_text("#login-user-input", "admin")
+        b.set_input_text("#login-password-input", "foobar")
         b.click('#login-button')
         b.expect_load()
         b.enter_page("/system")
@@ -545,11 +545,11 @@ class TestMultiMachine(MachineCase):
         b.go(m2_path)
         b.wait_text(".curtains-ct h1", "Not connected to host")
         b.click("#machine-troubleshoot")
-        b.wait_popup('troubleshoot-dialog')
-        b.wait_in_text('#troubleshoot-dialog', "Unable to log in")
-        b.set_val('#login-custom-password', "foobar")
-        b.click('#troubleshoot-dialog .modal-footer button:contains(Log in)')
-        b.wait_popdown('troubleshoot-dialog')
+        b.wait_visible('#hosts_setup_server_dialog')
+        b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
+        b.set_input_text('#login-custom-password', "foobar")
+        b.click('#hosts_setup_server_dialog button:contains(Log in)')
+        b.wait_not_present('#hosts_setup_server_dialog')
 
         b.enter_page("/playground/test", "10.111.113.2", reconnect=True)
         # image is back because it page was reloaded after disconnection
@@ -638,9 +638,9 @@ class TestMultiMachine(MachineCase):
         # Bad hostkey
         break_hostkey(m1, "10.111.113.2")
         start_machine_troubleshoot(b, True, True)
-        b.wait_in_text('#troubleshoot-dialog', "10.111.113.2 key changed")
-        b.click("#troubleshoot-dialog button:contains(Cancel)")
-        b.wait_popdown('troubleshoot-dialog')
+        b.wait_in_text('#hosts_setup_server_dialog', "10.111.113.2 key changed")
+        b.click("#hosts_setup_server_dialog button:contains(Cancel)")
+        b.wait_not_present('#hosts_setup_server_dialog')
         fix_hostkey(m1)
 
         # Host key path is correct
@@ -648,8 +648,8 @@ class TestMultiMachine(MachineCase):
         break_hostkey(m1, "10.111.113.2")
 
         start_machine_troubleshoot(b, True, True)
-        b.wait_in_text('#troubleshoot-dialog', "10.111.113.2 key changed")
-        b.click("#troubleshoot-dialog button:contains(Cancel)")
+        b.wait_in_text('#hosts_setup_server_dialog', "10.111.113.2 key changed")
+        b.click("#hosts_setup_server_dialog button:contains(Cancel)")
         fix_hostkey(m1)
 
         # Bad cockpit
@@ -679,12 +679,12 @@ class TestMultiMachine(MachineCase):
         # Clear host key
         fix_hostkey(m1)
         start_machine_troubleshoot(b)
-        b.wait_in_text('#troubleshoot-dialog', "You are connecting to 10.111.113.2 for the first time.")
-        b.click('#troubleshoot-dialog button:contains(Accept key and connect)')
-        b.wait_in_text('#troubleshoot-dialog', "Unable to log in")
-        b.set_val('#login-custom-password', "foobar")
-        b.click('#troubleshoot-dialog .modal-footer button:contains(Log in)')
-        b.wait_popdown('troubleshoot-dialog')
+        b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
+        b.click('#hosts_setup_server_dialog button:contains(Accept key and connect)')
+        b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
+        b.set_input_text('#login-custom-password', "foobar")
+        b.click('#hosts_setup_server_dialog button:contains(Log in)')
+        b.wait_not_present('#hosts_setup_server_dialog')
 
         # Reconnect
         b.wait_not_visible(".curtains-ct")
@@ -701,15 +701,15 @@ class TestMultiMachine(MachineCase):
         with b.wait_timeout(120):
             b.wait_visible("#machine-troubleshoot")
         start_machine_troubleshoot(b)
-        b.wait_in_text('#troubleshoot-dialog', "Unable to log in")
-        b.set_val('#login-custom-password', "")
+        b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
+        b.set_input_text('#login-custom-password', "")
         fail_login(b)
 
-        b.set_val("#login-custom-password", "bad")
+        b.set_input_text("#login-custom-password", "bad")
         fail_login(b)
-        b.set_val("#login-custom-password", "alt-password")
-        b.click('#troubleshoot-dialog {}'.format(self.primary_btn_class))
-        b.wait_popdown('troubleshoot-dialog')
+        b.set_input_text("#login-custom-password", "alt-password")
+        b.click('#hosts_setup_server_dialog {}'.format(self.primary_btn_class))
+        b.wait_not_present('#hosts_setup_server_dialog')
 
         # Reconnect
         b.wait_not_visible(".curtains-ct")
@@ -744,16 +744,16 @@ class TestMultiMachine(MachineCase):
         with b.wait_timeout(120):
             b.wait_visible("#machine-troubleshoot")
         start_machine_troubleshoot(b)
-        b.wait_in_text('#troubleshoot-dialog h4', "Could not contact")
-        b.set_val("#edit-machine-port", "2222")
-        b.click('#troubleshoot-dialog {}'.format(self.primary_btn_class))
+        b.wait_in_text('#hosts_setup_server_dialog h1', "Could not contact")
+        b.set_input_text("#edit-machine-port", "2222")
+        b.click('#hosts_setup_server_dialog {}'.format(self.primary_btn_class))
         # Using libssh's knownhosts api port is taken into account when verifying a host
-        b.wait_in_text('#troubleshoot-dialog', "You are connecting to 10.111.113.2 for the first time.")
-        b.click('#troubleshoot-dialog button:contains(Accept key and connect)')
-        b.wait_in_text('#troubleshoot-dialog h4', "Log in to")
-        b.set_val("#login-custom-password", "alt-password")
-        b.click('#troubleshoot-dialog {}'.format(self.primary_btn_class))
-        b.wait_popdown('troubleshoot-dialog')
+        b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
+        b.click('#hosts_setup_server_dialog button:contains(Accept key and connect)')
+        b.wait_in_text('#hosts_setup_server_dialog h1', "Log in to")
+        b.set_input_text("#login-custom-password", "alt-password")
+        b.click('#hosts_setup_server_dialog {}'.format(self.primary_btn_class))
+        b.wait_not_present('#hosts_setup_server_dialog')
 
         b.wait_not_visible(".curtains-ct")
         b.enter_page('/system', "10.111.113.2:2222")
@@ -787,28 +787,28 @@ class TestMultiMachine(MachineCase):
         b.go("/@10.111.113.2")
         b.wait_visible("#machine-troubleshoot")
         b.click('#machine-troubleshoot')
-        b.wait_popup('troubleshoot-dialog')
-        b.wait_in_text('#troubleshoot-dialog', "new host")
-        b.set_val('#add-machine-user', "fred")
-        b.click('#troubleshoot-dialog .modal-footer button:contains(Add)')
-        b.wait_in_text('#troubleshoot-dialog', "You are connecting to 10.111.113.2 for the first time.")
-        b.click('#troubleshoot-dialog .modal-footer button:contains(Accept key and connect)')
-        b.wait_in_text('#troubleshoot-dialog', "Unable to log in")
+        b.wait_visible('#hosts_setup_server_dialog')
+        b.wait_in_text('#hosts_setup_server_dialog', "new host")
+        b.set_input_text('#add-machine-user', "fred")
+        b.click('#hosts_setup_server_dialog button:contains(Add)')
+        b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
+        b.click('#hosts_setup_server_dialog button:contains(Accept key and connect)')
+        b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
 
         # There is no key yet.  Create and authorize it.
 
         m1.execute("! test -f /home/admin/.ssh/id_rsa")
         m2.execute("! test -f /home/fred/.ssh/authorized_keys")
 
-        b.wait_in_text("#troubleshoot-dialog", "Create a new SSH key and authorize it")
-        b.set_val('#login-custom-password', "foobar")
+        b.wait_in_text("#hosts_setup_server_dialog", "Create a new SSH key and authorize it")
+        b.set_input_text('#login-custom-password', "foobar")
         b.set_checked("#login-setup-keys", True)
         # Leave passphrase empty on Coreos, since it can't load keys into the agent
         if not m1.ostree_image:
-            b.set_val('#troubleshoot-dialog .login-setup-new-key-password', "foobar")
-            b.set_val('#troubleshoot-dialog .login-setup-new-key-password2', "foobar")
-        b.click('#troubleshoot-dialog .modal-footer button:contains(Log in)')
-        b.wait_popdown('troubleshoot-dialog')
+            b.set_input_text('#hosts_setup_server_dialog #login-setup-new-key-password', "foobar")
+            b.set_input_text('#hosts_setup_server_dialog #login-setup-new-key-password2', "foobar")
+        b.click('#hosts_setup_server_dialog button:contains(Log in)')
+        b.wait_not_present('#hosts_setup_server_dialog')
 
         b.enter_page("/system", host="fred@10.111.113.2")
         m1.execute("test -f /home/admin/.ssh/id_rsa && test -f /home/admin/.ssh/id_rsa.pub")
@@ -824,13 +824,13 @@ class TestMultiMachine(MachineCase):
         b.relogin(None, wait_remote_session_machine=m1)
         b.wait_visible("#machine-troubleshoot")
         b.click('#machine-troubleshoot')
-        b.wait_popup('troubleshoot-dialog')
-        b.wait_in_text('#troubleshoot-dialog', "Unable to log in")
-        b.wait_in_text("#troubleshoot-dialog", "Authorize SSH key")
+        b.wait_visible('#hosts_setup_server_dialog')
+        b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
+        b.wait_in_text("#hosts_setup_server_dialog", "Authorize SSH key")
         b.set_checked("#login-setup-keys", True)
-        b.set_val('#login-custom-password', "foobar")
-        b.click('#troubleshoot-dialog .modal-footer button:contains(Log in)')
-        b.wait_popdown('troubleshoot-dialog')
+        b.set_input_text('#login-custom-password', "foobar")
+        b.click('#hosts_setup_server_dialog button:contains(Log in)')
+        b.wait_not_present('#hosts_setup_server_dialog')
         b.enter_page("/system", host="fred@10.111.113.2")
         self.assertEqual(m1.execute("cat /home/admin/.ssh/id_rsa.pub"),
                          m2.execute("cat /home/fred/.ssh/authorized_keys"))
@@ -841,15 +841,15 @@ class TestMultiMachine(MachineCase):
         b.relogin(None, wait_remote_session_machine=m1)
         b.wait_visible("#machine-troubleshoot")
         b.click('#machine-troubleshoot')
-        b.wait_popup('troubleshoot-dialog')
-        b.wait_in_text('#troubleshoot-dialog', "The SSH key for logging in")
-        b.set_checked('#troubleshoot-dialog input[value=key]', True)
-        b.set_val('#troubleshoot-dialog .locked-identity-password', "foobarfoo")
+        b.wait_visible('#hosts_setup_server_dialog')
+        b.wait_in_text('#hosts_setup_server_dialog', "The SSH key for logging in")
+        b.set_checked('#hosts_setup_server_dialog input[value=key]', True)
+        b.set_input_text('#hosts_setup_server_dialog #locked-identity-password', "foobarfoo")
         b.set_checked("#login-setup-keys", True)
-        b.set_val('#troubleshoot-dialog .login-setup-login-password', "foobar")
-        b.set_val('#troubleshoot-dialog .login-setup-login-password2', "foobar")
-        b.click('#troubleshoot-dialog .modal-footer button:contains(Log in)')
-        b.wait_popdown('troubleshoot-dialog')
+        b.set_input_text('#hosts_setup_server_dialog #login-setup-new-key-password', "foobar")
+        b.set_input_text('#hosts_setup_server_dialog #login-setup-new-key-password2', "foobar")
+        b.click('#hosts_setup_server_dialog button:contains(Log in)')
+        b.wait_not_present('#hosts_setup_server_dialog')
         b.enter_page("/system", host="fred@10.111.113.2")
 
         # Relogin.  This should now work seamlessly (except on
@@ -889,13 +889,13 @@ class TestMultiMachine(MachineCase):
         b.go("/@10.111.113.2")
         b.wait_visible("#machine-troubleshoot")
         b.click('#machine-troubleshoot')
-        b.wait_popup('troubleshoot-dialog')
-        b.click('#troubleshoot-dialog .modal-footer button:contains(Add)')
-        b.wait_in_text('#troubleshoot-dialog', "You are connecting to 10.111.113.2 for the first time.")
-        b.click('#troubleshoot-dialog .modal-footer button:contains(Accept key and connect)')
-        b.wait_in_text('#troubleshoot-dialog', "The SSH key")
-        b.wait_not_visible('.password-change-advice')
-        b.wait_not_visible('.login-setup-auto')
+        b.wait_visible('#hosts_setup_server_dialog')
+        b.click('#hosts_setup_server_dialog button:contains(Add)')
+        b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
+        b.click('#hosts_setup_server_dialog button:contains(Accept key and connect)')
+        b.wait_in_text('#hosts_setup_server_dialog', "The SSH key")
+        b.wait_not_present('.password-change-advice')
+        b.wait_not_present('.login-setup-auto')
 
         self.allow_hostkey_messages()
 

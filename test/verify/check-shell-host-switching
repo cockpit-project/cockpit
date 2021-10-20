@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import json
 import time
 
 import parent
@@ -29,10 +28,10 @@ class HostSwitcherHelpers:
 
     def check_discovered_addresses(self, b, addresses):
         b.click("button:contains('Add new host')")
-        b.wait_popup('hosts_setup_server_dialog')
+        b.wait_visible('#hosts_setup_server_dialog')
         self.wait_discovered_addresses(b, addresses)
         b.click('#hosts_setup_server_dialog .pf-m-link')
-        b.wait_popdown('hosts_setup_server_dialog')
+        b.wait_not_present('#hosts_setup_server_dialog')
 
     def wait_discovered_addresses(self, b, expected):
         b.wait_js_cond('ph_select("#hosts_setup_server_dialog datalist option").length == {0}'.format(len(expected)))
@@ -65,8 +64,8 @@ class HostSwitcherHelpers:
 
     def add_machine(self, b, address, known_host=False):
         b.click("button:contains('Add new host')")
-        b.wait_popup('hosts_setup_server_dialog')
-        b.set_val('#add-machine-address', address)
+        b.wait_visible('#hosts_setup_server_dialog')
+        b.set_input_text('#add-machine-address', address)
         self.add_machine_finish(b, address, known_host=known_host)
 
     def add_machine_finish(self, b, address, known_host=False):
@@ -74,7 +73,7 @@ class HostSwitcherHelpers:
         if not known_host:
             b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to %s for the first time" % address)
             b.click('#hosts_setup_server_dialog .pf-m-primary')
-        b.wait_popdown('hosts_setup_server_dialog')
+        b.wait_not_present('#hosts_setup_server_dialog')
 
     def connect_and_wait(self, b, address):
         b.click("a[href='/@{0}']".format(address))
@@ -102,7 +101,6 @@ class HostSwitcherHelpers:
             self.authorize_pubkey(self.machines[m], "admin", pubkey)
 
 
-@no_retry_when_changed
 @skipDistroPackage()
 class TestHostSwitching(MachineCase, HostSwitcherHelpers):
     provision = {
@@ -211,12 +209,12 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
 
         b.click("#nav-hosts .nav-item a[href='/@10.111.113.3'] + span button.nav-action.pf-m-secondary")
 
-        b.wait_popup('hosts_setup_server_dialog')
-        b.set_val('#add-machine-user', 'bad-user')
+        b.wait_visible('#hosts_setup_server_dialog')
+        b.set_input_text('#add-machine-user', 'bad-user')
         b.click('#hosts_setup_server_dialog .pf-m-primary')
         b.wait_in_text("#hosts_setup_server_dialog", "Unable to log in to")
         b.click('#hosts_setup_server_dialog button:contains("Cancel")')
-        b.wait_popdown('hosts_setup_server_dialog')
+        b.wait_not_present('#hosts_setup_server_dialog')
 
         # Test switching
         b.wait_js_cond('ph_select("#nav-hosts .nav-item a").length == 3')
@@ -238,6 +236,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.enter_page("/system/hwinfo", "10.111.113.3")
         b.click(".pf-c-breadcrumb li:first-child a")
         b.enter_page("/system", "10.111.113.3")
+        b.wait_in_text(".ct-overview-header-hostname", "machine3")
 
         # Remove host underneath ourselves
         b.switch_to_top()
@@ -329,6 +328,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         self.check_discovered_addresses(b, [])
         self.check_discovered_addresses(b2, [])
 
+    @no_retry_when_changed
     def testEdit(self):
         b = self.browser
         m1 = self.machines['machine1']
@@ -356,18 +356,42 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.click("button:contains('Edit hosts')")
         b.click("#nav-hosts .nav-item a[href='/@10.111.113.3'] + span button.nav-action.pf-m-secondary")
 
-        b.wait_popup('hosts_setup_server_dialog')
-        old_machine3_color = b.attr("#host-edit-color", "style")
-        b.set_val('#add-machine-user', 'franz')
-        b.click('#host-edit-color')
-        b.wait_visible('#host-edit-color-popover')
-        b.click('#host-edit-color-popover div.popover-content > div:nth-child(3)')
-        b.wait_not_visible('#host-edit-color-popover')
-        new_machine3_color = b.attr("#host-edit-color", "style")
-        self.assertNotEqual(old_machine3_color, new_machine3_color)
+        b.wait_visible('#hosts_setup_server_dialog')
+        b.set_input_text('#add-machine-user', 'franz')
+
+        def tab(n):
+            for _ in range(n):
+                args = {"type": "keyDown", "key": "Tab", "code": "Tab", "nativeVirtualKeyCode": 9, "windowsVirtualKeyCode": 9}
+                args = {"type": "keyDown", "key": "Tab"}
+                b.cdp.invoke("Input.dispatchKeyEvent", **args)
+                args["type"] = "keyUp"
+                b.cdp.invoke("Input.dispatchKeyEvent", **args)
+
+        def enter():
+            args = {"type": "keyDown", "key": "Enter", "code": "Enter", "nativeVirtualKeyCode": 13, "windowsVirtualKeyCode": 13}
+            args = {"type": "keyDown", "key": "Enter"}
+            b.cdp.invoke("Input.dispatchKeyEvent", **args)
+            args["type"] = "keyUp"
+            b.cdp.invoke("Input.dispatchKeyEvent", **args)
+
+        # <input type="color /> is rather difficult to set with tests
+        # On Firefox the popup window cannot be targeted nor with mouse nor keayboard
+        # On Chomium it is possible to tab-navigate through the color selector
+        # So tab to RGB inputs and type in zeros
+        if b.cdp.browser.name == "chromium":
+            b.focus("input[type=color]")
+            b.click("input[type=color]")
+            time.sleep(1)  # We cannot wait until the popup opens up, so just little of waiting
+            tab(3)
+            b.key_press("0")
+            tab(1)
+            b.key_press("0")
+            tab(1)
+            b.key_press("0")
+            enter()
 
         b.click('#hosts_setup_server_dialog .pf-m-primary')
-        b.wait_popdown('hosts_setup_server_dialog')
+        b.wait_not_present('#hosts_setup_server_dialog')
 
         b.wait_text(".nav-item a[href='/@10.111.113.3']", "franz @machine3")
 
@@ -383,15 +407,17 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.click("#nav-hosts .nav-item a[href='/@10.111.113.3'] + span button.nav-action.pf-m-secondary")
 
         b.wait_val('#add-machine-address', "10.111.113.3")
-        self.assertEqual(b.attr("#host-edit-color", "style"), new_machine3_color)
+        if b.cdp.browser.name == "chromium":
+            self.assertEqual(b.attr("input[type=color]", "value"), "#000000")
         b.wait_val('#add-machine-user', 'franz')
-        b.set_val('#add-machine-address', "10.111.113.2")
-        self.assertNotEqual(b.attr("#host-edit-color", "style"), new_machine3_color)
-        b.set_val('#add-machine-user', 'admin')
+        b.set_input_text('#add-machine-address', "10.111.113.2")
+        b.set_input_text('#add-machine-user', 'admin')
+        if b.cdp.browser.name == "chromium":
+            self.assertNotEqual(b.attr("input[type=color]", "value"), "#000000")
         b.click('#hosts_setup_server_dialog .pf-m-primary')
         b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
         b.click('#hosts_setup_server_dialog .pf-m-primary')
-        b.wait_popdown('hosts_setup_server_dialog')
+        b.wait_not_present('#hosts_setup_server_dialog')
 
         if not b.cdp.mobile:
             b.wait_text("#hosts-sel button .pf-c-select__toggle-text", "admin@machine2")
@@ -420,54 +446,6 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.relogin()
         time.sleep(60)
         self.assertNotIn(m2.execute("loginctl"), "admin")
-
-
-@skipDistroPackage()
-class TestHostEditing(MachineCase, HostSwitcherHelpers):
-
-    def testLimits(self):
-        b = self.browser
-        m = self.machine
-
-        def fake_machines(amount):
-            # build a machine json manually
-            d = {
-                "localhost": {"visible": True, "address": "localhost"}
-            }
-
-            for i in range(amount):
-                n = "bad{0}".format(i)
-                d[n] = {"visible": True, "address": n}
-
-            m.execute("echo '{0}' > /etc/cockpit/machines.d/99-webui.json".format(json.dumps(d)))
-            return list(d.keys())
-
-        def check_limit(limit):
-            b.click("button:contains('Add new host')")
-            b.wait_popup('hosts_setup_server_dialog')
-            if limit:
-                b.wait_in_text("#hosts_setup_server_dialog .dashboard-machine-warning",
-                               "{0} machines".format(limit))
-            else:
-                b.wait_not_present("#hosts_setup_server_dialog .dashboard-machine-warning")
-
-            b.click("#hosts_setup_server_dialog .pf-m-link")
-
-        self.login_and_go(superuser=False)
-
-        b.click("#hosts-sel button")
-        self.wait_host_addresses(b, ["localhost"])
-        check_limit(0)
-
-        self.wait_host_addresses(b, fake_machines(3))
-        check_limit(0)
-
-        self.wait_host_addresses(b, fake_machines(14))
-        check_limit(20)
-        self.allow_journal_messages(
-            ".*couldn't connect: Failed to resolve hostname bad.*",
-            ".*refusing to connect to unknown host.*"
-        )
 
 
 if __name__ == '__main__':

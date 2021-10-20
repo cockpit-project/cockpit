@@ -28,12 +28,13 @@ import { SuperuserIndicator } from "./superuser.jsx";
 import { CockpitNav, CockpitNavItem } from "./nav.jsx";
 import { CockpitHosts } from "./hosts.jsx";
 import { AboutCockpitModal } from "./shell-modals.jsx";
+import { codes, HostModal } from "./hosts_dialog.jsx";
 
 import * as base_index from "./base_index";
 
 const _ = cockpit.gettext;
 
-function MachinesIndex(index_options, machines, loader, mdialogs) {
+function MachinesIndex(index_options, machines, loader) {
     if (!index_options)
         index_options = {};
 
@@ -69,7 +70,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
     });
 
     /* Is troubleshooting dialog open */
-    let troubleshooting = false;
+    let troubleshooting_opened = false;
 
     $("#nav-system-item").on("click", function (ev) {
         $(this).toggleClass("active");
@@ -85,17 +86,6 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
         } else {
             navigate(null, true);
         }
-    });
-
-    /* Troubleshoot pause navigation */
-    $("#troubleshoot-dialog").on("show.bs.modal", function(ev) {
-        troubleshooting = true;
-    });
-
-    /* Troubleshoot dialog close */
-    $("#troubleshoot-dialog").on("hide.bs.modal", function(ev) {
-        troubleshooting = false;
-        navigate(null, true);
     });
 
     // Focus with skiplinks
@@ -175,7 +165,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
     function navigate(state, reconnect) {
         /* If this is a watchdog problem or we are troubleshooting
          * let the dialog handle it */
-        if (watchdog_problem || troubleshooting)
+        if (watchdog_problem || troubleshooting_opened)
             return;
 
         if (!state)
@@ -515,11 +505,24 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
                 }
             }
 
-            let troubleshooting;
-            if (!machine.restarting && mdialogs.needs_troubleshoot(machine)) {
+            let troubleshooting = false;
+
+            if (!machine.restarting && (machine.problem === "no-host" || !!codes[machine.problem])) {
+                const template = codes[machine.problem] || "change-port";
                 $("#machine-troubleshoot").off()
-                        .on("click", function () {
-                            mdialogs.troubleshoot("troubleshoot-dialog", machine);
+                        .on("click", () => {
+                            troubleshooting_opened = true;
+                            ReactDOM.render(React.createElement(HostModal, {
+                                template: template,
+                                address: machine.address,
+                                machines_ins: machines,
+                                onClose: () => {
+                                    ReactDOM.unmountComponentAtNode(document.getElementById('troubleshoot-dialog'));
+                                    troubleshooting_opened = false;
+                                    navigate(null, true);
+                                }
+                            }),
+                                            document.getElementById('troubleshoot-dialog'));
                         });
                 troubleshooting = true;
                 $("#machine-troubleshoot").show();
@@ -658,6 +661,6 @@ if (document.documentElement.getAttribute("class") === "index-page") {
     window.addEventListener("message", message_queue, false);
 }
 
-export function machines_index(options, machines_ins, loader, mdialogs) {
-    return new MachinesIndex(options, machines_ins, loader, mdialogs);
+export function machines_index(options, machines_ins, loader) {
+    return new MachinesIndex(options, machines_ins, loader);
 }

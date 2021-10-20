@@ -29,18 +29,18 @@ def wait_addresses(b, expected):
 
 def add_machine(b, address, password):
     b.click("button:contains('Add new host')")
-    b.wait_popup('hosts_setup_server_dialog')
-    b.set_val('#add-machine-address', address)
+    b.wait_visible('#hosts_setup_server_dialog')
+    b.set_input_text('#add-machine-address', address)
     b.click('#hosts_setup_server_dialog .pf-m-primary:contains("Add")')
     b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to %s for the first time." % address)
     b.click('#hosts_setup_server_dialog .pf-m-primary')
 
     if password:
         b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
-        b.set_val('#login-custom-password', password)
-        b.click('#hosts_setup_server_dialog .modal-footer button:contains(Log in)')
+        b.set_input_text('#login-custom-password', password)
+        b.click('#hosts_setup_server_dialog button:contains(Log in)')
 
-    b.wait_popdown('hosts_setup_server_dialog')
+    b.wait_not_present('#hosts_setup_server_dialog')
 
 
 def wait_stock_addresses(b, expected):
@@ -57,15 +57,15 @@ def wait_stock_addresses(b, expected):
 def add_stock_machine(b, address, password):
     b.click('#dashboard-add')
     b.wait_popup('dashboard_setup_server_dialog')
-    b.set_val('#add-machine-address', address)
+    b.set_input_text('#add-machine-address', address)
 
-    b.click('#dashboard_setup_server_dialog .modal-footer button:contains(Add)')
+    b.click('#dashboard_setup_server_dialog button:contains(Add)')
     b.wait_in_text('#dashboard_setup_server_dialog', "Fingerprint")
-    b.click('#dashboard_setup_server_dialog .modal-footer button:contains(Connect)')
+    b.click('#dashboard_setup_server_dialog button:contains(Connect)')
     if password:
         b.wait_in_text('#dashboard_setup_server_dialog', "Unable to log in")
-        b.set_val('#login-custom-password', password)
-        b.click('#dashboard_setup_server_dialog .modal-footer button:contains(Log in)')
+        b.set_input_text('#login-custom-password', password)
+        b.click('#dashboard_setup_server_dialog button:contains(Log in)')
     b.wait_popdown('dashboard_setup_server_dialog')
 
 
@@ -190,8 +190,8 @@ class TestMultiOSDirect(MachineCase):
         b.wait_visible("#login")
         b.wait_not_visible("#badge")
         b.wait_not_visible("#brand")
-        b.set_val("#login-user-input", "admin")
-        b.set_val("#login-password-input", "foobar")
+        b.set_input_text("#login-user-input", "admin")
+        b.set_input_text("#login-password-input", "foobar")
         b.click('#login-button')
         b.wait_visible("#hostkey-group")
         b.wait_in_text("#hostkey-message-1", "You are connecting to 10.111.113.5 for the first time.")

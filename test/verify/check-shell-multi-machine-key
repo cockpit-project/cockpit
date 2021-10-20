@@ -157,26 +157,26 @@ class TestMultiMachineKeyAuth(MachineCase):
         b.go("/@10.111.113.2")
         b.wait_visible("#machine-troubleshoot")
         b.click('#machine-troubleshoot')
-        b.wait_popup('troubleshoot-dialog')
+        b.wait_visible('#hosts_setup_server_dialog')
 
-        b.wait_text('#troubleshoot-dialog {}'.format(self.primary_btn_class), "Add")
-        b.click('#troubleshoot-dialog {}'.format(self.primary_btn_class))
-        b.wait_in_text('#troubleshoot-dialog', "You are connecting to 10.111.113.2 for the first time.")
-        b.click('#troubleshoot-dialog {}'.format(self.primary_btn_class))
-        b.wait_in_text('#troubleshoot-dialog h4', "Log in to")
-        b.wait_in_text('#troubleshoot-dialog', "accept password login")
-        b.click("#troubleshoot-dialog button:contains('Cancel')")
-        b.wait_popdown('troubleshoot-dialog')
+        b.wait_text('#hosts_setup_server_dialog {}'.format(self.primary_btn_class), "Add")
+        b.click('#hosts_setup_server_dialog {}'.format(self.primary_btn_class))
+        b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
+        b.click('#hosts_setup_server_dialog {}'.format(self.primary_btn_class))
+        b.wait_in_text('#hosts_setup_server_dialog h1', "Log in to")
+        b.wait_in_text('#hosts_setup_server_dialog', "accept password login")
+        b.click("#hosts_setup_server_dialog button:contains('Cancel')")
+        b.wait_not_present('#hosts_setup_server_dialog')
 
         # add key
         authorize_user(m2, "admin")
 
         # Login
         b.click('#machine-troubleshoot')
-        b.wait_popup('troubleshoot-dialog')
-        b.wait_text('#troubleshoot-dialog {}'.format(self.primary_btn_class), "Add")
-        b.click('#troubleshoot-dialog {}'.format(self.primary_btn_class))
-        b.wait_popdown('troubleshoot-dialog')
+        b.wait_visible('#hosts_setup_server_dialog')
+        b.wait_text('#hosts_setup_server_dialog {}'.format(self.primary_btn_class), "Add")
+        b.click('#hosts_setup_server_dialog {}'.format(self.primary_btn_class))
+        b.wait_not_present('#hosts_setup_server_dialog')
         b.enter_page("/system", host="10.111.113.2")
 
         # Logout
@@ -203,12 +203,12 @@ class TestMultiMachineKeyAuth(MachineCase):
         b.click("button:contains('Edit hosts')")
         b.click("#nav-hosts .nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-secondary")
 
-        b.wait_popup('hosts_setup_server_dialog')
+        b.wait_visible('#hosts_setup_server_dialog')
         b.wait_visible('#add-machine-user')
         self.assertEqual(b.val("#add-machine-user"), "")
-        b.set_val('#add-machine-user', 'user')
+        b.set_input_text('#add-machine-user', 'user')
         b.click("#hosts_setup_server_dialog .pf-m-primary")
-        b.wait_popdown('hosts_setup_server_dialog')
+        b.wait_not_present('#hosts_setup_server_dialog')
 
         # We now expect this iframe to disappear
         b.wait_not_present("iframe.container-frame[name='cockpit1:10.111.113.2/system']")
@@ -260,14 +260,14 @@ Host 10.111.113.2
 
         b.click("#hosts-sel button")
         b.click("button:contains('Add new host')")
-        b.wait_popup('hosts_setup_server_dialog')
-        b.set_val('#add-machine-address', "10.111.113.2")
+        b.wait_visible('#hosts_setup_server_dialog')
+        b.set_input_text('#add-machine-address', "10.111.113.2")
         b.click("#hosts_setup_server_dialog .pf-m-primary")
         b.wait_in_text("#hosts_setup_server_dialog", "You are connecting to 10.111.113.2 for the first time.")
         b.click("#hosts_setup_server_dialog .pf-m-primary")
         b.wait_in_text("#hosts_setup_server_dialog", "/home/admin/.ssh/id_ed25519")
-        b.set_val(".locked-identity-password", "locked")
-        b.click("#hosts_setup_server_dialog .modal-footer>.pf-m-primary")
+        b.set_input_text("#locked-identity-password", "locked")
+        b.click("#hosts_setup_server_dialog .pf-m-primary")
         b.wait_visible("a[href='/@10.111.113.2']")
         self.allow_hostkey_messages()
 
@@ -294,14 +294,14 @@ Host 10.111.113.2
 
         b.click("#hosts-sel button")
         b.click("button:contains('Add new host')")
-        b.wait_popup('hosts_setup_server_dialog')
-        b.set_val("#add-machine-address", "10.111.113.2")
+        b.wait_visible('#hosts_setup_server_dialog')
+        b.set_input_text("#add-machine-address", "10.111.113.2")
         b.click("#hosts_setup_server_dialog .pf-m-primary")
         b.wait_in_text("#hosts_setup_server_dialog", "You are connecting to 10.111.113.2 for the first time.")
         b.click("#hosts_setup_server_dialog .pf-m-primary")
         b.wait_in_text("#hosts_setup_server_dialog", "/home/admin/.ssh/id_rsa")
-        b.set_val(".locked-identity-password", "foobarfoo")
-        b.click("#hosts_setup_server_dialog .modal-footer>.pf-m-primary")
+        b.set_input_text("#locked-identity-password", "foobarfoo")
+        b.click("#hosts_setup_server_dialog .pf-m-primary")
         b.wait_visible("a[href='/@10.111.113.2']")
         self.allow_hostkey_messages()
 

@@ -7,7 +7,7 @@
 make po/cockpit.pot
 # do some spot checks
 grep -q 'pkg/base1/cockpit.js' po/cockpit.pot
-grep -q 'pkg/shell/machines/machine-dialogs.js' po/cockpit.pot
+grep -q 'pkg/shell/hosts_dialog.jsx' po/cockpit.pot
 grep -q 'pkg/systemd/services.html' po/cockpit.pot
 grep -q 'pkg/static/login.html' po/cockpit.pot
 grep -q 'pkg/systemd/manifest.json' po/cockpit.pot

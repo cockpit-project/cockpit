@@ -449,7 +449,7 @@ class RestartServices extends React.Component {
                                    title={_("Web Console will restart")}
                                    isInline>
                                    <p>
-                                       _("When the Web Console is restarted, you will no longer see progress information. However, the update process will continue in the background. Reconnect to continue watching the update process.")
+                                       {_("When the Web Console is restarted, you will no longer see progress information. However, the update process will continue in the background. Reconnect to continue watching the update process.")}
                                    </p>
                                </Alert>}
                            <Button variant='primary'

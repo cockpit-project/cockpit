@@ -38,7 +38,6 @@ import luksmeta_monitor_hack_py from "raw-loader!./luksmeta-monitor-hack.py";
 import * as timeformat from "timeformat.js";
 
 import { CryptoKeyslots } from "./crypto-keyslots.jsx";
-import Mutex from "await-mutex";
 
 const _ = cockpit.gettext;
 
@@ -56,34 +55,31 @@ function parse_tag_mtime(tag) {
         return null;
 }
 
-const edit_config_mutex = new Mutex();
-
 export function edit_config(block, modify) {
     let old_config, new_config;
 
-    return edit_config_mutex.lock().then(unlock => {
-        function commit() {
-            new_config[1]["track-parents"] = { t: 'b', v: true };
-            return (old_config
-                ? block.UpdateConfigurationItem(old_config, new_config, { })
-                : block.AddConfigurationItem(new_config, { }))
-                    .finally(unlock);
-        }
-        return block.GetSecretConfiguration({}).then(
-            function (items) {
-                old_config = array_find(items, function (c) { return c[0] == "crypttab" });
-                new_config = ["crypttab", old_config ? Object.assign({ }, old_config[1]) : { }];
+    function commit() {
+        new_config[1]["track-parents"] = { t: 'b', v: true };
+        if (old_config)
+            return block.UpdateConfigurationItem(old_config, new_config, { });
+        else
+            return block.AddConfigurationItem(new_config, { });
+    }
 
-                // UDisks insists on always having a "passphrase-contents" field when
-                // adding a crypttab entry, but doesn't include one itself when returning
-                // an entry without a stored passphrase.
-                //
-                if (!new_config[1]['passphrase-contents'])
-                    new_config[1]['passphrase-contents'] = { t: 'ay', v: encode_filename("") };
+    return block.GetSecretConfiguration({}).then(
+        function (items) {
+            old_config = array_find(items, function (c) { return c[0] == "crypttab" });
+            new_config = ["crypttab", old_config ? Object.assign({ }, old_config[1]) : { }];
 
-                return modify(new_config[1], commit);
-            });
-    });
+            // UDisks insists on always having a "passphrase-contents" field when
+            // adding a crypttab entry, but doesn't include one itself when returning
+            // an entry without a stored passphrase.
+            //
+            if (!new_config[1]['passphrase-contents'])
+                new_config[1]['passphrase-contents'] = { t: 'ay', v: encode_filename("") };
+
+            return modify(new_config[1], commit);
+        });
 }
 
 export class CryptoTab extends React.Component {

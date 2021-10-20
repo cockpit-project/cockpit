@@ -29,6 +29,7 @@ import { useObject, useEvent } from "hooks.js";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { ServerTimeConfig } from 'serverTime.js';
 import { RealmdClient, RealmButton } from "./realmd.jsx";
+import { TunedPerformanceProfile } from '../../tuned/dialog.jsx';
 
 import "./configurationCard.scss";
 
@@ -79,7 +80,7 @@ export const ConfigurationCard = ({ hostname }) => {
 
                             <tr>
                                 <th scope="row">{_("Performance profile")}</th>
-                                <td><span id="system-info-performance" /></td>
+                                <td><TunedPerformanceProfile /></td>
                             </tr>
 
                             <tr>

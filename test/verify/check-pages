@@ -227,15 +227,6 @@ OnCalendar=daily
         self.assertEqual(b.text("#translatable-glade"), "Leer")
         self.assertEqual(b.text("#translatable-glade-context"), "Leeren")
 
-        # Mustache section
-        self.assertEqual(b.text("#translatable-mustache"), "Benutzer")
-        self.assertEqual(b.text("#translate-mustache"), "Speicher")
-        self.assertEqual(b.text("#translate-mustache-yes"), "Konten")
-        self.assertEqual(b.attr("#translate-mustache-title", "title"), "Fehler")
-        self.assertEqual(b.text("#translate-mustache-title"), "User")
-        self.assertEqual(b.attr("#translate-mustache-yes-title", "title"), "Fehler")
-        self.assertEqual(b.text("#translate-mustache-yes-title"), "Benutzer")
-
         # Javascript
         self.assertEqual(b.text("#underscore-empty"), "Leer")
         self.assertEqual(b.text("#underscore-context-empty"), "Leeren")
@@ -371,15 +362,6 @@ OnCalendar=daily
         # Glade section
         self.assertEqual(b.text('#translatable-glade'), 'Vazio')
         self.assertEqual(b.text('#translatable-glade-context'), 'Vazio')
-
-        # Mustache section
-        self.assertEqual(b.text('#translatable-mustache'), u'Usuário')
-        self.assertEqual(b.text('#translate-mustache'), u'Memória')
-        self.assertEqual(b.text('#translate-mustache-yes'), 'Contas')
-        self.assertEqual(b.attr('#translate-mustache-title', 'title'), 'Erro')
-        self.assertEqual(b.text('#translate-mustache-title'), 'User')
-        self.assertEqual(b.attr('#translate-mustache-yes-title', 'title'), 'Erro')
-        self.assertEqual(b.text('#translate-mustache-yes-title'), u'Usuário')
 
         # Javascript
         self.assertEqual(b.text('#underscore-empty'), 'Vazio')

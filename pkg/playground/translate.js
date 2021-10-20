@@ -1,5 +1,4 @@
 import cockpit from "cockpit";
-import { mustache } from "mustache";
 
 import '../lib/patternfly/patternfly-cockpit.scss';
 
@@ -35,10 +34,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     text = cockpit.ngettext("disk-non-rotational", "$0 disk is missing", "$0 disks are missing", 2);
     document.getElementById("ngettext-context-disks-2").textContent = text;
-
-    const template = document.getElementById("mustache-input").textContent;
-    const output = mustache.render(template);
-    document.getElementById("mustache-output").innerHTML = output;
 
     cockpit.transport.wait(() => document.body.removeAttribute("hidden"));
 });

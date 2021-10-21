@@ -72,15 +72,15 @@ class TestTuned(MachineCase):
         title_selector = ".pf-c-modal-box__header:contains('Change performance profile')"
         b.wait_visible(title_selector)
         body_selector = ".pf-c-modal-box:contains('Change performance profile')"
-        b.wait_visible("{0} .list-group-item.active p".format(body_selector))
+        b.wait_visible("{0} li > button.pf-m-selected p".format(body_selector))
 
         # Make sure we see the recommended profile and its badges
-        b.wait_in_text("{0} .list-group-item.active p".format(body_selector), recommended_profile)
-        b.wait_visible("{0} .list-group-item.active .pf-c-label:contains('recommended')".format(body_selector))
-        b.wait_visible("{0} .list-group-item.active .pf-c-label:contains('active')".format(body_selector))
+        b.wait_in_text("{0} li > button.pf-m-selected p".format(body_selector), recommended_profile)
+        b.wait_visible("{0} li > button.pf-m-selected .pf-c-label:contains('recommended')".format(body_selector))
+        b.wait_visible("{0} li > button.pf-m-selected .pf-c-label:contains('active')".format(body_selector))
 
-        b.click("{0} .list-group-item p:contains('balanced')".format(body_selector))
-        b.wait_visible("{0} .list-group-item.active p:contains('balanced')".format(body_selector))
+        b.click("{0} li > button p:contains('balanced')".format(body_selector))
+        b.wait_visible("{0} li > button.pf-m-selected p:contains('balanced')".format(body_selector))
 
         b.click("{0} button.pf-m-primary".format(body_selector))
         b.wait_not_present(title_selector)
@@ -97,10 +97,10 @@ class TestTuned(MachineCase):
         # Now disable tuned
         b.click('#tuned-status-button')
         b.wait_visible(title_selector)
-        b.wait_visible("{0} .list-group-item.active p".format(body_selector))
+        b.wait_visible("{0} li > button.pf-m-selected p".format(body_selector))
 
-        b.click("{0} .list-group-item p:contains('None')".format(body_selector))
-        b.wait_visible("{0} .list-group-item.active p:contains('None')".format(body_selector))
+        b.click("{0} li > button p:contains('None')".format(body_selector))
+        b.wait_visible("{0} li > button.pf-m-selected p:contains('None')".format(body_selector))
         b.click("{0} button.pf-m-primary".format(body_selector))
         b.wait_not_present(title_selector)
 

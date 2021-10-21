@@ -55,6 +55,18 @@ class TestStorageNfs(StorageCase):
         self.assertEqual(m.execute("grep -w nfs /etc/fstab").strip(),
                          "127.0.0.1:/home/foo /mnt nfs defaults")
 
+        # Try to add some non-exported directory
+        b.click("#nfs-mounts button[aria-label=Add]")
+        self.dialog_wait_open()
+        self.dialog_set_val("server", "127.0.0.1")
+        b.set_input_text(self.dialog_field("remote") + " input", "/usr/share")
+        b.click(self.dialog_field("remote") + " .pf-c-select ul > li > button")
+        self.dialog_set_val("dir", "/run/share")
+        self.dialog_apply()
+        b.wait_visible("#dialog .pf-c-alert.pf-m-danger")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
         # Add /home/bar
         b.click("#nfs-mounts button[aria-label=Add]")
         self.dialog_wait_open()
@@ -169,6 +181,35 @@ class TestStorageNfs(StorageCase):
 
         b.click('#dialog [data-field="remote"] button.pf-c-select__toggle-button')
         wait_for_exports()
+
+    def testNfsMountWithoutDiscovery(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        m.execute("mkdir /home/foo /home/bar")
+        m.write("/etc/exports", "/home/foo 127.0.0.0/24(rw)\n/home/bar 127.0.0.0/24(rw)\n")
+        m.execute("systemctl restart nfs-server")
+
+        # Break showmount.  Cockpit uses showmount to list exported
+        # directories, but that relies on a properly configured
+        # firewall etc.  Even if showmount doesn't work, Cockpit
+        # should allow people to mount arbitrary directories.
+        m.execute("chmod a-x /usr/sbin/showmount")
+
+        b.click("#nfs-mounts [aria-label=Add]")
+        self.dialog_wait_open()
+        self.dialog_set_val("server", "127.0.0.1")
+        b.wait_visible('#dialog [data-field="remote"][data-field-type="text-input"')
+        self.dialog_set_val("remote", "/home/foo")
+        self.dialog_set_val("dir", "/mnt")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        b.wait_visible("#nfs-mounts td:contains(/home/foo)")
+        b.wait_visible("#nfs-mounts td:contains(/mnt)")
+        b.wait_text_not("#nfs-mounts tr:contains(/mnt) .pf-c-progress__status", "")
 
     def testNfsBusy(self):
         m = self.machine

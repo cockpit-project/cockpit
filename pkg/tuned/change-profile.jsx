@@ -21,54 +21,11 @@ import cockpit from "cockpit";
 import React from "react";
 import PropTypes from "prop-types";
 
-import { Label, Split, SplitItem } from '@patternfly/react-core';
+import { Label, Menu, MenuItem, MenuContent, MenuList, Flex, FlexItem } from '@patternfly/react-core';
+
+import "menu-select-widget.scss";
 
 const _ = cockpit.gettext;
-
-/* Performance profile entry
- * Expected props:
- *  - name (key)
- *  - recommended (boolean)
- *  - selected (boolean)
- *  - title
- *  - description
- *  - click (callback function)
- */
-class TunedDialogProfile extends React.Component {
-    render() {
-        let classes = "list-group-item";
-        let variant = "filled";
-
-        if (this.props.selected) {
-            classes += " active";
-            variant = "outline";
-        }
-
-        return (
-            <button className={ classes } key={ this.props.name } onClick={ this.props.click }>
-                <Split>
-                    <SplitItem isFilled>
-                        <p>{ this.props.title }</p>
-                        <small>{ this.props.description }</small>
-                    </SplitItem>
-                    <SplitItem>
-                        {this.props.recommended && <Label color="blue" variant={variant}>{_("recommended")}</Label>}
-                        {" "}
-                        {this.props.active && <Label color="blue" variant={variant}>{_("active")}</Label>}
-                    </SplitItem>
-                </Split>
-            </button>
-        );
-    }
-}
-TunedDialogProfile.propTypes = {
-    name: PropTypes.string.isRequired,
-    recommended: PropTypes.bool.isRequired,
-    selected: PropTypes.bool.isRequired,
-    title: PropTypes.string.isRequired,
-    description: PropTypes.string.isRequired,
-    click: PropTypes.func.isRequired,
-};
 
 /* dialog body with list of performance profiles
  * Expected props:
@@ -89,25 +46,37 @@ export class TunedDialogBody extends React.Component {
         };
     }
 
-    handleProfileClick(profile) {
-        if (profile != this.state.selected_profile) {
-            this.setState({ selected_profile: profile });
-            this.props.change_selected(profile);
-        }
-    }
-
     render() {
-        const self = this;
-        const profiles = this.props.profiles.map(function(itm) {
-            itm.active = (self.props.active_profile == itm.name);
-            itm.selected = (self.state.selected_profile == itm.name);
-            itm.click = self.handleProfileClick.bind(self, itm.name);
-            return <TunedDialogProfile key={itm.name} { ...itm } />;
+        const profiles = this.props.profiles.map((itm) => {
+            const active = this.props.active_profile == itm.name;
+
+            return (
+                <MenuItem itemId={itm.name} key={itm.name} data-value={itm.name} description={itm.description}>
+                    <Flex alignItems={{ default: 'alignItemsCenter' }} justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+                        <p>{ itm.title }</p>
+                        <FlexItem>
+                            {itm.recommended && <Label color="blue" variant='filled'>{_("recommended")}</Label>}
+                            {" "}
+                            {active && <Label color="blue" variant='filled'>{_("active")}</Label>}
+                        </FlexItem>
+                    </Flex>
+                </MenuItem>
+            );
         });
         return (
-            <div className="list-group dialog-list-ct">
-                { profiles }
-            </div>
+            <Menu className="ct-menu-select-widget"
+                  onSelect={(_, selected) => {
+                      this.setState({ selected_profile: selected });
+                      this.props.change_selected(selected);
+                  }}
+                  activeItemId={this.state.selected_profile}
+                  selected={this.state.selected_profile}>
+                <MenuContent>
+                    <MenuList>
+                        {profiles}
+                    </MenuList>
+                </MenuContent>
+            </Menu>
         );
     }
 }

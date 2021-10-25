@@ -137,17 +137,15 @@ function parseBoolean(result, item) {
         const match = item.match(/(\S*)\s*\((\S*)\s*,.*\)\s*(.*)/);
         if (match) {
             let description = match[3];
-            let state = "yes";
+            let enable_val = "--on";
             if (match[2] !== "on") {
-                state = "no";
+                enable_val = "--off";
                 description = description.replace("Allow", "Disallow");
             }
+            // We want to support Ansible Core, the `seboolean:` module is not a builtin
             const ansible = `
 - name: ${description}
-  seboolean:
-    name: ${match[1]}
-    state: ${state}
-    persistent: yes
+  command: semanage boolean -m ${enable_val} ${match[1]}
 `;
             result.push({ description, ansible });
         }

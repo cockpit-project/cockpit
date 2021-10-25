@@ -70,7 +70,7 @@ class TestStorageNfs(StorageCase):
         m.execute("test -d /mounts/bar")
 
         # Go to details of /home/bar
-        b.mousedown("#nfs-mounts tr:contains(/home/bar)")
+        b.click("#nfs-mounts tr:contains(/home/bar)")
         b.wait_visible('#storage-detail')
         b.wait_text('#detail-header dt:contains("Server") + dd', "127.0.0.1:/home/bar")
         b.wait_text('#detail-header dt:contains("Mount point") + dd', "/mounts/bar")
@@ -114,7 +114,7 @@ class TestStorageNfs(StorageCase):
         # Go to details of /home/foo
         b.go("#/")
         b.wait_visible("#storage")
-        b.mousedown("#nfs-mounts tr:contains(/home/foo)")
+        b.click("#nfs-mounts tr:contains(/home/foo)")
         b.wait_visible('#storage-detail')
         b.wait_text('#detail-header dt:contains("Server") + dd', "127.0.0.1:/home/foo")
         b.wait_text('#detail-header dt:contains("Mount point") + dd', "/mnt")
@@ -199,7 +199,7 @@ class TestStorageNfs(StorageCase):
         # Go to details of /home/foo
         b.go("#/")
         b.wait_visible("#storage")
-        b.mousedown("#nfs-mounts tr:contains(/home/foo)")
+        b.click("#nfs-mounts tr:contains(/home/foo)")
         b.wait_visible('#storage-detail')
         b.wait_text('#detail-header dt:contains("Server") + dd', "127.0.0.1:/home/foo")
         b.wait_text('#detail-header dt:contains("Mount point") + dd', "/mounts/foo")

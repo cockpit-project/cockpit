@@ -113,7 +113,7 @@ class TestStorageMounting(StorageCase):
         wait_ratio_in_range(bar_selector, 0.5, 1.0)
         m.execute("rm %s/zero" % mount_point_bar)
         wait_ratio_in_range(bar_selector, 0.0, 0.1)
-        b.mousedown('table[aria-label=Filesystems] tr:contains("filesystem")')
+        b.click('table[aria-label=Filesystems] tr:contains("filesystem")')
         b.wait_visible("#storage-detail")
 
         def wait_info_field_value(name, value):

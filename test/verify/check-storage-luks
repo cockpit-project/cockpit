@@ -104,7 +104,7 @@ class TestStorageLuks(StorageCase):
         # It should be listed on the Overview. Click it to come back
         # here.
         b.go("#/")
-        b.mousedown("#mounts tr:contains(%s)" % mount_point_secret)
+        b.click("#mounts tr:contains(%s)" % mount_point_secret)
         b.wait_visible("#storage-detail")
 
         # Mount, this uses the stored passphrase for unlocking

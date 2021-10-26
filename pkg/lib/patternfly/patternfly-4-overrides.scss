@@ -162,3 +162,13 @@ svg {
 .pf-c-modal-box .pf-c-alert + .pf-c-form {
     padding-top: var(--pf-global--FontSize--sm);
 }
+
+// HACK: Not possible to specify text, so needs some hacks, see https://github.com/patternfly/patternfly-react/issues/6140
+.pf-c-toolbar__toggle {
+    .pf-c-button.pf-m-plain {
+        color: var(--pf-c-button--m-link--Color);
+        .pf-c-button__icon {
+            margin-right: var(--pf-global--spacer--sm);
+        }
+     }
+}

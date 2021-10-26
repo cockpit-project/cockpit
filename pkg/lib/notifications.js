@@ -58,6 +58,8 @@ fields:
  title. The recognized properties are:
 
    * icon: custom icon name (defaults to standard icon corresponding to type)
+   * pficon: PatternFly icon name; e.g. "enhancement", "bug", "security", "spinner", "check";
+     see get_pficon() in pkg/systemd/page-status.jsx
    * link: custom link target (defaults to page name); if false, the
      notification will not be a link
 

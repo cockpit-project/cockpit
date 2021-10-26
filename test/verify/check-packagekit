@@ -359,9 +359,9 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         b.wait_visible(".progress-main-view button.progress-cancel:disabled")
 
         # update log only exists in the expander, collapsed by default
-        self.assertFalse(b.is_present("#update-log"))
+        self.assertFalse(b.is_visible("#update-log"))
         # expand it
-        b.click(".expander-title button")
+        b.click(".pf-c-expandable-section__toggle")
         # should eventually show chocolate when vanilla starts installing
         b.wait_in_text("#update-log", "chocolate")
 
@@ -749,8 +749,8 @@ ExecStart=/usr/local/bin/{0}
         b.wait_visible(".pf-c-empty-state .pf-c-title:contains('Update was successful')")
 
         # history on restart page should show the three security updates
-        b.click(".expander-title button")
-        self.assertHistory("ul", ["secdeclare", "secparse", "sevcritical"])
+        b.click(".pf-c-expandable-section__toggle")
+        self.assertHistory(".pf-c-expandable-section ul", ["secdeclare", "secparse", "sevcritical"])
 
         # ignore restarting
         b.click("#ignore")
@@ -765,7 +765,7 @@ ExecStart=/usr/local/bin/{0}
         self.assertNotIn("secparse", b.text("#available-updates table"))
 
         # history should show the security updates
-        self.assertHistory("table.updates-history ul", ["secdeclare", "secparse", "sevcritical"])
+        self.assertHistory("table.updates-history #expanded-content1 ul", ["secdeclare", "secparse", "sevcritical"])
 
         # stop PackageKit (e. g. idle timeout) to make sure the page survives that
         m.execute("systemctl stop packagekit; systemctl reset-failed packagekit || true")
@@ -787,8 +787,8 @@ ExecStart=/usr/local/bin/{0}
         b.wait_visible("#ignore")
 
         # history on restart page should show the three non-security updates
-        b.click(".expander-title button")
-        self.assertHistory("ul", ["buggy", "norefs-bin", "norefs-doc"])
+        b.click(".pf-c-expandable-section__toggle")
+        self.assertHistory(".pf-c-expandable-section ul", ["buggy", "norefs-bin", "norefs-doc"])
 
         if m.image in OSesWithoutTracer:
             # do the reboot; this will disconnect the web UI

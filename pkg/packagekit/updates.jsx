@@ -20,13 +20,14 @@ import '../lib/patternfly/patternfly-cockpit.scss';
 import 'polyfills'; // once per application
 
 import cockpit from "cockpit";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import ReactDOM from 'react-dom';
 
 import {
     Alert, Badge, Button, Gallery, Modal, Progress, Popover, Tooltip,
     Card, CardTitle, CardActions, CardHeader, CardBody,
     DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
+    ExpandableSection,
     Flex, FlexItem,
     Spinner,
     Stack, StackItem,
@@ -146,28 +147,6 @@ function shortenCockpitWsInstance(list) {
 
     return list;
 }
-
-const Expander = ({ title, onExpand, children }) => {
-    const [expanded, setExpanded] = useState(false);
-
-    useEffect(() => {
-        if (expanded && onExpand)
-            onExpand();
-    }, [expanded, onExpand]);
-
-    const cls = "expander-caret fa " + (expanded ? "fa-angle-down" : "fa-angle-right");
-    return (
-        <>
-            <div className="expander-title">
-                <hr />
-                <Button variant="link" onClick={ () => setExpanded(!expanded) }>
-                    <i className={cls} />{title}
-                </Button>
-                <hr />
-            </div>
-            {expanded ? children : null}
-        </>);
-};
 
 function count_security_updates(updates) {
     let num_security = 0;
@@ -588,7 +567,7 @@ class ApplyUpdates extends React.Component {
                 </div>
 
                 <div className="update-log">
-                    <Expander title={_("Update log")} onExpand={() => {
+                    <ExpandableSection toggleText={_("Update log")} onToggle={() => {
                         // always scroll down on expansion
                         const log = document.getElementById("update-log");
                         log.scrollTop = log.scrollHeight;
@@ -604,7 +583,7 @@ class ApplyUpdates extends React.Component {
                                 </tbody>
                             </table>
                         </div>
-                    </Expander>
+                    </ExpandableSection>
                 </div>
             </>
         );
@@ -659,9 +638,9 @@ const UpdateSuccess = ({ onIgnore, openServiceRestartDialog, openRebootDialog, r
                                  </>
                              } />
             <div className="flow-list-blank-slate">
-                <Expander title={_("Package information")}>
+                <ExpandableSection toggleText={_("Package information")}>
                     <PackageList packages={history[0]} />
-                </Expander>
+                </ExpandableSection>
             </div>
         </>);
     }
@@ -736,9 +715,9 @@ const UpdateSuccess = ({ onIgnore, openServiceRestartDialog, openRebootDialog, r
                 </>
             } />
         <div className="flow-list-blank-slate">
-            <Expander title={_("Package information")}>
+            <ExpandableSection toggleText={_("Package information")}>
                 <PackageList packages={history[0]} />
-            </Expander>
+            </ExpandableSection>
         </div>
     </>);
 };

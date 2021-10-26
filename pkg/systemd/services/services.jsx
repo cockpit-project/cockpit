@@ -887,7 +887,7 @@ class ServicesPage extends React.Component {
                 .sort(this.compareUnits);
 
         const toolbarItems = <>
-            <ToolbarToggleGroup toggleIcon={<FilterIcon />} breakpoint="xl"
+            <ToolbarToggleGroup toggleIcon={<FilterIcon />} breakpoint="sm"
                                 variant="filter-group" alignment={{ default: 'alignLeft' }}>
                 <ToolbarItem variant="search-filter">
                     <SearchInput id="services-text-filter"

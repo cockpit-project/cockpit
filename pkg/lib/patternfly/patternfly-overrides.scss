@@ -23,14 +23,12 @@ h1, h2, h3, h4, h5, h6 {
 
 // Restyle inputs & dropdowns
 .input-group-addon,
-.bootstrap-select.btn-group .btn,
 .dropdown-toggle,
 .form-control:not(.ct-select):not(.rbt-input):not(select) {
   background-image: none !important;
 }
 
 .input-group-addon,
-.bootstrap-select.btn-group .btn,
 .dropdown-toggle,
 .form-control:not(.ct-select) {
   border-radius: 3px;
@@ -40,7 +38,7 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: none !important;
   min-height: 2.25rem;
 
-  &:not(.bootstrap-select):not(.dropdown-form-control) {
+  &:not(.dropdown-form-control) {
     padding: 1px 0.5rem;
   }
 
@@ -195,7 +193,7 @@ select.form-control {
   padding: 0.375rem 1rem;
   transition: background 0.3s, border 0.3s, color 0.3s;
 
-  &:not(.dropdown-toggle):not(.dropdown):not(.bootstrap-select):not(.ct-select) {
+  &:not(.dropdown-toggle):not(.dropdown):not(.ct-select) {
     background-image: none !important;
     border-radius: 3px;
 

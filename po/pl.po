@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-12 18:03+0000\n"
-"PO-Revision-Date: 2021-10-13 14:31+0000\n"
+"POT-Creation-Date: 2021-10-19 18:03+0000\n"
+"PO-Revision-Date: 2021-10-21 14:32+0000\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <https://translate.fedoraproject.org/projects/cockpit/"
 "main/pl/>\n"
@@ -202,7 +202,7 @@ msgstr[0] "$0 miesiąc"
 msgstr[1] "$0 miesiące"
 msgstr[2] "$0 miesięcy"
 
-#: pkg/storaged/fsys-tab.jsx:487
+#: pkg/storaged/fsys-tab.jsx:480
 msgid "$0 of $1"
 msgstr "$0 z $1"
 
@@ -248,7 +248,7 @@ msgstr[0] "$0 usługa musi zostać ponownie uruchomiona"
 msgstr[1] "$0 usługi muszą zostać ponownie uruchomione"
 msgstr[2] "$0 usług musi zostać ponownie uruchomionych"
 
-#: pkg/storaged/crypto-keyslots.jsx:620
+#: pkg/storaged/crypto-keyslots.jsx:618
 msgid "$0 slot remains"
 msgid_plural "$0 slots remain"
 msgstr[0] "$0 pozostałe gniazdo"
@@ -520,11 +520,11 @@ msgstr "7."
 msgid "8 KiB"
 msgstr "8 KiB"
 
-#: pkg/networkmanager/interfaces.js:1460
+#: pkg/networkmanager/bond.jsx:48
 msgid "802.3ad"
 msgstr "802.3ad"
 
-#: pkg/networkmanager/interfaces.js:1477
+#: pkg/networkmanager/team.jsx:46
 msgid "802.3ad LACP"
 msgstr "LACP 802.3ad"
 
@@ -554,7 +554,7 @@ msgstr ""
 "Z powodów bezpieczeństwa, niezawodności i wydajności wymagana jest "
 "nowoczesna przeglądarka."
 
-#: pkg/networkmanager/network-main-dialogs.jsx:72
+#: pkg/networkmanager/bond.jsx:143
 msgid ""
 "A network bond combines multiple network interfaces into one logical "
 "interface with higher throughput or redundancy."
@@ -602,15 +602,15 @@ msgstr[2] ""
 msgid "A spare disk needs to be added first before this disk can be removed."
 msgstr "Przed usunięciem tego dysku należy najpierw dodać dysk zapasowy."
 
-#: pkg/networkmanager/interfaces.js:1468
+#: pkg/networkmanager/bond.jsx:56
 msgid "ARP"
 msgstr "ARP"
 
-#: pkg/networkmanager/network-interface.jsx:469
+#: pkg/networkmanager/network-interface.jsx:431
 msgid "ARP monitoring"
 msgstr "Monitorowanie ARP"
 
-#: pkg/networkmanager/interfaces.js:1489
+#: pkg/networkmanager/team.jsx:58
 msgid "ARP ping"
 msgstr "Ping ARP"
 
@@ -661,11 +661,11 @@ msgstr "Aktywuj"
 msgid "Activating $target"
 msgstr "Aktywowanie $target"
 
-#: pkg/networkmanager/interfaces.js:757 pkg/networkmanager/interfaces.js:1483
+#: pkg/networkmanager/team.jsx:52 pkg/networkmanager/interfaces.js:754
 msgid "Active"
 msgstr "Aktywne"
 
-#: pkg/networkmanager/interfaces.js:1457 pkg/networkmanager/interfaces.js:1474
+#: pkg/networkmanager/team.jsx:43 pkg/networkmanager/bond.jsx:45
 msgid "Active backup"
 msgstr "Aktywna kopia zapasowa"
 
@@ -687,17 +687,17 @@ msgstr "Aktywna od "
 msgid "Active state"
 msgstr "Aktywny stan"
 
-#: pkg/networkmanager/interfaces.js:1462
+#: pkg/networkmanager/bond.jsx:50
 msgid "Adaptive load balancing"
 msgstr "Adaptacyjne równoważenie obciążenia"
 
-#: pkg/networkmanager/interfaces.js:1461
+#: pkg/networkmanager/bond.jsx:49
 msgid "Adaptive transmit load balancing"
 msgstr "Adaptacyjne równoważenie obciążenia przesyłu"
 
-#: pkg/shell/machines/machine-add.html:50 pkg/shell/index.html:135
+#: pkg/shell/machines/machine-add.html:50 pkg/shell/credentials.jsx:186
 #: pkg/storaged/mdraid-details.jsx:73 pkg/storaged/mdraid-details.jsx:161
-#: pkg/storaged/crypto-keyslots.jsx:309 pkg/storaged/crypto-keyslots.jsx:623
+#: pkg/storaged/crypto-keyslots.jsx:310 pkg/storaged/crypto-keyslots.jsx:621
 #: pkg/storaged/nfs-panel.jsx:65 pkg/storaged/vgroup-details.jsx:78
 #: pkg/storaged/vgroup-details.jsx:130 pkg/storaged/iscsi-panel.jsx:140
 #: pkg/storaged/iscsi-panel.jsx:164 pkg/storaged/iscsi-panel.jsx:259
@@ -707,11 +707,11 @@ msgid "Add"
 msgstr "Dodaj"
 
 #: pkg/lib/cockpit-components-firewalld-request.jsx:149
-#: pkg/networkmanager/network-interface-members.jsx:175
+#: pkg/networkmanager/network-interface-members.jsx:176
 msgid "Add $0"
 msgstr "Dodaj $0"
 
-#: pkg/networkmanager/network-main-dialogs.jsx:222
+#: pkg/networkmanager/network-main.jsx:178
 msgid "Add VLAN"
 msgstr "Dodaj VLAN"
 
@@ -719,11 +719,11 @@ msgstr "Dodaj VLAN"
 msgid "Add a new zone"
 msgstr "Dodaj nową strefę"
 
-#: pkg/networkmanager/network-main-dialogs.jsx:211
+#: pkg/networkmanager/network-main.jsx:175
 msgid "Add bond"
 msgstr "Dodaj wiązanie"
 
-#: pkg/networkmanager/network-main-dialogs.jsx:219
+#: pkg/networkmanager/network-main.jsx:177
 msgid "Add bridge"
 msgstr "Dodaj mostek"
 
@@ -735,12 +735,19 @@ msgstr "Dodaj dyski"
 msgid "Add iSCSI portal"
 msgstr "Dodaj portal iSCSI"
 
-#: pkg/shell/index.html:127 pkg/storaged/crypto-keyslots.jsx:276
+#: pkg/networkmanager/ip-settings.jsx:156
+#: pkg/networkmanager/ip-settings.jsx:219
+#: pkg/networkmanager/ip-settings.jsx:264
+#: pkg/networkmanager/ip-settings.jsx:309
+msgid "Add item"
+msgstr "Dodaj element"
+
+#: pkg/shell/credentials.jsx:91 pkg/storaged/crypto-keyslots.jsx:276
 #: pkg/users/authorized-keys-panel.js:153
 msgid "Add key"
 msgstr "Dodaj klucz"
 
-#: pkg/networkmanager/network-interface-members.jsx:195
+#: pkg/networkmanager/network-interface-members.jsx:196
 msgid "Add member"
 msgstr "Dodaj element"
 
@@ -772,7 +779,7 @@ msgstr "Dodaj usługi do strefy $0"
 msgid "Add services to zone $0"
 msgstr "Dodaj usługi do strefy $0"
 
-#: pkg/networkmanager/network-main-dialogs.jsx:216
+#: pkg/networkmanager/network-main.jsx:176
 msgid "Add team"
 msgstr "Dodaj zespół"
 
@@ -781,13 +788,13 @@ msgstr "Dodaj zespół"
 msgid "Add zone"
 msgstr "Dodaj strefę"
 
-#: pkg/networkmanager/network-interface-members.jsx:174
+#: pkg/networkmanager/network-interface-members.jsx:175
 msgid ""
-"Adding <b>$0</b> will break the connection to the server, and will make the "
+"Adding $0 will break the connection to the server, and will make the "
 "administration UI unavailable."
 msgstr ""
-"Dodanie <b>$0</b> zerwie połączenie z serwerem i uniemożliwi korzystanie "
-"z interfejsu administracji."
+"Dodanie $0 zerwie połączenie z serwerem i uniemożliwi korzystanie z "
+"interfejsu administracji."
 
 #: pkg/networkmanager/firewall.jsx:529
 msgid ""
@@ -806,11 +813,11 @@ msgstr "Dodawanie klucza"
 msgid "Adding physical volume to $target"
 msgstr "Dodawanie woluminu fizycznego do $target"
 
-#: pkg/networkmanager/network-interface.jsx:320
+#: pkg/networkmanager/network-interface.jsx:313
 msgid "Additional DNS $val"
 msgstr "Dodatkowy DNS $val"
 
-#: pkg/networkmanager/network-interface.jsx:323
+#: pkg/networkmanager/network-interface.jsx:316
 msgid "Additional DNS search domains $val"
 msgstr "Dodatkowe domeny wyszukiwania DNS $val"
 
@@ -818,7 +825,7 @@ msgstr "Dodatkowe domeny wyszukiwania DNS $val"
 msgid "Additional actions"
 msgstr "Dodatkowe działania"
 
-#: pkg/networkmanager/network-interface.jsx:315
+#: pkg/networkmanager/network-interface.jsx:308
 msgid "Additional address $val"
 msgstr "Dodatkowy adres $val"
 
@@ -830,11 +837,12 @@ msgstr "Dodatkowe pakiety:"
 msgid "Additional ports"
 msgstr "Dodatkowe porty"
 
-#: pkg/storaged/iscsi-panel.jsx:131
+#: pkg/storaged/iscsi-panel.jsx:131 pkg/networkmanager/ip-settings.jsx:168
+#: pkg/networkmanager/ip-settings.jsx:319
 msgid "Address"
 msgstr "Adres"
 
-#: pkg/networkmanager/network-interface.jsx:315
+#: pkg/networkmanager/network-interface.jsx:308
 msgid "Address $val"
 msgstr "Adres $val"
 
@@ -846,7 +854,7 @@ msgstr "Adres nie może być pusty"
 msgid "Address is not a valid URL"
 msgstr "Adres nie jest prawidłowym adresem URL"
 
-#: pkg/networkmanager/interfaces.js:1876 pkg/networkmanager/firewall.jsx:179
+#: pkg/networkmanager/ip-settings.jsx:142 pkg/networkmanager/firewall.jsx:179
 msgid "Addresses"
 msgstr "Adresy"
 
@@ -952,14 +960,10 @@ msgstr "Aplikacje"
 msgid "Applications list"
 msgstr "Lista aplikacji"
 
-#: pkg/networkmanager/index.html:296 pkg/networkmanager/index.html:331
-#: pkg/networkmanager/index.html:360 pkg/networkmanager/index.html:389
-#: pkg/networkmanager/index.html:418 pkg/networkmanager/index.html:447
-#: pkg/networkmanager/index.html:476 pkg/networkmanager/index.html:505
-#: pkg/networkmanager/index.html:534 pkg/storaged/fsys-tab.jsx:369
-#: pkg/storaged/fsys-tab.jsx:468 pkg/storaged/nfs-details.jsx:199
-#: pkg/storaged/crypto-tab.jsx:163 pkg/storaged/crypto-tab.jsx:207
-#: pkg/packagekit/kpatch.jsx:286 pkg/kdump/kdump-view.jsx:360
+#: pkg/storaged/fsys-tab.jsx:362 pkg/storaged/fsys-tab.jsx:461
+#: pkg/storaged/nfs-details.jsx:199 pkg/storaged/crypto-tab.jsx:162
+#: pkg/storaged/crypto-tab.jsx:206 pkg/packagekit/kpatch.jsx:286
+#: pkg/networkmanager/dialogs-common.jsx:149 pkg/kdump/kdump-view.jsx:360
 msgid "Apply"
 msgstr "Zastosuj"
 
@@ -1024,7 +1028,7 @@ msgstr "Dziennik audytu"
 msgid "Authenticate"
 msgstr "Uwierzytelnij"
 
-#: pkg/networkmanager/interfaces.js:749
+#: pkg/networkmanager/interfaces.js:746
 msgid "Authenticating"
 msgstr "Uwierzytelnianie"
 
@@ -1060,18 +1064,18 @@ msgstr "Upoważnij klucz SSH."
 msgid "Authorized public SSH keys"
 msgstr "Upoważnione publiczne klucze SSH"
 
-#: pkg/networkmanager/index.html:65
-#: pkg/networkmanager/network-interface.jsx:426
-#: pkg/networkmanager/interfaces.js:1447 pkg/networkmanager/interfaces.js:1884
-#: pkg/networkmanager/interfaces.js:1888 pkg/networkmanager/interfaces.js:1894
+#: pkg/networkmanager/mtu.jsx:80 pkg/networkmanager/network-interface.jsx:387
+#: pkg/networkmanager/ip-settings.jsx:51 pkg/networkmanager/ip-settings.jsx:214
+#: pkg/networkmanager/ip-settings.jsx:259
+#: pkg/networkmanager/ip-settings.jsx:304
 msgid "Automatic"
 msgstr "Automatyczne"
 
-#: pkg/networkmanager/interfaces.js:1448
+#: pkg/networkmanager/ip-settings.jsx:52
 msgid "Automatic (DHCP only)"
 msgstr "Automatyczne (tylko DHCP)"
 
-#: pkg/networkmanager/interfaces.js:1438
+#: pkg/networkmanager/ip-settings.jsx:42
 msgid "Automatic (DHCP)"
 msgstr "Automatyczne (DHCP)"
 
@@ -1137,7 +1141,7 @@ msgstr "Błędne"
 msgid "Bad setting"
 msgstr "Błędne ustawienie"
 
-#: pkg/networkmanager/index.html:225
+#: pkg/networkmanager/team.jsx:168
 msgid "Balancer"
 msgstr "Równoważenie"
 
@@ -1180,11 +1184,11 @@ msgstr "Zablokowane"
 
 #: pkg/networkmanager/network-interface.jsx:176
 #: pkg/networkmanager/network-interface.jsx:188
-#: pkg/networkmanager/network-interface.jsx:474
+#: pkg/networkmanager/network-interface.jsx:437
 msgid "Bond"
 msgstr "Wiązanie"
 
-#: pkg/networkmanager/index.html:313
+#: pkg/networkmanager/bond.jsx:136
 msgid "Bond settings"
 msgstr "Ustawienia wiązania"
 
@@ -1198,28 +1202,28 @@ msgstr "Dowiązane przez"
 
 #: pkg/networkmanager/network-interface.jsx:182
 #: pkg/networkmanager/network-interface.jsx:194
-#: pkg/networkmanager/network-interface.jsx:551
+#: pkg/networkmanager/network-interface.jsx:519
 msgid "Bridge"
 msgstr "Mostek"
 
-#: pkg/networkmanager/network-interface.jsx:572
+#: pkg/networkmanager/network-interface.jsx:541
 msgid "Bridge port"
 msgstr "Port mostku"
 
-#: pkg/networkmanager/index.html:434
+#: pkg/networkmanager/bridgeport.jsx:79
 msgid "Bridge port settings"
 msgstr "Ustawienia portu mostku"
 
-#: pkg/networkmanager/index.html:405
+#: pkg/networkmanager/bridge.jsx:97
 msgid "Bridge settings"
 msgstr "Ustawienia mostka"
 
-#: pkg/networkmanager/interfaces.js:1459 pkg/networkmanager/interfaces.js:1476
+#: pkg/networkmanager/team.jsx:45 pkg/networkmanager/bond.jsx:47
 msgid "Broadcast"
 msgstr "Broadcast"
 
-#: pkg/networkmanager/network-interface.jsx:487
-#: pkg/networkmanager/network-interface.jsx:521
+#: pkg/networkmanager/network-interface.jsx:450
+#: pkg/networkmanager/network-interface.jsx:486
 msgid "Broken configuration"
 msgstr "Uszkodzona konfiguracja"
 
@@ -1246,7 +1250,7 @@ msgstr ""
 "i w przyszłości będzie można logować się na komputerze ${rhost} bez hasła."
 
 #: pkg/systemd/overview-cards/usageCard.jsx:121 pkg/systemd/hwinfo.jsx:119
-#: pkg/metrics/metrics.jsx:470 pkg/metrics/metrics.jsx:1379
+#: pkg/metrics/metrics.jsx:470 pkg/metrics/metrics.jsx:1380
 msgid "CPU"
 msgstr "Procesor"
 
@@ -1286,23 +1290,20 @@ msgstr ""
 #: pkg/shell/machines/machine-invalid-hostkey.html:30
 #: pkg/shell/machines/machine-change-port.html:26
 #: pkg/shell/machines/machine-change-auth.html:75 pkg/static/login.html:107
-#: pkg/playground/translate.html:39 pkg/networkmanager/index.html:297
-#: pkg/networkmanager/index.html:332 pkg/networkmanager/index.html:361
-#: pkg/networkmanager/index.html:390 pkg/networkmanager/index.html:419
-#: pkg/networkmanager/index.html:448 pkg/networkmanager/index.html:477
-#: pkg/networkmanager/index.html:506 pkg/networkmanager/index.html:535
-#: pkg/sosreport/index.html:83 pkg/lib/cockpit-components-shutdown.jsx:172
+#: pkg/playground/translate.html:39 pkg/sosreport/index.html:83
+#: pkg/lib/cockpit-components-shutdown.jsx:172
 #: pkg/lib/cockpit-components-dialog.jsx:128 pkg/shell/superuser.jsx:86
 #: pkg/shell/superuser.jsx:155 pkg/shell/shell-modals.jsx:142
-#: pkg/storaged/jobs-panel.jsx:139 pkg/storaged/dialog.jsx:433
-#: pkg/systemd/services/service-details.jsx:76
+#: pkg/shell/credentials.jsx:317 pkg/storaged/jobs-panel.jsx:139
+#: pkg/storaged/dialog.jsx:433 pkg/systemd/services/service-details.jsx:76
 #: pkg/systemd/services/timer-dialog.jsx:135 pkg/systemd/reporting.jsx:421
 #: pkg/systemd/overview-cards/motdCard.jsx:102
 #: pkg/systemd/overview-cards/configurationCard.jsx:302
-#: pkg/systemd/overview-cards/realmd.jsx:417 pkg/systemd/hwinfo.jsx:246
+#: pkg/systemd/overview-cards/realmd.jsx:416 pkg/systemd/hwinfo.jsx:246
 #: pkg/packagekit/autoupdates.jsx:419 pkg/packagekit/kpatch.jsx:291
 #: pkg/packagekit/updates.jsx:461 pkg/packagekit/updates.jsx:532
 #: pkg/metrics/metrics.jsx:1035 pkg/apps/utils.jsx:75
+#: pkg/networkmanager/dialogs-common.jsx:152
 #: pkg/networkmanager/firewall.jsx:535 pkg/networkmanager/firewall.jsx:709
 #: pkg/networkmanager/firewall.jsx:801 pkg/sosreport/index.js:56
 msgid "Cancel"
@@ -1336,7 +1337,7 @@ msgctxt "storage"
 msgid "Capacity"
 msgstr "Pojemność"
 
-#: pkg/networkmanager/network-interface.jsx:245
+#: pkg/networkmanager/network-interface.jsx:238
 msgid "Carrier"
 msgstr "Operator"
 
@@ -1354,11 +1355,11 @@ msgstr "Zmień nazwę komputera"
 msgid "Change iSCSI initiator name"
 msgstr "Zmień nazwę inicjatora iSCSI"
 
-#: pkg/storaged/crypto-keyslots.jsx:329
+#: pkg/storaged/crypto-keyslots.jsx:330
 msgid "Change passphrase"
 msgstr "Zmień hasło"
 
-#: pkg/shell/index.html:277
+#: pkg/shell/credentials.jsx:254
 msgid "Change password"
 msgstr "Zmień hasło"
 
@@ -1378,7 +1379,7 @@ msgstr "Zmień czas systemu"
 msgid "Change the password of ${key}."
 msgstr "Zmień hasło klucza ${key}."
 
-#: pkg/networkmanager/interfaces.js:1717
+#: pkg/networkmanager/interfaces.js:1595
 msgid "Change the settings"
 msgstr "Zmień ustawienia"
 
@@ -1392,7 +1393,7 @@ msgstr ""
 "Nieoczekiwana zmiana może jednak wskazywać na próbę przechwycenia połączenia "
 "przez stronę trzecią."
 
-#: pkg/networkmanager/interfaces.js:1716
+#: pkg/networkmanager/interfaces.js:1594
 msgid ""
 "Changing the settings will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -1408,7 +1409,7 @@ msgstr "Wyszukaj aktualizacje"
 msgid "Checking $target"
 msgstr "Sprawdzanie $target"
 
-#: pkg/networkmanager/interfaces.js:753
+#: pkg/networkmanager/interfaces.js:750
 msgid "Checking IP"
 msgstr "Sprawdzanie IP"
 
@@ -1460,15 +1461,11 @@ msgstr "Wyczyść „Uruchomienie się nie powiodło”"
 msgid "Clear all filters"
 msgstr "Wyczyść wszystkie filtry"
 
-#: pkg/storaged/fsys-tab.jsx:349
-msgid "Clear mount point configuration"
-msgstr "Wyczyść konfigurację punktu montowania"
-
 #: pkg/shell/nav.jsx:130
 msgid "Clear search"
 msgstr "Wyczyść wyszukiwanie"
 
-#: pkg/storaged/crypto-tab.jsx:245
+#: pkg/storaged/crypto-tab.jsx:242
 msgid "Cleartext device"
 msgstr "Urządzenie tekstowe"
 
@@ -1481,19 +1478,15 @@ msgid "Client software"
 msgstr "Oprogramowanie klienta"
 
 #: pkg/shell/machines/machine-not-supported.html:8
-#: pkg/shell/machines/machine-auth-failed.html:20 pkg/shell/index.html:290
-#: pkg/networkmanager/index.html:279 pkg/networkmanager/index.html:308
-#: pkg/networkmanager/index.html:343 pkg/networkmanager/index.html:372
-#: pkg/networkmanager/index.html:401 pkg/networkmanager/index.html:430
-#: pkg/networkmanager/index.html:459 pkg/networkmanager/index.html:488
-#: pkg/networkmanager/index.html:517 pkg/networkmanager/index.html:553
+#: pkg/shell/machines/machine-auth-failed.html:20
 #: pkg/lib/cockpit-components-terminal.jsx:208
 #: pkg/lib/cockpit-components-modifications.jsx:78 pkg/shell/superuser.jsx:94
 #: pkg/shell/superuser.jsx:102 pkg/shell/shell-modals.jsx:194
-#: pkg/storaged/dialog.jsx:433
+#: pkg/shell/credentials.jsx:82 pkg/storaged/dialog.jsx:433
 #: pkg/systemd/overview-cards/configurationCard.jsx:203
 #: pkg/systemd/overview-cards/realmd.jsx:261 pkg/users/dialog-utils.js:58
-#: pkg/apps/utils.jsx:93 pkg/sosreport/index.js:48 pkg/sosreport/index.js:135
+#: pkg/apps/utils.jsx:93 pkg/networkmanager/interfaces.js:44
+#: pkg/sosreport/index.js:48 pkg/sosreport/index.js:135
 msgid "Close"
 msgstr "Zamknij"
 
@@ -1577,7 +1570,7 @@ msgstr "Przyjmowane są porty, zakresy i aliasy oddzielone przecinkami"
 msgid "Command"
 msgstr "Polecenie"
 
-#: pkg/shell/index.html:223
+#: pkg/shell/credentials.jsx:197
 msgid "Comment"
 msgstr "Komentarz"
 
@@ -1618,11 +1611,11 @@ msgstr "Warunek się nie powiódł"
 msgid "Configuration"
 msgstr "Konfiguracja"
 
-#: pkg/networkmanager/interfaces.js:747
+#: pkg/networkmanager/interfaces.js:744
 msgid "Configuring"
 msgstr "Konfigurowanie"
 
-#: pkg/networkmanager/interfaces.js:751
+#: pkg/networkmanager/interfaces.js:748
 msgid "Configuring IP"
 msgstr "Konfigurowanie IP"
 
@@ -1634,8 +1627,7 @@ msgstr "Konfigurowanie kdump"
 msgid "Configuring system settings"
 msgstr "Konfigurowanie ustawień systemu"
 
-#: pkg/shell/index.html:261 pkg/storaged/format-dialog.jsx:278
-#: pkg/users/account-create-dialog.js:61
+#: pkg/storaged/format-dialog.jsx:278 pkg/users/account-create-dialog.js:61
 msgid "Confirm"
 msgstr "Potwierdź"
 
@@ -1651,11 +1643,15 @@ msgstr "Potwierdź nowe hasło klucza"
 msgid "Confirm new password"
 msgstr "Potwierdź nowe hasło"
 
+#: pkg/shell/credentials.jsx:270
+msgid "Confirm password"
+msgstr "Potwierdź hasło"
+
 #: pkg/networkmanager/firewall.jsx:797
 msgid "Confirm removal of $0"
 msgstr "Potwierdź usunięcie $0"
 
-#: pkg/storaged/crypto-keyslots.jsx:435
+#: pkg/storaged/crypto-keyslots.jsx:436
 msgid "Confirm removal with an alternate passphrase"
 msgstr "Potwierdź usunięcie alternatywnym hasłem"
 
@@ -1667,7 +1663,7 @@ msgstr "W konflikcie z"
 msgid "Conflicts"
 msgstr "Powoduje konflikt z"
 
-#: pkg/networkmanager/network-interface.jsx:375
+#: pkg/networkmanager/network-interface.jsx:334
 msgid "Connect automatically"
 msgstr "Łączenie automatyczne"
 
@@ -1694,7 +1690,7 @@ msgstr "Łączenie z komputerem"
 msgid "Connection error"
 msgstr "Błąd połączenia"
 
-#: pkg/shell/index.html:318
+#: pkg/shell/index.html:134
 msgid "Connection failed"
 msgstr "Połączenie się nie powiodło"
 
@@ -1702,7 +1698,7 @@ msgstr "Połączenie się nie powiodło"
 msgid "Connection has timed out."
 msgstr "Połączenie przekroczyło czas oczekiwania."
 
-#: pkg/networkmanager/index.html:565
+#: pkg/networkmanager/interfaces.js:58
 msgid "Connection will be lost"
 msgstr "Połączenie zostanie utracone"
 
@@ -1748,12 +1744,17 @@ msgstr "Sterowanie"
 msgid "Convertible"
 msgstr "2 w jednym"
 
+#: pkg/shell/credentials.jsx:214
+msgid "Copied"
+msgstr "Skopiowano"
+
 #: pkg/lib/cockpit-components-context-menu.jsx:103
+#: pkg/shell/credentials.jsx:214
 msgid "Copy"
 msgstr "Skopiuj"
 
 #: pkg/lib/cockpit-components-modifications.jsx:75
-#: pkg/storaged/crypto-keyslots.jsx:392 pkg/systemd/logs.jsx:415
+#: pkg/storaged/crypto-keyslots.jsx:393 pkg/systemd/logs.jsx:415
 msgid "Copy to clipboard"
 msgstr "Skopiuj do schowka"
 
@@ -1806,8 +1807,7 @@ msgstr "Utwórz urządzenia"
 msgid "Create diagnostic report                    "
 msgstr "Utwórz raport diagnostyczny                    "
 
-#: pkg/networkmanager/interfaces.js:2387 pkg/networkmanager/interfaces.js:2590
-#: pkg/networkmanager/interfaces.js:2837 pkg/networkmanager/interfaces.js:3042
+#: pkg/networkmanager/dialogs-common.jsx:292
 msgid "Create it"
 msgstr "Utwórz"
 
@@ -1880,36 +1880,12 @@ msgstr "Tworzenie partycji $target"
 msgid "Creating snapshot of $target"
 msgstr "Tworzenie migawki $target"
 
-#: pkg/networkmanager/interfaces.js:3041
+#: pkg/networkmanager/dialogs-common.jsx:291
 msgid ""
-"Creating this VLAN will break the connection to the server, and will make "
-"the administration UI unavailable."
+"Creating this $0 will break the connection to the server, and will make the "
+"administration UI unavailable."
 msgstr ""
-"Utworzenie tej sieci VLAN zerwie połączenie z serwerem i uniemożliwi "
-"korzystanie z interfejsu administracji."
-
-#: pkg/networkmanager/interfaces.js:2386
-msgid ""
-"Creating this bond will break the connection to the server, and will make "
-"the administration UI unavailable."
-msgstr ""
-"Utworzenie tego wiązania zerwie połączenie z serwerem i uniemożliwi "
-"korzystanie z interfejsu administracji."
-
-#: pkg/networkmanager/interfaces.js:2836
-msgid ""
-"Creating this bridge will break the connection to the server, and will make "
-"the administration UI unavailable."
-msgstr ""
-"Utworzenie tego mostka zerwie połączenie z serwerem i uniemożliwi "
-"korzystanie z interfejsu administracji."
-
-#: pkg/networkmanager/interfaces.js:2589
-msgid ""
-"Creating this team will break the connection to the server, and will make "
-"the administration UI unavailable."
-msgstr ""
-"Utworzenie tego zespołu zerwie połączenie z serwerem i uniemożliwi "
+"Utworzenie tej sieci $0 zerwie połączenie z serwerem i uniemożliwi "
 "korzystanie z interfejsu administracji."
 
 #: pkg/storaged/jobs-panel.jsx:78
@@ -1932,7 +1908,7 @@ msgstr "Ctrl-Shift-J"
 msgid "Current boot"
 msgstr "Obecne uruchomienie"
 
-#: pkg/storaged/format-dialog.jsx:262 pkg/storaged/fsys-tab.jsx:331
+#: pkg/storaged/format-dialog.jsx:262 pkg/storaged/fsys-tab.jsx:327
 #: pkg/storaged/nfs-details.jsx:184
 msgid "Custom mount options"
 msgstr "Niestandardowe opcje montowania"
@@ -1949,19 +1925,19 @@ msgstr "Niestandardowe strefy"
 msgid "DISK IS FAILING"
 msgstr "NA DYSKU WYSTĘPUJĄ BŁĘDY"
 
-#: pkg/networkmanager/interfaces.js:1883
+#: pkg/networkmanager/ip-settings.jsx:207
 msgid "DNS"
 msgstr "DNS"
 
-#: pkg/networkmanager/network-interface.jsx:320
+#: pkg/networkmanager/network-interface.jsx:313
 msgid "DNS $val"
 msgstr "DNS $val"
 
-#: pkg/networkmanager/interfaces.js:1887
+#: pkg/networkmanager/ip-settings.jsx:252
 msgid "DNS search domains"
 msgstr "Domeny wyszukiwania DNS"
 
-#: pkg/networkmanager/network-interface.jsx:323
+#: pkg/networkmanager/network-interface.jsx:316
 msgid "DNS search domains $val"
 msgstr "Domeny wyszukiwania DNS $val"
 
@@ -1997,7 +1973,7 @@ msgstr ""
 msgid "Deactivate"
 msgstr "Dezaktywuj"
 
-#: pkg/networkmanager/interfaces.js:759
+#: pkg/networkmanager/interfaces.js:756
 msgid "Deactivating"
 msgstr "Dezaktywowanie"
 
@@ -2033,7 +2009,7 @@ msgstr "Opóźnienie musi być liczbą"
 #: pkg/storaged/vdo-details.jsx:200 pkg/storaged/vdo-details.jsx:263
 #: pkg/systemd/abrtLog.jsx:242 pkg/users/account-details.js:278
 #: pkg/users/delete-account-dialog.js:60
-#: pkg/networkmanager/network-interface.jsx:772
+#: pkg/networkmanager/network-interface.jsx:718
 #: pkg/networkmanager/firewall.jsx:798
 msgid "Delete"
 msgstr "Usuń"
@@ -2047,17 +2023,17 @@ msgstr "Usuń $0"
 msgid "Delete files"
 msgstr "Usuń pliki"
 
+#: pkg/networkmanager/network-interface.jsx:117
+msgid ""
+"Deleting $0 will break the connection to the server, and will make the "
+"administration UI unavailable."
+msgstr ""
+"Usunięcie $0 zerwie połączenie z serwerem i uniemożliwi korzystanie z "
+"interfejsu administracji."
+
 #: pkg/storaged/jobs-panel.jsx:60 pkg/storaged/jobs-panel.jsx:74
 msgid "Deleting $target"
 msgstr "Usuwanie $target"
-
-#: pkg/networkmanager/network-interface.jsx:117
-msgid ""
-"Deleting <b>$0</b> will break the connection to the server, and will make "
-"the administration UI unavailable."
-msgstr ""
-"Usunięcie <b>$0</b> zerwie połączenie z serwerem i uniemożliwi korzystanie "
-"z interfejsu administracji."
 
 #: pkg/storaged/content-views.jsx:345
 msgid "Deleting a logical volume will delete all data in it."
@@ -2097,7 +2073,7 @@ msgstr "Komputer stacjonarny"
 msgid "Detachable"
 msgstr "Odłączalny"
 
-#: pkg/shell/index.html:188 pkg/systemd/overview-cards/realmd.jsx:399
+#: pkg/shell/credentials.jsx:109 pkg/systemd/overview-cards/realmd.jsx:398
 #: pkg/packagekit/updates.jsx:371
 msgid "Details"
 msgstr "Szczegóły"
@@ -2164,7 +2140,7 @@ msgstr "Wyłącz tuned"
 #: pkg/systemd/services/service-details.jsx:346
 #: pkg/systemd/services/services.jsx:187 pkg/systemd/services/services.jsx:840
 #: pkg/packagekit/autoupdates.jsx:332 pkg/packagekit/kpatch.jsx:231
-#: pkg/networkmanager/interfaces.js:1442
+#: pkg/networkmanager/ip-settings.jsx:46
 msgid "Disabled"
 msgstr "Wyłączone"
 
@@ -2180,7 +2156,7 @@ msgstr "Rozłączono"
 msgid "Disk"
 msgstr "Dysk"
 
-#: pkg/metrics/metrics.jsx:125 pkg/metrics/metrics.jsx:1381
+#: pkg/metrics/metrics.jsx:125 pkg/metrics/metrics.jsx:1382
 msgid "Disk I/O"
 msgstr "Wejście/wyjście dysku"
 
@@ -2217,7 +2193,7 @@ msgstr "Zamknij zaznaczone alarmy"
 msgid "Display language"
 msgstr "Język"
 
-#: pkg/storaged/fsys-tab.jsx:630 pkg/storaged/fsys-tab.jsx:642
+#: pkg/storaged/fsys-tab.jsx:623 pkg/storaged/fsys-tab.jsx:635
 msgid "Do not mount automatically on boot"
 msgstr "Bez automatycznego montowania podczas uruchamiania"
 
@@ -2239,15 +2215,15 @@ msgctxt "dialog-title"
 msgid "Domain"
 msgstr "Domena"
 
-#: pkg/systemd/overview-cards/realmd.jsx:423
+#: pkg/systemd/overview-cards/realmd.jsx:422
 msgid "Domain address"
 msgstr "Adres domeny"
 
-#: pkg/systemd/overview-cards/realmd.jsx:431
+#: pkg/systemd/overview-cards/realmd.jsx:430
 msgid "Domain administrator name"
 msgstr "Nazwa administratora domeny"
 
-#: pkg/systemd/overview-cards/realmd.jsx:434
+#: pkg/systemd/overview-cards/realmd.jsx:433
 msgid "Domain administrator password"
 msgstr "Hasło administratora domeny"
 
@@ -2300,7 +2276,7 @@ msgid "Dual rank"
 msgstr "Podwójny stopień"
 
 #: pkg/shell/indexes.js:341 pkg/shell/hosts.jsx:182
-#: pkg/storaged/crypto-keyslots.jsx:573 pkg/storaged/iscsi-panel.jsx:255
+#: pkg/storaged/crypto-keyslots.jsx:571 pkg/storaged/iscsi-panel.jsx:255
 #: pkg/storaged/nfs-details.jsx:318 pkg/packagekit/autoupdates.jsx:399
 #: pkg/packagekit/kpatch.jsx:223
 msgid "Edit"
@@ -2310,7 +2286,7 @@ msgstr "Modyfikuj"
 msgid "Edit /etc/motd"
 msgstr "Modyfikuj /etc/motd"
 
-#: pkg/storaged/crypto-keyslots.jsx:350
+#: pkg/storaged/crypto-keyslots.jsx:351
 msgid "Edit Tang keyserver"
 msgstr "Modyfikuj serwer kluczy Tang"
 
@@ -2330,7 +2306,7 @@ msgstr "Modyfikuj motd"
 msgid "Edit rules and zones"
 msgstr "Modyfikuj reguły i strefy"
 
-#: pkg/storaged/crypto-keyslots.jsx:575
+#: pkg/storaged/crypto-keyslots.jsx:573
 msgid "Editing a key requires a free slot"
 msgstr "Modyfikacja klucza wymaga wolnego gniazda"
 
@@ -2360,11 +2336,11 @@ msgstr "Opróżnianie $target"
 msgid "Enable"
 msgstr "Włącz"
 
-#: pkg/networkmanager/network-interface.jsx:730
+#: pkg/networkmanager/network-interface.jsx:675
 msgid "Enable or disable the device"
 msgstr "Włącz lub wyłącz urządzenie"
 
-#: pkg/networkmanager/app.jsx:96
+#: pkg/networkmanager/app.jsx:100
 msgid "Enable service"
 msgstr "Włącz usługę"
 
@@ -2401,11 +2377,11 @@ msgstr "Zaszyfrowane woluminy muszą zostać odblokowane przed zmianą rozmiaru.
 msgid "Encryption"
 msgstr "Szyfrowanie"
 
-#: pkg/storaged/format-dialog.jsx:305 pkg/storaged/crypto-tab.jsx:201
+#: pkg/storaged/format-dialog.jsx:305 pkg/storaged/crypto-tab.jsx:200
 msgid "Encryption options"
 msgstr "Opcje szyfrowania"
 
-#: pkg/storaged/crypto-tab.jsx:238
+#: pkg/storaged/crypto-tab.jsx:236
 msgid "Encryption type"
 msgstr "Typ szyfrowania"
 
@@ -2420,6 +2396,10 @@ msgstr "Wymuszanie"
 #: pkg/packagekit/updates.jsx:1340
 msgid "Enhancement updates available"
 msgstr "Dostępne są aktualizacje z ulepszeniami"
+
+#: pkg/networkmanager/mac.jsx:47
+msgid "Enter a valid MAC address"
+msgstr "Proszę podać prawidłowy adres MAC"
 
 #: pkg/networkmanager/firewall.jsx:774
 msgid "Entire subnet"
@@ -2438,7 +2418,7 @@ msgid "Errata"
 msgstr "Poprawka"
 
 #: pkg/playground/translate.html:100 pkg/playground/translate.html:105
-#: pkg/storaged/fsys-tab.jsx:385 pkg/storaged/storage-controls.jsx:90
+#: pkg/storaged/fsys-tab.jsx:378 pkg/storaged/storage-controls.jsx:90
 #: pkg/storaged/storage-controls.jsx:166 pkg/storaged/multipath.jsx:61
 #: pkg/systemd/services/service-details.jsx:497
 #: pkg/systemd/services/services.jsx:165 pkg/apps/utils.jsx:87
@@ -2449,7 +2429,7 @@ msgstr "Błąd"
 msgid "Error and above"
 msgstr "Błędy i powyżej"
 
-#: pkg/metrics/metrics.jsx:1325
+#: pkg/metrics/metrics.jsx:1326
 msgid "Error has occurred"
 msgstr "Wystąpił błąd"
 
@@ -2475,15 +2455,15 @@ msgstr "Błąd podczas usuwania alarmu: $0"
 msgid "Error while setting SELinux mode: '$0'"
 msgstr "Błąd podczas ustawiania trybu SELinuksa: „$0”"
 
-#: pkg/networkmanager/index.html:521
+#: pkg/networkmanager/mac.jsx:72
 msgid "Ethernet MAC"
 msgstr "MAC ethernetu"
 
-#: pkg/networkmanager/index.html:492
+#: pkg/networkmanager/mtu.jsx:75
 msgid "Ethernet MTU"
 msgstr "MTU ethernetu"
 
-#: pkg/networkmanager/interfaces.js:1488
+#: pkg/networkmanager/team.jsx:57
 msgid "Ethtool"
 msgstr "ethtool"
 
@@ -2531,7 +2511,7 @@ msgstr "Rozszerzone informacje"
 msgid "Extended partition"
 msgstr "Rozszerzona partycja"
 
-#: pkg/storaged/mdraid-details.jsx:108 pkg/networkmanager/interfaces.js:761
+#: pkg/storaged/mdraid-details.jsx:108 pkg/networkmanager/interfaces.js:758
 msgid "Failed"
 msgstr "Niepowodzenie"
 
@@ -2550,6 +2530,10 @@ msgstr "Dodanie usługi się nie powiodło"
 #: pkg/networkmanager/firewall.jsx:672
 msgid "Failed to add zone"
 msgstr "Dodanie strefy się nie powiodło"
+
+#: pkg/networkmanager/dialogs-common.jsx:158
+msgid "Failed to apply settings"
+msgstr "Zastosowanie ustawień się nie powiodło"
 
 #: pkg/lib/credentials.js:232 pkg/users/password-dialogs.js:101
 #: pkg/users/password-dialogs.js:123
@@ -2632,11 +2616,11 @@ msgctxt "storage-id-desc"
 msgid "Filesystem (encrypted)"
 msgstr "Systemu plików (zaszyfrowany)"
 
-#: pkg/storaged/fsys-tab.jsx:671
+#: pkg/storaged/fsys-tab.jsx:664
 msgid "Filesystem is locked"
 msgstr "System plików jest zablokowany"
 
-#: pkg/storaged/fsys-tab.jsx:459
+#: pkg/storaged/fsys-tab.jsx:452
 msgid "Filesystem name"
 msgstr "Nazwa systemu plików"
 
@@ -2660,7 +2644,7 @@ msgstr "Filtrowanie usług"
 msgid "Filters"
 msgstr "Filtry"
 
-#: pkg/shell/index.html:231
+#: pkg/shell/credentials.jsx:205
 msgid "Fingerprint"
 msgstr "Odcisk"
 
@@ -2713,7 +2697,7 @@ msgid "Formatting erases all data on a storage device."
 msgstr ""
 "Sformatowanie usuwa wszystkie dane na urządzeniu do przechowywania danych."
 
-#: pkg/networkmanager/network-interface.jsx:544
+#: pkg/networkmanager/network-interface.jsx:511
 msgid "Forward delay $forward_delay"
 msgstr "Opóźnienie w przód $forward_delay"
 
@@ -2753,7 +2737,12 @@ msgstr "Od"
 msgid "Full name"
 msgstr "Imię i nazwisko"
 
-#: pkg/systemd/abrtLog.jsx:248 pkg/networkmanager/network-interface.jsx:367
+#: pkg/networkmanager/ip-settings.jsx:184
+#: pkg/networkmanager/ip-settings.jsx:335
+msgid "Gateway"
+msgstr "Brama"
+
+#: pkg/systemd/abrtLog.jsx:248 pkg/networkmanager/network-interface.jsx:326
 msgid "General"
 msgstr "Ogólne"
 
@@ -2777,7 +2766,7 @@ msgstr "Przejdź do aplikacji"
 msgid "Go to now"
 msgstr "Przejdź teraz"
 
-#: pkg/networkmanager/network-interface.jsx:448
+#: pkg/networkmanager/network-interface.jsx:410
 msgid "Group"
 msgstr "Grupa"
 
@@ -2803,11 +2792,11 @@ msgstr "Powiększ wolumin logiczny"
 msgid "Grow to take all space"
 msgstr "Powiększ do użycia całego miejsca"
 
-#: pkg/networkmanager/index.html:144
+#: pkg/networkmanager/bridgeport.jsx:88
 msgid "Hair pin mode"
 msgstr "Tryb Hairpin"
 
-#: pkg/networkmanager/network-interface.jsx:570
+#: pkg/networkmanager/network-interface.jsx:538
 msgid "Hairpin mode"
 msgstr "Tryb Hairpin"
 
@@ -2823,7 +2812,7 @@ msgstr "Informacje o sprzęcie"
 msgid "Health"
 msgstr "Zdrowie"
 
-#: pkg/networkmanager/network-interface.jsx:546
+#: pkg/networkmanager/network-interface.jsx:513
 msgid "Hello time $hello_time"
 msgstr "Czas powitania $hello_time"
 
@@ -2863,12 +2852,12 @@ msgstr "Godziny"
 msgid "ID"
 msgstr "Identyfikator"
 
-#: pkg/networkmanager/network-interface.jsx:587
+#: pkg/networkmanager/network-interface.jsx:556
 msgid "ID $id"
 msgstr "Identyfikator $id"
 
-#: pkg/networkmanager/network-main.jsx:180
-#: pkg/networkmanager/network-main.jsx:195
+#: pkg/networkmanager/network-main.jsx:185
+#: pkg/networkmanager/network-main.jsx:200
 msgid "IP address"
 msgstr "Adres IP"
 
@@ -2880,23 +2869,19 @@ msgstr ""
 "Adres IP z przedrostkiem trasowania. Wiele wartości należy oddzielić "
 "przecinkiem. Przykład: 192.0.2.0/24, 2001:db8::/32"
 
-#: pkg/networkmanager/index.html:283
-msgid "IP settings"
-msgstr "Ustawienia IP"
-
-#: pkg/networkmanager/network-interface.jsx:596
+#: pkg/networkmanager/network-interface.jsx:565
 msgid "IPv4"
 msgstr "IPv4"
 
-#: pkg/networkmanager/interfaces.js:1926
+#: pkg/networkmanager/ip-settings.jsx:135
 msgid "IPv4 settings"
 msgstr "Ustawienia IPv4"
 
-#: pkg/networkmanager/network-interface.jsx:597
+#: pkg/networkmanager/network-interface.jsx:566
 msgid "IPv6"
 msgstr "IPv6"
 
-#: pkg/networkmanager/interfaces.js:1926
+#: pkg/networkmanager/ip-settings.jsx:135
 msgid "IPv6 settings"
 msgstr "Ustawienia IPv6"
 
@@ -2937,7 +2922,7 @@ msgstr ""
 "plików, ale uruchamianie jest nienadzorowane."
 
 #: pkg/packagekit/updates.jsx:625 pkg/packagekit/updates.jsx:700
-#: pkg/networkmanager/interfaces.js:1451
+#: pkg/networkmanager/ip-settings.jsx:55
 msgid "Ignore"
 msgstr "Ignorowanie"
 
@@ -2963,9 +2948,9 @@ msgstr ""
 msgid "In sync"
 msgstr "Zsynchronizowane"
 
-#: pkg/networkmanager/network-interface.jsx:262
-#: pkg/networkmanager/interfaces.js:743 pkg/networkmanager/interfaces.js:1324
-#: pkg/networkmanager/interfaces.js:1331
+#: pkg/networkmanager/network-interface.jsx:255
+#: pkg/networkmanager/interfaces.js:740 pkg/networkmanager/interfaces.js:1289
+#: pkg/networkmanager/interfaces.js:1296
 msgid "Inactive"
 msgstr "Nieaktywne"
 
@@ -2977,7 +2962,7 @@ msgstr "Nieaktywny wolumin"
 msgid "Included services"
 msgstr "Dołączone usługi"
 
-#: pkg/storaged/fsys-tab.jsx:651
+#: pkg/storaged/fsys-tab.jsx:644
 msgid "Inconsistent filesystem mount"
 msgstr "Niespójny punkt montowania systemu plików"
 
@@ -3039,7 +3024,7 @@ msgstr "Zainstaluj obsługę VDO"
 msgid "Install all updates"
 msgstr "Zainstaluj wszystkie aktualizacje"
 
-#: pkg/metrics/metrics.jsx:1295
+#: pkg/metrics/metrics.jsx:1296
 msgid "Install cockpit-pcp"
 msgstr "Zainstaluj cockpit-pcp"
 
@@ -3074,15 +3059,14 @@ msgstr "Instalowanie $0"
 msgid "Interface"
 msgstr "Interfejs"
 
-#: pkg/networkmanager/network-interface-members.jsx:206
-#: pkg/networkmanager/network-interface-members.jsx:211
+#: pkg/networkmanager/network-interface-members.jsx:207
+#: pkg/networkmanager/network-interface-members.jsx:212
 msgid "Interface members"
 msgstr "Elementy interfejsu"
 
-#: pkg/networkmanager/index.html:158
-#: pkg/networkmanager/network-interface-members.jsx:214
-#: pkg/networkmanager/firewall.jsx:178 pkg/networkmanager/firewall.jsx:751
-#: pkg/networkmanager/network-main.jsx:173
+#: pkg/networkmanager/network-interface-members.jsx:215
+#: pkg/networkmanager/bond.jsx:165 pkg/networkmanager/firewall.jsx:178
+#: pkg/networkmanager/firewall.jsx:751 pkg/networkmanager/network-main.jsx:173
 msgid "Interfaces"
 msgstr "Interfejsy"
 
@@ -3171,21 +3155,21 @@ msgstr "Czy sshd jest uruchomione na innym porcie?"
 msgid "Jobs"
 msgstr "Zadania"
 
-#: pkg/systemd/overview-cards/realmd.jsx:415
+#: pkg/systemd/overview-cards/realmd.jsx:414
 msgid "Join"
 msgstr "Dołącz"
 
-#: pkg/systemd/overview-cards/realmd.jsx:421
+#: pkg/systemd/overview-cards/realmd.jsx:420
 msgctxt "dialog-title"
 msgid "Join a Domain"
 msgstr "Dołącz do domeny"
 
-#: pkg/systemd/overview-cards/realmd.jsx:449
-#: pkg/systemd/overview-cards/realmd.jsx:470
+#: pkg/systemd/overview-cards/realmd.jsx:448
+#: pkg/systemd/overview-cards/realmd.jsx:469
 msgid "Join domain"
 msgstr "Dołącz do domeny"
 
-#: pkg/systemd/overview-cards/realmd.jsx:414
+#: pkg/systemd/overview-cards/realmd.jsx:413
 msgid "Joining"
 msgstr "Dołączanie"
 
@@ -3213,7 +3197,7 @@ msgstr "Wpis dziennika"
 msgid "Journal entry not found"
 msgstr "Nie odnaleziono wpisu dziennika"
 
-#: pkg/metrics/metrics.jsx:1369
+#: pkg/metrics/metrics.jsx:1370
 msgid "Jump to"
 msgstr "Przejdź do"
 
@@ -3224,7 +3208,7 @@ msgstr ""
 "Usługa Kdump nie jest zainstalowana. Proszę się upewnić, że pakiet kexec-"
 "tools jest zainstalowany."
 
-#: pkg/networkmanager/index.html:573
+#: pkg/networkmanager/interfaces.js:70
 msgid "Keep connection"
 msgstr "Utrzymywanie połączenia"
 
@@ -3266,7 +3250,7 @@ msgstr "Łatanie jądra"
 msgid "Key password"
 msgstr "Hasło klucza"
 
-#: pkg/storaged/crypto-keyslots.jsx:607
+#: pkg/storaged/crypto-keyslots.jsx:605
 msgid "Key slots with unknown types can not be edited here"
 msgstr "Nie można modyfikować gniazd na klucze o nieznanym typie w tym miejscu"
 
@@ -3274,23 +3258,23 @@ msgstr "Nie można modyfikować gniazd na klucze o nieznanym typie w tym miejs
 msgid "Key source"
 msgstr "Źródło kluczy"
 
-#: pkg/storaged/crypto-keyslots.jsx:630 pkg/storaged/crypto-keyslots.jsx:633
+#: pkg/storaged/crypto-keyslots.jsx:628 pkg/storaged/crypto-keyslots.jsx:631
 msgid "Keys"
 msgstr "Klucze"
 
-#: pkg/storaged/crypto-keyslots.jsx:601
+#: pkg/storaged/crypto-keyslots.jsx:599
 msgid "Keyserver"
 msgstr "Serwer kluczy"
 
-#: pkg/storaged/crypto-keyslots.jsx:302 pkg/storaged/crypto-keyslots.jsx:352
+#: pkg/storaged/crypto-keyslots.jsx:303 pkg/storaged/crypto-keyslots.jsx:353
 msgid "Keyserver address"
 msgstr "Adres serwera kluczy"
 
-#: pkg/storaged/crypto-keyslots.jsx:482
+#: pkg/storaged/crypto-keyslots.jsx:483
 msgid "Keyserver removal may prevent unlocking $0."
 msgstr "Usunięcie serwera kluczy może uniemożliwić odblokowanie $0."
 
-#: pkg/networkmanager/index.html:269
+#: pkg/networkmanager/teamport.jsx:93
 msgid "LACP key"
 msgstr "Klucz LACP"
 
@@ -3322,9 +3306,8 @@ msgstr "Ostatnia modyfikacja: $0"
 msgid "Last successful login:"
 msgstr "Ostatnie udane logowanie:"
 
-#: pkg/lib/cockpit-components-dialog.jsx:222
-#: pkg/lib/cockpit-components-dialog.jsx:229
-#: pkg/networkmanager/network-main-dialogs.jsx:73
+#: pkg/lib/cockpit-components-dialog.jsx:224
+#: pkg/lib/cockpit-components-dialog.jsx:231 pkg/networkmanager/bond.jsx:153
 msgid "Learn more"
 msgstr "Więcej informacji"
 
@@ -3362,23 +3345,23 @@ msgstr ""
 "Tryb ograniczonego dostępu ogranicza uprawnienia administracyjne. Część "
 "konsoli internetowej będzie miała zmniejszoną funkcjonalność."
 
-#: pkg/networkmanager/index.html:203 pkg/networkmanager/index.html:247
+#: pkg/networkmanager/team.jsx:195 pkg/networkmanager/bond.jsx:201
 msgid "Link down delay"
 msgstr "Opóźnienie łącza w dół"
 
-#: pkg/networkmanager/interfaces.js:1439 pkg/networkmanager/interfaces.js:1449
+#: pkg/networkmanager/ip-settings.jsx:43 pkg/networkmanager/ip-settings.jsx:53
 msgid "Link local"
 msgstr "Link-local"
 
-#: pkg/networkmanager/index.html:186
+#: pkg/networkmanager/bond.jsx:188
 msgid "Link monitoring"
 msgstr "Monitorowanie łącza"
 
-#: pkg/networkmanager/index.html:199 pkg/networkmanager/index.html:243
+#: pkg/networkmanager/team.jsx:192 pkg/networkmanager/bond.jsx:198
 msgid "Link up delay"
 msgstr "Opóźnienie łącza w górę"
 
-#: pkg/networkmanager/index.html:230
+#: pkg/networkmanager/team.jsx:185
 msgid "Link watch"
 msgstr "Obserwacja łącza"
 
@@ -3391,15 +3374,15 @@ msgid "Listen"
 msgstr "Nasłuchiwanie"
 
 #: pkg/metrics/metrics.jsx:103 pkg/metrics/metrics.jsx:481
-#: pkg/metrics/metrics.jsx:1379
+#: pkg/metrics/metrics.jsx:1380
 msgid "Load"
 msgstr "Obciążenie"
 
-#: pkg/networkmanager/interfaces.js:1475
+#: pkg/networkmanager/team.jsx:44
 msgid "Load balancing"
 msgstr "Równoważenie obciążenia"
 
-#: pkg/metrics/metrics.jsx:1398
+#: pkg/metrics/metrics.jsx:1399
 msgid "Load earlier data"
 msgstr "Wczytaj wcześniejsze dane"
 
@@ -3441,7 +3424,7 @@ msgstr "Wczytywanie modyfikacji systemu…"
 
 #: pkg/storaged/devices.jsx:69 pkg/systemd/logDetails.jsx:153
 #: pkg/systemd/services/services.jsx:816 pkg/systemd/logsJournal.jsx:269
-#: pkg/metrics/metrics.jsx:745 pkg/metrics/metrics.jsx:1397
+#: pkg/metrics/metrics.jsx:745 pkg/metrics/metrics.jsx:1398
 #: pkg/kdump/kdump-view.jsx:375
 msgid "Loading..."
 msgstr "Wczytywanie…"
@@ -3483,7 +3466,7 @@ msgstr "Zablokowane zaszyfrowane dane"
 msgid "Locking $target"
 msgstr "Blokowanie $target"
 
-#: pkg/shell/machines/machine-change-auth.html:74 pkg/shell/index.html:308
+#: pkg/shell/machines/machine-change-auth.html:74 pkg/shell/index.html:124
 #: pkg/static/login.html:105 pkg/static/login.js:549
 msgid "Log in"
 msgstr "Zaloguj"
@@ -3500,7 +3483,7 @@ msgstr "Logowanie za pomocą konta użytkownika serwera."
 msgid "Log messages"
 msgstr "Komunikaty dziennika"
 
-#: pkg/shell/index.html:81 pkg/metrics/metrics.jsx:1289
+#: pkg/shell/index.html:81 pkg/metrics/metrics.jsx:1290
 msgid "Log out"
 msgstr "Wyloguj"
 
@@ -3568,19 +3551,19 @@ msgstr "Komputer stacjonarny o mniejszym rozmiarze"
 msgid "Lunch box"
 msgstr "Lunch box"
 
-#: pkg/networkmanager/index.html:81 pkg/networkmanager/index.html:163
+#: pkg/networkmanager/mac.jsx:74 pkg/networkmanager/bond.jsx:168
 msgid "MAC"
 msgstr "MAC"
 
-#: pkg/networkmanager/interfaces.js:1467
+#: pkg/networkmanager/bond.jsx:55
 msgid "MII (recommended)"
 msgstr "MII (zalecane)"
 
-#: pkg/networkmanager/network-interface.jsx:428
+#: pkg/networkmanager/network-interface.jsx:390
 msgid "MTU"
 msgstr "MTU"
 
-#: pkg/networkmanager/interfaces.js:3108
+#: pkg/networkmanager/mtu.jsx:43
 msgid "MTU must be a positive number"
 msgstr "MTU musi być liczbą dodatnią"
 
@@ -3600,14 +3583,14 @@ msgstr "Główna obudowa serwera"
 msgid "Maintanance"
 msgstr "Konserwacja"
 
-#: pkg/storaged/crypto-keyslots.jsx:382
+#: pkg/storaged/crypto-keyslots.jsx:383
 msgid ""
 "Make sure the key hash from the Tang server matches one of the following:"
 msgstr ""
 "Proszę się upewnić, że suma kontrolna klucza z serwera Tang zgadza się "
 "z jednym z:"
 
-#: pkg/networkmanager/network-main.jsx:176
+#: pkg/networkmanager/network-main.jsx:181
 msgid "Managed interfaces"
 msgstr "Zarządzane interfejsy"
 
@@ -3667,7 +3650,7 @@ msgstr "Zarządzanie aktualizacjami oprogramowania"
 msgid "Managing user accounts"
 msgstr "Zarządzanie kontami użytkowników"
 
-#: pkg/networkmanager/interfaces.js:1440 pkg/networkmanager/interfaces.js:1450
+#: pkg/networkmanager/ip-settings.jsx:44 pkg/networkmanager/ip-settings.jsx:54
 msgid "Manual"
 msgstr "Ręczne"
 
@@ -3675,7 +3658,7 @@ msgstr "Ręczne"
 msgid "Manually"
 msgstr "Ręcznie"
 
-#: pkg/storaged/crypto-keyslots.jsx:391
+#: pkg/storaged/crypto-keyslots.jsx:392
 msgid "Manually check with SSH: "
 msgstr "Ręczne sprawdzenie za pomocą SSH: "
 
@@ -3703,7 +3686,7 @@ msgstr ""
 "Może to mieć większy efekt, niż się wydaje. Proszę potwierdzić, że ta "
 "jednostka ma zostać zamaskowana."
 
-#: pkg/networkmanager/network-interface.jsx:548
+#: pkg/networkmanager/network-interface.jsx:515
 msgid "Maximum message age $max_age"
 msgstr "Maksymalny wiek komunikatu $max_age"
 
@@ -3719,7 +3702,7 @@ msgstr "Element urządzenia RAID $0"
 #: pkg/systemd/services/service-details.jsx:538
 #: pkg/systemd/overview-cards/usageCard.jsx:133 pkg/systemd/hwinfo.jsx:311
 #: pkg/systemd/hwinfo.jsx:355 pkg/metrics/metrics.jsx:501
-#: pkg/metrics/metrics.jsx:1380
+#: pkg/metrics/metrics.jsx:1381
 msgid "Memory"
 msgstr "Pamięć"
 
@@ -3747,7 +3730,7 @@ msgstr "Połączone"
 msgid "Message to logged in users"
 msgstr "Wiadomość do zalogowanych użytkowników"
 
-#: pkg/shell/index.html:321
+#: pkg/shell/index.html:137
 msgid "Messages related to the failure might be found in the journal:"
 msgstr ""
 "Być może w dzienniku znajdują się komunikaty związane z niepowodzeniem:"
@@ -3756,7 +3739,11 @@ msgstr ""
 msgid "Metadata used"
 msgstr "Użyte metadane"
 
-#: pkg/metrics/metrics.jsx:1317
+#: pkg/networkmanager/ip-settings.jsx:343
+msgid "Metric"
+msgstr "Statystyki"
+
+#: pkg/metrics/metrics.jsx:1318
 msgid "Metrics history could not be loaded"
 msgstr "Nie można wczytać historii statystyk"
 
@@ -3784,7 +3771,7 @@ msgstr "Minuty"
 msgid "Mitigations"
 msgstr "Poprawki zmniejszające ryzyko"
 
-#: pkg/networkmanager/index.html:176
+#: pkg/networkmanager/bond.jsx:171
 msgid "Mode"
 msgstr "Tryb"
 
@@ -3807,11 +3794,11 @@ msgstr "Modyfikowanie $target"
 msgid "Mondays"
 msgstr "poniedziałki"
 
-#: pkg/networkmanager/index.html:191
+#: pkg/networkmanager/bond.jsx:194
 msgid "Monitoring interval"
 msgstr "Odstęp monitorowania"
 
-#: pkg/networkmanager/index.html:195
+#: pkg/networkmanager/bond.jsx:205
 msgid "Monitoring targets"
 msgstr "Cele monitorowania"
 
@@ -3824,12 +3811,12 @@ msgid "More info..."
 msgstr "Więcej informacji…"
 
 #: pkg/storaged/content-views.jsx:276 pkg/storaged/content-views.jsx:400
-#: pkg/storaged/fsys-tab.jsx:367 pkg/storaged/nfs-details.jsx:313
+#: pkg/storaged/fsys-tab.jsx:360 pkg/storaged/nfs-details.jsx:313
 #: pkg/kdump/kdump-view.jsx:98
 msgid "Mount"
 msgstr "Zamontuj"
 
-#: pkg/storaged/fsys-tab.jsx:634
+#: pkg/storaged/fsys-tab.jsx:627
 msgid "Mount also automatically on boot"
 msgstr "Montowanie także automatycznie podczas uruchamiania"
 
@@ -3837,33 +3824,33 @@ msgstr "Montowanie także automatycznie podczas uruchamiania"
 msgid "Mount at boot"
 msgstr "Montowanie podczas uruchamiania"
 
-#: pkg/storaged/fsys-tab.jsx:626 pkg/storaged/fsys-tab.jsx:638
+#: pkg/storaged/fsys-tab.jsx:619 pkg/storaged/fsys-tab.jsx:631
 msgid "Mount automatically on $0 on boot"
 msgstr "Montowanie automatycznie na $0 podczas uruchamiania"
 
-#: pkg/storaged/fsys-tab.jsx:363
+#: pkg/storaged/fsys-tab.jsx:356
 msgid "Mount configuration"
 msgstr "Konfiguracja montowania"
 
-#: pkg/storaged/fsys-tab.jsx:361
+#: pkg/storaged/fsys-tab.jsx:354
 msgid "Mount filesystem"
 msgstr "Zamontuj system plików"
 
-#: pkg/storaged/format-dialog.jsx:256 pkg/storaged/fsys-tab.jsx:631
+#: pkg/storaged/format-dialog.jsx:256 pkg/storaged/fsys-tab.jsx:624
 msgid "Mount now"
 msgstr "Zamontuj teraz"
 
-#: pkg/storaged/fsys-tab.jsx:627
+#: pkg/storaged/fsys-tab.jsx:620
 msgid "Mount on $0 now"
 msgstr "Zamontuj na $0 teraz"
 
-#: pkg/storaged/format-dialog.jsx:246 pkg/storaged/fsys-tab.jsx:318
+#: pkg/storaged/format-dialog.jsx:246 pkg/storaged/fsys-tab.jsx:314
 #: pkg/storaged/nfs-details.jsx:179
 msgid "Mount options"
 msgstr "Opcje montowania"
 
 #: pkg/storaged/nfs-panel.jsx:103 pkg/storaged/format-dialog.jsx:240
-#: pkg/storaged/fsys-tab.jsx:313 pkg/storaged/fsys-tab.jsx:679
+#: pkg/storaged/fsys-tab.jsx:309 pkg/storaged/fsys-tab.jsx:672
 #: pkg/storaged/fsys-panel.jsx:108 pkg/storaged/nfs-details.jsx:334
 msgid "Mount point"
 msgstr "Punkt montowania"
@@ -3884,7 +3871,7 @@ msgstr "Punkt montowania jest już używany dla $0"
 msgid "Mount point must start with \"/\"."
 msgstr "Punkt montowania musi zaczynać się od „/”."
 
-#: pkg/storaged/format-dialog.jsx:257 pkg/storaged/fsys-tab.jsx:326
+#: pkg/storaged/format-dialog.jsx:257 pkg/storaged/fsys-tab.jsx:322
 #: pkg/storaged/nfs-details.jsx:183
 msgid "Mount read only"
 msgstr "Montowanie tylko do odczytu"
@@ -3914,7 +3901,7 @@ msgstr "Punkty montowania NFS"
 msgid "NFS support not installed"
 msgstr "Obsługa NFS nie jest zainstalowana"
 
-#: pkg/networkmanager/interfaces.js:1490
+#: pkg/networkmanager/team.jsx:59
 msgid "NSNA ping"
 msgstr "Ping NSNA"
 
@@ -3922,21 +3909,21 @@ msgstr "Ping NSNA"
 msgid "NTP server"
 msgstr "Serwer NTP"
 
-#: pkg/networkmanager/index.html:54 pkg/networkmanager/index.html:98
-#: pkg/networkmanager/index.html:154 pkg/networkmanager/index.html:211
-#: pkg/storaged/content-views.jsx:151 pkg/storaged/content-views.jsx:294
-#: pkg/storaged/content-views.jsx:682 pkg/storaged/content-views.jsx:766
-#: pkg/storaged/content-views.jsx:849 pkg/storaged/part-tab.jsx:40
-#: pkg/storaged/mdraids-panel.jsx:75 pkg/storaged/vgroup-details.jsx:168
-#: pkg/storaged/lvol-tabs.jsx:48 pkg/storaged/lvol-tabs.jsx:418
-#: pkg/storaged/lvol-tabs.jsx:479 pkg/storaged/vgroups-panel.jsx:74
-#: pkg/storaged/format-dialog.jsx:219 pkg/storaged/fsys-tab.jsx:461
-#: pkg/storaged/fsys-tab.jsx:665 pkg/storaged/iscsi-panel.jsx:131
-#: pkg/storaged/iscsi-panel.jsx:188 pkg/storaged/vdos-panel.jsx:81
-#: pkg/storaged/crypto-panel.jsx:84 pkg/storaged/fsys-panel.jsx:107
-#: pkg/systemd/services/timer-dialog.jsx:140 pkg/systemd/hwinfo.jsx:91
-#: pkg/packagekit/updates.jsx:368 pkg/networkmanager/network-main.jsx:179
-#: pkg/networkmanager/network-main.jsx:194
+#: pkg/shell/credentials.jsx:101 pkg/storaged/content-views.jsx:151
+#: pkg/storaged/content-views.jsx:294 pkg/storaged/content-views.jsx:682
+#: pkg/storaged/content-views.jsx:766 pkg/storaged/content-views.jsx:849
+#: pkg/storaged/part-tab.jsx:40 pkg/storaged/mdraids-panel.jsx:75
+#: pkg/storaged/vgroup-details.jsx:168 pkg/storaged/lvol-tabs.jsx:48
+#: pkg/storaged/lvol-tabs.jsx:418 pkg/storaged/lvol-tabs.jsx:479
+#: pkg/storaged/vgroups-panel.jsx:74 pkg/storaged/format-dialog.jsx:219
+#: pkg/storaged/fsys-tab.jsx:454 pkg/storaged/fsys-tab.jsx:658
+#: pkg/storaged/iscsi-panel.jsx:131 pkg/storaged/iscsi-panel.jsx:188
+#: pkg/storaged/vdos-panel.jsx:81 pkg/storaged/crypto-panel.jsx:84
+#: pkg/storaged/fsys-panel.jsx:107 pkg/systemd/services/timer-dialog.jsx:140
+#: pkg/systemd/hwinfo.jsx:91 pkg/packagekit/updates.jsx:368
+#: pkg/networkmanager/dialogs-common.jsx:133
+#: pkg/networkmanager/network-main.jsx:184
+#: pkg/networkmanager/network-main.jsx:199
 msgid "Name"
 msgstr "Nazwa"
 
@@ -3972,7 +3959,7 @@ msgstr "Nazwa nie może zawierać spacji."
 msgid "Need at least one NTP server"
 msgstr "Wymagany jest co najmniej jeden serwer NTP"
 
-#: pkg/metrics/metrics.jsx:575 pkg/metrics/metrics.jsx:1382
+#: pkg/metrics/metrics.jsx:575 pkg/metrics/metrics.jsx:1383
 msgid "Network"
 msgstr "Sieć"
 
@@ -3984,15 +3971,15 @@ msgstr "Wejście/wyjście sieci"
 msgid "Network I/O spike"
 msgstr "Szczyt wejścia/wyjścia sieci"
 
-#: pkg/networkmanager/network-main-dialogs.jsx:80
+#: pkg/networkmanager/bond.jsx:139
 msgid "Network bond"
 msgstr "Wiązanie sieciowe"
 
-#: pkg/networkmanager/app.jsx:95
+#: pkg/networkmanager/app.jsx:99
 msgid "Network devices and graphs require NetworkManager"
 msgstr "Urządzenia i wykresy sieciowe wymagają usługi NetworkManager"
 
-#: pkg/networkmanager/network-main.jsx:201
+#: pkg/networkmanager/network-main.jsx:206
 msgid "Network logs"
 msgstr "Dzienniki sieci"
 
@@ -4000,16 +3987,16 @@ msgstr "Dzienniki sieci"
 msgid "Network usage"
 msgstr "Użycie sieci"
 
-#: pkg/networkmanager/app.jsx:87
+#: pkg/networkmanager/app.jsx:91
 msgid "NetworkManager is not installed"
 msgstr "Usługa NetworkManager nie jest zainstalowana"
 
-#: pkg/networkmanager/app.jsx:71
+#: pkg/networkmanager/app.jsx:75
 msgid "NetworkManager is not running"
 msgstr "Usługa NetworkManager nie jest uruchomiona"
 
 #: pkg/networkmanager/index.html:23
-#: pkg/networkmanager/network-interface.jsx:749
+#: pkg/networkmanager/network-interface.jsx:695
 #: pkg/networkmanager/firewall.jsx:933 pkg/networkmanager/manifest.json:0
 msgid "Networking"
 msgstr "Sieć"
@@ -4026,7 +4013,7 @@ msgstr "Bez wygasania konta"
 msgid "Never expire password"
 msgstr "Bez wygasania hasła"
 
-#: pkg/storaged/format-dialog.jsx:259 pkg/storaged/fsys-tab.jsx:328
+#: pkg/storaged/format-dialog.jsx:259 pkg/storaged/fsys-tab.jsx:324
 msgid "Never mount at boot"
 msgstr "Bez montowania podczas uruchamiania"
 
@@ -4042,11 +4029,11 @@ msgstr "Nowy komputer"
 msgid "New key password"
 msgstr "Nowe hasło klucza"
 
-#: pkg/storaged/crypto-keyslots.jsx:288 pkg/storaged/crypto-keyslots.jsx:334
+#: pkg/storaged/crypto-keyslots.jsx:289 pkg/storaged/crypto-keyslots.jsx:335
 msgid "New passphrase"
 msgstr "Nowe hasło"
 
-#: pkg/shell/index.html:252 pkg/users/password-dialogs.js:148
+#: pkg/shell/credentials.jsx:267 pkg/users/password-dialogs.js:148
 msgid "New password"
 msgstr "Nowe hasło"
 
@@ -4058,7 +4045,7 @@ msgstr "Nie przyjęto nowego hasła"
 msgid "Next"
 msgstr "Dalej"
 
-#: pkg/systemd/reporting.jsx:272 pkg/networkmanager/network-interface.jsx:247
+#: pkg/systemd/reporting.jsx:272 pkg/networkmanager/network-interface.jsx:240
 msgid "No"
 msgstr "Nie"
 
@@ -4078,11 +4065,11 @@ msgstr "Brak zainstalowanych lub dostępnych aplikacji"
 msgid "No archive has been created."
 msgstr "Nie utworzono archiwum."
 
-#: pkg/storaged/crypto-keyslots.jsx:620
+#: pkg/storaged/crypto-keyslots.jsx:618
 msgid "No available slots"
 msgstr "Brak dostępnych gniazd"
 
-#: pkg/networkmanager/interfaces.js:1326
+#: pkg/networkmanager/interfaces.js:1291
 msgid "No carrier"
 msgstr "Brak operatora"
 
@@ -4090,11 +4077,11 @@ msgstr "Brak operatora"
 msgid "No configuration found"
 msgstr "Nie odnaleziono konfiguracji"
 
-#: pkg/metrics/metrics.jsx:1342
+#: pkg/metrics/metrics.jsx:1343
 msgid "No data available"
 msgstr "Brak dostępnych danych"
 
-#: pkg/metrics/metrics.jsx:1338
+#: pkg/metrics/metrics.jsx:1339
 msgid "No data available between $0 and $1"
 msgstr "Brak dostępnych danych między $0 a $1"
 
@@ -4132,7 +4119,7 @@ msgstr "Bez szyfrowania"
 msgid "No filesystem"
 msgstr "Brak systemu plików"
 
-#: pkg/storaged/crypto-keyslots.jsx:625
+#: pkg/storaged/crypto-keyslots.jsx:623
 msgid "No free key slots"
 msgstr "Brak wolnych gniazd na klucze"
 
@@ -4152,7 +4139,7 @@ msgstr "Nie ustawiono żadnych celów iSCSI"
 msgid "No installation package found for this application."
 msgstr "Nie odnaleziono pakietu instalacji dla tego programu."
 
-#: pkg/storaged/crypto-keyslots.jsx:550
+#: pkg/storaged/crypto-keyslots.jsx:548
 msgid "No keys added"
 msgstr "Nie dodano kluczy"
 
@@ -4248,7 +4235,7 @@ msgstr "Brak upoważnienia do włączenia zapory sieciowej"
 msgid "Not authorized to remove zone $0"
 msgstr "Brak upoważnienia do usunięcia strefy $0"
 
-#: pkg/networkmanager/interfaces.js:741
+#: pkg/networkmanager/interfaces.js:738
 msgid "Not available"
 msgstr "Niedostępne"
 
@@ -4280,7 +4267,7 @@ msgstr "Nie zainstalowano"
 msgid "Not mounted"
 msgstr "Niezamontowane"
 
-#: pkg/systemd/overview-cards/realmd.jsx:448
+#: pkg/systemd/overview-cards/realmd.jsx:447
 msgid "Not permitted to configure realms"
 msgstr "Brak zezwolenia na konfigurowanie obszarów"
 
@@ -4339,11 +4326,11 @@ msgstr "Wystąpiło między $0 a $1"
 msgid "Ok"
 msgstr "OK"
 
-#: pkg/storaged/crypto-keyslots.jsx:331
+#: pkg/storaged/crypto-keyslots.jsx:332
 msgid "Old passphrase"
 msgstr "Poprzednie hasło"
 
-#: pkg/shell/index.html:243 pkg/users/password-dialogs.js:139
+#: pkg/users/password-dialogs.js:139
 msgid "Old password"
 msgstr "Poprzednie hasło"
 
@@ -4398,8 +4385,8 @@ msgctxt "storage"
 msgid "Optical drive"
 msgstr "Napęd optyczny"
 
-#: pkg/networkmanager/index.html:107 pkg/storaged/vdos-panel.jsx:115
-#: pkg/storaged/crypto-tab.jsx:260
+#: pkg/storaged/vdos-panel.jsx:115 pkg/storaged/crypto-tab.jsx:257
+#: pkg/networkmanager/bridge.jsx:104
 msgid "Options"
 msgstr "Opcje"
 
@@ -4428,7 +4415,7 @@ msgstr "Inne opcje"
 msgid "Out"
 msgstr "Wyjście"
 
-#: pkg/systemd/hwinfo.jsx:325 pkg/metrics/metrics.jsx:1415
+#: pkg/systemd/hwinfo.jsx:325 pkg/metrics/metrics.jsx:1416
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "Przegląd"
@@ -4445,7 +4432,7 @@ msgstr "Zastąp istniejące dane zerami (wolniejsze)"
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/metrics/metrics.jsx:1294
+#: pkg/metrics/metrics.jsx:1295
 msgid "Package cockpit-pcp is missing for metrics history"
 msgstr "Brak pakietu „cockpit-pcp” dla historii statystyk"
 
@@ -4473,11 +4460,11 @@ msgstr "Pakiety"
 msgid "Page name"
 msgstr "Nazwa strony"
 
-#: pkg/networkmanager/index.html:45
+#: pkg/networkmanager/vlan.jsx:95
 msgid "Parent"
 msgstr "Nadrzędne"
 
-#: pkg/networkmanager/network-interface.jsx:586
+#: pkg/networkmanager/network-interface.jsx:555
 msgid "Parent $parent"
 msgstr "Nadrzędne $parent"
 
@@ -4485,9 +4472,9 @@ msgstr "Nadrzędne $parent"
 msgid "Part of"
 msgstr "Część"
 
-#: pkg/networkmanager/interfaces.js:1356
-msgid "Part of "
-msgstr "Część "
+#: pkg/networkmanager/interfaces.js:1320
+msgid "Part of $0"
+msgstr "Część $0"
 
 #: pkg/storaged/content-views.jsx:183
 msgid "Partition"
@@ -4505,49 +4492,53 @@ msgstr "Partycjonowanie"
 msgid "Partitions"
 msgstr "Partycje"
 
-#: pkg/networkmanager/interfaces.js:1482
+#: pkg/networkmanager/team.jsx:51
 msgid "Passive"
 msgstr "Pasywnie"
 
-#: pkg/storaged/content-views.jsx:256 pkg/storaged/crypto-keyslots.jsx:283
-#: pkg/storaged/crypto-keyslots.jsx:596 pkg/storaged/format-dialog.jsx:270
-#: pkg/storaged/format-dialog.jsx:296 pkg/storaged/fsys-tab.jsx:338
+#: pkg/storaged/content-views.jsx:256 pkg/storaged/crypto-keyslots.jsx:284
+#: pkg/storaged/crypto-keyslots.jsx:594 pkg/storaged/format-dialog.jsx:270
+#: pkg/storaged/format-dialog.jsx:296 pkg/storaged/fsys-tab.jsx:334
 msgid "Passphrase"
 msgstr "Hasło"
 
-#: pkg/storaged/crypto-keyslots.jsx:418
+#: pkg/storaged/crypto-keyslots.jsx:419
 msgid "Passphrase can not be empty"
 msgstr "Hasło nie może być puste"
 
-#: pkg/storaged/crypto-keyslots.jsx:200 pkg/storaged/crypto-keyslots.jsx:291
-#: pkg/storaged/crypto-keyslots.jsx:332 pkg/storaged/crypto-keyslots.jsx:335
+#: pkg/storaged/crypto-keyslots.jsx:200 pkg/storaged/crypto-keyslots.jsx:292
+#: pkg/storaged/crypto-keyslots.jsx:333 pkg/storaged/crypto-keyslots.jsx:336
 #: pkg/storaged/format-dialog.jsx:274 pkg/storaged/format-dialog.jsx:300
-#: pkg/storaged/fsys-tab.jsx:341
+#: pkg/storaged/fsys-tab.jsx:337
 msgid "Passphrase cannot be empty"
 msgstr "Hasło nie może być puste"
 
-#: pkg/storaged/crypto-keyslots.jsx:441
+#: pkg/storaged/crypto-keyslots.jsx:442
 msgid "Passphrase from any other key slot"
 msgstr "Hasło z jakiegoś innego gniazda na klucze"
 
-#: pkg/storaged/crypto-keyslots.jsx:431
+#: pkg/storaged/crypto-keyslots.jsx:432
 msgid "Passphrase removal may prevent unlocking $0."
 msgstr "Usunięcie hasła może uniemożliwić odblokowanie $0."
 
-#: pkg/storaged/crypto-keyslots.jsx:299 pkg/storaged/crypto-keyslots.jsx:337
+#: pkg/storaged/crypto-keyslots.jsx:300 pkg/storaged/crypto-keyslots.jsx:338
 #: pkg/storaged/format-dialog.jsx:282
 msgid "Passphrases do not match"
 msgstr "Hasła się nie zgadzają"
 
 #: pkg/shell/machines/machine-auth-failed.html:8
 #: pkg/shell/machines/machine-change-auth.html:43
-#: pkg/shell/machines/machine-change-auth.html:50 pkg/shell/index.html:161
-#: pkg/shell/index.html:190 pkg/shell/index.html:205 pkg/static/login.html:81
-#: pkg/shell/superuser.jsx:52 pkg/storaged/iscsi-panel.jsx:50
-#: pkg/storaged/iscsi-panel.jsx:160 pkg/users/account-details.js:339
-#: pkg/users/account-create-dialog.js:60
+#: pkg/shell/machines/machine-change-auth.html:50 pkg/static/login.html:81
+#: pkg/shell/superuser.jsx:52 pkg/shell/credentials.jsx:119
+#: pkg/shell/credentials.jsx:264 pkg/shell/credentials.jsx:323
+#: pkg/storaged/iscsi-panel.jsx:50 pkg/storaged/iscsi-panel.jsx:160
+#: pkg/users/account-details.js:339 pkg/users/account-create-dialog.js:60
 msgid "Password"
 msgstr "Hasło"
+
+#: pkg/shell/credentials.jsx:261
+msgid "Password changed successfully"
+msgstr "Pomyślnie zmieniono hasło"
 
 #: pkg/users/expiration-dialogs.js:201
 msgid "Password expiration"
@@ -4573,6 +4564,10 @@ msgstr "Należy zmienić hasło"
 msgid "Password not accepted"
 msgstr "Nie przyjęto hasła"
 
+#: pkg/shell/credentials.jsx:276
+msgid "Password tip"
+msgstr "Wskazówka na temat hasła"
+
 #: pkg/lib/cockpit-components-context-menu.jsx:107
 msgid "Paste"
 msgstr "Wklej"
@@ -4589,11 +4584,11 @@ msgstr "Proszę tutaj wkleić zawartość pliku publicznego klucza SSH"
 msgid "Path"
 msgstr "Ścieżka"
 
-#: pkg/networkmanager/index.html:140
+#: pkg/networkmanager/bridgeport.jsx:84
 msgid "Path cost"
 msgstr "Koszt ścieżki"
 
-#: pkg/networkmanager/network-interface.jsx:568
+#: pkg/networkmanager/network-interface.jsx:536
 msgid "Path cost $path_cost"
 msgstr "Koszt ścieżki $path_cost"
 
@@ -4610,6 +4605,7 @@ msgid "Path on server must start with \"/\"."
 msgstr "Ścieżka na serwerze musi zaczynać się od „/”."
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:161
+#: pkg/shell/credentials.jsx:174
 msgid "Path to file"
 msgstr "Ścieżka do pliku"
 
@@ -4628,7 +4624,7 @@ msgid ""
 msgstr ""
 "Performance Co-Pilot zbiera i analizuje statystyki wydajności komputera."
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1416
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1417
 msgid "Performance Metrics"
 msgstr "Statystyki wydajności"
 
@@ -4640,7 +4636,7 @@ msgstr "Profil wydajności"
 msgid "Peripheral chassis"
 msgstr "Obudowa peryferyjna"
 
-#: pkg/networkmanager/interfaces.js:2192
+#: pkg/networkmanager/dialogs-common.jsx:68
 msgid "Permanent"
 msgstr "Trwałe"
 
@@ -4656,6 +4652,10 @@ msgstr "Odmowa dostępu"
 #: pkg/selinux/setroubleshoot-view.jsx:261
 msgid "Permissive"
 msgstr "Zezwalanie"
+
+#: pkg/networkmanager/dialogs-common.jsx:69
+msgid "Perserve"
+msgstr "Zachowanie"
 
 #: pkg/storaged/vdo-details.jsx:283
 msgid "Physical"
@@ -4681,11 +4681,11 @@ msgstr "Nie można tutaj zmieniać rozmiaru woluminów fizycznych."
 msgid "Pick date"
 msgstr "Wybierz datę"
 
-#: pkg/networkmanager/index.html:235
+#: pkg/networkmanager/team.jsx:200
 msgid "Ping interval"
 msgstr "Odstęp między pingami"
 
-#: pkg/networkmanager/index.html:239
+#: pkg/networkmanager/team.jsx:203
 msgid "Ping target"
 msgstr "Cel pingu"
 
@@ -4751,30 +4751,27 @@ msgstr "Numer i typ portu się nie zgadzają"
 msgid "Portable"
 msgstr "Przenośne"
 
-#: pkg/networkmanager/index.html:102 pkg/networkmanager/index.html:215
-#: pkg/networkmanager/network-interface-members.jsx:214
+#: pkg/networkmanager/network-interface-members.jsx:215
+#: pkg/networkmanager/bridge.jsx:101 pkg/networkmanager/team.jsx:159
 msgid "Ports"
 msgstr "Porty"
 
-#: pkg/networkmanager/interfaces.js:1873
+#: pkg/networkmanager/ip-settings.jsx:164
 msgid "Prefix length"
 msgstr "Długość przedrostka"
 
-#: pkg/networkmanager/interfaces.js:1873
+#: pkg/networkmanager/ip-settings.jsx:164
+#: pkg/networkmanager/ip-settings.jsx:327
 msgid "Prefix length or netmask"
 msgstr "Długość przedrostka lub maska sieci"
 
-#: pkg/networkmanager/interfaces.js:745
+#: pkg/networkmanager/interfaces.js:742
 msgid "Preparing"
 msgstr "Przygotowywanie"
 
 #: pkg/lib/machine-info.js:264
 msgid "Present"
 msgstr "Obecne"
-
-#: pkg/networkmanager/interfaces.js:2193
-msgid "Preserve"
-msgstr "Zachowaj"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:306
 msgid "Pretty host name"
@@ -4784,17 +4781,17 @@ msgstr "Czytelna nazwa komputera"
 msgid "Previous boot"
 msgstr "Poprzednie uruchomienie"
 
-#: pkg/networkmanager/index.html:181
+#: pkg/networkmanager/team.jsx:174 pkg/networkmanager/bond.jsx:177
 msgid "Primary"
 msgstr "Główne"
 
-#: pkg/networkmanager/index.html:136 pkg/networkmanager/index.html:255
-#: pkg/networkmanager/index.html:265 pkg/systemd/logs.jsx:207
+#: pkg/systemd/logs.jsx:207 pkg/networkmanager/teamport.jsx:85
+#: pkg/networkmanager/bridgeport.jsx:81
 msgid "Priority"
 msgstr "Priorytet"
 
-#: pkg/networkmanager/network-interface.jsx:542
-#: pkg/networkmanager/network-interface.jsx:566
+#: pkg/networkmanager/network-interface.jsx:509
+#: pkg/networkmanager/network-interface.jsx:534
 msgid "Priority $priority"
 msgstr "Priorytet $priority"
 
@@ -4834,7 +4831,7 @@ msgstr "Pytanie przez ssh-keygen przekroczyło czas oczekiwania"
 msgid "Propagates reload to"
 msgstr "Wysyła ponowne wczytanie do"
 
-#: pkg/shell/machines/machine-auth-failed.html:9 pkg/shell/index.html:189
+#: pkg/shell/machines/machine-auth-failed.html:9 pkg/shell/credentials.jsx:114
 msgid "Public key"
 msgstr "Klucz publiczny"
 
@@ -4927,7 +4924,7 @@ msgstr "RAM"
 msgid "Rack mount chassis"
 msgstr "Obudowa do montowania w szafie"
 
-#: pkg/networkmanager/interfaces.js:2194
+#: pkg/networkmanager/dialogs-common.jsx:70
 msgid "Random"
 msgstr "Losowo"
 
@@ -5004,13 +5001,13 @@ msgstr "Zalecane jest ponowne uruchomienie"
 msgid "Reboot system..."
 msgstr "Ponownie uruchom komputer…"
 
-#: pkg/networkmanager/network-interface-members.jsx:216
-#: pkg/networkmanager/network-main.jsx:182
-#: pkg/networkmanager/network-main.jsx:197
+#: pkg/networkmanager/network-interface-members.jsx:217
+#: pkg/networkmanager/network-main.jsx:187
+#: pkg/networkmanager/network-main.jsx:202
 msgid "Receiving"
 msgstr "Odbieranie"
 
-#: pkg/shell/index.html:307
+#: pkg/shell/index.html:123
 msgid "Reconnect"
 msgstr "Połącz ponownie"
 
@@ -5076,15 +5073,15 @@ msgid "Removals:"
 msgstr "Usuwane:"
 
 #: pkg/shell/hosts.jsx:185 pkg/storaged/mdraid-details.jsx:142
-#: pkg/storaged/crypto-keyslots.jsx:462 pkg/storaged/crypto-keyslots.jsx:497
-#: pkg/storaged/crypto-keyslots.jsx:581 pkg/storaged/vgroup-details.jsx:122
+#: pkg/storaged/crypto-keyslots.jsx:463 pkg/storaged/crypto-keyslots.jsx:498
+#: pkg/storaged/crypto-keyslots.jsx:579 pkg/storaged/vgroup-details.jsx:122
 #: pkg/storaged/nfs-details.jsx:320 pkg/systemd/services/timer-dialog.jsx:321
 #: pkg/users/authorized-keys-panel.js:137 pkg/apps/application-list.jsx:90
 #: pkg/apps/application.jsx:119
 msgid "Remove"
 msgstr "Usuń"
 
-#: pkg/networkmanager/network-interface-members.jsx:121
+#: pkg/networkmanager/network-interface-members.jsx:122
 msgid "Remove $0"
 msgstr "Usuń $0"
 
@@ -5092,11 +5089,11 @@ msgstr "Usuń $0"
 msgid "Remove $0 service from $1 zone"
 msgstr "Usuń usługę $0 ze strefy $1"
 
-#: pkg/storaged/crypto-keyslots.jsx:481
+#: pkg/storaged/crypto-keyslots.jsx:482
 msgid "Remove $0?"
 msgstr "Usunąć $0?"
 
-#: pkg/storaged/crypto-keyslots.jsx:491
+#: pkg/storaged/crypto-keyslots.jsx:492
 msgid "Remove Tang keyserver?"
 msgstr "Usunąć serwer kluczy Tang?"
 
@@ -5129,7 +5126,14 @@ msgstr "Usuń i zatrzymaj urządzenie"
 msgid "Remove device"
 msgstr "Usuń urządzenie"
 
-#: pkg/storaged/crypto-keyslots.jsx:455
+#: pkg/networkmanager/ip-settings.jsx:196
+#: pkg/networkmanager/ip-settings.jsx:241
+#: pkg/networkmanager/ip-settings.jsx:286
+#: pkg/networkmanager/ip-settings.jsx:355
+msgid "Remove item"
+msgstr "Usuń element"
+
+#: pkg/storaged/crypto-keyslots.jsx:456
 msgid "Remove passphrase in key slot $0?"
 msgstr "Usunąć hasło w gnieździe na klucze $0?"
 
@@ -5149,19 +5153,19 @@ msgstr "Usuwanie"
 msgid "Removing $0"
 msgstr "Usuwanie $0"
 
+#: pkg/networkmanager/network-interface-members.jsx:121
+msgid ""
+"Removing $0 will break the connection to the server, and will make the "
+"administration UI unavailable."
+msgstr ""
+"Usunięcie $0 zerwie połączenie z serwerem i uniemożliwi korzystanie z "
+"interfejsu administracji."
+
 #: pkg/storaged/jobs-panel.jsx:68
 msgid "Removing $target from RAID device"
 msgstr "Usuwanie $target z urządzenia RAID"
 
-#: pkg/networkmanager/network-interface-members.jsx:120
-msgid ""
-"Removing <b>$0</b> will break the connection to the server, and will make "
-"the administration UI unavailable."
-msgstr ""
-"Usunięcie <b>$0</b> zerwie połączenie z serwerem i uniemożliwi korzystanie "
-"z interfejsu administracji."
-
-#: pkg/storaged/crypto-keyslots.jsx:439
+#: pkg/storaged/crypto-keyslots.jsx:440
 msgid ""
 "Removing a passphrase without confirmation of another passphrase may prevent "
 "unlocking or key management, if other passphrases are forgotten or lost."
@@ -5218,8 +5222,8 @@ msgstr "Powtarzanie"
 msgid "Repeat monthly"
 msgstr "Powtarzanie co miesiąc"
 
-#: pkg/storaged/crypto-keyslots.jsx:281 pkg/storaged/crypto-keyslots.jsx:293
-#: pkg/storaged/crypto-keyslots.jsx:336
+#: pkg/storaged/crypto-keyslots.jsx:282 pkg/storaged/crypto-keyslots.jsx:294
+#: pkg/storaged/crypto-keyslots.jsx:337
 msgid "Repeat passphrase"
 msgstr "Powtórzenie hasła"
 
@@ -5324,7 +5328,7 @@ msgstr "Ponownie uruchom usługi…"
 msgid "Restarting"
 msgstr "Ponowne uruchamianie"
 
-#: pkg/networkmanager/index.html:40
+#: pkg/networkmanager/app.jsx:63
 msgid "Restoring connection"
 msgstr "Przywracanie połączenia"
 
@@ -5348,11 +5352,11 @@ msgstr "Przeglądanie dzienników"
 msgid "Roles"
 msgstr "Role"
 
-#: pkg/networkmanager/interfaces.js:1456 pkg/networkmanager/interfaces.js:1473
+#: pkg/networkmanager/team.jsx:42 pkg/networkmanager/bond.jsx:44
 msgid "Round robin"
 msgstr "Round robin"
 
-#: pkg/networkmanager/interfaces.js:1892
+#: pkg/networkmanager/ip-settings.jsx:297
 msgid "Routes"
 msgstr "Trasy"
 
@@ -5365,7 +5369,7 @@ msgstr "Uruchom o"
 msgid "Run on"
 msgstr "Uruchom w dniu"
 
-#: pkg/networkmanager/index.html:220
+#: pkg/networkmanager/team.jsx:162
 msgid "Runner"
 msgstr "Uruchamianie"
 
@@ -5404,11 +5408,11 @@ msgstr "Stan SELinuksa systemu jest nieznany."
 msgid "SELinux troubleshoot"
 msgstr "Rozwiązywanie problemów z SELinuksem"
 
-#: pkg/storaged/crypto-keyslots.jsx:387
+#: pkg/storaged/crypto-keyslots.jsx:388
 msgid "SHA1"
 msgstr "SHA1"
 
-#: pkg/storaged/crypto-keyslots.jsx:384
+#: pkg/storaged/crypto-keyslots.jsx:385
 msgid "SHA256"
 msgstr "SHA256"
 
@@ -5420,27 +5424,28 @@ msgstr "Test SMART $target"
 msgid "SSH key"
 msgstr "Klucz SSH"
 
-#: pkg/shell/index.html:78 pkg/shell/index.html:116
+#: pkg/shell/index.html:78 pkg/shell/credentials.jsx:80
+#: pkg/shell/credentials.jsx:96
 msgid "SSH keys"
 msgstr "Klucze SSH"
 
-#: pkg/networkmanager/index.html:119
+#: pkg/networkmanager/bridge.jsx:110
 msgid "STP forward delay"
 msgstr "Opóźnienie w przód STP"
 
-#: pkg/networkmanager/index.html:123
+#: pkg/networkmanager/bridge.jsx:113
 msgid "STP hello time"
 msgstr "Czas powitania STP"
 
-#: pkg/networkmanager/index.html:127
+#: pkg/networkmanager/bridge.jsx:116
 msgid "STP maximum message age"
 msgstr "Maksymalny wiek komunikatu STP"
 
-#: pkg/networkmanager/index.html:115
+#: pkg/networkmanager/bridge.jsx:107
 msgid "STP priority"
 msgstr "Priorytet STP"
 
-#: pkg/shell/index.html:325
+#: pkg/shell/index.html:141
 msgid ""
 "Safari users need to import and trust the certificate of the self-signing CA:"
 msgstr ""
@@ -5451,7 +5456,7 @@ msgstr ""
 msgid "Saturdays"
 msgstr "soboty"
 
-#: pkg/storaged/crypto-keyslots.jsx:340 pkg/storaged/crypto-keyslots.jsx:359
+#: pkg/storaged/crypto-keyslots.jsx:341 pkg/storaged/crypto-keyslots.jsx:360
 #: pkg/systemd/services/timer-dialog.jsx:132 pkg/metrics/metrics.jsx:1032
 msgid "Save"
 msgstr "Zapisz"
@@ -5474,8 +5479,8 @@ msgid "Save space by storing identical data blocks just once"
 msgstr ""
 "Oszczędź miejsce przez przechowywanie identycznych bloków danych tylko raz"
 
-#: pkg/storaged/crypto-keyslots.jsx:307 pkg/storaged/crypto-keyslots.jsx:357
-#: pkg/storaged/crypto-keyslots.jsx:401
+#: pkg/storaged/crypto-keyslots.jsx:308 pkg/storaged/crypto-keyslots.jsx:358
+#: pkg/storaged/crypto-keyslots.jsx:402
 msgid ""
 "Saving a new passphrase requires unlocking the disk. Please provide a "
 "current disk passphrase."
@@ -5490,6 +5495,10 @@ msgstr "Sealed-case PC"
 #: pkg/shell/nav.jsx:109 pkg/systemd/logs.jsx:405
 msgid "Search"
 msgstr "Szukaj"
+
+#: pkg/networkmanager/ip-settings.jsx:274
+msgid "Search domain"
+msgstr "Domena wyszukiwania"
 
 #: pkg/systemd/services/timer-dialog.jsx:196
 msgid "Seconds"
@@ -5523,13 +5532,17 @@ msgstr "Wybierz"
 msgid "Select a identifier"
 msgstr "Wybierz identyfikator"
 
+#: pkg/networkmanager/ip-settings.jsx:147
+msgid "Select method"
+msgstr "Wybierz metodę"
+
 #: pkg/systemd/reporting.jsx:247
 msgid "Send"
 msgstr "Wyślij"
 
-#: pkg/networkmanager/network-interface-members.jsx:215
-#: pkg/networkmanager/network-main.jsx:181
-#: pkg/networkmanager/network-main.jsx:196
+#: pkg/networkmanager/network-interface-members.jsx:216
+#: pkg/networkmanager/network-main.jsx:186
+#: pkg/networkmanager/network-main.jsx:201
 msgid "Sending"
 msgstr "Wysyłanie"
 
@@ -5539,7 +5552,8 @@ msgid "Serial number"
 msgstr "Numer seryjny"
 
 #: pkg/static/login.html:145 pkg/storaged/nfs-panel.jsx:102
-#: pkg/storaged/nfs-details.jsx:329 pkg/kdump/kdump-view.jsx:120
+#: pkg/storaged/nfs-details.jsx:329 pkg/networkmanager/ip-settings.jsx:229
+#: pkg/kdump/kdump-view.jsx:120
 msgid "Server"
 msgstr "Serwer"
 
@@ -5626,7 +5640,7 @@ msgstr "Ustaw hasło"
 msgid "Set time"
 msgstr "Ustaw czas"
 
-#: pkg/networkmanager/index.html:72
+#: pkg/networkmanager/mtu.jsx:88
 msgid "Set to"
 msgstr "Ustaw na"
 
@@ -5657,7 +5671,7 @@ msgstr "Ustawienia"
 msgid "Severity"
 msgstr "Ważność"
 
-#: pkg/networkmanager/interfaces.js:1441
+#: pkg/networkmanager/ip-settings.jsx:45
 msgid "Shared"
 msgstr "Współdzielone"
 
@@ -5785,7 +5799,7 @@ msgstr "Przejdź do treści"
 msgid "Slot"
 msgstr "Gniazdo"
 
-#: pkg/storaged/mdraid-details.jsx:120 pkg/storaged/crypto-keyslots.jsx:569
+#: pkg/storaged/mdraid-details.jsx:120 pkg/storaged/crypto-keyslots.jsx:567
 msgid "Slot $0"
 msgstr "Gniazdo $0"
 
@@ -5841,11 +5855,11 @@ msgstr "Uporządkowane od najmniej do najbardziej zaufanych"
 msgid "Space-saving computer"
 msgstr "Komputer oszczędzający miejsce"
 
-#: pkg/networkmanager/network-interface.jsx:540
+#: pkg/networkmanager/network-interface.jsx:507
 msgid "Spanning tree protocol"
 msgstr "Protokół STP"
 
-#: pkg/networkmanager/index.html:111
+#: pkg/networkmanager/bridge.jsx:105
 msgid "Spanning tree protocol (STP)"
 msgstr "Protokół STP"
 
@@ -5861,7 +5875,7 @@ msgstr "Podany czas"
 msgid "Speed"
 msgstr "Prędkość"
 
-#: pkg/networkmanager/interfaces.js:2195
+#: pkg/networkmanager/dialogs-common.jsx:71
 msgid "Stable"
 msgstr "Stabilna"
 
@@ -5879,7 +5893,7 @@ msgstr "Uruchom i włącz"
 msgid "Start multipath"
 msgstr "Uruchom urządzenie wielościeżkowe"
 
-#: pkg/systemd/services/service-details.jsx:357 pkg/networkmanager/app.jsx:72
+#: pkg/systemd/services/service-details.jsx:357 pkg/networkmanager/app.jsx:76
 msgid "Start service"
 msgstr "Uruchom usługę"
 
@@ -5919,7 +5933,7 @@ msgid "Static"
 msgstr "Statyczne"
 
 #: pkg/systemd/services/service-details.jsx:528 pkg/packagekit/updates.jsx:844
-#: pkg/networkmanager/network-interface.jsx:271 pkg/kdump/kdump-view.jsx:516
+#: pkg/networkmanager/network-interface.jsx:264 pkg/kdump/kdump-view.jsx:516
 msgid "Status"
 msgstr "Stan"
 
@@ -5927,7 +5941,7 @@ msgstr "Stan"
 msgid "Stick PC"
 msgstr "Stick PC"
 
-#: pkg/networkmanager/index.html:259
+#: pkg/networkmanager/teamport.jsx:90
 msgid "Sticky"
 msgstr "Lepkie"
 
@@ -5983,8 +5997,8 @@ msgstr "Dzienniki urządzeń do przechowywania danych"
 msgid "Store passphrase"
 msgstr "Przechowaj hasło"
 
-#: pkg/storaged/crypto-tab.jsx:153 pkg/storaged/crypto-tab.jsx:155
-#: pkg/storaged/crypto-tab.jsx:251
+#: pkg/storaged/crypto-tab.jsx:152 pkg/storaged/crypto-tab.jsx:154
+#: pkg/storaged/crypto-tab.jsx:248
 msgid "Stored passphrase"
 msgstr "Zachowane hasło"
 
@@ -6000,7 +6014,7 @@ msgstr "Obudowa podrzędna"
 msgid "Sub-Notebook"
 msgstr "Sub-Notebook"
 
-#: pkg/storaged/crypto-keyslots.jsx:393
+#: pkg/storaged/crypto-keyslots.jsx:394
 msgid "Successfully copied to clipboard!"
 msgstr "Pomyślnie skopiowano do schowka."
 
@@ -6017,7 +6031,7 @@ msgid "Support is installed."
 msgstr "Obsługa jest zainstalowana."
 
 #: pkg/storaged/content-views.jsx:199 pkg/metrics/metrics.jsx:118
-#: pkg/metrics/metrics.jsx:438 pkg/metrics/metrics.jsx:1380
+#: pkg/metrics/metrics.jsx:438 pkg/metrics/metrics.jsx:1381
 msgid "Swap"
 msgstr "Partycja wymiany"
 
@@ -6030,16 +6044,16 @@ msgctxt "storage-id-desc"
 msgid "Swap space"
 msgstr "Przestrzeń wymiany"
 
-#: pkg/networkmanager/network-interface-members.jsx:69
+#: pkg/networkmanager/network-interface-members.jsx:70
 msgid "Switch of $0"
 msgstr "Wyłącz $0"
 
-#: pkg/networkmanager/network-interface-members.jsx:95
+#: pkg/networkmanager/network-interface-members.jsx:96
 #: pkg/networkmanager/network-interface.jsx:166
 msgid "Switch off $0"
 msgstr "Wyłącz $0"
 
-#: pkg/networkmanager/network-interface-members.jsx:83
+#: pkg/networkmanager/network-interface-members.jsx:84
 #: pkg/networkmanager/network-interface.jsx:145
 msgid "Switch on $0"
 msgstr "Włącz $0"
@@ -6052,30 +6066,23 @@ msgstr "Przełącz na dostęp administracyjny"
 msgid "Switch to limited access"
 msgstr "Przełącz na ograniczony dostęp"
 
+#: pkg/networkmanager/network-interface-members.jsx:95
 #: pkg/networkmanager/network-interface.jsx:165
 msgid ""
-"Switching off <b>$0</b>  will break the connection to the server, and will "
-"make the administration UI unavailable."
+"Switching off $0 will break the connection to the server, and will make the "
+"administration UI unavailable."
 msgstr ""
-"Wyłączenie <b>$0</b> zerwie połączenie z serwerem i uniemożliwi korzystanie "
-"z interfejsu administracji."
+"Wyłączenie $0 zerwie połączenie z serwerem i uniemożliwi korzystanie z "
+"interfejsu administracji."
 
-#: pkg/networkmanager/network-interface-members.jsx:94
-msgid ""
-"Switching off <b>$0</b> will break the connection to the server, and will "
-"make the administration UI unavailable."
-msgstr ""
-"Wyłączenie <b>$0</b> zerwie połączenie z serwerem i uniemożliwi korzystanie "
-"z interfejsu administracji."
-
-#: pkg/networkmanager/network-interface-members.jsx:82
+#: pkg/networkmanager/network-interface-members.jsx:83
 #: pkg/networkmanager/network-interface.jsx:144
 msgid ""
-"Switching on <b>$0</b> will break the connection to the server, and will "
-"make the administration UI unavailable."
+"Switching on $0 will break the connection to the server, and will make the "
+"administration UI unavailable."
 msgstr ""
-"Włączenie <b>$0</b> zerwie połączenie z serwerem i uniemożliwi korzystanie "
-"z interfejsu administracji."
+"Włączenie $0 zerwie połączenie z serwerem i uniemożliwi korzystanie z "
+"interfejsu administracji."
 
 #: pkg/lib/serverTime.js:372
 msgid "Synchronized"
@@ -6130,7 +6137,7 @@ msgstr "TCP"
 msgid "Tablet"
 msgstr "Tablet"
 
-#: pkg/storaged/crypto-keyslots.jsx:284
+#: pkg/storaged/crypto-keyslots.jsx:285
 msgid "Tang keyserver"
 msgstr "Serwer kluczy Tang"
 
@@ -6140,19 +6147,19 @@ msgstr "Cele"
 
 #: pkg/networkmanager/network-interface.jsx:178
 #: pkg/networkmanager/network-interface.jsx:190
-#: pkg/networkmanager/network-interface.jsx:497
+#: pkg/networkmanager/network-interface.jsx:462
 msgid "Team"
 msgstr "Zespół"
 
-#: pkg/networkmanager/network-interface.jsx:525
+#: pkg/networkmanager/network-interface.jsx:492
 msgid "Team port"
 msgstr "Port zespołu"
 
-#: pkg/networkmanager/index.html:376
+#: pkg/networkmanager/teamport.jsx:83
 msgid "Team port settings"
 msgstr "Ustawienia portu zespołu"
 
-#: pkg/networkmanager/index.html:347
+#: pkg/networkmanager/team.jsx:155
 msgid "Team settings"
 msgstr "Ustawienia zespołu"
 
@@ -6176,7 +6183,7 @@ msgstr "Test jest dostępny tylko, jeśli usługa kdump jest uruchomiona."
 msgid "Test kdump settings"
 msgstr "Przetestuj ustawienia kdump"
 
-#: pkg/networkmanager/index.html:39
+#: pkg/networkmanager/app.jsx:63
 msgid "Testing connection"
 msgstr "Testowanie połączenia"
 
@@ -6252,7 +6259,7 @@ msgstr ""
 "Utworzenie tego urządzenia VDO nie zostało ukończone, więc nie można go "
 "używać."
 
-#: pkg/storaged/crypto-keyslots.jsx:546
+#: pkg/storaged/crypto-keyslots.jsx:544
 msgid ""
 "The currently logged in user is not permitted to see information about keys."
 msgstr ""
@@ -6267,17 +6274,17 @@ msgstr ""
 "Dysk musi zostać odblokowany przed formatowaniem. Proszę podać istniejące "
 "hasło."
 
-#: pkg/storaged/fsys-tab.jsx:516
+#: pkg/storaged/fsys-tab.jsx:509
 msgid "The filesystem has no permanent mount point."
 msgstr "System plików nie ma trwałego punktu montowania."
 
-#: pkg/storaged/fsys-tab.jsx:355
+#: pkg/storaged/fsys-tab.jsx:348
 msgid "The filesystem is already mounted at $0. Proceeding will unmount it."
 msgstr ""
 "System plików jest już zamontowany w $0. Kontynuowanie spowoduje jego "
 "odmontowanie."
 
-#: pkg/storaged/fsys-tab.jsx:641
+#: pkg/storaged/fsys-tab.jsx:634
 msgid ""
 "The filesystem is configured to be automatically mounted on boot but its "
 "encryption container will not be unlocked at that time."
@@ -6285,7 +6292,7 @@ msgstr ""
 "System plików jest skonfigurowany do automatycznego montowania podczas "
 "uruchamiania, ale jego kontener szyfrowania nie będzie wtedy odblokowywany."
 
-#: pkg/storaged/fsys-tab.jsx:633
+#: pkg/storaged/fsys-tab.jsx:626
 msgid ""
 "The filesystem is currently mounted but will not be mounted after the next "
 "boot."
@@ -6293,7 +6300,7 @@ msgstr ""
 "System plików jest obecnie zamontowany, ale nie będzie zamontowany po "
 "następnym uruchomieniu."
 
-#: pkg/storaged/fsys-tab.jsx:625
+#: pkg/storaged/fsys-tab.jsx:618
 msgid ""
 "The filesystem is currently mounted on $0 but will be mounted on $1 on the "
 "next boot."
@@ -6301,7 +6308,7 @@ msgstr ""
 "System plików jest obecnie zamontowany na $0, ale będzie zamontowany na $1 "
 "podczas następnego uruchomienia."
 
-#: pkg/storaged/fsys-tab.jsx:637
+#: pkg/storaged/fsys-tab.jsx:630
 msgid ""
 "The filesystem is currently mounted on $0 but will not be mounted after the "
 "next boot."
@@ -6309,7 +6316,7 @@ msgstr ""
 "System plików jest obecnie zamontowany na $0, ale nie będzie zamontowany po "
 "następnym uruchomieniu."
 
-#: pkg/storaged/fsys-tab.jsx:629
+#: pkg/storaged/fsys-tab.jsx:622
 msgid ""
 "The filesystem is currently not mounted but will be mounted on the next boot."
 msgstr ""
@@ -6335,11 +6342,11 @@ msgid ""
 msgstr ""
 "System plików jest używany przez usługi systemowe. Kontynuacja je zatrzyma."
 
-#: pkg/storaged/fsys-tab.jsx:518
+#: pkg/storaged/fsys-tab.jsx:511
 msgid "The filesystem is not mounted."
 msgstr "System plików nie jest zamontowany."
 
-#: pkg/storaged/fsys-tab.jsx:521
+#: pkg/storaged/fsys-tab.jsx:514
 msgid ""
 "The filesystem will be unlocked and mounted on the next boot. This might "
 "require inputting a passphrase."
@@ -6380,7 +6387,7 @@ msgstr "Podany klucz jest nieprawidłowy."
 msgid "The last disk of a RAID device cannot be removed."
 msgstr "Nie można usuwać ostatniego dysku urządzenia RAID."
 
-#: pkg/storaged/crypto-keyslots.jsx:582
+#: pkg/storaged/crypto-keyslots.jsx:580
 msgid "The last key slot can not be removed"
 msgstr "Nie można usunąć ostatniego gniazda na klucz"
 
@@ -6489,7 +6496,7 @@ msgstr ""
 "Za mało wolnego miejsca, aby usunąć ten wolumin fizyczny. Wymagane jest co "
 "najmniej $0 wolnego miejsca więcej."
 
-#: pkg/shell/index.html:320
+#: pkg/shell/index.html:136
 msgid "There was an unexpected error while connecting to the machine."
 msgstr "Wystąpił nieoczekiwany błąd podczas łączenia z maszyną."
 
@@ -6506,7 +6513,7 @@ msgstr ""
 msgid "This VDO device does not use all of its backing device."
 msgstr "To urządzenie VDO nie używa całości swojego urządzenia podstawowego."
 
-#: pkg/networkmanager/network-interface.jsx:285
+#: pkg/networkmanager/network-interface.jsx:278
 msgid "This device cannot be managed here."
 msgstr "Tutaj nie można zarządzać tym urządzeniem."
 
@@ -6570,7 +6577,7 @@ msgstr ""
 msgid "This machine has already been added."
 msgstr "Ten komputer został już dodany."
 
-#: pkg/systemd/overview-cards/realmd.jsx:418
+#: pkg/systemd/overview-cards/realmd.jsx:417
 msgid "This may take a while"
 msgstr "Może to chwilę zająć"
 
@@ -6695,7 +6702,7 @@ msgstr "Utworzenie licznika się nie powiodło"
 msgid "Timers"
 msgstr "Liczniki"
 
-#: pkg/shell/index.html:270
+#: pkg/shell/credentials.jsx:277
 msgid ""
 "Tip: Make your key password match your login password to automatically "
 "authenticate against other systems."
@@ -6738,11 +6745,11 @@ msgstr ""
 "Aby sprawdzić poprawność odcisku klucza, należy wykonać poniższe polecenie "
 "na {{host}} fizycznie siedząc przy komputerze lub przez zaufaną sieć:"
 
-#: pkg/metrics/metrics.jsx:1348
+#: pkg/metrics/metrics.jsx:1349
 msgid "Today"
 msgstr "Dzisiaj"
 
-#: pkg/storaged/iscsi-panel.jsx:251
+#: pkg/shell/credentials.jsx:102 pkg/storaged/iscsi-panel.jsx:251
 msgid "Toggle"
 msgstr "Przełącz"
 
@@ -6799,15 +6806,15 @@ msgstr "Wyzwalane przez"
 msgid "Triggers"
 msgstr "Wyzwalacze"
 
-#: pkg/metrics/metrics.jsx:1312
+#: pkg/metrics/metrics.jsx:1313
 msgid "Troubleshoot"
 msgstr "Rozwiązywanie problemów"
 
-#: pkg/networkmanager/app.jsx:78
+#: pkg/networkmanager/app.jsx:82
 msgid "Troubleshoot…"
 msgstr "Rozwiąż problem…"
 
-#: pkg/storaged/crypto-keyslots.jsx:403
+#: pkg/storaged/crypto-keyslots.jsx:404
 msgid "Trust key"
 msgstr "Zaufaj kluczowi"
 
@@ -6857,7 +6864,7 @@ msgstr "tuned jest wyłączone"
 msgid "Turn on administrative access"
 msgstr "Włącz dostęp administracyjny"
 
-#: pkg/shell/index.html:227 pkg/storaged/part-tab.jsx:55
+#: pkg/shell/credentials.jsx:201 pkg/storaged/part-tab.jsx:55
 #: pkg/storaged/unrecognized-tab.jsx:41 pkg/storaged/format-dialog.jsx:224
 #: pkg/systemd/hwinfo.jsx:86 pkg/systemd/hwinfo.jsx:312
 #: pkg/packagekit/autoupdates.jsx:279
@@ -6976,8 +6983,8 @@ msgstr "Nie można odmontować systemu plików"
 msgid "Unavailable"
 msgstr "Niedostępne"
 
-#: pkg/networkmanager/index.html:547 pkg/shell/shell-modals.jsx:193
-#: pkg/users/dialog-utils.js:65
+#: pkg/shell/shell-modals.jsx:193 pkg/users/dialog-utils.js:65
+#: pkg/networkmanager/interfaces.js:51
 msgid "Unexpected error"
 msgstr "Nieoczekiwany błąd"
 
@@ -6998,9 +7005,9 @@ msgstr "Grupa uniksowa: $0"
 #: pkg/lib/machine-info.js:251 pkg/lib/machine-info.js:253
 #: pkg/lib/machine-info.js:260 pkg/lib/machine-info.js:262
 #: pkg/lib/machine-info.js:266 pkg/storaged/swap-tab.jsx:62
-#: pkg/storaged/fsys-tab.jsx:491 pkg/networkmanager/network-interface.jsx:198
+#: pkg/storaged/fsys-tab.jsx:484 pkg/networkmanager/network-interface.jsx:198
 #: pkg/networkmanager/network-interface.jsx:200
-#: pkg/networkmanager/interfaces.js:510 pkg/networkmanager/interfaces.js:982
+#: pkg/networkmanager/interfaces.js:507 pkg/networkmanager/interfaces.js:979
 msgid "Unknown"
 msgstr "Nieznane"
 
@@ -7017,7 +7024,7 @@ msgstr "Nieznane ($0)"
 msgid "Unknown application"
 msgstr "Nieznana aplikacja"
 
-#: pkg/networkmanager/network-interface.jsx:304
+#: pkg/networkmanager/network-interface.jsx:297
 msgid "Unknown configuration"
 msgstr "Nieznana konfiguracja"
 
@@ -7029,22 +7036,22 @@ msgstr "Nieznana nazwa komputera"
 msgid "Unknown service name"
 msgstr "Nieznana nazwa usługi"
 
-#: pkg/storaged/crypto-keyslots.jsx:606
+#: pkg/storaged/crypto-keyslots.jsx:604
 msgid "Unknown type"
 msgstr "Nieznany typ"
 
-#: pkg/storaged/content-views.jsx:254 pkg/storaged/content-views.jsx:259
-#: pkg/storaged/content-views.jsx:278
+#: pkg/shell/credentials.jsx:316 pkg/storaged/content-views.jsx:254
+#: pkg/storaged/content-views.jsx:259 pkg/storaged/content-views.jsx:278
 msgid "Unlock"
 msgstr "Odblokuj"
 
-#: pkg/storaged/fsys-tab.jsx:643
+#: pkg/storaged/fsys-tab.jsx:636
 msgid "Unlock automatically on boot"
 msgstr "Automatyczne odblokowywanie podczas uruchamiania"
 
-#: pkg/shell/index.html:171 pkg/shell/index.html:215
-msgid "Unlock key"
-msgstr "Odblokuj klucz"
+#: pkg/shell/credentials.jsx:313
+msgid "Unlock key $0"
+msgstr "Odblokuj klucz $0"
 
 #: pkg/storaged/jobs-panel.jsx:44
 msgid "Unlocking $target"
@@ -7054,12 +7061,12 @@ msgstr "Odblokowywanie $target"
 msgid "Unlocking disk..."
 msgstr "Odblokowywanie dysku…"
 
-#: pkg/networkmanager/network-main.jsx:189
-#: pkg/networkmanager/network-main.jsx:191
+#: pkg/networkmanager/network-main.jsx:194
+#: pkg/networkmanager/network-main.jsx:196
 msgid "Unmanaged interfaces"
 msgstr "Niezarządzane interfejsy"
 
-#: pkg/storaged/content-views.jsx:398 pkg/storaged/fsys-tab.jsx:368
+#: pkg/storaged/content-views.jsx:398 pkg/storaged/fsys-tab.jsx:361
 #: pkg/storaged/nfs-details.jsx:312
 msgid "Unmount"
 msgstr "Odmontuj"
@@ -7089,11 +7096,11 @@ msgstr "Odmontuj i zmniejsz"
 msgid "Unmount and stop device"
 msgstr "Odmontuj i zatrzymaj urządzenie"
 
-#: pkg/storaged/fsys-tab.jsx:362
+#: pkg/storaged/fsys-tab.jsx:355
 msgid "Unmount filesystem"
 msgstr "Odmontuj system plików"
 
-#: pkg/storaged/fsys-tab.jsx:635 pkg/storaged/fsys-tab.jsx:639
+#: pkg/storaged/fsys-tab.jsx:628 pkg/storaged/fsys-tab.jsx:632
 msgid "Unmount now"
 msgstr "Odmontuj teraz"
 
@@ -7187,15 +7194,19 @@ msgid "Uptime"
 msgstr "Czas działania"
 
 #: pkg/storaged/unrecognized-tab.jsx:37
-#: pkg/systemd/overview-cards/usageCard.jsx:116 pkg/metrics/metrics.jsx:1379
-#: pkg/metrics/metrics.jsx:1380 pkg/metrics/metrics.jsx:1381
-#: pkg/metrics/metrics.jsx:1382
+#: pkg/systemd/overview-cards/usageCard.jsx:116 pkg/metrics/metrics.jsx:1380
+#: pkg/metrics/metrics.jsx:1381 pkg/metrics/metrics.jsx:1382
+#: pkg/metrics/metrics.jsx:1383
 msgid "Usage"
 msgstr "Użycie"
 
 #: pkg/storaged/storage-controls.jsx:206
 msgid "Usage of $0"
 msgstr "Użycie $0"
+
+#: pkg/networkmanager/dialogs-common.jsx:94
+msgid "Use"
+msgstr "Użyj"
 
 #: pkg/storaged/vdos-panel.jsx:127
 msgid "Use 512 byte emulation"
@@ -7209,15 +7220,15 @@ msgstr "Kompresja"
 msgid "Use deduplication"
 msgstr "Deduplikacja"
 
-#: pkg/shell/credentials.js:74
+#: pkg/shell/credentials.jsx:135
 msgid "Use key"
 msgstr "Użyj klucza"
 
-#: pkg/shell/index.html:123
+#: pkg/shell/credentials.jsx:87
 msgid "Use the following keys to authenticate against other systems"
 msgstr "Użycie poniższych kluczy do uwierzytelniania w innych systemach"
 
-#: pkg/storaged/swap-tab.jsx:70 pkg/storaged/fsys-tab.jsx:695
+#: pkg/storaged/swap-tab.jsx:70 pkg/storaged/fsys-tab.jsx:688
 #: pkg/metrics/metrics.jsx:525
 msgid "Used"
 msgstr "Używane"
@@ -7270,15 +7281,15 @@ msgstr "Urządzenie VDO $0"
 
 #: pkg/networkmanager/network-interface.jsx:180
 #: pkg/networkmanager/network-interface.jsx:192
-#: pkg/networkmanager/network-interface.jsx:589
+#: pkg/networkmanager/network-interface.jsx:559
 msgid "VLAN"
 msgstr "VLAN"
 
-#: pkg/networkmanager/index.html:50
+#: pkg/networkmanager/vlan.jsx:105
 msgid "VLAN ID"
 msgstr "Identyfikator VLAN"
 
-#: pkg/networkmanager/index.html:463
+#: pkg/networkmanager/vlan.jsx:92
 msgid "VLAN settings"
 msgstr "Ustawienia VLAN"
 
@@ -7302,7 +7313,7 @@ msgstr "Producent"
 msgid "Verified"
 msgstr "Sprawdzono poprawność"
 
-#: pkg/storaged/crypto-keyslots.jsx:379
+#: pkg/storaged/crypto-keyslots.jsx:380
 msgid "Verify key"
 msgstr "Sprawdź poprawność klucza"
 
@@ -7367,7 +7378,7 @@ msgstr "Grupa woluminów $0"
 msgid "Volume size is $0. Content size is $1."
 msgstr "Rozmiar woluminu to $0. Rozmiar zawartości to $1."
 
-#: pkg/networkmanager/interfaces.js:755
+#: pkg/networkmanager/interfaces.js:752
 msgid "Waiting"
 msgstr "Oczekiwanie"
 
@@ -7477,7 +7488,7 @@ msgstr "Głównie zapisywane"
 msgid "Wrong user name or password"
 msgstr "Błędna nazwa użytkownika lub hasło"
 
-#: pkg/networkmanager/interfaces.js:1458
+#: pkg/networkmanager/bond.jsx:46
 msgid "XOR"
 msgstr "XOR"
 
@@ -7485,7 +7496,7 @@ msgstr "XOR"
 msgid "Yearly"
 msgstr "Co roku"
 
-#: pkg/systemd/reporting.jsx:263 pkg/networkmanager/network-interface.jsx:247
+#: pkg/systemd/reporting.jsx:263 pkg/networkmanager/network-interface.jsx:240
 msgid "Yes"
 msgstr "Tak"
 
@@ -7510,7 +7521,7 @@ msgstr ""
 "Brak uprawnienia do wyświetlania upoważnionych publicznych kluczy dla tego "
 "konta."
 
-#: pkg/shell/base_index.js:540
+#: pkg/shell/base_index.js:541
 msgid "You have been logged out due to inactivity."
 msgstr "Wylogowano z powodu nieaktywności."
 
@@ -7527,7 +7538,7 @@ msgstr "Można zmienić hasło klucza do automatycznego logowania."
 msgid "You must wait longer to change your password"
 msgstr "Należy poczekać dłużej na zmianę hasła"
 
-#: pkg/metrics/metrics.jsx:1288
+#: pkg/metrics/metrics.jsx:1289
 msgid "You need to relogin to be able to see metrics history"
 msgstr "Aby wyświetlić historię statystyk, należy się zalogować ponownie"
 
@@ -7541,7 +7552,7 @@ msgstr ""
 msgid "You now have administrative access."
 msgstr "Uzyskano dostęp administracyjny."
 
-#: pkg/shell/base_index.js:518
+#: pkg/shell/base_index.js:519
 msgid "You will be logged out in $0 seconds."
 msgstr "Wylogowanie nastąpi za $0 s."
 
@@ -7726,11 +7737,12 @@ msgid "drive"
 msgstr "napęd"
 
 #: pkg/storaged/lvol-tabs.jsx:422 pkg/storaged/lvol-tabs.jsx:483
-#: pkg/storaged/fsys-tab.jsx:672 pkg/storaged/fsys-tab.jsx:686
-#: pkg/storaged/crypto-tab.jsx:255 pkg/storaged/crypto-tab.jsx:264
+#: pkg/storaged/fsys-tab.jsx:665 pkg/storaged/fsys-tab.jsx:679
+#: pkg/storaged/crypto-tab.jsx:252 pkg/storaged/crypto-tab.jsx:261
 #: pkg/systemd/overview-cards/configurationCard.jsx:49
 #: pkg/users/account-details.js:333 pkg/users/account-details.js:365
-#: pkg/networkmanager/network-interface.jsx:398
+#: pkg/networkmanager/network-interface.jsx:359
+#: pkg/networkmanager/dialogs-common.jsx:223
 msgid "edit"
 msgstr "modyfikuj"
 
@@ -7956,7 +7968,7 @@ msgstr "NBDE"
 msgid "network"
 msgstr "sieć"
 
-#: pkg/storaged/fsys-tab.jsx:503
+#: pkg/storaged/fsys-tab.jsx:496
 msgid "never mounted at boot"
 msgstr "nigdy niemontowane podczas uruchamiania"
 
@@ -7972,7 +7984,7 @@ msgstr "cel zrzutu NFS nie jest sformatowany jako serwer:ścieżka"
 msgid "nice"
 msgstr "nice"
 
-#: pkg/storaged/crypto-tab.jsx:254 pkg/storaged/crypto-tab.jsx:263
+#: pkg/storaged/crypto-tab.jsx:251 pkg/storaged/crypto-tab.jsx:260
 #: pkg/tuned/dialog.js:103
 msgid "none"
 msgstr "brak"
@@ -8041,15 +8053,15 @@ msgstr "pcp"
 msgid "plugin"
 msgstr "wtyczka"
 
-#: pkg/metrics/metrics.jsx:1309
+#: pkg/metrics/metrics.jsx:1310
 msgid "pmlogger.service has failed"
 msgstr "pmlogger.service się nie powiodło"
 
-#: pkg/metrics/metrics.jsx:1311
+#: pkg/metrics/metrics.jsx:1312
 msgid "pmlogger.service is failing to collect data"
 msgstr "pmlogger.service nie może zbierać danych"
 
-#: pkg/metrics/metrics.jsx:1302
+#: pkg/metrics/metrics.jsx:1303
 msgid "pmlogger.service is not running"
 msgstr "pmlogger.service nie jest uruchomione"
 
@@ -8069,7 +8081,7 @@ msgstr "RAID"
 msgid "ram"
 msgstr "RAM"
 
-#: pkg/storaged/fsys-tab.jsx:501
+#: pkg/storaged/fsys-tab.jsx:494
 msgid "read only"
 msgstr "tylko do odczytu"
 
@@ -8264,7 +8276,7 @@ msgstr "ostrzeżenie"
 msgid "will be applied $0 at $1"
 msgstr "zostaną zastosowane $0 o $1"
 
-#: pkg/storaged/crypto-tab.jsx:254
+#: pkg/storaged/crypto-tab.jsx:251
 msgid "yes"
 msgstr "tak"
 
@@ -8279,6 +8291,40 @@ msgstr "strefa"
 #: pkg/shell/machines/machine-invalid-hostkey.html:2
 msgid "{{host}} key changed"
 msgstr "Zmieniono klucz {{host}}"
+
+#~ msgid "Clear mount point configuration"
+#~ msgstr "Wyczyść konfigurację punktu montowania"
+
+#~ msgid ""
+#~ "Creating this bond will break the connection to the server, and will make "
+#~ "the administration UI unavailable."
+#~ msgstr ""
+#~ "Utworzenie tego wiązania zerwie połączenie z serwerem i uniemożliwi "
+#~ "korzystanie z interfejsu administracji."
+
+#~ msgid ""
+#~ "Creating this bridge will break the connection to the server, and will "
+#~ "make the administration UI unavailable."
+#~ msgstr ""
+#~ "Utworzenie tego mostka zerwie połączenie z serwerem i uniemożliwi "
+#~ "korzystanie z interfejsu administracji."
+
+#~ msgid ""
+#~ "Creating this team will break the connection to the server, and will make "
+#~ "the administration UI unavailable."
+#~ msgstr ""
+#~ "Utworzenie tego zespołu zerwie połączenie z serwerem i uniemożliwi "
+#~ "korzystanie z interfejsu administracji."
+
+#~ msgid "IP settings"
+#~ msgstr "Ustawienia IP"
+
+#~ msgid ""
+#~ "Switching off <b>$0</b>  will break the connection to the server, and "
+#~ "will make the administration UI unavailable."
+#~ msgstr ""
+#~ "Wyłączenie <b>$0</b> zerwie połączenie z serwerem i uniemożliwi "
+#~ "korzystanie z interfejsu administracji."
 
 #~ msgid "Administrator password"
 #~ msgstr "Hasło administratora"
@@ -8882,9 +8928,6 @@ msgstr "Zmieniono klucz {{host}}"
 
 #~ msgid "Interface type"
 #~ msgstr "Typ interfejsu"
-
-#~ msgid "Invalid IPv4 address"
-#~ msgstr "Nieprawidłowy adres IPv4"
 
 #~ msgid "Invalid IPv4 mask or prefix length"
 #~ msgstr "Nieprawidłowa długość maski lub przedrostka IPv4"
@@ -10275,9 +10318,6 @@ msgstr "Zmieniono klucz {{host}}"
 
 #~ msgid "Force delete"
 #~ msgstr "Wymuś usunięcie"
-
-#~ msgid "Gateway:"
-#~ msgstr "Brama:"
 
 #~ msgid "Get new image"
 #~ msgstr "Pobierz nowy obraz"

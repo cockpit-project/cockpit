@@ -486,6 +486,50 @@ class TestConnection(MachineCase):
 
         self.allow_journal_messages('peer did not close io when expected')
 
+    @skipImage("OSTree doesn't have cockpit-ws", "fedora-coreos")
+    def test100YearsCert(self):
+        m = self.machine
+
+        selfsign = '/etc/cockpit/ws-certs.d/0-self-signed.cert'
+        helper = f'{self.libexecdir}/cockpit-certificate-helper'
+        ensure = f'{self.libexecdir}/cockpit-certificate-ensure'
+
+        # Ensure things are as we expect them to be
+        m.execute(f'grep DAYS=395 {helper}')
+        m.execute(f'test ! -e {selfsign}')
+
+        # Generate a 100 years expiry certificate
+        self.sed_file('s/DAYS=395/DAYS=36500/', helper)
+        m.execute(f'grep DAYS=36500 {helper}')  # double-check
+        m.execute(ensure)
+
+        # Verify the expiry date to be in the far-future.  This is a bit
+        # annoying due to the date format OpenSSL uses (which Python can't
+        # trivially parse) and the question of locales
+        expires = m.execute(f'date -d "$(openssl x509 -enddate -noout < {selfsign} | cut -f2 -d=)" +%s')
+        self.assertTrue(int(expires) > time.time() + 99 * 365 * 24 * 60 * 60)
+
+        # Put things back: avoid problematic multiple invocations of .sed_file()
+        m.execute(f'sed -i s/DAYS=36500/DAYS=395/ {helper}')
+        m.execute(f'grep DAYS=395 {helper}')  # double-check
+
+        # Run ensure again and make sure we get a new certificate
+        m.execute('touch /tmp/timestamp')
+        m.execute(ensure)
+        m.execute(f'test {selfsign} -nt /tmp/timestamp')
+        m.execute('rm /tmp/timestamp')
+
+        # Check that the expiry is less than 420 days
+        # See https://github.com/sgallagher/sscg/pull/28 for why 420
+        expires = m.execute(f'date -d "$(openssl x509 -enddate -noout < {selfsign} | cut -f2 -d=)" +%s')
+        self.assertTrue(int(expires) < time.time() + 420 * 24 * 60 * 60)
+
+        # Run ensure again and make sure we *don't* get a new certificate
+        m.execute('touch /tmp/timestamp')
+        m.execute(ensure)
+        m.execute(f'test ! {selfsign} -nt /tmp/timestamp')
+        m.execute('rm /tmp/timestamp')
+
     @skipImage("OSTree doesn't use systemd units", "fedora-coreos")
     def testSocket(self):
         m = self.machine

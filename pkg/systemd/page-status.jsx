@@ -20,8 +20,16 @@
 import cockpit from "cockpit";
 
 import React from "react";
-import { Button, Flex } from "@patternfly/react-core";
-import { ExclamationCircleIcon, InfoCircleIcon, WarningTriangleIcon } from '@patternfly/react-icons';
+import { Button, Flex, Spinner } from "@patternfly/react-core";
+import {
+    BugIcon,
+    CheckIcon,
+    EnhancementIcon,
+    ExclamationCircleIcon,
+    InfoCircleIcon,
+    SecurityIcon,
+    WarningTriangleIcon,
+} from '@patternfly/react-icons';
 
 import { page_status } from "notifications";
 
@@ -32,6 +40,22 @@ function icon_for_type(type) {
         return <WarningTriangleIcon className="ct-exclamation-triangle" />;
     else
         return <InfoCircleIcon className="ct-info-circle" />;
+}
+
+function get_pficon(name) {
+    // set data-pficon for the tests
+    if (name == "security")
+        return <SecurityIcon data-pficon={name} />;
+    if (name == "enhancement")
+        return <EnhancementIcon data-pficon={name} />;
+    if (name == "bug")
+        return <BugIcon data-pficon={name} />;
+    if (name == "check")
+        return <CheckIcon color="green" data-pficon={name} />;
+    if (name == "spinner")
+        return <Spinner isSVG size="sm" data-pficon={name} />;
+
+    throw new Error(`get_pficon(): unknown icon name ${name}`);
 }
 
 export class PageStatusNotifications extends React.Component {
@@ -69,6 +93,8 @@ export class PageStatusNotifications extends React.Component {
                 let icon;
                 if (status.details && status.details.icon)
                     icon = <span className={status.details.icon} />;
+                else if (status.details && status.details.pficon)
+                    icon = get_pficon(status.details.pficon);
                 else
                     icon = icon_for_type(status.type);
                 return (

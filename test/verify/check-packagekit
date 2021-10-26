@@ -74,7 +74,10 @@ class TestUpdates(NoSubManCase):
         else:
             self.enhancement_severity = "bug"
 
-        self.update_icon = "#page_status_notification_updates span:first-child"
+        if self.machine.image == 'rhel-8-5-distropkg':
+            self.update_icon = "#page_status_notification_updates span:first-child"
+        else:
+            self.update_icon = "#page_status_notification_updates svg"
         self.update_text = "#page_status_notification_updates"
         self.update_text_action = "#page_status_notification_updates a"
 
@@ -95,7 +98,6 @@ class TestUpdates(NoSubManCase):
         if arch is None:
             arch = self.primary_arch
         row = "#available-updates table[aria-label='Available updates'] > tbody:nth-of-type(%i) " % index
-        severity_to_icon = {"bug": "fa-bug", "enhancement": "pficon-enhancement", "security": "pficon-security"}
 
         if isinstance(pkgname, list):
             for idx, pkg in enumerate(pkgname, 1):
@@ -108,7 +110,8 @@ class TestUpdates(NoSubManCase):
             b.wait_not_present(".pf-c-tooltip")
         self.assertEqual(b.text(row + "[data-label=Version]"), version)
         # verify type
-        self.assertTrue(b.is_present(row + "[data-label=Severity] span." + severity_to_icon[severity]))
+        severity_to_aria = {"bug": "bug fix", "enhancement": "enhancement", "security": "security"}
+        b.wait_visible(f"{row} [data-label=Severity] .severity-icon[aria-label='{severity_to_aria[severity]}']")
         self.assertEqual(b.text(row + "[data-label=Severity]").strip(),
                          num_issues is not None and str(num_issues) or "")
 
@@ -132,7 +135,7 @@ class TestUpdates(NoSubManCase):
         good_count = 0
         for retry in range(60):
             classes = self.browser.attr(self.update_icon, "class")
-            if classes is None or "spinner" in classes:
+            if classes is not None and "pf-c-spinner" in classes:
                 good_count = 0
             else:
                 good_count += 1
@@ -297,7 +300,8 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         # status on /system front page: no repos at all, thus no updates
         self.wait_checking_updates()
         b.wait_text(self.update_text, "System is up to date")
-        self.assertEqual(b.attr(self.update_icon, "class"), "fa fa-check-circle-o")
+        if m.image != 'rhel-8-5-distropkg':  # changed in #16520
+            self.assertEqual(b.attr(self.update_icon, "data-pficon"), "check")
 
         # no updates on the Software Updates page
         b.go("/updates")
@@ -331,7 +335,8 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         b.enter_page("/system")
         self.wait_checking_updates()
         b.wait_text(self.update_text, "Bug fix updates available")
-        self.assertIn("fa-bug", b.attr(self.update_icon, "class"))
+        if m.image != 'rhel-8-5-distropkg':  # changed in #16520
+            self.assertEqual(b.attr(self.update_icon, "data-pficon"), "bug")
         # should be a link, click on it to go to /updates
         b.click(self.update_text_action)
         b.enter_page("/updates")
@@ -387,7 +392,8 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         b.go("/system")
         b.enter_page("/system")
         self.wait_checking_updates()
-        self.assertEqual(b.attr(self.update_icon, "class"), "fa fa-check-circle-o")
+        if m.image != 'rhel-8-5-distropkg':  # changed in #16520
+            self.assertEqual(b.attr(self.update_icon, "data-pficon"), "check")
         b.wait_text(self.update_text, "System is up to date")
 
     @skipImage("tracer not available", *OSesWithoutTracer)
@@ -706,7 +712,7 @@ ExecStart=/usr/local/bin/{0}
         self.assertNotIn("<li>", ch)
         self.assertNotIn("*", ch)
         # should show bug fix icon and pf-c-tooltip
-        self.assertIn("fa-bug", b.attr(sel + " .severity-icon", "class"))
+        self.assertEqual(b.attr(sel + " .severity-icon", "aria-label"), "bug fix")
         b.mouse(sel + " .severity-icon", "mouseenter")
         b.wait_text(".pf-c-tooltip", "bug fix")
         b.mouse(sel + " .severity-icon", "mouseleave")
@@ -730,7 +736,8 @@ ExecStart=/usr/local/bin/{0}
         b.enter_page("/system")
         self.wait_checking_updates()
         b.wait_text(self.update_text, "Security updates available")
-        self.assertIn("security", b.attr(self.update_icon, "class"))
+        if m.image != 'rhel-8-5-distropkg':  # changed in #16520
+            b.wait_attr(self.update_icon, "data-pficon", "security")
 
         # should be a link, click on it to go to back to /updates
         b.click(self.update_text_action)
@@ -993,7 +1000,8 @@ ExecStart=/usr/local/bin/{0}
         b.go("/system")
         b.enter_page("/system")
         b.wait_text(self.update_text, "Loading available updates failed")
-        self.assertIn("exclamation", b.attr(self.update_icon, "class"))
+        if m.image != 'rhel-8-5-distropkg':  # changed in #16520
+            self.assertIn("exclamation", b.attr(self.update_icon, "class"))
 
     @skipDistroPackage()
     def testUnprivileged(self):
@@ -1164,7 +1172,7 @@ class TestUpdatesSubscriptions(PackageCase):
 
         # Wait for the web service to be accessible
         m.execute(script=WAIT_SCRIPT % {"addr": "10.111.112.100"})
-        self.update_icon = "#page_status_notification_updates span:first-child"
+        self.update_icon = "#page_status_notification_updates svg"
         self.update_text = "#page_status_notification_updates"
         self.update_text_action = "#page_status_notification_updates a"
 
@@ -1177,7 +1185,8 @@ class TestUpdatesSubscriptions(PackageCase):
         b.login_and_go("/system")
         # show unregistered status on system front page
         b.wait_in_text(self.update_text, "Not registered")
-        self.assertIn("triangle", b.attr(self.update_icon, "class"))
+        if m.image != 'rhel-8-5-distropkg':  # changed in #16520
+            self.assertIn("triangle", b.attr(self.update_icon, "class"))
 
         # software updates page also shows unregistered
         b.go("/updates")
@@ -1202,7 +1211,8 @@ class TestUpdatesSubscriptions(PackageCase):
         # same on system page
         b.go("/system")
         b.enter_page("/system")
-        self.assertEqual(b.attr(self.update_icon, "class"), "fa fa-check-circle-o")
+        if m.image != 'rhel-8-5-distropkg':  # changed in #16520
+            self.assertEqual(b.attr(self.update_icon, "data-pficon"), "check")
         b.wait_text(self.update_text, "System is up to date")
 
     def testAvailableUpdates(self):
@@ -1219,7 +1229,8 @@ class TestUpdatesSubscriptions(PackageCase):
         b.login_and_go("/system")
         # by default our rhel-* images are not registered; show warning on system page
         b.wait_in_text(self.update_text, "Not registered")
-        self.assertIn("triangle", b.attr(self.update_icon, "class"))
+        if m.image != 'rhel-8-5-distropkg':  # changed in #16520
+            self.assertIn("triangle", b.attr(self.update_icon, "class"))
         # should be a link leading to subscriptions page
         b.click(self.update_text_action)
         b.enter_page("/subscriptions")
@@ -1249,7 +1260,8 @@ class TestUpdatesSubscriptions(PackageCase):
         b.go("/system")
         b.enter_page("/system")
         b.wait_text(self.update_text, "Bug fix updates available")
-        self.assertIn("fa-bug", b.attr(self.update_icon, "class"))
+        if m.image != 'rhel-8-5-distropkg':  # changed in #16520
+            self.assertEqual(b.attr(self.update_icon, "data-pficon"), "bug")
 
     def testNoSubOsRepo(self):
         m = self.machine

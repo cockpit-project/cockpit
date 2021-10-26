@@ -34,12 +34,15 @@ import {
     Text, TextContent, TextListItem, TextList, TextVariants,
 } from '@patternfly/react-core';
 import {
+    BugIcon,
     CheckIcon,
+    EnhancementIcon,
     ExclamationCircleIcon,
     ExclamationTriangleIcon,
     RebootingIcon,
     RedoIcon,
-    ProcessAutomationIcon
+    ProcessAutomationIcon,
+    SecurityIcon,
 } from "@patternfly/react-icons";
 import { cellWidth, TableText } from "@patternfly/react-table";
 import { Remarkable } from "remarkable";
@@ -182,6 +185,36 @@ function find_highest_severity(updates) {
     return max;
 }
 
+/**
+ * Get appropriate icon for an update severity
+ *
+ * info: An Enum.INFO_* level
+ * secSeverity: If given, further classification of the severity of Enum.INFO_SECURITY from the vendor_urls;
+ *              e. g. "critical", see https://access.redhat.com/security/updates/classification
+ * Returns: Icon JSX object
+ *
+ */
+function getSeverityIcon(info, secSeverity) {
+    let classes = "severity-icon";
+    if (secSeverity)
+        classes += " severity-" + secSeverity;
+    if (info == PK.Enum.INFO_SECURITY)
+        return <SecurityIcon aria-label={ secSeverity || _("security") } className={classes} />;
+    else if (info >= PK.Enum.INFO_NORMAL)
+        return <BugIcon className={classes} aria-label={ _("bug fix") } />;
+    else
+        return <EnhancementIcon className={classes} aria-label={ _("enhancement") } />;
+}
+
+function getPageStatusSeverityIcon(severity) {
+    if (severity == PK.Enum.INFO_SECURITY)
+        return "security";
+    else if (severity >= PK.Enum.INFO_NORMAL)
+        return "bug";
+    else
+        return "enhancement";
+}
+
 function getSeverityURL(urls) {
     if (!urls)
         return null;
@@ -238,7 +271,7 @@ function updateItem(info, pkgNames, key) {
 
     let secSeverityURL = getSeverityURL(info.vendor_urls);
     const secSeverity = secSeverityURL ? secSeverityURL.slice(secSeverityURL.indexOf("#") + 1) : null;
-    const iconClasses = PK.getSeverityIcon(info.severity, secSeverity);
+    const icon = getSeverityIcon(info.severity, secSeverity);
     let type;
     if (info.severity === PK.Enum.INFO_SECURITY) {
         if (secSeverityURL)
@@ -246,7 +279,7 @@ function updateItem(info, pkgNames, key) {
         type = (
             <>
                 <Tooltip id="tip-severity" content={ secSeverity || _("security") }>
-                    <span aria-label={secSeverity || _("security")} className={iconClasses + ' severity-icon'} />
+                    {icon}
                     { (info.cve_urls && info.cve_urls.length > 0) ? info.cve_urls.length : "" }
                 </Tooltip>
             </>);
@@ -254,7 +287,7 @@ function updateItem(info, pkgNames, key) {
         const tip = (info.severity >= PK.Enum.INFO_NORMAL) ? _("bug fix") : _("enhancement");
         type = (
             <Tooltip id="tip-severity" content={tip}>
-                <span aria-label={tip} className={iconClasses + ' severity-icon'} />
+                {icon}
                 { bugs ? info.bug_urls.length : "" }
             </Tooltip>
         );
@@ -727,7 +760,7 @@ const UpdatesStatus = ({ updates, highestSeverity, timeSinceRefresh, tracerPacka
             notifications.push({
                 id: "security-updates-available",
                 stateStr: cockpit.format(stateStr, numSecurity),
-                icon: <span id="icon" className={PK.getSeverityIcon(highestSeverity)} />,
+                icon: getSeverityIcon(highestSeverity),
                 secondary: <Text id="last-checked" component={TextVariants.small}>{lastChecked}</Text>
             });
         } else {
@@ -737,7 +770,7 @@ const UpdatesStatus = ({ updates, highestSeverity, timeSinceRefresh, tracerPacka
             notifications.push({
                 id: "updates-available",
                 stateStr: cockpit.format(stateStr, numUpdates, numSecurity),
-                icon: <span id="icon" className={PK.getSeverityIcon(highestSeverity)} />,
+                icon: getSeverityIcon(highestSeverity),
                 secondary: <Text id="last-checked" component={TextVariants.small}>{lastChecked}</Text>
             });
         }
@@ -1277,7 +1310,6 @@ class OsUpdates extends React.Component {
                 title: _("Not registered"),
                 details: {
                     link: "subscriptions",
-                    icon: "fa fa-exclamation-triangle"
                 }
             });
 
@@ -1300,7 +1332,7 @@ class OsUpdates extends React.Component {
                 title: _("Checking for package updates..."),
                 details: {
                     link: false,
-                    icon: "spinner spinner-xs",
+                    pficon: "spinner",
                 }
             });
 
@@ -1345,7 +1377,7 @@ class OsUpdates extends React.Component {
                 type: num_security_updates > 0 ? "warning" : "info",
                 title: text,
                 details: {
-                    icon: PK.getSeverityIcon(highest_severity)
+                    pficon: getPageStatusSeverityIcon(highest_severity)
                 }
             });
 
@@ -1381,9 +1413,6 @@ class OsUpdates extends React.Component {
             page_status.set_own({
                 type: "error",
                 title: STATE_HEADINGS[this.state.state],
-                details: {
-                    icon: "fa fa-exclamation-circle"
-                }
             });
 
             return (
@@ -1473,7 +1502,7 @@ class OsUpdates extends React.Component {
                 title: STATE_HEADINGS[this.state.state],
                 details: {
                     link: false,
-                    icon: "fa fa-check-circle-o"
+                    pficon: "check",
                 }
             });
 

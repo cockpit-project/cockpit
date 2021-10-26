@@ -129,15 +129,4 @@
     .pf-c-toolbar__expandable-content.pf-m-expanded .pf-c-divider {
         display: none;
    }
-
-   // HACK: Not possible to specify text, so needs some hacks, see https://github.com/patternfly/patternfly-react/issues/6140
-   .pf-c-toolbar__toggle {
-       .pf-c-button.pf-m-plain {
-            color: unset;
-        }
-
-       svg {
-           color: var(--pf-c-button--m-plain--Color);
-       }
-   }
 }

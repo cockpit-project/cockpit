@@ -19,7 +19,7 @@
 import cockpit from "cockpit";
 import React, { useState } from "react";
 import { Button, DatePicker, Flex, Popover, Select, SelectOption, SelectVariant, Spinner, TimePicker } from '@patternfly/react-core';
-import { ExclamationCircleIcon, InfoCircleIcon } from "@patternfly/react-icons";
+import { CloseIcon, ExclamationCircleIcon, InfoCircleIcon, PlusIcon } from "@patternfly/react-icons";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { useObject, useEvent } from "hooks.js";
 
@@ -477,15 +477,12 @@ function ChangeSystimeBody({ state, errors, change }) {
                 onChange={event => change_server(event, i, event.target.value)} />
                         </td>
                         <td>
-                            <button onClick={event => add_server(event, i)} className="pf-c-button pf-m-secondary">
-                                <span className="fa fa-plus" />
-                            </button>
+                            <Button variant="secondary" onClick={event => add_server(event, i)} icon={ <PlusIcon /> } />
                         </td>
                         <td>
-                            <button onClick={event => remove_server(event, i)} className="pf-c-button pf-m-secondary"
-                            disabled={i == custom_ntp.servers.length - 1}>
-                                <span className="pficon-close" />
-                            </button>
+                            <Button variant="secondary" onClick={event => remove_server(event, i)}
+                                    icon={ <CloseIcon /> }
+                                    isDisabled={i == custom_ntp.servers.length - 1} />
                         </td>
                     </tr>))
                 }

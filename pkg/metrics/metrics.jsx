@@ -17,13 +17,13 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 
 import {
     Alert,
     Breadcrumb, BreadcrumbItem,
     Button,
-    Card, CardTitle, CardBody, Gallery,
+    Card, CardActions, CardHeader, CardTitle, CardBody, Gallery,
     DescriptionList, DescriptionListGroup, DescriptionListTerm, DescriptionListDescription,
     Flex, FlexItem,
     Modal,
@@ -36,6 +36,8 @@ import {
 } from '@patternfly/react-core';
 import { Table, TableHeader, TableBody, TableGridBreakpoint, TableVariant, TableText, RowWrapper, cellWidth } from '@patternfly/react-table';
 import { ExclamationCircleIcon, CogIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
+import * as d3 from 'd3';
+import { flamegraph } from 'd3-flame-graph';
 
 import cockpit from 'cockpit';
 import * as machine_info from "../lib/machine-info.js";
@@ -44,7 +46,7 @@ import * as service from "service";
 import * as timeformat from "timeformat";
 import { superuser } from "superuser";
 import { journal } from "journal";
-import { useObject, useEvent } from "hooks.js";
+import { useObject, useEvent, usePageLocation } from "hooks.js";
 
 import { EmptyStatePanel } from "../lib/cockpit-components-empty-state.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
@@ -467,7 +469,12 @@ class CurrentMetrics extends React.Component {
         return (
             <Gallery className="current-metrics" hasGutter>
                 <Card id="current-metrics-card-cpu">
-                    <CardTitle>{ _("CPU") }</CardTitle>
+                    <CardHeader>
+                        <CardTitle>{ _("CPU") }</CardTitle>
+                        <CardActions>
+                            <Button isInline variant="secondary" onClick={() => cockpit.location.go(["flamegraphs"])}>{_("View perfomance analysis graph")}</Button>
+                        </CardActions>
+                    </CardHeader>
                     <CardBody>
                         <div className="progress-stack">
                             {cores !== null ? <Tooltip content={ cores } position="bottom">
@@ -1404,37 +1411,107 @@ class MetricsHistory extends React.Component {
 }
 
 export const Application = () => {
+    const { path } = usePageLocation();
     const [firewalldRequest, setFirewalldRequest] = useState(null);
     const [needsLogout, setNeedsLogout] = useState(false);
+
+    if (path.length == 0) {
+        return <Page groupProps={{ sticky: 'top' }}
+              additionalGroupedContent={
+                  <PageSection id="metrics-header-section" variant={PageSectionVariants.light}>
+                      <Flex>
+                          <FlexItem>
+                              <Breadcrumb>
+                                  <BreadcrumbItem onClick={() => cockpit.jump("/system")} to="#">{_("Overview")}</BreadcrumbItem>
+                                  <BreadcrumbItem isActive>{_("Performance Metrics")}</BreadcrumbItem>
+                              </Breadcrumb>
+                          </FlexItem>
+                          <FlexItem align={{ default: 'alignRight' }}>
+                              <PCPConfig buttonVariant="secondary"
+                                         firewalldRequest={setFirewalldRequest}
+                                         needsLogout={needsLogout}
+                                         setNeedsLogout={setNeedsLogout} />
+                          </FlexItem>
+                      </Flex>
+                  </PageSection>
+              }>
+            { firewalldRequest &&
+                <FirewalldRequest service={firewalldRequest.service} title={firewalldRequest.title} pageSection /> }
+            <PageSection>
+                <CurrentMetrics />
+            </PageSection>
+            <PageSection>
+                <MetricsHistory firewalldRequest={setFirewalldRequest}
+                                needsLogout={needsLogout}
+                                setNeedsLogout={setNeedsLogout} />
+            </PageSection>
+        </Page>;
+    } else {
+        return <Flamegraph />;
+    }
+};
+
+const Flamegraph = () => {
+    const [error, setError] = useState();
+    const [flamegraphGenerating, setFlamegraphGenerating] = useState(false);
+    const [flamegraphRecording, setFlamegraphRecording] = useState(false);
+    const [perfReportData, setPerfReportData] = useState();
+
+    const generateGraph = useCallback(() => {
+        // FIXME this should be done in renderFlamegraph
+        setFlamegraphGenerating(true);
+        setFlamegraphRecording(true);
+        cockpit.spawn(["perf", "record", "-a", "-g", "-F", "99", "sleep", "10"], { pty: true, superuser: true, err: "message" })
+                .then(() => cockpit.spawn(["perf", "script", "report", "flamegraph", "-f", "json", "-o", "-", "-i", "-"], { pty: true, superuser: true, err: "message" }))
+                .then(setPerfReportData)
+                .catch(setError)
+                .finally(() => setFlamegraphRecording(false));
+    }, []);
+
+    useEffect(() => {
+        const renderFlamegraph = () => {
+            // FIXME: These are just guess numbers for counting in the existing elements and paddings
+            const chart = flamegraph()
+                    .width(document.documentElement.clientWidth - 100)
+                    .height(document.documentElement.clientHeight - 100);
+
+            d3.select("#chart")
+                    .datum(JSON.parse(perfReportData))
+                    .call(chart);
+
+            setFlamegraphGenerating(false);
+        };
+
+        if (perfReportData)
+            renderFlamegraph();
+    }, [perfReportData]);
+
+    useEffect(() => {
+        generateGraph();
+    }, [generateGraph]);
 
     return <Page groupProps={{ sticky: 'top' }}
           additionalGroupedContent={
               <PageSection id="metrics-header-section" variant={PageSectionVariants.light}>
                   <Flex>
-                      <FlexItem>
-                          <Breadcrumb>
-                              <BreadcrumbItem onClick={() => cockpit.jump("/system")} to="#">{_("Overview")}</BreadcrumbItem>
-                              <BreadcrumbItem isActive>{_("Performance Metrics")}</BreadcrumbItem>
-                          </Breadcrumb>
-                      </FlexItem>
+                      <Breadcrumb>
+                          <BreadcrumbItem onClick={() => cockpit.jump("/system")} to="#">{_("Overview")}</BreadcrumbItem>
+                          <BreadcrumbItem onClick={() => cockpit.jump("/metrics")} to="#">{_("Performance metrics")}</BreadcrumbItem>
+                          <BreadcrumbItem isActive>{_("Flamegraphs")}</BreadcrumbItem>
+                      </Breadcrumb>
+                      {perfReportData &&
                       <FlexItem align={{ default: 'alignRight' }}>
-                          <PCPConfig buttonVariant="secondary"
-                                     firewalldRequest={setFirewalldRequest}
-                                     needsLogout={needsLogout}
-                                     setNeedsLogout={setNeedsLogout} />
-                      </FlexItem>
+                          <Button isLoading={flamegraphRecording} isDisabled={flamegraphRecording} onClick={generateGraph}>
+                              {_("Re-generate graph")}
+                          </Button>
+                      </FlexItem>}
                   </Flex>
               </PageSection>
           }>
-        { firewalldRequest &&
-            <FirewalldRequest service={firewalldRequest.service} title={firewalldRequest.title} pageSection /> }
         <PageSection>
-            <CurrentMetrics />
-        </PageSection>
-        <PageSection>
-            <MetricsHistory firewalldRequest={setFirewalldRequest}
-                            needsLogout={needsLogout}
-                            setNeedsLogout={setNeedsLogout} />
+            {(flamegraphRecording || flamegraphGenerating || !perfReportData) && <EmptyStatePanel loading title={flamegraphRecording ? _("Recording performance data") : _("Generating new graph")} />}
+            {error && <EmptyStatePanel icon={ExclamationCircleIcon} title={error} />}
+            <div id="chart" />
         </PageSection>
     </Page>;
 };

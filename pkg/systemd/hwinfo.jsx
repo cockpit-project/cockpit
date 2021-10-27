@@ -43,6 +43,7 @@ import {
     Breadcrumb, BreadcrumbItem,
     Modal, Switch,
 } from '@patternfly/react-core';
+import { ExternalLinkAltIcon } from "@patternfly/react-icons";
 import { SortByDirection } from "@patternfly/react-table";
 import { ListingTable } from "cockpit-components-table.jsx";
 
@@ -219,7 +220,7 @@ class CPUSecurityMitigationsDialog extends React.Component {
                                         <div className='nosmt-heading'>{ _("Disable simultaneous multithreading") } (nosmt)</div>
                                         <small className='nosmt-read-more-link'>
                                             <a href="https://access.redhat.com/security/vulnerabilities/L1TF" target="_blank" rel="noopener noreferrer">
-                                                <i className="fa fa-external-link" aria-hidden="true" /> { _("Read more...") }
+                                                <ExternalLinkAltIcon /> { _("Read more...") }
                                             </a>
                                         </small>
                                     </span>

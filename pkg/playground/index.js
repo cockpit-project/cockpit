@@ -1,4 +1,5 @@
-import '../lib/patternfly/patternfly-cockpit.scss';
+import '../lib/patternfly/patternfly-4-cockpit.scss';
+import "../../node_modules/@patternfly/patternfly/components/Button/button.css";
 import cockpit from "cockpit";
 import { page_status } from "notifications";
 

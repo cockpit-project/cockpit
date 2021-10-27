@@ -1,6 +1,6 @@
 import cockpit from "cockpit";
 
-import '../lib/patternfly/patternfly-cockpit.scss';
+import '../lib/patternfly/patternfly-4-cockpit.scss';
 
 const _ = cockpit.gettext;
 const C_ = cockpit.gettext;

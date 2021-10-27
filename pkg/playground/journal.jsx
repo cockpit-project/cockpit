@@ -20,7 +20,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import '../lib/patternfly/patternfly-cockpit.scss';
+import '../lib/patternfly/patternfly-4-cockpit.scss';
 import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
 import "page.scss";
 

@@ -58,13 +58,13 @@ along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
                             </div>
                             <h4 class="pf-c-alert__title alert-message" translate="yes">The generated archive contains data considered sensitive and its content should be reviewed by the originating organization before being passed to any third party.</h4>
                         </div>
-                        <div id="sos-progress" class="text-center">
-                            <div translate="yes">Generating report</div>
-                            <div class="progress">
-                                <div class="progress-bar" role="progressbar"></div>
+                        <div id="sos-progress" class="pf-c-progress">
+                            <div id="sos-progress-description" class="pf-c-progress__description" translate="yes">Generating report</div>
+                            <div class="pf-c-progress__bar" role="progressbar" aria-labelledby="sos-progress-description">
+                                <div class="pf-c-progress__indicator"></div>
                             </div>
                         </div>
-                        <div id="sos-download" class="text-center">
+                        <div id="sos-download">
                             <div translate="yes">Done!</div>
                             <button class="pf-c-button pf-m-primary" translate>Download report</button>
                         </div>

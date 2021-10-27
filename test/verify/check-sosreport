@@ -57,7 +57,7 @@ only-plugins=release,date,host,cgroups,networking
         b.wait_visible("#sos")
 
         with b.wait_timeout(540):
-            b.wait(lambda: b.eval_js('ph_find(".progress-bar").offsetWidth') > 0)
+            b.wait(lambda: b.eval_js('ph_find("#sos-progress .pf-c-progress__bar").offsetWidth') > 0)
             b.wait_visible("#sos-download")
 
         if b.cdp.browser.name == "chromium":

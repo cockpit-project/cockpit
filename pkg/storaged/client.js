@@ -900,10 +900,36 @@ client.vdo_overlay = vdo_overlay();
 /* Stratis */
 
 client.stratis_start = () => {
+    return stratis2_start()
+            .catch(error => {
+                if (error.problem == "not-found")
+                    return stratis3_start();
+                return Promise.reject(error);
+            });
+};
+
+function stratis3_start() {
+    // We don't support version 3 yet, just fail if we can connect to
+    // it.
+
+    const stratis = cockpit.dbus("org.storage.stratis3", { superuser: "try" });
+    const stratis_manager = stratis.proxy("org.storage.stratis3.Manager.r0",
+                                          "/org/storage/stratis3");
+
+    return stratis_manager.wait()
+            .then(() => {
+                client.features.stratis_found = true;
+                return Promise.reject(new Error("stratisd too new, need version 2, not 3"));
+            });
+}
+
+function stratis2_start() {
     const stratis = cockpit.dbus("org.storage.stratis2", { superuser: "try" });
     client.stratis_manager = stratis.proxy("org.storage.stratis2.Manager.r1",
                                            "/org/storage/stratis2");
 
+    // The rest of the code expects these to be initialized even if no
+    // stratisd is found.
     client.stratis_pools = { };
     client.stratis_blockdevs = { };
     client.stratis_filesystems = { };
@@ -912,8 +938,12 @@ client.stratis_start = () => {
 
     return client.stratis_manager.wait()
             .then(() => {
+                client.features.stratis_found = true;
+
                 if (utils.compare_versions(client.stratis_manager.Version, "2.4") < 0)
                     return Promise.reject(new Error("stratisd too old, need at least version 2.4"));
+                if (utils.compare_versions(client.stratis_manager.Version, "3") >= 0)
+                    return Promise.reject(new Error("stratisd too new, need a version less than 3"));
 
                 client.features.stratis = true;
                 client.stratis_pools = client.stratis_manager.client.proxies("org.storage.stratis2.pool.r1",
@@ -969,7 +999,7 @@ client.stratis_start = () => {
                     return true;
                 });
             });
-};
+}
 
 function stratis_fetch_properties(proxy, props) {
     const stratis = client.stratis_manager.client;

@@ -35,7 +35,7 @@ const _ = cockpit.gettext;
 export function stratis_feature(client) {
     return {
         is_enabled: () => client.features.stratis,
-        package: client.get_config("stratis_package", false),
+        package: !client.features.stratis_found && client.get_config("stratis_package", false),
         enable: () => {
             return cockpit.spawn(["systemctl", "start", "stratisd"], { superuser: true })
                     .then(() => client.stratis_start());

@@ -20,6 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 import { Button, Card, CardBody, CardTitle, Split, SplitItem, Spinner } from "@patternfly/react-core";
+import { ExternalLinkAltIcon } from "@patternfly/react-icons";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { superuser } from "superuser";
 
@@ -391,19 +392,17 @@ function WorkflowRow(props) {
     let status = props.message;
 
     if (props.problemState === ProblemState.REPORTED) {
-        const icon = <i className="fa fa-external-link" aria-hidden="true" />;
-
         if (props.reportLinks.length === 1) {
             status = (
                 <a href={props.reportLinks[0]} rel="noopener noreferrer" target="_blank">
-                    {_("View report")} {icon}
+                    <ExternalLinkAltIcon />{_("View report")}
                 </a>
             );
         } else if (props.reportLinks.length > 1) {
             const reportLinks = props.reportLinks.map((reportLink, index) => [
                 index > 0 && ", ",
                 <a key={index.toString()} href={reportLink} rel="noopener noreferrer" target="_blank">
-                    {index + 1} {icon}
+                    <ExternalLinkAltIcon /> {index + 1}
                 </a>
             ]);
             status = <p>{_("Reports:")} {reportLinks}</p>;

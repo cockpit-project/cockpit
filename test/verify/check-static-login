@@ -237,6 +237,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # But after that login, they should be gone again
         verify_correct(True, 0)
 
+        self.allow_restart_journal_messages()
+
     def testExpired(self):
         m = self.machine
         b = self.browser

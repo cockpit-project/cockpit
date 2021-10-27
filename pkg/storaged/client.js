@@ -968,6 +968,11 @@ client.stratis_start = () => {
                     stratis_start_polling();
                     return true;
                 });
+            })
+            .catch(err => {
+                if (err.problem == "not-found")
+                    err.message = "The name org.storage.stratis2 can not be activated on D-Bus.";
+                return Promise.reject(err);
             });
 };
 

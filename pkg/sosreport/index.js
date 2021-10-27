@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import { superuser } from "superuser";
 
-import '../lib/patternfly/patternfly-cockpit.scss';
+import '../lib/patternfly/patternfly-4-cockpit.scss';
 
 const _ = cockpit.gettext;
 
@@ -50,7 +50,7 @@ function sos_error(message, extra) {
 }
 
 function sos_create() {
-    document.querySelector("#sos-progress .progress-bar").style.width = "0%";
+    document.querySelector("#sos-progress .pf-c-progress__indicator").style.width = "0%";
     document.getElementById("sos-download").setAttribute("hidden", "hidden");
     document.getElementById("sos-error").setAttribute("hidden", "hidden");
     document.getElementById("sos-cancel").textContent = _("Cancel");
@@ -97,7 +97,7 @@ function sos_create() {
             }
             document.getElementById("sos-alert").removeAttribute("hidden");
             document.getElementById("sos-progress").removeAttribute("hidden");
-            document.querySelector("#sos-progress .progress-bar").style.width = p.toString() + "%";
+            document.querySelector("#sos-progress .pf-c-progress__indicator").style.width = p.toString() + "%";
         }
     });
     task.done(function () {

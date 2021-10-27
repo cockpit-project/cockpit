@@ -19,7 +19,7 @@
 
 /*
  * WARNING: This is a legacy part of cockpit retained for backwards compatibility
- * Newer code should not include cockpit.css, but our examples still do
+ * Newer code should not include cockpit.css, but let's not break API on RHEL 8
  */
 import "../lib/patternfly/patternfly-cockpit.scss";
 import "../lib/page.scss";

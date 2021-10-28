@@ -86,7 +86,7 @@ let systemd_client;
 let systemd_manager;
 
 function wait_valid(proxy, callback) {
-    proxy.wait(function() {
+    proxy.wait(() => {
         if (proxy.valid)
             callback();
     });
@@ -97,9 +97,9 @@ function with_systemd_manager(done) {
         systemd_client = cockpit.dbus("org.freedesktop.systemd1", { superuser: "try" });
         systemd_manager = systemd_client.proxy("org.freedesktop.systemd1.Manager",
                                                "/org/freedesktop/systemd1");
-        wait_valid(systemd_manager, function() {
+        wait_valid(systemd_manager, () => {
             systemd_manager.Subscribe()
-                    .fail(function (error) {
+                    .catch(error => {
                         if (error.name != "org.freedesktop.systemd1.AlreadySubscribed" &&
                         error.name != "org.freedesktop.DBus.Error.FileExists")
                             console.warn("Subscribing to systemd signals failed", error);
@@ -173,7 +173,7 @@ export function proxy(name, kind) {
 
     with_systemd_manager(function () {
         systemd_manager.LoadUnit(name)
-                .done(function (path) {
+                .then(path => {
                     unit = systemd_client.proxy('org.freedesktop.systemd1.Unit', path);
                     unit.addEventListener('changed', update_from_unit);
                     wait_valid(unit, update_from_unit);
@@ -182,7 +182,7 @@ export function proxy(name, kind) {
                     details.addEventListener('changed', update_from_details);
                     wait_valid(details, update_from_details);
                 })
-                .fail(function () {
+                .catch(() => {
                     self.exists = false;
                     self.dispatchEvent('changed');
                 });
@@ -195,19 +195,17 @@ export function proxy(name, kind) {
         function refresh_interface(path, iface) {
             systemd_client.call(path,
                                 "org.freedesktop.DBus.Properties", "GetAll", [iface])
-                    .fail(function (error) {
-                        console.log(error);
-                    })
-                    .done(function (result) {
+                    .then(([result]) => {
                         const props = { };
-                        for (const p in result[0])
-                            props[p] = result[0][p].v;
+                        for (const p in result)
+                            props[p] = result[p].v;
                         const ifaces = { };
                         ifaces[iface] = props;
                         const data = { };
                         data[unit.path] = ifaces;
                         systemd_client.notify(data);
-                    });
+                    })
+                    .catch(error => console.log(error));
         }
 
         refresh_interface(unit.path, "org.freedesktop.systemd1.Unit");
@@ -241,7 +239,7 @@ export function proxy(name, kind) {
     // });
 
     // This is what we have to do:
-    systemd_manager.addEventListener("Reloading", function (event, reloading) {
+    systemd_manager.addEventListener("Reloading", (event, reloading) => {
         if (!reloading)
             refresh();
     });
@@ -261,7 +259,7 @@ export function proxy(name, kind) {
 
     const pending_jobs = { };
 
-    systemd_manager.addEventListener("JobRemoved", function (event, number, path, unit_id, result) {
+    systemd_manager.addEventListener("JobRemoved", (event, number, path, unit_id, result) => {
         if (pending_jobs[path]) {
             if (result == "done")
                 pending_jobs[path].resolve();
@@ -280,20 +278,16 @@ export function proxy(name, kind) {
     function call_manager_with_job(method, args) {
         const dfd = cockpit.defer();
         call_manager(method, args)
-                .done(function (results) {
-                    const path = results[0];
+                .then(([path]) => {
                     pending_jobs[path] = dfd;
                 })
-                .fail(function (error) {
-                    dfd.reject(error);
-                });
+                .catch(error => dfd.reject(error));
         return dfd.promise();
     }
 
     function call_manager_with_reload(method, args) {
-        return call_manager(method, args).then(function () {
-            return call_manager("Reload", [ ]);
-        });
+        return call_manager(method, args)
+                .then(() => call_manager("Reload", []));
     }
 
     function start() {

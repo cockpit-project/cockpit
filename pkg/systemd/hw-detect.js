@@ -41,7 +41,9 @@ const getDMI = info => machine_info.dmi_info()
 
 const getDeviceTree = info => machine_info.devicetree_info()
         .then(fields => {
-            info.system.name = fields.model;
+            // if getDMI sets a field first, let that win
+            if (fields.model && !info.system.name)
+                info.system.name = fields.model;
             return true;
         });
 

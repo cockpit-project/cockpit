@@ -94,7 +94,8 @@ function wait_valid(proxy, callback) {
 
 function with_systemd_manager(done) {
     if (!systemd_manager) {
-        systemd_client = cockpit.dbus("org.freedesktop.systemd1", { superuser: "try" });
+        // cached forever, only used for reading/watching; no superuser
+        systemd_client = cockpit.dbus("org.freedesktop.systemd1");
         systemd_manager = systemd_client.proxy("org.freedesktop.systemd1.Manager",
                                                "/org/freedesktop/systemd1");
         wait_valid(systemd_manager, () => {
@@ -190,11 +191,10 @@ export function proxy(name, kind) {
 
     function refresh() {
         if (!unit || !details)
-            return;
+            return Promise.resolve();
 
         function refresh_interface(path, iface) {
-            systemd_client.call(path,
-                                "org.freedesktop.DBus.Properties", "GetAll", [iface])
+            return systemd_client.call(path, "org.freedesktop.DBus.Properties", "GetAll", [iface])
                     .then(([result]) => {
                         const props = { };
                         for (const p in result)
@@ -204,8 +204,10 @@ export function proxy(name, kind) {
                     .catch(error => console.log(error));
         }
 
-        refresh_interface(unit.path, "org.freedesktop.systemd1.Unit");
-        refresh_interface(details.path, "org.freedesktop.systemd1." + kind);
+        return Promise.allSettled([
+            refresh_interface(unit.path, "org.freedesktop.systemd1.Unit"),
+            refresh_interface(details.path, "org.freedesktop.systemd1." + kind),
+        ]);
     }
 
     function on_job_new_removed_refresh(event, number, path, unit_id, result) {
@@ -249,41 +251,50 @@ export function proxy(name, kind) {
 
     /* Actions
      *
-     * We don't call methods on the D-Bus proxies here since they
-     * might not be ready when these functions are called.
+     * We don't call methods on the persistent systemd_client, as that does not have superuser
      */
 
-    const pending_jobs = { };
-
-    systemd_manager.addEventListener("JobRemoved", (event, number, path, unit_id, result) => {
-        if (pending_jobs[path]) {
-            if (result == "done")
-                pending_jobs[path].resolve();
-            else
-                pending_jobs[path].reject(result);
-            delete pending_jobs[path];
-        }
-    });
-
-    function call_manager(method, args) {
-        return systemd_client.call("/org/freedesktop/systemd1",
-                                   "org.freedesktop.systemd1.Manager",
-                                   method, args);
+    function call_manager(dbus, method, args) {
+        return dbus.call("/org/freedesktop/systemd1",
+                         "org.freedesktop.systemd1.Manager",
+                         method, args);
     }
 
     function call_manager_with_job(method, args) {
-        const dfd = cockpit.defer();
-        call_manager(method, args)
-                .then(([path]) => {
-                    pending_jobs[path] = dfd;
-                })
-                .catch(error => dfd.reject(error));
-        return dfd.promise();
+        return new Promise((resolve, reject) => {
+            const dbus = cockpit.dbus("org.freedesktop.systemd1", { superuser: "try" });
+            let pending_job_path;
+
+            const subscription = dbus.subscribe(
+                { interface: "org.freedesktop.systemd1.Manager", member: "JobRemoved" },
+                (_path, _iface, _signal, [_number, path, _unit_id, result]) => {
+                    if (path == pending_job_path) {
+                        subscription.remove();
+                        dbus.close();
+                        refresh().then(() => {
+                            if (result === "done")
+                                resolve();
+                            else
+                                reject(new Error(`systemd job ${method} ${JSON.stringify(args)} failed with result ${result}`));
+                        });
+                    }
+                });
+
+            call_manager(dbus, method, args)
+                    .then(([path]) => { pending_job_path = path })
+                    .catch(() => {
+                        dbus.close();
+                        reject();
+                    });
+        });
     }
 
     function call_manager_with_reload(method, args) {
-        return call_manager(method, args)
-                .then(() => call_manager("Reload", []));
+        const dbus = cockpit.dbus("org.freedesktop.systemd1", { superuser: "try" });
+        return call_manager(dbus, method, args)
+                .then(() => call_manager(dbus, "Reload", []))
+                .then(refresh)
+                .finally(dbus.close);
     }
 
     function start() {

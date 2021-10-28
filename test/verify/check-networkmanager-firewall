@@ -61,7 +61,7 @@ class TestFirewall(NetworkCase):
 
         # on images with running libvirt, wait until libvirt adds its zone, to avoid races in tests
         # (older versions don't do that yet)
-        if m.image not in ["ubuntu-2004", "ubuntu-stable"]:
+        if m.image not in ["ubuntu-2004"]:
             m.execute("if virsh net-list --name | grep -q default; then until firewall-cmd --get-active-zones | grep -q libvirt; do sleep 1; done; fi")
 
     def testNetworkingPage(self):

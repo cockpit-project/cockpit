@@ -199,11 +199,7 @@ export function proxy(name, kind) {
                         const props = { };
                         for (const p in result)
                             props[p] = result[p].v;
-                        const ifaces = { };
-                        ifaces[iface] = props;
-                        const data = { };
-                        data[unit.path] = ifaces;
-                        systemd_client.notify(data);
+                        systemd_client.notify({ [unit.path]: { [iface]: props } });
                     })
                     .catch(error => console.log(error));
         }

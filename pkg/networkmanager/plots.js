@@ -22,6 +22,9 @@ import React from "react";
 import { Split, SplitItem, Grid, GridItem } from '@patternfly/react-core';
 import { ZoomControls, SvgPlot, bits_per_sec_config } from "cockpit-components-plot.jsx";
 
+import cockpit from "cockpit";
+const _ = cockpit.gettext;
+
 export const NetworkPlots = ({ plot_state }) => {
     return (
         <>
@@ -32,12 +35,12 @@ export const NetworkPlots = ({ plot_state }) => {
             <Grid sm={12} md={6} lg={6} hasGutter>
                 <GridItem>
                     <SvgPlot className="network-graph"
-                             title="Transmitting" config={bits_per_sec_config}
+                             title={_("Transmitting")} config={bits_per_sec_config}
                              plot_state={plot_state} plot_id='tx' />
                 </GridItem>
                 <GridItem>
                     <SvgPlot className="network-graph"
-                             title="Receiving" config={bits_per_sec_config}
+                             title={_("Receiving")} config={bits_per_sec_config}
                              plot_state={plot_state} plot_id='rx' />
                 </GridItem>
             </Grid>

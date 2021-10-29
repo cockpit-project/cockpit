@@ -355,6 +355,11 @@ class TestHistoryMetrics(MachineCase):
         self.assertGreater(getMaximumSpike(self, "memory", False, 1600236000000, 51), 0.5)
         self.assertIn("Memory spike", events_at(1600236000000, 51))
 
+        # Reload should keep the filters intact
+        b.reload()
+        b.enter_page("/metrics")
+        b.wait_text("#date-picker-select-toggle .pf-c-select__toggle-text", "Wednesday, September 16, 2020")
+
         b.click(".pf-c-select__toggle")
         b.click(".pf-c-select__menu-item:contains('Today')")
         b.wait_text(".pf-c-select__toggle-text", "Today")

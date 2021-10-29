@@ -81,7 +81,8 @@ function setupLogging(client) {
         let msg = info.args.map(v => (v.value || "").toString()).join(" ");
         messages.push([ info.type, msg ]);
         if (shownMessages.indexOf(msg) == -1) {
-            shownMessages.push(msg);
+            if (!enable_debug) // disable message de-duplication in --trace mode
+                shownMessages.push(msg);
             process.stderr.write("> " + info.type + ": " + msg + "\n")
         }
 
@@ -148,7 +149,8 @@ function setupLogging(client) {
                 delete msg.args;
                 const msgstr = JSON.stringify(msg);
                 if (shownMessages.indexOf(msgstr) == -1) {
-                    shownMessages.push(msgstr);
+                    if (!enable_debug) // disable message de-duplication in --trace mode
+                        shownMessages.push(msgstr);
                     process.stderr.write("CDP: " + JSON.stringify(orig) + "\n");
                 }
             }

@@ -20,6 +20,8 @@
 import cockpit from "cockpit";
 import React from "react";
 
+import { WarningTriangleIcon } from "@patternfly/react-icons";
+
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import * as PK from "packagekit.js";
 
@@ -83,7 +85,7 @@ export function install_dialog(pkg, options) {
         if (data && data.remove_names.length > 0)
             remove_details = (
                 <div className="scale-up-ct">
-                    <span className="pficon pficon-warning-triangle-o" /> {_("Removals:")}
+                    <WarningTriangleIcon /> {_("Removals:")}
                     <ul className="package-list">{data.remove_names.map(id => <li key={id}>{id}</li>)}</ul>
                 </div>
             );

@@ -1120,11 +1120,18 @@ class MetricsHistory extends React.Component {
                     const now = parseInt(out.trim()) * 1000;
                     const current_hour = Math.floor(now / MSEC_PER_H) * MSEC_PER_H;
                     this.most_recent = current_hour;
-                    this.load_data(current_hour - LOAD_HOURS * MSEC_PER_H, undefined, true);
                     this.today_midnight = new Date(current_hour).setHours(0, 0, 0, 0);
+
+                    const selectedDate = parseInt(cockpit.location.options.date) || this.today_midnight;
+
+                    if (selectedDate !== this.today_midnight)
+                        this.load_data(selectedDate, 24 * SAMPLES_PER_H, true);
+                    else
+                        this.load_data(current_hour - LOAD_HOURS * MSEC_PER_H, undefined, true);
+
                     this.setState({
                         metricsAvailable: true,
-                        selectedDate: this.today_midnight,
+                        selectedDate,
                     });
                 })
                 .catch(ex => this.setState({ error: ex.toString() }));
@@ -1153,6 +1160,7 @@ class MetricsHistory extends React.Component {
 
         this.oldest_timestamp = 0;
 
+        cockpit.location.go([], Object.assign(cockpit.location.options, { date: sel }));
         this.setState({
             selectedDate: sel,
             isDatepickerOpened: false,

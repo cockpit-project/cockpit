@@ -61,9 +61,9 @@ class TestTuned(MachineCase):
 
         # Disabled when not authorized
         b.relogin('/system', superuser=False)
-        trigger_selector = '#tuned-status-button.pf-m-aria-disabled'
-        b.wait_text(trigger_selector, recommended_profile)
-        b.relogin('/system', superuser=True)
+        b.wait_text('#tuned-status-button.pf-m-aria-disabled', recommended_profile)
+        # page adjusts to privilege changes, button becomes clickable
+        b.become_superuser()
 
         # Switch the profile
 

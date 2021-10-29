@@ -1124,6 +1124,9 @@ class MachineCase(unittest.TestCase):
         self.restore_file("/etc/passwd")
         self.restore_file("/etc/group")
         self.restore_file("/etc/shadow")
+        self.restore_file("/etc/gshadow")
+        self.restore_file("/etc/subuid")
+        self.restore_file("/etc/subgid")
         home_dirs = m.execute("ls /home").strip().split()
 
         def cleanup_home_dirs():

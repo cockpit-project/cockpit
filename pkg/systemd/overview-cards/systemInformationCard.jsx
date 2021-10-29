@@ -82,12 +82,12 @@ export class SystemInfomationCard extends React.Component {
                     else
                         self.setState({ hardwareText: vendor + " " + name });
 
-                    self.setState({ assetTagText: fields.product_serial || fields.chassis_serial });
+                    self.setState({ assetTagText: fields.product_serial || fields.chassis_serial || undefined });
                 })
                 .catch(ex => {
                     // try DeviceTree
                     machine_info.devicetree_info()
-                            .then(fields => self.setState({ assetTagText: fields.serial, hardwareText: fields.model }))
+                            .then(fields => self.setState({ assetTagText: fields.serial, hardwareText: fields.model || undefined }))
                             .catch(dmiex => {
                                 console.debug("couldn't read dmi info: " + ex);
                                 console.debug("couldn't read DeviceTree info: " + dmiex.toString());

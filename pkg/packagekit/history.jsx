@@ -21,6 +21,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import { Tooltip } from "@patternfly/react-core";
+import { BundleIcon } from "@patternfly/react-icons";
 import { ListingTable } from "cockpit-components-table.jsx";
 import * as timeformat from "timeformat.js";
 
@@ -81,7 +82,7 @@ export class History extends React.Component {
         const rows = history.map((update, index) => {
             const pkgcount = (
                 <div className="list-view-pf-additional-info-item">
-                    <span className="pficon pficon-bundle" />
+                    <BundleIcon />
                     { cockpit.format(cockpit.ngettext("$0 package", "$0 packages", update.num_packages), update.num_packages) }
                 </div>);
 

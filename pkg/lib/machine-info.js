@@ -243,7 +243,7 @@ function processMemory(info) {
         let memorySize = memoryProperty.Size || _("Unknown");
         if (memorySize.includes("MB")) {
             const memorySizeValue = parseInt(memorySize, 10);
-            memorySize = memorySizeValue / 1024 + " GB";
+            memorySize = cockpit.format(_("$0 GiB"), memorySizeValue / 1024);
         }
 
         let memoryTechnology = memoryProperty["Memory technology"];

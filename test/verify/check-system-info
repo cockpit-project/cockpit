@@ -562,7 +562,7 @@ revision\t: 2.3 (pvr 004e 1203)
             # first DIMM has unknown technology and rank
             b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=ID]', "ChannelA-DIMM0")
             b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Type]', "DDR3")
-            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Size]', "8 GB")
+            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Size]', "8 GiB")
             b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=State]', "Present")
             b.wait_text('#memory-listing tr:nth-of-type(1) td[data-label="Memory technology"]', "Unknown")
             b.wait_text('#memory-listing tr:nth-of-type(1) td[data-label=Rank]', "Unknown")

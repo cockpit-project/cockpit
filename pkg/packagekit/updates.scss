@@ -86,34 +86,6 @@
     color: var(--ct-color-subtle-copy);
 }
 
-// backport "pficon-*" for usage on RHEL/CentOS 7
-@font-face {
-    font-family: "pf-symbols";
-    font-style: normal;
-    font-weight: 400;
-    src: url(data:application/x-font-woff;charset=utf-8;base64,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) format("woff");
-
-    unicode-range: U+E946, U+E93A;
-}
-
-.pficon-security:before {
-    content: "\e946";
-    font-family: pf-symbols;
-}
-
-.pficon-enhancement:before {
-    content: "\e93a";
-    font-family: pf-symbols;
-}
-
-td.type {
-    > .pficon,
-    > .fa {
-        margin: calc(-0.5 * var(--pf-global--spacer--xs)) var(--pf-global--spacer--xs) 0 0;
-        vertical-align: middle;
-    }
-}
-
 div.changelog {
     max-height: 20em;
     overflow: auto;

@@ -54,18 +54,13 @@
 }
 .services-header.pf-c-page__main-nav {
     padding-bottom: 1rem;
+    padding-right: 0;
 
-    // Display tabs and 'Create timer' button in the same line if possible
-    display: flex;
-    flex-wrap: wrap;
-
-    // Add spacing between the tabs and the 'Create timer' button in mobile
-    row-gap: var(--pf-global--spacer--sm);
-
-    // Align 'Create timer' button with the right side of the services list card
-    > button {
+    > .pf-l-flex {
+        // Add spacing between the tabs and the 'Create timer' button in mobile
+        row-gap: var(--pf-global--spacer--sm);
+        // Align 'Create timer' button with the right side of the services list card
         margin-right: var(--pf-c-page__main-section--PaddingRight);
-        margin-left: auto;
     }
 }
 

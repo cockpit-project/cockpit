@@ -259,9 +259,9 @@ export class ServiceDetails extends React.Component {
     }
 
     doMemoryCurrentPolling() {
-        systemd_client.call(this.props.unit.path,
-                            "org.freedesktop.DBus.Properties", "Get",
-                            ["org.freedesktop.systemd1." + this.unitTypeCapitalized, 'MemoryCurrent'])
+        systemd_client[this.props.owner].call(this.props.unit.path,
+                                              "org.freedesktop.DBus.Properties", "Get",
+                                              ["org.freedesktop.systemd1." + this.unitTypeCapitalized, 'MemoryCurrent'])
                 .then(result => {
                     this.addUnitProperties(
                         "MemoryCurrent",
@@ -293,7 +293,7 @@ export class ServiceDetails extends React.Component {
         if (extra_args === undefined)
             extra_args = ["fail"];
         this.setState({ waitsAction: true });
-        systemd_client.call(SD_OBJ, SD_MANAGER, method, [this.props.unit.Names[0]].concat(extra_args))
+        systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, method, [this.props.unit.Names[0]].concat(extra_args))
                 .catch(error => this.setState({ error: error.toString(), waitsAction: false }));
     }
 
@@ -302,14 +302,14 @@ export class ServiceDetails extends React.Component {
         const args = [[this.props.unit.Names[0]], false];
         if (force !== undefined)
             args.push(force == "true");
-        systemd_client.call(SD_OBJ, SD_MANAGER, method, args)
+        systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, method, args)
                 .then(([results]) => {
                     if (results.length == 2 && !results[0])
                         this.setState({ note:_("This unit is not designed to be enabled explicitly.") });
                     /* Executing daemon reload after file operations is necessary -
                      * see https://github.com/systemd/systemd/blob/main/src/systemctl/systemctl.c [enable_unit function]
                      */
-                    systemd_client.call(SD_OBJ, SD_MANAGER, "Reload", null);
+                    systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "Reload", null);
                 })
                 .catch(error => {
                     this.setState({
@@ -326,6 +326,7 @@ export class ServiceDetails extends React.Component {
         const failed = this.props.unit.ActiveState === "failed";
         const masked = this.props.unit.LoadState === "masked";
         const unit = this.state.unit_properties;
+        const showAction = this.props.permitted || this.props.owner == "user";
 
         let status = [];
 
@@ -353,7 +354,7 @@ export class ServiceDetails extends React.Component {
                 <div key="failed" className="status-failed">
                     <ErrorCircleOIcon className="status-icon" />
                     <span className="status">{ _("Failed to start") }</span>
-                    { this.props.permitted &&
+                    { showAction &&
                         <Button variant="secondary" className="action-button" onClick={() => this.unitAction("StartUnit") }>{ _("Start service") }</Button>
                     }
                 </div>
@@ -396,7 +397,7 @@ export class ServiceDetails extends React.Component {
             );
         }
 
-        if (!this.props.permitted) {
+        if (!showAction && this.props.owner !== 'user') {
             status.unshift(
                 <div key="readonly" className="status-readonly">
                     <UserIcon className="status-icon" />
@@ -506,7 +507,7 @@ export class ServiceDetails extends React.Component {
                     : <>
                         <CardTitle className="service-top-panel">
                             <Text component={TextVariants.h2} className="service-name">{this.props.unit.Description}</Text>
-                            { this.props.permitted &&
+                            { showAction &&
                                 <>
                                     { !masked && !isStatic &&
                                         <Tooltip id="switch-unit-state" content={tooltipMessage} position={TooltipPosition.right}>

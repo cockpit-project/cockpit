@@ -42,7 +42,7 @@ import "./timers.scss";
 
 const _ = cockpit.gettext;
 
-export const CreateTimerDialog = () => {
+export const CreateTimerDialog = ({ owner }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -56,12 +56,12 @@ export const CreateTimerDialog = () => {
                     }}>
                 {_("Create timer")}
             </Button>
-            {isOpen && <CreateTimerDialogBody setIsOpen={setIsOpen} />}
+            {isOpen && <CreateTimerDialogBody setIsOpen={setIsOpen} owner={owner} />}
         </>
     );
 };
 
-const CreateTimerDialogBody = ({ setIsOpen }) => {
+const CreateTimerDialogBody = ({ setIsOpen, owner }) => {
     const [command, setCommand] = useState('');
     const [delay, setDelay] = useState('specific-time');
     const [delayNumber, setDelayNumber] = useState(0);
@@ -108,7 +108,7 @@ const CreateTimerDialogBody = ({ setIsOpen }) => {
             return false;
 
         setInProgress(true);
-        create_timer({ name, description, command, delay, delayUnit, delayNumber, repeat, specificTime, repeatPatterns })
+        create_timer({ name, description, command, delay, delayUnit, delayNumber, repeat, specificTime, repeatPatterns, owner })
                 .then(() => setIsOpen(false), exc => {
                     setDialogError(exc.message);
                     setInProgress(false);

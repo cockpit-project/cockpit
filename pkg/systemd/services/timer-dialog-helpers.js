@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import { systemd_client, SD_OBJ, SD_MANAGER, clock_realtime_now } from "./services.jsx";
 
-export function create_timer({ name, description, command, delay, delayUnit, delayNumber, repeat, repeatPatterns, specificTime }) {
+export function create_timer({ name, description, command, delay, delayUnit, delayNumber, repeat, repeatPatterns, specificTime, owner }) {
     const timer_unit = {};
     const repeat_array = repeatPatterns;
     timer_unit.name = name.replace(/\s/g, '');
@@ -52,10 +52,10 @@ export function create_timer({ name, description, command, delay, delayUnit, del
     }
     if (repeat != "hourly" && delay == "specific-time")
         timer_unit.OnCalendar = timer_unit.OnCalendar.toString().replace(/,/g, "\n");
-    return create_timer_file({ timer_unit, delay });
+    return create_timer_file({ timer_unit, delay, owner });
 }
 
-function create_timer_file({ timer_unit, delay }) {
+function create_timer_file({ timer_unit, delay, owner }) {
     const unit = "[Unit]\nDescription=";
     const service = "\n[Service]\nExecStart=";
     const timer = "\n[Timer]\n";
@@ -79,17 +79,17 @@ function create_timer_file({ timer_unit, delay }) {
     return cockpit.file(timer_path, { superuser: 'try' })
             .replace(timer_file)
             .then(tag => {
-                return systemd_client.call(SD_OBJ, SD_MANAGER, "EnableUnitFiles", [[timer_unit.name + ".timer"], false, false]);
+                return systemd_client[owner].call(SD_OBJ, SD_MANAGER, "EnableUnitFiles", [[timer_unit.name + ".timer"], false, false]);
             })
             .then(() => {
                 /* Executing daemon reload after file operations is necessary -
                  * see https://github.com/systemd/systemd/blob/main/src/systemctl/systemctl.c [enable_unit function]
                  */
-                systemd_client.call(SD_OBJ, SD_MANAGER, "Reload", null);
+                systemd_client[owner].call(SD_OBJ, SD_MANAGER, "Reload", null);
             })
             .then(() => {
                 // start calendar timers
                 if (timer_unit.OnCalendar)
-                    return systemd_client.call(SD_OBJ, SD_MANAGER, "StartUnit", [timer_unit.name + ".timer", "replace"]);
+                    return systemd_client[owner].call(SD_OBJ, SD_MANAGER, "StartUnit", [timer_unit.name + ".timer", "replace"]);
             });
 }

@@ -20,15 +20,17 @@
 import '../../lib/patternfly/patternfly-4-cockpit.scss';
 import 'polyfills'; // once per application
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import ReactDOM from 'react-dom';
 import {
     Button,
     Bullseye,
+    Flex, FlexItem,
     Select, SelectVariant, SelectOption,
     Page, PageSection, PageSectionVariants,
     Card,
     SearchInput,
+    ToggleGroup, ToggleGroupItem,
     Toolbar,
     ToolbarContent,
     ToolbarItem,
@@ -55,7 +57,10 @@ const _ = cockpit.gettext;
 //
 superuser.reload_page_on_change();
 
-export const systemd_client = cockpit.dbus("org.freedesktop.systemd1", { superuser: "try" });
+export const systemd_client = {
+    system: cockpit.dbus("org.freedesktop.systemd1", { bus: "system", superuser: "try" }),
+    user: cockpit.dbus("org.freedesktop.systemd1", { bus: "session" }),
+};
 const timedate_client = cockpit.dbus('org.freedesktop.timedate1');
 export let clock_realtime_now;
 export let clock_monotonic_now;
@@ -161,6 +166,8 @@ class ServicesPageBody extends React.Component {
             this.setState({ filters });
         };
 
+        this.filtersRef = React.createRef();
+
         // Possible LoadState values: stub, loaded, not-found, bad-setting, error, merged, masked
         // See: typedef enum UnitLoadStateState https://github.com/systemd/systemd/blob/main/src/basic/unit-def.h
         this.loadState = {
@@ -223,7 +230,7 @@ class ServicesPageBody extends React.Component {
     }
 
     componentDidMount() {
-        this.systemd_subscription = systemd_client.call(SD_OBJ, SD_MANAGER, "Subscribe", null)
+        this.systemd_subscription = systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "Subscribe", null)
                 .finally(this.listUnits)
                 .catch(error => {
                     if (error.name != "org.freedesktop.systemd1.AlreadySubscribed" &&
@@ -250,7 +257,7 @@ class ServicesPageBody extends React.Component {
          * - JobNew is also useless, JobRemoved is enough since it comes in pair with JobNew
          *   but we are interested to update the state when the operation finished
          */
-        systemd_client.subscribe({
+        systemd_client[this.props.owner].subscribe({
             interface: "org.freedesktop.DBus.Properties",
             member: "PropertiesChanged"
         }, (path, iface, signal, args) => {
@@ -275,9 +282,9 @@ class ServicesPageBody extends React.Component {
         });
 
         ["JobNew", "JobRemoved"].forEach(signalName => {
-            systemd_client.subscribe({ interface: SD_MANAGER, member: signalName }, (path, iface, signal, args) => {
+            systemd_client[this.props.owner].subscribe({ interface: SD_MANAGER, member: signalName }, (path, iface, signal, args) => {
                 const unit_id = args[2];
-                systemd_client.call(SD_OBJ, SD_MANAGER, "LoadUnit", [unit_id])
+                systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "LoadUnit", [unit_id])
                         .then(([path]) => {
                             if (!this.seenPaths.has(path))
                                 this.seenPaths.add(path);
@@ -287,7 +294,7 @@ class ServicesPageBody extends React.Component {
             });
         });
 
-        systemd_client.subscribe({ interface: SD_MANAGER, member: "Reloading" }, (path, iface, signal, args) => {
+        systemd_client[this.props.owner].subscribe({ interface: SD_MANAGER, member: "Reloading" }, (path, iface, signal, args) => {
             const reloading = args[0];
             if (!reloading && !this.state.loadingUnits)
                 this.listUnits();
@@ -323,7 +330,7 @@ class ServicesPageBody extends React.Component {
      * might have changed the failed units array
      */
     listFailedUnits() {
-        return systemd_client.call(SD_OBJ, SD_MANAGER, "ListUnitsFiltered", [["failed"]])
+        return systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "ListUnitsFiltered", [["failed"]])
                 .then(([failed]) => {
                     failed.forEach(result => {
                         const path = result[6];
@@ -372,7 +379,7 @@ class ServicesPageBody extends React.Component {
 
         // Run ListUnits before LIstUnitFiles so that we avoid the extra LoadUnit calls
         // Now we call LoadUnit only for those that ListUnits didn't tell us about
-        systemd_client.call(SD_OBJ, SD_MANAGER, "ListUnits", null)
+        systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "ListUnits", null)
                 .then(([results]) => {
                     results.forEach(result => {
                         const path = result[6];
@@ -395,7 +402,7 @@ class ServicesPageBody extends React.Component {
                         );
                     });
 
-                    systemd_client.call(SD_OBJ, SD_MANAGER, "ListUnitFiles", null)
+                    systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "ListUnitFiles", null)
                             .then(([results]) => {
                                 results.forEach(result => {
                                     const unit_path = result[0];
@@ -417,7 +424,7 @@ class ServicesPageBody extends React.Component {
                                         return;
                                     }
 
-                                    promisesLoad.push(systemd_client.call(SD_OBJ, SD_MANAGER, "LoadUnit", [unit_id]).then(([unit_path]) => {
+                                    promisesLoad.push(systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "LoadUnit", [unit_id]).then(([unit_path]) => {
                                         this.updateProperties(
                                             {
                                                 Id: cockpit.variant("s", unit_id),
@@ -638,7 +645,7 @@ class ServicesPageBody extends React.Component {
         if (unitNew.Id.endsWith("socket")) {
             unitNew.is_socket = true;
             if (unitNew.ActiveState == "active") {
-                const socket_unit = systemd_client.proxy('org.freedesktop.systemd1.Socket', unitNew.path);
+                const socket_unit = systemd_client[this.props.owner].proxy('org.freedesktop.systemd1.Socket', unitNew.path);
                 socket_unit.wait(() => {
                     if (socket_unit.valid)
                         this.addSocketProperties(socket_unit, path, unitNew);
@@ -649,7 +656,7 @@ class ServicesPageBody extends React.Component {
         if (unitNew.Id.endsWith("timer")) {
             unitNew.is_timer = true;
             if (unitNew.ActiveState == "active") {
-                const timer_unit = systemd_client.proxy('org.freedesktop.systemd1.Timer', unitNew.path);
+                const timer_unit = systemd_client[this.props.owner].proxy('org.freedesktop.systemd1.Timer', unitNew.path);
                 timer_unit.wait(() => {
                     if (timer_unit.valid)
                         this.addTimerProperties(timer_unit, path, unitNew);
@@ -672,9 +679,9 @@ class ServicesPageBody extends React.Component {
       * Fetches all Properties for the unit specified by path @param and add the unit to the state
       */
     getUnitByPath(path) {
-        return systemd_client.call(path,
-                                   "org.freedesktop.DBus.Properties", "GetAll",
-                                   ["org.freedesktop.systemd1.Unit"])
+        return systemd_client[this.props.owner].call(path,
+                                                     "org.freedesktop.DBus.Properties", "GetAll",
+                                                     ["org.freedesktop.systemd1.Unit"])
                 .then(result => this.updateProperties(result[0], path))
                 .catch(error => console.warn('GetAll failed for', path, error.toString()));
     }
@@ -729,6 +736,7 @@ class ServicesPageBody extends React.Component {
 
             const unit = this.state.unit_by_path[unit_path];
             return <Service unitIsValid={unitId => { const path = get_unit_path(unitId); return path !== undefined && this.state.unit_by_path[path].LoadState != 'not-found' }}
+                            owner={this.props.owner}
                             key={unit_id}
                             loadingUnits={this.state.loadingUnits}
                             getUnitByPath={this.getUnitByPath}
@@ -792,6 +800,7 @@ class ServicesPageBody extends React.Component {
                 <Card isCompact>
                     <ServicesPageFilters activeStateDropdownOptions={activeStateDropdownOptions}
                                          fileStateDropdownOptions={fileStateDropdownOptions}
+                                         filtersRef={this.filtersRef}
                                          loadingUnits={this.state.loadingUnits}
                                          onCurrentTextFilterChanged={this.onCurrentTextFilterChanged}
                                          onFiltersChanged={this.onFiltersChanged}
@@ -803,7 +812,7 @@ class ServicesPageBody extends React.Component {
                         ? <Bullseye>
                             <EmptyStatePanel icon={SearchIcon}
                                 paragraph={_("No results match the filter criteria. Clear all filters to show results.")}
-                                action={<Button id="clear-all-filters" onClick={this.onClearAllFilters} isInline variant='link'>{_("Clear all filters")}</Button>}
+                                action={<Button id="clear-all-filters" onClick={() => { this.filtersRef.current() }} isInline variant='link'>{_("Clear all filters")}</Button>}
                                 title={_("No matching results")} />
                         </Bullseye> : null}
                 </Card>
@@ -815,6 +824,7 @@ class ServicesPageBody extends React.Component {
 const ServicesPageFilters = ({
     activeStateDropdownOptions,
     fileStateDropdownOptions,
+    filtersRef,
     loadingUnits,
     onCurrentTextFilterChanged,
     onFiltersChanged,
@@ -827,23 +837,9 @@ const ServicesPageFilters = ({
         fileState: [],
     });
 
-    useEffect(() => {
-        onFiltersChanged(filters);
-    }, [filters, onFiltersChanged]);
-
-    useEffect(() => {
-        onCurrentTextFilterChanged(currentTextFilter);
-    }, [currentTextFilter, onCurrentTextFilterChanged]);
-
     /* Functions for controlling the toolbar's components
      * FIXME: https://github.com/patternfly/patternfly-react/issues/5836
      */
-
-    const onClearAllFilters = () => {
-        setCurrentTextFilter('');
-        onDeleteChip();
-    };
-
     const onSelect = (type, event, selection) => {
         const checked = event.target.checked;
 
@@ -865,7 +861,7 @@ const ServicesPageFilters = ({
             return 'fileState';
     };
 
-    const onDeleteChip = (typeLabel = '', id = '') => {
+    const onDeleteChip = useCallback((typeLabel = '', id = '') => {
         const type = getFilterLabelKey(typeLabel);
 
         if (type) {
@@ -876,13 +872,31 @@ const ServicesPageFilters = ({
                 fileState: []
             });
         }
-    };
+    }, [filters]);
 
     const onDeleteChipGroup = (typeLabel) => {
         const type = getFilterLabelKey(typeLabel);
 
         setFilters({ ...filters, [type]: [] });
     };
+
+    const onClearAllFilters = useCallback(() => {
+        setCurrentTextFilter('');
+        onDeleteChip();
+    }, [setCurrentTextFilter, onDeleteChip]);
+
+    /* Make onClearAllFilters global so at to let it be used by the parent component */
+    useEffect(() => {
+        filtersRef.current = onClearAllFilters;
+    }, [filtersRef, onClearAllFilters]);
+
+    useEffect(() => {
+        onFiltersChanged(filters);
+    }, [filters, onFiltersChanged]);
+
+    useEffect(() => {
+        onCurrentTextFilterChanged(currentTextFilter);
+    }, [currentTextFilter, onCurrentTextFilterChanged]);
 
     const toolbarItems = <>
         <ToolbarToggleGroup toggleIcon={<><span className="pf-c-button__icon pf-m-start"><FilterIcon /></span>{_("Toggle filters")}</>} breakpoint="sm"
@@ -942,26 +956,57 @@ const ServicesPageFilters = ({
 
 const ServicesPage = () => {
     const [tabErrors, setTabErrors] = useState({});
+    const [loggedUser, setLoggedUser] = useState();
+
+    useEffect(() => {
+        cockpit.user()
+                .then(user => setLoggedUser(user.name))
+                .catch(ex => console.warn(ex.message));
+    }, []);
 
     /* Listen for permission changes for "Create timer" button */
     useEvent(superuser, "changed");
     const { path, options } = usePageLocation();
 
     const activeTab = options.type || 'service';
+    const owner = options.owner || 'system';
+    const setOwner = (owner) => cockpit.location.go([], Object.assign(options, { owner }));
+
+    if (owner !== 'system' && owner !== 'user') {
+        console.warn("not a valid location: " + path);
+        cockpit.location = '';
+        return;
+    }
 
     return (
         <Page>
             {path.length == 0 &&
             <PageSection variant={PageSectionVariants.light} type="nav" className="services-header">
-                <ServiceTabs activeTab={activeTab}
-                             tabErrors={tabErrors}
-                             onChange={activeTab => {
-                                 cockpit.location.go([], Object.assign(options, { type: activeTab }));
-                             }} />
-                {activeTab == "timer" && superuser.allowed && <CreateTimerDialog />}
+                <Flex>
+                    <ServiceTabs activeTab={activeTab}
+                                 tabErrors={tabErrors}
+                                 onChange={activeTab => {
+                                     cockpit.location.go([], Object.assign(options, { type: activeTab }));
+                                 }} />
+                    <FlexItem align={{ default: 'alignRight' }}>
+                        {loggedUser && loggedUser !== 'root' && <ToggleGroup>
+                            <ToggleGroupItem isSelected={owner == "system"}
+                                             buttonId="system"
+                                             text={_("System")}
+                                             onChange={() => setOwner("system")} />
+                            <ToggleGroupItem isSelected={owner == "user"}
+                                             buttonId="user"
+                                             text={_("User")}
+                                             onChange={() => setOwner("user")} />
+                        </ToggleGroup>}
+                    </FlexItem>
+                    {activeTab == "timer" && owner == "system" && superuser.allowed && <CreateTimerDialog owner={owner} />}
+                </Flex>
             </PageSection>}
             <ServicesPageBody
+                key={owner}
                 activeTab={activeTab}
+                owner={owner}
                 path={path}
                 privileged={superuser.allowed}
                 setTabErrors={setTabErrors}

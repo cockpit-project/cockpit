@@ -58,6 +58,7 @@ export class Service extends React.Component {
             return null;
 
         const serviceDetails = <ServiceDetails unit={this.props.unit}
+                                owner={this.props.owner}
                                 permitted={superuser.allowed}
                                 loadingUnits={this.props.loadingUnits}
                                 isValid={this.props.unitIsValid} />;
@@ -76,7 +77,7 @@ export class Service extends React.Component {
                   id="service-details"
                   breadcrumb={
                       <Breadcrumb>
-                          <BreadcrumbItem to='#'>{_("Services")}</BreadcrumbItem>
+                          <BreadcrumbItem to={"#" + cockpit.location.href.replace(cockpit.location.path[0], '')}>{_("Services")}</BreadcrumbItem>
                           <BreadcrumbItem isActive>
                               {this.props.unit.Id}
                           </BreadcrumbItem>
@@ -84,7 +85,7 @@ export class Service extends React.Component {
                 <PageSection>
                     <Gallery hasGutter>
                         <GalleryItem>{serviceDetails}</GalleryItem>
-                        {(this.props.unit.LoadState === "loaded" || this.props.unit.LoadState === "masked") &&
+                        {((this.props.unit.LoadState === "loaded" || this.props.unit.LoadState === "masked") && this.props.owner == "system") &&
                         <GalleryItem>
                             <LogsPanel title={_("Service logs")} match={match} emptyMessage={_("No log entries")} max={10} goto_url={url} search_options={{ prio: "debug", service: cur_unit_id }} />
                         </GalleryItem>}

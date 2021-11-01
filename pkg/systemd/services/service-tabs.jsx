@@ -36,7 +36,7 @@ export const service_tabs_suffixes = ["service", "target", "socket", "timer", "p
  */
 export function ServiceTabs({ onChange, activeTab, tabErrors }) {
     const service_tabs = {
-        service: _("System services"),
+        service: _("Services"),
         target: _("Targets"),
         socket: _("Sockets"),
         timer: _("Timers"),

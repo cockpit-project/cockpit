@@ -88,7 +88,7 @@ const getServicesRow = ({ Id, shortId, AutomaticStartup, UnitFileState, LoadStat
                     <Button className='service-unit-id'
                             isInline
                             component="a"
-                            href={'#/' + shortId}
+                            onClick={() => cockpit.location.go([shortId], cockpit.location.options)}
                             variant='link'>
                         {props.displayName}
                     </Button>

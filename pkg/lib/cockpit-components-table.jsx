@@ -17,18 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useState } from 'react';
 import {
+    ExpandableRowContent,
     TableComposable, Thead, Tbody, Tr, Th, Td,
-    Table,
-    TableHeader,
-    TableBody,
-    headerCol,
-    RowWrapper,
     SortByDirection,
-    sortable,
-    expandable,
 } from '@patternfly/react-table';
 import {
     EmptyState, EmptyStateBody, EmptyStateSecondaryActions,
@@ -63,325 +56,190 @@ import './cockpit-components-table.scss';
  * - style: object of additional css rules
  * - afterToggle: function to be called when content is toggled
  */
-export class ListingTable extends React.Component {
-    constructor(props) {
-        super(props);
-        const sortBy = {};
-        if ('sortBy' in props) {
-            sortBy.index = props.sortBy.index || 0;
-            sortBy.direction = props.sortBy.direction || SortByDirection.asc;
-        }
-        this.onSort = this.onSort.bind(this);
-        this.onCollapse = this.onCollapse.bind(this);
-        this.reformatRows = this.reformatRows.bind(this);
-
-        this.state = { sortBy, isOpen: {} };
-    }
-
-    static getDerivedStateFromProps(nextProps, prevState) {
-        const isOpen = {};
-        (nextProps.rows || []).forEach(currentValue => {
-            // For expandable rows
-            if (currentValue.expandedContent) {
-                if (prevState.isOpen[currentValue.props.key] === undefined)
-                    isOpen[currentValue.props.key] = !!currentValue.initiallyExpanded;
-                else
-                    isOpen[currentValue.props.key] = prevState.isOpen[currentValue.props.key];
-            }
-        });
-        return { isOpen };
-    }
-
-    onSort(_event, index, direction) {
-        this.setState({
-            sortBy: {
-                index,
-                direction,
-            },
-        });
-    }
-
-    onCollapse(event, rowKey, isOpenCurrent, rowData) {
-        const { isOpen } = this.state;
-
-        isOpen[rowData.props.key] = isOpenCurrent;
-        this.setState({ isOpen });
-
-        if (this.props.afterToggle)
-            this.props.afterToggle(isOpenCurrent);
-    }
-
-    sortRows(rows) {
-        const { index, direction } = this.state.sortBy;
-        const sortedRows = rows.sort((a, b) => ((a.cells[index].sortKey || a.cells[index].title).localeCompare(b.cells[index].sortKey || b.cells[index].title)));
-        return direction === SortByDirection.asc ? sortedRows : sortedRows.reverse();
-    }
-
-    rowWrapper(...args) {
-        const props = args[0];
-        return <RowWrapper {...props} {...props.row.props} />;
-    }
-
-    reformatColumns(columns, isExpandable) {
-        const res = columns.map(column => {
-            const res = {};
-            if (typeof column == 'string') {
-                res.title = column;
-            } else {
-                res.title = column.title;
-                res.cellTransforms = [];
-                if (column.header)
-                    res.cellTransforms.push(headerCol());
-                if (column.cellTransforms)
-                    res.cellTransforms = res.cellTransforms.concat(column.cellTransforms);
-                if (column.transforms)
-                    res.transforms = column.transforms;
-                if (column.sortable)
-                    res.transforms = column.transforms ? [...column.transforms, sortable] : [sortable];
-            }
-            return res;
-        });
-
-        if (isExpandable)
-            res[0].cellFormatters = [expandable];
-
-        return res;
-    }
-
-    reformatRows(rows, colSpan) {
-        let rowIndex = 0;
-        return rows.reduce((total, currentValue) => {
-            const rowFormatted = {
-                cells: currentValue.columns.map(cell => {
-                    let res;
-                    if (typeof cell == 'string')
-                        res = { title: cell };
-                    else
-                        res = cell;
-
-                    return res;
-                }),
-            };
-            rowFormatted.extraClasses = currentValue.extraClasses;
-            rowFormatted.props = currentValue.props;
-
-            // For selectable rows
-            if ('selected' in currentValue)
-                rowFormatted.selected = currentValue.selected;
-            if ('disableSelection' in currentValue)
-                rowFormatted.disableSelection = currentValue.disableSelection;
-
-            // For expandable rows
-            if (currentValue.expandedContent)
-                rowFormatted.isOpen = this.state.isOpen[currentValue.props.key];
-
-            total.push(rowFormatted);
-            rowIndex++;
-
-            if (currentValue.expandedContent) {
-                total.push({
-                    parent: rowIndex - 1,
-                    cells: [{ title: currentValue.expandedContent, props: { colSpan } }],
-                    fullWidth: true, noPadding: !currentValue.hasPadding,
-                    props: { key: currentValue.props.key + "-expanded" },
-                });
-                rowIndex++;
-            }
-
-            return total;
-        }, []);
-    }
-
-    render() {
-        const tableProps = {};
-        let isTableBasic = true;
-
-        if (this.props.gridBreakPoint !== undefined)
-            tableProps.gridBreakPoint = this.props.gridBreakPoint;
-
-        /* Basic table properties */
-        tableProps.className = "ct-table";
-        if (this.props.className)
-            tableProps.className = tableProps.className + " " + this.props.className;
-        if (this.props.rows.length == 0)
-            tableProps.className += ' ct-table-empty';
-
-        if (this.props.id) {
-            tableProps.id = this.props.id;
-            tableProps.expandId = this.props.id + '-expandable-toggle';
-            tableProps.contentId = this.props.id + '-expanded-content';
-        }
-
-        if (this.props.variant)
-            tableProps.variant = this.props.variant;
-
-        if (this.props['aria-label'])
-            tableProps['aria-label'] = this.props['aria-label'];
-
-        if (this.props.caption || this.props.actions.length != 0) {
-            tableProps.header = (
-                <header className='ct-table-header'>
-                    <h3 className='ct-table-heading'> {this.props.caption} </h3>
-                    {this.props.actions && <div className='ct-table-actions'> {this.props.actions} </div>}
-                </header>
-            );
-        }
-
-        /* Sortable table properties */
-        if (this.props.columns.some(col => col.sortable)) {
-            isTableBasic = false;
-            tableProps.onSort = this.onSort;
-            tableProps.sortBy = this.state.sortBy;
-        }
-
-        /* Seletable table with checkboxes properties */
-        if (this.props.onSelect && this.props.rows.length) {
-            isTableBasic = false;
-            tableProps.onSelect = this.props.onSelect;
-        }
-
-        /* Expandable table properties */
-        const isExpandable = this.props.rows.some(row => row.expandedContent);
-        if (isExpandable) {
-            isTableBasic = false;
-            tableProps.onCollapse = this.onCollapse;
-        }
-
-        /* Rows with onClick handler */
-        const tableBodyProps = { rowKey: ({ rowData, rowIndex }) => (rowData.props && rowData.props.key) ? rowData.props.key : rowIndex };
-        if (this.props.onRowClick && this.props.rows.length) {
-            isTableBasic = false;
-            tableBodyProps.onRowClick = this.props.onRowClick;
-        }
-
-        /* if the Table has sortable, selectable, expandable or clickable rows do some prep work */
-        if (!isTableBasic) {
-            tableProps.rowWrapper = this.rowWrapper;
-            tableProps.rows = this.props.rows.length ? this.reformatRows(this.props.rows, this.props.columns.length + (isExpandable ? 1 : 0) + (this.props.onSelect ? 1 : 0)) : [];
-            if (this.state.sortBy.index != undefined)
-                tableProps.rows = this.sortRows(tableProps.rows);
-            tableProps.cells = this.reformatColumns(this.props.columns, isExpandable);
-        } else {
-            tableProps.rows = this.props.rows;
-            tableProps.cells = this.props.columns;
-        }
-
-        if (tableProps.rows == 0) {
-            const emptyState = (
-                <EmptyState>
-                    <EmptyStateBody>
-                        <div>{this.props.emptyCaption}</div>
-                        <TextContent>
-                            <Text component={TextVariants.small}>
-                                {this.props.emptyCaptionDetail}
-                            </Text>
-                        </TextContent>
-                    </EmptyStateBody>
-                    {this.props.actions.length > 0 ? <EmptyStateSecondaryActions>{this.props.actions}</EmptyStateSecondaryActions> : null}
-                </EmptyState>
-            );
-            if (!this.props.isEmptyStateInTable)
-                return emptyState;
-
-            const emptyStateCell = (
-                [{
-                    props: { colSpan: this.props.columns.length },
-                    title: emptyState
-                }]
-            );
-
-            if (isTableBasic)
-                tableProps.rows = [{ columns: emptyStateCell }];
-            else
-                tableProps.rows = [{ cells: emptyStateCell }];
-        }
-
-        if (this.props.style)
-            tableProps.style = this.props.style;
-
-        if (!isTableBasic) {
-            return (
-                <Table {...tableProps}>
-                    {this.props.showHeader && <TableHeader />}
-                    <TableBody {...tableBodyProps} />
-                </Table>
-            );
-        } else {
-            return <ComposableTableBasic showHeader={this.props.showHeader} {...tableProps} />;
-        }
-    }
-}
-ListingTable.defaultProps = {
-    caption: '',
-    emptyCaption: '',
-    isEmptyStateInTable: false,
-    columns: [],
-    rows: [],
-    actions: [],
-    showHeader: true,
-};
-ListingTable.propTypes = {
-    id: PropTypes.string,
-    caption: PropTypes.string,
-    emptyCaption: PropTypes.node,
-    emptyCaptionDetail: PropTypes.node,
-    isEmptyStateInTable: PropTypes.bool,
-    columns: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.object, PropTypes.string])),
-    rows: PropTypes.arrayOf(PropTypes.shape({ props: PropTypes.object })),
-    actions: PropTypes.node,
-    variant: PropTypes.string,
-    showHeader: PropTypes.bool,
-    style: PropTypes.object,
-    afterToggle: PropTypes.func,
-};
-
-const ComposableTableBasic = ({
-    cells,
-    header,
-    rows,
-    showHeader,
-    ...props
+export const ListingTable = ({
+    actions = [],
+    afterToggle,
+    caption = '',
+    className,
+    columns: cells = [],
+    emptyCaption = '',
+    emptyCaptionDetail,
+    isEmptyStateInTable = false,
+    onRowClick,
+    onSelect,
+    rows: tableRows = [],
+    showHeader = true,
+    sortBy,
+    ...extraProps
 }) => {
+    let rows = tableRows;
+
+    const [expanded, setExpanded] = useState({});
+    const [activeSortIndex, setActiveSortIndex] = useState(sortBy ? sortBy.index : 0);
+    const [activeSortDirection, setActiveSortDirection] = useState(sortBy ? sortBy.direction : SortByDirection.asc);
+
+    const isSortable = cells.some(col => col.sortable);
+    const isExpandable = rows.some(row => row.expandedContent);
+
+    const tableProps = {};
+
+    /* Basic table properties */
+    tableProps.className = "ct-table";
+    if (className)
+        tableProps.className = tableProps.className + " " + className;
+    if (rows.length == 0)
+        tableProps.className += ' ct-table-empty';
+
+    const header = (
+        (caption || actions.length != 0)
+            ? <header className='ct-table-header'>
+                <h3 className='ct-table-heading'> {caption} </h3>
+                {actions && <div className='ct-table-actions'> {actions} </div>}
+            </header>
+            : null
+    );
+
+    if (rows == 0) {
+        const emptyState = (
+            <EmptyState>
+                <EmptyStateBody>
+                    <div>{emptyCaption}</div>
+                    <TextContent>
+                        <Text component={TextVariants.small}>
+                            {emptyCaptionDetail}
+                        </Text>
+                    </TextContent>
+                </EmptyStateBody>
+                {actions.length > 0 ? <EmptyStateSecondaryActions>{actions}</EmptyStateSecondaryActions> : null}
+            </EmptyState>
+        );
+        if (!isEmptyStateInTable)
+            return emptyState;
+
+        const emptyStateCell = (
+            [{
+                props: { colSpan: cells.length },
+                title: emptyState
+            }]
+        );
+
+        rows = [{ columns: emptyStateCell }];
+    }
+
+    const sortRows = () => {
+        const sortedRows = rows.sort((a, b) => {
+            const aitem = a.columns[activeSortIndex];
+            const bitem = b.columns[activeSortIndex];
+
+            return ((typeof aitem == 'string' ? aitem : (aitem.sortKey || aitem.title)).localeCompare(typeof bitem == 'string' ? bitem : (bitem.sortKey || bitem.title)));
+        });
+        return activeSortDirection === SortByDirection.asc ? sortedRows : sortedRows.reverse();
+    };
+
+    const onSort = (event, index, direction) => {
+        setActiveSortIndex(index);
+        setActiveSortDirection(direction);
+    };
+
+    const rowsComponents = (isSortable ? sortRows() : rows).map((row, rowIndex) => {
+        const rowProps = row.props || {};
+        if (onRowClick) {
+            rowProps.isHoverable = true;
+            rowProps.onRowClick = (event) => onRowClick(event, row);
+        }
+
+        const rowKey = rowProps.key || rowIndex;
+        const isExpanded = expanded[rowKey] === undefined ? !!row.initiallyExpanded : expanded[rowKey];
+        const rowPair = (
+            <React.Fragment key={rowKey + "-inner-row"}>
+                <Tr {...rowProps}>
+                    {isExpandable
+                        ? (row.expandedContent
+                            ? <Td expand={
+                                {
+                                    rowKey,
+                                    isExpanded,
+                                    onToggle: () => {
+                                        if (afterToggle)
+                                            afterToggle(!expanded[rowKey]);
+                                        setExpanded({ ...expanded, [rowKey]: !expanded[rowKey] });
+                                    }
+                                }} />
+                            : <Td />
+                        ) : null}
+                    {onSelect &&
+                        <Td select={{
+                            rowIndex,
+                            onSelect,
+                            isSelected: !!row.selected,
+                        }} />
+                    }
+                    {row.columns.map((cell, cellIndex) => {
+                        const { key, ...cellProps } = cell.props || {};
+                        const dataLabel = typeof cells[cellIndex] == 'object' ? cells[cellIndex].title : cells[cellIndex];
+
+                        if (cells[cellIndex].header)
+                            return (
+                                <Th key={key || `row_${rowKey}_cell_${dataLabel}`} dataLabel={dataLabel} {...cellProps}>
+                                    {typeof cell == 'object' ? cell.title : cell}
+                                </Th>
+                            );
+
+                        return (
+                            <Td key={key || `row_${rowKey}_cell_${dataLabel}`} dataLabel={dataLabel} {...cellProps}>
+                                {typeof cell == 'object' ? cell.title : cell}
+                            </Td>
+                        );
+                    })}
+                </Tr>
+                {row.expandedContent && <Tr id={"expanded-content" + rowIndex} isExpanded={isExpanded}>
+                    <Td noPadding={row.hasPadding !== true} colSpan={row.columns.length + 1 + (onSelect ? 1 : 0)}>
+                        <ExpandableRowContent>{row.expandedContent}</ExpandableRowContent>
+                    </Td>
+                </Tr>}
+            </React.Fragment>
+        );
+
+        if (row.expandedContent)
+            return <Tbody key={rowKey} isExpanded={isExpanded}>{rowPair}</Tbody>;
+        else
+            return rowPair;
+    });
+
     return (
         <>
             {header}
-            <TableComposable {...props}>
+            <TableComposable {...extraProps} {...tableProps}>
                 {showHeader && <Thead>
                     <Tr>
+                        {isExpandable && <Th />}
+                        {onSelect && <Th />}
                         {cells.map((column, columnIndex) => {
                             const columnProps = column.props;
-                            return <Th key={columnIndex} {...columnProps}>{typeof column == 'object' ? column.title : column}</Th>;
+                            const sortParams = (
+                                column.sortable
+                                    ? {
+                                        sort: {
+                                            sortBy: {
+                                                index: activeSortIndex,
+                                                direction: activeSortDirection
+                                            },
+                                            onSort,
+                                            columnIndex
+                                        }
+                                    }
+                                    : {}
+                            );
+
+                            return (
+                                <Th key={columnIndex} {...columnProps} {...sortParams}>
+                                    {typeof column == 'object' ? column.title : column}
+                                </Th>
+                            );
                         })}
                     </Tr>
                 </Thead>}
-                <Tbody>
-                    {rows.map((row, rowIndex) => {
-                        const rowProps = row.props || {};
-                        const rowKey = rowProps.key || rowIndex;
-
-                        return (
-                            <Tr key={rowKey} {...rowProps}>
-                                {row.columns.map((cell, cellIndex) => {
-                                    const { key, ...cellProps } = cell.props || {};
-                                    const dataLabel = typeof cells[cellIndex] == 'object' ? cells[cellIndex].title : cells[cellIndex];
-
-                                    if (cells[cellIndex].header)
-                                        return (
-                                            <Th key={key || `row_${rowKey}_cell_${dataLabel}`} dataLabel={dataLabel} {...cellProps}>
-                                                {typeof cell == 'object' ? cell.title : cell}
-                                            </Th>
-                                        );
-
-                                    return (
-                                        <Td key={key || `row_${rowKey}_cell_${dataLabel}`} dataLabel={dataLabel} {...cellProps}>
-                                            {typeof cell == 'object' ? cell.title : cell}
-                                        </Td>
-                                    );
-                                })}
-                            </Tr>
-                        );
-                    })}
-                </Tbody>
+                {!isExpandable ? <Tbody>{rowsComponents}</Tbody> : rowsComponents}
             </TableComposable>
         </>
     );

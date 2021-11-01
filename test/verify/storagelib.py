@@ -106,16 +106,22 @@ class StorageHelpers:
             b.click(tbody + " tr td.pf-c-table__toggle button")
             b.wait_visible(tbody + ".pf-m-expanded")
 
-    def content_row_action(self, index, title):
-        btn = self.content_row_tbody(index) + " tr:first-child td button:contains(%s)" % title
+    def content_row_action(self, index, title, isExpandable=True):
+        if isExpandable:
+            btn = self.content_row_tbody(index) + " tr:first-child td button:contains(%s)" % title
+        else:
+            btn = "#detail-content > article > div > table > :nth-child(%d)" % index + " td button:contains(%s)" % title
         self.browser.click(btn)
 
     # The row might come and go a couple of times until it has the
     # expected content.  However, wait_in_text can not deal with a
     # temporarily disappearing element, so we use self.retry.
 
-    def content_row_wait_in_col(self, row_index, col_index, val):
-        col = self.content_row_tbody(row_index) + " tr:first-child > :nth-child(%d)" % (col_index + 1)
+    def content_row_wait_in_col(self, row_index, col_index, val, isExpandable=True):
+        if isExpandable:
+            col = self.content_row_tbody(row_index) + " tr:first-child > :nth-child(%d)" % (col_index + 1)
+        else:
+            col = "#detail-content > article > div > table > :nth-child(%d)" % row_index + " > :nth-child(%d)" % (col_index + 1)
         wait(lambda: self.browser.is_present(col) and val in self.browser.text(col))
 
     def content_dropdown_action(self, index, title):

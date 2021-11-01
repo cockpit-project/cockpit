@@ -528,7 +528,7 @@ ExecStart=/usr/local/bin/{0}
                 b.wait_in_text("#status", "System is up to date")
 
                 # history on "up to date" page should show the recent update (expanded by default)
-                self.testObj.assertHistory("#expanded-content1 > div > ul", [self.packageName])
+                self.testObj.assertHistory("#expanded-content0 > td > div > ul", [self.packageName])
 
             def verify_backend(self):
                 if not self.rebootRequired:
@@ -765,7 +765,7 @@ ExecStart=/usr/local/bin/{0}
         self.assertNotIn("secparse", b.text("#available-updates table"))
 
         # history should show the security updates
-        self.assertHistory("table.updates-history #expanded-content1 ul", ["secdeclare", "secparse", "sevcritical"])
+        self.assertHistory("table.updates-history #expanded-content0 ul", ["secdeclare", "secparse", "sevcritical"])
 
         # stop PackageKit (e. g. idle timeout) to make sure the page survives that
         m.execute("systemctl stop packagekit; systemctl reset-failed packagekit || true")

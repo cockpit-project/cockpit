@@ -97,7 +97,8 @@ export class FilesystemsPanel extends React.Component {
 
         function make_pool(path) {
             const pool = client.stratis_pools[path];
-            const use = [Number(pool.data.TotalPhysicalUsed), Number(pool.data.TotalPhysicalSize)];
+            const use = [pool.TotalPhysicalUsed[0] && Number(pool.TotalPhysicalUsed[1]),
+                Number(pool.TotalPhysicalSize)];
             const filesystems = client.stratis_pool_filesystems[path].sort((a, b) => a.Devnode.localeCompare(b.Devnode));
             const prefix = "/dev/stratis/" + pool.Name;
 
@@ -114,7 +115,8 @@ export class FilesystemsPanel extends React.Component {
                     mount_points.push(mp || "-");
                 }
                 offsets.push(total);
-                total += Number(fs.data.Used);
+                if (fs.Used[0])
+                    total += Number(fs.Used[1]);
                 if (fs.Devnode.indexOf(prefix) == 0)
                     suffices.push(<span>&emsp;...{fs.Devnode.substr(prefix.length)}</span>);
                 else
@@ -141,7 +143,12 @@ export class FilesystemsPanel extends React.Component {
                     {
                         title: <>
                             <div><StorageUsageBar stats={use} critical={0.95} /></div>
-                            { filesystems.map((fs, i) => <div key={i}><StorageUsageBar stats={[Number(fs.data.Used), use[1]]} critical={1} small total={total} offset={offsets[i]} /></div>) }
+                            { filesystems.map((fs, i) =>
+                                <div key={i}>
+                                    <StorageUsageBar stats={[fs.Used[0] && Number(fs.Used[1]), use[1]]}
+                                                            critical={1} small total={total} offset={offsets[i]} />
+                                </div>)
+                            }
                         </>,
                         props: { className: "ct-text-align-right" }
 

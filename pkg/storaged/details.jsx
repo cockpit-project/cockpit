@@ -120,8 +120,8 @@ export class Details extends React.Component {
                 body = <NFSDetails client={client} entry={entry} />;
         } else if (this.props.type == "pool") {
             const pool = (client.stratis_poolnames_pool[this.props.name] ||
-                        client.stratis_pooluuids_pool[this.props.name]);
-            const locked_props = client.stratis_manager.data.LockedPoolsWithDevs[this.props.name];
+                          client.stratis_pooluuids_pool[this.props.name]);
+            const locked_props = client.stratis_manager.LockedPools[this.props.name];
 
             if (pool)
                 body = <StratisPoolDetails client={client} pool={pool} />;

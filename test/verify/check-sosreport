@@ -54,7 +54,7 @@ only-plugins=release,date,host,cgroups,networking
         self.login_and_go("/sosreport", urlroot=urlroot)
 
         b.click("button:contains('Create report')")
-        b.wait_visible("#sos")
+        b.wait_visible("#sos-dialog")
 
         with b.wait_timeout(540):
             b.wait(lambda: b.eval_js('ph_find("#sos-progress .pf-c-progress__bar").offsetWidth') > 0)
@@ -63,7 +63,7 @@ only-plugins=release,date,host,cgroups,networking
         if b.cdp.browser.name == "chromium":
             b.cdp.invoke("Page.setDownloadBehavior", behavior="allow", downloadPath=b.cdp.download_dir)
 
-        b.click("#sos-download button")
+        b.click("#sos-download")
         # while the download is ongoing, it will have an *.xz.tmpsuffix name, gets renamed to *.xz when done
         wait(lambda: len(glob.glob(os.path.join(b.cdp.download_dir, "sosreport-*.xz"))) > 0)
         report = glob.glob(os.path.join(b.cdp.download_dir, "sosreport-*.xz"))[0]
@@ -95,13 +95,13 @@ only-plugins=release,date,host,cgroups,networking
 
         self.login_and_go("/sosreport")
         b.click("button:contains('Create report')")
-        b.wait_visible("#sos")
-        m.execute("until pgrep -x sosreport >/dev/null; do sleep 1; done")
+        b.wait_visible("#sos-dialog")
+        m.execute("until pgrep -x sos >/dev/null; do sleep 1; done")
 
         b.click("#sos-cancel")
-        b.wait_not_visible("#sos")
+        b.wait_not_present("#sos-dialog")
         # cleans up properly; unfortunately closing the process is async, so need to retry a few times
-        m.execute("while pgrep -a -x sosreport; do sleep 1; done", timeout=10)
+        m.execute("while pgrep -a -x sos; do sleep 1; done", timeout=10)
         self.assertEqual(m.execute("ls /var/tmp/sosreport* 2>/dev/null || true"), "")
 
     def testAppStream(self):

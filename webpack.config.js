@@ -88,8 +88,7 @@ const info = {
         ],
 
         "sosreport/sosreport": [
-            "sosreport/index.js",
-            "sosreport/sosreport.scss",
+            "sosreport/index.jsx",
         ],
 
         "static/login": [

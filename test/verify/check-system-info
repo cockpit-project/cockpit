@@ -276,8 +276,6 @@ class TestSystemInfo(MachineCase):
         # wait until icon settles down
         b.wait_visible("#systime-time-input-input[aria-invalid='false']")
         b.wait_not_present("#systime-manual-row .dialog-error")
-        # avoid blinking cursor
-        b.blur("#systime-time-input-input")
         if b.cdp.mobile:
             # HACK: the clock icon in the <input> has too much jitter on mobile
             ignore = ["#systime-time-input-input"]

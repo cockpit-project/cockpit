@@ -345,7 +345,7 @@ class Browser:
         else:
             self.wait_text(f"{selector} .pf-c-select__toggle-text", value)
 
-    def set_input_text(self, selector, val, append=False, value_check=True):
+    def set_input_text(self, selector, val, append=False, value_check=True, blur=True):
         self.focus(selector)
         if not append:
             self.key_press("a", 2)  # Ctrl + a
@@ -353,6 +353,8 @@ class Browser:
             self.key_press("\b")  # Backspace
         else:
             self.key_press(val)
+        if blur:
+            self.blur(selector)
 
         if value_check:
             self.wait_val(selector, val)

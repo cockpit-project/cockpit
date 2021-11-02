@@ -301,9 +301,6 @@ class TestKeys(MachineCase):
         b.set_input_text("#id_dsa-old-password", "badbad")
         b.set_input_text("#id_dsa-new-password", "foobar")
         b.set_input_text("#id_dsa-confirm-password", "foobar")
-
-        # avoid blinking cursor and blurry focus ring
-        b.blur("#id_dsa-confirm-password")
         b.assert_pixels("#credentials-modal", "ssh-keys-dialog", ignore=[".ct-icon-info-circle", "tbody:nth-child(1) .pf-c-table__toggle-icon"])
 
         b.click("#id_dsa-change-password")

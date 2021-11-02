@@ -22,7 +22,7 @@ from testlib import *
 
 
 @nondestructive
-@skipImage("No tuned packaged", "fedora-coreos")
+@skipImage("No tuned packaged", "fedora-coreos", "arch")
 @skipDistroPackage()
 class TestTuned(MachineCase):
 

@@ -19,7 +19,6 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import * as python from "python.js";
 
 import {
     Card, CardBody, CardTitle, CardHeader, CardActions, Text, TextVariants,
@@ -51,8 +50,6 @@ import {
 } from "./utils.js";
 import { fmt_to_fragments } from "./utilsx.jsx";
 import { never_auto_explanation } from "./format-dialog.jsx";
-
-import stratis_set_key_py from "raw-loader!./stratis-set-key.py";
 
 const _ = cockpit.gettext;
 
@@ -89,11 +86,6 @@ function destroy_pool(client, pool) {
             });
 }
 
-export function store_passphrase(desc, passphrase) {
-    return python.spawn(stratis_set_key_py, [desc], { superuser: true })
-            .input(passphrase);
-}
-
 function remove_passphrase(client, key_desc) {
     return client.stratis_manager.UnsetKey(key_desc)
             .then((result, code, message) => {
@@ -109,18 +101,17 @@ const StratisPoolSidebar = ({ client, pool }) => {
     const blockdevs = client.stratis_pool_blockdevs[pool.path] || [];
 
     function add_disks() {
-        if (!pool.Encrypted || !pool.data.KeyDescription || !pool.data.KeyDescription[0]) {
+        if (!pool.Encrypted ||
+            !pool.KeyDescription ||
+            !pool.KeyDescription[0] ||
+            !pool.KeyDescription[1][0]) {
             add_disks_with_keydesc(false);
             return;
         }
 
-        const key_desc = pool.data.KeyDescription[1];
-        const manager = client.stratis_manager;
-        return manager.client.call(manager.path, "org.storage.stratis2.FetchProperties.r2", "GetProperties", [["KeyList"]])
-                .then(([result]) => {
-                    let keys = [];
-                    if (result.KeyList && result.KeyList[0])
-                        keys = result.KeyList[1].v;
+        const key_desc = pool.KeyDescription[1][1];
+        return client.stratis_list_keys()
+                .then(keys => {
                     if (keys.indexOf(key_desc) >= 0)
                         add_disks_with_keydesc(false);
                     else
@@ -183,7 +174,7 @@ const StratisPoolSidebar = ({ client, pool }) => {
                                 }
 
                                 if (key_desc) {
-                                    return store_passphrase(key_desc, vals.passphrase)
+                                    return client.stratis_store_passphrase(key_desc, vals.passphrase)
                                             .then(add)
                                             .catch(ex => {
                                                 return remove_passphrase(client, key_desc)
@@ -209,13 +200,13 @@ const StratisPoolSidebar = ({ client, pool }) => {
 
         if (blockdev.Tier == 0)
             desc = cockpit.format(_("$0 data"),
-                                  fmt_size(blockdev.data.TotalPhysicalSize));
+                                  fmt_size(Number(blockdev.TotalPhysicalSize)));
         else if (blockdev.Tier == 1)
             desc = cockpit.format(_("$0 cache"),
-                                  fmt_size(blockdev.data.TotalPhysicalSize));
+                                  fmt_size(Number(blockdev.TotalPhysicalSize)));
         else
             desc = cockpit.format(_("$0 of unknown tier"),
-                                  fmt_size(blockdev.data.TotalPhysicalSize));
+                                  fmt_size(Number(blockdev.TotalPhysicalSize)));
 
         return (
             <SidePanelBlockRow client={client}
@@ -405,8 +396,8 @@ export const StratisPoolDetails = ({ client, pool }) => {
             Action: {
                 Title: _("Create"),
                 action: function (vals) {
-                    return pool.call("CreateFilesystems", [[vals.name]])
-                            .then(([result, code, message]) => {
+                    return client.stratis_create_filesystem(pool, vals.name)
+                            .then((result, code, message) => {
                                 if (code)
                                     return Promise.reject(message);
 
@@ -420,7 +411,8 @@ export const StratisPoolDetails = ({ client, pool }) => {
         });
     }
 
-    const use = [Number(pool.data.TotalPhysicalUsed), Number(pool.data.TotalPhysicalSize)];
+    const use = pool.TotalPhysicalUsed[0] && [Number(pool.TotalPhysicalUsed[1]), Number(pool.TotalPhysicalSize)];
+
     const header = (
         <Card>
             <CardHeader>
@@ -440,12 +432,14 @@ export const StratisPoolDetails = ({ client, pool }) => {
                         <DescriptionListTerm className="control-DescriptionListTerm">{_("storage", "UUID")}</DescriptionListTerm>
                         <DescriptionListDescription>{ pool.Uuid }</DescriptionListDescription>
                     </DescriptionListGroup>
+                    { use &&
                     <DescriptionListGroup>
                         <DescriptionListTerm className="control-DescriptionListTerm">{_("storage", "Usage")}</DescriptionListTerm>
                         <DescriptionListDescription className="pf-u-align-self-center">
                             <StorageUsageBar stats={use} critical={0.95} />
                         </DescriptionListDescription>
                     </DescriptionListGroup>
+                    }
                 </DescriptionList>
             </CardBody>
         </Card>
@@ -665,12 +659,25 @@ export const StratisPoolDetails = ({ client, pool }) => {
 
 export function unlock_pool(client, uuid, show_devs) {
     const manager = client.stratis_manager;
-    const locked_props = manager.data.LockedPoolsWithDevs[uuid];
-    const key_desc = locked_props.key_description.v[1];
+    const locked_props = manager.LockedPools[uuid];
     const devs = locked_props.devs.v.map(d => d.devnode).sort();
 
+    if (!locked_props.key_description ||
+        locked_props.key_description.t != "(bv)" ||
+        !locked_props.key_description.v[0] ||
+        locked_props.key_description.v[1].t != "(bs)" ||
+        !locked_props.key_description.v[1].v[0]) {
+        dialog_open({
+            Title: _("Error"),
+            Body: _("This pool can not be unlocked here because its key description is not in the expected format.")
+        });
+        return;
+    }
+
+    const key_desc = locked_props.key_description.v[1].v[1];
+
     function unlock() {
-        return manager.UnlockPool(uuid)
+        return client.stratis_unlock_pool(uuid)
                 .then((result, code, message) => {
                     if (code)
                         return Promise.reject(message);
@@ -692,7 +699,7 @@ export function unlock_pool(client, uuid, show_devs) {
             Action: {
                 Title: _("Unlock"),
                 action: function(vals) {
-                    return store_passphrase(key_desc, vals.passphrase)
+                    return client.stratis_store_passphrase(key_desc, vals.passphrase)
                             .then(unlock)
                             .catch(ex => {
                                 return remove_passphrase(client, key_desc)
@@ -720,7 +727,7 @@ export function unlock_pool(client, uuid, show_devs) {
 }
 
 const StratisLockedPoolSidebar = ({ client, uuid }) => {
-    const locked_props = client.stratis_manager.data.LockedPoolsWithDevs[uuid];
+    const locked_props = client.stratis_manager.LockedPools[uuid];
     const devs = locked_props.devs.v.map(d => d.devnode).sort();
 
     function render_dev(dev) {

@@ -60,6 +60,7 @@ class TestStorageStratis(StorageCase):
         self.dialog_wait_close()
 
         b.wait_in_text("#devices", "pool0")
+        b.wait_in_text("#devices", "8 GiB Stratis Pool")
         b.assert_pixels("#devices", "pool-row")
 
         # Check that the next name is "pool1"

@@ -489,7 +489,10 @@ export class FilesystemTab extends React.Component {
 
         let used;
         if (stratis_fsys) {
-            used = utils.fmt_size(Number(stratis_fsys.data.Used));
+            if (stratis_fsys.Used[0])
+                used = utils.fmt_size(Number(stratis_fsys.Used[1]));
+            else
+                used = "-";
         } else if (is_filesystem_mounted) {
             const samples = self.props.client.fsys_sizes.data[old_dir];
             if (samples)

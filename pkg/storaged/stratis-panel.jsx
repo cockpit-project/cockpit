@@ -26,7 +26,7 @@ import {
     decode_filename, fmt_size,
     get_available_spaces, prepare_available_spaces,
 } from "./utils.js";
-import { validate_pool_name, store_passphrase, unlock_pool } from "./stratis-details.jsx";
+import { validate_pool_name, unlock_pool } from "./stratis-details.jsx";
 import { StorageButton } from "./storage-controls.jsx";
 import { UnlockIcon } from "@patternfly/react-icons";
 
@@ -55,7 +55,7 @@ const StratisPoolRow = ({ client, path }) => {
         <SidePanelRow client={client}
                       name={pool.Name}
                       devname={"/dev/stratis/" + pool.Name + "/"}
-                      detail={cockpit.format(_("$0 Stratis Pool"), fmt_size(pool.data.TotalPhysicalSize))}
+                      detail={cockpit.format(_("$0 Stratis Pool"), fmt_size(pool.TotalPhysicalSize))}
                       go={() => cockpit.location.go(["pool", pool.Uuid])}
                       job_path={path} />
     );
@@ -86,27 +86,23 @@ export function stratis_rows(client) {
     const pools = Object.keys(client.stratis_pools).sort(cmp_pool)
             .map(p => <StratisPoolRow key={p} client={client} path={p} />);
 
-    const locked_pools = Object.keys(client.stratis_manager.data.LockedPoolsWithDevs).sort(cmp_locked_pool)
+    const locked_pools = Object.keys(client.stratis_manager.LockedPools).sort(cmp_locked_pool)
             .map(uuid => <StratisLockedPoolRow key={uuid} client={client} uuid={uuid} />);
 
     return pools.concat(locked_pools);
 }
 
 function store_new_passphrase(client, desc_prefix, passphrase) {
-    const manager = client.stratis_manager;
-    return manager.client.call(manager.path, "org.storage.stratis2.FetchProperties.r2", "GetProperties", [["KeyList"]])
+    return client.stratis_list_keys()
             .catch(() => [{ }])
-            .then(([result]) => {
-                let keys = [];
-                if (result.KeyList && result.KeyList[0])
-                    keys = result.KeyList[1].v;
+            .then(keys => {
                 let desc;
                 for (let i = 0; i < 1000; i++) {
                     desc = desc_prefix + (i > 0 ? "." + i.toFixed() : "");
                     if (keys.indexOf(desc) == -1)
                         break;
                 }
-                return store_passphrase(desc, passphrase)
+                return client.stratis_store_passphrase(desc, passphrase)
                         .then(() => Promise.resolve(desc));
             });
 }
@@ -176,9 +172,7 @@ export function create_stratis_pool(client) {
                     const devs = paths.map(p => decode_filename(client.blocks[p].PreferredDevice));
 
                     function create(key_desc) {
-                        return client.stratis_manager.CreatePool(vals.name, [false, 0],
-                                                                 devs,
-                                                                 key_desc ? [true, key_desc] : [false, ""])
+                        return client.stratis_create_pool(vals.name, devs, key_desc)
                                 .then((result, code, message) => {
                                     if (code)
                                         return Promise.reject(message);

@@ -58,6 +58,7 @@ const unsigned server_port = 9123;
 typedef struct {
   gchar *ws_socket_dir;
   gchar *runtime_dir;
+  gchar *clients_dir;
   gchar *cgroup_line;
   GPid ws_spawner;
   struct sockaddr_in server_addr;
@@ -125,13 +126,13 @@ static bool
 check_for_certfile (TestCase *tc,
                     char **out_contents)
 {
-  g_autoptr(GDir) dir = g_dir_open (tc->runtime_dir, 0, NULL);
+  g_autoptr(GDir) dir = g_dir_open (tc->clients_dir, 0, NULL);
   g_assert (dir != NULL);
 
   const char *name;
   while ((name = g_dir_read_name (dir)))
     {
-      g_autofree char *filename = g_build_filename (tc->runtime_dir, name, NULL);
+      g_autofree char *filename = g_build_filename (tc->clients_dir, name, NULL);
 
       g_autofree char *contents = NULL;
       g_autoptr(GError) error = NULL;
@@ -368,6 +369,7 @@ setup (TestCase *tc, gconstpointer data)
   tc->runtime_dir = g_mkdtemp (runtime_dir_template);
   g_assert (tc->runtime_dir);
   tc->runtime_dir = g_strdup (tc->runtime_dir);
+  tc->clients_dir = g_build_filename (tc->runtime_dir, "clients", NULL);
 
   if (fixture && fixture->client_fingerprint)
     tc->cgroup_line = g_strdup_printf ("0::/system.slice/system-cockpithttps.slice/cockpit-wsinstance-https@%s.service\n", fixture->client_fingerprint);
@@ -428,6 +430,9 @@ teardown (TestCase *tc, gconstpointer data)
   g_free (tc->ws_socket_dir);
 
   g_free (tc->cgroup_line);
+
+  g_assert_cmpint (g_rmdir (tc->clients_dir), ==, 0);
+  g_free (tc->clients_dir);
 
   g_assert_cmpint (g_rmdir (tc->runtime_dir), ==, 0);
   g_free (tc->runtime_dir);

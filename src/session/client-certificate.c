@@ -39,7 +39,7 @@
 
 #include "session-utils.h"
 
-#define CLIENT_CERTIFICATE_DIRECTORY   "/run/cockpit/tls"
+#define CLIENT_CERTIFICATE_DIRECTORY   "/run/cockpit/tls/clients"
 
 /* This is a bit lame, but having a hard limit on peer certificates is
  * desirable: Let's not get DoSed by huge certs */

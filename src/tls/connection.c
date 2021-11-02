@@ -828,11 +828,11 @@ connection_set_directories (const char *wsinstance_sockdir,
   assert (wsinstance_sockdir != NULL);
   assert (cert_session_dir != NULL);
 
-  parameters.wsinstance_sockdir = open (wsinstance_sockdir, O_DIRECTORY | O_PATH);
+  parameters.wsinstance_sockdir = open (wsinstance_sockdir, O_PATH | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
   if (parameters.wsinstance_sockdir == -1)
     err (EXIT_FAILURE, "Unable to open wsinstance sockdir %s", wsinstance_sockdir);
 
-  parameters.cert_session_dir = open (cert_session_dir, O_DIRECTORY | O_PATH);
+  parameters.cert_session_dir = open (cert_session_dir, O_PATH | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
   if (parameters.cert_session_dir == -1)
     err (EXIT_FAILURE, "Unable to open certificate directory %s", cert_session_dir);
 }

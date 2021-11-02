@@ -1,4 +1,3 @@
-import $ from "jquery";
 import cockpit from "cockpit";
 
 import ssh_add_key_sh from "raw-loader!./ssh-add-key.sh";
@@ -72,6 +71,8 @@ export function get_init_superuser_for_options(options) {
 function Machines() {
     const self = this;
 
+    cockpit.event_target(self);
+
     let flat = null;
     self.ready = false;
 
@@ -105,7 +106,7 @@ function Machines() {
     let timeout = null;
 
     function sync(machine, values, overlay) {
-        const desired = $.extend({ }, values || { }, overlay || { });
+        const desired = cockpit.extend({ }, values || { }, overlay || { });
         for (const prop in desired) {
             if (machine[prop] !== desired[prop])
                 machine[prop] = desired[prop];
@@ -190,16 +191,16 @@ function Machines() {
         }
 
         /* Fire off all events */
-        const sel = $(self);
         const len = events.length;
-        for (let i = 0; i < len; i++)
-            sel.triggerHandler(events[i][0], events[i][1]);
+        for (let i = 0; i < len; i++) {
+            self.dispatchEvent(events[i][0], ...events[i][1]);
+        }
     }
 
     function update_session_machine(machine, host, values) {
         /* We don't save the whole machine object */
         const skey = generate_session_key(host);
-        const data = $.extend({}, machine, values);
+        const data = cockpit.extend({}, machine, values);
         window.sessionStorage.setItem(skey, JSON.stringify(data));
         self.overlay(host, values);
         return cockpit.when([]);
@@ -235,7 +236,7 @@ function Machines() {
     self.set_ready = function ready() {
         if (!self.ready) {
             self.ready = true;
-            $(self).triggerHandler("ready");
+            self.dispatchEvent("ready");
         }
     };
 
@@ -247,7 +248,7 @@ function Machines() {
         let values = self.split_connection_string(connection_string);
         const host = values.address;
 
-        values = $.extend({
+        values = cockpit.extend({
             visible: true,
             color: color || self.unused_color(),
         }, values);
@@ -300,7 +301,7 @@ function Machines() {
         const changes = {};
 
         for (const host in content) {
-            changes[host] = $.extend({ }, last.overlay[host] || { });
+            changes[host] = cockpit.extend({ }, last.overlay[host] || { });
             merge(changes[host], { on_disk: true });
         }
 
@@ -309,25 +310,25 @@ function Machines() {
          */
         for (const host in machines) {
             if (content && !content[host]) {
-                changes[host] = $.extend({ }, last.overlay[host] || { });
+                changes[host] = cockpit.extend({ }, last.overlay[host] || { });
                 merge(changes[host], { on_disk: null });
             }
         }
 
         refresh({
             content: content,
-            overlay: $.extend({ }, last.overlay, changes)
+            overlay: cockpit.extend({ }, last.overlay, changes)
         }, true);
     };
 
     self.overlay = function overlay(host, values) {
         const address = self.split_connection_string(host).address;
         const changes = { };
-        changes[address] = $.extend({ }, last.overlay[address] || { });
+        changes[address] = cockpit.extend({ }, last.overlay[address] || { });
         merge(changes[address], values);
         refresh({
             content: last.content,
-            overlay: $.extend({ }, last.overlay, changes)
+            overlay: cockpit.extend({ }, last.overlay, changes)
         }, true);
     };
 
@@ -412,9 +413,12 @@ function Loader(machines, session_only) {
 
     /* echo channels to each machine */
     const channels = { };
+    const channels_listeners_message = { };
+    const channels_listeners_close = { };
 
     /* hostnamed proxies to each machine, if hostnamed available */
     const proxies = { };
+    const proxies_listeners_changed = { };
 
     /* clients for the bridge D-Bus API */
     const bridge_dbus = { };
@@ -463,9 +467,9 @@ function Loader(machines, session_only) {
         machines.overlay(host, values);
     }
 
-    $(machines).on("added", updated);
-    $(machines).on("updated", updated);
-    $(machines).on("removed", removed);
+    machines.addEventListener("added", updated);
+    machines.addEventListener("updated", updated);
+    machines.addEventListener("removed", removed);
 
     function updated(ev, machine, host, old_conns) {
         if (!machine) {
@@ -491,7 +495,7 @@ function Loader(machines, session_only) {
         if (os && os != machine.os)
             overlay.os = props.OperatingSystemPrettyName;
 
-        if (!$.isEmptyObject(overlay))
+        if (Object.keys(overlay).length > 0)
             machines.overlay(host, overlay);
 
         /* Don't automatically reconnect failed machines, and don't
@@ -561,21 +565,25 @@ function Loader(machines, session_only) {
 
         /* Here we load the machine manifests, and expect them before going to "connected" */
         function request_manifest() {
-            request = $.ajax({ url: url, dataType: "json", cache: true })
-                    .done(function(manifests) {
-                        const overlay = { manifests: manifests };
-                        const etag = request.getResponseHeader("ETag");
-                        if (etag) /* and remove quotes */
-                            overlay.checksum = etag.replace(/^"(.+)"$/, '$1');
-                        machines.overlay(host, overlay);
-                    })
-                    .fail(function(ex) {
-                        console.warn("failed to load manifests from " + machine.connection_string + ": " + ex);
-                    })
-                    .always(function() {
-                        request = null;
-                        whirl();
-                    });
+            request = new XMLHttpRequest();
+            request.responseType = "json";
+            request.open("GET", url, true);
+            request.addEventListener("load", () => {
+                const overlay = { manifests: request.response };
+                const etag = request.getResponseHeader("ETag");
+                if (etag) /* and remove quotes */
+                    overlay.checksum = etag.replace(/^"(.+)"$/, '$1');
+                machines.overlay(host, overlay);
+
+                request = null;
+                whirl();
+            });
+            request.addEventListener("error", () => {
+                console.warn("failed to load manifests from " + machine.connection_string);
+                request = null;
+                whirl();
+            });
+            request.send();
         }
 
         /* Try to get change notifications via the internal
@@ -618,9 +626,8 @@ function Loader(machines, session_only) {
                                            { host: machine.connection_string }).proxy();
                 proxies[host] = proxy;
                 proxy.wait(function() {
-                    $(proxy).on("changed", function() {
-                        updated(null, null, host);
-                    });
+                    proxies_listeners_changed[host] = () => updated(null, null, host);
+                    proxy.addEventListener("changed", proxies_listeners_changed[host]);
                     updated(null, null, host);
                 });
             }
@@ -630,30 +637,32 @@ function Loader(machines, session_only) {
         if (!local) {
             channel.send("x");
 
-            $(channel)
-                    .on("message", function() {
-                        open = true;
-                        if (url)
-                            request_manifest();
-                        watch_manifests();
-                        request_hostname();
-                        whirl();
-                    })
-                    .on("close", function(ev, options) {
-                        const m = machines.lookup(host);
-                        open = false;
-                        // reset to clean state when removing machine (orderly disconnect), otherwise mark as failed
-                        if (!options.problem && m && !m.visible)
-                            state(host, null, null);
-                        else
-                            state(host, "failed", options.problem || "disconnected");
-                        if (m && m.restarting) {
-                            window.setTimeout(function() {
-                                self.connect(host);
-                            }, 10000);
-                        }
-                        self.disconnect(host);
-                    });
+            channels_listeners_message[host] = () => {
+                open = true;
+                if (url)
+                    request_manifest();
+                watch_manifests();
+                request_hostname();
+                whirl();
+            };
+            channel.addEventListener("message", channels_listeners_message[host]);
+
+            channels_listeners_close[host] = (ev, options) => {
+                const m = machines.lookup(host);
+                open = false;
+                // reset to clean state when removing machine (orderly disconnect), otherwise mark as failed
+                if (!options.problem && m && !m.visible)
+                    state(host, null, null);
+                else
+                    state(host, "failed", options.problem || "disconnected");
+                if (m && m.restarting) {
+                    window.setTimeout(function() {
+                        self.connect(host);
+                    }, 10000);
+                }
+                self.disconnect(host);
+            };
+            channel.addEventListener("close", channels_listeners_close[host]);
         } else {
             if (url)
                 request_manifest();
@@ -673,14 +682,15 @@ function Loader(machines, session_only) {
         delete channels[host];
         if (channel) {
             channel.close();
-            $(channel).off();
+            channel.removeEventListener("message", channels_listeners_message[host]);
+            channel.removeEventListener("close", channels_listeners_close[host]);
         }
 
         const proxy = proxies[host];
         delete proxies[host];
         if (proxy) {
             proxy.client.close();
-            $(proxy).off();
+            proxy.removeEventListener("changed", proxies_listeners_changed[host]);
         }
 
         const dbus = bridge_dbus[host];
@@ -699,9 +709,9 @@ function Loader(machines, session_only) {
     };
 
     self.close = function close() {
-        $(machines).off("added", updated);
-        $(machines).off("changed", updated);
-        $(machines).off("removed", removed);
+        machines.removeEventListener("added", updated);
+        machines.removeEventListener("changed", updated);
+        machines.removeEventListener("removed", removed);
         machines = null;
 
         window.removeEventListener("storage", process_session_machines);
@@ -711,7 +721,7 @@ function Loader(machines, session_only) {
 
     if (!session_only) {
         const proxy = cockpit.dbus(null, { bus: "internal" }).proxy("cockpit.Machines", "/machines");
-        $(proxy).on("changed", function(data) {
+        proxy.addEventListener("changed", data => {
             // unwrap variants from D-Bus call
             const wrapped = proxy.Machines;
             const data_unwrap = {};

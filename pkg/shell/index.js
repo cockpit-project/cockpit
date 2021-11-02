@@ -37,9 +37,9 @@ document.addEventListener("click", function(ev) {
 }, true);
 
 const options = {
-    logout_sel: "#go-logout",
-    oops_sel: "#navbar-oops",
-    killer_sel: "#active-pages",
+    logout_sel: "go-logout",
+    oops_sel: "navbar-oops",
+    killer_sel: "active-pages",
     default_title: "Cockpit",
 };
 

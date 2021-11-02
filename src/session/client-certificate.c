@@ -39,6 +39,8 @@
 
 #include "session-utils.h"
 
+#define CLIENT_CERTIFICATE_DIRECTORY   "/run/cockpit/tls"
+
 /* This is a bit lame, but having a hard limit on peer certificates is
  * desirable: Let's not get DoSed by huge certs */
 #define MAX_PEER_CERT_SIZE 100000
@@ -145,42 +147,47 @@ read_cert_file (const char *filename,
       goto out;
     }
 
-  dirfd = open ("/run/cockpit/tls", O_PATH | O_DIRECTORY | O_NOFOLLOW);
+  dirfd = open (CLIENT_CERTIFICATE_DIRECTORY, O_PATH | O_DIRECTORY | O_NOFOLLOW);
   if (dirfd == -1)
     {
-      warn ("Failed to open /run/cockpit/tls");
+      warn ("Failed to open " CLIENT_CERTIFICATE_DIRECTORY);
       goto out;
     }
 
   filefd = openat (dirfd, filename, O_RDONLY | O_NOFOLLOW);
   if (filefd == -1)
     {
-      warn ("Failed to open certificate file /run/cockpit/tls/%s", filename);
+      warn ("Failed to open certificate file %s/%s",
+            CLIENT_CERTIFICATE_DIRECTORY, filename);
       goto out;
     }
 
   if (fstat (filefd, &buf) != 0)
     {
-      warn ("Failed to stat certificate file /run/cockpit/tls/%s", filename);
+      warn ("Failed to stat certificate file %s/%s",
+            CLIENT_CERTIFICATE_DIRECTORY, filename);
       goto out;
     }
 
   if (!S_ISREG (buf.st_mode))
     {
-      warnx ("Could not read certificate: /run/cockpit/tls/%s is not a regular file", filename);
+      warnx ("Could not read certificate: %s/%s is not a regular file",
+             CLIENT_CERTIFICATE_DIRECTORY, filename);
       goto out;
     }
 
   if (buf.st_size == 0)
     {
-      warnx ("Could not read certificate: /run/cockpit/tls/%s is empty", filename);
+      warnx ("Could not read certificate: %s/%s is empty",
+             CLIENT_CERTIFICATE_DIRECTORY, filename);
       goto out;
     }
 
   /* Strictly less than, since we will add a nul */
   if (!(buf.st_size < contents_size))
     {
-      warnx ("Insufficient space in read buffer for /run/cockpit/tls/%s", filename);
+      warnx ("Insufficient space in read buffer for %s/%s",
+             CLIENT_CERTIFICATE_DIRECTORY, filename);
       goto out;
     }
 
@@ -189,13 +196,14 @@ read_cert_file (const char *filename,
   while (r == -1 && errno == EINTR);
   if (r == -1)
     {
-      warn ("Could not read certificate file /run/cockpit/tls/%s", filename);
+      warn ("Could not read certificate file %s/%s",
+            CLIENT_CERTIFICATE_DIRECTORY, filename);
       goto out;
     }
   if (r != buf.st_size)
     {
-      warnx ("Read incomplete contents of certificate file /run/cockpit/tls/%s: %zu of %zu bytes",
-             filename, r, (size_t) buf.st_size);
+      warnx ("Read incomplete contents of certificate file %s/%s: %zu of %zu bytes",
+             CLIENT_CERTIFICATE_DIRECTORY, filename, r, (size_t) buf.st_size);
       goto out;
     }
 
@@ -203,7 +211,8 @@ read_cert_file (const char *filename,
 
   if (strlen (contents) != buf.st_size)
     {
-      warnx ("Certificate file /run/cockpit/tls/%s contains nul characters", filename);
+      warnx ("Certificate file %s/%s contains nul characters",
+             CLIENT_CERTIFICATE_DIRECTORY, filename);
       goto out;
     }
 

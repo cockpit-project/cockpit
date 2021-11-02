@@ -17,7 +17,6 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import $ from "jquery";
 import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
@@ -46,8 +45,7 @@ function Frames(index, setupIdleResetTimers) {
     self.iframes = { };
 
     function remove_frame(frame) {
-        $(frame.contentWindow).off();
-        $(frame).remove();
+        frame.remove();
     }
 
     self.remove = function remove(machine, component) {
@@ -76,7 +74,8 @@ function Frames(index, setupIdleResetTimers) {
         frame.timer = null;
 
         try {
-            ready = $("body", frame.contentWindow.document).is(":visible");
+            if (frame.contentWindow.document && frame.contentWindow.document.body)
+                ready = frame.contentWindow.document.body.offsetWidth > 0 && frame.contentWindow.document.body.offsetHeight > 0;
         } catch (ex) {
             ready = true;
         }
@@ -196,7 +195,7 @@ function Frames(index, setupIdleResetTimers) {
         /* Store frame only when fully setup */
         if (new_frame) {
             list[component] = frame;
-            $("#content").append(frame);
+            document.getElementById("content").appendChild(frame);
         }
         frame_ready(frame);
         return frame;
@@ -409,8 +408,8 @@ function Router(index) {
                     source = register(child);
                 }
                 if (source) {
-                    const reply = $.extend({ }, cockpit.transport.options,
-                                           { command: "init", host: source.default_host, "channel-seed": source.channel_seed }
+                    const reply = cockpit.extend({ }, cockpit.transport.options,
+                                                 { command: "init", host: source.default_host, "channel-seed": source.channel_seed }
                     );
                     child.postMessage("\n" + JSON.stringify(reply), origin);
                     source.inited = true;
@@ -495,6 +494,8 @@ function Index() {
     const self = this;
     let current_frame;
 
+    cockpit.event_target(self);
+
     if (typeof self.navigate !== "function")
         throw Error("Index requires a prototype with a navigate function");
 
@@ -575,20 +576,10 @@ function Index() {
 
     /* Watchdog for disconnect */
     const watchdog = cockpit.channel({ payload: "null" });
-    $(watchdog).on("close", function(event, options) {
+    watchdog.addEventListener("close", (event, options) => {
         const watchdog_problem = options.problem || "disconnected";
         console.warn("transport closed: " + watchdog_problem);
-        $(self).triggerHandler("disconnect", watchdog_problem);
-    });
-
-    /* Handles an href link as seen below */
-    $(document).on("click", "a[href]", function(ev) {
-        const a = this;
-        if (!a.host || window.location.host === a.host) {
-            self.jump(a.getAttribute('href'));
-            ev.preventDefault();
-            ev.stopImmediatePropagation();
-        }
+        self.dispatchEvent("disconnect", watchdog_problem);
     });
 
     const old_onerror = window.onerror;
@@ -738,7 +729,7 @@ function Index() {
 
         if (frame_change || state.hash !== current.hash) {
             history.pushState(state, "", target);
-            $("#nav-system").toggleClass("interact", false);
+            document.getElementById("nav-system").classList.remove("interact");
             self.navigate(state, true);
             return true;
         }
@@ -753,7 +744,7 @@ function Index() {
 
     self.show_oops = function () {
         if (self.oops_sel)
-            $(self.oops_sel).prop("hidden", false);
+            document.getElementById(self.oops_sel).removeAttribute("hidden");
     };
 
     self.current_frame = function (frame) {
@@ -778,26 +769,23 @@ function Index() {
     };
 
     self.ready = function () {
-        $(window).on("popstate", function(ev) {
+        window.addEventListener("popstate", ev => {
             self.navigate(ev.state, true);
         });
 
         self.navigate(null, true);
         cockpit.translate();
-        $("body").prop("hidden", false);
+        document.body.removeAttribute("hidden");
     };
 
     self.expect_restart = function (host) {
-        $(self).triggerHandler("expect_restart", host);
+        self.dispatchEvent("expect_restart", host);
     };
 
     /* Menu items */
     /* The oops bar */
     function setup_oops(id) {
-        const oops = $(id);
-        if (!oops)
-            return;
-        oops.children("a").on("click", function() {
+        document.querySelector("#" + id + " a").addEventListener("click", () => {
             ReactDOM.render(React.createElement(OopsModal, {
                 onClose: () =>
                     ReactDOM.unmountComponentAtNode(document.getElementById('oops-modal'))
@@ -808,13 +796,11 @@ function Index() {
 
     /* Logout link */
     function setup_logout(id) {
-        $(id).on("click", function() {
-            cockpit.logout();
-        });
+        document.getElementById(id).addEventListener("click", cockpit.logout);
     }
 
     function setup_killer(id) {
-        $(id).on("click", function(ev) {
+        document.getElementById(id).addEventListener("click", ev => {
             if (ev && ev.button === 0)
                 showDialog(self.frames);
         });
@@ -830,9 +816,15 @@ function Index() {
         setup_killer(self.killer_sel);
 
     const manifest = cockpit.manifests.shell || { };
-    $(".display-language-menu").toggle(!!manifest.locales);
+    const menus = document.getElementsByClassName("display-language-menu");
+    Array.from(menus).forEach(menu => {
+        if (manifest.locales)
+            menu.removeAttribute("hidden");
+        else
+            menu.setAttribute("hidden", "hidden");
+    });
 
-    $("#open-display-language").click(() => {
+    document.getElementById("open-display-language").addEventListener("click", () => {
         ReactDOM.render(React.createElement(LangModal, {
             onClose: () =>
                 ReactDOM.unmountComponentAtNode(document.getElementById('display-language'))
@@ -840,7 +832,7 @@ function Index() {
                         document.getElementById('display-language'));
     });
 
-    $("#credentials-item").click(() => {
+    document.getElementById("credentials-item").addEventListener("click", () => {
         ReactDOM.render(React.createElement(CredentialsModal, {
             onClose: () =>
                 ReactDOM.unmountComponentAtNode(document.getElementById('credentials'))
@@ -854,8 +846,8 @@ function CompiledComponents() {
     self.items = {};
 
     self.load = function(manifests, section) {
-        $.each(manifests || { }, function(name, manifest) {
-            $.each(manifest[section] || { }, function(prop, info) {
+        Object.entries(manifests || { }).forEach(([name, manifest]) => {
+            Object.entries(manifest[section] || { }).forEach(([prop, info]) => {
                 const item = {
                     section: section,
                     label: cockpit.gettext(info.label) || prop,

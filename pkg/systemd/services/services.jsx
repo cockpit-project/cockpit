@@ -20,7 +20,7 @@
 import '../../lib/patternfly/patternfly-4-cockpit.scss';
 import 'polyfills'; // once per application
 
-import React from "react";
+import React, { useState } from "react";
 import ReactDOM from 'react-dom';
 import {
     Button,
@@ -46,6 +46,7 @@ import { page_status } from "notifications";
 import * as timeformat from "timeformat";
 import cockpit from "cockpit";
 import { superuser } from 'superuser';
+import { useEvent, usePageLocation } from "hooks";
 
 const _ = cockpit.gettext;
 
@@ -134,12 +135,11 @@ export function updateTime() {
  *   changed because of the reload, such as UnitFileState.
  *
  */
-class ServicesPage extends React.Component {
+class ServicesPageBody extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            /* State related to the toolbar/tabs components */
-            activeTab: 'service',
+            /* State related to the toolbar components */
             stateDropdownIsExpanded: false,
             filters: {
                 activeState: [],
@@ -149,9 +149,7 @@ class ServicesPage extends React.Component {
 
             unit_by_path: {},
             loadingUnits: false,
-            privileged: true,
             path: cockpit.location.path,
-            tabErrors: {},
             isFullyLoaded: false,
         };
 
@@ -222,23 +220,12 @@ class ServicesPage extends React.Component {
         this.updateComputedProperties = this.updateComputedProperties.bind(this);
         this.compareUnits = this.compareUnits.bind(this);
 
-        this.onPermissionChanged = this.onPermissionChanged.bind(this);
-
         this.seenPaths = new Set();
         this.path_by_id = {};
         this.operationInProgress = {};
-
-        this.on_navigate = this.on_navigate.bind(this);
     }
 
     componentDidMount() {
-        /* Listen for permission changes for "Create timer" button */
-        superuser.addEventListener("changed", this.onPermissionChanged);
-        this.onPermissionChanged();
-
-        cockpit.addEventListener("locationchanged", this.on_navigate);
-        this.on_navigate();
-
         this.systemd_subscription = systemd_client.call(SD_OBJ, SD_MANAGER, "Subscribe", null)
                 .finally(this.listUnits)
                 .catch(error => {
@@ -316,22 +303,11 @@ class ServicesPage extends React.Component {
         updateTime();
     }
 
-    componentWillUnmount() {
-        cockpit.removeEventListener("locationchanged", this.on_navigate);
-    }
-
     shouldComponentUpdate(nextProps, nextState) {
         if (cockpit.hidden)
             return false;
 
         return true;
-    }
-
-    on_navigate() {
-        const newState = { path: cockpit.location.path };
-        if (cockpit.location.options && cockpit.location.options.type)
-            newState.activeTab = cockpit.location.options.type;
-        this.setState(newState);
     }
 
     /**
@@ -485,10 +461,6 @@ class ServicesPage extends React.Component {
                                         });
                             }, ex => console.warn('ListUnitFiles failed: ', ex.toString()));
                 }, ex => console.warn('ListUnits failed: ', ex.toString()));
-    }
-
-    onPermissionChanged() {
-        this.setState({ privileged: superuser.allowed });
     }
 
     onClearAllFilters() {
@@ -794,7 +766,7 @@ class ServicesPage extends React.Component {
                 }
             }
         }
-        this.setState({ tabErrors });
+        this.props.setTabErrors(tabErrors);
 
         if (failed.size > 0) {
             page_status.set_own({
@@ -810,7 +782,8 @@ class ServicesPage extends React.Component {
     }
 
     render() {
-        const { path, unit_by_path } = this.state;
+        const { unit_by_path } = this.state;
+        const path = this.props.path;
 
         if (!this.state.isFullyLoaded)
             return <EmptyStatePanel loading title={_("Loading...")} />;
@@ -854,7 +827,8 @@ class ServicesPage extends React.Component {
                 activeStateDropdownOptions.push({ value: activeState, label: this.activeState[activeState] });
             }
         });
-        const { currentTextFilter, activeTab, filters } = this.state;
+        const { currentTextFilter, filters } = this.state;
+        const activeTab = this.props.activeTab;
 
         const units = Object.keys(this.path_by_id)
                 .filter(unit_id => {
@@ -933,40 +907,59 @@ class ServicesPage extends React.Component {
         </>;
 
         return (
-            <Page>
-                <PageSection variant={PageSectionVariants.light} type='nav' className="services-header">
-                    <ServiceTabs activeTab={activeTab}
-                                 tabErrors={this.state.tabErrors}
-                                 onChange={activeTab => {
-                                     cockpit.location.go([], Object.assign(cockpit.location.options, { type: activeTab }));
-                                 }} />
-                    {activeTab == "timer" &&
-                    this.state.privileged && <CreateTimerDialog /> }
-                </PageSection>
-                <PageSection>
-                    <Card isCompact>
-                        <Toolbar data-loading={this.state.loadingUnits}
-                                 clearAllFilters={this.onClearAllFilters}
-                                 className="pf-m-sticky-top ct-compact services-toolbar"
-                                 id="services-toolbar">
-                            <ToolbarContent>{toolbarItems}</ToolbarContent>
-                        </Toolbar>
-                        {units.length ? <ServicesList key={cockpit.format("$0-list", activeTab)}
-                            isTimer={activeTab == 'timer'}
-                            units={units} /> : null}
-                        {units.length == 0
-                            ? <Bullseye>
-                                <EmptyStatePanel icon={SearchIcon}
-                                    paragraph={_("No results match the filter criteria. Clear all filters to show results.")}
-                                    action={<Button id="clear-all-filters" onClick={this.onClearAllFilters} isInline variant='link'>{_("Clear all filters")}</Button>}
-                                    title={_("No matching results")} />
-                            </Bullseye> : null}
-                    </Card>
-                </PageSection>
-            </Page>
+            <PageSection>
+                <Card isCompact>
+                    <Toolbar data-loading={this.state.loadingUnits}
+                             clearAllFilters={this.onClearAllFilters}
+                             className="pf-m-sticky-top ct-compact services-toolbar"
+                             id="services-toolbar">
+                        <ToolbarContent>{toolbarItems}</ToolbarContent>
+                    </Toolbar>
+                    {units.length ? <ServicesList key={cockpit.format("$0-list", activeTab)}
+                        isTimer={activeTab == 'timer'}
+                        units={units} /> : null}
+                    {units.length == 0
+                        ? <Bullseye>
+                            <EmptyStatePanel icon={SearchIcon}
+                                paragraph={_("No results match the filter criteria. Clear all filters to show results.")}
+                                action={<Button id="clear-all-filters" onClick={this.onClearAllFilters} isInline variant='link'>{_("Clear all filters")}</Button>}
+                                title={_("No matching results")} />
+                        </Bullseye> : null}
+                </Card>
+            </PageSection>
         );
     }
 }
+
+const ServicesPage = () => {
+    const [tabErrors, setTabErrors] = useState({});
+
+    /* Listen for permission changes for "Create timer" button */
+    useEvent(superuser, "changed");
+    const { path, options } = usePageLocation();
+
+    const activeTab = options.type || 'service';
+
+    return (
+        <Page>
+            {path.length == 0 &&
+            <PageSection variant={PageSectionVariants.light} type="nav" className="services-header">
+                <ServiceTabs activeTab={activeTab}
+                             tabErrors={tabErrors}
+                             onChange={activeTab => {
+                                 cockpit.location.go([], Object.assign(options, { type: activeTab }));
+                             }} />
+                {activeTab == "timer" && superuser.allowed && <CreateTimerDialog />}
+            </PageSection>}
+            <ServicesPageBody
+                activeTab={activeTab}
+                path={path}
+                privileged={superuser.allowed}
+                setTabErrors={setTabErrors}
+            />
+        </Page>
+    );
+};
 
 function init() {
     ReactDOM.render(

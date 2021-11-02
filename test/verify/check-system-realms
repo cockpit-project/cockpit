@@ -74,6 +74,7 @@ def hotp_token(secret, counter, digits=6, hash_alg=hashlib.sha1):
     return numbers[-digits:].rjust(digits, '0')
 
 
+@skipImage("No realmd available", "arch")
 @skipDistroPackage()
 class CommonTests:
     def testQualifiedUsers(self):
@@ -435,7 +436,7 @@ class CommonTests:
                 not_expected=["crsf-token"])
 
 
-@skipImage("No realmd available", "fedora-coreos")
+@skipImage("No realmd available", "fedora-coreos", "arch")
 @skipDistroPackage()
 @no_retry_when_changed
 class TestRealms(MachineCase):
@@ -455,7 +456,7 @@ class TestRealms(MachineCase):
         self.machine.execute("hostnamectl set-hostname x0.cockpit.lan")
 
 
-@skipImage("freeipa not currently available", "debian-stable", "debian-testing")
+@skipImage("freeipa not currently available", "debian-stable", "debian-testing", "arch")
 @skipDistroPackage()
 @no_retry_when_changed
 class TestIPA(TestRealms, CommonTests):
@@ -795,7 +796,7 @@ ipa-advise enable-admins-sudo | sh -ex
         m.execute(f"! su -c '{ccache_env} klist' alice")
 
 
-@skipImage("adcli not on test images", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004")
+@skipImage("adcli not on test images", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004", "arch")
 @skipDistroPackage()
 @no_retry_when_changed
 class TestAD(TestRealms, CommonTests):
@@ -938,8 +939,8 @@ sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
 # This is here because our test framework can't run ipa VM's twice
 
 
-@skipImage("No realmd available", "fedora-coreos")
-@skipImage("freeipa not currently available", "debian-stable", "debian-testing")
+@skipImage("No realmd available", "fedora-coreos", "arch")
+@skipImage("freeipa not currently available", "debian-stable", "debian-testing", "arch")
 @skipDistroPackage()
 @no_retry_when_changed
 class TestKerberos(MachineCase):
@@ -1080,6 +1081,7 @@ ExecStart=/bin/true
         self.allow_journal_messages(".*Request ticket server HTTP/x0.cockpit.lan@COCKPIT.LAN not found in keytab.*")
 
 
+@skipImage("No realmd available", "arch")
 @skipImage("Package (un)install does not work on OSTree", "fedora-coreos")
 @skipDistroPackage()
 class TestPackageInstall(packagelib.PackageCase):

@@ -182,6 +182,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         self.allow_restart_journal_messages()
 
+    @skipImage("TOOD: Arch's pam configuration locks account after 3 failed logons", "arch")
     @skipImage("logs in via ssh, not cockpit-session", "fedora-coreos")
     def testLogging(self):
         m = self.machine
@@ -379,7 +380,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_restart_journal_messages()
 
     @skipImage("No tlog", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004",
-               "rhel-8-4", "rhel-8-5", "rhel-8-6", "rhel-8-5-distropkg", "rhel-9-0", "rhel-9-0-distropkg", "centos-8-stream", "fedora-coreos")
+               "rhel-8-4", "rhel-8-5", "rhel-8-6", "rhel-8-5-distropkg", "rhel-9-0", "rhel-9-0-distropkg", "centos-8-stream", "fedora-coreos", "arch")
     def testSessionRecordingShell(self):
         m = self.machine
         b = self.browser
@@ -433,7 +434,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     "couldn't parse login input: Malformed input",
                                     "couldn't parse login input: Authentication failed")
 
-    @skipImage("No SELinux", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004")
+    @skipImage("No SELinux", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004", "arch")
     @skipImage("No semanage", "fedora-coreos")
     def testSELinuxRestrictedUser(self):
         m = self.machine

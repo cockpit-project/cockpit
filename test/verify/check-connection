@@ -409,7 +409,7 @@ class TestConnection(MachineCase):
 
         # certmonger generated certificate; asciibetically later than the above
         # not all images have certmonger
-        if m.image not in ["debian-stable", "debian-testing", "fedora-coreos"]:
+        if m.image not in ["debian-stable", "debian-testing", "fedora-coreos", "arch"]:
             hostname = m.execute("hostname --fqdn").strip()
             m.execute(f"getcert request -f /etc/cockpit/ws-certs.d/monger.cert -k /etc/cockpit/ws-certs.d/monger.key -D {hostname} --ca=local --wait")
             # cert generation succeeded, and it is being tracked
@@ -1016,7 +1016,7 @@ ProtocolHeader = X-Forwarded-Proto
         self.allow_restart_journal_messages()
 
     @skipImage("nginx not installed", "centos-8-stream", "debian-stable", "debian-testing", "fedora-coreos",
-               "rhel-8-4", "rhel-8-5", "rhel-8-6", "rhel-9-0", "ubuntu-stable", "ubuntu-2004")
+               "rhel-8-4", "rhel-8-5", "rhel-8-6", "rhel-9-0", "ubuntu-stable", "ubuntu-2004", "arch")
     @skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testNginxTLS(self):
         '''test proxying to Cockpit with TLS
@@ -1100,7 +1100,7 @@ server {
         b.wait_visible('article.system-health')
 
     @skipImage("nginx not installed", "centos-8-stream", "debian-stable", "debian-testing", "fedora-coreos",
-               "rhel-8-4", "rhel-8-5", "rhel-8-6", "rhel-9-0", "ubuntu-stable", "ubuntu-2004")
+               "rhel-8-4", "rhel-8-5", "rhel-8-6", "rhel-9-0", "ubuntu-stable", "ubuntu-2004", "arch")
     @skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testNginxNoTLS(self):
         '''test proxying to Cockpit with plain HTTP

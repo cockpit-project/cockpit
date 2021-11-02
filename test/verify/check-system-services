@@ -939,7 +939,6 @@ class TestTimers(MachineCase):
         b.set_input_text("#command", "/bin/sh -c '/bin/date >> /tmp/date'")
         b.click("input[value=specific-time]")
         b.set_input_text(".create-timer-time-picker input", "24:6s")
-        b.blur(".create-timer-time-picker input")
         b.click("#timer-save-button")
 
         # checks for invalid input messages

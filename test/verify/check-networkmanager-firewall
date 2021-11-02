@@ -233,7 +233,6 @@ class TestFirewall(NetworkCase):
         b.set_input_text("#filter-services-input", "")
         b.wait_visible(".pf-c-modal-box .service-list #firewall-service-imap")
         b.wait_visible(".pf-c-modal-box .service-list #firewall-service-pop3")
-        b.blur("#filter-services-input")
 
         b.assert_pixels(".pf-c-modal-box", "firewall-add-services-to-zone-modal")
 

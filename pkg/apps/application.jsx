@@ -29,7 +29,7 @@ import {
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 
 import * as PackageKit from "./packagekit.js";
-import { left_click, icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
+import { icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
 
 import "./application.css";
 
@@ -108,11 +108,11 @@ export const Application = ({ metainfo_db, id }) => {
             progress_or_launch = <ProgressBar title={progress_title} data={progress} />;
             button = <CancelButton data={progress} />;
         } else if (comp.installed) {
-            progress_or_launch = <Button variant="link" onClick={left_click(() => launch(comp))}>{_("Go to application")}</Button>;
-            button = <Button variant="danger" onClick={left_click(remove)}>{_("Remove")}</Button>;
+            progress_or_launch = <Button variant="link" onClick={() => launch(comp)}>{_("Go to application")}</Button>;
+            button = <Button variant="danger" onClick={remove}>{_("Remove")}</Button>;
         } else {
             progress_or_launch = null;
-            button = <Button variant="secondary" onClick={left_click(install)}>{_("Install")}</Button>;
+            button = <Button variant="secondary" onClick={install}>{_("Install")}</Button>;
         }
 
         return (
@@ -153,7 +153,7 @@ export const Application = ({ metainfo_db, id }) => {
               isBreadcrumbGrouped
               breadcrumb={
                   <Breadcrumb>
-                      <BreadcrumbItem className="pf-c-breadcrumb__link" onClick={left_click(navigate_up)} to="#">{_("Applications")}</BreadcrumbItem>
+                      <BreadcrumbItem className="pf-c-breadcrumb__link" onClick={navigate_up} to="#">{_("Applications")}</BreadcrumbItem>
                       <BreadcrumbItem isActive>{comp ? comp.name : id}</BreadcrumbItem>
                   </Breadcrumb>
               }>

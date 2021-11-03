@@ -31,7 +31,7 @@ import {
 import { RebootingIcon } from "@patternfly/react-icons";
 
 import * as PackageKit from "./packagekit.js";
-import { left_click, icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
+import { icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
 
 const _ = cockpit.gettext;
 
@@ -58,7 +58,7 @@ const ApplicationRow = ({ comp }) => {
     const name = (
         <Button variant="link"
             isInline id={comp.name}
-            onClick={left_click(() => comp.installed ? launch(comp) : cockpit.location.go(comp.id))}>
+            onClick={() => comp.installed ? launch(comp) : cockpit.location.go(comp.id)}>
             {comp.name}
         </Button>);
 
@@ -72,7 +72,7 @@ const ApplicationRow = ({ comp }) => {
                 <div>
                     {comp.summary}
                     <Alert isInline variant='danger'
-                        actionClose={<AlertActionCloseButton onClose={left_click(() => setError(null))} />}
+                        actionClose={<AlertActionCloseButton onClose={() => setError(null)} />}
                         title={error} />
                 </div>
             );
@@ -81,9 +81,9 @@ const ApplicationRow = ({ comp }) => {
         }
 
         if (comp.installed) {
-            button = <Button variant="danger" onClick={left_click(remove)}>{_("Remove")}</Button>;
+            button = <Button variant="danger" onClick={remove}>{_("Remove")}</Button>;
         } else {
-            button = <Button variant="secondary" onClick={left_click(install)}>{_("Install")}</Button>;
+            button = <Button variant="secondary" onClick={install}>{_("Install")}</Button>;
         }
     }
 
@@ -148,7 +148,7 @@ export const ApplicationList = ({ metainfo_db }) => {
     } else {
         refresh_progress = null;
         refresh_button = (
-            <Button variant="secondary" onClick={left_click(refresh)} id="refresh" aria-label={ _("Update package information") }>
+            <Button variant="secondary" onClick={refresh} id="refresh" aria-label={ _("Update package information") }>
                 <RebootingIcon />
             </Button>
         );

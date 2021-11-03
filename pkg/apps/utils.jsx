@@ -24,15 +24,6 @@ import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 
 const _ = cockpit.gettext;
 
-export function left_click(fun) {
-    return function (event) {
-        if (!event || event.button !== 0)
-            return;
-        event.stopPropagation();
-        return fun(event);
-    };
-}
-
 export function icon_url(path_or_url) {
     if (!path_or_url)
         return "default.png";
@@ -71,7 +62,7 @@ export const ProgressBar = ({ size, title, data }) => {
 };
 
 export const CancelButton = ({ data }) => (
-    <Button variant="link" isDisabled={!data.cancel} onClick={left_click(data.cancel)}>
+    <Button variant="link" isDisabled={!data.cancel} onClick={data.cancel}>
         {_("Cancel")}
     </Button>);
 

@@ -155,6 +155,7 @@ export class Application extends React.Component {
 
         return (
             <Page groupProps={{ sticky: 'top' }}
+                  id="app-page"
                   className="application-details"
                   isBreadcrumbGrouped
                   breadcrumb={

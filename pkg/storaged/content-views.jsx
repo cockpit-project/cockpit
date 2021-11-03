@@ -316,10 +316,12 @@ function create_tabs(client, target, is_partition) {
     }
 
     if (lvol) {
-        if (lvol.Active) {
-            add_menu_action(_("Deactivate"), deactivate);
-        } else {
-            add_action(_("Activate"), activate);
+        if (lvol.Type != "pool") {
+            if (lvol.Active) {
+                add_menu_action(_("Deactivate"), deactivate);
+            } else {
+                add_action(_("Activate"), activate);
+            }
         }
         if (client.lvols[lvol.ThinPool]) {
             add_menu_action(_("Create snapshot"), create_snapshot);

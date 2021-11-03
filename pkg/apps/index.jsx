@@ -28,56 +28,28 @@ import ReactDOM from 'react-dom';
 import { ApplicationList } from "./application-list.jsx";
 import { Application } from "./application.jsx";
 import { get_metainfo_db } from "./appstream.js";
+import { usePageLocation, useObject, useEvent } from "hooks";
 
 import "page.scss";
 
-const metainfo_db = get_metainfo_db();
+const App = () => {
+    const { path } = usePageLocation();
 
-function render_list() {
-    ReactDOM.render(<ApplicationList metainfo_db={metainfo_db} />,
-                    document.getElementById('list-page'));
-}
-
-function render_app() {
-    ReactDOM.render(<Application metainfo_db={metainfo_db} id={cockpit.location.path[0]} />,
-                    document.getElementById('app-page'));
-}
-
-function show(id) {
-    document.getElementById(id).style.display = 'block';
-}
-
-function hide(id) {
-    document.getElementById(id).style.display = 'none';
-}
-
-function navigate() {
-    const path = cockpit.location.path;
+    const metainfo_db = useObject(get_metainfo_db, null, []);
+    useEvent(metainfo_db, "changed");
 
     if (path.length === 0) {
-        show('list-page');
-        hide('app-page');
-    } else if (path.length === 1) {
-        render_app();
-        hide('list-page');
-        show('app-page');
+        return <ApplicationList metainfo_db={metainfo_db} />;
+    } else if (path.length == 1) {
+        return <Application metainfo_db={metainfo_db} id={cockpit.location.path[0]} />;
     } else { /* redirect */
         console.warn("not a apps location: " + path);
         cockpit.location = '';
     }
+};
+
+function init() {
+    ReactDOM.render(<App />, document.getElementById("apps-page"));
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-    cockpit.translate();
-
-    metainfo_db.addEventListener("changed", () => {
-        render_list();
-        render_app();
-    });
-
-    render_list();
-    cockpit.addEventListener("locationchanged", navigate);
-    navigate();
-
-    document.body.removeAttribute('hidden');
-});
+document.addEventListener("DOMContentLoaded", init);

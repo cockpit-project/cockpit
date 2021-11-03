@@ -176,7 +176,7 @@ export class ApplicationList extends React.Component {
         }
 
         return (
-            <Page>
+            <Page id="list-page">
                 <PageSection variant={PageSectionVariants.light}>
                     <Flex alignItems={{ default: 'alignItemsCenter' }}>
                         <h2 className="pf-u-font-size-3xl">{_("Applications")}</h2>

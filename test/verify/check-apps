@@ -111,7 +111,7 @@ class TestApps(PackageCase):
         b.click(".pf-c-breadcrumb a:contains('Applications')")
 
         b.wait_visible("#list-page")
-        b.wait_not_visible("#app-page")
+        b.wait_not_present("#app-page")
 
         b.click(".app-list .pf-c-data-list__item-row:contains('app-1') button:contains('Install')")
         b.wait_visible(".app-list .pf-c-data-list__item-row:contains('app-1') button:contains('Remove')")

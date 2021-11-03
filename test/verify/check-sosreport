@@ -113,7 +113,7 @@ only-plugins=release,date,host,cgroups,networking
         self.allow_journal_messages(".*xml.*")
 
         self.login_and_go("/apps")
-        b.wait_not_present(".app-list-empty .spinner")
+        b.wait_not_present(".pf-c-empty-state")
         image_os = m.image.split('-')[0]
         if image_os in ['fedora', 'debian', 'ubuntu']:
             b.wait_visible(".app-list .pf-c-data-list__item-row div[rowId='Diagnostic reports']")

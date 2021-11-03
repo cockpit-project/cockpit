@@ -33,6 +33,7 @@ import { RebootingIcon } from "@patternfly/react-icons";
 import * as PackageKit from "./packagekit.js";
 import { icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
 import { ActionButton } from "./application.jsx";
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
 const _ = cockpit.gettext;
 
@@ -130,10 +131,7 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
         );
     }
 
-    if (comps.length === 0) {
-        const empty_caption = _("No applications installed or available");
-        tbody = <div className="app-list-empty">{empty_caption}</div>;
-    } else {
+    if (comps.length) {
         tbody = comps.map(c => <ApplicationRow comp={c} key={c.id}
                                                progress={appProgress[c.id]}
                                                progress_title={appProgressTitle[c.id]}
@@ -153,13 +151,15 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
                     </FlexItem>
                 </Flex>
             </PageSection>
-            <PageSection>
-                <Card>
-                    <DataList aria-label={_("Applications list")}>
-                        { tbody }
-                    </DataList>
-                </Card>
-            </PageSection>
+            {comps.length == 0
+                ? <EmptyStatePanel title={ _("No applications installed or available.") } />
+                : <PageSection>
+                    <Card>
+                        <DataList aria-label={_("Applications list")}>
+                            { tbody }
+                        </DataList>
+                    </Card>
+                </PageSection>}
         </Page>
     );
 };

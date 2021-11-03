@@ -149,7 +149,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
         add_fsys(true, { value: "dos-extended", title: _("Extended partition") });
 
     function is_encrypted(vals) {
-        return vals.crypto !== "none";
+        return vals.crypto && vals.crypto !== "none";
     }
 
     function add_crypto_type(value, title, recommended) {
@@ -266,6 +266,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                       {
                           choices: crypto_types,
                           value: offer_keep_keys ? " keep" : "none",
+                          visible: vals => vals.type != "dos-extended",
                           nested_fields: [
                               PassInput("passphrase", _("Passphrase"),
                                         {

@@ -94,7 +94,7 @@ export function set_crypto_auto_option(block, flag) {
     return set_crypto_options(block, null, flag);
 }
 
-function create_tabs(client, target, is_partition) {
+function create_tabs(client, target, is_partition, is_extended) {
     function endsWith(str, suffix) {
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     }
@@ -396,7 +396,7 @@ function create_tabs(client, target, is_partition) {
         }
     }
 
-    if (block) {
+    if (block && !is_extended) {
         if (is_unrecognized)
             add_action(_("Format"), () => format_dialog(client, block.path));
         else
@@ -577,7 +577,7 @@ function append_partitions(client, rows, level, block) {
             size: partition.size,
             text: _("Extended partition")
         };
-        const tabs = create_tabs(client, partition.block, true);
+        const tabs = create_tabs(client, partition.block, true, true);
         append_row(client, rows, level, partition.block.path, utils.block_name(partition.block), desc, tabs, partition.block.path);
         process_partitions(level + 1, partition.partitions);
     }

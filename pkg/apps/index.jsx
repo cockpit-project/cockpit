@@ -25,6 +25,7 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from 'react-dom';
 
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { ApplicationList } from "./application-list.jsx";
 import { Application } from "./application.jsx";
 import { get_metainfo_db } from "./appstream.js";
@@ -37,6 +38,9 @@ const App = () => {
 
     const metainfo_db = useObject(get_metainfo_db, null, []);
     useEvent(metainfo_db, "changed");
+
+    if (!metainfo_db.ready)
+        return <EmptyStatePanel loading />;
 
     if (path.length === 0) {
         return <ApplicationList metainfo_db={metainfo_db} />;

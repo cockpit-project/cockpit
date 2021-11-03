@@ -96,12 +96,8 @@ export const Application = ({ metainfo_db, id }) => {
     // plus the UI for installing and removing it.
 
     function render_comp() {
-        if (!comp) {
-            if (metainfo_db.ready)
-                return <div>{_("Unknown application")}</div>;
-            else
-                return <div className="spinner" />;
-        }
+        if (!comp)
+            return <div>{_("Unknown application")}</div>;
 
         let progress_or_launch, button;
         if (progress) {

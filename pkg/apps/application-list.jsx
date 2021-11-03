@@ -155,9 +155,7 @@ export const ApplicationList = ({ metainfo_db }) => {
     }
 
     if (comps.length === 0) {
-        const empty_caption = metainfo_db.ready
-            ? _("No applications installed or available")
-            : <div className="spinner spinner-sm" />;
+        const empty_caption = _("No applications installed or available");
         tbody = <div className="app-list-empty">{empty_caption}</div>;
     } else {
         tbody = comps.map(c => <ApplicationRow comp={c} key={c.id} />);

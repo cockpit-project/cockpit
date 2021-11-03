@@ -18,7 +18,7 @@
  */
 
 import cockpit from "cockpit";
-import React from "react";
+import React, { useState } from "react";
 import {
     Alert, AlertActionCloseButton,
     Button, Card,
@@ -35,167 +35,154 @@ import { left_click, icon_url, show_error, launch, ProgressBar, CancelButton } f
 
 const _ = cockpit.gettext;
 
-class ApplicationRow extends React.Component {
-    constructor() {
-        super();
-        this.state = { progress: null };
+const ApplicationRow = ({ comp }) => {
+    const [progress, setProgress] = useState();
+    const [progress_title, setProgressTitle] = useState();
+    const [error, setError] = useState();
+
+    function action(func, arg, progress_title) {
+        setProgressTitle(progress_title);
+        func(arg, setProgress)
+                .finally(() => setProgress(null))
+                .catch(show_error);
     }
 
-    render() {
-        const self = this;
-        const comp = self.props.comp;
-        const state = self.state;
-
-        function action(func, arg, progress_title) {
-            self.setState({ progress_title: progress_title });
-            func(arg, (data) => self.setState({ progress: data }))
-                    .finally(() => self.setState({ progress: null }))
-                    .catch(show_error);
-        }
-
-        function install() {
-            action(PackageKit.install, comp.pkgname, _("Installing"));
-        }
-
-        function remove() {
-            action(PackageKit.remove, comp.file, _("Removing"));
-        }
-
-        const name = (
-            <Button variant="link"
-                isInline id={comp.name}
-                onClick={left_click(() => comp.installed ? launch(comp) : cockpit.location.go(comp.id))}>
-                {comp.name}
-            </Button>);
-
-        let summary_or_progress, button;
-        if (state.progress) {
-            summary_or_progress = <ProgressBar title={state.progress_title} data={state.progress} />;
-            button = <CancelButton data={state.progress} />;
-        } else {
-            if (state.error) {
-                summary_or_progress = (
-                    <div>
-                        {comp.summary}
-                        <Alert isInline variant='danger'
-                            actionClose={<AlertActionCloseButton onClose={left_click(() => { this.setState({ error: null }) })} />}
-                            title={state.error} />
-                    </div>
-                );
-            } else {
-                summary_or_progress = comp.summary;
-            }
-
-            if (comp.installed) {
-                button = <Button variant="danger" onClick={left_click(remove)}>{_("Remove")}</Button>;
-            } else {
-                button = <Button variant="secondary" onClick={left_click(install)}>{_("Install")}</Button>;
-            }
-        }
-
-        return (
-            <DataListItem className="app-list" aria-labelledby={comp.name}>
-                <DataListItemRow>
-                    <DataListItemCells
-                        dataListCells={[
-                            <DataListCell isIcon key="icon">
-                                <img src={icon_url(comp.icon)} role="presentation" alt="" />
-                            </DataListCell>,
-                            <DataListCell width={1} key="app name">
-                                {name}
-                            </DataListCell>,
-                            <DataListCell width={4} key="secondary content">
-                                {summary_or_progress}
-                            </DataListCell>,
-                        ]}
-                    />
-                    <DataListAction aria-labelledby={comp.name} aria-label={_("Actions")}>
-                        {button}
-                    </DataListAction>
-                </DataListItemRow>
-            </DataListItem>
-        );
-    }
-}
-
-export class ApplicationList extends React.Component {
-    constructor() {
-        super();
-        this.state = { progress: false };
+    function install() {
+        action(PackageKit.install, comp.pkgname, _("Installing"));
     }
 
-    render() {
-        const self = this;
-        const comps = [];
-        for (const id in this.props.metainfo_db.components)
-            comps.push(this.props.metainfo_db.components[id]);
-        comps.sort((a, b) => a.name.localeCompare(b.name));
+    function remove() {
+        action(PackageKit.remove, comp.file, _("Removing"));
+    }
 
-        function get_config(name, distro_id, def) {
-            if (cockpit.manifests.apps && cockpit.manifests.apps.config) {
-                let val = cockpit.manifests.apps.config[name];
-                if (typeof val === 'object' && val !== null && !Array.isArray(val))
-                    val = val[distro_id];
-                return val !== undefined ? val : def;
-            } else {
-                return def;
-            }
-        }
+    const name = (
+        <Button variant="link"
+            isInline id={comp.name}
+            onClick={left_click(() => comp.installed ? launch(comp) : cockpit.location.go(comp.id))}>
+            {comp.name}
+        </Button>);
 
-        function refresh() {
-            const distro_id = JSON.parse(window.localStorage['os-release'] || "{}").ID;
-
-            PackageKit.refresh(self.props.metainfo_db.origin_files,
-                               get_config('appstream_config_packages', distro_id, []),
-                               get_config('appstream_data_packages', distro_id, []),
-                               data => self.setState({ progress: data }))
-                    .finally(() => self.setState({ progress: false }))
-                    .catch(show_error);
-        }
-
-        let refresh_progress, refresh_button, tbody;
-        if (this.state.progress) {
-            refresh_progress = <ProgressBar size="sm" title={_("Checking for new applications")} data={this.state.progress} />;
-            refresh_button = <CancelButton data={this.state.progress} />;
-        } else {
-            refresh_progress = null;
-            refresh_button = (
-                <Button variant="secondary" onClick={left_click(refresh)} id="refresh" aria-label={ _("Update package information") }>
-                    <RebootingIcon />
-                </Button>
+    let summary_or_progress, button;
+    if (progress) {
+        summary_or_progress = <ProgressBar title={progress_title} data={progress} />;
+        button = <CancelButton data={progress} />;
+    } else {
+        if (error) {
+            summary_or_progress = (
+                <div>
+                    {comp.summary}
+                    <Alert isInline variant='danger'
+                        actionClose={<AlertActionCloseButton onClose={left_click(() => setError(null))} />}
+                        title={error} />
+                </div>
             );
-        }
-
-        if (comps.length === 0) {
-            const empty_caption = this.props.metainfo_db.ready
-                ? _("No applications installed or available")
-                : <div className="spinner spinner-sm" />;
-            tbody = <div className="app-list-empty">{empty_caption}</div>;
         } else {
-            tbody = comps.map(c => <ApplicationRow comp={c} key={c.id} />);
+            summary_or_progress = comp.summary;
         }
 
-        return (
-            <Page id="list-page">
-                <PageSection variant={PageSectionVariants.light}>
-                    <Flex alignItems={{ default: 'alignItemsCenter' }}>
-                        <h2 className="pf-u-font-size-3xl">{_("Applications")}</h2>
-                        <FlexItem align={{ default: 'alignRight' }}>
-                            <Flex>
-                                {refresh_progress}
-                                {refresh_button}
-                            </Flex>
-                        </FlexItem>
-                    </Flex>
-                </PageSection>
-                <PageSection>
-                    <Card>
-                        <DataList aria-label={_("Applications list")}>
-                            { tbody }
-                        </DataList>
-                    </Card>
-                </PageSection>
-            </Page>
+        if (comp.installed) {
+            button = <Button variant="danger" onClick={left_click(remove)}>{_("Remove")}</Button>;
+        } else {
+            button = <Button variant="secondary" onClick={left_click(install)}>{_("Install")}</Button>;
+        }
+    }
+
+    return (
+        <DataListItem className="app-list" aria-labelledby={comp.name}>
+            <DataListItemRow>
+                <DataListItemCells
+                    dataListCells={[
+                        <DataListCell isIcon key="icon">
+                            <img src={icon_url(comp.icon)} role="presentation" alt="" />
+                        </DataListCell>,
+                        <DataListCell width={1} key="app name">
+                            {name}
+                        </DataListCell>,
+                        <DataListCell width={4} key="secondary content">
+                            {summary_or_progress}
+                        </DataListCell>,
+                    ]}
+                />
+                <DataListAction aria-labelledby={comp.name} aria-label={_("Actions")}>
+                    {button}
+                </DataListAction>
+            </DataListItemRow>
+        </DataListItem>
+    );
+};
+
+export const ApplicationList = ({ metainfo_db }) => {
+    const [progress, setProgress] = useState(false);
+
+    const comps = [];
+    for (const id in metainfo_db.components)
+        comps.push(metainfo_db.components[id]);
+    comps.sort((a, b) => a.name.localeCompare(b.name));
+
+    function get_config(name, distro_id, def) {
+        if (cockpit.manifests.apps && cockpit.manifests.apps.config) {
+            let val = cockpit.manifests.apps.config[name];
+            if (typeof val === 'object' && val !== null && !Array.isArray(val))
+                val = val[distro_id];
+            return val !== undefined ? val : def;
+        } else {
+            return def;
+        }
+    }
+
+    function refresh() {
+        const distro_id = JSON.parse(window.localStorage['os-release'] || "{}").ID;
+
+        PackageKit.refresh(metainfo_db.origin_files,
+                           get_config('appstream_config_packages', distro_id, []),
+                           get_config('appstream_data_packages', distro_id, []),
+                           setProgress)
+                .finally(() => setProgress(false))
+                .catch(show_error);
+    }
+
+    let refresh_progress, refresh_button, tbody;
+    if (progress) {
+        refresh_progress = <ProgressBar size="sm" title={_("Checking for new applications")} data={progress} />;
+        refresh_button = <CancelButton data={progress} />;
+    } else {
+        refresh_progress = null;
+        refresh_button = (
+            <Button variant="secondary" onClick={left_click(refresh)} id="refresh" aria-label={ _("Update package information") }>
+                <RebootingIcon />
+            </Button>
         );
     }
-}
+
+    if (comps.length === 0) {
+        const empty_caption = metainfo_db.ready
+            ? _("No applications installed or available")
+            : <div className="spinner spinner-sm" />;
+        tbody = <div className="app-list-empty">{empty_caption}</div>;
+    } else {
+        tbody = comps.map(c => <ApplicationRow comp={c} key={c.id} />);
+    }
+
+    return (
+        <Page id="list-page">
+            <PageSection variant={PageSectionVariants.light}>
+                <Flex alignItems={{ default: 'alignItemsCenter' }}>
+                    <h2 className="pf-u-font-size-3xl">{_("Applications")}</h2>
+                    <FlexItem align={{ default: 'alignRight' }}>
+                        <Flex>
+                            {refresh_progress}
+                            {refresh_button}
+                        </Flex>
+                    </FlexItem>
+                </Flex>
+            </PageSection>
+            <PageSection>
+                <Card>
+                    <DataList aria-label={_("Applications list")}>
+                        { tbody }
+                    </DataList>
+                </Card>
+            </PageSection>
+        </Page>
+    );
+};

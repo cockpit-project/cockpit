@@ -18,7 +18,7 @@
  */
 
 import cockpit from "cockpit";
-import React, { useState } from "react";
+import React from "react";
 import {
     Button, Breadcrumb, BreadcrumbItem,
     Card, CardActions, CardHeader, CardTitle, CardBody,
@@ -29,35 +29,36 @@ import {
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 
 import * as PackageKit from "./packagekit.js";
-import { icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
+
+import { icon_url, launch, ProgressBar, CancelButton } from "./utils.jsx";
 
 import "./application.css";
 
 const _ = cockpit.gettext;
 
-export const Application = ({ metainfo_db, id }) => {
-    const [progress, setProgress] = useState();
-    const [progress_title, setProgressTitle] = useState();
+export const ActionButton = ({ comp, progress, action }) => {
+    function install(comp) {
+        action(PackageKit.install, comp.pkgname, _("Installing"), comp.id);
+    }
 
+    function remove(comp) {
+        action(PackageKit.remove, comp.file, _("Removing"), comp.id);
+    }
+
+    if (progress) {
+        return <CancelButton data={progress} />;
+    } else if (comp.installed) {
+        return <Button variant="danger" onClick={() => remove(comp)}>{_("Remove")}</Button>;
+    } else {
+        return <Button variant="secondary" onClick={() => install(comp)}>{_("Install")}</Button>;
+    }
+};
+
+export const Application = ({ metainfo_db, id, progress, progress_title, action }) => {
     if (!id)
         return null;
 
     const comp = metainfo_db.components[id];
-
-    function action(func, arg, progress_title) {
-        setProgressTitle(progress_title);
-        func(arg, setProgress)
-                .finally(() => setProgress(null))
-                .catch(show_error);
-    }
-
-    function install() {
-        action(PackageKit.install, comp.pkgname, _("Installing"));
-    }
-
-    function remove() {
-        action(PackageKit.remove, comp.file, _("Removing"));
-    }
 
     function render_homepage_link(urls) {
         return urls.map(url => {
@@ -99,16 +100,13 @@ export const Application = ({ metainfo_db, id }) => {
         if (!comp)
             return <div>{_("Unknown application")}</div>;
 
-        let progress_or_launch, button;
+        let progress_or_launch;
         if (progress) {
             progress_or_launch = <ProgressBar title={progress_title} data={progress} />;
-            button = <CancelButton data={progress} />;
         } else if (comp.installed) {
             progress_or_launch = <Button variant="link" onClick={() => launch(comp)}>{_("Go to application")}</Button>;
-            button = <Button variant="danger" onClick={remove}>{_("Remove")}</Button>;
         } else {
             progress_or_launch = null;
-            button = <Button variant="secondary" onClick={install}>{_("Install")}</Button>;
         }
 
         return (
@@ -122,7 +120,7 @@ export const Application = ({ metainfo_db, id }) => {
                     </CardTitle>
                     <CardActions>
                         {progress_or_launch}
-                        {button}
+                        <ActionButton comp={comp} progress={progress} action={action} />
                     </CardActions>
                 </CardHeader>
                 <CardBody>

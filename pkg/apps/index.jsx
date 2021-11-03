@@ -22,7 +22,7 @@ import "polyfills";
 
 import cockpit from "cockpit";
 
-import React from "react";
+import React, { useState } from "react";
 import ReactDOM from 'react-dom';
 
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
@@ -30,10 +30,21 @@ import { ApplicationList } from "./application-list.jsx";
 import { Application } from "./application.jsx";
 import { get_metainfo_db } from "./appstream.js";
 import { usePageLocation, useObject, useEvent } from "hooks";
+import { show_error } from "./utils.jsx";
 
 import "page.scss";
 
 const App = () => {
+    const [progress, setProgress] = useState({});
+    const [progressTitle, setProgressTitle] = useState({});
+
+    function action(func, arg, progress_title, id) {
+        setProgressTitle({ ...progressTitle, [id]: progress_title });
+        func(arg, progress => setProgress({ ...progress, [id]: progress }))
+                .finally(() => setProgress({ ...progress, [id]: null }))
+                .catch(show_error);
+    }
+
     const { path } = usePageLocation();
 
     const metainfo_db = useObject(get_metainfo_db, null, []);
@@ -43,9 +54,17 @@ const App = () => {
         return <EmptyStatePanel loading />;
 
     if (path.length === 0) {
-        return <ApplicationList metainfo_db={metainfo_db} />;
+        return <ApplicationList metainfo_db={metainfo_db}
+                                action={action}
+                                appProgress={progress}
+                                appProgressTitle={progressTitle} />;
     } else if (path.length == 1) {
-        return <Application metainfo_db={metainfo_db} id={cockpit.location.path[0]} />;
+        const id = cockpit.location.path[0];
+        return <Application metainfo_db={metainfo_db}
+                            action={action}
+                            progress={progress[id]}
+                            progressTitle={progressTitle[id]}
+                            id={id} />;
     } else { /* redirect */
         console.warn("not a apps location: " + path);
         cockpit.location = '';

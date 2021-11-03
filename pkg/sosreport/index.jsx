@@ -50,7 +50,6 @@ function sosCreate(setProgress, setError, setErrorDetail) {
     // TODO - Use a real API instead of scraping stdout once such an API exists
     const task = cockpit.spawn(["sos", "report", "--batch"], { superuser: true, err: "out", pty: true });
 
-    task.archive_files = [];
     task.archive_url = null;
 
     task.stream(text => {
@@ -89,9 +88,6 @@ function sosCreate(setProgress, setError, setErrorDetail) {
             //
             if (archive.indexOf("/host") === 0)
                 archive = archive.substr(5);
-
-            task.archive_files.push(archive);
-            task.archive_files.push(archive + ".md5");
 
             const query = window.btoa(JSON.stringify({
                 payload: "fsread1",
@@ -136,16 +132,6 @@ function sosDownload(task, setError, onClose) {
     document.body.appendChild(iframe);
 }
 
-function sosCancel(task) {
-    task.close("cancelled");
-    if (task.archive_files.length > 0) {
-        return cockpit.spawn(["rm"].concat(task.archive_files), { superuser: true, err: "message" })
-                .catch(error => console.log("failed to remove", JSON.stringify(task.archive_files), error));
-    } else {
-        return Promise.resolve();
-    }
-}
-
 const SOSDialog = ({ onClose }) => {
     const [progress, setProgress] = useState(0);
     const [error, setError] = useState(null);
@@ -165,7 +151,10 @@ const SOSDialog = ({ onClose }) => {
             </Button>);
     } else if (!error && progress < 100) {
         // in progress
-        actions.push(<Button id="sos-cancel" key="cancel" variant="secondary" onClick={ () => sosCancel(task).then(onClose) }>{ _("Cancel") }</Button>);
+        actions.push(<Button id="sos-cancel" key="cancel" variant="secondary" onClick={ () => {
+            task.close("cancelled");
+            onClose();
+        } }>{ _("Cancel") }</Button>);
     } else {
         // error
         actions.push(<Button key="close" variant="secondary" onClick={onClose}>{ _("Close") }</Button>);

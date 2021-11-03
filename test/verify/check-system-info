@@ -449,7 +449,7 @@ class TestSystemInfo(MachineCase):
 
         # sort by model (no sort buttons in mobile mode)
         if not b.cdp.mobile:
-            b.click(pci_selector + ' thead th[data-label=Model] button')
+            b.click(pci_selector + ' thead th:nth-child(2) button')
             b.wait_in_text(pci_selector + ' tbody tr:first-of-type td[data-label=Model]', "440")
             b.wait_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Virtio SCSI")
             b.wait_not_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Unclassified")

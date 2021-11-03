@@ -54,7 +54,6 @@ export class ActivePagesDialogBody extends React.Component {
             return ({
                 props: {
                     key: frame.name,
-                    frame,
                     'data-row-id': frame.name
                 },
                 columns,
@@ -67,8 +66,8 @@ export class ActivePagesDialogBody extends React.Component {
                           columns={[{ title: _("Page name") }]}
                           aria-label={_("Active pages")}
                           emptyCaption={ _("There are currently no active pages") }
-                          onSelect={(_event, isSelected, rowIndex, rowData) => {
-                              const frame = rowData.props.frame;
+                          onSelect={(_event, isSelected, rowIndex) => {
+                              const frame = this.state.iframes[rowIndex];
                               const iframes = [...this.state.iframes];
                               iframes[rowIndex].selected = isSelected;
                               this.setState({ iframes });

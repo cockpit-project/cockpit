@@ -97,7 +97,7 @@ class TestApps(PackageCase):
 
         m.start_cockpit()
         b.login_and_go("/apps", urlroot=urlroot)
-        b.wait_visible(".app-list-empty")
+        b.wait_visible(".pf-c-empty-state")
 
         self.createAppStreamPackage("app-1", "1.0", "1")
         self.createAppStreamRepoPackage()
@@ -142,7 +142,7 @@ class TestApps(PackageCase):
 
         m.start_cockpit()
         b.login_and_go("/apps")
-        b.wait_visible(".app-list-empty")
+        b.wait_visible(".pf-c-empty-state")
 
         m.execute("mkdir -p /usr/share/app-info/xmls")
         m.write("/usr/share/app-info/xmls/test.xml", """
@@ -204,7 +204,7 @@ class TestApps(PackageCase):
 
         m.start_cockpit()
         b.login_and_go("/apps")
-        b.wait_visible(".app-list-empty")
+        b.wait_visible(".pf-c-empty-state")
 
         m.execute("mkdir -p /usr/share/app-info/xmls")
 
@@ -226,7 +226,7 @@ class TestApps(PackageCase):
     <pkgname>foo</pkgname>
   </component>
 </components>""")
-            b.wait_not_present(".app-list-empty")
+            b.wait_not_present(".pf-c-empty-state")
             b.wait_visible(".app-list .pf-c-data-list__item-row:contains('Summary')")
 
         # First lay down some good XML so that we can later detect the reaction to broken XML.
@@ -236,14 +236,14 @@ class TestApps(PackageCase):
         m.write("/usr/share/app-info/xmls/test.xml", """
 This <is <not XML.
 """)
-        b.wait_visible(".app-list-empty")
+        b.wait_visible(".pf-c-empty-state")
         reset()
 
         # Not really AppStream
         m.write("/usr/share/app-info/xmls/test.xml", """
 <foo></foo>
 """)
-        b.wait_visible(".app-list-empty")
+        b.wait_visible(".pf-c-empty-state")
         reset()
 
         # No origin
@@ -261,7 +261,7 @@ This <is <not XML.
     <pkgname>foo</pkgname>
   </component>
 </components>""")
-        b.wait_visible(".app-list-empty")
+        b.wait_visible(".pf-c-empty-state")
         reset()
 
         # No package
@@ -278,7 +278,7 @@ This <is <not XML.
     <launchable type="cockpit-manifest">foo</launchable>
   </component>
 </components>""")
-        b.wait_visible(".app-list-empty")
+        b.wait_visible(".pf-c-empty-state")
         reset()
 
         # No id
@@ -292,7 +292,7 @@ This <is <not XML.
     <pkgname>foo</pkgname>
   </component>
 </components>""")
-        b.wait_visible(".app-list-empty")
+        b.wait_visible(".pf-c-empty-state")
         reset()
 
         # Error (launchable without type) in earlier entry, shouldn't affect the later entry
@@ -321,7 +321,7 @@ This <is <not XML.
     <pkgname>foo</pkgname>
   </component>
 </components>""")
-        b.wait_not_present(".app-list-empty")
+        b.wait_not_present(".pf-c-empty-state")
         b.wait_visible(".app-list .pf-c-data-list__item-row:contains('Summary 2')")
 
 

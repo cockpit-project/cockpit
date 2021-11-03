@@ -153,6 +153,14 @@ class ServicesPageBody extends React.Component {
             isFullyLoaded: false,
         };
 
+        this.onCurrentTextFilterChanged = (currentTextFilter) => {
+            this.setState({ currentTextFilter });
+        };
+
+        this.onFiltersChanged = (filters) => {
+            this.setState({ filters });
+        };
+
         // Possible LoadState values: stub, loaded, not-found, bad-setting, error, merged, masked
         // See: typedef enum UnitLoadStateState https://github.com/systemd/systemd/blob/main/src/basic/unit-def.h
         this.loadState = {
@@ -198,17 +206,6 @@ class ServicesPageBody extends React.Component {
 
         this.seenActiveStates = new Set();
         this.seenUnitFileStates = new Set();
-
-        /* Functions for controlling the toolbar's components
-         * FIXME: https://github.com/patternfly/patternfly-react/issues/5836
-         */
-        this.onClearAllFilters = this.onClearAllFilters.bind(this);
-        this.onActiveStateSelect = this.onActiveStateSelect.bind(this);
-        this.onFileStateSelect = this.onFileStateSelect.bind(this);
-        this.onSelect = this.onSelect.bind(this);
-        this.onDeleteChip = this.onDeleteChip.bind(this);
-        this.onDeleteChipGroup = this.onDeleteChipGroup.bind(this);
-        this.onInputChange = this.onInputChange.bind(this);
 
         /* Function for manipulating with the API results and store the units in the React state */
         this.processFailedUnits = this.processFailedUnits.bind(this);
@@ -461,76 +458,6 @@ class ServicesPageBody extends React.Component {
                                         });
                             }, ex => console.warn('ListUnitFiles failed: ', ex.toString()));
                 }, ex => console.warn('ListUnits failed: ', ex.toString()));
-    }
-
-    onClearAllFilters() {
-        this.setState({ currentTextFilter: '' });
-        this.onDeleteChip();
-    }
-
-    onInputChange(newValue) {
-        this.setState({ currentTextFilter: newValue });
-    }
-
-    onSelect(type, event, selection) {
-        const checked = event.target.checked;
-
-        this.setState(prevState => {
-            const prevSelections = prevState.filters[type];
-            return {
-                filters: {
-                    ...prevState.filters,
-                    [type]: checked ? [...prevSelections, selection] : prevSelections.filter(value => value !== selection)
-                }
-            };
-        });
-    }
-
-    onActiveStateSelect(event, selection) {
-        this.onSelect('activeState', event, selection);
-    }
-
-    onFileStateSelect(event, selection) {
-        this.onSelect('fileState', event, selection);
-    }
-
-    getFilterLabelKey(typeLabel) {
-        if (typeLabel == 'Active state')
-            return 'activeState';
-        else if (typeLabel == 'File state')
-            return 'fileState';
-    }
-
-    onDeleteChip(typeLabel = '', id = '') {
-        const type = this.getFilterLabelKey(typeLabel);
-
-        if (type) {
-            this.setState(prevState => {
-                const newState = Object.assign(prevState);
-                newState.filters[type] = newState.filters[type].filter(s => s !== id);
-                return {
-                    filters: newState.filters
-                };
-            });
-        } else {
-            this.setState({
-                filters: {
-                    activeState: [],
-                    fileState: []
-                }
-            });
-        }
-    }
-
-    onDeleteChipGroup(typeLabel) {
-        const type = this.getFilterLabelKey(typeLabel);
-
-        this.setState(prevState => {
-            prevState.filters[type] = [];
-            return {
-                filters: prevState.filters
-            };
-        });
     }
 
     /**
@@ -860,61 +787,15 @@ class ServicesPageBody extends React.Component {
                 .map(unit_id => [unit_id, unit_by_path[this.path_by_id[unit_id]]])
                 .sort(this.compareUnits);
 
-        const toolbarItems = <>
-            <ToolbarToggleGroup toggleIcon={<><span className="pf-c-button__icon pf-m-start"><FilterIcon /></span>{_("Toggle filters")}</>} breakpoint="sm"
-                                variant="filter-group" alignment={{ default: 'alignLeft' }}>
-                <ToolbarItem variant="search-filter">
-                    <SearchInput id="services-text-filter"
-                                 className="services-text-filter"
-                                 placeholder={_("Filter by name or description")}
-                                 value={currentTextFilter}
-                                 onChange={this.onInputChange}
-                                 onClear={() => this.setState({ currentTextFilter: "" })} />
-                </ToolbarItem>
-                <ToolbarFilter chips={filters.activeState}
-                               deleteChip={this.onDeleteChip}
-                               deleteChipGroup={this.onDeleteChipGroup}
-                               categoryName={_("Active state")}>
-                    <Select aria-label={_("Active state")}
-                            toggleId="services-dropdown-active-state"
-                            variant={SelectVariant.checkbox}
-                            onToggle={isOpen => this.setState({ activeStateFilterIsOpen: isOpen })}
-                            onSelect={this.onActiveStateSelect}
-                            selections={filters.activeState}
-                            isOpen={this.state.activeStateFilterIsOpen}
-                            placeholderText={_("Active state")}>
-                        {activeStateDropdownOptions.map(option => <SelectOption key={option.value}
-                                                                                value={option.label} />)}
-                    </Select>
-                </ToolbarFilter>
-                <ToolbarFilter chips={filters.fileState}
-                               deleteChip={this.onDeleteChip}
-                               deleteChipGroup={this.onDeleteChipGroup}
-                               categoryName={_("File state")}>
-                    <Select aria-label={_("File state")}
-                            toggleId="services-dropdown-file-state"
-                            variant={SelectVariant.checkbox}
-                            onToggle={isOpen => this.setState({ fileStateFilterIsOpen: isOpen })}
-                            onSelect={this.onFileStateSelect}
-                            selections={filters.fileState}
-                            isOpen={this.state.fileStateFilterIsOpen}
-                            placeholderText={_("File state")}>
-                        {fileStateDropdownOptions.map(option => <SelectOption key={option.value}
-                                                                              value={option.label} />)}
-                    </Select>
-                </ToolbarFilter>
-            </ToolbarToggleGroup>
-        </>;
-
         return (
             <PageSection>
                 <Card isCompact>
-                    <Toolbar data-loading={this.state.loadingUnits}
-                             clearAllFilters={this.onClearAllFilters}
-                             className="pf-m-sticky-top ct-compact services-toolbar"
-                             id="services-toolbar">
-                        <ToolbarContent>{toolbarItems}</ToolbarContent>
-                    </Toolbar>
+                    <ServicesPageFilters activeStateDropdownOptions={activeStateDropdownOptions}
+                                         fileStateDropdownOptions={fileStateDropdownOptions}
+                                         loadingUnits={this.state.loadingUnits}
+                                         onCurrentTextFilterChanged={this.onCurrentTextFilterChanged}
+                                         onFiltersChanged={this.onFiltersChanged}
+                    />
                     {units.length ? <ServicesList key={cockpit.format("$0-list", activeTab)}
                         isTimer={activeTab == 'timer'}
                         units={units} /> : null}
@@ -930,6 +811,134 @@ class ServicesPageBody extends React.Component {
         );
     }
 }
+
+const ServicesPageFilters = ({
+    activeStateDropdownOptions,
+    fileStateDropdownOptions,
+    loadingUnits,
+    onCurrentTextFilterChanged,
+    onFiltersChanged,
+}) => {
+    const [activeStateFilterIsOpen, setActiveStateFilterIsOpen] = useState(false);
+    const [currentTextFilter, setCurrentTextFilter] = useState('');
+    const [fileStateFilterIsOpen, setFileStateFilterIsOpen] = useState(false);
+    const [filters, setFilters] = useState({
+        activeState: [],
+        fileState: [],
+    });
+
+    useEffect(() => {
+        onFiltersChanged(filters);
+    }, [filters, onFiltersChanged]);
+
+    useEffect(() => {
+        onCurrentTextFilterChanged(currentTextFilter);
+    }, [currentTextFilter, onCurrentTextFilterChanged]);
+
+    /* Functions for controlling the toolbar's components
+     * FIXME: https://github.com/patternfly/patternfly-react/issues/5836
+     */
+
+    const onClearAllFilters = () => {
+        setCurrentTextFilter('');
+        onDeleteChip();
+    };
+
+    const onSelect = (type, event, selection) => {
+        const checked = event.target.checked;
+
+        setFilters({ ...filters, [type]: checked ? [...filters[type], selection] : filters[type].filter(value => value !== selection) });
+    };
+
+    const onActiveStateSelect = (event, selection) => {
+        onSelect('activeState', event, selection);
+    };
+
+    const onFileStateSelect = (event, selection) => {
+        onSelect('fileState', event, selection);
+    };
+
+    const getFilterLabelKey = (typeLabel) => {
+        if (typeLabel == 'Active state')
+            return 'activeState';
+        else if (typeLabel == 'File state')
+            return 'fileState';
+    };
+
+    const onDeleteChip = (typeLabel = '', id = '') => {
+        const type = getFilterLabelKey(typeLabel);
+
+        if (type) {
+            setFilters({ ...filters, [type]: filters[type].filter(s => s !== id) });
+        } else {
+            setFilters({
+                activeState: [],
+                fileState: []
+            });
+        }
+    };
+
+    const onDeleteChipGroup = (typeLabel) => {
+        const type = getFilterLabelKey(typeLabel);
+
+        setFilters({ ...filters, [type]: [] });
+    };
+
+    const toolbarItems = <>
+        <ToolbarToggleGroup toggleIcon={<><span className="pf-c-button__icon pf-m-start"><FilterIcon /></span>{_("Toggle filters")}</>} breakpoint="sm"
+                            variant="filter-group" alignment={{ default: 'alignLeft' }}>
+            <ToolbarItem variant="search-filter">
+                <SearchInput id="services-text-filter"
+                             className="services-text-filter"
+                             placeholder={_("Filter by name or description")}
+                             value={currentTextFilter}
+                             onChange={setCurrentTextFilter}
+                             onClear={() => setCurrentTextFilter('')} />
+            </ToolbarItem>
+            <ToolbarFilter chips={filters.activeState}
+                           deleteChip={onDeleteChip}
+                           deleteChipGroup={onDeleteChipGroup}
+                           categoryName={_("Active state")}>
+                <Select aria-label={_("Active state")}
+                        toggleId="services-dropdown-active-state"
+                        variant={SelectVariant.checkbox}
+                        onToggle={setActiveStateFilterIsOpen}
+                        onSelect={onActiveStateSelect}
+                        selections={filters.activeState}
+                        isOpen={activeStateFilterIsOpen}
+                        placeholderText={_("Active state")}>
+                    {activeStateDropdownOptions.map(option => <SelectOption key={option.value}
+                                                                            value={option.label} />)}
+                </Select>
+            </ToolbarFilter>
+            <ToolbarFilter chips={filters.fileState}
+                           deleteChip={onDeleteChip}
+                           deleteChipGroup={onDeleteChipGroup}
+                           categoryName={_("File state")}>
+                <Select aria-label={_("File state")}
+                        toggleId="services-dropdown-file-state"
+                        variant={SelectVariant.checkbox}
+                        onToggle={setFileStateFilterIsOpen}
+                        onSelect={onFileStateSelect}
+                        selections={filters.fileState}
+                        isOpen={fileStateFilterIsOpen}
+                        placeholderText={_("File state")}>
+                    {fileStateDropdownOptions.map(option => <SelectOption key={option.value}
+                                                                          value={option.label} />)}
+                </Select>
+            </ToolbarFilter>
+        </ToolbarToggleGroup>
+    </>;
+
+    return (
+        <Toolbar data-loading={loadingUnits}
+                 clearAllFilters={onClearAllFilters}
+                 className="pf-m-sticky-top ct-compact services-toolbar"
+                 id="services-toolbar">
+            <ToolbarContent>{toolbarItems}</ToolbarContent>
+        </Toolbar>
+    );
+};
 
 const ServicesPage = () => {
     const [tabErrors, setTabErrors] = useState({});

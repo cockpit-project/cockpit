@@ -32,28 +32,12 @@ import { RebootingIcon } from "@patternfly/react-icons";
 
 import * as PackageKit from "./packagekit.js";
 import { icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
+import { ActionButton } from "./application.jsx";
 
 const _ = cockpit.gettext;
 
-const ApplicationRow = ({ comp }) => {
-    const [progress, setProgress] = useState();
-    const [progress_title, setProgressTitle] = useState();
+const ApplicationRow = ({ comp, progress, progress_title, action }) => {
     const [error, setError] = useState();
-
-    function action(func, arg, progress_title) {
-        setProgressTitle(progress_title);
-        func(arg, setProgress)
-                .finally(() => setProgress(null))
-                .catch(show_error);
-    }
-
-    function install() {
-        action(PackageKit.install, comp.pkgname, _("Installing"));
-    }
-
-    function remove() {
-        action(PackageKit.remove, comp.file, _("Removing"));
-    }
 
     const name = (
         <Button variant="link"
@@ -62,10 +46,9 @@ const ApplicationRow = ({ comp }) => {
             {comp.name}
         </Button>);
 
-    let summary_or_progress, button;
+    let summary_or_progress;
     if (progress) {
         summary_or_progress = <ProgressBar title={progress_title} data={progress} />;
-        button = <CancelButton data={progress} />;
     } else {
         if (error) {
             summary_or_progress = (
@@ -78,12 +61,6 @@ const ApplicationRow = ({ comp }) => {
             );
         } else {
             summary_or_progress = comp.summary;
-        }
-
-        if (comp.installed) {
-            button = <Button variant="danger" onClick={remove}>{_("Remove")}</Button>;
-        } else {
-            button = <Button variant="secondary" onClick={install}>{_("Install")}</Button>;
         }
     }
 
@@ -104,16 +81,15 @@ const ApplicationRow = ({ comp }) => {
                     ]}
                 />
                 <DataListAction aria-labelledby={comp.name} aria-label={_("Actions")}>
-                    {button}
+                    <ActionButton comp={comp} progress={progress} action={action} />
                 </DataListAction>
             </DataListItemRow>
         </DataListItem>
     );
 };
 
-export const ApplicationList = ({ metainfo_db }) => {
+export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, action }) => {
     const [progress, setProgress] = useState(false);
-
     const comps = [];
     for (const id in metainfo_db.components)
         comps.push(metainfo_db.components[id]);
@@ -158,7 +134,10 @@ export const ApplicationList = ({ metainfo_db }) => {
         const empty_caption = _("No applications installed or available");
         tbody = <div className="app-list-empty">{empty_caption}</div>;
     } else {
-        tbody = comps.map(c => <ApplicationRow comp={c} key={c.id} />);
+        tbody = comps.map(c => <ApplicationRow comp={c} key={c.id}
+                                               progress={appProgress[c.id]}
+                                               progress_title={appProgressTitle[c.id]}
+                                               action={action} />);
     }
 
     return (

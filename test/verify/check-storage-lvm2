@@ -211,10 +211,31 @@ class TestStorageLvm2(StorageCase):
         self.content_row_wait_in_col(2, 1, "ext4 file system")
         self.wait_in_configuration("/dev/vgroup0/thin", "fstab", "dir", mount_point_thin)
 
+        # remove pool
+        self.content_dropdown_action(1, "Delete")
+        self.confirm()
+        b.wait_not_in_text("#detail-content", "pool")
+        self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_thin), "")
+
+        # make another logical volume and format it, just so that we
+        # can see whether deleting the volume group will clean it all
+        # up.
+        b.click("button:contains(Create new logical volume)")
+        self.dialog(expect={"name": "lvol0"},
+                    values={"purpose": "block"})
+        self.content_row_wait_in_col(1, 2, "/dev/vgroup0/lvol0")
+        self.content_row_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "mount_point": mount_point_one})
+        self.content_row_wait_in_col(1, 1, "ext4 file system")
+        self.wait_in_configuration("/dev/vgroup0/lvol0", "fstab", "dir", mount_point_one)
+        self.content_tab_wait_in_info(1, 2, "Mount point", mount_point_one)
+
         # remove volume group
         b.click('.pf-c-card__header:contains("LVM2 volume group") button:contains("Delete")')
         self.confirm()
         b.wait_visible("#storage")
+        b.wait_not_in_text("#devices", "vgroup0")
         self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_thin), "")
 
     def testUnpartitionedSpace(self):

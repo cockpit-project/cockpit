@@ -572,6 +572,14 @@ function get_children(client, path) {
         });
     }
 
+    if (client.lvols_pool_members[path]) {
+        for (const lvol of client.lvols_pool_members[path]) {
+            const block = client.lvols_block[lvol.path];
+            if (block)
+                children.push(block.path);
+        }
+    }
+
     if (client.stratis_pools[path]) {
         client.stratis_pool_filesystems[path].forEach(function (fsys) {
             const block = client.slashdevs_block[fsys.Devnode];

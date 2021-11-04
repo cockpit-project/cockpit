@@ -1268,7 +1268,7 @@ export function syn_click(model, fun) {
     return function() {
         const self = this;
         const self_args = arguments;
-        model.synchronize().then(function() {
+        return model.synchronize().then(function() {
             fun.apply(self, self_args);
         });
     };
@@ -1556,11 +1556,7 @@ export function with_checkpoint(model, modify, options) {
                                         .catch(function () {
                                             show_breaking_change_dialog({
                                                 ...options,
-                                                action: () => {
-                                                    syn_click(model, function () {
-                                                        modify();
-                                                    });
-                                                }
+                                                action: syn_click(model, modify)
                                             });
                                         })
                                         .finally(hide_curtain);

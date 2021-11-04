@@ -26,10 +26,10 @@
 #include "cockpitchannelsocket.h"
 #include "cockpitwebservice.h"
 #include "cockpitws.h"
-#include "cockpitcertificate.h"
 
 #include "common/cockpitconf.h"
 #include "common/cockpitjson.h"
+#include "common/cockpitwebcertificate.h"
 #include "common/cockpitwebinject.h"
 
 #include "websocket/websocket.h"
@@ -43,6 +43,28 @@
 
 /* For overriding during tests */
 const gchar *cockpit_ws_shell_component = "/shell/index.html";
+
+static gchar *
+locate_selfsign_ca (void)
+{
+  g_autofree gchar *cert_path = NULL;
+  gchar *ca_path = NULL;
+  gchar *error = NULL;
+
+  cert_path = cockpit_certificate_locate (true, &error);
+  if (cert_path && g_str_has_suffix (cert_path, "/0-self-signed.cert"))
+    {
+      g_autofree gchar *dir = g_path_get_dirname (cert_path);
+      ca_path = g_build_filename (dir, "0-self-signed-ca.pem", NULL);
+      if (!g_file_test (ca_path, G_FILE_TEST_EXISTS))
+        {
+          g_free (ca_path);
+          ca_path = NULL;
+        }
+    }
+
+  return ca_path;
+}
 
 static void
 on_web_socket_noauth (WebSocketConnection *connection,
@@ -336,7 +358,7 @@ build_environment (GHashTable *os_release)
 
   add_oauth_to_environment (object);
 
-  g_autofree gchar *ca_path = cockpit_certificate_locate_selfsign_ca ();
+  g_autofree gchar *ca_path = locate_selfsign_ca ();
   if (ca_path)
     json_object_set_string_member (object, "CACertUrl", "/ca.cer");
 
@@ -753,7 +775,7 @@ cockpit_handler_ca_cert (CockpitWebServer *server,
 {
   g_autofree gchar *ca_path = NULL;
 
-  ca_path = cockpit_certificate_locate_selfsign_ca ();
+  ca_path = locate_selfsign_ca ();
   if (ca_path == NULL) {
     cockpit_web_response_error (response, 404, NULL, "CA certificate not found");
     return TRUE;

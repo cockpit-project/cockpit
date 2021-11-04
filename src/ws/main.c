@@ -28,7 +28,6 @@
 
 #include "cockpitws.h"
 
-#include "cockpitcertificate.h"
 #include "cockpithandlers.h"
 #include "cockpitbranding.h"
 
@@ -38,6 +37,7 @@
 #include "common/cockpitmemory.h"
 #include "common/cockpitsystem.h"
 #include "common/cockpittest.h"
+#include "common/cockpitwebcertificate.h"
 
 /* ---------------------------------------------------------------------------------------------------- */
 
@@ -126,7 +126,6 @@ main (int argc,
   g_autoptr(GTlsCertificate) certificate = NULL;
   g_autoptr(GError) error = NULL;
   g_auto(GStrv) roots = NULL;
-  g_autofree gchar *cert_path = NULL;
   g_autoptr(GMainLoop) loop = NULL;
   g_autofree gchar *login_html = NULL;
   g_autofree gchar *login_po_js = NULL;
@@ -179,9 +178,17 @@ main (int argc,
     }
   else
     {
-      cert_path = cockpit_certificate_locate_gerror (&error);
-      if (cert_path != NULL)
-        certificate = cockpit_certificate_load (cert_path, &error);
+      g_autofree char *message = NULL;
+      g_autofree gchar *cert_path = cockpit_certificate_locate (false, &message);
+      if (cert_path == NULL)
+        {
+          g_set_error_literal (&error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND, message);
+          goto out;
+        }
+
+      g_autofree gchar *key_path = cockpit_certificate_key_path (cert_path);
+
+      certificate = g_tls_certificate_new_from_files (cert_path, key_path, &error);
       if (certificate == NULL)
         goto out;
       g_info ("Using certificate: %s", cert_path);

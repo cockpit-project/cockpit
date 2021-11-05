@@ -113,6 +113,8 @@ export function format_fsys_usage(used, total) {
     units = parts[1];
 
     parts = cockpit.format_bytes(used, units, true);
+    if (parts[0].indexOf("0.") == 0)
+        parts[0] = parts[0].substring(0, 4);
     return parts[0] + text;
 }
 

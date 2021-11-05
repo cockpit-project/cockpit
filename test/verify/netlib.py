@@ -79,12 +79,12 @@ class NetworkCase(MachineCase, NetworkHelpers):
 
             def cleanupDevs():
                 new = devs() - self.orig_devs
-                self.machine.execute("for d in %s; do ip link del dev $d; done" % ' '.join(new))
+                self.machine.execute("for d in %s; do nmcli dev del $d; done" % ' '.join(new))
 
             self.orig_devs = devs()
-            self.addCleanup(cleanupDevs)
             self.restore_dir("/etc/NetworkManager", post_restore_action="systemctl try-restart NetworkManager")
             self.restore_dir("/etc/sysconfig/network-scripts")
+            self.addCleanup(cleanupDevs)
 
         m.execute("systemctl start NetworkManager")
 

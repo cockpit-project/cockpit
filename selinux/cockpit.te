@@ -19,6 +19,7 @@ userdom_user_tmpfs_file(cockpit_tmpfs_t)
 type cockpit_var_run_t;
 files_pid_file(cockpit_var_run_t)
 systemd_mount_dir(cockpit_var_run_t)
+systemd_private_tmp(cockpit_var_run_t)
 
 type cockpit_unit_file_t;
 systemd_unit_file(cockpit_unit_file_t)

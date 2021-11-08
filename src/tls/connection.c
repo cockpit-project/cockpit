@@ -812,10 +812,11 @@ connection_thread_main (int fd)
  * @request_mode: Whether to ask for client certificates
  */
 void
-connection_crypto_init (const char *certfile,
+connection_crypto_init (const char *certificate_filename,
+                        const char *key_filename,
                         gnutls_certificate_request_t request_mode)
 {
-  parameters.certificate = certificate_load (certfile);
+  parameters.certificate = certificate_load (certificate_filename, key_filename);
   parameters.request_mode = request_mode;
 }
 

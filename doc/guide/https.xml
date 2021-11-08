@@ -34,32 +34,10 @@
       style <literal>BEGIN CERTIFICATE</literal> blocks for the server certificate and
       the intermediate certificate authorities.</para>
 
-    <para>The private key can either be contained in the same <code>.cert</code>/<code>.crt</code>
-    file as an additional <literal>BEGIN PRIVATE KEY</literal> or similar block, or in
-    a separate file with the same name as the certificate, but with a <code>.key</code>
-    suffix instead. The key must not be encrypted. For example, a merged file looks like this:</para>
-
-<programlisting>
------BEGIN CERTIFICATE-----
-MIIDUzCCAjugAwIBAgIJAPXW+CuNYS6QMA0GCSqGSIb3DQEBCwUAMD8xKTAnBgNV
-BAoMIGI0OGE2NGNkNmMwNTQ1YThhZTgxOTEzZDE5YmJjMmRjMRIwEAYDVQQDDAls
-...
------END CERTIFICATE-----
------BEGIN CERTIFICATE-----
-MIIDUzCCAjugAwIBAgIJAPXW+CuNYS6QMA0GCSqGSIb3DQEBCwUAMD8xKTAnBgNV
-BAoMIGI0OGE2NGNkNmMwNTQ1YThhZTgxOTEzZDE5YmJjMmRjMRIwEAYDVQQDDAls
-...
------END CERTIFICATE-----
------BEGIN PRIVATE KEY-----
-MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCyOJ5garOYw0sm
-8TBCDSqQ/H1awGMzDYdB11xuHHsxYS2VepPMzMzryHR137I4dGFLhvdTvJUH8lUS
-...
------END PRIVATE KEY-----
-</programlisting>
-
-    <para>Note that for EC keys, the <literal>BEGIN EC PARAMETERS</literal> block must occur
-      <emphasis>before</emphasis> the <literal>BEGIN EC PRIVATE KEY</literal> block (this
-      is how OpenSSL, LetsEncrypt, etc. generate the key files).</para>
+    <para>
+      The private key must be contained in a separate file with the same name as the
+      certificate, but with a <code>.key</code> suffix instead. The key must not be
+      encrypted.</para>
 
     <para>If no certificate is found, a self-signed certificate is created and
       stored in the <filename>0-self-signed.cert</filename> file. On some

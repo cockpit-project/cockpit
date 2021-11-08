@@ -20,13 +20,23 @@
 import cockpit from "cockpit";
 import * as PK from "packagekit.js";
 
-function progress_reporter(base, range, callback) {
-    if (callback) {
-        return function (data) {
-            if (data.absolute_percentage >= 0)
-                data.percentage = base + data.absolute_percentage / 100 * range;
-            callback(data);
-        };
+class ProgressReporter {
+    constructor(base, range, callback) {
+        this.base = base;
+        this.range = range;
+        this.callback = callback;
+        this.progress_reporter = this.progress_reporter.bind(this);
+    }
+
+    progress_reporter(data) {
+        if (data.absolute_percentage >= 0) {
+            const newPercentage = this.base + data.absolute_percentage / 100 * this.range;
+            // PackageKit with Apt backend reports wrong percentages https://github.com/PackageKit/PackageKit/issues/516
+            // Double check here that we have an increasing only progress value
+            if (this.percentage == undefined || newPercentage >= this.percentage)
+                this.percentage = newPercentage;
+        }
+        this.callback({ percentage: this.percentage, ...data });
     }
 }
 
@@ -55,18 +65,28 @@ function reload_bridge_packages() {
 }
 
 export function install(name, progress_cb) {
+    const progress = new ProgressReporter(0, 1, progress_cb);
+
     return resolve("Resolve", PK.Enum.FILTER_ARCH | PK.Enum.FILTER_NOT_SOURCE | PK.Enum.FILTER_NEWEST, name,
-                   progress_reporter(0, 1, progress_cb))
-            .then(function (pkgid) {
-                return PK.cancellableTransaction("InstallPackages", [0, [pkgid]], progress_reporter(1, 99, progress_cb))
+                   progress.progress_reporter)
+            .then(pkgid => {
+                progress.base = 1;
+                progress.range = 99;
+
+                return PK.cancellableTransaction("InstallPackages", [0, [pkgid]], progress.progress_reporter)
                         .then(reload_bridge_packages);
             });
 }
 
 export function remove(name, progress_cb) {
-    return resolve("SearchFiles", PK.Enum.FILTER_INSTALLED, name, progress_reporter(0, 1, progress_cb))
-            .then(function (pkgid) {
-                return PK.cancellableTransaction("RemovePackages", [0, [pkgid], true, false], progress_reporter(1, 99, progress_cb))
+    const progress = new ProgressReporter(0, 1, progress_cb);
+
+    return resolve("SearchFiles", PK.Enum.FILTER_INSTALLED, name, progress.progress_reporter)
+            .then(pkgid => {
+                progress.base = 1;
+                progress.range = 99;
+
+                return PK.cancellableTransaction("RemovePackages", [0, [pkgid], true, false], progress.progress_reporter)
                         .then(reload_bridge_packages);
             });
 }
@@ -91,24 +111,31 @@ export function refresh(origin_files, config_packages, data_packages, progress_c
      * repository metadata, and the second list contains packages that
      * contain AppStream data themselves.
      */
+    const progress = new ProgressReporter(0, 1, progress_cb);
 
-    function search_origin_file_packages() {
+    const search_origin_file_packages = () => {
         return PK.cancellableTransaction("SearchFiles", [PK.Enum.FILTER_INSTALLED, origin_files],
-                                         progress_reporter(5, 1, progress_cb),
+                                         progress.progress_reporter,
                                          {
                                              Package: (info, package_id) => {
                                                  const pkg = package_id.split(";")[0];
                                                  origin_pkgs[pkg] = true;
                                              },
                                          });
-    }
+    };
 
-    function refresh_cache() {
-        return PK.cancellableTransaction("RefreshCache", [true], progress_reporter(6, 69, progress_cb));
-    }
+    const refresh_cache = () => {
+        progress.base = 6;
+        progress.range = 69;
 
-    function maybe_update_origin_file_packages() {
-        return PK.cancellableTransaction("GetUpdates", [0], progress_reporter(75, 5, progress_cb),
+        return PK.cancellableTransaction("RefreshCache", [true], progress.progress_reporter);
+    };
+
+    const maybe_update_origin_file_packages = () => {
+        progress.base = 75;
+        progress.range = 5;
+
+        return PK.cancellableTransaction("GetUpdates", [0], progress.progress_reporter,
                                          {
                                              Package: (info, package_id) => {
                                                  const pkg = package_id.split(";")[0];
@@ -116,22 +143,31 @@ export function refresh(origin_files, config_packages, data_packages, progress_c
                                                      update_ids.push(package_id);
                                              },
                                          })
-                .then(function () {
+                .then(() => {
+                    progress.base = 80;
+                    progress.range = 15;
+
                     if (update_ids.length > 0)
                         return PK.cancellableTransaction("UpdatePackages", [0, update_ids],
-                                                         progress_reporter(80, 15, progress_cb));
+                                                         progress.progress_reporter);
                 });
-    }
+    };
 
-    function ensure_packages(pkgs, start_progress) {
+    const ensure_packages = (pkgs, start_progress) => {
         if (pkgs.length > 0) {
+            progress.base = start_progress;
+            progress.range = 1;
+
             return resolve_many("Resolve",
                                 PK.Enum.FILTER_ARCH | PK.Enum.FILTER_NOT_SOURCE | PK.Enum.FILTER_NEWEST | PK.Enum.FILTER_NOT_INSTALLED,
-                                pkgs, progress_reporter(start_progress, 1, progress_cb))
-                    .then(function (ids) {
+                                pkgs, progress.progress_reporter)
+                    .then(ids => {
                         if (ids.length > 0) {
+                            progress.base = start_progress + 1;
+                            progress.range = 4;
+
                             return PK.cancellableTransaction("InstallPackages", [0, ids],
-                                                             progress_reporter(start_progress + 1, 4, progress_cb))
+                                                             progress.progress_reporter)
                                     .catch(ex => {
                                         if (ex.code != PK.Enum.ERROR_ALREADY_INSTALLED)
                                             return Promise.reject(ex);
@@ -141,7 +177,7 @@ export function refresh(origin_files, config_packages, data_packages, progress_c
         } else {
             return Promise.resolve();
         }
-    }
+    };
 
     return ensure_packages(config_packages, 0)
             .then(search_origin_file_packages)

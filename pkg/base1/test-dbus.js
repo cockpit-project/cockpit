@@ -662,7 +662,7 @@ QUnit.test("publish object replaces", function (assert) {
 
 QUnit.test("publish object unpublish", function (assert) {
     const done = assert.async();
-    assert.expect(5);
+    assert.expect(4);
 
     const info = {
         "org.Interface": {
@@ -695,8 +695,9 @@ QUnit.test("publish object unpublish", function (assert) {
                             }, function(ex) {
                                 assert.strictEqual(ex.name, "org.freedesktop.DBus.Error.UnknownMethod",
                                                    "got right error name");
-                                assert.ok(ex.message.indexOf("No such interface") == 0, "unexpected error: " + ex.message);
-                                assert.ok(ex.message.indexOf("org.Interface") > 0, "unexpected error: " + ex.message);
+                                assert.ok(ex.message.includes("No such interface") ||
+                                          ex.message.includes("Object does not exist"),
+                                          "unexpected error: " + ex.message);
                                 assert.ok(ex.message.indexOf("/a/path") > 0, "unexpected error: " + ex.message);
                             })
                             .always(function() {

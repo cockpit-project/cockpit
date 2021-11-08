@@ -23,8 +23,11 @@ import * as PK from "packagekit.js";
 function progress_reporter(base, range, callback) {
     if (callback) {
         return function (data) {
-            if (data.absolute_percentage >= 0)
-                data.percentage = base + data.absolute_percentage / 100 * range;
+            if (data.absolute_percentage >= 0) {
+                const newPercentage = base + data.absolute_percentage / 100 * range;
+                if (data.percentage == undefined || newPercentage >= data.percentage)
+                    data.percentage = newPercentage;
+            }
             callback(data);
         };
     }

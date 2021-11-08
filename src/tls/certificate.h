@@ -33,4 +33,5 @@ gnutls_certificate_credentials_t
 certificate_get_credentials (Certificate *self);
 
 Certificate *
-certificate_load (const char *filename);
+certificate_load (const char *certificate_filename,
+                  const char *key_filename);

@@ -9,7 +9,7 @@ After=cockpit-wsinstance-http.socket cockpit-wsinstance-http-redirect.socket coc
 RuntimeDirectory=cockpit/tls
 # systemd ≥ 241 sets this automatically
 Environment=RUNTIME_DIRECTORY=/run/cockpit/tls
-ExecStartPre=+@libexecdir@/cockpit-certificate-ensure
+ExecStartPre=+@libexecdir@/cockpit-certificate-ensure --for-cockpit-tls
 ExecStart=@libexecdir@/cockpit-tls
 User=@user@
 Group=@group@

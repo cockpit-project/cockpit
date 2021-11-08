@@ -108,18 +108,8 @@ cmd_ipa_request() {
     klist -k "${KEYTAB}" | grep -qF "${SERVICE}" || \
         ipa-getkeytab -p "HTTP/${HOST}" -k "${KEYTAB}"
 
-    # request the certificate and put it into our certificate directory
-    if ! selinuxenabled || [ "$(stat -c %C /etc/cockpit/ws-certs.d/ | cut -f3 -d:)" = cert_t ]; then
-        # the prefered way is to let certmonger write the certificate directly, so that auto-refresh works
-        ipa-getcert request -f "${COCKPIT_WS_CERTS_D}/10-ipa.cert" -k "${COCKPIT_WS_CERTS_D}/10-ipa.key" -K "HTTP/${HOST}" -m 640 -o root:${COCKPIT_GROUP:-root} -M 644 -w -v
-    else
-        # ... but that does not work on RHEL 8 or customized SELinux policies, so copy it ourselves
-        # request the certificate (into the working directory)
-        ipa-getcert request -f 10-ipa.cert -k 10-ipa.key -K "HTTP/${HOST}" -w -v
-        # install it into /etc
-        install_cert 10-ipa.cert
-        install_key 10-ipa.key
-    fi
+    # request the certificate and put it into our certificate directory, so that auto-refresh works
+    ipa-getcert request -f "${COCKPIT_WS_CERTS_D}/10-ipa.cert" -k "${COCKPIT_WS_CERTS_D}/10-ipa.key" -K "HTTP/${HOST}" -m 640 -o root:${COCKPIT_GROUP:-root} -M 644 -w -v
 }
 
 cmd_ipa_cleanup() {

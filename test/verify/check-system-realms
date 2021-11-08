@@ -535,17 +535,13 @@ ExecStart=/bin/true
         # cert is being tracked
         out = m.execute("ipa-getcert list")
         self.assertIn("MONITORING", out)
-        if m.image.startswith("rhel-8") or m.image in ["centos-8-stream"]:
-            # fall back to certificate copy mode (with broken refresh), due to missing SELinux policy
-            self.assertIn("/run/cockpit/certificate-helper/10-ipa.key", out)
-        else:
-            # on most OSes certmonger can directly write and auto-refresh the certificates
-            self.assertIn("/etc/cockpit/ws-certs.d/10-ipa.key", out)
-            # ensure that refreshing works
-            old_cert = m.execute("cat /etc/cockpit/ws-certs.d/10-ipa.cert").strip()
-            m.execute("ipa-getcert rekey --verbose --wait -f /etc/cockpit/ws-certs.d/10-ipa.cert")
-            new_cert = m.execute("cat /etc/cockpit/ws-certs.d/10-ipa.cert").strip()
-            self.assertNotEqual(old_cert, new_cert)
+        # certmonger must be able to directly write and auto-refresh the certificates
+        self.assertIn("/etc/cockpit/ws-certs.d/10-ipa.key", out)
+        # ensure that refreshing works
+        old_cert = m.execute("cat /etc/cockpit/ws-certs.d/10-ipa.cert").strip()
+        m.execute("ipa-getcert rekey --verbose --wait -f /etc/cockpit/ws-certs.d/10-ipa.cert")
+        new_cert = m.execute("cat /etc/cockpit/ws-certs.d/10-ipa.cert").strip()
+        self.assertNotEqual(old_cert, new_cert)
 
         # Restart without SSL (IPA certificate is not on the testing host)
         m.stop_cockpit()

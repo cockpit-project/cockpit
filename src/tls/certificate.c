@@ -71,25 +71,6 @@ certificate_get_credentials (Certificate *self)
   return self->creds;
 }
 
-time_t
-certificate_get_expiry (Certificate *self)
-{
-  gnutls_x509_crt_t *crt_list;
-  unsigned int crt_list_size;
-
-  int ret = gnutls_certificate_get_x509_crt (self->creds, 0, &crt_list, &crt_list_size);
-  assert (ret == GNUTLS_E_SUCCESS);
-
-  if (crt_list_size != 1)
-    errx (EXIT_FAILURE, "unable to check expiry of chained certificates");
-
-  time_t expiry = gnutls_x509_crt_get_expiration_time (crt_list[0]);
-  gnutls_x509_crt_deinit (crt_list[0]);
-  gnutls_free (crt_list);
-
-  return expiry;
-}
-
 static int
 set_x509_key_from_combined_file (gnutls_certificate_credentials_t x509_cred,
                                  const char *filename)

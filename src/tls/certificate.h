@@ -32,8 +32,5 @@ certificate_unref (Certificate *self);
 gnutls_certificate_credentials_t
 certificate_get_credentials (Certificate *self);
 
-time_t
-certificate_get_expiry (Certificate *self);
-
 Certificate *
 certificate_load (const char *filename);

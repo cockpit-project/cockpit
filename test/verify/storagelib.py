@@ -572,3 +572,6 @@ class StorageCase(MachineCase, StorageHelpers):
 
         # Something unknown sometimes goes wrong with PCP, see #15625
         self.allow_journal_messages("pcp-archive: no such metric: disk.*")
+
+        # D-Bus proxy filters are not tight enough to always match the correct bus address
+        self.allow_journal_messages("org.storage.stratis.: couldn't get managed objects at /org/freedesktop/UDisks2: GDBus.Error.*")

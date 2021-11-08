@@ -2792,6 +2792,13 @@ process_connection (CockpitDBusJson *self,
                                                                 self, NULL);
           self->default_watched = TRUE;
           subscribe_and_cache (self);
+
+          /* Stop the cache from processing signals until we know its
+             bus name.
+           */
+          CockpitDBusPeer *peer = g_hash_table_lookup (self->peers, self->default_name);
+          if (peer)
+            cockpit_dbus_cache_set_name_owner (peer->cache, "");
         }
       else
         {

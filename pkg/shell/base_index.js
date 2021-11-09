@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 
-import { showDialog } from "./active-pages";
+import { ActivePagesDialog } from "./active-pages-modal.jsx";
 import { LangModal, TimeoutModal, OopsModal } from "./shell-modals.jsx";
 import { CredentialsModal } from './credentials.jsx';
 
@@ -802,7 +802,12 @@ function Index() {
     function setup_killer(id) {
         document.getElementById(id).addEventListener("click", ev => {
             if (ev && ev.button === 0)
-                showDialog(self.frames);
+                ReactDOM.render(React.createElement(ActivePagesDialog, {
+                    frames: self.frames,
+                    onClose: () =>
+                        ReactDOM.unmountComponentAtNode(document.getElementById('pages-modal'))
+                }),
+                                document.getElementById('pages-modal'));
         });
     }
 

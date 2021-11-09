@@ -45,7 +45,7 @@ class TestActivePages(MachineCase):
 
         # Initially we have /system
         showPagesAssertCount(1)
-        b.click("button.cancel")
+        b.click("button:contains('Cancel')")
         b.wait_not_present("#active-pages-dialog")
 
         b.go("/users")
@@ -54,7 +54,7 @@ class TestActivePages(MachineCase):
 
         # now we have the users page be present in the pages menu
         showPagesAssertCount(2)
-        b.click("button.cancel")
+        b.click("button:contains('Cancel')")
         b.wait_not_present("#active-pages-dialog")
 
         # open the terminal page and start a session we can see on the machine

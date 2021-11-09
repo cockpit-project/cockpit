@@ -53,3 +53,28 @@ cockpit_hacks_redirect_gdebug_to_stderr (void)
   stdout = stderr;
 #endif
 }
+
+/* g_assert_no_errno: Remove this after we depend on GLib 2.66
+ *
+ * Even if GLib does define this, we want to undefine it and define our
+ * own copy so that we can remove the version warning.
+ */
+#ifdef g_assert_no_errno
+#undef g_assert_no_errno
+#endif
+
+#include <errno.h>
+/* Direct copy, minus 'GLIB_AVAILABLE_MACRO_IN_2_66' */
+#define g_assert_no_errno(expr)         G_STMT_START { \
+                                             int __ret, __errsv; \
+                                             errno = 0; \
+                                             __ret = expr; \
+                                             __errsv = errno; \
+                                             if (__ret < 0) \
+                                               { \
+                                                 gchar *__msg; \
+                                                 __msg = g_strdup_printf ("assertion failed (" #expr " >= 0): errno %i: %s", __errsv, g_strerror (__errsv)); \
+                                                 g_assertion_message (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, __msg); \
+                                                 g_free (__msg); \
+                                               } \
+                                        } G_STMT_END

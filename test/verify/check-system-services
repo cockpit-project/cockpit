@@ -244,8 +244,7 @@ Unit=test.service
             # Make sure that symlinked services also appear in the list
             self.wait_service_state("reboot.target", "inactive")
             self.wait_service_state("ctrl-alt-del.target", "inactive")
-            self.wait_service_state("runlevel6.target", "inactive")
-            self.goto_service("runlevel6.target")
+            self.goto_service("ctrl-alt-del.target")
             b.wait_in_text(".service-name", "Reboot")
             b.click("#services-page .pf-c-breadcrumb__link")
 

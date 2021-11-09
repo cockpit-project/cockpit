@@ -292,7 +292,14 @@ function setupSSLCertHandling(client) {
     client.Security.setOverrideCertificateErrors({override: true});
     client.Security.certificateError(info => {
         process.stderr.write(`CDP: Security.certificateError ${JSON.stringify(info)}; action: ${ssl_bad_certificate_action}\n`);
-        client.Security.handleCertificateError({ eventId: info.eventId, action: ssl_bad_certificate_action });
+        client.Security.handleCertificateError({ eventId: info.eventId, action: ssl_bad_certificate_action })
+            .catch(ex => {
+                // some race condition in Chromium, ok if the event is already gone
+                if (ex.response && ex.response.message && ex.response.message.indexOf("Unknown event id") >= 0)
+                    debug(`setupSSLCertHandling for event ${info.eventId} failed, ignoring: ${JSON.stringify(ex.response)}`);
+                else
+                    throw ex;
+            });
     });
 }
 

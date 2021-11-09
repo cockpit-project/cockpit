@@ -77,7 +77,7 @@ export const show_error = ex => {
         {
             title: _("Error"),
             body: (
-                <p>{ex.detail || ex}</p>
+                <p>{typeof ex == 'string' ? ex : (ex.detail || ex.message)}</p>
             )
         },
         {

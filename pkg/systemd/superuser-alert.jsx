@@ -41,6 +41,7 @@ export class SuperuserAlert extends React.Component {
         const actions =
             <SuperuserDialogs create_trigger={(unlocked, onclick) =>
                 <Button onClick={onclick}>{_("Turn on administrative access")}</Button>}
+                proxy={this.superuser}
             />;
 
         // The SuperuserDialogs element above needs to be in the DOM

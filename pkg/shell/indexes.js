@@ -67,6 +67,8 @@ function MachinesIndex(index_options, machines, loader) {
         show_disconnected();
     });
 
+    let superuser_proxy = null;
+
     /* Is troubleshooting dialog open */
     let troubleshooting_opened = false;
 
@@ -428,10 +430,13 @@ function MachinesIndex(index_options, machines, loader) {
     }
 
     function update_superuser(machine, state, compiled) {
+        if (!superuser_proxy)
+            superuser_proxy = cockpit.dbus(null, { bus: "internal", host: machine.connection_string }).proxy("cockpit.Superuser", "/superuser");
+
         if (machine.state == "connected") {
-            ReactDOM.render(React.createElement(SuperuserIndicator, { host: machine.connection_string }),
+            ReactDOM.render(React.createElement(SuperuserIndicator, { proxy: superuser_proxy, host: machine.connection_string }),
                             document.getElementById('super-user-indicator'));
-            ReactDOM.render(React.createElement(SuperuserIndicator, { host: machine.connection_string }),
+            ReactDOM.render(React.createElement(SuperuserIndicator, { proxy: superuser_proxy, host: machine.connection_string }),
                             document.getElementById('super-user-indicator-mobile'));
         } else {
             ReactDOM.unmountComponentAtNode(document.getElementById('super-user-indicator'));

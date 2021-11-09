@@ -18,6 +18,8 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent
+import re
+
 from packagelib import *
 from storagelib import *
 from testlib import *
@@ -27,7 +29,111 @@ from testlib import *
 SUPPORTED_OS = ["centos-8-stream", "rhel-8-4", "rhel-8-4-distropkg", "rhel-8-5", "rhel-8-6", "rhel-8-5-distropkg"]
 
 
-@skipImage("no vdo package yet on RHEL 9, https://bugzilla.redhat.com/show_bug.cgi?id=1916216", "rhel-9-0", "rhel-9-0-distropkg")
+@skipImage("no matching kmod-kvdo package yet on RHEL 9", "rhel-9-0", "rhel-9-0-distropkg")
+class TestStorageVDO(StorageCase):
+
+    def testVdo(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        # Make a logical volume for use as the backing device.
+        m.add_disk("10G", serial="DISK1")
+        b.wait_in_text("#drives", "DISK1")
+        m.execute("vgcreate vdo_vgroup /dev/sda")
+        b.wait_in_text("#devices", "vdo_vgroup")
+
+        b.click('.sidepanel-row:contains("vdo_vgroup")')
+        b.wait_in_text("#detail-content", "No logical volumes")
+
+        b.click("button:contains(Create new logical volume)")
+        self.dialog_wait_open()
+        b._wait_present("[data-field='purpose'] select option[value='block']")
+
+        if m.image not in SUPPORTED_OS:
+            # FIXME: This is looking into the future, the UI can't create LVM VDO volumes yet
+            b.wait_not_present("[data-field='purpose'] select option[value='vdo']")
+            return
+
+        # FIXME: use the dialog to create the VDO volume once it can; for now, do CLI call
+        self.dialog_cancel()
+        self.dialog_wait_close()
+        m.execute("lvcreate --type vdo --size 6g --virtualsize 10g --name vdo0 vdo_vgroup")
+
+        self.content_row_wait_in_col(1, 2, "/dev/vdo_vgroup/vdo0")
+        # the pool does not appear as a top-level volume
+        b.wait_not_in_text("#detail-content", "vpool0")
+        # Volume tab
+        self.content_tab_wait_in_info(1, 1, "Name", "vdo0")
+        self.content_tab_wait_in_info(1, 1, "Size", "10 GiB")
+        # VDO Pool tab
+        self.content_tab_wait_in_info(1, 2, "Name", "vpool0")
+        self.content_tab_wait_in_info(1, 2, "Size", "6 GiB")
+        # initial physical usage is 4 GiB, overhead for the deduplication index
+        self.content_tab_wait_in_info(1, 2, "Data used", "4.00 GiB (67%)")
+        self.content_tab_wait_in_info(1, 2, "Metadata used", "0%")
+        b.wait_visible("input[aria-label='Use compression']:checked")
+        b.wait_visible("input[aria-label='Use deduplication']:checked")
+
+        # create a file system
+        self.content_row_action(1, "Format")
+        self.dialog({"type": "xfs",
+                     "name": "vdofs",
+                     "mount_point": "/run/data"})
+        self.content_row_wait_in_col(1, 1, "xfs file system")
+
+        # compressible data should affect logical usage
+        m.execute("dd if=/dev/zero of=/run/data/empty bs=1M count=1000")
+        self.content_tab_wait_in_info(1, 3, "Used", "1.08 GiB of 9.99 GiB")
+        # but not physical usage
+        self.content_tab_wait_in_info(1, 2, "Data used", "4.00 GiB (67%)")
+
+        # incompressible data
+        m.execute("dd if=/dev/urandom of=/run/data/gibberish bs=1M count=1000")
+        self.content_tab_wait_in_info(1, 3, "Used", "2.05 GiB of 9.99 GiB")
+        # equal amount of physical space (not completely predictable due to random data)
+        self.content_tab_wait_in_info(1, 2, "Data used", "4.8", "4.9")
+        self.content_tab_wait_in_info(1, 2, "Data used", cond=lambda sel: re.search(r"\(8[1234]%\)", b.text(sel)))
+
+        def wait_prop(device, prop, value):
+            m.execute(f"until lvdisplay --noheadings -Co {prop} /dev/vdo_vgroup/{device} | grep -q '{value}'; do sleep 0.1; done")
+
+        # change compression/deduplication
+        b.click("input[aria-label='Use compression']")
+        b.wait_visible("input[aria-label='Use compression']:not(checked):not([disabled])")
+        wait_prop("vpool0", "vdo_compression_state", "offline")
+        b.click("input[aria-label='Use compression']")
+        b.wait_visible("input[aria-label='Use compression']:checked:not([disabled])")
+        wait_prop("vpool0", "vdo_compression_state", "online")
+
+        b.click("input[aria-label='Use deduplication']")
+        b.wait_visible("input[aria-label='Use deduplication']:not(checked):not([disabled])")
+        wait_prop("vpool0", "vdo_index_state", "offline")
+        b.click("input[aria-label='Use deduplication']")
+        b.wait_visible("input[aria-label='Use deduplication']:checked:not([disabled])")
+        wait_prop("vpool0", "vdo_index_state", "online")
+
+        # grow volume
+        self.content_tab_action(1, 1, "Grow")
+        self.dialog({"size": 12 * 1024})
+        self.content_tab_wait_in_info(1, 1, "Size", "12 GiB")
+        wait_prop("vdo0", "lv_size", "12.00g")
+
+        # grow pool
+        self.content_tab_action(1, 2, "Grow")
+        self.dialog({"size": 8 * 1024})
+        self.content_tab_wait_in_info(1, 2, "Size", "8 GiB")
+        wait_prop("vpool0", "lv_size", "8.00g")
+
+        # deleting the vdo0 volume deletes the pool as well
+        self.content_dropdown_action(1, "Delete")
+        self.confirm()
+        b.wait_in_text("#detail-content", "No logical volumes")
+        self.assertEqual(m.execute("lvs --noheadings").strip(), "")
+
+
+@skipImage("no matching kmod-kvdo package yet on RHEL 9", "rhel-9-0", "rhel-9-0-distropkg")
 class TestStorageLegacyVDO(StorageCase):
 
     def testVdo(self):

@@ -55,7 +55,7 @@ function show_error_dialog(title, message) {
 
     const footer = {
         actions: [],
-        cancel_caption: _("Close")
+        cancel_button: { text: _("Close"), variant: "secondary" }
     };
 
     show_modal_dialog(props, footer);

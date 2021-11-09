@@ -36,7 +36,7 @@ const _ = cockpit.gettext;
  * Expected props:
  *  - cancel_clicked optional
  *     Callback called when the dialog is canceled
- *  - cancel_caption optional, defaults to 'Cancel'
+ *  - cancel_button optional, defaults to 'Cancel' text styled as a link
  *  - list of actions, each an object with:
  *      - clicked
  *         Callback function that is expected to return a promise.
@@ -125,7 +125,8 @@ export class DialogFooter extends React.Component {
     }
 
     render() {
-        const cancel_caption = ('cancel_caption' in this.props) ? this.props.cancel_caption : _("Cancel");
+        const cancel_text = ('cancel_button' in this.props && this.props.cancel_button.text) ? this.props.cancel_button.text : _("Cancel");
+        const cancel_variant = ('cancel_button' in this.props && this.props.cancel_button.variant) ? this.props.cancel_button.variant : "link";
 
         // If an action is in progress, show the spinner with its message and disable all actions.
         // Cancel is only enabled when the action promise has a cancel method, or we get one
@@ -179,7 +180,7 @@ export class DialogFooter extends React.Component {
                 { error_element }
                 { this.props.extra_element }
                 { action_buttons }
-                <Button variant="link" className="cancel" onClick={this.cancel_click} isDisabled={cancel_disabled}>{ cancel_caption }</Button>
+                <Button variant={cancel_variant} className="cancel" onClick={this.cancel_click} isDisabled={cancel_disabled}>{ cancel_text }</Button>
                 { wait_element }
             </>
         );
@@ -188,7 +189,7 @@ export class DialogFooter extends React.Component {
 
 DialogFooter.propTypes = {
     cancel_clicked: PropTypes.func,
-    cancel_caption: PropTypes.string,
+    cancel_button: PropTypes.object,
     actions: PropTypes.array.isRequired,
     static_error: PropTypes.string,
     dialog_done: PropTypes.func,

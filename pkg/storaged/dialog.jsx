@@ -430,7 +430,7 @@ export const dialog_open = (def) => {
                 : null),
             extra_element: extra,
             actions: actions,
-            cancel_caption: def.Action ? _("Cancel") : _("Close")
+            cancel_button: def.Action ? {} : { text: _("Close"), variant: "secondary" }
         };
     };
 

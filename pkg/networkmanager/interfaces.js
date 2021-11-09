@@ -41,7 +41,7 @@ function show_error_dialog(title, message) {
 
     const footer = {
         actions: [],
-        cancel_caption: _("Close")
+        cancel_button: { text: _("Close"), variant: "secondary" }
     };
 
     show_modal_dialog(props, footer);
@@ -67,7 +67,7 @@ function show_breaking_change_dialog({ fail_text, anyway_text, action }) {
                 style: "danger",
             }
         ],
-        cancel_caption: _("Keep connection")
+        cancel_button: { text: _("Keep connection"), variant: "secondary" }
     };
 
     show_modal_dialog(props, footer);

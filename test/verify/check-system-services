@@ -330,7 +330,7 @@ Unit=test.service
         self.toggle_onoff()
         self.check_service_details(["Failed to start", "Automatically starts"], ["Start", "Clear 'Failed to start'", "Disallow running (mask)"], True)
         if not user:
-            b.assert_pixels("#service-details", "details-test-fail", ignore=[".cockpit-log-panel .pf-c-card__body"])
+            b.assert_pixels("#service-details", "details-test-fail", ignore=[".cockpit-log-panel .pf-c-card__body", ".pf-c-switch__toggle"])
         b.click(".action-button:contains('Start service')")
         b.go(f'/system/services#/{suffix}')
         self.wait_service_present("test-fail.service")

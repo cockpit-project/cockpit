@@ -28,7 +28,7 @@ SUPPORTED_OS = ["centos-8-stream", "rhel-8-4", "rhel-8-4-distropkg", "rhel-8-5",
 
 
 @skipImage("no vdo package yet on RHEL 9, https://bugzilla.redhat.com/show_bug.cgi?id=1916216", "rhel-9-0", "rhel-9-0-distropkg")
-class TestStorageVDO(StorageCase):
+class TestStorageLegacyVDO(StorageCase):
 
     def testVdo(self):
         m = self.machine

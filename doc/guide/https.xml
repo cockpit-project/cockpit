@@ -44,6 +44,9 @@
       platforms, Cockpit will also generate a ca.crt in that directory, which
       may be safely imported into client browsers.</para>
 
+    <para>Cockpit will read the files as root, so they can have tight
+      permissions.</para>
+
     <para>To check which certificate <code>cockpit-ws</code> will use run
       the following command.</para>
 <programlisting>
@@ -61,7 +64,6 @@ $ sudo /usr/lib/cockpit/cockpit-certificate-ensure --check
 getcert request -f /etc/cockpit/ws-certs.d/50-certmonger.cert \
                 -k /etc/cockpit/ws-certs.d/50-certmonger.key \
                 -D myhostname.example.com \
-                -m 640 -o root:cockpit-ws -M 644 \
                 [--ca=...]</programlisting>
 
     <para>This will not work on Red Hat Enterprise Linux/CentOS 8 by default. Adjust the SELinux type of the certificate directory to <code>cert_t</code> to allow certmonger to write its certificates there:</para>

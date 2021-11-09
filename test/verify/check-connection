@@ -411,7 +411,7 @@ class TestConnection(MachineCase):
         # not all images have certmonger
         if m.image not in ["debian-stable", "debian-testing", "fedora-coreos"]:
             hostname = m.execute("hostname --fqdn").strip()
-            m.execute(f"getcert request -f /etc/cockpit/ws-certs.d/monger.cert -k /etc/cockpit/ws-certs.d/monger.key -D {hostname} -m 640 -o root:cockpit-ws -M 644 --ca=local --wait")
+            m.execute(f"getcert request -f /etc/cockpit/ws-certs.d/monger.cert -k /etc/cockpit/ws-certs.d/monger.key -D {hostname} --ca=local --wait")
             # cert generation succeeded, and it is being tracked
             self.assertIn("MONITORING", m.execute("getcert list"))
             self.assertIn("/etc/cockpit/ws-certs.d/monger.cert",

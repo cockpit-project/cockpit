@@ -29,7 +29,7 @@ import {
     DescriptionListDescription,
     Flex, FlexItem,
 } from "@patternfly/react-core";
-import { StorageButton, StorageLink } from "./storage-controls.jsx";
+import { StorageButton, StorageLink, StorageOnOff } from "./storage-controls.jsx";
 import {
     existing_passphrase_fields, get_existing_passphrase_for_dialog,
     request_passphrase_on_error_handler
@@ -457,13 +457,13 @@ export class BlockVolTab extends React.Component {
     }
 }
 
+function perc(ratio) {
+    return (ratio * 100).toFixed(0) + "%";
+}
+
 export class PoolVolTab extends React.Component {
     render() {
         const self = this;
-
-        function perc(ratio) {
-            return (ratio * 100).toFixed(0) + "%";
-        }
 
         function rename() {
             lvol_rename(self.props.lvol);
@@ -508,3 +508,69 @@ export class PoolVolTab extends React.Component {
         );
     }
 }
+
+export const VDOPoolTab = ({ client, lvol }) => {
+    const vdo_iface = client.vdo_vols[lvol.path];
+    const vdo_pool_vol = client.lvols[vdo_iface.VDOPool];
+
+    function grow() {
+        lvol_grow(client, vdo_pool_vol, { });
+    }
+
+    function toggle_compression() {
+        const new_state = !vdo_iface.Compression;
+        return vdo_iface.EnableCompression(new_state, {})
+                .then(() => client.wait_for(() => vdo_iface.Compression === new_state));
+    }
+
+    function toggle_deduplication() {
+        const new_state = !vdo_iface.Deduplication;
+        return vdo_iface.EnableDeduplication(new_state, {})
+                .then(() => client.wait_for(() => vdo_iface.Deduplication === new_state));
+    }
+
+    const used_pct = perc(vdo_iface.UsedSize / vdo_pool_vol.Size);
+
+    return (
+        <DescriptionList className="pf-m-horizontal-on-sm">
+            <DescriptionListGroup>
+                <DescriptionListTerm>{_("Name")}</DescriptionListTerm>
+                <DescriptionListDescription>{vdo_pool_vol.Name}</DescriptionListDescription>
+            </DescriptionListGroup>
+
+            <DescriptionListGroup>
+                <DescriptionListTerm>{_("Size")}</DescriptionListTerm>
+                <DescriptionListDescription>
+                    {utils.fmt_size(vdo_pool_vol.Size)}
+                    <DescriptionListDescription className="tab-row-actions">
+                        <StorageButton onClick={grow}>{_("Grow")}</StorageButton>
+                    </DescriptionListDescription>
+                </DescriptionListDescription>
+            </DescriptionListGroup>
+
+            <DescriptionListGroup>
+                <DescriptionListTerm>{_("Data used")}</DescriptionListTerm>
+                <DescriptionListDescription>{utils.fmt_size(vdo_iface.UsedSize)} ({used_pct})</DescriptionListDescription>
+            </DescriptionListGroup>
+
+            <DescriptionListGroup>
+                <DescriptionListTerm>{_("Metadata used")}</DescriptionListTerm>
+                <DescriptionListDescription>{perc(lvol.MetadataAllocatedRatio)}</DescriptionListDescription>
+            </DescriptionListGroup>
+
+            <DescriptionListGroup>
+                <DescriptionListTerm>{_("Compression")}</DescriptionListTerm>
+                <DescriptionListDescription>
+                    <StorageOnOff state={vdo_iface.Compression} aria-label={_("Use compression")} onChange={toggle_compression} />
+                </DescriptionListDescription>
+            </DescriptionListGroup>
+
+            <DescriptionListGroup>
+                <DescriptionListTerm>{_("Deduplication")}</DescriptionListTerm>
+                <DescriptionListDescription>
+                    <StorageOnOff state={vdo_iface.Deduplication} aria-label={_("Use deduplication")} onChange={toggle_deduplication} />
+                </DescriptionListDescription>
+            </DescriptionListGroup>
+        </DescriptionList>
+    );
+};

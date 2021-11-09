@@ -42,7 +42,7 @@ import { job_progress_wrapper } from "./jobs-panel.jsx";
 import { FilesystemTab, is_mounted, mounting_dialog, get_fstab_config } from "./fsys-tab.jsx";
 import { CryptoTab, edit_config } from "./crypto-tab.jsx";
 import { get_existing_passphrase, unlock_with_type } from "./crypto-keyslots.jsx";
-import { BlockVolTab, PoolVolTab } from "./lvol-tabs.jsx";
+import { BlockVolTab, PoolVolTab, VDOPoolTab } from "./lvol-tabs.jsx";
 import { PVolTab, MDRaidMemberTab, VDOBackingTab, StratisBlockdevTab } from "./pvol-tabs.jsx";
 import { PartitionTab } from "./part-tab.jsx";
 import { SwapTab } from "./swap-tab.jsx";
@@ -186,6 +186,9 @@ function create_tabs(client, target, is_partition, is_extended) {
             row_action = <StorageButton onClick={create_thin}>{_("Create thin volume")}</StorageButton>;
         } else {
             add_tab(_("Volume"), BlockVolTab, false, ["unused-space"]);
+
+            if (client.vdo_vols[lvol.path])
+                add_tab(_("VDO Pool"), VDOPoolTab);
         }
     }
 
@@ -767,8 +770,12 @@ function append_logical_volume(client, rows, level, lvol) {
 
 function vgroup_rows(client, vgroup) {
     const rows = [];
-    (client.vgroups_lvols[vgroup.path] || []).forEach(function (lvol) {
-        if (lvol.ThinPool == "/" && lvol.Origin == "/")
+
+    const isVDOPool = lvol => Object.keys(client.vdo_vols).some(v => client.vdo_vols[v].VDOPool == lvol.path);
+
+    (client.vgroups_lvols[vgroup.path] || []).forEach(lvol => {
+        // Don't display VDO pool volumes as separate entities; they are an internal implementation detail and have no actions
+        if (lvol.ThinPool == "/" && lvol.Origin == "/" && !isVDOPool(lvol))
             append_logical_volume(client, rows, 0, lvol);
     });
     return rows;

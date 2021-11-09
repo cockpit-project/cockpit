@@ -171,6 +171,7 @@ function init_proxies () {
     client.blocks_crypto = proxies("Encrypted");
     client.blocks_swap = proxies("Swapspace");
     client.iscsi_sessions = proxies("ISCSI.Session");
+    client.vdo_vols = proxies("VDOVolume");
     client.jobs = proxies("Job");
 
     return client.storaged_client.watch({ path_namespace: "/org/freedesktop/UDisks2" });

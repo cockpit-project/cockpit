@@ -71,6 +71,7 @@ TEST_LDADD = \
 	$(NULL)
 
 TLS_TESTS = \
+	test-cockpit-certificate-ensure \
 	test-tls-connection \
 	test-tls-server \
 	$(NULL)
@@ -78,6 +79,12 @@ TLS_TESTS = \
 TLS_SCRIPT_TESTS = \
 	src/tls/test-socket-activation-helper.sh \
 	$(NULL)
+
+test_cockpit_certificate_ensure_SOURCES = \
+	src/tls/test-cockpit-certificate-ensure.c
+
+test_cockpit_certificate_ensure_CFLAGS = $(TEST_CFLAGS)
+test_cockpit_certificate_ensure_LDADD = $(TEST_LDADD)
 
 test_tls_connection_SOURCES = \
 	src/tls/testing.h \

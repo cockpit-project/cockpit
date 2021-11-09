@@ -181,15 +181,14 @@ export class SuperuserDialogs extends React.Component {
             show_lock_dialog: false,
             unlock_dialog_state: { closed: true }
         };
+
+        this.connect = this.connect.bind(this);
+        this.start = this.start.bind(this);
+        this.unlock = this.unlock.bind(this);
     }
 
     connect(host) {
-        if (this.superuser_connection)
-            this.superuser_connection.close();
-
-        this.superuser_connection = cockpit.dbus(null, { bus: "internal", host: host });
-        this.superuser = this.superuser_connection.proxy("cockpit.Superuser", "/superuser");
-        this.superuser.addEventListener("changed", () => {
+        this.props.proxy.addEventListener("changed", () => {
             const key = host_superuser_storage_key(host);
             if (key) {
                 // Reset wanted state if we fail to gain admin privs.
@@ -197,19 +196,19 @@ export class SuperuserDialogs extends React.Component {
                 // time, and we don't want to suffer through the
                 // associated intermediate UI state on every login.
                 const want = window.localStorage.getItem(key);
-                if (this.superuser.Current == "none" && this.superuser.Current != want)
-                    window.localStorage.setItem(key, this.superuser.Current);
+                if (this.props.proxy.Current == "none" && this.props.proxy.Current != want)
+                    window.localStorage.setItem(key, this.props.proxy.Current);
             }
 
             this.setState({
-                show: this.superuser.Current != "root" && this.superuser.Current != "init",
-                unlocked: this.superuser.Current != "none"
+                show: this.props.proxy.Current != "root" && this.props.proxy.Current != "init",
+                unlocked: this.props.proxy.Current != "none"
             });
         });
 
         this.setState({
-            show: this.superuser.Current != "root" && this.superuser.Current != "init",
-            unlocked: this.superuser.Current != "none",
+            show: this.props.proxy.Current != "root" && this.props.proxy.Current != "init",
+            unlocked: this.props.proxy.Current != "none",
 
             show_lock_dialog: false,
             unlock_dialog_state: { closed: true }
@@ -217,16 +216,12 @@ export class SuperuserDialogs extends React.Component {
     }
 
     componentDidMount() {
-        this.componentDidUpdate({});
+        this.connect(this.props.host);
     }
 
     componentDidUpdate(prevProps) {
-        if (!this.superuser_connection || prevProps.host != this.props.host)
+        if (prevProps.host != this.props.host)
             this.connect(this.props.host);
-    }
-
-    componentWillUnmount() {
-        this.connect(null);
     }
 
     /* We have to drive the unlock dialog state from here since we
@@ -242,14 +237,14 @@ export class SuperuserDialogs extends React.Component {
     }
 
     unlock() {
-        this.superuser.Stop().always(() => {
+        this.props.proxy.Stop().always(() => {
             this.start("sudo");
         });
     }
 
     start(method) {
         const cancel = () => {
-            this.superuser.Stop();
+            this.props.proxy.Stop();
             this.set_unlock_state({
                 busy: true,
                 prompt: this.state.unlock_dialog_state.prompt,
@@ -283,7 +278,7 @@ export class SuperuserDialogs extends React.Component {
                 },
                 cancel: cancel,
                 apply: () => {
-                    this.superuser.Answer(p.value);
+                    this.props.proxy.Answer(p.value);
                     this.set_unlock_state({
                         busy: true,
                         prompt: this.state.unlock_dialog_state.prompt,
@@ -294,10 +289,10 @@ export class SuperuserDialogs extends React.Component {
             did_prompt = true;
         };
 
-        this.superuser.addEventListener("Prompt", onprompt);
-        this.superuser.Start(method)
+        this.props.proxy.addEventListener("Prompt", onprompt);
+        this.props.proxy.Start(method)
                 .then(() => {
-                    this.superuser.removeEventListener("Prompt", onprompt);
+                    this.props.proxy.removeEventListener("Prompt", onprompt);
 
                     const key = host_superuser_storage_key(this.props.host);
                     if (key)
@@ -312,7 +307,7 @@ export class SuperuserDialogs extends React.Component {
                 })
                 .catch(err => {
                     console.warn(err);
-                    this.superuser.removeEventListener("Prompt", onprompt);
+                    this.props.proxy.removeEventListener("Prompt", onprompt);
                     if (err && err.message != "cancelled") {
                         this.set_unlock_state({
                             error: sudo_polish(err.toString()),
@@ -329,7 +324,7 @@ export class SuperuserDialogs extends React.Component {
 
     render () {
         if (!this.state.show || this.state.unlocked == null ||
-            !this.superuser.Bridges || this.superuser.Bridges.length == 0)
+            !this.props.proxy.Bridges || this.props.proxy.Bridges.length == 0)
             return null;
 
         const trigger = this.props.create_trigger(this.state.unlocked,
@@ -339,11 +334,11 @@ export class SuperuserDialogs extends React.Component {
             <>
                 {trigger}
 
-                <UnlockDialog proxy={this.superuser}
+                <UnlockDialog proxy={this.props.proxy}
                               state={this.state.unlock_dialog_state}
                               onClose={() => this.set_unlock_state({ closed: true }) } />
 
-                <LockDialog proxy={this.superuser}
+                <LockDialog proxy={this.props.proxy}
                             host={this.props.host}
                             show={this.state.show_lock_dialog}
                             onClose={() => this.setState({ show_lock_dialog: false })} />
@@ -357,12 +352,12 @@ export class SuperuserIndicator extends React.Component {
             return (
                 <Button variant="link" onClick={onclick} className={unlocked ? "ct-unlocked" : "ct-locked"}>
                     <span className="ct-lock-wrapper">
-                        <LockIcon />
+                        {!unlocked && <LockIcon />}
                         {unlocked ? _("Administrative access") : _("Limited access")}
                     </span>
                 </Button>);
         }
 
-        return <SuperuserDialogs host={this.props.host} create_trigger={create_trigger} />;
+        return <SuperuserDialogs proxy={this.props.proxy} host={this.props.host} create_trigger={create_trigger} />;
     }
 }

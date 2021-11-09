@@ -81,7 +81,7 @@ export const show_error = ex => {
             )
         },
         {
-            cancel_caption: _("Close"),
+            cancel_button: { text: _("Close"), variant: "secondary" },
             actions: []
         });
 };

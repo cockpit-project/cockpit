@@ -41,7 +41,7 @@
  */
 #include <stdio.h>
 
-static void
+static inline void
 cockpit_hacks_redirect_gdebug_to_stderr (void)
 {
 #if GLIB_CHECK_VERSION(2,67,0)

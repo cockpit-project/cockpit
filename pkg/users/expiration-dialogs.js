@@ -23,6 +23,7 @@ import { Flex, Form, FormGroup, FormHelperText, Radio, TextInput, DatePicker } f
 
 import { has_errors } from "./dialog-utils.js";
 import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";
+import * as timeformat from "timeformat.js";
 
 const _ = cockpit.gettext;
 
@@ -39,7 +40,11 @@ function AccountExpirationDialogBody({ state, errors, change }) {
                        label={
                            <Flex>
                                <span>{before}</span>
-                               <DatePicker onChange={str => change("date", str)}
+                               <DatePicker aria-label={_("Pick date")}
+                                           buttonAriaLabel={_("Toggle date picker")}
+                                           locale={cockpit.language}
+                                           weekStart={timeformat.firstDayOfWeek()}
+                                           onChange={str => change("date", str)}
                                            invalidFormatText=""
                                            id="account-expiration-input"
                                            value={date}

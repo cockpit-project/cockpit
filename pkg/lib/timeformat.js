@@ -48,3 +48,17 @@ export function parseShortDate(dateStr) {
     const timePortion = parsed.getTime() % (3600 * 1000 * 24);
     return new Date(parsed - timePortion);
 }
+
+/***
+ * sorely missing from Intl: https://github.com/tc39/ecma402/issues/6
+ * based on https://github.com/unicode-cldr/cldr-core/blob/master/supplemental/weekData.json#L59
+ * However, we don't have translations for most locales, and cockpit.language does not even contain
+ * the country in most cases, so this is just an approximation.
+ * Most locales start the week on Monday (day 1), so default to that and enumerate the others.
+ */
+
+const first_dow_sun = ['en', 'ja', 'ko', 'pt', 'pt_BR', 'sv', 'zh_CN', 'zh_TW'];
+
+export function firstDayOfWeek() {
+    return first_dow_sun.indexOf(cockpit.language) >= 0 ? 0 : 1;
+}

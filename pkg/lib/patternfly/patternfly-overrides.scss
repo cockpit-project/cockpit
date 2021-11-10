@@ -134,59 +134,6 @@ select.form-control {
   padding-right: 2.5em !important;
 }
 
-// Adjust dropdown menus
-.dropdown-menu {
-  > li {
-    padding: 0;
-
-    > a {
-      padding: 0.5rem 1rem;
-    }
-
-    &:not(.disabled) > a {
-      color: var(--pf-global--Color--100);
-
-      &:active,
-      &:focus,
-      &:hover {
-        background-color: var(--pf-global--BackgroundColor--light-300);
-        border-color: var(--pf-global--BackgroundColor--light-300);
-      }
-
-    }
-
-    &.active > a,
-    > a:active {
-      // PF3 reverts the active color with an !important
-      // so we also use an !important here to override it
-      color: var(--pf-global--Color--100) !important;
-    }
-
-    &.active > a {
-      // PF3 also modifies these colors with an !important
-      &,
-      &:active,
-      &:focus,
-      &:hover {
-        color: var(--pf-global--Color--100) !important;
-        background-color: var(--pf-global--BackgroundColor--light-300) !important;
-        border-color: var(--pf-global--BackgroundColor--light-300) !important;
-      }
-    }
-
-    &.selected > a {
-      color: var(--pf-global--Color--100);
-      background-color: var(--pf-global--BackgroundColor--light-300);
-      border-color: var(--pf-global--BackgroundColor--light-300);
-    }
-  }
-
-  // Stretch dropdown menus to at least the width of the dropdown
-  .dropdown > & {
-    min-width: 100%;
-  }
-}
-
 // Restyle buttons
 .pagination a[role=button],
 .btn {

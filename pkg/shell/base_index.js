@@ -21,9 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 
-import { ActivePagesDialog } from "./active-pages-modal.jsx";
-import { LangModal, TimeoutModal, OopsModal } from "./shell-modals.jsx";
-import { CredentialsModal } from './credentials.jsx';
+import { TimeoutModal } from "./shell-modals.jsx";
 
 const shell_embedded = window.location.pathname.indexOf(".html") !== -1;
 const _ = cockpit.gettext;
@@ -482,11 +480,6 @@ function Router(index) {
  * prototype. That function will be called by Frames and
  * Router to actually perform any navigation action.
  *
- * As a convenience, common menu items can be setup by adding the
- * selector to be used to hook them up. The accepted selectors
- * are.
- * oops_sel, logout_sel
- *
  * Emits "disconnect" and "expect_restart" signals, that should be
  * handled by the caller.
  */
@@ -506,6 +499,8 @@ function Index() {
     let final_countdown = 30000; // last 30 seconds
     let title = "";
     const standard_login = window.localStorage['standard-login'];
+
+    self.has_oops = false;
 
     function sessionTimeout() {
         current_idle_time += 5000;
@@ -743,8 +738,8 @@ function Index() {
     };
 
     self.show_oops = function () {
-        if (self.oops_sel)
-            document.getElementById(self.oops_sel).removeAttribute("hidden");
+        self.has_oops = true;
+        self.dispatchEvent("update");
     };
 
     self.current_frame = function (frame) {
@@ -781,69 +776,6 @@ function Index() {
     self.expect_restart = function (host) {
         self.dispatchEvent("expect_restart", host);
     };
-
-    /* Menu items */
-    /* The oops bar */
-    function setup_oops(id) {
-        document.querySelector("#" + id + " a").addEventListener("click", () => {
-            ReactDOM.render(React.createElement(OopsModal, {
-                onClose: () =>
-                    ReactDOM.unmountComponentAtNode(document.getElementById('oops-modal'))
-            }),
-                            document.getElementById('oops-modal'));
-        });
-    }
-
-    /* Logout link */
-    function setup_logout(id) {
-        document.getElementById(id).addEventListener("click", cockpit.logout);
-    }
-
-    function setup_killer(id) {
-        document.getElementById(id).addEventListener("click", ev => {
-            if (ev && ev.button === 0)
-                ReactDOM.render(React.createElement(ActivePagesDialog, {
-                    frames: self.frames,
-                    onClose: () =>
-                        ReactDOM.unmountComponentAtNode(document.getElementById('pages-modal'))
-                }),
-                                document.getElementById('pages-modal'));
-        });
-    }
-
-    if (self.oops_sel)
-        setup_oops(self.oops_sel);
-
-    if (self.logout_sel)
-        setup_logout(self.logout_sel);
-
-    if (self.killer_sel)
-        setup_killer(self.killer_sel);
-
-    const manifest = cockpit.manifests.shell || { };
-    const menus = document.getElementsByClassName("display-language-menu");
-    Array.from(menus).forEach(menu => {
-        if (manifest.locales)
-            menu.removeAttribute("hidden");
-        else
-            menu.setAttribute("hidden", "hidden");
-    });
-
-    document.getElementById("open-display-language").addEventListener("click", () => {
-        ReactDOM.render(React.createElement(LangModal, {
-            onClose: () =>
-                ReactDOM.unmountComponentAtNode(document.getElementById('display-language'))
-        }),
-                        document.getElementById('display-language'));
-    });
-
-    document.getElementById("credentials-item").addEventListener("click", () => {
-        ReactDOM.render(React.createElement(CredentialsModal, {
-            onClose: () =>
-                ReactDOM.unmountComponentAtNode(document.getElementById('credentials'))
-        }),
-                        document.getElementById('credentials'));
-    });
 }
 
 function CompiledComponents() {

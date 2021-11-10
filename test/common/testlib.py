@@ -614,15 +614,25 @@ class Browser:
 
     def logout(self):
         self.switch_to_top()
-        self._wait_present("#navbar-dropdown")
-        self.wait_visible("#navbar-dropdown")
+
+        # changed in #16522
+        prev_shell = testvm.DEFAULT_IMAGE == "rhel-8-5-distropkg"
+
+        if prev_shell:
+            self.wait_visible("#navbar-dropdown")
+        else:
+            self.wait_visible("#toggle-menu")
         if self.is_visible("button#machine-reconnect"):
             # happens when shutting down cockpit or rebooting machine
             self.click("button#machine-reconnect")
         else:
             # happens when cockpit is still running
-            self.click("#navbar-dropdown")
-            self.click('#go-logout')
+            if prev_shell:
+                self.click("#navbar-dropdown")
+                self.click('#go-logout')
+            else:
+                self.open_session_menu()
+                self.click('#logout')
         self.expect_load()
 
     def relogin(self, path=None, user=None, superuser=None, wait_remote_session_machine=None):
@@ -640,18 +650,23 @@ class Browser:
                 host = None
             self.enter_page(path.split("#")[0], host=host)
 
+    def open_session_menu(self):
+        self.wait_visible("#toggle-menu")
+        if (self.attr("#toggle-menu", "aria-expanded") != "true"):
+            self.click("#toggle-menu")
+
     def open_superuser_dialog(self):
         if self.cdp.mobile:
-            self.click("#navbar-dropdown")
+            self.open_session_menu()
             self.click("#super-user-indicator-mobile button")
         else:
             self.click("#super-user-indicator button")
 
     def check_superuser_indicator(self, expected):
         if self.cdp.mobile:
-            self.click("#navbar-dropdown")
+            self.open_session_menu()
             self.wait_text("#super-user-indicator-mobile", expected)
-            self.click("#navbar-dropdown")
+            self.click("#toggle-menu")
         else:
             self.wait_text("#super-user-indicator", expected)
 

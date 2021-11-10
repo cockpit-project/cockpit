@@ -25,21 +25,7 @@ import * as indexes from "./indexes";
 const machines_inst = machines.instance();
 const loader = machines.loader(machines_inst);
 
-/* When alt is held down we display debugging menu items */
-document.addEventListener("click", function(ev) {
-    const visible = !!ev.altKey;
-    const advanced = document.querySelectorAll(".navbar-advanced");
-    for (let i = 0; i < advanced.length; i++)
-        if (visible)
-            advanced[i].removeAttribute("hidden");
-        else
-            advanced[i].setAttribute("hidden", "");
-}, true);
-
 const options = {
-    logout_sel: "go-logout",
-    oops_sel: "navbar-oops",
-    killer_sel: "active-pages",
     default_title: "Cockpit",
 };
 

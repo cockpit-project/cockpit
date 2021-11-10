@@ -38,7 +38,7 @@ class TestActivePages(MachineCase):
 
         def showPagesAssertCount(count):
             b.switch_to_top()
-            b.mouse("#navbar-dropdown", "click", altKey=True)
+            b.mouse("#toggle-menu", "click", altKey=True)
             b.click("#active-pages")
             b.wait_visible("#active-pages-dialog")
             b.wait_js_func("ph_count_check", "#active-pages-dialog tr", count)

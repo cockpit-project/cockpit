@@ -32,8 +32,6 @@ import { get_metainfo_db } from "./appstream.js";
 import { usePageLocation, useObject, useEvent } from "hooks";
 import { show_error } from "./utils.jsx";
 
-import "page.scss";
-
 const App = () => {
     const [progress, setProgress] = useState({});
     const [progressTitle, setProgressTitle] = useState({});

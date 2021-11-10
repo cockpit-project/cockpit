@@ -24,8 +24,7 @@ import PropTypes from "prop-types";
 import { Alert, Button, Modal, Popover, Spinner } from "@patternfly/react-core";
 import { HelpIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
 
-import "page.scss";
-import "cockpit-components-dialog.css";
+import "cockpit-components-dialog.scss";
 
 const _ = cockpit.gettext;
 

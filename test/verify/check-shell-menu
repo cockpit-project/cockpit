@@ -40,8 +40,8 @@ class TestMenu(MachineCase):
         self.login_and_go("/system")
 
         b.switch_to_top()
-        b.click('#navbar-docs-dropdown')
-        b.click('a:contains("About Web Console")')
+        b.click('#toggle-docs')
+        b.click('button:contains("About Web Console")')
         b.wait_visible('#about-cockpit-modal:contains("Cockpit is an interactive Linux server admin interface")')
         if m.image != "fedora-coreos":
             b.wait_visible('#about-cockpit-modal:contains("cockpit-bridge")')

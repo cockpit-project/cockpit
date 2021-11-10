@@ -236,8 +236,8 @@ class TestKeys(MachineCase):
         self.assertNotIn(id_dsa, keys)
         self.assertNotIn(old_dsa, keys)
 
-        b.click("#navbar-dropdown")
-        b.click("#credentials-item")
+        b.open_session_menu()
+        b.click("#sshkeys")
 
         # Automatically loaded
         waitKeyLoaded('id_rsa', auto_load)
@@ -318,8 +318,8 @@ class TestKeys(MachineCase):
                 self.assertIn(old_rsa, keys)
                 self.assertIn(old_dsa, keys)
 
-            b.click("#navbar-dropdown")
-            b.click("#credentials-item")
+            b.open_session_menu()
+            b.click("#sshkeys")
             b.wait_visible("#credentials-modal")
 
         # Add bad keys

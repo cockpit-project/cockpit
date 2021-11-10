@@ -32,8 +32,8 @@ class TestPages(MachineCase):
         m = self.machine
         b = self.browser
 
-        b.click("#navbar-docs > a")
-        b.wait_visible("#navbar-docs-items")
+        b.click("#toggle-docs")
+        b.wait_visible("#toggle-docs + ul")
         expected = "Web Console"
         expected += "".join(items)
         expected += "About Web Console"
@@ -45,9 +45,9 @@ class TestPages(MachineCase):
                 expected = "Fedora documentation" + expected
         elif m.image.startswith("rhel-"):
             expected = "Red Hat Enterprise Linux documentation" + expected
-        b.wait_collected_text("#navbar-docs-items", expected)
-        b.click("#navbar-docs > a")
-        b.wait_not_visible("#navbar-docs-items")
+        b.wait_collected_text("#toggle-docs + ul", expected)
+        b.click("#toggle-docs")
+        b.wait_not_present("#toggle-docs + ul")
 
     def check_system_menu(self, label, present):
         b = self.browser
@@ -65,9 +65,9 @@ class TestPages(MachineCase):
 
     def open_lang_modal(self):
         self.browser.switch_to_top()
-        self.browser.click("#navbar-dropdown")
+        self.browser.open_session_menu()
 
-        self.browser.click(".display-language-menu a")
+        self.browser.click(".display-language-menu")
         self.browser.wait_visible('#display-language-modal')
 
     def testBasic(self):
@@ -117,11 +117,11 @@ OnCalendar=daily
         b.wait_text(".service-name", "Test Service")
         b.switch_to_top()
         self.checkDocs(["Managing services"])
-        b.click("#navbar-docs > a")
-        b.wait_visible('#navbar-docs-items a:contains("Managing services")[href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/managing-services-in-the-web-console_system-management-using-the-rhel-8-web-console"]')
-        b.wait_visible('#navbar-docs-items a:contains("Web Console")[href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/index"]')
-        b.click("#navbar-docs > a")
-        b.wait_not_visible("#navbar-docs-items")
+        b.click("#toggle-docs")
+        b.wait_visible('#toggle-docs + ul a:contains("Managing services")[href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/managing-services-in-the-web-console_system-management-using-the-rhel-8-web-console"]')
+        b.wait_visible('#toggle-docs + ul a:contains("Web Console")[href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/index"]')
+        b.click("#toggle-docs")
+        b.wait_not_present("#toggle-docs + ul")
         b.go("/network")
         self.checkDocs(["Managing networking bonds", "Managing networking teams", "Managing networking bridges", "Managing VLANs", "Managing firewall"])
         b.go("/system/services")

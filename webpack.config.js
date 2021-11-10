@@ -424,16 +424,6 @@ module.exports = {
 
     module: {
         rules: [
-            // bootstrap UI requires jQuery to be in the global namespace
-            // only expose that to pages which need it, as we want to port to React and get rid of jQuery
-            {
-                issuer: /shell/,
-                test: require.resolve('jquery'),
-                loader: 'expose-loader',
-                options: {
-                    exposes: 'jQuery'
-                }
-            },
             {
                 test: /\.js$/,
                 exclude: /\/node_modules\/.*\//, // exclude external dependencies

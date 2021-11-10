@@ -41,62 +41,12 @@
         </div>
 
         <div id="topnav" class="header">
-          <div class="meta ct-header-meta"></div>
-          <div class="ct-header-item ct-header-spinner" id="machine-spinner">
-              <div class="spinner spinner-md spinner-white"></div>
-          </div>
-          <div id="super-user-indicator" class="super-user-indicator ct-header-item ct-header-lock desktop_v"></div>
-          <div class="ct-header-item ct-header-oops" id="navbar-oops" hidden>
-            <a role="link" tabindex="0" class="ct-nav-toggle"><span class="oops-status" translate="yes">Ooops!</span></a>
-          </div>
-          <div id="navbar-docs" class="dropdown ct-header-item ct-header-docs">
-            <a role="link" tabindex="0" id="navbar-docs-dropdown" class="ct-nav-toggle dropdown-toggle" data-toggle="dropdown">
-              <span class="icon-custom pficon pficon-help"></span>
-              <span translate>Help</span>
-              <span class="fa fa-caret-down pf-c-dropdown__toggle-icon"></span>
-            </a>
-            <ul id="navbar-docs-items" class="dropdown-menu pull-right">
-            </ul>
-          </div>
-          <div class="dropdown ct-header-item ct-header-menu">
-            <a role="link" tabindex="0" id="navbar-dropdown" class="ct-nav-toggle dropdown-toggle" data-toggle="dropdown">
-              <span class="icon-custom pficon pficon-cog"></span>
-              <span translate>Session</span>
-              <span class="fa fa-caret-down pf-c-dropdown__toggle-icon"></span>
-            </a>
-            <ul class="dropdown-menu pull-right">
-              <li id="super-user-indicator-mobile" class="mobile_v"></li>
-              <li class="divider mobile_v"></li>
-              <li class="display-language-menu">
-                <a role="link" tabindex="0" translate="yes" id="open-display-language">Display language</a>
-              </li>
-              <li class="divider display-language-menu"></li>
-              <li>
-                <a role="link" tabindex="0" id="active-pages" translate="yes" class="navbar-advanced">Active pages</a>
-              </li>
-              <li>
-                  <a role="link" tabindex="0" id="credentials-item" translate="yes">SSH keys</a>
-              </li>
-              <li>
-                <a role="link" tabindex="0" id="go-logout" translate="yes">Log out</a>
-              </li>
-            </ul>
-          </div>
+            <!-- Top navigation goes here !-->
         </div>
 
-        <div id="about"></div>
 
         <div id="troubleshoot-dialog"></div>
-
-        <div id="display-language"></div>
-
-        <div id="credentials"></div>
-
         <div id="session-timeout-dialog"></div>
-
-        <div id="oops-modal"></div>
-
-        <div id="pages-modal"></div>
 
         <div id="content" role="main" class="area-ct-content" tabindex="-1">
           <!-- This is where the iframes appear -->
@@ -108,7 +58,9 @@
             <h1 id="machine-error-heading"></h1>
             <p id="machine-error-desc"></p>
             <div class="blank-slate-pf-main-action">
-              <button id="machine-reconnect" class="pf-c-button pf-m-primary pf-m-display-large" translate="yes">Reconnect</button>
+              <button id="machine-reconnect" class="pf-c-button pf-m-primary pf-m-display-large" translate="yes" hidden>Reconnect</button>
+            </div>
+            <div class="blank-slate-pf-main-action">
               <button id="machine-troubleshoot" class="pf-c-button pf-m-primary pf-m-display-large" translate="yes" hidden>Log in</button>
             </div>
           </div>

@@ -17,17 +17,13 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import "jquery";
-import "bootstrap/dist/js/bootstrap";
-
 import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 
-import { SuperuserIndicator } from "./superuser.jsx";
 import { CockpitNav, CockpitNavItem } from "./nav.jsx";
+import { TopNav } from ".//topnav.jsx";
 import { CockpitHosts } from "./hosts.jsx";
-import { AboutCockpitModal } from "./shell-modals.jsx";
 import { codes, HostModal } from "./hosts_dialog.jsx";
 
 import * as base_index from "./base_index";
@@ -67,7 +63,9 @@ function MachinesIndex(index_options, machines, loader) {
         show_disconnected();
     });
 
-    let superuser_proxy = null;
+    index.addEventListener("update", () => {
+        update_topbar();
+    });
 
     /* Is troubleshooting dialog open */
     let troubleshooting_opened = false;
@@ -163,7 +161,6 @@ function MachinesIndex(index_options, machines, loader) {
         document.querySelector(".curtains-ct h1").innerHTML = _("Disconnected");
         document.querySelector(".curtains-ct p").innerHTML = cockpit.message(watchdog_problem);
         document.querySelector(".curtains-ct").removeAttribute("hidden");
-        document.getElementById("navbar-dropdown").classList.add("disabled");
     }
 
     /* Handles navigation */
@@ -200,9 +197,8 @@ function MachinesIndex(index_options, machines, loader) {
             state.component = choose_component(state, compiled);
 
         update_navbar(machine, state, compiled);
+        update_topbar(machine, state, compiled);
         update_frame(machine, state, compiled);
-        update_docs(machine, state, compiled);
-        update_superuser(machine, state, compiled);
 
         /* Just replace the state, and URL */
         index.jump(state, true);
@@ -215,6 +211,26 @@ function MachinesIndex(index_options, machines, loader) {
             return menu_items[0].path;
 
         return "system";
+    }
+
+    function update_topbar(machine, state, compiled) {
+        if (!state)
+            state = index.retrieve_state();
+
+        if (!machine)
+            machine = machines.lookup(state.host);
+
+        if (!compiled)
+            compiled = compile(machine);
+
+        ReactDOM.render(
+            React.createElement(TopNav, {
+                index: index,
+                state: state,
+                machine: machine,
+                compiled: compiled,
+            }),
+            document.getElementById("topnav"));
     }
 
     function update_navbar(machine, state, compiled) {
@@ -368,82 +384,6 @@ function MachinesIndex(index_options, machines, loader) {
             document.getElementById("hosts-sel"));
     }
 
-    function update_docs(machine, state, compiled) {
-        let docs = [];
-
-        const item = compiled.items[state.component];
-        if (item && item.docs)
-            docs = item.docs;
-
-        // Check for parent as well
-        if (docs.length === 0) {
-            const comp = cockpit.manifests[state.component];
-            if (comp && comp.parent && comp.parent.docs)
-                docs = comp.parent.docs;
-        }
-
-        const docs_items = document.getElementById("navbar-docs-items");
-        docs_items.innerHTML = "";
-
-        function create_item(name, url) {
-            const el_li = document.createElement("li");
-            const el_a = document.createElement("a");
-            const el_icon = document.createElement("i");
-            el_icon.className = "fa fa-external-link fa-xs";
-            el_a.setAttribute("translate", "yes");
-            el_a.setAttribute("href", url);
-            el_a.setAttribute("target", "blank");
-            el_a.setAttribute("rel", "noopener noreferrer");
-
-            el_a.appendChild(document.createTextNode(name));
-            el_a.appendChild(el_icon);
-
-            el_li.appendChild(el_a);
-            docs_items.appendChild(el_li);
-        }
-
-        const os_release = JSON.parse(window.localStorage['os-release'] || "{}");
-        if (os_release.DOCUMENTATION_URL)
-            create_item(cockpit.format(_("$0 documentation"), os_release.NAME), os_release.DOCUMENTATION_URL);
-
-        create_item(_("Web Console"), "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/index");
-
-        docs.forEach(e => create_item(_(e.label), e.url));
-
-        // Add 'About Web Console' item
-        const divider = document.createElement("li");
-        divider.className = "divider";
-        const about = document.createElement("li");
-        const el_a = document.createElement("a");
-        el_a.onclick = () => {
-            ReactDOM.render(React.createElement(AboutCockpitModal, {
-                onClose: () =>
-                    ReactDOM.unmountComponentAtNode(document.getElementById('about'))
-            }),
-                            document.getElementById('about'));
-        };
-        el_a.appendChild(document.createTextNode(_("About Web Console")));
-        about.appendChild(el_a);
-
-        docs_items.appendChild(divider);
-        docs_items.appendChild(about);
-    }
-
-    function update_superuser(machine, state, compiled) {
-        if (!superuser_proxy)
-            superuser_proxy = cockpit.dbus(null, { bus: "internal", host: machine.connection_string }).proxy("cockpit.Superuser", "/superuser");
-
-        if (machine.state == "connected") {
-            ReactDOM.render(React.createElement(SuperuserIndicator, { proxy: superuser_proxy, host: machine.connection_string }),
-                            document.getElementById('super-user-indicator'));
-            ReactDOM.render(React.createElement(SuperuserIndicator, { proxy: superuser_proxy, host: machine.connection_string }),
-                            document.getElementById('super-user-indicator-mobile'));
-        } else {
-            ReactDOM.unmountComponentAtNode(document.getElementById('super-user-indicator'));
-            ReactDOM.unmountComponentAtNode(document.getElementById('super-user-indicator-mobile'));
-        }
-    }
-
     function update_title(label, machine) {
         if (label)
             label += " - ";
@@ -566,8 +506,6 @@ function MachinesIndex(index_options, machines, loader) {
             document.querySelector(".curtains-ct h1").innerHTML = title;
             document.querySelector(".curtains-ct p").innerHTML = message;
 
-            document.getElementById("machine-spinner").setAttribute("hidden", "hidden");
-
             update_title(null, machine);
 
             /* Fall through when connecting, and allow frame to load at same time */
@@ -600,10 +538,6 @@ function MachinesIndex(index_options, machines, loader) {
 
         if (machine.state == "connected") {
             document.querySelector(".curtains-ct").setAttribute("hidden", "hidden");
-            if (frame && !frame.getAttribute("data-ready"))
-                document.getElementById("machine-spinner").removeAttribute("hidden");
-            else
-                document.getElementById("machine-spinner").setAttribute("hidden", "hidden");
             frame.style.display = "block";
             frame.setAttribute('data-active', 'true');
             frame.removeAttribute("hidden");

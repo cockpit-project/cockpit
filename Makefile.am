@@ -150,6 +150,7 @@ VALGRIND_SUPPRESSIONS = \
 	tools/libssh.supp \
 	tools/polkit.supp \
 	tools/gnutls.supp \
+	tools/valgrind.supp \
 	$(NULL)
 
 if VALGRIND_MINADDR_HACK

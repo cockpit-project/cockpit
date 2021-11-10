@@ -520,6 +520,7 @@ function ChangeSystimeBody({ state, errors, change }) {
                                     dateParse={timeformat.parseShortDate}
                                     invalidFormatText=""
                                     locale={cockpit.language}
+                                    weekStart={timeformat.firstDayOfWeek()}
                                     placeholder={timeformat.dateShortFormat()}
                                     onChange={d => change("manual_date", d)}
                                     value={manual_date} />

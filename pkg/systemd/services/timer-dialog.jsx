@@ -37,6 +37,7 @@ import { ModalError } from 'cockpit-components-inline-notification.jsx';
 
 import { updateTime } from './services.jsx';
 import { create_timer } from './timer-dialog-helpers.js';
+import * as timeformat from "timeformat.js";
 
 import "./timers.scss";
 
@@ -309,11 +310,15 @@ const CreateTimerDialogBody = ({ setIsOpen, owner }) => {
                                             {timePicker(idx)}
                                         </>}
                                         {repeat == "yearly" && <>
-                                            <DatePicker onChange={(str, data) => {
-                                                const arr = [...repeatPatterns];
-                                                arr[idx].date = str;
-                                                setRepeatPatterns(arr);
-                                            }} />
+                                            <DatePicker aria-label={_("Pick date")}
+                                                        buttonAriaLabel={_("Toggle date picker")}
+                                                        locale={cockpit.language}
+                                                        weekStart={timeformat.firstDayOfWeek()}
+                                                        onChange={(str, data) => {
+                                                            const arr = [...repeatPatterns];
+                                                            arr[idx].date = str;
+                                                            setRepeatPatterns(arr);
+                                                        }} />
                                             {timePicker(idx)}
                                         </>}
                                         {repeat !== "no" && <FlexItem align={{ default: 'alignRight' }}>

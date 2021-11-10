@@ -1118,7 +1118,7 @@ class MachineCase(unittest.TestCase):
             if self.is_devel_build():
                 self.disable_preload("packagekit", "systemd")
 
-            if self.machine.image.startswith('debian') or self.machine.image.startswith('ubuntu'):
+            if self.machine.image.startswith('debian') or self.machine.image.startswith('ubuntu') or self.machine.image == 'arch':
                 self.libexecdir = '/usr/lib/cockpit'
             else:
                 self.libexecdir = '/usr/libexec'

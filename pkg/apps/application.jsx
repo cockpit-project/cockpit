@@ -32,7 +32,7 @@ import * as PackageKit from "./packagekit.js";
 
 import { icon_url, launch, ProgressBar, CancelButton } from "./utils.jsx";
 
-import "./application.css";
+import "./application.scss";
 
 const _ = cockpit.gettext;
 

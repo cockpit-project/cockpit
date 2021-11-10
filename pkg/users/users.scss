@@ -1,7 +1,9 @@
-@import "../lib/page.scss";
+@use "ct-card";
+@use "page";
+
+@import "global-variables.scss";
 @import "@patternfly/patternfly/components/DataList/data-list.scss";
 @import "@patternfly/patternfly/components/Form/form.scss";
-@import "../lib/ct-card.scss";
 
 #account .pf-c-card {
     @extend .ct-card;

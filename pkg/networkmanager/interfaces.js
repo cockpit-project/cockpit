@@ -25,7 +25,6 @@ import { fmt_to_fragments } from 'utils.jsx';
 import * as utils from './utils';
 import { v4 as uuidv4 } from 'uuid';
 
-import "page.scss";
 import "./networking.scss";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";

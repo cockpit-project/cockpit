@@ -43,7 +43,6 @@ import { FirewallSwitch } from "./firewall-switch.jsx";
 
 import { superuser } from "superuser";
 
-import "page.scss";
 import "./networking.scss";
 
 const _ = cockpit.gettext;

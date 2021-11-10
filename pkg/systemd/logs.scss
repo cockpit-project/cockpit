@@ -1,8 +1,10 @@
-@import "../lib/table.css";
-@import "../lib/journal.css";
-@import "./system-global.scss";
-@import "../../node_modules/@patternfly/patternfly/components/FormControl/form-control.css";
-@import "../../node_modules/@patternfly/patternfly/components/Toolbar/toolbar.scss";
+@use "../lib/table.css";
+@use "../lib/journal.css";
+@use "./system-global.scss";
+
+@import "global-variables.scss";
+@import "@patternfly/patternfly/components/FormControl/form-control.scss";
+@import "@patternfly/patternfly/components/Toolbar/toolbar.scss";
 
 // https://github.com/patternfly/patternfly-react/issues/5993
 .pf-c-popover.pf-m-width-auto {

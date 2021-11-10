@@ -1,8 +1,9 @@
-@import "./system-global.scss";
-@import "@patternfly/patternfly/components/Table/table.scss";
-
+@use "./system-global.scss";
 /* System Time Modal dialog needs table.css */
-@import "../lib/table.css";
+@use "../lib/table.css";
+
+@import "global-variables";
+@import "@patternfly/patternfly/components/Table/table.scss";
 
 .ct-limited-access-alert {
   --pf-c-alert--GridTemplateColumns: auto auto 1fr;

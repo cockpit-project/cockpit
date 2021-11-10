@@ -1,9 +1,10 @@
-@import "../lib/console.css";
-@import "_global-variables.scss";
-@import "../../node_modules/@patternfly/patternfly/components/Button/button.css";
-@import "../../node_modules/@patternfly/patternfly/components/Toolbar/toolbar.scss";
-@import "../../node_modules/@patternfly/patternfly/components/InputGroup/input-group.scss";
-@import "../lib/page.scss";
+@use "../lib/console.css";
+@use "page";
+
+@import "global-variables";
+@import "@patternfly/patternfly/components/Button/button.css";
+@import "@patternfly/patternfly/components/Toolbar/toolbar.scss";
+@import "@patternfly/patternfly/components/InputGroup/input-group.scss";
 
 .console-ct-container {
     height: 100%;

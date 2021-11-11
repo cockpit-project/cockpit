@@ -31,7 +31,6 @@ import {
 } from '@patternfly/react-core';
 
 import "menu-select-widget.scss";
-import "form-layout.scss";
 
 const _ = cockpit.gettext;
 

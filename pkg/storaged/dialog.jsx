@@ -240,7 +240,6 @@ import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog
 import { fmt_size, block_name, format_size_and_text } from "./utils.js";
 import client from "./client.js";
 
-import "form-layout.scss";
 import "@patternfly/patternfly/components/HelperText/helper-text.css";
 
 const _ = cockpit.gettext;

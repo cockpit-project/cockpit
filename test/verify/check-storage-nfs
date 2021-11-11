@@ -262,9 +262,10 @@ class TestStorageNfs(StorageCase):
         b.wait_visible("#detail-header button:contains(Mount)")
 
 
+# Re-use allowed journal messages from StorageCase
 @skipImage("No udisks/cockpit-storaged on OSTree images", "fedora-coreos")
 @nondestructive
-class TestStoragePackagesNFS(PackageCase, StorageHelpers):
+class TestStoragePackagesNFS(PackageCase, StorageCase, StorageHelpers):
 
     def testNfsMissingPackages(self):
         m = self.machine

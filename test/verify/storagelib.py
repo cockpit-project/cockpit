@@ -570,5 +570,5 @@ class StorageCase(MachineCase, StorageHelpers):
         else:
             self.mount_root = "/run/media"
 
-        # Something unknown sometimes goes wrong with PCP, see #15625
+        # starting out with empty PCP logs and pmlogger not running causes these metrics channel messages
         self.allow_journal_messages("pcp-archive: no such metric: disk.*")

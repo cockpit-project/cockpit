@@ -458,6 +458,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_journal_messages('.*type=1400.*avc:  denied  { map }.*comm="cockpit-pcp".*')
         self.allow_journal_messages('.*type=1400.*avc:  denied .* comm="sudo".*')
         self.allow_journal_messages('.*type=1400.*avc:  denied .* comm="systemd".*')
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1727887
+        self.allow_journal_messages('.*type=1400.*avc:  denied  { connect_to } .* path="/run/user/.*/bus" scontext=user_u:user_r:user_t:s0.*')
 
         # sysadm_u
         m.execute("semanage login -a -s sysadm_u admin")

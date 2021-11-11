@@ -229,9 +229,9 @@ class TestSystemInfo(MachineCase):
 
     def set_change_time_dialog_mode(self, mode):
         b = self.browser
-        b.click("#system_information_change_systime label:contains('Set time') + div button")
+        b.click("#system_information_change_systime .pf-c-form__group-label:contains('Set time') + div > .pf-c-select > button")
         b.click("#change_systime button:contains('%s')" % mode)
-        b.wait_in_text("#system_information_change_systime label:contains('Set time') + div button", mode)
+        b.wait_in_text("#system_information_change_systime .pf-c-form__group-label:contains('Set time') + div > .pf-c-select > button", mode)
 
     def testTime(self):
         m = self.machine
@@ -332,7 +332,7 @@ class TestSystemInfo(MachineCase):
 
         # when not using timesyncd, the "specific NTP servers" option should be disabled
         if not uses_timesyncd:
-            b.click("#system_information_change_systime label:contains('Set time') + div button")
+            b.click("#system_information_change_systime .pf-c-form__group-label:contains('Set time') + div > .pf-c-select > button")
             b.wait_visible("#change_systime button:contains('Automatically using specific NTP servers').pf-m-disabled")
             return
 

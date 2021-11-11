@@ -18,7 +18,14 @@
  */
 import cockpit from "cockpit";
 import React, { useState } from "react";
-import { Button, DatePicker, Flex, Popover, Select, SelectOption, SelectVariant, Spinner, TimePicker } from '@patternfly/react-core';
+import {
+    Button, DatePicker,
+    Flex,
+    Form, FormGroup,
+    Popover,
+    Select, SelectOption, SelectVariant,
+    Spinner, TimePicker
+} from '@patternfly/react-core';
 import { CloseIcon, ExclamationCircleIcon, InfoCircleIcon, PlusIcon } from "@patternfly/react-icons";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { useObject, useEvent } from "hooks.js";
@@ -490,64 +497,66 @@ function ChangeSystimeBody({ state, errors, change }) {
         </table>);
 
     return (
-        <div className="ct-form">
-            <label htmlFor="systime-timezones" className="control-label">{_("Time zone")}</label>
-            <Validated errors={errors} error_key="time_zone">
-                <Select id="systime-timezones" variant={SelectVariant.typeahead}
-                        isOpen={zonesOpen} onToggle={setZonesOpen}
-                        selections={time_zone}
-                        onSelect={(event, value) => { setZonesOpen(false); change("time_zone", value) }}
-                        menuAppendTo="parent">
-                    { time_zones.map(tz => <SelectOption key={tz} value={tz}>{tz.replace(/_/g, " ")}</SelectOption>) }
-                </Select>
-            </Validated>
-            <label className="control-label" htmlFor="change_systime">{_("Set time")}</label>
-            <Select id="change_systime"
-                    isOpen={modeOpen} onToggle={setModeOpen}
-                    selections={mode} onSelect={(event, value) => { setModeOpen(false); change("mode", value) }}
-                    menuAppendTo="parent">
-                <SelectOption value="manual_time">{_("Manually")}</SelectOption>
-                <SelectOption isDisabled={!ntp_supported} value="ntp_time">{_("Automatically using NTP")}</SelectOption>
-                <SelectOption isDisabled={!ntp_supported || !custom_ntp.supported} value="ntp_time_custom">{_("Automatically using specific NTP servers")}</SelectOption>
-            </Select>
-            { mode == "manual_time" &&
-                <div id="systime-manual-row">
-                    <ValidatedInput errors={errors} error_key="manual_date">
-                        <DatePicker id="systime-date-input"
-                                    aria-label={_("Pick date")}
-                                    buttonAriaLabel={_("Toggle date picker")}
-                                    dateFormat={timeformat.dateShort}
-                                    dateParse={timeformat.parseShortDate}
-                                    invalidFormatText=""
-                                    locale={cockpit.language}
-                                    weekStart={timeformat.firstDayOfWeek()}
-                                    placeholder={timeformat.dateShortFormat()}
-                                    onChange={d => change("manual_date", d)}
-                                    value={manual_date} />
-                    </ValidatedInput>
-                    <ValidatedInput errors={errors} error_key="manual_time">
-                        <TimePicker id="systime-time-input"
-                                    className="ct-serverTime-time-picker"
-                                    time={manual_time}
-                                    is24Hour
-                                    menuAppendTo={() => document.body}
-                                    invalidFormatErrorMessage=""
-                                    onChange={(time, h, m, valid) => change("manual_time", time, valid) } />
-                    </ValidatedInput>
-                    <Validated errors={errors} error_key="manual_date" />
-                    <Validated errors={errors} error_key="manual_time" />
-                </div>
-            }
-            { mode == "ntp_time_custom" &&
-                <Validated errors={errors} error_key="ntp_servers">
-                    <div id="systime-ntp-servers-row">
-                        <div id="systime-ntp-servers">
-                            { ntp_servers }
-                        </div>
-                    </div>
+        <Form isHorizontal>
+            <FormGroup fieldId="systime-timezones" label={_("Time zone")}>
+                <Validated errors={errors} error_key="time_zone">
+                    <Select id="systime-timezones" variant={SelectVariant.typeahead}
+                            isOpen={zonesOpen} onToggle={setZonesOpen}
+                            selections={time_zone}
+                            onSelect={(event, value) => { setZonesOpen(false); change("time_zone", value) }}
+                            menuAppendTo="parent">
+                        { time_zones.map(tz => <SelectOption key={tz} value={tz}>{tz.replace(/_/g, " ")}</SelectOption>) }
+                    </Select>
                 </Validated>
-            }
-        </div>);
+            </FormGroup>
+            <FormGroup fieldId="change_systime" label={_("Set time")} isStack>
+                <Select id="change_systime"
+                        isOpen={modeOpen} onToggle={setModeOpen}
+                        selections={mode} onSelect={(event, value) => { setModeOpen(false); change("mode", value) }}
+                        menuAppendTo="parent">
+                    <SelectOption value="manual_time">{_("Manually")}</SelectOption>
+                    <SelectOption isDisabled={!ntp_supported} value="ntp_time">{_("Automatically using NTP")}</SelectOption>
+                    <SelectOption isDisabled={!ntp_supported || !custom_ntp.supported} value="ntp_time_custom">{_("Automatically using specific NTP servers")}</SelectOption>
+                </Select>
+                { mode == "manual_time" &&
+                    <div id="systime-manual-row">
+                        <ValidatedInput errors={errors} error_key="manual_date">
+                            <DatePicker id="systime-date-input"
+                                        aria-label={_("Pick date")}
+                                        buttonAriaLabel={_("Toggle date picker")}
+                                        dateFormat={timeformat.dateShort}
+                                        dateParse={timeformat.parseShortDate}
+                                        invalidFormatText=""
+                                        locale={cockpit.language}
+                                        weekStart={timeformat.firstDayOfWeek()}
+                                        placeholder={timeformat.dateShortFormat()}
+                                        onChange={d => change("manual_date", d)}
+                                        value={manual_date} />
+                        </ValidatedInput>
+                        <ValidatedInput errors={errors} error_key="manual_time">
+                            <TimePicker id="systime-time-input"
+                                        className="ct-serverTime-time-picker"
+                                        time={manual_time}
+                                        is24Hour
+                                        menuAppendTo={() => document.body}
+                                        invalidFormatErrorMessage=""
+                                        onChange={(time, h, m, valid) => change("manual_time", time, valid) } />
+                        </ValidatedInput>
+                        <Validated errors={errors} error_key="manual_date" />
+                        <Validated errors={errors} error_key="manual_time" />
+                    </div>
+                }
+                { mode == "ntp_time_custom" &&
+                    <Validated errors={errors} error_key="ntp_servers">
+                        <div id="systime-ntp-servers-row">
+                            <div id="systime-ntp-servers">
+                                { ntp_servers }
+                            </div>
+                        </div>
+                    </Validated>
+                }
+            </FormGroup>
+        </Form>);
 }
 
 function has_errors(errors) {

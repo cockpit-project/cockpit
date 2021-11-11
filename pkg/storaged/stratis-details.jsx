@@ -764,10 +764,12 @@ export const StratisLockedPoolDetails = ({ client, uuid }) => {
                 </CardActions>
             </CardHeader>
             <CardBody>
-                <div className="ct-form">
-                    <label className="control-label">{_("storage", "UUID")}</label>
-                    <div>{ uuid }</div>
-                </div>
+                <DescriptionList className="pf-m-horizontal-on-sm">
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{_("storage", "UUID")}</DescriptionListTerm>
+                        <DescriptionListDescription>{ uuid }</DescriptionListDescription>
+                    </DescriptionListGroup>
+                </DescriptionList>
             </CardBody>
         </Card>
     );

@@ -181,6 +181,7 @@ export function set_password_dialog(account, current_user) {
         if (state.password != old_password) {
             state.confirm_weak = false;
             old_password = state.password;
+            errors = { };
             if (state.password) {
                 password_quality(state.password)
                         .catch(ex => {

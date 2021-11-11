@@ -126,6 +126,10 @@ class TestAccounts(MachineCase):
         b.click('#accounts-create-dialog button.apply')
         b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error", "Password is longer than 256 characters")
 
+        # changing input clears the error message
+        b.set_input_text('#accounts-create-password-pw1', "test")
+        b.wait_not_present("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error")
+
         # correct password confirmation
         b.set_input_text('#accounts-create-password-pw1', good_password)
         b.set_input_text('#accounts-create-password-pw2', good_password)

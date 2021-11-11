@@ -18,8 +18,7 @@
  */
 
 import React from "react";
-
-import "form-layout.scss";
+import { Form, FormGroup, TextInput } from "@patternfly/react-core";
 
 /* Sample dialog body
  */
@@ -30,18 +29,11 @@ export class PatternDialogBody extends React.Component {
 
     render() {
         return (
-            <form className="ct-form">
-                <label className="control-label" htmlFor="control-1">Label</label>
-                <input id="control-1" className="form-control" type="text" />
-
-                <label className="control-label" htmlFor="nested">Nested dialog</label>
-                <div role="group" id="nested">
-                    <button id="open-nested" onClick={ this.props.clickNested }>
-                        Try to nest dialog
-                    </button>
-                    <span>Doesn't open a dialog, only shows a warning in the console.</span>
-                </div>
-            </form>
+            <Form isHorizontal>
+                <FormGroup fieldId="control-1" label='Label'>
+                    <TextInput id="control-1" />
+                </FormGroup>
+            </Form>
         );
     }
 }

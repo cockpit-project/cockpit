@@ -154,7 +154,6 @@ AC_CHECK_HEADER([security/pam_appl.h], ,
 )
 PAM_LIBS="-lpam"
 COCKPIT_SESSION_LIBS="$COCKPIT_SESSION_LIBS $PAM_LIBS"
-COCKPIT_WS_LIBS="$COCKPIT_WS_LIBS $PAM_LIBS"
 
 # pam module directory
 AC_ARG_WITH([pamdir],

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+echo "$@" >&2
+
+flatpak-spawn --host ssh "$1" cockpit-bridge

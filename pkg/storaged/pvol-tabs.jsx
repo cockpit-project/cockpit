@@ -107,17 +107,17 @@ export const StratisBlockdevTab = ({ client, block }) => {
     const name = pool ? pool.Name : stratis_locked_pool_uuid;
 
     return (
-        <div>
-            <div className="ct-form">
-                <label className="control-label">{_("Stratis Pool")}</label>
-                <div>{name
+        <DescriptionList className="pf-m-horizontal-on-sm">
+            <DescriptionListGroup>
+                <DescriptionListTerm>{_("Stratis Pool")}</DescriptionListTerm>
+                <DescriptionListDescription>{name
                     ? <Button variant="link" isInline role="link" onClick={() => cockpit.location.go(["pool", name])}>
                         {name}
                     </Button>
                     : "-"
                 }
-                </div>
-            </div>
-        </div>
+                </DescriptionListDescription>
+            </DescriptionListGroup>
+        </DescriptionList>
     );
 };

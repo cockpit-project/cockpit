@@ -27,7 +27,7 @@ gi.require_version("WebKit2", "4.0")  # NOQA
 from gi.repository import Gtk, Gdk, WebKit2
 
 
-class Browser(Gtk.Window):
+class CockpitClientWindow(Gtk.ApplicationWindow):
     def __init__(self, uri):
         super().__init__()
         self.set_title("Web Console")
@@ -45,7 +45,6 @@ class Browser(Gtk.Window):
         self.webview.show()
         self.webview.connect("load-changed", self._title_changed)
 
-        self.connect("destroy", Gtk.main_quit)
         self.connect("key-press-event", self._key_pressed)
 
         self.show()
@@ -77,10 +76,24 @@ class Browser(Gtk.Window):
             mapping[event.keyval]()
 
 
-ws = subprocess.Popen(['/app/libexec/cockpit-ws', '--no-tls', '-a', '127.0.90.90'])
+class CockpitClient(Gtk.Application):
+    def do_startup(self):
+        Gtk.Application.do_startup(self)
 
-Gtk.init(sys.argv)
-browser = Browser('http://127.0.90.90:9090/')
-Gtk.main()
+        self.ws = subprocess.Popen(['/app/libexec/cockpit-ws',
+                                    '--no-tls', '-a', '127.0.90.90'])
 
-ws.kill()
+    def do_activate(self):
+        window = CockpitClientWindow('http://127.0.90.90:9090/')
+        window.set_application(self)
+        window.present()
+
+    def do_shutdown(self):
+        self.ws.kill()
+
+        Gtk.Application.do_shutdown(self)
+
+
+if __name__ == "__main__":
+    app = CockpitClient(application_id='org.cockpit_project.cockpit-client')
+    app.run(sys.argv)

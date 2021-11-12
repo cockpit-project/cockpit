@@ -60,7 +60,7 @@ class StorageHelpers:
 
         return dev
 
-    def add_loopback_disk(self, size=50):
+    def add_loopback_disk(self, size=50, name=None):
         '''Add per-test loopback disk
 
         The disk gets removed automatically when the test ends. This is safe for @nondestructive tests.
@@ -76,7 +76,7 @@ class StorageHelpers:
         # losetup, but that will break some versions of lvm2.
         dev = self.machine.execute("set -e; F=$(mktemp /var/tmp/loop.XXXX); "
                                    "dd if=/dev/zero of=$F bs=1M count=%s; "
-                                   "losetup --find --show $F" % size).strip()
+                                   "losetup --show %s $F" % (size, name if name else "--find")).strip()
         # right after unmounting the device is often still busy, so retry a few times
         self.addCleanup(self.machine.execute, "umount {0}; rm $(losetup -n -O BACK-FILE -l {0}); until losetup -d {0}; do sleep 1; done".format(dev), timeout=10)
         return dev

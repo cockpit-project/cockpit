@@ -26,7 +26,6 @@ from testlib import *
 class TestStoragePartitions(StorageCase):
 
     def testPartitions(self):
-        m = self.machine
         b = self.browser
 
         self.login_and_go("/storage")
@@ -41,10 +40,7 @@ class TestStoragePartitions(StorageCase):
         #
         # https://github.com/storaged-project/storaged/issues/97
 
-        dev = m.execute("set -e; dd if=/dev/zero of=/var/tmp/disk1 bs=1M count=10; "
-                        "losetup --show loop12 /var/tmp/disk1; "
-                        "rm /var/tmp/disk1").strip()
-        self.addCleanup(m.execute, "losetup -d " + dev)
+        dev = self.add_loopback_disk(10, "loop12")
 
         b.wait_visible('.sidepanel-row:contains("%s")' % dev)
         b.click('.sidepanel-row:contains("%s")' % dev)

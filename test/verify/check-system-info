@@ -318,7 +318,7 @@ class TestSystemInfo(MachineCase):
         b = self.browser
 
         # Fedora/RHEL/CentOS use chrony
-        uses_timesyncd = m.image.startswith("debian") or m.image.startswith("ubuntu")
+        uses_timesyncd = m.image.startswith("debian") or m.image.startswith("ubuntu") or m.image == "arch"
 
         conf = "/etc/systemd/timesyncd.conf.d/50-cockpit.conf"
 

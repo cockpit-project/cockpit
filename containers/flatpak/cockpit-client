@@ -40,7 +40,7 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
         data_manager.set_network_proxy_settings(WebKit2.NetworkProxyMode.NO_PROXY, None)
         context.set_sandbox_enabled(True)
 
-        self.webview = WebKit2.WebView()
+        self.webview = WebKit2.WebView(is_ephemeral=True)
         self.add(self.webview)
         self.webview.show()
         self.webview.connect("load-changed", self._title_changed)

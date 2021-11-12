@@ -77,8 +77,10 @@ class Browser(Gtk.Window):
             mapping[event.keyval]()
 
 
-subprocess.Popen(['/app/libexec/cockpit-ws', '--no-tls', '-a', '127.0.90.90', '-p', '9090'])
+ws = subprocess.Popen(['/app/libexec/cockpit-ws', '--no-tls', '-a', '127.0.90.90'])
 
 Gtk.init(sys.argv)
 browser = Browser('http://127.0.90.90:9090/')
 Gtk.main()
+
+ws.kill()

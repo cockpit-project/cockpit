@@ -350,6 +350,8 @@
             }
         } else if (logout_intent) {
             show_login(logout_reason);
+        } else if (environment.page.require_host) {
+            show_login();
         } else {
             standard_auto_login();
         }

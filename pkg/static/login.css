@@ -189,6 +189,7 @@ form .control-label {
   color: #151515;
 }
 
+.pf-c-button.pf-m-control,
 .form-control[type=password],
 .form-control[type=text] {
   display: block;
@@ -203,6 +204,7 @@ form .control-label {
   color: #151515;
 }
 
+.pf-c-button.pf-m-control:hover,
 .form-control[type=password]:hover,
 .form-control[type=text]:hover,
 .form-control[type=password]:focus,
@@ -210,12 +212,14 @@ form .control-label {
   border-bottom-color: #06c;
 }
 
+.pf-c-button.pf-m-control:focus,
 .form-control[type=password]:focus,
 .form-control[type=text]:focus {
   padding-bottom: calc(0.25rem - 1px);
   border-bottom-width: 2px;
 }
 
+.pf-c-button.pf-m-control:focus,
 .form-control:focus {
   outline: 0;
 }
@@ -819,6 +823,28 @@ a:hover {
 #login-again {
   display: block;
   margin-bottom: 1rem;
+}
+
+.password-with-toggle {
+  display: grid;
+  grid-template-columns: 1fr auto;
+}
+
+.pf-c-button.login-password-toggle {
+  display: flex;
+  align-items: center;
+  border-left-width: 0;
+}
+
+.login-password-toggle > svg {
+  height: 1rem;
+  width: auto;
+}
+
+/* Show the appropriate eye icon based on the password text status */
+input[type=text] + .login-password-toggle .password-show,
+input[type=password] + .login-password-toggle .password-hide {
+  display: none;
 }
 
 /* Animation */

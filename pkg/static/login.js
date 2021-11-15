@@ -276,6 +276,13 @@
         }
     }
 
+    function toggle_password(event) {
+        const input = id("login-password-input");
+
+        input.setAttribute("type", (input.getAttribute("type") === "password") ? "text" : "password");
+        event.stopPropagation();
+    }
+
     function boot() {
         window.onload = null;
 
@@ -591,6 +598,7 @@
         };
 
         id("login-password-input").addEventListener("keydown", do_login);
+        id("login-password-toggle").addEventListener("click", toggle_password);
 
         show_form("login");
         id("login-user-input").focus();

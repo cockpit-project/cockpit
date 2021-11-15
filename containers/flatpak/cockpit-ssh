@@ -1,5 +1,84 @@
-#!/bin/sh
+#!/usr/bin/python3
 
-echo "$@" >&2
+import base64
+import json
+import logging
+import os
+import shutil
+import sys
 
-flatpak-spawn --host ssh "$1" cockpit-bridge
+
+def send_control(**msg):
+    logging.debug(msg)
+    fp = sys.stdout.buffer
+    msg = f'\n{json.dumps(msg)}\n'.encode('utf-8')
+    # yes, we're writing to stdin: it's a socket, and for askpass, ssh captures stdout
+    os.write(0, f'{len(msg)}\n'.encode('utf-8') + msg)
+
+
+def recv_control():
+    # using buffered IO is safe here: we only get one message sent at a
+    # time, and then it's our turn to say something before the next one
+    # will be sent.  therefore, it's impossible to over-read.
+    fp = sys.stdin.buffer
+    length = int(fp.readline())
+    # take advantage of empty channel name being json whitespace
+    return json.loads(fp.read(length))
+
+
+def do_authorize(challenge='*', **kwargs):
+    send_control(command='authorize', challenge=challenge, cookie='-', **kwargs)
+    response = recv_control()
+    logging.debug(response)
+    if 'response' not in response:
+        raise ValueError('invalid authorize response')
+    return response['response'].split(' ')
+
+
+def base64_encode(s):
+    return base64.b64encode(s.encode('utf-8')).decode('utf-8')
+
+
+def base64_decode(s):
+    return base64.b64decode(s.encode('utf-8')).decode('utf-8')
+
+
+def cockpit_ssh():
+    # this is pretty evil, but oh well...
+    xdg_data_home = os.getenv('XDG_DATA_HOME') or os.path.expanduser('~/.local/share')
+    askpass = os.path.join(xdg_data_home, 'cockpit-askpass')
+    shutil.copy(__file__, askpass, follow_symlinks=False)
+
+    host = sys.argv[1]
+    basic, payload = do_authorize()
+    user, password = base64_decode(payload).split(':', 1)
+
+    if user:
+        host = f'{user}@{host}'
+
+    cmd = ['flatpak-spawn', '--host', '/usr/bin/env',
+           'SSH_ASKPASS_REQUIRE=force', f'SSH_ASKPASS={askpass}',
+           '/usr/bin/ssh', host, 'cockpit-bridge']
+    os.execvp(cmd[0], cmd)
+
+
+def cockpit_askpass():
+    message, _, prompt = sys.argv[1].rpartition('\n')
+    challenge = f'X-Conversation - {base64_encode(prompt)}'
+    response = do_authorize(challenge, message=message)
+    if len(response) == 3:  # will be 2 if empty
+        output = base64_decode(response[2])
+        logging.debug(output)
+        print(output)
+
+
+if __name__ == '__main__':
+    # logging.basicConfig(level=logging.DEBUG)
+
+    logging.debug(sys.argv)
+    if 'cockpit-ssh' in sys.argv[0]:
+        cockpit_ssh()
+    elif 'cockpit-askpass' in sys.argv[0]:
+        cockpit_askpass()
+    else:
+        raise Exception(f'unknown executable name {sys.argv[0]}')

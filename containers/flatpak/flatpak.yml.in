@@ -1,4 +1,4 @@
-app-id: org.cockpit_project.cockpit-client
+app-id: org.cockpit_project.cockpit_client
 runtime: org.gnome.Platform
 runtime-version: '41'
 sdk: org.gnome.Sdk
@@ -9,22 +9,7 @@ modules:
     build-commands:
       - rm tools/mock-build-env/json-glib-1.0.pc
       - ./configure --disable-polkit --disable-ssh --disable-pcp --with-systemdunitdir=/invalid CPPFLAGS=-Itools/mock-build-env PKG_CONFIG_PATH=tools/mock-build-env --prefix=/app --with-admin-group=root --disable-doc
-      - make src/common/cockpitassets.c src/common/cockpitassets.h
-      - make -j$(nproc) cockpit-ws
-
-      - mkdir -p /app/share/cockpit
-      - cp -r dist/static /app/share/cockpit/static
-      - cp -r pkg/ssh /app/share/cockpit/ssh
-      - cp -r src/branding /app/share/cockpit/branding
-
-      - install -D cockpit-ws /app/libexec/cockpit-ws
-
-      - install -D containers/flatpak/cockpit.conf /app/etc/xdg/cockpit/cockpit.conf
-      - install -D containers/flatpak/cockpit-ssh /app/libexec/cockpit-ssh
-      - install -D containers/flatpak/cockpit-client /app/bin/cockpit-client
-
-      - install -D src/branding/default/logo.svg /app/share/icons/hicolor/scalable/apps/org.cockpit_project.cockpit-client.svg
-      - install -D containers/flatpak/cockpit-client.desktop /app/share/applications/org.cockpit_project.cockpit-client.desktop
+      - make install-for-flatpak -j$(nproc)
 
     sources:
       - type: archive

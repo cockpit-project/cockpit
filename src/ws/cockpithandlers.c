@@ -281,7 +281,8 @@ add_oauth_to_environment (JsonObject *environment)
 }
 
 static void
-add_page_to_environment (JsonObject *object)
+add_page_to_environment (JsonObject *object,
+                         gboolean    is_cockpit_client)
 {
   static gint page_login_to = -1;
   gboolean require_host = FALSE;
@@ -301,7 +302,7 @@ add_page_to_environment (JsonObject *object)
                                                       G_FILE_TEST_IS_EXECUTABLE));
     }
 
-  require_host = cockpit_conf_bool ("WebService", "RequireHost", FALSE);
+  require_host = is_cockpit_client || cockpit_conf_bool ("WebService", "RequireHost", FALSE);
 
   json_object_set_boolean_member (page, "connect", page_login_to);
   json_object_set_boolean_member (page, "require_host", require_host);
@@ -340,7 +341,7 @@ build_environment (GHashTable *os_release)
   gboolean is_cockpit_client = cockpit_conf_bool ("WebService", "X-For-CockpitClient", FALSE);
   json_object_set_boolean_member (object, "is_cockpit_client", is_cockpit_client);
 
-  add_page_to_environment (object);
+  add_page_to_environment (object, is_cockpit_client);
 
   hostname = g_malloc0 (HOST_NAME_MAX + 1);
   gethostname (hostname, HOST_NAME_MAX);

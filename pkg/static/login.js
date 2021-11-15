@@ -501,7 +501,7 @@
     function call_login() {
         login_failure(null);
         const user = trim(id("login-user-input").value);
-        if (user === "") {
+        if (user === "" && !environment.is_cockpit_client) {
             login_failure(_("User name cannot be empty"));
         } else if (need_host() && id("server-field").value === "") {
             login_failure(_("Please specify the host to connect to"));
@@ -551,7 +551,7 @@
         hide("#login-wait-validating");
         show("#login", "#login-details");
 
-        hideToggle(["#user-group", "#password-group"], form != "login");
+        hideToggle(["#user-group", "#password-group"], form != "login" || environment.is_cockpit_client);
         hideToggle("#conversation-group", form != "conversation");
         hideToggle("#hostkey-group", form != "hostkey");
 
@@ -603,7 +603,12 @@
         id("login-password-toggle").addEventListener("click", toggle_password);
 
         show_form("login");
-        id("login-user-input").focus();
+
+        if (!environment.is_cockpit_client) {
+            id("login-user-input").focus();
+        } else if (environment.page.require_host) {
+            id("server-field").focus();
+        }
     }
 
     function get_known_hosts_db() {

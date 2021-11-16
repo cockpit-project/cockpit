@@ -31,7 +31,6 @@
 #include "common/cockpittest.h"
 #include "common/cockpittransport.h"
 #include "common/cockpitwebserver.h"
-#include "common/mock-io-stream.h"
 
 #include "websocket/websocket.h"
 

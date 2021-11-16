@@ -23,7 +23,6 @@
 
 #include "common/cockpitloopback.h"
 #include "common/cockpittest.h"
-#include "common/mock-io-stream.h"
 #include "common/mock-transport.h"
 
 #include <glib.h>

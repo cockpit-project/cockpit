@@ -236,7 +236,6 @@ test_auth_LDADD = \
 test_channelresponse_CFLAGS = $(cockpit_ws_CFLAGS)
 test_channelresponse_SOURCES = src/ws/test-channelresponse.c \
 	src/ws/mock-auth.c src/ws/mock-auth.h \
-	src/common/mock-io-stream.c src/common/mock-io-stream.h \
 	$(NULL)
 test_channelresponse_LDADD = \
 	libwebsocket.a \
@@ -259,7 +258,6 @@ test_handlers_CFLAGS = $(cockpit_ws_CFLAGS)
 test_handlers_SOURCES = \
 	src/ws/test-handlers.c \
 	src/ws/mock-auth.c src/ws/mock-auth.h \
-	src/common/mock-io-stream.c src/common/mock-io-stream.h \
 	$(NULL)
 
 test_handlers_LDADD = \
@@ -270,7 +268,6 @@ test_handlers_LDADD = \
 test_webservice_SOURCES = \
 	src/ws/test-webservice.c \
 	src/ws/mock-auth.c src/ws/mock-auth.h \
-	src/common/mock-io-stream.c src/common/mock-io-stream.h \
 	$(NULL)
 
 test_webservice_CFLAGS = $(cockpit_ws_CFLAGS)

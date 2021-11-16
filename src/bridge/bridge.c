@@ -174,145 +174,73 @@ send_init_command (CockpitTransport *transport,
 }
 
 static GSubprocess *
-start_dbus_daemon (void)
+start_helper_process (const gchar * const  *argv,
+                      const gchar          *socket_pattern,
+                      const gchar          *socket_envvar)
 {
-  g_autoptr(GError) error = NULL;
+  {
+    const gchar *env = g_getenv (socket_envvar);
+    if (env && env[0])
+      return NULL;
+  }
 
+  g_autoptr(GError) error = NULL;
   /* The DBus daemon produces useless messages on stderr mixed in */
-  g_autoptr(GSubprocessLauncher) dbus_daemon = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_STDOUT_PIPE |
-                                                                          G_SUBPROCESS_FLAGS_STDERR_SILENCE);
-  g_subprocess_launcher_unsetenv (dbus_daemon, "G_DEBUG");
-  GSubprocess *process = g_subprocess_launcher_spawn (dbus_daemon, &error, "dbus-daemon", "--print-address", "--session", NULL);
+  g_autoptr(GSubprocessLauncher) launcher = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_STDOUT_PIPE |
+                                                                       G_SUBPROCESS_FLAGS_STDERR_SILENCE);
+  g_subprocess_launcher_unsetenv (launcher, "G_DEBUG");
+  g_autoptr(GSubprocess) process = g_subprocess_launcher_spawnv (launcher, argv, &error);
 
   if (error != NULL)
     {
       if (g_error_matches (error, G_SPAWN_ERROR, G_SPAWN_ERROR_NOENT))
-        g_debug ("couldn't start dbus-daemon: %s", error->message);
+        g_debug ("couldn't start %s: %s", argv[0], error->message);
       else
-        g_message ("couldn't start dbus-daemon: %s", error->message);
+        g_message ("couldn't start %s: %s", argv[0], error->message);
       return NULL;
     }
 
-  g_debug ("launched dbus-daemon: %s", g_subprocess_get_identifier (process));
+  g_debug ("launched %s: %s", argv[0], g_subprocess_get_identifier (process));
 
-  /* dbus-daemon writes the address as one line */
-  g_autoptr (GDataInputStream) dbus_output = g_data_input_stream_new (g_subprocess_get_stdout_pipe (process));
-  g_autofree gchar *address = g_data_input_stream_read_line (dbus_output, NULL, NULL, &error);
-
-  if (address)
+  /* get the first line of output to figure out the socket address */
+  g_autoptr (GDataInputStream) stream = g_data_input_stream_new (g_subprocess_get_stdout_pipe (process));
+  g_autofree gchar *first_line = g_data_input_stream_read_line (stream, NULL, NULL, &error);
+  if (!first_line)
     {
-      cockpit_setenv_check ("DBUS_SESSION_BUS_ADDRESS", address, TRUE);
-      g_debug ("session bus address: %s", address);
-    }
-  else
-    {
-      if (error)
-        g_warning ("couldn't read address from dbus-daemon: %s", error->message);
-      else
-        g_message ("dbus-daemon didn't send us a dbus address; not installed?");
+      g_warning ("couldn't read address from %s: %s", argv[0], error->message);
+      g_subprocess_force_exit (process);
+      return NULL;
     }
 
-  return process;
+  g_autoptr(GRegex) regex = g_regex_new (socket_pattern, G_REGEX_RAW, 0, &error);
+  g_assert_no_error (error);
+
+  g_autoptr(GMatchInfo) info = NULL;
+  if (!g_regex_match (regex, first_line, 0, &info))
+    {
+      g_warning ("output from %s didn't match expected pattern %s", argv[0], socket_pattern);
+      g_subprocess_force_exit (process);
+      return NULL;
+    }
+
+  g_autofree gchar *socket_address = g_match_info_fetch (info, 1);
+  cockpit_setenv_check (socket_envvar, socket_address, TRUE);
+
+  return g_steal_pointer (&process);
 }
 
-static void
-setup_ssh_agent (gpointer data)
+static GSubprocess *
+start_dbus_daemon (void)
 {
-  g_unsetenv ("G_DEBUG");
-  prctl (PR_SET_PDEATHSIG, SIGTERM);
-  if (cockpit_close_range (3, INT_MAX, 0) < 0)
-    {
-      g_printerr ("couldn't close file descriptors: %m\n");
-      _exit (127);
-    }
+  const char * const cmd[] = { "dbus-daemon", "--print-address", "--session", NULL };
+  return start_helper_process (cmd, "^(.*)$", "DBUS_SESSION_BUS_ADDRESS");
 }
 
-static GPid
+static GSubprocess *
 start_ssh_agent (void)
 {
-  GError *error = NULL;
-  GPid pid = 0;
-  gint fd = -1;
-  gint status = -1;
-
-  gchar *pid_line = NULL;
-  gchar *agent_output = NULL;
-  gchar *agent_error = NULL;
-  gchar *bind_address = g_strdup_printf ("%s/ssh-agent.XXXXXX", g_get_user_runtime_dir ());
-
-  gchar *agent_argv[] = {
-      "ssh-agent",
-      "-a",
-      bind_address,
-      NULL
-  };
-
-  fd = g_mkstemp (bind_address);
-  if (fd < 0)
-    {
-      g_warning ("couldn't create temporary socket file: %s", g_strerror (errno));
-      goto out;
-    }
-  if (g_unlink (bind_address) < 0)
-    {
-      g_warning ("couldn't remove temporary socket file: %s", g_strerror (errno));
-      goto out;
-    }
-
-  if (!g_spawn_sync (NULL, agent_argv, NULL,
-                     G_SPAWN_SEARCH_PATH, setup_ssh_agent,
-                     NULL,
-                     &agent_output, &agent_error,
-                     &status, &error))
-    {
-      if (g_error_matches (error, G_SPAWN_ERROR, G_SPAWN_ERROR_NOENT))
-        g_debug ("couldn't start %s: %s", agent_argv[0], error->message);
-      else
-        g_warning ("couldn't start %s: %s", agent_argv[0], error->message);
-      goto out;
-    }
-
-  if (!g_spawn_check_exit_status (status, &error))
-    {
-      g_warning ("couldn't start %s: %s: %s", agent_argv[0],
-                 error->message, agent_error);
-      goto out;
-    }
-
-  pid_line = strstr (agent_output, "SSH_AGENT_PID=");
-  if (pid_line)
-    {
-      if (sscanf (pid_line, "SSH_AGENT_PID=%d;", &pid) != 1)
-        {
-            g_warning ("couldn't find pid in %s", pid_line);
-            goto out;
-        }
-    }
-
-  if (pid < 1)
-    {
-      g_warning ("couldn't get agent pid from ssh-agent output: %s", agent_output);
-      goto out;
-    }
-
-  g_debug ("launched %s", agent_argv[0]);
-  cockpit_setenv_check ("SSH_AUTH_SOCK", bind_address, TRUE);
-
-out:
-  g_clear_error (&error);
-  if (fd >= 0)
-    close (fd);
-  g_free (bind_address);
-  g_free (agent_error);
-  g_free (agent_output);
-  return pid;
-}
-
-static gboolean
-have_env (const gchar *name)
-{
-  const gchar *env = g_getenv (name);
-  return env && env[0];
+  const char * const cmd[] = { "ssh-agent", "-s", "-D", NULL };
+  return start_helper_process (cmd, "SSH_AUTH_SOCK=([^;]*);", "SSH_AUTH_SOCK");
 }
 
 static gboolean
@@ -403,7 +331,7 @@ run_bridge (const gchar *interactive,
   const gchar *directory;
   struct passwd *pwd;
   g_autoptr (GSubprocess) dbus_daemon_process = NULL;
-  GPid agent_pid = 0;
+  g_autoptr (GSubprocess) ssh_agent_process = NULL;
   guint sig_term;
   guint sig_int;
   uid_t uid;
@@ -447,10 +375,8 @@ run_bridge (const gchar *interactive,
   /* Start daemons if necessary */
   if (!interactive && !privileged_peer)
     {
-      if (!have_env ("DBUS_SESSION_BUS_ADDRESS"))
-        dbus_daemon_process = start_dbus_daemon ();
-      if (!have_env ("SSH_AUTH_SOCK"))
-        agent_pid = start_ssh_agent ();
+      dbus_daemon_process = start_dbus_daemon ();
+      ssh_agent_process = start_ssh_agent ();
     }
 
   sig_term = g_unix_signal_add (SIGTERM, on_signal_done, &terminated);
@@ -518,8 +444,8 @@ run_bridge (const gchar *interactive,
 
   if (dbus_daemon_process)
     g_subprocess_send_signal (dbus_daemon_process, SIGTERM);
-  if (agent_pid)
-    kill (agent_pid, SIGTERM);
+  if (ssh_agent_process)
+    g_subprocess_send_signal (ssh_agent_process, SIGTERM);
 
   g_source_remove (sig_term);
   g_source_remove (sig_int);

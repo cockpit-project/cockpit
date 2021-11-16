@@ -195,7 +195,7 @@ tr[class*=content-level-] {
 
     // Add space for the button and offset
     > .pf-c-table__toggle + td {
-        padding-left: var(--offset);
+        padding-left: calc(var(--offset) + var(--pf-c-table--cell--PaddingLeft));
     }
 }
 

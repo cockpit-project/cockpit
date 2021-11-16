@@ -406,9 +406,10 @@ function Router(index) {
                     source = register(child);
                 }
                 if (source) {
-                    const reply = cockpit.extend({ }, cockpit.transport.options,
-                                                 { command: "init", host: source.default_host, "channel-seed": source.channel_seed }
-                    );
+                    const reply = {
+                        ...cockpit.transport.options,
+                        command: "init", host: source.default_host, "channel-seed": source.channel_seed,
+                    };
                     child.postMessage("\n" + JSON.stringify(reply), origin);
                     source.inited = true;
 

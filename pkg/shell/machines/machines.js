@@ -106,7 +106,7 @@ function Machines() {
     let timeout = null;
 
     function sync(machine, values, overlay) {
-        const desired = cockpit.extend({ }, values || { }, overlay || { });
+        const desired = { ...values, ...overlay };
         for (const prop in desired) {
             if (machine[prop] !== desired[prop])
                 machine[prop] = desired[prop];
@@ -200,7 +200,7 @@ function Machines() {
     function update_session_machine(machine, host, values) {
         /* We don't save the whole machine object */
         const skey = generate_session_key(host);
-        const data = cockpit.extend({}, machine, values);
+        const data = { ...machine, ...values };
         window.sessionStorage.setItem(skey, JSON.stringify(data));
         self.overlay(host, values);
         return cockpit.when([]);
@@ -248,10 +248,11 @@ function Machines() {
         let values = self.split_connection_string(connection_string);
         const host = values.address;
 
-        values = cockpit.extend({
+        values = {
             visible: true,
             color: color || self.unused_color(),
-        }, values);
+            ...values
+        };
 
         const machine = self.lookup(host);
         if (machine)
@@ -301,7 +302,7 @@ function Machines() {
         const changes = {};
 
         for (const host in content) {
-            changes[host] = cockpit.extend({ }, last.overlay[host] || { });
+            changes[host] = { ...last.overlay[host] };
             merge(changes[host], { on_disk: true });
         }
 
@@ -310,25 +311,25 @@ function Machines() {
          */
         for (const host in machines) {
             if (content && !content[host]) {
-                changes[host] = cockpit.extend({ }, last.overlay[host] || { });
+                changes[host] = { ...last.overlay[host] };
                 merge(changes[host], { on_disk: null });
             }
         }
 
         refresh({
             content: content,
-            overlay: cockpit.extend({ }, last.overlay, changes)
+            overlay: { ...last.overlay, ...changes },
         }, true);
     };
 
     self.overlay = function overlay(host, values) {
         const address = self.split_connection_string(host).address;
         const changes = { };
-        changes[address] = cockpit.extend({ }, last.overlay[address] || { });
+        changes[address] = { ...last.overlay[address] };
         merge(changes[address], values);
         refresh({
             content: last.content,
-            overlay: cockpit.extend({ }, last.overlay, changes)
+            overlay: { ...last.overlay, ...changes }
         }, true);
     };
 

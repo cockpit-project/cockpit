@@ -77,7 +77,7 @@ journal.build_cmd = function build_cmd(/* ... */) {
             if (arg instanceof Array) {
                 matches.push.apply(matches, arg);
             } else {
-                cockpit.extend(options, arg);
+                Object.assign(options, arg);
                 break;
             }
         } else {

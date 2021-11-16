@@ -87,21 +87,6 @@ function is_negative(n) {
     return ((n = +n) || 1 / n) < 0;
 }
 
-/* Object.assign() workalike */
-function extend(to/* , from ... */) {
-    const len = arguments.length;
-    for (let j = 1; j < len; j++) {
-        const from = arguments[j];
-        if (from) {
-            for (const key in from) {
-                if (from[key] !== undefined)
-                    to[key] = from[key];
-            }
-        }
-    }
-    return to;
-}
-
 function invoke_functions(functions, self, args) {
     const length = functions ? functions.length : 0;
     for (let i = 0; i < length; i++) {
@@ -1036,7 +1021,8 @@ function factory() {
         return obj;
     };
 
-    cockpit.extend = extend;
+    /* obsolete backwards compatible shim */
+    cockpit.extend = Object.assign;
 
     /* These can be filled in by loading ../manifests.js */
     cockpit.manifests = { };
@@ -1183,8 +1169,7 @@ function factory() {
         options: { },
         uri: calculate_url,
         control: function(command, options) {
-            options = extend({ }, options);
-            options.command = command;
+            options = { ...options, command };
             ensure_transport(function(transport) {
                 transport.send_control(options);
             });
@@ -1249,7 +1234,7 @@ function factory() {
         /* Like jQuery the promise object is callable */
         const self = function Promise(target) {
             if (target) {
-                extend(target, self);
+                Object.assign(target, self);
                 return target;
             }
             return self;
@@ -2399,7 +2384,7 @@ function factory() {
 
     init_callback = function(options) {
         if (options.system)
-            extend(cockpit.info, options.system);
+            Object.assign(cockpit.info, options.system);
         if (options.system)
             cockpit.info.dispatchEvent("changed");
     };
@@ -2753,7 +2738,7 @@ function factory() {
             args.spawn.push(String(command));
         }
         if (options !== undefined)
-            extend(args, options);
+            Object.assign(args, options);
 
         const name = args.spawn[0] || "process";
         const channel = cockpit.channel(args);
@@ -2883,7 +2868,7 @@ function factory() {
             if (!self.data[path][iface])
                 self.data[path][iface] = props;
             else
-                props = extend(self.data[path][iface], props);
+                props = Object.assign(self.data[path][iface], props);
             emit(path, iface, props);
         };
 
@@ -3010,7 +2995,7 @@ function factory() {
 
         function update(props) {
             if (props) {
-                extend(self.data, props);
+                Object.assign(self.data, props);
                 if (!defined)
                     define();
                 valid = true;
@@ -3088,7 +3073,7 @@ function factory() {
         }
 
         /* Already added watch/subscribe, tell proxies not to */
-        options = extend({ watch: false, subscribe: false }, options);
+        options = { watch: false, subscribe: false, ...options };
 
         function update(props, path) {
             let proxy = self[path];
@@ -3123,7 +3108,7 @@ function factory() {
                 track = true;
 
             delete options.track;
-            extend(args, options);
+            Object.assign(args, options);
         }
         args.payload = "dbus-json3";
         if (name)
@@ -3247,7 +3232,7 @@ function factory() {
 
         function meta(data) {
             ensure_cache();
-            extend(cache.meta, data);
+            Object.assign(cache.meta, data);
             self.dispatchEvent("meta", data);
         }
 
@@ -3255,10 +3240,7 @@ function factory() {
             if (!channel || !channel.valid)
                 return;
 
-            const message = extend({ }, options, {
-                meta: data
-            });
-
+            const message = { ...options, meta: data };
             send(JSON.stringify(message));
             meta(data);
         };
@@ -3324,10 +3306,11 @@ function factory() {
             const dfd = cockpit.defer();
             const id = String(last_cookie);
             last_cookie++;
-            const method_call = extend({ }, options, {
+            const method_call = {
+                ...options,
                 call: [path, iface, method, args || []],
-                id: id
-            });
+                id
+            };
 
             const msg = JSON.stringify(method_call);
             if (send(msg))
@@ -3342,16 +3325,14 @@ function factory() {
             if (!channel || !channel.valid)
                 return;
 
-            const message = extend({ }, options, {
-                signal: [path, iface, member, args || []]
-            });
+            const message = { ...options, signal: [path, iface, member, args || []] };
 
             send(JSON.stringify(message));
         };
 
         this.subscribe = function subscribe(match, callback, rule) {
             const subscription = {
-                match: extend({ }, match),
+                match: { ...match },
                 callback: callback
             };
 
@@ -3380,7 +3361,7 @@ function factory() {
         };
 
         self.watch = function watch(path) {
-            const match = is_plain_object(path) ? extend({ }, path) : { path: String(path) };
+            const match = is_plain_object(path) ? { ...path } : { path: String(path) };
 
             const id = String(last_cookie);
             last_cookie++;
@@ -3457,10 +3438,7 @@ function factory() {
             last_cookie++;
             const dfd = calls[id] = cockpit.defer();
 
-            const payload = JSON.stringify(extend({ }, options, {
-                publish: publish,
-                id: id,
-            }));
+            const payload = JSON.stringify({ ...options, publish, id });
 
             if (send(payload))
                 calls[id] = dfd;
@@ -3586,7 +3564,7 @@ function factory() {
             close: close
         };
 
-        const base_channel_options = extend({ }, options);
+        const base_channel_options = { ...options };
         delete base_channel_options.syntax;
 
         function parse(str) {
@@ -3611,10 +3589,11 @@ function factory() {
                 return read_promise;
 
             const dfd = cockpit.defer();
-            const opts = extend({ }, base_channel_options, {
+            const opts = {
+                ...base_channel_options,
                 payload: "fsread1",
                 path: path
-            });
+            };
 
             function try_read() {
                 read_channel = cockpit.channel(opts);
@@ -3679,11 +3658,12 @@ function factory() {
             if (replace_channel)
                 replace_channel.close("abort");
 
-            const opts = extend({ }, base_channel_options, {
+            const opts = {
+                ...base_channel_options,
                 payload: "fsreplace1",
                 path: path,
                 tag: expected_tag
-            });
+            };
             replace_channel = cockpit.channel(opts);
 
             replace_channel.addEventListener("close", function (event, message) {
@@ -3831,7 +3811,7 @@ function factory() {
         let header;
 
         if (po) {
-            extend(po_data, po);
+            Object.assign(po_data, po);
             header = po[""];
         } else if (po === null) {
             po_data = { };
@@ -4079,11 +4059,11 @@ function factory() {
             const headers = req.headers;
             delete req.headers;
 
-            extend(req, options);
+            Object.assign(req, options);
 
             /* Combine the headers */
             if (options.headers && headers)
-                req.headers = extend({ }, options.headers, headers);
+                req.headers = { ...options.headers, ...headers };
             else if (options.headers)
                 req.headers = options.headers;
             else
@@ -4361,11 +4341,12 @@ function factory() {
                 following = true;
             }
 
-            const options = extend({
+            const options = {
                 payload: "metrics1",
                 interval: interval,
-                source: "internal"
-            }, options_list[0]);
+                source: "internal",
+                ...options_list[0]
+            };
 
             delete options.archive_source;
 
@@ -4486,12 +4467,12 @@ function factory() {
             const archive_options_list = [];
             for (let i = 0; i < options_list.length; i++) {
                 if (options_list[i].archive_source) {
-                    archive_options_list.push(extend({}, options_list[i],
-                                                       {
- source: options_list[i].archive_source,
-                                                         timestamp: timestamp,
-                                                         limit: limit
-                                                       }));
+                    archive_options_list.push({
+                                                   ...options_list[i],
+                                                   source: options_list[i].archive_source,
+                                                   timestamp: timestamp,
+                                                   limit: limit
+                                              });
                 }
             }
 

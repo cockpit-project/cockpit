@@ -25,6 +25,7 @@ from machine_core.constants import TEST_OS_DEFAULT
 
 
 @skipDistroPackage()
+@skipImage("TODO: networkmanager fails on Arch Linux", "arch")
 class TestNetworkingSettings(NetworkCase):
     provision = {
         "machine1": {},

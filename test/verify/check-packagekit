@@ -56,6 +56,7 @@ class NoSubManCase(PackageCase):
         self.allow_journal_messages("(Created symlink|Removed).*dnf-automatic-install.timer.*")
 
 
+@skipImage("TODO: Fails with 401 on our test runners", "arch")
 @skipImage("Image uses OSTree", "fedora-coreos")
 @nondestructive
 class TestUpdates(NoSubManCase):
@@ -1472,6 +1473,7 @@ class TestAutoUpdates(NoSubManCase):
             # don't allow stomping over unparseable custom settings
             b.wait_not_present("#autoupdates-settings button")
 
+    @skipImage("TODO: Fails with 401 on our test runners", "arch")
     def testWithAvailableUpdates(self):
         b = self.browser
         m = self.machine

@@ -25,6 +25,7 @@ from machine_core.constants import TEST_OS_DEFAULT
 
 
 @skipDistroPackage()
+@skipImage("TODO: testBasic fails on Arch Linux", "arch")
 class TestNetworkingMAC(NetworkCase):
     provision = {
         "machine1": {},

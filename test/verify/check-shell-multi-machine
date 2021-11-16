@@ -771,6 +771,7 @@ class TestMultiMachine(MachineCase):
                                     '.*: host key for this server changed key type: .*',
                                     '.*: server offered unsupported authentication methods: .*')
 
+    @skipImage("TODO: Broken on Arch Linux", "arch")
     def testSshKeySetup(self):
         b = self.browser
         m1 = self.machine

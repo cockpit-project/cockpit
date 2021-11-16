@@ -114,7 +114,7 @@ export class ConfigFile {
         // make sure we copy the original keys so we overwrite the correct lines when saving
         this._originalSettings = { };
         Object.keys(this.settings).forEach((key) => {
-            this._originalSettings[key] = cockpit.extend({}, this.settings[key]);
+            this._originalSettings[key] = { ...this.settings[key] };
         });
         if (!skipNotify)
             this.dispatchEvent("kdumpConfigChanged", this.settings);

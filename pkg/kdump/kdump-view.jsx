@@ -240,7 +240,7 @@ export class KdumpPage extends React.Component {
              * with a target so no conflicting settings remain */
             settings = {};
             Object.keys(this.props.kdumpStatus.config).forEach((key) => {
-                settings[key] = cockpit.extend({}, this.props.kdumpStatus.config[key]);
+                settings[key] = { ...this.props.kdumpStatus.config[key] };
             });
             Object.keys(this.props.kdumpStatus.target).forEach((key) => {
                 if (settings[key])
@@ -336,7 +336,7 @@ export class KdumpPage extends React.Component {
         const self = this;
         const settings = { };
         Object.keys(self.props.kdumpStatus.config).forEach((key) => {
-            settings[key] = cockpit.extend({}, self.props.kdumpStatus.config[key]);
+            settings[key] = { ...self.props.kdumpStatus.config[key] };
         });
         // open the settings dialog
         const dialogProps = {

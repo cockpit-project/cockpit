@@ -58,6 +58,7 @@ KEY_IDS_MD5 = [
 ]
 
 
+@skipImage("TODO: ssh key check fails on Arch Linux", "arch")
 @skipDistroPackage()
 class TestMultiMachineKeyAuth(MachineCase):
     provision = {

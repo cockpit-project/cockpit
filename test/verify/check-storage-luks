@@ -186,6 +186,7 @@ class TestStorageLuks(StorageCase):
         b.logout()
         wait(lambda: m.execute("(loginctl list-users | grep admin) || true") == "")
 
+    @skipImage("TODO: clevis missing on Arch image", "arch")
     def testClevisTang(self):
         m = self.machine
         b = self.browser
@@ -271,6 +272,7 @@ class TestStorageLuks(StorageCase):
         self.confirm()
         b.wait_not_present(panel + "ul li:nth-child(2)")
 
+    @skipImage("TODO: luksmeta/clevis missing from Arch Image", "arch")
     def testLuks1Slots(self):
         self.allow_journal_messages("Device is not initialized.*", ".*could not be opened.")
         m = self.machine

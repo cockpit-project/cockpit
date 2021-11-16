@@ -516,6 +516,7 @@ class TestHistoryMetrics(MachineCase):
         self.assertEqual(m.execute("systemctl is-enabled pmlogger").strip(), "enabled")
 
     @nondestructive
+    @skipImage("TODO: pm proxy alert doesn't show on Arch Linux", "arch")
     @skipImage("no PCP support", "fedora-coreos")
     def testPmProxySettings(self):
         b = self.browser

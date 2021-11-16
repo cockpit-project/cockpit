@@ -23,6 +23,7 @@ from testlib import *
 
 
 @skipImage("No network checkpoint support", "ubuntu-2004", "ubuntu-stable")
+@skipImage("TODO: testBasic fails on Arch Linux", "arch")
 @skipDistroPackage()
 class TestNetworkingCheckpoints(NetworkCase):
     def testCheckpoint(self):

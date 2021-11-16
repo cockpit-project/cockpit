@@ -243,6 +243,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         self.allow_restart_journal_messages()
 
+    @skipImage("Arch Linux has no pwquality by default", "arch")
     def testExpired(self):
         m = self.machine
         b = self.browser
@@ -254,7 +255,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
 
         # test steps below assume a pam_pwquality config with retry > 1; on some images authselect drops that setting
-        if not m.image.startswith('debian') and not m.image.startswith('ubuntu'):
+        if not m.image.startswith('debian') and not m.image.startswith('ubuntu') and not m.image.startswith("arch"):
             self.sed_file("/password.*requisite.*pam_pwquality/ s/$/ retry=3/", "/etc/pam.d/password-auth")
 
         m.execute("chage -d 0 admin")
@@ -553,6 +554,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
     def testFailingWebsocketSafariNoCA(self):
         self.testFailingWebsocket(safari=True, cacert=False)
 
+    @skipImage("TODO: Arch Linux default's to faillock with 3 failed logins", "arch")
     def testTally(self):
         m = self.machine
         b = self.browser

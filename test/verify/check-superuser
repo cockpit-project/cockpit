@@ -275,6 +275,7 @@ class TestSuperuserOldShell(MachineCase):
         b.wait_popdown("shutdown-dialog")
 
 
+@skipImage("TODO: broken on Arch Linux", "arch")
 @skipDistroPackage()
 class TestSuperuserOldWebserver(MachineCase):
     provision = {

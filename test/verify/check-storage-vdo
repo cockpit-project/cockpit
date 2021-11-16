@@ -47,7 +47,10 @@ class TestStorageVDO(StorageCase):
         m.add_disk("10G", serial="DISK1")
         b.wait_in_text("#drives", "DISK1")
         m.execute("vgcreate vdo_vgroup /dev/sda && lvcreate -n lvol -L 5G vdo_vgroup")
-        b.wait_in_text("#devices", "vdo_vgroup")
+        # wait until UI knows about lvol
+        b.click("#devices .sidepanel-row:contains(vdo_vgroup)")
+        b.wait_in_text("#storage-detail", "/dev/vdo_vgroup/lvol")
+        b.go("#/")
 
         # Create VDO
 

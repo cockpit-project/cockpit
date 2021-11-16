@@ -29,7 +29,6 @@
 #include "common/cockpitsystem.h"
 #include "common/cockpittest.h"
 #include "common/cockpitwebserver.h"
-#include "common/mock-io-stream.h"
 
 #include <glib.h>
 
@@ -114,8 +113,8 @@ base_setup (Test *test)
   test->output = G_MEMORY_OUTPUT_STREAM (g_memory_output_stream_new (NULL, 0, g_realloc, g_free));
   test->input = G_MEMORY_INPUT_STREAM (g_memory_input_stream_new ());
 
-  test->io = mock_io_stream_new (G_INPUT_STREAM (test->input),
-                                 G_OUTPUT_STREAM (test->output));
+  test->io = g_simple_io_stream_new (G_INPUT_STREAM (test->input),
+                                     G_OUTPUT_STREAM (test->output));
 }
 
 static void
@@ -464,7 +463,7 @@ test_resource_checksum (Test *test,
   /* Prime the checksums with dummy request */
   output = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
   input = g_memory_input_stream_new ();
-  io = mock_io_stream_new (input, output);
+  io = g_simple_io_stream_new (input, output);
   path = "/cockpit/@localhost/checksum";
   response = cockpit_web_response_new (io, path, path, NULL, NULL, COCKPIT_WEB_RESPONSE_NONE);
   g_signal_connect (response, "done", G_CALLBACK (on_web_response_done_set_flag), &response_done);

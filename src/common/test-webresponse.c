@@ -23,8 +23,6 @@
 #include "cockpitwebresponse.h"
 #include "cockpitwebserver.h"
 
-#include "mock-io-stream.h"
-
 #include "common/cockpittest.h"
 
 #include "websocket/websocket.h"
@@ -81,7 +79,7 @@ setup (TestCase *tc,
 
   input = g_memory_input_stream_new ();
   tc->output = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
-  io = mock_io_stream_new (input, tc->output);
+  io = g_simple_io_stream_new (input, tc->output);
   g_object_unref (input);
 
   if (fixture && fixture->header)
@@ -1098,7 +1096,7 @@ setup_plain (TestPlain *tc,
   input = g_memory_input_stream_new ();
   output = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
 
-  tc->io = mock_io_stream_new (input, output);
+  tc->io = g_simple_io_stream_new (input, output);
 
   g_object_unref (input);
   g_object_unref (output);

@@ -23,7 +23,6 @@
 
 #include "common/cockpitloopback.h"
 #include "common/cockpittest.h"
-#include "common/mock-io-stream.h"
 #include "common/mock-pressure.h"
 
 #include <glib.h>
@@ -133,8 +132,8 @@ setup_timeout (TestCase *tc,
 }
 
 static GIOStream *
-mock_io_stream_for_fds (int in_fd,
-                        int out_fd)
+simple_io_stream_for_fds (int in_fd,
+                          int out_fd)
 {
   GInputStream *is;
   GOutputStream *os;
@@ -146,7 +145,7 @@ mock_io_stream_for_fds (int in_fd,
   is = g_unix_input_stream_new (in_fd, TRUE);
   os = g_unix_output_stream_new (out_fd, TRUE);
 
-  io = mock_io_stream_new (is, os);
+  io = g_simple_io_stream_new (is, os);
 
   g_object_unref (is);
   g_object_unref (os);
@@ -172,7 +171,7 @@ setup_simple (TestCase *tc,
   if (pipe (fds) < 0)
     g_assert_not_reached ();
 
-  io = mock_io_stream_for_fds (fds[0], fds[1]);
+  io = simple_io_stream_for_fds (fds[0], fds[1]);
 
   tc->stream = g_object_new (g_type_from_name (stream_type),
                              "name", "test",
@@ -488,7 +487,7 @@ test_read_error (void)
   cockpit_expect_message ("*Bad file descriptor");
 
   /* Using wrong end of the pipe */
-  io = mock_io_stream_for_fds (fds[1], out);
+  io = simple_io_stream_for_fds (fds[1], out);
 
   echo_stream = g_object_new (mock_echo_stream_get_type (),
                             "name", "read-error",
@@ -528,7 +527,7 @@ test_write_error (void)
 
   cockpit_expect_message ("*Bad file descriptor");
 
-  io = mock_io_stream_for_fds (fds[0], fds[1]);
+  io = simple_io_stream_for_fds (fds[0], fds[1]);
 
   /* Pass in a bad write descriptor */
   echo_stream = g_object_new (mock_echo_stream_get_type (),
@@ -572,7 +571,7 @@ test_read_combined (void)
   if (pipe(fds_b) < 0)
     g_assert_not_reached ();
 
-  io = mock_io_stream_for_fds (fds_a[0], fds_b[1]);
+  io = simple_io_stream_for_fds (fds_a[0], fds_b[1]);
 
   /* Pass in a read end of the pipe */
   echo_stream = g_object_new (mock_echo_stream_get_type (),
@@ -630,7 +629,7 @@ test_properties (void)
   if (pipe(fds) < 0)
     g_assert_not_reached ();
 
-  io = mock_io_stream_for_fds (fds[0], fds[1]);
+  io = simple_io_stream_for_fds (fds[0], fds[1]);
 
   tstream = g_object_new (mock_echo_stream_get_type (),
                           "name", "testo",

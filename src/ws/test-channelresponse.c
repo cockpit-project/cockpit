@@ -28,7 +28,6 @@
 #include "common/cockpittransport.h"
 #include "common/cockpitjson.h"
 #include "common/cockpittest.h"
-#include "common/mock-io-stream.h"
 #include "common/cockpitwebserver.h"
 #include "common/cockpitconf.h"
 
@@ -140,7 +139,7 @@ setup_resource (TestResourceCase *tc,
 
   input = g_memory_input_stream_new_from_data ("", 0, NULL);
   output = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
-  tc->io = mock_io_stream_new (input, output);
+  tc->io = g_simple_io_stream_new (input, output);
   tc->output = G_MEMORY_OUTPUT_STREAM (output);
   g_object_unref (input);
 
@@ -570,7 +569,7 @@ request_checksum (TestResourceCase *tc)
 
   input = g_memory_input_stream_new_from_data ("", 0, NULL);
   output = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
-  io = mock_io_stream_new (input, output);
+  io = g_simple_io_stream_new (input, output);
   g_object_unref (input);
 
   /* Start the connection up, and poke it a bit */

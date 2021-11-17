@@ -8,9 +8,9 @@ flatpak.yml: $(srcdir)/containers/flatpak/flatpak.yml.in
 	$(AM_V_GEN) sed 's,@distdir@,$(distdir),' $< > $@.tmp && $(MV) $@.tmp $@
 
 $(FLATPAK_ID).flatpak: flatpak.yml Makefile
-	rm -rf flatpak-build-dir flatpak-repo-dir
+	rm -rf flatpak-build-dir flatpak-repo-dir .flatpak-builder
 	XZ_OPT=-0 make dist
-	flatpak-builder --disable-cache flatpak-build-dir $< --repo=flatpak-repo-dir
+	flatpak-builder --disable-rofiles-fuse --disable-cache flatpak-build-dir $< --repo=flatpak-repo-dir
 	flatpak build-bundle flatpak-repo-dir $@ $(FLATPAK_ID)
 
 flatpak:

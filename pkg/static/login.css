@@ -75,13 +75,13 @@ img {
 
 #option-group,
 .pf-c-button,
-.cross,
+.input-clear,
 button {
   cursor: pointer;
 }
 
 #option-group svg,
-.cross {
+.input-clear {
   opacity: .7;
 }
 
@@ -520,7 +520,7 @@ label.checkbox {
   text-decoration: underline;
 }
 
-.cross,
+.input-clear,
 .inline .container .help-block {
   color: #000;
 }
@@ -593,21 +593,32 @@ label.checkbox {
   transform-origin: 0.5rem;
 }
 
-.cross {
-  align-items: center;
-  bottom: 0;
+.input-clear {
   display: flex;
-  font-size: 1rem;
-  font-weight: 700;
-  justify-content: center;
+  padding: 0.5rem 0.75rem;
   position: absolute;
-  right: 2rem;
   top: 0;
-  width: 2rem;
+  right: 0;
+  bottom: 0;
+}
+
+.input-clear > svg {
+  height: 1rem;
+  width: auto;
+}
+
+/* Only show clear icon when the field has text */
+.form-control:placeholder-shown + .input-clear {
+  display: none;
+}
+
+/* Reserve a little space for the clear icon in the input */
+.server-box > .form-control {
+  padding-right: 2rem;
 }
 
 #option-group:hover svg,
-.cross:hover {
+.input-clear:hover {
   opacity: 1;
 }
 
@@ -771,10 +782,6 @@ a:hover {
 
 .caret polygon {
   fill: #06c;
-}
-
-.cross {
-  right: 0;
 }
 
 /* Mobile-specific */

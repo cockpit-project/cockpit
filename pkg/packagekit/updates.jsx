@@ -944,6 +944,7 @@ class OsUpdates extends React.Component {
             tracerRunning: false,
             showRestartServicesDialog: false,
             showRebootSystemDialog: false,
+            backend: "",
         };
         this.handleLoadError = this.handleLoadError.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
@@ -965,6 +966,10 @@ class OsUpdates extends React.Component {
     componentDidMount() {
         this._mounted = true;
         this.callTracer(null);
+
+        PK.getBackendName().then(reply => {
+            this.setState({ backend: reply[0].v });
+        });
 
         // check if there is an upgrade in progress already; if so, switch to "applying" state right away
         PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTransactionList", [])
@@ -1119,6 +1124,9 @@ class OsUpdates extends React.Component {
                                 info = PK.Enum.INFO_NORMAL;
                             updates[packageId] = { name: id_fields[0], version: id_fields[1], severity: info, arch: id_fields[2] };
                             if (id_fields[0] == "cockpit-ws")
+                                cockpitUpdate = true;
+                            // Arch Linux has no cockpit-ws package
+                            if (id_fields[0] == "cockpit" && this.state.backend === "alpm")
                                 cockpitUpdate = true;
                         },
                     }))

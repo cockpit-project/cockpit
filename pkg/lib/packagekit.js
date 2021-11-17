@@ -501,3 +501,11 @@ export function install_missing_packages(data, progress_cb) {
                                       }
                                   });
 }
+
+/**
+ * Get the used backendName in PackageKit.
+ */
+export function getBackendName() {
+    return call("/org/freedesktop/PackageKit", "org.freedesktop.DBus.Properties",
+                "Get", ["org.freedesktop.PackageKit", "BackendName"]);
+}

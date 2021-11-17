@@ -38,7 +38,7 @@ class TestStorageVDO(StorageCase):
 
         self.login_and_go("/storage")
 
-        # Make a logical volume for use as the backing device.
+        # Make a volume group in which to create the VDO LV
         m.add_disk("10G", serial="DISK1")
         b.wait_in_text("#drives", "DISK1")
         m.execute("vgcreate vdo_vgroup /dev/sda")
@@ -52,23 +52,27 @@ class TestStorageVDO(StorageCase):
         b._wait_present("[data-field='purpose'] select option[value='block']")
 
         if m.image not in SUPPORTED_OS:
-            # FIXME: This is looking into the future, the UI can't create LVM VDO volumes yet
             b.wait_not_present("[data-field='purpose'] select option[value='vdo']")
             return
 
-        # FIXME: use the dialog to create the VDO volume once it can; for now, do CLI call
-        self.dialog_cancel()
+        # create VDO LV with default options and default virtual size
+        self.dialog_set_val("name", "vdo0")
+        self.dialog_set_val("purpose", "vdo")
+        self.dialog_set_val("vdo_psize", 6 * 1024)
+        self.dialog_apply()
         self.dialog_wait_close()
-        m.execute("lvcreate --type vdo --size 6g --virtualsize 10g --name vdo0 vdo_vgroup")
+
+        # pool name gets auto-generated
+        pool_name = "vpool0"
 
         self.content_row_wait_in_col(1, 2, "/dev/vdo_vgroup/vdo0")
         # the pool does not appear as a top-level volume
-        b.wait_not_in_text("#detail-content", "vpool0")
+        b.wait_not_in_text("#detail-content", pool_name)
         # Volume tab
         self.content_tab_wait_in_info(1, 1, "Name", "vdo0")
-        self.content_tab_wait_in_info(1, 1, "Size", "10 GiB")
+        self.content_tab_wait_in_info(1, 1, "Size", "10 GiB", "10.0 GiB")
         # VDO Pool tab
-        self.content_tab_wait_in_info(1, 2, "Name", "vpool0")
+        self.content_tab_wait_in_info(1, 2, "Name", pool_name)
         self.content_tab_wait_in_info(1, 2, "Size", "6 GiB")
         # initial physical usage is 4 GiB, overhead for the deduplication index
         self.content_tab_wait_in_info(1, 2, "Data used", "4.00 GiB (67%)")
@@ -102,17 +106,17 @@ class TestStorageVDO(StorageCase):
         # change compression/deduplication
         b.click("input[aria-label='Use compression']")
         b.wait_visible("input[aria-label='Use compression']:not(checked):not([disabled])")
-        wait_prop("vpool0", "vdo_compression_state", "offline")
+        wait_prop(pool_name, "vdo_compression_state", "offline")
         b.click("input[aria-label='Use compression']")
         b.wait_visible("input[aria-label='Use compression']:checked:not([disabled])")
-        wait_prop("vpool0", "vdo_compression_state", "online")
+        wait_prop(pool_name, "vdo_compression_state", "online")
 
         b.click("input[aria-label='Use deduplication']")
         b.wait_visible("input[aria-label='Use deduplication']:not(checked):not([disabled])")
-        wait_prop("vpool0", "vdo_index_state", "offline")
+        wait_prop(pool_name, "vdo_index_state", "offline")
         b.click("input[aria-label='Use deduplication']")
         b.wait_visible("input[aria-label='Use deduplication']:checked:not([disabled])")
-        wait_prop("vpool0", "vdo_index_state", "online")
+        wait_prop(pool_name, "vdo_index_state", "online")
 
         # grow volume
         self.content_tab_action(1, 1, "Grow")
@@ -124,13 +128,49 @@ class TestStorageVDO(StorageCase):
         self.content_tab_action(1, 2, "Grow")
         self.dialog({"size": 8 * 1024})
         self.content_tab_wait_in_info(1, 2, "Size", "8 GiB")
-        wait_prop("vpool0", "lv_size", "8.00g")
+        wait_prop(pool_name, "lv_size", "8.00g")
 
         # deleting the vdo0 volume deletes the pool as well
         self.content_dropdown_action(1, "Delete")
         self.confirm()
         b.wait_in_text("#detail-content", "No logical volumes")
         self.assertEqual(m.execute("lvs --noheadings").strip(), "")
+
+        # create VDO LV with customized options
+        b.click("button:contains(Create new logical volume)")
+        self.dialog_wait_open()
+        b._wait_present("[data-field='purpose'] select option[value='block']")
+        self.dialog_set_val("name", "vdo0")
+        self.dialog_set_val("purpose", "vdo")
+        self.dialog_set_val("vdo_psize", 6 * 1024)
+        # grossly overcommitted
+        self.dialog_set_val("vdo_lsize", 20 * 1024)
+        self.dialog_set_val("vdo_options.compression", False)
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        self.content_row_wait_in_col(1, 2, "/dev/vdo_vgroup/vdo0")
+        # Volume tab
+        self.content_tab_wait_in_info(1, 1, "Name", "vdo0")
+        self.content_tab_wait_in_info(1, 1, "Size", "20 GiB")
+        # VDO Pool tab
+        self.content_tab_wait_in_info(1, 2, "Size", "6 GiB")
+        b.wait_visible("input[aria-label='Use compression']:not(:checked)")
+        b.wait_visible("input[aria-label='Use deduplication']:checked")
+        wait_prop(pool_name, "vdo_compression_state", "offline")
+        wait_prop(pool_name, "vdo_index_state", "online")
+
+        # delete again
+        self.content_dropdown_action(1, "Delete")
+        self.confirm()
+        b.wait_in_text("#detail-content", "No logical volumes")
+        self.assertEqual(m.execute("lvs --noheadings").strip(), "")
+
+        # react to CLI
+        m.execute("lvcreate --type vdo --size 6g --virtualsize 10g --name vdo1 --yes vdo_vgroup")
+        self.content_row_wait_in_col(1, 2, "/dev/vdo_vgroup/vdo1")
+        m.execute("lvremove --yes /dev/vdo_vgroup/vdo1")
+        b.wait_in_text("#detail-content", "No logical volumes")
 
 
 @skipImage("no matching kmod-kvdo package yet on RHEL 9", "rhel-9-0", "rhel-9-0-distropkg")
@@ -143,8 +183,6 @@ class TestStorageLegacyVDO(StorageCase):
         self.login_and_go("/storage")
 
         if m.image not in SUPPORTED_OS:
-            b.click("#devices .pf-c-dropdown button.pf-c-dropdown__toggle")
-            b.wait_not_present("#devices .pf-c-dropdown a:contains('VDO')")
             return
 
         b.wait_visible("#devices")
@@ -153,19 +191,8 @@ class TestStorageLegacyVDO(StorageCase):
         m.add_disk("10G", serial="DISK1")
         b.wait_in_text("#drives", "DISK1")
         m.execute("vgcreate vdo_vgroup /dev/sda && lvcreate -n lvol -L 5G vdo_vgroup")
-        # wait until UI knows about lvol
-        b.click("#devices .sidepanel-row:contains(vdo_vgroup)")
-        b.wait_in_text("#storage-detail", "/dev/vdo_vgroup/lvol")
-        b.go("#/")
-
-        # Create VDO
-
-        self.devices_dropdown("Create VDO device")
-        self.dialog_wait_open()
-        self.dialog_wait_val("name", "vdo0")
-        self.dialog_set_val("space", {"/dev/vdo_vgroup/lvol": True})
-        self.dialog_apply()
-        self.dialog_wait_close()
+        # Create VDO; this is not supported any more, thus no UI for it
+        m.execute("vdo create --device /dev/vdo_vgroup/lvol --name vdo0 --vdoLogicalSize 5G")
 
         b.wait_in_text("#devices", "vdo0")
         b.click("#devices .sidepanel-row:contains(vdo0)")
@@ -236,8 +263,6 @@ class TestStorageLegacyVDO(StorageCase):
         self.login_and_go("/storage")
 
         if m.image not in SUPPORTED_OS:
-            b.click("#devices .pf-c-dropdown button.pf-c-dropdown__toggle")
-            b.wait_not_present("#devices .pf-c-dropdown a:contains('VDO')")
             return
 
         b.wait_visible("#devices")
@@ -293,8 +318,6 @@ config: !Configuration
         self.login_and_go("/storage")
 
         if m.image not in SUPPORTED_OS:
-            b.click("#devices .pf-c-dropdown button.pf-c-dropdown__toggle")
-            b.wait_not_present("#devices .pf-c-dropdown a:contains('VDO')")
             return
 
         b.wait_visible("#devices")
@@ -393,19 +416,42 @@ class TestStoragePackagesVDO(PackageCase, StorageHelpers):
 
         m.execute("pkcon remove -y vdo")
 
-        self.createPackage("vdo", "999", "1")
+        # do *not* create vdo package yet
+        self.createPackage("kmod-kvdo", "999", "1")
         self.enableRepo()
         m.execute("pkcon refresh")
 
         self.login_and_go("/storage")
+        m.add_disk("10G", serial="DISK1")
+        b.wait_in_text("#drives", "DISK1")
+        m.execute("vgcreate vdo_vgroup /dev/sda")
+        b.wait_in_text("#devices", "vdo_vgroup")
 
-        self.devices_dropdown("Create VDO device")
+        b.click('.sidepanel-row:contains("vdo_vgroup")')
+        b.click("button:contains(Create new logical volume)")
         self.dialog_wait_open()
-        b.wait_in_text("#dialog", "The vdo package must be installed")
-        b.wait_in_text("#dialog", "Total size:")
+        b._wait_present("[data-field='purpose'] select option[value='block']")
+        # no package installation (or any other) alert
+        self.assertFalse(b.is_present("#dialog .pf-c-alert"))
+        self.dialog_set_val("purpose", "vdo")
+        # shows the package installation note
+        b.wait_in_text("#dialog .pf-c-alert.pf-m-info", "vdo package will be installed")
+
+        # vdo package does not exist
         self.dialog_apply()
-        # A new dialog opens immediately
-        b.wait_in_text("#dialog", "Create VDO device")
+        b.wait_in_text("#dialog .pf-c-alert.pf-m-danger", "vdo is not available from any repository")
+
+        self.createPackage("vdo", "999", "1")
+        self.enableRepo()
+
+        self.dialog_apply()
+        # gets over package installation now, but it's a mock package
+        b.wait_in_text("#dialog .pf-c-alert.pf-m-danger", "vdoformat")
+        b.wait_in_text("#dialog .pf-c-alert.pf-m-danger", "No such file or directory")
+        # but it got past package installation
+        self.assertIn("999", m.execute("rpm -q vdo"))
+
+        self.dialog_cancel()
 
 
 if __name__ == '__main__':

@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import {
     dialog_open, TextInput, PassInput, SelectOne, SizeSlider, CheckBoxes,
-    BlockingMessage, TeardownMessage, teardown_and_apply_title
+    BlockingMessage, TeardownMessage, Message, teardown_and_apply_title
 } from "./dialog.jsx";
 import * as utils from "./utils.js";
 
@@ -34,6 +34,7 @@ import { ExclamationTriangleIcon } from "@patternfly/react-icons";
 import { ListingTable } from "cockpit-components-table.jsx";
 import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
 import { StorageButton, StorageBarMenu, StorageMenuItem } from "./storage-controls.jsx";
+import * as PK from "packagekit.js";
 import {
     format_dialog, parse_options, extract_option, unparse_options
 } from "./format-dialog.jsx";
@@ -52,7 +53,7 @@ const _ = cockpit.gettext;
 
 const C_ = cockpit.gettext;
 
-function next_default_logical_volume_name(client, vgroup) {
+function next_default_logical_volume_name(client, vgroup, prefix) {
     function find_lvol(name) {
         const lvols = client.vgroups_lvols[vgroup.path];
         for (let i = 0; i < lvols.length; i++) {
@@ -64,7 +65,7 @@ function next_default_logical_volume_name(client, vgroup) {
 
     let name;
     for (let i = 0; i < 1000; i++) {
-        name = "lvol" + i.toFixed();
+        name = prefix + i.toFixed();
         if (!find_lvol(name))
             break;
     }
@@ -160,7 +161,7 @@ function create_tabs(client, target, is_partition, is_extended) {
             Fields: [
                 TextInput("name", _("Name"),
                           {
-                              value: next_default_logical_volume_name(client, vgroup),
+                              value: next_default_logical_volume_name(client, vgroup, "lvol"),
                               validate: utils.validate_lvm2_name
                           }),
                 SizeSlider("size", _("Size"),
@@ -781,37 +782,66 @@ function vgroup_rows(client, vgroup) {
     return rows;
 }
 
+function install_package(name, progress) {
+    return PK.check_missing_packages([name], p => progress(_("Checking installed software"), p.cancel))
+            .then(data => {
+                if (data.unavailable_names.length > 0)
+                    return Promise.reject(new Error(
+                        cockpit.format(_("$0 is not available from any repository."), data.unavailable_names[0])));
+                // let's be cautious here, we really don't expect removals
+                if (data.remove_names.length > 0)
+                    return Promise.reject(new Error(
+                        cockpit.format(_("Installing $0 would remove $1."), name, data.remove_names[0])));
+
+                return PK.install_missing_packages(data, p => progress(_("Installing packages"), p.cancel));
+            });
+}
+
 export class VGroup extends React.Component {
     render() {
         const self = this;
         const vgroup = this.props.vgroup;
+        const client = self.props.client;
 
         function create_logical_volume() {
             if (vgroup.FreeSize == 0)
                 return;
+
+            const purposes = [
+                {
+                    value: "block",
+                    title: _("Block device for filesystems"),
+                },
+                { value: "pool", title: _("Pool for thinly provisioned volumes") }
+                /* Not implemented
+                                                 { value: "cache", Title: _("Cache") }
+                                                 */
+            ];
+
+            const vdo_package = client.get_config("vdo_package", null);
+            const need_vdo_install = vdo_package && !client.features.vdo;
+
+            if (client.features.vdo || vdo_package)
+                purposes.push({ value: "vdo", title: _("VDO file system volume (compression/deduplication)") });
 
             dialog_open({
                 Title: _("Create logical volume"),
                 Fields: [
                     TextInput("name", _("Name"),
                               {
-                                  value: next_default_logical_volume_name(self.props.client, vgroup),
+                                  value: next_default_logical_volume_name(client, vgroup, "lvol"),
                                   validate: utils.validate_lvm2_name
                               }),
                     SelectOne("purpose", _("Purpose"),
                               {
                                   value: "block",
-                                  choices: [
-                                      {
-                                          value: "block",
-                                          title: _("Block device for filesystems"),
-                                      },
-                                      { value: "pool", title: _("Pool for thinly provisioned volumes") }
-                                      /* Not implemented
-                                                 { value: "cache", Title: _("Cache") }
-                                               */
-                                  ]
+                                  choices: purposes
                               }),
+                    Message("info", cockpit.format(_("The $0 package will be installed to create VDO devices."), vdo_package),
+                            {
+                                visible: vals => vals.purpose === 'vdo' && need_vdo_install,
+                            }),
+
                     /* Not Implemented
                                  { SelectOne: "layout",
                                  Title: _("Layout"),
@@ -842,17 +872,69 @@ export class VGroup extends React.Component {
                                */
                     SizeSlider("size", _("Size"),
                                {
+                                   visible: vals => vals.purpose !== 'vdo',
                                    max: vgroup.FreeSize,
                                    round: vgroup.ExtentSize
-                               })
+                               }),
+
+                    /* VDO parameters */
+                    SizeSlider("vdo_psize", _("Size"),
+                               {
+                                   visible: vals => vals.purpose === 'vdo',
+                                   min: 5 * 1024 * 1024 * 1024,
+                                   max: vgroup.FreeSize,
+                                   round: vgroup.ExtentSize
+                               }),
+                    SizeSlider("vdo_lsize", _("Logical Size"),
+                               {
+                                   visible: vals => vals.purpose === 'vdo',
+                                   value: vgroup.FreeSize,
+                                   // visually point out that this can be over-provisioned
+                                   max: vgroup.FreeSize * 3,
+                                   allow_infinite: true,
+                                   round: vgroup.ExtentSize
+                               }),
+
+                    CheckBoxes("vdo_options", _("Options"),
+                               {
+                                   visible: vals => vals.purpose === 'vdo',
+                                   fields: [
+                                       {
+                                           tag: "compression", title: _("Compression"),
+                                           tooltip: _("Save space by compressing individual blocks with LZ4")
+                                       },
+                                       {
+                                           tag: "deduplication", title: _("Deduplication"),
+                                           tooltip: _("Save space by storing identical data blocks just once")
+                                       },
+                                   ],
+                                   value: {
+                                       compression: true,
+                                       deduplication: true,
+                                   }
+                               }),
                 ],
                 Action: {
                     Title: _("Create"),
-                    action: function (vals) {
+                    action: (vals, progress) => {
                         if (vals.purpose == "block")
                             return vgroup.CreatePlainVolume(vals.name, vals.size, { });
                         else if (vals.purpose == "pool")
                             return vgroup.CreateThinPoolVolume(vals.name, vals.size, { });
+                        else if (vals.purpose == "vdo") {
+                            return (need_vdo_install ? install_package(vdo_package, progress) : Promise.resolve())
+                                    .then(() => {
+                                        progress(_("Creating VDO device")); // not cancellable any more
+                                        return vgroup.CreateVDOVolume(
+                                            // HACK: emulate lvcreate's automatic pool name creation until
+                                            // https://github.com/storaged-project/udisks/issues/939
+                                            vals.name, next_default_logical_volume_name(client, vgroup, "vpool"),
+                                            vals.vdo_psize, vals.vdo_lsize,
+                                            0, // default index memory
+                                            vals.vdo_options.compression, vals.vdo_options.deduplication,
+                                            "auto", { });
+                                    });
+                        }
                     }
                 }
             });
@@ -879,7 +961,7 @@ export class VGroup extends React.Component {
                                   columns={[_("Content"), { title: _("Name"), header: true }, _("Actions"), _("Menu")]}
                                   showHeader={false}
                                   variant="compact"
-                                  rows={vgroup_rows(self.props.client, vgroup)} />
+                                  rows={vgroup_rows(client, vgroup)} />
                 </CardBody>
             </Card>
         );

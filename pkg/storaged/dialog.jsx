@@ -844,6 +844,14 @@ export const Skip = (className, options) => {
     };
 };
 
+export const Message = (variant, title, options) => {
+    return {
+        options: options,
+
+        render: () => <Alert variant={variant} isInline title={title}>{options.text}</Alert>
+    };
+};
+
 function size_slider_round(value, round) {
     if (round) {
         if (typeof round == "function")

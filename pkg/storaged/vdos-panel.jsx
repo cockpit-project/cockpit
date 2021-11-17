@@ -21,31 +21,12 @@ import cockpit from "cockpit";
 import React from "react";
 
 import { SidePanelRow } from "./side-panel.jsx";
-import {
-    fmt_size, decode_filename,
-    get_available_spaces, prepare_available_spaces,
-} from "./utils.js";
-import { dialog_open, TextInput, SelectSpace, SizeSlider, CheckBoxes } from "./dialog.jsx";
+import { fmt_size } from "./utils.js";
 
 const _ = cockpit.gettext;
 
-export function vdo_feature(client) {
-    return {
-        is_enabled: () => client.features.vdo,
-        package: client.get_config("vdo_package", false),
-        enable: () => {
-            client.features.vdo = true;
-            client.vdo_overlay.start();
-            return Promise.resolve();
-        },
-
-        dialog_options: {
-            title: _("Install VDO support"),
-            text: _("The $0 package must be installed to create VDO devices.")
-        }
-    };
-}
-
+// these are deprecated kinds of VDO volumes created with `vdo create`
+// the official way is `lvcreate --type vdo`, these are handled in content-views.jsx
 const VDORow = ({ client, vdo }) => {
     const block = client.slashdevs_block[vdo.dev];
     return (
@@ -65,105 +46,4 @@ export function vdo_rows(client) {
     }
     return client.vdo_overlay.volumes.sort(cmp_vdo)
             .map(vdo => <VDORow key={vdo.name} client={client} vdo={vdo} />);
-}
-
-export function create_vdo(client) {
-    let name;
-    for (let i = 0; i < 1000; i++) {
-        name = "vdo" + i.toFixed();
-        if (!client.vdo_overlay.by_name[name])
-            break;
-    }
-
-    dialog_open({
-        Title: _("Create VDO device"),
-        Fields: [
-            TextInput("name", _("Name"),
-                      {
-                          value: name,
-                          validate: function (name) {
-                              if (name == "")
-                                  return _("Name can not be empty.");
-                          }
-                      }),
-            SelectSpace("space", _("Disk"),
-                        {
-                            empty_warning: _("No disks are available."),
-                            validate: function (spc) {
-                                if (!spc)
-                                    return _("A disk is needed.");
-                            },
-                            spaces: get_available_spaces(client)
-                        }),
-            SizeSlider("lsize", _("Logical size"),
-                       {
-                           max: 3 * 1024 * 1024 * 1024 * 1024,
-                           round: 512,
-                           value: 1024 * 1024 * 1024 * 1024,
-                           allow_infinite: true
-                       }),
-            SizeSlider("index_mem", _("Index memory"),
-                       {
-                           max: 2 * 1024 * 1024 * 1024,
-                           round: function (val) {
-                               const round = val < 1024 * 1024 * 1024 ? 256 * 1024 * 1024 : 1024 * 1024 * 1024;
-                               return Math.round(val / round) * round;
-                           },
-                           value: 256 * 1024 * 1024,
-                           allow_infinite: true,
-                       }),
-            CheckBoxes("options", _("Options"),
-                       {
-                           fields: [
-                               {
-                                   tag: "compression", title: _("Compression"),
-                                   tooltip: _("Save space by compressing individual blocks with LZ4")
-                               },
-                               {
-                                   tag: "deduplication", title: _("Deduplication"),
-                                   tooltip: _("Save space by storing identical data blocks just once")
-                               },
-                               {
-                                   tag: "emulate_512", title: _("Use 512 byte emulation"),
-                                   tooltip: _("For legacy applications only. Reduces performance.")
-                               }
-                           ],
-                           value: {
-                               compression: true,
-                               deduplication: true,
-                               emulate_512: false
-                           }
-                       })
-        ],
-        update: (dlg, vals, trigger) => {
-            if (trigger == "space") {
-                dlg.set_values({ lsize: vals.space.size });
-                dlg.set_options("lsize", { max: 3 * vals.space.size });
-            }
-        },
-        Action: {
-            Title: _("Create"),
-            action: function (vals) {
-                return prepare_available_spaces(client, [vals.space]).then(function (paths) {
-                    const block = client.blocks[paths[0]];
-                    return cockpit.spawn(["wipefs", "-a", decode_filename(block.PreferredDevice)],
-                                         {
-                                             superuser: true,
-                                             err: "message"
-                                         })
-                            .then(function () {
-                                return client.vdo_overlay.create({
-                                    name: vals.name,
-                                    block: block,
-                                    logical_size: vals.lsize,
-                                    index_mem: vals.index_mem,
-                                    compression: vals.options.compression,
-                                    deduplication: vals.options.deduplication,
-                                    emulate_512: vals.emulate_512
-                                });
-                            });
-                });
-            }
-        }
-    });
 }

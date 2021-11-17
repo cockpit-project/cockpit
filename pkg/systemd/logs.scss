@@ -43,14 +43,8 @@
         padding: var(--pf-global--gutter);
     }
 
-    /* Do not break labels */
-    .info-table-ct td:first-child {
-        word-break: keep-all;
-    }
-
     .pf-c-card__title,
-    .multiline,
-    .info-table-ct td:not(:first-child) {
+    .multiline {
         word-break: break-all;
         white-space: pre-wrap !important;
         font-family: monospace, monospace;
@@ -61,12 +55,27 @@
         align-items: center;
     }
 
-    .info-table-ct > thead > tr > th {
-        padding-left: 1rem;
-    }
-
     .pf-c-description-list {
         --pf-c-description-list--m-horizontal__term--width: 25ch;
+    }
+
+    // For abrt log details: add some gutter between the tabs and their content
+    .pf-c-tab-content > .pf-c-description-list {
+        padding-top: var(--pf-global--spacer--md);
+    }
+
+    .table-hide-labels {
+        [data-label] {
+            display: revert;
+        }
+        [data-label]::before {
+            display: none;
+        }
+    }
+
+    // Let the description list set the color, not the wrapper accordion component
+    .pf-c-accordion__expanded-content {
+        color: unset;
     }
 }
 

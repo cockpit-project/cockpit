@@ -326,13 +326,11 @@ const CreateTimerDialogBody = ({ setIsOpen, owner }) => {
                                                 <Button aria-label={_("Remove")}
                                                         variant="secondary"
                                                         isDisabled={repeatPatterns.length == 1}
-                                                        isSmall
                                                         onClick={() => setRepeatPatterns(repeatPatterns.filter((item, item_idx) => idx != item_idx))}>
                                                     <MinusIcon />
                                                 </Button>
                                                 <Button aria-label={_("Add")}
                                                         variant="secondary"
-                                                        isSmall
                                                         onClick={() => {
                                                             if (repeat == "hourly")
                                                                 setRepeatPatterns([...repeatPatterns, { key: repeatPatterns.length, minute: "0" }]);

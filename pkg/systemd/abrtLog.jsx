@@ -23,26 +23,33 @@ import React from 'react';
 import {
     Accordion, AccordionItem, AccordionContent, AccordionToggle,
     Card, CardActions, CardBody, CardHeader, CardTitle,
+    DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
+    Stack, StackItem,
     Button, Tabs, Tab, GalleryItem
 } from '@patternfly/react-core';
 
+import { ListingTable } from 'cockpit-components-table.jsx';
 import { ReportingTable } from "./reporting.jsx";
 import { journal } from "journal";
 
 const _ = cockpit.gettext;
 
-const Table = ({ lines, delimiter }) => {
-    return (<table className="info-table-ct">
-        <tbody>
-            {lines.map((line, i) =>
-                <tr key={i}>
-                    {line.split(delimiter).map((cell, i) =>
-                        <td key={i}>{(cell || "").trim()}</td>
-                    )}
-                </tr>)
-            }
-        </tbody>
-    </table>);
+const Table = ({ lines, delimiter, type }) => {
+    return (
+        <DescriptionList className="pf-m-horizontal-on-sm">
+            { lines.map((line, idx) => {
+                const group = typeof line === 'string' ? line.split(delimiter) : line;
+                const term = group.shift();
+
+                return (
+                    <DescriptionListGroup key={term + idx}>
+                        <DescriptionListTerm>{typeof term === 'string' ? term.trim() : term}</DescriptionListTerm>
+                        <DescriptionListDescription>{group.length > 1 ? group.join(" ") : group[0]}</DescriptionListDescription>
+                    </DescriptionListGroup>
+                );
+            })}
+        </DescriptionList>
+    );
 };
 
 function get_all_keys_from_frames(thread) {
@@ -68,22 +75,16 @@ function get_all_keys_from_frames(thread) {
 const CrashTable = ({ thread }) => {
     const all_keys = get_all_keys_from_frames(thread);
 
-    return (<table className="info-table-ct">
-        <thead>
-            <tr>
-                <th>{_("Frame number")}</th>
-                {all_keys.map((key, i) => <th key={i}>{key.replace(/_/g, ' ')}</th>)}
-            </tr>
-        </thead>
-        <tbody>
-            {thread.map((frame, i) =>
-                <tr key={i}>
-                    <td>{i}</td>
-                    {all_keys.map((key, i) => <td key={i}>{frame[key] || ""}</td>)}
-                </tr>
-            )}
-        </tbody>
-    </table>);
+    return (
+        <ListingTable
+                gridBreakPoint='grid-lg'
+                variant="compact"
+                columns={[
+                    { title: _("Frame number") },
+                    ...all_keys.map((key, i) => key.replace(/_/g, ' ')),
+                ]}
+                rows={thread.map((frame, i) => { return { columns: [i, ...all_keys.map(key => frame[key] || "")] } })} />
+    );
 };
 
 function render_table_eq(val) {
@@ -98,28 +99,70 @@ function render_table_co(val) {
 
 function render_dso_list(val) {
     const rows = val.split("\n");
-    return <Table lines={rows} delimiter=" " />;
+
+    return <ListingTable
+                gridBreakPoint='grid-md'
+                className="table-hide-labels"
+                variant="compact"
+                showHeader={false}
+                columns={new Array(rows[0].split(" ").length)}
+                rows={rows.map((row, i) => { return { columns: row.split(" ") } })} />;
 }
 
 function render_m(val) {
     const rows = val.replace(/  +/g, ':').split("\n");
-    return <Table lines={rows} delimiter=" " />;
+
+    return <ListingTable
+                gridBreakPoint='grid-md'
+                className="table-hide-labels"
+                variant="compact"
+                showHeader={false}
+                columns={new Array(rows[0].split(" ").length)}
+                rows={rows.map((row, i) => { return { columns: row.split(" ") } })} />;
+}
+
+function render_cgroups(val) {
+    const rows = val.split("\n");
+    const columns = [_("Hierarchy ID"), _("Controller"), _("Path")];
+
+    return <ListingTable
+                gridBreakPoint='grid-lg'
+                variant="compact"
+                showHeader={false}
+                columns={columns}
+                rows={rows.map((row, i) => { return { columns: row.split(":") } })} />;
 }
 
 function render_limits(val) {
     const rows = val.split('\n').map(row => row.replace(/  +/g, ':'));
-    return <Table lines={rows} delimiter=":" />;
+    const columns = rows.shift();
+
+    return <ListingTable aria-label={_("Limits")}
+                gridBreakPoint='grid-lg'
+                variant="compact"
+                columns={columns.split(":")}
+                rows={rows.map((row, i) => { return { columns: row.split(":") } })} />;
 }
 
 function render_open_fds(val) {
     // File descriptor is described by 5 lines, in each, except the first one,
     // we want to create an empty first column
-    const rows = val.split('\n').map((line, i) => {
+    const rows = [];
+    let term;
+    let value;
+    val.split('\n').forEach((line, i) => {
+        if (i % 5 == 0) {
+            if (term !== undefined || value !== undefined)
+                rows.push([term, <Stack key={term}>{value.map(itm => <StackItem key={itm}>{itm}</StackItem>)}</Stack>]);
+
+            term = line.split(":")[0];
+            value = [line.split(":")[1]];
+        }
+
         if (i % 5 !== 0)
-            return ":" + line;
-        return line;
+            value.push(line);
     });
-    return <Table lines={rows} delimiter=":" />;
+    return <Table lines={rows} />;
 }
 
 function render_multiline(val) {
@@ -133,7 +176,7 @@ const ignore_fields = ["journald_cursor", "cpuinfo"];
 const problem_render_callbacks = {
     os_info: render_table_eq,
     environ: render_table_eq,
-    cgroup: render_table_co,
+    cgroup: render_cgroups,
     namespaces: render_table_co,
     maps: render_m,
     mountinfo: render_m,
@@ -246,28 +289,10 @@ export class AbrtLogDetails extends React.Component {
                         <CardBody>
                             <Tabs activeKey={this.state.active_tab} onSelect={this.handleSelect}>
                                 <Tab eventKey="general" title={_("General")}>
-                                    <table className="info-table-ct">
-                                        <tbody>
-                                            { general.map(key =>
-                                                <tr key={key}>
-                                                    <td>{key}</td>
-                                                    <td>{journal.printable(this.props.entry[key])}</td>
-                                                </tr>
-                                            )}
-                                        </tbody>
-                                    </table>
+                                    <Table lines={general.map(key => [key, journal.printable(this.props.entry[key])])} />
                                 </Tab>
                                 <Tab eventKey="info" title={_("Problem info")}>
-                                    <table className="info-table-ct">
-                                        <tbody>
-                                            { info.map(key =>
-                                                <tr key={key}>
-                                                    <td>{key}</td>
-                                                    <td>{journal.printable(this.state.details[key][2])}</td>
-                                                </tr>
-                                            )}
-                                        </tbody>
-                                    </table>
+                                    <Table lines={info.map(key => [key, journal.printable(this.state.details[key][2])])} />
                                 </Tab>
                                 <Tab eventKey="details" title={_("Problem details")}>
                                     <Accordion asDefinitionList>

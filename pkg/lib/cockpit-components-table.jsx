@@ -178,7 +178,7 @@ export const ListingTable = ({
                         const { key, ...cellProps } = cell.props || {};
                         const dataLabel = typeof cells[cellIndex] == 'object' ? cells[cellIndex].title : cells[cellIndex];
 
-                        if (cells[cellIndex].header)
+                        if (cells[cellIndex] && cells[cellIndex].header)
                             return (
                                 <Th key={key || `row_${rowKey}_cell_${dataLabel}`} dataLabel={dataLabel} {...cellProps}>
                                     {typeof cell == 'object' ? cell.title : cell}

@@ -480,8 +480,8 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_text(".pf-c-card__title", "[13 bytes of binary data]")
 
         def wait_field(name, value):
-            row_sel = ".pf-c-description-list__term:contains('" + name + "')"
-            b.wait_visible(row_sel + "+ .pf-c-description-list__description:contains('" + value + "')")
+            row_sel = "dt:contains('" + name + "')"
+            b.wait_visible(row_sel + "+ dd:contains('" + value + "')")
 
         wait_field("FOO", "bar")
         wait_field("BIN", "[6 bytes of binary data]")
@@ -555,8 +555,8 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.click(sleep_crash_list_sel)
 
         def wait_field(name, value):
-            row_sel = "#abrt-details tr:contains('" + name + "')"
-            b.wait_visible(row_sel + " td:nth-child(2):contains('" + value + "')")
+            row_sel = "dt:contains('" + name + "')"
+            b.wait_visible(row_sel + "+ dd:contains('" + value + "')")
 
         wait_field("SYSLOG_IDENTIFIER", "abrt-notification")
 
@@ -564,7 +564,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         wait_field("reason", "killed by SIGSEGV")
         b.click("button:contains(Problem details)")
         b.click("#abrt-details .pf-c-accordion__toggle:contains('core_backtrace')")
-        b.wait_visible("#abrt-details .pf-c-accordion__expanded-content-body tr:contains('signal') td:contains('11')")
+        b.wait_visible("#abrt-details .pf-c-accordion__expanded-content-body dt:contains('signal') + dd:contains('11')")
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
                "ubuntu-2004", "fedora-coreos", "rhel-8-4", "rhel-8-5", "rhel-8-6", "rhel-9-0", "centos-8-stream")

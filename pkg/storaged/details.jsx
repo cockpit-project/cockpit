@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { Page, PageSection, Grid, GridItem, Breadcrumb, BreadcrumbItem } from "@patternfly/react-core";
+import { Page, PageSection, Grid, GridItem, Breadcrumb, BreadcrumbItem, Flex, FlexItem } from "@patternfly/react-core";
 
 import * as utils from "./utils.js";
 import { BlockDetails } from "./block-details.jsx";
@@ -43,14 +43,19 @@ export class StdDetailsLayout extends React.Component {
                         { this.props.alert }
                         { this.props.header }
                     </GridItem>
-                    <GridItem md={8} lg={9}>
-                        <div id="detail-content">
-                            { this.props.content }
-                        </div>
-                        <JobsPanel client={this.props.client} />
-                    </GridItem>
-                    <GridItem id="detail-sidebar" md={4} lg={3}>
-                        { this.props.sidebar }
+                    <GridItem span={12}>
+                        <Flex direction={{ default: 'column', xl: 'row', "2xl": 'row' }}>
+                            <FlexItem flex={{ default: 'flex_3' }}>
+                                <div id="detail-content">
+                                    { this.props.content }
+                                    <JobsPanel client={this.props.client} />
+                                </div>
+                            </FlexItem>
+                            <FlexItem id="detail-sidebar"
+                                      flex={{ default: 'flex_1' }}>
+                                { this.props.sidebar }
+                            </FlexItem>
+                        </Flex>
                     </GridItem>
                 </>
             );

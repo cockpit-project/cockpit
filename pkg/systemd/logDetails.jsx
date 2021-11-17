@@ -38,7 +38,7 @@ const LogDetails = ({ entry }) => {
     const general = Object.keys(entry).filter(k => k !== 'MESSAGE');
     general.sort();
 
-    const id = entry.PROBLEM_BINARY || entry.SYSLOG_IDENTIFIER || entry._SYSTEMD_UNIT || "";
+    const id = entry.PROBLEM_BINARY || entry.UNIT || entry.SYSLOG_IDENTIFIER || "";
     let service = entry.UNIT || entry.COREDUMP_UNIT || entry._SYSTEMD_UNIT || "";
 
     // Only show redirect for unit types we show

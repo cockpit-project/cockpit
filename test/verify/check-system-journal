@@ -480,8 +480,8 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_text(".pf-c-card__title", "[13 bytes of binary data]")
 
         def wait_field(name, value):
-            row_sel = ".info-table-ct tr:contains('" + name + "')"
-            b.wait_visible(row_sel + " td:nth-child(2):contains('" + value + "')")
+            row_sel = ".pf-c-description-list__term:contains('" + name + "')"
+            b.wait_visible(row_sel + "+ .pf-c-description-list__description:contains('" + value + "')")
 
         wait_field("FOO", "bar")
         wait_field("BIN", "[6 bytes of binary data]")

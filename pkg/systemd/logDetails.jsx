@@ -28,6 +28,7 @@ import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import {
     Breadcrumb, BreadcrumbItem, Button,
     Card, CardBody, CardHeader, CardHeaderMain, CardTitle, CardActions,
+    DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
     Page, PageSection,
     Gallery, GalleryItem
 } from '@patternfly/react-core';
@@ -62,16 +63,14 @@ const LogDetails = ({ entry }) => {
                 </CardHeader>
                 <CardTitle>{journal.printable(entry.MESSAGE)}</CardTitle>
                 <CardBody>
-                    <table className="info-table-ct">
-                        <tbody>
-                            { general.map(key =>
-                                <tr key={key}>
-                                    <td>{key}</td>
-                                    <td>{journal.printable(entry[key])}</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+                    <DescriptionList className="pf-m-horizontal-on-sm">
+                        { general.map(key =>
+                            <DescriptionListGroup key={key}>
+                                <DescriptionListTerm>{key}</DescriptionListTerm>
+                                <DescriptionListDescription>{journal.printable(entry[key])}</DescriptionListDescription>
+                            </DescriptionListGroup>
+                        )}
+                    </DescriptionList>
                 </CardBody>
             </Card>
         </GalleryItem>

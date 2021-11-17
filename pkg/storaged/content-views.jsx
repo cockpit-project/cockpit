@@ -420,7 +420,7 @@ function create_tabs(client, target, is_partition, is_extended) {
 }
 
 function block_description(client, block) {
-    let type, used_for, link, size;
+    let type, used_for, link, size, critical_size;
     const block_stratis_blockdev = client.blocks_stratis_blockdev[block.path];
     const block_stratis_locked_pool = client.blocks_stratis_locked_pool[block.path];
     const vdo = client.vdo_overlay.find_by_backing_block(block);
@@ -458,6 +458,7 @@ function block_description(client, block) {
             used_for = vgroup.Name;
             link = ["vg", used_for];
             size = [block_pvol.Size - block_pvol.FreeSize, block_pvol.Size];
+            critical_size = 1;
         } else if (client.mdraids[block.MDRaidMember]) {
             const mdraid = client.mdraids[block.MDRaidMember];
             type = _("RAID member");
@@ -498,7 +499,8 @@ function block_description(client, block) {
         type: type,
         used_for: used_for,
         link: link,
-        size: size
+        size: size,
+        critical_size: critical_size
     };
 }
 
@@ -543,7 +545,7 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
         { title: desc.link ? <StorageLink onClick={() => cockpit.location.go(desc.link)}>{desc.used_for}</StorageLink> : desc.used_for },
         {
             title: desc.size.length
-                ? <StorageUsageBar stats={desc.size} critical={0.95} block={name} />
+                ? <StorageUsageBar stats={desc.size} critical={desc.critical_size || 0.95} block={name} />
                 : utils.fmt_size(desc.size),
             props: { className: "ct-text-align-right" }
         },

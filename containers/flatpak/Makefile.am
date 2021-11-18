@@ -25,7 +25,8 @@ install-for-flatpak: build-for-flatpak
 	install -Dt /app/libexec cockpit-ws containers/flatpak/cockpit-ssh
 	install -Dt /app/etc/xdg/cockpit containers/flatpak/cockpit.conf
 	install -Dt /app/share/applications containers/flatpak/$(FLATPAK_ID).desktop
-	install -DT src/branding/default/logo.svg /app/share/icons/hicolor/scalable/apps/$(FLATPAK_ID).svg
+	install -Dt /app/share/icons/hicolor/scalable/apps containers/flatpak/$(FLATPAK_ID).svg
+	install -Dt /app/share/icons/hicolor/symbolic/apps containers/flatpak/$(FLATPAK_ID)-symbolic.svg
 	install -Dt /app/share/metainfo containers/flatpak/$(FLATPAK_ID).metainfo.xml
 	install -Dt /app/share/cockpit/branding/default $(defaultbranding_DATA)
 	cp -rT dist/static /app/share/cockpit/static

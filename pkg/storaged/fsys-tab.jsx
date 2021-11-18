@@ -30,7 +30,7 @@ import {
 import cockpit from "cockpit";
 import * as utils from "./utils.js";
 
-import { dialog_open, TextInput, PassInput, CheckBoxes } from "./dialog.jsx";
+import { dialog_open, TextInput, PassInput, CheckBoxes, TeardownMessage } from "./dialog.jsx";
 import { StorageButton, StorageLink } from "./storage-controls.jsx";
 import {
     initial_tab_options, parse_options, unparse_options, extract_option,
@@ -179,248 +179,271 @@ export function mounting_dialog(client, block, mode, forced_options) {
 
     const is_filesystem_mounted = is_mounted(client, block);
 
-    function maybe_update_config(new_dir, new_opts, passphrase, passphrase_type) {
-        let new_config = null;
-        let all_new_opts;
+    client.nfs.entry_users({ fields: [null, old_dir], mounted: is_filesystem_mounted })
+            .catch(error => {
+                console.log("ERROR", error);
+                return [];
+            })
+            .then(users => {
+                console.log("USERS", users);
 
-        if (new_opts && old_parents)
-            all_new_opts = new_opts + "," + old_parents;
-        else if (new_opts)
-            all_new_opts = new_opts;
-        else
-            all_new_opts = old_parents;
+                function maybe_update_config(new_dir, new_opts, passphrase, passphrase_type) {
+                    let new_config = null;
+                    let all_new_opts;
 
-        if (new_dir != "") {
-            if (new_dir[0] != "/")
-                new_dir = "/" + new_dir;
-            new_config = [
-                "fstab", {
-                    fsname: old_config ? old_config[1].fsname : undefined,
-                    dir: { t: 'ay', v: utils.encode_filename(new_dir) },
-                    type: { t: 'ay', v: utils.encode_filename("auto") },
-                    opts: { t: 'ay', v: utils.encode_filename(all_new_opts || "defaults") },
-                    freq: { t: 'i', v: 0 },
-                    passno: { t: 'i', v: 0 },
-                    "track-parents": { t: 'b', v: !old_config }
-                }];
-        }
+                    if (new_opts && old_parents)
+                        all_new_opts = new_opts + "," + old_parents;
+                    else if (new_opts)
+                        all_new_opts = new_opts;
+                    else
+                        all_new_opts = old_parents;
 
-        function undo() {
-            if (!old_config && new_config)
-                return block.RemoveConfigurationItem(new_config, {});
-            else if (old_config && !new_config)
-                return block.AddConfigurationItem(old_config, {});
-            else if (old_config && new_config && (new_dir != old_dir || new_opts != old_opts)) {
-                return block.UpdateConfigurationItem(new_config, old_config, {});
-            }
-        }
+                    if (new_dir != "") {
+                        if (new_dir[0] != "/")
+                            new_dir = "/" + new_dir;
+                        new_config = [
+                            "fstab", {
+                                fsname: old_config ? old_config[1].fsname : undefined,
+                                dir: { t: 'ay', v: utils.encode_filename(new_dir) },
+                                type: { t: 'ay', v: utils.encode_filename("auto") },
+                                opts: { t: 'ay', v: utils.encode_filename(all_new_opts || "defaults") },
+                                freq: { t: 'i', v: 0 },
+                                passno: { t: 'i', v: 0 },
+                                "track-parents": { t: 'b', v: !old_config }
+                            }];
+                    }
 
-        function maybe_unmount() {
-            if (block_fsys && block_fsys.MountPoints.length > 0)
-                return block_fsys.Unmount({ });
-            else
-                return Promise.resolve();
-        }
+                    function undo() {
+                        if (!old_config && new_config)
+                            return block.RemoveConfigurationItem(new_config, {});
+                        else if (old_config && !new_config)
+                            return block.AddConfigurationItem(old_config, {});
+                        else if (old_config && new_config && (new_dir != old_dir || new_opts != old_opts)) {
+                            return block.UpdateConfigurationItem(new_config, old_config, {});
+                        }
+                    }
 
-        function get_block_fsys() {
-            if (block_fsys)
-                return Promise.resolve(block_fsys);
-            else
-                return client.wait_for(() => (client.blocks_cleartext[block.path] &&
-                                              client.blocks_fsys[client.blocks_cleartext[block.path].path]));
-        }
+                    function maybe_unmount() {
+                        if (users.length > 0)
+                            return client.nfs.stop_and_unmount_entry(users, { fields: [null, old_dir] });
+                        else if (block_fsys && block_fsys.MountPoints.length > 0)
+                            return block_fsys.Unmount({ });
+                        else
+                            return Promise.resolve();
+                    }
 
-        function maybe_mount() {
-            if (mode == "mount" || (mode == "update" && is_filesystem_mounted)) {
-                return (get_block_fsys()
-                        .then(block_fsys => {
-                            return (block_fsys.Mount({ })
-                                    .catch(error => {
-                                        // systemd might have mounted the filesystem for us after
-                                        // unlocking, because fstab told it to.  Ignore any error
-                                        // from mounting in that case.  This only happens when this
-                                        // code runs to fix a inconsistent mount.
-                                        return (utils.is_mounted_synch(client.blocks[block_fsys.path])
-                                                .then(mounted_at => {
-                                                    if (mounted_at == new_dir)
-                                                        return;
-                                                    return (undo()
-                                                            .then(() => block_fsys.Mount({ }))
-                                                            .then(() => Promise.reject(error))
-                                                            .catch(ignored_error => {
-                                                                console.warn("Error during undo:", ignored_error);
-                                                                return Promise.reject(error);
+                    function get_block_fsys() {
+                        if (block_fsys)
+                            return Promise.resolve(block_fsys);
+                        else
+                            return client.wait_for(() => (client.blocks_cleartext[block.path] &&
+                                                      client.blocks_fsys[client.blocks_cleartext[block.path].path]));
+                    }
+
+                    function maybe_mount() {
+                        if (mode == "mount" || (mode == "update" && is_filesystem_mounted)) {
+                            return (get_block_fsys()
+                                    .then(block_fsys => {
+                                        return (block_fsys.Mount({ })
+                                                .catch(error => {
+                                                // systemd might have mounted the filesystem for us after
+                                                // unlocking, because fstab told it to.  Ignore any error
+                                                // from mounting in that case.  This only happens when this
+                                                // code runs to fix a inconsistent mount.
+                                                    return (utils.is_mounted_synch(client.blocks[block_fsys.path])
+                                                            .then(mounted_at => {
+                                                                if (mounted_at == new_dir)
+                                                                    return;
+                                                                return (undo()
+                                                                        .then(() => block_fsys.Mount({ }))
+                                                                        .then(() => Promise.reject(error))
+                                                                        .catch(ignored_error => {
+                                                                            console.warn("Error during undo:", ignored_error);
+                                                                            return Promise.reject(error);
+                                                                        }));
                                                             }));
                                                 }));
                                     }));
-                        }));
-            } else
-                return Promise.resolve();
-        }
+                        } else
+                            return Promise.resolve();
+                    }
 
-        function maybe_unlock() {
-            const crypto = client.blocks_crypto[block.path];
-            if (mode == "mount" && crypto) {
-                return (unlock_with_type(client, block, passphrase, passphrase_type)
-                        .catch(error => {
-                            dlg.set_values({ needs_explicit_passphrase: true });
-                            return Promise.reject(error);
-                        }));
-            } else
-                return Promise.resolve();
-        }
+                    function maybe_unlock() {
+                        const crypto = client.blocks_crypto[block.path];
+                        if (mode == "mount" && crypto) {
+                            return (unlock_with_type(client, block, passphrase, passphrase_type)
+                                    .catch(error => {
+                                        dlg.set_values({ needs_explicit_passphrase: true });
+                                        return Promise.reject(error);
+                                    }));
+                        } else
+                            return Promise.resolve();
+                    }
 
-        function maybe_lock() {
-            if (mode == "unmount") {
-                const crypto_backing = client.blocks[block.CryptoBackingDevice];
-                const crypto_backing_crypto = crypto_backing && client.blocks_crypto[crypto_backing.path];
-                if (crypto_backing_crypto) {
-                    return crypto_backing_crypto.Lock({});
-                } else
-                    return Promise.resolve();
-            }
-        }
+                    function maybe_lock() {
+                        if (mode == "unmount") {
+                            const crypto_backing = client.blocks[block.CryptoBackingDevice];
+                            const crypto_backing_crypto = crypto_backing && client.blocks_crypto[crypto_backing.path];
+                            if (crypto_backing_crypto) {
+                                return crypto_backing_crypto.Lock({});
+                            } else
+                                return Promise.resolve();
+                        }
+                    }
 
-        // We need to reload systemd twice: Once at the beginning so
-        // that it is up to date with whatever is currently in fstab,
-        // and once at the end to make it see our changes.  Otherwise
-        // systemd might do some uexpected mounts/unmounts behind our
-        // backs.
+                    // We need to reload systemd twice: Once at the beginning so
+                    // that it is up to date with whatever is currently in fstab,
+                    // and once at the end to make it see our changes.  Otherwise
+                    // systemd might do some uexpected mounts/unmounts behind our
+                    // backs.
 
-        return (utils.reload_systemd()
-                .then(maybe_unmount)
-                .then(maybe_unlock)
-                .then(() => {
-                    if (!old_config && new_config)
-                        return (block.AddConfigurationItem(new_config, {})
-                                .then(maybe_mount));
-                    else if (old_config && !new_config)
-                        return block.RemoveConfigurationItem(old_config, {});
-                    else if (old_config && new_config && (new_dir != old_dir || new_opts != old_opts))
-                        return (block.UpdateConfigurationItem(old_config, new_config, {})
-                                .then(maybe_mount));
-                    else if (new_config && !is_mounted(client, block))
-                        return maybe_mount();
-                })
-                .then(maybe_lock)
-                .then(utils.reload_systemd));
-    }
+                    return (utils.reload_systemd()
+                            .then(maybe_unmount)
+                            .then(maybe_unlock)
+                            .then(() => {
+                                if (!old_config && new_config)
+                                    return (block.AddConfigurationItem(new_config, {})
+                                            .then(maybe_mount));
+                                else if (old_config && !new_config)
+                                    return block.RemoveConfigurationItem(old_config, {});
+                                else if (old_config && new_config && (new_dir != old_dir || new_opts != old_opts))
+                                    return (block.UpdateConfigurationItem(old_config, new_config, {})
+                                            .then(maybe_mount));
+                                else if (new_config && !is_mounted(client, block))
+                                    return maybe_mount();
+                            })
+                            .then(maybe_lock)
+                            .then(utils.reload_systemd));
+                }
 
-    let fields = null;
-    if (mode == "mount" || mode == "update") {
-        fields = [
-            TextInput("mount_point", _("Mount point"),
-                      {
-                          value: old_dir,
-                          validate: val => is_valid_mount_point(client, block, val)
-                      }),
-            CheckBoxes("mount_options", _("Mount options"),
-                       {
-                           value: {
-                               ro: opt_ro,
-                               never_auto: opt_never_auto,
-                               extra: extra_options === "" ? false : extra_options
-                           },
-                           fields: [
-                               { title: _("Mount read only"), tag: "ro" },
-                               {
-                                   title: _("Never mount at boot"), tag: "never_auto",
-                                   tooltip: never_auto_explanation
-                               },
-                               { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
-                           ]
-                       })
-        ];
+                let fields = null;
+                if (mode == "mount" || mode == "update") {
+                    fields = [
+                        TextInput("mount_point", _("Mount point"),
+                                  {
+                                      value: old_dir,
+                                      validate: val => is_valid_mount_point(client, block, val)
+                                  }),
+                        CheckBoxes("mount_options", _("Mount options"),
+                                   {
+                                       value: {
+                                           ro: opt_ro,
+                                           never_auto: opt_never_auto,
+                                           extra: extra_options === "" ? false : extra_options
+                                       },
+                                       fields: [
+                                           { title: _("Mount read only"), tag: "ro" },
+                                           {
+                                               title: _("Never mount at boot"), tag: "never_auto",
+                                               tooltip: never_auto_explanation
+                                           },
+                                           { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
+                                       ]
+                                   })
+                    ];
 
-        if (block.IdUsage == "crypto" && mode == "mount")
-            fields = fields.concat([
-                PassInput("passphrase", _("Passphrase"),
-                          {
-                              visible: vals => vals.needs_explicit_passphrase,
-                              validate: val => !val.length && _("Passphrase cannot be empty"),
-                          })
-            ]);
-    }
+                    if (block.IdUsage == "crypto" && mode == "mount")
+                        fields = fields.concat([
+                            PassInput("passphrase", _("Passphrase"),
+                                      {
+                                          visible: vals => vals.needs_explicit_passphrase,
+                                          validate: val => !val.length && _("Passphrase cannot be empty"),
+                                      })
+                        ]);
+                }
 
-    let teardown = null;
-    if (!is_filesystem_mounted && block_fsys && block_fsys.MountPoints.length > 0)
-        teardown = (
-            <>
-                {teardown}
-                <div className="modal-footer-teardown">
-                    <p>{cockpit.format(_("The filesystem is already mounted at $0. Proceeding will unmount it."),
-                                       utils.decode_filename(block_fsys.MountPoints[0]))}</p>
-                </div>
-            </>);
+                const sessions = [];
+                const services = [];
+                users.forEach((u) => {
+                    const since = utils.format_delay(-u.since * 1000);
+                    if (u.unit.endsWith(".scope")) {
+                        sessions.push({ Name: u.desc, Command: u.cmd.substr(0, 200), Since: since });
+                    } else {
+                        services.push({ Name: u.desc, Unit: u.unit, Since: since });
+                    }
+                });
 
-    const mode_title = {
-        mount: _("Mount filesystem"),
-        unmount: _("Unmount filesystem $0"),
-        update: _("Mount configuration")
-    };
+                const mode_title = {
+                    mount: _("Mount filesystem"),
+                    unmount: _("Unmount filesystem $0"),
+                    update: _("Mount configuration")
+                };
 
-    const mode_action = {
-        mount: _("Mount"),
-        unmount: _("Unmount"),
-        update: _("Apply")
-    };
+                const mode_action = {
+                    mount: _("Mount"),
+                    unmount: _("Unmount"),
+                    update: _("Apply")
+                };
 
-    function do_unmount() {
-        let opts = [];
-        opts.push("noauto");
-        if (opt_ro)
-            opts.push("ro");
-        if (opt_never_auto)
-            opts.push("x-cockpit-never-auto");
-        if (forced_options)
-            opts = opts.concat(forced_options);
-        if (extra_options)
-            opts = opts.concat(extra_options);
-        return maybe_set_crypto_options(null, false).then(() => maybe_update_config(old_dir, unparse_options(opts)));
-    }
+                const stop_mode_action = {
+                    mount: _("Stop and mount"),
+                    unmount: _("Stop and unmount"),
+                    update: _("Stop and apply")
+                };
 
-    let passphrase_type;
-
-    function maybe_set_crypto_options(readonly, auto) {
-        if (client.blocks_crypto[block.path])
-            return set_crypto_options(block, readonly, auto);
-        else if (client.blocks_crypto[block.CryptoBackingDevice])
-            return set_crypto_options(client.blocks[block.CryptoBackingDevice], readonly, auto);
-        else
-            return Promise.resolve();
-    }
-
-    const dlg = dialog_open({
-        Title: cockpit.format(mode_title[mode], old_dir),
-        Fields: fields,
-        Teardown: teardown,
-        Action: {
-            Title: mode_action[mode],
-            action: function (vals) {
-                if (mode == "unmount") {
-                    return do_unmount();
-                } else if (mode == "mount" || mode == "update") {
+                function do_unmount() {
                     let opts = [];
-                    if ((mode == "update" && !is_filesystem_mounted) || vals.mount_options.never_auto)
-                        opts.push("noauto");
-                    if (vals.mount_options.ro)
+                    opts.push("noauto");
+                    if (opt_ro)
                         opts.push("ro");
-                    if (vals.mount_options.never_auto)
+                    if (opt_never_auto)
                         opts.push("x-cockpit-never-auto");
                     if (forced_options)
                         opts = opts.concat(forced_options);
-                    if (vals.mount_options.extra !== false)
-                        opts = opts.concat(parse_options(vals.mount_options.extra));
-                    return (maybe_update_config(vals.mount_point, unparse_options(opts),
-                                                vals.passphrase, passphrase_type)
-                            .then(() => maybe_set_crypto_options(vals.mount_options.ro, opts.indexOf("noauto") == -1)));
+                    if (extra_options)
+                        opts = opts.concat(extra_options);
+                    return maybe_set_crypto_options(null, false).then(() => maybe_update_config(old_dir, unparse_options(opts)));
                 }
-            }
-        }
-    });
 
-    if (block.IdUsage == "crypto" && mode == "mount")
-        get_existing_passphrase_for_dialog(dlg, block, true).then(type => { passphrase_type = type });
+                let passphrase_type;
+
+                function maybe_set_crypto_options(readonly, auto) {
+                    if (client.blocks_crypto[block.path])
+                        return set_crypto_options(block, readonly, auto);
+                    else if (client.blocks_crypto[block.CryptoBackingDevice])
+                        return set_crypto_options(client.blocks[block.CryptoBackingDevice], readonly, auto);
+                    else
+                        return Promise.resolve();
+                }
+
+                const dlg = dialog_open({
+                    Title: cockpit.format(mode_title[mode], old_dir),
+                    Fields: fields,
+                    Teardown: TeardownMessage({
+                        Teardown: {
+                            Sessions: sessions,
+                            Services: services
+                        }
+                    }),
+                    Action: {
+                        Title: users.length > 0 ? stop_mode_action[mode] : mode_action[mode],
+                        DangerButton: users.length > 0,
+                        action: function (vals) {
+                            if (mode == "unmount") {
+                                return do_unmount();
+                            } else if (mode == "mount" || mode == "update") {
+                                let opts = [];
+                                if ((mode == "update" && !is_filesystem_mounted) || vals.mount_options.never_auto)
+                                    opts.push("noauto");
+                                if (vals.mount_options.ro)
+                                    opts.push("ro");
+                                if (vals.mount_options.never_auto)
+                                    opts.push("x-cockpit-never-auto");
+                                if (forced_options)
+                                    opts = opts.concat(forced_options);
+                                if (vals.mount_options.extra !== false)
+                                    opts = opts.concat(parse_options(vals.mount_options.extra));
+                                return (maybe_update_config(vals.mount_point, unparse_options(opts),
+                                                            vals.passphrase, passphrase_type)
+                                        .then(() => maybe_set_crypto_options(vals.mount_options.ro, opts.indexOf("noauto") == -1)));
+                            }
+                        }
+                    }
+                });
+
+                if (block.IdUsage == "crypto" && mode == "mount")
+                    get_existing_passphrase_for_dialog(dlg, block, true).then(type => { passphrase_type = type });
+            });
 }
 
 export class FilesystemTab extends React.Component {

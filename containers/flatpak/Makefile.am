@@ -1,4 +1,4 @@
-FLATPAK_ID=org.cockpit_project.cockpit_client
+FLATPAK_ID=org.cockpit_project.CockpitClient
 
 COMMITTED_DIST += containers/flatpak/
 EXTRA_DIST += containers/flatpak/$(FLATPAK_ID).desktop

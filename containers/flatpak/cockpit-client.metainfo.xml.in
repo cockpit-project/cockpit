@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <component type="desktop-application">
-  <id>org.cockpit_project.CockpitClient</id>
+  <id>@FLATPAK_ID@</id>
 
   <name>Cockpit Client</name>
   <summary>Connect via ssh to servers running Cockpit</summary>
@@ -18,7 +18,11 @@
     </p>
   </description>
 
-  <launchable type="desktop-id">org.cockpit_project.CockpitClient.desktop</launchable>
+  <releases>
+    <release date="@TODAY@" version="@VERSION@" type="@RELEASE_TYPE@"/>
+  </releases>
+
+  <launchable type="desktop-id">cockpit-client.desktop</launchable>
 
   <categories>
     <category>Network</category>

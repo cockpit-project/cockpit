@@ -17,9 +17,10 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import gi
+import os
 import subprocess
 import sys
-import gi
 
 gi.require_version("Gtk", "3.0")  # NOQA
 gi.require_version("WebKit2", "4.0")  # NOQA
@@ -101,5 +102,5 @@ class CockpitClient(Gtk.Application):
 
 
 if __name__ == "__main__":
-    app = CockpitClient(application_id='org.cockpit_project.CockpitClient')
+    app = CockpitClient(application_id=os.getenv('FLATPAK_ID') or 'org.cockpit_project.CockpitClient')
     app.run(sys.argv)

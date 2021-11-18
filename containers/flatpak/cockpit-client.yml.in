@@ -1,8 +1,11 @@
-app-id: org.cockpit_project.CockpitClient
+app-id: @FLATPAK_ID@
 runtime: org.gnome.Platform
 runtime-version: '41'
 sdk: org.gnome.Sdk
+default-branch: @FLATPAK_BRANCH@
 command: cockpit-client
+rename-desktop-file: cockpit-client.desktop
+rename-icon: cockpit-client
 modules:
   - name: cockpit-client
     buildsystem: simple
@@ -10,10 +13,15 @@ modules:
       - rm tools/mock-build-env/json-glib-1.0.pc
       - ./configure --disable-polkit --disable-ssh --disable-pcp --with-systemdunitdir=/invalid CPPFLAGS=-Itools/mock-build-env PKG_CONFIG_PATH=tools/mock-build-env --prefix=/app --with-admin-group=root --disable-doc
       - make install-for-flatpak -j$(nproc)
+      - install -Dt /app/share/metainfo ${FLATPAK_ID}.metainfo.xml
 
     sources:
       - type: archive
-        path: @distdir@.tar.xz
+        @ARCHIVE_TYPE@: @ARCHIVE_LOCATION@
+        sha256: @ARCHIVE_SHA256@
+
+      - type: file
+        path: @FLATPAK_ID@.metainfo.xml
 finish-args:
   - --talk-name=org.freedesktop.Flatpak
   - --socket=wayland

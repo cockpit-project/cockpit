@@ -56,9 +56,13 @@ def cockpit_ssh():
     if user:
         host = f'{user}@{host}'
 
-    cmd = ['flatpak-spawn', '--host', '/usr/bin/env',
-           'SSH_ASKPASS_REQUIRE=force', f'SSH_ASKPASS={askpass}',
-           '/usr/bin/ssh', host, 'cockpit-bridge']
+    if host == 'localhost':
+        cmd = ['flatpak-spawn', '--host', 'cockpit-bridge']
+    else:
+        cmd = ['flatpak-spawn', '--host', '/usr/bin/env',
+               'SSH_ASKPASS_REQUIRE=force', f'SSH_ASKPASS={askpass}',
+               '/usr/bin/ssh', host, 'cockpit-bridge']
+
     os.execvp(cmd[0], cmd)
 
 

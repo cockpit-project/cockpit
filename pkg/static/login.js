@@ -108,6 +108,23 @@
         hideToggle(arguments, true);
     }
 
+    function show_captured_stderr(msg) {
+        if (window.console)
+            console.warn("stderr:", msg);
+
+        hide("#login-wait-validating");
+
+        hide("#login", "#login-details");
+        show("#login-fatal");
+
+        id("login-again").onclick = () => { hide('#login-fatal'); show_login() };
+        show("#login-again");
+
+        const el = id("login-fatal-message");
+        el.textContent = "";
+        el.appendChild(document.createTextNode(msg));
+    }
+
     function fatal(msg) {
         if (window.console)
             console.warn("fatal:", msg);
@@ -792,7 +809,9 @@
                 } else {
                     if (window.console)
                         console.log(xhr.statusText);
-                    if (xhr.statusText.indexOf("authentication-not-supported") > -1) {
+                    if (xhr.statusText.startsWith("captured-stderr:")) {
+                        show_captured_stderr(decodeURIComponent(xhr.statusText.replace(/^captured-stderr:/, '')));
+                    } else if (xhr.statusText.indexOf("authentication-not-supported") > -1) {
                         const user = trim(id("login-user-input").value);
                         fatal(format(_("The server refused to authenticate '$0' using password authentication, and no other supported authentication methods are available."), user));
                     } else if (xhr.statusText.indexOf("terminated") > -1) {

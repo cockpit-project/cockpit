@@ -525,7 +525,8 @@ session_child_setup (gpointer data)
 
 static CockpitTransport *
 session_start_process (const gchar **argv,
-                       const gchar **env)
+                       const gchar **env,
+                       gboolean capture_stderr)
 {
   CockpitTransport *transport = NULL;
   CockpitPipe *pipe = NULL;
@@ -544,11 +545,12 @@ session_start_process (const gchar **argv,
       return NULL;
     }
 
+  int stderr_fd = -1;
   child.io = fds[0];
   ret = g_spawn_async_with_pipes (NULL, (gchar **)argv, (gchar **)env,
                                   G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_LEAVE_DESCRIPTORS_OPEN,
                                   session_child_setup, &child,
-                                  &pid, NULL, NULL, NULL, &error);
+                                  &pid, NULL, NULL, capture_stderr ? &stderr_fd : NULL, &error);
 
   close (fds[0]);
 
@@ -563,6 +565,7 @@ session_start_process (const gchar **argv,
   pipe = g_object_new (COCKPIT_TYPE_PIPE,
                        "in-fd", fds[1],
                        "out-fd", fds[1],
+                       "err-fd", stderr_fd,
                        "pid", pid,
                        "name", argv[0],
                        NULL);
@@ -892,13 +895,20 @@ on_transport_closed (CockpitTransport *transport,
   else if (!session->initialized)
     {
       pipe = cockpit_pipe_transport_get_pipe (COCKPIT_PIPE_TRANSPORT (transport));
+      g_autofree gchar *captured_error = cockpit_pipe_take_stderr_as_utf8 (pipe);
+
       if (cockpit_pipe_get_pid (pipe, NULL))
         status = cockpit_pipe_exit_status (pipe);
       g_debug ("%s: authentication process exited: %d; problem %s", session->name, status, problem);
 
+      if (captured_error)
+        {
+          g_set_error (&error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                       "captured-stderr:%s", captured_error);
+        }
       /* we get "access-denied" both if cockpit-session cannot execute cockpit-bridge (common case)
        * and if cockpit-session itself is not executable (corner case, messed up install) */
-      if (problem && (!session->authorize || g_strcmp0 (problem, "access-denied") != 0))
+      else if (problem && (!session->authorize || g_strcmp0 (problem, "access-denied") != 0))
         {
           g_set_error (&error, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
                        g_strcmp0 (problem, "no-cockpit") == 0
@@ -1105,6 +1115,7 @@ cockpit_session_launch (CockpitAuth *self,
   CockpitTransport *transport = NULL;
   CockpitSession *session = NULL;
   CockpitCreds *creds = NULL;
+  gboolean capture_stderr = FALSE;
 
   const gchar *host;
   const gchar *action;
@@ -1147,6 +1158,10 @@ cockpit_session_launch (CockpitAuth *self,
       if (!host)
         host = type_option (COCKPIT_CONF_SSH_SECTION, "host", "127.0.0.1");
 
+      /* We capture stderr only for Cockpit Client; we don't want to
+       * send log messages to potential remote attackers.
+       */
+      capture_stderr = cockpit_conf_bool ("WebService", "X-For-CockpitClient", FALSE);
       program_default = cockpit_ws_ssh_program;
     }
   else
@@ -1172,7 +1187,7 @@ cockpit_session_launch (CockpitAuth *self,
   argv[0] = command;
   argv[1] = host ? host : "localhost";
 
-  transport = session_start_process (argv, (const gchar **)env);
+  transport = session_start_process (argv, (const gchar **)env, capture_stderr);
   if (!transport)
     {
       g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,

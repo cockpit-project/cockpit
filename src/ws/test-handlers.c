@@ -233,7 +233,7 @@ test_login_bad (Test *test,
   g_hash_table_unref (headers);
 
   g_assert (ret == TRUE);
-  cockpit_assert_strmatch (output_as_string (test), "HTTP/1.1 401 Authentication failed\r\n*");
+  cockpit_assert_strmatch (output_as_string (test), "HTTP/1.1 401 Authentication disabled\r\n*");
 }
 
 static void

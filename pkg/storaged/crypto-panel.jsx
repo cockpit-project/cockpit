@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { cellWidth, SortByDirection } from '@patternfly/react-table';
+import { SortByDirection } from '@patternfly/react-table';
 
 import { ListingTable } from "cockpit-components-table.jsx";
 import { block_name, get_block_link_parts, go_to_block } from "./utils.js";
@@ -81,8 +81,8 @@ export class LockedCryptoPanel extends React.Component {
                     className={locked_cryptos.length ? 'table-hover' : ''}
                     onRowClick={onRowClick}
                     columns={[
-                        { title: _("Name"), transforms: [cellWidth(30)], sortable: true },
-                        { title: _("Device"), transforms: [cellWidth(30)], sortable: true },
+                        { title: _("Name"), sortable: true },
+                        { title: _("Device"), sortable: true },
                     ]}
                     rows={locked_cryptos} />
             </OptionalPanel>

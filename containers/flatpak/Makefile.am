@@ -6,7 +6,6 @@ build-for-flatpak: $(BUILT_SOURCES)
 install-for-flatpak: build-for-flatpak
 	install -Dt $(bindir) containers/flatpak/cockpit-client
 	install -Dt $(libexecdir) cockpit-ws containers/flatpak/cockpit-ssh
-	install -Dt $(sysconfdir)/xdg/cockpit containers/flatpak/cockpit.conf
 	:
 	install -Dt $(datadir)/applications containers/flatpak/cockpit-client.desktop
 	install -Dt $(datadir)/icons/hicolor/scalable/apps containers/flatpak/cockpit-client.svg

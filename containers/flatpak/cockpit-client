@@ -115,9 +115,11 @@ def write_config():
 LoginTitle = Cockpit Client
 HideLogin = true
 RequireHost = true
+LoginTo = true
 
 [Ssh-Login]
 ReportStderr = true
+Command = /app/libexec/cockpit-client-ssh
 ''')
 
     return config_dir

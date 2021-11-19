@@ -43,10 +43,10 @@ def base64_decode(s):
     return base64.b64decode(s.encode('utf-8')).decode('utf-8')
 
 
-def cockpit_ssh():
+def cockpit_client_ssh():
     # this is pretty evil, but oh well...
     xdg_data_home = os.getenv('XDG_DATA_HOME') or os.path.expanduser('~/.local/share')
-    askpass = os.path.join(xdg_data_home, 'cockpit-askpass')
+    askpass = os.path.join(xdg_data_home, 'cockpit-client-askpass')
     shutil.copy(__file__, askpass, follow_symlinks=False)
 
     host = sys.argv[1]
@@ -66,7 +66,7 @@ def cockpit_ssh():
     os.execvp(cmd[0], cmd)
 
 
-def cockpit_askpass():
+def cockpit_client_askpass():
     message, _, prompt = sys.argv[1].rpartition('\n')
     challenge = f'X-Conversation - {base64_encode(prompt)}'
     response = do_authorize(challenge, message=message)
@@ -80,9 +80,9 @@ if __name__ == '__main__':
     # logging.basicConfig(level=logging.DEBUG)
 
     logging.debug(sys.argv)
-    if 'cockpit-ssh' in sys.argv[0]:
-        cockpit_ssh()
-    elif 'cockpit-askpass' in sys.argv[0]:
-        cockpit_askpass()
+    if 'cockpit-client-ssh' in sys.argv[0]:
+        cockpit_client_ssh()
+    elif 'cockpit-client-askpass' in sys.argv[0]:
+        cockpit_client_askpass()
     else:
         raise Exception(f'unknown executable name {sys.argv[0]}')

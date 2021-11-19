@@ -10,6 +10,7 @@ modules:
   - name: cockpit-client
     buildsystem: autotools
     config-opts:
+      - --enable-cockpit-client
       - --disable-polkit
       - --disable-ssh
       - --disable-pcp

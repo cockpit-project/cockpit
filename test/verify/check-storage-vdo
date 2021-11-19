@@ -80,12 +80,12 @@ class TestStorageVDO(StorageCase):
         b.wait_visible("input[aria-label='Use compression']:checked")
         b.wait_visible("input[aria-label='Use deduplication']:checked")
 
-        # create a file system
+        # create a filesystem
         self.content_row_action(1, "Format")
         self.dialog({"type": "xfs",
                      "name": "vdofs",
                      "mount_point": "/run/data"})
-        self.content_row_wait_in_col(1, 1, "xfs file system")
+        self.content_row_wait_in_col(1, 1, "xfs filesystem")
 
         # compressible data should affect logical usage
         m.execute("dd if=/dev/zero of=/run/data/empty bs=1M count=1000")
@@ -216,7 +216,7 @@ class TestStorageLegacyVDO(StorageCase):
         self.dialog({"type": "xfs",
                      "name": "FILESYSTEM",
                      "mount_point": "/run/data"})
-        self.content_row_wait_in_col(1, 1, "xfs file system")
+        self.content_row_wait_in_col(1, 1, "xfs filesystem")
         # _netdev etc should have been prefilled
         self.content_tab_wait_in_info(1, 1, "Mount point", "_netdev")
         self.content_tab_wait_in_info(1, 1, "Mount point", "x-systemd.device-timeout=0")

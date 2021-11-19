@@ -109,7 +109,7 @@ export const StratisBlockdevTab = ({ client, block }) => {
     return (
         <DescriptionList className="pf-m-horizontal-on-sm">
             <DescriptionListGroup>
-                <DescriptionListTerm>{_("Stratis Pool")}</DescriptionListTerm>
+                <DescriptionListTerm>{_("Stratis pool")}</DescriptionListTerm>
                 <DescriptionListDescription>{name
                     ? <Button variant="link" isInline role="link" onClick={() => cockpit.location.go(["pool", name])}>
                         {name}

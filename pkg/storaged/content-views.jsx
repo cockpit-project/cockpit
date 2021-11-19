@@ -447,7 +447,7 @@ function block_description(client, block) {
         else
             usage = C_("storage-id-desc", "Locked encrypted data");
     } else if (block.IdUsage == "filesystem") {
-        usage = cockpit.format(C_("storage-id-desc", "$0 file system"), block.IdType);
+        usage = cockpit.format(C_("storage-id-desc", "$0 filesystem"), block.IdType);
     } else if (block.IdUsage == "raid") {
         if (block_pvol && client.vgroups[block_pvol.VolumeGroup]) {
             const vgroup = client.vgroups[block_pvol.VolumeGroup];
@@ -461,7 +461,7 @@ function block_description(client, block) {
         } else if (block.IdType == "LVM2_member") {
             usage = _("LVM2 physical volume");
         } else if (block.IdType == "stratis") {
-            usage = _("Member of Stratis Pool");
+            usage = _("Member of Stratis pool");
         } else {
             usage = _("Member of RAID device");
         }
@@ -822,7 +822,7 @@ export class VGroup extends React.Component {
             const need_vdo_install = vdo_package && !client.features.vdo;
 
             if (client.features.vdo || vdo_package)
-                purposes.push({ value: "vdo", title: _("VDO file system volume (compression/deduplication)") });
+                purposes.push({ value: "vdo", title: _("VDO filesystem volume (compression/deduplication)") });
 
             dialog_open({
                 Title: _("Create logical volume"),

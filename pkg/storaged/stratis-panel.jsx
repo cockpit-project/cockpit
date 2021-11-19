@@ -55,7 +55,7 @@ const StratisPoolRow = ({ client, path }) => {
         <SidePanelRow client={client}
                       name={pool.Name}
                       devname={"/dev/stratis/" + pool.Name + "/"}
-                      detail={cockpit.format(_("$0 Stratis Pool"), fmt_size(pool.TotalPhysicalSize))}
+                      detail={cockpit.format(_("$0 Stratis pool"), fmt_size(pool.TotalPhysicalSize))}
                       go={() => cockpit.location.go(["pool", pool.Uuid])}
                       job_path={path} />
     );
@@ -124,7 +124,7 @@ export function create_stratis_pool(client) {
     }
 
     dialog_open({
-        Title: _("Create Stratis Pool"),
+        Title: _("Create Stratis pool"),
         Fields: [
             TextInput("name", _("Name"),
                       {

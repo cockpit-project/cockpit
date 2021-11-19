@@ -234,7 +234,7 @@ class CurrentMetrics extends React.Component {
         cockpit.addEventListener("visibilitychange", this.onVisibilityChange);
         this.onVisibilityChange();
 
-        // regularly update info about file systems
+        // regularly update info about filesystems
         this.updateMounts();
 
         // there is no internal metrics channel for load yet; see https://github.com/cockpit-project/cockpit/pull/14510
@@ -275,7 +275,7 @@ class CurrentMetrics extends React.Component {
 
     updateMounts() {
         Promise.all([
-            /* df often exits with non-zero if it encounters any file system it can't read;
+            /* df often exits with non-zero if it encounters any filesystem it can't read;
                but that's fine, get info about all the others */
             cockpit.script("df --local --exclude-type=tmpfs --exclude-type=devtmpfs --block-size=1 --output=target,size,avail,pcent || true",
                            { err: "message" }),

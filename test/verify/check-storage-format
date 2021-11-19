@@ -72,7 +72,7 @@ class TestStorageFormat(StorageCase):
             self.dialog_set_val("name", "X" * label_limit)
             self.dialog_apply()
             self.dialog_wait_close()
-            self.content_row_wait_in_col(1, 1, type + " file system")
+            self.content_row_wait_in_col(1, 1, type + " filesystem")
 
         def check_unsupported_type(type):
             self.content_dropdown_action(1, "Format")

@@ -48,7 +48,7 @@ class TestStorageMsDOS(StorageCase):
                      "mount_point": "/foo",
                      "mount_options.auto": False,
                      "name": "FIRST"})
-        self.content_row_wait_in_col(1, 1, "ext4 file system")
+        self.content_row_wait_in_col(1, 1, "ext4 filesystem")
         self.content_tab_wait_in_info(1, 2, "Name", "FIRST")
 
         # Open dialog for formatting the primary partition and check that "dos-extended" is not offered.

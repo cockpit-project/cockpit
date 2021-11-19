@@ -60,7 +60,7 @@ class TestStorageStratis(StorageCase):
         self.dialog_wait_close()
 
         b.wait_in_text("#devices", "pool0")
-        b.wait_in_text("#devices", "8 GiB Stratis Pool")
+        b.wait_in_text("#devices", "8 GiB Stratis pool")
         b.assert_pixels("#devices", "pool-row")
 
         # Check that the next name is "pool1"
@@ -74,7 +74,7 @@ class TestStorageStratis(StorageCase):
         b.wait_visible('#storage-detail')
 
         # Create two filesystems
-        b.click("button:contains(Create new Filesystem)")
+        b.click("button:contains(Create new filesystem)")
         self.dialog_wait_open()
         self.dialog_set_val('name', 'fsys1')
         self.dialog_set_val('mount_point', '/run/fsys1')
@@ -88,7 +88,7 @@ class TestStorageStratis(StorageCase):
         self.assertEqual(self.inode(m.execute("findmnt -n -o SOURCE /run/fsys1").strip()),
                          self.inode("/dev/stratis/pool0/fsys1"))
 
-        b.click("button:contains(Create new Filesystem)")
+        b.click("button:contains(Create new filesystem)")
         self.dialog({'name': 'fsys2',
                      'mount_point': '/run/fsys2'})
         b.wait_in_text("#detail-content", "fsys2")
@@ -166,7 +166,7 @@ class TestStorageStratis(StorageCase):
         b.wait_in_text('#detail-content', "/dev/stratis/pool0-renamed/fsys2")
 
         # Create another filesystem
-        b.click("button:contains(Create new Filesystem)")
+        b.click("button:contains(Create new filesystem)")
         self.dialog({'name': 'fsys3',
                      'mount_point': '/run/fsys3'})
         b.wait_in_text("#detail-content", "fsys3")
@@ -222,7 +222,7 @@ class TestStorageStratis(StorageCase):
         b.click('.sidepanel-row:contains("pool0")')
         b.wait_visible('#storage-detail')
         b.wait_in_text('#detail-header', "Encrypted Stratis pool pool0")
-        b.click("button:contains(Create new Filesystem)")
+        b.click("button:contains(Create new filesystem)")
         self.dialog({'name': 'fsys1',
                      'mount_options.auto': False,
                      'mount_point': '/run/fsys1'})
@@ -359,7 +359,7 @@ class TestStorageStratis(StorageCase):
         b.wait_visible('#storage-detail')
 
         # Create a filesystems
-        b.click("button:contains(Create new Filesystem)")
+        b.click("button:contains(Create new filesystem)")
         self.dialog({'name': 'fsys1',
                      'mount_point': '/run/fsys1'})
         b.wait_in_text("#detail-content", "fsys1")

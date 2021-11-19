@@ -104,7 +104,7 @@ class TestStorageISCSI(StorageCase):
         self.dialog({"type": "ext4",
                      "name": "FILESYSTEM",
                      "mount_point": "/data"})
-        self.content_row_wait_in_col(1, 1, "ext4 file system")
+        self.content_row_wait_in_col(1, 1, "ext4 filesystem")
         # _netdev should have been prefilled
         self.content_tab_wait_in_info(1, 1, "Mount point", "_netdev")
 

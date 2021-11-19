@@ -1306,7 +1306,7 @@ cockpit_web_service_create_socket (const gchar **protocols,
   WebSocketConnection *connection;
   const gchar *host = NULL;
   const gchar *protocol = NULL;
-  const gchar **origins;
+  const gchar * const *origins;
   gchar *allocated = NULL;
   gchar *origin = NULL;
   gchar *defaults[2];

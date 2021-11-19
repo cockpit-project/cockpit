@@ -35,8 +35,8 @@ G_BEGIN_DECLS
 GType                 web_socket_server_get_type           (void) G_GNUC_CONST;
 
 WebSocketConnection * web_socket_server_new_for_stream     (const gchar *url,
-                                                            const gchar **origins,
-                                                            const gchar **protocols,
+                                                            const gchar * const *origins,
+                                                            const gchar * const *protocols,
                                                             GIOStream *io_stream,
                                                             GHashTable *request_headers,
                                                             GByteArray *input_buffer);

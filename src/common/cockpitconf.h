@@ -29,7 +29,8 @@ const char *   cockpit_conf_string           (const char *section,
                                               const char *field);
 
 
-const char **  cockpit_conf_strv             (const char *section,
+const char * const *
+               cockpit_conf_strv             (const char *section,
                                               const char *field,
                                               char delimiter);
 

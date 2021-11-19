@@ -86,7 +86,7 @@ test_get_uint (void)
 static void
 test_get_strvs (void)
 {
-  const gchar **list = NULL;
+  const gchar * const *list = NULL;
 
   cockpit_config_file = SRCDIR "/src/ws/mock-config/cockpit/cockpit.conf";
 

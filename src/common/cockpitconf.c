@@ -327,7 +327,7 @@ cockpit_conf_bool (const char *section,
   return defawlt;
 }
 
-const char **
+const char * const *
 cockpit_conf_strv (const char *section,
                    const char *field,
                    char delimiter)

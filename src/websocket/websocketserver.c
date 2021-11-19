@@ -476,8 +476,8 @@ web_socket_server_class_init (WebSocketServerClass *klass)
  */
 WebSocketConnection *
 web_socket_server_new_for_stream (const gchar *url,
-                                  const gchar **origins,
-                                  const gchar **protocols,
+                                  const gchar * const *origins,
+                                  const gchar * const *protocols,
                                   GIOStream *io_stream,
                                   GHashTable *request_headers,
                                   GByteArray *input_buffer)

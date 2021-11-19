@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { cellWidth, SortByDirection } from '@patternfly/react-table';
+import { SortByDirection } from '@patternfly/react-table';
 
 import { ListingTable } from "cockpit-components-table.jsx";
 import { StorageUsageBar } from "./storage-controls.jsx";
@@ -168,10 +168,10 @@ export class FilesystemsPanel extends React.Component {
                     className={mounts.length ? 'table-hover' : ''}
                     onRowClick={onRowClick}
                     columns={[
-                        { title: _("Source"), transforms: [cellWidth(25)], sortable: true },
-                        { title: _("Type"), transforms: [cellWidth(15)], sortable: true },
-                        { title: _("Mount"), transforms: [cellWidth(25)], sortable: true },
-                        { title:  _("Size"), transforms: [cellWidth(35)] }
+                        { title: _("Source"), sortable: true },
+                        { title: _("Type"), sortable: true },
+                        { title: _("Mount"), sortable: true },
+                        { title:  _("Size") }
                     ]}
                     rows={mounts.concat(flatten(pools))} />
             </OptionalPanel>

@@ -1121,7 +1121,6 @@ cockpit_session_launch (CockpitAuth *self,
   const gchar *action;
   const gchar *command;
   const gchar *section;
-  const gchar *program_default;
 
   gchar **env = g_get_environ ();
 
@@ -1153,6 +1152,7 @@ cockpit_session_launch (CockpitAuth *self,
   else
     section = type;
 
+  const gchar *program_default = NULL;
   if (g_strcmp0 (section, COCKPIT_CONF_SSH_SECTION) == 0)
     {
       if (!host)
@@ -1164,12 +1164,21 @@ cockpit_session_launch (CockpitAuth *self,
       capture_stderr = cockpit_conf_bool ("WebService", "X-For-CockpitClient", FALSE);
       program_default = cockpit_ws_ssh_program;
     }
-  else
+  else if (type && (g_str_equal (type, "basic") ||
+                    g_str_equal (type, "negotiate") ||
+                    g_str_equal (type, "tls-cert")))
     {
       program_default = cockpit_ws_session_program;
     }
 
   command = type_option (section, "command", program_default);
+
+  if (!command)
+    {
+      g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                   "Authentication disabled");
+      goto out;
+    }
 
   if (cockpit_creds_get_rhost (creds))
     {

@@ -28,6 +28,8 @@ gi.require_version("WebKit2", "4.0")  # NOQA
 
 from gi.repository import Gtk, WebKit2
 
+libexecdir = os.path.realpath(__file__ + '/..')
+
 
 class CockpitClientWindow(Gtk.ApplicationWindow):
     def __init__(self):
@@ -91,7 +93,7 @@ class CockpitClient(Gtk.Application):
 
         self.config_dir = write_config()
         env = dict(os.environ, XDG_CONFIG_DIRS=self.config_dir.name)
-        cmd = ['/app/libexec/cockpit-ws', '--no-tls', '-a', '127.0.90.90']
+        cmd = [f'{libexecdir}/cockpit-ws', '--no-tls', '-a', '127.0.90.90']
         self.ws = subprocess.Popen(cmd, env=env)
 
     def do_activate(self):
@@ -119,7 +121,7 @@ LoginTo = true
 
 [Ssh-Login]
 ReportStderr = true
-Command = /app/libexec/cockpit-client-ssh
+Command = {libexecdir}/cockpit-client-ssh
 ''')
 
     return config_dir

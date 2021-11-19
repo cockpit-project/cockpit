@@ -6,6 +6,7 @@ check_SCRIPTS =
 check_PROGRAMS =
 noinst_SCRIPTS =
 libexec_PROGRAMS =
+libexec_SCRIPTS =
 noinst_PROGRAMS =
 sbin_PROGRAMS =
 noinst_LIBRARIES =

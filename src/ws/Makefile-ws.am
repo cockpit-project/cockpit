@@ -117,7 +117,7 @@ install-exec-local::
 uninstall-local::
 	$(RM) -f $(DESTDIR)$(pamdir)/pam_cockpit_cert.so
 
-libexec_SCRIPTS = cockpit-desktop
+libexec_SCRIPTS += cockpit-desktop
 
 cockpit-desktop: src/ws/cockpit-desktop.in
 	$(SUBST_RULE)

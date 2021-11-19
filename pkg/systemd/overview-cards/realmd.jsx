@@ -417,7 +417,7 @@ const JoinDialog = ({ realmd_client, onClose }) => {
                        { pending && <span className="realms-op-wait-message">{ _("This may take a while") }</span> }
                    </>
                }
-               title={ _("dialog-title", "Join a Domain") }>
+               title={ _("dialog-title", "Join a domain") }>
             <Form isHorizontal onSubmit={onJoin}>
                 <FormGroup label={ _("Domain address") } fieldId="realms-op-address" validated={addressValid}
                            helperText={domainHelperText} helperTextInvalid={domainHelperText}

@@ -201,7 +201,7 @@ class TestStorageMdRaid(StorageCase):
                      "mount_point": "/foo1",
                      "mount_options.auto": False,
                      "name": "One"})
-        self.content_row_wait_in_col(1, 1, "ext4 file system")
+        self.content_row_wait_in_col(1, 1, "ext4 filesystem")
         self.content_row_wait_in_col(1, 2, part_prefix + "1")
 
         # Create second partition
@@ -211,7 +211,7 @@ class TestStorageMdRaid(StorageCase):
                      "mount_options.auto": False,
                      "name": "Two"})
 
-        self.content_row_wait_in_col(2, 1, "ext4 file system")
+        self.content_row_wait_in_col(2, 1, "ext4 filesystem")
         self.content_row_wait_in_col(2, 2, part_prefix + "2")
         b.wait_not_in_text("#detail-content", "Free space")
 

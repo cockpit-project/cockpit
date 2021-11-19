@@ -276,7 +276,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
 
     function rename() {
         dialog_open({
-            Title: _("Rename Stratis Pool"),
+            Title: _("Rename Stratis pool"),
             Fields: [
                 TextInput("name", _("Name"),
                           {
@@ -364,17 +364,17 @@ export const StratisPoolDetails = ({ client, pool }) => {
 
     function create_fs() {
         dialog_open({
-            Title: _("Create Filesystem"),
+            Title: _("Create filesystem"),
             Fields: [
                 TextInput("name", _("Name"),
                           {
                               validate: name => validate_fs_name(null, name)
                           }),
-                TextInput("mount_point", _("Mount Point"),
+                TextInput("mount_point", _("Mount point"),
                           {
                               validate: val => is_valid_mount_point(client, null, val)
                           }),
-                CheckBoxes("mount_options", _("Mount Options"),
+                CheckBoxes("mount_options", _("Mount options"),
                            {
                                value: {
                                    auto: true,
@@ -470,7 +470,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
 
         function rename_fsys() {
             dialog_open({
-                Title: _("Rename Filesystem"),
+                Title: _("Rename filesystem"),
                 Fields: [
                     TextInput("name", _("Name"),
                               {
@@ -500,11 +500,11 @@ export const StratisPoolDetails = ({ client, pool }) => {
                                   value: "",
                                   validate: name => validate_fs_name(null, name)
                               }),
-                    TextInput("mount_point", _("Mount Point"),
+                    TextInput("mount_point", _("Mount point"),
                               {
                                   validate: val => is_valid_mount_point(client, null, val)
                               }),
-                    CheckBoxes("mount_options", _("Mount Options"),
+                    CheckBoxes("mount_options", _("Mount options"),
                                {
                                    value: {
                                        auto: true,
@@ -638,7 +638,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
             <CardHeader>
                 <CardTitle><Text component={TextVariants.h2}>{_("Filesystems")}</Text></CardTitle>
                 <CardActions>
-                    <StorageButton onClick={create_fs}>{_("Create new Filesystem")}</StorageButton>
+                    <StorageButton onClick={create_fs}>{_("Create new filesystem")}</StorageButton>
                 </CardActions>
             </CardHeader>
             <CardBody className="contains-list">

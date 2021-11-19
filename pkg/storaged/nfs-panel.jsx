@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { cellWidth, SortByDirection } from '@patternfly/react-table';
+import { SortByDirection } from '@patternfly/react-table';
 import { PlusIcon } from '@patternfly/react-icons';
 
 import { ListingTable } from "cockpit-components-table.jsx";
@@ -99,9 +99,9 @@ export class NFSPanel extends React.Component {
                     className={mounts.length ? 'table-hover' : ''}
                     emptyCaption={_("No NFS mounts set up")}
                     columns={[
-                        { title: _("Server"), transforms: [cellWidth(30)], sortable: true },
-                        { title: _("Mount point"), transforms: [cellWidth(33)], sortable: true },
-                        { title:  _("Size"), transforms: [cellWidth(40)] }
+                        { title: _("Server"), sortable: true },
+                        { title: _("Mount point"), sortable: true },
+                        { title:  _("Size") }
                     ]}
                     rows={mounts} />
             </OptionalPanel>

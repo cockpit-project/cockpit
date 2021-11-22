@@ -9,6 +9,10 @@ dist_cockpitclient_SCRIPTS = \
 	src/client/cockpit-client-ssh \
 	$(NULL)
 
+dist_cockpitclient_DATA = \
+	src/client/cockpit-client.ui \
+	$(NULL)
+
 install-exec-hook::
 if ENABLE_COCKPIT_CLIENT
 	$(MKDIR_P) $(DESTDIR)/$(bindir)

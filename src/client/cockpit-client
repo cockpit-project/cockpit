@@ -46,28 +46,38 @@ def prctl(*args):
 prctl.SET_PDEATHSIG = 1
 
 
+@Gtk.Template(filename=f'{libexecdir}/cockpit-client.ui')
 class CockpitClientWindow(Gtk.ApplicationWindow):
+    __gtype_name__ = 'CockpitClientWindow'
+    webview = Gtk.Template.Child()
+
     def __init__(self, uri):
         super().__init__()
-        self.set_default_size(1200, 800)
-        self.set_size_request(800, 600)
-
-        self.webview = WebKit2.WebView(is_ephemeral=True)
-        self.webview.load_uri(uri)
-        self.webview.get_settings().set_enable_developer_extras(True)
-        self.webview.connect('decide-policy', self.decide_policy)
-        self.add(self.webview)
-        self.webview.show()
-
-        self.set_title("Loading...")  # like login.html
-        self.webview.bind_property("title", self, "title")
 
         self.add_action_entries([
+            ('go-back', self.go_back),
+            ('go-forward', self.go_forward),
             ('zoom', self.zoom, 's'),
             ('open-inspector', self.open_inspector),
         ])
 
-        self.show()
+        self.webview.get_settings().set_enable_developer_extras(True)
+        self.webview.connect('decide-policy', self.decide_policy)
+        self.webview.load_uri(uri)
+
+        history = self.webview.get_back_forward_list()
+        history.connect('changed', self.history_changed)
+        self.history_changed()
+
+    def history_changed(self, *args):
+        self.lookup_action('go-back').set_enabled(self.webview.can_go_back())
+        self.lookup_action('go-forward').set_enabled(self.webview.can_go_forward())
+
+    def go_back(self, *args):
+        self.webview.go_back()
+
+    def go_forward(self, *args):
+        self.webview.go_forward()
 
     def decide_policy(self, view, decision, decision_type):
         if decision_type == WebKit2.PolicyDecisionType.NEW_WINDOW_ACTION:
@@ -105,6 +115,15 @@ class CockpitClient(Gtk.Application):
     def do_startup(self):
         Gtk.Application.do_startup(self)
 
+        # .add_action_entries() binding is broken for GApplication
+        # https://gitlab.gnome.org/GNOME/pygobject/-/issues/426
+        new_window = Gio.SimpleAction.new('new-window')
+        new_window.connect('activate', self.new_window)
+        self.add_action(new_window)
+
+        self.set_accels_for_action("app.new-window", ["<Ctrl>N"])
+        self.set_accels_for_action("win.go-back", ["<Alt>Left"])
+        self.set_accels_for_action("win.go-forward", ["<Alt>Right"])
         self.set_accels_for_action("win.zoom::in", ["<Primary>equal"])
         self.set_accels_for_action("win.zoom::out", ["<Primary>minus"])
         self.set_accels_for_action("win.zoom::default", ["<Primary>0"])
@@ -116,6 +135,9 @@ class CockpitClient(Gtk.Application):
         context.set_sandbox_enabled(True)
 
         self.uri = self.ws.start()
+
+    def new_window(self, *args):
+        self.activate()
 
     def do_activate(self):
         window = CockpitClientWindow(self.uri)

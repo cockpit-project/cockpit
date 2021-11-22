@@ -8,6 +8,6 @@ set -eu
 BUILD_OPTS="--disable-rofiles-fuse --disable-cache"
 
 rm -rf flatpak-build-dir flatpak-repo-dir .flatpak-builder
-flatpak-builder ${BUILD_OPTS} flatpak-build-dir "${FLATPAK_ID}".yml
+flatpak-builder ${FLATPAK_BUILDER_OPTIONS:-} ${BUILD_OPTS} flatpak-build-dir "${FLATPAK_ID}".yml
 flatpak build-export flatpak-repo-dir flatpak-build-dir "${FLATPAK_BRANCH}"
 flatpak build-bundle flatpak-repo-dir "${FLATPAK_ID}".flatpak "${FLATPAK_ID}" "${FLATPAK_BRANCH}"

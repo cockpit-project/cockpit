@@ -160,6 +160,11 @@ $desktop: $phone + 1px;
                     var(--pf-global--BackgroundColor--dark-100) 0.75rem
                 );
         }
+
+        // Remove excess padding from masthead in mobile
+        .pf-c-masthead {
+            --pf-c-masthead--inset: 0;
+        }
     }
 
     @media (min-width: $desktop) {

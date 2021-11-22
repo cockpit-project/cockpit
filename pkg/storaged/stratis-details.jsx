@@ -620,12 +620,8 @@ export const StratisPoolDetails = ({ client, pool }) => {
                 props: { className: "ct-text-align-right" }
             },
             {
-                title: actions,
-                props: { className: "content-action" }
-            },
-            {
-                title: <StorageBarMenu key="menu" menuItems={menuitems} isKebab />,
-                props: { className: "content-action" }
+                title: <>{actions}<StorageBarMenu key="menu" menuItems={menuitems} isKebab /></>,
+                props: { className: "pf-c-table__action content-action" }
             }
         ];
 
@@ -656,9 +652,8 @@ export const StratisPoolDetails = ({ client, pool }) => {
             <CardBody className="contains-list">
                 <ListingTable emptyCaption={_("No filesystems")}
                               aria-label={_("Filesystems")}
-                              columns={[_("Name"), _("Used for"), _("Size"), _("Actions"), _("Menu")]}
+                              columns={[_("Name"), _("Used for"), _("Size")]}
                               showHeader={false}
-                              variant="compact"
                               rows={rows.filter(row => !!row)} />
             </CardBody>
         </Card>);
@@ -794,9 +789,8 @@ export const StratisLockedPoolDetails = ({ client, uuid }) => {
             <CardBody className="contains-list">
                 <ListingTable emptyCaption={_("Unlock pool to see filesystems.")}
                               aria-label={_("Filesystems")}
-                              columns={[_("Name"), _("Used for"), _("Size"), _("Actions"), _("Menu")]}
+                              columns={[_("Name"), _("Used for"), _("Size")]}
                               showHeader={false}
-                              variant="compact"
                               rows={[]} />
             </CardBody>
         </Card>);

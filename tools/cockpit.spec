@@ -521,7 +521,7 @@ fi
 
 %post ws
 %if 0%{?with_selinux}
-if %{_sbindir}/selinuxenabled 2>/dev/null; then
+if [ -x %{_sbindir}/selinuxenabled ]; then
     %selinux_modules_install -s %{selinuxtype} %{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
     %selinux_relabel_post -s %{selinuxtype}
 fi
@@ -552,7 +552,7 @@ fi
 
 %postun ws
 %if 0%{?with_selinux}
-if %{_sbindir}/selinuxenabled 2>/dev/null; then
+if [ -x %{_sbindir}/selinuxenabled ]; then
     %selinux_modules_uninstall -s %{selinuxtype} %{name}
     %selinux_relabel_post -s %{selinuxtype}
 fi

@@ -549,8 +549,7 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
                 : utils.fmt_size(desc.size),
             props: { className: "ct-text-align-right" }
         },
-        { title: actions, props: { className: "content-action" } },
-        { title: menu, props: { className: "content-action" } }
+        { title: <>{actions}{menu}</>, props: { className: "pf-c-table__action content-action" } },
     ];
 
     rows.push({
@@ -589,8 +588,7 @@ function append_partitions(client, rows, level, block) {
             { },
             { },
             { title: utils.fmt_size(size), props: { className: "ct-text-align-right" } },
-            { title: btn, props: { className: "content-action" } },
-            { props: { className: "content-action" } }
+            { title: btn, props: { className: "pf-c-table__action content-action" } },
         ];
 
         rows.push({
@@ -728,8 +726,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
             <CardBody className="contains-list">
                 <ListingTable rows={ block_rows(client, block) }
                               aria-label={_("Content")}
-                              variant="compact"
-                              columns={[_("Name"), _("Type"), _("Used for"), _("Size"), _("Actions"), _("Menu")]}
+                              columns={[_("Name"), _("Type"), _("Used for"), _("Size")]}
                               showHeader={false} />
             </CardBody>
         </Card>
@@ -984,9 +981,8 @@ export class VGroup extends React.Component {
                 <CardBody className="contains-list">
                     <ListingTable emptyCaption={_("No logical volumes")}
                                   aria-label={_("Logical volumes")}
-                                  columns={[_("Name"), _("Type"), _("Used for"), _("Size"), _("Actions"), _("Menu")]}
+                                  columns={[_("Name"), _("Type"), _("Used for"), _("Size")]}
                                   showHeader={false}
-                                  variant="compact"
                                   rows={vgroup_rows(client, vgroup)} />
                 </CardBody>
             </Card>

@@ -558,7 +558,7 @@
         id("login-button-text").textContent = (form == "hostkey") ? _("Accept key and log in") : _("Log in");
         id("login-password-input").value = '';
 
-        if (need_host()) {
+        if (environment.page.require_host) {
             hide("#option-group");
             expanded = true;
         } else {

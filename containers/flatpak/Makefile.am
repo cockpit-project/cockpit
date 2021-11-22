@@ -1,5 +1,3 @@
-COMMITTED_DIST += containers/flatpak/
-
 build-for-flatpak: $(BUILT_SOURCES)
 	$(MAKE) cockpit-ws
 

@@ -154,9 +154,9 @@ export const ListingTable = ({
             <React.Fragment key={rowKey + "-inner-row"}>
                 <Tr {...rowProps}>
                     {isExpandable
-                        ? (row.expandedContent
-                            ? <Td expand={
-                                {
+                        ? <Td expand={
+                            row.expandedContent
+                                ? {
                                     rowKey,
                                     isExpanded,
                                     onToggle: () => {
@@ -164,9 +164,8 @@ export const ListingTable = ({
                                             afterToggle(!expanded[rowKey]);
                                         setExpanded({ ...expanded, [rowKey]: !expanded[rowKey] });
                                     }
-                                }} />
-                            : <Td />
-                        ) : null}
+                                } : null} />
+                        : null}
                     {onSelect &&
                         <Td select={{
                             rowIndex,

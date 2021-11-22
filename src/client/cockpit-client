@@ -19,6 +19,7 @@
 
 import gi
 import logging
+import os
 import sys
 
 gi.require_version("Gtk", "3.0")  # NOQA
@@ -26,28 +27,41 @@ gi.require_version("WebKit2", "4.0")  # NOQA
 
 from gi.repository import GLib, Gio, Gtk, WebKit2
 
+libexecdir = os.path.realpath(__file__ + '/..')
 
+
+@Gtk.Template(filename=f'{libexecdir}/cockpit-client.ui')
 class CockpitClientWindow(Gtk.ApplicationWindow):
+    __gtype_name__ = 'CockpitClientWindow'
+    webview = Gtk.Template.Child()
+
     def __init__(self, app, uri):
         super().__init__(application=app)
 
-        self.set_size_request(800, 600)
-
-        self.webview = WebKit2.WebView(is_ephemeral=True)
-        self.webview.get_settings().set_enable_developer_extras(True)
-        self.webview.connect('decide-policy', self.decide_policy)
-        self.add(self.webview)
-        self.webview.show()
-
-        self.webview.load_uri(uri)
-        self.set_title("Loading...")  # like login.html
-        self.webview.bind_property("title", self, "title")
-
         self.add_action_entries([
+            ('go-back', self.go_back),
+            ('go-forward', self.go_forward),
             ('zoom', self.zoom, 's'),
             ('open-inspector', self.open_inspector),
         ])
 
+        self.webview.get_settings().set_enable_developer_extras(True)
+        self.webview.connect('decide-policy', self.decide_policy)
+        self.webview.load_uri(uri)
+
+        history = self.webview.get_back_forward_list()
+        history.connect('changed', self.history_changed)
+        self.history_changed()
+
+    def history_changed(self, *args):
+        self.lookup_action('go-back').set_enabled(self.webview.can_go_back())
+        self.lookup_action('go-forward').set_enabled(self.webview.can_go_forward())
+
+    def go_back(self, *args):
+        self.webview.go_back()
+
+    def go_forward(self, *args):
+        self.webview.go_forward()
 
     def decide_policy(self, view, decision, decision_type):
         if decision_type == WebKit2.PolicyDecisionType.NEW_WINDOW_ACTION:
@@ -91,6 +105,8 @@ class CockpitClient(Gtk.Application):
         self.add_action(new_window)
 
         self.set_accels_for_action("app.new-window", ["<Ctrl>N"])
+        self.set_accels_for_action("win.go-back", ["<Alt>Left"])
+        self.set_accels_for_action("win.go-forward", ["<Alt>Right"])
         self.set_accels_for_action("win.zoom::in", ["<Primary>equal"])
         self.set_accels_for_action("win.zoom::out", ["<Primary>minus"])
         self.set_accels_for_action("win.zoom::default", ["<Primary>0"])

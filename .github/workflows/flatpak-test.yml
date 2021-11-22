@@ -1,0 +1,47 @@
+name: flatpak-test
+on:
+  pull_request
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: none
+    timeout-minutes: 20
+    steps:
+      - name: Install required build dependencies
+        run: sudo apt install -y --no-install-recommends autoconf automake elfutils libglib2.0-dev libsystemd-dev xsltproc xmlto flatpak-builder xvfb
+
+      - name: Configure flathub remote
+        run: sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+      - name: Clone repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          # need this to also fetch tags
+          fetch-depth: 0
+
+      - name: Wait for and download dist cache
+        run: tools/webpack-jumpstart --wait --rebase
+
+      - name: Minimum configuration for building dist tarball
+        run: |
+          ./autogen.sh --disable-polkit --disable-ssh --disable-pcp --with-systemdunitdir=/invalid CPPFLAGS=-Itools/mock-build-env PKG_CONFIG_PATH=tools/mock-build-env
+
+      - name: Build and install flatpak
+        run: FLATPAK_BUILDER_OPTIONS="--install-deps-from=flathub --user" containers/flatpak/install
+
+      - name: Smoke-test the installed flatpak
+        run: |
+          set -eux
+          xvfb-run flatpak run org.cockpit_project.CockpitClient &
+          CLIENT_PID=$!
+
+          # FIXME: there's some nasty D-Bus (?) timeout until cockpit-ws actually starts
+          until pgrep cockpit-ws; do sleep 1; done
+
+          ADDR=$(sudo nsenter -n -t $(pgrep cockpit-ws) ss -tl --no-header | awk '{print $4}')
+          sudo nsenter -n -t $(pgrep cockpit-ws) curl http://$ADDR | grep conversation-prompt
+
+          kill $CLIENT_PID

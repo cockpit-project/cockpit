@@ -42,6 +42,12 @@ fi
 
 TODAY="$(date +%F)"
 
+if test -n "${FLATHUB_REPO-}"; then
+    if test -f "${FLATHUB_REPO}/${FLATPAK_ID}.metainfo.xml"; then
+        PREVIOUS_RELEASES="$(sed -n 's/^\(    <release .*\)$/\1\\n/p' "${FLATHUB_REPO}/${FLATPAK_ID}.metainfo.xml" | tr -d '\n')"
+    fi
+fi
+
 subst() {
     ext="$1"
 
@@ -54,6 +60,7 @@ subst() {
         -e "s|@ARCHIVE_TYPE@|${ARCHIVE_TYPE}|" \
         -e "s|@ARCHIVE_LOCATION@|${ARCHIVE_LOCATION}|" \
         -e "s|@ARCHIVE_SHA256@|${ARCHIVE_SHA256}|" \
+        -e "s|@PREVIOUS_RELEASES@|${PREVIOUS_RELEASES:-}|" \
         containers/flatpak/cockpit-client."${ext}".in > "${FLATPAK_ID}.${ext}.tmp"
     mv "${FLATPAK_ID}.${ext}.tmp" "${FLATPAK_ID}.${ext}"
 }

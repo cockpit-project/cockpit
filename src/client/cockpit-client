@@ -17,8 +17,10 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import ctypes
 import gi
 import os
+import signal
 import socket
 import subprocess
 import sys
@@ -30,6 +32,16 @@ gi.require_version("WebKit2", "4.0")  # NOQA
 from gi.repository import Gtk, WebKit2
 
 libexecdir = os.path.realpath(__file__ + '/..')
+
+libc6 = ctypes.cdll.LoadLibrary('libc.so.6')
+
+
+def prctl(*args):
+    if libc6.prctl(*args) != 0:
+        raise Exception('prctl() failed')
+
+
+prctl.SET_PDEATHSIG = 1
 
 
 class CockpitClientWindow(Gtk.ApplicationWindow):
@@ -123,6 +135,7 @@ class CockpitWs:
         os.environ['XDG_CONFIG_DIRS'] = self.config_dir.name
         os.environ['LISTEN_PID'] = str(os.getpid())
         os.environ['LISTEN_FDS'] = str(1)
+        prctl(prctl.SET_PDEATHSIG, signal.SIGKILL)
         os.dup2(self.socket.fileno(), 3)
 
     def stop(self):

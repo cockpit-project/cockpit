@@ -17,8 +17,10 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import configparser
 import ctypes
 import gi
+import logging
 import os
 import signal
 import socket
@@ -29,7 +31,7 @@ import tempfile
 gi.require_version("Gtk", "3.0")  # NOQA
 gi.require_version("WebKit2", "4.0")  # NOQA
 
-from gi.repository import Gtk, WebKit2
+from gi.repository import Gtk, WebKit2, GLib, Gio
 
 libexecdir = os.path.realpath(__file__ + '/..')
 
@@ -91,6 +93,15 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
 
 
 class CockpitClient(Gtk.Application):
+    def __init__(self):
+        super().__init__(application_id='org.cockpit_project.CockpitClient')
+        self.add_main_option('external-ws', 0, GLib.OptionFlags.NONE, GLib.OptionArg.STRING,
+                             'Connect to existing cockpit-ws on the given URL')
+        self.add_main_option('disable-uniqueness', 0, GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
+                             'Disable GApplication single-instance mode')
+        self.add_main_option('wildly-insecure', 0, GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
+                             '***DANGEROUS*** Allow anyone to use your ssh credentials')
+
     def do_startup(self):
         Gtk.Application.do_startup(self)
 
@@ -104,9 +115,7 @@ class CockpitClient(Gtk.Application):
         data_manager.set_network_proxy_settings(WebKit2.NetworkProxyMode.NO_PROXY, None)
         context.set_sandbox_enabled(True)
 
-        self.ws = CockpitWs()
-        host, port = self.ws.start()
-        self.uri = f'http://{host}:{port}/'
+        self.uri = self.ws.start()
 
     def do_activate(self):
         window = CockpitClientWindow(self.uri)
@@ -118,8 +127,51 @@ class CockpitClient(Gtk.Application):
 
         Gtk.Application.do_shutdown(self)
 
+    def do_handle_local_options(self, options):
+        if options.lookup_value('disable-uniqueness'):
+            self.flags = Gio.ApplicationFlags.NON_UNIQUE
 
-class CockpitWs:
+        if flatpak_id := os.getenv('FLATPAK_ID'):
+            self.application_id = flatpak_id
+
+        if external_ws := options.lookup_value('external-ws'):
+            self.ws = ExternalCockpitWs(external_ws.get_string())
+
+        elif self.safely_sandboxed() or options.lookup_value('wildly-insecure'):
+            self.ws = InternalCockpitWs()
+
+        else:
+            logging.error('Unable to detect any sandboxing: refusing to spawn cockpit-ws')
+            logging.error('You can override this check with --wildly-insecure')
+            return 1
+
+        return -1
+
+    def safely_sandboxed(self):
+        flatpak_info = configparser.ConfigParser()
+
+        if not flatpak_info.read('/.flatpak-info'):
+            return False
+
+        shared = flatpak_info.get('Context', 'Shared', fallback='').lower().split(';')
+        if 'network' in shared:
+            return False
+
+        return True
+
+
+class ExternalCockpitWs:
+    def __init__(self, uri):
+        self.uri = uri
+
+    def start(self):
+        return self.uri
+
+    def stop(self):
+        pass
+
+
+class InternalCockpitWs:
     def start(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.bind(('127.0.90.90', 0))
@@ -129,7 +181,8 @@ class CockpitWs:
         self.ws = subprocess.Popen([f'{libexecdir}/cockpit-ws', '--no-tls'],
                                    preexec_fn=self.preexec_fn, pass_fds=[3])
 
-        return self.socket.getsockname()
+        host, port = self.socket.getsockname()
+        return f'http://{host}:{port}/'
 
     def preexec_fn(self):
         os.environ['XDG_CONFIG_DIRS'] = self.config_dir.name
@@ -160,5 +213,5 @@ class CockpitWs:
 
 
 if __name__ == "__main__":
-    app = CockpitClient(application_id=os.getenv('FLATPAK_ID') or 'org.cockpit_project.CockpitClient')
+    app = CockpitClient()
     app.run(sys.argv)

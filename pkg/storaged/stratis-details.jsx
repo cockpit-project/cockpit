@@ -48,7 +48,7 @@ import {
     get_available_spaces, prepare_available_spaces,
     reload_systemd
 } from "./utils.js";
-import { fmt_to_fragments } from "./utilsx.jsx";
+import { fmt_to_fragments } from "utils.jsx";
 import { never_auto_explanation } from "./format-dialog.jsx";
 
 const _ = cockpit.gettext;

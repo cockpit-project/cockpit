@@ -1071,12 +1071,13 @@ export const TeardownMessage = (usage) => {
     const has_sessions = teardown.Sessions && teardown.Sessions.length > 0;
     const has_services = teardown.Services && teardown.Services.length > 0;
 
-    if (has_sessions && has_services)
-        add_para(parts, _("The filesystem is in use by login sessions and system services. Proceeding will stop these."));
-    else if (has_sessions)
-        add_para(parts, _("The filesystem is in use by login sessions. Proceeding will stop these."));
-    else if (has_services)
-        add_para(parts, _("The filesystem is in use by system services. Proceeding will stop these."));
+    if (has_sessions && teardown.Sessions.length == 1 && !has_services)
+        add_para(parts, _("The filesystem is currently in use. Unmounting will stop the related process."));
+    else if (has_sessions || has_services)
+        add_para(parts, _("The filesystem is currently in use. Unmounting will stop all related processes."));
+
+    if (has_sessions || has_services)
+        parts.push(<br />);
 
     function add_units(list, key, h1, h2, h3, c1, c2, c3) {
         if (list && list.length > 0) {

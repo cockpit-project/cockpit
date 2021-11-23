@@ -423,6 +423,14 @@ fi
 
 AM_CONDITIONAL([ENABLE_DOC], [test "$enable_doc" = "yes"])
 
+# cockpit-client
+AC_MSG_CHECKING([whether to install cockpit-client])
+AC_ARG_ENABLE([cockpit-client],
+              [AS_HELP_STRING([--enable-cockpit-client], [Whether to install cockpit-client])],
+              [], [enable_cockpit_client=no])
+AC_MSG_RESULT($enable_prefix_only)
+AM_CONDITIONAL([ENABLE_COCKPIT_CLIENT], [test "$enable_cockpit_client" = "yes"])
+
 # Debug
 
 AC_MSG_CHECKING([for debug mode])
@@ -542,6 +550,7 @@ echo "
         With polkit:                ${enable_polkit}
         Branding:                   ${BRAND}
 
+        cockpit-client:             ${enable_cockpit_client}
         cockpit-ssh:                ${enable_ssh}
         Supports key auth:          ${key_auth}
 

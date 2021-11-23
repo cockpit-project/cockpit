@@ -1,0 +1,86 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2018-2021 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import sys
+import gi
+
+gi.require_version("Gtk", "3.0")  # NOQA
+gi.require_version("WebKit2", "4.0")  # NOQA
+
+from gi.repository import Gtk, Gdk, WebKit2
+
+
+class Browser(Gtk.Window):
+    def __init__(self, uri):
+        super().__init__()
+        self.set_title("Web Console")
+
+        self.set_size_request(800, 600)
+
+        context = WebKit2.WebContext.get_default()
+        data_manager = context.get_website_data_manager()
+        data_manager.set_network_proxy_settings(WebKit2.NetworkProxyMode.NO_PROXY, None)
+        context.set_sandbox_enabled(True)
+
+        self.webview = WebKit2.WebView()
+        self.add(self.webview)
+        self.webview.show()
+        self.webview.connect("load-changed", self._title_changed)
+
+        self.connect("destroy", Gtk.main_quit)
+        self.connect("key-press-event", self._key_pressed)
+
+        self.show()
+        self.webview.load_uri(uri)
+
+    def _title_changed(self, widget, event):
+        self.set_title(self.webview.get_title() or "")
+
+    def _zoom_in(self):
+        cur = self.webview.get_zoom_level()
+        if cur < 3:
+            self.webview.set_zoom_level(cur * 1.1)
+
+    def _zoom_out(self):
+        cur = self.webview.get_zoom_level()
+        if cur > 0.5:
+            self.webview.set_zoom_level(cur / 1.1)
+
+    def _key_pressed(self, widget, event):
+        modifiers = Gtk.accelerator_get_default_mod_mask()
+        mapping = {Gdk.KEY_r: self.webview.reload,
+                   Gdk.KEY_plus: self._zoom_in,
+                   Gdk.KEY_equal: self._zoom_in,
+                   Gdk.KEY_minus: self._zoom_out,
+                   Gdk.KEY_w: Gtk.main_quit,
+                   Gdk.KEY_q: Gtk.main_quit}
+
+        if event.state & modifiers == Gdk.ModifierType.CONTROL_MASK and event.keyval in mapping:
+            mapping[event.keyval]()
+
+
+if len(sys.argv) == 2:
+    Gtk.init(sys.argv)
+    browser = Browser(sys.argv[1])
+    Gtk.main()
+elif len(sys.argv) > 2:
+    sys.stderr.write("Usage: %s <URL>\n" % sys.argv[0])
+else:
+    # just a test if imports work
+    pass

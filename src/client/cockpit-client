@@ -33,7 +33,7 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
 
         self.set_size_request(800, 600)
 
-        self.webview = WebKit2.WebView()
+        self.webview = WebKit2.WebView(is_ephemeral=True)
         self.webview.get_settings().set_enable_developer_extras(True)
         self.add(self.webview)
         self.webview.show()

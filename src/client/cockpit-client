@@ -17,36 +17,30 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import sys
 import gi
+import logging
+import sys
 
 gi.require_version("Gtk", "3.0")  # NOQA
 gi.require_version("WebKit2", "4.0")  # NOQA
 
-from gi.repository import Gtk, Gdk, WebKit2
+from gi.repository import GLib, Gdk, Gio, Gtk, WebKit2
 
 
-class Browser(Gtk.Window):
-    def __init__(self, uri):
-        super().__init__()
+class CockpitClientWindow(Gtk.ApplicationWindow):
+    def __init__(self, app, uri):
+        super().__init__(application=app)
         self.set_title("Web Console")
 
         self.set_size_request(800, 600)
-
-        context = WebKit2.WebContext.get_default()
-        data_manager = context.get_website_data_manager()
-        data_manager.set_network_proxy_settings(WebKit2.NetworkProxyMode.NO_PROXY, None)
-        context.set_sandbox_enabled(True)
 
         self.webview = WebKit2.WebView()
         self.add(self.webview)
         self.webview.show()
         self.webview.connect("load-changed", self._title_changed)
 
-        self.connect("destroy", Gtk.main_quit)
         self.connect("key-press-event", self._key_pressed)
 
-        self.show()
         self.webview.load_uri(uri)
 
     def _title_changed(self, widget, event):
@@ -75,12 +69,58 @@ class Browser(Gtk.Window):
             mapping[event.keyval]()
 
 
-if len(sys.argv) == 2:
-    Gtk.init(sys.argv)
-    browser = Browser(sys.argv[1])
-    Gtk.main()
-elif len(sys.argv) > 2:
-    sys.stderr.write("Usage: %s <URL>\n" % sys.argv[0])
-else:
-    # just a test if imports work
-    pass
+class CockpitClient(Gtk.Application):
+    def __init__(self):
+        super().__init__(application_id='org.cockpit_project.CockpitClient')
+
+        self.add_main_option('external-ws', 0, GLib.OptionFlags.NONE, GLib.OptionArg.STRING,
+                             'Connect to existing cockpit-ws on the given URL')
+        self.add_main_option('disable-uniqueness', 0, GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
+                             'Disable GApplication single-instance mode')
+
+    def do_startup(self):
+        Gtk.Application.do_startup(self)
+
+        context = WebKit2.WebContext.get_default()
+        data_manager = context.get_website_data_manager()
+        data_manager.set_network_proxy_settings(WebKit2.NetworkProxyMode.NO_PROXY, None)
+        context.set_sandbox_enabled(True)
+
+        self.uri = self.ws.start()
+
+    def do_activate(self):
+        CockpitClientWindow(self, self.uri).present()
+
+    def do_shutdown(self):
+        self.ws.stop()
+
+        Gtk.Application.do_shutdown(self)
+
+    def do_handle_local_options(self, options):
+        if options.lookup_value('disable-uniqueness'):
+            self.flags = Gio.ApplicationFlags.NON_UNIQUE
+
+        if external_ws := options.lookup_value('external-ws'):
+            self.ws = ExternalCockpitWs(external_ws.get_string())
+
+        else:
+            logging.error('error: --external-ws option is mandatory')
+            return 1
+
+        return -1
+
+
+class ExternalCockpitWs:
+    def __init__(self, uri):
+        self.uri = uri
+
+    def start(self):
+        return self.uri
+
+    def stop(self):
+        pass
+
+
+if __name__ == "__main__":
+    app = CockpitClient()
+    app.run(sys.argv)

@@ -167,7 +167,7 @@ main (int argc,
       goto out;
     }
 
-  if (opt_for_tls_proxy)
+  if (opt_for_tls_proxy || cockpit_conf_bool ("WebService", "X-For-CockpitClient", FALSE))
     opt_no_tls = TRUE;
 
   cockpit_hacks_redirect_gdebug_to_stderr ();

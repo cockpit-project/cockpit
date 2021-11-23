@@ -30,42 +30,28 @@ $desktop: $phone + 1px;
         background: var(--pf-global--BackgroundColor--dark-400);
     }
 
+    // https://github.com/patternfly/patternfly/issues/4541
     .search {
         margin: 1rem 1.5rem;
 
-        > input.form-control {
+        > .pf-c-input-group {
             background: var(--ct-color-nav);
-            border: 0 solid var(--ct-color-nav);
-            border-width: 2px 0;
             color: var(--ct-color-nav-text) !important;
-            padding: 0 0.5rem 0 32px !important;
             transition: var(--pf-global--Transition);
-
-            &::placeholder {
-                color: var(--ct-color-nav-text);
-                opacity: 0.8;
-            }
-
-            &:focus {
-                border-bottom-color: var(--ct-color-nav-text);
-            }
         }
 
-        > .form-control-feedback {
-            color: var(--ct-color-nav-text);
-            opacity: 0.7;
-            margin: 0.5rem;
-            right: auto;
-            width: 16px;
-            height: 16px;
-            left: 0;
-            transition: var(--pf-global--Transition);
-            z-index: 0;
+        .pf-c-search-input__text::after,
+        .pf-c-search-input__text::before {
+            border: none;
         }
 
-        > input.form-control:focus ~ .form-control-feedback {
-            color: var(--ct-color-nav-active-text);
-            opacity: 1;
+        svg {
+            color: #fff;
+        }
+
+        input,
+        input::placeholder {
+            color: #fff;
         }
     }
 
@@ -102,10 +88,6 @@ $desktop: $phone + 1px;
         display: flex;
         align-items: center;
         height: 100%;
-
-        .fa-caret-down {
-            margin-left: 0.5rem;
-        }
 
         &.pf-m-expanded{
             // Approximate --pf-global--BackgroundColor--dark-200 with opacity
@@ -193,19 +175,17 @@ $desktop: $phone + 1px;
             opacity: 0.6;
         }
 
-        .fa,
-        .pficon {
-            vertical-align: bottom;
-        }
-
         .pf-c-dropdown__menu {
             // Correct the offset
             margin-top: -4px;
         }
     }
 
-    .pf-m-dark > .pf-c-select__toggle {
-        background-color: var(--pf-global--BackgroundColor--dark-300);
+    .pf-m-dark {
+        background: var(--pf-global--BackgroundColor--dark-100);
+        > .pf-c-select__toggle {
+            background-color: var(--pf-global--BackgroundColor--dark-300);
+        }
     }
 
     .ct-switcher > .pf-c-select > button {
@@ -270,6 +250,13 @@ $desktop: $phone + 1px;
         bottom: var(--nav-icon-size);
         right: var(--pf-global--spacer--md);
         max-width: 100vw;
+    }
+
+    .pf-m-dark.pf-c-select {
+        .pf-c-select__toggle {
+            color: var(--pf-global--Color--light-100) !important;
+            background-color: transparent;
+        }
     }
 
     .ct-switcher > .pf-c-select {
@@ -555,13 +542,10 @@ $desktop: $phone + 1px;
 // Rework navigation toggles in desktop and (especially) mobile modes
 .super-user-indicator > button,
 .ct-nav-toggle {
-    color: var(--pf-global--Color--light-100) !important;
-    background: transparent;
-
     &:hover, &:active, &.active, &.interact, &[aria-expanded=true] {
         text-decoration: none;
         // approximate --pf-global--BackgroundColor--dark-400, but with opacity
-        background: rgba(249, 252, 255, 0.32);
+        background: rgba(249, 252, 255, 0.32) !important;
 
         .hostname {
             text-decoration: underline;

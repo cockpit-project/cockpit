@@ -289,7 +289,7 @@ done
 for lib in systemd tmpfiles.d; do
     rm -r %{buildroot}/%{_prefix}/%{__lib}/$lib
 done
-for libexec in cockpit-askpass cockpit-session cockpit-ws cockpit-tls cockpit-wsinstance-factory cockpit-desktop cockpit-certificate-helper cockpit-certificate-ensure; do
+for libexec in cockpit-askpass cockpit-session cockpit-ws cockpit-tls cockpit-wsinstance-factory cockpit-client cockpit-client.ui cockpit-desktop cockpit-certificate-helper cockpit-certificate-ensure; do
     rm %{buildroot}/%{_libexecdir}/$libexec
 done
 rm -r %{buildroot}/%{_libdir}/security %{buildroot}/%{_sysconfdir}/pam.d %{buildroot}/%{_sysconfdir}/motd.d %{buildroot}/%{_sysconfdir}/issue.d
@@ -454,6 +454,11 @@ Conflicts: firewalld < 0.6.0-1
 Recommends: sscg >= 2.3
 Recommends: system-logos
 Suggests: sssd-dbus
+# for cockpit-desktop
+Suggests: python3
+
+# prevent hard python3 dependency for cockpit-desktop, it falls back to other browsers
+%global __requires_exclude_from ^%{_libexecdir}/cockpit-client$
 
 %description ws
 The Cockpit Web Service listens on the network, and authenticates users.
@@ -494,6 +499,8 @@ authentication via sssd/FreeIPA.
 %{_libexecdir}/cockpit-ws
 %{_libexecdir}/cockpit-wsinstance-factory
 %{_libexecdir}/cockpit-tls
+%{_libexecdir}/cockpit-client
+%{_libexecdir}/cockpit-client.ui
 %{_libexecdir}/cockpit-desktop
 %{_libexecdir}/cockpit-certificate-ensure
 %{_libexecdir}/cockpit-certificate-helper

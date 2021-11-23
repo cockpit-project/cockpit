@@ -36,77 +36,6 @@
 #   cockpit-desktop / username@svr1
 set -eu
 
-# minimalistic WebKit browser
-PYWEBKIT='
-import sys
-import gi
-
-gi.require_version("Gtk", "3.0")
-gi.require_version("WebKit2", "4.0")
-
-from gi.repository import Gtk, Gdk, WebKit2
-
-class Browser(Gtk.Window):
-    def __init__(self, uri):
-        super().__init__()
-        self.set_title("Web Console")
-
-        self.set_size_request(800, 600)
-
-        context = WebKit2.WebContext.get_default()
-        data_manager = context.get_website_data_manager()
-        data_manager.set_network_proxy_settings(WebKit2.NetworkProxyMode.NO_PROXY, None)
-        context.set_sandbox_enabled(True)
-
-        self.webview = WebKit2.WebView()
-        self.add(self.webview)
-        self.webview.show()
-        self.webview.connect("load-changed", self._title_changed)
-
-        self.connect("destroy", Gtk.main_quit)
-        self.connect("key-press-event", self._key_pressed)
-
-        self.show()
-        self.webview.load_uri(uri)
-
-    def _title_changed(self, widget, event):
-        self.set_title(self.webview.get_title() or "")
-
-    def _zoom_in(self):
-        cur = self.webview.get_zoom_level()
-        if cur < 3:
-            self.webview.set_zoom_level(cur * 1.1)
-
-    def _zoom_out(self):
-        cur = self.webview.get_zoom_level()
-        if cur > 0.5:
-            self.webview.set_zoom_level(cur / 1.1)
-
-    def _key_pressed(self, widget, event):
-        modifiers = Gtk.accelerator_get_default_mod_mask()
-        mapping = {Gdk.KEY_r: self.webview.reload,
-                   Gdk.KEY_plus: self._zoom_in,
-                   Gdk.KEY_equal: self._zoom_in,
-                   Gdk.KEY_minus: self._zoom_out,
-                   Gdk.KEY_w: Gtk.main_quit,
-                   Gdk.KEY_q: Gtk.main_quit}
-
-        if event.state & modifiers == Gdk.ModifierType.CONTROL_MASK \
-          and event.keyval in mapping:
-            mapping[event.keyval]()
-
-
-if len(sys.argv) == 2:
-    Gtk.init(sys.argv)
-    browser = Browser(sys.argv[1])
-    Gtk.main()
-elif len(sys.argv) > 2:
-    sys.stderr.write("Usage: %s <URL>\n" % sys.argv[0])
-else:
-    # just a test if imports work
-    pass
-'
-
 # find suitable browser, unless already set by $BROWSER
 # We can't use xdg-open, it does too much magic behind the back to connect to
 # existing instances (outside of our namespace) and does not allow us to reduce
@@ -115,8 +44,9 @@ detect_browser()
 {
     [ -z "${BROWSER:-}" ] || return 0
 
-    if python3 -c "$PYWEBKIT" 2>/dev/null; then
-        BROWSER="python3 -c '$PYWEBKIT'"
+    # First choice, but it depends on gi.repository WebKit2, so check it
+    if @libexecdir@/cockpit-client 2>/dev/null; then
+        BROWSER="@libexecdir@/cockpit-client"
         return 0
     fi
 

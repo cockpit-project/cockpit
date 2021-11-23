@@ -120,6 +120,9 @@ class CockpitClient(Gtk.Application):
         new_window = Gio.SimpleAction.new('new-window')
         new_window.connect('activate', self.new_window)
         self.add_action(new_window)
+        open_path = Gio.SimpleAction.new('open-path', GLib.VariantType('s'))
+        open_path.connect('activate', self.open_path)
+        self.add_action(open_path)
 
         self.set_accels_for_action("app.new-window", ["<Ctrl>N"])
         self.set_accels_for_action("win.go-back", ["<Alt>Left"])
@@ -138,6 +141,11 @@ class CockpitClient(Gtk.Application):
 
     def new_window(self, *args):
         self.activate()
+
+    def open_path(self, action, parameter, *args):
+        window = CockpitClientWindow(self.uri + parameter.get_string())
+        window.set_application(self)
+        window.present()
 
     def do_activate(self):
         window = CockpitClientWindow(self.uri)

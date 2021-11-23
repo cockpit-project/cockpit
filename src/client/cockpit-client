@@ -30,21 +30,18 @@ from gi.repository import GLib, Gdk, Gio, Gtk, WebKit2
 class CockpitClientWindow(Gtk.ApplicationWindow):
     def __init__(self, app, uri):
         super().__init__(application=app)
-        self.set_title("Web Console")
 
         self.set_size_request(800, 600)
 
         self.webview = WebKit2.WebView()
         self.add(self.webview)
         self.webview.show()
-        self.webview.connect("load-changed", self._title_changed)
 
         self.connect("key-press-event", self._key_pressed)
 
         self.webview.load_uri(uri)
-
-    def _title_changed(self, widget, event):
-        self.set_title(self.webview.get_title() or "")
+        self.set_title("Loading...")  # like login.html
+        self.webview.bind_property("title", self, "title")
 
     def _zoom_in(self):
         cur = self.webview.get_zoom_level()

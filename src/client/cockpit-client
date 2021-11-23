@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import configparser
 import ctypes
 import gi
 import logging
@@ -160,10 +161,13 @@ class CockpitClient(Gtk.Application):
         if options.lookup_value('disable-uniqueness'):
             self.flags = Gio.ApplicationFlags.NON_UNIQUE
 
+        if flatpak_id := os.getenv('FLATPAK_ID'):
+            self.application_id = flatpak_id
+
         if external_ws := options.lookup_value('external-ws'):
             self.ws = ExternalCockpitWs(external_ws.get_string())
 
-        elif options.lookup_value('wildly-insecure'):
+        elif self.safely_sandboxed() or options.lookup_value('wildly-insecure'):
             self.ws = InternalCockpitWs()
 
         else:
@@ -172,6 +176,18 @@ class CockpitClient(Gtk.Application):
             return 1
 
         return -1
+
+    def safely_sandboxed(self):
+        flatpak_info = configparser.ConfigParser()
+
+        if not flatpak_info.read('/.flatpak-info'):
+            return False
+
+        shared = flatpak_info.get('Context', 'Shared', fallback='').lower().split(';')
+        if 'network' in shared:
+            return False
+
+        return True
 
 
 class ExternalCockpitWs:

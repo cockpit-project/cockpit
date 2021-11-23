@@ -23,7 +23,10 @@ jobs:
           fetch-depth: 0
 
       - name: Wait for and download dist cache
-        run: tools/webpack-jumpstart --wait --rebase
+        run: |
+          git config --global user.name "GitHub Workflow"
+          git config --global user.email "cockpituous@cockpit-project.org"
+          tools/webpack-jumpstart --wait --rebase
 
       - name: Minimum configuration for building dist tarball
         run: |

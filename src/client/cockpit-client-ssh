@@ -50,11 +50,6 @@ def cockpit_client_ssh():
     shutil.copy(__file__, askpass, follow_symlinks=False)
 
     host = sys.argv[1]
-    basic, payload = do_authorize()
-    user, password = base64_decode(payload).split(':', 1)
-
-    if user:
-        host = f'{user}@{host}'
 
     if host == 'localhost':
         cmd = ['flatpak-spawn', '--host', 'cockpit-bridge']

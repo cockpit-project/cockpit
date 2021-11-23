@@ -336,6 +336,10 @@ build_environment (GHashTable *os_release)
   gint i;
 
   object = json_object_new ();
+
+  gboolean is_cockpit_client = cockpit_conf_bool ("WebService", "X-For-CockpitClient", FALSE);
+  json_object_set_boolean_member (object, "is_cockpit_client", is_cockpit_client);
+
   add_page_to_environment (object);
 
   hostname = g_malloc0 (HOST_NAME_MAX + 1);

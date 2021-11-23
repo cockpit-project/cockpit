@@ -623,7 +623,7 @@ class Browser:
             self.wait_visible("#navbar-dropdown")
         else:
             self.wait_visible("#toggle-menu")
-        if self.is_visible("button#machine-reconnect"):
+        if self.is_present("button#machine-reconnect") and self.is_visible("button#machine-reconnect"):
             # happens when shutting down cockpit or rebooting machine
             self.click("button#machine-reconnect")
         else:

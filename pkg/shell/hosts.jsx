@@ -4,7 +4,7 @@ import React from 'react';
 import ReactDOM from "react-dom";
 import PropTypes from 'prop-types';
 import { PageSidebar, Button, Tooltip } from '@patternfly/react-core';
-import { EditIcon, MinusIcon } from '@patternfly/react-icons';
+import { EditIcon, MinusIcon, CaretUpIcon, CaretDownIcon } from '@patternfly/react-icons';
 
 import 'polyfills';
 import { superuser } from "superuser";
@@ -190,11 +190,13 @@ export class CockpitHosts extends React.Component {
                                     <HostLine user={user} host={label} />
                                 </span>
                             </span>
-                            <span className={"pf-c-select__toggle-arrow mobile_v fa fa-caret-" + (this.state.opened ? "up" : "down")} aria-hidden="true" />
+                            {this.state.opened && <CaretUpIcon size="md" className="pf-c-select__toggle-arrow mobile_v" aria-hidden="true" />}
+                            {!this.state.opened && <CaretDownIcon size="md" className="pf-c-select__toggle-arrow mobile_v" aria-hidden="true" />}
                             <span className="pf-c-select__toggle-wrapper mobile_v">
                                 {_("Host")}
                             </span>
-                            <span className={"pf-c-select__toggle-arrow fa desktop_v fa-caret-" + (this.state.opened ? "up" : "down")} aria-hidden="true" />
+                            {this.state.opened && <CaretUpIcon className="pf-c-select__toggle-arrow desktop_v" aria-hidden="true" />}
+                            {!this.state.opened && <CaretDownIcon className="pf-c-select__toggle-arrow desktop_v" aria-hidden="true" />}
                         </button>
                     </div>
 

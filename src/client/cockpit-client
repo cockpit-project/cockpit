@@ -53,6 +53,10 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
         history.connect('changed', self.history_changed)
         self.history_changed()
 
+        if app.no_ui:
+            self.set_titlebar(None)
+            self.webview.bind_property('title', self, 'title')
+
     def history_changed(self, *args):
         self.lookup_action('go-back').set_enabled(self.webview.can_go_back())
         self.lookup_action('go-forward').set_enabled(self.webview.can_go_forward())
@@ -90,6 +94,8 @@ class CockpitClient(Gtk.Application):
     def __init__(self):
         super().__init__(application_id='org.cockpit_project.CockpitClient')
 
+        self.add_main_option('no-ui', 0, GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
+                             'Show only a window with a webview')
         self.add_main_option('external-ws', 0, GLib.OptionFlags.NONE, GLib.OptionArg.STRING,
                              'Connect to existing cockpit-ws on the given URL')
         self.add_main_option('disable-uniqueness', 0, GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
@@ -131,6 +137,8 @@ class CockpitClient(Gtk.Application):
         Gtk.Application.do_shutdown(self)
 
     def do_handle_local_options(self, options):
+        self.no_ui = options.lookup_value('no-ui') is not None
+
         if options.lookup_value('disable-uniqueness'):
             self.flags = Gio.ApplicationFlags.NON_UNIQUE
 

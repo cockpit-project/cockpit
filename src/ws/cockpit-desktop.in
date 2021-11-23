@@ -46,7 +46,7 @@ detect_browser()
 
     # First choice, but it depends on gi.repository WebKit2, so check it
     if @libexecdir@/cockpit-client --help >/dev/null 2>/dev/null; then
-        BROWSER="@libexecdir@/cockpit-client --disable-uniqueness --external-ws"
+        BROWSER="@libexecdir@/cockpit-client --disable-uniqueness --no-ui --external-ws"
         return 0
     fi
 

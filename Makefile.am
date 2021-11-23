@@ -267,6 +267,7 @@ include src/session/Makefile-session.am
 include src/tls/Makefile-tls.am
 include src/retest/Makefile.am
 include src/pam-ssh-add/Makefile.am
+include containers/flatpak/Makefile.am
 include containers/Makefile.am
 include doc/Makefile-doc.am
 include doc/guide/Makefile-guide.am

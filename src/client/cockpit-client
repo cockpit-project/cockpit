@@ -64,6 +64,13 @@ class CockpitClient(Gtk.Application):
     def do_startup(self):
         Gtk.Application.do_startup(self)
 
+        # .add_action_entries() binding is broken for GApplication
+        # https://gitlab.gnome.org/GNOME/pygobject/-/issues/426
+        new_window = Gio.SimpleAction.new('new-window')
+        new_window.connect('activate', self.new_window)
+        self.add_action(new_window)
+
+        self.set_accels_for_action("app.new-window", ["<Ctrl>N"])
         self.set_accels_for_action("win.zoom::in", ["<Primary>equal"])
         self.set_accels_for_action("win.zoom::out", ["<Primary>minus"])
         self.set_accels_for_action("win.zoom::default", ["<Primary>0"])
@@ -74,6 +81,9 @@ class CockpitClient(Gtk.Application):
         context.set_sandbox_enabled(True)
 
         self.uri = self.ws.start()
+
+    def new_window(self, *args):
+        CockpitClientWindow(self, self.uri).present()
 
     def do_activate(self):
         CockpitClientWindow(self, self.uri).present()

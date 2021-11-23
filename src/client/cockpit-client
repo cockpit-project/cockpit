@@ -24,7 +24,7 @@ import sys
 gi.require_version("Gtk", "3.0")  # NOQA
 gi.require_version("WebKit2", "4.0")  # NOQA
 
-from gi.repository import GLib, Gdk, Gio, Gtk, WebKit2
+from gi.repository import GLib, Gio, Gtk, WebKit2
 
 
 class CockpitClientWindow(Gtk.ApplicationWindow):
@@ -37,33 +37,19 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
         self.add(self.webview)
         self.webview.show()
 
-        self.connect("key-press-event", self._key_pressed)
-
         self.webview.load_uri(uri)
         self.set_title("Loading...")  # like login.html
         self.webview.bind_property("title", self, "title")
 
-    def _zoom_in(self):
-        cur = self.webview.get_zoom_level()
-        if cur < 3:
-            self.webview.set_zoom_level(cur * 1.1)
+        self.add_action_entries([
+            ('zoom', self.zoom, 's'),
+        ])
 
-    def _zoom_out(self):
-        cur = self.webview.get_zoom_level()
-        if cur > 0.5:
-            self.webview.set_zoom_level(cur / 1.1)
 
-    def _key_pressed(self, widget, event):
-        modifiers = Gtk.accelerator_get_default_mod_mask()
-        mapping = {Gdk.KEY_r: self.webview.reload,
-                   Gdk.KEY_plus: self._zoom_in,
-                   Gdk.KEY_equal: self._zoom_in,
-                   Gdk.KEY_minus: self._zoom_out,
-                   Gdk.KEY_w: Gtk.main_quit,
-                   Gdk.KEY_q: Gtk.main_quit}
-
-        if event.state & modifiers == Gdk.ModifierType.CONTROL_MASK and event.keyval in mapping:
-            mapping[event.keyval]()
+    def zoom(self, action, parameter, *unused):
+        current = self.webview.get_zoom_level()
+        factors = {'in': current * 1.1, 'default': 1.0, 'out': current * 0.9}
+        self.webview.set_zoom_level(factors[parameter.get_string()])
 
 
 class CockpitClient(Gtk.Application):
@@ -77,6 +63,10 @@ class CockpitClient(Gtk.Application):
 
     def do_startup(self):
         Gtk.Application.do_startup(self)
+
+        self.set_accels_for_action("win.zoom::in", ["<Primary>equal"])
+        self.set_accels_for_action("win.zoom::out", ["<Primary>minus"])
+        self.set_accels_for_action("win.zoom::default", ["<Primary>0"])
 
         context = WebKit2.WebContext.get_default()
         data_manager = context.get_website_data_manager()

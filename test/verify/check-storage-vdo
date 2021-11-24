@@ -431,11 +431,11 @@ class TestStoragePackagesVDO(PackageCase, StorageHelpers):
         b.click("button:contains(Create new logical volume)")
         self.dialog_wait_open()
         b._wait_present("[data-field='purpose'] select option[value='block']")
-        # no package installation (or any other) alert
-        self.assertFalse(b.is_present("#dialog .pf-c-alert"))
+        # no package installation helper text
+        self.assertFalse(b.is_present("#dialog .pf-c-helper-text"))
         self.dialog_set_val("purpose", "vdo")
         # shows the package installation note
-        b.wait_in_text("#dialog .pf-c-alert.pf-m-info", "vdo package will be installed")
+        b.wait_in_text("#dialog .pf-c-helper-text", "vdo package will be installed")
 
         # vdo package does not exist
         self.dialog_apply()

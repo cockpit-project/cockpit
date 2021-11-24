@@ -837,7 +837,7 @@ export class VGroup extends React.Component {
                                   value: "block",
                                   choices: purposes
                               }),
-                    Message("info", cockpit.format(_("The $0 package will be installed to create VDO devices."), vdo_package),
+                    Message(cockpit.format(_("The $0 package will be installed to create VDO devices."), vdo_package),
                             {
                                 visible: vals => vals.purpose === 'vdo' && need_vdo_install,
                             }),

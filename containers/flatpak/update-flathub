@@ -1,0 +1,22 @@
+#!/bin/sh
+
+set -eu
+[ $(basename -- "$0") = "update-flathub" ] && cd "$(realpath -m "$0"/../../..)"
+
+FLATHUB_REPO="$1"
+shift
+
+. containers/flatpak/prepare "$@"
+
+cp "${FLATPAK_ID}".metainfo.xml "${FLATHUB_REPO}"/
+cp "${FLATPAK_ID}".yml "${FLATHUB_REPO}"/
+
+git -C "${FLATHUB_REPO}" \
+    add \
+    "${FLATPAK_ID}".metainfo.xml \
+    "${FLATPAK_ID}".yml
+
+git -C "${FLATHUB_REPO}" \
+    commit --message "Update to version ${VERSION}" --only \
+    "${FLATPAK_ID}".metainfo.xml \
+    "${FLATPAK_ID}".yml

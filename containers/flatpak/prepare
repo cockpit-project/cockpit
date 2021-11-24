@@ -1,0 +1,69 @@
+#!/bin/sh
+
+set -eu
+[ $(basename -- "$0") = "prepare" ] && cd "$(realpath -m "$0"/../../..)"
+
+FLATPAK_ID="${1:-org.cockpit_project.CockpitClient}"
+
+if test "$#" -le 1; then
+    if ! test -f ./configure; then
+        ./autogen.sh
+    elif ! test -f ./Makefile; then
+        ./configure
+    fi
+
+    if ! test -e dist; then
+        # best effort
+        tools/webpack-jumpstart || true
+    fi
+
+    XZ_OPT=-0 make -j$(nproc) dist
+    ARCHIVE_TYPE="path"
+    ARCHIVE_LOCATION="$(make dump-dist)"
+    ARCHIVE_SHA256="$(sha256sum "${ARCHIVE_LOCATION}" | cut -f1 -d' ')"
+else
+    ARCHIVE_TYPE="$2"
+    ARCHIVE_LOCATION="$3"
+    ARCHIVE_SHA256="$4"
+fi
+
+# Extract version number from tarball name
+VERSION="$(echo ${ARCHIVE_LOCATION} | sed -n 's/^.*cockpit-\([0-9a-g.]*\).tar.xz$/\1/p')"
+test -n "${VERSION}"
+
+# Check for versions like 257.55.g3082bbdef with 'g' in them
+if echo "${VERSION}" | grep -q g; then
+    RELEASE_TYPE=development
+    FLATPAK_BRANCH=devel
+else
+    RELEASE_TYPE=stable
+    FLATPAK_BRANCH=stable
+fi
+
+TODAY="$(date +%F)"
+
+if test -n "${FLATHUB_REPO-}"; then
+    if test -f "${FLATHUB_REPO}/${FLATPAK_ID}.metainfo.xml"; then
+        PREVIOUS_RELEASES="$(sed -n 's/^\(    <release .*\)$/\1\\n/p' "${FLATHUB_REPO}/${FLATPAK_ID}.metainfo.xml" | tr -d '\n')"
+    fi
+fi
+
+subst() {
+    ext="$1"
+
+    sed \
+        -e "s|@FLATPAK_ID@|${FLATPAK_ID}|" \
+        -e "s|@VERSION@|${VERSION}|" \
+        -e "s|@TODAY@|${TODAY}|" \
+        -e "s|@FLATPAK_BRANCH@|${FLATPAK_BRANCH}|" \
+        -e "s|@RELEASE_TYPE@|${RELEASE_TYPE}|" \
+        -e "s|@ARCHIVE_TYPE@|${ARCHIVE_TYPE}|" \
+        -e "s|@ARCHIVE_LOCATION@|${ARCHIVE_LOCATION}|" \
+        -e "s|@ARCHIVE_SHA256@|${ARCHIVE_SHA256}|" \
+        -e "s|@PREVIOUS_RELEASES@|${PREVIOUS_RELEASES:-}|" \
+        containers/flatpak/cockpit-client."${ext}".in > "${FLATPAK_ID}.${ext}.tmp"
+    mv "${FLATPAK_ID}.${ext}.tmp" "${FLATPAK_ID}.${ext}"
+}
+
+subst metainfo.xml
+subst yml

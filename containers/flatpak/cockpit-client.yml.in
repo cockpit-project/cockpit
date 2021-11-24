@@ -1,0 +1,38 @@
+app-id: @FLATPAK_ID@
+runtime: org.gnome.Platform
+runtime-version: '41'
+sdk: org.gnome.Sdk
+default-branch: @FLATPAK_BRANCH@
+command: cockpit-client
+rename-desktop-file: cockpit-client.desktop
+rename-icon: cockpit-client
+modules:
+  - name: cockpit-client
+    buildsystem: autotools
+    config-opts:
+      - --enable-cockpit-client
+      - --disable-polkit
+      - --disable-ssh
+      - --disable-pcp
+      - --with-systemdunitdir=/invalid
+      - CPPFLAGS=-Itools/mock-build-env
+      - --with-admin-group=root
+      - --disable-doc
+    make-args:
+      - build-for-flatpak
+    install-rule: install-for-flatpak
+    post-install:
+      - install -Dt /app/share/metainfo ${FLATPAK_ID}.metainfo.xml
+
+    sources:
+      - type: archive
+        @ARCHIVE_TYPE@: @ARCHIVE_LOCATION@
+        sha256: @ARCHIVE_SHA256@
+
+      - type: file
+        path: @FLATPAK_ID@.metainfo.xml
+finish-args:
+  - --talk-name=org.freedesktop.Flatpak
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --device=dri

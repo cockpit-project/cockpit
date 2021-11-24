@@ -1,0 +1,58 @@
+name: flatpak-test
+on:
+  pull_request
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: none
+    timeout-minutes: 20
+    steps:
+      - name: Install required build dependencies
+        run: sudo apt install -y --no-install-recommends autoconf automake elfutils libglib2.0-dev libsystemd-dev xsltproc xmlto flatpak-builder xvfb
+
+      - name: Configure flathub remote
+        run: flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+      - name: Clone repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          # need this to also fetch tags
+          fetch-depth: 0
+
+      - name: Wait for and download dist cache
+        run: |
+          git config --global user.name "GitHub Workflow"
+          git config --global user.email "cockpituous@cockpit-project.org"
+          tools/webpack-jumpstart --wait --rebase
+
+      - name: Minimum configuration for building dist tarball
+        run: |
+          ./autogen.sh --disable-polkit --disable-ssh --disable-pcp --with-systemdunitdir=/invalid CPPFLAGS=-Itools/mock-build-env PKG_CONFIG_PATH=tools/mock-build-env
+
+      - name: Build and install flatpak
+        run: FLATPAK_BUILDER_OPTIONS="--install-deps-from=flathub --user" containers/flatpak/install
+
+      - name: Smoke-test the installed flatpak
+        run: |
+          xvfb-run dbus-run-session sh -exc '
+          flatpak run org.cockpit_project.CockpitClient &
+          CLIENT_PID=$!
+
+          until pgrep cockpit-ws; do sleep 1; done
+
+          # no "ss" in the flatpak; also, there are *two* app instances
+          for inst in $(flatpak ps --columns=instance | grep -v Instance); do
+              PORT_HEX=$(flatpak enter $inst cat /proc/net/tcp | sed -nr "s/^.* 5A5A007F:([^ ]+).*$/\1/p" | head -n1)
+              [ -z "$PORT_HEX" ] || break
+          done
+          [ -n "$PORT_HEX" ] || break
+
+          PORT=$(printf "%d" "0x${PORT_HEX}")
+          flatpak enter $inst curl http://127.0.90.90:$PORT | grep conversation-prompt
+
+          kill $CLIENT_PID
+          wait $CLIENT_PID || true
+          '

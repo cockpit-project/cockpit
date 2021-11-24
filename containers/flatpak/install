@@ -1,0 +1,8 @@
+#!/bin/sh
+
+set -eu
+cd "$(realpath -m "$0"/../../..)"
+
+. containers/flatpak/build "$@"
+
+flatpak install --user --assumeyes "${FLATPAK_ID}".flatpak

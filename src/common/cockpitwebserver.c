@@ -35,8 +35,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <systemd/sd-daemon.h>
-
 /* Used during testing */
 gboolean cockpit_webserver_want_certificate = FALSE;
 
@@ -46,9 +44,6 @@ const gsize cockpit_webserver_request_maximum = 8192;
 struct _CockpitWebServer {
   GObject parent_instance;
 
-  gint port;
-  GInetAddress *address;
-  gboolean socket_activated;
   GTlsCertificate *certificate;
   GString *ssl_exception_prefix;
   GString *url_root;
@@ -64,11 +59,8 @@ struct _CockpitWebServer {
 enum
 {
   PROP_0,
-  PROP_PORT,
-  PROP_ADDRESS,
   PROP_CERTIFICATE,
   PROP_SSL_EXCEPTION_PREFIX,
-  PROP_SOCKET_ACTIVATED,
   PROP_FLAGS,
   PROP_URL_ROOT,
 };
@@ -82,10 +74,12 @@ static void cockpit_request_start (CockpitWebServer *self,
                                    GIOStream *stream,
                                    gboolean first);
 
-static void initable_iface_init (GInitableIface *iface);
+static gboolean on_incoming (GSocketService *service,
+                             GSocketConnection *connection,
+                             GObject *source_object,
+                             gpointer user_data);
 
-G_DEFINE_TYPE_WITH_CODE (CockpitWebServer, cockpit_web_server, G_TYPE_OBJECT,
-                         G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE, initable_iface_init));
+G_DEFINE_TYPE (CockpitWebServer, cockpit_web_server, G_TYPE_OBJECT)
 
 /* ---------------------------------------------------------------------------------------------------- */
 
@@ -97,7 +91,14 @@ cockpit_web_server_init (CockpitWebServer *server)
   server->main_context = g_main_context_ref_thread_default ();
   server->ssl_exception_prefix = g_string_new ("");
   server->url_root = g_string_new ("");
-  server->address = NULL;
+
+  server->socket_service = g_socket_service_new ();
+
+  /* The web server has to be explicitly started */
+  g_socket_service_stop (server->socket_service);
+
+  g_signal_connect (server->socket_service, "incoming",
+                    G_CALLBACK (on_incoming), server);
 }
 
 static void
@@ -115,7 +116,6 @@ cockpit_web_server_finalize (GObject *object)
 {
   CockpitWebServer *server = COCKPIT_WEB_SERVER (object);
 
-  g_clear_object (&server->address);
   g_clear_object (&server->certificate);
   g_hash_table_destroy (server->requests);
   if (server->main_context)
@@ -137,10 +137,6 @@ cockpit_web_server_get_property (GObject *object,
 
   switch (prop_id)
     {
-    case PROP_PORT:
-      g_value_set_int (value, cockpit_web_server_get_port (server));
-      break;
-
     case PROP_CERTIFICATE:
       g_value_set_object (value, server->certificate);
       break;
@@ -154,10 +150,6 @@ cockpit_web_server_get_property (GObject *object,
         g_value_set_string (value, server->url_root->str);
       else
         g_value_set_string (value, NULL);
-      break;
-
-    case PROP_SOCKET_ACTIVATED:
-      g_value_set_boolean (value, server->socket_activated);
       break;
 
     case PROP_FLAGS:
@@ -178,24 +170,9 @@ cockpit_web_server_set_property (GObject *object,
 {
   CockpitWebServer *server = COCKPIT_WEB_SERVER (object);
   GString *str;
-  const gchar *address = NULL;
 
   switch (prop_id)
     {
-    case PROP_PORT:
-      server->port = g_value_get_int (value);
-      break;
-
-    case PROP_ADDRESS:
-      address = g_value_get_string (value);
-      if (address)
-        {
-          server->address = g_inet_address_new_from_string (address);
-          if (!server->address)
-            g_warning ("Couldn't parse IP address from: %s", address);
-        }
-      break;
-
     case PROP_CERTIFICATE:
       server->certificate = g_value_dup_object (value);
       break;
@@ -375,22 +352,6 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
   gobject_class->get_property = cockpit_web_server_get_property;
 
   g_object_class_install_property (gobject_class,
-                                   PROP_PORT,
-                                   g_param_spec_int ("port", NULL, NULL,
-                                                     -1, 65535, 8080,
-                                                     G_PARAM_READABLE |
-                                                     G_PARAM_WRITABLE |
-                                                     G_PARAM_CONSTRUCT_ONLY |
-                                                     G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class,
-                                   PROP_ADDRESS,
-                                   g_param_spec_string ("address", NULL, NULL, NULL,
-                                                        G_PARAM_WRITABLE |
-                                                        G_PARAM_CONSTRUCT_ONLY |
-                                                        G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class,
                                    PROP_CERTIFICATE,
                                    g_param_spec_object ("certificate", NULL, NULL,
                                                         G_TYPE_TLS_CERTIFICATE,
@@ -406,10 +367,6 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
   g_object_class_install_property (gobject_class, PROP_URL_ROOT,
                                    g_param_spec_string ("url-root", NULL, NULL, "",
                                                         G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-
-  g_object_class_install_property (gobject_class, PROP_SOCKET_ACTIVATED,
-                                   g_param_spec_boolean ("socket-activated", NULL, NULL, FALSE,
-                                                        G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_FLAGS,
                                    g_param_spec_int ("flags", NULL, NULL, 0, COCKPIT_WEB_SERVER_FLAGS_MAX, 0,
@@ -449,49 +406,16 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
 }
 
 CockpitWebServer *
-cockpit_web_server_new (const gchar *address,
-                        gint port,
-                        GTlsCertificate *certificate,
-                        CockpitWebServerFlags flags,
-                        GCancellable *cancellable,
-                        GError **error)
+cockpit_web_server_new (GTlsCertificate *certificate,
+                        CockpitWebServerFlags flags)
 {
-  GInitable *initable;
-  initable = g_initable_new (COCKPIT_TYPE_WEB_SERVER,
-                             cancellable,
-                             error,
-                             "port", port,
-                             "address", address,
-                             "certificate", certificate,
-                             "flags", flags,
-                             NULL);
-  if (initable != NULL)
-    return COCKPIT_WEB_SERVER (initable);
-  else
-    return NULL;
-}
-
-void
-cockpit_web_server_start (CockpitWebServer *self)
-{
-  g_return_if_fail (COCKPIT_IS_WEB_SERVER (self));
-  g_socket_service_start (self->socket_service);
+  return g_object_new (COCKPIT_TYPE_WEB_SERVER,
+                       "certificate", certificate,
+                       "flags", flags,
+                       NULL);
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
-
-gboolean
-cockpit_web_server_get_socket_activated (CockpitWebServer *self)
-{
-  return self->socket_activated;
-}
-
-gint
-cockpit_web_server_get_port (CockpitWebServer *self)
-{
-  g_return_val_if_fail (COCKPIT_IS_WEB_SERVER (self), -1);
-  return self->port;
-}
 
 CockpitWebServerFlags
 cockpit_web_server_get_flags (CockpitWebServer *self)
@@ -1296,104 +1220,6 @@ on_incoming (GSocketService *service,
 
 /* ---------------------------------------------------------------------------------------------------- */
 
-static gboolean
-cockpit_web_server_initable_init (GInitable *initable,
-                                  GCancellable *cancellable,
-                                  GError **error)
-{
-  CockpitWebServer *server = COCKPIT_WEB_SERVER (initable);
-  GSocketAddress *socket_address = NULL;
-  GSocketAddress *result_address = NULL;
-
-  gboolean ret = FALSE;
-  gboolean failed = FALSE;
-  int n, fd;
-
-  server->socket_service = g_socket_service_new ();
-
-  /* The web server has to be explicitly started */
-  g_socket_service_stop (server->socket_service);
-
-  n = sd_listen_fds (0);
-  if (n > 0)
-    {
-      /* We got file descriptors passed in, use those. */
-
-      for (fd = SD_LISTEN_FDS_START; fd < SD_LISTEN_FDS_START + n; fd++)
-        {
-          GSocket *s = NULL;
-          gboolean b;
-
-          s = g_socket_new_from_fd (fd, error);
-          if (s == NULL)
-            {
-              g_prefix_error (error, "Failed to acquire passed socket %i: ", fd);
-              goto out;
-            }
-
-          b = cockpit_web_server_add_socket (server, s, error);
-          g_object_unref (s);
-
-          if (!b)
-            {
-              g_prefix_error (error, "Failed to add listener for socket %i: ", fd);
-              goto out;
-            }
-        }
-
-      server->socket_activated = TRUE;
-    }
-  else
-    {
-      if (server->address)
-        {
-          socket_address = g_inet_socket_address_new (server->address, server->port);
-          if (socket_address)
-            {
-              failed = !g_socket_listener_add_address (G_SOCKET_LISTENER (server->socket_service),
-                                                      socket_address, G_SOCKET_TYPE_STREAM,
-                                                      G_SOCKET_PROTOCOL_DEFAULT,
-                                                      NULL, &result_address,
-                                                      error);
-              if (!failed)
-                {
-                  server->port = g_inet_socket_address_get_port (G_INET_SOCKET_ADDRESS (result_address));
-                  g_object_unref (result_address);
-                }
-              g_object_unref (socket_address);
-            }
-        }
-
-      /* No fds passed in, let's listen on our own. */
-      else if (server->port == 0)
-        {
-          server->port = g_socket_listener_add_any_inet_port (G_SOCKET_LISTENER (server->socket_service),
-                                                              NULL, error);
-          failed = (server->port == 0);
-        }
-      else if (server->port > 0)
-        {
-          failed = !g_socket_listener_add_inet_port (G_SOCKET_LISTENER (server->socket_service),
-                                                     server->port, NULL, error);
-        }
-      if (failed)
-        {
-          g_prefix_error (error, "Failed to bind to port %d: ", server->port);
-          goto out;
-        }
-    }
-
-  g_signal_connect (server->socket_service,
-                    "incoming",
-                    G_CALLBACK (on_incoming),
-                    server);
-
-  ret = TRUE;
-
-out:
-  return ret;
-}
-
 gboolean
 cockpit_web_server_add_socket (CockpitWebServer *self,
                                GSocket *socket,
@@ -1402,10 +1228,71 @@ cockpit_web_server_add_socket (CockpitWebServer *self,
   return g_socket_listener_add_socket (G_SOCKET_LISTENER (self->socket_service), socket, NULL, error);
 }
 
-static void
-initable_iface_init (GInitableIface *iface)
+guint16
+cockpit_web_server_add_inet_listener (CockpitWebServer *self,
+                                      const gchar *address,
+                                      guint16 port,
+                                      GError **error)
 {
-  iface->init = cockpit_web_server_initable_init;
+  if (address != NULL)
+    {
+      g_autoptr(GSocketAddress) socket_address = g_inet_socket_address_new_from_string (address, port);
+      if (socket_address == NULL)
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
+                       "Couldn't parse IP address from `%s`", address);
+          return 0;
+        }
+
+      g_autoptr(GSocketAddress) result_address = NULL;
+      if (!g_socket_listener_add_address (G_SOCKET_LISTENER (self->socket_service), socket_address,
+                                          G_SOCKET_TYPE_STREAM, G_SOCKET_PROTOCOL_DEFAULT,
+                                          NULL, &result_address, error))
+        return 0;
+
+      guint16 port = g_inet_socket_address_get_port (G_INET_SOCKET_ADDRESS (result_address));
+      g_assert (port != 0);
+
+      return port;
+    }
+
+  else if (port > 0)
+    {
+      if (g_socket_listener_add_inet_port (G_SOCKET_LISTENER (self->socket_service), port, NULL, error))
+        return port;
+      else
+        return 0;
+    }
+  else
+    return g_socket_listener_add_any_inet_port (G_SOCKET_LISTENER (self->socket_service), NULL, error);
+}
+
+gboolean
+cockpit_web_server_add_fd_listener (CockpitWebServer *self,
+                                    int fd,
+                                    GError **error)
+{
+  g_autoptr(GSocket) socket = g_socket_new_from_fd (fd, error);
+  if (socket == NULL)
+    {
+      g_prefix_error (error, "Failed to acquire passed socket %i: ", fd);
+      return FALSE;
+    }
+
+  if (!g_socket_listener_add_socket (G_SOCKET_LISTENER (self->socket_service), socket, NULL, error))
+    {
+      g_prefix_error (error, "Failed to add listener for socket %i: ", fd);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+void
+cockpit_web_server_start (CockpitWebServer *self)
+{
+  g_return_if_fail (COCKPIT_IS_WEB_SERVER (self));
+  g_socket_service_start (self->socket_service);
 }
 
 /* ---------------------------------------------------------------------------------------------------- */

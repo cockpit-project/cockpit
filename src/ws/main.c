@@ -26,6 +26,8 @@
 #include <dirent.h>
 #include <string.h>
 
+#include <systemd/sd-daemon.h>
+
 #include "cockpitws.h"
 
 #include "cockpithandlers.h"
@@ -216,16 +218,27 @@ main (int argc,
         server_flags |= COCKPIT_WEB_SERVER_REDIRECT_TLS | COCKPIT_WEB_SERVER_REDIRECT_TLS_PROXY;
     }
 
-  server = cockpit_web_server_new (opt_address,
-                                   opt_port,
-                                   certificate,
-                                   server_flags,
-                                   NULL,
-                                   &error);
-  if (server == NULL)
+  server = cockpit_web_server_new (certificate, server_flags);
+
+  const gint n_listen_fds = sd_listen_fds (true);
+  if (n_listen_fds)
     {
-      g_prefix_error (&error, "Error starting web server: ");
-      goto out;
+      for (gint fd = SD_LISTEN_FDS_START; fd < SD_LISTEN_FDS_START + n_listen_fds; fd++)
+        if (!cockpit_web_server_add_fd_listener (server, fd, &error))
+          {
+            g_prefix_error (&error, "Unable to acquire LISTEN_FDS: ");
+            goto out;
+          }
+
+      g_signal_connect_swapped (data.auth, "idling", G_CALLBACK (g_main_loop_quit), loop);
+    }
+  else
+    {
+      if (!cockpit_web_server_add_inet_listener (server, opt_address, opt_port, &error))
+        {
+          g_prefix_error (&error, "Error starting web server: ");
+          goto out;
+        }
     }
 
   if (cockpit_conf_string ("WebService", "UrlRoot"))
@@ -234,8 +247,6 @@ main (int argc,
                     cockpit_conf_string ("WebService", "UrlRoot"),
                     NULL);
     }
-  if (cockpit_web_server_get_socket_activated (server))
-    g_signal_connect_swapped (data.auth, "idling", G_CALLBACK (g_main_loop_quit), loop);
 
   /* Ignores stuff it shouldn't handle */
   g_signal_connect (server, "handle-stream",

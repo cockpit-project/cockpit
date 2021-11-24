@@ -116,8 +116,8 @@ static void
 setup (TestCase *test,
        gconstpointer data)
 {
-  test->server = cockpit_web_server_new (NULL, 0, NULL, COCKPIT_WEB_SERVER_NONE, NULL, NULL);
-  test->port = cockpit_web_server_get_port (test->server);
+  test->server = cockpit_web_server_new (NULL, COCKPIT_WEB_SERVER_NONE);
+  test->port = cockpit_web_server_add_inet_listener (test->server, NULL, 0, NULL);
   cockpit_web_server_start (test->server);
   test->transport = mock_transport_new ();
   test->ws_closed = FALSE;
@@ -258,12 +258,13 @@ setup_tls (TestTls *test,
   test->certificate = g_tls_certificate_new_from_files (SRCDIR "/src/bridge/mock-server.crt",
                                                         SRCDIR "/src/bridge/mock-server.key", &error);
   g_assert_no_error (error);
-  test->server = cockpit_web_server_new (NULL, 0, test->certificate, COCKPIT_WEB_SERVER_NONE, NULL, &error);
+  test->server = cockpit_web_server_new (test->certificate, COCKPIT_WEB_SERVER_NONE);
+  test->port = cockpit_web_server_add_inet_listener (test->server, NULL, 0, &error);
   g_assert_no_error (error);
+  g_assert (test->port != 0);
 
   cockpit_web_server_start (test->server);
 
-  test->port = cockpit_web_server_get_port (test->server);
   test->transport = mock_transport_new ();
   test->ws_closed = FALSE;
   test->origin = g_strdup_printf ("https://localhost:%u", test->port);

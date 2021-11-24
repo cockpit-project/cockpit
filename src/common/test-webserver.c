@@ -54,7 +54,6 @@ setup (TestCase *tc,
   GError *error = NULL;
   GInetAddress *inet;
   gchar *str = NULL;
-  const gchar *address;
   gint port;
 
   inet = cockpit_test_find_non_loopback_address ();
@@ -71,6 +70,7 @@ setup (TestCase *tc,
       cockpit_expect_possible_log ("GLib-Net", G_LOG_LEVEL_WARNING, "couldn't load TLS file database: * No such file or directory");
     }
 
+  gchar *address;
   if (fixture && fixture->local_only)
     address = "127.0.0.1";
   else if (fixture && fixture->inet_only)
@@ -78,19 +78,16 @@ setup (TestCase *tc,
   else
     address = NULL;
 
-  tc->web_server = cockpit_web_server_new (address,
-                                           0,
-                                           cert,
-                                           fixture ? fixture->server_flags : COCKPIT_WEB_SERVER_NONE,
-                                           NULL,
-                                           &error);
-  g_assert_no_error (error);
+  tc->web_server = cockpit_web_server_new (cert,
+                                           fixture ? fixture->server_flags : COCKPIT_WEB_SERVER_NONE);
   g_clear_object (&cert);
+
+  port = cockpit_web_server_add_inet_listener (tc->web_server, address, 0, &error);
+  g_assert_no_error (error);
+  g_assert (port != 0);
 
   cockpit_web_server_start (tc->web_server);
 
-  /* Automatically chosen by the web server */
-  g_object_get (tc->web_server, "port", &port, NULL);
   /* HACK: this should be "localhost", but this fails on COPR; https://github.com/cockpit-project/cockpit/issues/12423 */
   tc->localport = g_strdup_printf ("127.0.0.1:%d", port);
   if (str)
@@ -1009,19 +1006,14 @@ static void
 test_bad_address (TestCase *tc,
                   gconstpointer unused)
 {
-  CockpitWebServer *server = NULL;
-  GError *error = NULL;
   gint port;
 
-  cockpit_expect_warning ("Couldn't parse IP address from: bad");
-  server = cockpit_web_server_new ("bad", 0, NULL, COCKPIT_WEB_SERVER_NONE, NULL, &error);
-  cockpit_web_server_start (server);
-
-  g_assert_no_error (error);
-  g_object_get (server, "port", &port, NULL);
-  g_assert (port > 0);
-
-  g_object_unref (server);
+  g_autoptr(CockpitWebServer) server = cockpit_web_server_new (NULL, COCKPIT_WEB_SERVER_NONE);
+  g_autoptr(GError) error = NULL;
+  port = cockpit_web_server_add_inet_listener (server, "bad", 0, &error);
+  g_assert (port == 0);
+  cockpit_assert_error_matches (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
+                                "Couldn't parse IP address from `bad`");
 }
 
 static const TestFixture fixture_for_tls_proxy = {

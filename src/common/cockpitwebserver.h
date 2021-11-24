@@ -40,12 +40,8 @@ typedef enum {
 } CockpitWebServerFlags;
 
 
-CockpitWebServer * cockpit_web_server_new           (const gchar *address,
-                                                     gint port,
-                                                     GTlsCertificate *certificate,
-                                                     CockpitWebServerFlags flags,
-                                                     GCancellable *cancellable,
-                                                     GError **error);
+CockpitWebServer * cockpit_web_server_new           (GTlsCertificate *certificate,
+                                                     CockpitWebServerFlags flags);
 
 void               cockpit_web_server_start         (CockpitWebServer *self);
 
@@ -61,11 +57,18 @@ gchar *            cockpit_web_server_parse_cookie    (GHashTable *headers,
 gchar **           cockpit_web_server_parse_accept_list   (const gchar *accept,
                                                            const gchar *first);
 
-gboolean           cockpit_web_server_get_socket_activated (CockpitWebServer *self);
-
-gint               cockpit_web_server_get_port             (CockpitWebServer *self);
-
 CockpitWebServerFlags cockpit_web_server_get_flags         (CockpitWebServer *self);
+
+guint16
+cockpit_web_server_add_inet_listener (CockpitWebServer *self,
+                                      const gchar *address,
+                                      guint16 port,
+                                      GError **error);
+
+gboolean
+cockpit_web_server_add_fd_listener (CockpitWebServer *self,
+                                    int fd,
+                                    GError **error);
 
 G_END_DECLS
 

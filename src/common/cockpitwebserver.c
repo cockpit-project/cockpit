@@ -28,6 +28,8 @@
 
 #include "websocket/websocket.h"
 
+#include <gio/gunixsocketaddress.h>
+
 #include <sys/socket.h>
 #include <errno.h>
 #include <stdio.h>
@@ -1267,6 +1269,17 @@ cockpit_web_server_add_inet_listener (CockpitWebServer *self,
     }
   else
     return g_socket_listener_add_any_inet_port (G_SOCKET_LISTENER (self->socket_service), NULL, error);
+}
+
+gboolean
+cockpit_web_server_add_unix_listener (CockpitWebServer *self,
+                                      const gchar *path,
+                                      GError **error)
+{
+  g_autoptr(GSocketAddress) socket_address = g_unix_socket_address_new (path);
+  return g_socket_listener_add_address (G_SOCKET_LISTENER (self->socket_service), socket_address,
+                                          G_SOCKET_TYPE_STREAM, G_SOCKET_PROTOCOL_DEFAULT,
+                                          NULL, NULL, error);
 }
 
 gboolean

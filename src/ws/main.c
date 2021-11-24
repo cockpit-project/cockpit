@@ -43,6 +43,7 @@
 
 static gint      opt_port         = 9090;
 static gchar     *opt_address     = NULL;
+static gchar     *opt_unix        = NULL;
 static gboolean  opt_no_tls       = FALSE;
 static gboolean  opt_for_tls_proxy    = FALSE;
 static gboolean  opt_proxy_tls_redirect = FALSE;
@@ -53,6 +54,7 @@ static gboolean  opt_version      = FALSE;
 static GOptionEntry cmd_entries[] = {
   {"port", 'p', 0, G_OPTION_ARG_INT, &opt_port, "Local port to bind to (9090 if unset)", NULL},
   {"address", 'a', 0, G_OPTION_ARG_STRING, &opt_address, "Address to bind to (binds on all addresses if unset)", "ADDRESS"},
+  {"unix", 'U', 0, G_OPTION_ARG_STRING, &opt_unix, "Listen on this unix address", "PATH"},
   {"no-tls", 0, 0, G_OPTION_ARG_NONE, &opt_no_tls, "Don't use TLS", NULL},
   {"for-tls-proxy", 0, 0, G_OPTION_ARG_NONE, &opt_for_tls_proxy,
       "Act behind a https-terminating proxy: accept only https:// origins by default",
@@ -227,6 +229,14 @@ main (int argc,
         }
 
       g_signal_connect_swapped (data.auth, "idling", G_CALLBACK (g_main_loop_quit), loop);
+    }
+  else if (opt_unix)
+    {
+      if (!cockpit_web_server_add_unix_listener (server, opt_unix, &error))
+        {
+          g_prefix_error (&error, "Error starting web server: ");
+          goto out;
+        }
     }
   else
     {

@@ -316,6 +316,8 @@
 
         // Setup title
         let title = environment.page.title;
+        if (environment.is_cockpit_client)
+            title = _("Login");
         if (!title || application.indexOf("cockpit+=") === 0)
             title = environment.hostname;
         document.title = title;

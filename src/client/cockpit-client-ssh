@@ -31,7 +31,7 @@ def do_authorize(challenge='*', **kwargs):
     cookie = str(uuid.uuid4())
     send_control(command='authorize', challenge=challenge, cookie=cookie, **kwargs)
     response = recv_control()
-    assert response.cookie == cookie
+    assert response['cookie'] == cookie
     logging.debug(response)
     if 'response' not in response:
         raise ValueError('invalid authorize response')

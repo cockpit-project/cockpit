@@ -301,8 +301,6 @@
     }
 
     function boot() {
-        window.onload = null;
-
         translate();
         if (window.cockpit_po && window.cockpit_po[""])
             document.documentElement.lang = window.cockpit_po[""].language || "en-us";
@@ -348,7 +346,9 @@
         const os_release = environment["os-release"];
         if (os_release)
             localStorage.setItem('os-release', JSON.stringify(os_release));
+    }
 
+    function page_show() {
         const logout_intent = window.sessionStorage.getItem("logout-intent") == "explicit";
         if (logout_intent)
             window.sessionStorage.removeItem("logout-intent");
@@ -937,5 +937,6 @@
         login_reload(wanted);
     }
 
+    window.onpageshow = page_show;
     window.onload = boot;
 })(window.console);

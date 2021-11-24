@@ -24,6 +24,7 @@
 #include <glib/gstdio.h>
 
 #include <dirent.h>
+#include <err.h>
 #include <string.h>
 
 #include "cockpitws.h"
@@ -37,7 +38,6 @@
 #include "common/cockpitmemory.h"
 #include "common/cockpitsystem.h"
 #include "common/cockpittest.h"
-#include "common/cockpitwebcertificate.h"
 
 /* ---------------------------------------------------------------------------------------------------- */
 
@@ -125,7 +125,6 @@ main (int argc,
 {
   gint ret = 1;
   g_autoptr(GOptionContext) context = NULL;
-  g_autoptr(GTlsCertificate) certificate = NULL;
   g_autoptr(GError) error = NULL;
   g_auto(GStrv) roots = NULL;
   g_autoptr(GMainLoop) loop = NULL;
@@ -174,27 +173,8 @@ main (int argc,
 
   cockpit_hacks_redirect_gdebug_to_stderr ();
 
-  if (opt_local_session || opt_no_tls)
-    {
-      /* no certificate */
-    }
-  else
-    {
-      g_autofree char *message = NULL;
-      g_autofree gchar *cert_path = cockpit_certificate_locate (false, &message);
-      if (cert_path == NULL)
-        {
-          g_set_error_literal (&error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND, message);
-          goto out;
-        }
-
-      g_autofree gchar *key_path = cockpit_certificate_key_path (cert_path);
-
-      certificate = g_tls_certificate_new_from_files (cert_path, key_path, &error);
-      if (certificate == NULL)
-        goto out;
-      g_info ("Using certificate: %s", cert_path);
-    }
+  if (!opt_local_session && !opt_no_tls)
+    errx (EXIT_FAILURE, "cockpit-ws no longer supports TLS.  Use --no-tls");
 
   loop = g_main_loop_new (NULL, FALSE);
 
@@ -218,7 +198,7 @@ main (int argc,
         server_flags |= COCKPIT_WEB_SERVER_REDIRECT_TLS | COCKPIT_WEB_SERVER_REDIRECT_TLS_PROXY;
     }
 
-  server = cockpit_web_server_new (certificate, server_flags);
+  server = cockpit_web_server_new (NULL, server_flags);
 
   if (cockpit_web_server_has_listen_fds ())
     {

@@ -665,16 +665,12 @@ server_ready (void)
     server_port = 8765;
 
   server_roots = cockpit_web_response_resolve_roots (roots);
-  server = cockpit_web_server_new (NULL, server_port, /* TCP port to listen to */
-                                   NULL, /* TLS cert */
-                                   COCKPIT_WEB_SERVER_NONE,
-                                   NULL, /* GCancellable* */
-                                   &error);
-  if (server == NULL)
-    {
-      g_critical ("Error setting up web server: %s (%s, %d)",
-                  error->message, g_quark_to_string (error->domain), error->code);
-    }
+  server = cockpit_web_server_new (NULL, /* TLS cert */
+                                   COCKPIT_WEB_SERVER_NONE);
+  server_port = cockpit_web_server_add_inet_listener (server, NULL, server_port, &error);
+  g_assert_no_error (error);
+  g_assert (server_port != 0);
+
 
   g_signal_connect (server, "handle-stream",
                     G_CALLBACK (on_handle_stream_socket), NULL);
@@ -687,7 +683,6 @@ server_ready (void)
   g_signal_connect (server, "handle-resource::/mock/",
                     G_CALLBACK (on_handle_mock), NULL);
 
-  server_port = cockpit_web_server_get_port (server);
   url = g_strdup_printf("http://localhost:%d", server_port);
 
   cockpit_web_server_start (server);

@@ -1214,12 +1214,7 @@ cockpit_packages_new (void)
 
   packages = g_new0 (CockpitPackages, 1);
 
-  packages->web_server = cockpit_web_server_new (NULL, -1, NULL, COCKPIT_WEB_SERVER_NONE, NULL, &error);
-  if (!packages->web_server)
-    {
-      g_warning ("couldn't initialize bridge package server: %s", error->message);
-      goto out;
-    }
+  packages->web_server = cockpit_web_server_new (NULL, COCKPIT_WEB_SERVER_NONE);
 
   if (!cockpit_web_server_add_socket (packages->web_server, socket, &error))
     {

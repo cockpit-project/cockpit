@@ -566,7 +566,8 @@
         let expanded = id("option-group").getAttribute("data-state");
 
         hide("#login-wait-validating");
-        show("#login", "#login-details");
+        show("#login");
+        hideToggle("#login-details", environment.is_cockpit_client);
 
         hideToggle(["#user-group", "#password-group"], form != "login" || environment.is_cockpit_client);
         hideToggle("#conversation-group", form != "conversation");

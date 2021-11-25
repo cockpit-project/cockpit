@@ -56,6 +56,8 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
         super().__init__(application=app)
 
         self.add_action_entries([
+            ('reload', self.reload),
+            ('reload-bypass-cache', self.reload_bypass_cache),
             ('go-back', self.go_back),
             ('go-forward', self.go_forward),
             ('zoom', self.zoom, 's'),
@@ -77,6 +79,12 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
     def history_changed(self, *args):
         self.lookup_action('go-back').set_enabled(self.webview.can_go_back())
         self.lookup_action('go-forward').set_enabled(self.webview.can_go_forward())
+
+    def reload(self, *args):
+        self.webview.reload()
+
+    def reload_bypass_cache(self, *args):
+        self.webview.reload_bypass_cache()
 
     def go_back(self, *args):
         self.webview.go_back()
@@ -133,6 +141,8 @@ class CockpitClient(Gtk.Application):
         self.add_action(open_path)
 
         self.set_accels_for_action("app.new-window", ["<Ctrl>N"])
+        self.set_accels_for_action("win.reload", ["<Primary>r"])
+        self.set_accels_for_action("win.reload-bypass-cache", ["<Primary><Shift>r"])
         self.set_accels_for_action("win.go-back", ["<Alt>Left"])
         self.set_accels_for_action("win.go-forward", ["<Alt>Right"])
         self.set_accels_for_action("win.zoom::in", ["<Primary>equal"])

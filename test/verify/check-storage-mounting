@@ -69,8 +69,27 @@ class TestStorageMounting(StorageCase):
 
         self.content_tab_wait_in_info(1, 1, "Mount point", mount_point_foo)
 
+        # Keep the mount point busy
+        sleep_pid = m.spawn(f"cd {mount_point_foo}; sleep infinity", "sleep")
+        self.write_file("/etc/systemd/system/keep-mnt-busy.service",
+                        f"""
+[Unit]
+Description=Test Service
+
+[Service]
+WorkingDirectory={mount_point_foo}
+ExecStart=/usr/bin/sleep infinity
+""")
+        m.execute("systemctl start keep-mnt-busy")
+
         self.content_dropdown_action(1, "Unmount")
+        b.wait_in_text("#dialog", str(sleep_pid))
+        b.wait_in_text("#dialog", "keep-mnt-busy")
+        b.assert_pixels("#dialog", "busy-unmount", ignore=["td:nth-child(1)", "td:nth-child(4)"])
+        self.confirm()
         self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
+
+        m.execute("! systemctl --quiet is-active keep-mnt-busy")
 
         self.content_tab_info_action(1, 1, "Name")
         self.dialog({"name": "filesystem"})
@@ -367,6 +386,7 @@ class TestStorageMounting(StorageCase):
 
         # Unmounting should keep the noauto option, as always
         self.content_dropdown_action(1, "Unmount")
+        self.confirm()
         self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
         self.assertIn("noauto", m.execute("grep /run/foo /etc/fstab || true"))
         self.assertNotEqual(m.execute("grep noauto /etc/crypttab"), "")

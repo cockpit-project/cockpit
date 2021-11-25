@@ -42,21 +42,39 @@ class TestStorageUsed(StorageCase):
         m.execute("mke2fs -q -L TEST /dev/mapper/dm-test")
         m.execute("mount /dev/mapper/dm-test /mnt")
 
-        # Now all of /dev/mapper/dm-test, /dev/sda1, and /dev/sda should be 'in use'.
+        # Keep the mount point busy
+        sleep_pid = m.spawn("cd /mnt; sleep infinity", "sleep")
+        self.write_file("/etc/systemd/system/keep-mnt-busy.service",
+                        """
+[Unit]
+Description=Test Service
+
+[Service]
+WorkingDirectory=/mnt
+ExecStart=/usr/bin/sleep infinity
+""")
+        m.execute("systemctl start keep-mnt-busy")
+
+        # Now all of /dev/mapper/dm-test, /dev/sda1, and /dev/sda
+        # should be 'in use' but Cockpit can clean them all up anyway.
 
         b.click(f'.sidepanel-row:contains("{disk}")')
         b.wait_visible("#storage-detail")
 
         self.content_dropdown_action(1, "Format")
         self.dialog_wait_open()
-        b.wait_in_text("#dialog", "Proceeding will unmount all filesystems on it.")
+        b.click("#dialog button:contains(Currently in use)")
+        b.wait_in_text(".pf-c-popover", str(sleep_pid))
+        b.wait_in_text(".pf-c-popover", "keep-mnt-busy")
+        b.assert_pixels(".pf-c-popover", "popover", ignore=["li"])
+        b.click(".pf-c-popover button")
         b.assert_pixels('#dialog', "format")
         self.dialog_cancel()
         self.dialog_wait_close()
 
         self.content_dropdown_action(1, "Delete")
         self.dialog_wait_open()
-        b.wait_in_text("#dialog", "Proceeding will unmount all filesystems on it.")
+        b.wait_visible("#dialog button:contains(Currently in use)")
         b.assert_pixels('#dialog', "delete")
         self.dialog_cancel()
         self.dialog_wait_close()
@@ -65,10 +83,12 @@ class TestStorageUsed(StorageCase):
 
         b.click('button:contains(Create partition table)')
         self.dialog_wait_open()
-        b.wait_in_text("#dialog", "Proceeding will unmount all filesystems on it.")
+        b.wait_visible("#dialog tr:first-child button:contains(Currently in use)")
         b.assert_pixels('#dialog', "format-disk")
         self.dialog_apply()
         self.dialog_wait_close()
+
+        m.execute("! systemctl --quiet is-active keep-mnt-busy")
 
         self.content_row_wait_in_col(1, 0, "Free space")
 

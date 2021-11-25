@@ -97,6 +97,7 @@ class TestStorageLuks(StorageCase):
 
         # Unmount. This locks it
         self.content_dropdown_action(1, "Unmount")
+        self.confirm()
         self.content_tab_wait_in_info(1, 2, "Mount point", "The filesystem is not mounted")
         self.wait_in_configuration(dev, "crypttab", "options", "noauto")
         self.wait_in_child_configuration(dev, "fstab", "opts", "noauto")
@@ -129,6 +130,7 @@ class TestStorageLuks(StorageCase):
 
         # Unmount it
         self.content_dropdown_action(1, "Unmount")
+        self.confirm()
         b.wait_not_in_text("#detail-content", "ext4 filesystem")
         self.wait_in_configuration(dev, "crypttab", "options", "noauto")
         self.wait_in_child_configuration(dev, "fstab", "opts", "noauto")
@@ -154,6 +156,7 @@ class TestStorageLuks(StorageCase):
 
         # Unmount it
         self.content_dropdown_action(1, "Unmount")
+        self.confirm()
         b.wait_not_in_text("#detail-content", "ext4 filesystem")
         self.wait_in_configuration(dev, "crypttab", "options", "noauto")
         self.wait_in_child_configuration(dev, "fstab", "opts", "noauto")
@@ -331,6 +334,7 @@ class TestStorageLuks(StorageCase):
         self.wait_not_in_configuration(cleartext_dev, "fstab", "opts", "noauto")
         # unlock with second passphrase
         self.content_dropdown_action(1, "Unmount")
+        self.confirm()
         b.wait_not_in_text("#detail-content", "ext4 filesystem")
         self.wait_in_configuration(dev, "crypttab", "options", "noauto")
         self.wait_in_child_configuration(dev, "fstab", "opts", "noauto")
@@ -351,6 +355,7 @@ class TestStorageLuks(StorageCase):
         b.wait_not_present("#remove-passphrase")
         # check that it is not possible to unlock with deleted passphrase
         self.content_dropdown_action(1, "Unmount")
+        self.confirm()
         self.wait_in_configuration(dev, "crypttab", "options", "noauto")
         self.wait_in_child_configuration(dev, "fstab", "opts", "noauto")
         b.wait_not_in_text("#detail-content", "ext4 filesystem")
@@ -492,6 +497,7 @@ class TestStorageLuks(StorageCase):
         # Unmount (and lock) it
 
         self.content_dropdown_action(1, "Unmount")
+        self.confirm()
         self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
 
         # Format it again and keep the keys.  Because it's locked, we

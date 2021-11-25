@@ -57,13 +57,11 @@ class TestStorageMdRaid(StorageCase):
     def raid_action(self, action):
         self.browser.click(f'.pf-c-card__header:contains("RAID device") button:contains({action})')
 
-    def raid_default_action(self, action):
-        def do_click():
-            self.browser.wait_visible(f'.pf-c-card__header:contains("RAID device") button:contains({action})')
-            self.browser.click(f'.pf-c-card__header:contains("RAID device") button:contains({action})')
+    def raid_default_action_start(self, action):
+        self.browser.wait_visible(f'.pf-c-card__header:contains("RAID device") button:contains({action})')
+        self.browser.click(f'.pf-c-card__header:contains("RAID device") button:contains({action})')
 
-        do_click()
-
+    def raid_default_action_finish(self, action):
         if action == "Stop":
             # Right after assembling an array the device might be busy
             # from udev rules probing or the mdadm monitor; retry a
@@ -83,9 +81,13 @@ class TestStorageMdRaid(StorageCase):
                         self.browser.wait_in_text("#dialog", "Error stopping RAID array")
                         self.dialog_cancel()
                         self.dialog_wait_close()
-                    do_click()
+                    self.raid_default_action_start(action)
             else:
                 self.fail("Timed out waiting for array to get stopped")
+
+    def raid_default_action(self, action):
+        self.raid_default_action_start(action)
+        self.raid_default_action_finish(action)
 
     def testRaid(self):
         m = self.machine
@@ -208,7 +210,7 @@ class TestStorageMdRaid(StorageCase):
         self.content_row_action(2, "Create partition", False)
         self.dialog({"type": "ext4",
                      "mount_point": "/foo2",
-                     "mount_options.auto": False,
+                     "mount_options.auto": True,
                      "name": "Two"})
 
         self.content_row_wait_in_col(2, 2, "ext4 filesystem")
@@ -227,7 +229,13 @@ class TestStorageMdRaid(StorageCase):
         self.wait_states({"QEMU QEMU HARDDISK (DISK4)": "In sync"})
 
         # Stop the array, destroy a disk, and start the array
-        self.raid_default_action("Stop")
+        self.raid_default_action_start("Stop")
+        self.dialog_wait_open()
+        b.wait_in_text('#dialog', "unmount, stop")
+        b.assert_pixels('#dialog', "stop-busy")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.raid_default_action_finish("Stop")
         b.wait_in_text(info_field("State", m.image), "Not running")
         m.execute("wipefs -a /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK2")
         b.wait_not_in_text('#detail-sidebar', "DISK2")

@@ -152,6 +152,7 @@ class TestStorageLvm2(StorageCase):
 
         # unmount it
         self.content_dropdown_action(1, "Unmount")
+        self.confirm()
         self.content_tab_wait_in_info(1, 2, "Mount point", "The filesystem is not mounted.")
 
         # shrink it, this time with a filesystem.

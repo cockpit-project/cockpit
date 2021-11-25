@@ -245,7 +245,7 @@ class TestStorageNfs(StorageCase):
         b.wait_text('#detail-header dt:contains("Server") + dd', "127.0.0.1:/home/foo")
         b.wait_text('#detail-header dt:contains("Mount point") + dd', "/mounts/foo")
 
-        m.spawn("cd /mounts/foo; sleep infinity", "busy")
+        sleep_pid = m.spawn("cd /mounts/foo; sleep infinity", "busy")
         b.click('#detail-header button:contains("Edit")')
 
         self.dialog_wait_open()
@@ -255,8 +255,8 @@ class TestStorageNfs(StorageCase):
 
         b.click("#detail-header button:contains(Unmount)")
         self.dialog_wait_open()
-        b.wait_in_text("#dialog", "The filesystem is in use")
-        self.assertRegex(b.text(".units-table td:first-child"), r"Session \d+ of [uU]ser root")
+        b.wait_in_text("#dialog", str(sleep_pid))
+        b.assert_pixels("#dialog", "umount", ignore=["td:nth-child(1)", "td:nth-child(4)"])
         self.dialog_apply()
 
         b.wait_visible("#detail-header button:contains(Mount)")

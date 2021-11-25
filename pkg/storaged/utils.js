@@ -611,8 +611,8 @@ function get_children(client, path) {
     return children;
 }
 
-export function get_active_usage(client, path) {
-    function get_usage(path) {
+export function get_active_usage(client, path, top_action, child_action) {
+    function get_usage(path, level) {
         const block = client.blocks[path];
         const fsys = client.blocks_fsys[path];
         const mdraid = block && client.mdraids[block.MDRaidMember];
@@ -622,131 +622,92 @@ export function get_active_usage(client, path) {
         const stratis_blockdev = block && client.blocks_stratis_blockdev[path];
         const stratis_pool = stratis_blockdev && client.stratis_pools[stratis_blockdev.Pool];
 
-        const usage = flatten(get_children(client, path).map(get_usage));
+        const usage = flatten(get_children(client, path).map(p => get_usage(p, level + 1)));
 
-        if (fsys && fsys.MountPoints.length > 0)
+        function get_actions(teardown_action) {
+            const actions = [];
+            if (teardown_action)
+                actions.push(teardown_action);
+            const global_action = (level == 0 || (block && client.blocks[block.CryptoBackingDevice] && level == 1)) ? top_action : child_action || top_action;
+            if (global_action)
+                actions.push(global_action);
+            return actions;
+        }
+
+        if (fsys && fsys.MountPoints.length > 0) {
             usage.push({
+                level: level,
                 usage: 'mounted',
                 block: block,
-                fsys: fsys
+                fsys: fsys,
+                location: decode_filename(fsys.MountPoints[0]),
+                actions: get_actions(_("unmount")),
+                blocking: false,
             });
-
-        if (mdraid)
+        } else if (mdraid) {
+            const active_state = array_find(mdraid.ActiveDevices, function (as) {
+                return as[0] == block.path;
+            });
             usage.push({
+                level: level,
                 usage: 'mdraid-member',
                 block: block,
-                mdraid: mdraid
+                mdraid: mdraid,
+                location: mdraid_name(mdraid.Name),
+                actions: get_actions(_("remove from RAID")),
+                blocking: !(active_state && active_state[1] < 0)
             });
-
-        if (vgroup)
+        } else if (vgroup) {
             usage.push({
+                level: level,
                 usage: 'pvol',
                 block: block,
+                vgroup: vgroup,
                 pvol: pvol,
-                vgroup: vgroup
+                location: vgroup.Name,
+                actions: get_actions(_("remove from LVM2")),
+                blocking: pvol.FreeSize != pvol.Size
             });
-
-        if (vdo)
+        } else if (vdo) {
             usage.push({
+                level: level,
                 usage: 'vdo-backing',
                 block: block,
-                vdo: vdo
+                vdo: vdo,
+                location: vdo.name,
+                blocking: true
             });
-
-        if (stratis_pool)
+        } else if (stratis_pool) {
             usage.push({
+                level: level,
                 usage: 'stratis-pool-member',
                 block: block,
-                stratis_pool: stratis_pool
+                stratis_pool: stratis_pool,
+                location: stratis_pool.Name,
+                blocking: true
             });
+        } else if (block && !client.blocks_cleartext[block.path]) {
+            usage.push({
+                level: level,
+                usage: 'none',
+                block: block,
+                actions: get_actions(null),
+                blocking: false
+            });
+        }
 
         return usage;
     }
 
-    // Prepare the result for the dialogs
+    let usage = get_usage(path, 0);
 
-    const usage = get_usage(path);
+    if (usage.length == 1 && usage[0].level == 0 && usage[0].usage == "none")
+        usage = [];
 
-    const res = {
-        raw: usage,
-        Teardown: {
-            Mounts: [],
-            MDRaidMembers: [],
-            PhysicalVolumes: []
-        },
-        Blocking: {
-            Mounts: [],
-            MDRaidMembers: [],
-            PhysicalVolumes: [],
-            VDOs: [],
-            Pools: []
-        }
-    };
+    usage.Blocking = usage.some(u => u.blocking);
+    usage.Teardown = usage.some(u => !u.blocking);
 
-    usage.forEach(function (use) {
-        let entry, active_state;
-
-        if (use.usage == 'mounted') {
-            const fsys = client.blocks_stratis_fsys[use.block.path];
-            res.Teardown.Mounts.push({
-                Name: fsys ? fsys.Devnode : block_name(client.blocks[use.block.CryptoBackingDevice] || use.block),
-                MountPoint: decode_filename(use.fsys.MountPoints[0])
-            });
-        } else if (use.usage == 'mdraid-member') {
-            entry = {
-                Name: block_name(use.block),
-                MDRaid: mdraid_name(use.mdraid)
-            };
-            active_state = array_find(use.mdraid.ActiveDevices, function (as) {
-                return as[0] == use.block.path;
-            });
-            if (active_state && active_state[1] < 0)
-                res.Teardown.MDRaidMembers.push(entry);
-            else
-                res.Blocking.MDRaidMembers.push(entry);
-        } else if (use.usage == 'pvol') {
-            entry = {
-                Name: block_name(use.block),
-                VGroup: use.vgroup.Name
-            };
-            if (use.pvol.FreeSize == use.pvol.Size) {
-                res.Teardown.PhysicalVolumes.push(entry);
-            } else {
-                res.Blocking.PhysicalVolumes.push(entry);
-            }
-        } else if (use.usage == 'vdo-backing') {
-            entry = {
-                Name: block_name(use.block),
-                VDO: use.vdo.name
-            };
-            res.Blocking.VDOs.push(entry);
-        } else if (use.usage == 'stratis-pool-member') {
-            entry = {
-                Name: block_name(use.block),
-                Pool: use.stratis_pool.Name
-            };
-            res.Blocking.Pools.push(entry);
-        }
-    });
-
-    res.Teardown.HasMounts = res.Teardown.Mounts.length > 0;
-    res.Teardown.HasMDRaidMembers = res.Teardown.MDRaidMembers.length > 0;
-    res.Teardown.HasPhysicalVolumes = res.Teardown.PhysicalVolumes.length > 0;
-
-    if (!res.Teardown.HasMounts && !res.Teardown.HasMDRaidMembers && !res.Teardown.HasPhysicalVolumes)
-        res.Teardown = null;
-
-    res.Blocking.HasMounts = res.Blocking.Mounts.length > 0;
-    res.Blocking.HasMDRaidMembers = res.Blocking.MDRaidMembers.length > 0;
-    res.Blocking.HasPhysicalVolumes = res.Blocking.PhysicalVolumes.length > 0;
-    res.Blocking.HasVDOs = res.Blocking.VDOs.length > 0;
-    res.Blocking.HasPools = res.Blocking.Pools.length > 0;
-
-    if (!res.Blocking.HasMounts && !res.Blocking.HasMDRaidMembers && !res.Blocking.HasPhysicalVolumes &&
-        !res.Blocking.HasVDOs && !res.Blocking.HasPools)
-        res.Blocking = null;
-
-    return res;
+    return usage;
 }
 
 export function teardown_active_usage(client, usage) {
@@ -761,7 +722,13 @@ export function teardown_active_usage(client, usage) {
 
     function unmount(mounteds) {
         return Promise.all(mounteds.map(m => {
-            if (m.fsys.MountPoints.length > 0)
+            if (m.users && m.users.length > 0)
+                return client.nfs.stop_and_unmount_entry(m.users,
+                                                         {
+                                                             fields: [null,
+                                                                 decode_filename(m.fsys.MountPoints[0])]
+                                                         });
+            else if (m.fsys.MountPoints.length > 0)
                 return m.fsys.Unmount({});
             else
                 return Promise.resolve();
@@ -798,9 +765,9 @@ export function teardown_active_usage(client, usage) {
     }
 
     return Promise.all(Array.prototype.concat(
-        unmount(usage.raw.filter(function(use) { return use.usage == "mounted" })),
-        mdraid_remove(usage.raw.filter(function(use) { return use.usage == "mdraid-member" })),
-        pvol_remove(usage.raw.filter(function(use) { return use.usage == "pvol" }))
+        unmount(usage.filter(function(use) { return use.usage == "mounted" })),
+        mdraid_remove(usage.filter(function(use) { return use.usage == "mdraid-member" })),
+        pvol_remove(usage.filter(function(use) { return use.usage == "pvol" }))
     ));
 }
 
@@ -822,4 +789,8 @@ export function is_mounted_synch(block) {
                           { superuser: true, err: "message" })
             .then(data => data.trim())
             .catch(() => false));
+}
+
+export function for_each_async(arr, func) {
+    return arr.reduce((promise, elt) => promise.then(() => func(elt)), Promise.resolve());
 }

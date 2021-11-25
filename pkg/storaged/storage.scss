@@ -179,6 +179,10 @@ td.job-action {
     text-align: left;
 }
 
+.pf-c-modal-box__body table {
+    --pf-c-table--m-compact--cell--first-last-child--PaddingLeft: 0px;
+}
+
 * + .modal-footer-teardown {
     padding-top: var(--pf-global--spacer--xl);
 }
@@ -230,32 +234,6 @@ a.disabled {
 
 td.storage-action {
     overflow: visible !important;
-}
-
-.units-table .cmd {
-    font-family: monospace;
-}
-
-.units-table > tbody > tr > td:nth-child(1),
-.units-table > thead > tr > th:nth-child(1) {
-    border-right: none;
-    white-space: nowrap;
-    width: 1%;
-}
-
-.units-table > tbody > tr > td:nth-child(2),
-.units-table > thead > tr > th:nth-child(2) {
-    border-left: none;
-    border-right: none;
-    word-break: break-all;
-}
-
-.units-table > tbody > tr > td:nth-child(3),
-.units-table > thead > tr > th:nth-child(3) {
-    text-align: right;
-    border-left: none;
-    white-space: nowrap;
-    width: 1%;
 }
 
 .network-keys-table td {
@@ -438,4 +416,12 @@ td.ct-text-align-right {
     background-size: var(--pf-global--spacer--sm) var(--pf-global--spacer--sm);
     // Overlay at 1/3  to mix the light and dark against the trough color
     opacity: 0.333;
+}
+
+.ct-warning-text {
+    color: var(--pf-global--warning-color--200)
+}
+
+td button.pf-m-link {
+    padding: 0px;
 }

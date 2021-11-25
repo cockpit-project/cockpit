@@ -33,7 +33,10 @@ import { StdDetailsLayout } from "./details.jsx";
 import { SidePanel, SidePanelBlockRow } from "./side-panel.jsx";
 import { Block } from "./content-views.jsx";
 import { StorageButton, StorageOnOff } from "./storage-controls.jsx";
-import { dialog_open, SelectSpaces, BlockingMessage, TeardownMessage, teardown_and_apply_title } from "./dialog.jsx";
+import {
+    dialog_open, SelectSpaces, BlockingMessage, TeardownMessage,
+    init_active_usage_processes
+} from "./dialog.jsx";
 
 const _ = cockpit.gettext;
 
@@ -230,7 +233,7 @@ export class MDRaidDetails extends React.Component {
         }
 
         function stop() {
-            const usage = utils.get_active_usage(client, block ? block.path : "");
+            const usage = utils.get_active_usage(client, block ? block.path : "", _("stop"));
 
             if (usage.Blocking) {
                 dialog_open({
@@ -246,17 +249,17 @@ export class MDRaidDetails extends React.Component {
                                           utils.mdraid_name(mdraid)),
                     Teardown: TeardownMessage(usage),
                     Action: {
-                        Title: teardown_and_apply_title(usage,
-                                                        _("Stop device"),
-                                                        _("Unmount and stop device"),
-                                                        _("Remove and stop device")),
+                        Title: _("Stop device"),
                         action: function () {
                             return utils.teardown_active_usage(client, usage)
                                     .then(function () {
                                         return mdraid.Stop({});
                                     });
                         }
-                    }
+                    },
+                    Inits: [
+                        init_active_usage_processes(client, usage)
+                    ]
                 });
                 return;
             }
@@ -285,7 +288,7 @@ export class MDRaidDetails extends React.Component {
                     return wipe_members();
             }
 
-            const usage = utils.get_active_usage(client, block ? block.path : "");
+            const usage = utils.get_active_usage(client, block ? block.path : "", _("delete"));
 
             if (usage.Blocking) {
                 dialog_open({
@@ -299,10 +302,7 @@ export class MDRaidDetails extends React.Component {
                 Title: cockpit.format(_("Permanently delete $0?"), utils.mdraid_name(mdraid)),
                 Teardown: TeardownMessage(usage),
                 Action: {
-                    Title: teardown_and_apply_title(usage,
-                                                    _("Delete"),
-                                                    _("Unmount and delete"),
-                                                    _("Remove and delete")),
+                    Title: _("Delete"),
                     Danger: _("Deleting erases all data on a RAID device."),
                     action: function () {
                         return utils.teardown_active_usage(client, usage)
@@ -311,7 +311,10 @@ export class MDRaidDetails extends React.Component {
                                     location.go('/');
                                 });
                     }
-                }
+                },
+                Inits: [
+                    init_active_usage_processes(client, usage)
+                ]
             });
         }
 

@@ -243,7 +243,7 @@ class TestStorageLegacyVDO(StorageCase):
         b.wait_visible('#detail-content table')
         b.click('.pf-c-card__header:contains("VDO") button:contains("Stop")')
         self.dialog_wait_open()
-        b.wait_in_text("#dialog", "Proceeding will unmount all filesystems on it.")
+        b.wait_in_text("#dialog", "unmount, stop")
         self.dialog_apply()
         self.dialog_wait_close()
         b.wait_not_present('#detail-content table')

@@ -115,6 +115,7 @@ class TestStorageStratis(StorageCase):
 
         # Unmount and remount the other filesystem
         self.content_dropdown_action(1, "Unmount")
+        self.confirm()
         self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
         self.content_row_action(1, "Mount")
         self.dialog({})

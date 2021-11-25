@@ -28,9 +28,11 @@ import {
     DescriptionListGroup,
     DescriptionListDescription
 } from "@patternfly/react-core";
-import { dialog_open, TeardownMessage, TextInput, ComboBox, CheckBoxes } from "./dialog.jsx";
+import {
+    dialog_open, TextInput, ComboBox, CheckBoxes,
+    StopProcessesMessage, stop_processes_danger_message
+} from "./dialog.jsx";
 import * as format from "./format-dialog.jsx";
-import { format_delay } from "./utils.js";
 
 import { StdDetailsLayout } from "./details.jsx";
 import { StorageButton, StorageUsageBar } from "./storage-controls.jsx";
@@ -45,27 +47,12 @@ function nfs_busy_dialog(client, dialog_title, entry, error, action_title, actio
                 Body: error.toString()
             });
         } else {
-            const sessions = [];
-            const services = [];
-            users.forEach((u) => {
-                const since = format_delay(-u.since * 1000);
-                if (u.unit.endsWith(".scope")) {
-                    sessions.push({ Name: u.desc, Command: u.cmd.substr(0, 200), Since: since });
-                } else {
-                    services.push({ Name: u.desc, Unit: u.unit, Since: since });
-                }
-            });
-
             dialog_open({
                 Title: dialog_title,
-                Body: TeardownMessage({
-                    Teardown: {
-                        Sessions: sessions,
-                        Services: services
-                    }
-                }),
+                Teardown: <StopProcessesMessage users={users} />,
                 Action: {
                     DangerButton: true,
+                    Danger: stop_processes_danger_message(users),
                     Title: action_title,
                     action: function () {
                         return action(users);

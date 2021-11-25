@@ -30,14 +30,17 @@ import {
 import cockpit from "cockpit";
 import * as utils from "./utils.js";
 
-import { dialog_open, TextInput, PassInput, CheckBoxes } from "./dialog.jsx";
+import {
+    dialog_open, TextInput, PassInput, CheckBoxes,
+    StopProcessesMessage, stop_processes_danger_message
+} from "./dialog.jsx";
 import { StorageButton, StorageLink } from "./storage-controls.jsx";
 import {
     initial_tab_options, parse_options, unparse_options, extract_option,
     never_auto_explanation
 } from "./format-dialog.jsx";
 import { set_crypto_options, set_crypto_auto_option } from "./content-views.jsx";
-import { get_existing_passphrase_for_dialog, unlock_with_type } from "./crypto-keyslots.jsx";
+import { init_existing_passphrase, unlock_with_type } from "./crypto-keyslots.jsx";
 
 import client from "./client.js";
 
@@ -178,6 +181,7 @@ export function mounting_dialog(client, block, mode, forced_options) {
     const extra_options = unparse_options(split_options);
 
     const is_filesystem_mounted = is_mounted(client, block);
+    let mount_point_users = null;
 
     function maybe_update_config(new_dir, new_opts, passphrase, passphrase_type) {
         let new_config = null;
@@ -216,7 +220,9 @@ export function mounting_dialog(client, block, mode, forced_options) {
         }
 
         function maybe_unmount() {
-            if (block_fsys && block_fsys.MountPoints.length > 0)
+            if (mount_point_users.length > 0)
+                return client.nfs.stop_and_unmount_entry(mount_point_users, { fields: [null, old_dir] });
+            else if (block_fsys && block_fsys.MountPoints.length > 0)
                 return block_fsys.Unmount({ });
             else
                 return Promise.resolve();
@@ -355,7 +361,7 @@ export function mounting_dialog(client, block, mode, forced_options) {
 
     const mode_title = {
         mount: _("Mount filesystem"),
-        unmount: _("Unmount filesystem"),
+        unmount: _("Unmount filesystem $0"),
         update: _("Mount configuration")
     };
 
@@ -379,11 +385,6 @@ export function mounting_dialog(client, block, mode, forced_options) {
         return maybe_set_crypto_options(null, false).then(() => maybe_update_config(old_dir, unparse_options(opts)));
     }
 
-    if (mode == "unmount") {
-        client.run(do_unmount).catch(error => dialog_open({ Title: _("Error"), Body: error.toString() }));
-        return;
-    }
-
     let passphrase_type;
 
     function maybe_set_crypto_options(readonly, auto) {
@@ -396,7 +397,7 @@ export function mounting_dialog(client, block, mode, forced_options) {
     }
 
     const dlg = dialog_open({
-        Title: mode_title[mode],
+        Title: cockpit.format(mode_title[mode], old_dir),
         Fields: fields,
         Teardown: teardown,
         Action: {
@@ -421,11 +422,26 @@ export function mounting_dialog(client, block, mode, forced_options) {
                             .then(() => maybe_set_crypto_options(vals.mount_options.ro, opts.indexOf("noauto") == -1)));
                 }
             }
-        }
+        },
+        Inits: [
+            {
+                title: _("Checking related processes"),
+                func: dlg => {
+                    return client.nfs.entry_users({ fields: [null, old_dir], mounted: is_filesystem_mounted })
+                            .then(users => {
+                                mount_point_users = users;
+                                if (users.length > 0) {
+                                    dlg.set_attribute("Teardown", <StopProcessesMessage mount_point={old_dir} users={users} />);
+                                    dlg.add_danger(stop_processes_danger_message(users));
+                                }
+                            });
+                }
+            },
+            (block.IdUsage == "crypto" && mode == "mount")
+                ? init_existing_passphrase(block, true, type => { passphrase_type = type })
+                : null
+        ]
     });
-
-    if (block.IdUsage == "crypto" && mode == "mount")
-        get_existing_passphrase_for_dialog(dlg, block, true).then(type => { passphrase_type = type });
 }
 
 export class FilesystemTab extends React.Component {

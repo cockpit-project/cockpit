@@ -355,7 +355,7 @@ export function mounting_dialog(client, block, mode, forced_options) {
 
     const mode_title = {
         mount: _("Mount filesystem"),
-        unmount: _("Unmount filesystem"),
+        unmount: _("Unmount filesystem $0"),
         update: _("Mount configuration")
     };
 
@@ -379,11 +379,6 @@ export function mounting_dialog(client, block, mode, forced_options) {
         return maybe_set_crypto_options(null, false).then(() => maybe_update_config(old_dir, unparse_options(opts)));
     }
 
-    if (mode == "unmount") {
-        client.run(do_unmount).catch(error => dialog_open({ Title: _("Error"), Body: error.toString() }));
-        return;
-    }
-
     let passphrase_type;
 
     function maybe_set_crypto_options(readonly, auto) {
@@ -396,7 +391,7 @@ export function mounting_dialog(client, block, mode, forced_options) {
     }
 
     const dlg = dialog_open({
-        Title: mode_title[mode],
+        Title: cockpit.format(mode_title[mode], old_dir),
         Fields: fields,
         Teardown: teardown,
         Action: {

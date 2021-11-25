@@ -33,7 +33,10 @@ import { StdDetailsLayout } from "./details.jsx";
 import { SidePanel, SidePanelBlockRow } from "./side-panel.jsx";
 import { Block } from "./content-views.jsx";
 import { StorageButton, StorageOnOff } from "./storage-controls.jsx";
-import { dialog_open, SelectSpaces, BlockingMessage, TeardownMessage, teardown_and_apply_title } from "./dialog.jsx";
+import {
+    dialog_open, SelectSpaces, BlockingMessage, TeardownMessage, teardown_and_apply_title,
+    add_active_usage_processes_for_dialog
+} from "./dialog.jsx";
 
 const _ = cockpit.gettext;
 
@@ -241,7 +244,7 @@ export class MDRaidDetails extends React.Component {
             }
 
             if (usage.Teardown) {
-                dialog_open({
+                const dlg = dialog_open({
                     Title: cockpit.format(_("Please confirm stopping of $0"),
                                           utils.mdraid_name(mdraid)),
                     Teardown: TeardownMessage(usage),
@@ -258,6 +261,8 @@ export class MDRaidDetails extends React.Component {
                         }
                     }
                 });
+
+                add_active_usage_processes_for_dialog(dlg, client, usage);
                 return;
             }
 
@@ -295,7 +300,7 @@ export class MDRaidDetails extends React.Component {
                 return;
             }
 
-            dialog_open({
+            const dlg = dialog_open({
                 Title: cockpit.format(_("Permanently delete $0?"), utils.mdraid_name(mdraid)),
                 Teardown: TeardownMessage(usage),
                 Action: {
@@ -313,6 +318,8 @@ export class MDRaidDetails extends React.Component {
                     }
                 }
             });
+
+            add_active_usage_processes_for_dialog(dlg, client, usage);
         }
 
         const header = (

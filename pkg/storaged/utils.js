@@ -606,12 +606,13 @@ export function get_active_usage(client, path) {
 
         const usage = flatten(get_children(client, path).map(get_usage));
 
-        if (fsys && fsys.MountPoints.length > 0)
+        if (fsys && fsys.MountPoints.length > 0) {
             usage.push({
                 usage: 'mounted',
                 block: block,
                 fsys: fsys
             });
+        }
 
         if (mdraid)
             usage.push({
@@ -731,6 +732,49 @@ export function get_active_usage(client, path) {
     return res;
 }
 
+export function add_mount_point_processes(client, usage, mount_point) {
+    return client.nfs.entry_users({ fields: [null, mount_point], mounted: true })
+            .catch(error => {
+                console.warn("Couldn't determine related processes", error);
+                return [];
+            })
+            .then(users => {
+                users.forEach((user) => {
+                    const since = format_delay(-user.since * 1000);
+                    if (user.unit.endsWith(".scope")) {
+                        usage.Teardown.Sessions.push({
+                            Name: user.desc,
+                            Command: user.cmd.substr(0, 200),
+                            Since: since
+                        });
+                    } else {
+                        usage.Teardown.Services.push({
+                            Name: user.desc,
+                            Unit: user.unit,
+                            Since: since
+                        });
+                    }
+                });
+
+                return users;
+            });
+}
+
+export function add_active_usage_processes(client, usage) {
+    usage.Teardown.Sessions = [];
+    usage.Teardown.Services = [];
+
+    return for_each_async(usage.raw, u => {
+        if (u.usage == "mounted") {
+            return add_mount_point_processes(client, usage, decode_filename(u.fsys.MountPoints[0]))
+                    .then(users => {
+                        u.users = users;
+                    });
+        } else
+            return Promise.resolve();
+    });
+}
+
 export function teardown_active_usage(client, usage) {
     // The code below is complicated by the fact that the last
     // physical volume of a volume group can not be removed
@@ -743,7 +787,13 @@ export function teardown_active_usage(client, usage) {
 
     function unmount(mounteds) {
         return Promise.all(mounteds.map(m => {
-            if (m.fsys.MountPoints.length > 0)
+            if (m.users.length > 0)
+                return client.nfs.stop_and_unmount_entry(m.users,
+                                                         {
+                                                             fields: [null,
+                                                                 decode_filename(m.fsys.MountPoints[0])]
+                                                         });
+            else if (m.fsys.MountPoints.length > 0)
                 return m.fsys.Unmount({});
             else
                 return Promise.resolve();
@@ -804,4 +854,8 @@ export function is_mounted_synch(block) {
                           { superuser: true, err: "message" })
             .then(data => data.trim())
             .catch(() => false));
+}
+
+export function for_each_async(arr, func) {
+    return arr.reduce((promise, elt) => promise.then(() => func(elt)), Promise.resolve());
 }

@@ -20,7 +20,8 @@
 import cockpit from "cockpit";
 import {
     dialog_open, TextInput, PassInput, SelectOne, SizeSlider, CheckBoxes,
-    BlockingMessage, TeardownMessage, Message, teardown_and_apply_title
+    BlockingMessage, TeardownMessage, Message, teardown_and_apply_title,
+    add_active_usage_processes_for_dialog
 } from "./dialog.jsx";
 import * as utils from "./utils.js";
 
@@ -368,7 +369,7 @@ function create_tabs(client, target, is_partition, is_extended) {
                 return;
             }
 
-            dialog_open({
+            const dlg = dialog_open({
                 Title: cockpit.format(_("Permanently delete $0?"), name),
                 Teardown: TeardownMessage(usage),
                 Action: {
@@ -388,6 +389,8 @@ function create_tabs(client, target, is_partition, is_extended) {
                     }
                 }
             });
+
+            add_active_usage_processes_for_dialog(dlg, client, usage);
         }
     }
 
@@ -658,7 +661,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
             return;
         }
 
-        dialog_open({
+        const dlg = dialog_open({
             Title: cockpit.format(_("Initialize disk $0"), utils.block_name(block)),
             Teardown: TeardownMessage(usage),
             Fields: [
@@ -701,6 +704,8 @@ const BlockContent = ({ client, block, allow_partitions }) => {
                 }
             }
         });
+
+        add_active_usage_processes_for_dialog(dlg, client, usage);
     }
 
     let format_disk_btn = null;

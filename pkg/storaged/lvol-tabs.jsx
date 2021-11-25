@@ -36,7 +36,8 @@ import {
 } from "./crypto-keyslots.jsx";
 import {
     dialog_open, TextInput, SizeSlider, BlockingMessage, TeardownMessage,
-    teardown_and_apply_title
+    teardown_and_apply_title,
+    add_active_usage_processes_for_dialog
 } from "./dialog.jsx";
 
 const _ = cockpit.gettext;
@@ -283,8 +284,11 @@ function lvol_grow(client, lvol, info, to_fit) {
         }
     });
 
-    if (passphrase_fields.length)
-        get_existing_passphrase_for_dialog(dlg, block).then(pp => { recovered_passphrase = pp });
+    add_active_usage_processes_for_dialog(dlg, client, usage)
+            .then(() => {
+                if (passphrase_fields.length)
+                    get_existing_passphrase_for_dialog(dlg, block).then(pp => { recovered_passphrase = pp });
+            });
 }
 
 function lvol_shrink(client, lvol, info, to_fit) {
@@ -372,8 +376,11 @@ function lvol_shrink(client, lvol, info, to_fit) {
         }
     });
 
-    if (passphrase_fields.length)
-        get_existing_passphrase_for_dialog(dlg, block).then(pp => { recovered_passphrase = pp });
+    add_active_usage_processes_for_dialog(dlg, client, usage)
+            .then(() => {
+                if (passphrase_fields.length)
+                    get_existing_passphrase_for_dialog(dlg, block).then(pp => { recovered_passphrase = pp });
+            });
 }
 
 export class BlockVolTab extends React.Component {

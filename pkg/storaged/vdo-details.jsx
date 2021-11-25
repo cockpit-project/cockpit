@@ -28,7 +28,9 @@ import {
     DescriptionListDescription
 } from "@patternfly/react-core";
 import { get_active_usage, teardown_active_usage, fmt_size, decode_filename } from "./utils.js";
-import { dialog_open, SizeSlider, BlockingMessage, TeardownMessage } from "./dialog.jsx";
+import {
+    dialog_open, SizeSlider, BlockingMessage, TeardownMessage, add_active_usage_processes_for_dialog
+} from "./dialog.jsx";
 import { StdDetailsLayout } from "./details.jsx";
 import { Block } from "./content-views.jsx";
 import { StorageButton, StorageOnOff, StorageBlockNavLink } from "./storage-controls.jsx";
@@ -135,7 +137,7 @@ export class VDODetails extends React.Component {
             }
 
             if (usage.Teardown) {
-                dialog_open({
+                const dlg = dialog_open({
                     Title: cockpit.format(_("Please confirm stopping of $0"),
                                           vdo.name),
                     Body: TeardownMessage(usage),
@@ -149,6 +151,7 @@ export class VDODetails extends React.Component {
                         }
                     }
                 });
+                add_active_usage_processes_for_dialog(dlg, client, usage);
             } else {
                 return vdo.stop();
             }
@@ -193,7 +196,7 @@ export class VDODetails extends React.Component {
                 }
             }
 
-            dialog_open({
+            const dlg = dialog_open({
                 Title: cockpit.format(_("Permanently delete $0?"), vdo.name),
                 Body: TeardownMessage(usage),
                 Action: {
@@ -211,6 +214,8 @@ export class VDODetails extends React.Component {
                     }
                 }
             });
+
+            add_active_usage_processes_for_dialog(dlg, client, usage);
         }
 
         function grow_logical() {

@@ -23,7 +23,8 @@ import * as utils from "./utils.js";
 import {
     dialog_open,
     TextInput, PassInput, CheckBoxes, SelectOne, SizeSlider,
-    BlockingMessage, TeardownMessage, teardown_and_apply_title
+    BlockingMessage, TeardownMessage, teardown_and_apply_title,
+    add_active_usage_processes_for_dialog
 } from "./dialog.jsx";
 
 import { get_fstab_config, is_valid_mount_point } from "./fsys-tab.jsx";
@@ -459,6 +460,11 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
         }
     });
 
-    if (unlock_before_format)
-        get_existing_passphrase_for_dialog(dlg, block, true).then(type => { existing_passphrase_type = type });
+    add_active_usage_processes_for_dialog(dlg, client, usage)
+            .then(() => {
+                if (unlock_before_format) {
+                    get_existing_passphrase_for_dialog(dlg, block, true)
+                            .then(type => { existing_passphrase_type = type });
+                }
+            });
 }

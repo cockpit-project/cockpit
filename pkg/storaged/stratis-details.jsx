@@ -30,7 +30,7 @@ import { PlusIcon, ExclamationTriangleIcon } from "@patternfly/react-icons";
 import { FilesystemTab, mounting_dialog, is_mounted, is_valid_mount_point, get_fstab_config } from "./fsys-tab.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
 import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
-import { StdDetailsLayout } from "./details.jsx";
+import { StdDetailsLayout, add_active_usage_processes_for_dialog } from "./details.jsx";
 import { StorageButton, StorageBarMenu, StorageMenuItem, StorageUsageBar } from "./storage-controls.jsx";
 import { SidePanel, SidePanelBlockRow } from "./side-panel.jsx";
 import {
@@ -46,16 +46,12 @@ import {
     encode_filename, decode_filename,
     get_active_usage, teardown_active_usage,
     get_available_spaces, prepare_available_spaces,
-    reload_systemd
+    reload_systemd, for_each_async
 } from "./utils.js";
 import { fmt_to_fragments } from "./utilsx.jsx";
 import { never_auto_explanation } from "./format-dialog.jsx";
 
 const _ = cockpit.gettext;
-
-function for_each_async(arr, func) {
-    return arr.reduce((promise, elt) => promise.then(() => func(elt)), Promise.resolve());
-}
 
 function teardown_block(block) {
     return for_each_async(block.Configuration, c => block.RemoveConfigurationItem(c, {}));
@@ -254,7 +250,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
             return;
         }
 
-        dialog_open({
+        const dlg = dialog_open({
             Title: cockpit.format(_("Permanently delete $0?"), pool.Name),
             Teardown: TeardownMessage(usage),
             Action: {
@@ -272,6 +268,8 @@ export const StratisPoolDetails = ({ client, pool }) => {
                 }
             }
         });
+
+        add_active_usage_processes_for_dialog(dlg, client, usage);
     }
 
     function rename() {
@@ -553,7 +551,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
                 return;
             }
 
-            dialog_open({
+            const dlg = dialog_open({
                 Title: cockpit.format(_("Please confirm deletion of $0"), fsys.Name),
                 Teardown: TeardownMessage(usage),
                 Action: {
@@ -565,6 +563,8 @@ export const StratisPoolDetails = ({ client, pool }) => {
                     }
                 }
             });
+
+            add_active_usage_processes_for_dialog(dlg, client, usage);
         }
 
         const associated_warnings = ["mismounted-fsys"];

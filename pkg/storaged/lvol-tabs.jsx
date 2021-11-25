@@ -31,13 +31,12 @@ import {
 } from "@patternfly/react-core";
 import { StorageButton, StorageLink, StorageOnOff } from "./storage-controls.jsx";
 import {
-    existing_passphrase_fields, get_existing_passphrase_for_dialog,
+    existing_passphrase_fields, init_existing_passphrase,
     request_passphrase_on_error_handler
 } from "./crypto-keyslots.jsx";
 import {
     dialog_open, TextInput, SizeSlider, BlockingMessage, TeardownMessage,
-    teardown_and_apply_title,
-    add_active_usage_processes_for_dialog
+    teardown_and_apply_title, init_active_usage_processes
 } from "./dialog.jsx";
 
 const _ = cockpit.gettext;
@@ -281,14 +280,12 @@ function lvol_grow(client, lvol, info, to_fit) {
                                     .catch(request_passphrase_on_error_handler(dlg, vals, recovered_passphrase, block)));
                         });
             }
-        }
+        },
+        Inits: [
+            init_active_usage_processes(client, usage),
+            init_existing_passphrase(block, false, pp => { recovered_passphrase = pp })
+        ]
     });
-
-    add_active_usage_processes_for_dialog(dlg, client, usage)
-            .then(() => {
-                if (passphrase_fields.length)
-                    get_existing_passphrase_for_dialog(dlg, block).then(pp => { recovered_passphrase = pp });
-            });
 }
 
 function lvol_shrink(client, lvol, info, to_fit) {
@@ -373,14 +370,12 @@ function lvol_shrink(client, lvol, info, to_fit) {
                                     .catch(request_passphrase_on_error_handler(dlg, vals, recovered_passphrase, block)));
                         });
             }
-        }
+        },
+        Inits: [
+            init_active_usage_processes(client, usage),
+            init_existing_passphrase(block, false, pp => { recovered_passphrase = pp })
+        ]
     });
-
-    add_active_usage_processes_for_dialog(dlg, client, usage)
-            .then(() => {
-                if (passphrase_fields.length)
-                    get_existing_passphrase_for_dialog(dlg, block).then(pp => { recovered_passphrase = pp });
-            });
 }
 
 export class BlockVolTab extends React.Component {

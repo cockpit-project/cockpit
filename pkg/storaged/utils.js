@@ -740,14 +740,17 @@ export function add_mount_point_processes(client, usage, mount_point) {
             })
             .then(users => {
                 users.forEach((user) => {
+                    usage.Teardown = usage.Teardown || { };
                     const since = format_delay(-user.since * 1000);
                     if (user.unit.endsWith(".scope")) {
+                        usage.Teardown.Sessions = usage.Teardown.Sessions || [];
                         usage.Teardown.Sessions.push({
                             Name: user.desc,
                             Command: user.cmd.substr(0, 200),
                             Since: since
                         });
                     } else {
+                        usage.Teardown.Services = usage.Teardown.Services || [];
                         usage.Teardown.Services.push({
                             Name: user.desc,
                             Unit: user.unit,
@@ -761,9 +764,6 @@ export function add_mount_point_processes(client, usage, mount_point) {
 }
 
 export function add_active_usage_processes(client, usage) {
-    usage.Teardown.Sessions = [];
-    usage.Teardown.Services = [];
-
     return for_each_async(usage.raw, u => {
         if (u.usage == "mounted") {
             return add_mount_point_processes(client, usage, decode_filename(u.fsys.MountPoints[0]))

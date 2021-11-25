@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import {
     dialog_open, TextInput, PassInput, SelectOne, SizeSlider, CheckBoxes,
     BlockingMessage, TeardownMessage, Message, teardown_and_apply_title,
-    add_active_usage_processes_for_dialog
+    init_active_usage_processes
 } from "./dialog.jsx";
 import * as utils from "./utils.js";
 
@@ -369,7 +369,7 @@ function create_tabs(client, target, is_partition, is_extended) {
                 return;
             }
 
-            const dlg = dialog_open({
+            dialog_open({
                 Title: cockpit.format(_("Permanently delete $0?"), name),
                 Teardown: TeardownMessage(usage),
                 Action: {
@@ -387,10 +387,11 @@ function create_tabs(client, target, is_partition, is_extended) {
                                         return block_part.Delete({ 'tear-down': { t: 'b', v: true } });
                                 });
                     }
-                }
+                },
+                Inits: [
+                    init_active_usage_processes(client, usage)
+                ]
             });
-
-            add_active_usage_processes_for_dialog(dlg, client, usage);
         }
     }
 
@@ -661,7 +662,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
             return;
         }
 
-        const dlg = dialog_open({
+        dialog_open({
             Title: cockpit.format(_("Initialize disk $0"), utils.block_name(block)),
             Teardown: TeardownMessage(usage),
             Fields: [
@@ -702,10 +703,11 @@ const BlockContent = ({ client, block, allow_partitions }) => {
                                 return block.Format(vals.type, options);
                             });
                 }
-            }
+            },
+            Inits: [
+                init_active_usage_processes(client, usage)
+            ]
         });
-
-        add_active_usage_processes_for_dialog(dlg, client, usage);
     }
 
     let format_disk_btn = null;

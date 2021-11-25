@@ -235,6 +235,19 @@ export function get_existing_passphrase_for_dialog(dlg, block, just_type) {
     return prom;
 }
 
+export function init_existing_passphrase(block, just_type, callback) {
+    return {
+        title: _("Unlocking disk..."),
+        func: dlg => {
+            return get_existing_passphrase(block, just_type).then(passphrase => {
+                if (!passphrase)
+                    dlg.set_values({ needs_explicit_passphrase: true });
+                return callback(passphrase);
+            });
+        }
+    };
+}
+
 export function request_passphrase_on_error_handler(dlg, vals, recovered_passphrase, block) {
     return function (error) {
         if (vals.passphrase === undefined) {

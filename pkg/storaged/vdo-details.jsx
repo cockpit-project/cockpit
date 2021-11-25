@@ -29,7 +29,7 @@ import {
 } from "@patternfly/react-core";
 import { get_active_usage, teardown_active_usage, fmt_size, decode_filename } from "./utils.js";
 import {
-    dialog_open, SizeSlider, BlockingMessage, TeardownMessage, add_active_usage_processes_for_dialog
+    dialog_open, SizeSlider, BlockingMessage, TeardownMessage, init_active_usage_processes
 } from "./dialog.jsx";
 import { StdDetailsLayout } from "./details.jsx";
 import { Block } from "./content-views.jsx";
@@ -137,7 +137,7 @@ export class VDODetails extends React.Component {
             }
 
             if (usage.Teardown) {
-                const dlg = dialog_open({
+                dialog_open({
                     Title: cockpit.format(_("Please confirm stopping of $0"),
                                           vdo.name),
                     Body: TeardownMessage(usage),
@@ -149,9 +149,11 @@ export class VDODetails extends React.Component {
                                         return vdo.stop();
                                     });
                         }
-                    }
+                    },
+                    Inits: [
+                        init_active_usage_processes(client, usage)
+                    ]
                 });
-                add_active_usage_processes_for_dialog(dlg, client, usage);
             } else {
                 return vdo.stop();
             }
@@ -196,7 +198,7 @@ export class VDODetails extends React.Component {
                 }
             }
 
-            const dlg = dialog_open({
+            dialog_open({
                 Title: cockpit.format(_("Permanently delete $0?"), vdo.name),
                 Body: TeardownMessage(usage),
                 Action: {
@@ -212,10 +214,11 @@ export class VDODetails extends React.Component {
                                     });
                                 }));
                     }
-                }
+                },
+                Inits: [
+                    init_active_usage_processes(client, usage)
+                ]
             });
-
-            add_active_usage_processes_for_dialog(dlg, client, usage);
         }
 
         function grow_logical() {

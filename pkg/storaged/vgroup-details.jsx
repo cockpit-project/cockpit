@@ -39,7 +39,7 @@ import {
     dialog_open, TextInput, SelectSpaces,
     BlockingMessage, TeardownMessage,
     teardown_and_apply_title,
-    add_active_usage_processes_for_dialog
+    init_active_usage_processes
 } from "./dialog.jsx";
 
 const _ = cockpit.gettext;
@@ -197,7 +197,7 @@ export class VGroupDetails extends React.Component {
                 return;
             }
 
-            const dlg = dialog_open({
+            dialog_open({
                 Title: cockpit.format(_("Permanently delete $0?"), vgroup.Name),
                 Teardown: TeardownMessage(usage),
                 Action: {
@@ -216,9 +216,11 @@ export class VGroupDetails extends React.Component {
                                             });
                                 });
                     }
-                }
+                },
+                Inits: [
+                    init_active_usage_processes(client, usage)
+                ]
             });
-            add_active_usage_processes_for_dialog(dlg, client, usage);
         }
 
         const header = (

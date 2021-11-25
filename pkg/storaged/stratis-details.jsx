@@ -30,7 +30,7 @@ import { PlusIcon, ExclamationTriangleIcon } from "@patternfly/react-icons";
 import { FilesystemTab, mounting_dialog, is_mounted, is_valid_mount_point, get_fstab_config } from "./fsys-tab.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
 import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
-import { StdDetailsLayout, add_active_usage_processes_for_dialog } from "./details.jsx";
+import { StdDetailsLayout } from "./details.jsx";
 import { StorageButton, StorageBarMenu, StorageMenuItem, StorageUsageBar } from "./storage-controls.jsx";
 import { SidePanel, SidePanelBlockRow } from "./side-panel.jsx";
 import {
@@ -38,7 +38,8 @@ import {
     TextInput, PassInput, SelectOne, SelectSpaces,
     CheckBoxes,
     BlockingMessage, TeardownMessage,
-    teardown_and_apply_title
+    teardown_and_apply_title,
+    init_active_usage_processes
 } from "./dialog.jsx";
 
 import {
@@ -250,7 +251,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
             return;
         }
 
-        const dlg = dialog_open({
+        dialog_open({
             Title: cockpit.format(_("Permanently delete $0?"), pool.Name),
             Teardown: TeardownMessage(usage),
             Action: {
@@ -266,10 +267,11 @@ export const StratisPoolDetails = ({ client, pool }) => {
                                 location.go('/');
                             });
                 }
-            }
+            },
+            Inits: [
+                init_active_usage_processes(client, usage)
+            ]
         });
-
-        add_active_usage_processes_for_dialog(dlg, client, usage);
     }
 
     function rename() {
@@ -551,7 +553,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
                 return;
             }
 
-            const dlg = dialog_open({
+            dialog_open({
                 Title: cockpit.format(_("Please confirm deletion of $0"), fsys.Name),
                 Teardown: TeardownMessage(usage),
                 Action: {
@@ -561,10 +563,11 @@ export const StratisPoolDetails = ({ client, pool }) => {
                         return teardown_active_usage(client, usage)
                                 .then(() => destroy_filesystem(client, fsys));
                     }
-                }
+                },
+                Inits: [
+                    init_active_usage_processes(client, usage)
+                ]
             });
-
-            add_active_usage_processes_for_dialog(dlg, client, usage);
         }
 
         const associated_warnings = ["mismounted-fsys"];

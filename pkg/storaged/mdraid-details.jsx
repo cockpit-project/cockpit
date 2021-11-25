@@ -35,7 +35,7 @@ import { Block } from "./content-views.jsx";
 import { StorageButton, StorageOnOff } from "./storage-controls.jsx";
 import {
     dialog_open, SelectSpaces, BlockingMessage, TeardownMessage, teardown_and_apply_title,
-    add_active_usage_processes_for_dialog
+    init_active_usage_processes
 } from "./dialog.jsx";
 
 const _ = cockpit.gettext;
@@ -244,7 +244,7 @@ export class MDRaidDetails extends React.Component {
             }
 
             if (usage.Teardown) {
-                const dlg = dialog_open({
+                dialog_open({
                     Title: cockpit.format(_("Please confirm stopping of $0"),
                                           utils.mdraid_name(mdraid)),
                     Teardown: TeardownMessage(usage),
@@ -259,10 +259,11 @@ export class MDRaidDetails extends React.Component {
                                         return mdraid.Stop({});
                                     });
                         }
-                    }
+                    },
+                    Inits: [
+                        init_active_usage_processes(client, usage)
+                    ]
                 });
-
-                add_active_usage_processes_for_dialog(dlg, client, usage);
                 return;
             }
 
@@ -300,7 +301,7 @@ export class MDRaidDetails extends React.Component {
                 return;
             }
 
-            const dlg = dialog_open({
+            dialog_open({
                 Title: cockpit.format(_("Permanently delete $0?"), utils.mdraid_name(mdraid)),
                 Teardown: TeardownMessage(usage),
                 Action: {
@@ -316,10 +317,11 @@ export class MDRaidDetails extends React.Component {
                                     location.go('/');
                                 });
                     }
-                }
+                },
+                Inits: [
+                    init_active_usage_processes(client, usage),
+                ]
             });
-
-            add_active_usage_processes_for_dialog(dlg, client, usage);
         }
 
         const header = (

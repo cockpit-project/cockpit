@@ -237,7 +237,11 @@ import { ExclamationTriangleIcon, HelpIcon } from "@patternfly/react-icons";
 
 import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";
 
-import { fmt_size, block_name, format_size_and_text, add_active_usage_processes } from "./utils.js";
+import {
+    fmt_size, block_name, format_size_and_text, add_active_usage_processes,
+    for_each_async
+} from "./utils.js";
+
 import client from "./client.js";
 
 import "@patternfly/patternfly/components/HelperText/helper-text.css";
@@ -498,6 +502,16 @@ export const dialog_open = (def) => {
             dlg.footerProps.dialog_done();
         }
     };
+
+    for_each_async(def.Inits || [],
+                   init => {
+                       if (init) {
+                           const promise = init.func(self);
+                           self.run(init.title, promise);
+                           return promise;
+                       } else
+                           return Promise.resolve();
+                   });
 
     return self;
 };
@@ -1142,4 +1156,15 @@ export function add_active_usage_processes_for_dialog(dlg, client, usage) {
     });
     dlg.run(_("Checking related processes"), promise);
     return promise;
+}
+
+export function init_active_usage_processes(client, usage) {
+    return {
+        title: _("Checking related processes"),
+        func: dlg => {
+            return add_active_usage_processes(client, usage).then(() => {
+                dlg.set_attribute("Teardown", TeardownMessage(usage));
+            });
+        }
+    };
 }

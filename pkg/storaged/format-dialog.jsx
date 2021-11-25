@@ -24,12 +24,12 @@ import {
     dialog_open,
     TextInput, PassInput, CheckBoxes, SelectOne, SizeSlider,
     BlockingMessage, TeardownMessage, teardown_and_apply_title,
-    add_active_usage_processes_for_dialog
+    init_active_usage_processes
 } from "./dialog.jsx";
 
 import { get_fstab_config, is_valid_mount_point } from "./fsys-tab.jsx";
 import { edit_config } from "./crypto-tab.jsx";
-import { get_existing_passphrase_for_dialog, unlock_with_type } from "./crypto-keyslots.jsx";
+import { init_existing_passphrase, unlock_with_type } from "./crypto-keyslots.jsx";
 import { job_progress_wrapper } from "./jobs-panel.jsx";
 
 const _ = cockpit.gettext;
@@ -120,6 +120,8 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
 
     const offer_keep_keys = block.IdUsage == "crypto";
     const unlock_before_format = offer_keep_keys && !client.blocks_cleartext[path];
+
+    console.log("UNLOCK", unlock_before_format);
 
     const create_partition = (start !== undefined);
 
@@ -457,14 +459,10 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                         .then(new_path => utils.reload_systemd().then(() => new_path))
                         .then(maybe_mount);
             }
-        }
+        },
+        Inits: [
+            init_active_usage_processes(client, usage),
+            unlock_before_format && init_existing_passphrase(block, true, type => { existing_passphrase_type = type })
+        ]
     });
-
-    add_active_usage_processes_for_dialog(dlg, client, usage)
-            .then(() => {
-                if (unlock_before_format) {
-                    get_existing_passphrase_for_dialog(dlg, block, true)
-                            .then(type => { existing_passphrase_type = type });
-                }
-            });
 }

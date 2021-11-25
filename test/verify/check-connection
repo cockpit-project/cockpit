@@ -664,22 +664,16 @@ class TestConnection(MachineCase):
         m.execute("rm -f /etc/cockpit/ws-certs.d/* /etc/cockpit/cockpit.conf")
         m.write("/etc/cockpit/cockpit.conf", "[WebService]\nLoginTitle = A Custom Title\n")
 
-        m.execute(f"{self.libexecdir}/cockpit-certificate-ensure")
-        self.assertTrue(m.execute("ls /etc/cockpit/ws-certs.d/*"))
-
-        m.execute(f"{self.ws_executable} --port 9000 --address 127.0.0.1 0<&- &>/dev/null &")
+        m.execute(f"{self.ws_executable} --no-tls --port 9000 --address 127.0.0.1 0<&- &>/dev/null &")
 
         # The port may not be available immediately, so wait for it
-        wait(lambda: 'A Custom Title' in m.execute('curl -s -k https://localhost:9000/'))
+        wait(lambda: 'A Custom Title' in m.execute('curl -s -k http://localhost:9000/'))
 
-        output = m.execute('curl -s -S -k https://172.27.0.15:9000/ 2>&1 || true')
+        output = m.execute('curl -s -S -k http://172.27.0.15:9000/ 2>&1 || true')
         self.assertIn('Connection refused', output)
 
         # Large requests are processed correctly with plain HTTP
         self.assertIn('A Custom Title', m.execute('''curl -s -S -H "Authorization: Negotiate $(printf '%0.7000i' 1)" http://localhost:9000/'''))
-
-        # Large requests are processed correctly with TLS
-        self.assertIn('A Custom Title', m.execute('''curl -s -S -k -H "Authorization: Negotiate $(printf '%0.7000i' 1)" https://localhost:9000/'''))
 
     def testHeadRequest(self):
         m = self.machine

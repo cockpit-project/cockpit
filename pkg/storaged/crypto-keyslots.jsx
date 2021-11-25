@@ -224,17 +224,6 @@ export function get_existing_passphrase(block, just_type) {
     });
 }
 
-export function get_existing_passphrase_for_dialog(dlg, block, just_type) {
-    const prom = get_existing_passphrase(block, just_type).then(passphrase => {
-        if (!passphrase)
-            dlg.set_values({ needs_explicit_passphrase: true });
-        return passphrase;
-    });
-
-    dlg.run(_("Unlocking disk..."), prom);
-    return prom;
-}
-
 export function request_passphrase_on_error_handler(dlg, vals, recovered_passphrase, block) {
     return function (error) {
         if (vals.passphrase === undefined) {
@@ -246,6 +235,21 @@ export function request_passphrase_on_error_handler(dlg, vals, recovered_passphr
                     }));
         } else
             return Promise.reject(error);
+    };
+}
+
+export function init_existing_passphrase(block, just_type, callback) {
+    return {
+        title: _("Unlocking disk"),
+        func: dlg => {
+            return get_existing_passphrase(block, just_type).then(passphrase => {
+                if (!passphrase)
+                    dlg.set_values({ needs_explicit_passphrase: true });
+                if (callback)
+                    callback(passphrase);
+                return passphrase;
+            });
+        }
     };
 }
 
@@ -272,7 +276,7 @@ function validate_url(url) {
 function add_dialog(client, block) {
     let recovered_passphrase;
 
-    const dlg = dialog_open({
+    dialog_open({
         Title: _("Add key"),
         Fields: [
             SelectOneRadio("type", _("Key source"),
@@ -319,10 +323,11 @@ function add_dialog(client, block) {
                     });
                 }
             }
-        }
+        },
+        Inits: [
+            init_existing_passphrase(block, false, pp => { recovered_passphrase = pp })
+        ]
     });
-
-    get_existing_passphrase_for_dialog(dlg, block).then(pp => { recovered_passphrase = pp });
 }
 
 function edit_passphrase_dialog(block, key) {
@@ -347,7 +352,7 @@ function edit_passphrase_dialog(block, key) {
 function edit_clevis_dialog(client, block, key) {
     let recovered_passphrase;
 
-    const dlg = dialog_open({
+    dialog_open({
         Title: _("Edit Tang keyserver"),
         Fields: [
             TextInput("tang_url", _("Keyserver address"),
@@ -364,10 +369,11 @@ function edit_clevis_dialog(client, block, key) {
                     edit_tang_adv(client, block, key, vals.tang_url, adv, existing_passphrase);
                 });
             }
-        }
+        },
+        Inits: [
+            init_existing_passphrase(block, false, pp => { recovered_passphrase = pp })
+        ]
     });
-
-    get_existing_passphrase_for_dialog(dlg, block).then(pp => { recovered_passphrase = pp });
 }
 
 function edit_tang_adv(client, block, key, url, adv, passphrase) {

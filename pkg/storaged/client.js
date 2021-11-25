@@ -707,14 +707,25 @@ function nfs_mounts() {
         return spawn_nfs_mounts(["unmount", JSON.stringify(entry)]);
     }
 
+    function pids_and_units(users) {
+        return [
+            users.filter(u => u.pid).map(u => u.pid),
+            users.filter(u => u.unit).map(u => u.unit)
+        ];
+    }
+
     function stop_and_unmount_entry(users, entry) {
-        const units = users.map(function (u) { return u.unit });
-        return spawn_nfs_mounts(["stop-and-unmount", JSON.stringify(units), JSON.stringify(entry)]);
+        const [pids, units] = pids_and_units(users);
+        return spawn_nfs_mounts(["stop-and-unmount",
+            JSON.stringify(units), JSON.stringify(pids),
+            JSON.stringify(entry)]);
     }
 
     function stop_and_remove_entry(users, entry) {
-        const units = users.map(function (u) { return u.unit });
-        return spawn_nfs_mounts(["stop-and-remove", JSON.stringify(units), JSON.stringify(entry)]);
+        const [pids, units] = pids_and_units(users);
+        return spawn_nfs_mounts(["stop-and-remove",
+            JSON.stringify(units), JSON.stringify(pids),
+            JSON.stringify(entry)]);
     }
 
     function entry_users(entry) {

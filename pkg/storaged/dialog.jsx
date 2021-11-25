@@ -231,13 +231,16 @@ import {
     Spinner, Split,
     TextInput as TextInputPF4,
     Popover,
-    HelperText, HelperTextItem
+    HelperText, HelperTextItem,
+    List, ListItem
 } from "@patternfly/react-core";
 import { ExclamationTriangleIcon, InfoIcon, HelpIcon } from "@patternfly/react-icons";
 
 import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";
+import { ListingTable } from "cockpit-components-table.jsx";
 
-import { fmt_size, block_name, format_size_and_text } from "./utils.js";
+import { fmt_size, block_name, format_size_and_text, format_delay, for_each_async, decode_filename } from "./utils.js";
+import { fmt_to_fragments } from "utils.jsx";
 import client from "./client.js";
 
 import "@patternfly/patternfly/components/HelperText/helper-text.css";
@@ -484,10 +487,30 @@ export const dialog_open = (def) => {
             });
         },
 
+        set_attribute: (name, value) => {
+            def[name] = value;
+            update(null, null);
+        },
+
+        add_danger: (danger) => {
+            def.Action.Danger = <>{def.Action.Danger} {danger}</>;
+            update(null, null);
+        },
+
         close: () => {
             dlg.footerProps.dialog_done();
         }
     };
+
+    for_each_async(def.Inits || [],
+                   init => {
+                       if (init) {
+                           const promise = init.func(self);
+                           self.run(init.title, promise);
+                           return promise;
+                       } else
+                           return Promise.resolve();
+                   });
 
     return self;
 };
@@ -998,129 +1021,226 @@ export const SizeSlider = (tag, title, options) => {
     };
 };
 
-function add_para(parts, text) {
-    parts.push(<p key={text}>{text}</p>);
-}
-
-function add_usage_message(parts, list, text, c1, c2) {
-    if (list && list.length > 0) {
-        add_para(parts, text);
-        parts.push(<DataList key={text + " datalist"} aria-label={_("Affected locations")} isCompact>
-            { list.map(elt => <DataListItem aria-labelledby={elt[c2]} key={elt[c2]}>
-                <DataListItemRow>
-                    <DataListItemCells
-                        dataListCells={[
-                            <DataListCell key={elt[c2]} id={elt[c2]}>{elt[c2]}</DataListCell>,
-                            <DataListCell alignRight isFilled={false} key={elt[c1]}>{elt[c1]}</DataListCell>
-                        ]}
-                    />
-                </DataListItemRow>
-            </DataListItem>)}
-        </DataList>);
-    }
-}
-
 export const BlockingMessage = (usage) => {
-    const parts = [];
-    const blocking = usage.Blocking;
+    const usage_desc = {
+        pvol:                  _("physical volume of LVM2 volume group"),
+        mdraid:                _("member of RAID device"),
+        vdo:                   _("backing device for VDO device"),
+        "stratis-pool-member": _("member of Stratis pool")
+    };
 
-    if (!blocking)
-        return null;
+    const rows = [];
+    usage.forEach(use => {
+        if (use.blocking && use.block) {
+            const fsys = client.blocks_stratis_fsys[use.block.path];
+            const name = (fsys
+                ? fsys.Devnode
+                : block_name(client.blocks[use.block.CryptoBackingDevice] || use.block));
+            rows.push({
+                columns: [name, use.location || "-", usage_desc[use.usage] || "-"]
+            });
+        }
+    });
 
-    add_usage_message(parts, blocking.PhysicalVolumes,
-                      _("This device is currently used for LVM2 volume groups."),
-                      "Name", "VGroup");
+    return (
+        <div>
+            <HelperText><HelperTextItem variant="warning">{_("This device is currently in use.")}</HelperTextItem></HelperText>
+            <ListingTable variant='compact'
+                          columns={[
+                              { title: _("Device") },
+                              { title: _("Location") },
+                              { title:  _("Use") }
+                          ]}
+                          rows={rows} />
+        </div>);
+};
 
-    add_usage_message(parts, blocking.MDRaidMembers,
-                      _("This device is currently used for RAID devices."),
-                      "Name", "MDRaid");
+const UsersPopover = ({ users }) => {
+    const max = 10;
+    const services = users.filter(u => u.unit);
+    const processes = users.filter(u => u.pid);
 
-    add_usage_message(parts, blocking.VDOs,
-                      _("This device is currently used for VDO devices."),
-                      "Name", "VDO");
-
-    add_usage_message(parts, blocking.Pools,
-                      _("This device is currently used for Stratis pools."),
-                      "Name", "Pool");
-
-    if (parts.length > 0)
-        return <div>{ parts }</div>;
-    else
-        return null;
+    return (
+        <Popover
+            bodyContent={
+                <>
+                    { services.length > 0
+                        ? <p>
+                            <b>{_("Services using the location")}</b>
+                            <List>
+                                { services.slice(0, max).map((u, i) => <ListItem key={i}>{u.unit.replace(/\.service$/, "")}</ListItem>) }
+                                { services.length > max ? <ListItem key={max}>...</ListItem> : null }
+                            </List>
+                        </p>
+                        : null
+                    }
+                    { services.length > 0 && processes.length > 0
+                        ? <br />
+                        : null
+                    }
+                    { processes.length > 0
+                        ? <p>
+                            <b>{_("Processes using the location")}</b>
+                            <List>
+                                { processes.slice(0, max).map((u, i) => <ListItem key={i}>{u.comm} (user: {u.user}, pid: {u.pid})</ListItem>) }
+                                { processes.length > max ? <ListItem key={max}>...</ListItem> : null }
+                            </List>
+                        </p>
+                        : null
+                    }
+                </>}>
+            <Button variant="link" style={{ visibility: users.length == 0 ? "hidden" : null }}>
+                <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" /> { "\n" }
+                {_("Currently in use")}
+            </Button>
+        </Popover>);
 };
 
 export const TeardownMessage = (usage) => {
-    const parts = [];
-    const teardown = usage.Teardown;
-
-    if (!teardown)
+    if (usage.length == 0)
         return null;
 
-    add_usage_message(parts, teardown.Mounts,
-                      _("This device has filesystems that are currently in use. Proceeding will unmount all filesystems on it."),
-                      "Name", "MountPoint");
-
-    add_usage_message(parts, teardown.PhysicalVolumes,
-                      _("This device is currently used for LVM2 volume groups. Proceeding will remove it from its volume groups."),
-                      "Name", "VGroup");
-
-    add_usage_message(parts, teardown.MDRaidMembers,
-                      _("This device is currently used for RAID devices. Proceeding will remove it from its RAID devices."),
-                      "Name", "MDRaid");
-
-    const has_sessions = teardown.Sessions && teardown.Sessions.length > 0;
-    const has_services = teardown.Services && teardown.Services.length > 0;
-
-    if (has_sessions && has_services)
-        add_para(parts, _("The filesystem is in use by login sessions and system services. Proceeding will stop these."));
-    else if (has_sessions)
-        add_para(parts, _("The filesystem is in use by login sessions. Proceeding will stop these."));
-    else if (has_services)
-        add_para(parts, _("The filesystem is in use by system services. Proceeding will stop these."));
-
-    function add_units(list, key, h1, h2, h3, c1, c2, c3) {
-        if (list && list.length > 0) {
-            parts.push(
-                <table key={key} className="table table-bordered units-table">
-                    <thead>
-                        <tr>
-                            <th>{h1}</th>
-                            <th>{h2}</th>
-                            <th>{h3}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        { list.map(elt =>
-                            <tr key={elt[c3]}>
-                                <td>{elt[c1]}</td>
-                                <td className="cmd">{elt[c2]}</td>
-                                <td>{elt[c3]}</td>
-                            </tr>)
-                        }
-                    </tbody>
-                </table>);
+    const rows = [];
+    usage.forEach((use, index) => {
+        if (use.block) {
+            const fsys = client.blocks_stratis_fsys[use.block.path];
+            const name = (fsys
+                ? fsys.Devnode
+                : block_name(client.blocks[use.block.CryptoBackingDevice] || use.block));
+            rows.push({
+                columns: [name,
+                    use.location || "-",
+                    use.actions.length ? use.actions.join(", ") : "-",
+                    {
+                        title: <UsersPopover users={use.users || []} />,
+                        props: { className: "ct-text-align-right" }
+                    }
+                ]
+            });
         }
-    }
+    });
 
-    add_units(teardown.Sessions, "sessions",
-              _("Session"), _("Process"), _("Active since"),
-              "Name", "Command", "Since");
+    return (
+        <div className="modal-footer-teardown">
+            <p>{_("These changes will be made:")}</p>
+            <ListingTable variant='compact'
+                          columns={[
+                              { title: _("Device") },
+                              { title: _("Location") },
+                              { title:  _("Action") },
+                              { title:  "" }
+                          ]}
+                          rows={rows} />
+        </div>);
+};
 
-    add_units(teardown.Services, "services",
-              _("Service"), _("Unit"), _("Active since"),
-              "Name", "Unit", "Since");
+export function init_active_usage_processes(client, usage, top_action, child_action) {
+    return {
+        title: _("Checking related processes"),
+        func: dlg => {
+            return for_each_async(usage, u => {
+                if (u.usage == "mounted") {
+                    return client.nfs.entry_users({
+                        fields: [null, decode_filename(u.fsys.MountPoints[0])],
+                        mounted: true
+                    })
+                            .then(users => {
+                                u.users = users;
+                            });
+                } else
+                    return Promise.resolve();
+            }).then(() => {
+                dlg.set_attribute("Teardown", TeardownMessage(usage, top_action, child_action));
+                const usage_with_users = usage.filter(u => u.users);
+                const n_processes = usage_with_users.reduce((sum, u) => sum + u.users.filter(u => u.pid).length, 0);
+                const n_services = usage_with_users.reduce((sum, u) => sum + u.users.filter(u => u.unit).length, 0);
+                if (n_processes > 0 && n_services > 0)
+                    dlg.add_danger(_("Related processes and services will be forcefully stopped."));
+                else if (n_processes > 0)
+                    dlg.add_danger(_("Related processes will be forcefully stopped."));
+                else if (n_services > 0)
+                    dlg.add_danger(_("Related services will be forcefully stopped."));
+            });
+        }
+    };
+}
 
-    if (parts.length > 0)
-        return <div className="modal-footer-teardown">{ parts }</div>;
+export const StopProcessesMessage = ({ mount_point, users }) => {
+    const process_rows = users.filter(u => u.pid).map(u => {
+        return {
+            columns: [
+                u.pid,
+                { title: u.cmd.substr(0, 100), props: { modifier: "breakWord" } },
+                u.user || "-",
+                { title: format_delay(-u.since * 1000), props: { modifier: "nowrap" } }
+            ]
+        };
+    });
+
+    const service_rows = users.filter(u => u.unit).map(u => {
+        return {
+            columns: [
+                { title: u.unit.replace(/\.service$/, ""), props: { modifier: "breakWord" } },
+                { title: u.cmd.substr(0, 100), props: { modifier: "breakWord" } },
+                { title: u.desc || "", props: { modifier: "breakWord" } },
+                { title: format_delay(-u.since * 1000), props: { modifier: "nowrap" } }
+            ]
+        };
+    });
+
+    // If both tables are shown, we press the columns into a uniform
+    // width to reduce the visual mess.
+    const colprops = (process_rows.length > 0 && service_rows.length > 0) ? { width: 25 } : { };
+
+    return (
+        <div className="modal-footer-teardown">
+            { process_rows.length > 0
+                ? <p>{fmt_to_fragments(_("The mount point $0 is in use by these processes:"), <b>{mount_point}</b>)}
+                    <ListingTable variant='compact'
+                                  columns={
+                                      [
+                                          { title: _("PID"), props: colprops },
+                                          { title: _("Command"), props: colprops },
+                                          { title: _("User"), props: colprops },
+                                          { title: _("Runtime"), props: colprops }
+                                      ]
+                                  }
+                                      rows={process_rows} />
+                </p>
+                : null
+            }
+            { process_rows.length > 0 && service_rows.length > 0
+                ? <br />
+                : null
+            }
+            { service_rows.length > 0
+                ? <p>{fmt_to_fragments(_("The mount point $0 is in use by these services:"), <b>{mount_point}</b>)}
+                    <ListingTable variant='compact'
+                                  columns={
+                                      [
+                                          { title: _("Service"), props: colprops },
+                                          { title: _("Command"), props: colprops },
+                                          { title: _("Description"), props: colprops },
+                                          { title: _("Runtime"), props: colprops }
+                                      ]
+                                  }
+                                  rows={service_rows} />
+                </p>
+                : null
+            }
+        </div>);
+};
+
+export const stop_processes_danger_message = (users) => {
+    const n_processes = users.filter(u => u.pid).length;
+    const n_services = users.filter(u => u.unit).length;
+
+    if (n_processes > 0 && n_services > 0)
+        return _("The listed processes and services will be forcefully stopped.");
+    else if (n_processes > 0)
+        return _("The listed processes will be forcefully stopped.");
+    else if (n_services > 0)
+        return _("The listed services will be forcefully stopped.");
     else
         return null;
 };
-
-export function teardown_and_apply_title(usage, plain_title, unmount_title, remove_title) {
-    if (usage.Teardown && usage.Teardown.Mounts)
-        return unmount_title;
-    else if (usage.Teardown && (usage.Teardown.PhysicalVolumes || usage.Teardown.MDRaidMembers))
-        return remove_title;
-    else
-        return plain_title;
-}

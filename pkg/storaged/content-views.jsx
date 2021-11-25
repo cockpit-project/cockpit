@@ -20,7 +20,8 @@
 import cockpit from "cockpit";
 import {
     dialog_open, TextInput, PassInput, SelectOne, SizeSlider, CheckBoxes,
-    BlockingMessage, TeardownMessage, Message, teardown_and_apply_title
+    BlockingMessage, TeardownMessage, Message,
+    init_active_usage_processes
 } from "./dialog.jsx";
 import * as utils from "./utils.js";
 
@@ -358,7 +359,7 @@ function create_tabs(client, target, is_partition, is_extended) {
         }
 
         if (name) {
-            const usage = utils.get_active_usage(client, target.path);
+            const usage = utils.get_active_usage(client, target.path, _("delete"));
 
             if (usage.Blocking) {
                 dialog_open({
@@ -373,10 +374,7 @@ function create_tabs(client, target, is_partition, is_extended) {
                 Teardown: TeardownMessage(usage),
                 Action: {
                     Danger: danger,
-                    Title: teardown_and_apply_title(usage,
-                                                    _("Delete"),
-                                                    _("Unmount and delete"),
-                                                    _("Remove and delete")),
+                    Title: _("Delete"),
                     action: function () {
                         return utils.teardown_active_usage(client, usage)
                                 .then(function () {
@@ -386,7 +384,10 @@ function create_tabs(client, target, is_partition, is_extended) {
                                         return block_part.Delete({ 'tear-down': { t: 'b', v: true } });
                                 });
                     }
-                }
+                },
+                Inits: [
+                    init_active_usage_processes(client, usage)
+                ]
             });
         }
     }
@@ -648,7 +649,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
         return null;
 
     function format_disk() {
-        const usage = utils.get_active_usage(client, block.path);
+        const usage = utils.get_active_usage(client, block.path, _("initialize"), _("delete"));
 
         if (usage.Blocking) {
             dialog_open({
@@ -682,10 +683,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
                            }),
             ],
             Action: {
-                Title: teardown_and_apply_title(usage,
-                                                _("Initialize"),
-                                                _("Unmount and initialize"),
-                                                _("Remove and initialize")),
+                Title: _("Initialize"),
                 Danger: _("Initializing erases all data on a disk."),
                 wrapper: job_progress_wrapper(client, block.path),
                 action: function (vals) {
@@ -699,7 +697,10 @@ const BlockContent = ({ client, block, allow_partitions }) => {
                                 return block.Format(vals.type, options);
                             });
                 }
-            }
+            },
+            Inits: [
+                init_active_usage_processes(client, usage)
+            ]
         });
     }
 

@@ -31,12 +31,12 @@ import {
 } from "@patternfly/react-core";
 import { StorageButton, StorageLink, StorageOnOff } from "./storage-controls.jsx";
 import {
-    existing_passphrase_fields, get_existing_passphrase_for_dialog,
+    existing_passphrase_fields, init_existing_passphrase,
     request_passphrase_on_error_handler
 } from "./crypto-keyslots.jsx";
 import {
     dialog_open, TextInput, SizeSlider, BlockingMessage, TeardownMessage,
-    teardown_and_apply_title
+    init_active_usage_processes
 } from "./dialog.jsx";
 
 const _ = cockpit.gettext;
@@ -225,7 +225,7 @@ function lvol_grow(client, lvol, info, to_fit) {
     const vgroup = client.vgroups[lvol.VolumeGroup];
     const pool = client.lvols[lvol.ThinPool];
 
-    const usage = utils.get_active_usage(client, block && info.grow_needs_unmount ? block.path : null);
+    const usage = utils.get_active_usage(client, block && info.grow_needs_unmount ? block.path : null, _("grow"));
 
     if (usage.Blocking) {
         dialog_open({
@@ -266,10 +266,7 @@ function lvol_grow(client, lvol, info, to_fit) {
         Teardown: TeardownMessage(usage),
         Fields: size_fields.concat(passphrase_fields),
         Action: {
-            Title: teardown_and_apply_title(usage,
-                                            _("Grow"),
-                                            _("Unmount and grow"),
-                                            _("Remove and grow")),
+            Title: _("Grow"),
             action: function (vals) {
                 return utils.teardown_active_usage(client, usage)
                         .then(function () {
@@ -280,18 +277,22 @@ function lvol_grow(client, lvol, info, to_fit) {
                                     .catch(request_passphrase_on_error_handler(dlg, vals, recovered_passphrase, block)));
                         });
             }
-        }
+        },
+        Inits: [
+            init_active_usage_processes(client, usage),
+            passphrase_fields.length
+                ? init_existing_passphrase(block, false, pp => { recovered_passphrase = pp })
+                : null
+        ]
     });
-
-    if (passphrase_fields.length)
-        get_existing_passphrase_for_dialog(dlg, block).then(pp => { recovered_passphrase = pp });
 }
 
 function lvol_shrink(client, lvol, info, to_fit) {
     const block = client.lvols_block[lvol.path];
     const vgroup = client.vgroups[lvol.VolumeGroup];
 
-    const usage = utils.get_active_usage(client, block && !to_fit && info.shrink_needs_unmount ? block.path : null);
+    const usage = utils.get_active_usage(client, block && !to_fit && info.shrink_needs_unmount ? block.path : null,
+                                         _("shrink"));
 
     if (usage.Blocking) {
         dialog_open({
@@ -346,7 +347,7 @@ function lvol_shrink(client, lvol, info, to_fit) {
     if (block && block.IdType == "crypto_LUKS" && block.IdVersion == 2)
         passphrase_fields = existing_passphrase_fields(_("Resizing an encrypted filesystem requires unlocking the disk. Please provide a current disk passphrase."));
 
-    if (!usage.Teardown && size_fields.length + passphrase_fields.length === 0) {
+    if (usage.length == 0 && size_fields.length + passphrase_fields.length === 0) {
         return lvol_and_fsys_resize(client, lvol, shrink_size, false, null);
     }
 
@@ -355,10 +356,7 @@ function lvol_shrink(client, lvol, info, to_fit) {
         Teardown: TeardownMessage(usage),
         Fields: size_fields.concat(passphrase_fields),
         Action: {
-            Title: teardown_and_apply_title(usage,
-                                            _("Shrink"),
-                                            _("Unmount and shrink"),
-                                            _("Remove and shrink")),
+            Title: _("Shrink"),
             action: function (vals) {
                 return utils.teardown_active_usage(client, usage)
                         .then(function () {
@@ -369,11 +367,14 @@ function lvol_shrink(client, lvol, info, to_fit) {
                                     .catch(request_passphrase_on_error_handler(dlg, vals, recovered_passphrase, block)));
                         });
             }
-        }
+        },
+        Inits: [
+            init_active_usage_processes(client, usage),
+            passphrase_fields.length
+                ? init_existing_passphrase(block, false, pp => { recovered_passphrase = pp })
+                : null
+        ]
     });
-
-    if (passphrase_fields.length)
-        get_existing_passphrase_for_dialog(dlg, block).then(pp => { recovered_passphrase = pp });
 }
 
 export class BlockVolTab extends React.Component {

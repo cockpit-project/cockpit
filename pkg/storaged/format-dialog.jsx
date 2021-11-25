@@ -23,12 +23,13 @@ import * as utils from "./utils.js";
 import {
     dialog_open,
     TextInput, PassInput, CheckBoxes, SelectOne, SizeSlider,
-    BlockingMessage, TeardownMessage, teardown_and_apply_title
+    BlockingMessage, TeardownMessage,
+    init_active_usage_processes
 } from "./dialog.jsx";
 
 import { get_fstab_config, is_valid_mount_point } from "./fsys-tab.jsx";
 import { edit_config } from "./crypto-tab.jsx";
-import { get_existing_passphrase_for_dialog, unlock_with_type } from "./crypto-keyslots.jsx";
+import { init_existing_passphrase, unlock_with_type } from "./crypto-keyslots.jsx";
 import { job_progress_wrapper } from "./jobs-panel.jsx";
 
 const _ = cockpit.gettext;
@@ -81,13 +82,6 @@ export function initial_crypto_options(client, block) {
 
 export function initial_mount_options(client, block) {
     return initial_tab_options(client, block, true);
-}
-
-export function teardown_and_format_title(usage) {
-    return teardown_and_apply_title(usage,
-                                    _("Format"),
-                                    _("Unmount and format"),
-                                    _("Remove and format"));
 }
 
 export const never_auto_explanation = _("If this option is checked, the filesystem will not be mounted during the next boot even if it was mounted before it.  This is useful if mounting during boot is not possible, such as when a passphrase is required to unlock the filesystem but booting is unattended.");
@@ -175,7 +169,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     add_crypto_type("luks1", "LUKS1", false);
     add_crypto_type("luks2", "LUKS2", true);
 
-    const usage = utils.get_active_usage(client, create_partition ? null : path);
+    const usage = utils.get_active_usage(client, create_partition ? null : path, _("format"), _("delete"));
 
     if (usage.Blocking) {
         dialog_open({
@@ -312,7 +306,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                       })
         ],
         Action: {
-            Title: create_partition ? _("Create partition") : teardown_and_format_title(usage),
+            Title: create_partition ? _("Create partition") : _("Format"),
             Danger: (create_partition ? null : _("Formatting erases all data on a storage device.")),
             wrapper: job_progress_wrapper(client, block.path, client.blocks_cleartext[block.path]?.path),
             action: function (vals) {
@@ -456,9 +450,12 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                         .then(new_path => utils.reload_systemd().then(() => new_path))
                         .then(maybe_mount);
             }
-        }
+        },
+        Inits: [
+            init_active_usage_processes(client, usage),
+            unlock_before_format
+                ? init_existing_passphrase(block, true, type => { existing_passphrase_type = type })
+                : null
+        ]
     });
-
-    if (unlock_before_format)
-        get_existing_passphrase_for_dialog(dlg, block, true).then(type => { existing_passphrase_type = type });
 }

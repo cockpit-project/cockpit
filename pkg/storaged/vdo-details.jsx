@@ -28,7 +28,9 @@ import {
     DescriptionListDescription
 } from "@patternfly/react-core";
 import { get_active_usage, teardown_active_usage, fmt_size, decode_filename } from "./utils.js";
-import { dialog_open, SizeSlider, BlockingMessage, TeardownMessage } from "./dialog.jsx";
+import {
+    dialog_open, SizeSlider, BlockingMessage, TeardownMessage, init_active_usage_processes
+} from "./dialog.jsx";
 import { StdDetailsLayout } from "./details.jsx";
 import { Block } from "./content-views.jsx";
 import { StorageButton, StorageOnOff, StorageBlockNavLink } from "./storage-controls.jsx";
@@ -124,7 +126,7 @@ export class VDODetails extends React.Component {
             );
 
         function stop() {
-            const usage = get_active_usage(client, block ? block.path : "/");
+            const usage = get_active_usage(client, block ? block.path : "/", _("stop"));
 
             if (usage.Blocking) {
                 dialog_open({
@@ -138,7 +140,7 @@ export class VDODetails extends React.Component {
                 dialog_open({
                     Title: cockpit.format(_("Please confirm stopping of $0"),
                                           vdo.name),
-                    Body: TeardownMessage(usage),
+                    Teardown: TeardownMessage(usage),
                     Action: {
                         Title: _("Stop"),
                         action: function () {
@@ -147,7 +149,10 @@ export class VDODetails extends React.Component {
                                         return vdo.stop();
                                     });
                         }
-                    }
+                    },
+                    Inits: [
+                        init_active_usage_processes(client, usage)
+                    ]
                 });
             } else {
                 return vdo.stop();
@@ -155,7 +160,7 @@ export class VDODetails extends React.Component {
         }
 
         function delete_() {
-            const usage = get_active_usage(client, block ? block.path : "/");
+            const usage = get_active_usage(client, block ? block.path : "/", _("delete"));
 
             if (usage.Blocking) {
                 dialog_open({
@@ -209,7 +214,10 @@ export class VDODetails extends React.Component {
                                     });
                                 }));
                     }
-                }
+                },
+                Inits: [
+                    init_active_usage_processes(client, usage)
+                ]
             });
         }
 

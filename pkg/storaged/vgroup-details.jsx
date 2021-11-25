@@ -38,7 +38,7 @@ import { StorageButton } from "./storage-controls.jsx";
 import {
     dialog_open, TextInput, SelectSpaces,
     BlockingMessage, TeardownMessage,
-    teardown_and_apply_title
+    init_active_usage_processes
 } from "./dialog.jsx";
 
 const _ = cockpit.gettext;
@@ -185,7 +185,7 @@ export class VGroupDetails extends React.Component {
 
         function delete_() {
             const location = cockpit.location;
-            const usage = utils.get_active_usage(client, vgroup.path);
+            const usage = utils.get_active_usage(client, vgroup.path, _("delete"));
 
             if (usage.Blocking) {
                 dialog_open({
@@ -201,10 +201,7 @@ export class VGroupDetails extends React.Component {
                 Teardown: TeardownMessage(usage),
                 Action: {
                     Danger: _("Deleting erases all data on a volume group."),
-                    Title: teardown_and_apply_title(usage,
-                                                    _("Delete"),
-                                                    _("Unmount and delete"),
-                                                    _("Remove and delete")),
+                    Title: _("Delete"),
                     action: function () {
                         return utils.teardown_active_usage(client, usage)
                                 .then(function () {
@@ -215,7 +212,10 @@ export class VGroupDetails extends React.Component {
                                             });
                                 });
                     }
-                }
+                },
+                Inits: [
+                    init_active_usage_processes(client, usage)
+                ]
             });
         }
 

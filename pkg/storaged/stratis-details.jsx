@@ -38,7 +38,7 @@ import {
     TextInput, PassInput, SelectOne, SelectSpaces,
     CheckBoxes,
     BlockingMessage, TeardownMessage,
-    teardown_and_apply_title
+    init_active_usage_processes
 } from "./dialog.jsx";
 
 import {
@@ -46,16 +46,12 @@ import {
     encode_filename, decode_filename,
     get_active_usage, teardown_active_usage,
     get_available_spaces, prepare_available_spaces,
-    reload_systemd
+    reload_systemd, for_each_async
 } from "./utils.js";
 import { fmt_to_fragments } from "utils.jsx";
 import { never_auto_explanation } from "./format-dialog.jsx";
 
 const _ = cockpit.gettext;
-
-function for_each_async(arr, func) {
-    return arr.reduce((promise, elt) => promise.then(() => func(elt)), Promise.resolve());
-}
 
 function teardown_block(block) {
     return for_each_async(block.Configuration, c => block.RemoveConfigurationItem(c, {}));
@@ -243,7 +239,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
 
     function delete_() {
         const location = cockpit.location;
-        const usage = get_active_usage(client, pool.path);
+        const usage = get_active_usage(client, pool.path, _("delete"));
 
         if (usage.Blocking) {
             dialog_open({
@@ -259,10 +255,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
             Teardown: TeardownMessage(usage),
             Action: {
                 Danger: _("Deleting a Stratis pool will erase all data it contains."),
-                Title: teardown_and_apply_title(usage,
-                                                _("Delete"),
-                                                _("Unmount and delete"),
-                                                _("Remove and delete")),
+                Title: _("Delete"),
                 action: function () {
                     return teardown_active_usage(client, usage)
                             .then(() => destroy_pool(client, pool))
@@ -270,7 +263,10 @@ export const StratisPoolDetails = ({ client, pool }) => {
                                 location.go('/');
                             });
                 }
-            }
+            },
+            Inits: [
+                init_active_usage_processes(client, usage)
+            ]
         });
     }
 
@@ -542,7 +538,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
         }
 
         function delete_fsys() {
-            const usage = get_active_usage(client, block.path);
+            const usage = get_active_usage(client, block.path, _("delete"));
 
             if (usage.Blocking) {
                 dialog_open({
@@ -563,7 +559,10 @@ export const StratisPoolDetails = ({ client, pool }) => {
                         return teardown_active_usage(client, usage)
                                 .then(() => destroy_filesystem(client, fsys));
                     }
-                }
+                },
+                Inits: [
+                    init_active_usage_processes(client, usage)
+                ]
             });
         }
 

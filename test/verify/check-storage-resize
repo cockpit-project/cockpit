@@ -72,7 +72,7 @@ class TestStorageResize(StorageCase):
             self.dialog_wait_open()
             self.dialog_wait_apply_enabled()
             if grow_needs_unmount:
-                b.wait_in_text("#dialog", "Proceeding will unmount all filesystems on it.")
+                b.wait_in_text("#dialog", "unmount, grow")
             self.dialog_set_val("size", 400)
             if need_passphrase:
                 self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
@@ -95,7 +95,7 @@ class TestStorageResize(StorageCase):
             self.dialog_wait_open()
             self.dialog_wait_apply_enabled()
             if shrink_needs_unmount:
-                b.wait_in_text("#dialog", "Proceeding will unmount all filesystems on it.")
+                b.wait_in_text("#dialog", "unmount, shrink")
             self.dialog_set_val("size", 200)
             if need_passphrase:
                 self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")

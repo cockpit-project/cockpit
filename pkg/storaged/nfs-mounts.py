@@ -293,12 +293,7 @@ def users(entry):
 
 
 def stop_units(units):
-    import dbus
-    bus = dbus.SystemBus()
-    systemd_manager = dbus.Interface(bus.get_object('org.freedesktop.systemd1', '/org/freedesktop/systemd1'),
-                                     dbus_interface='org.freedesktop.systemd1.Manager')
-    for u in units:
-        systemd_manager.StopUnit(u, 'replace')
+    subprocess.check_call(["systemctl", "stop"] + units)
 
 
 def stop_and_unmount(units, entry):

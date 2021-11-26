@@ -133,15 +133,11 @@ class CockpitClient(Gtk.Application):
 
         # .add_action_entries() binding is broken for GApplication
         # https://gitlab.gnome.org/GNOME/pygobject/-/issues/426
-        new_window = Gio.SimpleAction.new('new-window')
-        new_window.connect('activate', self.new_window)
-        self.add_action(new_window)
-        quit = Gio.SimpleAction.new('quit')
-        quit.connect('activate', self.quit_action)
-        self.add_action(quit)
-        open_path = Gio.SimpleAction.new('open-path', GLib.VariantType('s'))
-        open_path.connect('activate', self.open_path)
-        self.add_action(open_path)
+        Gio.ActionMap.add_action_entries(self, [
+            ('new-window', self.new_window),
+            ('quit', self.quit_action),
+            ('open-path', self.open_path, 's'),
+        ])
 
         self.set_accels_for_action("app.new-window", ["<Ctrl>N"])
         self.set_accels_for_action("win.reload", ["<Primary>r"])

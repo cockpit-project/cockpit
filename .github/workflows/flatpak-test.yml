@@ -22,12 +22,6 @@ jobs:
           # need this to also fetch tags
           fetch-depth: 0
 
-      - name: Wait for and download dist cache
-        run: |
-          git config --global user.name "GitHub Workflow"
-          git config --global user.email "cockpituous@cockpit-project.org"
-          tools/webpack-jumpstart --wait --rebase
-
       - name: Minimum configuration for building dist tarball
         run: |
           ./autogen.sh --disable-polkit --disable-ssh --disable-pcp --with-systemdunitdir=/invalid CPPFLAGS=-Itools/mock-build-env PKG_CONFIG_PATH=tools/mock-build-env

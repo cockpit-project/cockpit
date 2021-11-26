@@ -533,7 +533,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         if safari and cacert:
             b.wait_visible("#safari-cert-help")
         else:
-            b.wait_not_visible("#safari-cert-help")
+            b.wait_not_present("#safari-cert-help")
 
     @skipBrowser("Enough when only chromium pretends to be a different browser", "firefox")
     @skipImage("Starting on OSTree is weird", "fedora-coreos")

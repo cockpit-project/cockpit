@@ -25,6 +25,7 @@ import { CockpitNav, CockpitNavItem } from "./nav.jsx";
 import { TopNav } from ".//topnav.jsx";
 import { CockpitHosts } from "./hosts.jsx";
 import { codes, HostModal } from "./hosts_dialog.jsx";
+import { EarlyFailure, EarlyFailureReady } from './failures.jsx';
 
 import * as base_index from "./base_index";
 
@@ -75,16 +76,6 @@ function MachinesIndex(index_options, machines, loader) {
         nav_item.classList.toggle("active");
         document.getElementById("nav-system").classList.toggle("interact");
         ev.preventDefault();
-    });
-
-    /* Reconnect button */
-    document.getElementById("machine-reconnect").addEventListener("click", ev => {
-        if (watchdog_problem) {
-            cockpit.sessionStorage.clear();
-            window.location.reload(true);
-        } else {
-            navigate(null, true);
-        }
     });
 
     // Focus with skiplinks
@@ -138,12 +129,13 @@ function MachinesIndex(index_options, machines, loader) {
 
     function show_disconnected() {
         if (!ready) {
-            const ca_cert_url = window.sessionStorage.getItem("CACertUrl");
-            if (window.navigator.userAgent.indexOf("Safari") >= 0 && ca_cert_url) {
-                document.getElementById("safari-cert").setAttribute("href", ca_cert_url);
-                document.getElementById("safari-cert-help").removeAttribute("hidden");
-            }
+            document.getElementById("early-failure-ready").setAttribute("hidden", "hidden");
             document.getElementById("early-failure").removeAttribute("hidden");
+
+            const ca_cert_url = window.sessionStorage.getItem("CACertUrl");
+            ReactDOM.render(<EarlyFailure ca_cert_url={
+                (window.navigator.userAgent.indexOf("Safari") >= 0 && ca_cert_url) ? ca_cert_url : undefined
+            } />, document.getElementById('early-failure'));
             document.getElementById("main").setAttribute("hidden", "hidden");
             document.body.removeAttribute("hidden");
             return;
@@ -154,13 +146,15 @@ function MachinesIndex(index_options, machines, loader) {
         if (current_frame)
             current_frame.setAttribute("hidden", "hidden");
 
-        document.querySelector(".curtains-ct .spinner").setAttribute("hidden", "hidden");
-        document.getElementById("machine-reconnect").removeAttribute("hidden");
-        document.getElementById("machine-troubleshoot").setAttribute("hidden", "hidden");
-        document.querySelector(".curtains-ct i").removeAttribute("hidden");
-        document.querySelector(".curtains-ct h1").innerHTML = _("Disconnected");
-        document.querySelector(".curtains-ct p").innerHTML = cockpit.message(watchdog_problem);
-        document.querySelector(".curtains-ct").removeAttribute("hidden");
+        document.getElementById("early-failure").setAttribute("hidden", "hidden");
+        document.getElementById("early-failure-ready").removeAttribute("hidden");
+
+        ReactDOM.render(
+            <EarlyFailureReady title={_("Disconnected")}
+                               reconnect
+                               watchdog_problem={watchdog_problem}
+                               navigate={navigate}
+                               paragraph={cockpit.message(watchdog_problem)} />, document.getElementById('early-failure-ready'));
     }
 
     /* Handles navigation */
@@ -472,39 +466,29 @@ function MachinesIndex(index_options, machines, loader) {
 
             let troubleshooting = false;
 
-            const tr_button = document.getElementById("machine-troubleshoot");
             if (!machine.restarting && (machine.problem === "no-host" || !!codes[machine.problem])) {
                 if (!troubleshooting) {
                     troubleshooting = true;
-
-                    const new_tr_button = tr_button.cloneNode(true);
-                    tr_button.parentNode.replaceChild(new_tr_button, tr_button);
-                    new_tr_button.addEventListener("click", render_troubleshoot);
-                    new_tr_button.removeAttribute("hidden");
                 }
             } else {
                 troubleshooting = false;
-                tr_button.setAttribute("hidden", "hidden");
             }
 
             const restarting = !!machine.restarting;
-            document.querySelector(".curtains-ct").removeAttribute("hidden");
+            const reconnect = !connecting && machine.problem != "not-found" && !troubleshooting;
 
-            if (!connecting && !restarting) {
-                document.querySelector(".curtains-ct .spinner").setAttribute("hidden", "hidden");
-                document.querySelector(".curtains-ct i").removeAttribute("hidden");
-            } else {
-                document.querySelector(".curtains-ct .spinner").removeAttribute("hidden");
-                document.querySelector(".curtains-ct i").setAttribute("hidden", "hidden");
-            }
-
-            if (!connecting && machine.problem != "not-found" && !troubleshooting)
-                document.getElementById("machine-reconnect").removeAttribute("hidden");
-            else
-                document.getElementById("machine-reconnect").setAttribute("hidden", "hidden");
-
-            document.querySelector(".curtains-ct h1").innerHTML = title;
-            document.querySelector(".curtains-ct p").innerHTML = message;
+            document.querySelector("#early-failure-ready").removeAttribute("hidden");
+            ReactDOM.render(
+                <EarlyFailureReady loading={connecting || restarting}
+                                   title={title}
+                                   reconnect={reconnect}
+                                   troubleshoot={troubleshooting}
+                                   onTroubleshoot={render_troubleshoot}
+                                   watchdog_problem={watchdog_problem}
+                                   navigate={navigate}
+                                   paragraph={message} />,
+                document.getElementById('early-failure-ready')
+            );
 
             update_title(null, machine);
 
@@ -537,7 +521,7 @@ function MachinesIndex(index_options, machines, loader) {
         }
 
         if (machine.state == "connected") {
-            document.querySelector(".curtains-ct").setAttribute("hidden", "hidden");
+            document.querySelector("#early-failure-ready").setAttribute("hidden", "hidden");
             frame.style.display = "block";
             frame.setAttribute('data-active', 'true');
             frame.removeAttribute("hidden");

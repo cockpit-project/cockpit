@@ -564,7 +564,7 @@ class TestMultiMachine(MachineCase):
         # Bad host also bounces
         b.go("/@10.0.0.0/playground/test")
         b.wait_text(".curtains-ct h1", "Not connected to host")
-        self.assertEqual(b.text(".curtains-ct p"), "Cannot connect to an unknown host")
+        self.assertEqual(b.text(".curtains-ct .pf-c-empty-state__body"), "Cannot connect to an unknown host")
 
         self.allow_restart_journal_messages()
         self.allow_hostkey_messages()

@@ -1,0 +1,22 @@
+#!/bin/sh
+
+set -eux
+
+flatpak run org.cockpit_project.CockpitClient &
+CLIENT_PID=$!
+
+until pgrep cockpit-ws; do sleep 1; done
+
+# no "ss" in the flatpak; also, there are *two* app instances
+for inst in $(flatpak ps --columns=instance | grep -v Instance); do
+    PORT_HEX=$(flatpak enter $inst cat /proc/net/tcp | sed -nr "s/^.* 5A5A007F:([^ ]+).*$/\1/p" | head -n1)
+    [ -z "$PORT_HEX" ] || break
+done
+[ -n "$PORT_HEX" ] || break
+
+PORT=$(printf "%d" "0x${PORT_HEX}")
+flatpak enter $inst curl http://127.0.90.90:$PORT | grep conversation-prompt
+
+kill $CLIENT_PID
+wait $CLIENT_PID || true
+

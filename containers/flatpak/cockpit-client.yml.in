@@ -6,6 +6,12 @@ default-branch: @FLATPAK_BRANCH@
 command: cockpit-client
 rename-desktop-file: cockpit-client.desktop
 rename-icon: cockpit-client
+finish-args:
+  - --talk-name=org.freedesktop.Flatpak
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --device=dri
+  - --share=ipc
 modules:
   - name: cockpit-client
     buildsystem: autotools
@@ -31,8 +37,3 @@ modules:
 
       - type: file
         path: @FLATPAK_ID@.metainfo.xml
-finish-args:
-  - --talk-name=org.freedesktop.Flatpak
-  - --socket=wayland
-  - --socket=fallback-x11
-  - --device=dri

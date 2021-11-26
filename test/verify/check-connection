@@ -137,7 +137,7 @@ class TestConnection(MachineCase):
             b.wait_visible(".curtains-ct")
 
         b.wait_in_text(".curtains-ct h1", "Disconnected")
-        b.wait_in_text('.curtains-ct p', "Connection has timed out.")
+        b.wait_in_text('.curtains-ct .pf-c-empty-state__body', "Connection has timed out.")
         m.execute("iptables -w -D INPUT -p tcp --dport 9090 -j REJECT")
         b.click("#machine-reconnect")
         b.expect_load()

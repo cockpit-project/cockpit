@@ -362,7 +362,7 @@ function create_tabs(client, target, is_partition, is_extended) {
 
             if (usage.Blocking) {
                 dialog_open({
-                    Title: cockpit.format(_("$0 is in active use"), name),
+                    Title: cockpit.format(_("$0 is in use"), name),
                     Body: BlockingMessage(usage)
                 });
                 return;
@@ -652,7 +652,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
 
         if (usage.Blocking) {
             dialog_open({
-                Title: cockpit.format(_("$0 is in active use"), utils.block_name(block)),
+                Title: cockpit.format(_("$0 is in use"), utils.block_name(block)),
                 Body: BlockingMessage(usage),
             });
             return;

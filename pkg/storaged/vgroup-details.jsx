@@ -189,7 +189,7 @@ export class VGroupDetails extends React.Component {
 
             if (usage.Blocking) {
                 dialog_open({
-                    Title: cockpit.format(_("$0 is in active use"),
+                    Title: cockpit.format(_("$0 is in use"),
                                           vgroup.Name),
                     Body: BlockingMessage(usage)
                 });

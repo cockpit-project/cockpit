@@ -125,7 +125,7 @@ class CockpitClient(Gtk.Application):
                              'Connect to existing cockpit-ws on the given URL')
         self.add_main_option('disable-uniqueness', 0, GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
                              'Disable GApplication single-instance mode')
-        self.add_main_option('wildly-insecure', 0, GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
+        self.add_main_option('wildly-insecure', 0, GLib.OptionFlags.HIDDEN, GLib.OptionArg.NONE,
                              '***DANGEROUS*** Allow anyone to use your ssh credentials')
 
     def do_startup(self):
@@ -190,7 +190,6 @@ class CockpitClient(Gtk.Application):
 
         else:
             logging.error('Unable to detect any sandboxing: refusing to spawn cockpit-ws')
-            logging.error('You can override this check with --wildly-insecure')
             return 1
 
         return -1

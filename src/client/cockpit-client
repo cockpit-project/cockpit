@@ -136,6 +136,9 @@ class CockpitClient(Gtk.Application):
         new_window = Gio.SimpleAction.new('new-window')
         new_window.connect('activate', self.new_window)
         self.add_action(new_window)
+        quit = Gio.SimpleAction.new('quit')
+        quit.connect('activate', self.quit_action)
+        self.add_action(quit)
         open_path = Gio.SimpleAction.new('open-path', GLib.VariantType('s'))
         open_path.connect('activate', self.open_path)
         self.add_action(open_path)
@@ -159,6 +162,9 @@ class CockpitClient(Gtk.Application):
 
     def new_window(self, *args):
         self.activate()
+
+    def quit_action(self, *args):
+        self.quit()
 
     def open_path(self, action, parameter, *args):
         CockpitClientWindow(self, self.uri + parameter.get_string()).present()

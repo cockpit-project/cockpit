@@ -7,6 +7,9 @@
 [ -n "${GITHUB_REPO}" ]
 [ -n "${SUBDIR}" ]
 
+# Set by git-rebase for spawned actions
+unset GIT_DIR GIT_EXEC_PATH GIT_PREFIX GIT_REFLOG_ACTION GIT_WORK_TREE
+
 GITHUB_BASE="${GITHUB_BASE:-cockpit-project/cockpit}"
 GITHUB_REPOSITORY="${GITHUB_BASE%/*}/${GITHUB_REPO}"
 HTTPS_REMOTE="https://github.com/${GITHUB_REPOSITORY}"

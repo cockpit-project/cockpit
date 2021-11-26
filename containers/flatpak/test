@@ -1,22 +1,48 @@
 #!/bin/sh
 
 set -eux
+cd "$(realpath -m "$0"/../../..)"
 
-flatpak run org.cockpit_project.CockpitClient &
+FLATPAK_ID="${1:-org.cockpit_project.CockpitClient}"
+
+# We need to setup an entry in the ssh config, but this is difficult:
+# if this script is run by a normal user then they probably already
+# have their own configuration, and we need to be careful not to change
+# that.
+if mkdir ~/.ssh; then
+    # ~/.ssh didn't exist yet.  Assume that we're safe to configure this.
+    echo 'Include cockpit-client-test.config' > ~/.ssh/config
+else
+    # There's already a ~/.ssh directory.  Don't modify that, but check it.
+    if ! grep -q 'Include cockpit-client-test.config' ~/.ssh/config; then
+        echo 'Please add "Include cockpit-client-test.config" to your ssh config'
+        exit 1
+    fi
+fi
+
+rm -f cockpit-client-test-*-*-*
+cat > ~/.ssh/cockpit-client-test.config <<EOF
+Host cockpit-client-test
+    ProxyCommand touch $PWD/cockpit-client-test-%r-%h-%p
+EOF
+
+flatpak run "${FLATPAK_ID}" &
 CLIENT_PID=$!
 
-until pgrep cockpit-ws; do sleep 1; done
-
-# no "ss" in the flatpak; also, there are *two* app instances
-for inst in $(flatpak ps --columns=instance | grep -v Instance); do
-    PORT_HEX=$(flatpak enter $inst cat /proc/net/tcp | sed -nr "s/^.* 5A5A007F:([^ ]+).*$/\1/p" | head -n1)
-    [ -z "$PORT_HEX" ] || break
+test ! -f cockpit-client-test-"${USER}"-cockpit-client-test-22
+grep "${USER} cockpit-client-test 22" cockpit-client-test.log && exit 1
+# wait until it comes up
+while !  gapplication action "${FLATPAK_ID}" open-path '"=cockpit-client-test"'; do
+    sleep 0.5
 done
-[ -n "$PORT_HEX" ] || break
+until test -f cockpit-client-test-"${USER}"-cockpit-client-test-22; do sleep 0.5; done
 
-PORT=$(printf "%d" "0x${PORT_HEX}")
-flatpak enter $inst curl http://127.0.90.90:$PORT | grep conversation-prompt
+test ! -f cockpit-client-test-rupert-cockpit-client-test-22
+grep "rupert cockpit-client-test 22" cockpit-client-test.log && exit 1
+gapplication action "${FLATPAK_ID}" open-path '"=rupert@cockpit-client-test"'
+until test -f cockpit-client-test-rupert-cockpit-client-test-22; do sleep 0.5; done
 
-kill $CLIENT_PID
-wait $CLIENT_PID || true
+gapplication action "${FLATPAK_ID}" quit
+wait $CLIENT_PID
 
+rm cockpit-client-test-*-*-*

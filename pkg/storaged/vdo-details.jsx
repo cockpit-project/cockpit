@@ -128,7 +128,7 @@ export class VDODetails extends React.Component {
 
             if (usage.Blocking) {
                 dialog_open({
-                    Title: cockpit.format(_("$0 is in active use"), vdo.name),
+                    Title: cockpit.format(_("$0 is in use"), vdo.name),
                     Body: BlockingMessage(usage),
                 });
                 return;
@@ -159,7 +159,7 @@ export class VDODetails extends React.Component {
 
             if (usage.Blocking) {
                 dialog_open({
-                    Title: cockpit.format(_("$0 is in active use"), vdo.name),
+                    Title: cockpit.format(_("$0 is in use"), vdo.name),
                     Body: BlockingMessage(usage),
                 });
                 return;

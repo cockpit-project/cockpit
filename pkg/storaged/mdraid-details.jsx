@@ -234,7 +234,7 @@ export class MDRaidDetails extends React.Component {
 
             if (usage.Blocking) {
                 dialog_open({
-                    Title: cockpit.format(_("$0 is in active use"), utils.mdraid_name(mdraid)),
+                    Title: cockpit.format(_("$0 is in use"), utils.mdraid_name(mdraid)),
                     Body: BlockingMessage(usage),
                 });
                 return;
@@ -289,7 +289,7 @@ export class MDRaidDetails extends React.Component {
 
             if (usage.Blocking) {
                 dialog_open({
-                    Title: cockpit.format(_("$0 is in active use"), utils.mdraid_name(mdraid)),
+                    Title: cockpit.format(_("$0 is in use"), utils.mdraid_name(mdraid)),
                     Body: BlockingMessage(usage)
                 });
                 return;

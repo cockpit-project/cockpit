@@ -179,7 +179,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
 
     if (usage.Blocking) {
         dialog_open({
-            Title: cockpit.format(_("$0 is in active use"), utils.block_name(block)),
+            Title: cockpit.format(_("$0 is in use"), utils.block_name(block)),
             Body: BlockingMessage(usage)
         });
         return;

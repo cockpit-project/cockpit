@@ -247,7 +247,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
 
         if (usage.Blocking) {
             dialog_open({
-                Title: cockpit.format(_("$0 is in active use"),
+                Title: cockpit.format(_("$0 is in use"),
                                       pool.Name),
                 Body: BlockingMessage(usage)
             });
@@ -546,7 +546,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
 
             if (usage.Blocking) {
                 dialog_open({
-                    Title: cockpit.format(_("$0 is in active use"),
+                    Title: cockpit.format(_("$0 is in use"),
                                           fsys.Name),
                     Body: BlockingMessage(usage)
                 });

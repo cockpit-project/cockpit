@@ -229,7 +229,7 @@ function lvol_grow(client, lvol, info, to_fit) {
 
     if (usage.Blocking) {
         dialog_open({
-            Title: cockpit.format(_("$0 is in active use"), lvol.Name),
+            Title: cockpit.format(_("$0 is in use"), lvol.Name),
             Body: BlockingMessage(usage)
         });
         return;
@@ -295,7 +295,7 @@ function lvol_shrink(client, lvol, info, to_fit) {
 
     if (usage.Blocking) {
         dialog_open({
-            Title: cockpit.format(_("$0 is in active use"), lvol.Name),
+            Title: cockpit.format(_("$0 is in use"), lvol.Name),
             Body: BlockingMessage(usage)
         });
         return;

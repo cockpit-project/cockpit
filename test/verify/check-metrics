@@ -1106,7 +1106,7 @@ class TestGrafanaClient(MachineCase):
         b.click(".pf-c-alert button.pf-m-primary")
 
         # Log into Grafana (usually http://127.0.0.2:3002 if you do it interactively)
-        bg = Browser(mg.forward['3000'], label=self.label() + "-" + mg.label)
+        bg = Browser(mg.forward['3000'], label=self.label() + "-" + mg.label, machine=self)
         try:
             bg.open("/")
             bg.set_input_text("input[name='user']", "admin")

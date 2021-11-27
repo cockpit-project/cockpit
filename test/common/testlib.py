@@ -109,7 +109,7 @@ def attach(filename, move=False):
 
 
 class Browser:
-    def __init__(self, address, label, pixels_label=None, port=None):
+    def __init__(self, address, label, machine, pixels_label=None, port=None):
         if ":" in address:
             (self.address, unused, self.port) = address.rpartition(":")
         else:
@@ -120,6 +120,7 @@ class Browser:
         self.default_user = "admin"
         self.label = label
         self.pixels_label = pixels_label
+        self.machine = machine
         path = os.path.dirname(__file__)
         self.cdp = cdp.CDP("C.utf8", verbose=opts.trace, trace=opts.trace,
                            inject_helpers=[os.path.join(path, "test-functions.js"), os.path.join(path, "sizzle.js")])
@@ -616,7 +617,7 @@ class Browser:
         self.switch_to_top()
 
         # changed in #16522
-        prev_shell = testvm.DEFAULT_IMAGE == "rhel-8-5-distropkg"
+        prev_shell = self.machine.system_before(258)
 
         if prev_shell:
             self.wait_visible("#navbar-dropdown")
@@ -989,7 +990,7 @@ class MachineCase(unittest.TestCase):
         pixels_label = None
         if machine.image == testvm.TEST_OS_DEFAULT and os.environ.get("TEST_BROWSER", "chromium") == "chromium" and not self.is_devel_build():
             pixels_label = self.label()
-        browser = Browser(machine.web_address, label=label, pixels_label=pixels_label, port=machine.web_port)
+        browser = Browser(machine.web_address, label=label, pixels_label=pixels_label, port=machine.web_port, machine=self)
         self.addCleanup(browser.kill)
         return browser
 

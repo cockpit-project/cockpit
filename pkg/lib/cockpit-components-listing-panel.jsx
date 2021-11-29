@@ -26,7 +26,6 @@ import './cockpit-components-listing-panel.scss';
  *     - name tab name (has to be unique in the entry, used as react key)
  *     - renderer react component
  *     - data render data passed to the tab renderer
- * listingActions optional: buttons that are presented as actions for the expanded item
  */
 export class ListingPanel extends React.Component {
     constructor(props) {
@@ -56,9 +55,8 @@ export class ListingPanel extends React.Component {
 
         return (
             <div className="ct-listing-panel">
-                {(listingDetail || this.props.listingActions) && <div className="ct-listing-panel-actions pf-c-tabs">
+                {listingDetail && <div className="ct-listing-panel-actions pf-c-tabs">
                     {listingDetail}
-                    {this.props.listingActions}
                 </div>}
                 {this.props.tabRenderers.length && <Tabs activeKey={this.state.activeTab} className="ct-listing-panel-tabs" mountOnEnter onSelect={this.handleTabClick}>
                     {this.props.tabRenderers.map((itm, tabIdx) => {
@@ -85,6 +83,5 @@ ListingPanel.defaultProps = {
 ListingPanel.propTypes = {
     tabRenderers: PropTypes.array,
     listingDetail: PropTypes.node,
-    listingActions: PropTypes.node,
     initiallyActiveTab: PropTypes.number,
 };

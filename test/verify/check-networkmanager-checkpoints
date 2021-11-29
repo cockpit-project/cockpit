@@ -35,7 +35,7 @@ class TestNetworkingCheckpoints(NetworkCase):
             self.sed_file("s/managed=false/managed=true/", "/etc/NetworkManager/NetworkManager.conf",
                           "systemctl restart NetworkManager")
             # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1400525
-            wait(lambda: m.execute("nmcli dev con %s" % iface))
+            wait(lambda: m.execute(f"nmcli dev con {iface}"))
 
         self.login_and_go("/network")
         self.nm_checkpoints_enable()
@@ -44,8 +44,8 @@ class TestNetworkingCheckpoints(NetworkCase):
         b.wait_visible("#network-interface")
 
         # Disconnect
-        self.wait_onoff(".pf-c-card__header:contains('%s')" % iface, True)
-        self.toggle_onoff(".pf-c-card__header:contains('%s')" % iface)
+        self.wait_onoff(f".pf-c-card__header:contains('{iface}')", True)
+        self.toggle_onoff(f".pf-c-card__header:contains('{iface}')")
 
         # Wait for dialog to appear and dismiss it
         b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
@@ -111,7 +111,7 @@ class TestNetworkingCheckpoints(NetworkCase):
 
         iface = self.get_iface(m, "52:54:00:12:34:56")
         con_id = self.iface_con_id(iface)
-        m.execute('nmcli con mod "%s" ipv4.dhcp-timeout %s' % (con_id, dhcp_timeout))
+        m.execute(f'nmcli con mod "{con_id}" ipv4.dhcp-timeout {dhcp_timeout}')
 
         self.ensure_nm_uses_dhclient()
 
@@ -127,8 +127,8 @@ class TestNetworkingCheckpoints(NetworkCase):
         self.slow_down_dhclient(dhcp_delay)
 
         # Disconnect and trigger a slow rollback
-        self.wait_onoff(".pf-c-card__header:contains('%s')" % iface, True)
-        self.toggle_onoff(".pf-c-card__header:contains('%s')" % iface)
+        self.wait_onoff(f".pf-c-card__header:contains('{iface}')", True)
+        self.toggle_onoff(f".pf-c-card__header:contains('{iface}')")
         with b.wait_timeout(120):
             b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
             b.wait_not_present("#confirm-breaking-change-popup")

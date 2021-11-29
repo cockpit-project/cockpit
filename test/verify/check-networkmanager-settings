@@ -47,7 +47,7 @@ class TestNetworkingSettings(NetworkCase):
         b.wait_visible("#network-interface")
 
         # Check that there is no connection for the device
-        cons = m.execute("nmcli -t -m tabular -f CONNECTIONS.AVAILABLE-CONNECTION-PATHS dev show %s" % iface)
+        cons = m.execute(f"nmcli -t -m tabular -f CONNECTIONS.AVAILABLE-CONNECTION-PATHS dev show {iface}")
         self.assertEqual(cons.strip(), "")
 
         # Edit and apply the ghost settings
@@ -62,26 +62,26 @@ class TestNetworkingSettings(NetworkCase):
 
         # Check that we now have connection settings
         con_id = wait(lambda: self.iface_con_id(iface))
-        self.assertEqual(m.execute('nmcli -m tabular -t -f ipv4.method con show "%s"' % con_id).strip(),
+        self.assertEqual(m.execute(f'nmcli -m tabular -t -f ipv4.method con show "{con_id}"').strip(),
                          "manual")
 
         # The interface will be activated. Deactivate it.
         self.wait_for_iface_setting('Status', '1.2.3.4/24')
-        self.toggle_onoff(".pf-c-card__header:contains('%s')" % iface)
+        self.toggle_onoff(f".pf-c-card__header:contains('{iface}')")
         self.wait_for_iface_setting('Status', 'Inactive')
 
         # Delete the connection settings again and wait for the ghost
         # settings to be re-created.
-        m.execute('nmcli con del "%s"' % con_id)
+        m.execute(f'nmcli con del "{con_id}"')
         self.wait_for_iface_setting('IPv4', 'Automatic')
 
         # Activate with ghost settings
-        self.toggle_onoff(".pf-c-card__header:contains('%s')" % iface)
+        self.toggle_onoff(f".pf-c-card__header:contains('{iface}')")
         self.wait_for_iface_setting('Status', '10.111.')
 
         # Check again that we now have connection settings
         con_id = wait(lambda: self.iface_con_id(iface))
-        self.assertEqual(m.execute('nmcli -m tabular -t -f ipv4.method con show "%s"' % con_id).strip(),
+        self.assertEqual(m.execute(f'nmcli -m tabular -t -f ipv4.method con show "{con_id}"').strip(),
                          "auto")
 
         self.configure_iface_setting('IPv6')
@@ -91,7 +91,7 @@ class TestNetworkingSettings(NetworkCase):
         b.wait_not_present("#network-ip-settings-dialog")
 
         con_id = wait(lambda: self.iface_con_id(iface))
-        self.assertEqual(m.execute('nmcli -m tabular -t -f ipv6.method con show "%s"' % con_id).strip(),
+        self.assertEqual(m.execute(f'nmcli -m tabular -t -f ipv6.method con show "{con_id}"').strip(),
                          "disabled")
 
     def testOtherSettings(self):
@@ -100,7 +100,7 @@ class TestNetworkingSettings(NetworkCase):
 
         iface = self.add_iface()
         con_id = self.iface_con_id(iface)
-        m.execute("nmcli con mod '%s' connection.gateway-ping-timeout 12" % con_id)
+        m.execute(f"nmcli con mod '{con_id}' connection.gateway-ping-timeout 12")
 
         self.login_and_go("/network")
         self.wait_for_iface(iface)
@@ -116,15 +116,15 @@ class TestNetworkingSettings(NetworkCase):
         b.click("#network-ip-settings-apply")
         b.wait_not_present("#network-ip-settings-dialog")
 
-        self.assertEqual(m.execute("nmcli -m tabular -t -f ipv4.method con show '%s'" % con_id).strip(),
+        self.assertEqual(m.execute(f"nmcli -m tabular -t -f ipv4.method con show '{con_id}'").strip(),
                          "shared")
-        self.assertEqual(m.execute("nmcli -m tabular -t -f connection.gateway-ping-timeout con show '%s'" % con_id).strip(),
+        self.assertEqual(m.execute(f"nmcli -m tabular -t -f connection.gateway-ping-timeout con show '{con_id}'").strip(),
                          "12")
 
         # IPv6 route
 
         # by default there's a route to link-local only (fe80::)
-        show_cmd = "ip -6 route show dev %s" % iface
+        show_cmd = f"ip -6 route show dev {iface}"
         wait(lambda: "fe80::/64" in m.execute(show_cmd))
         # add a manual one
         self.configure_iface_setting('IPv6')

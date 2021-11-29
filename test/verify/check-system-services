@@ -45,7 +45,7 @@ class TestServices(MachineCase):
         self.restore_dir("/etc/xdg/systemd/user", user_post_restore, True)
 
     def pick_tab(self, n):
-        self.browser.click('#services-filter li:nth-child({0}) a'.format(n))
+        self.browser.click(f'#services-filter li:nth-child({n}) a')
 
     def wait_onoff(self, val):
         self.browser.wait_visible(".service-top-panel .pf-c-switch__input" + (":checked" if val else ":not(:checked)"))
@@ -55,7 +55,7 @@ class TestServices(MachineCase):
 
     def do_action(self, action):
         self.browser.click(".service-top-panel .pf-c-dropdown button")
-        self.browser.click(".service-top-panel .pf-c-dropdown__menu a:contains('{0}')".format(action))
+        self.browser.click(f".service-top-panel .pf-c-dropdown__menu a:contains('{action}')")
 
     def check_service_details(self, statuses, actions, enabled, onoff=True, kebab=True):
         self.browser.wait_collected_text("#statuses .status", "".join(statuses))
@@ -73,7 +73,7 @@ class TestServices(MachineCase):
             self.browser.wait_not_present(".service-top-panel .pf-c-dropdown")
 
     def svc_sel(self, service):
-        return 'tr[data-goto-unit="%s"]' % service
+        return f'tr[data-goto-unit="{service}"]'
 
     def goto_service(self, service):
         return self.browser.click(self.svc_sel(service) + ' a')
@@ -95,10 +95,10 @@ class TestServices(MachineCase):
 
         self.browser.click("#services-dropdown-file-state")
         for state in states:
-            self.browser.set_checked(".pf-c-select__menu label:contains('{0}') input".format(state), True)
+            self.browser.set_checked(f".pf-c-select__menu label:contains('{state}') input", True)
         self.browser.click("#services-dropdown-file-state")
         for state in states:
-            self.browser.wait_visible(".pf-c-chip-group__label:contains('File state') + .pf-c-chip-group__list li:contains('{0}')".format(state))
+            self.browser.wait_visible(f".pf-c-chip-group__label:contains('File state') + .pf-c-chip-group__list li:contains('{state}')")
 
     def select_active_state(self, states):
         if not isinstance(states, list):
@@ -106,10 +106,10 @@ class TestServices(MachineCase):
 
         self.browser.click("#services-dropdown-active-state")
         for state in states:
-            self.browser.set_checked(".pf-c-select__menu label:contains('{0}') input".format(state), True)
+            self.browser.set_checked(f".pf-c-select__menu label:contains('{state}') input", True)
         self.browser.click("#services-dropdown-active-state")
         for state in states:
-            self.browser.wait_visible(".pf-c-chip-group__label:contains('Active state') + .pf-c-chip-group__list li:contains('{0}')".format(state))
+            self.browser.wait_visible(f".pf-c-chip-group__label:contains('Active state') + .pf-c-chip-group__list li:contains('{state}')")
 
     def wait_page_load(self):
         self.browser.wait_not_present(".pf-c-empty-state .pf-c-spinner[aria-valuetext='Loading...']")
@@ -120,7 +120,7 @@ class TestServices(MachineCase):
     def wait_service_present(self, service):
         if service.endswith(".service"):
             service_name = service[:-8]
-        self.browser.wait_text('tr[data-goto-unit="{0}"] .service-unit-id'.format(service), service_name)
+        self.browser.wait_text(f'tr[data-goto-unit="{service}"] .service-unit-id', service_name)
 
     def wait_service_not_present(self, service):
         self.browser.wait_not_present(self.svc_sel(service))
@@ -671,7 +671,7 @@ ExecStart=/bin/sh -c "while true; do sleep 5; done"
         m.execute("systemctl daemon-reload")
 
         def rel_sel(reltype, service):
-            return "#{0} a:contains('{1}')".format("".join(reltype.split(" ")), service)
+            return f"#{''.join(reltype.split(' '))} a:contains('{service}')"
 
         # services page
         self.login_and_go("/system/services")
@@ -861,7 +861,7 @@ ExecStart=/usr/bin/false
         self.check_system_menu_services_error(True)
 
         n_failures = self.count_failures()
-        health_message = "1 service has failed" if n_failures == 1 else "%s services have failed" % n_failures
+        health_message = "1 service has failed" if n_failures == 1 else f"{n_failures} services have failed"
 
         # System page should have notification
         b.click_system_menu("/system")
@@ -942,7 +942,7 @@ Where=/fail
 @skipDistroPackage()
 class TestTimers(MachineCase):
     def svc_sel(self, service):
-        return 'tr[data-goto-unit="%s"]' % service
+        return f'tr[data-goto-unit="{service}"]'
 
     def wait_page_load(self):
         self.browser.wait_not_present(".pf-c-empty-state .pf-c-spinner[aria-valuetext='Loading...']")
@@ -953,7 +953,7 @@ class TestTimers(MachineCase):
 
         def wait_systemctl_timer(time):
             with testvm.Timeout(seconds=20, machine=m, error_message="Timeout while waiting for systemctl list-timers"):
-                m.execute("cmd='systemctl list-timers'; until $cmd | grep -m 1 '%s'; do sleep 1; done" % time)
+                m.execute(f"cmd='systemctl list-timers'; until $cmd | grep -m 1 '{time}'; do sleep 1; done")
 
         # HACK: pmie and pmlogger take a looooong time to shutdown (https://bugzilla.redhat.com/show_bug.cgi?id=1703348)
         # so disable them for this test, we don't test PCP here

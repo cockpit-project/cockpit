@@ -52,7 +52,7 @@ class Handler(BaseHTTPRequestHandler):
             # just check that it's a JSON
             json.loads(json_str)
         except ValueError:
-            sys.stderr.write('Received invalid JSON data:\n{0}\n'.format(json_str))
+            sys.stderr.write(f'Received invalid JSON data:\n{json_str}\n')
             return
 
         if self.path == '/reports/attach/':

@@ -40,7 +40,7 @@ class TestStorageLvm2(StorageCase):
         b.wait_in_text("#others", dev_2)
 
         # Create a volume group out of two disks
-        m.execute("vgcreate TEST1 %s %s" % (dev_1, dev_2))
+        m.execute(f"vgcreate TEST1 {dev_1} {dev_2}")
         # just in case the test fails
         self.addCleanup(m.execute, "vgremove --force TEST1 2>/dev/null || true")
         b.wait_in_text("#devices", "TEST1")
@@ -70,8 +70,8 @@ class TestStorageLvm2(StorageCase):
         b.wait_not_in_text("#detail-content", "one")
 
         # remove a disk from the volume group
-        m.execute("pvmove %s &>/dev/null || true" % dev_2)
-        m.execute("vgreduce TEST1 %s" % dev_2)
+        m.execute(f"pvmove {dev_2} &>/dev/null || true")
+        m.execute(f"vgreduce TEST1 {dev_2}")
         b.wait_not_in_text("#detail-sidebar", dev_2)
 
         # The remaining lone disk is not removable
@@ -83,8 +83,8 @@ class TestStorageLvm2(StorageCase):
         # HACK - the pvscan is necessary because of
         # https://bugzilla.redhat.com/show_bug.cgi?id=1063813
         #
-        m.execute("wipefs -a %s" % dev_2)
-        m.execute("pvscan --cache %s" % dev_2)
+        m.execute(f"wipefs -a {dev_2}")
+        m.execute(f"pvscan --cache {dev_2}")
 
         # Thin volumes
         m.execute("lvcreate TEST1 --thinpool pool -L 20m")
@@ -163,10 +163,10 @@ class TestStorageLvm2(StorageCase):
         self.content_dropdown_action(1, "Delete")
         self.confirm()
         b.wait_not_in_text("#detail-content", "/dev/vgroup0/lvol0")
-        self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_one), "")
+        self.assertEqual(m.execute(f"grep {mount_point_one} /etc/fstab || true"), "")
 
         # remove disk2
-        b.click('#detail-sidebar .sidepanel-row:contains(%s) button.pf-m-secondary' % dev_2)
+        b.click(f'#detail-sidebar .sidepanel-row:contains({dev_2}) button.pf-m-secondary')
         b.wait_not_in_text("#detail-sidebar", dev_2)
         b.wait_in_text("#detail-header dt:contains(Capacity) + dd", "48 MiB")
 
@@ -215,7 +215,7 @@ class TestStorageLvm2(StorageCase):
         self.content_dropdown_action(1, "Delete")
         self.confirm()
         b.wait_not_in_text("#detail-content", "pool")
-        self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_thin), "")
+        self.assertEqual(m.execute(f"grep {mount_point_thin} /etc/fstab || true"), "")
 
         # make another logical volume and format it, just so that we
         # can see whether deleting the volume group will clean it all
@@ -236,7 +236,7 @@ class TestStorageLvm2(StorageCase):
         self.confirm()
         b.wait_visible("#storage")
         b.wait_not_in_text("#devices", "vgroup0")
-        self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_thin), "")
+        self.assertEqual(m.execute(f"grep {mount_point_thin} /etc/fstab || true"), "")
 
     def testUnpartitionedSpace(self):
         m = self.machine
@@ -250,8 +250,8 @@ class TestStorageLvm2(StorageCase):
         b.wait_in_text("#others", disk2)
 
         # Put a partition table on disk1 and disk2
-        m.execute('parted -s %s mktable gpt' % disk1)
-        m.execute('parted -s %s mktable gpt' % disk2)
+        m.execute(f'parted -s {disk1} mktable gpt')
+        m.execute(f'parted -s {disk2} mktable gpt')
 
         # Create a volume group out of disk1
         self.dialog_with_retry(trigger=lambda: self.devices_dropdown('Create LVM2 volume group'),
@@ -282,7 +282,7 @@ class TestStorageLvm2(StorageCase):
         disk = self.add_ram_disk(100)
         b.wait_in_text("#drives", disk)
 
-        m.execute("vgcreate TEST %s" % disk)
+        m.execute(f"vgcreate TEST {disk}")
 
         # HACK - Sometimes the vgcreate call above doesn't update
         #        udev.  Make sure it happens.

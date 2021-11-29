@@ -230,7 +230,7 @@ class TestSystemInfo(MachineCase):
     def set_change_time_dialog_mode(self, mode):
         b = self.browser
         b.click("#system_information_change_systime .pf-c-form__group-label:contains('Set time') + div > .pf-c-select > button")
-        b.click("#change_systime button:contains('%s')" % mode)
+        b.click(f"#change_systime button:contains('{mode}')")
         b.wait_in_text("#system_information_change_systime .pf-c-form__group-label:contains('Set time') + div > .pf-c-select > button", mode)
 
     def testTime(self):
@@ -350,8 +350,8 @@ class TestSystemInfo(MachineCase):
         b.click("#system_information_change_systime .apply")
         b.wait_not_present("#system_information_change_systime")
 
-        self.assertIn("0.pool.ntp.org", m.execute("grep '^NTP=' %s" % conf))
-        self.assertIn("1.pool.ntp.org", m.execute("grep '^NTP=' %s" % conf))
+        self.assertIn("0.pool.ntp.org", m.execute(f"grep '^NTP=' {conf}"))
+        self.assertIn("1.pool.ntp.org", m.execute(f"grep '^NTP=' {conf}"))
 
         # restarts timesyncd to pick up the new config
         wait(lambda: get_timesyncd_start() > prev_timesyncd_start, delay=0.2)
@@ -369,7 +369,7 @@ class TestSystemInfo(MachineCase):
         b.click("#system_information_change_systime .apply")
         b.wait_not_present("#system_information_change_systime")
 
-        self.assertIn("2.pool.ntp.org", m.execute("grep '^#NTP=' %s" % conf))
+        self.assertIn("2.pool.ntp.org", m.execute(f"grep '^#NTP=' {conf}"))
 
         # restarts timesyncd to pick up the new config
         wait(lambda: get_timesyncd_start() > prev_timesyncd_start, delay=0.2)

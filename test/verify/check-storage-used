@@ -33,18 +33,18 @@ class TestStorageUsed(StorageCase):
 
         disk = self.add_ram_disk()
         b.wait_in_text("#drives", disk)
-        m.execute("parted -s %s mktable msdos" % disk)
-        m.execute("parted -s %s mkpart primary ext2 1M 25" % disk)
+        m.execute(f"parted -s {disk} mktable msdos")
+        m.execute(f"parted -s {disk} mkpart primary ext2 1M 25")
         m.execute("udevadm settle")
-        m.execute("echo einszweidrei | cryptsetup luksFormat --pbkdf-memory 32768 %s1" % disk)
-        m.execute("echo einszweidrei | cryptsetup luksOpen %s1 dm-test" % disk)
+        m.execute(f"echo einszweidrei | cryptsetup luksFormat --pbkdf-memory 32768 {disk}1")
+        m.execute(f"echo einszweidrei | cryptsetup luksOpen {disk}1 dm-test")
         m.execute("udevadm settle")
         m.execute("mke2fs -q -L TEST /dev/mapper/dm-test")
         m.execute("mount /dev/mapper/dm-test /mnt")
 
         # Now all of /dev/mapper/dm-test, /dev/sda1, and /dev/sda should be 'in use'.
 
-        b.click('.sidepanel-row:contains("%s")' % disk)
+        b.click(f'.sidepanel-row:contains("{disk}")')
         b.wait_visible("#storage-detail")
 
         self.content_dropdown_action(1, "Format")

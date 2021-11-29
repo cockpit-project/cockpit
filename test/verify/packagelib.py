@@ -88,7 +88,7 @@ class PackageCase(MachineCase):
         index in repo_dir.
         '''
         if provides:
-            provides = "Provides: {0}".format(provides)
+            provides = f"Provides: {provides}"
         else:
             provides = ""
 
@@ -107,7 +107,7 @@ class PackageCase(MachineCase):
         '''
         if arch is None:
             arch = self.primary_arch
-        deb = "{0}/{1}_{2}_{3}.deb".format(self.repo_dir, name, version, arch)
+        deb = f"{self.repo_dir}/{name}_{version}_{arch}.deb"
         if postinst:
             postinstcode = "printf '#!/bin/sh\n{0}' > /tmp/b/DEBIAN/postinst; chmod 755 /tmp/b/DEBIAN/postinst".format(
                 postinst)
@@ -116,9 +116,9 @@ class PackageCase(MachineCase):
         if content is not None:
             for path, data in content.items():
                 dest = "/tmp/b/" + path
-                self.machine.execute("mkdir -p '{0}'".format(os.path.dirname(dest)))
+                self.machine.execute(f"mkdir -p '{os.path.dirname(dest)}'")
                 if isinstance(data, dict):
-                    self.machine.execute("cp '{0}' '{1}'".format(data["path"], dest))
+                    self.machine.execute(f"cp '{data['path']}' '{dest}'")
                 else:
                     self.machine.write(dest, data)
         cmd = '''mkdir -p /tmp/b/DEBIAN {repo}
@@ -131,7 +131,7 @@ class PackageCase(MachineCase):
         if install:
             cmd += "dpkg -i " + deb
         self.machine.execute(cmd)
-        self.addCleanup(self.machine.execute, "dpkg -P --force-depends --force-remove-reinstreq %s 2>/dev/null || true" % name)
+        self.addCleanup(self.machine.execute, f"dpkg -P --force-depends --force-remove-reinstreq {name} 2>/dev/null || true")
 
     def createRpm(self, name, version, release, requires, post, install, content, arch, provides):
         '''Create a dummy rpm in repo_dir on self.machine
@@ -144,23 +144,23 @@ class PackageCase(MachineCase):
         else:
             postcode = ''
         if requires:
-            requires = "Requires: %s\n" % requires
+            requires = f"Requires: {requires}\n"
         if arch is None:
             arch = self.primary_arch
-        installcmds = "touch $RPM_BUILD_ROOT/stamp-{0}-{1}-{2}\n".format(name, version, release)
-        installedfiles = "/stamp-{0}-{1}-{2}\n".format(name, version, release)
+        installcmds = f"touch $RPM_BUILD_ROOT/stamp-{name}-{version}-{release}\n"
+        installedfiles = f"/stamp-{name}-{version}-{release}\n"
         if content is not None:
             for path, data in content.items():
-                installcmds += 'mkdir -p $(dirname "$RPM_BUILD_ROOT/{0}")\n'.format(path)
+                installcmds += f'mkdir -p $(dirname "$RPM_BUILD_ROOT/{path}")\n'
                 if isinstance(data, dict):
-                    installcmds += 'cp {1} "$RPM_BUILD_ROOT/{0}"'.format(path, data["path"])
+                    installcmds += f"cp {data['path']} \"$RPM_BUILD_ROOT/{path}\""
                 else:
                     installcmds += 'cat >"$RPM_BUILD_ROOT/{0}" <<\'EOF\'\n'.format(path) + data + '\nEOF\n'
-                installedfiles += "{0}\n".format(path)
+                installedfiles += f"{path}\n"
 
         architecture = ""
         if arch == self.primary_arch:
-            architecture = "BuildArch: {0}".format(self.primary_arch)
+            architecture = f"BuildArch: {self.primary_arch}"
         spec = """
 Summary: dummy {0}
 Name: {0}
@@ -192,14 +192,14 @@ rm -rf ~/rpmbuild
         if install:
             cmd += "rpm -i {0}/{1}-{2}-{3}.*.rpm"
         self.machine.execute(cmd.format(self.repo_dir, name, version, release, arch))
-        self.addCleanup(self.machine.execute, "rpm -e --nodeps %s 2>/dev/null || true" % name)
+        self.addCleanup(self.machine.execute, f"rpm -e --nodeps {name} 2>/dev/null || true")
 
     def createAptChangelogs(self):
         # apt metadata has no formal field for bugs/CVEs, they are parsed from the changelog
         for ((pkg, ver, rel), info) in self.updateInfo.items():
             changes = info.get("changes", "some changes")
             if info.get("bugs"):
-                changes += " (Closes: {0})".format(", ".join(["#" + str(b) for b in info["bugs"]]))
+                changes += f" (Closes: {', '.join([('#' + str(b)) for b in info['bugs']])})"
             if info.get("cves"):
                 changes += "\n  * " + ", ".join(info["cves"])
 
@@ -260,7 +260,7 @@ rm -rf ~/rpmbuild
                                     O=$(apt-ftparchive -o APT::FTPArchive::Release::Origin=cockpittest release .); echo "$O" > Release
                                     echo 'Changelogs: http://localhost:12345/changelogs/@CHANGEPATH@' >> Release
                                     '''.format(self.repo_dir))
-            pid = self.machine.spawn("cd %s && exec python3 -m http.server 12345" % self.repo_dir, "changelog")
+            pid = self.machine.spawn(f"cd {self.repo_dir} && exec python3 -m http.server 12345", "changelog")
             # pid will not be present for rebooting tests
             self.addCleanup(self.machine.execute, "kill %i || true" % pid)
             self.machine.wait_for_cockpit_running(port=12345)  # wait for changelog HTTP server to start up

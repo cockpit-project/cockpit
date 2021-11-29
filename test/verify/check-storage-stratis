@@ -150,14 +150,14 @@ class TestStorageStratis(StorageCase):
         self.dialog_wait_close()
 
         b.wait_in_text('#detail-sidebar', dev_3)
-        b.wait_in_text('#detail-sidebar .sidepanel-row:contains(%s)' % dev_3, "data")
+        b.wait_in_text(f'#detail-sidebar .sidepanel-row:contains({dev_3})', "data")
 
         # Add a cache blockdev
         b.click('#detail-sidebar .pf-c-card__actions button')
         self.dialog({'tier': "cache",
                      'disks': {dev_4: True}})
         b.wait_in_text('#detail-sidebar', dev_4)
-        b.wait_in_text('#detail-sidebar .sidepanel-row:contains(%s)' % dev_4, "cache")
+        b.wait_in_text(f'#detail-sidebar .sidepanel-row:contains({dev_4})', "cache")
 
         # Rename the pool
         b.click('#detail-header button:contains(Rename)')
@@ -236,7 +236,7 @@ class TestStorageStratis(StorageCase):
         self.dialog({'passphrase': "foodeeboodeebar",
                      'disks': {dev_2: True}})
         b.wait_in_text('#detail-sidebar', dev_2)
-        b.wait_in_text('#detail-sidebar .sidepanel-row:contains(%s)' % dev_2, "data")
+        b.wait_in_text(f'#detail-sidebar .sidepanel-row:contains({dev_2})', "data")
 
         # Reboot
         m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
@@ -297,7 +297,7 @@ class TestStorageStratis(StorageCase):
         b.wait_in_text("#drives", dev_2)
 
         # Create a pool outside of Cockpit
-        m.execute("stratis pool create TEST1 %s %s" % (dev_1, dev_2))
+        m.execute(f"stratis pool create TEST1 {dev_1} {dev_2}")
         b.wait_in_text("#devices", "TEST1")
         b.wait_in_text("#devices", "/dev/stratis/TEST1/")
         b.click('.sidepanel-row:contains("TEST1")')

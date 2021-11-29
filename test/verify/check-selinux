@@ -167,7 +167,7 @@ class TestSelinux(MachineCase):
             b.wait_in_text(row_selector + " tr.pf-m-expanded .ct-listing-panel-body", "you can run restorecon")
 
             # and it can be applied
-            btn_sel = ".selinux-details:contains('you can run restorecon') button{}".format(self.default_btn_class)
+            btn_sel = f".selinux-details:contains('you can run restorecon') button{self.default_btn_class}"
             b.click(btn_sel)
 
             # the button should disappear

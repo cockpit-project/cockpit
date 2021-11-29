@@ -45,7 +45,7 @@ class NetworkHelpers:
             server = self.machine.spawn("dnsmasq --keep-in-foreground --log-queries --log-facility=- "
                                         "--conf-file=/dev/null --dhcp-leasefile=/tmp/leases.{0} "
                                         "--bind-interfaces --except-interface=lo --interface=v_{0} --dhcp-range={1},{2},4h".format(name, dhcp_range[0], dhcp_range[1]),
-                                        "dhcp-%s.log" % name)
+                                        f"dhcp-{name}.log")
             self.addCleanup(self.machine.execute, "kill %i" % server)
             self.machine.execute("if firewall-cmd --state >/dev/null 2>&1; then firewall-cmd --add-service=dhcp; fi")
 
@@ -53,17 +53,17 @@ class NetworkHelpers:
         '''Create an NM connection for a given interface'''
 
         m = self.machine
-        wait(lambda: m.execute('nmcli device | grep "%s.*disconnected"' % iface))
-        m.execute("nmcli con add type ethernet ifname %s con-name %s" % (iface, iface))
-        m.execute("nmcli con up %s ifname %s" % (iface, iface))
-        self.addCleanup(m.execute, "nmcli con delete %s" % iface)
+        wait(lambda: m.execute(f'nmcli device | grep "{iface}.*disconnected"'))
+        m.execute(f"nmcli con add type ethernet ifname {iface} con-name {iface}")
+        m.execute(f"nmcli con up {iface} ifname {iface}")
+        self.addCleanup(m.execute, f"nmcli con delete {iface}")
 
     def nm_checkpoints_disable(self):
         self.browser.eval_js("window.cockpit_tests_disable_checkpoints = true;")
 
     def nm_checkpoints_enable(self, settle_time=3.0):
         self.browser.eval_js("window.cockpit_tests_disable_checkpoints = false;")
-        self.browser.eval_js("window.cockpit_tests_checkpoint_settle_time = %s;" % settle_time)
+        self.browser.eval_js(f"window.cockpit_tests_checkpoint_settle_time = {settle_time};")
 
 
 class NetworkCase(MachineCase, NetworkHelpers):
@@ -79,7 +79,7 @@ class NetworkCase(MachineCase, NetworkHelpers):
 
             def cleanupDevs():
                 new = devs() - self.orig_devs
-                self.machine.execute("for d in %s; do nmcli dev del $d; done" % ' '.join(new))
+                self.machine.execute(f"for d in {' '.join(new)}; do nmcli dev del $d; done")
 
             self.orig_devs = devs()
             self.restore_dir("/etc/NetworkManager", post_restore_action="systemctl try-restart NetworkManager")
@@ -122,10 +122,10 @@ class NetworkCase(MachineCase, NetworkHelpers):
 
     def get_iface(self, m, mac):
         def getit():
-            path = m.execute("grep -li '%s' /sys/class/net/*/address" % mac)
+            path = m.execute(f"grep -li '{mac}' /sys/class/net/*/address")
             return path.split("/")[-2]
         iface = wait(getit).strip()
-        print("%s -> %s" % (mac, iface))
+        print(f"{mac} -> {iface}")
         return iface
 
     def add_iface(self, activate=True):
@@ -141,7 +141,7 @@ class NetworkCase(MachineCase, NetworkHelpers):
         return iface
 
     def wait_for_iface(self, iface, active=True, state=None, prefix="10.111."):
-        sel = "#networking-interfaces tr[data-interface='%s']" % iface
+        sel = f"#networking-interfaces tr[data-interface='{iface}']"
 
         if state:
             text = state
@@ -153,16 +153,16 @@ class NetworkCase(MachineCase, NetworkHelpers):
         try:
             self.browser.wait_in_text(sel, text)
         except Error as e:
-            print("Interface %s didn't show up." % iface)
-            print(self.machine.execute("grep . /sys/class/net/*/address; nmcli con; nmcli dev; nmcli dev show %s || true" % iface))
+            print(f"Interface {iface} didn't show up.")
+            print(self.machine.execute(f"grep . /sys/class/net/*/address; nmcli con; nmcli dev; nmcli dev show {iface} || true"))
             raise e
 
     def select_iface(self, iface):
         b = self.browser
-        b.click("#networking-interfaces tr[data-interface='%s'] button" % iface)
+        b.click(f"#networking-interfaces tr[data-interface='{iface}'] button")
 
     def iface_con_id(self, iface):
-        con_id = self.machine.execute("nmcli -m tabular -t -f GENERAL.CONNECTION device show %s" % iface).strip()
+        con_id = self.machine.execute(f"nmcli -m tabular -t -f GENERAL.CONNECTION device show {iface}").strip()
         if con_id == "" or con_id == "--":
             return None
         else:
@@ -170,11 +170,11 @@ class NetworkCase(MachineCase, NetworkHelpers):
 
     def wait_for_iface_setting(self, setting_title, setting_value):
         b = self.browser
-        b.wait_in_text("dt:contains('%s') + dd" % setting_title, setting_value)
+        b.wait_in_text(f"dt:contains('{setting_title}') + dd", setting_value)
 
     def configure_iface_setting(self, setting_title):
         b = self.browser
-        b.click("dt:contains('%s') + dd button" % setting_title)
+        b.click(f"dt:contains('{setting_title}') + dd button")
 
     def ensure_nm_uses_dhclient(self):
         m = self.machine

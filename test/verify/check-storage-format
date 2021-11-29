@@ -77,7 +77,7 @@ class TestStorageFormat(StorageCase):
         def check_unsupported_type(type):
             self.content_dropdown_action(1, "Format")
             self.dialog_wait_open()
-            b.wait_not_present('#dialog li[value=%s]' % type)
+            b.wait_not_present(f'#dialog li[value={type}]')
             self.dialog_cancel()
             self.dialog_wait_close()
 
@@ -101,7 +101,7 @@ class TestStorageFormat(StorageCase):
         # chances to cancel the Format.
 
         disk = self.add_ram_disk()
-        m.execute("""disk=%s; echo "0 `blockdev --getsz $disk` delay $disk 0 500" | dmsetup create superslow""" % disk)
+        m.execute(f"""disk={disk}; echo "0 `blockdev --getsz $disk` delay $disk 0 500" | dmsetup create superslow""")
         b.click("#others .sidepanel-row:contains('/dev/mapper/superslow')")
         b.wait_visible('#storage-detail')
 

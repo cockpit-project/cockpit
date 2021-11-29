@@ -29,7 +29,7 @@ def wait_unit_state(machine, unit, state):
         # HACK: don't use `systemctl is-active` here because of
         #   https://bugzilla.redhat.com/show_bug.cgi?id=1073481
         # Also, use `systemctl --value` once that exists everywhere
-        line = machine.execute("systemctl show -p ActiveState {}".format(unit))
+        line = machine.execute(f"systemctl show -p ActiveState {unit}")
         return line.strip().split("=")[1]
 
     wait(lambda: active_state(unit) == state, delay=0.2)
@@ -39,8 +39,8 @@ def get_active_rules(machine):
     active_zones = machine.execute("firewall-cmd --get-active-zones | grep '^[a-zA-Z]'").split()
     active_rules = []
     for zone in active_zones:
-        active_rules += machine.execute("firewall-cmd --zone '{}' --list-services".format(zone)).split()
-        ports = machine.execute("firewall-cmd --zone '{}' --list-ports".format(zone)).strip()
+        active_rules += machine.execute(f"firewall-cmd --zone '{zone}' --list-services").split()
+        ports = machine.execute(f"firewall-cmd --zone '{zone}' --list-ports").strip()
         if ports:
             active_rules += [ports]
     return active_rules
@@ -73,7 +73,7 @@ class TestFirewall(NetworkCase):
         self.login_and_go("/network", superuser=False)
         self.wait_onoff("#networking-firewall-summary", True)
         wait_unit_state(m, "firewalld", "active")
-        b.wait_in_text("#networking-firewall-summary", "{} active zone".format(active_zones))
+        b.wait_in_text("#networking-firewall-summary", f"{active_zones} active zone")
         m.execute("systemctl stop firewalld")
         b.relogin("/network", superuser=True)
 
@@ -82,7 +82,7 @@ class TestFirewall(NetworkCase):
         self.wait_onoff("#networking-firewall-summary", True)
         wait_unit_state(m, "firewalld", "active")
 
-        b.wait_in_text("#networking-firewall-summary", "{} active zone".format(active_zones))
+        b.wait_in_text("#networking-firewall-summary", f"{active_zones} active zone")
 
         self.toggle_onoff("#networking-firewall-summary")
         self.wait_onoff("#networking-firewall-summary", False)
@@ -99,7 +99,7 @@ class TestFirewall(NetworkCase):
             raise
 
         self.wait_onoff("#networking-firewall-summary", True)
-        b.wait_in_text("#networking-firewall-summary", "{} active zone".format(active_zones))
+        b.wait_in_text("#networking-firewall-summary", f"{active_zones} active zone")
 
         try:
             m.execute("systemctl stop firewalld")
@@ -128,8 +128,8 @@ class TestFirewall(NetworkCase):
 
         # Changed in #13686, remove all existing ports before testing
         for port in m.execute("firewall-cmd --zone 'public' --list-ports").split():
-            m.execute("firewall-cmd --remove-port='{}' --zone 'public'".format(port))
-            m.execute("firewall-cmd --permanent --remove-port='{}' --zone 'public'".format(port))
+            m.execute(f"firewall-cmd --remove-port='{port}' --zone 'public'")
+            m.execute(f"firewall-cmd --permanent --remove-port='{port}' --zone 'public'")
 
         # Zones should be visible as unprivileged user
         self.login_and_go("/network/firewall", superuser=False)
@@ -237,16 +237,16 @@ class TestFirewall(NetworkCase):
         b.assert_pixels(".pf-c-modal-box", "firewall-add-services-to-zone-modal")
 
         # don't select anything in the dialog
-        b.click("#add-services-dialog footer .{0}".format(self.btn_primary))
+        b.click(f"#add-services-dialog footer .{self.btn_primary}")
         b.wait_not_present(".pf-c-modal-box")
 
         def addService(zone, service):
-            b.click(".zone-section[data-id='{}'] .add-services-button".format(zone))
-            b.click("#add-services-dialog .service-list #firewall-service-{}".format(service))
-            b.click("#add-services-dialog footer .{0}".format(self.btn_primary))
+            b.click(f".zone-section[data-id='{zone}'] .add-services-button")
+            b.click(f"#add-services-dialog .service-list #firewall-service-{service}")
+            b.click(f"#add-services-dialog footer .{self.btn_primary}")
             b.wait_not_present(".pf-c-modal-box")
-            b.wait_visible(".zone-section[data-id='{}'] tr[data-row-id='{}']".format(zone, service))
-            self.assertIn(service, m.execute("firewall-cmd --zone={} --list-services".format(zone)))
+            b.wait_visible(f".zone-section[data-id='{zone}'] tr[data-row-id='{service}']")
+            self.assertIn(service, m.execute(f"firewall-cmd --zone={zone} --list-services"))
 
         # now add pop3
         addService('public', 'pop3')
@@ -279,12 +279,12 @@ class TestFirewall(NetworkCase):
         # requiring checkboxes to be clicked), then remove all the services
         # belonging either libvirt or public
         for service in services:
-            b.click(".zone-section[data-id='public'] tr[data-row-id='{}'] button".format(service))
-            b.click(".zone-section[data-id='public'] tr[data-row-id='{}'] + tr button.{}".format(service, self.btn_danger))
+            b.click(f".zone-section[data-id='public'] tr[data-row-id='{service}'] button")
+            b.click(f".zone-section[data-id='public'] tr[data-row-id='{service}'] + tr button.{self.btn_danger}")
             # removing cockpit services requires confirmation
             if service == "cockpit":
-                b.click("#delete-confirmation-dialog button.{}".format(self.btn_danger))
-            b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='{}']".format(service))
+                b.click(f"#delete-confirmation-dialog button.{self.btn_danger}")
+            b.wait_not_present(f".zone-section[data-id='public'] tr[data-row-id='{service}']")
         self.assertEqual(m.execute("firewall-cmd --list-services").strip(), "")
 
         # test error handling
@@ -320,12 +320,12 @@ class TestFirewall(NetworkCase):
             b.wait_val("#service-name", expected)
 
         def check_error(text):
-            b.wait_visible(".pf-c-form__helper-text.pf-m-error:contains({0})".format(text))
+            b.wait_visible(f".pf-c-form__helper-text.pf-m-error:contains({text})")
 
         def save(identifier, tcp, udp):
             b.click("button:contains(Add ports)")
             b.wait_not_present("#add-services-dialog")
-            line_sel = ".zone-section[data-id='public'] tr[data-row-id='{0}']".format(identifier)
+            line_sel = f".zone-section[data-id='public'] tr[data-row-id='{identifier}']"
             b.wait_visible(line_sel)
             b.wait_in_text(line_sel, "".join([identifier, tcp, udp]))
 
@@ -382,7 +382,7 @@ class TestFirewall(NetworkCase):
         m.execute("firewall-cmd --permanent --service=custom--19834 --add-port=19834/udp")
         open_dialog()
         set_field("#udp-ports", "19834", "custom--19834")
-        b.click("#add-services-dialog .{0}".format(self.btn_primary))
+        b.click(f"#add-services-dialog .{self.btn_primary}")
         b.wait_in_text("#add-services-dialog div.pf-m-danger", "org.fedoraproject.FirewallD1.Exception: NAME_CONFLICT: new_service(): 'custom--19834'")
 
         # should have been removed in the reload
@@ -398,26 +398,26 @@ class TestFirewall(NetworkCase):
         self.add_veth(home_iface)
 
         def addServiceToZone(service, zone):
-            b.click(".zone-section[data-id='{}'] .add-services-button".format(zone))
-            b.click("#add-services-dialog .service-list #firewall-service-{}".format(service))
-            b.click("#add-services-dialog footer .{0}".format(self.btn_primary))
+            b.click(f".zone-section[data-id='{zone}'] .add-services-button")
+            b.click(f"#add-services-dialog .service-list #firewall-service-{service}")
+            b.click(f"#add-services-dialog footer .{self.btn_primary}")
             b.wait_not_present(".pf-c-modal-box")
-            b.wait_visible(".zone-section[data-id='{}'] tr[data-row-id='{}']".format(zone, service))
-            self.assertIn(service, m.execute("firewall-cmd --zone={} --list-services".format(zone)))
+            b.wait_visible(f".zone-section[data-id='{zone}'] tr[data-row-id='{service}']")
+            self.assertIn(service, m.execute(f"firewall-cmd --zone={zone} --list-services"))
 
         def addZone(zone, interfaces=[], sources=None, error=None):
             b.click("#add-zone-button")
             b.wait_visible("#add-zone-dialog")
-            b.wait_visible("#add-zone-dialog footer button.{0}:disabled".format(self.btn_primary))
-            b.click("#add-zone-dialog .add-zone-zones-firewalld input[value='{}']".format(zone))
+            b.wait_visible(f"#add-zone-dialog footer button.{self.btn_primary}:disabled")
+            b.click(f"#add-zone-dialog .add-zone-zones-firewalld input[value='{zone}']")
 
             for i in interfaces:
-                b.click("#add-zone-dialog input[value='{}']".format(i))
+                b.click(f"#add-zone-dialog input[value='{i}']")
             if sources:
                 b.click("#add-zone-dialog input[value='ip-range']")
                 b.set_input_text("#add-zone-dialog #add-zone-ip", sources)
 
-            b.click("#add-zone-dialog footer button.{0}:enabled".format(self.btn_primary))
+            b.click(f"#add-zone-dialog footer button.{self.btn_primary}:enabled")
 
             if error:
                 b.wait_in_text("#add-zone-dialog div.pf-m-danger", error)
@@ -427,16 +427,16 @@ class TestFirewall(NetworkCase):
 
             b.wait_not_present("#add-zone-dialog")
             for source in sources.split(",") if sources else []:
-                b.wait_in_text("#zones-listing .zone-section[data-id='{}'] .zone-section-targets".format(zone), source)
+                b.wait_in_text(f"#zones-listing .zone-section[data-id='{zone}'] .zone-section-targets", source)
             for i in interfaces:
-                b.wait_in_text("#zones-listing .zone-section[data-id='{}'] .zone-section-targets".format(zone), i)
-            b.wait_visible("#zones-listing .zone-section[data-id='{}']".format(zone))
-            b.wait_visible("#zones-listing .zone-section[data-id='{}'] tr[data-row-id='cockpit']".format(zone))
+                b.wait_in_text(f"#zones-listing .zone-section[data-id='{zone}'] .zone-section-targets", i)
+            b.wait_visible(f"#zones-listing .zone-section[data-id='{zone}']")
+            b.wait_visible(f"#zones-listing .zone-section[data-id='{zone}'] tr[data-row-id='cockpit']")
 
         def removeZone(zone):
-            b.click(".zone-section[data-id='{}'] .zone-section-buttons button.{}".format(zone, self.btn_danger))
-            b.click("#delete-confirmation-dialog button.{}".format(self.btn_danger))
-            b.wait_not_present(".zone-section[data-id='{}']".format(zone))
+            b.click(f".zone-section[data-id='{zone}'] .zone-section-buttons button.{self.btn_danger}")
+            b.click(f"#delete-confirmation-dialog button.{self.btn_danger}")
+            b.wait_not_present(f".zone-section[data-id='{zone}']")
 
         self.login_and_go("/network/firewall")
         b.wait_in_text("#zones-listing .zone-section[data-id='public']", self.default_zone)
@@ -469,7 +469,7 @@ class TestFirewall(NetworkCase):
         # the Add Zone dialog anymore
         b.click("#add-zone-button")
         b.wait_visible("#add-zone-dialog")
-        b.wait_not_present("#add-zone-body input[value='{}']".format(home_iface))
+        b.wait_not_present(f"#add-zone-body input[value='{home_iface}']")
         b.click("#add-zone-dialog footer button.btn-cancel")
         b.wait_not_present("#add-zone-dialog")
 

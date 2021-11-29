@@ -56,7 +56,7 @@ class TestRoles(MachineCase):
         b.go("/users#/user")
         b.enter_page("/users")
 
-        admin_role_sel = 'input[data-name="%s"]' % m.get_admin_group()
+        admin_role_sel = f'input[data-name="{m.get_admin_group()}"]'
 
         b.wait_text("#account-user-name", "user")
         b.wait_visible("#account-locked[disabled]")
@@ -83,7 +83,7 @@ class TestRoles(MachineCase):
         b.wait_text("#account-user-name", "user")
 
         b.wait_visible(admin_role_sel + ":not(:checked)")
-        m.execute("usermod -a -G %s user" % m.get_admin_group())
+        m.execute(f"usermod -a -G {m.get_admin_group()} user")
         b.wait_visible(admin_role_sel + ":checked")
 
         b.relogin("/users", "user", superuser=True)

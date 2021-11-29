@@ -59,7 +59,7 @@ class TestNetworkingMTU(NetworkCase):
         self.wait_for_iface_setting('MTU', '1400')
 
         # We're debugging failures here log status to journal for diagnosis
-        wait(lambda: "mtu 1400" in m.execute("ip link show %s | logger -s 2>&1" % iface))
+        wait(lambda: "mtu 1400" in m.execute(f"ip link show {iface} | logger -s 2>&1"))
 
 
 if __name__ == '__main__':

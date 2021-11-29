@@ -24,7 +24,7 @@ from time import sleep
 
 
 def info_field(name, image_name):
-    return '#detail-header dt:contains("%s") + dd' % name
+    return f'#detail-header dt:contains("{name}") + dd'
 
 
 class TestStorageMdRaid(StorageCase):
@@ -52,15 +52,15 @@ class TestStorageMdRaid(StorageCase):
         self.dialog_apply_with_retry()
 
     def raid_remove_disk(self, name):
-        self.browser.click('#detail-sidebar .sidepanel-row:contains("%s") button.pf-m-secondary' % name)
+        self.browser.click(f'#detail-sidebar .sidepanel-row:contains("{name}") button.pf-m-secondary')
 
     def raid_action(self, action):
-        self.browser.click('.pf-c-card__header:contains("RAID device") button:contains(%s)' % action)
+        self.browser.click(f'.pf-c-card__header:contains("RAID device") button:contains({action})')
 
     def raid_default_action(self, action):
         def do_click():
-            self.browser.wait_visible('.pf-c-card__header:contains("RAID device") button:contains(%s)' % action)
-            self.browser.click('.pf-c-card__header:contains("RAID device") button:contains(%s)' % action)
+            self.browser.wait_visible(f'.pf-c-card__header:contains("RAID device") button:contains({action})')
+            self.browser.click(f'.pf-c-card__header:contains("RAID device") button:contains({action})')
 
         do_click()
 
@@ -154,7 +154,7 @@ class TestStorageMdRaid(StorageCase):
 
         # Degrade and repair it
 
-        m.execute("mdadm --quiet %s --fail /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 && udevadm trigger" % dev)
+        m.execute(f"mdadm --quiet {dev} --fail /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 && udevadm trigger")
         wait_degraded_state(True)
 
         self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "Failed"})
@@ -306,7 +306,7 @@ class TestStorageMdRaid(StorageCase):
 
         # A failed disk can be removed
         dev = b.text(info_field("Device", m.image))
-        m.execute("mdadm --quiet %s --fail /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1" % dev)
+        m.execute(f"mdadm --quiet {dev} --fail /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
         self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "Failed"})
         b.wait_not_present('#detail-sidebar .sidepanel-row:contains(DISK1) button:disabled')
         self.raid_remove_disk("DISK1")

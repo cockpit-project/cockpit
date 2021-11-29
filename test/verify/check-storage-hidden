@@ -80,8 +80,8 @@ class TestStorageHidden(StorageCase):
         b.click('.pf-c-card__header:contains("LVM2 volume group") button:contains("Delete")')
         self.confirm()
         b.wait_visible("#storage")
-        self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_1), "")
-        self.assertEqual(m.execute("grep %s /etc/crypttab || true" % "my-crypto-tag"), "")
+        self.assertEqual(m.execute(f"grep {mount_point_1} /etc/fstab || true"), "")
+        self.assertEqual(m.execute(f"grep {'my-crypto-tag'} /etc/crypttab || true"), "")
 
     def testHiddenRaid(self):
         m = self.machine
@@ -121,7 +121,7 @@ class TestStorageHidden(StorageCase):
         self.browser.click('.pf-c-card__header:contains("RAID device") button:contains("Delete")')
         self.confirm()
         b.wait_visible("#storage")
-        self.assertEqual(m.execute("grep %s /etc/fstab || true" % mount_point_2), "")
+        self.assertEqual(m.execute(f"grep {mount_point_2} /etc/fstab || true"), "")
 
 
 if __name__ == '__main__':

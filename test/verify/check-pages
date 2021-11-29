@@ -273,7 +273,7 @@ OnCalendar=daily
             b.enter_page("/system")
 
             self.open_lang_modal()
-            b.click("#display-language-modal li[data-value=%s] button" % language)
+            b.click(f"#display-language-modal li[data-value={language}] button")
             b.click("#display-language-modal footer button.pf-m-primary")
             b.expect_load()
             if b.cdp.browser.name == "chromium":
@@ -289,7 +289,7 @@ OnCalendar=daily
             locale = language.split("-")
             if len(locale) == 1:
                 locale.append("")
-            locale = "{0}_{1}.UTF-8".format(locale[0], locale[1].upper())
+            locale = f"{locale[0]}_{locale[1].upper()}.UTF-8"
 
             b.wait_visible(".terminal .xterm-accessibility-tree")
             b.wait_in_text(line_sel(1), "admin")
@@ -393,7 +393,7 @@ OnCalendar=daily
         b.eval_js('ph_set_attr("iframe[name=\'%s\']", "data-ready", null)' % frame)
         b.eval_js('ph_set_attr("iframe[name=\'%s\']", "src", "../playground/test.html?i=1#/")' % frame)
         b.expect_load_frame("cockpit1:localhost/playground/test")
-        b.wait_visible("iframe.container-frame[name='%s'][data-ready]" % frame)
+        b.wait_visible(f"iframe.container-frame[name='{frame}'][data-ready]")
 
         b.enter_page("/playground/test")
 
@@ -595,7 +595,7 @@ OnCalendar=daily
         b.wait_not_present("#file-autocomplete-widget li")
 
         # now update file1, check robustness with dynamic events
-        m.execute("touch %s/file1.txt" % stuff)
+        m.execute(f"touch {stuff}/file1.txt")
         b.focus("#demo-file-ac input[type=text]")
         time.sleep(1)
         b.key_press(["\b"] * 5)
@@ -606,7 +606,7 @@ OnCalendar=daily
         b.wait_in_text("#file-autocomplete-widget li:nth-of-type(3) button", "file1.txt")
 
         # add new file
-        m.execute("touch %s/other" % stuff)
+        m.execute(f"touch {stuff}/other")
         b.focus("#demo-file-ac input[type=text]")
         # We need to tickle the widget to re-read the directory by changing to
         # the previous directory and back to the directory we want to list.

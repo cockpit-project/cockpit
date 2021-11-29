@@ -28,11 +28,11 @@ from testlib import *
 def break_hostkey(m, address):
     filename = "/home/admin/.ssh/known_hosts"
 
-    m.execute('su admin -c "mkdir -p -m 700 `dirname {}`"'.format(filename))
-    m.execute('su admin -c "touch {}"'.format(filename))
+    m.execute(f'su admin -c "mkdir -p -m 700 `dirname {filename}`"')
+    m.execute(f'su admin -c "touch {filename}"')
 
-    line = "{0} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJqfgO2FPiix1n2sCJCXbaffwog1Vvi3zRdmcAxG//5T".format(address)
-    m.execute("echo '{0}'> {1}".format(line, filename))
+    line = f"{address} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJqfgO2FPiix1n2sCJCXbaffwog1Vvi3zRdmcAxG//5T"
+    m.execute(f"echo '{line}'> {filename}")
 
 
 def fix_hostkey(m, key=None):
@@ -41,9 +41,9 @@ def fix_hostkey(m, key=None):
     if not key:
         key = ''
 
-    m.execute('su admin -c "mkdir -p -m 700 `dirname {}`"'.format(filename))
-    m.execute('su admin -c "touch {}"'.format(filename))
-    m.execute("echo '{0}' > {1}".format(key, filename))
+    m.execute(f'su admin -c "mkdir -p -m 700 `dirname {filename}`"')
+    m.execute(f'su admin -c "touch {filename}"')
+    m.execute(f"echo '{key}' > {filename}")
 
 
 def break_bridge(m):
@@ -84,7 +84,7 @@ def fail_login(b):
 
 def add_machine(b, address, known_host=False, password="foobar"):
     b.switch_to_top()
-    b.go("/@%s" % address)
+    b.go(f"/@{address}")
     start_machine_troubleshoot(b, new=True, known_host=known_host, password=password)
     b.wait_not_present('#hosts_setup_server_dialog')
     b.enter_page("/system", host=address)
@@ -101,15 +101,15 @@ def change_ssh_port(machine, address, port=None, timeout_sec=120):
         port = 22
 
     # Keep in mind that not all operating systems have firewalld
-    machine.execute("firewall-cmd --permanent --zone=public --add-port={0}/tcp || true".format(port))
+    machine.execute(f"firewall-cmd --permanent --zone=public --add-port={port}/tcp || true")
     machine.execute("firewall-cmd --reload || true")
     if machine.image in ["fedora-coreos"]:  # no semanage
         machine.execute("setenforce 0")
     else:
-        machine.execute("! selinuxenabled || semanage port -a -t ssh_port_t -p tcp {0}".format(port))
+        machine.execute(f"! selinuxenabled || semanage port -a -t ssh_port_t -p tcp {port}")
     machine.execute("sed -i 's/.*Port .*/#\\0/' /etc/ssh/sshd_config")
     machine.execute(
-        "printf 'ListenAddress 127.27.0.15:22\nListenAddress {0}:{1}\n' >> /etc/ssh/sshd_config".format(address, port))
+        f"printf 'ListenAddress 127.27.0.15:22\nListenAddress {address}:{port}\n' >> /etc/ssh/sshd_config")
 
     # We stop the sshd.socket unit and just go with a regular
     # daemon.  This is more portable and reloading/restarting the
@@ -122,7 +122,7 @@ def change_ssh_port(machine, address, port=None, timeout_sec=120):
     while (time.time() - start_time) < timeout_sec:
         try:
             machine.execute(
-                "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no -o PasswordAuthentication=no -p {0} {1} 2>&1 | grep -q 'Permission denied'".format(port, address), quiet=True)
+                f"ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no -o PasswordAuthentication=no -p {port} {address} 2>&1 | grep -q 'Permission denied'", quiet=True)
             return
         except Exception as e:
             error = e
@@ -279,7 +279,7 @@ class TestMultiMachine(MachineCase):
         # Direct to machine2, new login
         m2.execute("echo admin:alt-password | chpasswd")
         b.switch_to_top()
-        b.open("{0}=10.111.113.2".format(root))
+        b.open(f"{root}=10.111.113.2")
         b.wait_visible("#login")
         b.wait_visible("#server-name")
         b.wait_not_visible("#badge")
@@ -310,7 +310,7 @@ class TestMultiMachine(MachineCase):
         b.wait_in_text(hostname_selector, "machine2")
         b.switch_to_top()
 
-        b.wait_js_cond('window.location.pathname == "{0}=10.111.113.2/system"'.format(root))
+        b.wait_js_cond(f'window.location.pathname == "{root}=10.111.113.2/system"')
 
         b.click("#hosts-sel button")
         b.wait_in_text("a[href='/@localhost']", "machine2")
@@ -319,7 +319,7 @@ class TestMultiMachine(MachineCase):
 
         # Bad host key
         m.execute("echo '10.111.113.2 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDgPMmTosSQ4NxMtq+aL2NKLC+W4I9/jbD1e74cnOKTW' > /etc/ssh/ssh_known_hosts")
-        b.open("{0}=10.111.113.2".format(root))
+        b.open(f"{root}=10.111.113.2")
         b.wait_visible("#login")
         b.set_input_text("#login-user-input", "admin")
         b.set_input_text("#login-password-input", "alt-password")
@@ -362,7 +362,7 @@ class TestMultiMachine(MachineCase):
         login_options = '#show-other-login-options'
 
         # Connect to bad machine
-        b.open("{0}other".format(root))
+        b.open(f"{root}other")
         b.set_input_text("#login-user-input", "admin")
         b.set_input_text("#login-password-input", "bad-password")
         b.click(login_options)
@@ -611,7 +611,7 @@ class TestMultiMachine(MachineCase):
         b.eval_js('ph_set_attr("iframe[name=\'%s\']", "data-ready", null)' % frame)
         b.eval_js('ph_set_attr("iframe[name=\'%s\']", "src", "../playground/test.html?i=1#/")' % frame)
         b.expect_load_frame(frame)
-        b.wait_visible("iframe.container-frame[name='%s'][data-ready]" % frame)
+        b.wait_visible(f"iframe.container-frame[name='{frame}'][data-ready]")
 
         b.enter_page("/playground/test", "10.111.113.2")
 
@@ -708,7 +708,7 @@ class TestMultiMachine(MachineCase):
         b.set_input_text("#login-custom-password", "bad")
         fail_login(b)
         b.set_input_text("#login-custom-password", "alt-password")
-        b.click('#hosts_setup_server_dialog {}'.format(self.primary_btn_class))
+        b.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
         b.wait_not_present('#hosts_setup_server_dialog')
 
         # Reconnect
@@ -746,13 +746,13 @@ class TestMultiMachine(MachineCase):
         start_machine_troubleshoot(b)
         b.wait_in_text('#hosts_setup_server_dialog h1', "Could not contact")
         b.set_input_text("#edit-machine-port", "2222")
-        b.click('#hosts_setup_server_dialog {}'.format(self.primary_btn_class))
+        b.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
         # Using libssh's knownhosts api port is taken into account when verifying a host
         b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
         b.click('#hosts_setup_server_dialog button:contains(Accept key and connect)')
         b.wait_in_text('#hosts_setup_server_dialog h1', "Log in to")
         b.set_input_text("#login-custom-password", "alt-password")
-        b.click('#hosts_setup_server_dialog {}'.format(self.primary_btn_class))
+        b.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
         b.wait_not_present('#hosts_setup_server_dialog')
 
         b.wait_not_visible(".curtains-ct")

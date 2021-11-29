@@ -191,10 +191,10 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
                             ["systemd", "Started Slowly log 10 identical lines.", ""]])
 
         def wait_log_present(message):
-            b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('%s')" % message)
+            b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{message}')")
 
         def wait_log_not_present(message):
-            b.wait_not_present("#journal-box .cockpit-logline .cockpit-log-message:contains('%s')" % message)
+            b.wait_not_present(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{message}')")
 
         m.execute("systemctl start slow10")
 
@@ -651,7 +651,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         test_user = 'correcthorsebatterystaple'
 
         for purpose in ['text', 'password']:
-            b.wait_visible(".pf-c-modal-box__body input[type='%s']" % (purpose))
+            b.wait_visible(f".pf-c-modal-box__body input[type='{purpose}']")
             b.set_val(".pf-c-modal-box__body input", test_user)
             b.click(".pf-c-modal-box__footer button:contains('Send')")
 

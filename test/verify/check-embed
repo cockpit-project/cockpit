@@ -54,7 +54,7 @@ Shell=/embed-cockpit/index.html
 [WebService]
 Shell=/shell/index.html
 """)
-        b.set_val("#embed-address", "http://{0}:{1}".format(m.web_address, m.web_port))
+        b.set_val("#embed-address", f"http://{m.web_address}:{m.web_port}")
         b.click("#embed-full")
         b.wait_visible("iframe[name='embed-full'][loaded]")
         b.switch_to_frame("embed-full")
@@ -92,7 +92,7 @@ Shell=/shell/index.html
         self.login_and_go()
 
         b.open("http://localhost:12346/index.html")
-        b.set_val("#embed-address", "http://{0}:{1}".format(m.web_address, m.web_port))
+        b.set_val("#embed-address", f"http://{m.web_address}:{m.web_port}")
         b.click("#embed-full")
         b.wait_visible("iframe[name='embed-full'][loaded]")
         b.switch_to_frame("embed-full")

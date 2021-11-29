@@ -53,8 +53,8 @@ class TestBridge(NetworkCase):
         b.assert_pixels("#network-bridge-settings-dialog", "networking-bridge-settings-dialog")
 
         b.set_input_text("#network-bridge-settings-interface-name-input", "tbridge")
-        b.set_checked("input[data-iface='%s']" % iface1, True)
-        b.set_checked("input[data-iface='%s']" % iface2, True)
+        b.set_checked(f"input[data-iface='{iface1}']", True)
+        b.set_checked(f"input[data-iface='{iface2}']", True)
         b.click("#network-bridge-settings-dialog button:contains('Apply')")
         b.wait_not_present("#network-bridge-settings-dialog")
         b.wait_visible("#networking-interfaces tr[data-interface='tbridge']")
@@ -67,8 +67,8 @@ class TestBridge(NetworkCase):
         # Check that the members are displayed and both On
         b.click("#networking-interfaces tr[data-interface='tbridge'] button")
         b.wait_visible("#network-interface")
-        self.wait_onoff("#network-interface-members tr[data-interface='%s']" % iface1, True)
-        self.wait_onoff("#network-interface-members tr[data-interface='%s']" % iface2, True)
+        self.wait_onoff(f"#network-interface-members tr[data-interface='{iface1}']", True)
+        self.wait_onoff(f"#network-interface-members tr[data-interface='{iface2}']", True)
 
         b.wait_text_not("#network-interface-mac", "")
         self.configure_iface_setting('Bridge')
@@ -102,14 +102,14 @@ class TestBridge(NetworkCase):
         b.click("button:contains('Add bridge')")
         b.wait_visible("#network-bridge-settings-dialog")
         b.set_input_text("#network-bridge-settings-interface-name-input", "tbridge")
-        b.set_checked("input[data-iface='%s']" % iface, True)
+        b.set_checked(f"input[data-iface='{iface}']", True)
         b.click("#network-bridge-settings-dialog button:contains('Apply')")
         b.wait_not_present("#network-bridge-settings-dialog")
 
         # Check that it has the interface and the right IP address
         b.click("#networking-interfaces tr[data-interface='tbridge'] th button")
         b.wait_visible("#network-interface")
-        b.wait_visible("#network-interface-members tr[data-interface='%s']" % iface)
+        b.wait_visible(f"#network-interface-members tr[data-interface='{iface}']")
         b.wait_in_text("#network-interface .pf-c-card:contains('tbridge')", "10.111")
 
         # Check bridge port

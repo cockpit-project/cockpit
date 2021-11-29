@@ -93,7 +93,7 @@ class TestS4USsh(MachineCase):
         ipa servicedelegationrule-add-member cockpit-delegation --principals="HTTP/sshclient.cockpit.lan@COCKPIT.LAN"
         ipa servicedelegationrule-add-target cockpit-delegation --servicedelegationtargets="cockpit-target"
         """
-        ipa_machine.execute("podman exec freeipa bash -ec '%s'" % script)
+        ipa_machine.execute(f"podman exec freeipa bash -ec '{script}'")
 
         # enable gssapiauth for ssh
         sshd_machine.execute("sed -ri 's/#GSSAPIAuthentication (yes|no)/GSSAPIAuthentication yes/' /etc/ssh/sshd_config")

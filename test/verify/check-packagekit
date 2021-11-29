@@ -158,7 +158,7 @@ class TestUpdates(NoSubManCase):
 
         sanitized_kernel_ver = "_".join(kernel_ver_arch.split(".")[:-2])
         self.createPackage("-".join(["kpatch-patch", kpp_kernel_version, kpp_kernel_release]), "0", "0", arch=self.secondary_arch,
-                           provides="kpatch-patch = {0}".format(kernel_ver_arch))
+                           provides=f"kpatch-patch = {kernel_ver_arch}")
         self.enableRepo()
 
         self.restore_file("/etc/dnf/plugins/kpatch.conf")
@@ -195,7 +195,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
 """
 
         self.createPackage("kpatch-patch-" + sanitized_kernel_ver, "1", "0", arch=self.secondary_arch,
-                           provides="kpatch-patch = {0}".format(kernel_ver_arch),
+                           provides=f"kpatch-patch = {kernel_ver_arch}",
                            content={"/usr/local/bin/kpatch": kpatch},
                            postinst="chmod +x /usr/local/bin/kpatch; mount -o bind /usr/local/bin/kpatch /usr/sbin/kpatch")
         self.enableRepo()
@@ -366,7 +366,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         b.wait_in_text("#update-log", "chocolate")
 
         # finish the package installation
-        m.execute("touch {0}".format(install_lockfile))
+        m.execute(f"touch {install_lockfile}")
 
         b.wait_visible(".pf-c-empty-state .pf-c-title:contains('Update was successful')")
         # if tracer is not present, reboot is recommended
@@ -426,18 +426,18 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
 """.format(self.packageName))
 
                 scriptContent = "#!/bin/sh\nsleep infinity"
-                unitContent = """
+                unitContent = f"""
 [Service]
-ExecStart=/usr/local/bin/{0}
-""".format(self.packageName)
+ExecStart=/usr/local/bin/{self.packageName}
+"""
                 self.testObj.createPackage(self.packageName, "1", "1", install=True, changes="initial package with service and run script",
-                                           content={"/usr/local/bin/{0}".format(self.packageName): scriptContent, "/etc/systemd/system/{0}.service".format(self.packageName): unitContent},
+                                           content={f"/usr/local/bin/{self.packageName}": scriptContent, f"/etc/systemd/system/{self.packageName}.service": unitContent},
                                            postinst="chmod a+x /usr/local/bin/{0}; systemctl daemon-reload; systemctl start {0}.service".format(self.packageName))
                 self.testObj.createPackage(self.packageName, "1", "2",
-                                           content={"/usr/local/bin/{0}".format(self.packageName): scriptContent, "/etc/systemd/system/{0}.service".format(self.packageName): unitContent},
-                                           postinst="chmod a+x /usr/local/bin/{0}".format(self.packageName))
+                                           content={f"/usr/local/bin/{self.packageName}": scriptContent, f"/etc/systemd/system/{self.packageName}.service": unitContent},
+                                           postinst=f"chmod a+x /usr/local/bin/{self.packageName}")
 
-                self.serviceStartTime = m.execute("systemctl show {0}.service --property=ExecMainStartTimestamp".format(self.packageName))
+                self.serviceStartTime = m.execute(f"systemctl show {self.packageName}.service --property=ExecMainStartTimestamp")
 
                 self.testObj.enableRepo()
 
@@ -463,10 +463,10 @@ ExecStart=/usr/local/bin/{0}
                 else:
                     rowId = "#service-row"
 
-                b.wait_visible("{0}".format(rowId))
-                b.click("{0} button".format(rowId))
-                b.wait_visible("{0} + tr".format(rowId))
-                b.wait_in_text("{0} + tr".format(rowId), self.packageName)
+                b.wait_visible(f"{rowId}")
+                b.click(f"{rowId} button")
+                b.wait_visible(f"{rowId} + tr")
+                b.wait_in_text(f"{rowId} + tr", self.packageName)
 
                 # test the tracer functionality works also in the Status Card
                 if self.testStatusCard:
@@ -533,7 +533,7 @@ ExecStart=/usr/local/bin/{0}
             def verify_backend(self):
                 if not self.rebootRequired:
                     # Check the service was actually restarted
-                    newServiceStartTime = m.execute("systemctl show {0}.service --property=ExecMainStartTimestamp".format(self.packageName))
+                    newServiceStartTime = m.execute(f"systemctl show {self.packageName}.service --property=ExecMainStartTimestamp")
                     self.testObj.assertGreater(newServiceStartTime, self.serviceStartTime)
 
                 # check no services/processes need reboot or service restart
@@ -542,8 +542,8 @@ ExecStart=/usr/local/bin/{0}
 
             def cleanup(self):
                 if not self.rebootRequired:
-                    m.execute("systemctl stop {0}".format(self.packageName))
-                m.execute("rpm -e {0}".format(self.packageName))
+                    m.execute(f"systemctl stop {self.packageName}")
+                m.execute(f"rpm -e {self.packageName}")
                 if self.rebootRequired:
                     m.execute("rm /etc/tracer/applications.xml")
 
@@ -584,24 +584,24 @@ ExecStart=/usr/local/bin/{0}
 
         packageName = "apple"
         scriptContent = "#!/bin/sh\nsleep infinity"
-        unitContent = """
+        unitContent = f"""
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/{0}
-""".format(packageName)
+ExecStart=/usr/local/bin/{packageName}
+"""
         self.createPackage(packageName, "1", "1", install=True, changes="initial package with service and run script",
-                           content={"/usr/local/bin/{0}".format(packageName): scriptContent, "/etc/systemd/system/{0}.service".format(packageName): unitContent},
-                           postinst="chmod a+x /usr/local/bin/{0}; systemctl daemon-reload; systemctl start {1}.service".format(packageName, packageName))
+                           content={f"/usr/local/bin/{packageName}": scriptContent, f"/etc/systemd/system/{packageName}.service": unitContent},
+                           postinst=f"chmod a+x /usr/local/bin/{packageName}; systemctl daemon-reload; systemctl start {packageName}.service")
 
         scriptContent = "#!/bin/sh\nfalse"
-        unitContent = """
+        unitContent = f"""
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/usr/local/bin/{0}
-""".format(packageName)
+ExecStart=/usr/local/bin/{packageName}
+"""
         self.createPackage(packageName, "1", "2",
-                           content={"/usr/local/bin/{0}".format(packageName): scriptContent, "/etc/systemd/system/{0}.service".format(packageName): unitContent})
+                           content={f"/usr/local/bin/{packageName}": scriptContent, f"/etc/systemd/system/{packageName}.service": unitContent})
 
         self.enableRepo()
 
@@ -708,7 +708,7 @@ ExecStart=/usr/local/bin/{0}
         # buggy: bug refs, no security
         sel = self.check_nth_update(4, "buggy", "2-2", "bug", 2, bugs=["123", "456"], desc_matches=["Fixit"])
         # should filter out enumeration in overview
-        ch = b.eval_js('document.querySelector("%s").innerHTML' % (sel + " td.changelog"))
+        ch = b.eval_js(f"document.querySelector(\"{sel + ' td.changelog'}\").innerHTML")
         self.assertNotIn("<li>", ch)
         self.assertNotIn("*", ch)
         # should show bug fix icon and pf-c-tooltip
@@ -864,18 +864,18 @@ ExecStart=/usr/local/bin/{0}
 
         # update with not too many binary packages
         for i in range(4):
-            self.createPackage("coarse{:02}".format(i), "1", "1", install=True)
-            self.createPackage("coarse{:02}".format(i), "1", "2", changes="make it greener")
+            self.createPackage(f"coarse{i:02}", "1", "1", install=True)
+            self.createPackage(f"coarse{i:02}", "1", "2", changes="make it greener")
 
         # update with lots of binary packages
         for i in range(10):
-            self.createPackage("fine{:02}".format(i), "1", "1", install=True)
-            self.createPackage("fine{:02}".format(i), "1", "2", changes="make it better")
+            self.createPackage(f"fine{i:02}", "1", "1", install=True)
+            self.createPackage(f"fine{i:02}", "1", "2", changes="make it better")
 
         # update with long changelog
         long_changelog = ""
         for i in range(30):
-            long_changelog += " - Things change #{:02}\n".format(i)
+            long_changelog += f" - Things change #{i:02}\n"
         self.createPackage("verbose", "1", "1", install=True)
         self.createPackage("verbose", "1", "2", changes=long_changelog)
 
@@ -1075,7 +1075,7 @@ class TestWsUpdate(NoSubManCase):
         b.wait_in_text(".pf-c-empty-state .pf-c-title", "Initializing")
 
         # finish the package installation
-        m.execute("touch {0}".format(install_lockfile))
+        m.execute(f"touch {install_lockfile}")
 
         # should have succeeded and show restart page; cancel
         b.wait_visible(".pf-c-empty-state .pf-c-title:contains('Update was successful')")
@@ -1308,7 +1308,7 @@ class TestAutoUpdates(NoSubManCase):
             out = m.execute("systemctl --no-legend list-timers dnf-automatic-install.timer")
             if hour:
                 # don't test the minutes, due to RandomizedDelaySec=60m
-                self.assertRegex(out, " %s:" % hour)
+                self.assertRegex(out, f" {hour}:")
             else:
                 self.assertEqual(out, "")
             if dow:

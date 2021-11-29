@@ -33,7 +33,7 @@ class TestApps(PackageCase):
 
     def createAppStreamPackage(self, name, version, revision):
         self.createPackage(name, version, revision, content={
-            "/usr/share/metainfo/org.cockpit-project.{0}.metainfo.xml".format(name): """
+            f"/usr/share/metainfo/org.cockpit-project.{name}.metainfo.xml": """
 <component type="addon">
   <extends>org.cockpit_project.cockpit</extends>
   <id>org.cockpit-project.{0}</id>
@@ -66,11 +66,11 @@ class TestApps(PackageCase):
 """.format(p)
         self.machine.execute("mkdir -p /usr/share/app-info/xmls")
         self.createPackage("appstream-data-test", "1.0", "1", content={
-            "/usr/share/app-info/xmls/test.xml": """
+            "/usr/share/app-info/xmls/test.xml": f"""
 <components origin="test">
-{0}
+{body}
 </components>
-            """.format(body),
+            """,
             "/usr/share/app-info/icons/test/64x64/test.png": {"path": "/var/tmp/test.png"}})
         self.enableRepo()
         self.machine.execute("systemctl stop packagekit && pkcon refresh force")
@@ -93,7 +93,7 @@ class TestApps(PackageCase):
                 '{ "config": { "appstream_data_packages": [ "appstream-data-test" ] } }')
 
         if urlroot != "":
-            m.execute('mkdir -p /etc/cockpit/ && echo "[WebService]\nUrlRoot=%s" > /etc/cockpit/cockpit.conf' % urlroot)
+            m.execute(f'mkdir -p /etc/cockpit/ && echo "[WebService]\nUrlRoot={urlroot}" > /etc/cockpit/cockpit.conf')
 
         m.start_cockpit()
         b.login_and_go("/apps", urlroot=urlroot)
@@ -107,7 +107,7 @@ class TestApps(PackageCase):
 
         b.click(".app-list #app-1")
         b.wait_visible('a[href="https://app-1.com"]')
-        b.wait_visible('#app-page img[src^="%s/cockpit/channel/"]' % urlroot)
+        b.wait_visible(f'#app-page img[src^="{urlroot}/cockpit/channel/"]')
         b.click(".pf-c-breadcrumb a:contains('Applications')")
 
         b.wait_visible("#list-page")
@@ -115,12 +115,12 @@ class TestApps(PackageCase):
 
         b.click(".app-list .pf-c-data-list__item-row:contains('app-1') button:contains('Install')")
         b.wait_visible(".app-list .pf-c-data-list__item-row:contains('app-1') button:contains('Remove')")
-        b.wait_visible(".app-list .pf-c-data-list__item-row:contains('app-1') img[src^='%s/cockpit/channel/']" % urlroot)
+        b.wait_visible(f".app-list .pf-c-data-list__item-row:contains('app-1') img[src^='{urlroot}/cockpit/channel/']")
         m.execute("test -f /stamp-app-1-1.0-1")
 
         b.click(".app-list .pf-c-data-list__item-row:contains('app-1') button:contains('Remove')")
         b.wait_visible(".app-list .pf-c-data-list__item-row:contains('app-1') button:contains('Install')")
-        b.wait_visible(".app-list .pf-c-data-list__item-row:contains('app-1') img[src^='%s/cockpit/channel/']" % urlroot)
+        b.wait_visible(f".app-list .pf-c-data-list__item-row:contains('app-1') img[src^='{urlroot}/cockpit/channel/']")
         m.execute("! test -f /stamp-app-1-1.0-1")
 
     def testWithUrlRoot(self):
@@ -180,7 +180,7 @@ class TestApps(PackageCase):
             if self.system_before(242):  # Changed in #15667
                 b.set_val("#display-language-modal select", lang)
             else:
-                b.click('#display-language-modal li[data-value=%s] button' % lang)
+                b.click(f'#display-language-modal li[data-value={lang}] button')
             b.click("#display-language-modal footer button.pf-m-primary")
             b.expect_load()
             # HACK: work around language switching in Chrome not working in current session (issue #8160)

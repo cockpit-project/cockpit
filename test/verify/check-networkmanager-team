@@ -54,8 +54,8 @@ class TestTeam(NetworkCase):
         b.assert_pixels("#network-team-settings-dialog", "networking-team-settings-dialog")
 
         b.set_input_text("#network-team-settings-interface-name-input", "tteam")
-        b.set_checked("input[data-iface='%s']" % iface1, True)
-        b.set_checked("input[data-iface='%s']" % iface2, True)
+        b.set_checked(f"input[data-iface='{iface1}']", True)
+        b.set_checked(f"input[data-iface='{iface2}']", True)
         b.click("#network-team-settings-dialog button:contains('Apply')")
         b.wait_not_present("#network-team-settings-dialog")
 
@@ -71,8 +71,8 @@ class TestTeam(NetworkCase):
         # Check that the members are displayed
         self.select_iface('tteam')
         b.wait_visible("#network-interface")
-        b.wait_visible("#network-interface-members tr[data-interface='%s']" % iface1)
-        b.wait_visible("#network-interface-members tr[data-interface='%s']" % iface2)
+        b.wait_visible(f"#network-interface-members tr[data-interface='{iface1}']")
+        b.wait_visible(f"#network-interface-members tr[data-interface='{iface2}']")
 
         # Deactivate the team and make sure it is still there after a
         # reload.
@@ -83,8 +83,8 @@ class TestTeam(NetworkCase):
         b.enter_page("/network")
         b.wait_text("#network-interface-name", "tteam")
         b.wait_text("#network-interface-hw", "Team")
-        b.wait_visible("#network-interface-members tr[data-interface='%s']" % iface1)
-        b.wait_visible("#network-interface-members tr[data-interface='%s']" % iface2)
+        b.wait_visible(f"#network-interface-members tr[data-interface='{iface1}']")
+        b.wait_visible(f"#network-interface-members tr[data-interface='{iface2}']")
 
         # Delete the team
         b.click("#network-interface button:contains('Delete')")
@@ -117,7 +117,7 @@ class TestTeam(NetworkCase):
         b.click("button:contains('Add team')")
         b.wait_visible("#network-team-settings-dialog")
         b.set_input_text("#network-team-settings-interface-name-input", "tteam")
-        b.set_checked("input[data-iface='%s']" % iface, True)
+        b.set_checked(f"input[data-iface='{iface}']", True)
         b.click("#network-team-settings-dialog button:contains('Apply')")
         b.wait_not_present("#network-team-settings-dialog")
 
@@ -127,7 +127,7 @@ class TestTeam(NetworkCase):
         # Check that it has the interface and the right IP address
         self.select_iface('tteam')
         b.wait_visible("#network-interface")
-        b.wait_visible("#network-interface-members tr[data-interface='%s']" % iface)
+        b.wait_visible(f"#network-interface-members tr[data-interface='{iface}']")
         b.wait_in_text("#network-interface .pf-c-card:contains('tteam')", "10.111")
 
         # Check team port

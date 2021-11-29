@@ -193,23 +193,23 @@ class TestConnection(MachineCase):
         m = self.machine
 
         def expect_active(unit, is_active):
-            status = m.execute("systemctl is-active %s || true" % unit).strip()
+            status = m.execute(f"systemctl is-active {unit} || true").strip()
             self.assertIn(status, ["active", "inactive"])
             if is_active:
-                self.assertEqual(status, "active", "%s is not active" % unit)
+                self.assertEqual(status, "active", f"{unit} is not active")
             else:
-                self.assertEqual(status, "inactive", "%s is active" % unit)
+                self.assertEqual(status, "inactive", f"{unit} is active")
 
         def expect_actives(ws_socket, instance_sockets, http_instances, https_instances=0):
             expect_active("cockpit.socket", ws_socket)
             # http instances
             for instance in ["http", "http-redirect"]:
-                expect_active("cockpit-wsinstance-%s.socket" % instance, instance_sockets)
-                expect_active("cockpit-wsinstance-%s.service" % instance, instance in http_instances)
+                expect_active(f"cockpit-wsinstance-{instance}.socket", instance_sockets)
+                expect_active(f"cockpit-wsinstance-{instance}.service", instance in http_instances)
             # number of https instances
             expect_active("cockpit-wsinstance-https-factory.socket", instance_sockets)
             for _type in ["service", "socket"]:
-                out = m.execute("systemctl --no-legend -t %s list-units cockpit-wsinstance-https@*" % _type)
+                out = m.execute(f"systemctl --no-legend -t {_type} list-units cockpit-wsinstance-https@*")
                 count = len(out.strip().splitlines())
                 self.assertEqual(count, https_instances, out)
 
@@ -286,7 +286,7 @@ class TestConnection(MachineCase):
 
         # sockets are inaccessible to users, only to cockpit-tls
         for s in ["http.sock", "https-factory.sock"]:
-            out = m.execute("su -c '! nc -U /run/cockpit/wsinstance/%s 2>&1 || exit 1' admin" % s)
+            out = m.execute(f"su -c '! nc -U /run/cockpit/wsinstance/{s} 2>&1 || exit 1' admin")
             self.assertIn("Permission denied", out)
 
     @skipImage("OSTree doesn't use systemd units", "fedora-coreos")
@@ -326,7 +326,7 @@ class TestConnection(MachineCase):
 
         # can launch new instances after freeing up some old ones
         m.execute("systemctl stop cockpit-wsinstance-https@30 cockpit-wsinstance-https@31 cockpit-wsinstance-https@32")
-        m.execute("echo -n new | nc %s -U /run/cockpit/wsinstance/https-factory.sock" % n_opt)
+        m.execute(f"echo -n new | nc {n_opt} -U /run/cockpit/wsinstance/https-factory.sock")
         out = m.execute("curl --silent --show-error --head --unix /run/cockpit/wsinstance/https@new.sock http://dummy")
         self.assertIn("HTTP/1.1 200 OK", out)
 
@@ -737,7 +737,7 @@ class TestConnection(MachineCase):
 
         b.wait_text_not("#speed", "")
         time.sleep(20)
-        output = m.execute("cat /proc/{}/statm".format(pid))
+        output = m.execute(f"cat /proc/{pid}/statm")
         rss = int(output.split(" ")[0])
 
         # This fails when flow control is not present
@@ -863,12 +863,12 @@ until pgrep -f cockpit-bridge.*--privileged; do sleep 1; done
         m.spawn("socat TCP-LISTEN:9091,reuseaddr,fork TCP:localhost:9099", "socat.log")
 
         # ws with plain --no-tls should fail after login with mismatching Origin (expected http, got https)
-        m.spawn("su -s /bin/sh -c '%s --no-tls -p 9099' cockpit-wsinstance" % self.ws_executable,
+        m.spawn(f"su -s /bin/sh -c '{self.ws_executable} --no-tls -p 9099' cockpit-wsinstance",
                 "ws-notls.log")
         m.wait_for_cockpit_running(tls=True)
 
         b.ignore_ssl_certificate_errors(True)
-        b.open("https://%s:%s/system" % (b.address, b.port))
+        b.open(f"https://{b.address}:{b.port}/system")
         b.wait_visible("#login")
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")
@@ -903,10 +903,10 @@ until pgrep -f cockpit-bridge.*--privileged; do sleep 1; done
         self.allow_browser_errors("Error reading machine id")
 
         # ws with --for-tls-proxy accepts only https origins, thus should work
-        m.spawn("su -s /bin/sh -c '%s --for-tls-proxy -p 9099 -a 127.0.0.1' cockpit-wsinstance" % self.ws_executable,
+        m.spawn(f"su -s /bin/sh -c '{self.ws_executable} --for-tls-proxy -p 9099 -a 127.0.0.1' cockpit-wsinstance",
                 "ws-fortlsproxy.log")
         m.wait_for_cockpit_running(tls=True)
-        b.open("https://%s:%s/system" % (b.address, b.port))
+        b.open(f"https://{b.address}:{b.port}/system")
         b.wait_visible("#login")
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")
@@ -935,7 +935,7 @@ until pgrep -f cockpit-bridge.*--privileged; do sleep 1; done
 
         # ws with --proxy-tls-redirect redirects non-localhost to https
         m.execute("pkill -e cockpit-ws; while pgrep -a cockpit-ws; do sleep 1; done")
-        m.spawn("su -s /bin/sh -c '%s --proxy-tls-redirect --no-tls -p 9099 -a 127.0.0.1' cockpit-wsinstance" % self.ws_executable,
+        m.spawn(f"su -s /bin/sh -c '{self.ws_executable} --proxy-tls-redirect --no-tls -p 9099 -a 127.0.0.1' cockpit-wsinstance",
                 "ws-proxy-tls-redirect.log")
         m.wait_for_cockpit_running(tls=True)
         self.assertIn("HTTP/1.1 301 Moved Permanently", m.execute("curl --silent --head http://172.27.0.15:9091"))

@@ -60,7 +60,7 @@ class TestImageCustomize(unittest.TestCase):
         img = "custom-" + os.environ["TEST_OS"]
 
         def cleanup():
-            for f in glob("test/images/%s*" % img):
+            for f in glob(f"test/images/{img}*"):
                 os.unlink(f)
         self.addCleanup(cleanup)
 

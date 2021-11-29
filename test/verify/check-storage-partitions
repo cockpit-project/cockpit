@@ -42,8 +42,8 @@ class TestStoragePartitions(StorageCase):
 
         dev = self.add_loopback_disk(10, "loop12")
 
-        b.wait_visible('.sidepanel-row:contains("%s")' % dev)
-        b.click('.sidepanel-row:contains("%s")' % dev)
+        b.wait_visible(f'.sidepanel-row:contains("{dev}")')
+        b.click(f'.sidepanel-row:contains("{dev}")')
         b.wait_visible('#storage-detail')
 
         b.click('button:contains(Create partition table)')
@@ -68,7 +68,7 @@ class TestStoragePartitions(StorageCase):
         self.login_and_go("/storage")
 
         disk = self.add_ram_disk()
-        b.click('#drives .sidepanel-row:contains("%s")' % disk)
+        b.click(f'#drives .sidepanel-row:contains("{disk}")')
         b.wait_visible('#storage-detail')
 
         b.click('button:contains(Create partition table)')
@@ -101,7 +101,7 @@ class TestStoragePartitions(StorageCase):
 
         # With old Udisks2 versions, the partition will end up being
         # 25.1M while newer versions give us 26M.
-        wait(lambda: m.execute("lsblk -no SIZE %s1" % disk).strip() in ["25.1M", "26M"])
+        wait(lambda: m.execute(f"lsblk -no SIZE {disk}1").strip() in ["25.1M", "26M"])
 
 
 if __name__ == '__main__':

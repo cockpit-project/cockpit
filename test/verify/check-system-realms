@@ -141,14 +141,14 @@ class CommonTests:
         b.logout()
 
         # change existing local "admin" home dir to domain "admin" user
-        m.execute("chown -R %s@cockpit.lan /home/admin" % self.admin_user)
+        m.execute(f"chown -R {self.admin_user}@cockpit.lan /home/admin")
 
         # wait until IPA user works
         m.execute('while ! su - -c "echo %s | sudo -S true" %s@cockpit.lan; do sleep 5; sss_cache -E || true; systemctl try-restart sssd; done' % (
                   self.admin_password, self.admin_user), timeout=300)
 
         # log in as domain admin and check that we can do privileged operations
-        b.login_and_go('/system/services#/systemd-tmpfiles-clean.timer', user='%s@cockpit.lan' % self.admin_user, password=self.admin_password)
+        b.login_and_go('/system/services#/systemd-tmpfiles-clean.timer', user=f'{self.admin_user}@cockpit.lan', password=self.admin_password)
         b.wait_in_text("#statuses", "Running")
         b.click(".service-top-panel .pf-c-dropdown button")
         b.click(".service-top-panel .pf-c-dropdown__menu a:contains('Stop')")
@@ -159,7 +159,7 @@ class CommonTests:
 
         # should also work with capitalized domain and lower-case user (fixed in PR #13934)
         # need to change URL to actually reload the page
-        b.login_and_go('/system', user='%s@COCKPIT.LAN' % self.admin_user.lower(), password=self.admin_password)
+        b.login_and_go('/system', user=f'{self.admin_user.lower()}@COCKPIT.LAN', password=self.admin_password)
         b.go('/system/services#/systemd-tmpfiles-clean.timer')
         b.enter_page('/system/services')
         b.wait_in_text("#statuses", "Not running")
@@ -279,7 +279,7 @@ class CommonTests:
         # Tell realmd to not enable domain-qualified logins
         # (https://bugzilla.redhat.com/show_bug.cgi?id=1575538)
         m.write("/etc/realmd.conf", "[cockpit.lan]\nfully-qualified-names = no\n", append=True)
-        m.execute("echo %s | realm join -vU %s cockpit.lan" % (self.admin_password, self.admin_user), timeout=300)
+        m.execute(f"echo {self.admin_password} | realm join -vU {self.admin_user} cockpit.lan", timeout=300)
 
         # wait until domain user works
         m.execute('while ! su - -c "echo %s | sudo -S true" %s; do sleep 5; sss_cache -E || true; systemctl try-restart sssd; done' %
@@ -508,8 +508,8 @@ ExecStart=/bin/true
         self.assertIn('HTTP/x0.cockpit.lan@COCKPIT.LAN', output)
 
         # validate Kerberos setup for ws
-        m.execute("echo %s | kinit -f %s@COCKPIT.LAN" % (self.admin_password, self.admin_user))
-        m.execute(script=WAIT_KRB_SCRIPT.format("%s@cockpit.lan" % self.admin_user), timeout=300)
+        m.execute(f"echo {self.admin_password} | kinit -f {self.admin_user}@COCKPIT.LAN")
+        m.execute(script=WAIT_KRB_SCRIPT.format(f"{self.admin_user}@cockpit.lan"), timeout=300)
 
         # kerberos login should work
         output = m.execute(['curl', '-s', '--negotiate', '--delegation', 'always', '-u', ':', "-D", "-",
@@ -549,7 +549,7 @@ ExecStart=/bin/true
 
         # check respecting FreeIPA's/sssd's ssh known host keys; this requires the new
         # --privkey option of sss_ssh_knownhostproxy, thus only works on recent images
-        b.login_and_go("/system", user='%s@cockpit.lan' % self.admin_user, password=self.admin_password)
+        b.login_and_go("/system", user=f'{self.admin_user}@cockpit.lan', password=self.admin_password)
         b.switch_to_top()
         b.click("#hosts-sel button")
         b.click("button:contains('Add new host')")
@@ -749,7 +749,7 @@ ipa-advise enable-admins-sudo | sh -ex
         ipa servicedelegationrule-add-member cockpit-delegation --principals="HTTP/x0.cockpit.lan@COCKPIT.LAN"
         ipa servicedelegationrule-add-target cockpit-delegation --servicedelegationtargets="cockpit-target"
         """
-        ipa_machine.execute("podman exec freeipa bash -euc '%s'" % script)
+        ipa_machine.execute(f"podman exec freeipa bash -euc '{script}'")
 
         # now sudo works with the delegated ticket
         # this requires https://github.com/sudo-project/sudo/commit/3b7977a42c0 (see https://bugzilla.redhat.com/show_bug.cgi?id=1917379)
@@ -816,7 +816,7 @@ class TestAD(TestRealms, CommonTests):
         # DNS is not sufficient yet, needs to start LDAP server as well
         m.execute("until nc -z f0.cockpit.lan 389; do sleep 1; done")
         # also wait for Kerberos
-        m.execute("set -e; until echo %s | kinit %s@COCKPIT.LAN; do sleep 1; done; kdestroy" % (self.admin_password, self.admin_user))
+        m.execute(f"set -e; until echo {self.admin_password} | kinit {self.admin_user}@COCKPIT.LAN; do sleep 1; done; kdestroy")
 
         # allow sudo access to domain admins; FIXME: Is there a server-side setting for this,
         # similar to "ipa-advise enable-admins-sudo"?
@@ -850,7 +850,7 @@ class TestAD(TestRealms, CommonTests):
 
         m.start_cockpit()
         # create another AD user
-        self.machines['services'].execute("podman exec -i samba samba-tool user add alice %s" % self.alice_password)
+        self.machines['services'].execute(f"podman exec -i samba samba-tool user add alice {self.alice_password}")
         # ensure it works
         m.execute('id alice')
         b.login_and_go('/system', user='alice', password=self.alice_password)

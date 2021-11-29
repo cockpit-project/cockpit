@@ -50,11 +50,11 @@ class TestShutdownRestart(MachineCase):
         # shutdown button should be enabled and working
         b.click("#reboot-button")
         b.wait_popup("shutdown-dialog")
-        b.wait_in_text("#shutdown-dialog button{0}".format(self.danger_btn_class), 'Reboot')
+        b.wait_in_text(f"#shutdown-dialog button{self.danger_btn_class}", 'Reboot')
         b.click("#delay")
         b.click("button:contains('No delay')")
         b.wait_text("#delay .pf-c-select__toggle-text", "No delay")
-        b.click("#shutdown-dialog button{0}".format(self.danger_btn_class))
+        b.click(f"#shutdown-dialog button{self.danger_btn_class}")
         b.switch_to_top()
 
         b.wait_in_text(".curtains-ct h1", "Disconnected")
@@ -75,11 +75,11 @@ class TestShutdownRestart(MachineCase):
         # Reboot
         b.click("#reboot-button")
         b.wait_popup("shutdown-dialog")
-        b.wait_in_text("#shutdown-dialog button{0}".format(self.danger_btn_class), 'Reboot')
+        b.wait_in_text(f"#shutdown-dialog button{self.danger_btn_class}", 'Reboot')
         b.click("#delay")
         b.click("button:contains('No delay')")
         b.wait_text("#delay .pf-c-select__toggle-text", "No delay")
-        b.click("#shutdown-dialog button{0}".format(self.danger_btn_class))
+        b.click(f"#shutdown-dialog button{self.danger_btn_class}")
         b.switch_to_top()
 
         b.wait_in_text(".curtains-ct h1", "Disconnected")
@@ -103,13 +103,13 @@ class TestShutdownRestart(MachineCase):
         b2.wait_visible("#machine-troubleshoot")
         b2.click('#machine-troubleshoot')
         b2.wait_visible('#hosts_setup_server_dialog')
-        b2.wait_text('#hosts_setup_server_dialog {}'.format(self.primary_btn_class), "Add")
-        b2.click('#hosts_setup_server_dialog {}'.format(self.primary_btn_class))
+        b2.wait_text(f'#hosts_setup_server_dialog {self.primary_btn_class}', "Add")
+        b2.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
         b2.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.1 for the first time.")
-        b2.click('#hosts_setup_server_dialog {}'.format(self.primary_btn_class))
+        b2.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
         b2.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
         b2.set_input_text("#login-custom-password", "foobar")
-        b2.click('#hosts_setup_server_dialog {}'.format(self.primary_btn_class))
+        b2.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
         b2.wait_not_present('#hosts_setup_server_dialog')
         b2.enter_page("/system", host="10.111.113.1")
         b2.wait_text("#system_information_hostname_text", "machine1")
@@ -117,11 +117,11 @@ class TestShutdownRestart(MachineCase):
         # Check auto reconnect on reboot
         b2.click("#reboot-button")
         b2.wait_popup("shutdown-dialog")
-        b2.wait_in_text("#shutdown-dialog button{0}".format(self.danger_btn_class), 'Reboot')
+        b2.wait_in_text(f"#shutdown-dialog button{self.danger_btn_class}", 'Reboot')
         b2.click("#delay")
         b2.click("button:contains('No delay')")
         b2.wait_text("#delay .pf-c-select__toggle-text", "No delay")
-        b2.click("#shutdown-dialog button{0}".format(self.danger_btn_class))
+        b2.click(f"#shutdown-dialog button{self.danger_btn_class}")
         b2.switch_to_top()
 
         b2.wait_visible(".curtains-ct")
@@ -135,7 +135,7 @@ class TestShutdownRestart(MachineCase):
         b2.wait_visible('#hosts_setup_server_dialog')
         b2.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
         b2.set_input_text("#login-custom-password", "foobar")
-        b2.click('#hosts_setup_server_dialog {}'.format(self.primary_btn_class))
+        b2.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
         b2.wait_not_present('#hosts_setup_server_dialog')
 
         b2.enter_page("/system", host="10.111.113.1", reconnect=False)
@@ -157,11 +157,11 @@ class TestShutdownRestart(MachineCase):
         b.wait_not_present("#delay-helper")
         b.blur("#shutdown-time-input")
         b.wait_text("#delay-helper", "Invalid time format")
-        b.wait_visible("#shutdown-dialog button{0}:disabled".format(self.danger_btn_class))
+        b.wait_visible(f"#shutdown-dialog button{self.danger_btn_class}:disabled")
 
         # Now set a correct time
         b.set_input_text("#shutdown-time-input", old)
-        b.wait_visible("#shutdown-dialog button{0}:not(disabled)".format(self.danger_btn_class))
+        b.wait_visible(f"#shutdown-dialog button{self.danger_btn_class}:not(disabled)")
         b.wait_not_present("#delay-helper")
 
         # Try to insert an invalid date
@@ -170,7 +170,7 @@ class TestShutdownRestart(MachineCase):
         b.blur(".shutdown-date-picker input")
         b.wait_val(".shutdown-date-picker input", "20/0x/2021")
         b.wait_text("#delay-helper", "Invalid date format")
-        b.wait_visible("#shutdown-dialog button{0}:disabled".format(self.danger_btn_class))
+        b.wait_visible(f"#shutdown-dialog button{self.danger_btn_class}:disabled")
 
         # Insert a date using the widget dropdown
         b.click("button[aria-label='Toggle date picker']")
@@ -181,7 +181,7 @@ class TestShutdownRestart(MachineCase):
         b.blur(".shutdown-date-picker input")
 
         # Power off
-        b.click("#shutdown-dialog button{0}".format(self.danger_btn_class))
+        b.click(f"#shutdown-dialog button{self.danger_btn_class}")
         b.switch_to_top()
 
         # we don't need to wait for the dialog to close here, just the disconnect

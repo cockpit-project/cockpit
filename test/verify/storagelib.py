@@ -53,7 +53,7 @@ class StorageHelpers:
         '''
         # sanity test: should not yet be loaded
         self.machine.execute("test ! -e /sys/module/scsi_debug")
-        self.machine.execute("modprobe scsi_debug dev_size_mb=%s" % size)
+        self.machine.execute(f"modprobe scsi_debug dev_size_mb={size}")
         dev = self.machine.execute('set -e; while true; do O=$(ls /sys/bus/pseudo/drivers/scsi_debug/adapter*/host*/target*/*:*/block 2>/dev/null || true); '
                                    '[ -n "$O" ] && break || sleep 0.1; done; echo "/dev/$O"').strip()
         # don't use addCleanup() here, this is often busy and needs to be cleaned up late; done in MachineCase.nonDestructiveSetup()
@@ -87,11 +87,11 @@ class StorageHelpers:
         This circumvents all the normal EBUSY failures, and thus can be used for testing
         the cleanup after a forceful removal.
         '''
-        self.machine.execute('echo 1 > /sys/block/%s/device/delete' % os.path.basename(device))
+        self.machine.execute(f'echo 1 > /sys/block/{os.path.basename(device)}/device/delete')
 
     def devices_dropdown(self, title):
         self.browser.click("#devices .pf-c-dropdown button.pf-c-dropdown__toggle")
-        self.browser.click("#devices .pf-c-dropdown a:contains('%s')" % title)
+        self.browser.click(f"#devices .pf-c-dropdown a:contains('{title}')")
 
     # Content
 
@@ -108,9 +108,9 @@ class StorageHelpers:
 
     def content_row_action(self, index, title, isExpandable=True):
         if isExpandable:
-            btn = self.content_row_tbody(index) + " tr:first-child td button:contains(%s)" % title
+            btn = self.content_row_tbody(index) + f" tr:first-child td button:contains({title})"
         else:
-            btn = "#detail-content > article > div > table > :nth-child(%d)" % index + " td button:contains(%s)" % title
+            btn = "#detail-content > article > div > table > :nth-child(%d)" % index + f" td button:contains({title})"
         self.browser.click(btn)
 
     # The row might come and go a couple of times until it has the
@@ -127,7 +127,7 @@ class StorageHelpers:
     def content_dropdown_action(self, index, title):
         dropdown = self.content_row_tbody(index) + " tr td:last-child .pf-c-dropdown"
         self.browser.click(dropdown + " button.pf-c-dropdown__toggle")
-        self.browser.click(dropdown + " a:contains('%s')" % title)
+        self.browser.click(dropdown + f" a:contains('{title}')")
 
     def content_tab_expand(self, row_index, tab_index):
         tab_btn = self.content_row_tbody(row_index) + " .pf-c-tabs ul li:nth-child(%d) button" % tab_index
@@ -139,13 +139,13 @@ class StorageHelpers:
 
     def content_tab_action(self, row_index, tab_index, title):
         tab = self.content_tab_expand(row_index, tab_index)
-        btn = tab + " button:contains(%s)" % title
+        btn = tab + f" button:contains({title})"
         self.browser.wait_attr(btn, "disabled", None)
         self.browser.click(btn)
 
     def wait_content_tab_action_disabled(self, row_index, tab_index, title):
         tab = self.content_tab_expand(row_index, tab_index)
-        btn = tab + " button:disabled:contains(%s)" % title
+        btn = tab + f" button:disabled:contains({title})"
         self.browser.wait_visible(btn)
 
     # To check what's in a tab, we need to open the row and select the
@@ -172,7 +172,7 @@ class StorageHelpers:
             row_item = row + " tr td.pf-c-table__toggle button"
             tab_btn = row + " .pf-c-tabs ul li:nth-child(%d) button" % tab_index
             tab = row + " .ct-listing-panel-body[data-key=%d]" % (tab_index - 1)
-            cell = tab + " dt:contains(%s) + *" % title
+            cell = tab + f" dt:contains({title}) + *"
 
             # The DOM might change at any time while we are inspecting
             # it, so we can't reliably test for a elements existence
@@ -216,7 +216,7 @@ class StorageHelpers:
 
     def content_tab_info_label(self, row_index, tab_index, title):
         tab = self.content_tab_expand(row_index, tab_index)
-        return tab + " dt:contains(%s)" % title
+        return tab + f" dt:contains({title})"
 
     def content_tab_info_action(self, row_index, tab_index, title, wrapped=False):
         label = self.content_tab_info_label(row_index, tab_index, title)
@@ -232,7 +232,7 @@ class StorageHelpers:
         self.browser.wait_in_text('#dialog .pf-c-alert__title', text)
 
     def dialog_field(self, field):
-        return '#dialog [data-field="%s"]' % field
+        return f'#dialog [data-field="{field}"]'
 
     def dialog_val(self, field):
         sel = self.dialog_field(field)
@@ -254,14 +254,14 @@ class StorageHelpers:
             self.browser.set_checked(sel, val)
         elif ftype == "select-spaces":
             for label in val:
-                self.browser.set_checked('%s :contains("%s") input' % (sel, label), val)
+                self.browser.set_checked(f'{sel} :contains("{label}") input', val)
         elif ftype == "size-slider":
             self.browser.set_val(sel + " .size-unit", "1048576")
             self.browser.set_input_text(sel + " .size-text", str(val))
         elif ftype == "select":
             self.browser.set_val(sel + " select", val)
         elif ftype == "select-radio":
-            self.browser.click(sel + " input[data-data='%s']" % val)
+            self.browser.click(sel + f" input[data-data='{val}']")
         elif ftype == "text-input":
             self.browser.set_input_text(sel, val)
         elif ftype == "text-input-checked":
@@ -272,7 +272,7 @@ class StorageHelpers:
                 self.browser.set_input_text(sel + " [type=text]", val)
         elif ftype == "combobox":
             self.browser.click(sel + " button.pf-c-select__toggle-button")
-            self.browser.click(sel + " .pf-c-select__menu li:contains('{0}') button".format(val))
+            self.browser.click(sel + f" .pf-c-select__menu li:contains('{val}') button")
         else:
             self.browser.set_val(sel, val)
 
@@ -286,7 +286,7 @@ class StorageHelpers:
                                              })""", self.dialog_field(field))
 
     def dialog_is_present(self, field, label):
-        return self.browser.is_present('%s :contains("%s") input' % (self.dialog_field(field), label))
+        return self.browser.is_present(f'{self.dialog_field(field)} :contains("{label}") input')
 
     def dialog_wait_val(self, field, val, unit="1048576"):
         sel = self.dialog_field(field)
@@ -449,7 +449,7 @@ class StorageHelpers:
                     for entry in iface["Configuration"]:
                         if entry[0] == tab:
                             if field in entry[1]:
-                                print("%s/%s/%s = %s" % (path, tab, field, from_udisks_ascii(entry[1][field])))
+                                print(f"{path}/{tab}/{field} = {from_udisks_ascii(entry[1][field])}")
                                 return from_udisks_ascii(entry[1][field])
         return ""
 

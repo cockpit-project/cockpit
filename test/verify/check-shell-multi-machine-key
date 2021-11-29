@@ -31,11 +31,11 @@ def kill_user_admin(machine):
 
 
 def authorize_user(m, user, public_keys=["verify/files/ssh/id_rsa.pub"]):
-    m.execute("mkdir -p /home/{0}/.ssh".format(user))
-    m.upload(public_keys, "/home/{0}/.ssh/authorized_keys".format(user))
+    m.execute(f"mkdir -p /home/{user}/.ssh")
+    m.upload(public_keys, f"/home/{user}/.ssh/authorized_keys")
     m.execute("chown -R {0}:{0} /home/{0}/.ssh/".format(user))
-    m.execute("chmod 600 /home/{0}/.ssh/authorized_keys".format(user))
-    m.execute("chmod 700 /home/{0}/.ssh".format(user))
+    m.execute(f"chmod 600 /home/{user}/.ssh/authorized_keys")
+    m.execute(f"chmod 700 /home/{user}/.ssh")
 
 
 LOAD_KEYS = [
@@ -128,9 +128,9 @@ class TestMultiMachineKeyAuth(MachineCase):
         # Load keys
         m1.execute("mkdir -p /home/admin/.ssh")
 
-        m1.upload(["verify/files/ssh/{0}".format(k) for k in LOAD_KEYS],
+        m1.upload([f"verify/files/ssh/{k}" for k in LOAD_KEYS],
                   "/home/admin/.ssh/")
-        m1.upload(["verify/files/ssh/{0}.pub".format(k) for k in LOAD_KEYS],
+        m1.upload([f"verify/files/ssh/{k}.pub" for k in LOAD_KEYS],
                   "/home/admin/.ssh/")
         m1.execute("chmod 400 /home/admin/.ssh/*")
         m1.execute("chown -R admin:admin /home/admin/.ssh")
@@ -159,10 +159,10 @@ class TestMultiMachineKeyAuth(MachineCase):
         b.click('#machine-troubleshoot')
         b.wait_visible('#hosts_setup_server_dialog')
 
-        b.wait_text('#hosts_setup_server_dialog {}'.format(self.primary_btn_class), "Add")
-        b.click('#hosts_setup_server_dialog {}'.format(self.primary_btn_class))
+        b.wait_text(f'#hosts_setup_server_dialog {self.primary_btn_class}', "Add")
+        b.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
         b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
-        b.click('#hosts_setup_server_dialog {}'.format(self.primary_btn_class))
+        b.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
         b.wait_in_text('#hosts_setup_server_dialog h1', "Log in to")
         b.wait_in_text('#hosts_setup_server_dialog', "accept password login")
         b.click("#hosts_setup_server_dialog button:contains('Cancel')")
@@ -174,8 +174,8 @@ class TestMultiMachineKeyAuth(MachineCase):
         # Login
         b.click('#machine-troubleshoot')
         b.wait_visible('#hosts_setup_server_dialog')
-        b.wait_text('#hosts_setup_server_dialog {}'.format(self.primary_btn_class), "Add")
-        b.click('#hosts_setup_server_dialog {}'.format(self.primary_btn_class))
+        b.wait_text(f'#hosts_setup_server_dialog {self.primary_btn_class}', "Add")
+        b.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
         b.wait_not_present('#hosts_setup_server_dialog')
         b.enter_page("/system", host="10.111.113.2")
 

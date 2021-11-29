@@ -89,8 +89,8 @@ class TestStorageMounting(StorageCase):
         # Set the "Never unlock at boot option"
         self.content_tab_info_action(1, 1, "Mount point")
         self.dialog({"mount_options.never_auto": True})
-        self.assertIn("noauto", m.execute("findmnt -s -n -o OPTIONS %s" % mount_point_bar))
-        self.assertIn("x-cockpit-never-auto", m.execute("findmnt -s -n -o OPTIONS %s" % mount_point_bar))
+        self.assertIn("noauto", m.execute(f"findmnt -s -n -o OPTIONS {mount_point_bar}"))
+        self.assertIn("x-cockpit-never-auto", m.execute(f"findmnt -s -n -o OPTIONS {mount_point_bar}"))
 
         # Go to overview page and check that the filesystem usage is
         # displayed correctly.
@@ -107,17 +107,17 @@ class TestStorageMounting(StorageCase):
 
         b.go("#/")
         b.wait_in_text("table[aria-label=Filesystems]", mount_point_bar)
-        bar_selector = 'table[aria-label=Filesystems] tr:contains("%s") td:nth-child(3)' % mount_point_bar
+        bar_selector = f'table[aria-label=Filesystems] tr:contains("{mount_point_bar}") td:nth-child(3)'
         wait_ratio_in_range(bar_selector, 0.0, 0.1)
-        m.execute("dd if=/dev/zero of=%s/zero bs=1M count=30 status=none" % mount_point_bar)
+        m.execute(f"dd if=/dev/zero of={mount_point_bar}/zero bs=1M count=30 status=none")
         wait_ratio_in_range(bar_selector, 0.5, 1.0)
-        m.execute("rm %s/zero" % mount_point_bar)
+        m.execute(f"rm {mount_point_bar}/zero")
         wait_ratio_in_range(bar_selector, 0.0, 0.1)
         b.click('table[aria-label=Filesystems] tr:contains("filesystem")')
         b.wait_visible("#storage-detail")
 
         def wait_info_field_value(name, value):
-            return b.wait_text('#detail-header dt:contains("%s") + dd' % name, value)
+            return b.wait_text(f'#detail-header dt:contains("{name}") + dd', value)
 
         wait_info_field_value("Serial number", "MYDISK")
 
@@ -227,7 +227,7 @@ class TestStorageMounting(StorageCase):
         # Unmount and lock externally, unlock and remount with Cockpit
 
         m.execute("umount /run/foo")
-        m.execute("udisksctl lock -b %s" % dev)
+        m.execute(f"udisksctl lock -b {dev}")
         # wait until the UI updated to the locking
         self.content_tab_wait_in_info(1, 2, "Cleartext device", "-")
         fsys_tab = self.content_tab_expand(1, 1)
@@ -239,7 +239,7 @@ class TestStorageMounting(StorageCase):
         # Unmount and lock externally, adjust fstab with Cockpit
 
         m.execute("umount /run/foo")
-        m.execute("udisksctl lock -b %s" % dev)
+        m.execute(f"udisksctl lock -b {dev}")
         # wait until the UI updated to the locking
         self.content_tab_wait_in_info(1, 2, "Cleartext device", "-")
         fsys_tab = self.content_tab_expand(1, 1)
@@ -248,14 +248,14 @@ class TestStorageMounting(StorageCase):
 
         # Unlock and mount externally, unmount and lock with Cockpit
 
-        m.execute("echo -n vainu-reku-toma-rolle-kaja | udisksctl unlock --key-file /dev/stdin -b %s" % dev)
+        m.execute(f"echo -n vainu-reku-toma-rolle-kaja | udisksctl unlock --key-file /dev/stdin -b {dev}")
         m.execute("mount /run/foo")
         b.click(fsys_tab + " button:contains(Unmount now)")
         b.wait_not_present(fsys_tab + " button:contains(Unmount now)")
 
         # Unlock and mount externally, adjust fstab with Cockpit
 
-        m.execute("echo -n vainu-reku-toma-rolle-kaja | udisksctl unlock --key-file /dev/stdin -b %s" % dev)
+        m.execute(f"echo -n vainu-reku-toma-rolle-kaja | udisksctl unlock --key-file /dev/stdin -b {dev}")
         m.execute("mount /run/foo")
         b.click(fsys_tab + " button:contains(Mount also automatically on boot)")
         b.wait_not_present(fsys_tab + " button:contains(Mount also automatically on boot)")

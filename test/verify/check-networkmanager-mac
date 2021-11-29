@@ -41,7 +41,7 @@ class TestNetworkingMAC(NetworkCase):
         iface = self.add_iface()
         self.wait_for_iface(iface)
 
-        mac = m.execute("cat /sys/class/net/%s/address" % iface).strip()
+        mac = m.execute(f"cat /sys/class/net/{iface}/address").strip()
 
         self.select_iface(iface)
         b.wait_text("#network-interface-mac", mac.upper())
@@ -56,7 +56,7 @@ class TestNetworkingMAC(NetworkCase):
             b.wait_not_present("#network-mac-settings-dialog")
 
             b.wait_text("#network-interface-mac", new_mac.upper())
-            self.assertIn(new_mac.lower(), m.execute("ip link show '%s'" % iface))
+            self.assertIn(new_mac.lower(), m.execute(f"ip link show '{iface}'"))
 
         else:
             b.wait_not_present("#network-interface-mac button")
@@ -76,8 +76,8 @@ class TestNetworkingMAC(NetworkCase):
         b.click("button:contains('Add bond')")
         b.wait_visible("#network-bond-settings-dialog")
         b.set_input_text("#network-bond-settings-interface-name-input", "tbond")
-        b.set_checked("input[data-iface='%s']" % iface1, True)
-        b.set_checked("input[data-iface='%s']" % iface2, True)
+        b.set_checked(f"input[data-iface='{iface1}']", True)
+        b.set_checked(f"input[data-iface='{iface2}']", True)
         b.click("#network-bond-settings-dialog button:contains('Apply')")
         b.wait_not_present("#network-bond-settings-dialog")
 

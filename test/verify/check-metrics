@@ -16,7 +16,7 @@ from machine_core.constants import TEST_OS_DEFAULT
 
 def getMaximumSpike(test, g_type, saturation, hour, minute):
     # only for minutes with events, which have SVG graphs
-    sel = "#metrics-hour-{0} div.metrics-minute[data-minute={2}] div.metrics-data-{1} polygon".format(hour, g_type, minute)
+    sel = f"#metrics-hour-{hour} div.metrics-minute[data-minute={minute}] div.metrics-data-{g_type} polygon"
     if saturation:
         sel += ":nth-child(2)"
     else:
@@ -32,7 +32,7 @@ def getMaximumSpike(test, g_type, saturation, hour, minute):
 def getCompressedMinuteValue(test, g_type, saturation, hour, minute):
     # only for minutes without events, which only have bars
 
-    sel = "#metrics-hour-{0} div.metrics-minute[data-minute={2}] div.metrics-data-{1} .compressed".format(hour, g_type, minute)
+    sel = f"#metrics-hour-{hour} div.metrics-minute[data-minute={minute}] div.metrics-data-{g_type} .compressed"
     m = re.search(r"--%s:\s*([0-9.]+);" % (saturation and "saturation" or "utilization"), test.browser.attr(sel, "style"))
     test.assertIsNotNone(m)
     return float(m.group(1))
@@ -54,11 +54,11 @@ def topServiceValue(test, aria_label, col_label, row):
 
 
 def prepareArchive(machine, name, time, hostname="localhost.localdomain"):
-    machine.upload(["verify/files/metrics-archives/{0}".format(name)], "/tmp/")
+    machine.upload([f"verify/files/metrics-archives/{name}"], "/tmp/")
 
-    command = "tar -C / -xzvf /tmp/{0}".format(name)
+    command = f"tar -C / -xzvf /tmp/{name}"
     if name.endswith("zip"):
-        command = "unzip /tmp/{0} -d /".format(name)
+        command = f"unzip /tmp/{name} -d /"
 
     machine.execute("""ntp=`timedatectl show --property NTP --value`
                        if [ $ntp == "yes" ]; then
@@ -198,7 +198,7 @@ class TestHistoryMetrics(MachineCase):
         m = self.machine
 
         def events_at(hour, minute):
-            return b.text("#metrics-hour-{0} div.metrics-minute[data-minute={1}] .metrics-events".format(hour, minute))
+            return b.text(f"#metrics-hour-{hour} div.metrics-minute[data-minute={minute}] .metrics-events")
 
         #
         # Disks
@@ -892,7 +892,7 @@ class TestCurrentMetrics(MachineCase):
         b.wait_in_text("[aria-label='Network usage'] [data-interface='lo']", "lo")
 
         def rateMatches(label, regexp):
-            text = b.text("[aria-label='Network usage'] [data-interface='lo'] td[data-label='%s']" % label)
+            text = b.text(f"[aria-label='Network usage'] [data-interface='lo'] td[data-label='{label}']")
             return re.match(regexp, text) is not None
 
         # loopback is quiet enough to not transmit MB/s

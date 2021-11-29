@@ -53,7 +53,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # Setup a special PAM config that disallows non-wheel users
         def deny_non_root(remote_filename):
-            self.sed_file('/nologin/a %s' % admins_only_pam, remote_filename)
+            self.sed_file(f'/nologin/a {admins_only_pam}', remote_filename)
 
         deny_non_root("/etc/pam.d/cockpit")
         deny_non_root("/etc/pam.d/sshd")
@@ -195,7 +195,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
             if n_fail:
                 b.wait_visible('#system_last_login')
-                b.wait_in_text('#system_last_login', '{} failed login'.format(n_fail))
+                b.wait_in_text('#system_last_login', f'{n_fail} failed login')
                 b.wait_in_text('#system_last_login_from', "from")
                 b.wait_in_text('#system_last_login_success', "Last successful login")
             else:
@@ -400,7 +400,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
     def curl_auth(self, url, userpass):
         header = "Authorization: Basic " + base64.b64encode(userpass.encode()).decode()
         return subprocess.check_output(['/usr/bin/curl', '-s', '-k', '-D', '-', '--header', header,
-                                        'http://{0}:{1}{2}'.format(self.machine.web_address, self.machine.web_port, url)],
+                                        f'http://{self.machine.web_address}:{self.machine.web_port}{url}'],
                                        universal_newlines=True)
 
     def curl_auth_code(self, url, userpass):
@@ -564,12 +564,12 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         def expect_fail_count(expected, user="admin", must_exist=True):
             if must_exist:
-                cksum = m.execute("cksum {}".format(logfile(user)))
+                cksum = m.execute(f"cksum {logfile(user)}")
 
-            output = m.execute("{} --user {}".format(module, user))
+            output = m.execute(f"{module} --user {user}")
 
             if is_pam_tally2:
-                self.assertIn(' {} '.format(expected), output)
+                self.assertIn(f' {expected} ', output)
 
             else:  # faillock
                 n_lines = len(output.splitlines())
@@ -580,7 +580,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
             # make sure the above command didn't change the file
             if must_exist:
-                self.assertEqual(cksum, m.execute("cksum {}".format(logfile(user))))
+                self.assertEqual(cksum, m.execute(f"cksum {logfile(user)}"))
 
         def expect_failed_login(user, password, n_failed):
             b.try_login(user, password)
@@ -593,7 +593,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.logout()
 
         # ensure we have no module in our pam config already
-        m.execute("! grep -r '{}' /etc/pam.d".format(module))
+        m.execute(f"! grep -r '{module}' /etc/pam.d")
 
         # add it to the pam config
         if is_pam_tally2:
@@ -611,7 +611,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                       aauth sufficient pam_faillock.so authsucc audit deny=4 unlock_time=600\n
                       }""", "/etc/pam.d/password-auth")
 
-        m.execute("grep -r '{}' /etc/pam.d".format(module))
+        m.execute(f"grep -r '{module}' /etc/pam.d")
 
         m.start_cockpit()
 
@@ -631,7 +631,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         if is_pam_tally2:
             # now we should have it
-            m.execute("test -f {}".format(logfile('admin')))
+            m.execute(f"test -f {logfile('admin')}")
 
         # and it should show zero fails
         expect_fail_count(0, must_exist=False)
@@ -786,10 +786,10 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         # check expired certificate
         m.start_cockpit(tls=True)
         journal_cursor = self.machine.journal_cursor()
-        m.execute('! curl -ksS --cert %s --key %s https://localhost:9090/cockpit/login' % (alice_cert_expired, alice_key))
+        m.execute(f'! curl -ksS --cert {alice_cert_expired} --key {alice_key} https://localhost:9090/cockpit/login')
         m.stop_cockpit()
         wait(lambda: re.search(r'.*Invalid TLS peer certificate.* expired',
-                               m.execute("journalctl -ocat --cursor '%s' SYSLOG_IDENTIFIER=cockpit-tls" % journal_cursor)),
+                               m.execute(f"journalctl -ocat --cursor '{journal_cursor}' SYSLOG_IDENTIFIER=cockpit-tls")),
              tries=10)
         self.allow_journal_messages('.*Invalid TLS peer certificate.* expired')
         self.allow_journal_messages('.*TLS handshake failed: Error in the certificate verification.*')

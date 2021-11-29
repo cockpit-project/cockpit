@@ -31,9 +31,9 @@ class TestNetworkingOther(NetworkCase):
         iface = "tun0"
 
         # Create a tun device and let NetworkManager manage it
-        m.execute("ip tuntap add mode tun dev %s" % iface)
-        wait(lambda: m.execute('nmcli device | grep %s | grep -v unavailable' % iface))
-        m.execute("nmcli dev set %s managed yes" % iface)
+        m.execute(f"ip tuntap add mode tun dev {iface}")
+        wait(lambda: m.execute(f'nmcli device | grep {iface} | grep -v unavailable'))
+        m.execute(f"nmcli dev set {iface} managed yes")
 
         self.login_and_go("/network")
         self.wait_for_iface(iface, active=False)

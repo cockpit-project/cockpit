@@ -34,19 +34,19 @@ class HostSwitcherHelpers:
         b.wait_not_present('#hosts_setup_server_dialog')
 
     def wait_discovered_addresses(self, b, expected):
-        b.wait_js_cond('ph_select("#hosts_setup_server_dialog datalist option").length == {0}'.format(len(expected)))
+        b.wait_js_cond(f'ph_select("#hosts_setup_server_dialog datalist option").length == {len(expected)}')
         # Check that we rendered all expected hosts
         for address in expected:
-            b._wait_present("#hosts_setup_server_dialog datalist option[value='{0}']".format(address))
+            b._wait_present(f"#hosts_setup_server_dialog datalist option[value='{address}']")
 
     def wait_host_addresses(self, b, expected):
-        b.wait_js_cond('ph_select("#nav-hosts .nav-item a").length == {0}'.format(len(expected)))
+        b.wait_js_cond(f'ph_select("#nav-hosts .nav-item a").length == {len(expected)}')
         for address in expected:
-            b.wait_visible("#nav-hosts .nav-item a[href='/@{0}']".format(address))
+            b.wait_visible(f"#nav-hosts .nav-item a[href='/@{address}']")
 
     def machine_remove(self, b, address, machine, second_to_last=False):
         b.click("button:contains('Edit hosts')")
-        b.click(".nav-item a[href='/@{0}'] + span button.nav-action.pf-m-danger".format(address))
+        b.click(f".nav-item a[href='/@{address}'] + span button.nav-action.pf-m-danger")
         if second_to_last:
             b.wait_not_present("button:contains('Stop editing hosts')")
             b.wait_not_visible(".nav-item a[href='/@localhost'] + span button.nav-action.pf-m-danger")
@@ -71,25 +71,25 @@ class HostSwitcherHelpers:
     def add_machine_finish(self, b, address, known_host=False):
         b.click('#hosts_setup_server_dialog .pf-m-primary:contains("Add")')
         if not known_host:
-            b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to %s for the first time" % address)
+            b.wait_in_text('#hosts_setup_server_dialog', f"You are connecting to {address} for the first time")
             b.click('#hosts_setup_server_dialog .pf-m-primary')
         b.wait_not_present('#hosts_setup_server_dialog')
 
     def connect_and_wait(self, b, address):
-        b.click("a[href='/@{0}']".format(address))
+        b.click(f"a[href='/@{address}']")
         b.click("#hosts-sel button")
-        b.wait_visible(".connected a[href='/@{0}']".format(address))
+        b.wait_visible(f".connected a[href='/@{address}']")
         # Switch back to localhost, since the rest of the test expects that
         b.click("a[href='/@localhost']")
         b.click("#hosts-sel button")
 
     def get_pubkey(self, machine, account):
-        return machine.execute("cat /home/%s/.ssh/id_rsa.pub" % account)
+        return machine.execute(f"cat /home/{account}/.ssh/id_rsa.pub")
 
     def authorize_pubkey(self, machine, account, pubkey):
-        machine.execute("a=%s d=/home/$a/.ssh; mkdir -p $d; chown $a:$a $d; chmod 700 $d" % account)
-        machine.write("/home/%s/.ssh/authorized_keys" % account, pubkey)
-        machine.execute("a=%s; chown $a:$a /home/$a/.ssh/authorized_keys" % account)
+        machine.execute(f"a={account} d=/home/$a/.ssh; mkdir -p $d; chown $a:$a $d; chmod 700 $d")
+        machine.write(f"/home/{account}/.ssh/authorized_keys", pubkey)
+        machine.execute(f"a={account}; chown $a:$a /home/$a/.ssh/authorized_keys")
 
     def setup_ssh_auth(self):
         self.machine.execute("d=/home/admin/.ssh; mkdir -p $d; chown admin:admin $d; chmod 700 $d")

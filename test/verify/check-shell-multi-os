@@ -22,9 +22,9 @@ from testlib import *
 
 
 def wait_addresses(b, expected):
-    b.wait_js_cond('ph_select("#nav-hosts .nav-item a").length == {0}'.format(len(expected)))
+    b.wait_js_cond(f'ph_select("#nav-hosts .nav-item a").length == {len(expected)}')
     for address in expected:
-        b.wait_visible("#nav-hosts .nav-item a[href='/@{0}']".format(address))
+        b.wait_visible(f"#nav-hosts .nav-item a[href='/@{address}']")
 
 
 def add_machine(b, address, password):
@@ -32,7 +32,7 @@ def add_machine(b, address, password):
     b.wait_visible('#hosts_setup_server_dialog')
     b.set_input_text('#add-machine-address', address)
     b.click('#hosts_setup_server_dialog .pf-m-primary:contains("Add")')
-    b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to %s for the first time." % address)
+    b.wait_in_text('#hosts_setup_server_dialog', f"You are connecting to {address} for the first time.")
     b.click('#hosts_setup_server_dialog .pf-m-primary')
 
     if password:

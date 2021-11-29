@@ -141,7 +141,7 @@ class TestAccounts(MachineCase):
         # Check home directory
         home_dir = m.execute("getent passwd berta | cut -f6 -d:").strip()
         self.assertTrue(home_dir.endswith("/berta"))
-        self.assertEqual(m.execute("stat -c '%U' {0}".format(home_dir)).strip(), "berta")
+        self.assertEqual(m.execute(f"stat -c '%U' {home_dir}").strip(), "berta")
 
         # Check that we set up shell configured in /etc/default/useradd
         shell = m.execute("getent passwd berta | cut -f7 -d:").strip()
@@ -183,9 +183,9 @@ class TestAccounts(MachineCase):
             return m.execute("passwd -S jussi | cut -d' ' -f2").strip() in ["L", "LK"]
 
         def is_admin():
-            return "jussi" in m.execute("getent group %s" % m.get_admin_group())
+            return "jussi" in m.execute(f"getent group {m.get_admin_group()}")
 
-        admin_role_sel = 'input[data-name="%s"]' % m.get_admin_group()
+        admin_role_sel = f'input[data-name="{m.get_admin_group()}"]'
         b.wait(lambda: "jussi" in m.execute("grep jussi /etc/passwd"))
         b.wait(lambda: not is_admin())
         b.wait(is_locked)
@@ -223,7 +223,7 @@ class TestAccounts(MachineCase):
         b.wait(lambda: not is_admin())
         if m.image != "fedora-coreos":  # User is not shown as logged in when logged in through Cockpit
             b.wait_visible("#account-roles .pf-c-alert.pf-m-info")
-        m.execute("/usr/sbin/usermod jussi -G %s -a" % m.get_admin_group())
+        m.execute(f"/usr/sbin/usermod jussi -G {m.get_admin_group()} -a")
         b.wait_visible(admin_role_sel + ":checked:not([disabled])")
 
         # Cannot lock the current account
@@ -407,7 +407,7 @@ class TestAccounts(MachineCase):
         self.allow_restart_journal_messages()
 
     def accountExpiryInfo(self, account, field):
-        for line in self.machine.execute("LC_ALL=C chage -l {0}".format(account)).split("\n"):
+        for line in self.machine.execute(f"LC_ALL=C chage -l {account}").split("\n"):
             if line.startswith(field):
                 (name, delim, value) = line.partition(":")
                 return value.strip()

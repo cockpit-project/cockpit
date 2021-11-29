@@ -33,7 +33,7 @@ class TestStorageIgnored(StorageCase):
         disk = self.add_ram_disk()
         b.wait_in_text("#drives", disk)
 
-        m.execute("yes | mke2fs -q -L TEST %s" % disk)
+        m.execute(f"yes | mke2fs -q -L TEST {disk}")
         b.wait_in_text("#mounts", "TEST")
 
         # Hide it via a udev rule

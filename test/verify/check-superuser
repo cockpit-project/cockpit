@@ -157,7 +157,7 @@ session include system-auth
         if "ubuntu" in m.image:
             m.execute("sed -i -e '/^%admin/d' /etc/sudoers")
 
-        m.execute("gpasswd -d admin %s" % m.get_admin_group())
+        m.execute(f"gpasswd -d admin {m.get_admin_group()}")
 
         self.login_and_go()
         b.check_superuser_indicator("Limited access")

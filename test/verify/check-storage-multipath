@@ -30,10 +30,10 @@ class TestStorageMultipath(StorageCase):
         b = self.browser
 
         def detail_row_name(index):
-            return '#detail-header .pf-c-description-list__group:nth-of-type(%s) > dt' % index
+            return f'#detail-header .pf-c-description-list__group:nth-of-type({index}) > dt'
 
         def detail_row_value(index):
-            return '#detail-header .pf-c-description-list__group:nth-of-type(%s) > dd' % index
+            return f'#detail-header .pf-c-description-list__group:nth-of-type({index}) > dd'
 
         def wait_detail_row(index, name):
             b.wait_visible(detail_row_name(index))

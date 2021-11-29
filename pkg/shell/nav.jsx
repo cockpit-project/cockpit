@@ -1,6 +1,6 @@
 import cockpit from "cockpit";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -8,9 +8,26 @@ import {
     Nav,
     Tooltip, TooltipPosition,
 } from '@patternfly/react-core';
-import { ExclamationCircleIcon, ExclamationTriangleIcon, InfoCircleIcon } from '@patternfly/react-icons';
+import { ContainerNodeIcon, ExclamationCircleIcon, ExclamationTriangleIcon, InfoCircleIcon } from '@patternfly/react-icons';
 
 const _ = cockpit.gettext;
+
+export const SidebarToggle = () => {
+    const [active, setActive] = useState(false);
+
+    useEffect(() => {
+        document.getElementById("nav-system").classList.toggle("interact");
+    }, [active]);
+
+    return (
+        <Button className={"pf-c-select__toggle ct-nav-toggle " + (active ? "active" : "")}
+                id="nav-system-item" variant="plain"
+                onClick={() => setActive(!active)}>
+            <ContainerNodeIcon size="md" />
+            {_("System")}
+        </Button>
+    );
+};
 
 export class CockpitNav extends React.Component {
     constructor(props) {

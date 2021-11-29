@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 
-import { CockpitNav, CockpitNavItem } from "./nav.jsx";
+import { CockpitNav, CockpitNavItem, SidebarToggle } from "./nav.jsx";
 import { TopNav } from ".//topnav.jsx";
 import { CockpitHosts } from "./hosts.jsx";
 import { codes, HostModal } from "./hosts_dialog.jsx";
@@ -71,12 +71,7 @@ function MachinesIndex(index_options, machines, loader) {
     /* Is troubleshooting dialog open */
     let troubleshooting_opened = false;
 
-    const nav_item = document.getElementById("nav-system-item");
-    nav_item.addEventListener("click", ev => {
-        nav_item.classList.toggle("active");
-        document.getElementById("nav-system").classList.toggle("interact");
-        ev.preventDefault();
-    });
+    ReactDOM.render(<SidebarToggle />, document.getElementById('sidebar-toggle'));
 
     // Focus with skiplinks
     const skiplinks = document.getElementsByClassName("skiplink");

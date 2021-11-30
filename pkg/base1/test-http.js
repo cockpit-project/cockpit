@@ -20,11 +20,16 @@ QUnit.test("public api", function (assert) {
     assert.equal(typeof client.post, "function", "http.post() is a function");
 });
 
+const test_server = {
+    address: window.location.hostname,
+    port: parseInt(window.location.port, 10)
+};
+
 QUnit.test("simple request", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
-    cockpit.http({ internal: "/test-server" }).get("/pkg/playground/manifest.json")
+    cockpit.http(test_server).get("/pkg/playground/manifest.json")
             .done(function(data) {
                 assert.deepEqual(JSON.parse(data), {
                     requires: {
@@ -89,7 +94,7 @@ QUnit.test("with params", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
-    cockpit.http({ internal: "/test-server" })
+    cockpit.http(test_server)
             .get("/mock/qs", { key: "value", name: "Scruffy the Janitor" })
             .done(function(resp) {
                 assert.equal(resp, "key=value&name=Scruffy+the+Janitor", "right query string");
@@ -104,7 +109,7 @@ QUnit.test("not found", function (assert) {
     const done = assert.async();
     assert.expect(7);
 
-    const promise = cockpit.http({ internal: "/test-server" })
+    const promise = cockpit.http(test_server)
             .get("/not/found")
             .response(function(status, headers) {
                 assert.equal(status, 404, "status code");
@@ -128,7 +133,7 @@ QUnit.test("streaming", function (assert) {
 
     let at = 0;
     let got = "";
-    const promise = cockpit.http({ internal: "/test-server" })
+    const promise = cockpit.http(test_server)
             .get("/mock/stream")
             .stream(function(resp) {
                 if (at === 0)
@@ -150,7 +155,7 @@ QUnit.test("close", function (assert) {
     const done = assert.async();
     assert.expect(4);
 
-    const req = cockpit.http({ internal: "/test-server" }).get("/mock/stream");
+    const req = cockpit.http(test_server).get("/mock/stream");
 
     let at = 0;
     req.stream(function(resp) {
@@ -172,7 +177,7 @@ QUnit.test("close all", function (assert) {
     const done = assert.async();
     assert.expect(4);
 
-    const http = cockpit.http({ internal: "/test-server" });
+    const http = cockpit.http(test_server);
     const req = http.get("/mock/stream");
 
     let at = 0;
@@ -196,7 +201,7 @@ QUnit.test("headers", function (assert) {
     const done = assert.async();
     assert.expect(3);
 
-    cockpit.http({ internal: "/test-server" })
+    cockpit.http(test_server)
             .get("/mock/headers", null, { Header1: "booo", Header2: "yay value" })
             .response(function(status, headers) {
                 assert.equal(status, 201, "status code");
@@ -222,11 +227,11 @@ QUnit.test("escape host header", function (assert) {
     const done = assert.async();
     assert.expect(3);
 
-    cockpit.http({ internal: "/test-server" })
+    cockpit.http(test_server)
             .get("/mock/host", null, { })
             .response(function(status, headers) {
                 assert.equal(status, 201, "status code");
-                assert.deepEqual(headers.Host, "%2Ftest-server", "got back escaped headers");
+                assert.deepEqual(headers.Host, window.location.host, "got back escaped headers");
             })
             .always(function() {
                 assert.equal(this.state(), "resolved", "split response didn't fail");
@@ -238,7 +243,7 @@ QUnit.test("connection headers", function (assert) {
     const done = assert.async();
     assert.expect(3);
 
-    cockpit.http({ internal: "/test-server", headers: { Header1: "booo", Header2: "not this" } })
+    cockpit.http({ port: test_server.port, headers: { Header1: "booo", Header2: "not this" } })
             .get("/mock/headers", null, { Header2: "yay value", Header0: "extra" })
             .response(function(status, headers) {
                 assert.equal(status, 201, "status code");
@@ -264,7 +269,7 @@ QUnit.test("connection headers", function (assert) {
 QUnit.test("http promise recursive", function (assert) {
     assert.expect(7);
 
-    const promise = cockpit.http({ internal: "/test-server" }).get("/");
+    const promise = cockpit.http(test_server).get("/");
 
     const target = { };
     const promise2 = promise.promise(target);
@@ -288,13 +293,13 @@ QUnit.test("http keep alive", function (assert) {
      * a different connection is used.
      */
 
-    cockpit.http({ internal: "/test-server", connection: "marmalade" }).get("/mock/connection")
+    cockpit.http({ port: test_server.port, connection: "marmalade" }).get("/mock/connection")
             .always(function() {
                 assert.equal(this.state(), "resolved", "response didn't fail");
             })
             .done(function(data) {
                 const first = data;
-                cockpit.http({ internal: "/test-server", connection: "marmalade" }).get("/mock/connection")
+                cockpit.http({ port: test_server.port, connection: "marmalade" }).get("/mock/connection")
                         .done(function(data) {
                             assert.equal(first, data, "same connection");
                         })
@@ -314,13 +319,13 @@ QUnit.test("http connection different", function (assert) {
      * a different connection is used.
      */
 
-    cockpit.http({ internal: "/test-server", connection: "one" }).get("/mock/connection")
+    cockpit.http({ port: test_server.port, connection: "one" }).get("/mock/connection")
             .always(function() {
                 assert.equal(this.state(), "resolved", "response didn't fail");
             })
             .done(function(data) {
                 const first = data;
-                cockpit.http({ internal: "/test-server", connection: "two" }).get("/mock/connection")
+                cockpit.http({ port: test_server.port, connection: "two" }).get("/mock/connection")
                         .done(function(data) {
                             assert.notEqual(first, data, "different connection");
                         })
@@ -339,7 +344,7 @@ QUnit.test("http connection without address ", function (assert) {
      * Able to reuse connection client info and not specify address again.
      */
 
-    cockpit.http({ internal: "/test-server", connection: "one" }).get("/mock/connection")
+    cockpit.http({ port: test_server.port, connection: "one" }).get("/mock/connection")
             .always(function() {
                 assert.equal(this.state(), "resolved", "response didn't fail");
             })
@@ -382,10 +387,7 @@ QUnit.test("address with params", function (assert) {
     // use our window's host and port to request external
     assert.expect(2);
 
-    cockpit.http({
-        port: parseInt(window.location.port, 10),
-        address: window.location.hostname
-    })
+    cockpit.http(test_server)
             .get("/mock/qs", { key: "value", name: "Scruffy the Janitor" })
             .done(function(resp) {
                 assert.equal(resp, "key=value&name=Scruffy+the+Janitor", "right query string");

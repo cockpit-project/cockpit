@@ -472,8 +472,14 @@ cockpit_pipe_channel_prepare (CockpitChannel *channel)
           self->pipe = cockpit_pipe_spawn ((const gchar **)argv, (const gchar **)env, dir, flags);
         }
     }
-  else if (internal && steal_internal_fd (internal, &fd))
+  else if (internal)
     {
+      if (!steal_internal_fd (internal, &fd))
+        {
+          cockpit_channel_close (channel, "not-found");
+          goto out;
+        }
+
       self->pipe = cockpit_pipe_new_user_fd (internal, fd);
     }
   else

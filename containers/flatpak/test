@@ -29,12 +29,13 @@ EOF
 flatpak run "${FLATPAK_ID}" &
 CLIENT_PID=$!
 
+# wait until it comes up
+gdbus wait --session org.cockpit_project.CockpitClient
+
+# test some stuff
 test ! -f cockpit-client-test-"${USER}"-cockpit-client-test-22
 grep "${USER} cockpit-client-test 22" cockpit-client-test.log && exit 1
-# wait until it comes up
-while !  gapplication action "${FLATPAK_ID}" open-path '"=cockpit-client-test"'; do
-    sleep 0.5
-done
+gapplication action "${FLATPAK_ID}" open-path '"=cockpit-client-test"'
 until test -f cockpit-client-test-"${USER}"-cockpit-client-test-22; do sleep 0.5; done
 
 test ! -f cockpit-client-test-rupert-cockpit-client-test-22

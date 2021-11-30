@@ -44,6 +44,7 @@ typedef struct {
 CockpitConnectable *    cockpit_connectable_ref    (CockpitConnectable *connectable);
 
 void                    cockpit_connectable_unref  (gpointer data);
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(CockpitConnectable, cockpit_connectable_unref)
 
 void                    cockpit_connect_stream        (GSocketConnectable *address,
                                                        GCancellable *cancellable,

@@ -20,8 +20,11 @@ if ENABLE_COCKPIT_CLIENT
 
 dist_cockpitclient_SCRIPTS += src/client/cockpit-client-ssh
 
+dbusservicesdir = $(datadir)/dbus-1/services
+dist_dbusservices_DATA = src/client/org.cockpit_project.CockpitClient.service
+
 applicationsdir = $(datadir)/applications
-dist_applications_DATA = src/client/cockpit-client.desktop
+dist_applications_DATA = src/client/org.cockpit_project.CockpitClient.desktop
 
 scalableicondir = $(datadir)/icons/hicolor/scalable/apps
 dist_scalableicon_DATA = src/client/cockpit-client.svg

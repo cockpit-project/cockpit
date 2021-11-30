@@ -742,21 +742,16 @@ export const Block = ({ client, block, allow_partitions }) => {
 };
 
 function append_logical_volume_block(client, rows, level, block, lvol) {
-    let tabs, desc;
-    if (client.blocks_ptable[block.path]) {
-        // XXX - just make this a link to the details page for the block device?
-        desc = {
+    const desc = client.blocks_ptable[block.path]
+        ? {
             size: block.Size,
-            type: lvol.Name
-        };
-        tabs = create_tabs(client, block, false);
-        append_row(client, rows, level, lvol.Name, utils.block_name(block), desc, tabs, block.path);
-        append_partitions(client, rows, level + 1, block);
-    } else {
-        const tabs = create_tabs(client, block, false);
-        const desc = block_description(client, block);
-        append_row(client, rows, level, block.path, lvol.Name, desc, tabs, block.path);
-    }
+            type: _("Partitioned block device"),
+            used_for: utils.block_name(block),
+            link: [utils.block_name(block).replace(/^\/dev\//, "")]
+        }
+        : block_description(client, block);
+    const tabs = create_tabs(client, block, false);
+    append_row(client, rows, level, block.path, lvol.Name, desc, tabs, block.path);
 }
 
 function append_logical_volume(client, rows, level, lvol) {

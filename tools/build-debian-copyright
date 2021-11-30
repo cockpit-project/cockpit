@@ -112,7 +112,7 @@ for pattern in set.union(set(license_patterns), set(copyright_patterns)):
     if pattern not in used_patterns:
         # We'll have no LICENSE.txt files in that dev builds
         # so of course we won't use any of the patterns
-        if os.getenv('NODE_ENV') == 'development':
+        if os.getenv('NODE_ENV') == 'development' or os.getenv('IGNORE_UNUSED_PATTERNS'):
             continue
 
         sys.exit(f'build-debian-copyright: Unused pattern: {pattern}')

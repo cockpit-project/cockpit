@@ -17,7 +17,8 @@ if test "$#" -le 1; then
         tools/webpack-jumpstart || true
     fi
 
-    XZ_OPT=-0 make -j$(nproc) dist
+    IGNORE_UNUSED_PATTERNS=1 XZ_OPT=-0 make -j$(nproc) dist WEBPACK_PACKAGES=static
+
     ARCHIVE_TYPE="path"
     ARCHIVE_LOCATION="$(make dump-dist)"
     ARCHIVE_SHA256="$(sha256sum "${ARCHIVE_LOCATION}" | cut -f1 -d' ')"

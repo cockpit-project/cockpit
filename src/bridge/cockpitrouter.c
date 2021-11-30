@@ -941,9 +941,6 @@ static void
 cockpit_router_class_init (CockpitRouterClass *class)
 {
   GObjectClass *object_class;
-  GSocketAddress *address;
-  GInetAddress *inet;
-  const gchar *port;
 
   object_class = G_OBJECT_CLASS (class);
   object_class->set_property = cockpit_router_set_property;
@@ -957,21 +954,6 @@ cockpit_router_class_init (CockpitRouterClass *class)
                                                         G_PARAM_WRITABLE |
                                                         G_PARAM_CONSTRUCT_ONLY |
                                                         G_PARAM_STATIC_STRINGS));
-
-  /*
-   * If we're running under a test server, register that server's HTTP address
-   * as an internal address, available for use in cockpit channels.
-   */
-
-  port = g_getenv ("COCKPIT_TEST_SERVER_PORT");
-  if (port)
-    {
-      inet = g_inet_address_new_loopback (G_SOCKET_FAMILY_IPV4);
-      address = g_inet_socket_address_new (inet, atoi (port));
-      cockpit_connect_add_internal_address ("/test-server", address);
-      g_object_unref (address);
-      g_object_unref (inet);
-    }
 }
 
 /**

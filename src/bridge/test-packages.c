@@ -52,7 +52,6 @@
 
 extern const gchar **cockpit_bridge_data_dirs;
 extern const gchar *cockpit_bridge_local_address;
-extern gint cockpit_bridge_packages_port;
 
 typedef struct {
   CockpitPackages *packages;
@@ -125,7 +124,7 @@ setup (TestCase *tc,
   g_signal_connect (tc->transport, "closed", G_CALLBACK (on_transport_closed), NULL);
 
   options = json_object_new ();
-  json_object_set_int_member (options, "port", cockpit_bridge_packages_port);
+  json_object_set_string_member (options, "internal", "packages");
   json_object_set_string_member (options, "payload", "http-stream1");
   json_object_set_string_member (options, "method", "GET");
   json_object_set_string_member (options, "path", fixture->path);

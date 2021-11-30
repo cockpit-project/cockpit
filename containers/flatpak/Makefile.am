@@ -7,6 +7,7 @@ install-for-flatpak: \
 		install-dist_applicationsDATA \
 		install-dist_cockpitclientDATA \
 		install-dist_cockpitclientSCRIPTS \
+		install-dist_dbusservicesDATA \
 		install-dist_scalableiconDATA \
 		install-dist_symboliciconDATA \
 		$(NULL)

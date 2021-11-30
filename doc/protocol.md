@@ -773,7 +773,6 @@ this payload type:
    file path and arguments.
  * "internal": Open an internally defined stream.
    * "packages": A http-stream for serving package resources to cockpit-ws
-   * "ssh-agent": A connection to the session user's ssh-agent, if one is available.
 
 You can't specify both "unix" and "spawn" together. When "spawn" is set the
 following options can be specified:

@@ -201,33 +201,14 @@ static gboolean
 lookup_internal (const gchar *name,
                  GSocketConnectable **connectable)
 {
-  const gchar *env;
-  gboolean ret = FALSE;
-  GSocketAddress *address;
-
   g_assert (name != NULL);
   g_assert (connectable != NULL);
 
-  if (internal_addresses)
-    {
-      ret = g_hash_table_lookup_extended (internal_addresses, name, NULL,
-                                          (gpointer *)connectable);
-    }
+  if (!internal_addresses)
+    return FALSE;
 
-  if (!ret && g_str_equal (name, "ssh-agent"))
-    {
-      *connectable = NULL;
-      env = g_getenv ("SSH_AUTH_SOCK");
-      if (env != NULL && env[0] != '\0')
-        {
-          address = g_unix_socket_address_new (env);
-          *connectable = G_SOCKET_CONNECTABLE (address);
-          cockpit_connect_add_internal_address ("ssh-agent", address);
-        }
-      ret = TRUE;
-    }
-
-  return ret;
+  return g_hash_table_lookup_extended (internal_addresses, name,
+                                       NULL, (gpointer *) connectable);
 }
 
 void

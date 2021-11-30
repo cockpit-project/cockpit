@@ -62,6 +62,7 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
             ('go-forward', self.go_forward),
             ('zoom', self.zoom, 's'),
             ('open-inspector', self.open_inspector),
+            ('pwn', self.pwn, 's', '""'),
         ])
 
         self.webview.get_settings().set_enable_developer_extras(True)
@@ -113,6 +114,11 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
 
     def open_inspector(self, *unused):
         self.webview.get_inspector().show()
+
+    def pwn(self, action, param, *args):
+        js = param.get_string()
+        result = repr(eval(js))
+        action.set_state(GLib.Variant.new_string(result))
 
 
 class CockpitClient(Gtk.Application):

@@ -21,6 +21,7 @@
 
 #include "cockpithttpstream.h"
 
+#include "cockpitpackages.h"
 #include "cockpitconnect.h"
 #include "cockpitstream.h"
 
@@ -997,17 +998,30 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
   self->stream = cockpit_http_client_checkout (self->client);
   if (!self->stream)
     {
-      g_autoptr(CockpitConnectable) connectable = cockpit_connect_parse_stream (channel);
-      if (!connectable)
-        return;
+      const gchar *internal = "";
+      cockpit_json_get_string (options, "internal", "", &internal);
 
-      self->name = g_strdup_printf ("%s://%s%s",
-                                    connectable->tls ? "https" : "http",
-                                    connectable->name, path);
-      self->client->hostname = g_strdup (connectable->name);
+      if (g_str_equal (internal, "packages"))
+        {
+          g_autoptr(GIOStream) packages_stream = cockpit_packages_connect ();
+          self->stream = cockpit_stream_new (self->name, packages_stream);
+          self->name = g_strdup_printf ("http://internal:packages%s", path);
+          self->client->hostname = g_strdup ("packages");
+        }
+      else
+        {
+          g_autoptr(CockpitConnectable) connectable = cockpit_connect_parse_stream (channel);
+          if (!connectable)
+            return;
 
-      self->stream = cockpit_stream_connect (self->name, connectable);
-      self->sig_open = g_signal_connect (self->stream, "open", G_CALLBACK (on_stream_open), self);
+          self->name = g_strdup_printf ("%s://%s%s",
+                                        connectable->tls ? "https" : "http",
+                                        connectable->name, path);
+          self->client->hostname = g_strdup (connectable->name);
+
+          self->stream = cockpit_stream_connect (self->name, connectable);
+          self->sig_open = g_signal_connect (self->stream, "open", G_CALLBACK (on_stream_open), self);
+        }
     }
 
   /* Parsed elsewhere */

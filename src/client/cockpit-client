@@ -62,7 +62,9 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
             ('go-forward', self.go_forward),
             ('zoom', self.zoom, 's'),
             ('open-inspector', self.open_inspector),
+            ('run-js', self.run_js, 's', '""'),
         ])
+        self.lookup_action('run-js').set_enabled(app.enable_run_js)
 
         self.webview.get_settings().set_enable_developer_extras(True)
         self.webview.connect('decide-policy', self.decide_policy)
@@ -114,6 +116,55 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
     def open_inspector(self, *unused):
         self.webview.get_inspector().show()
 
+    def run_js(self, action, parameter, *unused):
+        '''Run given JavaScript code in the current page/context
+
+        The JS code has to return a scalar value immediately. To process asynchronous
+        actions, this function installs signal handlers to wait until the code calls
+
+            window.webkit.messageHandlers.result.postMessage("some string")
+
+        or a page load happens.
+
+        This is because a page load (as reaction to clicking a link or other action)
+        impredictably and immediately stops the current context and execution of the
+        given JS code, with no reliable way of returning a result value.
+
+        The postMessage() string is returned via the action state.
+        If a page load happens instead, the action state will be "page-load".
+        If the JS code throws an error, the action state gets set to the error message.
+        '''
+        def set_result(result):
+            action.set_state(GLib.Variant.new_string(result))
+            print(f"run-js async result: {result}")
+            self.webview.disconnect(on_load_handler)
+            uc_manager.disconnect(on_result_handler)
+            uc_manager.unregister_script_message_handler("result")
+
+        def run_js_ready(webview, result, _user_data):
+            try:
+                js_res = webview.run_javascript_finish(result).get_js_value()
+                print(f"run-js return value: {js_res.to_json(2)}")
+            except GLib.GError as e:
+                sys.stderr.write(f"run-js error: {e.message}\n")
+                set_result(str(e))
+
+        # zero the current state, to ensure that the result triggers an Actions.Changed signal
+        action.set_state(GLib.Variant.new_string(""))
+
+        uc_manager = self.webview.get_user_content_manager()
+        on_result_handler = uc_manager.connect(
+            "script-message-received::result",
+            lambda mgr, result: set_result(result.get_js_value().to_string()))
+        uc_manager.register_script_message_handler("result")
+
+        # wait for loads to complete, to avoid races and ensure that it did not fail
+        on_load_handler = self.webview.connect(
+            "load-changed",
+            lambda webview, event: set_result("page-load") if event == WebKit2.LoadEvent.FINISHED else None)
+
+        self.webview.run_javascript(parameter.get_string(), None, run_js_ready, None)
+
 
 class CockpitClient(Gtk.Application):
     def __init__(self):
@@ -125,6 +176,8 @@ class CockpitClient(Gtk.Application):
                              'Connect to existing cockpit-ws on the given URL')
         self.add_main_option('disable-uniqueness', 0, GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
                              'Disable GApplication single-instance mode')
+        self.add_main_option('enable-run-js', 0, GLib.OptionFlags.HIDDEN, GLib.OptionArg.NONE,
+                             'Enable run-js action for testing')
         self.add_main_option('wildly-insecure', 0, GLib.OptionFlags.HIDDEN, GLib.OptionArg.NONE,
                              '***DANGEROUS*** Allow anyone to use your ssh credentials')
 
@@ -178,6 +231,8 @@ class CockpitClient(Gtk.Application):
 
         if options.lookup_value('disable-uniqueness'):
             self.flags = Gio.ApplicationFlags.NON_UNIQUE
+
+        self.enable_run_js = bool(options.lookup_value('enable-run-js'))
 
         if flatpak_id := os.getenv('FLATPAK_ID'):
             self.application_id = flatpak_id

@@ -65,7 +65,7 @@ class TestStorageLuks(StorageCase):
         b.assert_pixels("#dialog", "format")
         self.dialog_apply()
         self.dialog_wait_close()
-        self.content_row_wait_in_col(1, 1, "ext4 filesystem (encrypted)")
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
         self.content_tab_wait_in_info(1, 2, "Mount point", mount_point_secret)
 
         dev = "/dev/sda1"
@@ -113,7 +113,7 @@ class TestStorageLuks(StorageCase):
         self.dialog_wait_val("mount_point", mount_point_secret)
         self.dialog_apply()
         self.dialog_wait_close()
-        self.content_row_wait_in_col(1, 1, "ext4 filesystem (encrypted)")
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
         self.wait_not_in_configuration(dev, "crypttab", "options", "noauto")
         self.wait_not_in_configuration(cleartext_dev, "fstab", "opts", "noauto")
 
@@ -141,7 +141,7 @@ class TestStorageLuks(StorageCase):
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_apply()
         self.dialog_wait_close()
-        self.content_row_wait_in_col(1, 1, "ext4 filesystem")
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
 
         self.wait_mounted(1, 2)
         self.wait_not_in_configuration(dev, "crypttab", "options", "noauto")
@@ -162,7 +162,7 @@ class TestStorageLuks(StorageCase):
         self.content_row_action(1, "Mount")
         self.dialog({"mount_options.ro": True,
                      "passphrase": "vainu-reku-toma-rolle-kaja"})
-        self.content_row_wait_in_col(1, 1, "ext4 filesystem")
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
         self.wait_mounted(1, 2)
         self.assertIn("ro", m.execute(f"findmnt -s -n -o OPTIONS {mount_point_secret}"))
         self.wait_in_configuration(dev, "crypttab", "options", "readonly")
@@ -214,7 +214,7 @@ class TestStorageLuks(StorageCase):
                      "mount_options.auto": False,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja"})
-        self.content_row_wait_in_col(1, 1, "Filesystem (encrypted)")
+        self.content_row_wait_in_col(1, 2, "Filesystem (encrypted)")
         self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
 
         self.content_tab_wait_in_info(1, 2, "Options", "none")
@@ -249,7 +249,7 @@ class TestStorageLuks(StorageCase):
         self.dialog_wait_val("mount_point", mount_point_secret)
         self.dialog_apply()
         self.dialog_wait_close()
-        self.content_row_wait_in_col(1, 1, "ext4 filesystem")
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
 
         # Edit the key, without providing an existing passphrase
         #
@@ -300,7 +300,7 @@ class TestStorageLuks(StorageCase):
                      "mount_options.auto": False,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja"})
-        self.content_row_wait_in_col(1, 1, "Filesystem (encrypted)")
+        self.content_row_wait_in_col(1, 2, "Filesystem (encrypted)")
         self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
         self.content_tab_wait_in_info(1, 2, "Encryption type", "LUKS1")
         self.content_tab_wait_in_info(1, 2, "Options", "none")
@@ -324,7 +324,7 @@ class TestStorageLuks(StorageCase):
         # unlock with first passphrase
         self.content_row_action(1, "Mount")
         self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
-        self.content_row_wait_in_col(1, 1, "ext4 filesystem")
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
         self.wait_not_in_configuration(dev, "crypttab", "options", "noauto")
         self.wait_not_in_configuration(cleartext_dev, "fstab", "opts", "noauto")
         # unlock with second passphrase
@@ -334,7 +334,7 @@ class TestStorageLuks(StorageCase):
         self.wait_in_child_configuration(dev, "fstab", "opts", "noauto")
         self.content_row_action(1, "Mount")
         self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja-1"})
-        self.content_row_wait_in_col(1, 1, "ext4 filesystem")
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
         self.wait_not_in_configuration(dev, "crypttab", "options", "noauto")
         self.wait_not_in_configuration(cleartext_dev, "fstab", "opts", "noauto")
         # delete second key slot
@@ -413,7 +413,7 @@ class TestStorageLuks(StorageCase):
         # unlock volume with the newly created passphrase
         self.content_row_action(1, "Mount")
         self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja-8"})
-        self.content_row_wait_in_col(1, 1, "ext4 filesystem")
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
         self.wait_mounted(1, 1)
         self.wait_not_in_configuration(dev, "crypttab", "options", "noauto")
         self.wait_not_in_configuration(cleartext_dev, "fstab", "opts", "noauto")
@@ -435,11 +435,11 @@ class TestStorageLuks(StorageCase):
                      "crypto": self.default_crypto_type,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja"})
-        self.content_row_wait_in_col(1, 1, "Unrecognized data (encrypted)")
+        self.content_row_wait_in_col(1, 2, "Unrecognized data (encrypted)")
 
         # Lock it
         self.content_dropdown_action(1, "Lock")
-        self.content_row_wait_in_col(1, 1, "Locked encrypted data")
+        self.content_row_wait_in_col(1, 2, "Locked encrypted data")
 
         # Make it readonly
         self.content_tab_info_action(1, 1, "Options")
@@ -454,7 +454,7 @@ class TestStorageLuks(StorageCase):
         self.content_row_action(1, "Format")
         self.dialog({"type": "ext4",
                      "mount_point": "/run/foo"})
-        self.content_row_wait_in_col(1, 1, "ext4 filesystem (encrypted)")
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
 
     def testKeepKeys(self):
         m = self.machine
@@ -476,7 +476,7 @@ class TestStorageLuks(StorageCase):
                      "passphrase2": "vainu-reku-toma-rolle-kaja",
                      "mount_options.auto": True,
                      "mount_point": "/run/foo"})
-        self.content_row_wait_in_col(1, 1, "ext4 filesystem (encrypted)")
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
 
         # Format it again but keep the keys
 
@@ -485,7 +485,7 @@ class TestStorageLuks(StorageCase):
                      "crypto": " keep",
                      "mount_options.auto": True,
                      "mount_point": "/run/foo"})
-        self.content_row_wait_in_col(1, 1, "ext4 filesystem (encrypted)")
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
 
         # Unmount (and lock) it
 
@@ -501,7 +501,7 @@ class TestStorageLuks(StorageCase):
                      "old_passphrase": "vainu-reku-toma-rolle-kaja",
                      "mount_options.auto": True,
                      "mount_point": "/run/foo"})
-        self.content_row_wait_in_col(1, 1, "ext4 filesystem (encrypted)")
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
 
     def testReboot(self):
         m = self.machine
@@ -524,7 +524,7 @@ class TestStorageLuks(StorageCase):
                      "passphrase2": "vainu-reku-toma-rolle-kaja",
                      "mount_options.auto": True,
                      "mount_point": "/run/foo"})
-        self.content_row_wait_in_col(1, 1, "ext4 filesystem (encrypted)")
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
 
         self.setup_systemd_password_agent("vainu-reku-toma-rolle-kaja")
         m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")

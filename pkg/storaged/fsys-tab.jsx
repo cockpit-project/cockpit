@@ -487,24 +487,6 @@ export class FilesystemTab extends React.Component {
             for (const opt of forced_options)
                 extract_option(split_options, opt);
 
-        let used;
-        if (stratis_fsys) {
-            if (stratis_fsys.Used[0])
-                used = utils.fmt_size(Number(stratis_fsys.Used[1]));
-            else
-                used = "-";
-        } else if (is_filesystem_mounted) {
-            const samples = self.props.client.fsys_sizes.data[old_dir];
-            if (samples)
-                used = cockpit.format(_("$0 of $1"),
-                                      utils.fmt_size(samples[0]),
-                                      utils.fmt_size(samples[1]));
-            else
-                used = _("Unknown");
-        } else {
-            used = "-";
-        }
-
         let mount_point_text = null;
         if (old_dir) {
             if (old_opts && old_opts != "defaults") {
@@ -711,10 +693,6 @@ export class FilesystemTab extends React.Component {
                             }
                             { extra_text }
                         </DescriptionListDescription>
-                    </DescriptionListGroup>
-                    <DescriptionListGroup>
-                        <DescriptionListTerm>{_("Used")}</DescriptionListTerm>
-                        <DescriptionListDescription>{used}</DescriptionListDescription>
                     </DescriptionListGroup>
                 </DescriptionList>
                 { mismounted_section }

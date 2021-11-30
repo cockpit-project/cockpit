@@ -23,7 +23,7 @@ import { cellWidth, SortByDirection } from '@patternfly/react-table';
 
 import { ListingTable } from "cockpit-components-table.jsx";
 import { StorageUsageBar } from "./storage-controls.jsx";
-import { block_name, fmt_size, go_to_block } from "./utils.js";
+import { block_name, fmt_size, go_to_block, flatten } from "./utils.js";
 import { OptionalPanel } from "./optional-panel.jsx";
 import { get_fstab_config } from "./fsys-tab.jsx";
 
@@ -71,12 +71,23 @@ export class FilesystemsPanel extends React.Component {
             const block = client.blocks[path];
             const [, mount_point] = get_fstab_config(block, true);
             const fsys_size = client.fsys_sizes.data[mount_point];
-            const backing_block = client.blocks[block.CryptoBackingDevice];
+            const backing_block = client.blocks[block.CryptoBackingDevice] || block;
+            const block_lvm2 = client.blocks_lvm2[backing_block.path];
+            const lvol = block_lvm2 && client.lvols[block_lvm2.LogicalVolume];
+            const vgroup = lvol && client.vgroups[lvol.VolumeGroup];
+            let name = null;
+
+            if (vgroup)
+                name = vgroup.Name + "/" + lvol.Name;
+
+            if (!name)
+                name = block_name(backing_block || block);
 
             return {
                 props: { path, client, key: path },
                 columns: [
-                    { title:  block.IdLabel || block_name(backing_block || block) },
+                    { title: name },
+                    { title: block.IdType },
                     { title: mount_point || "-" },
                     {
                         title: fsys_size
@@ -97,64 +108,39 @@ export class FilesystemsPanel extends React.Component {
 
         function make_pool(path) {
             const pool = client.stratis_pools[path];
-            const use = [pool.TotalPhysicalUsed[0] && Number(pool.TotalPhysicalUsed[1]),
-                Number(pool.TotalPhysicalSize)];
             const filesystems = client.stratis_pool_filesystems[path].sort((a, b) => a.Devnode.localeCompare(b.Devnode));
-            const prefix = "/dev/stratis/" + pool.Name;
 
-            const suffices = [];
-            const mount_points = [];
             const offsets = [];
             let total = 0;
             filesystems.forEach(fs => {
-                const block = client.slashdevs_block[fs.Devnode];
-                if (!block)
-                    mount_points.push("-");
-                else {
-                    const [, mp] = get_fstab_config(block, true);
-                    mount_points.push(mp || "-");
-                }
                 offsets.push(total);
                 if (fs.Used[0])
                     total += Number(fs.Used[1]);
-                if (fs.Devnode.indexOf(prefix) == 0)
-                    suffices.push(<span>&emsp;...{fs.Devnode.substr(prefix.length)}</span>);
-                else
-                    suffices.push(fs.Devnode);
             });
 
-            return {
-                props: { path, client, key: path },
-                columns: [
-                    {
-                        sortKey: prefix,
-                        title: <>
-                            <div>{prefix}</div>
-                            { filesystems.map((fs, i) => <div key={fs.Devnode}>{suffices[i]}</div>) }
-                        </>
-                    },
-                    {
-                        sortKey: "",
-                        title: <>
-                            <div><span style={{ visibility: "hidden" }}>X</span></div>
-                            { mount_points.map(mp => <div key={mp}>{mp}</div>) }
-                        </>
-                    },
-                    {
-                        title: <>
-                            <div><StorageUsageBar stats={use} critical={0.95} /></div>
-                            { filesystems.map((fs, i) =>
-                                <div key={i}>
-                                    <StorageUsageBar stats={[fs.Used[0] && Number(fs.Used[1]), use[1]]}
-                                                            critical={1} small total={total} offset={offsets[i]} />
-                                </div>)
-                            }
-                        </>,
-                        props: { className: "ct-text-align-right" }
-
-                    }
-                ]
-            };
+            return filesystems.map((fs, i) => {
+                const block = client.slashdevs_block[fs.Devnode];
+                let mount = "-";
+                if (block) {
+                    const [, mp] = get_fstab_config(block, true);
+                    if (mp)
+                        mount = mp;
+                }
+                return {
+                    props: { path, client, key: fs.path },
+                    columns: [
+                        { title: pool.Name + "/" + fs.Name },
+                        { title: "Stratis" },
+                        { title: mount },
+                        {
+                            title: <StorageUsageBar stats={[Number(fs.Used[0] && Number(fs.Used[1])),
+                                Number(pool.TotalPhysicalSize)]}
+                                                    critical={1} total={total} offset={offsets[i]} />,
+                            props: { className: "ct-text-align-right" }
+                        }
+                    ]
+                };
+            });
         }
 
         const pools = Object.keys(client.stratis_pools).filter(has_filesystems)
@@ -182,11 +168,12 @@ export class FilesystemsPanel extends React.Component {
                     className={mounts.length ? 'table-hover' : ''}
                     onRowClick={onRowClick}
                     columns={[
-                        { title: _("Name"), transforms: [cellWidth(30)], sortable: true },
-                        { title: _("Mount point"), transforms: [cellWidth(30)], sortable: true },
-                        { title:  _("Size"), transforms: [cellWidth(40)] }
+                        { title: _("Source"), transforms: [cellWidth(25)], sortable: true },
+                        { title: _("Type"), transforms: [cellWidth(15)], sortable: true },
+                        { title: _("Mount"), transforms: [cellWidth(25)], sortable: true },
+                        { title:  _("Size"), transforms: [cellWidth(35)] }
                     ]}
-                    rows={mounts.concat(pools)} />
+                    rows={mounts.concat(flatten(pools))} />
             </OptionalPanel>
         );
     }

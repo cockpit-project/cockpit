@@ -54,7 +54,7 @@ class TestStorageHidden(StorageCase):
         self.dialog({'purpose': "block",
                      'name': "lvol",
                      'size': 48})
-        self.content_row_wait_in_col(1, 2, "/dev/TEST/lvol")
+        self.content_row_wait_in_col(1, 1, "lvol")
 
         self.content_row_action(1, "Format")
         self.dialog({"type": "ext4",
@@ -65,7 +65,7 @@ class TestStorageHidden(StorageCase):
                      "mount_point": mount_point_1,
                      "mount_options.auto": False,
                      "crypto_options": "my-crypto-tag"})
-        self.content_row_wait_in_col(1, 1, "Filesystem (encrypted)")
+        self.content_row_wait_in_col(1, 2, "Filesystem (encrypted)")
         self.wait_in_configuration("/dev/TEST/lvol", "crypttab", "options", "my-crypto-tag")
         self.wait_in_child_configuration("/dev/TEST/lvol", "fstab", "dir", mount_point_1)
         self.wait_in_lvol_child_configuration("lvol", "crypttab", "options", "my-crypto-tag")
@@ -74,7 +74,7 @@ class TestStorageHidden(StorageCase):
         # Now the filesystem is hidden because the LUKS device is
         # locked.  Doubly hide it by deactivating /dev/TEST/lvol
         self.content_dropdown_action(1, "Deactivate")
-        self.content_row_wait_in_col(1, 1, "48 MiB Inactive volume")
+        self.content_row_wait_in_col(1, 2, "Inactive volume")
 
         # Deleting the volume group should still remove the fstab entry
         b.click('.pf-c-card__header:contains("LVM2 volume group") button:contains("Delete")')
@@ -112,7 +112,7 @@ class TestStorageHidden(StorageCase):
         self.dialog({"type": "ext4",
                      "name": "FS2",
                      "mount_point": mount_point_2})
-        self.content_row_wait_in_col(1, 1, "ext4 filesystem")
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
         self.wait_in_configuration("/dev/md127", "fstab", "dir", mount_point_2)
 
         # we need to wait for mdadm --monitor to stop using the device before delete

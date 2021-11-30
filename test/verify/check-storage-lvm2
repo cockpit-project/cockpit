@@ -56,14 +56,13 @@ class TestStorageLvm2(StorageCase):
 
         # Create two logical volumes
         m.execute("lvcreate TEST1 -n one -L 20m")
-        self.content_row_wait_in_col(1, 2, "/dev/TEST1/one")
+        self.content_row_wait_in_col(1, 1, "one")
         m.execute("lvcreate TEST1 -n two -L 20m")
-        self.content_row_wait_in_col(2, 2, "/dev/TEST1/two")
+        self.content_row_wait_in_col(2, 1, "two")
 
         # Deactivate one
         m.execute("lvchange TEST1/one -a n")
-        self.content_row_wait_in_col(1, 1, "Inactive volume")
-        self.content_row_wait_in_col(1, 2, "one")
+        self.content_row_wait_in_col(1, 2, "Inactive volume")
 
         # and remove it
         m.execute("until lvremove -f TEST1/one; do sleep 5; done")
@@ -88,9 +87,9 @@ class TestStorageLvm2(StorageCase):
 
         # Thin volumes
         m.execute("lvcreate TEST1 --thinpool pool -L 20m")
-        self.content_row_wait_in_col(1, 2, "pool")
+        self.content_row_wait_in_col(1, 1, "pool")
         m.execute("lvcreate -T TEST1/pool -n thin -V 100m")
-        self.content_row_wait_in_col(2, 2, "/dev/TEST1/thin")
+        self.content_row_wait_in_col(2, 1, "thin")
         m.execute("dd if=/dev/urandom of=/dev/mapper/TEST1-thin bs=1M count=10 status=none")
         self.content_tab_wait_in_info(1, 1, "Data used", "50%")
         m.execute("until lvremove -f TEST1/thin; do sleep 5; done")
@@ -130,7 +129,7 @@ class TestStorageLvm2(StorageCase):
         self.dialog(expect={"name": "lvol0"},
                     values={"purpose": "block",
                             "size": 20})
-        self.content_row_wait_in_col(1, 2, "/dev/vgroup0/lvol0")
+        self.content_row_wait_in_col(1, 1, "lvol0")
 
         # check that the next default name is "lvol1"
         b.click("button:contains(Create new logical volume)")
@@ -147,7 +146,7 @@ class TestStorageLvm2(StorageCase):
         self.content_row_action(1, "Format")
         self.dialog({"type": "ext4",
                      "mount_point": mount_point_one})
-        self.content_row_wait_in_col(1, 1, "ext4 filesystem")
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
         self.wait_in_configuration("/dev/vgroup0/lvol0", "fstab", "dir", mount_point_one)
         self.content_tab_wait_in_info(1, 2, "Mount point", mount_point_one)
 
@@ -177,13 +176,13 @@ class TestStorageLvm2(StorageCase):
                     values={"purpose": "pool",
                             "name": "pool",
                             "size": 38})
-        self.content_row_wait_in_col(1, 2, "pool")
+        self.content_row_wait_in_col(1, 1, "pool")
 
         self.content_row_action(1, "Create thin volume")
         self.dialog(expect={"name": "lvol0"},
                     values={"name": "thin",
                             "size": 50})
-        self.content_row_wait_in_col(2, 2, "/dev/vgroup0/thin")
+        self.content_row_wait_in_col(2, 1, "thin")
 
         # add a disk and resize the pool
         b.click('#detail-sidebar .pf-c-card__header button')
@@ -208,7 +207,7 @@ class TestStorageLvm2(StorageCase):
         self.dialog({"erase.on": True,
                      "type": "ext4",
                      "mount_point": mount_point_thin})
-        self.content_row_wait_in_col(2, 1, "ext4 filesystem")
+        self.content_row_wait_in_col(2, 2, "ext4 filesystem")
         self.wait_in_configuration("/dev/vgroup0/thin", "fstab", "dir", mount_point_thin)
 
         # remove pool
@@ -223,11 +222,11 @@ class TestStorageLvm2(StorageCase):
         b.click("button:contains(Create new logical volume)")
         self.dialog(expect={"name": "lvol0"},
                     values={"purpose": "block"})
-        self.content_row_wait_in_col(1, 2, "/dev/vgroup0/lvol0")
+        self.content_row_wait_in_col(1, 1, "lvol0")
         self.content_row_action(1, "Format")
         self.dialog({"type": "ext4",
                      "mount_point": mount_point_one})
-        self.content_row_wait_in_col(1, 1, "ext4 filesystem")
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
         self.wait_in_configuration("/dev/vgroup0/lvol0", "fstab", "dir", mount_point_one)
         self.content_tab_wait_in_info(1, 2, "Mount point", mount_point_one)
 
@@ -298,7 +297,7 @@ class TestStorageLvm2(StorageCase):
 
         m.execute("lvcreate TEST --thinpool pool -L 10m")
         m.execute("lvcreate -T TEST/pool -n thin -V 30m")
-        self.content_row_wait_in_col(2, 2, "/dev/TEST/thin")
+        self.content_row_wait_in_col(2, 1, "thin")
 
         # Create a logical volume and take a snapshot of it.  We will
         # later check that the snapshot isn't shown.
@@ -308,22 +307,22 @@ class TestStorageLvm2(StorageCase):
 
         # the above lvol0 will be the new first entry in the table, so
         # TEST/thin moves to he third row
-        self.content_row_wait_in_col(1, 2, "/dev/TEST/lvol0")
-        self.content_row_wait_in_col(2, 2, "pool")
-        self.content_row_wait_in_col(3, 2, "/dev/TEST/thin")
+        self.content_row_wait_in_col(1, 1, "lvol0")
+        self.content_row_wait_in_col(2, 1, "pool")
+        self.content_row_wait_in_col(3, 1, "thin")
 
         # Take a snapshot of the thin volume and check that it appears
 
         self.content_dropdown_action(3, "Create snapshot")
         self.dialog({"name": "mysnapshot"})
-        self.content_row_wait_in_col(3, 2, "mysnapshot")
+        self.content_row_wait_in_col(3, 1, "mysnapshot")
 
         # Now check that the traditional snapshot is not shown.  We do
         # this here to be sure that Cockpit is fully caught up and has
         # actually ignored it instead of just not having gotten around
         # to showing it.
 
-        self.content_row_wait_in_col(1, 2, "/dev/TEST/lvol0")
+        self.content_row_wait_in_col(1, 1, "lvol0")
         b.wait_not_in_text("#storage-detail", "snap0")
 
 

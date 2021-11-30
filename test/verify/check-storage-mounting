@@ -63,7 +63,7 @@ class TestStorageMounting(StorageCase):
         self.dialog_set_val("mount_point", mount_point_foo)
         self.dialog_apply()
         self.dialog_wait_close()
-        self.content_row_wait_in_col(1, 1, "ext4 filesystem")
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
         self.content_tab_wait_in_info(1, 1, "Name", "FILESYSTEM")
         self.wait_in_configuration("/dev/sda", "fstab", "dir", mount_point_foo)
 
@@ -107,13 +107,13 @@ class TestStorageMounting(StorageCase):
 
         b.go("#/")
         b.wait_in_text("table[aria-label=Filesystems]", mount_point_bar)
-        bar_selector = f'table[aria-label=Filesystems] tr:contains("{mount_point_bar}") td:nth-child(3)'
+        bar_selector = f'table[aria-label=Filesystems] tr:contains("{mount_point_bar}") td:nth-child(4)'
         wait_ratio_in_range(bar_selector, 0.0, 0.1)
         m.execute(f"dd if=/dev/zero of={mount_point_bar}/zero bs=1M count=30 status=none")
         wait_ratio_in_range(bar_selector, 0.5, 1.0)
         m.execute(f"rm {mount_point_bar}/zero")
         wait_ratio_in_range(bar_selector, 0.0, 0.1)
-        b.click('table[aria-label=Filesystems] tr:contains("filesystem")')
+        b.click('table[aria-label=Filesystems] tr:contains("%s")' % mount_point_bar)
         b.wait_visible("#storage-detail")
 
         def wait_info_field_value(name, value):
@@ -142,7 +142,7 @@ class TestStorageMounting(StorageCase):
         self.dialog_set_val("mount_point", "/run/foo")
         self.dialog_apply()
         self.dialog_wait_close()
-        self.content_row_wait_in_col(1, 1, "ext4 filesystem")
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
         self.content_tab_wait_in_info(1, 1, "Name", "FILESYSTEM")
         self.content_tab_wait_in_info(1, 1, "Mount point", "/run/foo")
 
@@ -220,7 +220,7 @@ class TestStorageMounting(StorageCase):
         self.dialog_set_val("mount_point", "/run/foo")
         self.dialog_apply()
         self.dialog_wait_close()
-        self.content_row_wait_in_col(1, 1, "ext4 filesystem (encrypted)")
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
         self.content_tab_wait_in_info(1, 1, "Name", "FILESYSTEM")
         self.content_tab_wait_in_info(1, 1, "Mount point", "/run/foo")
 
@@ -284,8 +284,8 @@ class TestStorageMounting(StorageCase):
         m.execute("vgcreate test /dev/sda && lvcreate test -n one -L 20M && lvcreate test -n two -L 20M")
         b.click('#devices .sidepanel-row:contains("test")')
         b.wait_visible("#storage-detail")
-        self.content_row_wait_in_col(1, 2, "/dev/test/one")
-        self.content_row_wait_in_col(2, 2, "/dev/test/two")
+        self.content_row_wait_in_col(1, 1, "one")
+        self.content_row_wait_in_col(2, 1, "two")
 
         # Encrypt and format the first and give it /run/data as the mount point
         self.content_row_action(1, "Format")
@@ -294,7 +294,7 @@ class TestStorageMounting(StorageCase):
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja",
                      "mount_point": "/run/data"})
-        self.content_row_wait_in_col(1, 1, "ext4 filesystem")
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
         self.content_tab_wait_in_info(1, 2, "Mount point", "/run/data")
 
         # Format the second and also try to use /run/data as the mount point
@@ -312,7 +312,7 @@ class TestStorageMounting(StorageCase):
         self.content_dropdown_action(1, "Format")
         self.dialog({"type": "ext4",
                      "mount_point": "/run/data"})
-        self.content_row_wait_in_col(1, 1, "ext4 filesystem")
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
         self.content_tab_wait_in_info(1, 2, "Mount point", "/run/data")
 
     def testFirstMount(self):
@@ -326,7 +326,7 @@ class TestStorageMounting(StorageCase):
         b.wait_visible("#storage-detail")
 
         m.execute("mkfs.ext4 /dev/sda")
-        self.content_row_wait_in_col(1, 1, "ext4 filesystem")
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
 
         m.execute("! grep /run/data /etc/fstab")
         self.content_row_action(1, "Mount")
@@ -356,7 +356,7 @@ class TestStorageMounting(StorageCase):
                      "mount_options.auto": True,
                      "mount_options.never_auto": True,
                      "mount_point": "/run/foo"})
-        self.content_row_wait_in_col(1, 1, "ext4 filesystem (encrypted)")
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
         self.content_tab_wait_in_info(1, 1, "Mount point", "never mounted at boot")
 
         # The filesystem should be mounted but have the "noauto"

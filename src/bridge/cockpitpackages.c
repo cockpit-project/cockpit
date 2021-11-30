@@ -45,8 +45,6 @@
 /* Overridable from tests */
 const gchar **cockpit_bridge_data_dirs = NULL; /* default */
 
-gint cockpit_bridge_packages_port = 0;
-
 static CockpitPackages *packages_singleton = NULL;
 
 /* Packages might change while the bridge is running, and we support
@@ -1220,18 +1218,6 @@ cockpit_packages_new (void)
 
   packages->web_server = cockpit_web_server_new (NULL, COCKPIT_WEB_SERVER_NONE);
 
-  if (!cockpit_web_server_add_socket (packages->web_server, socket, &error))
-    {
-      g_warning ("couldn't add socket to package server: %s", error->message);
-      goto out;
-    }
-
-  cockpit_bridge_packages_port = (gint)g_inet_socket_address_get_port (G_INET_SOCKET_ADDRESS (address));
-  cockpit_connect_add_internal_address ("packages", address);
-
-  g_debug ("package server port: %d", cockpit_bridge_packages_port);
-
-
   g_signal_connect (packages->web_server, "handle-resource::/checksum",
                     G_CALLBACK (handle_package_checksum), packages);
   g_signal_connect (packages->web_server, "handle-resource::/manifests.js",
@@ -1240,8 +1226,6 @@ cockpit_packages_new (void)
                     G_CALLBACK (handle_package_manifests_json), packages);
   g_signal_connect (packages->web_server, "handle-resource",
                     G_CALLBACK (handle_packages), packages);
-
-  cockpit_web_server_start (packages->web_server);
 
   build_packages (packages);
   ret = TRUE;

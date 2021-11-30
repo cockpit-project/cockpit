@@ -45,10 +45,6 @@ CockpitWebServer * cockpit_web_server_new           (GTlsCertificate *certificat
 
 void               cockpit_web_server_start         (CockpitWebServer *self);
 
-gboolean           cockpit_web_server_add_socket    (CockpitWebServer *self,
-                                                     GSocket *socket,
-                                                     GError **error);
-
 GHashTable *       cockpit_web_server_new_table     (void);
 
 gchar *            cockpit_web_server_parse_cookie    (GHashTable *headers,

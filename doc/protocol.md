@@ -771,8 +771,6 @@ this payload type:
  * "spawn": Spawn a process and connect standard input and standard output
    to the channel. Should be an array of strings which is the process
    file path and arguments.
- * "internal": Open an internally defined stream.
-   * none of these are currently defined
 
 You can't specify both "unix" and "spawn" together. When "spawn" is set the
 following options can be specified:

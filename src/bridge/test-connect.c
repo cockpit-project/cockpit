@@ -347,81 +347,6 @@ test_fail_access_denied (void)
 }
 
 static void
-test_internal_not_registered (void)
-{
-  CockpitConnectable *connectable;
-  JsonObject *options;
-  MockTransport *transport;
-  CockpitChannel *channel;
-  JsonObject *sent;
-
-  cockpit_expect_log ("cockpit-protocol", G_LOG_LEVEL_MESSAGE, "55: couldn't find internal address: test");
-  cockpit_connect_add_internal_address ("other", NULL);
-
-  options = json_object_new ();
-  json_object_set_string_member (options, "internal", "test");
-  transport = g_object_new (mock_transport_get_type (), NULL);
-
-  channel = g_object_new (mock_echo_channel_get_type (),
-                          "transport", transport,
-                          "id", "55",
-                          "options", options,
-                          NULL);
-  json_object_unref (options);
-  connectable = cockpit_connect_parse_stream (channel);
-  g_assert (connectable == NULL);
-  while (g_main_context_iteration (NULL, FALSE));
-
-  sent = mock_transport_pop_control (transport);
-  g_assert (sent != NULL);
-
-  cockpit_assert_json_eq (sent,
-                  "{ \"command\": \"close\", \"channel\": \"55\", \"problem\": \"not-found\", \"message\":\"couldn't find internal address: test\"}");
-  g_object_unref (channel);
-  g_object_unref (transport);
-  cockpit_assert_expected ();
-
-  cockpit_connect_remove_internal_address ("other");
-}
-
-static void
-test_internal_null_registered (void)
-{
-  CockpitConnectable *connectable;
-  JsonObject *options;
-  MockTransport *transport;
-  CockpitChannel *channel;
-  JsonObject *sent;
-
-  cockpit_connect_add_internal_address ("test", NULL);
-
-  options = json_object_new ();
-  json_object_set_string_member (options, "internal", "test");
-  transport = g_object_new (mock_transport_get_type (), NULL);
-
-  channel = g_object_new (mock_echo_channel_get_type (),
-                          "transport", transport,
-                          "id", "55",
-                          "options", options,
-                          NULL);
-  json_object_unref (options);
-  connectable = cockpit_connect_parse_stream (channel);
-  g_assert (connectable == NULL);
-  while (g_main_context_iteration (NULL, FALSE));
-
-  sent = mock_transport_pop_control (transport);
-  g_assert (sent != NULL);
-
-  cockpit_assert_json_eq (sent,
-                  "{ \"command\": \"close\", \"channel\": \"55\", \"problem\": \"not-found\"}");
-  g_object_unref (channel);
-  g_object_unref (transport);
-  cockpit_assert_expected ();
-
-  cockpit_connect_remove_internal_address ("test");
-}
-
-static void
 test_parse_port (void)
 {
   JsonObject *options;
@@ -531,11 +456,6 @@ main (int argc,
 
   g_test_add_func ("/connect/not-found", test_fail_not_found);
   g_test_add_func ("/connect/access-denied", test_fail_access_denied);
-
-  g_test_add_func ("/channel/internal-null-registered",
-                   test_internal_null_registered);
-  g_test_add_func ("/channel/internal-not-registered",
-                   test_internal_not_registered);
 
   g_test_add_func ("/channel/parse-port", test_parse_port);
   g_test_add_func ("/channel/parse-address", test_parse_address);

@@ -155,7 +155,6 @@ class TestMultiMachineKeyAuth(MachineCase):
         # Add machine
         b.switch_to_top()
         b.go("/@10.111.113.2")
-        b.wait_visible("#machine-troubleshoot")
         b.click('#machine-troubleshoot')
         b.wait_visible('#hosts_setup_server_dialog')
 

@@ -32,8 +32,6 @@
 
 const gchar * cockpit_bridge_local_address = NULL;
 
-static GHashTable *internal_addresses;
-
 CockpitConnectable *
 cockpit_connectable_ref (CockpitConnectable *connectable)
 {
@@ -189,53 +187,6 @@ cockpit_connect_stream_finish (GAsyncResult *result,
   return g_task_propagate_pointer (G_TASK (result), error);
 }
 
-static void
-safe_unref (gpointer data)
-{
-  GObject *object = data;
-  if (object != NULL)
-    g_object_unref (object);
-}
-
-static gboolean
-lookup_internal (const gchar *name,
-                 GSocketConnectable **connectable)
-{
-  g_assert (name != NULL);
-  g_assert (connectable != NULL);
-
-  if (!internal_addresses)
-    return FALSE;
-
-  return g_hash_table_lookup_extended (internal_addresses, name,
-                                       NULL, (gpointer *) connectable);
-}
-
-void
-cockpit_connect_add_internal_address (const gchar *name,
-                                      GSocketAddress *address)
-{
-  if (!internal_addresses)
-    {
-      internal_addresses = g_hash_table_new_full (g_str_hash, g_str_equal,
-                                                  g_free, safe_unref);
-    }
-
-  if (address)
-    address = g_object_ref (address);
-
-  g_hash_table_replace (internal_addresses, g_strdup (name), address);
-}
-
-gboolean
-cockpit_connect_remove_internal_address (const gchar *name)
-{
-  gboolean ret = FALSE;
-  if (internal_addresses)
-      ret = g_hash_table_remove (internal_addresses, name);
-  return ret;
-}
-
 static GSocketConnectable *
 parse_address (CockpitChannel *channel,
                gchar **possible_name,
@@ -243,7 +194,6 @@ parse_address (CockpitChannel *channel,
 {
   GSocketConnectable *connectable = NULL;
   const gchar *unix_path;
-  const gchar *internal;
   const gchar *address;
   JsonObject *options;
   gboolean local = FALSE;
@@ -262,11 +212,6 @@ parse_address (CockpitChannel *channel,
   if (!cockpit_json_get_int (options, "port", G_MAXINT64, &port))
     {
       cockpit_channel_fail (channel, "protocol-error", "invalid \"port\" option in channel");
-      goto out;
-    }
-  if (!cockpit_json_get_string (options, "internal", NULL, &internal))
-    {
-      cockpit_channel_fail (channel, "protocol-error", "invalid \"internal\" option in channel");
       goto out;
     }
   if (!cockpit_json_get_string (options, "address", NULL, &address))
@@ -324,23 +269,6 @@ parse_address (CockpitChannel *channel,
     {
       name = g_strdup (unix_path);
       connectable = G_SOCKET_CONNECTABLE (g_unix_socket_address_new (unix_path));
-      local = FALSE;
-    }
-  else if (internal)
-    {
-      gboolean reg = lookup_internal (internal, &connectable);
-
-      if (!connectable)
-        {
-          if (reg)
-            cockpit_channel_close (channel, "not-found");
-          else
-            cockpit_channel_fail (channel, "not-found", "couldn't find internal address: %s", internal);
-          goto out;
-        }
-
-      name = g_strdup (internal);
-      connectable = g_object_ref (connectable);
       local = FALSE;
     }
   else

@@ -9,8 +9,8 @@ jobs:
       pull-requests: none
     timeout-minutes: 20
     steps:
-      - name: Install required build dependencies
-        run: sudo apt install -y --no-install-recommends autoconf automake elfutils libglib2.0-dev libsystemd-dev xsltproc xmlto flatpak-builder xvfb
+      - name: Install required build and test dependencies
+        run: sudo apt install -y --no-install-recommends autoconf automake elfutils libglib2.0-dev libsystemd-dev xsltproc xmlto flatpak-builder xvfb cockpit-system
 
       - name: Configure flathub remote
         run: flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
@@ -31,4 +31,7 @@ jobs:
       - name: Smoke-test the installed flatpak
         run: |
           . /etc/profile.d/flatpak.sh
-          xvfb-run dbus-run-session containers/flatpak/test/test-ssh
+          xvfb-run dbus-run-session sh -ec '
+            containers/flatpak/test/test-ssh
+            containers/flatpak/test/test-browser
+          '

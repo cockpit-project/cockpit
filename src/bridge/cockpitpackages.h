@@ -28,6 +28,8 @@ typedef struct _CockpitPackages CockpitPackages;
 
 CockpitPackages * cockpit_packages_new              (void);
 
+GIOStream *       cockpit_packages_connect          (void);
+
 const gchar *     cockpit_packages_get_checksum     (CockpitPackages *packages);
 
 gchar **          cockpit_packages_get_names        (CockpitPackages *packages);

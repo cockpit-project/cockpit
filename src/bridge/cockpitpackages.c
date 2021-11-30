@@ -47,6 +47,8 @@ const gchar **cockpit_bridge_data_dirs = NULL; /* default */
 
 gint cockpit_bridge_packages_port = 0;
 
+static CockpitPackages *packages_singleton = NULL;
+
 /* Packages might change while the bridge is running, and we support
    that with slightly complicated handling of checksums.
 
@@ -1184,6 +1186,8 @@ cockpit_packages_new (void)
   GInetAddress *inet = NULL;
   GSocket *socket = NULL;
 
+  g_assert (packages_singleton == NULL);
+
   socket = g_socket_new (G_SOCKET_FAMILY_IPV4, G_SOCKET_TYPE_STREAM, G_SOCKET_PROTOCOL_DEFAULT, &error);
   if (socket == NULL)
     {
@@ -1247,13 +1251,20 @@ out:
   g_clear_object (&address);
   g_clear_object (&socket);
 
-  if (!ret)
-    {
-      cockpit_packages_free (packages);
-      packages = NULL;
-    }
+  if (ret)
+    packages_singleton = packages;
+  else
+    cockpit_packages_free (packages);
 
-  return packages;
+  return packages_singleton;
+}
+
+GIOStream *
+cockpit_packages_connect (void)
+{
+  g_return_val_if_fail (packages_singleton != NULL, NULL);
+
+  return cockpit_web_server_connect (packages_singleton->web_server);
 }
 
 const gchar *
@@ -1406,6 +1417,10 @@ cockpit_packages_free (CockpitPackages *packages)
 {
   if (!packages)
     return;
+
+  g_assert (packages_singleton == packages);
+  packages_singleton = NULL;
+
   if (packages->json)
     json_object_unref (packages->json);
   g_free (packages->bundle_checksum);
@@ -1461,7 +1476,11 @@ cockpit_packages_dump (void)
   CockpitPackage *package;
   GList *names, *l;
 
+  g_assert (packages_singleton == NULL);
+
   packages = g_new0 (CockpitPackages, 1);
+  packages_singleton = packages;
+
   build_packages (packages);
 
   by_name = g_hash_table_new (g_str_hash, g_str_equal);

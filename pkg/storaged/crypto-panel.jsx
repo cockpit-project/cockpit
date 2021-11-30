@@ -75,7 +75,7 @@ export class LockedCryptoPanel extends React.Component {
         return (
             <OptionalPanel id="locked-cryptos"
                 title={_("Locked devices")}>
-                <ListingTable variant='compact'
+                <ListingTable
                     sortBy={{ index: 0, direction: SortByDirection.asc }}
                     aria-label={_("Locked devices")}
                     className={locked_cryptos.length ? 'table-hover' : ''}

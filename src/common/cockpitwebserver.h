@@ -70,6 +70,9 @@ cockpit_web_server_add_fd_listener (CockpitWebServer *self,
                                     int fd,
                                     GError **error);
 
+GIOStream *
+cockpit_web_server_connect (CockpitWebServer *self);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_WEB_SERVER_H__ */

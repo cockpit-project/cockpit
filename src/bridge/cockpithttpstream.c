@@ -47,7 +47,7 @@
 typedef struct {
   gint refs;
   gchar *name;
-  CockpitConnectable *connectable;
+  gchar *hostname;
   CockpitStream *stream;
   gulong sig_close;
   guint timeout;
@@ -78,8 +78,7 @@ cockpit_http_client_unref (gpointer data)
   if (--client->refs == 0)
     {
       cockpit_http_client_reset (client);
-      if (client->connectable)
-        cockpit_connectable_unref (client->connectable);
+      g_free (client->hostname);
       g_free (client->name);
       g_slice_free (CockpitHttpClient, client);
     }
@@ -839,7 +838,7 @@ send_http_request (CockpitHttpStream *self)
   if (!had_host)
     {
       g_string_append (string, "Host: ");
-      g_string_append_uri_escaped (string, self->client->connectable->name, "[]!%$&()*+,-.:;=\\_~", FALSE);
+      g_string_append_uri_escaped (string, self->client->hostname, "[]!%$&()*+,-.:;=\\_~", FALSE);
       g_string_append (string, "\r\n");
     }
   if (!had_encoding)
@@ -958,7 +957,6 @@ static void
 cockpit_http_stream_prepare (CockpitChannel *channel)
 {
   CockpitHttpStream *self = COCKPIT_HTTP_STREAM (channel);
-  CockpitConnectable *connectable = NULL;
   const gchar *payload;
   const gchar *connection;
   JsonObject *options;
@@ -967,21 +965,21 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
   COCKPIT_CHANNEL_CLASS (cockpit_http_stream_parent_class)->prepare (channel);
 
   if (self->failed)
-    goto out;
+    return;
 
   options = cockpit_channel_get_options (channel);
   if (!cockpit_json_get_string (options, "connection", NULL, &connection))
     {
       cockpit_channel_fail (channel, "protocol-error",
                             "bad \"connection\" field in HTTP stream request");
-      goto out;
+      return;
     }
 
   if (!cockpit_json_get_string (options, "path", "/", &path))
     {
       cockpit_channel_fail (channel, "protocol-error",
                             "bad \"path\" field in HTTP stream request");
-      goto out;
+      return;
     }
 
   /*
@@ -996,30 +994,19 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
 
   self->client = cockpit_http_client_ensure (connection);
 
-  if (!self->client->connectable ||
-      json_object_has_member (options, "unix") ||
-      json_object_has_member (options, "port") ||
-      json_object_has_member (options, "internal") ||
-      json_object_has_member (options, "tls") ||
-      json_object_has_member (options, "address"))
-    {
-      connectable = cockpit_connect_parse_stream (channel);
-      if (!connectable)
-        goto out;
-
-      if (self->client->connectable)
-        cockpit_connectable_unref (self->client->connectable);
-      self->client->connectable = cockpit_connectable_ref (connectable);
-    }
-
-  self->name = g_strdup_printf ("%s://%s%s",
-                                self->client->connectable->tls ? "https" : "http",
-                                self->client->connectable->name, path);
-
   self->stream = cockpit_http_client_checkout (self->client);
   if (!self->stream)
     {
-      self->stream = cockpit_stream_connect (self->name, self->client->connectable);
+      g_autoptr(CockpitConnectable) connectable = cockpit_connect_parse_stream (channel);
+      if (!connectable)
+        return;
+
+      self->name = g_strdup_printf ("%s://%s%s",
+                                    connectable->tls ? "https" : "http",
+                                    connectable->name, path);
+      self->client->hostname = g_strdup (connectable->name);
+
+      self->stream = cockpit_stream_connect (self->name, connectable);
       self->sig_open = g_signal_connect (self->stream, "open", G_CALLBACK (on_stream_open), self);
     }
 
@@ -1038,10 +1025,6 @@ cockpit_http_stream_prepare (CockpitChannel *channel)
   /* If not waiting for open */
   if (!self->sig_open)
     cockpit_channel_ready (channel, NULL);
-
-out:
-  if (connectable)
-    cockpit_connectable_unref (connectable);
 }
 
 static void

@@ -1221,14 +1221,6 @@ on_incoming (GSocketService *service,
 
 /* ---------------------------------------------------------------------------------------------------- */
 
-gboolean
-cockpit_web_server_add_socket (CockpitWebServer *self,
-                               GSocket *socket,
-                               GError **error)
-{
-  return g_socket_listener_add_socket (G_SOCKET_LISTENER (self->socket_service), socket, NULL, error);
-}
-
 guint16
 cockpit_web_server_add_inet_listener (CockpitWebServer *self,
                                       const gchar *address,

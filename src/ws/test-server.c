@@ -320,7 +320,6 @@ on_handle_stream_socket (CockpitWebServer *server,
   GPid pid = 0;
 
   gchar *value;
-  gchar **env;
   gchar **argv;
 
   if (!g_str_has_prefix (path, "/cockpit/socket"))
@@ -344,17 +343,15 @@ on_handle_stream_socket (CockpitWebServer *server,
       g_clear_object (&bridge);
 
       value = g_strdup_printf ("%d", server_port);
-      env = g_environ_setenv (g_get_environ (), "COCKPIT_TEST_SERVER_PORT", value, TRUE);
 
       argv = g_strdupv (bridge_argv);
       if (query)
         argv[g_strv_length (argv) - 1] = g_strdup (query);
 
-      g_spawn_async_with_pipes (NULL, argv, env,
+      g_spawn_async_with_pipes (NULL, argv, NULL,
                                 G_SPAWN_SEARCH_PATH | G_SPAWN_DO_NOT_REAP_CHILD,
                                 NULL, NULL, &pid, &session_stdin, &session_stdout, NULL, &error);
 
-      g_strfreev (env);
       g_free (argv);
       g_free (value);
 

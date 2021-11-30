@@ -65,7 +65,7 @@ class TestStorageVDO(StorageCase):
         # pool name gets auto-generated
         pool_name = "vpool0"
 
-        self.content_row_wait_in_col(1, 2, "/dev/vdo_vgroup/vdo0")
+        self.content_row_wait_in_col(1, 1, "vdo0")
         # the pool does not appear as a top-level volume
         b.wait_not_in_text("#detail-content", pool_name)
         # Volume tab
@@ -85,17 +85,17 @@ class TestStorageVDO(StorageCase):
         self.dialog({"type": "xfs",
                      "name": "vdofs",
                      "mount_point": "/run/data"})
-        self.content_row_wait_in_col(1, 1, "xfs filesystem")
+        self.content_row_wait_in_col(1, 2, "xfs filesystem")
 
         # compressible data should affect logical usage
         m.execute("dd if=/dev/zero of=/run/data/empty bs=1M count=1000")
-        self.content_tab_wait_in_info(1, 3, "Used", "1.08 GiB of 9.99 GiB")
+        self.content_row_wait_in_col(1, 4, "1.08 / 9.99 GiB")
         # but not physical usage
         self.content_tab_wait_in_info(1, 2, "Data used", "4.00 GiB (67%)")
 
         # incompressible data
         m.execute("dd if=/dev/urandom of=/run/data/gibberish bs=1M count=1000")
-        self.content_tab_wait_in_info(1, 3, "Used", "2.05 GiB of 9.99 GiB")
+        self.content_row_wait_in_col(1, 4, "2.05 / 9.99 GiB")
         # equal amount of physical space (not completely predictable due to random data)
         self.content_tab_wait_in_info(1, 2, "Data used", "4.8", "4.9")
         self.content_tab_wait_in_info(1, 2, "Data used", cond=lambda sel: re.search(r"\(8[1234]%\)", b.text(sel)))
@@ -149,7 +149,7 @@ class TestStorageVDO(StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
 
-        self.content_row_wait_in_col(1, 2, "/dev/vdo_vgroup/vdo0")
+        self.content_row_wait_in_col(1, 1, "vdo0")
         # Volume tab
         self.content_tab_wait_in_info(1, 1, "Name", "vdo0")
         self.content_tab_wait_in_info(1, 1, "Size", "20 GiB")
@@ -168,7 +168,7 @@ class TestStorageVDO(StorageCase):
 
         # react to CLI
         m.execute("lvcreate --type vdo --size 6g --virtualsize 10g --name vdo1 --yes vdo_vgroup")
-        self.content_row_wait_in_col(1, 2, "/dev/vdo_vgroup/vdo1")
+        self.content_row_wait_in_col(1, 1, "vdo1")
         m.execute("lvremove --yes /dev/vdo_vgroup/vdo1")
         b.wait_in_text("#detail-content", "No logical volumes")
 
@@ -211,17 +211,17 @@ class TestStorageLegacyVDO(StorageCase):
 
         # Make a filesystem on it
 
-        self.content_row_wait_in_col(1, 1, "Unrecognized data")
+        self.content_row_wait_in_col(1, 2, "Unrecognized data")
         self.content_row_action(1, "Format")
         self.dialog({"type": "xfs",
                      "name": "FILESYSTEM",
                      "mount_point": "/run/data"})
-        self.content_row_wait_in_col(1, 1, "xfs filesystem")
+        self.content_row_wait_in_col(1, 2, "xfs filesystem")
         # _netdev etc should have been prefilled
         self.content_tab_wait_in_info(1, 1, "Mount point", "_netdev")
         self.content_tab_wait_in_info(1, 1, "Mount point", "x-systemd.device-timeout=0")
         self.content_tab_wait_in_info(1, 1, "Mount point", "x-systemd.requires=vdo.service")
-        self.content_tab_wait_in_info(1, 1, "Used", "of 4.99 GiB", "of 5.0 GiB")
+        self.content_row_wait_in_col(1, 4, "/ 4.99 GiB", alternate_val="/ 5.0 GiB")
 
         # Grow physical
 
@@ -236,7 +236,7 @@ class TestStorageLegacyVDO(StorageCase):
         b.click(detail(4) + " button:contains(Grow)")
         self.dialog({"lsize": 10 * 1024})
         b.wait_in_text(detail(4), "used of 10 GiB")
-        self.content_tab_wait_in_info(1, 1, "Used", "of 9.99 GiB", "of 10.0 GiB")
+        self.content_row_wait_in_col(1, 4, "/ 9.99 GiB", alternate_val="/ 10.0 GiB")
 
         # Stop
 

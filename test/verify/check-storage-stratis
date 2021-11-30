@@ -163,7 +163,6 @@ class TestStorageStratis(StorageCase):
         b.click('#detail-header button:contains(Rename)')
         self.dialog({'name': "pool0-renamed"})
         b.wait_in_text('#detail-header', "pool0-renamed")
-        b.wait_in_text('#detail-content', "/dev/stratis/pool0-renamed/fsys2")
 
         # Create another filesystem
         b.click("button:contains(Create new filesystem)")

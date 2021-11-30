@@ -33,7 +33,7 @@ import { ExclamationTriangleIcon } from "@patternfly/react-icons";
 
 import { ListingTable } from "cockpit-components-table.jsx";
 import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
-import { StorageButton, StorageBarMenu, StorageMenuItem } from "./storage-controls.jsx";
+import { StorageButton, StorageLink, StorageBarMenu, StorageMenuItem, StorageUsageBar } from "./storage-controls.jsx";
 import * as PK from "packagekit.js";
 import {
     format_dialog, parse_options, extract_option, unparse_options
@@ -44,7 +44,6 @@ import { FilesystemTab, is_mounted, mounting_dialog, get_fstab_config } from "./
 import { CryptoTab, edit_config } from "./crypto-tab.jsx";
 import { get_existing_passphrase, unlock_with_type } from "./crypto-keyslots.jsx";
 import { BlockVolTab, PoolVolTab, VDOPoolTab } from "./lvol-tabs.jsx";
-import { PVolTab, MDRaidMemberTab, VDOBackingTab, StratisBlockdevTab } from "./pvol-tabs.jsx";
 import { PartitionTab } from "./part-tab.jsx";
 import { SwapTab } from "./swap-tab.jsx";
 import { UnrecognizedTab } from "./unrecognized-tab.jsx";
@@ -106,7 +105,6 @@ function create_tabs(client, target, is_partition, is_extended) {
 
     const block_fsys = content_block && client.blocks_fsys[content_block.path];
     const block_lvm2 = block && client.blocks_lvm2[block.path];
-    const block_pvol = content_block && client.blocks_pvol[content_block.path];
     const block_swap = content_block && client.blocks_swap[content_block.path];
 
     const block_stratis_blockdev = block && client.blocks_stratis_blockdev[block.path];
@@ -118,8 +116,8 @@ function create_tabs(client, target, is_partition, is_extended) {
 
     const is_filesystem = (content_block && content_block.IdUsage == 'filesystem');
     const is_stratis = ((content_block && content_block.IdUsage == "raid" && content_block.IdType == "stratis") ||
-                      (block_stratis_blockdev && client.stratis_pools[block_stratis_blockdev.Pool]) ||
-                      block_stratis_locked_pool);
+                        (block_stratis_blockdev && client.stratis_pools[block_stratis_blockdev.Pool]) ||
+                        block_stratis_locked_pool);
 
     // Adjust for encryption leaking out of Stratis
     if (is_crypto && is_stratis)
@@ -201,16 +199,9 @@ function create_tabs(client, target, is_partition, is_extended) {
 
     if (is_filesystem) {
         add_tab(_("Filesystem"), FilesystemTab, true, ["mismounted-fsys"]);
-    } else if ((content_block && content_block.IdUsage == "raid" && content_block.IdType == "LVM2_member") ||
-               (block_pvol && client.vgroups[block_pvol.VolumeGroup])) {
-        add_tab(_("LVM2 physical volume"), PVolTab, true);
-    } else if (is_stratis) {
-        add_tab(_("Stratis pool"), StratisBlockdevTab, false);
-    } else if ((content_block && content_block.IdUsage == "raid") ||
-               (content_block && client.mdraids[content_block.MDRaidMember])) {
-        add_tab(_("RAID member"), MDRaidMemberTab, true);
-    } else if (content_block && client.vdo_overlay.find_by_backing_block(content_block)) {
-        add_tab(_("VDO backing"), VDOBackingTab, true);
+    } else if (content_block && (content_block.IdUsage == "raid" ||
+                                 client.vdo_overlay.find_by_backing_block(content_block))) {
+        // no tab for these
     } else if (content_block && content_block.IdUsage == "other" && content_block.IdType == "swap") {
         add_tab(_("Swap"), SwapTab, true);
     } else if (content_block) {
@@ -429,60 +420,85 @@ function create_tabs(client, target, is_partition, is_extended) {
 }
 
 function block_description(client, block) {
-    let usage;
+    let type, used_for, link, size;
     const block_stratis_blockdev = client.blocks_stratis_blockdev[block.path];
     const block_stratis_locked_pool = client.blocks_stratis_locked_pool[block.path];
+    const vdo = client.vdo_overlay.find_by_backing_block(block);
     const cleartext = client.blocks_cleartext[block.path];
     if (cleartext)
         block = cleartext;
 
     const block_pvol = client.blocks_pvol[block.path];
+    let omit_encrypted_label = false;
+
+    size = block.Size;
 
     if (block.IdUsage == "crypto" && !cleartext) {
-        const [config] = get_fstab_config(block, true);
-        if (config)
-            usage = C_("storage-id-desc", "Filesystem (encrypted)");
-        else if (block_stratis_locked_pool)
-            usage = cockpit.format(_("Blockdev of locked Stratis pool $0"), block_stratis_locked_pool);
-        else
-            usage = C_("storage-id-desc", "Locked encrypted data");
+        const [config, mount_point] = get_fstab_config(block, true);
+        if (config) {
+            type = C_("storage-id-desc", "Filesystem (encrypted)");
+            used_for = mount_point;
+        } else if (block_stratis_locked_pool) {
+            type = _("Stratis member");
+            used_for = block_stratis_locked_pool;
+            link = ["pool", used_for];
+            omit_encrypted_label = true;
+        } else
+            type = C_("storage-id-desc", "Locked encrypted data");
     } else if (block.IdUsage == "filesystem") {
-        usage = cockpit.format(C_("storage-id-desc", "$0 filesystem"), block.IdType);
+        const [, mount_point] = get_fstab_config(block, true);
+        type = cockpit.format(C_("storage-id-desc", "$0 filesystem"), block.IdType);
+        if (client.fsys_sizes.data[mount_point])
+            size = client.fsys_sizes.data[mount_point];
+        used_for = mount_point;
     } else if (block.IdUsage == "raid") {
         if (block_pvol && client.vgroups[block_pvol.VolumeGroup]) {
             const vgroup = client.vgroups[block_pvol.VolumeGroup];
-            usage = cockpit.format(_("LVM2 physical volume of $0"), vgroup.Name);
+            type = _("LVM2 member");
+            used_for = vgroup.Name;
+            link = ["vg", used_for];
+            size = [block_pvol.Size - block_pvol.FreeSize, block_pvol.Size];
         } else if (client.mdraids[block.MDRaidMember]) {
             const mdraid = client.mdraids[block.MDRaidMember];
-            usage = cockpit.format(_("Member of RAID device $0"), utils.mdraid_name(mdraid));
+            type = _("RAID member");
+            used_for = utils.mdraid_name(mdraid);
+            link = ["mdraid", mdraid.UUID];
         } else if (block_stratis_blockdev && client.stratis_pools[block_stratis_blockdev.Pool]) {
             const pool = client.stratis_pools[block_stratis_blockdev.Pool];
-            usage = cockpit.format(_("Blockdev of Stratis pool $0"), pool.Name);
+            type = _("Stratis member");
+            used_for = pool.Name;
+            link = ["pool", pool.Uuid];
+            omit_encrypted_label = true;
         } else if (block.IdType == "LVM2_member") {
-            usage = _("LVM2 physical volume");
+            type = _("LVM2 member");
         } else if (block.IdType == "stratis") {
-            usage = _("Member of Stratis pool");
+            type = _("Stratis member");
+            omit_encrypted_label = true;
         } else {
-            usage = _("Member of RAID device");
+            type = _("RAID member");
         }
     } else if (block.IdUsage == "other") {
         if (block.IdType == "swap") {
-            usage = C_("storage-id-desc", "Swap space");
+            type = C_("storage-id-desc", "Swap space");
         } else {
-            usage = C_("storage-id-desc", "Other data");
+            type = C_("storage-id-desc", "Other data");
         }
-    } else if (client.vdo_overlay.find_by_backing_block(block)) {
-        usage = C_("storage-id-desc", "VDO backing");
+    } else if (vdo) {
+        type = C_("storage-id-desc", "VDO backing");
+        used_for = vdo.name;
+        link = ["vdo", vdo.name];
     } else {
-        usage = C_("storage-id-desc", "Unrecognized data");
+        type = C_("storage-id-desc", "Unrecognized data");
     }
 
-    if (cleartext)
-        usage = cockpit.format(_("$0 (encrypted)"), usage);
+    if (cleartext && !omit_encrypted_label)
+        type = cockpit.format(_("$0 (encrypted)"), type);
 
     return {
-        size: block.Size,
-        text: usage
+        type: type,
+        used_for: used_for,
+        link: link,
+        size: size
     };
 }
 
@@ -519,11 +535,18 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
         {
             title: (
                 <span key={name}>
-                    {utils.format_size_and_text(desc.size, desc.text)}
+                    {name}
                     {info}
                 </span>)
         },
-        { title: name },
+        { title: desc.type },
+        { title: desc.link ? <StorageLink onClick={() => cockpit.location.go(desc.link)}>{desc.used_for}</StorageLink> : desc.used_for },
+        {
+            title: desc.size.length
+                ? <StorageUsageBar stats={desc.size} critical={0.95} block={name} />
+                : utils.fmt_size(desc.size),
+            props: { className: "ct-text-align-right" }
+        },
         { title: actions, props: { className: "content-action" } },
         { title: menu, props: { className: "content-action" } }
     ];
@@ -531,7 +554,7 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
     rows.push({
         props: { key, className: "content-level-" + level },
         columns: cols,
-        expandedContent: <ListingPanel tabRenderers={tabs.renderers} />
+        expandedContent: tabs.renderers.length > 0 ? <ListingPanel tabRenderers={tabs.renderers} /> : null
     });
 }
 
@@ -560,26 +583,24 @@ function append_partitions(client, rows, level, block) {
         );
 
         const cols = [
-            {
-                title: <span key={start.toString() + size.toString()} className={"content-level-" + level}>
-                    {utils.format_size_and_text(size, _("Free space"))}
-                </span>
-            },
+            _("Free space"),
             { },
-            { title : btn, props: { className: "content-action" } },
+            { },
+            { title: utils.fmt_size(size), props: { className: "ct-text-align-right" } },
+            { title: btn, props: { className: "content-action" } },
             { props: { className: "content-action" } }
         ];
 
         rows.push({
             columns: cols,
-            props: { key: "free-space-" + rows.length.toString() }
+            props: { key: "free-space-" + rows.length.toString(), className: "content-level-" + level }
         });
     }
 
     function append_extended_partition(level, partition) {
         const desc = {
             size: partition.size,
-            text: _("Extended partition")
+            type: _("Extended partition")
         };
         const tabs = create_tabs(client, partition.block, true, true);
         append_row(client, rows, level, partition.block.path, utils.block_name(partition.block), desc, tabs, partition.block.path);
@@ -706,7 +727,7 @@ const BlockContent = ({ client, block, allow_partitions }) => {
                 <ListingTable rows={ block_rows(client, block) }
                               aria-label={_("Content")}
                               variant="compact"
-                              columns={[_("Content"), { title: _("Name"), header: true }, _("Actions"), _("Menu")]}
+                              columns={[_("Name"), _("Type"), _("Used for"), _("Size"), _("Actions"), _("Menu")]}
                               showHeader={false} />
             </CardBody>
         </Card>
@@ -724,15 +745,18 @@ export const Block = ({ client, block, allow_partitions }) => {
 function append_logical_volume_block(client, rows, level, block, lvol) {
     let tabs, desc;
     if (client.blocks_ptable[block.path]) {
+        // XXX - just make this a link to the details page for the block device?
         desc = {
             size: block.Size,
-            text: lvol.Name
+            type: lvol.Name
         };
         tabs = create_tabs(client, block, false);
         append_row(client, rows, level, lvol.Name, utils.block_name(block), desc, tabs, block.path);
         append_partitions(client, rows, level + 1, block);
     } else {
-        append_non_partitioned_block(client, rows, level, block, false);
+        const tabs = create_tabs(client, block, false);
+        const desc = block_description(client, block);
+        append_row(client, rows, level, block.path, lvol.Name, desc, tabs, block.path);
     }
 }
 
@@ -742,7 +766,7 @@ function append_logical_volume(client, rows, level, lvol) {
     if (lvol.Type == "pool") {
         desc = {
             size: lvol.Size,
-            text: _("Pool for thin volumes")
+            type: _("Pool for thin volumes")
         };
         tabs = create_tabs(client, lvol, false);
         append_row(client, rows, level, lvol.Name, lvol.Name, desc, tabs, false);
@@ -761,7 +785,7 @@ function append_logical_volume(client, rows, level, lvol) {
 
             desc = {
                 size: lvol.Size,
-                text: lvol.Active ? _("Unsupported volume") : _("Inactive volume")
+                type: lvol.Active ? _("Unsupported volume") : _("Inactive volume")
             };
             tabs = create_tabs(client, lvol, false);
             append_row(client, rows, level, lvol.Name, lvol.Name, desc, tabs, false);
@@ -958,7 +982,7 @@ export class VGroup extends React.Component {
                 <CardBody className="contains-list">
                     <ListingTable emptyCaption={_("No logical volumes")}
                                   aria-label={_("Logical volumes")}
-                                  columns={[_("Content"), { title: _("Name"), header: true }, _("Actions"), _("Menu")]}
+                                  columns={[_("Name"), _("Type"), _("Used for"), _("Size"), _("Actions"), _("Menu")]}
                                   showHeader={false}
                                   variant="compact"
                                   rows={vgroup_rows(client, vgroup)} />

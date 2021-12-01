@@ -486,8 +486,6 @@ authentication via sssd/FreeIPA.
 %{_unitdir}/cockpit.socket
 %{_unitdir}/cockpit-wsinstance-http.socket
 %{_unitdir}/cockpit-wsinstance-http.service
-%{_unitdir}/cockpit-wsinstance-http-redirect.socket
-%{_unitdir}/cockpit-wsinstance-http-redirect.service
 %{_unitdir}/cockpit-wsinstance-https-factory.socket
 %{_unitdir}/cockpit-wsinstance-https-factory@.service
 %{_unitdir}/cockpit-wsinstance-https@.socket

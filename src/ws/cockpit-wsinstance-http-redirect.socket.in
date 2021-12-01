@@ -1,9 +1,0 @@
-[Unit]
-Description=Socket for Cockpit Web Service http-redirect instance
-BindsTo=cockpit.service
-Documentation=man:cockpit-ws(8)
-
-[Socket]
-ListenStream=/run/cockpit/wsinstance/http-redirect.sock
-SocketUser=@user@
-SocketMode=0600

@@ -2,8 +2,8 @@
 Description=Cockpit Web Service
 Documentation=man:cockpit-ws(8)
 Requires=cockpit.socket
-Requires=cockpit-wsinstance-http.socket cockpit-wsinstance-http-redirect.socket cockpit-wsinstance-https-factory.socket
-After=cockpit-wsinstance-http.socket cockpit-wsinstance-http-redirect.socket cockpit-wsinstance-https-factory.socket
+Requires=cockpit-wsinstance-http.socket cockpit-wsinstance-https-factory.socket
+After=cockpit-wsinstance-http.socket cockpit-wsinstance-https-factory.socket
 
 [Service]
 RuntimeDirectory=cockpit/tls

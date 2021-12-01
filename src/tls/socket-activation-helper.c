@@ -48,7 +48,6 @@ static struct instance_type
   {"https@" SHA256_NIL ".sock", {"--for-tls-proxy", "--port=0"}},
   {"https@" CLIENT_CERT_FINGERPRINT ".sock", {"--for-tls-proxy", "--port=0"}},
   {"https@" ALTERNATE_FINGERPRINT ".sock", {}}, /* treated specially */
-  {"http-redirect.sock", {"--proxy-tls-redirect", "--no-tls", "--port=0"}},
   {"http.sock", {"--no-tls", "--port", "0"}},
 };
 

@@ -1,9 +1,0 @@
-[Unit]
-Description=Cockpit Web Service http-redirect instance
-BindsTo=cockpit.service
-Documentation=man:cockpit-ws(8)
-
-[Service]
-ExecStart=@libexecdir@/cockpit-ws --proxy-tls-redirect --no-tls --port 0
-User=@wsinstanceuser@
-Group=@wsinstancegroup@

@@ -940,14 +940,6 @@ until pgrep -f cockpit-bridge.*--privileged; do sleep 1; done
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9091"))
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://172.27.0.15:9091"))
 
-        # ws with --proxy-tls-redirect redirects non-localhost to https
-        m.execute("pkill -e cockpit-ws; while pgrep -a cockpit-ws; do sleep 1; done")
-        m.spawn(f"su -s /bin/sh -c '{self.ws_executable} --proxy-tls-redirect --no-tls -p 9099 -a 127.0.0.1' cockpit-wsinstance",
-                "ws-proxy-tls-redirect.log")
-        m.wait_for_cockpit_running(tls=True)
-        self.assertIn("HTTP/1.1 301 Moved Permanently", m.execute("curl --silent --head http://172.27.0.15:9091"))
-        self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9091"))
-
     def testCaCert(self):
         m = self.machine
 

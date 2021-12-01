@@ -93,6 +93,7 @@ export class NFSPanel extends React.Component {
                        not_installed_text={_("NFS support not installed")}
                        install_title={_("Install NFS support")}>
                 <ListingTable
+                    variant="compact"
                     sortBy={{ index: 0, direction: SortByDirection.asc }}
                     aria-label={_("NFS mounts")}
                     onRowClick={onRowClick}

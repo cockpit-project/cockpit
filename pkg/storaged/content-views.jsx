@@ -549,7 +549,7 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
                 : utils.fmt_size(desc.size),
             props: { className: "ct-text-align-right" }
         },
-        { title: <>{actions}{menu}</>, props: { className: "pf-c-table__action content-action" } },
+        { title: <div className="content-action">{actions}{menu}</div> },
     ];
 
     rows.push({
@@ -588,7 +588,7 @@ function append_partitions(client, rows, level, block) {
             { },
             { },
             { title: utils.fmt_size(size), props: { className: "ct-text-align-right" } },
-            { title: btn, props: { className: "pf-c-table__action content-action" } },
+            { title: <div className="content-action">{btn}</div> },
         ];
 
         rows.push({
@@ -724,9 +724,10 @@ const BlockContent = ({ client, block, allow_partitions }) => {
                 <CardActions>{format_disk_btn}</CardActions>
             </CardHeader>
             <CardBody className="contains-list">
-                <ListingTable rows={ block_rows(client, block) }
+                <ListingTable variant="compact"
+                              rows={ block_rows(client, block) }
                               aria-label={_("Content")}
-                              columns={[_("Name"), _("Type"), _("Used for"), _("Size")]}
+                              columns={[_("Name"), _("Type"), _("Used for"), _("Size"), ""]}
                               showHeader={false} />
             </CardBody>
         </Card>
@@ -974,9 +975,10 @@ export class VGroup extends React.Component {
                     <CardActions>{new_volume_link}</CardActions>
                 </CardHeader>
                 <CardBody className="contains-list">
-                    <ListingTable emptyCaption={_("No logical volumes")}
+                    <ListingTable variant="compact"
+                                  emptyCaption={_("No logical volumes")}
                                   aria-label={_("Logical volumes")}
-                                  columns={[_("Name"), _("Type"), _("Used for"), _("Size")]}
+                                  columns={[_("Name"), _("Type"), _("Used for"), _("Size"), ""]}
                                   showHeader={false}
                                   rows={vgroup_rows(client, vgroup)} />
                 </CardBody>

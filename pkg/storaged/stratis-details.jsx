@@ -620,8 +620,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
                 props: { className: "ct-text-align-right" }
             },
             {
-                title: <>{actions}<StorageBarMenu key="menu" menuItems={menuitems} isKebab /></>,
-                props: { className: "pf-c-table__action content-action" }
+                title: <div className="content-action">{actions}<StorageBarMenu key="menu" menuItems={menuitems} isKebab /></div>
             }
         ];
 
@@ -650,9 +649,10 @@ export const StratisPoolDetails = ({ client, pool }) => {
                 </CardActions>
             </CardHeader>
             <CardBody className="contains-list">
-                <ListingTable emptyCaption={_("No filesystems")}
+                <ListingTable variant="compact"
+                              emptyCaption={_("No filesystems")}
                               aria-label={_("Filesystems")}
-                              columns={[_("Name"), _("Used for"), _("Size")]}
+                              columns={[_("Name"), _("Used for"), _("Size"), ""]}
                               showHeader={false}
                               rows={rows.filter(row => !!row)} />
             </CardBody>
@@ -787,9 +787,10 @@ export const StratisLockedPoolDetails = ({ client, uuid }) => {
                 <CardTitle><Text component={TextVariants.h2}>{_("Filesystems")}</Text></CardTitle>
             </CardHeader>
             <CardBody className="contains-list">
-                <ListingTable emptyCaption={_("Unlock pool to see filesystems.")}
+                <ListingTable variant="compact"
+                              emptyCaption={_("Unlock pool to see filesystems.")}
                               aria-label={_("Filesystems")}
-                              columns={[_("Name"), _("Used for"), _("Size")]}
+                              columns={[_("Name"), _("Used for"), _("Size"), ""]}
                               showHeader={false}
                               rows={[]} />
             </CardBody>

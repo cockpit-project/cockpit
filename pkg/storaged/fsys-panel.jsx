@@ -163,6 +163,7 @@ export class FilesystemsPanel extends React.Component {
             <OptionalPanel id="mounts" className="storage-mounts"
                 title={_("Filesystems")}>
                 <ListingTable
+                    variant="compact"
                     sortBy={{ index: 0, direction: SortByDirection.asc }}
                     aria-label={_("Filesystems")}
                     className={mounts.length ? 'table-hover' : ''}

@@ -154,18 +154,19 @@ export const ListingTable = ({
             <React.Fragment key={rowKey + "-inner-row"}>
                 <Tr {...rowProps}>
                     {isExpandable
-                        ? <Td expand={
-                            row.expandedContent
-                                ? {
-                                    rowKey,
-                                    isExpanded,
-                                    onToggle: () => {
-                                        if (afterToggle)
-                                            afterToggle(!expanded[rowKey]);
-                                        setExpanded({ ...expanded, [rowKey]: !expanded[rowKey] });
-                                    }
-                                } : null} />
-                        : null}
+                        ? (row.expandedContent
+                            ? <Td expand={{
+                                rowKey,
+                                isExpanded,
+                                onToggle: () => {
+                                    if (afterToggle)
+                                        afterToggle(!expanded[rowKey]);
+                                    setExpanded({ ...expanded, [rowKey]: !expanded[rowKey] });
+                                }
+                            }} />
+                            : <Td className="pf-c-table__toggle" />)
+                        : null
+                    }
                     {onSelect &&
                         <Td select={{
                             rowIndex,

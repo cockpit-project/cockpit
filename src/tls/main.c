@@ -120,9 +120,11 @@ main (int argc, char **argv)
       if (cockpit_conf_bool ("WebService", "ClientCertAuthentication", false))
         client_cert_mode = GNUTLS_CERT_REQUEST;
 
+      bool allow_unencrypted = cockpit_conf_bool ("WebService", "AllowUnencrypted", false);
+
       connection_crypto_init ("/run/cockpit/tls/server/cert",
                               "/run/cockpit/tls/server/key",
-                              client_cert_mode);
+                              allow_unencrypted, client_cert_mode);
 
       /* There's absolutely no need to keep these around */
       if (unlink ("/run/cockpit/tls/server/cert") != 0)

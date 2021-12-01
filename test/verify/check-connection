@@ -203,7 +203,7 @@ class TestConnection(MachineCase):
         def expect_actives(ws_socket, instance_sockets, http_instances, https_instances=0):
             expect_active("cockpit.socket", ws_socket)
             # http instances
-            for instance in ["http", "http-redirect"]:
+            for instance in ["http"]:
                 expect_active(f"cockpit-wsinstance-{instance}.socket", instance_sockets)
                 expect_active(f"cockpit-wsinstance-{instance}.service", instance in http_instances)
             # number of https instances
@@ -251,12 +251,12 @@ class TestConnection(MachineCase):
 
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9090"))
 
-        expect_actives(True, True, ["http-redirect"], 0)
+        expect_actives(True, True, ["http"], 0)
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent -k --head https://127.0.0.1:9090"))
-        expect_actives(True, True, ["http-redirect"], 1)
+        expect_actives(True, True, ["http"], 1)
 
         m.restart_cockpit()
-        expect_actives(True, True, ["http-redirect"], 1)
+        expect_actives(True, True, ["http"], 1)
 
         m.stop_cockpit()
         expect_actives(False, False, [], 0)
@@ -265,24 +265,24 @@ class TestConnection(MachineCase):
         expect_actives(True, False, [], 0)
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9090"))
 
-        expect_actives(True, True, ["http-redirect"], 0)
+        expect_actives(True, True, ["http"], 0)
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent -k --head https://127.0.0.1:9090"))
-        expect_actives(True, True, ["http-redirect"], 1)
+        expect_actives(True, True, ["http"], 1)
 
         # cleans up also when cockpit-tls crashes or idle-exits, not just by explicit stop request
         m.execute("pkill -e cockpit-tls")
         expect_actives(True, False, [], 0)
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9090"))
-        expect_actives(True, True, ["http-redirect"], 0)
+        expect_actives(True, True, ["http"], 0)
         # next https request after crash doesn't leak an instance
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent -k --head https://127.0.0.1:9090"))
-        expect_actives(True, True, ["http-redirect"], 1)
+        expect_actives(True, True, ["http"], 1)
 
         # instance service+socket going away does not confuse cockpit-tls' bookkeeping
         m.execute("systemctl stop cockpit-wsinstance-https@*.service cockpit-wsinstance-https@*.socket")
-        expect_actives(True, True, ["http-redirect"], 0)
+        expect_actives(True, True, ["http"], 0)
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --show-error -k --head https://127.0.0.1:9090"))
-        expect_actives(True, True, ["http-redirect"], 1)
+        expect_actives(True, True, ["http"], 1)
 
         # sockets are inaccessible to users, only to cockpit-tls
         for s in ["http.sock", "https-factory.sock"]:

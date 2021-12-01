@@ -57,8 +57,6 @@ typedef struct _CockpitWebResponse        CockpitWebResponse;
 
 extern const gchar *  cockpit_web_exception_escape_root;
 
-extern const gchar *  cockpit_web_failure_resource;
-
 CockpitWebResponse *  cockpit_web_response_new           (GIOStream *io,
                                                           const gchar *original_path,
                                                           const gchar *path,

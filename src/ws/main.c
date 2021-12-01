@@ -33,7 +33,6 @@
 #include "cockpithandlers.h"
 #include "cockpitbranding.h"
 
-#include "common/cockpitassets.h"
 #include "common/cockpitconf.h"
 #include "common/cockpithacks-glib.h"
 #include "common/cockpitmemory.h"
@@ -98,10 +97,6 @@ setup_static_roots (GHashTable *os_release)
     }
 
   roots = cockpit_branding_calculate_static_roots (os_id, os_variant_id, os_id_like, TRUE);
-
-  /* Load the fail template */
-  g_resources_register (cockpitassets_get_resource ());
-  cockpit_web_failure_resource = "/org/cockpit-project/Cockpit/fail.html";
 
   return roots;
 }

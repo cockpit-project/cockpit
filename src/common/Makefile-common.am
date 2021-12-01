@@ -1,23 +1,6 @@
-src/common/cockpitassets.h: src/common/cockpitassets.gresource.xml
-	@mkdir -p $(dir $@)
-	$(AM_V_GEN) glib-compile-resources --target=$@ --generate-header --sourcedir=$(dir $<) $<
-src/common/cockpitassets.c: src/common/cockpitassets.gresource.xml src/common/fail.html
-	@mkdir -p $(dir $@)
-	$(AM_V_GEN) glib-compile-resources --target=$@ --generate-source --sourcedir=$(dir $<) $<
-
-COCKPIT_ASSETS = \
-       src/common/cockpitassets.h \
-       src/common/cockpitassets.c \
-       $(NULL)
-
-BUILT_SOURCES += $(COCKPIT_ASSETS)
-CLEANFILES += $(COCKPIT_ASSETS)
-
 EXTRA_DIST += \
 	src/common/mock-content \
 	src/common/mock-stderr \
-	src/common/cockpitassets.gresource.xml \
-	src/common/fail.html \
 	$(test_locale_PO) \
 	$(NULL)
 
@@ -106,9 +89,11 @@ libcockpit_common_a_SOURCES = \
 	src/common/cockpitwebserver.c \
 	$(NULL)
 
-nodist_libcockpit_common_a_SOURCES = \
-	$(COCKPIT_ASSETS) \
-	$(NULL)
+src/common/fail.html.c: src/common/fail.html
+	$(AM_V_GEN) $(top_srcdir)/tools/escape-to-c cockpit_webresponse_fail_html_text < $< > $@.tmp && mv $@.tmp $@
+nodist_libcockpit_common_a_SOURCES = src/common/fail.html.c
+CLEANFILES += src/common/fail.html.c
+EXTRA_DIST += src/common/fail.html
 
 libcockpit_common_a_CFLAGS = \
 	-fPIC \
@@ -227,9 +212,6 @@ test_version_LDADD = $(libcockpit_common_a_LIBS)
 
 test_webresponse_SOURCES = \
 	src/common/test-webresponse.c \
-	$(NULL)
-nodist_test_webresponse_SOURCES = \
-	$(COCKPIT_ASSETS) \
 	$(NULL)
 test_webresponse_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_webresponse_LDADD = $(libcockpit_common_a_LIBS)

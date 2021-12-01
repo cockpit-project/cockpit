@@ -119,7 +119,7 @@ QUnit.test("not found", function (assert) {
                 assert.strictEqual(ex.problem, null, "mapped to cockpit code");
                 assert.strictEqual(ex.status, 404, "has status code");
                 assert.equal(ex.message, "Not Found", "has reason");
-                assert.equal(data, "<html><head><title>Not Found</title></head><body>Not Found</body></html>\n", "got body");
+                assert.true(data.includes('<h1>Not Found</h1>'), "got body");
             })
             .always(function() {
                 assert.equal(this.state(), "rejected", "should fail");

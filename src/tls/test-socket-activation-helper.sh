@@ -6,7 +6,7 @@ if ! type curl >/dev/null 2>&1; then
     exit 0
 fi
 
-echo "1..6"
+echo "1..5"
 
 # start activation helper
 SOCKET_DIR=$(mktemp -d --tmpdir socks.XXXXXX)
@@ -56,14 +56,11 @@ expect_curl http.sock "$SUCCESS"
 echo "ok 1 http.sock"
 
 
-expect_curl http-redirect.sock "$REDIRECT"
-echo "ok 2 http-redirect.sock"
-
 expect_start $SHA256_NIL "^done$"
-echo "ok 3 https-factory/success"
+echo "ok 2 https-factory/success"
 
 expect_start "junk" "^fail$"
-echo "ok 4 https-factory/fail"
+echo "ok 3 https-factory/fail"
 
 expect_curl https@$SHA256_NIL.sock "$SUCCESS"
 # second call to existing instance
@@ -71,7 +68,7 @@ expect_curl https@$SHA256_NIL.sock "$SUCCESS"
 # wait for idle timeout
 sleep 2
 expect_curl https@$SHA256_NIL.sock "$SUCCESS"
-echo "ok 5 https@$SHA256_NIL.sock"
+echo "ok 4 https@$SHA256_NIL.sock"
 
 expect_curl https@$SHA256_CERT.sock "$SUCCESS"
-echo "ok 6 https@$SHA256_CERT.sock"
+echo "ok 5 https@$SHA256_CERT.sock"

@@ -700,17 +700,6 @@ path_has_prefix (const gchar *path,
 }
 
 static gboolean
-is_localhost_name (const char *host)
-{
-  return g_strcmp0 (host, "127.0.0.1") == 0 ||
-         g_strcmp0 (host, "[::1]") == 0 ||
-         g_str_has_prefix (host, "127.0.0.1:") ||
-         g_str_has_prefix (host, "[::1]:") ||
-         /* catches localhost4 or localhost6:1234 as well */
-         g_str_has_prefix (host, "localhost");
-}
-
-static gboolean
 is_localhost_connection (GSocketConnection *conn)
 {
   g_autoptr (GSocketAddress) addr = g_socket_connection_get_local_address (conn, NULL);
@@ -747,17 +736,7 @@ process_request (CockpitRequest *request,
       /* Certain paths don't require us to redirect */
       if (!path_has_prefix (path, request->web_server->ssl_exception_prefix))
         {
-          gboolean redirect_tls;
-
-          /* In proxy mode, look at Host: header, as the connection IP is meaningless;
-           * in standalone mode, look at the connection IP (mostly for backwards compatibility -- this really ought to
-           * coincide, so clean this up some day) */
-          if (request->web_server->flags & COCKPIT_WEB_SERVER_REDIRECT_TLS_PROXY)
-            redirect_tls = !is_localhost_name (host);
-          else
-            redirect_tls = !is_localhost_connection (G_SOCKET_CONNECTION (request->io));
-
-          if (redirect_tls)
+          if (!is_localhost_connection (G_SOCKET_CONNECTION (request->io)))
             {
               g_debug ("redirecting request from Host: %s to TLS", host);
               request->delayed_reply = 301;

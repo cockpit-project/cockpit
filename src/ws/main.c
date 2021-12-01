@@ -47,7 +47,6 @@ static gint      opt_port         = 9090;
 static gchar     *opt_address     = NULL;
 static gboolean  opt_no_tls       = FALSE;
 static gboolean  opt_for_tls_proxy    = FALSE;
-static gboolean  opt_proxy_tls_redirect = FALSE;
 static gboolean  opt_local_ssh    = FALSE;
 static gchar     *opt_local_session = NULL;
 static gboolean  opt_version      = FALSE;
@@ -58,9 +57,6 @@ static GOptionEntry cmd_entries[] = {
   {"no-tls", 0, 0, G_OPTION_ARG_NONE, &opt_no_tls, "Don't use TLS", NULL},
   {"for-tls-proxy", 0, 0, G_OPTION_ARG_NONE, &opt_for_tls_proxy,
       "Act behind a https-terminating proxy: accept only https:// origins by default",
-      NULL},
-  {"proxy-tls-redirect", 0, 0, G_OPTION_ARG_NONE, &opt_proxy_tls_redirect,
-      "Redirect http requests to https even with --no-tls (useful for running behind a http reverse proxy)",
       NULL},
   {"local-ssh", 0, 0, G_OPTION_ARG_NONE, &opt_local_ssh, "Log in locally via SSH", NULL },
   {"local-session", 0, 0, G_OPTION_ARG_STRING, &opt_local_session,
@@ -156,11 +152,6 @@ main (int argc,
       g_printerr ("--for-tls-proxy and --no-tls are mutually exclusive");
       goto out;
     }
-  if (opt_for_tls_proxy && opt_proxy_tls_redirect)
-    {
-      g_printerr ("--for-tls-proxy (running behind a https proxy) and --proxy-tls-redirect (running behind a http proxy) are mutually exclusive");
-      goto out;
-    }
 
   if (opt_version)
     {
@@ -214,8 +205,6 @@ main (int argc,
     {
       if (!opt_no_tls)
         server_flags |= COCKPIT_WEB_SERVER_REDIRECT_TLS;
-      if (opt_proxy_tls_redirect)
-        server_flags |= COCKPIT_WEB_SERVER_REDIRECT_TLS | COCKPIT_WEB_SERVER_REDIRECT_TLS_PROXY;
     }
 
   server = cockpit_web_server_new (certificate, server_flags);

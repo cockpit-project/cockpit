@@ -554,6 +554,9 @@ test_no_tls_many_parallel (TestCase *tc, gconstpointer data)
 static void
 test_no_tls_redirect (TestCase *tc, gconstpointer data)
 {
+  /* Make sure we connect on something other than localhost */
+  tc->server_addr.sin_addr.s_addr = htonl (INADDR_LOOPBACK + 1);
+
   /* without TLS support it should not redirect */
   const char *res = do_request (tc, "GET / HTTP/1.0\r\nHost: some.remote:1234\r\n\r\n");
   /* This succeeds (200 OK) when building in-tree, but fails with dist-check due to missing doc root */
@@ -580,6 +583,9 @@ test_tls_no_server_cert (TestCase *tc, gconstpointer data)
 static void
 test_tls_redirect (TestCase *tc, gconstpointer data)
 {
+  /* Make sure we connect on something other than localhost */
+  tc->server_addr.sin_addr.s_addr = htonl (INADDR_LOOPBACK + 1);
+
   /* with TLS support it should redirect */
   const char *res = do_request (tc, "GET / HTTP/1.0\r\nHost: some.remote:1234\r\n\r\n");
   cockpit_assert_strmatch (res, "HTTP/1.1 301 Moved Permanently*");

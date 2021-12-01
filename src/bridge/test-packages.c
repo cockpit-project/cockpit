@@ -1209,6 +1209,10 @@ main (int argc,
 
   cockpit_test_init (&argc, &argv);
 
+  extern const gchar *cockpit_webresponse_fail_html_text;
+  cockpit_webresponse_fail_html_text =
+    "<html><head><title>@@message@@</title></head><body>@@message@@</body></html>\n";
+
   g_test_add ("/packages/simple", TestCase, &fixture_simple,
               setup, test_simple, teardown);
   g_test_add ("/packages/forwarded", TestCase, &fixture_forwarded,

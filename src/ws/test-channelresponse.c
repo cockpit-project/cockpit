@@ -1079,6 +1079,9 @@ main (int argc,
 {
   cockpit_test_init (&argc, &argv);
 
+  extern const gchar *cockpit_webresponse_fail_html_text;
+  cockpit_webresponse_fail_html_text =
+    "<html><head><title>@@message@@</title></head><body>@@message@@</body></html>\n";
 
   /* Try to debug crashing during tests */
   signal (SIGSEGV, cockpit_test_signal_backtrace);

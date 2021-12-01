@@ -37,7 +37,6 @@
 #include "cockpitrouter.h"
 #include "cockpitwebsocketstream.h"
 
-#include "common/cockpitassets.h"
 #include "common/cockpitchannel.h"
 #include "common/cockpitcloserange.h"
 #include "common/cockpitfdpassing.h"
@@ -404,9 +403,6 @@ run_bridge (const gchar *interactive,
         polkit_agent = cockpit_polkit_agent_register (transport, router, NULL);
     }
 #endif
-
-  g_resources_register (cockpitassets_get_resource ());
-  cockpit_web_failure_resource = "/org/cockpit-project/Cockpit/fail.html";
 
   cockpit_dbus_user_startup (pwd);
   cockpit_dbus_process_startup ();

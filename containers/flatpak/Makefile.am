@@ -1,5 +1,4 @@
-build-for-flatpak: $(BUILT_SOURCES)
-	$(MAKE) cockpit-ws
+build-for-flatpak: cockpit-ws
 
 install-for-flatpak: \
 		install-cockpitwsPROGRAMS \

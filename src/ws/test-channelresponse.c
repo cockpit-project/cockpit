@@ -1073,26 +1073,12 @@ test_resource_head (TestResourceCase *tc,
   g_object_unref (response);
 }
 
-static gboolean
-on_hack_raise_sigchld (gpointer user_data)
-{
-  raise (SIGCHLD);
-  return TRUE;
-}
-
 int
 main (int argc,
       char *argv[])
 {
   cockpit_test_init (&argc, &argv);
 
-  /*
-   * HACK: Work around races in glib SIGCHLD handling.
-   *
-   * https://bugzilla.gnome.org/show_bug.cgi?id=731771
-   * https://bugzilla.gnome.org/show_bug.cgi?id=711090
-   */
-  g_timeout_add_seconds (1, on_hack_raise_sigchld, NULL);
 
   /* Try to debug crashing during tests */
   signal (SIGSEGV, cockpit_test_signal_backtrace);

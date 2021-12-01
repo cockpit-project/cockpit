@@ -387,7 +387,7 @@ setup (TestCase *tc, gconstpointer data)
 
   server_init (tc->ws_socket_dir, tc->runtime_dir, fixture ? fixture->idle_timeout : 0, server_port);
   if (fixture && fixture->certfile)
-    connection_crypto_init (fixture->certfile, fixture->keyfile, fixture->cert_request_mode);
+    connection_crypto_init (fixture->certfile, fixture->keyfile, false, fixture->cert_request_mode);
 
   tc->server_addr.sin_family = AF_INET;
   tc->server_addr.sin_port = htons (server_port);

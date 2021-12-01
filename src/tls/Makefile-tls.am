@@ -27,6 +27,8 @@ cockpit_tls_SOURCES = \
 	src/tls/client-certificate.c \
 	src/tls/connection.h \
 	src/tls/connection.c \
+	src/tls/httpredirect.h \
+	src/tls/httpredirect.c \
 	src/tls/server.h \
 	src/tls/server.c \
 	src/tls/main.c \
@@ -94,6 +96,8 @@ test_tls_connection_SOURCES = \
 	src/tls/client-certificate.c \
 	src/tls/certificate.h \
 	src/tls/certificate.c \
+	src/tls/httpredirect.h \
+	src/tls/httpredirect.c \
 	src/tls/connection.c \
 	src/tls/test-connection.c \
 	$(NULL)
@@ -108,6 +112,8 @@ test_tls_server_SOURCES = \
 	src/tls/client-certificate.c \
 	src/tls/certificate.h \
 	src/tls/certificate.c \
+	src/tls/httpredirect.h \
+	src/tls/httpredirect.c \
 	src/tls/connection.c \
 	src/tls/server.c \
 	src/tls/test-server.c \

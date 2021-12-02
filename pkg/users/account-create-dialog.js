@@ -215,7 +215,7 @@ export function account_create_dialog(accounts) {
     }
 
     function create() {
-        return cockpit.spawn(["/usr/sbin/useradd", "-D"])
+        return cockpit.spawn(["/usr/sbin/useradd", "-D"], { superuser: "require" })
                 .catch(() => "")
                 .then(defaults => {
                     let shell = null;

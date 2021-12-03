@@ -22,7 +22,36 @@
 
 #include <gio/gio.h>
 
+#include "cockpitwebresponse.h"
+
 G_BEGIN_DECLS
+
+#define COCKPIT_TYPE_WEB_REQUEST (cockpit_web_request_get_type ())
+typedef struct _CockpitWebRequest CockpitWebRequest;
+
+GType
+cockpit_web_request_get_type (void);
+
+const gchar *
+cockpit_web_request_get_original_path (CockpitWebRequest *self);
+
+const gchar *
+cockpit_web_request_get_path (CockpitWebRequest *self);
+
+const gchar *
+cockpit_web_request_get_method (CockpitWebRequest *self);
+
+GHashTable *
+cockpit_web_request_get_headers (CockpitWebRequest *self);
+
+GIOStream *
+cockpit_web_request_get_io_stream (CockpitWebRequest *self);
+
+GHashTable *
+cockpit_web_request_get_headers (CockpitWebRequest *self);
+
+GByteArray *
+cockpit_web_request_get_buffer (CockpitWebRequest *self);
 
 #define COCKPIT_TYPE_WEB_SERVER  (cockpit_web_server_get_type ())
 G_DECLARE_FINAL_TYPE(CockpitWebServer, cockpit_web_server, COCKPIT, WEB_SERVER, GObject)

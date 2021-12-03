@@ -826,6 +826,7 @@ cockpit_packages_resolve (CockpitPackages *packages,
 
 static gboolean
 handle_package_checksum (CockpitWebServer *server,
+                         CockpitWebRequest *request,
                          const gchar *path,
                          GHashTable *headers,
                          CockpitWebResponse *response,
@@ -874,6 +875,7 @@ set_manifest_headers (CockpitWebResponse *response,
 
 static gboolean
 handle_package_manifests_js (CockpitWebServer *server,
+                             CockpitWebRequest *request,
                              const gchar *path,
                              GHashTable *headers,
                              CockpitWebResponse *response,
@@ -906,6 +908,7 @@ handle_package_manifests_js (CockpitWebServer *server,
 
 static gboolean
 handle_package_manifests_json (CockpitWebServer *server,
+                               CockpitWebRequest *request,
                                const gchar *path,
                                GHashTable *headers,
                                CockpitWebResponse *response,
@@ -1114,6 +1117,7 @@ out:
 
 static gboolean
 handle_packages (CockpitWebServer *server,
+                 CockpitWebRequest *request,
                  const gchar *unused,
                  GHashTable *headers,
                  CockpitWebResponse *response,

@@ -436,6 +436,7 @@ perform_https_request (const gchar *hostport,
 
 static gboolean
 on_shell_index_html (CockpitWebServer *server,
+                     CockpitWebRequest *request,
                      const gchar *path,
                      GHashTable *headers,
                      CockpitWebResponse *response,
@@ -507,6 +508,7 @@ test_webserver_tls (TestCase *tc,
 
 static gboolean
 on_big_header (CockpitWebServer *server,
+               CockpitWebRequest *request,
                const gchar *path,
                GHashTable *headers,
                CockpitWebResponse *response,
@@ -634,6 +636,7 @@ test_webserver_noredirect_override (TestCase *tc,
 
 static gboolean
 on_oh_resource (CockpitWebServer *server,
+                CockpitWebRequest *request,
                 const gchar *path,
                 GHashTable *headers,
                 CockpitWebResponse *response,
@@ -654,6 +657,7 @@ on_oh_resource (CockpitWebServer *server,
 
 static gboolean
 on_scruffy_resource (CockpitWebServer *server,
+                     CockpitWebRequest *request,
                      const gchar *path,
                      GHashTable *headers,
                      CockpitWebResponse *response,
@@ -674,6 +678,7 @@ on_scruffy_resource (CockpitWebServer *server,
 
 static gboolean
 on_index_resource (CockpitWebServer *server,
+                   CockpitWebRequest *request,
                    const gchar *path,
                    GHashTable *headers,
                    CockpitWebResponse *response,
@@ -694,6 +699,7 @@ on_index_resource (CockpitWebServer *server,
 
 static gboolean
 on_default_resource (CockpitWebServer *server,
+                     CockpitWebRequest *request,
                      const gchar *path,
                      GHashTable *headers,
                      CockpitWebResponse *response,

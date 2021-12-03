@@ -84,14 +84,15 @@ on_socket_close (WebSocketConnection *ws,
 
 static gboolean
 handle_socket (CockpitWebServer *server,
-               const gchar *original_path,
-               const gchar *path,
-               const gchar *method,
-               GIOStream *io_stream,
-               GHashTable *headers,
-               GByteArray *input,
+               CockpitWebRequest *request,
                gpointer data)
 {
+  const gchar *path = cockpit_web_request_get_path (request);
+  const gchar *method = cockpit_web_request_get_method (request);
+  GIOStream *io_stream = cockpit_web_request_get_io_stream (request);
+  GByteArray *input = cockpit_web_request_get_buffer (request);
+  GHashTable *headers = cockpit_web_request_get_headers (request);
+
   const gchar *origins[] = { NULL, NULL };
   const gchar *protocols[] = { "one", "two", "three", NULL };
   WebSocketConnection *ws = NULL;

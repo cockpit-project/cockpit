@@ -30,6 +30,8 @@
 #include "common/cockpittest.h"
 #include "common/cockpitwebserver.h"
 
+#include "common/cockpitwebrequest-private.h"
+
 #include <glib.h>
 
 #include <limits.h>
@@ -165,7 +167,8 @@ test_login_no_cookie (Test *test,
 {
   gboolean ret;
 
-  ret = cockpit_handler_default (test->server, path, test->headers, test->response, &test->data);
+  ret = cockpit_handler_default (test->server, WebRequest(.path=path, .headers=test->headers),
+                                 path, test->headers, test->response, &test->data);
 
   g_assert (ret == TRUE);
 
@@ -213,7 +216,8 @@ test_login_with_cookie (Test *test,
 
   include_cookie_as_if_client (test->headers, test->headers);
 
-  ret = cockpit_handler_default (test->server, path, test->headers, test->response, &test->data);
+  ret = cockpit_handler_default (test->server, WebRequest(.path=path, .headers=test->headers),
+                                 path, test->headers, test->response, &test->data);
 
   g_assert (ret == TRUE);
 
@@ -229,7 +233,8 @@ test_login_bad (Test *test,
 
   headers = cockpit_web_server_new_table ();
   g_hash_table_insert (headers, g_strdup ("Authorization"), g_strdup ("booyah"));
-  ret = cockpit_handler_default (test->server, path, headers, test->response, &test->data);
+  ret = cockpit_handler_default (test->server, WebRequest(.path=path, .headers=headers),
+                                 path, headers, test->response, &test->data);
   g_hash_table_unref (headers);
 
   g_assert (ret == TRUE);
@@ -244,7 +249,8 @@ test_login_fail (Test *test,
   GHashTable *headers;
 
   headers = mock_auth_basic_header ("booo", "yah");
-  ret = cockpit_handler_default (test->server, path, test->headers, test->response, &test->data);
+  ret = cockpit_handler_default (test->server, WebRequest(.path=path, .headers=test->headers),
+                                 path, test->headers, test->response, &test->data);
   g_hash_table_unref (headers);
 
   while (!test->response_done)
@@ -288,7 +294,8 @@ test_login_accept (Test *test,
 
   headers = mock_auth_basic_header ("me", PASSWORD);
   g_hash_table_insert (headers, g_strdup ("X-Authorize"), g_strdup ("password"));
-  ret = cockpit_handler_default (test->server, path, headers, test->response, &test->data);
+  ret = cockpit_handler_default (test->server, WebRequest(.path=path, .headers=headers),
+                                 path, headers, test->response, &test->data);
   g_hash_table_unref (headers);
 
   g_assert (ret == TRUE);
@@ -321,7 +328,8 @@ test_favicon_ico (Test *test,
   const gchar *output;
   gboolean ret;
 
-  ret = cockpit_handler_root (test->server, path, test->headers, test->response, &test->data);
+  ret = cockpit_handler_root (test->server, WebRequest(.path=path, .headers=test->headers),
+                              path, test->headers, test->response, &test->data);
 
   g_assert (ret == TRUE);
 
@@ -339,7 +347,8 @@ test_ping (Test *test,
   const gchar *output;
   gboolean ret;
 
-  ret = cockpit_handler_ping (test->server, path, test->headers, test->response, &test->data);
+  ret = cockpit_handler_ping (test->server, WebRequest(.path=path, .headers=test->headers),
+                              path, test->headers, test->response, &test->data);
 
   g_assert (ret == TRUE);
 
@@ -429,7 +438,8 @@ test_default (Test *test,
   const DefaultFixture *fixture = data;
   gboolean ret;
 
-  ret = cockpit_handler_default (test->server, fixture->path, test->headers, test->response, &test->data);
+  ret = cockpit_handler_default (test->server, WebRequest(.path=fixture->path, .headers=test->headers),
+                                 fixture->path, test->headers, test->response, &test->data);
 
   if (fixture->expect)
     {
@@ -468,7 +478,8 @@ test_resource_checksum (Test *test,
   path = "/cockpit/@localhost/checksum";
   response = cockpit_web_response_new (io, path, path, NULL, NULL, COCKPIT_WEB_RESPONSE_NONE);
   g_signal_connect (response, "done", G_CALLBACK (on_web_response_done_set_flag), &response_done);
-  g_assert (cockpit_handler_default (test->server, path, test->headers, response, &test->data));
+  g_assert (cockpit_handler_default (test->server, WebRequest(.path=path, .headers=test->headers),
+                                     path, test->headers, response, &test->data));
 
   while (!response_done)
     g_main_context_iteration (NULL, TRUE);
@@ -775,8 +786,10 @@ test_socket_unauthenticated (void)
   /* Matching the above origin */
   cockpit_ws_default_host_header = "127.0.0.1";
 
-  g_assert (cockpit_handler_socket (server, "/cockpit/socket", "/cockpit/socket",
-                                    "GET", io_b, NULL, NULL, NULL));
+  g_assert (cockpit_handler_socket (server,
+                                    WebRequest(.path="/cockpit/socket",
+                                               .original_path="/cockpit/socket",
+                                               .method="GET", .io=io_b), NULL));
 
   g_signal_connect (client, "message", G_CALLBACK (on_message_get_bytes), &received);
 

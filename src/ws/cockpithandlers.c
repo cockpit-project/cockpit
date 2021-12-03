@@ -105,14 +105,15 @@ handle_noauth_socket (GIOStream *io_stream,
 /* Called by @server when handling HTTP requests to /cockpit/socket */
 gboolean
 cockpit_handler_socket (CockpitWebServer *server,
-                        const gchar *original_path,
-                        const gchar *path,
-                        const gchar *method,
-                        GIOStream *io_stream,
-                        GHashTable *headers,
-                        GByteArray *input,
+                        CockpitWebRequest *request,
                         CockpitHandlerData *ws)
 {
+  const gchar *path = cockpit_web_request_get_path (request);
+  const gchar *method = cockpit_web_request_get_method (request);
+  GIOStream *io_stream = cockpit_web_request_get_io_stream (request);
+  GByteArray *input = cockpit_web_request_get_buffer (request);
+  GHashTable *headers = cockpit_web_request_get_headers (request);
+
   CockpitWebService *service = NULL;
   const gchar *segment = NULL;
 
@@ -152,14 +153,16 @@ cockpit_handler_socket (CockpitWebServer *server,
 
 gboolean
 cockpit_handler_external (CockpitWebServer *server,
-                          const gchar *original_path,
-                          const gchar *path,
-                          const gchar *method,
-                          GIOStream *io_stream,
-                          GHashTable *headers,
-                          GByteArray *input,
+                          CockpitWebRequest *request,
                           CockpitHandlerData *ws)
 {
+  const gchar *original_path = cockpit_web_request_get_original_path (request);
+  const gchar *path = cockpit_web_request_get_path (request);
+  const gchar *method = cockpit_web_request_get_method (request);
+  GIOStream *io_stream = cockpit_web_request_get_io_stream (request);
+  GByteArray *input = cockpit_web_request_get_buffer (request);
+  GHashTable *headers = cockpit_web_request_get_headers (request);
+
   CockpitWebResponse *response = NULL;
   CockpitWebService *service = NULL;
   const gchar *segment = NULL;
@@ -665,6 +668,7 @@ handle_shell (CockpitHandlerData *data,
 
 gboolean
 cockpit_handler_default (CockpitWebServer *server,
+                         CockpitWebRequest *request,
                          const gchar *path,
                          GHashTable *headers,
                          CockpitWebResponse *response,
@@ -726,6 +730,7 @@ cockpit_handler_default (CockpitWebServer *server,
 
 gboolean
 cockpit_handler_root (CockpitWebServer *server,
+                      CockpitWebRequest *request,
                       const gchar *path,
                       GHashTable *headers,
                       CockpitWebResponse *response,
@@ -738,6 +743,7 @@ cockpit_handler_root (CockpitWebServer *server,
 
 gboolean
 cockpit_handler_ping (CockpitWebServer *server,
+                      CockpitWebRequest *request,
                       const gchar *path,
                       GHashTable *headers,
                       CockpitWebResponse *response,
@@ -773,6 +779,7 @@ cockpit_handler_ping (CockpitWebServer *server,
 
 gboolean
 cockpit_handler_ca_cert (CockpitWebServer *server,
+                         CockpitWebRequest *request,
                          const gchar *path,
                          GHashTable *headers,
                          CockpitWebResponse *response,

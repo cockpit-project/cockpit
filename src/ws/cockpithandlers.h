@@ -36,42 +36,36 @@ typedef struct {
 } CockpitHandlerData;
 
 gboolean       cockpit_handler_socket            (CockpitWebServer *server,
-                                                  const gchar *original_path,
-                                                  const gchar *path,
-                                                  const gchar *method,
-                                                  GIOStream *io_stream,
-                                                  GHashTable *headers,
-                                                  GByteArray *input,
+                                                  CockpitWebRequest *request,
                                                   CockpitHandlerData *data);
 
 gboolean       cockpit_handler_external          (CockpitWebServer *server,
-                                                  const gchar *original_path,
-                                                  const gchar *path,
-                                                  const gchar *method,
-                                                  GIOStream *io_stream,
-                                                  GHashTable *headers,
-                                                  GByteArray *input,
+                                                  CockpitWebRequest *request,
                                                   CockpitHandlerData *data);
 
 gboolean       cockpit_handler_root              (CockpitWebServer *server,
+                                                  CockpitWebRequest *request,
                                                   const gchar *path,
                                                   GHashTable *headers,
                                                   CockpitWebResponse *response,
                                                   CockpitHandlerData *ws);
 
 gboolean       cockpit_handler_default           (CockpitWebServer *server,
+                                                  CockpitWebRequest *request,
                                                   const gchar *path,
                                                   GHashTable *headers,
                                                   CockpitWebResponse *response,
                                                   CockpitHandlerData *ws);
 
 gboolean       cockpit_handler_ping              (CockpitWebServer *server,
+                                                  CockpitWebRequest *request,
                                                   const gchar *path,
                                                   GHashTable *headers,
                                                   CockpitWebResponse *response,
                                                   CockpitHandlerData *ws);
 
 gboolean       cockpit_handler_ca_cert           (CockpitWebServer *server,
+                                                  CockpitWebRequest *request,
                                                   const gchar *path,
                                                   GHashTable *headers,
                                                   CockpitWebResponse *response,

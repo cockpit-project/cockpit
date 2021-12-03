@@ -36,6 +36,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "cockpitwebrequest-private.h"
+
 /* Used during testing */
 gboolean cockpit_webserver_want_certificate = FALSE;
 
@@ -72,8 +74,8 @@ static gint sig_handle_resource = 0;
 static void cockpit_web_request_free (gpointer data);
 
 static void cockpit_web_request_start (CockpitWebServer *web_server,
-                                   GIOStream *stream,
-                                   gboolean first);
+                                       GIOStream *stream,
+                                       gboolean first);
 
 G_DEFINE_TYPE (CockpitWebServer, cockpit_web_server, G_TYPE_OBJECT)
 
@@ -258,6 +260,7 @@ on_web_response_done (CockpitWebResponse *response,
 
 static gboolean
 cockpit_web_server_default_handle_resource (CockpitWebServer *self,
+                                            CockpitWebRequest *request,
                                             const gchar *path,
                                             GHashTable *headers,
                                             CockpitWebResponse *response)
@@ -268,12 +271,7 @@ cockpit_web_server_default_handle_resource (CockpitWebServer *self,
 
 static gboolean
 cockpit_web_server_default_handle_stream (CockpitWebServer *self,
-                                          const gchar *original_path,
-                                          const gchar *path,
-                                          const gchar *method,
-                                          GIOStream *io_stream,
-                                          GHashTable *headers,
-                                          GByteArray *input)
+                                          CockpitWebRequest *request)
 {
   CockpitWebResponse *response;
   gboolean claimed = FALSE;
@@ -283,7 +281,7 @@ cockpit_web_server_default_handle_stream (CockpitWebServer *self,
   gchar bak;
 
   /* Yes, we happen to know that we can modify this string safely. */
-  pos = strchr (path, '?');
+  pos = strchr (request->path, '?');
   if (pos != NULL)
     {
       *pos = '\0';
@@ -292,15 +290,15 @@ cockpit_web_server_default_handle_stream (CockpitWebServer *self,
 
   /* We also have to strip original_path so that CockpitWebResponse
      can rediscover url_root. */
-  orig_pos = strchr (original_path, '?');
+  orig_pos = strchr (request->original_path, '?');
   if (orig_pos != NULL)
     *orig_pos = '\0';
 
   /* TODO: Correct HTTP version for response */
-  response = cockpit_web_response_new (io_stream, original_path, path, pos, headers,
+  response = cockpit_web_response_new (request->io, request->original_path, request->path, pos, request->headers,
                                        (self->flags & COCKPIT_WEB_SERVER_FOR_TLS_PROXY) ?
                                          COCKPIT_WEB_RESPONSE_FOR_TLS_PROXY : COCKPIT_WEB_RESPONSE_NONE);
-  cockpit_web_response_set_method (response, method);
+  cockpit_web_response_set_method (response, request->method);
   g_signal_connect_data (response, "done", G_CALLBACK (on_web_response_done),
                          g_object_ref (self), (GClosureNotify)g_object_unref, 0);
 
@@ -318,9 +316,9 @@ cockpit_web_server_default_handle_stream (CockpitWebServer *self,
 
   /* Temporarily null terminate string after first component */
   pos = NULL;
-  if (path[0] != '\0')
+  if (request->path[0] != '\0')
     {
-      pos = strchr (path + 1, '/');
+      pos = strchr (request->path + 1, '/');
       if (pos != NULL)
         {
           pos++;
@@ -328,20 +326,21 @@ cockpit_web_server_default_handle_stream (CockpitWebServer *self,
           *pos = '\0';
         }
     }
-  detail = g_quark_try_string (path);
+  detail = g_quark_try_string (request->path);
   if (pos != NULL)
     *pos = bak;
 
   /* See if we have any takers... */
   g_signal_emit (self,
                  sig_handle_resource, detail,
-                 path,
-                 headers,
+                 request,
+                 request->path,
+                 request->headers,
                  response,
                  &claimed);
 
   if (!claimed)
-    claimed = cockpit_web_server_default_handle_resource (self, path, headers, response);
+    claimed = cockpit_web_server_default_handle_resource (self, request, request->path, request->headers, response);
 
   /* TODO: Here is where we would plug keep-alive into response */
   g_object_unref (response);
@@ -392,13 +391,8 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
                                     NULL, /* accu_data */
                                     g_cclosure_marshal_generic,
                                     G_TYPE_BOOLEAN,
-                                    6,
-                                    G_TYPE_STRING,
-                                    G_TYPE_STRING,
-                                    G_TYPE_STRING,
-                                    G_TYPE_IO_STREAM,
-                                    G_TYPE_HASH_TABLE,
-                                    G_TYPE_BYTE_ARRAY);
+                                    1,
+                                    COCKPIT_TYPE_WEB_REQUEST | G_SIGNAL_TYPE_STATIC_SCOPE);
 
   sig_handle_resource = g_signal_new ("handle-resource",
                                       G_OBJECT_CLASS_TYPE (klass),
@@ -408,7 +402,8 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
                                       NULL, /* accu_data */
                                       g_cclosure_marshal_generic,
                                       G_TYPE_BOOLEAN,
-                                      3,
+                                      4,
+                                      COCKPIT_TYPE_WEB_REQUEST | G_SIGNAL_TYPE_STATIC_SCOPE,
                                       G_TYPE_STRING,
                                       G_TYPE_HASH_TABLE,
                                       COCKPIT_TYPE_WEB_RESPONSE);
@@ -693,17 +688,19 @@ cockpit_web_server_connect (CockpitWebServer *self)
 
 /* ---------------------------------------------------------------------------------------------------- */
 
-typedef struct {
-  int state;
-  GIOStream *io;
-  GByteArray *buffer;
-  gint delayed_reply;
-  CockpitWebServer *web_server;
-  gboolean eof_okay;
-  GSource *source;
-  GSource *timeout;
-  gboolean check_tls_redirect;
-} CockpitWebRequest;
+static CockpitWebRequest *
+never_copy (CockpitWebRequest *self)
+{
+  g_assert_not_reached ();
+}
+
+static void
+never_free (CockpitWebRequest *self)
+{
+  g_assert_not_reached ();
+}
+
+G_DEFINE_BOXED_TYPE(CockpitWebRequest, cockpit_web_request, never_copy, never_free);
 
 static void
 cockpit_web_request_free (gpointer data)
@@ -812,7 +809,6 @@ cockpit_web_request_process (CockpitWebRequest *self,
                              GHashTable *headers)
 {
   gboolean claimed = FALSE;
-  const gchar *actual_path;
 
   if (self->web_server->url_root->len &&
       !path_has_prefix (path, self->web_server->url_root))
@@ -842,25 +838,19 @@ cockpit_web_request_process (CockpitWebRequest *self,
       return;
     }
 
-  actual_path = path + self->web_server->url_root->len;
+  self->original_path = path;
+  self->path = path + self->web_server->url_root->len;
+  self->method = method;
+  self->headers = headers;
 
   /* See if we have any takers... */
-  g_signal_emit (self->web_server,
-                 sig_handle_stream, 0,
-                 path,
-                 actual_path,
-                 method,
-                 self->io,
-                 headers,
-                 self->buffer,
-                 &claimed);
+  g_signal_emit (self->web_server, sig_handle_stream, 0, self, &claimed);
 
   if (!claimed)
-    claimed = cockpit_web_server_default_handle_stream (self->web_server, path, actual_path, method,
-                                                        self->io, headers, self->buffer);
+    claimed = cockpit_web_server_default_handle_stream (self->web_server, self);
 
   if (!claimed)
-    g_critical ("no handler responded to request: %s", actual_path);
+    g_critical ("no handler responded to request: %s", self->path);
 }
 
 static gboolean
@@ -1274,6 +1264,42 @@ cockpit_web_request_start (CockpitWebServer *web_server,
 
   /* Owns the request */
   g_hash_table_add (web_server->requests, self);
+}
+
+const gchar *
+cockpit_web_request_get_original_path (CockpitWebRequest *self)
+{
+  return self->original_path;
+}
+
+const gchar *
+cockpit_web_request_get_path (CockpitWebRequest *self)
+{
+  return self->path;
+}
+
+const gchar *
+cockpit_web_request_get_method (CockpitWebRequest *self)
+{
+  return self->method;
+}
+
+GByteArray *
+cockpit_web_request_get_buffer (CockpitWebRequest *self)
+{
+  return self->buffer;
+}
+
+GHashTable *
+cockpit_web_request_get_headers (CockpitWebRequest *self)
+{
+  return self->headers;
+}
+
+GIOStream *
+cockpit_web_request_get_io_stream (CockpitWebRequest *self)
+{
+  return self->io;
 }
 
 /* ---------------------------------------------------------------------------------------------------- */

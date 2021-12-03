@@ -93,6 +93,7 @@ teardown_general (TestGeneral *tt,
 
 static gboolean
 handle_host_header (CockpitWebServer *server,
+                    CockpitWebRequest *request,
                     const gchar *path,
                     GHashTable *headers,
                     CockpitWebResponse *response,
@@ -185,6 +186,7 @@ test_host_header (TestGeneral *tt,
 
 static gboolean
 handle_default (CockpitWebServer *server,
+                CockpitWebRequest *request,
                 const gchar *path,
                 GHashTable *headers,
                 CockpitWebResponse *response,
@@ -311,6 +313,7 @@ const gint MAGIC_NUMBER = 3068;
 
 static gboolean
 handle_chunked (CockpitWebServer *server,
+                CockpitWebRequest *request,
                 const gchar *path,
                 GHashTable *headers,
                 CockpitWebResponse *response,
@@ -467,6 +470,7 @@ typedef struct {
 
 static gboolean
 handle_test (CockpitWebServer *server,
+             CockpitWebRequest *request,
              const gchar *path,
              GHashTable *headers,
              CockpitWebResponse *response,

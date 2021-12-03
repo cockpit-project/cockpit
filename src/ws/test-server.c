@@ -247,6 +247,7 @@ mock_http_expect_warnings (CockpitWebResponse *response,
 
 static gboolean
 on_handle_mock (CockpitWebServer *server,
+                CockpitWebRequest *request,
                 const gchar *path,
                 GHashTable *headers,
                 CockpitWebResponse *response,
@@ -301,14 +302,14 @@ on_transport_control (CockpitTransport *transport,
 
 static gboolean
 on_handle_stream_socket (CockpitWebServer *server,
-                         const gchar *original_path,
-                         const gchar *path,
-                         const gchar *method,
-                         GIOStream *io_stream,
-                         GHashTable *headers,
-                         GByteArray *input,
+                         CockpitWebRequest *request,
                          gpointer user_data)
 {
+  const gchar *path = cockpit_web_request_get_path (request);
+  GIOStream *io_stream = cockpit_web_request_get_io_stream (request);
+  GByteArray *input = cockpit_web_request_get_buffer (request);
+  GHashTable *headers = cockpit_web_request_get_headers (request);
+
   CockpitTransport *transport;
   const gchar *query = NULL;
   CockpitCreds *creds;
@@ -426,14 +427,15 @@ on_echo_socket_close (WebSocketConnection *ws,
 
 static gboolean
 on_handle_stream_external (CockpitWebServer *server,
-                           const gchar *original_path,
-                           const gchar *path,
-                           const gchar *method,
-                           GIOStream *io_stream,
-                           GHashTable *headers,
-                           GByteArray *input,
+                           CockpitWebRequest *request,
                            gpointer user_data)
 {
+  const gchar *path = cockpit_web_request_get_path (request);
+  const gchar *method = cockpit_web_request_get_method (request);
+  GIOStream *io_stream = cockpit_web_request_get_io_stream (request);
+  GByteArray *input = cockpit_web_request_get_buffer (request);
+  GHashTable *headers = cockpit_web_request_get_headers (request);
+
   CockpitWebResponse *response;
   gboolean handled = FALSE;
   const gchar *upgrade;
@@ -607,6 +609,7 @@ handle_package_file (CockpitWebServer *server,
 
 static gboolean
 on_handle_resource (CockpitWebServer *server,
+                    CockpitWebRequest *request,
                     const gchar *path,
                     GHashTable *headers,
                     CockpitWebResponse *response,
@@ -632,6 +635,7 @@ on_handle_resource (CockpitWebServer *server,
 
 static gboolean
 on_handle_source (CockpitWebServer *server,
+                  CockpitWebRequest *request,
                   const gchar *path,
                   GHashTable *headers,
                   CockpitWebResponse *response,
@@ -649,10 +653,11 @@ on_handle_source (CockpitWebServer *server,
 
 static gboolean
 on_handle_favicon (CockpitWebServer *server,
-                  const gchar *path,
-                  GHashTable *headers,
-                  CockpitWebResponse *response,
-                  gpointer user_data)
+                   CockpitWebRequest *request,
+                   const gchar *path,
+                   GHashTable *headers,
+                   CockpitWebResponse *response,
+                   gpointer user_data)
 {
   const char* roots[] = { SRCDIR "/src/branding/default", NULL };
   cockpit_web_response_file (response, NULL, roots);

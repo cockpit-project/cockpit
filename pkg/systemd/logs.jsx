@@ -377,7 +377,7 @@ const TextFilter = ({ textFilter, onTextFilterChange, filteredQuery }) => {
             <FlexItem>{_("Free-form search")}</FlexItem>
             <Popover headerContent={_("Show messages containing given string.")}
                      showClose={false}
-                     bodyContent={_("Any text string in the logs messages can be filtered. The string can also be in the form of a regular expressions. Also supports filtering by message log fields. These are space separated values, in form FIELD=VALUE, where value can be comma separated list of possible values.")}>
+                     bodyContent={_("Any text string in the logs messages can be filtered. The string can also be in the form of a regular expression. Also supports filtering by message log fields. These are space separated values, in form FIELD=VALUE, where value can be comma separated list of possible values.")}>
                 <HelpIcon />
             </Popover>
         </Flex>

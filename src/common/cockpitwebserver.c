@@ -23,6 +23,7 @@
 
 #include "cockpitconf.h"
 #include "cockpithash.h"
+#include "cockpitjson.h"
 #include "cockpitmemfdread.h"
 #include "cockpitmemory.h"
 #include "cockpitsocket.h"
@@ -1367,6 +1368,56 @@ cockpit_web_request_get_protocol (CockpitWebRequest *self)
   return "http";
 }
 
-/* ---------------------------------------------------------------------------------------------------- */
+gchar *
+cockpit_web_request_get_remote_address (CockpitWebRequest *self)
+{
+  gchar *result = NULL;
+
+  if (self->io == NULL)
+    return NULL;
+
+  JsonObject *metadata = g_object_get_qdata (G_OBJECT (self->io), g_quark_from_static_string ("metadata"));
+  if (metadata)
+    {
+      const gchar *tmp;
+
+      if (cockpit_json_get_string (metadata, "origin-ip", NULL, &tmp))
+        result = g_strdup (tmp);
+    }
+
+  if (result == NULL)
+    {
+      g_autoptr(GIOStream) base = NULL;
+
+      if (G_IS_TLS_CONNECTION (self->io))
+        g_object_get (self->io, "base-io-stream", &base, NULL);
+      else
+        base = g_object_ref (self->io);
+
+      if (G_IS_SOCKET_CONNECTION (base))
+        {
+          g_autoptr(GSocketAddress) remote = g_socket_connection_get_remote_address (G_SOCKET_CONNECTION (base), NULL);
+          if (remote && G_IS_INET_SOCKET_ADDRESS (remote))
+            result = g_inet_address_to_string (g_inet_socket_address_get_address (G_INET_SOCKET_ADDRESS (remote)));
+        }
+    }
+
+  return result;
+}
+
+const gchar *
+cockpit_web_request_get_client_certificate (CockpitWebRequest *self)
+{
+  if (self->io == NULL)
+    return NULL;
+
+  JsonObject *metadata = g_object_get_qdata (G_OBJECT (self->io), g_quark_from_static_string ("metadata"));
+  if (metadata == NULL)
+    return NULL;
+
+  const gchar *client_certificate = NULL;
+  cockpit_json_get_string (metadata, "client-certificate", NULL, &client_certificate);
+  return client_certificate;
+}
 
 /* ---------------------------------------------------------------------------------------------------- */

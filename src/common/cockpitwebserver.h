@@ -73,6 +73,12 @@ cockpit_web_request_get_host (CockpitWebRequest *self);
 const gchar *
 cockpit_web_request_get_protocol (CockpitWebRequest *self);
 
+gchar *
+cockpit_web_request_get_remote_address (CockpitWebRequest *self);
+
+const gchar *
+cockpit_web_request_get_client_certificate (CockpitWebRequest *self);
+
 #define COCKPIT_TYPE_WEB_SERVER  (cockpit_web_server_get_type ())
 G_DECLARE_FINAL_TYPE(CockpitWebServer, cockpit_web_server, COCKPIT, WEB_SERVER, GObject)
 

@@ -315,52 +315,6 @@ cockpit_auth_nonce (CockpitAuth *self)
                                   (guchar *)&seed, sizeof (seed));
 }
 
-static JsonObject *
-get_connection_metadata (GIOStream *io)
-{
-  if (io == NULL)
-    return NULL;
-
-  return g_object_get_qdata (G_OBJECT (io), g_quark_from_static_string ("metadata"));
-}
-
-static gchar *
-get_remote_address (GIOStream *io)
-{
-  gchar *result = NULL;
-
-  if (io)
-    {
-      JsonObject *metadata = get_connection_metadata (io);
-      if (metadata)
-        {
-          const gchar *tmp;
-
-          if (cockpit_json_get_string (metadata, "origin-ip", NULL, &tmp))
-            result = g_strdup (tmp);
-        }
-
-      if (result == NULL)
-        {
-          g_autoptr(GIOStream) base = NULL;
-
-          if (G_IS_TLS_CONNECTION (io))
-            g_object_get (io, "base-io-stream", &base, NULL);
-          else
-            base = g_object_ref (io);
-
-          if (G_IS_SOCKET_CONNECTION (base))
-            {
-              g_autoptr(GSocketAddress) remote = g_socket_connection_get_remote_address (G_SOCKET_CONNECTION (base), NULL);
-              if (remote && G_IS_INET_SOCKET_ADDRESS (remote))
-                result = g_inet_address_to_string (g_inet_socket_address_get_address (G_INET_SOCKET_ADDRESS (remote)));
-            }
-        }
-    }
-
-  return result;
-}
-
 static gchar *
 cockpit_auth_steal_authorization (CockpitWebRequest *request,
                                   gchar **ret_type,
@@ -991,8 +945,7 @@ build_session_credentials (CockpitAuth *self,
         }
     }
 
-  GIOStream *io_stream = cockpit_web_request_get_io_stream (request);
-  remote_peer = get_remote_address (io_stream);
+  remote_peer = cockpit_web_request_get_remote_address (request);
   csrf_token = cockpit_auth_nonce (self);
 
   creds = cockpit_creds_new (application,
@@ -1493,9 +1446,8 @@ cockpit_auth_login_async (CockpitAuth *self,
 
   /* If the client sends a TLS certificate to cockpit-tls, treat this as a
    * definitive login type, and don't just silently fall back to other types */
-  const gchar *client_certificate = NULL;
-  JsonObject *metadata = get_connection_metadata (cockpit_web_request_get_io_stream (request));
-  if (metadata && cockpit_json_get_string (metadata, "client-certificate", NULL, &client_certificate) && client_certificate)
+  const gchar *client_certificate;
+  if ((client_certificate = cockpit_web_request_get_client_certificate (request)))
     {
       g_debug ("TLS connection has peer certificate, using tls-cert auth type");
       type = g_strdup ("tls-cert");

@@ -37,7 +37,7 @@ class TestPages(MachineCase):
         expected = "Web Console"
         expected += "".join(items)
         expected += "About Web Console"
-        # DOCUMENTATION_URL is only in Fedora and RHEL
+        # DOCUMENTATION_URL is only in Fedora, RHEL and Arch
         if "fedora" in m.image:
             if m.image in ["fedora-35", "fedora-coreos"]:
                 expected = "Fedora Linux documentation" + expected
@@ -45,6 +45,9 @@ class TestPages(MachineCase):
                 expected = "Fedora documentation" + expected
         elif m.image.startswith("rhel-"):
             expected = "Red Hat Enterprise Linux documentation" + expected
+        elif m.image == "arch":
+            expected = "Arch Linux documentation" + expected
+
         b.wait_collected_text("#toggle-docs + ul", expected)
         b.click("#toggle-docs")
         b.wait_not_present("#toggle-docs + ul")
@@ -104,6 +107,8 @@ OnCalendar=daily
         # On Debian and Ubuntu we have to generate the other locales
         if "debian" in m.image:
             m.execute("echo 'de_DE.UTF-8 UTF-8' >> /etc/locale.gen && locale-gen && update-locale")
+        elif "arch" == m.image:
+            m.execute("echo 'de_DE.UTF-8 UTF-8' >> /etc/locale.gen && locale-gen")
         elif "ubuntu" in m.image:
             m.execute("locale-gen de_DE && locale-gen de_DE.UTF-8 && update-locale")
 

@@ -254,6 +254,11 @@ cockpit_auth_finalize (GObject *object)
   CockpitAuth *self = COCKPIT_AUTH (object);
   if (self->timeout_tag)
     g_source_remove (self->timeout_tag);
+  if (self->session_service)
+    {
+      g_socket_service_stop (self->session_service);
+      g_object_unref (self->session_service);
+    }
   g_bytes_unref (self->key);
   g_hash_table_remove_all (self->sessions);
   g_hash_table_remove_all (self->conversations);
@@ -1551,6 +1556,40 @@ cockpit_auth_login_async (CockpitAuth *self,
 
       g_simple_async_result_set_op_res_gpointer (result, cockpit_session_ref (session), cockpit_session_unref);
     }
+  else if (self->session_service)
+    {
+      if (self->pending_session == NULL)
+        {
+          g_warning ("No pending connection!!");
+          g_simple_async_result_set_error (result, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                                           "No pending connection!");
+          g_simple_async_result_complete_in_idle (result);
+          goto out;
+        }
+
+      GSocketConnection *session_connection = g_steal_pointer (&self->pending_session);
+      gint fd = g_socket_get_fd (g_socket_connection_get_socket (session_connection));
+      g_autoptr(CockpitPipe) pipe = g_object_new (COCKPIT_TYPE_PIPE,
+                                                  "in-fd", fd,
+                                                  "out-fd", fd,
+                                                  "name", "accepted session",
+                                                  NULL);
+      /* We need to keep this around somehow */
+      g_object_set_data_full (G_OBJECT (pipe), "session-connection", session_connection, g_object_unref);
+      g_autoptr(CockpitTransport) transport = cockpit_pipe_transport_new (pipe);
+      CockpitCreds *creds = build_session_credentials (self, connection, headers,
+                                                       application, NULL, type, authorization);
+      session = cockpit_session_create (self, "accepted", creds, transport);
+      if (creds)
+        cockpit_creds_unref (creds);
+
+      /* How long to wait for the auth process to send some data */
+      session->authorize_timeout = timeout_option ("timeout", type, cockpit_ws_auth_process_timeout);
+
+      /* How long to wait for a response from the client to a auth prompt */
+      session->client_timeout = timeout_option ("response-timeout", type, cockpit_ws_auth_response_timeout);
+      g_simple_async_result_set_op_res_gpointer (result, session, cockpit_session_unref);
+    }
   else
     {
       session = cockpit_session_launch (self, connection, headers, type, authorization, application, &error);
@@ -1790,4 +1829,29 @@ cockpit_auth_empty_cookie_value (const gchar *path, gboolean secure)
   g_free (cookie);
 
   return cookie_line;
+}
+
+static void
+on_session_incoming (GSocketService *service,
+                     GSocketConnection *connection,
+                     GObject *source_object,
+                     gpointer user_data)
+{
+  CockpitAuth *self = user_data;
+
+  /* If we already have a session pending, drop this one */
+  if (!self->pending_session)
+    self->pending_session = g_object_ref (connection);
+}
+
+gboolean
+cockpit_auth_add_session_port (CockpitAuth *self,
+                               guint16 session_port,
+                               GError **error)
+{
+  self->session_service = g_socket_service_new ();
+
+  g_signal_connect (self->session_service, "incoming", G_CALLBACK(on_session_incoming), self);
+
+  return g_socket_listener_add_inet_port (G_SOCKET_LISTENER (self->session_service), session_port, NULL, error);
 }

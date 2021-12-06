@@ -44,6 +44,7 @@
 /* ---------------------------------------------------------------------------------------------------- */
 
 static gint      opt_port         = 9090;
+static gint      opt_session_port = 0;
 static gchar     *opt_address     = NULL;
 static gboolean  opt_no_tls       = FALSE;
 static gboolean  opt_for_tls_proxy    = FALSE;
@@ -66,6 +67,8 @@ static GOptionEntry cmd_entries[] = {
   {"local-session", 0, 0, G_OPTION_ARG_STRING, &opt_local_session,
       "Launch a bridge in the local session (path to cockpit-bridge or '-' for stdin/out); implies --no-tls",
       "BRIDGE" },
+  {"accept-session", 0, 0, G_OPTION_ARG_INT, &opt_session_port,
+      "cockpit-session will connect to us on the given port"},
   {"version", 0, 0, G_OPTION_ARG_NONE, &opt_version, "Print version information", NULL },
   {NULL}
 };
@@ -200,6 +203,9 @@ main (int argc,
 
   data.os_release = cockpit_system_load_os_release ();
   data.auth = cockpit_auth_new (opt_local_ssh, opt_for_tls_proxy ? COCKPIT_AUTH_FOR_TLS_PROXY : COCKPIT_AUTH_NONE);
+  if (opt_session_port != 0 &&
+      !cockpit_auth_add_session_port (data.auth, opt_session_port, &error))
+    goto out;
   roots = setup_static_roots (data.os_release);
 
   data.branding_roots = (const gchar **)roots;

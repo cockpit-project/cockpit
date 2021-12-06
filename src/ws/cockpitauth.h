@@ -64,6 +64,9 @@ struct _CockpitAuth
   guint max_startups;
   guint max_startups_begin;
   guint max_startups_rate;
+
+  GSocketService *session_service;
+  GSocketConnection *pending_session;
 };
 
 struct _CockpitAuthClass
@@ -114,6 +117,11 @@ gchar *         cockpit_auth_steal_authorization      (GHashTable *headers,
 
 gchar *         cockpit_auth_empty_cookie_value       (const gchar *path,
                                                        gboolean secure);
+
+gboolean        cockpit_auth_add_session_port         (CockpitAuth *self,
+                                                       guint16 port,
+                                                       GError **error);
+
 
 G_END_DECLS
 

@@ -53,7 +53,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # Setup a special PAM config that disallows non-wheel users
         def deny_non_root(remote_filename):
-            self.sed_file(f'/nologin/a {admins_only_pam}', remote_filename)
+            if m.image == "arch":
+                self.sed_file(f'1 a {admins_only_pam}', remote_filename)
+            else:
+                self.sed_file(f'/nologin/a {admins_only_pam}', remote_filename)
 
         deny_non_root("/etc/pam.d/cockpit")
         deny_non_root("/etc/pam.d/sshd")
@@ -157,7 +160,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.wait_not_visible("#option-group")
 
             # test login with tcsh
-            if not m.image.startswith("rhel") and not m.image.startswith("centos"):  # no tcsh in RHEL
+            if not m.image.startswith("rhel") and not m.image.startswith("centos") and not m.image == "arch":  # no tcsh in RHEL and in Arch Linux (TOOD: available in [community])
                 m.execute("sed -r -i.bak '/^admin:/ s_:[^:]+$_:/bin/tcsh_' /etc/passwd")
                 b.login_and_go()
                 b.enter_page('/system')

@@ -444,6 +444,8 @@ class CurrentMetrics extends React.Component {
         }
 
         let cores = null;
+        let topCore = null;
+        let cpu_label = null;
         if (this.state.cpuCoresUsed.length > 1) {
             const top_cores = this.state.cpuCoresUsed.map((v, i) => [i, v]).sort((a, b) => b[1] - a[1])
                     .slice(0, 16);
@@ -451,6 +453,22 @@ class CurrentMetrics extends React.Component {
                 <FlexItem>{ cockpit.format(_("Core $0"), c[0]) }</FlexItem>
                 <FlexItem>{c[1]}%</FlexItem></Flex>
             );
+
+            cpu_label = (
+                <Flex spaceItems={{ default: 'spaceItemsNone' }} justifyContent={{ default: 'justifyContentFlexEnd' }}>
+                    <FlexItem>&nbsp;{ cockpit.format(_("average: $0%"), this.state.cpuUsed) }</FlexItem>
+                    <FlexItem>&nbsp;{ cockpit.format(_("max: $0%"), top_cores[0][1]) }</FlexItem>
+                </Flex>);
+
+            topCore = <Progress
+                           id="current-top-cpu-usage"
+                           value={top_cores[0][1]}
+                           className="pf-m-sm"
+                           min={0} max={100}
+                           variant={ top_cores[0][1] > 90 ? ProgressVariant.danger : ProgressVariant.info }
+                           measureLocation="none" />;
+        } else {
+            cpu_label = this.state.cpuUsed + '%';
         }
 
         const cpu_usage = (
@@ -461,17 +479,18 @@ class CurrentMetrics extends React.Component {
                 min={0} max={100}
                 variant={ this.state.cpuUsed > 90 ? ProgressVariant.danger : null }
                 title={ num_cpu_str }
-                label={ this.state.cpuUsed + '% ' } />);
+                label={ cpu_label } />);
 
         return (
             <Gallery className="current-metrics" hasGutter>
                 <Card id="current-metrics-card-cpu">
                     <CardTitle>{ _("CPU") }</CardTitle>
                     <CardBody>
-                        <div className="progress-stack">
+                        <div className="progress-stack-no-space">
                             {cores !== null ? <Tooltip content={ cores } position="bottom">
                                 {cpu_usage}
                             </Tooltip> : cpu_usage }
+                            {topCore}
                         </div>
 
                         { this.state.loadAvg &&

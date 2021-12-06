@@ -73,6 +73,21 @@
           }
       }
 
+      .progress-stack-no-space {
+          display: grid;
+          padding-bottom: var(--pf-global--spacer--lg);
+          grid-gap: 0;
+
+          &:not(:first-child) {
+            padding-top: var(--pf-global--spacer--lg);
+          }
+
+          // avoid the "x" icon on high CPU usage
+          .pf-c-progress__status-icon {
+              display: none;
+          }
+      }
+
       // Stretch the progress stack and description list so they fill up remaining space.
       // This pushes the (unflexing) tables to the bottom.
       .progress-stack,

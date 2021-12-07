@@ -160,7 +160,7 @@ class TestStorageResize(StorageCase):
         # and unmount the fs explicitly.  But then we also need to
         # check it explicitly.
         #
-        self.machine.execute(f"umount '{fs_dev}' && fsadm -y check '{fs_dev}' && fsadm -y resize '{fs_dev}' '{size}'")
+        self.machine.execute(f"(! findmnt -S '{fs_dev}' || umount '{fs_dev}') && fsadm -y check '{fs_dev}' && fsadm -y resize '{fs_dev}' '{size}'")
 
     def testGrowShrinkHelp(self):
         m = self.machine

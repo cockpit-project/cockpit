@@ -355,12 +355,9 @@ class CommonTests:
         b.logout()
         m.execute('while ! id alice; do sleep 5; systemctl restart sssd; done', timeout=300)
 
-        # upload certificates to client machine
-        m.upload(["alice.pem", "alice.key", "bob.pem", "bob.key"], "/var/tmp",
-                 relative_dir="src/tls/ca/")
+        # alice's certificate was written by testClientCertAuthentication()
         alice_cert_key = ['--cert', "/var/tmp/alice.pem", '--key', "/var/tmp/alice.key"]
         alice_user_pass = ['-u', 'alice:' + self.alice_password]
-        bob_cert_key = ['--cert', "/var/tmp/bob.pem", '--key', "/var/tmp/bob.key"]
 
         # ensure sssd certificate lookup works
         user_obj = m.execute('busctl call org.freedesktop.sssd.infopipe /org/freedesktop/sssd/infopipe/Users '
@@ -426,7 +423,9 @@ class CommonTests:
         # another certificate gets rejected
         self.allow_journal_messages("cockpit-session: .*User not found")
         self.allow_journal_messages("cockpit-session: No matching user for certificate")
-        do_test(bob_cert_key, ["HTTP/1.1 401 Authentication failed", '<h1>Authentication failed</h1>'],
+        m.upload(["bob.pem", "bob.key"], "/var/tmp", relative_dir="src/tls/ca/")
+        do_test(['--cert', "/var/tmp/bob.pem", '--key', "/var/tmp/bob.key"],
+                ["HTTP/1.1 401 Authentication failed", '<h1>Authentication failed</h1>'],
                 not_expected=["crsf-token"])
 
         # disallow password auth
@@ -665,20 +664,23 @@ ExecStart=/bin/true
         b = self.browser
 
         ipa_machine = self.machines['services']
-        with open("src/tls/ca/alice.pem") as f:
-            alice_cert = f.read().strip()
-        # IPA does not like the ---BEGIN/END lines
-        alice_cert = '\n'.join([line for line in alice_cert.splitlines() if not line.startswith("----")])
         # set up an IPA user with a TLS certificate; can't use "admin" due to https://pagure.io/freeipa/issue/6683
-        ipa_machine.execute(r"""podman exec -i freeipa sh -exc '
+        ipa_machine.execute(f"""podman exec -i freeipa sh -exc '
 ipa user-add --first=Alice --last="Developer" --shell=/bin/bash alice
-yes "%(password)s" | ipa user-mod --password alice
-ipa user-mod --password-expiration='2030-01-01T00:00:00Z' alice
-ipa user-add-cert alice --certificate="%(cert)s"
+yes "{self.alice_password}" | ipa user-mod --password alice
+ipa user-mod --password-expiration=2030-01-01T00:00:00Z alice' """)
+
+        ipa_machine.execute(r"""podman exec -i freeipa sh -exc '
+# generate IPA CA signed certificate for alice
+openssl req -new -newkey rsa:2048 -days 365 -nodes -keyout /tmp/alice.key -out /tmp/alice.csr -subj "/CN=alice"
+ipa cert-request /tmp/alice.csr --principal=alice --certificate-out=/tmp/alice.pem
 # make alice an admin
 ipa group-add-member admins --users=alice
 ipa-advise enable-admins-sudo | sh -ex
-' """ % {"cert": alice_cert, "password": self.alice_password})
+' """)
+        # download certificate to cockpit machine
+        m.write("/var/tmp/alice.pem", ipa_machine.execute("podman exec -i freeipa cat /tmp/alice.pem").strip())
+        m.write("/var/tmp/alice.key", ipa_machine.execute("podman exec -i freeipa cat /tmp/alice.key").strip())
 
         self.checkClientCertAuthentication()
 
@@ -865,6 +867,9 @@ class TestAD(TestRealms, CommonTests):
         m = self.machine
 
         services_machine = self.machines['services']
+        # samba has no default CA and no helpers, so just re-use our completely independent cockpit-tls unit test one
+        m.upload(["alice.pem", "alice.key"], "/var/tmp", relative_dir="src/tls/ca/")
+
         with open("src/tls/ca/alice.pem") as f:
             alice_cert = f.read().strip()
         # mangle into form palatable for LDAP

@@ -137,6 +137,9 @@ class TestBastion(MachineCase):
         b.wait_text('#current-username', 'admin')
         b.logout()
 
+        b.wait_visible("#login")
+        b.wait_not_visible("#recent-hosts")
+
 
 if __name__ == '__main__':
     test_main()

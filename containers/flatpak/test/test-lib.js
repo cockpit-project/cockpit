@@ -45,6 +45,28 @@ function ph_wait_not_present(sel) {
     return ph_wait_cond(() => (cur_doc.querySelector(sel) === null), 10000, "timed out waiting for " + sel + " to disappear");
 }
 
+function ph_wait_visible(sel) {
+    return ph_wait_cond(() => {
+        const el = cur_doc.querySelector(sel);
+        if (el === null)
+            return false;
+        return el.tagName == "svg" || ((el.offsetWidth > 0 || el.offsetHeight > 0) && !(el.style.visibility == "hidden" || el.style.display == "none"));
+    }, 10000, "timed out waiting for " + sel + " to be visible");
+}
+
+function ph_wait_not_visible(sel) {
+    return ph_wait_cond(() => {
+        const el = cur_doc.querySelector(sel);
+        if (el === null)
+            return true;
+        return !(el.tagName == "svg" || ((el.offsetWidth > 0 || el.offsetHeight > 0) && !(el.style.visibility == "hidden" || el.style.display == "none")));
+    }, 10000, "timed out waiting for " + sel + " to be visible");
+}
+
+function ph_wait_count(sel, count) {
+    return ph_wait_cond(() => (cur_doc.querySelectorAll(sel).length === count), 10000, "timed out waiting for " + sel + " to be visible");
+}
+
 function ph_mouse(sel, type, x, y, btn, ctrlKey, shiftKey, altKey, metaKey) {
     let el = cur_doc.querySelector(sel);
 

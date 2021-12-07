@@ -13,6 +13,22 @@ JS_TIMEOUT = 15
 
 
 class BrowserTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(klass):
+        # Hide localstorage to start browser from clean state
+        klass.datadir = os.path.expanduser("~/.var/app/org.cockpit_project.CockpitClient")
+        if os.path.exists(klass.datadir):
+            klass.data_backup = klass.datadir + ".cockpittest"
+            os.rename(klass.datadir, klass.data_backup)
+        else:
+            klass.data_backup = None
+
+    @classmethod
+    def tearDownClass(klass):
+        shutil.rmtree(klass.datadir)
+        if klass.data_backup:
+            os.rename(klass.data_backup, klass.datadir)
+
     def setUp(self):
         with open(TESTLIB) as f:
             self.testlib = f.read()
@@ -82,6 +98,19 @@ class BrowserTest(unittest.TestCase):
 
         self.assertEqual(self.run_js("test-browser-login.js"), "page-load")
         self.assertEqual(self.run_js("test-browser-overview.js"), "PASS")
+        self.assertIn(self.run_js("test-browser-logout.js"), ["PASS", "page-load"])
+
+        self.assertIn(self.run_js("test-browser-wait-init.js"), ["found", "page-load"])
+
+        # try to log in by clicking on `localhost`
+        self.assertEqual(self.run_js("test-browser-login-recent.js"), "page-load")
+        self.assertIn(self.run_js("test-browser-logout.js"), ["PASS", "page-load"])
+
+        # try to log in to unreachable host
+        self.assertEqual(self.run_js("test-browser-login-invalid.js"), "page-load")
+
+        # check that `invalid` was not added and try to remove `localhost` from the list
+        self.assertEqual(self.run_js("test-browser-login-remove.js"), "PASS")
 
 
 unittest.main()

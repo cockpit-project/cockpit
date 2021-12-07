@@ -493,6 +493,9 @@ ExecStart=/bin/true
         # during image creation the /var/cache directory gets cleaned up, recreate the krb5rcache
         self.machine.execute("mkdir -pZ /var/cache/krb5rcache")
 
+        # IPA CA cert has OCSP entry with that host name, make it available
+        self.machine.execute("echo '10.111.112.100 ipa-ca.cockpit.lan' >> /etc/hosts")
+
         # HACK: Figure out why this happens
         self.allow_journal_messages('''.*didn't receive expected "authorize" message''',
                                     'cockpit-session:$')

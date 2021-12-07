@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-23 18:03+0000\n"
-"PO-Revision-Date: 2021-11-26 15:16+0000\n"
-"Last-Translator: Jan Kuparinen <copper_fin@hotmail.com>\n"
+"POT-Creation-Date: 2021-11-30 18:03+0000\n"
+"PO-Revision-Date: 2021-12-05 17:00+0000\n"
+"Last-Translator: Ville-Pekka Vainio <vpvainio@iki.fi>\n"
 "Language-Team: Finnish <https://translate.fedoraproject.org/projects/cockpit/"
 "main/fi/>\n"
 "Language: fi\n"
@@ -43,7 +43,9 @@ msgid "$0 GiB total"
 msgstr "$0 Git yhteensä"
 
 #: pkg/storaged/stratis-panel.jsx:58
-msgid "$0 Stratis Pool"
+#, fuzzy
+#| msgid "$0 Stratis Pool"
+msgid "$0 Stratis pool"
 msgstr "$0 Stratisvaranto"
 
 #: pkg/networkmanager/network-main.jsx:167
@@ -106,7 +108,7 @@ msgstr "$0 levyt"
 msgid "$0 documentation"
 msgstr "$0 dokumentointi"
 
-#: pkg/static/login.js:391 pkg/static/login.js:838
+#: pkg/static/login.js:393 pkg/static/login.js:841
 msgid "$0 error"
 msgstr "$0 virhe"
 
@@ -125,8 +127,11 @@ msgstr[0] "$0 epäonnistut sisäänkirjautumisyritys"
 msgstr[1] "$0 epäonnistutta sisäänkirjautumisyritystä"
 
 #: pkg/storaged/content-views.jsx:450
+#, fuzzy
+#| msgctxt "storage-id-desc"
+#| msgid "$0 file system"
 msgctxt "storage-id-desc"
-msgid "$0 file system"
+msgid "$0 filesystem"
 msgstr "$0 tiedostojärjestelmä"
 
 #: pkg/storaged/lvol-tabs.jsx:190
@@ -171,7 +176,7 @@ msgstr "$0 on aktiivisessa käytössä"
 msgid "$0 is not available from any repository."
 msgstr "$0 ei ole saatavilla mistään ohjelmistovarastosta."
 
-#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:660
+#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:663
 msgid "$0 key changed"
 msgstr "$0 avain muuttunut"
 
@@ -613,7 +618,7 @@ msgstr "Poissa"
 msgid "Accept key and connect"
 msgstr "Hyväksy avain ja muodosta yhteys"
 
-#: pkg/static/login.js:575
+#: pkg/static/login.js:578
 msgid "Accept key and log in"
 msgstr "Hyväksy avain ja kirjaudu sisään"
 
@@ -854,7 +859,7 @@ msgstr "Hallinta Cockpit-verkkokonsolilla"
 
 #: pkg/shell/superuser.jsx:90 pkg/shell/superuser.jsx:356
 msgid "Administrative access"
-msgstr "Hallinnollinen käyttöoikeus"
+msgstr "Ylläpitäjän käyttöoikeudet"
 
 #: pkg/lib/machine-info.js:84
 msgid "Advanced TCA"
@@ -1029,11 +1034,11 @@ msgstr "Tunnistaudutaan"
 msgid "Authentication"
 msgstr "Tunnistautuminen"
 
-#: pkg/static/login.js:828
+#: pkg/static/login.js:831
 msgid "Authentication failed"
 msgstr "Tunnistautuminen epäonnistui"
 
-#: pkg/static/login.js:818
+#: pkg/static/login.js:821
 msgid "Authentication failed: Server closed connection"
 msgstr "Tunnistautuminen epäonnistui: Palvelin sulki yhteyden"
 
@@ -1506,7 +1511,7 @@ msgstr "Sulje valitut sivut"
 msgid "Cockpit"
 msgstr "Cockpit"
 
-#: pkg/static/login.js:411
+#: pkg/static/login.js:413
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "Cockpitin tunnistautuminen on konfiguroitu virheellisesti."
 
@@ -1557,8 +1562,8 @@ msgid ""
 "same time. Just add them with a single click and your machines will look "
 "after its buddies."
 msgstr ""
-"Cockpit on täydellinen uusille sysadmineille, mahdollistaen yksinkertaisten "
-"toimintoja kuten tallennustilan hallinnan, päiväkirjojen tarkistamisen sekä "
+"Cockpit on täydellinen uusille ylläpitäjille, mahdollistaen yksinkertaisten "
+"toimintoja kuten tallennustilan hallinnan, lokien tarkistamisen sekä "
 "palveluiden käynnistämisen ja lopettamisen. Voit monitoroida ja hallita "
 "useita palvelimia samanaikaisesti. Lisää ne yhdellä napsautuksella ja "
 "koneesi katsovat kavereidensa perään."
@@ -1796,10 +1801,6 @@ msgstr "Kaatumisjärjestelmä"
 msgid "Create"
 msgstr "Luo"
 
-#: pkg/storaged/stratis-details.jsx:367
-msgid "Create Filesystem"
-msgstr "Luo tiedostojärjestelmä"
-
 #: pkg/storaged/things-panel.jsx:79
 msgid "Create LVM2 volume group"
 msgstr "Luo LVM2 taltioryhmä"
@@ -1808,11 +1809,7 @@ msgstr "Luo LVM2 taltioryhmä"
 msgid "Create RAID device"
 msgstr "Luo RAID-laite"
 
-#: pkg/storaged/stratis-panel.jsx:127
-msgid "Create Stratis Pool"
-msgstr "Luo stratisvaranto"
-
-#: pkg/storaged/things-panel.jsx:80
+#: pkg/storaged/things-panel.jsx:80 pkg/storaged/stratis-panel.jsx:127
 msgid "Create Stratis pool"
 msgstr "Luo stratisvaranto"
 
@@ -1832,6 +1829,12 @@ msgstr "Luo laitteet"
 msgid "Create diagnostic report"
 msgstr "Luo diagnostiikkaraportti"
 
+#: pkg/storaged/stratis-details.jsx:367
+#, fuzzy
+#| msgid "Create Filesystem"
+msgid "Create filesystem"
+msgstr "Luo tiedostojärjestelmä"
+
 #: pkg/networkmanager/dialogs-common.jsx:292
 msgid "Create it"
 msgstr "Luo se"
@@ -1840,13 +1843,15 @@ msgstr "Luo se"
 msgid "Create logical volume"
 msgstr "Luo looginen taltio"
 
-#: pkg/storaged/stratis-details.jsx:641
-msgid "Create new Filesystem"
-msgstr "Luo uusi tiedostojärjestelmä"
-
 #: pkg/users/account-create-dialog.js:249 pkg/users/accounts-list.js:78
 msgid "Create new account"
 msgstr "Luo uusi tili"
+
+#: pkg/storaged/stratis-details.jsx:641
+#, fuzzy
+#| msgid "Create new Filesystem"
+msgid "Create new filesystem"
+msgstr "Luo uusi tiedostojärjestelmä"
 
 #: pkg/storaged/content-views.jsx:948
 msgid "Create new logical volume"
@@ -1923,7 +1928,7 @@ msgid ""
 "Creating this $0 will break the connection to the server, and will make the "
 "administration UI unavailable."
 msgstr ""
-"Tämän $0:n luominen katkaisee yhteyden palvelimeen, jolloin "
+"Kohteen $0 luominen katkaisee yhteyden palvelimeen, jolloin "
 "hallintakäyttöliittymä ei ole saatavilla."
 
 #: pkg/systemd/logs.jsx:66
@@ -2234,7 +2239,7 @@ msgstr "Hylkää valitut hälytykset"
 
 #: pkg/shell/topnav.jsx:145 pkg/shell/shell-modals.jsx:138
 msgid "Display language"
-msgstr "Näytä kieli"
+msgstr "Käytettävä kieli"
 
 #: pkg/storaged/fsys-tab.jsx:649 pkg/storaged/fsys-tab.jsx:661
 msgid "Do not mount automatically on boot"
@@ -2781,7 +2786,7 @@ msgstr "Perjantai"
 
 #: pkg/users/account-logs-panel.jsx:84
 msgid "From"
-msgstr "Alku"
+msgstr "Lähde"
 
 #: pkg/users/account-create-dialog.js:40 pkg/users/account-details.js:285
 msgid "Full name"
@@ -2949,7 +2954,7 @@ msgid ""
 "not log in and contact your administrator."
 msgstr ""
 "Jos sormenjälki on sama, napsauta \"Hyväksy avain ja kirjaudu sisään\". "
-"Muussa tapauksessa älä kirjaudu sisään ja ota yhteyttä järjestelmänvalvojaan."
+"Muussa tapauksessa älä kirjaudu sisään ja ota yhteyttä ylläpitäjään."
 
 #: pkg/shell/hosts_dialog.jsx:466 pkg/shell/hosts_dialog.jsx:477
 msgid ""
@@ -3130,7 +3135,7 @@ msgstr "Liitännät"
 msgid "Internal error"
 msgstr "Sisäinen virhe"
 
-#: pkg/static/login.js:808
+#: pkg/static/login.js:811
 msgid "Internal error: Invalid challenge header"
 msgstr "Sisäinen virhe: Virheellinen haasteen otsikko"
 
@@ -3216,8 +3221,11 @@ msgid "Join"
 msgstr "Liity"
 
 #: pkg/systemd/overview-cards/realmd.jsx:420
+#, fuzzy
+#| msgctxt "dialog-title"
+#| msgid "Join a Domain"
 msgctxt "dialog-title"
-msgid "Join a Domain"
+msgid "Join a domain"
 msgstr "Liity toimialueeseen"
 
 #: pkg/systemd/overview-cards/realmd.jsx:448
@@ -3401,15 +3409,15 @@ msgstr "Rajoita pääsyä"
 
 #: pkg/shell/superuser.jsx:356
 msgid "Limited access"
-msgstr "Rajoitettu pääsy"
+msgstr "Rajoitettu käyttö"
 
 #: pkg/shell/superuser.jsx:166
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
 msgstr ""
-"Rajoitettu pääsy -tila rajoittaa hallinnollisia oikeuksia. Joidenkin "
-"verkkokonsolin osien toiminnot ovat vähentyneet."
+"Rajoitettu käyttö -tila rajoittaa ylläpito-oikeuksia. Joitakin "
+"verkkokonsolin toimintoja on karsittu."
 
 #: pkg/systemd/abrtLog.jsx:140
 msgid "Limits"
@@ -3541,7 +3549,7 @@ msgid "Locking $target"
 msgstr "Lukitaan $target"
 
 #: pkg/shell/index.html:64 pkg/static/login.html:115
-#: pkg/shell/hosts_dialog.jsx:742 pkg/static/login.js:575
+#: pkg/shell/hosts_dialog.jsx:742 pkg/static/login.js:578
 msgid "Log in"
 msgstr "Kirjaudu sisään"
 
@@ -3549,7 +3557,7 @@ msgstr "Kirjaudu sisään"
 msgid "Log in to $0"
 msgstr "Kirjaudu kohteeseen $0"
 
-#: pkg/static/login.js:605
+#: pkg/static/login.js:608
 msgid "Log in with your server user account."
 msgstr "Kirjaudu sisään palvelimesi käyttäjätilillä."
 
@@ -3593,7 +3601,13 @@ msgstr "$0:n looginen taltio"
 msgid "Logical volumes"
 msgstr "Loogiset taltiot"
 
-#: pkg/static/login.js:363
+#: pkg/static/login.js:320
+#, fuzzy
+#| msgid "login"
+msgid "Login"
+msgstr "sisäänkirjautuminen"
+
+#: pkg/static/login.js:365
 msgid "Login again"
 msgstr "Kirjaudu sisään uudelleen"
 
@@ -3613,7 +3627,7 @@ msgstr "Kirjautumishistoria"
 msgid "Login history list"
 msgstr "Sisäänkirjautumisten historialista"
 
-#: pkg/static/login.js:364
+#: pkg/static/login.js:366
 msgid "Logout successful"
 msgstr "Uloskirjautuminen onnistui"
 
@@ -3776,7 +3790,9 @@ msgid "Member of RAID device $0"
 msgstr "RAID-laitteen $0 jäsenenä"
 
 #: pkg/storaged/content-views.jsx:464
-msgid "Member of Stratis Pool"
+#, fuzzy
+#| msgid "Member of Stratis Pool"
+msgid "Member of Stratis pool"
 msgstr "Stratisvarannon jäsen"
 
 #: pkg/systemd/services/service-details.jsx:539
@@ -3896,14 +3912,6 @@ msgstr "Lisätietoja..."
 msgid "Mount"
 msgstr "Liitos"
 
-#: pkg/storaged/stratis-details.jsx:377 pkg/storaged/stratis-details.jsx:507
-msgid "Mount Options"
-msgstr "Liitosvalinnat"
-
-#: pkg/storaged/stratis-details.jsx:373 pkg/storaged/stratis-details.jsx:503
-msgid "Mount Point"
-msgstr "Liitoskohta"
-
 #: pkg/storaged/fsys-tab.jsx:653
 msgid "Mount also automatically on boot"
 msgstr "Liitä myös automaattisesti käynnistyksessä"
@@ -3933,11 +3941,13 @@ msgstr "Liitä nyt"
 msgid "Mount on $0 now"
 msgstr "Liitä $0:een nyt"
 
+#: pkg/storaged/stratis-details.jsx:377 pkg/storaged/stratis-details.jsx:507
 #: pkg/storaged/nfs-details.jsx:179 pkg/storaged/format-dialog.jsx:246
 #: pkg/storaged/fsys-tab.jsx:317
 msgid "Mount options"
 msgstr "Liitosvalinnat"
 
+#: pkg/storaged/stratis-details.jsx:373 pkg/storaged/stratis-details.jsx:503
 #: pkg/storaged/fsys-panel.jsx:186 pkg/storaged/nfs-details.jsx:334
 #: pkg/storaged/nfs-panel.jsx:103 pkg/storaged/format-dialog.jsx:240
 #: pkg/storaged/fsys-tab.jsx:312 pkg/storaged/fsys-tab.jsx:699
@@ -4115,7 +4125,7 @@ msgstr "Älä koskaan liitä käynnistyksen yhteydessä"
 msgid "New NFS mount"
 msgstr "Uusi NFS-liitos"
 
-#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:664
+#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:667
 msgid "New host"
 msgstr "Uusi isäntä"
 
@@ -4749,7 +4759,7 @@ msgstr "Pysyvä"
 msgid "Permanently delete $0?"
 msgstr "Poista $0 pysyvästi?"
 
-#: pkg/static/login.js:834
+#: pkg/static/login.js:837
 msgid "Permission denied"
 msgstr "Käyttö estetty"
 
@@ -4792,7 +4802,7 @@ msgstr "Pizza-laatikko"
 
 #: pkg/shell/superuser.jsx:51
 msgid "Please authenticate to gain administrative access"
-msgstr "Todenna saadaksesi hallinnolliset käyttöoikeudet"
+msgstr "Kirjaudu ylläpito-oikeuksien saamiseksi"
 
 #: pkg/storaged/stratis-details.jsx:557
 msgid "Please confirm deletion of $0"
@@ -4818,7 +4828,7 @@ msgstr "Lataa sivu uudelleen ongelman ratkaisemisen jälkeen."
 msgid "Please specify an expiration date"
 msgstr "Määritä vanhenemispäivä"
 
-#: pkg/static/login.js:524
+#: pkg/static/login.js:526
 msgid "Please specify the host to connect to"
 msgstr "Määritä isäntä, johon haluat muodostaa yhteyden"
 
@@ -4896,7 +4906,7 @@ msgstr "Prioriteetti $priority"
 
 #: pkg/shell/superuser.jsx:98
 msgid "Problem becoming administrator"
-msgstr "Ongelma järjestelmänvalvojaksi tulemisessa"
+msgstr "Ongelma ylläpitäjäksi tulemisessa"
 
 #: pkg/systemd/abrtLog.jsx:297
 msgid "Problem details"
@@ -5126,15 +5136,15 @@ msgstr "Palautetaan RAID-laite $target"
 msgid "Refreshing package information"
 msgstr "Päivitetään pakettitietoja"
 
-#: pkg/static/login.js:824
+#: pkg/static/login.js:827
 msgid "Refusing to connect. Host is unknown"
 msgstr "Kieltäytyminen yhteyden muodostamisesta. Isäntä on tuntematon"
 
-#: pkg/static/login.js:826
+#: pkg/static/login.js:829
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "Kieltäytyminen yhteyden muodostamisesta. Isäntäavain ei täsmää"
 
-#: pkg/static/login.js:822
+#: pkg/static/login.js:825
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "Kieltäytyminen yhteyden muodostamisesta. Isäntäavain on tuntematon"
 
@@ -5302,13 +5312,17 @@ msgstr "Vyöhykkeen poistaminen poistaa kaikki sen sisäiset palvelut."
 msgid "Rename"
 msgstr "Nimeä uudelleen"
 
-#: pkg/storaged/stratis-details.jsx:473
-msgid "Rename Filesystem"
-msgstr "Nimeä uudelleen tiedostojärjestelmä"
-
 #: pkg/storaged/stratis-details.jsx:279
-msgid "Rename Stratis Pool"
+#, fuzzy
+#| msgid "Rename Stratis Pool"
+msgid "Rename Stratis pool"
 msgstr "Nimeä uudelleen Stratisvaranto"
+
+#: pkg/storaged/stratis-details.jsx:473
+#, fuzzy
+#| msgid "Rename Filesystem"
+msgid "Rename filesystem"
+msgstr "Nimeä uudelleen tiedostojärjestelmä"
 
 #: pkg/storaged/lvol-tabs.jsx:46
 msgid "Rename logical volume"
@@ -5390,7 +5404,7 @@ msgstr "Vaatii"
 
 #: pkg/systemd/services/service-details.jsx:405
 msgid "Requires administration access to edit"
-msgstr "Muokkaaminen edellyttää järjestelmänvalvojan käyttöoikeuksia"
+msgstr "Muokkaaminen edellyttää ylläpitäjän käyttöoikeuksia"
 
 #: pkg/systemd/services/service-details.jsx:450
 msgid "Requisite"
@@ -6119,11 +6133,7 @@ msgstr "Tallenna tunnuslause"
 msgid "Stored passphrase"
 msgstr "Tallennettu tunnuslause"
 
-#: pkg/storaged/pvol-tabs.jsx:112
-msgid "Stratis Pool"
-msgstr "Stratisvaranto"
-
-#: pkg/storaged/content-views.jsx:208
+#: pkg/storaged/content-views.jsx:208 pkg/storaged/pvol-tabs.jsx:112
 msgid "Stratis pool"
 msgstr "Stratisvaranto"
 
@@ -6189,11 +6199,11 @@ msgstr "Kytke $0 päälle"
 
 #: pkg/shell/superuser.jsx:55
 msgid "Switch to administrative access"
-msgstr "Vaihda järjestelmänvalvojan käyttöoikeuksille"
+msgstr "Vaihda ylläpitäjän käyttöoikeuksiin"
 
 #: pkg/shell/superuser.jsx:164
 msgid "Switch to limited access"
-msgstr "Vaihda rajoitettuun pääsyyn"
+msgstr "Vaihda rajoitettuun käyttöön"
 
 #: pkg/networkmanager/network-interface-members.jsx:95
 #: pkg/networkmanager/network-interface.jsx:165
@@ -6210,7 +6220,7 @@ msgid ""
 "Switching on $0 will break the connection to the server, and will make the "
 "administration UI unavailable."
 msgstr ""
-"$0:n kytkeminen päälle katkaisee yhteyden palvelimeen, jolloin "
+"Kohteen $0 kytkeminen päälle katkaisee yhteyden palvelimeen, jolloin "
 "hallintakäyttöliittymä ei ole saatavilla."
 
 #: pkg/lib/serverTime.js:379
@@ -6291,7 +6301,7 @@ msgstr "Joukkueen asetukset"
 
 #: pkg/systemd/terminal.html:4 pkg/systemd/manifest.json:0
 msgid "Terminal"
-msgstr "Terminaali"
+msgstr "Pääte"
 
 #: pkg/users/account-details.js:273
 msgid "Terminate session"
@@ -6555,7 +6565,7 @@ msgstr ""
 "Tuloksena oleva sormenjälki sopii jakaa julkisilla menetelmillä, mukaan "
 "lukien sähköposti."
 
-#: pkg/static/login.js:816
+#: pkg/static/login.js:819
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -6867,7 +6877,7 @@ msgstr ""
 "tilauspalvelinta."
 
 #: pkg/shell/hosts_dialog.jsx:463 pkg/shell/hosts_dialog.jsx:474
-#: pkg/static/login.js:669
+#: pkg/static/login.js:672
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
 "the machine or through a trusted network:"
@@ -6997,7 +7007,7 @@ msgstr "Tuned on pois päältä"
 
 #: pkg/systemd/superuser-alert.jsx:43
 msgid "Turn on administrative access"
-msgstr "Ota järjestelmänvalvojan käyttöoikeudet käyttöön"
+msgstr "Ota ylläpitäjän käyttöoikeudet käyttöön"
 
 #: pkg/shell/credentials.jsx:200 pkg/systemd/hwinfo.jsx:87
 #: pkg/systemd/hwinfo.jsx:313 pkg/packagekit/autoupdates.jsx:279
@@ -7032,7 +7042,7 @@ msgstr "Asetusten asettaminen epäonnistui: $0"
 msgid "Unable to apply this solution automatically"
 msgstr "Tämän ratkaisun automaattinen asettaminen epäonnistui"
 
-#: pkg/static/login.js:820
+#: pkg/static/login.js:823
 msgid "Unable to connect to that address"
 msgstr "Siihen osoitteeseen yhdistäminen epäonnistui"
 
@@ -7368,7 +7378,7 @@ msgstr "Käyttäjä"
 msgid "User name"
 msgstr "Käyttäjänimi"
 
-#: pkg/static/login.js:522
+#: pkg/static/login.js:524
 msgid "User name cannot be empty"
 msgstr "Käyttäjätunnus ei voi olla tyhjä"
 
@@ -7410,7 +7420,9 @@ msgid "VDO device $0"
 msgstr "VDO-laite $0"
 
 #: pkg/storaged/content-views.jsx:825
-msgid "VDO file system volume (compression/deduplication)"
+#, fuzzy
+#| msgid "VDO file system volume (compression/deduplication)"
+msgid "VDO filesystem volume (compression/deduplication)"
 msgstr "VDO-tiedostojärjestelmän taltio (pakkaus/kopioiden poisto)"
 
 #: pkg/networkmanager/network-interface.jsx:180
@@ -7613,7 +7625,7 @@ msgstr "Kirjoita"
 msgid "Write-mostly"
 msgstr "Kirjoitus-enimmäkseen"
 
-#: pkg/static/login.js:830
+#: pkg/static/login.js:833
 msgid "Wrong user name or password"
 msgstr "Väärä käyttäjätunnus tai salasana"
 
@@ -7629,7 +7641,7 @@ msgstr "Vuosittain"
 msgid "Yes"
 msgstr "Kyllä"
 
-#: pkg/shell/hosts_dialog.jsx:470 pkg/static/login.js:666
+#: pkg/shell/hosts_dialog.jsx:470 pkg/static/login.js:669
 msgid "You are connecting to $0 for the first time."
 msgstr "Yhdistät $0:een ensimmäistä kertaa."
 
@@ -7673,12 +7685,11 @@ msgstr ""
 msgid ""
 "You need to switch to \"Administrative access\" in order to create reports."
 msgstr ""
-"Sinun on vaihdettava \"Järjestelmänvalvojan käyttöoikeus\":een, jotta voit "
-"luoda raportteja."
+"\"Ylläpitäjän käyttöoikeudet\" on otettava käyttöön raporttien luomiseksi."
 
 #: pkg/shell/superuser.jsx:304
 msgid "You now have administrative access."
-msgstr "Sinulla on nyt järjestelmänvalvojan käyttöoikeus."
+msgstr "Sinulla on nyt ylläpitäjän käyttöoikeudet."
 
 #: pkg/shell/base_index.js:516
 msgid "You will be logged out in $0 seconds."
@@ -7959,7 +7970,7 @@ msgstr "$0:sta"
 #: pkg/systemd/overview-cards/lastLogin.jsx:35
 msgctxt "from <host> on <terminal>"
 msgid "from $0 on $1"
-msgstr "$0:sta $1:lla"
+msgstr "sijainnista $0 päätteellä $1"
 
 #: pkg/storaged/manifest.json:0
 msgid "fstab"
@@ -8123,7 +8134,7 @@ msgstr[1] "$0 CPU:ista"
 #: pkg/systemd/overview-cards/lastLogin.jsx:39
 msgctxt "on <terminal>"
 msgid "on $0"
-msgstr "$0:lla"
+msgstr "päätteellä $0"
 
 #: pkg/systemd/manifest.json:0
 msgid "operating system"
@@ -8227,7 +8238,7 @@ msgstr "roolit"
 
 #: pkg/systemd/overview.jsx:151
 msgid "running $0"
-msgstr "käynnissä $0"
+msgstr "käyttöjärjestelmänä $0"
 
 #: pkg/packagekit/updates.jsx:181 pkg/packagekit/updates.jsx:260
 #: pkg/packagekit/manifest.json:0
@@ -8402,7 +8413,7 @@ msgstr "varoitus"
 
 #: pkg/packagekit/autoupdates.jsx:351
 msgid "will be applied $0 at $1"
-msgstr "sovelletaan $0 $1:ssa"
+msgstr "asennetaan $0 klo $1"
 
 #: pkg/storaged/crypto-tab.jsx:247
 msgid "yes"
@@ -8415,6 +8426,18 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "vyöhyke"
+
+#~ msgid "Create Stratis Pool"
+#~ msgstr "Luo stratisvaranto"
+
+#~ msgid "Mount Options"
+#~ msgstr "Liitosvalinnat"
+
+#~ msgid "Mount Point"
+#~ msgstr "Liitoskohta"
+
+#~ msgid "Stratis Pool"
+#~ msgstr "Stratisvaranto"
 
 #~ msgid "A disk is needed."
 #~ msgstr "Levy vaaditaan."

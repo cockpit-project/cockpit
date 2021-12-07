@@ -12,9 +12,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-23 18:03+0000\n"
-"PO-Revision-Date: 2021-11-05 13:05+0000\n"
-"Last-Translator: Martin Pitt <mpitt@redhat.com>\n"
+"POT-Creation-Date: 2021-11-30 18:03+0000\n"
+"PO-Revision-Date: 2021-12-04 07:16+0000\n"
+"Last-Translator: Pavel Borecki <pavel.borecki@gmail.com>\n"
 "Language-Team: Czech <https://translate.fedoraproject.org/projects/cockpit/"
 "main/cs/>\n"
 "Language: cs\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2\n"
-"X-Generator: Weblate 4.8\n"
+"X-Generator: Weblate 4.9.1\n"
 
 #: pkg/storaged/content-views.jsx:481
 msgid "$0 (encrypted)"
@@ -53,7 +53,7 @@ msgstr "$0 GiB celkem"
 #, fuzzy
 #| msgid "$0 Storage pool"
 #| msgid_plural "$0 Storage pools"
-msgid "$0 Stratis Pool"
+msgid "$0 Stratis pool"
 msgstr "$0 fond úložiště"
 
 #: pkg/networkmanager/network-main.jsx:167
@@ -126,7 +126,7 @@ msgstr "$0 Disky"
 msgid "$0 documentation"
 msgstr "Dokumentace k $0"
 
-#: pkg/static/login.js:391 pkg/static/login.js:838
+#: pkg/static/login.js:393 pkg/static/login.js:841
 msgid "$0 error"
 msgstr "$0 chyba"
 
@@ -139,17 +139,18 @@ msgid "$0 failed"
 msgstr "$0 se nezdařilo"
 
 #: pkg/systemd/overview-cards/lastLogin.jsx:102
-#, fuzzy
-#| msgid "VM $0 failed to pause"
 msgid "$0 failed login attempt"
 msgid_plural "$0 failed login attempts"
-msgstr[0] "Virt. stroj $0 se nezdařilo pozastavit"
-msgstr[1] "Virt. stroj $0 se nezdařilo pozastavit"
-msgstr[2] "Virt. stroj $0 se nezdařilo pozastavit"
+msgstr[0] "$0 nepodařený pokus o přihlášení"
+msgstr[1] "$0 nepodařené pokusy o přihlášení"
+msgstr[2] "$0 nepodařených pokusů o přihlášení"
 
 #: pkg/storaged/content-views.jsx:450
+#, fuzzy
+#| msgctxt "storage-id-desc"
+#| msgid "$0 file system"
 msgctxt "storage-id-desc"
-msgid "$0 file system"
+msgid "$0 filesystem"
 msgstr "$0 Souborový systém"
 
 #: pkg/storaged/lvol-tabs.jsx:190
@@ -196,7 +197,7 @@ msgstr "$0 je právě používáno"
 msgid "$0 is not available from any repository."
 msgstr "$0 není k dispozici z žádného z repozitářů."
 
-#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:660
+#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:663
 msgid "$0 key changed"
 msgstr "$0 klíč změněn"
 
@@ -586,7 +587,7 @@ msgstr ""
 
 #: pkg/storaged/stratis-details.jsx:360
 msgid "A filesystem with this name exists already in this pool."
-msgstr ""
+msgstr "Souborový systém s tímto názvem už v tomto fondu existuje."
 
 #: pkg/static/login.html:133
 msgid ""
@@ -625,7 +626,7 @@ msgstr[2] "Aby se uplatnily, aktualizované balíčky potřebují restart systé
 
 #: pkg/storaged/stratis-details.jsx:236
 msgid "A pool with this name exists already."
-msgstr ""
+msgstr "Fond s takovým názvem už existuje."
 
 #: pkg/packagekit/updates.jsx:1441
 msgid "A service needs to be restarted for the updates to take effect:"
@@ -663,7 +664,7 @@ msgstr "Chybí"
 msgid "Accept key and connect"
 msgstr "Přijmout klíč a připojit se"
 
-#: pkg/static/login.js:575
+#: pkg/static/login.js:578
 msgid "Accept key and log in"
 msgstr "Přijmout klíč a přihlásit se"
 
@@ -786,10 +787,8 @@ msgstr "Přidat iSCSI portál"
 #: pkg/networkmanager/ip-settings.jsx:221
 #: pkg/networkmanager/ip-settings.jsx:266
 #: pkg/networkmanager/ip-settings.jsx:311
-#, fuzzy
-#| msgid "Add team"
 msgid "Add item"
-msgstr "Přidat tým"
+msgstr "Přidat položku"
 
 #: pkg/shell/credentials.jsx:91 pkg/users/authorized-keys-panel.js:153
 #: pkg/storaged/crypto-keyslots.jsx:276
@@ -838,16 +837,12 @@ msgid "Add zone"
 msgstr "Přidat zónu"
 
 #: pkg/networkmanager/network-interface-members.jsx:175
-#, fuzzy
-#| msgid ""
-#| "Adding <b>$0</b> will break the connection to the server, and will make "
-#| "the administration UI unavailable."
 msgid ""
 "Adding $0 will break the connection to the server, and will make the "
 "administration UI unavailable."
 msgstr ""
-"Přidání <b>$0</b> přeruší spojení se serverem a znepřístupní tak rozhraní "
-"pro jeho správu."
+"Přidání $0 přeruší spojení se serverem a znepřístupní tak rozhraní pro jeho "
+"správu."
 
 #: pkg/networkmanager/firewall.jsx:527
 msgid ""
@@ -1100,11 +1095,11 @@ msgstr "Ověřování"
 msgid "Authentication"
 msgstr "Ověření"
 
-#: pkg/static/login.js:828
+#: pkg/static/login.js:831
 msgid "Authentication failed"
 msgstr "Ověření se nezdařilo"
 
-#: pkg/static/login.js:818
+#: pkg/static/login.js:821
 msgid "Authentication failed: Server closed connection"
 msgstr "Ověření se nezdařilo: Server přerušil spojení"
 
@@ -1123,10 +1118,8 @@ msgid "Authentication required"
 msgstr "Nutné ověření"
 
 #: pkg/shell/hosts_dialog.jsx:799
-#, fuzzy
-#| msgid "Authorize SSH key."
 msgid "Authorize SSH key"
-msgstr "Pověřit veřejný SSH klíč."
+msgstr "Pověřit SSH klíč"
 
 #: pkg/users/authorized-keys-panel.js:149
 msgid "Authorized public SSH keys"
@@ -1251,10 +1244,8 @@ msgstr "Blokové zařízení pro souborové systémy"
 
 #: pkg/storaged/stratis-details.jsx:141 pkg/storaged/stratis-details.jsx:224
 #: pkg/storaged/stratis-details.jsx:746 pkg/storaged/stratis-panel.jsx:158
-#, fuzzy
-#| msgid "Locked devices"
 msgid "Block devices"
-msgstr "Zamčená zařízení"
+msgstr "Bloková zařízení"
 
 #: pkg/storaged/stratis-details.jsx:647 pkg/storaged/stratis-details.jsx:785
 #, fuzzy
@@ -1264,11 +1255,11 @@ msgstr "Blokované"
 
 #: pkg/storaged/content-views.jsx:460
 msgid "Blockdev of Stratis pool $0"
-msgstr ""
+msgstr "Blokové zařízení Stratis fondu $0"
 
 #: pkg/storaged/content-views.jsx:446
 msgid "Blockdev of locked Stratis pool $0"
-msgstr ""
+msgstr "Blokové zařízení zamčeného Stratis fondu $0"
 
 #: pkg/storaged/mdraid-details.jsx:112
 msgid "Blocked"
@@ -1482,10 +1473,8 @@ msgid "Change system time"
 msgstr "Změnit systémový čas"
 
 #: pkg/shell/hosts_dialog.jsx:785
-#, fuzzy
-#| msgid "Change the password of ${key}."
 msgid "Change the password of $0"
-msgstr "Změnit heslo klíče ${key}."
+msgstr "Změnit heslo $0"
 
 #: pkg/networkmanager/interfaces.js:1590
 msgid "Change the settings"
@@ -1609,7 +1598,7 @@ msgstr "Zavřít vybrané stránky"
 msgid "Cockpit"
 msgstr "Cockpit"
 
-#: pkg/static/login.js:411
+#: pkg/static/login.js:413
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "Cockpit ověřování není nastaveno správně."
 
@@ -1871,7 +1860,7 @@ msgstr "Počítač 2v1"
 
 #: pkg/shell/credentials.jsx:213
 msgid "Copied"
-msgstr ""
+msgstr "Zkopírováno"
 
 #: pkg/shell/credentials.jsx:213
 #: pkg/lib/cockpit-components-context-menu.jsx:103
@@ -1915,14 +1904,6 @@ msgstr "Zhavarovat systém"
 msgid "Create"
 msgstr "Vytvořit"
 
-# auto translated by TM merge from project: usermode, version: default, DocId:
-# usermode
-#: pkg/storaged/stratis-details.jsx:367
-#, fuzzy
-#| msgid "Filesystem"
-msgid "Create Filesystem"
-msgstr "Souborový systém"
-
 #: pkg/storaged/things-panel.jsx:79
 #, fuzzy
 #| msgid "Create volume group"
@@ -1933,23 +1914,15 @@ msgstr "Vytvořit skupinu svazků"
 msgid "Create RAID device"
 msgstr "Vytvořit RAID zařízení"
 
-#: pkg/storaged/stratis-panel.jsx:127
-#, fuzzy
-#| msgid "Create storage pool"
-msgid "Create Stratis Pool"
-msgstr "Vytvořit fond úložiště"
-
-#: pkg/storaged/things-panel.jsx:80
+#: pkg/storaged/things-panel.jsx:80 pkg/storaged/stratis-panel.jsx:127
 #, fuzzy
 #| msgid "Create storage pool"
 msgid "Create Stratis pool"
 msgstr "Vytvořit fond úložiště"
 
 #: pkg/shell/hosts_dialog.jsx:771
-#, fuzzy
-#| msgid "Create a new SSH key and authorize it."
 msgid "Create a new SSH key and authorize it"
-msgstr "Vytvořit nový SSH klíč a autorizovat ho."
+msgstr "Vytvořit nový SSH klíč a autorizovat ho"
 
 #: pkg/storaged/stratis-details.jsx:496
 #, fuzzy
@@ -1965,6 +1938,14 @@ msgstr "Vytvořit zařízení"
 msgid "Create diagnostic report"
 msgstr "Diagnostická hlášení"
 
+# auto translated by TM merge from project: usermode, version: default, DocId:
+# usermode
+#: pkg/storaged/stratis-details.jsx:367
+#, fuzzy
+#| msgid "Filesystem"
+msgid "Create filesystem"
+msgstr "Souborový systém"
+
 #: pkg/networkmanager/dialogs-common.jsx:292
 msgid "Create it"
 msgstr "Vytvořit to"
@@ -1973,15 +1954,15 @@ msgstr "Vytvořit to"
 msgid "Create logical volume"
 msgstr "Vytvořit logický svazek"
 
-#: pkg/storaged/stratis-details.jsx:641
-#, fuzzy
-#| msgid "Create new volume"
-msgid "Create new Filesystem"
-msgstr "Vytvořit nový svazek"
-
 #: pkg/users/account-create-dialog.js:249 pkg/users/accounts-list.js:78
 msgid "Create new account"
 msgstr "Vytvořit nový účet"
+
+#: pkg/storaged/stratis-details.jsx:641
+#, fuzzy
+#| msgid "Create new volume"
+msgid "Create new filesystem"
+msgstr "Vytvořit nový svazek"
 
 #: pkg/storaged/content-views.jsx:948
 msgid "Create new logical volume"
@@ -2654,7 +2635,7 @@ msgstr "Typ šifrování"
 
 #: pkg/users/account-logs-panel.jsx:83
 msgid "Ended"
-msgstr ""
+msgstr "Ukončeno"
 
 #: pkg/selinux/setroubleshoot-view.jsx:260
 msgid "Enforcing"
@@ -3021,7 +3002,7 @@ msgstr "Pátky"
 
 #: pkg/users/account-logs-panel.jsx:84
 msgid "From"
-msgstr ""
+msgstr "Z"
 
 # auto translated by TM merge from project: anaconda, version: f25, DocId:
 # main
@@ -3033,10 +3014,8 @@ msgstr "Celé jméno"
 # cockpit
 #: pkg/networkmanager/ip-settings.jsx:186
 #: pkg/networkmanager/ip-settings.jsx:337
-#, fuzzy
-#| msgid "Gateway:"
 msgid "Gateway"
-msgstr "Brána:"
+msgstr "Brána"
 
 # auto translated by TM merge from project: Cockpit, version: rhel-7.4, DocId:
 # cockpit
@@ -3122,7 +3101,7 @@ msgstr "Nápověda"
 
 #: pkg/systemd/abrtLog.jsx:126
 msgid "Hierarchy ID"
-msgstr ""
+msgstr "Identifikátor hierarchie"
 
 #: pkg/packagekit/history.jsx:107
 msgid "History package count"
@@ -3315,16 +3294,12 @@ msgid "Info and above"
 msgstr "Informace a závažnější"
 
 #: pkg/storaged/content-views.jsx:665
-#, fuzzy
-#| msgid "Initializing..."
 msgid "Initialize"
-msgstr "Inicializace…"
+msgstr "inicializovat"
 
 #: pkg/storaged/content-views.jsx:641
-#, fuzzy
-#| msgid "Initializing..."
 msgid "Initialize disk $0"
-msgstr "Inicializace…"
+msgstr "Inicializovat disk $0"
 
 #: pkg/storaged/content-views.jsx:668
 #, fuzzy
@@ -3393,10 +3368,8 @@ msgid "Installing $0"
 msgstr "Instaluje se $0"
 
 #: pkg/storaged/content-views.jsx:794
-#, fuzzy
-#| msgid "Installing $0"
 msgid "Installing $0 would remove $1."
-msgstr "Instaluje se $0"
+msgstr "Instalace $0 by odebrala $1."
 
 # auto translated by TM merge from project: dnf, version: master, DocId:
 # po/dnf
@@ -3433,7 +3406,7 @@ msgstr "Rozhraní"
 msgid "Internal error"
 msgstr "Vnitřní chyba"
 
-#: pkg/static/login.js:808
+#: pkg/static/login.js:811
 msgid "Internal error: Invalid challenge header"
 msgstr "Vnitřní chyba: neplatná hlavička výzvy"
 
@@ -3526,7 +3499,7 @@ msgstr "Spojit"
 #, fuzzy
 #| msgid "Join a domain"
 msgctxt "dialog-title"
-msgid "Join a Domain"
+msgid "Join a domain"
 msgstr "Připojit se k doméně"
 
 # auto translated by TM merge from project: authconfig, version: master,
@@ -3881,7 +3854,7 @@ msgstr "Uzamyká se $target"
 # auto translated by TM merge from project: python-fedora, version: 0.4.0,
 # DocId: python-fedora
 #: pkg/shell/index.html:64 pkg/static/login.html:115
-#: pkg/shell/hosts_dialog.jsx:742 pkg/static/login.js:575
+#: pkg/shell/hosts_dialog.jsx:742 pkg/static/login.js:578
 msgid "Log in"
 msgstr "Přihlásit"
 
@@ -3891,7 +3864,7 @@ msgstr "Přihlásit"
 msgid "Log in to $0"
 msgstr "Jít na $0"
 
-#: pkg/static/login.js:605
+#: pkg/static/login.js:608
 msgid "Log in with your server user account."
 msgstr "Přihlášení pomocí uživatelského účtu na tomto serveru."
 
@@ -3941,7 +3914,13 @@ msgstr "Logický svazek na $0"
 msgid "Logical volumes"
 msgstr "Logické svazky"
 
-#: pkg/static/login.js:363
+#: pkg/static/login.js:320
+#, fuzzy
+#| msgid "login"
+msgid "Login"
+msgstr "přihlášení"
+
+#: pkg/static/login.js:365
 msgid "Login again"
 msgstr "Znovu přihlásit"
 
@@ -3965,7 +3944,7 @@ msgstr "historie"
 msgid "Login history list"
 msgstr "Formát přihlašování"
 
-#: pkg/static/login.js:364
+#: pkg/static/login.js:366
 msgid "Logout successful"
 msgstr "Odhlášení úspěšné"
 
@@ -4137,7 +4116,7 @@ msgstr "Člen RAID zařízení $0"
 #: pkg/storaged/content-views.jsx:464
 #, fuzzy
 #| msgid "Reset Storage Pool"
-msgid "Member of Stratis Pool"
+msgid "Member of Stratis pool"
 msgstr "Resetovat fond úložišť"
 
 # auto translated by TM merge from project: virt-manager, version: master,
@@ -4267,20 +4246,6 @@ msgstr "Více informací…"
 msgid "Mount"
 msgstr "Připojit (mount)"
 
-#: pkg/storaged/stratis-details.jsx:377 pkg/storaged/stratis-details.jsx:507
-#, fuzzy
-#| msgid "Mount options"
-msgid "Mount Options"
-msgstr "Předvolby připojení"
-
-# auto translated by TM merge from project: anaconda, version: rhel6-branch,
-# DocId: anaconda
-#: pkg/storaged/stratis-details.jsx:373 pkg/storaged/stratis-details.jsx:503
-#, fuzzy
-#| msgid "Mount point"
-msgid "Mount Point"
-msgstr "Přípojný bod"
-
 #: pkg/storaged/fsys-tab.jsx:653
 msgid "Mount also automatically on boot"
 msgstr "Připojovat také automaticky při startu systému"
@@ -4310,6 +4275,7 @@ msgstr "Připojit nyní"
 msgid "Mount on $0 now"
 msgstr "Připojit na $0 nyní"
 
+#: pkg/storaged/stratis-details.jsx:377 pkg/storaged/stratis-details.jsx:507
 #: pkg/storaged/nfs-details.jsx:179 pkg/storaged/format-dialog.jsx:246
 #: pkg/storaged/fsys-tab.jsx:317
 msgid "Mount options"
@@ -4317,6 +4283,7 @@ msgstr "Předvolby připojení"
 
 # auto translated by TM merge from project: anaconda, version: rhel6-branch,
 # DocId: anaconda
+#: pkg/storaged/stratis-details.jsx:373 pkg/storaged/stratis-details.jsx:503
 #: pkg/storaged/fsys-panel.jsx:186 pkg/storaged/nfs-details.jsx:334
 #: pkg/storaged/nfs-panel.jsx:103 pkg/storaged/format-dialog.jsx:240
 #: pkg/storaged/fsys-tab.jsx:312 pkg/storaged/fsys-tab.jsx:699
@@ -4504,7 +4471,7 @@ msgstr "Nikdy nepřipojovat při startu systému"
 msgid "New NFS mount"
 msgstr "Nové NFS připojení"
 
-#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:664
+#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:667
 msgid "New host"
 msgstr "Nový hostitel"
 
@@ -4543,10 +4510,8 @@ msgid "No SELinux alerts."
 msgstr "Žádné výstrahy SELinux."
 
 #: pkg/apps/application-list.jsx:155
-#, fuzzy
-#| msgid "No applications installed or available"
 msgid "No applications installed or available."
-msgstr "Nejsou nainstalované ani dostupné žádné aplikace"
+msgstr "Nejsou nainstalované ani dostupné žádné aplikace."
 
 #: pkg/sosreport/index.jsx:107
 msgid "No archive has been created."
@@ -5001,10 +4966,8 @@ msgid "Part of"
 msgstr "Součástí"
 
 #: pkg/networkmanager/interfaces.js:1319
-#, fuzzy
-#| msgid "Part of "
 msgid "Part of $0"
-msgstr "Součástí "
+msgstr "Součástí $0"
 
 # auto translated by TM merge from project: blivet-gui, version: f23-branch,
 # DocId: blivet-gui
@@ -5201,11 +5164,11 @@ msgstr "Trvalá"
 #: pkg/storaged/vgroup-details.jsx:200 pkg/storaged/stratis-details.jsx:258
 #: pkg/storaged/mdraid-details.jsx:299
 msgid "Permanently delete $0?"
-msgstr ""
+msgstr "Nadobro smazat $0?"
 
 # auto translated by TM merge from project: Linux PAM, version: master, DocId:
 # po/Linux-PAM
-#: pkg/static/login.js:834
+#: pkg/static/login.js:837
 msgid "Permission denied"
 msgstr "Přístup zamítnut"
 
@@ -5278,7 +5241,7 @@ msgstr "Po vyřešení problému stránku načtěte znovu."
 msgid "Please specify an expiration date"
 msgstr "Zadejte datum skončení platnosti"
 
-#: pkg/static/login.js:524
+#: pkg/static/login.js:526
 msgid "Please specify the host to connect to"
 msgstr "Zadejte stroj ke kterému se připojit"
 
@@ -5407,7 +5370,7 @@ msgstr "Propaguje načíst znovu k"
 
 #: pkg/storaged/stratis-details.jsx:692
 msgid "Provide the passphrase for the pool on these block devices:"
-msgstr ""
+msgstr "Zadejte heslovou frázi pro fond na těchto blokových zařízeních:"
 
 #: pkg/shell/credentials.jsx:115
 msgid "Public key"
@@ -5605,15 +5568,15 @@ msgstr "Zotavování RAID zařízení $target"
 msgid "Refreshing package information"
 msgstr "Obnovují se informace o balíčcích"
 
-#: pkg/static/login.js:824
+#: pkg/static/login.js:827
 msgid "Refusing to connect. Host is unknown"
 msgstr "Odmítá se připojit. Stroj není znám"
 
-#: pkg/static/login.js:826
+#: pkg/static/login.js:829
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "Odmítá se připojit. Klíč stroje neodpovídá"
 
-#: pkg/static/login.js:822
+#: pkg/static/login.js:825
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "Odmítá se připojit. Klíč stroje není znám"
 
@@ -5678,10 +5641,8 @@ msgid "Remove $0?"
 msgstr "Odebrat $0?"
 
 #: pkg/storaged/crypto-keyslots.jsx:492
-#, fuzzy
-#| msgid "Remove Tang keyserver"
 msgid "Remove Tang keyserver?"
-msgstr "Odebrat Tang server s klíči"
+msgstr "Odebrat Tang server s klíči?"
 
 #: pkg/storaged/content-views.jsx:388 pkg/storaged/vgroup-details.jsx:207
 #: pkg/storaged/stratis-details.jsx:265 pkg/storaged/mdraid-details.jsx:305
@@ -5732,10 +5693,8 @@ msgid "Remove item"
 msgstr "Odebrat zařízení"
 
 #: pkg/storaged/crypto-keyslots.jsx:456
-#, fuzzy
-#| msgid "Remove passphrase in key slot $0"
 msgid "Remove passphrase in key slot $0?"
-msgstr "Odebrat heslovou frázi v slotu na klíč $0"
+msgstr "Odebrat heslovou frázi v slotu na klíč $0?"
 
 #: pkg/networkmanager/firewall.jsx:71
 msgid "Remove service $0"
@@ -5804,19 +5763,19 @@ msgstr "Odebrání zóny odebere také všechny služby, které obsahuje."
 msgid "Rename"
 msgstr "Přejmenovat"
 
+#: pkg/storaged/stratis-details.jsx:279
+#, fuzzy
+#| msgid "Reset Storage Pool"
+msgid "Rename Stratis pool"
+msgstr "Resetovat fond úložišť"
+
 # auto translated by TM merge from project: usermode, version: default, DocId:
 # usermode
 #: pkg/storaged/stratis-details.jsx:473
 #, fuzzy
 #| msgid "Filesystem"
-msgid "Rename Filesystem"
+msgid "Rename filesystem"
 msgstr "Souborový systém"
-
-#: pkg/storaged/stratis-details.jsx:279
-#, fuzzy
-#| msgid "Reset Storage Pool"
-msgid "Rename Stratis Pool"
-msgstr "Resetovat fond úložišť"
 
 #: pkg/storaged/lvol-tabs.jsx:46
 msgid "Rename logical volume"
@@ -6671,13 +6630,7 @@ msgstr "Uložit heslovou frázi"
 msgid "Stored passphrase"
 msgstr "Uložená heslová fráze"
 
-#: pkg/storaged/pvol-tabs.jsx:112
-#, fuzzy
-#| msgid "Reset Storage Pool"
-msgid "Stratis Pool"
-msgstr "Resetovat fond úložišť"
-
-#: pkg/storaged/content-views.jsx:208
+#: pkg/storaged/content-views.jsx:208 pkg/storaged/pvol-tabs.jsx:112
 #, fuzzy
 #| msgid "Storage pools"
 msgid "Stratis pool"
@@ -7155,7 +7108,7 @@ msgid ""
 "email."
 msgstr "Výsledný otisk je možné sdílet veřejnými způsoby, včetně e-mailu."
 
-#: pkg/static/login.js:816
+#: pkg/static/login.js:819
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -7327,6 +7280,8 @@ msgid ""
 "This pool can not be unlocked here because its key description is not in the "
 "expected format."
 msgstr ""
+"Tento fond zde není možné odemknout protože popis jeho klíče není v "
+"očekávaném formátu."
 
 #: pkg/packagekit/updates.jsx:1304
 msgid "This system is not registered"
@@ -7426,7 +7381,7 @@ msgstr "Čtvrtky"
 
 #: pkg/storaged/stratis-details.jsx:129
 msgid "Tier"
-msgstr ""
+msgstr "Tier"
 
 #: pkg/systemd/logs.jsx:200 pkg/packagekit/history.jsx:107
 msgid "Time"
@@ -7470,7 +7425,7 @@ msgstr ""
 "buď pomocí Red Hat portálu pro zákazníky nebo místního serveru předplatného."
 
 #: pkg/shell/hosts_dialog.jsx:463 pkg/shell/hosts_dialog.jsx:474
-#: pkg/static/login.js:669
+#: pkg/static/login.js:672
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
 "the machine or through a trusted network:"
@@ -7647,15 +7602,13 @@ msgstr "Nastavení se nedaří uplatnit: $0"
 msgid "Unable to apply this solution automatically"
 msgstr "Nedaří se automaticky uplatnit toto řešení"
 
-#: pkg/static/login.js:820
+#: pkg/static/login.js:823
 msgid "Unable to connect to that address"
 msgstr "K této adrese se nedaří připojit"
 
 #: pkg/shell/hosts_dialog.jsx:351
-#, fuzzy
-#| msgid "Unable to get alert: $0"
 msgid "Unable to contact $0."
-msgstr "Nedaří se získat výstrahu: $0"
+msgstr "Nedaří se kontaktovat $0."
 
 #: pkg/shell/hosts_dialog.jsx:229
 msgid ""
@@ -7812,10 +7765,8 @@ msgid "Unlock key $0"
 msgstr "Odemknout klíč"
 
 #: pkg/storaged/stratis-details.jsx:783
-#, fuzzy
-#| msgid "Block device for filesystems"
 msgid "Unlock pool to see filesystems."
-msgstr "Blokové zařízení pro souborové systémy"
+msgstr "Pokud chcete vidět souborové systémy, odemkněte fond."
 
 #: pkg/storaged/jobs-panel.jsx:44
 msgid "Unlocking $target"
@@ -8040,7 +7991,7 @@ msgstr "Uživatel"
 msgid "User name"
 msgstr "Uživatelské jméno"
 
-#: pkg/static/login.js:522
+#: pkg/static/login.js:524
 msgid "User name cannot be empty"
 msgstr "Uživatelské jméno je třeba vyplnit"
 
@@ -8088,8 +8039,8 @@ msgid "VDO device $0"
 msgstr "VDO zařízení $0"
 
 #: pkg/storaged/content-views.jsx:825
-msgid "VDO file system volume (compression/deduplication)"
-msgstr ""
+msgid "VDO filesystem volume (compression/deduplication)"
+msgstr "Svazek VDO souborového systému (komprese/deduplikace)"
 
 # auto translated by TM merge from project: anaconda, version: f25, DocId:
 # main
@@ -8305,7 +8256,7 @@ msgstr "Zápis"
 msgid "Write-mostly"
 msgstr "Převážně zápis"
 
-#: pkg/static/login.js:830
+#: pkg/static/login.js:833
 msgid "Wrong user name or password"
 msgstr "Chybné uživatelské jméno nebo heslo"
 
@@ -8323,7 +8274,7 @@ msgstr "Každý rok"
 msgid "Yes"
 msgstr "Ano"
 
-#: pkg/shell/hosts_dialog.jsx:470 pkg/static/login.js:666
+#: pkg/shell/hosts_dialog.jsx:470 pkg/static/login.js:669
 msgid "You are connecting to $0 for the first time."
 msgstr "K $0 se připojujete poprvé."
 
@@ -9142,6 +9093,28 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "zóna"
+
+#, fuzzy
+#~| msgid "Create storage pool"
+#~ msgid "Create Stratis Pool"
+#~ msgstr "Vytvořit fond úložiště"
+
+#, fuzzy
+#~| msgid "Mount options"
+#~ msgid "Mount Options"
+#~ msgstr "Předvolby připojení"
+
+# auto translated by TM merge from project: anaconda, version: rhel6-branch,
+# DocId: anaconda
+#, fuzzy
+#~| msgid "Mount point"
+#~ msgid "Mount Point"
+#~ msgstr "Přípojný bod"
+
+#, fuzzy
+#~| msgid "Reset Storage Pool"
+#~ msgid "Stratis Pool"
+#~ msgstr "Resetovat fond úložišť"
 
 #~ msgid "A disk is needed."
 #~ msgstr "Je zapotřebí disk."

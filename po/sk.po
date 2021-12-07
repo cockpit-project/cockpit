@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-23 18:03+0000\n"
+"POT-Creation-Date: 2021-11-30 18:03+0000\n"
 "PO-Revision-Date: 2021-11-20 10:16+0000\n"
 "Last-Translator: Matej Marusak <mmarusak@redhat.com>\n"
 "Language-Team: Slovak <https://translate.fedoraproject.org/projects/cockpit/"
@@ -39,8 +39,11 @@ msgid "$0 GiB total"
 msgstr "$0 GiB celkom"
 
 #: pkg/storaged/stratis-panel.jsx:58
-msgid "$0 Stratis Pool"
-msgstr ""
+#, fuzzy
+#| msgid "$0 Storage pool"
+#| msgid_plural "$0 Storage pools"
+msgid "$0 Stratis pool"
+msgstr "$0 fond úložiska"
 
 #: pkg/networkmanager/network-main.jsx:167
 msgid "$0 active zone"
@@ -107,7 +110,7 @@ msgstr "$0 Disky"
 msgid "$0 documentation"
 msgstr "Dokumentácia k $0"
 
-#: pkg/static/login.js:391 pkg/static/login.js:838
+#: pkg/static/login.js:393 pkg/static/login.js:841
 msgid "$0 error"
 msgstr "$0 chyba"
 
@@ -127,8 +130,11 @@ msgstr[1] ""
 msgstr[2] ""
 
 #: pkg/storaged/content-views.jsx:450
+#, fuzzy
+#| msgctxt "storage-id-desc"
+#| msgid "$0 file system"
 msgctxt "storage-id-desc"
-msgid "$0 file system"
+msgid "$0 filesystem"
 msgstr "$0 Súborový systém"
 
 #: pkg/storaged/lvol-tabs.jsx:190
@@ -175,7 +181,7 @@ msgstr "$0 je práve používaný"
 msgid "$0 is not available from any repository."
 msgstr "$0 nie je k dispozícií v žiadom repozitári."
 
-#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:660
+#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:663
 msgid "$0 key changed"
 msgstr "$0 kľúč sa zmenil"
 
@@ -639,7 +645,7 @@ msgstr "Chýba"
 msgid "Accept key and connect"
 msgstr "Prijať kľúč a pripojiť"
 
-#: pkg/static/login.js:575
+#: pkg/static/login.js:578
 msgid "Accept key and log in"
 msgstr "Prijať kľúč a prihlásiť sa"
 
@@ -1062,11 +1068,11 @@ msgstr "Overuje sa"
 msgid "Authentication"
 msgstr "Overovanie"
 
-#: pkg/static/login.js:828
+#: pkg/static/login.js:831
 msgid "Authentication failed"
 msgstr "Overenie sa nepodarilo"
 
-#: pkg/static/login.js:818
+#: pkg/static/login.js:821
 msgid "Authentication failed: Server closed connection"
 msgstr ""
 
@@ -1546,7 +1552,7 @@ msgstr ""
 msgid "Cockpit"
 msgstr "Cockpit"
 
-#: pkg/static/login.js:411
+#: pkg/static/login.js:413
 msgid "Cockpit authentication is configured incorrectly."
 msgstr ""
 
@@ -1840,12 +1846,6 @@ msgstr "Havarovať systém"
 msgid "Create"
 msgstr "Vytvoriť"
 
-#: pkg/storaged/stratis-details.jsx:367
-#, fuzzy
-#| msgid "Filesystem"
-msgid "Create Filesystem"
-msgstr "Súborový systém"
-
 #: pkg/storaged/things-panel.jsx:79
 #, fuzzy
 #| msgid "LVM volume group"
@@ -1856,13 +1856,7 @@ msgstr "LVM skupina zväzkov"
 msgid "Create RAID device"
 msgstr "Vytvoriť RAID zariadenie"
 
-#: pkg/storaged/stratis-panel.jsx:127
-#, fuzzy
-#| msgid "Create partition"
-msgid "Create Stratis Pool"
-msgstr "Vytvoriť oddiel"
-
-#: pkg/storaged/things-panel.jsx:80
+#: pkg/storaged/things-panel.jsx:80 pkg/storaged/stratis-panel.jsx:127
 #, fuzzy
 #| msgid "Create partition"
 msgid "Create Stratis pool"
@@ -1888,6 +1882,12 @@ msgstr "Vytvoriť zariadenia"
 msgid "Create diagnostic report"
 msgstr "Diagnostické hlásenia"
 
+#: pkg/storaged/stratis-details.jsx:367
+#, fuzzy
+#| msgid "Filesystem"
+msgid "Create filesystem"
+msgstr "Súborový systém"
+
 #: pkg/networkmanager/dialogs-common.jsx:292
 msgid "Create it"
 msgstr "Vytvoriť to"
@@ -1896,15 +1896,15 @@ msgstr "Vytvoriť to"
 msgid "Create logical volume"
 msgstr ""
 
-#: pkg/storaged/stratis-details.jsx:641
-#, fuzzy
-#| msgid "Network file system"
-msgid "Create new Filesystem"
-msgstr "Sieťový súborový systém"
-
 #: pkg/users/account-create-dialog.js:249 pkg/users/accounts-list.js:78
 msgid "Create new account"
 msgstr ""
+
+#: pkg/storaged/stratis-details.jsx:641
+#, fuzzy
+#| msgid "Network file system"
+msgid "Create new filesystem"
+msgstr "Sieťový súborový systém"
 
 #: pkg/storaged/content-views.jsx:948
 msgid "Create new logical volume"
@@ -3234,7 +3234,7 @@ msgstr "Rozhrania"
 msgid "Internal error"
 msgstr "Interná chyba"
 
-#: pkg/static/login.js:808
+#: pkg/static/login.js:811
 msgid "Internal error: Invalid challenge header"
 msgstr ""
 
@@ -3323,7 +3323,7 @@ msgstr "Spojiť"
 #, fuzzy
 #| msgid "Join a domain"
 msgctxt "dialog-title"
-msgid "Join a Domain"
+msgid "Join a domain"
 msgstr "Pripojiť sa k doméne"
 
 #: pkg/systemd/overview-cards/realmd.jsx:448
@@ -3667,7 +3667,7 @@ msgid "Locking $target"
 msgstr "Zamyká sa $target"
 
 #: pkg/shell/index.html:64 pkg/static/login.html:115
-#: pkg/shell/hosts_dialog.jsx:742 pkg/static/login.js:575
+#: pkg/shell/hosts_dialog.jsx:742 pkg/static/login.js:578
 msgid "Log in"
 msgstr "Prihlásiť"
 
@@ -3677,7 +3677,7 @@ msgstr "Prihlásiť"
 msgid "Log in to $0"
 msgstr "Trasa na $0"
 
-#: pkg/static/login.js:605
+#: pkg/static/login.js:608
 msgid "Log in with your server user account."
 msgstr ""
 
@@ -3723,7 +3723,13 @@ msgstr "Logický zväzok na $0"
 msgid "Logical volumes"
 msgstr "Logické zväzky"
 
-#: pkg/static/login.js:363
+#: pkg/static/login.js:320
+#, fuzzy
+#| msgid "login"
+msgid "Login"
+msgstr "prihlásenie"
+
+#: pkg/static/login.js:365
 msgid "Login again"
 msgstr "Znovu prihlásiť"
 
@@ -3747,7 +3753,7 @@ msgstr "história"
 msgid "Login history list"
 msgstr "Formát prihlasovania"
 
-#: pkg/static/login.js:364
+#: pkg/static/login.js:366
 msgid "Logout successful"
 msgstr "Odhlásenie bolo úspešné"
 
@@ -3927,8 +3933,10 @@ msgid "Member of RAID device $0"
 msgstr "Člen RAID zariadenia $0"
 
 #: pkg/storaged/content-views.jsx:464
-msgid "Member of Stratis Pool"
-msgstr ""
+#, fuzzy
+#| msgid "Create partition"
+msgid "Member of Stratis pool"
+msgstr "Vytvoriť oddiel"
 
 #: pkg/systemd/services/service-details.jsx:539
 #: pkg/systemd/overview-cards/usageCard.jsx:133 pkg/systemd/hwinfo.jsx:312
@@ -4051,18 +4059,6 @@ msgstr "Viac _informácií..."
 msgid "Mount"
 msgstr "Pripojiť"
 
-#: pkg/storaged/stratis-details.jsx:377 pkg/storaged/stratis-details.jsx:507
-#, fuzzy
-#| msgid "Mount point"
-msgid "Mount Options"
-msgstr "Bod pripojenia"
-
-#: pkg/storaged/stratis-details.jsx:373 pkg/storaged/stratis-details.jsx:503
-#, fuzzy
-#| msgid "Mount point"
-msgid "Mount Point"
-msgstr "Bod pripojenia"
-
 #: pkg/storaged/fsys-tab.jsx:653
 msgid "Mount also automatically on boot"
 msgstr ""
@@ -4092,11 +4088,13 @@ msgstr ""
 msgid "Mount on $0 now"
 msgstr ""
 
+#: pkg/storaged/stratis-details.jsx:377 pkg/storaged/stratis-details.jsx:507
 #: pkg/storaged/nfs-details.jsx:179 pkg/storaged/format-dialog.jsx:246
 #: pkg/storaged/fsys-tab.jsx:317
 msgid "Mount options"
 msgstr ""
 
+#: pkg/storaged/stratis-details.jsx:373 pkg/storaged/stratis-details.jsx:503
 #: pkg/storaged/fsys-panel.jsx:186 pkg/storaged/nfs-details.jsx:334
 #: pkg/storaged/nfs-panel.jsx:103 pkg/storaged/format-dialog.jsx:240
 #: pkg/storaged/fsys-tab.jsx:312 pkg/storaged/fsys-tab.jsx:699
@@ -4278,7 +4276,7 @@ msgstr "Pripojiť pri štarte"
 msgid "New NFS mount"
 msgstr "Nové NFS pripojenie"
 
-#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:664
+#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:667
 msgid "New host"
 msgstr "Nový hostiteľ"
 
@@ -4927,7 +4925,7 @@ msgstr "Trvalá"
 msgid "Permanently delete $0?"
 msgstr ""
 
-#: pkg/static/login.js:834
+#: pkg/static/login.js:837
 msgid "Permission denied"
 msgstr "Prístup odmietnutý"
 
@@ -4998,7 +4996,7 @@ msgstr ""
 msgid "Please specify an expiration date"
 msgstr ""
 
-#: pkg/static/login.js:524
+#: pkg/static/login.js:526
 msgid "Please specify the host to connect to"
 msgstr "Zadajte stroj, ku ktorému sa chcete pripojiť"
 
@@ -5310,15 +5308,15 @@ msgstr "Zotavuje sa RAID zariadenia $target"
 msgid "Refreshing package information"
 msgstr ""
 
-#: pkg/static/login.js:824
+#: pkg/static/login.js:827
 msgid "Refusing to connect. Host is unknown"
 msgstr "Odmieta sa pripojenie. Stroj nie je známy"
 
-#: pkg/static/login.js:826
+#: pkg/static/login.js:829
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "Odmieta sa pripojenie. Kľúč stroja sa líši"
 
-#: pkg/static/login.js:822
+#: pkg/static/login.js:825
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "Odmieta sa pripojenie. Kľúč stroja nie je známy"
 
@@ -5496,15 +5494,17 @@ msgstr ""
 msgid "Rename"
 msgstr "Premenovať"
 
+#: pkg/storaged/stratis-details.jsx:279
+#, fuzzy
+#| msgid "Create partition"
+msgid "Rename Stratis pool"
+msgstr "Vytvoriť oddiel"
+
 #: pkg/storaged/stratis-details.jsx:473
 #, fuzzy
 #| msgid "Filesystem"
-msgid "Rename Filesystem"
+msgid "Rename filesystem"
 msgstr "Súborový systém"
-
-#: pkg/storaged/stratis-details.jsx:279
-msgid "Rename Stratis Pool"
-msgstr ""
 
 #: pkg/storaged/lvol-tabs.jsx:46
 msgid "Rename logical volume"
@@ -6319,11 +6319,7 @@ msgstr ""
 msgid "Stored passphrase"
 msgstr ""
 
-#: pkg/storaged/pvol-tabs.jsx:112
-msgid "Stratis Pool"
-msgstr ""
-
-#: pkg/storaged/content-views.jsx:208
+#: pkg/storaged/content-views.jsx:208 pkg/storaged/pvol-tabs.jsx:112
 #, fuzzy
 #| msgid "$0 Storage pool"
 #| msgid_plural "$0 Storage pools"
@@ -6768,7 +6764,7 @@ msgid ""
 "email."
 msgstr ""
 
-#: pkg/static/login.js:816
+#: pkg/static/login.js:819
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -7055,7 +7051,7 @@ msgid ""
 msgstr ""
 
 #: pkg/shell/hosts_dialog.jsx:463 pkg/shell/hosts_dialog.jsx:474
-#: pkg/static/login.js:669
+#: pkg/static/login.js:672
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
 "the machine or through a trusted network:"
@@ -7219,7 +7215,7 @@ msgstr ""
 msgid "Unable to apply this solution automatically"
 msgstr ""
 
-#: pkg/static/login.js:820
+#: pkg/static/login.js:823
 msgid "Unable to connect to that address"
 msgstr ""
 
@@ -7594,7 +7590,7 @@ msgstr "Používateľ"
 msgid "User name"
 msgstr "Užívateľské meno"
 
-#: pkg/static/login.js:522
+#: pkg/static/login.js:524
 msgid "User name cannot be empty"
 msgstr "Užívateľské meno nemôže byť prázdne"
 
@@ -7642,7 +7638,7 @@ msgid "VDO device $0"
 msgstr "VDO zariadenie $0"
 
 #: pkg/storaged/content-views.jsx:825
-msgid "VDO file system volume (compression/deduplication)"
+msgid "VDO filesystem volume (compression/deduplication)"
 msgstr ""
 
 #: pkg/networkmanager/network-interface.jsx:180
@@ -7854,7 +7850,7 @@ msgstr "Zápis"
 msgid "Write-mostly"
 msgstr "Prevažne zápis"
 
-#: pkg/static/login.js:830
+#: pkg/static/login.js:833
 msgid "Wrong user name or password"
 msgstr "Chybné užívateľské meno alebo heslo"
 
@@ -7870,7 +7866,7 @@ msgstr ""
 msgid "Yes"
 msgstr "Áno"
 
-#: pkg/shell/hosts_dialog.jsx:470 pkg/static/login.js:666
+#: pkg/shell/hosts_dialog.jsx:470 pkg/static/login.js:669
 msgid "You are connecting to $0 for the first time."
 msgstr ""
 
@@ -8682,6 +8678,21 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "zóna"
+
+#, fuzzy
+#~| msgid "Create partition"
+#~ msgid "Create Stratis Pool"
+#~ msgstr "Vytvoriť oddiel"
+
+#, fuzzy
+#~| msgid "Mount point"
+#~ msgid "Mount Options"
+#~ msgstr "Bod pripojenia"
+
+#, fuzzy
+#~| msgid "Mount point"
+#~ msgid "Mount Point"
+#~ msgstr "Bod pripojenia"
 
 #~ msgid "A disk is needed."
 #~ msgstr "Je potrebný disk."

@@ -9,9 +9,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-23 18:03+0000\n"
-"PO-Revision-Date: 2021-11-26 15:16+0000\n"
-"Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
+"POT-Creation-Date: 2021-11-30 18:03+0000\n"
+"PO-Revision-Date: 2021-12-06 21:33+0000\n"
+"Last-Translator: Taras Panchenko <top39@ukr.net>\n"
 "Language-Team: Ukrainian <https://translate.fedoraproject.org/projects/"
 "cockpit/main/uk/>\n"
 "Language: uk\n"
@@ -46,7 +46,7 @@ msgid "$0 GiB total"
 msgstr "Загалом $0 ГіБ"
 
 #: pkg/storaged/stratis-panel.jsx:58
-msgid "$0 Stratis Pool"
+msgid "$0 Stratis pool"
 msgstr "$0 буфер Stratis"
 
 #: pkg/networkmanager/network-main.jsx:167
@@ -114,7 +114,7 @@ msgstr "Диски $0"
 msgid "$0 documentation"
 msgstr "Документація з $0"
 
-#: pkg/static/login.js:391 pkg/static/login.js:838
+#: pkg/static/login.js:393 pkg/static/login.js:841
 msgid "$0 error"
 msgstr "Помилка $0"
 
@@ -135,7 +135,7 @@ msgstr[2] "$0 помилкових спроб увійти"
 
 #: pkg/storaged/content-views.jsx:450
 msgctxt "storage-id-desc"
-msgid "$0 file system"
+msgid "$0 filesystem"
 msgstr "Файлова система $0"
 
 #: pkg/storaged/lvol-tabs.jsx:190
@@ -182,7 +182,7 @@ msgstr "$0 активно використовується"
 msgid "$0 is not available from any repository."
 msgstr "$0 немає у жодному зі сховищ."
 
-#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:660
+#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:663
 msgid "$0 key changed"
 msgstr "Змінено ключ $0"
 
@@ -638,7 +638,7 @@ msgstr "Відсутній"
 msgid "Accept key and connect"
 msgstr "Прийняти ключ і з'єднатися"
 
-#: pkg/static/login.js:575
+#: pkg/static/login.js:578
 msgid "Accept key and log in"
 msgstr "Прийняти ключ і увійти"
 
@@ -1055,11 +1055,11 @@ msgstr "Автентифікація"
 msgid "Authentication"
 msgstr "Розпізнавання"
 
-#: pkg/static/login.js:828
+#: pkg/static/login.js:831
 msgid "Authentication failed"
 msgstr "Не вдалось пройти розпізнавання"
 
-#: pkg/static/login.js:818
+#: pkg/static/login.js:821
 msgid "Authentication failed: Server closed connection"
 msgstr "Не вдалося пройти розпізнавання: з’єднання розірвано сервером"
 
@@ -1531,7 +1531,7 @@ msgstr "Закрити позначені сторінки"
 msgid "Cockpit"
 msgstr "Cockpit"
 
-#: pkg/static/login.js:411
+#: pkg/static/login.js:413
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "Розпізнавання у Cockpit налаштовано з помилками."
 
@@ -1821,10 +1821,6 @@ msgstr "Аварійно завершити роботу системи"
 msgid "Create"
 msgstr "Створити"
 
-#: pkg/storaged/stratis-details.jsx:367
-msgid "Create Filesystem"
-msgstr "Створити файлову систему"
-
 #: pkg/storaged/things-panel.jsx:79
 msgid "Create LVM2 volume group"
 msgstr "Створити групу томів LVM2"
@@ -1833,11 +1829,7 @@ msgstr "Створити групу томів LVM2"
 msgid "Create RAID device"
 msgstr "Створити пристрій RAID"
 
-#: pkg/storaged/stratis-panel.jsx:127
-msgid "Create Stratis Pool"
-msgstr "Створити буфер Stratis"
-
-#: pkg/storaged/things-panel.jsx:80
+#: pkg/storaged/things-panel.jsx:80 pkg/storaged/stratis-panel.jsx:127
 msgid "Create Stratis pool"
 msgstr "Створити буфер Stratis"
 
@@ -1857,6 +1849,10 @@ msgstr "Створити пристрої"
 msgid "Create diagnostic report"
 msgstr "Створити діагностичний звіт"
 
+#: pkg/storaged/stratis-details.jsx:367
+msgid "Create filesystem"
+msgstr "Створити файлову систему"
+
 #: pkg/networkmanager/dialogs-common.jsx:292
 msgid "Create it"
 msgstr "Створити"
@@ -1865,13 +1861,13 @@ msgstr "Створити"
 msgid "Create logical volume"
 msgstr "Створити логічний том"
 
-#: pkg/storaged/stratis-details.jsx:641
-msgid "Create new Filesystem"
-msgstr "Створити файлову систему"
-
 #: pkg/users/account-create-dialog.js:249 pkg/users/accounts-list.js:78
 msgid "Create new account"
 msgstr "Створити новий рахунок"
+
+#: pkg/storaged/stratis-details.jsx:641
+msgid "Create new filesystem"
+msgstr "Створити файлову систему"
 
 #: pkg/storaged/content-views.jsx:948
 msgid "Create new logical volume"
@@ -3167,7 +3163,7 @@ msgstr "Інтерфейси"
 msgid "Internal error"
 msgstr "Внутрішня помилка"
 
-#: pkg/static/login.js:808
+#: pkg/static/login.js:811
 msgid "Internal error: Invalid challenge header"
 msgstr "Внутрішня помилка: некоректний заголовок виклику"
 
@@ -3254,7 +3250,7 @@ msgstr "З'єднати"
 
 #: pkg/systemd/overview-cards/realmd.jsx:420
 msgctxt "dialog-title"
-msgid "Join a Domain"
+msgid "Join a domain"
 msgstr "Долучитися до домену"
 
 #: pkg/systemd/overview-cards/realmd.jsx:448
@@ -3578,7 +3574,7 @@ msgid "Locking $target"
 msgstr "Блокуємо $target"
 
 #: pkg/shell/index.html:64 pkg/static/login.html:115
-#: pkg/shell/hosts_dialog.jsx:742 pkg/static/login.js:575
+#: pkg/shell/hosts_dialog.jsx:742 pkg/static/login.js:578
 msgid "Log in"
 msgstr "Увійти"
 
@@ -3586,7 +3582,7 @@ msgstr "Увійти"
 msgid "Log in to $0"
 msgstr "Увійти до $0"
 
-#: pkg/static/login.js:605
+#: pkg/static/login.js:608
 msgid "Log in with your server user account."
 msgstr "Увійти на основі даних вашого облікового запису користувача сервера."
 
@@ -3630,7 +3626,11 @@ msgstr "Логічний том $0"
 msgid "Logical volumes"
 msgstr "Логічні томи"
 
-#: pkg/static/login.js:363
+#: pkg/static/login.js:320
+msgid "Login"
+msgstr "Вхід"
+
+#: pkg/static/login.js:365
 msgid "Login again"
 msgstr "Користувач ще раз"
 
@@ -3650,7 +3650,7 @@ msgstr "Журнал входів"
 msgid "Login history list"
 msgstr "Список журналу входів"
 
-#: pkg/static/login.js:364
+#: pkg/static/login.js:366
 msgid "Logout successful"
 msgstr "Успішний вихід"
 
@@ -3814,7 +3814,7 @@ msgid "Member of RAID device $0"
 msgstr "Елемент пристрою RAID $0"
 
 #: pkg/storaged/content-views.jsx:464
-msgid "Member of Stratis Pool"
+msgid "Member of Stratis pool"
 msgstr "Частина буфера Stratis"
 
 #: pkg/systemd/services/service-details.jsx:539
@@ -3934,14 +3934,6 @@ msgstr "Докладніше…"
 msgid "Mount"
 msgstr "Змонтувати"
 
-#: pkg/storaged/stratis-details.jsx:377 pkg/storaged/stratis-details.jsx:507
-msgid "Mount Options"
-msgstr "Параметри монтування"
-
-#: pkg/storaged/stratis-details.jsx:373 pkg/storaged/stratis-details.jsx:503
-msgid "Mount Point"
-msgstr "Точка монтування"
-
 #: pkg/storaged/fsys-tab.jsx:653
 msgid "Mount also automatically on boot"
 msgstr "Також монтувати автоматично під час завантаження"
@@ -3971,11 +3963,13 @@ msgstr "Змонтувати зараз"
 msgid "Mount on $0 now"
 msgstr "Змонтувати до $0 зараз"
 
+#: pkg/storaged/stratis-details.jsx:377 pkg/storaged/stratis-details.jsx:507
 #: pkg/storaged/nfs-details.jsx:179 pkg/storaged/format-dialog.jsx:246
 #: pkg/storaged/fsys-tab.jsx:317
 msgid "Mount options"
 msgstr "Параметри монтування"
 
+#: pkg/storaged/stratis-details.jsx:373 pkg/storaged/stratis-details.jsx:503
 #: pkg/storaged/fsys-panel.jsx:186 pkg/storaged/nfs-details.jsx:334
 #: pkg/storaged/nfs-panel.jsx:103 pkg/storaged/format-dialog.jsx:240
 #: pkg/storaged/fsys-tab.jsx:312 pkg/storaged/fsys-tab.jsx:699
@@ -4155,7 +4149,7 @@ msgstr "Ніколи не монтувати при завантаженні"
 msgid "New NFS mount"
 msgstr "Нове монтування NFS"
 
-#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:664
+#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:667
 msgid "New host"
 msgstr "Новий вузол"
 
@@ -4790,7 +4784,7 @@ msgstr "Постійний"
 msgid "Permanently delete $0?"
 msgstr "Остаточно вилучити $0?"
 
-#: pkg/static/login.js:834
+#: pkg/static/login.js:837
 msgid "Permission denied"
 msgstr "Доступ заборонено"
 
@@ -4861,7 +4855,7 @@ msgstr "Будь ласка, перезавантажте сторінку пі�
 msgid "Please specify an expiration date"
 msgstr "Будь ласка, вкажіть кінцеву дату строку дії"
 
-#: pkg/static/login.js:524
+#: pkg/static/login.js:526
 msgid "Please specify the host to connect to"
 msgstr "Будь ласка, вкажіть вузол, з яким слід встановити з'єднання"
 
@@ -5169,15 +5163,15 @@ msgstr "Відновлюємо пристрій RAID $target"
 msgid "Refreshing package information"
 msgstr "Оновлюємо дані щодо пакунків"
 
-#: pkg/static/login.js:824
+#: pkg/static/login.js:827
 msgid "Refusing to connect. Host is unknown"
 msgstr "Відмовляємо у з’єднанні. Невідомий вузол."
 
-#: pkg/static/login.js:826
+#: pkg/static/login.js:829
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "Відмовляємо у з’єднанні. Ключі вузла не збігаються."
 
-#: pkg/static/login.js:822
+#: pkg/static/login.js:825
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "Відмовляємо у з’єднанні. Невідомий ключ вузла."
 
@@ -5345,13 +5339,13 @@ msgstr "Вилучення запису зони призведе до вилу�
 msgid "Rename"
 msgstr "Перейменувати"
 
-#: pkg/storaged/stratis-details.jsx:473
-msgid "Rename Filesystem"
-msgstr "Перейменувати файлову систему"
-
 #: pkg/storaged/stratis-details.jsx:279
-msgid "Rename Stratis Pool"
+msgid "Rename Stratis pool"
 msgstr "Перейменувати буфер Stratis"
+
+#: pkg/storaged/stratis-details.jsx:473
+msgid "Rename filesystem"
+msgstr "Перейменувати файлову систему"
 
 #: pkg/storaged/lvol-tabs.jsx:46
 msgid "Rename logical volume"
@@ -6166,11 +6160,7 @@ msgstr "Зберігати пароль"
 msgid "Stored passphrase"
 msgstr "Збережений пароль"
 
-#: pkg/storaged/pvol-tabs.jsx:112
-msgid "Stratis Pool"
-msgstr "Буфер Stratis"
-
-#: pkg/storaged/content-views.jsx:208
+#: pkg/storaged/content-views.jsx:208 pkg/storaged/pvol-tabs.jsx:112
 msgid "Stratis pool"
 msgstr "Буфер Stratis"
 
@@ -6537,7 +6527,7 @@ msgstr ""
 #: pkg/packagekit/updates.jsx:445
 msgid "The following service will be restarted:"
 msgid_plural "The following services will be restarted:"
-msgstr[0] "Буде перезавантажено такі служби:"
+msgstr[0] "Буде перезавантажено таку службу:"
 msgstr[1] "Буде перезавантажено такі служби:"
 msgstr[2] "Буде перезавантажено такі служби:"
 
@@ -6610,7 +6600,7 @@ msgstr ""
 "Відбиток-результат можна поширювати у спосіб із загальним доступом, зокрема "
 "електронною поштою."
 
-#: pkg/static/login.js:816
+#: pkg/static/login.js:819
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -6929,7 +6919,7 @@ msgstr ""
 "допомогою локального сервера передплати."
 
 #: pkg/shell/hosts_dialog.jsx:463 pkg/shell/hosts_dialog.jsx:474
-#: pkg/static/login.js:669
+#: pkg/static/login.js:672
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
 "the machine or through a trusted network:"
@@ -7094,7 +7084,7 @@ msgstr "Не вдалося застосувати параметри: $0"
 msgid "Unable to apply this solution automatically"
 msgstr "Не вдалося застосувати це рішення у автоматичному режимі"
 
-#: pkg/static/login.js:820
+#: pkg/static/login.js:823
 msgid "Unable to connect to that address"
 msgstr "Не вдалося встановити з’єднання із цією адресою"
 
@@ -7429,7 +7419,7 @@ msgstr "Користувач"
 msgid "User name"
 msgstr "Ім'я користувача"
 
-#: pkg/static/login.js:522
+#: pkg/static/login.js:524
 msgid "User name cannot be empty"
 msgstr "Ім’я користувача не може бути порожнім"
 
@@ -7471,7 +7461,7 @@ msgid "VDO device $0"
 msgstr "Пристрій VDO $0"
 
 #: pkg/storaged/content-views.jsx:825
-msgid "VDO file system volume (compression/deduplication)"
+msgid "VDO filesystem volume (compression/deduplication)"
 msgstr "Том файлової системи VDO (стискання/дедублікація)"
 
 #: pkg/networkmanager/network-interface.jsx:180
@@ -7676,7 +7666,7 @@ msgstr "Запис"
 msgid "Write-mostly"
 msgstr "Здебільшого запис"
 
-#: pkg/static/login.js:830
+#: pkg/static/login.js:833
 msgid "Wrong user name or password"
 msgstr "Помилкове ім’я користувача чи пароль"
 
@@ -7692,7 +7682,7 @@ msgstr "Щорічно"
 msgid "Yes"
 msgstr "Так"
 
-#: pkg/shell/hosts_dialog.jsx:470 pkg/static/login.js:666
+#: pkg/shell/hosts_dialog.jsx:470 pkg/static/login.js:669
 msgid "You are connecting to $0 for the first time."
 msgstr "Ви вперше встановлюєте з'єднання із $0."
 
@@ -8483,6 +8473,18 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "зона"
+
+#~ msgid "Create Stratis Pool"
+#~ msgstr "Створити буфер Stratis"
+
+#~ msgid "Mount Options"
+#~ msgstr "Параметри монтування"
+
+#~ msgid "Mount Point"
+#~ msgstr "Точка монтування"
+
+#~ msgid "Stratis Pool"
+#~ msgstr "Буфер Stratis"
 
 #~ msgid "A disk is needed."
 #~ msgstr "Потрібен диск."

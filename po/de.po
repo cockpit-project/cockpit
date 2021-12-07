@@ -22,7 +22,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-23 18:03+0000\n"
+"POT-Creation-Date: 2021-11-30 18:03+0000\n"
 "PO-Revision-Date: 2021-11-16 15:16+0000\n"
 "Last-Translator: Martin Pitt <mpitt@redhat.com>\n"
 "Language-Team: German <https://translate.fedoraproject.org/projects/cockpit/"
@@ -60,7 +60,7 @@ msgstr "$0 GiB gesamt"
 #, fuzzy
 #| msgid "$0 Storage pool"
 #| msgid_plural "$0 Storage pools"
-msgid "$0 Stratis Pool"
+msgid "$0 Stratis pool"
 msgstr "$0 Storage Pool"
 
 #: pkg/networkmanager/network-main.jsx:167
@@ -123,7 +123,7 @@ msgstr "$0 Datenträger"
 msgid "$0 documentation"
 msgstr "$0 Dokumentation"
 
-#: pkg/static/login.js:391 pkg/static/login.js:838
+#: pkg/static/login.js:393 pkg/static/login.js:841
 msgid "$0 error"
 msgstr "$0 Error"
 
@@ -142,8 +142,11 @@ msgstr[0] "$0 fehlgeschlagene Anmeldung"
 msgstr[1] "$0 fehlgeschlagene Anmeldungen"
 
 #: pkg/storaged/content-views.jsx:450
+#, fuzzy
+#| msgctxt "storage-id-desc"
+#| msgid "$0 file system"
 msgctxt "storage-id-desc"
-msgid "$0 file system"
+msgid "$0 filesystem"
 msgstr "$0 Dateisystem"
 
 #: pkg/storaged/lvol-tabs.jsx:190
@@ -188,7 +191,7 @@ msgstr "$0 wird aktiv verwendet"
 msgid "$0 is not available from any repository."
 msgstr "$0 ist in keinem Repository verfügbar."
 
-#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:660
+#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:663
 msgid "$0 key changed"
 msgstr "$0 Schlüssel geändert"
 
@@ -644,7 +647,7 @@ msgstr "Abwesend"
 msgid "Accept key and connect"
 msgstr "Schlüssel akzeptieren und verbinden"
 
-#: pkg/static/login.js:575
+#: pkg/static/login.js:578
 msgid "Accept key and log in"
 msgstr "Schlüssel akzeptieren und anmelden"
 
@@ -1067,11 +1070,11 @@ msgstr "Authentifiziere"
 msgid "Authentication"
 msgstr "Authentifizierung"
 
-#: pkg/static/login.js:828
+#: pkg/static/login.js:831
 msgid "Authentication failed"
 msgstr "Authentifizierung fehlgeschlagen"
 
-#: pkg/static/login.js:818
+#: pkg/static/login.js:821
 msgid "Authentication failed: Server closed connection"
 msgstr "Authentifizierung fehlgeschlagen: Server geschlossene Verbindung"
 
@@ -1549,7 +1552,7 @@ msgstr "Ausgewählte Seiten schließen"
 msgid "Cockpit"
 msgstr "Cockpit"
 
-#: pkg/static/login.js:411
+#: pkg/static/login.js:413
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "Die Cockpit-Authentifizierung ist falsch konfiguriert."
 
@@ -1846,10 +1849,6 @@ msgstr "Crash-System"
 msgid "Create"
 msgstr "Erstellen"
 
-#: pkg/storaged/stratis-details.jsx:367
-msgid "Create Filesystem"
-msgstr "Dateisystem erstellen"
-
 #: pkg/storaged/things-panel.jsx:79
 #, fuzzy
 #| msgid "Create volume group"
@@ -1860,13 +1859,7 @@ msgstr "Datenträgerverbund erstellen"
 msgid "Create RAID device"
 msgstr "RAID-Gerät erzeugen"
 
-#: pkg/storaged/stratis-panel.jsx:127
-#, fuzzy
-#| msgid "Create storage pool"
-msgid "Create Stratis Pool"
-msgstr "Erstellen Sie einen Speicherpool"
-
-#: pkg/storaged/things-panel.jsx:80
+#: pkg/storaged/things-panel.jsx:80 pkg/storaged/stratis-panel.jsx:127
 #, fuzzy
 #| msgid "Create storage pool"
 msgid "Create Stratis pool"
@@ -1892,6 +1885,12 @@ msgstr "Erstelle Geräte"
 msgid "Create diagnostic report"
 msgstr "Diagnosebericht erstellen"
 
+#: pkg/storaged/stratis-details.jsx:367
+#, fuzzy
+#| msgid "Create Filesystem"
+msgid "Create filesystem"
+msgstr "Dateisystem erstellen"
+
 #: pkg/networkmanager/dialogs-common.jsx:292
 msgid "Create it"
 msgstr "Anlegen"
@@ -1900,13 +1899,15 @@ msgstr "Anlegen"
 msgid "Create logical volume"
 msgstr "Logischen Datenträger erstellen"
 
-#: pkg/storaged/stratis-details.jsx:641
-msgid "Create new Filesystem"
-msgstr "Neues Dateisystem erstellen"
-
 #: pkg/users/account-create-dialog.js:249 pkg/users/accounts-list.js:78
 msgid "Create new account"
 msgstr "Neues Konto anlegen"
+
+#: pkg/storaged/stratis-details.jsx:641
+#, fuzzy
+#| msgid "Create new Filesystem"
+msgid "Create new filesystem"
+msgstr "Neues Dateisystem erstellen"
 
 #: pkg/storaged/content-views.jsx:948
 msgid "Create new logical volume"
@@ -3261,7 +3262,7 @@ msgstr "Schnittstellen"
 msgid "Internal error"
 msgstr "Interner Fehler"
 
-#: pkg/static/login.js:808
+#: pkg/static/login.js:811
 msgid "Internal error: Invalid challenge header"
 msgstr "Interner Fehler: Ungültiger Challenge-Header"
 
@@ -3350,7 +3351,7 @@ msgstr "Beitreten"
 #, fuzzy
 #| msgid "Join a domain"
 msgctxt "dialog-title"
-msgid "Join a Domain"
+msgid "Join a domain"
 msgstr "Einer Domäne beitreten"
 
 #: pkg/systemd/overview-cards/realmd.jsx:448
@@ -3705,7 +3706,7 @@ msgid "Locking $target"
 msgstr "Sperren $target"
 
 #: pkg/shell/index.html:64 pkg/static/login.html:115
-#: pkg/shell/hosts_dialog.jsx:742 pkg/static/login.js:575
+#: pkg/shell/hosts_dialog.jsx:742 pkg/static/login.js:578
 msgid "Log in"
 msgstr "Anmelden"
 
@@ -3713,7 +3714,7 @@ msgstr "Anmelden"
 msgid "Log in to $0"
 msgstr "Bei $0 anmelden"
 
-#: pkg/static/login.js:605
+#: pkg/static/login.js:608
 msgid "Log in with your server user account."
 msgstr "Melden Sie sich mit dem Server-Benutzerkonto an."
 
@@ -3760,7 +3761,13 @@ msgstr "Logisches Volumen von $0"
 msgid "Logical volumes"
 msgstr "Logischer Datenträger"
 
-#: pkg/static/login.js:363
+#: pkg/static/login.js:320
+#, fuzzy
+#| msgid "login"
+msgid "Login"
+msgstr "Login"
+
+#: pkg/static/login.js:365
 msgid "Login again"
 msgstr "Nochmal anmelden"
 
@@ -3780,7 +3787,7 @@ msgstr "Anmeldeverlauf"
 msgid "Login history list"
 msgstr "Liste des Anmeldeverlaufs"
 
-#: pkg/static/login.js:364
+#: pkg/static/login.js:366
 msgid "Logout successful"
 msgstr "Abmeldung erfolgreich"
 
@@ -3952,7 +3959,7 @@ msgstr "Mitglied des RAID-Geräts $0"
 #: pkg/storaged/content-views.jsx:464
 #, fuzzy
 #| msgid "Reset Storage Pool"
-msgid "Member of Stratis Pool"
+msgid "Member of Stratis pool"
 msgstr "Setzen Sie den Speicherpool zurück"
 
 #: pkg/systemd/services/service-details.jsx:539
@@ -4080,14 +4087,6 @@ msgstr "Weitere Informationen..."
 msgid "Mount"
 msgstr "Einhängen"
 
-#: pkg/storaged/stratis-details.jsx:377 pkg/storaged/stratis-details.jsx:507
-msgid "Mount Options"
-msgstr "Einhängeoptionen"
-
-#: pkg/storaged/stratis-details.jsx:373 pkg/storaged/stratis-details.jsx:503
-msgid "Mount Point"
-msgstr "Einhängepunkt"
-
 #: pkg/storaged/fsys-tab.jsx:653
 msgid "Mount also automatically on boot"
 msgstr "Automatisch bei Start einhängen"
@@ -4117,11 +4116,13 @@ msgstr "Jetzt einbinden"
 msgid "Mount on $0 now"
 msgstr "Jetzt unter $0 einhängen"
 
+#: pkg/storaged/stratis-details.jsx:377 pkg/storaged/stratis-details.jsx:507
 #: pkg/storaged/nfs-details.jsx:179 pkg/storaged/format-dialog.jsx:246
 #: pkg/storaged/fsys-tab.jsx:317
 msgid "Mount options"
 msgstr "Einhängoptionen"
 
+#: pkg/storaged/stratis-details.jsx:373 pkg/storaged/stratis-details.jsx:503
 #: pkg/storaged/fsys-panel.jsx:186 pkg/storaged/nfs-details.jsx:334
 #: pkg/storaged/nfs-panel.jsx:103 pkg/storaged/format-dialog.jsx:240
 #: pkg/storaged/fsys-tab.jsx:312 pkg/storaged/fsys-tab.jsx:699
@@ -4305,7 +4306,7 @@ msgstr "Niemals beim Start einhängen"
 msgid "New NFS mount"
 msgstr "Neuer NFS-Mount"
 
-#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:664
+#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:667
 msgid "New host"
 msgstr "Neuer Host"
 
@@ -4950,7 +4951,7 @@ msgstr "Permanent"
 msgid "Permanently delete $0?"
 msgstr "$0 dauerhaft löschen?"
 
-#: pkg/static/login.js:834
+#: pkg/static/login.js:837
 msgid "Permission denied"
 msgstr "Erlaubnis verweigert"
 
@@ -5023,7 +5024,7 @@ msgstr ""
 msgid "Please specify an expiration date"
 msgstr "Bitte geben Sie ein Ablaufdatum an"
 
-#: pkg/static/login.js:524
+#: pkg/static/login.js:526
 msgid "Please specify the host to connect to"
 msgstr ""
 "Bitte geben Sie den Host an, zu dem eine Verbindung hergestellt werden soll"
@@ -5338,15 +5339,15 @@ msgstr "Stoppe RAID-Gerät $target"
 msgid "Refreshing package information"
 msgstr "Paketinformationen aktualisieren"
 
-#: pkg/static/login.js:824
+#: pkg/static/login.js:827
 msgid "Refusing to connect. Host is unknown"
 msgstr "Verbindung ablehnen Host ist unbekannt"
 
-#: pkg/static/login.js:826
+#: pkg/static/login.js:829
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "Verbindung ablehnen Hostkey stimmt nicht überein"
 
-#: pkg/static/login.js:822
+#: pkg/static/login.js:825
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "Verbindung ablehnen Hostkey ist unbekannt"
 
@@ -5519,15 +5520,17 @@ msgstr "Das entfernen der Zone wird alle Service in ihr entfernen."
 msgid "Rename"
 msgstr "Umbenennen"
 
-#: pkg/storaged/stratis-details.jsx:473
-msgid "Rename Filesystem"
-msgstr "Dateisystem umbenennen"
-
 #: pkg/storaged/stratis-details.jsx:279
 #, fuzzy
 #| msgid "Reset Storage Pool"
-msgid "Rename Stratis Pool"
+msgid "Rename Stratis pool"
 msgstr "Setzen Sie den Speicherpool zurück"
+
+#: pkg/storaged/stratis-details.jsx:473
+#, fuzzy
+#| msgid "Rename Filesystem"
+msgid "Rename filesystem"
+msgstr "Dateisystem umbenennen"
 
 #: pkg/storaged/lvol-tabs.jsx:46
 msgid "Rename logical volume"
@@ -6346,13 +6349,7 @@ msgstr "Passphrase speichern"
 msgid "Stored passphrase"
 msgstr "Gespeichertes Passwort"
 
-#: pkg/storaged/pvol-tabs.jsx:112
-#, fuzzy
-#| msgid "Reset Storage Pool"
-msgid "Stratis Pool"
-msgstr "Setzen Sie den Speicherpool zurück"
-
-#: pkg/storaged/content-views.jsx:208
+#: pkg/storaged/content-views.jsx:208 pkg/storaged/pvol-tabs.jsx:112
 #, fuzzy
 #| msgid "Storage pools"
 msgid "Stratis pool"
@@ -6810,7 +6807,7 @@ msgid ""
 "email."
 msgstr ""
 
-#: pkg/static/login.js:816
+#: pkg/static/login.js:819
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -7123,7 +7120,7 @@ msgstr ""
 "Dienst."
 
 #: pkg/shell/hosts_dialog.jsx:463 pkg/shell/hosts_dialog.jsx:474
-#: pkg/static/login.js:669
+#: pkg/static/login.js:672
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
 "the machine or through a trusted network:"
@@ -7285,7 +7282,7 @@ msgstr "Kann Einstellungen nicht anwenden: $0"
 msgid "Unable to apply this solution automatically"
 msgstr "Kann diese Lösung nicht automatisiert anwenden"
 
-#: pkg/static/login.js:820
+#: pkg/static/login.js:823
 msgid "Unable to connect to that address"
 msgstr "Es kann keine Verbindung zu dieser Adresse hergestellt werden"
 
@@ -7637,7 +7634,7 @@ msgstr "Benutzer"
 msgid "User name"
 msgstr "Benutzername"
 
-#: pkg/static/login.js:522
+#: pkg/static/login.js:524
 msgid "User name cannot be empty"
 msgstr "Der Benutzername darf nicht leer sein"
 
@@ -7681,7 +7678,7 @@ msgid "VDO device $0"
 msgstr "VDO-Gerät $0"
 
 #: pkg/storaged/content-views.jsx:825
-msgid "VDO file system volume (compression/deduplication)"
+msgid "VDO filesystem volume (compression/deduplication)"
 msgstr ""
 
 #: pkg/networkmanager/network-interface.jsx:180
@@ -7889,7 +7886,7 @@ msgstr "Schreiben"
 msgid "Write-mostly"
 msgstr "Hauptsächlich Schreiben"
 
-#: pkg/static/login.js:830
+#: pkg/static/login.js:833
 msgid "Wrong user name or password"
 msgstr "Benutzername oder Passwort falsch"
 
@@ -7905,7 +7902,7 @@ msgstr "Jährlich"
 msgid "Yes"
 msgstr "Ja"
 
-#: pkg/shell/hosts_dialog.jsx:470 pkg/static/login.js:666
+#: pkg/shell/hosts_dialog.jsx:470 pkg/static/login.js:669
 msgid "You are connecting to $0 for the first time."
 msgstr "Sie stellen zum ersten Mal eine Verbindung zu $0 her."
 
@@ -8704,6 +8701,22 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "Zone"
+
+#, fuzzy
+#~| msgid "Create storage pool"
+#~ msgid "Create Stratis Pool"
+#~ msgstr "Erstellen Sie einen Speicherpool"
+
+#~ msgid "Mount Options"
+#~ msgstr "Einhängeoptionen"
+
+#~ msgid "Mount Point"
+#~ msgstr "Einhängepunkt"
+
+#, fuzzy
+#~| msgid "Reset Storage Pool"
+#~ msgid "Stratis Pool"
+#~ msgstr "Setzen Sie den Speicherpool zurück"
 
 #~ msgid "A disk is needed."
 #~ msgstr "Eine Diskette wird benötigt."

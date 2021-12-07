@@ -517,6 +517,17 @@
             org_application.indexOf("cockpit+=") === -1;
     }
 
+    function get_recent_hosts() {
+        let hosts = [];
+        try {
+            hosts = JSON.parse(localStorage.getItem("cockpit-client-sessions") || "[]");
+        } catch (e) {
+            console.log("Failed to parse 'cockpit-client-sessions':", e);
+        }
+
+        return hosts;
+    }
+
     function call_login() {
         login_failure(null);
         const user = trim(id("login-user-input").value);
@@ -563,6 +574,40 @@
         }
     }
 
+    function render_recent_hosts() {
+        const hosts = get_recent_hosts();
+
+        const list = id("recent-hosts-list");
+        list.innerHTML = "";
+        hosts.forEach(host => {
+            const wrapper = document.createElement("div");
+            wrapper.classList.add("host-line");
+
+            const b1 = document.createElement("button");
+            b1.textContent = host;
+            b1.classList.add("pf-c-button", "pf-m-tertiary", "host-name");
+            b1.addEventListener("click", () => {
+                document.getElementById("server-field").value = host;
+                call_login();
+            });
+
+            const b2 = document.createElement("button");
+            b2.title = _("Remove host");
+            b2.ariaLabel = b2.title;
+            b2.classList.add("pf-c-button", "pf-m-tertiary", "host-remove");
+            b2.addEventListener("click", () => {
+                const i = hosts.indexOf(host);
+                hosts.splice(i, 1);
+                localStorage.setItem('cockpit-client-sessions', JSON.stringify(hosts));
+                render_recent_hosts();
+            });
+
+            wrapper.append(b1, b2);
+            list.append(wrapper);
+        });
+        hideToggle("#recent-hosts", hosts.length == 0);
+    }
+
     function show_form(form) {
         const connectable = environment.page.connect;
         let expanded = id("option-group").getAttribute("data-state");
@@ -599,6 +644,11 @@
 
         if (form == "login")
             id("login-button").addEventListener("click", call_login);
+
+        if (environment.is_cockpit_client) {
+            render_recent_hosts();
+            document.body.classList.add("cockpit-client");
+        }
     }
 
     function show_login(message) {
@@ -921,6 +971,15 @@
     function run(response) {
         let wanted = window.sessionStorage.getItem('login-wanted');
         const machine = id("server-field").value;
+
+        /* When using cockpit client remember all the addresses being used */
+        if (machine && environment.is_cockpit_client) {
+            const hosts = get_recent_hosts();
+            if (hosts.indexOf(machine) < 0) {
+                hosts.push(machine);
+                localStorage.setItem('cockpit-client-sessions', JSON.stringify(hosts));
+            }
+        }
 
         if (machine && application != org_application) {
             wanted = "/=" + machine;

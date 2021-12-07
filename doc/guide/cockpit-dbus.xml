@@ -112,9 +112,15 @@ client = cockpit.dbus(name, [options])
         <term><code>"bus"</code></term>
         <listitem><para>The DBus bus to connect to. Specifying <code>"session"</code> will
             connect to the DBus user session bus, <code>"user"</code> will connect to the
-            user bus (on some systems this is identical to the session bus), and <code>"system"</code>
-            will connect to the DBus system bus. This defaults to "system" if not
+            user bus (on some systems this is identical to the session bus), <code>"system"</code>
+            will connect to the DBus system bus, and <code>"none"</code> to the non-standard bus
+            specified with the <code>address</code> option. This defaults to "system" if not
             present.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"address"</code></term>
+        <listitem><para>The bus address to connect to in case <code>bus</code> is
+            <code>"none"</code>.</para></listitem>
       </varlistentry>
       <varlistentry>
         <term><code>"host"</code></term>

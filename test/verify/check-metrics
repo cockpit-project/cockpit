@@ -784,6 +784,8 @@ class TestCurrentMetrics(MachineCase):
         b.wait_visible("table[aria-label='Top 5 memory services']")
 
         if have_swap:
+            usage_hog1 = progressValue(self, "#current-memory-usage")
+
             # use even more memory to trigger swap
             m.execute("systemd-run --collect --slice cockpittest --unit mem-hog2 awk "
                       """'BEGIN { x = sprintf("%700000000s",""); system("sleep infinity") }'""")
@@ -791,8 +793,8 @@ class TestCurrentMetrics(MachineCase):
 
             m.execute("systemctl stop mem-hog mem-hog2")
 
-            # should go back to initial_usage; often below, due to paged out stuff
-            b.wait(lambda: progressValue(self, "#current-memory-usage") <= initial_usage)
+            # after stopping both hogs, usage should go down
+            b.wait(lambda: progressValue(self, "#current-memory-usage") < usage_hog1)
             self.assertGreater(progressValue(self, "#current-memory-usage"), 10)
             b.wait_not_in_text("table[aria-label='Top 5 memory services'] tbody", "mem-hog")
 

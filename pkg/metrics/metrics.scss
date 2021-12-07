@@ -53,11 +53,12 @@
 
       .progress-stack {
           display: grid;
-          padding-bottom: var(--pf-global--spacer--lg);
-          grid-gap: var(--pf-global--spacer--xl) var(--pf-global--spacer--2xl);
+          padding-bottom: var(--pf-global--spacer--md);
+          grid-gap: var(--pf-global--spacer--md) var(--pf-global--spacer--lg);
+
 
           &:not(:first-child) {
-            padding-top: var(--pf-global--spacer--lg);
+            padding-top: var(--pf-global--spacer--md);
           }
       }
 
@@ -184,11 +185,6 @@
   .current-metrics .pf-c-card__body {
     overflow-y: auto;
     max-height: 50vw;
-  }
-
-  // Reduce the space between progress items
-  .current-metrics .pf-c-card .progress-stack {
-      grid-gap: var(--pf-global--spacer--md) var(--pf-global--spacer--lg);
   }
 
   // Trim down the gutter space between cards

@@ -587,7 +587,7 @@
             b1.textContent = host;
             b1.classList.add("pf-c-button", "pf-m-tertiary", "host-name");
             b1.addEventListener("click", () => {
-                document.getElementById("server-field").value = host;
+                id("server-field").value = host;
                 call_login();
             });
 
@@ -615,6 +615,12 @@
         hide("#login-wait-validating");
         show("#login");
         hideToggle("#login-details", environment.is_cockpit_client);
+        hideToggle("#server-field-label", environment.is_cockpit_client);
+        if (environment.is_cockpit_client) {
+            const brand = id("brand");
+            brand.textContent = _("Connect to:");
+            brand.classList.add("text-brand");
+        }
 
         hideToggle(["#user-group", "#password-group"], form != "login" || environment.is_cockpit_client);
         hideToggle("#conversation-group", form != "conversation");

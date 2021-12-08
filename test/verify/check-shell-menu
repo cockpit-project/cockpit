@@ -51,7 +51,7 @@ class TestMenu(MachineCase):
         # Test session timeout
         time.sleep(20)
         b.wait_not_present("#session-timeout-modal")
-        b.wait_visible("#nav-hosts-sel")
+        b.wait_visible("#hosts-sel")
         b.enter_page("/system")
         b.mouse("#system_information_hardware_text", "mousemove", 24, 24)
         b.switch_to_top()
@@ -76,7 +76,7 @@ class TestMenu(MachineCase):
         b.switch_to_top()
         time.sleep(75)
         b.wait_not_present("#session-timeout-modal")
-        b.wait_visible("#nav-hosts-sel")
+        b.wait_visible("#hosts-sel")
 
         self.check_axe("Test-navigation")
 

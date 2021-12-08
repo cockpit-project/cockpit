@@ -117,6 +117,17 @@ $desktop: $phone + 1px;
     width: 100%;
     height: 100%;
 
+    // Set masthead and toolbar to transparent, so the background shows through
+    // (including the accent line)
+
+    .pf-c-masthead {
+        --pf-c-masthead--BackgroundColor: transparent;
+    }
+
+    .pf-c-toolbar {
+        --pf-c-toolbar--BackgroundColor: transparent;
+    }
+
     @media (max-width: $phone) {
         grid-template-areas: "main main main" "sidebar switcher header";
         grid-template-rows: 1fr 4rem;
@@ -148,6 +159,11 @@ $desktop: $phone + 1px;
                     var(--ct-color-host-accent) -1.5rem,
                     var(--pf-global--BackgroundColor--dark-100) 0.75rem
                 );
+        }
+
+        // Remove excess padding from masthead in mobile
+        .pf-c-masthead {
+            --pf-c-masthead--inset: 0;
         }
     }
 

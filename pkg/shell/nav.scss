@@ -1,4 +1,6 @@
 @use "variables" as *;
+@import "global-variables";
+@import "../../node_modules/@patternfly/patternfly/components/Toolbar/toolbar.scss";
 
 /* Navigation base, used for both desktop & mobile navigation */
 
@@ -75,27 +77,6 @@ $desktop: $phone + 1px;
     }
 }
 
-.header {
-    background: var(--pf-global--BackgroundColor--dark-100);
-    display: grid;
-    align-items: center;
-    grid-template-columns: auto;
-    grid-auto-columns: max-content;
-    grid-auto-flow: column;
-    overflow: visible;
-
-    .ct-header-item {
-        display: flex;
-        align-items: center;
-        height: 100%;
-
-        &.pf-m-expanded{
-            // Approximate --pf-global--BackgroundColor--dark-200 with opacity
-            background-color: rgba(249, 252, 255, 0.32);
-        }
-    }
-}
-
 .area-ct-content {
     position: relative;
     z-index: 1;
@@ -158,18 +139,6 @@ $desktop: $phone + 1px;
         border-left: 1px solid var(--pf-global--BackgroundColor--dark-100);
         background: linear-gradient(to right,var(--pf-global--BackgroundColor--dark-100) -1rem, var(--pf-global--BackgroundColor--dark-300) 1rem);
 
-        .ct-header-item > a,
-        .ct-header-item > button,
-        .ct-header-item > span {
-            // PF3 specificity needs to be overridden, hence !important here
-            padding: 0 1rem !important;
-            font-size: var(--pf-global--FontSize--md);
-            height: 100%;
-            display: flex;
-            align-items: center;
-            color: var(--pf-global--Color--light-100);
-        }
-
         .credential-unlocked {
             /* AAA contrast: simulate #a1a1a1 on #151515 */
             opacity: 0.6;
@@ -182,14 +151,16 @@ $desktop: $phone + 1px;
     }
 
     .pf-m-dark {
-        background: var(--pf-global--BackgroundColor--dark-100);
         > .pf-c-select__toggle {
             background-color: var(--pf-global--BackgroundColor--dark-300);
         }
     }
 
-    .ct-switcher > .pf-c-select > button {
-        padding-left: 1.5rem;
+    .ct-switcher {
+        background-color: var(--pf-global--BackgroundColor--dark-300);
+        > .pf-c-select > button {
+            padding-left: 1.5rem;
+        }
     }
 
     .nav-hosts-menu {
@@ -225,13 +196,9 @@ $desktop: $phone + 1px;
         animation: navHostsSlide 200ms ease-out;
     }
 
-    .ct-header {
-        &-item {
-            --button-offset: 0;
-        }
-        &-docs {
-            // Buttons are 4rem wide
-            --button-offset: calc((-1 * var(--nav-icon-size)) + var(--pf-global--spacer--md));
+    .header {
+        .pf-c-toolbar__item {
+            margin-right: 0;
         }
     }
 
@@ -285,13 +252,7 @@ $desktop: $phone + 1px;
 
     // Override some PF4isms to make sure the host switcher is 100% tall
     .navbar-pf {
-        .navbar-header {
-            border: none;
-        }
-
-        .navbar-header,
         .ct-switcher {
-            height: 100%;
             display: flex;
         }
     }
@@ -314,7 +275,11 @@ $desktop: $phone + 1px;
 }
 
 .ct-switcher {
+    height: 100%;
+
     > .pf-c-select {
+        height: 100%;
+
         .pf-c-select__toggle-text {
             text-align: left;
         }
@@ -539,9 +504,18 @@ $desktop: $phone + 1px;
     }
 }
 
+.ct-topnav-content {
+    margin-left: auto;
+}
+
 // Rework navigation toggles in desktop and (especially) mobile modes
 .super-user-indicator > button,
-.ct-nav-toggle {
+.ct-nav-toggle:not(.pf-c-dropdown) {
+    color: var(--pf-global--Color--light-100) !important;
+    background: transparent;
+}
+
+.ct-nav-toggle:not(.pf-c-dropdown) {
     &:hover, &:active, &.active, &.interact, &[aria-expanded=true] {
         text-decoration: none;
         // approximate --pf-global--BackgroundColor--dark-400, but with opacity
@@ -556,14 +530,28 @@ $desktop: $phone + 1px;
         text-decoration: none;
         outline: 1px dotted var(--pf-global--BackgroundColor--light-100);
     }
+}
 
-    // Drop PF borders for the dropdowns
-    --pf-c-dropdown__toggle--before--BorderRightColor: transparent;
-    --pf-c-dropdown__toggle--before--BorderLeftColor: transparent;
-    --pf-c-dropdown__toggle--before--BorderTopColor: transparent;
-    --pf-c-dropdown__toggle--before--BorderBottomColor: transparent;
-    // Fix double-spacing (dropmarker icon margin + dropdown padding)
-    --pf-c-dropdown__toggle-icon--MarginRight: 0;
+// In mobile view keep the non PF4 of displaying hover / focus state in the masthead / toolbar items
+// This can go away once we move the host selector inside the Masthead
+// https://github.com/patternfly/patternfly/issues/4524
+@media (max-width: $phone) {
+    .ct-nav-toggle.pf-c-dropdown {
+        &:hover, &:active, &.active, &.interact, &[aria-expanded=true], &.pf-m-expanded {
+            text-decoration: none;
+            // approximate --pf-global--BackgroundColor--dark-400, but with opacity
+            background: rgba(249, 252, 255, 0.32);
+
+            .hostname {
+                text-decoration: underline;
+            }
+        }
+
+        &:focus {
+            text-decoration: none;
+            outline: 1px dotted var(--pf-global--BackgroundColor--light-100);
+        }
+    }
 }
 
 .ct-locked > .ct-lock-wrapper > svg {

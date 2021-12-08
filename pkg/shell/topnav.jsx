@@ -19,7 +19,12 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { Button, Dropdown, DropdownItem, DropdownPosition, DropdownSeparator, DropdownToggle, Spinner } from '@patternfly/react-core';
+import {
+    Button, Dropdown, DropdownItem, DropdownPosition, DropdownSeparator, DropdownToggle,
+    Masthead, MastheadContent,
+    Spinner,
+    Toolbar, ToolbarItem, ToolbarContent,
+} from '@patternfly/react-core';
 import { CogIcon, ExternalLinkAltIcon, HelpIcon } from '@patternfly/react-icons';
 
 import { ActivePagesDialog } from "./active-pages-modal.jsx";
@@ -161,58 +166,69 @@ export class TopNav extends React.Component {
         );
 
         return (
-            <>
-                <div />
-                {(connected && this.state.frame && !this.state.frame.getAttribute("data-ready")) &&
-                    <div id="machine-spinner" className="ct-header-item">
-                        <Spinner isSVG size="lg" style={{ "--pf-c-spinner--Color": "#fff", "--pf-c-spinner--diameter": "2rem" }} />
-                    </div>
-                }
-                { connected &&
-                    <div id="super-user-indicator" className="super-user-indicator ct-header-item desktop_v">
-                        <SuperuserIndicator proxy={this.superuser} host={this.props.machine.connection_string} />
-                    </div>
-                }
-                { this.props.index.has_oops &&
-                    <Button id="navbar-oops" variant="link" className="ct-header-item" isLarge isDanger onClick={() => this.setState({ oopsDialogOpened: true }) }>{_("Ooops!")}</Button>
-                }
-                <Dropdown
-                    onSelect={() => {
-                        this.setState(prevState => { return { docsOpened: !prevState.docsOpened } });
-                        document.getElementById("toggle-docs").focus();
-                    }}
-                    toggle={
-                        <DropdownToggle id="toggle-docs" icon={<HelpIcon size="md" />} onToggle={isOpen => { this.setState({ docsOpened: isOpen }) }}>
-                            {_("Help")}
-                        </DropdownToggle>
-                    }
-                    isOpen={this.state.docsOpened}
-                    dropdownItems={docItems}
-                    position={DropdownPosition.right}
-                    className="ct-header-item ct-nav-toggle"
-                />
-                <Dropdown
-                    onSelect={() => {
-                        this.setState(prevState => { return { menuOpened: !prevState.menuOpened } });
-                        document.getElementById("toggle-menu").focus();
-                    }}
-                    toggle={
-                        <DropdownToggle id="toggle-menu" icon={<CogIcon size="md" />} onToggle={(isOpen, ev) => { if (ev.target.id !== "toggle-menu") return; this.setState({ menuOpened: isOpen, showActivePages: ev.altKey }) }}>
-                            {_("Session")}
-                        </DropdownToggle>
-                    }
-                    isOpen={this.state.menuOpened}
-                    dropdownItems={main_menu}
-                    position={DropdownPosition.right}
-                    className="ct-header-item ct-nav-toggle"
-                />
+            <Masthead>
+                <MastheadContent>
+                    <Toolbar id="toolbar" isFullHeight isStatic>
+                        <ToolbarContent className="ct-topnav-content">
+                            {(connected && this.state.frame && !this.state.frame.getAttribute("data-ready")) &&
+                                <ToolbarItem id="machine-spinner">
+                                    <Spinner isSVG size="lg" style={{ "--pf-c-spinner--Color": "#fff", "--pf-c-spinner--diameter": "2rem" }} />
+                                </ToolbarItem>
+                            }
+                            { connected &&
+                                <ToolbarItem id="super-user-indicator" className="super-user-indicator desktop_v">
+                                    <SuperuserIndicator proxy={this.superuser} host={this.props.machine.connection_string} />
+                                </ToolbarItem>
+                            }
+                            { this.props.index.has_oops &&
+                                <ToolbarItem>
+                                    <Button id="navbar-oops" variant="link" isLarge isDanger onClick={() => this.setState({ oopsDialogOpened: true }) }>{_("Ooops!")}</Button>
+                                </ToolbarItem>
+                            }
+                            <ToolbarItem>
+                                <Dropdown
+                                    onSelect={() => {
+                                        this.setState(prevState => { return { docsOpened: !prevState.docsOpened } });
+                                        document.getElementById("toggle-docs").focus();
+                                    }}
+                                    toggle={
+                                        <DropdownToggle id="toggle-docs" icon={<HelpIcon size="md" />} onToggle={isOpen => { this.setState({ docsOpened: isOpen }) }}>
+                                            {_("Help")}
+                                        </DropdownToggle>
+                                    }
+                                    isOpen={this.state.docsOpened}
+                                    dropdownItems={docItems}
+                                    position={DropdownPosition.right}
+                                    className="ct-header-item ct-nav-toggle"
+                                />
+                            </ToolbarItem>
+                            <ToolbarItem>
+                                <Dropdown
+                                    onSelect={() => {
+                                        this.setState(prevState => { return { menuOpened: !prevState.menuOpened } });
+                                        document.getElementById("toggle-menu").focus();
+                                    }}
+                                    toggle={
+                                        <DropdownToggle id="toggle-menu" icon={<CogIcon size="md" />} onToggle={(isOpen, ev) => { if (ev.target.id !== "toggle-menu") return; this.setState({ menuOpened: isOpen, showActivePages: ev.altKey }) }}>
+                                            {_("Session")}
+                                        </DropdownToggle>
+                                    }
+                                    isOpen={this.state.menuOpened}
+                                    dropdownItems={main_menu}
+                                    position={DropdownPosition.right}
+                                    className="ct-header-item ct-nav-toggle"
+                                />
+                            </ToolbarItem>
 
-                { this.state.oopsDialogOpened && <OopsModal onClose={() => this.setState({ oopsDialogOpened: false }) } /> }
-                { this.state.aboutDialogOpened && <AboutCockpitModal onClose={() => this.setState({ aboutDialogOpened: false }) } /> }
-                { this.state.localesDialogOpened && <LangModal onClose={() => this.setState({ localesDialogOpened: false }) } /> }
-                { this.state.framesDialogOpened && <ActivePagesDialog frames={this.props.index.frames} onClose={() => this.setState({ framesDialogOpened: false }) } /> }
-                { this.state.credentialsDialogOpened && <CredentialsModal onClose={() => this.setState({ credentialsDialogOpened : false }) } /> }
-            </>
+                            { this.state.oopsDialogOpened && <OopsModal onClose={() => this.setState({ oopsDialogOpened: false }) } /> }
+                            { this.state.aboutDialogOpened && <AboutCockpitModal onClose={() => this.setState({ aboutDialogOpened: false }) } /> }
+                            { this.state.localesDialogOpened && <LangModal onClose={() => this.setState({ localesDialogOpened: false }) } /> }
+                            { this.state.framesDialogOpened && <ActivePagesDialog frames={this.props.index.frames} onClose={() => this.setState({ framesDialogOpened: false }) } /> }
+                            { this.state.credentialsDialogOpened && <CredentialsModal onClose={() => this.setState({ credentialsDialogOpened : false }) } /> }
+                        </ToolbarContent>
+                    </Toolbar>
+                </MastheadContent>
+            </Masthead>
         );
     }
 }

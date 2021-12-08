@@ -61,3 +61,7 @@ deploy_env "${THIS}-dist"
 #   - npm-install.yml
 #   - release.yml
 deploy_env node-cache
+
+# https://github.com/cockpit-project/org.cockpit_project.CockpitClient
+#   - update-flathub.yml
+deploy_env flathub org.cockpit_project.CockpitClient

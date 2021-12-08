@@ -95,6 +95,11 @@ class TestS4USsh(MachineCase):
         """
         ipa_machine.execute(f"podman exec freeipa bash -ec '{script}'")
 
+        # tell sssd about our CA for validating certs
+        client_machine.execute("mkdir -p /etc/sssd/pki")
+        with open("src/tls/ca/ca.pem") as f:
+            client_machine.write("/etc/sssd/pki/sssd_auth_ca_db.pem", f.read())
+
         # enable gssapiauth for ssh
         sshd_machine.execute("sed -ri 's/#GSSAPIAuthentication (yes|no)/GSSAPIAuthentication yes/' /etc/ssh/sshd_config")
         sshd_machine.execute("systemctl restart sshd")

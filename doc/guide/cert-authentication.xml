@@ -144,6 +144,16 @@ maprule = LDAP:(userCertificate={cert!base64})
   <section id="certauth-server-cockpitconf">
     <title>Cockpit web server configuration</title>
 
+    <para>Set the trusted Certificate Authority of your user certificates in <command>sssd</command>,
+    either by copying the CA PEM file to <code>/etc/sssd/pki/sssd_auth_ca_db.pem</code> or setting the
+    <ulink url="https://www.mankier.com/5/sssd.conf#Services_Sections-PAM_configuration_options">
+    <command>pam_cert_db_path</command></ulink> configuration option to the path of the CA.
+    If you use FreeIPA and its CA:</para>
+
+<programlisting>
+cp /etc/ipa/ca.crt /etc/sssd/pki/sssd_auth_ca_db.pem
+</programlisting>
+
     <para>Certificate authentication needs to be enabled in
       <ulink url="./cockpit.conf.5.html">cockpit.conf</ulink> explicitly:</para>
 
@@ -155,12 +165,17 @@ ClientCertAuthentication = yes
   <warning>
     <para>Any client can generate certificates with arbitrary information, thus
       the client certificates must be checked for validity. Cockpit currently
-      accepts any client certificate and relies on sssd to verify their validity.
-      This is secure only when the entire certificate gets matched, i.e. when
-      importing the complete certificates into Identity Management as shown above.
-      <emphasis>Do not use this with local sssd <code>certmap</code> rules</emphasis>
-      which only match on Subject/Issuer properties!
-  </para>
+      accepts any client certificate and relies on sssd to verify their validity.</para>
+
+    <para>Check if your <command>sssd</command> version is at least 2.6.1, as earlier
+      versions did not validate the user certificate against the configured CA with
+      Cockpit logins. With earlier versions, this is secure only when the
+      entire certificate gets matched, i.e. when importing the complete
+      certificates into Identity Management as shown above. Also, certificate
+      revocations are <emphasis>not checked with earlier sssd versions</emphasis>.</para>
+
+    <para><emphasis>Do not use this with local sssd <code>certmap</code> rules</emphasis>
+      which only match on Subject/Issuer properties, if you run sssd earlier than 2.6.1!</para>
  </warning>
 
   <para>When enabling this mode,

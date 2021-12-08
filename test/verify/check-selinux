@@ -21,6 +21,7 @@ import parent
 from testlib import *
 from machine_core.constants import TEST_OS_DEFAULT
 
+import time
 
 FIX_AUDITD = """
 set -e
@@ -69,6 +70,9 @@ class TestSelinux(MachineCase):
         b = self.browser
         m = self.machine
 
+        # fix audit events first
+        self.machine.execute(script=FIX_AUDITD)
+
         # Do some local modifications
         m.execute("semanage fcontext --add -t samba_share_t /var/tmp/")
         m.execute("semanage boolean --modify --on zebra_write_config")
@@ -76,6 +80,12 @@ class TestSelinux(MachineCase):
         self.allow_journal_messages(".*couldn't .* /org/fedoraproject/Setroubleshootd: GDBus.Error:org.freedesktop.DBus.Error.NoReply:.*")
 
         self.login_and_go("/selinux/setroubleshoot")
+
+        # Starting Cockpit might produce some alerts (e.g. from
+        # starting rhsm.service), so let's give them some time to
+        # appear before cleaning it all out.
+        b.wait_js_cond("ph_in_text('body', 'No SELinux alerts.') || ph_is_present('tbody .pf-c-table__toggle')")
+        time.sleep(30)
 
         dismiss_sel = ".selinux-alert-dismiss"
 
@@ -90,9 +100,6 @@ class TestSelinux(MachineCase):
             b.click(dismiss_sel)
             # wait for the dismissed alert to go away
             num_alerts = b.wait_js_func("ph_count_check", "#selinux-alerts tbody", num_alerts - 1)
-
-        # fix audit events first
-        self.machine.execute(script=FIX_AUDITD)
 
         # wait for Modifications table to initialize
         b.wait_text_matches(".modifications-table", "Allow zebra.*write.*config")

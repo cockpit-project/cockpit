@@ -248,15 +248,34 @@ sssd_map_certificate (const char *certificate, char** username)
       goto out;
     }
 
+  /* sssd 2.6.1 introduces certificate validation against the configured CA. If present, use that API */
   r = sd_bus_call_method (bus,
                           "org.freedesktop.sssd.infopipe",
                           "/org/freedesktop/sssd/infopipe/Users",
                           "org.freedesktop.sssd.infopipe.Users",
-                          "FindByCertificate",
+                          "FindByValidCertificate",
                           &err,
                           &user_obj_msg,
                           "s",
                           certificate);
+
+  /* fallback for sssd < 2.6.1; this is only secure for matching the full certificate, not mapping rules */
+  if (r < 0 && sd_bus_error_has_name (&err, "org.freedesktop.DBus.Error.UnknownMethod"))
+    {
+      debug ("FindByValidCertificate() method does not exist, falling back to FindByCertificate()");
+      sd_bus_error_free (&err);
+      err = SD_BUS_ERROR_NULL;
+
+      r = sd_bus_call_method (bus,
+                              "org.freedesktop.sssd.infopipe",
+                              "/org/freedesktop/sssd/infopipe/Users",
+                              "org.freedesktop.sssd.infopipe.Users",
+                              "FindByCertificate",
+                              &err,
+                              &user_obj_msg,
+                              "s",
+                              certificate);
+    }
 
   if (r < 0)
     {

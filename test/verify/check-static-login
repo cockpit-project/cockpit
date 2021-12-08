@@ -692,10 +692,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
     @skipImage("sssd not available", "fedora-coreos")
     def testClientCertAuthentication(self):
-        # This only tests the cockpit ←→ sssd API, but this is completely unsafe!
-        # Nothing currently checks whether the client certificate is signed by
-        # a trusted CA, or is in a revocation list. But it is convenient as a downstream
-        # gating test and as a basis to properly supporting certmap rules in the future.
         m = self.machine
 
         if m.image.startswith("debian") or m.image.startswith("ubuntu"):
@@ -714,7 +710,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         alice_cert_key = ['--cert', alice_cert, '--key', alice_key]
 
         # set up local (NIS) sssd provider and certificate mapping
-        m.write("/etc/sssd/sssd.conf", """
+        self.write_file("/etc/sssd/sssd.conf", """
 [sssd]
 domains = local
 
@@ -722,18 +718,43 @@ domains = local
 id_provider = files
 
 [certmap/local/alice]
-# WARNING: interface testing only, this is insecure! Nothing validates the cert signer
+# WARNING: Requires sssd >= 2.6.1 and installing sssd_auth_ca_db.pem; with earlier sssd this is completely unsafe
 matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
 """, perm="0600")
         m.execute("systemctl restart sssd")
 
-        # ensure sssd certificate lookup works
+        # ensure sssd certificate lookup without validation works
         user_obj = m.execute('busctl call org.freedesktop.sssd.infopipe /org/freedesktop/sssd/infopipe/Users '
                              'org.freedesktop.sssd.infopipe.Users FindByCertificate s -- '
                              '''"$(cat %s)" | sed 's/^o "//; s/"$//' ''' % alice_cert)
         self.assertEqual(m.execute('busctl get-property org.freedesktop.sssd.infopipe ' + user_obj.strip() +
                                    ' org.freedesktop.sssd.infopipe.Users.User name').strip(),
                          's "alice"')
+
+        # sssd 2.6.1 introduces FindByValidCertificate() method which validates the given certificate
+        # against the configured CA. Without this, certmap rules are completely unsafe!
+        api = m.execute("busctl introspect org.freedesktop.sssd.infopipe /org/freedesktop/sssd/infopipe/Users")
+        has_validate_api = 'FindByValidCertificate' in api
+        # we don't want to completely pinpoint the OS list to avoid lockstep image refreshes+cockpit PRs
+        # and spontaneous packit test failures as sssd 2.6.1 goes into more distros; but make sure we hit
+        # this code path on some known-good ones
+        if m.image in ["fedora-35", "debian-testing"]:
+            self.assertTrue(has_validate_api)
+
+        if has_validate_api:
+            err = m.execute('! busctl call org.freedesktop.sssd.infopipe /org/freedesktop/sssd/infopipe/Users '
+                            'org.freedesktop.sssd.infopipe.Users FindByValidCertificate s -- '
+                            '''"$(cat %s)" 2>&1''' % alice_cert)
+            self.assertIn("Invalid certificate provided", err)
+
+            m.execute("mkdir -p /etc/sssd/pki")
+            # install our CA, so that sssd can validate
+            with open("src/tls/ca/ca.pem") as f:
+                m.write("/etc/sssd/pki/sssd_auth_ca_db.pem", f.read())
+            u = m.execute('busctl call org.freedesktop.sssd.infopipe /org/freedesktop/sssd/infopipe/Users '
+                          'org.freedesktop.sssd.infopipe.Users FindByCertificate s -- '
+                          '''"$(cat %s)" | sed 's/^o "//; s/"$//' ''' % alice_cert)
+            self.assertEqual(u, user_obj)
 
         # These tests have to be run with curl, as chromium-headless does not support selecting/handling client-side
         # certificates; it just rejects cert requests. For interactive tests, grab src/tls/ca/alice.p12 and import
@@ -814,6 +835,12 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         do_test(['-u', 'alice:foobar123'],
                 ['HTTP/1.1 401 Authentication disabled', '<h1>Authentication disabled</h1>'],
                 not_expected=["crsf-token"])
+
+        # with validation API and without a CA, alice's cert fails
+        if has_validate_api:
+            m.execute("rm /etc/sssd/pki/sssd_auth_ca_db.pem")
+            self.allow_journal_messages("cockpit-session: Failed to map .* Invalid certificate provided")
+            do_test(alice_cert_key, ['HTTP/1.1 401 Authentication failed'])
 
         # sssd-dbus not available
         self.allow_journal_messages("cockpit-session: Failed to map .* Could not activate remote peer.")

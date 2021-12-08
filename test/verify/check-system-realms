@@ -359,6 +359,12 @@ class CommonTests:
         alice_cert_key = ['--cert', "/var/tmp/alice.pem", '--key', "/var/tmp/alice.key"]
         alice_user_pass = ['-u', 'alice:' + self.alice_password]
 
+        if self.__class__ == TestIPA:
+            # `realm join` does not automatically configure sssd to be able to validate certificates;
+            # it needs to be explicitly told the CA to trust. Use the IPA's CA. (That would be an
+            # excellent default, but oh well, we can't have all nice things.)
+            m.execute("mkdir -p /etc/sssd/pki/; cp /etc/ipa/ca.crt /etc/sssd/pki/sssd_auth_ca_db.pem")
+
         # ensure sssd certificate lookup works
         user_obj = m.execute('busctl call org.freedesktop.sssd.infopipe /org/freedesktop/sssd/infopipe/Users '
                              'org.freedesktop.sssd.infopipe.Users FindByCertificate s -- '
@@ -427,12 +433,26 @@ class CommonTests:
         do_test(['--cert', "/var/tmp/bob.pem", '--key', "/var/tmp/bob.key"],
                 ["HTTP/1.1 401 Authentication failed", '<h1>Authentication failed</h1>'],
                 not_expected=["crsf-token"])
+        self.allow_journal_messages("cockpit-session: Failed to map certificate to user: .* Invalid certificate provided")
 
         # disallow password auth
         m.write("/etc/cockpit/cockpit.conf", "[Basic]\naction = none\n", append=True)
         do_test(alice_cert_key, ['HTTP/1.1 200 OK', '"csrf-token"'])
         do_test(alice_user_pass, ['HTTP/1.1 401 Authentication disabled', '<h1>Authentication disabled</h1>'],
                 not_expected=["crsf-token"])
+
+        # valid user certificate which fails CA validation; this requires sssd ≥ 2.6.1
+        m.execute("mv /etc/sssd/pki/sssd_auth_ca_db.pem /etc/sssd/pki/sssd_auth_ca_db.pem.valid")
+        with open("src/tls/ca/alice-expired.pem") as f:
+            m.write("/etc/sssd/pki/sssd_auth_ca_db.pem", f.read())
+        api = m.execute("busctl introspect org.freedesktop.sssd.infopipe /org/freedesktop/sssd/infopipe/Users")
+        has_validate_api = 'FindByValidCertificate' in api
+        if has_validate_api:
+            do_test(alice_cert_key, ["HTTP/1.1 401 Authentication failed"])
+        else:
+            # earlier sssd just matches the certificate verbatim, without CA validation
+            do_test(alice_cert_key, ['HTTP/1.1 200 OK', '"csrf-token"'])
+        m.execute("mv /etc/sssd/pki/sssd_auth_ca_db.pem.valid /etc/sssd/pki/sssd_auth_ca_db.pem")
 
 
 @skipImage("No realmd available", "fedora-coreos", "arch")
@@ -898,6 +918,10 @@ maprule = LDAP:(userCertificate={cert!base64})
 # this also requires CA validation in cockpit-tls or sssd, which we don't have yet
 # maprule = (|(userPrincipalName={subject_principal})(sAMAccountName={subject_principal.short_name}))
 """, perm="0600")
+        # tell sssd about our CA for validating certs
+        m.execute("mkdir -p /etc/sssd/pki")
+        with open("src/tls/ca/ca.pem") as f:
+            m.write("/etc/sssd/pki/sssd_auth_ca_db.pem", f.read())
 
         self.checkClientCertAuthentication()
 

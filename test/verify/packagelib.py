@@ -40,6 +40,10 @@ class PackageCase(MachineCase):
             self.backend = "dnf"
             self.primary_arch = "noarch"
             self.secondary_arch = "x86_64"
+        elif self.machine.image == "arch":
+            self.backend = "alpm"
+            self.primary_arch = "any"
+            self.secondary_arch = "x86_64"
         else:
             raise NotImplementedError("unknown image " + self.machine.image)
 
@@ -54,6 +58,31 @@ class PackageCase(MachineCase):
             self.restore_dir("/var/cache/apt", reboot_safe=True)
             self.restore_dir("/etc/apt", reboot_safe=True)
             self.machine.execute("echo > /etc/apt/sources.list && rm -f /etc/apt/sources.list.d/* && apt-get clean && apt-get update")
+        elif self.backend == "alpm":
+            self.restore_dir("/var/lib/pacman", reboot_safe=True)
+            self.restore_dir("/var/cache/pacman", reboot_safe=True)
+            self.restore_dir("/etc/pacman.d", reboot_safe=True)
+            self.restore_dir("/var/lib/PackageKit/alpm", reboot_safe=True)
+            self.restore_file("/etc/pacman.conf")
+            self.restore_file("/etc/pacman.d/mirrorlist")
+            self.restore_file("/usr/share/libalpm/hooks/90-packagekit-refresh.hook")
+            self.machine.execute("rm /etc/pacman.conf /etc/pacman.d/mirrorlist /var/lib/pacman/sync/* /usr/share/libalpm/hooks/90-packagekit-refresh.hook")
+            # Initial config for installation
+            empty_repo_dir = '/var/lib/cockpittest/empty'
+            config = f"""
+[options]
+Architecture = auto
+HoldPkg     = pacman glibc
+
+[empty]
+SigLevel = Never
+Server = file://{empty_repo_dir}
+"""
+            # HACK: Setup empty repo for packagekit
+            self.machine.execute(f"mkdir -p {empty_repo_dir} || true")
+            self.machine.execute(f"repo-add {empty_repo_dir}/empty.db.tar.gz")
+            self.machine.write("/etc/pacman.conf", config)
+            self.machine.execute("pacman -Sy")
         else:
             self.restore_dir("/etc/yum.repos.d", reboot_safe=True)
             self.restore_dir("/var/cache/dnf", reboot_safe=True)
@@ -94,6 +123,8 @@ class PackageCase(MachineCase):
 
         if self.backend == "apt":
             self.createDeb(name, version + '-' + release, depends, postinst, install, content, arch, provides)
+        elif self.backend == "alpm":
+            self.createPacmanPkg(name, version, release, depends, postinst, install, content, arch, provides)
         else:
             self.createRpm(name, version, release, depends, postinst, install, content, arch, provides)
         if updateinfo:
@@ -194,6 +225,86 @@ rm -rf ~/rpmbuild
         self.machine.execute(cmd.format(self.repo_dir, name, version, release, arch))
         self.addCleanup(self.machine.execute, f"rpm -e --nodeps {name} 2>/dev/null || true")
 
+    def createPacmanPkg(self, name, version, release, requires, postinst, install, content, arch, provides):
+        '''Create a dummy pacman package in repo_dir on self.machine
+
+        If install is True, install the package. Otherwise, update the package
+        index in repo_dir.
+        '''
+
+        if arch is None:
+            arch = 'any'
+
+        sources = ""
+        installcmds = 'package() {\n'
+        if content is not None:
+            sources = "source=("
+            files = 0
+            for path, data in content.items():
+                p = os.path.dirname(path)
+                installcmds += f'mkdir -p $pkgdir{p}\n'
+                if isinstance(data, dict):
+                    dpath = data["path"]
+
+                    file = os.path.basename(dpath)
+                    sources += file
+                    files += 1
+                    # TODO: hardcoded /tmp
+                    self.machine.execute(f'cp {data["path"]} /tmp/{file}')
+                    installcmds += f'cp {file} $pkgdir{path}\n'
+                else:
+                    installcmds += f'cat >"$pkgdir{path}" <<\'EOF\'\n' + data + '\nEOF\n'
+
+            sources += ")"
+
+        # Always stamp a file
+        installcmds += f"touch $pkgdir/stamp-{name}-{version}-{release}\n"
+        installcmds += '}'
+
+        pkgbuild = f"""
+pkgname={name}
+pkgver={version}
+pkgdesc="dummy {name}"
+pkgrel={release}
+arch=({arch})
+depends=({requires})
+{sources}
+
+{installcmds}
+"""
+
+        if postinst:
+            postinstcode = f"""
+post_install() {{
+    {postinst}
+}}
+
+post_upgrade() {{
+    post_install $*
+}}
+"""
+            self.machine.write(f"/tmp/{name}.install", postinstcode)
+            pkgbuild += f"\ninstall={name}.install\n"
+
+        self.machine.write("/tmp/PKGBUILD", pkgbuild)
+
+        cmd = """
+        cd /tmp/
+        su builder -c "makepkg -f -d --skipinteg --noconfirm"
+"""
+
+        if install:
+            cmd += f"pacman -U --noconfirm {name}-{version}-{release}-{arch}.pkg.tar.zst\n"
+
+        cmd += f"mkdir -p {self.repo_dir}\n"
+        cmd += f"mv *.pkg.tar.zst {self.repo_dir}\n"
+        # Clean up packaging files
+        cmd += "rm PKGBUILD\n"
+        if postinst:
+            cmd += f"rm /tmp/{name}.install"
+        self.machine.execute(cmd)
+        self.addCleanup(self.machine.execute, f"pacman -R --noconfirm {name} 2>/dev/null || true")
+
     def createAptChangelogs(self):
         # apt metadata has no formal field for bugs/CVEs, they are parsed from the changelog
         for ((pkg, ver, rel), info) in self.updateInfo.items():
@@ -264,6 +375,20 @@ rm -rf ~/rpmbuild
             # pid will not be present for rebooting tests
             self.addCleanup(self.machine.execute, "kill %i || true" % pid)
             self.machine.wait_for_cockpit_running(port=12345)  # wait for changelog HTTP server to start up
+        elif self.backend == "alpm":
+            self.machine.execute(f'''set -e;
+                                     cd {self.repo_dir}
+                                     repo-add {self.repo_dir}/testrepo.db.tar.gz *.pkg.tar.zst
+                    ''')
+
+            config = f"""
+[testrepo]
+SigLevel = Never
+Server = file://{self.repo_dir}
+            """
+            if 'testrepo' not in self.machine.execute('grep testrepo /etc/pacman.conf || true'):
+                self.machine.write("/etc/pacman.conf", config, append=True)
+
         else:
             self.machine.execute('''set -e; printf '[updates]\nname=cockpittest\nbaseurl=file://{0}\nenabled=1\ngpgcheck=0\n' > /etc/yum.repos.d/cockpittest.repo
                                     echo '{1}' > /tmp/updateinfo.xml

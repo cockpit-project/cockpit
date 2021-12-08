@@ -687,7 +687,8 @@ class TestCurrentMetrics(MachineCase):
     def setUp(self):
         super().setUp()
         # packagekit/dnf often eats a lot of CPU; silence it to have better control over CPU usage
-        self.machine.execute("systemctl mask packagekit && killall -9 /usr/libexec/packagekitd && killall -9 dnf || true")
+        packagekitd = "/usr/lib/packagekitd" if self.machine.image == "arch" else "/usr/libexec/packagekitd"
+        self.machine.execute(f"systemctl mask packagekit && killall -9 {packagekitd} && killall -9 dnf || true")
 
         self.addCleanup(self.machine.execute, "systemctl unmask packagekit")
         # make sure to clean up our test resource consumers on failures
@@ -912,6 +913,7 @@ class TestCurrentMetrics(MachineCase):
         b.wait_text("[aria-label='Network usage'] [data-interface='cockpittest1'] td[data-label='Out']", "0")
 
 
+@skipImage("TODO: Arch Linux packagekit support", "arch")
 @skipDistroPackage()
 class TestMetricsPackages(packagelib.PackageCase):
     def testBasic(self):

@@ -45,28 +45,15 @@ export class AboutCockpitModal extends React.Component {
 
     componentDidMount() {
         const packages = [];
-
-        cockpit.spawn(["bash", "-ec", "command -v zypper dnf apt | head -n1 | xargs --no-run-if-empty basename"], [], { err: "message" })
-                .then(output => {
-                    output = output.trim();
-                    let cmd = null;
-                    if (output === "dnf" || output === "zypper")
-                        cmd = "rpm -qa --qf '%{NAME} %{VERSION}\\n' | grep cockpit | sort";
-                    else if (output === "apt")
-                        cmd = "dpkg-query -f '${Package} ${Version}\n' --show | grep cockpit | sort";
-                    else
-                        console.log("Unknown package manager");
-
-                    if (cmd)
-                        return cockpit.spawn(["bash", "-ec", cmd], [], { err: "message" })
-                                .then(pkgs =>
-                                    pkgs.trim().split("\n")
-                                            .forEach(p => {
-                                                const parts = p.split(" ");
-                                                packages.push({ name: parts[0], version: parts[1] });
-                                            })
-                                );
-                })
+        const cmd = "(set +e; rpm -qa --qf '%{NAME} %{VERSION}\\n'; dpkg-query -f '${Package} ${Version}\n' --show; pacman -Q) 2> /dev/null | grep cockpit | sort";
+        cockpit.spawn(["bash", "-c", cmd], [], { err: "message" })
+                .then(pkgs =>
+                    pkgs.trim().split("\n")
+                            .forEach(p => {
+                                const parts = p.split(" ");
+                                packages.push({ name: parts[0], version: parts[1] });
+                            })
+                )
                 .catch(error => console.error("Could not read packages versions:", error))
                 .finally(() => this.setState({ packages: packages }));
     }

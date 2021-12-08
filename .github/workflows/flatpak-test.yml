@@ -26,7 +26,7 @@ jobs:
           ./autogen.sh --disable-polkit --disable-ssh --disable-pcp --with-systemdunitdir=/invalid CPPFLAGS=-Itools/mock-build-env PKG_CONFIG_PATH=tools/mock-build-env
 
       - name: Build and install flatpak
-        run: FLATPAK_BUILDER_OPTIONS="--install-deps-from=flathub --user" containers/flatpak/install
+        run: sh -x containers/flatpak/install --user --install-deps-from=flathub
 
       - name: Smoke-test the installed flatpak
         run: |

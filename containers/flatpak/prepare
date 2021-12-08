@@ -1,53 +1,30 @@
 #!/bin/sh
 
+# Usage:
+#    containers/flatpak/prepare [tarball] [urlbase]
+#
+# If a [tarball] parameter is given, them it refers to an (existing)
+# tarball which will be used as a basis for creating the flatpak
+# metadata.  If none is given, run `make dist` and use the result.
+#
+# If [urlbase] base parameter is given then the flatpak metadata will
+# use it as a basis for forming the download URL for the tarball, with
+# the version prefixed as a directory component.  eg:
+#
+#    [urlbase]/123/cockpit-123.tar.xz
+#
+# If no urlbase is given then we just use the local file (which must
+# always exist for checksum purposes).
+#
+# If the FLATPAK_ID environment variable is set, it overrides the
+# default value of org.cockpit_project.CockpitClient.
+#
+# If the PREVIOUS_RELEASES environment variable is set, it is written verbatim
+# into the metainfo xml after the current release info.
+
 set -eu
-[ $(basename -- "$0") = "prepare" ] && cd "$(realpath -m "$0"/../../..)"
 
-FLATPAK_ID="${1:-org.cockpit_project.CockpitClient}"
-
-if test "$#" -le 1; then
-    if ! test -f ./configure; then
-        ./autogen.sh
-    elif ! test -f ./Makefile; then
-        ./configure
-    fi
-
-    if ! test -e dist; then
-        # best effort
-        tools/webpack-jumpstart || true
-    fi
-
-    IGNORE_UNUSED_PATTERNS=1 XZ_OPT=-0 make -j$(nproc) dist WEBPACK_PACKAGES=static
-
-    ARCHIVE_TYPE="path"
-    ARCHIVE_LOCATION="$(make dump-dist)"
-    ARCHIVE_SHA256="$(sha256sum "${ARCHIVE_LOCATION}" | cut -f1 -d' ')"
-else
-    ARCHIVE_TYPE="$2"
-    ARCHIVE_LOCATION="$3"
-    ARCHIVE_SHA256="$4"
-fi
-
-# Extract version number from tarball name
-VERSION="$(echo ${ARCHIVE_LOCATION} | sed -n 's/^.*cockpit-\([0-9a-g.]*\).tar.xz$/\1/p')"
-test -n "${VERSION}"
-
-# Check for versions like 257.55.g3082bbdef with 'g' in them
-if echo "${VERSION}" | grep -q g; then
-    RELEASE_TYPE=development
-    FLATPAK_BRANCH=devel
-else
-    RELEASE_TYPE=stable
-    FLATPAK_BRANCH=stable
-fi
-
-TODAY="$(date +%F)"
-
-if test -n "${FLATHUB_REPO-}"; then
-    if test -f "${FLATHUB_REPO}/${FLATPAK_ID}.metainfo.xml"; then
-        PREVIOUS_RELEASES="$(sed -n 's/^\(    <release .*\)$/\1\\n/p' "${FLATHUB_REPO}/${FLATPAK_ID}.metainfo.xml" | tr -d '\n')"
-    fi
-fi
+FLATPAK_ID="${FLATPAK_ID:-org.cockpit_project.CockpitClient}"
 
 subst() {
     ext="$1"
@@ -66,5 +43,59 @@ subst() {
     mv "${FLATPAK_ID}.${ext}.tmp" "${FLATPAK_ID}.${ext}"
 }
 
-subst metainfo.xml
-subst yml
+prepare() {
+    TARBALL="${1:-}"
+    URLBASE="${2:-}"
+
+    if test -z "${TARBALL}"; then
+        if ! test -f ./configure; then
+            ./autogen.sh
+        elif ! test -f ./Makefile; then
+            ./configure
+        fi
+
+        if ! test -e dist; then
+            # best effort
+            tools/webpack-jumpstart || true
+        fi
+
+        IGNORE_UNUSED_PATTERNS=1 XZ_OPT=-0 make -j$(nproc) dist WEBPACK_PACKAGES=static
+
+        TARBALL="$(make dump-dist)"
+    fi
+
+    test -f "${TARBALL}"
+
+    ARCHIVE_SHA256="$(sha256sum "${TARBALL}" | cut -f1 -d' ')"
+
+    # Extract version number from tarball name
+    VERSION="$(echo ${TARBALL} | sed -n 's/^.*cockpit-\([0-9a-g.]*\).tar.xz$/\1/p')"
+    test -n "${VERSION}"
+
+    if test -n "${URLBASE}"; then
+        ARCHIVE_TYPE="url"
+        ARCHIVE_LOCATION="${URLBASE}/${VERSION}/$(basename -- "${TARBALL}")"
+    else
+        ARCHIVE_TYPE="path"
+        ARCHIVE_LOCATION="${TARBALL}"
+    fi
+
+    # Check for versions like 257.55.g3082bbdef with 'g' in them
+    if echo "${VERSION}" | grep -q g; then
+        RELEASE_TYPE=development
+        FLATPAK_BRANCH=devel
+    else
+        RELEASE_TYPE=stable
+        FLATPAK_BRANCH=stable
+    fi
+
+    TODAY="$(date +%F)"
+
+    subst metainfo.xml
+    subst yml
+}
+
+if [ $(basename -- "$0") = "prepare" ]; then
+    cd "$(realpath -m "$0"/../../..)"
+    prepare "$@"
+fi

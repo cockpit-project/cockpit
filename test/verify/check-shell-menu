@@ -43,11 +43,9 @@ class TestMenu(MachineCase):
         b.click('#toggle-docs')
         b.click('button:contains("About Web Console")')
         b.wait_visible('#about-cockpit-modal:contains("Cockpit is an interactive Linux server admin interface")')
-        # TODO: arch package is cockpit and currently pacman is
-        # not called in pkg/shell/shell-modals.jsx
-        # https://github.com/cockpit-project/cockpit/pull/16704
-        if m.image != "fedora-coreos" and m.image != "arch":
-            b.wait_visible('#about-cockpit-modal:contains("cockpit-bridge")')
+        if m.image != "fedora-coreos":
+            pkgname = "cockpit" if m.image == "arch" else "cockpit-bridge"
+            b.wait_visible(f'#about-cockpit-modal:contains("{pkgname}")')
         b.click('.pf-c-about-modal-box__close button')
         b.wait_not_present('#about-cockpit-modal')
 

@@ -26,19 +26,19 @@
     <para>Generating the certificates for users is usually done with a certificate management system like
       <ulink url="https://pagure.io/certmonger">certmonger</ulink> or
       <ulink url="https://www.freeipa.org/page/PKI">FreeIPA</ulink>, which are not documented here.
-      For testing purposes, these commands will generate a self-signed certificate/key for the "alice" user:</para>
+      This command generates a simple key and certificate request for the "alice" user:</para>
 
 <programlisting>
-# create self-signed certificate and key
-# some browsers insist on specifying key usage, so it needs a config file
-printf '[req]\ndistinguished_name=dn\nextensions=v3_req\n[dn]\n
-    [v3_req]\nkeyUsage=digitalSignature,keyEncipherment,keyAgreement\n' > /tmp/openssl.cnf
+openssl req -new -newkey rsa:2048 -days 365 -nodes \
+    -keyout alice.key -out alice.csr -subj "/CN=alice"
+</programlisting>
 
-openssl req -x509 -newkey rsa:2048 -days 365 -nodes -keyout alice.key \
-    -out alice.pem -subj "/CN=alice" -config /tmp/openssl.cnf -extensions v3_req
+    <para>Now get this certificate request signed by the Certificate Authority of your Identity
+    Management domain, to get a PEM certificate. Browsers and smart cart utilities accept PKCS#12 format
+    for importing/transfer, so convert the certificate/key pair, and protect it with a transfer
+    password:</para>
 
-# browsers and smart cart utilities accept PKCS#12 format, convert it
-# this needs to set a transfer/import password
+<programlisting>
 openssl pkcs12 -export -password pass:somepassword \
     -in alice.pem -inkey alice.key -out alice.p12
 </programlisting>
@@ -55,16 +55,24 @@ pkcs15-init --store-private-key alice.p12 --format pkcs12 --auth-id 01
 
   <section id="certauth-server-ipa">
     <title>Certificate mapping with FreeIPA</title>
+    <para>The recommended method to sign a user certificate request and associate it to a user is
+      <command>ipa cert-request</command>: </para>
 
-    <para>The domain's users get associated to certificates with
-      the <command>ipa user-add-cert</command> command. This expects PEM format, but without the
-      <code>-----BEGIN</code>/<code>-----END</code> markers.  See the
-      <ulink url="https://www.freeipa.org/page/V4/User_Certificates#Feature_Management">
-      FreeIPA User Certificates documentation</ulink>:</para>
+<programlisting>
+ipa cert-request alice.csr --principal=alice --certificate-out=alice.pem
+</programlisting>
+
+    <para>Alternatively, if you are using a different CA, you can use
+    <command>ipa user-add-cert</command> to associate the signed certificate to the user.
+    This expects PEM format, but without the <code>-----BEGIN</code>/<code>-----END</code>
+    markers:</para>
 
 <programlisting>
 ipa user-add-cert alice --certificate="$(grep -v ^---- alice.pem)"
 </programlisting>
+
+    <para>See the <ulink url="https://www.freeipa.org/page/V4/User_Certificates#Feature_Management">
+      FreeIPA User Certificates documentation</ulink> for details.</para>
 
   </section>
 

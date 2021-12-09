@@ -32,8 +32,8 @@ if [ "$TEST_OS" = "fedora-36" ]; then
     export TEST_OS=fedora-35
 fi
 
-if [ "$TEST_OS" = "centos-8" ]; then
-    TEST_OS=centos-8-stream
+if [ "${TEST_OS#centos-}" != "$TEST_OS" ]; then
+    TEST_OS="${TEST_OS}-stream"
 fi
 
 if [ "$ID" = "fedora" ]; then

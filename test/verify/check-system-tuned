@@ -32,8 +32,6 @@ class TestTuned(MachineCase):
         b = self.browser
         m = self.machine
 
-        recommended_profile = m.execute("tuned-adm recommend").strip()
-
         # Stop tuned in case it is running by default, as on RHEL.
 
         m.execute("systemctl stop tuned")
@@ -56,6 +54,7 @@ class TestTuned(MachineCase):
 
         # Start tuned manually. The recommended profile will be activated automatically.
         m.execute("systemctl start tuned")
+        recommended_profile = m.execute("tuned-adm recommend").strip()
         b.wait_text('#tuned-status-button', recommended_profile)
         check_status_tooltip("This system is using the recommended profile")
 

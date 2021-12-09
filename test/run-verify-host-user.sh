@@ -89,13 +89,15 @@ if [ -n "$test_basic" ]; then
         "
 fi
 
+TESTS=TestTuned.testBasic
+
 exclude_options=""
 for t in $EXCLUDES; do
     exclude_options="$exclude_options --exclude $t"
 done
 
 # execute run-tests
-test/common/run-tests --test-dir test/verify --nondestructive $exclude_options \
+test/common/run-tests -tv --test-dir test/verify --nondestructive $exclude_options \
     --machine localhost:22 --browser localhost:9090 $TESTS || RC=$?
 
 echo $RC > "$LOGS/exitcode"

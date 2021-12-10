@@ -29,7 +29,7 @@
       This command generates a simple key and certificate request for the "alice" user:</para>
 
 <programlisting>
-openssl req -new -newkey rsa:2048 -days 365 -nodes \
+openssl req -new -newkey rsa:2048 -days 365 \
     -keyout alice.key -out alice.csr -subj "/CN=alice"
 </programlisting>
 
@@ -41,6 +41,12 @@ openssl req -new -newkey rsa:2048 -days 365 -nodes \
 <programlisting>
 openssl pkcs12 -export -password pass:somepassword \
     -in alice.pem -inkey alice.key -out alice.p12
+</programlisting>
+
+    <para>Don't forget to clean up the key file when you do not need it any more:</para>
+
+<programlisting>
+shred -u alice.key
 </programlisting>
 
   <para>You can now import <code>alice.p12</code> directly into your browser,

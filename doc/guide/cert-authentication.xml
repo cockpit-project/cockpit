@@ -35,12 +35,11 @@ openssl req -new -newkey rsa:2048 -days 365 \
 
     <para>Now get this certificate request signed by the Certificate Authority of your Identity
     Management domain, to get a PEM certificate. Browsers and smart cart utilities accept PKCS#12 format
-    for importing/transfer, so convert the certificate/key pair, and protect it with a transfer
-    password:</para>
+    for importing/transfer, so convert the certificate/key pair; it will ask for and protect it
+    with a transfer password:</para>
 
 <programlisting>
-openssl pkcs12 -export -password pass:somepassword \
-    -in alice.pem -inkey alice.key -out alice.p12
+openssl pkcs12 -export -in alice.pem -inkey alice.key -out alice.p12
 </programlisting>
 
     <para>Don't forget to clean up the key file when you do not need it any more:</para>

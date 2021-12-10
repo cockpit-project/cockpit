@@ -21,7 +21,6 @@
 
 #include "cockpitmemfdread.h"
 
-#include "cockpithacks.h"
 #include "cockpitjson.h"
 
 #include <errno.h>
@@ -37,9 +36,6 @@ cockpit_memfd_read (int      fd,
   int seals = fcntl (fd, F_GET_SEALS);
   if (seals == -1)
     {
-      if (errno == EINVAL && cockpit_hacks_valgrind_memfd_seals_unsupported ())
-        goto workaround;
-
       g_set_error (error, G_FILE_ERROR, g_file_error_from_errno (errno),
                    "could not query seals on fd %d: not memfd?: %m", fd);
       return NULL;
@@ -53,9 +49,6 @@ cockpit_memfd_read (int      fd,
                    fd, seals & expected_seals, expected_seals);
       return NULL;
     }
-
-workaround:
-  ;
 
   struct stat buf;
   if (fstat (fd, &buf) != 0)

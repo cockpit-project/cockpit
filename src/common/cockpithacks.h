@@ -45,37 +45,3 @@
 #ifndef PACKAGE_VERSION
 #error config.h should be included from the top of every .c file
 #endif
-
-#ifdef HAVE_VALGRIND_VALGRIND_H
-#include <valgrind/valgrind.h>
-#else
-#define RUNNING_ON_VALGRIND  (0)
-#endif
-
-/* valgrind doesn't currently support fcntl() F_ADD_SEALS and
- * F_GET_SEALS calls, and fails by returning -1/EINVAL.
- *
- * Add a helper here which should return TRUE in case we are on valgrind
- * and this is broken.  We do this so that when the issue is fixed, we
- * can delete this helper from one location and it will be easy to find
- * all the places that used it (instead of trying to grep around
- * randomly).  We may also be able to add a version check at some
- * point...
- *
- * Upstream bug: https://bugs.kde.org/show_bug.cgi?id=361770
- */
-#include <stdbool.h>
-#include <stdlib.h>
-
-static inline bool
-cockpit_hacks_valgrind_memfd_seals_unsupported (void)
-{
-  return RUNNING_ON_VALGRIND || getenv ("COCKPIT_HACKS_VALGRIND_MEMFD_WORKAROUND");
-}
-
-static inline void
-cockpit_hacks_valgrind_memfd_workaround_setenv (void)
-{
-  if (RUNNING_ON_VALGRIND)
-    setenv ("COCKPIT_HACKS_VALGRIND_MEMFD_WORKAROUND", "1", true);
-}

@@ -21,7 +21,6 @@
 
 #include "cockpitcontrolmessages.h"
 #include "cockpitfdpassing.h"
-#include "cockpithacks.h"
 #include "cockpitjsonprint.h"
 #include "cockpitmemfdread.h"
 #include "cockpitsocket.h"
@@ -417,33 +416,29 @@ test_memfd_error_cases (void)
   gint fd;
   gint r;
 
-  if (!cockpit_hacks_valgrind_memfd_seals_unsupported ())
-    {
-      /* not a memfd */
-      fd = open ("/dev/null", O_RDONLY);
+  /* not a memfd */
+  fd = open ("/dev/null", O_RDONLY);
 
-      content = cockpit_memfd_read (fd, &error);
-      cockpit_assert_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_INVAL, "*not memfd?*");
-      g_assert (content == NULL);
-      g_clear_error (&error);
-      close (fd);
+  content = cockpit_memfd_read (fd, &error);
+  cockpit_assert_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_INVAL, "*not memfd?*");
+  g_assert (content == NULL);
+  g_clear_error (&error);
+  close (fd);
 
 
-      /* memfd is not properly sealed */
-      fd = memfd_create ("xyz", MFD_CLOEXEC);
+  /* memfd is not properly sealed */
+  fd = memfd_create ("xyz", MFD_CLOEXEC);
 
-      content = cockpit_memfd_read (fd, &error);
-      cockpit_assert_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_INVAL, "*incorrect seals set*");
-      g_assert (content == NULL);
-      g_clear_error (&error);
-      close (fd);
-    }
-
+  content = cockpit_memfd_read (fd, &error);
+  cockpit_assert_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_INVAL, "*incorrect seals set*");
+  g_assert (content == NULL);
+  g_clear_error (&error);
+  close (fd);
 
   /* memfd is empty */
   fd = memfd_create ("xyz", MFD_ALLOW_SEALING | MFD_CLOEXEC);
   r = fcntl (fd, F_ADD_SEALS, F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
-  g_assert (r == 0 || (errno == EINVAL && cockpit_hacks_valgrind_memfd_seals_unsupported ()));
+  g_assert (r == 0);
 
   content = cockpit_memfd_read (fd, &error);
   cockpit_assert_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_INVAL, "*empty*");
@@ -540,7 +535,7 @@ test_memfd_json_error_cases (void)
   fd = memfd_create ("xyz", MFD_CLOEXEC | MFD_ALLOW_SEALING);
   g_assert_cmpint (write (fd, "beh", 3), ==, 3);
   r = fcntl (fd, F_ADD_SEALS, F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
-  g_assert (r == 0 || (errno == EINVAL && cockpit_hacks_valgrind_memfd_seals_unsupported ()));
+  g_assert (r == 0);
   object = cockpit_memfd_read_json (fd, &error);
   cockpit_assert_error_matches (error, JSON_PARSER_ERROR, JSON_PARSER_ERROR_INVALID_BAREWORD, "*unexpected identifier*");
   g_clear_error (&error);
@@ -550,7 +545,7 @@ test_memfd_json_error_cases (void)
   fd = memfd_create ("xyz", MFD_CLOEXEC | MFD_ALLOW_SEALING);
   g_assert_cmpint (write (fd, "[]", 2), ==, 2);
   r = fcntl (fd, F_ADD_SEALS, F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
-  g_assert (r == 0 || (errno == EINVAL && cockpit_hacks_valgrind_memfd_seals_unsupported ()));
+  g_assert (r == 0);
   object = cockpit_memfd_read_json (fd, &error);
   cockpit_assert_error_matches (error, JSON_PARSER_ERROR, -1, "*Not a JSON object*");
   close (fd);

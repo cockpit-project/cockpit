@@ -41,9 +41,6 @@ AM_INIT_AUTOMAKE([1.11 foreign dist-xz no-dist-gzip subdir-objects tar-pax])
 AC_USE_SYSTEM_EXTENSIONS
 AC_PROG_RANLIB
 
-# Unrelated to above: enable more valgrind workarounds for other problems.
-AC_CHECK_HEADERS([valgrind/valgrind.h])
-
 AM_SILENT_RULES([yes])
 
 AC_MSG_CHECKING([whether to install to prefix only])

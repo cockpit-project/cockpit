@@ -21,8 +21,6 @@
 
 #include "cockpitjsonprint.h"
 
-#include "cockpithacks.h"
-
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -226,7 +224,7 @@ cockpit_json_print_finish_memfd (FILE **stream)
 
   const int seals = F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE;
   r = fcntl (fd, F_ADD_SEALS, seals);
-  assert (r == 0 || (errno == EINVAL && cockpit_hacks_valgrind_memfd_seals_unsupported ()));
+  assert (r == 0);
 
   char fd_name[] = "/proc/self/fd/xxxxxx";
   r = snprintf (fd_name, sizeof fd_name, "/proc/self/fd/%d", fd);

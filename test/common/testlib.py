@@ -757,6 +757,29 @@ class Browser:
 
         self.call_js_func('ph_scrollIntoViewIfNeeded', selector)
 
+        # Wait for all animations to be over.  This is done by
+        # counting them all over and over again until there are zero.
+        # Calling `.finish()` on all animations would miss those that
+        # are created while we wait, and would also fail with an
+        # exception if any unlimited animations are present, like
+        # spinners.
+        #
+        # There is another complication with tooltips.  They are shown
+        # on top of certain elements, but are not DOM children of
+        # these elements. Also, Patternfly sometimes creates tooltips
+        # on dialog titles that are too long for the dialog, but only
+        # a little bit after the dialog has appeared.
+        #
+        # We don't want to predict whether tooltips will appear, and
+        # thus we can't wait for them to be present before waiting for
+        # their fade-in animation to be over.
+        #
+        # But we know that tooltips fade in within 300ms, so we just
+        # wait half a second to and side-step all that complexity.
+
+        time.sleep(0.5)
+        self.wait_js_cond('ph_count_animations(%s) == 0' % jsquote(selector))
+
         rect = self.call_js_func('ph_element_clip', selector)
 
         def relative_clip(sel):

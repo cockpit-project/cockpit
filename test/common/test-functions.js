@@ -309,3 +309,7 @@ function ph_element_clip(sel) {
     var f = currentFrameAbsolutePosition();
     return { x: r.x + f.x, y: r.y + f.y, width: r.width, height: r.height, scale: 1 };
 }
+
+function ph_count_animations(sel) {
+    return ph_find(sel).getAnimations({subtree:true}).length;
+}

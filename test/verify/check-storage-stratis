@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import time
 import parent
 from packagelib import *
 from storagelib import *
@@ -126,10 +125,6 @@ class TestStorageStratis(StorageCase):
         self.dialog_wait_open()
         self.dialog_set_val('name', 'fsys2-copy')
         self.dialog_set_val('mount_point', '/run/fsys2-copy')
-        # On mobile, a tooltip will pop up when opening the dialog,
-        # with a 300ms fade-in animation. Let's make sure we don't
-        # catch it in the middle of that.
-        time.sleep(1)
         b.assert_pixels("#dialog", "copy-fsys")
         self.dialog_apply()
         self.dialog_wait_close()

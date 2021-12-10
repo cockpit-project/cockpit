@@ -132,7 +132,7 @@ class TestSystemInfo(MachineCase):
 
         # ensure general page/card layout without the changing specifics
         b.assert_pixels("#overview", "overview", ignore=[
-            ".system-health-events",
+            ".system-health .pf-c-card__body",
             "#system_machine_id",
             "#system_uptime",
             # #system_information_systime_button is not enough, need to grab the icon as well

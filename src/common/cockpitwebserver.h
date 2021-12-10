@@ -44,6 +44,14 @@ cockpit_web_request_get_method (CockpitWebRequest *self);
 GHashTable *
 cockpit_web_request_get_headers (CockpitWebRequest *self);
 
+const gchar *
+cockpit_web_request_lookup_header (CockpitWebRequest *self,
+                                   const gchar *header);
+
+gchar *
+cockpit_web_request_parse_cookie (CockpitWebRequest *self,
+                                  const gchar *name);
+
 GIOStream *
 cockpit_web_request_get_io_stream (CockpitWebRequest *self);
 

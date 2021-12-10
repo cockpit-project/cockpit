@@ -135,7 +135,7 @@ cockpit_handler_socket (CockpitWebServer *server,
       return FALSE;
 
   if (headers)
-    service = cockpit_auth_check_cookie (ws->auth, path, headers);
+    service = cockpit_auth_check_cookie (ws->auth, request);
   if (service)
     {
       cockpit_web_service_socket (service, path, io_stream, headers, input,
@@ -186,7 +186,7 @@ cockpit_handler_external (CockpitWebServer *server,
   segment += 9;
 
   /* Make sure we are authenticated, otherwise 404 */
-  service = cockpit_auth_check_cookie (ws->auth, path, headers);
+  service = cockpit_auth_check_cookie (ws->auth, request);
   if (!service)
     return FALSE;
 
@@ -567,12 +567,10 @@ on_login_complete (GObject *object,
 static void
 handle_login (CockpitHandlerData *data,
               CockpitWebService *service,
-              const gchar *path,
-              GHashTable *headers,
+              CockpitWebRequest *request,
               CockpitWebResponse *response)
 {
   GHashTable *out_headers;
-  GIOStream *io_stream;
   CockpitCreds *creds;
   JsonObject *creds_json = NULL;
 
@@ -587,9 +585,7 @@ handle_login (CockpitHandlerData *data,
       return;
     }
 
-  io_stream = cockpit_web_response_get_stream (response);
-  cockpit_auth_login_async (data->auth, path,io_stream, headers,
-                            on_login_complete, g_object_ref (response));
+  cockpit_auth_login_async (data->auth, request, on_login_complete, g_object_ref (response));
 }
 
 static void
@@ -686,7 +682,7 @@ cockpit_handler_default (CockpitWebServer *server,
              g_str_equal (path, "/cockpit");
 
   // Check for auth
-  service = cockpit_auth_check_cookie (data->auth, path, headers);
+  service = cockpit_auth_check_cookie (data->auth, request);
 
   /* Stuff in /cockpit or /cockpit+xxx */
   if (resource)
@@ -711,7 +707,7 @@ cockpit_handler_default (CockpitWebServer *server,
     {
       if (g_str_equal (remainder, "/login"))
         {
-          handle_login (data, service, path, headers, response);
+          handle_login (data, service, request, response);
         }
       else
         {

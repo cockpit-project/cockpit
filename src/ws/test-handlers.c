@@ -203,7 +203,9 @@ test_login_with_cookie (Test *test,
 
   headers = mock_auth_basic_header ("me", PASSWORD);
 
-  cockpit_auth_login_async (test->auth, path, NULL, headers, on_ready_get_result, &result);
+  cockpit_auth_login_async (test->auth,
+                            WebRequest(.path=path, .headers=headers),
+                            on_ready_get_result, &result);
   g_hash_table_unref (headers);
   while (result == NULL)
     g_main_context_iteration (NULL, TRUE);
@@ -308,7 +310,7 @@ test_login_accept (Test *test,
   headers = split_headers (output);
   include_cookie_as_if_client (headers, test->headers);
 
-  service = cockpit_auth_check_cookie (test->auth, "/cockpit", test->headers);
+  service = cockpit_auth_check_cookie (test->auth, WebRequest(.path="/cockpit", .headers=test->headers));
   g_assert (service != NULL);
   creds = cockpit_web_service_get_creds (service);
   g_assert_cmpstr (cockpit_creds_get_user (creds), ==, "me");
@@ -403,7 +405,9 @@ setup_default (Test *test,
     {
       headers = mock_auth_basic_header ("bridge-user", PASSWORD);
 
-      cockpit_auth_login_async (test->auth, fixture->auth, NULL, headers, on_ready_get_result, &result);
+      cockpit_auth_login_async (test->auth,
+                                WebRequest(.path=fixture->auth, .headers=headers),
+                                on_ready_get_result, &result);
       g_hash_table_unref (headers);
       while (result == NULL)
         g_main_context_iteration (NULL, TRUE);

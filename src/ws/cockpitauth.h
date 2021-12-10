@@ -28,6 +28,7 @@
 
 #include "common/cockpitpipe.h"
 #include "common/cockpittransport.h"
+#include "common/cockpitwebserver.h"
 
 G_BEGIN_DECLS
 
@@ -78,9 +79,7 @@ CockpitAuth *   cockpit_auth_new             (gboolean login_loopback, CockpitAu
 gchar *         cockpit_auth_nonce           (CockpitAuth *self);
 
 void            cockpit_auth_login_async     (CockpitAuth *self,
-                                              const gchar *path,
-                                              GIOStream *connection,
-                                              GHashTable *headers,
+                                              CockpitWebRequest *request,
                                               GAsyncReadyCallback callback,
                                               gpointer user_data);
 
@@ -101,16 +100,10 @@ gboolean        cockpit_auth_local_finish    (CockpitAuth *self,
                                               GError **error);
 
 CockpitWebService *  cockpit_auth_check_cookie    (CockpitAuth *self,
-                                                   const gchar *path,
-                                                   GHashTable *in_headers);
+                                                   CockpitWebRequest *request);
 
 gchar *         cockpit_auth_parse_application    (const gchar *path,
                                                    gboolean *is_host);
-
-gchar *         cockpit_auth_steal_authorization      (GHashTable *headers,
-                                                       GIOStream *connection,
-                                                       gchar **ret_type,
-                                                       gchar **ret_conversation);
 
 gchar *         cockpit_auth_empty_cookie_value       (const gchar *path,
                                                        gboolean secure);

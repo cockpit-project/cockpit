@@ -28,6 +28,8 @@
 #include "common/cockpitwebserver.h"
 #include "common/cockpiterror.h"
 
+#include "common/cockpitwebrequest-private.h"
+
 #include <sys/wait.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -175,7 +177,7 @@ test_basic_good (TestCase *test,
   cookie = g_strdup_printf ("machine-cockpit+127.0.0.1:%d", test->ssh_port);
   path = g_strdup_printf ("/%s", application);
 
-  cockpit_auth_login_async (test->auth, path, NULL, in_headers, on_ready_get_result, &result);
+  cockpit_auth_login_async (test->auth, WebRequest(.path=path, .headers=in_headers), on_ready_get_result, &result);
   g_hash_table_unref (in_headers);
 
   while (result == NULL)
@@ -188,7 +190,7 @@ test_basic_good (TestCase *test,
   json_object_unref (response);
 
   mock_auth_include_cookie_as_if_client (out_headers, out_headers, cookie);
-  service = cockpit_auth_check_cookie (test->auth, path, out_headers);
+  service = cockpit_auth_check_cookie (test->auth, WebRequest(.path=path, .headers=out_headers));
   g_assert (service != NULL);
 
   creds = cockpit_web_service_get_creds (service);
@@ -232,7 +234,9 @@ test_basic_fail (TestCase *test,
   application = g_strdup_printf ("cockpit+=127.0.0.1:%d", test->ssh_port);
   path = g_strdup_printf ("/%s", application);
 
-  cockpit_auth_login_async (test->auth, path, NULL, headers, on_ready_get_result, &result);
+  cockpit_auth_login_async (test->auth,
+                            WebRequest(.path=path, .headers=headers),
+                            on_ready_get_result, &result);
   g_hash_table_unref (headers);
   headers = cockpit_web_server_new_table ();
 

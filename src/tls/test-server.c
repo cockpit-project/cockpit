@@ -37,7 +37,6 @@
 #include "testing.h"
 #include "server.h"
 #include "utils.h"
-#include "common/cockpithacks.h"
 #include "common/cockpittest.h"
 
 #define SOCKET_ACTIVATION_HELPER BUILDDIR "/socket-activation-helper"
@@ -777,8 +776,6 @@ test_run_idle (TestCase *tc, gconstpointer data)
 int
 main (int argc, char *argv[])
 {
-  cockpit_hacks_valgrind_memfd_workaround_setenv ();
-
   cockpit_test_init (&argc, &argv);
 
   g_test_add ("/server/no-tls/single-request", TestCase, NULL,

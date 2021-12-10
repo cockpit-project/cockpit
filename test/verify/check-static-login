@@ -29,6 +29,10 @@ from testlib import *
 @nondestructive
 @skipDistroPackage()
 class TestLogin(MachineCase):
+    def tearDown(self):
+        # arch configures pam_faillock by default, and tests here do a lot of failed login attempts
+        if self.machine.image == "arch":
+            self.machine.execute("rm -rf /run/faillock")
 
     def check_shell(self):
         b = self.browser

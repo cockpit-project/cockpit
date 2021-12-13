@@ -647,6 +647,18 @@ on_handle_source (CockpitWebServer *server,
   return TRUE;
 }
 
+static gboolean
+on_handle_favicon (CockpitWebServer *server,
+                  const gchar *path,
+                  GHashTable *headers,
+                  CockpitWebResponse *response,
+                  gpointer user_data)
+{
+  const char* roots[] = { SRCDIR "/src/branding/default", NULL };
+  cockpit_web_response_file (response, NULL, roots);
+  return TRUE;
+}
+
 static void
 server_ready (void)
 {
@@ -677,6 +689,8 @@ server_ready (void)
                     G_CALLBACK (on_handle_resource), NULL);
   g_signal_connect (server, "handle-resource::/dist/",
                     G_CALLBACK (on_handle_source), NULL);
+  g_signal_connect (server, "handle-resource::/favicon.ico",
+                    G_CALLBACK (on_handle_favicon), NULL);
   g_signal_connect (server, "handle-resource::/mock/",
                     G_CALLBACK (on_handle_mock), NULL);
 

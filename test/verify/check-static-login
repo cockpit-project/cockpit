@@ -558,7 +558,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
     def testFailingWebsocketSafariNoCA(self):
         self.testFailingWebsocket(safari=True, cacert=False)
 
-    @skipImage("TODO: Arch Linux default's to faillock with 3 failed logins", "arch")
     def testTally(self):
         m = self.machine
         b = self.browser
@@ -607,7 +606,9 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.logout()
 
         # ensure we have no module in our pam config already
-        m.execute(f"! grep -r '{module}' /etc/pam.d")
+        # arch has faillock enabled by default
+        if m.image != "arch":
+            m.execute(f"! grep -r '{module}' /etc/pam.d")
 
         # add it to the pam config
         if is_pam_tally2:
@@ -617,6 +618,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             self.sed_file("""s/re.*pam_deny.so/[default=die] pam_faillock.so authfail deny=4/;
                              s/re.*pam_permit.so/sufficient pam_faillock.so authsucc deny=4/;
                           """, "/etc/pam.d/common-auth")
+        elif m.image == "arch":
+            self.sed_file("s/# deny = 3/deny = 4/", "/etc/security/faillock.conf")
         else:
             # see https://access.redhat.com/solutions/62949
             self.sed_file("""/pam_unix/ {

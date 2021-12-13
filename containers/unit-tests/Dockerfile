@@ -1,5 +1,5 @@
 ARG debian_arch=amd64
-FROM docker.io/${debian_arch}/debian:stable
+FROM docker.io/${debian_arch}/debian:testing
 
 ARG personality=linux64
 COPY setup.sh /

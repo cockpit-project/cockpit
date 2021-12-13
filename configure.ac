@@ -41,10 +41,6 @@ AM_INIT_AUTOMAKE([1.9 foreign dist-xz no-dist-gzip subdir-objects tar-pax])
 AC_USE_SYSTEM_EXTENSIONS
 AC_PROG_RANLIB
 
-# HACK - Prevent valgrind false-positives due to GHashTable trickery
-AC_CHECK_SIZEOF([void *])
-AM_CONDITIONAL([VALGRIND_MINADDR_HACK], [test "$ac_cv_sizeof_void_p" -eq 8])
-
 # Unrelated to above: enable more valgrind workarounds for other problems.
 AC_CHECK_HEADERS([valgrind/valgrind.h])
 

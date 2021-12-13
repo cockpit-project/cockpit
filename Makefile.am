@@ -154,10 +154,6 @@ VALGRIND_SUPPRESSIONS = \
 	tools/valgrind.supp \
 	$(NULL)
 
-if VALGRIND_MINADDR_HACK
-VALGRIND_ARGS += --aspace-minaddr=0x100000000
-endif
-
 valgrind-suppressions: $(VALGRIND_SUPPRESSIONS)
 	$(AM_V_GEN) cat $^ /usr/share/glib-2.0/valgrind/glib.supp > $@
 

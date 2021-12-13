@@ -22,7 +22,7 @@ import React from "react";
 import { Split, SplitItem, Grid, GridItem } from '@patternfly/react-core';
 import { ZoomControls, SvgPlot, bytes_per_sec_config } from "cockpit-components-plot.jsx";
 
-import { decode_filename } from "./utils.js";
+import { decode_filename, get_other_devices } from "./utils.js";
 
 const single_read_metric = {
     direct: ["disk.all.read_bytes"],
@@ -58,12 +58,16 @@ const instances_write_metric = {
 
 export function update_plot_state(ps, client) {
     const devs = [];
-    for (const p in client.drives) {
-        const block = client.drives_block[p];
+
+    // show all top-level block objects: Drives and Other devices
+    const blocks = Object.keys(client.drives).map(p => client.drives_block[p])
+            .concat(get_other_devices(client).map(p => client.blocks[p]));
+
+    blocks.forEach(block => {
         const dev = block && decode_filename(block.Device).replace(/^\/dev\//, "");
         if (dev)
             devs.push(dev);
-    }
+    });
 
     if (devs.length > 10) {
         ps.plot_single('read', single_read_metric);

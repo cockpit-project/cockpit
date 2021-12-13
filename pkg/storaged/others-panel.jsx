@@ -21,29 +21,13 @@ import cockpit from "cockpit";
 import React from "react";
 
 import { SidePanel, SidePanelRow } from "./side-panel.jsx";
-import { block_name, fmt_size, make_block_path_cmp } from "./utils.js";
+import { block_name, fmt_size, make_block_path_cmp, get_other_devices } from "./utils.js";
 
 const _ = cockpit.gettext;
 
 export class OthersPanel extends React.Component {
     render() {
         const client = this.props.client;
-
-        function is_other(path) {
-            const block = client.blocks[path];
-            const block_part = client.blocks_part[path];
-            const block_lvm2 = client.blocks_lvm2[path];
-
-            return ((!block_part || block_part.Table == "/") &&
-                    block.Drive == "/" &&
-                    block.CryptoBackingDevice == "/" &&
-                    block.MDRaid == "/" &&
-                    (!block_lvm2 || block_lvm2.LogicalVolume == "/") &&
-                    !block.HintIgnore &&
-                    block.Size > 0 &&
-                    !client.vdo_overlay.find_by_block(block) &&
-                    !client.blocks_stratis_fsys[block.path]);
-        }
 
         function make_other(path) {
             const block = client.blocks[path];
@@ -62,7 +46,7 @@ export class OthersPanel extends React.Component {
             );
         }
 
-        const others = Object.keys(client.blocks).filter(is_other)
+        const others = get_other_devices(client)
                 .sort(make_block_path_cmp(client))
                 .map(make_other);
 

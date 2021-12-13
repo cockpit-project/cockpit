@@ -463,6 +463,24 @@ export function prepare_available_spaces(client, spcs) {
     return Promise.all(spcs.map(prepare));
 }
 
+export function get_other_devices(client) {
+    return Object.keys(client.blocks).filter(path => {
+        const block = client.blocks[path];
+        const block_part = client.blocks_part[path];
+        const block_lvm2 = client.blocks_lvm2[path];
+
+        return ((!block_part || block_part.Table == "/") &&
+                block.Drive == "/" &&
+                block.CryptoBackingDevice == "/" &&
+                block.MDRaid == "/" &&
+                (!block_lvm2 || block_lvm2.LogicalVolume == "/") &&
+                !block.HintIgnore &&
+                block.Size > 0 &&
+                !client.vdo_overlay.find_by_block(block) &&
+                !client.blocks_stratis_fsys[block.path]);
+    });
+}
+
 /* Comparison function for sorting lists of block devices.
 
    We sort by major:minor numbers to get the expected order when

@@ -36,7 +36,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_AUX_DIR([tools])
 AC_CONFIG_MACRO_DIR([tools])
 
-AM_INIT_AUTOMAKE([1.9 foreign dist-xz no-dist-gzip subdir-objects tar-pax])
+AM_INIT_AUTOMAKE([1.11 foreign dist-xz no-dist-gzip subdir-objects tar-pax])
 
 AC_USE_SYSTEM_EXTENSIONS
 AC_PROG_RANLIB
@@ -44,7 +44,7 @@ AC_PROG_RANLIB
 # Unrelated to above: enable more valgrind workarounds for other problems.
 AC_CHECK_HEADERS([valgrind/valgrind.h])
 
-m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+AM_SILENT_RULES([yes])
 
 AC_MSG_CHECKING([whether to install to prefix only])
 AC_ARG_ENABLE([prefix-only],

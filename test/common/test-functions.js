@@ -238,6 +238,13 @@ function ph_blur(sel)
     ph_find(sel).blur();
 }
 
+function ph_blur_active()
+{
+    const elt = window.document.activeElement;
+    if (elt)
+        elt.blur();
+}
+
 class PhWaitCondTimeout extends Error {
     constructor(description) {
         if (description && description.apply)

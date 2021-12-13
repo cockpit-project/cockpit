@@ -1,8 +1,8 @@
 src/common/cockpitassets.h: src/common/cockpitassets.gresource.xml
-	@$(MKDIR_P) $(dir $@)
+	@mkdir -p $(dir $@)
 	$(AM_V_GEN) glib-compile-resources --target=$@ --generate-header --sourcedir=$(dir $<) $<
 src/common/cockpitassets.c: src/common/cockpitassets.gresource.xml src/common/fail.html
-	@$(MKDIR_P) $(dir $@)
+	@mkdir -p $(dir $@)
 	$(AM_V_GEN) glib-compile-resources --target=$@ --generate-source --sourcedir=$(dir $<) $<
 
 COCKPIT_ASSETS = \

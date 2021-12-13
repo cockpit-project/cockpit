@@ -15,7 +15,7 @@ dist_cockpitclient_DATA = \
 
 install-exec-hook::
 if ENABLE_COCKPIT_CLIENT
-	$(MKDIR_P) $(DESTDIR)/$(bindir)
+	mkdir -p $(DESTDIR)/$(bindir)
 	ln -sfTv $(cockpitclientdir)/cockpit-client $(DESTDIR)/$(bindir)/cockpit-client
 
 dist_cockpitclient_SCRIPTS += src/client/cockpit-client-ssh

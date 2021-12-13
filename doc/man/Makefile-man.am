@@ -23,7 +23,7 @@ man_MANS += \
 	doc/man/pam_ssh_add.8 \
 	$(NULL)
 
-MAN_PROC = $(MKDIR_P) doc/man/ && $(XSLTPROC) -nonet --param man.output.quietly 1 --output $@ \
+MAN_PROC = mkdir -p doc/man/ && $(XSLTPROC) -nonet --param man.output.quietly 1 --output $@ \
 	http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
 
 .xml.8:

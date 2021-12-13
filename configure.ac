@@ -232,29 +232,6 @@ if test "$XGETTEXT" = "no"; then
         AC_MSG_ERROR([Please install gettext tools])
 fi
 
-# usermod
-#
-# usermod might not be world-executable, so AC_PATH_PROG might not
-# find it.  In that case, we fall back to /usr/sbin/usermod.
-
-AC_PATH_PROG([USERMOD], [usermod], [/usr/sbin/usermod], [$PATH:/usr/local/sbin:/usr/sbin:/sbin])
-AC_DEFINE_UNQUOTED([PATH_USERMOD],["$USERMOD"],[Location of usermod binary])
-
-# newusers
-AC_PATH_PROG([NEWUSERS], [newusers], [/usr/sbin/newusers], [$PATH:/usr/local/sbin:/usr/sbin:/sbin])
-AC_DEFINE_UNQUOTED([PATH_NEWUSERS],["$NEWUSERS"],[Location of newusers binary])
-AC_MSG_CHECKING(whether $NEWUSERS understands --crypt-method)
-if newusers --help | grep -q -e --crypt-method; then
-  AC_DEFINE_UNQUOTED([HAVE_NEWUSERS_CRYPT_METHOD],[1],[whether newusers understands --crypt-method])
-  AC_MSG_RESULT(yes)
-else
-  AC_MSG_RESULT(no)
-fi
-
-# chpasswd
-AC_PATH_PROG([CHPASSWD], [chpasswd], [/usr/sbin/chpasswd], [$PATH:/usr/local/sbin:/usr/sbin:/sbin])
-AC_DEFINE_UNQUOTED([PATH_CHPASSWD],["$CHPASSWD"],[Location of chpasswd binary])
-
 # ssh-add
 AC_PATH_PROG([SSH_ADD], [ssh-add], [/usr/bin/ssh-add], [$PATH:/usr/local/sbin:/usr/sbin:/sbin])
 AC_DEFINE_UNQUOTED([PATH_SSH_ADD], ["$SSH_ADD"], [Location of ssh-add binary])
@@ -548,7 +525,6 @@ echo "
 
         ssh-add:                    ${SSH_ADD}
         ssh-agent:                  ${SSH_AGENT}
-        usermod:                    ${USERMOD}
         chcon:                      ${CHCON}
 
 Now type 'make' to compile cockpit."

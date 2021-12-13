@@ -212,21 +212,23 @@ ad-hoc when doing incremental development.
 If you add a snippet like this to your `~/.ssh/config` then you'll be able to
 log in to test machines without authentication:
 
-    Host 127.0.0.2
+    Match final host 127.0.0.2
         User root
-        Port 2201
         StrictHostKeyChecking no
         UserKnownHostsFile /dev/null
+        CheckHostIp no
         IdentityFile ~/src/cockpit/bots/machine/identity
         IdentitiesOnly yes
 
 Many cockpit developers take it a step further, and add an alias to
 allow typing `ssh c`:
 
-    Host 127.0.0.2 c
+    Host c
         Hostname 127.0.0.2
-        User root
-        ... etc
+        Port 2201
+
+The `final` keyword in the first rule will cause it to be checked (and matched)
+after the `Hostname` substitution in the `c` rule.
 
 For web access, if you'd like to avoid Chromium (or Chrome) prompting
 about certificate errors while connecting to localhost, you can change

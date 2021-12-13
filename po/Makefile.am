@@ -1,7 +1,6 @@
 # Defaults for standalone operation
 srcdir ?= .
 AM_DEFAULT_VERBOSITY ?= 0
-MKDIR_P ?= mkdir -p
 
 AM_V_GEN ?= $(AM_V_GEN_$(V))
 AM_V_GEN_ ?= $(AM_V_GEN_$(AM_DEFAULT_VERBOSITY))
@@ -22,12 +21,12 @@ FILTER_PO_SRC_WS = sed -ne 's|.*\(\(\.\./\)\?src/ws/[^:]\+\).*|-N \1|p' $<
 
 # A filtered po file with just src/ws
 src/ws/%.po: po/%.po
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(AM_V_GEN) mkdir -p $(dir $@) && \
 	msggrep `$(FILTER_PO_SRC_WS)` $< > $@.tmp && mv $@.tmp $@
 
 # Build a binary mo file from po
 .po.mo:
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(AM_V_GEN) mkdir -p $(dir $@) && \
 	msgfmt -o $@.tmp $< && mv $@.tmp $@ && touch $@
 
 # Always build the binary gettext data
@@ -36,7 +35,7 @@ all-local:: $(MO_FILES)
 # Called to install the binary gettext data
 install-data-local:: $(MO_FILES)
 	for lang in $(LINGUAS); do \
-		$(MKDIR_P) $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES; \
+		mkdir -p $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES; \
 		$(INSTALL_DATA) src/ws/$$lang.mo $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES/$(GETTEXT_PACKAGE).mo; \
 	done
 
@@ -53,7 +52,7 @@ TRANSLATE = \
 
 # Extract from GLib based C code files
 po/cockpit.c.pot:
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(AM_V_GEN) mkdir -p $(dir $@) && \
 	xgettext --default-domain=cockpit --output=$@ --language=C \
 		--keyword=_ --keyword=N_ --keyword=C_:1c,2 --keyword=NC_:1c,2 --keyword=Q_ \
 		--keyword=g_dgettext:2 --keyword=g_dngettext:2,3 --keyword=g_dpgettext:2 \
@@ -62,13 +61,13 @@ po/cockpit.c.pot:
 
 # Extract translate attribute, Glade style, angular-gettext HTML translations
 po/cockpit.html.pot: package-lock.json
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(AM_V_GEN) mkdir -p $(dir $@) && \
 	$(srcdir)/pkg/lib/html2po -d $(srcdir) -o $@ \
 		$$(cd $(srcdir) && find $(TRANSLATE) -name '*.html')
 
 # Extract cockpit style javascript translations
 po/cockpit.js.pot:
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(AM_V_GEN) mkdir -p $(dir $@) && \
 	xgettext --default-domain=cockpit --output=- --language=C --keyword= \
 		--keyword=_:1,1t --keyword=_:1c,2,2t --keyword=C_:1c,2 \
 		--keyword=N_ --keyword=NC_:1c,2 \
@@ -80,23 +79,23 @@ po/cockpit.js.pot:
 		sed '/^#/ s/, c-format//' > $@
 
 po/cockpit.manifest.pot: package-lock.json
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(AM_V_GEN) mkdir -p $(dir $@) && \
 	$(srcdir)/pkg/lib/manifest2po -d $(srcdir) -o $@ \
 		$$(cd $(srcdir) && find $(TRANSLATE) -name 'manifest.json')
 
 po/cockpit.appstream.pot:
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(AM_V_GEN) mkdir -p $(dir $@) && \
 	GETTEXTDATADIRS=$(srcdir)/po xgettext --output=$@ --directory=$(srcdir) \
 		$$(cd $(srcdir) && find $(TRANSLATE) -name '*.appdata.xml.in')
 
 po/cockpit.polkit.pot:
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(AM_V_GEN) mkdir -p $(dir $@) && \
 	GETTEXTDATADIRS=$(srcdir)/po xgettext --output=$@ --directory=$(srcdir) \
 		$$(cd $(srcdir) && find $(TRANSLATE) -name '*.policy.in')
 
 # Combine the above pot files into one
 po/cockpit.pot: po/cockpit.c.pot po/cockpit.html.pot po/cockpit.js.pot po/cockpit.manifest.pot po/cockpit.appstream.pot po/cockpit.polkit.pot
-	$(AM_V_GEN) $(MKDIR_P) $(dir $@) && \
+	$(AM_V_GEN) mkdir -p $(dir $@) && \
 	msgcat --sort-output --output-file=$@ $^
 
 CLEANFILES += \

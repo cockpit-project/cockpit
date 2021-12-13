@@ -89,9 +89,9 @@ dist_motd_SCRIPTS = src/ws/update-motd
 
 # Automake: 'Variables using ... ‘sysconf’ ... are installed by install-exec.'
 install-exec-hook::
-	$(MKDIR_P) $(DESTDIR)$(sysconfdir)/motd.d
+	mkdir -p $(DESTDIR)$(sysconfdir)/motd.d
 	ln -snf /run/cockpit/motd $(DESTDIR)$(sysconfdir)/motd.d/cockpit
-	$(MKDIR_P) $(DESTDIR)$(sysconfdir)/issue.d
+	mkdir -p $(DESTDIR)$(sysconfdir)/issue.d
 	ln -snf /run/cockpit/motd $(DESTDIR)$(sysconfdir)/issue.d/cockpit.issue
 
 tempconfdir = $(prefix)/lib/tmpfiles.d
@@ -110,7 +110,7 @@ pam_cockpit_cert.so$(EXEEXT): $(pam_cockpit_cert_so_SOURCES)
 CLEANFILES += pam_cockpit_cert.so
 
 install-exec-local::
-	$(MKDIR_P) $(DESTDIR)$(pamdir)
+	mkdir -p $(DESTDIR)$(pamdir)
 	$(INSTALL) pam_cockpit_cert.so $(DESTDIR)$(pamdir)
 
 uninstall-local::
@@ -330,7 +330,7 @@ testassetsdir = $(prefix)/lib/cockpit-test-assets
 testserviceddir = $(systemdunitdir)/cockpit.service.d
 
 install-tests::
-	$(MKDIR_P) $(DESTDIR)$(testassetsdir) $(DESTDIR)$(testserviceddir) $(DESTDIR)/etc/cockpit
+	mkdir -p $(DESTDIR)$(testassetsdir) $(DESTDIR)$(testserviceddir) $(DESTDIR)/etc/cockpit
 	$(INSTALL_DATA) mock-pam-conv-mod.so $(DESTDIR)$(testassetsdir)
 
 install-exec-hook::

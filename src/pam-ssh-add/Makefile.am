@@ -27,7 +27,7 @@ EXTRA_DIST += \
 CLEANFILES += pam_ssh_add.so
 
 install-exec-local::
-	$(MKDIR_P) $(DESTDIR)$(pamdir)
+	mkdir -p $(DESTDIR)$(pamdir)
 	$(INSTALL) pam_ssh_add.so $(DESTDIR)$(pamdir)
 uninstall-local::
 	$(RM) -f $(DESTDIR)$(pamdir)/pam_ssh_add.so

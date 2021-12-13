@@ -39,9 +39,6 @@ AC_CONFIG_MACRO_DIR([tools])
 AM_INIT_AUTOMAKE([1.9 foreign dist-xz no-dist-gzip subdir-objects tar-pax])
 
 AC_USE_SYSTEM_EXTENSIONS
-
-AM_PROG_AR
-AC_PROG_CC
 AC_PROG_RANLIB
 
 # HACK - Prevent valgrind false-positives due to GHashTable trickery

@@ -189,7 +189,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         self.allow_restart_journal_messages()
 
-    @skipImage("TOOD: Arch's pam configuration locks account after 3 failed logons", "arch")
     @skipImage("logs in via ssh, not cockpit-session", "fedora-coreos")
     def testLogging(self):
         m = self.machine
@@ -224,6 +223,9 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # Clean out the relevant logfiles
         m.execute("truncate -s0 /var/log/{[bw]tmp,lastlog} /var/run/utmp")
+
+        if m.image == "arch":
+            self.sed_file("s/# deny = 3/deny = 4/", "/etc/security/faillock.conf")
 
         # First login should have no messages
         verify_correct(False, 0)

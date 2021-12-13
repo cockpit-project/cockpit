@@ -158,7 +158,6 @@ class TestKeys(MachineCase):
 
     # Possible workaround - ssh as `admin` and just do `m.execute()`
     @skipBrowser("Firefox cannot do `cockpit.spawn`", "firefox")
-    @skipImage("TODO: arch has no pam_ssh_add configured", "arch")
     def testPrivateKeys(self):
         b = self.browser
         m = self.machine
@@ -202,6 +201,12 @@ class TestKeys(MachineCase):
 
         # Operating systems where auto loading doesn't work
         auto_load = not m.ostree_image
+
+        if m.image == "arch":
+            self.write_file("/etc/pam.d/cockpit", """
+auth       optional     pam_ssh_add.so
+session    optional     pam_ssh_add.so
+""", append=True)
 
         # Put all the keys in place
         m.execute("mkdir -p /home/admin/.ssh")

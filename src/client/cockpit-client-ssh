@@ -52,14 +52,20 @@ def cockpit_client_ssh():
     askpass = os.path.join(xdg_data_home, 'cockpit-client-askpass')
     shutil.copy(__file__, askpass, follow_symlinks=False)
 
-    host = sys.argv[1]
-
-    if host == 'localhost':
+    connect_to = sys.argv[1]
+    if connect_to == 'localhost':
         cmd = ['flatpak-spawn', '--host', 'cockpit-bridge']
     else:
+        host, _, port = connect_to.rpartition(':')
+        # catch cases like `host:123` but not cases like `[2001:abcd::1]`
+        if port.isdigit():
+            host_args = ['-p', port, host]
+        else:
+            host_args = [connect_to]
+
         cmd = ['flatpak-spawn', '--host', '/usr/bin/env',
                'SSH_ASKPASS_REQUIRE=force', f'SSH_ASKPASS={askpass}',
-               '/usr/bin/ssh', host, 'cockpit-bridge']
+               '/usr/bin/ssh'] + host_args + ['cockpit-bridge']
 
     os.execvp(cmd[0], cmd)
 

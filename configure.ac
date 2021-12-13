@@ -43,7 +43,6 @@ AC_USE_SYSTEM_EXTENSIONS
 AM_PROG_AR
 AC_PROG_CC
 AC_PROG_RANLIB
-AC_PROG_LN_S
 
 # HACK - Prevent valgrind false-positives due to GHashTable trickery
 AC_CHECK_SIZEOF([void *])

@@ -7,10 +7,10 @@ dependencies="\
     autoconf \
     automake \
     build-essential \
-    chromium \
     clang \
     curl \
     dbus \
+    firefox-esr \
     gcc-multilib \
     gdb \
     git \
@@ -37,7 +37,7 @@ dependencies="\
     libssh-dev \
     libsystemd-dev \
     npm \
-    nodejs:amd64 \
+    nodejs \
     pkg-config \
     pyflakes3 \
     python3 \
@@ -53,6 +53,8 @@ dependencies="\
 tee /entrypoint <<EOF
 #!/bin/sh -e
 
+export TEST_BROWSER=firefox
+
 echo -n "Host: " && uname -srvm
 
 . /usr/lib/os-release
@@ -64,8 +66,8 @@ exec ${personality} -- "\$@"
 EOF
 chmod +x /entrypoint
 
-echo "deb http://deb.debian.org/debian-debug/ stable-debug main" > /etc/apt/sources.list.d/ddebs.list
-echo "deb http://deb.debian.org/debian-debug/ stable-proposed-updates-debug main" >> /etc/apt/sources.list.d/ddebs.list
+echo "deb http://deb.debian.org/debian-debug/ testing-debug main" > /etc/apt/sources.list.d/ddebs.list
+echo "deb http://deb.debian.org/debian-debug/ testing-proposed-updates-debug main" >> /etc/apt/sources.list.d/ddebs.list
 # always install amd64 nodejs version; there is e.g. no i386 version for node-sass available
 dpkg --add-architecture amd64
 apt-get update

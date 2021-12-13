@@ -756,6 +756,7 @@ class Browser:
             return
 
         self.call_js_func('ph_scrollIntoViewIfNeeded', selector)
+        self.call_js_func('ph_blur_active')
 
         # Wait for all animations to be over.  This is done by
         # counting them all over and over again until there are zero.

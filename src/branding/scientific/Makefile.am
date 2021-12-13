@@ -8,7 +8,7 @@ EXTRA_DIST += $(scientificbranding_DATA)
 
 # Opportunistically use Scientific Linux logos. 
 install-data-hook::
-	$(LN_S) -f /usr/share/pixmaps/system-logo-white.png $(DESTDIR)$(scientificbrandingdir)/logo.png
-	$(LN_S) -f /usr/share/pixmaps/fedora-logo-sprite.png $(DESTDIR)$(scientificbrandingdir)/apple-touch-icon.png
-	$(LN_S) -f /etc/favicon.png $(DESTDIR)$(scientificbrandingdir)/favicon.ico
+	ln -sf /usr/share/pixmaps/system-logo-white.png $(DESTDIR)$(scientificbrandingdir)/logo.png
+	ln -sf /usr/share/pixmaps/fedora-logo-sprite.png $(DESTDIR)$(scientificbrandingdir)/apple-touch-icon.png
+	ln -sf /etc/favicon.png $(DESTDIR)$(scientificbrandingdir)/favicon.ico
 

@@ -37,8 +37,6 @@
 #include "common/cockpitsystem.h"
 #include "common/cockpitwebserver.h"
 
-#include <security/pam_appl.h>
-
 #include <sys/socket.h>
 #include <stdlib.h>
 #include <stdio.h>

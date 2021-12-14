@@ -66,7 +66,7 @@ export const MacMenu = ({ idPrefix, model, mac, setMAC }) => {
         });
         optionsMapInit.push(
             { toString: () => _("Permanent"), value: "permanent" },
-            { toString: () => _("Perserve"), value: "preserve" },
+            { toString: () => _("Preserve"), value: "preserve" },
             { toString: () => _("Random"), value: "random" },
             { toString: () => _("Stable"), value: "stable" },
         );

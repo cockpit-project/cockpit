@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import os
+import shutil
 import subprocess
 import unittest
 
@@ -57,6 +58,8 @@ class BrowserTest(unittest.TestCase):
         self.assertIn("run-js", actions)
 
     def tearDown(self):
+        if shutil.which("import"):
+            subprocess.call(["import", "-window", "root", f"test-browser-{ self.id().split('.')[-1] }.png"])
         self.app_actions.activate_action("quit")
         self.assertEqual(self.p_client.wait(), 0)
 

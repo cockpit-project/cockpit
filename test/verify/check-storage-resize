@@ -129,7 +129,7 @@ class TestStorageResize(StorageCase):
                          can_shrink=True, shrink_needs_unmount=True,
                          can_grow=True, grow_needs_unmount=True)
 
-    @skipImage("TODO: arch does not mount the LUKS parition after growing", "arch")
+    @skipImage("TODO: arch does not mount the LUKS partition after growing", "arch")
     def testResizeLuks(self):
         self.checkResize("ext4", True,
                          can_shrink=True, shrink_needs_unmount=True,

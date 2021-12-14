@@ -180,7 +180,7 @@ class ServicesPageBody extends React.Component {
             masked: "", // We present the masked from the unitFileState
         };
 
-        // Possible ActiveState values: active, reloading, inactive, failed, activating, deactivating, maintainance
+        // Possible ActiveState values: active, reloading, inactive, failed, activating, deactivating, maintenance
         // See: typedef enum UnitActiveState https://github.com/systemd/systemd/blob/main/src/basic/unit-def.h
         this.activeState = {
             active: _("Running"),
@@ -189,7 +189,7 @@ class ServicesPageBody extends React.Component {
             failed: _("Failed to start"),
             activating: _("Running"),
             deactivating: _("Not running"),
-            maintainance: _("Maintanance"),
+            maintenance: _("Maintenance"),
         };
 
         // Possible UnitFileState values: enabled, enabled-runtime, linked, linked-runtime, alias, masked, masked-runtime, static, disabled, invalid, indirect, generated, transient, bad

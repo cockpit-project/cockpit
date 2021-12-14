@@ -407,7 +407,7 @@ export class SETroubleshootPage extends React.Component {
                                   onSelect={this.onSelect}
                                   gridBreakPoint=''
                                   emptyCaption={ emptyCaption }
-                                  columns={[{ title: _("Alert") }, { title: _("Error message"), header: true }, { title: _("Occurances") }]}
+                                  columns={[{ title: _("Alert") }, { title: _("Error message"), header: true }, { title: _("Occurrences") }]}
                                   showHeader={false}
                                   variant="compact"
                                   rows={entries} /> : emptyState}

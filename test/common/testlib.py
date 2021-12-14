@@ -573,7 +573,7 @@ class Browser:
 
         This differs from login_and_go() by not expecting any particular result.
 
-        The "superuser" parameter determines wether the new session
+        The "superuser" parameter determines whether the new session
         will try to get Administrative Access.
 
         The "legacy_authorized" parameter is or old versions of the

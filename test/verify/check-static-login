@@ -164,7 +164,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.wait_not_visible("#option-group")
 
             # test login with tcsh
-            if not m.image.startswith("rhel") and not m.image.startswith("centos") and not m.image == "arch":  # no tcsh in RHEL and in Arch Linux (TOOD: available in [community])
+            if not m.image.startswith("rhel") and not m.image.startswith("centos") and not m.image == "arch":  # no tcsh in RHEL and in Arch Linux (TODO: available in [community])
                 m.execute("sed -r -i.bak '/^admin:/ s_:[^:]+$_:/bin/tcsh_' /etc/passwd")
                 b.login_and_go()
                 b.enter_page('/system')

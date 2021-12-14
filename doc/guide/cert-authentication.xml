@@ -87,7 +87,7 @@ ipa user-add-cert alice --certificate="$(grep -v ^---- alice.pem)"
     <para>The domain user certificates get imported into the <code>userCertificate;binary</code>
       LDAP attribute. The following commands convert the PEM certificate into binary DER form, create an
       <ulink url="https://ldap.com/ldif-the-ldap-data-interchange-format/">LDIF</ulink>
-      file and apply it to the LDAP server running on the domain contoller
+      file and apply it to the LDAP server running on the domain controller
       "dc.example.com":</para>
 
 <programlisting>

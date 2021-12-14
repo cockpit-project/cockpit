@@ -91,7 +91,7 @@ export function call(objectPath, iface, method, args, opts) {
 }
 
 /**
- * Figure out whether PackageKit is available and useable
+ * Figure out whether PackageKit is available and usable
  */
 export function detect() {
     function dbus_detect() {

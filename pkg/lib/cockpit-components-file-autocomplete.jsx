@@ -66,7 +66,7 @@ export class FileAutoComplete extends React.Component {
                 else
                     this.setState({ value: match.path });
             } else {
-                // If the inserted string's parent directory is not maching the `directory`
+                // If the inserted string's parent directory is not matching the `directory`
                 // in the state object we need to update the parent directory and recreate the displayFiles
                 const parentDir = value.slice(0, value.lastIndexOf('/'));
 

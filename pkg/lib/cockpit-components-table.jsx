@@ -40,10 +40,10 @@ import './cockpit-components-table.scss';
  * - columns: { title: string, header: boolean, sortable: boolean }[] or string[]
  * - rows: {
  *      columns: (React.Node or string or { title: string, key: string, ...extraProps: object}}[]
-                 Through extraProps the consumers can pass arbitary properties to the <td>
+                 Through extraProps the consumers can pass arbitrary properties to the <td>
  *      props: { key: string, ...extraProps: object }
                This property is mandatory and should contain a unique `key`, all additional properties are optional.
-               Through extraProps the consumers can pass arbitary properties to the <tr>
+               Through extraProps the consumers can pass arbitrary properties to the <tr>
  *      expandedContent: (React.Node)[])
  *      initiallyExpanded : the entry will be initially rendered as expanded, but then behaves normally
  *   }[]

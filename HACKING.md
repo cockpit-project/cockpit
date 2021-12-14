@@ -403,7 +403,7 @@ prefix, rather than your build tree.
 
 While running Firefox or Chrome on your Linux or Mac development machine may be
 easy, some people find it harder to test Edge. To use the following method you
-need access to the ```windows-10``` testin image. This image cannot be freely
+need access to the ```windows-10``` testing image. This image cannot be freely
 distributed for licensing reasons.
 
 Make sure you have the ```virt-viewer``` package installed on your Linux

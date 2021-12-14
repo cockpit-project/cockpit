@@ -682,6 +682,7 @@ QUnit.test("filter message in", function (assert) {
             assert.strictEqual(channelid, "", "control message channel");
             assert.equal(typeof control, "object", "control is a JSON object");
             assert.equal(typeof control.command, "string", "control has a command");
+            return true;
         } else {
             assert.strictEqual(channelid, channel.id, "cockpit channel id");
             assert.equal(control, undefined, "control is undefined");

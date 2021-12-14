@@ -932,12 +932,12 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                             "com.redhat.Cockpit.DBusTests.Hidden": { Name: name }
                         }, "got data before signal");
                         dbus.removeEventListener("notify", onnotify);
-                        done();
                     });
                     dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
                               "EmitHidden", [name])
                             .always(function() {
                                 assert.equal(this.state(), "resolved", "method called");
+                                done();
                             });
                 });
     });

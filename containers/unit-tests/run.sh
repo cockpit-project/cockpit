@@ -23,12 +23,14 @@ export MAKEFLAGS="-j $(nproc)"
 # information about the running processes in order to give us a better chance
 # of tracking down problems.
 ( set +x
-  sleep 18m
-  echo ===== 18 mins ====================
-  ps auxwfe
+  sleep 28m
+  echo ===== 28 mins ====================
+  ps auxwe
+  echo
+  ps auxwf
   echo
   top -b -n1
-  echo ===== 18 mins ====================
+  echo ===== 28 mins ====================
 )&
 
 # copy host's source tree to avoid changing that, and make sure we have a clean tree

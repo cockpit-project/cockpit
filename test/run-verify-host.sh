@@ -18,11 +18,9 @@ nproc
 free -h
 rpm -q cockpit-system
 
-# install browser; on RHEL, use firefox-nightly as chromium broke CDP on rhel-9
-# Install firefox to pull in all the deps; but see rhbz#2005760
+# install firefox (available everywhere in Fedora and RHEL)
+# we don't need the H.264 codec, and it is sometimes not available (rhbz#2005760)
 dnf install --disablerepo=fedora-cisco-openh264 -y firefox
-curl --location 'https://download.mozilla.org/?product=firefox-nightly-latest-ssl&os=linux64&lang=en-US' | tar -C /usr/local/lib/ -xj
-ln -s /usr/local/lib/firefox/firefox /usr/local/bin/
 
 # HACK: setroubleshoot-server crashes/times out randomly (breaking TestServices),
 # and is hard to disable as it does not use systemd

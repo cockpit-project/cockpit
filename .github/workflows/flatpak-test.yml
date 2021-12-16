@@ -10,7 +10,9 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Install required build and test dependencies
-        run: sudo apt install -y --no-install-recommends autoconf automake elfutils libglib2.0-dev libsystemd-dev xsltproc xmlto flatpak-builder xvfb cockpit-system
+        run: |
+          sudo apt update
+          sudo apt install -y --no-install-recommends autoconf automake elfutils libglib2.0-dev libsystemd-dev xsltproc xmlto flatpak-builder xvfb cockpit-system
 
       - name: Configure flathub remote
         run: flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo

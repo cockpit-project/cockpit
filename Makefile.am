@@ -101,8 +101,16 @@ uninstall-local::
 	  (find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type f -delete && \
 	   find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete)
 dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS) $(WEBPACK_TEST_DEPS) $(MANIFESTS)
+if !ENABLE_DOC
+	@echo "*** doc must be enabled (ie: --enable-doc) in order to make dist or distcheck"
+	@false
+endif
 	$(V_TAR) tar --format=posix -cf - $^ | tar -C $(distdir) -xf -
 	cp $(srcdir)/tools/README.node_modules $(distdir)/node_modules/README
+	( cd $(srcdir); git ls-tree HEAD --name-only -r $(COMMITTED_DIST) || (echo $(COMMITTED_DIST) | tr ' ' '\n' ) ) | \
+		tar --format=posix -C $(srcdir) --exclude test/reference -cf - -T - | tar -C $(distdir) -xf -
+	echo $(VERSION) > $(distdir)/.tarball
+	[ ! -e $(distdir)/tools/cockpit.spec ] || $(srcdir)/tools/gen-spec-dependencies $(distdir)/tools/cockpit.spec
 
 #
 
@@ -188,14 +196,6 @@ else
 	@true
 endif
 
-dist-hook::
-if ENABLE_DOC
-	@true
-else
-	@echo "*** doc must be enabled (ie: --enable-doc) in order to make dist or distcheck"
-	@false
-endif
-
 # See test/image-prepare
 dump-dist:
 	@echo "$(abs_builddir)/$(distdir).tar.xz"
@@ -215,14 +215,6 @@ tools/debian/copyright: tools/debian/copyright.template $(MANIFESTS)
 # https://git.savannah.gnu.org/cgit/automake.git/commit/?id=13659a7385
 distdir:
 	$(MAKE) $(AM_MAKEFLAGS) distdir-am
-
-# Build up the distribution using $COMMITTED_DIST and include node_modules licenses
-# also automatically update minimum base dependency in RPM spec file
-dist-hook:: $(MANIFESTS)
-	( cd $(srcdir); git ls-tree HEAD --name-only -r $(COMMITTED_DIST) || (echo $(COMMITTED_DIST) | tr ' ' '\n' ) ) | \
-		tar --format=posix -C $(srcdir) --exclude test/reference -cf - -T - | tar -C $(distdir) -xf -
-	echo $(VERSION) > $(distdir)/.tarball
-	[ ! -e $(distdir)/tools/cockpit.spec ] || $(srcdir)/tools/gen-spec-dependencies $(distdir)/tools/cockpit.spec
 
 distcheck-hook::
 	$(srcdir)/tools/check-dist $(distdir)

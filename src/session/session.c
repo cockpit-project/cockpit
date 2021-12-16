@@ -838,10 +838,17 @@ user_has_valid_login_shell (const char **envp)
    * <pitti> https://xkcd.com/221/
    */
   const char *argv[] = { pwd->pw_shell, "-c", "exit 71;", NULL };
-  const int remap_fds[] = { -1, 2, -1 }; /* send stdout to stderr */
+
+  int devnull = open ("/dev/null", O_RDONLY);
+  if (devnull < 0)
+      err (EX, "couldn't open /dev/null");
+
+  const int remap_fds[] = { devnull, 2, -1 }; /* send stdout to stderr */
   int wstatus;
 
   wstatus = spawn_and_wait (argv, envp, remap_fds, 3, pwd->pw_uid, pwd->pw_gid);
+  debug ("user_has_valid_login_shell: exited with status %x", wstatus);
+  close (devnull);
   return WIFEXITED(wstatus) && WEXITSTATUS(wstatus) == 71;
 }
 

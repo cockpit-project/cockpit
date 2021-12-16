@@ -399,7 +399,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         m = self.machine
         b = self.browser
 
-        m.execute("useradd user --shell /usr/bin/tlog-rec-session || true")
+        m.execute("useradd user --shell /usr/bin/tlog-rec-session")
         m.execute("echo user:abcdefg | chpasswd")
         # this doesn't actually record anything, but logging into cockpit should work
         m.start_cockpit()

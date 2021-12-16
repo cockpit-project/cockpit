@@ -1,11 +1,11 @@
 #!/bin/sh
 
-# Create a deterministic distribution tarball with timestamps
+# Help create a deterministic distribution tarball with timestamps
 # based on the time of the latest git commit.
 
 set -eu
 
-tardir="$1"
+distdir="$1"
 
 # This will work for .git or for .tarball
 #
@@ -23,32 +23,28 @@ timestamp() {
 }
 
 # all files get the same timestamp as the commit date
-timestamp "${tardir}"
+timestamp "${distdir}"
 
 # aclocal.m4 comes next
-timestamp "${tardir}/aclocal.m4"
+timestamp "${distdir}/aclocal.m4"
 
 # then the other automake generated files
 timestamp \
-    "${tardir}/config.h.in" \
-    "${tardir}/configure" \
-    "${tardir}/Makefile.in"
+    "${distdir}/config.h.in" \
+    "${distdir}/configure" \
+    "${distdir}/Makefile.in"
 
 # package-lock.json needs to be newer than package.json
-timestamp "${tardir}/package-lock.json"
+timestamp "${distdir}/package-lock.json"
 
 # and dist/ needs to be newer than that
-timestamp "${tardir}/dist"
+timestamp "${distdir}/dist"
 
 # we generate these files during `make dist`
 timestamp \
-    "${tardir}/.tarball" \
-    "${tardir}/tools/debian/copyright" \
-    "${tardir}/tools/cockpit.spec"
+    "${distdir}/.tarball" \
+    "${distdir}/tools/debian/copyright" \
+    "${distdir}/tools/cockpit.spec"
 
 # finally, the directories should be newer than everything else
-timestamp "${tardir}" -type d
-
-# and now we can produce the archive
-# we use ustar because it excludes atime/ctime
-exec tar --format=ustar --sort=name -chf - "${tardir}"
+timestamp "${distdir}" -type d

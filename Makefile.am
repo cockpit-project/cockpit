@@ -111,6 +111,7 @@ endif
 		tar --format=posix -C $(srcdir) --exclude test/reference -cf - -T - | tar -C $(distdir) -xf -
 	echo $(VERSION) > $(distdir)/.tarball
 	[ ! -e $(distdir)/tools/cockpit.spec ] || $(srcdir)/tools/gen-spec-dependencies $(distdir)/tools/cockpit.spec
+	tools/adjust-distdir-timestamps "$(distdir)"
 
 #
 

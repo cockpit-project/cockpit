@@ -182,7 +182,7 @@ areadlinkat (int         dirfd,
   ssize_t s = readlinkat (dirfd, filename, buffer, sizeof buffer);
   g_assert_cmpint (s, <, sizeof buffer);
   if (s == -1 && errno == ENOENT)
-    buffer[0] = '\0';
+    s = 0; /* results in returning empty string */
   else
     g_assert_no_errno (s);
   buffer[s] = '\0';

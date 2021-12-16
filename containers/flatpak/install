@@ -20,6 +20,5 @@ prepare "${TARBALL:-}" "${URLBASE:-}"
 flatpak-builder \
     "$@" \
     --disable-rofiles-fuse \
-    --disable-cache \
     --force-clean \
     --install flatpak-build-dir "${FLATPAK_ID}".yml

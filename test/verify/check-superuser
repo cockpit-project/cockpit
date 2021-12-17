@@ -37,11 +37,15 @@ class TestSuperuser(MachineCase):
         self.login_and_go()
         b.check_superuser_indicator("Administrative access")
 
+        b.assert_pixels("#topnav", "topnav-privileged")
+
         # Drop privileges
         b.open_superuser_dialog()
         b.click(".pf-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
         b.wait_not_present(".pf-c-modal-box:contains('Switch to limited access')")
         b.check_superuser_indicator("Limited access")
+
+        b.assert_pixels("#topnav", "topnav-unprivileged")
 
         # Check they are still gone after logout
         b.relogin()

@@ -62,13 +62,12 @@ class HostSwitcherHelpers:
           return true;
         })""", address)
 
-    def add_machine(self, b, address, known_host=False):
+    def add_machine(self, b, address, known_host=False, pixel_label=None):
         b.click("button:contains('Add new host')")
         b.wait_visible('#hosts_setup_server_dialog')
         b.set_input_text('#add-machine-address', address)
-        self.add_machine_finish(b, address, known_host=known_host)
-
-    def add_machine_finish(self, b, address, known_host=False):
+        if pixel_label:
+            b.assert_pixels("#hosts_setup_server_dialog", pixel_label)
         b.click('#hosts_setup_server_dialog .pf-m-primary:contains("Add")')
         if not known_host:
             b.wait_in_text('#hosts_setup_server_dialog', f"You are connecting to {address} for the first time")
@@ -143,6 +142,20 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         # This should all work without being admin on machine1
         self.login_and_go(superuser=False)
 
+        if b.cdp.mobile:
+            # system menu not visible in mobile mode
+            b.click("#nav-system-item")
+            b.wait_visible("#nav-system.interact")
+
+        b.assert_pixels("#nav-system", "nav-system")
+
+        if b.cdp.mobile:
+            # close system menu again in mobile mode
+            b.click("#nav-system-item")
+            b.wait_not_present("#nav-system.interact")
+
+        b.assert_pixels("#hosts-sel", "hosts-sel-closed")
+
         b.click("#hosts-sel button")
         self.wait_host_addresses(b, ["localhost"])
 
@@ -154,7 +167,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.wait_in_text("#nav-hosts .nav-item a", "mydhcpname")
         m1.execute("hostnamectl set-hostname 'localhost'")
 
-        self.add_machine(b, "10.111.113.2")
+        self.add_machine(b, "10.111.113.2", pixel_label="host-add-dialog")
         self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
         self.connect_and_wait(b, "10.111.113.2")
 
@@ -164,6 +177,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.wait_visible(".nav-item a[href='/@localhost'] + span button.nav-action.pf-m-secondary:disabled")
         b.wait_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-danger:not(:disabled)")
         b.wait_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-secondary:not(:disabled)")
+        b.assert_pixels(".edit-hosts", "edit-hosts")
         b.click("button:contains('Stop editing hosts')")
         b.wait_not_visible(".nav-item a[href='/@localhost'] + span button.nav-action.pf-m-danger")
         b.wait_not_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-secondary")
@@ -173,6 +187,8 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         self.add_machine(b, "10.111.113.3")
         self.wait_host_addresses(b, ["localhost", "10.111.113.3", "10.111.113.2"])
         self.connect_and_wait(b, "10.111.113.3")
+
+        b.assert_pixels("#nav-hosts", "nav-hosts-2-remotes")
 
         # Remove two
         self.machine_remove(b, "10.111.113.2", m2)

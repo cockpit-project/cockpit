@@ -26,7 +26,7 @@ from testlib import *
 @skipImage("freeipa not currently available", "debian-stable", "debian-testing", "ubuntu-2004", "arch")
 @skipImage("Skip these for now, unsure what's broken", "ubuntu-stable")
 @skipDistroPackage()
-@skipImage("Needs sssd >=2.4.1", "rhel-8-4", "rhel-8-5", "rhel-8-6", "centos-8-stream")
+@skipImage("Needs sssd >=2.4.1", "rhel-8-4", "rhel-8-5")
 class TestS4USsh(MachineCase):
     provision = {
         "0": {"address": "10.111.113.1/20", "dns": "10.111.112.100"},

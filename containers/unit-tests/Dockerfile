@@ -2,6 +2,8 @@ ARG debian_arch=amd64
 FROM docker.io/${debian_arch}/debian:testing
 
 ARG personality=linux64
+ENV personality=${personality}
+
 COPY setup.sh /
 RUN ${personality} /setup.sh ${personality} && rm -rf /setup.sh
 
@@ -10,6 +12,8 @@ USER builder
 ENV LANG=C.UTF-8
 
 VOLUME /source
+
+COPY entrypoint /
 ENTRYPOINT ["/entrypoint"]
 CMD ["/source/containers/unit-tests/run.sh"]
 

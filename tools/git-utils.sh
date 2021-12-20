@@ -48,11 +48,10 @@ init_cache() {
 }
 
 # This checks if the given argument "$1" (already) exists in the repository
-# we use git fsck to to avoid problems with incomplete fetches: we want to make
-# sure the complete commit is there
+# we use git rev-list --objects to to avoid problems with incomplete fetches:
+# we want to make sure the complete commit is there
 check_ref() {
-    git_cache show "$1" >/dev/null 2>&1 && \
-      git_cache fsck --no-dangling --connectivity-only "$1" 2>/dev/null
+    git_cache rev-list --quiet --objects "$1"
 }
 
 # Fetch a specific commit ID into the cache

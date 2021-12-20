@@ -50,22 +50,6 @@ dependencies="\
     xsltproc \
 "
 
-tee /entrypoint <<EOF
-#!/bin/sh -e
-
-export TEST_BROWSER=firefox
-
-echo -n "Host: " && uname -srvm
-
-. /usr/lib/os-release
-echo -n "Container: \${NAME} \${VERSION} / " && ${personality} uname -nrvm
-echo
-
-set -ex
-exec ${personality} -- "\$@"
-EOF
-chmod +x /entrypoint
-
 echo "deb http://deb.debian.org/debian-debug/ testing-debug main" > /etc/apt/sources.list.d/ddebs.list
 echo "deb http://deb.debian.org/debian-debug/ testing-proposed-updates-debug main" >> /etc/apt/sources.list.d/ddebs.list
 apt-get update

@@ -462,6 +462,7 @@ OnCalendar=daily
         b.wait_visible("#host-apps li a:contains('Services')")
         b.wait_text("#host-apps li a:contains('Services')", "ServicesContains: systemd")
         b.wait_text("#host-apps li a:contains('Services') mark", "systemd")
+        b.assert_pixels("#nav-system", "menu-search")
 
         # Check that enter activates first result
         b.focus(filter_sel)

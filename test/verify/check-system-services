@@ -803,7 +803,7 @@ WantedBy=default.target
     def count_failures(self):
         return int(self.machine.execute("systemctl --failed --plain --no-legend | wc -l"))
 
-    def check_system_menu_services_error(self, expected):
+    def check_system_menu_services_error(self, expected, pixel_label=None):
         b = self.browser
         b.switch_to_top()
         if b.cdp.mobile:
@@ -812,6 +812,9 @@ WantedBy=default.target
             b.wait_visible("#services-error")
         else:
             b.wait_not_present("#services-error")
+        if pixel_label:
+            b.assert_pixels("#nav-system", pixel_label)
+
         if b.cdp.mobile:
             # close menu again
             b.click("#nav-system-item")
@@ -858,7 +861,7 @@ ExecStart=/usr/bin/false
         b.wait_visible('tr[data-goto-unit="aab-fail.service"] .service-unit-status:contains("Failed")')
 
         # Nav link should have icon
-        self.check_system_menu_services_error(True)
+        self.check_system_menu_services_error(True, pixel_label="menu_error")
 
         n_failures = self.count_failures()
         health_message = "1 service has failed" if n_failures == 1 else f"{n_failures} services have failed"

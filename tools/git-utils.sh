@@ -17,7 +17,7 @@ HTTPS_REMOTE="https://github.com/${GITHUB_REPOSITORY}"
 CACHE_DIR="${XDG_CACHE_HOME-${HOME}/.cache}/cockpit-dev/${GITHUB_REPOSITORY}.git"
 
 if [ "${V-}" = 0 ]; then
-    message() { printf "  %-8s %s\n" "$1" "$2"; }
+    message() { printf "  %-8s %s\n" "$1" "$2" >&2; }
     quiet='--quiet'
 else
     message() { :; }

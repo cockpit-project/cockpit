@@ -6,4 +6,3 @@ if [ -z "${CC:-}" ]; then
 fi
 
 ./autogen.sh --prefix=/usr --enable-strict
-[ "${TEST_SCENARIO:-}" = "dist" ] || make

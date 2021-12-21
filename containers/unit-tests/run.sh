@@ -1,17 +1,5 @@
 #!/bin/bash
 
-if [ -z "${TEST_SCENARIO:-}" ]; then
-    echo 'Required variable TEST_SCENARIO not set'
-    exit 1
-fi
-
-if [ "$1" = "--build" ]; then
-    BUILD_ONLY=1
-elif [ -n "$1" ]; then
-    echo 'Usage: run.sh [--build]' >&2
-    exit 1
-fi
-
 set -o pipefail
 set -eux
 
@@ -46,8 +34,10 @@ cd /tmp/source
 
 containers/unit-tests/build.sh
 
-if [ -n "${BUILD_ONLY:-}" ]; then
+if [ "$*" = "build" ]; then
     exit 0
 fi
 
-containers/unit-tests/scenario-${TEST_SCENARIO}.sh
+for scenario in "$@"; do
+    containers/unit-tests/scenario-${scenario}.sh
+done

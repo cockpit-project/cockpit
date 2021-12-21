@@ -62,7 +62,7 @@ the container.
 `/source/containers/unit-tests/run.sh` will start the builds and test run, then
 you can investigate in the build tree at `/tmp/source/`.
 
-`/source/containers/unit-tests/run.sh` also includes a `--build` argument which
+`/source/containers/unit-tests/run.sh` also includes a `build` mode which
 will checkout and build the source, but not run any tests.
 
 You can also attach to another container using the provided `exec` script.  For example:

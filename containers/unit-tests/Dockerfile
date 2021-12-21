@@ -9,6 +9,8 @@ RUN ${personality} /setup.sh ${personality} && rm -rf /setup.sh
 
 # 'builder' user created in setup.sh
 USER builder
+WORKDIR /home/builder
+
 ENV LANG=C.UTF-8
 
 VOLUME /source

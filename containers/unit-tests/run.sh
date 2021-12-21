@@ -32,12 +32,6 @@ if [ -d /source/node_modules ]; then
 fi
 cd /tmp/source
 
-containers/unit-tests/build.sh
-
-if [ "$*" = "build" ]; then
-    exit 0
-fi
-
 for scenario in "$@"; do
-    containers/unit-tests/scenario-${scenario}.sh
+    containers/unit-tests/scenario/${scenario}
 done

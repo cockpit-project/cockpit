@@ -41,4 +41,28 @@ message() { printf "  %-8s %s\n" "$1" "$2" >&2; }
     echo "make -C cockpit -f pkg/build package-lock.json"
 )
 
+# if the tree isn't clean, make a stash and send it in, too.  we do this
+# separately from HEAD, because we can send the stash as a thin pack.
+(
+    # `git stash create -u` doesn't work properly, so check for untracked files
+    # and warn.  This can be removed (and -u added below) when that's supported.
+    untracked="$(git ls-files -o --exclude-standard)"
+    if [ -n "${untracked}" ]; then
+        printf '\nThe following untracked files will be excluded:\n%s\n\n' "${untracked}" >&2
+    fi
+    stash_sha="$(git stash create)"
+    if [ -n "${stash_sha}" ]; then
+        stash_pack="tmp/${stash_sha}.pack"
+        message 'BUNDLE' "${stash_pack}  [stash]"
+        # we can't include raw commits, so use a temporary tag
+        git tag "stash-${stash_sha}" "${stash_sha}" >/dev/null
+        git bundle create --quiet "${stash_pack}" "stash-${stash_sha}" "^HEAD"
+        git tag --delete "stash-${stash_sha}" >/dev/null
+        echo "# ${stash_pack}"
+        echo "echo '=== Unpacking stash'"
+        echo "git -C cockpit bundle unbundle ../${stash_pack}"
+        echo "git -C cockpit stash apply --quiet ${stash_sha}"
+    fi
+)
+
 echo "rm -rf tmp"

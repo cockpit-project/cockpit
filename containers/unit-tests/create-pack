@@ -65,4 +65,16 @@ message() { printf "  %-8s %s\n" "$1" "$2" >&2; }
     fi
 )
 
+# if dist/ is up to date, then include it
+(
+    if pkg/build -q -o package-lock.json; then
+        dist_tar="tmp/dist.tar"
+        message 'TAR' "${dist_tar}"
+        tar cf "${dist_tar}" dist
+        echo "# ${dist_tar}"
+        echo "echo '=== Unpacking dist/'"
+        echo "tar xm -C cockpit dist < ${dist_tar}"
+    fi
+)
+
 echo "rm -rf tmp"

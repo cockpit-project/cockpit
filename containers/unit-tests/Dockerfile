@@ -15,7 +15,6 @@ VOLUME /source
 
 COPY entrypoint /
 ENTRYPOINT ["/entrypoint"]
-CMD ["/source/containers/unit-tests/run.sh"]
 
 # for filtering from our 'exec' script
 LABEL org.cockpit-project.container=unit-tests

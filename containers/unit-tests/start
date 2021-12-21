@@ -3,9 +3,7 @@ set -eu
 
 top_srcdir=$(realpath -m "$0"/../../..)
 image=ghcr.io/cockpit-project/unit-tests:latest
-scenario=''
 flags=''
-cmd=''
 
 while test $# -gt 0; do
   case "$1" in
@@ -14,13 +12,13 @@ while test $# -gt 0; do
     CC=*) ccarg="--env=$1";;
     shell) flags=-it; cmd=/bin/bash;;
     :*) image=ghcr.io/cockpit-project/unit-tests"$1";;
-    dist|distcheck|check-memory) scenario="--env=TEST_SCENARIO=$1";;
+    build|dist|distcheck|check-memory) cmd="/source/containers/unit-tests/run.sh $1";;
     *) echo "Unknown option '$1'"; exit 1;;
   esac
   shift
 done
 
-if test -z "$scenario" -a -z "$cmd"; then
+if test -z "${cmd:-}"; then
   echo 'Must specify a scenario or `shell`'
   exit 1
 fi
@@ -32,4 +30,4 @@ fi
 
 set -ex
 exec ${docker} run --shm-size=512M --volume "${top_srcdir}":/source:ro \
-       ${ccarg:+"$ccarg"} $scenario $flags -- "$image" $cmd
+       ${ccarg:+"$ccarg"} $flags -- "$image" $cmd

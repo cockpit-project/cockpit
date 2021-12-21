@@ -1,8 +1,9 @@
 #!/bin/sh
 set -eu
 
-top_srcdir=$(realpath -m "$0"/../../..)
-image=ghcr.io/cockpit-project/unit-tests:latest
+cd "$(realpath -m "$0"/../../..)"
+
+image='ghcr.io/cockpit-project/unit-tests:latest'
 flags=''
 
 while test $# -gt 0; do
@@ -10,9 +11,9 @@ while test $# -gt 0; do
     --docker) docker="docker";;
     --podman) docker="podman";;
     CC=*) ccarg="--env=$1";;
-    shell) flags=-it; cmd=/bin/bash;;
     :*) image=ghcr.io/cockpit-project/unit-tests"$1";;
-    build|dist|distcheck|check-memory) cmd="/source/containers/unit-tests/run.sh $1";;
+    shell) flags='-it'; cmd="/bin/bash";;
+    build|dist|distcheck|check-memory) cmd="cockpit/containers/unit-tests/run.sh $1";;
     *) echo "Unknown option '$1'"; exit 1;;
   esac
   shift
@@ -28,6 +29,14 @@ if test -z "${docker:=$(which podman || which docker || true)}"; then
   exit 1
 fi
 
-set -ex
-exec ${docker} run --shm-size=512M --volume "${top_srcdir}":/source:ro \
-       ${ccarg:+"$ccarg"} $flags -- "$image" $cmd
+mkdir -p tmp
+containers/unit-tests/create-pack > tmp/unpack.sh
+sed -ne 's/^# //p' tmp/unpack.sh | tar c -T - -C tmp unpack.sh > tmp/pack.tar
+
+${docker} run \
+    --rm \
+    ${flags} \
+    --shm-size=512M \
+    -v "$(pwd)/tmp/pack.tar":/pack.tar:ro,z \
+    ${ccarg:+"$ccarg"} \
+    -- "$image" $cmd

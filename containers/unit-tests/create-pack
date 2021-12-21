@@ -1,0 +1,44 @@
+#!/bin/sh
+
+set -eu
+cd "$(realpath -m "$0"/../../..)"
+
+message() { printf "  %-8s %s\n" "$1" "$2" >&2; }
+
+# bundle the current state of HEAD
+(
+    head_sha="$(git rev-parse HEAD)"
+    head_pack="tmp/${head_sha}.pack"
+    if [ ! -f "${head_pack}" ]; then
+        message 'BUNDLE' "${head_pack}  [HEAD]"
+        # include the latest tag so that git-describe works
+        latest_tag="$(git describe --abbrev=0 HEAD)"
+        git bundle create --quiet "${head_pack}" HEAD ${latest_tag}
+    fi
+    echo "# ${head_pack}"
+    echo "echo '=== Unpacking cockpit'"
+    echo "git -c advice.detachedHead=false clone ${head_pack} cockpit"
+)
+
+# bundle the node_modules from our cache so the container doesn't need
+# to download them
+(
+    GITHUB_REPO='node-cache'
+    SUBDIR='node_modules'
+    V=0
+    . tools/git-utils.sh
+    node_sha="$(get_index_gitlink node_modules)"
+    node_pack="tmp/${node_sha}.pack"
+    if [ ! -f "${node_pack}" ]; then
+        fetch_sha_to_cache "${node_sha}"
+        message 'BUNDLE' "${node_pack}  [node_modules]"
+        git_cache bundle create --quiet "${node_pack}" "sha-${node_sha}"
+    fi
+    echo "# ${node_pack}"
+    echo "echo '=== Unpacking node_modules'"
+    echo "git -c advice.detachedHead=false clone -b sha-${node_sha} ${node_pack} cockpit/node_modules"
+    echo "echo '=== Copying package-lock.json'"
+    echo "make -C cockpit -f pkg/build package-lock.json"
+)
+
+echo "rm -rf tmp"

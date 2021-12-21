@@ -8,5 +8,16 @@ echo -n "Host: " && uname -srvm
 echo -n "Container: \${NAME} \${VERSION} / " && ${personality} uname -nrvm
 echo
 
+# extract our pack, if we haven't yet
+if [ -s /pack.tar -a ! -f ~/.unpacked ]; then
+    (
+        cd
+        tar xf /pack.tar
+        sh -e unpack.sh
+        rm unpack.sh
+        touch .unpacked
+    )
+fi
+
 set -ex
 exec ${personality} -- "$@"

@@ -13,7 +13,7 @@ WORKDIR /home/builder
 
 ENV LANG=C.UTF-8
 
-VOLUME /source
+VOLUME /pack.tar
 
 COPY entrypoint /
 ENTRYPOINT ["/entrypoint"]

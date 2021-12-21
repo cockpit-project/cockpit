@@ -5,9 +5,11 @@ we want to exercise Cockpit with, mostly for `make distcheck` and `make
 check-memory`. This container runs on [GitHub](.github/workflows/unit-tests.yml),
 but can be easily run locally too.
 
-It assumes that the Cockpit source git checkout is available in `/source`. It
-will not modify that directory or take uncommitted changes into account, but it
-will re-use an already existing `node_modules/` directory.
+On startup, it will look for `/pack.tar`, extract it into the home directory,
+and run the contained unpack.sh.
+
+We use this mechanism to inject what we want to test.  See the create-pack
+script in this directory for details on how that works.
 
 The scripts can use either podman (preferred) or docker. If you use docker, you
 need to run all commands as root. With podman the containers work as either user
@@ -20,11 +22,6 @@ The `build` script will build the `cockpit/unit-tests` and
 build one variant, e.g. `build i386`.
 
 ## Running tests
-
-You need to disable SELinux with `sudo setenforce 0` for this. There is no
-other way for the container to access the files in your build tree (do *not*
-use the `--volume` `:Z` option, as that will destroy the file labels on the
-host).
 
 Tests in that container get started with the `start` script.  By default, this
 script runs the unit tests on amd64.  The script accepts a number of arguments
@@ -56,14 +53,11 @@ For interactive debugging, run a shell in the container:
 
     $ ./start shell     # start an interactive shell in default container
 
-You will find the cockpit source tree (from the host) mounted at `/source` in
-the container.
+You will find the cockpit source tree (from the host) unpacked in the home
+directory (~/cockpit) inside the container.
 
-`/source/containers/unit-tests/run.sh` will start the builds and test run, then
-you can investigate in the build tree at `/tmp/source/`.
-
-`/source/containers/unit-tests/run.sh` also includes a `build` mode which
-will checkout and build the source, but not run any tests.
+`containers/unit-tests/run.sh` will start the builds and test run, then
+you can investigate in the build tree.
 
 You can also attach to another container using the provided `exec` script.  For example:
 

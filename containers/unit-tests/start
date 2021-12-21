@@ -4,7 +4,7 @@ set -eu
 cd "$(realpath -m "$0"/../../..)"
 
 image='ghcr.io/cockpit-project/unit-tests:latest'
-flags=''
+flags='--network=none' # disabled for 'shell'
 
 while test $# -gt 0; do
   case "$1" in

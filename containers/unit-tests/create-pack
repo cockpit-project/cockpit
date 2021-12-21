@@ -21,7 +21,7 @@ message() { printf "  %-8s %s\n" "$1" "$2" >&2; }
 )
 
 # bundle the node_modules from our cache so the container doesn't need
-# to download them
+# to download them (since it has no network access)
 (
     GITHUB_REPO='node-cache'
     SUBDIR='node_modules'

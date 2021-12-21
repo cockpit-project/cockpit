@@ -10,6 +10,7 @@ const path = require("path");
 const argparse = require("argparse");
 const fs = require("fs");
 const child_process = require("child_process");
+const CockpitRsyncPlugin = require("../pkg/lib/cockpit-rsync-plugin");
 
 // argv0 is node
 const webpack_watch = process.argv[1].includes('webpack-watch');
@@ -38,6 +39,11 @@ const srcdir = (process.env.SRCDIR || ".").replace(/\/$/, '');
 const cwd = process.cwd();
 const config_path = path.resolve(cwd, args.config);
 const config = require(config_path);
+
+if (args.rsync) {
+  process.env["RSYNC"] = args.rsync;
+  config.plugins.push(new CockpitRsyncPlugin({source: path.dirname(makefile)}));
+}
 
 const compiler = webpack(config);
 
@@ -75,9 +81,6 @@ function process_result(err, stats) {
             process.exit(1);
         return;
     }
-
-    if (args.rsync)
-        rsync();
 
     generateDeps(makefile, stats);
 }
@@ -184,12 +187,4 @@ function generateDeps(makefile, stats) {
     lines.push(prefix + ": " + stampfile);
 
     fs.writeFileSync(makefile, lines.join("\n") + "\n");
-}
-
-function rsync() {
-    const ret = child_process.spawnSync("rsync", ["--recursive", "--info=PROGRESS2", "--delete",
-                                        path.dirname(makefile), args.rsync + ":/usr/share/cockpit/"],
-                                        { stdio: "inherit" });
-    if (ret.status !== 0)
-        process.exit(1);
 }

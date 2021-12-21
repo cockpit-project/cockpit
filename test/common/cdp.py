@@ -278,7 +278,7 @@ class CDP:
             self._browser_home = tempfile.mkdtemp()
             environ = os.environ.copy()
             environ["HOME"] = self._browser_home
-            environ["LC_ALL"] = "en_US.UTF-8"
+            environ["LC_ALL"] = "C.UTF-8"
             # this might be set for the tests themselves, but we must isolate caching between tests
             try:
                 del environ["XDG_CACHE_HOME"]

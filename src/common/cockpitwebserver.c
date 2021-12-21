@@ -1222,7 +1222,7 @@ cockpit_web_server_add_inet_listener (CockpitWebServer *self,
                                           NULL, &result_address, error))
         return 0;
 
-      guint16 port = g_inet_socket_address_get_port (G_INET_SOCKET_ADDRESS (result_address));
+      port = g_inet_socket_address_get_port (G_INET_SOCKET_ADDRESS (result_address));
       g_assert (port != 0);
 
       return port;

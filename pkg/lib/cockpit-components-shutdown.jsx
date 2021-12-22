@@ -131,7 +131,7 @@ export class ShutdownModal extends React.Component {
         this.date_spawn.catch(e => {
             if (e.problem == "cancelled")
                 return;
-            this.setState({ error: e });
+            this.setState({ error: e.message });
         });
         this.date_spawn.finally(() => { this.date_spawn = null });
     }

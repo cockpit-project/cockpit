@@ -43,6 +43,7 @@ export class ShutdownModal extends React.Component {
             isOpen: false,
             selected: "1",
             dateObj: undefined,
+            startDate: undefined,
             date: "",
             time: "",
             when: "+1",
@@ -52,6 +53,7 @@ export class ShutdownModal extends React.Component {
         this.updateDate = this.updateDate.bind(this);
         this.updateTime = this.updateTime.bind(this);
         this.calculate = this.calculate.bind(this);
+        this.dateRangeValidator = this.dateRangeValidator.bind(this);
 
         this.server_time = new ServerTime();
     }
@@ -66,6 +68,7 @@ export class ShutdownModal extends React.Component {
                     this.setState({
                         dateObject,
                         date,
+                        startDate: new Date(dateObject.toDateString()),
                         time: hour.toString().padStart(2, "0") + ":" + minute.toString().padStart(2, "0"),
                     });
                 })
@@ -149,6 +152,13 @@ export class ShutdownModal extends React.Component {
         return false;
     }
 
+    dateRangeValidator(date) {
+        if (this.state.startDate && date < this.state.startDate) {
+            return _("Cannot schedule event in the past");
+        }
+        return '';
+    }
+
     render() {
         const options = [
             <SelectOption value="0" key="0">{_("No delay")}</SelectOption>,
@@ -201,6 +211,7 @@ export class ShutdownModal extends React.Component {
                                                 onBlur={this.calculate}
                                                 onChange={(d, ds) => this.updateDate(d, ds)}
                                                 placeholder={timeformat.dateShortFormat()}
+                                                validators={[this.dateRangeValidator]}
                                                 value={this.state.date} />
                                     <TimePicker time={this.state.time} is24Hour
                                                 className='shutdown-time-picker'

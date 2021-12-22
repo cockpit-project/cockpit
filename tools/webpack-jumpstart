@@ -50,14 +50,12 @@ if [ -n "$(git status --porcelain)" ]; then
     git status >&2
     exit 1
 fi
-
-# If we are rebasing and the HEAD commit is a merge, use the merged
-# commit ID to find the cached data, instead of the merge itself.
+# If we are rebasing and the HEAD commit is a merge, reset to the
+# merged commit before proceeding.
 if test -n "${rebase}" && git rev-parse --verify HEAD^2 >/dev/null; then
-    tag="sha-$(git rev-parse HEAD^2)"
-else
-    tag="sha-$(git rev-parse HEAD)"
+    git reset --hard HEAD^2
 fi
+tag="sha-$(git rev-parse HEAD)"
 
 for try in $(seq 50 -1 0); do
     if fetch_to_cache tag "${tag}"; then

@@ -114,14 +114,14 @@ if [ -n "${rebase}" ]; then
 fi
 
 target_tree="$(cat_from_cache "${tag}" tree)"
-if [ "$(git rev-parse HEAD^{tree})" != "${target_tree}" ]; then
+changed_files="$(git diff --name-only "${target_tree}")"
+if [ -n "${changed_files}" ]; then
     if [ -n "${rebase-}" ]; then
         echo "Internal error: even after rebase, don't have the correct tree" >&2
-        exit 1
     else
         echo "The current working tree needs to be rebased: try --rebase" >&2
-        exit 1
     fi
+    exit 1
 fi
 
 tools/node-modules make_package_lock_json

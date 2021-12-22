@@ -106,7 +106,7 @@ done
 if [ -n "${rebase}" ]; then
     merge_base="$(cat_from_cache "${tag}" merge-base)"
     # If we don't already have that commit, we'll need to go fetch it
-    if ! git fsck --no-dangling --connectivity-only "${merge_base}"; then
+    if ! git rev-list --quiet --objects "${merge_base}"; then
         message FETCH ".  [${merge_base}]"
         git fetch --no-write-fetch-head origin "${merge_base}"
     fi

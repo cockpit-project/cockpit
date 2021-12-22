@@ -44,8 +44,10 @@ if [ "${NODE_ENV-}" = "development" ]; then
     exit 1
 fi
 
-if ! git diff --quiet -- ':^test' ':^packit.yaml' ':^.github'; then
-    echo 'jumpstart: uncommitted local changes, skipping download' >&2
+if [ -n "$(git status --porcelain)" ]; then
+    echo 'Refusing operation on an unclean tree' >&2
+    echo
+    git status >&2
     exit 1
 fi
 
@@ -70,11 +72,6 @@ for try in $(seq 50 -1 0); do
 done
 
 if [ -n "${rebase}" ]; then
-    if [ -n "$(git status --porcelain)" ]; then
-        echo 'Refusing to rebase tree with local changes' >&2
-        git status >&2
-        exit 1
-    fi
     merge_base="$(cat_from_cache "${tag}" merge-base)"
     # If we don't already have that commit, we'll need to go fetch it
     if ! git fsck --no-dangling --connectivity-only "${merge_base}"; then

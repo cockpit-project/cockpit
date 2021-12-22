@@ -44,6 +44,40 @@ if [ "${NODE_ENV-}" = "development" ]; then
     exit 1
 fi
 
+# Here we find "base commit": the commit in our local tree which is equal to
+# the HEAD of the PR at the time the jumpstart was built.  This might not be
+# the commit that the jumpstart was actually built against (in case the PR
+# wasn't fully-rebased and GitHub merged some commits from main).
+# --rebase helps us deal with those situations.
+#
+# For example:
+#
+#              a---b---H                     (PR head)
+#             /        |\
+#            /       --M \---N               (GitHub PR merge commits)
+#           /       /       /
+#   ---o---o---o---m---o---n                 (origin/main)
+#                   \
+#                    a'--b'--H'              (rebased result)
+#
+# We might be run from H, M, or N.
+#
+# Someone has proposed a PR with three commits ('a', 'b', and head 'H'),
+# branched off of main, which had two additional commits (up to head 'm') at
+# the time of the jumpstart build.  GitHub will have created merge commit 'M'
+# for the jumpstart build, but it will be marked with the tag `sha-H` so that
+# it's possible for us to find it.  The jumpstart bundle will have a note of
+# commit `m` in the contained `merge-base` file so that we can reconstruct the
+# tree state of `M` for ourselves.  That's the idea of `--rebase`: we will
+# rebase, adding commits a', b', and H' on top of m.  Assuming merging and
+# rebasing produced the same result (which it almost always does), the tree
+# state of H' will be exactly the same as M.
+#
+# We might also be asked to run against the merge commit ('M') itself, or a new
+# merge commit ('N') in case main received additional commits.  In either case,
+# the best thing we can do in either case is to back up to the original head
+# 'H' and rebase onto 'm' from there, as above.
+
 if [ -n "$(git status --porcelain)" ]; then
     echo 'Refusing operation on an unclean tree' >&2
     echo

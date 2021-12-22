@@ -107,7 +107,7 @@ export class ShutdownModal extends React.Component {
             return;
         }
 
-        const cmd = ["date", "--date=" + (new Intl.DateTimeFormat().format(this.state.dateObject)) + " " + this.state.time, "+%s"];
+        const cmd = ["date", "--date=" + (new Intl.DateTimeFormat('en-us').format(this.state.dateObject)) + " " + this.state.time, "+%s"];
         this.date_spawn = cockpit.spawn(cmd, { err: "message" });
         this.date_spawn.then(data => {
             const input_timestamp = parseInt(data, 10);

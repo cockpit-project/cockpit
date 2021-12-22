@@ -153,9 +153,7 @@ class TestShutdownRestart(MachineCase):
         b.wait_not_val("#shutdown-time-input", "")
         b.wait_not_present("#delay-helper")
         old = b.val("#shutdown-time-input")
-        b.set_input_text("#shutdown-time-input", "blah", blur=False)
-        b.wait_not_present("#delay-helper")
-        b.blur("#shutdown-time-input")
+        b.set_input_text("#shutdown-time-input", "blah")
         b.wait_text("#delay-helper", "Invalid time format")
         b.wait_visible(f"#shutdown-dialog button{self.danger_btn_class}:disabled")
 
@@ -165,9 +163,7 @@ class TestShutdownRestart(MachineCase):
         b.wait_not_present("#delay-helper")
 
         # Try to insert an invalid date
-        b.set_input_text(".shutdown-date-picker input", "20/0x/2021", blur=False)
-        b.wait_not_present("#delay-helper")
-        b.blur(".shutdown-date-picker input")
+        b.set_input_text(".shutdown-date-picker input", "20/0x/2021")
         b.wait_val(".shutdown-date-picker input", "20/0x/2021")
         b.wait_text("#delay-helper", "Invalid date format")
         b.wait_visible(f"#shutdown-dialog button{self.danger_btn_class}:disabled")

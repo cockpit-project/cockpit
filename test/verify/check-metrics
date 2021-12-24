@@ -553,12 +553,16 @@ class TestHistoryMetrics(MachineCase):
         self.assertEqual(m.execute("systemctl is-enabled pmlogger").strip(), "enabled")
 
     @nondestructive
-    @skipImage("TODO: pm proxy alert doesn't show on Arch Linux", "arch")
     @skipImage("no PCP support", "fedora-coreos")
     @todoPybridge()
     def testPmProxySettings(self):
         b = self.browser
         m = self.machine
+
+        # Arch Linux has no active zone by default which the firewalld port alert test requires.
+        if m.image == "arch":
+            m.execute("firewall-cmd --zone=public --change-interface eth0 --permanent")
+            m.execute("firewall-cmd --reload")
 
         redis = redisService(m.image)
         hostname = m.execute("hostname").strip()

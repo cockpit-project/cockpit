@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-14 18:03+0000\n"
+"POT-Creation-Date: 2021-12-21 18:03+0000\n"
 "PO-Revision-Date: 2021-11-05 13:05+0000\n"
 "Last-Translator: Martin Pitt <mpitt@redhat.com>\n"
 "Language-Team: Chinese (Traditional) <https://translate.fedoraproject.org/"
@@ -114,7 +114,7 @@ msgstr "$0 磁碟"
 msgid "$0 documentation"
 msgstr "$0 核對"
 
-#: pkg/static/login.js:393 pkg/static/login.js:841
+#: pkg/static/login.js:393 pkg/static/login.js:897
 msgid "$0 error"
 msgstr "$0 錯誤"
 
@@ -182,7 +182,7 @@ msgstr "$0 正在積極使用"
 msgid "$0 is not available from any repository."
 msgstr "$0 在任何存儲庫中都不可用。"
 
-#: pkg/static/login.js:663 pkg/shell/hosts_dialog.jsx:451
+#: pkg/static/login.js:719 pkg/shell/hosts_dialog.jsx:451
 #, fuzzy
 #| msgid "Force change"
 msgid "$0 key changed"
@@ -620,7 +620,7 @@ msgstr ""
 msgid "Accept key and connect"
 msgstr ""
 
-#: pkg/static/login.js:578
+#: pkg/static/login.js:629
 msgid "Accept key and log in"
 msgstr ""
 
@@ -1056,7 +1056,7 @@ msgstr "認證"
 msgid "Authentication"
 msgstr "核對"
 
-#: pkg/static/login.js:831
+#: pkg/static/login.js:887
 #, fuzzy
 msgid "Authentication failed"
 msgstr ""
@@ -1065,7 +1065,7 @@ msgstr ""
 "#-#-#-#-#  zh_TW.po (PACKAGE VERSION)  #-#-#-#-#\n"
 "驗證失敗"
 
-#: pkg/static/login.js:821
+#: pkg/static/login.js:877
 msgid "Authentication failed: Server closed connection"
 msgstr "身份驗證失敗：伺服器已中斷連接"
 
@@ -1720,6 +1720,12 @@ msgstr "自動連接"
 
 #: pkg/static/login.html:103
 msgid "Connect to"
+msgstr "連接至"
+
+#: pkg/static/login.js:621
+#, fuzzy
+#| msgid "Connect to"
+msgid "Connect to:"
 msgstr "連接至"
 
 #: pkg/selinux/setroubleshoot-view.jsx:328
@@ -3296,7 +3302,7 @@ msgstr "介面"
 msgid "Internal error"
 msgstr "內部錯誤"
 
-#: pkg/static/login.js:811
+#: pkg/static/login.js:867
 msgid "Internal error: Invalid challenge header"
 msgstr "內部錯誤：無效的質詢標頭"
 
@@ -3749,7 +3755,7 @@ msgstr "加密數據"
 msgid "Locking $target"
 msgstr "鎖定 $target"
 
-#: pkg/static/login.html:115 pkg/static/login.js:578
+#: pkg/static/login.html:115 pkg/static/login.js:629
 #: pkg/shell/hosts_dialog.jsx:742 pkg/shell/failures.jsx:72
 msgid "Log in"
 msgstr "登入"
@@ -3760,7 +3766,7 @@ msgstr "登入"
 msgid "Log in to $0"
 msgstr "去"
 
-#: pkg/static/login.js:608
+#: pkg/static/login.js:664
 msgid "Log in with your server user account."
 msgstr "使用您的伺服器用戶帳號登錄。"
 
@@ -4364,7 +4370,7 @@ msgstr "在靴子上安裝"
 msgid "New NFS mount"
 msgstr "新的NFS安裝"
 
-#: pkg/static/login.js:667 pkg/shell/hosts_dialog.jsx:451
+#: pkg/static/login.js:723 pkg/shell/hosts_dialog.jsx:451
 #, fuzzy
 msgid "New host"
 msgstr "新增新的區域"
@@ -5060,7 +5066,7 @@ msgstr "永久"
 msgid "Permanently delete $0?"
 msgstr ""
 
-#: pkg/static/login.js:837
+#: pkg/static/login.js:893
 msgid "Permission denied"
 msgstr "使用權限被拒"
 
@@ -5128,7 +5134,7 @@ msgstr ""
 msgid "Please specify an expiration date"
 msgstr "請指定到期日期"
 
-#: pkg/static/login.js:526
+#: pkg/static/login.js:537
 msgid "Please specify the host to connect to"
 msgstr "請指定要連接的主機"
 
@@ -5435,6 +5441,12 @@ msgstr ""
 msgid "Receiving"
 msgstr "接收"
 
+#: pkg/static/login.html:161
+#, fuzzy
+#| msgid "Recent"
+msgid "Recent hosts"
+msgstr "最近開啟"
+
 #: pkg/shell/failures.jsx:71
 msgid "Reconnect"
 msgstr "重新連接"
@@ -5451,15 +5463,15 @@ msgstr "恢復RAID設備 $target"
 msgid "Refreshing package information"
 msgstr "套件資訊重新整理中"
 
-#: pkg/static/login.js:827
+#: pkg/static/login.js:883
 msgid "Refusing to connect. Host is unknown"
 msgstr "拒絕連接。主持人不明"
 
-#: pkg/static/login.js:829
+#: pkg/static/login.js:885
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "拒絕連接。 Hostkey不匹配"
 
-#: pkg/static/login.js:825
+#: pkg/static/login.js:881
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "拒絕連接。 Hostkey未知"
 
@@ -5564,6 +5576,12 @@ msgstr "刪除設備"
 
 #: pkg/storaged/vdo-details.jsx:107
 msgid "Remove device"
+msgstr "刪除設備"
+
+#: pkg/static/login.js:595
+#, fuzzy
+#| msgid "Remove device"
+msgid "Remove host"
 msgstr "刪除設備"
 
 #: pkg/networkmanager/ip-settings.jsx:198
@@ -6952,7 +6970,7 @@ msgid ""
 "email."
 msgstr ""
 
-#: pkg/static/login.js:819
+#: pkg/static/login.js:875
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -7240,7 +7258,7 @@ msgid ""
 msgstr ""
 "要獲得軟件更新，需要使用Red Hat客戶門戶或本地訂閱伺服器向Red Hat註冊此系統。"
 
-#: pkg/static/login.js:672 pkg/shell/hosts_dialog.jsx:463
+#: pkg/static/login.js:728 pkg/shell/hosts_dialog.jsx:463
 #: pkg/shell/hosts_dialog.jsx:474
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
@@ -7421,7 +7439,7 @@ msgstr "無法應用設置： $0"
 msgid "Unable to apply this solution automatically"
 msgstr "無法自動應用此解決方案"
 
-#: pkg/static/login.js:823
+#: pkg/static/login.js:879
 msgid "Unable to connect to that address"
 msgstr "無法連接到該地址"
 
@@ -7815,7 +7833,7 @@ msgstr "使用者"
 msgid "User name"
 msgstr "使用者名稱"
 
-#: pkg/static/login.js:524
+#: pkg/static/login.js:535
 msgid "User name cannot be empty"
 msgstr "用戶名不能為空"
 
@@ -8075,7 +8093,7 @@ msgstr "ReadWrite"
 msgid "Write-mostly"
 msgstr "寫大多"
 
-#: pkg/static/login.js:833
+#: pkg/static/login.js:889
 msgid "Wrong user name or password"
 msgstr "錯誤的用戶名或密碼"
 
@@ -8091,7 +8109,7 @@ msgstr ""
 msgid "Yes"
 msgstr "是"
 
-#: pkg/static/login.js:669 pkg/shell/hosts_dialog.jsx:470
+#: pkg/static/login.js:725 pkg/shell/hosts_dialog.jsx:470
 msgid "You are connecting to $0 for the first time."
 msgstr ""
 
@@ -10540,9 +10558,6 @@ msgstr ""
 #~| msgid "Password"
 #~ msgid "Password for $0"
 #~ msgstr "密碼"
-
-#~ msgid "Recent"
-#~ msgstr "最近開啟"
 
 #~ msgid "The user <b>$0</b> is not permitted to manage servers"
 #~ msgstr "用戶 <b>$0</b> 不允許管理伺服器"

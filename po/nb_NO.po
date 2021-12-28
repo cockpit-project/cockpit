@@ -26,7 +26,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-14 18:03+0000\n"
+"POT-Creation-Date: 2021-12-21 18:03+0000\n"
 "PO-Revision-Date: 2021-11-05 13:05+0000\n"
 "Last-Translator: Martin Pitt <mpitt@redhat.com>\n"
 "Language-Team: Norwegian Bokmål <https://translate.fedoraproject.org/"
@@ -138,7 +138,7 @@ msgstr "$0 disker"
 msgid "$0 documentation"
 msgstr "$0 dokumentasjon"
 
-#: pkg/static/login.js:393 pkg/static/login.js:841
+#: pkg/static/login.js:393 pkg/static/login.js:897
 msgid "$0 error"
 msgstr "$0 feil"
 
@@ -208,7 +208,7 @@ msgstr "$0 er i aktiv bruk"
 msgid "$0 is not available from any repository."
 msgstr "$0 er ikke tilgjengelig fra noe depot."
 
-#: pkg/static/login.js:663 pkg/shell/hosts_dialog.jsx:451
+#: pkg/static/login.js:719 pkg/shell/hosts_dialog.jsx:451
 msgid "$0 key changed"
 msgstr "$0 nøkkel endret"
 
@@ -658,7 +658,7 @@ msgstr "Fraværende"
 msgid "Accept key and connect"
 msgstr "Godta nøkkel og koble til"
 
-#: pkg/static/login.js:578
+#: pkg/static/login.js:629
 msgid "Accept key and log in"
 msgstr "Godta nøkkel og logg inn"
 
@@ -1082,11 +1082,11 @@ msgstr "Autentiserer"
 msgid "Authentication"
 msgstr "Autentisering"
 
-#: pkg/static/login.js:831
+#: pkg/static/login.js:887
 msgid "Authentication failed"
 msgstr "Autentisering feilet"
 
-#: pkg/static/login.js:821
+#: pkg/static/login.js:877
 msgid "Authentication failed: Server closed connection"
 msgstr "Autentisering feilet: Serveren lukket tilkoblingen"
 
@@ -1743,6 +1743,12 @@ msgstr "Koble til automatisk"
 
 #: pkg/static/login.html:103
 msgid "Connect to"
+msgstr "Koble til"
+
+#: pkg/static/login.js:621
+#, fuzzy
+#| msgid "Connect to"
+msgid "Connect to:"
 msgstr "Koble til"
 
 #: pkg/selinux/setroubleshoot-view.jsx:328
@@ -3293,7 +3299,7 @@ msgstr "Grensesnitt"
 msgid "Internal error"
 msgstr "Intern feil"
 
-#: pkg/static/login.js:811
+#: pkg/static/login.js:867
 msgid "Internal error: Invalid challenge header"
 msgstr ""
 
@@ -3741,7 +3747,7 @@ msgstr "Krypterte data"
 msgid "Locking $target"
 msgstr "Låser $target"
 
-#: pkg/static/login.html:115 pkg/static/login.js:578
+#: pkg/static/login.html:115 pkg/static/login.js:629
 #: pkg/shell/hosts_dialog.jsx:742 pkg/shell/failures.jsx:72
 msgid "Log in"
 msgstr "Logg inn"
@@ -3752,7 +3758,7 @@ msgstr "Logg inn"
 msgid "Log in to $0"
 msgstr "Gå til $0"
 
-#: pkg/static/login.js:608
+#: pkg/static/login.js:664
 msgid "Log in with your server user account."
 msgstr "Logg inn med server brukerkontoen din."
 
@@ -4314,7 +4320,7 @@ msgstr "Monter ved oppstart"
 msgid "New NFS mount"
 msgstr "Ny NFS-montering"
 
-#: pkg/static/login.js:667 pkg/shell/hosts_dialog.jsx:451
+#: pkg/static/login.js:723 pkg/shell/hosts_dialog.jsx:451
 msgid "New host"
 msgstr "Ny vert"
 
@@ -4984,7 +4990,7 @@ msgstr "Permanent"
 msgid "Permanently delete $0?"
 msgstr ""
 
-#: pkg/static/login.js:837
+#: pkg/static/login.js:893
 msgid "Permission denied"
 msgstr "Ingen tilgang"
 
@@ -5050,7 +5056,7 @@ msgstr "Last siden på nytt etter å ha løst problemet."
 msgid "Please specify an expiration date"
 msgstr "Angi en utløpsdato"
 
-#: pkg/static/login.js:526
+#: pkg/static/login.js:537
 msgid "Please specify the host to connect to"
 msgstr "Vennligst angi verten du vil koble til"
 
@@ -5351,6 +5357,12 @@ msgstr "Omstart systemet..."
 msgid "Receiving"
 msgstr "Mottar"
 
+#: pkg/static/login.html:161
+#, fuzzy
+#| msgid "Edit hosts"
+msgid "Recent hosts"
+msgstr "Rediger verter"
+
 #: pkg/shell/failures.jsx:71
 msgid "Reconnect"
 msgstr "Koble til på nytt"
@@ -5367,15 +5379,15 @@ msgstr "Gjenoppretter RAID enhet $target"
 msgid "Refreshing package information"
 msgstr "Oppdaterer pakkeinformasjon"
 
-#: pkg/static/login.js:827
+#: pkg/static/login.js:883
 msgid "Refusing to connect. Host is unknown"
 msgstr "Nekter å koble til. Verten er ukjent"
 
-#: pkg/static/login.js:829
+#: pkg/static/login.js:885
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "Nekter å koble til. Vertsnøkkel samsvarer ikke"
 
-#: pkg/static/login.js:825
+#: pkg/static/login.js:881
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "Nekter å koble til. Vertsnøkkel er ukjent"
 
@@ -5484,6 +5496,12 @@ msgstr "Fjern enheten"
 
 #: pkg/storaged/vdo-details.jsx:107
 msgid "Remove device"
+msgstr "Fjern enheten"
+
+#: pkg/static/login.js:595
+#, fuzzy
+#| msgid "Remove device"
+msgid "Remove host"
 msgstr "Fjern enheten"
 
 #: pkg/networkmanager/ip-settings.jsx:198
@@ -6885,7 +6903,7 @@ msgstr ""
 "Det resulterende fingeravtrykket er greit å dele via offentlige metoder, "
 "inkludert e-post."
 
-#: pkg/static/login.js:819
+#: pkg/static/login.js:875
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -7184,7 +7202,7 @@ msgstr ""
 "Hat, enten ved hjelp av Red Hat Customer Portal eller en lokal "
 "abonnementsserver."
 
-#: pkg/static/login.js:672 pkg/shell/hosts_dialog.jsx:463
+#: pkg/static/login.js:728 pkg/shell/hosts_dialog.jsx:463
 #: pkg/shell/hosts_dialog.jsx:474
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
@@ -7358,7 +7376,7 @@ msgstr "Kan ikke bruke innstillingene: $0"
 msgid "Unable to apply this solution automatically"
 msgstr "Kan ikke bruke denne løsningen automatisk"
 
-#: pkg/static/login.js:823
+#: pkg/static/login.js:879
 msgid "Unable to connect to that address"
 msgstr "Kan ikke koble til den adressen"
 
@@ -7738,7 +7756,7 @@ msgstr "Bruker"
 msgid "User name"
 msgstr "Brukernavn"
 
-#: pkg/static/login.js:524
+#: pkg/static/login.js:535
 msgid "User name cannot be empty"
 msgstr "Brukernavnet kan ikke være tomt"
 
@@ -7991,7 +8009,7 @@ msgstr "Skriv"
 msgid "Write-mostly"
 msgstr ""
 
-#: pkg/static/login.js:833
+#: pkg/static/login.js:889
 msgid "Wrong user name or password"
 msgstr "Feil brukernavn eller passord"
 
@@ -8007,7 +8025,7 @@ msgstr "Årlig"
 msgid "Yes"
 msgstr "Ja"
 
-#: pkg/static/login.js:669 pkg/shell/hosts_dialog.jsx:470
+#: pkg/static/login.js:725 pkg/shell/hosts_dialog.jsx:470
 msgid "You are connecting to $0 for the first time."
 msgstr "Du kobler til $0 for første gang."
 

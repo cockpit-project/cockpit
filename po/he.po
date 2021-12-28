@@ -24,7 +24,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-14 18:03+0000\n"
+"POT-Creation-Date: 2021-12-21 18:03+0000\n"
 "PO-Revision-Date: 2021-11-18 14:16+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language-Team: Hebrew <https://translate.fedoraproject.org/projects/cockpit/"
@@ -140,7 +140,7 @@ msgstr "$0 כוננים"
 msgid "$0 documentation"
 msgstr "התיעוד של $0"
 
-#: pkg/static/login.js:393 pkg/static/login.js:841
+#: pkg/static/login.js:393 pkg/static/login.js:897
 msgid "$0 error"
 msgstr "שגיאת $0"
 
@@ -214,7 +214,7 @@ msgstr "$0 בשימוש פעיל"
 msgid "$0 is not available from any repository."
 msgstr "$0 אינו זמין מאף מאגר."
 
-#: pkg/static/login.js:663 pkg/shell/hosts_dialog.jsx:451
+#: pkg/static/login.js:719 pkg/shell/hosts_dialog.jsx:451
 msgid "$0 key changed"
 msgstr "המפתח $0 השתנה"
 
@@ -679,7 +679,7 @@ msgstr "חסר"
 msgid "Accept key and connect"
 msgstr "לקבל את המפתח ולהתחבר"
 
-#: pkg/static/login.js:578
+#: pkg/static/login.js:629
 msgid "Accept key and log in"
 msgstr "לקבל את המפתח ולהיכנס"
 
@@ -1087,11 +1087,11 @@ msgstr "מתבצע אימות"
 msgid "Authentication"
 msgstr "אימות"
 
-#: pkg/static/login.js:831
+#: pkg/static/login.js:887
 msgid "Authentication failed"
 msgstr "האימות נכשל"
 
-#: pkg/static/login.js:821
+#: pkg/static/login.js:877
 msgid "Authentication failed: Server closed connection"
 msgstr "האימות נכשל: השרת סגר את החיבור"
 
@@ -1716,6 +1716,12 @@ msgstr "התחברות אוטומטית"
 
 #: pkg/static/login.html:103
 msgid "Connect to"
+msgstr "התחברות אל"
+
+#: pkg/static/login.js:621
+#, fuzzy
+#| msgid "Connect to"
+msgid "Connect to:"
 msgstr "התחברות אל"
 
 #: pkg/selinux/setroubleshoot-view.jsx:328
@@ -3189,7 +3195,7 @@ msgstr "מנשקים"
 msgid "Internal error"
 msgstr "שגיאה פנימה"
 
-#: pkg/static/login.js:811
+#: pkg/static/login.js:867
 msgid "Internal error: Invalid challenge header"
 msgstr "שגיאה פנימית: כותרת אתגר שגויה"
 
@@ -3607,7 +3613,7 @@ msgstr "נתונים מוצפנים נעולים"
 msgid "Locking $target"
 msgstr "$target ננעל"
 
-#: pkg/static/login.html:115 pkg/static/login.js:578
+#: pkg/static/login.html:115 pkg/static/login.js:629
 #: pkg/shell/hosts_dialog.jsx:742 pkg/shell/failures.jsx:72
 msgid "Log in"
 msgstr "כניסה"
@@ -3618,7 +3624,7 @@ msgstr "כניסה"
 msgid "Log in to $0"
 msgstr "לעבור אל $0"
 
-#: pkg/static/login.js:608
+#: pkg/static/login.js:664
 msgid "Log in with your server user account."
 msgstr "כניסה עם חשבון המשתמש שלך בשרת."
 
@@ -4169,7 +4175,7 @@ msgstr "לעולם לא לעגן בעלייה"
 msgid "New NFS mount"
 msgstr "עיגון NFS חדש"
 
-#: pkg/static/login.js:667 pkg/shell/hosts_dialog.jsx:451
+#: pkg/static/login.js:723 pkg/shell/hosts_dialog.jsx:451
 msgid "New host"
 msgstr "מארח חדש"
 
@@ -4822,7 +4828,7 @@ msgstr "קבוע"
 msgid "Permanently delete $0?"
 msgstr ""
 
-#: pkg/static/login.js:837
+#: pkg/static/login.js:893
 msgid "Permission denied"
 msgstr "ההרשאה נדחתה"
 
@@ -4888,7 +4894,7 @@ msgstr "נא לרענן את העמוד לאחר פתרון התקלה."
 msgid "Please specify an expiration date"
 msgstr "נא לציין מועד תפוגת תוקף"
 
-#: pkg/static/login.js:526
+#: pkg/static/login.js:537
 msgid "Please specify the host to connect to"
 msgstr "נא לציין את המארח לחיבור"
 
@@ -5189,6 +5195,12 @@ msgstr "הפעלת המערכת מחדש…"
 msgid "Receiving"
 msgstr "קבלה"
 
+#: pkg/static/login.html:161
+#, fuzzy
+#| msgid "Recent"
+msgid "Recent hosts"
+msgstr "אחרונים"
+
 #: pkg/shell/failures.jsx:71
 msgid "Reconnect"
 msgstr "התחברות מחדש"
@@ -5205,15 +5217,15 @@ msgstr "התקן ה־RAID‏ $target עובר שיקום"
 msgid "Refreshing package information"
 msgstr "פרטי החבילה מתרעננים"
 
-#: pkg/static/login.js:827
+#: pkg/static/login.js:883
 msgid "Refusing to connect. Host is unknown"
 msgstr "החיבור מסורב. המארח אינו מוכר"
 
-#: pkg/static/login.js:829
+#: pkg/static/login.js:885
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "החיבור מסורב. מפתח המארח לא תואם"
 
-#: pkg/static/login.js:825
+#: pkg/static/login.js:881
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "החיבור מסורב. מפתח המארח אינו מוכר"
 
@@ -5320,6 +5332,12 @@ msgstr "הסרת התקן"
 
 #: pkg/storaged/vdo-details.jsx:107
 msgid "Remove device"
+msgstr "הסרת התקן"
+
+#: pkg/static/login.js:595
+#, fuzzy
+#| msgid "Remove device"
+msgid "Remove host"
 msgstr "הסרת התקן"
 
 #: pkg/networkmanager/ip-settings.jsx:198
@@ -6701,7 +6719,7 @@ msgid ""
 "email."
 msgstr "זה בסדר לשתף את טביעת האצבע באופן ציבורי, לרבות בדוא״ל."
 
-#: pkg/static/login.js:819
+#: pkg/static/login.js:875
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -6994,7 +7012,7 @@ msgstr ""
 "כדי לקבל עדכוני תכנה, יש לרשום את המערכת הזאת ב־Red Hat, או דרך פורטל "
 "הלקוחות של Red Hat או דרך שרת מינוי מקומי."
 
-#: pkg/static/login.js:672 pkg/shell/hosts_dialog.jsx:463
+#: pkg/static/login.js:728 pkg/shell/hosts_dialog.jsx:463
 #: pkg/shell/hosts_dialog.jsx:474
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
@@ -7167,7 +7185,7 @@ msgstr "לא ניתן להחיל את ההגדרות: $0"
 msgid "Unable to apply this solution automatically"
 msgstr "לא ניתן להחיל את הפתרון הזה אוטומטית"
 
-#: pkg/static/login.js:823
+#: pkg/static/login.js:879
 msgid "Unable to connect to that address"
 msgstr "לא ניתן להתחבר לכתובת הזו"
 
@@ -7548,7 +7566,7 @@ msgstr "משתמש"
 msgid "User name"
 msgstr "שם משתמש"
 
-#: pkg/static/login.js:524
+#: pkg/static/login.js:535
 msgid "User name cannot be empty"
 msgstr "שם המשתמש לא יכול להיות ריק"
 
@@ -7798,7 +7816,7 @@ msgstr "כתיבה"
 msgid "Write-mostly"
 msgstr "בעיקר כתיבה"
 
-#: pkg/static/login.js:833
+#: pkg/static/login.js:889
 msgid "Wrong user name or password"
 msgstr "שם משתמש או ססמה שגויים"
 
@@ -7814,7 +7832,7 @@ msgstr "שנתי"
 msgid "Yes"
 msgstr "כן"
 
-#: pkg/static/login.js:669 pkg/shell/hosts_dialog.jsx:470
+#: pkg/static/login.js:725 pkg/shell/hosts_dialog.jsx:470
 msgid "You are connecting to $0 for the first time."
 msgstr "זאת ההתחברות הראשונה שלך אל $0."
 
@@ -10918,9 +10936,6 @@ msgstr "אזור"
 
 #~ msgid "Password for $0"
 #~ msgstr "ססמה עבור $0"
-
-#~ msgid "Recent"
-#~ msgstr "אחרונים"
 
 #~ msgid "The user <b>$0</b> is not permitted to manage servers"
 #~ msgstr "המשתמש <b>$0</b> אינו מורשה לנהל שרתים"

@@ -20,7 +20,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-14 18:03+0000\n"
+"POT-Creation-Date: 2021-12-21 18:03+0000\n"
 "PO-Revision-Date: 2021-11-05 13:05+0000\n"
 "Last-Translator: Martin Pitt <mpitt@redhat.com>\n"
 "Language-Team: Portuguese (Brazil) <https://translate.fedoraproject.org/"
@@ -128,7 +128,7 @@ msgstr "$0 Discos"
 msgid "$0 documentation"
 msgstr "$0 documentação"
 
-#: pkg/static/login.js:393 pkg/static/login.js:841
+#: pkg/static/login.js:393 pkg/static/login.js:897
 msgid "$0 error"
 msgstr "$0 erro"
 
@@ -199,7 +199,7 @@ msgstr "$0 está ativo e em uso"
 msgid "$0 is not available from any repository."
 msgstr "$0 não está disponível em nenhum repositório."
 
-#: pkg/static/login.js:663 pkg/shell/hosts_dialog.jsx:451
+#: pkg/static/login.js:719 pkg/shell/hosts_dialog.jsx:451
 msgid "$0 key changed"
 msgstr "$0 chave alterada"
 
@@ -656,7 +656,7 @@ msgstr "Ausente"
 msgid "Accept key and connect"
 msgstr "Aceitar a chave e conectar"
 
-#: pkg/static/login.js:578
+#: pkg/static/login.js:629
 msgid "Accept key and log in"
 msgstr "Aceitar a chave e entrar"
 
@@ -1076,11 +1076,11 @@ msgstr "Autenticando"
 msgid "Authentication"
 msgstr "Autenticação"
 
-#: pkg/static/login.js:831
+#: pkg/static/login.js:887
 msgid "Authentication failed"
 msgstr "Falha na Autenticação"
 
-#: pkg/static/login.js:821
+#: pkg/static/login.js:877
 msgid "Authentication failed: Server closed connection"
 msgstr "Falha na Autenticação: Conexão encerrada com servidor"
 
@@ -1736,6 +1736,12 @@ msgstr "Conecte automaticamente"
 
 #: pkg/static/login.html:103
 msgid "Connect to"
+msgstr "Conectar à"
+
+#: pkg/static/login.js:621
+#, fuzzy
+#| msgid "Connect to"
+msgid "Connect to:"
 msgstr "Conectar à"
 
 #: pkg/selinux/setroubleshoot-view.jsx:328
@@ -3275,7 +3281,7 @@ msgstr "Interfaces"
 msgid "Internal error"
 msgstr "Erro interno"
 
-#: pkg/static/login.js:811
+#: pkg/static/login.js:867
 msgid "Internal error: Invalid challenge header"
 msgstr "Erro interno: Cabeçalho de desafio inválido"
 
@@ -3713,7 +3719,7 @@ msgstr "Dados encriptados"
 msgid "Locking $target"
 msgstr "Bloqueando $target"
 
-#: pkg/static/login.html:115 pkg/static/login.js:578
+#: pkg/static/login.html:115 pkg/static/login.js:629
 #: pkg/shell/hosts_dialog.jsx:742 pkg/shell/failures.jsx:72
 msgid "Log in"
 msgstr "Entrar"
@@ -3724,7 +3730,7 @@ msgstr "Entrar"
 msgid "Log in to $0"
 msgstr "Ir para $0"
 
-#: pkg/static/login.js:608
+#: pkg/static/login.js:664
 msgid "Log in with your server user account."
 msgstr "Faça o login com sua conta de usuário do servidor."
 
@@ -4304,7 +4310,7 @@ msgstr "Monte na Inicialização"
 msgid "New NFS mount"
 msgstr "Nova montagem de volume NFS"
 
-#: pkg/static/login.js:667 pkg/shell/hosts_dialog.jsx:451
+#: pkg/static/login.js:723 pkg/shell/hosts_dialog.jsx:451
 msgid "New host"
 msgstr "Novo host"
 
@@ -4975,7 +4981,7 @@ msgstr "Permanente"
 msgid "Permanently delete $0?"
 msgstr ""
 
-#: pkg/static/login.js:837
+#: pkg/static/login.js:893
 msgid "Permission denied"
 msgstr "Permissão negada"
 
@@ -5042,7 +5048,7 @@ msgstr ""
 msgid "Please specify an expiration date"
 msgstr "Por favor especifique uma data de expiração"
 
-#: pkg/static/login.js:526
+#: pkg/static/login.js:537
 msgid "Please specify the host to connect to"
 msgstr "Por favor, especifique o host para se conectar"
 
@@ -5346,6 +5352,12 @@ msgstr ""
 msgid "Receiving"
 msgstr "Recebendo"
 
+#: pkg/static/login.html:161
+#, fuzzy
+#| msgid "Recent"
+msgid "Recent hosts"
+msgstr "Recente"
+
 #: pkg/shell/failures.jsx:71
 msgid "Reconnect"
 msgstr "Reconectar"
@@ -5362,15 +5374,15 @@ msgstr "Recuperando Dispositivo RAID $target"
 msgid "Refreshing package information"
 msgstr "Atualizando informações do pacote"
 
-#: pkg/static/login.js:827
+#: pkg/static/login.js:883
 msgid "Refusing to connect. Host is unknown"
 msgstr "Recusando-se a se conectar. O host é desconhecido"
 
-#: pkg/static/login.js:829
+#: pkg/static/login.js:885
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "Recusando-se a se conectar. A chave não coincide"
 
-#: pkg/static/login.js:825
+#: pkg/static/login.js:881
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "Recusando-se a se conectar. A chave é desconhecida"
 
@@ -5475,6 +5487,12 @@ msgstr "Remover dispositivo"
 
 #: pkg/storaged/vdo-details.jsx:107
 msgid "Remove device"
+msgstr "Remover dispositivo"
+
+#: pkg/static/login.js:595
+#, fuzzy
+#| msgid "Remove device"
+msgid "Remove host"
 msgstr "Remover dispositivo"
 
 #: pkg/networkmanager/ip-settings.jsx:198
@@ -6854,7 +6872,7 @@ msgid ""
 "email."
 msgstr ""
 
-#: pkg/static/login.js:819
+#: pkg/static/login.js:875
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -7160,7 +7178,7 @@ msgstr ""
 "Red Hat, usando o Portal do Cliente Red Hat ou um servidor de assinatura "
 "local."
 
-#: pkg/static/login.js:672 pkg/shell/hosts_dialog.jsx:463
+#: pkg/static/login.js:728 pkg/shell/hosts_dialog.jsx:463
 #: pkg/shell/hosts_dialog.jsx:474
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
@@ -7330,7 +7348,7 @@ msgstr "ão é possível aplicar as configurações: $0"
 msgid "Unable to apply this solution automatically"
 msgstr "Não é possível aplicar esta solução automaticamente"
 
-#: pkg/static/login.js:823
+#: pkg/static/login.js:879
 msgid "Unable to connect to that address"
 msgstr "Não é possível conectar a esse endereço"
 
@@ -7709,7 +7727,7 @@ msgstr "Usuário"
 msgid "User name"
 msgstr "Nome do usuário"
 
-#: pkg/static/login.js:524
+#: pkg/static/login.js:535
 msgid "User name cannot be empty"
 msgstr "O nome de usuário não pode estar vazio"
 
@@ -7961,7 +7979,7 @@ msgstr "Escrita"
 msgid "Write-mostly"
 msgstr "Maioria-Escrita"
 
-#: pkg/static/login.js:833
+#: pkg/static/login.js:889
 msgid "Wrong user name or password"
 msgstr "Nome de usuário ou senha incorretos"
 
@@ -7977,7 +7995,7 @@ msgstr ""
 msgid "Yes"
 msgstr "Sim"
 
-#: pkg/static/login.js:669 pkg/shell/hosts_dialog.jsx:470
+#: pkg/static/login.js:725 pkg/shell/hosts_dialog.jsx:470
 msgid "You are connecting to $0 for the first time."
 msgstr ""
 
@@ -10746,9 +10764,6 @@ msgstr "zona"
 #~| msgid "Password"
 #~ msgid "Password for $0"
 #~ msgstr "Senha"
-
-#~ msgid "Recent"
-#~ msgstr "Recente"
 
 #~ msgid "The user <b>$0</b> is not permitted to manage servers"
 #~ msgstr "O usuário <b>$0</b> não tem permissão para gerenciar servidores"

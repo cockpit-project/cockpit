@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-14 18:03+0000\n"
+"POT-Creation-Date: 2021-12-21 18:03+0000\n"
 "PO-Revision-Date: 2021-12-04 07:16+0000\n"
 "Last-Translator: Pavel Borecki <pavel.borecki@gmail.com>\n"
 "Language-Team: Czech <https://translate.fedoraproject.org/projects/cockpit/"
@@ -126,7 +126,7 @@ msgstr "$0 Disky"
 msgid "$0 documentation"
 msgstr "Dokumentace k $0"
 
-#: pkg/static/login.js:393 pkg/static/login.js:841
+#: pkg/static/login.js:393 pkg/static/login.js:897
 msgid "$0 error"
 msgstr "$0 chyba"
 
@@ -197,7 +197,7 @@ msgstr "$0 je právě používáno"
 msgid "$0 is not available from any repository."
 msgstr "$0 není k dispozici z žádného z repozitářů."
 
-#: pkg/static/login.js:663 pkg/shell/hosts_dialog.jsx:451
+#: pkg/static/login.js:719 pkg/shell/hosts_dialog.jsx:451
 msgid "$0 key changed"
 msgstr "$0 klíč změněn"
 
@@ -660,7 +660,7 @@ msgstr "Chybí"
 msgid "Accept key and connect"
 msgstr "Přijmout klíč a připojit se"
 
-#: pkg/static/login.js:578
+#: pkg/static/login.js:629
 msgid "Accept key and log in"
 msgstr "Přijmout klíč a přihlásit se"
 
@@ -1095,11 +1095,11 @@ msgstr "Ověřování"
 msgid "Authentication"
 msgstr "Ověření"
 
-#: pkg/static/login.js:831
+#: pkg/static/login.js:887
 msgid "Authentication failed"
 msgstr "Ověření se nezdařilo"
 
-#: pkg/static/login.js:821
+#: pkg/static/login.js:877
 msgid "Authentication failed: Server closed connection"
 msgstr "Ověření se nezdařilo: Server přerušil spojení"
 
@@ -1770,6 +1770,12 @@ msgstr "Připojit se automaticky"
 
 #: pkg/static/login.html:103
 msgid "Connect to"
+msgstr "Připojit se k"
+
+#: pkg/static/login.js:621
+#, fuzzy
+#| msgid "Connect to"
+msgid "Connect to:"
 msgstr "Připojit se k"
 
 #: pkg/selinux/setroubleshoot-view.jsx:328
@@ -3394,7 +3400,7 @@ msgstr "Rozhraní"
 msgid "Internal error"
 msgstr "Vnitřní chyba"
 
-#: pkg/static/login.js:811
+#: pkg/static/login.js:867
 msgid "Internal error: Invalid challenge header"
 msgstr "Vnitřní chyba: neplatná hlavička výzvy"
 
@@ -3835,7 +3841,7 @@ msgstr "Uzamyká se $target"
 
 # auto translated by TM merge from project: python-fedora, version: 0.4.0,
 # DocId: python-fedora
-#: pkg/static/login.html:115 pkg/static/login.js:578
+#: pkg/static/login.html:115 pkg/static/login.js:629
 #: pkg/shell/hosts_dialog.jsx:742 pkg/shell/failures.jsx:72
 msgid "Log in"
 msgstr "Přihlásit"
@@ -3846,7 +3852,7 @@ msgstr "Přihlásit"
 msgid "Log in to $0"
 msgstr "Jít na $0"
 
-#: pkg/static/login.js:608
+#: pkg/static/login.js:664
 msgid "Log in with your server user account."
 msgstr "Přihlášení pomocí uživatelského účtu na tomto serveru."
 
@@ -4436,7 +4442,7 @@ msgstr "Nikdy nepřipojovat při startu systému"
 msgid "New NFS mount"
 msgstr "Nové NFS připojení"
 
-#: pkg/static/login.js:667 pkg/shell/hosts_dialog.jsx:451
+#: pkg/static/login.js:723 pkg/shell/hosts_dialog.jsx:451
 msgid "New host"
 msgstr "Nový hostitel"
 
@@ -5140,7 +5146,7 @@ msgstr "Nadobro smazat $0?"
 
 # auto translated by TM merge from project: Linux PAM, version: master, DocId:
 # po/Linux-PAM
-#: pkg/static/login.js:837
+#: pkg/static/login.js:893
 msgid "Permission denied"
 msgstr "Přístup zamítnut"
 
@@ -5206,7 +5212,7 @@ msgstr "Po vyřešení problému stránku načtěte znovu."
 msgid "Please specify an expiration date"
 msgstr "Zadejte datum skončení platnosti"
 
-#: pkg/static/login.js:526
+#: pkg/static/login.js:537
 msgid "Please specify the host to connect to"
 msgstr "Zadejte stroj ke kterému se připojit"
 
@@ -5526,6 +5532,12 @@ msgstr "Restartovat systém…"
 msgid "Receiving"
 msgstr "Příchozí"
 
+#: pkg/static/login.html:161
+#, fuzzy
+#| msgid "Recent"
+msgid "Recent hosts"
+msgstr "Nedávné"
+
 #: pkg/shell/failures.jsx:71
 msgid "Reconnect"
 msgstr "Znovu připojit"
@@ -5542,15 +5554,15 @@ msgstr "Zotavování RAID zařízení $target"
 msgid "Refreshing package information"
 msgstr "Obnovují se informace o balíčcích"
 
-#: pkg/static/login.js:827
+#: pkg/static/login.js:883
 msgid "Refusing to connect. Host is unknown"
 msgstr "Odmítá se připojit. Stroj není znám"
 
-#: pkg/static/login.js:829
+#: pkg/static/login.js:885
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "Odmítá se připojit. Klíč stroje neodpovídá"
 
-#: pkg/static/login.js:825
+#: pkg/static/login.js:881
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "Odmítá se připojit. Klíč stroje není znám"
 
@@ -5655,6 +5667,12 @@ msgstr "Odebrat zařízení"
 
 #: pkg/storaged/vdo-details.jsx:107
 msgid "Remove device"
+msgstr "Odebrat zařízení"
+
+#: pkg/static/login.js:595
+#, fuzzy
+#| msgid "Remove device"
+msgid "Remove host"
 msgstr "Odebrat zařízení"
 
 #: pkg/networkmanager/ip-settings.jsx:198
@@ -7096,7 +7114,7 @@ msgid ""
 "email."
 msgstr "Výsledný otisk je možné sdílet veřejnými způsoby, včetně e-mailu."
 
-#: pkg/static/login.js:819
+#: pkg/static/login.js:875
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -7412,7 +7430,7 @@ msgstr ""
 "Pro získávání aktualizací software je třeba systém zaregistrovat u Red Hat, "
 "buď pomocí Red Hat portálu pro zákazníky nebo místního serveru předplatného."
 
-#: pkg/static/login.js:672 pkg/shell/hosts_dialog.jsx:463
+#: pkg/static/login.js:728 pkg/shell/hosts_dialog.jsx:463
 #: pkg/shell/hosts_dialog.jsx:474
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
@@ -7592,7 +7610,7 @@ msgstr "Nastavení se nedaří uplatnit: $0"
 msgid "Unable to apply this solution automatically"
 msgstr "Nedaří se automaticky uplatnit toto řešení"
 
-#: pkg/static/login.js:823
+#: pkg/static/login.js:879
 msgid "Unable to connect to that address"
 msgstr "K této adrese se nedaří připojit"
 
@@ -7988,7 +8006,7 @@ msgstr "Uživatel"
 msgid "User name"
 msgstr "Uživatelské jméno"
 
-#: pkg/static/login.js:524
+#: pkg/static/login.js:535
 msgid "User name cannot be empty"
 msgstr "Uživatelské jméno je třeba vyplnit"
 
@@ -8249,7 +8267,7 @@ msgstr "Zápis"
 msgid "Write-mostly"
 msgstr "Převážně zápis"
 
-#: pkg/static/login.js:833
+#: pkg/static/login.js:889
 msgid "Wrong user name or password"
 msgstr "Chybné uživatelské jméno nebo heslo"
 
@@ -8267,7 +8285,7 @@ msgstr "Každý rok"
 msgid "Yes"
 msgstr "Ano"
 
-#: pkg/static/login.js:669 pkg/shell/hosts_dialog.jsx:470
+#: pkg/static/login.js:725 pkg/shell/hosts_dialog.jsx:470
 msgid "You are connecting to $0 for the first time."
 msgstr "K $0 se připojujete poprvé."
 
@@ -11592,9 +11610,6 @@ msgstr "zóna"
 # po/ipa
 #~ msgid "Password for $0"
 #~ msgstr "Heslo pro $0"
-
-#~ msgid "Recent"
-#~ msgstr "Nedávné"
 
 #~ msgid "The user <b>$0</b> is not permitted to manage servers"
 #~ msgstr "Uživatel <b>$0</b> není oprávněn spravovat servery"

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-14 18:03+0000\n"
+"POT-Creation-Date: 2021-12-21 18:03+0000\n"
 "PO-Revision-Date: 2021-11-05 13:05+0000\n"
 "Last-Translator: Martin Pitt <mpitt@redhat.com>\n"
 "Language-Team: Russian <https://translate.fedoraproject.org/projects/cockpit/"
@@ -130,7 +130,7 @@ msgstr "дисков: $0"
 msgid "$0 documentation"
 msgstr "Документация $0"
 
-#: pkg/static/login.js:393 pkg/static/login.js:841
+#: pkg/static/login.js:393 pkg/static/login.js:897
 msgid "$0 error"
 msgstr "Ошибка $0"
 
@@ -203,7 +203,7 @@ msgstr "$0 активно используется"
 msgid "$0 is not available from any repository."
 msgstr "Компонент $0 недоступен в репозиториях."
 
-#: pkg/static/login.js:663 pkg/shell/hosts_dialog.jsx:451
+#: pkg/static/login.js:719 pkg/shell/hosts_dialog.jsx:451
 msgid "$0 key changed"
 msgstr "Изменен $0 ключ"
 
@@ -674,7 +674,7 @@ msgstr "Отсутствует"
 msgid "Accept key and connect"
 msgstr "Принять ключ и подключиться"
 
-#: pkg/static/login.js:578
+#: pkg/static/login.js:629
 msgid "Accept key and log in"
 msgstr "Принять ключ и войти в систему"
 
@@ -1123,7 +1123,7 @@ msgstr "Проверка подлинности"
 msgid "Authentication"
 msgstr "Проверка подлинности"
 
-#: pkg/static/login.js:831
+#: pkg/static/login.js:887
 #, fuzzy
 msgid "Authentication failed"
 msgstr ""
@@ -1132,7 +1132,7 @@ msgstr ""
 "#-#-#-#-#  ru.po (PACKAGE VERSION)  #-#-#-#-#\n"
 "Не удалось выполнить проверку подлинности"
 
-#: pkg/static/login.js:821
+#: pkg/static/login.js:877
 msgid "Authentication failed: Server closed connection"
 msgstr "Не удалось выполнить проверку подлинности: сервер закрыл соединение"
 
@@ -1799,6 +1799,12 @@ msgstr "Подключаться автоматически"
 
 #: pkg/static/login.html:103
 msgid "Connect to"
+msgstr "Подключиться к"
+
+#: pkg/static/login.js:621
+#, fuzzy
+#| msgid "Connect to"
+msgid "Connect to:"
 msgstr "Подключиться к"
 
 #: pkg/selinux/setroubleshoot-view.jsx:328
@@ -3391,7 +3397,7 @@ msgstr "Интерфейсы"
 msgid "Internal error"
 msgstr "Внутренняя ошибка"
 
-#: pkg/static/login.js:811
+#: pkg/static/login.js:867
 msgid "Internal error: Invalid challenge header"
 msgstr "Внутренняя ошибка: недопустимый заголовок запроса"
 
@@ -3856,7 +3862,7 @@ msgstr "Зашифрованные данные"
 msgid "Locking $target"
 msgstr "Блокировка $target"
 
-#: pkg/static/login.html:115 pkg/static/login.js:578
+#: pkg/static/login.html:115 pkg/static/login.js:629
 #: pkg/shell/hosts_dialog.jsx:742 pkg/shell/failures.jsx:72
 msgid "Log in"
 msgstr "Войти"
@@ -3867,7 +3873,7 @@ msgstr "Войти"
 msgid "Log in to $0"
 msgstr "Переход..."
 
-#: pkg/static/login.js:608
+#: pkg/static/login.js:664
 msgid "Log in with your server user account."
 msgstr "Войдите в систему с помощью своей учётной записи пользователя сервера."
 
@@ -4482,7 +4488,7 @@ msgstr "Подключение при загрузке"
 msgid "New NFS mount"
 msgstr "Новое подключение по NFS"
 
-#: pkg/static/login.js:667 pkg/shell/hosts_dialog.jsx:451
+#: pkg/static/login.js:723 pkg/shell/hosts_dialog.jsx:451
 #, fuzzy
 msgid "New host"
 msgstr "Добавить новую зону"
@@ -5184,7 +5190,7 @@ msgstr "Постоянный"
 msgid "Permanently delete $0?"
 msgstr ""
 
-#: pkg/static/login.js:837
+#: pkg/static/login.js:893
 msgid "Permission denied"
 msgstr "В разрешении отказано"
 
@@ -5254,7 +5260,7 @@ msgstr ""
 msgid "Please specify an expiration date"
 msgstr "Укажите дату окончания срока действия"
 
-#: pkg/static/login.js:526
+#: pkg/static/login.js:537
 msgid "Please specify the host to connect to"
 msgstr "Укажите узел для подключения"
 
@@ -5560,6 +5566,12 @@ msgstr ""
 msgid "Receiving"
 msgstr "Приём"
 
+#: pkg/static/login.html:161
+#, fuzzy
+#| msgid "Recent"
+msgid "Recent hosts"
+msgstr "Недавние"
+
 #: pkg/shell/failures.jsx:71
 msgid "Reconnect"
 msgstr "Повторить подключение"
@@ -5576,15 +5588,15 @@ msgstr "Восстановление RAID-устройства $target"
 msgid "Refreshing package information"
 msgstr "Обновление сведений о пакете"
 
-#: pkg/static/login.js:827
+#: pkg/static/login.js:883
 msgid "Refusing to connect. Host is unknown"
 msgstr "Отказано в подключении. Неизвестный узел"
 
-#: pkg/static/login.js:829
+#: pkg/static/login.js:885
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "Отказано в подключении. Неверный ключ узла"
 
-#: pkg/static/login.js:825
+#: pkg/static/login.js:881
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "Отказано в подключении. Неизвестный ключ узла"
 
@@ -5693,6 +5705,12 @@ msgstr "Удалить устройство"
 
 #: pkg/storaged/vdo-details.jsx:107
 msgid "Remove device"
+msgstr "Удалить устройство"
+
+#: pkg/static/login.js:595
+#, fuzzy
+#| msgid "Remove device"
+msgid "Remove host"
 msgstr "Удалить устройство"
 
 #: pkg/networkmanager/ip-settings.jsx:198
@@ -7137,7 +7155,7 @@ msgid ""
 "email."
 msgstr ""
 
-#: pkg/static/login.js:819
+#: pkg/static/login.js:875
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -7453,7 +7471,7 @@ msgstr ""
 "зарегистрирована Red Hat с использованием либо клиентского портала Red Hat, "
 "либо локального сервера подписки."
 
-#: pkg/static/login.js:672 pkg/shell/hosts_dialog.jsx:463
+#: pkg/static/login.js:728 pkg/shell/hosts_dialog.jsx:463
 #: pkg/shell/hosts_dialog.jsx:474
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
@@ -7639,7 +7657,7 @@ msgstr "Не удалось применить параметры: $0"
 msgid "Unable to apply this solution automatically"
 msgstr "Не удалось применить это решение автоматически"
 
-#: pkg/static/login.js:823
+#: pkg/static/login.js:879
 msgid "Unable to connect to that address"
 msgstr "Не удалось подключиться к адресу"
 
@@ -8033,7 +8051,7 @@ msgstr "Пользователь"
 msgid "User name"
 msgstr "Имя пользователя"
 
-#: pkg/static/login.js:524
+#: pkg/static/login.js:535
 msgid "User name cannot be empty"
 msgstr "Имя пользователя не может быть пустым"
 
@@ -8299,7 +8317,7 @@ msgstr "Для записи"
 msgid "Write-mostly"
 msgstr "В основном запись"
 
-#: pkg/static/login.js:833
+#: pkg/static/login.js:889
 msgid "Wrong user name or password"
 msgstr "Неверное имя пользователя или пароль"
 
@@ -8315,7 +8333,7 @@ msgstr ""
 msgid "Yes"
 msgstr "Да"
 
-#: pkg/static/login.js:669 pkg/shell/hosts_dialog.jsx:470
+#: pkg/static/login.js:725 pkg/shell/hosts_dialog.jsx:470
 msgid "You are connecting to $0 for the first time."
 msgstr ""
 
@@ -11540,9 +11558,6 @@ msgstr "зона"
 
 #~ msgid "Password for $0"
 #~ msgstr "Пароль для $0"
-
-#~ msgid "Recent"
-#~ msgstr "Недавние"
 
 #~ msgid "The user <b>$0</b> is not permitted to manage servers"
 #~ msgstr "Пользователю <b>$0</b> запрещено управлять серверами"

@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-14 18:03+0000\n"
-"PO-Revision-Date: 2021-12-15 17:12+0000\n"
+"POT-Creation-Date: 2021-12-21 18:03+0000\n"
+"PO-Revision-Date: 2021-12-24 16:16+0000\n"
 "Last-Translator: Geert Warrink <geert.warrink@onsnet.nu>\n"
 "Language-Team: Dutch <https://translate.fedoraproject.org/projects/cockpit/"
 "main/nl/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1\n"
-"X-Generator: Weblate 4.9.1\n"
+"X-Generator: Weblate 4.10.1\n"
 
 #: pkg/storaged/content-views.jsx:496
 msgid "$0 (encrypted)"
@@ -106,7 +106,7 @@ msgstr "$0 schijven"
 msgid "$0 documentation"
 msgstr "$0 documentatie"
 
-#: pkg/static/login.js:393 pkg/static/login.js:841
+#: pkg/static/login.js:393 pkg/static/login.js:897
 msgid "$0 error"
 msgstr "$0 fout"
 
@@ -171,7 +171,7 @@ msgstr "$0 is in actief gebruik"
 msgid "$0 is not available from any repository."
 msgstr "$0 is van geen enkele repository beschikbaar."
 
-#: pkg/static/login.js:663 pkg/shell/hosts_dialog.jsx:451
+#: pkg/static/login.js:719 pkg/shell/hosts_dialog.jsx:451
 msgid "$0 key changed"
 msgstr "$0 sleutel gewijzigd"
 
@@ -613,7 +613,7 @@ msgstr "Afwezig"
 msgid "Accept key and connect"
 msgstr "Accepteer sleutel en maak verbinding"
 
-#: pkg/static/login.js:578
+#: pkg/static/login.js:629
 msgid "Accept key and log in"
 msgstr "Accepteer sleutel en log in"
 
@@ -1027,11 +1027,11 @@ msgstr "Authenticatie uitvoeren"
 msgid "Authentication"
 msgstr "Authenticatie"
 
-#: pkg/static/login.js:831
+#: pkg/static/login.js:887
 msgid "Authentication failed"
 msgstr "Authenticatie mislukte"
 
-#: pkg/static/login.js:821
+#: pkg/static/login.js:877
 msgid "Authentication failed: Server closed connection"
 msgstr "Authenticatie mislukte: Server verbrak verbinding"
 
@@ -1668,6 +1668,10 @@ msgstr "Verbind automatisch"
 #: pkg/static/login.html:103
 msgid "Connect to"
 msgstr "Verbinden met"
+
+#: pkg/static/login.js:621
+msgid "Connect to:"
+msgstr "Verbinden met:"
 
 #: pkg/selinux/setroubleshoot-view.jsx:328
 msgid "Connecting to SETroubleshoot daemon..."
@@ -3114,7 +3118,7 @@ msgstr "Interfaces"
 msgid "Internal error"
 msgstr "Interne fout"
 
-#: pkg/static/login.js:811
+#: pkg/static/login.js:867
 msgid "Internal error: Invalid challenge header"
 msgstr "Interne fout: ongeldige exceptie koptekst"
 
@@ -3520,7 +3524,7 @@ msgstr "Vergrendelde versleutelde data"
 msgid "Locking $target"
 msgstr "$target vergrendelen"
 
-#: pkg/static/login.html:115 pkg/static/login.js:578
+#: pkg/static/login.html:115 pkg/static/login.js:629
 #: pkg/shell/hosts_dialog.jsx:742 pkg/shell/failures.jsx:72
 msgid "Log in"
 msgstr "Inloggen"
@@ -3529,7 +3533,7 @@ msgstr "Inloggen"
 msgid "Log in to $0"
 msgstr "Log in op $0"
 
-#: pkg/static/login.js:608
+#: pkg/static/login.js:664
 msgid "Log in with your server user account."
 msgstr "Log in met je servergebruikersaccount."
 
@@ -4078,7 +4082,7 @@ msgstr "Nooit aankoppelen tijdens het opstarten"
 msgid "New NFS mount"
 msgstr "Nieuwe NFS-aankoppeling"
 
-#: pkg/static/login.js:667 pkg/shell/hosts_dialog.jsx:451
+#: pkg/static/login.js:723 pkg/shell/hosts_dialog.jsx:451
 msgid "New host"
 msgstr "Nieuwe host"
 
@@ -4715,7 +4719,7 @@ msgstr "Blijvend"
 msgid "Permanently delete $0?"
 msgstr "$0 permanent verwijderen?"
 
-#: pkg/static/login.js:837
+#: pkg/static/login.js:893
 msgid "Permission denied"
 msgstr "Toestemming geweigerd"
 
@@ -4781,7 +4785,7 @@ msgstr "Laad de pagina opnieuw nadat je het probleem hebt opgelost."
 msgid "Please specify an expiration date"
 msgstr "Geef een vervaldatum op"
 
-#: pkg/static/login.js:526
+#: pkg/static/login.js:537
 msgid "Please specify the host to connect to"
 msgstr "Geef de host op waarmee je verbinding wilt maken"
 
@@ -5078,6 +5082,10 @@ msgstr "Systeem opnieuw opstarten..."
 msgid "Receiving"
 msgstr "Ontvangen"
 
+#: pkg/static/login.html:161
+msgid "Recent hosts"
+msgstr "Recente hosts"
+
 #: pkg/shell/failures.jsx:71
 msgid "Reconnect"
 msgstr "Opnieuw aansluiten"
@@ -5094,15 +5102,15 @@ msgstr "RAID-apparaat $target herstellen"
 msgid "Refreshing package information"
 msgstr "Pakketinformatie verversen"
 
-#: pkg/static/login.js:827
+#: pkg/static/login.js:883
 msgid "Refusing to connect. Host is unknown"
 msgstr "Verbinding maken geweigerd. Host is onbekend"
 
-#: pkg/static/login.js:829
+#: pkg/static/login.js:885
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "Verbinding maken geweigerd. Hostsleutel komt niet overeen"
 
-#: pkg/static/login.js:825
+#: pkg/static/login.js:881
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "Verbinding maken geweigerd. Hostsleutel is onbekend"
 
@@ -5196,6 +5204,10 @@ msgstr "Verwijder en stop apparaat"
 #: pkg/storaged/vdo-details.jsx:107
 msgid "Remove device"
 msgstr "Verwijder apparaat"
+
+#: pkg/static/login.js:595
+msgid "Remove host"
+msgstr "Verwijder host"
 
 #: pkg/networkmanager/ip-settings.jsx:198
 #: pkg/networkmanager/ip-settings.jsx:243
@@ -6546,7 +6558,7 @@ msgstr ""
 "De resulterende vingerafdruk is prima te delen via openbare methoden, "
 "inclusief e-mail."
 
-#: pkg/static/login.js:819
+#: pkg/static/login.js:875
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -6861,7 +6873,7 @@ msgstr ""
 "Red Hat, hetzij met behulp van de Red Hat Customer Portal of een lokale "
 "abonnementsserver."
 
-#: pkg/static/login.js:672 pkg/shell/hosts_dialog.jsx:463
+#: pkg/static/login.js:728 pkg/shell/hosts_dialog.jsx:463
 #: pkg/shell/hosts_dialog.jsx:474
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
@@ -7029,7 +7041,7 @@ msgstr "Kan instellingen niet toepassen: $0"
 msgid "Unable to apply this solution automatically"
 msgstr "Kan deze oplossing niet automatisch toepassen"
 
-#: pkg/static/login.js:823
+#: pkg/static/login.js:879
 msgid "Unable to connect to that address"
 msgstr "Kan niet verbinden met dat adres"
 
@@ -7370,7 +7382,7 @@ msgstr "Gebruiker"
 msgid "User name"
 msgstr "Gebruikersnaam"
 
-#: pkg/static/login.js:524
+#: pkg/static/login.js:535
 msgid "User name cannot be empty"
 msgstr "Gebruikersnaam mag niet leeg zijn"
 
@@ -7613,7 +7625,7 @@ msgstr "Schrijven"
 msgid "Write-mostly"
 msgstr "Meestal-schrijven"
 
-#: pkg/static/login.js:833
+#: pkg/static/login.js:889
 msgid "Wrong user name or password"
 msgstr "Verkeerde gebruikersnaam of wachtwoord"
 
@@ -7629,7 +7641,7 @@ msgstr "Jaarlijks"
 msgid "Yes"
 msgstr "Ja"
 
-#: pkg/static/login.js:669 pkg/shell/hosts_dialog.jsx:470
+#: pkg/static/login.js:725 pkg/shell/hosts_dialog.jsx:470
 msgid "You are connecting to $0 for the first time."
 msgstr "Je maakt voor de eerste keer verbinding met $0."
 
@@ -10756,9 +10768,6 @@ msgstr "zone"
 
 #~ msgid "Password for $0"
 #~ msgstr "Wachtwoord voor $0"
-
-#~ msgid "Recent"
-#~ msgstr "Recent"
 
 #~ msgid "The user <b>$0</b> is not permitted to manage servers"
 #~ msgstr ""

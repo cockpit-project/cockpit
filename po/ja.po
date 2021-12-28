@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-14 18:03+0000\n"
-"PO-Revision-Date: 2021-12-17 17:16+0000\n"
+"POT-Creation-Date: 2021-12-21 18:03+0000\n"
+"PO-Revision-Date: 2021-12-24 16:16+0000\n"
 "Last-Translator: Ludek Janda <ljanda@redhat.com>\n"
 "Language-Team: Japanese <https://translate.fedoraproject.org/projects/"
 "cockpit/main/ja/>\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
-"X-Generator: Weblate 4.9.1\n"
+"X-Generator: Weblate 4.10.1\n"
 
 #: pkg/storaged/content-views.jsx:496
 msgid "$0 (encrypted)"
@@ -104,7 +104,7 @@ msgstr "$0 ディスク"
 msgid "$0 documentation"
 msgstr "$0 ドキュメント"
 
-#: pkg/static/login.js:393 pkg/static/login.js:841
+#: pkg/static/login.js:393 pkg/static/login.js:897
 msgid "$0 error"
 msgstr "$0 エラー"
 
@@ -166,7 +166,7 @@ msgstr "$0 は、アクティブに使用されています"
 msgid "$0 is not available from any repository."
 msgstr "$0 は、あらゆるリポジトリーから利用できません。"
 
-#: pkg/static/login.js:663 pkg/shell/hosts_dialog.jsx:451
+#: pkg/static/login.js:719 pkg/shell/hosts_dialog.jsx:451
 msgid "$0 key changed"
 msgstr "$0 キーが変更されました"
 
@@ -582,7 +582,7 @@ msgstr "不在"
 msgid "Accept key and connect"
 msgstr "キーを受け入れて接続"
 
-#: pkg/static/login.js:578
+#: pkg/static/login.js:629
 msgid "Accept key and log in"
 msgstr "キーを受け入れてログイン"
 
@@ -992,11 +992,11 @@ msgstr "認証"
 msgid "Authentication"
 msgstr "認証"
 
-#: pkg/static/login.js:831
+#: pkg/static/login.js:887
 msgid "Authentication failed"
 msgstr "認証に失敗しました"
 
-#: pkg/static/login.js:821
+#: pkg/static/login.js:877
 msgid "Authentication failed: Server closed connection"
 msgstr "認証に失敗しました: サーバーの接続が切断されました"
 
@@ -1628,6 +1628,12 @@ msgstr "自動的に接続"
 
 #: pkg/static/login.html:103
 msgid "Connect to"
+msgstr "接続先"
+
+#: pkg/static/login.js:621
+#, fuzzy
+#| msgid "Connect to"
+msgid "Connect to:"
 msgstr "接続先"
 
 #: pkg/selinux/setroubleshoot-view.jsx:328
@@ -3077,7 +3083,7 @@ msgstr "インターフェース"
 msgid "Internal error"
 msgstr "内部エラー"
 
-#: pkg/static/login.js:811
+#: pkg/static/login.js:867
 msgid "Internal error: Invalid challenge header"
 msgstr "内部エラー: 無効なチャレンジヘッダー"
 
@@ -3483,7 +3489,7 @@ msgstr "ロックされた暗号化データ"
 msgid "Locking $target"
 msgstr "$target のロック中"
 
-#: pkg/static/login.html:115 pkg/static/login.js:578
+#: pkg/static/login.html:115 pkg/static/login.js:629
 #: pkg/shell/hosts_dialog.jsx:742 pkg/shell/failures.jsx:72
 msgid "Log in"
 msgstr "ログイン"
@@ -3492,7 +3498,7 @@ msgstr "ログイン"
 msgid "Log in to $0"
 msgstr "$0 へのログイン"
 
-#: pkg/static/login.js:608
+#: pkg/static/login.js:664
 msgid "Log in with your server user account."
 msgstr "サーバーのユーザーアカウントでログインします。"
 
@@ -4039,7 +4045,7 @@ msgstr "起動時のマウントなし"
 msgid "New NFS mount"
 msgstr "NFS の新規マウント"
 
-#: pkg/static/login.js:667 pkg/shell/hosts_dialog.jsx:451
+#: pkg/static/login.js:723 pkg/shell/hosts_dialog.jsx:451
 msgid "New host"
 msgstr "新規ホスト"
 
@@ -4676,7 +4682,7 @@ msgstr "永続"
 msgid "Permanently delete $0?"
 msgstr "$0 を永続的に削除しますか？"
 
-#: pkg/static/login.js:837
+#: pkg/static/login.js:893
 msgid "Permission denied"
 msgstr "パーミッションが拒否されました"
 
@@ -4742,7 +4748,7 @@ msgstr "問題の解決後にページをリロードしてください。"
 msgid "Please specify an expiration date"
 msgstr "有効期限を指定してください"
 
-#: pkg/static/login.js:526
+#: pkg/static/login.js:537
 msgid "Please specify the host to connect to"
 msgstr "接続するホストを指定してください"
 
@@ -5039,6 +5045,12 @@ msgstr "システムの再起動..."
 msgid "Receiving"
 msgstr "受信"
 
+#: pkg/static/login.html:161
+#, fuzzy
+#| msgid "Recent"
+msgid "Recent hosts"
+msgstr "最近開いたファイル"
+
 #: pkg/shell/failures.jsx:71
 msgid "Reconnect"
 msgstr "再接続"
@@ -5055,15 +5067,15 @@ msgstr "RAID デバイス $target の復旧"
 msgid "Refreshing package information"
 msgstr "パッケージ情報の更新中"
 
-#: pkg/static/login.js:827
+#: pkg/static/login.js:883
 msgid "Refusing to connect. Host is unknown"
 msgstr "接続を拒否しています。ホストが不明です"
 
-#: pkg/static/login.js:829
+#: pkg/static/login.js:885
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "接続を拒否しています。ホストキーが一致しません"
 
-#: pkg/static/login.js:825
+#: pkg/static/login.js:881
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "接続を拒否しています。ホストキーが不明です"
 
@@ -5157,6 +5169,12 @@ msgstr "デバイスの削除と停止"
 #: pkg/storaged/vdo-details.jsx:107
 msgid "Remove device"
 msgstr "リモートデバイス"
+
+#: pkg/static/login.js:595
+#, fuzzy
+#| msgid "Remove item"
+msgid "Remove host"
+msgstr "アイテムの削除"
 
 #: pkg/networkmanager/ip-settings.jsx:198
 #: pkg/networkmanager/ip-settings.jsx:243
@@ -6484,7 +6502,7 @@ msgstr ""
 "作成されたフィンガープリントは、電子メールを含むパブリックメソッドを介して共"
 "有すると問題ありません。"
 
-#: pkg/static/login.js:819
+#: pkg/static/login.js:875
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -6793,7 +6811,7 @@ msgstr ""
 "があります。登録には、Red Hat カスタマーポータルまたはローカルのサブスクリプ"
 "ションサーバーを使用します。"
 
-#: pkg/static/login.js:672 pkg/shell/hosts_dialog.jsx:463
+#: pkg/static/login.js:728 pkg/shell/hosts_dialog.jsx:463
 #: pkg/shell/hosts_dialog.jsx:474
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
@@ -6961,7 +6979,7 @@ msgstr "設定を適用できません: $0"
 msgid "Unable to apply this solution automatically"
 msgstr "このソリューションを自動的に適用できません"
 
-#: pkg/static/login.js:823
+#: pkg/static/login.js:879
 msgid "Unable to connect to that address"
 msgstr "そのアドレスに接続できません"
 
@@ -7300,7 +7318,7 @@ msgstr "ユーザー"
 msgid "User name"
 msgstr "ユーザー名"
 
-#: pkg/static/login.js:524
+#: pkg/static/login.js:535
 msgid "User name cannot be empty"
 msgstr "ユーザー名は空にできません"
 
@@ -7542,7 +7560,7 @@ msgstr "書き込み"
 msgid "Write-mostly"
 msgstr "Write-mostly"
 
-#: pkg/static/login.js:833
+#: pkg/static/login.js:889
 msgid "Wrong user name or password"
 msgstr "ユーザー名またはパスワードが間違っています"
 
@@ -7558,7 +7576,7 @@ msgstr "年次"
 msgid "Yes"
 msgstr "はい"
 
-#: pkg/static/login.js:669 pkg/shell/hosts_dialog.jsx:470
+#: pkg/static/login.js:725 pkg/shell/hosts_dialog.jsx:470
 msgid "You are connecting to $0 for the first time."
 msgstr "初めて $0 に接続しています。"
 
@@ -10641,9 +10659,6 @@ msgstr "ゾーン"
 
 #~ msgid "Password for $0"
 #~ msgstr "$0 のパスワード"
-
-#~ msgid "Recent"
-#~ msgstr "最近開いたファイル"
 
 #~ msgid "The user <b>$0</b> is not permitted to manage servers"
 #~ msgstr "ユーザー <b>$0</b> はサーバーを管理することを許可されていません"

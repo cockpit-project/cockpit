@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-14 18:03+0000\n"
-"PO-Revision-Date: 2021-12-15 17:12+0000\n"
+"POT-Creation-Date: 2021-12-21 18:03+0000\n"
+"PO-Revision-Date: 2021-12-24 16:16+0000\n"
 "Last-Translator: Burak Yavuz <hitowerdigit@hotmail.com>\n"
 "Language-Team: Turkish <https://translate.fedoraproject.org/projects/cockpit/"
 "main/tr/>\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n>1)\n"
-"X-Generator: Weblate 4.9.1\n"
+"X-Generator: Weblate 4.10.1\n"
 
 #: pkg/storaged/content-views.jsx:496
 msgid "$0 (encrypted)"
@@ -108,7 +108,7 @@ msgstr "$0 disk"
 msgid "$0 documentation"
 msgstr "$0 belgeleleri"
 
-#: pkg/static/login.js:393 pkg/static/login.js:841
+#: pkg/static/login.js:393 pkg/static/login.js:897
 msgid "$0 error"
 msgstr "$0 hatası"
 
@@ -173,7 +173,7 @@ msgstr "$0 etkin olarak kullanılıyor"
 msgid "$0 is not available from any repository."
 msgstr "$0, hiçbir depoda yok."
 
-#: pkg/static/login.js:663 pkg/shell/hosts_dialog.jsx:451
+#: pkg/static/login.js:719 pkg/shell/hosts_dialog.jsx:451
 msgid "$0 key changed"
 msgstr "$0 anahtarı değişti"
 
@@ -613,7 +613,7 @@ msgstr "Yok"
 msgid "Accept key and connect"
 msgstr "Anahtarı kabul et ve bağlan"
 
-#: pkg/static/login.js:578
+#: pkg/static/login.js:629
 msgid "Accept key and log in"
 msgstr "Anahtarı kabul et ve oturum aç"
 
@@ -1027,11 +1027,11 @@ msgstr "Kimlik doğrulanıyor"
 msgid "Authentication"
 msgstr "Kimlik doğrulama"
 
-#: pkg/static/login.js:831
+#: pkg/static/login.js:887
 msgid "Authentication failed"
 msgstr "Kimlik doğrulama başarısız oldu"
 
-#: pkg/static/login.js:821
+#: pkg/static/login.js:877
 msgid "Authentication failed: Server closed connection"
 msgstr "Kimlik doğrulama başarısız oldu: Sunucu bağlantıyı kapattı"
 
@@ -1667,6 +1667,10 @@ msgstr "Otomatik olarak bağlan"
 #: pkg/static/login.html:103
 msgid "Connect to"
 msgstr "Şuna bağlan"
+
+#: pkg/static/login.js:621
+msgid "Connect to:"
+msgstr "Şuna bağlan:"
 
 #: pkg/selinux/setroubleshoot-view.jsx:328
 msgid "Connecting to SETroubleshoot daemon..."
@@ -3114,7 +3118,7 @@ msgstr "Arayüzler"
 msgid "Internal error"
 msgstr "Dahili hata"
 
-#: pkg/static/login.js:811
+#: pkg/static/login.js:867
 msgid "Internal error: Invalid challenge header"
 msgstr "İç hata: Geçersiz sınama üstbilgisi"
 
@@ -3520,7 +3524,7 @@ msgstr "Kilitli şifrelenmiş veriler"
 msgid "Locking $target"
 msgstr "$target kilitleniyor"
 
-#: pkg/static/login.html:115 pkg/static/login.js:578
+#: pkg/static/login.html:115 pkg/static/login.js:629
 #: pkg/shell/hosts_dialog.jsx:742 pkg/shell/failures.jsx:72
 msgid "Log in"
 msgstr "Oturum aç"
@@ -3529,7 +3533,7 @@ msgstr "Oturum aç"
 msgid "Log in to $0"
 msgstr "$0 üzerinde oturum aç"
 
-#: pkg/static/login.js:608
+#: pkg/static/login.js:664
 msgid "Log in with your server user account."
 msgstr "Sunucu kullanıcı hesabınızla oturum açın."
 
@@ -4077,7 +4081,7 @@ msgstr "Önyüklemede asla bağlama"
 msgid "New NFS mount"
 msgstr "Yeni NFS bağlama noktası"
 
-#: pkg/static/login.js:667 pkg/shell/hosts_dialog.jsx:451
+#: pkg/static/login.js:723 pkg/shell/hosts_dialog.jsx:451
 msgid "New host"
 msgstr "Yeni anamakine"
 
@@ -4714,7 +4718,7 @@ msgstr "Kalıcı"
 msgid "Permanently delete $0?"
 msgstr "$0 aygıtı kalıcı olarak silinsin mi?"
 
-#: pkg/static/login.js:837
+#: pkg/static/login.js:893
 msgid "Permission denied"
 msgstr "İzin reddedildi"
 
@@ -4780,7 +4784,7 @@ msgstr "Lütfen sorunu çözdükten sonra sayfayı yeniden yükleyin."
 msgid "Please specify an expiration date"
 msgstr "Lütfen bir süre dolma tarihi belirtin"
 
-#: pkg/static/login.js:526
+#: pkg/static/login.js:537
 msgid "Please specify the host to connect to"
 msgstr "Lütfen bağlanılacak anamakineyi belirtin"
 
@@ -5077,6 +5081,10 @@ msgstr "Sistemi yeniden başlat..."
 msgid "Receiving"
 msgstr "Alınan"
 
+#: pkg/static/login.html:161
+msgid "Recent hosts"
+msgstr "En son anamakineler"
+
 #: pkg/shell/failures.jsx:71
 msgid "Reconnect"
 msgstr "Yeniden bağlan"
@@ -5093,15 +5101,15 @@ msgstr "RAID aygıtı $target kurtarılıyor"
 msgid "Refreshing package information"
 msgstr "Paket bilgileri yenileniyor"
 
-#: pkg/static/login.js:827
+#: pkg/static/login.js:883
 msgid "Refusing to connect. Host is unknown"
 msgstr "Bağlanmayı reddediyor. Anamakine bilinmiyor"
 
-#: pkg/static/login.js:829
+#: pkg/static/login.js:885
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "Bağlanmayı reddediyor. Anamakine anahtarı eşleşmiyor"
 
-#: pkg/static/login.js:825
+#: pkg/static/login.js:881
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "Bağlanmayı reddediyor. Anamakine anahtarı bilinmiyor"
 
@@ -5195,6 +5203,10 @@ msgstr "Kaldır ve aygıtı durdur"
 #: pkg/storaged/vdo-details.jsx:107
 msgid "Remove device"
 msgstr "Aygıtı kaldır"
+
+#: pkg/static/login.js:595
+msgid "Remove host"
+msgstr "Anamakineyi kaldır"
 
 #: pkg/networkmanager/ip-settings.jsx:198
 #: pkg/networkmanager/ip-settings.jsx:243
@@ -6537,7 +6549,7 @@ msgstr ""
 "Ortaya çıkan parmak izinin, e-posta dahil olmak üzere herkese açık "
 "yöntemlerle paylaşılması uygundur."
 
-#: pkg/static/login.js:819
+#: pkg/static/login.js:875
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -6850,7 +6862,7 @@ msgstr ""
 "Yazılım güncellemelerini almak için bu sistemin Red Hat Müşteri Portalı veya "
 "yerel bir abonelik sunucusu kullanılarak Red Hat'e kaydedilmesi gerekir."
 
-#: pkg/static/login.js:672 pkg/shell/hosts_dialog.jsx:463
+#: pkg/static/login.js:728 pkg/shell/hosts_dialog.jsx:463
 #: pkg/shell/hosts_dialog.jsx:474
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
@@ -7018,7 +7030,7 @@ msgstr "Ayarlar uygulanamıyor: $0"
 msgid "Unable to apply this solution automatically"
 msgstr "Bu çözüm otomatik olarak uygulanamıyor"
 
-#: pkg/static/login.js:823
+#: pkg/static/login.js:879
 msgid "Unable to connect to that address"
 msgstr "Bu adrese bağlanılamıyor"
 
@@ -7360,7 +7372,7 @@ msgstr "Kullanıcı"
 msgid "User name"
 msgstr "Kullanıcı adı"
 
-#: pkg/static/login.js:524
+#: pkg/static/login.js:535
 msgid "User name cannot be empty"
 msgstr "Kullanıcı adı boş olamaz"
 
@@ -7602,7 +7614,7 @@ msgstr "Yazma"
 msgid "Write-mostly"
 msgstr "Çoğunlukla yazma"
 
-#: pkg/static/login.js:833
+#: pkg/static/login.js:889
 msgid "Wrong user name or password"
 msgstr "Kullanıcı adı veya parola yanlış"
 
@@ -7618,7 +7630,7 @@ msgstr "Yıllık"
 msgid "Yes"
 msgstr "Evet"
 
-#: pkg/static/login.js:669 pkg/shell/hosts_dialog.jsx:470
+#: pkg/static/login.js:725 pkg/shell/hosts_dialog.jsx:470
 msgid "You are connecting to $0 for the first time."
 msgstr "İlk kez $0 için bağlanıyorsunuz."
 

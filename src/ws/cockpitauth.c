@@ -1502,9 +1502,9 @@ cockpit_auth_login_async (CockpitAuth *self,
 
   /* If the client sends a TLS certificate to cockpit-tls, treat this as a
    * definitive login type, and don't just silently fall back to other types */
-  const gchar *client_certificate;
+  const gchar *client_certificate = NULL;
   JsonObject *metadata = get_connection_metadata (connection);
-  if (metadata && (client_certificate = json_object_get_string_member (metadata, "client-certificate")))
+  if (metadata && cockpit_json_get_string (metadata, "client-certificate", NULL, &client_certificate) && client_certificate)
     {
       g_debug ("TLS connection has peer certificate, using tls-cert auth type");
       type = g_strdup ("tls-cert");

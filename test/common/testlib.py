@@ -1338,6 +1338,7 @@ class MachineCase(unittest.TestCase):
 
     def allow_restart_journal_messages(self):
         self.allow_journal_messages(".*Connection reset by peer.*",
+                                    "connection unexpectedly closed by peer",
                                     ".*Broken pipe.*",
                                     "g_dbus_connection_real_closed: Remote peer vanished with error: Underlying GIOStream returned 0 bytes on an async read \\(g-io-error-quark, 0\\). Exiting.",
                                     "connection unexpectedly closed by peer",
@@ -1380,11 +1381,17 @@ class MachineCase(unittest.TestCase):
             "SYSLOG_IDENTIFIER=cockpit-ws",
             "SYSLOG_IDENTIFIER=cockpit-bridge",
             "SYSLOG_IDENTIFIER=cockpit/ssh",
+            # also catch GLIB_DOMAIN=<library> which apply to cockpit-ws (but not to -bridge, too much random noise)
+            "_COMM=cockpit-ws",
             "GLIB_DOMAIN=cockpit-ws",
             "GLIB_DOMAIN=cockpit-bridge",
             "GLIB_DOMAIN=cockpit-ssh",
             "GLIB_DOMAIN=cockpit-pcp"
         ]
+
+        # older c-ws versions always log an assertion, fixed in PR #16765
+        if self.image == "rhel-8-5-distropkg":
+            self.allowed_messages.append("json_object_get_string_member: assertion 'node != NULL' failed")
 
         if not self.allow_core_dumps:
             matches += ["SYSLOG_IDENTIFIER=systemd-coredump"]

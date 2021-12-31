@@ -437,6 +437,7 @@ class TestConnection(MachineCase):
             ".*Peer failed to perform TLS handshake",
             ".*Peer sent fatal TLS alert:.*",
             ".*invalid base64 data in Basic header",
+            "Received unexpected TLS connection and no certificate was configured",
             ".*Error performing TLS handshake: No supported cipher suites have been found.",
             ".*Error performing TLS handshake: Could not negotiate a supported cipher suite.")
 
@@ -852,6 +853,7 @@ until pgrep -f cockpit-bridge.*--privileged; do sleep 1; done
         self.allow_journal_messages(".*No authentication agent found.*")
         self.allow_journal_messages(".*Peer failed to perform TLS handshake.*")
         self.allow_journal_messages(r".*cannot reauthorize identity\(s\): unix-user:.*")
+        self.allow_journal_messages("admin: Executing command .*COMMAND=/usr/bin/cockpit-bridge --privileged.*")
 
     @skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testReverseProxy(self):

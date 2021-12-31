@@ -22,9 +22,11 @@ from testlib import *
 
 
 def allow_old_cockpit_ws_messsages(test):
-    # noisy debug message from old cockpit-ws
+    # noisy debug message from old cockpit-ws/polkit
     test.allow_journal_messages("logged in user session",
-                                "New connection to session from.*")
+                                "New connection to session from.*",
+                                "pam_unix(polkit-1:session): session opened for user root by .*uid=.*",
+                                "admin: Executing command .*COMMAND=/usr/bin/cockpit-bridge --privileged.*")
 
 
 @skipDistroPackage()

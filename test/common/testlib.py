@@ -122,11 +122,12 @@ class Browser:
         self.pixels_label = pixels_label
         self.machine = machine
         path = os.path.dirname(__file__)
-        self.cdp = cdp.CDP("C.utf8", verbose=opts.trace, trace=opts.trace,
+        self.cdp = cdp.CDP("C.utf8", verbose=opts.trace, trace=opts.trace, fixed_content_size=self.pixels_label,
                            inject_helpers=[os.path.join(path, "test-functions.js"), os.path.join(path, "sizzle.js")])
         self.password = "foobar"
         self.timeout_factor = int(os.getenv("TEST_TIMEOUT_FACTOR", "1"))
         self.failed_pixel_tests = 0
+        self.body_clip = None
 
     def title(self):
         return self.cdp.eval('document.title')
@@ -594,6 +595,16 @@ class Browser:
             self.eval_js('window.localStorage.setItem("superuser:%s", "%s");' % (user, "any" if superuser else "none"))
         self.click('#login-button')
 
+    def adjust_window_for_fixed_content_size(self):
+        # When doing pixel tests, try to give the content iframe the
+        # expected fixed size so that pixel tests don't have to adapt
+        # to changes in the shell layout too much.  But don't bother
+        # when the browser is visible since we don't control its
+        # window size and it will likely be too small.
+        if self.pixels_label and not self.cdp.show_browser:
+            self.call_js_func("ph_adjust_content_size", self.cdp.content_width, self.cdp.content_height)
+            self.body_clip = self.call_js_func('ph_element_clip', 'body')
+
     def login_and_go(self, path=None, user=None, host=None, superuser=True, urlroot=None, tls=False, password=None,
                      legacy_authorized=None):
         href = path
@@ -610,6 +621,7 @@ class Browser:
         self.expect_load()
         self._wait_present('#content')
         self.wait_visible('#content')
+        self.adjust_window_for_fixed_content_size()
         if path:
             self.enter_page(path.split("#")[0], host=host)
 
@@ -644,6 +656,7 @@ class Browser:
         self.expect_load()
         self._wait_present('#content')
         self.wait_visible('#content')
+        self.adjust_window_for_fixed_content_size()
         if path:
             if path.startswith("/@"):
                 host = path[2:].split("/")[0]
@@ -732,7 +745,10 @@ class Browser:
             self.cdp.command("clearExceptions()")
 
             filename = "{0}-{1}.png".format(label or self.label, title)
-            ret = self.cdp.invoke("Page.captureScreenshot", no_trace=True)
+            if self.body_clip:
+                ret = self.cdp.invoke("Page.captureScreenshot", clip=self.body_clip, no_trace=True)
+            else:
+                ret = self.cdp.invoke("Page.captureScreenshot", no_trace=True)
             if "data" in ret:
                 with open(filename, 'wb') as f:
                     f.write(base64.standard_b64decode(ret["data"]))

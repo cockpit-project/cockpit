@@ -629,6 +629,9 @@ ExecStart=/bin/true
         # print("alice's HOTP key:", alice_hotp_key)
         alice_hotp_key = base64.b64decode(alice_hotp_key)
 
+        # wait until this propagates to the client
+        wait(lambda: m.execute("su -s /bin/sh -c 'su - alice </dev/null' - nobody 2>&1 | grep 'Second Factor'"))
+
         m.start_cockpit()
 
         # normal b.login_and_go() doesn't support 2FA

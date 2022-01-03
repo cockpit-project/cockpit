@@ -101,7 +101,7 @@ def check_urls(verbose):
             # Specify agent as some websites otherwise block requests
             req = Request(url=url, headers={"User-Agent": "Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:90.0) Gecko/20100101 Firefox/90.0"})
             resp = urlopen(req)
-            if resp.geturl() != url and url not in known_redirects:
+            if resp.geturl() != url and url not in known_redirects and not url.startswith("https://github.com/patternfly/"):
                 redirects.append(url)
             if resp.getcode() >= 400:
                 failed.append(url)

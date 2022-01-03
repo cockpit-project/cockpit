@@ -607,6 +607,13 @@ ExecStart=/bin/true
         m = self.machine
         b = self.browser
 
+        super().testUnqualifiedUsers()
+
+        # now try 2FA with OTP
+        # This does not yet work with sssd < 2.2.2-1 on Ubuntu
+        if m.image in ["ubuntu-2004", "ubuntu-stable"]:
+            return
+
         # set up "alice" user with HOTP; that won't affect existing users (admin)
         # https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/linux_domain_identity_authentication_and_policy_guide/otp
         out = self.machines['services'].execute("""podman exec -i freeipa sh -ec '
@@ -616,20 +623,13 @@ ExecStart=/bin/true
             ipa user-mod --password-expiration="2030-01-01T00:00:00Z" alice
             ipa otptoken-add --type=hotp --owner=alice
             ' """)
-        # if the default ever changes, the HOTP algorithm below needs to be updated
+        # if the default ever changes, hotp_token() needs to be updated
         self.assertIn("  Algorithm: sha1\n", out)
         alice_hotp_key = re.search(r'^  Key: (.*)', out, re.M).group(1)
         # print("alice's HOTP key:", alice_hotp_key)
         alice_hotp_key = base64.b64decode(alice_hotp_key)
 
-        super().testUnqualifiedUsers()
-
         m.start_cockpit()
-
-        # now try 2FA with OTP
-        # This does not yet work with sssd < 2.2.2-1 on Ubuntu
-        if m.image in ["ubuntu-2004", "ubuntu-stable"]:
-            return
 
         # normal b.login_and_go() doesn't support 2FA
         b.open("/")

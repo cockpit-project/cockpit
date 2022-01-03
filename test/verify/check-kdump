@@ -28,6 +28,7 @@ class KdumpHelpers(MachineCase):
         self.machine.execute("grubby --args=crashkernel=256M --update-kernel=ALL")
         self.machine.execute("mkdir -p /var/crash")
         self.machine.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
+        self.allow_restart_journal_messages()
         self.machine.wait_reboot()
         self.machine.start_cockpit()
         self.browser.switch_to_top()
@@ -64,8 +65,6 @@ class TestKdump(KdumpHelpers):
         m = self.machine
 
         b.wait_timeout(120)
-        self.allow_restart_journal_messages()
-
         m.execute("systemctl enable kdump && systemctl start kdump || true")
 
         self.login_and_go("/kdump")

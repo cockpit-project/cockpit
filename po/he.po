@@ -24,8 +24,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-21 18:03+0000\n"
-"PO-Revision-Date: 2021-11-18 14:16+0000\n"
+"POT-Creation-Date: 2021-12-28 18:03+0000\n"
+"PO-Revision-Date: 2022-01-04 07:16+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language-Team: Hebrew <https://translate.fedoraproject.org/projects/cockpit/"
 "main/he/>\n"
@@ -35,7 +35,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && "
 "n % 10 == 0) ? 2 : 3));\n"
-"X-Generator: Weblate 4.9\n"
+"X-Generator: Weblate 4.10.1\n"
 
 #: pkg/storaged/content-views.jsx:496
 msgid "$0 (encrypted)"
@@ -50,10 +50,8 @@ msgstr[2] "$0 מעבדים"
 msgstr[3] "$0 מעבדים"
 
 #: pkg/lib/machine-info.js:246
-#, fuzzy
-#| msgid "$0 GiB total"
 msgid "$0 GiB"
-msgstr "$0 GiB סך הכול"
+msgstr "$0 GiB"
 
 #: pkg/metrics/metrics.jsx:443 pkg/metrics/metrics.jsx:514
 msgid "$0 GiB available"
@@ -64,11 +62,8 @@ msgid "$0 GiB total"
 msgstr "$0 GiB סך הכול"
 
 #: pkg/storaged/stratis-panel.jsx:58
-#, fuzzy
-#| msgid "$0 Storage pool"
-#| msgid_plural "$0 Storage pools"
 msgid "$0 Stratis pool"
-msgstr "מאגר אחסון $0"
+msgstr "מאגר Stratis‏ $0"
 
 #: pkg/networkmanager/network-main.jsx:167
 msgid "$0 active zone"
@@ -161,9 +156,6 @@ msgstr[2] "$0 ניסיונות כניסה שנכשלו"
 msgstr[3] "$0 ניסיונות כניסה שנכשלו"
 
 #: pkg/storaged/content-views.jsx:450
-#, fuzzy
-#| msgctxt "storage-id-desc"
-#| msgid "$0 file system"
 msgctxt "storage-id-desc"
 msgid "$0 filesystem"
 msgstr "מערכת קבצים $0"
@@ -400,7 +392,7 @@ msgstr "שעה"
 msgid "1 min"
 msgstr "דקה"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:156
+#: pkg/lib/cockpit-components-shutdown.jsx:166
 msgid "1 minute"
 msgstr "דקה"
 
@@ -468,7 +460,7 @@ msgstr "אחד"
 msgid "2 MiB"
 msgstr "2 MiB"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:158
+#: pkg/lib/cockpit-components-shutdown.jsx:168
 msgid "20 minutes"
 msgstr "20 דקות"
 
@@ -536,7 +528,7 @@ msgstr "שלושה"
 msgid "4 KiB"
 msgstr "4 KiB"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:159
+#: pkg/lib/cockpit-components-shutdown.jsx:169
 msgid "40 minutes"
 msgstr "40 דקות"
 
@@ -549,7 +541,7 @@ msgid "5 min"
 msgstr "5 דקות"
 
 #: pkg/lib/cockpit-components-plot.jsx:271
-#: pkg/lib/cockpit-components-shutdown.jsx:157
+#: pkg/lib/cockpit-components-shutdown.jsx:167
 msgid "5 minutes"
 msgstr "5 דקות"
 
@@ -565,7 +557,7 @@ msgstr "חמישה"
 msgid "6 hours"
 msgstr "6 שעות"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:160
+#: pkg/lib/cockpit-components-shutdown.jsx:170
 msgid "60 minutes"
 msgstr "60 דקות"
 
@@ -1298,8 +1290,8 @@ msgid ""
 "$2, the key will be automatically made available and you can log in to $3 "
 "without password in the future."
 msgstr ""
-"החלפת ססמת מפתח ה־SSH‏ $0 לססמת הכניסה של $1 על גבי $2, תוביל לכך שהמפתח "
-"אוטומטית יהיה זמין ותהיה לך אפשרות להיכנס אל $3 ללא ססמה בעתיד."
+"החלפת סיסמת מפתח ה־SSH‏ $0 לסיסמת הכניסה של $1 על גבי $2, תוביל לכך שהמפתח "
+"אוטומטית יהיה זמין ותהיה לך אפשרות להיכנס אל $3 ללא סיסמה בעתיד."
 
 #: pkg/metrics/metrics.jsx:470 pkg/metrics/metrics.jsx:1388
 #: pkg/systemd/overview-cards/usageCard.jsx:121 pkg/systemd/hwinfo.jsx:120
@@ -1340,7 +1332,7 @@ msgstr "לא ניתן למצוא יומנים עם שילוב המסננים ה�
 
 #: pkg/static/login.html:117 pkg/playground/translate.html:39
 #: pkg/tuned/dialog.jsx:309 pkg/metrics/metrics.jsx:1035
-#: pkg/lib/cockpit-components-shutdown.jsx:172
+#: pkg/lib/cockpit-components-shutdown.jsx:182
 #: pkg/lib/cockpit-components-dialog.jsx:127
 #: pkg/systemd/services/service-details.jsx:76
 #: pkg/systemd/services/timer-dialog.jsx:136
@@ -1377,7 +1369,8 @@ msgstr "לא ניתן להעביר פרטי גישה"
 msgid "Cannot join a domain because realmd is not available on this system"
 msgstr "לא ניתן להצטרף לשם תחום כיוון ש־realmd לא זמין במערכת הזו"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:121
+#: pkg/lib/cockpit-components-shutdown.jsx:124
+#: pkg/lib/cockpit-components-shutdown.jsx:157
 msgid "Cannot schedule event in the past"
 msgstr "לא ניתן לתזמן אירוע לעבר"
 
@@ -1412,7 +1405,7 @@ msgstr "החלפת מילת צופן"
 
 #: pkg/shell/credentials.jsx:253
 msgid "Change password"
-msgstr "החלפת ססמה"
+msgstr "החלפת סיסמה"
 
 #: pkg/tuned/dialog.jsx:301
 msgid "Change performance profile"
@@ -1428,7 +1421,7 @@ msgstr "החלפת שעון המערכת"
 
 #: pkg/shell/hosts_dialog.jsx:785
 msgid "Change the password of $0"
-msgstr "החלפת הססמה של $0"
+msgstr "החלפת הסיסמה של $0"
 
 #: pkg/networkmanager/interfaces.js:1590
 msgid "Change the settings"
@@ -1520,7 +1513,7 @@ msgstr "התקן טקסט גלוי"
 
 #: pkg/users/account-create-dialog.js:212 pkg/users/password-dialogs.js:215
 msgid "Click $0 again to use the password anyway."
-msgstr "יש ללחוץ על $0 שוב כדי להשתמש בססמה בכל זאת."
+msgstr "יש ללחוץ על $0 שוב כדי להשתמש בסיסמה בכל זאת."
 
 #: pkg/systemd/overview-cards/realmd.jsx:287
 msgid "Client software"
@@ -1680,15 +1673,15 @@ msgstr "אישור"
 
 #: pkg/shell/hosts_dialog.jsx:778
 msgid "Confirm key password"
-msgstr "אישור ססמת מפתח"
+msgstr "אישור סיסמת מפתח"
 
 #: pkg/shell/hosts_dialog.jsx:792
 msgid "Confirm new key password"
-msgstr "אישור ססמה חדשה למפתח"
+msgstr "אישור סיסמה חדשה למפתח"
 
 #: pkg/users/password-dialogs.js:149
 msgid "Confirm new password"
-msgstr "אישור ססמה חדשה"
+msgstr "אישור סיסמה חדשה"
 
 #: pkg/shell/credentials.jsx:269
 msgid "Confirm password"
@@ -1719,10 +1712,8 @@ msgid "Connect to"
 msgstr "התחברות אל"
 
 #: pkg/static/login.js:621
-#, fuzzy
-#| msgid "Connect to"
 msgid "Connect to:"
-msgstr "התחברות אל"
+msgstr "התחברות אל:"
 
 #: pkg/selinux/setroubleshoot-view.jsx:328
 msgid "Connecting to SETroubleshoot daemon..."
@@ -1786,10 +1777,8 @@ msgid "Control"
 msgstr "Control"
 
 #: pkg/systemd/abrtLog.jsx:126
-#, fuzzy
-#| msgid "Control"
 msgid "Controller"
-msgstr "בקרה"
+msgstr "בקר"
 
 #: pkg/lib/machine-info.js:88
 msgid "Convertible"
@@ -1848,22 +1837,16 @@ msgid "Create RAID device"
 msgstr "יצירת התקן RAID"
 
 #: pkg/storaged/stratis-panel.jsx:127 pkg/storaged/things-panel.jsx:80
-#, fuzzy
-#| msgid "Create storage pool"
 msgid "Create Stratis pool"
-msgstr "יצירת מאגר אחסון"
+msgstr "יצירת מאגר Stratis"
 
 #: pkg/shell/hosts_dialog.jsx:771
-#, fuzzy
-#| msgid "Create a new SSH key and authorize it."
 msgid "Create a new SSH key and authorize it"
-msgstr "ליצור מפתח SSH חדש ולאשר אותו."
+msgstr "ליצור מפתח SSH חדש ולאשר אותו"
 
 #: pkg/storaged/stratis-details.jsx:496
-#, fuzzy
-#| msgid "Creating snapshot of $target"
 msgid "Create a snapshot of filesystem $0"
-msgstr "נוצרת תמונת מצב של $target"
+msgstr "יצירת תמונת מצב של מערכת הקבצים $0"
 
 #: pkg/storaged/things-panel.jsx:77
 msgid "Create devices"
@@ -1874,8 +1857,6 @@ msgid "Create diagnostic report"
 msgstr "דוחות אבחון"
 
 #: pkg/storaged/stratis-details.jsx:367
-#, fuzzy
-#| msgid "Create Filesystem"
 msgid "Create filesystem"
 msgstr "יצירת מערכת קבצים"
 
@@ -1892,10 +1873,8 @@ msgid "Create new account"
 msgstr "יצירת חשבון חדש"
 
 #: pkg/storaged/stratis-details.jsx:649
-#, fuzzy
-#| msgid "Create new volume"
 msgid "Create new filesystem"
-msgstr "יצירת כרך חדש"
+msgstr "יצירת מערכת קבצים חדשה"
 
 #: pkg/storaged/content-views.jsx:966
 msgid "Create new logical volume"
@@ -1940,20 +1919,16 @@ msgid "Create volume group"
 msgstr "יצירת קבוצת כרכים"
 
 #: pkg/storaged/jobs-panel.jsx:78
-#, fuzzy
-#| msgid "Creating volume group $target"
 msgid "Creating LVM2 volume group $target"
-msgstr "קבוצת הכרכים $target נוצרת"
+msgstr "קבוצת הכרכים $target מסוג LVM2 נוצרת"
 
 #: pkg/storaged/jobs-panel.jsx:69
 msgid "Creating RAID device $target"
 msgstr "נוצר התקן RAID‏ $target"
 
 #: pkg/storaged/content-views.jsx:945
-#, fuzzy
-#| msgid "Create VDO device"
 msgid "Creating VDO device"
-msgstr "יצירת התקן VDO"
+msgstr "נוצר התקן VDO"
 
 #: pkg/storaged/jobs-panel.jsx:57
 msgid "Creating filesystem on $target"
@@ -2040,10 +2015,8 @@ msgid "Dark"
 msgstr "כהה"
 
 #: pkg/storaged/stratis-details.jsx:132
-#, fuzzy
-#| msgid "Data used"
 msgid "Data"
-msgstr "נתונים בשימוש"
+msgstr "נתונים"
 
 #: pkg/storaged/lvol-tabs.jsx:499 pkg/storaged/lvol-tabs.jsx:552
 msgid "Data used"
@@ -2082,7 +2055,7 @@ msgstr "להקטין באחד"
 msgid "Deduplication"
 msgstr "הסרת כפילות"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:180
+#: pkg/lib/cockpit-components-shutdown.jsx:190
 #: pkg/systemd/services/timer-dialog.jsx:185
 #: pkg/systemd/services/timer-dialog.jsx:196
 msgid "Delay"
@@ -2125,10 +2098,8 @@ msgid "Deleting $target"
 msgstr "$target נמחק"
 
 #: pkg/storaged/jobs-panel.jsx:79
-#, fuzzy
-#| msgid "Deleting volume group $target"
 msgid "Deleting LVM2 volume group $target"
-msgstr "קבוצת הכרכים $target נמחקת"
+msgstr "קבוצת הכרכים $target מסוג LVM2 נמחקת"
 
 #: pkg/storaged/stratis-details.jsx:261
 #, fuzzy
@@ -2137,10 +2108,8 @@ msgid "Deleting a Stratis pool will erase all data it contains."
 msgstr "מחיקת מכולה תמחק את כל הנתונים שבה."
 
 #: pkg/storaged/stratis-details.jsx:560
-#, fuzzy
-#| msgid "Deleting a partition will delete all data in it."
 msgid "Deleting a filesystem will delete all data in it."
-msgstr "מחיקת מחיצה תמחק את כל הנתונים שבה."
+msgstr "מחיקת מערכת קבצים תמחק את כל הנתונים שבה."
 
 #: pkg/storaged/content-views.jsx:354
 msgid "Deleting a logical volume will delete all data in it."
@@ -2324,7 +2293,7 @@ msgstr "שם מנהל שם תחום"
 
 #: pkg/systemd/overview-cards/realmd.jsx:433
 msgid "Domain administrator password"
-msgstr "ססמת מנהל שם תחום"
+msgstr "סיסמת מנהל שם תחום"
 
 #: pkg/systemd/overview-cards/realmd.jsx:310
 msgid "Domain could not be contacted"
@@ -2593,7 +2562,7 @@ msgstr "לדוגמה: 88,2019,nfs,rsync"
 
 #: pkg/lib/cockpit-components-password.jsx:37
 msgid "Excellent password"
-msgstr "ססמה מצוינת"
+msgstr "סיסמה מצוינת"
 
 #: pkg/lib/machine-info.js:75
 msgid "Expansion chassis"
@@ -2646,7 +2615,7 @@ msgstr "החלת ההגדרות נכשלה"
 #: pkg/users/password-dialogs.js:101 pkg/users/password-dialogs.js:123
 #: pkg/lib/credentials.js:232
 msgid "Failed to change password"
-msgstr "החלפת הססמה נכשלה"
+msgstr "החלפת הסיסמה נכשלה"
 
 #: pkg/metrics/metrics.jsx:1029
 msgid "Failed to configure PCP"
@@ -2691,6 +2660,8 @@ msgid ""
 "Failed to parse unit files for dnf-automatic.timer or dnf-automatic-install."
 "timer. Please remove custom overrides to configure automatic updates."
 msgstr ""
+"פענוח קובצי היחידה של dnf-automatic.timer או dnf-automatic-install.timer. נא "
+"להסיר את המעקפים שהוקמו כדי להגדיר עדכונים אוטומטיים."
 
 #: pkg/packagekit/updates.jsx:430
 msgid "Failed to restart service"
@@ -2787,7 +2758,7 @@ msgstr "לאלץ החלפה"
 
 #: pkg/users/password-dialogs.js:271
 msgid "Force password change"
-msgstr "לאלץ החלפת ססמה"
+msgstr "לאלץ החלפת סיסמה"
 
 #: pkg/storaged/format-dialog.jsx:88 pkg/storaged/content-views.jsx:396
 #: pkg/storaged/content-views.jsx:398
@@ -2852,10 +2823,8 @@ msgid "General"
 msgstr "כללי"
 
 #: pkg/systemd/services/services.jsx:209
-#, fuzzy
-#| msgid "General"
 msgid "Generated"
-msgstr "כללי"
+msgstr "נוצר"
 
 #: pkg/sosreport/index.jsx:172
 msgid "Generating report"
@@ -2929,7 +2898,7 @@ msgstr "עזרה"
 
 #: pkg/systemd/abrtLog.jsx:126
 msgid "Hierarchy ID"
-msgstr ""
+msgstr "מזהה היררכיה"
 
 #: pkg/packagekit/history.jsx:107
 msgid "History package count"
@@ -3009,15 +2978,11 @@ msgstr ""
 "וליצור קשר עם הנהלת המערכת."
 
 #: pkg/shell/hosts_dialog.jsx:466 pkg/shell/hosts_dialog.jsx:477
-#, fuzzy
-#| msgid ""
-#| "If the fingerprint matches, click \"Accept key and connect\". Otherwise, "
-#| "do not connect and contact your administrator."
 msgid ""
 "If the fingerprint matches, click 'Accept key and connect'. Otherwise, do "
 "not connect and contact your administrator."
 msgstr ""
-"אם טביעת האצבע תואמת, יש ללחוץ על „לקבל את המפתח ולהתחבר”. אחרת, לא להתחבר "
+"אם טביעת האצבע תואמת, יש ללחוץ על ‚לקבל את המפתח ולהתחבר’. אחרת, לא להתחבר "
 "וליצור קשר עם הנהלת המערכת."
 
 #: pkg/storaged/format-dialog.jsx:93
@@ -3027,6 +2992,9 @@ msgid ""
 "during boot is not possible, such as when a passphrase is required to unlock "
 "the filesystem but booting is unattended."
 msgstr ""
+"אם האפשרות הזאת מסומנת, מערכת הקבצים לא תעוגן במהלך הטעינה הבעיה אפילו אם "
+"עוגנה לפני כן. שימושי אם עיגון במהלך הטעינה אינו אפשרי, למשל כאשר נדרשת מילת "
+"צופן כדי לשחרר את נעילת מערכת הקבצים אך תהליך הטעינה מונע את זה."
 
 #: pkg/networkmanager/ip-settings.jsx:55 pkg/packagekit/updates.jsx:637
 #: pkg/packagekit/updates.jsx:712
@@ -3042,18 +3010,13 @@ msgid "In"
 msgstr "נכנס"
 
 #: pkg/shell/hosts_dialog.jsx:782 pkg/shell/hosts_dialog.jsx:796
-#, fuzzy
-#| msgid ""
-#| "In order to allow log in to ${rhost} as ${ruser} without password in the "
-#| "future, use the login password of ${luser} on ${lhost} as the key "
-#| "password, or leave the key password blank."
 msgid ""
 "In order to allow log in to $0 as $1 without password in the future, use the "
 "login password of $2 on $3 as the key password, or leave the key password "
 "blank."
 msgstr ""
-"כדי לאפשר כניסה אל ${rhost} בתור ${ruser} ללא ססמה בעתיד, עליך להשתמש בססמת "
-"הכניסה של ${luser} על גבי ${lhost} כססמת המפתח או להשאיר את ססמת המפתח ריקה."
+"כדי לאפשר כניסה אל $0 בתור $1 ללא סיסמה בעתיד, עליך להשתמש בסיסמת הכניסה של $"
+"2 על גבי $3 כסיסמת המפתח או להשאיר את סיסמת המפתח ריקה."
 
 #: pkg/storaged/mdraid-details.jsx:109
 msgid "In sync"
@@ -3207,11 +3170,11 @@ msgstr "שגוי"
 msgid "Invalid address $0"
 msgstr "כתובת שגויה $0"
 
-#: pkg/lib/serverTime.js:613 pkg/lib/cockpit-components-shutdown.jsx:106
+#: pkg/lib/serverTime.js:613 pkg/lib/cockpit-components-shutdown.jsx:109
 msgid "Invalid date format"
 msgstr "מבנה התאריך שגוי"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:100
+#: pkg/lib/cockpit-components-shutdown.jsx:103
 msgid "Invalid date format and invalid time format"
 msgstr "מבנה תאריך שגוי ומבנה שעה שגוי"
 
@@ -3251,7 +3214,7 @@ msgstr "קידומת או מסכת רשת שגויה $0"
 msgid "Invalid range"
 msgstr "טווח שגוי"
 
-#: pkg/lib/serverTime.js:616 pkg/lib/cockpit-components-shutdown.jsx:103
+#: pkg/lib/serverTime.js:616 pkg/lib/cockpit-components-shutdown.jsx:106
 #: pkg/packagekit/autoupdates.jsx:320
 msgid "Invalid time format"
 msgstr "מבנה השעה שגוי"
@@ -3262,7 +3225,7 @@ msgstr "אזור זמן שגוי"
 
 #: pkg/storaged/iscsi-panel.jsx:83 pkg/storaged/iscsi-panel.jsx:172
 msgid "Invalid username or password"
-msgstr "שם משתמש או ססמה שגויים"
+msgstr "שם משתמש או סיסמה שגויים"
 
 #: pkg/lib/machine-info.js:90
 msgid "IoT gateway"
@@ -3364,7 +3327,7 @@ msgstr "הטלאת ליבה"
 
 #: pkg/shell/hosts_dialog.jsx:774 pkg/shell/hosts_dialog.jsx:833
 msgid "Key password"
-msgstr "ססמת מפתח"
+msgstr "סיסמת מפתח"
 
 #: pkg/storaged/crypto-keyslots.jsx:605
 msgid "Key slots with unknown types can not be edited here"
@@ -3873,7 +3836,7 @@ msgstr "שימוש בזיכרון"
 msgid "Merged"
 msgstr ""
 
-#: pkg/lib/cockpit-components-shutdown.jsx:177
+#: pkg/lib/cockpit-components-shutdown.jsx:187
 msgid "Message to logged in users"
 msgstr "הודעה למשתמשים שנמצאים במערכת"
 
@@ -4164,7 +4127,7 @@ msgstr "חשבון שתוקפו לא פג"
 
 #: pkg/users/expiration-dialogs.js:149 pkg/users/account-details.js:101
 msgid "Never expire password"
-msgstr "הססמה לא תפוג לעולם"
+msgstr "הסיסמה לא תפוג לעולם"
 
 #: pkg/storaged/format-dialog.jsx:259 pkg/storaged/stratis-details.jsx:389
 #: pkg/storaged/stratis-details.jsx:519 pkg/storaged/fsys-tab.jsx:327
@@ -4181,7 +4144,7 @@ msgstr "מארח חדש"
 
 #: pkg/shell/hosts_dialog.jsx:788
 msgid "New key password"
-msgstr "ססמה חדשה למפתח"
+msgstr "סיסמה חדשה למפתח"
 
 #: pkg/storaged/crypto-keyslots.jsx:289 pkg/storaged/crypto-keyslots.jsx:335
 msgid "New passphrase"
@@ -4189,11 +4152,11 @@ msgstr "מילת צופן חדשה"
 
 #: pkg/users/password-dialogs.js:148 pkg/shell/credentials.jsx:266
 msgid "New password"
-msgstr "ססמה חדשה"
+msgstr "סיסמה חדשה"
 
 #: pkg/users/password-dialogs.js:84 pkg/lib/credentials.js:241
 msgid "New password was not accepted"
-msgstr "הססמה החדשה לא התקבלה"
+msgstr "הסיסמה החדשה לא התקבלה"
 
 #: pkg/storaged/iscsi-panel.jsx:53
 msgid "Next"
@@ -4247,7 +4210,7 @@ msgstr "אין נתונים זמינים"
 msgid "No data available between $0 and $1"
 msgstr "אין נתונים זמינים בין $0 ל־$1"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:154
+#: pkg/lib/cockpit-components-shutdown.jsx:164
 msgid "No delay"
 msgstr "אין השהיה"
 
@@ -4501,11 +4464,11 @@ msgstr "מילת צופן ישנה"
 
 #: pkg/users/password-dialogs.js:139
 msgid "Old password"
-msgstr "ססמה ישנה"
+msgstr "סיסמה ישנה"
 
 #: pkg/users/password-dialogs.js:53 pkg/lib/credentials.js:221
 msgid "Old password not accepted"
-msgstr "הססמה הישנה לא התקבלה"
+msgstr "הסיסמה הישנה לא התקבלה"
 
 #: pkg/kdump/kdump-view.jsx:400
 msgid "On a mounted device"
@@ -4711,7 +4674,7 @@ msgstr "מילות הצופן אינן תואמות"
 #: pkg/shell/superuser.jsx:52 pkg/storaged/iscsi-panel.jsx:50
 #: pkg/storaged/iscsi-panel.jsx:160
 msgid "Password"
-msgstr "ססמה"
+msgstr "סיסמה"
 
 #: pkg/shell/credentials.jsx:260
 #, fuzzy
@@ -4721,7 +4684,7 @@ msgstr "הפתרון חל בהצלחה"
 
 #: pkg/users/expiration-dialogs.js:206
 msgid "Password expiration"
-msgstr "תפוגת ססמה"
+msgstr "תפוגת סיסמה"
 
 #: pkg/users/account-create-dialog.js:205 pkg/users/password-dialogs.js:210
 msgid "Password is longer than 256 characters"
@@ -4729,25 +4692,25 @@ msgstr "הסיסמה ארוכה מ־256 תווים"
 
 #: pkg/lib/cockpit-components-password.jsx:41
 msgid "Password is not acceptable"
-msgstr "הססמה לא מקובלת"
+msgstr "הסיסמה לא מקובלת"
 
 #: pkg/lib/cockpit-components-password.jsx:35
 msgid "Password is too weak"
-msgstr "הססמה חלשה מדי"
+msgstr "הסיסמה חלשה מדי"
 
 #: pkg/users/account-details.js:103
 msgid "Password must be changed"
-msgstr "חובה לשנות את הססמה"
+msgstr "חובה לשנות את הסיסמה"
 
 #: pkg/lib/credentials.js:298
 msgid "Password not accepted"
-msgstr "הססמה לא התקבלה"
+msgstr "הסיסמה לא התקבלה"
 
 #: pkg/shell/credentials.jsx:275
 #, fuzzy
 #| msgid "Password"
 msgid "Password tip"
-msgstr "ססמה"
+msgstr "סיסמה"
 
 #: pkg/lib/cockpit-components-context-menu.jsx:107
 msgid "Paste"
@@ -4849,7 +4812,7 @@ msgid "Physical volumes can not be resized here."
 msgstr "כאן ניתן לשנות גודל של כרכים פיזיים."
 
 #: pkg/users/expiration-dialogs.js:43 pkg/lib/serverTime.js:525
-#: pkg/lib/cockpit-components-shutdown.jsx:192
+#: pkg/lib/cockpit-components-shutdown.jsx:202
 #: pkg/systemd/services/timer-dialog.jsx:313
 msgid "Pick date"
 msgstr "בחירת תאריך"
@@ -5172,8 +5135,8 @@ msgstr ""
 msgid "Real host name must be 64 characters or less"
 msgstr "אורך שם התחום האמתי חייב להיות קצר מ־64 תווים"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:169
-#: pkg/lib/cockpit-components-shutdown.jsx:171
+#: pkg/lib/cockpit-components-shutdown.jsx:179
+#: pkg/lib/cockpit-components-shutdown.jsx:181
 #: pkg/lib/cockpit-components-logs-panel.jsx:103 pkg/systemd/overview.jsx:102
 #: pkg/systemd/overview.jsx:119
 msgid "Reboot"
@@ -5487,11 +5450,11 @@ msgstr "דיווחים:"
 
 #: pkg/users/expiration-dialogs.js:172
 msgid "Require password change every $0 days"
-msgstr "לדרוש החלפת ססמה כל $0 ימים"
+msgstr "לדרוש החלפת סיסמה כל $0 ימים"
 
 #: pkg/users/account-details.js:105
 msgid "Require password change on $0"
-msgstr "לדרוש החלפת ססמה ב־$0"
+msgstr "לדרוש החלפת סיסמה ב־$0"
 
 #: pkg/systemd/services/service-details.jsx:454
 msgid "Required by"
@@ -5527,7 +5490,7 @@ msgstr "איפוס"
 
 #: pkg/users/password-dialogs.js:278
 msgid "Reset password"
-msgstr "איפוס ססמה"
+msgstr "איפוס סיסמה"
 
 #: pkg/storaged/jobs-panel.jsx:47 pkg/storaged/jobs-panel.jsx:53
 #: pkg/storaged/jobs-panel.jsx:85
@@ -5872,7 +5835,7 @@ msgstr "הגדרת שם מארח"
 #: pkg/users/account-details.js:345 pkg/users/password-dialogs.js:215
 #: pkg/users/password-dialogs.js:225 pkg/users/password-dialogs.js:232
 msgid "Set password"
-msgstr "הגדרת ססמה"
+msgstr "הגדרת סיסמה"
 
 #: pkg/lib/serverTime.js:512
 msgid "Set time"
@@ -5981,8 +5944,8 @@ msgstr "כיווץ הכרך הלוגי"
 msgid "Shrink volume"
 msgstr "כיווץ כרך"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:169
-#: pkg/lib/cockpit-components-shutdown.jsx:171
+#: pkg/lib/cockpit-components-shutdown.jsx:179
+#: pkg/lib/cockpit-components-shutdown.jsx:181
 msgid "Shut down"
 msgstr "כיבוי"
 
@@ -6119,7 +6082,7 @@ msgstr "פרוטוקול העץ הפורש (STP)"
 msgid "Spare"
 msgstr "עודף"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:162
+#: pkg/lib/cockpit-components-shutdown.jsx:172
 msgid "Specific time"
 msgstr "זמן מסוים"
 
@@ -6529,8 +6492,8 @@ msgid ""
 "the key at $1."
 msgstr ""
 "מפתח ה־SSH לכניסה אל {{#strong}}{{full_address}}{{/strong}} מוגן. יש לך "
-"אפשרות להיכנס עם שם המשתמש והססמה שלך או על ידי אספקת הססמה למפתח שב־"
-"{{#strong}}{{key}}{{/strong}}."
+"אפשרות להיכנס עם שם המשתמש והסיסמה שלך או על ידי אספקת הסיסמה למפתח "
+"שב־{{#strong}}{{key}}{{/strong}}."
 
 #: pkg/shell/hosts_dialog.jsx:756
 #, fuzzy
@@ -6543,12 +6506,12 @@ msgid ""
 "your login password or by providing the password of the key at $1."
 msgstr ""
 "מפתח ה־SSH לכניסה אל {{#strong}}{{full_address}}{{/strong}} מוגן. יש לך "
-"אפשרות להיכנס עם שם המשתמש והססמה שלך או על ידי אספקת הססמה למפתח שב־"
-"{{#strong}}{{key}}{{/strong}}."
+"אפשרות להיכנס עם שם המשתמש והסיסמה שלך או על ידי אספקת הסיסמה למפתח "
+"שב־{{#strong}}{{key}}{{/strong}}."
 
 #: pkg/users/password-dialogs.js:266
 msgid "The account '$0' will be forced to change their password on next login"
-msgstr "החשבון ‚$0’ יאולץ להחליף את הססמה שלו עם כניסתו הבאה למערכת"
+msgstr "החשבון ‚$0’ יאולץ להחליף את הסיסמה שלו עם כניסתו הבאה למערכת"
 
 #: pkg/networkmanager/firewall.jsx:746
 msgid "The cockpit service is automatically included"
@@ -6664,11 +6627,11 @@ msgstr ""
 
 #: pkg/shell/hosts_dialog.jsx:673
 msgid "The key password can not be empty"
-msgstr "ססמת המפתח לא יכולה להישאר ריקה"
+msgstr "סיסמת המפתח לא יכולה להישאר ריקה"
 
 #: pkg/shell/hosts_dialog.jsx:676 pkg/shell/hosts_dialog.jsx:682
 msgid "The key passwords do not match"
-msgstr "ססמאות המפתח אינן תואמות"
+msgstr "סיסמאות המפתח אינן תואמות"
 
 #: pkg/users/authorized-keys.js:123
 msgid "The key you provided was not valid."
@@ -6696,21 +6659,21 @@ msgstr "המכונה מופעלת מחדש"
 
 #: pkg/shell/hosts_dialog.jsx:679
 msgid "The new key password can not be empty"
-msgstr "ססמת המפתח החדשה לא יכולה להישאר ריקה"
+msgstr "סיסמת המפתח החדשה לא יכולה להישאר ריקה"
 
 #: pkg/shell/hosts_dialog.jsx:657
 #, fuzzy
 #| msgid "The key password can not be empty"
 msgid "The password can not be empty"
-msgstr "ססמת המפתח לא יכולה להישאר ריקה"
+msgstr "סיסמת המפתח לא יכולה להישאר ריקה"
 
 #: pkg/users/account-create-dialog.js:202 pkg/users/password-dialogs.js:207
 msgid "The passwords do not match"
-msgstr "הססמאות אינן תואמות"
+msgstr "הסיסמאות אינן תואמות"
 
 #: pkg/lib/credentials.js:194
 msgid "The passwords do not match."
-msgstr "הססמאות אינן תואמות."
+msgstr "הסיסמאות אינן תואמות."
 
 #: pkg/static/login.html:71 pkg/shell/hosts_dialog.jsx:465
 #: pkg/shell/hosts_dialog.jsx:476
@@ -6723,7 +6686,7 @@ msgstr "זה בסדר לשתף את טביעת האצבע באופן ציבור�
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
-msgstr "השרת סירב לאמת את ‚$0’ עם אימות בססמה ואין שיטות אימות אחרות נתמכות."
+msgstr "השרת סירב לאמת את ‚$0’ עם אימות בסיסמה ואין שיטות אימות אחרות נתמכות."
 
 #: pkg/base1/cockpit.js:3948
 msgid "The server refused to authenticate using any supported methods."
@@ -6940,7 +6903,7 @@ msgstr ""
 
 #: pkg/shell/hosts_dialog.jsx:802
 msgid "This will allow you to log in without password in the future."
-msgstr "הגדרה זו תאפשר לך להיכנס ללא ססמה בעתיד."
+msgstr "הגדרה זו תאפשר לך להיכנס ללא סיסמה בעתיד."
 
 #: pkg/kdump/kdump-view.jsx:302
 msgid ""
@@ -6992,7 +6955,7 @@ msgid ""
 "Tip: Make your key password match your login password to automatically "
 "authenticate against other systems."
 msgstr ""
-"עצה: אפשר להגדיר את ססמת המפתח שלך כמו ססמת הכניסה שלך כדי להתאמת אוטומטית "
+"עצה: אפשר להגדיר את סיסמת המפתח שלך כמו סיסמת הכניסה שלך כדי להתאמת אוטומטית "
 "מול מערכות אחרות."
 
 #: pkg/static/login.html:66 pkg/shell/hosts_dialog.jsx:460
@@ -7034,7 +6997,7 @@ msgid "Toggle bitmap"
 msgstr "החלפת מצב מפת סיביות"
 
 #: pkg/users/expiration-dialogs.js:44 pkg/lib/serverTime.js:526
-#: pkg/lib/cockpit-components-shutdown.jsx:193
+#: pkg/lib/cockpit-components-shutdown.jsx:203
 #: pkg/systemd/services/timer-dialog.jsx:314
 msgid "Toggle date picker"
 msgstr ""
@@ -7223,8 +7186,8 @@ msgid ""
 "password. You may want to set up your SSH keys for automatic login."
 msgstr ""
 "לא ניתן להיכנס אל {{#strong}}{{full_address}}{{/strong}} באמצעות אימות עם "
-"מפתח SSH. נא לספק את הססמה. ייתכן שעידף לך להגדיר את מפתחות ה־SSH שלך לכניסה "
-"אוטומטית."
+"מפתח SSH. נא לספק את הסיסמה. ייתכן שעידף לך להגדיר את מפתחות ה־SSH שלך "
+"לכניסה אוטומטית."
 
 #: pkg/shell/hosts_dialog.jsx:746
 #, fuzzy
@@ -7236,7 +7199,7 @@ msgid ""
 "your SSH keys."
 msgstr ""
 "לא ניתן להיכנס אל {{#strong}}{{full_address}}{{/strong}}. המארח לא מקבל "
-"כניסה עם ססמה או אף אחד ממפתחות ה־SSH האחרים שלך."
+"כניסה עם סיסמה או אף אחד ממפתחות ה־SSH האחרים שלך."
 
 #: pkg/storaged/iscsi-panel.jsx:91
 msgid "Unable to reach server"
@@ -7818,7 +7781,7 @@ msgstr "בעיקר כתיבה"
 
 #: pkg/static/login.js:889
 msgid "Wrong user name or password"
-msgstr "שם משתמש או ססמה שגויים"
+msgstr "שם משתמש או סיסמה שגויים"
 
 #: pkg/networkmanager/bond.jsx:46
 msgid "XOR"
@@ -7857,11 +7820,11 @@ msgstr "כדאי לך לנסות לטעון רשומות ישנות יותר."
 
 #: pkg/shell/hosts_dialog.jsx:752 pkg/shell/hosts_dialog.jsx:757
 msgid "You may want to change the password of the key for automatic login."
-msgstr "יתכן שעדיף לך להחליף את הססמה של המפתח לטובת כניסה אוטומטית."
+msgstr "יתכן שעדיף לך להחליף את הסיסמה של המפתח לטובת כניסה אוטומטית."
 
 #: pkg/users/password-dialogs.js:77
 msgid "You must wait longer to change your password"
-msgstr "עליך להמתין זמן רב יותר כדי להחליף את הססמה שלך"
+msgstr "עליך להמתין זמן רב יותר כדי להחליף את הסיסמה שלך"
 
 #: pkg/metrics/metrics.jsx:1297
 #, fuzzy
@@ -8378,11 +8341,11 @@ msgstr "passwd"
 
 #: pkg/users/manifest.json:0
 msgid "password"
-msgstr "ססמה"
+msgstr "סיסמה"
 
 #: pkg/lib/cockpit-components-password.jsx:85
 msgid "password quality"
-msgstr "איכות הססמה"
+msgstr "איכות הסיסמה"
 
 #: pkg/packagekit/updates.jsx:287
 msgid "patches"

@@ -158,7 +158,6 @@ cockpit_handler_external (CockpitWebServer *server,
 {
   const gchar *original_path = cockpit_web_request_get_original_path (request);
   const gchar *path = cockpit_web_request_get_path (request);
-  const gchar *method = cockpit_web_request_get_method (request);
   GIOStream *io_stream = cockpit_web_request_get_io_stream (request);
   GByteArray *input = cockpit_web_request_get_buffer (request);
   GHashTable *headers = cockpit_web_request_get_headers (request);
@@ -229,12 +228,7 @@ cockpit_handler_external (CockpitWebServer *server,
         }
       else
         {
-          response = cockpit_web_response_new (io_stream, original_path, path, headers,
-                                               (cockpit_web_server_get_flags (server) & COCKPIT_WEB_SERVER_FOR_TLS_PROXY) ?
-                                                 COCKPIT_WEB_RESPONSE_FOR_TLS_PROXY : COCKPIT_WEB_RESPONSE_NONE);
-          cockpit_web_response_set_method (response, method);
-          cockpit_channel_response_open (service, headers, response, open);
-          g_object_unref (response);
+          cockpit_channel_response_open (service, request, open);
         }
       json_object_unref (open);
     }

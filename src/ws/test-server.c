@@ -432,12 +432,10 @@ on_handle_stream_external (CockpitWebServer *server,
                            gpointer user_data)
 {
   const gchar *path = cockpit_web_request_get_path (request);
-  const gchar *method = cockpit_web_request_get_method (request);
   GIOStream *io_stream = cockpit_web_request_get_io_stream (request);
   GByteArray *input = cockpit_web_request_get_buffer (request);
   GHashTable *headers = cockpit_web_request_get_headers (request);
 
-  CockpitWebResponse *response;
   gboolean handled = FALSE;
   const gchar *upgrade;
   CockpitCreds *creds;
@@ -506,10 +504,7 @@ on_handle_stream_external (CockpitWebServer *server,
             }
           else
             {
-              response = cockpit_web_response_new (io_stream, path, path, headers, COCKPIT_WEB_RESPONSE_NONE);
-              cockpit_web_response_set_method (response, method);
-              cockpit_channel_response_open (service, headers, response, open);
-              g_object_unref (response);
+              cockpit_channel_response_open (service, request, open);
               handled = TRUE;
             }
 

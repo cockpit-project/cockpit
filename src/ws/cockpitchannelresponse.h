@@ -20,6 +20,7 @@
 #ifndef __COCKPIT_CHANNEL_RESPONSE_H__
 #define __COCKPIT_CHANNEL_RESPONSE_H__
 
+#include "common/cockpitwebserver.h"
 #include "cockpitwebservice.h"
 
 G_BEGIN_DECLS
@@ -32,8 +33,7 @@ void             cockpit_channel_response_serve       (CockpitWebService *servic
                                                        const gchar *path);
 
 void             cockpit_channel_response_open        (CockpitWebService *service,
-                                                       GHashTable *headers,
-                                                       CockpitWebResponse *response,
+                                                       CockpitWebRequest *request,
                                                        JsonObject *open);
 
 G_END_DECLS

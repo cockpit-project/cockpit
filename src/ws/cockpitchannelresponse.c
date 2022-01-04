@@ -721,8 +721,7 @@ out:
 
 void
 cockpit_channel_response_open (CockpitWebService *service,
-                               GHashTable *in_headers,
-                               CockpitWebResponse *response,
+                               CockpitWebRequest *request,
                                JsonObject *open)
 {
   CockpitChannelResponse *self;
@@ -732,6 +731,8 @@ cockpit_channel_response_open (CockpitWebService *service,
   const gchar *content_type;
   const gchar *content_encoding;
   const gchar *content_disposition;
+
+  g_autoptr(CockpitWebResponse) response = cockpit_web_request_respond (request);
 
   /* Parse the external */
   if (!cockpit_web_service_parse_external (open, &content_type, &content_encoding, &content_disposition, NULL))

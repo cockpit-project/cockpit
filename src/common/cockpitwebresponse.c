@@ -56,7 +56,6 @@ struct _CockpitWebResponse {
   const gchar *logname;
   const gchar *path;
   gchar *full_path;
-  gchar *query;
   gchar *url_root;
   gchar *method;
   gchar *origin;
@@ -157,7 +156,6 @@ cockpit_web_response_finalize (GObject *object)
   CockpitWebResponse *self = COCKPIT_WEB_RESPONSE (object);
 
   g_free (self->full_path);
-  g_free (self->query);
   g_free (self->url_root);
   g_free (self->method);
   g_free (self->origin);
@@ -187,7 +185,6 @@ cockpit_web_response_class_init (CockpitWebResponseClass *klass)
  * cockpit_web_response_new:
  * @io: the stream to send on
  * @path: the path resource or NULL
- * @query: the query string or NULL
  * @in_headers: input headers or NULL
  * @flags: in #COCKPIT_WEB_RESPONSE_FOR_TLS_PROXY mode, the origin is assumed to
  *         be https://<host> even for a non-HTTPS connection.
@@ -204,7 +201,6 @@ CockpitWebResponse *
 cockpit_web_response_new (GIOStream *io,
                           const gchar *original_path,
                           const gchar *path,
-                          const gchar *query,
                           GHashTable *in_headers,
                           CockpitWebResponseFlags flags)
 {
@@ -245,7 +241,6 @@ cockpit_web_response_new (GIOStream *io,
         self->url_root = g_strndup (original_path, offset);
     }
 
-  self->query = g_strdup (query);
   if (self->path)
     self->logname = self->path;
   else
@@ -298,19 +293,6 @@ cockpit_web_response_get_path (CockpitWebResponse *self)
 const gchar *
 cockpit_web_response_get_url_root (CockpitWebResponse *self) {
   return self->url_root;
-}
-
-/**
- * cockpit_web_response_get_query:
- * @self: the response
- *
- * Returns: the resource path for response
- */
-const gchar *
-cockpit_web_response_get_query (CockpitWebResponse *self)
-{
-  g_return_val_if_fail (COCKPIT_IS_WEB_RESPONSE (self), NULL);
-  return self->query;
 }
 
 /**

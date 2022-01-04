@@ -39,6 +39,9 @@ const gchar *
 cockpit_web_request_get_path (CockpitWebRequest *self);
 
 const gchar *
+cockpit_web_request_get_query (CockpitWebRequest *self);
+
+const gchar *
 cockpit_web_request_get_method (CockpitWebRequest *self);
 
 GHashTable *

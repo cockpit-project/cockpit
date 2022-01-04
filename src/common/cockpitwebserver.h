@@ -67,6 +67,9 @@ cockpit_web_request_get_headers (CockpitWebRequest *self);
 GByteArray *
 cockpit_web_request_get_buffer (CockpitWebRequest *self);
 
+const gchar *
+cockpit_web_request_get_protocol (CockpitWebRequest *self);
+
 #define COCKPIT_TYPE_WEB_SERVER  (cockpit_web_server_get_type ())
 G_DECLARE_FINAL_TYPE(CockpitWebServer, cockpit_web_server, COCKPIT, WEB_SERVER, GObject)
 
@@ -109,6 +112,10 @@ cockpit_web_server_add_fd_listener (CockpitWebServer *self,
 
 GIOStream *
 cockpit_web_server_connect (CockpitWebServer *self);
+
+void
+cockpit_web_server_set_protocol_header (CockpitWebServer *self,
+                                        const gchar *protocol_header);
 
 G_END_DECLS
 

@@ -215,10 +215,7 @@ cockpit_handler_external (CockpitWebServer *server,
 
   if (!open)
     {
-      response = cockpit_web_response_new (io_stream, original_path, path, headers,
-                                           (cockpit_web_server_get_flags (server) & COCKPIT_WEB_SERVER_FOR_TLS_PROXY) ?
-                                             COCKPIT_WEB_RESPONSE_FOR_TLS_PROXY : COCKPIT_WEB_RESPONSE_NONE);
-
+      response = cockpit_web_request_respond (request);
       cockpit_web_response_error (response, 400, NULL, NULL);
       g_object_unref (response);
     }

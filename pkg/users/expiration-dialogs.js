@@ -42,7 +42,7 @@ function AccountExpirationDialogBody({ state, errors, change }) {
                                <span>{before}</span>
                                <DatePicker aria-label={_("Pick date")}
                                            buttonAriaLabel={_("Toggle date picker")}
-                                           locale={cockpit.language}
+                                           locale={timeformat.dateFormatLang()}
                                            weekStart={timeformat.firstDayOfWeek()}
                                            onChange={str => change("date", str)}
                                            invalidFormatText=""

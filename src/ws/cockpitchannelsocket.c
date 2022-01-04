@@ -168,7 +168,7 @@ respond_with_error (const gchar *original_path,
 {
   CockpitWebResponse *response;
 
-  response = cockpit_web_response_new (io_stream, original_path, path, NULL, headers,
+  response = cockpit_web_response_new (io_stream, original_path, path, headers,
                                        for_tls_proxy ? COCKPIT_WEB_RESPONSE_FOR_TLS_PROXY : COCKPIT_WEB_RESPONSE_NONE);
   cockpit_web_response_error (response, status, NULL, "%s", message);
   g_object_unref (response);

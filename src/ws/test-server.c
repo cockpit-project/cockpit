@@ -117,12 +117,13 @@ on_bus_acquired (GDBusConnection *connection,
 /* ---------------------------------------------------------------------------------------------------- */
 
 static gboolean
-mock_http_qs (CockpitWebResponse *response)
+mock_http_qs (CockpitWebRequest *request,
+              CockpitWebResponse *response)
 {
   const gchar *qs;
   GBytes *bytes;
 
-  qs = cockpit_web_response_get_query (response);
+  qs = cockpit_web_request_get_query (request);
   if (!qs)
     {
       cockpit_web_response_error (response, 400, NULL, "No query string");
@@ -257,7 +258,7 @@ on_handle_mock (CockpitWebServer *server,
   path += 5;
 
   if (g_str_equal (path, "/qs"))
-    return mock_http_qs (response);
+    return mock_http_qs (request, response);
   if (g_str_equal (path, "/stream"))
     return mock_http_stream (response);
   if (g_str_equal (path, "/headers"))
@@ -441,13 +442,11 @@ on_handle_stream_external (CockpitWebServer *server,
   const gchar *upgrade;
   CockpitCreds *creds;
   const gchar *expected;
-  const gchar *query;
   const gchar *segment;
   JsonObject *open = NULL;
   GBytes *bytes;
   guchar *decoded;
   gsize length;
-  gsize seglen;
 
   if (g_str_has_prefix (path, "/cockpit/echosocket"))
     {
@@ -481,16 +480,10 @@ on_handle_stream_external (CockpitWebServer *server,
       expected = cockpit_creds_get_csrf_token (creds);
       g_return_val_if_fail (expected != NULL, FALSE);
 
-      /* The end of the token */
-      query = strchr (segment, '?');
-      if (!query)
-        query = segment + strlen (segment);
-
       /* No such path is valid */
-      seglen = query - segment;
-      if (strlen(expected) == seglen && memcmp (expected, segment, seglen) == 0)
+      if (g_str_equal (segment, expected))
         {
-          decoded = g_base64_decode (query, &length);
+          decoded = g_base64_decode (cockpit_web_request_get_query (request), &length);
           if (decoded)
             {
               bytes = g_bytes_new_take (decoded, length);
@@ -513,7 +506,7 @@ on_handle_stream_external (CockpitWebServer *server,
             }
           else
             {
-              response = cockpit_web_response_new (io_stream, path, path, NULL, headers, COCKPIT_WEB_RESPONSE_NONE);
+              response = cockpit_web_response_new (io_stream, path, path, headers, COCKPIT_WEB_RESPONSE_NONE);
               cockpit_web_response_set_method (response, method);
               cockpit_channel_response_open (service, headers, response, open);
               g_object_unref (response);

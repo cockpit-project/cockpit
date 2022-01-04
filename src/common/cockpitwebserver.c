@@ -276,25 +276,9 @@ cockpit_web_server_default_handle_stream (CockpitWebServer *self,
   CockpitWebResponse *response;
   gboolean claimed = FALSE;
   GQuark detail = 0;
-  gchar *pos;
-  gchar *orig_pos;
-
-  /* Yes, we happen to know that we can modify this string safely. */
-  pos = strchr (request->path, '?');
-  if (pos != NULL)
-    {
-      *pos = '\0';
-      pos++;
-    }
-
-  /* We also have to strip original_path so that CockpitWebResponse
-     can rediscover url_root. */
-  orig_pos = strchr (request->original_path, '?');
-  if (orig_pos != NULL)
-    *orig_pos = '\0';
 
   /* TODO: Correct HTTP version for response */
-  response = cockpit_web_response_new (request->io, request->original_path, request->path, pos, request->headers,
+  response = cockpit_web_response_new (request->io, request->original_path, request->path, request->headers,
                                        (self->flags & COCKPIT_WEB_SERVER_FOR_TLS_PROXY) ?
                                          COCKPIT_WEB_RESPONSE_FOR_TLS_PROXY : COCKPIT_WEB_RESPONSE_NONE);
   cockpit_web_response_set_method (response, request->method);
@@ -745,7 +729,7 @@ cockpit_web_request_process_delayed_reply (CockpitWebRequest *self,
 
   g_assert (self->delayed_reply > 299);
 
-  response = cockpit_web_response_new (self->io, NULL, NULL, NULL, headers,
+  response = cockpit_web_response_new (self->io, NULL, NULL, headers,
                                        (self->web_server->flags & COCKPIT_WEB_SERVER_FOR_TLS_PROXY) ?
                                          COCKPIT_WEB_RESPONSE_FOR_TLS_PROXY : COCKPIT_WEB_RESPONSE_NONE);
   g_signal_connect_data (response, "done", G_CALLBACK (on_web_response_done),
@@ -836,16 +820,31 @@ cockpit_web_request_process (CockpitWebRequest *self,
       return;
     }
 
-  self->original_path = path;
-  self->path = path + self->web_server->url_root->len;
+  g_autofree gchar *path_copy = g_strdup (path);
+
+  self->original_path = path_copy;
+  self->path = path_copy + self->web_server->url_root->len;
   self->method = method;
   self->headers = headers;
+
+  gchar *query = strchr (path_copy, '?');
+  if (query)
+    {
+      *query = '\0';
+      self->query = query + 1;
+    }
+  else
+    self->query = "";
 
   /* See if we have any takers... */
   g_signal_emit (self->web_server, sig_handle_stream, 0, self, &claimed);
 
   if (!claimed)
     claimed = cockpit_web_server_default_handle_stream (self->web_server, self);
+
+  self->original_path = NULL;
+  self->path = NULL;
+  self->query = NULL;
 
   if (!claimed)
     g_critical ("no handler responded to request: %s", self->path);
@@ -1277,6 +1276,12 @@ cockpit_web_request_get_path (CockpitWebRequest *self)
 }
 
 const gchar *
+cockpit_web_request_get_query (CockpitWebRequest *self)
+{
+  return self->query;
+}
+
+const gchar *
 cockpit_web_request_get_method (CockpitWebRequest *self)
 {
   return self->method;
@@ -1292,6 +1297,26 @@ GHashTable *
 cockpit_web_request_get_headers (CockpitWebRequest *self)
 {
   return self->headers;
+}
+
+const gchar *
+cockpit_web_request_lookup_header (CockpitWebRequest *self,
+                                   const gchar *header)
+{
+  if (!self->headers)
+    return NULL;
+
+  return g_hash_table_lookup (self->headers, header);
+}
+
+gchar *
+cockpit_web_request_parse_cookie (CockpitWebRequest *self,
+                                  const gchar *name)
+{
+  if (!self->headers)
+    return NULL;
+
+  return cockpit_web_server_parse_cookie (self->headers, name);
 }
 
 GIOStream *

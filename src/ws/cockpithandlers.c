@@ -167,14 +167,12 @@ cockpit_handler_external (CockpitWebServer *server,
   CockpitWebService *service = NULL;
   const gchar *segment = NULL;
   JsonObject *open = NULL;
-  const gchar *query = NULL;
   CockpitCreds *creds;
   const gchar *expected;
   const gchar *upgrade;
   guchar *decoded;
   GBytes *bytes;
   gsize length;
-  gsize seglen;
 
   /* The path must start with /cockpit+xxx/channel/csrftoken? or similar */
   if (path && path[0])
@@ -196,27 +194,14 @@ cockpit_handler_external (CockpitWebServer *server,
   expected = cockpit_creds_get_csrf_token (creds);
   g_return_val_if_fail (expected != NULL, FALSE);
 
-  /* The end of the token */
-  query = strchr (segment, '?');
-  if (query)
-    {
-      seglen = query - segment;
-      query += 1;
-    }
-  else
-    {
-      seglen = strlen (segment);
-      query = "";
-    }
-
   /* No such path is valid */
-  if (strlen (expected) != seglen || memcmp (expected, segment, seglen) != 0)
+  if (!g_str_equal (segment, expected))
     {
       g_message ("invalid csrf token");
       return FALSE;
     }
 
-  decoded = g_base64_decode (query, &length);
+  decoded = g_base64_decode (cockpit_web_request_get_query (request), &length);
   if (decoded)
     {
       bytes = g_bytes_new_take (decoded, length);
@@ -230,7 +215,7 @@ cockpit_handler_external (CockpitWebServer *server,
 
   if (!open)
     {
-      response = cockpit_web_response_new (io_stream, original_path, path, NULL, headers,
+      response = cockpit_web_response_new (io_stream, original_path, path, headers,
                                            (cockpit_web_server_get_flags (server) & COCKPIT_WEB_SERVER_FOR_TLS_PROXY) ?
                                              COCKPIT_WEB_RESPONSE_FOR_TLS_PROXY : COCKPIT_WEB_RESPONSE_NONE);
 
@@ -247,7 +232,7 @@ cockpit_handler_external (CockpitWebServer *server,
         }
       else
         {
-          response = cockpit_web_response_new (io_stream, original_path, path, NULL, headers,
+          response = cockpit_web_response_new (io_stream, original_path, path, headers,
                                                (cockpit_web_server_get_flags (server) & COCKPIT_WEB_SERVER_FOR_TLS_PROXY) ?
                                                  COCKPIT_WEB_RESPONSE_FOR_TLS_PROXY : COCKPIT_WEB_RESPONSE_NONE);
           cockpit_web_response_set_method (response, method);

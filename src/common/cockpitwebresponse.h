@@ -60,7 +60,6 @@ extern const gchar *  cockpit_web_exception_escape_root;
 CockpitWebResponse *  cockpit_web_response_new           (GIOStream *io,
                                                           const gchar *original_path,
                                                           const gchar *path,
-                                                          const gchar *query,
                                                           GHashTable *in_headers,
                                                           CockpitWebResponseFlags flags);
 void                  cockpit_web_response_set_method    (CockpitWebResponse *response,
@@ -68,8 +67,6 @@ void                  cockpit_web_response_set_method    (CockpitWebResponse *re
 
 
 const gchar *         cockpit_web_response_get_path      (CockpitWebResponse *self);
-
-const gchar *         cockpit_web_response_get_query     (CockpitWebResponse *self);
 
 GIOStream *           cockpit_web_response_get_stream    (CockpitWebResponse *self);
 

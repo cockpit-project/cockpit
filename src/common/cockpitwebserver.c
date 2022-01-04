@@ -278,10 +278,7 @@ cockpit_web_server_default_handle_stream (CockpitWebServer *self,
   GQuark detail = 0;
 
   /* TODO: Correct HTTP version for response */
-  response = cockpit_web_response_new (request->io, request->original_path, request->path, request->headers,
-                                       (self->flags & COCKPIT_WEB_SERVER_FOR_TLS_PROXY) ?
-                                         COCKPIT_WEB_RESPONSE_FOR_TLS_PROXY : COCKPIT_WEB_RESPONSE_NONE);
-  cockpit_web_response_set_method (response, request->method);
+  response = cockpit_web_request_respond (request);
   g_signal_connect_data (response, "done", G_CALLBACK (on_web_response_done),
                          g_object_ref (self), (GClosureNotify)g_object_unref, 0);
 
@@ -729,9 +726,7 @@ cockpit_web_request_process_delayed_reply (CockpitWebRequest *self,
 
   g_assert (self->delayed_reply > 299);
 
-  response = cockpit_web_response_new (self->io, NULL, NULL, headers,
-                                       (self->web_server->flags & COCKPIT_WEB_SERVER_FOR_TLS_PROXY) ?
-                                         COCKPIT_WEB_RESPONSE_FOR_TLS_PROXY : COCKPIT_WEB_RESPONSE_NONE);
+  response = cockpit_web_request_respond (self);
   g_signal_connect_data (response, "done", G_CALLBACK (on_web_response_done),
                          g_object_ref (self->web_server), (GClosureNotify)g_object_unref, 0);
 
@@ -1261,6 +1256,17 @@ cockpit_web_request_start (CockpitWebServer *web_server,
 
   /* Owns the request */
   g_hash_table_add (web_server->requests, self);
+}
+
+CockpitWebResponse *
+cockpit_web_request_respond (CockpitWebRequest *self)
+{
+  CockpitWebResponseFlags flags = COCKPIT_WEB_RESPONSE_NONE;
+
+  if (self->web_server->flags & COCKPIT_WEB_SERVER_FOR_TLS_PROXY)
+    flags |= COCKPIT_WEB_RESPONSE_FOR_TLS_PROXY;
+
+  return cockpit_web_response_new (self->io, self->original_path, self->path, self->headers, flags);
 }
 
 const gchar *

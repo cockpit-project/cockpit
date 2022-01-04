@@ -32,6 +32,9 @@ typedef struct _CockpitWebRequest CockpitWebRequest;
 GType
 cockpit_web_request_get_type (void);
 
+CockpitWebResponse *
+cockpit_web_request_respond (CockpitWebRequest *self);
+
 const gchar *
 cockpit_web_request_get_original_path (CockpitWebRequest *self);
 

@@ -232,6 +232,8 @@ main (int argc,
                     NULL);
     }
 
+  cockpit_web_server_set_protocol_header (server, cockpit_conf_string ("WebService", "ProtocolHeader"));
+
   /* Ignores stuff it shouldn't handle */
   g_signal_connect (server, "handle-stream",
                     G_CALLBACK (cockpit_handler_socket), &data);

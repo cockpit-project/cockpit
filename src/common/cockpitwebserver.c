@@ -21,6 +21,7 @@
 
 #include "cockpitwebserver.h"
 
+#include "cockpitconf.h"
 #include "cockpithash.h"
 #include "cockpitmemfdread.h"
 #include "cockpitmemory.h"
@@ -53,6 +54,8 @@ struct _CockpitWebServer {
   gint request_timeout;
   gint request_max;
   CockpitWebServerFlags flags;
+
+  gchar *protocol_header;
 
   GSocketService *socket_service;
   GMainContext *main_context;
@@ -134,6 +137,7 @@ cockpit_web_server_finalize (GObject *object)
   g_string_free (server->ssl_exception_prefix, TRUE);
   g_string_free (server->url_root, TRUE);
   g_clear_object (&server->socket_service);
+  g_free (server->protocol_header);
 
   G_OBJECT_CLASS (cockpit_web_server_parent_class)->finalize (object);
 }
@@ -663,6 +667,16 @@ cockpit_web_server_connect (CockpitWebServer *self)
   cockpit_web_request_start (self, server, TRUE);
 
   return g_steal_pointer (&client);
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+
+void
+cockpit_web_server_set_protocol_header (CockpitWebServer *self,
+                                        const gchar *protocol_header)
+{
+  g_free (self->protocol_header);
+  self->protocol_header = g_strdup (protocol_header);
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
@@ -1330,5 +1344,26 @@ cockpit_web_request_get_io_stream (CockpitWebRequest *self)
 {
   return self->io;
 }
+
+const gchar *
+cockpit_web_request_get_protocol (CockpitWebRequest *self)
+{
+  if (G_IS_TLS_CONNECTION (self->io))
+    return "https";
+
+  if (self->web_server && self->web_server->flags & COCKPIT_WEB_SERVER_FOR_TLS_PROXY)
+    return "https";
+
+  if (self->web_server && self->web_server->protocol_header)
+    {
+      const gchar *protocol = g_hash_table_lookup (self->headers, self->web_server->protocol_header);
+      if (protocol)
+        return protocol;
+    }
+
+  return "http";
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
 
 /* ---------------------------------------------------------------------------------------------------- */

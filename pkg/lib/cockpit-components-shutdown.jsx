@@ -206,7 +206,7 @@ export class ShutdownModal extends React.Component {
                                                 dateParse={timeformat.parseShortDate}
                                                 invalidFormatText=""
                                                 isDisabled={!this.state.formFilled}
-                                                locale={cockpit.language}
+                                                locale={timeformat.dateFormatLang()}
                                                 weekStart={timeformat.firstDayOfWeek()}
                                                 onBlur={this.calculate}
                                                 onChange={(d, ds) => this.updateDate(d, ds)}

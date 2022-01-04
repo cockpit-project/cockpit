@@ -312,7 +312,7 @@ const CreateTimerDialogBody = ({ setIsOpen, owner }) => {
                                         {repeat == "yearly" && <>
                                             <DatePicker aria-label={_("Pick date")}
                                                         buttonAriaLabel={_("Toggle date picker")}
-                                                        locale={cockpit.language}
+                                                        locale={timeformat.dateFormatLang()}
                                                         weekStart={timeformat.firstDayOfWeek()}
                                                         onChange={(str, data) => {
                                                             const arr = [...repeatPatterns];

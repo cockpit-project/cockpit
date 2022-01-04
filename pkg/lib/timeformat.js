@@ -6,7 +6,7 @@ import { parse, formatDistanceToNow } from 'date-fns';
 import * as locales from 'date-fns/locale';
 
 // this needs to be dynamic, as some pages don't initialize cockpit.language right away
-const dateFormatLang = () => cockpit.language.replace('_', '-');
+export const dateFormatLang = () => cockpit.language.replace('_', '-');
 
 const dateFormatLangDateFns = () => {
     if (cockpit.language == "en") return "enUS";

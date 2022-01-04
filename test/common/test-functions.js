@@ -311,10 +311,25 @@ function currentFrameAbsolutePosition() {
     }, { x: 0, y: 0 });
 }
 
-function ph_element_clip(sel) {
-    var r = ph_find(sel).getBoundingClientRect();
+function flatten(array_of_arrays) {
+    if (array_of_arrays.length > 0)
+        return Array.prototype.concat.apply([], array_of_arrays);
+    else
+        return [];
+}
+
+function ph_selector_clips(sels) {
     var f = currentFrameAbsolutePosition();
-    return { x: r.x + f.x, y: r.y + f.y, width: r.width, height: r.height, scale: 1 };
+    var elts = flatten(sels.map(ph_select))
+    return elts.map(e => {
+        const r = e.getBoundingClientRect();
+        return { x: r.x + f.x, y: r.y + f.y, width: r.width, height: r.height, scale: 1 };
+    });
+}
+
+function ph_element_clip(sel) {
+    ph_find(sel); // just to make sure it is not ambiguous
+    return ph_selector_clips([sel])[0];
 }
 
 function ph_count_animations(sel) {

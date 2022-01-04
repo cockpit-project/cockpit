@@ -799,18 +799,18 @@ class Browser:
 
         rect = self.call_js_func('ph_element_clip', selector)
 
-        def relative_clip(sel):
-            r = self.call_js_func('ph_element_clip', sel)
-            return (r['x'] - rect['x'],
-                    r['y'] - rect['y'],
-                    r['x'] - rect['x'] + r['width'],
-                    r['y'] - rect['y'] + r['height'])
+        def relative_clips(sels):
+            return list(map(lambda r: (r['x'] - rect['x'],
+                                       r['y'] - rect['y'],
+                                       r['x'] - rect['x'] + r['width'],
+                                       r['y'] - rect['y'] + r['height']),
+                            self.call_js_func('ph_selector_clips', sels)))
 
         reference_dir = os.path.join(TEST_DIR, 'reference')
         if not os.path.exists(os.path.join(reference_dir, '.git')):
             subprocess.check_call([f'{TEST_DIR}/common/pixel-tests', 'pull'])
 
-        ignore_rects = list(map(relative_clip, map(lambda item: selector + " " + item, ignore)))
+        ignore_rects = relative_clips(list(map(lambda item: selector + " " + item, ignore)))
         base = self.pixels_label + "-" + key
         if self.cdp.mobile:
             base += "-mobile"

@@ -366,6 +366,14 @@ troubleshooting, interactive command-line sessions, and more.
 %package bridge
 Summary: Cockpit bridge server-side component
 Requires: glib-networking
+Recommends: cockpit-system
+Suggests: cockpit-kdump
+Suggests: cockpit-networkmanager
+Suggests: cockpit-packagekit
+Suggests: cockpit-pcp
+Suggests: cockpit-selinux
+Suggests: cockpit-sosreport
+Suggests: cockpit-storaged
 Provides: cockpit-ssh = %{version}-%{release}
 # PR #10430 dropped workaround for ws' inability to understand x-host-key challenge
 Conflicts: cockpit-ws < 181.x

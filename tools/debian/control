@@ -57,6 +57,12 @@ Architecture: any
 Depends: ${misc:Depends},
          ${shlibs:Depends},
          glib-networking
+Recommends: cockpit-system (>= ${source_Version}),
+Suggests: cockpit-networkmanager (>= ${source_Version}),
+          cockpit-packagekit (>= ${source_Version}),
+          cockpit-pcp (>= ${source_Version}),
+          cockpit-sosreport (>= ${source_Version}),
+          cockpit-storaged (>= ${source_Version}),
 Provides: cockpit-ssh
 Breaks: cockpit-ws (<< 181.x),
 # 233 dropped jquery.js, pages started to bundle it (commit 049e8b8dce)

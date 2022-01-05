@@ -145,8 +145,7 @@ else
     fail=1
 fi
 
-# for every C file, if there is any line starting with '#', then the first one
-# must be exactly: #include "config.h"
+# every C file should #include "config.h" at the top
 if [ -e .git ]; then
     for f in $(git ls-tree --name-only -r --full-name HEAD | grep '\.c$'); do
         if sed -n '/^#include "config.h"$/ q1; /^\s*#/ q0' "$f"; then

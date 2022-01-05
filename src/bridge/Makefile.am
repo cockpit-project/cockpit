@@ -334,7 +334,7 @@ CLEANFILES += \
 # for this.
 #
 mock-pmda.so: src/bridge/mock-pmda.c
-	$(AM_V_CCLD) $(CC) $(CFLAGS) -fPIC -shared \
+	$(AM_V_CCLD) $(CC) $(AM_CPPFLAGS) $(CFLAGS) -fPIC -shared \
 		-DSRCDIR=\"$(abs_srcdir)\" \
 		-o mock-pmda.so $(srcdir)/src/bridge/mock-pmda.c -lpcp_pmda -lpcp
 

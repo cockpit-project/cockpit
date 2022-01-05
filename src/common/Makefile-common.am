@@ -243,7 +243,7 @@ nodist_noinst_DATA += libpreload-temp-home.so
 EXTRA_DIST += src/common/preload-temp-home.c
 
 libpreload-temp-home.so: src/common/preload-temp-home.c
-	$(AM_V_CCLD) $(CC) $(CFLAGS) -fPIC -shared -o $@ $^
+	$(AM_V_CCLD) $(CC) $(AM_CPPFLAGS) $(CFLAGS) -fPIC -shared -o $@ $^
 
 CLEANFILES += \
 	$(test_locale_MO) \

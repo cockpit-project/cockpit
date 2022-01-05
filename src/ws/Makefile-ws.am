@@ -105,7 +105,7 @@ noinst_PROGRAMS += pam_cockpit_cert.so
 pam_cockpit_cert_so_SOURCES = \
 	src/ws/pam_cockpit_cert.c
 pam_cockpit_cert.so$(EXEEXT): $(pam_cockpit_cert_so_SOURCES)
-	$(AM_V_CCLD) $(CC) -fPIC -shared $(PAM_COCKPIT_CERT_CFLAGS) $(CFLAGS) $(DEFS) -I$(builddir) -o $@ $^ $(LDFLAGS) $(PAM_COCKPIT_CERT_LIBS)
+	$(AM_V_CCLD) $(CC) -fPIC -shared $(PAM_COCKPIT_CERT_CFLAGS) $(AM_CPPFLAGS) $(CFLAGS) $(DEFS) -I$(builddir) -o $@ $^ $(LDFLAGS) $(PAM_COCKPIT_CERT_LIBS)
 
 CLEANFILES += pam_cockpit_cert.so
 
@@ -320,7 +320,7 @@ TESTS += $(WS_CHECKS)
 
 mock_pam_conv_mod_so_SOURCES = src/ws/mock-pam-conv-mod.c
 mock-pam-conv-mod.so$(EXEEXT): $(mock_pam_conv_mod_so_SOURCES)
-	$(AM_V_CCLD) $(CC) -fPIC -shared $(CFLAGS) -I$(builddir) \
+	$(AM_V_CCLD) $(CC) -fPIC -shared $(AM_CPPFLAGS) $(CFLAGS) -I$(builddir) \
 		-o $@ $^ $(PAM_LIBS) $(LDFLAGS)
 
 noinst_PROGRAMS += mock-pam-conv-mod.so

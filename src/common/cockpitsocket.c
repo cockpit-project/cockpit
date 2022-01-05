@@ -17,6 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "config.h"
+
 #include "cockpitsocket.h"
 
 #include <sys/socket.h>

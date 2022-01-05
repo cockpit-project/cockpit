@@ -17,8 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* for RTLD_NEXT */
-#define _GNU_SOURCE
+#include "config.h"
+
 #include <dlfcn.h>
 #include <pwd.h>
 #include <stdio.h>

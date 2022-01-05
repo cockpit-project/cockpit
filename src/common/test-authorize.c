@@ -32,7 +32,7 @@
  * Author: Stef Walter <stefw@redhat.com>
  */
 
-#define _GNU_SOURCE
+#include "config.h"
 
 #include "retest/retest.h"
 

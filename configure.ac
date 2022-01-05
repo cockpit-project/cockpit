@@ -42,6 +42,7 @@ AM_INIT_AUTOMAKE([1.11 foreign dist-xz no-dist-gzip subdir-objects])
 am__tar='tar --format=ustar --sort=name --owner=root:0 --group=root:0 -chf - "$$tardir"'
 
 AC_USE_SYSTEM_EXTENSIONS
+AC_SYS_LARGEFILE
 AC_PROG_RANLIB
 
 AM_SILENT_RULES([yes])

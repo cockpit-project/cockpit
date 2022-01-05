@@ -15,6 +15,8 @@
  * for more details.
  */
 
+#include "config.h"
+
 #include <pcp/pmapi.h>
 #include <pcp/pmda.h>
 

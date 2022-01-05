@@ -40,6 +40,8 @@
  * Copyright (C) 2014 Karel Zak <kzak@redhat.com>
  */
 
+#include "config.h"
+
 #include <signal.h>
 #include "cockpitunixsignal.h"
 

@@ -22,7 +22,6 @@
  *   Stef Walter <stef@memberwebs.com>
  */
 
-#define _GNU_SOURCE 1
 
 #include "config.h"
 

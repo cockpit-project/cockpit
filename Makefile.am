@@ -136,7 +136,7 @@ AM_CPPFLAGS = \
 	-DPACKAGE_SYSCONF_DIR=\""$(sysconfdir)"\" \
 	-DPACKAGE_BIN_DIR=\""$(bindir)"\" \
 	-DPACKAGE_LIB_DIR=\""$(libdir)"\" \
-	-D_POSIX_PTHREAD_SEMANTICS -D_REENTRANT \
+	-D_REENTRANT \
 	$(NULL)
 
 AM_LDFLAGS = -Wl,--as-needed

@@ -19,6 +19,8 @@
  * Author: Stef Walter <stefw@redhat.com>
  */
 
+#include "config.h"
+
 #include "common/cockpitframe.h"
 #include "common/cockpithex.h"
 #include "common/cockpitjson.h"

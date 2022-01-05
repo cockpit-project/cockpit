@@ -17,10 +17,10 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "config.h"
+
 /* Define which PAM interfaces we provide */
 #define PAM_SM_AUTH
-
-#include "config.h"
 
 #include <security/pam_modules.h>
 

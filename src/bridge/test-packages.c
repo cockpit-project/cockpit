@@ -17,9 +17,9 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdio.h>
-
 #include "config.h"
+
+#include <stdio.h>
 
 #include "cockpithttpstream.h"
 #include "cockpitpackages.h"

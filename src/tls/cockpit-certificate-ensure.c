@@ -17,7 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
+#include "config.h"
+
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
 #include <assert.h>

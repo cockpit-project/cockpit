@@ -2,7 +2,7 @@
 # run static code checks like pyflakes and pycodestyle
 set -eu
 
-echo "1..8"
+echo "1..9"
 
 cd "${srcdir:-.}"
 fail=0
@@ -143,6 +143,20 @@ elif V=0 tools/node-modules test_static_code; then
 else
     echo "not ok 8 node_modules freshness"
     fail=1
+fi
+
+# for every C file, if there is any line starting with '#', then the first one
+# must be exactly: #include "config.h"
+if [ -e .git ]; then
+    for f in $(git ls-tree --name-only -r --full-name HEAD | grep '\.c$'); do
+        if sed -n '/^#include "config.h"$/ q1; /^\s*#/ q0' "$f"; then
+            echo "$f"
+            fail=1
+        fi
+    done
+    echo "$([ $fail -eq 0 ] || echo 'not ')ok 9 config.h properly included from all files"
+else
+    echo "ok 9 config.h # SKIP not a git tree"
 fi
 
 exit $fail

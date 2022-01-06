@@ -275,10 +275,9 @@ cockpit_web_server_default_handle_stream (CockpitWebServer *self,
 {
   CockpitWebResponse *response;
   gboolean claimed = FALSE;
-  GQuark detail;
+  GQuark detail = 0;
   gchar *pos;
   gchar *orig_pos;
-  gchar bak;
 
   /* Yes, we happen to know that we can modify this string safely. */
   pos = strchr (request->path, '?');
@@ -312,23 +311,22 @@ cockpit_web_server_default_handle_stream (CockpitWebServer *self,
    * of the entire path:
    *
    *  /component
+   *
+   * We only bother to calculate the detail if it would have a length of
+   * less than 100: nobody is going to register a signal handler for a
+   * longer path than that.
    */
-
-  /* Temporarily null terminate string after first component */
-  pos = NULL;
-  if (request->path[0] != '\0')
+  g_assert (request->path[0] == '/');
+  gsize component_end = 1 + strcspn (request->path + 1, "/");
+  if (request->path[component_end] == '/')
+    component_end++;
+  if (component_end < 100)
     {
-      pos = strchr (request->path + 1, '/');
-      if (pos != NULL)
-        {
-          pos++;
-          bak = *pos;
-          *pos = '\0';
-        }
+      gchar buffer[component_end + 1];
+      memcpy (buffer, request->path, component_end);
+      buffer[component_end] = '\0';
+      detail = g_quark_try_string (buffer);
     }
-  detail = g_quark_try_string (request->path);
-  if (pos != NULL)
-    *pos = bak;
 
   /* See if we have any takers... */
   g_signal_emit (self,

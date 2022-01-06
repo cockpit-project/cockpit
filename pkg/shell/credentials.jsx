@@ -138,7 +138,7 @@ export const CredentialsModal = ({ onClose }) => {
                                     }
                                 ],
                                 expandedContent,
-                                props: { key: currentKey.name || currentKey.comment, 'data-name': currentKey.name || currentKey.comment, 'data-loaded': !!currentKey.loaded },
+                                props: { key: currentKey.fingerprint, 'data-name': currentKey.name || currentKey.comment, 'data-loaded': !!currentKey.loaded },
                             });
                         })} />
                 </Stack>

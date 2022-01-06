@@ -66,7 +66,7 @@ export const CredentialsModal = ({ onClose }) => {
 
         /* Key needs to be loaded, show load UI */
         if (enable && !key.loaded) {
-            setUnlockKey(id);
+            setUnlockKey(key.name);
         /* Key needs to be unloaded, do that directly */
         } else if (!enable && key.loaded) {
             keys.unload(key).catch(ex => setDialogError(ex.message));
@@ -91,7 +91,7 @@ export const CredentialsModal = ({ onClose }) => {
                             {_("Add key")}
                         </Button>
                     </Flex>
-                    {addNewKey && <AddNewKey load={keys.load} onClose={() => setAddNewKey(false)} />}
+                    {addNewKey && <AddNewKey load={keys.load} unlockKey={setUnlockKey} onClose={() => setAddNewKey(false)} />}
                     <ListingTable
                         aria-label={ _("SSH keys") }
                         gridBreakPoint=''
@@ -143,12 +143,12 @@ export const CredentialsModal = ({ onClose }) => {
                         })} />
                 </Stack>
             </Modal>
-            {unlockKey && <UnlockKey currentKey={keys.items[unlockKey]} load={keys.load} onClose={() => setUnlockKey(undefined)} />}
+            {unlockKey && <UnlockKey keyName={unlockKey} load={keys.load} onClose={() => { setUnlockKey(undefined); setAddNewKey(false) }} />}
         </>
     );
 };
 
-const AddNewKey = ({ onClose, load }) => {
+const AddNewKey = ({ load, unlockKey, onClose }) => {
     const [addNewKeyLoading, setAddNewKeyLoading] = useState(false);
     const [newKeyPath, setNewKeyPath] = useState("");
     const [newKeyPathError, setNewKeyPathError] = useState();
@@ -161,7 +161,7 @@ const AddNewKey = ({ onClose, load }) => {
                     if (!ex.sent_password)
                         setNewKeyPathError(ex.message);
                     else
-                        onClose();
+                        unlockKey(newKeyPath);
                 })
                 .finally(() => setAddNewKeyLoading(false));
     };
@@ -288,17 +288,15 @@ const KeyPassword = ({ currentKey, change, setDialogError }) => {
     );
 };
 
-const UnlockKey = ({ currentKey, load, onClose }) => {
+const UnlockKey = ({ keyName, load, onClose }) => {
     const [password, setPassword] = useState();
     const [dialogError, setDialogError] = useState();
 
     function load_key() {
-        const name = currentKey.name;
-
-        if (!name)
+        if (!keyName)
             return;
 
-        load(name, password)
+        load(keyName, password)
                 .then(onClose)
                 .catch(ex => {
                     setDialogError(ex.message);
@@ -309,18 +307,18 @@ const UnlockKey = ({ currentKey, load, onClose }) => {
     return (
         <Modal isOpen position="top" variant="small"
                onClose={onClose}
-               title={cockpit.format(_("Unlock key $0"), currentKey.name)}
+               title={cockpit.format(_("Unlock key $0"), keyName)}
                footer={
                    <>
-                       <Button variant="primary" id={(currentKey.name || currentKey.comment) + "-unlock"} onClick={load_key}>{_("Unlock")}</Button>
+                       <Button variant="primary" id={keyName + "-unlock"} isDisabled={!keyName} onClick={load_key}>{_("Unlock")}</Button>
                        <Button variant='link' onClick={onClose}>{_("Cancel")}</Button>
                    </>
                }>
             <>
                 {dialogError && <ModalError dialogError={dialogError} />}
                 <Form onSubmit={e => { e.preventDefault(); return false }} isHorizontal>
-                    <FormGroup label={_("Password")} fieldId={(currentKey.name || currentKey.comment) + "-password"} type="password">
-                        <TextInput type="password" id={(currentKey.name || currentKey.comment) + "-password"} value={password} onChange={setPassword} />
+                    <FormGroup label={_("Password")} fieldId={keyName + "-password"} type="password">
+                        <TextInput type="password" id={keyName + "-password"} value={password} onChange={setPassword} />
                     </FormGroup>
                 </Form>
             </>

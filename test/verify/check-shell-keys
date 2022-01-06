@@ -409,6 +409,22 @@ session    optional     pam_ssh_add.so
             waitKeyLoaded(new_key, True)
             waitKeyPresent(new_key, False)
 
+        # Test adding key with passphrase
+        m.execute("ssh-keygen -t rsa -N 'foobar' -f /tmp/new_with_passphrase.rsa")
+        m.execute("chown admin:admin /tmp/new_with_passphrase.rsa")
+        m.execute("rm /tmp/new_with_passphrase.rsa.pub")
+
+        b.wait_not_present("#ssh-file-add")
+        b.click("#ssh-file-add-custom")
+        b.set_file_autocomplete_val("#ssh-file-add-key", "/tmp/new_with_passphrase.rsa")
+        b.click("#ssh-file-add")
+        b.wait_visible("h1:contains('Unlock key /tmp/new_with_passphrase.rsa')")
+        b.set_input_text("#\\/tmp\\/new_with_passphrase\\.rsa-password", "foobar")
+        b.click("button:contains('Unlock')")
+        b.wait_not_present("h1:contains('Unlock key /tmp/new_with_passphrase.rsa')")
+        b.wait_not_present("#ssh-file-add")
+        b.wait_js_func("ph_count_check", "#credential-keys tbody", 4)
+
 
 if __name__ == '__main__':
     test_main()

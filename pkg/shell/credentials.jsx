@@ -128,7 +128,7 @@ export const CredentialsModal = ({ onClose }) => {
                             return ({
                                 columns: [
                                     {
-                                        title: currentKey.name,
+                                        title: currentKey.name || currentKey.comment,
                                     },
                                     {
                                         title: <Switch aria-label={_("Use key")}

@@ -754,7 +754,9 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
             err = m.execute('! busctl call org.freedesktop.sssd.infopipe /org/freedesktop/sssd/infopipe/Users '
                             'org.freedesktop.sssd.infopipe.Users FindByValidCertificate s -- '
                             '''"$(cat %s)" 2>&1''' % alice_cert)
-            self.assertIn("Invalid certificate provided", err)
+            # HACK: sssd 2.6.1 has a broken error message ("Invalid certificate provided"), accept that as well
+            # until 2.6.2 is available everywhere. https://github.com/SSSD/sssd/issues/5911
+            self.assertRegex(err, "Invalid certificate provided|Certificate authority file not found")
 
             m.execute("mkdir -p /etc/sssd/pki")
             # install our CA, so that sssd can validate

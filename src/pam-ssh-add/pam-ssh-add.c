@@ -46,6 +46,7 @@
 #include "pam-ssh-add.h"
 
 #include "../common/cockpitcloserange.h"
+#include "../common/cockpitmemory.h"
 
 /* programs that can be overwidden in tests */
 const char *pam_ssh_agent_program = PATH_SSH_AGENT;
@@ -809,9 +810,11 @@ static int
 stash_password_for_session (pam_handle_t *pamh,
                             const char *password)
 {
-  if (pam_set_data (pamh, STORED_AUTHTOK, strdup (password),
+  char *password_copy = strdupx (password);
+  if (pam_set_data (pamh, STORED_AUTHTOK, password_copy,
                     cleanup_free_password) != PAM_SUCCESS)
     {
+      free_password (password_copy);
       message ("error stashing password for session");
       return PAM_AUTHTOK_RECOVER_ERR;
     }

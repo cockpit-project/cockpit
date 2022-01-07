@@ -68,6 +68,9 @@ GByteArray *
 cockpit_web_request_get_buffer (CockpitWebRequest *self);
 
 const gchar *
+cockpit_web_request_get_host (CockpitWebRequest *self);
+
+const gchar *
 cockpit_web_request_get_protocol (CockpitWebRequest *self);
 
 #define COCKPIT_TYPE_WEB_SERVER  (cockpit_web_server_get_type ())

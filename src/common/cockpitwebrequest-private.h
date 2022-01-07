@@ -16,6 +16,7 @@ struct _CockpitWebRequest {
   GHashTable *headers;
   const gchar *original_path;
   const gchar *path;
+  const gchar *host;
   const gchar *query;
   const gchar *method;
 };

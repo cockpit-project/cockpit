@@ -307,9 +307,6 @@ on_handle_stream_socket (CockpitWebServer *server,
                          gpointer user_data)
 {
   const gchar *path = cockpit_web_request_get_path (request);
-  GIOStream *io_stream = cockpit_web_request_get_io_stream (request);
-  GByteArray *input = cockpit_web_request_get_buffer (request);
-  GHashTable *headers = cockpit_web_request_get_headers (request);
 
   CockpitTransport *transport;
   const gchar *query = NULL;
@@ -392,7 +389,7 @@ on_handle_stream_socket (CockpitWebServer *server,
       g_signal_handler_disconnect (transport, handler);
     }
 
-  cockpit_web_service_socket (service, path, io_stream, headers, input, FALSE /* for_tls_proxy */);
+  cockpit_web_service_socket (service, request);
 
   /* Keeps ref on itself until it closes */
   g_object_unref (service);
@@ -499,7 +496,7 @@ on_handle_stream_external (CockpitWebServer *server,
           upgrade = g_hash_table_lookup (headers, "Upgrade");
           if (upgrade && g_ascii_strcasecmp (upgrade, "websocket") == 0)
             {
-              cockpit_channel_socket_open (service, open, path, path, io_stream, headers, input, FALSE /* for_tls_proxy */);
+              cockpit_channel_socket_open (service, open, request);
               handled = TRUE;
             }
           else

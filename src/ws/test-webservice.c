@@ -137,12 +137,7 @@ handle_stream (CockpitWebServer *web_server,
   TestCase *test = user_data;
 
   g_assert (test->web_server == web_server);
-  cockpit_web_service_socket (test->service,
-                              cockpit_web_request_get_path (request),
-                              cockpit_web_request_get_io_stream (request),
-                              cockpit_web_request_get_headers (request),
-                              cockpit_web_request_get_buffer (request),
-                              cockpit_web_server_get_flags (test->web_server) & COCKPIT_WEB_SERVER_FOR_TLS_PROXY);
+  cockpit_web_service_socket (test->service, request);
   g_signal_handler_disconnect (web_server, test->request_handler);
   test->request_handler = 0;
 

@@ -31,6 +31,7 @@
 #include "common/cockpittest.h"
 #include "common/cockpittransport.h"
 #include "common/cockpitwebserver.h"
+#include "common/cockpitwebrequest-private.h"
 
 #include "websocket/websocket.h"
 
@@ -41,9 +42,6 @@
 
 /* Mock override from cockpitconf.c */
 extern const gchar *cockpit_config_file;
-
-/* Mock override from cockpitwebservice.c */
-extern const gchar *cockpit_ws_default_protocol_header;
 
 #define TIMEOUT 30
 
@@ -61,14 +59,10 @@ typedef struct {
 
   /* setup_mock_webserver */
   CockpitWebServer *web_server;
-  gchar *cookie;
+  gulong request_handler;
+  GIOStream *connection;
   CockpitCreds *creds;
 
-  /* setup_io_pair */
-  GIOStream *io_a;
-  GIOStream *io_b;
-
-  /* serve_socket */
   CockpitWebService *service;
 } TestCase;
 
@@ -135,19 +129,44 @@ teardown_mock_bridge (TestCase *test,
     }
 }
 
+static gboolean
+handle_stream (CockpitWebServer *web_server,
+               CockpitWebRequest *request,
+               gpointer user_data)
+{
+  TestCase *test = user_data;
+
+  g_assert (test->web_server == web_server);
+  cockpit_web_service_socket (test->service,
+                              cockpit_web_request_get_path (request),
+                              cockpit_web_request_get_io_stream (request),
+                              cockpit_web_request_get_headers (request),
+                              cockpit_web_request_get_buffer (request),
+                              cockpit_web_server_get_flags (test->web_server) & COCKPIT_WEB_SERVER_FOR_TLS_PROXY);
+  g_signal_handler_disconnect (web_server, test->request_handler);
+  test->request_handler = 0;
+
+  return TRUE;
+}
+
 static void
 setup_mock_webserver (TestCase *test,
                       gconstpointer data)
 {
-  GError *error = NULL;
+  const TestFixture *fixture = data;
   GBytes *password;
 
   /* Zero port makes server choose its own */
-  test->web_server = cockpit_web_server_new (NULL, COCKPIT_WEB_SERVER_NONE);
-  cockpit_web_server_add_inet_listener (test->web_server, NULL, 0, &error);
-  g_assert_no_error (error);
+  cockpit_config_file = fixture ? fixture->config : NULL;
 
-  cockpit_web_server_start (test->web_server);
+  CockpitWebServerFlags flags = COCKPIT_WEB_SERVER_NONE;
+  if (fixture && fixture->for_tls_proxy)
+    flags |= COCKPIT_WEB_SERVER_FOR_TLS_PROXY;
+
+  test->web_server = cockpit_web_server_new (NULL, flags);
+  cockpit_web_server_set_protocol_header (test->web_server, cockpit_conf_string ("WebService", "ProtocolHeader"));
+  test->request_handler = g_signal_connect (test->web_server, "handle-stream", G_CALLBACK (handle_stream), test);
+  test->connection = cockpit_web_server_connect (test->web_server);
 
   password = g_bytes_new_take (g_strdup (PASSWORD), strlen (PASSWORD));
   test->creds = cockpit_creds_new ("cockpit",
@@ -162,18 +181,12 @@ static void
 teardown_mock_webserver (TestCase *test,
                          gconstpointer data)
 {
+  g_clear_object (&test->connection);
   g_clear_object (&test->web_server);
+  g_assert (test->request_handler == 0);
+  g_assert (test->service == NULL);
   if (test->creds)
     cockpit_creds_unref (test->creds);
-  g_free (test->cookie);
-}
-
-static void
-teardown_io_streams (TestCase *test,
-                     gconstpointer data)
-{
-  g_clear_object (&test->io_a);
-  g_clear_object (&test->io_b);
 }
 
 static void
@@ -184,7 +197,6 @@ setup_for_socket (TestCase *test,
 
   setup_mock_bridge (test, data);
   setup_mock_webserver (test, data);
-  cockpit_socket_streampair (&test->io_a, &test->io_b);
 }
 
 static void
@@ -193,7 +205,6 @@ teardown_for_socket (TestCase *test,
 {
   teardown_mock_bridge (test, data);
   teardown_mock_webserver (test, data);
-  teardown_io_streams (test, data);
 
   cockpit_assert_expected ();
   alarm (0);
@@ -372,32 +383,16 @@ expect_control_message (GBytes *message,
 static void
 start_web_service_and_create_client (TestCase *test,
                                      const TestFixture *fixture,
-                                     WebSocketConnection **ws,
-                                     CockpitWebService **service)
+                                     WebSocketConnection **ws)
 {
-  cockpit_config_file = fixture ? fixture->config : NULL;
   const char *origin = fixture ? fixture->origin : NULL;
   gboolean ready = FALSE;
   gulong handler;
 
+  test->service = cockpit_web_service_new (test->creds, test->mock_bridge);
+
   if (!origin)
     origin = "http://127.0.0.1";
-
-  /* This is web_socket_client_new_for_stream() */
-  *ws = g_object_new (WEB_SOCKET_TYPE_CLIENT,
-                     "url", "ws://127.0.0.1/unused",
-                     "origin", origin,
-                     "io-stream", test->io_a,
-                     NULL);
-
-  g_signal_connect (*ws, "error", G_CALLBACK (on_error_not_reached), NULL);
-  web_socket_client_include_header (WEB_SOCKET_CLIENT (*ws), "Cookie", test->cookie);
-
-  /* Matching the above origin */
-  cockpit_ws_default_host_header = "127.0.0.1";
-  cockpit_ws_default_protocol_header = fixture ? fixture->forward : NULL;
-
-  *service = cockpit_web_service_new (test->creds, test->mock_bridge);
 
   /* Manually created services won't be init'd yet, wait for that before sending data */
   handler = g_signal_connect (test->mock_bridge, "control", G_CALLBACK (on_transport_control), &ready);
@@ -405,21 +400,29 @@ start_web_service_and_create_client (TestCase *test,
   while (!ready)
     g_main_context_iteration (NULL, TRUE);
 
-  /* Note, we are forcing the websocket to parse its own headers */
-  cockpit_web_service_socket (*service, "/unused", test->io_b, NULL, NULL, fixture ? fixture->for_tls_proxy : FALSE);
-
   g_signal_handler_disconnect (test->mock_bridge, handler);
+
+  /* This is web_socket_client_new_for_stream() */
+  *ws = g_object_new (WEB_SOCKET_TYPE_CLIENT,
+                     "url", "ws://127.0.0.1/unused",
+                     "origin", origin,
+                     "io-stream", test->connection,
+                     NULL);
+
+  if (fixture && fixture->forward)
+    web_socket_client_include_header (WEB_SOCKET_CLIENT (*ws), "X-Forwarded-Proto", fixture->forward);
+
+  g_signal_connect (*ws, "error", G_CALLBACK (on_error_not_reached), NULL);
 }
 
 static void
 start_web_service_and_connect_client (TestCase *test,
                                       const TestFixture *fixture,
-                                      WebSocketConnection **ws,
-                                      CockpitWebService **service)
+                                      WebSocketConnection **ws)
 {
   GBytes *message;
 
-  start_web_service_and_create_client (test, fixture, ws, service);
+  start_web_service_and_create_client (test, fixture, ws);
   WAIT_UNTIL (web_socket_connection_get_ready_state (*ws) != WEB_SOCKET_STATE_CONNECTING);
   g_assert (web_socket_connection_get_ready_state (*ws) == WEB_SOCKET_STATE_OPEN);
 
@@ -435,8 +438,7 @@ start_web_service_and_connect_client (TestCase *test,
 
 static void
 close_client_and_stop_web_service (TestCase *test,
-                                   WebSocketConnection *ws,
-                                   CockpitWebService *service)
+                                   WebSocketConnection *ws)
 {
   guint timeout;
 
@@ -450,9 +452,9 @@ close_client_and_stop_web_service (TestCase *test,
 
   /* Wait until service is done */
   timeout = g_timeout_add_seconds (20, on_timeout_fail, "closing web service");
-  g_object_add_weak_pointer (G_OBJECT (service), (gpointer *)&service);
-  g_object_unref (service);
-  while (service != NULL)
+  g_object_add_weak_pointer (G_OBJECT (test->service), (gpointer *)&test->service);
+  g_object_unref (test->service);
+  while (test->service != NULL)
     g_main_context_iteration (NULL, TRUE);
   g_source_remove (timeout);
   cockpit_conf_cleanup ();
@@ -463,10 +465,9 @@ test_handshake_and_auth (TestCase *test,
                          gconstpointer data)
 {
   WebSocketConnection *ws;
-  CockpitWebService *service;
 
-  start_web_service_and_connect_client (test, data, &ws, &service);
-  close_client_and_stop_web_service (test, ws, service);
+  start_web_service_and_connect_client (test, data, &ws);
+  close_client_and_stop_web_service (test, ws);
 }
 
 static void
@@ -484,6 +485,7 @@ on_message_get_bytes (WebSocketConnection *ws,
       g_test_message ("received unexpected extra message: %.*s", (int)length, (gchar *)data);
       g_assert_not_reached ();
     }
+  g_assert (*received == NULL);
   *received = g_bytes_ref (message);
 }
 
@@ -509,21 +511,20 @@ test_handshake_and_echo (TestCase *test,
   WebSocketConnection *ws;
   GBytes *received = NULL;
   GBytes *control = NULL;
-  CockpitWebService *service;
   CockpitCreds *creds;
   GBytes *sent;
   gulong handler;
   const gchar *token;
 
   /* Sends a "test" message in channel "4" */
-  start_web_service_and_connect_client (test, data, &ws, &service);
+  start_web_service_and_connect_client (test, data, &ws);
 
   sent = g_bytes_new_static ("4\ntest", 6);
   handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &control);
 
   WAIT_UNTIL (control != NULL);
 
-  creds = cockpit_web_service_get_creds (service);
+  creds = cockpit_web_service_get_creds (test->service);
   g_assert (creds != NULL);
 
   token = cockpit_creds_get_csrf_token (creds);
@@ -544,7 +545,7 @@ test_handshake_and_echo (TestCase *test,
 
   g_signal_handler_disconnect (ws, handler);
 
-  close_client_and_stop_web_service (test, ws, service);
+  close_client_and_stop_web_service (test, ws);
 }
 
 static void
@@ -553,12 +554,11 @@ test_echo_large (TestCase *test,
 {
   WebSocketConnection *ws;
   GBytes *received = NULL;
-  CockpitWebService *service;
   gchar *contents;
   GBytes *sent;
   gulong handler;
 
-  start_web_service_and_create_client (test, data, &ws, &service);
+  start_web_service_and_create_client (test, data, &ws);
   while (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_CONNECTING)
     g_main_context_iteration (NULL, TRUE);
   g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
@@ -593,7 +593,7 @@ test_echo_large (TestCase *test,
   received = NULL;
 
   g_signal_handler_disconnect (ws, handler);
-  close_client_and_stop_web_service (test, ws, service);
+  close_client_and_stop_web_service (test, ws);
 }
 
 static void
@@ -602,9 +602,8 @@ test_close_error (TestCase *test,
 {
   WebSocketConnection *ws;
   GBytes *received = NULL;
-  CockpitWebService *service;
 
-  start_web_service_and_connect_client (test, data, &ws, &service);
+  start_web_service_and_connect_client (test, data, &ws);
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
   WAIT_UNTIL (received != NULL);
@@ -629,7 +628,7 @@ test_close_error (TestCase *test,
   /* We should now get a close command */
   WAIT_UNTIL (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_CLOSED);
 
-  close_client_and_stop_web_service (test, ws, service);
+  close_client_and_stop_web_service (test, ws);
 }
 
 static void
@@ -638,9 +637,8 @@ test_no_init (TestCase *test,
 {
   WebSocketConnection *ws;
   GBytes *received = NULL;
-  CockpitWebService *service;
 
-  start_web_service_and_create_client (test, data, &ws, &service);
+  start_web_service_and_create_client (test, data, &ws);
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
   while (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_CONNECTING)
@@ -667,7 +665,7 @@ test_no_init (TestCase *test,
   g_bytes_unref (received);
   received = NULL;
 
-  close_client_and_stop_web_service (test, ws, service);
+  close_client_and_stop_web_service (test, ws);
 }
 
 static void
@@ -676,9 +674,8 @@ test_wrong_init_version (TestCase *test,
 {
   WebSocketConnection *ws;
   GBytes *received = NULL;
-  CockpitWebService *service;
 
-  start_web_service_and_create_client (test, data, &ws, &service);
+  start_web_service_and_create_client (test, data, &ws);
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
   while (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_CONNECTING)
@@ -688,14 +685,14 @@ test_wrong_init_version (TestCase *test,
   cockpit_expect_message ("*socket used unsupported*");
   cockpit_expect_log ("WebSocket", G_LOG_LEVEL_MESSAGE, "connection unexpectedly closed*");
 
-  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 888, NULL);
-
   /* The init from the other end */
   while (received == NULL)
     g_main_context_iteration (NULL, TRUE);
   expect_control_message (received, "init", NULL, NULL);
   g_bytes_unref (received);
   received = NULL;
+
+  send_control_message (ws, "init", NULL, BUILD_INTS, "version", 888, NULL);
 
   /* We should now get a failure */
   while (received == NULL)
@@ -704,7 +701,7 @@ test_wrong_init_version (TestCase *test,
   g_bytes_unref (received);
   received = NULL;
 
-  close_client_and_stop_web_service (test, ws, service);
+  close_client_and_stop_web_service (test, ws);
 }
 
 static void
@@ -713,9 +710,8 @@ test_bad_init_version (TestCase *test,
 {
   WebSocketConnection *ws;
   GBytes *received = NULL;
-  CockpitWebService *service;
 
-  start_web_service_and_create_client (test, data, &ws, &service);
+  start_web_service_and_create_client (test, data, &ws);
   g_signal_connect (ws, "message", G_CALLBACK (on_message_get_bytes), &received);
 
   while (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_CONNECTING)
@@ -725,14 +721,14 @@ test_bad_init_version (TestCase *test,
   cockpit_expect_warning ("*invalid version field*");
   cockpit_expect_log ("WebSocket", G_LOG_LEVEL_MESSAGE, "connection unexpectedly closed*");
 
-  send_control_message (ws, "init", NULL, "version", "blah", NULL);
-
   /* The init from the other end */
   while (received == NULL)
     g_main_context_iteration (NULL, TRUE);
   expect_control_message (received, "init", NULL, NULL);
   g_bytes_unref (received);
   received = NULL;
+
+  send_control_message (ws, "init", NULL, "version", "blah", NULL);
 
   /* We should now get a failure */
   while (received == NULL)
@@ -741,12 +737,11 @@ test_bad_init_version (TestCase *test,
   g_bytes_unref (received);
   received = NULL;
 
-  close_client_and_stop_web_service (test, ws, service);
+  close_client_and_stop_web_service (test, ws);
 }
 
 static void
-test_socket_null_creds (TestCase *test,
-                        gconstpointer data)
+test_socket_null_creds (void)
 {
   CockpitWebService *service;
   CockpitTransport *session;
@@ -816,17 +811,14 @@ test_bad_origin (TestCase *test,
                  gconstpointer data)
 {
   WebSocketConnection *ws;
-  CockpitWebService *service;
   GError *error = NULL;
 
+  start_web_service_and_create_client (test, data, &ws);
+  g_signal_handlers_disconnect_by_func (ws, on_error_not_reached, NULL);
+  g_signal_connect (ws, "error", G_CALLBACK (on_error_copy), &error);
   cockpit_expect_log ("WebSocket", G_LOG_LEVEL_MESSAGE, "*received request from bad Origin*");
   cockpit_expect_log ("WebSocket", G_LOG_LEVEL_MESSAGE, "*invalid handshake*");
   cockpit_expect_log ("WebSocket", G_LOG_LEVEL_MESSAGE, "*unexpected status: 403*");
-
-  start_web_service_and_create_client (test, data, &ws, &service);
-
-  g_signal_handlers_disconnect_by_func (ws, on_error_not_reached, NULL);
-  g_signal_connect (ws, "error", G_CALLBACK (on_error_copy), &error);
 
   while (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_CONNECTING ||
          web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_CLOSING)
@@ -834,7 +826,7 @@ test_bad_origin (TestCase *test,
   g_assert_cmpint (web_socket_connection_get_ready_state (ws), ==, WEB_SOCKET_STATE_CLOSED);
   g_assert_error (error, WEB_SOCKET_ERROR, WEB_SOCKET_CLOSE_PROTOCOL);
 
-  close_client_and_stop_web_service (test, ws, service);
+  close_client_and_stop_web_service (test, ws);
   g_clear_error (&error);
 }
 
@@ -848,7 +840,6 @@ test_kill_group (TestCase *test,
 {
   WebSocketConnection *ws;
   GBytes *received = NULL;
-  CockpitWebService *service;
   GHashTable *seen;
   gchar *ochannel;
   const gchar *channel;
@@ -859,7 +850,7 @@ test_kill_group (TestCase *test,
   gulong handler;
 
   /* Sends a "test" message in channel "4" */
-  start_web_service_and_connect_client (test, data, &ws, &service);
+  start_web_service_and_connect_client (test, data, &ws);
 
   sent = g_bytes_new_static ("4\ntest", 6);
   handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
@@ -926,7 +917,7 @@ test_kill_group (TestCase *test,
 
   g_signal_handler_disconnect (ws, handler);
 
-  close_client_and_stop_web_service (test, ws, service);
+  close_client_and_stop_web_service (test, ws);
 }
 
 static void
@@ -935,7 +926,6 @@ test_kill_host (TestCase *test,
 {
   WebSocketConnection *ws;
   GBytes *received = NULL;
-  CockpitWebService *service;
   GHashTable *seen;
   gchar *ochannel;
   const gchar *channel;
@@ -945,7 +935,7 @@ test_kill_host (TestCase *test,
   gulong handler;
 
   /* Sends a "test" message in channel "4" */
-  start_web_service_and_connect_client (test, data, &ws, &service);
+  start_web_service_and_connect_client (test, data, &ws);
 
   handler = g_signal_connect (ws, "message", G_CALLBACK (on_message_get_non_control), &received);
 
@@ -999,7 +989,7 @@ test_kill_host (TestCase *test,
 
   g_signal_handler_disconnect (ws, handler);
 
-  close_client_and_stop_web_service (test, ws, service);
+  close_client_and_stop_web_service (test, ws);
 }
 
 static void
@@ -1016,7 +1006,6 @@ test_idling (TestCase *test,
              gconstpointer data)
 {
   WebSocketConnection *client;
-  CockpitWebService *service;
   gboolean flag = FALSE;
   CockpitTransport *transport;
   CockpitPipe *pipe;
@@ -1026,30 +1015,28 @@ test_idling (TestCase *test,
     NULL
   };
 
-  cockpit_ws_default_host_header = "127.0.0.1";
+  pipe = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
+  transport = cockpit_pipe_transport_new (pipe);
+  test->service = cockpit_web_service_new (test->creds, transport);
+  g_object_unref (transport);
+  g_object_unref (pipe);
+
+  g_signal_connect (test->service, "idling", G_CALLBACK (on_idling_set_flag), &flag);
+  g_assert (cockpit_web_service_get_idling (test->service));
 
   /* This is web_socket_client_new_for_stream() */
   client = g_object_new (WEB_SOCKET_TYPE_CLIENT,
                          "url", "ws://127.0.0.1/unused",
                          "origin", "http://127.0.0.1",
-                         "io-stream", test->io_a,
+                         "io-stream", test->connection,
                          NULL);
 
-  pipe = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
-  transport = cockpit_pipe_transport_new (pipe);
-  service = cockpit_web_service_new (test->creds, transport);
-  g_object_unref (transport);
-  g_object_unref (pipe);
-
-  g_signal_connect (service, "idling", G_CALLBACK (on_idling_set_flag), &flag);
-  g_assert (cockpit_web_service_get_idling (service));
-
-  cockpit_web_service_socket (service, "/unused", test->io_b, NULL, NULL, FALSE);
-  g_assert (!cockpit_web_service_get_idling (service));
+  g_assert (cockpit_web_service_get_idling (test->service));
 
   while (web_socket_connection_get_ready_state (client) == WEB_SOCKET_STATE_CONNECTING)
     g_main_context_iteration (NULL, TRUE);
   g_assert (web_socket_connection_get_ready_state (client) == WEB_SOCKET_STATE_OPEN);
+  g_assert (!cockpit_web_service_get_idling (test->service));
 
   web_socket_connection_close (client, WEB_SOCKET_CLOSE_NORMAL, "aoeuaoeuaoeu");
   while (web_socket_connection_get_ready_state (client) != WEB_SOCKET_STATE_CLOSED)
@@ -1059,9 +1046,9 @@ test_idling (TestCase *test,
   while (!flag)
     g_main_context_iteration (NULL, TRUE);
 
-  g_assert (cockpit_web_service_get_idling (service));
+  g_assert (cockpit_web_service_get_idling (test->service));
 
-  g_object_unref (service);
+  g_clear_object (&test->service);
   g_object_unref (client);
 }
 
@@ -1070,7 +1057,6 @@ test_dispose (TestCase *test,
               gconstpointer data)
 {
   WebSocketConnection *client;
-  CockpitWebService *service;
   CockpitTransport *transport;
   CockpitPipe *pipe;
 
@@ -1079,34 +1065,34 @@ test_dispose (TestCase *test,
     NULL
   };
 
-  cockpit_ws_default_host_header = "127.0.0.1";
+  pipe = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
+  transport = cockpit_pipe_transport_new (pipe);
+  test->service = cockpit_web_service_new (test->creds, transport);
+  g_object_unref (transport);
+  g_object_unref (pipe);
+
+  g_signal_connect_swapped (test->web_server, "handle-stream",
+                            G_CALLBACK (cockpit_web_service_socket), test->service);
 
   /* This is web_socket_client_new_for_stream() */
   client = g_object_new (WEB_SOCKET_TYPE_CLIENT,
                          "url", "ws://127.0.0.1/unused",
                          "origin", "http://127.0.0.1",
-                         "io-stream", test->io_a,
+                         "io-stream", test->connection,
                          NULL);
 
-  pipe = cockpit_pipe_spawn (argv, NULL, NULL, COCKPIT_PIPE_FLAGS_NONE);
-  transport = cockpit_pipe_transport_new (pipe);
-  service = cockpit_web_service_new (test->creds, transport);
-  g_object_unref (transport);
-  g_object_unref (pipe);
-
-  cockpit_web_service_socket (service, "/unused", test->io_b, NULL, NULL, FALSE);
 
   while (web_socket_connection_get_ready_state (client) == WEB_SOCKET_STATE_CONNECTING)
     g_main_context_iteration (NULL, TRUE);
   g_assert (web_socket_connection_get_ready_state (client) == WEB_SOCKET_STATE_OPEN);
 
   /* Dispose the WebSocket ... this is what happens on forceful logout */
-  g_object_run_dispose (G_OBJECT (service));
+  g_object_run_dispose (G_OBJECT (test->service));
 
   while (web_socket_connection_get_ready_state (client) != WEB_SOCKET_STATE_CLOSED)
     g_main_context_iteration (NULL, TRUE);
 
-  g_object_unref (service);
+  g_clear_object (&test->service);
   g_object_unref (client);
 }
 
@@ -1115,10 +1101,9 @@ test_logout (TestCase *test,
              gconstpointer data)
 {
   WebSocketConnection *ws;
-  CockpitWebService *service;
   GBytes *message = NULL;
 
-  start_web_service_and_create_client (test, data, &ws, &service);
+  start_web_service_and_create_client (test, data, &ws);
   WAIT_UNTIL (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CONNECTING);
   g_assert (web_socket_connection_get_ready_state (ws) == WEB_SOCKET_STATE_OPEN);
 
@@ -1133,7 +1118,7 @@ test_logout (TestCase *test,
   while (web_socket_connection_get_ready_state (ws) != WEB_SOCKET_STATE_CLOSED)
     g_main_context_iteration (NULL, TRUE);
 
-  close_client_and_stop_web_service (test, ws, service);
+  close_client_and_stop_web_service (test, ws);
 }
 
 static void
@@ -1314,8 +1299,7 @@ main (int argc,
               &fixture_rfc6455, setup_for_socket,
               test_echo_large, teardown_for_socket);
 
-  g_test_add ("/web-service/null-creds", TestCase, NULL,
-              setup_for_socket, test_socket_null_creds, teardown_for_socket);
+  g_test_add_func ("/web-service/null-creds", test_socket_null_creds);
   g_test_add ("/web-service/no-init", TestCase, NULL,
               setup_for_socket, test_no_init, teardown_for_socket);
   g_test_add ("/web-service/wrong-init-version", TestCase, NULL,

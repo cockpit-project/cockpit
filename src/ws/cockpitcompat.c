@@ -44,7 +44,7 @@ secfree (void *data,
     return;
 
   cockpit_memory_clear (data, len);
-  free (data);
+  g_free (data);
 }
 
 static ssize_t
@@ -138,8 +138,8 @@ cockpit_compat_reply_crypt1 (const char *challenge,
   response = g_strdup_printf ("crypt1:%s", resp);
 
 out:
-  free (nonce);
-  free (salt);
+  g_free (nonce);
+  g_free (salt);
   secfree (cd, sizeof (struct crypt_data) * 2);
 
   if (!response)

@@ -1230,7 +1230,6 @@ build_authorize_challenge (CockpitAuth *self,
 {
   const gchar *challenge = NULL;
   gchar *type = NULL;
-  JsonObject *object;
   GList *l, *names;
 
   if (!cockpit_json_get_string (authorize, "challenge", NULL, &challenge) ||
@@ -1255,7 +1254,7 @@ build_authorize_challenge (CockpitAuth *self,
       cockpit_authorize_subject (challenge, conversation);
     }
 
-  object = json_object_new ();
+  g_autoptr(JsonObject) object = json_object_new ();
   names = json_object_get_members (authorize);
   for (l = names; l != NULL; l = g_list_next (l))
     {
@@ -1263,7 +1262,7 @@ build_authorize_challenge (CockpitAuth *self,
         json_object_set_member (object, l->data, json_object_dup_member (authorize, l->data));
     }
   if (body)
-    *body = object;
+    *body = g_steal_pointer (&object);
 
   g_list_free (names);
   g_free (type);

@@ -134,7 +134,7 @@ cockpit_handler_socket (CockpitWebServer *server,
   if (g_strcmp0 (method, "GET") != 0)
       return FALSE;
 
-  if (headers)
+  if (headers && ws)
     service = cockpit_auth_check_cookie (ws->auth, request);
   if (service)
     {

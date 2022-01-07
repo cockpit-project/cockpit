@@ -764,37 +764,25 @@ test_socket_unauthenticated (void)
   CockpitWebServer *server;
   WebSocketConnection *client;
   GBytes *received = NULL;
-  GIOStream *io_a, *io_b;
   GBytes *payload;
   const gchar *problem;
   const gchar *command;
   const gchar *unused;
   gchar *channel;
   JsonObject *options;
-  GError *error = NULL;
-
-  cockpit_socket_streampair (&io_a, &io_b);
 
   server = cockpit_web_server_new (NULL, COCKPIT_WEB_SERVER_NONE);
-  cockpit_web_server_add_inet_listener (server, NULL, 0, NULL);
-  g_assert_no_error (error);
+  g_signal_connect (server, "handle-stream", G_CALLBACK (cockpit_handler_socket), NULL);
+  g_autoptr(GIOStream) connection = cockpit_web_server_connect (server);
+
 
   client = g_object_new (WEB_SOCKET_TYPE_CLIENT,
-                         "url", "ws://127.0.0.1/unused",
+                         "url", "ws://127.0.0.1/cockpit/socket",
                          "origin", "http://127.0.0.1",
-                         "io-stream", io_a,
+                         "io-stream", connection,
                          NULL);
 
   g_signal_connect (client, "error", G_CALLBACK (on_error_not_reached), NULL);
-
-  /* Matching the above origin */
-  cockpit_ws_default_host_header = "127.0.0.1";
-
-  g_assert (cockpit_handler_socket (server,
-                                    WebRequest(.path="/cockpit/socket",
-                                               .original_path="/cockpit/socket",
-                                               .method="GET", .io=io_b), NULL));
-
   g_signal_connect (client, "message", G_CALLBACK (on_message_get_bytes), &received);
 
   /* Should close right after opening */
@@ -821,8 +809,6 @@ test_socket_unauthenticated (void)
 
   while (g_main_context_iteration (NULL, FALSE));
 
-  g_object_unref (io_a);
-  g_object_unref (io_b);
   g_object_unref (server);
 }
 

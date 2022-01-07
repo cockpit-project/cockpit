@@ -44,11 +44,6 @@
 
 #include <stdlib.h>
 
-const gchar *cockpit_ws_default_host_header =
-    "0.0.0.0:0"; /* Must be something invalid */
-
-const gchar *cockpit_ws_default_protocol_header = NULL;
-
 guint cockpit_ws_ping_interval = 5;
 
 /* ----------------------------------------------------------------------------
@@ -1315,21 +1310,8 @@ cockpit_web_service_create_socket (const gchar **protocols,
 
   g_return_val_if_fail (path != NULL, NULL);
 
-  if (headers)
-    host = g_hash_table_lookup (headers, "Host");
-  if (!host)
-    host = cockpit_ws_default_host_header;
-
-  /* No headers case for tests */
-  if (cockpit_ws_default_protocol_header && !headers &&
-      cockpit_conf_string ("WebService", "ProtocolHeader"))
-    {
-      protocol = cockpit_ws_default_protocol_header;
-    }
-  else
-    {
-      protocol = cockpit_connection_get_protocol (io_stream, headers, for_tls_proxy);
-    }
+  host = g_hash_table_lookup (headers, "Host");
+  protocol = cockpit_connection_get_protocol (io_stream, headers, for_tls_proxy);
 
   g_debug("cockpit_web_service_create_socket: host %s, protocol %s, for_tls_proxy %i", host, protocol, for_tls_proxy);
 

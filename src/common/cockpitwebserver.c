@@ -601,6 +601,90 @@ cockpit_web_server_parse_accept_list (const gchar *accept,
 
 /* ---------------------------------------------------------------------------------------------------- */
 
+guint16
+cockpit_web_server_add_inet_listener (CockpitWebServer *self,
+                                      const gchar *address,
+                                      guint16 port,
+                                      GError **error)
+{
+  if (address != NULL)
+    {
+      g_autoptr(GSocketAddress) socket_address = g_inet_socket_address_new_from_string (address, port);
+      if (socket_address == NULL)
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
+                       "Couldn't parse IP address from `%s`", address);
+          return 0;
+        }
+
+      g_autoptr(GSocketAddress) result_address = NULL;
+      if (!g_socket_listener_add_address (G_SOCKET_LISTENER (self->socket_service), socket_address,
+                                          G_SOCKET_TYPE_STREAM, G_SOCKET_PROTOCOL_DEFAULT,
+                                          NULL, &result_address, error))
+        return 0;
+
+      port = g_inet_socket_address_get_port (G_INET_SOCKET_ADDRESS (result_address));
+      g_assert (port != 0);
+
+      return port;
+    }
+
+  else if (port > 0)
+    {
+      if (g_socket_listener_add_inet_port (G_SOCKET_LISTENER (self->socket_service), port, NULL, error))
+        return port;
+      else
+        return 0;
+    }
+  else
+    return g_socket_listener_add_any_inet_port (G_SOCKET_LISTENER (self->socket_service), NULL, error);
+}
+
+gboolean
+cockpit_web_server_add_fd_listener (CockpitWebServer *self,
+                                    int fd,
+                                    GError **error)
+{
+  g_autoptr(GSocket) socket = g_socket_new_from_fd (fd, error);
+  if (socket == NULL)
+    {
+      g_prefix_error (error, "Failed to acquire passed socket %i: ", fd);
+      return FALSE;
+    }
+
+  if (!g_socket_listener_add_socket (G_SOCKET_LISTENER (self->socket_service), socket, NULL, error))
+    {
+      g_prefix_error (error, "Failed to add listener for socket %i: ", fd);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+void
+cockpit_web_server_start (CockpitWebServer *self)
+{
+  g_return_if_fail (COCKPIT_IS_WEB_SERVER (self));
+  g_socket_service_start (self->socket_service);
+}
+
+GIOStream *
+cockpit_web_server_connect (CockpitWebServer *self)
+{
+  g_return_val_if_fail (COCKPIT_IS_WEB_SERVER (self), NULL);
+
+  g_autoptr(GIOStream) server = NULL;
+  g_autoptr(GIOStream) client = NULL;
+
+  cockpit_socket_streampair (&client, &server);
+
+  cockpit_request_start (self, server, TRUE);
+
+  return g_steal_pointer (&client);
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+
 typedef struct {
   int state;
   GIOStream *io;
@@ -1196,90 +1280,6 @@ on_incoming (GSocketService *service,
 
   /* handled */
   return TRUE;
-}
-
-/* ---------------------------------------------------------------------------------------------------- */
-
-guint16
-cockpit_web_server_add_inet_listener (CockpitWebServer *self,
-                                      const gchar *address,
-                                      guint16 port,
-                                      GError **error)
-{
-  if (address != NULL)
-    {
-      g_autoptr(GSocketAddress) socket_address = g_inet_socket_address_new_from_string (address, port);
-      if (socket_address == NULL)
-        {
-          g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
-                       "Couldn't parse IP address from `%s`", address);
-          return 0;
-        }
-
-      g_autoptr(GSocketAddress) result_address = NULL;
-      if (!g_socket_listener_add_address (G_SOCKET_LISTENER (self->socket_service), socket_address,
-                                          G_SOCKET_TYPE_STREAM, G_SOCKET_PROTOCOL_DEFAULT,
-                                          NULL, &result_address, error))
-        return 0;
-
-      port = g_inet_socket_address_get_port (G_INET_SOCKET_ADDRESS (result_address));
-      g_assert (port != 0);
-
-      return port;
-    }
-
-  else if (port > 0)
-    {
-      if (g_socket_listener_add_inet_port (G_SOCKET_LISTENER (self->socket_service), port, NULL, error))
-        return port;
-      else
-        return 0;
-    }
-  else
-    return g_socket_listener_add_any_inet_port (G_SOCKET_LISTENER (self->socket_service), NULL, error);
-}
-
-gboolean
-cockpit_web_server_add_fd_listener (CockpitWebServer *self,
-                                    int fd,
-                                    GError **error)
-{
-  g_autoptr(GSocket) socket = g_socket_new_from_fd (fd, error);
-  if (socket == NULL)
-    {
-      g_prefix_error (error, "Failed to acquire passed socket %i: ", fd);
-      return FALSE;
-    }
-
-  if (!g_socket_listener_add_socket (G_SOCKET_LISTENER (self->socket_service), socket, NULL, error))
-    {
-      g_prefix_error (error, "Failed to add listener for socket %i: ", fd);
-      return FALSE;
-    }
-
-  return TRUE;
-}
-
-void
-cockpit_web_server_start (CockpitWebServer *self)
-{
-  g_return_if_fail (COCKPIT_IS_WEB_SERVER (self));
-  g_socket_service_start (self->socket_service);
-}
-
-GIOStream *
-cockpit_web_server_connect (CockpitWebServer *self)
-{
-  g_return_val_if_fail (COCKPIT_IS_WEB_SERVER (self), NULL);
-
-  g_autoptr(GIOStream) server = NULL;
-  g_autoptr(GIOStream) client = NULL;
-
-  cockpit_socket_streampair (&client, &server);
-
-  cockpit_request_start (self, server, TRUE);
-
-  return g_steal_pointer (&client);
 }
 
 /* ---------------------------------------------------------------------------------------------------- */

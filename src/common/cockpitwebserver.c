@@ -69,26 +69,34 @@ enum
 static gint sig_handle_stream = 0;
 static gint sig_handle_resource = 0;
 
-static void cockpit_request_free (gpointer data);
+static void cockpit_web_request_free (gpointer data);
 
-static void cockpit_request_start (CockpitWebServer *self,
+static void cockpit_web_request_start (CockpitWebServer *web_server,
                                    GIOStream *stream,
                                    gboolean first);
-
-static gboolean on_incoming (GSocketService *service,
-                             GSocketConnection *connection,
-                             GObject *source_object,
-                             gpointer user_data);
 
 G_DEFINE_TYPE (CockpitWebServer, cockpit_web_server, G_TYPE_OBJECT)
 
 /* ---------------------------------------------------------------------------------------------------- */
 
+static gboolean
+on_incoming (GSocketService *service,
+             GSocketConnection *connection,
+             GObject *source_object,
+             gpointer user_data)
+{
+  CockpitWebServer *self = COCKPIT_WEB_SERVER (user_data);
+  cockpit_web_request_start (self, G_IO_STREAM (connection), TRUE);
+
+  /* handled */
+  return TRUE;
+}
+
 static void
 cockpit_web_server_init (CockpitWebServer *server)
 {
   server->requests = g_hash_table_new_full (g_direct_hash, g_direct_equal,
-                                            cockpit_request_free, NULL);
+                                            cockpit_web_request_free, NULL);
   server->main_context = g_main_context_ref_thread_default ();
   server->ssl_exception_prefix = g_string_new ("");
   server->url_root = g_string_new ("");
@@ -243,7 +251,7 @@ on_web_response_done (CockpitWebResponse *response,
 
   io = cockpit_web_response_get_stream (response);
   if (reusable)
-    cockpit_request_start (self, io, FALSE);
+    cockpit_web_request_start (self, io, FALSE);
   else
     close_io_stream (io);
 }
@@ -678,7 +686,7 @@ cockpit_web_server_connect (CockpitWebServer *self)
 
   cockpit_socket_streampair (&client, &server);
 
-  cockpit_request_start (self, server, TRUE);
+  cockpit_web_request_start (self, server, TRUE);
 
   return g_steal_pointer (&client);
 }
@@ -695,21 +703,21 @@ typedef struct {
   GSource *source;
   GSource *timeout;
   gboolean check_tls_redirect;
-} CockpitRequest;
+} CockpitWebRequest;
 
 static void
-cockpit_request_free (gpointer data)
+cockpit_web_request_free (gpointer data)
 {
-  CockpitRequest *request = data;
-  if (request->timeout)
+  CockpitWebRequest *self = data;
+  if (self->timeout)
     {
-      g_source_destroy (request->timeout);
-      g_source_unref (request->timeout);
+      g_source_destroy (self->timeout);
+      g_source_unref (self->timeout);
     }
-  if (request->source)
+  if (self->source)
     {
-      g_source_destroy (request->source);
-      g_source_unref (request->source);
+      g_source_destroy (self->source);
+      g_source_unref (self->source);
     }
 
   /*
@@ -717,21 +725,21 @@ cockpit_request_free (gpointer data)
    * handle-stream handlers (eg: the default handler. Don't
    * clear it here. The buffer may still be in use.
    */
-  g_byte_array_unref (request->buffer);
-  g_object_unref (request->io);
-  g_free (request);
+  g_byte_array_unref (self->buffer);
+  g_object_unref (self->io);
+  g_free (self);
 }
 
 static void
-cockpit_request_finish (CockpitRequest *request)
+cockpit_web_request_finish (CockpitWebRequest *self)
 {
-  g_hash_table_remove (request->web_server->requests, request);
+  g_hash_table_remove (self->web_server->requests, self);
 }
 
 static void
-process_delayed_reply (CockpitRequest *request,
-                       const gchar *path,
-                       GHashTable *headers)
+cockpit_web_request_process_delayed_reply (CockpitWebRequest *self,
+                                           const gchar *path,
+                                           GHashTable *headers)
 {
   CockpitWebResponse *response;
   const gchar *host;
@@ -740,15 +748,15 @@ process_delayed_reply (CockpitRequest *request,
   gsize length;
   gchar *url;
 
-  g_assert (request->delayed_reply > 299);
+  g_assert (self->delayed_reply > 299);
 
-  response = cockpit_web_response_new (request->io, NULL, NULL, NULL, headers,
-                                       (request->web_server->flags & COCKPIT_WEB_SERVER_FOR_TLS_PROXY) ?
+  response = cockpit_web_response_new (self->io, NULL, NULL, NULL, headers,
+                                       (self->web_server->flags & COCKPIT_WEB_SERVER_FOR_TLS_PROXY) ?
                                          COCKPIT_WEB_RESPONSE_FOR_TLS_PROXY : COCKPIT_WEB_RESPONSE_NONE);
   g_signal_connect_data (response, "done", G_CALLBACK (on_web_response_done),
-                         g_object_ref (request->web_server), (GClosureNotify)g_object_unref, 0);
+                         g_object_ref (self->web_server), (GClosureNotify)g_object_unref, 0);
 
-  if (request->delayed_reply == 301)
+  if (self->delayed_reply == 301)
     {
       body = "<html><head><title>Moved</title></head>"
         "<body>Please use TLS</body></html>";
@@ -768,7 +776,7 @@ process_delayed_reply (CockpitRequest *request,
     }
   else
     {
-      cockpit_web_response_error (response, request->delayed_reply, NULL, NULL);
+      cockpit_web_response_error (response, self->delayed_reply, NULL, NULL);
     }
 
   g_object_unref (response);
@@ -797,66 +805,66 @@ is_localhost_connection (GSocketConnection *conn)
 }
 
 static void
-process_request (CockpitRequest *request,
-                 const gchar *method,
-                 const gchar *path,
-                 const gchar *host,
-                 GHashTable *headers)
+cockpit_web_request_process (CockpitWebRequest *self,
+                             const gchar *method,
+                             const gchar *path,
+                             const gchar *host,
+                             GHashTable *headers)
 {
   gboolean claimed = FALSE;
   const gchar *actual_path;
 
-  if (request->web_server->url_root->len &&
-      !path_has_prefix (path, request->web_server->url_root))
+  if (self->web_server->url_root->len &&
+      !path_has_prefix (path, self->web_server->url_root))
     {
-      request->delayed_reply = 404;
+      self->delayed_reply = 404;
     }
 
   /* Redirect to TLS? */
-  if (!request->delayed_reply && request->check_tls_redirect)
+  if (!self->delayed_reply && self->check_tls_redirect)
     {
-      request->check_tls_redirect = FALSE;
+      self->check_tls_redirect = FALSE;
 
       /* Certain paths don't require us to redirect */
-      if (!path_has_prefix (path, request->web_server->ssl_exception_prefix))
+      if (!path_has_prefix (path, self->web_server->ssl_exception_prefix))
         {
-          if (!is_localhost_connection (G_SOCKET_CONNECTION (request->io)))
+          if (!is_localhost_connection (G_SOCKET_CONNECTION (self->io)))
             {
               g_debug ("redirecting request from Host: %s to TLS", host);
-              request->delayed_reply = 301;
+              self->delayed_reply = 301;
             }
         }
     }
 
-  if (request->delayed_reply)
+  if (self->delayed_reply)
     {
-      process_delayed_reply (request, path, headers);
+      cockpit_web_request_process_delayed_reply (self, path, headers);
       return;
     }
 
-  actual_path = path + request->web_server->url_root->len;
+  actual_path = path + self->web_server->url_root->len;
 
   /* See if we have any takers... */
-  g_signal_emit (request->web_server,
+  g_signal_emit (self->web_server,
                  sig_handle_stream, 0,
                  path,
                  actual_path,
                  method,
-                 request->io,
+                 self->io,
                  headers,
-                 request->buffer,
+                 self->buffer,
                  &claimed);
 
   if (!claimed)
-    claimed = cockpit_web_server_default_handle_stream (request->web_server, path, actual_path, method,
-                                                        request->io, headers, request->buffer);
+    claimed = cockpit_web_server_default_handle_stream (self->web_server, path, actual_path, method,
+                                                        self->io, headers, self->buffer);
 
   if (!claimed)
     g_critical ("no handler responded to request: %s", actual_path);
 }
 
 static gboolean
-parse_and_process_request (CockpitRequest *request)
+cockpit_web_request_parse_and_process (CockpitWebRequest *self)
 {
   gboolean again = FALSE;
   GHashTable *headers = NULL;
@@ -869,14 +877,14 @@ parse_and_process_request (CockpitRequest *request)
   guint64 length;
 
   /* The hard input limit, we just terminate the connection */
-  if (request->buffer->len > cockpit_webserver_request_maximum * 2)
+  if (self->buffer->len > cockpit_webserver_request_maximum * 2)
     {
       g_message ("received HTTP request that was too large");
       goto out;
     }
 
-  off1 = web_socket_util_parse_req_line ((const gchar *)request->buffer->data,
-                                         request->buffer->len,
+  off1 = web_socket_util_parse_req_line ((const gchar *)self->buffer->data,
+                                         self->buffer->len,
                                          &method,
                                          &path);
   if (off1 == 0)
@@ -887,18 +895,18 @@ parse_and_process_request (CockpitRequest *request)
   if (off1 < 0)
     {
       g_message ("received invalid HTTP request line");
-      request->delayed_reply = 400;
+      self->delayed_reply = 400;
       goto out;
     }
   if (!path || path[0] != '/')
     {
       g_message ("received invalid HTTP path");
-      request->delayed_reply = 400;
+      self->delayed_reply = 400;
       goto out;
     }
 
-  off2 = web_socket_util_parse_headers ((const gchar *)request->buffer->data + off1,
-                                        request->buffer->len - off1,
+  off2 = web_socket_util_parse_headers ((const gchar *)self->buffer->data + off1,
+                                        self->buffer->len - off1,
                                         &headers);
   if (off2 == 0)
     {
@@ -908,7 +916,7 @@ parse_and_process_request (CockpitRequest *request)
   if (off2 < 0)
     {
       g_message ("received invalid HTTP request headers");
-      request->delayed_reply = 400;
+      self->delayed_reply = 400;
       goto out;
     }
 
@@ -922,7 +930,7 @@ parse_and_process_request (CockpitRequest *request)
       if (!end || end[0])
         {
           g_message ("received invalid Content-Length");
-          request->delayed_reply = 400;
+          self->delayed_reply = 400;
           goto out;
         }
 
@@ -930,12 +938,12 @@ parse_and_process_request (CockpitRequest *request)
       if (length != 0)
         {
           g_debug ("received non-zero Content-Length");
-          request->delayed_reply = 413;
+          self->delayed_reply = 413;
         }
     }
 
   /* Not enough data yet */
-  if (request->buffer->len < off1 + off2 + length)
+  if (self->buffer->len < off1 + off2 + length)
     {
       again = TRUE;
       goto out;
@@ -944,18 +952,18 @@ parse_and_process_request (CockpitRequest *request)
   if (!g_str_equal (method, "GET") && !g_str_equal (method, "HEAD"))
     {
       g_message ("received unsupported HTTP method");
-      request->delayed_reply = 405;
+      self->delayed_reply = 405;
     }
 
   str = g_hash_table_lookup (headers, "Host");
   if (!str || g_str_equal (str, ""))
     {
       g_message ("received HTTP request without Host header");
-      request->delayed_reply = 400;
+      self->delayed_reply = 400;
     }
 
-  g_byte_array_remove_range (request->buffer, 0, off1 + off2);
-  process_request (request, method, path, str, headers);
+  g_byte_array_remove_range (self->buffer, 0, off1 + off2);
+  cockpit_web_request_process (self, method, path, str, headers);
 
 out:
   if (headers)
@@ -963,7 +971,7 @@ out:
   g_free (method);
   g_free (path);
   if (!again)
-    cockpit_request_finish (request);
+    cockpit_web_request_finish (self);
   return again;
 }
 
@@ -1006,34 +1014,34 @@ should_suppress_request_error (GError *error,
 }
 
 static gboolean
-on_request_input (GObject *pollable_input,
-                  gpointer user_data)
+cockpit_web_request_on_input (GObject *pollable_input,
+                              gpointer user_data)
 {
   GPollableInputStream *input = (GPollableInputStream *)pollable_input;
-  CockpitRequest *request = user_data;
+  CockpitWebRequest *self = user_data;
   GError *error = NULL;
   gsize length;
   gssize count;
 
-  length = request->buffer->len;
+  length = self->buffer->len;
 
   /* With a GTlsServerConnection, the GSource callback is not called again if
    * there is still pending data in GnuTLS'es buffer.
    * (https://gitlab.gnome.org/GNOME/glib-networking/issues/20). Thus read up
    * to our allowed maximum size to ensure we got everything that's pending.
-   * Add one extra byte so that parse_and_process_request() correctly rejects
-   * requests that are > maximum, instead of hanging.
+   * Add one extra byte so that cockpit_web_request_parse_and_process()
+   * correctly rejects requests that are > maximum, instead of hanging.
    *
    * FIXME: This may still hang for several large requests that are pipelined;
    * for these this needs to be changed into a loop.
    */
-  g_byte_array_set_size (request->buffer, length + cockpit_webserver_request_maximum + 1);
+  g_byte_array_set_size (self->buffer, length + cockpit_webserver_request_maximum + 1);
 
-  count = g_pollable_input_stream_read_nonblocking (input, request->buffer->data + length,
+  count = g_pollable_input_stream_read_nonblocking (input, self->buffer->data + length,
                                                     cockpit_webserver_request_maximum + 1, NULL, &error);
   if (count < 0)
     {
-      g_byte_array_set_size (request->buffer, length);
+      g_byte_array_set_size (self->buffer, length);
 
       /* Just wait and try again */
       if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_WOULD_BLOCK))
@@ -1045,37 +1053,37 @@ on_request_input (GObject *pollable_input,
       if (!should_suppress_request_error (error, length))
         g_message ("couldn't read from connection: %s", error->message);
 
-      cockpit_request_finish (request);
+      cockpit_web_request_finish (self);
       g_error_free (error);
       return FALSE;
     }
 
-  g_byte_array_set_size (request->buffer, length + count);
+  g_byte_array_set_size (self->buffer, length + count);
 
   if (count == 0)
     {
-      if (request->eof_okay)
-        close_io_stream (request->io);
+      if (self->eof_okay)
+        close_io_stream (self->io);
       else
         g_debug ("caller closed connection early");
-      cockpit_request_finish (request);
+      cockpit_web_request_finish (self);
       return FALSE;
     }
 
   /* Once we receive data EOF is unexpected (until possible next request) */
-  request->eof_okay = FALSE;
+  self->eof_okay = FALSE;
 
-  return parse_and_process_request (request);
+  return cockpit_web_request_parse_and_process (self);
 }
 
 static void
-start_request_input (CockpitRequest *request)
+cockpit_web_request_start_input (CockpitWebRequest *self)
 {
   GPollableInputStream *poll_in;
   GInputStream *in;
 
   /* Both GSocketConnection and GTlsServerConnection are pollable */
-  in = g_io_stream_get_input_stream (request->io);
+  in = g_io_stream_get_input_stream (self->io);
   poll_in = NULL;
   if (G_IS_POLLABLE_INPUT_STREAM (in))
     poll_in = (GPollableInputStream *)in;
@@ -1087,27 +1095,27 @@ start_request_input (CockpitRequest *request)
       else
         g_critical ("no input stream available");
 
-      cockpit_request_finish (request);
+      cockpit_web_request_finish (self);
       return;
     }
 
   /* Replace with a new source */
-  if (request->source)
+  if (self->source)
     {
-      g_source_destroy (request->source);
-      g_source_unref (request->source);
+      g_source_destroy (self->source);
+      g_source_unref (self->source);
     }
 
-  request->source = g_pollable_input_stream_create_source (poll_in, NULL);
-  g_source_set_callback (request->source, (GSourceFunc)on_request_input, request, NULL);
-  g_source_attach (request->source, request->web_server->main_context);
+  self->source = g_pollable_input_stream_create_source (poll_in, NULL);
+  g_source_set_callback (self->source, (GSourceFunc)cockpit_web_request_on_input, self, NULL);
+  g_source_attach (self->source, self->web_server->main_context);
 }
 
 static gboolean
-on_accept_certificate (GTlsConnection *conn,
-                       GTlsCertificate *peer_cert,
-                       GTlsCertificateFlags errors,
-                       gpointer user_data)
+cockpit_web_request_on_accept_certificate (GTlsConnection *conn,
+                                           GTlsCertificate *peer_cert,
+                                           GTlsCertificateFlags errors,
+                                           gpointer user_data)
 {
   /* Only used during testing */
   g_assert (cockpit_webserver_want_certificate == TRUE);
@@ -1115,11 +1123,11 @@ on_accept_certificate (GTlsConnection *conn,
 }
 
 static gboolean
-on_socket_input (GSocket *socket,
-                 GIOCondition condition,
-                 gpointer user_data)
+cockpit_web_request_on_socket_input (GSocket *socket,
+                                     GIOCondition condition,
+                                     gpointer user_data)
 {
-  CockpitRequest *request = user_data;
+  CockpitWebRequest *self = user_data;
   guchar first_byte;
   GInputVector vector[1] = { { &first_byte, 1 } };
   gint flags = G_SOCKET_MSG_PEEK;
@@ -1150,7 +1158,7 @@ on_socket_input (GSocket *socket,
       if (!should_suppress_request_error (error, 0))
         g_message ("couldn't read from socket: %s", error->message);
 
-      cockpit_request_finish (request);
+      cockpit_web_request_finish (self);
       g_error_free (error);
       return FALSE;
     }
@@ -1158,8 +1166,8 @@ on_socket_input (GSocket *socket,
   JsonObject *metadata = cockpit_memfd_read_json_from_control_messages (&ccm, &error);
   if (metadata)
     {
-      g_assert (G_IS_SOCKET_CONNECTION (request->io));
-      g_object_set_qdata_full (G_OBJECT (request->io),
+      g_assert (G_IS_SOCKET_CONNECTION (self->io));
+      g_object_set_qdata_full (G_OBJECT (self->io),
                                g_quark_from_static_string ("metadata"),
                                metadata, (GDestroyNotify) json_object_unref);
     }
@@ -1175,20 +1183,20 @@ on_socket_input (GSocket *socket,
    */
   if (first_byte == 22 || first_byte == 0x80)
     {
-      if (request->web_server->certificate == NULL)
+      if (self->web_server->certificate == NULL)
         {
           g_warning ("Received unexpected TLS connection and no certificate was configured");
-          cockpit_request_finish (request);
+          cockpit_web_request_finish (self);
           return FALSE;
         }
 
-      tls_stream = g_tls_server_connection_new (request->io,
-                                                request->web_server->certificate,
+      tls_stream = g_tls_server_connection_new (self->io,
+                                                self->web_server->certificate,
                                                 &error);
       if (tls_stream == NULL)
         {
           g_warning ("couldn't create new TLS stream: %s", error->message);
-          cockpit_request_finish (request);
+          cockpit_web_request_finish (self);
           g_error_free (error);
           return FALSE;
         }
@@ -1196,60 +1204,59 @@ on_socket_input (GSocket *socket,
       if (cockpit_webserver_want_certificate)
         {
           g_object_set (tls_stream, "authentication-mode", G_TLS_AUTHENTICATION_REQUESTED, NULL);
-          g_signal_connect (tls_stream, "accept-certificate", G_CALLBACK (on_accept_certificate), NULL);
+          g_signal_connect (tls_stream, "accept-certificate", G_CALLBACK (cockpit_web_request_on_accept_certificate), NULL);
         }
 
-      g_object_unref (request->io);
-      request->io = G_IO_STREAM (tls_stream);
+      g_object_unref (self->io);
+      self->io = G_IO_STREAM (tls_stream);
     }
   else
     {
-      if (request->web_server->certificate || request->web_server->flags & COCKPIT_WEB_SERVER_REDIRECT_TLS)
+      if (self->web_server->certificate || self->web_server->flags & COCKPIT_WEB_SERVER_REDIRECT_TLS)
         {
           /* non-TLS stream; defer redirection check until after header parsing */
-          if (cockpit_web_server_get_flags (request->web_server) & COCKPIT_WEB_SERVER_REDIRECT_TLS)
-            request->check_tls_redirect = TRUE;
+          if (cockpit_web_server_get_flags (self->web_server) & COCKPIT_WEB_SERVER_REDIRECT_TLS)
+            self->check_tls_redirect = TRUE;
         }
     }
 
-  start_request_input (request);
+  cockpit_web_request_start_input (self);
 
   /* No longer run *this* source */
   return FALSE;
 }
 
 static gboolean
-on_request_timeout (gpointer data)
+cockpit_web_request_on_timeout (gpointer data)
 {
-  CockpitRequest *request = data;
-  if (request->eof_okay)
+  CockpitWebRequest *self = data;
+  if (self->eof_okay)
     g_debug ("request timed out, closing");
   else
     g_message ("request timed out, closing");
-  cockpit_request_finish (request);
+  cockpit_web_request_finish (self);
   return FALSE;
 }
 
 static void
-cockpit_request_start (CockpitWebServer *self,
-                       GIOStream *io,
-                       gboolean first)
+cockpit_web_request_start (CockpitWebServer *web_server,
+                            GIOStream *io,
+                            gboolean first)
 {
   GSocketConnection *connection;
-  CockpitRequest *request;
   GSocket *socket;
 
-  request = g_new0 (CockpitRequest, 1);
-  request->web_server = self;
-  request->io = g_object_ref (io);
-  request->buffer = g_byte_array_new ();
+  CockpitWebRequest *self = g_new0 (CockpitWebRequest, 1);
+  self->web_server = web_server;
+  self->io = g_object_ref (io);
+  self->buffer = g_byte_array_new ();
 
   /* Right before a request, EOF is not unexpected */
-  request->eof_okay = TRUE;
+  self->eof_okay = TRUE;
 
-  request->timeout = g_timeout_source_new_seconds (cockpit_webserver_request_timeout);
-  g_source_set_callback (request->timeout, on_request_timeout, request, NULL);
-  g_source_attach (request->timeout, self->main_context);
+  self->timeout = g_timeout_source_new_seconds (cockpit_webserver_request_timeout);
+  g_source_set_callback (self->timeout, cockpit_web_request_on_timeout, self, NULL);
+  g_source_attach (self->timeout, web_server->main_context);
 
   if (first)
     {
@@ -1257,29 +1264,16 @@ cockpit_request_start (CockpitWebServer *self,
       socket = g_socket_connection_get_socket (connection);
       g_socket_set_blocking (socket, FALSE);
 
-      request->source = g_socket_create_source (g_socket_connection_get_socket (connection),
-                                                G_IO_IN, NULL);
-      g_source_set_callback (request->source, (GSourceFunc)on_socket_input, request, NULL);
-      g_source_attach (request->source, self->main_context);
+      self->source = g_socket_create_source (g_socket_connection_get_socket (connection),
+                                             G_IO_IN, NULL);
+      g_source_set_callback (self->source, (GSourceFunc)cockpit_web_request_on_socket_input, self, NULL);
+      g_source_attach (self->source, web_server->main_context);
     }
   else
-    start_request_input (request);
+    cockpit_web_request_start_input (self);
 
   /* Owns the request */
-  g_hash_table_add (self->requests, request);
-}
-
-static gboolean
-on_incoming (GSocketService *service,
-             GSocketConnection *connection,
-             GObject *source_object,
-             gpointer user_data)
-{
-  CockpitWebServer *self = COCKPIT_WEB_SERVER (user_data);
-  cockpit_request_start (self, G_IO_STREAM (connection), TRUE);
-
-  /* handled */
-  return TRUE;
+  g_hash_table_add (web_server->requests, self);
 }
 
 /* ---------------------------------------------------------------------------------------------------- */

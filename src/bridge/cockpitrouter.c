@@ -1664,7 +1664,7 @@ cockpit_router_prompt (CockpitRouter *self,
       self->superuser_answer_function = answer;
       self->superuser_answer_data = data;
 
-      gchar *user_hex = cockpit_hex_encode (user, -1);
+      char *user_hex = cockpit_hex_encode (user, -1);
       gchar *challenge = g_strdup_printf ("plain1:%s:", user_hex);
       GBytes *request = cockpit_transport_build_control ("command", "authorize",
                                                          "challenge", challenge,
@@ -1673,7 +1673,7 @@ cockpit_router_prompt (CockpitRouter *self,
       cockpit_transport_send (self->transport, NULL, request);
       g_bytes_unref (request);
       g_free (challenge);
-      g_free (user_hex);
+      free (user_hex);
     }
   else
     {

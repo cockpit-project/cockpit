@@ -385,7 +385,7 @@ on_other_control (CockpitTransport *transport,
           else
             {
               gchar *user_hex;
-              gchar *user;
+              char *user;
               gchar *stderr;
               self->startup_auth_cookie = g_strdup (cookie);
               cockpit_authorize_subject (challenge, &user_hex);
@@ -393,7 +393,7 @@ on_other_control (CockpitTransport *transport,
               stderr = startup_take_stderr (self);
               cockpit_router_prompt (self->router, user, prompt, stderr, on_answer, self);
               g_free (user);
-              g_free (user_hex);
+              free (user_hex);
               g_free (stderr);
             }
         }
@@ -1014,7 +1014,7 @@ cockpit_peer_handle (CockpitPeer *self,
           if (!user)
             user = g_getenv ("USER");
 
-          gchar *user_hex = cockpit_hex_encode (user, -1);
+          char *user_hex = cockpit_hex_encode (user, -1);
           gchar *plain1_challenge = g_strdup_printf ("plain1:%s:", user_hex);
 
           g_hash_table_insert (self->authorize_values, g_strdup ("basic"),
@@ -1022,7 +1022,7 @@ cockpit_peer_handle (CockpitPeer *self,
           g_hash_table_insert (self->authorize_values, plain1_challenge,
                                g_strdup (password));
 
-          g_free (user_hex);
+          free (user_hex);
           g_free (user_at_host);
         }
 

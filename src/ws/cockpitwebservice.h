@@ -25,6 +25,7 @@
 #include "common/cockpitjson.h"
 #include "common/cockpittransport.h"
 #include "common/cockpitwebresponse.h"
+#include "common/cockpitwebserver.h"
 
 #include "websocket/websocket.h"
 
@@ -44,11 +45,7 @@ CockpitWebService *  cockpit_web_service_new         (CockpitCreds *creds,
 void                 cockpit_web_service_disconnect  (CockpitWebService *self);
 
 void                 cockpit_web_service_socket      (CockpitWebService *self,
-                                                      const gchar *path,
-                                                      GIOStream *io_stream,
-                                                      GHashTable *headers,
-                                                      GByteArray *input_buffer,
-                                                      gboolean for_tls_proxy);
+                                                      CockpitWebRequest *request);
 
 CockpitCreds *       cockpit_web_service_get_creds   (CockpitWebService *self);
 const gchar *        cockpit_web_service_get_id      (CockpitWebService *self);
@@ -58,11 +55,7 @@ void                 cockpit_web_service_set_id      (CockpitWebService *self,
 gboolean             cockpit_web_service_get_idling  (CockpitWebService *self);
 
 WebSocketConnection *   cockpit_web_service_create_socket    (const gchar **protocols,
-                                                              const gchar *path,
-                                                              GIOStream *io_stream,
-                                                              GHashTable *headers,
-                                                              GByteArray *input_buffer,
-                                                              gboolean for_tls_proxy);
+                                                              CockpitWebRequest *request);
 
 gchar *                 cockpit_web_service_unique_channel   (CockpitWebService *self);
 

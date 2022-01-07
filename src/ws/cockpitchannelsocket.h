@@ -20,6 +20,8 @@
 #ifndef __COCKPIT_CHANNEL_SOCKET_H__
 #define __COCKPIT_CHANNEL_SOCKET_H__
 
+#include "common/cockpitwebserver.h"
+
 #include "cockpitwebservice.h"
 
 G_BEGIN_DECLS
@@ -27,12 +29,7 @@ G_BEGIN_DECLS
 
 void                 cockpit_channel_socket_open     (CockpitWebService *service,
                                                       JsonObject *open,
-                                                      const gchar *original_path,
-                                                      const gchar *path,
-                                                      GIOStream *io_stream,
-                                                      GHashTable *headers,
-                                                      GByteArray *input_buffer,
-                                                      gboolean for_tls_proxy);
+                                                      CockpitWebRequest *request);
 
 G_END_DECLS
 

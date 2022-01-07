@@ -158,18 +158,13 @@ on_socket_close (WebSocketConnection *socket,
 }
 
 static void
-respond_with_error (const gchar *original_path,
-                    const gchar *path,
-                    GIOStream *io_stream,
-                    gboolean for_tls_proxy,
-                    GHashTable *headers,
+respond_with_error (CockpitWebRequest *request,
                     guint status,
                     const gchar *message)
 {
   CockpitWebResponse *response;
 
-  response = cockpit_web_response_new (io_stream, original_path, path, headers,
-                                       for_tls_proxy ? COCKPIT_WEB_RESPONSE_FOR_TLS_PROXY : COCKPIT_WEB_RESPONSE_NONE);
+  response = cockpit_web_request_respond (request);
   cockpit_web_response_error (response, status, NULL, "%s", message);
   g_object_unref (response);
 }
@@ -189,12 +184,7 @@ cockpit_channel_socket_class_init (CockpitChannelSocketClass *klass)
 void
 cockpit_channel_socket_open (CockpitWebService *service,
                              JsonObject *open,
-                             const gchar *original_path,
-                             const gchar *path,
-                             GIOStream *io_stream,
-                             GHashTable *headers,
-                             GByteArray *input_buffer,
-                             gboolean for_tls_proxy)
+                             CockpitWebRequest *request)
 {
   CockpitChannelSocket *self = NULL;
   WebSocketDataType data_type;
@@ -205,14 +195,14 @@ cockpit_channel_socket_open (CockpitWebService *service,
   if (!cockpit_web_service_parse_external (open, NULL, NULL, NULL, &protocols) ||
       !cockpit_web_service_parse_binary (open, &data_type))
     {
-      respond_with_error (original_path, path, io_stream, for_tls_proxy, headers, 400, "Bad channel request");
+      respond_with_error (request, 400, "Bad channel request");
       return;
     }
 
   transport = cockpit_web_service_get_transport (service);
   if (!transport)
     {
-      respond_with_error (original_path, path, io_stream, for_tls_proxy, headers, 502, "Failed to open channel transport");
+      respond_with_error (request, 502, "Failed to open channel transport");
       return;
     }
 
@@ -227,8 +217,7 @@ cockpit_channel_socket_open (CockpitWebService *service,
 
   self->data_type = data_type;
 
-  self->socket = cockpit_web_service_create_socket (protocols, original_path,
-                                                     io_stream, headers, input_buffer, for_tls_proxy);
+  self->socket = cockpit_web_service_create_socket (protocols, request);
   self->socket_open = g_signal_connect (self->socket, "open", G_CALLBACK (on_socket_open), self);
   self->socket_message = g_signal_connect (self->socket, "message", G_CALLBACK (on_socket_message), self);
   self->socket_close = g_signal_connect (self->socket, "close", G_CALLBACK (on_socket_close), self);

@@ -883,6 +883,7 @@ test_multi_step_success (Test *test,
         g_main_context_iteration (NULL, TRUE);
 
       headers = web_socket_util_new_headers ();
+      g_assert (headers);
       response = cockpit_auth_login_finish (test->auth, result, NULL, headers, &error);
       g_object_unref (result);
 
@@ -917,8 +918,7 @@ test_multi_step_success (Test *test,
   creds = cockpit_web_service_get_creds (service);
   g_assert_cmpstr ("cockpit", ==, cockpit_creds_get_application (creds));
   g_assert_null (cockpit_creds_get_password (creds));
-  if (headers)
-    g_hash_table_destroy (headers);
+  g_hash_table_destroy (headers);
   g_object_unref (service);
   g_free (id);
 }

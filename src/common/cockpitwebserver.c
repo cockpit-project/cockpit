@@ -835,6 +835,7 @@ cockpit_web_request_process (CockpitWebRequest *self,
   self->path = path_copy + self->web_server->url_root->len;
   self->method = method;
   self->headers = headers;
+  self->host = host;
 
   gchar *query = strchr (path_copy, '?');
   if (query)
@@ -1343,6 +1344,12 @@ GIOStream *
 cockpit_web_request_get_io_stream (CockpitWebRequest *self)
 {
   return self->io;
+}
+
+const gchar *
+cockpit_web_request_get_host (CockpitWebRequest *self)
+{
+  return self->host;
 }
 
 const gchar *

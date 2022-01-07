@@ -484,9 +484,9 @@ authorize_check_user (CockpitCreds *creds,
         }
       else
         {
-          gchar *encoded = cockpit_hex_encode (user, -1);
+          char *encoded = cockpit_hex_encode (user, -1);
           ret = g_str_equal (encoded, subject);
-          g_free (encoded);
+          free (encoded);
 
           /* domain users are often case insensitive, while NSS/Linux converts them to the canonical lower-case form;
            * accept the lower-case form of the creds user as well */
@@ -494,9 +494,9 @@ authorize_check_user (CockpitCreds *creds,
             {
               gchar *user_lower = g_ascii_strdown (user, -1);
               encoded = cockpit_hex_encode (user_lower, -1);
-              g_free (user_lower);
+              free (user_lower);
               ret = g_str_equal (encoded, subject);
-              g_free (encoded);
+              free (encoded);
             }
         }
     }

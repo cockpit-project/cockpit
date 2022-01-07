@@ -18,6 +18,7 @@
  */
 import React from 'react';
 import {
+    Button,
     Card, CardBody, CardFooter,
     Progress, ProgressMeasureLocation, ProgressVariant, CardTitle,
 } from '@patternfly/react-core';
@@ -145,9 +146,9 @@ export class UsageCard extends React.Component {
                     </table>
                 </CardBody>
                 <CardFooter>
-                    <a href="#" onClick={ev => { ev.preventDefault(); cockpit.jump("/metrics", cockpit.transport.host) }}>
+                    <Button isInline variant="link" component="a" href="#" onClick={ev => { ev.preventDefault(); cockpit.jump("/metrics", cockpit.transport.host) }}>
                         {_("View details and history")}
-                    </a>
+                    </Button>
                 </CardFooter>
             </Card>
         );

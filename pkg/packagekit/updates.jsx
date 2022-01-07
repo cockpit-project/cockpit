@@ -886,7 +886,7 @@ class CardsPage extends React.Component {
                             <FlexItem>
                                 <Popover aria-label="More information popover"
                                          bodyContent={_("When the Web Console is restarted, you will no longer see progress information. However, the update process will continue in the background. Reconnect to continue watching the update process.")}>
-                                    <a href="#">{_("More info...")}</a>
+                                    <Button variant="link" isInline>{_("More info...")}</Button>
                                 </Popover>
                             </FlexItem>
                         </Flex>}

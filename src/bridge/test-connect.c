@@ -343,7 +343,9 @@ test_fail_access_denied (void)
   g_assert_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND);
   g_error_free (error);
 
+  unlink (unix_path);
   g_free (unix_path);
+  close (fd);
 }
 
 static void

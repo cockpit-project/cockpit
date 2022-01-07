@@ -682,7 +682,7 @@ cockpit_channel_response_serve (CockpitWebService *service,
     }
 
   /* Send along the HTTP scheme the package should assume is accessing things */
-  protocol = cockpit_web_response_get_protocol (response, in_headers);
+  protocol = cockpit_web_response_get_protocol (response);
 
   json_object_set_string_member (heads, "Host", host);
   json_object_set_string_member (heads, "X-Forwarded-Proto", protocol);

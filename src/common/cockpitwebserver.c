@@ -1276,12 +1276,8 @@ cockpit_web_request_start (CockpitWebServer *web_server,
 CockpitWebResponse *
 cockpit_web_request_respond (CockpitWebRequest *self)
 {
-  CockpitWebResponseFlags flags = COCKPIT_WEB_RESPONSE_NONE;
-
-  if (self->web_server->flags & COCKPIT_WEB_SERVER_FOR_TLS_PROXY)
-    flags |= COCKPIT_WEB_RESPONSE_FOR_TLS_PROXY;
-
-  return cockpit_web_response_new (self->io, self->original_path, self->path, self->headers, flags);
+  return cockpit_web_response_new (self->io, self->original_path, self->path, self->headers,
+                                   cockpit_web_request_get_protocol (self));
 }
 
 const gchar *

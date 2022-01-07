@@ -217,7 +217,7 @@ test_resource_simple (TestResourceCase *tc,
     "0\r\n\r\n";
 
 
-  response = cockpit_web_response_new (tc->io, url, url, NULL, COCKPIT_WEB_RESPONSE_NONE);
+  response = cockpit_web_response_new (tc->io, url, url, NULL, NULL);
 
   cockpit_channel_response_serve (tc->service, tc->headers, response, "@localhost", "/another/test.html");
 
@@ -276,7 +276,7 @@ test_resource_simple_host (TestResourceCase *tc,
     "0\r\n\r\n";
 
   g_hash_table_insert (tc->headers, g_strdup ("Host"), g_strdup ("my.host"));
-  response = cockpit_web_response_new (tc->io, url, url, NULL, COCKPIT_WEB_RESPONSE_NONE);
+  response = cockpit_web_response_new (tc->io, url, url, NULL, NULL);
 
   cockpit_channel_response_serve (tc->service, tc->headers, response, "@localhost", "/another/test.html");
 
@@ -333,7 +333,7 @@ test_resource_language (TestResourceCase *tc,
     "\r\n"
     "0\r\n\r\n";
 
-  response = cockpit_web_response_new (tc->io, url, url, NULL, COCKPIT_WEB_RESPONSE_NONE);
+  response = cockpit_web_response_new (tc->io, url, url, NULL, NULL);
 
   g_hash_table_insert (tc->headers, g_strdup ("Accept-Language"), g_strdup ("pig, blah"));
   cockpit_channel_response_serve (tc->service, tc->headers, response, "@localhost", "/another/test.html");
@@ -390,7 +390,7 @@ test_resource_cookie (TestResourceCase *tc,
     "\r\n"
     "0\r\n\r\n";
 
-  response = cockpit_web_response_new (tc->io, url, url, NULL, COCKPIT_WEB_RESPONSE_NONE);
+  response = cockpit_web_response_new (tc->io, url, url, NULL, NULL);
 
   g_hash_table_insert (tc->headers, g_strdup ("Cookie"), g_strdup ("CockpitLang=pig"));
   cockpit_channel_response_serve (tc->service, tc->headers, response, "@localhost", "/another/test.html");
@@ -439,7 +439,7 @@ test_resource_not_found (TestResourceCase *tc,
     "Not Found\r\nf\r\n"
     "</body></html>\n\r\n0\r\n\r\n";
 
-  response = cockpit_web_response_new (tc->io, url, url, NULL, COCKPIT_WEB_RESPONSE_NONE);
+  response = cockpit_web_response_new (tc->io, url, url, NULL, NULL);
 
   cockpit_channel_response_serve (tc->service, tc->headers, response, "another@localhost", "/not-exist");
 
@@ -484,7 +484,7 @@ test_resource_no_path (TestResourceCase *tc,
     "</body></html>\n\r\n0\r\n\r\n";
 
   /* Missing path after package */
-  response = cockpit_web_response_new (tc->io, url, url, NULL, COCKPIT_WEB_RESPONSE_NONE);
+  response = cockpit_web_response_new (tc->io, url, url, NULL, NULL);
 
   cockpit_channel_response_serve (tc->service, tc->headers, response, "another@localhost", "");
 
@@ -532,7 +532,7 @@ test_resource_failure (TestResourceCase *tc,
   while (kill (pid, 0) >= 0)
     g_usleep (1000);
 
-  response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, COCKPIT_WEB_RESPONSE_NONE);
+  response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, NULL);
   cockpit_channel_response_serve (tc->service, tc->headers, response, "@localhost", "/another/test.html");
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
@@ -573,7 +573,7 @@ request_checksum (TestResourceCase *tc)
   g_object_unref (input);
 
   /* Start the connection up, and poke it a bit */
-  response = cockpit_web_response_new (io, "/unused", "/unused", NULL, COCKPIT_WEB_RESPONSE_NONE);
+  response = cockpit_web_response_new (io, "/unused", "/unused", NULL, NULL);
   cockpit_channel_response_serve (tc->service, tc->headers, response, "@localhost", "/checksum");
 
   while (cockpit_web_response_get_state (response) != COCKPIT_WEB_RESPONSE_SENT)
@@ -617,7 +617,7 @@ test_resource_checksum (TestResourceCase *tc,
 
   request_checksum (tc);
 
-  response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, COCKPIT_WEB_RESPONSE_NONE);
+  response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, NULL);
   cockpit_channel_response_serve (tc->service, tc->headers, response,
                                 CHECKSUM,
                                 "/test/sub/file.ext");
@@ -659,7 +659,7 @@ test_resource_not_modified (TestResourceCase *tc,
   g_hash_table_insert (tc->headers, g_strdup ("If-None-Match"),
                        g_strdup ("\"" CHECKSUM "-c\""));
 
-  response = cockpit_web_response_new (tc->io, "/unused", "/unused", tc->headers, COCKPIT_WEB_RESPONSE_NONE);
+  response = cockpit_web_response_new (tc->io, "/unused", "/unused", tc->headers, NULL);
   cockpit_channel_response_serve (tc->service, tc->headers, response,
                                 CHECKSUM,
                                 "/test/sub/file.ext");
@@ -703,7 +703,7 @@ test_resource_not_modified_new_language (TestResourceCase *tc,
                        g_strdup ("\"" CHECKSUM "-c\""));
   g_hash_table_insert (tc->headers, g_strdup ("Accept-Language"), g_strdup ("de"));
 
-  response = cockpit_web_response_new (tc->io, "/unused", "/unused", tc->headers, COCKPIT_WEB_RESPONSE_NONE);
+  response = cockpit_web_response_new (tc->io, "/unused", "/unused", tc->headers, NULL);
   cockpit_channel_response_serve (tc->service, tc->headers, response,
                                 CHECKSUM,
                                 "/test/sub/file.ext");
@@ -757,7 +757,7 @@ test_resource_not_modified_cookie_language (TestResourceCase *tc,
   cookie = g_strdup_printf ("%s; CockpitLang=fr", (gchar *)g_hash_table_lookup (tc->headers, "Cookie"));
   g_hash_table_insert (tc->headers, g_strdup ("Cookie"), cookie);
 
-  response = cockpit_web_response_new (tc->io, "/unused", "/unused", tc->headers, COCKPIT_WEB_RESPONSE_NONE);
+  response = cockpit_web_response_new (tc->io, "/unused", "/unused", tc->headers, NULL);
   cockpit_channel_response_serve (tc->service, tc->headers, response,
                                 CHECKSUM,
                                 "/test/sub/file.ext");
@@ -802,7 +802,7 @@ test_resource_no_checksum (TestResourceCase *tc,
     "</body></html>\n\r\n0\r\n\r\n";
 
   /* Missing checksum */
-  response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, COCKPIT_WEB_RESPONSE_NONE);
+  response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, NULL);
 
   cockpit_channel_response_serve (tc->service, tc->headers, response, "xxx", "/test");
 
@@ -847,7 +847,7 @@ test_resource_bad_checksum (TestResourceCase *tc,
     "</body></html>\n\r\n0\r\n\r\n";
 
   /* Missing checksum */
-  response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, COCKPIT_WEB_RESPONSE_NONE);
+  response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, NULL);
 
   cockpit_channel_response_serve (tc->service, tc->headers, response, "09323094823029348", "/path");
 
@@ -899,7 +899,7 @@ test_resource_language_suffix (TestResourceCase *tc,
     "\r\n"
     "0\r\n\r\n";
 
-  response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, COCKPIT_WEB_RESPONSE_NONE);
+  response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, NULL);
 
   cockpit_channel_response_serve (tc->service, tc->headers, response, "@localhost", "/another/test.de.html");
 
@@ -955,7 +955,7 @@ test_resource_language_fallback (TestResourceCase *tc,
     "\r\n"
     "0\r\n\r\n";
 
-  response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, COCKPIT_WEB_RESPONSE_NONE);
+  response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, NULL);
 
   /* Language cookie overrides */
   cockpit_channel_response_serve (tc->service, tc->headers, response, "@localhost", "/another/test.fi.html");
@@ -1007,7 +1007,7 @@ test_resource_gzip_encoding (TestResourceCase *tc,
     ".QH\xCB\xCCI\xE5\x02\x00>PjG\x12\x00\x00\x00\x0D\x0A"
     "0\x0D\x0A\x0D\x0A";
 
-  response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, COCKPIT_WEB_RESPONSE_NONE);
+  response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, NULL);
 
   cockpit_channel_response_serve (tc->service, tc->headers, response, "@localhost", "/another/test-file.txt");
 
@@ -1051,7 +1051,7 @@ test_resource_head (TestResourceCase *tc,
     "\r\n"
     "0\r\n\r\n";
 
-  response = cockpit_web_response_new (tc->io, url, url, NULL, COCKPIT_WEB_RESPONSE_NONE);
+  response = cockpit_web_response_new (tc->io, url, url, NULL, NULL);
   cockpit_web_response_set_method (response, "HEAD");
 
   cockpit_channel_response_serve (tc->service, tc->headers, response, "@localhost", "/another/test.html");

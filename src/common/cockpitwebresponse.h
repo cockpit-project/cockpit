@@ -32,12 +32,6 @@ G_BEGIN_DECLS
 G_DECLARE_FINAL_TYPE(CockpitWebResponse, cockpit_web_response, COCKPIT, WEB_RESPONSE, GObject)
 
 typedef enum {
-  COCKPIT_WEB_RESPONSE_NONE = 0,
-  COCKPIT_WEB_RESPONSE_FOR_TLS_PROXY = 1 << 0,
-  COCKPIT_WEB_RESPONSE_MAX = 1 << 1
-} CockpitWebResponseFlags;
-
-typedef enum {
   COCKPIT_WEB_RESPONSE_READY = 1,
   COCKPIT_WEB_RESPONSE_QUEUING,
   COCKPIT_WEB_RESPONSE_COMPLETE,
@@ -61,7 +55,7 @@ CockpitWebResponse *  cockpit_web_response_new           (GIOStream *io,
                                                           const gchar *original_path,
                                                           const gchar *path,
                                                           GHashTable *in_headers,
-                                                          CockpitWebResponseFlags flags);
+                                                          const gchar *protocol);
 void                  cockpit_web_response_set_method    (CockpitWebResponse *response,
                                                           const gchar *method);
 
@@ -144,8 +138,7 @@ const gchar *  cockpit_web_response_get_url_root         (CockpitWebResponse *re
 
 const gchar *  cockpit_web_response_get_origin           (CockpitWebResponse *response);
 
-const gchar *  cockpit_web_response_get_protocol         (CockpitWebResponse *response,
-                                                          GHashTable *headers);
+const gchar *  cockpit_web_response_get_protocol         (CockpitWebResponse *response);
 
 void           cockpit_web_response_template             (CockpitWebResponse *response,
                                                           const gchar *escaped,
@@ -154,11 +147,6 @@ void           cockpit_web_response_template             (CockpitWebResponse *re
 
 gchar *      cockpit_web_response_security_policy        (const gchar *content_security_policy,
                                                           const gchar *self_origin);
-
-
-const gchar *  cockpit_connection_get_protocol           (GIOStream *connection,
-                                                          GHashTable *headers,
-                                                          gboolean for_tls_proxy);
 
 G_END_DECLS
 

@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import React from 'react';
-import { Card, CardBody, CardFooter, CardTitle } from '@patternfly/react-core';
+import { Button, Card, CardBody, CardFooter, CardTitle } from '@patternfly/react-core';
 
 import cockpit from "cockpit";
 import * as machine_info from "machine-info.js";
@@ -141,9 +141,9 @@ export class SystemInfomationCard extends React.Component {
                     </table>
                 </CardBody>
                 <CardFooter>
-                    <a href="#" onClick={ev => { ev.preventDefault(); cockpit.jump("/system/hwinfo", cockpit.transport.host) }}>
+                    <Button isInline variant="link" component="a" href="#" onClick={ev => { ev.preventDefault(); cockpit.jump("/system/hwinfo", cockpit.transport.host) }}>
                         {_("View hardware details")}
-                    </a>
+                    </Button>
                 </CardFooter>
             </Card>
         );

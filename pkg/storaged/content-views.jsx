@@ -128,8 +128,29 @@ function create_tabs(client, target, is_partition, is_extended) {
     if (content_block)
         warnings = warnings.concat(client.path_warnings[content_block.path] || []);
 
+    const tab_actions = [];
+    const tab_menu_actions = [];
+    const tab_menu_danger_actions = [];
+
+    function add_action(title, func) {
+        tab_actions.push(<StorageButton onlyWide key={title} onClick={func}>{title}</StorageButton>);
+        tab_menu_actions.push({ title: title, func: func, only_narrow: true });
+    }
+
+    function add_danger_action(title, func) {
+        tab_actions.push(<StorageButton onlyWide key={title} onClick={func}>{title}</StorageButton>);
+        tab_menu_danger_actions.push({ title: title, func: func, only_narrow: true });
+    }
+
+    function add_menu_action(title, func) {
+        tab_menu_actions.push({ title: title, func: func });
+    }
+
+    function add_menu_danger_action(title, func) {
+        tab_menu_danger_actions.push({ title: title, func: func });
+    }
+
     const tabs = [];
-    let row_action = null;
 
     function add_tab(name, renderer, for_content, associated_warnings) {
         let tab_warnings = [];
@@ -183,7 +204,7 @@ function create_tabs(client, target, is_partition, is_extended) {
     if (lvol) {
         if (lvol.Type == "pool") {
             add_tab(_("Pool"), PoolVolTab);
-            row_action = <StorageButton onClick={create_thin}>{_("Create thin volume")}</StorageButton>;
+            add_action(_("Create thin volume"), create_thin);
         } else {
             add_tab(_("Volume"), BlockVolTab, false, ["unused-space"]);
 
@@ -215,22 +236,6 @@ function create_tabs(client, target, is_partition, is_extended) {
         if (config && !content_block)
             add_tab(_("Filesystem"), FilesystemTab, false, ["mismounted-fsys"]);
         add_tab(_("Encryption"), CryptoTab);
-    }
-
-    const tab_actions = [];
-    const tab_menu_actions = [];
-    const tab_menu_danger_actions = [];
-
-    function add_action(title, func) {
-        tab_actions.push(<StorageButton key={title} onClick={func}>{title}</StorageButton>);
-    }
-
-    function add_menu_action(title, func) {
-        tab_menu_actions.push({ title: title, func: func });
-    }
-
-    function add_menu_danger_action(title, func) {
-        tab_menu_danger_actions.push({ title: title, func: func });
     }
 
     function lock() {
@@ -394,7 +399,7 @@ function create_tabs(client, target, is_partition, is_extended) {
 
     if (block && !is_extended) {
         if (is_unrecognized)
-            add_action(_("Format"), () => format_dialog(client, block.path));
+            add_danger_action(_("Format"), () => format_dialog(client, block.path));
         else
             add_menu_danger_action(_("Format"), () => format_dialog(client, block.path));
     }
@@ -415,7 +420,6 @@ function create_tabs(client, target, is_partition, is_extended) {
         actions: tab_actions,
         menu_actions: tab_menu_actions,
         menu_danger_actions: tab_menu_danger_actions,
-        row_action: row_action,
         has_warnings: warnings.length > 0
     };
 }
@@ -507,24 +511,31 @@ function block_description(client, block) {
 
 function append_row(client, rows, level, key, name, desc, tabs, job_object) {
     function menuitem(action) {
-        if (action)
-            return <StorageMenuItem key={action.title} onClick={action.func}>{action.title}</StorageMenuItem>;
+        if (action.title)
+            return <StorageMenuItem onlyNarrow={action.only_narrow} key={action.title} onClick={action.func}>{action.title}</StorageMenuItem>;
         else
-            return <DropdownSeparator key="sep" />;
+            return <DropdownSeparator className={action.only_narrow ? "show-only-when-narrow" : null} key="sep" />;
     }
 
     let menu = null;
-    let menu_actions = tabs.menu_actions || [];
-    if (tabs.menu_danger_actions && tabs.menu_danger_actions.length > 0) {
-        if (menu_actions.length > 0)
-            menu_actions.push(null); // separator
-        menu_actions = menu_actions.concat(tabs.menu_danger_actions);
-    }
+    const menu_actions = tabs.menu_actions || [];
+    const menu_danger_actions = tabs.menu_danger_actions || [];
+    const menu_actions_wide_count = menu_actions.filter(a => !a.only_narrow).length;
+    const menu_danger_actions_wide_count = menu_danger_actions.filter(a => !a.only_narrow).length;
 
-    if (menu_actions.length > 0)
-        menu = <StorageBarMenu id={"menu-" + name} menuItems={menu_actions.map(menuitem)} isKebab />;
+    const menu_sep = [];
+    if (menu_actions.length > 0 && menu_danger_actions.length > 0)
+        menu_sep.push({
+            title: null,
+            only_narrow: !(menu_actions_wide_count > 0 && menu_danger_actions_wide_count > 0)
+        });
 
-    const actions = <>{tabs.row_action}{tabs.actions}</>;
+    if (menu_actions.length + menu_danger_actions.length > 0)
+        menu = <StorageBarMenu id={"menu-" + name}
+                               onlyNarrow={!(menu_actions_wide_count + menu_danger_actions_wide_count > 0)}
+                               menuItems={menu_actions.concat(menu_sep).concat(menu_danger_actions)
+                                       .map(menuitem)}
+                               isKebab />;
 
     let info = null;
     if (job_object && client.path_jobs[job_object])
@@ -550,7 +561,7 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
                 : utils.fmt_size(desc.size),
             props: { className: "ct-text-align-right" }
         },
-        { title: <>{actions}{menu}</>, props: { className: "pf-c-table__action content-action" } },
+        { title: <>{tabs.actions}{menu}</>, props: { className: "pf-c-table__action content-action" } },
     ];
 
     rows.push({
@@ -579,17 +590,26 @@ function append_partitions(client, rows, level, block) {
         }
 
         const btn = (
-            <StorageButton onClick={create_partition}>
+            <StorageButton onlyWide onClick={create_partition}>
                 {_("Create partition")}
             </StorageButton>
         );
+
+        const item = (
+            <StorageMenuItem key="create"
+                             onlyNarrow
+                             onClick={create_partition}>
+                {_("Create partition")}
+            </StorageMenuItem>);
+
+        const menu = <StorageBarMenu onlyNarrow menuItems={[item]} isKebab />;
 
         const cols = [
             _("Free space"),
             { },
             { },
             { title: utils.fmt_size(size), props: { className: "ct-text-align-right" } },
-            { title: btn, props: { className: "pf-c-table__action content-action" } },
+            { title: <>{btn}{menu}</>, props: { className: "pf-c-table__action content-action" } },
         ];
 
         rows.push({

@@ -96,7 +96,7 @@ function checked(callback) {
     };
 }
 
-export const StorageButton = ({ id, kind, excuse, onClick, children, ariaLabel }) => (
+export const StorageButton = ({ id, kind, excuse, onClick, children, ariaLabel, onlyWide }) => (
     <StorageControl excuse={excuse}
                     content={excuse => (
                         <Button id={id}
@@ -104,6 +104,7 @@ export const StorageButton = ({ id, kind, excuse, onClick, children, ariaLabel }
                                 onClick={checked(onClick)}
                                 variant={kind || "secondary"}
                                 isDisabled={!!excuse}
+                                className={onlyWide ? "show-only-when-wide" : null}
                                 style={excuse ? { pointerEvents: 'none' } : null}>
                             {children}
                         </Button>
@@ -217,11 +218,15 @@ export const StorageUsageBar = ({ stats, critical, block, offset, total, small }
         </div>);
 };
 
-export const StorageMenuItem = ({ onClick, children }) => (
-    <DropdownItem onKeyPress={checked(onClick)} onClick={checked(onClick)}>{children}</DropdownItem>
+export const StorageMenuItem = ({ onClick, onlyNarrow, children }) => (
+    <DropdownItem className={onlyNarrow ? "show-only-when-narrow" : null}
+                  onKeyPress={checked(onClick)}
+                  onClick={checked(onClick)}>
+        {children}
+    </DropdownItem>
 );
 
-export const StorageBarMenu = ({ label, isKebab, menuItems }) => {
+export const StorageBarMenu = ({ label, isKebab, onlyNarrow, menuItems }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     if (!client.superuser.allowed)
@@ -237,7 +242,8 @@ export const StorageBarMenu = ({ label, isKebab, menuItems }) => {
         </DropdownToggle>;
 
     return (
-        <Dropdown onSelect={() => setIsOpen(!isOpen)}
+        <Dropdown className={onlyNarrow ? "show-only-when-narrow" : null}
+                  onSelect={() => setIsOpen(!isOpen)}
                   toggle={toggle}
                   isOpen={isOpen}
                   isPlain

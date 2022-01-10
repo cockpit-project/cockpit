@@ -1,0 +1,10 @@
+[Unit]
+Description=Cockpit Web Service https instance %I
+BindsTo=cockpit.service
+Documentation=man:cockpit-ws(8)
+
+[Service]
+Slice=system-cockpithttps.slice
+ExecStart=@libexecdir@/cockpit-ws --for-tls-proxy --port=0
+User=@wsinstanceuser@
+Group=@wsinstancegroup@

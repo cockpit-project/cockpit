@@ -68,39 +68,6 @@ cockpit_ws_LDADD = 					\
 	$(COCKPIT_WS_LIBS)					\
 	$(NULL)
 
-systemd_units_in = \
-	src/ws/cockpit-motd.service.in \
-	src/ws/cockpit.service.in \
-	src/ws/cockpit.socket.in \
-	src/ws/cockpit-wsinstance-http.service.in \
-	src/ws/cockpit-wsinstance-http.socket.in \
-	src/ws/cockpit-wsinstance-https-factory@.service.in \
-	src/ws/cockpit-wsinstance-https-factory.socket.in \
-	src/ws/cockpit-wsinstance-https@.service.in \
-	src/ws/cockpit-wsinstance-https@.socket.in \
-	$(NULL)
-
-nodist_systemdunit_DATA += $(patsubst %.in,%,$(systemd_units_in))
-dist_systemdunit_DATA += src/ws/system-cockpithttps.slice
-
-motddir = $(datadir)/$(PACKAGE)/motd/
-dist_motd_DATA = src/ws/inactive.motd
-dist_motd_SCRIPTS = src/ws/update-motd
-
-# Automake: 'Variables using ... ‘sysconf’ ... are installed by install-exec.'
-install-exec-hook::
-	mkdir -p $(DESTDIR)$(sysconfdir)/motd.d
-	ln -snf /run/cockpit/motd $(DESTDIR)$(sysconfdir)/motd.d/cockpit
-	mkdir -p $(DESTDIR)$(sysconfdir)/issue.d
-	ln -snf /run/cockpit/motd $(DESTDIR)$(sysconfdir)/issue.d/cockpit.issue
-
-tempconfdir = $(prefix)/lib/tmpfiles.d
-nodist_tempconf_DATA = src/ws/cockpit-tempfiles.conf
-tempconf_in = src/ws/cockpit-tempfiles.conf.in
-
-$(nodist_tempconf_DATA): $(tempconf_in)
-	$(SUBST_RULE)
-
 noinst_PROGRAMS += pam_cockpit_cert.so
 pam_cockpit_cert_so_SOURCES = \
 	src/ws/pam_cockpit_cert.c
@@ -122,14 +89,10 @@ cockpit-desktop: src/ws/cockpit-desktop.in
 	$(SUBST_RULE)
 
 EXTRA_DIST += \
-	$(systemd_units_in) \
 	src/ws/cockpit-desktop.in \
-	$(tempconf_in) \
 	$(NULL)
 
 CLEANFILES += \
-	$(patsubst %.in,%,$(systemd_units_in)) \
-	$(nodist_tempconf_DATA) \
 	cockpit-desktop \
 	$(NULL)
 

@@ -43,6 +43,8 @@
 #include <string.h>
 #include <errno.h>
 
+#include <gio/gunixsocketaddress.h>
+
 #define ACTION_SSH "remote-login-ssh"
 #define ACTION_NONE "none"
 #define LOCAL_SESSION "local-session"
@@ -1114,6 +1116,7 @@ cockpit_session_launch (CockpitAuth *self,
     section = type;
 
   const gchar *command = cockpit_conf_string (section, "Command");
+  const gchar *connect_to = cockpit_conf_string (section, "ConnectTo");
 
   gboolean capture_stderr = FALSE;
   if (g_str_equal (section, COCKPIT_CONF_SSH_SECTION))
@@ -1126,14 +1129,14 @@ cockpit_session_launch (CockpitAuth *self,
        */
       capture_stderr = cockpit_conf_bool ("WebService", "X-For-CockpitClient", FALSE);
 
-      if (command == NULL)
+      if (command == NULL && connect_to == NULL)
         command = cockpit_ws_ssh_program;
     }
   else if (g_str_equal (type, "basic") ||
            g_str_equal (type, "negotiate") ||
            g_str_equal (type, "tls-cert"))
     {
-      if (command == NULL)
+      if (command == NULL && connect_to == NULL)
         command = cockpit_ws_session_program;
     }
 
@@ -1156,6 +1159,11 @@ cockpit_session_launch (CockpitAuth *self,
 
       const gchar *argv[] = { command, host ?: "localhost", NULL };
       pipe = session_start_process (argv, (const gchar **)env, capture_stderr);
+    }
+  else if (connect_to != NULL)
+    {
+      g_autoptr(GSocketAddress) address = g_unix_socket_address_new (connect_to);
+      pipe = cockpit_pipe_connect (connect_to, address);
     }
   else
     {

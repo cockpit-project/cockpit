@@ -20,8 +20,3 @@ cockpit_session_SOURCES = \
 	src/session/session-utils.h \
 	src/session/session.c \
 	$(NULL)
-
-# set up cockpit-session to be setuid root, but only runnable by cockpit-session
-install-exec-hook::
-	chown -f root:cockpit-wsinstance $(DESTDIR)$(libexecdir)/cockpit-session || true
-	chmod -f 4750 $(DESTDIR)$(libexecdir)/cockpit-session || true

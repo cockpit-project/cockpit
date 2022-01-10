@@ -1137,29 +1137,33 @@ cockpit_session_launch (CockpitAuth *self,
         command = cockpit_ws_session_program;
     }
 
-  if (!command)
+  g_autoptr(CockpitPipe) pipe = NULL;
+  if (command != NULL)
+    {
+      g_auto(GStrv) env = g_get_environ ();
+      if (cockpit_creds_get_rhost (creds))
+        {
+          env = g_environ_setenv (env, "COCKPIT_REMOTE_PEER",
+                                  cockpit_creds_get_rhost (creds),
+                                  TRUE);
+        }
+      if (g_strcmp0 (g_hash_table_lookup (headers, "X-SSH-Connect-Unknown-Hosts"), "yes") == 0)
+        {
+          env = g_environ_setenv (env, "COCKPIT_SSH_CONNECT_TO_UNKNOWN_HOSTS",
+                                  "1",
+                                  TRUE);
+        }
+
+      const gchar *argv[] = { command, host ?: "localhost", NULL };
+      pipe = session_start_process (argv, (const gchar **)env, capture_stderr);
+    }
+  else
     {
       g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
                    "Authentication disabled");
       return NULL;
     }
 
-  g_auto(GStrv) env = g_get_environ ();
-  if (cockpit_creds_get_rhost (creds))
-    {
-      env = g_environ_setenv (env, "COCKPIT_REMOTE_PEER",
-                              cockpit_creds_get_rhost (creds),
-                              TRUE);
-    }
-  if (g_strcmp0 (g_hash_table_lookup (headers, "X-SSH-Connect-Unknown-Hosts"), "yes") == 0)
-    {
-      env = g_environ_setenv (env, "COCKPIT_SSH_CONNECT_TO_UNKNOWN_HOSTS",
-                              "1",
-                              TRUE);
-    }
-
-  const gchar *argv[] = { command, host ?: "localhost", NULL };
-  g_autoptr(CockpitPipe) pipe = session_start_process (argv, (const gchar **)env, capture_stderr);
   if (!pipe)
     {
       g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,

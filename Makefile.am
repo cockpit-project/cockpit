@@ -14,9 +14,6 @@ noinst_DATA =
 nodist_noinst_DATA =
 nodist_noinst_SCRIPTS =
 
-dist_systemdunit_DATA   =
-nodist_systemdunit_DATA =
-
 TESTS = $(NULL)
 
 CLEANFILES = \
@@ -39,30 +36,8 @@ clean-local::
 SUFFIXES = \
 	.jsx \
 	.mo .po \
-	.service .service.in \
-	.socket .socket.in \
 	.1 .8 .5 \
 	$(NULL)
-
-SUBST_RULE = \
-	$(AM_V_GEN) mkdir -p $(dir $@) && sed \
-	-e 's,[@]PACKAGE[@],$(PACKAGE),g' \
-	-e 's,[@]admin_group[@],$(admin_group),g' \
-	-e 's,[@]datadir[@],$(datadir),g' \
-	-e 's,[@]group[@],$(COCKPIT_GROUP),g' \
-	-e 's,[@]libexecdir[@],$(libexecdir),g' \
-	-e 's,[@]prefix[@],$(prefix),g' \
-	-e 's,[@]sysconfdir[@],$(sysconfdir),g' \
-	-e 's,[@]user[@],$(COCKPIT_USER),g' \
-	-e 's,[@]wsinstancegroup[@],$(COCKPIT_WSINSTANCE_GROUP),g' \
-	-e 's,[@]wsinstanceuser[@],$(COCKPIT_WSINSTANCE_USER),g' \
-	$< > $@.tmp && mv -f $@.tmp $@ \
-	$(NULL)
-
-.service.in.service:
-	$(SUBST_RULE)
-.socket.in.socket:
-	$(SUBST_RULE)
 
 # Webpack related
 include pkg/build

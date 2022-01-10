@@ -46,6 +46,9 @@ kernel_read_system_state(cockpit_ws_t)
 # cockpit-tls can execute cockpit-ws
 can_exec(cockpit_ws_t,cockpit_ws_exec_t)
 
+# systemd can execute cockpit-session
+can_exec(init_t,cockpit_session_exec_t)
+
 # cockpit-ws can execute cockpit-session
 can_exec(cockpit_ws_t,cockpit_session_exec_t)
 

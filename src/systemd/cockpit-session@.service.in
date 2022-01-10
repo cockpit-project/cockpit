@@ -1,0 +1,7 @@
+[Unit]
+Description=Cockpit session %I
+
+[Service]
+ExecStart=@libexecdir@/cockpit-session
+StandardInput=socket
+User=root

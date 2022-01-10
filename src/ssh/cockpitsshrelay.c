@@ -1685,21 +1685,18 @@ on_channel_data (ssh_session session,
                  void *userdata)
 {
   CockpitSshRelay *self = userdata;
-  guint32 size, i;
   gint ret = 0;
-  GBytes *bytes = NULL;
   guint8 *bdata = data;
 
   if (!self->received_frame && !is_stderr)
     {
-      size = 0;
+      guint32 i;
+
       for (i = 0; i < len; i++)
         {
           /* Check invalid characters, prevent integer overflow, limit max length */
           if (i > 7 || bdata[i] < '0' || bdata[i] > '9')
             break;
-          size *= 10;
-          size += bdata[i] - '0';
         }
 
       /* If we don't have enough data return 0 bytes processed
@@ -1737,9 +1734,8 @@ on_channel_data (ssh_session session,
     {
       if (!self->pipe_closed)
         {
-          bytes = g_bytes_new (bdata, len);
+          g_autoptr(GBytes) bytes = g_bytes_new (bdata, len);
           cockpit_pipe_write (self->pipe, bytes);
-          g_bytes_unref (bytes);
           ret = len;
         }
       else

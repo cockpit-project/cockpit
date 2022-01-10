@@ -1045,6 +1045,26 @@ until pgrep -f '^/usr/bin/cockpit-bridge.*--privileged'; do sleep 1; done
         b.wait_visible("#login")
         b.assert_pixels("body", "login-screen")
 
+    @skipImage("no cockpit-ws package", "fedora-coreos")
+    def testAuthUnixPath(self):
+        '''test UnixPath for auth method in cockpit.conf'''
+        m = self.machine
+
+        m.execute(['systemctl', 'start', 'cockpit-session.socket'])
+        m.write('/etc/cockpit/cockpit.conf', '''
+[Negotiate]
+Action=none
+
+[Basic]
+UnixPath=/run/cockpit/session
+''')
+
+        # make sure this isn't being run via spawning
+        m.execute(['chmod', '700', f'{self.libexecdir}/cockpit-session'])
+
+        m.start_cockpit()
+        self.login_and_go("/system")
+
 
 @skipDistroPackage()
 class TestReverseProxy(MachineCase):

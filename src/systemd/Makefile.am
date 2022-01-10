@@ -5,6 +5,8 @@ nodist_systemdunit_DATA = \
 	src/systemd/cockpit-motd.service \
 	src/systemd/cockpit.service \
 	src/systemd/cockpit.socket \
+	src/systemd/cockpit-session@.service \
+	src/systemd/cockpit-session.socket \
 	src/systemd/cockpit-wsinstance-http.service \
 	src/systemd/cockpit-wsinstance-http.socket \
 	src/systemd/cockpit-wsinstance-https-factory@.service \

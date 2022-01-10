@@ -1045,8 +1045,10 @@ cockpit_session_launch (CockpitAuth *self,
                         const gchar *application,
                         GError **error)
 {
+  g_return_val_if_fail (type != NULL, NULL);
+
   const gchar *host = application_parse_host (application);
-  const gchar *action = type_option (type, "action", "localhost");
+  const gchar *action = cockpit_conf_string (type, "action");
   if (g_strcmp0 (action, ACTION_NONE) == 0)
     {
       g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
@@ -1060,7 +1062,7 @@ cockpit_session_launch (CockpitAuth *self,
   const gchar *section;
   if (host)
     section = COCKPIT_CONF_SSH_SECTION;
-  else if (self->login_loopback && g_strcmp0 (type, "basic") == 0)
+  else if (self->login_loopback && g_str_equal (type, "basic"))
     section = COCKPIT_CONF_SSH_SECTION;
   else if (g_strcmp0 (action, ACTION_SSH) == 0)
     section = COCKPIT_CONF_SSH_SECTION;
@@ -1069,7 +1071,7 @@ cockpit_session_launch (CockpitAuth *self,
 
   const gchar *program_default = NULL;
   gboolean capture_stderr = FALSE;
-  if (g_strcmp0 (section, COCKPIT_CONF_SSH_SECTION) == 0)
+  if (g_str_equal (section, COCKPIT_CONF_SSH_SECTION))
     {
       if (!host)
         host = type_option (COCKPIT_CONF_SSH_SECTION, "host", "127.0.0.1");
@@ -1080,9 +1082,9 @@ cockpit_session_launch (CockpitAuth *self,
       capture_stderr = cockpit_conf_bool ("WebService", "X-For-CockpitClient", FALSE);
       program_default = cockpit_ws_ssh_program;
     }
-  else if (type && (g_str_equal (type, "basic") ||
-                    g_str_equal (type, "negotiate") ||
-                    g_str_equal (type, "tls-cert")))
+  else if (g_str_equal (type, "basic") ||
+           g_str_equal (type, "negotiate") ||
+           g_str_equal (type, "tls-cert"))
     {
       program_default = cockpit_ws_session_program;
     }

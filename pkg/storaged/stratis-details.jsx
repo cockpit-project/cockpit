@@ -591,10 +591,13 @@ export const StratisPoolDetails = ({ client, pool }) => {
         ];
 
         const actions = [];
-        if (!fs_is_mounted)
-            actions.push(<StorageButton key="mount" onClick={mount}>{_("Mount")}</StorageButton>);
-
         const menuitems = [];
+
+        if (!fs_is_mounted) {
+            actions.push(<StorageButton onlyWide key="mount" onClick={mount}>{_("Mount")}</StorageButton>);
+            menuitems.push(<StorageMenuItem onlyNarrow key="mount" onClick={mount}>{_("Mount")}</StorageMenuItem>);
+        }
+
         if (fs_is_mounted)
             menuitems.push(<StorageMenuItem key="unmount" onClick={unmount}>{_("Unmount")}</StorageMenuItem>);
         menuitems.push(<StorageMenuItem key="rename" onClick={rename_fsys}>{_("Rename")}</StorageMenuItem>);

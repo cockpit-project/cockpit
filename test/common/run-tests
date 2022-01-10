@@ -137,8 +137,9 @@ def finish_test(opts, test, affected_tests):
     if not affected and not retry_reason:
         retry_reason = "be robust against unstable tests"
 
-    unexpected_message = testlib.UNEXPECTED_MESSAGE.encode() in test.output
-    if test.retries < 2 and not unexpected_message and retry_reason:
+    has_unexpected_message = testlib.UNEXPECTED_MESSAGE.encode() in test.output
+    has_pixel_test_message = testlib.PIXEL_TEST_MESSAGE.encode() in test.output
+    if test.retries < 2 and not (has_unexpected_message or has_pixel_test_message) and retry_reason:
         test.retries += 1
         print_test(test, retry_reason="# RETRY {0} ({1})".format(test.retries, retry_reason))
         return retry_reason, 0

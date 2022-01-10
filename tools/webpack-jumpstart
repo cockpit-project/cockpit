@@ -17,11 +17,14 @@ set -eu
 cd "$(realpath -m "$0"/../..)"
 . tools/git-utils.sh
 
+force=''
 wait=''
 rebase=''
 partial=''
 while [ $# != 0 ] ; do
     case "$1" in
+        --force)
+            force=1;;
         --wait)
             wait=1;;
         --rebase)
@@ -37,7 +40,7 @@ done
 
 [ -n "${quiet}" ] || set -x
 
-if [ -e dist ]; then
+if [ -e dist -a -z "${force}" ]; then
     echo "jumpstart: dist/ already exists, skipping" >&2
     exit 1
 fi
@@ -155,6 +158,12 @@ if [ -n "${changed_files}" -a -z "${partial}" ]; then
 fi
 
 tools/node-modules make_package_lock_json
+
+if [ -d dist -a -n "${force}" ]; then
+    message 'REMOVE' dist
+    rm -rf dist
+fi
+
 unpack_from_cache "${tag}"
 
 if [ -n "${changed_files}" ]; then

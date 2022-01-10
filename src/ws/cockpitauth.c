@@ -471,13 +471,11 @@ session_child_setup (gpointer data)
   closefrom (3);
 }
 
-static CockpitTransport *
+static CockpitPipe *
 session_start_process (const gchar **argv,
                        const gchar **env,
                        gboolean capture_stderr)
 {
-  CockpitTransport *transport = NULL;
-  CockpitPipe *pipe = NULL;
   GError *error = NULL;
   ChildData child;
   gboolean ret;
@@ -512,18 +510,13 @@ session_start_process (const gchar **argv,
       return NULL;
     }
 
-  pipe = g_object_new (COCKPIT_TYPE_PIPE,
+  return g_object_new (COCKPIT_TYPE_PIPE,
                        "in-fd", fds[1],
                        "out-fd", fds[1],
                        "err-fd", stderr_fd,
                        "pid", pid,
                        "name", argv[0],
                        NULL);
-
-  transport = cockpit_pipe_transport_new (pipe);
-  g_object_unref (pipe);
-
-  return transport;
 }
 
 static void
@@ -1052,36 +1045,19 @@ cockpit_session_launch (CockpitAuth *self,
                         const gchar *application,
                         GError **error)
 {
-  CockpitTransport *transport = NULL;
-  CockpitSession *session = NULL;
-  CockpitCreds *creds = NULL;
-  gboolean capture_stderr = FALSE;
-
-  const gchar *host;
-  const gchar *action;
-  const gchar *command;
-  const gchar *section;
-
-  gchar **env = g_get_environ ();
-
-  const gchar *argv[] = {
-    "command",
-    "host",
-     NULL,
-  };
-
-  host = application_parse_host (application);
-  action = type_option (type, "action", "localhost");
+  const gchar *host = application_parse_host (application);
+  const gchar *action = type_option (type, "action", "localhost");
   if (g_strcmp0 (action, ACTION_NONE) == 0)
     {
       g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
                    "Authentication disabled");
-      goto out;
+      return NULL;
     }
 
   /* These are the credentials we'll carry around for this session */
-  creds = build_session_credentials (self, request, application, host, type, authorization);
+  g_autoptr(CockpitCreds) creds = build_session_credentials (self, request, application, host, type, authorization);
 
+  const gchar *section;
   if (host)
     section = COCKPIT_CONF_SSH_SECTION;
   else if (self->login_loopback && g_strcmp0 (type, "basic") == 0)
@@ -1092,6 +1068,7 @@ cockpit_session_launch (CockpitAuth *self,
     section = type;
 
   const gchar *program_default = NULL;
+  gboolean capture_stderr = FALSE;
   if (g_strcmp0 (section, COCKPIT_CONF_SSH_SECTION) == 0)
     {
       if (!host)
@@ -1110,15 +1087,16 @@ cockpit_session_launch (CockpitAuth *self,
       program_default = cockpit_ws_session_program;
     }
 
-  command = type_option (section, "command", program_default);
+  const gchar *command = type_option (section, "command", program_default);
 
   if (!command)
     {
       g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
                    "Authentication disabled");
-      goto out;
+      return NULL;
     }
 
+  g_auto(GStrv) env = g_get_environ ();
   if (cockpit_creds_get_rhost (creds))
     {
       env = g_environ_setenv (env, "COCKPIT_REMOTE_PEER",
@@ -1132,31 +1110,23 @@ cockpit_session_launch (CockpitAuth *self,
                               TRUE);
     }
 
-  argv[0] = command;
-  argv[1] = host ? host : "localhost";
-
-  transport = session_start_process (argv, (const gchar **)env, capture_stderr);
-  if (!transport)
+  const gchar *argv[] = { command, host ?: "localhost", NULL };
+  g_autoptr(CockpitPipe) pipe = session_start_process (argv, (const gchar **)env, capture_stderr);
+  if (!pipe)
     {
       g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
                    "Authentication failed to start");
-      goto out;
+      return NULL;
     }
 
-  session = cockpit_session_create (self, argv[0], creds, transport);
+  g_autoptr(CockpitTransport) transport = cockpit_pipe_transport_new (pipe);
+  CockpitSession *session = cockpit_session_create (self, cockpit_pipe_get_name (pipe), creds, transport);
 
   /* How long to wait for the auth process to send some data */
   session->authorize_timeout = timeout_option ("timeout", section, cockpit_ws_auth_process_timeout);
 
   /* How long to wait for a response from the client to a auth prompt */
   session->client_timeout = timeout_option ("response-timeout", section, cockpit_ws_auth_response_timeout);
-
-out:
-  g_strfreev (env);
-  if (creds)
-    cockpit_creds_unref (creds);
-  if (transport)
-    g_object_unref (transport);
 
   return session;
 }

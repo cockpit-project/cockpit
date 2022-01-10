@@ -468,6 +468,7 @@ AC_CONFIG_FILES([
 Makefile
 doc/guide/version
 src/tls/cockpit-certificate-helper
+src/ws/cockpit-desktop
 ])
 AC_OUTPUT
 

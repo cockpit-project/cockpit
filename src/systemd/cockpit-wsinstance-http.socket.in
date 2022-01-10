@@ -1,0 +1,9 @@
+[Unit]
+Description=Socket for Cockpit Web Service http instance
+BindsTo=cockpit.service
+Documentation=man:cockpit-ws(8)
+
+[Socket]
+ListenStream=/run/cockpit/wsinstance/http.sock
+SocketUser=@user@
+SocketMode=0600

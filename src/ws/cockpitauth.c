@@ -54,7 +54,9 @@
 const gchar *cockpit_ws_ssh_program = "/usr/bin/env python3 -m cockpit.beiboot --remote-bridge=supported";
 
 /* Some tunables that can be set from tests */
-const gchar *cockpit_ws_session_program = LIBEXECDIR "/cockpit-session";
+const gchar *cockpit_ws_session_program = NULL;
+
+#define WS_SESSION_SOCKET "/run/cockpit/session"
 
 /* Timeout of authenticated session when no connections */
 guint cockpit_ws_service_idle = 15;
@@ -1116,7 +1118,12 @@ cockpit_session_launch (CockpitAuth *self,
            g_str_equal (type, "tls-cert"))
     {
       if (command == NULL && unix_path == NULL)
-        command = cockpit_ws_session_program;
+        {
+          if (cockpit_ws_session_program)
+            command = cockpit_ws_session_program;
+          else
+            unix_path = WS_SESSION_SOCKET;
+        }
     }
 
   g_autoptr(CockpitPipe) pipe = NULL;

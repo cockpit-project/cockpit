@@ -161,15 +161,18 @@ class TestConnection(testlib.MachineCase):
         self.assertNoAdminProcessLeaks()
 
         if not m.ws_container:  # no cockpit-session
-            # damage cockpit-session permissions → "Authentication not available"
+            # damage cockpit-session socket → "Authentication not available"
             m.execute(f"chmod g-x {self.libexecdir}/cockpit-session")
-            b.open("/system")
-            b.try_login()
-            # .. but the login page does not expose the error very specifically
-            b.wait_in_text('#login-error-title', "Authentication failed")
-            m.execute(f"chmod g+x {self.libexecdir}/cockpit-session")
+            try:
+                m.execute("mv /run/cockpit/session /run/cockpit/session.disabled")
+                b.open("/system")
+                b.try_login()
+                # .. but the login page does not expose the error very specifically
+                b.wait_in_text('#login-error-title', "Authentication failed")
+            finally:
+                m.execute("mv /run/cockpit/session.disabled /run/cockpit/session")
 
-            self.allow_journal_messages(".*cockpit-session: bridge program failed.*")
+            self.allow_journal_messages("/run/cockpit/session: couldn't connect.*")
 
             # pretend cockpit-bridge is not installed, expect specific error message
             m.execute("while B=$(command -v cockpit-bridge); do mv $B ${B}.disabled; done")
@@ -1001,6 +1004,7 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         m.spawn("socat TCP-LISTEN:9091,reuseaddr,fork TCP:localhost:9099", "socat.log")
 
         # ws with plain --no-tls should fail after login with mismatching Origin (expected http, got https)
+        m.execute("systemctl start cockpit-session.socket")
         m.spawn(f"runuser -u cockpit-wsinstance -- {self.ws_executable} --no-tls -p 9099",
                 "ws-notls.log")
         m.wait_for_cockpit_running(tls=True)
@@ -1135,28 +1139,36 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         b.wait_visible("#login")
         b.assert_pixels("body", "login-screen")
 
-    @testlib.skipWsContainer("cockpit/ws doesn't use systemd units")
+    @testlib.skipOstree("tests cockpit-ws package")
+    @testlib.skipWsContainer("tests cockpit-ws package")
     @testlib.nondestructive
-    def testAuthUnixPath(self):
-        """test UnixPath for auth method in cockpit.conf"""
+    def testAuthDirectSession(self):
         m = self.machine
+        b = self.browser
 
-        m.execute(['systemctl', 'start', 'cockpit-session.socket'])
-        self.addCleanup(m.execute, 'systemctl stop cockpit-session.socket')
-        m.write('/etc/cockpit/cockpit.conf', """
+        m.stop_cockpit()
+        # make sure that this doesn't use the session socket
+        m.execute('systemctl stop cockpit-session.socket; systemctl mask cockpit-session.socket')
+        self.addCleanup(m.execute, 'systemctl unmask cockpit-session.socket')
+        m.write('/etc/cockpit/cockpit.conf', f"""
 [Negotiate]
 Action=none
 
 [Basic]
-UnixPath=/run/cockpit/session
+Command={self.libexecdir}/cockpit-session
 """)
 
-        # make sure this isn't being run via spawning
-        m.execute(f'chmod 700 {self.libexecdir}/cockpit-session')
-        self.addCleanup(m.execute, f'chmod 4750 {self.libexecdir}/cockpit-session')
+        # cockpit-ws has to run as root for this, as cockpit-session isn't suid root any more
+        m.execute(f"systemd-run --unit=custom-ws.service {self.libexecdir}/cockpit-ws --no-tls")
+        self.addCleanup(m.execute, "systemctl stop custom-ws.service")
+        m.wait_for_cockpit_running()
 
-        m.start_cockpit()
-        self.login_and_go("/system")
+        b.login_and_go(None)
+        b.wait_text('#current-username', 'admin')
+        b.logout()
+
+        # Arch logs this to the journal
+        self.allow_journal_messages("cockpit-session:.*Activate the web console with.*")
 
     @testlib.skipWsContainer("no local config with cockpit/ws")
     @testlib.nondestructive
@@ -1269,6 +1281,8 @@ ProtocolHeader = X-Forwarded-Proto
 """ % {"origin": m.forward["443"]}, append=True)
 
         m.execute("setsebool -P httpd_can_network_connect on")
+        # these tests are running the cockpit-ws binary directly, not via cockpit.socket
+        m.execute("systemctl start cockpit-session.socket")
         self.allow_journal_messages("audit.*bool=httpd_can_network_connect.*val=1.*")
 
     def callProxyCurl(self, path, *args):

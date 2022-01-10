@@ -232,8 +232,13 @@ multi-word: po/cockpit.pot
 title2sentence: multi-word
 	tools/title2sentence.py -i titles -o t2s.sh
 
-include po/Makefile.am
+include containers/Makefile.am
+include containers/flatpak/Makefile.am
+include doc/Makefile-doc.am
+include doc/guide/Makefile-guide.am
+include doc/man/Makefile-man.am
 include pkg/Makefile.am
+include po/Makefile.am
 include src/branding/arch/Makefile.am
 include src/branding/centos/Makefile.am
 include src/branding/debian/Makefile.am
@@ -248,16 +253,11 @@ include src/branding/ubuntu/Makefile.am
 include src/bridge/Makefile.am
 include src/client/Makefile.am
 include src/common/Makefile-common.am
-include src/websocket/Makefile-websocket.am
-include tools/Makefile-tools.am
-include src/ssh/Makefile-ssh.am
-include src/ws/Makefile-ws.am
-include src/session/Makefile-session.am
-include src/tls/Makefile-tls.am
-include src/retest/Makefile.am
 include src/pam-ssh-add/Makefile.am
-include containers/flatpak/Makefile.am
-include containers/Makefile.am
-include doc/Makefile-doc.am
-include doc/guide/Makefile-guide.am
-include doc/man/Makefile-man.am
+include src/retest/Makefile.am
+include src/session/Makefile-session.am
+include src/ssh/Makefile-ssh.am
+include src/tls/Makefile-tls.am
+include src/websocket/Makefile-websocket.am
+include src/ws/Makefile-ws.am
+include tools/Makefile-tools.am

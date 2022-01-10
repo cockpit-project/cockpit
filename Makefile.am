@@ -44,8 +44,6 @@ SUFFIXES = \
 	.1 .8 .5 \
 	$(NULL)
 
-MV = mv -f
-
 SUBST_RULE = \
 	$(AM_V_GEN) mkdir -p $(dir $@) && sed \
 	-e 's,[@]PACKAGE[@],$(PACKAGE),g' \
@@ -58,7 +56,7 @@ SUBST_RULE = \
 	-e 's,[@]user[@],$(COCKPIT_USER),g' \
 	-e 's,[@]wsinstancegroup[@],$(COCKPIT_WSINSTANCE_GROUP),g' \
 	-e 's,[@]wsinstanceuser[@],$(COCKPIT_WSINSTANCE_USER),g' \
-	$< > $@.tmp && $(MV) $@.tmp $@ \
+	$< > $@.tmp && mv -f $@.tmp $@ \
 	$(NULL)
 
 .service.in.service:
@@ -209,7 +207,7 @@ COMMITTED_DIST = \
 
 tools/debian/copyright: tools/debian/copyright.template $(MANIFESTS)
 	$(AM_V_GEN) (cd $(srcdir) && NODE_ENV=$(NODE_ENV) ./tools/build-debian-copyright) > $@.tmp && \
-	$(MV) $@.tmp $@
+	mv -f $@.tmp $@
 
 # This is the stock rule with $(BUILT_SOURCES) dependency removed.
 # In the future, we can do this via "no-dist-built-sources" automake option:

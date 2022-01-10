@@ -348,16 +348,6 @@ AC_ARG_WITH([admin-group],
             ])
 AC_SUBST(admin_group)
 
-
-AC_ARG_WITH(selinux_config_type,
-	    AS_HELP_STRING([--with-selinux-config-type=<type>],
-			   [SELinux context type for cockpit config files]
-                          )
-           )
-
-COCKPIT_SELINUX_CONFIG_TYPE=$with_selinux_config_type
-AC_SUBST(COCKPIT_SELINUX_CONFIG_TYPE)
-
 # Documentation
 
 AC_MSG_CHECKING([whether to build documentation])
@@ -509,7 +499,6 @@ echo "
         cockpit-ws instance user:   ${COCKPIT_WSINSTANCE_USER}
         cockpit-ws instance group:  ${COCKPIT_WSINSTANCE_GROUP}
         admin group:                ${admin_group}
-        selinux config type:        ${COCKPIT_SELINUX_CONFIG_TYPE}
 
         Building docs:              ${enable_doc}
         Debug mode:                 ${debug_status}

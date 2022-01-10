@@ -39,8 +39,6 @@ src/systemd/%: src/systemd/%.in
 	-e 's,[@]datadir[@],$(datadir),g' \
 	-e 's,[@]group[@],$(COCKPIT_GROUP),g' \
 	-e 's,[@]libexecdir[@],$(libexecdir),g' \
-	-e 's,[@]prefix[@],$(prefix),g' \
-	-e 's,[@]sysconfdir[@],$(sysconfdir),g' \
 	-e 's,[@]user[@],$(COCKPIT_USER),g' \
 	-e 's,[@]wsinstancegroup[@],$(COCKPIT_WSINSTANCE_GROUP),g' \
 	-e 's,[@]wsinstanceuser[@],$(COCKPIT_WSINSTANCE_USER),g' \

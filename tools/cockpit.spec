@@ -503,7 +503,7 @@ authentication via sssd/FreeIPA.
 %{_libexecdir}/cockpit-desktop
 %{_libexecdir}/cockpit-certificate-ensure
 %{_libexecdir}/cockpit-certificate-helper
-%attr(4750, root, cockpit-wsinstance) %{_libexecdir}/cockpit-session
+%{_libexecdir}/cockpit-session
 %{_datadir}/cockpit/branding
 
 %if 0%{?with_selinux}

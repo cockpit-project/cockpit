@@ -56,6 +56,7 @@ os.environ["PATH"] = "{0}:{1}:{2}".format(os.environ.get("PATH"), BOTS_DIR, TEST
 
 # Be careful when changing this string, check in cockpit-project/bots where it is being used
 UNEXPECTED_MESSAGE = "FAIL: Test completed, but found unexpected "
+PIXEL_TEST_MESSAGE = "Some pixel tests have failed"
 
 __all__ = (
     # Test definitions
@@ -79,6 +80,7 @@ __all__ = (
     'opts',
     'TEST_DIR',
     'UNEXPECTED_MESSAGE',
+    'PIXEL_TEST_MESSAGE'
 )
 
 # Command line options
@@ -1473,7 +1475,7 @@ class MachineCase(unittest.TestCase):
 
     def check_pixel_tests(self):
         if self.browser and self.browser.failed_pixel_tests > 0:
-            raise Error("Some pixel tests have failed")
+            raise Error(PIXEL_TEST_MESSAGE)
 
     def check_axe(self, label=None, suffix=""):
         """Run aXe check on the currently active frame

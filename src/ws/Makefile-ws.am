@@ -83,18 +83,7 @@ install-exec-local::
 uninstall-local::
 	$(RM) -f $(DESTDIR)$(pamdir)/pam_cockpit_cert.so
 
-libexec_SCRIPTS += cockpit-desktop
-
-cockpit-desktop: src/ws/cockpit-desktop.in
-	$(SUBST_RULE)
-
-EXTRA_DIST += \
-	src/ws/cockpit-desktop.in \
-	$(NULL)
-
-CLEANFILES += \
-	cockpit-desktop \
-	$(NULL)
+libexec_SCRIPTS += src/ws/cockpit-desktop
 
 appdatadir = $(datadir)/metainfo
 nodist_appdata_DATA = src/ws/cockpit.appdata.xml

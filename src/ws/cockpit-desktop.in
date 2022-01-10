@@ -36,6 +36,10 @@
 #   cockpit-desktop / username@svr1
 set -eu
 
+# exec_prefix= is set because the default @libexecdir@ contains "${exec_prefix}"
+exec_prefix="@prefix@"
+libexecdir="@libexecdir@"
+
 # find suitable browser, unless already set by $BROWSER
 # We can't use xdg-open, it does too much magic behind the back to connect to
 # existing instances (outside of our namespace) and does not allow us to reduce

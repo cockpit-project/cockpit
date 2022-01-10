@@ -166,7 +166,11 @@ fi
 
 unpack_from_cache "${tag}"
 
-if [ -n "${changed_files}" ]; then
-    printf "\nTouching the following changed files:\n%s\n\n" "${changed_files}" >&2
-    touch -- ${changed_files}
-fi
+# "${changed_files}" is empty unless --partial was given
+for file in ${changed_files}; do
+    # don't touch files that have nothing to do with webpack
+    if grep -q -F ${file} dist/*/Makefile.deps; then
+        message TOUCH "${file}"
+        touch "${file}"
+    fi
+done

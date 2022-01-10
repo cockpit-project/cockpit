@@ -73,6 +73,7 @@ JsonObject *    cockpit_creds_get_login_data             (CockpitCreds *creds);
 
 JsonObject *    cockpit_creds_to_json                    (CockpitCreds *creds);
 
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(CockpitCreds, cockpit_creds_unref)
 
 G_END_DECLS
 

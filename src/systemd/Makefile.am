@@ -1,19 +1,20 @@
 # all systemd units, tmpfiles, and related helpers
 
-systemd_units_in = \
-	src/systemd/cockpit-motd.service.in \
-	src/systemd/cockpit.service.in \
-	src/systemd/cockpit.socket.in \
-	src/systemd/cockpit-wsinstance-http.service.in \
-	src/systemd/cockpit-wsinstance-http.socket.in \
-	src/systemd/cockpit-wsinstance-https-factory@.service.in \
-	src/systemd/cockpit-wsinstance-https-factory.socket.in \
-	src/systemd/cockpit-wsinstance-https@.service.in \
-	src/systemd/cockpit-wsinstance-https@.socket.in \
+nodist_systemdunit_DATA = \
+	src/systemd/cockpit-motd.service \
+	src/systemd/cockpit.service \
+	src/systemd/cockpit.socket \
+	src/systemd/cockpit-wsinstance-http.service \
+	src/systemd/cockpit-wsinstance-http.socket \
+	src/systemd/cockpit-wsinstance-https-factory@.service \
+	src/systemd/cockpit-wsinstance-https-factory.socket \
+	src/systemd/cockpit-wsinstance-https@.service \
+	src/systemd/cockpit-wsinstance-https@.socket \
 	$(NULL)
 
-nodist_systemdunit_DATA += $(patsubst %.in,%,$(systemd_units_in))
-dist_systemdunit_DATA += src/systemd/system-cockpithttps.slice
+dist_systemdunit_DATA = \
+	src/systemd/system-cockpithttps.slice \
+	$(NULL)
 
 motddir = $(datadir)/$(PACKAGE)/motd/
 dist_motd_DATA = src/systemd/inactive.motd
@@ -28,17 +29,28 @@ install-exec-hook::
 
 tempconfdir = $(prefix)/lib/tmpfiles.d
 nodist_tempconf_DATA = src/systemd/cockpit-tempfiles.conf
-tempconf_in = src/systemd/cockpit-tempfiles.conf.in
 
-$(nodist_tempconf_DATA): $(tempconf_in)
-	$(SUBST_RULE)
+# we can't generate these with config.status because,
+# eg. it does "@libexecdir@" -> "${exec_prefix}/libexec"
+src/systemd/%: src/systemd/%.in
+	$(AM_V_GEN) mkdir -p $(dir $@) && sed \
+	-e 's,[@]PACKAGE[@],$(PACKAGE),g' \
+	-e 's,[@]admin_group[@],$(admin_group),g' \
+	-e 's,[@]datadir[@],$(datadir),g' \
+	-e 's,[@]group[@],$(COCKPIT_GROUP),g' \
+	-e 's,[@]libexecdir[@],$(libexecdir),g' \
+	-e 's,[@]prefix[@],$(prefix),g' \
+	-e 's,[@]sysconfdir[@],$(sysconfdir),g' \
+	-e 's,[@]user[@],$(COCKPIT_USER),g' \
+	-e 's,[@]wsinstancegroup[@],$(COCKPIT_WSINSTANCE_GROUP),g' \
+	-e 's,[@]wsinstanceuser[@],$(COCKPIT_WSINSTANCE_USER),g' \
+	$< > $@.tmp && mv -f $@.tmp $@
 
-EXTRA_DIST += \
-	$(systemd_units_in) \
-	$(tempconf_in) \
-	$(NULL)
-
-CLEANFILES += \
-	$(patsubst %.in,%,$(systemd_units_in)) \
+systemdgenerated = \
+	$(nodist_systemdunit_DATA) \
 	$(nodist_tempconf_DATA) \
 	$(NULL)
+systemdgenerated_in = $(patsubst %,%.in,$(systemdgenerated))
+
+EXTRA_DIST += $(systemdgenerated_in)
+CLEANFILES += $(systemdgenerated)

@@ -537,6 +537,7 @@ test_memfd_json_error_cases (void)
   r = fcntl (fd, F_ADD_SEALS, F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
   g_assert (r == 0);
   object = cockpit_memfd_read_json (fd, &error);
+  g_assert (object == NULL);
   cockpit_assert_error_matches (error, JSON_PARSER_ERROR, JSON_PARSER_ERROR_INVALID_BAREWORD, "*unexpected identifier*");
   g_clear_error (&error);
   close (fd);
@@ -547,6 +548,7 @@ test_memfd_json_error_cases (void)
   r = fcntl (fd, F_ADD_SEALS, F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
   g_assert (r == 0);
   object = cockpit_memfd_read_json (fd, &error);
+  g_assert (object == NULL);
   cockpit_assert_error_matches (error, JSON_PARSER_ERROR, -1, "*Not a JSON object*");
   close (fd);
 

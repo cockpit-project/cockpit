@@ -27,8 +27,8 @@
 
 #include "common/cockpitauthorize.h"
 #include "common/cockpitconf.h"
-#include "common/cockpitcloserange.h"
 #include "common/cockpiterror.h"
+#include "common/cockpithacks.h"
 #include "common/cockpithex.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitmemory.h"
@@ -514,11 +514,7 @@ session_child_setup (gpointer data)
 
   close (child->io);
 
-  if (cockpit_close_range (3, INT_MAX, 0) < 0)
-    {
-      g_printerr ("couldn't close file descriptors: %m\n");
-      _exit (127);
-    }
+  closefrom (3);
 }
 
 static CockpitTransport *

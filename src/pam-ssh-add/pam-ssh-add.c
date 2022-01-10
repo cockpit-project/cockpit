@@ -45,7 +45,7 @@
 
 #include "pam-ssh-add.h"
 
-#include "../common/cockpitcloserange.h"
+#include "../common/cockpithacks.h"
 #include "../common/cockpitmemory.h"
 
 /* programs that can be overwidden in tests */
@@ -343,11 +343,7 @@ setup_child (const char **args,
       exit (EXIT_FAILURE);
     }
 
-  if (cockpit_close_range (STDERR + 1, INT_MAX, 0) < 0)
-    {
-      error ("couldn't close all file descirptors");
-      exit (EXIT_FAILURE);
-    }
+  closefrom (STDERR + 1);
 
   /* Close unnecessary file descriptors */
   close (inp[READ_END]);

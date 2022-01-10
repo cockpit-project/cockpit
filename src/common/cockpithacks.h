@@ -45,3 +45,8 @@
 #ifndef PACKAGE_VERSION
 #error config.h should be included from the top of every .c file
 #endif
+
+#ifndef HAVE_CLOSEFROM
+#define closefrom(lowfd) cockpit_closefrom(lowfd)
+void cockpit_closefrom (int lowfd);
+#endif

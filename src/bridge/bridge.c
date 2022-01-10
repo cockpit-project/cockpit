@@ -38,7 +38,6 @@
 #include "cockpitwebsocketstream.h"
 
 #include "common/cockpitchannel.h"
-#include "common/cockpitcloserange.h"
 #include "common/cockpitfdpassing.h"
 #include "common/cockpithacks-glib.h"
 #include "common/cockpitjson.h"

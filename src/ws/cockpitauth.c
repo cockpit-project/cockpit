@@ -1069,7 +1069,8 @@ cockpit_session_launch (CockpitAuth *self,
   else
     section = type;
 
-  const gchar *program_default = NULL;
+  const gchar *command = cockpit_conf_string (section, "Command");
+
   gboolean capture_stderr = FALSE;
   if (g_str_equal (section, COCKPIT_CONF_SSH_SECTION))
     {
@@ -1080,16 +1081,17 @@ cockpit_session_launch (CockpitAuth *self,
        * send log messages to potential remote attackers.
        */
       capture_stderr = cockpit_conf_bool ("WebService", "X-For-CockpitClient", FALSE);
-      program_default = cockpit_ws_ssh_program;
+
+      if (command == NULL)
+        command = cockpit_ws_ssh_program;
     }
   else if (g_str_equal (type, "basic") ||
            g_str_equal (type, "negotiate") ||
            g_str_equal (type, "tls-cert"))
     {
-      program_default = cockpit_ws_session_program;
+      if (command == NULL)
+        command = cockpit_ws_session_program;
     }
-
-  const gchar *command = type_option (section, "command", program_default);
 
   if (!command)
     {

@@ -21,9 +21,9 @@
 
 #include "session-utils.h"
 
-#include "common/cockpitcloserange.h"
 #include "common/cockpitframe.h"
 #include "common/cockpitjsonprint.h"
+#include "common/cockpithacks.h"
 
 #include <fcntl.h>
 #include <stdarg.h>
@@ -537,8 +537,7 @@ fd_remap (const int *remap_fds,
         abort_with_message ("dup2(%d, %d) failed: %m", fds[i], i);
 
   /* close everything else */
-  if (cockpit_close_range (n_remap_fds, INT_MAX, 0) < 0)
-    abort_with_message ("couldn't close all file descriptors");
+  closefrom (n_remap_fds);
 }
 
 int

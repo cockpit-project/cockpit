@@ -19,7 +19,9 @@
 
 #include "config.h"
 
-#include "cockpitcloserange.h"
+#include "cockpithacks.h"
+
+#ifndef HAVE_CLOSEFROM
 
 #include <assert.h>
 #include <dirent.h>
@@ -31,16 +33,13 @@
 #include <unistd.h>
 #include <sys/resource.h>
 
-int
-cockpit_close_range (int from, int max_fd, int flags)
+void
+cockpit_closefrom (int lowfd)
 {
-  /* we want to keep the API compatible to glibc's upcoming close_range(), but don't implement flags or upper bounds */
-  assert (flags == 0);
-  assert (max_fd == INT_MAX);
-
   DIR *d;
 
-  if ((d = opendir ("/proc/self/fd"))) {
+  if ((d = opendir ("/proc/self/fd")))
+    {
       struct dirent *de;
 
       while ((de = readdir (d))) {
@@ -60,26 +59,27 @@ cockpit_close_range (int from, int max_fd, int flags)
               continue;
 
           /* don't bother about error checking; On Linux, EINTR still closes the fd, and with EBADF we already have a closed fd */
-          if (fd >= from)
+          if (fd >= lowfd)
             close (fd);
         }
 
       closedir (d);
-      return 0;
-  }
-
-  /* If /proc is not mounted or not accessible we fall back to the old
-   * rlimit trick */
-  struct rlimit rl;
-  int open_max;
-
-  if (getrlimit (RLIMIT_NOFILE, &rl) == 0 && rl.rlim_max != RLIM_INFINITY)
-      open_max = rl.rlim_max;
+    }
   else
-      open_max = sysconf (_SC_OPEN_MAX);
+    {
+      /* If /proc is not mounted or not accessible we fall back to the old
+       * rlimit trick */
+      struct rlimit rl;
+      int open_max;
 
-  for (int fd = from; fd < open_max; fd++)
-    close (fd);
+      if (getrlimit (RLIMIT_NOFILE, &rl) == 0 && rl.rlim_max != RLIM_INFINITY)
+          open_max = rl.rlim_max;
+      else
+          open_max = sysconf (_SC_OPEN_MAX);
 
-  return 0;
+      for (int fd = lowfd; fd < open_max; fd++)
+        close (fd);
+    }
 }
+
+#endif

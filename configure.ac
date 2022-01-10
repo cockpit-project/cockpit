@@ -45,6 +45,10 @@ AC_USE_SYSTEM_EXTENSIONS
 AC_SYS_LARGEFILE
 AC_PROG_RANLIB
 
+AC_CHECK_FUNCS(
+    closefrom
+)
+
 AM_SILENT_RULES([yes])
 
 AC_MSG_CHECKING([whether to install to prefix only])

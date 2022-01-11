@@ -60,11 +60,6 @@ systemdgenerated += $(nodist_tmpfilesconf_DATA)
 nodist_tmpfilesconf_DATA = src/systemd/tmpfiles.d/cockpit-ws.conf
 
 # -----------------
-# sysusers
-sysusersconfdir = $(prefix)/lib/sysusers.d
-dist_sysusersconf_DATA = src/systemd/sysusers.d/cockpit-wsinstance.conf
-
-# -----------------
 # Policykit
 polkitdir = $(datadir)/polkit-1/actions
 systemdgenerated += $(nodist_polkit_DATA)

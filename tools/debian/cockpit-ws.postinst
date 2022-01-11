@@ -10,6 +10,12 @@ if [ "$1" = "configure" ] && dpkg-statoverride --list /usr/lib/cockpit/cockpit-s
     chgrp root /usr/lib/cockpit/cockpit-session
 fi
 
+# remove obsolete system user on upgrade (replaced with DynamicUser in version 330)
+if [ "$1" = "configure" ] && getent passwd cockpit-wsinstance >/dev/null; then
+    echo "Cleaning up obsolete static cockpit-wsinstance user"
+    deluser --system cockpit-wsinstance
+fi
+
 # restart cockpit.service on package upgrades, if it's already running
 if [ -d /run/systemd/system ] && [ -n "$2" ]; then
     deb-systemd-invoke try-restart cockpit.service >/dev/null || true

@@ -777,6 +777,7 @@ class TestMultiMachine(MachineCase):
         m1 = self.machine
         m2 = self.machine2
 
+        # RETRY
         # Let's not use "admin" on the remote machine.  Creating a
         # dedicated user gives us a guaranteed clean slate and also
         # tests more code paths.
@@ -839,7 +840,15 @@ class TestMultiMachine(MachineCase):
         # Put a 'better' passphrase on the key and relogin, then
         # change the passphrase back to the login password
         m1.execute("ssh-keygen -q -f /home/admin/.ssh/id_rsa -p -P foobar -N foobarfoo")
-        b.relogin(None, wait_remote_session_machine=m1)
+        b.logout()
+        m1.execute("while pgrep -a cockpit-ssh || pgrep -a cockpit-bridge || pgrep -a cockpit-session; do sleep 1; done")
+        m2.execute("while pgrep -a cockpit-bridge; do sleep 1; done")
+        b.try_login()
+        b.expect_load()
+        b._wait_present('#content')
+        b.wait_visible('#content')
+        b.adjust_window_for_fixed_content_size()
+
         b.wait_visible("#machine-troubleshoot")
         b.click('#machine-troubleshoot')
         b.wait_visible('#hosts_setup_server_dialog')

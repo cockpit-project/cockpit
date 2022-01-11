@@ -166,7 +166,6 @@ exec 2>&1
     --disable-silent-rules \
     --with-cockpit-user=cockpit-ws \
     --with-cockpit-ws-instance-user=cockpit-wsinstance \
-    --with-selinux-config-type=etc_t \
 %if 0%{?suse_version}
     --docdir=%_defaultdocdir/%{name} \
 %endif

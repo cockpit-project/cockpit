@@ -103,6 +103,9 @@ class UnlockDialog extends React.Component {
                 </Button>);
         }
 
+        if (body === null)
+            return null;
+
         return (
             <Modal isOpen={!state.closed} position="top" variant="medium"
                    onClose={this.props.onClose}

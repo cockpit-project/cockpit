@@ -798,7 +798,7 @@ function Channel(options) {
         self.valid = false;
         if (transport && id)
             transport.unregister(id);
-        if (closed.message)
+        if (closed.message && !options.err)
             console.warn(closed.message);
         self.dispatchEvent("close", closed);
         if (waiting)

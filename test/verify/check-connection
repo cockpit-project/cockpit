@@ -332,7 +332,7 @@ class TestConnection(testlib.MachineCase):
         # number of https instances is bounded (DoS prevention)
         # with MaxTasks=200 und 2 threads per ws instance we should have a
         # rough limit of 100 instances, so at some point curl should start failing
-        m.execute("runuser -u cockpit-ws -- sh -ec 'RC=1; for i in `seq 120`; do "
+        m.execute("runuser -u cockpit-wsinstance-socket -- sh -ec 'RC=1; for i in `seq 120`; do "
                   "  echo -n $i | nc %s -U /run/cockpit/wsinstance/https-factory.sock;"
                   "  curl --silent --head --max-time 5 --unix-socket /run/cockpit/wsinstance/https@$i.sock http://dummy > /dev/null || RC=0; "
                   "done; exit $RC'" % n_opt)

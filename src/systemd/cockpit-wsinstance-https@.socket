@@ -7,11 +7,12 @@ BindsTo=cockpit.service
 # the services are resource-limited by system-cockpithttps.slice
 BindsTo=cockpit-wsinstance-https@%i.service
 # ensure our DynamicUser exists
-Requires=cockpit-ws-user.service
-After=cockpit-ws-user.service
+Requires=cockpit-ws-user.service cockpit-wsinstance-socket-user.service
+After=cockpit-ws-user.service cockpit-wsinstance-socket-user.service
 
 [Socket]
 ListenStream=/run/cockpit/wsinstance/https@%i.sock
-SocketUser=cockpit-ws
-SocketMode=0600
+SocketUser=root
+SocketGroup=cockpit-wsinstance-socket
+SocketMode=0660
 RemoveOnStop=yes

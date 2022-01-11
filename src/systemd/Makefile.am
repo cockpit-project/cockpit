@@ -37,6 +37,7 @@ dist_systemdunit_DATA = \
 	src/systemd/cockpit-wsinstance-http.socket \
 	src/systemd/cockpit-wsinstance-https-factory.socket \
 	src/systemd/cockpit-wsinstance-https@.socket \
+	src/systemd/cockpit-wsinstance-socket-user.service \
 	$(NULL)
 
 # -----------------

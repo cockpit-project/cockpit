@@ -387,6 +387,7 @@ authentication via sssd/FreeIPA.
 %{_unitdir}/cockpit-wsinstance-https-factory@.service
 %{_unitdir}/cockpit-wsinstance-https@.socket
 %{_unitdir}/cockpit-wsinstance-https@.service
+%{_unitdir}/cockpit-wsinstance-socket-user.service
 %{_unitdir}/system-cockpithttps.slice
 %{_prefix}/%{__lib}/tmpfiles.d/cockpit-ws.conf
 %{_sysusersdir}/cockpit-wsinstance.conf

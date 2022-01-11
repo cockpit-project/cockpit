@@ -73,8 +73,8 @@ use of systemd features.
      reads the fingerprint from stdin, and asks systemd to start a new
      [cockpit-wsinstance-https@fingerprint.socket](../src/ws/cockpit-wsinstance-https@.socket.in)
      and .service pair.
- * Each instance runs in its own systemd cgroup, as another unprivileged system
-   user `cockpit-wsinstance`.
+ * Each instance runs in its own systemd cgroup, as another unprivileged
+   dynamic system user `cockpit-wsinstance-socket`.
  * cockpit-tls exports the client certificates to `/run/cockpit/tls/<fingerprint>`
    while there is at least one open connection with that certificate, i. e. as
    long as there is an active Cockpit session.

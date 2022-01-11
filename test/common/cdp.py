@@ -139,6 +139,8 @@ class Firefox(Browser):
 
         cmd = [exe, "-P", "blank", f"--window-size={window_width},{window_height}", f"--remote-debugging-port={cdp_port}", "--no-remote", "localhost"]
         if not show_browser:
+            env["MOZ_HEADLESS_WIDTH"] = str(window_width)
+            env["MOZ_HEADLESS_HEIGHT"] = str(window_height)
             cmd.insert(3, "--headless")
         return cmd
 

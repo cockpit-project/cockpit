@@ -1,10 +1,12 @@
 [Unit]
 Description=Initiator socket for Cockpit sessions
 BindsTo=cockpit.service
+Requires=cockpit-session-socket-owner.service
+After=cockpit-session-socket-owner.service
 
 [Socket]
 ListenStream=/run/cockpit/session
 SocketUser=root
-SocketGroup=@wsinstancegroup@
+SocketGroup=cockpit-session-socket
 SocketMode=0660
 Accept=yes

@@ -43,12 +43,14 @@
 #include <string.h>
 #include <errno.h>
 
+#include <gio/gunixsocketaddress.h>
+
 #define ACTION_SSH "remote-login-ssh"
 #define ACTION_NONE "none"
 #define LOCAL_SESSION "local-session"
 
 /* Some tunables that can be set from tests */
-const gchar *cockpit_ws_session_program = LIBEXECDIR "/cockpit-session";
+const gchar *cockpit_ws_session_program = NULL;
 const gchar *cockpit_ws_ssh_program = LIBEXECDIR "/cockpit-ssh";
 
 /* Timeout of authenticated session when no connections */
@@ -448,17 +450,6 @@ out:
   return ret;
 }
 
-static const gchar *
-type_option (const gchar *type,
-             const gchar *option,
-             const gchar *default_str)
-{
-  if (type && cockpit_conf_string (type, option))
-    return cockpit_conf_string (type, option);
-
-  return default_str;
-}
-
 static guint
 timeout_option (const gchar *name,
                 const gchar *type,
@@ -517,13 +508,11 @@ session_child_setup (gpointer data)
   closefrom (3);
 }
 
-static CockpitTransport *
+static CockpitPipe *
 session_start_process (const gchar **argv,
                        const gchar **env,
                        gboolean capture_stderr)
 {
-  CockpitTransport *transport = NULL;
-  CockpitPipe *pipe = NULL;
   GError *error = NULL;
   ChildData child;
   gboolean ret;
@@ -556,18 +545,13 @@ session_start_process (const gchar **argv,
       return NULL;
     }
 
-  pipe = g_object_new (COCKPIT_TYPE_PIPE,
+  return g_object_new (COCKPIT_TYPE_PIPE,
                        "in-fd", fds[1],
                        "out-fd", fds[1],
                        "err-fd", stderr_fd,
                        "pid", pid,
                        "name", argv[0],
                        NULL);
-
-  transport = cockpit_pipe_transport_new (pipe);
-  g_object_unref (pipe);
-
-  return transport;
 }
 
 static void
@@ -1106,112 +1090,108 @@ cockpit_session_launch (CockpitAuth *self,
                         const gchar *application,
                         GError **error)
 {
-  CockpitTransport *transport = NULL;
-  CockpitSession *session = NULL;
-  CockpitCreds *creds = NULL;
-  gboolean capture_stderr = FALSE;
+  g_return_val_if_fail (type != NULL, NULL);
 
-  const gchar *host;
-  const gchar *action;
-  const gchar *command;
-  const gchar *section;
-
-  gchar **env = g_get_environ ();
-
-  const gchar *argv[] = {
-    "command",
-    "host",
-     NULL,
-  };
-
-  host = application_parse_host (application);
-  action = type_option (type, "action", "localhost");
+  const gchar *host = application_parse_host (application);
+  const gchar *action = cockpit_conf_string (type, "action");
   if (g_strcmp0 (action, ACTION_NONE) == 0)
     {
       g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
                    "Authentication disabled");
-      goto out;
+      return NULL;
     }
 
   /* These are the credentials we'll carry around for this session */
-  creds = build_session_credentials (self, connection, headers,
-                                     application, host, type, authorization);
+  g_autoptr(CockpitCreds) creds = build_session_credentials (self, connection, headers,
+                                                             application, host, type, authorization);
 
+  const gchar *section;
   if (host)
     section = COCKPIT_CONF_SSH_SECTION;
-  else if (self->login_loopback && g_strcmp0 (type, "basic") == 0)
+  else if (self->login_loopback && g_str_equal (type, "basic"))
     section = COCKPIT_CONF_SSH_SECTION;
   else if (g_strcmp0 (action, ACTION_SSH) == 0)
     section = COCKPIT_CONF_SSH_SECTION;
   else
     section = type;
 
-  const gchar *program_default = NULL;
-  if (g_strcmp0 (section, COCKPIT_CONF_SSH_SECTION) == 0)
+  const gchar *command = cockpit_conf_string (section, "Command");
+  const gchar *connect_to = cockpit_conf_string (section, "ConnectTo");
+
+  gboolean capture_stderr = FALSE;
+  if (g_str_equal (section, COCKPIT_CONF_SSH_SECTION))
     {
       if (!host)
-        host = type_option (COCKPIT_CONF_SSH_SECTION, "host", "127.0.0.1");
+        host = cockpit_conf_string (COCKPIT_CONF_SSH_SECTION, "host");
 
       /* We capture stderr only for Cockpit Client; we don't want to
        * send log messages to potential remote attackers.
        */
       capture_stderr = cockpit_conf_bool ("WebService", "X-For-CockpitClient", FALSE);
-      program_default = cockpit_ws_ssh_program;
+
+      if (command == NULL && connect_to == NULL)
+        command = cockpit_ws_ssh_program;
     }
-  else if (type && (g_str_equal (type, "basic") ||
-                    g_str_equal (type, "negotiate") ||
-                    g_str_equal (type, "tls-cert")))
+  else if (g_str_equal (type, "basic") ||
+           g_str_equal (type, "negotiate") ||
+           g_str_equal (type, "tls-cert"))
     {
-      program_default = cockpit_ws_session_program;
+      if (command == NULL && connect_to == NULL)
+        {
+          if (cockpit_ws_session_program)
+            command = cockpit_ws_session_program;
+          else
+            connect_to = "/run/cockpit/session";
+        }
     }
 
-  command = type_option (section, "command", program_default);
+  g_autoptr(CockpitPipe) pipe = NULL;
+  if (command != NULL)
+    {
+      g_auto(GStrv) env = g_get_environ ();
+      if (cockpit_creds_get_rhost (creds))
+        {
+          env = g_environ_setenv (env, "COCKPIT_REMOTE_PEER",
+                                  cockpit_creds_get_rhost (creds),
+                                  TRUE);
+        }
+      if (g_strcmp0 (g_hash_table_lookup (headers, "X-SSH-Connect-Unknown-Hosts"), "yes") == 0)
+        {
+          env = g_environ_setenv (env, "COCKPIT_SSH_CONNECT_TO_UNKNOWN_HOSTS",
+                                  "1",
+                                  TRUE);
+        }
 
-  if (!command)
+      const gchar *argv[] = { command, host ?: "localhost", NULL };
+      pipe = session_start_process (argv, (const gchar **)env, capture_stderr);
+    }
+  else if (connect_to != NULL)
+    {
+      g_autoptr(GSocketAddress) address = g_unix_socket_address_new (connect_to);
+      pipe = cockpit_pipe_connect (connect_to, address);
+    }
+  else
     {
       g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
                    "Authentication disabled");
-      goto out;
+      return NULL;
     }
 
-  if (cockpit_creds_get_rhost (creds))
-    {
-      env = g_environ_setenv (env, "COCKPIT_REMOTE_PEER",
-                              cockpit_creds_get_rhost (creds),
-                              TRUE);
-    }
-  if (g_strcmp0 (g_hash_table_lookup (headers, "X-SSH-Connect-Unknown-Hosts"), "yes") == 0)
-    {
-      env = g_environ_setenv (env, "COCKPIT_SSH_CONNECT_TO_UNKNOWN_HOSTS",
-                              "1",
-                              TRUE);
-    }
-
-  argv[0] = command;
-  argv[1] = host ? host : "localhost";
-
-  transport = session_start_process (argv, (const gchar **)env, capture_stderr);
-  if (!transport)
+  if (!pipe)
     {
       g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_FAILED,
                    "Authentication failed to start");
-      goto out;
+      return NULL;
     }
 
-  session = cockpit_session_create (self, argv[0], creds, transport);
+  g_autoptr(CockpitTransport) transport = cockpit_pipe_transport_new (pipe);
+  CockpitSession *session = cockpit_session_create (self, cockpit_pipe_get_name (pipe), creds, transport);
 
   /* How long to wait for the auth process to send some data */
   session->authorize_timeout = timeout_option ("timeout", section, cockpit_ws_auth_process_timeout);
 
   /* How long to wait for a response from the client to a auth prompt */
   session->client_timeout = timeout_option ("response-timeout", section, cockpit_ws_auth_response_timeout);
-
-out:
-  g_strfreev (env);
-  if (creds)
-    cockpit_creds_unref (creds);
-  if (transport)
-    g_object_unref (transport);
 
   return session;
 }

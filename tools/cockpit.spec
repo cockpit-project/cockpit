@@ -164,9 +164,6 @@ Recommends: subscription-manager-cockpit
 exec 2>&1
 %configure \
     --disable-silent-rules \
-    --with-cockpit-user=cockpit-ws \
-    --with-cockpit-ws-instance-user=cockpit-wsinstance \
-    --with-selinux-config-type=etc_t \
 %if 0%{?suse_version}
     --docdir=%_defaultdocdir/%{name} \
 %endif
@@ -484,12 +481,16 @@ authentication via sssd/FreeIPA.
 %{_unitdir}/cockpit.service
 %{_unitdir}/cockpit-motd.service
 %{_unitdir}/cockpit.socket
+%{_unitdir}/cockpit-session-socket-owner.service
+%{_unitdir}/cockpit-session.socket
+%{_unitdir}/cockpit-session@.service
 %{_unitdir}/cockpit-wsinstance-http.socket
 %{_unitdir}/cockpit-wsinstance-http.service
 %{_unitdir}/cockpit-wsinstance-https-factory.socket
 %{_unitdir}/cockpit-wsinstance-https-factory@.service
 %{_unitdir}/cockpit-wsinstance-https@.socket
 %{_unitdir}/cockpit-wsinstance-https@.service
+%{_unitdir}/cockpit-wsinstance-socket-owner.service
 %{_unitdir}/system-cockpithttps.slice
 %{_prefix}/%{__lib}/tmpfiles.d/cockpit-tempfiles.conf
 %{pamdir}/pam_ssh_add.so
@@ -502,7 +503,7 @@ authentication via sssd/FreeIPA.
 %{_libexecdir}/cockpit-desktop
 %{_libexecdir}/cockpit-certificate-ensure
 %{_libexecdir}/cockpit-certificate-helper
-%attr(4750, root, cockpit-wsinstance) %{_libexecdir}/cockpit-session
+%{_libexecdir}/cockpit-session
 %{_datadir}/cockpit/branding
 
 %if 0%{?with_selinux}
@@ -513,10 +514,6 @@ authentication via sssd/FreeIPA.
 %endif
 
 %pre ws
-getent group cockpit-ws >/dev/null || groupadd -r cockpit-ws
-getent passwd cockpit-ws >/dev/null || useradd -r -g cockpit-ws -d /nonexisting -s /sbin/nologin -c "User for cockpit web service" cockpit-ws
-getent group cockpit-wsinstance >/dev/null || groupadd -r cockpit-wsinstance
-getent passwd cockpit-wsinstance >/dev/null || useradd -r -g cockpit-wsinstance -d /nonexisting -s /sbin/nologin -c "User for cockpit-ws instances" cockpit-wsinstance
 
 %if 0%{?with_selinux}
 if %{_sbindir}/selinuxenabled 2>/dev/null; then

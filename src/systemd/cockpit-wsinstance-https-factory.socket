@@ -2,9 +2,12 @@
 Description=Socket for Cockpit Web Service https instance factory
 BindsTo=cockpit.service
 Documentation=man:cockpit-ws(8)
+Requires=cockpit-wsinstance-socket-owner.service
+After=cockpit-wsinstance-socket-owner.service
 
 [Socket]
 ListenStream=/run/cockpit/wsinstance/https-factory.sock
 Accept=yes
-SocketUser=@user@
-SocketMode=0600
+SocketUser=root
+SocketGroup=cockpit-wsinstance-socket
+SocketMode=0660

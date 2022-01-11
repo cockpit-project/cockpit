@@ -1,0 +1,11 @@
+[Unit]
+Description=Dynamic user for /run/cockpit/session socket
+BindTo=cockpit.service
+
+[Service]
+DynamicUser=yes
+User=cockpit-session-socket
+Group=cockpit-session-socket
+Type=oneshot
+ExecStart=/bin/true
+RemainAfterExit=yes

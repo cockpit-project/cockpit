@@ -113,8 +113,8 @@ class AddMachine extends React.Component {
             color = this.rgb2Hex(old_machine.color);
 
         this.state = {
-            user: host_user,
-            address: host_address,
+            user: host_user || "",
+            address: host_address || "",
             color: color,
             addressError: "",
             inProgress: false,

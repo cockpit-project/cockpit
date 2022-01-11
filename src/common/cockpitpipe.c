@@ -797,6 +797,7 @@ cockpit_pipe_set_property (GObject *obj,
     {
       case PROP_NAME:
         priv->name = g_value_dup_string (value);
+        g_assert (!strstr (priv->name, "bridge"));
         break;
       case PROP_IN_FD:
         priv->in_fd = g_value_get_int (value);

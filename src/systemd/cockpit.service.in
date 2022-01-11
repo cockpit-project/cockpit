@@ -2,8 +2,8 @@
 Description=Cockpit Web Service
 Documentation=man:cockpit-ws(8)
 Requires=cockpit.socket
-Requires=cockpit-wsinstance-http.socket cockpit-wsinstance-https-factory.socket
-After=cockpit-wsinstance-http.socket cockpit-wsinstance-https-factory.socket
+Requires=cockpit-wsinstance-http.socket cockpit-wsinstance-https-factory.socket cockpit-wsinstance-socket-owner.service
+After=cockpit-wsinstance-http.socket cockpit-wsinstance-https-factory.socket cockpit-wsinstance-socket-owner.service
 
 [Service]
 RuntimeDirectory=cockpit/tls
@@ -13,6 +13,7 @@ ExecStartPre=+@libexecdir@/cockpit-certificate-ensure --for-cockpit-tls
 ExecStart=@libexecdir@/cockpit-tls
 User=@user@
 Group=@group@
+SupplementaryGroups=cockpit-wsinstance-socket
 NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=true

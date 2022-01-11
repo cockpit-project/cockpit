@@ -6,16 +6,17 @@ nodist_systemdunit_DATA = \
 	src/systemd/cockpit.socket \
 	src/systemd/cockpit-session@.service \
 	src/systemd/cockpit-wsinstance-http.service \
-	src/systemd/cockpit-wsinstance-http.socket \
 	src/systemd/cockpit-wsinstance-https-factory@.service \
-	src/systemd/cockpit-wsinstance-https-factory.socket \
 	src/systemd/cockpit-wsinstance-https@.service \
-	src/systemd/cockpit-wsinstance-https@.socket \
 	$(NULL)
 
 dist_systemdunit_DATA = \
 	src/systemd/cockpit-session-socket-owner.service \
 	src/systemd/cockpit-session.socket \
+	src/systemd/cockpit-wsinstance-http.socket \
+	src/systemd/cockpit-wsinstance-https-factory.socket \
+	src/systemd/cockpit-wsinstance-https@.socket \
+	src/systemd/cockpit-wsinstance-socket-owner.service \
 	src/systemd/system-cockpithttps.slice \
 	$(NULL)
 

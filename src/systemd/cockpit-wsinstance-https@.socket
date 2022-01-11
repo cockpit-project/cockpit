@@ -6,8 +6,11 @@ BindsTo=cockpit.service
 # the services are resource-limited by system-cockpithttps.slice
 BindsTo=cockpit-wsinstance-https@%i.service
 Documentation=man:cockpit-ws(8)
+Requires=cockpit-wsinstance-socket-owner.service
+After=cockpit-wsinstance-socket-owner.service
 
 [Socket]
 ListenStream=/run/cockpit/wsinstance/https@%i.sock
-SocketUser=@user@
-SocketMode=0600
+SocketUser=root
+SocketGroup=cockpit-wsinstance-socket
+SocketMode=0660

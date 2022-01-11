@@ -1,9 +1,6 @@
 #!/bin/sh
 set -e
 
-adduser --system --group --home /nonexistent --no-create-home --quiet cockpit-ws
-adduser --system --group --home /nonexistent --no-create-home --quiet cockpit-wsinstance
-
 #DEBHELPER#
 
 # restart cockpit.service on package upgrades, if it's already running

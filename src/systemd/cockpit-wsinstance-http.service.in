@@ -7,6 +7,5 @@ After=cockpit-session.socket cockpit-session-socket-owner.service
 
 [Service]
 ExecStart=@libexecdir@/cockpit-ws --no-tls --port=0
-User=@wsinstanceuser@
-Group=@wsinstancegroup@
+DynamicUser=true
 SupplementaryGroups=cockpit-session-socket

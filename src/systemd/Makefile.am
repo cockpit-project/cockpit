@@ -41,11 +41,7 @@ src/systemd/%: src/systemd/%.in
 	-e 's,[@]PACKAGE[@],$(PACKAGE),g' \
 	-e 's,[@]admin_group[@],$(admin_group),g' \
 	-e 's,[@]datadir[@],$(datadir),g' \
-	-e 's,[@]group[@],$(COCKPIT_GROUP),g' \
 	-e 's,[@]libexecdir[@],$(libexecdir),g' \
-	-e 's,[@]user[@],$(COCKPIT_USER),g' \
-	-e 's,[@]wsinstancegroup[@],$(COCKPIT_WSINSTANCE_GROUP),g' \
-	-e 's,[@]wsinstanceuser[@],$(COCKPIT_WSINSTANCE_USER),g' \
 	$< > $@.tmp && mv -f $@.tmp $@
 
 systemdgenerated = \

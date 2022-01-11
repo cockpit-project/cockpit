@@ -102,8 +102,7 @@ on_pipe_close (CockpitPipe *pipe,
   /* This function is called by the base class when it is closed */
   if (cockpit_pipe_get_pid (pipe, NULL))
     {
-      is_cockpit = g_str_equal (self->name, "cockpit-bridge") ||
-                   g_str_has_suffix (self->name, "/cockpit-session");
+      is_cockpit = g_str_has_suffix (self->name, "/cockpit-session");
 
       if (problem == NULL ||
           g_str_equal (problem, "internal-error"))

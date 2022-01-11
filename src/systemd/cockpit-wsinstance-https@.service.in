@@ -8,6 +8,6 @@ After=cockpit-session.socket cockpit-session-socket-user.service
 [Service]
 Slice=system-cockpithttps.slice
 ExecStart=@libexecdir@/cockpit-ws --for-tls-proxy --port=0
-User=cockpit-wsinstance
-Group=cockpit-wsinstance
+User=cockpit-wsinstance-socket
+Group=cockpit-wsinstance-socket
 SupplementaryGroups=cockpit-session-socket

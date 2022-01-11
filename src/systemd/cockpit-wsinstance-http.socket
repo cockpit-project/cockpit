@@ -3,11 +3,12 @@ Description=Socket for Cockpit Web Service http instance
 Documentation=man:cockpit-ws(8)
 BindsTo=cockpit.service
 # ensure our DynamicUser exists
-Requires=cockpit-ws-user.service
-After=cockpit-ws-user.service
+Requires=cockpit-ws-user.service cockpit-wsinstance-socket-user.service
+After=cockpit-ws-user.service cockpit-wsinstance-socket-user.service
 
 [Socket]
 ListenStream=/run/cockpit/wsinstance/http.sock
-SocketUser=cockpit-ws
-SocketMode=0600
+SocketUser=root
+SocketGroup=cockpit-wsinstance-socket
+SocketMode=0660
 RemoveOnStop=yes

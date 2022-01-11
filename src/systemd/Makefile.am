@@ -31,6 +31,7 @@ nodist_systemdunit_DATA = \
 
 dist_systemdunit_DATA = \
 	src/systemd/cockpit-session.socket \
+	src/systemd/cockpit-session-socket-user.service \
 	src/systemd/cockpit-ws-user.service \
 	src/systemd/system-cockpithttps.slice \
 	src/systemd/cockpit-wsinstance-http.socket \

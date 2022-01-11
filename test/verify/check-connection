@@ -1005,7 +1005,7 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
 
         # ws with plain --no-tls should fail after login with mismatching Origin (expected http, got https)
         m.execute("systemctl start cockpit-session.socket")
-        m.spawn(f"runuser -u cockpit-wsinstance -- {self.ws_executable} --no-tls -p 9099",
+        m.spawn(f"runuser -u cockpit-session-socket -- {self.ws_executable} --no-tls -p 9099",
                 "ws-notls.log")
         m.wait_for_cockpit_running(tls=True)
 
@@ -1038,7 +1038,7 @@ until pgrep -f '^(/usr/[^ ]+/[^ /]*python[^ /]* )?/usr/bin/cockpit-bridge'; do s
         self.allow_browser_errors("Error reading machine id")
 
         # ws with --for-tls-proxy accepts only https origins, thus should work
-        m.spawn(f"runuser -u cockpit-wsinstance -- {self.ws_executable} --for-tls-proxy -p 9099 -a 127.0.0.1",
+        m.spawn(f"runuser -u cockpit-session-socket -- {self.ws_executable} --for-tls-proxy -p 9099 -a 127.0.0.1",
                 "ws-fortlsproxy.log")
         m.wait_for_cockpit_running(tls=True)
         b.open(f"https://{b.address}:{b.port}/system")
@@ -1441,7 +1441,7 @@ server {
 
         def run_ws(extra_opts=""):
             m.spawn(
-                f"runuser -u cockpit-wsinstance -- {self.libexecdir}/cockpit-ws "
+                f"runuser -u cockpit-session-socket -- {self.libexecdir}/cockpit-ws "
                 f"--address=127.0.0.1 --for-tls-proxy {extra_opts}", "ws.log")
             m.wait_for_cockpit_running()
 

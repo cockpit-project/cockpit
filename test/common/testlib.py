@@ -37,6 +37,7 @@ import time
 import unittest
 import gzip
 import inspect
+import glob
 
 import testvm
 import cdp
@@ -995,6 +996,14 @@ class MachineCase(unittest.TestCase):
         (unused, sep, label) = self.id().partition(".")
         return label.replace(".", "-")
 
+    def pixels_label(self, image):
+        with open(f'{TEST_DIR}/reference-image') as fp:
+            reference_image = fp.read().strip()
+        if image == reference_image and os.environ.get("TEST_BROWSER", "chromium") == "chromium" and not self.is_devel_build():
+            return self.label()
+        else:
+            return None
+
     def new_machine(self, image=None, forward={}, restrict=True, cleanup=True, **kwargs):
         machine_class = self.machine_class
         if opts.address:
@@ -1027,11 +1036,7 @@ class MachineCase(unittest.TestCase):
         if machine is None:
             machine = self.machine
         label = self.label() + "-" + machine.label
-        pixels_label = None
-        with open(f'{TEST_DIR}/reference-image') as fp:
-            reference_image = fp.read().strip()
-        if machine.image == reference_image and os.environ.get("TEST_BROWSER", "chromium") == "chromium" and not self.is_devel_build():
-            pixels_label = self.label()
+        pixels_label = self.pixels_label(machine.image)
         browser = Browser(machine.web_address, label=label, pixels_label=pixels_label, port=machine.web_port, machine=self)
         self.addCleanup(browser.kill)
         return browser
@@ -1077,6 +1082,24 @@ class MachineCase(unittest.TestCase):
         self.allowed_messages = self.default_allowed_messages
         self.allowed_console_errors = self.default_allowed_console_errors
         self.allow_core_dumps = False
+
+        # For the "mobile" scenario, we only want to run tests that
+        # have pixel tests.  If a test doesn't have pixel tests, there
+        # hopefully is no difference between running it in the
+        # "mobile" scenario and the "desktop" one.
+        #
+        # We figure out whether a test has pixel tests by looking for
+        # reference images.  As soon as there is a reference image
+        # from the "desktop" scenario, we also run the test in the
+        # "mobile" scenario.
+
+        if bool(os.environ.get("TEST_MOBILE", "")):
+            pixels_label = self.pixels_label(testvm.DEFAULT_IMAGE)
+            if pixels_label:
+                references = glob.glob(os.path.join(TEST_DIR, 'reference', pixels_label + "*-pixels.png"))
+                print("REF", pixels_label, references)
+                if len(references) == 0:
+                    raise unittest.SkipTest("Only run pixel tests for mobile")
 
         if os.getenv("MACHINE"):
             # apply env variable together if MACHINE envvar is set

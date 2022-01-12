@@ -37,6 +37,7 @@ import time
 import unittest
 import gzip
 import inspect
+import glob
 
 import testvm
 import cdp
@@ -91,6 +92,17 @@ opts.address = None
 opts.jobs = 1
 opts.fetch = True
 
+layout_scenarios = {
+    "desktop": {
+        "shell_size": (1920, 1200),
+        "content_size": (1680, 1130)
+    },
+    "mobile": {
+        "shell_size": (414, 1920),
+        "content_size": (414, 1856)
+    }
+}
+
 
 def attach(filename, move=False):
     '''Put a file into the attachments directory
@@ -109,7 +121,7 @@ def attach(filename, move=False):
 
 
 class Browser:
-    def __init__(self, address, label, machine, pixels_label=None, port=None):
+    def __init__(self, address, label, machine, pixels_label=None, enable_pixel_tests=False, port=None):
         if ":" in address:
             (self.address, unused, self.port) = address.rpartition(":")
         else:
@@ -120,9 +132,13 @@ class Browser:
         self.default_user = "admin"
         self.label = label
         self.pixels_label = pixels_label
+        self.enable_pixel_tests = enable_pixel_tests
+        self.current_layout = "mobile" if bool(os.getenv("TEST_MOBILE", "")) else "desktop"
         self.machine = machine
         path = os.path.dirname(__file__)
-        self.cdp = cdp.CDP("C.utf8", verbose=opts.trace, trace=opts.trace, fixed_content_size=self.pixels_label,
+        self.cdp = cdp.CDP("C.utf8", verbose=opts.trace, trace=opts.trace,
+                           size=layout_scenarios[self.current_layout]["shell_size"],
+                           mobile=(self.current_layout == "mobile"),
                            inject_helpers=[os.path.join(path, "test-functions.js"), os.path.join(path, "sizzle.js")])
         self.password = "foobar"
         self.timeout_factor = int(os.getenv("TEST_TIMEOUT_FACTOR", "1"))
@@ -595,16 +611,6 @@ class Browser:
             self.eval_js('window.localStorage.setItem("superuser:%s", "%s");' % (user, "any" if superuser else "none"))
         self.click('#login-button')
 
-    def adjust_window_for_fixed_content_size(self):
-        # When doing pixel tests, try to give the content iframe the
-        # expected fixed size so that pixel tests don't have to adapt
-        # to changes in the shell layout too much.  But don't bother
-        # when the browser is visible since we don't control its
-        # window size and it will likely be too small.
-        if self.pixels_label and not self.cdp.show_browser:
-            self.call_js_func("ph_adjust_content_size", self.cdp.content_width, self.cdp.content_height)
-            self.body_clip = self.call_js_func('ph_element_clip', 'body')
-
     def login_and_go(self, path=None, user=None, host=None, superuser=True, urlroot=None, tls=False, password=None,
                      legacy_authorized=None):
         href = path
@@ -621,7 +627,6 @@ class Browser:
         self.expect_load()
         self._wait_present('#content')
         self.wait_visible('#content')
-        self.adjust_window_for_fixed_content_size()
         if path:
             self.enter_page(path.split("#")[0], host=host)
 
@@ -656,7 +661,6 @@ class Browser:
         self.expect_load()
         self._wait_present('#content')
         self.wait_visible('#content')
-        self.adjust_window_for_fixed_content_size()
         if path:
             if path.startswith("/@"):
                 host = path[2:].split("/")[0]
@@ -742,6 +746,7 @@ class Browser:
             title: Used for the filename.
         """
         if self.cdp and self.cdp.valid:
+            self._adjust_layout_for_fixed_content_size()
             self.cdp.command("clearExceptions()")
 
             filename = "{0}-{1}.png".format(label or self.label, title)
@@ -765,12 +770,56 @@ class Browser:
             attach(filename, move=True)
             print("Wrote HTML dump to " + filename)
 
-    def assert_pixels(self, selector, key, ignore=[]):
-        """Compare the given element with its reference"""
+    def _set_window_size(self, width, height):
+        if self.cdp.browser.name == "chromium":
+            self.cdp.invoke("Page.setDeviceMetricsOverride",
+                            width=width, height=height,
+                            deviceScaleFactor=0, mobile=False)
 
-        if not (Image and self.pixels_label and self.cdp and self.cdp.valid):
+    def set_layout(self, layout):
+        self.current_layout = layout
+        size = layout_scenarios[layout]["shell_size"]
+        self._set_window_size(size[0], size[1])
+        self._adjust_layout_for_fixed_content_size()
+
+    def _adjust_layout_for_fixed_content_size(self):
+        if self.eval_js("window.name").startswith("cockpit1:"):
+            # Adjust thw window size further so that the content is
+            # exactly the expected size.  This will make sure that
+            # pixel tests of the content will not be affected by
+            # changes in shell navigation elements around it.  It is
+            # important that we do this only after getting the shell
+            # into about the right size so that it switches into the
+            # right layout mode.
+            shell_size = layout_scenarios[self.current_layout]["shell_size"]
+            want_size = layout_scenarios[self.current_layout]["content_size"]
+            have_size = self.eval_js("[ document.body.offsetWidth, document.body.offsetHeight ]")
+            delta = (want_size[0] - have_size[0], want_size[1] - have_size[1])
+            if delta[0] != 0 or delta[1] != 0:
+                self._set_window_size(shell_size[0] + delta[0], shell_size[1] + delta[1])
+
+    def assert_pixels_in_current_layout(self, selector, key, ignore=[]):
+        """Compare the given element with its reference in the current layout"""
+
+        reference_dir = os.path.join(TEST_DIR, 'reference')
+        if not os.path.exists(os.path.join(reference_dir, '.git')):
+            subprocess.check_call([f'{TEST_DIR}/common/pixel-tests', 'pull'])
+        base = self.pixels_label + "-" + key
+        if self.current_layout != "desktop":
+            base += "-" + self.current_layout
+        filename = base + "-pixels.png"
+        ref_filename = os.path.join(reference_dir, filename)
+
+        if not self.enable_pixel_tests:
+            if not os.path.exists(ref_filename):
+                print("Pixel test reference missing: " + filename)
+                self.failed_pixel_tests += 1
             return
 
+        if not (Image and self.cdp and self.cdp.valid):
+            return
+
+        self._adjust_layout_for_fixed_content_size()
         self.call_js_func('ph_scrollIntoViewIfNeeded', selector)
         self.call_js_func('ph_blur_active')
 
@@ -806,16 +855,7 @@ class Browser:
                                        r['y'] - rect['y'] + r['height']),
                             self.call_js_func('ph_selector_clips', sels)))
 
-        reference_dir = os.path.join(TEST_DIR, 'reference')
-        if not os.path.exists(os.path.join(reference_dir, '.git')):
-            subprocess.check_call([f'{TEST_DIR}/common/pixel-tests', 'pull'])
-
         ignore_rects = relative_clips(list(map(lambda item: selector + " " + item, ignore)))
-        base = self.pixels_label + "-" + key
-        if self.cdp.mobile:
-            base += "-mobile"
-        filename = base + "-pixels.png"
-        ref_filename = os.path.join(reference_dir, filename)
         ret = self.cdp.invoke("Page.captureScreenshot", clip=rect, no_trace=True)
         png_now = base64.standard_b64decode(ret["data"])
         png_ref = os.path.exists(ref_filename) and open(ref_filename, "rb").read()
@@ -896,6 +936,15 @@ class Browser:
                 attach(delta_filename, move=True)
                 print("Differences in pixel test " + base)
                 self.failed_pixel_tests += 1
+
+    def assert_pixels(self, selector, key, ignore=[]):
+        """Compare the given element with its reference in all layouts"""
+
+        previous_layout = self.current_layout
+        for layout in layout_scenarios:
+            self.set_layout(layout)
+            self.assert_pixels_in_current_layout(selector, key, ignore=ignore)
+        self.set_layout(previous_layout)
 
     def get_js_log(self):
         """Return the current javascript log"""
@@ -995,6 +1044,9 @@ class MachineCase(unittest.TestCase):
         (unused, sep, label) = self.id().partition(".")
         return label.replace(".", "-")
 
+    def enable_pixel_tests(self):
+        return bool(os.getenv("TEST_PIXELS", ""))
+
     def new_machine(self, image=None, forward={}, restrict=True, cleanup=True, **kwargs):
         machine_class = self.machine_class
         if opts.address:
@@ -1027,12 +1079,10 @@ class MachineCase(unittest.TestCase):
         if machine is None:
             machine = self.machine
         label = self.label() + "-" + machine.label
-        pixels_label = None
-        with open(f'{TEST_DIR}/reference-image') as fp:
-            reference_image = fp.read().strip()
-        if machine.image == reference_image and os.environ.get("TEST_BROWSER", "chromium") == "chromium" and not self.is_devel_build():
-            pixels_label = self.label()
-        browser = Browser(machine.web_address, label=label, pixels_label=pixels_label, port=machine.web_port, machine=self)
+        pixels_label = self.label()
+        browser = Browser(machine.web_address, label=label, pixels_label=pixels_label,
+                          enable_pixel_tests=self.enable_pixel_tests(),
+                          port=machine.web_port, machine=self)
         self.addCleanup(browser.kill)
         return browser
 
@@ -1077,6 +1127,11 @@ class MachineCase(unittest.TestCase):
         self.allowed_messages = self.default_allowed_messages
         self.allowed_console_errors = self.default_allowed_console_errors
         self.allow_core_dumps = False
+
+        if self.enable_pixel_tests():
+            references = glob.glob(os.path.join(TEST_DIR, 'reference', self.label() + "*-pixels.png"))
+            if len(references) == 0:
+                raise unittest.SkipTest("Only run tests with pixel test references")
 
         if os.getenv("MACHINE"):
             # apply env variable together if MACHINE envvar is set

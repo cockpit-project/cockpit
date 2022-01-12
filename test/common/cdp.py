@@ -159,7 +159,7 @@ def jsquote(str):
 
 
 class CDP:
-    def __init__(self, lang=None, verbose=False, trace=False, fixed_content_size=False, inject_helpers=[]):
+    def __init__(self, lang=None, verbose=False, size=None, mobile=False, trace=False, inject_helpers=[]):
         self.lang = lang
         self.timeout = 60
         self.valid = False
@@ -168,46 +168,19 @@ class CDP:
         self.inject_helpers = inject_helpers
         self.browser = get_browser(os.environ.get("TEST_BROWSER", "chromium"))
         self.show_browser = bool(os.environ.get("TEST_SHOW_BROWSER", ""))
-        self.mobile = bool(os.environ.get("TEST_MOBILE", ""))
+        self.mobile = mobile
         self.download_dir = tempfile.mkdtemp()
         self._driver = None
         self._browser = None
         self._browser_home = None
         self._cdp_port_lockfile = None
 
-        if fixed_content_size:
-
-            # We fix the size of the content iframe and then make the
-            # window large enough to fit the shell around it.  The
-            # content iframe size will be set later with
-            # "adjust_window_for_fixed_content_size" in testlib.py,
-            # after the shell has been loaded and we know how big it
-            # really is.
-            #
-            # The browser window needs to be big enough for the final
-            # adjusted size of shell plus content, but it also needs to be
-            # tight enough to trigger the right layout mode (desktop or
-            # mobile) from the start.
-
-            if not self.mobile:
-                self.content_width = 1680
-                self.content_height = 1130
-                self.window_width = self.content_width + 300
-                self.window_height = self.content_height + 300
-            else:
-                self.content_width = 414
-                self.content_height = 1856
-                self.window_width = self.content_width
-                self.window_height = self.content_height + 300
-
+        if size:
+            self.window_width = size[0]
+            self.window_height = size[1]
         else:
-
-            if not self.mobile:
-                self.window_width = 1920
-                self.window_height = 1200
-            else:
-                self.window_width = 414
-                self.window_height = 1920
+            self.window_width = 1980
+            self.window_height = 1200
 
     def invoke(self, fn, **kwargs):
         """Call a particular CDP method such as Runtime.evaluate

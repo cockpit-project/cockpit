@@ -335,23 +335,3 @@ function ph_element_clip(sel) {
 function ph_count_animations(sel) {
     return ph_find(sel).getAnimations({subtree:true}).length;
 }
-
-function ph_adjust_content_size(w, h) {
-    const body = document.body;
-    const content = document.getElementById("content");
-    const dx = w - content.offsetWidth;
-    const dy = h - content.offsetHeight;
-
-    // Making the body bigger doesn't really work.  It already fills
-    // the whole browser window and making it bigger would cause parts
-    // of it to stick out and we couldn't take snapshots of them.
-    // Let's just warn about this here and hope it doesn't matter.
-
-    if (dx > 0 || dy > 0) {
-        console.warn("Can't adjust content iframe size.  Browser window is too small.");
-        return;
-    }
-
-    body.style.width = (body.offsetWidth + dx) + "px";
-    body.style.height = (body.offsetHeight + dy) + "px";
-}

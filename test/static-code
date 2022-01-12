@@ -85,10 +85,6 @@ test_json_verify() {
     done
 }
 
-test_node_modules_freshness() {
-    tools/node-modules test_static_code
-}
-
 test_include_config_h() {
     # Every C file should #include "config.h" at the top
 

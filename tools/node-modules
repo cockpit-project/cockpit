@@ -85,23 +85,6 @@ Next steps:
 EOF
 }
 
-# called from tools/test-static-code
-cmd_test_static_code() {
-    node_modules_update=$(git log --format=%H -n 1 node_modules)
-    if ! git --no-pager log --stat --exit-code "${node_modules_update}".. package.json; then
-        cat <<EOF
-#
-# *** The above commits modify package.json without updating node_modules
-#
-# Try running:
-#
-#   tools/node-modules rebuild
-#
-EOF
-        exit 1
-    fi
-}
-
 # called from Makefile.am
 cmd_make_package_lock_json() {
     # Run from make to ensure package-lock.json is up to date

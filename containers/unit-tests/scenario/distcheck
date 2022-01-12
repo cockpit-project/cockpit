@@ -17,8 +17,8 @@ grep -q 'src/bridge/cockpitpackages.c' po/cockpit.pot
 # Check that we are lint clean
 npm run eslint
 
-# run full test-static-code with git tree (several tests get skipped during distcheck)
-tools/test-static-code
+# run full test/static-code with git tree (tests get skipped during distcheck)
+test/static-code
 
 # validate that "distclean" does not remove too much
 mkdir _distcleancheck

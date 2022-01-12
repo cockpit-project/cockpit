@@ -106,12 +106,14 @@ variable:
 
 There are also static code and syntax checks which you should run often:
 
-    $ tools/test-static-code
+    $ test/static-code
 
-It is highly recommended to set this up as a git pre-push hook, to avoid pushing
-PRs that will fail on trivial errors:
+It is highly recommended to set up a git pre-push hook, to avoid pushing PRs
+that will fail on trivial errors:
 
-    $ ln -s ../../tools/test-static-code .git/hooks/pre-push
+    $ ln -s ../../test/git-hook-pre-push .git/hooks/pre-push
+
+This calls `test/static-code` for each commit you're trying to push.
 
 ## Running the integration test suite
 

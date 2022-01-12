@@ -9,21 +9,37 @@ set -eu
 # otherwise, any output is a failure, even if exit status is 0
 
 #
-# pyflakes
+# Python files checks
 #
-test_pyflakes_pkg_tools() {
-    python3 -m pyflakes /dev/null || skip
-    python3 -m pyflakes tools/build-debian-copyright tools/npm-release-time
+find_python_files() {
+    (
+        git grep --cached -lIz '^#!.*python3'
+        git ls-files -z '*.py'
+    ) | sort -z | uniq -z
+}
+
+# files not in test/verify/
+test_pyflakes() {
+    python3 -c 'import pyflakes' 2>/dev/null || skip 'no pyflakes'
+    filter="undefined name '(Inotify|IN_[A-Z_]+)'" # inotify.py get pasted together with other files
+    ! find_python_files | grep -zv '^test/verify' | xargs -r -0 python3 -m pyflakes 2>&1 | grep -Ev "${filter}"
 }
 
 # TODO: there are currently a lot of pyflakes errors like
 #   'parent' imported but unused
 #   'from testlib import *' used; unable to detect undefined names
 # Filter these out until these get fixed properly.
-test_pyflakes_test() {
-    python3 -m pyflakes /dev/null || skip
+test_pyflakes_test_verify() {
+    python3 -c 'import pyflakes' 2>/dev/null || skip 'no pyflakes'
     filter="(unable to detect undefined names|defined from star imports|'parent' imported but unused)"
-    ! python3 -m pyflakes test/ 2>&1 | grep -Ev "${filter}"
+    ! find_python_files | grep -z '^test/verify' | xargs -r -0 python3 -m pyflakes 2>&1 | grep -Ev "${filter}"
+}
+
+# pycodestyle python syntax check
+test_pycodestyle() {
+    python3 -c 'import pycodestyle' 2>/dev/null || skip 'no pycodestyle'
+    command -v pycodestyle >/dev/null || skip 'no pycodestyle'
+    find_python_files | xargs -r -0 python3 -m pycodestyle --max-line-length=415 --ignore W504
 }
 
 #
@@ -64,13 +80,6 @@ test_json_verify() {
     git ls-files -z '*.json' | while read -d '' filename; do
         python3 -m json.tool "${filename}" /dev/null 2>&1 | sed "s@^@${filename}: @"
     done
-}
-
-# pycodestyle python syntax check
-test_pycodestyle() {
-    python3 -m pycodestyle /dev/null || skip
-    PYFILES="$(git grep --cached -lI '^#!.*python3') $(git ls-files -c '*.py')"
-    python3 -m pycodestyle --max-line-length=415 --ignore W504 $PYFILES
 }
 
 test_node_modules_freshness() {

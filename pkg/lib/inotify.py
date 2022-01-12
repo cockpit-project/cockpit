@@ -19,6 +19,7 @@
 import os
 import ctypes
 import struct
+import sys
 
 
 IN_CLOSE_WRITE = 0x00000008

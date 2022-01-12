@@ -842,7 +842,7 @@ ResultActive=yes""")
         m.write(r"/tmp/browser.sh", """#!/bin/sh -e
 curl --silent --compressed -o /tmp/out.html "$@"
 # wait until privileged bridge starts
-until pgrep -f cockpit-bridge.*--privileged; do sleep 1; done
+until pgrep -f '^/usr/bin/cockpit-bridge.*--privileged'; do sleep 1; done
 """)
         m.execute("chmod 755 /tmp/browser.sh")
         m.execute(f"su - -c 'BROWSER=/tmp/browser.sh {self.libexecdir}/cockpit-desktop system' admin")

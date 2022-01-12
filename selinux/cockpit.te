@@ -155,13 +155,15 @@ kernel_read_network_state(cockpit_session_t)
 
 # cockpit-session runs a full pam stack, including pam_selinux.so
 auth_login_pgm_domain(cockpit_session_t)
-# cockpit-session resseting expired passwords
+# cockpit-session resetting expired passwords
 auth_manage_passwd(cockpit_session_t)
 auth_manage_shadow(cockpit_session_t)
 auth_write_login_records(cockpit_session_t)
 
 corenet_tcp_bind_ssh_port(cockpit_session_t)
 corenet_tcp_connect_ssh_port(cockpit_session_t)
+# query identity management domain users
+corenet_tcp_connect_ldap_port(cockpit_session_t)
 
 # cockpit-session can execute cockpit-agent as the user
 userdom_spec_domtrans_all_users(cockpit_session_t)

@@ -1,62 +1,41 @@
 #!/bin/bash
 # run static code checks like pyflakes and pycodestyle
+
 set -eu
 
-echo "1..9"
-
-cd "${srcdir:-.}"
-fail=0
+# we consider any function named test_* to be a test case
+# each test is considered to succeed if it exits with no output
+# exit with status 77 is a skip, with the message in the output
+# otherwise, any output is a failure, even if exit status is 0
 
 #
 # pyflakes
 #
-PYFLAKES="python3 -m pyflakes"
-
-if ! $PYFLAKES /dev/null >/dev/null 2>&1; then
-    echo "ok 1 pyflakes pkg tools # SKIP pyflakes3 not installed"
-
-elif $PYFLAKES tools/build-debian-copyright tools/npm-release-time >&2; then
-    echo "ok 1 pyflakes pkg tools"
-
-else
-    echo "not ok 1 pyflakes pkg tools"
-    fail=1
-fi
+test_pyflakes_pkg_tools() {
+    python3 -m pyflakes /dev/null || skip
+    python3 -m pyflakes tools/build-debian-copyright tools/npm-release-time
+}
 
 # TODO: there are currently a lot of pyflakes errors like
 #   'parent' imported but unused
 #   'from testlib import *' used; unable to detect undefined names
 # Filter these out until these get fixed properly.
-if ! $PYFLAKES /dev/null >/dev/null 2>&1; then
-    echo "ok 2 pyflakes test # SKIP pyflakes3 not installed"
-
-else
-    out=$($PYFLAKES test/ 2>&1 | grep -Ev "(unable to detect undefined names|defined from star imports|'parent' imported but unused)") || true
-    if [ -n "$out" ]; then
-        echo "$out" >&2
-        echo "not ok 2 pyflakes test"
-        fail=1
-    else
-        echo "ok 2 pyflakes test"
-    fi
-fi
+test_pyflakes_test() {
+    python3 -m pyflakes /dev/null || skip
+    filter="(unable to detect undefined names|defined from star imports|'parent' imported but unused)"
+    ! python3 -m pyflakes test/ 2>&1 | grep -Ev "${filter}"
+}
 
 #
 # wrongly marked translatable strings
 #
-if out=$(find src/ pkg/ -name '*.js' -o -name '*.jsx' | xargs grep -n -E "(gettext|_)\(['\`]"); then
-    echo 'ERROR: translatable strings must be marked with _("")' >&2
-    echo "$out" >&2
-    echo "not ok 3 js-translatable-strings"
-    fail=1
-elif out=$(grep -r 'translatable=["'\'']yes' pkg/ doc/); then
-    echo "ERROR: 'translatable' HTML attribute is invalid, use 'translate' instead"
-    echo "$out" >&2
-    echo "not ok 3 js-translatable-strings"
-    fail=1
-else
-    echo "ok 3 js-translatable-strings"
-fi
+test_js_translatable_strings() {
+    ! git grep -n -E "(gettext|_)\(['\`]" -- {src,pkg}/'*'.{js,jsx}
+}
+
+test_no_translatable_attr() {
+    ! git grep -n 'translatable=["'\'']yes' -- pkg doc
+}
 
 #
 # Unsafe content-security-policy
@@ -64,98 +43,96 @@ fi
 # It's dangerous to have 'unsafe-inline' or 'unsafe-eval' in our
 # content-security-policy entries. This is the browser equivalent
 # of setenforce 0
-
-shopt -s nullglob
-safe=yes
-for d in pkg/*; do
-    if ! test -f "$d"/content-security-policy.override; then
-        if grep --color=auto -HE 'content-security-policy.*(\*|unsafe)' "$d"/*.json* /dev/null; then
-            safe="no"
+test_unsafe_security_policy() {
+    git grep -lIz -E 'content-security-policy.*(\*|unsafe)' 'pkg/*/manifest.json' | while read -d '' filename; do
+        if test ! -f "$(dirname ${filename})/content-security-policy.override"; then
+            echo "${filename} contains unsafe content security policy"
         fi
-    fi
-done
-
-if [ $safe == "no" ]; then
-   echo "not ok 4 unsafe-security-policy"
-   fail=1
-else
-    echo "ok 4 unsafe-security-policy"
-fi
+    done
+}
 
 #
 # Bad paths or modifications in patternfly for fonts
 #
-cssfiles="$(echo dist/*/*.css)"
-if [ -z "${cssfiles}" ]; then
-    echo "ok 5 patternfly-font-paths # skip dist/ not built"
-elif grep --color=auto "\.\./fonts/OpenSans\|fonts/.*eot\|truetype" ${cssfiles} >&2; then
-    echo "ERROR: invalid patternfly fonts paths found" >&2
-    echo "not ok 5 patternfly-font-paths"
-    fail=1
-else
-    echo "ok 5 patternfly-font-paths"
-fi
+test_patternfly_font_paths() {
+    test -d dist || skip 'dist/ not built'
+    ! grep --color=auto -H -n "\.\./fonts/OpenSans\|fonts/.*eot\|truetype" -r dist
+}
 
 # Valid JSON files
-if [ -e .git ]; then
-    for f in $(git ls-tree --name-only -r --full-name HEAD | grep '\.json$'); do
-        if ! python3 -m json.tool $f /dev/null; then
-            echo "ERROR: $f is invalid JSON" >&2
-            echo "not ok 6 json-verify"
-            fail=1
-        fi
+test_json_verify() {
+    git ls-files -z '*.json' | while read -d '' filename; do
+        python3 -m json.tool "${filename}" /dev/null 2>&1 | sed "s@^@${filename}: @"
     done
-    echo "ok 6 json-verify"
-else
-    echo "ok 6 json-verify # SKIP not a git tree"
-fi
+}
 
 # pycodestyle python syntax check
-if python3 -m pycodestyle /dev/null >/dev/null 2>&1; then
-    PYTHON_STYLE_CHECKER="pycodestyle"
-fi
+test_pycodestyle() {
+    python3 -m pycodestyle /dev/null || skip
+    PYFILES="$(git grep --cached -lI '^#!.*python3') $(git ls-files -c '*.py')"
+    python3 -m pycodestyle --max-line-length=415 --ignore W504 $PYFILES
+}
 
-if [ -z "${PYTHON_STYLE_CHECKER-}" ]; then
-    echo "ok 7 pycodestyle test # SKIP pycodestyle not installed"
-elif [ ! -e .git ]; then
-    echo "ok 7 pycodestyle test # SKIP not a git tree"
-else
-    # all normal files which are either:
-    #   - filename is *.py
-    #   - executable matching ^#!/usr/bin/python3
-    PYFILES="$(git grep -lI '^#!.*python3') $(git ls-files "*.py")"
-    # W504 and W503 are mutually exclusive (and both disabled by default)
-    # explicitly giving '--ignore W504' here is actually more strict than the default
-    out=$(python3 -m "$PYTHON_STYLE_CHECKER" --max-line-length=415 --ignore W504 $PYFILES) || true
-    if [ -n "$out" ]; then
-        echo "$out" >&2
-        echo "not ok 7 $PYTHON_STYLE_CHECKER test"
-        fail=1
-    else
-        echo "ok 7 $PYTHON_STYLE_CHECKER test"
-    fi
-fi
-
-if [ ! -e .git ]; then
-    echo 'ok 8 node_modules freshness # SKIP not a git tree'
-elif V=0 tools/node-modules test_static_code; then
-    echo 'ok 8 node_modules freshness'
-else
-    echo "not ok 8 node_modules freshness"
-    fail=1
-fi
+test_node_modules_freshness() {
+    tools/node-modules test_static_code
+}
 
 # every C file should #include "config.h" at the top
-if [ -e .git ]; then
-    for f in $(git ls-tree --name-only -r --full-name HEAD | grep '\.c$'); do
-        if sed -n '/^#include "config.h"$/ q1; /^\s*#/ q0' "$f"; then
-            echo "$f"
-            fail=1
+test_include_config_h() {
+    # every C file should #include "config.h" at the top
+    git ls-files -cz '*.c' | while read -d '' filename; do
+        if sed -n '/^#include "config.h"$/q1; /^\s*#/q;' "${filename}"; then
+            printf '%s: #include "config.h" is not the first line\n' "${filename}"
         fi
     done
-    echo "$([ $fail -eq 0 ] || echo 'not ')ok 9 config.h properly included from all files"
-else
-    echo "ok 9 config.h # SKIP not a git tree"
-fi
+}
 
-exit $fail
+### end of tests.  start of machinery.
+
+skip() {
+    printf "%s" "$*"
+    exit 77
+}
+
+main() {
+    cd "$(realpath -m "$0/../..")"
+    if [ ! -e .git ]; then
+        echo '1..0 # SKIP not in a git checkout'
+        exit 0
+    fi
+
+    exit_status=0
+    counter=0
+
+    tests=($(compgen -A function 'test_'))
+    printf "1..%d\n" "${#tests[@]}"
+
+
+    for test_function in ${tests[@]}; do
+        path="/static-code/$(echo ${test_function} | tr '_' '-')"
+        counter=$((counter + 1))
+        fail=''
+        skip=''
+
+        # run the test, capturing its output and exit status
+        output="$(${test_function} 2>&1)" && test_status=0 || test_status=$?
+
+        if [ "${test_status}" = 77 ]; then
+            skip=" # SKIP ${output}"
+            output=''
+        elif [ "${test_status}" != 0 -o -n "${output}" ]; then
+            exit_status=1
+            fail=1
+        fi
+
+        # excluding the plan, this is the only output that we ever generate
+        printf "%s %d %s%s\n" "${fail:+not }ok" "${counter}" "${path}" "${skip}"
+        if [ -n "${output}" ]; then
+            printf "%s\n" "${output}" | sed -e 's/^/# /'
+        fi
+    done
+
+    exit "${exit_status}"
+}
+
+main

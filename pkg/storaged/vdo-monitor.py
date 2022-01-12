@@ -5,6 +5,9 @@ import os
 import time
 import json
 
+from vdo.statistics import NotAvailable, Samples, VDOStatistics
+from vdo.vdomgmnt import Configuration, SizeString
+
 
 class Watcher:
     def __init__(self, path):
@@ -41,22 +44,7 @@ class Watcher:
         self.inotify.process(event)
 
 
-if sys.version_info >= (3, 0):
-    from vdo.statistics import *
-    from vdo.vdomgmnt import *
-else:
-    # Temporary patch to address layout changes
-    for dir in sys.path:
-        vdoDir = os.path.join(dir, 'vdo')
-        if os.path.isdir(vdoDir):
-            sys.path.append(vdoDir)
-            break
-    from statistics import *
-    from vdomgmnt import *
-
 # Converts NotAvailable to None, recursively, and other things.  The goal is to make OBJ serializable.
-
-
 def wash(obj):
     if isinstance(obj, NotAvailable):
         return None

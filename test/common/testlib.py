@@ -674,14 +674,14 @@ class Browser:
             self.click("#toggle-menu")
 
     def open_superuser_dialog(self):
-        if self.cdp.mobile:
+        if self.current_layout == "mobile":
             self.open_session_menu()
             self.click("#super-user-indicator-mobile button")
         else:
             self.click("#super-user-indicator button")
 
     def check_superuser_indicator(self, expected):
-        if self.cdp.mobile:
+        if self.current_layout == "mobile":
             self.open_session_menu()
             self.wait_text("#super-user-indicator-mobile", expected)
             self.click("#toggle-menu")
@@ -719,7 +719,7 @@ class Browser:
         (useful for remote hosts).
         '''
         self.switch_to_top()
-        if self.cdp.mobile:
+        if self.current_layout == "mobile":
             self.click("#nav-system-item")
         self.click(f"#host-apps a[href='{path}']")
         if enter:

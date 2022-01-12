@@ -14,7 +14,9 @@ noinst_DATA =
 nodist_noinst_DATA =
 nodist_noinst_SCRIPTS =
 
-TESTS = $(NULL)
+TESTS = \
+	test/static-code \
+	$(NULL)
 
 CLEANFILES = \
 	$(man_MANS) \
@@ -143,7 +145,7 @@ check-memory: valgrind-suppressions
 	$(MAKE) LOG_FLAGS="valgrind $(VALGRIND_ARGS)" \
 	        HTML_LOG_FLAGS="valgrind $(VALGRIND_ARGS)" \
 		COCKPIT_SKIP_SLOW_TESTS=1 \
-		$(AM_MAKEFLAGS) check TESTS="$(filter-out tools/% bots/%,$(TESTS))"
+		$(AM_MAKEFLAGS) check TESTS="$(filter-out test/% bots/%,$(TESTS))"
 recheck-memory: valgrind-suppressions
 	$(MAKE) LOG_FLAGS="-- valgrind $(VALGRIND_ARGS)" \
 	        HTML_LOG_FLAGS="valgrind $(VALGRIND_ARGS)" \

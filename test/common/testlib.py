@@ -93,6 +93,42 @@ opts.address = None
 opts.jobs = 1
 opts.fetch = True
 
+# Browser layouts
+#
+# A browser can be switched into a number of different layouts, such
+# as "desktop" and "mobile".  A default set of layouts is defined
+# here, but projects can override this with a file called
+# "test/browser-layouts.json".
+#
+# Each layout defines the size of the shell (where the main navigation
+# is) and also the size of the content iframe (where the actual page
+# like "Networking" or "Overview" is displayed).
+#
+# When the browser layout is switched (by calling Browset.set_layout),
+# this will either set the shell size or the content size, depending
+# on which frame is current (as set by Browser.enter_page or
+# Browser.leave_page).
+#
+# This makes sure that pixel tests for the whole content iframe are
+# always the exact size as specified in the layout definition, and
+# don't change size when the navigation stuff in the shell changes.
+#
+# The browser starts out in the first layout of this list, which is
+# "desktop" by default.
+
+default_layouts = [
+    {
+        "name": "desktop",
+        "shell_size": [1920, 1200],
+        "content_size": [1680, 1130]
+    },
+    {
+        "name": "mobile",
+        "shell_size": [414, 1920],
+        "content_size": [414, 1856]
+    }
+]
+
 
 def attach(filename, move=False):
     '''Put a file into the attachments directory
@@ -124,12 +160,20 @@ class Browser:
         self.pixels_label = pixels_label
         self.machine = machine
         path = os.path.dirname(__file__)
-        self.cdp = cdp.CDP("C.utf8", verbose=opts.trace, trace=opts.trace, fixed_content_size=self.pixels_label,
+        self.cdp = cdp.CDP("C.utf8", verbose=opts.trace, trace=opts.trace,
                            inject_helpers=[os.path.join(path, "test-functions.js"), os.path.join(path, "sizzle.js")])
         self.password = "foobar"
         self.timeout_factor = int(os.getenv("TEST_TIMEOUT_FACTOR", "1"))
         self.failed_pixel_tests = 0
         self.body_clip = None
+        try:
+            with open(f'{TEST_DIR}/browser-layouts.json') as fp:
+                self.layouts = json.load(fp)
+        except FileNotFoundError:
+            self.layouts = default_layouts
+        self.current_layout = self.layouts[0]
+        size = self.current_layout["shell_size"]
+        self._set_window_size(size[0], size[1])
 
     def title(self):
         return self.cdp.eval('document.title')
@@ -597,16 +641,6 @@ class Browser:
             self.eval_js('window.localStorage.setItem("superuser:%s", "%s");' % (user, "any" if superuser else "none"))
         self.click('#login-button')
 
-    def adjust_window_for_fixed_content_size(self):
-        # When doing pixel tests, try to give the content iframe the
-        # expected fixed size so that pixel tests don't have to adapt
-        # to changes in the shell layout too much.  But don't bother
-        # when the browser is visible since we don't control its
-        # window size and it will likely be too small.
-        if self.pixels_label and not self.cdp.show_browser:
-            self.call_js_func("ph_adjust_content_size", self.cdp.content_width, self.cdp.content_height)
-            self.body_clip = self.call_js_func('ph_element_clip', 'body')
-
     def login_and_go(self, path=None, user=None, host=None, superuser=True, urlroot=None, tls=False, password=None,
                      legacy_authorized=None):
         href = path
@@ -623,7 +657,6 @@ class Browser:
         self.expect_load()
         self._wait_present('#content')
         self.wait_visible('#content')
-        self.adjust_window_for_fixed_content_size()
         if path:
             self.enter_page(path.split("#")[0], host=host)
 
@@ -658,7 +691,6 @@ class Browser:
         self.expect_load()
         self._wait_present('#content')
         self.wait_visible('#content')
-        self.adjust_window_for_fixed_content_size()
         if path:
             if path.startswith("/@"):
                 host = path[2:].split("/")[0]
@@ -671,15 +703,18 @@ class Browser:
         if (self.attr("#toggle-menu", "aria-expanded") != "true"):
             self.click("#toggle-menu")
 
+    def layout_is_mobile(self):
+        return self.current_layout["shell_size"][0] < 420
+
     def open_superuser_dialog(self):
-        if self.cdp.mobile:
+        if self.layout_is_mobile():
             self.open_session_menu()
             self.click("#super-user-indicator-mobile button")
         else:
             self.click("#super-user-indicator button")
 
     def check_superuser_indicator(self, expected):
-        if self.cdp.mobile:
+        if self.layout_is_mobile():
             self.open_session_menu()
             self.wait_text("#super-user-indicator-mobile", expected)
             self.click("#toggle-menu")
@@ -717,8 +752,6 @@ class Browser:
         (useful for remote hosts).
         '''
         self.switch_to_top()
-        if self.cdp.mobile:
-            self.click("#nav-system-item")
         self.click(f"#host-apps a[href='{path}']")
         if enter:
             # strip off parameters after hash
@@ -767,12 +800,42 @@ class Browser:
             attach(filename, move=True)
             print("Wrote HTML dump to " + filename)
 
-    def assert_pixels(self, selector, key, ignore=[]):
-        """Compare the given element with its reference"""
+    def _set_window_size(self, width, height):
+        self.cdp.invoke("Emulation.setDeviceMetricsOverride",
+                        width=width, height=height,
+                        deviceScaleFactor=0, mobile=False)
 
-        if not (Image and self.pixels_label and self.cdp and self.cdp.valid):
+    def set_layout(self, name):
+        layout = [lo for lo in self.layouts if lo["name"] == name][0]
+        if layout != self.current_layout:
+            self.current_layout = layout
+            size = layout["shell_size"]
+            self._set_window_size(size[0], size[1])
+            self._adjust_window_for_fixed_content_size()
+
+    def _adjust_window_for_fixed_content_size(self):
+        if self.eval_js("window.name").startswith("cockpit1:"):
+            # Adjust the window size further so that the content is
+            # exactly the expected size.  This will make sure that
+            # pixel tests of the content will not be affected by
+            # changes in shell navigation elements around it.  It is
+            # important that we do this only after getting the shell
+            # into about the right size so that it switches into the
+            # right layout mode.
+            shell_size = self.current_layout["shell_size"]
+            want_size = self.current_layout["content_size"]
+            have_size = self.eval_js("[ document.body.offsetWidth, document.body.offsetHeight ]")
+            delta = (want_size[0] - have_size[0], want_size[1] - have_size[1])
+            if delta[0] != 0 or delta[1] != 0:
+                self._set_window_size(shell_size[0] + delta[0], shell_size[1] + delta[1])
+
+    def assert_pixels_in_current_layout(self, selector, key, ignore=[]):
+        """Compare the given element with its reference in the current layout"""
+
+        if not (Image and self.pixels_label):
             return
 
+        self._adjust_window_for_fixed_content_size()
         self.call_js_func('ph_scrollIntoViewIfNeeded', selector)
         self.call_js_func('ph_blur_active')
 
@@ -814,8 +877,8 @@ class Browser:
 
         ignore_rects = relative_clips(list(map(lambda item: selector + " " + item, ignore)))
         base = self.pixels_label + "-" + key
-        if self.cdp.mobile:
-            base += "-mobile"
+        if self.current_layout != self.layouts[0]:
+            base += "-" + self.current_layout["name"]
         filename = base + "-pixels.png"
         ref_filename = os.path.join(reference_dir, filename)
         ret = self.cdp.invoke("Page.captureScreenshot", clip=rect, no_trace=True)
@@ -898,6 +961,19 @@ class Browser:
                 attach(delta_filename, move=True)
                 print("Differences in pixel test " + base)
                 self.failed_pixel_tests += 1
+
+    def assert_pixels(self, selector, key, ignore=[], skip_layouts=[]):
+        """Compare the given element with its reference in all layouts"""
+
+        if not (Image and self.pixels_label):
+            return
+
+        previous_layout = self.current_layout["name"]
+        for layout in self.layouts:
+            if layout["name"] not in skip_layouts:
+                self.set_layout(layout["name"])
+                self.assert_pixels_in_current_layout(selector, key, ignore=ignore)
+        self.set_layout(previous_layout)
 
     def get_js_log(self):
         """Return the current javascript log"""

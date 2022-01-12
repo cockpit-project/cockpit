@@ -56,8 +56,7 @@ class Browser(abc.ABC):
         raise SystemError(f"{self.name} is not installed")
 
     @abc.abstractmethod
-    def cmd(self, cdp_port, env, show_browser, window_width, window_height,
-            browser_home, download_dir):
+    def cmd(self, cdp_port, env, show_browser, browser_home, download_dir):
         pass
 
 
@@ -91,15 +90,14 @@ class Chromium(Browser):
 
         return None
 
-    def cmd(self, cdp_port, env, show_browser, window_width, window_height,
-            browser_home, download_dir):
+    def cmd(self, cdp_port, env, show_browser, browser_home, download_dir):
         exe = self.path(show_browser)
 
         return [exe, "--headless" if not show_browser else "", "--disable-gpu", "--no-sandbox", "--disable-setuid-sandbox",
                 "--disable-namespace-sandbox", "--disable-seccomp-filter-sandbox",
                 "--disable-sandbox-denial-logging", "--disable-pushstate-throttle",
                 "--font-render-hinting=none",
-                "--v=0", f"--window-size={window_width}x{window_height}", f"--remote-debugging-port={cdp_port}", "about:blank"]
+                "--v=0", f"--remote-debugging-port={cdp_port}", "about:blank"]
 
 
 class Firefox(Browser):
@@ -111,8 +109,7 @@ class Firefox(Browser):
         """Return path to Firefox browser."""
         return self.find_exe()
 
-    def cmd(self, cdp_port, env, show_browser, window_width, window_height,
-            browser_home, download_dir):
+    def cmd(self, cdp_port, env, show_browser, browser_home, download_dir):
         exe = self.path(show_browser)
 
         subprocess.check_call([exe, "--headless", "--no-remote", "-CreateProfile", "blank"], env=env)
@@ -137,10 +134,8 @@ class Firefox(Browser):
         with open(os.path.join(profile, "handlers.json"), "w") as f:
             f.write('{"defaultHandlersVersion":{"en-US":4},"mimeTypes":{"application/xz":{"action":0,"extensions":["xz"]}}}')
 
-        cmd = [exe, "-P", "blank", f"--window-size={window_width},{window_height}", f"--remote-debugging-port={cdp_port}", "--no-remote", "localhost"]
+        cmd = [exe, "-P", "blank", f"--remote-debugging-port={cdp_port}", "--no-remote", "localhost"]
         if not show_browser:
-            env["MOZ_HEADLESS_WIDTH"] = str(window_width)
-            env["MOZ_HEADLESS_HEIGHT"] = str(window_height)
             cmd.insert(3, "--headless")
         return cmd
 
@@ -161,7 +156,7 @@ def jsquote(str):
 
 
 class CDP:
-    def __init__(self, lang=None, verbose=False, trace=False, fixed_content_size=False, inject_helpers=[]):
+    def __init__(self, lang=None, verbose=False, trace=False, inject_helpers=[]):
         self.lang = lang
         self.timeout = 60
         self.valid = False
@@ -170,46 +165,11 @@ class CDP:
         self.inject_helpers = inject_helpers
         self.browser = get_browser(os.environ.get("TEST_BROWSER", "chromium"))
         self.show_browser = bool(os.environ.get("TEST_SHOW_BROWSER", ""))
-        self.mobile = bool(os.environ.get("TEST_MOBILE", ""))
         self.download_dir = tempfile.mkdtemp()
         self._driver = None
         self._browser = None
         self._browser_home = None
         self._cdp_port_lockfile = None
-
-        if fixed_content_size:
-
-            # We fix the size of the content iframe and then make the
-            # window large enough to fit the shell around it.  The
-            # content iframe size will be set later with
-            # "adjust_window_for_fixed_content_size" in testlib.py,
-            # after the shell has been loaded and we know how big it
-            # really is.
-            #
-            # The browser window needs to be big enough for the final
-            # adjusted size of shell plus content, but it also needs to be
-            # tight enough to trigger the right layout mode (desktop or
-            # mobile) from the start.
-
-            if not self.mobile:
-                self.content_width = 1680
-                self.content_height = 1130
-                self.window_width = self.content_width + 300
-                self.window_height = self.content_height + 300
-            else:
-                self.content_width = 414
-                self.content_height = 1856
-                self.window_width = self.content_width
-                self.window_height = self.content_height + 300
-
-        else:
-
-            if not self.mobile:
-                self.window_width = 1920
-                self.window_height = 1200
-            else:
-                self.window_width = 414
-                self.window_height = 1920
 
     def invoke(self, fn, **kwargs):
         """Call a particular CDP method such as Runtime.evaluate
@@ -316,7 +276,6 @@ class CDP:
                 pass
 
             cmd = self.browser.cmd(cdp_port, environ, self.show_browser,
-                                   self.window_width, self.window_height,
                                    self._browser_home, self.download_dir)
 
             # sandboxing does not work in Docker container

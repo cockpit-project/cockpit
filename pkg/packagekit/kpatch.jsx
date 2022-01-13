@@ -237,7 +237,7 @@ export class KpatchSettings extends React.Component {
 
         const body = <Checkbox id="apply-kpatch"
                                isChecked={this.state.applyCheckbox}
-                               label={_("Apply kernel patches")}
+                               label={_("Apply kernel live patches")}
                                onChange={checked => this.setState({ applyCheckbox: checked })}
                                body={<>
                                    <Radio id="current-future"
@@ -258,7 +258,7 @@ export class KpatchSettings extends React.Component {
                 <Flex alignItems={{ default: 'alignItemsCenter' }}>
                     <Flex grow={{ default: 'grow' }} alignItems={{ default: 'alignItemsBaseline' }}>
                         <FlexItem>
-                            <b>{_("Kernel patching")}</b>
+                            <b>{_("Kernel live patching")}</b>
                         </FlexItem>
                         <FlexItem>
                             {state}
@@ -275,7 +275,7 @@ export class KpatchSettings extends React.Component {
                 </Flex>
             </div>
             <Modal position="top" variant="small" id="kpatch-setup" isOpen={this.state.showModal}
-                title={_("Kernel patch settings")}
+                title={_("Kernel live patch settings")}
                 onClose={ this.onClose }
                 footer={
                     <>
@@ -342,14 +342,14 @@ export class KpatchStatus extends React.Component {
         let text = [];
         text = this.state.loaded.map(i =>
             <Text key={i} component={TextVariants.p}>
-                { cockpit.format(_("Kernel patch $0 is active"), i) }
+                { cockpit.format(_("Kernel live patch $0 is active"), i) }
             </Text>
         );
 
         if (text.length === 0)
             text = this.state.installed.map(i =>
                 <Text key={i} component={TextVariants.p}>
-                    { cockpit.format(_("Kernel patch $0 is installed"), i) }
+                    { cockpit.format(_("Kernel live patch $0 is installed"), i) }
                 </Text>
             );
 

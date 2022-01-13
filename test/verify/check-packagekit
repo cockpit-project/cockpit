@@ -172,7 +172,7 @@ class TestUpdates(NoSubManCase):
         b.wait_in_text("#kpatch-settings", "Disabled")
         b.click("#kpatch-settings button:contains('Enable')")
 
-        # Apply kernel patches for current and future kernels
+        # Apply kernel live patches for current and future kernels
         b.click("#apply-kpatch")
         b.wait_visible("#apply-kpatch:checked")
         b.wait_visible("#current-future:checked")
@@ -206,7 +206,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         b.wait_visible(".pf-c-badge:contains('patches')")
         b.click("button:contains('Install all updates')")
         b.click("button:contains('Continue')")
-        b.wait_in_text("#status", "Kernel patch kpatch_3_10_0_1062_1_1 is active")
+        b.wait_in_text("#status", "Kernel live patch kpatch_3_10_0_1062_1_1 is active")
 
         # Switch to 'for current kernel only'
         b.click("#kpatch-settings button:contains('Edit')")
@@ -254,7 +254,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         b.wait_in_text("#kpatch-settings", "Disabled")
         b.click("#kpatch-settings button:contains('Enable')")
 
-        # Apply kernel patches for current and future kernels
+        # Apply kernel live patches for current and future kernels
         b.click("#apply-kpatch")
         b.wait_visible("#apply-kpatch:checked")
         b.click("#current-only")

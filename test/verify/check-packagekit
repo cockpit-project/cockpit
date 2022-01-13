@@ -1121,8 +1121,13 @@ class TestKpatchInstall(NoSubManCase):
         m.start_cockpit()
         b.login_and_go("/updates")
         b.wait_visible("#status")
-        time.sleep(5)
-        b.wait_not_present("#kpatch-settings")
+        b.wait_in_text("#kpatch-settings", "Not available")
+        # show unavailable packages in popover
+        b.click("#kpatch-settings .ct-info-circle")
+        b.wait_in_text(".pf-c-popover", "Unavailable packages")
+        b.wait_in_text(".pf-c-popover", "kpatch-dnf")
+        b.click("#kpatch-settings .ct-info-circle")
+        b.wait_not_present(".pf-c-popover")
 
         dummy_service = "[Service]\nExecStart=/bin/sleep infinity\n[Install]\nWantedBy=multi-user.target\n"
         self.createPackage("kpatch", "999", "1", content={"/lib/systemd/system/kpatch.service": dummy_service})

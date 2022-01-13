@@ -103,6 +103,15 @@ skip() {
 }
 
 main() {
+    if [ $# = 0 ]; then
+        tap=''
+    elif [ $# = 1 -a "$1" = "--tap" ]; then
+        tap='1'
+    else
+        printf "usage: %s [--tap]\n" "$0" >&2
+        exit 1
+    fi
+
     cd "$(realpath -m "$0/../..")"
     if [ ! -e .git ]; then
         echo '1..0 # SKIP not in a git checkout'
@@ -113,8 +122,7 @@ main() {
     counter=0
 
     tests=($(compgen -A function 'test_'))
-    printf "1..%d\n" "${#tests[@]}"
-
+    [ -n "${tap}" ] && printf "1..%d\n" "${#tests[@]}"
 
     for test_function in ${tests[@]}; do
         path="/static-code/$(echo ${test_function} | tr '_' '-')"
@@ -133,6 +141,9 @@ main() {
             fail=1
         fi
 
+        # Only print output on failures or --tap mode
+        [ -n "${tap}" -o -n "${fail}" ] || continue
+
         # excluding the plan, this is the only output that we ever generate
         printf "%s %d %s%s\n" "${fail:+not }ok" "${counter}" "${path}" "${skip}"
         if [ -n "${output}" ]; then
@@ -143,4 +154,4 @@ main() {
     exit "${exit_status}"
 }
 
-main
+main "$@"

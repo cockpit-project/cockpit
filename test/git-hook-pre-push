@@ -35,7 +35,7 @@ check_commit() {
         cd "${tmpdir}"
         env -i git init -qb main .
         env -i git add .
-        ! test/static-code | grep '^[#n]'
+        test/static-code
     )
 
     # paranoia: make sure we delete what we think we will

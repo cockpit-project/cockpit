@@ -132,6 +132,8 @@ class Firefox(Browser):
                 user_pref("dom.navigation.locationChangeRateLimit.count", 9999);
                 // HACK: https://bugzilla.mozilla.org/show_bug.cgi?id=1746154
                 user_pref("fission.webContentIsolationStrategy", 0);
+                // HACK: https://bugzilla.mozilla.org/show_bug.cgi?id=1749908
+                user_pref("network.http.http3.enabled", false);
                 """.format(download_dir))
 
         with open(os.path.join(profile, "handlers.json"), "w") as f:

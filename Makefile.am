@@ -15,6 +15,7 @@ nodist_noinst_DATA =
 nodist_noinst_SCRIPTS =
 
 TESTS = \
+	test/check-dist \
 	test/static-code \
 	$(NULL)
 

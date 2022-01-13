@@ -70,13 +70,6 @@ test_unsafe_security_policy() {
     done
 }
 
-test_patternfly_font_paths() {
-    # Bad paths or modifications in patternfly for fonts
-
-    test -d dist || skip 'dist/ not built'
-    ! grep --color=auto -H -n "\.\./fonts/OpenSans\|fonts/.*eot\|truetype" -r dist
-}
-
 test_json_verify() {
     # Check all JSON files for validity
 

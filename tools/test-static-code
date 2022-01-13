@@ -8,58 +8,61 @@ set -eu
 # exit with status 77 is a skip, with the message in the output
 # otherwise, any output is a failure, even if exit status is 0
 
-#
-# Python files checks
-#
 find_python_files() {
+    # Helper to find all Python files in the tree
     (
+        # Any non-binary file which contains a python3 shebang
         git grep --cached -lIz '^#!.*python3'
+        # Any file ending in '.py'
         git ls-files -z '*.py'
     ) | sort -z | uniq -z
 }
 
-# files not in test/verify/
 test_pyflakes() {
+    # Run pyflakes on all Python files except those in test/verify/
+
     python3 -c 'import pyflakes' 2>/dev/null || skip 'no pyflakes'
     filter="undefined name '(Inotify|IN_[A-Z_]+)'" # inotify.py get pasted together with other files
     ! find_python_files | grep -zv '^test/verify' | xargs -r -0 python3 -m pyflakes 2>&1 | grep -Ev "${filter}"
 }
 
-# TODO: there are currently a lot of pyflakes errors like
-#   'parent' imported but unused
-#   'from testlib import *' used; unable to detect undefined names
-# Filter these out until these get fixed properly.
 test_pyflakes_test_verify() {
+    # Run pyflakes on all Python files in test/verify/
+
     python3 -c 'import pyflakes' 2>/dev/null || skip 'no pyflakes'
+
+    # TODO: there are currently a lot of pyflakes errors like
+    #   'parent' imported but unused
+    #   'from testlib import *' used; unable to detect undefined names
+    # Filter these out until these get fixed properly.
     filter="(unable to detect undefined names|defined from star imports|'parent' imported but unused)"
     ! find_python_files | grep -z '^test/verify' | xargs -r -0 python3 -m pyflakes 2>&1 | grep -Ev "${filter}"
 }
 
-# pycodestyle python syntax check
 test_pycodestyle() {
+    # pycodestyle python syntax check
+
     python3 -c 'import pycodestyle' 2>/dev/null || skip 'no pycodestyle'
     command -v pycodestyle >/dev/null || skip 'no pycodestyle'
     find_python_files | xargs -r -0 python3 -m pycodestyle --max-line-length=415 --ignore W504
 }
 
-#
-# wrongly marked translatable strings
-#
 test_js_translatable_strings() {
+    # Translatable strings must be marked with _(""), not _('')
+
     ! git grep -n -E "(gettext|_)\(['\`]" -- {src,pkg}/'*'.{js,jsx}
 }
 
 test_no_translatable_attr() {
+    # Use of translatable attribute in HTML: should be 'translate' instead
+
     ! git grep -n 'translatable=["'\'']yes' -- pkg doc
 }
 
-#
-# Unsafe content-security-policy
-#
-# It's dangerous to have 'unsafe-inline' or 'unsafe-eval' in our
-# content-security-policy entries. This is the browser equivalent
-# of setenforce 0
 test_unsafe_security_policy() {
+    # It's dangerous to have 'unsafe-inline' or 'unsafe-eval' in our
+    # content-security-policy entries.
+
     git grep -lIz -E 'content-security-policy.*(\*|unsafe)' 'pkg/*/manifest.json' | while read -d '' filename; do
         if test ! -f "$(dirname ${filename})/content-security-policy.override"; then
             echo "${filename} contains unsafe content security policy"
@@ -67,16 +70,16 @@ test_unsafe_security_policy() {
     done
 }
 
-#
-# Bad paths or modifications in patternfly for fonts
-#
 test_patternfly_font_paths() {
+    # Bad paths or modifications in patternfly for fonts
+
     test -d dist || skip 'dist/ not built'
     ! grep --color=auto -H -n "\.\./fonts/OpenSans\|fonts/.*eot\|truetype" -r dist
 }
 
-# Valid JSON files
 test_json_verify() {
+    # Check all JSON files for validity
+
     git ls-files -z '*.json' | while read -d '' filename; do
         python3 -m json.tool "${filename}" /dev/null 2>&1 | sed "s@^@${filename}: @"
     done
@@ -86,9 +89,9 @@ test_node_modules_freshness() {
     tools/node-modules test_static_code
 }
 
-# every C file should #include "config.h" at the top
 test_include_config_h() {
-    # every C file should #include "config.h" at the top
+    # Every C file should #include "config.h" at the top
+
     git ls-files -cz '*.c' | while read -d '' filename; do
         if sed -n '/^#include "config.h"$/q1; /^\s*#/q;' "${filename}"; then
             printf '%s: #include "config.h" is not the first line\n' "${filename}"

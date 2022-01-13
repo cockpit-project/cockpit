@@ -23,16 +23,19 @@ import {
     Alert, Button, Checkbox,
     Flex, FlexItem,
     Modal, Radio,
+    Popover,
+    Spinner,
     Split, SplitItem,
     Stack,
     Text, TextVariants
 } from "@patternfly/react-core";
-import { InfoIcon } from "@patternfly/react-icons";
+import { InfoIcon, InfoCircleIcon } from "@patternfly/react-icons";
 
 import cockpit from "cockpit";
 import { proxy as serviceProxy } from "service";
 import { check_missing_packages } from "packagekit.js";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
+import { read_os_release } from "os-release.js";
 
 const _ = cockpit.gettext;
 
@@ -42,6 +45,7 @@ export class KpatchSettings extends React.Component {
 
         this.state = {
             loaded: false,
+            showLoading: null, // true: show spinner during initialization; false: hide
             auto: null, // `dnf kpatch` is set to `auto`
             enabled: null, // kpatch.service is enabled
             missing: [], // missing packages from `kpatch`, `kpatch-dnf`
@@ -66,6 +70,9 @@ export class KpatchSettings extends React.Component {
         this.handleChange = this.handleChange.bind(this);
         this.onClose = this.onClose.bind(this);
         this.handleInstall = this.handleInstall.bind(this);
+
+        // only show a spinner during loading on RHEL (the only place where we expect this to work)
+        read_os_release().then(os_release => this.setState({ showLoading: os_release.ID == 'rhel' }));
     }
 
     // Only current patches or also future ones
@@ -211,25 +218,37 @@ export class KpatchSettings extends React.Component {
     }
 
     render() {
-        // Not yet recognized
-        if (this.state.loaded === false || this.state.patchName === null)
+        // don't show anything during initial detection
+        if ((this.state.loaded === false || this.state.patchName === null) && !this.state.showLoading)
             return null;
 
         // Not supported on this system
-        if (this.state.unavailable.length > 0)
+        if (this.state.unavailable.length > 0 && !this.state.showLoading)
             return null;
-
-        let state = _("Enabled");
+        let state;
         let actionText = _("Edit");
         let action = () => this.setState({ showModal: true });
 
-        if (this.state.missing.length > 0) {
+        if (this.state.loaded === false || this.state.patchName === null) {
+            // Not yet recognized
+            state = <Spinner isSVG size="md" />;
+        } else if (this.state.unavailable.length > 0) {
+            state = <Popover headerContent={ _("Unavailable packages") } bodyContent={ this.state.unavailable.join(", ") }>
+                <span>
+                    { _("Not available") }
+                    &nbsp;
+                    <InfoCircleIcon className="ct-info-circle" />
+                </span>
+            </Popover>;
+        } else if (this.state.missing.length > 0) {
             state = _("Not installed");
             actionText = _("Install");
             action = this.handleInstall;
         } else if (!this.state.enabled) {
             state = _("Disabled");
             actionText = _("Enable");
+        } else {
+            state = _("Enabled");
         }
 
         const kernel_name = this.state.kernelName ? " (" + this.state.kernelName + ")" : "";
@@ -267,7 +286,7 @@ export class KpatchSettings extends React.Component {
                     <Flex>
                         <Button variant="secondary"
                                 isSmall
-                                isDisabled={!this.props.privileged || this.state.updating}
+                                isDisabled={!this.props.privileged || this.state.updating || !this.state.loaded || this.state.unavailable.length > 0}
                                 onClick={action}>
                             {actionText}
                         </Button>

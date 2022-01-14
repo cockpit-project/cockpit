@@ -402,17 +402,6 @@ out:
   return ret;
 }
 
-static const gchar *
-type_option (const gchar *type,
-             const gchar *option,
-             const gchar *default_str)
-{
-  if (type && cockpit_conf_string (type, option))
-    return cockpit_conf_string (type, option);
-
-  return default_str;
-}
-
 static guint
 timeout_option (const gchar *name,
                 const gchar *type,
@@ -1075,7 +1064,7 @@ cockpit_session_launch (CockpitAuth *self,
   if (g_str_equal (section, COCKPIT_CONF_SSH_SECTION))
     {
       if (!host)
-        host = type_option (COCKPIT_CONF_SSH_SECTION, "host", "127.0.0.1");
+        host = cockpit_conf_string (COCKPIT_CONF_SSH_SECTION, "host") ?: "127.0.0.1";
 
       /* We capture stderr only for Cockpit Client; we don't want to
        * send log messages to potential remote attackers.

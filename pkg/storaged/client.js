@@ -24,6 +24,7 @@ import { superuser } from 'superuser';
 import * as utils from './utils';
 
 import * as python from "python.js";
+import { read_os_release } from "os-release.js";
 import inotify_py from "raw-loader!inotify.py";
 import nfs_mounts_py from "raw-loader!./nfs-mounts.py";
 import vdo_monitor_py from "raw-loader!./vdo-monitor.py";
@@ -431,34 +432,12 @@ client.update = () => {
     client.dispatchEvent("changed");
 };
 
-function parse_simple_vars(text) {
-    const res = { };
-    for (const l of text.split('\n')) {
-        const pos = l.indexOf('=');
-        if (pos > 0) {
-            const name = l.substring(0, pos);
-            let val = l.substring(pos + 1);
-            if (val[0] == '"' && val[val.length - 1] == '"')
-                val = val.substring(1, val.length - 1);
-            res[name] = val;
-        }
-    }
-    return res;
-}
-
-const simple_vars = { parse: parse_simple_vars };
-
 function init_model(callback) {
     function pull_time() {
         return cockpit.spawn(["date", "+%s"])
                 .then(function (now) {
                     client.time_offset = parseInt(now, 10) * 1000 - new Date().getTime();
                 });
-    }
-
-    function read_os_release() {
-        return cockpit.file("/etc/os-release", { syntax: simple_vars }).read()
-                .then(data => { client.os_release = data });
     }
 
     function enable_udisks_features() {
@@ -593,15 +572,15 @@ function init_model(callback) {
         }
     }
 
-    pull_time().then(function() {
-        read_os_release().then(function () {
-            enable_features().then(function() {
-                query_fsys_info().then(function(fsys_info) {
+    pull_time().then(() => {
+        read_os_release().then(os_release => {
+            client.os_release = os_release;
+
+            enable_features().then(() => {
+                query_fsys_info().then((fsys_info) => {
                     client.fsys_info = fsys_info;
 
-                    client.storaged_client.addEventListener('notify', function () {
-                        client.update();
-                    });
+                    client.storaged_client.addEventListener('notify', () => client.update());
 
                     client.update();
                     callback();

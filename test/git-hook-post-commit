@@ -30,3 +30,4 @@ fi
 
 # paranoia: make sure we delete what we think we will
 rm -rf "tmp/pre-push/${commit}"
+rmdir --ignore-fail-on-non-empty tmp/pre-push tmp

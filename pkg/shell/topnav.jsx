@@ -31,6 +31,7 @@ import { ActivePagesDialog } from "./active-pages-modal.jsx";
 import { CredentialsModal } from './credentials.jsx';
 import { AboutCockpitModal, LangModal, OopsModal } from "./shell-modals.jsx";
 import { SuperuserIndicator } from "./superuser.jsx";
+import { read_os_release } from "os-release.js";
 
 const _ = cockpit.gettext;
 
@@ -58,10 +59,13 @@ export class TopNav extends React.Component {
             docsOpened: false,
             menuOpened: false,
             showActivePages: false,
+            osRelease: {},
         };
 
         this.superuser_connection = cockpit.dbus(null, { bus: "internal", host: props.machine.connection_string });
         this.superuser = this.superuser_connection.proxy("cockpit.Superuser", "/superuser");
+
+        read_os_release().then(os => this.setState({ osRelease: os || {} }));
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
@@ -112,10 +116,9 @@ export class TopNav extends React.Component {
 
         const docItems = [];
 
-        const os_release = JSON.parse(window.localStorage['os-release'] || "{}");
-        if (os_release.DOCUMENTATION_URL)
-            docItems.push(<DropdownItem key="os-doc" href={os_release.DOCUMENTATION_URL} target="blank" rel="noopener noreferrer" icon={<ExternalLinkAltIcon />}>
-                {cockpit.format(_("$0 documentation"), os_release.NAME)}
+        if (this.state.osRelease.DOCUMENTATION_URL)
+            docItems.push(<DropdownItem key="os-doc" href={this.state.osRelease.DOCUMENTATION_URL} target="blank" rel="noopener noreferrer" icon={<ExternalLinkAltIcon />}>
+                {cockpit.format(_("$0 documentation"), this.state.osRelease.NAME)}
             </DropdownItem>);
 
         docItems.push(<DropdownItem key="cockpit-doc" href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/index" target="blank" rel="noopener noreferrer" icon={<ExternalLinkAltIcon />}>

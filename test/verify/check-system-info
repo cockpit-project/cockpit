@@ -130,6 +130,11 @@ class TestSystemInfo(MachineCase):
 
         self.check_axe()
 
+        # Health card can contain only one item - it normally is "Loading available updates fail"
+        # But sometimes it also contains information about failed services which breaks mobile pixel tests
+        m.execute("systemctl reset-failed")
+        b.wait_not_present("#page_status_notification_system_services")
+
         # ensure general page/card layout without the changing specifics
         b.assert_pixels("#overview", "overview", ignore=[
             ".system-health .pf-c-card__body",

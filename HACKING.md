@@ -115,6 +115,10 @@ that will fail on trivial errors:
 
 This calls `test/static-code` for each commit you're trying to push.
 
+You can also set up a post-commit hook to do the same, after each commit:
+
+    $ ln -s ../../test/git-hook-post-commit .git/hooks/post-commit
+
 ## Running the integration test suite
 
 Refer to the [testing README](test/README.md) for details on running the Cockpit

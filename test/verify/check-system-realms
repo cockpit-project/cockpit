@@ -475,6 +475,9 @@ class TestRealms(MachineCase):
         self.domain_sel = "#system_information_domain_button"
         self.machine.execute("hostnamectl set-hostname x0.cockpit.lan")
 
+        # realmd times out on inactivity, which occasionally races with the proxy
+        self.allow_journal_messages("couldn't get all properties of org.freedesktop.realmd.Service.*org.freedesktop.DBus.Error.NoReply: Remote peer disconnected")
+
 
 @skipImage("freeipa not currently available", "debian-stable", "debian-testing", "arch")
 @skipDistroPackage()

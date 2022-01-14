@@ -8,6 +8,8 @@ set -eu
 # exit with status 77 is a skip, with the message in the output
 # otherwise, any output is a failure, even if exit status is 0
 
+# note: `set -e` is not active during the tests.
+
 find_python_files() {
     # Helper to find all Python files in the tree
     (

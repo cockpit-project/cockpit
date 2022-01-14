@@ -31,6 +31,7 @@ import {
 import { RebootingIcon } from "@patternfly/react-icons";
 
 import * as PackageKit from "./packagekit.js";
+import { read_os_release } from "os-release.js";
 import { icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
 import { ActionButton } from "./application.jsx";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
@@ -108,12 +109,11 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
     }
 
     function refresh() {
-        const distro_id = JSON.parse(window.localStorage['os-release'] || "{}").ID;
-
-        PackageKit.refresh(metainfo_db.origin_files,
-                           get_config('appstream_config_packages', distro_id, []),
-                           get_config('appstream_data_packages', distro_id, []),
-                           setProgress)
+        read_os_release().then(os_release =>
+            PackageKit.refresh(metainfo_db.origin_files,
+                               get_config('appstream_config_packages', os_release.ID, []),
+                               get_config('appstream_data_packages', os_release.ID, []),
+                               setProgress))
                 .finally(() => setProgress(false))
                 .catch(show_error);
     }

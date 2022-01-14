@@ -345,10 +345,6 @@
             el.focus();
         });
 
-        const os_release = environment["os-release"];
-        if (os_release)
-            localStorage.setItem('os-release', JSON.stringify(os_release));
-
         const logout_intent = window.sessionStorage.getItem("logout-intent") == "explicit";
         if (logout_intent)
             window.sessionStorage.removeItem("logout-intent");

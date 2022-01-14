@@ -21,9 +21,10 @@ fi
 # if any of the following commands fail, the function
 # will abort, leaving the temp directory in place
 (
+    unset -- $(env | sed -n '/^GIT_/{s/=.*//p}')
     cd "${tmpdir}"
-    env -i git init -qb main .
-    env -i git add .
+    git init -qb main .
+    git add .
     test/static-code
 )
 

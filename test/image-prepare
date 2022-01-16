@@ -52,16 +52,16 @@ def main():
     # The basic operating system we're preparing on top of. Never written to
     base_image = args.image
 
-    # The image we're going to build in. This image is never written to
-    build_image = None
-    if not args.install_only:
-        build_image = testvm.get_build_image(args.build_image or base_image)
-
     # Depending on the operating system ignore some things
     skips = []
     if args.address:
         skips.append("cockpit-tests")
         args.install_only = True
+
+    # The image we're going to build in. This image is never written to
+    build_image = None
+    if not args.install_only and not args.incremental:
+        build_image = testvm.get_build_image(args.build_image or base_image)
 
     if args.install_only and args.build_only:
         sys.stderr.write("image-prepare: use of --install-only with --build-only is incompatible\n")
@@ -86,8 +86,11 @@ def main():
     try:
         if not args.install_only:
             build_and_install(build_image, results, skips, args)
-        if not args.build_only and build_image != base_image:
-            only_install(base_image, results, skips, args)
+
+        if args.address:
+            install_into_existing(base_image, results, skips, args)
+        elif not args.build_only and build_image != base_image:
+            create_and_install(base_image, results, skips, args)
     except (RuntimeError, testvm.Failure) as ex:
         sys.stderr.write("image-prepare: {0}\n".format(str(ex)))
         return 2
@@ -188,32 +191,37 @@ def build_and_install(build_image, build_results, skips, args):
             machine.stop()
 
 
-def only_install(image, build_results, skips, args):
-    """Install Cockpit into a test image"""
-    started = False
-    if args.address:
-        machine = testvm.Machine(address=args.address, verbose=args.verbose, image=image)
-    else:
-        target, overlay = prepare_install_image(image, args.overlay)
-        machine = testvm.VirtMachine(verbose=args.verbose, image=(overlay or target), networking=networking, maintain=True)
-        machine.start()
-        started = True
-    completed = False
+def do_install(machine, build_results, skips, args):
     try:
-        if started:
-            machine.wait_boot()
         upload_scripts(machine, args=args)
         machine.execute("rm -rf /var/tmp/build-results")
         machine.upload([build_results], "/var/tmp/build-results")
         run_install_script(machine, False, True, skips, None, args)
-        finalize_image(target, overlay)
-        completed = True
-    finally:
-        if not completed and args.sit:
+    except Exception:
+        if args.sit:
             sys.stderr.write(machine.diagnose())
             input("Press RET to continue... ")
-        if started:
-            machine.stop()
+        raise
+
+
+def install_into_existing(image, build_results, skips, args):
+    """Install Cockpit into an already-running VM"""
+    machine = testvm.Machine(address=args.address, verbose=args.verbose, image=image)
+    do_install(machine, build_results, skips, args)
+
+
+def create_and_install(image, build_results, skips, args):
+    """Create a new test image, with Cockpit installed"""
+    target, overlay = prepare_install_image(image, args.overlay)
+    machine = testvm.VirtMachine(verbose=args.verbose, image=(overlay or target), networking=networking, maintain=True)
+    try:
+        machine.start()
+        machine.wait_boot()
+        do_install(machine, build_results, skips, args)
+    finally:
+        machine.stop()
+
+    finalize_image(target, overlay)
 
 
 if __name__ == "__main__":

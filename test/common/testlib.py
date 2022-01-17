@@ -113,7 +113,7 @@ def attach(filename, move=False):
 class Browser:
     def __init__(self, address, label, machine, pixels_label=None, port=None):
         if ":" in address:
-            (self.address, unused, self.port) = address.rpartition(":")
+            self.address, _, self.port = address.rpartition(":")
         else:
             self.address = address
             self.port = 9090

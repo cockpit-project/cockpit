@@ -59,9 +59,9 @@ def out(data, stream=None, flush=False):
 
 def terminal_width():
     try:
-        h, w, hp, wp = struct.unpack('HHHH',
-                                     fcntl.ioctl(1, termios.TIOCGWINSZ,
-                                                 struct.pack('HHHH', 0, 0, 0, 0)))
+        h, w, _hp, _wp = struct.unpack('HHHH',
+                                       fcntl.ioctl(1, termios.TIOCGWINSZ,
+                                                   struct.pack('HHHH', 0, 0, 0, 0)))
         return w
     except IOError as e:
         if e.errno != errno.ENOTTY:
@@ -195,7 +195,7 @@ class TapDriver(Driver):
             self.late_plan = False
 
         # Parse out a number and then description
-        (num, unused, description) = data.partition(" ")
+        num, _, description = data.partition(" ")
         try:
             num = int(num)
         except ValueError:
@@ -223,7 +223,7 @@ class TapDriver(Driver):
             return
 
         try:
-            (first, unused, last) = line.partition("..")
+            first, _, last = line.partition("..")
             first = int(first)
             last = int(last)
         except ValueError:
@@ -242,7 +242,7 @@ class TapDriver(Driver):
             self.output += output.decode("UTF-8")
         elif self.output:
             self.output += "\n"
-        (ready, unused, self.output) = self.output.rpartition("\n")
+        ready, _, self.output = self.output.rpartition("\n")
         for line in ready.split("\n"):
             if line.startswith("ok "):
                 self.consume_test_line(True, line[3:])
@@ -368,7 +368,7 @@ class YesNoAction(argparse.Action):
         argparse.Action.__init__(self, option_strings, dest, **kwargs)
         self.metavar = "[yes|no]"
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(self, parser, namespace, values, _option_string):
         if not values or "yes" in values:
             setattr(namespace, self.dest, True)
         else:

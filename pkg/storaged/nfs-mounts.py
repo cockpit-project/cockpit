@@ -30,7 +30,7 @@ class Watcher:
         self.wd = self.inotify.add_watch(self.path, IN_CLOSE_WRITE)
 
     def process(self, callback=None):
-        def event(wd, mask, name):
+        def event(_wd, mask, name):
             if callback:
                 callback()
             if mask & IN_IGNORED:

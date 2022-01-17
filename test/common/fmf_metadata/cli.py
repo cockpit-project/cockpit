@@ -11,7 +11,7 @@ from fmf_metadata.base import (
 from fmf_metadata.constants import MAIN_FMF, CONFIG_FMF_FILE
 
 # disable references inside yaml files
-setattr(yaml.SafeDumper, "ignore_aliases", lambda *args: True)
+setattr(yaml.SafeDumper, "ignore_aliases", lambda *_args: True)
 
 
 def arg_parser():

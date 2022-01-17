@@ -50,7 +50,7 @@ class BrowserTest(unittest.TestCase):
 
         # wait for window actions to populate
         actions = set(self.win_actions.list_actions())
-        handler = self.win_actions.connect('action-added', lambda group, name: actions.add(name))
+        handler = self.win_actions.connect('action-added', lambda _group, name: actions.add(name))
         main = GLib.MainContext.default()
         while not actions:
             main.iteration(True)
@@ -69,7 +69,7 @@ class BrowserTest(unittest.TestCase):
 
         result = None
 
-        def on_done(group, name, value):
+        def on_done(_group, name, value):
             # cockpit-client resets the value to '' initially, to guarantee that a Changed signal happens
             # even when two consecutive run-js calls have the same result
             v = value.get_string()

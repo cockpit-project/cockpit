@@ -78,7 +78,7 @@ license_ids = template_licenses(template)
 dist_copyrights = {}  # Files: dirglob → set(copyrights)
 dist_licenses = {}  # Files: dirglob → set(licenses)
 
-for directory, subdirs, files in os.walk('dist'):
+for directory, _subdirs, files in os.walk('dist'):
     for file in files:
         if not file.endswith('.LICENSE.txt'):
             continue

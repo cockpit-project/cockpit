@@ -45,6 +45,7 @@ def main():
     parser.add_argument('-b', '--build-image', action='store', help='Build in this image')
     parser.add_argument('-B', '--build-only', action='store_true', help='Only build and download results')
     parser.add_argument('-I', '--install-only', action='store_true', help='Only upload and install')
+    parser.add_argument('-i', '--build-in-place', action='store_true', help='Build in the current working directory (experimental, rpm-only)')
     parser.add_argument('-c', '--containers', action='store_true', help='Install container images')
     parser.add_argument('--address', help='Address of already running machine, implies --install-only')
     parser.add_argument('image', nargs='?', default=testvm.DEFAULT_IMAGE, help='The image to use')
@@ -61,7 +62,7 @@ def main():
 
     # The image we're going to build in. This image is never written to
     build_image = None
-    if not args.install_only and not args.incremental:
+    if not args.install_only and not args.build_in_place:
         build_image = testvm.get_build_image(args.build_image or base_image)
 
     if args.install_only and args.build_only:
@@ -87,7 +88,9 @@ def main():
         return 1
 
     try:
-        if not args.install_only:
+        if args.build_in_place:
+            build_in_place(results, args)
+        elif not args.install_only:
             build_and_install(build_image, results, skips, args)
 
         if args.address:
@@ -99,6 +102,15 @@ def main():
         return 2
 
     return 0
+
+
+def build_in_place(results, args):
+    cmd = [f'{BASE_DIR}/tools/make-rpms', '--build-in-place']
+    if args.quick:
+        cmd.append('--quick')
+    if args.verbose:
+        cmd.append('--verbose')
+    subprocess.check_call(cmd, cwd=results, stdout=subprocess.DEVNULL)
 
 
 def upload_scripts(machine, args):

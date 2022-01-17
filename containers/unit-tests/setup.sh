@@ -46,6 +46,7 @@ dependencies="\
     ssh \
     strace \
     valgrind \
+    vulture \
     xmlto \
     xsltproc \
 "

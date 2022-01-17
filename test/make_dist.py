@@ -23,9 +23,6 @@ import sys
 import argparse
 
 
-CACHE_REPO = os.getenv("GITHUB_BASE", "cockpit-project/cockpit") + "-dist"
-
-
 def message(*args):
     print(*args, file=sys.stderr)
 

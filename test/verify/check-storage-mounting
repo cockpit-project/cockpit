@@ -22,18 +22,6 @@ from storagelib import *
 from testlib import *
 
 
-storaged_debug_service = """
-[Unit]
-Description=Storaged
-Documentation=man:storaged(8)
-
-[Service]
-Type=dbus
-BusName=org.storaged.Storaged
-ExecStart=/usr/lib/storaged/storaged
-"""
-
-
 class TestStorageMounting(StorageCase):
 
     def testMounting(self):

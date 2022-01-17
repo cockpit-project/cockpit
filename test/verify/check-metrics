@@ -1140,7 +1140,7 @@ class TestGrafanaClient(MachineCase):
 
             # Switch to "Dashboards" tab, import "Host Overview"
             bg.click(".page-header__tabs a[href$='/dashboards']")
-            bg.click("table:contains('PCP Redis: Host Overview') button")
+            bg.click("tr:contains('PCP Redis: Host Overview') button")
 
             # .. and the dashboard name becomes clickable
             bg.click("a:contains('PCP Redis: Host Overview')")

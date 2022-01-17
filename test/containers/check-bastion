@@ -29,7 +29,7 @@ PUB_AUTH_KEY = "{}.pub".format(AUTH_KEY)
 
 class BastionContainerMachine(VirtMachine):
 
-    def start_cockpit(self, *args, **kwargs):
+    def start_cockpit(self, **kwargs):
         extra = ""
         if kwargs.get("key_based"):
             extra = " -e COCKPIT_SSH_KEY_PATH='/var/secret/enc_rsa' -v /tmp/enc_rsa:/var/secret/enc_rsa:Z"

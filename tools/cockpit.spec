@@ -178,6 +178,7 @@ make -j$(nproc) %{?extra_flags} all
 
 %if 0%{?with_selinux}
     make -f /usr/share/selinux/devel/Makefile cockpit.pp
+    rm -f cockpit.pp.bz2
     bzip2 -9 cockpit.pp
 %endif
 

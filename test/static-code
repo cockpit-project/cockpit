@@ -48,6 +48,16 @@ test_pycodestyle() {
     find_python_files | xargs -r -0 python3 -m pycodestyle --max-line-length=415 --ignore W504
 }
 
+test_pyvulture() {
+    # vulture to find unused variables/functions
+
+    python3 -c 'import vulture' 2>/dev/null || skip 'no python3-vulture'
+    find_python_files | xargs -r -0 python3 -m vulture \
+        --min-confidence "${VULTURE_CONFIDENCE:-100}" \
+        --ignore-names 'do_*,test[A-Z0-9]*,__*__' \
+        --ignore-decorators '@*'
+}
+
 test_js_translatable_strings() {
     # Translatable strings must be marked with _(""), not _('')
 

@@ -94,7 +94,7 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
     def go_forward(self, *args):
         self.webview.go_forward()
 
-    def decide_policy(self, view, decision, decision_type):
+    def decide_policy(self, _view, decision, decision_type):
         if decision_type == WebKit2.PolicyDecisionType.NEW_WINDOW_ACTION:
             uri = decision.get_navigation_action().get_request().get_uri()
             if uri.startswith('http://127'):
@@ -108,15 +108,15 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
 
         return False
 
-    def zoom(self, action, parameter, *unused):
+    def zoom(self, _action, parameter, *_unused):
         current = self.webview.get_zoom_level()
         factors = {'in': current * 1.1, 'default': 1.0, 'out': current * 0.9}
         self.webview.set_zoom_level(factors[parameter.get_string()])
 
-    def open_inspector(self, *unused):
+    def open_inspector(self, *_unused):
         self.webview.get_inspector().show()
 
-    def run_js(self, action, parameter, *unused):
+    def run_js(self, action, parameter, *_unused):
         '''Run given JavaScript code in the current page/context
 
         The JS code has to return a scalar value immediately. To process asynchronous
@@ -155,7 +155,7 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
         uc_manager = self.webview.get_user_content_manager()
         on_result_handler = uc_manager.connect(
             "script-message-received::result",
-            lambda mgr, result: set_result(result.get_js_value().to_string()))
+            lambda _mgr, result: set_result(result.get_js_value().to_string()))
         uc_manager.register_script_message_handler("result")
 
         # wait for loads to complete, to avoid races and ensure that it did not fail

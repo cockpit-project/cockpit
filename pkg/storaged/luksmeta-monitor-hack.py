@@ -121,7 +121,7 @@ def monitor(dev):
         if mon:
             mon.terminate()
 
-    def sigexit(signo, stack):
+    def sigexit(_signo, _stack):
         killmon()
         os._exit(0)
 

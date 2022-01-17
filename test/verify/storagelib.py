@@ -225,7 +225,7 @@ class StorageHelpers:
         tab = self.content_tab_expand(row_index, tab_index)
         return tab + f" dt:contains({title})"
 
-    def content_tab_info_action(self, row_index, tab_index, title, wrapped=False):
+    def content_tab_info_action(self, row_index, tab_index, title):
         label = self.content_tab_info_label(row_index, tab_index, title)
         link = label + " + dd button.pf-m-link"
         self.browser.click(link)
@@ -309,9 +309,6 @@ class StorageHelpers:
     def dialog_wait_error(self, field, val):
         # XXX - allow for more than one error
         self.browser.wait_in_text('#dialog .pf-c-form__helper-text.pf-m-error', val)
-
-    def dialog_wait_not_visible(self, field):
-        self.browser.wait_not_visible(self.dialog_field(field))
 
     def dialog_wait_not_present(self, field):
         self.browser.wait_not_present(self.dialog_field(field))
@@ -484,9 +481,6 @@ class StorageHelpers:
     def wait_in_child_configuration(self, dev, tab, field, text):
         self.browser.wait(lambda: text in self.child_configuration_field(dev, tab, field))
 
-    def wait_not_in_child_configuration(self, dev, tab, field, text):
-        self.browser.wait(lambda: text not in self.child_configuration_field(dev, tab, field))
-
     def lvol_child_configuration_field(self, lvol, tab, field):
         all = self.udisks_objects()
         for path in all:
@@ -556,7 +550,6 @@ class StorageCase(MachineCase, StorageHelpers):
             self.skipTest("No udisks/cockpit-storaged on OSTree images")
 
         super().setUp()
-        self.storagectl_cmd = "udisksctl"
 
         ver = self.machine.execute("busctl --system get-property org.freedesktop.UDisks2 /org/freedesktop/UDisks2/Manager org.freedesktop.UDisks2.Manager Version || true")
         m = re.match('s "(.*)"', ver)
@@ -570,12 +563,6 @@ class StorageCase(MachineCase, StorageHelpers):
             self.default_crypto_type = "luks2"
         else:
             self.default_crypto_type = "luks1"
-
-        if "debian" in self.machine.image or "ubuntu" in self.machine.image:
-            # Debian's udisks has a patch to use FHS /media directory
-            self.mount_root = "/media"
-        else:
-            self.mount_root = "/run/media"
 
         # starting out with empty PCP logs and pmlogger not running causes these metrics channel messages
         self.allow_journal_messages("pcp-archive: no such metric: disk.*")

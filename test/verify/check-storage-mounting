@@ -83,7 +83,7 @@ ExecStart=/usr/bin/sleep infinity
         self.dialog({"name": "filesystem"})
         self.content_tab_wait_in_info(1, 1, "Name", "filesystem")
 
-        self.dialog_with_retry(trigger=lambda: self.content_tab_info_action(1, 1, "Mount point", wrapped=True),
+        self.dialog_with_retry(trigger=lambda: self.content_tab_info_action(1, 1, "Mount point"),
                                expect={"mount_point": mount_point_foo},
                                values={"mount_point": mount_point_bar})
         self.wait_in_configuration("/dev/sda", "fstab", "dir", mount_point_bar)
@@ -390,7 +390,7 @@ ExecStart=/usr/bin/sleep infinity
         self.assertNotEqual(m.execute("grep noauto /etc/crypttab"), "")
 
         # As should updating the mount information
-        self.content_tab_info_action(1, 1, "Mount point", wrapped=True)
+        self.content_tab_info_action(1, 1, "Mount point")
         self.dialog_check({"mount_options.extra": False})
         self.dialog_apply()
         self.dialog_wait_close()

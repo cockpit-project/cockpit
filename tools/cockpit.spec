@@ -161,7 +161,6 @@ Recommends: subscription-manager-cockpit
 %setup -q -n cockpit-%{version}
 
 %build
-exec 2>&1
 %configure \
     --disable-silent-rules \
     --with-cockpit-user=cockpit-ws \

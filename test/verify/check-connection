@@ -629,13 +629,13 @@ class TestConnection(MachineCase):
                 m.execute("rpm --erase cockpit cockpit-ws")
 
         # upgrade from distro version (our images have cockpit-ws preinstalled) sets up dynamic motd/issue symlink
-        self.assertEqual(m.execute("readlink /etc/motd.d/cockpit").strip(), "/run/cockpit/motd")
-        self.assertEqual(m.execute("readlink /etc/issue.d/cockpit.issue").strip(), "/run/cockpit/motd")
+        self.assertIn('Activate the web console', m.execute("cat /etc/motd.d/cockpit"))
+        self.assertIn('Activate the web console', m.execute("cat /etc/issue.d/cockpit.issue"))
 
         # package upgrade keeps them
         install()
-        self.assertEqual(m.execute("readlink /etc/motd.d/cockpit").strip(), "/run/cockpit/motd")
-        self.assertEqual(m.execute("readlink /etc/issue.d/cockpit.issue").strip(), "/run/cockpit/motd")
+        self.assertIn('Activate the web console', m.execute("cat /etc/motd.d/cockpit"))
+        self.assertIn('Activate the web console', m.execute("cat /etc/issue.d/cockpit.issue"))
 
         # HACK: On Arch Linux the symlink is overwritten, bug?
         if m.image != "arch":
@@ -652,8 +652,9 @@ class TestConnection(MachineCase):
 
         # fresh install (most of our test images have cockpit-ws preinstalled, so the first test above does not cover that)
         install()
-        self.assertEqual(m.execute("readlink /etc/motd.d/cockpit").strip(), "/run/cockpit/motd")
-        self.assertEqual(m.execute("readlink /etc/issue.d/cockpit.issue").strip(), "/run/cockpit/motd")
+        # verify that we installed relative links in the new package
+        self.assertEqual(m.execute("readlink /etc/motd.d/cockpit").strip(), "../../run/cockpit/motd")
+        self.assertEqual(m.execute("readlink /etc/issue.d/cockpit.issue").strip(), "../../run/cockpit/motd")
 
     @skipImage("OSTree doesn't have cockpit-ws", "fedora-coreos")
     def testCommandline(self):

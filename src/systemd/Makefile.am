@@ -23,9 +23,9 @@ dist_motd_SCRIPTS = src/systemd/update-motd
 # Automake: 'Variables using ... ‘sysconf’ ... are installed by install-exec.'
 install-exec-hook::
 	mkdir -p $(DESTDIR)$(sysconfdir)/motd.d
-	ln -snf /run/cockpit/motd $(DESTDIR)$(sysconfdir)/motd.d/cockpit
+	ln -sTfr $(DESTDIR)/run/cockpit/motd $(DESTDIR)$(sysconfdir)/motd.d/cockpit
 	mkdir -p $(DESTDIR)$(sysconfdir)/issue.d
-	ln -snf /run/cockpit/motd $(DESTDIR)$(sysconfdir)/issue.d/cockpit.issue
+	ln -sTfr $(DESTDIR)/run/cockpit/motd $(DESTDIR)$(sysconfdir)/issue.d/cockpit.issue
 
 tempconfdir = $(prefix)/lib/tmpfiles.d
 nodist_tempconf_DATA = src/systemd/cockpit-tempfiles.conf

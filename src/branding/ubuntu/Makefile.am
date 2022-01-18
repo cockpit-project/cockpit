@@ -9,4 +9,4 @@ EXTRA_DIST += $(ubuntubranding_DATA)
 
 # Opportunistically use plymouth ubuntu logo
 install-data-hook::
-	ln -sf /usr/share/plymouth/ubuntu-logo.png $(DESTDIR)$(ubuntubrandingdir)/logo.png
+	ln -sTfr $(DESTDIR)usr/share/plymouth/ubuntu-logo.png $(DESTDIR)$(ubuntubrandingdir)/logo.png

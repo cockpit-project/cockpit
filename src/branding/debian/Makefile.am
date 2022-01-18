@@ -8,5 +8,5 @@ EXTRA_DIST += $(debianbranding_DATA)
 
 # Opportunistically use debconf debian logos
 install-data-hook::
-	ln -sf /usr/share/pixmaps/debian-logo.png $(DESTDIR)$(debianbrandingdir)/logo.png
-	ln -sf /usr/share/pixmaps/debian-logo.png $(DESTDIR)$(debianbrandingdir)/favicon.ico
+	ln -sTfr $(DESTDIR)usr/share/pixmaps/debian-logo.png $(DESTDIR)$(debianbrandingdir)/logo.png
+	ln -sTfr $(DESTDIR)usr/share/pixmaps/debian-logo.png $(DESTDIR)$(debianbrandingdir)/favicon.ico

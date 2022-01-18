@@ -19,8 +19,9 @@
 import argparse
 import errno
 import os
-import sys
+import shutil
 import subprocess
+import sys
 
 import make_dist
 
@@ -68,6 +69,8 @@ def main():
         return 2
 
     results = os.path.abspath("tmp/build-results")
+    shutil.rmtree(results, ignore_errors=True)
+    os.makedirs(results)  # throws if rm failed
 
     # Make sure any images are downloaded
     try:
@@ -183,9 +186,6 @@ def build_and_install(build_image, build_results, skips, args):
             sys.stderr.write(machine.diagnose())
             input("Press RET to continue... ")
         try:
-            if os.path.exists(build_results):
-                subprocess.check_call(["rm", "-rf", build_results])
-            os.makedirs(build_results)
             machine.download("/var/tmp/build-results/*", build_results)
         finally:
             machine.stop()

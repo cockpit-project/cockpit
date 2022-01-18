@@ -22,16 +22,20 @@ base=$(cd $(dirname $0)/../; pwd -P)
 
 usage()
 {
-    echo "usage: make-rpms [--quick] [--verbose] [tarball]"
+    echo "usage: make-rpms [--quick] [--verbose] [--build-in-place | tarball]"
 }
 
+build_in_place=""
 quiet="--quiet"
 check=""
 
-args=$(getopt -o "h,q,v" -l "help,quick,verbose" -- "$@")
+args=$(getopt -o "h,i,q,v" -l "help,build-in-place,quick,verbose" -- "$@")
 eval set -- "$args"
 while [ $# -gt 0 ]; do
     case $1 in
+    -i|--build-in-place)
+        build_in_place=1
+        ;;
     -v|--verbose)
         quiet=""
         ;;
@@ -50,22 +54,59 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-if [ $# -gt 1 ]; then
+if [ $# -gt 1 -o $# = 1 -a -n "${build_in_place}" ]; then
     usage
     exit 2
 fi
 
-srpm="$($base/tools/make-srpm ${1-})"
-
 tmpdir=$(mktemp -d $PWD/rpm-build.XXXXXX)
+
+if [ -n "${build_in_place}" ]; then
+    test -f "${base}/configure" || NOCONFIGURE=1 "${base}/autogen.sh"
+    version="$(sed -n "s/^PACKAGE_VERSION='\(.*\)'\$/\1/p" "${base}/configure")"
+    test -n "${version}"
+
+    spec="${tmpdir}/cockpit.spec"
+    sed "s/^Version:.*$/Version: ${version}/" "${base}/tools/cockpit.spec" > "${spec}"
+    "${base}/tools/gen-spec-dependencies" "${spec}"
+
+    # unfortunately, this can't contain newlines
+    ensure_configured='ensure_configured() { \
+        args_checksum="$(echo "$*" | sha256sum - | cut -c1-64)"; \
+        test -f Makefile -a config.checksum -nt Makefile && \
+            test "$(cat config.checksum)" = "${args_checksum}" && \
+                return; \
+        test -f Makefile && make distclean; \
+        ./configure "$@"; \
+        echo "${args_checksum}" > config.checksum; \
+    }; \
+    ensure_configured'
+
+    defines=(
+        --define "_build_in_place 1"
+        --define "_builddir $base"
+        # the gnuconfig hack doesn't apply to Cockpit and is broken with our configure tricks
+        --define "_configure_gnuconfig_hack 0"
+        --define "_configure ${ensure_configured}"
+        # add 'wip' to version number
+        --define "wip wip"
+    )
+    cmd="-bb ${spec}"
+else
+    defines=(
+        --define "_builddir $tmpdir"
+    )
+    srpm="$($base/tools/make-srpm ${1-})"
+    cmd="-rb ${srpm}"
+fi
+
 rpmbuild $check $quiet \
     --define "_sourcedir $tmpdir" \
     --define "_specdir $tmpdir" \
-    --define "_builddir $tmpdir" \
     --define "_srcrpmdir $tmpdir" \
     --define "_rpmdir $tmpdir/output" \
     --define "_buildrootdir $tmpdir/build" \
-    -rb $srpm
+    "${defines[@]}" ${cmd}
 
 find $tmpdir/output -name '*.rpm' -printf '%f\n' -exec mv {} . \;
 rm -r $tmpdir

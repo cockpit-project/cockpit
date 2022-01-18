@@ -58,14 +58,14 @@ fi
 srpm="$($base/tools/make-srpm ${1-})"
 
 tmpdir=$(mktemp -d $PWD/rpm-build.XXXXXX)
-rpmbuild --rebuild $check $quiet \
+rpmbuild $check $quiet \
     --define "_sourcedir $tmpdir" \
     --define "_specdir $tmpdir" \
     --define "_builddir $tmpdir" \
     --define "_srcrpmdir $tmpdir" \
     --define "_rpmdir $tmpdir/output" \
     --define "_buildrootdir $tmpdir/build" \
-    $srpm
+    -rb $srpm
 
 find $tmpdir/output -name '*.rpm' -printf '%f\n' -exec mv {} . \;
 rm -r $tmpdir

@@ -174,7 +174,7 @@ exec 2>&1
     --disable-ssh \
 %endif
 
-make -j4 %{?extra_flags} all
+make -j$(nproc) %{?extra_flags} all
 
 %if 0%{?with_selinux}
     make -f /usr/share/selinux/devel/Makefile cockpit.pp

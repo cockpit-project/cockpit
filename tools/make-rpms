@@ -101,6 +101,7 @@ else
 fi
 
 rpmbuild $check $quiet \
+    --define "_topdir $tmpdir" \
     --define "_sourcedir $tmpdir" \
     --define "_specdir $tmpdir" \
     --define "_srcrpmdir $tmpdir" \

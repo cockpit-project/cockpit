@@ -19,7 +19,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-04 18:03+0000\n"
+"POT-Creation-Date: 2022-01-11 18:03+0000\n"
 "PO-Revision-Date: 2021-12-17 17:16+0000\n"
 "Last-Translator: Ludek Janda <ljanda@redhat.com>\n"
 "Language-Team: Chinese (Simplified) <https://translate.fedoraproject.org/"
@@ -31,7 +31,7 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0\n"
 "X-Generator: Weblate 4.9.1\n"
 
-#: pkg/storaged/content-views.jsx:496
+#: pkg/storaged/content-views.jsx:501
 msgid "$0 (encrypted)"
 msgstr "$0（加密的）"
 
@@ -65,11 +65,11 @@ msgstr[0] "$0活跃区"
 msgid "$0 block device"
 msgstr "$0 块设备"
 
-#: pkg/storaged/stratis-details.jsx:205
+#: pkg/storaged/stratis-details.jsx:201
 msgid "$0 cache"
 msgstr "$0 缓存"
 
-#: pkg/storaged/mdraid-details.jsx:193
+#: pkg/storaged/mdraid-details.jsx:196
 msgid "$0 chunk size"
 msgstr "$0 区块大小"
 
@@ -78,11 +78,11 @@ msgid "$0 critical hit"
 msgid_plural "$0 hits, including critical"
 msgstr[0] "$0 关键 hit"
 
-#: pkg/storaged/stratis-details.jsx:202
+#: pkg/storaged/stratis-details.jsx:198
 msgid "$0 data"
 msgstr "$0 数据"
 
-#: pkg/storaged/vdo-details.jsx:286
+#: pkg/storaged/vdo-details.jsx:294
 msgid "$0 data + $1 overhead used of $2 ($3)"
 msgstr "$0 数据 + $1 过渡使用 $2（$3）"
 
@@ -91,7 +91,7 @@ msgid "$0 day"
 msgid_plural "$0 days"
 msgstr[0] "$0 天"
 
-#: pkg/storaged/mdraid-details.jsx:215 pkg/playground/translate.js:26
+#: pkg/storaged/mdraid-details.jsx:218 pkg/playground/translate.js:26
 #: pkg/playground/translate.js:29
 msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
@@ -103,7 +103,7 @@ msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] "$0 磁盘无法找到"
 
-#: pkg/storaged/mdraid-details.jsx:191
+#: pkg/storaged/mdraid-details.jsx:194
 msgid "$0 disks"
 msgstr "$0 磁盘"
 
@@ -128,7 +128,7 @@ msgid "$0 failed login attempt"
 msgid_plural "$0 failed login attempts"
 msgstr[0] "$0 失败的登录尝试"
 
-#: pkg/storaged/content-views.jsx:450
+#: pkg/storaged/content-views.jsx:455
 msgctxt "storage-id-desc"
 msgid "$0 filesystem"
 msgstr "$0 文件系统"
@@ -159,17 +159,19 @@ msgid "$0 important hit"
 msgid_plural "$0 hits, including important"
 msgstr[0] "$0 重要 hit"
 
-#: pkg/storaged/format-dialog.jsx:182 pkg/storaged/vgroup-details.jsx:192
-#: pkg/storaged/lvol-tabs.jsx:232 pkg/storaged/lvol-tabs.jsx:298
-#: pkg/storaged/content-views.jsx:365 pkg/storaged/content-views.jsx:655
-#: pkg/storaged/vdo-details.jsx:131 pkg/storaged/vdo-details.jsx:162
-#: pkg/storaged/mdraid-details.jsx:237 pkg/storaged/mdraid-details.jsx:292
-#: pkg/storaged/stratis-details.jsx:250 pkg/storaged/stratis-details.jsx:549
-msgid "$0 is in active use"
+#: pkg/storaged/format-dialog.jsx:176 pkg/storaged/vgroup-details.jsx:192
+#: pkg/storaged/lvol-tabs.jsx:232 pkg/storaged/lvol-tabs.jsx:299
+#: pkg/storaged/content-views.jsx:371 pkg/storaged/content-views.jsx:676
+#: pkg/storaged/vdo-details.jsx:133 pkg/storaged/vdo-details.jsx:167
+#: pkg/storaged/mdraid-details.jsx:240 pkg/storaged/mdraid-details.jsx:295
+#: pkg/storaged/stratis-details.jsx:246 pkg/storaged/stratis-details.jsx:545
+#, fuzzy
+#| msgid "$0 is in active use"
+msgid "$0 is in use"
 msgstr "$0 已激活"
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:158
-#: pkg/storaged/content-views.jsx:808
+#: pkg/storaged/content-views.jsx:829
 msgid "$0 is not available from any repository."
 msgstr "所有仓库都不提供 $0。"
 
@@ -201,7 +203,7 @@ msgid "$0 month"
 msgid_plural "$0 months"
 msgstr[0] "$0 月"
 
-#: pkg/storaged/stratis-details.jsx:208
+#: pkg/storaged/stratis-details.jsx:204
 msgid "$0 of unknown tier"
 msgstr "未知层的$0"
 
@@ -235,7 +237,7 @@ msgid "$0 service needs to be restarted"
 msgid_plural "$0 services need to be restarted"
 msgstr[0] "$0 服务需要重启"
 
-#: pkg/storaged/crypto-keyslots.jsx:618
+#: pkg/storaged/crypto-keyslots.jsx:624
 msgid "$0 slot remains"
 msgid_plural "$0 slots remain"
 msgstr[0] "$0 个剩余插槽"
@@ -249,7 +251,7 @@ msgid "$0 update available"
 msgid_plural "$0 updates available"
 msgstr[0] "$0 更新可用"
 
-#: pkg/storaged/vdo-details.jsx:300
+#: pkg/storaged/vdo-details.jsx:308
 msgid "$0 used of $1 ($2 saved)"
 msgstr "$0 使用 $1（已保存 $2）"
 
@@ -287,7 +289,7 @@ msgstr "$name (来自 $host)"
 msgid "(Optional)"
 msgstr "(可选)"
 
-#: pkg/storaged/format-dialog.jsx:143 pkg/storaged/format-dialog.jsx:160
+#: pkg/storaged/format-dialog.jsx:137 pkg/storaged/format-dialog.jsx:154
 msgid "(recommended)"
 msgstr "（推荐）"
 
@@ -517,7 +519,7 @@ msgstr "第9"
 msgid "A compatible version of Cockpit is not installed on $0."
 msgstr "$0 上未安装一个兼容版本的 Cockpit。"
 
-#: pkg/storaged/stratis-details.jsx:360
+#: pkg/storaged/stratis-details.jsx:356
 msgid "A filesystem with this name exists already in this pool."
 msgstr "此池中已存在此名称的文件系统。"
 
@@ -545,7 +547,7 @@ msgid_plural ""
 "Some packages need a system reboot for the updates to take effect:"
 msgstr[0] "软件包需要重启系统才能使更新生效："
 
-#: pkg/storaged/stratis-details.jsx:236
+#: pkg/storaged/stratis-details.jsx:232
 msgid "A pool with this name exists already."
 msgstr "此名称的池已存在。"
 
@@ -555,7 +557,7 @@ msgid_plural ""
 "Some services need to be restarted for the updates to take effect:"
 msgstr[0] "需要重启服务才能使更新生效："
 
-#: pkg/storaged/mdraid-details.jsx:131
+#: pkg/storaged/mdraid-details.jsx:134
 msgid "A spare disk needs to be added first before this disk can be removed."
 msgstr "该磁盘被移除前，需要添加一个备用的磁盘。"
 
@@ -603,11 +605,17 @@ msgstr "帐户不可用或不可编辑."
 msgid "Accounts"
 msgstr "账户"
 
+#: pkg/storaged/dialog.jsx:1130
+#, fuzzy
+#| msgid "Actions"
+msgid "Action"
+msgstr "操作"
+
 #: pkg/apps/application-list.jsx:84
 msgid "Actions"
 msgstr "操作"
 
-#: pkg/storaged/content-views.jsx:318
+#: pkg/storaged/content-views.jsx:324
 msgid "Activate"
 msgstr "激活"
 
@@ -627,10 +635,6 @@ msgstr "激活备份"
 #: pkg/shell/topnav.jsx:155
 msgid "Active pages"
 msgstr "激活页面"
-
-#: pkg/storaged/dialog.jsx:1106 pkg/storaged/dialog.jsx:1110
-msgid "Active since"
-msgstr "活跃自"
 
 #: pkg/systemd/services/service-details.jsx:370
 msgid "Active since "
@@ -652,12 +656,12 @@ msgstr "自适应传输负载均衡"
 #: pkg/users/authorized-keys-panel.js:63
 #: pkg/systemd/services/timer-dialog.jsx:332 pkg/shell/hosts_dialog.jsx:245
 #: pkg/shell/credentials.jsx:185 pkg/storaged/vgroup-details.jsx:78
-#: pkg/storaged/vgroup-details.jsx:130 pkg/storaged/nfs-details.jsx:199
-#: pkg/storaged/nfs-panel.jsx:65 pkg/storaged/mdraid-details.jsx:73
-#: pkg/storaged/mdraid-details.jsx:161 pkg/storaged/stratis-details.jsx:152
+#: pkg/storaged/vgroup-details.jsx:130 pkg/storaged/nfs-details.jsx:186
+#: pkg/storaged/nfs-panel.jsx:65 pkg/storaged/mdraid-details.jsx:76
+#: pkg/storaged/mdraid-details.jsx:164 pkg/storaged/stratis-details.jsx:148
 #: pkg/storaged/iscsi-panel.jsx:140 pkg/storaged/iscsi-panel.jsx:164
-#: pkg/storaged/iscsi-panel.jsx:259 pkg/storaged/crypto-keyslots.jsx:310
-#: pkg/storaged/crypto-keyslots.jsx:621
+#: pkg/storaged/iscsi-panel.jsx:259 pkg/storaged/crypto-keyslots.jsx:314
+#: pkg/storaged/crypto-keyslots.jsx:627
 msgid "Add"
 msgstr "添加"
 
@@ -674,7 +678,7 @@ msgstr "添加 VLAN"
 msgid "Add a new zone"
 msgstr "添加一个新区"
 
-#: pkg/storaged/stratis-details.jsx:127
+#: pkg/storaged/stratis-details.jsx:123
 msgid "Add block devices"
 msgstr "添加块设备"
 
@@ -686,7 +690,7 @@ msgstr "添加绑定"
 msgid "Add bridge"
 msgstr "添加网桥"
 
-#: pkg/storaged/vgroup-details.jsx:65 pkg/storaged/mdraid-details.jsx:60
+#: pkg/storaged/vgroup-details.jsx:65 pkg/storaged/mdraid-details.jsx:63
 msgid "Add disks"
 msgstr "添加磁盘"
 
@@ -702,7 +706,7 @@ msgid "Add item"
 msgstr "添加项目"
 
 #: pkg/users/authorized-keys-panel.js:153 pkg/shell/credentials.jsx:91
-#: pkg/storaged/crypto-keyslots.jsx:276
+#: pkg/storaged/crypto-keyslots.jsx:280
 msgid "Add key"
 msgstr "添加密钥"
 
@@ -800,11 +804,11 @@ msgstr "地址"
 msgid "Address $val"
 msgstr "地址 $val"
 
-#: pkg/storaged/crypto-keyslots.jsx:267
+#: pkg/storaged/crypto-keyslots.jsx:271
 msgid "Address cannot be empty"
 msgstr "地址不能为空"
 
-#: pkg/storaged/crypto-keyslots.jsx:269
+#: pkg/storaged/crypto-keyslots.jsx:273
 msgid "Address is not a valid URL"
 msgstr "该地址无效"
 
@@ -823,10 +827,6 @@ msgstr "管理员权限"
 #: pkg/lib/machine-info.js:84
 msgid "Advanced TCA"
 msgstr "高级 TCA"
-
-#: pkg/storaged/dialog.jsx:1008
-msgid "Affected locations"
-msgstr "受影响的位置"
 
 #: pkg/systemd/services/service-details.jsx:462
 msgid "After"
@@ -910,8 +910,8 @@ msgstr "应用"
 msgid "Applications list"
 msgstr "应用列表"
 
-#: pkg/kdump/kdump-view.jsx:360 pkg/storaged/nfs-details.jsx:199
-#: pkg/storaged/fsys-tab.jsx:365 pkg/storaged/fsys-tab.jsx:471
+#: pkg/kdump/kdump-view.jsx:360 pkg/storaged/nfs-details.jsx:186
+#: pkg/storaged/fsys-tab.jsx:371 pkg/storaged/fsys-tab.jsx:487
 #: pkg/storaged/crypto-tab.jsx:158 pkg/storaged/crypto-tab.jsx:202
 #: pkg/networkmanager/dialogs-common.jsx:149 pkg/packagekit/kpatch.jsx:286
 msgid "Apply"
@@ -959,8 +959,8 @@ msgstr[0] "至少需要 $0 个磁盘。"
 msgid "At least one block device is needed."
 msgstr "至少需要 1 个块设备。"
 
-#: pkg/storaged/vgroup-details.jsx:72 pkg/storaged/mdraid-details.jsx:67
-#: pkg/storaged/vgroups-panel.jsx:84 pkg/storaged/stratis-details.jsx:146
+#: pkg/storaged/vgroup-details.jsx:72 pkg/storaged/mdraid-details.jsx:70
+#: pkg/storaged/vgroups-panel.jsx:84 pkg/storaged/stratis-details.jsx:142
 msgid "At least one disk is needed."
 msgstr "至少需要 1 块磁盘。"
 
@@ -1078,7 +1078,7 @@ msgstr "BIOS 版本"
 msgid "Back to accounts"
 msgstr "返回账号"
 
-#: pkg/storaged/vdo-details.jsx:274
+#: pkg/storaged/vdo-details.jsx:282
 msgid "Backing device"
 msgstr "后端设备"
 
@@ -1102,7 +1102,7 @@ msgstr "前"
 msgid "Binds to"
 msgstr "绑定到"
 
-#: pkg/storaged/mdraid-details.jsx:204
+#: pkg/storaged/mdraid-details.jsx:207
 msgctxt "storage"
 msgid "Bitmap"
 msgstr "Bitmap"
@@ -1123,16 +1123,16 @@ msgstr "刀片机箱"
 msgid "Block"
 msgstr "块"
 
-#: pkg/storaged/content-views.jsx:831
+#: pkg/storaged/content-views.jsx:852
 msgid "Block device for filesystems"
 msgstr "文件系统的块设备"
 
-#: pkg/storaged/stratis-details.jsx:141 pkg/storaged/stratis-details.jsx:224
-#: pkg/storaged/stratis-details.jsx:753 pkg/storaged/stratis-panel.jsx:158
+#: pkg/storaged/stratis-details.jsx:137 pkg/storaged/stratis-details.jsx:220
+#: pkg/storaged/stratis-details.jsx:755 pkg/storaged/stratis-panel.jsx:158
 msgid "Block devices"
 msgstr "块设备"
 
-#: pkg/storaged/mdraid-details.jsx:112
+#: pkg/storaged/mdraid-details.jsx:115
 msgid "Blocked"
 msgstr "受阻"
 
@@ -1227,7 +1227,7 @@ msgstr "CPU 使用"
 msgid "CVE"
 msgstr "CVE"
 
-#: pkg/storaged/stratis-details.jsx:133
+#: pkg/storaged/stratis-details.jsx:129
 msgid "Cache"
 msgstr "缓存"
 
@@ -1251,7 +1251,7 @@ msgstr "使用当前的过滤器组合找不到任何日志。"
 #: pkg/systemd/hwinfo.jsx:247 pkg/shell/hosts_dialog.jsx:278
 #: pkg/shell/hosts_dialog.jsx:373 pkg/shell/hosts_dialog.jsx:495
 #: pkg/shell/hosts_dialog.jsx:861 pkg/shell/active-pages-modal.jsx:96
-#: pkg/shell/credentials.jsx:316 pkg/shell/superuser.jsx:86
+#: pkg/shell/credentials.jsx:314 pkg/shell/superuser.jsx:86
 #: pkg/shell/superuser.jsx:155 pkg/shell/shell-modals.jsx:128
 #: pkg/apps/utils.jsx:66 pkg/storaged/jobs-panel.jsx:139
 #: pkg/sosreport/index.jsx:157 pkg/networkmanager/firewall.jsx:533
@@ -1284,7 +1284,7 @@ msgid "Cannot schedule event in the past"
 msgstr "无法调度以前的事件"
 
 #: pkg/storaged/vgroup-details.jsx:240 pkg/storaged/block-details.jsx:48
-#: pkg/storaged/mdraid-details.jsx:344 pkg/storaged/drive-details.jsx:84
+#: pkg/storaged/mdraid-details.jsx:347 pkg/storaged/drive-details.jsx:84
 msgctxt "storage"
 msgid "Capacity"
 msgstr "容量"
@@ -1308,7 +1308,7 @@ msgstr "修改主机名"
 msgid "Change iSCSI initiator name"
 msgstr "变更 iSCSI Initiator 名称"
 
-#: pkg/storaged/crypto-keyslots.jsx:330
+#: pkg/storaged/crypto-keyslots.jsx:335
 msgid "Change passphrase"
 msgstr "修改密码"
 
@@ -1380,9 +1380,15 @@ msgid "Checking for package updates..."
 msgstr "正在检查软件包更新..."
 
 #: pkg/lib/cockpit-components-install-dialog.jsx:150
-#: pkg/storaged/content-views.jsx:804
+#: pkg/storaged/content-views.jsx:825
 msgid "Checking installed software"
 msgstr "检查安装的软件"
+
+#: pkg/storaged/fsys-tab.jsx:428 pkg/storaged/dialog.jsx:1139
+#, fuzzy
+#| msgid "Checking for public keys"
+msgid "Checking related processes"
+msgstr "检查公钥"
 
 #: pkg/packagekit/updates.jsx:1329
 msgid "Checking software status"
@@ -1435,7 +1441,7 @@ msgstr "客户端软件"
 #: pkg/shell/hosts_dialog.jsx:81 pkg/shell/credentials.jsx:82
 #: pkg/shell/superuser.jsx:94 pkg/shell/superuser.jsx:102
 #: pkg/shell/shell-modals.jsx:180 pkg/apps/utils.jsx:84
-#: pkg/storaged/dialog.jsx:432 pkg/sosreport/index.jsx:160
+#: pkg/storaged/dialog.jsx:435 pkg/sosreport/index.jsx:160
 #: pkg/networkmanager/interfaces.js:43
 msgid "Close"
 msgstr "关闭"
@@ -1512,7 +1518,8 @@ msgstr "颜色"
 msgid "Comma-separated ports, ranges, and aliases are accepted"
 msgstr "可以使用逗号隔开的端口、范围和别名"
 
-#: pkg/systemd/services/timer-dialog.jsx:159
+#: pkg/systemd/services/timer-dialog.jsx:159 pkg/storaged/dialog.jsx:1203
+#: pkg/storaged/dialog.jsx:1222
 msgid "Command"
 msgstr "命令"
 
@@ -1528,11 +1535,11 @@ msgstr "与 tuned 通信失败"
 msgid "Compact PCI"
 msgstr "紧凑型 PCI"
 
-#: pkg/storaged/content-views.jsx:669
+#: pkg/storaged/content-views.jsx:690
 msgid "Compatible with all systems and devices (MBR)"
 msgstr "兼容所有系统和设备 (MBR)"
 
-#: pkg/storaged/content-views.jsx:672
+#: pkg/storaged/content-views.jsx:693
 msgid "Compatible with modern system and hard disks > 2TB (GPT)"
 msgstr "兼容现代系统，且硬盘空间大于 2TB (GPT)"
 
@@ -1540,8 +1547,8 @@ msgstr "兼容现代系统，且硬盘空间大于 2TB (GPT)"
 msgid "Compress crash dumps to save space"
 msgstr "对崩溃转储数据进行压缩以节省空间"
 
-#: pkg/kdump/kdump-view.jsx:166 pkg/storaged/lvol-tabs.jsx:562
-#: pkg/storaged/content-views.jsx:921 pkg/storaged/vdo-details.jsx:316
+#: pkg/kdump/kdump-view.jsx:166 pkg/storaged/lvol-tabs.jsx:563
+#: pkg/storaged/content-views.jsx:942 pkg/storaged/vdo-details.jsx:324
 msgid "Compression"
 msgstr "压缩"
 
@@ -1573,7 +1580,7 @@ msgstr "配置 kdump"
 msgid "Configuring system settings"
 msgstr "配置系统设置"
 
-#: pkg/users/account-create-dialog.js:61 pkg/storaged/format-dialog.jsx:279
+#: pkg/users/account-create-dialog.js:61 pkg/storaged/format-dialog.jsx:273
 #: pkg/storaged/stratis-panel.jsx:148
 msgid "Confirm"
 msgstr "确认"
@@ -1598,7 +1605,7 @@ msgstr "确认密码"
 msgid "Confirm removal of $0"
 msgstr "确认移除 $0"
 
-#: pkg/storaged/crypto-keyslots.jsx:436
+#: pkg/storaged/crypto-keyslots.jsx:442
 msgid "Confirm removal with an alternate passphrase"
 msgstr "使用一个备用密码短语确认删除"
 
@@ -1664,7 +1671,7 @@ msgstr "容器管理员"
 msgid "Contains:"
 msgstr "包含："
 
-#: pkg/storaged/content-views.jsx:718 pkg/storaged/content-views.jsx:728
+#: pkg/storaged/content-views.jsx:739 pkg/storaged/content-views.jsx:749
 msgid "Content"
 msgstr "内容"
 
@@ -1703,7 +1710,7 @@ msgid "Copy"
 msgstr "复制"
 
 #: pkg/lib/cockpit-components-modifications.jsx:75 pkg/systemd/logs.jsx:415
-#: pkg/storaged/crypto-keyslots.jsx:393
+#: pkg/storaged/crypto-keyslots.jsx:399
 msgid "Copy to clipboard"
 msgstr "复制到剪贴板"
 
@@ -1730,9 +1737,9 @@ msgstr "导致系统崩溃"
 #: pkg/users/account-create-dialog.js:212
 #: pkg/users/account-create-dialog.js:256
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:185
-#: pkg/storaged/mdraids-panel.jsx:140 pkg/storaged/content-views.jsx:174
-#: pkg/storaged/content-views.jsx:305 pkg/storaged/content-views.jsx:936
-#: pkg/storaged/vgroups-panel.jsx:90 pkg/storaged/stratis-details.jsx:397
+#: pkg/storaged/mdraids-panel.jsx:140 pkg/storaged/content-views.jsx:196
+#: pkg/storaged/content-views.jsx:311 pkg/storaged/content-views.jsx:957
+#: pkg/storaged/vgroups-panel.jsx:90 pkg/storaged/stratis-details.jsx:393
 #: pkg/storaged/stratis-panel.jsx:169
 msgid "Create"
 msgstr "创建"
@@ -1753,7 +1760,7 @@ msgstr "创建Stratis池"
 msgid "Create a new SSH key and authorize it"
 msgstr "创建一个新的 SSH 密钥，并对其进行授权"
 
-#: pkg/storaged/stratis-details.jsx:496
+#: pkg/storaged/stratis-details.jsx:492
 msgid "Create a snapshot of filesystem $0"
 msgstr "创建 $0文件系统 的快照"
 
@@ -1765,7 +1772,7 @@ msgstr "创建设备"
 msgid "Create diagnostic report"
 msgstr "创建诊断报告"
 
-#: pkg/storaged/stratis-details.jsx:367
+#: pkg/storaged/stratis-details.jsx:363
 msgid "Create filesystem"
 msgstr "创建文件系统"
 
@@ -1773,7 +1780,7 @@ msgstr "创建文件系统"
 msgid "Create it"
 msgstr "创建它"
 
-#: pkg/storaged/content-views.jsx:846
+#: pkg/storaged/content-views.jsx:867
 msgid "Create logical volume"
 msgstr "创建逻辑卷"
 
@@ -1781,11 +1788,11 @@ msgstr "创建逻辑卷"
 msgid "Create new account"
 msgstr "创建新账户"
 
-#: pkg/storaged/stratis-details.jsx:649
+#: pkg/storaged/stratis-details.jsx:651
 msgid "Create new filesystem"
 msgstr "创建新的文件系统"
 
-#: pkg/storaged/content-views.jsx:966
+#: pkg/storaged/content-views.jsx:987
 msgid "Create new logical volume"
 msgstr "创建新逻辑卷"
 
@@ -1793,15 +1800,16 @@ msgstr "创建新逻辑卷"
 msgid "Create new task file with this content."
 msgstr "使用此内容创建新的任务文件。"
 
-#: pkg/storaged/format-dialog.jsx:315 pkg/storaged/content-views.jsx:582
+#: pkg/storaged/format-dialog.jsx:309 pkg/storaged/content-views.jsx:594
+#: pkg/storaged/content-views.jsx:602
 msgid "Create partition"
 msgstr "创建分区"
 
-#: pkg/storaged/format-dialog.jsx:127
+#: pkg/storaged/format-dialog.jsx:121
 msgid "Create partition on $0"
 msgstr "在$0上创建分区"
 
-#: pkg/storaged/content-views.jsx:710
+#: pkg/storaged/content-views.jsx:731
 msgid "Create partition table"
 msgstr "创建分区表"
 
@@ -1809,12 +1817,12 @@ msgstr "创建分区表"
 msgid "Create report"
 msgstr "创建报表"
 
-#: pkg/storaged/content-views.jsx:299 pkg/storaged/content-views.jsx:322
-#: pkg/storaged/stratis-details.jsx:527
+#: pkg/storaged/content-views.jsx:305 pkg/storaged/content-views.jsx:328
+#: pkg/storaged/stratis-details.jsx:523
 msgid "Create snapshot"
 msgstr "创建快照"
 
-#: pkg/storaged/content-views.jsx:158 pkg/storaged/content-views.jsx:185
+#: pkg/storaged/content-views.jsx:180 pkg/storaged/content-views.jsx:207
 msgid "Create thin volume"
 msgstr "创建Thin卷"
 
@@ -1835,7 +1843,7 @@ msgstr "创建LVM2卷组 $target"
 msgid "Creating RAID device $target"
 msgstr "创建 RAID 设备 $target"
 
-#: pkg/storaged/content-views.jsx:945
+#: pkg/storaged/content-views.jsx:966
 msgid "Creating VDO device"
 msgstr "创建 VDO 设备"
 
@@ -1877,9 +1885,15 @@ msgstr "Ctrl-Shift-J"
 msgid "Current boot"
 msgstr "当前启动"
 
-#: pkg/storaged/format-dialog.jsx:262 pkg/storaged/nfs-details.jsx:184
-#: pkg/storaged/stratis-details.jsx:392 pkg/storaged/stratis-details.jsx:522
-#: pkg/storaged/fsys-tab.jsx:330
+#: pkg/storaged/dialog.jsx:1094
+#, fuzzy
+#| msgid "Current"
+msgid "Currently in use"
+msgstr "当前的"
+
+#: pkg/storaged/format-dialog.jsx:256 pkg/storaged/nfs-details.jsx:171
+#: pkg/storaged/stratis-details.jsx:388 pkg/storaged/stratis-details.jsx:518
+#: pkg/storaged/fsys-tab.jsx:336
 msgid "Custom mount options"
 msgstr "自定义挂载选项"
 
@@ -1923,11 +1937,11 @@ msgstr "危险警报："
 msgid "Dark"
 msgstr "暗色"
 
-#: pkg/storaged/stratis-details.jsx:132
+#: pkg/storaged/stratis-details.jsx:128
 msgid "Data"
 msgstr "数据"
 
-#: pkg/storaged/lvol-tabs.jsx:499 pkg/storaged/lvol-tabs.jsx:552
+#: pkg/storaged/lvol-tabs.jsx:500 pkg/storaged/lvol-tabs.jsx:553
 msgid "Data used"
 msgstr "数据已使用空间"
 
@@ -1942,7 +1956,7 @@ msgstr ""
 "'today', 'tomorrow'。'now' 代表当前时间。另外，还可以指定相对时间，前缀为 "
 "'-' 或 '+'"
 
-#: pkg/storaged/content-views.jsx:316
+#: pkg/storaged/content-views.jsx:322
 msgid "Deactivate"
 msgstr "取消激活"
 
@@ -1962,8 +1976,8 @@ msgstr "Debug 及更高级别"
 msgid "Decrease by one"
 msgstr "减一"
 
-#: pkg/storaged/lvol-tabs.jsx:569 pkg/storaged/content-views.jsx:925
-#: pkg/storaged/vdo-details.jsx:325
+#: pkg/storaged/lvol-tabs.jsx:570 pkg/storaged/content-views.jsx:946
+#: pkg/storaged/vdo-details.jsx:333
 msgid "Deduplication"
 msgstr "复制"
 
@@ -1978,13 +1992,13 @@ msgid "Delay must be a number"
 msgstr "延迟必须是一个数字"
 
 #: pkg/users/account-details.js:278 pkg/users/delete-account-dialog.js:60
-#: pkg/systemd/abrtLog.jsx:285 pkg/storaged/vgroup-details.jsx:205
-#: pkg/storaged/vgroup-details.jsx:229 pkg/storaged/content-views.jsx:377
-#: pkg/storaged/content-views.jsx:402 pkg/storaged/vdo-details.jsx:200
-#: pkg/storaged/vdo-details.jsx:263 pkg/storaged/mdraid-details.jsx:303
-#: pkg/storaged/mdraid-details.jsx:328 pkg/storaged/stratis-details.jsx:263
-#: pkg/storaged/stratis-details.jsx:426 pkg/storaged/stratis-details.jsx:561
-#: pkg/storaged/stratis-details.jsx:603
+#: pkg/systemd/abrtLog.jsx:285 pkg/storaged/vgroup-details.jsx:204
+#: pkg/storaged/vgroup-details.jsx:229 pkg/storaged/content-views.jsx:382
+#: pkg/storaged/content-views.jsx:408 pkg/storaged/vdo-details.jsx:205
+#: pkg/storaged/vdo-details.jsx:271 pkg/storaged/mdraid-details.jsx:305
+#: pkg/storaged/mdraid-details.jsx:331 pkg/storaged/stratis-details.jsx:258
+#: pkg/storaged/stratis-details.jsx:422 pkg/storaged/stratis-details.jsx:557
+#: pkg/storaged/stratis-details.jsx:605
 #: pkg/networkmanager/network-interface.jsx:718
 #: pkg/networkmanager/firewall.jsx:796
 msgid "Delete"
@@ -2013,19 +2027,19 @@ msgstr "删除 $target"
 msgid "Deleting LVM2 volume group $target"
 msgstr "删除LVM2卷组 $target中"
 
-#: pkg/storaged/stratis-details.jsx:261
+#: pkg/storaged/stratis-details.jsx:257
 msgid "Deleting a Stratis pool will erase all data it contains."
 msgstr "删除Stratis池将清除其中包含的所有数据。"
 
-#: pkg/storaged/stratis-details.jsx:560
+#: pkg/storaged/stratis-details.jsx:556
 msgid "Deleting a filesystem will delete all data in it."
 msgstr "删除文件系统将擦除其中的所有数据。"
 
-#: pkg/storaged/content-views.jsx:354
+#: pkg/storaged/content-views.jsx:360
 msgid "Deleting a logical volume will delete all data in it."
 msgstr "删除逻辑卷将擦除其中的所有数据。"
 
-#: pkg/storaged/content-views.jsx:357
+#: pkg/storaged/content-views.jsx:363
 msgid "Deleting a partition will delete all data in it."
 msgstr "删除分区将擦除其中的所有数据。"
 
@@ -2033,7 +2047,7 @@ msgstr "删除分区将擦除其中的所有数据。"
 msgid "Deleting erases all data on a RAID device."
 msgstr "删除 RAID 设备将擦除其中的所有数据."
 
-#: pkg/storaged/vdo-details.jsx:201
+#: pkg/storaged/vdo-details.jsx:206
 msgid "Deleting erases all data on a VDO device."
 msgstr "删除 VDO设备将擦除其中的所有数据."
 
@@ -2041,7 +2055,7 @@ msgstr "删除 VDO设备将擦除其中的所有数据."
 msgid "Deleting erases all data on a volume group."
 msgstr "删除 存储组 将擦除其中的所有数据."
 
-#: pkg/systemd/services/timer-dialog.jsx:150
+#: pkg/systemd/services/timer-dialog.jsx:150 pkg/storaged/dialog.jsx:1223
 #: pkg/networkmanager/firewall.jsx:736
 msgid "Description"
 msgstr "描述"
@@ -2063,16 +2077,17 @@ msgstr "详情"
 msgid "Development"
 msgstr "开发"
 
-#: pkg/storaged/crypto-panel.jsx:85
+#: pkg/storaged/crypto-panel.jsx:85 pkg/storaged/dialog.jsx:1050
+#: pkg/storaged/dialog.jsx:1128
 msgid "Device"
 msgstr "设备"
 
-#: pkg/storaged/mdraid-details.jsx:334
+#: pkg/storaged/mdraid-details.jsx:337
 msgctxt "storage"
 msgid "Device"
 msgstr "设备"
 
-#: pkg/storaged/vdo-details.jsx:269
+#: pkg/storaged/vdo-details.jsx:277
 msgid "Device file"
 msgstr "设备文件"
 
@@ -2081,7 +2096,7 @@ msgctxt "storage"
 msgid "Device file"
 msgstr "设备文件"
 
-#: pkg/storaged/content-views.jsx:709
+#: pkg/storaged/content-views.jsx:730
 msgid "Device is read-only"
 msgstr "设备只读"
 
@@ -2150,8 +2165,8 @@ msgid "Disk passphrase"
 msgstr "磁盘口令"
 
 #: pkg/metrics/metrics.jsx:534 pkg/storaged/vgroup-details.jsx:67
-#: pkg/storaged/mdraids-panel.jsx:127 pkg/storaged/mdraid-details.jsx:62
-#: pkg/storaged/mdraid-details.jsx:166 pkg/storaged/vgroups-panel.jsx:79
+#: pkg/storaged/mdraids-panel.jsx:127 pkg/storaged/mdraid-details.jsx:65
+#: pkg/storaged/mdraid-details.jsx:169 pkg/storaged/vgroups-panel.jsx:79
 msgid "Disks"
 msgstr "磁盘"
 
@@ -2168,7 +2183,7 @@ msgstr "忽略所选警报"
 msgid "Display language"
 msgstr "显示语言"
 
-#: pkg/storaged/fsys-tab.jsx:631 pkg/storaged/fsys-tab.jsx:643
+#: pkg/storaged/fsys-tab.jsx:647 pkg/storaged/fsys-tab.jsx:659
 msgid "Do not mount automatically on boot"
 msgstr "不要在启动时自动安装"
 
@@ -2251,8 +2266,8 @@ msgid "Dual rank"
 msgstr "双通道"
 
 #: pkg/shell/indexes.js:341 pkg/shell/hosts.jsx:173
-#: pkg/storaged/nfs-details.jsx:318 pkg/storaged/iscsi-panel.jsx:255
-#: pkg/storaged/crypto-keyslots.jsx:571 pkg/packagekit/kpatch.jsx:223
+#: pkg/storaged/nfs-details.jsx:305 pkg/storaged/iscsi-panel.jsx:255
+#: pkg/storaged/crypto-keyslots.jsx:577 pkg/packagekit/kpatch.jsx:223
 #: pkg/packagekit/autoupdates.jsx:399
 msgid "Edit"
 msgstr "编辑"
@@ -2261,7 +2276,7 @@ msgstr "编辑"
 msgid "Edit /etc/motd"
 msgstr "编辑 /etc/motd"
 
-#: pkg/storaged/crypto-keyslots.jsx:351
+#: pkg/storaged/crypto-keyslots.jsx:356
 msgid "Edit Tang keyserver"
 msgstr "编辑Tang keyserver"
 
@@ -2281,7 +2296,7 @@ msgstr "编辑 motd"
 msgid "Edit rules and zones"
 msgstr "编辑规则和区域"
 
-#: pkg/storaged/crypto-keyslots.jsx:573
+#: pkg/storaged/crypto-keyslots.jsx:579
 msgid "Editing a key requires a free slot"
 msgstr "编辑密钥需要一个空闲插槽"
 
@@ -2336,7 +2351,7 @@ msgstr "加密的数据"
 msgid "Encrypted $0"
 msgstr "已加密 $0"
 
-#: pkg/storaged/stratis-details.jsx:421
+#: pkg/storaged/stratis-details.jsx:417
 msgid "Encrypted Stratis pool $0"
 msgstr "加密的Stratis池$0"
 
@@ -2356,11 +2371,11 @@ msgstr "加密卷不能在这里改变大小。"
 msgid "Encrypted volumes need to be unlocked before they can be resized."
 msgstr "加密卷需要先解锁才能调整大小。"
 
-#: pkg/storaged/format-dialog.jsx:265 pkg/storaged/content-views.jsx:216
+#: pkg/storaged/format-dialog.jsx:259 pkg/storaged/content-views.jsx:238
 msgid "Encryption"
 msgstr "加密"
 
-#: pkg/storaged/format-dialog.jsx:306 pkg/storaged/crypto-tab.jsx:196
+#: pkg/storaged/format-dialog.jsx:300 pkg/storaged/crypto-tab.jsx:196
 msgid "Encryption options"
 msgstr "加密选项"
 
@@ -2402,9 +2417,9 @@ msgstr "勘误"
 
 #: pkg/systemd/services/service-details.jsx:498
 #: pkg/systemd/services/services.jsx:178 pkg/apps/utils.jsx:78
-#: pkg/storaged/storage-controls.jsx:91 pkg/storaged/storage-controls.jsx:167
-#: pkg/storaged/multipath.jsx:61 pkg/storaged/stratis-details.jsx:678
-#: pkg/storaged/fsys-tab.jsx:383 pkg/storaged/things-panel.jsx:57
+#: pkg/storaged/storage-controls.jsx:91 pkg/storaged/storage-controls.jsx:168
+#: pkg/storaged/multipath.jsx:61 pkg/storaged/stratis-details.jsx:680
+#: pkg/storaged/things-panel.jsx:57
 msgid "Error"
 msgstr "错误"
 
@@ -2489,11 +2504,11 @@ msgstr "导出到网络"
 msgid "Extended information"
 msgstr "扩展的信息"
 
-#: pkg/storaged/format-dialog.jsx:149 pkg/storaged/content-views.jsx:603
+#: pkg/storaged/format-dialog.jsx:143 pkg/storaged/content-views.jsx:624
 msgid "Extended partition"
 msgstr "扩展分区"
 
-#: pkg/storaged/mdraid-details.jsx:108 pkg/networkmanager/interfaces.js:757
+#: pkg/storaged/mdraid-details.jsx:111 pkg/networkmanager/interfaces.js:757
 msgid "Failed"
 msgstr "已失败"
 
@@ -2588,27 +2603,27 @@ msgstr "切换配置集失败"
 msgid "File state"
 msgstr "文件状态"
 
-#: pkg/storaged/content-views.jsx:201 pkg/storaged/content-views.jsx:215
-#: pkg/storaged/stratis-details.jsx:573
+#: pkg/storaged/content-views.jsx:223 pkg/storaged/content-views.jsx:237
+#: pkg/storaged/stratis-details.jsx:572
 msgid "Filesystem"
 msgstr "文件系统"
 
-#: pkg/storaged/content-views.jsx:439
+#: pkg/storaged/content-views.jsx:444
 msgctxt "storage-id-desc"
 msgid "Filesystem (encrypted)"
 msgstr "文件系统（已加密）"
 
-#: pkg/storaged/fsys-tab.jsx:673
+#: pkg/storaged/fsys-tab.jsx:689
 msgid "Filesystem is locked"
 msgstr "文件系统已锁定"
 
-#: pkg/storaged/fsys-tab.jsx:462
+#: pkg/storaged/fsys-tab.jsx:478
 msgid "Filesystem name"
 msgstr "文件系统名称"
 
 #: pkg/storaged/fsys-panel.jsx:164 pkg/storaged/fsys-panel.jsx:167
-#: pkg/storaged/stratis-details.jsx:647 pkg/storaged/stratis-details.jsx:654
-#: pkg/storaged/stratis-details.jsx:787 pkg/storaged/stratis-details.jsx:791
+#: pkg/storaged/stratis-details.jsx:649 pkg/storaged/stratis-details.jsx:656
+#: pkg/storaged/stratis-details.jsx:789 pkg/storaged/stratis-details.jsx:793
 msgid "Filesystems"
 msgstr "文件系统"
 
@@ -2663,16 +2678,16 @@ msgstr "强制变更"
 msgid "Force password change"
 msgstr "强制密码变更"
 
-#: pkg/storaged/format-dialog.jsx:88 pkg/storaged/content-views.jsx:396
-#: pkg/storaged/content-views.jsx:398
+#: pkg/storaged/format-dialog.jsx:309 pkg/storaged/content-views.jsx:402
+#: pkg/storaged/content-views.jsx:404
 msgid "Format"
 msgstr "格式化"
 
-#: pkg/storaged/format-dialog.jsx:129
+#: pkg/storaged/format-dialog.jsx:123
 msgid "Format $0"
 msgstr "格式化 $0"
 
-#: pkg/storaged/format-dialog.jsx:316
+#: pkg/storaged/format-dialog.jsx:310
 msgid "Formatting erases all data on a storage device."
 msgstr "格式化将擦除存储设备上的所有数据。"
 
@@ -2688,11 +2703,11 @@ msgstr "帧号"
 msgid "Free"
 msgstr "可用"
 
-#: pkg/storaged/content-views.jsx:587
+#: pkg/storaged/content-views.jsx:608
 msgid "Free space"
 msgstr "空闲空间"
 
-#: pkg/storaged/lvol-tabs.jsx:401
+#: pkg/storaged/lvol-tabs.jsx:402
 msgid ""
 "Free up space in this group: Shrink or delete other logical volumes or add "
 "another physical volume."
@@ -2747,17 +2762,17 @@ msgstr "转到现在"
 msgid "Group"
 msgstr "组"
 
-#: pkg/storaged/lvol-tabs.jsx:270 pkg/storaged/lvol-tabs.jsx:433
-#: pkg/storaged/lvol-tabs.jsx:493 pkg/storaged/lvol-tabs.jsx:546
-#: pkg/storaged/vdo-details.jsx:230 pkg/storaged/vdo-details.jsx:306
+#: pkg/storaged/lvol-tabs.jsx:269 pkg/storaged/lvol-tabs.jsx:434
+#: pkg/storaged/lvol-tabs.jsx:494 pkg/storaged/lvol-tabs.jsx:547
+#: pkg/storaged/vdo-details.jsx:238 pkg/storaged/vdo-details.jsx:314
 msgid "Grow"
 msgstr "增长"
 
-#: pkg/storaged/lvol-tabs.jsx:450
+#: pkg/storaged/lvol-tabs.jsx:451
 msgid "Grow content"
 msgstr "增长内容"
 
-#: pkg/storaged/vdo-details.jsx:218
+#: pkg/storaged/vdo-details.jsx:226
 msgid "Grow logical size of $0"
 msgstr "增长 $0 的逻辑大小"
 
@@ -2765,7 +2780,7 @@ msgstr "增长 $0 的逻辑大小"
 msgid "Grow logical volume"
 msgstr "稀疏逻辑卷增长"
 
-#: pkg/storaged/vdo-details.jsx:118
+#: pkg/storaged/vdo-details.jsx:120
 msgid "Grow to take all space"
 msgstr "增长到占据所有空间"
 
@@ -2882,7 +2897,7 @@ msgid ""
 "not connect and contact your administrator."
 msgstr "如果指纹匹配，点“接受密钥并连接”。否则，请不要连接并联系您的管理员。"
 
-#: pkg/storaged/format-dialog.jsx:93
+#: pkg/storaged/format-dialog.jsx:87
 msgid ""
 "If this option is checked, the filesystem will not be mounted during the "
 "next boot even if it was mounted before it.  This is useful if mounting "
@@ -2915,7 +2930,7 @@ msgstr ""
 "为了以后可以不需要密码就能以 $1 的身份登录到 $0，使用 $3 上的 $2的登录密码作"
 "为密钥密码，或者将密钥密码留空。"
 
-#: pkg/storaged/mdraid-details.jsx:109
+#: pkg/storaged/mdraid-details.jsx:112
 msgid "In sync"
 msgstr "同步中"
 
@@ -2925,7 +2940,7 @@ msgstr "同步中"
 msgid "Inactive"
 msgstr "未激活"
 
-#: pkg/storaged/content-views.jsx:782
+#: pkg/storaged/content-views.jsx:803
 msgid "Inactive volume"
 msgstr "暂停卷"
 
@@ -2933,7 +2948,7 @@ msgstr "暂停卷"
 msgid "Included services"
 msgstr "包括的服务"
 
-#: pkg/storaged/fsys-tab.jsx:652
+#: pkg/storaged/fsys-tab.jsx:668
 msgid "Inconsistent filesystem mount"
 msgstr "不一致的文件系统挂载"
 
@@ -2941,7 +2956,7 @@ msgstr "不一致的文件系统挂载"
 msgid "Increase by one"
 msgstr "加一"
 
-#: pkg/storaged/vdo-details.jsx:311
+#: pkg/storaged/vdo-details.jsx:319
 msgid "Index memory"
 msgstr "索引内存"
 
@@ -2957,15 +2972,15 @@ msgstr "信息"
 msgid "Info and above"
 msgstr "Info 及更高级别"
 
-#: pkg/storaged/content-views.jsx:686
+#: pkg/storaged/content-views.jsx:706
 msgid "Initialize"
 msgstr "初始化"
 
-#: pkg/storaged/content-views.jsx:662
+#: pkg/storaged/content-views.jsx:683
 msgid "Initialize disk $0"
 msgstr "初始化磁盘$0中"
 
-#: pkg/storaged/content-views.jsx:689
+#: pkg/storaged/content-views.jsx:707
 msgid "Initializing erases all data on a disk."
 msgstr "初始化磁盘将擦除其中的所有数据。"
 
@@ -3022,11 +3037,11 @@ msgstr "正在安装"
 msgid "Installing $0"
 msgstr "正在安装 $0"
 
-#: pkg/storaged/content-views.jsx:812
+#: pkg/storaged/content-views.jsx:833
 msgid "Installing $0 would remove $1."
 msgstr "正在安装 $0 ，将移除$1。"
 
-#: pkg/storaged/content-views.jsx:814
+#: pkg/storaged/content-views.jsx:835
 msgid "Installing packages"
 msgstr "正在安装软件包"
 
@@ -3217,27 +3232,27 @@ msgstr "内核补丁"
 msgid "Key password"
 msgstr "钥匙密码"
 
-#: pkg/storaged/crypto-keyslots.jsx:605
+#: pkg/storaged/crypto-keyslots.jsx:611
 msgid "Key slots with unknown types can not be edited here"
 msgstr "这里无法编辑未知类型的密钥 slot"
 
-#: pkg/storaged/crypto-keyslots.jsx:278
+#: pkg/storaged/crypto-keyslots.jsx:282
 msgid "Key source"
 msgstr "密钥源"
 
-#: pkg/storaged/crypto-keyslots.jsx:628 pkg/storaged/crypto-keyslots.jsx:631
+#: pkg/storaged/crypto-keyslots.jsx:634 pkg/storaged/crypto-keyslots.jsx:637
 msgid "Keys"
 msgstr "密钥"
 
-#: pkg/storaged/crypto-keyslots.jsx:599
+#: pkg/storaged/crypto-keyslots.jsx:605
 msgid "Keyserver"
 msgstr "密钥服务器"
 
-#: pkg/storaged/crypto-keyslots.jsx:303 pkg/storaged/crypto-keyslots.jsx:353
+#: pkg/storaged/crypto-keyslots.jsx:307 pkg/storaged/crypto-keyslots.jsx:358
 msgid "Keyserver address"
 msgstr "Keyserver 地址"
 
-#: pkg/storaged/crypto-keyslots.jsx:483
+#: pkg/storaged/crypto-keyslots.jsx:489
 msgid "Keyserver removal may prevent unlocking $0."
 msgstr "删除 keyserver 可能会阻止解锁 $0。"
 
@@ -3245,7 +3260,7 @@ msgstr "删除 keyserver 可能会阻止解锁 $0。"
 msgid "LACP key"
 msgstr "LACP 密钥"
 
-#: pkg/storaged/content-views.jsx:457 pkg/storaged/content-views.jsx:474
+#: pkg/storaged/content-views.jsx:462 pkg/storaged/content-views.jsx:479
 msgid "LVM2 member"
 msgstr "LVM2 成员"
 
@@ -3418,15 +3433,16 @@ msgstr "本地账户"
 msgid "Local filesystem"
 msgstr "本地文件系统"
 
-#: pkg/storaged/nfs-details.jsx:168
+#: pkg/storaged/nfs-details.jsx:155
 msgid "Local mount point"
 msgstr "挂载点"
 
-#: pkg/kdump/kdump-view.jsx:151
+#: pkg/kdump/kdump-view.jsx:151 pkg/storaged/dialog.jsx:1051
+#: pkg/storaged/dialog.jsx:1129
 msgid "Location"
 msgstr "位置"
 
-#: pkg/storaged/content-views.jsx:278
+#: pkg/storaged/content-views.jsx:284
 msgid "Lock"
 msgstr "锁定"
 
@@ -3438,11 +3454,11 @@ msgstr "锁定账户"
 msgid "Locked devices"
 msgstr "锁定的设备"
 
-#: pkg/storaged/stratis-details.jsx:768 pkg/storaged/stratis-panel.jsx:71
+#: pkg/storaged/stratis-details.jsx:770 pkg/storaged/stratis-panel.jsx:71
 msgid "Locked encrypted Stratis pool"
 msgstr "已锁定的加密Stratis池"
 
-#: pkg/storaged/content-views.jsx:447
+#: pkg/storaged/content-views.jsx:452
 msgctxt "storage-id-desc"
 msgid "Locked encrypted data"
 msgstr "已锁定的加密数据"
@@ -3476,15 +3492,15 @@ msgstr "注销"
 msgid "Logged in"
 msgstr "登录"
 
-#: pkg/storaged/vdo-details.jsx:297
+#: pkg/storaged/vdo-details.jsx:305
 msgid "Logical"
 msgstr "逻辑"
 
-#: pkg/storaged/content-views.jsx:906
+#: pkg/storaged/content-views.jsx:927
 msgid "Logical Size"
 msgstr "逻辑大小"
 
-#: pkg/storaged/vdo-details.jsx:220
+#: pkg/storaged/vdo-details.jsx:228
 msgid "Logical size"
 msgstr "逻辑大小"
 
@@ -3500,7 +3516,7 @@ msgstr "逻辑卷 (快照)"
 msgid "Logical volume of $0"
 msgstr "$0 的逻辑卷"
 
-#: pkg/storaged/content-views.jsx:973 pkg/storaged/content-views.jsx:978
+#: pkg/storaged/content-views.jsx:994 pkg/storaged/content-views.jsx:999
 msgid "Logical volumes"
 msgstr "逻辑卷"
 
@@ -3576,7 +3592,7 @@ msgstr "主服务器机箱"
 msgid "Maintenance"
 msgstr "维护"
 
-#: pkg/storaged/crypto-keyslots.jsx:383
+#: pkg/storaged/crypto-keyslots.jsx:389
 msgid ""
 "Make sure the key hash from the Tang server matches one of the following:"
 msgstr "确保来自 Tang 服务器的密钥哈希与以下之一匹配："
@@ -3649,7 +3665,7 @@ msgstr "手动"
 msgid "Manually"
 msgstr "手动的"
 
-#: pkg/storaged/crypto-keyslots.jsx:392
+#: pkg/storaged/crypto-keyslots.jsx:398
 msgid "Manually check with SSH: "
 msgstr "用 SSH 手动检查： "
 
@@ -3711,7 +3727,7 @@ msgstr "发送给已登录用户的信息"
 msgid "Messages related to the failure might be found in the journal:"
 msgstr "与失败相关的消息可能会在日志中找到："
 
-#: pkg/storaged/lvol-tabs.jsx:504 pkg/storaged/lvol-tabs.jsx:557
+#: pkg/storaged/lvol-tabs.jsx:505 pkg/storaged/lvol-tabs.jsx:558
 msgid "Metadata used"
 msgstr "已使用的元数据"
 
@@ -3787,73 +3803,73 @@ msgid "More info..."
 msgstr "更多信息。。。"
 
 #: pkg/kdump/kdump-view.jsx:98 pkg/storaged/fsys-panel.jsx:173
-#: pkg/storaged/nfs-details.jsx:313 pkg/storaged/content-views.jsx:283
-#: pkg/storaged/content-views.jsx:409 pkg/storaged/stratis-details.jsx:596
-#: pkg/storaged/fsys-tab.jsx:363
+#: pkg/storaged/nfs-details.jsx:300 pkg/storaged/content-views.jsx:289
+#: pkg/storaged/content-views.jsx:415 pkg/storaged/stratis-details.jsx:597
+#: pkg/storaged/stratis-details.jsx:598 pkg/storaged/fsys-tab.jsx:369
 msgid "Mount"
 msgstr "挂载"
 
-#: pkg/storaged/fsys-tab.jsx:635
+#: pkg/storaged/fsys-tab.jsx:651
 msgid "Mount also automatically on boot"
 msgstr "在引导时也自动挂载"
 
-#: pkg/storaged/nfs-details.jsx:182
+#: pkg/storaged/nfs-details.jsx:169
 msgid "Mount at boot"
 msgstr "引导时挂载"
 
-#: pkg/storaged/fsys-tab.jsx:627 pkg/storaged/fsys-tab.jsx:639
+#: pkg/storaged/fsys-tab.jsx:643 pkg/storaged/fsys-tab.jsx:655
 msgid "Mount automatically on $0 on boot"
 msgstr "在引导时在 $0 自动挂载"
 
-#: pkg/storaged/fsys-tab.jsx:359
+#: pkg/storaged/fsys-tab.jsx:365
 msgid "Mount configuration"
 msgstr "挂载配置"
 
-#: pkg/storaged/fsys-tab.jsx:357
+#: pkg/storaged/fsys-tab.jsx:363
 msgid "Mount filesystem"
 msgstr "挂载文件系统"
 
-#: pkg/storaged/format-dialog.jsx:256 pkg/storaged/stratis-details.jsx:386
-#: pkg/storaged/stratis-details.jsx:516 pkg/storaged/fsys-tab.jsx:632
+#: pkg/storaged/format-dialog.jsx:250 pkg/storaged/stratis-details.jsx:382
+#: pkg/storaged/stratis-details.jsx:512 pkg/storaged/fsys-tab.jsx:648
 msgid "Mount now"
 msgstr "现在挂载"
 
-#: pkg/storaged/fsys-tab.jsx:628
+#: pkg/storaged/fsys-tab.jsx:644
 msgid "Mount on $0 now"
 msgstr "现在在 $0 挂载"
 
-#: pkg/storaged/format-dialog.jsx:246 pkg/storaged/nfs-details.jsx:179
-#: pkg/storaged/stratis-details.jsx:377 pkg/storaged/stratis-details.jsx:507
-#: pkg/storaged/fsys-tab.jsx:317
+#: pkg/storaged/format-dialog.jsx:240 pkg/storaged/nfs-details.jsx:166
+#: pkg/storaged/stratis-details.jsx:373 pkg/storaged/stratis-details.jsx:503
+#: pkg/storaged/fsys-tab.jsx:323
 msgid "Mount options"
 msgstr "挂载选项"
 
-#: pkg/storaged/format-dialog.jsx:240 pkg/storaged/nfs-details.jsx:334
-#: pkg/storaged/nfs-panel.jsx:103 pkg/storaged/stratis-details.jsx:373
-#: pkg/storaged/stratis-details.jsx:503 pkg/storaged/fsys-tab.jsx:312
-#: pkg/storaged/fsys-tab.jsx:681
+#: pkg/storaged/format-dialog.jsx:234 pkg/storaged/nfs-details.jsx:321
+#: pkg/storaged/nfs-panel.jsx:103 pkg/storaged/stratis-details.jsx:369
+#: pkg/storaged/stratis-details.jsx:499 pkg/storaged/fsys-tab.jsx:318
+#: pkg/storaged/fsys-tab.jsx:697
 msgid "Mount point"
 msgstr "挂载点"
 
-#: pkg/storaged/fsys-tab.jsx:105
+#: pkg/storaged/fsys-tab.jsx:108
 msgid "Mount point cannot be empty"
 msgstr "挂载点不能为空"
 
-#: pkg/storaged/nfs-details.jsx:173
+#: pkg/storaged/nfs-details.jsx:160
 msgid "Mount point cannot be empty."
 msgstr "挂载点不能为空。"
 
-#: pkg/storaged/fsys-tab.jsx:109
+#: pkg/storaged/fsys-tab.jsx:112
 msgid "Mount point is already used for $0"
 msgstr "挂载点已用于 $0"
 
-#: pkg/storaged/nfs-details.jsx:175
+#: pkg/storaged/nfs-details.jsx:162
 msgid "Mount point must start with \"/\"."
 msgstr "挂载点必须以“/”开头。"
 
-#: pkg/storaged/format-dialog.jsx:257 pkg/storaged/nfs-details.jsx:183
-#: pkg/storaged/stratis-details.jsx:387 pkg/storaged/stratis-details.jsx:517
-#: pkg/storaged/fsys-tab.jsx:325
+#: pkg/storaged/format-dialog.jsx:251 pkg/storaged/nfs-details.jsx:170
+#: pkg/storaged/stratis-details.jsx:383 pkg/storaged/stratis-details.jsx:513
+#: pkg/storaged/fsys-tab.jsx:331
 msgid "Mount read only"
 msgstr "只读挂载"
 
@@ -3870,7 +3886,7 @@ msgctxt "storage"
 msgid "Multipathed devices"
 msgstr "多路径设备"
 
-#: pkg/storaged/nfs-details.jsx:144
+#: pkg/storaged/nfs-details.jsx:131
 msgid "NFS mount"
 msgstr "NFS 挂载"
 
@@ -3891,26 +3907,26 @@ msgid "NTP server"
 msgstr "NTP 服务器"
 
 #: pkg/systemd/services/timer-dialog.jsx:141 pkg/systemd/hwinfo.jsx:92
-#: pkg/shell/credentials.jsx:102 pkg/storaged/format-dialog.jsx:219
+#: pkg/shell/credentials.jsx:102 pkg/storaged/format-dialog.jsx:213
 #: pkg/storaged/vgroup-details.jsx:168 pkg/storaged/lvol-tabs.jsx:48
-#: pkg/storaged/lvol-tabs.jsx:418 pkg/storaged/lvol-tabs.jsx:479
-#: pkg/storaged/lvol-tabs.jsx:537 pkg/storaged/mdraids-panel.jsx:75
-#: pkg/storaged/part-tab.jsx:40 pkg/storaged/content-views.jsx:160
-#: pkg/storaged/content-views.jsx:301 pkg/storaged/content-views.jsx:729
-#: pkg/storaged/content-views.jsx:848 pkg/storaged/content-views.jsx:979
-#: pkg/storaged/vgroups-panel.jsx:74 pkg/storaged/stratis-details.jsx:281
-#: pkg/storaged/stratis-details.jsx:369 pkg/storaged/stratis-details.jsx:475
-#: pkg/storaged/stratis-details.jsx:498 pkg/storaged/stratis-details.jsx:655
-#: pkg/storaged/stratis-details.jsx:792 pkg/storaged/iscsi-panel.jsx:131
-#: pkg/storaged/iscsi-panel.jsx:188 pkg/storaged/fsys-tab.jsx:464
-#: pkg/storaged/fsys-tab.jsx:667 pkg/storaged/stratis-panel.jsx:129
+#: pkg/storaged/lvol-tabs.jsx:419 pkg/storaged/lvol-tabs.jsx:480
+#: pkg/storaged/lvol-tabs.jsx:538 pkg/storaged/mdraids-panel.jsx:75
+#: pkg/storaged/part-tab.jsx:40 pkg/storaged/content-views.jsx:182
+#: pkg/storaged/content-views.jsx:307 pkg/storaged/content-views.jsx:750
+#: pkg/storaged/content-views.jsx:869 pkg/storaged/content-views.jsx:1000
+#: pkg/storaged/vgroups-panel.jsx:74 pkg/storaged/stratis-details.jsx:277
+#: pkg/storaged/stratis-details.jsx:365 pkg/storaged/stratis-details.jsx:471
+#: pkg/storaged/stratis-details.jsx:494 pkg/storaged/stratis-details.jsx:657
+#: pkg/storaged/stratis-details.jsx:794 pkg/storaged/iscsi-panel.jsx:131
+#: pkg/storaged/iscsi-panel.jsx:188 pkg/storaged/fsys-tab.jsx:480
+#: pkg/storaged/fsys-tab.jsx:683 pkg/storaged/stratis-panel.jsx:129
 #: pkg/storaged/crypto-panel.jsx:84 pkg/networkmanager/network-main.jsx:184
 #: pkg/networkmanager/network-main.jsx:199
 #: pkg/networkmanager/dialogs-common.jsx:133 pkg/packagekit/updates.jsx:380
 msgid "Name"
 msgstr "名称"
 
-#: pkg/storaged/stratis-details.jsx:234 pkg/storaged/stratis-details.jsx:356
+#: pkg/storaged/stratis-details.jsx:230 pkg/storaged/stratis-details.jsx:352
 msgid "Name can not be empty."
 msgstr "名称不能为空."
 
@@ -3996,12 +4012,12 @@ msgstr "账号从不过期"
 msgid "Never expire password"
 msgstr "密码从不过期"
 
-#: pkg/storaged/format-dialog.jsx:259 pkg/storaged/stratis-details.jsx:389
-#: pkg/storaged/stratis-details.jsx:519 pkg/storaged/fsys-tab.jsx:327
+#: pkg/storaged/format-dialog.jsx:253 pkg/storaged/stratis-details.jsx:385
+#: pkg/storaged/stratis-details.jsx:515 pkg/storaged/fsys-tab.jsx:333
 msgid "Never mount at boot"
 msgstr "永远不在启动时挂载"
 
-#: pkg/storaged/nfs-details.jsx:144
+#: pkg/storaged/nfs-details.jsx:131
 msgid "New NFS mount"
 msgstr "新的 NFS 挂载"
 
@@ -4013,7 +4029,7 @@ msgstr "新主机"
 msgid "New key password"
 msgstr "新密钥密码"
 
-#: pkg/storaged/crypto-keyslots.jsx:289 pkg/storaged/crypto-keyslots.jsx:335
+#: pkg/storaged/crypto-keyslots.jsx:293 pkg/storaged/crypto-keyslots.jsx:340
 msgid "New passphrase"
 msgstr "新口令"
 
@@ -4049,7 +4065,7 @@ msgstr "没有可用的安装。"
 msgid "No archive has been created."
 msgstr "没有档案被创建。"
 
-#: pkg/storaged/crypto-keyslots.jsx:618
+#: pkg/storaged/crypto-keyslots.jsx:624
 msgid "No available slots"
 msgstr "没有可用的 slot"
 
@@ -4090,8 +4106,8 @@ msgid "No devices"
 msgstr "无设备"
 
 #: pkg/storaged/vgroup-details.jsx:69 pkg/storaged/mdraids-panel.jsx:129
-#: pkg/storaged/mdraid-details.jsx:64 pkg/storaged/vgroups-panel.jsx:81
-#: pkg/storaged/stratis-details.jsx:143
+#: pkg/storaged/mdraid-details.jsx:67 pkg/storaged/vgroups-panel.jsx:81
+#: pkg/storaged/stratis-details.jsx:139
 msgid "No disks are available."
 msgstr "没有可用的磁盘。"
 
@@ -4099,23 +4115,23 @@ msgstr "没有可用的磁盘。"
 msgid "No drives attached"
 msgstr "没有附件的驱动器"
 
-#: pkg/storaged/format-dialog.jsx:165
+#: pkg/storaged/format-dialog.jsx:159
 msgid "No encryption"
 msgstr "无加密"
 
-#: pkg/storaged/format-dialog.jsx:147
+#: pkg/storaged/format-dialog.jsx:141
 msgid "No filesystem"
 msgstr "无文件系统"
 
-#: pkg/storaged/stratis-details.jsx:653
+#: pkg/storaged/stratis-details.jsx:655
 msgid "No filesystems"
 msgstr "无文件系统"
 
-#: pkg/storaged/crypto-keyslots.jsx:623
+#: pkg/storaged/crypto-keyslots.jsx:629
 msgid "No free key slots"
 msgstr "没有空闲的密钥 slot"
 
-#: pkg/storaged/content-views.jsx:961
+#: pkg/storaged/content-views.jsx:982
 msgid "No free space"
 msgstr "没有剩余空间"
 
@@ -4131,7 +4147,7 @@ msgstr "没有设置 iSCSI 目标"
 msgid "No installation package found for this application."
 msgstr "没有找到该应用的安装包。"
 
-#: pkg/storaged/crypto-keyslots.jsx:548
+#: pkg/storaged/crypto-keyslots.jsx:554
 msgid "No keys added"
 msgstr "没有添加密钥"
 
@@ -4139,7 +4155,7 @@ msgstr "没有添加密钥"
 msgid "No log entries"
 msgstr "无日志条目"
 
-#: pkg/storaged/content-views.jsx:977
+#: pkg/storaged/content-views.jsx:998
 msgid "No logical volumes"
 msgstr "没有逻辑卷"
 
@@ -4165,7 +4181,7 @@ msgstr ""
 "没有内存预留。在内核命令行（例如在 /etc/default/grub 文件）中增加一个 "
 "crashkernel 选项以在启动时预留内存。例如：crashkernel=512M"
 
-#: pkg/storaged/content-views.jsx:674
+#: pkg/storaged/content-views.jsx:695
 msgid "No partitioning"
 msgstr "无分区"
 
@@ -4240,7 +4256,7 @@ msgstr "没有连接到 Insights"
 msgid "Not connected to host"
 msgstr "没有连接到主机"
 
-#: pkg/storaged/lvol-tabs.jsx:399
+#: pkg/storaged/lvol-tabs.jsx:400
 msgid "Not enough space to grow."
 msgstr "没有足够空间增长。"
 
@@ -4274,7 +4290,7 @@ msgstr "没有注册"
 
 #: pkg/systemd/services/service-details.jsx:377
 #: pkg/systemd/services/services.jsx:188 pkg/systemd/services/services.jsx:191
-#: pkg/systemd/services/services.jsx:758 pkg/storaged/mdraid-details.jsx:357
+#: pkg/systemd/services/services.jsx:758 pkg/storaged/mdraid-details.jsx:360
 msgid "Not running"
 msgstr "未运行"
 
@@ -4314,7 +4330,7 @@ msgstr "发生次数"
 msgid "Ok"
 msgstr "确认"
 
-#: pkg/storaged/crypto-keyslots.jsx:332
+#: pkg/storaged/crypto-keyslots.jsx:337
 msgid "Old passphrase"
 msgstr "旧密码口令"
 
@@ -4341,7 +4357,7 @@ msgid ""
 msgstr ""
 "在安装 Cockpit 后，使用 \"systemctl enable --now cockpit.socket\" 启用它。"
 
-#: pkg/storaged/vdo-details.jsx:120
+#: pkg/storaged/vdo-details.jsx:122
 msgid "Only $0 of $1 are used."
 msgstr "仅使用 $1 中的 $0。"
 
@@ -4370,7 +4386,7 @@ msgctxt "storage"
 msgid "Optical drive"
 msgstr "光盘驱动器"
 
-#: pkg/storaged/content-views.jsx:916 pkg/storaged/crypto-tab.jsx:253
+#: pkg/storaged/content-views.jsx:937 pkg/storaged/crypto-tab.jsx:253
 #: pkg/networkmanager/bridge.jsx:104
 msgid "Options"
 msgstr "选项"
@@ -4383,7 +4399,7 @@ msgstr "或者使用捆绑的浏览器"
 msgid "Other"
 msgstr "其他"
 
-#: pkg/storaged/content-views.jsx:485
+#: pkg/storaged/content-views.jsx:490
 msgctxt "storage-id-desc"
 msgid "Other data"
 msgstr "其他数据"
@@ -4405,17 +4421,23 @@ msgstr "出"
 msgid "Overview"
 msgstr "概览"
 
-#: pkg/storaged/format-dialog.jsx:234 pkg/storaged/content-views.jsx:677
+#: pkg/storaged/format-dialog.jsx:228 pkg/storaged/content-views.jsx:698
 msgid "Overwrite"
 msgstr "覆盖"
 
-#: pkg/storaged/format-dialog.jsx:237 pkg/storaged/content-views.jsx:680
+#: pkg/storaged/format-dialog.jsx:231 pkg/storaged/content-views.jsx:701
 msgid "Overwrite existing data with zeros (slower)"
 msgstr "用零覆盖现有数据（较慢）"
 
 #: pkg/systemd/hwinfo.jsx:295 pkg/systemd/hwinfo.jsx:346
 msgid "PCI"
 msgstr "PCI"
+
+#: pkg/storaged/dialog.jsx:1202
+#, fuzzy
+#| msgid "ID"
+msgid "PID"
+msgstr "ID"
 
 #: pkg/metrics/metrics.jsx:1303
 msgid "Package cockpit-pcp is missing for metrics history"
@@ -4461,7 +4483,7 @@ msgstr "部分"
 msgid "Part of $0"
 msgstr "$0的部分"
 
-#: pkg/storaged/content-views.jsx:195
+#: pkg/storaged/content-views.jsx:217
 msgid "Partition"
 msgstr "分区"
 
@@ -4469,15 +4491,15 @@ msgstr "分区"
 msgid "Partition of $0"
 msgstr "$0 的分区"
 
-#: pkg/storaged/content-views.jsx:748
+#: pkg/storaged/content-views.jsx:769
 msgid "Partitioned block device"
 msgstr "分区块设备"
 
-#: pkg/storaged/content-views.jsx:665
+#: pkg/storaged/content-views.jsx:686
 msgid "Partitioning"
 msgstr "分区"
 
-#: pkg/storaged/content-views.jsx:716
+#: pkg/storaged/content-views.jsx:737
 msgid "Partitions"
 msgstr "分区"
 
@@ -4485,43 +4507,43 @@ msgstr "分区"
 msgid "Passive"
 msgstr "被动"
 
-#: pkg/storaged/format-dialog.jsx:271 pkg/storaged/format-dialog.jsx:297
-#: pkg/storaged/content-views.jsx:263 pkg/storaged/stratis-details.jsx:136
-#: pkg/storaged/stratis-details.jsx:704 pkg/storaged/fsys-tab.jsx:337
-#: pkg/storaged/stratis-panel.jsx:140 pkg/storaged/crypto-keyslots.jsx:284
-#: pkg/storaged/crypto-keyslots.jsx:594
+#: pkg/storaged/format-dialog.jsx:265 pkg/storaged/format-dialog.jsx:291
+#: pkg/storaged/content-views.jsx:269 pkg/storaged/stratis-details.jsx:132
+#: pkg/storaged/stratis-details.jsx:706 pkg/storaged/fsys-tab.jsx:343
+#: pkg/storaged/stratis-panel.jsx:140 pkg/storaged/crypto-keyslots.jsx:288
+#: pkg/storaged/crypto-keyslots.jsx:600
 msgid "Passphrase"
 msgstr "口令"
 
-#: pkg/storaged/crypto-keyslots.jsx:419
+#: pkg/storaged/crypto-keyslots.jsx:425
 msgid "Passphrase can not be empty"
 msgstr "密码不能为空"
 
-#: pkg/storaged/format-dialog.jsx:275 pkg/storaged/format-dialog.jsx:301
-#: pkg/storaged/stratis-details.jsx:139 pkg/storaged/fsys-tab.jsx:340
+#: pkg/storaged/format-dialog.jsx:269 pkg/storaged/format-dialog.jsx:295
+#: pkg/storaged/stratis-details.jsx:135 pkg/storaged/fsys-tab.jsx:346
 #: pkg/storaged/stratis-panel.jsx:144 pkg/storaged/crypto-keyslots.jsx:200
-#: pkg/storaged/crypto-keyslots.jsx:292 pkg/storaged/crypto-keyslots.jsx:333
-#: pkg/storaged/crypto-keyslots.jsx:336
+#: pkg/storaged/crypto-keyslots.jsx:296 pkg/storaged/crypto-keyslots.jsx:338
+#: pkg/storaged/crypto-keyslots.jsx:341
 msgid "Passphrase cannot be empty"
 msgstr "密码不能为空"
 
-#: pkg/storaged/crypto-keyslots.jsx:442
+#: pkg/storaged/crypto-keyslots.jsx:448
 msgid "Passphrase from any other key slot"
 msgstr "来自其他密钥插槽的密码短语"
 
-#: pkg/storaged/crypto-keyslots.jsx:432
+#: pkg/storaged/crypto-keyslots.jsx:438
 msgid "Passphrase removal may prevent unlocking $0."
 msgstr "删除密码口令可能会阻止解锁 $0。"
 
-#: pkg/storaged/format-dialog.jsx:283 pkg/storaged/stratis-panel.jsx:152
-#: pkg/storaged/crypto-keyslots.jsx:300 pkg/storaged/crypto-keyslots.jsx:338
+#: pkg/storaged/format-dialog.jsx:277 pkg/storaged/stratis-panel.jsx:152
+#: pkg/storaged/crypto-keyslots.jsx:304 pkg/storaged/crypto-keyslots.jsx:343
 msgid "Passphrases do not match"
 msgstr "口令不匹配"
 
 #: pkg/static/login.html:81 pkg/users/account-details.js:339
 #: pkg/users/account-create-dialog.js:60 pkg/shell/hosts_dialog.jsx:818
 #: pkg/shell/hosts_dialog.jsx:827 pkg/shell/credentials.jsx:120
-#: pkg/shell/credentials.jsx:263 pkg/shell/credentials.jsx:322
+#: pkg/shell/credentials.jsx:263 pkg/shell/credentials.jsx:320
 #: pkg/shell/superuser.jsx:52 pkg/storaged/iscsi-panel.jsx:50
 #: pkg/storaged/iscsi-panel.jsx:160
 msgid "Password"
@@ -4583,15 +4605,15 @@ msgstr "路径开销"
 msgid "Path cost $path_cost"
 msgstr "路径开销 $path_cost"
 
-#: pkg/storaged/nfs-details.jsx:156
+#: pkg/storaged/nfs-details.jsx:143
 msgid "Path on server"
 msgstr "服务器上的路径"
 
-#: pkg/storaged/nfs-details.jsx:161
+#: pkg/storaged/nfs-details.jsx:148
 msgid "Path on server cannot be empty."
 msgstr "服务器上的路径不能为空。"
 
-#: pkg/storaged/nfs-details.jsx:163
+#: pkg/storaged/nfs-details.jsx:150
 msgid "Path on server must start with \"/\"."
 msgstr "服务器上的路径必须以“/”开头。"
 
@@ -4630,9 +4652,9 @@ msgstr "外设机箱"
 msgid "Permanent"
 msgstr "永久的"
 
-#: pkg/storaged/vgroup-details.jsx:200 pkg/storaged/content-views.jsx:372
-#: pkg/storaged/vdo-details.jsx:197 pkg/storaged/mdraid-details.jsx:299
-#: pkg/storaged/stratis-details.jsx:258
+#: pkg/storaged/vgroup-details.jsx:200 pkg/storaged/content-views.jsx:378
+#: pkg/storaged/vdo-details.jsx:202 pkg/storaged/mdraid-details.jsx:302
+#: pkg/storaged/stratis-details.jsx:254
 msgid "Permanently delete $0?"
 msgstr "永久删除$0？"
 
@@ -4644,7 +4666,7 @@ msgstr "权限被拒绝"
 msgid "Permissive"
 msgstr "允许的"
 
-#: pkg/storaged/vdo-details.jsx:283
+#: pkg/storaged/vdo-details.jsx:291
 msgid "Physical"
 msgstr "物理"
 
@@ -4678,11 +4700,11 @@ msgstr "披萨盒"
 msgid "Please authenticate to gain administrative access"
 msgstr "请认证以获得管理员权限"
 
-#: pkg/storaged/stratis-details.jsx:557
+#: pkg/storaged/stratis-details.jsx:553
 msgid "Please confirm deletion of $0"
 msgstr "请确认删除 $0"
 
-#: pkg/storaged/vdo-details.jsx:139 pkg/storaged/mdraid-details.jsx:245
+#: pkg/storaged/vdo-details.jsx:141 pkg/storaged/mdraid-details.jsx:248
 msgid "Please confirm stopping of $0"
 msgstr "请确认停止$0"
 
@@ -4706,7 +4728,7 @@ msgstr "请指定一个过期时间"
 msgid "Please specify the host to connect to"
 msgstr "请指定要连接的主机"
 
-#: pkg/storaged/content-views.jsx:184
+#: pkg/storaged/content-views.jsx:206
 msgid "Pool"
 msgstr "池"
 
@@ -4714,11 +4736,11 @@ msgstr "池"
 msgid "Pool for thin logical volumes"
 msgstr "瘦逻辑卷池"
 
-#: pkg/storaged/content-views.jsx:763
+#: pkg/storaged/content-views.jsx:784
 msgid "Pool for thin volumes"
 msgstr "瘦卷的池"
 
-#: pkg/storaged/content-views.jsx:833
+#: pkg/storaged/content-views.jsx:854
 msgid "Pool for thinly provisioned volumes"
 msgstr "瘦分配配置卷的池"
 
@@ -4794,9 +4816,9 @@ msgstr "问题详情"
 msgid "Problem info"
 msgstr "问题信息"
 
-#: pkg/storaged/dialog.jsx:1106
-msgid "Process"
-msgstr "流程"
+#: pkg/storaged/dialog.jsx:1083
+msgid "Processes using the location"
+msgstr ""
 
 #: pkg/shell/shell-modals.jsx:74
 msgid "Project website"
@@ -4818,7 +4840,7 @@ msgstr "通过 ssh-keygen 提示超时"
 msgid "Propagates reload to"
 msgstr "传播重新加载到"
 
-#: pkg/storaged/stratis-details.jsx:699
+#: pkg/storaged/stratis-details.jsx:701
 msgid "Provide the passphrase for the pool on these block devices:"
 msgstr "为这些块设备上的池提供密码："
 
@@ -4826,15 +4848,15 @@ msgstr "为这些块设备上的池提供密码："
 msgid "Public key"
 msgstr "公钥"
 
-#: pkg/storaged/content-views.jsx:853
+#: pkg/storaged/content-views.jsx:874
 msgid "Purpose"
 msgstr "目的"
 
-#: pkg/storaged/mdraid-details.jsx:186
+#: pkg/storaged/mdraid-details.jsx:189
 msgid "RAID ($0)"
 msgstr "RAID ($0)"
 
-#: pkg/storaged/mdraid-details.jsx:180
+#: pkg/storaged/mdraid-details.jsx:183
 msgid "RAID 0"
 msgstr "RAID 0"
 
@@ -4842,7 +4864,7 @@ msgstr "RAID 0"
 msgid "RAID 0 (stripe)"
 msgstr "RAID 0 (条带)"
 
-#: pkg/storaged/mdraid-details.jsx:181
+#: pkg/storaged/mdraid-details.jsx:184
 msgid "RAID 1"
 msgstr "RAID 1"
 
@@ -4850,7 +4872,7 @@ msgstr "RAID 1"
 msgid "RAID 1 (mirror)"
 msgstr "RAID 1 (镜像)"
 
-#: pkg/storaged/mdraid-details.jsx:185
+#: pkg/storaged/mdraid-details.jsx:188
 msgid "RAID 10"
 msgstr "RAID 10"
 
@@ -4858,7 +4880,7 @@ msgstr "RAID 10"
 msgid "RAID 10 (stripe of mirrors)"
 msgstr "RAID 10 (条带镜像)"
 
-#: pkg/storaged/mdraid-details.jsx:182
+#: pkg/storaged/mdraid-details.jsx:185
 msgid "RAID 4"
 msgstr "RAID 4"
 
@@ -4866,7 +4888,7 @@ msgstr "RAID 4"
 msgid "RAID 4 (dedicated parity)"
 msgstr "RAID 4 (奇偶校验)"
 
-#: pkg/storaged/mdraid-details.jsx:183
+#: pkg/storaged/mdraid-details.jsx:186
 msgid "RAID 5"
 msgstr "RAID 5"
 
@@ -4874,7 +4896,7 @@ msgstr "RAID 5"
 msgid "RAID 5 (distributed parity)"
 msgstr "RAID 5 (奇偶校验)"
 
-#: pkg/storaged/mdraid-details.jsx:184
+#: pkg/storaged/mdraid-details.jsx:187
 msgid "RAID 6"
 msgstr "RAID 6"
 
@@ -4890,7 +4912,7 @@ msgstr "RAID 机箱"
 msgid "RAID device"
 msgstr "RAID 设备"
 
-#: pkg/storaged/utils.js:252 pkg/storaged/mdraid-details.jsx:321
+#: pkg/storaged/utils.js:252 pkg/storaged/mdraid-details.jsx:324
 msgid "RAID device $0"
 msgstr "RAID 设备 $0"
 
@@ -4898,12 +4920,12 @@ msgstr "RAID 设备 $0"
 msgid "RAID level"
 msgstr "RAID 级别"
 
-#: pkg/storaged/mdraid-details.jsx:349
+#: pkg/storaged/mdraid-details.jsx:352
 msgctxt "storage"
 msgid "RAID level"
 msgstr "RAID 级别"
 
-#: pkg/storaged/content-views.jsx:464 pkg/storaged/content-views.jsx:479
+#: pkg/storaged/content-views.jsx:469 pkg/storaged/content-views.jsx:484
 msgid "RAID member"
 msgstr "RAID 成员"
 
@@ -5007,7 +5029,7 @@ msgstr "最近"
 msgid "Reconnect"
 msgstr "重新连接"
 
-#: pkg/storaged/mdraid-details.jsx:110
+#: pkg/storaged/mdraid-details.jsx:113
 msgid "Recovering"
 msgstr "恢复"
 
@@ -5034,6 +5056,18 @@ msgstr "拒绝连接。未知主机密钥"
 #: pkg/packagekit/updates.jsx:1309
 msgid "Register…"
 msgstr "注册…"
+
+#: pkg/storaged/dialog.jsx:1158
+msgid "Related processes and services will be forcefully stopped."
+msgstr ""
+
+#: pkg/storaged/dialog.jsx:1160
+msgid "Related processes will be forcefully stopped."
+msgstr ""
+
+#: pkg/storaged/dialog.jsx:1162
+msgid "Related services will be forcefully stopped."
+msgstr ""
 
 #: pkg/systemd/services/service-details.jsx:131
 msgid "Reload"
@@ -5071,9 +5105,9 @@ msgstr "移除："
 #: pkg/users/authorized-keys-panel.js:137
 #: pkg/systemd/services/timer-dialog.jsx:326 pkg/shell/hosts.jsx:176
 #: pkg/apps/application.jsx:51 pkg/storaged/vgroup-details.jsx:122
-#: pkg/storaged/nfs-details.jsx:320 pkg/storaged/mdraid-details.jsx:142
-#: pkg/storaged/crypto-keyslots.jsx:463 pkg/storaged/crypto-keyslots.jsx:498
-#: pkg/storaged/crypto-keyslots.jsx:579
+#: pkg/storaged/nfs-details.jsx:307 pkg/storaged/mdraid-details.jsx:145
+#: pkg/storaged/crypto-keyslots.jsx:469 pkg/storaged/crypto-keyslots.jsx:504
+#: pkg/storaged/crypto-keyslots.jsx:585
 msgid "Remove"
 msgstr "删除"
 
@@ -5085,40 +5119,15 @@ msgstr "移除 $0"
 msgid "Remove $0 service from $1 zone"
 msgstr "从 $1 区中删除 $0 服务"
 
-#: pkg/storaged/crypto-keyslots.jsx:482
+#: pkg/storaged/crypto-keyslots.jsx:488
 msgid "Remove $0?"
 msgstr "移除 $0？"
 
-#: pkg/storaged/crypto-keyslots.jsx:492
+#: pkg/storaged/crypto-keyslots.jsx:498
 msgid "Remove Tang keyserver?"
 msgstr "删除 Tang keyserver？"
 
-#: pkg/storaged/vgroup-details.jsx:207 pkg/storaged/content-views.jsx:379
-#: pkg/storaged/mdraid-details.jsx:305 pkg/storaged/stratis-details.jsx:265
-msgid "Remove and delete"
-msgstr "去掉并删除"
-
-#: pkg/storaged/format-dialog.jsx:90
-msgid "Remove and format"
-msgstr "删除并格式化"
-
-#: pkg/storaged/lvol-tabs.jsx:272
-msgid "Remove and grow"
-msgstr "删除并增大"
-
-#: pkg/storaged/content-views.jsx:688
-msgid "Remove and initialize"
-msgstr "删除并初始化"
-
-#: pkg/storaged/lvol-tabs.jsx:361
-msgid "Remove and shrink"
-msgstr "删除并缩小"
-
-#: pkg/storaged/mdraid-details.jsx:252
-msgid "Remove and stop device"
-msgstr "删除并停止设备"
-
-#: pkg/storaged/vdo-details.jsx:107
+#: pkg/storaged/vdo-details.jsx:109
 msgid "Remove device"
 msgstr "删除设备"
 
@@ -5135,7 +5144,7 @@ msgstr "删除项目"
 msgid "Remove item"
 msgstr "删除项目"
 
-#: pkg/storaged/crypto-keyslots.jsx:456
+#: pkg/storaged/crypto-keyslots.jsx:462
 msgid "Remove passphrase in key slot $0?"
 msgstr "删除密钥插槽 $0 中的密码短语吗？"
 
@@ -5165,7 +5174,7 @@ msgstr "移除 $0将断开与服务器的连接，并将导致管理界面不可
 msgid "Removing $target from RAID device"
 msgstr "从 RAID 设备中删除 $target"
 
-#: pkg/storaged/crypto-keyslots.jsx:440
+#: pkg/storaged/crypto-keyslots.jsx:446
 msgid ""
 "Removing a passphrase without confirmation of another passphrase may prevent "
 "unlocking or key management, if other passphrases are forgotten or lost."
@@ -5191,17 +5200,17 @@ msgid "Removing the zone will remove all services within it."
 msgstr "删除区将删除其中的所有服务。"
 
 #: pkg/storaged/vgroup-details.jsx:175 pkg/storaged/vgroup-details.jsx:227
-#: pkg/storaged/lvol-tabs.jsx:52 pkg/storaged/stratis-details.jsx:288
-#: pkg/storaged/stratis-details.jsx:425 pkg/storaged/stratis-details.jsx:482
-#: pkg/storaged/stratis-details.jsx:601
+#: pkg/storaged/lvol-tabs.jsx:52 pkg/storaged/stratis-details.jsx:284
+#: pkg/storaged/stratis-details.jsx:421 pkg/storaged/stratis-details.jsx:478
+#: pkg/storaged/stratis-details.jsx:603
 msgid "Rename"
 msgstr "重命名"
 
-#: pkg/storaged/stratis-details.jsx:279
+#: pkg/storaged/stratis-details.jsx:275
 msgid "Rename Stratis pool"
 msgstr "重命名Stratis池"
 
-#: pkg/storaged/stratis-details.jsx:473
+#: pkg/storaged/stratis-details.jsx:469
 msgid "Rename filesystem"
 msgstr "重命名文件系统"
 
@@ -5230,8 +5239,8 @@ msgstr "重复"
 msgid "Repeat monthly"
 msgstr "每月重复"
 
-#: pkg/storaged/crypto-keyslots.jsx:282 pkg/storaged/crypto-keyslots.jsx:294
-#: pkg/storaged/crypto-keyslots.jsx:337
+#: pkg/storaged/crypto-keyslots.jsx:286 pkg/storaged/crypto-keyslots.jsx:298
+#: pkg/storaged/crypto-keyslots.jsx:342
 msgid "Repeat passphrase"
 msgstr "重复密码"
 
@@ -5312,7 +5321,7 @@ msgstr "重置密码"
 msgid "Resizing $target"
 msgstr "调整大小 $target"
 
-#: pkg/storaged/lvol-tabs.jsx:258 pkg/storaged/lvol-tabs.jsx:347
+#: pkg/storaged/lvol-tabs.jsx:258 pkg/storaged/lvol-tabs.jsx:348
 msgid ""
 "Resizing an encrypted filesystem requires unlocking the disk. Please provide "
 "a current disk passphrase."
@@ -5342,11 +5351,11 @@ msgstr "恢复连接"
 msgid "Resume"
 msgstr "恢复"
 
-#: pkg/storaged/format-dialog.jsx:173
+#: pkg/storaged/format-dialog.jsx:167
 msgid "Reuse existing encryption"
 msgstr "重用现存的加密"
 
-#: pkg/storaged/format-dialog.jsx:170
+#: pkg/storaged/format-dialog.jsx:164
 msgid "Reuse existing encryption ($0)"
 msgstr "重用现存的加密（$0）"
 
@@ -5381,9 +5390,15 @@ msgstr "运行者"
 
 #: pkg/systemd/services/service-details.jsx:369
 #: pkg/systemd/services/services.jsx:186 pkg/systemd/services/services.jsx:190
-#: pkg/systemd/services/services.jsx:757 pkg/storaged/mdraid-details.jsx:357
+#: pkg/systemd/services/services.jsx:757 pkg/storaged/mdraid-details.jsx:360
 msgid "Running"
 msgstr "运行中"
+
+#: pkg/storaged/dialog.jsx:1205 pkg/storaged/dialog.jsx:1224
+#, fuzzy
+#| msgid "time"
+msgid "Runtime"
+msgstr "时间"
 
 #: pkg/selinux/manifest.json:0
 msgid "SELinux"
@@ -5413,11 +5428,11 @@ msgstr "SELinux 系统状态未知。"
 msgid "SELinux troubleshoot"
 msgstr "SELinux 排错"
 
-#: pkg/storaged/crypto-keyslots.jsx:388
+#: pkg/storaged/crypto-keyslots.jsx:394
 msgid "SHA1"
 msgstr "SHA1"
 
-#: pkg/storaged/crypto-keyslots.jsx:385
+#: pkg/storaged/crypto-keyslots.jsx:391
 msgid "SHA256"
 msgstr "SHA256"
 
@@ -5460,7 +5475,7 @@ msgid "Saturdays"
 msgstr "周六"
 
 #: pkg/metrics/metrics.jsx:1032 pkg/systemd/services/timer-dialog.jsx:133
-#: pkg/storaged/crypto-keyslots.jsx:341 pkg/storaged/crypto-keyslots.jsx:360
+#: pkg/storaged/crypto-keyslots.jsx:346 pkg/storaged/crypto-keyslots.jsx:365
 msgid "Save"
 msgstr "保存"
 
@@ -5473,16 +5488,16 @@ msgstr "保存并重启"
 msgid "Save changes"
 msgstr "保存更改"
 
-#: pkg/storaged/content-views.jsx:922
+#: pkg/storaged/content-views.jsx:943
 msgid "Save space by compressing individual blocks with LZ4"
 msgstr "使用 LZ4 压缩独立块以节省空间"
 
-#: pkg/storaged/content-views.jsx:926
+#: pkg/storaged/content-views.jsx:947
 msgid "Save space by storing identical data blocks just once"
 msgstr "通过对相同数据块只保存一次来节省空间"
 
-#: pkg/storaged/crypto-keyslots.jsx:308 pkg/storaged/crypto-keyslots.jsx:358
-#: pkg/storaged/crypto-keyslots.jsx:402
+#: pkg/storaged/crypto-keyslots.jsx:312 pkg/storaged/crypto-keyslots.jsx:363
+#: pkg/storaged/crypto-keyslots.jsx:408
 msgid ""
 "Saving a new passphrase requires unlocking the disk. Please provide a "
 "current disk passphrase."
@@ -5552,12 +5567,12 @@ msgid "Serial number"
 msgstr "序列号"
 
 #: pkg/static/login.html:155 pkg/kdump/kdump-view.jsx:120
-#: pkg/storaged/nfs-details.jsx:329 pkg/storaged/nfs-panel.jsx:102
+#: pkg/storaged/nfs-details.jsx:316 pkg/storaged/nfs-panel.jsx:102
 #: pkg/networkmanager/ip-settings.jsx:231
 msgid "Server"
 msgstr "服务器"
 
-#: pkg/storaged/nfs-details.jsx:147 pkg/storaged/iscsi-panel.jsx:47
+#: pkg/storaged/nfs-details.jsx:134 pkg/storaged/iscsi-panel.jsx:47
 msgid "Server address"
 msgstr "服务器地址"
 
@@ -5569,7 +5584,7 @@ msgstr "服务器地址不能为空。"
 msgid "Server administrator"
 msgstr "服务器管理员"
 
-#: pkg/storaged/nfs-details.jsx:152
+#: pkg/storaged/nfs-details.jsx:139
 msgid "Server cannot be empty."
 msgstr "名称不能为空。"
 
@@ -5577,12 +5592,16 @@ msgstr "名称不能为空。"
 msgid "Server has closed the connection."
 msgstr "服务器关闭了连接。"
 
+#: src/bridge/cockpitpackages.c:1000
+msgid "Server is missing the cockpit-system package"
+msgstr ""
+
 #: pkg/systemd/overview-cards/realmd.jsx:281
 msgid "Server software"
 msgstr "服务器软件"
 
 #: pkg/metrics/metrics.jsx:492 pkg/metrics/metrics.jsx:525
-#: pkg/storaged/dialog.jsx:1110 pkg/networkmanager/firewall.jsx:184
+#: pkg/storaged/dialog.jsx:1221 pkg/networkmanager/firewall.jsx:184
 msgid "Service"
 msgstr "服务"
 
@@ -5616,7 +5635,13 @@ msgstr "服务日志"
 msgid "Services"
 msgstr "服务"
 
-#: pkg/shell/topnav.jsx:213 pkg/storaged/dialog.jsx:1106
+#: pkg/storaged/dialog.jsx:1069
+#, fuzzy
+#| msgid "Service is starting"
+msgid "Services using the location"
+msgstr "服务正在启动"
+
+#: pkg/shell/topnav.jsx:213
 msgid "Session"
 msgstr "会话"
 
@@ -5724,15 +5749,15 @@ msgstr "显示更多关系"
 msgid "Show relationships"
 msgstr "显示关系"
 
-#: pkg/storaged/lvol-tabs.jsx:359 pkg/storaged/lvol-tabs.jsx:432
+#: pkg/storaged/lvol-tabs.jsx:359 pkg/storaged/lvol-tabs.jsx:433
 msgid "Shrink"
 msgstr "缩小"
 
-#: pkg/storaged/lvol-tabs.jsx:354
+#: pkg/storaged/lvol-tabs.jsx:355
 msgid "Shrink logical volume"
 msgstr "缩小逻辑卷"
 
-#: pkg/storaged/lvol-tabs.jsx:449
+#: pkg/storaged/lvol-tabs.jsx:450
 msgid "Shrink volume"
 msgstr "缩小卷"
 
@@ -5753,35 +5778,35 @@ msgstr "自从"
 msgid "Single rank"
 msgstr "单 rank"
 
-#: pkg/systemd/hwinfo.jsx:313 pkg/storaged/format-dialog.jsx:226
+#: pkg/systemd/hwinfo.jsx:313 pkg/storaged/format-dialog.jsx:220
 #: pkg/storaged/fsys-panel.jsx:174 pkg/storaged/lvol-tabs.jsx:242
-#: pkg/storaged/lvol-tabs.jsx:308 pkg/storaged/lvol-tabs.jsx:428
-#: pkg/storaged/lvol-tabs.jsx:489 pkg/storaged/lvol-tabs.jsx:542
-#: pkg/storaged/nfs-details.jsx:339 pkg/storaged/nfs-panel.jsx:104
-#: pkg/storaged/part-tab.jsx:45 pkg/storaged/content-views.jsx:165
-#: pkg/storaged/content-views.jsx:729 pkg/storaged/content-views.jsx:891
-#: pkg/storaged/content-views.jsx:899 pkg/storaged/content-views.jsx:979
-#: pkg/storaged/stratis-details.jsx:655 pkg/storaged/stratis-details.jsx:792
+#: pkg/storaged/lvol-tabs.jsx:309 pkg/storaged/lvol-tabs.jsx:429
+#: pkg/storaged/lvol-tabs.jsx:490 pkg/storaged/lvol-tabs.jsx:543
+#: pkg/storaged/nfs-details.jsx:326 pkg/storaged/nfs-panel.jsx:104
+#: pkg/storaged/part-tab.jsx:45 pkg/storaged/content-views.jsx:187
+#: pkg/storaged/content-views.jsx:750 pkg/storaged/content-views.jsx:912
+#: pkg/storaged/content-views.jsx:920 pkg/storaged/content-views.jsx:1000
+#: pkg/storaged/stratis-details.jsx:657 pkg/storaged/stratis-details.jsx:794
 msgid "Size"
 msgstr "大小"
 
-#: pkg/storaged/dialog.jsx:963
+#: pkg/storaged/dialog.jsx:986
 msgid "Size cannot be negative"
 msgstr "大小不能为负数"
 
-#: pkg/storaged/dialog.jsx:961
+#: pkg/storaged/dialog.jsx:984
 msgid "Size cannot be zero"
 msgstr "大小不能为零"
 
-#: pkg/storaged/dialog.jsx:965
+#: pkg/storaged/dialog.jsx:988
 msgid "Size is too large"
 msgstr "大小太大"
 
-#: pkg/storaged/dialog.jsx:959
+#: pkg/storaged/dialog.jsx:982
 msgid "Size must be a number"
 msgstr "大小必须是一个数字"
 
-#: pkg/storaged/dialog.jsx:967
+#: pkg/storaged/dialog.jsx:990
 msgid "Size must be at least $0"
 msgstr "大小必须最小为 $0"
 
@@ -5797,11 +5822,11 @@ msgstr "跳至内容"
 msgid "Slot"
 msgstr "插槽"
 
-#: pkg/storaged/mdraid-details.jsx:120 pkg/storaged/crypto-keyslots.jsx:567
+#: pkg/storaged/mdraid-details.jsx:123 pkg/storaged/crypto-keyslots.jsx:573
 msgid "Slot $0"
 msgstr "插槽 $0"
 
-#: pkg/storaged/stratis-details.jsx:602
+#: pkg/storaged/stratis-details.jsx:604
 msgid "Snapshot"
 msgstr "快照"
 
@@ -5868,7 +5893,7 @@ msgstr "生成树协议"
 msgid "Spanning tree protocol (STP)"
 msgstr "生成树协议 (STP)"
 
-#: pkg/storaged/mdraid-details.jsx:110
+#: pkg/storaged/mdraid-details.jsx:113
 msgid "Spare"
 msgstr "备用"
 
@@ -5885,8 +5910,8 @@ msgid "Stable"
 msgstr "稳定的"
 
 #: pkg/systemd/services/service-details.jsx:142
-#: pkg/storaged/content-views.jsx:338 pkg/storaged/vdo-details.jsx:260
-#: pkg/storaged/mdraid-details.jsx:325
+#: pkg/storaged/content-views.jsx:344 pkg/storaged/vdo-details.jsx:268
+#: pkg/storaged/mdraid-details.jsx:328
 msgid "Start"
 msgstr "启动"
 
@@ -5927,7 +5952,7 @@ msgstr "启动交换空间 $target"
 msgid "State"
 msgstr "状态"
 
-#: pkg/storaged/mdraid-details.jsx:356
+#: pkg/storaged/mdraid-details.jsx:359
 msgctxt "storage"
 msgid "State"
 msgstr "状态"
@@ -5951,8 +5976,8 @@ msgid "Sticky"
 msgstr "粘性的"
 
 #: pkg/systemd/services/service-details.jsx:138
-#: pkg/storaged/content-views.jsx:336 pkg/storaged/vdo-details.jsx:143
-#: pkg/storaged/vdo-details.jsx:259 pkg/storaged/mdraid-details.jsx:324
+#: pkg/storaged/content-views.jsx:342 pkg/storaged/vdo-details.jsx:145
+#: pkg/storaged/vdo-details.jsx:267 pkg/storaged/mdraid-details.jsx:327
 msgid "Stop"
 msgstr "停止"
 
@@ -5960,15 +5985,15 @@ msgstr "停止"
 msgid "Stop and disable"
 msgstr "停止并禁用"
 
-#: pkg/storaged/nfs-details.jsx:293
+#: pkg/storaged/nfs-details.jsx:280
 msgid "Stop and remove"
 msgstr "停止并删除"
 
-#: pkg/storaged/nfs-details.jsx:268
+#: pkg/storaged/nfs-details.jsx:255
 msgid "Stop and unmount"
 msgstr "停止并卸载"
 
-#: pkg/storaged/mdraid-details.jsx:250
+#: pkg/storaged/mdraid-details.jsx:252
 msgid "Stop device"
 msgstr "停止设备"
 
@@ -5997,7 +6022,7 @@ msgstr "存储不能在这个系统上管理。"
 msgid "Storage logs"
 msgstr "存储日志"
 
-#: pkg/storaged/format-dialog.jsx:294
+#: pkg/storaged/format-dialog.jsx:288
 msgid "Store passphrase"
 msgstr "存储口令"
 
@@ -6006,8 +6031,8 @@ msgstr "存储口令"
 msgid "Stored passphrase"
 msgstr "保存的密码"
 
-#: pkg/storaged/content-views.jsx:442 pkg/storaged/content-views.jsx:469
-#: pkg/storaged/content-views.jsx:476
+#: pkg/storaged/content-views.jsx:447 pkg/storaged/content-views.jsx:474
+#: pkg/storaged/content-views.jsx:481
 msgid "Stratis member"
 msgstr "Stratis 成员"
 
@@ -6015,7 +6040,7 @@ msgstr "Stratis 成员"
 msgid "Stratis pool"
 msgstr "Stratis 池"
 
-#: pkg/storaged/stratis-details.jsx:421
+#: pkg/storaged/stratis-details.jsx:417
 msgid "Stratis pool $0"
 msgstr "Stratis 池$0"
 
@@ -6031,7 +6056,7 @@ msgstr "子机箱"
 msgid "Sub-Notebook"
 msgstr "子笔记本"
 
-#: pkg/storaged/crypto-keyslots.jsx:394
+#: pkg/storaged/crypto-keyslots.jsx:400
 msgid "Successfully copied to clipboard!"
 msgstr "成功复制到剪贴板！"
 
@@ -6048,7 +6073,7 @@ msgid "Support is installed."
 msgstr "已安装支持。"
 
 #: pkg/metrics/metrics.jsx:118 pkg/metrics/metrics.jsx:438
-#: pkg/metrics/metrics.jsx:1389 pkg/storaged/content-views.jsx:206
+#: pkg/metrics/metrics.jsx:1389 pkg/storaged/content-views.jsx:228
 msgid "Swap"
 msgstr "交换空间"
 
@@ -6056,7 +6081,7 @@ msgstr "交换空间"
 msgid "Swap out"
 msgstr "交换出"
 
-#: pkg/storaged/content-views.jsx:483
+#: pkg/storaged/content-views.jsx:488
 msgctxt "storage-id-desc"
 msgid "Swap space"
 msgstr "交换空间"
@@ -6147,7 +6172,7 @@ msgstr "TCP"
 msgid "Tablet"
 msgstr "平板"
 
-#: pkg/storaged/crypto-keyslots.jsx:285
+#: pkg/storaged/crypto-keyslots.jsx:289
 msgid "Tang keyserver"
 msgstr "Tang 密钥服务器"
 
@@ -6201,7 +6226,7 @@ msgstr "测试连接"
 msgid "The $0 package must be installed to create Stratis pools."
 msgstr "$0 软件包必须被安装才能创建Stratis池。"
 
-#: pkg/storaged/content-views.jsx:858
+#: pkg/storaged/content-views.jsx:879
 msgid "The $0 package will be installed to create VDO devices."
 msgstr "$0 软件包被安装才能创建 VDO 设备。"
 
@@ -6209,15 +6234,15 @@ msgstr "$0 软件包被安装才能创建 VDO 设备。"
 msgid "The IP address or hostname cannot contain whitespace."
 msgstr "IP 地址或主机名不能包含空格。"
 
-#: pkg/storaged/mdraid-details.jsx:219
+#: pkg/storaged/mdraid-details.jsx:222
 msgid "The RAID array is in a degraded state"
 msgstr "RAID 阵列处于降级状态"
 
-#: pkg/storaged/mdraid-details.jsx:156
+#: pkg/storaged/mdraid-details.jsx:159
 msgid "The RAID device must be running in order to add spare disks."
 msgstr "为了添加备用的磁盘，RAID 设备必须在运行。"
 
-#: pkg/storaged/mdraid-details.jsx:127
+#: pkg/storaged/mdraid-details.jsx:130
 msgid "The RAID device must be running in order to remove disks."
 msgstr "为了移除磁盘，RAID 设备必须在运行。"
 
@@ -6264,79 +6289,64 @@ msgstr "搜集的信息将保存在系统本地。"
 msgid "The configured state is unknown, it might change on the next boot."
 msgstr "配置状态未知，下一次启动时会改变。"
 
-#: pkg/storaged/vdo-details.jsx:108
+#: pkg/storaged/vdo-details.jsx:110
 msgid ""
 "The creation of this VDO device did not finish and the device can't be used."
 msgstr "此 VDO 设备的创建未完成，无法使用该设备。"
 
-#: pkg/storaged/crypto-keyslots.jsx:544
+#: pkg/storaged/crypto-keyslots.jsx:550
 msgid ""
 "The currently logged in user is not permitted to see information about keys."
 msgstr "当前登录的用户不允许查看有关密钥的信息。"
 
-#: pkg/storaged/format-dialog.jsx:304
+#: pkg/storaged/format-dialog.jsx:298
 msgid ""
 "The disk needs to be unlocked before formatting.  Please provide a existing "
 "passphrase."
 msgstr "此磁盘在格式化之前需要解锁。请提供存在的口令。"
 
-#: pkg/storaged/fsys-tab.jsx:510
+#: pkg/storaged/fsys-tab.jsx:526
 msgid "The filesystem has no permanent mount point."
 msgstr "文件系统没有永久的挂载点。"
 
-#: pkg/storaged/fsys-tab.jsx:351
+#: pkg/storaged/fsys-tab.jsx:357
 msgid "The filesystem is already mounted at $0. Proceeding will unmount it."
 msgstr "文件系统已挂载到 $0。继续将卸载它。"
 
-#: pkg/storaged/fsys-tab.jsx:642
+#: pkg/storaged/fsys-tab.jsx:658
 msgid ""
 "The filesystem is configured to be automatically mounted on boot but its "
 "encryption container will not be unlocked at that time."
 msgstr "文件系统被配置为在引导时自动挂载，但它的加密容器不会被解锁。"
 
-#: pkg/storaged/fsys-tab.jsx:634
+#: pkg/storaged/fsys-tab.jsx:650
 msgid ""
 "The filesystem is currently mounted but will not be mounted after the next "
 "boot."
 msgstr "该文件系统当前已被加载，但在下次引导后将不再被挂载。"
 
-#: pkg/storaged/fsys-tab.jsx:626
+#: pkg/storaged/fsys-tab.jsx:642
 msgid ""
 "The filesystem is currently mounted on $0 but will be mounted on $1 on the "
 "next boot."
 msgstr "该文件系统当前已被加载于 $0，但在下次引导后将被挂载到 $1。"
 
-#: pkg/storaged/fsys-tab.jsx:638
+#: pkg/storaged/fsys-tab.jsx:654
 msgid ""
 "The filesystem is currently mounted on $0 but will not be mounted after the "
 "next boot."
 msgstr "该文件系统当前已被加载于 $0，但在下次引导后将不再被挂载。"
 
-#: pkg/storaged/fsys-tab.jsx:630
+#: pkg/storaged/fsys-tab.jsx:646
 msgid ""
 "The filesystem is currently not mounted but will be mounted on the next boot."
 msgstr "该文件系统当前没有被加载，但在下次引导后将被挂载。"
 
-#: pkg/storaged/dialog.jsx:1075
-msgid ""
-"The filesystem is in use by login sessions and system services. Proceeding "
-"will stop these."
-msgstr "登录会话和系统服务正在使用文件系统。继续进行将停止这些。"
-
-#: pkg/storaged/dialog.jsx:1077
-msgid "The filesystem is in use by login sessions. Proceeding will stop these."
-msgstr "登录会话正在使用文件系统。继续进行将停止这些。"
-
-#: pkg/storaged/dialog.jsx:1079
-msgid ""
-"The filesystem is in use by system services. Proceeding will stop these."
-msgstr "系统服务正在使用文件系统。继续进行将停止这些。"
-
-#: pkg/storaged/fsys-tab.jsx:512
+#: pkg/storaged/fsys-tab.jsx:528
 msgid "The filesystem is not mounted."
 msgstr "文件系统未挂载。"
 
-#: pkg/storaged/fsys-tab.jsx:515
+#: pkg/storaged/fsys-tab.jsx:531
 msgid ""
 "The filesystem will be unlocked and mounted on the next boot. This might "
 "require inputting a passphrase."
@@ -6368,17 +6378,32 @@ msgstr "密钥密码不匹配"
 msgid "The key you provided was not valid."
 msgstr "您提供的 key 是无效的."
 
-#: pkg/storaged/mdraid-details.jsx:133
+#: pkg/storaged/mdraid-details.jsx:136
 msgid "The last disk of a RAID device cannot be removed."
 msgstr "RAID 设备中的最后一个磁盘不能被移除。"
 
-#: pkg/storaged/crypto-keyslots.jsx:580
+#: pkg/storaged/crypto-keyslots.jsx:586
 msgid "The last key slot can not be removed"
 msgstr "无法删除最后一个密钥槽"
 
 #: pkg/storaged/vgroup-details.jsx:103
 msgid "The last physical volume of a volume group cannot be removed."
 msgstr "不能删除一个卷组的最后一个物理卷。"
+
+#: pkg/storaged/dialog.jsx:1239
+msgid "The listed processes and services will be forcefully stopped."
+msgstr ""
+
+#: pkg/storaged/dialog.jsx:1241
+msgid "The listed processes will be forcefully stopped."
+msgstr ""
+
+#: pkg/storaged/dialog.jsx:1243
+#, fuzzy
+#| msgid "The following service will be restarted:"
+#| msgid_plural "The following services will be restarted:"
+msgid "The listed services will be forcefully stopped."
+msgstr "以下服务将会被重启："
 
 #: pkg/lib/cockpit-components-modifications.jsx:137
 msgid "The logged in user is not permitted to view system modifications"
@@ -6387,6 +6412,14 @@ msgstr "登陆的用户没有权限查看系统改变"
 #: pkg/shell/indexes.js:444
 msgid "The machine is rebooting"
 msgstr "正在重启机器"
+
+#: pkg/storaged/dialog.jsx:1198
+msgid "The mount point $0 is in use by these processes:"
+msgstr ""
+
+#: pkg/storaged/dialog.jsx:1217
+msgid "The mount point $0 is in use by these services:"
+msgstr ""
 
 #: pkg/shell/hosts_dialog.jsx:679
 msgid "The new key password can not be empty"
@@ -6470,15 +6503,21 @@ msgstr ""
 msgid "There was an unexpected error while connecting to the machine."
 msgstr "连接到机器时发生意外错误。"
 
+#: pkg/storaged/dialog.jsx:1125
+#, fuzzy
+#| msgid "This web console will be updated."
+msgid "These changes will be made:"
+msgstr "此 Web 控制台将会被更新。"
+
 #: pkg/storaged/utils.js:204
 msgid "Thin logical volume"
 msgstr "稀疏逻辑卷"
 
-#: pkg/storaged/nfs-details.jsx:122
+#: pkg/storaged/nfs-details.jsx:109
 msgid "This NFS mount is in use and only its options can be changed."
 msgstr "此 NFS 挂载正在使用中，只能更改其选项。"
 
-#: pkg/storaged/vdo-details.jsx:119
+#: pkg/storaged/vdo-details.jsx:121
 msgid "This VDO device does not use all of its backing device."
 msgstr "此 VDO 设备不使用其所有后台设备。"
 
@@ -6486,41 +6525,13 @@ msgstr "此 VDO 设备不使用其所有后台设备。"
 msgid "This device cannot be managed here."
 msgstr "该设备不能在这里被管理。"
 
-#: pkg/storaged/dialog.jsx:1060
-msgid ""
-"This device has filesystems that are currently in use. Proceeding will "
-"unmount all filesystems on it."
-msgstr "该设备有正在使用的文件系统。继续进行将卸载其上的所有文件系统。"
-
-#: pkg/storaged/dialog.jsx:1031
-msgid "This device is currently used for LVM2 volume groups."
-msgstr "该设备目前用于 LVM2 卷组。"
-
-#: pkg/storaged/dialog.jsx:1064
-msgid ""
-"This device is currently used for LVM2 volume groups. Proceeding will remove "
-"it from its volume groups."
-msgstr "该设备目前用于 LVM2 卷组。继续进行将从卷组中移除它。"
-
-#: pkg/storaged/dialog.jsx:1035
-msgid "This device is currently used for RAID devices."
-msgstr "该设备正在被 RAID 设备使用。"
-
-#: pkg/storaged/dialog.jsx:1068
-msgid ""
-"This device is currently used for RAID devices. Proceeding will remove it "
-"from its RAID devices."
-msgstr "该设备正在被 RAID 设备使用。继续操作将从 RAID 设备中移除它。"
-
-#: pkg/storaged/dialog.jsx:1043
-msgid "This device is currently used for Stratis pools."
-msgstr "该设备正在被Stratis 池使用。"
-
-#: pkg/storaged/dialog.jsx:1039
-msgid "This device is currently used for VDO devices."
+#: pkg/storaged/dialog.jsx:1047
+#, fuzzy
+#| msgid "This device is currently used for VDO devices."
+msgid "This device is currently in use."
 msgstr "该设备正在被 VOD 设备使用。"
 
-#: pkg/storaged/mdraid-details.jsx:129
+#: pkg/storaged/mdraid-details.jsx:132
 msgid "This disk cannot be removed while the device is recovering."
 msgstr "当设备正在恢复时，该磁盘不能被移除。"
 
@@ -6534,7 +6545,7 @@ msgstr "该字段不能为空"
 msgid "This host will reboot after updates are installed."
 msgstr "安装更新后此主机将重启。"
 
-#: pkg/storaged/lvol-tabs.jsx:444
+#: pkg/storaged/lvol-tabs.jsx:445
 msgid "This logical volume is not completely used by its content."
 msgstr "这个逻辑卷没有被它的内容完全使用。"
 
@@ -6555,7 +6566,7 @@ msgstr "该软件包与该版本的 Cockpit 不兼容"
 msgid "This package requires Cockpit version %s or later"
 msgstr "该软件包需要 %s 版本或以后的 Cockpit"
 
-#: pkg/storaged/stratis-details.jsx:679
+#: pkg/storaged/stratis-details.jsx:681
 msgid ""
 "This pool can not be unlocked here because its key description is not in the "
 "expected format."
@@ -6647,7 +6658,7 @@ msgstr ""
 msgid "Thursdays"
 msgstr "周四"
 
-#: pkg/storaged/stratis-details.jsx:129
+#: pkg/storaged/stratis-details.jsx:125
 msgid "Tier"
 msgstr "层"
 
@@ -6704,7 +6715,7 @@ msgstr "今天"
 msgid "Toggle"
 msgstr "切换"
 
-#: pkg/storaged/mdraid-details.jsx:206
+#: pkg/storaged/mdraid-details.jsx:209
 msgid "Toggle bitmap"
 msgstr "切换位图"
 
@@ -6771,7 +6782,7 @@ msgstr "排错"
 msgid "Troubleshoot…"
 msgstr "检修…"
 
-#: pkg/storaged/crypto-keyslots.jsx:404
+#: pkg/storaged/crypto-keyslots.jsx:410
 msgid "Trust key"
 msgstr "信任密钥"
 
@@ -6821,9 +6832,9 @@ msgid "Turn on administrative access"
 msgstr "开启管理员权限"
 
 #: pkg/systemd/hwinfo.jsx:87 pkg/systemd/hwinfo.jsx:313
-#: pkg/shell/credentials.jsx:200 pkg/storaged/format-dialog.jsx:224
+#: pkg/shell/credentials.jsx:200 pkg/storaged/format-dialog.jsx:218
 #: pkg/storaged/fsys-panel.jsx:172 pkg/storaged/part-tab.jsx:55
-#: pkg/storaged/content-views.jsx:729 pkg/storaged/content-views.jsx:979
+#: pkg/storaged/content-views.jsx:750 pkg/storaged/content-views.jsx:1000
 #: pkg/storaged/unrecognized-tab.jsx:41 pkg/packagekit/autoupdates.jsx:279
 msgid "Type"
 msgstr "类型"
@@ -6840,8 +6851,8 @@ msgstr "UDP"
 msgid "UUID"
 msgstr "UUID"
 
-#: pkg/storaged/vgroup-details.jsx:235 pkg/storaged/mdraid-details.jsx:339
-#: pkg/storaged/stratis-details.jsx:432 pkg/storaged/stratis-details.jsx:776
+#: pkg/storaged/vgroup-details.jsx:235 pkg/storaged/mdraid-details.jsx:342
+#: pkg/storaged/stratis-details.jsx:428 pkg/storaged/stratis-details.jsx:778
 msgctxt "storage"
 msgid "UUID"
 msgstr "UUID"
@@ -6897,7 +6908,7 @@ msgstr "无法登录$0 。主机不接受密码登录，或您的 SSH 密钥。"
 msgid "Unable to reach server"
 msgstr "无法到达服务器"
 
-#: pkg/storaged/nfs-details.jsx:291
+#: pkg/storaged/nfs-details.jsx:278
 msgid "Unable to remove mount"
 msgstr "无法删除挂载"
 
@@ -6909,7 +6920,7 @@ msgstr "无法运行修复： %0"
 msgid "Unable to start setroubleshootd"
 msgstr "无法启动 setroubleshootd"
 
-#: pkg/storaged/nfs-details.jsx:266
+#: pkg/storaged/nfs-details.jsx:253
 msgid "Unable to unmount filesystem"
 msgstr "无法卸载文件系统"
 
@@ -6924,7 +6935,6 @@ msgstr "意外的错误"
 
 #: pkg/systemd/services/services-list.jsx:38
 #: pkg/systemd/services/services-list.jsx:43 pkg/systemd/logs.jsx:366
-#: pkg/storaged/dialog.jsx:1110
 msgid "Unit"
 msgstr "单位"
 
@@ -6951,7 +6961,7 @@ msgstr "未知"
 msgid "Unknown \"$0\""
 msgstr "未知 \"$0\""
 
-#: pkg/storaged/mdraid-details.jsx:113
+#: pkg/storaged/mdraid-details.jsx:116
 msgid "Unknown ($0)"
 msgstr "未知 ($0)"
 
@@ -6971,29 +6981,29 @@ msgstr "未知主机名"
 msgid "Unknown service name"
 msgstr "未知的服务名"
 
-#: pkg/storaged/crypto-keyslots.jsx:604
+#: pkg/storaged/crypto-keyslots.jsx:610
 msgid "Unknown type"
 msgstr "未知类型"
 
-#: pkg/shell/credentials.jsx:315 pkg/storaged/content-views.jsx:261
-#: pkg/storaged/content-views.jsx:266 pkg/storaged/content-views.jsx:285
-#: pkg/storaged/stratis-details.jsx:707 pkg/storaged/stratis-details.jsx:770
+#: pkg/shell/credentials.jsx:313 pkg/storaged/content-views.jsx:267
+#: pkg/storaged/content-views.jsx:272 pkg/storaged/content-views.jsx:291
+#: pkg/storaged/stratis-details.jsx:709 pkg/storaged/stratis-details.jsx:772
 msgid "Unlock"
 msgstr "未锁定"
 
-#: pkg/storaged/fsys-tab.jsx:644
+#: pkg/storaged/fsys-tab.jsx:660
 msgid "Unlock automatically on boot"
 msgstr "在启动时自动解锁"
 
-#: pkg/storaged/stratis-details.jsx:696
+#: pkg/storaged/stratis-details.jsx:698
 msgid "Unlock encrypted Stratis pool"
 msgstr "解锁已加密的Stratis池"
 
-#: pkg/shell/credentials.jsx:312
+#: pkg/shell/credentials.jsx:310
 msgid "Unlock key $0"
 msgstr "解锁密钥$0"
 
-#: pkg/storaged/stratis-details.jsx:790
+#: pkg/storaged/stratis-details.jsx:792
 msgid "Unlock pool to see filesystems."
 msgstr "解锁池以查看文件系统。"
 
@@ -7001,8 +7011,10 @@ msgstr "解锁池以查看文件系统。"
 msgid "Unlocking $target"
 msgstr "解锁 $target"
 
-#: pkg/storaged/crypto-keyslots.jsx:234
-msgid "Unlocking disk..."
+#: pkg/storaged/crypto-keyslots.jsx:243
+#, fuzzy
+#| msgid "Unlocking disk..."
+msgid "Unlocking disk"
 msgstr "解锁磁盘......"
 
 #: pkg/networkmanager/network-main.jsx:194
@@ -7010,41 +7022,18 @@ msgstr "解锁磁盘......"
 msgid "Unmanaged interfaces"
 msgstr "未管理的接口"
 
-#: pkg/storaged/nfs-details.jsx:312 pkg/storaged/content-views.jsx:407
-#: pkg/storaged/stratis-details.jsx:600 pkg/storaged/fsys-tab.jsx:364
+#: pkg/storaged/nfs-details.jsx:299 pkg/storaged/content-views.jsx:413
+#: pkg/storaged/stratis-details.jsx:602 pkg/storaged/fsys-tab.jsx:370
 msgid "Unmount"
 msgstr "卸载"
 
-#: pkg/storaged/vgroup-details.jsx:206 pkg/storaged/content-views.jsx:378
-#: pkg/storaged/mdraid-details.jsx:304 pkg/storaged/stratis-details.jsx:264
-msgid "Unmount and delete"
-msgstr "卸载并删除"
-
-#: pkg/storaged/format-dialog.jsx:89
-msgid "Unmount and format"
-msgstr "卸载并格式化"
-
-#: pkg/storaged/lvol-tabs.jsx:271
-msgid "Unmount and grow"
-msgstr "卸载并增加"
-
-#: pkg/storaged/content-views.jsx:687
-msgid "Unmount and initialize"
-msgstr "卸载并初始化"
-
-#: pkg/storaged/lvol-tabs.jsx:360
-msgid "Unmount and shrink"
-msgstr "卸载并缩小"
-
-#: pkg/storaged/mdraid-details.jsx:251
-msgid "Unmount and stop device"
-msgstr "卸载并停止设备"
-
-#: pkg/storaged/fsys-tab.jsx:358
-msgid "Unmount filesystem"
+#: pkg/storaged/fsys-tab.jsx:364
+#, fuzzy
+#| msgid "Unmount filesystem"
+msgid "Unmount filesystem $0"
 msgstr "卸载文件系统"
 
-#: pkg/storaged/fsys-tab.jsx:636 pkg/storaged/fsys-tab.jsx:640
+#: pkg/storaged/fsys-tab.jsx:652 pkg/storaged/fsys-tab.jsx:656
 msgid "Unmount now"
 msgstr "现在卸载"
 
@@ -7056,11 +7045,11 @@ msgstr "卸载 $target"
 msgid "Unnamed"
 msgstr "未命名"
 
-#: pkg/storaged/content-views.jsx:209
+#: pkg/storaged/content-views.jsx:231
 msgid "Unrecognized data"
 msgstr "无法识别的数据"
 
-#: pkg/storaged/content-views.jsx:492
+#: pkg/storaged/content-views.jsx:497
 msgctxt "storage-id-desc"
 msgid "Unrecognized data"
 msgstr "无法识别的数据"
@@ -7069,7 +7058,7 @@ msgstr "无法识别的数据"
 msgid "Unrecognized data can not be made smaller here."
 msgstr "这里不能把无法识别的数据变小。"
 
-#: pkg/storaged/content-views.jsx:782
+#: pkg/storaged/content-views.jsx:803
 msgid "Unsupported volume"
 msgstr "不支持的卷"
 
@@ -7144,24 +7133,25 @@ msgstr "运行时间"
 msgid "Usage"
 msgstr "使用"
 
-#: pkg/storaged/stratis-details.jsx:437
+#: pkg/storaged/stratis-details.jsx:433
 msgctxt "storage"
 msgid "Usage"
 msgstr "使用"
 
-#: pkg/storaged/storage-controls.jsx:212
+#: pkg/storaged/storage-controls.jsx:213
 msgid "Usage of $0"
 msgstr "$0 的使用"
 
-#: pkg/storaged/dialog.jsx:540 pkg/networkmanager/dialogs-common.jsx:94
+#: pkg/storaged/dialog.jsx:563 pkg/storaged/dialog.jsx:1052
+#: pkg/networkmanager/dialogs-common.jsx:94
 msgid "Use"
 msgstr "使用"
 
-#: pkg/storaged/lvol-tabs.jsx:564 pkg/storaged/vdo-details.jsx:319
+#: pkg/storaged/lvol-tabs.jsx:565 pkg/storaged/vdo-details.jsx:327
 msgid "Use compression"
 msgstr "使用压缩"
 
-#: pkg/storaged/lvol-tabs.jsx:571 pkg/storaged/vdo-details.jsx:328
+#: pkg/storaged/lvol-tabs.jsx:572 pkg/storaged/vdo-details.jsx:336
 msgid "Use deduplication"
 msgstr "使用 deduplication"
 
@@ -7177,12 +7167,12 @@ msgstr "使用以下密钥来验证其他系统"
 msgid "Used"
 msgstr "已使用"
 
-#: pkg/storaged/content-views.jsx:729 pkg/storaged/content-views.jsx:979
-#: pkg/storaged/stratis-details.jsx:655 pkg/storaged/stratis-details.jsx:792
+#: pkg/storaged/content-views.jsx:750 pkg/storaged/content-views.jsx:1000
+#: pkg/storaged/stratis-details.jsx:657 pkg/storaged/stratis-details.jsx:794
 msgid "Used for"
 msgstr "用于"
 
-#: pkg/systemd/services/services.jsx:999
+#: pkg/systemd/services/services.jsx:999 pkg/storaged/dialog.jsx:1204
 msgid "User"
 msgstr "用户"
 
@@ -7207,11 +7197,11 @@ msgstr "使用 LUKS 加密"
 msgid "Using Tang server"
 msgstr "使用 Tang 服务器"
 
-#: pkg/storaged/content-views.jsx:190
+#: pkg/storaged/content-views.jsx:212
 msgid "VDO Pool"
 msgstr "VDO 池"
 
-#: pkg/storaged/content-views.jsx:488
+#: pkg/storaged/content-views.jsx:493
 msgctxt "storage-id-desc"
 msgid "VDO backing"
 msgstr "VDO支持"
@@ -7224,11 +7214,11 @@ msgstr "VDO 后台设备不能更小"
 msgid "VDO device"
 msgstr "VDO 设备"
 
-#: pkg/storaged/utils.js:263 pkg/storaged/vdo-details.jsx:256
+#: pkg/storaged/utils.js:263 pkg/storaged/vdo-details.jsx:264
 msgid "VDO device $0"
 msgstr "VDO 设备 $0"
 
-#: pkg/storaged/content-views.jsx:843
+#: pkg/storaged/content-views.jsx:864
 msgid "VDO filesystem volume (compression/deduplication)"
 msgstr "VDO文件系统卷（压缩/重复数据消除）"
 
@@ -7266,7 +7256,7 @@ msgstr "厂商"
 msgid "Verified"
 msgstr "已验证"
 
-#: pkg/storaged/crypto-keyslots.jsx:380
+#: pkg/storaged/crypto-keyslots.jsx:386
 msgid "Verify key"
 msgstr "验证密钥"
 
@@ -7315,7 +7305,7 @@ msgstr "查看报告"
 msgid "Visit Firewall"
 msgstr "访问防火墙"
 
-#: pkg/storaged/content-views.jsx:187
+#: pkg/storaged/content-views.jsx:209
 msgid "Volume"
 msgstr "卷"
 
@@ -7323,7 +7313,7 @@ msgstr "卷"
 msgid "Volume group"
 msgstr "卷组"
 
-#: pkg/storaged/lvol-tabs.jsx:445
+#: pkg/storaged/lvol-tabs.jsx:446
 msgid "Volume size is $0. Content size is $1."
 msgstr "卷大小为 $0。内容大小为 $1。"
 
@@ -7427,7 +7417,7 @@ msgstr "全局范围名称"
 msgid "Write"
 msgstr "写入"
 
-#: pkg/storaged/mdraid-details.jsx:111
+#: pkg/storaged/mdraid-details.jsx:114
 msgid "Write-mostly"
 msgstr "主要写"
 
@@ -7580,6 +7570,12 @@ msgstr "在"
 msgid "avc"
 msgstr "avc"
 
+#: pkg/storaged/dialog.jsx:1028
+#, fuzzy
+#| msgid "Creating VDO device"
+msgid "backing device for VDO device"
+msgstr "创建 VDO 设备"
+
 #: pkg/systemd/manifest.json:0
 msgid "bash"
 msgstr "bash"
@@ -7641,6 +7637,15 @@ msgstr "日期"
 msgid "debug"
 msgstr "故障调试"
 
+#: pkg/storaged/format-dialog.jsx:172 pkg/storaged/vgroup-details.jsx:188
+#: pkg/storaged/content-views.jsx:367 pkg/storaged/content-views.jsx:672
+#: pkg/storaged/vdo-details.jsx:163 pkg/storaged/mdraid-details.jsx:291
+#: pkg/storaged/stratis-details.jsx:242 pkg/storaged/stratis-details.jsx:541
+#, fuzzy
+#| msgid "Delete"
+msgid "delete"
+msgstr "删除"
+
 #: pkg/systemd/manifest.json:0
 msgid "dimm"
 msgstr "dimm"
@@ -7671,8 +7676,8 @@ msgstr "驱动"
 
 #: pkg/users/account-details.js:333 pkg/users/account-details.js:365
 #: pkg/systemd/overview-cards/configurationCard.jsx:50
-#: pkg/storaged/lvol-tabs.jsx:422 pkg/storaged/lvol-tabs.jsx:483
-#: pkg/storaged/fsys-tab.jsx:674 pkg/storaged/fsys-tab.jsx:689
+#: pkg/storaged/lvol-tabs.jsx:423 pkg/storaged/lvol-tabs.jsx:484
+#: pkg/storaged/fsys-tab.jsx:690 pkg/storaged/fsys-tab.jsx:705
 #: pkg/storaged/crypto-tab.jsx:248 pkg/storaged/crypto-tab.jsx:257
 #: pkg/networkmanager/network-interface.jsx:359
 #: pkg/networkmanager/dialogs-common.jsx:223
@@ -7755,7 +7760,7 @@ msgstr "对于当前和将来的内核"
 msgid "for current kernel only"
 msgstr "只对于当前的内核"
 
-#: pkg/storaged/manifest.json:0
+#: pkg/storaged/format-dialog.jsx:172 pkg/storaged/manifest.json:0
 msgid "format"
 msgstr "格式"
 
@@ -7777,6 +7782,10 @@ msgstr "fstab"
 msgid "graphs"
 msgstr "图表"
 
+#: pkg/storaged/lvol-tabs.jsx:228
+msgid "grow"
+msgstr ""
+
 #: pkg/systemd/manifest.json:0
 msgid "hardware"
 msgstr "硬件"
@@ -7796,6 +7805,12 @@ msgstr "iSCSI 目标"
 #: pkg/shell/shell-modals.jsx:187
 msgid "in most browsers"
 msgstr "在大多数浏览器中"
+
+#: pkg/storaged/content-views.jsx:672
+#, fuzzy
+#| msgid "Initialize"
+msgid "initialize"
+msgstr "初始化"
 
 #: pkg/apps/manifest.json:0
 msgid "install"
@@ -7869,6 +7884,18 @@ msgstr "机器"
 msgid "mask"
 msgstr "掩码"
 
+#: pkg/storaged/dialog.jsx:1027
+#, fuzzy
+#| msgid "Member of RAID device"
+msgid "member of RAID device"
+msgstr "RAID 设备的成员"
+
+#: pkg/storaged/dialog.jsx:1029
+#, fuzzy
+#| msgid "Member of Stratis pool"
+msgid "member of Stratis pool"
+msgstr "Stratis池的成员"
+
 #: pkg/systemd/manifest.json:0
 msgid "memory"
 msgstr "内存"
@@ -7901,7 +7928,7 @@ msgstr "nbde"
 msgid "network"
 msgstr "网络"
 
-#: pkg/storaged/fsys-tab.jsx:497
+#: pkg/storaged/fsys-tab.jsx:513
 msgid "never mounted at boot"
 msgstr "永不在引导时挂载"
 
@@ -7984,6 +8011,12 @@ msgstr "pcp"
 msgid "performance"
 msgstr "性能"
 
+#: pkg/storaged/dialog.jsx:1026
+#, fuzzy
+#| msgid "Create LVM2 volume group"
+msgid "physical volume of LVM2 volume group"
+msgstr "创建LVM2 卷组"
+
 #: pkg/apps/manifest.json:0
 msgid "plugin"
 msgstr "插件"
@@ -8016,13 +8049,23 @@ msgstr "raid"
 msgid "ram"
 msgstr "ram"
 
-#: pkg/storaged/fsys-tab.jsx:495
+#: pkg/storaged/fsys-tab.jsx:511
 msgid "read only"
 msgstr "只读"
 
 #: pkg/tuned/change-profile.jsx:58
 msgid "recommended"
 msgstr "推荐"
+
+#: pkg/storaged/utils.js:668
+msgid "remove from LVM2"
+msgstr ""
+
+#: pkg/storaged/utils.js:657
+#, fuzzy
+#| msgid "Removing $target from RAID device"
+msgid "remove from RAID"
+msgstr "从 RAID 设备中删除 $target"
 
 #: pkg/systemd/manifest.json:0
 msgid "restart"
@@ -8069,6 +8112,12 @@ msgstr "显示更少"
 msgid "show more"
 msgstr "显示更多"
 
+#: pkg/storaged/lvol-tabs.jsx:295
+#, fuzzy
+#| msgid "Shrink"
+msgid "shrink"
+msgstr "缩小"
+
 #: pkg/systemd/manifest.json:0
 msgid "shut"
 msgstr "关闭"
@@ -8105,6 +8154,10 @@ msgstr "ssh 密钥不是一个路径"
 #: pkg/kdump/kdump-client.js:120
 msgid "ssh server is empty"
 msgstr "ssh 服务器为空"
+
+#: pkg/storaged/vdo-details.jsx:129 pkg/storaged/mdraid-details.jsx:236
+msgid "stop"
+msgstr ""
 
 #: pkg/metrics/metrics.jsx:100
 msgid "sys"
@@ -8167,7 +8220,7 @@ msgstr "未知目标"
 msgid "unmask"
 msgstr "非掩码"
 
-#: pkg/storaged/manifest.json:0
+#: pkg/storaged/utils.js:644 pkg/storaged/manifest.json:0
 msgid "unmount"
 msgstr "卸载"
 
@@ -8223,6 +8276,88 @@ msgstr "yum"
 msgid "zone"
 msgstr "区"
 
+#~ msgid "Active since"
+#~ msgstr "活跃自"
+
+#~ msgid "Affected locations"
+#~ msgstr "受影响的位置"
+
+#~ msgid "Process"
+#~ msgstr "流程"
+
+#~ msgid "Remove and delete"
+#~ msgstr "去掉并删除"
+
+#~ msgid "Remove and format"
+#~ msgstr "删除并格式化"
+
+#~ msgid "Remove and grow"
+#~ msgstr "删除并增大"
+
+#~ msgid "Remove and initialize"
+#~ msgstr "删除并初始化"
+
+#~ msgid "Remove and shrink"
+#~ msgstr "删除并缩小"
+
+#~ msgid "Remove and stop device"
+#~ msgstr "删除并停止设备"
+
+#~ msgid ""
+#~ "The filesystem is in use by login sessions and system services. "
+#~ "Proceeding will stop these."
+#~ msgstr "登录会话和系统服务正在使用文件系统。继续进行将停止这些。"
+
+#~ msgid ""
+#~ "The filesystem is in use by login sessions. Proceeding will stop these."
+#~ msgstr "登录会话正在使用文件系统。继续进行将停止这些。"
+
+#~ msgid ""
+#~ "The filesystem is in use by system services. Proceeding will stop these."
+#~ msgstr "系统服务正在使用文件系统。继续进行将停止这些。"
+
+#~ msgid ""
+#~ "This device has filesystems that are currently in use. Proceeding will "
+#~ "unmount all filesystems on it."
+#~ msgstr "该设备有正在使用的文件系统。继续进行将卸载其上的所有文件系统。"
+
+#~ msgid "This device is currently used for LVM2 volume groups."
+#~ msgstr "该设备目前用于 LVM2 卷组。"
+
+#~ msgid ""
+#~ "This device is currently used for LVM2 volume groups. Proceeding will "
+#~ "remove it from its volume groups."
+#~ msgstr "该设备目前用于 LVM2 卷组。继续进行将从卷组中移除它。"
+
+#~ msgid "This device is currently used for RAID devices."
+#~ msgstr "该设备正在被 RAID 设备使用。"
+
+#~ msgid ""
+#~ "This device is currently used for RAID devices. Proceeding will remove it "
+#~ "from its RAID devices."
+#~ msgstr "该设备正在被 RAID 设备使用。继续操作将从 RAID 设备中移除它。"
+
+#~ msgid "This device is currently used for Stratis pools."
+#~ msgstr "该设备正在被Stratis 池使用。"
+
+#~ msgid "Unmount and delete"
+#~ msgstr "卸载并删除"
+
+#~ msgid "Unmount and format"
+#~ msgstr "卸载并格式化"
+
+#~ msgid "Unmount and grow"
+#~ msgstr "卸载并增加"
+
+#~ msgid "Unmount and initialize"
+#~ msgstr "卸载并初始化"
+
+#~ msgid "Unmount and shrink"
+#~ msgstr "卸载并缩小"
+
+#~ msgid "Unmount and stop device"
+#~ msgstr "卸载并停止设备"
+
 #~ msgid "$0 of $1"
 #~ msgstr "$1 的 $0"
 
@@ -8241,14 +8376,8 @@ msgstr "区"
 #~ msgid "LVM2 physical volume of $0"
 #~ msgstr "$0 的LVM2物理卷"
 
-#~ msgid "Member of RAID device"
-#~ msgstr "RAID 设备的成员"
-
 #~ msgid "Member of RAID device $0"
 #~ msgstr "RAID 设备 $0 的成员"
-
-#~ msgid "Member of Stratis pool"
-#~ msgstr "Stratis池的成员"
 
 #~ msgid "Menu"
 #~ msgstr "菜单"
@@ -8704,9 +8833,6 @@ msgstr "区"
 
 #~ msgid "Ctrl+Alt+$0"
 #~ msgstr "Ctrl+Alt+$0"
-
-#~ msgid "Current"
-#~ msgstr "当前的"
 
 #~ msgid "Current allocation"
 #~ msgstr "当前分配"
@@ -9813,9 +9939,6 @@ msgstr "区"
 #~ msgid "Entry"
 #~ msgstr "条目"
 
-#~ msgid "This web console will be updated."
-#~ msgstr "此 Web 控制台将会被更新。"
-
 #~ msgid ""
 #~ "Your browser will disconnect, but this does not affect the update "
 #~ "process. You can reconnect in a few moments to continue watching the "
@@ -10066,9 +10189,6 @@ msgstr "区"
 
 #~ msgid "Change resources limits"
 #~ msgstr "修改资源限制"
-
-#~ msgid "Checking for public keys"
-#~ msgstr "检查公钥"
 
 #~ msgid "Cockpit was unable to log into {{#strong}}{{host}}{{/strong}}."
 #~ msgstr "Cockpit 无法登录到 {{#strong}}{{host}}{{/strong}}."

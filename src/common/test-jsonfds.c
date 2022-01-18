@@ -767,7 +767,7 @@ test_unix_socket_simple (void)
 
   /* try multiple fds */
   send_fds (one, (gint []){ 0, 1, 2}, 3);
-  gint n_fds;
+  gint n_fds = 0; /* gcc is unhappy without this... */
   gint *fds = receive_fds (two, &n_fds, &error);
   g_assert_no_error (error);
   g_assert (fds != NULL);

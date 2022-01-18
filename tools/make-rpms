@@ -59,6 +59,7 @@ srpm="$($base/tools/make-srpm ${1-})"
 
 tmpdir=$(mktemp -d $PWD/rpm-build.XXXXXX)
 rpmbuild $check $quiet \
+    --define "_topdir $tmpdir" \
     --define "_sourcedir $tmpdir" \
     --define "_specdir $tmpdir" \
     --define "_builddir $tmpdir" \

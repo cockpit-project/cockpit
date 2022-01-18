@@ -156,7 +156,7 @@ export const ListingTable = ({
                     {isExpandable
                         ? (row.expandedContent
                             ? <Td expand={{
-                                rowKey,
+                                rowIndex: rowKey,
                                 isExpanded,
                                 onToggle: () => {
                                     if (afterToggle)

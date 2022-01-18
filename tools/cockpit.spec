@@ -231,10 +231,10 @@ echo '%dir %{_datadir}/cockpit/ssh' >> base.list
 find %{buildroot}%{_datadir}/cockpit/ssh -type f >> base.list
 echo '%{_libexecdir}/cockpit-ssh' >> base.list
 
-echo '%dir %{_datadir}/cockpit/pcp' >> pcp.list
+echo '%dir %{_datadir}/cockpit/pcp' > pcp.list
 find %{buildroot}%{_datadir}/cockpit/pcp -type f >> pcp.list
 
-echo '%dir %{_datadir}/cockpit/tuned' >> system.list
+echo '%dir %{_datadir}/cockpit/tuned' > system.list
 find %{buildroot}%{_datadir}/cockpit/tuned -type f >> system.list
 
 echo '%dir %{_datadir}/cockpit/shell' >> system.list
@@ -249,7 +249,7 @@ find %{buildroot}%{_datadir}/cockpit/users -type f >> system.list
 echo '%dir %{_datadir}/cockpit/metrics' >> system.list
 find %{buildroot}%{_datadir}/cockpit/metrics -type f >> system.list
 
-echo '%dir %{_datadir}/cockpit/kdump' >> kdump.list
+echo '%dir %{_datadir}/cockpit/kdump' > kdump.list
 find %{buildroot}%{_datadir}/cockpit/kdump -type f >> kdump.list
 
 echo '%dir %{_datadir}/cockpit/sosreport' > sosreport.list
@@ -261,7 +261,7 @@ find %{buildroot}%{_datadir}/cockpit/storaged -type f >> storaged.list
 echo '%dir %{_datadir}/cockpit/networkmanager' > networkmanager.list
 find %{buildroot}%{_datadir}/cockpit/networkmanager -type f >> networkmanager.list
 
-echo '%dir %{_datadir}/cockpit/packagekit' >> packagekit.list
+echo '%dir %{_datadir}/cockpit/packagekit' > packagekit.list
 find %{buildroot}%{_datadir}/cockpit/packagekit -type f >> packagekit.list
 
 echo '%dir %{_datadir}/cockpit/apps' >> packagekit.list

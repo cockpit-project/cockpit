@@ -1,13 +1,12 @@
 actions:
   post-upstream-clone:
-    # this is being triggered immediately on a pull_request event; wait for
-    # build-dist.yml to generate the dist tarball.  git rebase needs an
-    # identity in order to rewrite the committer field.
-    - tools/webpack-jumpstart --wait --rebase
     # packit will overwrite the version in its "fix spec file" stage
     - tools/create-spec --version 0 --build-all -o cockpit.spec tools/cockpit.spec.in
   create-archive:
     - ./autogen.sh --disable-polkit --disable-ssh --disable-pcp --enable-prefix-only CPPFLAGS=-Itools/mock-build-env PKG_CONFIG_PATH=tools/mock-build-env
+    # The sandcastle doesn't have enough ram to run webpack, so wait
+    # until the webpack-jumpstart workflow has run and grab the result.
+    - tools/webpack-jumpstart --wait --rebase
     - make XZ_OPT=-0 dist
     - sh -c 'echo cockpit-*.tar.xz'
 jobs:

@@ -78,7 +78,7 @@ Package: cockpit-networkmanager
 Architecture: all
 Multi-Arch: foreign
 Depends: ${misc:Depends},
-         cockpit-bridge (>= ${bridge:minversion}),
+         cockpit-bridge (>= ${source:Version}),
          network-manager (>= 1.6)
 Description: Cockpit user interface for networking
  The Cockpit components for interacting with networking configuration.
@@ -87,7 +87,7 @@ Package: cockpit-pcp
 Architecture: any
 Depends: ${misc:Depends},
          ${shlibs:Depends},
-         cockpit-bridge (>= ${bridge:minversion}),
+         cockpit-bridge (>= ${source:Version}),
          pcp
 Description: Cockpit PCP integration
  Cockpit support for reading PCP metrics and loading PCP archives.
@@ -96,7 +96,7 @@ Package: cockpit-packagekit
 Architecture: all
 Multi-Arch: foreign
 Depends: ${misc:Depends},
-         cockpit-bridge (>= ${bridge:minversion}),
+         cockpit-bridge (>= ${source:Version}),
          packagekit
 Description: Cockpit user interface for packages
  The Cockpit component for installing packages, via PackageKit.
@@ -107,7 +107,7 @@ Multi-Arch: foreign
 Depends: ${misc:Depends},
          udisks2 (>= 2.7),
          libblockdev-mdraid2,
-         cockpit-bridge (>= ${bridge:minversion}),
+         cockpit-bridge (>= ${source:Version}),
          python3,
          python3-dbus
 Description: Cockpit user interface for storage
@@ -117,7 +117,7 @@ Package: cockpit-system
 Architecture: all
 Multi-Arch: foreign
 Depends: ${misc:Depends},
-         cockpit-bridge (>= ${bridge:minversion}),
+         cockpit-bridge (>= ${source:Version}),
          libpwquality-tools,
          openssl,
 Recommends: sudo | policykit-1
@@ -167,7 +167,7 @@ Package: cockpit-sosreport
 Architecture: all
 Multi-Arch: foreign
 Depends: ${misc:Depends},
-         cockpit-bridge (>= ${bridge:minversion}),
+         cockpit-bridge (>= ${source:Version}),
          sosreport
 Description: Cockpit user interface for diagnostic reports
  The Cockpit component for creating diagnostic reports with the

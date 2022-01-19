@@ -3,8 +3,6 @@ actions:
     # this is being triggered immediately on a pull_request event; wait for
     # build-dist.yml to generate the dist tarball.  git rebase needs an
     # identity in order to rewrite the committer field.
-    - git config --global user.name 'nobody'
-    - git config --global user.email '<>'
     - tools/webpack-jumpstart --wait --rebase
     # packit will overwrite the version in its "fix spec file" stage
     - tools/create-spec --version 0 --build-all -o cockpit.spec tools/cockpit.spec.in

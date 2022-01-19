@@ -493,7 +493,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # This should work, but it will not because of
         # https://bugzilla.redhat.com/show_bug.cgi?id=1814569
-        working_images = ["fedora-34", "fedora-testing"]
+        working_images = ["fedora-34", "fedora-35", "fedora-testing"]
         if m.image in working_images:
             self.assertIn('result: uid=0', b.text(".super-channel span"))
         else:

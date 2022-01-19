@@ -143,7 +143,10 @@ if [ -n "${rebase}" ]; then
         message FETCH ".  [${merge_base}]"
         git fetch --no-write-fetch-head origin "${merge_base}"
     fi
-    git rebase --autostash -- "${merge_base}"
+    # EMAIL is used as a final fallback, only if nothing else is set.  This is
+    # ignored if your git is properly configured, but if it's not, then this
+    # will stop the rebase from failing.
+    EMAIL="${EMAIL:-<>}" git rebase --autostash -- "${merge_base}"
 fi
 
 target_tree="$(cat_from_cache "${tag}" tree)"

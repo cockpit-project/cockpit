@@ -50,6 +50,3 @@ endif
 
 	dh_install --fail-missing -Xusr/src/debug
 	make install-tests DESTDIR=debian/cockpit-tests
-
-override_dh_gencontrol:
-	dh_gencontrol -- -Vbridge:minversion="$(shell tools/min-base-version)"

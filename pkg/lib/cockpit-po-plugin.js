@@ -11,6 +11,7 @@ module.exports = class {
     constructor(options) {
         if (!options)
             options = {};
+        this.filenamePrefixPattern = options.filenamePrefixPattern || '';
         this.subdir = options.subdir || '';
         this.reference_patterns = options.reference_patterns;
         this.wrapper = options.wrapper || 'cockpit.locale(PO_DATA);';
@@ -80,7 +81,7 @@ module.exports = class {
 
         Array.prototype.push.apply(patterns, extras);
 
-        return patterns.map((p) => new RegExp(`^${p}:[0-9]+$`));
+        return patterns.map((p) => new RegExp(`^${this.filenamePrefixPattern}${p}:[0-9]+$`));
     }
 
     check_reference_patterns(patterns, references) {

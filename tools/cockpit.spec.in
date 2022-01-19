@@ -23,10 +23,6 @@
 #
 # Check first cockpit-devel@lists.fedorahosted.org
 #
-# Globals that may be defined elsewhere
-#  * Version 122
-#  * wip 1
-#
 
 # earliest base that the subpackages work on; the instances of this get computed/updated
 # by tools/gen-spec-dependencies during "make dist", but keep a hardcoded fallback
@@ -53,20 +49,17 @@ Summary:        Web Console for Linux servers
 License:        LGPLv2+
 URL:            https://cockpit-project.org/
 
-Version:        0
-%if %{defined wip}
-Release:        1.%{wip}%{?dist}
-Source0:        cockpit-%{version}.tar.xz
-%else
-Release:        1%{?dist}
-Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
-%endif
+Version:        @VERSION@
+Release:        @RELEASE@%{?dist}
+Source0:        @PATH@cockpit-@VERSION@.tar.xz
 
 # in RHEL 8 the source package is duplicated: cockpit (building basic packages like cockpit-{bridge,system})
 # and cockpit-appstream (building optional packages like cockpit-{pcp})
 # This split does not apply to EPEL/COPR.
 # In Fedora ELN/RHEL 9+ there is just one source package, which ships rpms in both BaseOS and AppStream
-%if 0%{?rhel} == 8 && 0%{?epel} == 0
+# We also provide an override mechanism if you want to build all packages.
+%define build_all @BUILD_ALL@
+%if 0%{?rhel} == 8 && 0%{?epel} == 0 && !%{build_all}
 
 %if "%{name}" == "cockpit"
 %define build_basic 1
@@ -432,7 +425,7 @@ Requires: sos
 Recommends: (reportd if abrt)
 %endif
 # NPM modules which are also available as packages
-Provides: bundled(xstatic-patternfly-common) = %{npm-version:patternfly}
+Provides: bundled(xstatic-patternfly-common) = @PATTERNFLY_VERSION@
 
 %description system
 This package contains the Cockpit shell and system configuration interfaces.
@@ -570,8 +563,8 @@ fi
 
 %package kdump
 Summary: Cockpit user interface for kernel crash dumping
-Requires: cockpit-bridge >= %{required_base}
-Requires: cockpit-shell >= %{required_base}
+Requires: cockpit-bridge >= @REQUIRED_BASE@
+Requires: cockpit-shell >= @REQUIRED_BASE@
 Requires: kexec-tools
 BuildArch: noarch
 
@@ -583,8 +576,8 @@ The Cockpit component for configuring kernel crash dumping.
 
 %package sosreport
 Summary: Cockpit user interface for diagnostic reports
-Requires: cockpit-bridge >= %{required_base}
-Requires: cockpit-shell >= %{required_base}
+Requires: cockpit-bridge >= @REQUIRED_BASE@
+Requires: cockpit-shell >= @REQUIRED_BASE@
 Requires: sos
 BuildArch: noarch
 
@@ -598,8 +591,8 @@ sosreport tool.
 
 %package networkmanager
 Summary: Cockpit user interface for networking, using NetworkManager
-Requires: cockpit-bridge >= %{required_base}
-Requires: cockpit-shell >= %{required_base}
+Requires: cockpit-bridge >= @REQUIRED_BASE@
+Requires: cockpit-shell >= @REQUIRED_BASE@
 Requires: NetworkManager >= 1.6
 # Optional components
 Recommends: NetworkManager-team
@@ -616,8 +609,8 @@ The Cockpit component for managing networking.  This package uses NetworkManager
 
 %package selinux
 Summary: Cockpit SELinux package
-Requires: cockpit-bridge >= %{required_base}
-Requires: cockpit-shell >= %{required_base}
+Requires: cockpit-bridge >= @REQUIRED_BASE@
+Requires: cockpit-shell >= @REQUIRED_BASE@
 Requires: setroubleshoot-server >= 3.3.3
 BuildArch: noarch
 
@@ -647,7 +640,7 @@ Dummy package from building optional packages only; never install or publish me.
 
 %package -n cockpit-storaged
 Summary: Cockpit user interface for storage, using udisks
-Requires: cockpit-shell >= %{required_base}
+Requires: cockpit-shell >= @REQUIRED_BASE@
 Requires: udisks2 >= 2.6
 Recommends: udisks2-lvm2 >= 2.6
 Recommends: udisks2-iscsi >= 2.6
@@ -684,7 +677,7 @@ These files are not required for running Cockpit.
 
 %package -n cockpit-pcp
 Summary: Cockpit PCP integration
-Requires: cockpit-bridge >= %{required_base}
+Requires: cockpit-bridge >= @REQUIRED_BASE@
 Requires: pcp
 
 %description -n cockpit-pcp
@@ -700,7 +693,7 @@ systemctl reload-or-try-restart pmlogger
 %package -n cockpit-packagekit
 Summary: Cockpit user interface for packages
 BuildArch: noarch
-Requires: cockpit-bridge >= %{required_base}
+Requires: cockpit-bridge >= @REQUIRED_BASE@
 Requires: PackageKit
 Recommends: python3-tracer
 # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1800468

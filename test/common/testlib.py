@@ -650,6 +650,9 @@ class Browser:
                 self.click('#logout')
         self.expect_load()
 
+        # Log out can cause race with polkit request
+        self.allow_journal_messages(".*couldn't create polkit session subject: No session for pid.*")
+
     def relogin(self, path=None, user=None, superuser=None, wait_remote_session_machine=None):
         self.logout()
         if wait_remote_session_machine:

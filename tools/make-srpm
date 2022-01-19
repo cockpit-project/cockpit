@@ -38,20 +38,8 @@ else
     source="$1"
 fi
 
-version=$(echo "$source" | sed -n 's|.*cockpit-\([^ /-]\+\)\.tar\..*|\1|p')
-if [ -z "$version" ]; then
-    echo "make-srpm: couldn't parse version from tarball: $source"
-    exit 2
-fi
-
-# We actually modify the spec so that the srpm is standalone buildable
-modify_spec() {
-sed -e "/^Version:.*/d" -e "1i\
-%define wip wip\nVersion: $version\n"
-}
-
 tmpdir=$(mktemp -d $PWD/srpm-build.XXXXXX)
-tar xaf "$source" -O cockpit-$version/tools/cockpit.spec | modify_spec > $tmpdir/cockpit.spec
+tar xf "$source" -O '*/tools/cockpit.spec' > $tmpdir/cockpit.spec
 
 # on RHEL/CentOS 8 (only), cockpit is delivered as two mostly identical source packages.
 # "cockpit" with build_basic=1, and "cockpit-appstream" with build_optional=1

@@ -25,6 +25,7 @@ import { PageStatusNotifications } from "../page-status.jsx";
 import { InsightsStatus } from "./insights.jsx";
 import { ShutDownStatus } from "./shutdownStatus.jsx";
 import LastLogin from "./lastLogin.jsx";
+import { CryptoPolicyStatus } from "./cryptoPolicies.jsx";
 
 import "./healthCard.scss";
 
@@ -39,6 +40,7 @@ export class HealthCard extends React.Component {
                     <ul className="system-health-events">
                         <PageStatusNotifications />
                         <InsightsStatus />
+                        <CryptoPolicyStatus />
                         <ShutDownStatus />
                         <LastLogin />
                     </ul>

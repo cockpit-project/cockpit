@@ -30,6 +30,7 @@ import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { ServerTimeConfig } from 'serverTime.js';
 import { RealmdClient, RealmButton } from "./realmd.jsx";
 import { TunedPerformanceProfile } from '../../tuned/dialog.jsx';
+import { CryptoPolicyRow } from './cryptoPolicies.jsx';
 
 import "./configurationCard.scss";
 
@@ -82,6 +83,8 @@ export const ConfigurationCard = ({ hostname }) => {
                                 <th scope="row">{_("Performance profile")}</th>
                                 <td><TunedPerformanceProfile /></td>
                             </tr>
+
+                            <CryptoPolicyRow />
 
                             <tr>
                                 <th scope="row">{_("Secure shell keys")}</th>

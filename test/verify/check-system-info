@@ -835,6 +835,66 @@ password=foobar
         dbus_call = 'busctl get-property org.freedesktop.login1 /org/freedesktop/login1  org.freedesktop.login1.Manager ScheduledShutdown'
         self.assertEqual('(st) "" 0', m.execute(dbus_call).strip())
 
+    @skipImage("crypto-policies not avaiable", "fedora-coreos", "debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-stable", "arch")
+    def testCryptoPolicies(self):
+        def shown_profile_text(profile):
+            return profile[0] + profile[1:].lower()
+
+        def change_profile(profile, new_profile, reboot=False):
+            b.click("#crypto-policy-button")
+            b.wait_in_text(".pf-c-menu__item.pf-m-selected", shown_profile_text(profile))
+            profile_button_name = shown_profile_text(new_profile)
+            b.click(f".pf-c-menu__item-main .pf-c-menu__item-text:contains('{profile_button_name}')")
+            if reboot:
+                b.click("#crypto-policy-apply-reboot")
+            else:
+                b.click("#crypto-policy-apply-reboot-later")
+                b.wait_text("#crypto-policy-button", shown_profile_text(new_profile))
+                profile = m.execute(cmd + " --show").strip()
+                self.assertEqual(new_profile, profile)
+
+        m = self.machine
+        b = self.browser
+        cmd = "update-crypto-policies"
+
+        self.login_and_go("/system")
+
+        profile = m.execute(cmd + " --show").strip()
+        b.wait_text("#crypto-policy-button", shown_profile_text(profile))
+
+        # Select a different profile and reboot later, verify health card status.
+        new_profile = "LEGACY"
+        change_profile(profile, new_profile)
+
+        b.wait_text(".system-health-crypto-policies", "Reboot to apply new crypto policy")
+        # Check that reloading still shows the reboot text
+        b.reload()
+        b.enter_page("/system")
+        b.wait_text(".system-health-crypto-policies", "Reboot to apply new crypto policy")
+
+        b.click(".system-health-crypto-policies button")
+        b.wait_text("#shutdown-dialog .pf-c-modal-box__header .pf-c-modal-box__title-text", "Reboot")
+        # Cancel reboot
+        b.click("#shutdown-dialog button.pf-c-button.pf-m-link")
+
+        # Select a new profile and reboot
+        profile = new_profile
+        new_profile = "FUTURE"
+        change_profile(profile, new_profile, True)
+        m.wait_reboot()
+        self.login_and_go('/system')
+        b.wait_text("#crypto-policy-button", shown_profile_text(new_profile))
+
+        # Select a custom policy (non-selectable option)
+        profile = "EMPTY"
+        m.execute(cmd + f" --set {profile}")
+        b.enter_page("/system")
+        b.wait_text("#crypto-policy-button", shown_profile_text(profile))
+        b.click("#crypto-policy-button")
+        b.wait_in_text(".pf-c-menu__item.pf-m-selected", shown_profile_text(profile))
+        b.wait_in_text(".pf-c-menu__item.pf-m-selected", "Custom crypto policy")
+        b.click("#crypto-policy-dialog button.pf-c-button.pf-m-link")
+
 
 if __name__ == '__main__':
     test_main()

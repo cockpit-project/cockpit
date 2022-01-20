@@ -840,15 +840,8 @@ class TestMultiMachine(MachineCase):
         # Put a 'better' passphrase on the key and relogin, then
         # change the passphrase back to the login password
         m1.execute("ssh-keygen -q -f /home/admin/.ssh/id_rsa -p -P foobar -N foobarfoo")
-        b.logout()
-        m1.execute("while pgrep -a cockpit-ssh || pgrep -a cockpit-bridge || pgrep -a cockpit-session; do sleep 1; done")
-        m2.execute("while pgrep -a cockpit-bridge; do sleep 1; done")
-        b.try_login()
-        b.expect_load()
-        b._wait_present('#content')
-        b.wait_visible('#content')
-        b.adjust_window_for_fixed_content_size()
-
+        time.sleep(10)
+        b.relogin(None, wait_remote_session_machine=m1)
         b.wait_visible("#machine-troubleshoot")
         b.click('#machine-troubleshoot')
         b.wait_visible('#hosts_setup_server_dialog')

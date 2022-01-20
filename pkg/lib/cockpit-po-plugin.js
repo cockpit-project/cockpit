@@ -11,9 +11,9 @@ module.exports = class {
     constructor(options) {
         if (!options)
             options = {};
-        this.filenamePrefixPattern = options.filenamePrefixPattern || '';
+        this.filenamePrefix = options.filenamePrefix || '';
         this.subdir = options.subdir || '';
-        this.reference_patterns = options.reference_patterns;
+        this.reference_paths = options.reference_paths;
         this.wrapper = options.wrapper || 'cockpit.locale(PO_DATA);';
     }
 
@@ -65,8 +65,8 @@ module.exports = class {
         return expr;
     }
 
-    build_patterns(compilation, extras) {
-        const patterns = [
+    build_paths(compilation, extras) {
+        const paths = [
             // all translations for that page, including manifest.json and *.html
             `pkg/${this.subdir}.*`,
             // FIXME: https://github.com/cockpit-project/cockpit/issues/13906
@@ -76,18 +76,18 @@ module.exports = class {
         // add translations from libraries outside of page directory
         compilation.getStats().compilation.fileDependencies.forEach(path => {
             if (path.startsWith(srcdir) && path.indexOf('node_modules/') < 0)
-                patterns.push(path.slice(srcdir.length + 1));
+                paths.push(path.slice(srcdir.length + 1));
         });
 
-        Array.prototype.push.apply(patterns, extras);
+        Array.prototype.push.apply(paths, extras);
 
-        return patterns.map((p) => new RegExp(`^${this.filenamePrefixPattern}${p}:[0-9]+$`));
+        return paths.map((p) => this.filenamePrefix + p);
     }
 
-    check_reference_patterns(patterns, references) {
+    check_reference_paths(paths, references) {
         for (const reference of references) {
-            for (const pattern of patterns) {
-                if (reference.match(pattern)) {
+            for (const pattern of paths) {
+                if (reference.replace(/:[0-9]+$/g, "") == pattern) {
                     return true;
                 }
             }
@@ -98,7 +98,7 @@ module.exports = class {
         compilation.fileDependencies.add(po_file);
 
         return new Promise((resolve, reject) => {
-            const patterns = this.build_patterns(compilation, this.reference_patterns);
+            const paths = this.build_paths(compilation, this.reference_paths);
 
             const parsed = gettext_parser.po.parse(fs.readFileSync(po_file), 'utf8');
             delete parsed.translations[""][""]; // second header copy
@@ -116,7 +116,7 @@ module.exports = class {
 
                 for (const [msgid, translation] of Object.entries(context)) {
                     const references = translation.comments.reference.split(/\s/);
-                    if (!this.check_reference_patterns(patterns, references))
+                    if (!this.check_reference_paths(paths, references))
                         continue;
 
                     if (translation.comments.flag && translation.comments.flag.match(/\bfuzzy\b/))

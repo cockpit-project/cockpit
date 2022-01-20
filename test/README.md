@@ -87,12 +87,12 @@ You can set these environment variables to configure the test suite:
                   "fedora-coreos"
                   "fedora-testing"
                   "rhel-8-5"
-                  "rhel-8-5-distropkg"
                   "rhel-8-6"
+                  "rhel-8-6-distropkg"
                   "rhel-9-0"
                   "ubuntu-2004"
                   "ubuntu-stable"
-               "fedora-34" is the default (bots/machine/machine_core/constants.py)
+               "fedora-35" is the default (bots/machine/machine_core/constants.py)
 
     TEST_JOBS  How many tests to run in parallel.  The default is 1.
 

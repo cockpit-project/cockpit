@@ -388,7 +388,7 @@ AC_MSG_CHECKING([whether to install cockpit-client])
 AC_ARG_ENABLE([cockpit-client],
               [AS_HELP_STRING([--enable-cockpit-client], [Whether to install cockpit-client])],
               [], [enable_cockpit_client=no])
-AC_MSG_RESULT($enable_prefix_only)
+AC_MSG_RESULT($enable_cockpit_client)
 AM_CONDITIONAL([ENABLE_COCKPIT_CLIENT], [test "$enable_cockpit_client" = "yes"])
 
 # Debug

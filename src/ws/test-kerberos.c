@@ -495,9 +495,6 @@ main (int argc,
 
   cockpit_test_init (&argc, &argv);
 
-  /* Try to debug crashing during tests */
-  signal (SIGABRT, cockpit_test_signal_backtrace);
-
   if (g_strcmp0 (g_get_user_name (), "root") != 0)
     mock_kdc_start ();
 

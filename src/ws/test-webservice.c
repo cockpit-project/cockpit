@@ -1273,9 +1273,6 @@ main (int argc,
    */
   g_timeout_add_seconds (1, on_hack_raise_sigchld, NULL);
 
-  /* Try to debug crashing during tests */
-  signal (SIGSEGV, cockpit_test_signal_backtrace);
-
   /* We don't want to test the ping functionality in these tests */
   cockpit_ws_ping_interval = G_MAXUINT;
 

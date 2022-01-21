@@ -27,7 +27,21 @@ cd _distcleancheck/cockpit-*
 ./configure
 make distclean
 ./configure
+make -j$(nproc)
+make install DESTDIR=destdir
 make check 2>&1 || {
     find -name test-suite.log | xargs cat
     exit 1
 }
+cd ../..
+
+# do another build in a different directory and ensure that it produces the
+# same output (in the name of reproducible builds)
+mkdir _otherdir
+tar -C _otherdir -xf cockpit-[0-9]*.tar.xz
+cd _otherdir/cockpit-*
+./configure
+make -j$(nproc)
+make install DESTDIR=destdir
+cd ../..
+diff --no-dereference -ur _distcleancheck/*/destdir _otherdir/*/destdir

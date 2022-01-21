@@ -1083,9 +1083,6 @@ main (int argc,
   cockpit_webresponse_fail_html_text =
     "<html><head><title>@@message@@</title></head><body>@@message@@</body></html>\n";
 
-  /* Try to debug crashing during tests */
-  signal (SIGSEGV, cockpit_test_signal_backtrace);
-
   /* We don't want to test the ping functionality in these tests */
   cockpit_ws_ping_interval = G_MAXUINT;
 

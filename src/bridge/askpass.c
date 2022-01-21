@@ -26,9 +26,6 @@
 #include "common/cockpitjson.h"
 #include "common/cockpitmemory.h"
 #include "common/cockpittransport.h"
-#if WITH_DEBUG
-#include "common/cockpittest.h"
-#endif
 
 #include <errno.h>
 #include <stdlib.h>
@@ -151,12 +148,6 @@ main (int argc,
   static GOptionEntry entries[] = {
     { NULL }
   };
-
-  /* Debugging issues during testing */
-#if WITH_DEBUG
-  signal (SIGABRT, cockpit_test_signal_backtrace);
-  signal (SIGSEGV, cockpit_test_signal_backtrace);
-#endif
 
   context = g_option_context_new (NULL);
   g_option_context_add_main_entries (context, entries, NULL);

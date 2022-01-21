@@ -22,7 +22,6 @@
 #include <gio/gio.h>
 
 #include "common/cockpithacks-glib.h"
-#include "common/cockpittest.h"
 #include "common/cockpitsystem.h"
 
 #include "cockpitsshrelay.h"
@@ -45,12 +44,6 @@ main (int argc,
   signal (SIGTSTP, SIG_IGN);
   signal (SIGHUP, SIG_IGN);
   signal (SIGPIPE, SIG_IGN);
-
-  /* Debugging issues during testing */
-#if WITH_DEBUG
-  signal (SIGABRT, cockpit_test_signal_backtrace);
-  signal (SIGSEGV, cockpit_test_signal_backtrace);
-#endif
 
   cockpit_setenv_check ("GSETTINGS_BACKEND", "memory", TRUE);
   cockpit_setenv_check ("GIO_USE_PROXY_RESOLVER", "dummy", TRUE);

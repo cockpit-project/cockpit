@@ -43,7 +43,6 @@
 #include "common/cockpitjson.h"
 #include "common/cockpitpipetransport.h"
 #include "common/cockpitsystem.h"
-#include "common/cockpittest.h"
 #include "common/cockpitwebresponse.h"
 
 #include <sys/prctl.h>
@@ -535,10 +534,6 @@ main (int argc,
   };
 
   signal (SIGPIPE, SIG_IGN);
-
-  /* Debugging issues during testing */
-  signal (SIGABRT, cockpit_test_signal_backtrace);
-  signal (SIGSEGV, cockpit_test_signal_backtrace);
 
   if (g_strv_contains ((const gchar **) argv, "--privileged"))
     {

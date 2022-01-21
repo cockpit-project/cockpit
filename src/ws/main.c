@@ -37,7 +37,6 @@
 #include "common/cockpithacks-glib.h"
 #include "common/cockpitmemory.h"
 #include "common/cockpitsystem.h"
-#include "common/cockpittest.h"
 #include "common/cockpitwebcertificate.h"
 
 /* ---------------------------------------------------------------------------------------------------- */
@@ -288,12 +287,6 @@ main (int argc,
       /* When no local bridge, start serving immediately */
       cockpit_web_server_start (server);
     }
-
-  /* Debugging issues during testing */
-#if WITH_DEBUG
-  signal (SIGABRT, cockpit_test_signal_backtrace);
-  signal (SIGSEGV, cockpit_test_signal_backtrace);
-#endif
 
   g_main_loop_run (loop);
 

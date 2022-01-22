@@ -155,7 +155,6 @@ Recommends: subscription-manager-cockpit
 
 %build
 %configure \
-    --disable-silent-rules \
     --with-cockpit-user=cockpit-ws \
     --with-cockpit-ws-instance-user=cockpit-wsinstance \
 %if 0%{?suse_version}
@@ -166,7 +165,7 @@ Recommends: subscription-manager-cockpit
     --disable-ssh \
 %endif
 
-make -j$(nproc) %{?extra_flags} all
+%make_build
 
 %if 0%{?with_selinux}
     make -f /usr/share/selinux/devel/Makefile cockpit.pp

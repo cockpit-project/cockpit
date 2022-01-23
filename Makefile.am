@@ -25,7 +25,6 @@ CLEANFILES = \
 	$(NULL)
 
 EXTRA_DIST = \
-	selinux \
 	package.json \
 	package-lock.json \
 	README.md \
@@ -215,6 +214,7 @@ include doc/guide/Makefile-guide.am
 include doc/man/Makefile-man.am
 include pkg/Makefile.am
 include po/Makefile.am
+include selinux/Makefile.am
 include src/branding/arch/Makefile.am
 include src/branding/centos/Makefile.am
 include src/branding/debian/Makefile.am

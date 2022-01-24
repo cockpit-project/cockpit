@@ -139,7 +139,6 @@ if test "$enable_ssh" != "no"; then
   AC_SUBST(COCKPIT_SSH_SESSION_CFLAGS)
 else
   enable_ssh="no"
-  key_auth="no"
   AC_MSG_RESULT([$enable_ssh])
 fi
 
@@ -509,11 +508,9 @@ echo "
         With address sanitizer:     ${asan_status}
         With PCP:                   ${enable_pcp}
         With polkit:                ${enable_polkit}
-        Branding:                   ${BRAND}
 
         cockpit-client:             ${enable_cockpit_client}
         cockpit-ssh:                ${enable_ssh}
-        Supports key auth:          ${key_auth}
 
         ssh-add:                    ${SSH_ADD}
         ssh-agent:                  ${SSH_AGENT}

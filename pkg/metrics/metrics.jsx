@@ -216,7 +216,7 @@ class CurrentMetrics extends React.Component {
             swapUsed: null, // GiB
             cpuUsed: 0, // percentage
             cpuCoresUsed: [], // [ percentage ]
-            loadAvg: null, // string
+            loadAvg: null, // [ 1min, 5min, 15min ]
             disksRead: 0, // B/s
             disksWritten: 0, // B/s
             mounts: [], // [{ target (string), use (percent), avail (bytes) }]
@@ -322,8 +322,7 @@ class CurrentMetrics extends React.Component {
         cockpit.file("/proc/loadavg").read()
                 .then(content => {
                     // format: three load averages, then process counters; e.g.: 0.67 1.00 0.78 2/725 87151
-                    const load = content.split(' ').slice(0, 3);
-                    this.setState({ loadAvg: cockpit.format("$0: $1, $2: $3, $4: $5", _("1 min"), load[0], _("5 min"), load[1], _("15 min"), load[2]) });
+                    this.setState({ loadAvg: content.split(' ').slice(0, 3) });
                     // update it again regularly
                     window.setTimeout(this.updateLoad, 5000);
                 })
@@ -479,7 +478,13 @@ class CurrentMetrics extends React.Component {
                             <DescriptionList className="pf-m-horizontal-on-sm">
                                 <DescriptionListGroup>
                                     <DescriptionListTerm>{ _("Load") }</DescriptionListTerm>
-                                    <DescriptionListDescription id="load-avg">{this.state.loadAvg}</DescriptionListDescription>
+                                    <DescriptionListDescription id="load-avg">
+                                        <Flex spaceItems={{ default: 'spaceItemsXs' }}>
+                                            <FlexItem>{ _("1 min") }:&nbsp;{ this.state.loadAvg[0] },</FlexItem>
+                                            <FlexItem>{ _("5 min") }:&nbsp;{ this.state.loadAvg[1] },</FlexItem>
+                                            <FlexItem>{ _("15 min") }:&nbsp;{ this.state.loadAvg[2] }</FlexItem>
+                                        </Flex>
+                                    </DescriptionListDescription>
                                 </DescriptionListGroup>
                             </DescriptionList> }
 

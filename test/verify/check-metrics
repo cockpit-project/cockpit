@@ -730,17 +730,17 @@ class TestCurrentMetrics(MachineCase):
         b.wait_not_in_text("#current-metrics-card-cpu", "cpu-hog")
         b.wait_not_in_text("#current-metrics-card-cpu", "cpu-piglet")
 
-        # Load looks like "1 min: 1.41, 5 min: 1.47, 15 min: 2.30"
-        b.wait(lambda: float(b.text("#load-avg").split()[2].rstrip(',')) < 5)
+        # Load is a flex, each part looks like "1 min: 1.41,"; wait until the 1min load is low
+        b.wait(lambda: float(b.text("#load-avg .pf-l-flex div:first-child").split()[-1].rstrip(',')) < 5)
 
         m.execute("systemd-run --collect --slice cockpittest --unit load-hog sh -ec "
                   "  'for i in `seq 500`; do dd if=/dev/urandom of=/dev/zero bs=10K count=500 status=none & done'")
-        b.wait(lambda: float(b.text("#load-avg").split()[2].rstrip(',')) > 15)
+        b.wait(lambda: float(b.text("#load-avg .pf-l-flex div:first-child").split()[-1].rstrip(',')) > 15)
         m.execute("systemctl stop load-hog 2>/dev/null || true")  # ok to fail, as the command exits by itself
 
         # this settles down slowly, don't wait for becoming really quiet
         with b.wait_timeout(180):
-            b.wait(lambda: float(b.text("#load-avg").split()[2].rstrip(',')) < 10)
+            b.wait(lambda: float(b.text("#load-avg .pf-l-flex div:first-child").split()[-1].rstrip(',')) < 10)
 
     def testMemory(self):
         b = self.browser

@@ -247,14 +247,6 @@ AC_DEFINE_UNQUOTED([PATH_SSH_AGENT], ["$SSH_AGENT"], [Location of ssh-agent bina
 
 changequote(,)dnl
 if test "x$GCC" = "xyes"; then
-  if  grep -q platform:el8 /usr/lib/os-release; then
-    # /usr/lib/rpm/find-debuginfo.sh on RHEL 8 gets confused by
-    # -fdebug-prefix-map, so disable it if we're building there
-    strip_sourcefile_prefix="."
-  else
-    strip_sourcefile_prefix="$(realpath -s "${PWD}/${srcdir}")"
-  fi
-
   CFLAGS="-Wall \
           -Werror=strict-prototypes -Werror=missing-prototypes \
           -Werror=implicit-function-declaration \
@@ -262,7 +254,6 @@ if test "x$GCC" = "xyes"; then
           -Werror=format=2 \
           -Werror=return-type \
           -Werror=missing-include-dirs \
-          -ffile-prefix-map=${strip_sourcefile_prefix}=. \
           $CFLAGS"
 fi
 changequote([,])dnl

@@ -26,8 +26,10 @@ import {
     Card, CardTitle, CardBody, Gallery,
     DescriptionList, DescriptionListGroup, DescriptionListTerm, DescriptionListDescription,
     Flex, FlexItem,
+    Grid, GridItem,
     Modal,
     Page, PageSection, PageSectionVariants,
+    Popover,
     Progress, ProgressVariant,
     Select, SelectOption,
     Switch,
@@ -445,14 +447,19 @@ class CurrentMetrics extends React.Component {
 
         let cores = null;
         let topCore = null;
+        let allCpus = null;
         let cpu_label = null;
         if (this.state.cpuCoresUsed.length > 1) {
             const top_cores = this.state.cpuCoresUsed.map((v, i) => [i, v]).sort((a, b) => b[1] - a[1])
                     .slice(0, 16);
-            cores = top_cores.map(c => <Flex key={c[0]} justifyContent={{ default: 'justifyContentSpaceBetween' }}>
-                <FlexItem>{ cockpit.format(_("Core $0"), c[0]) }</FlexItem>
-                <FlexItem>{c[1]}%</FlexItem></Flex>
-            );
+            cores = (<Grid className='cpu-all' component='dl'>
+                {top_cores.map(c =>
+                    <React.Fragment key={c[0]}>
+                        <GridItem component='dt'>{ cockpit.format(_("Core $0"), c[0]) }</GridItem>
+                        <GridItem component='dd'>{c[1]}%</GridItem>
+                    </React.Fragment>)
+                }
+            </Grid>);
 
             cpu_label = (
                 <Flex spaceItems={{ default: 'spaceItemsNone' }} justifyContent={{ default: 'justifyContentFlexEnd' }}>
@@ -467,19 +474,14 @@ class CurrentMetrics extends React.Component {
                            min={0} max={100}
                            variant={ top_cores[0][1] > 90 ? ProgressVariant.danger : ProgressVariant.info }
                            measureLocation="none" />;
+
+            allCpus = (
+                <Popover minWidth={0} aria-label={ _("View all CPUs") } bodyContent={cores}>
+                    <Button variant="link" className='pf-u-font-size-sm'>{ _("View all CPUs") }</Button>
+                </Popover>);
         } else {
             cpu_label = this.state.cpuUsed + '%';
         }
-
-        const cpu_usage = (
-            <Progress
-                id="current-cpu-usage"
-                value={this.state.cpuUsed}
-                className="pf-m-sm"
-                min={0} max={100}
-                variant={ this.state.cpuUsed > 90 ? ProgressVariant.danger : null }
-                title={ num_cpu_str }
-                label={ cpu_label } />);
 
         return (
             <Gallery className="current-metrics" hasGutter>
@@ -487,10 +489,16 @@ class CurrentMetrics extends React.Component {
                     <CardTitle>{ _("CPU") }</CardTitle>
                     <CardBody>
                         <div className="progress-stack-no-space">
-                            {cores !== null ? <Tooltip content={ cores } position="bottom">
-                                {cpu_usage}
-                            </Tooltip> : cpu_usage }
+                            <Progress
+                                id="current-cpu-usage"
+                                value={this.state.cpuUsed}
+                                className="pf-m-sm"
+                                min={0} max={100}
+                                variant={ this.state.cpuUsed > 90 ? ProgressVariant.danger : null }
+                                title={ num_cpu_str }
+                                label={ cpu_label } />
                             {topCore}
+                            {allCpus}
                         </div>
 
                         { this.state.loadAvg &&

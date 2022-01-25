@@ -4,6 +4,7 @@
 @import "global-variables";
 @import "@patternfly/patternfly/components/Table/table.scss";
 @import "@patternfly/patternfly/components/Toolbar/toolbar.scss";
+@import "@patternfly/patternfly/utilities/Text/text.scss";
 
 #app {
     section.pf-c-page__main-breadcrumb {
@@ -85,6 +86,12 @@
           // avoid the "x" icon on high CPU usage
           .pf-c-progress__status-icon {
               display: none;
+          }
+
+          // don't center the "View all CPUs" button
+          button {
+            padding-left: 0;
+            width: fit-content;
           }
       }
 
@@ -541,5 +548,27 @@
     // leave some space for the focus rings
     .pf-c-switch {
         margin-bottom: 10px;
+    }
+}
+
+.cpu-all {
+    --pf-l-grid--m-gutter--GridGap: var(--pf-global--spacer--xs) var(--pf-global--spacer--md);
+    // Mixing font families need to be aligned properly (to the baseline)
+    align-items: baseline;
+    // In monospaced text, "100%" is 4 characters
+    grid-template-columns: 1fr minmax(4ch, auto);
+
+    > .pf-l-grid__item {
+        // Don't use PF's hardcoded 12-column grid
+        grid-column: auto;
+    }
+
+    > dd {
+        // TODO: Use tabular numbers instead of monospace,
+        // after new font usage is enabled
+        font-family: var(--pf-global--FontFamily--monospace);
+        // Aligning percentages to the right, especially when monospaced,
+        // makes  it easier to see high percentages
+        text-align: right;
     }
 }

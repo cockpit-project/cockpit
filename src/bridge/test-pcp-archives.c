@@ -321,8 +321,8 @@ test_metrics_archive_timestamp_now (TestCase *tc,
   g_autofree gchar* json = g_strdup_printf("{ 'source': '" BUILDDIR "/mock-archives/3',"
                                            "  'metrics': [ { 'name': 'mock.now' } ],"
                                            "  'interval': 1000,"
-                                           "  'timestamp': %li000"
-                                           "}", now);
+                                           "  'timestamp': %lli000"
+                                           "}", (long long) now);
   JsonObject *options = json_obj(json);
 
   setup_metrics_channel_json (tc, options);

@@ -104,7 +104,8 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         with b.wait_timeout(300):
             b.wait_in_text(".terminal .xterm-accessibility-tree", "9999989999991000000admin@")
 
-        b.assert_pixels("#terminal", "terminal", ignore=[".xterm-cursor-layer", ".terminal-title"])
+        b.assert_pixels("#terminal .terminal-group", "header", ignore=[".terminal-title"])
+        b.assert_pixels("#terminal .xterm-text-layer", "text")
 
         # now reset terminal
         b.click('button:contains("Reset")')

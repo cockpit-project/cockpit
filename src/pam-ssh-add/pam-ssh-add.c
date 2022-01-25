@@ -815,6 +815,7 @@ stash_password_for_session (pam_handle_t *pamh,
       return PAM_AUTHTOK_RECOVER_ERR;
     }
 
+  /* coverity[leaked_storage : FALSE] */
   return PAM_SUCCESS;
 }
 

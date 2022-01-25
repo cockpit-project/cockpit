@@ -16,5 +16,14 @@ jobs:
       targets:
       - fedora-34
       - fedora-35
+        # 32 bit
+      - fedora-stable-i386
       - centos-stream-8-x86_64
       - centos-stream-9-x86_64
+
+  - job: copr_build
+    trigger: pull_request
+    metadata:
+      targets:
+        # big-endian (emulated, no integration tests)
+        - fedora-development-s390x

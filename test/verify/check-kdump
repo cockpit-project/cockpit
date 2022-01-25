@@ -274,12 +274,15 @@ class TestKdumpNFS(KdumpHelpers):
         b.set_val("#kdump-settings-location", "nfs")
         b.set_input_text("#kdump-settings-nfs-mount", "10.111.113.2:/srv/kdump")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
-        b.wait_not_present("#kdump-settings-dialog")
+        # rebuilding initrd might take a while on busy CI machines
+        with b.wait_timeout(300):
+            b.wait_not_present("#kdump-settings-dialog")
 
         # enable service, regenerates initrd and tests NFS settings
         b.wait_visible(".pf-c-switch__input:not(:checked)")
         b.click(".pf-c-switch__input")
-        b.wait_visible(".pf-c-switch__input:checked")
+        with b.wait_timeout(300):
+            b.wait_visible(".pf-c-switch__input:checked")
         b.wait_in_text("#app", "Service is running")
 
         # explicit nfs option, unset path
@@ -305,7 +308,8 @@ class TestKdumpNFS(KdumpHelpers):
         # create the directory on the NFS server
         self.machines["nfs"].execute("mkdir /srv/kdump/dumps")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
-        b.wait_not_present("#kdump-settings-dialog")
+        with b.wait_timeout(300):
+            b.wait_not_present("#kdump-settings-dialog")
         conf = m.execute("cat /etc/kdump.conf")
         self.assertIn("\nnfs 10.111.113.2:/srv/kdump\n", conf)
         self.assertIn("\npath dumps\n", conf)

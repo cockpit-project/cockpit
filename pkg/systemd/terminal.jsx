@@ -5,7 +5,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import {
     FormSelect, FormSelectOption, NumberInput,
-    Toolbar, ToolbarContent, ToolbarItem
+    Toolbar, ToolbarContent, ToolbarItem, ToolbarGroup
 } from "@patternfly/react-core";
 
 import { Terminal } from "cockpit-components-terminal.jsx";
@@ -123,36 +123,40 @@ const _ = cockpit.gettext;
                         <tt className="terminal-title">{this.state.title}</tt>
                         <Toolbar id="toolbar">
                             <ToolbarContent>
-                                <ToolbarItem variant="label" id="size-select">
-                                    {_("Font size")}
-                                </ToolbarItem>
-                                <ToolbarItem>
-                                    <NumberInput
-                                        className="font-size"
-                                        value={this.state.size}
-                                        min={this.minSize}
-                                        max={this.maxSize}
-                                        onMinus={this.onMinus}
-                                        onPlus={this.onPlus}
-                                        inputAriaLabel={_("Font size")}
-                                        minusBtnAriaLabel={_("Decrease by one")}
-                                        plusBtnAriaLabel={_("Increase by one")}
-                                        widthChars={2}
-                                    />
-                                </ToolbarItem>
-                                <ToolbarItem variant="label" id="theme-select">
-                                    {_("Appearance")}
-                                </ToolbarItem>
-                                <ToolbarItem>
-                                    <FormSelect onChange={this.onThemeChanged}
-                                                aria-labelledby="theme-select"
-                                                value={this.state.theme}>
-                                        <FormSelectOption value='black-theme' label={_("Black")} />
-                                        <FormSelectOption value='dark-theme' label={_("Dark")} />
-                                        <FormSelectOption value='light-theme' label={_("Light")} />
-                                        <FormSelectOption value='white-theme' label={_("White")} />
-                                    </FormSelect>
-                                </ToolbarItem>
+                                <ToolbarGroup>
+                                    <ToolbarItem variant="label" id="size-select">
+                                        {_("Font size")}
+                                    </ToolbarItem>
+                                    <ToolbarItem>
+                                        <NumberInput
+                                            className="font-size"
+                                            value={this.state.size}
+                                            min={this.minSize}
+                                            max={this.maxSize}
+                                            onMinus={this.onMinus}
+                                            onPlus={this.onPlus}
+                                            inputAriaLabel={_("Font size")}
+                                            minusBtnAriaLabel={_("Decrease by one")}
+                                            plusBtnAriaLabel={_("Increase by one")}
+                                            widthChars={2}
+                                        />
+                                    </ToolbarItem>
+                                </ToolbarGroup>
+                                <ToolbarGroup>
+                                    <ToolbarItem variant="label" id="theme-select">
+                                        {_("Appearance")}
+                                    </ToolbarItem>
+                                    <ToolbarItem>
+                                        <FormSelect onChange={this.onThemeChanged}
+                                                    aria-labelledby="theme-select"
+                                                    value={this.state.theme}>
+                                            <FormSelectOption value='black-theme' label={_("Black")} />
+                                            <FormSelectOption value='dark-theme' label={_("Dark")} />
+                                            <FormSelectOption value='light-theme' label={_("Light")} />
+                                            <FormSelectOption value='white-theme' label={_("White")} />
+                                        </FormSelect>
+                                    </ToolbarItem>
+                                </ToolbarGroup>
                                 <ToolbarItem>
                                     <button ref={this.resetButtonRef}
                                             className="pf-c-button pf-m-secondary terminal-reset"

@@ -19,7 +19,11 @@
 
 #include "config.h"
 
+#include <fcntl.h>
+#include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "cockpithttpstream.h"
 #include "cockpitpackages.h"
@@ -30,21 +34,17 @@
 #include "common/cockpittest.h"
 #include "common/mock-transport.h"
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
-
 /*
  * To recalculate the checksums found in this file, do something like:
  * $ XDG_DATA_DIRS=$PWD/src/bridge/mock-resource/glob/ XDG_DATA_HOME=/nonexistent ./cockpit-bridge --packages
  */
-#define CHECKSUM_GLOB           "f5d1bfe84c378dee517cea3e0f0380ad2c9201f6be021fbae877a89d4cb51859"
-#define CHECKSUM_GZIP           "13adcb9aae2f22850ec7fa43229428c6bba4450bd6ef4fd06eeea27b41dbf911"
-#define CHECKSUM_BADPACKAGE     "86ae6170eb6245c5c80dbcbcc0ba12beddee2e1d807cfdb705440e944b177fbc"
-#define CHECKSUM_RELOAD_OLD     "53264dd51401b6f6de0ba63180397919697155653855848dee0f6f71c6e93f40"
-#define CHECKSUM_RELOAD_NEW     "eae62ca12c4a92b4ae7f6b0d2f41cb20be0005a6fc62466fccda1ebe0532cc23"
-#define CHECKSUM_RELOAD_UPDATED "0d1c0b7c6133cc7c3956197fd8a76bef68b158bd78beac75cfa80b75c36aa827"
-#define CHECKSUM_CSP            "80921dc3cde9ff9f2acd2a5851f9b2a3b25ea7b4577128461d9e32fbdd671e16"
+#define CHECKSUM_GLOB           "f73c058e343588a7ceaf12c4f129d324f10cc8eeb674dd098d888b619fa69cf1"
+#define CHECKSUM_GZIP           "7f6449ce7a873614f4160cbcf03ee93346fd56ee7b82efe9c62193fefebe274d"
+#define CHECKSUM_BADPACKAGE     "7171c55fbd2489334cda314546c670cc3d39d3a0827b212d522f39a32bf3d5de"
+#define CHECKSUM_RELOAD_OLD     "16797c6330fb83dc2762d172fdf89d43e7f903841343bdf9a98e5a58f678f381"
+#define CHECKSUM_RELOAD_NEW     "a90c11c111566ac87bca994acad2782b749d909738e2970f46e531d172ecbfb9"
+#define CHECKSUM_RELOAD_UPDATED "5ce8c2db35591659026e3dbb7e95c6dd0a06342138fabdb07ca90ddc2d00c338"
+#define CHECKSUM_CSP            "f7fe957d0ec6457f2f5fe0a343f6422547188a867c1c3e1b10ef0e3eacfc1b06"
 
 /* JSON dict snippet for headers that are present in every request */
 #define STATIC_HEADERS "\"X-DNS-Prefetch-Control\":\"off\",\"Referrer-Policy\":\"no-referrer\",\"X-Content-Type-Options\":\"nosniff\",\"Cross-Origin-Resource-Policy\": \"same-origin\",\"X-Frame-Options\": \"sameorigin\""
@@ -52,6 +52,8 @@
 
 extern const gchar **cockpit_bridge_data_dirs;
 extern const gchar *cockpit_bridge_local_address;
+
+const gchar *config_home;
 
 typedef struct {
   CockpitPackages *packages;
@@ -63,6 +65,7 @@ typedef struct {
 
 typedef struct {
   const gchar *datadirs[8];
+  const gchar *cockpit_config;
   const gchar *path;
   const gchar *accept[8];
   const gchar *expect;
@@ -118,6 +121,14 @@ setup (TestCase *tc,
       cockpit_expect_message ("requires: package has an unknown requirement: unknown");
     }
 
+  if (fixture->cockpit_config)
+   {
+     int fd = open (config_home, O_PATH|O_DIRECTORY);
+     g_assert (fd >= 0);
+     g_assert (symlinkat (fixture->cockpit_config, fd, "cockpit") == 0);
+     close (fd);
+   }
+
   tc->packages = cockpit_packages_new ();
 
   tc->transport = mock_transport_new ();
@@ -169,7 +180,17 @@ static void
 teardown (TestCase *tc,
           gconstpointer data)
 {
+  const Fixture *fixture = data;
+
   cockpit_assert_expected ();
+
+  if (fixture && fixture->cockpit_config)
+   {
+     int fd = open (config_home, O_PATH|O_DIRECTORY);
+     g_assert (fd >= 0);
+     g_assert (unlinkat (fd, "cockpit", 0) == 0);
+     close (fd);
+   }
 
   g_object_unref (tc->transport);
 
@@ -548,6 +569,43 @@ test_listing (TestCase *tc,
                           " }"
                           "}");
   json_node_free (node);
+  g_bytes_unref (message);
+}
+
+static const Fixture fixture_override_config = {
+  .cockpit_config = SRCDIR "/src/bridge/mock-resource/config-override",
+  .path = "/manifests.json",
+};
+
+static void
+test_override_config (TestCase *tc,
+                      gconstpointer fixture)
+{
+  GError *error = NULL;
+  GBytes *message;
+  guint count;
+
+  while (tc->closed == FALSE)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpstr (tc->problem, ==, NULL);
+
+  message = mock_transport_pop_channel (tc->transport, "444");
+  g_autoptr(JsonObject) object = cockpit_json_parse_bytes (message, &error);
+  g_assert_no_error (error);
+  g_assert_cmpint (json_object_get_int_member (object, "status"), ==, 200);
+
+  message = mock_transport_combine_output (tc->transport, "444", &count);
+  g_assert_cmpint (count, ==, 1);
+  g_autoptr(JsonNode) node = cockpit_json_parse (g_bytes_get_data (message, NULL), g_bytes_get_size (message), &error);
+  g_assert_no_error (error);
+  JsonObject *second = json_object_get_object_member (json_node_get_object (node), "second");
+  g_assert (second != NULL);
+  /* original priority from src/bridge/mock-resource/system/cockpit/second/manifest.json */
+  g_assert_cmpint (json_object_get_int_member (second, "priority"), ==, 2);
+  /* overridden description and added field from src/bridge/mock-resource/config-override/cockpit/second.override.json */
+  g_assert_cmpstr (json_object_get_string_member (second, "description"), ==, "overridden second description");
+  g_assert_cmpstr (json_object_get_string_member (second, "note"), ==, "an extra field");
+
   g_bytes_unref (message);
 }
 
@@ -1205,6 +1263,11 @@ main (int argc,
   cockpit_setenv_check ("XDG_DATA_DIRS", SRCDIR "/src/bridge/mock-resource/system", TRUE);
   cockpit_setenv_check ("XDG_DATA_HOME", SRCDIR "/src/bridge/mock-resource/home", TRUE);
 
+  /* avoid looking at the real ~/.config and allow tests to add their own config */
+  config_home = g_dir_make_tmp ("config-home.XXXXXX", NULL);
+  g_assert (config_home != NULL);
+  cockpit_setenv_check ("XDG_CONFIG_HOME", config_home, TRUE);
+
   cockpit_bridge_local_address = "127.0.0.1";
 
   cockpit_test_init (&argc, &argv);
@@ -1233,6 +1296,8 @@ main (int argc,
               setup, test_large, teardown);
   g_test_add ("/packages/listing", TestCase, &fixture_listing,
               setup, test_listing, teardown);
+  g_test_add ("/packages/override-config", TestCase, &fixture_override_config,
+              setup, test_override_config, teardown);
   g_test_add ("/packages/not-found", TestCase, &fixture_not_found,
               setup, test_not_found, teardown);
   g_test_add ("/packages/unknown-package", TestCase, &fixture_unknown_package,
@@ -1287,5 +1352,9 @@ main (int argc,
   g_test_add ("/packages/csp/strip", TestCase, &fixture_csp_strip,
               setup, test_csp_strip, teardown);
 
-  return g_test_run ();
+  int result = g_test_run ();
+
+  rmdir (config_home);
+
+  return result;
 }

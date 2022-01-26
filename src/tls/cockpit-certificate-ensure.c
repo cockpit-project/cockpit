@@ -133,7 +133,8 @@ is_selfsigned (const char *certificate_filename)
 }
 
 static bool
-check_expiry (gnutls_certificate_credentials_t creds)
+check_expiry (gnutls_certificate_credentials_t creds,
+              const char                       *certificate_filename)
 {
   gnutls_x509_crt_t *crt_list;
   unsigned int crt_list_size;
@@ -148,13 +149,13 @@ check_expiry (gnutls_certificate_credentials_t creds)
   gnutls_x509_crt_deinit (crt_list[0]);
   gnutls_free (crt_list);
 
-  debug (ENSURE, "Certificate %s expires %ld", filename, (long) expires);
+  debug (ENSURE, "Certificate %s expires %ld", certificate_filename, (long) expires);
 
   time_t now = time (NULL);
   if (expires > now + MAX_EXPIRY)
     {
       debug (ENSURE, "Certificate %s expires %ld, too far in the future",
-             filename, (long) expires);
+             certificate_filename, (long) expires);
 
       return true;
     }
@@ -163,13 +164,13 @@ check_expiry (gnutls_certificate_credentials_t creds)
   if (expires < last_valid_expiry)
     {
       debug (ENSURE, "Certificate %s expires %ld, which is before %ld",
-             filename, (long) expires, (long) last_valid_expiry);
+             certificate_filename, (long) expires, (long) last_valid_expiry);
 
       return true;
     }
 
    debug (ENSURE, "Certificate %s expires %ld, which is after %ld",
-          filename, (long) expires, (long) last_valid_expiry);
+          certificate_filename, (long) expires, (long) last_valid_expiry);
 
   return false;
 }
@@ -346,7 +347,7 @@ cockpit_certificate_find (CertificateKeyPair *result,
 
   gnutls_certificate_credentials_t creds = certificate_and_key_parse_to_creds (result);
 
-  bool expired = is_selfsigned (certificate_filename) && check_expiry (creds);
+  bool expired = is_selfsigned (certificate_filename) && check_expiry (creds, certificate_filename);
   if (expired)
     {
       if (verbose)

@@ -56,7 +56,7 @@ class TestPackages(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.restore_dir("/usr/share/cockpit")
+        self.restore_dir("/usr/local/share/cockpit")
 
         def reload_packages():
             b.go("/playground/pkgs")
@@ -74,9 +74,9 @@ class TestPackages(MachineCase):
 
         check_nav_entry("Terminal", True)
 
-        m.execute("mkdir /usr/share/cockpit/test")
-        m.write("/usr/share/cockpit/test/manifest.json", test_manifest)
-        m.write("/usr/share/cockpit/test/test.html", test_html)
+        m.execute("mkdir -p /usr/local/share/cockpit/test")
+        m.write("/usr/local/share/cockpit/test/manifest.json", test_manifest)
+        m.write("/usr/local/share/cockpit/test/test.html", test_html)
         reload_packages()
 
         b.switch_to_top()
@@ -85,7 +85,7 @@ class TestPackages(MachineCase):
         b.enter_page("/test/test")
         b.wait_text("h1", "Test")
 
-        m.execute("rm -rf /usr/share/cockpit/test")
+        m.execute("rm -rf /usr/local/share/cockpit/test")
         reload_packages()
         check_nav_entry("Test", False)
 

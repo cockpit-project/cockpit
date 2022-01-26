@@ -904,14 +904,14 @@ main (int argc,
   int res;
   int i;
 
-  program_name = basename (argv[0]);
-
   if (isatty (0))
     errx (2, "this command is not meant to be run from the console");
 
   /* COMPAT: argv[1] used ot be used, but is now ignored */
   if (argc != 1 && argc != 2)
     errx (2, "invalid arguments to cockpit-session");
+
+  program_name = basename (argv[0]);
 
   /* Cleanup the umask */
   umask (077);

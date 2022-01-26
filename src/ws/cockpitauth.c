@@ -487,6 +487,8 @@ session_start_process (const gchar **argv,
   GPid pid = 0;
   int fds[2];
 
+  g_return_val_if_fail (argv[0] != NULL, NULL);
+
   g_debug ("spawning %s", argv[0]);
 
   /* The main stdin/stdout for the socket ... both are read/writable */

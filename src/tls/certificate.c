@@ -80,7 +80,7 @@ certificate_load (const char *certificate_filename,
   gnutls_certificate_credentials_t creds;
   int ret;
 
-  debug (SERVER, "Using certificate %s", filename);
+  debug (SERVER, "Using certificate %s", certificate_filename);
 
   ret = gnutls_certificate_allocate_credentials (&creds);
   assert (ret == GNUTLS_E_SUCCESS);

@@ -23,6 +23,7 @@ import { Card, CardBody, CardFooter, CardTitle } from '@patternfly/react-core';
 import cockpit from "cockpit";
 import { PageStatusNotifications } from "../page-status.jsx";
 import { InsightsStatus } from "./insights.jsx";
+import { ShutDownStatus } from "./shutdownStatus.jsx";
 import LastLogin from "./lastLogin.jsx";
 
 import "./healthCard.scss";
@@ -38,6 +39,7 @@ export class HealthCard extends React.Component {
                     <ul className="system-health-events">
                         <PageStatusNotifications />
                         <InsightsStatus />
+                        <ShutDownStatus />
                         <LastLogin />
                     </ul>
                 </CardBody>

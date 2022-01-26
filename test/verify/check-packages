@@ -58,16 +58,26 @@ class TestPackages(MachineCase):
 
         self.restore_dir("/usr/share/cockpit")
 
+        def reload_packages():
+            b.go("/playground/pkgs")
+            b.enter_page("/playground/pkgs")
+            b.click("#reload")
+
+        def check_nav_entry(label, present):
+            b.switch_to_top()
+            if present:
+                b.wait_visible(f"#nav-system li:contains({label})")
+            else:
+                b.wait_not_present(f"#nav-system li:contains({label})")
+
         self.login_and_go("/playground/pkgs")
 
-        b.switch_to_top()
-        b.wait_visible("#nav-system li:contains(Terminal)")
+        check_nav_entry("Terminal", True)
 
         m.execute("mkdir /usr/share/cockpit/test")
         m.write("/usr/share/cockpit/test/manifest.json", test_manifest)
         m.write("/usr/share/cockpit/test/test.html", test_html)
-        b.enter_page("/playground/pkgs")
-        b.click("#reload")
+        reload_packages()
 
         b.switch_to_top()
         b.click("#nav-system a:contains(Test)")
@@ -76,12 +86,8 @@ class TestPackages(MachineCase):
         b.wait_text("h1", "Test")
 
         m.execute("rm -rf /usr/share/cockpit/test")
-        b.go("/playground/pkgs")
-        b.enter_page("/playground/pkgs")
-        b.click("#reload")
-
-        b.switch_to_top()
-        b.wait_not_present("#nav-system a:contains(Test)")
+        reload_packages()
+        check_nav_entry("Test", False)
 
 
 if __name__ == '__main__':

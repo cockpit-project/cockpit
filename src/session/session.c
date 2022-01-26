@@ -282,6 +282,12 @@ open_session (pam_handle_t *pamh)
       return PAM_SYSTEM_ERR;
     }
 
+  if (pwd->pw_shell == NULL)
+    {
+      warnx ("user %s has no shell", name);
+      return PAM_SYSTEM_ERR;
+    }
+
   /*
    * If we're already running as the right user, and have authenticated
    * then skip starting a new session. This is used when testing, or
@@ -838,6 +844,7 @@ user_has_valid_login_shell (const char **envp)
    * <pitti> https://xkcd.com/221/
    */
   const char *argv[] = { pwd->pw_shell, "-c", "exit 71;", NULL };
+  assert (argv[0] != NULL);
 
   int devnull = open ("/dev/null", O_RDONLY);
   if (devnull < 0)

@@ -599,6 +599,38 @@ test_spawn_pty (void)
   g_object_unref (transport);
 }
 
+static void
+test_spawn_errors (void)
+{
+  MockTransport *transport;
+  g_autofree gchar *problem = NULL;
+
+  transport = g_object_new (mock_transport_get_type (), NULL);
+
+  // empty spawn array
+  g_autoptr(JsonObject) options = json_object_new ();
+  JsonArray *array = json_array_new ();
+  json_object_set_array_member (options, "spawn", array);
+  json_object_set_string_member (options, "payload", "stream");
+
+  g_autoptr(CockpitChannel) channel = g_object_new (
+          COCKPIT_TYPE_PIPE_CHANNEL,
+          "options", options,
+          "id", "548",
+          "transport", transport,
+          NULL);
+  g_signal_connect (channel, "closed", G_CALLBACK (on_closed_get_problem), &problem);
+
+  while (!problem)
+    g_main_context_iteration (NULL, TRUE);
+
+  JsonObject *control = mock_transport_pop_control (transport);
+  expect_control_message (control, "close", "548", "problem", "protocol-error", NULL);
+
+  g_object_unref (transport);
+}
+
+
 /* Create GBytes with the contents of @s, without terminating \0 */
 static GBytes *
 bytes_from_string (const gchar *s)
@@ -929,6 +961,7 @@ main (int argc,
   g_test_add_func ("/pipe-channel/spawn/environ", test_spawn_environ);
   g_test_add_func ("/pipe-channel/spawn/pty", test_spawn_pty);
   g_test_add_func ("/pipe-channel/spawn/pty-resize", test_spawn_pty_resize);
+  g_test_add_func ("/pipe-channel/spawn/errors", test_spawn_errors);
 
   g_test_add_func ("/pipe-channel/fail/not-found", test_fail_not_found);
   g_test_add_func ("/pipe-channel/fail/access-denied", test_fail_access_denied);

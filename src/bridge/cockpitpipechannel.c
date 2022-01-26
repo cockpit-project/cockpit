@@ -440,6 +440,12 @@ cockpit_pipe_channel_prepare (CockpitChannel *channel)
         flags = COCKPIT_PIPE_STDERR_TO_MEMORY;
 
       self->name = g_strdup (argv[0]);
+      if (!self->name)
+        {
+          cockpit_channel_fail (channel, "protocol-error",
+                                "\"spawn\" array must not be empty");
+          goto out;
+        }
       if (!cockpit_json_get_string (options, "directory", NULL, &dir))
         {
           cockpit_channel_fail (channel, "protocol-error",

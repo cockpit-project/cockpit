@@ -89,6 +89,34 @@ class TestPackages(MachineCase):
         reload_packages()
         check_nav_entry("Test", False)
 
+        # The following override.json tests were enabled with PR #16884
+        if m.image == 'rhel-8-6-distropkg':
+            return
+
+        # Hide the terminal with a system override
+        self.restore_dir("/etc/cockpit")
+        m.write("/etc/cockpit/systemd.override.json", """{
+    "tools": {
+        "terminal": null
+    }
+}""")
+        reload_packages()
+        check_nav_entry("Terminal", False)
+
+        # user override on top which renames the services label
+        self.restore_dir("/home/admin")
+        m.execute("mkdir -p /home/admin/.config/cockpit")
+        m.write("/home/admin/.config/cockpit/systemd.override.json", """{
+    "menu": {
+        "services": { "label": "Hackices" }
+    }
+}""")
+        reload_packages()
+        check_nav_entry("Services", False)
+        check_nav_entry("Hackices", True)
+        # it adds to, not replaces the /etc override
+        check_nav_entry("Terminal", False)
+
 
 if __name__ == '__main__':
     test_main()

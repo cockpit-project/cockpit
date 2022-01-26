@@ -27,6 +27,7 @@
 #include "cockpitdbusinternal.h"
 
 #include "common/cockpitchannel.h"
+#include "common/cockpitconf.h"
 #include "common/cockpithex.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitlocale.h"
@@ -360,12 +361,31 @@ expand_libexec (const gchar *variable,
   return NULL;
 }
 
+static void
+apply_override (JsonObject *manifest,
+                const char *path)
+{
+  g_autoptr(GError) error = NULL;
+
+  g_autoptr(JsonObject) override = read_json_file (path, &error);
+  if (override)
+    {
+      cockpit_json_patch (manifest, override);
+    }
+  else
+    {
+      if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
+        g_debug ("no override found in %s", path);
+      else
+        g_warning ("couldn't read %s: %s", path, error->message);
+    }
+}
+
 static JsonObject *
 read_package_manifest (const gchar *directory,
                        const gchar *package)
 {
   JsonObject *manifest = NULL;
-  JsonObject *override = NULL;
   GError *error = NULL;
 
   g_autofree gchar *manifest_path = g_build_filename (directory, "manifest.json", NULL);
@@ -386,21 +406,22 @@ read_package_manifest (const gchar *directory,
     }
   else
     {
-      g_autofree gchar *override_path = g_build_filename (directory, "override.json", NULL);
-      override = read_json_file (override_path, &error);
-      if (error)
+      /* possible override locations, in ascending priority */
+      g_autofree gchar *pkgdir_override = g_build_filename (directory, "override.json", NULL);
+      /* same directory as the package itself */
+      apply_override (manifest, pkgdir_override);
+
+      g_autofree gchar *package_override_name = g_strconcat (package, ".override.json", NULL);
+
+      const char * const *dirs = cockpit_conf_get_dirs ();
+      for (gint i = 0; dirs[i]; i++)
         {
-          if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
-            g_debug ("%s: no override found", package);
-          else
-            g_warning ("%s: couldn't read override.json: %s", package, error->message);
-          g_clear_error (&error);
+          g_autofree gchar *path = g_build_filename (dirs[i], "cockpit", package_override_name, NULL);
+          apply_override (manifest, path);
         }
-      if (override)
-        {
-          cockpit_json_patch (manifest, override);
-          json_object_unref (override);
-        }
+
+      g_autofree gchar *user_override = g_build_filename (g_get_user_config_dir (), "cockpit", package_override_name, NULL);
+      apply_override (manifest, user_override);
 
       json_object_seal (manifest);
 
@@ -630,7 +651,15 @@ maybe_add_package (GHashTable *listing,
   directory = NULL;
 
   if (own_checksum)
-    package->own_checksum = g_strdup (g_checksum_get_string (own_checksum));
+    {
+       /* digest the whole final manifest, which may have overrides from external directories */
+      gsize manifest_len;
+      g_autofree gchar *manifest_str = cockpit_json_write_object (manifest, &manifest_len);
+      g_checksum_update (own_checksum, (guchar *) manifest_str, manifest_len);
+      g_checksum_update (bundle_checksum, (guchar *) manifest_str, manifest_len);
+
+       package->own_checksum = g_strdup (g_checksum_get_string (own_checksum));
+    }
 
   // Keep the old bundle_checksum for this package if none of its
   // files has changed.

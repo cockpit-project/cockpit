@@ -252,9 +252,33 @@ $ cockpit-bridge --packages
 }
 </programlisting>
 
-    <para>A file called <filename>override.json</filename> may be placed next to the manifest.
-      containing overrides to the information in the manifest. These override files are in the
-      simple <ulink url="https://tools.ietf.org/html/rfc7386">JSON Merge Patch</ulink> format.</para>
+  </section>
+
+  <section id="package-manifest-override">
+    <title>Manifest overrides</title>
+
+    <para>A file called <filename>override.json</filename> may be placed next to the manifest, or a file
+      <filename>&lt;package-directory-name&gt;.override.json</filename> may be placed into <filename>/etc/cockpit/</filename>
+      or <filename>~/.config/cockpit</filename>.
+      These contain overrides to the information in the manifest in the simple
+      <ulink url="https://tools.ietf.org/html/rfc7386">JSON Merge Patch</ulink> format.</para>
+
+    <para>This can be used to hide or modify menu items of an existing package.
+      For example <filename>/etc/cockpit/systemd.override.json</filename> or
+      <filename>~/.config/cockpit/systemd.override.json</filename> could
+      hide the <emphasis>Logs</emphasis> menu item and move the <emphasis>Services</emphasis>
+      menu item to the top of the menu.</para>
+
+<programlisting>
+{
+  "menu": {
+    "logs": null,
+    "services": {
+      "order": -1
+    }
+  }
+}
+</programlisting>
 
   </section>
 
@@ -447,25 +471,6 @@ mypackage/test.min.js.gz
         "label": "Disk Storage",
         "order": 15
      }
-  }
-}
-</programlisting>
-
-    <para>It is also possible to hide or change labels on the menu items of an existing
-      package by including a <filename>override.json</filename> in that existing package's
-      directory.</para>
-
-    <para>For example an <filename>/usr/share/cockpit/systemd/override.json</filename> could
-      hide the <emphasis>Logs</emphasis> menu item and move the <emphasis>Services</emphasis>
-      menu item to the top of the menu.</para>
-
-<programlisting>
-{
-  "menu": {
-    "logs": null,
-    "services": {
-      "order": -1
-    }
   }
 }
 </programlisting>

@@ -47,7 +47,7 @@
  * To recalculate the checksums found in this file, do something like:
  * $ XDG_DATA_DIRS=$PWD/src/bridge/mock-resource/system/ XDG_DATA_HOME=/nonexistent ./cockpit-bridge --packages
  */
-#define CHECKSUM "$025e419da72456a49bc60c042b2e983a4a7a44e78eac1fffd062e046e8d4cf3b"
+#define CHECKSUM "$9d638a2193c715687af4399a2dd8a2e4fe7debbc82df27b38540048766d4e2b5"
 
 #define PASSWORD "this is the password"
 

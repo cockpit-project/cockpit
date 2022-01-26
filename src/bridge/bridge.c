@@ -175,6 +175,8 @@ start_helper_process (const gchar * const  *argv,
                       const gchar          *socket_pattern,
                       const gchar          *socket_envvar)
 {
+  g_return_val_if_fail (argv[0] != NULL, NULL);
+
   {
     const gchar *env = g_getenv (socket_envvar);
     if (env && env[0])

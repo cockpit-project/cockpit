@@ -966,6 +966,54 @@ until pgrep -f '^/usr/bin/cockpit-bridge.*--privileged'; do sleep 1; done
         m.write("/etc/cockpit/ws-certs.d/0-self-signed-ca.pem", "FAKE CERT FOR TESTING\n")
         self.assertEqual(m.execute("curl -sfS http://localhost:9090/ca.cer"), "FAKE CERT FOR TESTING\n")
 
+    def test_branding(self):
+        m = self.machine
+        m.start_cockpit()
+
+        # for all of our CI images, the part before the dash is the name of the
+        # subdirectory in /usr/share/cockpit/branding.
+        brand = m.image.split('-')[0]
+        branddir = f'/usr/share/cockpit/branding/{brand}'
+
+        # We don't have access to the stuff on the filesystem if it's living in
+        # the container.
+        if not m.ostree_image:
+            # make sure that there are no broken links in "our" directory
+            self.assertEqual(m.execute(f'find {branddir} -xtype l'), '')
+
+            # branding.css undergoes variable substitution based on the content of
+            # /usr/lib/os-release.  Perform the substitution for ourselves for
+            # validation.  envsubst comes from gettext.
+            os_release_vars = m.execute("cat /usr/lib/os-release").replace('\n', ' ')
+            m.execute(f'{os_release_vars} envsubst < {branddir}/branding.css > /tmp/branding.ref')
+
+        # fetch some files and make sure they match what we expect
+        def curl_and_compare(name, content_type=None, reference=None):
+            url = f'http://localhost:9090/cockpit/static/{name}'
+            reference = reference or f'{branddir}/{name}'
+
+            # Check that the expected content type is served
+            if content_type is not None:
+                self.assertIn(f'Content-Type: {content_type}', m.execute(f'curl --head {url}'))
+
+            # Check that we can fetch the file
+            m.execute(f'curl --fail -o /tmp/{name} {url}')
+
+            # compare that it matches what we expected
+            if not m.ostree_image:
+                m.execute(f'cmp /tmp/{name} {reference}')
+
+        # some brands miss the images, but the OSes we CI have them all
+        curl_and_compare('branding.css', 'text/css', reference='/tmp/branding.ref')
+        curl_and_compare('logo.png', 'image/png')
+        curl_and_compare('favicon.ico')
+
+        # do a pixel test to make sure everything looks like we expect
+        b = self.browser
+        b.open("/system")
+        b.wait_visible("#login")
+        b.assert_pixels("body", "login-screen")
+
 
 @skipDistroPackage()
 class TestReverseProxy(MachineCase):

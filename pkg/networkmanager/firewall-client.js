@@ -379,7 +379,7 @@ firewall.removeService = (zone, service) => {
  * Returns a promise that resolves when the service is created.
  * It will also reload firewalld and enable the new service.
  */
-firewall.createService = (service, ports, zones) => {
+firewall.createService = (service, ports, zones, desc = "") => {
     const subscription = firewalld_dbus.subscribe({
         interface: 'org.fedoraproject.FirewallD1',
         path: '/org/fedoraproject/FirewallD1',
@@ -390,7 +390,7 @@ firewall.createService = (service, ports, zones) => {
     });
     return firewalld_dbus.call('/org/fedoraproject/FirewallD1/config',
                                'org.fedoraproject.FirewallD1.config',
-                               'addService', [service, ["", "", "", ports, [], {}, [], []]])
+                               'addService', [service, ["", "", desc, ports, [], {}, [], []]])
             .then(() => firewall.reload());
 };
 

@@ -45,9 +45,7 @@ class TestNetworkingVLAN(NetworkCase):
         # Remove focus ring around the close button, which causes pixel tests retries.
         b.blur("#network-vlan-settings-dialog > button[aria-label=Close]")
         b.wait_visible("#network-vlan-settings-interface-name-input")
-        # Ignore flaky pixel issues with the select triangle
-        ignoredClasses = ["#network-vlan-settings-parent-select"] if self.browser.cdp.mobile else []
-        b.assert_pixels("#network-vlan-settings-dialog", "networking-vlan-settings-dialog", ignore=ignoredClasses)
+        b.assert_pixels("#network-vlan-settings-dialog", "networking-vlan-settings-dialog")
 
         b.select_from_dropdown("#network-vlan-settings-parent-select", iface)
         b.set_input_text("#network-vlan-settings-interface-name-input", "tvlan")

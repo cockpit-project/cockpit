@@ -623,7 +623,7 @@ class AddServicesModal extends React.Component {
 
                             <FormGroup label={_("ID")}>
                                 <TextInput id="service-name" onChange={this.setId}
-                                           placeholder={_("(Optional)")} value={this.state.custom_id} />
+                                           value={this.state.custom_id} />
                             </FormGroup>
                         </>
                     }

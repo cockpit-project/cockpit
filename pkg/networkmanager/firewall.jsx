@@ -285,6 +285,7 @@ class AddServicesModal extends React.Component {
             udp_error: "",
             avail_services: null,
             custom_id: "",
+            custom_description: "",
             custom_tcp_ports: [],
             custom_udp_ports: [],
             custom_tcp_value: "",
@@ -296,6 +297,7 @@ class AddServicesModal extends React.Component {
         this.onFilterChanged = this.onFilterChanged.bind(this);
         this.onToggleService = this.onToggleService.bind(this);
         this.setId = this.setId.bind(this);
+        this.setDescription = this.setDescription.bind(this);
         this.getName = this.getName.bind(this);
         this.validate = this.validate.bind(this);
         this.createPorts = this.createPorts.bind(this);
@@ -313,7 +315,7 @@ class AddServicesModal extends React.Component {
     save(event) {
         let p;
         if (this.state.custom) {
-            p = firewall.createService(this.state.custom_id, this.createPorts(), this.props.zoneId);
+            p = firewall.createService(this.state.custom_id, this.createPorts(), this.props.zoneId, this.state.custom_description);
         } else {
             p = firewall.addServices(this.props.zoneId, [...this.state.selected]);
         }
@@ -388,6 +390,12 @@ class AddServicesModal extends React.Component {
         this.setState({
             custom_id: value,
             generate_custom_id: value.length === 0,
+        });
+    }
+
+    setDescription(value) {
+        this.setState({
+            custom_description: value
         });
     }
 
@@ -606,6 +614,11 @@ class AddServicesModal extends React.Component {
                                            validated={this.state.udp_error ? "error" : "default"}
                                            value={this.state.custom_udp_value}
                                            placeholder={_("Example: 88,2019,nfs,rsync")} />
+                            </FormGroup>
+
+                            <FormGroup label={_("Description")}>
+                                <TextInput id="service-description" onChange={this.setDescription}
+                                           value={this.state.custom_description} />
                             </FormGroup>
 
                             <FormGroup label={_("ID")}>

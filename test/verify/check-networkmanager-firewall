@@ -331,12 +331,16 @@ class TestFirewall(NetworkCase):
         def check_error(text):
             b.wait_visible(f".pf-c-form__helper-text.pf-m-error:contains({text})")
 
-        def save(identifier, tcp, udp):
+        def save(identifier, tcp, udp, desc=""):
             b.click("button:contains(Add ports)")
             b.wait_not_present("#add-services-dialog")
             line_sel = f".zone-section[data-id='public'] tr[data-row-id='{identifier}']"
             b.wait_visible(line_sel)
             b.wait_in_text(line_sel, "".join([identifier, tcp, udp]))
+            if desc:
+                # Click expand button
+                b.click(line_sel + " button")
+                b.wait_text(line_sel + " + tr", desc)
 
         open_dialog()
         set_field("#tcp-ports", "80", "custom--http")
@@ -354,7 +358,8 @@ class TestFirewall(NetworkCase):
         set_field("#udp-ports", "ntp, snmp", "custom--80-82-echo-ntp-snmp")
         set_field("#udp-ports", "83-ntp", "custom--80-82-echo-83-123")
         set_field("#udp-ports", "83-ntp, snmp", "custom--80-82-echo-83-123-snmp")
-        save("custom--80-82-echo-83-123-snmp", "80-82, 7", "83-123, 161")
+        b.set_input_text("#service-description", "custom snmp firewall rule")
+        save("custom--80-82-echo-83-123-snmp", "80-82, 7", "83-123, 161", "custom snmp firewall rule")
 
         open_dialog()
         set_field("#tcp-ports", "80", "custom--http")

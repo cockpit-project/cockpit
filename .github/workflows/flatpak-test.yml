@@ -25,7 +25,7 @@ jobs:
 
       - name: Minimum configuration for building dist tarball
         run: |
-          ./autogen.sh --disable-polkit --disable-ssh --disable-pcp --with-systemdunitdir=/invalid CPPFLAGS=-Itools/mock-build-env PKG_CONFIG_PATH=tools/mock-build-env
+          ./autogen.sh mock
 
       - name: Build and install flatpak
         run: sh -x containers/flatpak/install --user --install-deps-from=flathub

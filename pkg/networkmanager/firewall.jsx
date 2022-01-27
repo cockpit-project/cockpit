@@ -598,7 +598,7 @@ class AddServicesModal extends React.Component {
                         <>
                             <FormGroup label="TCP"
                                        validated={this.state.tcp_error ? "error" : "default"}
-                                       helperText={_("Comma-separated ports, ranges, and aliases are accepted")}
+                                       helperText={_("Comma-separated ports, ranges, and services are accepted")}
                                        helperTextInvalid={this.state.tcp_error}>
                                 <TextInput id="tcp-ports" type="text" onChange={this.validate}
                                            validated={this.state.tcp_error ? "error" : "default"}
@@ -608,7 +608,7 @@ class AddServicesModal extends React.Component {
 
                             <FormGroup label="UDP"
                                        validated={this.state.udp_error ? "error" : "default"}
-                                       helperText={_("Comma-separated ports, ranges, and aliases are accepted")}
+                                       helperText={_("Comma-separated ports, ranges, and services are accepted")}
                                        helperTextInvalid={this.state.udp_error}>
                                 <TextInput id="udp-ports" type="text" onChange={this.validate}
                                            validated={this.state.udp_error ? "error" : "default"}

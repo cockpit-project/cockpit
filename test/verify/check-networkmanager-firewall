@@ -359,6 +359,8 @@ class TestFirewall(NetworkCase):
         set_field("#udp-ports", "83-ntp", "custom--80-82-echo-83-123")
         set_field("#udp-ports", "83-ntp, snmp", "custom--80-82-echo-83-123-snmp")
         b.set_input_text("#service-description", "custom snmp firewall rule")
+        # Test that the service name field is really optional
+        b.set_input_text("#service-name", "")
         save("custom--80-82-echo-83-123-snmp", "80-82, 7", "83-123, 161", "custom snmp firewall rule")
 
         open_dialog()

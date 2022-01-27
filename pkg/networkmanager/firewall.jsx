@@ -303,6 +303,7 @@ class AddServicesModal extends React.Component {
         this.createPorts = this.createPorts.bind(this);
         this.parseServices = this.parseServices.bind(this);
         this.onToggleType = this.onToggleType.bind(this);
+        this.getCustomId = this.getCustomId.bind(this);
     }
 
     createPorts() {
@@ -312,10 +313,16 @@ class AddServicesModal extends React.Component {
         return ret;
     }
 
+    getCustomId() {
+        const all_ports = this.state.custom_tcp_ports.concat(this.state.custom_udp_ports);
+        return "custom--" + all_ports.map(this.getName).join('-');
+    }
+
     save(event) {
         let p;
         if (this.state.custom) {
-            p = firewall.createService(this.state.custom_id, this.createPorts(), this.props.zoneId, this.state.custom_description);
+            const custom_id = this.state.custom_id === "" ? this.getCustomId() : this.state.custom_id;
+            p = firewall.createService(custom_id, this.createPorts(), this.props.zoneId, this.state.custom_description);
         } else {
             p = firewall.addServices(this.props.zoneId, [...this.state.selected]);
         }

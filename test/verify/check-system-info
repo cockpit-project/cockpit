@@ -67,7 +67,22 @@ Memory Device
 \tSize: 8192 MB
 \tForm Factor: SODIMM
 \tLocator: ChannelB-DIMM0
-\tBank Locator: BANK 2
+\tBank Locator: BANK 0
+\tMemory technology: Awesome
+\tType: DDR3
+\tSpeed: 1600 MT/s
+\tManufacturer: Samsung
+\tAsset Tag: None
+\tRank: 1
+\tConfigured Memory Speed: 1600 MT/s
+
+Handle 0x0010, DMI type 17, 34 bytes
+Memory Device
+\tTotal Width: 64 bits
+\tSize: 8192 MB
+\tForm Factor: SODIMM
+\tLocator: ChannelB-DIMM0
+\tBank Locator: BANK 1
 \tMemory technology: Awesome
 \tType: DDR3
 \tSpeed: 1600 MT/s
@@ -559,7 +574,7 @@ revision\t: 2.3 (pvr 004e 1203)
             b.reload()
             b.enter_page('/system/hwinfo')
             # first DIMM has unknown technology and rank
-            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=ID]', "ChannelA-DIMM0")
+            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=ID]', "BANK 0: ChannelA-DIMM0")
             b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Type]', "DDR3")
             b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Size]', "8 GiB")
             b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=State]', "Present")
@@ -567,9 +582,11 @@ revision\t: 2.3 (pvr 004e 1203)
             b.wait_text('#memory-listing tr:nth-of-type(1) td[data-label=Rank]', "Unknown")
             b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Speed]', "1600 MT/s")
             # second DIMM has known technology and rank
-            b.wait_in_text('#memory-listing tr:nth-of-type(2) td[data-label=ID]', "ChannelB-DIMM0")
+            b.wait_in_text('#memory-listing tr:nth-of-type(2) td[data-label=ID]', "BANK 0: ChannelB-DIMM0")
             b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label="Memory technology"]', "Awesome")
             b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label=Rank]', "Single rank")
+            # Locator can be the same on multi-channel memory platforms - bank locator should differentiate them
+            b.wait_in_text('#memory-listing tr:nth-of-type(3) td[data-label=ID]', "BANK 1: ChannelB-DIMM0")
 
     @nondestructive
     def testCPUSecurityMitigationsDetect(self):

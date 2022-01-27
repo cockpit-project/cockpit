@@ -214,6 +214,7 @@ function parseMemoryInfo(text) {
     const info = {};
     text.split("\n\n").map(paragraph => {
         let locator = null;
+        let bankLocator = null;
         const props = {};
         paragraph = paragraph.trim();
         if (!paragraph)
@@ -227,8 +228,9 @@ function parseMemoryInfo(text) {
         });
 
         locator = props.Locator;
+        bankLocator = props['Bank Locator'];
         if (locator)
-            info[locator] = props;
+            info[bankLocator + locator] = props;
     });
     return processMemory(info);
 }
@@ -257,7 +259,7 @@ function processMemory(info) {
             memoryRank = _("Dual rank");
 
         memoryArray.push({
-            locator: memoryProperty.Locator || _("Unknown"),
+            locator: (memoryProperty['Bank Locator'] + ': ' + memoryProperty.Locator) || _("Unknown"),
             technology: memoryTechnology,
             type: memoryProperty.Type || _("Unknown"),
             size: memorySize,

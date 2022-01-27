@@ -8,6 +8,18 @@ srcdir="$(realpath -m "$0"/..)"
 [ -n "${NOCONFIGURE:-}" ] && exit
 
 case "${1:-}" in
+    mock)
+        # broken configuration with as few deps as possible
+        # mostly only useful for running `make dep`
+        exec ./autogen.sh \
+            CPPFLAGS=-Itools/mock-build-env \
+            PKG_CONFIG_PATH=tools/mock-build-env \
+            --enable-prefix-only \
+            --disable-pcp \
+            --disable-polkit \
+            --disable-ssh \
+        ;;
+
     rpm)
         # configure with the same flags as when building an RPM
         mkdir -p tmp/rpmbuild/SPECS

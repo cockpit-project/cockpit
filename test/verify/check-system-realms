@@ -48,9 +48,6 @@ done
 # ensure this works now, if the above loop timed out
 getent passwd {0}
 
-# This directory should be owned by the domain user
-chown -R {0} /home/admin
-
 # HACK: This needs to work but may take a minute
 for x in $(seq 1 60); do
     if ssh -oStrictHostKeyChecking=no -oBatchMode=yes -l {0} x0.cockpit.lan true; then
@@ -275,7 +272,7 @@ class CommonTests:
         b = self.browser
 
         # delete the local admin user, going to use the domain one instead
-        m.execute("userdel admin; systemctl try-restart sssd")
+        m.execute("userdel --remove admin; systemctl try-restart sssd")
 
         # Tell realmd to not enable domain-qualified logins
         # (https://bugzilla.redhat.com/show_bug.cgi?id=1575538)
@@ -1029,7 +1026,7 @@ ExecStart=/bin/true
         m.write("/etc/realmd.conf", "[cockpit.lan]\nfully-qualified-names = no\n", append=True)
 
         # delete the local admin user, going to use the IPA one instead
-        m.execute("userdel admin")
+        m.execute("userdel --remove admin")
 
         # HACK: There is no operating system where the domain admins can do passwordless sudo
         # while having a kerberos ticket, so we can't start a root bridge.

@@ -728,15 +728,18 @@ ExecStart=/usr/local/bin/{packageName}
         # norefs: just changelog, show both binary packages
         sel = self.check_nth_update(5, ["norefs-bin", "norefs-doc"], "2-1", self.enhancement_severity,
                                     desc_matches=["Now 10% more unicorns"])
-        # verify Markdown formatting in table cell - only present in large window sizes
-        if not b.cdp.mobile:
-            self.assertEqual(b.text(sel + " td.changelog em"), "more")  # *more*
-            self.assertEqual(b.attr(sel + " td.changelog a", "href"), "http://unicorn.example.com")
-            # verify Markdown formatting in details
-            self.assertEqual(b.text(sel + " .pf-m-expanded em"), "more")  # *more*
-            self.assertEqual(b.attr(sel + " .pf-m-expanded a:first-of-type", "href"), "http://unicorn.example.com")
-        else:
-            b.wait_not_visible(sel + " td.changelog em")
+        # verify Markdown formatting in table cell
+        self.assertEqual(b.text(sel + " td.changelog em"), "more")  # *more*
+        self.assertEqual(b.attr(sel + " td.changelog a", "href"), "http://unicorn.example.com")
+        # verify Markdown formatting in details
+        self.assertEqual(b.text(sel + " .pf-m-expanded em"), "more")  # *more*
+        self.assertEqual(b.attr(sel + " .pf-m-expanded a:first-of-type", "href"), "http://unicorn.example.com")
+
+        # verify that changelog is absent in mobile
+        b.set_layout("mobile")
+        b.wait_not_visible(sel + " td.changelog em")
+        b.set_layout("desktop")
+        b.wait_visible(sel + " td.changelog em")
 
         # updates are shown on system page
         b.go("/system")
@@ -911,16 +914,26 @@ ExecStart=/usr/local/bin/{packageName}
         self.check_nth_update(2, ["fine00", "fine01", "fine02", "fine03"], "1-2",
                               desc_matches=["fine07", "fine09"])
 
-        # verbose changelog should be truncated
-        if not b.cdp.mobile:
-            desc = b.text("#app .ct-table tbody:nth-of-type(3) [data-label=Details]")
-            self.assertIn("Things change #00", desc)
-            self.assertNotIn("#01", desc)
-        else:
-            b.wait_not_visible("#app .ct-table tbody:nth-of-type(3) [data-label=Details]")
+        # changelog should be truncated
+        desc = b.text("#app .ct-table tbody:nth-of-type(3) [data-label=Details]")
+        self.assertIn("Things change #00", desc)
+        self.assertNotIn("#01", desc)
+
+        # and not visible on mobile
+        b.set_layout("mobile")
+        b.wait_not_visible("#app .ct-table tbody:nth-of-type(3) [data-label=Details]")
         # but complete in the details
         self.check_nth_update(3, "verbose", "1-2",
                               desc_matches=["Things change #00", "Things change #29"])
+
+        # also on desktop
+        b.set_layout("desktop")
+        b.wait_visible("#app .ct-table tbody:nth-of-type(3) [data-label=Details]")
+        # collapse it so that check_nth_update is happy
+        b.click("#available-updates table[aria-label='Available updates'] > tbody:nth-of-type(3) td.pf-c-table__toggle button")
+        self.check_nth_update(3, "verbose", "1-2",
+                              desc_matches=["Things change #00", "Things change #29"])
+
         # seems we can't verify that the description has a scrollbar
 
     def testUpdateError(self):

@@ -61,12 +61,7 @@ class TestPackages(MachineCase):
         self.login_and_go("/playground/pkgs")
 
         b.switch_to_top()
-        if b.cdp.mobile:
-            b.click("#nav-system-item")
         b.wait_visible("#nav-system li:contains(Terminal)")
-        if b.cdp.mobile:
-            # close menu again
-            b.click("#nav-system-item")
 
         m.execute("mkdir /usr/share/cockpit/test")
         m.write("/usr/share/cockpit/test/manifest.json", test_manifest)
@@ -75,8 +70,6 @@ class TestPackages(MachineCase):
         b.click("#reload")
 
         b.switch_to_top()
-        if b.cdp.mobile:
-            b.click("#nav-system-item")
         b.click("#nav-system a:contains(Test)")
 
         b.enter_page("/test/test")
@@ -88,12 +81,7 @@ class TestPackages(MachineCase):
         b.click("#reload")
 
         b.switch_to_top()
-        if b.cdp.mobile:
-            b.click("#nav-system-item")
         b.wait_not_present("#nav-system a:contains(Test)")
-        if b.cdp.mobile:
-            # close menu again
-            b.click("#nav-system-item")
 
 
 if __name__ == '__main__':

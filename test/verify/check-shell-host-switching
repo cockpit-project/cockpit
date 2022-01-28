@@ -142,17 +142,14 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         # This should all work without being admin on machine1
         self.login_and_go(superuser=False)
 
-        if b.cdp.mobile:
-            # system menu not visible in mobile mode
-            b.click("#nav-system-item")
-            b.wait_visible("#nav-system.interact")
-
-        b.assert_pixels("#nav-system", "nav-system")
-
-        if b.cdp.mobile:
-            # close system menu again in mobile mode
-            b.click("#nav-system-item")
-            b.wait_not_present("#nav-system.interact")
+        b.assert_pixels("#nav-system", "nav-system", skip_layouts=["mobile"])
+        b.set_layout("mobile")
+        b.click("#nav-system-item")
+        b.wait_visible("#nav-system.interact")
+        b.assert_pixels_in_current_layout("#nav-system", "nav-system")
+        b.click("#nav-system-item")
+        b.wait_not_present("#nav-system.interact")
+        b.set_layout("desktop")
 
         b.assert_pixels("#hosts-sel", "hosts-sel-closed")
 
@@ -415,8 +412,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.click("#nav-hosts .nav-item a[href='/@10.111.113.3']")
         b.wait_visible("iframe.container-frame[name='cockpit1:franz@10.111.113.3/system']")
 
-        if not b.cdp.mobile:
-            b.wait_text("#hosts-sel button .pf-c-select__toggle-text", "franz@machine3")
+        b.wait_text("#hosts-sel button .pf-c-select__toggle-text", "franz@machine3")
         b.click("#hosts-sel button")
         b.wait_text(".nav-item a[href='/@10.111.113.3']", "franz @machine3")
         b.click("button:contains('Edit hosts')")
@@ -435,8 +431,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.click('#hosts_setup_server_dialog .pf-m-primary')
         b.wait_not_present('#hosts_setup_server_dialog')
 
-        if not b.cdp.mobile:
-            b.wait_text("#hosts-sel button .pf-c-select__toggle-text", "admin@machine2")
+        b.wait_text("#hosts-sel button .pf-c-select__toggle-text", "admin@machine2")
 
         # Changing the address of a host will navigate to that host,
         # and that will close the host switcher.  Let's open it again

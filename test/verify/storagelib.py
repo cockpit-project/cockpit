@@ -107,15 +107,11 @@ class StorageHelpers:
             b.wait_visible(tbody + ".pf-m-expanded")
 
     def content_row_action(self, index, title, isExpandable=True):
-        if self.browser.cdp.mobile:
-            # in mobile layout, we expect all actions to be in the dropdown
-            self.content_dropdown_action(index, title, isExpandable)
+        if isExpandable:
+            btn = self.content_row_tbody(index) + f" tr:first-child td button:contains({title})"
         else:
-            if isExpandable:
-                btn = self.content_row_tbody(index) + f" tr:first-child td button:contains({title})"
-            else:
-                btn = "#detail-content > article > div > table > :nth-child(%d)" % index + f" td button:contains({title})"
-            self.browser.click(btn)
+            btn = "#detail-content > article > div > table > :nth-child(%d)" % index + f" td button:contains({title})"
+        self.browser.click(btn)
 
     # The row might come and go a couple of times until it has the
     # expected content.  However, wait_in_text can not deal with a

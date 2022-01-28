@@ -18,7 +18,6 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import time
-
 import parent
 import testvm
 from testlib import *
@@ -390,17 +389,20 @@ Unit=test.service
         b.set_input_text("#services-text-filter input", "Test Service")
         self.wait_service_present("test.service")
         self.wait_service_present("test-fail.service")
-        if b.cdp.mobile:
-            # close the expanded toolbar again to see the whole list
-            b.click("#services-page .pf-c-toolbar__toggle button")
-            b.wait_not_visible("#services-page .pf-m-search-filter")
-            # scroll the menu navbar all the way to the left
-            nav_scroll_btn = ".services-header button[aria-label='Scroll left']"
-            while b.call_js_func("ph_attr", nav_scroll_btn, "disabled") is None:
-                b.click(nav_scroll_btn)
-                time.sleep(0.5)
         if not user:
-            b.assert_pixels("#services-page", "text-filter-test")
+            b.assert_pixels("#services-page", "text-filter-test", skip_layouts=["mobile"])
+        b.set_layout("mobile")
+        # Waiting a bit for the layout to stabilize.  The scrolling of
+        # the header happens asynchronously with an animation.
+        time.sleep(2)
+        # Now scroll the header all the way to the left to get a conistent pixel test result
+        nav_scroll_btn = ".services-header button[aria-label='Scroll left']"
+        while b.call_js_func("ph_attr", nav_scroll_btn, "disabled") is None:
+            b.click(nav_scroll_btn)
+            time.sleep(0.5)
+        if not user:
+            b.assert_pixels_in_current_layout("#services-page", "text-filter-test")
+        b.set_layout("desktop")
 
         # Filter by description capitalization not matching the unit description
         init_filter_state()
@@ -537,8 +539,6 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
         b.wait_in_text("#journal-box .cockpit-log-panel > div:nth-child(2)", "WORKING")
         t = b.text("#journal-box .cockpit-log-panel > div:nth-child(3)") + b.text("#journal-box .cockpit-log-panel > div:nth-child(4)")
         self.assertIn("START", t)
-        if b.cdp.mobile:
-            b.click("button[aria-label='Show Filters']")
         b.wait_val("#journal-grep input", "priority:debug service:test.service ")
         b.go("/system/services#test.service")
         b.enter_page("/system/services")
@@ -548,8 +548,6 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
         b.enter_page("/system/logs")
         b.wait_text(".pf-c-card__title", "WORKING")
         b.click(".pf-c-breadcrumb a:contains('Logs')")
-        if b.cdp.mobile:
-            b.click("button[aria-label='Show Filters']")
         b.wait_val("#journal-grep input", "priority:debug service:test.service ")
         b.go("/system/services#test.service")
         b.enter_page("/system/services")
@@ -806,18 +804,18 @@ WantedBy=default.target
     def check_system_menu_services_error(self, expected, pixel_label=None):
         b = self.browser
         b.switch_to_top()
-        if b.cdp.mobile:
-            b.click("#nav-system-item")
         if expected:
             b.wait_visible("#services-error")
         else:
             b.wait_not_present("#services-error")
-        if pixel_label:
-            b.assert_pixels("#nav-system", pixel_label)
 
-        if b.cdp.mobile:
-            # close menu again
+        if pixel_label:
+            b.assert_pixels("#nav-system", pixel_label, skip_layouts=["mobile"])
+            b.set_layout("mobile")
             b.click("#nav-system-item")
+            b.assert_pixels_in_current_layout("#nav-system", pixel_label)
+            b.click("#nav-system-item")
+            b.set_layout("desktop")
 
     def testNotifyFailed(self):
         m = self.machine

@@ -253,15 +253,15 @@ function fetchServiceInfos(services) {
         let info;
         return firewalld_dbus.call('/org/fedoraproject/FirewallD1',
                                    'org.fedoraproject.FirewallD1',
-                                   'getServiceSettings', [service])
-                .then(reply => {
-                    const name = reply[0][1];
-                    const description = reply[0][2];
-                    const ports = reply[0][3];
+                                   'getServiceSettings2', [service])
+                .then(([{ short, description, ports }]) => {
+                    short = short ? short.v : "";
+                    description = description ? description.v : "";
+                    ports = ports ? ports.v : [];
                     info = {
                         id: service,
-                        name: name,
-                        description: description,
+                        name: short,
+                        description,
                         ports: ports.map(p => ({ port: p[0], protocol: p[1] })),
                         includes: [],
                     };

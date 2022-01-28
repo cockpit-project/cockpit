@@ -342,6 +342,9 @@ class TestFirewall(NetworkCase):
                 b.click(line_sel + " button")
                 b.wait_text(line_sel + " + tr", desc)
 
+            out = m.execute("firewall-cmd --zone public --list-services")
+            self.assertIn(identifier, out)
+
         open_dialog()
         set_field("#tcp-ports", "80", "custom--http")
         set_field("#tcp-ports", "", "")

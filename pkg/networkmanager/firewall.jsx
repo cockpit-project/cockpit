@@ -61,9 +61,6 @@ function serviceRow(props) {
     }
 
     function onRemoveService(event) {
-        if (event.button !== 0)
-            return;
-
         props.onRemoveService(props.service.id);
         event.stopPropagation();
     }
@@ -138,9 +135,6 @@ function portRow(props) {
 
 function ZoneSection(props) {
     function onRemoveZone(event) {
-        if (event.button !== 0)
-            return;
-
         event.stopPropagation();
         props.onRemoveZone(props.zone.id);
     }
@@ -919,9 +913,6 @@ export class Firewall extends React.Component {
 
     render() {
         function go_up(event) {
-            if (!event || event.button !== 0)
-                return;
-
             cockpit.jump("/network", cockpit.transport.host);
         }
 

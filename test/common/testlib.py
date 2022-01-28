@@ -37,6 +37,7 @@ import time
 import unittest
 import gzip
 import inspect
+import glob
 
 import testvm
 import cdp
@@ -158,6 +159,7 @@ class Browser:
         self.default_user = "admin"
         self.label = label
         self.pixels_label = pixels_label
+        self.used_pixel_references = set()
         self.machine = machine
         path = os.path.dirname(__file__)
         self.cdp = cdp.CDP("C.utf8", verbose=opts.trace, trace=opts.trace,
@@ -881,6 +883,7 @@ class Browser:
             base += "-" + self.current_layout["name"]
         filename = base + "-pixels.png"
         ref_filename = os.path.join(reference_dir, filename)
+        self.used_pixel_references.add(ref_filename)
         ret = self.cdp.invoke("Page.captureScreenshot", clip=rect, no_trace=True)
         png_now = base64.standard_b64decode(ret["data"])
         png_ref = os.path.exists(ref_filename) and open(ref_filename, "rb").read()
@@ -974,6 +977,18 @@ class Browser:
                 self.set_layout(layout["name"])
                 self.assert_pixels_in_current_layout(selector, key, ignore=ignore)
         self.set_layout(previous_layout)
+
+    def assert_no_unused_pixel_test_references(self):
+        """Check whether all reference images in test/reference have been used."""
+
+        if not (Image and self.pixels_label):
+            return
+
+        all = set(glob.glob(os.path.join(TEST_DIR, "reference", self.pixels_label + "*-pixels.png")))
+        unused = all - self.used_pixel_references
+        for u in unused:
+            print("Unused reference image " + os.path.basename(u))
+            self.failed_pixel_tests += 1
 
     def get_js_log(self):
         """Return the current javascript log"""
@@ -1550,8 +1565,10 @@ class MachineCase(unittest.TestCase):
                 raise Error(UNEXPECTED_MESSAGE + "browser errors:\n" + log)
 
     def check_pixel_tests(self):
-        if self.browser and self.browser.failed_pixel_tests > 0:
-            raise Error(PIXEL_TEST_MESSAGE)
+        if self.browser:
+            self.browser.assert_no_unused_pixel_test_references()
+            if self.browser.failed_pixel_tests > 0:
+                raise Error(PIXEL_TEST_MESSAGE)
 
     def check_axe(self, label=None, suffix=""):
         """Run aXe check on the currently active frame

@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-'''cockpit-bridge in python'''
-
+import pwd
+import grp
 import glob
 import json
 import logging
@@ -9,16 +9,73 @@ import os
 import sys
 import traceback
 
+BASE = os.path.realpath(f'{__file__}/../../..')
+
+
+def internal_dbus_call(path, _iface, method, args):
+    if path == '/user':
+        if method == 'GetAll':
+            user = pwd.getpwuid(os.getuid())
+            groups = [gr.gr_name for gr in grp.getgrall() if user.pw_name in gr.gr_mem]
+            attrs = {"Name": user.pw_name, "Full": user.pw_gecos, "Id": user.pw_uid,
+                     "Home": user.pw_dir, "Shell": user.pw_shell, "Groups": groups}
+            return [{k: {"v": v} for k, v in attrs.items()}]
+
+    elif path == '/config':
+        if method == 'GetUInt':
+            return [args[2]]  # default value
+
+    elif path == '/superuser':
+        return []
+
+    raise ValueError('unknown call', path, method)
+
+
+def load_web_resource(path):
+    if path == '/manifests.js':
+        manifests = {}
+        for manifest in glob.glob(f'{BASE}/dist/*/manifest.json'):
+            with open(manifest) as filep:
+                content = json.load(filep)
+            if 'name' in content:
+                name = content['name']
+                del content['name']
+            else:
+                name = os.path.basename(os.path.dirname(manifest))
+            manifests[name] = content
+
+        return '''
+            (function (root, data) {
+                if (typeof define === 'function' && define.amd) {
+                    define(data);
+                }
+
+                if(typeof cockpit === 'object') {
+                    cockpit.manifests = data;
+                } else {
+                    root.manifests = data;
+                }
+            }(this, ''' + json.dumps(manifests) + '))'
+
+    elif '*' in path:
+        return ''
+
+    else:
+        with open(f'{BASE}/dist/{path}', 'rb') as filep:
+            return filep.read()
+
 
 class Channel:
     subclasses = {}
 
-    def __new__(self, transport, channel, options):
+    def __new__(cls, _transport, channel, options):
         payload = options['payload']
 
-        if payload not in Channel.subclasses:
-            for cls in Channel.__subclasses__():
-                Channel.subclasses[cls.payload] = cls
+        if payload not in cls.subclasses:
+            for subcls in cls.__subclasses__():
+                cls.subclasses[subcls.payload] = subcls
+
+        logging.debug('new Channel %s with id %s', payload, channel)
 
         return super().__new__(Channel.subclasses[payload])
 
@@ -35,13 +92,11 @@ class Channel:
         pass
 
     def do_prepare(self):
-        pass
+        self.ready()
 
-    def do_receive(self, message):
-        pass
-
-    def do_control(self, message):
-        pass
+    def do_receive(self, data):
+        logging.debug('unhandled receive %s', data)
+        self.close()
 
     def done(self):
         self.send_control(command='done')
@@ -69,7 +124,19 @@ class DBus(Channel):
 
     def do_prepare(self):
         self.ready()
-        self.done()
+
+    def do_receive(self, data):
+        logging.debug('dbus recv %s', data)
+        message = json.loads(data)
+        if 'add-match' in message:
+            pass
+        elif 'watch' in message:
+            pass
+        elif 'call' in message:
+            reply = internal_dbus_call(*message['call'])
+            self.send_message(reply=reply, id=message['id'])
+        else:
+            raise ValueError('unknown dbus method', message)
 
 
 class NullChannel(Channel):
@@ -82,79 +149,35 @@ class EchoChannel(Channel):
     def do_prepare(self):
         self.ready()
 
-    def do_receive(self, message):
-        self.send_data(message)
-
-    def do_control(self, command, **options):
-        if command == 'done':
-            self.control(command, **options)
+    def do_receive(self, data):
+        self.send_data(data)
 
 
 class HttpChannel(Channel):
     payload = 'http-stream1'
 
-    def do_manifests(self):
-        self.send_message(status=200, reason='OK',
-                          headers={'Content-Type': 'application/javascript'})
-
-        self.send_data('''
-            (function (root, data) {
-                if (typeof define === 'function' && define.amd) {
-                    define(data);
-                }
-
-                if(typeof cockpit === 'object') {
-                    cockpit.manifests = data;
-                } else {
-                    root.manifests = data;
-                }
-            }(this,
-        ''')
-
-        manifests = {}
-        for manifest in glob.glob('/home/lis/cp/*/manifest.json'):
-            with open(manifest) as fp:
-                content = json.load(fp)
-                if 'name' in content:
-                    name = content['name']
-                    del content['name']
-                else:
-                    name = os.path.basename(os.path.dirname(manifest))
-                manifests[name] = content
-
-        self.send_data(json.dumps(manifests))
-        self.send_data('))')
-
     def do_done(self):
         assert not self.post
         assert self.options['method'] == 'GET'
-
         path = self.options['path']
 
-        if path == '/manifests.js':
-            self.do_manifests()
-        elif '*' in path:
-            self.send_message(status=404, reason='ERROR')
-        else:
-            with open(f'/var/home/lis/cp/{path}', 'rb') as fp:
-                content = fp.read()
+        ext_map = {
+            'css': 'text/css',
+            'map': 'application/json',
+            'js': 'text/javascript',
+            'html': 'text/html',
+            'woff2': 'application/font-woff2'
+        }
 
-            if path.endswith('.css'):
-                ctype = 'text/css'
-            elif path.endswith('.js'):
-                ctype = 'text/javascript'
-            elif path.endswith('.html'):
-                ctype = 'text/html'
-            else:
-                ctype = 'text/plain'
-            self.send_message(status=200, reason='OK',
-                              headers={'Content-Type': ctype})
-            self.send_data(content)
+        _, _, ext = path.rpartition('.')
+        ctype = ext_map[ext]
 
+        self.send_message(status=200, reason='OK', headers={'Content-Type': ctype})
+        self.send_data(load_web_resource(path))
         self.done()
 
-    def do_receive(self, message):
-        self.post += message
+    def do_receive(self, data):
+        self.post += data
 
     def do_prepare(self):
         self.post = b''
@@ -162,7 +185,6 @@ class HttpChannel(Channel):
 
 
 class Transport:
-    '''CockpitTransport'''
     def __init__(self, _input, _output):
         self.input = _input
         self.output = _output
@@ -175,7 +197,7 @@ class Transport:
         message = channel.encode('ascii') + b'\n' + payload
         length = bytes(str(len(message)), 'ascii')
         self.output.write(length + b'\n' + message)
-        logging.debug(f'sent {length} bytes on {channel}')
+        logging.debug('sent %d bytes on %s', length, channel)
         self.output.flush()
 
     def send_message(self, _channel, **kwargs):
@@ -187,7 +209,7 @@ class Transport:
                 kwargs[name.replace('_', '-')] = kwargs[name]
                 del kwargs[name]
 
-        logging.debug(f'sending control {kwargs}')
+        logging.debug('sending message %s %s', _channel, kwargs)
         self.send_data(_channel, json.dumps(kwargs, indent=2) + '\n')
 
     def send_control(self, **kwargs):
@@ -220,27 +242,28 @@ class Transport:
             elif command == 'ready':
                 channel.do_ready()
             elif command == 'close':
-                channel.close(options)
+                channel.close()
 
     def handle_channel_data(self, channel, data):
         logging.debug('Received %d bytes of data for channel %s', len(data), channel)
         self.channels[channel].do_receive(data)
 
     def iteration(self):
-        if packet := self.recv():
-            channel, data = packet
+        packet = self.recv()
+        if not packet:
+            return False
 
-            if channel:
-                self.handle_channel_data(channel, data)
-            else:
-                self.handle_control_message(json.loads(data))
+        channel, data = packet
 
-            return True
+        if channel:
+            self.handle_channel_data(channel, data)
+        else:
+            self.handle_control_message(json.loads(data))
+
+        return True
 
 
 def main():
-    '''main'''
-
     transport = Transport(sys.stdin.buffer, sys.stdout.buffer)
     logging.debug("Online")
 
@@ -255,23 +278,15 @@ def main():
         pass
 
 
-def do_init(transport, message):
-    pass
+def main_with_logging(output):
+    logging.basicConfig(filename=output, level=logging.DEBUG)
+
+    try:
+        main()
+    except Exception:
+        logging.debug(traceback.format_exc())
+        raise
 
 
-def do_ready(transport, message):
-    pass
-
-
-def do_done(transport, message):
-    pass
-
-
-logging.basicConfig(filename='bridge.log', encoding='utf-8', level=logging.DEBUG)
-
-try:
-    main()
-except Exception:
-    trace = traceback.format_exc()
-    logging.debug(trace)
-    raise
+if __name__ == '__main__':
+    main_with_logging('bridge.log')

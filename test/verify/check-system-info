@@ -282,12 +282,7 @@ class TestSystemInfo(MachineCase):
         # wait until icon settles down
         b.wait_visible("#systime-time-input-input[aria-invalid='false']")
         b.wait_not_present("#systime-manual-row .dialog-error")
-        if b.cdp.mobile:
-            # HACK: the clock icon in the <input> has too much jitter on mobile
-            ignore = ["#systime-time-input-input"]
-        else:
-            ignore = []
-        b.assert_pixels("#system_information_change_systime", "systime-manual-time", ignore=ignore)
+        b.assert_pixels("#system_information_change_systime", "systime-manual-time")
         b.click("#system_information_change_systime .apply")
         b.wait_not_present("#system_information_change_systime")
 
@@ -454,12 +449,11 @@ class TestSystemInfo(MachineCase):
         b.wait_in_text(pci_selector + ' tbody tr:first-of-type td[data-label=Class]', "Bridge")
         b.wait_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Class]', "Unclassified")
 
-        # sort by model (no sort buttons in mobile mode)
-        if not b.cdp.mobile:
-            b.click(pci_selector + ' thead th:nth-child(2) button')
-            b.wait_in_text(pci_selector + ' tbody tr:first-of-type td[data-label=Model]', "440")
-            b.wait_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Virtio SCSI")
-            b.wait_not_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Unclassified")
+        # sort by model
+        b.click(pci_selector + ' thead th:nth-child(2) button')
+        b.wait_in_text(pci_selector + ' tbody tr:first-of-type td[data-label=Model]', "440")
+        b.wait_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Virtio SCSI")
+        b.wait_not_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Unclassified")
 
         # go back to system page
         b.click('.pf-c-breadcrumb li:first a')

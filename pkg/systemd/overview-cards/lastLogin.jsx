@@ -112,33 +112,30 @@ const LastLogin = () => {
         <li className="last-login" id="page_status_last_login">
             <Flex flexWrap={{ default: 'nowrap' }}>
                 <FlexItem spacer={{ default: 'spacerSm' }}>{icon}</FlexItem>
-                <Flex direction={{ default: 'column' }}>
-                    <FlexItem id="system_last_login"
+                <div>
+                    <div id="system_last_login"
                             className={headerClass}
-                            spacer={{ default: 'spacerNone' }}
                     >
                         {headerText}
-                    </FlexItem>
-                    <FlexItem id="system_last_login_from"
+                    </div>
+                    <div id="system_last_login_from"
                               className={underlineClass}
                     >
                         {underlineText}
-                    </FlexItem>
+                    </div>
                     {failedLogins &&
-                    <FlexItem id="system_last_login_success" className="pf-u-text-break-word">
+                    <div id="system_last_login_success" className="pf-u-text-break-word">
                         {lastLoginText}
-                    </FlexItem>
+                    </div>
                     }
                     {name &&
-                    <FlexItem>
                         <Button variant="link" isInline
                                 className="pf-u-font-size-sm"
                                 onClick={() => cockpit.jump("/users#/" + name)}>
                             {_("View login history")}
                         </Button>
-                    </FlexItem>
                     }
-                </Flex>
+                </div>
             </Flex>
         </li>
     );

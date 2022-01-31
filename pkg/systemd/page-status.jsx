@@ -31,6 +31,8 @@ import {
     WarningTriangleIcon,
 } from '@patternfly/react-icons';
 
+import "./page-status.scss";
+
 import { page_status } from "notifications";
 
 function icon_for_type(type) {
@@ -49,7 +51,7 @@ function get_pficon(name) {
     if (name == "enhancement")
         return <EnhancementIcon data-pficon={name} />;
     if (name == "bug")
-        return <BugIcon data-pficon={name} />;
+        return <BugIcon data-pficon={name} className="page-status-bug-icon" />;
     if (name == "check")
         return <CheckIcon color="green" data-pficon={name} />;
     if (name == "spinner")

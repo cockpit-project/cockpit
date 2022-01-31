@@ -902,9 +902,15 @@ client.stratis_start = () => {
             });
 };
 
+// We need to use the same revision for all interfaces, mixing them is
+// not allowed.  If we need to bump it, it should be bumped here for all
+// of them at the same time.
+//
+const stratis3_interface_revision = "r0";
+
 function stratis3_start() {
     const stratis = cockpit.dbus("org.storage.stratis3", { superuser: "try" });
-    client.stratis_manager = stratis.proxy("org.storage.stratis3.Manager.r0",
+    client.stratis_manager = stratis.proxy("org.storage.stratis3.Manager." + stratis3_interface_revision,
                                            "/org/storage/stratis3");
 
     // The rest of the code expects these to be initialized even if no
@@ -941,13 +947,16 @@ function stratis3_start() {
                 };
 
                 client.features.stratis = true;
-                client.stratis_pools = client.stratis_manager.client.proxies("org.storage.stratis3.pool.r0",
+                client.stratis_pools = client.stratis_manager.client.proxies("org.storage.stratis3.pool." +
+                                                                             stratis3_interface_revision,
                                                                              "/org/storage/stratis3",
                                                                              { watch: false });
-                client.stratis_blockdevs = client.stratis_manager.client.proxies("org.storage.stratis3.blockdev.r0",
+                client.stratis_blockdevs = client.stratis_manager.client.proxies("org.storage.stratis3.blockdev." +
+                                                                                 stratis3_interface_revision,
                                                                                  "/org/storage/stratis3",
                                                                                  { watch: false });
-                client.stratis_filesystems = client.stratis_manager.client.proxies("org.storage.stratis3.filesystem.r0",
+                client.stratis_filesystems = client.stratis_manager.client.proxies("org.storage.stratis3.filesystem." +
+                                                                                   stratis3_interface_revision,
                                                                                    "/org/storage/stratis3",
                                                                                    { watch: false });
 

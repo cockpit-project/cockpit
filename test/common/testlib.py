@@ -124,6 +124,12 @@ default_layouts = [
         "content_size": [1680, 1130]
     },
     {
+        "name": "medium",
+        "is_mobile": False,
+        "shell_size": [1280, 768],
+        "content_size": [1040, 698]
+    },
+    {
         "name": "mobile",
         "shell_size": [414, 1920],
         "content_size": [414, 1856]
@@ -831,14 +837,14 @@ class Browser:
             if delta[0] != 0 or delta[1] != 0:
                 self._set_window_size(shell_size[0] + delta[0], shell_size[1] + delta[1])
 
-    def assert_pixels_in_current_layout(self, selector, key, ignore=[]):
+    def assert_pixels_in_current_layout(self, selector, key, ignore=[], scroll_into_view=None):
         """Compare the given element with its reference in the current layout"""
 
         if not (Image and self.pixels_label):
             return
 
         self._adjust_window_for_fixed_content_size()
-        self.call_js_func('ph_scrollIntoViewIfNeeded', selector)
+        self.call_js_func('ph_scrollIntoViewIfNeeded', scroll_into_view or selector)
         self.call_js_func('ph_blur_active')
 
         # Wait for all animations to be over.  This is done by
@@ -965,7 +971,7 @@ class Browser:
                 print("Differences in pixel test " + base)
                 self.failed_pixel_tests += 1
 
-    def assert_pixels(self, selector, key, ignore=[], skip_layouts=[]):
+    def assert_pixels(self, selector, key, ignore=[], skip_layouts=[], scroll_into_view=None):
         """Compare the given element with its reference in all layouts"""
 
         if not (Image and self.pixels_label):
@@ -975,7 +981,8 @@ class Browser:
         for layout in self.layouts:
             if layout["name"] not in skip_layouts:
                 self.set_layout(layout["name"])
-                self.assert_pixels_in_current_layout(selector, key, ignore=ignore)
+                self.assert_pixels_in_current_layout(selector, key, ignore=ignore,
+                                                     scroll_into_view=scroll_into_view)
         self.set_layout(previous_layout)
 
     def assert_no_unused_pixel_test_references(self):

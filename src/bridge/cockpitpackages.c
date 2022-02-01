@@ -338,30 +338,16 @@ out:
 }
 
 static JsonObject *
-read_json_file (const gchar *directory,
-                const gchar *name,
+read_json_file (const gchar *path,
                 GError **error)
 {
-  JsonObject *object;
-  GMappedFile *mapped;
-  gchar *filename;
-  GBytes *bytes;
-
-  filename = g_build_filename (directory, name, NULL);
-  mapped = g_mapped_file_new (filename, FALSE, error);
-  g_free (filename);
+  g_autoptr(GMappedFile) mapped = g_mapped_file_new (path, FALSE, error);
 
   if (!mapped)
-    {
-      return NULL;
-    }
+    return NULL;
 
-  bytes = g_mapped_file_get_bytes (mapped);
-  object = cockpit_json_parse_bytes (bytes, error);
-  g_mapped_file_unref (mapped);
-  g_bytes_unref (bytes);
-
-  return object;
+  g_autoptr(GBytes) bytes = g_mapped_file_get_bytes (mapped);
+  return cockpit_json_parse_bytes (bytes, error);
 }
 
 static GBytes *
@@ -382,8 +368,8 @@ read_package_manifest (const gchar *directory,
   JsonObject *override = NULL;
   GError *error = NULL;
 
-
-  manifest = read_json_file (directory, "manifest.json", &error);
+  g_autofree gchar *manifest_path = g_build_filename (directory, "manifest.json", NULL);
+  manifest = read_json_file (manifest_path, &error);
   if (!manifest)
     {
       if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
@@ -400,7 +386,8 @@ read_package_manifest (const gchar *directory,
     }
   else
     {
-      override = read_json_file (directory, "override.json", &error);
+      g_autofree gchar *override_path = g_build_filename (directory, "override.json", NULL);
+      override = read_json_file (override_path, &error);
       if (error)
         {
           if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT))

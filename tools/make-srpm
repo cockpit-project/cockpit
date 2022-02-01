@@ -51,12 +51,7 @@ rpmbuild "${rpmbuild_args[@]}" -ts ${source} | sed -n 's@^Wrote:.*/@@p'
 # "cockpit" with build_basic=1, and "cockpit-appstream" with build_optional=1
 # the spec has proper build_* defaults depending on the Name:
 if grep -q 'platform:el8' /usr/lib/os-release; then
-    appstream_spec="${tmpdir}/cockpit-appstream.spec"
-    tar xf "$source" -O '*/tools/cockpit.spec' |
-        sed '/^Name:/ s/$/-appstream/' > "${appstream_spec}"
-
-    rpmbuild "${rpmbuild_args[@]}" --define "_sourcedir $(dirname $source)" \
-        -bs "${appstream_spec}" | sed -n 's@^Wrote:.*/@@p'
+    rpmbuild "${rpmbuild_args[@]}" -D 'appstream_srpm 1' -ts ${source} | sed -n 's@^Wrote:.*/@@p'
 fi
 
 rm -rf "${tmpdir}"

@@ -43,7 +43,11 @@
 %define pamdir %{_libdir}/security
 %endif
 
+%if %{defined appstream_srpm}
+Name:           cockpit-appstream
+%else
 Name:           cockpit
+%endif
 Summary:        Web Console for Linux servers
 
 License:        LGPLv2+

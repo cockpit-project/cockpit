@@ -617,14 +617,14 @@ class AddServicesModal extends React.Component {
                                            placeholder={_("Example: 88,2019,nfs,rsync")} />
                             </FormGroup>
 
-                            <FormGroup label={_("Description")}>
-                                <TextInput id="service-description" onChange={this.setDescription}
-                                           value={this.state.custom_description} />
-                            </FormGroup>
-
                             <FormGroup label={_("ID")}>
                                 <TextInput id="service-name" onChange={this.setId}
                                            value={this.state.custom_id} />
+                            </FormGroup>
+
+                            <FormGroup label={_("Description")}>
+                                <TextInput id="service-description" onChange={this.setDescription}
+                                           value={this.state.custom_description} />
                             </FormGroup>
                         </>
                     }

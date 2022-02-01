@@ -418,7 +418,7 @@ export class ServiceDetails extends React.Component {
 
         if (this.props.unit.NextRunTime || this.props.unit.LastTriggerTime) {
             status.push(
-                <div className="service-unit-triggers">
+                <div className="service-unit-triggers" key="triggers">
                     {this.props.unit.NextRunTime && <div className="service-unit-next-trigger">{cockpit.format("Next run: $0", this.props.unit.NextRunTime)}</div>}
                     {this.props.unit.LastTriggerTime && <div className="service-unit-last-trigger">{cockpit.format("Last trigger: $0", this.props.unit.LastTriggerTime)}</div>}
                 </div>

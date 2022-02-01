@@ -24,6 +24,8 @@ import * as timeformat from "timeformat";
 
 import cockpit from "cockpit";
 
+import "./shutdownStatus.scss";
+
 const _ = cockpit.gettext;
 
 const getScheduledShutdown = (setShutdownTime, setShutdownType) => {
@@ -82,11 +84,11 @@ export const ShutDownStatus = () => {
     let cancelText;
     let icon;
     if (shutdownType === "poweroff") {
-        icon = <PowerOffIcon />;
+        icon = <PowerOffIcon className="shutdown-status-poweroff-icon" />;
         text = _("Scheduled poweroff at $0");
         cancelText = _("Cancel poweroff");
     } else {
-        icon = <RedoIcon />;
+        icon = <RedoIcon className="reboot-status-poweroff-icon" />;
         text = _("Scheduled reboot at $0");
         cancelText = _("Cancel reboot");
     }

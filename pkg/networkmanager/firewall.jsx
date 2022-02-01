@@ -617,7 +617,7 @@ class AddServicesModal extends React.Component {
                                            placeholder={_("Example: 88,2019,nfs,rsync")} />
                             </FormGroup>
 
-                            <FormGroup label={_("ID")}>
+                            <FormGroup label={_("ID")} helperText={_("If left empty, ID will be generated based on associated port services and port numbers")}>
                                 <TextInput id="service-name" onChange={this.setId}
                                            value={this.state.custom_id} />
                             </FormGroup>

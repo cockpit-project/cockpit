@@ -28,7 +28,7 @@ import {
     ExclamationCircleIcon,
     InfoCircleIcon,
     SecurityIcon,
-    WarningTriangleIcon,
+    ExclamationTriangleIcon,
 } from '@patternfly/react-icons';
 
 import "./page-status.scss";
@@ -39,7 +39,7 @@ function icon_for_type(type) {
     if (type == "error")
         return <ExclamationCircleIcon className="ct-exclamation-circle" />;
     else if (type == "warning")
-        return <WarningTriangleIcon className="ct-exclamation-triangle" />;
+        return <ExclamationTriangleIcon className="ct-exclamation-triangle" />;
     else
         return <InfoCircleIcon className="ct-info-circle" />;
 }

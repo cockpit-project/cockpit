@@ -375,7 +375,7 @@ read_package_manifest (const gchar *directory,
       if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
         g_debug ("%s: no manifest found", package);
       else if (!g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOTDIR))
-        g_message ("%s: couldn't read manifest.json: %s", package, error->message);
+        g_warning ("%s: couldn't read manifest.json: %s", package, error->message);
       g_clear_error (&error);
     }
   else if (!validate_package (package))
@@ -393,7 +393,7 @@ read_package_manifest (const gchar *directory,
           if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
             g_debug ("%s: no override found", package);
           else
-            g_message ("%s: couldn't read override.json: %s", package, error->message);
+            g_warning ("%s: couldn't read override.json: %s", package, error->message);
           g_clear_error (&error);
         }
       if (override)

@@ -212,6 +212,33 @@ Description=Test OnBoot Timer
 OnBootSec=200min
 Unit=test.service
 """)
+        self.write_file("/usr/local/lib/systemd/system/cockpit-system.timer",
+                        """
+[Unit]
+Description=Not deleteable Timer
+
+[Timer]
+OnCalendar=*:1/2
+""")
+        self.write_file(f"{path}/deleteme.service",
+                        """
+[Unit]
+Description=Delete Me Service
+
+[Service]
+ExecStart=/usr/bin/true
+
+[Install]
+WantedBy=default.target
+""")
+        self.write_file(f"{path}/deleteme.timer",
+                        """
+[Unit]
+Description=Delete Me Timer
+
+[Timer]
+OnCalendar=*:1/2
+""")
 
         self.make_test_service(path)
 
@@ -288,8 +315,23 @@ Unit=test.service
         b.wait_in_text(self.svc_sel('test-onboot.timer') + ' .service-unit-last-trigger', "unknown")  # last trigger
         self.run_systemctl(user, "stop test-onboot.timer")
 
-        # Selects Paths tab - the test VM does not have any user path units
         if not user:
+            self.goto_service("deleteme.timer")
+            self.do_action("Delete")
+            b.click("#delete-timer-modal-btn")
+            self.wait_page_load()
+            self.assertNotIn("deleteme", m.execute("systemctl list-timers"))
+            m.execute(f"! test -f {path}/deleteme.service")
+            m.execute(f"! test -f {path}/deleteme.timer")
+
+            # system timers are not allowed to be deleted
+            self.goto_service("cockpit-system.timer")
+            b.click(".service-top-panel .pf-c-dropdown button")
+            b.wait_in_text(".service-top-panel .pf-c-dropdown__menu", "Disallow running")
+            b.wait_not_in_text(".service-top-panel .pf-c-dropdown__menu", "Delete")
+            b.click(".pf-c-breadcrumb a:contains('Services')")
+
+            # Selects Paths tab - the test VM does not have any user path units
             self.pick_tab(5)
             b.wait_not_in_text("#services-list", "test")
             b.wait_not_in_text("#services-list", ".target")

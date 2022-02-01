@@ -23,9 +23,10 @@ import {
     Alert, Button,
     DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
     Dropdown, DropdownItem, DropdownSeparator, KebabToggle,
-    ExpandableSection,
+    Flex, ExpandableSection,
     Tooltip, TooltipPosition,
     Card, CardBody, CardTitle, Text, TextVariants,
+    List, ListItem,
     Modal, Spinner, Switch
 } from "@patternfly/react-core";
 import {
@@ -38,6 +39,7 @@ import cockpit from "cockpit";
 import { systemd_client, SD_MANAGER, SD_OBJ } from "./services.jsx";
 import * as timeformat from "timeformat";
 import { useDialogs, DialogsContext } from "dialogs.jsx";
+import { ModalError } from 'cockpit-components-inline-notification.jsx';
 
 import './service-details.scss';
 
@@ -98,10 +100,12 @@ const ServiceConfirmDialog = ({ id, title, message, confirmText, confirmAction }
  *      Method for calling unit methods like `UnitStart`
  *  - fileActionCallback
  *      Method for calling unit file methods like `EnableUnitFiles`
+ *  - deleteActionCallback
+ *      Method for calling deleting the systemd unit
  *  - disabled
  *      Button is disabled
  */
-const ServiceActions = ({ masked, active, failed, canReload, actionCallback, fileActionCallback, disabled }) => {
+const ServiceActions = ({ masked, active, failed, canReload, actionCallback, deleteActionCallback, fileActionCallback, disabled }) => {
     const Dialogs = useDialogs();
     const [isActionOpen, setIsActionOpen] = useState(false);
 
@@ -128,6 +132,13 @@ const ServiceActions = ({ masked, active, failed, canReload, actionCallback, fil
         } else {
             actions.push(
                 <DropdownItem key="start" onClick={() => actionCallback("StartUnit")}>{ _("Start") }</DropdownItem>
+            );
+        }
+
+        if (deleteActionCallback) {
+            actions.push(<DropdownSeparator key="delete-divider" />);
+            actions.push(
+                <DropdownItem key="delete" className="pf-m-danger" onClick={() => deleteActionCallback()}>{ _("Delete") }</DropdownItem>
             );
         }
 
@@ -196,11 +207,15 @@ export class ServiceDetails extends React.Component {
             waitsAction: false,
             waitsFileAction: false,
             unit_properties: {},
+            showDeleteDialog: false,
+            unitPaths: [],
         };
 
         this.onOnOffSwitch = this.onOnOffSwitch.bind(this);
         this.unitAction = this.unitAction.bind(this);
         this.unitFileAction = this.unitFileAction.bind(this);
+        this.deleteAction = this.deleteAction.bind(this);
+        this.deleteTimer = this.deleteTimer.bind(this);
 
         this.unitType = props.unit.Id.split('.').slice(-1)[0];
         this.unitTypeCapitalized = this.unitType.charAt(0).toUpperCase() + this.unitType.slice(1);
@@ -278,23 +293,27 @@ export class ServiceDetails extends React.Component {
         }
     }
 
-    unitAction(method, extra_args) {
+    unitAction(method, extra_args, catchExc = true) {
         if (extra_args === undefined)
             extra_args = ["fail"];
         this.setState({ waitsAction: true });
-        systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, method, [this.props.unit.Names[0]].concat(extra_args))
-                .catch(error => {
-                    this.show_error(error.toString());
-                    this.setState({ waitsAction: false });
-                });
+        const promise = systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, method, [this.props.unit.Names[0]].concat(extra_args));
+        if (catchExc) {
+            return promise.catch(error => {
+                this.show_error(error.toString());
+                this.setState({ waitsAction: false });
+            });
+        } else {
+            return promise;
+        }
     }
 
-    unitFileAction(method, force) {
+    unitFileAction(method, force, catchExc = true) {
         this.setState({ waitsFileAction: true });
         const args = [[this.props.unit.Names[0]], false];
         if (force !== undefined)
             args.push(force == "true");
-        systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, method, args)
+        const promise = systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, method, args)
                 .then(([results]) => {
                     if (results.length == 2 && !results[0])
                         this.show_note(_("This unit is not designed to be enabled explicitly."));
@@ -302,11 +321,61 @@ export class ServiceDetails extends React.Component {
                      * see https://github.com/systemd/systemd/blob/main/src/systemctl/systemctl.c [enable_unit function]
                      */
                     systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "Reload", null);
-                })
-                .catch(error => {
-                    this.show_error(error.toString());
-                    this.setState({ waitsFileAction: false });
                 });
+        if (catchExc) {
+            return promise.catch(error => {
+                this.show_error(error.toString());
+                this.setState({ waitsFileAction: false });
+            });
+        } else {
+            return promise;
+        }
+    }
+
+    deleteAction() {
+        this.getUnitPaths().then(unitPaths => {
+            this.setState({ showDeleteDialog: true, unitPaths });
+        });
+    }
+
+    async getUnitPaths() {
+        const paths = [this.props.unit.FragmentPath];
+
+        await Promise.all(this.props.unit.Triggers.map(async trigger => {
+            // Getting dbus properties from a non-loaded unit is not possible so resort to systemctl show
+            const unitPath = await cockpit.spawn(["systemctl", "show", "--value",
+                "--property", "FragmentPath", trigger]);
+            paths.push(unitPath.trim());
+        })).catch(err => console.error("failed to look up unit details:", err.toString()));
+
+        return paths;
+    }
+
+    deleteTimer() {
+        // Stop timer so we don't get race conditions when the unit is gone.
+        if (this.interval) {
+            clearInterval(this.interval);
+            this.interval = null;
+        }
+
+        const promises = [];
+        if (this.props.unit.ActiveState === "active" || this.props.unit.ActiveState === "activating")
+            promises.push(this.unitAction("StopUnit", undefined, false));
+        if (this.props.unit.ActiveState === "failed")
+            promises.push(this.unitAction("ResetFailedUnit", undefined, false));
+        if (this.props.unit.UnitFileState === "enabled")
+            promises.push(this.unitFileAction("DisableUnitFiles", undefined, false));
+
+        return Promise.all(promises).then(() => {
+            const deletions = this.state.unitPaths.filter(path => path.startsWith("/etc/systemd/system"))
+                    .map(path => cockpit.file(path, { superuser: "required" }).replace(null));
+
+            // Reload after unit/timer removal
+            return Promise.all(deletions).then(() =>
+                systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "Reload", null)
+                        .then(() => cockpit.jump("/system/services#/?type=timer"))
+            );
+        });
     }
 
     render() {
@@ -317,6 +386,8 @@ export class ServiceDetails extends React.Component {
         const masked = this.props.unit.LoadState === "masked";
         const unit = this.state.unit_properties;
         const showAction = this.props.permitted || this.props.owner == "user";
+        const isCustom = this.props.unit.FragmentPath.startsWith("/etc/systemd/system") && !masked;
+        const isTimer = this.props.unit.is_timer;
 
         let status = [];
 
@@ -345,7 +416,7 @@ export class ServiceDetails extends React.Component {
                     <ErrorCircleOIcon className="status-icon" />
                     <span className="status">{ _("Failed to start") }</span>
                     { showAction &&
-                        <Button variant="secondary" className="action-button" onClick={() => this.unitAction("StartUnit") }>{ _("Start service") }</Button>
+                    <Button variant="secondary" className="action-button" onClick={() => this.unitAction("StartUnit") }>{ _("Start service") }</Button>
                     }
                 </div>
             );
@@ -484,6 +555,20 @@ export class ServiceDetails extends React.Component {
 
         return (
             <Card>
+                { this.state.showDeleteDialog &&
+                <DeleteModal
+                    name={this.props.unit.Description}
+                    handleCancel={() => this.setState({ showDeleteDialog: false })}
+                    handleDelete={this.deleteTimer}
+                    reason={<Flex flex={{ default: 'column' }}>
+                        <p>{_("Deletion will remove the following files:")}</p>
+                        <List>
+                            {this.state.unitPaths.map(item => <ListItem key={item}>{item}</ListItem>)}
+                        </List>
+                    </Flex>
+                    }
+                />
+                }
                 { (hasLoadError && this.props.unit.LoadState)
                     ? <Alert variant="danger" isInline title={this.props.unit.LoadState}>
                         {loadError}
@@ -503,7 +588,10 @@ export class ServiceDetails extends React.Component {
                                             </span>
                                         </Tooltip>
                                     }
-                                    <ServiceActions { ...{ active, failed, enabled, masked } } canReload={this.props.unit.CanReload} actionCallback={this.unitAction} fileActionCallback={this.unitFileAction} disabled={this.state.waitsAction || this.state.waitsFileAction} />
+                                    <ServiceActions { ...{ active, failed, enabled, masked } } canReload={this.props.unit.CanReload}
+                                                    actionCallback={this.unitAction} fileActionCallback={this.unitFileAction}
+                                                    deleteActionCallback={isCustom && isTimer ? this.deleteAction : null}
+                                                    disabled={this.state.waitsAction || this.state.waitsFileAction} />
                                 </>
                             }
                         </CardTitle>
@@ -559,4 +647,29 @@ ServiceDetails.propTypes = {
     unit: PropTypes.object.isRequired,
     permitted: PropTypes.bool.isRequired,
     isValid: PropTypes.func.isRequired,
+};
+
+const DeleteModal = ({ reason, name, handleCancel, handleDelete }) => {
+    const [inProgress, setInProgress] = useState(false);
+    const [dialogError, setDialogError] = useState(undefined);
+    return (
+        <Modal isOpen
+               showClose={false}
+               position="top" variant="medium"
+               onClose={handleCancel}
+               title={cockpit.format(_("Confirm deletion of $0"), name)}
+               titleIconVariant="warning"
+               footer={<>
+                   <Button id="delete-timer-modal-btn" variant="danger" isDisabled={inProgress} isLoading={inProgress}
+                           onClick={() => { setInProgress(true); handleDelete().catch(exc => { setDialogError(exc.message); setInProgress(false) }) }}
+                   >
+                       {_("Delete")}
+                   </Button>
+                   <Button variant="link" isDisabled={inProgress} onClick={handleCancel}>{_("Cancel")}</Button>
+               </>}
+        >
+            {dialogError && <ModalError dialogError={_("Timer deletion failed")} dialogErrorDetail={dialogError} />}
+            {reason}
+        </Modal>
+    );
 };

@@ -30,9 +30,9 @@ import {
     Page, PageSection,
     Gallery, Text, TextVariants, Breadcrumb, BreadcrumbItem,
     Form, FormGroup, TextInput,
-    Title,
+    Title, Popover
 } from '@patternfly/react-core';
-import { ExclamationCircleIcon } from '@patternfly/react-icons';
+import { ExclamationCircleIcon, HelpIcon } from '@patternfly/react-icons';
 import { show_unexpected_error } from "./dialog-utils.js";
 import { delete_account_dialog } from "./delete-account-dialog.js";
 import { account_expiration_dialog, password_expiration_dialog } from "./expiration-dialogs.js";
@@ -312,13 +312,22 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                                 <FormGroup fieldId="account-last-login" hasNoPaddingTop label={_("Last login")}>
                                     <output id="account-last-login">{last_login}</output>
                                 </FormGroup>
-                                <FormGroup fieldId="account-locked" label={_("Access")} hasNoPaddingTop>
+                                <FormGroup fieldId="account-locked" label={_("Options")} hasNoPaddingTop
+                                    labelIcon={
+                                        <Popover bodyContent={_("Password authentication is disabled but other authentication methods are still allowed")}>
+                                            <button onClick={e => e.preventDefault()}
+                                                    className="pf-c-form__group-label-help">
+                                                <HelpIcon noVerticalAlign />
+                                            </button>
+                                        </Popover>
+                                    }
+                                >
                                     <div>
                                         <div className="account-column-one">
                                             <Checkbox id="account-locked"
                                                       isDisabled={!superuser.allowed || edited_locked != null || user == current_user}
                                                       isChecked={edited_locked != null ? edited_locked : details.locked}
-                                                      label={_("Lock account")}
+                                                      label={_("Disallow password usage")}
                                                       onChange={checked => change_locked(checked)} />
                                         </div>
                                         <Flex flex={{ default: 'inlineFlex' }}>

@@ -20,11 +20,12 @@
 import cockpit from 'cockpit';
 import React from 'react';
 
-import { Checkbox, Form, FormGroup, TextInput } from '@patternfly/react-core';
+import { Checkbox, Form, FormGroup, TextInput, Popover } from '@patternfly/react-core';
 import { has_errors } from "./dialog-utils.js";
 import { passwd_change } from "./password-dialogs.js";
 import { password_quality, PasswordFormFields } from "cockpit-components-password.jsx";
 import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";
+import { HelpIcon } from '@patternfly/react-icons';
 
 const _ = cockpit.gettext;
 
@@ -66,9 +67,18 @@ function AccountCreateBody({ state, errors, change }) {
                                 idPrefix="accounts-create-password"
                                 change={change} />
 
-            <FormGroup label={_("Access")} fieldId="accounts-create-locked" isInline>
+            <FormGroup label={_("Options")} fieldId="accounts-create-locked" hasNoPaddingTop
+                labelIcon={
+                    <Popover bodyContent={_("Password authentication is disabled but other authentication methods are still allowed")}>
+                        <button onClick={e => e.preventDefault()}
+                                className="pf-c-form__group-label-help">
+                            <HelpIcon noVerticalAlign />
+                        </button>
+                    </Popover>
+                }
+            >
                 <Checkbox id="accounts-create-locked"
-                          label={_("Lock account")}
+                          label={_("Disallow password usage")}
                           isChecked={locked} onChange={checked => change("locked", checked)} />
             </FormGroup>
         </Form>

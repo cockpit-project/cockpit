@@ -162,6 +162,8 @@ class TestAccounts(MachineCase):
         b.set_input_text('#accounts-create-password-pw1', "foo")
         b.set_input_text('#accounts-create-password-pw2', "foo")
         b.set_checked('#accounts-create-locked', True)
+        b.wait_visible('#account-use-password:not(:checked)')
+        b.wait_visible('#accounts-create-force-password-change:not(:checked)')
         b.click('#accounts-create-dialog button.apply')
 
         # Password is weak, lets change it to another weak - this should still not accept
@@ -315,6 +317,48 @@ class TestAccounts(MachineCase):
             b.wait_in_text("#account-last-login", year)
             b.wait_in_text("#account-last-login", month)
             b.wait_visible("#account-logout[disabled]")
+
+        # Create an account and force password change on first login
+        b.go('/users')
+        b.click('#accounts-create')
+        b.wait_visible('#accounts-create-dialog')
+        b.set_input_text('#accounts-create-user-name', "robert")
+        b.set_input_text('#accounts-create-real-name', "Robert Robertson")
+        b.set_input_text('#accounts-create-password-pw1', good_password)
+        b.set_input_text('#accounts-create-password-pw2', good_password)
+        b.set_checked('#accounts-create-force-password-change', True)
+        b.wait_visible('#accounts-create-locked:not(:checked)')
+        b.click('#accounts-create-dialog button.apply')
+
+        b.wait_not_present('#accounts-create-dialog')
+        b.wait_in_text('#accounts-list', "Robert Robertson")
+
+        # Login as robert and check if password change is required
+        b.logout()
+
+        # On OSTree this happens over ssh
+        if m.ostree_image:
+            self.restore_dir("/etc/ssh", '( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service')
+            m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*")
+            m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
+
+        b.wait_visible("#login")
+        b.wait_not_visible("#conversation-group")
+        b.try_login(user="robert", password=good_password)
+        b.wait_visible('#conversation-input')
+        b.set_val('#conversation-input', good_password)
+        b.click('#login-button')
+
+        # Set new password
+        b.wait_in_text('#conversation-prompt', "New password:")
+        b.set_val('#conversation-input', good_password_2)
+        b.click('#login-button')
+
+        # Confirm new password
+        b.wait_in_text('#conversation-prompt', "Retype new password:")
+        b.set_val('#conversation-input', good_password_2)
+        b.click('#login-button')
+        b.wait_visible('#content')
 
         self.allow_journal_messages("Password quality check failed:")
         self.allow_journal_messages("The password is a palindrome")

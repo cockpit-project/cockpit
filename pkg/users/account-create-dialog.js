@@ -20,7 +20,7 @@
 import cockpit from 'cockpit';
 import React from 'react';
 
-import { Checkbox, Form, FormGroup, TextInput, Popover, Flex } from '@patternfly/react-core';
+import { Checkbox, Form, FormGroup, TextInput, Popover, Flex, FlexItem, Radio } from '@patternfly/react-core';
 import { has_errors } from "./dialog-utils.js";
 import { passwd_change } from "./password-dialogs.js";
 import { password_quality, PasswordFormFields } from "cockpit-components-password.jsx";
@@ -32,7 +32,7 @@ const _ = cockpit.gettext;
 function AccountCreateBody({ state, errors, change }) {
     const {
         real_name, user_name,
-        locked
+        locked, change_passw_force
     } = state;
 
     return (
@@ -62,16 +62,30 @@ function AccountCreateBody({ state, errors, change }) {
                                 idPrefix="accounts-create-password"
                                 change={change} />
 
-            <FormGroup label={_("Options")} fieldId="accounts-create-locked" hasNoPaddingTop>
-                <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
-                    <Checkbox id="accounts-create-locked"
-                              isChecked={locked} onChange={checked => change("locked", checked)}
-                              label={_("Disallow interactive password")} />
+            <FormGroup label={_("Authentication")} fieldId="accounts-create-locked" hasNoPaddingTop>
+                <Radio id="account-use-password"
+                       label={_("Use password")}
+                       isChecked={!locked} onChange={checked => change("locked", !checked)}
+                       description={
+                           <Checkbox id="accounts-create-force-password-change"
+                                     className="pf-u-mb-xs"
+                                     label={_("Require password change on first login")}
+                                     isChecked={change_passw_force} onChange={checked => change("change_passw_force", checked)} />
+                       } />
 
-                    <Popover bodyContent={_("Other authentication methods are still available even when interactive password authentication is not allowed.")}
-                             showClose={false}>
-                        <HelpIcon />
-                    </Popover>
+                <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                    <FlexItem spacer={{ default: 'spacerSm' }}>
+                        <Radio id="accounts-create-locked"
+                               isChecked={locked} onChange={checked => change("locked", checked)}
+                               label={_("Disallow password authentication")} />
+                    </FlexItem>
+
+                    <FlexItem spacer={{ default: 'spacerLg' }}>
+                        <Popover bodyContent={_("Other authentication methods are still available even when interactive password authentication is not allowed.")}
+                                 showClose={false}>
+                            <HelpIcon />
+                        </Popover>
+                    </FlexItem>
                 </Flex>
             </FormGroup>
         </Form>
@@ -155,6 +169,7 @@ export function account_create_dialog(accounts) {
         password_confirm: "",
         locked: false,
         confirm_weak: false,
+        change_passw_force: false,
     };
     let errors = { };
 
@@ -175,6 +190,12 @@ export function account_create_dialog(accounts) {
             state.confirm_weak = false;
             old_password = state.password;
         }
+
+        if (field == "change_passw_force")
+            state.locked = false;
+
+        if (field == "locked")
+            state.change_passw_force = false;
 
         update();
     }
@@ -203,7 +224,7 @@ export function account_create_dialog(accounts) {
                 });
     }
 
-    function create(real_name, user_name, password, locked) {
+    function create(real_name, user_name, password, locked, force_change) {
         return cockpit.spawn(["/usr/sbin/useradd", "-D"], { superuser: "require" })
                 .catch(() => "")
                 .then(defaults => {
@@ -228,14 +249,20 @@ export function account_create_dialog(accounts) {
                                         user_name,
                                         "--lock"
                                     ], { superuser: "require", err: "message" });
+                                if (force_change)
+                                    return cockpit.spawn([
+                                        "/usr/bin/passwd",
+                                        "-e",
+                                        user_name
+                                    ], { superuser: "require", err: "message" });
                             });
                 });
     }
 
-    function passwd_check(force, real_name, user_name, password, password_confirm, locked) {
-        return validate(force, real_name, user_name, password, password_confirm).then(valid => {
+    function passwd_check(force_weak, real_name, user_name, password, password_confirm, locked, force_change) {
+        return validate(force_weak, real_name, user_name, password, password_confirm).then(valid => {
             if (valid)
-                return create(real_name, user_name, password, locked);
+                return create(real_name, user_name, password, locked, force_change);
             else {
                 if (!errors.real_name && !errors.user_name && !errors.password_confirm && state.password.length <= 256) {
                     state.confirm_weak = true;
@@ -259,7 +286,7 @@ export function account_create_dialog(accounts) {
                     caption: _("Create"),
                     style: "primary",
                     clicked: () => {
-                        return passwd_check(false, state.real_name, state.user_name, state.password, state.password_confirm, state.locked);
+                        return passwd_check(false, state.real_name, state.user_name, state.password, state.password_confirm, state.locked, state.change_passw_force);
                     },
                     disabled: state.confirm_weak
                 }

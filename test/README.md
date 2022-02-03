@@ -13,45 +13,67 @@ with nested virtualization, refer to
 [this Fedora guide](https://docs.fedoraproject.org/en-US/quick-docs/using-nested-virtualization-in-kvm/index.html)
 for more details and recommendations on ensuring it is enabled correctly.
 
-## Introduction
+## Preparation and general invocation
 
-Before running the tests, ensure Cockpit has been built where the test suite
-expects to find it (do NOT run the build step as root):
+*Warning*: Never run the build, test, or any other command here as root!
 
-    $ ./test/image-prepare
+You first need to build cockpit, and install it into a VM:
 
-To run the integration tests run the following (do NOT run the integration tests
-as root):
+    $ test/image-prepare
 
-    $ ./test/common/run-tests
+This uses the default OS image, which is currently Fedora 35. See `$TEST_OS`
+below how to select a different one.
+
+In most cases you want to run an individual test in a suite, for example:
+
+    $ test/verify/check-metrics TestCurrentMetrics.testCPU
+
+You can get a list of tests by inspecting the `def test*` in the source, or by
+running the suite with `-l`/`--list`:
+
+    $ test/verify/check-metrics -l
+
+Sometimes you may also want to run all tests in a test file suite:
+
+    $ test/verify/check-session
+
+To see more verbose output from the test, use the `-v`/`--verbose` and/or `-t`/`--trace` flags:
+
+    $ test/verify/check-session --verbose --trace
+
+If you specify `-s`/`--sit` in addition, then the test will wait on failure and
+allow you to log into cockpit and/or the test instance and diagnose the issue.
+The cockpit and SSH addresses of the test instance will be printed:
+
+    $ test/verify/check-session -st
+
+You can also run *all* the tests, with some parallelism:
+
+    $ test/common/run-tests --test-dir test/verify --jobs 2
+
+However, this will take *really* long. You can specify a subset of tests (see
+`--help`); but usually it's better to run individual tests locally, and let the
+CI machinery run all of them in a draft pull request.
 
 The tests will automatically download the VM images they need, so expect
-that the initial run may take a couple of hours (there are quite a few
-images to retrieve for different scenario tests).
+that the initial run may take a few minutes.
 
-Alternatively you can run an individual test like this:
-
-    $ ./test/image-prepare
-    $ ./test/verify/check-session
-
-To see more verbose output from the test, use the `--verbose` and/or `--trace` flags:
-
-    $ ./test/verify/check-session --verbose --trace
-
-In addition if you specify `--sit`, then the test will wait on failure and allow
-you to log into cockpit and/or the test instance and diagnose the issue. An address
-will be printed of the test instance.
-
-    $ ./test/verify/check-session --trace --sit
+## Interactive browser
 
 Normally each test starts its own chromium headless browser process on a
-separate random port. To interactively follow what a test is doing, start the
-browser manually and tell the test which debug port it should attach to:
+separate random port. To interactively follow what a test is doing:
 
-    $ chromium-browser --remote-debugging-port=9222 about:blank
-    $ TEST_CDP_PORT=9222 ./test/verify/check-session --trace
+    $ TEST_SHOW_BROWSER=1 test/verify/check-session --trace
 
-Finally, you can conduct manual testing against a test image by starting the
+You can also run a test against Firefox instead of Chromium:
+
+    $ TEST_BROWSER=firefox test/verify/check-session --trace
+
+See below for details.
+
+## Manual testing
+
+You can conduct manual interactive testing against a test image by starting the
 image like so:
 
      $ bots/vm-run -s cockpit.socket debian-stable
@@ -59,13 +81,6 @@ image like so:
 Once the machine is booted and the cockpit socket has been activated, a
 message will be printed describing how to access the virtual machine, via
 ssh and web.  See the "Helpful tips" section below.
-
-## Details
-
-The verify test suite is the main test suite:
-
- * `test/common/run-tests`: Run all tests
- * `test/verify/check-*`: Run the selected tests
 
 ## Pixel tests
 
@@ -111,54 +126,41 @@ You can set these environment variables to configure the test suite:
     TEST_TIMEOUT_FACTOR Scale normal timeouts by given integer. Useful for
                         slow/busy testbeds or architectures.
 
-## Test machines and their images
-
-The code under test is executed in one or more dedicated virtual
-machines, called the "test machines".  Fresh test machines are started
-for each test. See the
-[bots documentation](https://github.com/cockpit-project/bots/blob/main/README.md)
+See the [bots documentation](https://github.com/cockpit-project/bots/blob/main/README.md)
 for details about the tools and configuration for these.
 
-These test machine images don't contain any Cockpit code yet.  You can build
-and install the currently checked out working copy of Cockpit like this:
+## Faster iteration
 
-    $ test/image-prepare
-
-This either needs a configured/built tree (build in mock or a development VM)
-or cockpit's build dependencies installed.
-
-image-prepare will prepare a test machine image used for the next test run. It
-will not modify the original image, but do all the preparation in an overlay in
-`test/images`.
-
-A typical sequence of steps would thus be the following:
-
-    $ make                     # Build the code
-    $ test/image-prepare ...   # Install code to test
-    $ test/verify/check-...    # Run some tests
-
-Each image-prepare invocation will always start from the pristine image and
+Each `image-prepare` invocation will always start from the pristine image and
 ignore the current overlay in `test/images`. It is thorough, but also rather
 slow. If you want to iterate on changing only JavaScript/HTML code, you can use
 this shortcut to copy updated webpacks into a prepared VM overlay image:
 
     $ make && bots/image-customize -u dist:/usr/share/cockpit/ $TEST_OS
 
-Use `test/vm-reset` to clean up all prepared overlays in `test/images`.
-
-## Running tests
-
-Once you have a test machine image that contains the version of
-Cockpit that you want to test, you can run tests by picking a program
-and just executing it:
-
-    $ test/verify/check-connection
+Use `bots/vm-reset` to clean up all prepared overlays in `test/images`.
 
 Many of the verify tests can also be run against an already running
 machine. Although be aware that lots of the tests change state on
-the target machine.
+the target machine -- so only do this with the ones marked with
+`@nondestructive`.
 
-    $ test/verify/check-connection --machine=10.1.1.2
+    $ test/verify/check-connection --machine=10.1.1.2 --browser 10.1.1.2:9090
+
+In particular, you can use our standard test VMs with this mode:
+
+    $ test/image-prepare
+    $ bots/vm-run fedora-35
+
+Note the SSH and cockpit ports. If this is the only running VM, it will have
+the addresses in the example below, otherwise the port will be different.
+
+Now you can change the code (see [HACKING.md](../HACKING.md) for webpack watch
+mode), copy it into the VM, and run the test against it:
+
+    $ test/verify/check-connection --machine 127.0.0.2:2201 --browser 127.0.0.2:9091
+
+# Container tests
 
 The `test/containers/` tests use the same VMs as the above `test/verify/` ones.
 But they don't have a separate "prepare" step/script; instead, the first time

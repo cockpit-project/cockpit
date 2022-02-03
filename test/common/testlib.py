@@ -919,6 +919,8 @@ class Browser:
             #
             # - The RGB values of pixels can differ by up to 2.
             #
+            # - There can be up to 5 different pixels
+            #
             # Pixels that are different but have been ignored are
             # marked in the delta image in green.
 
@@ -943,6 +945,7 @@ class Browser:
                 data_now = now.load()
                 data_delta = delta.load()
                 result = True
+                count = 0
                 width, height = ref.size
                 for y in range(height):
                     for x in range(width):
@@ -951,7 +954,9 @@ class Browser:
                                 data_delta[x, y] = (0, 255, 0, 255)
                             else:
                                 data_delta[x, y] = (255, 0, 0, 255)
-                                result = False
+                                count += 1
+                                if count > 5:
+                                    result = False
                 return result
 
             if not img_eq(img_ref, img_now, img_delta):

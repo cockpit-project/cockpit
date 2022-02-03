@@ -52,7 +52,7 @@ am__v_GO_ = $(am__v_GO_@AM_DEFAULT_V@)
 am__v_GO_0 = @echo "  GO      " $@;
 
 GO_BUILD_RULE = \
-	GOPATH=$(abs_srcdir)/pkg/kubernetes/standalone $(GOLANG) build \
+	GO111MODULE=auto GOPATH=$(abs_srcdir)/pkg/kubernetes/standalone $(GOLANG) build \
 		-ldflags "-B 0x"`head -c20 /dev/urandom|od -An -tx1|tr -d ' \n'` "$@"
 
 COCKPIT_KUBE_HELPERS =	\

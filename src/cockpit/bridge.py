@@ -1,20 +1,181 @@
 #!/usr/bin/python3
 
+# This file is part of Cockpit.
+#
+# Copyright (C) 2022 Red Hat, Inc.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import asyncio
-import glob
+import collections
 import grp
 import json
 import logging
 import os
+import packaging.version
 import pwd
 import socket
 import shlex
 import subprocess
 import sys
 import threading
-# import uvloop
 
-BASE = os.path.realpath(f'{__file__}/../../..')
+
+VERSION = packaging.version.Version("300")
+
+
+class Package:
+    def __init__(self, entry):
+        self.path = entry.path
+
+        with open(f'{self.path}/manifest.json') as manifest_file:
+            self.manifest = json.load(manifest_file)
+
+        if 'name' in self.manifest:
+            self.name = self.manifest['name']
+        else:
+            self.name = entry.name
+
+        self.content_security_policy = None
+
+    def check(self):
+        if 'requires' not in self.manifest:
+            return True
+
+        requires = self.manifest['requires']
+        if any(package != 'cockpit' for package in requires):
+            return False
+
+        if 'cockpit' not in requires:
+            return True
+
+        return VERSION >= packaging.version.Version(requires['cockpit'])
+
+    def get_content_security_policy(self, origin):
+        assert origin.startswith('http')
+        origin_ws = origin.replace('http', 'ws', 1)
+
+        # TODO: unit tests depend on the specific order
+        policy = collections.OrderedDict({
+            "default-src": f"'self' {origin}",
+            "connect-src": f"'self' {origin} {origin_ws}",
+            "form-action": f"'self' {origin}",
+            "base-uri": f"'self' {origin}",
+            "object-src": "'none'",
+            "font-src": f"'self' {origin} data:",
+            "img-src": f"'self' {origin} data:",
+        })
+
+        manifest_policy = self.manifest.get('content-security-policy', '')
+        for item in manifest_policy.split(';'):
+            item = item.strip()
+            if item:
+                key, _, value = item.strip().partition(' ')
+                policy[key] = value
+
+        return ' '.join(f'{k} {v};' for k, v in policy.items()) + ' block-all-mixed-content'
+
+    def serve_file(self, path, channel):
+        ext_map = {
+            'css': 'text/css',
+            'map': 'application/json',
+            'js': 'text/javascript',
+            'html': 'text/html',
+            'woff2': 'application/font-woff2'
+        }
+
+        prefix, _, ext = path.rpartition('.')
+        content_type = ext_map[ext]
+
+        try:
+            languages = channel.headers['Accept-Language'].split(',')
+        except KeyError:
+            languages = []
+
+        for ling in languages:
+            pass
+
+        with open(f'{self.path}/{path}', 'rb') as file:
+            headers = {
+                "X-Content-Type-Options": "nosniff",
+                "X-DNS-Prefetch-Control": "off",
+                "Referrer-Policy": "no-referrer",
+                "Cross-Origin-Resource-Policy": "same-origin",
+                "X-Frame-Options": "sameorigin",
+                "Content-Security-Policy": self.get_content_security_policy(channel.origin),
+                "Cache-Control": "no-cache, no-store",
+                "Access-Control-Allow-Origin": channel.origin,
+            }
+            channel.http_ok(content_type, headers)
+            channel.send_data(file.read())
+
+
+class Packages:
+    def __init__(self):
+        self.packages = {}
+        self.load_packages()
+
+    def load_packages(self):
+        xdg_data_dirs = [
+            os.environ.get('XDG_DATA_HOME') or os.path.expanduser('~/.local/share'),
+            *os.environ.get('XDG_DATA_DIRS', '/usr/local/share:/usr/share').split(':')
+        ]
+        for xdg_dir in reversed(xdg_data_dirs):
+            try:
+                items = os.scandir(f'{xdg_dir}/cockpit')
+            except FileNotFoundError:
+                continue
+
+            for item in items:
+                if item.is_dir():
+                    try:
+                        package = Package(item)
+                    except FileNotFoundError:
+                        continue
+
+                    if package.check():
+                        self.packages[package.name] = package
+
+    def serve_manifests_js(self, channel):
+        channel.http_ok('text/javascript')
+        manifests = {name: package.manifest for name, package in self.packages.items()}
+        channel.send_data(('''
+            (function (root, data) {
+                if (typeof define === 'function' && define.amd) {
+                    define(data);
+                }
+
+                if (typeof cockpit === 'object') {
+                    cockpit.manifests = data;
+                } else {
+                    root.manifests = data;
+                }
+            }(this, ''' + json.dumps(manifests) + '''))''').encode('ascii'))
+
+    def serve_package_file(self, path, channel):
+        package, _, package_path = path[1:].partition('/')
+        self.packages[package].serve_file(package_path, channel)
+
+    def serve_file(self, path, channel):
+        assert path[0] == '/'
+
+        if path == '/manifests.js':
+            self.serve_manifests_js(channel)
+        elif '*' in path:
+            channel.http_error(404, "Not Found")
+        else:
+            self.serve_package_file(path, channel)
 
 
 def internal_dbus_call(path, _iface, method, args):
@@ -40,39 +201,6 @@ def internal_dbus_call(path, _iface, method, args):
         return ['{}']
 
     raise ValueError('unknown call', path, method)
-
-
-def load_web_resource(path):
-    if path == '/manifests.js':
-        manifests = {}
-        for manifest in glob.glob(f'{BASE}/dist/*/manifest.json'):
-            with open(manifest) as filep:
-                content = json.load(filep)
-            if 'name' in content:
-                name = content['name']
-                del content['name']
-            else:
-                name = os.path.basename(os.path.dirname(manifest))
-            manifests[name] = content
-
-        return ('''
-            (function (root, data) {
-                if (typeof define === 'function' && define.amd) {
-                    define(data);
-                }
-
-                if (typeof cockpit === 'object') {
-                    cockpit.manifests = data;
-                } else {
-                    root.manifests = data;
-                }
-            }(this, ''' + json.dumps(manifests) + '''))''').encode('ascii')
-
-    if '*' in path:
-        return b''
-
-    with open(f'{BASE}/dist/{path}', 'rb') as filep:
-        return filep.read()
 
 
 class Channel:
@@ -253,31 +381,34 @@ class EchoChannel(Channel):
 
 class HttpChannel(Channel):
     payload = 'http-stream1'
+    headers = None
+    protocol = None
+    host = None
+    origin = None
+
+    def http_ok(self, content_type, headers={}):
+        # TODO: unit tests depend on order
+        headers['Content-Type'] = content_type
+        self.send_message(status=200, reason='OK', headers=headers)
+
+    def http_error(self, status, message):
+        self.send_message(status=status, reason='ERROR')
+        self.send_data(message.encode('utf-8'))
 
     def do_done(self):
         assert not self.post
         assert self.options['method'] == 'GET'
         path = self.options['path']
 
-        ext_map = {
-            'css': 'text/css',
-            'map': 'application/json',
-            'js': 'text/javascript',
-            'html': 'text/html',
-            'woff2': 'application/font-woff2'
-        }
-
-        _, _, ext = path.rpartition('.')
-        ctype = ext_map[ext]
+        self.headers = self.options['headers']
+        self.protocol = self.headers['X-Forwarded-Proto']
+        self.host = self.headers['X-Forwarded-Host']
+        self.origin = f'{self.protocol}://{self.host}'
 
         try:
-            data = load_web_resource(path)
-            self.send_message(status=200, reason='OK', headers={'Content-Type': ctype})
-            self.send_data(data)
+            self.router.packages.serve_file(path, self)
         except FileNotFoundError:
-            logging.debug('404 %s', path)
-            self.send_message(status=404, reason='Not Found')
-            self.send_data(b'Not found')
+            self.http_error(404, 'Not Found')
 
         self.done()
 
@@ -415,41 +546,6 @@ def parse_os_release():
 
     # there's no shlex.unquote(), and somewhat reasonably so
     return {k: shlex.split(v)[0] for k, v in fields.items()}
-
-
-class Packages:
-    def __init__(self):
-        self.packages = {}
-        self.load_packages()
-
-    def load_packages(self):
-        xdg_data_dirs = [
-            os.environ.get('XDG_DATA_HOME') or os.path.expanduser('~/.local/share'),
-            *os.environ.get('XDG_DATA_DIRS', '/usr/local/share:/usr/share').split(':')
-        ]
-        for xdg_dir in reversed(xdg_data_dirs):
-            try:
-                items = os.scandir(f'{xdg_dir}/cockpit')
-            except FileNotFoundError:
-                continue
-
-            for item in items:
-                if item.is_dir():
-                    try:
-                        with open(f'{item.path}/manifest.json') as manifest_file:
-                            manifest = json.load(manifest_file)
-                    except FileNotFoundError:
-                        continue
-
-                if 'name' in manifest:
-                    name = manifest['name']
-                else:
-                    name = item.name
-
-                if name in ['incompatible', 'requires']:
-                    continue
-
-                self.packages[name] = manifest
 
 
 class Router(CockpitProtocol):

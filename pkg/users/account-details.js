@@ -312,23 +312,21 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                                 <FormGroup fieldId="account-last-login" hasNoPaddingTop label={_("Last login")}>
                                     <output id="account-last-login">{last_login}</output>
                                 </FormGroup>
-                                <FormGroup fieldId="account-locked" label={_("Options")} hasNoPaddingTop
-                                    labelIcon={
-                                        <Popover bodyContent={_("Password authentication is disabled but other authentication methods are still allowed")}>
-                                            <button onClick={e => e.preventDefault()}
-                                                    className="pf-c-form__group-label-help">
-                                                <HelpIcon noVerticalAlign />
-                                            </button>
-                                        </Popover>
-                                    }
-                                >
+                                <FormGroup fieldId="account-locked" label={_("Options")} hasNoPaddingTop>
                                     <div>
                                         <div className="account-column-one">
-                                            <Checkbox id="account-locked"
-                                                      isDisabled={!superuser.allowed || edited_locked != null || user == current_user}
-                                                      isChecked={edited_locked != null ? edited_locked : details.locked}
-                                                      label={_("Disallow password usage")}
-                                                      onChange={checked => change_locked(checked)} />
+                                            <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                                                <Checkbox id="account-locked"
+                                                          isDisabled={!superuser.allowed || edited_locked != null || user == current_user}
+                                                          isChecked={edited_locked != null ? edited_locked : details.locked}
+                                                          onChange={checked => change_locked(checked)}
+                                                          label={_("Disallow interactive password")} />
+
+                                                <Popover bodyContent={_("Other authentication methods are still available even when interactive password authentication is not allowed.")}
+                                                         showClose={false}>
+                                                    <HelpIcon />
+                                                </Popover>
+                                            </Flex>
                                         </div>
                                         <Flex flex={{ default: 'inlineFlex' }}>
                                             <span id="account-expiration-text">

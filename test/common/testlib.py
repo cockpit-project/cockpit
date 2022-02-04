@@ -1103,7 +1103,7 @@ class MachineCase(unittest.TestCase):
     def new_machine(self, image=None, forward={}, restrict=True, cleanup=True, **kwargs):
         machine_class = self.machine_class
         if opts.address:
-            if machine_class or forward:
+            if forward:
                 raise unittest.SkipTest("Cannot run this test when specific machine address is specified")
             machine = testvm.Machine(address=opts.address, image=image or self.image, verbose=opts.trace, browser=opts.browser)
             if cleanup:

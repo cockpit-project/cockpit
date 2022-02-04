@@ -58,7 +58,6 @@ class NoSubManCase(PackageCase):
 
 @skipImage("TODO: Fails with 401 on our test runners", "arch")
 @skipImage("Image uses OSTree", "fedora-coreos")
-@nondestructive
 class TestUpdates(NoSubManCase):
 
     def setUp(self):
@@ -146,6 +145,7 @@ class TestUpdates(NoSubManCase):
         else:
             self.fail("Timed out waiting for updates spinner to go away")
 
+    @nondestructive
     @skipImage("kpatch is not available", *OSesWithoutKpatch)
     def testKpatch(self):
         b = self.browser
@@ -270,6 +270,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         # Patches should be installed
         m.execute("rpm -q kpatch-patch-" + sanitized_kernel_ver)
 
+    @nondestructive
     def testBasic(self):
         # no security updates, no changelogs
         b = self.browser
@@ -584,6 +585,7 @@ ExecStart=/usr/local/bin/{self.packageName}
 
     @skipImage("Arch Linux does not start services by default", "arch")
     @skipImage("tracer not available", *OSesWithoutTracer)
+    @nondestructive
     def testFailServiceRestart(self):
         b = self.browser
         m = self.machine
@@ -833,6 +835,7 @@ ExecStart=/usr/local/bin/{packageName}
         self.allow_restart_journal_messages()
 
     @skipImage("No security changelog support in packagekit", "arch")
+    @nondestructive
     def testSecurityOnly(self):
         b = self.browser
         m = self.machine
@@ -870,6 +873,7 @@ ExecStart=/usr/local/bin/{packageName}
             self.check_nth_update(2, "secnocve", "1-2", "security", desc_matches=["Fix leak"])
 
     @skipImage("No changelog support in Arch Linux", "arch")
+    @nondestructive
     def testInfoTruncation(self):
         b = self.browser
         m = self.machine
@@ -936,6 +940,7 @@ ExecStart=/usr/local/bin/{packageName}
 
         # seems we can't verify that the description has a scrollbar
 
+    @nondestructive
     def testUpdateError(self):
         b = self.browser
         m = self.machine
@@ -965,6 +970,7 @@ ExecStart=/usr/local/bin/{packageName}
         # not expecting any buttons
         self.assertFalse(b.is_present("#app button"))
 
+    @nondestructive
     def testPackageKitCrash(self):
         b = self.browser
         m = self.machine
@@ -998,6 +1004,7 @@ ExecStart=/usr/local/bin/{packageName}
         self.allow_journal_messages("Stack trace of thread.*")
         self.allow_journal_messages("#[0-9].*")
 
+    @nondestructive
     def testNoPackageKit(self):
         b = self.browser
         m = self.machine
@@ -1026,6 +1033,7 @@ ExecStart=/usr/local/bin/{packageName}
             self.assertIn("exclamation", b.attr(self.update_icon, "class"))
 
     @skipDistroPackage()
+    @nondestructive
     def testUnprivileged(self):
         b = self.browser
         m = self.machine

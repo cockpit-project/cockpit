@@ -49,12 +49,10 @@ TESTS=""
 EXCLUDES=""
 RC=0
 if [ -n "$test_optional" ]; then
-    # TestUpdates: we can't run rebooting tests
     TESTS="$TESTS
+         TestUpdates
          TestAutoUpdates
-         TestStorage
-         TestUpdates.testBasic
-         TestUpdates.testSecurityOnly"
+         TestStorage"
 fi
 
 if [ -n "$test_basic" ]; then

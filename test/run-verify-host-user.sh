@@ -62,14 +62,25 @@ if [ -n "$test_basic" ]; then
     # PCI devices list is not predictable
     EXCLUDES="$EXCLUDES TestSystemInfo.testHardwareInfo"
 
+    # No ABRT in CentOS/RHEL, thus not a test dependency
+    EXCLUDES="$EXCLUDES
+              TestJournal.testAbrtDelete
+              TestJournal.testAbrtReportCancel
+              TestJournal.testAbrtReport
+              TestJournal.testAbrtReportNoReportd
+              TestJournal.testAbrtSegv"
+
     TESTS="$TESTS
         TestAccounts
         TestBonding
         TestBridge
         TestFirewall
         TestKdump
+        TestJournal
         TestLogin
         TestNetworking
+        TestPackages
+        TestPages
         TestServices
         TestSOS
         TestSystemInfo

@@ -6,6 +6,7 @@ import glob
 import json
 import logging
 import os
+import subprocess
 import sys
 import traceback
 
@@ -27,6 +28,12 @@ def internal_dbus_call(path, _iface, method, args):
 
     elif path == '/superuser':
         return []
+
+    elif path == '/packages':
+        return []
+
+    elif path == '/LoginMessages':
+        return ['{}']
 
     raise ValueError('unknown call', path, method)
 
@@ -50,19 +57,18 @@ def load_web_resource(path):
                     define(data);
                 }
 
-                if(typeof cockpit === 'object') {
+                if (typeof cockpit === 'object') {
                     cockpit.manifests = data;
                 } else {
                     root.manifests = data;
                 }
-            }(this, ''' + json.dumps(manifests) + '))'
+            }(this, ''' + json.dumps(manifests) + '''))'''
 
-    elif '*' in path:
+    if '*' in path:
         return ''
 
-    else:
-        with open(f'{BASE}/dist/{path}', 'rb') as filep:
-            return filep.read()
+    with open(f'{BASE}/dist/{path}', 'rb') as filep:
+        return filep.read()
 
 
 class Channel:
@@ -119,6 +125,37 @@ class Channel:
         self.transport.send_control(channel=self.channel, command=command, **kwargs)
 
 
+class FsRead(Channel):
+    payload = 'fsread1'
+
+    def do_prepare(self):
+        self.ready()
+        try:
+            with open(self.options['path']) as filep:
+                self.send_data(filep.read())
+        except FileNotFoundError:
+            pass
+        self.done()
+
+
+class FsWatch(Channel):
+    payload = 'fswatch1'
+
+
+class Stream(Channel):
+    payload = 'stream'
+
+    def do_prepare(self):
+        self.ready()
+        proc = subprocess.run(self.options['spawn'], capture_output=True, check=False)
+        self.send_data(proc.stdout)
+        self.done()
+
+
+class Metrics(Channel):
+    payload = 'metrics1'
+
+
 class DBus(Channel):
     payload = 'dbus-json3'
 
@@ -126,15 +163,74 @@ class DBus(Channel):
         self.ready()
 
     def do_receive(self, data):
+        if 'bus' not in self.options or self.options['bus'] != 'internal':
+            return
+
         logging.debug('dbus recv %s', data)
         message = json.loads(data)
         if 'add-match' in message:
             pass
         elif 'watch' in message:
-            pass
+            if 'path' in message['watch'] and message['watch']['path'] == '/superuser':
+                self.send_message(meta={
+                    "cockpit.Superuser": {
+                        "methods": {
+                            "Start": {
+                                "in": ["s"],
+                                "out": []
+                            },
+                            "Stop": {
+                                "in": [],
+                                "out": []
+                            },
+                            "Answer": {
+                                "in": ["s"],
+                                "out": []
+                            }
+                        },
+                        "properties": {
+                            "Bridges": {
+                                "flags": "r",
+                                "type": "as"
+                            },
+                            "Current": {
+                                "flags": "r",
+                                "type": "s"
+                            }
+                        },
+                        "signals": {}
+                    }
+                })
+                self.send_message(notify={
+                    "/superuser": {
+                        "cockpit.Superuser": {
+                            "Bridges": ['sudo', 'pkexec'],
+                            "Current": "root"
+                        }
+                    }
+                })
+
+            elif 'path' in message['watch'] and message['watch']['path'] == '/machines':
+                self.send_message(meta={
+                    "cockpit.Machines": {
+                        "methods": {
+                            "Update": {"in": ["s", "s", "a{sv}"], "out": []}
+                        },
+                        "properties": {
+                            "Machines": {
+                                "flags": "r",
+                                "type": "a{sa{sv}}"
+                            }
+                        },
+                        "signals": {}
+                    }
+                })
+                self.send_message(notify={"/machines": {"cockpit.Machines": {"Machines": {}}}})
+
+            self.send_message(reply=[], id=message['id'])
         elif 'call' in message:
             reply = internal_dbus_call(*message['call'])
-            self.send_message(reply=reply, id=message['id'])
+            self.send_message(reply=[reply], id=message['id'])
         else:
             raise ValueError('unknown dbus method', message)
 
@@ -172,8 +268,15 @@ class HttpChannel(Channel):
         _, _, ext = path.rpartition('.')
         ctype = ext_map[ext]
 
-        self.send_message(status=200, reason='OK', headers={'Content-Type': ctype})
-        self.send_data(load_web_resource(path))
+        try:
+            data = load_web_resource(path)
+            self.send_message(status=200, reason='OK', headers={'Content-Type': ctype})
+            self.send_data(data)
+        except FileNotFoundError:
+            logging.debug('404 %s', path)
+            self.send_message(status=404, reason='Not Found')
+            self.send_data('Not found')
+
         self.done()
 
     def do_receive(self, data):
@@ -283,6 +386,7 @@ def main_with_logging(output):
 
     try:
         main()
+        logging.debug("quit")
     except Exception:
         logging.debug(traceback.format_exc())
         raise

@@ -2,6 +2,12 @@
 
 set -eu
 
+# if being run directly, add a dash of red
+if [ -t 1 ]; then
+    trap 'printf "\e[0m"' EXIT
+    printf "\e[1;31m"
+fi
+
 # resolve to a sha, ensure validity
 readonly commit="$(git rev-parse --verify "${1:-HEAD}^{commit}")"
 

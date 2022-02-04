@@ -20,7 +20,7 @@ rpm -q cockpit-system
 
 # install firefox (available everywhere in Fedora and RHEL)
 # we don't need the H.264 codec, and it is sometimes not available (rhbz#2005760)
-dnf install --disablerepo=fedora-cisco-openh264 -y firefox
+dnf install --disablerepo=fedora-cisco-openh264 -y --setopt=install_weak_deps=False firefox
 
 # HACK: setroubleshoot-server crashes/times out randomly (breaking TestServices),
 # and is hard to disable as it does not use systemd

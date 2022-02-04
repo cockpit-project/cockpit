@@ -1,14 +1,17 @@
 #!/usr/bin/python3
 
-import pwd
-import grp
+import asyncio
 import glob
+import grp
 import json
 import logging
 import os
+import pwd
+import socket
 import subprocess
 import sys
-import traceback
+import threading
+# import uvloop
 
 BASE = os.path.realpath(f'{__file__}/../../..')
 
@@ -51,7 +54,7 @@ def load_web_resource(path):
                 name = os.path.basename(os.path.dirname(manifest))
             manifests[name] = content
 
-        return '''
+        return ('''
             (function (root, data) {
                 if (typeof define === 'function' && define.amd) {
                     define(data);
@@ -62,10 +65,10 @@ def load_web_resource(path):
                 } else {
                     root.manifests = data;
                 }
-            }(this, ''' + json.dumps(manifests) + '''))'''
+            }(this, ''' + json.dumps(manifests) + '''))''').encode('ascii')
 
     if '*' in path:
-        return ''
+        return b''
 
     with open(f'{BASE}/dist/{path}', 'rb') as filep:
         return filep.read()
@@ -74,23 +77,12 @@ def load_web_resource(path):
 class Channel:
     subclasses = {}
 
-    def __new__(cls, _transport, channel, options):
-        payload = options['payload']
-
-        if payload not in cls.subclasses:
-            for subcls in cls.__subclasses__():
-                cls.subclasses[subcls.payload] = subcls
-
-        logging.debug('new Channel %s with id %s', payload, channel)
-
-        return super().__new__(Channel.subclasses[payload])
-
-    def __init__(self, transport, channel, options):
-        self.transport = transport
+    def __init__(self, router, channel, options):
+        self.router = router
         self.channel = channel
         self.options = options
 
-        self.transport.channels[channel] = self
+        self.router.channels[channel] = self
 
         self.do_prepare()
 
@@ -111,18 +103,16 @@ class Channel:
         self.send_control(command='ready')
 
     def close(self):
-        if self.channel in self.transport.channels:
-            self.send_control('close')
-            del self.transport.channels[self.channel]
+        self.router.close_channel(self.channel)
 
     def send_data(self, message):
-        self.transport.send_data(self.channel, message)
+        self.router.send_data(self.channel, message)
 
     def send_message(self, **kwargs):
-        self.transport.send_message(self.channel, **kwargs)
+        self.router.send_message(self.channel, **kwargs)
 
     def send_control(self, command, **kwargs):
-        self.transport.send_control(channel=self.channel, command=command, **kwargs)
+        self.router.send_control(channel=self.channel, command=command, **kwargs)
 
 
 class FsRead(Channel):
@@ -131,7 +121,7 @@ class FsRead(Channel):
     def do_prepare(self):
         self.ready()
         try:
-            with open(self.options['path']) as filep:
+            with open(self.options['path'], 'rb') as filep:
                 self.send_data(filep.read())
         except FileNotFoundError:
             pass
@@ -154,6 +144,17 @@ class Stream(Channel):
 
 class Metrics(Channel):
     payload = 'metrics1'
+
+    def do_prepare(self):
+        assert self.options['source'] == 'internal'
+        assert self.options['interval'] == 3000
+        assert 'omit-instances' not in self.options
+        assert self.options['metrics'] == [
+            {"name": "cpu.basic.user", "derive": "rate"},
+            {"name": "cpu.basic.system", "derive": "rate"},
+            {"name": "cpu.basic.nice", "derive": "rate"},
+            {"name": "memory.used"},
+        ]
 
 
 class DBus(Channel):
@@ -275,7 +276,7 @@ class HttpChannel(Channel):
         except FileNotFoundError:
             logging.debug('404 %s', path)
             self.send_message(status=404, reason='Not Found')
-            self.send_data('Not found')
+            self.send_data(b'Not found')
 
         self.done()
 
@@ -287,21 +288,90 @@ class HttpChannel(Channel):
         self.ready()
 
 
-class Transport:
-    def __init__(self, _input, _output):
-        self.input = _input
-        self.output = _output
-        self.channels = {}
+class CockpitProtocol(asyncio.Protocol):
+    '''A naive implementation of the Cockpit frame protocol
+
+    We need to use this because Python's SelectorEventLoop doesn't supported
+    buffered protocols.
+    '''
+    def __init__(self):
+        self.transport = None
+        self.buffer = b''
+
+    def do_ready(self):
+        raise NotImplementedError()
+
+    def do_receive(self, channel, data):
+        raise NotImplementedError()
+
+    def do_control(self, message):
+        raise NotImplementedError()
+
+    def frame_received(self, frame):
+        '''Handles a single frame, with the length already removed'''
+        channel, _, data = frame.partition(b'\n')
+        channel = channel.decode('ascii')
+
+        if channel != '':
+            self.do_receive(channel, data)
+        else:
+            self.do_control(json.loads(data))
+
+    def consume_one_frame(self, view):
+        '''Consumes a single frame from view.
+
+        Returns positive if a number of bytes were consumed, or negative if no
+        work can be done because of a given number of bytes missing.
+        '''
+
+        # Nothing to look at?  Save ourselves the trouble...
+        if not view:
+            return 0
+
+        view = bytes(view)
+        # We know the length + newline is never more than 10 bytes, so just
+        # slice that out and deal with it directly.  We don't have .index() on
+        # a memoryview, for example.
+        # From a performance standpoint, hitting the exception case is going to
+        # be very rare: we're going to receive more than the first few bytes of
+        # the packet in the regular case.  The more likely situation is where
+        # we get "unlucky" and end up splitting the header between two read()s.
+        header = bytes(view[:10])
+        try:
+            newline = header.index(b'\n')
+        except ValueError as exc:
+            if len(header) < 10:
+                # Let's try reading more
+                return len(header) - 10
+            raise ValueError("size line is too long") from exc
+        length = int(header[:newline])
+        start = newline + 1
+        end = start + length
+
+        if end > len(view):
+            # We need to read more
+            return len(view) - end
+
+        # We can consume a full frame
+        self.frame_received(view[start:end])
+        return end
+
+    def connection_made(self, transport):
+        logging.debug('connection_made(%s)', transport)
+        self.transport = transport
+        self.do_ready()
+
+    def connection_lost(self, exc):
+        logging.debug('connection_lost')
+        self.transport = None
 
     def send_data(self, channel, payload):
-        '''Send a given payload (possibly bytes) on channel'''
-        if isinstance(payload, str):
-            payload = payload.encode('utf-8')
-        message = channel.encode('ascii') + b'\n' + payload
-        length = bytes(str(len(message)), 'ascii')
-        self.output.write(length + b'\n' + message)
-        logging.debug('sent %d bytes on %s', length, channel)
-        self.output.flush()
+        '''Send a given payload (bytes) on channel (string)'''
+        # Channel is certainly ascii (as enforced by .encode() below)
+        message_length = len(channel + '\n') + len(payload)
+        header = f'{message_length}\n{channel}\n'.encode('ascii')
+        logging.debug('writing to transport %s', self.transport)
+        self.transport.write(header + payload)
 
     def send_message(self, _channel, **kwargs):
         '''Format kwargs as a JSON blob and send as a message
@@ -313,33 +383,61 @@ class Transport:
                 del kwargs[name]
 
         logging.debug('sending message %s %s', _channel, kwargs)
-        self.send_data(_channel, json.dumps(kwargs, indent=2) + '\n')
+        pretty = json.dumps(kwargs, indent=2) + '\n'
+        self.send_data(_channel, pretty.encode('utf-8'))
 
     def send_control(self, **kwargs):
         self.send_message('', **kwargs)
 
-    def recv(self):
-        '''Receives a single message and returns the channel and the payload'''
-        length_line = self.input.readline()
-        # perfectly reasonable to get EOF here
-        if not length_line:
-            return None
-        length = int(length_line)
-        message = self.input.read(length)
-        channel, _, payload = message.partition(b'\n')
-        return channel.decode('ascii'), payload
+    def data_received(self, data):
+        logging.debug('got data!')
+        self.buffer += data
+        while (result := self.consume_one_frame(self.buffer)) > 0:
+            self.buffer = self.buffer[result:]
+        logging.debug('okay, going to return now...')
+        return True
 
-    def handle_control_message(self, options):
-        logging.debug('Received control message %s', options)
 
-        command = options['command']
+class Router(CockpitProtocol):
+    payloads = {}
+
+    def __init__(self):
+        super(Router, self).__init__()
+        self.channels = {}
+
+    def do_ready(self):
+        logging.debug('ready')
+        self.send_control(command='init', version=1,
+                          host='me', packages={"playground": None},
+                          os_release={"NAME": "Fedora Linux"}, session_id=1)
+
+    def close_channel(self, channel):
+        if channel in self.channels:
+            self.send_control(command='close', channel=channel)
+            del self.channels[channel]
+
+    def open_channel(self, options):
+        channel = options['channel']
+        payload = options['payload']
+
+        if payload not in Router.payloads:
+            Router.payloads = {cls.payload: cls for cls in Channel.__subclasses__()}
+        cls = Router.payloads[payload]
+
+        logging.debug('new Channel %s with id %s class %s', payload, channel, cls)
+        self.channels[channel] = cls(self, channel, options)
+
+    def do_control(self, message):
+        logging.debug('Received control message %s', message)
+
+        command = message['command']
 
         if command == 'init':
-            pass
+            logging.debug('ignoring init message %s', message)
         elif command == 'open':
-            Channel(self, options['channel'], options)
+            self.open_channel(message)
         else:
-            channel = self.channels[options['channel']]
+            channel = self.channels[message['channel']]
             if command == 'done':
                 channel.do_done()
             elif command == 'ready':
@@ -347,50 +445,54 @@ class Transport:
             elif command == 'close':
                 channel.close()
 
-    def handle_channel_data(self, channel, data):
+    def do_receive(self, channel, data):
         logging.debug('Received %d bytes of data for channel %s', len(data), channel)
         self.channels[channel].do_receive(data)
 
-    def iteration(self):
-        packet = self.recv()
-        if not packet:
-            return False
 
-        channel, data = packet
+class AsyncStdio:
+    BLOCK_SIZE = 1024 * 1024
 
-        if channel:
-            self.handle_channel_data(channel, data)
-        else:
-            self.handle_control_message(json.loads(data))
+    def __init__(self, loop):
+        self.loop = loop
+        self.connection_lost = loop.create_future()
+        self.protocol_sock, self.stdio_sock = socket.socketpair()
 
-        return True
+    def forward_stdin(self):
+        while buffer := os.read(0, self.BLOCK_SIZE):
+            self.stdio_sock.send(buffer)
+        self.stdio_sock.shutdown(socket.SHUT_WR)
+
+    def forward_stdout(self):
+        while buffer := self.stdio_sock.recv(self.BLOCK_SIZE):
+            os.write(1, buffer)
+        # no shutdown here, because the process will exit as a result of this:
+        self.loop.call_soon_threadsafe(self.connection_lost.set_result, True)
+
+    async def forward(self):
+        # it's not clear how to create daemon threads from inside of the
+        # asyncio framework, and the threads get blocked on the blocking read
+        # operations and refuse to join on exit, so just do this for ourselves,
+        # the old-fashioned way.
+        threading.Thread(target=self.forward_stdin, daemon=True).start()
+        threading.Thread(target=self.forward_stdout, daemon=True).start()
+        await self.connection_lost
 
 
-def main():
-    transport = Transport(sys.stdin.buffer, sys.stdout.buffer)
-    logging.debug("Online")
+async def main():
+    logging.debug("Hi. How are you today?")
 
-    transport.send_control(command='init',
-                           host='me',
-                           version=1,
-                           packages={"playground": None},
-                           os_release={"NAME": "Fedora Linux"},
-                           session_id=1)
+    loop = asyncio.get_event_loop()
+    stdio = AsyncStdio(loop)
 
-    while transport.iteration():
-        pass
+    logging.debug('Starting the router.')
+    await loop.connect_accepted_socket(Router, stdio.protocol_sock)
 
-
-def main_with_logging(output):
-    logging.basicConfig(filename=output, level=logging.DEBUG)
-
-    try:
-        main()
-        logging.debug("quit")
-    except Exception:
-        logging.debug(traceback.format_exc())
-        raise
+    logging.debug('Startup done.  Looping until connection closes.')
+    await stdio.forward()
 
 
 if __name__ == '__main__':
-    main_with_logging('bridge.log')
+    output = 'bridge.log' if not sys.stdout.isatty() else None
+    logging.basicConfig(filename=output, level=logging.DEBUG)
+    asyncio.run(main(), debug=True)

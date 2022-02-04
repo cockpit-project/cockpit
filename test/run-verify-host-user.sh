@@ -49,10 +49,6 @@ TESTS=""
 EXCLUDES=""
 RC=0
 if [ -n "$test_optional" ]; then
-    # not investigated yet
-    EXCLUDES="$EXCLUDES
-        TestAutoUpdates.testPrivilegeChange"
-
     # TestUpdates: we can't run rebooting tests
     TESTS="$TESTS
          TestAutoUpdates
@@ -62,10 +58,6 @@ if [ -n "$test_optional" ]; then
 fi
 
 if [ -n "$test_basic" ]; then
-    # TODO: fix for CI environment
-    EXCLUDES="$EXCLUDES TestAccounts.testBasic"
-    EXCLUDES="$EXCLUDES TestLogin.testServer"
-
     # Testing Farm machines often have pending restarts/reboot
     EXCLUDES="$EXCLUDES TestUpdates.testBasic"
 

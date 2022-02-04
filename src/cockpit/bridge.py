@@ -8,6 +8,7 @@ import logging
 import os
 import pwd
 import socket
+import shlex
 import subprocess
 import sys
 import threading
@@ -288,6 +289,12 @@ class HttpChannel(Channel):
         self.ready()
 
 
+class CockpitProtocolError(Exception):
+    def __init__(self, message, problem):
+        super().__init__(message)
+        self.problem = problem
+
+
 class CockpitProtocol(asyncio.Protocol):
     '''A naive implementation of the Cockpit frame protocol
 
@@ -378,7 +385,7 @@ class CockpitProtocol(asyncio.Protocol):
            Any kwargs with '_' in their names will be converted to '-'
         '''
         for name in list(kwargs):
-            if '-' in name:
+            if '_' in name:
                 kwargs[name.replace('_', '-')] = kwargs[name]
                 del kwargs[name]
 
@@ -390,12 +397,59 @@ class CockpitProtocol(asyncio.Protocol):
         self.send_message('', **kwargs)
 
     def data_received(self, data):
-        logging.debug('got data!')
-        self.buffer += data
-        while (result := self.consume_one_frame(self.buffer)) > 0:
-            self.buffer = self.buffer[result:]
-        logging.debug('okay, going to return now...')
-        return True
+        try:
+            self.buffer += data
+            while (result := self.consume_one_frame(self.buffer)) > 0:
+                self.buffer = self.buffer[result:]
+        except CockpitProtocolError as exc:
+            self.send_control(command="close", problem=exc.problem, exception=str(exc))
+            self.close()
+
+    def eof_received(self):
+        self.send_control(command='close')
+
+
+def parse_os_release():
+    with open('/usr/lib/os-release') as os_release:
+        fields = dict(line.split('=', 1) for line in os_release)
+
+    # there's no shlex.unquote(), and somewhat reasonably so
+    return {k: shlex.split(v)[0] for k, v in fields.items()}
+
+
+class Packages:
+    def __init__(self):
+        self.packages = {}
+        self.load_packages()
+
+    def load_packages(self):
+        xdg_data_dirs = [
+            os.environ.get('XDG_DATA_HOME') or os.path.expanduser('~/.local/share'),
+            *os.environ.get('XDG_DATA_DIRS', '/usr/local/share:/usr/share').split(':')
+        ]
+        for xdg_dir in reversed(xdg_data_dirs):
+            try:
+                items = os.scandir(f'{xdg_dir}/cockpit')
+            except FileNotFoundError:
+                continue
+
+            for item in items:
+                if item.is_dir():
+                    try:
+                        with open(f'{item.path}/manifest.json') as manifest_file:
+                            manifest = json.load(manifest_file)
+                    except FileNotFoundError:
+                        continue
+
+                if 'name' in manifest:
+                    name = manifest['name']
+                else:
+                    name = item.name
+
+                if name in ['incompatible', 'requires']:
+                    continue
+
+                self.packages[name] = manifest
 
 
 class Router(CockpitProtocol):
@@ -403,13 +457,15 @@ class Router(CockpitProtocol):
 
     def __init__(self):
         super(Router, self).__init__()
+        self.os_release = parse_os_release()
+        self.packages = Packages()
         self.channels = {}
 
     def do_ready(self):
         logging.debug('ready')
-        self.send_control(command='init', version=1,
-                          host='me', packages={"playground": None},
-                          os_release={"NAME": "Fedora Linux"}, session_id=1)
+        self.send_control(command='init', version=1, host='me',
+                          packages={p: None for p in self.packages.packages},
+                          os_release=parse_os_release(), session_id=1)
 
     def close_channel(self, channel):
         if channel in self.channels:
@@ -417,8 +473,15 @@ class Router(CockpitProtocol):
             del self.channels[channel]
 
     def open_channel(self, options):
-        channel = options['channel']
-        payload = options['payload']
+        try:
+            channel = options['channel']
+            payload = options['payload']
+            host = options['host']
+        except KeyError:
+            raise CockpitProtocolError('fields missing on open', 'not-supported')
+
+        if host != self.host:
+            self.send_control(command='close', channel=channel, problem='not-supported')
 
         if payload not in Router.payloads:
             Router.payloads = {cls.payload: cls for cls in Channel.__subclasses__()}
@@ -427,13 +490,28 @@ class Router(CockpitProtocol):
         logging.debug('new Channel %s with id %s class %s', payload, channel, cls)
         self.channels[channel] = cls(self, channel, options)
 
+    def init(self, message):
+        try:
+            version = int(message['version'])
+        except KeyError:
+            raise CockpitProtocolError('version field is missing', 'protocol-error')
+        except ValueError:
+            raise CockpitProtocolError('version field is not an int', 'protocol-error')
+        if version != 1:
+            raise CockpitProtocolError('incorrect version number', 'protocol-error')
+
+        try:
+            self.host = message['host']
+        except KeyError:
+            raise CockpitProtocolError('missing host field', 'protocol-error')
+
     def do_control(self, message):
         logging.debug('Received control message %s', message)
 
         command = message['command']
 
         if command == 'init':
-            logging.debug('ignoring init message %s', message)
+            self.init(message)
         elif command == 'open':
             self.open_channel(message)
         else:

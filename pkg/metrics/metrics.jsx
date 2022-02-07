@@ -670,12 +670,12 @@ class MetricsMinute extends React.Component {
         const end_second = (end - (end_minute * SAMPLES_PER_MIN)) * (60 / SAMPLES_PER_MIN);
 
         const time = new Date(timestamp);
-        time.setMinutes(start_minute);
-        time.setSeconds(start_second);
+        time.setUTCMinutes(start_minute);
+        time.setUTCSeconds(start_second);
         const since = formatUTC_ISO(time);
 
-        time.setMinutes(end_minute);
-        time.setSeconds(end_second);
+        time.setUTCMinutes(end_minute);
+        time.setUTCSeconds(end_second);
         const until = formatUTC_ISO(time);
 
         const match = { priority: "info", since: since, until: until, follow: false, count: 10 };

@@ -52,7 +52,7 @@ WEBPACK_INSTALL =
 WEBPACK_GZ_INSTALL =
 WEBPACK_DEPS = $(WEBPACK_PACKAGES:%=$(srcdir)/dist/%/Makefile.deps)
 
-noinst_SCRIPTS += $(MANIFESTS)
+noinst_DATA += $(MANIFESTS)
 EXTRA_DIST += $(MANIFESTS) $(WEBPACK_DEPS) webpack.config.js
 
 # Nothing generates this directly, but it's included as a dependency in

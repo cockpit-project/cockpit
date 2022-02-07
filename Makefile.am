@@ -86,6 +86,8 @@ endif
 		tar --format=posix -C $(srcdir) --exclude test/reference -cf - -T - | tar -C $(distdir) -xf -
 	echo $(VERSION) > $(distdir)/.tarball
 	tools/create-spec --version '$(VERSION)' -o $(distdir)/tools/cockpit.spec $(srcdir)/tools/cockpit.spec.in
+	sed 's/VERSION/$(VERSION)/' $(srcdir)/tools/debian/changelog.in > $(distdir)/tools/debian/changelog
+	sed 's/VERSION/$(VERSION)/' $(srcdir)/tools/arch/PKGBUILD.in > $(distdir)/tools/arch/PKGBUILD
 	tools/adjust-distdir-timestamps "$(distdir)"
 
 #

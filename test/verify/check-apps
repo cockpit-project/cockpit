@@ -127,6 +127,7 @@ class TestApps(PackageCase):
     def testWithUrlRoot(self):
         self.testBasic(urlroot="/webcon")
 
+    @skipImage("language switching in Chrome not working (issue #8160, fixed in d9f88eb722f7a4)", "rhel-8-6-distropkg")
     def testL10N(self):
         b = self.browser
         m = self.machine
@@ -176,9 +177,6 @@ class TestApps(PackageCase):
             else:
                 b.click(f'#display-language-modal li[data-value={lang}] button')
             b.click("#display-language-modal footer button.pf-m-primary")
-            if m.image == "rhel-8-6-distropkg" and b.cdp.browser.name == "chromium":
-                # HACK: work around language switching in Chrome not working in current session (issue #8160)
-                b.reload(ignore_cache=True)
             b.wait_language(lang)
             b.enter_page("/apps")
 

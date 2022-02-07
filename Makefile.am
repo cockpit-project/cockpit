@@ -20,7 +20,6 @@ TESTS = \
 	$(NULL)
 
 CLEANFILES = \
-	$(man_MANS) \
 	valgrind-suppressions \
 	$(NULL)
 

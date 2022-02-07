@@ -10,18 +10,18 @@ EXTRA_DIST += \
 
 if ENABLE_DOC
 
-man_MANS += \
-	doc/man/cockpit-bridge.1 \
-	$(NULL)
-
-man_MANS += \
+MANPAGES = \
 	doc/man/cockpit.1 \
+	doc/man/cockpit-bridge.1 \
 	doc/man/cockpit-desktop.1 \
 	doc/man/cockpit-ws.8 \
 	doc/man/cockpit-tls.8 \
 	doc/man/cockpit.conf.5 \
 	doc/man/pam_ssh_add.8 \
 	$(NULL)
+
+man_MANS += $(MANPAGES)
+CLEANFILES += $(MANPAGES)
 
 MAN_PROC = mkdir -p doc/man/ && $(XSLTPROC) -nonet --param man.output.quietly 1 --output $@ \
 	http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<

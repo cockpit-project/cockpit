@@ -216,12 +216,28 @@ export function set_password_dialog(account, current_user) {
         return password_quality(password, force)
                 .catch(ex => {
                     errs.password = (ex.message || ex.toString()).replace("\n", " ");
-                    errs.password += "\n" + cockpit.format(_("Click $0 again to use the password anyway."), _("Set password"));
                 })
                 .then(() => {
                     errors = errs;
                     return !has_errors(errs);
                 });
+    }
+
+    function passwd_check(force, password, password_confirm, password_old) {
+        return validate(force, password, password_confirm, password_old).then(valid => {
+            if (valid) {
+                if (change_self)
+                    return passwd_self(password_old, password);
+                else
+                    return passwd_change(account.name, password);
+            } else {
+                if (!errors.password_confirm && state.password.length <= 256) {
+                    state.confirm_weak = true;
+                }
+                update();
+                return Promise.reject();
+            }
+        });
     }
 
     function update() {
@@ -237,26 +253,23 @@ export function set_password_dialog(account, current_user) {
                     caption: _("Set password"),
                     style: "primary",
                     clicked: () => {
-                        const second_click = state.confirm_weak;
-                        state.confirm_weak = !state.confirm_weak;
-
-                        const current_state = { ...state };
-
-                        return validate(second_click, current_state.password, current_state.password_confirm).then(valid => {
-                            if (valid) {
-                                if (change_self)
-                                    return passwd_self(current_state.password_old, current_state.password);
-                                else
-                                    return passwd_change(account.name, current_state.password);
-                            } else {
-                                update();
-                                return Promise.reject();
-                            }
-                        });
-                    }
+                        return passwd_check(false, state.password, state.password_confirm, state.password_old);
+                    },
+                    disabled: state.confirm_weak
                 }
             ]
         };
+        if (state.confirm_weak) {
+            footer.actions.push(
+                {
+                    caption: _("Set weak password"),
+                    style: "warning",
+                    clicked: () => {
+                        return passwd_check(true, state.password, state.password_confirm, state.password_old);
+                    }
+                }
+            );
+        }
 
         if (!dlg)
             dlg = show_modal_dialog(props, footer);

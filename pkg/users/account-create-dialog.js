@@ -217,7 +217,6 @@ export function account_create_dialog(accounts) {
         return password_quality(password, force)
                 .catch(ex => {
                     errs.password = (ex.message || ex.toString()).replace("\n", " ");
-                    errs.password += "\n" + cockpit.format(_("Click $0 again to use the password anyway."), _("Create"));
                 })
                 .then(() => {
                     errors = errs;
@@ -254,6 +253,20 @@ export function account_create_dialog(accounts) {
                 });
     }
 
+    function passwd_check(force, real_name, user_name, password, password_confirm, locked) {
+        return validate(force, real_name, user_name, password, password_confirm).then(valid => {
+            if (valid)
+                return create(real_name, user_name, password, locked);
+            else {
+                if (!errors.real_name && !errors.user_name && !errors.password_confirm && state.password.length <= 256) {
+                    state.confirm_weak = true;
+                }
+                update();
+                return Promise.reject();
+            }
+        });
+    }
+
     function update() {
         const props = {
             id: "accounts-create-dialog",
@@ -267,23 +280,23 @@ export function account_create_dialog(accounts) {
                     caption: _("Create"),
                     style: "primary",
                     clicked: () => {
-                        const second_click = state.confirm_weak;
-                        state.confirm_weak = !state.confirm_weak;
-
-                        const current_state = { ...state };
-
-                        return validate(second_click, current_state.real_name, current_state.user_name, current_state.password, current_state.password_confirm).then(valid => {
-                            if (valid)
-                                return create(current_state.real_name, current_state.user_name, current_state.password, current_state.locked);
-                            else {
-                                update();
-                                return Promise.reject();
-                            }
-                        });
-                    }
+                        return passwd_check(false, state.real_name, state.user_name, state.password, state.password_confirm, state.locked);
+                    },
+                    disabled: state.confirm_weak
                 }
             ]
         };
+        if (state.confirm_weak) {
+            footer.actions.push(
+                {
+                    caption: _("Create account with weak password"),
+                    style: "warning",
+                    clicked: () => {
+                        return passwd_check(true, state.real_name, state.user_name, state.password, state.password_confirm, state.locked);
+                    }
+                }
+            );
+        }
 
         if (!dlg)
             dlg = show_modal_dialog(props, footer);

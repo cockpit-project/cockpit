@@ -36,6 +36,14 @@ class Test:
         self.retry_when_affected = retry_when_affected
         self.returncode = None
 
+    def get_title(self):
+        return "{0} {1} {2}{3}".format(
+            self.test_id,
+            self.command[0],
+            self.command[-1],
+            " [ND@{0}]".format(self.serial_machine) if self.nondestructive else "",
+        )
+
     def start(self):
         self.outfile = tempfile.TemporaryFile()
         self.process = subprocess.Popen(["timeout", str(self.timeout)] + self.command,
@@ -76,15 +84,6 @@ class GlobalMachine:
         self.network.kill()
 
 
-def test_name(test):
-    return "{0} {1} {2}{3}".format(
-        test.test_id,
-        test.command[0],
-        test.command[-1],
-        " [ND@{0}]".format(test.serial_machine) if test.nondestructive else "",
-    )
-
-
 def flush_stdout():
     while True:
         try:
@@ -116,11 +115,11 @@ def print_test(test, print_tap=True, retry_reason="", skip_reason=""):
 
     print()  # Tap needs to start on a separate line
     if test.returncode == 0:
-        print("ok {0}{1}".format(test_name(test), retry_reason))
+        print(f"ok {test.get_title()}{retry_reason}")
     elif skip_reason:
-        print("ok {0}{1}".format(test_name(test), skip_reason))
+        print(f"ok {test.get_title()}{skip_reason}")
     else:
-        print("not ok {0}{1}".format(test_name(test), retry_reason))
+        print("not ok {test.get_title()}{retry_reason}")
     flush_stdout()
 
 
@@ -157,7 +156,7 @@ def finish_test(opts, test, affected_tests):
         cmd = ["test-failure-policy", testvm.DEFAULT_IMAGE]
         try:
             proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-            reason = proc.communicate(test.output + ("not ok " + test_name(test)).encode())[0].strip()
+            reason = proc.communicate(test.output + ("not ok " + test.get_title()).encode())[0].strip()
 
             if proc.returncode == 77:
                 print_test(test, skip_reason="# SKIP {0}".format(reason.decode("utf-8")))

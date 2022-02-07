@@ -25,18 +25,33 @@ os.environ['PYTHONUNBUFFERED'] = '1'
 
 
 class Test:
-    process = None
-    retries = 0
-    retry_when_affected = True
-    output = b""
-
     def __init__(self, test_id, command, timeout, nondestructive, retry_when_affected):
+        self.process = None
+        self.retries = 0
         self.test_id = test_id
         self.command = command
         self.timeout = timeout
         self.nondestructive = nondestructive
         self.serial_machine = None
         self.retry_when_affected = retry_when_affected
+        self.returncode = None
+
+    def start(self):
+        self.outfile = tempfile.TemporaryFile()
+        self.process = subprocess.Popen(["timeout", str(self.timeout)] + self.command,
+                                        stdout=self.outfile, stderr=subprocess.STDOUT)
+
+    def poll(self):
+        poll_result = self.process.poll()
+        if poll_result is not None:
+            self.outfile.flush()
+            self.outfile.seek(0)
+            self.output = self.outfile.read()
+            self.outfile.close()
+            self.outfile = None
+            self.returncode = self.process.returncode
+
+        return poll_result
 
 
 class GlobalMachine:
@@ -100,7 +115,7 @@ def print_test(test, print_tap=True, retry_reason="", skip_reason=""):
         return
 
     print()  # Tap needs to start on a separate line
-    if test.process.returncode == 0:
+    if test.returncode == 0:
         print("ok {0}{1}".format(test_name(test), retry_reason))
     elif skip_reason:
         print("ok {0}{1}".format(test_name(test), skip_reason))
@@ -122,19 +137,19 @@ def finish_test(opts, test, affected_tests):
     skip_reason = ""
 
     # Try affected tests 3 times
-    if test.process.returncode == 0 and affected and test.retry_when_affected and test.retries < 2:
+    if test.returncode == 0 and affected and test.retry_when_affected and test.retries < 2:
         retry_reason = "test affected tests 3 times"
         test.retries += 1
         print_test(test, not opts.list, "# RETRY {0} ({1})".format(test.retries, retry_reason))
         return retry_reason, 0
 
     # If test is being skipped pick up the reason
-    if test.process.returncode == 77:
+    if test.returncode == 77:
         lines = test.output.splitlines()
         skip_reason = lines[-1].strip().decode("utf-8")
         test.output = b"\n".join(lines[:-1])
 
-    if test.process.returncode in [0, 77]:
+    if test.returncode in [0, 77]:
         print_test(test, not opts.list, skip_reason=skip_reason)
         return None, 0
 
@@ -363,19 +378,13 @@ def run(opts, image):
 
             if test:
                 made_progress = True
-                test.outfile = tempfile.TemporaryFile()
-                test.process = subprocess.Popen(["timeout", str(test.timeout)] + test.command,
-                                                stdout=test.outfile, stderr=subprocess.STDOUT)
+                test.start()
                 running_tests.append(test)
 
         for test in running_tests.copy():
-            poll_result = test.process.poll()
+            poll_result = test.poll()
             if poll_result is not None:
                 made_progress = True
-                test.outfile.flush()
-                test.outfile.seek(0)
-                test.output = test.outfile.read()
-                test.outfile.close()
                 running_tests.remove(test)
                 retry_reason, test_result = finish_test(opts, test, changed_tests)
                 result += test_result
@@ -394,8 +403,6 @@ def run(opts, image):
 
                 # run again if needed
                 if retry_reason:
-                    test.output = None
-                    test.process = None
                     if test.serial_machine is not None:
                         batch_tests[test.serial_machine]["tests"].insert(0, test)
                         serial_remaining = sum([len(batch_tests[x]["tests"]) for x in batch_tests])

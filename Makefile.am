@@ -61,6 +61,7 @@ install-data-local:: $(WEBPACK_INSTALL) $(MANIFESTS)
 install-data-local:: $(WEBPACK_GZ_INSTALL)
 	@for file in $^; do \
 		target="$(DESTDIR)$(pkgdatadir)/$${file##*dist/}.gz"; \
+		[ -n "$(DESTDIR)" -a "$${target}" -nt "$${file}" ] && continue; \
 		mkdir -p "$${target%/*}"; \
 		echo "$${file} → $${target}"; \
 		gzip -9 < "$${file}" > "$${target}"; \

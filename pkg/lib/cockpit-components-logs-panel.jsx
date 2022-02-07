@@ -40,10 +40,17 @@ export class JournalOutput {
         this.search_options = search_options || {};
     }
 
-    onEvent(ev, cursor) {
+    onEvent(ev, cursor, full_content) {
         // only consider primary mouse button for clicks
-        if (ev.type === 'click' && ev.button !== 0)
-            return;
+        if (ev.type === 'click') {
+            if (ev.button !== 0)
+                return;
+
+            // Ignore if text is being selected - less than 3 characters most likely means misclick
+            const selection = window.getSelection().toString();
+            if (selection && selection.length > 2 && full_content.indexOf(selection) >= 0)
+                return;
+        }
 
         // only consider enter button for keyboard events
         if (ev.type === 'keypress' && ev.key !== "Enter")
@@ -63,11 +70,13 @@ export class JournalOutput {
             warning = true;
         }
 
+        const full_content = [time, message, ident].join("\n");
+
         return (
             <div className="cockpit-logline" role="row" tabIndex="0" key={entry.__CURSOR}
                 data-cursor={entry.__CURSOR}
-                onClick={ev => this.onEvent(ev, entry.__CURSOR)}
-                onKeyPress={ev => this.onEvent(ev, entry.__CURSOR)}>
+                onClick={ev => this.onEvent(ev, entry.__CURSOR, full_content)}
+                onKeyPress={ev => this.onEvent(ev, entry.__CURSOR, full_content)}>
                 <div className="cockpit-log-warning" role="cell">
                     { warning
                         ? <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" size="sm" />

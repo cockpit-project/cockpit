@@ -83,11 +83,6 @@ CLEANFILES += \
 	test_rsa_key \
 	$(NULL)
 
-noinst_SCRIPTS += \
-	src/ssh/mock-pid-cat \
-	src/ssh/mock-bin/sss_ssh_knownhostsproxy \
-	$(NULL)
-
 noinst_PROGRAMS += $(SSH_CHECKS)
 
 TESTS += $(SSH_CHECKS)

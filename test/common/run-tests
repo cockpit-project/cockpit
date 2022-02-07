@@ -41,11 +41,21 @@ class Test:
         self.command = command
         self.timeout = timeout
         self.nondestructive = nondestructive
-        self.serial_machine = None
+        self.machine_id = None
         self.retry_when_affected = retry_when_affected
         self.returncode = None
 
+    def assign_machine(self, machine_id, ssh_address, web_address):
+        assert self.nondestructive, "assigning a machine only works for nondestructive test"
+        self.machine_id = machine_id
+        self.command.insert(-2, "--machine")
+        self.command.insert(-2, ssh_address)
+        self.command.insert(-2, "--browser")
+        self.command.insert(-2, web_address)
+
     def start(self):
+        if self.nondestructive:
+            assert self.machine_id is not None, f"need to assign nondestructive test {self.test_id} {self.command} to a machine"
         self.outfile = tempfile.TemporaryFile()
         self.process = subprocess.Popen(["timeout", str(self.timeout)] + self.command,
                                         stdout=self.outfile, stderr=subprocess.STDOUT)
@@ -130,7 +140,7 @@ class Test:
             self.test_id,
             self.command[0],
             self.command[-1],
-            " [ND@{0}]".format(self.serial_machine) if self.nondestructive else "",
+            " [ND@{0}]".format(self.machine_id) if self.nondestructive else "",
         )
 
     def _print_test(self, print_tap=True, retry_reason="", skip_reason=""):
@@ -316,32 +326,23 @@ def run(opts, image):
         # Just build one batch for listing
         batch_tests[0] = {"working": None, "tests": [], "time": 0}
         for test in serial_tests:
-            test.serial_machine = 0
+            test.assign_machine(0, "listdummy", "listdummy")
             batch_tests[0]["tests"].append(test)
 
     if serial_tests and not opts.list:
         if opts.machine:
             batch_tests[0] = {"working": None, "tests": [], "time": 0}
-            ssh_address = opts.machine
-            web_address = opts.browser
-
             for test in serial_tests:
                 batch_tests[0]["tests"].append(test)
-                test.command.insert(-2, "--machine")
-                test.command.insert(-2, ssh_address)
-                test.command.insert(-2, "--browser")
-                test.command.insert(-2, web_address)
-                test.serial_machine = 0
+                test.assign_machine(0, opts.machine, opts.browser)
         else:
             batch_size = len(serial_tests) // opts.batches
 
             for i in range(opts.batches):
                 m = GlobalMachine(restrict=not opts.enable_network, cpus=opts.nondestructive_cpus, memory_mb=opts.nondestructive_memory_mb)
                 batch_tests[i] = {"working": None, "tests": [], "time": 0, "machine": m}
-                ssh_address = "{0}:{1}".format(m.machine.ssh_address,
-                                               m.machine.ssh_port)
-                web_address = "{0}:{1}".format(m.machine.web_address,
-                                               m.machine.web_port)
+                ssh_address = f"{m.machine.ssh_address}:{m.machine.ssh_port}"
+                web_address = f"{m.machine.web_address}:{m.machine.web_port}"
 
                 if i == opts.batches - 1:  # Last machine needs to resolve the rest
                     batch = serial_tests[batch_size * i:]
@@ -350,11 +351,7 @@ def run(opts, image):
 
                 for test in batch:
                     batch_tests[i]["tests"].append(test)
-                    test.command.insert(-2, "--machine")
-                    test.command.insert(-2, ssh_address)
-                    test.command.insert(-2, "--browser")
-                    test.command.insert(-2, web_address)
-                    test.serial_machine = i
+                    test.assign_machine(i, ssh_address, web_address)
 
     running_tests = []
     serial_tests_len = len(serial_tests)
@@ -388,28 +385,28 @@ def run(opts, image):
                 retry_reason, test_result = test.finish(changed_tests, print_tap=not opts.list, thorough=opts.thorough)
                 result += test_result
 
-                if test.serial_machine is not None:
-                    tests_duration = (time.time() - batch_tests[test.serial_machine]["started"])
-                    batch_tests[test.serial_machine]["time"] += tests_duration
+                if test.machine_id is not None:
+                    tests_duration = (time.time() - batch_tests[test.machine_id]["started"])
+                    batch_tests[test.machine_id]["time"] += tests_duration
 
                     # sometimes our global machine gets messed up; also, tests that time out don't run cleanup handlers
                     # restart it to avoid an unbounded number of test retries and follow-up errors
                     if not opts.machine and (poll_result == 124 or (retry_reason and "test harness" in retry_reason)):
                         # try hard to keep the test output consistent
-                        sys.stderr.write("\nRestarting global machine %s\n" % test.serial_machine)
+                        sys.stderr.write("\nRestarting global machine %s\n" % test.machine_id)
                         sys.stderr.flush()
-                        batch_tests[test.serial_machine]["machine"].reset()
+                        batch_tests[test.machine_id]["machine"].reset()
 
                 # run again if needed
                 if retry_reason:
-                    if test.serial_machine is not None:
-                        batch_tests[test.serial_machine]["tests"].insert(0, test)
+                    if test.machine_id is not None:
+                        batch_tests[test.machine_id]["tests"].insert(0, test)
                         serial_remaining = sum([len(batch_tests[x]["tests"]) for x in batch_tests])
                     else:
                         parallel_tests.insert(0, test)
 
-                if test.serial_machine is not None:
-                    batch_tests[test.serial_machine]["working"] = None
+                if test.machine_id is not None:
+                    batch_tests[test.machine_id]["working"] = None
 
         # Sleep if we didn't make progress
         if not made_progress and not opts.list:

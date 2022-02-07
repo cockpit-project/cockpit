@@ -721,6 +721,95 @@ OnCalendar=daily
         b.wait_text("#received-type", "-")
         b.wait_text("#received-title", "-")
 
+    def testHistory(self):
+
+        b = self.browser
+
+        def assert_location(path_hash):
+            self.assertEqual(path_hash,
+                             self.browser.eval_js("window.location.pathname + window.location.hash"))
+
+        self.login_and_go("/system")
+
+        # Create a login entry so that the "View last login" button appears
+        b.logout()
+        self.login_and_go("/system")
+
+        b.switch_to_top()
+        assert_location("/system")
+
+        b.click('#nav-system a[href="/users"]')
+        b.enter_page("/users")
+        b.switch_to_top()
+        assert_location("/users")
+
+        b.enter_page("/users")
+        b.click('a[href="#/root"]')
+        b.wait_text("#account-title", "root")
+        b.switch_to_top()
+        assert_location("/users#/root")
+
+        b.enter_page("/users")
+        b.click("nav a:contains(Accounts)")
+        b.wait_visible("button:contains('Create new account')")
+        b.switch_to_top()
+        assert_location("/users")
+
+        b.eval_js("window.history.back()")
+        b.enter_page("/users")
+        b.wait_text("#account-title", "root")
+        b.switch_to_top()
+        assert_location("/users#/root")
+
+        b.eval_js("window.history.forward()")
+        b.enter_page("/users")
+        b.wait_visible("button:contains('Create new account')")
+        b.switch_to_top()
+        assert_location("/users")
+
+        b.eval_js("window.history.back()")
+        b.enter_page("/users")
+        b.wait_text("#account-title", "root")
+        b.switch_to_top()
+        assert_location("/users#/root")
+
+        b.eval_js("window.history.back()")
+        b.enter_page("/users")
+        b.wait_visible("button:contains('Create new account')")
+        b.switch_to_top()
+        assert_location("/users")
+
+        b.click('#nav-system a[href="/system/terminal"]')
+        b.enter_page("/system/terminal")
+        b.switch_to_top()
+        assert_location("/system/terminal")
+
+        b.eval_js("window.history.back()")
+        b.enter_page("/users")
+        b.wait_visible("button:contains('Create new account')")
+        b.switch_to_top()
+        assert_location("/users")
+
+        b.eval_js("window.history.back()")
+        b.enter_page("/system")
+        b.switch_to_top()
+        assert_location("/system")
+
+        # CoreOS does not keep login history
+        if self.machine.image not in ["fedora-coreos"]:
+
+            b.enter_page("/system")
+            b.click("button:contains(View login history)")
+            b.enter_page("/users")
+            b.wait_text("#account-title", "Administrator")
+            b.switch_to_top()
+            assert_location("/users#/admin")
+
+            b.eval_js("window.history.back()")
+            b.enter_page("/system")
+            b.switch_to_top()
+            assert_location("/system")
+
 
 if __name__ == '__main__':
     test_main()

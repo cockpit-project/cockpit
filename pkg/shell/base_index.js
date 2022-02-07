@@ -187,8 +187,19 @@ function Frames(index, setupIdleResetTimers) {
         if (!hash)
             hash = "/";
         const src = frame.url + "#" + hash;
-        if (frame.getAttribute('src') != src)
+        if (frame.getAttribute('src') != src) {
+            if (frame.contentWindow) {
+                // This prevents the browser from creating a new
+                // history entry.  It would do that whenever the "src"
+                // of a frame is changed and the window location is
+                // not consistent with the new "src" value.
+                //
+                // This matters when a "jump" command changes both the
+                // the current frame and the hash of the new frame.
+                frame.contentWindow.location.replace(src);
+            }
             frame.setAttribute('src', src);
+        }
 
         /* Store frame only when fully setup */
         if (new_frame) {
@@ -265,7 +276,12 @@ function Router(index) {
                 hash = hash.substring(1);
             if (hash === "/")
                 hash = "";
-            index.jump({ hash: hash });
+            /* The browser has already pushed an appropriate entry to
+               the history, so let's just replace it with our custom
+               state object.
+            */
+            const state = Object.assign({}, index.retrieve_state(), { hash: hash });
+            index.navigate(state, true);
         }
     }
 

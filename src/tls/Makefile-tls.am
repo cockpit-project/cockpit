@@ -1,6 +1,6 @@
 libexec_PROGRAMS += cockpit-tls cockpit-wsinstance-factory cockpit-certificate-ensure
 libexec_SCRIPTS += src/tls/cockpit-certificate-helper
-noinst_PROGRAMS += wsinstance-start
+check_PROGRAMS += wsinstance-start
 
 wsinstance_start_SOURCES = \
 	src/tls/utils.h \
@@ -132,7 +132,7 @@ socket_activation_helper_SOURCES = \
 	src/tls/socket-activation-helper.c \
 	$(NULL)
 
-noinst_PROGRAMS += $(TLS_TESTS) socket-activation-helper
+check_PROGRAMS += $(TLS_TESTS) socket-activation-helper
 EXTRA_DIST += \
 	src/tls/ca/alice-expired.pem \
 	src/tls/ca/alice.key \

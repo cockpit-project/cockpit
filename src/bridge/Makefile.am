@@ -238,7 +238,7 @@ test_websocketstream_SOURCES = \
 test_websocketstream_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_websocketstream_LDADD = $(libcockpit_bridge_LIBS) -ldl
 
-noinst_PROGRAMS += $(BRIDGE_CHECKS) mock-bridge
+check_PROGRAMS += $(BRIDGE_CHECKS) mock-bridge
 TESTS += $(BRIDGE_CHECKS)
 
 EXTRA_DIST += \
@@ -323,7 +323,7 @@ BRIDGE_CHECKS += \
 	test-pcp-archives \
 	$(NULL)
 
-noinst_PROGRAMS += mock-pmda.so
+check_PROGRAMS += mock-pmda.so
 mock_pmda_so_SOURCES = src/bridge/mock-pmda.c
 mock_pmda_so_CFLAGS = -fPIC
 mock_pmda_so_LDFLAGS = -shared

@@ -97,7 +97,6 @@ EXTRA_DIST += \
 
 # ----------------------------------------------------------------------------------------------------
 
-noinst_PROGRAMS += test-server
 check_PROGRAMS += test-server
 
 GDBUS_CODEGEN_XML = $(srcdir)/src/ws/com.redhat.Cockpit.DBusTests.xml
@@ -231,13 +230,13 @@ mock_echo_LDADD = $(COCKPIT_WS_LIBS)
 mock_auth_command_SOURCES = src/ws/mock-auth-command.c
 mock_auth_command_LDADD = libcockpit-common-nodeps.a
 
-noinst_PROGRAMS += \
+check_PROGRAMS += \
 	$(WS_CHECKS) \
 	mock-echo \
 	mock-auth-command \
 	$(NULL)
 
-noinst_SCRIPTS += \
+check_SCRIPTS += \
 	src/ws/mock-cat-with-init \
 	$(NULL)
 

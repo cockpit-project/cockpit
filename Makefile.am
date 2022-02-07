@@ -2,6 +2,7 @@ NULL =
 man_MANS =
 BUILT_SOURCES =
 bin_PROGRAMS =
+check_DATA =
 check_SCRIPTS =
 check_PROGRAMS =
 noinst_SCRIPTS =

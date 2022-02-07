@@ -50,7 +50,7 @@ cockpit_ssh_CFLAGS = \
 	$(COCKPIT_SSH_SESSION_CFLAGS) \
 	$(NULL)
 
-noinst_PROGRAMS += mock-sshd
+check_PROGRAMS += mock-sshd
 
 mock_sshd_SOURCES = src/ssh/mock-sshd.c
 
@@ -77,13 +77,13 @@ test_sshbridge_LDADD = libcockpit-ssh.a $(cockpit_ssh_LDADD)
 
 test_rsa_key: src/ssh/test_rsa
 	$(AM_V_GEN) cp $< $@ && chmod 600 $@
-noinst_DATA += test_rsa_key
+check_DATA += test_rsa_key
 
 CLEANFILES += \
 	test_rsa_key \
 	$(NULL)
 
-noinst_PROGRAMS += $(SSH_CHECKS)
+check_PROGRAMS += $(SSH_CHECKS)
 
 TESTS += $(SSH_CHECKS)
 

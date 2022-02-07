@@ -31,7 +31,7 @@ PAM_SSH_ADD_CHECKS = \
 test_ssh_add_SOURCES = src/pam-ssh-add/test-ssh-add.c
 test_ssh_add_LDADD = $(libpam_ssh_add_a_LIBS) libretest.a
 
-noinst_PROGRAMS += $(PAM_SSH_ADD_CHECKS)
+check_PROGRAMS += $(PAM_SSH_ADD_CHECKS)
 TESTS += $(PAM_SSH_ADD_CHECKS)
 
 EXTRA_DIST += \

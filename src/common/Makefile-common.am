@@ -175,6 +175,7 @@ test_locale_PO = \
 	$(NULL)
 
 test_locale_MO = $(test_locale_PO:.po=.mo)
+CLEANFILES += $(test_locale_MO)
 
 test_locale_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_locale_SOURCES = src/common/test-locale.c
@@ -238,14 +239,7 @@ nodist_noinst_SCRIPTS += \
 	$(NULL)
 
 # preload wrapper library for unit tests that need a temp home dir
-# we don't use libtool, so build this manually
-nodist_noinst_DATA += libpreload-temp-home.so
-EXTRA_DIST += src/common/preload-temp-home.c
-
-libpreload-temp-home.so: src/common/preload-temp-home.c
-	$(AM_V_CCLD) $(CC) $(AM_CPPFLAGS) $(CFLAGS) -fPIC -shared -o $@ $^
-
-CLEANFILES += \
-	$(test_locale_MO) \
-	libpreload-temp-home.so \
-	$(NULL)
+noinst_PROGRAMS += libpreload-temp-home.so
+libpreload_temp_home_so_SOURCES = src/common/preload-temp-home.c
+libpreload_temp_home_so_CFLAGS = -fPIC
+libpreload_temp_home_so_LDFLAGS = -shared

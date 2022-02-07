@@ -366,6 +366,10 @@ install-data-local:: dist/guide/html/index.html
 uninstall-local::
 	rm -rf $(DESTDIR)$(htmldir)
 
+# See test/image-prepare
+dump-dist:
+	@echo "$(abs_builddir)/$(distdir).tar.xz"
+
 # See bots/make-source
 dump-dist-gzip:
 	@echo "$(abs_builddir)/$(distdir).tar.gz"
@@ -385,6 +389,7 @@ dist-hook:: $(WEBPACK_PACKAGES:%=dist/%/manifest.json)
 	$(srcdir)/tools/build-copying $(distdir)/node_modules > $(distdir)/COPYING.node
 	[ ! -d $(distdir)/tools/debian ] || $(srcdir)/tools/build-debian-copyright $(distdir)/node_modules > $(distdir)/tools/debian/copyright
 	[ ! -e $(distdir)/tools/cockpit.spec ] || $(srcdir)/tools/gen-spec-dependencies $(distdir)/tools/cockpit.spec
+	sed -i 's/%{version}/$(VERSION)/'g $(distdir)/tools/cockpit.spec
 
 DIST_TAR_MAIN = tar --format=posix -cf - "$(distdir)"
 DIST_TAR_CACHE = tar --format=posix -cf - --transform="flags=r;s|^\./||" --transform="flags=r;s|^|$(distdir)/|" \

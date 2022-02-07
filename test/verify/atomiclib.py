@@ -5,6 +5,6 @@ def overlay_dashboard(m):
     # The libssh RPM was placed by the atomic setup scripts
 
     if m.image in ["fedora-atomic", "rhel-atomic", "continuous-atomic"]:
-        m.execute("rpm-ostree install /var/tmp/build-results/cockpit-dashboard-*.rpm")
+        m.execute("rpm-ostree install /var/tmp/cockpit-dashboard-*.rpm")
         m.spawn("sleep 2 && systemctl reboot", "reboot")
         m.wait_reboot()

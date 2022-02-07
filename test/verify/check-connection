@@ -45,7 +45,7 @@ class TestConnection(MachineCase):
         # uninstall cockpit/ws container startup script
         m.execute("rm /etc/systemd/system/cockpit.service")
         # overlay cockpit-ws rpm
-        m.execute("rpm-ostree install --cache-only /var/tmp/build-results/cockpit-ws-*.rpm")
+        m.execute("rpm-ostree install --cache-only /var/tmp/cockpit-ws-*.rpm")
         m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
         m.wait_reboot()
 
@@ -618,12 +618,12 @@ class TestConnection(MachineCase):
 
         def install():
             if m.image.startswith("debian") or m.image.startswith("ubuntu"):
-                m.execute("dpkg --install /var/tmp/build-results/cockpit-ws_*.deb")
+                m.execute("dpkg --install /var/tmp/build/cockpit-ws_*.deb")
             elif m.image == "arch":
-                m.execute("pacman -U --noconfirm /var/tmp/build-results/cockpit-*.pkg.tar.zst")
+                m.execute("pacman -U --noconfirm /var/tmp/build/cockpit-*.pkg.tar.zst")
             else:
                 m.execute("if rpm -q cockpit-ws; then rpm --verify cockpit-ws; fi")
-                m.execute("rpm --upgrade --force /var/tmp/build-results/cockpit-ws-*.rpm")
+                m.execute("rpm --upgrade --force /var/tmp/build/cockpit-ws-*.rpm")
                 m.execute("rpm --verify cockpit-ws")
 
         def remove():

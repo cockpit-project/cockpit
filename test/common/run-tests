@@ -420,10 +420,9 @@ def run(opts, image):
 
 
 def main():
-    jobs = int(os.environ.get("TEST_JOBS", 1))
     parser = testlib.arg_parser(enable_sit=False)
     parser.add_argument('-j', '--jobs', type=int,
-                        default=jobs, help="Number of concurrent jobs")
+                        default=int(os.environ.get("TEST_JOBS", 1)), help="Number of concurrent jobs")
     parser.add_argument('--thorough', action='store_true',
                         help='Thorough mode, no skipping known issues')
     parser.add_argument('-n', '--nondestructive', action='store_true',
@@ -437,7 +436,7 @@ def main():
     parser.add_argument('--exclude', action="append", default=[], metavar="TestClass.testName",
                         help="Exclude test (exact match only); can be specified multiple times")
     parser.add_argument('-b', '--batches', type=int,
-                        default=max(jobs // 2, 1), help="Number of concurrent batches of nondestructive tests")
+                        help="Number of concurrent batches of nondestructive tests")
     parser.add_argument('--nondestructive-cpus', type=int, default=None,
                         help="Number of CPUs for nondestructive test global machines")
     parser.add_argument('--nondestructive-memory-mb', type=int, default=None,
@@ -450,6 +449,9 @@ def main():
         if opts.jobs > 1:
             parser.error("--machine cannot be used with concurrent jobs")
         opts.nondestructive = True
+
+    if not opts.batches:
+        opts.batches = max(opts.jobs // 2, 1)
 
     # Tell any subprocesses what we are testing
     if "TEST_REVISION" not in os.environ:

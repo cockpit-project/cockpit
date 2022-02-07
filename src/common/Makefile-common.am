@@ -229,7 +229,7 @@ test_config_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_config_SOURCES = src/common/test-config.c
 test_config_LDADD = $(libcockpit_common_a_LIBS)
 
-noinst_PROGRAMS += $(COCKPIT_CHECKS)
+check_PROGRAMS += $(COCKPIT_CHECKS)
 TESTS += $(COCKPIT_CHECKS)
 
 # For the test-locale test
@@ -239,7 +239,7 @@ nodist_noinst_SCRIPTS += \
 	$(NULL)
 
 # preload wrapper library for unit tests that need a temp home dir
-noinst_PROGRAMS += libpreload-temp-home.so
+check_PROGRAMS += libpreload-temp-home.so
 libpreload_temp_home_so_SOURCES = src/common/preload-temp-home.c
 libpreload_temp_home_so_CFLAGS = -fPIC
 libpreload_temp_home_so_LDFLAGS = -shared

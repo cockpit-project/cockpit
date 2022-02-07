@@ -323,20 +323,13 @@ BRIDGE_CHECKS += \
 	test-pcp-archives \
 	$(NULL)
 
-noinst_DATA += mock-pmda.so
+noinst_PROGRAMS += mock-pmda.so
+mock_pmda_so_SOURCES = src/bridge/mock-pmda.c
+mock_pmda_so_CFLAGS = -fPIC
+mock_pmda_so_LDFLAGS = -shared
+mock_pmda_so_LDADD = -lpcp_pmda -lpcp
 
-CLEANFILES += \
-	mock-pmda.so \
-	mock-archives/* \
-	$(NULL)
-
-# This is non-portable, but I don't feel like dragging in libtool just
-# for this.
-#
-mock-pmda.so: src/bridge/mock-pmda.c
-	$(AM_V_CCLD) $(CC) $(AM_CPPFLAGS) $(CFLAGS) -fPIC -shared \
-		-DSRCDIR=\"$(abs_srcdir)\" \
-		-o mock-pmda.so $(srcdir)/src/bridge/mock-pmda.c -lpcp_pmda -lpcp
+CLEANFILES += mock-archives/*
 
 test_pcp_SOURCES = \
 	src/bridge/test-pcp.c \

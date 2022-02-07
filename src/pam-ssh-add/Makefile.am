@@ -15,24 +15,11 @@ libpam_ssh_add_a_LIBS = \
 	libpam_ssh_add.a \
 	$(PAM_LIBS)
 
-pam_ssh_add_FILES = src/pam-ssh-add/pam-ssh-add.c
-pam_ssh_add.so: libpam_ssh_add.a $(pam_ssh_add_FILES)
-	$(AM_V_CCLD) $(CC) -fPIC -shared $(AM_CPPFLAGS) $(CFLAGS) $(libpam_ssh_add_a_CFLAGS) -I$(builddir) \
-		-o $@ $^ $(libpam_ssh_add_a_LIBS) $(LDFLAGS)
-
-all-local:: pam_ssh_add.so
-
-EXTRA_DIST += \
-	$(pam_ssh_add_FILES) \
-	$(NULL)
-
-CLEANFILES += pam_ssh_add.so
-
-install-exec-local::
-	mkdir -p $(DESTDIR)$(pamdir)
-	$(INSTALL) pam_ssh_add.so $(DESTDIR)$(pamdir)
-uninstall-local::
-	$(RM) -f $(DESTDIR)$(pamdir)/pam_ssh_add.so
+pam_PROGRAMS = pam_ssh_add.so
+pam_ssh_add_so_SOURCES = src/pam-ssh-add/pam-ssh-add.c
+pam_ssh_add_so_CFLAGS = -fPIC
+pam_ssh_add_so_LDFLAGS = -shared
+pam_ssh_add_so_LDADD = $(libpam_ssh_add_a_LIBS)
 
 # -----------------------------------------------------------------------------
 # Tests
@@ -42,7 +29,6 @@ PAM_SSH_ADD_CHECKS = \
 	$(NULL)
 
 test_ssh_add_SOURCES = src/pam-ssh-add/test-ssh-add.c
-test_ssh_add_CFLAGS = $(libpam_ssh_add_a_CFLAGS)
 test_ssh_add_LDADD = $(libpam_ssh_add_a_LIBS) libretest.a
 
 noinst_PROGRAMS += $(PAM_SSH_ADD_CHECKS)

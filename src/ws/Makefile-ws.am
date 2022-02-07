@@ -68,20 +68,11 @@ cockpit_ws_LDADD = 					\
 	$(COCKPIT_WS_LIBS)					\
 	$(NULL)
 
-noinst_PROGRAMS += pam_cockpit_cert.so
-pam_cockpit_cert_so_SOURCES = \
-	src/ws/pam_cockpit_cert.c
-pam_cockpit_cert.so$(EXEEXT): $(pam_cockpit_cert_so_SOURCES)
-	$(AM_V_CCLD) $(CC) -fPIC -shared $(PAM_COCKPIT_CERT_CFLAGS) $(AM_CPPFLAGS) $(CFLAGS) $(DEFS) -I$(builddir) -o $@ $^ $(LDFLAGS) $(PAM_COCKPIT_CERT_LIBS)
-
-CLEANFILES += pam_cockpit_cert.so
-
-install-exec-local::
-	mkdir -p $(DESTDIR)$(pamdir)
-	$(INSTALL) pam_cockpit_cert.so $(DESTDIR)$(pamdir)
-
-uninstall-local::
-	$(RM) -f $(DESTDIR)$(pamdir)/pam_cockpit_cert.so
+pam_PROGRAMS += pam_cockpit_cert.so
+pam_cockpit_cert_so_SOURCES = src/ws/pam_cockpit_cert.c
+pam_cockpit_cert_so_CFLAGS = -fPIC
+pam_cockpit_cert_so_LDFLAGS = -shared
+pam_cockpit_cert_so_LDADD = $(PAM_COCKPIT_CERT_LIBS)
 
 libexec_SCRIPTS += src/ws/cockpit-desktop
 
@@ -270,13 +261,11 @@ endif
 
 TESTS += $(WS_CHECKS)
 
-mock_pam_conv_mod_so_SOURCES = src/ws/mock-pam-conv-mod.c
-mock-pam-conv-mod.so$(EXEEXT): $(mock_pam_conv_mod_so_SOURCES)
-	$(AM_V_CCLD) $(CC) -fPIC -shared $(AM_CPPFLAGS) $(CFLAGS) -I$(builddir) \
-		-o $@ $^ $(PAM_LIBS) $(LDFLAGS)
-
 noinst_PROGRAMS += mock-pam-conv-mod.so
-CLEANFILES += mock-pam-conv-mod.so
+mock_pam_conv_mod_so_SOURCES = src/ws/mock-pam-conv-mod.c
+mock_pam_conv_mod_so_CFLAGS = -fPIC
+mock_pam_conv_mod_so_LDFLAGS = -shared
+mock_pam_conv_mod_so_LDADD = $(PAM_LIBS)
 
 testassetsdir = $(prefix)/lib/cockpit-test-assets
 testserviceddir = $(systemdunitdir)/cockpit.service.d

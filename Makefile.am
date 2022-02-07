@@ -207,6 +207,14 @@ multi-word: po/cockpit.pot
 title2sentence: multi-word
 	tools/title2sentence.py -i titles -o t2s.sh
 
+.PHONY: rsync
+RSYNC_HOST ?= c
+RSYNC_DEST ?= $(RSYNC_HOST):/
+rsync:
+	$(MAKE)
+	$(MAKE) install DESTDIR=tmp/rsync >/dev/null
+	rsync --recursive --links --checksum --verbose --inplace tmp/rsync/ $(RSYNC_DEST)
+
 include containers/Makefile.am
 include containers/flatpak/Makefile.am
 include doc/Makefile-doc.am

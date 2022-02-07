@@ -193,55 +193,46 @@ def build_command(filename, test, opts):
     return cmd
 
 
-def run(opts, image):
-    # Build the list of tests we'll parallelize and the ones we'll run serially
-    test_loader = unittest.TestLoader()
+def get_affected_tests(test_dir, base_branch, test_files):
+    if not base_branch:
+        return []
+
+    changed_tests = []
+
+    # Detect affected tests from changed test files
+    diff_out = subprocess.check_output(["git", "diff", "--name-only", "origin/" + base_branch, test_dir])
+    # Never consider 'test/verify/check-example' to be affected - our tests for tests count on that
+    # This file provides only examples, there is no place for it being flaky, no need to retry
+    changed_tests = [test.decode("utf-8") for test in diff_out.strip().splitlines() if not test.endswith(b"check-example")]
+
+    # If more than 3 test files were changed don't consider any of them as affected
+    # as it might be a PR that changes more unrelated things.
+    if len(changed_tests) > 3:
+        # If 'test/verify/check-testlib' is affected, keep just that one - our tests for tests count on that
+        if "test/verify/check-testlib" in changed_tests:
+            changed_tests = ["test/verify/check-testlib"]
+        else:
+            changed_tests = []
+
+    # Detect affected tests from changed pkg/* subdirectories in cockpit
+    # If affected tests get detected from pkg/* changes, don't apply the
+    # "only do this for max. 3 check-* changes" (even if the PR also changes ≥ 3 check-*)
+    # (this does not apply to other projects)
+    diff_out = subprocess.check_output(["git", "diff", "--name-only", "origin/" + base_branch, "--", "pkg/"])
+    changed_pkgs = set(pkg.decode("utf-8").split('/')[1] for pkg in diff_out.strip().splitlines())
+    changed_tests.extend([test for test in test_files if any(pkg in test for pkg in changed_pkgs)])
+
+    return changed_tests
+
+
+def detect_tests(test_files, image, opts):
+    '''Build the list of tests we'll parallelize and the ones we'll run serially'''
+
     parallel_tests = []
     serial_tests = []
-    test_id = 1
-    result = 0
-    jobs = 1 if opts.list else opts.jobs
-    start_time = time.time()
-
-    # Map of batches of serial tests. Key is the batch name, value is a map with 3 keys:
-    # - "working" - None if the machine is idle
-    # - "tests"   - Array of tests to run
-    # - "time"    - Combined time all tests took
-    # - "machine" - A GlobalMachine instance for running the tests
-    batch_tests = {}
-
-    # Make sure tests can make relative imports
-    sys.path.append(os.path.realpath(opts.test_dir))
-
-    # Build list of affected tests
-    # If file from `test-dir` was changed in the PR, all tests from it are considered affected
-    changed_tests = []
-    test_files = glob.glob(os.path.join(opts.test_dir, "check-*"))
-    if opts.base:
-        # Detect affected tests from changed test files
-        diff_out = subprocess.check_output(["git", "diff", "--name-only", "origin/" + opts.base, opts.test_dir])
-        # Never consider 'test/verify/check-example' to be affected - our tests for tests count on that
-        # This file provides only examples, there is no place for it being flaky, no need to retry
-        changed_tests = [test.decode("utf-8") for test in diff_out.strip().splitlines() if not test.endswith(b"check-example")]
-
-        # If more than 3 test files were changed don't consider any of them as affected
-        # as it might be a PR that changes more unrelated things.
-        if len(changed_tests) > 3:
-            # If 'test/verify/check-testlib' is affected, keep just that one - our tests for tests count on that
-            if "test/verify/check-testlib" in changed_tests:
-                changed_tests = ["test/verify/check-testlib"]
-            else:
-                changed_tests = []
-
-        # Detect affected tests from changed pkg/* subdirectories in cockpit
-        # If affected tests get detected from pkg/* changes, don't apply the
-        # "only do this for max. 3 check-* changes" (even if the PR also changes ≥ 3 check-*)
-        # (this does not apply to other projects)
-        diff_out = subprocess.check_output(["git", "diff", "--name-only", "origin/" + opts.base, "--", "pkg/"])
-        changed_pkgs = set(pkg.decode("utf-8").split('/')[1] for pkg in diff_out.strip().splitlines())
-        changed_tests.extend([test for test in test_files if any(pkg in test for pkg in changed_pkgs)])
-
     seen_classes = {}
+    test_id = 1
+
     for filename in test_files:
         name = check_valid(filename)
         if not name or not os.path.isfile(filename):
@@ -249,7 +240,7 @@ def run(opts, image):
         loader = importlib.machinery.SourceFileLoader(name, filename)
         module = importlib.util.module_from_spec(importlib.util.spec_from_loader(loader.name, loader))
         loader.exec_module(module)
-        for test_suite in test_loader.loadTestsFromModule(module):
+        for test_suite in unittest.TestLoader().loadTestsFromModule(module):
             for test in test_suite:
                 # ensure that test classes are unique, so that they can be selected properly
                 cls = test.__class__.__name__
@@ -277,10 +268,32 @@ def run(opts, image):
                         parallel_tests.append(test)
                 test_id += 1
 
-    # sort serial tests by class/test name, to avoid spurious errors where failures depend on the order of execution
-    # but let's make sure we always test them both ways around; hash the image name, which is robust, reproducible, and provides
-    # an even distribution of both directions
+    # sort serial tests by class/test name, to avoid spurious errors where failures depend on the order of
+    # execution but let's make sure we always test them both ways around; hash the image name, which is
+    # robust, reproducible, and provides an even distribution of both directions
     serial_tests.sort(key=lambda t: t.command[-1], reverse=bool(binascii.crc32(image.encode()) & 1))
+
+    return (serial_tests, parallel_tests)
+
+
+def run(opts, image):
+    result = 0
+    jobs = 1 if opts.list else opts.jobs
+    start_time = time.time()
+
+    # Map of batches of serial tests. Key is the batch name, value is a map with 3 keys:
+    # - "working" - None if the machine is idle
+    # - "tests"   - Array of tests to run
+    # - "time"    - Combined time all tests took
+    # - "machine" - A GlobalMachine instance for running the tests
+    batch_tests = {}
+
+    # Make sure tests can make relative imports
+    sys.path.append(os.path.realpath(opts.test_dir))
+
+    test_files = glob.glob(os.path.join(opts.test_dir, "check-*"))
+    changed_tests = get_affected_tests(opts.test_dir, opts.base, test_files)
+    (serial_tests, parallel_tests) = detect_tests(test_files, image, opts)
 
     print("1..{0}".format(len(parallel_tests) + len(serial_tests)))
     flush_stdout()

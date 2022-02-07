@@ -26,11 +26,11 @@ man_MANS += \
 MAN_PROC = mkdir -p doc/man/ && $(XSLTPROC) -nonet --param man.output.quietly 1 --output $@ \
 	http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
 
-.xml.8:
+%.8: %.xml
 	$(AM_V_GEN) $(MAN_PROC)
-.xml.1:
+%.1: %.xml
 	$(AM_V_GEN) $(MAN_PROC)
-.xml.5:
+%.5: %.xml
 	$(AM_V_GEN) $(MAN_PROC)
 
 endif ENABLE_DOC

@@ -24,6 +24,15 @@ sys.dont_write_bytecode = True
 os.environ['PYTHONUNBUFFERED'] = '1'
 
 
+def flush_stdout():
+    while True:
+        try:
+            sys.stdout.flush()
+            break
+        except BlockingIOError:
+            time.sleep(0.1)
+
+
 class Test:
     def __init__(self, test_id, command, timeout, nondestructive, retry_when_affected):
         self.process = None
@@ -35,14 +44,6 @@ class Test:
         self.serial_machine = None
         self.retry_when_affected = retry_when_affected
         self.returncode = None
-
-    def get_title(self):
-        return "{0} {1} {2}{3}".format(
-            self.test_id,
-            self.command[0],
-            self.command[-1],
-            " [ND@{0}]".format(self.serial_machine) if self.nondestructive else "",
-        )
 
     def start(self):
         self.outfile = tempfile.TemporaryFile()
@@ -60,6 +61,106 @@ class Test:
             self.returncode = self.process.returncode
 
         return poll_result
+
+    def finish(self, affected_tests, print_tap=True, thorough=False):
+        """Returns if a test should retry or not
+
+        Call test-failure-policy on the test's output, print if needed.
+
+        Return (retry_reason, exit_code). retry_reason can be None or a string.
+        """
+
+        affected = any([self.command[0].endswith(t) for t in affected_tests])
+        retry_reason = ""
+        skip_reason = ""
+
+        # Try affected tests 3 times
+        if self.returncode == 0 and affected and self.retry_when_affected and self.retries < 2:
+            retry_reason = "test affected tests 3 times"
+            self.retries += 1
+            self._print_test(print_tap, "# RETRY {0} ({1})".format(self.retries, retry_reason))
+            return retry_reason, 0
+
+        # If test is being skipped pick up the reason
+        if self.returncode == 77:
+            lines = self.output.splitlines()
+            skip_reason = lines[-1].strip().decode("utf-8")
+            self.output = b"\n".join(lines[:-1])
+
+        if self.returncode in [0, 77]:
+            self._print_test(print_tap, skip_reason=skip_reason)
+            return None, 0
+
+        if not thorough:
+            cmd = ["test-failure-policy", testvm.DEFAULT_IMAGE]
+            try:
+                proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+                reason = proc.communicate(self.output + ("not ok " + self._get_title()).encode())[0].strip()
+
+                if proc.returncode == 77:
+                    self._print_test(skip_reason="# SKIP {0}".format(reason.decode("utf-8")))
+                    return None, 0
+
+                if proc.returncode == 1:
+                    retry_reason = reason.decode("utf-8")
+
+            except OSError as ex:
+                if ex.errno != errno.ENOENT:
+                    sys.stderr.write("\nCouldn't run test-failure-policy: {0}\n".format(str(ex)))
+
+        # HACK: many tests are unstable, always retry them 3 times unless affected
+        if not affected and not retry_reason:
+            retry_reason = "be robust against unstable tests"
+
+        has_unexpected_message = testlib.UNEXPECTED_MESSAGE.encode() in self.output
+        has_pixel_test_message = testlib.PIXEL_TEST_MESSAGE.encode() in self.output
+        if self.retries < 2 and not (has_unexpected_message or has_pixel_test_message) and retry_reason:
+            self.retries += 1
+            self._print_test(retry_reason="# RETRY {0} ({1})".format(self.retries, retry_reason))
+            return retry_reason, 0
+
+        self.output += b"\n"
+        self._print_test()
+        return None, 1
+
+    # internal methods
+
+    def _get_title(self):
+        return "{0} {1} {2}{3}".format(
+            self.test_id,
+            self.command[0],
+            self.command[-1],
+            " [ND@{0}]".format(self.serial_machine) if self.nondestructive else "",
+        )
+
+    def _print_test(self, print_tap=True, retry_reason="", skip_reason=""):
+        for line in self.output.strip().splitlines(keepends=True):
+            while line:
+                try:
+                    sys.stdout.buffer.write(line)
+                    break
+                except BlockingIOError as e:
+                    line = line[e.characters_written:]
+                    time.sleep(0.1)
+
+        if retry_reason:
+            retry_reason = " " + retry_reason
+        if skip_reason:
+            skip_reason = " " + skip_reason
+
+        if not print_tap:
+            print(retry_reason + skip_reason)
+            flush_stdout()
+            return
+
+        print()  # Tap needs to start on a separate line
+        if self.returncode == 0:
+            print(f"ok {self._get_title()}{retry_reason}")
+        elif skip_reason:
+            print(f"ok {self._get_title()}{skip_reason}")
+        else:
+            print(f"not ok {self._get_title()}{retry_reason}")
+        flush_stdout()
 
 
 class GlobalMachine:
@@ -82,107 +183,6 @@ class GlobalMachine:
     def kill(self):
         self.machine.kill()
         self.network.kill()
-
-
-def flush_stdout():
-    while True:
-        try:
-            sys.stdout.flush()
-            break
-        except BlockingIOError:
-            time.sleep(0.1)
-
-
-def print_test(test, print_tap=True, retry_reason="", skip_reason=""):
-    for line in test.output.strip().splitlines(keepends=True):
-        while line:
-            try:
-                sys.stdout.buffer.write(line)
-                break
-            except BlockingIOError as e:
-                line = line[e.characters_written:]
-                time.sleep(0.1)
-
-    if retry_reason:
-        retry_reason = " " + retry_reason
-    if skip_reason:
-        skip_reason = " " + skip_reason
-
-    if not print_tap:
-        print(retry_reason + skip_reason)
-        flush_stdout()
-        return
-
-    print()  # Tap needs to start on a separate line
-    if test.returncode == 0:
-        print(f"ok {test.get_title()}{retry_reason}")
-    elif skip_reason:
-        print(f"ok {test.get_title()}{skip_reason}")
-    else:
-        print("not ok {test.get_title()}{retry_reason}")
-    flush_stdout()
-
-
-def finish_test(opts, test, affected_tests):
-    """Returns if a test should retry or not
-
-    Call test-failure-policy on the test's output, print if needed.
-
-    Return (retry_reason, exit_code). retry_reason can be None or a string.
-    """
-
-    affected = any([test.command[0].endswith(t) for t in affected_tests])
-    retry_reason = ""
-    skip_reason = ""
-
-    # Try affected tests 3 times
-    if test.returncode == 0 and affected and test.retry_when_affected and test.retries < 2:
-        retry_reason = "test affected tests 3 times"
-        test.retries += 1
-        print_test(test, not opts.list, "# RETRY {0} ({1})".format(test.retries, retry_reason))
-        return retry_reason, 0
-
-    # If test is being skipped pick up the reason
-    if test.returncode == 77:
-        lines = test.output.splitlines()
-        skip_reason = lines[-1].strip().decode("utf-8")
-        test.output = b"\n".join(lines[:-1])
-
-    if test.returncode in [0, 77]:
-        print_test(test, not opts.list, skip_reason=skip_reason)
-        return None, 0
-
-    if not opts.thorough:
-        cmd = ["test-failure-policy", testvm.DEFAULT_IMAGE]
-        try:
-            proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-            reason = proc.communicate(test.output + ("not ok " + test.get_title()).encode())[0].strip()
-
-            if proc.returncode == 77:
-                print_test(test, skip_reason="# SKIP {0}".format(reason.decode("utf-8")))
-                return None, 0
-
-            if proc.returncode == 1:
-                retry_reason = reason.decode("utf-8")
-
-        except OSError as ex:
-            if ex.errno != errno.ENOENT:
-                sys.stderr.write("\nCouldn't run test-failure-policy: {0}\n".format(str(ex)))
-
-    # HACK: many tests are unstable, always retry them 3 times unless affected
-    if not affected and not retry_reason:
-        retry_reason = "be robust against unstable tests"
-
-    has_unexpected_message = testlib.UNEXPECTED_MESSAGE.encode() in test.output
-    has_pixel_test_message = testlib.PIXEL_TEST_MESSAGE.encode() in test.output
-    if test.retries < 2 and not (has_unexpected_message or has_pixel_test_message) and retry_reason:
-        test.retries += 1
-        print_test(test, retry_reason="# RETRY {0} ({1})".format(test.retries, retry_reason))
-        return retry_reason, 0
-
-    test.output += b"\n"
-    print_test(test)
-    return None, 1
 
 
 def check_valid(filename):
@@ -385,7 +385,7 @@ def run(opts, image):
             if poll_result is not None:
                 made_progress = True
                 running_tests.remove(test)
-                retry_reason, test_result = finish_test(opts, test, changed_tests)
+                retry_reason, test_result = test.finish(changed_tests, print_tap=not opts.list, thorough=opts.thorough)
                 result += test_result
 
                 if test.serial_machine is not None:

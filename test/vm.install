@@ -1,0 +1,14 @@
+#!/bin/sh
+# image-customize script to prepare a bots VM for testing cockpit
+# The cockpit packages will be installed separately
+set -eu
+
+if type firewall-cmd >/dev/null 2>&1; then
+    firewall-cmd --add-service=cockpit --permanent
+fi
+
+# clean out the journal
+journalctl --flush
+journalctl --sync || killall systemd-journald
+rm -rf /var/log/journal/*
+rm -rf /var/lib/NetworkManager/dhclient-*.lease

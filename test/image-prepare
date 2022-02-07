@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
+# Build and run a bots/image-customize command to prepare a VM for testing Cockpit.
+
 # This file is part of Cockpit.
 #
-# Copyright (C) 2015 Red Hat, Inc.
+# Copyright (C) 2022 Red Hat, Inc.
 #
 # Cockpit is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published by
@@ -17,22 +19,127 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import errno
+import multiprocessing
 import os
+import shlex
+import shutil
 import sys
 import subprocess
 
-from verify import parent
-import testvm
+from common.parent import BASE_DIR, TEST_DIR, BOTS_DIR, ensure_bots
+ensure_bots()  # NOQA: testvm lives in bots/
+from lib import testmap
+from lib.constants import DEFAULT_IMAGE
+from machine.machine_core import machine_virtual
 
-parent  # pyflakes
 
-TEST = os.path.abspath(os.path.dirname(__file__))
-BASE = os.path.normpath(os.path.join(TEST, ".."))
-BOTS = os.path.join(BASE, "bots")
-os.environ["PATH"] = "{0}:{1}".format(os.environ.get("PATH"), BOTS)
+def make_dist():
+    '''Build a dist tarball for CI testing
 
-networking = None
+    This supports completely clean git trees, unpacked release tarballs, and already configured trees.
+    Returns path to built tarball.
+    '''
+    if not os.path.exists("Makefile"):
+        if os.path.exists('./configure'):
+            # unconfigured release tarball
+            subprocess.check_call('./configure')
+        else:
+            # clean git checkout
+            subprocess.check_call('./autogen.sh')
+
+    # this is for a development build, not a release, so we care about speed, not best size
+    subprocess.check_call(["make", "--silent", "-j%i" % multiprocessing.cpu_count(), "XZ_OPT=-0", "dist"])
+    return subprocess.check_output(["make", "dump-dist"], universal_newlines=True).strip()
+
+
+def build_rpms(dist_tar, image, verbose, quick):
+    '''build RPMs from a tarball in an image
+
+    Return local rpm path list.
+    '''
+    subprocess.check_call([os.path.join(BOTS_DIR, "image-download"), image])
+    machine = machine_virtual.VirtMachine(image=image)
+    try:
+        machine.start()
+        machine.wait_boot()
+        vm_tar = os.path.join("/var/tmp", os.path.basename(dist_tar))
+        machine.upload([dist_tar], vm_tar)
+
+        # build srpm
+        machine.execute(f'''su builder -c 'rpmbuild --define "_topdir /var/tmp/build" -ts "{vm_tar}"' ''')
+
+        # build rpms
+        mock_opts = ("--verbose" if verbose else "") + (" --nocheck" if quick else "")
+        machine.execute("su builder -c 'mock --no-clean --disablerepo=* --offline --resultdir /var/tmp/build "
+                        f"{mock_opts} --rebuild /var/tmp/build/SRPMS/*.src.rpm'", timeout=1800)
+
+        # download rpms
+        vm_rpms = machine.execute("find /var/tmp/build -name '*.rpm' -not -name '*.src.rpm'").strip().split()
+
+        destdir = os.path.abspath("tmp/rpms")
+        if os.path.exists(destdir):
+            shutil.rmtree(destdir)
+        os.makedirs(destdir)
+
+        rpms = []
+        for rpm in vm_rpms:
+            machine.download(rpm, destdir)
+            rpms.append(os.path.join(destdir, os.path.basename(rpm)))
+        return rpms
+    finally:
+        machine.stop()
+
+
+#
+# Helper functions to build image-customize options for various steps
+#
+
+def build_install_package(dist_tar, image, build_options=None):
+    '''Default rpm/deb/arch package build/install'''
+
+    # our images have distro cockpit packages pre-installed, remove them
+    args = ["--run-command"]
+    if 'debian' in image or 'ubuntu' in image:
+        args.append("dpkg --purge cockpit cockpit-ws cockpit-bridge cockpit-system")
+    else:
+        # subscription-manager-cockpit needs these, thus --nodeps
+        args.append("if rpm -q cockpit-ws >/dev/null 2>&1; then rpm --erase --nodeps --verbose cockpit cockpit-ws cockpit-bridge cockpit-system; fi")
+
+    if build_options:
+        args += ["--build-options", build_options]
+
+    args += ["--build", dist_tar]
+    return args
+
+
+def validate_packages():
+    '''Post-install package checks'''
+
+    # check for files that are shipped by more than one RPM
+    return ["--run-command",
+            """set -eu
+                fail=
+                for f in $(find $(rpm -ql $(rpm -qa '*cockpit*') | sort | uniq -d) -maxdepth 0 -type f); do
+                    # -debugsource overlap is legit
+                    [ "${f#/usr/src/debug}" = "$f" ] || continue
+                    echo "ERROR: $f is shipped by multiple packages: $(rpm -qf $f)" >&2
+                    fail=1
+                done
+                [ -z "${fail}" ] || exit 1
+            """]
+
+
+def build_containers():
+    return [
+        "--upload", os.path.join(BASE_DIR, "containers") + ":/var/tmp/",
+
+        "--run-command",
+        """set -eu
+            cd /var/tmp/containers/bastion
+            mkdir rpms
+            cp /var/tmp/build/*.rpm rpms/
+            sed -i -e "s#FROM .*#FROM cockpit/base#" Dockerfile
+            podman build --build-arg OFFLINE=1 -t "cockpit/bastion" . 1>&2"""]
 
 
 def main():
@@ -40,172 +147,43 @@ def main():
         description='Prepare testing environment, download images and build and install cockpit',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
-    parser.add_argument('-s', '--sit', action='store_true', help='Sit and wait if install script fails')
-    parser.add_argument('-q', '--quick', action='store_true', help='Build faster')
-    parser.add_argument('-f', '--force', action='store_true', help='Force update of images')
-    parser.add_argument('-b', '--build-image', action='store', help='Build in this image')
-    parser.add_argument('-B', '--build-only', action='store_true', help='Only build and download results')
-    parser.add_argument('-I', '--install-only', action='store_true', help='Only upload and install')
+    parser.add_argument('-q', '--quick', action='store_true', help='Skip unit tests to build faster')
     parser.add_argument('-c', '--containers', action='store_true', help='Install container images')
-    parser.add_argument('--address', help='Address of already running machine, implies --install-only')
-    parser.add_argument('image', nargs='?', default=testvm.DEFAULT_IMAGE, help='The image to use')
+    parser.add_argument('image', nargs='?', default=DEFAULT_IMAGE, help='The image to use')
     args = parser.parse_args()
 
-    # The basic operating system we're preparing on top of. Never written to
-    base_image = args.image
+    dist_tar = make_dist()
 
-    # The image we're going to build in. This image is never written to
-    build_image = None
-    if not args.install_only:
-        build_image = testvm.get_build_image(args.build_image or base_image)
+    customize = [os.path.join(BOTS_DIR, "image-customize"), "--fresh"]
+    if args.verbose:
+        customize.append("--verbose")
+    if args.quick:
+        customize.append("--quick")
 
-    # Depending on the operating system ignore some things
-    skips = []
-    if args.address:
-        skips.append("cockpit-tests")
-        args.install_only = True
-
-    if args.install_only and args.build_only:
-        sys.stderr.write("image-prepare: use of --install-only with --build-only is incompatible\n")
-        return 2
-
-    results = os.path.abspath("tmp/build-results")
-
-    # Make sure any images are downloaded
-    try:
-        if not args.address and not os.path.exists(base_image):
-            subprocess.check_call(["image-download", base_image])
-        if build_image and not os.path.exists(build_image):
-            subprocess.check_call(["image-download", build_image])
-    except OSError as ex:
-        if ex.errno != errno.ENOENT:
-            raise
-        sys.stderr.write("image-prepare: missing tools to download images\n")
-    except subprocess.CalledProcessError:
-        sys.stderr.write("image-prepare: unable to download all necessary images\n")
-        return 1
-
-    try:
-        if not args.install_only:
-            build_and_install(build_image, results, skips, args)
-        if not args.build_only and build_image != base_image:
-            only_install(base_image, results, skips, args, args.address)
-    except (RuntimeError, testvm.Failure) as ex:
-        sys.stderr.write("image-prepare: {0}\n".format(str(ex)))
-        return 2
-
-    return 0
-
-
-def upload_scripts(machine, args):
-    machine.execute("rm -rf /var/lib/testvm")
-    machine.upload([os.path.join(testvm.SCRIPTS_DIR, "lib")], "/var/lib/testvm")
-    machine.upload([os.path.join(testvm.SCRIPTS_DIR, "%s.install" % machine.image)], "/var/tmp")
-    machine.upload([os.path.join(BASE, "containers")], "/var/tmp")
-
-
-# Create the necessary layered image for the build/install
-def prepare_install_image(base_image):
-    if "/" not in base_image:
-        base_image = os.path.join(testvm.IMAGES_DIR, base_image)
-    test_images = os.path.join(TEST, "images")
-    os.makedirs(test_images, exist_ok=True)
-    install_image = os.path.join(test_images, os.path.basename(base_image))
-    base_image = os.path.realpath(testvm.get_test_image(base_image))
-    qcow2_image = "{0}.qcow2".format(install_image)
-    subprocess.check_call(["qemu-img", "create", "-q", "-f", "qcow2",
-                           "-o", "backing_file={0},backing_fmt=qcow2".format(base_image),
-                           qcow2_image])
-    if os.path.lexists(install_image):
-        os.unlink(install_image)
-    os.symlink(os.path.basename(qcow2_image), install_image)
-    return install_image
-
-
-def run_install_script(machine, do_build, do_install, skips, arg, args):
-    install = do_install
-    if args.containers and not do_build:
-        do_install = False
-
-    skips = list(skips or [])
-    if "atomic" not in machine.image:
-        skips.append("cockpit-ostree")
-
-    skip_args = [" --skip '%s'" % skip for skip in skips]
-    cmd = "cd /var/tmp; ./%s.install%s%s%s%s%s%s" % (machine.image,
-                                                     " --verbose" if args.verbose else "",
-                                                     " --quick" if args.quick else "",
-                                                     " --build" if do_build else "",
-                                                     " --install" if do_install else "",
-                                                     " ".join(skip_args),
-                                                     " '%s'" % arg if arg else "")
-    machine.execute(cmd, timeout=1800)
-
-    if install and args.containers:
-        machine.execute("/var/lib/testvm/containers.install", timeout=900)
-
-
-def build_and_install(build_image, build_results, skips, args):
-    """Build and maybe install Cockpit into a test image"""
-    build_image = prepare_install_image(build_image)
-    machine = testvm.VirtMachine(verbose=args.verbose, image=build_image,
-                                 memory_mb=2048, cpus=4, maintain=True, networking=networking)
-    completed = False
-
-    # While the machine is booting, make a tarball
-    # Do a development build on the latest Fedora image so that we can spot React and other dev-only warnings
-    env = os.environ.copy()
-    if os.path.basename(build_image) == "fedora-30":
-        env["NODE_ENV"] = "development"
-    source = subprocess.check_output([os.path.join(BOTS, "make-source")],
-                                     universal_newlines=True, env=env).strip()
-    machine.start()
-    completed = False
-
-    try:
-        machine.wait_boot()
-        upload_scripts(machine, args=args)
-        machine.upload([source], "/var/tmp")
-        run_install_script(machine, True, True, skips, os.path.basename(source), args)
-        completed = True
-    finally:
-        if not completed and args.sit:
-            sys.stderr.write(machine.diagnose())
-            input("Press RET to continue... ")
-        try:
-            if os.path.exists(build_results):
-                subprocess.check_call(["rm", "-rf", build_results])
-            os.makedirs(build_results)
-            machine.download("/var/tmp/build-results/*", build_results)
-        finally:
-            machine.stop()
-
-
-def only_install(image, build_results, skips, args, address):
-    """Install Cockpit into a test image"""
-    started = False
-    if args.address:
-        machine = testvm.Machine(address=args.address, verbose=args.verbose, image=image)
+    if args.image.startswith("rhel"):
+        # For RHEL we actually build in EPEL, which is based on CentOS.  On CentOS, the spec file
+        # has both %centos and %rhel defined, but it gives precedence to %centos, as it must.  To
+        # make it produce the RHEL packages, we explicitly undefine %centos here.
+        build_options = '--define="centos 0"'
     else:
-        image = prepare_install_image(image)
-        machine = testvm.VirtMachine(verbose=args.verbose, image=image, networking=networking, maintain=True)
-        machine.start()
-        started = True
-    completed = False
-    try:
-        if started:
-            machine.wait_boot()
-        upload_scripts(machine, args=args)
-        machine.execute("rm -rf /var/tmp/build-results")
-        machine.upload([build_results], "/var/tmp/build-results")
-        run_install_script(machine, False, True, skips, None, args)
-        completed = True
-    finally:
-        if not completed and args.sit:
-            sys.stderr.write(machine.diagnose())
-            input("Press RET to continue... ")
-        if started:
-            machine.stop()
+        build_options = None
+
+    customize += build_install_package(dist_tar, args.image, build_options)
+
+    if args.containers:
+        customize += build_containers()
+
+    if not args.quick:
+        customize += validate_packages()
+
+    # post build/install test preparation
+    customize += ["--script", os.path.join(TEST_DIR, "vm.install"), args.image]
+
+    # show final command for easy copy&paste reproduction/debugging
+    if args.verbose:
+        print(' '.join([shlex.quote(arg) for arg in customize]))
+
+    return subprocess.call(customize)
 
 
 if __name__ == "__main__":

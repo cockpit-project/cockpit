@@ -467,7 +467,7 @@ class TestConnection(MachineCase):
         self.assertIn("HTTP/1.1 301 Moved Permanently", output)
         self.assertIn("Location: https://172.27.0.15:9090/", output)
         # enable AllowUnencrypted, this disables redirect
-        m.execute('mkdir -p /etc/cockpit/ && echo "[WebService]\nAllowUnencrypted=true" > /etc/cockpit/cockpit.conf')
+        m.write_conf('Webservice', 'AllowUnencrypted', 'true')
         m.restart_cockpit()
         # now it should not redirect
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --head http://127.0.0.1:9090"))
@@ -475,8 +475,7 @@ class TestConnection(MachineCase):
 
     def testConfigOrigins(self):
         m = self.machine
-        m.execute(
-            'mkdir -p /etc/cockpit/ && echo "[WebService]\nOrigins = http://other-origin:9090 http://localhost:9090" > /etc/cockpit/cockpit.conf')
+        m.write_conf('Webservice', 'Origins', 'http://other-origin:9090 http://localhost:9090')
         m.start_cockpit()
         output = m.execute('curl -s -f -N -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Origin: http://other-origin:9090" -H "Host: localhost:9090" -H "Sec-Websocket-Key: 3sc2c9IzwRUc3BlSIYwtSA==" -H "Sec-Websocket-Version: 13" http://localhost:9090/cockpit/socket')
         self.assertIn('"no-session"', output)
@@ -670,7 +669,7 @@ class TestConnection(MachineCase):
 
         self.restore_dir("/etc/cockpit")
         m.execute("rm -f /etc/cockpit/ws-certs.d/* /etc/cockpit/cockpit.conf")
-        m.write("/etc/cockpit/cockpit.conf", "[WebService]\nLoginTitle = A Custom Title\n")
+        m.write_conf("WebService", "LoginTitle", "A Custom Title")
 
         m.execute(f"{self.libexecdir}/cockpit-certificate-ensure")
         self.assertTrue(m.execute("ls /etc/cockpit/ws-certs.d/*"))
@@ -1030,10 +1029,11 @@ class TestReverseProxy(MachineCase):
 
         m.upload(["../src/tls/ca/alice.pem", "../src/tls/ca/alice.key"], "/etc/pki")
 
-        m.write("/etc/cockpit/cockpit.conf", """[WebService]
-Origins = https://%(origin)s wss://%(origin)s
-ProtocolHeader = X-Forwarded-Proto
-""" % {"origin": m.forward["443"]}, append=True)
+        origin = m.forward["443"]
+        m.write_conf("WebService", {
+            "Origins": f"https://{origin} wss://{origin}",
+            "ProtocolHeader": "X-Forwarded-Proto"
+        })
 
         m.execute("setsebool -P httpd_can_network_connect on")
         self.allow_journal_messages("audit.*bool=httpd_can_network_connect.*val=1.*")

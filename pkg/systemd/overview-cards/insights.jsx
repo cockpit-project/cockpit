@@ -123,7 +123,7 @@ export class InsightsStatus extends React.Component {
                     <li className="system-health-insights">
                         <Flex flexWrap={{ default: 'nowrap' }} spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
                             <ExclamationTriangleIcon className="ct-exclamation-triangle" />
-                            <Button isInline variant="link" component="a" href="#" onClick={ev => { ev.preventDefault(); cockpit.jump("/subscriptions") }}>
+                            <Button isInline variant="link" component="a" onClick={ev => { ev.preventDefault(); cockpit.jump("/subscriptions") }}>
                                 {_("Not connected to Insights")}
                             </Button>
                         </Flex>

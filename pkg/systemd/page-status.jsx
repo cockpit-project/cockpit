@@ -83,12 +83,12 @@ export class PageStatusNotifications extends React.Component {
                 let action;
                 if (status.details && status.details.link !== undefined) {
                     if (status.details.link)
-                        action = <Button variant="link" isInline component="a" href="#"
+                        action = <Button variant="link" isInline component="a"
                                          onClick={ ev => { ev.preventDefault(); cockpit.jump("/" + status.details.link) } }>{status.title}</Button>;
                     else
                         action = <span>{status.title}</span>; // no link
                 } else {
-                    action = <Button variant="link" isInline component="a" href="#"
+                    action = <Button variant="link" isInline component="a"
                                      onClick={ ev => { ev.preventDefault(); cockpit.jump("/" + page) } }>{status.title}</Button>;
                 }
 

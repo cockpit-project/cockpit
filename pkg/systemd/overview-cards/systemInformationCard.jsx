@@ -141,7 +141,7 @@ export class SystemInfomationCard extends React.Component {
                     </table>
                 </CardBody>
                 <CardFooter>
-                    <Button isInline variant="link" component="a" href="#" onClick={ev => { ev.preventDefault(); cockpit.jump("/system/hwinfo", cockpit.transport.host) }}>
+                    <Button isInline variant="link" component="a" onClick={ev => { ev.preventDefault(); cockpit.jump("/system/hwinfo", cockpit.transport.host) }}>
                         {_("View hardware details")}
                     </Button>
                 </CardFooter>

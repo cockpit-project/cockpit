@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-25 18:03+0000\n"
-"PO-Revision-Date: 2022-01-30 13:16+0000\n"
+"POT-Creation-Date: 2022-02-01 18:05+0000\n"
+"PO-Revision-Date: 2022-02-04 00:22+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <https://translate.fedoraproject.org/projects/"
 "cockpit/main/uk/>\n"
@@ -33,7 +33,7 @@ msgstr[0] "$0 процесор"
 msgstr[1] "$0 процесори"
 msgstr[2] "$0 процесорів"
 
-#: pkg/lib/machine-info.js:246
+#: pkg/lib/machine-info.js:248
 msgid "$0 GiB"
 msgstr "$0 ГіБ"
 
@@ -319,10 +319,6 @@ msgstr "$0: аварія у $1"
 #: pkg/storaged/utils.js:192
 msgid "$name (from $host)"
 msgstr "$name (з $host)"
-
-#: pkg/networkmanager/firewall.jsx:613
-msgid "(Optional)"
-msgstr "(Необов’язково)"
 
 #: pkg/storaged/format-dialog.jsx:137 pkg/storaged/format-dialog.jsx:154
 msgid "(recommended)"
@@ -626,7 +622,7 @@ msgstr "Луна-імпульс ARP"
 msgid "About Web Console"
 msgstr "Про «Вебконсоль»"
 
-#: pkg/lib/machine-info.js:264
+#: pkg/lib/machine-info.js:266
 msgid "Absent"
 msgstr "Відсутній"
 
@@ -720,7 +716,7 @@ msgstr "Додати $0"
 msgid "Add VLAN"
 msgstr "Додати VLAN"
 
-#: pkg/networkmanager/firewall.jsx:915
+#: pkg/networkmanager/firewall.jsx:935
 msgid "Add a new zone"
 msgstr "Додати нову зону"
 
@@ -764,11 +760,11 @@ msgstr "Додати учасника"
 msgid "Add new host"
 msgstr "Додати новий вузол"
 
-#: pkg/networkmanager/firewall.jsx:513
+#: pkg/networkmanager/firewall.jsx:528
 msgid "Add ports"
 msgstr "Додати порти"
 
-#: pkg/networkmanager/firewall.jsx:514
+#: pkg/networkmanager/firewall.jsx:529
 msgid "Add ports to $0 zone"
 msgstr "Додати порти до зони $0"
 
@@ -776,11 +772,11 @@ msgstr "Додати порти до зони $0"
 msgid "Add public key"
 msgstr "Додати відкритий ключ"
 
-#: pkg/networkmanager/firewall.jsx:167 pkg/networkmanager/firewall.jsx:513
+#: pkg/networkmanager/firewall.jsx:167 pkg/networkmanager/firewall.jsx:528
 msgid "Add services"
 msgstr "Додавання служб"
 
-#: pkg/networkmanager/firewall.jsx:514
+#: pkg/networkmanager/firewall.jsx:529
 msgid "Add services to $0 zone"
 msgstr "Додати служби до зони $0"
 
@@ -792,8 +788,8 @@ msgstr "Додати служби до зони $0"
 msgid "Add team"
 msgstr "Додати команду"
 
-#: pkg/networkmanager/firewall.jsx:696 pkg/networkmanager/firewall.jsx:704
-#: pkg/networkmanager/firewall.jsx:916
+#: pkg/networkmanager/firewall.jsx:716 pkg/networkmanager/firewall.jsx:724
+#: pkg/networkmanager/firewall.jsx:936
 msgid "Add zone"
 msgstr "Додати зону"
 
@@ -805,7 +801,7 @@ msgstr ""
 "Додавання $0 призведе до розірвання з’єднання із сервером і зробить "
 "адміністративний інтерфейс користувача недоступним."
 
-#: pkg/networkmanager/firewall.jsx:527
+#: pkg/networkmanager/firewall.jsx:542
 msgid ""
 "Adding custom ports will reload firewalld. A reload will result in the loss "
 "of any runtime-only configuration!"
@@ -926,7 +922,7 @@ msgstr "Усе в одному"
 msgid "Allow running (unmask)"
 msgstr "Дозволити запуск (зняти маску)"
 
-#: pkg/networkmanager/firewall.jsx:766
+#: pkg/networkmanager/firewall.jsx:786
 msgid "Allowed addresses"
 msgstr "Дозволені адреси"
 
@@ -951,7 +947,7 @@ msgstr ""
 "відокремлених комами записів ПОЛЕ=ЗНАЧЕННЯ, де значенням є список "
 "відокремлених комами можливих значень."
 
-#: pkg/systemd/terminal.jsx:144
+#: pkg/systemd/terminal.jsx:147
 msgid "Appearance"
 msgstr "Вигляд"
 
@@ -1165,7 +1161,7 @@ msgctxt "storage"
 msgid "Bitmap"
 msgstr "Бітова карта"
 
-#: pkg/systemd/terminal.jsx:150
+#: pkg/systemd/terminal.jsx:153
 msgid "Black"
 msgstr "Чорний"
 
@@ -1302,8 +1298,8 @@ msgstr "Не вдалося знайти журналів на основі по
 #: pkg/playground/translate.html:39 pkg/static/login.html:117
 #: pkg/packagekit/autoupdates.jsx:419 pkg/packagekit/updates.jsx:473
 #: pkg/packagekit/updates.jsx:544 pkg/packagekit/kpatch.jsx:310
-#: pkg/networkmanager/firewall.jsx:533 pkg/networkmanager/firewall.jsx:707
-#: pkg/networkmanager/firewall.jsx:799
+#: pkg/networkmanager/firewall.jsx:548 pkg/networkmanager/firewall.jsx:727
+#: pkg/networkmanager/firewall.jsx:819
 #: pkg/networkmanager/dialogs-common.jsx:152 pkg/shell/credentials.jsx:314
 #: pkg/shell/active-pages-modal.jsx:96 pkg/shell/superuser.jsx:86
 #: pkg/shell/superuser.jsx:158 pkg/shell/shell-modals.jsx:128
@@ -1320,6 +1316,14 @@ msgstr "Не вдалося знайти журналів на основі по
 #: pkg/lib/cockpit-components-dialog.jsx:127
 msgid "Cancel"
 msgstr "Скасувати"
+
+#: pkg/systemd/overview-cards/shutdownStatus.jsx:87
+msgid "Cancel poweroff"
+msgstr "Скасувати вимикання"
+
+#: pkg/systemd/overview-cards/shutdownStatus.jsx:91
+msgid "Cancel reboot"
+msgstr "Скасувати перезавантаження"
 
 #: pkg/systemd/services/services-list.jsx:82
 msgid "Cannot be enabled"
@@ -1579,9 +1583,9 @@ msgstr "Зібрати метрику"
 msgid "Color"
 msgstr "Колір"
 
-#: pkg/networkmanager/firewall.jsx:593 pkg/networkmanager/firewall.jsx:603
-msgid "Comma-separated ports, ranges, and aliases are accepted"
-msgstr "Відокремлені комами порти, діапазони і альтернативні назви прийнято"
+#: pkg/networkmanager/firewall.jsx:608 pkg/networkmanager/firewall.jsx:618
+msgid "Comma-separated ports, ranges, and services are accepted"
+msgstr "Можна використовувати відокремлені комами порти, діапазони і служби"
 
 #: pkg/systemd/services/timer-dialog.jsx:159 pkg/storaged/dialog.jsx:1203
 #: pkg/storaged/dialog.jsx:1222
@@ -1666,7 +1670,7 @@ msgstr "Підтвердження нового пароля"
 msgid "Confirm password"
 msgstr "Підтвердження пароля"
 
-#: pkg/networkmanager/firewall.jsx:795
+#: pkg/networkmanager/firewall.jsx:815
 msgid "Confirm removal of $0"
 msgstr "Підтвердження вилучення $0"
 
@@ -1959,11 +1963,11 @@ msgstr "Зараз використовується"
 msgid "Custom mount options"
 msgstr "Нетипові параметри монтування"
 
-#: pkg/networkmanager/firewall.jsx:551
+#: pkg/networkmanager/firewall.jsx:566
 msgid "Custom ports"
 msgstr "Нетипові порти"
 
-#: pkg/networkmanager/firewall.jsx:725
+#: pkg/networkmanager/firewall.jsx:745
 msgid "Custom zones"
 msgstr "Нетипові зони"
 
@@ -1995,7 +1999,7 @@ msgstr "Щодня"
 msgid "Danger alert:"
 msgstr "Попередження про небезпеку:"
 
-#: pkg/systemd/terminal.jsx:151
+#: pkg/systemd/terminal.jsx:154
 msgid "Dark"
 msgstr "Темний"
 
@@ -2035,7 +2039,7 @@ msgstr "Деактивуємо $target"
 msgid "Debug and above"
 msgstr "Діагностика і вище"
 
-#: pkg/systemd/terminal.jsx:138
+#: pkg/systemd/terminal.jsx:139
 msgid "Decrease by one"
 msgstr "Зменшити на одиницю"
 
@@ -2055,7 +2059,7 @@ msgid "Delay must be a number"
 msgstr "Значенням затримки має бути число"
 
 #: pkg/users/account-details.js:278 pkg/users/delete-account-dialog.js:60
-#: pkg/networkmanager/firewall.jsx:796
+#: pkg/networkmanager/firewall.jsx:816
 #: pkg/networkmanager/network-interface.jsx:718 pkg/systemd/abrtLog.jsx:285
 #: pkg/storaged/vdo-details.jsx:205 pkg/storaged/vdo-details.jsx:271
 #: pkg/storaged/mdraid-details.jsx:305 pkg/storaged/mdraid-details.jsx:331
@@ -2126,7 +2130,7 @@ msgstr "Вилучення призведе до витирання усіх д�
 msgid "Deleting erases all data on a volume group."
 msgstr "Вилучення призведе до витирання усіх даних на групі томів."
 
-#: pkg/networkmanager/firewall.jsx:736
+#: pkg/networkmanager/firewall.jsx:626 pkg/networkmanager/firewall.jsx:756
 #: pkg/systemd/services/timer-dialog.jsx:150 pkg/storaged/dialog.jsx:1223
 msgid "Description"
 msgstr "Опис"
@@ -2334,7 +2338,7 @@ msgstr "Диск"
 msgid "Drives"
 msgstr "Диски"
 
-#: pkg/lib/machine-info.js:257
+#: pkg/lib/machine-info.js:259
 msgid "Dual rank"
 msgstr "Подвійний ранг"
 
@@ -2474,7 +2478,7 @@ msgstr "Доступні оновлення із поліпшеннями"
 msgid "Enter a valid MAC address"
 msgstr "Введіть коректну MAC-адресу"
 
-#: pkg/networkmanager/firewall.jsx:772
+#: pkg/networkmanager/firewall.jsx:792
 msgid "Entire subnet"
 msgstr "Уся підмережа"
 
@@ -2547,11 +2551,11 @@ msgstr "Подія"
 msgid "Event logs"
 msgstr "Журнал подій"
 
-#: pkg/networkmanager/firewall.jsx:598
+#: pkg/networkmanager/firewall.jsx:613
 msgid "Example: 22,ssh,8080,5900-5910"
 msgstr "Приклад: 22,ssh,8080,5900-5910"
 
-#: pkg/networkmanager/firewall.jsx:608
+#: pkg/networkmanager/firewall.jsx:623
 msgid "Example: 88,2019,nfs,rsync"
 msgstr "Приклад: 88,2019,nfs,rsync"
 
@@ -2591,15 +2595,15 @@ msgstr "Помилка"
 msgid "Failed to add machine: $0"
 msgstr "Не вдалося додати комп’ютер: $0"
 
-#: pkg/networkmanager/firewall.jsx:323
+#: pkg/networkmanager/firewall.jsx:332
 msgid "Failed to add port"
 msgstr "Не вдалося додати порт"
 
-#: pkg/networkmanager/firewall.jsx:323
+#: pkg/networkmanager/firewall.jsx:332
 msgid "Failed to add service"
 msgstr "Не вдалося додати службу"
 
-#: pkg/networkmanager/firewall.jsx:670
+#: pkg/networkmanager/firewall.jsx:690
 msgid "Failed to add zone"
 msgstr "Не вдалося додати зону"
 
@@ -2724,11 +2728,11 @@ msgid "Fingerprint"
 msgstr "Відбиток"
 
 #: pkg/networkmanager/firewall.html:22 pkg/networkmanager/network-main.jsx:151
-#: pkg/networkmanager/firewall.jsx:932 pkg/networkmanager/firewall.jsx:939
+#: pkg/networkmanager/firewall.jsx:952 pkg/networkmanager/firewall.jsx:959
 msgid "Firewall"
 msgstr "Брандмауер"
 
-#: pkg/networkmanager/firewall.jsx:909
+#: pkg/networkmanager/firewall.jsx:929
 msgid "Firewall is not available"
 msgstr "Брандмауер недоступний"
 
@@ -2737,7 +2741,7 @@ msgctxt "storage"
 msgid "Firmware version"
 msgstr "Версія мікропрограми"
 
-#: pkg/systemd/terminal.jsx:127 pkg/systemd/terminal.jsx:137
+#: pkg/systemd/terminal.jsx:128 pkg/systemd/terminal.jsx:138
 msgid "Font size"
 msgstr "Розмір шрифту"
 
@@ -2880,7 +2884,7 @@ msgstr "Кишеньковий пристрій"
 msgid "Hardware information"
 msgstr "Дані щодо обладнання"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:36
+#: pkg/systemd/overview-cards/healthCard.jsx:37
 msgid "Health"
 msgstr "Здоров'я"
 
@@ -2924,7 +2928,7 @@ msgstr "Щогодини"
 msgid "Hours"
 msgstr "Години"
 
-#: pkg/networkmanager/firewall.jsx:611 pkg/systemd/hwinfo.jsx:313
+#: pkg/networkmanager/firewall.jsx:631 pkg/systemd/hwinfo.jsx:313
 msgid "ID"
 msgstr "Ід."
 
@@ -2937,7 +2941,7 @@ msgstr "Ід. $id"
 msgid "IP address"
 msgstr "IP-адреса"
 
-#: pkg/networkmanager/firewall.jsx:780
+#: pkg/networkmanager/firewall.jsx:800
 msgid ""
 "IP address with routing prefix. Separate multiple values with a comma. "
 "Example: 192.0.2.0/24, 2001:db8::/32"
@@ -3031,7 +3035,7 @@ msgstr "Неактивний"
 msgid "Inactive volume"
 msgstr "Неактивний том"
 
-#: pkg/networkmanager/firewall.jsx:742
+#: pkg/networkmanager/firewall.jsx:762
 msgid "Included services"
 msgstr "Включені служби"
 
@@ -3039,7 +3043,7 @@ msgstr "Включені служби"
 msgid "Inconsistent filesystem mount"
 msgstr "Несумісне монтування файлових систем"
 
-#: pkg/systemd/terminal.jsx:139
+#: pkg/systemd/terminal.jsx:140
 msgid "Increase by one"
 msgstr "Збільшити на одиницю"
 
@@ -3145,7 +3149,7 @@ msgid "Interface members"
 msgstr "Учасники інтерфейсу"
 
 #: pkg/networkmanager/bond.jsx:165 pkg/networkmanager/network-main.jsx:173
-#: pkg/networkmanager/firewall.jsx:176 pkg/networkmanager/firewall.jsx:749
+#: pkg/networkmanager/firewall.jsx:176 pkg/networkmanager/firewall.jsx:769
 #: pkg/networkmanager/network-interface-members.jsx:215
 msgid "Interfaces"
 msgstr "Інтерфейси"
@@ -3194,7 +3198,7 @@ msgstr "Некоректна метрика $0"
 msgid "Invalid number of days"
 msgstr "Некоректна кількість днів"
 
-#: pkg/networkmanager/firewall.jsx:408
+#: pkg/networkmanager/firewall.jsx:423
 msgid "Invalid port number"
 msgstr "Некоректний номер порту"
 
@@ -3206,7 +3210,7 @@ msgstr "Некоректний префікс $0"
 msgid "Invalid prefix or netmask $0"
 msgstr "Некоректний префікс або маска мережі $0"
 
-#: pkg/networkmanager/firewall.jsx:436
+#: pkg/networkmanager/firewall.jsx:451
 msgid "Invalid range"
 msgstr "Некоректний діапазон"
 
@@ -3412,7 +3416,7 @@ msgstr "Полишити домен"
 msgid "Licensed under GNU LGPL version 2.1"
 msgstr "Ліцензовано за умов дотримання GNU LGPL версії 2.1"
 
-#: pkg/systemd/terminal.jsx:152
+#: pkg/systemd/terminal.jsx:155
 msgid "Light"
 msgstr "Світлий"
 
@@ -4094,7 +4098,7 @@ msgstr "NetworkManager не встановлено"
 msgid "NetworkManager is not running"
 msgstr "NetworkManager не запущено"
 
-#: pkg/networkmanager/index.html:23 pkg/networkmanager/firewall.jsx:931
+#: pkg/networkmanager/index.html:23 pkg/networkmanager/firewall.jsx:951
 #: pkg/networkmanager/network-interface.jsx:695
 #: pkg/networkmanager/manifest.json:0
 msgid "Networking"
@@ -4193,7 +4197,7 @@ msgstr "Немає доступних даних між $0 і $1"
 msgid "No delay"
 msgstr "Без затримки"
 
-#: pkg/networkmanager/firewall.jsx:738
+#: pkg/networkmanager/firewall.jsx:758
 msgid "No description available"
 msgstr "Немає опису"
 
@@ -4322,7 +4326,7 @@ msgstr "Немає оновлень"
 msgid "No user name specified"
 msgstr "Не вказано імені користувача"
 
-#: pkg/networkmanager/firewall.jsx:744 pkg/tuned/dialog.jsx:227
+#: pkg/networkmanager/firewall.jsx:764 pkg/tuned/dialog.jsx:227
 #: pkg/kdump/kdump-view.jsx:424
 msgid "None"
 msgstr "Немає"
@@ -4819,7 +4823,7 @@ msgid "Please enable JavaScript to use the Web Console."
 msgstr ""
 "Щоб мати змогу користуватися вебконсоллю, будь ласка, увімкніть JavaScript."
 
-#: pkg/networkmanager/firewall.jsx:910
+#: pkg/networkmanager/firewall.jsx:930
 msgid "Please install the $0 package"
 msgstr "Будь ласка, встановіть пакунок $0"
 
@@ -4855,7 +4859,7 @@ msgstr "Буфер для тонких резервованих томів"
 msgid "Port"
 msgstr "Порт"
 
-#: pkg/networkmanager/firewall.jsx:412
+#: pkg/networkmanager/firewall.jsx:427
 msgid "Port number and type do not match"
 msgstr "Номер порту і тип не є сумісними"
 
@@ -4881,7 +4885,7 @@ msgstr "Довжина префікса або маска мережі"
 msgid "Preparing"
 msgstr "Приготування"
 
-#: pkg/lib/machine-info.js:264
+#: pkg/lib/machine-info.js:266
 msgid "Present"
 msgstr "Поточна"
 
@@ -5048,11 +5052,11 @@ msgstr "Апаратний блок монтування стійок"
 msgid "Random"
 msgstr "Випадковий"
 
-#: pkg/networkmanager/firewall.jsx:778
+#: pkg/networkmanager/firewall.jsx:798
 msgid "Range"
 msgstr "Діапазон"
 
-#: pkg/networkmanager/firewall.jsx:444
+#: pkg/networkmanager/firewall.jsx:459
 msgid "Range must be strictly ordered"
 msgstr "Діапазон має бути строго упорядковано"
 
@@ -5220,7 +5224,7 @@ msgstr "Вилучити"
 msgid "Remove $0"
 msgstr "Вилучити $0"
 
-#: pkg/networkmanager/firewall.jsx:860
+#: pkg/networkmanager/firewall.jsx:880
 msgid "Remove $0 service from $1 zone"
 msgstr "Вилучити службу $0 із зони $1"
 
@@ -5255,7 +5259,7 @@ msgstr "Вилучити пароль у слоті ключів $0?"
 msgid "Remove service $0"
 msgstr "Вилучити службу $0"
 
-#: pkg/networkmanager/firewall.jsx:161 pkg/networkmanager/firewall.jsx:843
+#: pkg/networkmanager/firewall.jsx:161 pkg/networkmanager/firewall.jsx:863
 msgid "Remove zone $0"
 msgstr "Вилучити зону $0"
 
@@ -5292,7 +5296,7 @@ msgstr ""
 msgid "Removing physical volume from $target"
 msgstr "Вилучаємо фізичний том з $target"
 
-#: pkg/networkmanager/firewall.jsx:858
+#: pkg/networkmanager/firewall.jsx:878
 msgid ""
 "Removing the cockpit service might result in the web console becoming "
 "unreachable. Make sure that this zone does not apply to your current web "
@@ -5302,7 +5306,7 @@ msgstr ""
 "Переконайтеся, що застосування цієї зони не поширюється на ваше поточне "
 "з'єднання за допомогою вебконсолі."
 
-#: pkg/networkmanager/firewall.jsx:841
+#: pkg/networkmanager/firewall.jsx:861
 msgid "Removing the zone will remove all services within it."
 msgstr "Вилучення запису зони призведе до вилучення усіх служб у ній."
 
@@ -5415,7 +5419,7 @@ msgstr "Потрібний для"
 msgid "Reserved memory"
 msgstr "Зарезервована пам’ять"
 
-#: pkg/systemd/terminal.jsx:159 pkg/systemd/logs.jsx:404
+#: pkg/systemd/terminal.jsx:163 pkg/systemd/logs.jsx:404
 msgid "Reset"
 msgstr "Скинути"
 
@@ -5616,6 +5620,14 @@ msgstr ""
 "Збереження нового пароля потребує розблокування диска. Будь ласка, вкажіть "
 "поточний пароль до диска."
 
+#: pkg/systemd/overview-cards/shutdownStatus.jsx:86
+msgid "Scheduled poweroff at $0"
+msgstr "Заплановане вимикання о $0"
+
+#: pkg/systemd/overview-cards/shutdownStatus.jsx:90
+msgid "Scheduled reboot at $0"
+msgstr "Заплановане перезавантаження о $0"
+
 #: pkg/lib/machine-info.js:81
 msgid "Sealed-case PC"
 msgstr "ПК з опломбованим корпусом"
@@ -5742,7 +5754,7 @@ msgstr "Служба зупиняється"
 msgid "Service logs"
 msgstr "Журнали служб"
 
-#: pkg/systemd/services.html:4 pkg/networkmanager/firewall.jsx:544
+#: pkg/systemd/services.html:4 pkg/networkmanager/firewall.jsx:559
 #: pkg/systemd/services/service-tabs.jsx:39 pkg/systemd/services/service.jsx:80
 #: pkg/systemd/manifest.json:0
 msgid "Services"
@@ -5891,7 +5903,7 @@ msgstr "Вимкнути"
 msgid "Since"
 msgstr "З"
 
-#: pkg/lib/machine-info.js:255
+#: pkg/lib/machine-info.js:257
 msgid "Single rank"
 msgstr "Єдиний ранг"
 
@@ -5993,7 +6005,7 @@ msgstr ""
 msgid "Some software needs to be restarted manually"
 msgstr "Частину програмного забезпечення доведеться перезавантажити вручну"
 
-#: pkg/networkmanager/firewall.jsx:715
+#: pkg/networkmanager/firewall.jsx:735
 msgid "Sorted from least to most trusted"
 msgstr "Упорядковано від найменшої до найбільшої довіри"
 
@@ -6405,7 +6417,7 @@ msgid "The account '$0' will be forced to change their password on next login"
 msgstr ""
 "Обліковий запис «$0» має примусово змінити пароль під час наступного входу"
 
-#: pkg/networkmanager/firewall.jsx:746
+#: pkg/networkmanager/firewall.jsx:766
 msgid "The cockpit service is automatically included"
 msgstr "Службу cockpit включено автоматично"
 
@@ -6823,7 +6835,7 @@ msgstr ""
 msgid "This will test the kdump configuration by crashing the kernel."
 msgstr "Перевіряє налаштування kdump, аварійно завершуючи роботу ядра."
 
-#: pkg/networkmanager/firewall.jsx:839
+#: pkg/networkmanager/firewall.jsx:859
 msgid ""
 "This zone contains the cockpit service. Make sure that this zone does not "
 "apply to your current web console connection."
@@ -6968,7 +6980,7 @@ msgstr "Діагностика проблем…"
 msgid "Trust key"
 msgstr "Довіряти ключу"
 
-#: pkg/networkmanager/firewall.jsx:712
+#: pkg/networkmanager/firewall.jsx:732
 msgid "Trust level"
 msgstr "Рівень довіри"
 
@@ -7139,10 +7151,10 @@ msgstr "Група у Unix: $0"
 #: pkg/networkmanager/interfaces.js:506 pkg/networkmanager/interfaces.js:978
 #: pkg/networkmanager/network-interface.jsx:198
 #: pkg/networkmanager/network-interface.jsx:200 pkg/storaged/swap-tab.jsx:62
-#: pkg/lib/machine-info.js:59 pkg/lib/machine-info.js:243
-#: pkg/lib/machine-info.js:251 pkg/lib/machine-info.js:253
-#: pkg/lib/machine-info.js:260 pkg/lib/machine-info.js:262
-#: pkg/lib/machine-info.js:266
+#: pkg/lib/machine-info.js:59 pkg/lib/machine-info.js:245
+#: pkg/lib/machine-info.js:253 pkg/lib/machine-info.js:255
+#: pkg/lib/machine-info.js:262 pkg/lib/machine-info.js:264
+#: pkg/lib/machine-info.js:268
 msgid "Unknown"
 msgstr "Невідомий"
 
@@ -7167,7 +7179,7 @@ msgstr "Невідомі налаштування"
 msgid "Unknown host name"
 msgstr "Невідома назва вузла"
 
-#: pkg/networkmanager/firewall.jsx:406
+#: pkg/networkmanager/firewall.jsx:421
 msgid "Unknown service name"
 msgstr "Невідома назва служби"
 
@@ -7474,7 +7486,7 @@ msgstr "Переглянути подробиці і журнал"
 msgid "View hardware details"
 msgstr "Переглянути параметри обладнання"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:137
+#: pkg/systemd/overview-cards/lastLogin.jsx:135
 msgid "View login history"
 msgstr "Переглянути журнал входів"
 
@@ -7593,7 +7605,7 @@ msgstr ""
 "Втім, процес оновлення триватиме у фоновому режимі. Встановіть з'єднання "
 "повторно, щоб продовжити спостереження за процесом оновлення."
 
-#: pkg/systemd/terminal.jsx:153
+#: pkg/systemd/terminal.jsx:156
 msgid "White"
 msgstr "Білий"
 
@@ -8465,6 +8477,9 @@ msgstr "yum"
 msgid "zone"
 msgstr "зона"
 
+#~ msgid "(Optional)"
+#~ msgstr "(Необов’язково)"
+
 #~ msgid "Active since"
 #~ msgstr "Активний з"
 
@@ -9186,9 +9201,6 @@ msgstr "зона"
 
 #~ msgid "Firmware"
 #~ msgstr "Мікропрограма"
-
-#~ msgid "Force reboot"
-#~ msgstr "Примусове перезавантаження"
 
 #~ msgid "Force shut down"
 #~ msgstr "Примусово вимкнути"

@@ -24,6 +24,7 @@ from testlib import *
 @skipDistroPackage()
 class TestRoles(MachineCase):
 
+    @nondestructive
     def testBasic(self):
         m = self.machine
         b = self.browser

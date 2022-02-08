@@ -565,7 +565,8 @@ class TestHistoryMetrics(MachineCase):
             m.execute("! curl --silent --show-error --max-time 10 'http://localhost:44322/series/labels?names=hostname' 2>&1")
 
         # start in a defined state; all test images have pcp and redis pre-installed
-        m.execute(f"systemctl disable --now pmproxy {redis}")
+        m.execute(f"systemctl disable --now pmlogger pmie pmproxy {redis}")
+        m.execute("systemctl reset-failed")
         m.execute("systemctl start firewalld")
         # ensure pmproxy is not already opened in firewall
         m.execute("firewall-cmd --remove-service pmproxy; firewall-cmd --permanent --remove-service pmproxy")

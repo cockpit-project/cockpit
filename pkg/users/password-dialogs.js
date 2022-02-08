@@ -130,19 +130,22 @@ export function passwd_change(user, new_pass) {
 function SetPasswordDialogBody({ state, errors, change }) {
     const {
         need_old, password_old, password, password_confirm,
-        password_strength, password_message
+        password_strength, password_message, current_user,
     } = state;
 
     return (
         <Form isHorizontal onSubmit={apply_modal_dialog}>
             { need_old &&
-            <FormGroup label={_("Old password")}
-                       helperTextInvalid={errors && errors.password_old}
-                       validated={(errors && errors.password_old) ? "error" : "default"}
-                       fieldId="account-set-password-old">
-                <TextInput className="check-passwords" type="password" id="account-set-password-old"
-                           autocomplete="current-password" value={password_old} onChange={value => change("password_old", value)} />
-            </FormGroup> }
+            <>
+                <input hidden disabled value={current_user} />
+                <FormGroup label={_("Old password")}
+                           helperTextInvalid={errors && errors.password_old}
+                           validated={(errors && errors.password_old) ? "error" : "default"}
+                           fieldId="account-set-password-old">
+                    <TextInput className="check-passwords" type="password" id="account-set-password-old"
+                               autocomplete="current-password" value={password_old} onChange={value => change("password_old", value)} />
+                </FormGroup>
+            </> }
             <PasswordFormFields password={password}
                                 password_confirm={password_confirm}
                                 password_label={_("New password")}
@@ -164,6 +167,7 @@ export function set_password_dialog(account, current_user) {
 
     const state = {
         need_old: change_self,
+        current_user: current_user,
         password_old: "",
         password: "",
         password_confirm: "",

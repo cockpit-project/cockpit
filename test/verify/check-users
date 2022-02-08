@@ -18,6 +18,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import datetime
+import pytz
 
 import parent
 from testlib import *
@@ -294,7 +295,7 @@ class TestAccounts(MachineCase):
             b.go("#/admin")
             b.wait_visible("#account-logout[disabled]")
 
-            (year, month) = m.execute("date +'%Y %b'").strip().split()
+            (year, month) = m.execute("TZ='Asia/Kolkata' date +'%Y %b'").strip().split()
 
             # Log in as "admin" and the open details in other browser should update
             b2 = self.new_browser(m)
@@ -417,6 +418,8 @@ class TestAccounts(MachineCase):
         m = self.machine
         b = self.browser
 
+        tz = pytz.timezone('Asia/Kolkata')  # Same as browser, see test/common/cdp.py
+
         m.execute("useradd scruffy -s /bin/bash -c 'Scruffy' || true")
         m.execute("echo scruffy:foobar | chpasswd")
 
@@ -437,7 +440,7 @@ class TestAccounts(MachineCase):
         b.wait_text("#account-expiration .pf-c-form__helper-text.pf-m-error", "Invalid expiration date")
 
         # Now a valid date 30 days in the future
-        when = datetime.datetime.now() + datetime.timedelta(days=30)
+        when = datetime.datetime.now(tz) + datetime.timedelta(days=30)
         b.set_input_text("#account-expiration-input input", when.isoformat().split("T")[0])
         b.click("#account-expiration .pf-c-modal-box__footer button:contains(Change)")
         b.wait_not_present("#account-expiration")

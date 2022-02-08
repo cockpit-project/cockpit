@@ -169,7 +169,7 @@ class TestHistoryMetrics(MachineCase):
         # VM just started, we don't have 12 hours of data
         b.wait_in_text(".metrics .pf-c-alert", "No data available between")
         # initial data gap is < 24 hours, does not show date
-        year = m.execute("date +%Y").strip()
+        year = m.execute("TZ='Asia/Kolkata' date +%Y").strip()
         self.assertNotIn(year, b.text(".metrics .pf-c-alert"))
 
         # can try to load earlier data; only updates "no data" alert as there is no data

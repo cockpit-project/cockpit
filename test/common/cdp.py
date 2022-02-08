@@ -269,6 +269,8 @@ class CDP:
             environ = os.environ.copy()
             environ["HOME"] = self._browser_home
             environ["LC_ALL"] = "C.UTF-8"
+            # Run in Kolkota time zone that is shifted by +5:30 to GMT
+            environ["TZ"] = "Asia/Kolkata"
             # this might be set for the tests themselves, but we must isolate caching between tests
             try:
                 del environ["XDG_CACHE_HOME"]

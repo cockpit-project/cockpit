@@ -28,7 +28,7 @@ sleep_crash_list_sel = "#journal-box .cockpit-logline .cockpit-log-message:conta
 class TestJournal(MachineCase):
     def setUp(self):
         super().setUp()
-        self.test_start_time = self.machine.execute("date +%s").strip()
+        self.test_start_time = self.machine.execute("TZ='Asia/Kolkata' date +%s").strip()
 
     def injectExtras(self):
         self.browser.inject_js("""

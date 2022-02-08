@@ -464,6 +464,8 @@ def main():
     if opts.machine:
         if opts.jobs > 1:
             parser.error("--machine cannot be used with concurrent jobs")
+        if not opts.browser:
+            parser.error("--browser must be specified together with --machine")
         opts.nondestructive = True
 
     if not opts.batches:

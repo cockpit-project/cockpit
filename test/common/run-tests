@@ -343,8 +343,12 @@ def run(opts, image):
     global_machines = []
 
     if not opts.machine:
-        # create serial machines; adjust for few/no serial tests
-        for i in range(min(opts.batches, len(serial_tests))):
+        # Create appropriate number of serial machines; prioritize the nondestructive (serial) tests, to get
+        # them out of the way as fast as possible, then let the destructive (parallel) ones start as soon as
+        # a given serial runner is done.
+        num_global = min(serial_tests_len, opts.jobs)
+
+        for i in range(num_global):
             global_machines.append(GlobalMachine(restrict=not opts.enable_network, cpus=opts.nondestructive_cpus,
                                                  memory_mb=opts.nondestructive_memory_mb))
 
@@ -462,8 +466,6 @@ def main():
                         help="Directory in which to glob check-* files; default: %(default)s")
     parser.add_argument('--exclude', action="append", default=[], metavar="TestClass.testName",
                         help="Exclude test (exact match only); can be specified multiple times")
-    parser.add_argument('-b', '--batches', type=int,
-                        help="Number of concurrent batches of nondestructive tests")
     parser.add_argument('--nondestructive-cpus', type=int, default=None,
                         help="Number of CPUs for nondestructive test global machines")
     parser.add_argument('--nondestructive-memory-mb', type=int, default=None,
@@ -478,9 +480,6 @@ def main():
         if not opts.browser:
             parser.error("--browser must be specified together with --machine")
         opts.nondestructive = True
-
-    if not opts.batches:
-        opts.batches = max(opts.jobs // 2, 1)
 
     # Tell any subprocesses what we are testing
     if "TEST_REVISION" not in os.environ:

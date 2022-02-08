@@ -1429,7 +1429,7 @@ class MachineCase(unittest.TestCase):
         r"#3\) With great power comes great responsibility.",
 
         # starting out with empty PCP logs and pmlogger not running causes these metrics channel messages
-        "pcp-archive: no such metric: kernel.all.cpu..*: Unknown metric name",
+        "pcp-archive: no such metric: .*: Unknown metric name",
         "pcp-archive: instance name lookup failed:.*",
         "pcp-archive: couldn't create pcp archive context for.*",
     ]

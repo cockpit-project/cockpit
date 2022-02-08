@@ -40,45 +40,36 @@ def writeFile(file, content):
 class TestRunTestListing(unittest.TestCase):
 
     def testBasic(self):
-        # nondestructive tests are sorted alphabetically; ascending or descending depending on $TEST_OS 1-bit hash
-        forward_sort_env = os.environ.copy()
-        forward_sort_env["TEST_OS"] = "evenstring"
-        rev_sort_env = os.environ.copy()
-        rev_sort_env["TEST_OS"] = "oddstring1"
-
         # Listing on check-* file
         self.assertEqual(subprocess.check_output([os.path.join(dirname, "check-example"), "-l", "TestNondestructiveExample"]).strip().decode(),
                          "TestNondestructiveExample.testOne\nTestNondestructiveExample.testTwo")
         # Filter on class
-        p = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "-l", "TestNondestructiveExample"], env=forward_sort_env, capture_output=True, check=True)
-        self.assertIn(b"1..2\nTestNondestructiveExample.testOne\nTestNondestructiveExample.testTwo", p.stdout.strip())
+        p = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "-l", "TestNondestructiveExample"], capture_output=True, check=True)
+        self.assertIn(b"TestNondestructiveExample.testOne\nTestNondestructiveExample.testTwo", p.stdout.strip())
         # Filter a specific test
-        self.assertIn("1..1\nTestNondestructiveExample.testOne",
+        self.assertIn("TestNondestructiveExample.testOne",
                       subprocess.check_output([run_tests, "--test-dir", VERIFY_DIR, "-l", "TestNondestructiveExample.testOne"]).strip().decode())
         # Exclude test patterns
-        self.assertIn("1..1\nTestNondestructiveExample.testOne",
-                      subprocess.check_output([run_tests, "--test-dir", VERIFY_DIR, "-l",
-                                               "--exclude", "bogus", "--exclude", "TestNondestructiveExample.testTwo",
-                                               "TestNondestructiveExample"]).strip().decode())
+        out = subprocess.check_output([run_tests, "--test-dir", VERIFY_DIR, "-l",
+                                       "--exclude", "bogus", "--exclude", "TestNondestructiveExample.testTwo",
+                                       "TestNondestructiveExample"]).strip().decode()
+        self.assertIn("TestNondestructiveExample.testOne", out)
+        self.assertNotIn("testTwo", out)
 
-        ndtests = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "-n", "-l"], env=forward_sort_env, check=True, capture_output=True)
+        ndtests = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "-n", "-l"], check=True, capture_output=True)
         self.assertIn(b"TestExample.testNondestructive\n", ndtests.stdout)
         self.assertIn(b"TestNondestructiveExample.testOne\nTestNondestructiveExample.testTwo", ndtests.stdout)
 
-        # nondestructive tests are sorted alphabetically; ascending or descending depending on $TEST_OS 1-bit hash
+        # nondestructive tests are sorted alphabetically
         self.assertRegex(ndtests.stdout, re.compile(b".*TestAccounts.*TestFirewall.*TestLogin.*TestServices.*TestTerminal.*", re.S))
-
-        # reverse direction
-        revtests = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "-n", "-l"], env=rev_sort_env, check=True, capture_output=True)
-        self.assertRegex(revtests.stdout, re.compile(b".*TestTerminal.*TestServices.*TestLogin.*TestFirewall.*TestAccounts.*", re.S))
 
     def testNonDestructive(self):
         self.assertEqual(subprocess.check_output([run_tests, "--test-dir", VERIFY_DIR, "--nondestructive", "-l", "TestExample"]).strip().decode(),
-                         "1..1\nTestExample.testNondestructive")
+                         "TestExample.testNondestructive")
 
         # with short option and substring
         self.assertEqual(subprocess.check_output([run_tests, "--test-dir", VERIFY_DIR, "-nl", "TestExamp"]).strip().decode(),
-                         "1..1\nTestExample.testNondestructive")
+                         "TestExample.testNondestructive")
 
 
 # This can't be @nondestructive, as we run our own @nondestructive test nested inside this test. This will already call the

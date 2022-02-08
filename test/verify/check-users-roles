@@ -103,10 +103,12 @@ class TestRoles(MachineCase):
 
         self.allow_restart_journal_messages()
 
+    @nondestructive
     def testDynamic(self):
         m = self.machine
         b = self.browser
 
+        self.addCleanup(m.execute, "groupdel docker || true")
         m.execute("getent group docker >/dev/null || groupadd docker")
 
         self.login_and_go("/users")

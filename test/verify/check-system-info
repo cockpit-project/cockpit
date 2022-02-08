@@ -391,10 +391,12 @@ class TestSystemInfo(MachineCase):
         # restarts timesyncd to pick up the new config
         wait(lambda: get_timesyncd_start() > prev_timesyncd_start, delay=0.2)
 
+    @nondestructive
     def testMotd(self):
         m = self.machine
         b = self.browser
 
+        self.restore_file("/etc/motd")
         m.execute("rm -f /etc/motd")
 
         self.login_and_go("/system")
@@ -839,6 +841,7 @@ password=foobar
         wait(lambda: progressValue(2) <= hog_usage - 15)
         self.assertGreater(progressValue(2), 10)
 
+    @nondestructive
     def testShutdownStatus(self):
         m = self.machine
         b = self.browser

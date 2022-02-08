@@ -394,7 +394,7 @@ class CurrentMetrics extends React.Component {
         }
 
         function serviceRow(name, value) {
-            const name_text = <Button variant="link" isInline component="a" key={name} href="#" onClick={ e => cockpit.jump("/system/services#/" + name + ".service") }><TableText wrapModifier="truncate">{name}</TableText></Button>;
+            const name_text = <Button variant="link" isInline component="a" key={name} onClick={ e => cockpit.jump("/system/services#/" + name + ".service") }><TableText wrapModifier="truncate">{name}</TableText></Button>;
             const value_text = <TableText wrapModifier="nowrap">{value}</TableText>;
             return {
                 cells: [{ title: name_text }, { title: value_text }]

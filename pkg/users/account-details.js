@@ -226,7 +226,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                 </Title>
                 <EmptyStateSecondaryActions>
                     <Breadcrumb>
-                        <BreadcrumbItem onClick={() => cockpit.location.go("/")} to="#">{_("Back to accounts")}</BreadcrumbItem>
+                        <BreadcrumbItem to="#/">{_("Back to accounts")}</BreadcrumbItem>
                     </Breadcrumb>
                 </EmptyStateSecondaryActions>
             </EmptyState>
@@ -258,7 +258,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
               id="account"
               breadcrumb={
                   <Breadcrumb>
-                      <BreadcrumbItem onClick={() => cockpit.location.go("/")} to="#">{_("Accounts")}</BreadcrumbItem>
+                      <BreadcrumbItem to="#/">{_("Accounts")}</BreadcrumbItem>
                       <BreadcrumbItem isActive>{title_name}</BreadcrumbItem>
                   </Breadcrumb>}>
             <PageSection>

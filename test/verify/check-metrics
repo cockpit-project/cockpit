@@ -188,7 +188,7 @@ class TestHistoryMetrics(MachineCase):
         b.wait_text(".pf-c-empty-state", "No data available")
 
         # Breadcrumb back to Overview page
-        b.click(".pf-c-breadcrumb li:first-child a")
+        b.click(".pf-c-breadcrumb li:first-child")
         b.enter_page("/system")
         b.wait_visible('.system-information')
 
@@ -408,7 +408,7 @@ class TestHistoryMetrics(MachineCase):
         b.click(".cockpit-logline:first-child .cockpit-log-message")
         b.enter_page("/system/logs")
         b.wait_in_text(".pf-c-card__title", "cpu-piglet")
-        b.click("a:contains('Logs')")
+        b.click("li:contains('Logs')")
         b.wait_visible(".cockpit-log-message:contains('Created slice cockpittest.slice.')")
 
         b.go("/metrics")

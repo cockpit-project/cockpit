@@ -323,7 +323,7 @@ class HardwareInfo extends React.Component {
                   isBreadcrumbGrouped
                   breadcrumb={
                       <Breadcrumb>
-                          <BreadcrumbItem onClick={ () => cockpit.jump("/system", cockpit.transport.host)} className="pf-c-breadcrumb__item" to="#">{ _("Overview") }</BreadcrumbItem>
+                          <BreadcrumbItem onClick={ () => cockpit.jump("/system", cockpit.transport.host)} className="pf-c-breadcrumb__link">{ _("Overview") }</BreadcrumbItem>
                           <BreadcrumbItem isActive>{ _("Hardware information") }</BreadcrumbItem>
                       </Breadcrumb>}>
                 <CPUSecurityMitigationsDialog show={this.state.showCpuSecurityDialog} onClose={ () => this.setState({ showCpuSecurityDialog: false }) } />

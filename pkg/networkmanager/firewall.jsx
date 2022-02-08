@@ -939,7 +939,7 @@ export class Firewall extends React.Component {
                   isBreadcrumbGrouped
                   breadcrumb={
                       <Breadcrumb>
-                          <BreadcrumbItem onClick={go_up} className="pf-c-breadcrumb__item" to="#">{_("Networking")}</BreadcrumbItem>
+                          <BreadcrumbItem onClick={go_up} className="pf-c-breadcrumb__link">{_("Networking")}</BreadcrumbItem>
                           <BreadcrumbItem isActive>{_("Firewall")}</BreadcrumbItem>
                       </Breadcrumb>}
                   additionalGroupedContent={

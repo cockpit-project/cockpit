@@ -691,10 +691,10 @@ export const NetworkInterfacePage = ({
               data-test-wait={operationInProgress}
               breadcrumb={
                   <Breadcrumb>
-                      <BreadcrumbItem to='#'>
+                      <BreadcrumbItem to='#/'>
                           {_("Networking")}
                       </BreadcrumbItem>
-                      <BreadcrumbItem to="." isActive>
+                      <BreadcrumbItem isActive>
                           {dev_name}
                       </BreadcrumbItem>
                   </Breadcrumb>}>

@@ -172,7 +172,7 @@ export class LogEntry extends React.Component {
                   id="log-details"
                   breadcrumb={
                       <Breadcrumb>
-                          <BreadcrumbItem onClick={this.goHome} to="#">{_("Logs")}</BreadcrumbItem>
+                          <BreadcrumbItem onClick={this.goHome} className="pf-c-breadcrumb__link">{_("Logs")}</BreadcrumbItem>
                           <BreadcrumbItem isActive>
                               {breadcrumb}
                           </BreadcrumbItem>

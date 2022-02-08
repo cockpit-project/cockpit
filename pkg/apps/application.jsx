@@ -137,10 +137,6 @@ export const Application = ({ metainfo_db, id, progress, progress_title, action 
         );
     }
 
-    function navigate_up() {
-        cockpit.location.go("/");
-    }
-
     return (
         <Page groupProps={{ sticky: 'top' }}
               id="app-page"
@@ -148,7 +144,7 @@ export const Application = ({ metainfo_db, id, progress, progress_title, action 
               isBreadcrumbGrouped
               breadcrumb={
                   <Breadcrumb>
-                      <BreadcrumbItem className="pf-c-breadcrumb__link" onClick={navigate_up} to="#">{_("Applications")}</BreadcrumbItem>
+                      <BreadcrumbItem to="#/">{_("Applications")}</BreadcrumbItem>
                       <BreadcrumbItem isActive>{comp ? comp.name : id}</BreadcrumbItem>
                   </Breadcrumb>
               }>

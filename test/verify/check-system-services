@@ -547,7 +547,7 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
         b.click(".cockpit-logline:nth-child(2)")
         b.enter_page("/system/logs")
         b.wait_text(".pf-c-card__title", "WORKING")
-        b.click(".pf-c-breadcrumb a:contains('Logs')")
+        b.click(".pf-c-breadcrumb li:contains('Logs')")
         b.wait_val("#journal-grep input", "priority:debug service:test.service ")
         b.go("/system/services#test.service")
         b.enter_page("/system/services")

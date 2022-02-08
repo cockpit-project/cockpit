@@ -1426,7 +1426,7 @@ export const Application = () => {
                   <Flex>
                       <FlexItem>
                           <Breadcrumb>
-                              <BreadcrumbItem onClick={() => cockpit.jump("/system")} to="#">{_("Overview")}</BreadcrumbItem>
+                              <BreadcrumbItem onClick={() => cockpit.jump("/system")} className="pf-c-breadcrumb__link">{_("Overview")}</BreadcrumbItem>
                               <BreadcrumbItem isActive>{_("Performance Metrics")}</BreadcrumbItem>
                           </Breadcrumb>
                       </FlexItem>

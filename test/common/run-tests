@@ -331,11 +331,12 @@ def run(opts, image):
     changed_tests = get_affected_tests(opts.test_dir, opts.base, test_files)
     serial_tests, parallel_tests = detect_tests(test_files, image, opts)
     serial_tests_len = len(serial_tests)
+    parallel_tests_len = len(parallel_tests)
 
     if opts.machine:
         assert not parallel_tests
 
-    print("1..{0}".format(len(parallel_tests) + len(serial_tests)))
+    print(f"1..{serial_tests_len + parallel_tests_len}")
     flush_stdout()
 
     running_tests = []
@@ -434,7 +435,7 @@ def run(opts, image):
         for (idx, machine) in enumerate(global_machines):
             serial_details.append(f"{idx}: {machine.duration}s")
 
-    details = f"[{duration}s on {hostname}, {serial_tests_len} serial tests: {', '.join(serial_details)}]"
+    details = f"[{duration}s on {hostname}, {parallel_tests_len} parallel tests, {serial_tests_len} serial tests: {', '.join(serial_details)}]"
     print()
     if fail_count > 0:
         print(f"# {fail_count} TESTS FAILED {details}")

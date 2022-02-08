@@ -11,6 +11,7 @@ import time
 import socket
 import tempfile
 import binascii
+import logging
 
 import importlib.machinery
 import importlib.util
@@ -183,6 +184,11 @@ class GlobalMachine:
         if not os.path.exists(self.machine.image_file):
             self.machine.pull(self.machine.image_file)
         self.machine.start()
+        self.start_time = time.time()
+        self.duration = None
+        self.ssh_address = f"{self.machine.ssh_address}:{self.machine.ssh_port}"
+        self.web_address = f"{self.machine.web_address}:{self.machine.web_port}"
+        self.running_test = None
 
     def reset(self):
         # It is important to re-use self.networking here, so that the
@@ -192,8 +198,16 @@ class GlobalMachine:
         self.machine.start()
 
     def kill(self):
+        assert self.running_test is None, "can't kill global machine with running test"
         self.machine.kill()
         self.network.kill()
+        self.duration = round(time.time() - self.start_time)
+        self.machine = None
+        self.ssh_address = None
+        self.web_address = None
+
+    def is_available(self):
+        return self.machine and self.running_test is None
 
 
 def check_valid(filename):
@@ -301,139 +315,134 @@ def detect_tests(test_files, image, opts):
     return (serial_tests, parallel_tests)
 
 
+def list_tests(opts):
+    test_files = glob.glob(os.path.join(opts.test_dir, "check-*"))
+    serial_tests, parallel_tests = detect_tests(test_files, "dummy", opts)
+    names = {t.command[-1] for t in serial_tests + parallel_tests}
+    for n in sorted(names):
+        print(n)
+
+
 def run(opts, image):
-    result = 0
-    jobs = 1 if opts.list else opts.jobs
+    fail_count = 0
     start_time = time.time()
-
-    # Map of batches of serial tests. Key is the batch name, value is a map with 3 keys:
-    # - "working" - None if the machine is idle
-    # - "tests"   - Array of tests to run
-    # - "time"    - Combined time all tests took
-    # - "machine" - A GlobalMachine instance for running the tests
-    batch_tests = {}
-
-    # Make sure tests can make relative imports
-    sys.path.append(os.path.realpath(opts.test_dir))
 
     test_files = glob.glob(os.path.join(opts.test_dir, "check-*"))
     changed_tests = get_affected_tests(opts.test_dir, opts.base, test_files)
-    (serial_tests, parallel_tests) = detect_tests(test_files, image, opts)
+    serial_tests, parallel_tests = detect_tests(test_files, image, opts)
+    serial_tests_len = len(serial_tests)
+
+    if opts.machine:
+        assert not parallel_tests
 
     print("1..{0}".format(len(parallel_tests) + len(serial_tests)))
     flush_stdout()
 
-    if serial_tests and opts.list:
-        # Just build one batch for listing
-        batch_tests[0] = {"working": None, "tests": [], "time": 0}
-        for test in serial_tests:
-            test.assign_machine(0, "listdummy", "listdummy")
-            batch_tests[0]["tests"].append(test)
-
-    if serial_tests and not opts.list:
-        if opts.machine:
-            batch_tests[0] = {"working": None, "tests": [], "time": 0}
-            for test in serial_tests:
-                batch_tests[0]["tests"].append(test)
-                test.assign_machine(0, opts.machine, opts.browser)
-        else:
-            batch_size = len(serial_tests) // opts.batches
-
-            for i in range(opts.batches):
-                m = GlobalMachine(restrict=not opts.enable_network, cpus=opts.nondestructive_cpus, memory_mb=opts.nondestructive_memory_mb)
-                batch_tests[i] = {"working": None, "tests": [], "time": 0, "machine": m}
-                ssh_address = f"{m.machine.ssh_address}:{m.machine.ssh_port}"
-                web_address = f"{m.machine.web_address}:{m.machine.web_port}"
-
-                if i == opts.batches - 1:  # Last machine needs to resolve the rest
-                    batch = serial_tests[batch_size * i:]
-                else:
-                    batch = serial_tests[batch_size * i: batch_size * i + batch_size]
-
-                for test in batch:
-                    batch_tests[i]["tests"].append(test)
-                    test.assign_machine(i, ssh_address, web_address)
-
     running_tests = []
-    serial_tests_len = len(serial_tests)
-    serial_remaining = sum([len(batch_tests[x]["tests"]) for x in batch_tests])
-    while serial_remaining or parallel_tests or running_tests:
+    global_machines = []
+
+    if not opts.machine:
+        # create serial machines; adjust for few/no serial tests
+        for i in range(min(opts.batches, len(serial_tests))):
+            global_machines.append(GlobalMachine(restrict=not opts.enable_network, cpus=opts.nondestructive_cpus,
+                                                 memory_mb=opts.nondestructive_memory_mb))
+
+    # test scheduling loop
+    while True:
         made_progress = False
-        if len(running_tests) < jobs:
-            test = None
-            # Find if there is parallel machine that is not busy and has some other tests to run
-            for batch in batch_tests:
-                if batch_tests[batch]["working"] is None and len(batch_tests[batch]["tests"]) > 0:
-                    test = batch_tests[batch]["tests"].pop(0)
-                    batch_tests[batch]["working"] = True
-                    serial_remaining = sum([len(batch_tests[x]["tests"]) for x in batch_tests])
-                    batch_tests[batch]["started"] = time.time()
-                    break
-            else:
-                if parallel_tests:
-                    test = parallel_tests.pop(0)
 
-            if test:
-                made_progress = True
-                test.start()
-                running_tests.append(test)
-
+        # mop up finished tests
+        logging.debug(f"test loop: {len(running_tests)} running tests")
         for test in running_tests.copy():
             poll_result = test.poll()
             if poll_result is not None:
                 made_progress = True
                 running_tests.remove(test)
+                test_machine = test.machine_id  # test_finish() resets it
                 retry_reason, test_result = test.finish(changed_tests, print_tap=not opts.list, thorough=opts.thorough)
-                result += test_result
+                fail_count += test_result
+                logging.debug(f"test {test} finished; result {test_result} retry reason {retry_reason}")
 
-                if test.machine_id is not None:
-                    tests_duration = (time.time() - batch_tests[test.machine_id]["started"])
-                    batch_tests[test.machine_id]["time"] += tests_duration
+                if test_machine is not None and not opts.machine:
+                    # unassign from global machine
+                    global_machines[test_machine].running_test = None
 
                     # sometimes our global machine gets messed up; also, tests that time out don't run cleanup handlers
                     # restart it to avoid an unbounded number of test retries and follow-up errors
                     if not opts.machine and (poll_result == 124 or (retry_reason and "test harness" in retry_reason)):
                         # try hard to keep the test output consistent
-                        sys.stderr.write("\nRestarting global machine %s\n" % test.machine_id)
+                        sys.stderr.write("\nRestarting global machine %s\n" % test_machine)
                         sys.stderr.flush()
-                        batch_tests[test.machine_id]["machine"].reset()
+                        global_machines[test_machine].reset()
 
                 # run again if needed
                 if retry_reason:
-                    if test.machine_id is not None:
-                        batch_tests[test.machine_id]["tests"].insert(0, test)
-                        serial_remaining = sum([len(batch_tests[x]["tests"]) for x in batch_tests])
+                    if test.nondestructive:
+                        serial_tests.insert(0, test)
                     else:
                         parallel_tests.insert(0, test)
 
-                if test.machine_id is not None:
-                    batch_tests[test.machine_id]["working"] = None
+        if opts.machine:
+            if not running_tests and serial_tests:
+                test = serial_tests.pop(0)
+                logging.debug(f"Static machine is free, assigning next test {test}")
+                test.assign_machine(-1, opts.machine, opts.browser)
+                test.start()
+                running_tests.append(test)
+                made_progress = True
+        else:
+            # find free global machines, and either assign a new serial test, or kill them to free resources
+            for (idx, machine) in enumerate(global_machines):
+                if machine.is_available():
+                    if serial_tests:
+                        test = serial_tests.pop(0)
+                        logging.debug(f"Global machine {idx} is free, assigning next test {test}")
+                        machine.running_test = test
+                        test.assign_machine(idx, machine.ssh_address, machine.web_address)
+                        test.start()
+                        running_tests.append(test)
+                    else:
+                        logging.debug(f"Global machine {idx} is free, and no more serial tests; killing")
+                        machine.kill()
+
+                    made_progress = True
+
+        # fill the remaining available job slots with parallel tests
+        while parallel_tests and len(running_tests) < opts.jobs:
+            test = parallel_tests.pop(0)
+            logging.debug(f"{len(running_tests)} running tests, starting next parallel test {test}")
+            test.start()
+            running_tests.append(test)
+            made_progress = True
+
+        # are we done?
+        if not running_tests:
+            assert not serial_tests, f"serial_tests should be empty: {[str(t) for t in serial_tests]}"
+            assert not parallel_tests, f"parallel_tests should be empty: {[str(t) for t in parallel_tests]}"
+            break
 
         # Sleep if we didn't make progress
-        if not made_progress and not opts.list:
+        if not made_progress:
             time.sleep(0.5)
 
-    if not opts.list:
-        for b in batch_tests.values():
-            if "machine" in b:
-                b["machine"].kill()
+    # print summary
+    duration = int(time.time() - start_time)
+    hostname = socket.gethostname().split(".")[0]
 
-        duration = int(time.time() - start_time)
-        hostname = socket.gethostname().split(".")[0]
+    serial_details = []
+    if not opts.machine:
+        for (idx, machine) in enumerate(global_machines):
+            serial_details.append(f"{idx}: {machine.duration}s")
 
-        serial_details = []
-        for batch in batch_tests:
-            serial_details.append("{0}: {1}s".format(batch, int(batch_tests[batch]["time"])))
+    details = f"[{duration}s on {hostname}, {serial_tests_len} serial tests: {', '.join(serial_details)}]"
+    print()
+    if fail_count > 0:
+        print(f"# {fail_count} TESTS FAILED {details}")
+    else:
+        print(f"# TESTS PASSED {details}")
+    flush_stdout()
 
-        details = "[{0}s on {1}, {2} serial tests: {3}]".format(duration, hostname, serial_tests_len, ", ".join(serial_details))
-        print()
-        if result > 0:
-            print("# {0} TESTS FAILED {1}".format(result, details))
-        else:
-            print("# TESTS PASSED {0}".format(details))
-        flush_stdout()
-
-    return result
+    return fail_count
 
 
 def main():
@@ -485,8 +494,16 @@ def main():
     testvm.DEFAULT_IMAGE = image
     os.environ["TEST_OS"] = image
 
+    # Make sure tests can make relative imports
+    sys.path.append(os.path.realpath(opts.test_dir))
+
+    if opts.list:
+        list_tests(opts)
+        return 0
+
     return run(opts, image)
 
 
 if __name__ == '__main__':
+    # logging.basicConfig(level=logging.DEBUG)
     sys.exit(main())

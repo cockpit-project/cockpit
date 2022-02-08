@@ -29,6 +29,7 @@ KEY = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDG4iipTovcMg0xn+089QLNKVGpP2Pgq2dux
 @skipDistroPackage()
 class TestKeys(MachineCase):
 
+    @nondestructive
     def testAuthorizedKeys(self):
         m = self.machine
         b = self.browser

@@ -19,8 +19,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-25 18:03+0000\n"
-"PO-Revision-Date: 2022-01-30 13:16+0000\n"
+"POT-Creation-Date: 2022-02-01 18:05+0000\n"
+"PO-Revision-Date: 2022-02-07 04:16+0000\n"
 "Last-Translator: David Smith <pxesrv@outlook.com>\n"
 "Language-Team: Chinese (Simplified) <https://translate.fedoraproject.org/"
 "projects/cockpit/main/zh_CN/>\n"
@@ -40,7 +40,7 @@ msgid "$0 CPU"
 msgid_plural "$0 CPUs"
 msgstr[0] "$0 CPU"
 
-#: pkg/lib/machine-info.js:246
+#: pkg/lib/machine-info.js:248
 msgid "$0 GiB"
 msgstr "$0 GiB"
 
@@ -165,10 +165,8 @@ msgstr[0] "$0 重要 hit"
 #: pkg/storaged/vgroup-details.jsx:192 pkg/storaged/format-dialog.jsx:176
 #: pkg/storaged/content-views.jsx:371 pkg/storaged/content-views.jsx:676
 #: pkg/storaged/stratis-details.jsx:246 pkg/storaged/stratis-details.jsx:545
-#, fuzzy
-#| msgid "$0 is in active use"
 msgid "$0 is in use"
-msgstr "$0 已激活"
+msgstr "$0 正在被使用"
 
 #: pkg/storaged/content-views.jsx:829
 #: pkg/lib/cockpit-components-install-dialog.jsx:158
@@ -284,10 +282,6 @@ msgstr "$0: 崩溃于 $1"
 #: pkg/storaged/utils.js:192
 msgid "$name (from $host)"
 msgstr "$name (来自 $host)"
-
-#: pkg/networkmanager/firewall.jsx:613
-msgid "(Optional)"
-msgstr "(可选)"
 
 #: pkg/storaged/format-dialog.jsx:137 pkg/storaged/format-dialog.jsx:154
 msgid "(recommended)"
@@ -577,7 +571,7 @@ msgstr "ARP ping"
 msgid "About Web Console"
 msgstr "关于 Web 控制台"
 
-#: pkg/lib/machine-info.js:264
+#: pkg/lib/machine-info.js:266
 msgid "Absent"
 msgstr "缺席"
 
@@ -606,8 +600,6 @@ msgid "Accounts"
 msgstr "账户"
 
 #: pkg/storaged/dialog.jsx:1130
-#, fuzzy
-#| msgid "Actions"
 msgid "Action"
 msgstr "操作"
 
@@ -673,7 +665,7 @@ msgstr "添加 $0"
 msgid "Add VLAN"
 msgstr "添加 VLAN"
 
-#: pkg/networkmanager/firewall.jsx:915
+#: pkg/networkmanager/firewall.jsx:935
 msgid "Add a new zone"
 msgstr "添加一个新区"
 
@@ -717,11 +709,11 @@ msgstr "添加成员"
 msgid "Add new host"
 msgstr "添加新主机"
 
-#: pkg/networkmanager/firewall.jsx:513
+#: pkg/networkmanager/firewall.jsx:528
 msgid "Add ports"
 msgstr "添加端口"
 
-#: pkg/networkmanager/firewall.jsx:514
+#: pkg/networkmanager/firewall.jsx:529
 msgid "Add ports to $0 zone"
 msgstr "将端口添加到$0区"
 
@@ -729,11 +721,11 @@ msgstr "将端口添加到$0区"
 msgid "Add public key"
 msgstr "添加公钥"
 
-#: pkg/networkmanager/firewall.jsx:167 pkg/networkmanager/firewall.jsx:513
+#: pkg/networkmanager/firewall.jsx:167 pkg/networkmanager/firewall.jsx:528
 msgid "Add services"
 msgstr "添加服务"
 
-#: pkg/networkmanager/firewall.jsx:514
+#: pkg/networkmanager/firewall.jsx:529
 msgid "Add services to $0 zone"
 msgstr "将服务添加到$0区"
 
@@ -745,8 +737,8 @@ msgstr "将服务添加到$0区"
 msgid "Add team"
 msgstr "添加组"
 
-#: pkg/networkmanager/firewall.jsx:696 pkg/networkmanager/firewall.jsx:704
-#: pkg/networkmanager/firewall.jsx:916
+#: pkg/networkmanager/firewall.jsx:716 pkg/networkmanager/firewall.jsx:724
+#: pkg/networkmanager/firewall.jsx:936
 msgid "Add zone"
 msgstr "添加区域"
 
@@ -756,7 +748,7 @@ msgid ""
 "administration UI unavailable."
 msgstr "添加 $0 将会中断与服务器的连接，并且将导致管理界面不可用。"
 
-#: pkg/networkmanager/firewall.jsx:527
+#: pkg/networkmanager/firewall.jsx:542
 msgid ""
 "Adding custom ports will reload firewalld. A reload will result in the loss "
 "of any runtime-only configuration!"
@@ -829,7 +821,7 @@ msgstr "高级 TCA"
 
 #: pkg/systemd/services/service-details.jsx:462
 msgid "After"
-msgstr "后"
+msgstr "后于"
 
 #: pkg/systemd/overview-cards/realmd.jsx:301
 msgid ""
@@ -873,7 +865,7 @@ msgstr "一体化"
 msgid "Allow running (unmask)"
 msgstr "允许运行 (取消屏蔽)"
 
-#: pkg/networkmanager/firewall.jsx:766
+#: pkg/networkmanager/firewall.jsx:786
 msgid "Allowed addresses"
 msgstr "允许的地址"
 
@@ -896,7 +888,7 @@ msgstr ""
 "支持按消息日志字段进行过滤。这些是空格分隔的值，格式为 FIELD=VALUE，其中值可"
 "以是逗号分隔的可能的值列表。"
 
-#: pkg/systemd/terminal.jsx:144
+#: pkg/systemd/terminal.jsx:147
 msgid "Appearance"
 msgstr "外观"
 
@@ -1097,7 +1089,7 @@ msgstr "平衡器"
 
 #: pkg/systemd/services/service-details.jsx:461
 msgid "Before"
-msgstr "前"
+msgstr "前于"
 
 #: pkg/systemd/services/service-details.jsx:452
 msgid "Binds to"
@@ -1108,7 +1100,7 @@ msgctxt "storage"
 msgid "Bitmap"
 msgstr "Bitmap"
 
-#: pkg/systemd/terminal.jsx:150
+#: pkg/systemd/terminal.jsx:153
 msgid "Black"
 msgstr "黑色"
 
@@ -1243,8 +1235,8 @@ msgstr "使用当前的过滤器组合找不到任何日志。"
 #: pkg/playground/translate.html:39 pkg/static/login.html:117
 #: pkg/packagekit/autoupdates.jsx:419 pkg/packagekit/updates.jsx:473
 #: pkg/packagekit/updates.jsx:544 pkg/packagekit/kpatch.jsx:310
-#: pkg/networkmanager/firewall.jsx:533 pkg/networkmanager/firewall.jsx:707
-#: pkg/networkmanager/firewall.jsx:799
+#: pkg/networkmanager/firewall.jsx:548 pkg/networkmanager/firewall.jsx:727
+#: pkg/networkmanager/firewall.jsx:819
 #: pkg/networkmanager/dialogs-common.jsx:152 pkg/shell/credentials.jsx:314
 #: pkg/shell/active-pages-modal.jsx:96 pkg/shell/superuser.jsx:86
 #: pkg/shell/superuser.jsx:158 pkg/shell/shell-modals.jsx:128
@@ -1261,6 +1253,14 @@ msgstr "使用当前的过滤器组合找不到任何日志。"
 #: pkg/lib/cockpit-components-dialog.jsx:127
 msgid "Cancel"
 msgstr "取消"
+
+#: pkg/systemd/overview-cards/shutdownStatus.jsx:87
+msgid "Cancel poweroff"
+msgstr "取消关机"
+
+#: pkg/systemd/overview-cards/shutdownStatus.jsx:91
+msgid "Cancel reboot"
+msgstr "取消重启"
 
 #: pkg/systemd/services/services-list.jsx:82
 msgid "Cannot be enabled"
@@ -1384,10 +1384,8 @@ msgid "Checking installed software"
 msgstr "检查安装的软件"
 
 #: pkg/storaged/fsys-tab.jsx:428 pkg/storaged/dialog.jsx:1139
-#, fuzzy
-#| msgid "Checking for public keys"
 msgid "Checking related processes"
-msgstr "检查公钥"
+msgstr "检查相关进程"
 
 #: pkg/packagekit/updates.jsx:1329
 msgid "Checking software status"
@@ -1513,9 +1511,9 @@ msgstr "收集指标"
 msgid "Color"
 msgstr "颜色"
 
-#: pkg/networkmanager/firewall.jsx:593 pkg/networkmanager/firewall.jsx:603
-msgid "Comma-separated ports, ranges, and aliases are accepted"
-msgstr "可以使用逗号隔开的端口、范围和别名"
+#: pkg/networkmanager/firewall.jsx:608 pkg/networkmanager/firewall.jsx:618
+msgid "Comma-separated ports, ranges, and services are accepted"
+msgstr "可以使用逗号隔开的端口、范围和服务"
 
 #: pkg/systemd/services/timer-dialog.jsx:159 pkg/storaged/dialog.jsx:1203
 #: pkg/storaged/dialog.jsx:1222
@@ -1600,7 +1598,7 @@ msgstr "确认新密码"
 msgid "Confirm password"
 msgstr "确认密码"
 
-#: pkg/networkmanager/firewall.jsx:795
+#: pkg/networkmanager/firewall.jsx:815
 msgid "Confirm removal of $0"
 msgstr "确认移除 $0"
 
@@ -1625,10 +1623,8 @@ msgid "Connect to"
 msgstr "连接至"
 
 #: pkg/static/login.js:617
-#, fuzzy
-#| msgid "Connect to"
 msgid "Connect to:"
-msgstr "连接至"
+msgstr "连接至："
 
 #: pkg/selinux/setroubleshoot-view.jsx:328
 msgid "Connecting to SETroubleshoot daemon..."
@@ -1895,11 +1891,11 @@ msgstr "当前的"
 msgid "Custom mount options"
 msgstr "自定义挂载选项"
 
-#: pkg/networkmanager/firewall.jsx:551
+#: pkg/networkmanager/firewall.jsx:566
 msgid "Custom ports"
 msgstr "自定义端口"
 
-#: pkg/networkmanager/firewall.jsx:725
+#: pkg/networkmanager/firewall.jsx:745
 msgid "Custom zones"
 msgstr "自定义区域"
 
@@ -1931,7 +1927,7 @@ msgstr "每日"
 msgid "Danger alert:"
 msgstr "危险警报："
 
-#: pkg/systemd/terminal.jsx:151
+#: pkg/systemd/terminal.jsx:154
 msgid "Dark"
 msgstr "暗色"
 
@@ -1970,7 +1966,7 @@ msgstr "取消激活 $target"
 msgid "Debug and above"
 msgstr "Debug 及更高级别"
 
-#: pkg/systemd/terminal.jsx:138
+#: pkg/systemd/terminal.jsx:139
 msgid "Decrease by one"
 msgstr "减一"
 
@@ -1990,7 +1986,7 @@ msgid "Delay must be a number"
 msgstr "延迟必须是一个数字"
 
 #: pkg/users/account-details.js:278 pkg/users/delete-account-dialog.js:60
-#: pkg/networkmanager/firewall.jsx:796
+#: pkg/networkmanager/firewall.jsx:816
 #: pkg/networkmanager/network-interface.jsx:718 pkg/systemd/abrtLog.jsx:285
 #: pkg/storaged/vdo-details.jsx:205 pkg/storaged/vdo-details.jsx:271
 #: pkg/storaged/mdraid-details.jsx:305 pkg/storaged/mdraid-details.jsx:331
@@ -2052,7 +2048,7 @@ msgstr "删除 VDO设备将擦除其中的所有数据."
 msgid "Deleting erases all data on a volume group."
 msgstr "删除 存储组 将擦除其中的所有数据."
 
-#: pkg/networkmanager/firewall.jsx:736
+#: pkg/networkmanager/firewall.jsx:626 pkg/networkmanager/firewall.jsx:756
 #: pkg/systemd/services/timer-dialog.jsx:150 pkg/storaged/dialog.jsx:1223
 msgid "Description"
 msgstr "描述"
@@ -2258,7 +2254,7 @@ msgstr "驱动"
 msgid "Drives"
 msgstr "驱动器"
 
-#: pkg/lib/machine-info.js:257
+#: pkg/lib/machine-info.js:259
 msgid "Dual rank"
 msgstr "双通道"
 
@@ -2396,13 +2392,13 @@ msgstr "可用的功能增强更新"
 msgid "Enter a valid MAC address"
 msgstr "输入有效的MAC地址"
 
-#: pkg/networkmanager/firewall.jsx:772
+#: pkg/networkmanager/firewall.jsx:792
 msgid "Entire subnet"
 msgstr "整个子网"
 
 #: pkg/systemd/logDetails.jsx:164
 msgid "Entry at $0"
-msgstr "进入于 $0"
+msgstr "于 $0 的条目"
 
 #: pkg/storaged/jobs-panel.jsx:56
 msgid "Erasing $target"
@@ -2469,11 +2465,11 @@ msgstr "事件"
 msgid "Event logs"
 msgstr "事件日志"
 
-#: pkg/networkmanager/firewall.jsx:598
+#: pkg/networkmanager/firewall.jsx:613
 msgid "Example: 22,ssh,8080,5900-5910"
 msgstr "例如: 22,ssh,8080,5900-5910"
 
-#: pkg/networkmanager/firewall.jsx:608
+#: pkg/networkmanager/firewall.jsx:623
 msgid "Example: 88,2019,nfs,rsync"
 msgstr "例如: 88,2019,nfs,rsync"
 
@@ -2513,15 +2509,15 @@ msgstr "已失败"
 msgid "Failed to add machine: $0"
 msgstr "添加主机失败: $0"
 
-#: pkg/networkmanager/firewall.jsx:323
+#: pkg/networkmanager/firewall.jsx:332
 msgid "Failed to add port"
 msgstr "添加端口失败"
 
-#: pkg/networkmanager/firewall.jsx:323
+#: pkg/networkmanager/firewall.jsx:332
 msgid "Failed to add service"
 msgstr "添加服务失败"
 
-#: pkg/networkmanager/firewall.jsx:670
+#: pkg/networkmanager/firewall.jsx:690
 msgid "Failed to add zone"
 msgstr "添加区域失败"
 
@@ -2645,11 +2641,11 @@ msgid "Fingerprint"
 msgstr "指纹"
 
 #: pkg/networkmanager/firewall.html:22 pkg/networkmanager/network-main.jsx:151
-#: pkg/networkmanager/firewall.jsx:932 pkg/networkmanager/firewall.jsx:939
+#: pkg/networkmanager/firewall.jsx:952 pkg/networkmanager/firewall.jsx:959
 msgid "Firewall"
 msgstr "防火墙"
 
-#: pkg/networkmanager/firewall.jsx:909
+#: pkg/networkmanager/firewall.jsx:929
 msgid "Firewall is not available"
 msgstr "防火墙不可用"
 
@@ -2658,7 +2654,7 @@ msgctxt "storage"
 msgid "Firmware version"
 msgstr "固件版本"
 
-#: pkg/systemd/terminal.jsx:127 pkg/systemd/terminal.jsx:137
+#: pkg/systemd/terminal.jsx:128 pkg/systemd/terminal.jsx:138
 msgid "Font size"
 msgstr "字体大小"
 
@@ -2745,7 +2741,7 @@ msgstr "正在生成报告"
 
 #: pkg/systemd/logDetails.jsx:59
 msgid "Go to $0"
-msgstr "到 $0"
+msgstr "前往 $0"
 
 #: pkg/apps/application.jsx:108
 msgid "Go to application"
@@ -2797,7 +2793,7 @@ msgstr "手持式"
 msgid "Hardware information"
 msgstr "硬件信息"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:36
+#: pkg/systemd/overview-cards/healthCard.jsx:37
 msgid "Health"
 msgstr "健康"
 
@@ -2841,7 +2837,7 @@ msgstr "每小时"
 msgid "Hours"
 msgstr "小时"
 
-#: pkg/networkmanager/firewall.jsx:611 pkg/systemd/hwinfo.jsx:313
+#: pkg/networkmanager/firewall.jsx:631 pkg/systemd/hwinfo.jsx:313
 msgid "ID"
 msgstr "ID"
 
@@ -2854,7 +2850,7 @@ msgstr "ID $id"
 msgid "IP address"
 msgstr "IP 地址"
 
-#: pkg/networkmanager/firewall.jsx:780
+#: pkg/networkmanager/firewall.jsx:800
 msgid ""
 "IP address with routing prefix. Separate multiple values with a comma. "
 "Example: 192.0.2.0/24, 2001:db8::/32"
@@ -2941,7 +2937,7 @@ msgstr "未激活"
 msgid "Inactive volume"
 msgstr "暂停卷"
 
-#: pkg/networkmanager/firewall.jsx:742
+#: pkg/networkmanager/firewall.jsx:762
 msgid "Included services"
 msgstr "包括的服务"
 
@@ -2949,7 +2945,7 @@ msgstr "包括的服务"
 msgid "Inconsistent filesystem mount"
 msgstr "不一致的文件系统挂载"
 
-#: pkg/systemd/terminal.jsx:139
+#: pkg/systemd/terminal.jsx:140
 msgid "Increase by one"
 msgstr "加一"
 
@@ -3052,7 +3048,7 @@ msgid "Interface members"
 msgstr "接口成员"
 
 #: pkg/networkmanager/bond.jsx:165 pkg/networkmanager/network-main.jsx:173
-#: pkg/networkmanager/firewall.jsx:176 pkg/networkmanager/firewall.jsx:749
+#: pkg/networkmanager/firewall.jsx:176 pkg/networkmanager/firewall.jsx:769
 #: pkg/networkmanager/network-interface-members.jsx:215
 msgid "Interfaces"
 msgstr "接口"
@@ -3101,7 +3097,7 @@ msgstr "无效的度量 $0"
 msgid "Invalid number of days"
 msgstr "无效的天数"
 
-#: pkg/networkmanager/firewall.jsx:408
+#: pkg/networkmanager/firewall.jsx:423
 msgid "Invalid port number"
 msgstr "无效的端口号"
 
@@ -3113,7 +3109,7 @@ msgstr "无效的前缀 $0"
 msgid "Invalid prefix or netmask $0"
 msgstr "无效的前缀或掩码 $0"
 
-#: pkg/networkmanager/firewall.jsx:436
+#: pkg/networkmanager/firewall.jsx:451
 msgid "Invalid range"
 msgstr "无效范围"
 
@@ -3325,7 +3321,7 @@ msgstr "离开域"
 msgid "Licensed under GNU LGPL version 2.1"
 msgstr "以 GNU LGPL 版本 2.1 许可"
 
-#: pkg/systemd/terminal.jsx:152
+#: pkg/systemd/terminal.jsx:155
 msgid "Light"
 msgstr "亮色"
 
@@ -3694,7 +3690,9 @@ msgid ""
 "Masking service prevents all dependent units from running. This can have "
 "bigger impact than anticipated. Please confirm that you want to mask this "
 "unit."
-msgstr "屏蔽服务会阻止所有依赖的单元被运行。这所造成的影响可能会比预期的大。请确认您需要屏蔽这个单元。"
+msgstr ""
+"屏蔽服务会阻止所有依赖的单元被运行。这所造成的影响可能会比预期的大。请确认您"
+"需要屏蔽这个单元。"
 
 #: pkg/networkmanager/network-interface.jsx:515
 msgid "Maximum message age $max_age"
@@ -3998,7 +3996,7 @@ msgstr "未安装 NetworkManager"
 msgid "NetworkManager is not running"
 msgstr "NetworkManager 未运行"
 
-#: pkg/networkmanager/index.html:23 pkg/networkmanager/firewall.jsx:931
+#: pkg/networkmanager/index.html:23 pkg/networkmanager/firewall.jsx:951
 #: pkg/networkmanager/network-interface.jsx:695
 #: pkg/networkmanager/manifest.json:0
 msgid "Networking"
@@ -4097,7 +4095,7 @@ msgstr "在 $0 和 $1 间没有可用数据"
 msgid "No delay"
 msgstr "无延时"
 
-#: pkg/networkmanager/firewall.jsx:738
+#: pkg/networkmanager/firewall.jsx:758
 msgid "No description available"
 msgstr "没有可用描述"
 
@@ -4223,7 +4221,7 @@ msgstr "没有更新"
 msgid "No user name specified"
 msgstr "未指定用户名"
 
-#: pkg/networkmanager/firewall.jsx:744 pkg/tuned/dialog.jsx:227
+#: pkg/networkmanager/firewall.jsx:764 pkg/tuned/dialog.jsx:227
 #: pkg/kdump/kdump-view.jsx:424
 msgid "None"
 msgstr "无"
@@ -4439,10 +4437,8 @@ msgid "PCI"
 msgstr "PCI"
 
 #: pkg/storaged/dialog.jsx:1202
-#, fuzzy
-#| msgid "ID"
 msgid "PID"
-msgstr "ID"
+msgstr "进程ID"
 
 #: pkg/metrics/metrics.jsx:1303
 msgid "Package cockpit-pcp is missing for metrics history"
@@ -4716,7 +4712,7 @@ msgstr "请确认停止$0"
 msgid "Please enable JavaScript to use the Web Console."
 msgstr "请启用 JavaScript 来使用 Web 控制台。"
 
-#: pkg/networkmanager/firewall.jsx:910
+#: pkg/networkmanager/firewall.jsx:930
 msgid "Please install the $0 package"
 msgstr "请安装 $0 软件包"
 
@@ -4752,7 +4748,7 @@ msgstr "瘦分配配置卷的池"
 msgid "Port"
 msgstr "端口"
 
-#: pkg/networkmanager/firewall.jsx:412
+#: pkg/networkmanager/firewall.jsx:427
 msgid "Port number and type do not match"
 msgstr "端口号和类型不匹配"
 
@@ -4778,7 +4774,7 @@ msgstr "前缀长度或网络掩码"
 msgid "Preparing"
 msgstr "准备中"
 
-#: pkg/lib/machine-info.js:264
+#: pkg/lib/machine-info.js:266
 msgid "Present"
 msgstr "当前"
 
@@ -4945,11 +4941,11 @@ msgstr "机架式机箱"
 msgid "Random"
 msgstr "随机"
 
-#: pkg/networkmanager/firewall.jsx:778
+#: pkg/networkmanager/firewall.jsx:798
 msgid "Range"
 msgstr "范围"
 
-#: pkg/networkmanager/firewall.jsx:444
+#: pkg/networkmanager/firewall.jsx:459
 msgid "Range must be strictly ordered"
 msgstr "范围必须排序"
 
@@ -5020,7 +5016,7 @@ msgstr "重新引导系统......"
 #: pkg/networkmanager/network-main.jsx:202 pkg/networkmanager/plots.js:43
 #: pkg/networkmanager/network-interface-members.jsx:217
 msgid "Receiving"
-msgstr "接收中"
+msgstr "接收"
 
 #: pkg/static/login.html:161
 msgid "Recent hosts"
@@ -5115,7 +5111,7 @@ msgstr "删除"
 msgid "Remove $0"
 msgstr "移除 $0"
 
-#: pkg/networkmanager/firewall.jsx:860
+#: pkg/networkmanager/firewall.jsx:880
 msgid "Remove $0 service from $1 zone"
 msgstr "从 $1 区中删除 $0 服务"
 
@@ -5132,10 +5128,8 @@ msgid "Remove device"
 msgstr "删除设备"
 
 #: pkg/static/login.js:591
-#, fuzzy
-#| msgid "Remove item"
 msgid "Remove host"
-msgstr "删除项目"
+msgstr "删除主机"
 
 #: pkg/networkmanager/ip-settings.jsx:198
 #: pkg/networkmanager/ip-settings.jsx:243
@@ -5152,7 +5146,7 @@ msgstr "删除密钥插槽 $0 中的密码吗？"
 msgid "Remove service $0"
 msgstr "删除服务 $0"
 
-#: pkg/networkmanager/firewall.jsx:161 pkg/networkmanager/firewall.jsx:843
+#: pkg/networkmanager/firewall.jsx:161 pkg/networkmanager/firewall.jsx:863
 msgid "Remove zone $0"
 msgstr "移除区 $0"
 
@@ -5186,7 +5180,7 @@ msgstr ""
 msgid "Removing physical volume from $target"
 msgstr "从 $target 删除物理卷"
 
-#: pkg/networkmanager/firewall.jsx:858
+#: pkg/networkmanager/firewall.jsx:878
 msgid ""
 "Removing the cockpit service might result in the web console becoming "
 "unreachable. Make sure that this zone does not apply to your current web "
@@ -5195,7 +5189,7 @@ msgstr ""
 "删除 cockpit 服务可能会导致 web 控制台无法被访问。请确认这个区不会应用到当前"
 "的 web 控制台连接。"
 
-#: pkg/networkmanager/firewall.jsx:841
+#: pkg/networkmanager/firewall.jsx:861
 msgid "Removing the zone will remove all services within it."
 msgstr "删除区将删除其中的所有服务。"
 
@@ -5308,7 +5302,7 @@ msgstr "必备的"
 msgid "Reserved memory"
 msgstr "保留内存"
 
-#: pkg/systemd/terminal.jsx:159 pkg/systemd/logs.jsx:404
+#: pkg/systemd/terminal.jsx:163 pkg/systemd/logs.jsx:404
 msgid "Reset"
 msgstr "重置"
 
@@ -5503,6 +5497,14 @@ msgid ""
 "current disk passphrase."
 msgstr "保存新密码需要解锁磁盘。请提供当前的磁盘密码。"
 
+#: pkg/systemd/overview-cards/shutdownStatus.jsx:86
+msgid "Scheduled poweroff at $0"
+msgstr "预期于 $0 关机"
+
+#: pkg/systemd/overview-cards/shutdownStatus.jsx:90
+msgid "Scheduled reboot at $0"
+msgstr "预期于 $0 重启"
+
 #: pkg/lib/machine-info.js:81
 msgid "Sealed-case PC"
 msgstr "密封式 PC"
@@ -5559,7 +5561,7 @@ msgstr "发送"
 #: pkg/networkmanager/network-main.jsx:201
 #: pkg/networkmanager/network-interface-members.jsx:216
 msgid "Sending"
-msgstr "发送中"
+msgstr "发送"
 
 #: pkg/storaged/drive-details.jsx:82
 msgctxt "storage"
@@ -5629,7 +5631,7 @@ msgstr "服务正在停止"
 msgid "Service logs"
 msgstr "服务日志"
 
-#: pkg/systemd/services.html:4 pkg/networkmanager/firewall.jsx:544
+#: pkg/systemd/services.html:4 pkg/networkmanager/firewall.jsx:559
 #: pkg/systemd/services/service-tabs.jsx:39 pkg/systemd/services/service.jsx:80
 #: pkg/systemd/manifest.json:0
 msgid "Services"
@@ -5772,7 +5774,7 @@ msgstr "关机"
 msgid "Since"
 msgstr "自从"
 
-#: pkg/lib/machine-info.js:255
+#: pkg/lib/machine-info.js:257
 msgid "Single rank"
 msgstr "单 rank"
 
@@ -5871,7 +5873,7 @@ msgstr "某些其他程序正在使用软件包管理器，请等待..."
 msgid "Some software needs to be restarted manually"
 msgstr "有些软件需要手动重启"
 
-#: pkg/networkmanager/firewall.jsx:715
+#: pkg/networkmanager/firewall.jsx:735
 msgid "Sorted from least to most trusted"
 msgstr "按最不被信任到最被信任的顺序排序"
 
@@ -6275,7 +6277,7 @@ msgstr ""
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr "账号 '$0' 将在下次登录时被强制变更其密码"
 
-#: pkg/networkmanager/firewall.jsx:746
+#: pkg/networkmanager/firewall.jsx:766
 msgid "The cockpit service is automatically included"
 msgstr "cockpit 服务被自动包括"
 
@@ -6638,7 +6640,7 @@ msgstr ""
 msgid "This will test the kdump configuration by crashing the kernel."
 msgstr "这将通过崩溃内核来测试 kdump 配置。"
 
-#: pkg/networkmanager/firewall.jsx:839
+#: pkg/networkmanager/firewall.jsx:859
 msgid ""
 "This zone contains the cockpit service. Make sure that this zone does not "
 "apply to your current web console connection."
@@ -6749,7 +6751,7 @@ msgstr "短暂的"
 
 #: pkg/networkmanager/plots.js:38
 msgid "Transmitting"
-msgstr "传送"
+msgstr "发送"
 
 #: pkg/systemd/services/timer-dialog.jsx:168
 #: pkg/systemd/services/services-list.jsx:44
@@ -6776,7 +6778,7 @@ msgstr "检修…"
 msgid "Trust key"
 msgstr "信任密钥"
 
-#: pkg/networkmanager/firewall.jsx:712
+#: pkg/networkmanager/firewall.jsx:732
 msgid "Trust level"
 msgstr "信任级别"
 
@@ -6919,10 +6921,8 @@ msgid "Unavailable"
 msgstr "不可用"
 
 #: pkg/packagekit/kpatch.jsx:236
-#, fuzzy
-#| msgid "Unavailable"
 msgid "Unavailable packages"
-msgstr "不可用"
+msgstr "不可用的软件包"
 
 #: pkg/users/dialog-utils.js:65 pkg/networkmanager/interfaces.js:50
 #: pkg/shell/shell-modals.jsx:179
@@ -6945,10 +6945,10 @@ msgstr "Unix 组：$0"
 #: pkg/networkmanager/interfaces.js:506 pkg/networkmanager/interfaces.js:978
 #: pkg/networkmanager/network-interface.jsx:198
 #: pkg/networkmanager/network-interface.jsx:200 pkg/storaged/swap-tab.jsx:62
-#: pkg/lib/machine-info.js:59 pkg/lib/machine-info.js:243
-#: pkg/lib/machine-info.js:251 pkg/lib/machine-info.js:253
-#: pkg/lib/machine-info.js:260 pkg/lib/machine-info.js:262
-#: pkg/lib/machine-info.js:266
+#: pkg/lib/machine-info.js:59 pkg/lib/machine-info.js:245
+#: pkg/lib/machine-info.js:253 pkg/lib/machine-info.js:255
+#: pkg/lib/machine-info.js:262 pkg/lib/machine-info.js:264
+#: pkg/lib/machine-info.js:268
 msgid "Unknown"
 msgstr "未知"
 
@@ -6973,7 +6973,7 @@ msgstr "未知配置"
 msgid "Unknown host name"
 msgstr "未知主机名"
 
-#: pkg/networkmanager/firewall.jsx:406
+#: pkg/networkmanager/firewall.jsx:421
 msgid "Unknown service name"
 msgstr "未知的服务名"
 
@@ -6985,7 +6985,7 @@ msgstr "未知类型"
 #: pkg/storaged/content-views.jsx:272 pkg/storaged/content-views.jsx:291
 #: pkg/storaged/stratis-details.jsx:709 pkg/storaged/stratis-details.jsx:772
 msgid "Unlock"
-msgstr "未锁定"
+msgstr "解锁"
 
 #: pkg/storaged/fsys-tab.jsx:660
 msgid "Unlock automatically on boot"
@@ -7023,7 +7023,7 @@ msgstr "卸载"
 
 #: pkg/storaged/fsys-tab.jsx:364
 msgid "Unmount filesystem $0"
-msgstr "卸载文件系统$0"
+msgstr "卸载文件系统 $0"
 
 #: pkg/storaged/fsys-tab.jsx:652 pkg/storaged/fsys-tab.jsx:656
 msgid "Unmount now"
@@ -7280,7 +7280,7 @@ msgstr "查看详情和历史记录"
 msgid "View hardware details"
 msgstr "查看硬件详细信息"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:137
+#: pkg/systemd/overview-cards/lastLogin.jsx:135
 msgid "View login history"
 msgstr "查看登录历史"
 
@@ -7396,7 +7396,7 @@ msgstr ""
 "当 Web 控制台重启时，将不再能够看到进度信息。但是，更新过程会继续在后台进行。"
 "重新连接以继续监视更新过程。"
 
-#: pkg/systemd/terminal.jsx:153
+#: pkg/systemd/terminal.jsx:156
 msgid "White"
 msgstr "白"
 
@@ -7764,7 +7764,7 @@ msgstr "来自 $0"
 #: pkg/systemd/overview-cards/lastLogin.jsx:35
 msgctxt "from <host> on <terminal>"
 msgid "from $0 on $1"
-msgstr "从$0到$1"
+msgstr "从$0于$1"
 
 #: pkg/storaged/manifest.json:0
 msgid "fstab"
@@ -7776,7 +7776,7 @@ msgstr "图表"
 
 #: pkg/storaged/lvol-tabs.jsx:228
 msgid "grow"
-msgstr ""
+msgstr "扩展"
 
 #: pkg/systemd/manifest.json:0
 msgid "hardware"
@@ -7799,8 +7799,6 @@ msgid "in most browsers"
 msgstr "在大多数浏览器中"
 
 #: pkg/storaged/content-views.jsx:672
-#, fuzzy
-#| msgid "Initialize"
 msgid "initialize"
 msgstr "初始化"
 
@@ -7877,14 +7875,10 @@ msgid "mask"
 msgstr "屏蔽"
 
 #: pkg/storaged/dialog.jsx:1027
-#, fuzzy
-#| msgid "Member of RAID device"
 msgid "member of RAID device"
 msgstr "RAID 设备的成员"
 
 #: pkg/storaged/dialog.jsx:1029
-#, fuzzy
-#| msgid "Member of Stratis pool"
 msgid "member of Stratis pool"
 msgstr "Stratis池的成员"
 
@@ -8004,10 +7998,8 @@ msgid "performance"
 msgstr "性能"
 
 #: pkg/storaged/dialog.jsx:1026
-#, fuzzy
-#| msgid "Create LVM2 volume group"
 msgid "physical volume of LVM2 volume group"
-msgstr "创建LVM2 卷组"
+msgstr "LVM2 卷组"
 
 #: pkg/apps/manifest.json:0
 msgid "plugin"
@@ -8051,7 +8043,7 @@ msgstr "推荐"
 
 #: pkg/storaged/utils.js:668
 msgid "remove from LVM2"
-msgstr ""
+msgstr "从LVM2中移除"
 
 #: pkg/storaged/utils.js:657
 msgid "remove from RAID"
@@ -8103,8 +8095,6 @@ msgid "show more"
 msgstr "显示更多"
 
 #: pkg/storaged/lvol-tabs.jsx:295
-#, fuzzy
-#| msgid "Shrink"
 msgid "shrink"
 msgstr "缩小"
 
@@ -8147,7 +8137,7 @@ msgstr "ssh 服务器为空"
 
 #: pkg/storaged/vdo-details.jsx:129 pkg/storaged/mdraid-details.jsx:236
 msgid "stop"
-msgstr ""
+msgstr "停止"
 
 #: pkg/metrics/metrics.jsx:100
 msgid "sys"
@@ -8265,6 +8255,9 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "区"
+
+#~ msgid "(Optional)"
+#~ msgstr "(可选)"
 
 #~ msgid "Active since"
 #~ msgstr "活跃自"
@@ -8938,9 +8931,6 @@ msgstr "区"
 
 #~ msgid "Firmware"
 #~ msgstr "固件"
-
-#~ msgid "Force reboot"
-#~ msgstr "强制重启"
 
 #~ msgid "Force shut down"
 #~ msgstr "强制关机"

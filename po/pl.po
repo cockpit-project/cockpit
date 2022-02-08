@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-25 18:03+0000\n"
-"PO-Revision-Date: 2022-01-29 12:48+0000\n"
+"POT-Creation-Date: 2022-02-01 18:05+0000\n"
+"PO-Revision-Date: 2022-02-05 11:26+0000\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <https://translate.fedoraproject.org/projects/cockpit/"
 "main/pl/>\n"
@@ -35,7 +35,7 @@ msgstr[0] "$0 procesor"
 msgstr[1] "$0 procesory"
 msgstr[2] "$0 procesorów"
 
-#: pkg/lib/machine-info.js:246
+#: pkg/lib/machine-info.js:248
 msgid "$0 GiB"
 msgstr "$0 GiB"
 
@@ -321,10 +321,6 @@ msgstr "$0: awaria o $1"
 #: pkg/storaged/utils.js:192
 msgid "$name (from $host)"
 msgstr "$name (z $host)"
-
-#: pkg/networkmanager/firewall.jsx:613
-msgid "(Optional)"
-msgstr "(Opcjonalne)"
 
 #: pkg/storaged/format-dialog.jsx:137 pkg/storaged/format-dialog.jsx:154
 msgid "(recommended)"
@@ -636,7 +632,7 @@ msgstr "Ping ARP"
 msgid "About Web Console"
 msgstr "O programie"
 
-#: pkg/lib/machine-info.js:264
+#: pkg/lib/machine-info.js:266
 msgid "Absent"
 msgstr "Nieobecne"
 
@@ -730,7 +726,7 @@ msgstr "Dodaj $0"
 msgid "Add VLAN"
 msgstr "Dodaj VLAN"
 
-#: pkg/networkmanager/firewall.jsx:915
+#: pkg/networkmanager/firewall.jsx:935
 msgid "Add a new zone"
 msgstr "Dodaj nową strefę"
 
@@ -774,11 +770,11 @@ msgstr "Dodaj element"
 msgid "Add new host"
 msgstr "Dodaj nowy komputer"
 
-#: pkg/networkmanager/firewall.jsx:513
+#: pkg/networkmanager/firewall.jsx:528
 msgid "Add ports"
 msgstr "Dodaj porty"
 
-#: pkg/networkmanager/firewall.jsx:514
+#: pkg/networkmanager/firewall.jsx:529
 msgid "Add ports to $0 zone"
 msgstr "Dodaj porty do strefy $0"
 
@@ -786,11 +782,11 @@ msgstr "Dodaj porty do strefy $0"
 msgid "Add public key"
 msgstr "Dodaj klucz publiczny"
 
-#: pkg/networkmanager/firewall.jsx:167 pkg/networkmanager/firewall.jsx:513
+#: pkg/networkmanager/firewall.jsx:167 pkg/networkmanager/firewall.jsx:528
 msgid "Add services"
 msgstr "Dodaj usługi"
 
-#: pkg/networkmanager/firewall.jsx:514
+#: pkg/networkmanager/firewall.jsx:529
 msgid "Add services to $0 zone"
 msgstr "Dodaj usługi do strefy $0"
 
@@ -802,8 +798,8 @@ msgstr "Dodaj usługi do strefy $0"
 msgid "Add team"
 msgstr "Dodaj zespół"
 
-#: pkg/networkmanager/firewall.jsx:696 pkg/networkmanager/firewall.jsx:704
-#: pkg/networkmanager/firewall.jsx:916
+#: pkg/networkmanager/firewall.jsx:716 pkg/networkmanager/firewall.jsx:724
+#: pkg/networkmanager/firewall.jsx:936
 msgid "Add zone"
 msgstr "Dodaj strefę"
 
@@ -815,7 +811,7 @@ msgstr ""
 "Dodanie $0 zerwie połączenie z serwerem i uniemożliwi korzystanie "
 "z interfejsu administracji."
 
-#: pkg/networkmanager/firewall.jsx:527
+#: pkg/networkmanager/firewall.jsx:542
 msgid ""
 "Adding custom ports will reload firewalld. A reload will result in the loss "
 "of any runtime-only configuration!"
@@ -937,7 +933,7 @@ msgstr "Wszystko w jednym"
 msgid "Allow running (unmask)"
 msgstr "Zezwolenie na uruchamianie (odmaskowanie)"
 
-#: pkg/networkmanager/firewall.jsx:766
+#: pkg/networkmanager/firewall.jsx:786
 msgid "Allowed addresses"
 msgstr "Dozwolone adresy"
 
@@ -962,7 +958,7 @@ msgstr ""
 "w formie POLE=WARTOŚĆ, gdzie wartość może być listą możliwych wartości "
 "rozdzielonych przecinkami."
 
-#: pkg/systemd/terminal.jsx:144
+#: pkg/systemd/terminal.jsx:147
 msgid "Appearance"
 msgstr "Wygląd"
 
@@ -1176,7 +1172,7 @@ msgctxt "storage"
 msgid "Bitmap"
 msgstr "Bitmapa"
 
-#: pkg/systemd/terminal.jsx:150
+#: pkg/systemd/terminal.jsx:153
 msgid "Black"
 msgstr "Czarny"
 
@@ -1315,8 +1311,8 @@ msgstr ""
 #: pkg/playground/translate.html:39 pkg/static/login.html:117
 #: pkg/packagekit/autoupdates.jsx:419 pkg/packagekit/updates.jsx:473
 #: pkg/packagekit/updates.jsx:544 pkg/packagekit/kpatch.jsx:310
-#: pkg/networkmanager/firewall.jsx:533 pkg/networkmanager/firewall.jsx:707
-#: pkg/networkmanager/firewall.jsx:799
+#: pkg/networkmanager/firewall.jsx:548 pkg/networkmanager/firewall.jsx:727
+#: pkg/networkmanager/firewall.jsx:819
 #: pkg/networkmanager/dialogs-common.jsx:152 pkg/shell/credentials.jsx:314
 #: pkg/shell/active-pages-modal.jsx:96 pkg/shell/superuser.jsx:86
 #: pkg/shell/superuser.jsx:158 pkg/shell/shell-modals.jsx:128
@@ -1333,6 +1329,14 @@ msgstr ""
 #: pkg/lib/cockpit-components-dialog.jsx:127
 msgid "Cancel"
 msgstr "Anuluj"
+
+#: pkg/systemd/overview-cards/shutdownStatus.jsx:87
+msgid "Cancel poweroff"
+msgstr "Anuluj wyłączenie komputera"
+
+#: pkg/systemd/overview-cards/shutdownStatus.jsx:91
+msgid "Cancel reboot"
+msgstr "Anuluj ponowne uruchomienie"
 
 #: pkg/systemd/services/services-list.jsx:82
 msgid "Cannot be enabled"
@@ -1592,9 +1596,9 @@ msgstr "Zbieraj statystyki"
 msgid "Color"
 msgstr "Kolor"
 
-#: pkg/networkmanager/firewall.jsx:593 pkg/networkmanager/firewall.jsx:603
-msgid "Comma-separated ports, ranges, and aliases are accepted"
-msgstr "Przyjmowane są porty, zakresy i aliasy oddzielone przecinkami"
+#: pkg/networkmanager/firewall.jsx:608 pkg/networkmanager/firewall.jsx:618
+msgid "Comma-separated ports, ranges, and services are accepted"
+msgstr "Przyjmowane są porty, zakresy i usługi oddzielone przecinkami"
 
 #: pkg/systemd/services/timer-dialog.jsx:159 pkg/storaged/dialog.jsx:1203
 #: pkg/storaged/dialog.jsx:1222
@@ -1679,7 +1683,7 @@ msgstr "Potwierdź nowe hasło"
 msgid "Confirm password"
 msgstr "Potwierdź hasło"
 
-#: pkg/networkmanager/firewall.jsx:795
+#: pkg/networkmanager/firewall.jsx:815
 msgid "Confirm removal of $0"
 msgstr "Potwierdź usunięcie $0"
 
@@ -1972,11 +1976,11 @@ msgstr "Obecnie używane"
 msgid "Custom mount options"
 msgstr "Niestandardowe opcje montowania"
 
-#: pkg/networkmanager/firewall.jsx:551
+#: pkg/networkmanager/firewall.jsx:566
 msgid "Custom ports"
 msgstr "Niestandardowe porty"
 
-#: pkg/networkmanager/firewall.jsx:725
+#: pkg/networkmanager/firewall.jsx:745
 msgid "Custom zones"
 msgstr "Niestandardowe strefy"
 
@@ -2008,7 +2012,7 @@ msgstr "Codziennie"
 msgid "Danger alert:"
 msgstr "Alarm niebezpieczeństwa:"
 
-#: pkg/systemd/terminal.jsx:151
+#: pkg/systemd/terminal.jsx:154
 msgid "Dark"
 msgstr "Ciemny"
 
@@ -2048,7 +2052,7 @@ msgstr "Dezaktywowanie $target"
 msgid "Debug and above"
 msgstr "Debugowania i powyżej"
 
-#: pkg/systemd/terminal.jsx:138
+#: pkg/systemd/terminal.jsx:139
 msgid "Decrease by one"
 msgstr "Zmniejsz o jedną jednostkę"
 
@@ -2068,7 +2072,7 @@ msgid "Delay must be a number"
 msgstr "Opóźnienie musi być liczbą"
 
 #: pkg/users/account-details.js:278 pkg/users/delete-account-dialog.js:60
-#: pkg/networkmanager/firewall.jsx:796
+#: pkg/networkmanager/firewall.jsx:816
 #: pkg/networkmanager/network-interface.jsx:718 pkg/systemd/abrtLog.jsx:285
 #: pkg/storaged/vdo-details.jsx:205 pkg/storaged/vdo-details.jsx:271
 #: pkg/storaged/mdraid-details.jsx:305 pkg/storaged/mdraid-details.jsx:331
@@ -2133,7 +2137,7 @@ msgstr "Usunięcie usuwa wszystkie dane na urządzeniu VDO."
 msgid "Deleting erases all data on a volume group."
 msgstr "Usunięcie usuwa wszystkie dane w grupie woluminów."
 
-#: pkg/networkmanager/firewall.jsx:736
+#: pkg/networkmanager/firewall.jsx:626 pkg/networkmanager/firewall.jsx:756
 #: pkg/systemd/services/timer-dialog.jsx:150 pkg/storaged/dialog.jsx:1223
 msgid "Description"
 msgstr "Opis"
@@ -2341,7 +2345,7 @@ msgstr "Napęd"
 msgid "Drives"
 msgstr "Napędy"
 
-#: pkg/lib/machine-info.js:257
+#: pkg/lib/machine-info.js:259
 msgid "Dual rank"
 msgstr "Podwójny stopień"
 
@@ -2479,7 +2483,7 @@ msgstr "Dostępne są aktualizacje z ulepszeniami"
 msgid "Enter a valid MAC address"
 msgstr "Proszę podać prawidłowy adres MAC"
 
-#: pkg/networkmanager/firewall.jsx:772
+#: pkg/networkmanager/firewall.jsx:792
 msgid "Entire subnet"
 msgstr "Cała podsieć"
 
@@ -2553,11 +2557,11 @@ msgstr "Zdarzenie"
 msgid "Event logs"
 msgstr "Dzienniki zdarzeń"
 
-#: pkg/networkmanager/firewall.jsx:598
+#: pkg/networkmanager/firewall.jsx:613
 msgid "Example: 22,ssh,8080,5900-5910"
 msgstr "Przykład: 22,ssh,8080,5900-5910"
 
-#: pkg/networkmanager/firewall.jsx:608
+#: pkg/networkmanager/firewall.jsx:623
 msgid "Example: 88,2019,nfs,rsync"
 msgstr "Przykład: 88,2019,nfs,rsync"
 
@@ -2597,15 +2601,15 @@ msgstr "Niepowodzenie"
 msgid "Failed to add machine: $0"
 msgstr "Dodanie komputera się nie powiodło: $0"
 
-#: pkg/networkmanager/firewall.jsx:323
+#: pkg/networkmanager/firewall.jsx:332
 msgid "Failed to add port"
 msgstr "Dodanie portu się nie powiodło"
 
-#: pkg/networkmanager/firewall.jsx:323
+#: pkg/networkmanager/firewall.jsx:332
 msgid "Failed to add service"
 msgstr "Dodanie usługi się nie powiodło"
 
-#: pkg/networkmanager/firewall.jsx:670
+#: pkg/networkmanager/firewall.jsx:690
 msgid "Failed to add zone"
 msgstr "Dodanie strefy się nie powiodło"
 
@@ -2730,11 +2734,11 @@ msgid "Fingerprint"
 msgstr "Odcisk"
 
 #: pkg/networkmanager/firewall.html:22 pkg/networkmanager/network-main.jsx:151
-#: pkg/networkmanager/firewall.jsx:932 pkg/networkmanager/firewall.jsx:939
+#: pkg/networkmanager/firewall.jsx:952 pkg/networkmanager/firewall.jsx:959
 msgid "Firewall"
 msgstr "Zapora sieciowa"
 
-#: pkg/networkmanager/firewall.jsx:909
+#: pkg/networkmanager/firewall.jsx:929
 msgid "Firewall is not available"
 msgstr "Zapora sieciowa jest niedostępna"
 
@@ -2743,7 +2747,7 @@ msgctxt "storage"
 msgid "Firmware version"
 msgstr "Wersja oprogramowania sprzętowego"
 
-#: pkg/systemd/terminal.jsx:127 pkg/systemd/terminal.jsx:137
+#: pkg/systemd/terminal.jsx:128 pkg/systemd/terminal.jsx:138
 msgid "Font size"
 msgstr "Rozmiar czcionki"
 
@@ -2885,7 +2889,7 @@ msgstr "Przenośny"
 msgid "Hardware information"
 msgstr "Informacje o sprzęcie"
 
-#: pkg/systemd/overview-cards/healthCard.jsx:36
+#: pkg/systemd/overview-cards/healthCard.jsx:37
 msgid "Health"
 msgstr "Zdrowie"
 
@@ -2929,7 +2933,7 @@ msgstr "Co godzinę"
 msgid "Hours"
 msgstr "Godziny"
 
-#: pkg/networkmanager/firewall.jsx:611 pkg/systemd/hwinfo.jsx:313
+#: pkg/networkmanager/firewall.jsx:631 pkg/systemd/hwinfo.jsx:313
 msgid "ID"
 msgstr "Identyfikator"
 
@@ -2942,7 +2946,7 @@ msgstr "Identyfikator $id"
 msgid "IP address"
 msgstr "Adres IP"
 
-#: pkg/networkmanager/firewall.jsx:780
+#: pkg/networkmanager/firewall.jsx:800
 msgid ""
 "IP address with routing prefix. Separate multiple values with a comma. "
 "Example: 192.0.2.0/24, 2001:db8::/32"
@@ -3038,7 +3042,7 @@ msgstr "Nieaktywne"
 msgid "Inactive volume"
 msgstr "Nieaktywny wolumin"
 
-#: pkg/networkmanager/firewall.jsx:742
+#: pkg/networkmanager/firewall.jsx:762
 msgid "Included services"
 msgstr "Dołączone usługi"
 
@@ -3046,7 +3050,7 @@ msgstr "Dołączone usługi"
 msgid "Inconsistent filesystem mount"
 msgstr "Niespójny punkt montowania systemu plików"
 
-#: pkg/systemd/terminal.jsx:139
+#: pkg/systemd/terminal.jsx:140
 msgid "Increase by one"
 msgstr "Zwiększ o jedną jednostkę"
 
@@ -3151,7 +3155,7 @@ msgid "Interface members"
 msgstr "Elementy interfejsu"
 
 #: pkg/networkmanager/bond.jsx:165 pkg/networkmanager/network-main.jsx:173
-#: pkg/networkmanager/firewall.jsx:176 pkg/networkmanager/firewall.jsx:749
+#: pkg/networkmanager/firewall.jsx:176 pkg/networkmanager/firewall.jsx:769
 #: pkg/networkmanager/network-interface-members.jsx:215
 msgid "Interfaces"
 msgstr "Interfejsy"
@@ -3200,7 +3204,7 @@ msgstr "Nieprawidłowe parametry $0"
 msgid "Invalid number of days"
 msgstr "Nieprawidłowa liczba dni"
 
-#: pkg/networkmanager/firewall.jsx:408
+#: pkg/networkmanager/firewall.jsx:423
 msgid "Invalid port number"
 msgstr "Nieprawidłowy numer portu"
 
@@ -3212,7 +3216,7 @@ msgstr "Nieprawidłowy przedrostek $0"
 msgid "Invalid prefix or netmask $0"
 msgstr "Nieprawidłowy przedrostek lub maska sieci $0"
 
-#: pkg/networkmanager/firewall.jsx:436
+#: pkg/networkmanager/firewall.jsx:451
 msgid "Invalid range"
 msgstr "Nieprawidłowy zakres"
 
@@ -3418,7 +3422,7 @@ msgstr "Opuść domenę"
 msgid "Licensed under GNU LGPL version 2.1"
 msgstr "Na warunkach licencji GNU LGPL w wersji 2.1"
 
-#: pkg/systemd/terminal.jsx:152
+#: pkg/systemd/terminal.jsx:155
 msgid "Light"
 msgstr "Jasny"
 
@@ -4099,7 +4103,7 @@ msgstr "Usługa NetworkManager nie jest zainstalowana"
 msgid "NetworkManager is not running"
 msgstr "Usługa NetworkManager nie jest uruchomiona"
 
-#: pkg/networkmanager/index.html:23 pkg/networkmanager/firewall.jsx:931
+#: pkg/networkmanager/index.html:23 pkg/networkmanager/firewall.jsx:951
 #: pkg/networkmanager/network-interface.jsx:695
 #: pkg/networkmanager/manifest.json:0
 msgid "Networking"
@@ -4198,7 +4202,7 @@ msgstr "Brak dostępnych danych między $0 a $1"
 msgid "No delay"
 msgstr "Brak opóźnienia"
 
-#: pkg/networkmanager/firewall.jsx:738
+#: pkg/networkmanager/firewall.jsx:758
 msgid "No description available"
 msgstr "Brak dostępnego opisu"
 
@@ -4327,7 +4331,7 @@ msgstr "Brak aktualizacji"
 msgid "No user name specified"
 msgstr "Nie podano nazwy użytkownika"
 
-#: pkg/networkmanager/firewall.jsx:744 pkg/tuned/dialog.jsx:227
+#: pkg/networkmanager/firewall.jsx:764 pkg/tuned/dialog.jsx:227
 #: pkg/kdump/kdump-view.jsx:424
 msgid "None"
 msgstr "Brak"
@@ -4823,7 +4827,7 @@ msgid "Please enable JavaScript to use the Web Console."
 msgstr ""
 "Proszę włączyć obsługę języka JavaScript, aby używać konsoli internetowej."
 
-#: pkg/networkmanager/firewall.jsx:910
+#: pkg/networkmanager/firewall.jsx:930
 msgid "Please install the $0 package"
 msgstr "Proszę zainstalować pakiet $0"
 
@@ -4859,7 +4863,7 @@ msgstr "Pula dla cienko nadzorowanych woluminów"
 msgid "Port"
 msgstr "Port"
 
-#: pkg/networkmanager/firewall.jsx:412
+#: pkg/networkmanager/firewall.jsx:427
 msgid "Port number and type do not match"
 msgstr "Numer i typ portu się nie zgadzają"
 
@@ -4885,7 +4889,7 @@ msgstr "Długość przedrostka lub maska sieci"
 msgid "Preparing"
 msgstr "Przygotowywanie"
 
-#: pkg/lib/machine-info.js:264
+#: pkg/lib/machine-info.js:266
 msgid "Present"
 msgstr "Obecne"
 
@@ -5052,11 +5056,11 @@ msgstr "Obudowa do montowania w szafie"
 msgid "Random"
 msgstr "Losowo"
 
-#: pkg/networkmanager/firewall.jsx:778
+#: pkg/networkmanager/firewall.jsx:798
 msgid "Range"
 msgstr "Zakres"
 
-#: pkg/networkmanager/firewall.jsx:444
+#: pkg/networkmanager/firewall.jsx:459
 msgid "Range must be strictly ordered"
 msgstr "Zakres musi być w ścisłej kolejności"
 
@@ -5224,7 +5228,7 @@ msgstr "Usuń"
 msgid "Remove $0"
 msgstr "Usuń $0"
 
-#: pkg/networkmanager/firewall.jsx:860
+#: pkg/networkmanager/firewall.jsx:880
 msgid "Remove $0 service from $1 zone"
 msgstr "Usuń usługę $0 ze strefy $1"
 
@@ -5259,7 +5263,7 @@ msgstr "Usunąć hasło w gnieździe na klucze $0?"
 msgid "Remove service $0"
 msgstr "Usuń usługę $0"
 
-#: pkg/networkmanager/firewall.jsx:161 pkg/networkmanager/firewall.jsx:843
+#: pkg/networkmanager/firewall.jsx:161 pkg/networkmanager/firewall.jsx:863
 msgid "Remove zone $0"
 msgstr "Usuń strefę $0"
 
@@ -5296,7 +5300,7 @@ msgstr ""
 msgid "Removing physical volume from $target"
 msgstr "Usuwanie woluminu fizycznego z $target"
 
-#: pkg/networkmanager/firewall.jsx:858
+#: pkg/networkmanager/firewall.jsx:878
 msgid ""
 "Removing the cockpit service might result in the web console becoming "
 "unreachable. Make sure that this zone does not apply to your current web "
@@ -5306,7 +5310,7 @@ msgstr ""
 "Proszę się upewnić, że ta strefa nie ma zastosowania do obecnego połączenia "
 "konsoli internetowej."
 
-#: pkg/networkmanager/firewall.jsx:841
+#: pkg/networkmanager/firewall.jsx:861
 msgid "Removing the zone will remove all services within it."
 msgstr "Usunięcie strefy usunie wszystkie zawarte w niej usługi."
 
@@ -5419,7 +5423,7 @@ msgstr "Potrzebne dla"
 msgid "Reserved memory"
 msgstr "Zastrzeżona pamięć"
 
-#: pkg/systemd/terminal.jsx:159 pkg/systemd/logs.jsx:404
+#: pkg/systemd/terminal.jsx:163 pkg/systemd/logs.jsx:404
 msgid "Reset"
 msgstr "Przywróć"
 
@@ -5621,6 +5625,14 @@ msgstr ""
 "Zapisanie nowego hasła wymaga odblokowania dysku. Proszę podać obecne hasło "
 "dysku."
 
+#: pkg/systemd/overview-cards/shutdownStatus.jsx:86
+msgid "Scheduled poweroff at $0"
+msgstr "Zaplanowane wyłączenie komputera: $0"
+
+#: pkg/systemd/overview-cards/shutdownStatus.jsx:90
+msgid "Scheduled reboot at $0"
+msgstr "Zaplanowane ponowne uruchomienie: $0"
+
 #: pkg/lib/machine-info.js:81
 msgid "Sealed-case PC"
 msgstr "Sealed-case PC"
@@ -5747,7 +5759,7 @@ msgstr "Usługa jest zatrzymywana"
 msgid "Service logs"
 msgstr "Dzienniki serwera"
 
-#: pkg/systemd/services.html:4 pkg/networkmanager/firewall.jsx:544
+#: pkg/systemd/services.html:4 pkg/networkmanager/firewall.jsx:559
 #: pkg/systemd/services/service-tabs.jsx:39 pkg/systemd/services/service.jsx:80
 #: pkg/systemd/manifest.json:0
 msgid "Services"
@@ -5896,7 +5908,7 @@ msgstr "Wyłącz"
 msgid "Since"
 msgstr "Od"
 
-#: pkg/lib/machine-info.js:255
+#: pkg/lib/machine-info.js:257
 msgid "Single rank"
 msgstr "Pojedynczy stopień"
 
@@ -5996,7 +6008,7 @@ msgstr "Inny program obecnie używa menedżera pakietów, proszę czekać…"
 msgid "Some software needs to be restarted manually"
 msgstr "Część oprogramowania musi zostać ręcznie uruchomiona ponownie"
 
-#: pkg/networkmanager/firewall.jsx:715
+#: pkg/networkmanager/firewall.jsx:735
 msgid "Sorted from least to most trusted"
 msgstr "Uporządkowane od najmniej do najbardziej zaufanych"
 
@@ -6410,7 +6422,7 @@ msgid "The account '$0' will be forced to change their password on next login"
 msgstr ""
 "Konto „$0” będzie zmuszone do zmiany hasła podczas następnego logowania"
 
-#: pkg/networkmanager/firewall.jsx:746
+#: pkg/networkmanager/firewall.jsx:766
 msgid "The cockpit service is automatically included"
 msgstr "Usługa Cockpit jest automatycznie dołączana"
 
@@ -6826,7 +6838,7 @@ msgstr ""
 msgid "This will test the kdump configuration by crashing the kernel."
 msgstr "Przetestuje to konfigurację kdump przez zawieszenie jądra."
 
-#: pkg/networkmanager/firewall.jsx:839
+#: pkg/networkmanager/firewall.jsx:859
 msgid ""
 "This zone contains the cockpit service. Make sure that this zone does not "
 "apply to your current web console connection."
@@ -6971,7 +6983,7 @@ msgstr "Rozwiąż problem…"
 msgid "Trust key"
 msgstr "Zaufaj kluczowi"
 
-#: pkg/networkmanager/firewall.jsx:712
+#: pkg/networkmanager/firewall.jsx:732
 msgid "Trust level"
 msgstr "Poziom zaufania"
 
@@ -7142,10 +7154,10 @@ msgstr "Grupa uniksowa: $0"
 #: pkg/networkmanager/interfaces.js:506 pkg/networkmanager/interfaces.js:978
 #: pkg/networkmanager/network-interface.jsx:198
 #: pkg/networkmanager/network-interface.jsx:200 pkg/storaged/swap-tab.jsx:62
-#: pkg/lib/machine-info.js:59 pkg/lib/machine-info.js:243
-#: pkg/lib/machine-info.js:251 pkg/lib/machine-info.js:253
-#: pkg/lib/machine-info.js:260 pkg/lib/machine-info.js:262
-#: pkg/lib/machine-info.js:266
+#: pkg/lib/machine-info.js:59 pkg/lib/machine-info.js:245
+#: pkg/lib/machine-info.js:253 pkg/lib/machine-info.js:255
+#: pkg/lib/machine-info.js:262 pkg/lib/machine-info.js:264
+#: pkg/lib/machine-info.js:268
 msgid "Unknown"
 msgstr "Nieznane"
 
@@ -7170,7 +7182,7 @@ msgstr "Nieznana konfiguracja"
 msgid "Unknown host name"
 msgstr "Nieznana nazwa komputera"
 
-#: pkg/networkmanager/firewall.jsx:406
+#: pkg/networkmanager/firewall.jsx:421
 msgid "Unknown service name"
 msgstr "Nieznana nazwa usługi"
 
@@ -7477,7 +7489,7 @@ msgstr "Wyświetl informacje i historię"
 msgid "View hardware details"
 msgstr "Wyświetl informacje o sprzęcie"
 
-#: pkg/systemd/overview-cards/lastLogin.jsx:137
+#: pkg/systemd/overview-cards/lastLogin.jsx:135
 msgid "View login history"
 msgstr "Wyświetl historię logowania"
 
@@ -7595,7 +7607,7 @@ msgstr ""
 "nie będą widoczne. Proces aktualizacji będzie kontynuowany w tle. Ponowne "
 "połączenie umożliwi obserwowanie procesu aktualizacji."
 
-#: pkg/systemd/terminal.jsx:153
+#: pkg/systemd/terminal.jsx:156
 msgid "White"
 msgstr "Biały"
 
@@ -8462,6 +8474,9 @@ msgstr "yum"
 msgid "zone"
 msgstr "strefa"
 
+#~ msgid "(Optional)"
+#~ msgstr "(Opcjonalne)"
+
 #~ msgid "Active since"
 #~ msgstr "Aktywne od"
 
@@ -9176,9 +9191,6 @@ msgstr "strefa"
 
 #~ msgid "Firmware"
 #~ msgstr "Oprogramowanie sprzętowe"
-
-#~ msgid "Force reboot"
-#~ msgstr "Wymuś ponowne uruchomienie"
 
 #~ msgid "Force shut down"
 #~ msgstr "Wymuś wyłączenie"

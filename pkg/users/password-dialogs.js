@@ -141,7 +141,7 @@ function SetPasswordDialogBody({ state, errors, change }) {
                        validated={(errors && errors.password_old) ? "error" : "default"}
                        fieldId="account-set-password-old">
                 <TextInput className="check-passwords" type="password" id="account-set-password-old"
-                           value={password_old} onChange={value => change("password_old", value)} />
+                           autocomplete="current-password" value={password_old} onChange={value => change("password_old", value)} />
             </FormGroup> }
             <PasswordFormFields password={password}
                                 password_confirm={password_confirm}

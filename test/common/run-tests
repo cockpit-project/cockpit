@@ -55,7 +55,7 @@ class Test:
 
     def start(self):
         if self.nondestructive:
-            assert self.machine_id is not None, f"need to assign nondestructive test {self.test_id} {self.command} to a machine"
+            assert self.machine_id is not None, f"need to assign nondestructive test {self} {self.command} to a machine"
         self.outfile = tempfile.TemporaryFile()
         self.process = subprocess.Popen(["timeout", str(self.timeout)] + self.command,
                                         stdout=self.outfile, stderr=subprocess.STDOUT)
@@ -105,7 +105,7 @@ class Test:
             cmd = ["test-failure-policy", testvm.DEFAULT_IMAGE]
             try:
                 proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-                reason = proc.communicate(self.output + ("not ok " + self._get_title()).encode())[0].strip()
+                reason = proc.communicate(self.output + ("not ok " + str(self)).encode())[0].strip()
 
                 if proc.returncode == 77:
                     self._print_test(skip_reason="# SKIP {0}".format(reason.decode("utf-8")))
@@ -135,7 +135,7 @@ class Test:
 
     # internal methods
 
-    def _get_title(self):
+    def __str__(self):
         return "{0} {1} {2}{3}".format(
             self.test_id,
             self.command[0],
@@ -165,11 +165,11 @@ class Test:
 
         print()  # Tap needs to start on a separate line
         if self.returncode == 0:
-            print(f"ok {self._get_title()}{retry_reason}")
+            print(f"ok {self}{retry_reason}")
         elif skip_reason:
-            print(f"ok {self._get_title()}{skip_reason}")
+            print(f"ok {self}{skip_reason}")
         else:
-            print(f"not ok {self._get_title()}{retry_reason}")
+            print(f"not ok {self}{retry_reason}")
         flush_stdout()
 
 

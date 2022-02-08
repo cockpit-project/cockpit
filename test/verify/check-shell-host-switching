@@ -247,7 +247,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.wait_text_not("#system_information_systime_button", "")
         b.click(".system-information a")  # View hardware details
         b.enter_page("/system/hwinfo", "10.111.113.3")
-        b.click(".pf-c-breadcrumb li:first-child a")
+        b.click(".pf-c-breadcrumb li:first-child")
         b.enter_page("/system", "10.111.113.3")
         b.wait_in_text(".ct-overview-header-hostname", "machine3")
 

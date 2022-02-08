@@ -470,7 +470,7 @@ class TestSystemInfo(MachineCase):
         b.wait_not_in_text(pci_selector + ' tbody tr:last-of-type td[data-label=Model]', "Unclassified")
 
         # go back to system page
-        b.click('.pf-c-breadcrumb li:first a')
+        b.click('.pf-c-breadcrumb li:first')
 
         b.enter_page("/system")
 

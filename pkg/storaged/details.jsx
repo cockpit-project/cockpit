@@ -82,12 +82,6 @@ export class Details extends React.Component {
     render() {
         const client = this.props.client;
 
-        function go_up(event) {
-            if (!event || event.button !== 0)
-                return;
-            cockpit.location.go("/");
-        }
-
         let body = null;
         let name = this.props.name;
         if (this.props.type == "block") {
@@ -143,7 +137,7 @@ export class Details extends React.Component {
                   id="storage-detail"
                   breadcrumb={
                       <Breadcrumb>
-                          <BreadcrumbItem onClick={go_up} to="#">{_("Storage")}</BreadcrumbItem>
+                          <BreadcrumbItem to="#/">{_("Storage")}</BreadcrumbItem>
                           <BreadcrumbItem isActive>{name}</BreadcrumbItem>
                       </Breadcrumb>}>
                 <PageSection>

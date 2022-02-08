@@ -480,7 +480,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         wait_field("FOO", "bar")
         wait_field("BIN", "[6 bytes of binary data]")
 
-        b.click('.pf-c-breadcrumb li:first a')
+        b.click('.pf-c-breadcrumb li:first')
         b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('[13 bytes of binary data]')")
 
     @nondestructive

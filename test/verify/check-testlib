@@ -173,15 +173,23 @@ class TestRunTest(MachineCase):
         self.addCleanup(writeFile, shell, original_source)
         writeFile(shell, original_source + "\n")
 
-        process = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "--list", "TestHostSwitching.testBasic",
-                                  "TestHostSwitching.testEdit"], env=env, capture_output=True)
+        # create affected test for shell changes
+        with open(__file__) as f:
+            original_test = f.read()
+        affected_testfile = os.path.join(VERIFY_DIR, "test-shell-testlib")
+        writeFile(affected_testfile, original_test.replace("class NoTest", "class Test"))
+        self.addCleanup(os.unlink, affected_testfile)
+
+        process = subprocess.run([run_tests, "--test-dir", VERIFY_DIR,
+                                  "TestRetryExample.testBasic", "TestRetryExample.testNoRetry"],
+                                 env=env, capture_output=True)
         stdout = process.stdout
-        self.assertRegex(stdout, rb"\nTestHostSwitching.testBasic # RETRY 1 \(test affected tests 3 times\)\n")
-        self.assertRegex(stdout, rb"\nTestHostSwitching.testBasic # RETRY 2 \(test affected tests 3 times\)\n")
-        self.assertRegex(stdout, b"\nTestHostSwitching.testBasic\n")
+        self.assertRegex(stdout, rb"\nok .* TestRetryExample.testBasic # RETRY 1 \(test affected tests 3 times\)\n")
+        self.assertRegex(stdout, rb"\nok .* TestRetryExample.testBasic # RETRY 2 \(test affected tests 3 times\)\n")
+        self.assertRegex(stdout, rb"\nok .* TestRetryExample.testBasic\n")
         self.assertNotRegex(stdout, b"RETRY 3")
-        self.assertRegex(stdout, b"\nTestHostSwitching.testEdit\n")
-        self.assertNotRegex(stdout, b"TestHostSwitching.testEdit # RETRY")
+        self.assertRegex(stdout, b"\nok .* TestRetryExample.testNoRetry\n")
+        self.assertNotRegex(stdout, b"TestRetryExample.testNoRetry # RETRY")
 
 
 @skipDistroPackage()

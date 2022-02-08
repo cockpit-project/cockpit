@@ -607,6 +607,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         self.allow_journal_messages('.*Remote peer disconnected')
         self.allow_browser_errors('.*Failed to get workflows for problem .*: disconnected')
 
+        self.addCleanup(m.execute, "pkill -f '[m]ock-.*-server' || true")
         m.upload(["verify/files/mock-bugzilla-server.py"], "/tmp/")
         m.spawn("setsid /tmp/mock-bugzilla-server.py", "mock-bugzilla.log")
         self.restore_file("/etc/libreport/plugins/bugzilla.conf")
@@ -662,6 +663,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         self.addCleanup(m.execute, "rm -rf /var/spool/abrt/*")
 
+        self.addCleanup(m.execute, "pkill -f '[m]ock-.*-server' || true")
         m.upload(["verify/files/mock-bugzilla-server.py"], "/tmp/")
         m.spawn("setsid /tmp/mock-bugzilla-server.py", "mock-bugzilla.log")
         self.restore_file("/etc/libreport/plugins/bugzilla.conf")
@@ -699,6 +701,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         self.addCleanup(m.execute, "rm -rf /var/spool/abrt/*")
 
         # start mock FAF server
+        self.addCleanup(m.execute, "pkill -f '[m]ock-.*-server' || true")
         m.upload(["verify/files/mock-faf-server.py"], "/tmp/")
         m.execute("setsid /tmp/mock-faf-server.py >/tmp/mock-faf.log 2>&1 &")
         self.restore_file("/etc/libreport/plugins/ureport.conf")

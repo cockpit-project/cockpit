@@ -70,8 +70,8 @@ class CockpitClientWindow(Gtk.ApplicationWindow):
         self.webview.connect('decide-policy', self.decide_policy)
         self.webview.load_uri(uri)
 
-        # history = self.webview.get_back_forward_list()
-        # history.connect('changed', self.history_changed)
+        history = self.webview.get_back_forward_list()
+        history.connect('changed', self.history_changed)
         self.history_changed()
 
         if app.no_ui:

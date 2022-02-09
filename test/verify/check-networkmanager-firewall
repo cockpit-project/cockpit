@@ -213,7 +213,9 @@ class TestFirewall(NetworkCase):
         m.execute("firewall-cmd --add-service=http")
         b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='http']")
 
-        b.assert_pixels("#zones-listing .zone-section[data-id='public']", "firewall-default-zone-card")
+        b.assert_pixels("#zones-listing .zone-section[data-id='public']", "firewall-default-zone-card",
+                        # HACK: medium layout has unstable horizontal width
+                        skip_layouts=["medium"])
 
         # click on the "Add services" button
         b.click(".zone-section[data-id='public'] .add-services-button")

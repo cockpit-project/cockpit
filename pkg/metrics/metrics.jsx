@@ -438,7 +438,7 @@ class CurrentMetrics extends React.Component {
                         value={this.state.swapUsed}
                         className="pf-m-sm"
                         min={0} max={swapTotal}
-                        variant={swapUsedFraction > 0.9 ? ProgressVariant.danger : ProgressVariant.info}
+                        variant={swapUsedFraction > 0.9 ? ProgressVariant.danger : null}
                         label={ cockpit.format(_("$0 GiB available"), swapAvail) } />
                 </Tooltip>);
         }
@@ -459,7 +459,7 @@ class CurrentMetrics extends React.Component {
                 value={this.state.cpuUsed}
                 className="pf-m-sm"
                 min={0} max={100}
-                variant={ this.state.cpuUsed > 90 ? ProgressVariant.danger : ProgressVariant.info }
+                variant={ this.state.cpuUsed > 90 ? ProgressVariant.danger : null }
                 title={ num_cpu_str }
                 label={ this.state.cpuUsed + '% ' } />);
 
@@ -515,7 +515,7 @@ class CurrentMetrics extends React.Component {
                                     value={this.state.memUsed}
                                     className="pf-m-sm"
                                     min={0} max={memTotal}
-                                    variant={memUsedFraction > 0.9 ? ProgressVariant.danger : ProgressVariant.info}
+                                    variant={memUsedFraction > 0.9 ? ProgressVariant.danger : null}
                                     label={ cockpit.format(_("$0 GiB available"), memAvail) } />
                             </Tooltip>
                             {swapProgress}
@@ -556,7 +556,7 @@ class CurrentMetrics extends React.Component {
                                         data-disk-usage-target={info.target}
                                         value={info.use} min={0} max={100}
                                         className="pf-m-sm"
-                                        variant={info.use > 90 ? ProgressVariant.danger : ProgressVariant.info}
+                                        variant={info.use > 90 ? ProgressVariant.danger : null}
                                         title={info.target}
                                         label={ cockpit.format(_("$0 free"), cockpit.format_bytes(info.avail, 1000)) } />
                                 );

@@ -124,7 +124,7 @@ export class UsageCard extends React.Component {
                                     <Progress value={this.state.cpuUsed}
                                         className="pf-m-sm"
                                         min={0} max={100}
-                                        variant={ this.state.cpuUsed > 90 ? ProgressVariant.danger : ProgressVariant.info }
+                                        variant={ this.state.cpuUsed > 90 ? ProgressVariant.danger : null }
                                         label={ this.state.cpuUsed + '% ' + cores_str }
                                         aria-labelledby="system-usage-cpu-progress"
                                         measureLocation={ProgressMeasureLocation.outside} />
@@ -136,7 +136,7 @@ export class UsageCard extends React.Component {
                                     <Progress value={this.state.memUsed}
                                         className="pf-m-sm"
                                         min={0} max={Number(this.state.memTotal)}
-                                        variant={fraction > 0.9 ? ProgressVariant.danger : ProgressVariant.info}
+                                        variant={fraction > 0.9 ? ProgressVariant.danger : null}
                                         aria-labelledby="system-usage-memory-progress"
                                         label={cockpit.format("$0 / $1 GiB", this.state.memUsed, this.state.memTotal)}
                                         measureLocation={ProgressMeasureLocation.outside} />

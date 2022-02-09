@@ -329,7 +329,7 @@ Unit=test.service
         self.check_service_details(["Failed to start", "Automatically starts"], ["Start", "Clear 'Failed to start'", "Disallow running (mask)"], True)
         if not user:
             b.assert_pixels("#service-details", "details-test-fail",
-                            # in medium layout we sometimes get a scrollbar depending on how may test-fail logs exist
+                            # in medium layout we sometimes get a scrollbar depending on how many test-fail logs exist
                             skip_layouts=["medium"],
                             ignore=["#service-details-logs", ".pf-c-switch__toggle"])
         b.click(".action-button:contains('Start service')")

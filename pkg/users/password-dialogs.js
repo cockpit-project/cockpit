@@ -128,7 +128,7 @@ export function passwd_change(user, new_pass) {
 }
 
 function SetPasswordDialogBody({ state, errors, change }) {
-    const { need_old, password_old, password_strength, password_message, current_user } = state;
+    const { need_old, password_old, current_user } = state;
 
     return (
         <Form isHorizontal onSubmit={apply_modal_dialog}>
@@ -145,8 +145,6 @@ function SetPasswordDialogBody({ state, errors, change }) {
             </> }
             <PasswordFormFields password_label={_("New password")}
                                 password_confirm_label={_("Confirm new password")}
-                                password_strength={password_strength}
-                                password_message={password_message}
                                 error_password={errors && errors.password}
                                 error_password_confirm={errors && errors.password_confirm}
                                 idPrefix="account-set-password"
@@ -166,7 +164,6 @@ export function set_password_dialog(account, current_user) {
         password_old: "",
         password: "",
         password_confirm: "",
-        password_strength: "",
         confirm_weak: false,
     };
 
@@ -181,19 +178,6 @@ export function set_password_dialog(account, current_user) {
             state.confirm_weak = false;
             old_password = state.password;
             errors = { };
-            if (state.password) {
-                password_quality(state.password)
-                        .catch(ex => {
-                            return { value: 0 };
-                        })
-                        .then(strength => {
-                            state.password_strength = strength.value;
-                            state.password_message = strength.message;
-                            update();
-                        });
-            } else {
-                state.password_strength = "";
-            }
         }
 
         update();

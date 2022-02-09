@@ -32,7 +32,6 @@ const _ = cockpit.gettext;
 function AccountCreateBody({ state, errors, change }) {
     const {
         real_name, user_name,
-        password_strength, password_message,
         locked
     } = state;
 
@@ -58,8 +57,6 @@ function AccountCreateBody({ state, errors, change }) {
 
             <PasswordFormFields password_label={_("Password")}
                                 password_confirm_label={_("Confirm")}
-                                password_strength={password_strength}
-                                password_message={password_message}
                                 error_password={errors && errors.password}
                                 error_password_confirm={errors && errors.password_confirm}
                                 idPrefix="accounts-create-password"
@@ -156,8 +153,6 @@ export function account_create_dialog(accounts) {
         user_name: "",
         password: "",
         password_confirm: "",
-        password_strength: "",
-        password_message: "",
         locked: false,
         confirm_weak: false,
     };
@@ -179,20 +174,6 @@ export function account_create_dialog(accounts) {
         if (state.password != old_password) {
             state.confirm_weak = false;
             old_password = state.password;
-            if (state.password) {
-                password_quality(state.password)
-                        .catch(ex => {
-                            return { value: 0 };
-                        })
-                        .then(strength => {
-                            state.password_strength = strength.value;
-                            state.password_message = strength.message;
-                            update();
-                        });
-            } else {
-                state.password_strength = "";
-                state.password_message = "";
-            }
         }
 
         update();

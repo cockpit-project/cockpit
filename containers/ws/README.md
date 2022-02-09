@@ -28,12 +28,12 @@ If you want to also run a web server to log in directly on the CoreOS host:
 
 4. Run the Cockpit web service with a privileged container (as root):
    ```
-   podman container runlabel --name cockpit-ws RUN docker.io/cockpit/ws
+   podman container runlabel --name cockpit-ws RUN quay.io/cockpit/ws
    ```
 
 5. Make Cockpit start on boot:
    ```
-   podman container runlabel INSTALL docker.io/cockpit/ws
+   podman container runlabel INSTALL quay.io/cockpit/ws
    systemctl enable cockpit.service
    ```
 
@@ -43,4 +43,4 @@ Afterward, use a web browser to log into port `9090` on your host IP address as 
 
  * [Cockpit Project](https://cockpit-project.org)
  * [Cockpit Development](https://github.com/cockpit-project/cockpit)
- * [cockpit/ws Docker hub page](https://hub.docker.com/r/cockpit/ws)
+ * [cockpit/ws quay.io page](https://quay.io/repository/cockpit/ws)

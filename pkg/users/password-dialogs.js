@@ -128,10 +128,7 @@ export function passwd_change(user, new_pass) {
 }
 
 function SetPasswordDialogBody({ state, errors, change }) {
-    const {
-        need_old, password_old, password, password_confirm,
-        password_strength, password_message, current_user,
-    } = state;
+    const { need_old, password_old, password_strength, password_message, current_user } = state;
 
     return (
         <Form isHorizontal onSubmit={apply_modal_dialog}>
@@ -146,9 +143,7 @@ function SetPasswordDialogBody({ state, errors, change }) {
                                autocomplete="current-password" value={password_old} onChange={value => change("password_old", value)} />
                 </FormGroup>
             </> }
-            <PasswordFormFields password={password}
-                                password_confirm={password_confirm}
-                                password_label={_("New password")}
+            <PasswordFormFields password_label={_("New password")}
                                 password_confirm_label={_("Confirm new password")}
                                 password_strength={password_strength}
                                 password_message={password_message}

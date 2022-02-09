@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import cockpit from 'cockpit';
-import React from 'react';
+import React, { useState } from 'react';
 import { FormGroup, Popover, Progress, ProgressSize, ProgressMeasureLocation, TextInput } from '@patternfly/react-core';
 import { HelpIcon } from '@patternfly/react-icons';
 
@@ -46,13 +46,15 @@ export function password_quality(password, force) {
 }
 
 export const PasswordFormFields = ({
-    password, password_confirm,
     password_label, password_confirm_label,
     password_strength, password_message,
     password_label_info,
     error_password, error_password_confirm,
     idPrefix, change
 }) => {
+    const [password, setPassword] = useState(undefined);
+    const [passwordConfirm, setConfirmPassword] = useState(undefined);
+
     let variant;
     if (password_strength === "")
         variant = "default";
@@ -78,7 +80,7 @@ export const PasswordFormFields = ({
                        validated={error_password ? "error" : "default"}
                        fieldId={idPrefix + "-pw1"}>
                 <TextInput className="check-passwords" type="password" id={idPrefix + "-pw1"}
-                           autocomplete="new-password" value={password} onChange={value => change("password", value)} />
+                           autocomplete="new-password" value={password} onChange={value => { setPassword(value); change("password", value) }} />
                 <div>
                     <Progress id={idPrefix + "-meter"}
                               className={"ct-password-strength-meter " + variant}
@@ -96,7 +98,7 @@ export const PasswordFormFields = ({
                        validated={error_password_confirm ? "error" : "default"}
                        fieldId={idPrefix + "-pw2"}>
                 <TextInput type="password" id={idPrefix + "-pw2"} autocomplete="new-password"
-                           value={password_confirm} onChange={value => change("password_confirm", value)} />
+                           value={passwordConfirm} onChange={value => { setConfirmPassword(value); change("password_confirm", value) }} />
             </FormGroup>}
         </>
     );

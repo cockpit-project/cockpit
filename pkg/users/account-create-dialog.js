@@ -32,7 +32,7 @@ const _ = cockpit.gettext;
 function AccountCreateBody({ state, errors, change }) {
     const {
         real_name, user_name,
-        password, password_confirm, password_strength, password_message,
+        password_strength, password_message,
         locked
     } = state;
 
@@ -56,9 +56,7 @@ function AccountCreateBody({ state, errors, change }) {
                            value={user_name} onChange={value => change("user_name", value)} />
             </FormGroup>
 
-            <PasswordFormFields password={password}
-                                password_confirm={password_confirm}
-                                password_label={_("Password")}
+            <PasswordFormFields password_label={_("Password")}
                                 password_confirm_label={_("Confirm")}
                                 password_strength={password_strength}
                                 password_message={password_message}

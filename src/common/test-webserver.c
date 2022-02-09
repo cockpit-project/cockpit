@@ -45,7 +45,9 @@ typedef struct {
   gboolean inet_only;
   CockpitWebServerFlags server_flags;
   const gchar *expected_protocol;
+  const gchar *expected_remote;
 
+  const gchar *forwarded_for_header;
   const gchar *protocol_header;
   const gchar *extra_headers;
 } TestCase;
@@ -104,6 +106,8 @@ fixture_setup (Fixture *fixture,
   fixture->web_server = cockpit_web_server_new (cert, test_case->server_flags);
   g_clear_object (&cert);
 
+  if (test_case && test_case->forwarded_for_header)
+    cockpit_web_server_set_forwarded_for_header (fixture->web_server, test_case->forwarded_for_header);
   if (test_case && test_case->protocol_header)
     cockpit_web_server_set_protocol_header (fixture->web_server, test_case->protocol_header);
 
@@ -111,7 +115,10 @@ fixture_setup (Fixture *fixture,
    * our expectations about remote hostname and protocol.  Add a
    * "handler" that does that, but never claims to handle anything.
    */
-  fixture->expected_remote = g_strdup (address);
+  if (test_case && test_case->expected_remote)
+    fixture->expected_remote = g_strdup (test_case->expected_remote);
+  else
+    fixture->expected_remote = g_strdup (address);
   if (test_case && test_case->expected_protocol)
     fixture->expected_protocol = test_case->expected_protocol;
   else
@@ -1112,6 +1119,66 @@ main (int argc,
   /* Header is passed as "https", but we never enabled it, so it ought to be ignored */
   cockpit_test_add ("/web-server/x-forwarded-proto/ignore", test_webserver_with_headers,
                     .extra_headers="X-Forwarded-Proto: https\r\n", .expected_protocol="http");
+
+  /* X-Forwarded-For */
+
+  /* Header is enabled, but not passed. */
+  cockpit_test_add ("/web-server/x-forwarded-for/empty", test_webserver_with_headers,
+                    .forwarded_for_header="X-Forwarded-For",
+                    .expected_remote="127.0.0.1");
+
+  /* Header enabled, and passed an IPv4 address */
+  cockpit_test_add ("/web-server/x-forwarded-for/v4", test_webserver_with_headers,
+                    .forwarded_for_header="X-Forwarded-For",
+                    .extra_headers="X-Forwarded-For: 1.2.3.4\r\n",
+                    .expected_remote="1.2.3.4");
+
+  /* Header enabled, and passed an IPv6 address */
+  cockpit_test_add ("/web-server/x-forwarded-for/v6", test_webserver_with_headers,
+                    .forwarded_for_header="X-Forwarded-For",
+                    .extra_headers="X-Forwarded-For: 2001::1\r\n",
+                    .expected_remote="2001::1");
+
+  /* Header enabled, and passed 'unknown' */
+  cockpit_test_add ("/web-server/x-forwarded-for/unknown", test_webserver_with_headers,
+                    .forwarded_for_header="X-Forwarded-For",
+                    .extra_headers="X-Forwarded-For: unknown\r\n",
+                    .expected_remote = "unknown");
+
+  /* Header enabled, and passed multiple IPs */
+  cockpit_test_add ("/web-server/x-forwarded-for/multiple", test_webserver_with_headers,
+                    .forwarded_for_header="X-Forwarded-For",
+                    .extra_headers="X-Forwarded-For: 6.6.6.6 2.2.2.2 1.2.3.4\r\n",
+                    .expected_remote="1.2.3.4");
+
+  /* Header enabled, and passed multiple IPs, and junk */
+  cockpit_test_add ("/web-server/x-forwarded-for/junk", test_webserver_with_headers,
+                    .forwarded_for_header="X-Forwarded-For",
+                    .extra_headers="X-Forwarded-For: !@{}\"#%^&*()<>?`~\\|'$\t $whatever;   ;; ,,,  1.2.3.4\r\n",
+                    .expected_remote="1.2.3.4");
+
+  /* Header enabled, and passed IP with extra space (should be stripped) */
+  cockpit_test_add ("/web-server/x-forwarded-for/extra-whitespace", test_webserver_with_headers,
+                    .forwarded_for_header="X-Forwarded-For",
+                    .extra_headers="X-Forwarded-For:   1.2.3.4         \r\n",
+                    .expected_remote="1.2.3.4");
+
+  /* Header enabled, and passed only space */
+  cockpit_test_add ("/web-server/x-forwarded-for/only-whitespace", test_webserver_with_headers,
+                    .forwarded_for_header="X-Forwarded-For",
+                    .extra_headers="X-Forwarded-For:            \r\n",
+                    .expected_remote="127.0.0.1");
+
+  /* Header enabled, passed the header with an empty value */
+  cockpit_test_add ("/web-server/x-forwarded-for/header", test_webserver_with_headers,
+                    .forwarded_for_header="X-Forwarded-For",
+                    .extra_headers="X-Forwarded-For:\r\n",
+                    .expected_remote="127.0.0.1");
+
+  /* We passed an IP, but the header wasn't enabled */
+  cockpit_test_add ("/web-server/x-forwarded-for/ignore", test_webserver_with_headers,
+                    .extra_headers="X-Forwarded-For: 1.2.3.4\r\n",
+                    .expected_remote="127.0.0.1");
 
   return g_test_run ();
 }

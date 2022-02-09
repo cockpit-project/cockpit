@@ -1040,6 +1040,7 @@ class TestReverseProxy(MachineCase):
 
         m.write("/etc/cockpit/cockpit.conf", """[WebService]
 Origins = https://%(origin)s wss://%(origin)s
+ForwardedForHeader = X-Forwarded-For
 ProtocolHeader = X-Forwarded-Proto
 """ % {"origin": m.forward["443"]}, append=True)
 
@@ -1068,6 +1069,8 @@ ProtocolHeader = X-Forwarded-Proto
         b.set_val("#login-password-input", "foobar")
         b.click('#login-button')
         b.wait_visible('#content')
+        # check that we show up in the system logs from the browser's IP, not the proxy's
+        self.assertIn('(172.27.0.2)', self.machine.execute('who'))
         b.logout()
 
     @skipImage("nginx not installed", "centos-8-stream", "debian-stable", "debian-testing", "fedora-coreos",
@@ -1094,6 +1097,7 @@ server {
         # Required to proxy the connection to Cockpit
         proxy_pass https://127.0.0.1:9090;
         proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
 
         # Required for web sockets to function
@@ -1175,6 +1179,7 @@ server {
         # Required to proxy the connection to Cockpit
         proxy_pass http://127.0.0.1:9090;
         proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
 
         # Required for web sockets to function

@@ -126,6 +126,10 @@ void
 cockpit_web_server_set_protocol_header (CockpitWebServer *self,
                                         const gchar *protocol_header);
 
+void
+cockpit_web_server_set_forwarded_for_header (CockpitWebServer *self,
+                                             const gchar *forwarded_for_header);
+
 G_END_DECLS
 
 #endif /* __COCKPIT_WEB_SERVER_H__ */

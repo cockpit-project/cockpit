@@ -232,6 +232,7 @@ main (int argc,
     }
 
   cockpit_web_server_set_protocol_header (server, cockpit_conf_string ("WebService", "ProtocolHeader"));
+  cockpit_web_server_set_forwarded_for_header (server, cockpit_conf_string ("WebService", "ForwardedForHeader"));
 
   /* Ignores stuff it shouldn't handle */
   g_signal_connect (server, "handle-stream",

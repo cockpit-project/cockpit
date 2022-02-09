@@ -57,6 +57,7 @@ struct _CockpitWebServer {
   CockpitWebServerFlags flags;
 
   gchar *protocol_header;
+  gchar *forwarded_for_header;
 
   GSocketService *socket_service;
   GMainContext *main_context;
@@ -139,6 +140,7 @@ cockpit_web_server_finalize (GObject *object)
   g_string_free (server->url_root, TRUE);
   g_clear_object (&server->socket_service);
   g_free (server->protocol_header);
+  g_free (server->forwarded_for_header);
 
   G_OBJECT_CLASS (cockpit_web_server_parent_class)->finalize (object);
 }
@@ -678,6 +680,14 @@ cockpit_web_server_set_protocol_header (CockpitWebServer *self,
 {
   g_free (self->protocol_header);
   self->protocol_header = g_strdup (protocol_header);
+}
+
+void
+cockpit_web_server_set_forwarded_for_header (CockpitWebServer *self,
+                                             const gchar *forwarded_for_header)
+{
+  g_free (self->forwarded_for_header);
+  self->forwarded_for_header = g_strdup (forwarded_for_header);
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
@@ -1371,6 +1381,23 @@ cockpit_web_request_get_protocol (CockpitWebRequest *self)
 gchar *
 cockpit_web_request_get_remote_address (CockpitWebRequest *self)
 {
+  if (self->web_server && self->web_server->forwarded_for_header)
+    {
+      const gchar *forwarded_header = g_hash_table_lookup (self->headers, self->web_server->forwarded_for_header);
+      if (forwarded_header && forwarded_header[0])
+        {
+          /* This isn't really standardised, but in practice, it's a
+           * space separated list and the last item is from the
+           * immediately upstream server.
+           */
+          const gchar *last_space = strrchr (forwarded_header, ' ');
+          if (last_space)
+            return g_strdup (last_space + 1);
+          else
+            return g_strdup (forwarded_header);
+        }
+    }
+
   if (self->io == NULL)
     return NULL;
 

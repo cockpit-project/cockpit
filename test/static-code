@@ -49,7 +49,7 @@ test_pycodestyle() {
     # pycodestyle python syntax check
 
     python3 -c 'import pycodestyle' 2>/dev/null || skip 'no pycodestyle'
-    find_python_files | xargs -r -0 python3 -m pycodestyle --max-line-length=415 --ignore W504
+    find_python_files | xargs -r -0 python3 -m pycodestyle --max-line-length=300 --ignore W504
 }
 
 test_pyvulture() {

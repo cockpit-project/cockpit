@@ -42,6 +42,12 @@ class TestNetworkingBasic(NetworkCase):
         b.wait_in_text("#networking-graphs", "Transmitting")
         b.wait_in_text("#networking-graphs", "Receiving")
 
+        if not m.ostree_image:
+            # screenshot assumes running firewalld and absent virbr0 (in particular, *3* interfaces)
+            m.execute("systemctl start firewalld; virsh net-destroy default 2>/dev/null || true")
+            b.wait_not_present("tr[data-interface=virbr0]")
+            self.wait_onoff("#networking-firewall-summary", True)
+
         ifaces = list(m.execute("ls /sys/class/net").split())
         ifaces.remove("lo")
         try:

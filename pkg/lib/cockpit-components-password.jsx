@@ -47,20 +47,40 @@ export function password_quality(password, force) {
 
 export const PasswordFormFields = ({
     password_label, password_confirm_label,
-    password_strength, password_message,
     password_label_info,
     error_password, error_password_confirm,
     idPrefix, change
 }) => {
     const [password, setPassword] = useState(undefined);
     const [passwordConfirm, setConfirmPassword] = useState(undefined);
+    const [passwordStrength, setPasswordStrength] = useState("");
+    const [passwordMessage, setPasswordMessage] = useState("");
+
+    function onPasswordChanged(value) {
+        setPassword(value);
+        change("password", value);
+
+        if (value) {
+            password_quality(value)
+                    .catch(ex => {
+                        return { value: 0 };
+                    })
+                    .then(strength => {
+                        setPasswordStrength(strength.value);
+                        setPasswordMessage(strength.message);
+                    });
+        } else {
+            setPasswordStrength("");
+            setPasswordMessage("");
+        }
+    }
 
     let variant;
-    if (password_strength === "")
+    if (passwordStrength === "")
         variant = "default";
-    else if (password_strength > 66)
+    else if (passwordStrength > 66)
         variant = "success";
-    else if (password_strength > 33)
+    else if (passwordStrength > 33)
         variant = "warning";
     else
         variant = "danger";
@@ -80,7 +100,7 @@ export const PasswordFormFields = ({
                        validated={error_password ? "error" : "default"}
                        fieldId={idPrefix + "-pw1"}>
                 <TextInput className="check-passwords" type="password" id={idPrefix + "-pw1"}
-                           autocomplete="new-password" value={password} onChange={value => { setPassword(value); change("password", value) }} />
+                           autocomplete="new-password" value={password} onChange={onPasswordChanged} />
                 <div>
                     <Progress id={idPrefix + "-meter"}
                               className={"ct-password-strength-meter " + variant}
@@ -88,8 +108,8 @@ export const PasswordFormFields = ({
                               size={ProgressSize.sm}
                               measureLocation={ProgressMeasureLocation.none}
                               variant={variant}
-                              value={Number.isInteger(password_strength) ? password_strength : 0} />
-                    <div id={idPrefix + "-password-meter-message"} className="pf-c-form__helper-text" aria-live="polite">{password_message}</div>
+                              value={Number.isInteger(passwordStrength) ? passwordStrength : 0} />
+                    <div id={idPrefix + "-password-meter-message"} className="pf-c-form__helper-text" aria-live="polite">{passwordMessage}</div>
                 </div>
             </FormGroup>
 

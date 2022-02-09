@@ -34,6 +34,9 @@ typedef struct {
   CockpitWebServer *web_server;
   gchar *localport;
   gchar *hostport;
+
+  const gchar *expected_protocol;
+  gchar *expected_remote;
 } Fixture;
 
 typedef struct {
@@ -41,9 +44,27 @@ typedef struct {
   gboolean local_only;
   gboolean inet_only;
   CockpitWebServerFlags server_flags;
+  const gchar *expected_protocol;
 } TestCase;
 
 #define SKIP_NO_HOSTPORT if (!fixture->hostport) { g_test_skip ("No non-loopback network interface available"); return; }
+
+static gboolean
+verify_request (CockpitWebServer *web_server,
+                CockpitWebRequest *request,
+                gpointer user_data)
+{
+  Fixture *fixture = user_data;
+
+  g_assert_cmpstr (cockpit_web_request_get_protocol (request), ==, fixture->expected_protocol);
+
+  g_autofree gchar *remote_address = cockpit_web_request_get_remote_address (request);
+  if (fixture->expected_remote)
+    g_assert_cmpstr (remote_address, ==, fixture->expected_remote);
+
+  /* We didn't handle this.  Keep going. */
+  return FALSE;
+}
 
 static void
 fixture_setup (Fixture *fixture,
@@ -80,6 +101,17 @@ fixture_setup (Fixture *fixture,
   fixture->web_server = cockpit_web_server_new (cert, test_case->server_flags);
   g_clear_object (&cert);
 
+  /* We want to check all incoming requests to ensure that they match
+   * our expectations about remote hostname and protocol.  Add a
+   * "handler" that does that, but never claims to handle anything.
+   */
+  fixture->expected_remote = g_strdup (address);
+  if (test_case && test_case->expected_protocol)
+    fixture->expected_protocol = test_case->expected_protocol;
+  else
+    fixture->expected_protocol = "http";
+  g_signal_connect (fixture->web_server, "handle-stream", G_CALLBACK (verify_request), fixture);
+
   port = cockpit_web_server_add_inet_listener (fixture->web_server, address, 0, &error);
   g_assert_no_error (error);
   g_assert (port != 0);
@@ -106,6 +138,7 @@ fixture_teardown (Fixture *fixture,
   g_object_unref (fixture->web_server);
   g_assert (fixture->web_server == NULL);
 
+  g_free (fixture->expected_remote);
   g_free (fixture->localport);
   g_free (fixture->hostport);
 }
@@ -1013,9 +1046,12 @@ main (int argc,
   cockpit_test_add ("/web-server/host-header", test_webserver_host_header);
   cockpit_test_add ("/web-server/not-found", test_webserver_not_found);
 
-  cockpit_test_add ("/web-server/tls", test_webserver_tls, .use_cert=TRUE);
-  cockpit_test_add ("/web-server/tls-big-header", test_webserver_tls_big_header, .use_cert=TRUE);
-  cockpit_test_add ("/web-server/tls-request-too-large", test_webserver_tls_request_too_large, .use_cert=TRUE);
+  cockpit_test_add ("/web-server/tls", test_webserver_tls,
+                    .use_cert=TRUE, .expected_protocol="https");
+  cockpit_test_add ("/web-server/tls-big-header", test_webserver_tls_big_header,
+                    .use_cert=TRUE, .expected_protocol="https");
+  cockpit_test_add ("/web-server/tls-request-too-large", test_webserver_tls_request_too_large,
+                    .use_cert=TRUE, .expected_protocol="https");
 
   cockpit_test_add ("/web-server/redirect-notls", test_webserver_redirect_notls, .use_cert=TRUE,
                     .server_flags=COCKPIT_WEB_SERVER_REDIRECT_TLS);
@@ -1036,7 +1072,7 @@ main (int argc,
   cockpit_test_add ("/web-server/bad-address", test_bad_address);
 
   cockpit_test_add ("/web-server/for-tls-proxy", test_webserver_for_tls_proxy,
-                    .local_only=TRUE, .server_flags=COCKPIT_WEB_SERVER_FOR_TLS_PROXY);
+                    .local_only=TRUE, .server_flags=COCKPIT_WEB_SERVER_FOR_TLS_PROXY, .expected_protocol="https");
 
   return g_test_run ();
 }

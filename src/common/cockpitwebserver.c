@@ -1371,8 +1371,6 @@ cockpit_web_request_get_protocol (CockpitWebRequest *self)
 gchar *
 cockpit_web_request_get_remote_address (CockpitWebRequest *self)
 {
-  gchar *result = NULL;
-
   if (self->io == NULL)
     return NULL;
 
@@ -1380,29 +1378,25 @@ cockpit_web_request_get_remote_address (CockpitWebRequest *self)
   if (metadata)
     {
       const gchar *tmp;
-
       if (cockpit_json_get_string (metadata, "origin-ip", NULL, &tmp))
-        result = g_strdup (tmp);
+        return g_strdup (tmp);
     }
 
-  if (result == NULL)
-    {
-      g_autoptr(GIOStream) base = NULL;
+  g_autoptr(GIOStream) base = NULL;
+  if (G_IS_TLS_CONNECTION (self->io))
+    g_object_get (self->io, "base-io-stream", &base, NULL);
+  else
+    base = g_object_ref (self->io);
 
-      if (G_IS_TLS_CONNECTION (self->io))
-        g_object_get (self->io, "base-io-stream", &base, NULL);
-      else
-        base = g_object_ref (self->io);
+  /* This is definitely a socket */
+  g_return_val_if_fail (G_IS_SOCKET_CONNECTION (base), NULL);
 
-      if (G_IS_SOCKET_CONNECTION (base))
-        {
-          g_autoptr(GSocketAddress) remote = g_socket_connection_get_remote_address (G_SOCKET_CONNECTION (base), NULL);
-          if (remote && G_IS_INET_SOCKET_ADDRESS (remote))
-            result = g_inet_address_to_string (g_inet_socket_address_get_address (G_INET_SOCKET_ADDRESS (remote)));
-        }
-    }
+  /* ...but it might be a unix socket.  NB: GInetSocketAddress includes IPv6. */
+  g_autoptr(GSocketAddress) remote = g_socket_connection_get_remote_address (G_SOCKET_CONNECTION (base), NULL);
+  if (remote && G_IS_INET_SOCKET_ADDRESS (remote))
+    return g_inet_address_to_string (g_inet_socket_address_get_address (G_INET_SOCKET_ADDRESS (remote)));
 
-  return result;
+  return NULL;
 }
 
 const gchar *

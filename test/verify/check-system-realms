@@ -834,6 +834,7 @@ ipa-advise enable-admins-sudo | sh -ex
             b.wait_in_text(".terminal .xterm-accessibility-tree", "root")
 
         # S4U proxy ticket gets cleaned up on logout
+        self.allow_restart_journal_messages()
         b.logout()
         m.execute("while ls /run/user/$(id -u alice)/*.ccache; do sleep 1; done")
         m.execute(f"! su -c '{ccache_env} klist' alice")

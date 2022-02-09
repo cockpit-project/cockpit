@@ -986,7 +986,17 @@ done
 if type ipa >/dev/null 2>&1; then
     LC_ALL=C.UTF-8 ipa service-add --ok-as-delegate=true --force HTTP/x0.cockpit.lan@COCKPIT.LAN
 else
-    curl --insecure -s --negotiate -u : https://services.cockpit.lan/ipa/json --header 'Referer: https://services.cockpit.lan/ipa' --header "Content-Type: application/json" --header "Accept: application/json" --data '{"params": [["HTTP/x0.cockpit.lan@COCKPIT.LAN"], {"raw": false, "all": false, "version": "2.101", "force": true, "no_members": false, "ipakrbokasdelegate": true}], "method": "service_add", "id": 0}'
+    curl --insecure -s --negotiate -u : \\
+         --header 'Referer: https://services.cockpit.lan/ipa' \\
+         --header "Content-Type: application/json" \\
+         --header "Accept: application/json" \\
+         --data '{"params":
+                  [
+                    ["HTTP/x0.cockpit.lan@COCKPIT.LAN"],
+                    {"raw": false, "all": false, "version": "2.101",
+                     "force": true, "no_members": false, "ipakrbokasdelegate": true}
+                  ], "method": "service_add", "id": 0}' \\
+         https://services.cockpit.lan/ipa/json
 fi
 ipa-getkeytab -p HTTP/x0.cockpit.lan -k %(keytab)s
 

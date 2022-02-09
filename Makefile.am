@@ -203,12 +203,6 @@ distcheck-hook::
 bots:
 	tools/make-bots
 
-multi-word: po/cockpit.pot
-	msggrep --no-wrap --msgid -e '\S\+\s' po/cockpit.pot | grep "^msgid " | cut -d " " -f2- | sort --reverse > titles
-
-title2sentence: multi-word
-	tools/title2sentence.py -i titles -o t2s.sh
-
 .PHONY: rsync
 RSYNC_HOST ?= c
 RSYNC_DEST ?= $(RSYNC_HOST):/

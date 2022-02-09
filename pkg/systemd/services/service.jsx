@@ -84,9 +84,9 @@ export class Service extends React.Component {
                       </Breadcrumb>}>
                 <PageSection>
                     <Gallery hasGutter>
-                        <GalleryItem>{serviceDetails}</GalleryItem>
+                        <GalleryItem id="service-details-unit">{serviceDetails}</GalleryItem>
                         {((this.props.unit.LoadState === "loaded" || this.props.unit.LoadState === "masked") && this.props.owner == "system") &&
-                        <GalleryItem>
+                        <GalleryItem id="service-details-logs">
                             <LogsPanel title={_("Service logs")} match={match} emptyMessage={_("No log entries")} max={10} goto_url={url} search_options={{ prio: "debug", service: cur_unit_id }} />
                         </GalleryItem>}
                     </Gallery>

@@ -63,7 +63,7 @@ class Browser(abc.ABC):
 class Chromium(Browser):
     NAME = "chromium"
     EXECUTABLES = ["chromium-browser", "chromium", "google-chrome", "chromium-freeworld"]
-    CDP_DRIVER_FILENAME = "chromium-cdp-driver.js"
+    CDP_DRIVER_FILENAME = f"{TEST_DIR}/common/chromium-cdp-driver.js"
 
     def _path(self, show_browser):
         """Return path to chromium browser.
@@ -93,7 +93,8 @@ class Chromium(Browser):
     def cmd(self, cdp_port, env, show_browser, browser_home, download_dir):
         exe = self.path(show_browser)
 
-        return [exe, "--headless" if not show_browser else "", "--disable-gpu", "--no-sandbox", "--disable-setuid-sandbox",
+        return [exe, "--headless" if not show_browser else "",
+                "--disable-gpu", "--no-sandbox", "--disable-setuid-sandbox",
                 "--disable-namespace-sandbox", "--disable-seccomp-filter-sandbox",
                 "--disable-sandbox-denial-logging", "--disable-pushstate-throttle",
                 "--font-render-hinting=none",
@@ -103,7 +104,7 @@ class Chromium(Browser):
 class Firefox(Browser):
     NAME = "firefox"
     EXECUTABLES = ["firefox-developer-edition", "firefox-nightly", "firefox"]
-    CDP_DRIVER_FILENAME = "firefox-cdp-driver.js"
+    CDP_DRIVER_FILENAME = f"{TEST_DIR}/common/firefox-cdp-driver.js"
 
     def _path(self, show_browser):
         """Return path to Firefox browser."""
@@ -133,7 +134,10 @@ class Firefox(Browser):
                 """.format(download_dir))
 
         with open(os.path.join(profile, "handlers.json"), "w") as f:
-            f.write('{"defaultHandlersVersion":{"en-US":4},"mimeTypes":{"application/xz":{"action":0,"extensions":["xz"]}}}')
+            f.write('{'
+                    '"defaultHandlersVersion":{"en-US":4},'
+                    '"mimeTypes":{"application/xz":{"action":0,"extensions":["xz"]}}'
+                    '}')
 
         cmd = [exe, "-P", "blank", f"--remote-debugging-port={cdp_port}", "--no-remote", "localhost"]
         if not show_browser:
@@ -302,7 +306,8 @@ class CDP:
         if self.trace:
             # enable frame/execution context debugging if tracing is on
             environ["TEST_CDP_DEBUG"] = "1"
-        self._driver = subprocess.Popen([os.path.join(os.path.dirname(__file__), self.browser.CDP_DRIVER_FILENAME), str(cdp_port)],
+
+        self._driver = subprocess.Popen([self.browser.CDP_DRIVER_FILENAME, str(cdp_port)],
                                         env=environ,
                                         stdout=subprocess.PIPE,
                                         stdin=subprocess.PIPE,

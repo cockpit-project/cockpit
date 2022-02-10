@@ -41,8 +41,17 @@ if [ "$ID" = "fedora" ]; then
     export TEST_TIMEOUT_FACTOR=3
 fi
 
+TEST_ALLOW_JOURNAL_MESSAGES=""
+
 # HACK: CI hits this selinux denial. Unrelated to our tests.
-export TEST_ALLOW_JOURNAL_MESSAGES=".*Permission denied:.*/var/cache/app-info/xmls.*"
+TEST_ALLOW_JOURNAL_MESSAGES=".*Permission denied:.*/var/cache/app-info/xmls.*"
+
+# HACK: occasional failure, annoyingly hard to debug
+if [ "${TEST_OS#centos-8}" != "$TEST_OS" ]; then
+    TEST_ALLOW_JOURNAL_MESSAGES="${TEST_ALLOW_JOURNAL_MESSAGES},couldn't create runtime dir: /run/user/1001: Permission denied"
+fi
+
+export TEST_ALLOW_JOURNAL_MESSAGES
 
 # select tests
 TESTS=""

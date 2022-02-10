@@ -117,6 +117,10 @@ class TestHistoryMetrics(MachineCase):
         super().setUp()
         # start with a clean slate and avoid running into restart limits
         self.machine.execute("systemctl stop pmlogger pmproxy; systemctl reset-failed pmlogger pmproxy 2>/dev/null || true")
+        if self.machine.image == 'debian-stable':
+            # HACK: work around pcp breaking permissions: https://bugzilla.redhat.com/show_bug.cgi?id=2013937
+            # This is failing in too many ways to meaningfully cover with naughty
+            self.machine.execute("chown -R pcp:pcp /var/log/pcp/pmlogger/")
 
     def waitStream(self, current_max):
         # should only have at most <current_max> valid minutes, the rest should be empty

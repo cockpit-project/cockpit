@@ -60,7 +60,7 @@ export class DriveDetails extends React.Component {
                     <DescriptionListTerm>{_("storage", "Assessment")}</DescriptionListTerm>
                     <DescriptionListDescription>
                         { drive_ata.SmartFailing
-                            ? <span className="cockpit-disk-failing">{_("DISK IS FAILING")}</span>
+                            ? <span className="cockpit-disk-failing">{_("Disk is failing")}</span>
                             : <span>{_("Disk is OK")}</span>
                         }
                         { drive_ata.SmartTemperature > 0

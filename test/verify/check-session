@@ -71,9 +71,8 @@ class TestSession(MachineCase):
         wait_session(True)
 
         # Kill session from the inside
-        b.switch_to_top()
-        b.wait_visible("#content")
-        b.wait_visible("#hosts-sel")
+        b.logout()
+        wait_session(False)
 
 
 if __name__ == '__main__':

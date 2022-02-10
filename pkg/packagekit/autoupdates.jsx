@@ -347,8 +347,11 @@ export class AutoUpdates extends React.Component {
         let desc = null;
 
         if (this.state.backend.enabled && this.state.backend.supported) {
-            desc = this.state.backend.type == "security" ? _("Security updates ") : _("Updates ");
-            desc += cockpit.format(_("will be applied $0 at $1"), days[this.state.backend.day], this.state.backend.time);
+            const day = days[this.state.backend.day];
+            const time = this.state.backend.time;
+            desc = this.state.backend.type == "security"
+                ? cockpit.format(_("Security updates will be applied $0 at $1"), day, time)
+                : cockpit.format(_("Updates will be applied $0 at $1"), day, time);
         }
 
         const self = this;

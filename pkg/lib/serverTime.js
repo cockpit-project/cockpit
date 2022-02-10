@@ -540,7 +540,7 @@ function ChangeSystimeBody({ state, errors, change }) {
                                         is24Hour
                                         menuAppendTo={() => document.body}
                                         invalidFormatErrorMessage=""
-                                        onChange={(time, h, m, valid) => change("manual_time", time, valid) } />
+                                        onChange={(time, h, m, s, valid) => change("manual_time", time, valid) } />
                         </ValidatedInput>
                         <Validated errors={errors} error_key="manual_date" />
                         <Validated errors={errors} error_key="manual_time" />

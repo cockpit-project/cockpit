@@ -169,8 +169,6 @@ class TestConnection(MachineCase):
             b.wait_text('#login-fatal-message', "The cockpit package is not installed")
             m.execute("mv /usr/bin/cockpit-bridge.disabled /usr/bin/cockpit-bridge")
 
-        self.allow_restart_journal_messages()
-
         # Lets crash a systemd-crontrolled process and see if we get a proper backtrace in the logs
         # This helps with debugging failures in the tests elsewhere
         m.execute("""mkdir -p /run/systemd/system/systemd-hostnamed.service.d
@@ -924,7 +922,6 @@ until pgrep -f '^/usr/bin/cockpit-bridge.*--privileged'; do sleep 1; done
 
         m.execute("pkill -e cockpit-ws; while pgrep -a cockpit-ws; do sleep 1; done")
         # this page failure is reeally noisy
-        self.allow_restart_journal_messages()
         self.allow_journal_messages(".*No authentication agent found.*")
         self.allow_journal_messages("couldn't register polkit authentication agent.*")
         self.allow_journal_messages("received request from bad Origin.*")
@@ -1079,8 +1076,6 @@ ProtocolHeader = X-Forwarded-Proto
         b.expect_load()
         b.wait_visible('#content')
         b.logout()
-
-        self.allow_restart_journal_messages()
 
     @skipImage("nginx not installed", "centos-8-stream", "debian-stable", "debian-testing", "fedora-coreos",
                "rhel-8-4", "rhel-8-5", "rhel-8-6", "rhel-9-0", "ubuntu-stable", "ubuntu-2004", "arch")

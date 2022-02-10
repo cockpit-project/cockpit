@@ -135,9 +135,6 @@ class TestApps(PackageCase):
         self.allow_journal_messages("invalid or unusable locale.*",
                                     "Error .* data: Connection reset by peer")
 
-        # Because of the reloading done by set_lang
-        self.allow_restart_journal_messages()
-
         # Reset everything
         m.execute("rm -rf /usr/share/metainfo /usr/share/app-info /var/cache/app-info")
 

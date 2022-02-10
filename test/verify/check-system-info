@@ -428,9 +428,6 @@ class TestSystemInfo(MachineCase):
         b.wait_text('#motd', "Hello cockpit team")
         self.assertEqual("Hello cockpit team", self.machine.execute("cat /etc/motd").rstrip())
 
-        # because of the reload
-        self.allow_restart_journal_messages()
-
     @nondestructive
     def testHardwareInfo(self):
         b = self.browser
@@ -755,7 +752,6 @@ fi
                                     'Found initrd image.*',
                                     '.*warning: setlocale: LC_ALL: cannot change locale.*',
                                     'done')
-        self.allow_restart_journal_messages()
 
     @skipImage("Insights client not yet available on RHEL 9", "rhel-9-0")
     def testInsightsStatus(self):

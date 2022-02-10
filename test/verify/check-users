@@ -273,7 +273,6 @@ class TestAccounts(MachineCase):
 
         # Logout and login with the new password
         b.logout()
-        self.allow_restart_journal_messages()
         b.open("/users")
         b.wait_visible("#login")
         b.set_val("#login-user-input", "jussi")
@@ -364,8 +363,6 @@ class TestAccounts(MachineCase):
         b.click('#account-set-password-dialog button.apply')
         b.wait_in_text("#account-set-password-dialog .pf-c-modal-box__footer", "must wait longer")
 
-        self.allow_restart_journal_messages()
-
     @skipImage("ssh root login not allowed", "fedora-coreos")
     def testRootLogin(self):
         m = self.machine
@@ -403,8 +400,6 @@ class TestAccounts(MachineCase):
             b.click('#login-button')
             b.expect_load()
             b.wait_visible('#content')
-
-        self.allow_restart_journal_messages()
 
     def accountExpiryInfo(self, account, field):
         for line in self.machine.execute(f"LC_ALL=C chage -l {account}").split("\n"):

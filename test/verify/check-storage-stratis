@@ -362,7 +362,6 @@ class TestStorageStratis(StorageCase):
 
         # Reboot
         m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
-        self.allow_restart_journal_messages()
         m.wait_reboot()
         m.start_cockpit()
         b.relogin()

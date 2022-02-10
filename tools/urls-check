@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 
 # This file is part of Cockpit.
 #
@@ -17,21 +17,29 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-
+import argparse
+import fnmatch
+import subprocess
 import sys
 import time
-import argparse
-import subprocess
 import urllib
 from urllib.request import urlopen, Request
+
 from parent import BASE_DIR
 import task
 
 DAYS = 7
 TASK_NAME = "Validate all URLs"
 
-known_redirects = ["https://access.redhat.com/security/updates/classification/#",
-                   "https://firefox.com/", "https://www.microsoft.com/"]
+USER_AGENT = "Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:90.0) Gecko/20100101 Firefox/90.0"
+
+KNOWN_REDIRECTS = [
+    # fnmatch-like
+    "https://access.redhat.com/security/updates/classification/#",
+    "https://firefox.com/",
+    "https://www.microsoft.com/",
+    "https://github.com/patternfly/*"
+]
 
 
 def main():
@@ -99,9 +107,9 @@ def check_urls(verbose):
 
         try:
             # Specify agent as some websites otherwise block requests
-            req = Request(url=url, headers={"User-Agent": "Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:90.0) Gecko/20100101 Firefox/90.0"})
+            req = Request(url=url, headers={"User-Agent": USER_AGENT})
             resp = urlopen(req)
-            if resp.geturl() != url and url not in known_redirects and not url.startswith("https://github.com/patternfly/"):
+            if resp.geturl() != url and not any(fnmatch.fnmatch(url, pattern) for pattern in KNOWN_REDIRECTS):
                 redirects.append(url)
             if resp.getcode() >= 400:
                 failed.append(url)
@@ -111,12 +119,14 @@ def check_urls(verbose):
     err = ""
     success = ""
     if failed:
-        err = "Checked {0} URLs out of which {1} is/are invalid:\n{2}".format(len(urls), len(failed), "\n".join(failed))
+        err = f"Checked {len(urls)} URLs out of which {len(failed)} is/are invalid:\n"
+        err += ''.join(f'    {url}\n' for url in failed)
     else:
-        success = "Checked {0} URLs and all are valid.".format(len(urls))
+        success = f"Checked {len(urls)} URLs and all are valid."
         if redirects:
-            success += "\nFollowing URLs are redirected:\n    {0}".format("\n    ".join(redirects))
-    return (success, err)
+            success += "\nFollowing URLs are redirected:\n"
+            success += ''.join(f'    {url}\n' for url in redirects)
+    return success, err
 
 
 if __name__ == '__main__':

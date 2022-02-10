@@ -209,7 +209,7 @@ function create_tabs(client, target, is_partition, is_extended) {
             add_tab(_("Volume"), BlockVolTab, false, ["unused-space"]);
 
             if (client.vdo_vols[lvol.path])
-                add_tab(_("VDO Pool"), VDOPoolTab);
+                add_tab(_("VDO pool"), VDOPoolTab);
         }
     }
 
@@ -924,7 +924,7 @@ export class VGroup extends React.Component {
                                    max: vgroup.FreeSize,
                                    round: vgroup.ExtentSize
                                }),
-                    SizeSlider("vdo_lsize", _("Logical Size"),
+                    SizeSlider("vdo_lsize", _("Logical size"),
                                {
                                    visible: vals => vals.purpose === 'vdo',
                                    value: vgroup.FreeSize,

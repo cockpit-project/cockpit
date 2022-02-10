@@ -885,7 +885,7 @@ class Browser:
 
         reference_dir = os.path.join(TEST_DIR, 'reference')
         if not os.path.exists(os.path.join(reference_dir, '.git')):
-            subprocess.check_call([f'{TEST_DIR}/common/pixel-tests', 'pull'])
+            raise SystemError("Pixel test references are missing, please run: test/common/pixel-tests pull")
 
         ignore_rects = relative_clips(list(map(lambda item: selector + " " + item, ignore)))
         base = self.pixels_label + "-" + key

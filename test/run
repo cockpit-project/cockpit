@@ -6,6 +6,7 @@
 set -eu
 
 tools/make-bots
+test/common/pixel-tests pull
 
 TEST_SCENARIO=${TEST_SCENARIO:-verify}
 TEST_OS_DEFAULT=$(PYTHONPATH=bots python3 -c 'from machine.machine_core.constants import TEST_OS_DEFAULT; print(TEST_OS_DEFAULT)')

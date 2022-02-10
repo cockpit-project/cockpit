@@ -576,7 +576,7 @@ function change_systime_dialog(server_time, timezone) {
         mode: null,
         ntp_supported: server_time.get_ntp_supported(),
         custom_ntp: null,
-        manual_time_valid: null,
+        manual_time_valid: true,
     };
     let errors = { };
 

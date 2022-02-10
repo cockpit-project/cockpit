@@ -818,6 +818,7 @@ class TestMultiMachine(MachineCase):
 
         # Relogin.  This should now work seamlessly.
         b.relogin(None, wait_remote_session_machine=m1)
+        self.allow_restart_journal_messages()
         b.enter_page("/system", host="fred@10.111.113.2")
 
         # De-authorize key and relogin, then re-authorize.

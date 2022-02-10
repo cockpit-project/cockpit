@@ -29,6 +29,9 @@ Authentication commands are called with a single argument which is the host that
 is connecting to. They communicate with their parent process using the cockpit protocol on
 stdin and stdout.
 
+Instead of `Command`, it's also possible to specify `UnixPath` to connect to a unix socket at a
+given path.  The protocol is the same.
+
 Credentials can then be retrieved by issuing a authorize command with a challenge. The challenge
 should correspond to the authorization type in header (ei: Basic or Bearer). For example:
 

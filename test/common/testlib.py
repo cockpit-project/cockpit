@@ -217,6 +217,8 @@ class Browser:
         self.cdp.invoke("Page.reload", ignoreCache=ignore_cache)
         self.expect_load()
 
+        self.machine.allow_restart_journal_messages()
+
     def expect_load(self):
         if opts.trace:
             print("-> expect_load")
@@ -690,6 +692,8 @@ class Browser:
                 self.open_session_menu()
                 self.click('#logout')
         self.expect_load()
+
+        self.machine.allow_restart_journal_messages()
 
     def relogin(self, path=None, user=None, superuser=None, wait_remote_session_machine=None):
         self.logout()

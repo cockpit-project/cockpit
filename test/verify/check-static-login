@@ -187,8 +187,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     r"pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*",
                                     "noise-rc-.*")
 
-        self.allow_restart_journal_messages()
-
     @skipImage("logs in via ssh, not cockpit-session", "fedora-coreos")
     def testLogging(self):
         m = self.machine
@@ -246,8 +244,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # But after that login, they should be gone again
         verify_correct(True, 0)
-
-        self.allow_restart_journal_messages()
 
     @skipImage("Arch Linux has no pwquality by default", "arch")
     def testExpired(self):
@@ -696,7 +692,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                 expect_failed_login("root", "bad", n)
             expect_successful_login("root", "foobar")
 
-        self.allow_restart_journal_messages()
         self.allow_journal_messages(".*Account locked due to .* failed logins")
 
     @skipImage("sssd not available", "fedora-coreos")

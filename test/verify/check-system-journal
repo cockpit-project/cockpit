@@ -331,7 +331,6 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b = self.browser
         m = self.machine
 
-        self.allow_restart_journal_messages()
         self.allow_journal_messages(".*Failed to get realtime timestamp: Cannot assign requested address.*")
 
         # HACK: pmie and pmlogger take a looooong time to shutdown (https://bugzilla.redhat.com/show_bug.cgi?id=1703348)

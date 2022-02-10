@@ -217,7 +217,6 @@ class TestMultiMachineKeyAuth(MachineCase):
         b.wait_visible("a[href='/@10.111.113.2']")
         b.enter_page("/system", host="user@10.111.113.2")
 
-        self.allow_restart_journal_messages()
         self.allow_hostkey_messages()
         # Might happen when killing the bridge.
         self.allow_journal_messages("localhost: dropping message while waiting for child to exit",

@@ -536,7 +536,6 @@ class TestStorageLuks(StorageCase):
 
         self.setup_systemd_password_agent("vainu-reku-toma-rolle-kaja")
         m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
-        self.allow_restart_journal_messages()
         m.wait_reboot()
         m.start_cockpit()
         b.relogin()

@@ -29,9 +29,6 @@ class TestSession(MachineCase):
         m = self.machine
         b = self.browser
 
-        # Might happen when killing the bridge.
-        self.allow_restart_journal_messages()
-
         def wait_session(should_exist):
             def cond():
                 return should_exist == ("admin" in m.execute("loginctl list-sessions"))

@@ -263,7 +263,6 @@ class CommonTests:
         wait_number_domains(1)
 
         self.allow_journal_messages(".*No authentication agent found.*")
-        self.allow_restart_journal_messages()
         # sometimes polling for info and joining a domain creates this noise
         self.allow_journal_messages('.*org.freedesktop.DBus.Error.Spawn.ChildExited.*')
 
@@ -834,7 +833,6 @@ ipa-advise enable-admins-sudo | sh -ex
             b.wait_in_text(".terminal .xterm-accessibility-tree", "root")
 
         # S4U proxy ticket gets cleaned up on logout
-        self.allow_restart_journal_messages()
         b.logout()
         m.execute("while ls /run/user/$(id -u alice)/*.ccache; do sleep 1; done")
         m.execute(f"! su -c '{ccache_env} klist' alice")
@@ -1121,7 +1119,6 @@ ExecStart=/bin/true
                             'http://x0.cockpit.lan:9090/cockpit/login'])
         self.assertIn("HTTP/1.1 200 OK", output)
         self.assertIn('"csrf-token"', output)
-        self.allow_restart_journal_messages()
 
         m.write("/etc/cockpit/cockpit.conf", "[Negotiate]\naction = none\n", append=True)
         m.restart_cockpit()

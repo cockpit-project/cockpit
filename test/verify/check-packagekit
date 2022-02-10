@@ -581,8 +581,6 @@ ExecStart=/usr/local/bin/{self.packageName}
             testStatusCard=True,
         ).execute()
 
-        self.allow_restart_journal_messages()
-
     @skipImage("Arch Linux does not start services by default", "arch")
     @skipImage("tracer not available", *OSesWithoutTracer)
     @nondestructive
@@ -831,8 +829,6 @@ ExecStart=/usr/local/bin/{packageName}
         self.assertHistory("table.updates-history tbody.pf-m-expanded ul", ["buggy", "norefs-bin", "norefs-doc"])
         # and the previous one, not expaned
         b.wait_visible("table.updates-history tbody:not(.pf-m-expanded)")
-
-        self.allow_restart_journal_messages()
 
     @skipImage("No security changelog support in packagekit", "arch")
     @nondestructive

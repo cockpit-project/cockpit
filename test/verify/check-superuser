@@ -77,8 +77,6 @@ class TestSuperuser(MachineCase):
         b.leave_page()
         b.check_superuser_indicator("Administrative access")
 
-        self.allow_restart_journal_messages()
-
     def testNoPasswd(self):
         b = self.browser
         m = self.machine

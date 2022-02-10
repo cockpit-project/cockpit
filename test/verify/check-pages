@@ -94,7 +94,6 @@ OnCalendar=daily
 
         m.execute("systemctl start test.timer")
 
-        self.allow_restart_journal_messages()
         self.allow_journal_messages("Failed to get realtime timestamp: Cannot assign requested address")
 
         # On Debian and Ubuntu we have to generate the other locales
@@ -313,8 +312,6 @@ OnCalendar=daily
         m.execute('useradd scruffy -s /bin/bash -c \'Scruffy\' || true')
         m.execute('echo scruffy:foobar | chpasswd')
 
-        self.allow_restart_journal_messages()
-
         if "debian" in m.image:
             m.execute('echo \'pt_BR.UTF-8 UTF-8\' >> /etc/locale.gen && locale-gen && update-locale')
         elif "ubuntu" in m.image:
@@ -414,8 +411,6 @@ OnCalendar=daily
                 '{ "menu": { "index": { "label": "FOO!" } } }')
         b.reload()
         self.check_system_menu("FOO!", True)
-
-        self.allow_restart_journal_messages()
 
     def testMenuSearch(self):
         b = self.browser

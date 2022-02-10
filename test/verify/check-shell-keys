@@ -152,7 +152,6 @@ class TestKeys(MachineCase):
         b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child", "no authorized public keys")
         b.wait_js_func("ph_count_check", "#account-authorized-keys-list li.pf-c-data-list__item", 1)
 
-        self.allow_restart_journal_messages()
         self.allow_journal_messages('authorized_keys is not a public key file.')
         self.allow_journal_messages('Missing callback called fullpath = /home/user/.ssh/authorized_keys')
         self.allow_journal_messages('')

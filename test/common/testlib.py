@@ -1333,6 +1333,12 @@ class MachineCase(unittest.TestCase):
 
         # Terminate all lingering Cockpit sessions
         def terminate_sessions():
+            if self.machine.ostree_image:
+                # on OSTree we don't get "web console" sessions with the cockpit/ws container; just SSH
+                self.machine.execute("loginctl kill-user admin 2>/dev/null|| true;"
+                                     "loginctl terminate-user admin 2>/dev/null || true")
+                return
+
             sessions = self.machine.execute("loginctl --no-legend list-sessions | awk '/web console/ { print $1 }'").strip().split()
             for s in sessions:
                 # Don't insist that terminating works, the session might be gone by now.

@@ -117,7 +117,7 @@ export const FirewalldRequest = ({ service, title, pageSection }) => {
                    actionClose={ <AlertActionCloseButton onClose={ () => setEnableError(null) } /> }
                    actionLinks={
                        <AlertActionLink onClick={() => cockpit.jump("/network/firewall")}>
-                           { _("Visit Firewall") }
+                           { _("Visit firewall") }
                        </AlertActionLink>
                    }>
                 {enableError}
@@ -154,7 +154,7 @@ export const FirewalldRequest = ({ service, title, pageSection }) => {
 
                         <ToolbarItem>
                             <Button variant="link" onClick={() => cockpit.jump("/network/firewall")}>
-                                { _("Visit Firewall") }
+                                { _("Visit firewall") }
                             </Button>
                         </ToolbarItem>
                     </ToolbarContent>

@@ -952,7 +952,7 @@ package_content (CockpitPackages *packages,
                  const gchar *name,
                  const gchar *path,
                  const gchar *language,
-                 const gchar **encodings,
+                 gboolean allow_gzipped,
                  const gchar *self_origin,
                  GHashTable *headers)
 {
@@ -965,7 +965,6 @@ package_content (CockpitPackages *packages,
   gboolean globbing;
   gboolean gzipped = FALSE;
   gboolean is_language_specific = FALSE;
-  gboolean allow_gzipped = FALSE;
   const gchar *type;
   gchar *policy;
 
@@ -983,18 +982,7 @@ package_content (CockpitPackages *packages,
       allow_gzipped = FALSE;
     }
   else
-    {
-      names = g_list_prepend (NULL, (gchar *)name);
-
-      /* Check if client allows us to send gzipped content */
-      for (gint i = 0; encodings[i] != NULL; i++)
-        {
-          if (g_strcmp0 (encodings[i], "*") == 0 ||
-              g_strcmp0 (encodings[i], "gzip") == 0)
-            allow_gzipped = TRUE;
-        }
-    }
-
+    names = g_list_prepend (NULL, (gchar *) name);
 
   for (GList *l = names; l != NULL; l = g_list_next (l))
     {
@@ -1190,13 +1178,9 @@ handle_packages (CockpitWebServer *server,
   if (origin)
     g_hash_table_insert (out_headers, g_strdup ("Access-Control-Allow-Origin"), origin);
 
-  accept = g_hash_table_lookup (headers, "Accept-Encoding");
-  if (!accept)
-    accept = "*";
-  encodings = cockpit_web_server_parse_accept_list (accept, NULL);
-
   package_content (packages, response, name, path, languages[0],
-                   (const gchar **)encodings, origin, out_headers);
+                   cockpit_web_request_accepts_encoding (request, "gzip"),
+                   origin, out_headers);
 
 out:
   if (out_headers)

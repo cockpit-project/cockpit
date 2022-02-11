@@ -1264,13 +1264,6 @@ web_response_file (CockpitWebResponse *response,
                    CockpitTemplateFunc template_func,
                    gpointer user_data)
 {
-  const gchar *default_policy = "default-src 'self' 'unsafe-inline';";
-  const gchar *headers[5] = { NULL };
-  g_autofree gchar *alloc = NULL;
-  GList *l = NULL;
-  gint content_length = -1;
-  gint at = 0;
-
   g_return_if_fail (COCKPIT_IS_WEB_RESPONSE (response));
 
   if (!escaped)
@@ -1334,23 +1327,24 @@ web_response_file (CockpitWebResponse *response,
     }
 
   g_autoptr(GBytes) body = g_mapped_file_get_bytes (file);
-  GList *output = NULL;
+
+  GList *output;
+  gint content_length = -1;
   if (template_func)
     {
       output = cockpit_template_expand (body, "${", "}", template_func, user_data);
     }
   else
     {
-      output = g_list_prepend (output, g_bytes_ref (body));
+      output = g_list_prepend (NULL, g_bytes_ref (body));
       content_length = g_bytes_get_size (body);
     }
-  g_bytes_unref (body);
+
+  GString *string = begin_headers (response, 200, "OK");
+  guint seen = 0;
 
   if (response->origin)
-    {
-      headers[at++] = "Access-Control-Allow-Origin";
-      headers[at++] = response->origin;
-    }
+    seen |= append_header (string, "Access-Control-Allow-Origin", response->origin);
 
   /*
    * The default Content-Security-Policy for .html files allows
@@ -1359,13 +1353,15 @@ web_response_file (CockpitWebResponse *response,
    */
   if (g_str_has_suffix (unescaped, ".html"))
     {
-      headers[at++] = "Content-Security-Policy";
-      headers[at++] = alloc = cockpit_web_response_security_policy (default_policy, response->origin);
+      const gchar *default_policy = "default-src 'self' 'unsafe-inline';";
+      g_autofree gchar *policy = cockpit_web_response_security_policy (default_policy, response->origin);
+      seen |= append_header (string, "Content-Security-Policy", policy);
     }
 
-  cockpit_web_response_headers (response, 200, "OK", content_length,
-                                headers[0], headers[1], headers[2], headers[3], NULL);
+  g_autoptr(GBytes) headers_block = finish_headers (response, string, content_length, 200, seen);
+  queue_bytes (response, headers_block);
 
+  GList *l;
   for (l = output; l != NULL; l = g_list_next (l))
     {
       if (!cockpit_web_response_queue (response, l->data))

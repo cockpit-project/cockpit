@@ -1263,6 +1263,8 @@ static void
 web_response_file (CockpitWebResponse *response,
                    const gchar *escaped,
                    const gchar **roots,
+                   gboolean search_gzip,
+                   gboolean accept_gzip,
                    CockpitTemplateFunc template_func,
                    gpointer user_data)
 {
@@ -1282,6 +1284,7 @@ web_response_file (CockpitWebResponse *response,
       return;
     }
 
+  gboolean is_gzip = FALSE;
   g_autoptr(GMappedFile) file = NULL;
   for (gint i = 0; roots[i]; i++)
     {
@@ -1299,6 +1302,18 @@ web_response_file (CockpitWebResponse *response,
 
       g_autoptr(GError) error = NULL;
       file = g_mapped_file_new (path, FALSE, &error);
+
+      if (file == NULL && search_gzip &&
+          g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
+        {
+          g_debug ("%s: file not found in root: %s", escaped, root);
+          g_clear_error (&error);
+          g_autofree gchar *old_path = g_steal_pointer (&path);
+          path = g_strconcat (old_path, ".gz", NULL);
+          file = g_mapped_file_new (path, FALSE, &error);
+          is_gzip = file != NULL;
+        }
+
       if (file != NULL)
         break;
 
@@ -1330,6 +1345,23 @@ web_response_file (CockpitWebResponse *response,
 
   g_autoptr(GBytes) body = g_mapped_file_get_bytes (file);
 
+  if (is_gzip && (!accept_gzip || template_func))
+    {
+      /* We have gzipped content, but the client won't accept it, or
+       * template expansion was requested.  Decompress.
+       */
+      g_autoptr(GError) error = NULL;
+      g_autoptr(GBytes) body_gz = g_steal_pointer (&body);
+      body = cockpit_web_response_gunzip (body_gz, &error);
+      if (body == NULL)
+        {
+          g_warning ("%s", error->message);
+          cockpit_web_response_error (response, 500, NULL, "Internal server error");
+          return;
+        }
+      is_gzip = FALSE;
+    }
+
   GList *output;
   gint content_length = -1;
   if (template_func)
@@ -1360,6 +1392,9 @@ web_response_file (CockpitWebResponse *response,
       seen |= append_header (string, "Content-Security-Policy", policy);
     }
 
+  if (is_gzip)
+    seen |= append_header (string, "Content-Encoding", "gzip");
+
   g_autoptr(GBytes) headers_block = finish_headers (response, string, content_length, 200, seen);
   queue_bytes (response, headers_block);
 
@@ -1388,7 +1423,7 @@ cockpit_web_response_file (CockpitWebResponse *response,
                            const gchar *escaped,
                            const gchar **roots)
 {
-  web_response_file (response, escaped, roots, NULL, NULL);
+  web_response_file (response, escaped, roots, FALSE, FALSE, NULL, NULL);
 }
 
 void
@@ -1397,7 +1432,16 @@ cockpit_web_response_template (CockpitWebResponse *response,
                                    const gchar **roots,
                                    GHashTable *values)
 {
-  web_response_file (response, escaped, roots, substitute_hash_value, values);
+  web_response_file (response, escaped, roots, FALSE, FALSE, substitute_hash_value, values);
+}
+
+void
+cockpit_web_response_file_or_gz (CockpitWebResponse *response,
+                                 gboolean accepts_gzip,
+                                 const gchar *escaped,
+                                 const gchar **roots)
+{
+  web_response_file (response, escaped, roots, TRUE, accepts_gzip, NULL, NULL);
 }
 
 static gboolean

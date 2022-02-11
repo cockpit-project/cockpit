@@ -113,6 +113,11 @@ void                  cockpit_web_response_file          (CockpitWebResponse *re
                                                           const gchar *escaped,
                                                           const gchar **roots);
 
+void                  cockpit_web_response_file_or_gz    (CockpitWebResponse *response,
+                                                          gboolean accepts_gz,
+                                                          const gchar *escaped,
+                                                          const gchar **roots);
+
 GBytes *              cockpit_web_response_gunzip        (GBytes *bytes,
                                                           GError **error);
 

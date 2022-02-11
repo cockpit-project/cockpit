@@ -645,6 +645,7 @@ class TestHistoryMetrics(MachineCase):
         m.execute("""set -eux
                      firewall-cmd --permanent --remove-service pmproxy
                      firewall-cmd --permanent --new-zone=comeandgo
+                     systemctl start NetworkManager
                      nmcli con add type dummy con-name fake ifname fake0 ip4 1.2.3.4/24
                      firewall-cmd --permanent --zone public --remove-interface fake0
                      firewall-cmd --permanent --zone comeandgo --add-interface fake0

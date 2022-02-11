@@ -641,8 +641,9 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             self.allow_journal_messages('.*type=1400.*avc:  denied  { chown }.*comm="cockpit-session".*')
 
         # start from a clean slate
-        self.restore_file(logfile('admin'))
-        m.execute("rm -f " + logfile('admin'))
+        clean_cmd = f"rm -f {logfile('admin')}"
+        self.addCleanup(m.execute, clean_cmd)
+        m.execute(clean_cmd)
 
         # make sure we can still login
         b.login_and_go("/system")

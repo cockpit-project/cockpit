@@ -119,6 +119,11 @@ You can also set up a post-commit hook to do the same, after each commit:
 
     $ ln -s ../../test/git-hook-post-commit .git/hooks/post-commit
 
+We also have a hook to ameliorate one of the more annoying drawbacks of using
+git submodules:
+
+    $ ln -s ../../tools/git-hook-pre-rebase .git/tools/pre-rebase
+
 ## Running the integration test suite
 
 Refer to the [testing README](test/README.md) for details on running the Cockpit

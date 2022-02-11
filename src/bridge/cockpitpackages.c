@@ -943,7 +943,6 @@ package_content (CockpitPackages *packages,
   GBytes *uncompressed = NULL;
   CockpitPackage *package;
   gboolean result = FALSE;
-  GList *l, *names = NULL;
   gchar *filename = NULL;
   GError *error = NULL;
   GBytes *bytes = NULL;
@@ -957,17 +956,19 @@ package_content (CockpitPackages *packages,
   if (!self_origin)
     self_origin = cockpit_web_response_get_origin (response);
 
+  GList *names;
   globbing = g_str_equal (name, "*");
   if (globbing)
     {
       names = g_hash_table_get_keys (packages->listing);
+      names = g_list_sort (names, (GCompareFunc) g_strcmp0);
 
       /* When globbing files together no gzip encoding is possible */
       allow_gzipped = FALSE;
     }
   else
     {
-      names = g_list_append (names, (gchar *)name);
+      names = g_list_prepend (NULL, (gchar *)name);
 
       /* Check if client allows us to send gzipped content */
       for (gint i = 0; encodings[i] != NULL; i++)
@@ -978,9 +979,8 @@ package_content (CockpitPackages *packages,
         }
     }
 
-  names = g_list_sort (names, (GCompareFunc)g_strcmp0);
 
-  for (l = names; l != NULL; l = g_list_next (l))
+  for (GList *l = names; l != NULL; l = g_list_next (l))
     {
       name = l->data;
       g_free (filename);

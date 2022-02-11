@@ -216,6 +216,8 @@ class TestNetworkingBasic(NetworkCase):
             assert_not_found()
 
         self.allow_journal_messages(".*org.freedesktop.NetworkManager.*")
+        # Killing NM affects realmd as well
+        self.allow_journal_messages(".*org.freedesktop.realmd.Service.*")
 
 
 if __name__ == '__main__':

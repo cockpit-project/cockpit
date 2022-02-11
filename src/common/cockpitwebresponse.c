@@ -1267,16 +1267,8 @@ web_response_file (CockpitWebResponse *response,
                    gpointer user_data)
 {
   const gchar *default_policy = "default-src 'self' 'unsafe-inline';";
-
   const gchar *headers[5] = { NULL };
-  GError *error = NULL;
-  gchar *unescaped = NULL;
-  gchar *path = NULL;
-  gchar *alloc = NULL;
-  GMappedFile *file = NULL;
-  const gchar *root;
-  GBytes *body;
-  GList *output = NULL;
+  g_autofree gchar *alloc = NULL;
   GList *l = NULL;
   gint content_length = -1;
   gint at = 0;
@@ -1289,60 +1281,62 @@ web_response_file (CockpitWebResponse *response,
   g_return_if_fail (escaped != NULL);
 
   /* Someone is trying to escape the root directory, or access hidden files? */
-  unescaped = g_uri_unescape_string (escaped, "/");
+  g_autofree gchar *unescaped = g_uri_unescape_string (escaped, "/");
   if (!unescaped || strstr (unescaped, "/.") || strstr (unescaped, "../") || strstr (unescaped, "//"))
     {
       g_debug ("%s: invalid path request", escaped);
       cockpit_web_response_error (response, 404, NULL, "Not Found");
-      goto out;
+      return;
     }
 
-again:
-  root = *(roots++);
-  if (root == NULL)
+  g_autoptr(GMappedFile) file = NULL;
+  for (gint i = 0; roots[i]; i++)
     {
-      cockpit_web_response_error (response, 404, NULL, "Not Found");
-      goto out;
-    }
+      const gchar *root = roots[i];
+      g_autofree gchar *path = g_build_filename (root, unescaped, NULL);
 
-  g_free (path);
-  path = g_build_filename (root, unescaped, NULL);
+      if (g_file_test (path, G_FILE_TEST_IS_DIR))
+        {
+          cockpit_web_response_error (response, 403, NULL, "Directory Listing Denied");
+          return;
+        }
 
-  if (g_file_test (path, G_FILE_TEST_IS_DIR))
-    {
-      cockpit_web_response_error (response, 403, NULL, "Directory Listing Denied");
-      goto out;
-    }
+      /* As a double check of above behavior */
+      g_assert (path_has_prefix (path, root));
 
-  /* As a double check of above behavior */
-  g_assert (path_has_prefix (path, root));
+      g_autoptr(GError) error = NULL;
+      file = g_mapped_file_new (path, FALSE, &error);
+      if (file != NULL)
+        break;
 
-  g_clear_error (&error);
-  file = g_mapped_file_new (path, FALSE, &error);
-  if (file == NULL)
-    {
       if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT) ||
           g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NAMETOOLONG))
         {
           g_debug ("%s: file not found in root: %s", escaped, root);
-          goto again;
         }
       else if (g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_PERM) ||
                g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_ACCES) ||
                g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_ISDIR))
         {
           cockpit_web_response_error (response, 403, NULL, "Access denied");
-          goto out;
+          return;
         }
       else
         {
           g_warning ("%s: %s", path, error->message);
           cockpit_web_response_error (response, 500, NULL, "Internal server error");
-          goto out;
+          return;
         }
     }
 
-  body = g_mapped_file_get_bytes (file);
+  if (file == NULL)
+    {
+      cockpit_web_response_error (response, 404, NULL, "Not Found");
+      return;
+    }
+
+  g_autoptr(GBytes) body = g_mapped_file_get_bytes (file);
+  GList *output = NULL;
   if (template_func)
     {
       output = cockpit_template_expand (body, "${", "}", template_func, user_data);
@@ -1382,16 +1376,7 @@ again:
   if (l == NULL)
     cockpit_web_response_complete (response);
 
-out:
-  g_free (alloc);
-  g_free (unescaped);
-  g_clear_error (&error);
-  g_free (path);
-  if (file)
-    g_mapped_file_unref (file);
-
-  if (output)
-    g_list_free_full (output, (GDestroyNotify)g_bytes_unref);
+  g_list_free_full (output, (GDestroyNotify)g_bytes_unref);
 }
 
 /**

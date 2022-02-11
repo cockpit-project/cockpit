@@ -58,14 +58,6 @@ clean-local::
 install-data-local:: $(WEBPACK_INSTALL) $(MANIFESTS)
 	mkdir -p $(DESTDIR)$(pkgdatadir)
 	$(V_TAR) tar --format=posix -cf - $^ | tar --no-same-owner -C $(DESTDIR)$(pkgdatadir) --strip-components=1 -xvf -
-install-data-local:: $(WEBPACK_GZ_INSTALL)
-	@for file in $^; do \
-		target="$(DESTDIR)$(pkgdatadir)/$${file##*dist/}.gz"; \
-		[ -n "$(DESTDIR)" -a "$${target}" -nt "$${file}" ] && continue; \
-		mkdir -p "$${target%/*}"; \
-		echo "$${file} → $${target}"; \
-		gzip -9 < "$${file}" > "$${target}"; \
-	done
 install-data-local:: $(wildcard $(top_srcdir)/dist/*/*.map)
 	$(V_TAR) tar --format=posix -c --transform="s@.*dist/@$(debugdir)$(pkgdatadir)/@" -T/dev/null $^ | tar --no-same-owner -C $(DESTDIR)/ -xv
 uninstall-local::

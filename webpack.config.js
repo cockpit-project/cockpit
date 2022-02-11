@@ -244,6 +244,7 @@ const fs = require("fs");
 const copy = require("copy-webpack-plugin");
 const html = require('html-webpack-plugin');
 const miniCssExtractPlugin = require('mini-css-extract-plugin');
+const CompressionPlugin = require("compression-webpack-plugin");
 const TerserJSPlugin = require('terser-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
@@ -349,6 +350,18 @@ const plugins = [
         wrapper: (section === 'static/') ? 'window.cockpit_po = PO_DATA;' : undefined,
     }),
 ];
+
+if (production) {
+    plugins.push(new CompressionPlugin({
+        test: /\.(css|html|js)$/,
+        deleteOriginalAssets: true,
+        exclude: [
+            '/test-[^/]+.$', // don't compress test cases
+            '^static/[^/]+$', // cockpit-ws cannot currently serve compressed login page
+            '^shell/index.html$', // COMPAT: Support older cockpit-ws binaries. See #14673
+        ].map((r) => new RegExp(r)),
+    }));
+}
 
 if (eslint) {
     plugins.push(new ESLintPlugin({ extensions: ["js", "jsx"] }));

@@ -111,16 +111,8 @@ function generateDeps(makefile, stats) {
         inputs.add(input);
     }
 
-    const uncompressed_patterns = [
-        '/manifest.json$', '/override.json$',
-        '^dist/static/', // cockpit-ws cannot currently serve compressed login page
-        '^dist/shell/index.html$',  // COMPAT: Support older cockpit-ws binaries. See #14673
-        '\.png$', '\.woff$', '\.woff2$', '\.gif$'
-    ].map((r) => new RegExp(r));
-
     const outputs = new Set();
     const installs = new Set();
-    const gz_installs = new Set();
     const tests = new Set();
     for (const asset in stats.compilation.assets) {
         const output = path.join(dir, asset);
@@ -139,11 +131,7 @@ function generateDeps(makefile, stats) {
         if (output.endsWith(".map") || output.endsWith(".LICENSE.txt"))
             continue;
 
-        if (uncompressed_patterns.some((s) => output.match(s))) {
-            installs.add(output);
-        } else {
-            gz_installs.add(output);
-        }
+        installs.add(output);
     }
 
     const lines = [ "# Generated Makefile data for " + prefix ];
@@ -161,7 +149,6 @@ function generateDeps(makefile, stats) {
     makeArray(prefix + "_OUTPUTS", outputs);
 
     makeArray(prefix + "_INSTALL", installs);
-    makeArray(prefix + "_GZ_INSTALL", gz_installs);
     makeArray(prefix + "_TESTS", tests);
 
     lines.push(stampfile + ": $(" + prefix + "_INPUTS)");

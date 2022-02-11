@@ -1420,4 +1420,16 @@ cockpit_web_request_get_client_certificate (CockpitWebRequest *self)
   return client_certificate;
 }
 
+gboolean
+cockpit_web_request_accepts_encoding (CockpitWebRequest *self,
+                                      const gchar *encoding)
+{
+  const gchar *accept = g_hash_table_lookup (self->headers, "Accept-Encoding");
+  if (!accept)
+    return TRUE;
+  g_auto(GStrv) encodings = cockpit_web_server_parse_accept_list (accept, NULL);
+  return g_strv_contains ((const gchar **) encodings, encoding) ||
+         g_strv_contains ((const gchar **) encodings, "*");
+}
+
 /* ---------------------------------------------------------------------------------------------------- */

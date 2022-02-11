@@ -1342,11 +1342,9 @@ class MachineCase(unittest.TestCase):
             sessions = self.machine.execute("loginctl --no-legend list-sessions | awk '/web console/ { print $1 }'").strip().split()
             for s in sessions:
                 # Don't insist that terminating works, the session might be gone by now.
-                self.machine.execute("loginctl terminate-session %s || true" % s)
-                # Wait for it to be no longer active. Sometimes
-                # sessions are permanently stuck in state "closing",
-                # but that's fine since they won't do any harm.
-                m.execute("while loginctl show-session %s | grep -q 'State=active'; do sleep 1; done" % s)
+                self.machine.execute(f"loginctl kill-session {s}; loginctl terminate-session %s || true")
+                # Wait for it to be gone
+                m.execute(f"while loginctl show-session {s}; do sleep 1; done")
 
         self.addCleanup(terminate_sessions)
 

@@ -4,6 +4,7 @@
 #         Allison Karlitskaya <allison.karlitskaya@redhat.com>
 
 import argparse
+import gzip
 import os
 import re
 import sys
@@ -81,10 +82,10 @@ dist_licenses = {}  # Files: dirglob → set(licenses)
 
 for directory, _subdirs, files in os.walk(f'{BASE_DIR}/dist'):
     for file in files:
-        if not file.endswith('.LICENSE.txt'):
+        if not file.endswith('.LICENSE.txt.gz'):
             continue
 
-        with open(os.path.join(directory, file)) as license_file:
+        with gzip.open(os.path.join(directory, file), 'rt') as license_file:
             comments = license_file.read().split('\n\n')
 
         for comment in comments:

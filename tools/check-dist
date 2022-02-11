@@ -2,13 +2,6 @@
 
 # Check for mistakes in tarball distribution
 
-# Make sure we don't distribute gz files
-find $1/dist -name '*.gz' -print | sort | while read file; do
-        find $1/dist -name '*.gz' -print >&2
-        echo "Refusing to distribute gzip files" >&2
-        exit 1
-done
-
 # Make sure all po files are valid
 find $1/po -name '*.po' -print | while read file; do
     if ! msgfmt "$file" -o /dev/null; then

@@ -1346,7 +1346,7 @@ class MachineCase(unittest.TestCase):
             sessions = self.machine.execute("loginctl --no-legend list-sessions | awk '/web console/ { print $1 }'").strip().split()
             for s in sessions:
                 # Don't insist that terminating works, the session might be gone by now.
-                self.machine.execute(f"loginctl kill-session {s}; loginctl terminate-session %s || true")
+                self.machine.execute(f"loginctl kill-session {s}; loginctl terminate-session {s} || true")
                 # Wait for it to be gone
                 m.execute(f"while loginctl show-session {s}; do sleep 1; done")
 

@@ -632,7 +632,7 @@ on_handle_source (CockpitWebServer *server,
       inject_address (response, "bus_address", bus_address);
       inject_address (response, "direct_address", direct_address);
     }
-  cockpit_web_response_file (response, path, (const gchar **)server_roots);
+  cockpit_web_response_file_or_gz (response, TRUE, path, (const gchar **)server_roots);
   return TRUE;
 }
 

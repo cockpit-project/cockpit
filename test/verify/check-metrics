@@ -446,7 +446,7 @@ class TestHistoryMetrics(MachineCase):
         b.click("#pcp-settings-modal button.pf-m-primary")
         b.wait_not_present("#pcp-settings-modal")
 
-        self.assertIn(m.execute("systemctl is-active pmlogger || true").strip(), ["activating", "active"])
+        m.execute("until systemctl is-active pmlogger; do sleep 1; done")
 
         # there is a transient "No data available" state, but sometimes it's very short, so don't assert that
 
@@ -516,7 +516,7 @@ class TestHistoryMetrics(MachineCase):
         b.click("#pcp-settings-modal button.pf-m-primary")
         b.wait_not_present("#pcp-settings-modal")
 
-        self.assertIn(m.execute("systemctl is-active pmlogger || true").strip(), ["activating", "active"])
+        m.execute("until systemctl is-active pmlogger; do sleep 1; done")
         self.assertEqual(m.execute("systemctl is-enabled pmlogger").strip(), "enabled")
 
     @nondestructive

@@ -33,11 +33,7 @@ class TestSession(MachineCase):
         self.allow_restart_journal_messages()
 
         def wait_session(should_exist):
-            def cond():
-                return should_exist == ("admin" in m.execute("loginctl list-sessions"))
-            # sometimes the session gets stuck forever in state 'closing' with no processes.
-            # https://bugs.freedesktop.org/show_bug.cgi?id=89024
-            wait(cond)
+            wait(lambda: (should_exist == ("admin" in m.execute("loginctl list-sessions"))))
 
         wait_session(False)
 

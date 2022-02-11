@@ -30,6 +30,7 @@ gchar **        cockpit_branding_calculate_static_roots     (const gchar *os_id,
                                                              gboolean is_local);
 
 void            cockpit_branding_serve                      (CockpitWebService *service,
+                                                             CockpitWebRequest *request,
                                                              CockpitWebResponse *response,
                                                              const gchar *full_path,
                                                              const gchar *static_path,

@@ -660,7 +660,7 @@ cockpit_handler_default (CockpitWebServer *server,
         }
       else if (g_str_has_prefix (remainder, "/static/"))
         {
-          cockpit_branding_serve (service, response, path, remainder + 8,
+          cockpit_branding_serve (service, request, response, path, remainder + 8,
                                   data->os_release, data->branding_roots);
           return TRUE;
         }

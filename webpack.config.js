@@ -357,7 +357,6 @@ if (production) {
         deleteOriginalAssets: true,
         exclude: [
             '/test-[^/]+.$', // don't compress test cases
-            '^static/[^/]+$', // cockpit-ws cannot currently serve compressed login page
             '^shell/index.html$', // COMPAT: Support older cockpit-ws binaries. See #14673
         ].map((r) => new RegExp(r)),
     }));

@@ -97,7 +97,8 @@ cockpit_branding_calculate_static_roots (const gchar *os_id,
 }
 
 static void
-serve_branding_css_file (CockpitWebResponse *response,
+serve_branding_css_file (CockpitWebRequest *request,
+                         CockpitWebResponse *response,
                          const gchar *path,
                          const gchar **roots,
                          GHashTable *os_release)
@@ -116,6 +117,7 @@ typedef struct {
 
 static void
 serve_branding_css_with_init_data (CockpitWebService *service,
+                                   CockpitWebRequest *request,
                                    CockpitWebResponse *response,
                                    const gchar *path)
 {
@@ -162,7 +164,7 @@ serve_branding_css_with_init_data (CockpitWebService *service,
       os_release = g_object_get_data (G_OBJECT (transport), "os-release");
     }
 
-  serve_branding_css_file (response, path, (const gchar **)roots, os_release);
+  serve_branding_css_file (request, response, path, (const gchar **)roots, os_release);
   responded = TRUE;
 
 out:
@@ -172,6 +174,7 @@ out:
 
 void
 cockpit_branding_serve (CockpitWebService *service,
+                        CockpitWebRequest *request,
                         CockpitWebResponse *response,
                         const gchar *full_path,
                         const gchar *static_path,
@@ -197,11 +200,11 @@ cockpit_branding_serve (CockpitWebService *service,
     {
       if (!is_host)
         {
-          serve_branding_css_file (response, static_path, local_roots, local_os_release);
+          serve_branding_css_file (request, response, static_path, local_roots, local_os_release);
         }
       else
         {
-          serve_branding_css_with_init_data (service, response, static_path);
+          serve_branding_css_with_init_data (service, request, response, static_path);
         }
     }
   else

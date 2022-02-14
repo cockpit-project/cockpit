@@ -122,7 +122,7 @@ You can also set up a post-commit hook to do the same, after each commit:
 We also have a hook to ameliorate one of the more annoying drawbacks of using
 git submodules:
 
-    $ ln -s ../../tools/git-hook-pre-rebase .git/tools/pre-rebase
+    $ ln -s ../../tools/git-hook-pre-rebase .git/hooks/pre-rebase
 
 ## Running the integration test suite
 

@@ -1341,6 +1341,7 @@ class MachineCase(unittest.TestCase):
                 # on OSTree we don't get "web console" sessions with the cockpit/ws container; just SSH
                 self.machine.execute("loginctl kill-user admin 2>/dev/null || true;"
                                      "loginctl terminate-user admin 2>/dev/null || true")
+                self.machine.execute("while pgrep -u admin; do sleep 1; done;")
                 return
 
             sessions = self.machine.execute("loginctl --no-legend list-sessions | awk '/web console/ { print $1 }'").strip().split()

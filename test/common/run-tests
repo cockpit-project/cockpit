@@ -345,8 +345,9 @@ def run(opts, image):
     if not opts.machine:
         # Create appropriate number of serial machines; prioritize the nondestructive (serial) tests, to get
         # them out of the way as fast as possible, then let the destructive (parallel) ones start as soon as
-        # a given serial runner is done.
-        num_global = min(serial_tests_len, opts.jobs)
+        # a given serial runner is done. However, limit the number of parallel nondestructive tests, as they
+        # are currently too flaky to run with full parallelism.
+        num_global = min(serial_tests_len, opts.jobs // 2)
 
         for i in range(num_global):
             global_machines.append(GlobalMachine(restrict=not opts.enable_network, cpus=opts.nondestructive_cpus,

@@ -1349,7 +1349,12 @@ class MachineCase(unittest.TestCase):
                 # Don't insist that terminating works, the session might be gone by now.
                 self.machine.execute(f"loginctl kill-session {s}; loginctl terminate-session {s} || true")
                 # Wait for it to be gone
-                m.execute(f"while loginctl show-session {s}; do sleep 1; done")
+                try:
+                    m.execute(f"while loginctl show-session {s}; do sleep 1; done", timeout=30)
+                except RuntimeError:
+                    # show the status in debug logs, to see what's wrong
+                    m.execute(f"loginctl session-status {s} >&2")
+                    raise
 
         self.addCleanup(terminate_sessions)
 

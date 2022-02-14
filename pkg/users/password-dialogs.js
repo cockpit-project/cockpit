@@ -204,22 +204,23 @@ export function set_password_dialog(account, current_user) {
         update();
     }
 
-    function validate(force) {
-        errors = { };
+    function validate(force, password, password_confirm) {
+        const errs = { };
 
-        if (state.password != state.password_confirm)
-            errors.password_confirm = _("The passwords do not match");
+        if (password != password_confirm)
+            errs.password_confirm = _("The passwords do not match");
 
-        if (state.password.length > 256)
-            errors.password = _("Password is longer than 256 characters");
+        if (password.length > 256)
+            errs.password = _("Password is longer than 256 characters");
 
-        return password_quality(state.password, force)
+        return password_quality(password, force)
                 .catch(ex => {
-                    errors.password = (ex.message || ex.toString()).replace("\n", " ");
-                    errors.password += "\n" + cockpit.format(_("Click $0 again to use the password anyway."), _("Set password"));
+                    errs.password = (ex.message || ex.toString()).replace("\n", " ");
+                    errs.password += "\n" + cockpit.format(_("Click $0 again to use the password anyway."), _("Set password"));
                 })
                 .then(() => {
-                    return !has_errors(errors);
+                    errors = errs;
+                    return !has_errors(errs);
                 });
     }
 
@@ -239,12 +240,14 @@ export function set_password_dialog(account, current_user) {
                         const second_click = state.confirm_weak;
                         state.confirm_weak = !state.confirm_weak;
 
-                        return validate(second_click).then(valid => {
+                        const current_state = { ...state };
+
+                        return validate(second_click, current_state.password, current_state.password_confirm).then(valid => {
                             if (valid) {
                                 if (change_self)
-                                    return passwd_self(state.password_old, state.password);
+                                    return passwd_self(current_state.password_old, current_state.password);
                                 else
-                                    return passwd_change(account.name, state.password);
+                                    return passwd_change(account.name, current_state.password);
                             } else {
                                 update();
                                 return Promise.reject();

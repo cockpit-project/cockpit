@@ -272,14 +272,7 @@ class TestAccounts(MachineCase):
         b.wait_not_present('#account-set-password-dialog')
 
         # Logout and login with the new password
-        b.logout()
-        b.open("/users")
-        b.wait_visible("#login")
-        b.set_val("#login-user-input", "jussi")
-        b.set_val("#login-password-input", good_password_2)
-        b.click('#login-button')
-        b.expect_load()
-        b.wait_visible('#content')
+        b.relogin(path="/users", user="jussi", password=good_password_2)
 
         # incomplete passwd entry; fixed in PR #13384
         m.execute('echo "damaged:x:1234:1234:Damaged" >> /etc/passwd')

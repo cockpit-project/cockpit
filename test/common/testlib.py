@@ -695,11 +695,11 @@ class Browser:
 
         self.machine.allow_restart_journal_messages()
 
-    def relogin(self, path=None, user=None, superuser=None, wait_remote_session_machine=None):
+    def relogin(self, path=None, user=None, password=None, superuser=None, wait_remote_session_machine=None):
         self.logout()
         if wait_remote_session_machine:
             wait_remote_session_machine.execute("while pgrep -a cockpit-ssh; do sleep 1; done")
-        self.try_login(user, superuser=superuser)
+        self.try_login(user, password=password, superuser=superuser)
         self.expect_load()
         self._wait_present('#content')
         self.wait_visible('#content')

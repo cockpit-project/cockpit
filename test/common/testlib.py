@@ -1525,6 +1525,8 @@ class MachineCase(unittest.TestCase):
         if not self.allow_core_dumps:
             matches += ["SYSLOG_IDENTIFIER=systemd-coredump"]
             self.allowed_messages.append("Resource limits disable core dumping for process.*")
+            # can happen on shutdown when /run/systemd/coredump is gone already
+            self.allowed_messages.append("Failed to connect to coredump service: No such file or directory")
 
         messages = machine.journal_messages(matches, 6, cursor=cursor)
 

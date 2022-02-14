@@ -1339,7 +1339,7 @@ class MachineCase(unittest.TestCase):
         def terminate_sessions():
             if self.machine.ostree_image:
                 # on OSTree we don't get "web console" sessions with the cockpit/ws container; just SSH
-                self.machine.execute("loginctl kill-user admin 2>/dev/null|| true;"
+                self.machine.execute("loginctl kill-user admin 2>/dev/null || true;"
                                      "loginctl terminate-user admin 2>/dev/null || true")
                 return
 

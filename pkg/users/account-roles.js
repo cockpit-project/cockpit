@@ -19,7 +19,7 @@
 
 import cockpit from 'cockpit';
 import React, { useState } from 'react';
-import { Alert, Checkbox, Tooltip, TooltipPosition } from '@patternfly/react-core';
+import { Alert, Checkbox, Flex, Tooltip, TooltipPosition } from '@patternfly/react-core';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 import { superuser } from "superuser";
 
@@ -65,21 +65,20 @@ export function AccountRoles({ account, groups, currently_logged_in }) {
     groups.forEach(group => {
         if (role_groups[group.name]) {
             roles.push(
-                <Checkbox isDisabled={!superuser.allowed || !!changing}
-                          onChange={checked => change_role(group, checked)}
-                          isChecked={changing && changing.group == group.name ? changing.to : is_user_in_group(account.name, group)}
-                          key={group.name}
-                          id={group.name}
-                          data-name={group.name}
-                          label={
-                              <>
-                                  {role_groups[group.name]}
-                                  <Tooltip key={ group.name } id={ "tooltip-unix-group-" + group.name } position={ TooltipPosition.right }
-                                           content={ cockpit.format(_("Unix group: $0"), group.name) }>
-                                      <OutlinedQuestionCircleIcon className="outline-question-circle-icon" />
-                                  </Tooltip>
-                              </>
-                          } />
+                <Flex spaceItems={{ default: 'spaceItemsNone' }} alignItems={{ default: 'alignItemsCenter' }} key={ "flex-" + group.name }>
+                    <Checkbox isDisabled={!superuser.allowed || !!changing}
+                              onChange={checked => change_role(group, checked)}
+                              isChecked={changing && changing.group == group.name ? changing.to : is_user_in_group(account.name, group)}
+                              key={group.name}
+                              id={group.name}
+                              data-name={group.name}
+                              label={role_groups[group.name]} />
+
+                    <Tooltip key={ "tooltip-unix-group-" + group.name } id={ "tooltip-unix-group-" + group.name } position={ TooltipPosition.right }
+                             content={ cockpit.format(_("Unix group: $0"), group.name) }>
+                        <OutlinedQuestionCircleIcon className="outline-question-circle-icon" />
+                    </Tooltip>
+                </Flex>
             );
         }
     });

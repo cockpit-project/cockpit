@@ -560,5 +560,9 @@ class StorageCase(MachineCase, StorageHelpers):
         else:
             self.default_crypto_type = "luks1"
 
+        if self.image.startswith("rhel-8") or self.image.startswith("centos-8"):
+            # HACK: missing /etc/crypttab file upsets udisks: https://github.com/storaged-project/udisks/pull/835
+            self.machine.write("/etc/crypttab", "")
+
         # starting out with empty PCP logs and pmlogger not running causes these metrics channel messages
         self.allow_journal_messages("pcp-archive: no such metric: disk.*")

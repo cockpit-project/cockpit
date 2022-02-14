@@ -36,11 +36,6 @@ if [ "$ID" = "debian" ]; then
     echo '* soft core unlimited' >> /etc/security/limits.conf
 fi
 
-if [ "$ID" = "rhel" ] && [ "${VERSION_ID#8}" != "${VERSION_ID}" ]; then
-    # HACK: missing /etc/crypttab file upsets udisks: https://github.com/storaged-project/udisks/pull/835
-    touch /etc/crypttab
-fi
-
 # clean out the journal
 journalctl --flush
 journalctl --sync || killall systemd-journald

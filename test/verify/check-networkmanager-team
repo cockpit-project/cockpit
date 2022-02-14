@@ -32,9 +32,6 @@ class TestTeam(NetworkCase):
         b = self.browser
         m = self.machine
 
-        # screenshot assumes absent virbr0
-        m.execute("virsh net-destroy default 2>/dev/null || true")
-
         self.login_and_go("/network")
 
         b.wait_visible("button:contains('Add team')")

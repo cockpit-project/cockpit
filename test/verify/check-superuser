@@ -29,6 +29,7 @@ def allow_old_cockpit_ws_messsages(test):
                                 "admin: Executing command .*COMMAND=/usr/bin/cockpit-bridge --privileged.*")
 
 
+@nondestructive
 @skipDistroPackage()
 class TestSuperuser(MachineCase):
     def testBasic(self):
@@ -55,6 +56,8 @@ class TestSuperuser(MachineCase):
         b.check_superuser_indicator("Limited access")
 
         # We want to be lectured again
+        self.restore_file("/var/db/sudo/lectured/admin")
+        self.restore_file("/var/lib/sudo/lectured/admin")
         m.execute("rm -rf /var/{db,lib}/sudo/lectured/admin")
 
         # Get the privileges back, this time in the mobile layout
@@ -79,14 +82,13 @@ class TestSuperuser(MachineCase):
 
     def testNoPasswd(self):
         b = self.browser
-        m = self.machine
 
         # Log in with limited access
         self.login_and_go(superuser=False)
         b.check_superuser_indicator("Limited access")
 
         # Give us password-less sudo and use it
-        m.write("/etc/sudoers.d/admin", "admin ALL=(ALL) NOPASSWD:ALL")
+        self.write_file("/etc/sudoers.d/admin", "admin ALL=(ALL) NOPASSWD:ALL")
         b.open_superuser_dialog()
         b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "You now have administrative access")
         b.click(".pf-c-modal-box:contains('Administrative access') button:contains('Close')")
@@ -103,14 +105,14 @@ class TestSuperuser(MachineCase):
 
         # Configure the sudo PAM stack to make two prompts
         if "debian" in m.image or "ubuntu" in m.image:
-            m.write("/etc/pam.d/sudo", """
+            self.write_file("/etc/pam.d/sudo", """
 auth required pam_unix.so
 auth required /usr/lib/cockpit-test-assets/mock-pam-conv-mod.so
 @include common-account
 @include common-session-noninteractive
 """)
         else:
-            m.write("/etc/pam.d/sudo", """
+            self.write_file("/etc/pam.d/sudo", """
 auth required pam_unix.so
 auth required /usr/lib/cockpit-test-assets/mock-pam-conv-mod.so
 account include system-auth
@@ -130,10 +132,14 @@ session include system-auth
 
     def testWrongPasswd(self):
         b = self.browser
+        m = self.machine
 
         # Log in with limited access
         self.login_and_go(superuser=False)
         b.check_superuser_indicator("Limited access")
+
+        if m.image == "arch":
+            self.addCleanup(m.execute, "rm -f /var/run/faillock/admin")
 
         b.open_superuser_dialog()
         b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
@@ -161,7 +167,7 @@ session include system-auth
         # "admin" as its primary group.
         #
         if "ubuntu" in m.image:
-            m.execute("sed -i -e '/^%admin/d' /etc/sudoers")
+            self.sed_file("/^%admin/d", "/etc/sudoers")
 
         m.execute(f"gpasswd -d admin {m.get_admin_group()}")
 

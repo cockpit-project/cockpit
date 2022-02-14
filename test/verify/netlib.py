@@ -108,11 +108,15 @@ class NetworkCase(MachineCase, NetworkHelpers):
         m.write("/etc/NetworkManager/conf.d/99-test.conf", "[main]\nno-auto-default=*\n")
         m.execute("systemctl reload-or-restart NetworkManager")
 
+        # our assertions and pixel tests assume that virbr0 is absent
+        if 'default' in m.execute("virsh net-list --name || true"):
+            m.execute("virsh net-autostart --disable default; virsh net-destroy default")
+
         ver = self.machine.execute(
             "busctl --system get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager org.freedesktop.NetworkManager Version || true")
-        m = re.match('s "(.*)"', ver)
-        if m:
-            self.networkmanager_version = [int(x) for x in m.group(1).split(".")]
+        ver_match = re.match('s "(.*)"', ver)
+        if ver_match:
+            self.networkmanager_version = [int(x) for x in ver_match.group(1).split(".")]
         else:
             self.networkmanager_version = [0]
 

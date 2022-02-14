@@ -32,7 +32,7 @@ class TestNetworkingBasic(NetworkCase):
 
         if not m.ostree_image:
             # screenshot assumes running firewalld and absent virbr0 (in particular, *3* interfaces)
-            m.execute("systemctl start firewalld; virsh net-destroy default 2>/dev/null || true")
+            m.execute("systemctl start firewalld")
 
         self.login_and_go("/network")
         b.wait_visible("#networking")

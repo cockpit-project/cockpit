@@ -36,6 +36,7 @@ import {
     DataListItemCells,
     DataListAction,
     DescriptionList, DescriptionListGroup, DescriptionListTerm, DescriptionListDescription,
+    EmptyState,
     Flex, FlexItem,
     Gallery,
     Page, PageSection,
@@ -50,6 +51,7 @@ import { ListingTable } from "cockpit-components-table.jsx";
 import kernelopt_sh from "raw-loader!./kernelopt.sh";
 import detect from "./hw-detect.js";
 
+import { superuser } from "superuser";
 import { PrivilegedButton } from "cockpit-components-privileged.jsx";
 
 const _ = cockpit.gettext;
@@ -311,6 +313,10 @@ class HardwareInfo extends React.Component {
                         columns: [dimm.locator, dimm.technology, dimm.type, dimm.size, dimm.state, dimm.rank, dimm.speed]
                     })) } />
             );
+        } else if (!superuser.allowed) {
+            memory = (<EmptyState>
+                {_("Viewing memory information requires administrative access.")}
+            </EmptyState>);
         }
 
         return (

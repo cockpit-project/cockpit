@@ -192,29 +192,32 @@ export function account_create_dialog(accounts) {
         update();
     }
 
-    function validate(force) {
-        errors = { };
+    function validate(force, real_name, user_name, password, password_confirm) {
+        const errs = { };
 
-        if (!state.real_name)
+        if (!real_name)
             errors.real_name = _("No real name specified");
 
-        if (state.password != state.password_confirm)
-            errors.password_confirm = _("The passwords do not match");
+        if (password != password_confirm)
+            errs.password_confirm = _("The passwords do not match");
 
-        if (state.password.length > 256)
-            errors.password = _("Password is longer than 256 characters");
+        if (password.length > 256)
+            errs.password = _("Password is longer than 256 characters");
 
-        errors.user_name = validate_username(state.user_name, accounts);
+        errs.user_name = validate_username(user_name, accounts);
 
-        return password_quality(state.password, force)
+        return password_quality(password, force)
                 .catch(ex => {
-                    errors.password = (ex.message || ex.toString()).replace("\n", " ");
-                    errors.password += "\n" + cockpit.format(_("Click $0 again to use the password anyway."), _("Create"));
+                    errs.password = (ex.message || ex.toString()).replace("\n", " ");
+                    errs.password += "\n" + cockpit.format(_("Click $0 again to use the password anyway."), _("Create"));
                 })
-                .then(() => !has_errors(errors));
+                .then(() => {
+                    errors = errs;
+                    return !has_errors(errs);
+                });
     }
 
-    function create() {
+    function create(real_name, user_name, password, locked) {
         return cockpit.spawn(["/usr/sbin/useradd", "-D"], { superuser: "require" })
                 .catch(() => "")
                 .then(defaults => {
@@ -225,18 +228,18 @@ export function account_create_dialog(accounts) {
                         }
                     });
                     const prog = ["/usr/sbin/useradd", "--create-home", "-s", shell || "/bin/bash"];
-                    if (state.real_name) {
+                    if (real_name) {
                         prog.push('-c');
-                        prog.push(state.real_name);
+                        prog.push(real_name);
                     }
-                    prog.push(state.user_name);
+                    prog.push(user_name);
                     return cockpit.spawn(prog, { superuser: "require", err: "message" })
-                            .then(() => passwd_change(state.user_name, state.password))
+                            .then(() => passwd_change(user_name, password))
                             .then(() => {
-                                if (state.locked)
+                                if (locked)
                                     return cockpit.spawn([
                                         "/usr/sbin/usermod",
-                                        state.user_name,
+                                        user_name,
                                         "--lock"
                                     ], { superuser: "require", err: "message" });
                             });
@@ -258,9 +261,12 @@ export function account_create_dialog(accounts) {
                     clicked: () => {
                         const second_click = state.confirm_weak;
                         state.confirm_weak = !state.confirm_weak;
-                        return validate(second_click).then(valid => {
+
+                        const current_state = { ...state };
+
+                        return validate(second_click, current_state.real_name, current_state.user_name, current_state.password, current_state.password_confirm).then(valid => {
                             if (valid)
-                                return create();
+                                return create(current_state.real_name, current_state.user_name, current_state.password, current_state.locked);
                             else {
                                 update();
                                 return Promise.reject();

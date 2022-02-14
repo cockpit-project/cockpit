@@ -260,6 +260,7 @@ class TestAccounts(MachineCase):
         long_password = "2a02-x!h4a" * 30
         b.set_input_text('#account-set-password-pw1', long_password)
         b.set_input_text('#account-set-password-pw2', long_password)
+        b.wait_not_present("#account-set-password-dialog .pf-c-form__helper-text.pf-m-error")
         b.click('#account-set-password-dialog button.apply')
         b.wait_in_text("#account-set-password-dialog .pf-c-form__helper-text.pf-m-error", "Password is longer than 256 characters")
 
@@ -268,6 +269,7 @@ class TestAccounts(MachineCase):
         b.set_input_text("#account-set-password-pw1", good_password_2)
         b.set_input_text("#account-set-password-pw2", good_password_2)
         b.wait_visible("#account-set-password-meter.success")
+        b.wait_not_present("#account-set-password-dialog .pf-c-form__helper-text.pf-m-error")
         b.click('#account-set-password-dialog button.apply')
         b.wait_not_present('#account-set-password-dialog')
 

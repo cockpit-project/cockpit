@@ -126,7 +126,7 @@ export default function detect() {
 
     tasks.push(machine_info.cpu_ram_info()
             .then(result => {
-                info.system.cpu_model = result.cpu_model;
+                info.system.cpu_model = result.cpu_model || _("unknown");
                 info.system.nproc = result.cpus;
                 return true;
             }));

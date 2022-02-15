@@ -156,6 +156,8 @@ class ServicesPageBody extends React.Component {
             loadingUnits: false,
             path: cockpit.location.path,
             isFullyLoaded: false,
+
+            error: null,
         };
 
         this.onCurrentTextFilterChanged = (currentTextFilter) => {
@@ -434,7 +436,7 @@ class ServicesPageBody extends React.Component {
                                         this.seenPaths.add(unit_path);
 
                                         return this.getUnitByPath(unit_path);
-                                    }, ex => console.warn(ex)));
+                                    }, ex => this.setState({ error: cockpit.format(_("Listing of unit failed: $0"), ex.toString()), loadingUnits: false })));
                                 });
 
                                 Promise.all(promisesLoad)
@@ -463,8 +465,8 @@ class ServicesPageBody extends React.Component {
                                             this.setState(newState);
                                             this.processFailedUnits();
                                         });
-                            }, ex => console.warn('ListUnitFiles failed: ', ex.toString()));
-                }, ex => console.warn('ListUnits failed: ', ex.toString()));
+                            }, ex => this.setState({ error: cockpit.format(_("Listing unit files failed: $0"), ex.toString()), loadingUnits: false }));
+                }, ex => this.setState({ error: cockpit.format(_("Listing units failed: $0"), ex.toString()), loadingUnits: false }));
     }
 
     /**
@@ -719,6 +721,8 @@ class ServicesPageBody extends React.Component {
         const { unit_by_path } = this.state;
         const path = this.props.path;
 
+        if (this.state.error)
+            return <EmptyStatePanel title={_("Loading of units failed")} icon={ExclamationCircleIcon} paragraph={this.state.error} />;
         if (!this.state.isFullyLoaded)
             return <EmptyStatePanel loading title={_("Loading...")} />;
 

@@ -24,6 +24,11 @@ function parse_passwd_content(content) {
     }
 
     const ret = [];
+    const x = Math.random().toString(36)
+            .substr(2, 5);
+    console.log(x, "Called passwd");
+    if (content.indexOf("anton") >= 0)
+        console.log(content);
     const lines = content.split('\n');
 
     for (let i = 0; i < lines.length; i++) {

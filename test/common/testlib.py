@@ -1359,10 +1359,11 @@ class MachineCase(unittest.TestCase):
         self.addCleanup(terminate_sessions)
 
     def tearDown(self):
-        if self.checkSuccess() and self.machine.ssh_reachable:
+        if self.machine.ssh_reachable:
             self.check_journal_messages()
-            self.check_browser_errors()
-            self.check_pixel_tests()
+            if self.checkSuccess():
+                self.check_browser_errors()
+                self.check_pixel_tests()
         shutil.rmtree(self.tmpdir, ignore_errors=True)
 
     def login_and_go(self, path=None, user=None, host=None, superuser=True, urlroot=None, tls=False):
@@ -1571,7 +1572,9 @@ class MachineCase(unittest.TestCase):
             self.copy_js_log("FAIL")
             self.copy_journal("FAIL")
             self.copy_cores("FAIL")
-            raise Error(UNEXPECTED_MESSAGE + "journal messages:\n" + first)
+            if self.checkSuccess():
+                # fail test on the unexpected messages
+                raise Error(UNEXPECTED_MESSAGE + "journal messages:\n" + first)
 
     def allow_browser_errors(self, *patterns):
         """Don't fail if the test caused a console error contains the given regexp"""

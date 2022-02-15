@@ -1796,7 +1796,7 @@ class MachineCase(unittest.TestCase):
         else:
             self.addCleanup(self.machine.execute, "rm -rf %s" % path)
 
-    def write_file(self, path, content, append=False, owner=None, perm=None):
+    def write_file(self, path, content, append=False, owner=None, perm=None, post_restore_action=None):
         '''Write a file on primary machine
 
         This is safe for @nondestructive tests, the file will be removed during cleanup.
@@ -1806,7 +1806,7 @@ class MachineCase(unittest.TestCase):
         @perm is the desired file permission as chmod shell string (e.g. "0600")
         '''
         m = self.machine
-        self.restore_file(path)
+        self.restore_file(path, post_restore_action=post_restore_action)
         m.write(path, content, append=append, owner=owner, perm=perm)
 
 

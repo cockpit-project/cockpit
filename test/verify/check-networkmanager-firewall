@@ -52,18 +52,13 @@ def get_active_rules(machine):
 @skipDistroPackage()
 class TestFirewall(NetworkCase):
     def setUp(self):
-        MachineCase.setUp(self)
+        super().setUp()
         m = self.machine
         self.restore_dir("/etc/firewalld", "systemctl try-restart firewalld")
-        m.execute("systemctl start firewalld")
+        m.execute("systemctl restart firewalld")
         self.btn_danger = "pf-m-danger"
         self.btn_primary = "pf-m-primary"
         self.default_zone = "public zone"
-
-        # on images with running libvirt, wait until libvirt adds its zone, to avoid races in tests
-        # (older versions don't do that yet)
-        if m.image not in ["ubuntu-2004"]:
-            m.execute("if virsh net-list --name | grep -q default; then until firewall-cmd --get-active-zones | grep -q libvirt; do sleep 1; done; fi")
 
         # Temporary remove the test Dbus port 8765, this workaround can be
         # removed once the pixel tests are merged and the image updated to not

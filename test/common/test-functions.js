@@ -261,10 +261,11 @@ function ph_wait_cond(cond, timeout, error_description) {
         // poll every 100 ms for now;  FIXME: poll less often and re-check on mutations using
         // https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
         let stepTimer = null;
+        let last_err = null;
         let tm = window.setTimeout( () => {
                 if (stepTimer)
                     window.clearTimeout(stepTimer);
-                reject(new PhWaitCondTimeout(error_description));
+                reject(last_err || new PhWaitCondTimeout(error_description));
             }, timeout);
         function step() {
             try {
@@ -274,7 +275,7 @@ function ph_wait_cond(cond, timeout, error_description) {
                     return;
                 }
             } catch (err) {
-                reject(err);
+                last_err = err;
             }
             stepTimer = window.setTimeout(step, 100);
         }

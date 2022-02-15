@@ -246,7 +246,6 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         b.open("/")
 
         b.try_login("admin", "foobar")
-        b.expect_load()
         b.wait_visible("#terminal")
 
         # wait until first line is not empty

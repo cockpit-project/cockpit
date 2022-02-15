@@ -94,7 +94,6 @@ class TestConnection(MachineCase):
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")
         b.click('#login-button')
-        b.expect_load()
         b.enter_page("/system")
 
         # cookie should not be marked as secure, it's not https
@@ -110,7 +109,6 @@ class TestConnection(MachineCase):
 
         start_cockpit()
         b.click("#machine-reconnect")
-        b.expect_load()
         b.wait_visible("#login")
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")
@@ -126,7 +124,6 @@ class TestConnection(MachineCase):
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")
         b.click('#login-button')
-        b.expect_load()
         b.enter_page("/system")
 
         # sever the connection on the server page
@@ -139,7 +136,6 @@ class TestConnection(MachineCase):
         b.wait_in_text('.curtains-ct .pf-c-empty-state__body', "Connection has timed out.")
         m.execute("iptables -w -D INPUT -p tcp --dport 9090 -j REJECT")
         b.click("#machine-reconnect")
-        b.expect_load()
         b.enter_page("/system")
         b.logout()
 
@@ -902,7 +898,6 @@ until pgrep -f '^/usr/bin/cockpit-bridge.*--privileged'; do sleep 1; done
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")
         b.click('#login-button')
-        b.expect_load()
 
         def check_wss_log():
             for log in self.browser.get_js_log():
@@ -939,7 +934,6 @@ until pgrep -f '^/usr/bin/cockpit-bridge.*--privileged'; do sleep 1; done
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")
         b.click('#login-button')
-        b.expect_load()
         b.wait_visible('#content')
         b.enter_page("/system")
         # cookie should be marked as secure, as for the browser it's https
@@ -1073,7 +1067,6 @@ ProtocolHeader = X-Forwarded-Proto
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")
         b.click('#login-button')
-        b.expect_load()
         b.wait_visible('#content')
         b.logout()
 
@@ -1158,7 +1151,6 @@ server {
         b.set_val("#login-user-input", "admin")
         b.set_val("#login-password-input", "foobar")
         b.click('#login-button')
-        b.expect_load_frame("embed-full")
         b.wait_visible('article.system-health')
 
     @skipImage("nginx not installed", "centos-8-stream", "debian-stable", "debian-testing", "fedora-coreos",

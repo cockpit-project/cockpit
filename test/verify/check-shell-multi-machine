@@ -305,7 +305,6 @@ class TestMultiMachine(MachineCase):
                 self.assertTrue(b.val('#hostkey-fingerprint'))
             b.click('#login-button')
 
-        b.expect_load()
         b.enter_page("/system")
         b.wait_in_text(hostname_selector, "machine2")
         b.switch_to_top()
@@ -343,7 +342,6 @@ class TestMultiMachine(MachineCase):
         b.wait_in_text("#hostkey-title", "10.111.113.2 key changed")
         b.click('#login-button')
 
-        b.expect_load()
         b.enter_page("/system")
         b.wait_in_text(hostname_selector, "machine2")
         b.logout()
@@ -354,7 +352,6 @@ class TestMultiMachine(MachineCase):
         b.set_input_text("#login-user-input", "admin")
         b.set_input_text("#login-password-input", "alt-password")
         b.click('#login-button')
-        b.expect_load()
         b.enter_page("/system")
         b.wait_in_text(hostname_selector, "machine2")
         b.logout()
@@ -426,7 +423,6 @@ class TestMultiMachine(MachineCase):
         b.set_input_text("#login-user-input", "admin")
         b.set_input_text("#login-password-input", "foobar")
         b.click('#login-button')
-        b.expect_load()
         b.enter_page("/system")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "/cockpit-new/system"')
@@ -464,7 +460,6 @@ class TestMultiMachine(MachineCase):
         b.set_input_text("#login-user-input", "admin")
         b.set_input_text("#login-password-input", "foobar")
         b.click('#login-button')
-        b.expect_load()
         b.enter_page("/system")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "/cockpit-new/system"')
@@ -609,7 +604,6 @@ class TestMultiMachine(MachineCase):
 
         b.eval_js('ph_set_attr("iframe[name=\'%s\']", "data-ready", null)' % frame)
         b.eval_js('ph_set_attr("iframe[name=\'%s\']", "src", "../playground/test.html?i=1#/")' % frame)
-        b.expect_load_frame(frame)
         b.wait_visible(f"iframe.container-frame[name='{frame}'][data-ready]")
 
         b.enter_page("/playground/test", "10.111.113.2")

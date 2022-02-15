@@ -197,8 +197,6 @@ class TestMultiOSDirect(MachineCase):
         b.wait_in_text("#hostkey-message-1", "You are connecting to 10.111.113.5 for the first time.")
         b.click('#login-button')
 
-        b.expect_load()
-
         b.wait_visible("iframe.container-frame[name='cockpit1:localhost/system'][data-loaded]")
         b.wait_not_visible(".curtains-ct")
         b.wait_visible("iframe.container-frame[name='cockpit1:localhost/system']")

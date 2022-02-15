@@ -79,6 +79,9 @@ if [ -n "$test_basic" ]; then
               TestJournal.testAbrtReportNoReportd
               TestJournal.testAbrtSegv"
 
+    # FIXME: Often times out on at least c8s and f34 in TF
+    EXCLUDES="$EXCLUDES TestPages.testHistory"
+
     TESTS="$TESTS
         TestAccounts
         TestBonding

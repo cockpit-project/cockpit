@@ -28,8 +28,8 @@ job release-srpm
 
 # Do fedora builds for the tag, using tarball
 job release-koji -k rawhide
-job release-koji f34
 job release-koji f35
+job release-koji f36
 
 # Upload release to github, using tarball
 job release-github
@@ -41,8 +41,8 @@ job release-copr @cockpit/cockpit-preview
 job release-dockerhub cockpit-project/cockpit-container
 
 # Push out a Bodhi update
-job release-bodhi F34
 job release-bodhi F35
+# job release-bodhi F36  # enable after 2022-02-22
 
 # Upload documentation
 job tools/release-guide dist/guide cockpit-project/cockpit-project.github.io

@@ -230,8 +230,12 @@ class ServicesPageBody extends React.Component {
     }
 
     componentDidMount() {
+        console.warn("CDM");
         this.systemd_subscription = systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "Subscribe", null)
-                .finally(this.listUnits)
+                .finally(() => {
+                    console.warn("Finally in subscribe");
+                    return this.listUnits();
+                })
                 .catch(error => {
                     if (error.name != "org.freedesktop.systemd1.AlreadySubscribed" &&
                     error.name != "org.freedesktop.DBus.Error.FileExists")
@@ -244,6 +248,7 @@ class ServicesPageBody extends React.Component {
                  * else just trigger an re-render since we are receiving signals while running in the background and
                  * we update the state but don't re-render
                  */
+                console.warn("Visibilityhaschanged", this.state.isFullyLoaded);
                 if (!this.state.isFullyLoaded)
                     this.listUnits();
                 else
@@ -296,8 +301,10 @@ class ServicesPageBody extends React.Component {
 
         systemd_client[this.props.owner].subscribe({ interface: SD_MANAGER, member: "Reloading" }, (path, iface, signal, args) => {
             const reloading = args[0];
-            if (!reloading && !this.state.loadingUnits)
+            if (!reloading && !this.state.loadingUnits) {
+                console.log("RELOADING");
                 this.listUnits();
+            }
         });
 
         this.timedated_subscription = timedate_client.subscribe({
@@ -367,6 +374,7 @@ class ServicesPageBody extends React.Component {
     }
 
     listUnits() {
+        console.warn("Calling listUnits()");
         if (cockpit.hidden)
             return this.listFailedUnits();
 
@@ -377,6 +385,7 @@ class ServicesPageBody extends React.Component {
 
         const promisesLoad = [];
 
+        console.warn("Calling ListUnits dbus");
         // Run ListUnits before LIstUnitFiles so that we avoid the extra LoadUnit calls
         // Now we call LoadUnit only for those that ListUnits didn't tell us about
         systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "ListUnits", null)

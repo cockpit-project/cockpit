@@ -620,6 +620,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         m.upload(["verify/files/cockpit_event.conf"], "/etc/libreport/events.d/")
         m.upload(["verify/files/workflow_Cockpit.xml"], "/usr/share/libreport/workflows/")
+        m.execute("systemctl try-restart reportd")
 
         self.crash()
 
@@ -676,6 +677,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         m.upload(["verify/files/cockpit_event.conf"], "/etc/libreport/events.d/")
         m.upload(["verify/files/workflow_Cockpit.xml"], "/usr/share/libreport/workflows/")
+        m.execute("systemctl try-restart reportd")
 
         self.crash()
 

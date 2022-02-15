@@ -381,6 +381,7 @@ class ServicesPageBody extends React.Component {
         // Now we call LoadUnit only for those that ListUnits didn't tell us about
         systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "ListUnits", null)
                 .then(([results]) => {
+                    console.log("LISTED UNITS");
                     results.forEach(result => {
                         const path = result[6];
                         const unit_id = result[0];
@@ -404,6 +405,7 @@ class ServicesPageBody extends React.Component {
 
                     systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "ListUnitFiles", null)
                             .then(([results]) => {
+                                console.log("LISTED UNTI FILES", results.length);
                                 results.forEach(result => {
                                     const unit_path = result[0];
                                     const unit_id = unit_path.split('/').pop();
@@ -437,8 +439,10 @@ class ServicesPageBody extends React.Component {
                                     }, ex => console.warn(ex)));
                                 });
 
+                                console.log("PROMISE.ALL");
                                 Promise.all(promisesLoad)
                                         .finally(() => {
+                                            console.log("PROMISE>ALL resolved");
                                             // Remove units from state that are not listed from the API in this iteration
                                             const unit_by_path = Object.assign({}, this.state.unit_by_path);
                                             let hasExtraEntries = false;

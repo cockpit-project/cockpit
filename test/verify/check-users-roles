@@ -44,7 +44,6 @@ class TestRoles(MachineCase):
         b.open("/system")
         b.wait_visible("#login")
         login("user", "foobar")
-        b.expect_load()
         b.enter_page("/system")
         b.switch_to_top()
         b.wait_text('#current-username', 'user')

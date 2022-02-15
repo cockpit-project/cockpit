@@ -46,7 +46,6 @@ class TestKeys(MachineCase):
             b.set_val("#login-user-input", user)
             b.set_val("#login-password-input", password)
             b.click('#login-button')
-            b.expect_load()
             b.enter_page("/system")
 
             b.go("/users#/" + user)
@@ -111,9 +110,7 @@ class TestKeys(MachineCase):
             b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child",
                            "You do not have permission to view the authorized public keys for this account.")
 
-        # users page reloads on superuser change
         b.become_superuser()
-        b.enter_page("/users")
 
         b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child",
                        "no authorized public keys")

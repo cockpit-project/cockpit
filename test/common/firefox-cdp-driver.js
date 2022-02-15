@@ -47,13 +47,29 @@ function fatal() {
     process.exit(1);
 }
 
-function fail(err) {
+// We keep sequence numbers so that we never get the protocol out of
+// synch with re-ordered or duplicate replies.  This only matters for
+// duplicate replies due to destroyed contexts, but that is already so
+// hairy that this big hammer seems necessary.
+
+var cur_cmd_seq = 0;
+var next_reply_seq = 1;
+
+function fail(seq, err) {
+    if (seq != next_reply_seq)
+        return;
+    next_reply_seq++;
+
     if (typeof err === 'undefined')
         err = null;
     process.stdout.write(JSON.stringify({"error": err}) + '\n');
 }
 
-function success(result) {
+function success(seq, result) {
+    if (seq != next_reply_seq)
+        return;
+    next_reply_seq++;
+
     if (typeof result === 'undefined')
         result = null;
     process.stdout.write(JSON.stringify({"result": result}) + '\n');
@@ -204,13 +220,8 @@ var scriptsOnNewContext = [];
 var frameIdToContextId = {};
 var frameNameToFrameId = {};
 
-// set these to wait for a frame to be loaded
-var frameWaitName = null;
-var frameWaitPromiseResolve = null;
-// set this to wait for a page load
-var pageLoadPromise = null;
-var pageLoadResolve = null;
-var pageLoadReject = null;
+var pageLoadHandler = null;
+var currentExecId = null;
 
 function setupFrameTracking(client) {
     client.Page.enable();
@@ -219,23 +230,11 @@ function setupFrameTracking(client) {
     client.Page.frameNavigated(info => {
         debug("frameNavigated " + JSON.stringify(info));
         frameNameToFrameId[info.frame.name || "cockpit1"] = info.frame.id;
-
-        // were we waiting for this frame to be loaded?
-        if (frameWaitPromiseResolve && frameWaitName === info.frame.name) {
-            frameWaitPromiseResolve();
-            frameWaitPromiseResolve = null;
-        }
     });
 
     client.Page.loadEventFired(() => {
-        if (pageLoadResolve) {
-            debug("loadEventFired (waited for)");
-            pageLoadResolve();
-            pageLoadResolve = null;
-            pageLoadReject = null;
-        } else {
-            debug("loadEventFired (no listener)");
-        }
+        if (pageLoadHandler)
+            pageLoadHandler();
     });
 
     // track execution contexts so that we can map between context and frame IDs
@@ -262,7 +261,36 @@ function setupFrameTracking(client) {
                 break;
             }
         }
+
+        // Firefox does not report an error when the execution context
+        // of a Runtime.evaluate call gets destroyed.  It will never
+        // ever resolve or be rejected.  So let's provide the failure
+        // reply from here.
+        //
+        // However, if the timing is just right, the context gets
+        // destroyed before Runtime.evaluate has started the real
+        // processing, and in that case it will return an error.  Then
+        // we would send the reply here, and would also send the
+        // error. This would drive the protocol out of synch. Also, our driver
+        // might immediately send more commands after seeing the first reply,
+        // and the unwanted second reply might be triggered in the middle of one
+        // of the next commands.  To reliably suppress the second reply we have
+        // the pretty general sequence number checks.
+        //
+        if (info.executionContextId == currentExecId) {
+            currentExecId = null;
+            fail(cur_cmd_seq, { "response": { "message": "Execution context was destroyed." } });
+        }
     });
+}
+
+function setupLocalFunctions(client) {
+    client.reloadPageAndWait = (args) => {
+        return new Promise((resolve, reject) => {
+            pageLoadHandler = () => { pageLoadHandler = null; resolve(); };
+            client.Page.reload(args);
+        });
+    };
 }
 
 // helper functions for testlib.py which are too unwieldy to be poked in from Python
@@ -271,41 +299,12 @@ function getFrameExecId(frame) {
         frame = "cockpit1";
     var frameId = frameNameToFrameId[frame];
     if (!frameId)
-        throw Error(`Frame ${frame} is unknown`);
+        return -1;
     var execId = frameIdToContextId[frameId];
     if (!execId)
-        throw Error(`Frame ${frame} (${frameId}) has no executionContextId`);
+        return -1;
+    currentExecId = execId;
     return execId;
-}
-
-function expectLoad(timeout) {
-    var tm = setTimeout( () => pageLoadReject("timed out waiting for page load"), timeout);
-    pageLoadPromise.then( () => { clearTimeout(tm); pageLoadPromise = null; });
-    return pageLoadPromise;
-}
-
-function expectLoadFrame(name, timeout) {
-    return new Promise((resolve, reject) => {
-        let tm = setTimeout( () => reject("timed out waiting for frame load"), timeout );
-
-        // we can only have one Page.frameNavigated() handler, so let our handler above resolve this promise
-        frameWaitName = name;
-        new Promise((fwpResolve, fwpReject) => { frameWaitPromiseResolve = fwpResolve })
-            .then(() => {
-                // For the frame to be fully valid for queries, it also needs the corresponding
-                // executionContextCreated() signal. This might happen before or after frameNavigated(), so wait in case
-                // it happens afterwards.
-               function pollExecId() {
-                    if (frameIdToContextId[frameNameToFrameId[name]]) {
-                        clearTimeout(tm);
-                        resolve();
-                    } else {
-                        setTimeout(pollExecId, 100);
-                    }
-                }
-                pollExecId();
-            });
-    });
 }
 
 /**
@@ -361,9 +360,11 @@ CDP(options)
         the_client = client;
         setupLogging(client);
         setupFrameTracking(client);
+        setupLocalFunctions(client);
         // TODO: Security handling not yet supported in Firefox
 
         let input_buf = '';
+        let seq = 0;
         process.stdin
             .on('data', chunk => {
                 input_buf += chunk;
@@ -373,37 +374,34 @@ CDP(options)
                         break;
                     let command = input_buf.slice(0, i);
 
-                    // initialize loadEventFired promise for every command except expectLoad() itself (as that
-                    // waits for a load event from the *previous* command); but if the previous command already
-                    // was an expectLoad(), reinitialize also, as there are sometimes two consecutive expectLoad()s
-                    if (!pageLoadPromise || !command.startsWith("expectLoad("))
-                        pageLoadPromise = new Promise((resolve, reject) => { pageLoadResolve = resolve; pageLoadReject = reject; });
-
                     // HACKS: See description of related functions
                     if (command.startsWith("client.Page.addScriptToEvaluateOnNewDocument"))
                         command = command.substring(12);
 
                     // run the command
+                    let seq = ++cur_cmd_seq;
                     eval(command).then(reply => {
+                        currentExecId = null;
                         if (unhandledExceptions.length === 0) {
-                            success(reply);
+                            success(seq, reply);
                         } else {
                             let message = unhandledExceptions[0];
-                            fail(message.split("\n")[0]);
+                            fail(seq, message.split("\n")[0]);
                             clearExceptions();
                         }
                     }, err => {
+                        currentExecId = null;
                         // HACK: Runtime.evaluate() fails with "Debugger: expected Debugger.Object, got Proxy"
                         // translate that into a proper timeout exception
                         if (err.response && err.response.data && err.response.data.indexOf("setTimeout handler*ph_wait_cond") > 0) {
-                            success({exceptionDetails: {
+                            success(seq, {exceptionDetails: {
                                 exception: {
                                     type: "string",
                                     value: "timeout",
                                 }
                             }});
                         } else
-                            fail(err);
+                            fail(seq, err);
                     });
 
                     input_buf = input_buf.slice(i+1);

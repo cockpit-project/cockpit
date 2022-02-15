@@ -657,7 +657,6 @@ ExecStart=/bin/true
         # print("alice first token:", token)
         b.set_val("#conversation-input", token)
         b.click('#login-button')
-        b.expect_load()
         b.wait_visible('#content')
 
     def testNotSupported(self):
@@ -744,7 +743,6 @@ ipa-advise enable-admins-sudo | sh -ex
 
         # S4U ticket is in the session
         b.open("/system/terminal")
-        b.expect_load()
         b.enter_page("/system/terminal")
         b.wait_in_text(".terminal .xterm-accessibility-tree", "alice")
         b.key_press("klist\r")

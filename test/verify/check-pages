@@ -178,7 +178,6 @@ OnCalendar=daily
         self.open_lang_modal()
         b.click('#display-language-modal li[data-value=de-de] button')
         b.click("#display-language-modal footer button.pf-m-primary")
-        b.expect_load()
         if b.cdp.browser.name == "chromium":
             # HACK: work around language switching in Chrome not working in current session (issue #8160)
             b.reload(ignore_cache=True)
@@ -272,7 +271,6 @@ OnCalendar=daily
             self.open_lang_modal()
             b.click(f"#display-language-modal li[data-value={language}] button")
             b.click("#display-language-modal footer button.pf-m-primary")
-            b.expect_load()
             if b.cdp.browser.name == "chromium":
                 # HACK: work around language switching in Chrome not working in current session (issue #8160)
                 b.reload(ignore_cache=True)
@@ -324,7 +322,6 @@ OnCalendar=daily
         self.open_lang_modal()
         b.click('#display-language-modal li[data-value=pt-br] button')
         b.click('#display-language-modal footer button.pf-m-primary')
-        b.expect_load()
         if b.cdp.browser.name == "chromium":
             # HACK: work around language switching in Chrome not working in current session (issue #8160)
             b.reload(ignore_cache=True)
@@ -389,7 +386,6 @@ OnCalendar=daily
         b.switch_to_top()
         b.eval_js('ph_set_attr("iframe[name=\'%s\']", "data-ready", null)' % frame)
         b.eval_js('ph_set_attr("iframe[name=\'%s\']", "src", "../playground/test.html?i=1#/")' % frame)
-        b.expect_load_frame("cockpit1:localhost/playground/test")
         b.wait_visible(f"iframe.container-frame[name='{frame}'][data-ready]")
 
         b.enter_page("/playground/test")
@@ -523,7 +519,6 @@ OnCalendar=daily
 
         b.click('#display-language-modal li[data-value=de-de] button')
         b.click("#display-language-modal footer button.pf-m-primary")
-        b.expect_load()
         if b.cdp.browser.name == "chromium":
             # HACK: work around language switching in Chrome not working in current session (issue #8160)
             b.reload(ignore_cache=True)

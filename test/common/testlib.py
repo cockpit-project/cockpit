@@ -206,7 +206,6 @@ class Browser:
             self.cdp.invoke("Network.setCookie", **cookie)
         self.switch_to_top()
         self.cdp.invoke("Page.navigate", url=href)
-        self.expect_load()
 
     def set_user_agent(self, ua):
         self.cdp.invoke("Emulation.setUserAgentOverride", userAgent=ua)
@@ -214,24 +213,9 @@ class Browser:
     def reload(self, ignore_cache=False):
         self.switch_to_top()
         self.wait_js_cond("ph_select('iframe.container-frame').every(function (e) { return e.getAttribute('data-loaded'); })")
-        self.cdp.invoke("Page.reload", ignoreCache=ignore_cache)
-        self.expect_load()
+        self.cdp.invoke("reloadPageAndWait", ignoreCache=ignore_cache)
 
         self.machine.allow_restart_journal_messages()
-
-    def expect_load(self):
-        if opts.trace:
-            print("-> expect_load")
-        self.cdp.command('expectLoad(%i)' % (self.cdp.timeout * self.timeout_factor * 1000))
-        if opts.trace:
-            print("<- expect_load done")
-
-    def expect_load_frame(self, name):
-        if opts.trace:
-            print("-> expect_load_frame " + name)
-        self.cdp.command('expectLoadFrame(%s, %i)' % (jsquote(name), self.cdp.timeout * self.timeout_factor * 1000))
-        if opts.trace:
-            print("<- expect_load_frame %s done" % name)
 
     def switch_to_frame(self, name):
         self.cdp.set_frame(name)
@@ -461,12 +445,23 @@ class Browser:
         raise Error('timed out waiting for predicate to become true')
 
     def wait_js_cond(self, cond, error_description="null"):
-        result = self.cdp.invoke("Runtime.evaluate",
-                                 expression="ph_wait_cond(() => %s, %i, %s)" % (cond, self.cdp.timeout * self.timeout_factor * 1000, error_description),
-                                 silent=False, awaitPromise=True, trace="wait: " + cond)
-        if "exceptionDetails" in result:
-            trailer = "\n".join(self.cdp.get_js_log())
-            self.raise_cdp_exception("timeout\nwait_js_cond", cond, result["exceptionDetails"], trailer)
+        count = 0
+        while True:
+            count += 1
+            try:
+                result = self.cdp.invoke("Runtime.evaluate",
+                                         expression="ph_wait_cond(() => %s, %i, %s)" % (cond, self.cdp.timeout * self.timeout_factor * 1000, error_description),
+                                         silent=False, awaitPromise=True, trace="wait: " + cond)
+                if "exceptionDetails" in result:
+                    trailer = "\n".join(self.cdp.get_js_log())
+                    self.raise_cdp_exception("timeout\nwait_js_cond", cond, result["exceptionDetails"], trailer)
+                return
+            except RuntimeError as e:
+                data = e.args[0]
+                if count < 20 and type(data) == dict and "response" in data and data["response"].get("message") in ["Execution context was destroyed.", "Cannot find context with specified id"]:
+                    time.sleep(1)
+                else:
+                    raise e
 
     def wait_js_func(self, func, *args):
         self.wait_js_cond("%s(%s)" % (func, ','.join(map(jsquote, args))))
@@ -664,7 +659,6 @@ class Browser:
 
         self.try_login(user, password, superuser=superuser, legacy_authorized=legacy_authorized)
 
-        self.expect_load()
         self._wait_present('#content')
         self.wait_visible('#content')
         if path:
@@ -691,7 +685,7 @@ class Browser:
             else:
                 self.open_session_menu()
                 self.click('#logout')
-        self.expect_load()
+        self.wait_visible('#login')
 
         self.machine.allow_restart_journal_messages()
 
@@ -700,7 +694,6 @@ class Browser:
         if wait_remote_session_machine:
             wait_remote_session_machine.execute("while pgrep -a cockpit-ssh; do sleep 1; done")
         self.try_login(user, password=password, superuser=superuser)
-        self.expect_load()
         self._wait_present('#content')
         self.wait_visible('#content')
         if path:

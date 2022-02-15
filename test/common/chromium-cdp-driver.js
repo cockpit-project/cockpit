@@ -183,13 +183,7 @@ function waitLog() {
 var frameIdToContextId = {};
 var frameNameToFrameId = {};
 
-// set these to wait for a frame to be loaded
-var frameWaitName = null;
-var frameWaitPromiseResolve = null;
-// set this to wait for a page load
-var pageLoadPromise = null;
-var pageLoadResolve = null;
-var pageLoadReject = null;
+var pageLoadHandler = null;
 
 function setupFrameTracking(client) {
     client.Page.enable();
@@ -198,23 +192,11 @@ function setupFrameTracking(client) {
     client.Page.frameNavigated(info => {
         debug("frameNavigated " + JSON.stringify(info));
         frameNameToFrameId[info.frame.name || "cockpit1"] = info.frame.id;
-
-        // were we waiting for this frame to be loaded?
-        if (frameWaitPromiseResolve && frameWaitName === info.frame.name) {
-            frameWaitPromiseResolve();
-            frameWaitPromiseResolve = null;
-        }
     });
 
     client.Page.loadEventFired(() => {
-        if (pageLoadResolve) {
-            debug("loadEventFired (waited for)");
-            pageLoadResolve();
-            pageLoadResolve = null;
-            pageLoadReject = null;
-        } else {
-            debug("loadEventFired (no listener)");
-        }
+        if (pageLoadHandler)
+            pageLoadHandler();
     });
 
     // track execution contexts so that we can map between context and frame IDs
@@ -234,6 +216,14 @@ function setupFrameTracking(client) {
     });
 }
 
+function setupLocalFunctions(client) {
+    client.reloadPageAndWait = (args) => {
+        return new Promise((resolve, reject) => {
+            pageLoadHandler = () => { pageLoadHandler = null; resolve(); };
+            client.Page.reload(args);
+        });
+    };
+}
 
 // helper functions for testlib.py which are too unwieldy to be poked in from Python
 function getFrameExecId(frame) {
@@ -241,41 +231,11 @@ function getFrameExecId(frame) {
         frame = "cockpit1";
     var frameId = frameNameToFrameId[frame];
     if (!frameId)
-        throw Error(`Frame ${frame} is unknown`);
+        return -1;
     var execId = frameIdToContextId[frameId];
     if (!execId)
-        throw Error(`Frame ${frame} (${frameId}) has no executionContextId`);
+        return -1;
     return execId;
-}
-
-function expectLoad(timeout) {
-    var tm = setTimeout( () => pageLoadReject("timed out waiting for page load"), timeout);
-    pageLoadPromise.then( () => { clearTimeout(tm); pageLoadPromise = null; });
-    return pageLoadPromise;
-}
-
-function expectLoadFrame(name, timeout) {
-    return new Promise((resolve, reject) => {
-        let tm = setTimeout( () => reject("timed out waiting for frame load"), timeout );
-
-        // we can only have one Page.frameNavigated() handler, so let our handler above resolve this promise
-        frameWaitName = name;
-        new Promise((fwpResolve, fwpReject) => { frameWaitPromiseResolve = fwpResolve })
-            .then(() => {
-                // For the frame to be fully valid for queries, it also needs the corresponding
-                // executionContextCreated() signal. This might happen before or after frameNavigated(), so wait in case
-                // it happens afterwards.
-               function pollExecId() {
-                    if (frameIdToContextId[frameNameToFrameId[name]]) {
-                        clearTimeout(tm);
-                        resolve();
-                    } else {
-                        setTimeout(pollExecId, 100);
-                    }
-                }
-                pollExecId();
-            });
-    });
 }
 
 /**
@@ -333,6 +293,7 @@ CDP.New(options)
                 setupLogging(client);
                 setupFrameTracking(client);
                 setupSSLCertHandling(client);
+                setupLocalFunctions(client);
 
                 let input_buf = '';
                 process.stdin
@@ -343,12 +304,6 @@ CDP.New(options)
                             if (i < 0)
                                 break;
                             let command = input_buf.slice(0, i);
-
-                            // initialize loadEventFired promise for every command except expectLoad() itself (as that
-                            // waits for a load event from the *previous* command); but if the previous command already
-                            // was an expectLoad(), reinitialize also, as there are sometimes two consecutive expectLoad()s
-                            if (!pageLoadPromise || !command.startsWith("expectLoad("))
-                                pageLoadPromise = new Promise((resolve, reject) => { pageLoadResolve = resolve; pageLoadReject = reject; });
 
                             // run the command
                             eval(command).then(reply => {

@@ -87,7 +87,6 @@ class TestShutdownRestart(MachineCase):
         m.wait_reboot()
         m.start_cockpit()
         b.click("#machine-reconnect")
-        b.expect_load()
         b.wait_visible("#login")
 
         self.allow_restart_journal_messages()

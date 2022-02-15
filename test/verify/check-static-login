@@ -147,6 +147,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         m.execute("printf '[WebService]\nLoginTo = false\n' > /etc/cockpit/cockpit.conf")
         m.restart_cockpit()
         b.open("/system")
+        b.wait_visible("#login")
         b.wait_not_visible("#option-group")
 
         # Default options be to display these options
@@ -161,6 +162,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             m.execute(f"rm {self.libexecdir}/cockpit-ssh")
             m.restart_cockpit()
             b.open("/system")
+            b.wait_visible("#login")
             b.wait_not_visible("#option-group")
 
             # test login with tcsh
@@ -337,7 +339,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.set_val('#conversation-input', '123foobar!@#')
         b.click('#login-button')
 
-        b.expect_load()
         self.check_shell()
 
         self.allow_journal_messages('.*You are required to change your password immediately.*',
@@ -384,7 +385,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.set_val('#conversation-input', '42')
         b.click('#login-button')
 
-        b.expect_load()
         self.check_shell()
 
         self.allow_restart_journal_messages()
@@ -538,7 +538,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.set_val('#login-user-input', "admin")
         b.set_val('#login-password-input', "foobar")
         b.click('#login-button')
-        b.expect_load()
 
         b.wait_visible("#early-failure")
         if safari and cacert:
@@ -881,7 +880,6 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
                 b.wait_in_text("#hostkey-message-1", "for the first time")
                 b.click("#login-button")
 
-            b.expect_load()
             b.wait_visible('#content')
             b.enter_page('/system')
             b.wait_visible('.system-information')

@@ -105,7 +105,6 @@ class TestBastion(MachineCase):
         b.set_val("#login-password-input", "fubar")
         b.click("#login-button")
 
-        b.expect_load()
         b.wait_text('#current-username', 'admin')
         b.logout()
 
@@ -114,7 +113,6 @@ class TestBastion(MachineCase):
         b = self.browser
 
         m.start_cockpit()
-        b.open("/")
 
         b.open("/")
         b.wait_visible("#login")
@@ -133,7 +131,6 @@ class TestBastion(MachineCase):
         b.set_val("#login-password-input", "foobar")
         b.click("#login-button")
 
-        b.expect_load()
         b.wait_text('#current-username', 'admin')
         b.logout()
 

@@ -223,7 +223,9 @@
                req("finally", Promise.prototype) &&
                req("supports", window.CSS) &&
                css("display", "flex") &&
-               css("display", "grid");
+               css("display", "grid") &&
+               css("selector(test)") &&
+               css("selector(:is():where())");
     }
 
     function trim(s) {

@@ -22,6 +22,7 @@ from testlib import *
 
 
 @skipDistroPackage()
+@nondestructive
 class TestReauthorize(MachineCase):
 
     def testBasic(self):
@@ -100,7 +101,7 @@ class TestReauthorize(MachineCase):
         b.logout()
 
         # So first ask the user to retype their password
-        m.execute("echo 'user ALL=(ALL) ALL' >> /etc/sudoers.d/user-override")
+        self.write_file("/etc/sudoers.d/user-override", "user ALL=(ALL) ALL", append=True)
         self.login_and_go("/playground/test")
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'result: ')
@@ -115,7 +116,7 @@ class TestReauthorize(MachineCase):
         b.logout()
 
         # Even if sudo doesn't require a password, we shouldn't start a privileged bridge
-        m.execute("echo 'user ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/user-override")
+        self.write_file("/etc/sudoers.d/user-override", "user ALL=(ALL) NOPASSWD:ALL", append=True)
         self.login_and_go("/playground/test", superuser=False)
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'result: ')

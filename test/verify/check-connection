@@ -955,6 +955,7 @@ until pgrep -f '^/usr/bin/cockpit-bridge.*--privileged'; do sleep 1; done
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://127.0.0.1:9091"))
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --silent --head http://172.27.0.15:9091"))
 
+    @nondestructive
     def testCaCert(self):
         m = self.machine
 
@@ -964,6 +965,7 @@ until pgrep -f '^/usr/bin/cockpit-bridge.*--privileged'; do sleep 1; done
             m.execute("systemctl start cockpit")
 
         # Start without a CA certificate.
+        self.addCleanup(m.execute, "rm -f /etc/cockpit/ws-certs.d/0-self-signed-ca.pem")
         m.execute("rm -f /etc/cockpit/ws-certs.d/0-self-signed-ca.pem")
         m.execute("! curl -sfS http://localhost:9090/ca.cer")
 

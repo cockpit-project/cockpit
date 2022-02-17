@@ -4,7 +4,11 @@
         "browser": true,
         "es6": true
     },
-    "extends": ["eslint:recommended", "standard", "standard-jsx", "standard-react", "plugin:jsx-a11y/recommended"],
+    "extends": [
+        "eslint:recommended", "standard", "standard-jsx", "standard-react",
+        "plugin:flowtype/recommended",
+        "plugin:jsx-a11y/recommended"
+    ],
     "parser": "@babel/eslint-parser",
     "parserOptions": {
         "ecmaVersion": "7",
@@ -13,7 +17,7 @@
         },
         "sourceType": "module"
     },
-    "plugins": ["flowtype", "react", "react-hooks", "jsx-a11y"],
+    "plugins": ["react", "react-hooks", "jsx-a11y"],
     "rules": {
         "indent": ["error", 4,
             {

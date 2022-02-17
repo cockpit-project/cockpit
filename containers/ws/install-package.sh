@@ -18,7 +18,7 @@ if [ -z "$INSTALLER" ]; then
 fi
 
 "$INSTALLER" -y update
-"$INSTALLER" install -y sed
+"$INSTALLER" install -y util-linux-core sed
 
 arch=`uname -p`
 rpm=$(ls /container/rpms/cockpit-ws-*$OSVER.*$arch.rpm /container/rpms/cockpit-bridge-*$OSVER.*$arch.rpm || true)

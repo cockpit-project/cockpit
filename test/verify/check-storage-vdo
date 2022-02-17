@@ -415,10 +415,6 @@ class TestStoragePackagesVDO(PackageCase, StorageHelpers):
             self.skipTest("No vdo available")
 
         m.execute("pkcon remove -y vdo")
-
-        # do *not* create vdo package yet
-        self.createPackage("kmod-kvdo", "999", "1")
-        self.enableRepo()
         m.execute("pkcon refresh")
 
         self.login_and_go("/storage")

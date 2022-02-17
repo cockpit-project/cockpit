@@ -281,7 +281,8 @@ export class VDODetails extends React.Component {
                         <DescriptionListGroup>
                             <DescriptionListTerm>{_("Backing device")}</DescriptionListTerm>
                             <DescriptionListDescription>
-                                { backing_block ? <StorageBlockNavLink client={client} block={backing_block} />
+                                { backing_block
+                                    ? <StorageBlockNavLink client={client} block={backing_block} />
                                     : vdo.backing_dev
                                 }
                             </DescriptionListDescription>

@@ -305,22 +305,30 @@ function updateItem(info, pkgNames, key) {
                     <DescriptionListTerm>{_("Packages")}</DescriptionListTerm>
                     <DescriptionListDescription>{pkgs}</DescriptionListDescription>
                 </DescriptionListGroup>
-                { cves ? <DescriptionListGroup>
-                    <DescriptionListTerm>{_("CVE")}</DescriptionListTerm>
-                    <DescriptionListDescription>{cves}</DescriptionListDescription>
-                </DescriptionListGroup> : null }
-                { secSeverityURL ? <DescriptionListGroup>
-                    <DescriptionListTerm>{_("Severity")}</DescriptionListTerm>
-                    <DescriptionListDescription className="severity">{secSeverityURL}</DescriptionListDescription>
-                </DescriptionListGroup> : null }
-                { errata ? <DescriptionListGroup>
-                    <DescriptionListTerm>{_("Errata")}</DescriptionListTerm>
-                    <DescriptionListDescription>{errata}</DescriptionListDescription>
-                </DescriptionListGroup> : null }
-                { bugs ? <DescriptionListGroup>
-                    <DescriptionListTerm>{_("Bugs")}</DescriptionListTerm>
-                    <DescriptionListDescription>{bugs}</DescriptionListDescription>
-                </DescriptionListGroup> : null }
+                { cves
+                    ? <DescriptionListGroup>
+                        <DescriptionListTerm>{_("CVE")}</DescriptionListTerm>
+                        <DescriptionListDescription>{cves}</DescriptionListDescription>
+                    </DescriptionListGroup>
+                    : null }
+                { secSeverityURL
+                    ? <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Severity")}</DescriptionListTerm>
+                        <DescriptionListDescription className="severity">{secSeverityURL}</DescriptionListDescription>
+                    </DescriptionListGroup>
+                    : null }
+                { errata
+                    ? <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Errata")}</DescriptionListTerm>
+                        <DescriptionListDescription>{errata}</DescriptionListDescription>
+                    </DescriptionListGroup>
+                    : null }
+                { bugs
+                    ? <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Bugs")}</DescriptionListTerm>
+                        <DescriptionListDescription>{bugs}</DescriptionListDescription>
+                    </DescriptionListGroup>
+                    : null }
             </DescriptionList>
             {description}
         </>
@@ -1343,7 +1351,8 @@ class OsUpdates extends React.Component {
             applyAll = (
                 <Button id={num_updates == num_security_updates ? "install-security" : "install-all"} variant="primary" onClick={ () => this.applyUpdates(false) }>
                     { num_updates == num_security_updates
-                        ? _("Install security updates") : _("Install all updates") }
+                        ? _("Install security updates")
+                        : _("Install all updates") }
                 </Button>);
 
             if (num_security_updates > 0 && num_updates > num_security_updates) {

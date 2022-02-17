@@ -323,15 +323,18 @@ export class JournalBox extends React.Component {
                              }}
                              paragraph={noLogs ? _("You may try to load older entries.") : ""}
                              title={noLogs ? _("No logs found") : ""}
-                             loading={false} /> : null
+                             loading={false} />
+                : null
         );
 
         return (
             <>
                 {error}
-                {this.state.logs.length ? <div id="journal-logs" className="panel panel-default cockpit-log-panel" role="table">
-                    {this.state.logs}
-                </div> : null}
+                {this.state.logs.length
+                    ? <div id="journal-logs" className="panel panel-default cockpit-log-panel" role="table">
+                        {this.state.logs}
+                    </div>
+                    : null}
                 <div id="start-box" className="journal-start">
                     {loadEarlier}
                 </div>

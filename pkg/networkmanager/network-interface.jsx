@@ -356,7 +356,8 @@ export const NetworkInterfacePage = ({
                             </span>
                             : null}
                         {privileged
-                            ? (typeof configure === 'function' ? <Button variant="link" isInline onClick={syn_click(model, configure)}>{_("edit")}</Button> : configure) : null}
+                            ? (typeof configure === 'function' ? <Button variant="link" isInline onClick={syn_click(model, configure)}>{_("edit")}</Button> : configure)
+                            : null}
                     </DescriptionListDescription>
                 </DescriptionListGroup>
             );

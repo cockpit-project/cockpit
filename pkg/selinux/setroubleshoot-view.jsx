@@ -391,14 +391,16 @@ export class SETroubleshootPage extends React.Component {
             <Card>
                 <CardHeader>
                     <CardTitle><Text component={TextVariants.h2}>{title}</Text></CardTitle>
-                    {!emptyState ? <CardActions>
-                        <Button className="selinux-alert-dismiss"
+                    {!emptyState
+                        ? <CardActions>
+                            <Button className="selinux-alert-dismiss"
                                 variant="danger"
                                 onClick={onDeleteClick}
                                 isDisabled={ !this.props.deleteAlert || !selectedCnt}>
-                            {selectedCnt ? cockpit.format(cockpit.ngettext("Dismiss $0 alert", "Dismiss $0 alerts", selectedCnt), selectedCnt) : _("Dismiss selected alerts")}
-                        </Button>
-                    </CardActions> : null}
+                                {selectedCnt ? cockpit.format(cockpit.ngettext("Dismiss $0 alert", "Dismiss $0 alerts", selectedCnt), selectedCnt) : _("Dismiss selected alerts")}
+                            </Button>
+                        </CardActions>
+                        : null}
                 </CardHeader>
                 <CardBody className="contains-list">
                     {!emptyState
@@ -410,7 +412,8 @@ export class SETroubleshootPage extends React.Component {
                                   columns={[{ title: _("Alert") }, { title: _("Error message"), header: true }, { title: _("Occurrences") }]}
                                   showHeader={false}
                                   variant="compact"
-                                  rows={entries} /> : emptyState}
+                                  rows={entries} />
+                        : emptyState}
                 </CardBody>
             </Card>
         );

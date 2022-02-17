@@ -305,7 +305,8 @@ export class NFSDetails extends React.Component {
                                     <StorageButton key="1" onClick={edit}>{_("Edit")}</StorageButton>,
                                     "\n",
                                     <StorageButton key="2" onClick={remove} kind="danger">{_("Remove")}</StorageButton>
-                                ] : null
+                                ]
+                                : null
                             }
                         </>
                     </CardActions>

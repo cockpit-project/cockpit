@@ -255,7 +255,7 @@ export function init_existing_passphrase(block, just_type, callback) {
 
 function parse_url(url) {
     // clevis-encrypt-tang defaults to "http://" (via curl), so we do the same here.
-    if (!RegExp("^[a-zA-Z]+://").test(url))
+    if (!/^[a-zA-Z]+:\/\//.test(url))
         url = "http://" + url;
     try {
         return new URL(url);

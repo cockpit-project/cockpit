@@ -33,7 +33,7 @@ class TestServices(MachineCase):
         # Make sure the system finishes "booting" so that
         # when we add additional services to this target below
         # we don't race with the boot process
-        self.machine.execute("systemctl start default.target")
+        self.machine.execute("while ! systemctl is-active default.target; do sleep 1; done")
 
         # We manipulate with `/etc/systemd/system` so `daemon-reload` to keep it in proper state
         # Also `reset-failed` as failed units can be still listed with `systemctl` even when all files

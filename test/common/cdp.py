@@ -128,6 +128,7 @@ class Firefox(Browser):
                 user_pref("signon.rememberSignons", false);
                 user_pref("dom.navigation.locationChangeRateLimit.count", 9999);
                 // HACK: https://bugzilla.mozilla.org/show_bug.cgi?id=1746154
+                user_pref("fission.bfcacheInParent", false);
                 user_pref("fission.webContentIsolationStrategy", 0);
                 """.format(download_dir))
 

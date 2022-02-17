@@ -218,14 +218,16 @@ export class CockpitHosts extends React.Component {
                     <HostModal machines_ins={this.props.machines}
                                onClose={() => this.setState({ show_modal: false, edit_machine: null })}
                                address={this.state.edit_machine ? this.state.edit_machine.address : null}
-                               caller_callback={this.state.edit_machine ? (new_connection_string) => {
-                                   const parts = this.props.machines.split_connection_string(new_connection_string);
-                                   if (this.state.edit_machine == this.props.machine && parts.address != this.state.edit_machine.address) {
-                                       const addr = this.props.hostAddr({ host: parts.address }, true);
-                                       this.props.jump(addr);
+                               caller_callback={this.state.edit_machine
+                                   ? (new_connection_string) => {
+                                       const parts = this.props.machines.split_connection_string(new_connection_string);
+                                       if (this.state.edit_machine == this.props.machine && parts.address != this.state.edit_machine.address) {
+                                           const addr = this.props.hostAddr({ host: parts.address }, true);
+                                           this.props.jump(addr);
+                                       }
+                                       return Promise.resolve();
                                    }
-                                   return Promise.resolve();
-                               } : null } />
+                                   : null } />
                 }
             </>
         );

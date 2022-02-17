@@ -88,11 +88,13 @@ export const TeamPortDialog = ({ connection, dev, setIsOpen, settings }) => {
             {teamMode == 'activebackup'
                 ? <FormGroup fieldId={idPrefix + "-activebackup-sticky-input"}>
                     <Checkbox id={idPrefix + "-activebackup-sticky-input"} isChecked={sticky} onChange={setSticky} label={_("Sticky")} />
-                </FormGroup> : null}
+                </FormGroup>
+                : null}
             {teamMode == 'lacp'
                 ? <FormGroup fieldId={idPrefix + "-" + teamMode + "-key-input"} label={_("LACP key")}>
                     <TextInput id={idPrefix + "-" + teamMode + "-key-input"} value={key} onChange={setKey} />
-                </FormGroup> : null}
+                </FormGroup>
+                : null}
         </NetworkModal>
     );
 };

@@ -128,9 +128,11 @@ export const Application = ({ metainfo_db, id, progress, progress_title, action 
                     <Stack hasGutter>
                         {render_homepage_link(comp.urls)}
                         <div className="app-description">{render_description(comp.description)}</div>
-                        {comp.screenshots.length ? <div className="text-center">
-                            { comp.screenshots.map((s, index) => <img key={`comp-${index}`} className="app-screenshot" role="presentation" alt="" src={s.full} />) }
-                        </div> : null}
+                        {comp.screenshots.length
+                            ? <div className="text-center">
+                                { comp.screenshots.map((s, index) => <img key={`comp-${index}`} className="app-screenshot" role="presentation" alt="" src={s.full} />) }
+                            </div>
+                            : null}
                     </Stack>
                 </CardBody>
             </Card>

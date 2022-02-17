@@ -244,7 +244,8 @@ export class IscsiPanel extends React.Component {
             <>
                 { sessions.length > 0
                     ? <Button aria-label={_("Toggle")} variant="secondary" className={"toggle-armed" + (this.state.armed ? " active" : "")}
-                  onClick={toggle_armed}><CheckIcon /></Button> : null
+                  onClick={toggle_armed}><CheckIcon /></Button>
+                    : null
                 }
                 { "\n" }
                 <StorageButton ariaLabel={_("Edit")} onClick={iscsi_change_name} id="edit-iscsi">

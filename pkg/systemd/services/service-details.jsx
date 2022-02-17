@@ -535,10 +535,12 @@ export class ServiceDetails extends React.Component {
                                     <DescriptionListTerm>{ _("Path") }</DescriptionListTerm>
                                     <DescriptionListDescription id="path">{this.props.unit.FragmentPath}</DescriptionListDescription>
                                 </DescriptionListGroup>
-                                {unit.MemoryCurrent ? <DescriptionListGroup>
-                                    <DescriptionListTerm>{ _("Memory") }</DescriptionListTerm>
-                                    <DescriptionListDescription id="memory">{cockpit.format_bytes(unit.MemoryCurrent)}</DescriptionListDescription>
-                                </DescriptionListGroup> : null}
+                                {unit.MemoryCurrent
+                                    ? <DescriptionListGroup>
+                                        <DescriptionListTerm>{ _("Memory") }</DescriptionListTerm>
+                                        <DescriptionListDescription id="memory">{cockpit.format_bytes(unit.MemoryCurrent)}</DescriptionListDescription>
+                                    </DescriptionListGroup>
+                                    : null}
                                 {this.props.unit.Listen && this.props.unit.Listen.length && <DescriptionListGroup>
                                     <DescriptionListTerm>{ _("Listen") }</DescriptionListTerm>
                                     <DescriptionListDescription id="listen">
@@ -560,7 +562,8 @@ export class ServiceDetails extends React.Component {
                                     <DescriptionList isHorizontal>
                                         {extraRelationshipsList}
                                     </DescriptionList>
-                                </ExpandableSection> : null}
+                                </ExpandableSection>
+                                : null}
                         </CardBody>
                     </>
                 }

@@ -195,8 +195,11 @@ function base64_encode(data) {
 }
 
 function b64_to_uint6 (x) {
-    return x > 64 && x < 91 ? x - 65 : x > 96 && x < 123
-        ? x - 71 : x > 47 && x < 58 ? x + 4 : x === 43 ? 62 : x === 47 ? 63 : 0;
+    return x > 64 && x < 91
+        ? x - 65
+        : x > 96 && x < 123
+        ? x - 71
+        : x > 47 && x < 58 ? x + 4 : x === 43 ? 62 : x === 47 ? 63 : 0;
 }
 
 function base64_decode(str, constructor) {
@@ -1068,12 +1071,18 @@ function factory() {
 
             while (i < len) {
                 const p = data.charCodeAt(i);
-                const x = p == 255 ? 0
-                    : p > 251 && p < 254 ? 6
-                    : p > 247 && p < 252 ? 5
-                    : p > 239 && p < 248 ? 4
-                    : p > 223 && p < 240 ? 3
-                    : p > 191 && p < 224 ? 2
+                const x = p == 255
+                    ? 0
+                    : p > 251 && p < 254
+                    ? 6
+                    : p > 247 && p < 252
+                    ? 5
+                    : p > 239 && p < 248
+                    ? 4
+                    : p > 223 && p < 240
+                    ? 3
+                    : p > 191 && p < 224
+                    ? 2
                     : p < 128 ? 1 : 0;
 
                 let ok = (i + x <= len);

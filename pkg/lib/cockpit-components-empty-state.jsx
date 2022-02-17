@@ -47,7 +47,8 @@ export const EmptyStatePanel = ({ title, paragraph, loading, icon, action, isAct
                 ? <Button variant="primary" className={slimType}
                           isLoading={isActionInProgress}
                           isDisabled={isActionInProgress}
-                          onClick={onAction}>{action}</Button> : action)}
+                          onClick={onAction}>{action}</Button>
+                : action)}
             { secondary && <EmptyStateSecondaryActions>{secondary}</EmptyStateSecondaryActions> }
         </EmptyState>
     );

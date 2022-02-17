@@ -1118,10 +1118,11 @@ class TestGrafanaClient(MachineCase):
         bg = Browser(mg.forward['3000'], label=self.label() + "-" + mg.label, machine=self)
         try:
             bg.open("/")
+            bg.wait_in_text("body", "Welcome to Grafana")
             bg.set_input_text("input[name='user']", "admin")
             bg.set_input_text("input[name='password']", "foobar")
             bg.click("button:contains('Log in')")
-            bg.wait_in_text("body", "Welcome to Grafana")
+            bg.wait_in_text("body", "Add your first data source")
             bg.wait_visible(".sidemenu")
 
             # Add the PCP redis data source for our client machine
@@ -1129,6 +1130,7 @@ class TestGrafanaClient(MachineCase):
             # Select PCP redis, HTTP URL http://10.111.112.1:44322
             redis_url = 'http://10.111.112.1:44322'
             bg.open("/datasources/new")
+            bg.wait_visible("[aria-label='Data source plugin item PCP Redis']")
             bg.click("[aria-label='Data source plugin item PCP Redis']")
             bg.set_input_text("input[placeholder='http://localhost:44322']", redis_url)
             bg.click("button:contains('Save &')")  # Save & [tT]est
@@ -1153,7 +1155,7 @@ class TestGrafanaClient(MachineCase):
             # expect a "Load average" panel with a sensible number
             max_load = bg.text("div:contains('Load average') .graph-legend-series:contains('1 minute') .max")
             self.assertGreater(float(max_load), 0)
-        except Error:
+        except Exception:
             bg.snapshot("FAIL-grafana")
             raise
 

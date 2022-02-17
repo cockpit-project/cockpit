@@ -737,6 +737,7 @@ QUnit.test("filter message out", function (assert) {
 
             return true;
         }
+        return false;
     }, true);
 
     const channel = cockpit.channel({ payload: "null" });

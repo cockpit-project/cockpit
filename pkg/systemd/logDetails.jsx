@@ -108,6 +108,8 @@ export class LogEntry extends React.Component {
                                 if (fields.indexOf(p.ID) > 0 || fields.indexOf(p.UUID) || fields.indexOf(p.Duphash)) {
                                     path = p;
                                     return true;
+                                } else {
+                                    return false;
                                 }
                             });
 

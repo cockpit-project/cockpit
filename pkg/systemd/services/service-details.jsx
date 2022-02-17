@@ -487,7 +487,7 @@ export class ServiceDetails extends React.Component {
         const conditions = this.props.unit.Conditions;
         const notMetConditions = [];
         if (conditions)
-            conditions.map(condition => {
+            conditions.forEach(condition => {
                 if (condition[4] < 0)
                     notMetConditions.push(cockpit.format(_("Condition $0=$1 was not met"), condition[0], condition[3]));
             });

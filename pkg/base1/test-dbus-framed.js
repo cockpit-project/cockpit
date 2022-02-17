@@ -14,7 +14,7 @@ function parent_window(assert) {
     let initialized = false;
     let frame;
 
-    cockpit.transport.filter((message, channel, control) => {
+    cockpit.transport.filter((message, channel, control) => { // eslint-disable-line array-callback-return
         if (initialized) {
             /* Inject an unknown message that gets sent
                      * before the reply

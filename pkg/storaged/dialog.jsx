@@ -832,6 +832,8 @@ export const CheckBoxes = (tag, title, options) => {
                                                       val={fval}
                                                       title={field.title}
                                                       update_function={fchange} />;
+                else
+                    return null;
             });
 
             if (options.fields.length == 1)

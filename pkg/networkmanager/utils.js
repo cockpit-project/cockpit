@@ -100,7 +100,7 @@ export function ip4_from_text(text, empty_is_zero) {
         if (/^[0-9]+$/.test(s.trim()))
             return parseInt(s, 10);
         else
-            invalid();
+            return invalid();
     });
 
     let num = 0;

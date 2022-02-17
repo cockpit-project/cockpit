@@ -95,7 +95,7 @@ const chassis_types = [
 
 function parseDMIFields(text) {
     const info = {};
-    text.split("\n").map(line => {
+    text.split("\n").forEach(line => {
         const sep = line.indexOf(':');
         if (sep <= 0)
             return;
@@ -168,7 +168,7 @@ const udevPropertyRE = /^E: (\w+)=(.*)$/;
 
 function parseUdevDB(text) {
     const info = {};
-    text.split("\n\n").map(paragraph => {
+    text.split("\n\n").forEach(paragraph => {
         let syspath = null;
         const props = {};
 
@@ -176,7 +176,7 @@ function parseUdevDB(text) {
         if (!paragraph)
             return;
 
-        paragraph.split("\n").map(line => {
+        paragraph.split("\n").forEach(line => {
             let match = line.match(udevPathRE);
             if (match) {
                 syspath = match[1];
@@ -212,7 +212,7 @@ const memoryRE = /^([ \w]+): (.*)/;
 // Process the dmidecode output and create a mapping of locator to DIMM properties
 function parseMemoryInfo(text) {
     const info = {};
-    text.split("\n\n").map(paragraph => {
+    text.split("\n\n").forEach(paragraph => {
         let locator = null;
         let bankLocator = null;
         const props = {};
@@ -220,7 +220,7 @@ function parseMemoryInfo(text) {
         if (!paragraph)
             return;
 
-        paragraph.split("\n").map(line => {
+        paragraph.split("\n").forEach(line => {
             line = line.trim();
             const match = line.match(memoryRE);
             if (match)

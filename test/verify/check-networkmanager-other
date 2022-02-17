@@ -24,6 +24,7 @@ from testlib import *
 
 @skipDistroPackage()
 @skipImage("TODO: networkmanager fails on Arch Linux", "arch")
+@nondestructive
 class TestNetworkingOther(NetworkCase):
     def testOther(self):
         b = self.browser

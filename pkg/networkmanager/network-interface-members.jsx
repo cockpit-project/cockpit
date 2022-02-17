@@ -61,7 +61,7 @@ export const NetworkInterfaceMembers = ({
     function renderMemberRows() {
         const rows = [];
 
-        members.map(iface => {
+        members.forEach(iface => {
             const member_con = iface.MainConnection;
             const dev = iface.Device;
             const isActive = (dev && dev.State == 100 && dev.Carrier === true);

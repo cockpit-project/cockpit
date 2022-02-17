@@ -74,7 +74,7 @@ export function init(statusChangedCallback) {
                  */
 
                 const lines = output.split("\n");
-                lines.map(function(itm) {
+                lines.forEach(function(itm) {
                     const items = itm.trim().split(":");
                     if (items.length !== 2)
                         return;

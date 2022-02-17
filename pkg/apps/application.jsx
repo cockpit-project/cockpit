@@ -72,6 +72,8 @@ export const Application = ({ metainfo_db, id, progress, progress_title, action 
                         {_("View project website")}
                     </Button>
                 );
+            } else {
+                return null;
             }
         });
     }

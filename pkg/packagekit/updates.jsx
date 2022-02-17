@@ -204,7 +204,7 @@ function getSeverityURL(urls) {
     let highestURL = null;
 
     // search URLs for highest valid severity; by all means we expect an update to have at most one, but for paranoia..
-    urls.map(value => {
+    urls.forEach(value => {
         if (value.startsWith("https://access.redhat.com/security/updates/classification/#")) {
             const i = knownLevels.indexOf(value.slice(value.indexOf("#") + 1));
             if (i > highestIndex) {

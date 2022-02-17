@@ -119,6 +119,8 @@ function serviceRow(props) {
                 const service = firewall.services[s];
                 if (service && service.description)
                     return <li key={service.id}><strong>{service.id}</strong>: {service.description}</li>;
+                else
+                    return null;
             })} </ul></>;
     }
 
@@ -204,6 +206,8 @@ function ZoneSection(props) {
                                           onRemoveService: service => props.onRemoveService(props.zone.id, service),
                                           readonly: firewall.readonly,
                                       });
+                                  } else {
+                                      return null;
                                   }
                               }).concat(
                                   props.zone.ports.length > 0

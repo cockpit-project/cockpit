@@ -550,6 +550,14 @@ class Browser:
         """
         self.wait_not_visible('#' + id)
 
+    def wait_language(self, lang):
+        parts = lang.split("-")
+        code_1 = parts[0]
+        code_2 = parts[0]
+        if len(parts) > 1:
+            code_2 += "_" + parts[1].upper()
+        self.wait_js_cond("cockpit.language == '%s' || cockpit.language == '%s'" % (code_1, code_2))
+
     def dialog_complete(self, sel, button=".pf-m-primary", result="hide"):
         self.click(sel + " " + button)
         self.wait_not_present(sel + " .dialog-wait-ct")

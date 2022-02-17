@@ -181,7 +181,7 @@ OnCalendar=daily
         if b.cdp.browser.name == "chromium":
             # HACK: work around language switching in Chrome not working in current session (issue #8160)
             b.reload(ignore_cache=True)
-        b.wait_visible("#content")
+        b.wait_language("de-de")
 
         # Check that the system page is translated
         b.go("/system")
@@ -258,7 +258,8 @@ OnCalendar=daily
         b.wait_visible('#overview')
 
         self.open_lang_modal()
-        languages = b.eval_js("ph_select('#display-language-list option').map(function(e) { return e.value })")
+        languages = b.eval_js("ph_select('#display-language-list li').map(e => e.attributes['data-value'].nodeValue)")
+        self.assertIn('en-us', languages)
         b.click("#display-language-modal footer button.pf-m-link")  # Close the menu
 
         for language in languages:
@@ -274,12 +275,13 @@ OnCalendar=daily
             if b.cdp.browser.name == "chromium":
                 # HACK: work around language switching in Chrome not working in current session (issue #8160)
                 b.reload(ignore_cache=True)
-            b.wait_visible("#content")
+            b.wait_language(language)
 
             # Test some pages, end up in terminal
             for page in pages:
                 b.go(page)
                 b.enter_page(page)
+                b.wait_language(language)
 
             locale = language.split("-")
             if len(locale) == 1:
@@ -325,16 +327,18 @@ OnCalendar=daily
         if b.cdp.browser.name == "chromium":
             # HACK: work around language switching in Chrome not working in current session (issue #8160)
             b.reload(ignore_cache=True)
-        b.wait_visible('#content')
+        b.wait_language("pt-br")
 
         # Check that the system page is translated
         b.go('/system')
         b.enter_page('/system')
+        b.wait_language("pt-br")
         b.wait_in_text('.ct-overview-header', 'Reiniciar')
 
         # Systemd timer localization
         b.go('/system/services')
         b.enter_page('/system/services')
+        b.wait_language("pt-br")
         b.click('#services-filter li:nth-child(4) a')
         # HACK: the timers' next run/last trigger (col 3/4) don't always get filled (issue #9439)
         # b.wait_in_text('tr[data-goto-unit=\'test\.timer\'] td:nth-child(3)', 'morgen um')
@@ -343,6 +347,7 @@ OnCalendar=daily
         b.switch_to_top()
         b.go('/playground/translate')
         b.enter_page('/playground/translate')
+        b.wait_language("pt-br")
 
         # HTML section
         self.assertEqual(b.text('#translate-html'), 'Pronto')
@@ -522,7 +527,7 @@ OnCalendar=daily
         if b.cdp.browser.name == "chromium":
             # HACK: work around language switching in Chrome not working in current session (issue #8160)
             b.reload(ignore_cache=True)
-        b.wait_visible("#content")
+        b.wait_language("de-de")
         b.go("/system")
         b.enter_page("/system")
         b.wait_in_text(".ct-overview-header", "Neustart")

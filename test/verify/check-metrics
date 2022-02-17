@@ -935,6 +935,8 @@ class TestMetricsPackages(packagelib.PackageCase):
 
         if m.image.startswith("debian") or m.image.startswith("ubuntu"):
             m.execute("dpkg --purge cockpit-pcp-dbgsym || true; dpkg --purge cockpit-pcp pcp redis redis-server")
+            # HACK: pcp does not clean up correctly on Debian https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=986074
+            m.execute("rm -f /etc/systemd/system/pmlogger.service.requires/pmlogger_farm.service")
         else:
             m.execute("rpm --erase --verbose cockpit-pcp pcp redis")
         if "centos-8" in m.image or "rhel-8" in m.image:

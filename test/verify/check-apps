@@ -180,9 +180,10 @@ class TestApps(PackageCase):
             else:
                 b.click(f'#display-language-modal li[data-value={lang}] button')
             b.click("#display-language-modal footer button.pf-m-primary")
-            # HACK: work around language switching in Chrome not working in current session (issue #8160)
-            b.reload(ignore_cache=True)
-            b.wait_visible("#content")
+            if b.cdp.browser.name == "chromium":
+                # HACK: work around language switching in Chrome not working in current session (issue #8160)
+                b.reload(ignore_cache=True)
+            b.wait_language(lang)
             b.enter_page("/apps")
 
         set_lang("de-de")

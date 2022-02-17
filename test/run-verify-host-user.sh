@@ -66,7 +66,7 @@ fi
 
 if [ -n "$test_basic" ]; then
     # Testing Farm machines often have pending restarts/reboot
-    EXCLUDES="$EXCLUDES TestUpdates.testBasic"
+    EXCLUDES="$EXCLUDES TestUpdates.testBasic TestUpdates.testFailServiceRestart"
 
     # PCI devices list is not predictable
     EXCLUDES="$EXCLUDES TestSystemInfo.testHardwareInfo"

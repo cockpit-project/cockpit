@@ -9,7 +9,8 @@ if [ -d source ]; then
 else
     SOURCE="$(realpath $TESTS/..)"
 fi
-LOGS="$(pwd)/logs"
+# https://tmt.readthedocs.io/en/stable/overview.html#variables
+LOGS="${TMT_TEST_DATA:-logs}"
 mkdir -p "$LOGS"
 chmod a+w "$LOGS"
 

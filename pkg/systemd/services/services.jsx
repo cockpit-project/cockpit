@@ -158,6 +158,7 @@ class ServicesPageBody extends React.Component {
             isFullyLoaded: false,
 
             error: null,
+            currentStatus: null,
         };
 
         this.onCurrentTextFilterChanged = (currentTextFilter) => {
@@ -373,7 +374,7 @@ class ServicesPageBody extends React.Component {
             return this.listFailedUnits();
 
         // Reinitialize the state variables for the units
-        this.setState({ loadingUnits: true });
+        this.setState({ loadingUnits: true, currentStatus: _("Listing units") });
 
         this.seenPaths = new Set();
 
@@ -381,6 +382,7 @@ class ServicesPageBody extends React.Component {
 
         // Run ListUnits before LIstUnitFiles so that we avoid the extra LoadUnit calls
         // Now we call LoadUnit only for those that ListUnits didn't tell us about
+
         systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "ListUnits", null)
                 .then(([results]) => {
                     results.forEach(result => {
@@ -404,6 +406,7 @@ class ServicesPageBody extends React.Component {
                         );
                     });
 
+                    this.setState({ currentStatus: _("Listing unit files") });
                     systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "ListUnitFiles", null)
                             .then(([results]) => {
                                 results.forEach(result => {
@@ -436,7 +439,7 @@ class ServicesPageBody extends React.Component {
                                         this.seenPaths.add(unit_path);
 
                                         return this.getUnitByPath(unit_path);
-                                    }, ex => this.setState({ error: cockpit.format(_("Listing of unit failed: $0"), ex.toString()), loadingUnits: false })));
+                                    }, ex => this.setState({ error: cockpit.format(_("Loading unit failed: $0"), ex.toString()), loadingUnits: false })));
                                 });
 
                                 Promise.all(promisesLoad)
@@ -724,7 +727,7 @@ class ServicesPageBody extends React.Component {
         if (this.state.error)
             return <EmptyStatePanel title={_("Loading of units failed")} icon={ExclamationCircleIcon} paragraph={this.state.error} />;
         if (!this.state.isFullyLoaded)
-            return <EmptyStatePanel loading title={_("Loading...")} />;
+            return <EmptyStatePanel loading title={_("Loading...")} paragraph={this.state.currentStatus} />;
 
         /* Perform navigation */
         if (path.length == 1) {

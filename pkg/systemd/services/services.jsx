@@ -233,13 +233,16 @@ class ServicesPageBody extends React.Component {
     }
 
     componentDidMount() {
-        this.systemd_subscription = systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "Subscribe", null)
-                .finally(this.listUnits)
-                .catch(error => {
-                    if (error.name != "org.freedesktop.systemd1.AlreadySubscribed" &&
-                    error.name != "org.freedesktop.DBus.Error.FileExists")
-                        console.warn("Subscribing to systemd signals failed", error.toString());
-                });
+        systemd_client[this.props.owner].wait(() => {
+            this.systemd_subscription = systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "Subscribe", null)
+                    .finally(this.listUnits)
+                    .catch(error => {
+                        if (error.name != "org.freedesktop.systemd1.AlreadySubscribed" &&
+                        error.name != "org.freedesktop.DBus.Error.FileExists")
+                            this.setState({ error: cockpit.format(_("Subscribing to systemd signals failed: $0"), error.toString()), loadingUnits: false });
+                    });
+        })
+                .catch(ex => this.setState({ error: cockpit.format(_("Connecting to dbus failed: $0"), ex.toString()), loadingUnits: false }));
 
         cockpit.addEventListener("visibilitychange", () => {
             if (!cockpit.hidden) {

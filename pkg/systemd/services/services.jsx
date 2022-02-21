@@ -729,9 +729,17 @@ class ServicesPageBody extends React.Component {
             const unit_path = get_unit_path(unit_id);
 
             if (unit_path === undefined) {
+                const path = "/system/services" + (this.props.owner === "user" ? "#/?owner=user" : "");
                 return <EmptyStatePanel
                             icon={ExclamationCircleIcon}
-                            title={_("Unit not found")} />;
+                            title={_("Unit not found")}
+                            paragraph={
+                                <Button variant="link"
+                                        component="a"
+                                        onClick={() => cockpit.jump(path, cockpit.transport.host)}>
+                                    {_("View all services")}
+                                </Button>
+                            } />;
             }
 
             const unit = this.state.unit_by_path[unit_path];

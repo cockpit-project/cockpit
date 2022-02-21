@@ -523,6 +523,15 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
         # Check that listen is not shown for .service units
         b.wait_not_present("#listen")
 
+        # Check 'Unit not found' pattern
+        b.go(f'/system/services#/nonexistent{suffix}')
+        b.wait_in_text(".pf-c-empty-state", "Unit not found")
+        b.click("a:contains('View all services')")
+        b.switch_to_top()
+        b.wait_js_cond('window.location.pathname == "/system/services"')
+        if user:
+            b.wait_js_cond(f"window.location.hash === '#/{suffix}'")
+
     def testLogs(self):
         b = self.browser
 

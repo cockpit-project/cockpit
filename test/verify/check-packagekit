@@ -999,6 +999,12 @@ ExecStart=/usr/local/bin/{packageName}
         self.allow_journal_messages("Found module .* with build-id: .*")
         self.allow_journal_messages("Stack trace of thread.*")
         self.allow_journal_messages("#[0-9].*")
+        # https://fedoraproject.org/wiki/Changes/Package_information_on_ELF_objects
+        self.allow_journal_messages("Module .* with build-id .*")
+        self.allow_journal_messages("Metadata for module .* owned by .* found: .*")
+        self.allow_journal_messages('("type"|"name"|"version"|"architecture"|"osCpe") : .*')
+        self.allow_journal_messages("}")
+        self.allow_journal_messages("ELF object binary architecture: .*")
 
     @nondestructive
     def testNoPackageKit(self):

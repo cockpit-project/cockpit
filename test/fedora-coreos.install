@@ -4,7 +4,7 @@ set -eu
 # install/upgrade RPMs that apply to Fedora CoreOS
 # Note: cockpit-selinux would be desirable, but needs setroubleshoot-server which isn't installed
 cd /var/tmp/
-rpm-ostree install cockpit-bridge-*.rpm \
+rpm-ostree install --cache-only cockpit-bridge-*.rpm \
     cockpit-networkmanager-*.rpm cockpit-system-*.rpm cockpit-tests-*.rpm
 
 # update cockpit-ws and install scripts in the container

@@ -264,6 +264,7 @@ class TestStorageNfs(StorageCase):
 
 # Re-use allowed journal messages from StorageCase
 @skipImage("No udisks/cockpit-storaged on OSTree images", "fedora-coreos")
+@skipImage("TODO: bug in refreshing removed/installed state on Arch Linux", "arch")
 @nondestructive
 class TestStoragePackagesNFS(PackageCase, StorageCase, StorageHelpers):
 

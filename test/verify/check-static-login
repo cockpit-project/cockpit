@@ -473,12 +473,14 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_journal_messages('.*type=1400.*avc:  denied  { connectto } .* path="/run/user/.*/bus" scontext=user_u:user_r:user_t:s0.*')
 
         # sysadm_u
-        m.execute("semanage login -a -s sysadm_u admin")
-        self.addCleanup(m.execute, "semanage login -d -s sysadm_u admin")
-        b.login_and_go("/system")
+        m.execute("useradd priv; echo 'priv:foobar' | chpasswd")
+        m.execute("usermod -aG wheel priv")
+        m.execute("semanage login -a -s sysadm_u priv")
+        self.addCleanup(m.execute, "semanage login -d -s sysadm_u priv")
+        b.login_and_go("/system", user="priv")
         # passing login info memfd should work
         b.logout()
-        b.login_and_go("/system")
+        b.login_and_go("/system", user="priv")
         b.wait_in_text('#system_last_login', "Last successful login")
         b.wait_in_text('#system_last_login_from', "web console")
 

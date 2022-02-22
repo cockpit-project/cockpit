@@ -1538,6 +1538,7 @@ class MachineCase(unittest.TestCase):
             self.allowed_messages.append("Resource limits disable core dumping for process.*")
             # can happen on shutdown when /run/systemd/coredump is gone already
             self.allowed_messages.append("Failed to connect to coredump service: No such file or directory")
+            self.allowed_messages.append("Failed to connect to coredump service: Connection refused")
 
         messages = machine.journal_messages(matches, 6, cursor=cursor)
 

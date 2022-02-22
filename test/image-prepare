@@ -187,6 +187,10 @@ def main():
     if args.quick:
         customize.append("--quick")
 
+    # rpms/debs can be built offline; arch can't yet
+    if args.image != 'arch':
+        customize.append("--no-network")
+
     # HACK: freeze the repository so we don't pull a newer GLIBC; until we refresh the arch image (https://github.com/cockpit-project/bots/pull/2796)
     if args.image == 'arch':
         customize += ['--run-command',

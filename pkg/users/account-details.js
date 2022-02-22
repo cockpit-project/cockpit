@@ -72,17 +72,17 @@ function get_last_login(name) {
 
         // line looks like this: admin            web cons ::ffff:172.27.0. Tue Mar 23 14:49:04 +0000 2021
         // or like this:         admin            web cons ::ffff:172.27.0. Thu Apr  1 08:58:51 +0000 2021
+        // this is impossible to parse with Date() (e.g. Firefox does not work with all time zones), so call `date` to parse it
         const date_fields = line.split(/ +/).slice(-5);
-        const d = new Date(date_fields.join(' '));
-        if (d.getTime() > 0)
-            return d;
 
-        console.warn("Failed to parse date from lastlog line:", line);
-        return null;
+        return cockpit.spawn(["date", "+%s", "-d", date_fields.join(' ')], { environ: ["LC_ALL=C"], err: "out" })
+                .then(out => parseInt(out) * 1000)
+                .catch(e => console.warn(`Failed to parse date from lastlog line '${line}': ${e.toString()}`));
     }
 
     return cockpit.spawn(["/usr/bin/lastlog", "-u", name], { environ: ["LC_ALL=C"] })
-            .then(data => ({ currently: false, last: parse_last_login(data) }))
+            .then(data => parse_last_login(data))
+            .then(timestamp => ({ currently: false, last: timestamp }))
             .catch(() => ({ currently: false, last: null }));
 }
 

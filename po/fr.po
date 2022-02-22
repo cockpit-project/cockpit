@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-08 18:03+0000\n"
+"POT-Creation-Date: 2022-02-15 18:03+0000\n"
 "PO-Revision-Date: 2022-01-14 07:16+0000\n"
 "Last-Translator: Julien Humbert <julroy67@gmail.com>\n"
 "Language-Team: French <https://translate.fedoraproject.org/projects/cockpit/"
@@ -627,10 +627,6 @@ msgstr "Accepter la clé et se connecter"
 msgid "Accept key and log in"
 msgstr "Accepter la clé et se connecter"
 
-#: pkg/users/account-create-dialog.js:69 pkg/users/account-details.js:315
-msgid "Access"
-msgstr "Accès"
-
 #: pkg/users/expiration-dialogs.js:103
 msgid "Account expiration"
 msgstr "Expiration du compte"
@@ -948,7 +944,7 @@ msgid "Appearance"
 msgstr "Apparence"
 
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:145
-#: pkg/apps/application.jsx:151 pkg/apps/manifest.json:0
+#: pkg/apps/application.jsx:147 pkg/apps/manifest.json:0
 msgid "Applications"
 msgstr "Applications"
 
@@ -1084,7 +1080,7 @@ msgstr "Automatique (DHCP)"
 msgid "Automatic login"
 msgstr "Connexion automatique"
 
-#: pkg/packagekit/autoupdates.jsx:370 pkg/packagekit/autoupdates.jsx:406
+#: pkg/packagekit/autoupdates.jsx:373 pkg/packagekit/autoupdates.jsx:409
 msgid "Automatic updates"
 msgstr "Mises à jour automatiques"
 
@@ -1310,7 +1306,7 @@ msgstr ""
 #: pkg/shell/hosts_dialog.jsx:278 pkg/shell/hosts_dialog.jsx:373
 #: pkg/shell/hosts_dialog.jsx:495 pkg/shell/hosts_dialog.jsx:861
 #: pkg/shell/credentials.jsx:314 pkg/packagekit/updates.jsx:473
-#: pkg/packagekit/updates.jsx:544 pkg/packagekit/autoupdates.jsx:419
+#: pkg/packagekit/updates.jsx:544 pkg/packagekit/autoupdates.jsx:422
 #: pkg/packagekit/kpatch.jsx:310 pkg/lib/cockpit-components-shutdown.jsx:182
 #: pkg/lib/cockpit-components-dialog.jsx:127 pkg/apps/utils.jsx:66
 msgid "Cancel"
@@ -1495,7 +1491,7 @@ msgstr "Effacer la recherche"
 msgid "Cleartext device"
 msgstr "Dispositif en clair"
 
-#: pkg/users/account-create-dialog.js:212 pkg/users/password-dialogs.js:215
+#: pkg/users/account-create-dialog.js:220 pkg/users/password-dialogs.js:219
 msgid "Click $0 again to use the password anyway."
 msgstr "Cliquez à nouveau sur $0 pour l'utiliser malgré tout."
 
@@ -1656,7 +1652,7 @@ msgstr "Configuration de « kdump »"
 msgid "Configuring system settings"
 msgstr "Modification des paramètres système"
 
-#: pkg/users/account-create-dialog.js:61 pkg/storaged/format-dialog.jsx:273
+#: pkg/users/account-create-dialog.js:62 pkg/storaged/format-dialog.jsx:273
 #: pkg/storaged/stratis-panel.jsx:148
 msgid "Confirm"
 msgstr "Confirmer"
@@ -1669,7 +1665,7 @@ msgstr "Confirmer le mot de passe de la clé"
 msgid "Confirm new key password"
 msgstr "Confirmer le nouveau mot de passe de la clé"
 
-#: pkg/users/password-dialogs.js:149
+#: pkg/users/password-dialogs.js:152
 msgid "Confirm new password"
 msgstr "Confirmer le nouveau mot de passe"
 
@@ -1808,8 +1804,8 @@ msgstr "Rapport d'incident"
 msgid "Crash system"
 msgstr "Système de plantage"
 
-#: pkg/users/account-create-dialog.js:212
-#: pkg/users/account-create-dialog.js:256 pkg/storaged/mdraids-panel.jsx:140
+#: pkg/users/account-create-dialog.js:220
+#: pkg/users/account-create-dialog.js:267 pkg/storaged/mdraids-panel.jsx:140
 #: pkg/storaged/stratis-panel.jsx:169 pkg/storaged/content-views.jsx:196
 #: pkg/storaged/content-views.jsx:311 pkg/storaged/content-views.jsx:957
 #: pkg/storaged/vgroups-panel.jsx:90 pkg/storaged/stratis-details.jsx:393
@@ -1857,7 +1853,7 @@ msgstr "Créez-le"
 msgid "Create logical volume"
 msgstr "Créer un volume logique"
 
-#: pkg/users/accounts-list.js:78 pkg/users/account-create-dialog.js:249
+#: pkg/users/accounts-list.js:78 pkg/users/account-create-dialog.js:260
 msgid "Create new account"
 msgstr "Créer un nouveau compte"
 
@@ -1979,10 +1975,6 @@ msgstr "Ports personnalisés"
 #: pkg/networkmanager/firewall.jsx:739
 msgid "Custom zones"
 msgstr "Zones personnalisées"
-
-#: pkg/storaged/drive-details.jsx:63
-msgid "DISK IS FAILING"
-msgstr "DISQUE EN ÉCHEC"
 
 #: pkg/networkmanager/ip-settings.jsx:209
 msgid "DNS"
@@ -2224,6 +2216,12 @@ msgstr "Désactiver tuned"
 msgid "Disabled"
 msgstr "Désactivé"
 
+#: pkg/users/account-create-dialog.js:74 pkg/users/account-details.js:323
+#, fuzzy
+#| msgid "Domain administrator password"
+msgid "Disallow interactive password"
+msgstr "Mot de passe administrateur du domaine"
+
 #: pkg/systemd/services/service-details.jsx:158
 msgid "Disallow running (mask)"
 msgstr "Empêcher l’exécution (mask)"
@@ -2243,6 +2241,13 @@ msgstr "Pointe d'entrée/sortie de disque"
 #: pkg/storaged/drive-details.jsx:64
 msgid "Disk is OK"
 msgstr "Le disque est OK"
+
+#: pkg/storaged/drive-details.jsx:63
+#, fuzzy
+#| msgid "$0 disk is missing"
+#| msgid_plural "$0 disks are missing"
+msgid "Disk is failing"
+msgstr "$0 disque est manquant"
 
 #: pkg/storaged/crypto-keyslots.jsx:197
 msgid "Disk passphrase"
@@ -2352,7 +2357,7 @@ msgstr "Double rang"
 
 #: pkg/storaged/nfs-details.jsx:305 pkg/storaged/iscsi-panel.jsx:255
 #: pkg/storaged/crypto-keyslots.jsx:577 pkg/shell/indexes.js:341
-#: pkg/shell/hosts.jsx:173 pkg/packagekit/autoupdates.jsx:399
+#: pkg/shell/hosts.jsx:173 pkg/packagekit/autoupdates.jsx:402
 #: pkg/packagekit/kpatch.jsx:229
 msgid "Edit"
 msgstr "Modifier"
@@ -2407,7 +2412,7 @@ msgstr "Vide"
 msgid "Emptying $target"
 msgstr "$target en cours de vidage"
 
-#: pkg/packagekit/autoupdates.jsx:399 pkg/packagekit/kpatch.jsx:249
+#: pkg/packagekit/autoupdates.jsx:402 pkg/packagekit/kpatch.jsx:249
 msgid "Enable"
 msgstr "Activer"
 
@@ -2661,7 +2666,7 @@ msgstr "Echec de la récupération des journaux"
 msgid "Failed to load authorized keys."
 msgstr "Échec du chargement des clés autorisées."
 
-#: pkg/packagekit/autoupdates.jsx:362
+#: pkg/packagekit/autoupdates.jsx:365
 msgid ""
 "Failed to parse unit files for dnf-automatic.timer or dnf-automatic-install."
 "timer. Please remove custom overrides to configure automatic updates."
@@ -2759,11 +2764,11 @@ msgstr "Taille de police"
 msgid "Forbidden from running"
 msgstr "Non autorisé à exécuter"
 
-#: pkg/users/account-details.js:352
+#: pkg/users/account-details.js:359
 msgid "Force change"
 msgstr "Forcer la modification"
 
-#: pkg/users/password-dialogs.js:271
+#: pkg/users/password-dialogs.js:278
 msgid "Force password change"
 msgstr "Forcer la modification de mot de passe"
 
@@ -2816,7 +2821,7 @@ msgstr "Vendredis"
 msgid "From"
 msgstr "De"
 
-#: pkg/users/account-create-dialog.js:40 pkg/users/account-details.js:285
+#: pkg/users/account-create-dialog.js:41 pkg/users/account-details.js:285
 msgid "Full name"
 msgstr "Nom complet"
 
@@ -3567,10 +3572,6 @@ msgstr "Emplacement"
 msgid "Lock"
 msgstr "Verrouillage"
 
-#: pkg/users/account-create-dialog.js:71 pkg/users/account-details.js:321
-msgid "Lock account"
-msgstr "Verrouiller le compte"
-
 #: pkg/storaged/crypto-panel.jsx:77 pkg/storaged/crypto-panel.jsx:80
 msgid "Locked devices"
 msgstr "Dispositifs verrouillés"
@@ -3617,11 +3618,7 @@ msgstr "Connecté"
 msgid "Logical"
 msgstr "Logique"
 
-#: pkg/storaged/content-views.jsx:927
-msgid "Logical Size"
-msgstr "Taille logique"
-
-#: pkg/storaged/vdo-details.jsx:228
+#: pkg/storaged/content-views.jsx:927 pkg/storaged/vdo-details.jsx:228
 msgid "Logical size"
 msgstr "Taille logique"
 
@@ -4158,7 +4155,7 @@ msgstr "Nouveau mot de passe clé"
 msgid "New passphrase"
 msgstr "Nouvelle phrase de passe"
 
-#: pkg/users/password-dialogs.js:148 pkg/shell/credentials.jsx:266
+#: pkg/users/password-dialogs.js:151 pkg/shell/credentials.jsx:266
 msgid "New password"
 msgstr "Nouveau mot de passe"
 
@@ -4311,7 +4308,7 @@ msgstr ""
 msgid "No partitioning"
 msgstr "Pas de partitionnement"
 
-#: pkg/users/account-create-dialog.js:199
+#: pkg/users/account-create-dialog.js:207
 msgid "No real name specified"
 msgstr "Aucun nom réel n’est renseigné"
 
@@ -4343,7 +4340,7 @@ msgstr "Aucune modification système"
 msgid "No updates"
 msgstr "Pas de mise à jour"
 
-#: pkg/users/account-create-dialog.js:87
+#: pkg/users/account-create-dialog.js:95
 msgid "No user name specified"
 msgstr "Aucun nom d’utilisateur n’est renseigné"
 
@@ -4388,7 +4385,7 @@ msgstr "Non connecté à l'hôte"
 msgid "Not enough space to grow."
 msgstr "Espace insuffisant pour propager."
 
-#: pkg/storaged/details.jsx:138 pkg/systemd/services/services.jsx:176
+#: pkg/storaged/details.jsx:132 pkg/systemd/services/services.jsx:176
 msgid "Not found"
 msgstr "Non trouvé"
 
@@ -4463,7 +4460,7 @@ msgstr "Ok"
 msgid "Old passphrase"
 msgstr "Ancienne phrase de passe"
 
-#: pkg/users/password-dialogs.js:139
+#: pkg/users/password-dialogs.js:141
 msgid "Old password"
 msgstr "Ancien mot de passe"
 
@@ -4518,7 +4515,8 @@ msgctxt "storage"
 msgid "Optical drive"
 msgstr "Lecteur optique"
 
-#: pkg/networkmanager/bridge.jsx:104 pkg/storaged/content-views.jsx:937
+#: pkg/networkmanager/bridge.jsx:104 pkg/users/account-create-dialog.js:70
+#: pkg/users/account-details.js:315 pkg/storaged/content-views.jsx:937
 #: pkg/storaged/crypto-tab.jsx:253
 msgid "Options"
 msgstr "Options"
@@ -4530,6 +4528,12 @@ msgstr "Ou utilisez un navigateur groupé"
 #: pkg/lib/machine-info.js:58
 msgid "Other"
 msgstr "Autre"
+
+#: pkg/users/account-create-dialog.js:76 pkg/users/account-details.js:325
+msgid ""
+"Other authentication methods are still available even when interactive "
+"password authentication is not allowed."
+msgstr ""
 
 #: pkg/storaged/content-views.jsx:490
 msgctxt "storage-id-desc"
@@ -4673,8 +4677,8 @@ msgstr ""
 msgid "Passphrases do not match"
 msgstr "Les phrases de passe ne correspondent pas"
 
-#: pkg/static/login.html:81 pkg/users/account-create-dialog.js:60
-#: pkg/users/account-details.js:339 pkg/storaged/iscsi-panel.jsx:50
+#: pkg/static/login.html:81 pkg/users/account-create-dialog.js:61
+#: pkg/users/account-details.js:346 pkg/storaged/iscsi-panel.jsx:50
 #: pkg/storaged/iscsi-panel.jsx:160 pkg/shell/superuser.jsx:52
 #: pkg/shell/hosts_dialog.jsx:818 pkg/shell/hosts_dialog.jsx:827
 #: pkg/shell/credentials.jsx:120 pkg/shell/credentials.jsx:263
@@ -4690,7 +4694,7 @@ msgstr "Le mot de passe a été modifié avec succès"
 msgid "Password expiration"
 msgstr "Expiration du mot de passe"
 
-#: pkg/users/account-create-dialog.js:205 pkg/users/password-dialogs.js:210
+#: pkg/users/account-create-dialog.js:213 pkg/users/password-dialogs.js:214
 msgid "Password is longer than 256 characters"
 msgstr "Le mot de passe fait plus de 256 caractères"
 
@@ -5450,7 +5454,7 @@ msgstr "Mémoire réservée"
 msgid "Reset"
 msgstr "Réinitialiser"
 
-#: pkg/users/password-dialogs.js:278
+#: pkg/users/password-dialogs.js:285
 msgid "Reset password"
 msgstr "Définir le mot de passe"
 
@@ -5627,7 +5631,7 @@ msgid "Save and reboot"
 msgstr "Enregistrer et redémarrer"
 
 #: pkg/systemd/overview-cards/motdCard.jsx:98
-#: pkg/packagekit/autoupdates.jsx:414
+#: pkg/packagekit/autoupdates.jsx:417
 msgid "Save changes"
 msgstr "Enregistrer les modifications"
 
@@ -5682,10 +5686,6 @@ msgstr "Clés Secure Shell"
 msgid "Securely erasing $target"
 msgstr "Effacer en toute sécurité $target"
 
-#: pkg/packagekit/autoupdates.jsx:350
-msgid "Security updates "
-msgstr "Mises à jour de sécurité "
-
 #: pkg/packagekit/updates.jsx:1355
 msgid "Security updates available"
 msgstr "Mises à jour de sécurité disponibles"
@@ -5693,6 +5693,12 @@ msgstr "Mises à jour de sécurité disponibles"
 #: pkg/packagekit/autoupdates.jsx:289
 msgid "Security updates only"
 msgstr "Mises à jour de sécurité uniquement"
+
+#: pkg/packagekit/autoupdates.jsx:353
+#, fuzzy
+#| msgid "will be applied $0 at $1"
+msgid "Security updates will be applied $0 at $1"
+msgstr "sera appliqué $0 à $1"
 
 #: pkg/shell/shell-modals.jsx:127
 msgid "Select"
@@ -5812,8 +5818,8 @@ msgstr "Ensemble"
 msgid "Set hostname"
 msgstr "Définir le nom d'hôte"
 
-#: pkg/users/password-dialogs.js:215 pkg/users/password-dialogs.js:225
-#: pkg/users/password-dialogs.js:232 pkg/users/account-details.js:345
+#: pkg/users/password-dialogs.js:219 pkg/users/password-dialogs.js:230
+#: pkg/users/password-dialogs.js:237 pkg/users/account-details.js:352
 msgid "Set password"
 msgstr "Définir le mot de passe"
 
@@ -6173,7 +6179,7 @@ msgstr "Arrêt du périphérique RAID $target"
 msgid "Stopping swapspace $target"
 msgstr "Arrêt de l’espace d’échange $target"
 
-#: pkg/storaged/index.html:23 pkg/storaged/details.jsx:146
+#: pkg/storaged/index.html:23 pkg/storaged/details.jsx:140
 #: pkg/storaged/manifest.json:0
 msgid "Storage"
 msgstr "Stockage"
@@ -6451,7 +6457,7 @@ msgstr ""
 "connecter avec votre mot de passe de connexion ou en fournissant le mot de "
 "passe de la clé à $1."
 
-#: pkg/users/password-dialogs.js:266
+#: pkg/users/password-dialogs.js:273
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr ""
 "Le compte « $0 » sera forcé de changer de mot de passe lors de la prochaine "
@@ -6633,7 +6639,7 @@ msgstr "Le nouveau mot de passe de la clé ne peut pas être vide"
 msgid "The password can not be empty"
 msgstr "Le mot de passe ne peut pas être vide"
 
-#: pkg/users/account-create-dialog.js:202 pkg/users/password-dialogs.js:207
+#: pkg/users/account-create-dialog.js:210 pkg/users/password-dialogs.js:211
 msgid "The passwords do not match"
 msgstr "Le mot de passe ne correspond pas"
 
@@ -6671,13 +6677,13 @@ msgstr ""
 "L’utilisateur $0 n’est pas autorisé à changer les mitigations de sécurité "
 "pour le CPU"
 
-#: pkg/users/account-roles.js:90
+#: pkg/users/account-roles.js:89
 msgid "The user must log out and log back in to fully change roles."
 msgstr ""
 "L’utilisateur doit se déconnecter et se reconnecter pour changer "
 "complètement de rôle."
 
-#: pkg/users/account-create-dialog.js:91
+#: pkg/users/account-create-dialog.js:99
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
@@ -6823,7 +6829,7 @@ msgstr ""
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "Cette unité n’est pas conçue pour être activée explicitement."
 
-#: pkg/users/account-create-dialog.js:96
+#: pkg/users/account-create-dialog.js:104
 msgid "This user name already exists"
 msgstr "Cet identifiant existe déjà"
 
@@ -7358,10 +7364,6 @@ msgid "Updated packages may require a reboot to take effect."
 msgstr ""
 "Les paquets mis à jour peuvent nécessiter un redémarrage pour prendre effet."
 
-#: pkg/packagekit/autoupdates.jsx:350
-msgid "Updates "
-msgstr "Mises à jour "
-
 #: pkg/packagekit/updates.jsx:1361
 msgid "Updates available"
 msgstr "Mises à jour disponibles"
@@ -7369,6 +7371,12 @@ msgstr "Mises à jour disponibles"
 #: pkg/packagekit/history.jsx:104
 msgid "Updates history"
 msgstr "Historique des mises à jour"
+
+#: pkg/packagekit/autoupdates.jsx:354
+#, fuzzy
+#| msgid "will be applied $0 at $1"
+msgid "Updates will be applied $0 at $1"
+msgstr "sera appliqué $0 à $1"
 
 #: pkg/packagekit/updates.jsx:86
 msgid "Updating"
@@ -7432,7 +7440,7 @@ msgstr "Utilisé pour"
 msgid "User"
 msgstr "Utilisateur"
 
-#: pkg/static/login.html:76 pkg/users/account-create-dialog.js:49
+#: pkg/static/login.html:76 pkg/users/account-create-dialog.js:50
 #: pkg/users/account-details.js:299 pkg/shell/hosts_dialog.jsx:257
 msgid "User name"
 msgstr "Nom d’utilisateur"
@@ -7452,10 +7460,6 @@ msgstr "Utiliser le cryptage LUKS"
 #: pkg/storaged/manifest.json:0
 msgid "Using Tang server"
 msgstr "Utilisation du serveur Tang"
-
-#: pkg/storaged/content-views.jsx:212
-msgid "VDO Pool"
-msgstr "VDO Pool"
 
 #: pkg/storaged/content-views.jsx:493
 msgctxt "storage-id-desc"
@@ -7477,6 +7481,12 @@ msgstr "Dispositif VDO $0"
 #: pkg/storaged/content-views.jsx:864
 msgid "VDO filesystem volume (compression/deduplication)"
 msgstr "Volume du système de fichiers VDO (compression/dédoublonnage)"
+
+#: pkg/storaged/content-views.jsx:212
+#, fuzzy
+#| msgid "VDO Pool"
+msgid "VDO pool"
+msgstr "VDO Pool"
 
 #: pkg/networkmanager/network-interface.jsx:180
 #: pkg/networkmanager/network-interface.jsx:192
@@ -7558,7 +7568,9 @@ msgstr "Voir le rapport"
 
 #: pkg/lib/cockpit-components-firewalld-request.jsx:120
 #: pkg/lib/cockpit-components-firewalld-request.jsx:157
-msgid "Visit Firewall"
+#, fuzzy
+#| msgid "Visit Firewall"
+msgid "Visit firewall"
 msgstr "Visitez Firewall"
 
 #: pkg/storaged/content-views.jsx:209
@@ -7714,7 +7726,7 @@ msgstr ""
 "Vous n’êtes pas autorisé à afficher les clés publiques autorisées pour ce "
 "compte."
 
-#: pkg/shell/base_index.js:538
+#: pkg/shell/base_index.js:554
 msgid "You have been logged out due to inactivity."
 msgstr "Vous avez été déconnecté pour cause d’inactivité."
 
@@ -7746,7 +7758,7 @@ msgstr ""
 msgid "You now have administrative access."
 msgstr "Vous avez l’accès administrateur."
 
-#: pkg/shell/base_index.js:516
+#: pkg/shell/base_index.js:532
 msgid "You will be logged out in $0 seconds."
 msgstr "Vous serez déconnecté dans $0secondes."
 
@@ -7946,8 +7958,8 @@ msgid "drive"
 msgstr "disque"
 
 #: pkg/networkmanager/network-interface.jsx:359
-#: pkg/networkmanager/dialogs-common.jsx:223 pkg/users/account-details.js:333
-#: pkg/users/account-details.js:365 pkg/storaged/fsys-tab.jsx:690
+#: pkg/networkmanager/dialogs-common.jsx:223 pkg/users/account-details.js:340
+#: pkg/users/account-details.js:372 pkg/storaged/fsys-tab.jsx:690
 #: pkg/storaged/fsys-tab.jsx:705 pkg/storaged/lvol-tabs.jsx:423
 #: pkg/storaged/lvol-tabs.jsx:484 pkg/storaged/crypto-tab.jsx:248
 #: pkg/storaged/crypto-tab.jsx:257
@@ -8533,10 +8545,6 @@ msgstr "volume"
 msgid "warning"
 msgstr "avertissement"
 
-#: pkg/packagekit/autoupdates.jsx:351
-msgid "will be applied $0 at $1"
-msgstr "sera appliqué $0 à $1"
-
 #: pkg/storaged/crypto-tab.jsx:247
 msgid "yes"
 msgstr "oui"
@@ -8548,6 +8556,24 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "zone"
+
+#~ msgid "Access"
+#~ msgstr "Accès"
+
+#~ msgid "DISK IS FAILING"
+#~ msgstr "DISQUE EN ÉCHEC"
+
+#~ msgid "Lock account"
+#~ msgstr "Verrouiller le compte"
+
+#~ msgid "Logical Size"
+#~ msgstr "Taille logique"
+
+#~ msgid "Security updates "
+#~ msgstr "Mises à jour de sécurité "
+
+#~ msgid "Updates "
+#~ msgstr "Mises à jour "
 
 #~ msgid "(Optional)"
 #~ msgstr "(facultatif)"

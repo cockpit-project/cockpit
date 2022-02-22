@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-08 18:03+0000\n"
-"PO-Revision-Date: 2022-02-13 14:16+0000\n"
+"POT-Creation-Date: 2022-02-15 18:03+0000\n"
+"PO-Revision-Date: 2022-02-18 15:16+0000\n"
 "Last-Translator: Geert Warrink <geert.warrink@onsnet.nu>\n"
 "Language-Team: Dutch <https://translate.fedoraproject.org/projects/cockpit/"
 "main/nl/>\n"
@@ -613,10 +613,6 @@ msgstr "Accepteer sleutel en maak verbinding"
 msgid "Accept key and log in"
 msgstr "Accepteer sleutel en log in"
 
-#: pkg/users/account-create-dialog.js:69 pkg/users/account-details.js:315
-msgid "Access"
-msgstr "Toegang"
-
 #: pkg/users/expiration-dialogs.js:103
 msgid "Account expiration"
 msgstr "Accountverloop"
@@ -932,7 +928,7 @@ msgid "Appearance"
 msgstr "Uiterlijk"
 
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:145
-#: pkg/apps/application.jsx:151 pkg/apps/manifest.json:0
+#: pkg/apps/application.jsx:147 pkg/apps/manifest.json:0
 msgid "Applications"
 msgstr "Toepassingen"
 
@@ -1066,7 +1062,7 @@ msgstr "Automatisch (DHCP)"
 msgid "Automatic login"
 msgstr "Automatisch inloggen"
 
-#: pkg/packagekit/autoupdates.jsx:370 pkg/packagekit/autoupdates.jsx:406
+#: pkg/packagekit/autoupdates.jsx:373 pkg/packagekit/autoupdates.jsx:409
 msgid "Automatic updates"
 msgstr "Automatische vernieuwingen"
 
@@ -1288,7 +1284,7 @@ msgstr "Kan geen logboeken vinden met de huidige combinatie van filters."
 #: pkg/shell/hosts_dialog.jsx:278 pkg/shell/hosts_dialog.jsx:373
 #: pkg/shell/hosts_dialog.jsx:495 pkg/shell/hosts_dialog.jsx:861
 #: pkg/shell/credentials.jsx:314 pkg/packagekit/updates.jsx:473
-#: pkg/packagekit/updates.jsx:544 pkg/packagekit/autoupdates.jsx:419
+#: pkg/packagekit/updates.jsx:544 pkg/packagekit/autoupdates.jsx:422
 #: pkg/packagekit/kpatch.jsx:310 pkg/lib/cockpit-components-shutdown.jsx:182
 #: pkg/lib/cockpit-components-dialog.jsx:127 pkg/apps/utils.jsx:66
 msgid "Cancel"
@@ -1469,7 +1465,7 @@ msgstr "Wis zoekopdrachten"
 msgid "Cleartext device"
 msgstr "Cleartext-apparaat"
 
-#: pkg/users/account-create-dialog.js:212 pkg/users/password-dialogs.js:215
+#: pkg/users/account-create-dialog.js:220 pkg/users/password-dialogs.js:219
 msgid "Click $0 again to use the password anyway."
 msgstr "Klik nogmaals op $0 om het wachtwoord toch te gebruiken."
 
@@ -1627,7 +1623,7 @@ msgstr "kdump configureren"
 msgid "Configuring system settings"
 msgstr "Systeeminstellingen configureren"
 
-#: pkg/users/account-create-dialog.js:61 pkg/storaged/format-dialog.jsx:273
+#: pkg/users/account-create-dialog.js:62 pkg/storaged/format-dialog.jsx:273
 #: pkg/storaged/stratis-panel.jsx:148
 msgid "Confirm"
 msgstr "Bevestigen"
@@ -1640,7 +1636,7 @@ msgstr "Bevestig sleutelwachtwoord"
 msgid "Confirm new key password"
 msgstr "Bevestig nieuw sleutelwachtwoord"
 
-#: pkg/users/password-dialogs.js:149
+#: pkg/users/password-dialogs.js:152
 msgid "Confirm new password"
 msgstr "Bevestig nieuw wachtwoord"
 
@@ -1779,8 +1775,8 @@ msgstr "Crashrapportage"
 msgid "Crash system"
 msgstr "Crash systeem"
 
-#: pkg/users/account-create-dialog.js:212
-#: pkg/users/account-create-dialog.js:256 pkg/storaged/mdraids-panel.jsx:140
+#: pkg/users/account-create-dialog.js:220
+#: pkg/users/account-create-dialog.js:267 pkg/storaged/mdraids-panel.jsx:140
 #: pkg/storaged/stratis-panel.jsx:169 pkg/storaged/content-views.jsx:196
 #: pkg/storaged/content-views.jsx:311 pkg/storaged/content-views.jsx:957
 #: pkg/storaged/vgroups-panel.jsx:90 pkg/storaged/stratis-details.jsx:393
@@ -1828,7 +1824,7 @@ msgstr "Maak het aan"
 msgid "Create logical volume"
 msgstr "Maak logische volume aan"
 
-#: pkg/users/accounts-list.js:78 pkg/users/account-create-dialog.js:249
+#: pkg/users/accounts-list.js:78 pkg/users/account-create-dialog.js:260
 msgid "Create new account"
 msgstr "Nieuw account aanmaken"
 
@@ -1948,10 +1944,6 @@ msgstr "Aangepaste poorten"
 #: pkg/networkmanager/firewall.jsx:739
 msgid "Custom zones"
 msgstr "Aangepaste zones"
-
-#: pkg/storaged/drive-details.jsx:63
-msgid "DISK IS FAILING"
-msgstr "SCHIJF SCHIET TE KORT"
 
 #: pkg/networkmanager/ip-settings.jsx:209
 msgid "DNS"
@@ -2186,6 +2178,10 @@ msgstr "Schakel tuned uit"
 msgid "Disabled"
 msgstr "Uitgeschakeld"
 
+#: pkg/users/account-create-dialog.js:74 pkg/users/account-details.js:323
+msgid "Disallow interactive password"
+msgstr "Interactief wachtwoord niet toestaan"
+
 #: pkg/systemd/services/service-details.jsx:158
 msgid "Disallow running (mask)"
 msgstr "Uitvoeren niet toestaan (masker)"
@@ -2205,6 +2201,10 @@ msgstr "Schijf I/O piek"
 #: pkg/storaged/drive-details.jsx:64
 msgid "Disk is OK"
 msgstr "Schijf is OK"
+
+#: pkg/storaged/drive-details.jsx:63
+msgid "Disk is failing"
+msgstr "Schijf werkt niet"
 
 #: pkg/storaged/crypto-keyslots.jsx:197
 msgid "Disk passphrase"
@@ -2314,7 +2314,7 @@ msgstr "Dubbele rangorde"
 
 #: pkg/storaged/nfs-details.jsx:305 pkg/storaged/iscsi-panel.jsx:255
 #: pkg/storaged/crypto-keyslots.jsx:577 pkg/shell/indexes.js:341
-#: pkg/shell/hosts.jsx:173 pkg/packagekit/autoupdates.jsx:399
+#: pkg/shell/hosts.jsx:173 pkg/packagekit/autoupdates.jsx:402
 #: pkg/packagekit/kpatch.jsx:229
 msgid "Edit"
 msgstr "Bewerken"
@@ -2369,7 +2369,7 @@ msgstr "Leegmaken"
 msgid "Emptying $target"
 msgstr "$target leegmaken"
 
-#: pkg/packagekit/autoupdates.jsx:399 pkg/packagekit/kpatch.jsx:249
+#: pkg/packagekit/autoupdates.jsx:402 pkg/packagekit/kpatch.jsx:249
 msgid "Enable"
 msgstr "Zet aan"
 
@@ -2623,7 +2623,7 @@ msgstr "Kan logboeken niet ophalen"
 msgid "Failed to load authorized keys."
 msgstr "Kan gemachtigde sleutels niet laden."
 
-#: pkg/packagekit/autoupdates.jsx:362
+#: pkg/packagekit/autoupdates.jsx:365
 msgid ""
 "Failed to parse unit files for dnf-automatic.timer or dnf-automatic-install."
 "timer. Please remove custom overrides to configure automatic updates."
@@ -2721,11 +2721,11 @@ msgstr "Lettertypegrootte"
 msgid "Forbidden from running"
 msgstr "Uitvoeren is verboden"
 
-#: pkg/users/account-details.js:352
+#: pkg/users/account-details.js:359
 msgid "Force change"
 msgstr "Forceer verandering"
 
-#: pkg/users/password-dialogs.js:271
+#: pkg/users/password-dialogs.js:278
 msgid "Force password change"
 msgstr "Forceer wachtwoordverandering"
 
@@ -2778,7 +2778,7 @@ msgstr "vrijdagen"
 msgid "From"
 msgstr "Van"
 
-#: pkg/users/account-create-dialog.js:40 pkg/users/account-details.js:285
+#: pkg/users/account-create-dialog.js:41 pkg/users/account-details.js:285
 msgid "Full name"
 msgstr "Volledige naam"
 
@@ -3522,10 +3522,6 @@ msgstr "Locatie"
 msgid "Lock"
 msgstr "Slot"
 
-#: pkg/users/account-create-dialog.js:71 pkg/users/account-details.js:321
-msgid "Lock account"
-msgstr "Account vergrendelen"
-
 #: pkg/storaged/crypto-panel.jsx:77 pkg/storaged/crypto-panel.jsx:80
 msgid "Locked devices"
 msgstr "Vergrendelde apparaten"
@@ -3572,11 +3568,7 @@ msgstr "Ingelogd"
 msgid "Logical"
 msgstr "Logisch"
 
-#: pkg/storaged/content-views.jsx:927
-msgid "Logical Size"
-msgstr "Logische grootte"
-
-#: pkg/storaged/vdo-details.jsx:228
+#: pkg/storaged/content-views.jsx:927 pkg/storaged/vdo-details.jsx:228
 msgid "Logical size"
 msgstr "Logische grootte"
 
@@ -4114,7 +4106,7 @@ msgstr "Nieuw sleutelwachtwoord"
 msgid "New passphrase"
 msgstr "Nieuwe wachtzin"
 
-#: pkg/users/password-dialogs.js:148 pkg/shell/credentials.jsx:266
+#: pkg/users/password-dialogs.js:151 pkg/shell/credentials.jsx:266
 msgid "New password"
 msgstr "Nieuw wachtwoord"
 
@@ -4267,7 +4259,7 @@ msgstr ""
 msgid "No partitioning"
 msgstr "Geen partitionering"
 
-#: pkg/users/account-create-dialog.js:199
+#: pkg/users/account-create-dialog.js:207
 msgid "No real name specified"
 msgstr "Geen echte naam opgegeven"
 
@@ -4299,7 +4291,7 @@ msgstr "Geen systeemwijzigingen"
 msgid "No updates"
 msgstr "Geen updates"
 
-#: pkg/users/account-create-dialog.js:87
+#: pkg/users/account-create-dialog.js:95
 msgid "No user name specified"
 msgstr "Geen gebruikersnaam opgegeven"
 
@@ -4344,7 +4336,7 @@ msgstr "Niet verbonden met host"
 msgid "Not enough space to grow."
 msgstr "Niet genoeg ruimte om te groeien."
 
-#: pkg/storaged/details.jsx:138 pkg/systemd/services/services.jsx:176
+#: pkg/storaged/details.jsx:132 pkg/systemd/services/services.jsx:176
 msgid "Not found"
 msgstr "Niet gevonden"
 
@@ -4419,7 +4411,7 @@ msgstr "OK"
 msgid "Old passphrase"
 msgstr "Oude wachtzin"
 
-#: pkg/users/password-dialogs.js:139
+#: pkg/users/password-dialogs.js:141
 msgid "Old password"
 msgstr "Oud wachtwoord"
 
@@ -4472,7 +4464,8 @@ msgctxt "storage"
 msgid "Optical drive"
 msgstr "Optisch station"
 
-#: pkg/networkmanager/bridge.jsx:104 pkg/storaged/content-views.jsx:937
+#: pkg/networkmanager/bridge.jsx:104 pkg/users/account-create-dialog.js:70
+#: pkg/users/account-details.js:315 pkg/storaged/content-views.jsx:937
 #: pkg/storaged/crypto-tab.jsx:253
 msgid "Options"
 msgstr "Opties"
@@ -4484,6 +4477,14 @@ msgstr "Of gebruik een gebundelde browser"
 #: pkg/lib/machine-info.js:58
 msgid "Other"
 msgstr "Andere"
+
+#: pkg/users/account-create-dialog.js:76 pkg/users/account-details.js:325
+msgid ""
+"Other authentication methods are still available even when interactive "
+"password authentication is not allowed."
+msgstr ""
+"Andere authenticatiemethoden zijn nog steeds beschikbaar, zelfs als "
+"interactieve wachtwoordauthenticatie niet is toegestaan."
 
 #: pkg/storaged/content-views.jsx:490
 msgctxt "storage-id-desc"
@@ -4624,8 +4625,8 @@ msgstr "Verwijdering van wachtzin kan voorkomen dat $0 wordt ontgrendeld."
 msgid "Passphrases do not match"
 msgstr "Wachtzinnen komen niet overeen"
 
-#: pkg/static/login.html:81 pkg/users/account-create-dialog.js:60
-#: pkg/users/account-details.js:339 pkg/storaged/iscsi-panel.jsx:50
+#: pkg/static/login.html:81 pkg/users/account-create-dialog.js:61
+#: pkg/users/account-details.js:346 pkg/storaged/iscsi-panel.jsx:50
 #: pkg/storaged/iscsi-panel.jsx:160 pkg/shell/superuser.jsx:52
 #: pkg/shell/hosts_dialog.jsx:818 pkg/shell/hosts_dialog.jsx:827
 #: pkg/shell/credentials.jsx:120 pkg/shell/credentials.jsx:263
@@ -4641,7 +4642,7 @@ msgstr "Wachtwoord succesvol gewijzigd"
 msgid "Password expiration"
 msgstr "Wachtwoord verloop"
 
-#: pkg/users/account-create-dialog.js:205 pkg/users/password-dialogs.js:210
+#: pkg/users/account-create-dialog.js:213 pkg/users/password-dialogs.js:214
 msgid "Password is longer than 256 characters"
 msgstr "Wachtwoord is langer dan 256 lettertekens"
 
@@ -5400,7 +5401,7 @@ msgstr "Gereserveerd geheugen"
 msgid "Reset"
 msgstr "Reset"
 
-#: pkg/users/password-dialogs.js:278
+#: pkg/users/password-dialogs.js:285
 msgid "Reset password"
 msgstr "Wachtwoord herstellen"
 
@@ -5575,7 +5576,7 @@ msgid "Save and reboot"
 msgstr "Opslaan en opnieuw opstarten"
 
 #: pkg/systemd/overview-cards/motdCard.jsx:98
-#: pkg/packagekit/autoupdates.jsx:414
+#: pkg/packagekit/autoupdates.jsx:417
 msgid "Save changes"
 msgstr "Sla veranderingen op"
 
@@ -5628,10 +5629,6 @@ msgstr "Veilige shell-sleutels"
 msgid "Securely erasing $target"
 msgstr "$target veilig wissen"
 
-#: pkg/packagekit/autoupdates.jsx:350
-msgid "Security updates "
-msgstr "Beveiligingsupdates "
-
 #: pkg/packagekit/updates.jsx:1355
 msgid "Security updates available"
 msgstr "Beveiligingsupdates beschikbaar"
@@ -5639,6 +5636,10 @@ msgstr "Beveiligingsupdates beschikbaar"
 #: pkg/packagekit/autoupdates.jsx:289
 msgid "Security updates only"
 msgstr "Alleen beveiligingsupdates"
+
+#: pkg/packagekit/autoupdates.jsx:353
+msgid "Security updates will be applied $0 at $1"
+msgstr "Beveiligingsupdates worden $0 toegepast bij $1"
 
 #: pkg/shell/shell-modals.jsx:127
 msgid "Select"
@@ -5756,8 +5757,8 @@ msgstr "Instellen"
 msgid "Set hostname"
 msgstr "Stel hostnaam in"
 
-#: pkg/users/password-dialogs.js:215 pkg/users/password-dialogs.js:225
-#: pkg/users/password-dialogs.js:232 pkg/users/account-details.js:345
+#: pkg/users/password-dialogs.js:219 pkg/users/password-dialogs.js:230
+#: pkg/users/password-dialogs.js:237 pkg/users/account-details.js:352
 msgid "Set password"
 msgstr "Wachtwoord instellen"
 
@@ -6117,7 +6118,7 @@ msgstr "RAID-apparaat $target stoppen"
 msgid "Stopping swapspace $target"
 msgstr "Swapspace $target stoppen"
 
-#: pkg/storaged/index.html:23 pkg/storaged/details.jsx:146
+#: pkg/storaged/index.html:23 pkg/storaged/details.jsx:140
 #: pkg/storaged/manifest.json:0
 msgid "Storage"
 msgstr "Opslag"
@@ -6394,7 +6395,7 @@ msgstr ""
 "De SSH-sleutel voor inloggen op $0 is beschermd. Je kunt inloggen met je "
 "inlogwachtwoord of door het wachtwoord van de sleutel op te geven op $1."
 
-#: pkg/users/password-dialogs.js:266
+#: pkg/users/password-dialogs.js:273
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr ""
 "Het account '$0' zal zijn wachtwoord moeten wijzigen bij de volgende inlog"
@@ -6573,7 +6574,7 @@ msgstr "Het nieuwe sleutelwachtwoord mag niet leeg zijn"
 msgid "The password can not be empty"
 msgstr "Het wachtwoord mag niet leeg zijn"
 
-#: pkg/users/account-create-dialog.js:202 pkg/users/password-dialogs.js:207
+#: pkg/users/account-create-dialog.js:210 pkg/users/password-dialogs.js:211
 msgid "The passwords do not match"
 msgstr "De wachtwoorden komen niet overeen"
 
@@ -6607,13 +6608,13 @@ msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr ""
 "Het is gebruiker $0 niet toegestaan cpu-beveiligingsmaatregelen te wijzigen"
 
-#: pkg/users/account-roles.js:90
+#: pkg/users/account-roles.js:89
 msgid "The user must log out and log back in to fully change roles."
 msgstr ""
 "De gebruiker moet zich afmelden en weer aanmelden om de rollen volledig te "
 "wijzigen."
 
-#: pkg/users/account-create-dialog.js:91
+#: pkg/users/account-create-dialog.js:99
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
@@ -6753,7 +6754,7 @@ msgstr ""
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "Dit apparaat is niet ontworpen om expliciet te worden ingeschakeld."
 
-#: pkg/users/account-create-dialog.js:96
+#: pkg/users/account-create-dialog.js:104
 msgid "This user name already exists"
 msgstr "Deze gebruikersnaam bestaat al"
 
@@ -7281,10 +7282,6 @@ msgstr ""
 "Bijgewerkte pakketten moeten mogelijk opnieuw worden opgestart om van kracht "
 "te worden."
 
-#: pkg/packagekit/autoupdates.jsx:350
-msgid "Updates "
-msgstr "Updates "
-
 #: pkg/packagekit/updates.jsx:1361
 msgid "Updates available"
 msgstr "Updates beschikbaar"
@@ -7292,6 +7289,10 @@ msgstr "Updates beschikbaar"
 #: pkg/packagekit/history.jsx:104
 msgid "Updates history"
 msgstr "Updategeschiedenis"
+
+#: pkg/packagekit/autoupdates.jsx:354
+msgid "Updates will be applied $0 at $1"
+msgstr "Updates worden $0 toegepast bij $1"
 
 #: pkg/packagekit/updates.jsx:86
 msgid "Updating"
@@ -7355,7 +7356,7 @@ msgstr "Gebruikt voor"
 msgid "User"
 msgstr "Gebruiker"
 
-#: pkg/static/login.html:76 pkg/users/account-create-dialog.js:49
+#: pkg/static/login.html:76 pkg/users/account-create-dialog.js:50
 #: pkg/users/account-details.js:299 pkg/shell/hosts_dialog.jsx:257
 msgid "User name"
 msgstr "Gebruikersnaam"
@@ -7375,10 +7376,6 @@ msgstr "Gebruikt LUKS-versleuteling"
 #: pkg/storaged/manifest.json:0
 msgid "Using Tang server"
 msgstr "Gebruikt Tang-server"
-
-#: pkg/storaged/content-views.jsx:212
-msgid "VDO Pool"
-msgstr "VDO-pool"
 
 #: pkg/storaged/content-views.jsx:493
 msgctxt "storage-id-desc"
@@ -7400,6 +7397,10 @@ msgstr "VDO-apparaat $0"
 #: pkg/storaged/content-views.jsx:864
 msgid "VDO filesystem volume (compression/deduplication)"
 msgstr "VDO-bestandssysteemvolume (compressie/deduplicatie)"
+
+#: pkg/storaged/content-views.jsx:212
+msgid "VDO pool"
+msgstr "VDO-pool"
 
 #: pkg/networkmanager/network-interface.jsx:180
 #: pkg/networkmanager/network-interface.jsx:192
@@ -7481,7 +7482,7 @@ msgstr "Bekijk rapport"
 
 #: pkg/lib/cockpit-components-firewalld-request.jsx:120
 #: pkg/lib/cockpit-components-firewalld-request.jsx:157
-msgid "Visit Firewall"
+msgid "Visit firewall"
 msgstr "Bezoek firewall"
 
 #: pkg/storaged/content-views.jsx:209
@@ -7636,7 +7637,7 @@ msgstr ""
 "Je hebt geen toestemming om de geautoriseerde openbare sleutels voor dit "
 "account te bekijken."
 
-#: pkg/shell/base_index.js:538
+#: pkg/shell/base_index.js:554
 msgid "You have been logged out due to inactivity."
 msgstr "Je bent uitgelogd vanwege inactiviteit."
 
@@ -7668,7 +7669,7 @@ msgstr ""
 msgid "You now have administrative access."
 msgstr "Je hebt nu administratieve toegang."
 
-#: pkg/shell/base_index.js:516
+#: pkg/shell/base_index.js:532
 msgid "You will be logged out in $0 seconds."
 msgstr "Je wordt over $0 seconden uitgelogd."
 
@@ -7862,8 +7863,8 @@ msgid "drive"
 msgstr "station"
 
 #: pkg/networkmanager/network-interface.jsx:359
-#: pkg/networkmanager/dialogs-common.jsx:223 pkg/users/account-details.js:333
-#: pkg/users/account-details.js:365 pkg/storaged/fsys-tab.jsx:690
+#: pkg/networkmanager/dialogs-common.jsx:223 pkg/users/account-details.js:340
+#: pkg/users/account-details.js:372 pkg/storaged/fsys-tab.jsx:690
 #: pkg/storaged/fsys-tab.jsx:705 pkg/storaged/lvol-tabs.jsx:423
 #: pkg/storaged/lvol-tabs.jsx:484 pkg/storaged/crypto-tab.jsx:248
 #: pkg/storaged/crypto-tab.jsx:257
@@ -8436,10 +8437,6 @@ msgstr "volume"
 msgid "warning"
 msgstr "waarschuwing"
 
-#: pkg/packagekit/autoupdates.jsx:351
-msgid "will be applied $0 at $1"
-msgstr "wordt $0 op $1 toegepast"
-
 #: pkg/storaged/crypto-tab.jsx:247
 msgid "yes"
 msgstr "ja"
@@ -8451,6 +8448,24 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "zone"
+
+#~ msgid "Access"
+#~ msgstr "Toegang"
+
+#~ msgid "DISK IS FAILING"
+#~ msgstr "SCHIJF SCHIET TE KORT"
+
+#~ msgid "Lock account"
+#~ msgstr "Account vergrendelen"
+
+#~ msgid "Logical Size"
+#~ msgstr "Logische grootte"
+
+#~ msgid "Security updates "
+#~ msgstr "Beveiligingsupdates "
+
+#~ msgid "Updates "
+#~ msgstr "Updates "
 
 #~ msgid "(Optional)"
 #~ msgstr "(Optioneel)"

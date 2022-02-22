@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-08 18:03+0000\n"
+"POT-Creation-Date: 2022-02-15 18:03+0000\n"
 "PO-Revision-Date: 2021-11-20 10:16+0000\n"
 "Last-Translator: Matej Marusak <mmarusak@redhat.com>\n"
 "Language-Team: Slovak <https://translate.fedoraproject.org/projects/cockpit/"
@@ -643,10 +643,6 @@ msgstr "Prijať kľúč a pripojiť"
 msgid "Accept key and log in"
 msgstr "Prijať kľúč a prihlásiť sa"
 
-#: pkg/users/account-create-dialog.js:69 pkg/users/account-details.js:315
-msgid "Access"
-msgstr "Prístup"
-
 #: pkg/users/expiration-dialogs.js:103
 msgid "Account expiration"
 msgstr "Skončenie platnosti účtu"
@@ -964,7 +960,7 @@ msgid "Appearance"
 msgstr "Vzhľad"
 
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:145
-#: pkg/apps/application.jsx:151 pkg/apps/manifest.json:0
+#: pkg/apps/application.jsx:147 pkg/apps/manifest.json:0
 msgid "Applications"
 msgstr "Aplikácie"
 
@@ -1103,7 +1099,7 @@ msgstr "Automaticky (DHCP)"
 msgid "Automatic login"
 msgstr "Automatické prihlásenie"
 
-#: pkg/packagekit/autoupdates.jsx:370 pkg/packagekit/autoupdates.jsx:406
+#: pkg/packagekit/autoupdates.jsx:373 pkg/packagekit/autoupdates.jsx:409
 msgid "Automatic updates"
 msgstr "Automatické aktualizácie"
 
@@ -1330,7 +1326,7 @@ msgstr "Nepodarilo sa nájsť žiadne záznamy pre danú kombináciu filtrov."
 #: pkg/shell/hosts_dialog.jsx:278 pkg/shell/hosts_dialog.jsx:373
 #: pkg/shell/hosts_dialog.jsx:495 pkg/shell/hosts_dialog.jsx:861
 #: pkg/shell/credentials.jsx:314 pkg/packagekit/updates.jsx:473
-#: pkg/packagekit/updates.jsx:544 pkg/packagekit/autoupdates.jsx:419
+#: pkg/packagekit/updates.jsx:544 pkg/packagekit/autoupdates.jsx:422
 #: pkg/packagekit/kpatch.jsx:310 pkg/lib/cockpit-components-shutdown.jsx:182
 #: pkg/lib/cockpit-components-dialog.jsx:127 pkg/apps/utils.jsx:66
 msgid "Cancel"
@@ -1515,7 +1511,7 @@ msgstr "Vyčistiť vyhľadávanie"
 msgid "Cleartext device"
 msgstr "Vytvoriť zariadenia"
 
-#: pkg/users/account-create-dialog.js:212 pkg/users/password-dialogs.js:215
+#: pkg/users/account-create-dialog.js:220 pkg/users/password-dialogs.js:219
 msgid "Click $0 again to use the password anyway."
 msgstr "Ak chcete heslo aj tak použiť, kliknite na $0 ešte raz."
 
@@ -1676,7 +1672,7 @@ msgstr "Konfigurácia kdump"
 msgid "Configuring system settings"
 msgstr ""
 
-#: pkg/users/account-create-dialog.js:61 pkg/storaged/format-dialog.jsx:273
+#: pkg/users/account-create-dialog.js:62 pkg/storaged/format-dialog.jsx:273
 #: pkg/storaged/stratis-panel.jsx:148
 msgid "Confirm"
 msgstr "Potvrdiť"
@@ -1689,7 +1685,7 @@ msgstr "Potvrdiť heslo ku kľúči"
 msgid "Confirm new key password"
 msgstr "Potvrdiť nové heslo ku kľúču"
 
-#: pkg/users/password-dialogs.js:149
+#: pkg/users/password-dialogs.js:152
 msgid "Confirm new password"
 msgstr "Potvrdiť nové heslo"
 
@@ -1834,8 +1830,8 @@ msgstr "Nahlasovanie pádu"
 msgid "Crash system"
 msgstr "Havarovať systém"
 
-#: pkg/users/account-create-dialog.js:212
-#: pkg/users/account-create-dialog.js:256 pkg/storaged/mdraids-panel.jsx:140
+#: pkg/users/account-create-dialog.js:220
+#: pkg/users/account-create-dialog.js:267 pkg/storaged/mdraids-panel.jsx:140
 #: pkg/storaged/stratis-panel.jsx:169 pkg/storaged/content-views.jsx:196
 #: pkg/storaged/content-views.jsx:311 pkg/storaged/content-views.jsx:957
 #: pkg/storaged/vgroups-panel.jsx:90 pkg/storaged/stratis-details.jsx:393
@@ -1893,7 +1889,7 @@ msgstr "Vytvoriť to"
 msgid "Create logical volume"
 msgstr ""
 
-#: pkg/users/accounts-list.js:78 pkg/users/account-create-dialog.js:249
+#: pkg/users/accounts-list.js:78 pkg/users/account-create-dialog.js:260
 msgid "Create new account"
 msgstr ""
 
@@ -2019,10 +2015,6 @@ msgstr "Užívateľsky určené porty"
 #: pkg/networkmanager/firewall.jsx:739
 msgid "Custom zones"
 msgstr "Užívateľsky určené zóny"
-
-#: pkg/storaged/drive-details.jsx:63
-msgid "DISK IS FAILING"
-msgstr ""
 
 #: pkg/networkmanager/ip-settings.jsx:209
 msgid "DNS"
@@ -2267,6 +2259,12 @@ msgstr "Vypnúť tuned"
 msgid "Disabled"
 msgstr "Vypnutá"
 
+#: pkg/users/account-create-dialog.js:74 pkg/users/account-details.js:323
+#, fuzzy
+#| msgid "Domain administrator password"
+msgid "Disallow interactive password"
+msgstr "Heslo správcu domény"
+
 #: pkg/systemd/services/service-details.jsx:158
 msgid "Disallow running (mask)"
 msgstr "Nepovoliť spustenie (maskovať)"
@@ -2286,6 +2284,13 @@ msgstr "Vrchol diskového V/V"
 #: pkg/storaged/drive-details.jsx:64
 msgid "Disk is OK"
 msgstr "Disk je OK"
+
+#: pkg/storaged/drive-details.jsx:63
+#, fuzzy
+#| msgid "$0 disk is missing"
+#| msgid_plural "$0 disks are missing"
+msgid "Disk is failing"
+msgstr "$0 disk chýba"
 
 #: pkg/storaged/crypto-keyslots.jsx:197
 msgid "Disk passphrase"
@@ -2396,7 +2401,7 @@ msgstr "Dual rank"
 
 #: pkg/storaged/nfs-details.jsx:305 pkg/storaged/iscsi-panel.jsx:255
 #: pkg/storaged/crypto-keyslots.jsx:577 pkg/shell/indexes.js:341
-#: pkg/shell/hosts.jsx:173 pkg/packagekit/autoupdates.jsx:399
+#: pkg/shell/hosts.jsx:173 pkg/packagekit/autoupdates.jsx:402
 #: pkg/packagekit/kpatch.jsx:229
 msgid "Edit"
 msgstr "Upraviť"
@@ -2451,7 +2456,7 @@ msgstr "Vyprázdniť"
 msgid "Emptying $target"
 msgstr "Vyprázdňuje sa $target"
 
-#: pkg/packagekit/autoupdates.jsx:399 pkg/packagekit/kpatch.jsx:249
+#: pkg/packagekit/autoupdates.jsx:402 pkg/packagekit/kpatch.jsx:249
 msgid "Enable"
 msgstr "Povoliť"
 
@@ -2726,7 +2731,7 @@ msgstr "Nepodarilo sa upraviť stroj: $0"
 msgid "Failed to load authorized keys."
 msgstr "Nepodarilo sa načítať poverené kľúče."
 
-#: pkg/packagekit/autoupdates.jsx:362
+#: pkg/packagekit/autoupdates.jsx:365
 msgid ""
 "Failed to parse unit files for dnf-automatic.timer or dnf-automatic-install."
 "timer. Please remove custom overrides to configure automatic updates."
@@ -2833,11 +2838,11 @@ msgstr "Veľkosť bloku"
 msgid "Forbidden from running"
 msgstr ""
 
-#: pkg/users/account-details.js:352
+#: pkg/users/account-details.js:359
 msgid "Force change"
 msgstr "Vynútiť zmenu"
 
-#: pkg/users/password-dialogs.js:271
+#: pkg/users/password-dialogs.js:278
 msgid "Force password change"
 msgstr "Vynútiť zmenu hesla"
 
@@ -2890,7 +2895,7 @@ msgstr "Piatky"
 msgid "From"
 msgstr ""
 
-#: pkg/users/account-create-dialog.js:40 pkg/users/account-details.js:285
+#: pkg/users/account-create-dialog.js:41 pkg/users/account-details.js:285
 msgid "Full name"
 msgstr "Celé meno"
 
@@ -3654,10 +3659,6 @@ msgstr "Umiestnenie"
 msgid "Lock"
 msgstr "Zamknúť"
 
-#: pkg/users/account-create-dialog.js:71 pkg/users/account-details.js:321
-msgid "Lock account"
-msgstr "Zamknúť účet"
-
 #: pkg/storaged/crypto-panel.jsx:77 pkg/storaged/crypto-panel.jsx:80
 msgid "Locked devices"
 msgstr "Zamknuté zariadenia"
@@ -3712,13 +3713,7 @@ msgstr "Prihlásený"
 msgid "Logical"
 msgstr "Logický"
 
-#: pkg/storaged/content-views.jsx:927
-#, fuzzy
-#| msgid "Logical size"
-msgid "Logical Size"
-msgstr "Logická veľkosť"
-
-#: pkg/storaged/vdo-details.jsx:228
+#: pkg/storaged/content-views.jsx:927 pkg/storaged/vdo-details.jsx:228
 msgid "Logical size"
 msgstr "Logická veľkosť"
 
@@ -4287,7 +4282,7 @@ msgstr "Nové heslo ku kľúču"
 msgid "New passphrase"
 msgstr "Nová heslová fráza"
 
-#: pkg/users/password-dialogs.js:148 pkg/shell/credentials.jsx:266
+#: pkg/users/password-dialogs.js:151 pkg/shell/credentials.jsx:266
 msgid "New password"
 msgstr "Nové heslo"
 
@@ -4441,7 +4436,7 @@ msgstr ""
 msgid "No partitioning"
 msgstr ""
 
-#: pkg/users/account-create-dialog.js:199
+#: pkg/users/account-create-dialog.js:207
 msgid "No real name specified"
 msgstr "Nie je zadaný skutočný názov"
 
@@ -4471,7 +4466,7 @@ msgstr "Žiadne systémové zmeny"
 msgid "No updates"
 msgstr "Žiadne aktualizácie"
 
-#: pkg/users/account-create-dialog.js:87
+#: pkg/users/account-create-dialog.js:95
 msgid "No user name specified"
 msgstr "Nebolo zadané užívateľské meno"
 
@@ -4516,7 +4511,7 @@ msgstr "Nepripojené k hostiteľovi"
 msgid "Not enough space to grow."
 msgstr "Pre zväčšenie nie je dostatok priestoru."
 
-#: pkg/storaged/details.jsx:138 pkg/systemd/services/services.jsx:176
+#: pkg/storaged/details.jsx:132 pkg/systemd/services/services.jsx:176
 msgid "Not found"
 msgstr "Nenájdené"
 
@@ -4597,7 +4592,7 @@ msgstr "Ok"
 msgid "Old passphrase"
 msgstr "Pôvodná heslová fráza"
 
-#: pkg/users/password-dialogs.js:139
+#: pkg/users/password-dialogs.js:141
 msgid "Old password"
 msgstr "Pôvodné heslo"
 
@@ -4650,7 +4645,8 @@ msgctxt "storage"
 msgid "Optical drive"
 msgstr "Mechanika optického disku"
 
-#: pkg/networkmanager/bridge.jsx:104 pkg/storaged/content-views.jsx:937
+#: pkg/networkmanager/bridge.jsx:104 pkg/users/account-create-dialog.js:70
+#: pkg/users/account-details.js:315 pkg/storaged/content-views.jsx:937
 #: pkg/storaged/crypto-tab.jsx:253
 msgid "Options"
 msgstr "Možnosti"
@@ -4662,6 +4658,12 @@ msgstr "Alebo použite pribalený prehliadač"
 #: pkg/lib/machine-info.js:58
 msgid "Other"
 msgstr "Iný"
+
+#: pkg/users/account-create-dialog.js:76 pkg/users/account-details.js:325
+msgid ""
+"Other authentication methods are still available even when interactive "
+"password authentication is not allowed."
+msgstr ""
 
 #: pkg/storaged/content-views.jsx:490
 msgctxt "storage-id-desc"
@@ -4812,8 +4814,8 @@ msgstr "Zmazanie heslovej fráze môže brániť odomknutiu $0."
 msgid "Passphrases do not match"
 msgstr "Heslové frázy sa líšia"
 
-#: pkg/static/login.html:81 pkg/users/account-create-dialog.js:60
-#: pkg/users/account-details.js:339 pkg/storaged/iscsi-panel.jsx:50
+#: pkg/static/login.html:81 pkg/users/account-create-dialog.js:61
+#: pkg/users/account-details.js:346 pkg/storaged/iscsi-panel.jsx:50
 #: pkg/storaged/iscsi-panel.jsx:160 pkg/shell/superuser.jsx:52
 #: pkg/shell/hosts_dialog.jsx:818 pkg/shell/hosts_dialog.jsx:827
 #: pkg/shell/credentials.jsx:120 pkg/shell/credentials.jsx:263
@@ -4831,7 +4833,7 @@ msgstr "Riešenie bolo úspešne aplikované"
 msgid "Password expiration"
 msgstr "Skončenie platnosti hesla"
 
-#: pkg/users/account-create-dialog.js:205 pkg/users/password-dialogs.js:210
+#: pkg/users/account-create-dialog.js:213 pkg/users/password-dialogs.js:214
 #, fuzzy
 #| msgid "Name cannot be longer than $0 characters"
 msgid "Password is longer than 256 characters"
@@ -5606,7 +5608,7 @@ msgstr "Vyhradená pamäť"
 msgid "Reset"
 msgstr "Reset"
 
-#: pkg/users/password-dialogs.js:278
+#: pkg/users/password-dialogs.js:285
 msgid "Reset password"
 msgstr "Resetovať heslo"
 
@@ -5783,7 +5785,7 @@ msgid "Save and reboot"
 msgstr "Uložiť a reštartovať"
 
 #: pkg/systemd/overview-cards/motdCard.jsx:98
-#: pkg/packagekit/autoupdates.jsx:414
+#: pkg/packagekit/autoupdates.jsx:417
 msgid "Save changes"
 msgstr "Uložiť zmeny"
 
@@ -5838,10 +5840,6 @@ msgstr "Kľúče zabezpečeného shellu"
 msgid "Securely erasing $target"
 msgstr "Bezpečne sa vymazáva $target"
 
-#: pkg/packagekit/autoupdates.jsx:350
-msgid "Security updates "
-msgstr "Bezpečnostné aktualizácie "
-
 #: pkg/packagekit/updates.jsx:1355
 msgid "Security updates available"
 msgstr "Sú k dispozícií bezpečnostné aktualizácie"
@@ -5849,6 +5847,12 @@ msgstr "Sú k dispozícií bezpečnostné aktualizácie"
 #: pkg/packagekit/autoupdates.jsx:289
 msgid "Security updates only"
 msgstr "Iba bezpečnostné aktualizácie"
+
+#: pkg/packagekit/autoupdates.jsx:353
+#, fuzzy
+#| msgid "Security updates available"
+msgid "Security updates will be applied $0 at $1"
+msgstr "Sú k dispozícií bezpečnostné aktualizácie"
 
 #: pkg/shell/shell-modals.jsx:127
 msgid "Select"
@@ -5972,8 +5976,8 @@ msgstr "Nastaviť"
 msgid "Set hostname"
 msgstr "Nastaviť názov stroja"
 
-#: pkg/users/password-dialogs.js:215 pkg/users/password-dialogs.js:225
-#: pkg/users/password-dialogs.js:232 pkg/users/account-details.js:345
+#: pkg/users/password-dialogs.js:219 pkg/users/password-dialogs.js:230
+#: pkg/users/password-dialogs.js:237 pkg/users/account-details.js:352
 msgid "Set password"
 msgstr "Nastaviť heslo"
 
@@ -6328,7 +6332,7 @@ msgstr "Zastavuje sa RAID zariadenie $target"
 msgid "Stopping swapspace $target"
 msgstr ""
 
-#: pkg/storaged/index.html:23 pkg/storaged/details.jsx:146
+#: pkg/storaged/index.html:23 pkg/storaged/details.jsx:140
 #: pkg/storaged/manifest.json:0
 msgid "Storage"
 msgstr "Úložisko"
@@ -6635,7 +6639,7 @@ msgstr ""
 "chránený. Môžete sa buď prihlásiť svojím prihlasovacím heslom alebo zadáním "
 "hesla ku kľúču {{#strong}}{{key}}{{/strong}}."
 
-#: pkg/users/password-dialogs.js:266
+#: pkg/users/password-dialogs.js:273
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr ""
 "Účet „$0“ bude pri najbližšom prihlásení vyzvaný k vynútenej zmene hesla"
@@ -6792,7 +6796,7 @@ msgstr "Nové heslo ku kľúču nemôže byť prázdne"
 msgid "The password can not be empty"
 msgstr "Heslo nemôže byť prázdne"
 
-#: pkg/users/account-create-dialog.js:202 pkg/users/password-dialogs.js:207
+#: pkg/users/account-create-dialog.js:210 pkg/users/password-dialogs.js:211
 msgid "The passwords do not match"
 msgstr "Heslá sa líšia"
 
@@ -6823,11 +6827,11 @@ msgstr ""
 msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr ""
 
-#: pkg/users/account-roles.js:90
+#: pkg/users/account-roles.js:89
 msgid "The user must log out and log back in to fully change roles."
 msgstr ""
 
-#: pkg/users/account-create-dialog.js:91
+#: pkg/users/account-create-dialog.js:99
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
@@ -6959,7 +6963,7 @@ msgstr ""
 msgid "This unit is not designed to be enabled explicitly."
 msgstr ""
 
-#: pkg/users/account-create-dialog.js:96
+#: pkg/users/account-create-dialog.js:104
 msgid "This user name already exists"
 msgstr "Toto užívateľské meno už existuje"
 
@@ -7489,10 +7493,6 @@ msgstr "Aktualizované"
 msgid "Updated packages may require a reboot to take effect."
 msgstr ""
 
-#: pkg/packagekit/autoupdates.jsx:350
-msgid "Updates "
-msgstr "Aktualizácie "
-
 #: pkg/packagekit/updates.jsx:1361
 msgid "Updates available"
 msgstr "Sú dostupné aktualizácie"
@@ -7500,6 +7500,10 @@ msgstr "Sú dostupné aktualizácie"
 #: pkg/packagekit/history.jsx:104
 msgid "Updates history"
 msgstr "História aktualizácií"
+
+#: pkg/packagekit/autoupdates.jsx:354
+msgid "Updates will be applied $0 at $1"
+msgstr ""
 
 #: pkg/packagekit/updates.jsx:86
 msgid "Updating"
@@ -7573,7 +7577,7 @@ msgstr "Používané"
 msgid "User"
 msgstr "Používateľ"
 
-#: pkg/static/login.html:76 pkg/users/account-create-dialog.js:49
+#: pkg/static/login.html:76 pkg/users/account-create-dialog.js:50
 #: pkg/users/account-details.js:299 pkg/shell/hosts_dialog.jsx:257
 msgid "User name"
 msgstr "Užívateľské meno"
@@ -7598,12 +7602,6 @@ msgstr "Šifrovanie"
 msgid "Using Tang server"
 msgstr "Upraviť Tang server s kľúčami"
 
-#: pkg/storaged/content-views.jsx:212
-#, fuzzy
-#| msgid "Pool"
-msgid "VDO Pool"
-msgstr "Úložisko"
-
 #: pkg/storaged/content-views.jsx:493
 msgctxt "storage-id-desc"
 msgid "VDO backing"
@@ -7624,6 +7622,12 @@ msgstr "VDO zariadenie $0"
 #: pkg/storaged/content-views.jsx:864
 msgid "VDO filesystem volume (compression/deduplication)"
 msgstr ""
+
+#: pkg/storaged/content-views.jsx:212
+#, fuzzy
+#| msgid "Pool"
+msgid "VDO pool"
+msgstr "Úložisko"
 
 #: pkg/networkmanager/network-interface.jsx:180
 #: pkg/networkmanager/network-interface.jsx:192
@@ -7711,7 +7715,7 @@ msgstr "Zobraziť hlásenie"
 #: pkg/lib/cockpit-components-firewalld-request.jsx:157
 #, fuzzy
 #| msgid "Firewall"
-msgid "Visit Firewall"
+msgid "Visit firewall"
 msgstr "Brána firewall"
 
 #: pkg/storaged/content-views.jsx:209
@@ -7865,7 +7869,7 @@ msgid ""
 "account."
 msgstr "Nemáte oprávnenia zobrazovať overené kľúče pre tento účet."
 
-#: pkg/shell/base_index.js:538
+#: pkg/shell/base_index.js:554
 msgid "You have been logged out due to inactivity."
 msgstr "Boli ste odhlásený z dôvodu neaktivity."
 
@@ -7895,7 +7899,7 @@ msgstr ""
 msgid "You now have administrative access."
 msgstr ""
 
-#: pkg/shell/base_index.js:516
+#: pkg/shell/base_index.js:532
 msgid "You will be logged out in $0 seconds."
 msgstr ""
 
@@ -8089,8 +8093,8 @@ msgid "drive"
 msgstr "jednotka"
 
 #: pkg/networkmanager/network-interface.jsx:359
-#: pkg/networkmanager/dialogs-common.jsx:223 pkg/users/account-details.js:333
-#: pkg/users/account-details.js:365 pkg/storaged/fsys-tab.jsx:690
+#: pkg/networkmanager/dialogs-common.jsx:223 pkg/users/account-details.js:340
+#: pkg/users/account-details.js:372 pkg/storaged/fsys-tab.jsx:690
 #: pkg/storaged/fsys-tab.jsx:705 pkg/storaged/lvol-tabs.jsx:423
 #: pkg/storaged/lvol-tabs.jsx:484 pkg/storaged/crypto-tab.jsx:248
 #: pkg/storaged/crypto-tab.jsx:257
@@ -8710,10 +8714,6 @@ msgstr "zväzok"
 msgid "warning"
 msgstr "varovanie"
 
-#: pkg/packagekit/autoupdates.jsx:351
-msgid "will be applied $0 at $1"
-msgstr ""
-
 #: pkg/storaged/crypto-tab.jsx:247
 msgid "yes"
 msgstr "áno"
@@ -8725,6 +8725,23 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "zóna"
+
+#~ msgid "Access"
+#~ msgstr "Prístup"
+
+#~ msgid "Lock account"
+#~ msgstr "Zamknúť účet"
+
+#, fuzzy
+#~| msgid "Logical size"
+#~ msgid "Logical Size"
+#~ msgstr "Logická veľkosť"
+
+#~ msgid "Security updates "
+#~ msgstr "Bezpečnostné aktualizácie "
+
+#~ msgid "Updates "
+#~ msgstr "Aktualizácie "
 
 #~ msgid "(Optional)"
 #~ msgstr "(Voliteľné)"

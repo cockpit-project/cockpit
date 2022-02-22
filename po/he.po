@@ -24,7 +24,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-08 18:03+0000\n"
+"POT-Creation-Date: 2022-02-15 18:03+0000\n"
 "PO-Revision-Date: 2022-01-14 07:16+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language-Team: Hebrew <https://translate.fedoraproject.org/projects/cockpit/"
@@ -673,10 +673,6 @@ msgstr "לקבל את המפתח ולהתחבר"
 msgid "Accept key and log in"
 msgstr "לקבל את המפתח ולהיכנס"
 
-#: pkg/users/account-create-dialog.js:69 pkg/users/account-details.js:315
-msgid "Access"
-msgstr "גישה"
-
 #: pkg/users/expiration-dialogs.js:103
 msgid "Account expiration"
 msgstr "תפוגת תוקף חשבון"
@@ -986,7 +982,7 @@ msgid "Appearance"
 msgstr "מראה"
 
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:145
-#: pkg/apps/application.jsx:151 pkg/apps/manifest.json:0
+#: pkg/apps/application.jsx:147 pkg/apps/manifest.json:0
 msgid "Applications"
 msgstr "יישומים"
 
@@ -1122,7 +1118,7 @@ msgstr "אוטומטית (DHCP)"
 msgid "Automatic login"
 msgstr "כניסה אוטומטית"
 
-#: pkg/packagekit/autoupdates.jsx:370 pkg/packagekit/autoupdates.jsx:406
+#: pkg/packagekit/autoupdates.jsx:373 pkg/packagekit/autoupdates.jsx:409
 msgid "Automatic updates"
 msgstr "עדכונים אוטומטיים"
 
@@ -1343,7 +1339,7 @@ msgstr "לא ניתן למצוא יומנים עם שילוב המסננים ה�
 #: pkg/shell/hosts_dialog.jsx:278 pkg/shell/hosts_dialog.jsx:373
 #: pkg/shell/hosts_dialog.jsx:495 pkg/shell/hosts_dialog.jsx:861
 #: pkg/shell/credentials.jsx:314 pkg/packagekit/updates.jsx:473
-#: pkg/packagekit/updates.jsx:544 pkg/packagekit/autoupdates.jsx:419
+#: pkg/packagekit/updates.jsx:544 pkg/packagekit/autoupdates.jsx:422
 #: pkg/packagekit/kpatch.jsx:310 pkg/lib/cockpit-components-shutdown.jsx:182
 #: pkg/lib/cockpit-components-dialog.jsx:127 pkg/apps/utils.jsx:66
 msgid "Cancel"
@@ -1523,7 +1519,7 @@ msgstr "ניקוי החיפוש"
 msgid "Cleartext device"
 msgstr "התקן טקסט גלוי"
 
-#: pkg/users/account-create-dialog.js:212 pkg/users/password-dialogs.js:215
+#: pkg/users/account-create-dialog.js:220 pkg/users/password-dialogs.js:219
 msgid "Click $0 again to use the password anyway."
 msgstr "יש ללחוץ על $0 שוב כדי להשתמש בסיסמה בכל זאת."
 
@@ -1680,7 +1676,7 @@ msgstr "kdump מוגדר"
 msgid "Configuring system settings"
 msgstr "הגדרות המערכת מוגדרות"
 
-#: pkg/users/account-create-dialog.js:61 pkg/storaged/format-dialog.jsx:273
+#: pkg/users/account-create-dialog.js:62 pkg/storaged/format-dialog.jsx:273
 #: pkg/storaged/stratis-panel.jsx:148
 msgid "Confirm"
 msgstr "אישור"
@@ -1693,7 +1689,7 @@ msgstr "אישור סיסמת מפתח"
 msgid "Confirm new key password"
 msgstr "אישור סיסמה חדשה למפתח"
 
-#: pkg/users/password-dialogs.js:149
+#: pkg/users/password-dialogs.js:152
 msgid "Confirm new password"
 msgstr "אישור סיסמה חדשה"
 
@@ -1832,8 +1828,8 @@ msgstr "דיווח על קריסות"
 msgid "Crash system"
 msgstr "הקרסת המערכת"
 
-#: pkg/users/account-create-dialog.js:212
-#: pkg/users/account-create-dialog.js:256 pkg/storaged/mdraids-panel.jsx:140
+#: pkg/users/account-create-dialog.js:220
+#: pkg/users/account-create-dialog.js:267 pkg/storaged/mdraids-panel.jsx:140
 #: pkg/storaged/stratis-panel.jsx:169 pkg/storaged/content-views.jsx:196
 #: pkg/storaged/content-views.jsx:311 pkg/storaged/content-views.jsx:957
 #: pkg/storaged/vgroups-panel.jsx:90 pkg/storaged/stratis-details.jsx:393
@@ -1881,7 +1877,7 @@ msgstr "ליצור אותו"
 msgid "Create logical volume"
 msgstr "יצירת כרך לוגי"
 
-#: pkg/users/accounts-list.js:78 pkg/users/account-create-dialog.js:249
+#: pkg/users/accounts-list.js:78 pkg/users/account-create-dialog.js:260
 msgid "Create new account"
 msgstr "יצירת חשבון חדש"
 
@@ -2001,10 +1997,6 @@ msgstr "פתחות מותאמות אישית"
 #: pkg/networkmanager/firewall.jsx:739
 msgid "Custom zones"
 msgstr "אזורים מותאמים אישית"
-
-#: pkg/storaged/drive-details.jsx:63
-msgid "DISK IS FAILING"
-msgstr "הכונן כושל"
 
 #: pkg/networkmanager/ip-settings.jsx:209
 msgid "DNS"
@@ -2235,6 +2227,12 @@ msgstr "השבתת tuned"
 msgid "Disabled"
 msgstr "מושבת"
 
+#: pkg/users/account-create-dialog.js:74 pkg/users/account-details.js:323
+#, fuzzy
+#| msgid "Domain administrator password"
+msgid "Disallow interactive password"
+msgstr "סיסמת מנהל שם תחום"
+
 #: pkg/systemd/services/service-details.jsx:158
 msgid "Disallow running (mask)"
 msgstr "לא לאפשר הרצה (מיסוך)"
@@ -2254,6 +2252,13 @@ msgstr "קפיצה פתאומית בפעולות קלט/פלט של כונן"
 #: pkg/storaged/drive-details.jsx:64
 msgid "Disk is OK"
 msgstr "הכונן תקין"
+
+#: pkg/storaged/drive-details.jsx:63
+#, fuzzy
+#| msgid "$0 disk is missing"
+#| msgid_plural "$0 disks are missing"
+msgid "Disk is failing"
+msgstr "כונן אחד חסר"
 
 #: pkg/storaged/crypto-keyslots.jsx:197
 msgid "Disk passphrase"
@@ -2365,7 +2370,7 @@ msgstr "דו־צדדי"
 
 #: pkg/storaged/nfs-details.jsx:305 pkg/storaged/iscsi-panel.jsx:255
 #: pkg/storaged/crypto-keyslots.jsx:577 pkg/shell/indexes.js:341
-#: pkg/shell/hosts.jsx:173 pkg/packagekit/autoupdates.jsx:399
+#: pkg/shell/hosts.jsx:173 pkg/packagekit/autoupdates.jsx:402
 #: pkg/packagekit/kpatch.jsx:229
 msgid "Edit"
 msgstr "עריכה"
@@ -2420,7 +2425,7 @@ msgstr "לרוקן"
 msgid "Emptying $target"
 msgstr "$target מתרוקן"
 
-#: pkg/packagekit/autoupdates.jsx:399 pkg/packagekit/kpatch.jsx:249
+#: pkg/packagekit/autoupdates.jsx:402 pkg/packagekit/kpatch.jsx:249
 msgid "Enable"
 msgstr "הפעלה"
 
@@ -2673,7 +2678,7 @@ msgstr "משיכת יומנים נכשלה"
 msgid "Failed to load authorized keys."
 msgstr "טעינת המפתחות המורשים נכשלה."
 
-#: pkg/packagekit/autoupdates.jsx:362
+#: pkg/packagekit/autoupdates.jsx:365
 msgid ""
 "Failed to parse unit files for dnf-automatic.timer or dnf-automatic-install."
 "timer. Please remove custom overrides to configure automatic updates."
@@ -2770,11 +2775,11 @@ msgstr "גודל גופן"
 msgid "Forbidden from running"
 msgstr "נאסר עליו לפעול"
 
-#: pkg/users/account-details.js:352
+#: pkg/users/account-details.js:359
 msgid "Force change"
 msgstr "לאלץ החלפה"
 
-#: pkg/users/password-dialogs.js:271
+#: pkg/users/password-dialogs.js:278
 msgid "Force password change"
 msgstr "לאלץ החלפת סיסמה"
 
@@ -2827,7 +2832,7 @@ msgstr "ימי שישי"
 msgid "From"
 msgstr "התחלה"
 
-#: pkg/users/account-create-dialog.js:40 pkg/users/account-details.js:285
+#: pkg/users/account-create-dialog.js:41 pkg/users/account-details.js:285
 msgid "Full name"
 msgstr "שם מלא"
 
@@ -3571,10 +3576,6 @@ msgstr "מיקום"
 msgid "Lock"
 msgstr "נעילה"
 
-#: pkg/users/account-create-dialog.js:71 pkg/users/account-details.js:321
-msgid "Lock account"
-msgstr "נעילת חשבון"
-
 #: pkg/storaged/crypto-panel.jsx:77 pkg/storaged/crypto-panel.jsx:80
 msgid "Locked devices"
 msgstr "התקנים נעולים"
@@ -3621,11 +3622,7 @@ msgstr "נכנסת"
 msgid "Logical"
 msgstr "לוגי"
 
-#: pkg/storaged/content-views.jsx:927
-msgid "Logical Size"
-msgstr "גודל לוגי"
-
-#: pkg/storaged/vdo-details.jsx:228
+#: pkg/storaged/content-views.jsx:927 pkg/storaged/vdo-details.jsx:228
 msgid "Logical size"
 msgstr "גודל לוגי"
 
@@ -4159,7 +4156,7 @@ msgstr "סיסמה חדשה למפתח"
 msgid "New passphrase"
 msgstr "מילת צופן חדשה"
 
-#: pkg/users/password-dialogs.js:148 pkg/shell/credentials.jsx:266
+#: pkg/users/password-dialogs.js:151 pkg/shell/credentials.jsx:266
 msgid "New password"
 msgstr "סיסמה חדשה"
 
@@ -4318,7 +4315,7 @@ msgstr ""
 msgid "No partitioning"
 msgstr "אין חלוקה למחיצות"
 
-#: pkg/users/account-create-dialog.js:199
+#: pkg/users/account-create-dialog.js:207
 msgid "No real name specified"
 msgstr "לא צוין שם אמתי"
 
@@ -4348,7 +4345,7 @@ msgstr "אין שינויים במערכת"
 msgid "No updates"
 msgstr "אין עדכונים"
 
-#: pkg/users/account-create-dialog.js:87
+#: pkg/users/account-create-dialog.js:95
 msgid "No user name specified"
 msgstr "לא צוין שם משתמש"
 
@@ -4393,7 +4390,7 @@ msgstr "לא מחובר למארח"
 msgid "Not enough space to grow."
 msgstr "אין מספיק מקום כדי לגדול."
 
-#: pkg/storaged/details.jsx:138 pkg/systemd/services/services.jsx:176
+#: pkg/storaged/details.jsx:132 pkg/systemd/services/services.jsx:176
 msgid "Not found"
 msgstr "לא נמצא"
 
@@ -4472,7 +4469,7 @@ msgstr "אישור"
 msgid "Old passphrase"
 msgstr "מילת צופן ישנה"
 
-#: pkg/users/password-dialogs.js:139
+#: pkg/users/password-dialogs.js:141
 msgid "Old password"
 msgstr "סיסמה ישנה"
 
@@ -4525,7 +4522,8 @@ msgctxt "storage"
 msgid "Optical drive"
 msgstr "כונן אופטי"
 
-#: pkg/networkmanager/bridge.jsx:104 pkg/storaged/content-views.jsx:937
+#: pkg/networkmanager/bridge.jsx:104 pkg/users/account-create-dialog.js:70
+#: pkg/users/account-details.js:315 pkg/storaged/content-views.jsx:937
 #: pkg/storaged/crypto-tab.jsx:253
 msgid "Options"
 msgstr "אפשרויות"
@@ -4537,6 +4535,12 @@ msgstr "או להשתמש בדפדפן מובנה"
 #: pkg/lib/machine-info.js:58
 msgid "Other"
 msgstr "אחר"
+
+#: pkg/users/account-create-dialog.js:76 pkg/users/account-details.js:325
+msgid ""
+"Other authentication methods are still available even when interactive "
+"password authentication is not allowed."
+msgstr ""
 
 #: pkg/storaged/content-views.jsx:490
 msgctxt "storage-id-desc"
@@ -4683,8 +4687,8 @@ msgstr "הסרת מילת הצופן עשויה למנוע את השחרור ש�
 msgid "Passphrases do not match"
 msgstr "מילות הצופן אינן תואמות"
 
-#: pkg/static/login.html:81 pkg/users/account-create-dialog.js:60
-#: pkg/users/account-details.js:339 pkg/storaged/iscsi-panel.jsx:50
+#: pkg/static/login.html:81 pkg/users/account-create-dialog.js:61
+#: pkg/users/account-details.js:346 pkg/storaged/iscsi-panel.jsx:50
 #: pkg/storaged/iscsi-panel.jsx:160 pkg/shell/superuser.jsx:52
 #: pkg/shell/hosts_dialog.jsx:818 pkg/shell/hosts_dialog.jsx:827
 #: pkg/shell/credentials.jsx:120 pkg/shell/credentials.jsx:263
@@ -4702,7 +4706,7 @@ msgstr "הפתרון חל בהצלחה"
 msgid "Password expiration"
 msgstr "תפוגת סיסמה"
 
-#: pkg/users/account-create-dialog.js:205 pkg/users/password-dialogs.js:210
+#: pkg/users/account-create-dialog.js:213 pkg/users/password-dialogs.js:214
 msgid "Password is longer than 256 characters"
 msgstr "הסיסמה ארוכה מ־256 תווים"
 
@@ -5479,7 +5483,7 @@ msgstr "זיכרון שמור"
 msgid "Reset"
 msgstr "איפוס"
 
-#: pkg/users/password-dialogs.js:278
+#: pkg/users/password-dialogs.js:285
 msgid "Reset password"
 msgstr "איפוס סיסמה"
 
@@ -5659,7 +5663,7 @@ msgid "Save and reboot"
 msgstr "שמירה והפעלה מחדש"
 
 #: pkg/systemd/overview-cards/motdCard.jsx:98
-#: pkg/packagekit/autoupdates.jsx:414
+#: pkg/packagekit/autoupdates.jsx:417
 msgid "Save changes"
 msgstr "שמירת השינויים"
 
@@ -5714,10 +5718,6 @@ msgstr "מפתחות מעטפת מאובטחת"
 msgid "Securely erasing $target"
 msgstr "$target נמחק בצורה מאובטחת"
 
-#: pkg/packagekit/autoupdates.jsx:350
-msgid "Security updates "
-msgstr "עדכוני אבטחה "
-
 #: pkg/packagekit/updates.jsx:1355
 msgid "Security updates available"
 msgstr "יש עדכוני אבטחה"
@@ -5725,6 +5725,12 @@ msgstr "יש עדכוני אבטחה"
 #: pkg/packagekit/autoupdates.jsx:289
 msgid "Security updates only"
 msgstr "עדכוני אבטחה בלבד"
+
+#: pkg/packagekit/autoupdates.jsx:353
+#, fuzzy
+#| msgid "will be applied $0 at $1"
+msgid "Security updates will be applied $0 at $1"
+msgstr "$0 יחול ב־$1"
 
 #: pkg/shell/shell-modals.jsx:127
 msgid "Select"
@@ -5848,8 +5854,8 @@ msgstr "הגדרה"
 msgid "Set hostname"
 msgstr "הגדרת שם מארח"
 
-#: pkg/users/password-dialogs.js:215 pkg/users/password-dialogs.js:225
-#: pkg/users/password-dialogs.js:232 pkg/users/account-details.js:345
+#: pkg/users/password-dialogs.js:219 pkg/users/password-dialogs.js:230
+#: pkg/users/password-dialogs.js:237 pkg/users/account-details.js:352
 msgid "Set password"
 msgstr "הגדרת סיסמה"
 
@@ -6212,7 +6218,7 @@ msgstr "התקן ה־RAID‏ $target נעצר"
 msgid "Stopping swapspace $target"
 msgstr "שטח ההחלפה $target נעצר"
 
-#: pkg/storaged/index.html:23 pkg/storaged/details.jsx:146
+#: pkg/storaged/index.html:23 pkg/storaged/details.jsx:140
 #: pkg/storaged/manifest.json:0
 msgid "Storage"
 msgstr "אחסון"
@@ -6525,7 +6531,7 @@ msgstr ""
 "אפשרות להיכנס עם שם המשתמש והסיסמה שלך או על ידי אספקת הסיסמה למפתח שב־"
 "{{#strong}}{{key}}{{/strong}}."
 
-#: pkg/users/password-dialogs.js:266
+#: pkg/users/password-dialogs.js:273
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr "החשבון ‚$0’ יאולץ להחליף את הסיסמה שלו עם כניסתו הבאה למערכת"
 
@@ -6689,7 +6695,7 @@ msgstr "סיסמת המפתח החדשה לא יכולה להישאר ריקה"
 msgid "The password can not be empty"
 msgstr "סיסמת המפתח לא יכולה להישאר ריקה"
 
-#: pkg/users/account-create-dialog.js:202 pkg/users/password-dialogs.js:207
+#: pkg/users/account-create-dialog.js:210 pkg/users/password-dialogs.js:211
 msgid "The passwords do not match"
 msgstr "הסיסמאות אינן תואמות"
 
@@ -6718,11 +6724,11 @@ msgstr "השרת סירב לאמת בעזרת השיטות הנתמכות."
 msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr "המשתמש $0 אינו מורשה לשנות את אפחותי אבטחת המעבד"
 
-#: pkg/users/account-roles.js:90
+#: pkg/users/account-roles.js:89
 msgid "The user must log out and log back in to fully change roles."
 msgstr "על המשתמש לצאת ולהיכנס בחזרה למערכת כדי לשנות תפקידים באופן מלא."
 
-#: pkg/users/account-create-dialog.js:91
+#: pkg/users/account-create-dialog.js:99
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
@@ -6858,7 +6864,7 @@ msgstr ""
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "יחידה זו לא תוכננה להפעלה באופן מפורש."
 
-#: pkg/users/account-create-dialog.js:96
+#: pkg/users/account-create-dialog.js:104
 msgid "This user name already exists"
 msgstr "שם משתמש זה כבר קיים"
 
@@ -7400,10 +7406,6 @@ msgstr "מעודכנת"
 msgid "Updated packages may require a reboot to take effect."
 msgstr "ייתכן שהחבילות שעודכנו תדרושנה הפעלה מחדש כדי להיכנס לתוקף."
 
-#: pkg/packagekit/autoupdates.jsx:350
-msgid "Updates "
-msgstr "עדכונים "
-
 #: pkg/packagekit/updates.jsx:1361
 msgid "Updates available"
 msgstr "עדכונים זמינים"
@@ -7411,6 +7413,12 @@ msgstr "עדכונים זמינים"
 #: pkg/packagekit/history.jsx:104
 msgid "Updates history"
 msgstr "היסטוריית עדכונים"
+
+#: pkg/packagekit/autoupdates.jsx:354
+#, fuzzy
+#| msgid "will be applied $0 at $1"
+msgid "Updates will be applied $0 at $1"
+msgstr "$0 יחול ב־$1"
 
 #: pkg/packagekit/updates.jsx:86
 msgid "Updating"
@@ -7483,7 +7491,7 @@ msgstr "בשימוש על ידי"
 msgid "User"
 msgstr "משתמש"
 
-#: pkg/static/login.html:76 pkg/users/account-create-dialog.js:49
+#: pkg/static/login.html:76 pkg/users/account-create-dialog.js:50
 #: pkg/users/account-details.js:299 pkg/shell/hosts_dialog.jsx:257
 msgid "User name"
 msgstr "שם משתמש"
@@ -7503,12 +7511,6 @@ msgstr "באמצעות הצפנת LUKS"
 #: pkg/storaged/manifest.json:0
 msgid "Using Tang server"
 msgstr "באמצעות שרת Tang"
-
-#: pkg/storaged/content-views.jsx:212
-#, fuzzy
-#| msgid "Pool"
-msgid "VDO Pool"
-msgstr "מאגר"
 
 #: pkg/storaged/content-views.jsx:493
 msgctxt "storage-id-desc"
@@ -7530,6 +7532,12 @@ msgstr "התקן VDO‏ $0"
 #: pkg/storaged/content-views.jsx:864
 msgid "VDO filesystem volume (compression/deduplication)"
 msgstr ""
+
+#: pkg/storaged/content-views.jsx:212
+#, fuzzy
+#| msgid "Pool"
+msgid "VDO pool"
+msgstr "מאגר"
 
 #: pkg/networkmanager/network-interface.jsx:180
 #: pkg/networkmanager/network-interface.jsx:192
@@ -7617,7 +7625,7 @@ msgstr "הצגת דוח"
 #: pkg/lib/cockpit-components-firewalld-request.jsx:157
 #, fuzzy
 #| msgid "Firewall"
-msgid "Visit Firewall"
+msgid "Visit firewall"
 msgstr "חומת אש"
 
 #: pkg/storaged/content-views.jsx:209
@@ -7769,7 +7777,7 @@ msgid ""
 "account."
 msgstr "אין לך הרשאה לצפות במפתחות ציבוריים מורשים לחשבון זה."
 
-#: pkg/shell/base_index.js:538
+#: pkg/shell/base_index.js:554
 msgid "You have been logged out due to inactivity."
 msgstr "יצאת מהמערכת עקב חוסר פעילות."
 
@@ -7800,7 +7808,7 @@ msgstr "עליך לעבור ל„גישה ניהולית” כדי ליצור ד
 msgid "You now have administrative access."
 msgstr "מעתה יש לך גישה ניהולית."
 
-#: pkg/shell/base_index.js:516
+#: pkg/shell/base_index.js:532
 msgid "You will be logged out in $0 seconds."
 msgstr "המערכת תוציא אותך בעוד $0 שניות."
 
@@ -7995,8 +8003,8 @@ msgid "drive"
 msgstr "כונן"
 
 #: pkg/networkmanager/network-interface.jsx:359
-#: pkg/networkmanager/dialogs-common.jsx:223 pkg/users/account-details.js:333
-#: pkg/users/account-details.js:365 pkg/storaged/fsys-tab.jsx:690
+#: pkg/networkmanager/dialogs-common.jsx:223 pkg/users/account-details.js:340
+#: pkg/users/account-details.js:372 pkg/storaged/fsys-tab.jsx:690
 #: pkg/storaged/fsys-tab.jsx:705 pkg/storaged/lvol-tabs.jsx:423
 #: pkg/storaged/lvol-tabs.jsx:484 pkg/storaged/crypto-tab.jsx:248
 #: pkg/storaged/crypto-tab.jsx:257
@@ -8617,10 +8625,6 @@ msgstr "כרך"
 msgid "warning"
 msgstr "אזהרה"
 
-#: pkg/packagekit/autoupdates.jsx:351
-msgid "will be applied $0 at $1"
-msgstr "$0 יחול ב־$1"
-
 #: pkg/storaged/crypto-tab.jsx:247
 msgid "yes"
 msgstr "כן"
@@ -8632,6 +8636,24 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "אזור"
+
+#~ msgid "Access"
+#~ msgstr "גישה"
+
+#~ msgid "DISK IS FAILING"
+#~ msgstr "הכונן כושל"
+
+#~ msgid "Lock account"
+#~ msgstr "נעילת חשבון"
+
+#~ msgid "Logical Size"
+#~ msgstr "גודל לוגי"
+
+#~ msgid "Security updates "
+#~ msgstr "עדכוני אבטחה "
+
+#~ msgid "Updates "
+#~ msgstr "עדכונים "
 
 #~ msgid "(Optional)"
 #~ msgstr "(רשות)"

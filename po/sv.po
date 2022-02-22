@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-08 18:03+0000\n"
+"POT-Creation-Date: 2022-02-15 18:03+0000\n"
 "PO-Revision-Date: 2022-01-28 10:16+0000\n"
 "Last-Translator: Anders Jonsson <anders.jonsson@norsjovallen.se>\n"
 "Language-Team: Swedish <https://translate.fedoraproject.org/projects/cockpit/"
@@ -619,10 +619,6 @@ msgstr "Acceptera nyckel och anslut"
 msgid "Accept key and log in"
 msgstr "Acceptera nyckel och logga in"
 
-#: pkg/users/account-create-dialog.js:69 pkg/users/account-details.js:315
-msgid "Access"
-msgstr "Åtkomst"
-
 #: pkg/users/expiration-dialogs.js:103
 msgid "Account expiration"
 msgstr "Utgång av konto"
@@ -936,7 +932,7 @@ msgid "Appearance"
 msgstr "Utseende"
 
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:145
-#: pkg/apps/application.jsx:151 pkg/apps/manifest.json:0
+#: pkg/apps/application.jsx:147 pkg/apps/manifest.json:0
 msgid "Applications"
 msgstr "Program"
 
@@ -1072,7 +1068,7 @@ msgstr "Automatiskt (DHCP)"
 msgid "Automatic login"
 msgstr "Automatisk inloggning"
 
-#: pkg/packagekit/autoupdates.jsx:370 pkg/packagekit/autoupdates.jsx:406
+#: pkg/packagekit/autoupdates.jsx:373 pkg/packagekit/autoupdates.jsx:409
 msgid "Automatic updates"
 msgstr "Automatiska uppdateringar"
 
@@ -1296,7 +1292,7 @@ msgstr "Hittade inga loggar med dessa filter aktiva."
 #: pkg/shell/hosts_dialog.jsx:278 pkg/shell/hosts_dialog.jsx:373
 #: pkg/shell/hosts_dialog.jsx:495 pkg/shell/hosts_dialog.jsx:861
 #: pkg/shell/credentials.jsx:314 pkg/packagekit/updates.jsx:473
-#: pkg/packagekit/updates.jsx:544 pkg/packagekit/autoupdates.jsx:419
+#: pkg/packagekit/updates.jsx:544 pkg/packagekit/autoupdates.jsx:422
 #: pkg/packagekit/kpatch.jsx:310 pkg/lib/cockpit-components-shutdown.jsx:182
 #: pkg/lib/cockpit-components-dialog.jsx:127 pkg/apps/utils.jsx:66
 msgid "Cancel"
@@ -1482,7 +1478,7 @@ msgstr "Nollställ sökning"
 msgid "Cleartext device"
 msgstr "Skapa enheter"
 
-#: pkg/users/account-create-dialog.js:212 pkg/users/password-dialogs.js:215
+#: pkg/users/account-create-dialog.js:220 pkg/users/password-dialogs.js:219
 msgid "Click $0 again to use the password anyway."
 msgstr "Klicka på $0 igen för att använda detta lösenord ändå."
 
@@ -1641,7 +1637,7 @@ msgstr "Konfigurerar kdump"
 msgid "Configuring system settings"
 msgstr "Konfigurerar systeminställningar"
 
-#: pkg/users/account-create-dialog.js:61 pkg/storaged/format-dialog.jsx:273
+#: pkg/users/account-create-dialog.js:62 pkg/storaged/format-dialog.jsx:273
 #: pkg/storaged/stratis-panel.jsx:148
 msgid "Confirm"
 msgstr "Bekräfta"
@@ -1654,7 +1650,7 @@ msgstr "Bekräfta lösenord för nyckel"
 msgid "Confirm new key password"
 msgstr "Bekräfta nytt lösenord för nyckel"
 
-#: pkg/users/password-dialogs.js:149
+#: pkg/users/password-dialogs.js:152
 msgid "Confirm new password"
 msgstr "Bekräfta nytt lösenord"
 
@@ -1793,8 +1789,8 @@ msgstr "Rapportera krascher"
 msgid "Crash system"
 msgstr "Kraschsystem"
 
-#: pkg/users/account-create-dialog.js:212
-#: pkg/users/account-create-dialog.js:256 pkg/storaged/mdraids-panel.jsx:140
+#: pkg/users/account-create-dialog.js:220
+#: pkg/users/account-create-dialog.js:267 pkg/storaged/mdraids-panel.jsx:140
 #: pkg/storaged/stratis-panel.jsx:169 pkg/storaged/content-views.jsx:196
 #: pkg/storaged/content-views.jsx:311 pkg/storaged/content-views.jsx:957
 #: pkg/storaged/vgroups-panel.jsx:90 pkg/storaged/stratis-details.jsx:393
@@ -1842,7 +1838,7 @@ msgstr "Skapa den"
 msgid "Create logical volume"
 msgstr "Skapa en logisk volym"
 
-#: pkg/users/accounts-list.js:78 pkg/users/account-create-dialog.js:249
+#: pkg/users/accounts-list.js:78 pkg/users/account-create-dialog.js:260
 msgid "Create new account"
 msgstr "Skapa ett nytt konto"
 
@@ -1962,10 +1958,6 @@ msgstr "Egna portar"
 #: pkg/networkmanager/firewall.jsx:739
 msgid "Custom zones"
 msgstr "Egna zoner"
-
-#: pkg/storaged/drive-details.jsx:63
-msgid "DISK IS FAILING"
-msgstr "DISKEN GÅR SÖNDER"
 
 #: pkg/networkmanager/ip-settings.jsx:209
 msgid "DNS"
@@ -2198,6 +2190,12 @@ msgstr "Avaktivera tuned"
 msgid "Disabled"
 msgstr "Avaktiverad"
 
+#: pkg/users/account-create-dialog.js:74 pkg/users/account-details.js:323
+#, fuzzy
+#| msgid "Domain administrator password"
+msgid "Disallow interactive password"
+msgstr "Domänadministratörens lösenord"
+
 #: pkg/systemd/services/service-details.jsx:158
 msgid "Disallow running (mask)"
 msgstr "Hindra körning (göm)"
@@ -2217,6 +2215,13 @@ msgstr "Disk-I/O-topp"
 #: pkg/storaged/drive-details.jsx:64
 msgid "Disk is OK"
 msgstr "Disken är OK"
+
+#: pkg/storaged/drive-details.jsx:63
+#, fuzzy
+#| msgid "$0 disk is missing"
+#| msgid_plural "$0 disks are missing"
+msgid "Disk is failing"
+msgstr "$0 disk saknas"
 
 #: pkg/storaged/crypto-keyslots.jsx:197
 msgid "Disk passphrase"
@@ -2328,7 +2333,7 @@ msgstr "Dubbelrad"
 
 #: pkg/storaged/nfs-details.jsx:305 pkg/storaged/iscsi-panel.jsx:255
 #: pkg/storaged/crypto-keyslots.jsx:577 pkg/shell/indexes.js:341
-#: pkg/shell/hosts.jsx:173 pkg/packagekit/autoupdates.jsx:399
+#: pkg/shell/hosts.jsx:173 pkg/packagekit/autoupdates.jsx:402
 #: pkg/packagekit/kpatch.jsx:229
 msgid "Edit"
 msgstr "Redigera"
@@ -2383,7 +2388,7 @@ msgstr "Töm"
 msgid "Emptying $target"
 msgstr "Tömmer $target"
 
-#: pkg/packagekit/autoupdates.jsx:399 pkg/packagekit/kpatch.jsx:249
+#: pkg/packagekit/autoupdates.jsx:402 pkg/packagekit/kpatch.jsx:249
 msgid "Enable"
 msgstr "Aktivera"
 
@@ -2636,7 +2641,7 @@ msgstr "Misslyckades att hämta loggar"
 msgid "Failed to load authorized keys."
 msgstr "Misslyckades att läsa in auktoriserade nycklar."
 
-#: pkg/packagekit/autoupdates.jsx:362
+#: pkg/packagekit/autoupdates.jsx:365
 msgid ""
 "Failed to parse unit files for dnf-automatic.timer or dnf-automatic-install."
 "timer. Please remove custom overrides to configure automatic updates."
@@ -2734,11 +2739,11 @@ msgstr "Textstorlek"
 msgid "Forbidden from running"
 msgstr "Kan ej köras"
 
-#: pkg/users/account-details.js:352
+#: pkg/users/account-details.js:359
 msgid "Force change"
 msgstr "Framtvinga ändring"
 
-#: pkg/users/password-dialogs.js:271
+#: pkg/users/password-dialogs.js:278
 msgid "Force password change"
 msgstr "Framtvinga lösenordsändring"
 
@@ -2793,7 +2798,7 @@ msgstr "Fredagar"
 msgid "From"
 msgstr "Från"
 
-#: pkg/users/account-create-dialog.js:40 pkg/users/account-details.js:285
+#: pkg/users/account-create-dialog.js:41 pkg/users/account-details.js:285
 msgid "Full name"
 msgstr "Fullständigt namn"
 
@@ -3541,10 +3546,6 @@ msgstr "Plats"
 msgid "Lock"
 msgstr "Lås"
 
-#: pkg/users/account-create-dialog.js:71 pkg/users/account-details.js:321
-msgid "Lock account"
-msgstr "Lås kontot"
-
 #: pkg/storaged/crypto-panel.jsx:77 pkg/storaged/crypto-panel.jsx:80
 msgid "Locked devices"
 msgstr "Låsta enheter"
@@ -3591,11 +3592,7 @@ msgstr "Inloggad"
 msgid "Logical"
 msgstr "Logisk"
 
-#: pkg/storaged/content-views.jsx:927
-msgid "Logical Size"
-msgstr "Logisk Storlek"
-
-#: pkg/storaged/vdo-details.jsx:228
+#: pkg/storaged/content-views.jsx:927 pkg/storaged/vdo-details.jsx:228
 msgid "Logical size"
 msgstr "Logisk storlek"
 
@@ -4148,7 +4145,7 @@ msgstr "Nytt nyckellösenord"
 msgid "New passphrase"
 msgstr "Ny lösenfras"
 
-#: pkg/users/password-dialogs.js:148 pkg/shell/credentials.jsx:266
+#: pkg/users/password-dialogs.js:151 pkg/shell/credentials.jsx:266
 msgid "New password"
 msgstr "Nytt lösenord"
 
@@ -4301,7 +4298,7 @@ msgstr ""
 msgid "No partitioning"
 msgstr "Ingen partitionering"
 
-#: pkg/users/account-create-dialog.js:199
+#: pkg/users/account-create-dialog.js:207
 msgid "No real name specified"
 msgstr "Inget verkligt namn angivet"
 
@@ -4333,7 +4330,7 @@ msgstr "Inga systemändringar"
 msgid "No updates"
 msgstr "Inga uppdateringar"
 
-#: pkg/users/account-create-dialog.js:87
+#: pkg/users/account-create-dialog.js:95
 msgid "No user name specified"
 msgstr "Inget användarnamn angivet"
 
@@ -4378,7 +4375,7 @@ msgstr "Inte ansluten till värd"
 msgid "Not enough space to grow."
 msgstr "Inte tillräckligt med utrymme för att växa."
 
-#: pkg/storaged/details.jsx:138 pkg/systemd/services/services.jsx:176
+#: pkg/storaged/details.jsx:132 pkg/systemd/services/services.jsx:176
 msgid "Not found"
 msgstr "Finns inte"
 
@@ -4455,7 +4452,7 @@ msgstr "Ok"
 msgid "Old passphrase"
 msgstr "Gammal lösenfras"
 
-#: pkg/users/password-dialogs.js:139
+#: pkg/users/password-dialogs.js:141
 msgid "Old password"
 msgstr "Gammalt lösenord"
 
@@ -4508,7 +4505,8 @@ msgctxt "storage"
 msgid "Optical drive"
 msgstr "Optisk enhet"
 
-#: pkg/networkmanager/bridge.jsx:104 pkg/storaged/content-views.jsx:937
+#: pkg/networkmanager/bridge.jsx:104 pkg/users/account-create-dialog.js:70
+#: pkg/users/account-details.js:315 pkg/storaged/content-views.jsx:937
 #: pkg/storaged/crypto-tab.jsx:253
 msgid "Options"
 msgstr "Alternativ"
@@ -4520,6 +4518,12 @@ msgstr "Eller använd en medpackad bläddrare"
 #: pkg/lib/machine-info.js:58
 msgid "Other"
 msgstr "Annan"
+
+#: pkg/users/account-create-dialog.js:76 pkg/users/account-details.js:325
+msgid ""
+"Other authentication methods are still available even when interactive "
+"password authentication is not allowed."
+msgstr ""
 
 #: pkg/storaged/content-views.jsx:490
 msgctxt "storage-id-desc"
@@ -4660,8 +4664,8 @@ msgstr "Att ta bort lösenfrasen kan förhindra upplåsning av $0."
 msgid "Passphrases do not match"
 msgstr "Lösenfraserna stämmer inte överens"
 
-#: pkg/static/login.html:81 pkg/users/account-create-dialog.js:60
-#: pkg/users/account-details.js:339 pkg/storaged/iscsi-panel.jsx:50
+#: pkg/static/login.html:81 pkg/users/account-create-dialog.js:61
+#: pkg/users/account-details.js:346 pkg/storaged/iscsi-panel.jsx:50
 #: pkg/storaged/iscsi-panel.jsx:160 pkg/shell/superuser.jsx:52
 #: pkg/shell/hosts_dialog.jsx:818 pkg/shell/hosts_dialog.jsx:827
 #: pkg/shell/credentials.jsx:120 pkg/shell/credentials.jsx:263
@@ -4677,7 +4681,7 @@ msgstr "Lösenordet har ändrats"
 msgid "Password expiration"
 msgstr "Utgång av lösenord"
 
-#: pkg/users/account-create-dialog.js:205 pkg/users/password-dialogs.js:210
+#: pkg/users/account-create-dialog.js:213 pkg/users/password-dialogs.js:214
 msgid "Password is longer than 256 characters"
 msgstr "Lösenord får inte vara längre än 256 tecken"
 
@@ -5432,7 +5436,7 @@ msgstr "Reserverat minne"
 msgid "Reset"
 msgstr "Återställ"
 
-#: pkg/users/password-dialogs.js:278
+#: pkg/users/password-dialogs.js:285
 msgid "Reset password"
 msgstr "Återställ lösenord"
 
@@ -5609,7 +5613,7 @@ msgid "Save and reboot"
 msgstr "Spara och starta om"
 
 #: pkg/systemd/overview-cards/motdCard.jsx:98
-#: pkg/packagekit/autoupdates.jsx:414
+#: pkg/packagekit/autoupdates.jsx:417
 msgid "Save changes"
 msgstr "Spara ändringar"
 
@@ -5662,10 +5666,6 @@ msgstr "Säkra skalnycklar"
 msgid "Securely erasing $target"
 msgstr "Raderar säkert $target"
 
-#: pkg/packagekit/autoupdates.jsx:350
-msgid "Security updates "
-msgstr "Säkerhetsuppdateringar "
-
 #: pkg/packagekit/updates.jsx:1355
 msgid "Security updates available"
 msgstr "Säkerhetsuppdateringar tillgängliga"
@@ -5673,6 +5673,12 @@ msgstr "Säkerhetsuppdateringar tillgängliga"
 #: pkg/packagekit/autoupdates.jsx:289
 msgid "Security updates only"
 msgstr "Säkerhetsuppdateringar endast"
+
+#: pkg/packagekit/autoupdates.jsx:353
+#, fuzzy
+#| msgid "Security updates available"
+msgid "Security updates will be applied $0 at $1"
+msgstr "Säkerhetsuppdateringar tillgängliga"
 
 #: pkg/shell/shell-modals.jsx:127
 msgid "Select"
@@ -5790,8 +5796,8 @@ msgstr "Sätt"
 msgid "Set hostname"
 msgstr "Ange värdnamn"
 
-#: pkg/users/password-dialogs.js:215 pkg/users/password-dialogs.js:225
-#: pkg/users/password-dialogs.js:232 pkg/users/account-details.js:345
+#: pkg/users/password-dialogs.js:219 pkg/users/password-dialogs.js:230
+#: pkg/users/password-dialogs.js:237 pkg/users/account-details.js:352
 msgid "Set password"
 msgstr "Sätt lösenord"
 
@@ -6145,7 +6151,7 @@ msgstr "Stoppar RAID-enhet $target"
 msgid "Stopping swapspace $target"
 msgstr "Stoppar växlingsutrymmet $target"
 
-#: pkg/storaged/index.html:23 pkg/storaged/details.jsx:146
+#: pkg/storaged/index.html:23 pkg/storaged/details.jsx:140
 #: pkg/storaged/manifest.json:0
 msgid "Storage"
 msgstr "Lagring"
@@ -6417,7 +6423,7 @@ msgid ""
 "your login password or by providing the password of the key at $1."
 msgstr ""
 
-#: pkg/users/password-dialogs.js:266
+#: pkg/users/password-dialogs.js:273
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr ""
 "Kontot ”$0” kommer att tvingas ändra sitt lösenord vid nästa inloggning"
@@ -6592,7 +6598,7 @@ msgstr "Det nya nyckellösenordet får inte vara tomt"
 msgid "The password can not be empty"
 msgstr "Lösenordet får inte vara tomt"
 
-#: pkg/users/account-create-dialog.js:202 pkg/users/password-dialogs.js:207
+#: pkg/users/account-create-dialog.js:210 pkg/users/password-dialogs.js:211
 msgid "The passwords do not match"
 msgstr "Lösenorden stämmer inte överens"
 
@@ -6625,11 +6631,11 @@ msgstr "Servern vägrade att autentisera med några stödda metoder."
 msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr "Användaren $0 tillåts inte ändra CPU-säkerhetsbegränsningar"
 
-#: pkg/users/account-roles.js:90
+#: pkg/users/account-roles.js:89
 msgid "The user must log out and log back in to fully change roles."
 msgstr "Användaren måste logga ut och logga in igen för att helt byta roller."
 
-#: pkg/users/account-create-dialog.js:91
+#: pkg/users/account-create-dialog.js:99
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
@@ -6768,7 +6774,7 @@ msgstr ""
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "Denna enhet är inte gjord för att aktiveras explicit."
 
-#: pkg/users/account-create-dialog.js:96
+#: pkg/users/account-create-dialog.js:104
 msgid "This user name already exists"
 msgstr "Detta användarnamn finns redan"
 
@@ -7285,10 +7291,6 @@ msgstr "Uppdaterat"
 msgid "Updated packages may require a reboot to take effect."
 msgstr "Uppdaterade paket kan behöva en omstart för att få effekt."
 
-#: pkg/packagekit/autoupdates.jsx:350
-msgid "Updates "
-msgstr "Uppdateringar "
-
 #: pkg/packagekit/updates.jsx:1361
 msgid "Updates available"
 msgstr "Uppdateringar tillgängliga"
@@ -7297,6 +7299,10 @@ msgstr "Uppdateringar tillgängliga"
 #, fuzzy
 msgid "Updates history"
 msgstr "Uppdatera historiken"
+
+#: pkg/packagekit/autoupdates.jsx:354
+msgid "Updates will be applied $0 at $1"
+msgstr ""
 
 #: pkg/packagekit/updates.jsx:86
 msgid "Updating"
@@ -7360,7 +7366,7 @@ msgstr "Används för"
 msgid "User"
 msgstr "Användare"
 
-#: pkg/static/login.html:76 pkg/users/account-create-dialog.js:49
+#: pkg/static/login.html:76 pkg/users/account-create-dialog.js:50
 #: pkg/users/account-details.js:299 pkg/shell/hosts_dialog.jsx:257
 msgid "User name"
 msgstr "Användarnamn"
@@ -7380,10 +7386,6 @@ msgstr "Använder LUKS-kryptering"
 #: pkg/storaged/manifest.json:0
 msgid "Using Tang server"
 msgstr "Använder Tang-server"
-
-#: pkg/storaged/content-views.jsx:212
-msgid "VDO Pool"
-msgstr "VDO Pool"
 
 #: pkg/storaged/content-views.jsx:493
 msgctxt "storage-id-desc"
@@ -7405,6 +7407,12 @@ msgstr "VDO-enhet $0"
 #: pkg/storaged/content-views.jsx:864
 msgid "VDO filesystem volume (compression/deduplication)"
 msgstr "VDO-filsystemvolym (komprimering/deduplicering)"
+
+#: pkg/storaged/content-views.jsx:212
+#, fuzzy
+#| msgid "VDO Pool"
+msgid "VDO pool"
+msgstr "VDO Pool"
 
 #: pkg/networkmanager/network-interface.jsx:180
 #: pkg/networkmanager/network-interface.jsx:192
@@ -7486,7 +7494,9 @@ msgstr "Visa rapport"
 
 #: pkg/lib/cockpit-components-firewalld-request.jsx:120
 #: pkg/lib/cockpit-components-firewalld-request.jsx:157
-msgid "Visit Firewall"
+#, fuzzy
+#| msgid "Visit Firewall"
+msgid "Visit firewall"
 msgstr "Besök brandvägg"
 
 #: pkg/storaged/content-views.jsx:209
@@ -7636,7 +7646,7 @@ msgstr ""
 "Du har inte rättigheter att se de auktoriserade publika nycklarna för detta "
 "konto."
 
-#: pkg/shell/base_index.js:538
+#: pkg/shell/base_index.js:554
 msgid "You have been logged out due to inactivity."
 msgstr "Du har blivit utloggad på grund av inaktivitet."
 
@@ -7665,7 +7675,7 @@ msgstr "Du måste byta till \"Administrativ åtkomst\" för att skapa rapporter.
 msgid "You now have administrative access."
 msgstr "Du har nu administrativ åtkomst."
 
-#: pkg/shell/base_index.js:516
+#: pkg/shell/base_index.js:532
 msgid "You will be logged out in $0 seconds."
 msgstr "Du kommer att loggas ut om $0 sekunder."
 
@@ -7859,8 +7869,8 @@ msgid "drive"
 msgstr "disk"
 
 #: pkg/networkmanager/network-interface.jsx:359
-#: pkg/networkmanager/dialogs-common.jsx:223 pkg/users/account-details.js:333
-#: pkg/users/account-details.js:365 pkg/storaged/fsys-tab.jsx:690
+#: pkg/networkmanager/dialogs-common.jsx:223 pkg/users/account-details.js:340
+#: pkg/users/account-details.js:372 pkg/storaged/fsys-tab.jsx:690
 #: pkg/storaged/fsys-tab.jsx:705 pkg/storaged/lvol-tabs.jsx:423
 #: pkg/storaged/lvol-tabs.jsx:484 pkg/storaged/crypto-tab.jsx:248
 #: pkg/storaged/crypto-tab.jsx:257
@@ -8438,10 +8448,6 @@ msgstr "volym"
 msgid "warning"
 msgstr "varning"
 
-#: pkg/packagekit/autoupdates.jsx:351
-msgid "will be applied $0 at $1"
-msgstr ""
-
 #: pkg/storaged/crypto-tab.jsx:247
 msgid "yes"
 msgstr "ja"
@@ -8453,6 +8459,24 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "zon"
+
+#~ msgid "Access"
+#~ msgstr "Åtkomst"
+
+#~ msgid "DISK IS FAILING"
+#~ msgstr "DISKEN GÅR SÖNDER"
+
+#~ msgid "Lock account"
+#~ msgstr "Lås kontot"
+
+#~ msgid "Logical Size"
+#~ msgstr "Logisk Storlek"
+
+#~ msgid "Security updates "
+#~ msgstr "Säkerhetsuppdateringar "
+
+#~ msgid "Updates "
+#~ msgstr "Uppdateringar "
 
 #~ msgid "(Optional)"
 #~ msgstr "(Valfritt)"

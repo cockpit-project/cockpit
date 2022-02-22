@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-08 18:03+0000\n"
-"PO-Revision-Date: 2022-02-13 14:16+0000\n"
+"POT-Creation-Date: 2022-02-15 18:03+0000\n"
+"PO-Revision-Date: 2022-02-20 13:16+0000\n"
 "Last-Translator: Kim InSoo <simmon@nplob.com>\n"
 "Language-Team: Korean <https://translate.fedoraproject.org/projects/cockpit/"
 "main/ko/>\n"
@@ -578,10 +578,6 @@ msgstr "키 수락 및 연결"
 msgid "Accept key and log in"
 msgstr "키 수락 및 로그인"
 
-#: pkg/users/account-create-dialog.js:69 pkg/users/account-details.js:315
-msgid "Access"
-msgstr "액세스"
-
 #: pkg/users/expiration-dialogs.js:103
 msgid "Account expiration"
 msgstr "계정 만료"
@@ -894,7 +890,7 @@ msgid "Appearance"
 msgstr "표시형식"
 
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:145
-#: pkg/apps/application.jsx:151 pkg/apps/manifest.json:0
+#: pkg/apps/application.jsx:147 pkg/apps/manifest.json:0
 msgid "Applications"
 msgstr "응용프로그램"
 
@@ -1025,7 +1021,7 @@ msgstr "자동(DHCP)"
 msgid "Automatic login"
 msgstr "자동 로그인"
 
-#: pkg/packagekit/autoupdates.jsx:370 pkg/packagekit/autoupdates.jsx:406
+#: pkg/packagekit/autoupdates.jsx:373 pkg/packagekit/autoupdates.jsx:409
 msgid "Automatic updates"
 msgstr "자동 최신화"
 
@@ -1247,7 +1243,7 @@ msgstr "현재 필터 조합을 사용하여 기록을 찾을 수 없습니다."
 #: pkg/shell/hosts_dialog.jsx:278 pkg/shell/hosts_dialog.jsx:373
 #: pkg/shell/hosts_dialog.jsx:495 pkg/shell/hosts_dialog.jsx:861
 #: pkg/shell/credentials.jsx:314 pkg/packagekit/updates.jsx:473
-#: pkg/packagekit/updates.jsx:544 pkg/packagekit/autoupdates.jsx:419
+#: pkg/packagekit/updates.jsx:544 pkg/packagekit/autoupdates.jsx:422
 #: pkg/packagekit/kpatch.jsx:310 pkg/lib/cockpit-components-shutdown.jsx:182
 #: pkg/lib/cockpit-components-dialog.jsx:127 pkg/apps/utils.jsx:66
 msgid "Cancel"
@@ -1424,7 +1420,7 @@ msgstr "검색 지우기"
 msgid "Cleartext device"
 msgstr "일반 문자 장치"
 
-#: pkg/users/account-create-dialog.js:212 pkg/users/password-dialogs.js:215
+#: pkg/users/account-create-dialog.js:220 pkg/users/password-dialogs.js:219
 msgid "Click $0 again to use the password anyway."
 msgstr "비밀번호를 어떻게든 사용하려면 $0을 다시 눌러주세요."
 
@@ -1579,7 +1575,7 @@ msgstr "kdump 설정"
 msgid "Configuring system settings"
 msgstr "시스템 설정 구성"
 
-#: pkg/users/account-create-dialog.js:61 pkg/storaged/format-dialog.jsx:273
+#: pkg/users/account-create-dialog.js:62 pkg/storaged/format-dialog.jsx:273
 #: pkg/storaged/stratis-panel.jsx:148
 msgid "Confirm"
 msgstr "확인"
@@ -1592,7 +1588,7 @@ msgstr "키 비밀빈호 확인"
 msgid "Confirm new key password"
 msgstr "신규 키 비밀번호 확인"
 
-#: pkg/users/password-dialogs.js:149
+#: pkg/users/password-dialogs.js:152
 msgid "Confirm new password"
 msgstr "새 비밀번호 확인"
 
@@ -1733,8 +1729,8 @@ msgstr "크래시 보고"
 msgid "Crash system"
 msgstr "충돌 시스템"
 
-#: pkg/users/account-create-dialog.js:212
-#: pkg/users/account-create-dialog.js:256 pkg/storaged/mdraids-panel.jsx:140
+#: pkg/users/account-create-dialog.js:220
+#: pkg/users/account-create-dialog.js:267 pkg/storaged/mdraids-panel.jsx:140
 #: pkg/storaged/stratis-panel.jsx:169 pkg/storaged/content-views.jsx:196
 #: pkg/storaged/content-views.jsx:311 pkg/storaged/content-views.jsx:957
 #: pkg/storaged/vgroups-panel.jsx:90 pkg/storaged/stratis-details.jsx:393
@@ -1782,7 +1778,7 @@ msgstr "만들기"
 msgid "Create logical volume"
 msgstr "논리 볼륨 만들기"
 
-#: pkg/users/accounts-list.js:78 pkg/users/account-create-dialog.js:249
+#: pkg/users/accounts-list.js:78 pkg/users/account-create-dialog.js:260
 msgid "Create new account"
 msgstr "신규 계정 만들기"
 
@@ -1901,10 +1897,6 @@ msgstr "사용자 지정 포트"
 #: pkg/networkmanager/firewall.jsx:739
 msgid "Custom zones"
 msgstr "사용자 지정 영역"
-
-#: pkg/storaged/drive-details.jsx:63
-msgid "DISK IS FAILING"
-msgstr "디스크에 오류 발생"
 
 #: pkg/networkmanager/ip-settings.jsx:209
 msgid "DNS"
@@ -2140,6 +2132,10 @@ msgstr "tuned 비활성화"
 msgid "Disabled"
 msgstr "사용 안함"
 
+#: pkg/users/account-create-dialog.js:74 pkg/users/account-details.js:323
+msgid "Disallow interactive password"
+msgstr "대화형 비밀번호 허용 안 함"
+
 #: pkg/systemd/services/service-details.jsx:158
 msgid "Disallow running (mask)"
 msgstr "실행할 수 없음 (마스크)"
@@ -2163,6 +2159,10 @@ msgstr "디스크 I/O 순간 사용량"
 #: pkg/storaged/drive-details.jsx:64
 msgid "Disk is OK"
 msgstr "디스크는 정상입니다"
+
+#: pkg/storaged/drive-details.jsx:63
+msgid "Disk is failing"
+msgstr "디스크에 오류가 났습니다"
 
 #: pkg/storaged/crypto-keyslots.jsx:197
 msgid "Disk passphrase"
@@ -2271,7 +2271,7 @@ msgstr "듀얼 랭크(Dual Rank)"
 
 #: pkg/storaged/nfs-details.jsx:305 pkg/storaged/iscsi-panel.jsx:255
 #: pkg/storaged/crypto-keyslots.jsx:577 pkg/shell/indexes.js:341
-#: pkg/shell/hosts.jsx:173 pkg/packagekit/autoupdates.jsx:399
+#: pkg/shell/hosts.jsx:173 pkg/packagekit/autoupdates.jsx:402
 #: pkg/packagekit/kpatch.jsx:229
 msgid "Edit"
 msgstr "편집"
@@ -2326,7 +2326,7 @@ msgstr "비었음"
 msgid "Emptying $target"
 msgstr "$target 비우는 중"
 
-#: pkg/packagekit/autoupdates.jsx:399 pkg/packagekit/kpatch.jsx:249
+#: pkg/packagekit/autoupdates.jsx:402 pkg/packagekit/kpatch.jsx:249
 msgid "Enable"
 msgstr "활성화"
 
@@ -2577,7 +2577,7 @@ msgstr "패치 기록에실패했습니다"
 msgid "Failed to load authorized keys."
 msgstr "승인된 키를 불러오지 못했습니다."
 
-#: pkg/packagekit/autoupdates.jsx:362
+#: pkg/packagekit/autoupdates.jsx:365
 msgid ""
 "Failed to parse unit files for dnf-automatic.timer or dnf-automatic-install."
 "timer. Please remove custom overrides to configure automatic updates."
@@ -2675,11 +2675,11 @@ msgstr "폰트 크기"
 msgid "Forbidden from running"
 msgstr "실행 금지"
 
-#: pkg/users/account-details.js:352
+#: pkg/users/account-details.js:359
 msgid "Force change"
 msgstr "강제 변경"
 
-#: pkg/users/password-dialogs.js:271
+#: pkg/users/password-dialogs.js:278
 msgid "Force password change"
 msgstr "강제 비밀번호 변경"
 
@@ -2732,7 +2732,7 @@ msgstr "금요일"
 msgid "From"
 msgstr "에서"
 
-#: pkg/users/account-create-dialog.js:40 pkg/users/account-details.js:285
+#: pkg/users/account-create-dialog.js:41 pkg/users/account-details.js:285
 msgid "Full name"
 msgstr "성명"
 
@@ -2898,7 +2898,8 @@ msgstr "식별자"
 msgid ""
 "If left empty, ID will be generated based on associated port services and "
 "port numbers"
-msgstr "만약 비워져 있으면, ID는 연관된 포트 서비스와 포트 번호를 기반으로 발생합니다"
+msgstr ""
+"만약 비워져 있으면, ID는 연관된 포트 서비스와 포트 번호를 기반으로 발생합니다"
 
 #: pkg/static/login.html:72
 msgid ""
@@ -3484,10 +3485,6 @@ msgstr "위치"
 msgid "Lock"
 msgstr "잠그기"
 
-#: pkg/users/account-create-dialog.js:71 pkg/users/account-details.js:321
-msgid "Lock account"
-msgstr "계정 잠금"
-
 #: pkg/storaged/crypto-panel.jsx:77 pkg/storaged/crypto-panel.jsx:80
 msgid "Locked devices"
 msgstr "잠긴 장치"
@@ -3534,11 +3531,7 @@ msgstr "로그인 상태"
 msgid "Logical"
 msgstr "논리"
 
-#: pkg/storaged/content-views.jsx:927
-msgid "Logical Size"
-msgstr "논리 크기"
-
-#: pkg/storaged/vdo-details.jsx:228
+#: pkg/storaged/content-views.jsx:927 pkg/storaged/vdo-details.jsx:228
 msgid "Logical size"
 msgstr "논리 크기"
 
@@ -4074,7 +4067,7 @@ msgstr "신규 키 비밀번호"
 msgid "New passphrase"
 msgstr "새 비밀번호"
 
-#: pkg/users/password-dialogs.js:148 pkg/shell/credentials.jsx:266
+#: pkg/users/password-dialogs.js:151 pkg/shell/credentials.jsx:266
 msgid "New password"
 msgstr "신규 비밀번호"
 
@@ -4226,7 +4219,7 @@ msgstr ""
 msgid "No partitioning"
 msgstr "파티션 설정하지 않음"
 
-#: pkg/users/account-create-dialog.js:199
+#: pkg/users/account-create-dialog.js:207
 msgid "No real name specified"
 msgstr "실제 이름이 지정되지 않았습니다"
 
@@ -4258,7 +4251,7 @@ msgstr "시스템 수정 없음"
 msgid "No updates"
 msgstr "업데이트 없음"
 
-#: pkg/users/account-create-dialog.js:87
+#: pkg/users/account-create-dialog.js:95
 msgid "No user name specified"
 msgstr "지정된 사용자 이름이 없습니다"
 
@@ -4303,7 +4296,7 @@ msgstr "호스트에 연결되어 있지 않음"
 msgid "Not enough space to grow."
 msgstr "확장 공간이 부족합니다."
 
-#: pkg/storaged/details.jsx:138 pkg/systemd/services/services.jsx:176
+#: pkg/storaged/details.jsx:132 pkg/systemd/services/services.jsx:176
 msgid "Not found"
 msgstr "찾을 수 없습니다"
 
@@ -4380,7 +4373,7 @@ msgstr "확인"
 msgid "Old passphrase"
 msgstr "이전 비밀번호"
 
-#: pkg/users/password-dialogs.js:139
+#: pkg/users/password-dialogs.js:141
 msgid "Old password"
 msgstr "이전 비밀번호"
 
@@ -4433,7 +4426,8 @@ msgctxt "storage"
 msgid "Optical drive"
 msgstr "광학 드라이브"
 
-#: pkg/networkmanager/bridge.jsx:104 pkg/storaged/content-views.jsx:937
+#: pkg/networkmanager/bridge.jsx:104 pkg/users/account-create-dialog.js:70
+#: pkg/users/account-details.js:315 pkg/storaged/content-views.jsx:937
 #: pkg/storaged/crypto-tab.jsx:253
 msgid "Options"
 msgstr "옵션"
@@ -4445,6 +4439,12 @@ msgstr "번들된 브라우저 사용"
 #: pkg/lib/machine-info.js:58
 msgid "Other"
 msgstr "기타"
+
+#: pkg/users/account-create-dialog.js:76 pkg/users/account-details.js:325
+msgid ""
+"Other authentication methods are still available even when interactive "
+"password authentication is not allowed."
+msgstr "다른 인증 방식은 대화형 비밀번호 인증이 허용되지 않을 때에 여전히 사용 할 수 있습니다."
 
 #: pkg/storaged/content-views.jsx:490
 msgctxt "storage-id-desc"
@@ -4591,8 +4591,8 @@ msgstr "암호 제거에서 $0 잠금 해제가 되지 않을 수 있습니다."
 msgid "Passphrases do not match"
 msgstr "암호가 일치하지 않습니다"
 
-#: pkg/static/login.html:81 pkg/users/account-create-dialog.js:60
-#: pkg/users/account-details.js:339 pkg/storaged/iscsi-panel.jsx:50
+#: pkg/static/login.html:81 pkg/users/account-create-dialog.js:61
+#: pkg/users/account-details.js:346 pkg/storaged/iscsi-panel.jsx:50
 #: pkg/storaged/iscsi-panel.jsx:160 pkg/shell/superuser.jsx:52
 #: pkg/shell/hosts_dialog.jsx:818 pkg/shell/hosts_dialog.jsx:827
 #: pkg/shell/credentials.jsx:120 pkg/shell/credentials.jsx:263
@@ -4608,7 +4608,7 @@ msgstr "비밀번호가 성공적으로 변경되었습니다"
 msgid "Password expiration"
 msgstr "비밀번호 만료"
 
-#: pkg/users/account-create-dialog.js:205 pkg/users/password-dialogs.js:210
+#: pkg/users/account-create-dialog.js:213 pkg/users/password-dialogs.js:214
 msgid "Password is longer than 256 characters"
 msgstr "비밀번호는 256자보다 길 수 있습니다"
 
@@ -5370,7 +5370,7 @@ msgstr "예약된 메모리"
 msgid "Reset"
 msgstr "초기화"
 
-#: pkg/users/password-dialogs.js:278
+#: pkg/users/password-dialogs.js:285
 msgid "Reset password"
 msgstr "비밀번호 재설정"
 
@@ -5548,7 +5548,7 @@ msgid "Save and reboot"
 msgstr "저장 및 재시작"
 
 #: pkg/systemd/overview-cards/motdCard.jsx:98
-#: pkg/packagekit/autoupdates.jsx:414
+#: pkg/packagekit/autoupdates.jsx:417
 msgid "Save changes"
 msgstr "변경 사항 저장"
 
@@ -5601,10 +5601,6 @@ msgstr "보안 쉘 키"
 msgid "Securely erasing $target"
 msgstr "$target을 안전하게 삭제"
 
-#: pkg/packagekit/autoupdates.jsx:350
-msgid "Security updates "
-msgstr "보안 최신화 "
-
 #: pkg/packagekit/updates.jsx:1355
 msgid "Security updates available"
 msgstr "사용 가능한 보안 최신화"
@@ -5612,6 +5608,10 @@ msgstr "사용 가능한 보안 최신화"
 #: pkg/packagekit/autoupdates.jsx:289
 msgid "Security updates only"
 msgstr "보안 최신화만"
+
+#: pkg/packagekit/autoupdates.jsx:353
+msgid "Security updates will be applied $0 at $1"
+msgstr "보안 최신화는 $1에서 $0에 적용됩니다"
 
 #: pkg/shell/shell-modals.jsx:127
 msgid "Select"
@@ -5732,8 +5732,8 @@ msgstr "설정"
 msgid "Set hostname"
 msgstr "호스트 이름 설정"
 
-#: pkg/users/password-dialogs.js:215 pkg/users/password-dialogs.js:225
-#: pkg/users/password-dialogs.js:232 pkg/users/account-details.js:345
+#: pkg/users/password-dialogs.js:219 pkg/users/password-dialogs.js:230
+#: pkg/users/password-dialogs.js:237 pkg/users/account-details.js:352
 msgid "Set password"
 msgstr "비밀번호 설정"
 
@@ -6091,7 +6091,7 @@ msgstr "RAID 장치 $target 중지 중"
 msgid "Stopping swapspace $target"
 msgstr "스왑공간 $target 중지 중"
 
-#: pkg/storaged/index.html:23 pkg/storaged/details.jsx:146
+#: pkg/storaged/index.html:23 pkg/storaged/details.jsx:140
 #: pkg/storaged/manifest.json:0
 msgid "Storage"
 msgstr "저장소"
@@ -6360,7 +6360,7 @@ msgstr ""
 "$0에 로그인하기 위해 SSH 키가 보호되고 있습니다. 당신은 $1에서 자신의 로그인 "
 "비밀번호에 의하거나 키의 비밀번호 제공을 통해 로그인 할 수 있습니다.."
 
-#: pkg/users/password-dialogs.js:266
+#: pkg/users/password-dialogs.js:273
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr "'$0' 계정은 다음 로그인 시 비밀번호를 변경해야 합니다"
 
@@ -6525,7 +6525,7 @@ msgstr "신규 키 비밀번호는 비워둘 수 없습니다"
 msgid "The password can not be empty"
 msgstr "비밀번호를 비워둘 수 없습니다"
 
-#: pkg/users/account-create-dialog.js:202 pkg/users/password-dialogs.js:207
+#: pkg/users/account-create-dialog.js:210 pkg/users/password-dialogs.js:211
 msgid "The passwords do not match"
 msgstr "비밀본호가 일치하지 않습니다"
 
@@ -6556,12 +6556,12 @@ msgstr "서버가 지원되는 방법을 사용하여 인증을 거부했습니�
 msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr "사용자 $0은/는 cpu 보안 완화 변경을 허용하지 않습니다"
 
-#: pkg/users/account-roles.js:90
+#: pkg/users/account-roles.js:89
 msgid "The user must log out and log back in to fully change roles."
 msgstr ""
 "역할을 완전히 변경하려면 사용자가 로그 아웃했다가 다시 로그인해야합니다."
 
-#: pkg/users/account-create-dialog.js:91
+#: pkg/users/account-create-dialog.js:99
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
@@ -6696,7 +6696,7 @@ msgstr ""
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "이 장치는 명시적으로 사용하도록 설계되어 있지 않습니다."
 
-#: pkg/users/account-create-dialog.js:96
+#: pkg/users/account-create-dialog.js:104
 msgid "This user name already exists"
 msgstr "이 사용자 이름이 이미 존재합니다"
 
@@ -7221,12 +7221,6 @@ msgstr "최신화됨"
 msgid "Updated packages may require a reboot to take effect."
 msgstr "최신화된 꾸러미를 적용하려면 시스템을 재시작해야 합니다."
 
-# translation auto-copied from project subscription-manager, version 1.11.X,
-# document keys
-#: pkg/packagekit/autoupdates.jsx:350
-msgid "Updates "
-msgstr "업데이트 "
-
 #: pkg/packagekit/updates.jsx:1361
 msgid "Updates available"
 msgstr "사용 가능한 업데이트"
@@ -7234,6 +7228,10 @@ msgstr "사용 가능한 업데이트"
 #: pkg/packagekit/history.jsx:104
 msgid "Updates history"
 msgstr "최신화 내역"
+
+#: pkg/packagekit/autoupdates.jsx:354
+msgid "Updates will be applied $0 at $1"
+msgstr "최신화는 $1에서 $0에 적용됩니다"
 
 #: pkg/packagekit/updates.jsx:86
 msgid "Updating"
@@ -7301,7 +7299,7 @@ msgstr "사용"
 msgid "User"
 msgstr "사용자"
 
-#: pkg/static/login.html:76 pkg/users/account-create-dialog.js:49
+#: pkg/static/login.html:76 pkg/users/account-create-dialog.js:50
 #: pkg/users/account-details.js:299 pkg/shell/hosts_dialog.jsx:257
 msgid "User name"
 msgstr "사용자 이름"
@@ -7321,10 +7319,6 @@ msgstr "LUKS 암호화 사용 중"
 #: pkg/storaged/manifest.json:0
 msgid "Using Tang server"
 msgstr "Tang 서버 사용 중"
-
-#: pkg/storaged/content-views.jsx:212
-msgid "VDO Pool"
-msgstr "VDO 풀"
 
 #: pkg/storaged/content-views.jsx:493
 msgctxt "storage-id-desc"
@@ -7346,6 +7340,10 @@ msgstr "VDO 장치 $0"
 #: pkg/storaged/content-views.jsx:864
 msgid "VDO filesystem volume (compression/deduplication)"
 msgstr "VDO 파일 시스템 볼륨 (압축/중복제거)"
+
+#: pkg/storaged/content-views.jsx:212
+msgid "VDO pool"
+msgstr "VDO 풀"
 
 #: pkg/networkmanager/network-interface.jsx:180
 #: pkg/networkmanager/network-interface.jsx:192
@@ -7429,7 +7427,7 @@ msgstr "보고서 보기"
 
 #: pkg/lib/cockpit-components-firewalld-request.jsx:120
 #: pkg/lib/cockpit-components-firewalld-request.jsx:157
-msgid "Visit Firewall"
+msgid "Visit firewall"
 msgstr "방화벽 방문"
 
 #: pkg/storaged/content-views.jsx:209
@@ -7581,7 +7579,7 @@ msgid ""
 "account."
 msgstr "이 계정에 승인된 공개 키를 표시할 수 있는 권한이 없습니다."
 
-#: pkg/shell/base_index.js:538
+#: pkg/shell/base_index.js:554
 msgid "You have been logged out due to inactivity."
 msgstr "비활성 상태로 인해 로그 아웃되었습니다."
 
@@ -7610,7 +7608,7 @@ msgstr "보고서를 작성하려면 \"관리 액세스\"로 전환해야합니�
 msgid "You now have administrative access."
 msgstr "이제 관리자 액세스 권한이 있습니다."
 
-#: pkg/shell/base_index.js:516
+#: pkg/shell/base_index.js:532
 msgid "You will be logged out in $0 seconds."
 msgstr "$0 초 후에 로그 아웃됩니다."
 
@@ -7805,8 +7803,8 @@ msgid "drive"
 msgstr "드라이브"
 
 #: pkg/networkmanager/network-interface.jsx:359
-#: pkg/networkmanager/dialogs-common.jsx:223 pkg/users/account-details.js:333
-#: pkg/users/account-details.js:365 pkg/storaged/fsys-tab.jsx:690
+#: pkg/networkmanager/dialogs-common.jsx:223 pkg/users/account-details.js:340
+#: pkg/users/account-details.js:372 pkg/storaged/fsys-tab.jsx:690
 #: pkg/storaged/fsys-tab.jsx:705 pkg/storaged/lvol-tabs.jsx:423
 #: pkg/storaged/lvol-tabs.jsx:484 pkg/storaged/crypto-tab.jsx:248
 #: pkg/storaged/crypto-tab.jsx:257
@@ -8378,10 +8376,6 @@ msgstr "볼륨"
 msgid "warning"
 msgstr "경고"
 
-#: pkg/packagekit/autoupdates.jsx:351
-msgid "will be applied $0 at $1"
-msgstr "$1에서 $0에 적용됩니다"
-
 #: pkg/storaged/crypto-tab.jsx:247
 msgid "yes"
 msgstr "예"
@@ -8393,6 +8387,26 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "영역"
+
+#~ msgid "Access"
+#~ msgstr "액세스"
+
+#~ msgid "DISK IS FAILING"
+#~ msgstr "디스크에 오류 발생"
+
+#~ msgid "Lock account"
+#~ msgstr "계정 잠금"
+
+#~ msgid "Logical Size"
+#~ msgstr "논리 크기"
+
+#~ msgid "Security updates "
+#~ msgstr "보안 최신화 "
+
+# translation auto-copied from project subscription-manager, version 1.11.X,
+# document keys
+#~ msgid "Updates "
+#~ msgstr "업데이트 "
 
 #~ msgid "(Optional)"
 #~ msgstr "(옵션)"

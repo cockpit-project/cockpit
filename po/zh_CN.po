@@ -19,7 +19,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-08 18:03+0000\n"
+"POT-Creation-Date: 2022-02-15 18:03+0000\n"
 "PO-Revision-Date: 2022-02-07 04:16+0000\n"
 "Last-Translator: David Smith <pxesrv@outlook.com>\n"
 "Language-Team: Chinese (Simplified) <https://translate.fedoraproject.org/"
@@ -583,10 +583,6 @@ msgstr "接受密钥并连接"
 msgid "Accept key and log in"
 msgstr "接受密钥并登录"
 
-#: pkg/users/account-create-dialog.js:69 pkg/users/account-details.js:315
-msgid "Access"
-msgstr "访问"
-
 #: pkg/users/expiration-dialogs.js:103
 msgid "Account expiration"
 msgstr "账号过期"
@@ -894,7 +890,7 @@ msgid "Appearance"
 msgstr "外观"
 
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:145
-#: pkg/apps/application.jsx:151 pkg/apps/manifest.json:0
+#: pkg/apps/application.jsx:147 pkg/apps/manifest.json:0
 msgid "Applications"
 msgstr "应用"
 
@@ -1027,7 +1023,7 @@ msgstr "自动 (DHCP)"
 msgid "Automatic login"
 msgstr "自动登陆"
 
-#: pkg/packagekit/autoupdates.jsx:370 pkg/packagekit/autoupdates.jsx:406
+#: pkg/packagekit/autoupdates.jsx:373 pkg/packagekit/autoupdates.jsx:409
 msgid "Automatic updates"
 msgstr "自动更新"
 
@@ -1248,7 +1244,7 @@ msgstr "使用当前的过滤器组合找不到任何日志。"
 #: pkg/shell/hosts_dialog.jsx:278 pkg/shell/hosts_dialog.jsx:373
 #: pkg/shell/hosts_dialog.jsx:495 pkg/shell/hosts_dialog.jsx:861
 #: pkg/shell/credentials.jsx:314 pkg/packagekit/updates.jsx:473
-#: pkg/packagekit/updates.jsx:544 pkg/packagekit/autoupdates.jsx:419
+#: pkg/packagekit/updates.jsx:544 pkg/packagekit/autoupdates.jsx:422
 #: pkg/packagekit/kpatch.jsx:310 pkg/lib/cockpit-components-shutdown.jsx:182
 #: pkg/lib/cockpit-components-dialog.jsx:127 pkg/apps/utils.jsx:66
 msgid "Cancel"
@@ -1424,7 +1420,7 @@ msgstr "清除搜寻"
 msgid "Cleartext device"
 msgstr "明文设备"
 
-#: pkg/users/account-create-dialog.js:212 pkg/users/password-dialogs.js:215
+#: pkg/users/account-create-dialog.js:220 pkg/users/password-dialogs.js:219
 msgid "Click $0 again to use the password anyway."
 msgstr "再次点 $0 以使用该密码。"
 
@@ -1577,7 +1573,7 @@ msgstr "配置 kdump"
 msgid "Configuring system settings"
 msgstr "配置系统设置"
 
-#: pkg/users/account-create-dialog.js:61 pkg/storaged/format-dialog.jsx:273
+#: pkg/users/account-create-dialog.js:62 pkg/storaged/format-dialog.jsx:273
 #: pkg/storaged/stratis-panel.jsx:148
 msgid "Confirm"
 msgstr "确认"
@@ -1590,7 +1586,7 @@ msgstr "确认密钥密码"
 msgid "Confirm new key password"
 msgstr "确认新的密钥密码"
 
-#: pkg/users/password-dialogs.js:149
+#: pkg/users/password-dialogs.js:152
 msgid "Confirm new password"
 msgstr "确认新密码"
 
@@ -1729,8 +1725,8 @@ msgstr "崩溃报告"
 msgid "Crash system"
 msgstr "导致系统崩溃"
 
-#: pkg/users/account-create-dialog.js:212
-#: pkg/users/account-create-dialog.js:256 pkg/storaged/mdraids-panel.jsx:140
+#: pkg/users/account-create-dialog.js:220
+#: pkg/users/account-create-dialog.js:267 pkg/storaged/mdraids-panel.jsx:140
 #: pkg/storaged/stratis-panel.jsx:169 pkg/storaged/content-views.jsx:196
 #: pkg/storaged/content-views.jsx:311 pkg/storaged/content-views.jsx:957
 #: pkg/storaged/vgroups-panel.jsx:90 pkg/storaged/stratis-details.jsx:393
@@ -1778,7 +1774,7 @@ msgstr "创建它"
 msgid "Create logical volume"
 msgstr "创建逻辑卷"
 
-#: pkg/users/accounts-list.js:78 pkg/users/account-create-dialog.js:249
+#: pkg/users/accounts-list.js:78 pkg/users/account-create-dialog.js:260
 msgid "Create new account"
 msgstr "创建新账户"
 
@@ -1898,10 +1894,6 @@ msgstr "自定义端口"
 #: pkg/networkmanager/firewall.jsx:739
 msgid "Custom zones"
 msgstr "自定义区域"
-
-#: pkg/storaged/drive-details.jsx:63
-msgid "DISK IS FAILING"
-msgstr "磁盘错误"
 
 #: pkg/networkmanager/ip-settings.jsx:209
 msgid "DNS"
@@ -2133,6 +2125,12 @@ msgstr "禁用 tuned"
 msgid "Disabled"
 msgstr "禁用"
 
+#: pkg/users/account-create-dialog.js:74 pkg/users/account-details.js:323
+#, fuzzy
+#| msgid "Domain administrator password"
+msgid "Disallow interactive password"
+msgstr "域管理员密码"
+
 #: pkg/systemd/services/service-details.jsx:158
 msgid "Disallow running (mask)"
 msgstr "不允许运行 (屏蔽)"
@@ -2152,6 +2150,13 @@ msgstr "磁盘 I/O 高负载"
 #: pkg/storaged/drive-details.jsx:64
 msgid "Disk is OK"
 msgstr "磁盘良好"
+
+#: pkg/storaged/drive-details.jsx:63
+#, fuzzy
+#| msgid "$0 disk is missing"
+#| msgid_plural "$0 disks are missing"
+msgid "Disk is failing"
+msgstr "$0 磁盘无法找到"
 
 #: pkg/storaged/crypto-keyslots.jsx:197
 msgid "Disk passphrase"
@@ -2260,7 +2265,7 @@ msgstr "双通道"
 
 #: pkg/storaged/nfs-details.jsx:305 pkg/storaged/iscsi-panel.jsx:255
 #: pkg/storaged/crypto-keyslots.jsx:577 pkg/shell/indexes.js:341
-#: pkg/shell/hosts.jsx:173 pkg/packagekit/autoupdates.jsx:399
+#: pkg/shell/hosts.jsx:173 pkg/packagekit/autoupdates.jsx:402
 #: pkg/packagekit/kpatch.jsx:229
 msgid "Edit"
 msgstr "编辑"
@@ -2315,7 +2320,7 @@ msgstr "空"
 msgid "Emptying $target"
 msgstr "清空 $target"
 
-#: pkg/packagekit/autoupdates.jsx:399 pkg/packagekit/kpatch.jsx:249
+#: pkg/packagekit/autoupdates.jsx:402 pkg/packagekit/kpatch.jsx:249
 msgid "Enable"
 msgstr "启用"
 
@@ -2566,7 +2571,7 @@ msgstr "获取日志失败"
 msgid "Failed to load authorized keys."
 msgstr "载入 authorized key 失败。"
 
-#: pkg/packagekit/autoupdates.jsx:362
+#: pkg/packagekit/autoupdates.jsx:365
 msgid ""
 "Failed to parse unit files for dnf-automatic.timer or dnf-automatic-install."
 "timer. Please remove custom overrides to configure automatic updates."
@@ -2663,11 +2668,11 @@ msgstr "字体大小"
 msgid "Forbidden from running"
 msgstr "禁止运行"
 
-#: pkg/users/account-details.js:352
+#: pkg/users/account-details.js:359
 msgid "Force change"
 msgstr "强制变更"
 
-#: pkg/users/password-dialogs.js:271
+#: pkg/users/password-dialogs.js:278
 msgid "Force password change"
 msgstr "强制密码变更"
 
@@ -2718,7 +2723,7 @@ msgstr "周五"
 msgid "From"
 msgstr "来自"
 
-#: pkg/users/account-create-dialog.js:40 pkg/users/account-details.js:285
+#: pkg/users/account-create-dialog.js:41 pkg/users/account-details.js:285
 msgid "Full name"
 msgstr "全名"
 
@@ -3456,10 +3461,6 @@ msgstr "位置"
 msgid "Lock"
 msgstr "锁定"
 
-#: pkg/users/account-create-dialog.js:71 pkg/users/account-details.js:321
-msgid "Lock account"
-msgstr "锁定账户"
-
 #: pkg/storaged/crypto-panel.jsx:77 pkg/storaged/crypto-panel.jsx:80
 msgid "Locked devices"
 msgstr "锁定的设备"
@@ -3506,11 +3507,7 @@ msgstr "登录"
 msgid "Logical"
 msgstr "逻辑"
 
-#: pkg/storaged/content-views.jsx:927
-msgid "Logical Size"
-msgstr "逻辑大小"
-
-#: pkg/storaged/vdo-details.jsx:228
+#: pkg/storaged/content-views.jsx:927 pkg/storaged/vdo-details.jsx:228
 msgid "Logical size"
 msgstr "逻辑大小"
 
@@ -4044,7 +4041,7 @@ msgstr "新密钥密码"
 msgid "New passphrase"
 msgstr "新口令"
 
-#: pkg/users/password-dialogs.js:148 pkg/shell/credentials.jsx:266
+#: pkg/users/password-dialogs.js:151 pkg/shell/credentials.jsx:266
 msgid "New password"
 msgstr "新密码"
 
@@ -4196,7 +4193,7 @@ msgstr ""
 msgid "No partitioning"
 msgstr "无分区"
 
-#: pkg/users/account-create-dialog.js:199
+#: pkg/users/account-create-dialog.js:207
 msgid "No real name specified"
 msgstr "未指定真实姓名"
 
@@ -4226,7 +4223,7 @@ msgstr "没有系统改变"
 msgid "No updates"
 msgstr "没有更新"
 
-#: pkg/users/account-create-dialog.js:87
+#: pkg/users/account-create-dialog.js:95
 msgid "No user name specified"
 msgstr "未指定用户名"
 
@@ -4271,7 +4268,7 @@ msgstr "没有连接到主机"
 msgid "Not enough space to grow."
 msgstr "没有足够空间增长。"
 
-#: pkg/storaged/details.jsx:138 pkg/systemd/services/services.jsx:176
+#: pkg/storaged/details.jsx:132 pkg/systemd/services/services.jsx:176
 msgid "Not found"
 msgstr "未找到"
 
@@ -4346,7 +4343,7 @@ msgstr "确认"
 msgid "Old passphrase"
 msgstr "旧密码口令"
 
-#: pkg/users/password-dialogs.js:139
+#: pkg/users/password-dialogs.js:141
 msgid "Old password"
 msgstr "旧密码"
 
@@ -4398,7 +4395,8 @@ msgctxt "storage"
 msgid "Optical drive"
 msgstr "光盘驱动器"
 
-#: pkg/networkmanager/bridge.jsx:104 pkg/storaged/content-views.jsx:937
+#: pkg/networkmanager/bridge.jsx:104 pkg/users/account-create-dialog.js:70
+#: pkg/users/account-details.js:315 pkg/storaged/content-views.jsx:937
 #: pkg/storaged/crypto-tab.jsx:253
 msgid "Options"
 msgstr "选项"
@@ -4410,6 +4408,12 @@ msgstr "或者使用捆绑的浏览器"
 #: pkg/lib/machine-info.js:58
 msgid "Other"
 msgstr "其他"
+
+#: pkg/users/account-create-dialog.js:76 pkg/users/account-details.js:325
+msgid ""
+"Other authentication methods are still available even when interactive "
+"password authentication is not allowed."
+msgstr ""
 
 #: pkg/storaged/content-views.jsx:490
 msgctxt "storage-id-desc"
@@ -4550,8 +4554,8 @@ msgstr "删除密码口令可能会阻止解锁 $0。"
 msgid "Passphrases do not match"
 msgstr "口令不匹配"
 
-#: pkg/static/login.html:81 pkg/users/account-create-dialog.js:60
-#: pkg/users/account-details.js:339 pkg/storaged/iscsi-panel.jsx:50
+#: pkg/static/login.html:81 pkg/users/account-create-dialog.js:61
+#: pkg/users/account-details.js:346 pkg/storaged/iscsi-panel.jsx:50
 #: pkg/storaged/iscsi-panel.jsx:160 pkg/shell/superuser.jsx:52
 #: pkg/shell/hosts_dialog.jsx:818 pkg/shell/hosts_dialog.jsx:827
 #: pkg/shell/credentials.jsx:120 pkg/shell/credentials.jsx:263
@@ -4567,7 +4571,7 @@ msgstr "密码修改成功"
 msgid "Password expiration"
 msgstr "密码过期"
 
-#: pkg/users/account-create-dialog.js:205 pkg/users/password-dialogs.js:210
+#: pkg/users/account-create-dialog.js:213 pkg/users/password-dialogs.js:214
 msgid "Password is longer than 256 characters"
 msgstr "密码长度不能超过 256 个字符"
 
@@ -5318,7 +5322,7 @@ msgstr "保留内存"
 msgid "Reset"
 msgstr "重置"
 
-#: pkg/users/password-dialogs.js:278
+#: pkg/users/password-dialogs.js:285
 msgid "Reset password"
 msgstr "重置密码"
 
@@ -5489,7 +5493,7 @@ msgid "Save and reboot"
 msgstr "保存并重启"
 
 #: pkg/systemd/overview-cards/motdCard.jsx:98
-#: pkg/packagekit/autoupdates.jsx:414
+#: pkg/packagekit/autoupdates.jsx:417
 msgid "Save changes"
 msgstr "保存更改"
 
@@ -5540,10 +5544,6 @@ msgstr "安全 shell 密钥"
 msgid "Securely erasing $target"
 msgstr "安全擦除 $target"
 
-#: pkg/packagekit/autoupdates.jsx:350
-msgid "Security updates "
-msgstr "安全更新 "
-
 #: pkg/packagekit/updates.jsx:1355
 msgid "Security updates available"
 msgstr "可用的错误修复更新"
@@ -5551,6 +5551,12 @@ msgstr "可用的错误修复更新"
 #: pkg/packagekit/autoupdates.jsx:289
 msgid "Security updates only"
 msgstr "只包括安全更新"
+
+#: pkg/packagekit/autoupdates.jsx:353
+#, fuzzy
+#| msgid "will be applied $0 at $1"
+msgid "Security updates will be applied $0 at $1"
+msgstr "将在 $1 应用 $0"
 
 #: pkg/shell/shell-modals.jsx:127
 msgid "Select"
@@ -5668,8 +5674,8 @@ msgstr "设置"
 msgid "Set hostname"
 msgstr "设置主机名"
 
-#: pkg/users/password-dialogs.js:215 pkg/users/password-dialogs.js:225
-#: pkg/users/password-dialogs.js:232 pkg/users/account-details.js:345
+#: pkg/users/password-dialogs.js:219 pkg/users/password-dialogs.js:230
+#: pkg/users/password-dialogs.js:237 pkg/users/account-details.js:352
 msgid "Set password"
 msgstr "设置密码"
 
@@ -6020,7 +6026,7 @@ msgstr "停止 RAID 设备 $target"
 msgid "Stopping swapspace $target"
 msgstr "停止启动交换空间 $target"
 
-#: pkg/storaged/index.html:23 pkg/storaged/details.jsx:146
+#: pkg/storaged/index.html:23 pkg/storaged/details.jsx:140
 #: pkg/storaged/manifest.json:0
 msgid "Storage"
 msgstr "存储"
@@ -6284,7 +6290,7 @@ msgstr ""
 "登录到 $0的 SSH 密钥是受保护的，您可以用您的登录密码或通过提供密钥的密码登录"
 "$1。"
 
-#: pkg/users/password-dialogs.js:266
+#: pkg/users/password-dialogs.js:273
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr "账号 '$0' 将在下次登录时被强制变更其密码"
 
@@ -6437,7 +6443,7 @@ msgstr "新的密钥密码不能为空"
 msgid "The password can not be empty"
 msgstr "密码不能为空"
 
-#: pkg/users/account-create-dialog.js:202 pkg/users/password-dialogs.js:207
+#: pkg/users/account-create-dialog.js:210 pkg/users/password-dialogs.js:211
 msgid "The passwords do not match"
 msgstr "密码不匹配"
 
@@ -6467,11 +6473,11 @@ msgstr "服务器拒绝使用任何支持的方式来验证。"
 msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr "用户 $0 没有权限修改 cpu 安全缓解方案设置"
 
-#: pkg/users/account-roles.js:90
+#: pkg/users/account-roles.js:89
 msgid "The user must log out and log back in to fully change roles."
 msgstr "用户必须先注销，然后再重新登录才能完全更改角色。"
 
-#: pkg/users/account-create-dialog.js:91
+#: pkg/users/account-create-dialog.js:99
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
@@ -6598,7 +6604,7 @@ msgstr "该工具会从该系统搜集系统配置和诊断信息用于诊断系
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "该单元没有设计为需要明确启用。"
 
-#: pkg/users/account-create-dialog.js:96
+#: pkg/users/account-create-dialog.js:104
 msgid "This user name already exists"
 msgstr "用户名已存在"
 
@@ -7105,10 +7111,6 @@ msgstr "已更新"
 msgid "Updated packages may require a reboot to take effect."
 msgstr "已更新的软件包可能需要重启生效。"
 
-#: pkg/packagekit/autoupdates.jsx:350
-msgid "Updates "
-msgstr "更新 "
-
 #: pkg/packagekit/updates.jsx:1361
 msgid "Updates available"
 msgstr "可用的更新"
@@ -7116,6 +7118,12 @@ msgstr "可用的更新"
 #: pkg/packagekit/history.jsx:104
 msgid "Updates history"
 msgstr "更新历史"
+
+#: pkg/packagekit/autoupdates.jsx:354
+#, fuzzy
+#| msgid "will be applied $0 at $1"
+msgid "Updates will be applied $0 at $1"
+msgstr "将在 $1 应用 $0"
 
 #: pkg/packagekit/updates.jsx:86
 msgid "Updating"
@@ -7179,7 +7187,7 @@ msgstr "用于"
 msgid "User"
 msgstr "用户"
 
-#: pkg/static/login.html:76 pkg/users/account-create-dialog.js:49
+#: pkg/static/login.html:76 pkg/users/account-create-dialog.js:50
 #: pkg/users/account-details.js:299 pkg/shell/hosts_dialog.jsx:257
 msgid "User name"
 msgstr "用户名"
@@ -7199,10 +7207,6 @@ msgstr "使用 LUKS 加密"
 #: pkg/storaged/manifest.json:0
 msgid "Using Tang server"
 msgstr "使用 Tang 服务器"
-
-#: pkg/storaged/content-views.jsx:212
-msgid "VDO Pool"
-msgstr "VDO 池"
 
 #: pkg/storaged/content-views.jsx:493
 msgctxt "storage-id-desc"
@@ -7224,6 +7228,12 @@ msgstr "VDO 设备 $0"
 #: pkg/storaged/content-views.jsx:864
 msgid "VDO filesystem volume (compression/deduplication)"
 msgstr "VDO文件系统卷（压缩/重复数据消除）"
+
+#: pkg/storaged/content-views.jsx:212
+#, fuzzy
+#| msgid "VDO Pool"
+msgid "VDO pool"
+msgstr "VDO 池"
 
 #: pkg/networkmanager/network-interface.jsx:180
 #: pkg/networkmanager/network-interface.jsx:192
@@ -7305,7 +7315,9 @@ msgstr "查看报告"
 
 #: pkg/lib/cockpit-components-firewalld-request.jsx:120
 #: pkg/lib/cockpit-components-firewalld-request.jsx:157
-msgid "Visit Firewall"
+#, fuzzy
+#| msgid "Visit Firewall"
+msgid "Visit firewall"
 msgstr "访问防火墙"
 
 #: pkg/storaged/content-views.jsx:209
@@ -7455,7 +7467,7 @@ msgid ""
 "account."
 msgstr "您没有权限查看此帐户的授权公钥."
 
-#: pkg/shell/base_index.js:538
+#: pkg/shell/base_index.js:554
 msgid "You have been logged out due to inactivity."
 msgstr "您由于不活动而已注销。"
 
@@ -7484,7 +7496,7 @@ msgstr "为了创建报告，您需要切换到\"管理员权限\"。"
 msgid "You now have administrative access."
 msgstr "您已经获取了管理员权限。"
 
-#: pkg/shell/base_index.js:516
+#: pkg/shell/base_index.js:532
 msgid "You will be logged out in $0 seconds."
 msgstr "您将在$0秒钟后登出。"
 
@@ -7678,8 +7690,8 @@ msgid "drive"
 msgstr "驱动"
 
 #: pkg/networkmanager/network-interface.jsx:359
-#: pkg/networkmanager/dialogs-common.jsx:223 pkg/users/account-details.js:333
-#: pkg/users/account-details.js:365 pkg/storaged/fsys-tab.jsx:690
+#: pkg/networkmanager/dialogs-common.jsx:223 pkg/users/account-details.js:340
+#: pkg/users/account-details.js:372 pkg/storaged/fsys-tab.jsx:690
 #: pkg/storaged/fsys-tab.jsx:705 pkg/storaged/lvol-tabs.jsx:423
 #: pkg/storaged/lvol-tabs.jsx:484 pkg/storaged/crypto-tab.jsx:248
 #: pkg/storaged/crypto-tab.jsx:257
@@ -8251,10 +8263,6 @@ msgstr "卷"
 msgid "warning"
 msgstr "警告"
 
-#: pkg/packagekit/autoupdates.jsx:351
-msgid "will be applied $0 at $1"
-msgstr "将在 $1 应用 $0"
-
 #: pkg/storaged/crypto-tab.jsx:247
 msgid "yes"
 msgstr "是"
@@ -8266,6 +8274,24 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "区"
+
+#~ msgid "Access"
+#~ msgstr "访问"
+
+#~ msgid "DISK IS FAILING"
+#~ msgstr "磁盘错误"
+
+#~ msgid "Lock account"
+#~ msgstr "锁定账户"
+
+#~ msgid "Logical Size"
+#~ msgstr "逻辑大小"
+
+#~ msgid "Security updates "
+#~ msgstr "安全更新 "
+
+#~ msgid "Updates "
+#~ msgstr "更新 "
 
 #~ msgid "(Optional)"
 #~ msgstr "(可选)"

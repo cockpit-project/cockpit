@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-08 18:03+0000\n"
-"PO-Revision-Date: 2022-02-07 04:16+0000\n"
+"POT-Creation-Date: 2022-02-15 18:03+0000\n"
+"PO-Revision-Date: 2022-02-20 13:16+0000\n"
 "Last-Translator: Ville-Pekka Vainio <vpvainio@iki.fi>\n"
 "Language-Team: Finnish <https://translate.fedoraproject.org/projects/cockpit/"
 "main/fi/>\n"
@@ -609,10 +609,6 @@ msgstr "Hyväksy avain ja muodosta yhteys"
 msgid "Accept key and log in"
 msgstr "Hyväksy avain ja kirjaudu sisään"
 
-#: pkg/users/account-create-dialog.js:69 pkg/users/account-details.js:315
-msgid "Access"
-msgstr "Pääsy"
-
 #: pkg/users/expiration-dialogs.js:103
 msgid "Account expiration"
 msgstr "Tilin vanheneminen"
@@ -908,7 +904,7 @@ msgstr "Ansible"
 
 #: pkg/lib/cockpit-components-modifications.jsx:100
 msgid "Ansible roles documentation"
-msgstr "Ansible -roolien dokumentointi"
+msgstr "Ansible-roolien dokumentaatio"
 
 #: pkg/systemd/logs.jsx:380
 msgid ""
@@ -928,7 +924,7 @@ msgid "Appearance"
 msgstr "Ulkomuoto"
 
 #: pkg/apps/index.html:23 pkg/apps/application-list.jsx:145
-#: pkg/apps/application.jsx:151 pkg/apps/manifest.json:0
+#: pkg/apps/application.jsx:147 pkg/apps/manifest.json:0
 msgid "Applications"
 msgstr "Sovellukset"
 
@@ -1062,7 +1058,7 @@ msgstr "Automaattinen (DHCP)"
 msgid "Automatic login"
 msgstr "Automaattinen sisäänkirjautuminen"
 
-#: pkg/packagekit/autoupdates.jsx:370 pkg/packagekit/autoupdates.jsx:406
+#: pkg/packagekit/autoupdates.jsx:373 pkg/packagekit/autoupdates.jsx:409
 msgid "Automatic updates"
 msgstr "Automaattiset päivitykset"
 
@@ -1284,7 +1280,7 @@ msgstr "Lokeja ei löydy käyttämällä nykyistä suodatinten yhdistelmää."
 #: pkg/shell/hosts_dialog.jsx:278 pkg/shell/hosts_dialog.jsx:373
 #: pkg/shell/hosts_dialog.jsx:495 pkg/shell/hosts_dialog.jsx:861
 #: pkg/shell/credentials.jsx:314 pkg/packagekit/updates.jsx:473
-#: pkg/packagekit/updates.jsx:544 pkg/packagekit/autoupdates.jsx:419
+#: pkg/packagekit/updates.jsx:544 pkg/packagekit/autoupdates.jsx:422
 #: pkg/packagekit/kpatch.jsx:310 pkg/lib/cockpit-components-shutdown.jsx:182
 #: pkg/lib/cockpit-components-dialog.jsx:127 pkg/apps/utils.jsx:66
 msgid "Cancel"
@@ -1465,7 +1461,7 @@ msgstr "Tyhjennä haku"
 msgid "Cleartext device"
 msgstr "Selkeä teksti-laite"
 
-#: pkg/users/account-create-dialog.js:212 pkg/users/password-dialogs.js:215
+#: pkg/users/account-create-dialog.js:220 pkg/users/password-dialogs.js:219
 msgid "Click $0 again to use the password anyway."
 msgstr "Napsauta $0 uudelleen käyttääksesi salasanaa joka tapauksessa."
 
@@ -1624,7 +1620,7 @@ msgstr "kdump:n määrittäminen"
 msgid "Configuring system settings"
 msgstr "Järjestelmäasetusten määrittäminen"
 
-#: pkg/users/account-create-dialog.js:61 pkg/storaged/format-dialog.jsx:273
+#: pkg/users/account-create-dialog.js:62 pkg/storaged/format-dialog.jsx:273
 #: pkg/storaged/stratis-panel.jsx:148
 msgid "Confirm"
 msgstr "Vahvista"
@@ -1637,7 +1633,7 @@ msgstr "Vahvista avaimen salasana"
 msgid "Confirm new key password"
 msgstr "Vahvista uusi avaimen salasana"
 
-#: pkg/users/password-dialogs.js:149
+#: pkg/users/password-dialogs.js:152
 msgid "Confirm new password"
 msgstr "Vahvista uusi salasana"
 
@@ -1776,8 +1772,8 @@ msgstr "Kaatumisraportointi"
 msgid "Crash system"
 msgstr "Kaatumisjärjestelmä"
 
-#: pkg/users/account-create-dialog.js:212
-#: pkg/users/account-create-dialog.js:256 pkg/storaged/mdraids-panel.jsx:140
+#: pkg/users/account-create-dialog.js:220
+#: pkg/users/account-create-dialog.js:267 pkg/storaged/mdraids-panel.jsx:140
 #: pkg/storaged/stratis-panel.jsx:169 pkg/storaged/content-views.jsx:196
 #: pkg/storaged/content-views.jsx:311 pkg/storaged/content-views.jsx:957
 #: pkg/storaged/vgroups-panel.jsx:90 pkg/storaged/stratis-details.jsx:393
@@ -1825,7 +1821,7 @@ msgstr "Luo se"
 msgid "Create logical volume"
 msgstr "Luo looginen taltio"
 
-#: pkg/users/accounts-list.js:78 pkg/users/account-create-dialog.js:249
+#: pkg/users/accounts-list.js:78 pkg/users/account-create-dialog.js:260
 msgid "Create new account"
 msgstr "Luo uusi tili"
 
@@ -1945,10 +1941,6 @@ msgstr "Mukautetut portit"
 #: pkg/networkmanager/firewall.jsx:739
 msgid "Custom zones"
 msgstr "Mukautetut vyöhykkeet"
-
-#: pkg/storaged/drive-details.jsx:63
-msgid "DISK IS FAILING"
-msgstr "LEVY ON PETTÄMÄSSÄ"
 
 #: pkg/networkmanager/ip-settings.jsx:209
 msgid "DNS"
@@ -2183,6 +2175,10 @@ msgstr "Poista tuned käytöstä"
 msgid "Disabled"
 msgstr "Ei käytössä"
 
+#: pkg/users/account-create-dialog.js:74 pkg/users/account-details.js:323
+msgid "Disallow interactive password"
+msgstr "Estä interaktiivinen salasana"
+
 #: pkg/systemd/services/service-details.jsx:158
 msgid "Disallow running (mask)"
 msgstr "Estä suorittaminen (piilota)"
@@ -2202,6 +2198,10 @@ msgstr "Levyn I/O -piikki"
 #: pkg/storaged/drive-details.jsx:64
 msgid "Disk is OK"
 msgstr "Levy on kunnossa"
+
+#: pkg/storaged/drive-details.jsx:63
+msgid "Disk is failing"
+msgstr "Levy on rikkoutumassa"
 
 #: pkg/storaged/crypto-keyslots.jsx:197
 msgid "Disk passphrase"
@@ -2311,7 +2311,7 @@ msgstr "Kaksinkertainen sijoitus"
 
 #: pkg/storaged/nfs-details.jsx:305 pkg/storaged/iscsi-panel.jsx:255
 #: pkg/storaged/crypto-keyslots.jsx:577 pkg/shell/indexes.js:341
-#: pkg/shell/hosts.jsx:173 pkg/packagekit/autoupdates.jsx:399
+#: pkg/shell/hosts.jsx:173 pkg/packagekit/autoupdates.jsx:402
 #: pkg/packagekit/kpatch.jsx:229
 msgid "Edit"
 msgstr "Muokkaa"
@@ -2366,7 +2366,7 @@ msgstr "Tyhjä"
 msgid "Emptying $target"
 msgstr "Tyhjennetään $target"
 
-#: pkg/packagekit/autoupdates.jsx:399 pkg/packagekit/kpatch.jsx:249
+#: pkg/packagekit/autoupdates.jsx:402 pkg/packagekit/kpatch.jsx:249
 msgid "Enable"
 msgstr "Ota käyttöön"
 
@@ -2435,7 +2435,7 @@ msgstr "Päättynyt"
 
 #: pkg/selinux/setroubleshoot-view.jsx:260
 msgid "Enforcing"
-msgstr "Täytäntöönpano"
+msgstr "Pakottava"
 
 #: pkg/packagekit/updates.jsx:1359
 msgid "Enhancement updates available"
@@ -2619,7 +2619,7 @@ msgstr "Logien nouto epäonnistui"
 msgid "Failed to load authorized keys."
 msgstr "Valtuutettujen avainten lataaminen epäonnistui."
 
-#: pkg/packagekit/autoupdates.jsx:362
+#: pkg/packagekit/autoupdates.jsx:365
 msgid ""
 "Failed to parse unit files for dnf-automatic.timer or dnf-automatic-install."
 "timer. Please remove custom overrides to configure automatic updates."
@@ -2717,11 +2717,11 @@ msgstr "Kirjasinkoko"
 msgid "Forbidden from running"
 msgstr "Kielletty suorittamasta"
 
-#: pkg/users/account-details.js:352
+#: pkg/users/account-details.js:359
 msgid "Force change"
 msgstr "Pakota muutos"
 
-#: pkg/users/password-dialogs.js:271
+#: pkg/users/password-dialogs.js:278
 msgid "Force password change"
 msgstr "Pakota salasanan vaihdos"
 
@@ -2774,7 +2774,7 @@ msgstr "Perjantai"
 msgid "From"
 msgstr "Lähde"
 
-#: pkg/users/account-create-dialog.js:40 pkg/users/account-details.js:285
+#: pkg/users/account-create-dialog.js:41 pkg/users/account-details.js:285
 msgid "Full name"
 msgstr "Koko nimi"
 
@@ -2939,6 +2939,8 @@ msgid ""
 "If left empty, ID will be generated based on associated port services and "
 "port numbers"
 msgstr ""
+"Jos tämä jätetään tyhjäksi, tunniste generoidaan porttien palveluiden ja "
+"porttinumeroiden perusteella"
 
 #: pkg/static/login.html:72
 msgid ""
@@ -3516,10 +3518,6 @@ msgstr "Sijainti"
 msgid "Lock"
 msgstr "Lukitse"
 
-#: pkg/users/account-create-dialog.js:71 pkg/users/account-details.js:321
-msgid "Lock account"
-msgstr "Lukitse tili"
-
 #: pkg/storaged/crypto-panel.jsx:77 pkg/storaged/crypto-panel.jsx:80
 msgid "Locked devices"
 msgstr "Lukitut laitteet"
@@ -3566,11 +3564,7 @@ msgstr "Kirjautunut sisään"
 msgid "Logical"
 msgstr "Looginen"
 
-#: pkg/storaged/content-views.jsx:927
-msgid "Logical Size"
-msgstr "Looginen koko"
-
-#: pkg/storaged/vdo-details.jsx:228
+#: pkg/storaged/content-views.jsx:927 pkg/storaged/vdo-details.jsx:228
 msgid "Logical size"
 msgstr "Looginen koko"
 
@@ -4106,7 +4100,7 @@ msgstr "Uuden avaimen salasana"
 msgid "New passphrase"
 msgstr "Uusi tunnuslause"
 
-#: pkg/users/password-dialogs.js:148 pkg/shell/credentials.jsx:266
+#: pkg/users/password-dialogs.js:151 pkg/shell/credentials.jsx:266
 msgid "New password"
 msgstr "Uusi salasana"
 
@@ -4259,7 +4253,7 @@ msgstr ""
 msgid "No partitioning"
 msgstr "Ei osiointia"
 
-#: pkg/users/account-create-dialog.js:199
+#: pkg/users/account-create-dialog.js:207
 msgid "No real name specified"
 msgstr "Oikeaa nimeä ei ole määritetty"
 
@@ -4291,7 +4285,7 @@ msgstr "Ei järjestelmän muutoksia"
 msgid "No updates"
 msgstr "Ei päivityksiä"
 
-#: pkg/users/account-create-dialog.js:87
+#: pkg/users/account-create-dialog.js:95
 msgid "No user name specified"
 msgstr "Käyttäjänimeä ei ole määritetty"
 
@@ -4336,7 +4330,7 @@ msgstr "Ei yhdistetty koneeseen"
 msgid "Not enough space to grow."
 msgstr "Ei tarpeeksi tilaa kasvaa."
 
-#: pkg/storaged/details.jsx:138 pkg/systemd/services/services.jsx:176
+#: pkg/storaged/details.jsx:132 pkg/systemd/services/services.jsx:176
 msgid "Not found"
 msgstr "Ei löytynyt"
 
@@ -4411,7 +4405,7 @@ msgstr "OK"
 msgid "Old passphrase"
 msgstr "Vanha tunnuslause"
 
-#: pkg/users/password-dialogs.js:139
+#: pkg/users/password-dialogs.js:141
 msgid "Old password"
 msgstr "Vanha salasana"
 
@@ -4464,7 +4458,8 @@ msgctxt "storage"
 msgid "Optical drive"
 msgstr "Optinen asema"
 
-#: pkg/networkmanager/bridge.jsx:104 pkg/storaged/content-views.jsx:937
+#: pkg/networkmanager/bridge.jsx:104 pkg/users/account-create-dialog.js:70
+#: pkg/users/account-details.js:315 pkg/storaged/content-views.jsx:937
 #: pkg/storaged/crypto-tab.jsx:253
 msgid "Options"
 msgstr "Valinnat"
@@ -4476,6 +4471,14 @@ msgstr "Tai käytä valmiiksi asennettua selainta"
 #: pkg/lib/machine-info.js:58
 msgid "Other"
 msgstr "Muu"
+
+#: pkg/users/account-create-dialog.js:76 pkg/users/account-details.js:325
+msgid ""
+"Other authentication methods are still available even when interactive "
+"password authentication is not allowed."
+msgstr ""
+"Vaikka interaktiivinen salasanalla tunnistautuminen on estetty, muut "
+"tunnistusmenetelmät ovat edelleen käytettävissä."
 
 #: pkg/storaged/content-views.jsx:490
 msgctxt "storage-id-desc"
@@ -4616,8 +4619,8 @@ msgstr "Salalauseen poisto voi estää laitteen $0 lukituksen avaamisen."
 msgid "Passphrases do not match"
 msgstr "Tunnuslauseet eivät täsmää"
 
-#: pkg/static/login.html:81 pkg/users/account-create-dialog.js:60
-#: pkg/users/account-details.js:339 pkg/storaged/iscsi-panel.jsx:50
+#: pkg/static/login.html:81 pkg/users/account-create-dialog.js:61
+#: pkg/users/account-details.js:346 pkg/storaged/iscsi-panel.jsx:50
 #: pkg/storaged/iscsi-panel.jsx:160 pkg/shell/superuser.jsx:52
 #: pkg/shell/hosts_dialog.jsx:818 pkg/shell/hosts_dialog.jsx:827
 #: pkg/shell/credentials.jsx:120 pkg/shell/credentials.jsx:263
@@ -4633,7 +4636,7 @@ msgstr "Salasanan vaihtaminen onnistui"
 msgid "Password expiration"
 msgstr "Salasanan vanheneminen"
 
-#: pkg/users/account-create-dialog.js:205 pkg/users/password-dialogs.js:210
+#: pkg/users/account-create-dialog.js:213 pkg/users/password-dialogs.js:214
 msgid "Password is longer than 256 characters"
 msgstr "Salasana on yli 256 merkkiä pitkä"
 
@@ -5392,7 +5395,7 @@ msgstr "Varattu muisti"
 msgid "Reset"
 msgstr "Nollaa"
 
-#: pkg/users/password-dialogs.js:278
+#: pkg/users/password-dialogs.js:285
 msgid "Reset password"
 msgstr "Nollaa salasana"
 
@@ -5567,7 +5570,7 @@ msgid "Save and reboot"
 msgstr "Tallenna ja käynnistä uudelleen"
 
 #: pkg/systemd/overview-cards/motdCard.jsx:98
-#: pkg/packagekit/autoupdates.jsx:414
+#: pkg/packagekit/autoupdates.jsx:417
 msgid "Save changes"
 msgstr "Tallenna muutokset"
 
@@ -5620,10 +5623,6 @@ msgstr "Secure shell -avaimet"
 msgid "Securely erasing $target"
 msgstr "Poistaa turvallisesti $target"
 
-#: pkg/packagekit/autoupdates.jsx:350
-msgid "Security updates "
-msgstr "Tietoturvapäivityksiä "
-
 #: pkg/packagekit/updates.jsx:1355
 msgid "Security updates available"
 msgstr "Tietoturvapäivityksiä saatavilla"
@@ -5631,6 +5630,10 @@ msgstr "Tietoturvapäivityksiä saatavilla"
 #: pkg/packagekit/autoupdates.jsx:289
 msgid "Security updates only"
 msgstr "Vain tietoturvapäivityksiä"
+
+#: pkg/packagekit/autoupdates.jsx:353
+msgid "Security updates will be applied $0 at $1"
+msgstr "Turvallisuuspäivitykset asennetaan $0 klo $1"
 
 #: pkg/shell/shell-modals.jsx:127
 msgid "Select"
@@ -5748,8 +5751,8 @@ msgstr "Aseta"
 msgid "Set hostname"
 msgstr "Määritä konenimi"
 
-#: pkg/users/password-dialogs.js:215 pkg/users/password-dialogs.js:225
-#: pkg/users/password-dialogs.js:232 pkg/users/account-details.js:345
+#: pkg/users/password-dialogs.js:219 pkg/users/password-dialogs.js:230
+#: pkg/users/password-dialogs.js:237 pkg/users/account-details.js:352
 msgid "Set password"
 msgstr "Aseta salasana"
 
@@ -6106,7 +6109,7 @@ msgstr "Pysäytetään RAID-laite $target"
 msgid "Stopping swapspace $target"
 msgstr "Lopetetaan sivutustilan $target"
 
-#: pkg/storaged/index.html:23 pkg/storaged/details.jsx:146
+#: pkg/storaged/index.html:23 pkg/storaged/details.jsx:140
 #: pkg/storaged/manifest.json:0
 msgid "Storage"
 msgstr "Tallennustila"
@@ -6378,7 +6381,7 @@ msgstr ""
 "SSH-avain koneelle $0 sisäänkirjautumista varten on suojattu. Voit kirjautua "
 "sisään joko kirjautumissalasanallasi tai antamalla avaimen $1 salasanan."
 
-#: pkg/users/password-dialogs.js:266
+#: pkg/users/password-dialogs.js:273
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr ""
 "Tili '$0' on pakotettu vaihtamaan salasanan seuraavalla "
@@ -6551,7 +6554,7 @@ msgstr "Uuden avaimen salasana ei voi olla tyhjä"
 msgid "The password can not be empty"
 msgstr "Salasana ei voi olla tyhjä"
 
-#: pkg/users/account-create-dialog.js:202 pkg/users/password-dialogs.js:207
+#: pkg/users/account-create-dialog.js:210 pkg/users/password-dialogs.js:211
 msgid "The passwords do not match"
 msgstr "Salasanat eivät täsmää"
 
@@ -6585,13 +6588,13 @@ msgstr ""
 msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr "Käyttäjä $0 ei saa muuttaa suorittimen suojauksen lievennyksiä"
 
-#: pkg/users/account-roles.js:90
+#: pkg/users/account-roles.js:89
 msgid "The user must log out and log back in to fully change roles."
 msgstr ""
 "Käyttäjän on kirjauduttava ulos ja kirjauduttava sisään, jotta roolit "
 "voidaan täysin muuttaa."
 
-#: pkg/users/account-create-dialog.js:91
+#: pkg/users/account-create-dialog.js:99
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
@@ -6729,7 +6732,7 @@ msgstr ""
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "Tätä yksikköä ei ole suunniteltu nimenomaisesti käytettäväksi."
 
-#: pkg/users/account-create-dialog.js:96
+#: pkg/users/account-create-dialog.js:104
 msgid "This user name already exists"
 msgstr "Käyttäjätunnus on jo olemassa"
 
@@ -7254,10 +7257,6 @@ msgstr ""
 "Päivitetyt paketit saattavat vaatia uudelleenkäynnistyksen, jotta muutokset "
 "tulevat voimaan."
 
-#: pkg/packagekit/autoupdates.jsx:350
-msgid "Updates "
-msgstr "Päivitykset "
-
 #: pkg/packagekit/updates.jsx:1361
 msgid "Updates available"
 msgstr "Päivityksiä saatavilla"
@@ -7265,6 +7264,10 @@ msgstr "Päivityksiä saatavilla"
 #: pkg/packagekit/history.jsx:104
 msgid "Updates history"
 msgstr "Päivitysten historia"
+
+#: pkg/packagekit/autoupdates.jsx:354
+msgid "Updates will be applied $0 at $1"
+msgstr "Päivitykset asennetaan $0 klo $1"
 
 #: pkg/packagekit/updates.jsx:86
 msgid "Updating"
@@ -7328,7 +7331,7 @@ msgstr "Käytetään"
 msgid "User"
 msgstr "Käyttäjä"
 
-#: pkg/static/login.html:76 pkg/users/account-create-dialog.js:49
+#: pkg/static/login.html:76 pkg/users/account-create-dialog.js:50
 #: pkg/users/account-details.js:299 pkg/shell/hosts_dialog.jsx:257
 msgid "User name"
 msgstr "Käyttäjänimi"
@@ -7348,10 +7351,6 @@ msgstr "Käytetään LUKS-salausta"
 #: pkg/storaged/manifest.json:0
 msgid "Using Tang server"
 msgstr "Käytetään Tang-palvelinta"
-
-#: pkg/storaged/content-views.jsx:212
-msgid "VDO Pool"
-msgstr "VDO-varanto"
 
 #: pkg/storaged/content-views.jsx:493
 msgctxt "storage-id-desc"
@@ -7373,6 +7372,10 @@ msgstr "VDO-laite $0"
 #: pkg/storaged/content-views.jsx:864
 msgid "VDO filesystem volume (compression/deduplication)"
 msgstr "VDO-tiedostojärjestelmän taltio (pakkaus/kopioiden poisto)"
+
+#: pkg/storaged/content-views.jsx:212
+msgid "VDO pool"
+msgstr "VDO-varanto"
 
 #: pkg/networkmanager/network-interface.jsx:180
 #: pkg/networkmanager/network-interface.jsx:192
@@ -7454,7 +7457,7 @@ msgstr "Tarkastele raporttia"
 
 #: pkg/lib/cockpit-components-firewalld-request.jsx:120
 #: pkg/lib/cockpit-components-firewalld-request.jsx:157
-msgid "Visit Firewall"
+msgid "Visit firewall"
 msgstr "Käy palomuurissa"
 
 #: pkg/storaged/content-views.jsx:209
@@ -7606,7 +7609,7 @@ msgid ""
 msgstr ""
 "Sinulla ei ole oikeutta tarkastella tämän käyttäjätilin julkisia avaimia."
 
-#: pkg/shell/base_index.js:538
+#: pkg/shell/base_index.js:554
 msgid "You have been logged out due to inactivity."
 msgstr "Sinut on kirjautunut ulos toimimattomuuden vuoksi."
 
@@ -7640,7 +7643,7 @@ msgstr ""
 msgid "You now have administrative access."
 msgstr "Sinulla on nyt ylläpitäjän käyttöoikeudet."
 
-#: pkg/shell/base_index.js:516
+#: pkg/shell/base_index.js:532
 msgid "You will be logged out in $0 seconds."
 msgstr "Sinut kirjataan ulos $0 sekunnin kuluttua."
 
@@ -7833,8 +7836,8 @@ msgid "drive"
 msgstr "asema"
 
 #: pkg/networkmanager/network-interface.jsx:359
-#: pkg/networkmanager/dialogs-common.jsx:223 pkg/users/account-details.js:333
-#: pkg/users/account-details.js:365 pkg/storaged/fsys-tab.jsx:690
+#: pkg/networkmanager/dialogs-common.jsx:223 pkg/users/account-details.js:340
+#: pkg/users/account-details.js:372 pkg/storaged/fsys-tab.jsx:690
 #: pkg/storaged/fsys-tab.jsx:705 pkg/storaged/lvol-tabs.jsx:423
 #: pkg/storaged/lvol-tabs.jsx:484 pkg/storaged/crypto-tab.jsx:248
 #: pkg/storaged/crypto-tab.jsx:257
@@ -8407,10 +8410,6 @@ msgstr "taltio"
 msgid "warning"
 msgstr "varoitus"
 
-#: pkg/packagekit/autoupdates.jsx:351
-msgid "will be applied $0 at $1"
-msgstr "asennetaan $0 klo $1"
-
 #: pkg/storaged/crypto-tab.jsx:247
 msgid "yes"
 msgstr "kyllä"
@@ -8422,6 +8421,24 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "vyöhyke"
+
+#~ msgid "Access"
+#~ msgstr "Pääsy"
+
+#~ msgid "DISK IS FAILING"
+#~ msgstr "LEVY ON PETTÄMÄSSÄ"
+
+#~ msgid "Lock account"
+#~ msgstr "Lukitse tili"
+
+#~ msgid "Logical Size"
+#~ msgstr "Looginen koko"
+
+#~ msgid "Security updates "
+#~ msgstr "Tietoturvapäivityksiä "
+
+#~ msgid "Updates "
+#~ msgstr "Päivitykset "
 
 #~ msgid "(Optional)"
 #~ msgstr "(Valinnainen)"

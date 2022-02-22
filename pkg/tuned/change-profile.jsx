@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import PropTypes from "prop-types";
 
-import { Label, Menu, MenuItem, MenuContent, MenuList, Flex, FlexItem } from '@patternfly/react-core';
+import { Label, LabelGroup, Menu, MenuItem, MenuContent, MenuList, Flex, FlexItem } from '@patternfly/react-core';
 
 import "menu-select-widget.scss";
 
@@ -52,12 +52,13 @@ export class TunedDialogBody extends React.Component {
 
             return (
                 <MenuItem itemId={itm.name} key={itm.name} data-value={itm.name} description={itm.description}>
-                    <Flex alignItems={{ default: 'alignItemsCenter' }} justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+                    <Flex alignItems={{ default: 'alignItemsCenter' }}>
                         <p>{ itm.title }</p>
                         <FlexItem>
-                            {itm.recommended && <Label color="blue" variant='filled'>{_("recommended")}</Label>}
-                            {" "}
-                            {active && <Label color="blue" variant='filled'>{_("active")}</Label>}
+                            <LabelGroup>
+                                {itm.recommended && <Label color="green" variant='filled'>{_("recommended")}</Label>}
+                                {active && <Label color="blue" variant='filled'>{_("active")}</Label>}
+                            </LabelGroup>
                         </FlexItem>
                     </Flex>
                 </MenuItem>

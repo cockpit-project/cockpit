@@ -117,9 +117,7 @@ class TestServices(MachineCase):
             self.browser.wait_visible(f".pf-c-chip-group__label:contains('Active state') + .pf-c-chip-group__list li:contains('{state}')")
 
     def wait_page_load(self):
-        # Services page takes very long to load, doubly so on noisy CI infra
-        with self.browser.wait_timeout(300):
-            self.browser.wait_not_present(".pf-c-empty-state .pf-c-spinner[aria-valuetext='Loading...']")
+        self.browser.wait_not_present(".pf-c-empty-state .pf-c-spinner[aria-valuetext='Loading...']")
 
     def wait_service_in_panel(self, service, title):
         self.wait_service_state(service, title)
@@ -969,9 +967,7 @@ class TestTimers(MachineCase):
         return f'tr[data-goto-unit="{service}"]'
 
     def wait_page_load(self):
-        # Services page takes very long to load, doubly so on noisy CI infra
-        with self.browser.wait_timeout(300):
-            self.browser.wait_not_present(".pf-c-empty-state .pf-c-spinner[aria-valuetext='Loading...']")
+        self.browser.wait_not_present(".pf-c-empty-state .pf-c-spinner[aria-valuetext='Loading...']")
 
     def testCreate(self):
         m = self.machine

@@ -700,6 +700,8 @@ class TestCurrentMetrics(MachineCase):
         self.addCleanup(self.machine.execute, "systemctl unmask packagekit")
         # make sure to clean up our test resource consumers on failures
         self.addCleanup(self.machine.execute, "systemctl stop cockpittest.slice 2>/dev/null || true")
+        self.addCleanup(self.machine.execute, "su - admin -c 'XDG_RUNTIME_DIR=/run/user/$(id -u admin) "
+                                              "systemctl --user stop cockpittest.slice 2>/dev/null || true'")
         login(self)
 
     def testCPU(self):
@@ -755,6 +757,16 @@ class TestCurrentMetrics(MachineCase):
         # this settles down slowly, don't wait for becoming really quiet
         with b.wait_timeout(180):
             b.wait(lambda: float(b.text("#load-avg .pf-l-flex div:first-child").split()[-1].rstrip(',')) < 10)
+
+        # Test link to user services
+        # older releases don't have CPU accounting enabled for user services
+        if m.image not in ["ubuntu-2004", "rhel-8-6", "centos-8-stream"]:
+            m.execute("su - admin -c 'XDG_RUNTIME_DIR=/run/user/$(id -u admin) systemd-run --user --collect --slice cockpittest -p CPUQuota=60% --unit cpu-userhog dd if=/dev/urandom of=/dev/null'")
+            # user services are always running underneath user@1000.service, so these two will compete for row 1 or 2
+            b.wait_in_text("table[aria-label='Top 5 CPU services'] tbody", "cpu-userhog")
+            b.click("table[aria-label='Top 5 CPU services'] tbody tr:contains(cpu-userhog) td[data-label='Service'] a span")
+            b.enter_page("/system/services")
+            b.wait_in_text(".service-name", "/usr/bin/dd if=/dev/urandom of=/dev/null")
 
     def testMemory(self):
         b = self.browser
@@ -823,6 +835,21 @@ BEGIN {{
             b.mouse("#current-swap-usage", "mouseenter")
             b.wait_in_text(".pf-c-tooltip", "GiB total")
             b.mouse("#current-swap-usage", "mouseleave")
+        else:
+            m.execute("systemctl stop mem-hog")
+
+        m.execute("rm /tmp/hogged")
+
+        # Test link to user services
+        # older releases don't have memory accounting enabled for user services
+        if m.image not in ["ubuntu-2004", "rhel-8-6", "centos-8-stream"]:
+            m.execute("su - admin -c 'XDG_RUNTIME_DIR=/run/user/$(id -u admin) systemd-run --user --collect --slice cockpittest --unit mem-userhog memhog.sh'")
+            m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
+            # user services are always running underneath user@1000.service, so these two will compete for row 1 or 2
+            b.wait_in_text("table[aria-label='Top 5 memory services'] tbody", "mem-userhog")
+            b.click("table[aria-label='Top 5 memory services'] tbody tr:contains(mem-userhog) td[data-label='Service'] a span")
+            b.enter_page("/system/services")
+            b.wait_in_text(".service-name", "memhog.sh")
 
     def testDiskIO(self):
         b = self.browser

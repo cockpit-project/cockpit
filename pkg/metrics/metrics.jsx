@@ -379,24 +379,31 @@ class CurrentMetrics extends React.Component {
             }
         }
 
-        // return [ { [key, value] } ] list of the biggest n values
+        // return [ { [key, value, is_user] } ] list of the biggest n values
         function n_biggest(names, values, n) {
             const merged = [];
             names.forEach((k, i) => {
                 const v = values[i];
                 // filter out invalid values, the empty (root) cgroup, non-services
                 if (k.endsWith('.service') && typeof v === 'number' && v != 0) {
+                    const is_user = k.match(/^user.*user@\d+\.service.+/);
                     const label = k.replace(/.*\//, '').replace(/\.service$/, '');
                     // only keep cgroup basenames, and drop redundant .service suffix
-                    merged.push([label, v]);
+                    merged.push([label, v, is_user]);
                 }
             });
             merged.sort((a, b) => b[1] - a[1]);
             return merged.slice(0, n);
         }
 
-        function serviceRow(name, value) {
-            const name_text = <Button variant="link" isInline component="a" key={name} onClick={ e => cockpit.jump("/system/services#/" + name + ".service") }><TableText wrapModifier="truncate">{name}</TableText></Button>;
+        function serviceRow(name, value, is_user) {
+            const name_text = (
+                <Button variant="link" isInline component="a" key={name} onClick={ e => cockpit.jump("/system/services#/" + name + ".service" + (is_user ? "?owner=user" : "")) }>
+                    <TableText wrapModifier="truncate">
+                        {name}
+                    </TableText>
+                </Button>
+            );
             const value_text = <TableText wrapModifier="nowrap">{value}</TableText>;
             return {
                 cells: [{ title: name_text }, { title: value_text }]
@@ -405,11 +412,11 @@ class CurrentMetrics extends React.Component {
 
         // top 5 CPU and memory consuming systemd units
         newState.topServicesCPU = n_biggest(this.cgroupCPUNames, this.samples[9], 5).map(
-            x => serviceRow(x[0], Number(x[1] / 10 / numCpu).toFixed(1)) // usec/s → percent
+            ([key, value, is_user]) => serviceRow(key, Number(value / 10 / numCpu).toFixed(1), is_user) // usec/s → percent
         );
 
         newState.topServicesMemory = n_biggest(this.cgroupMemoryNames, this.samples[10], 5).map(
-            x => serviceRow(x[0], cockpit.format_bytes(x[1], 1000))
+            ([key, value, is_user]) => serviceRow(key, cockpit.format_bytes(value, 1000), is_user)
         );
 
         this.setState(newState);

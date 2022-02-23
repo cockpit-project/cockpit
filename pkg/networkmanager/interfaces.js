@@ -1169,6 +1169,7 @@ export function NetworkManagerModel() {
                                           devices.map(objpath),
                                           timeout,
                                           0)
+                        .then(results => results[0])
                         .catch(function (error) {
                             if (error.name != "org.freedesktop.DBus.Error.UnknownMethod")
                                 console.warn(error.message || error);

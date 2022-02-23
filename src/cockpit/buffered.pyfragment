@@ -73,3 +73,21 @@ class CockpitBufferedProtocol(CockpitBaseProtocol, asyncio.BufferedProtocol):
         raise ValueError('eof received')
 
 
+class BufferedProtocolFeeder:
+    def __init__(self, fd, protocol, *args, **kwargs):
+        self.fd = fd
+        self.fileio = io.FileIO(self.fd, closefd=False)
+        self.listener = protocol(*args, **kwargs)
+        self.loop = asyncio.get_event_loop()
+        self.loop.add_reader(self.fd, self.ready)
+
+    # From BufferedProtocol docs:
+    #  start -> CM [-> GB [-> BU?]]* [-> ER?] -> CL -> end
+    def ready(self):
+        buffer = self.listener.get_buffer()
+        n_bytes = self.fileio.readinto(buffer)
+        if n_bytes:
+            self.listener.buffer_updated(n_bytes)
+        else:
+            self.listener.eof_received()
+            self.loop.remove_reader(self.fd)

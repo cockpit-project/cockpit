@@ -152,16 +152,19 @@ function render_open_fds(val) {
     let value;
     val.split('\n').forEach((line, i) => {
         if (i % 5 == 0) {
-            if (term !== undefined || value !== undefined)
-                rows.push([term, <Stack key={term}>{value.map(itm => <StackItem key={itm}>{itm}</StackItem>)}</Stack>]);
+            if (term !== undefined && value !== undefined)
+                rows.push([term, <Stack key={term}>{value.map(itm => itm ? <StackItem key={itm}>{itm}</StackItem> : null)}</Stack>]);
 
             term = line.split(":")[0];
             value = [line.split(":")[1]];
-        }
-
-        if (i % 5 !== 0)
+        } else {
             value.push(line);
+        }
     });
+
+    if (term !== undefined && value !== undefined)
+        rows.push([term, <Stack key={term}>{value.map(itm => <StackItem key={itm}>{itm}</StackItem>)}</Stack>]);
+
     return <Table lines={rows} />;
 }
 

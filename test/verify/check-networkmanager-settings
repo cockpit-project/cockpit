@@ -61,10 +61,13 @@ class TestNetworkingSettings(NetworkCase):
         b.wait_not_present("#network-ip-settings-dialog")
         self.wait_for_iface_setting('IPv4', 'Address 1.2.3.4/24')
 
+        def assert_connection_setting(con_id, field, value):
+            self.assertEqual(m.execute(f'nmcli -m tabular -t -f {field} con show "{con_id}"').strip(),
+                             value)
+
         # Check that we now have connection settings
         con_id = wait(lambda: self.iface_con_id(iface))
-        self.assertEqual(m.execute(f'nmcli -m tabular -t -f ipv4.method con show "{con_id}"').strip(),
-                         "manual")
+        assert_connection_setting(con_id, "ipv4.method", "manual")
 
         # The interface will be activated. Deactivate it.
         self.wait_for_iface_setting('Status', '1.2.3.4/24')
@@ -82,8 +85,34 @@ class TestNetworkingSettings(NetworkCase):
 
         # Check again that we now have connection settings
         con_id = wait(lambda: self.iface_con_id(iface))
-        self.assertEqual(m.execute(f'nmcli -m tabular -t -f ipv4.method con show "{con_id}"').strip(),
-                         "auto")
+        assert_connection_setting(con_id, "ipv4.method", "auto")
+
+        # Change some more settins and check that the actual config
+        # and dialog reflects the change
+
+        self.configure_iface_setting('IPv4')
+        b.wait_visible("#network-ip-settings-dialog")
+        self.wait_onoff("[data-field=dns]", True)
+        self.toggle_onoff("[data-field=dns]")
+        self.wait_onoff("[data-field=dns_search]", False)
+        b.click("#network-ip-settings-dns-add")
+        b.set_input_text("#network-ip-settings-dns-server-0", "1.2.3.4")
+        b.click("#network-ip-settings-dns-search-add")
+        b.set_input_text("#network-ip-settings-search-domain-0", "foo.com")
+        b.click("#network-ip-settings-apply")
+        b.wait_not_present("#network-ip-settings-dialog")
+
+        assert_connection_setting(con_id, "ipv4.ignore-auto-dns", "yes")
+        assert_connection_setting(con_id, "ipv4.dns", "1.2.3.4")
+        assert_connection_setting(con_id, "ipv4.dns-search", "foo.com")
+
+        self.configure_iface_setting('IPv4')
+        self.wait_onoff("[data-field=dns]", False)
+        self.wait_onoff("[data-field=dns_search]", False)
+        b.wait_val("#network-ip-settings-dns-server-0", "1.2.3.4")
+        b.wait_val("#network-ip-settings-search-domain-0", "foo.com")
+        b.click("#network-ip-settings-cancel")
+        b.wait_not_present("#network-ip-settings-dialog")
 
         self.configure_iface_setting('IPv6')
         b.wait_visible("#network-ip-settings-dialog")
@@ -91,9 +120,7 @@ class TestNetworkingSettings(NetworkCase):
         b.click("#network-ip-settings-apply")
         b.wait_not_present("#network-ip-settings-dialog")
 
-        con_id = wait(lambda: self.iface_con_id(iface))
-        self.assertEqual(m.execute(f'nmcli -m tabular -t -f ipv6.method con show "{con_id}"').strip(),
-                         "disabled")
+        assert_connection_setting(con_id, "ipv6.method", "disabled")
 
     def testOtherSettings(self):
         b = self.browser

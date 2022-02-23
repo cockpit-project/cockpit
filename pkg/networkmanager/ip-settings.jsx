@@ -65,9 +65,9 @@ export const IpSettingsDialog = ({ topic, connection, dev, setIsOpen, settings }
     const [addresses, setAddresses] = useState(params.addresses ? params.addresses.map(addr => ({ address: addr[0], netmask: addr[1], gateway: addr[2] })) : []);
     const [dialogError, setDialogError] = useState(undefined);
     const [dns, setDns] = useState(params.dns || []);
-    const [dnsSearch, setDnsSearch] = useState(params.dns || []);
-    const [ignoreAutoDns, setIgnoreAutoDns] = useState();
-    const [ignoreAutoRoutes, setIgnoreAutoRoutes] = useState();
+    const [dnsSearch, setDnsSearch] = useState(params.dns_search || []);
+    const [ignoreAutoDns, setIgnoreAutoDns] = useState(params.ignore_auto_dns);
+    const [ignoreAutoRoutes, setIgnoreAutoRoutes] = useState(params.ignore_auto_routes);
     const [method, setMethod] = useState(params.method);
     const [routes, setRoutes] = useState(params.routes ? params.routes.map(addr => ({ address: addr[0], netmask: addr[1], gateway: addr[2], metric: addr[3] })) : []);
 
@@ -106,7 +106,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, setIsOpen, settings }
                 method,
                 addresses: addresses.map(addr => [addr.address, addr.netmask, addr.gateway]),
                 dns,
-                dnsSearch,
+                dns_search: dnsSearch,
                 routes: routes.map(route => [route.address, route.netmask, route.gateway, route.metric]),
                 ignore_auto_dns: ignoreAutoDns,
                 ignore_auto_routes: ignoreAutoRoutes,
@@ -262,7 +262,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, setIsOpen, settings }
                                 <Button variant="secondary"
                                         isDisabled={!canHaveExtra}
                                         onClick={() => setDnsSearch([...dnsSearch, ""])}
-                                        id={idPrefix + "-dnf-search-add"}
+                                        id={idPrefix + "-dns-search-add"}
                                         aria-label={_("Add item")}
                                         icon={<PlusIcon />} />
                             </Flex>
@@ -273,8 +273,8 @@ export const IpSettingsDialog = ({ topic, connection, dev, setIsOpen, settings }
                 {dnsSearch.map((domain, i) => {
                     return (
                         <Grid key={i} hasGutter>
-                            <FormGroup fieldId={idPrefix + "-search-domain"} label={_("Search domain")}>
-                                <TextInput id={idPrefix + "-search-domain"} value={domain} onChange={value => setDnsSearch(
+                            <FormGroup fieldId={idPrefix + "-search-domain-" + i} label={_("Search domain")}>
+                                <TextInput id={idPrefix + "-search-domain-" + i} value={domain} onChange={value => setDnsSearch(
                                     dnsSearch.map((item, index) =>
                                         i === index
                                             ? value

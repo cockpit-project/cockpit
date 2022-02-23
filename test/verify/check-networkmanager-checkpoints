@@ -134,6 +134,44 @@ class TestNetworkingCheckpoints(NetworkCase):
             b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
             b.wait_not_present("#confirm-breaking-change-popup")
 
+    def testNoRollback(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+        self.nm_checkpoints_enable()
+        b.wait_visible("#networking")
+
+        iface = 'cockpit1'
+        self.add_veth(iface, dhcp_cidr="10.111.113.2/20")
+        self.nm_activate_eth(iface)
+        self.wait_for_iface(iface)
+
+        self.select_iface(iface)
+        b.wait_visible("#network-interface")
+
+        # Disconnect
+        self.wait_onoff(f".pf-c-card__header:contains('{iface}')", True)
+        self.toggle_onoff(f".pf-c-card__header:contains('{iface}')")
+
+        # The checkpoint should be destroyed before it is being rolled
+        # back.
+
+        def checkpoint_was_destroyed():
+            lines = m.execute("journalctl -n 1000 -u NetworkManager | grep op=").split("\n")
+            last_checkpoint = None
+            for line in lines:
+                match = re.search('op="checkpoint-create" arg="([^"]*)"', line)
+                if match:
+                    last_checkpoint = match[1]
+            if last_checkpoint:
+                for line in lines:
+                    if f'op="checkpoint-destroy" arg="{last_checkpoint}"' in line:
+                        return True
+            return False
+
+        wait(checkpoint_was_destroyed)
+
 
 if __name__ == '__main__':
     test_main()

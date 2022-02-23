@@ -25,13 +25,13 @@ from machine_core.constants import TEST_OS_DEFAULT
 
 
 @skipDistroPackage()
-@skipImage("TODO: networkmanager fails on Arch Linux", "arch")
 class TestNetworkingMTU(NetworkCase):
     provision = {
         "machine1": {"memory_mb": 512},
         "machine2": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/20", "dhcp": True, "memory_mb": 256}
     }
 
+    @skipImage("TODO: fails on Arch Linux", "arch")
     def testMtu(self):
         b = self.browser
         m = self.machine

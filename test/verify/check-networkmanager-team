@@ -24,7 +24,7 @@ from testlib import *
 
 
 @skipImage("NetworkManager-team not installed", "fedora-coreos")
-@skipImage("TODO: networkmanager fails on Arch Linux", "arch")
+@skipImage("TODO: team capability not detected on Arch Linux", "arch")
 @skipDistroPackage()
 @nondestructive
 class TestTeam(NetworkCase):

@@ -24,8 +24,8 @@ from testlib import *
 
 @nondestructive
 @skipDistroPackage()
-@skipImage("TODO: testBasic fails on Arch Linux", "arch")
 class TestBridge(NetworkCase):
+    @skipImage("TODO: fails on Arch Linux", "arch")
     def testBasic(self):
         b = self.browser
         m = self.machine

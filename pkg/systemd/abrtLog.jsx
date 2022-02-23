@@ -225,8 +225,7 @@ export class AbrtLogDetails extends React.Component {
     }
 
     onDelete(ev) {
-        this.props.service.DeleteProblems([this.props.problem.path]);
-        this.props.reloadProblems(ev);
+        this.props.service.DeleteProblems([this.props.problem.path]).then(() => this.props.reloadProblems(ev));
     }
 
     renderBacktrace(val) {

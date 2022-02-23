@@ -973,7 +973,12 @@ ExecStart=/usr/local/bin/{packageName}
 
         # this tends to corrupt the rpm database, so do a backup/restore
         if self.backend == 'dnf':
-            self.restore_dir("/var/lib/rpm")
+            # https://www.fedoraproject.org/wiki/Changes/RelocateRPMToUsr
+            exists = self.machine.execute("if test -e %s; then echo yes; fi" % "/usr/lib/sysimage/rpm").strip() != ""
+            if exists:
+                self.restore_dir("/usr/lib/sysimage/rpm")
+            else:
+                self.restore_dir("/var/lib/rpm")
 
         # make sure we have enough time to crash PK
         self.createPackage("slow", "1", "1", install=True)

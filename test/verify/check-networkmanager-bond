@@ -72,7 +72,7 @@ class TestBonding(NetworkCase):
         # Check that the configuration file has the expected sane name
         # on systems that use "network-scripts".
         if m.image not in ["fedora-coreos", "fedora-testing", "fedora-36"]:
-            m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tbond")
+            m.execute("! test -d /etc/sysconfig/network-scripts || test -f /etc/sysconfig/network-scripts/ifcfg-tbond")
 
         # Check that the members are displayed and both On
         b.click("#networking-interfaces tr[data-interface='tbond'] button")

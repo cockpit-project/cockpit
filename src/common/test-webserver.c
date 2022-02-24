@@ -45,6 +45,9 @@ typedef struct {
   gboolean inet_only;
   CockpitWebServerFlags server_flags;
   const gchar *expected_protocol;
+
+  const gchar *protocol_header;
+  const gchar *extra_headers;
 } TestCase;
 
 #define SKIP_NO_HOSTPORT if (!fixture->hostport) { g_test_skip ("No non-loopback network interface available"); return; }
@@ -100,6 +103,9 @@ fixture_setup (Fixture *fixture,
 
   fixture->web_server = cockpit_web_server_new (cert, test_case->server_flags);
   g_clear_object (&cert);
+
+  if (test_case && test_case->protocol_header)
+    cockpit_web_server_set_protocol_header (fixture->web_server, test_case->protocol_header);
 
   /* We want to check all incoming requests to ensure that they match
    * our expectations about remote hostname and protocol.  Add a
@@ -1011,10 +1017,23 @@ test_webserver_for_tls_proxy (Fixture *fixture,
 
   g_assert (cockpit_web_server_get_flags (fixture->web_server) == COCKPIT_WEB_SERVER_FOR_TLS_PROXY);
 
-  g_signal_connect (fixture->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
+  g_signal_connect (fixture->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), &test_case);
   resp = perform_http_request (fixture->localport, "GET /shell/index.html HTTP/1.0\r\nHost:test\r\n\r\n", NULL);
   cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
   g_free (resp);
+}
+
+static void
+test_webserver_with_headers (Fixture *fixture,
+                             const TestCase *test_case)
+{
+  g_signal_connect (fixture->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), &test_case);
+
+  g_autofree gchar *request = g_strdup_printf ("GET /shell/index.html HTTP/1.0\r\n"
+                                               "Host: test\r\n"
+                                               "%s\r\n", test_case->extra_headers ?: "");
+  g_autofree gchar *resp = perform_http_request (fixture->localport, request, NULL);
+  cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
 }
 
 int
@@ -1073,6 +1092,26 @@ main (int argc,
 
   cockpit_test_add ("/web-server/for-tls-proxy", test_webserver_for_tls_proxy,
                     .local_only=TRUE, .server_flags=COCKPIT_WEB_SERVER_FOR_TLS_PROXY, .expected_protocol="https");
+
+  /* X-Forwarded-Proto */
+
+  /* Header is enabled, but not passed.  Default to "http". */
+  cockpit_test_add ("/web-server/x-forwarded-proto/empty", test_webserver_with_headers,
+                    .protocol_header="X-Forwarded-Proto", .expected_protocol="http");
+
+  /* Header is enabled and passed as "http".  Result: "http" */
+  cockpit_test_add ("/web-server/x-forwarded-proto/http", test_webserver_with_headers,
+                    .protocol_header="X-Forwarded-Proto", .extra_headers="X-Forwarded-Proto: http\r\n",
+                    .expected_protocol="http");
+
+  /* Header is enabled and passed as "https".  Result: "https" */
+  cockpit_test_add ("/web-server/x-forwarded-proto/https", test_webserver_with_headers,
+                    .protocol_header="X-Forwarded-Proto", .extra_headers="X-Forwarded-Proto: https\r\n",
+                    .expected_protocol="https");
+
+  /* Header is passed as "https", but we never enabled it, so it ought to be ignored */
+  cockpit_test_add ("/web-server/x-forwarded-proto/ignore", test_webserver_with_headers,
+                    .extra_headers="X-Forwarded-Proto: https\r\n", .expected_protocol="http");
 
   return g_test_run ();
 }

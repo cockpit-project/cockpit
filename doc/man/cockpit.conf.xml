@@ -59,7 +59,7 @@
                   and port, if necessary.</para>
 
           <informalexample>
-<programlisting language="js">
+<programlisting language="ini">
 [WebService]
 Origins = https://somedomain1.com https://somedomain2.com:9090
 </programlisting>
@@ -73,7 +73,7 @@ Origins = https://somedomain1.com https://somedomain2.com:9090
                   is using tls. This should only be used when cockpit is behind a reverse proxy, and care
                   should be taken to make sure that incoming requests cannot set this header.</para>
           <informalexample>
-<programlisting language="js">
+<programlisting language="ini">
 [WebService]
 ProtocolHeader = X-Forwarded-Proto
 </programlisting>
@@ -223,7 +223,7 @@ ProtocolHeader = X-Forwarded-Proto
           cannot forget credentials, and thus automatic logouts are not useful for protecting credentials
           of forgotten sessions. Set to <literal>0</literal> to disable session timeout.</para>
           <informalexample>
-<programlisting language="js">
+<programlisting language="ini">
 [Session]
 IdleTimeout=15
 </programlisting>

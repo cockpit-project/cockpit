@@ -110,8 +110,11 @@ Depends: ${misc:Depends},
          cockpit-bridge (>= ${source:Version}),
          python3,
          python3-dbus
+Suggests: udisks2-lvm2
 Description: Cockpit user interface for storage
  The Cockpit components for interacting with storage.
+ .
+ Install udisks2-lvm2 if you use LVM and want to manage it with Cockpit.
 
 Package: cockpit-system
 Architecture: all

@@ -179,3 +179,29 @@ svg {
 .pf-c-masthead .pf-c-dropdown:not(.pf-m-expanded) > .pf-c-dropdown__toggle:focus:not(:focus-visible):not(:hover):not(:active)::before {
     border-color: transparent;
 }
+
+// Flex should use gap, not a margin hack
+// https://github.com/patternfly/patternfly/issues/4523
+.pf-l-flex {
+    gap: var(--pf-l-flex--spacer-base);
+
+    // Negate the margin hack used by immediate flex children
+    > * {
+        --pf-l-flex--spacer-base: 0;
+    }
+
+    // Undo all spacer modification adjustments
+    &[class*=pf-m-space-items-] {
+        > * {
+            --pf-l-flex--spacer: 0;
+        }
+    }
+
+    // Re-add spacer modification adjustments on the flex layout widget
+    // (using class attribute matching for handling breakpoint -on- also)
+    @each $size in (none, sm, md, lg, xl, 2xl, 3xl, 4xl) {
+        &[class*=pf-m-space-items-#{$size}] {
+            --pf-l-flex--spacer-base: var(--pf-l-flex--spacer--#{$size});
+        }
+    }
+}

@@ -37,7 +37,7 @@ typedef struct {
 } Fixture;
 
 typedef struct {
-  const gchar *cert_file;
+  gboolean use_cert;
   gboolean local_only;
   gboolean inet_only;
   CockpitWebServerFlags server_flags;
@@ -46,10 +46,9 @@ typedef struct {
 #define SKIP_NO_HOSTPORT if (!fixture->hostport) { g_test_skip ("No non-loopback network interface available"); return; }
 
 static void
-setup (Fixture *fixture,
-       gconstpointer data)
+fixture_setup (Fixture *fixture,
+               const TestCase *test_case)
 {
-  const TestCase *test_case = data;
   GTlsCertificate *cert = NULL;
   GError *error = NULL;
   GInetAddress *inet;
@@ -61,9 +60,9 @@ setup (Fixture *fixture,
   if (inet != NULL)
     str = g_inet_address_to_string (inet);
 
-  if (test_case && test_case->cert_file)
+  if (test_case->use_cert)
     {
-      cert = g_tls_certificate_new_from_file (test_case->cert_file, &error);
+      cert = g_tls_certificate_new_from_file (SRCDIR "/src/ws/mock-combined.crt", &error);
       g_assert_no_error (error);
 
       /* don't require system SSL cert database in build environments */
@@ -71,15 +70,14 @@ setup (Fixture *fixture,
     }
 
   gchar *address;
-  if (test_case && test_case->local_only)
+  if (test_case->local_only)
     address = "127.0.0.1";
-  else if (test_case && test_case->inet_only)
+  else if (test_case->inet_only)
     address = str;
   else
     address = NULL;
 
-  fixture->web_server = cockpit_web_server_new (cert,
-                                           test_case ? test_case->server_flags : COCKPIT_WEB_SERVER_NONE);
+  fixture->web_server = cockpit_web_server_new (cert, test_case->server_flags);
   g_clear_object (&cert);
 
   port = cockpit_web_server_add_inet_listener (fixture->web_server, address, 0, &error);
@@ -98,8 +96,8 @@ setup (Fixture *fixture,
 }
 
 static void
-teardown (Fixture *fixture,
-          gconstpointer data)
+fixture_teardown (Fixture *fixture,
+                  const TestCase *test_case)
 {
   cockpit_assert_expected ();
 
@@ -456,7 +454,7 @@ on_shell_index_html (CockpitWebServer *server,
 
 static void
 test_with_query_string (Fixture *fixture,
-                        gconstpointer user_data)
+                        const TestCase *test_case)
 {
   gchar *resp;
   gsize length;
@@ -472,7 +470,7 @@ test_with_query_string (Fixture *fixture,
 
 static void
 test_webserver_not_found (Fixture *fixture,
-                          gconstpointer user_data)
+                          const TestCase *test_case)
 {
   gchar *resp;
   gsize length;
@@ -492,7 +490,7 @@ test_webserver_not_found (Fixture *fixture,
 
 static void
 test_webserver_tls (Fixture *fixture,
-                    gconstpointer user_data)
+                    const TestCase *test_case)
 {
   gchar *resp;
   gsize length;
@@ -530,7 +528,7 @@ on_big_header (CockpitWebServer *server,
 
 static void
 test_webserver_tls_big_header (Fixture *fixture,
-                               gconstpointer user_data)
+                               const TestCase *test_case)
 {
   g_autofree gchar *req = NULL;
   g_autofree gchar *resp = NULL;
@@ -549,7 +547,7 @@ test_webserver_tls_big_header (Fixture *fixture,
 
 static void
 test_webserver_tls_request_too_large (Fixture *fixture,
-                                      gconstpointer user_data)
+                                      const TestCase *test_case)
 {
   g_autofree gchar *req = NULL;
   g_autofree gchar *resp = NULL;
@@ -566,18 +564,9 @@ test_webserver_tls_request_too_large (Fixture *fixture,
   g_assert_cmpstr (resp, ==, "");
 }
 
-static const TestCase test_case_with_cert = {
-    .cert_file = SRCDIR "/src/ws/mock-combined.crt"
-};
-
-static const TestCase test_case_with_cert_redirect = {
-    .server_flags = COCKPIT_WEB_SERVER_REDIRECT_TLS,
-    .cert_file = SRCDIR "/src/ws/mock-combined.crt"
-};
-
 static void
 test_webserver_redirect_notls (Fixture *fixture,
-                               gconstpointer data)
+                               const TestCase *test_case)
 {
   gchar *resp;
 
@@ -593,7 +582,7 @@ test_webserver_redirect_notls (Fixture *fixture,
 
 static void
 test_webserver_noredirect_localhost (Fixture *fixture,
-                                     gconstpointer data)
+                                     const TestCase *test_case)
 {
   gchar *resp;
 
@@ -607,7 +596,7 @@ test_webserver_noredirect_localhost (Fixture *fixture,
 
 static void
 test_webserver_noredirect_exception (Fixture *fixture,
-                                     gconstpointer data)
+                                     const TestCase *test_case)
 {
   gchar *resp;
 
@@ -622,7 +611,7 @@ test_webserver_noredirect_exception (Fixture *fixture,
 
 static void
 test_webserver_noredirect_override (Fixture *fixture,
-                                    gconstpointer data)
+                                    const TestCase *test_case)
 {
   gchar *resp;
 
@@ -719,7 +708,7 @@ on_default_resource (CockpitWebServer *server,
 
 static void
 test_handle_resource (Fixture *fixture,
-                      gconstpointer data)
+                      const TestCase *test_case)
 {
   const gchar *invoked = NULL;
   gchar *resp;
@@ -779,7 +768,7 @@ test_handle_resource (Fixture *fixture,
 
 static void
 test_webserver_host_header (Fixture *fixture,
-                            gconstpointer data)
+                            const TestCase *test_case)
 {
   gsize length;
   guint status;
@@ -800,7 +789,7 @@ test_webserver_host_header (Fixture *fixture,
 
 static void
 test_url_root (Fixture *fixture,
-                 gconstpointer unused)
+               const TestCase *test_case)
 {
   gchar *url_root = NULL;
 
@@ -839,7 +828,7 @@ test_url_root (Fixture *fixture,
 
 static void
 test_handle_resource_url_root (Fixture *fixture,
-                               gconstpointer unused)
+                               const TestCase *test_case)
 {
   const gchar *invoked = NULL;
   gchar *resp;
@@ -932,9 +921,8 @@ assert_cannot_connect (const gchar *hostport)
 
 static void
 test_address (Fixture *fixture,
-              gconstpointer data)
+              const TestCase *test_case)
 {
-  const TestCase *test_case = data;
   gchar *resp = NULL;
 
   g_signal_connect (fixture->web_server, "handle-resource", G_CALLBACK (on_shell_index_html), NULL);
@@ -970,7 +958,7 @@ test_address (Fixture *fixture,
 
 static void
 test_bad_address (Fixture *fixture,
-                  gconstpointer unused)
+                  const TestCase *test_case)
 {
   gint port;
 
@@ -982,14 +970,9 @@ test_bad_address (Fixture *fixture,
                                 "Couldn't parse IP address from `bad`");
 }
 
-static const TestCase test_case_for_tls_proxy = {
-    .local_only = TRUE,
-    .server_flags = COCKPIT_WEB_SERVER_FOR_TLS_PROXY,
-};
-
 static void
 test_webserver_for_tls_proxy (Fixture *fixture,
-                              gconstpointer data)
+                              const TestCase *test_case)
 {
   gchar *resp;
 
@@ -1000,14 +983,6 @@ test_webserver_for_tls_proxy (Fixture *fixture,
   cockpit_assert_strmatch (resp, "HTTP/* 200 *\r\n*");
   g_free (resp);
 }
-
-static const TestCase test_case_inet_address = {
-    .inet_only = TRUE
-};
-
-static const TestCase test_case_local_address = {
-    .local_only = TRUE
-};
 
 int
 main (int argc,
@@ -1034,45 +1009,34 @@ main (int argc,
   g_test_add_func ("/web-server/accept-list/no-header", test_accept_list_no_header);
   g_test_add_func ("/web-server/accept-list/order", test_accept_list_order);
 
-  g_test_add ("/web-server/query-string", Fixture, NULL,
-              setup, test_with_query_string, teardown);
-  g_test_add ("/web-server/host-header", Fixture, NULL,
-              setup, test_webserver_host_header, teardown);
-  g_test_add ("/web-server/not-found", Fixture, NULL,
-              setup, test_webserver_not_found, teardown);
-  g_test_add ("/web-server/tls", Fixture, &test_case_with_cert,
-              setup, test_webserver_tls, teardown);
-  g_test_add ("/web-server/tls-big-header", Fixture, &test_case_with_cert,
-              setup, test_webserver_tls_big_header, teardown);
-  g_test_add ("/web-server/tls-request-too-large", Fixture, &test_case_with_cert,
-              setup, test_webserver_tls_request_too_large, teardown);
+  cockpit_test_add ("/web-server/query-string", test_with_query_string);
+  cockpit_test_add ("/web-server/host-header", test_webserver_host_header);
+  cockpit_test_add ("/web-server/not-found", test_webserver_not_found);
 
-  g_test_add ("/web-server/redirect-notls", Fixture, &test_case_with_cert_redirect,
-              setup, test_webserver_redirect_notls, teardown);
-  g_test_add ("/web-server/no-redirect-localhost", Fixture, &test_case_with_cert_redirect,
-              setup, test_webserver_noredirect_localhost, teardown);
-  g_test_add ("/web-server/no-redirect-exception", Fixture, &test_case_with_cert_redirect,
-              setup, test_webserver_noredirect_exception, teardown);
-  g_test_add ("/web-server/no-redirect-override", Fixture, &test_case_with_cert,
-              setup, test_webserver_noredirect_override, teardown);
+  cockpit_test_add ("/web-server/tls", test_webserver_tls, .use_cert=TRUE);
+  cockpit_test_add ("/web-server/tls-big-header", test_webserver_tls_big_header, .use_cert=TRUE);
+  cockpit_test_add ("/web-server/tls-request-too-large", test_webserver_tls_request_too_large, .use_cert=TRUE);
 
-  g_test_add ("/web-server/handle-resource", Fixture, NULL,
-              setup, test_handle_resource, teardown);
+  cockpit_test_add ("/web-server/redirect-notls", test_webserver_redirect_notls, .use_cert=TRUE,
+                    .server_flags=COCKPIT_WEB_SERVER_REDIRECT_TLS);
+  cockpit_test_add ("/web-server/no-redirect-localhost", test_webserver_noredirect_localhost, .use_cert=TRUE,
+                    .server_flags=COCKPIT_WEB_SERVER_REDIRECT_TLS);
+  cockpit_test_add ("/web-server/no-redirect-exception", test_webserver_noredirect_exception, .use_cert=TRUE,
+                    .server_flags=COCKPIT_WEB_SERVER_REDIRECT_TLS);
+  cockpit_test_add ("/web-server/no-redirect-override", test_webserver_noredirect_override, .use_cert=TRUE,
+                    .server_flags=COCKPIT_WEB_SERVER_NONE);
 
-  g_test_add ("/web-server/url-root", Fixture, NULL,
-              setup, test_url_root, teardown);
-  g_test_add ("/web-server/url-root-handlers", Fixture, NULL,
-              setup, test_handle_resource_url_root, teardown);
+  cockpit_test_add ("/web-server/handle-resource", test_handle_resource);
 
-  g_test_add ("/web-server/local-address-only", Fixture, &test_case_local_address,
-              setup, test_address, teardown);
-  g_test_add ("/web-server/inet-address-only", Fixture, &test_case_inet_address,
-              setup, test_address, teardown);
-  g_test_add ("/web-server/bad-address", Fixture, NULL,
-              NULL, test_bad_address, NULL);
+  cockpit_test_add ("/web-server/url-root", test_url_root);
+  cockpit_test_add ("/web-server/url-root-handlers", test_handle_resource_url_root);
 
-  g_test_add ("/web-server/for-tls-proxy", Fixture, &test_case_for_tls_proxy,
-              setup, test_webserver_for_tls_proxy, teardown);
+  cockpit_test_add ("/web-server/local-address-only", test_address, .local_only=TRUE);
+  cockpit_test_add ("/web-server/inet-address-only", test_address, .inet_only=TRUE);
+  cockpit_test_add ("/web-server/bad-address", test_bad_address);
+
+  cockpit_test_add ("/web-server/for-tls-proxy", test_webserver_for_tls_proxy,
+                    .local_only=TRUE, .server_flags=COCKPIT_WEB_SERVER_FOR_TLS_PROXY);
 
   return g_test_run ();
 }

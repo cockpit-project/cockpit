@@ -145,6 +145,31 @@ void             cockpit_assertion_message_error_matches (const char     *domain
                                              #err, err, dom, c, message_pattern); \
   } G_STMT_END
 
+
+#define cockpit_test_add_full(Fixture, fixture, TestCase, testpath, function, ...) \
+    G_STMT_START { \
+      typedef void (*CockpitTestFixtureFunc) (Fixture *, const TestCase *); \
+      struct { \
+        CockpitTestFixtureFunc _setup; \
+        CockpitTestFixtureFunc _teardown; \
+        CockpitTestFixtureFunc _test; \
+      } _cockpit_test_vtable = { \
+        ._setup = fixture ## _setup, \
+        ._teardown = fixture ## _teardown, \
+        ._test = function, \
+      }; \
+      static const TestCase _cockpit_test_case = { \
+        __VA_ARGS__ \
+      }; \
+      g_test_add_vtable (testpath, sizeof (Fixture), &_cockpit_test_case, \
+                         (GTestFixtureFunc) _cockpit_test_vtable._setup, \
+                         (GTestFixtureFunc) _cockpit_test_vtable._test, \
+                         (GTestFixtureFunc) _cockpit_test_vtable._teardown); \
+    } G_STMT_END
+
+#define cockpit_test_add(testpath, function, ...) \
+    cockpit_test_add_full(Fixture, fixture, TestCase, testpath, function, __VA_ARGS__)
+
 G_END_DECLS
 
 #endif /* __COCKPIT_TEST_H__ */

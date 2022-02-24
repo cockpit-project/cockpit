@@ -110,8 +110,8 @@ const LastLogin = () => {
 
     return (
         <li className="last-login" id="page_status_last_login">
-            <Flex flexWrap={{ default: 'nowrap' }}>
-                <FlexItem spacer={{ default: 'spacerSm' }}>{icon}</FlexItem>
+            <Flex spacer={{ default: 'spaceItemsSm' }} flexWrap={{ default: 'nowrap' }}>
+                <FlexItem>{icon}</FlexItem>
                 <div>
                     <div id="system_last_login"
                             className={headerClass}

@@ -62,7 +62,7 @@ class TestBridge(NetworkCase):
 
         # Check that the configuration file has the expected sane name
         # on systems that use "network-scripts".
-        if "ubuntu" not in m.image and "debian" not in m.image and m.image not in ["fedora-coreos", "fedora-34", "fedora-testing"]:
+        if "ubuntu" not in m.image and "debian" not in m.image and m.image not in ["fedora-coreos", "fedora-34", "fedora-testing", "fedora-36"]:
             m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tbridge")
 
         # Check that the members are displayed and both On

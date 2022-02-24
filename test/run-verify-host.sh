@@ -10,7 +10,7 @@ else
     SOURCE="$(realpath $TESTS/..)"
 fi
 # https://tmt.readthedocs.io/en/stable/overview.html#variables
-LOGS="${TMT_TEST_DATA:-logs}"
+LOGS="${TMT_TEST_DATA:-$(pwd)/logs}"
 mkdir -p "$LOGS"
 chmod a+w "$LOGS"
 

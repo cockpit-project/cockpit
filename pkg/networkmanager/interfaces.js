@@ -871,7 +871,7 @@ export function NetworkManagerModel() {
                     return call_object_method(self,
                                               "org.freedesktop.NetworkManager.Settings.Connection", "Update",
                                               settings_to_nm(settings, priv(self).orig))
-                            .then(function () {
+                            .then(() => {
                                 set_settings(self, settings);
                             });
                 } catch (e) {
@@ -882,11 +882,13 @@ export function NetworkManagerModel() {
             activate: function (dev, specific_object) {
                 return call_object_method(get_object("/org/freedesktop/NetworkManager", type_Manager),
                                           "org.freedesktop.NetworkManager", "ActivateConnection",
-                                          objpath(this), objpath(dev), objpath(specific_object));
+                                          objpath(this), objpath(dev), objpath(specific_object))
+                        .then(([active_connection]) => active_connection);
             },
 
             delete_: function () {
-                return call_object_method(this, "org.freedesktop.NetworkManager.Settings.Connection", "Delete");
+                return call_object_method(this, "org.freedesktop.NetworkManager.Settings.Connection", "Delete")
+                        .then(() => undefined);
             }
         },
 
@@ -957,7 +959,8 @@ export function NetworkManagerModel() {
             deactivate: function() {
                 return call_object_method(get_object("/org/freedesktop/NetworkManager", type_Manager),
                                           "org.freedesktop.NetworkManager", "DeactivateConnection",
-                                          objpath(this));
+                                          objpath(this))
+                        .then(() => undefined);
             }
         }
     };
@@ -996,21 +999,24 @@ export function NetworkManagerModel() {
             activate: function(connection, specific_object) {
                 return call_object_method(get_object("/org/freedesktop/NetworkManager", type_Manager),
                                           "org.freedesktop.NetworkManager", "ActivateConnection",
-                                          objpath(connection), objpath(this), objpath(specific_object));
+                                          objpath(connection), objpath(this), objpath(specific_object))
+                        .then(([active_connection]) => active_connection);
             },
 
             activate_with_settings: function(settings, specific_object) {
                 try {
                     return call_object_method(get_object("/org/freedesktop/NetworkManager", type_Manager),
                                               "org.freedesktop.NetworkManager", "AddAndActivateConnection",
-                                              settings_to_nm(settings), objpath(this), objpath(specific_object));
+                                              settings_to_nm(settings), objpath(this), objpath(specific_object))
+                            .then(([path, active_connection]) => active_connection);
                 } catch (e) {
                     return cockpit.reject(e);
                 }
             },
 
             disconnect: function () {
-                return call_object_method(this, 'org.freedesktop.NetworkManager.Device', 'Disconnect');
+                return call_object_method(this, 'org.freedesktop.NetworkManager.Device', 'Disconnect')
+                        .then(() => undefined);
             }
         }
     };
@@ -1109,7 +1115,7 @@ export function NetworkManagerModel() {
                                           'org.freedesktop.NetworkManager.Settings',
                                           'AddConnection',
                                           settings_to_nm(conf, { }))
-                        .then(path => get_object(path, type_Connection));
+                        .then(([path]) => get_object(path, type_Connection));
             }
         },
 
@@ -1169,7 +1175,7 @@ export function NetworkManagerModel() {
                                           devices.map(objpath),
                                           timeout,
                                           0)
-                        .then(results => results[0])
+                        .then(([checkpoint]) => checkpoint)
                         .catch(function (error) {
                             if (error.name != "org.freedesktop.DBus.Error.UnknownMethod")
                                 console.warn(error.message || error);
@@ -1181,7 +1187,8 @@ export function NetworkManagerModel() {
                     return call_object_method(this,
                                               'org.freedesktop.NetworkManager',
                                               'CheckpointDestroy',
-                                              checkpoint);
+                                              checkpoint)
+                            .then(() => undefined);
                 } else
                     return Promise.resolve();
             },
@@ -1191,7 +1198,8 @@ export function NetworkManagerModel() {
                     return call_object_method(this,
                                               'org.freedesktop.NetworkManager',
                                               'CheckpointRollback',
-                                              checkpoint);
+                                              checkpoint)
+                            .then(([result]) => result);
                 } else
                     return Promise.resolve();
             }

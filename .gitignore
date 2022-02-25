@@ -6,24 +6,24 @@
 
 # general patterns
 *.a
-*.cache
-*.dirstamp
+*.gcda
+*.gcno
+*.log
 *.mo
 *.o
-*.policy
 *.pyc
 *.so
-*~
+*.trs
+.dirstamp
 .deps/
 Makefile
 Makefile.in
-test-*.log
-test-*.trs
 
 # toplevel (/...)
 /*.list
 /.flatpak-builder
 /aclocal.m4
+/autom4te.cache
 /bots
 /cockpit-*.tar*
 /cockpit-*.xz
@@ -51,8 +51,6 @@ test-*.trs
 /stamp-h1
 /tags
 /test-*
-/test-*.log
-/test-*.trs
 /test_rsa_key
 /tmp-dist
 /tmp/
@@ -65,6 +63,7 @@ test-*.trs
 /doc/man/*.[1-8]
 /doc/version
 /po/*.pot
+/src/bridge/org.cockpit-project.cockpit-bridge.policy
 /src/common/fail.html.c
 /src/systemd/cockpit*.service
 /src/systemd/cockpit*.socket
@@ -72,8 +71,8 @@ test-*.trs
 /src/tls/cockpit-certificate-helper
 /src/ws/cockpit-desktop
 /src/ws/cockpit.appdata.xml
+/src/ws/mock-dbus-tests.[ch]
 /test/images/
-/tools/*.m4
 /tools/compile
 /tools/debian/copyright
 /tools/depcomp

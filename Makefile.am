@@ -43,10 +43,6 @@ WEBPACK_TEST_DEPS = \
 	node_modules/ws \
 	$(NULL)
 
-# the rules above copy a lot of stuff into builddir; clean it up so that distcleancheck works
-clean-local::
-	$(AM_V_at)test "$(srcdir)" == "$(builddir)" || rm -rf dist/
-
 install-data-local:: $(WEBPACK_INSTALL) $(MANIFESTS)
 	mkdir -p $(DESTDIR)$(pkgdatadir)
 	$(V_TAR) tar --format=posix -cf - $^ | tar --no-same-owner -C $(DESTDIR)$(pkgdatadir) --strip-components=1 -xvf -

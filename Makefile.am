@@ -1,6 +1,6 @@
 NULL =
-man_MANS =
 BUILT_SOURCES =
+CLEANFILES =
 bin_PROGRAMS =
 check_DATA =
 check_SCRIPTS =
@@ -12,16 +12,13 @@ noinst_PROGRAMS =
 sbin_PROGRAMS =
 noinst_LIBRARIES =
 noinst_DATA =
+man_MANS =
 nodist_noinst_DATA =
 nodist_noinst_SCRIPTS =
 
 TESTS = \
 	test/check-dist \
 	test/static-code \
-	$(NULL)
-
-CLEANFILES = \
-	valgrind-suppressions \
 	$(NULL)
 
 EXTRA_DIST = \
@@ -128,8 +125,8 @@ HTML_TEST_SERVER = $(builddir)/test-server
 
 HTML_LOG_COMPILER = timeout 60 $(PYTHON) $(top_srcdir)/test/common/tap-cdp --strip=$(abs_top_srcdir)/ -- $(HTML_TEST_SERVER)
 
-VALGRIND_ARGS = --trace-children=yes --quiet --error-exitcode=33 \
-	--suppressions=valgrind-suppressions --gen-suppressions=all \
+VALGRIND_ARGS = --trace-children=yes --quiet --error-exitcode=33 --gen-suppressions=all \
+	$(foreach file,$(VALGRIND_SUPPRESSIONS),--suppressions=$(file)) \
 	--num-callers=16 --leak-check=yes --show-leak-kinds=definite \
 	--errors-for-leak-kinds=definite --trace-children-skip='*mock*,/bin*,/usr/bin/*,/usr/local/bin'
 VALGRIND_SUPPRESSIONS = \
@@ -140,15 +137,12 @@ VALGRIND_SUPPRESSIONS = \
 	tools/valgrind.supp \
 	$(NULL)
 
-valgrind-suppressions: $(VALGRIND_SUPPRESSIONS)
-	$(AM_V_GEN) cat $^ /usr/share/glib-2.0/valgrind/glib.supp > $@
-
-check-memory: valgrind-suppressions
+check-memory:
 	$(MAKE) LOG_FLAGS="valgrind $(VALGRIND_ARGS)" \
 	        HTML_LOG_FLAGS="valgrind $(VALGRIND_ARGS)" \
 		COCKPIT_SKIP_SLOW_TESTS=1 \
 		$(AM_MAKEFLAGS) check TESTS="$(filter-out test/% bots/%,$(TESTS))"
-recheck-memory: valgrind-suppressions
+recheck-memory:
 	$(MAKE) LOG_FLAGS="-- valgrind $(VALGRIND_ARGS)" \
 	        HTML_LOG_FLAGS="valgrind $(VALGRIND_ARGS)" \
 		$(AM_MAKEFLAGS) recheck

@@ -11,7 +11,7 @@ case "${1:-}" in
     mock)
         # broken configuration with as few deps as possible
         # mostly only useful for running `make dep`
-        exec ./autogen.sh \
+        exec ./configure \
             CPPFLAGS=-Itools/mock-build-env \
             PKG_CONFIG_PATH=tools/mock-build-env \
             --enable-prefix-only \

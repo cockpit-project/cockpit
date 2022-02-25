@@ -25,7 +25,7 @@ src/ws/%.po: po/%.po
 	msggrep `$(FILTER_PO_SRC_WS)` $< > $@.tmp && mv $@.tmp $@
 
 # Build a binary mo file from po
-.po.mo:
+%.mo: %.po
 	$(AM_V_GEN) mkdir -p $(dir $@) && \
 	msgfmt -o $@.tmp $< && mv $@.tmp $@ && touch $@
 

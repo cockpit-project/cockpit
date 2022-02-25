@@ -32,11 +32,6 @@ clean-local::
 	find $(builddir) -name '*.gc??' -delete
 	find $(srcdir) -name '*.pyc' -delete
 
-SUFFIXES = \
-	.jsx \
-	.mo .po \
-	$(NULL)
-
 # Webpack related
 include pkg/build
 

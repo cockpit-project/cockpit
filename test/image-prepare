@@ -175,13 +175,16 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
     parser.add_argument('-q', '--quick', action='store_true', help='Skip unit tests to build faster')
+    parser.add_argument('-o', '--overlay', action='store_true', help='Install into existing test/image/ overlay instead of from pristine base image')
     parser.add_argument('-c', '--containers', action='store_true', help='Install container images')
     parser.add_argument('image', nargs='?', default=DEFAULT_IMAGE, help='The image to use')
     args = parser.parse_args()
 
     dist_tar = make_dist.make_dist()
 
-    customize = [os.path.join(BOTS_DIR, "image-customize"), "--fresh"]
+    customize = [os.path.join(BOTS_DIR, "image-customize")]
+    if not args.overlay:
+        customize.append("--fresh")
     if args.verbose:
         customize.append("--verbose")
     if args.quick:

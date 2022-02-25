@@ -60,7 +60,7 @@ AC_MSG_RESULT($enable_prefix_only)
 
 # --enable-selinux-policy=[type]
 AC_MSG_CHECKING([whether to build selinux policy, and which])
-AC_ARG_ENABLE([selinux-policy], [AS_HELP_STRING([--enable-selinux-policy=type], [Whether to build selinux policy])])
+AC_ARG_ENABLE([selinux-policy], [AS_HELP_STRING([--enable-selinux-policy=type], [Whether to build selinux policy, and which])])
 if test "${enable_selinux_policy:=no}" = 'yes'; then
     AC_MSG_ERROR([--enable-selinux-policy requires a type (eg: targeted)])
 fi

@@ -99,18 +99,12 @@ DISTCHECK_CONFIGURE_FLAGS=						        \
 	$(NULL)
 
 AM_CPPFLAGS = \
-	-I$(top_builddir) \
-	-I$(top_builddir)/src \
-	-I$(top_srcdir) \
 	-I$(top_srcdir)/src \
 	-DSRCDIR=\"$(abs_srcdir)\" \
 	-DBUILDDIR=\"$(abs_builddir)\" \
 	-DDATADIR=\"$(datadir)\" \
 	-DLIBEXECDIR=\""$(libexecdir)"\" \
 	-DPACKAGE_SYSCONF_DIR=\""$(sysconfdir)"\" \
-	-DPACKAGE_BIN_DIR=\""$(bindir)"\" \
-	-DPACKAGE_LIB_DIR=\""$(libdir)"\" \
-	-D_REENTRANT \
 	$(NULL)
 
 AM_LDFLAGS = -Wl,--as-needed

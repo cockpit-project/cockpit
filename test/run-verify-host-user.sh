@@ -105,6 +105,11 @@ if [ -n "$test_basic" ]; then
     if [ "$TEST_OS" = "fedora-36" ]; then
         TESTS="${TESTS/TestSOS/}"
     fi
+
+    # HACK: repeatedly fails on RHEL Testing Farm without error message, then corrupts VM
+    if [ "$TEST_OS" = "rhel-9-0" ]; then
+        EXCLUDES="$EXCLUDES TestPages.testBasic"
+    fi
 fi
 
 exclude_options=""

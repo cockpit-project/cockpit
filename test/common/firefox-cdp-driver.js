@@ -30,8 +30,8 @@
 
 const CDP = require('chrome-remote-interface');
 
-var enable_debug = false;
-var the_client = null;
+let enable_debug = false;
+let the_client = null;
 
 function debug(msg) {
     if (enable_debug)
@@ -52,8 +52,8 @@ function fatal() {
 // duplicate replies due to destroyed contexts, but that is already so
 // hairy that this big hammer seems necessary.
 
-var cur_cmd_seq = 0;
-var next_reply_seq = 1;
+let cur_cmd_seq = 0;
+let next_reply_seq = 1;
 
 function fail(seq, err) {
     if (seq != next_reply_seq)
@@ -62,7 +62,7 @@ function fail(seq, err) {
 
     if (typeof err === 'undefined')
         err = null;
-    process.stdout.write(JSON.stringify({"error": err}) + '\n');
+    process.stdout.write(JSON.stringify({ error: err }) + '\n');
 }
 
 function success(seq, result) {
@@ -72,18 +72,18 @@ function success(seq, result) {
 
     if (typeof result === 'undefined')
         result = null;
-    process.stdout.write(JSON.stringify({"result": result}) + '\n');
+    process.stdout.write(JSON.stringify({ result: result }) + '\n');
 }
 
 /**
  * Record console.*() calls and Log messages so that we can forward them to
  * stderr and dump them on test failure
  */
-var messages = [];
-var logPromiseResolver;
-var nReportedLogMessages = 0;
-var unhandledExceptions = [];
-var shownMessages = []; // Show every message just once, keep here seen messages
+const messages = [];
+let logPromiseResolver;
+let nReportedLogMessages = 0;
+const unhandledExceptions = [];
+const shownMessages = []; // Show every message just once, keep here seen messages
 
 function clearExceptions() {
     unhandledExceptions.length = 0;
@@ -94,12 +94,12 @@ function setupLogging(client) {
     client.Runtime.enable();
 
     client.Runtime.consoleAPICalled(info => {
-        let msg = info.args.map(v => (v.value || "").toString()).join(" ");
-        messages.push([ info.type, msg ]);
+        const msg = info.args.map(v => (v.value || "").toString()).join(" ");
+        messages.push([info.type, msg]);
         if (shownMessages.indexOf(msg) == -1) {
             if (!enable_debug) // disable message de-duplication in --trace mode
                 shownMessages.push(msg);
-            process.stderr.write("> " + info.type + ": " + msg + "\n")
+            process.stderr.write("> " + info.type + ": " + msg + "\n");
         }
 
         resolveLogPromise();
@@ -137,7 +137,7 @@ function setupLogging(client) {
         // exception
         // https://bugzilla.mozilla.org/show_bug.cgi?id=1549528
 
-        let msg = entry["entry"];
+        const msg = entry.entry;
         let text = msg.text;
         if (typeof text !== "string")
             if (text[0] && typeof text[0] === "string")
@@ -147,20 +147,21 @@ function setupLogging(client) {
             typeof text === "string" &&
             text.indexOf("Error: ") !== -1) {
             trace = text.split(": ", 1);
-            processException({exceptionDetails: {
-                exception: {
-                    className: trace[0],
-                    message: trace.length > 1 ? trace[1] : "",
-                    stacktrace: msg.stackTrace,
-                    entry: msg,
-                },
-            }
+            processException({
+                exceptionDetails: {
+                    exception: {
+                        className: trace[0],
+                        message: trace.length > 1 ? trace[1] : "",
+                        stacktrace: msg.stackTrace,
+                        entry: msg,
+                    },
+                }
             });
         } else {
-            messages.push([ "cdp", msg ]);
+            messages.push(["cdp", msg]);
             /* Ignore authentication failure log lines that don't denote failures */
             if (!(msg.url || "").endsWith("/login") || (text || "").indexOf("401") === -1) {
-                const orig = {...msg};
+                const orig = { ...msg };
                 delete msg.timestamp;
                 delete msg.args;
                 const msgstr = JSON.stringify(msg);
@@ -216,12 +217,12 @@ function waitLog() {
  * to load. This is very laborious, see this issue for discussing improvements:
  * https://github.com/ChromeDevTools/devtools-protocol/issues/72
  */
-var scriptsOnNewContext = [];
-var frameIdToContextId = {};
-var frameNameToFrameId = {};
+const scriptsOnNewContext = [];
+const frameIdToContextId = {};
+const frameNameToFrameId = {};
 
-var pageLoadHandler = null;
-var currentExecId = null;
+let pageLoadHandler = null;
+let currentExecId = null;
 
 function setupFrameTracking(client) {
     client.Page.enable();
@@ -242,20 +243,20 @@ function setupFrameTracking(client) {
         debug("executionContextCreated " + JSON.stringify(info));
         frameIdToContextId[info.context.auxData.frameId] = info.context.id;
         scriptsOnNewContext.forEach(s => {
-            client.Runtime.evaluate({expression: s, contextId: info.context.id})
-                .catch(ex => {
+            client.Runtime.evaluate({ expression: s, contextId: info.context.id })
+                    .catch(ex => {
                     // race condition with short-lived frames -- OK if the frame is already gone
-                    if (ex.response && ex.response.message && ex.response.message.indexOf("Cannot find context") >= 0)
-                        debug(`scriptsOnNewContext for context ${info.context.id} failed, ignoring: ${JSON.stringify(ex.response)}`);
-                    else
-                        throw ex;
-                });
+                        if (ex.response && ex.response.message && ex.response.message.indexOf("Cannot find context") >= 0)
+                            debug(`scriptsOnNewContext for context ${info.context.id} failed, ignoring: ${JSON.stringify(ex.response)}`);
+                        else
+                            throw ex;
+                    });
         });
     });
 
     client.Runtime.executionContextDestroyed(info => {
         debug("executionContextDestroyed " + info.executionContextId);
-        for (let frameId in frameIdToContextId) {
+        for (const frameId in frameIdToContextId) {
             if (frameIdToContextId[frameId] == info.executionContextId) {
                 delete frameIdToContextId[frameId];
                 break;
@@ -279,7 +280,7 @@ function setupFrameTracking(client) {
         //
         if (info.executionContextId == currentExecId) {
             currentExecId = null;
-            fail(cur_cmd_seq, { "response": { "message": "Execution context was destroyed." } });
+            fail(cur_cmd_seq, { response: { message: "Execution context was destroyed." } });
         }
     });
 }
@@ -297,10 +298,10 @@ function setupLocalFunctions(client) {
 function getFrameExecId(frame) {
     if (frame === null)
         frame = "cockpit1";
-    var frameId = frameNameToFrameId[frame];
+    const frameId = frameNameToFrameId[frame];
     if (!frameId)
         return -1;
-    var execId = frameIdToContextId[frameId];
+    const execId = frameIdToContextId[frameId];
     if (!execId)
         return -1;
     currentExecId = execId;
@@ -317,7 +318,7 @@ function getFrameExecId(frame) {
  */
 process.stdin.setEncoding('utf8');
 
-if (process.env["TEST_CDP_DEBUG"])
+if (process.env.TEST_CDP_DEBUG)
     enable_debug = true;
 
 options = { };
@@ -356,58 +357,59 @@ function addScriptToEvaluateOnNewDocument(script) {
 // Just calling executable to open another tab in the same browser works also for chromium, so
 // should be fine
 CDP(options)
-    .then(client => {
-        the_client = client;
-        setupLogging(client);
-        setupFrameTracking(client);
-        setupLocalFunctions(client);
-        // TODO: Security handling not yet supported in Firefox
+        .then(client => {
+            the_client = client;
+            setupLogging(client);
+            setupFrameTracking(client);
+            setupLocalFunctions(client);
+            // TODO: Security handling not yet supported in Firefox
 
-        let input_buf = '';
-        let seq = 0;
-        process.stdin
-            .on('data', chunk => {
-                input_buf += chunk;
-                while (true) {
-                    let i = input_buf.indexOf('\n');
-                    if (i < 0)
-                        break;
-                    let command = input_buf.slice(0, i);
+            let input_buf = '';
+            let seq = 0;
+            process.stdin
+                    .on('data', chunk => {
+                        input_buf += chunk;
+                        while (true) {
+                            const i = input_buf.indexOf('\n');
+                            if (i < 0)
+                                break;
+                            let command = input_buf.slice(0, i);
 
-                    // HACKS: See description of related functions
-                    if (command.startsWith("client.Page.addScriptToEvaluateOnNewDocument"))
-                        command = command.substring(12);
+                            // HACKS: See description of related functions
+                            if (command.startsWith("client.Page.addScriptToEvaluateOnNewDocument"))
+                                command = command.substring(12);
 
-                    // run the command
-                    let seq = ++cur_cmd_seq;
-                    eval(command).then(reply => {
-                        currentExecId = null;
-                        if (unhandledExceptions.length === 0) {
-                            success(seq, reply);
-                        } else {
-                            let message = unhandledExceptions[0];
-                            fail(seq, message.split("\n")[0]);
-                            clearExceptions();
-                        }
-                    }, err => {
-                        currentExecId = null;
-                        // HACK: Runtime.evaluate() fails with "Debugger: expected Debugger.Object, got Proxy"
-                        // translate that into a proper timeout exception
-                        if (err.response && err.response.data && err.response.data.indexOf("setTimeout handler*ph_wait_cond") > 0) {
-                            success(seq, {exceptionDetails: {
-                                exception: {
-                                    type: "string",
-                                    value: "timeout",
+                            // run the command
+                            seq = ++cur_cmd_seq;
+                            eval(command).then(reply => {
+                                currentExecId = null;
+                                if (unhandledExceptions.length === 0) {
+                                    success(seq, reply);
+                                } else {
+                                    const message = unhandledExceptions[0];
+                                    fail(seq, message.split("\n")[0]);
+                                    clearExceptions();
                                 }
-                            }});
-                        } else
-                            fail(seq, err);
-                    });
+                            }, err => {
+                                currentExecId = null;
+                                // HACK: Runtime.evaluate() fails with "Debugger: expected Debugger.Object, got Proxy"
+                                // translate that into a proper timeout exception
+                                if (err.response && err.response.data && err.response.data.indexOf("setTimeout handler*ph_wait_cond") > 0) {
+                                    success(seq, {
+                                        exceptionDetails: {
+                                            exception: {
+                                                type: "string",
+                                                value: "timeout",
+                                            }
+                                        }
+                                    });
+                                } else
+                                    fail(seq, err);
+                            });
 
-                    input_buf = input_buf.slice(i+1);
-                }
-
-            })
-           .on('end', () => { process.exit(0) });
-    })
-    .catch(fatal);
+                            input_buf = input_buf.slice(i + 1);
+                        }
+                    })
+                    .on('end', () => { process.exit(0) });
+        })
+        .catch(fatal);

@@ -1517,6 +1517,8 @@ cockpit_auth_login_async (CockpitAuth *self,
       g_simple_async_result_set_error (result, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
                                        "Invalid conversation reply");
       g_simple_async_result_complete_in_idle (result);
+      g_object_unref (session->result);
+      session->result = NULL;
       goto out;
     }
 

@@ -17,33 +17,16 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef COCKPIT_METRICS_H__
-#define COCKPIT_METRICS_H__
+#pragma once
 
 #include "common/cockpitchannel.h"
 
-G_BEGIN_DECLS
-
-#define COCKPIT_TYPE_METRICS         (cockpit_metrics_get_type ())
-#define COCKPIT_METRICS(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_METRICS, CockpitMetrics))
-#define COCKPIT_IS_METRICS(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_METRICS))
-#define COCKPIT_METRICS_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST((k), COCKPIT_TYPE_METRICS, CockpitMetricsClass))
-#define COCKPIT_METRICS_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), COCKPIT_TYPE_METRICS, CockpitMetricsClass))
-
-typedef struct _CockpitMetrics CockpitMetrics;
-typedef struct _CockpitMetricsClass CockpitMetricsClass;
-typedef struct _CockpitMetricsPrivate CockpitMetricsPrivate;
-
-typedef struct _CockpitMetricsBuffer CockpitMetricsBuffer;
+#define COCKPIT_TYPE_METRICS (cockpit_metrics_get_type ())
+G_DECLARE_DERIVABLE_TYPE(CockpitMetrics, cockpit_metrics, COCKPIT, METRICS, CockpitChannel)
 
 struct _CockpitMetricsBuffer {
   int n_elements;
   double *data;
-};
-
-struct _CockpitMetrics {
-  CockpitChannel parent;
-  CockpitMetricsPrivate *priv;
 };
 
 struct _CockpitMetricsClass {
@@ -112,5 +95,3 @@ void               cockpit_metrics_send_meta    (CockpitMetrics *self,
 double           **cockpit_metrics_get_data_buffer (CockpitMetrics *self);
 void               cockpit_metrics_send_data    (CockpitMetrics *self, gint64 timestamp);
 void               cockpit_metrics_flush_data   (CockpitMetrics *self);
-
-#endif /* COCKPIT_METRICS_H__ */

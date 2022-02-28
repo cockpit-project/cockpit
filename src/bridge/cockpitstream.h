@@ -17,8 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __COCKPIT_STREAM_H__
-#define __COCKPIT_STREAM_H__
+#pragma once
 
 #include <gio/gio.h>
 
@@ -26,22 +25,8 @@
 
 #include "common/cockpitjson.h"
 
-G_BEGIN_DECLS
-
-#define COCKPIT_TYPE_STREAM         (cockpit_stream_get_type ())
-#define COCKPIT_STREAM(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), COCKPIT_TYPE_STREAM, CockpitStream))
-#define COCKPIT_IS_STREAM(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), COCKPIT_TYPE_STREAM))
-#define COCKPIT_STREAM_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST ((k), COCKPIT_TYPE_STREAM, CockpitStreamClass))
-#define COCKPIT_STREAM_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), COCKPIT_TYPE_STREAM, CockpitStreamClass))
-
-typedef struct _CockpitStream        CockpitStream;
-typedef struct _CockpitStreamClass   CockpitStreamClass;
-typedef struct _CockpitStreamPrivate CockpitStreamPrivate;
-
-struct _CockpitStream {
-  GObject parent_instance;
-  CockpitStreamPrivate *priv;
-};
+#define COCKPIT_TYPE_STREAM (cockpit_stream_get_type ())
+G_DECLARE_DERIVABLE_TYPE(CockpitStream, cockpit_stream, COCKPIT, STREAM, GObject)
 
 struct _CockpitStreamClass {
   GObjectClass parent_class;
@@ -57,8 +42,6 @@ struct _CockpitStreamClass {
   void        (* close)       (CockpitStream *pipe,
                                const gchar *problem);
 };
-
-GType              cockpit_stream_get_type     (void) G_GNUC_CONST;
 
 CockpitStream *    cockpit_stream_new          (const gchar *name,
                                                 GIOStream *stream);
@@ -80,7 +63,3 @@ const gchar *      cockpit_stream_problem      (GError *error,
                                                 const gchar *name,
                                                 const gchar *summary,
                                                 JsonObject *object);
-
-G_END_DECLS
-
-#endif /* __COCKPIT_STREAM_H__ */

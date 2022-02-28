@@ -58,7 +58,7 @@ class Test:
         if self.nondestructive:
             assert self.machine_id is not None, f"need to assign nondestructive test {self} {self.command} to a machine"
         self.outfile = tempfile.TemporaryFile()
-        self.process = subprocess.Popen(["timeout", str(self.timeout)] + self.command,
+        self.process = subprocess.Popen(["timeout", "-v", str(self.timeout)] + self.command,
                                         stdout=self.outfile, stderr=subprocess.STDOUT)
 
     def poll(self):

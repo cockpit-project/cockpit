@@ -47,7 +47,7 @@ enum {
   PROP_PROBLEM
 };
 
-struct _CockpitStreamPrivate {
+typedef struct {
   gchar *name;
   GMainContext *context;
 
@@ -72,7 +72,7 @@ struct _CockpitStreamPrivate {
   /* Throttle this flow based on back pressure from another object */
   CockpitFlow *pressure;
   gulong pressure_sig;
-};
+} CockpitStreamPrivate;
 
 /* A megabyte is when we start to consider queue full enough */
 #define QUEUE_PRESSURE 1024UL * 1024UL
@@ -86,34 +86,36 @@ static void  cockpit_close_later (CockpitStream *self);
 static void  cockpit_stream_flow_iface_init (CockpitFlowInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (CockpitStream, cockpit_stream, G_TYPE_OBJECT,
+                         G_ADD_PRIVATE(CockpitStream)
                          G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_FLOW, cockpit_stream_flow_iface_init));
+
+#define GET_PRIV(self)  ((CockpitStreamPrivate *) cockpit_stream_get_instance_private(self))
 
 static void
 cockpit_stream_init (CockpitStream *self)
 {
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, COCKPIT_TYPE_STREAM, CockpitStreamPrivate);
-  self->priv->in_buffer = g_byte_array_new ();
-  self->priv->out_queue = g_queue_new ();
+  GET_PRIV(self)->in_buffer = g_byte_array_new ();
+  GET_PRIV(self)->out_queue = g_queue_new ();
 
-  self->priv->context = g_main_context_ref_thread_default ();
+  GET_PRIV(self)->context = g_main_context_ref_thread_default ();
 }
 
 static void
 stop_output (CockpitStream *self)
 {
-  g_assert (self->priv->out_source != NULL);
-  g_source_destroy (self->priv->out_source);
-  g_source_unref (self->priv->out_source);
-  self->priv->out_source = NULL;
+  g_assert (GET_PRIV(self)->out_source != NULL);
+  g_source_destroy (GET_PRIV(self)->out_source);
+  g_source_unref (GET_PRIV(self)->out_source);
+  GET_PRIV(self)->out_source = NULL;
 }
 
 static void
 stop_input (CockpitStream *self)
 {
-  g_assert (self->priv->in_source != NULL);
-  g_source_destroy (self->priv->in_source);
-  g_source_unref (self->priv->in_source);
-  self->priv->in_source = NULL;
+  g_assert (GET_PRIV(self)->in_source != NULL);
+  g_source_destroy (GET_PRIV(self)->in_source);
+  g_source_unref (GET_PRIV(self)->in_source);
+  GET_PRIV(self)->in_source = NULL;
 }
 
 static void
@@ -123,58 +125,58 @@ close_immediately (CockpitStream *self,
   GError *error = NULL;
   GIOStream *io;
 
-  if (self->priv->closed)
+  if (GET_PRIV(self)->closed)
     return;
 
   if (problem)
     {
-      g_free (self->priv->problem);
-      self->priv->problem = g_strdup (problem);
+      g_free (GET_PRIV(self)->problem);
+      GET_PRIV(self)->problem = g_strdup (problem);
     }
 
-  if (self->priv->connecting)
+  if (GET_PRIV(self)->connecting)
     {
-      cockpit_connectable_unref (self->priv->connecting);
-      self->priv->connecting = NULL;
+      cockpit_connectable_unref (GET_PRIV(self)->connecting);
+      GET_PRIV(self)->connecting = NULL;
     }
 
-  self->priv->closed = TRUE;
+  GET_PRIV(self)->closed = TRUE;
 
-  g_debug ("%s: closing stream%s%s", self->priv->name,
-           self->priv->problem ? ": " : "",
-           self->priv->problem ? self->priv->problem : "");
+  g_debug ("%s: closing stream%s%s", GET_PRIV(self)->name,
+           GET_PRIV(self)->problem ? ": " : "",
+           GET_PRIV(self)->problem ? GET_PRIV(self)->problem : "");
 
-  if (self->priv->in_source)
+  if (GET_PRIV(self)->in_source)
     stop_input (self);
-  if (self->priv->out_source)
+  if (GET_PRIV(self)->out_source)
     stop_output (self);
 
-  if (self->priv->io)
+  if (GET_PRIV(self)->io)
     {
-      io = self->priv->io;
-      self->priv->io = NULL;
+      io = GET_PRIV(self)->io;
+      GET_PRIV(self)->io = NULL;
 
       g_io_stream_close (io, NULL, &error);
       if (error)
         {
-          g_message ("%s: close failed: %s", self->priv->name, error->message);
+          g_message ("%s: close failed: %s", GET_PRIV(self)->name, error->message);
           g_clear_error (&error);
         }
       g_object_unref (io);
     }
 
-  g_debug ("%s: closed", self->priv->name);
-  g_signal_emit (self, cockpit_stream_sig_close, 0, self->priv->problem);
+  g_debug ("%s: closed", GET_PRIV(self)->name);
+  g_signal_emit (self, cockpit_stream_sig_close, 0, GET_PRIV(self)->problem);
 }
 
 static void
 close_maybe (CockpitStream *self)
 {
-  if (!self->priv->closed)
+  if (!GET_PRIV(self)->closed)
     {
-      if (self->priv->in_done && self->priv->out_closed)
+      if (GET_PRIV(self)->in_done && GET_PRIV(self)->out_closed)
         {
-          g_debug ("%s: input and output done", self->priv->name);
+          g_debug ("%s: input and output done", GET_PRIV(self)->name);
           close_immediately (self, NULL);
         }
     }
@@ -188,12 +190,12 @@ on_output_closed (GObject *object,
   CockpitStream *self = COCKPIT_STREAM (user_data);
   GError *error = NULL;
 
-  self->priv->out_closed = TRUE;
+  GET_PRIV(self)->out_closed = TRUE;
 
   g_output_stream_close_finish (G_OUTPUT_STREAM (object), result, &error);
   if (error)
     {
-      g_warning ("%s: couldn't close output stream: %s", self->priv->name, error->message);
+      g_warning ("%s: couldn't close output stream: %s", GET_PRIV(self)->name, error->message);
       close_immediately (self, "internal-error");
     }
 
@@ -204,18 +206,18 @@ on_output_closed (GObject *object,
 static void
 close_output (CockpitStream *self)
 {
-  if (self->priv->out_closed)
+  if (GET_PRIV(self)->out_closed)
     return;
 
-  g_debug ("%s: end of output", self->priv->name);
+  g_debug ("%s: end of output", GET_PRIV(self)->name);
 
-  if (!self->priv->io)
+  if (!GET_PRIV(self)->io)
     {
       close_maybe (self);
       return;
     }
 
-  g_output_stream_close_async (g_io_stream_get_output_stream (self->priv->io),
+  g_output_stream_close_async (g_io_stream_get_output_stream (GET_PRIV(self)->io),
                                G_PRIORITY_DEFAULT, NULL, on_output_closed, g_object_ref (self));
 }
 
@@ -289,19 +291,19 @@ set_problem_from_error (CockpitStream *self,
 
   if (g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_MISC))
     {
-      g_message ("%s: %s: %s", self->priv->name, summary, error->message);
-      if (self->priv->received)
+      g_message ("%s: %s: %s", GET_PRIV(self)->name, summary, error->message);
+      if (GET_PRIV(self)->received)
         problem = "disconnected";
       else
         problem = "protocol-error";
     }
   else
     {
-      problem = cockpit_stream_problem (error, self->priv->name, summary, NULL);
+      problem = cockpit_stream_problem (error, GET_PRIV(self)->name, summary, NULL);
     }
 
-  g_free (self->priv->problem);
-  self->priv->problem = g_strdup (problem);
+  g_free (GET_PRIV(self)->problem);
+  GET_PRIV(self)->problem = g_strdup (problem);
 }
 
 static gboolean
@@ -316,16 +318,16 @@ dispatch_input (GPollableInputStream *is,
 
   for (;;)
     {
-      g_return_val_if_fail (self->priv->in_source, FALSE);
-      len = self->priv->in_buffer->len;
+      g_return_val_if_fail (GET_PRIV(self)->in_source, FALSE);
+      len = GET_PRIV(self)->in_buffer->len;
 
-      g_byte_array_set_size (self->priv->in_buffer, len + 1024);
-      ret = g_pollable_input_stream_read_nonblocking (is, self->priv->in_buffer->data + len,
+      g_byte_array_set_size (GET_PRIV(self)->in_buffer, len + 1024);
+      ret = g_pollable_input_stream_read_nonblocking (is, GET_PRIV(self)->in_buffer->data + len,
                                                       1024, NULL, &error);
 
       if (ret < 0)
         {
-          g_byte_array_set_size (self->priv->in_buffer, len);
+          g_byte_array_set_size (GET_PRIV(self)->in_buffer, len);
           if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_WOULD_BLOCK))
             {
               g_error_free (error);
@@ -340,27 +342,27 @@ dispatch_input (GPollableInputStream *is,
             }
         }
 
-      g_byte_array_set_size (self->priv->in_buffer, len + ret);
+      g_byte_array_set_size (GET_PRIV(self)->in_buffer, len + ret);
 
       if (ret == 0)
         {
-          g_debug ("%s: end of input", self->priv->name);
-          self->priv->in_done = TRUE;
+          g_debug ("%s: end of input", GET_PRIV(self)->name);
+          GET_PRIV(self)->in_done = TRUE;
           stop_input (self);
           break;
         }
 
-      g_debug ("%s: read %d bytes", self->priv->name, (int)ret);
-      self->priv->received = TRUE;
+      g_debug ("%s: read %d bytes", GET_PRIV(self)->name, (int)ret);
+      GET_PRIV(self)->received = TRUE;
       read = TRUE;
     }
 
   g_object_ref (self);
 
-  if (self->priv->in_done || read)
-    g_signal_emit (self, cockpit_stream_sig_read, 0, self->priv->in_buffer, self->priv->in_done);
+  if (GET_PRIV(self)->in_done || read)
+    g_signal_emit (self, cockpit_stream_sig_read, 0, GET_PRIV(self)->in_buffer, GET_PRIV(self)->in_done);
 
-  if (self->priv->in_done)
+  if (GET_PRIV(self)->in_done)
     close_maybe (self);
 
   g_object_unref (self);
@@ -378,20 +380,20 @@ dispatch_output (GPollableOutputStream *os,
   GBytes *popped;
   gssize ret;
 
-  g_return_val_if_fail (self->priv->out_source, FALSE);
-  while (self->priv->out_queue->head)
+  g_return_val_if_fail (GET_PRIV(self)->out_source, FALSE);
+  while (GET_PRIV(self)->out_queue->head)
     {
-      data = g_bytes_get_data (self->priv->out_queue->head->data, &len);
-      g_assert (self->priv->out_partial <= len);
+      data = g_bytes_get_data (GET_PRIV(self)->out_queue->head->data, &len);
+      g_assert (GET_PRIV(self)->out_partial <= len);
 
-      ret = g_pollable_output_stream_write_nonblocking (os, data + self->priv->out_partial,
-                                                        len - self->priv->out_partial, NULL, &error);
+      ret = g_pollable_output_stream_write_nonblocking (os, data + GET_PRIV(self)->out_partial,
+                                                        len - GET_PRIV(self)->out_partial, NULL, &error);
 
       if (ret < 0)
         {
           if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_WOULD_BLOCK))
             {
-              g_debug ("%s: output would block", self->priv->name);
+              g_debug ("%s: output would block", GET_PRIV(self)->name);
               g_error_free (error);
               return TRUE;
             }
@@ -404,36 +406,36 @@ dispatch_output (GPollableOutputStream *os,
             }
         }
 
-      self->priv->out_partial += ret;
-      if (self->priv->out_partial >= len)
+      GET_PRIV(self)->out_partial += ret;
+      if (GET_PRIV(self)->out_partial >= len)
         {
-          before = self->priv->out_queued;
+          before = GET_PRIV(self)->out_queued;
 
-          g_debug ("%s: wrote %d bytes", self->priv->name, (int)len);
-          popped = g_queue_pop_head (self->priv->out_queue);
+          g_debug ("%s: wrote %d bytes", GET_PRIV(self)->name, (int)len);
+          popped = g_queue_pop_head (GET_PRIV(self)->out_queue);
           size = g_bytes_get_size (popped);
-          g_assert (size <= self->priv->out_queued);
-          self->priv->out_queued -= size;
+          g_assert (size <= GET_PRIV(self)->out_queued);
+          GET_PRIV(self)->out_queued -= size;
           g_bytes_unref (popped);
-          self->priv->out_partial = 0;
+          GET_PRIV(self)->out_partial = 0;
 
-          if (before >= QUEUE_PRESSURE && self->priv->out_queued < QUEUE_PRESSURE)
+          if (before >= QUEUE_PRESSURE && GET_PRIV(self)->out_queued < QUEUE_PRESSURE)
             cockpit_flow_emit_pressure (COCKPIT_FLOW (self), FALSE);
         }
       else
         {
           if (ret > 0)
-            g_debug ("%s: partial write %d of %d bytes", self->priv->name, (int)ret, (int)len);
+            g_debug ("%s: partial write %d of %d bytes", GET_PRIV(self)->name, (int)ret, (int)len);
           return TRUE;
         }
     }
 
-  g_debug ("%s: output queue empty", self->priv->name);
+  g_debug ("%s: output queue empty", GET_PRIV(self)->name);
 
   /* If all messages are done, then stop polling out fd */
   stop_output (self);
 
-  if (self->priv->closing)
+  if (GET_PRIV(self)->closing)
     close_output (self);
   else
     close_maybe (self);
@@ -446,18 +448,18 @@ start_output (CockpitStream *self)
 {
   GOutputStream *os;
 
-  g_assert (self->priv->out_source == NULL);
+  g_assert (GET_PRIV(self)->out_source == NULL);
 
-  if (self->priv->connecting || self->priv->out_closed || self->priv->closed)
+  if (GET_PRIV(self)->connecting || GET_PRIV(self)->out_closed || GET_PRIV(self)->closed)
     return;
 
-  g_assert (self->priv->io);
+  g_assert (GET_PRIV(self)->io);
 
-  os = g_io_stream_get_output_stream (self->priv->io);
-  self->priv->out_source = g_pollable_output_stream_create_source (G_POLLABLE_OUTPUT_STREAM (os), NULL);
-  g_source_set_name (self->priv->out_source, "stream-output");
-  g_source_set_callback (self->priv->out_source, (GSourceFunc)dispatch_output, self, NULL);
-  g_source_attach (self->priv->out_source, self->priv->context);
+  os = g_io_stream_get_output_stream (GET_PRIV(self)->io);
+  GET_PRIV(self)->out_source = g_pollable_output_stream_create_source (G_POLLABLE_OUTPUT_STREAM (os), NULL);
+  g_source_set_name (GET_PRIV(self)->out_source, "stream-output");
+  g_source_set_callback (GET_PRIV(self)->out_source, (GSourceFunc)dispatch_output, self, NULL);
+  g_source_attach (GET_PRIV(self)->out_source, GET_PRIV(self)->context);
 }
 
 static void
@@ -465,15 +467,15 @@ start_input (CockpitStream *self)
 {
   GInputStream *is;
 
-  g_assert (self->priv->in_source == NULL);
-  g_assert (!self->priv->connecting);
-  g_assert (self->priv->io != NULL);
+  g_assert (GET_PRIV(self)->in_source == NULL);
+  g_assert (!GET_PRIV(self)->connecting);
+  g_assert (GET_PRIV(self)->io != NULL);
 
-  is = g_io_stream_get_input_stream (self->priv->io);
-  self->priv->in_source = g_pollable_input_stream_create_source (G_POLLABLE_INPUT_STREAM (is), NULL);
-  g_source_set_name (self->priv->in_source, "stream-input");
-  g_source_set_callback (self->priv->in_source, (GSourceFunc)dispatch_input, self, NULL);
-  g_source_attach (self->priv->in_source, self->priv->context);
+  is = g_io_stream_get_input_stream (GET_PRIV(self)->io);
+  GET_PRIV(self)->in_source = g_pollable_input_stream_create_source (G_POLLABLE_INPUT_STREAM (is), NULL);
+  g_source_set_name (GET_PRIV(self)->in_source, "stream-input");
+  g_source_set_callback (GET_PRIV(self)->in_source, (GSourceFunc)dispatch_input, self, NULL);
+  g_source_attach (GET_PRIV(self)->in_source, GET_PRIV(self)->context);
 }
 
 static void
@@ -482,25 +484,25 @@ initialize_io (CockpitStream *self)
   GInputStream *is;
   GOutputStream *os;
 
-  g_return_if_fail (self->priv->in_source == NULL);
+  g_return_if_fail (GET_PRIV(self)->in_source == NULL);
 
-  is = g_io_stream_get_input_stream (self->priv->io);
-  os = g_io_stream_get_output_stream (self->priv->io);
+  is = g_io_stream_get_input_stream (GET_PRIV(self)->io);
+  os = g_io_stream_get_output_stream (GET_PRIV(self)->io);
 
   if (!G_IS_POLLABLE_INPUT_STREAM (is) ||
       !g_pollable_input_stream_can_poll (G_POLLABLE_INPUT_STREAM (is)) ||
       !G_IS_POLLABLE_OUTPUT_STREAM (os) ||
       !g_pollable_output_stream_can_poll (G_POLLABLE_OUTPUT_STREAM (os)))
     {
-      g_warning ("%s: stream is not pollable", self->priv->name);
+      g_warning ("%s: stream is not pollable", GET_PRIV(self)->name);
       close_immediately (self, "internal-error");
       return;
     }
 
-  if (self->priv->connecting)
+  if (GET_PRIV(self)->connecting)
     {
-      cockpit_connectable_unref (self->priv->connecting);
-      self->priv->connecting = NULL;
+      cockpit_connectable_unref (GET_PRIV(self)->connecting);
+      GET_PRIV(self)->connecting = NULL;
     }
 
   start_input (self);
@@ -517,7 +519,7 @@ cockpit_stream_constructed (GObject *object)
 
   G_OBJECT_CLASS (cockpit_stream_parent_class)->constructed (object);
 
-  if (self->priv->io)
+  if (GET_PRIV(self)->io)
     initialize_io (self);
 }
 
@@ -532,14 +534,14 @@ cockpit_stream_set_property (GObject *obj,
   switch (prop_id)
     {
       case PROP_NAME:
-        self->priv->name = g_value_dup_string (value);
+        GET_PRIV(self)->name = g_value_dup_string (value);
         break;
       case PROP_IO_STREAM:
-        self->priv->io = g_value_dup_object (value);
+        GET_PRIV(self)->io = g_value_dup_object (value);
         break;
       case PROP_PROBLEM:
-        self->priv->problem = g_value_dup_string (value);
-        if (self->priv->problem)
+        GET_PRIV(self)->problem = g_value_dup_string (value);
+        if (GET_PRIV(self)->problem)
           cockpit_close_later (self);
         break;
       default:
@@ -559,13 +561,13 @@ cockpit_stream_get_property (GObject *obj,
   switch (prop_id)
   {
     case PROP_NAME:
-      g_value_set_string (value, self->priv->name);
+      g_value_set_string (value, GET_PRIV(self)->name);
       break;
     case PROP_IO_STREAM:
-      g_value_set_object (value, self->priv->io);
+      g_value_set_object (value, GET_PRIV(self)->io);
       break;
     case PROP_PROBLEM:
-      g_value_set_string (value, self->priv->problem);
+      g_value_set_string (value, GET_PRIV(self)->problem);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (obj, prop_id, pspec);
@@ -578,15 +580,15 @@ cockpit_stream_dispose (GObject *object)
 {
   CockpitStream *self = COCKPIT_STREAM (object);
 
-  if (!self->priv->closed)
+  if (!GET_PRIV(self)->closed)
     close_immediately (self, "terminated");
 
   cockpit_flow_throttle (COCKPIT_FLOW (self), NULL);
-  g_assert (self->priv->pressure == NULL);
+  g_assert (GET_PRIV(self)->pressure == NULL);
 
-  while (self->priv->out_queue->head)
-    g_bytes_unref (g_queue_pop_head (self->priv->out_queue));
-  self->priv->out_queued = 0;
+  while (GET_PRIV(self)->out_queue->head)
+    g_bytes_unref (g_queue_pop_head (GET_PRIV(self)->out_queue));
+  GET_PRIV(self)->out_queued = 0;
 
   G_OBJECT_CLASS (cockpit_stream_parent_class)->dispose (object);
 }
@@ -596,17 +598,17 @@ cockpit_stream_finalize (GObject *object)
 {
   CockpitStream *self = COCKPIT_STREAM (object);
 
-  g_assert (self->priv->closed);
-  g_assert (!self->priv->in_source);
-  g_assert (!self->priv->out_source);
+  g_assert (GET_PRIV(self)->closed);
+  g_assert (!GET_PRIV(self)->in_source);
+  g_assert (!GET_PRIV(self)->out_source);
 
-  g_byte_array_unref (self->priv->in_buffer);
-  g_queue_free (self->priv->out_queue);
-  g_free (self->priv->problem);
-  g_free (self->priv->name);
+  g_byte_array_unref (GET_PRIV(self)->in_buffer);
+  g_queue_free (GET_PRIV(self)->out_queue);
+  g_free (GET_PRIV(self)->problem);
+  g_free (GET_PRIV(self)->name);
 
-  if (self->priv->context)
-    g_main_context_unref (self->priv->context);
+  if (GET_PRIV(self)->context)
+    g_main_context_unref (GET_PRIV(self)->context);
 
   G_OBJECT_CLASS (cockpit_stream_parent_class)->finalize (object);
 }
@@ -695,8 +697,6 @@ cockpit_stream_class_init (CockpitStreamClass *klass)
                                          G_STRUCT_OFFSET (CockpitStreamClass, close),
                                          NULL, NULL, NULL,
                                          G_TYPE_NONE, 1, G_TYPE_STRING);
-
-  g_type_class_add_private (klass, sizeof (CockpitStreamPrivate));
 }
 
 /**
@@ -723,34 +723,34 @@ cockpit_stream_write (CockpitStream *self,
   gsize size, before;
 
   g_return_if_fail (COCKPIT_IS_STREAM (self));
-  g_return_if_fail (!self->priv->closing);
+  g_return_if_fail (!GET_PRIV(self)->closing);
 
-  g_return_if_fail (!self->priv->closed);
+  g_return_if_fail (!GET_PRIV(self)->closed);
 
   size = g_bytes_get_size (data);
   if (size == 0)
     {
-      g_debug ("%s: ignoring zero byte data block", self->priv->name);
+      g_debug ("%s: ignoring zero byte data block", GET_PRIV(self)->name);
       return;
     }
 
-  before = self->priv->out_queued;
-  g_return_if_fail (G_MAXSIZE - size > self->priv->out_queued);
-  self->priv->out_queued += size;
-  g_queue_push_tail (self->priv->out_queue, g_bytes_ref (data));
+  before = GET_PRIV(self)->out_queued;
+  g_return_if_fail (G_MAXSIZE - size > GET_PRIV(self)->out_queued);
+  GET_PRIV(self)->out_queued += size;
+  g_queue_push_tail (GET_PRIV(self)->out_queue, g_bytes_ref (data));
 
   /* No longer have pressure in the queue? */
-  if (before < QUEUE_PRESSURE && self->priv->out_queued >= QUEUE_PRESSURE)
+  if (before < QUEUE_PRESSURE && GET_PRIV(self)->out_queued >= QUEUE_PRESSURE)
     cockpit_flow_emit_pressure (COCKPIT_FLOW (self), TRUE);
 
-  if (!self->priv->out_source && !self->priv->out_closed)
+  if (!GET_PRIV(self)->out_source && !GET_PRIV(self)->out_closed)
     {
       start_output (self);
     }
 
   /*
    * If this becomes thread-safe, then something like this is needed:
-   * g_main_context_wakeup (g_source_get_context (self->priv->source));
+   * g_main_context_wakeup (g_source_get_context (GET_PRIV(self)->source));
    */
 }
 
@@ -773,11 +773,11 @@ cockpit_stream_close (CockpitStream *self,
 {
   g_return_if_fail (COCKPIT_IS_STREAM (self));
 
-  self->priv->closing = TRUE;
+  GET_PRIV(self)->closing = TRUE;
 
   if (problem)
     close_immediately (self, problem);
-  else if (g_queue_is_empty (self->priv->out_queue))
+  else if (g_queue_is_empty (GET_PRIV(self)->out_queue))
     close_output (self);
 }
 
@@ -814,9 +814,9 @@ on_connect_stream (GObject *object,
       close_immediately (self, NULL);
       g_error_free (error);
     }
-  else if (!self->priv->closed)
+  else if (!GET_PRIV(self)->closed)
     {
-      self->priv->io = g_object_ref (io);
+      GET_PRIV(self)->io = g_object_ref (io);
       initialize_io (self);
     }
 
@@ -837,8 +837,8 @@ cockpit_stream_connect (const gchar *name,
                        "name", name,
                        NULL);
 
-  self->priv->connecting = cockpit_connectable_ref (connectable);
-  cockpit_connect_stream_full (self->priv->connecting, NULL,
+  GET_PRIV(self)->connecting = cockpit_connectable_ref (connectable);
+  cockpit_connect_stream_full (GET_PRIV(self)->connecting, NULL,
                                on_connect_stream, g_object_ref (self));
 
   return self;
@@ -858,7 +858,7 @@ const gchar *
 cockpit_stream_get_name (CockpitStream *self)
 {
   g_return_val_if_fail (COCKPIT_IS_STREAM (self), NULL);
-  return self->priv->name;
+  return GET_PRIV(self)->name;
 }
 
 /**
@@ -876,7 +876,7 @@ GByteArray *
 cockpit_stream_get_buffer (CockpitStream *self)
 {
   g_return_val_if_fail (COCKPIT_IS_STREAM (self), NULL);
-  return self->priv->in_buffer;
+  return GET_PRIV(self)->in_buffer;
 }
 
 /**
@@ -906,17 +906,17 @@ on_throttle_pressure (GObject *object,
   CockpitStream *self = COCKPIT_STREAM (user_data);
   if (throttle)
     {
-      if (self->priv->in_source != NULL)
+      if (GET_PRIV(self)->in_source != NULL)
         {
-          g_debug ("%s: applying back pressure in stream", self->priv->name);
+          g_debug ("%s: applying back pressure in stream", GET_PRIV(self)->name);
           stop_input (self);
         }
     }
   else
     {
-      if (self->priv->in_source == NULL && self->priv->io && !self->priv->connecting)
+      if (GET_PRIV(self)->in_source == NULL && GET_PRIV(self)->io && !GET_PRIV(self)->connecting)
         {
-          g_debug ("%s: relieving back pressure in stream", self->priv->name);
+          g_debug ("%s: relieving back pressure in stream", GET_PRIV(self)->name);
           start_input (self);
         }
     }
@@ -928,18 +928,18 @@ cockpit_stream_throttle (CockpitFlow *flow,
 {
   CockpitStream *self = COCKPIT_STREAM (flow);
 
-  if (self->priv->pressure)
+  if (GET_PRIV(self)->pressure)
     {
-      g_signal_handler_disconnect (self->priv->pressure, self->priv->pressure_sig);
-      g_object_remove_weak_pointer (G_OBJECT (self->priv->pressure), (gpointer *)&self->priv->pressure);
-      self->priv->pressure = NULL;
+      g_signal_handler_disconnect (GET_PRIV(self)->pressure, GET_PRIV(self)->pressure_sig);
+      g_object_remove_weak_pointer (G_OBJECT (GET_PRIV(self)->pressure), (gpointer *)&GET_PRIV(self)->pressure);
+      GET_PRIV(self)->pressure = NULL;
     }
 
   if (controlling)
     {
-      self->priv->pressure = controlling;
-      g_object_add_weak_pointer (G_OBJECT (self->priv->pressure), (gpointer *)&self->priv->pressure);
-      self->priv->pressure_sig = g_signal_connect (controlling, "pressure", G_CALLBACK (on_throttle_pressure), self);
+      GET_PRIV(self)->pressure = controlling;
+      g_object_add_weak_pointer (G_OBJECT (GET_PRIV(self)->pressure), (gpointer *)&GET_PRIV(self)->pressure);
+      GET_PRIV(self)->pressure_sig = g_signal_connect (controlling, "pressure", G_CALLBACK (on_throttle_pressure), self);
     }
 }
 

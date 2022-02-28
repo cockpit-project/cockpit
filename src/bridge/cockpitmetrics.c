@@ -38,7 +38,7 @@ typedef struct {
   gint n_next_instances;
 } MetricInfo;
 
-struct _CockpitMetricsPrivate {
+typedef struct {
   gboolean interpolate;
   gboolean compress;
 
@@ -61,18 +61,18 @@ struct _CockpitMetricsPrivate {
   double **derived;
 
   JsonArray *message;
-};
+} CockpitMetricsPrivate;
 
-G_DEFINE_ABSTRACT_TYPE (CockpitMetrics, cockpit_metrics, COCKPIT_TYPE_CHANNEL);
+G_DEFINE_ABSTRACT_TYPE_WITH_CODE (CockpitMetrics, cockpit_metrics, COCKPIT_TYPE_CHANNEL,
+                                  G_ADD_PRIVATE (CockpitMetrics));
+
+#define GET_PRIV(self) ((CockpitMetricsPrivate *) cockpit_metrics_get_instance_private (self))
 
 static void
 cockpit_metrics_init (CockpitMetrics *self)
 {
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, COCKPIT_TYPE_METRICS,
-                                            CockpitMetricsPrivate);
-
-  self->priv->interpolate = TRUE;
-  self->priv->compress = TRUE;
+  GET_PRIV(self)->interpolate = TRUE;
+  GET_PRIV(self)->compress = TRUE;
 }
 
 static void
@@ -88,10 +88,10 @@ cockpit_metrics_close (CockpitChannel *channel,
 {
   CockpitMetrics *self = COCKPIT_METRICS (channel);
 
-  if (self->priv->timeout)
+  if (GET_PRIV(self)->timeout)
     {
-      g_source_remove (self->priv->timeout);
-      self->priv->timeout = 0;
+      g_source_remove (GET_PRIV(self)->timeout);
+      GET_PRIV(self)->timeout = 0;
     }
 
   COCKPIT_CHANNEL_CLASS (cockpit_metrics_parent_class)->close (channel, problem);
@@ -102,47 +102,47 @@ cockpit_metrics_dispose (GObject *object)
 {
   CockpitMetrics *self = COCKPIT_METRICS (object);
 
-  if (self->priv->timeout)
+  if (GET_PRIV(self)->timeout)
     {
-      g_source_remove (self->priv->timeout);
-      self->priv->timeout = 0;
+      g_source_remove (GET_PRIV(self)->timeout);
+      GET_PRIV(self)->timeout = 0;
     }
 
-  if (self->priv->last_meta)
+  if (GET_PRIV(self)->last_meta)
     {
-      json_object_unref (self->priv->last_meta);
-      self->priv->last_meta = NULL;
+      json_object_unref (GET_PRIV(self)->last_meta);
+      GET_PRIV(self)->last_meta = NULL;
     }
 
-  if (self->priv->last_data)
+  if (GET_PRIV(self)->last_data)
     {
-      g_free (self->priv->last_data[0]);
-      g_free (self->priv->last_data);
-      self->priv->last_data = NULL;
+      g_free (GET_PRIV(self)->last_data[0]);
+      g_free (GET_PRIV(self)->last_data);
+      GET_PRIV(self)->last_data = NULL;
     }
 
-  if (self->priv->next_meta)
+  if (GET_PRIV(self)->next_meta)
     {
-      json_object_unref (self->priv->next_meta);
-      self->priv->next_meta = NULL;
+      json_object_unref (GET_PRIV(self)->next_meta);
+      GET_PRIV(self)->next_meta = NULL;
     }
 
-  if (self->priv->next_data)
+  if (GET_PRIV(self)->next_data)
     {
-      g_free (self->priv->next_data[0]);
-      g_free (self->priv->next_data);
-      self->priv->next_data = NULL;
+      g_free (GET_PRIV(self)->next_data[0]);
+      g_free (GET_PRIV(self)->next_data);
+      GET_PRIV(self)->next_data = NULL;
     }
 
-  if (self->priv->derived)
+  if (GET_PRIV(self)->derived)
     {
-      g_free (self->priv->derived[0]);
-      g_free (self->priv->derived);
-      self->priv->derived = NULL;
+      g_free (GET_PRIV(self)->derived[0]);
+      g_free (GET_PRIV(self)->derived);
+      GET_PRIV(self)->derived = NULL;
     }
 
-  g_free (self->priv->metric_info);
-  self->priv->metric_info = NULL;
+  g_free (GET_PRIV(self)->metric_info);
+  GET_PRIV(self)->metric_info = NULL;
 
   G_OBJECT_CLASS (cockpit_metrics_parent_class)->dispose (object);
 }
@@ -157,8 +157,6 @@ cockpit_metrics_class_init (CockpitMetricsClass *klass)
 
   channel_class->recv = cockpit_metrics_recv;
   channel_class->close = cockpit_metrics_close;
-
-  g_type_class_add_private (klass, sizeof (CockpitMetricsPrivate));
 }
 
 static gboolean
@@ -168,25 +166,25 @@ on_timeout_tick (gpointer data)
   CockpitMetricsClass *klass;
   gint64 next_interval;
 
-  if (self->priv->timeout > 0)
+  if (GET_PRIV(self)->timeout > 0)
     {
-      g_source_remove (self->priv->timeout);
-      self->priv->timeout = 0;
+      g_source_remove (GET_PRIV(self)->timeout);
+      GET_PRIV(self)->timeout = 0;
     }
 
   klass = COCKPIT_METRICS_GET_CLASS (self);
   if (klass->tick)
-    (klass->tick) (self, self->priv->next);
+    (klass->tick) (self, GET_PRIV(self)->next);
 
-  self->priv->next += self->priv->interval;
-  next_interval = self->priv->next - g_get_monotonic_time() / 1000;
+  GET_PRIV(self)->next += GET_PRIV(self)->interval;
+  next_interval = GET_PRIV(self)->next - g_get_monotonic_time() / 1000;
   if (next_interval < 0)
     next_interval = 0;
 
   if (next_interval <= G_MAXUINT)
-    self->priv->timeout = g_timeout_add (next_interval, on_timeout_tick, self);
+    GET_PRIV(self)->timeout = g_timeout_add (next_interval, on_timeout_tick, self);
   else if (next_interval / 1000 <= G_MAXUINT)
-    self->priv->timeout = g_timeout_add_seconds (next_interval / 1000, on_timeout_tick, self);
+    GET_PRIV(self)->timeout = g_timeout_add_seconds (next_interval / 1000, on_timeout_tick, self);
   else
     {
       cockpit_channel_fail (COCKPIT_CHANNEL (self), "internal-error",
@@ -200,11 +198,11 @@ void
 cockpit_metrics_metronome (CockpitMetrics *self,
                            gint64 interval)
 {
-  g_return_if_fail (self->priv->timeout == 0);
+  g_return_if_fail (GET_PRIV(self)->timeout == 0);
   g_return_if_fail (interval > 0);
 
-  self->priv->next = g_get_monotonic_time() / 1000;
-  self->priv->interval = interval;
+  GET_PRIV(self)->next = g_get_monotonic_time() / 1000;
+  GET_PRIV(self)->interval = interval;
   on_timeout_tick (self);
 }
 
@@ -212,25 +210,25 @@ static void
 realloc_next_buffer (CockpitMetrics *self)
 {
   int total_next_instances = 0;
-  for (int i = 0; i < self->priv->n_metrics; i++)
-    total_next_instances += self->priv->metric_info[i].n_next_instances;
-  g_free (self->priv->next_data[0]);
-  self->priv->next_data[0] = g_new (double, total_next_instances);
-  for (int i = 1; i < self->priv->n_metrics; i++)
-      self->priv->next_data[i] = self->priv->next_data[i-1] + self->priv->metric_info[i-1].n_next_instances;
+  for (int i = 0; i < GET_PRIV(self)->n_metrics; i++)
+    total_next_instances += GET_PRIV(self)->metric_info[i].n_next_instances;
+  g_free (GET_PRIV(self)->next_data[0]);
+  GET_PRIV(self)->next_data[0] = g_new (double, total_next_instances);
+  for (int i = 1; i < GET_PRIV(self)->n_metrics; i++)
+      GET_PRIV(self)->next_data[i] = GET_PRIV(self)->next_data[i-1] + GET_PRIV(self)->metric_info[i-1].n_next_instances;
 }
 
 static void
 realloc_derived_buffer (CockpitMetrics *self)
 {
   int total_next_instances = 0;
-  for (int i = 0; i < self->priv->n_metrics; i++)
-    total_next_instances += self->priv->metric_info[i].n_next_instances;
-  g_free (self->priv->derived[0]);
-  self->priv->derived[0] = g_new (double, total_next_instances);
-  for (int i = 1; i < self->priv->n_metrics; i++)
-      self->priv->derived[i] = self->priv->derived[i-1] + self->priv->metric_info[i-1].n_next_instances;
-  self->priv->derived_valid = FALSE;
+  for (int i = 0; i < GET_PRIV(self)->n_metrics; i++)
+    total_next_instances += GET_PRIV(self)->metric_info[i].n_next_instances;
+  g_free (GET_PRIV(self)->derived[0]);
+  GET_PRIV(self)->derived[0] = g_new (double, total_next_instances);
+  for (int i = 1; i < GET_PRIV(self)->n_metrics; i++)
+      GET_PRIV(self)->derived[i] = GET_PRIV(self)->derived[i-1] + GET_PRIV(self)->metric_info[i-1].n_next_instances;
+  GET_PRIV(self)->derived_valid = FALSE;
 }
 
 static gboolean
@@ -249,17 +247,17 @@ update_for_meta (CockpitMetrics *self,
   g_return_val_if_fail (array != NULL, FALSE);
   length = json_array_get_length (array);
 
-  if (self->priv->metric_info == NULL)
+  if (GET_PRIV(self)->metric_info == NULL)
     {
-      self->priv->n_metrics = length;
-      self->priv->metric_info = g_new0 (MetricInfo, length);
-      self->priv->last_data = g_new0 (double *, length);
-      self->priv->next_data = g_new0 (double *, length);
-      self->priv->derived = g_new0 (double *, length);
+      GET_PRIV(self)->n_metrics = length;
+      GET_PRIV(self)->metric_info = g_new0 (MetricInfo, length);
+      GET_PRIV(self)->last_data = g_new0 (double *, length);
+      GET_PRIV(self)->next_data = g_new0 (double *, length);
+      GET_PRIV(self)->derived = g_new0 (double *, length);
 
       reset = TRUE;
     }
-  else if (self->priv->n_metrics != length)
+  else if (GET_PRIV(self)->n_metrics != length)
     {
       cockpit_channel_fail (channel, "protocol-error",
                             "number of metrics must not change");
@@ -280,15 +278,15 @@ update_for_meta (CockpitMetrics *self,
 
       if (!derive)
         {
-          self->priv->metric_info[i].derive = DERIVE_NONE;
+          GET_PRIV(self)->metric_info[i].derive = DERIVE_NONE;
         }
       else if (g_str_equal (derive, "delta"))
         {
-          self->priv->metric_info[i].derive = DERIVE_DELTA;
+          GET_PRIV(self)->metric_info[i].derive = DERIVE_DELTA;
         }
       else if (g_str_equal (derive, "rate"))
         {
-          self->priv->metric_info[i].derive = DERIVE_RATE;
+          GET_PRIV(self)->metric_info[i].derive = DERIVE_RATE;
         }
       else
         {
@@ -306,23 +304,23 @@ update_for_meta (CockpitMetrics *self,
 
       if (instances)
         {
-          self->priv->metric_info[i].has_instances = TRUE;
-          self->priv->metric_info[i].n_next_instances = json_array_get_length (instances);
+          GET_PRIV(self)->metric_info[i].has_instances = TRUE;
+          GET_PRIV(self)->metric_info[i].n_next_instances = json_array_get_length (instances);
         }
       else
         {
-          self->priv->metric_info[i].has_instances = FALSE;
-          self->priv->metric_info[i].n_next_instances = 1;
+          GET_PRIV(self)->metric_info[i].has_instances = FALSE;
+          GET_PRIV(self)->metric_info[i].n_next_instances = 1;
         }
     }
 
   realloc_next_buffer (self);
   realloc_derived_buffer (self);
 
-  g_return_val_if_fail (cockpit_json_get_int (meta, "interval", 1000, &self->priv->meta_interval),
+  g_return_val_if_fail (cockpit_json_get_int (meta, "interval", 1000, &GET_PRIV(self)->meta_interval),
                         FALSE);
 
-  self->priv->meta_reset = reset;
+  GET_PRIV(self)->meta_reset = reset;
   return TRUE;
 }
 
@@ -353,9 +351,9 @@ cockpit_metrics_send_meta (CockpitMetrics *self,
 {
   cockpit_metrics_flush_data (self);
 
-  if (self->priv->next_meta)
-    json_object_unref (self->priv->next_meta);
-  self->priv->next_meta = json_object_ref (meta);
+  if (GET_PRIV(self)->next_meta)
+    json_object_unref (GET_PRIV(self)->next_meta);
+  GET_PRIV(self)->next_meta = json_object_ref (meta);
 
   if (update_for_meta (self, meta, reset))
     send_object (self, meta);
@@ -409,25 +407,25 @@ compute_and_maybe_push_value (CockpitMetrics *self,
                               JsonArray *array,
                               int index)
 {
-  double val = self->priv->next_data[metric][next_instance];
+  double val = GET_PRIV(self)->next_data[metric][next_instance];
 
   if (last_instance >= 0)
     {
-      double last_val = self->priv->last_data[metric][last_instance];
+      double last_val = GET_PRIV(self)->last_data[metric][last_instance];
 
-      if (self->priv->interpolate && !isnan (last_val))
+      if (GET_PRIV(self)->interpolate && !isnan (last_val))
         {
           val = last_val * (1.0 - interpol_r) + val * interpol_r;
-          self->priv->next_data[metric][next_instance] = val;
+          GET_PRIV(self)->next_data[metric][next_instance] = val;
         }
 
-      switch (self->priv->metric_info[metric].derive)
+      switch (GET_PRIV(self)->metric_info[metric].derive)
         {
         case DERIVE_DELTA:
           val = val - last_val;
           break;
         case DERIVE_RATE:
-          val = (val - last_val) / (self->priv->next_timestamp - self->priv->last_timestamp) * 1000;
+          val = (val - last_val) / (GET_PRIV(self)->next_timestamp - GET_PRIV(self)->last_timestamp) * 1000;
           break;
         case DERIVE_NONE:
           break;
@@ -435,16 +433,16 @@ compute_and_maybe_push_value (CockpitMetrics *self,
     }
   else
     {
-      if (self->priv->metric_info[metric].derive != DERIVE_NONE)
+      if (GET_PRIV(self)->metric_info[metric].derive != DERIVE_NONE)
         val = NAN;
     }
 
-  if (self->priv->compress == FALSE
+  if (GET_PRIV(self)->compress == FALSE
       || next_instance != last_instance
-      || !self->priv->derived_valid
-      || val != self->priv->derived[metric][next_instance])
+      || !GET_PRIV(self)->derived_valid
+      || val != GET_PRIV(self)->derived[metric][next_instance])
     {
-      self->priv->derived[metric][next_instance] = val;
+      GET_PRIV(self)->derived[metric][next_instance] = val;
 
       JsonNode *node = json_node_new (JSON_NODE_VALUE);
       if (!isnan (val))
@@ -462,14 +460,14 @@ find_last_instance (CockpitMetrics *self,
                     int metric,
                     int instance)
 {
-  if (self->priv->meta_reset)
+  if (GET_PRIV(self)->meta_reset)
     return -1;
 
-  if (self->priv->last_meta == self->priv->next_meta)
+  if (GET_PRIV(self)->last_meta == GET_PRIV(self)->next_meta)
     return instance;
 
-  JsonArray *last_metrics = json_object_get_array_member (self->priv->last_meta, "metrics");
-  JsonArray *next_metrics = json_object_get_array_member (self->priv->next_meta, "metrics");
+  JsonArray *last_metrics = json_object_get_array_member (GET_PRIV(self)->last_meta, "metrics");
+  JsonArray *next_metrics = json_object_get_array_member (GET_PRIV(self)->next_meta, "metrics");
   if (last_metrics == NULL
       || next_metrics == NULL
       || json_array_get_length (last_metrics) <= metric
@@ -506,19 +504,19 @@ build_json_data (CockpitMetrics *self, double interpol_r)
   JsonArray *output = NULL;
   JsonNode *node;
 
-  for (int i = 0; i < self->priv->n_metrics; i++)
+  for (int i = 0; i < GET_PRIV(self)->n_metrics; i++)
     {
-      if (self->priv->metric_info[i].has_instances)
+      if (GET_PRIV(self)->metric_info[i].has_instances)
         {
           JsonArray *res = NULL;
-          for (int j = 0; j < self->priv->metric_info[i].n_next_instances; j++)
+          for (int j = 0; j < GET_PRIV(self)->metric_info[i].n_next_instances; j++)
             res = compute_and_maybe_push_value (self, interpol_r, i, j, find_last_instance (self, i, j), res, j);
           node = json_node_new (JSON_NODE_ARRAY);
           json_node_take_array (node, res ? res : json_array_new ());
           output = push_array_at (output, i, node);
         }
       else
-        output = compute_and_maybe_push_value (self, interpol_r, i, 0, (self->priv->meta_reset? -1 : 0), output, i);
+        output = compute_and_maybe_push_value (self, interpol_r, i, 0, (GET_PRIV(self)->meta_reset? -1 : 0), output, i);
     }
 
   if (output == NULL)
@@ -529,7 +527,7 @@ build_json_data (CockpitMetrics *self, double interpol_r)
 double **
 cockpit_metrics_get_data_buffer (CockpitMetrics *self)
 {
-  return self->priv->next_data;
+  return GET_PRIV(self)->next_data;
 }
 
 /*
@@ -546,57 +544,57 @@ cockpit_metrics_send_data (CockpitMetrics *self, gint64 timestamp)
   JsonArray *res;
   double interpol_r = 1.0;
 
-  if (self->priv->message == NULL)
-    self->priv->message = json_array_new ();
+  if (GET_PRIV(self)->message == NULL)
+    GET_PRIV(self)->message = json_array_new ();
 
-  if (self->priv->interpolate && !self->priv->meta_reset)
+  if (GET_PRIV(self)->interpolate && !GET_PRIV(self)->meta_reset)
     {
-      double interval = ((double)(timestamp - self->priv->last_timestamp));
+      double interval = ((double)(timestamp - GET_PRIV(self)->last_timestamp));
       if (interval > 0)
         {
-          interpol_r = self->priv->meta_interval / interval;
-          timestamp = self->priv->last_timestamp + self->priv->meta_interval;
+          interpol_r = GET_PRIV(self)->meta_interval / interval;
+          timestamp = GET_PRIV(self)->last_timestamp + GET_PRIV(self)->meta_interval;
         }
     }
 
-  self->priv->next_timestamp = timestamp;
+  GET_PRIV(self)->next_timestamp = timestamp;
 
   res = build_json_data (self, interpol_r);
-  json_array_add_array_element (self->priv->message, res);
+  json_array_add_array_element (GET_PRIV(self)->message, res);
 
   /* Now setup for the next round by swapping buffers and then making
      sure that the new 'next' buffer has the right layout.
    */
 
-  double **t = self->priv->last_data;
-  self->priv->last_data = self->priv->next_data;
-  self->priv->next_data = t;
+  double **t = GET_PRIV(self)->last_data;
+  GET_PRIV(self)->last_data = GET_PRIV(self)->next_data;
+  GET_PRIV(self)->next_data = t;
 
-  if (self->priv->last_meta != self->priv->next_meta)
+  if (GET_PRIV(self)->last_meta != GET_PRIV(self)->next_meta)
     {
       realloc_next_buffer (self);
 
-      for (int i = 0; i < self->priv->n_metrics; i++)
-        self->priv->metric_info[i].n_last_instances = self->priv->metric_info[i].n_next_instances;
+      for (int i = 0; i < GET_PRIV(self)->n_metrics; i++)
+        GET_PRIV(self)->metric_info[i].n_last_instances = GET_PRIV(self)->metric_info[i].n_next_instances;
 
-      if (self->priv->last_meta)
-        json_object_unref (self->priv->last_meta);
-      self->priv->last_meta = json_object_ref (self->priv->next_meta);
+      if (GET_PRIV(self)->last_meta)
+        json_object_unref (GET_PRIV(self)->last_meta);
+      GET_PRIV(self)->last_meta = json_object_ref (GET_PRIV(self)->next_meta);
     }
 
-  self->priv->derived_valid = TRUE;
-  self->priv->last_timestamp = self->priv->next_timestamp;
-  self->priv->meta_reset = FALSE;
+  GET_PRIV(self)->derived_valid = TRUE;
+  GET_PRIV(self)->last_timestamp = GET_PRIV(self)->next_timestamp;
+  GET_PRIV(self)->meta_reset = FALSE;
 }
 
 void
 cockpit_metrics_flush_data (CockpitMetrics *self)
 {
-  if (self->priv->message)
+  if (GET_PRIV(self)->message)
     {
-      send_array (self, self->priv->message);
-      json_array_unref (self->priv->message);
-      self->priv->message = NULL;
+      send_array (self, GET_PRIV(self)->message);
+      json_array_unref (GET_PRIV(self)->message);
+      GET_PRIV(self)->message = NULL;
     }
 }
 
@@ -604,12 +602,12 @@ void
 cockpit_metrics_set_interpolate (CockpitMetrics *self,
                                  gboolean interpolate)
 {
-  self->priv->interpolate = interpolate;
+  GET_PRIV(self)->interpolate = interpolate;
 }
 
 void
 cockpit_metrics_set_compress (CockpitMetrics *self,
                               gboolean compress)
 {
-  self->priv->compress = compress;
+  GET_PRIV(self)->compress = compress;
 }

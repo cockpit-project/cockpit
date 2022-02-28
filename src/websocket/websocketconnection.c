@@ -105,7 +105,7 @@ typedef struct {
   gsize amount;
 } Frame;
 
-struct _WebSocketConnectionPrivate
+typedef struct
 {
   /* FALSE if client, TRUE if server */
   gboolean server_side;
@@ -149,7 +149,7 @@ struct _WebSocketConnectionPrivate
   /* Pressure which throttles input on this web socket */
   CockpitFlow *pressure;
   gulong pressure_sig;
-};
+} WebSocketConnectionPrivate;
 
 #define MAX_PAYLOAD   128 * 1024
 
@@ -159,7 +159,10 @@ struct _WebSocketConnectionPrivate
 static void    web_socket_connection_flow_iface_init        (CockpitFlowInterface *iface);
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (WebSocketConnection, web_socket_connection, G_TYPE_OBJECT,
+                                  G_ADD_PRIVATE(WebSocketConnection)
                                   G_IMPLEMENT_INTERFACE (COCKPIT_TYPE_FLOW, web_socket_connection_flow_iface_init));
+
+#define GET_PRIV(self) ((WebSocketConnectionPrivate *) web_socket_connection_get_instance_private(self))
 
 static void
 frame_free (gpointer data)
@@ -175,10 +178,7 @@ frame_free (gpointer data)
 static void
 web_socket_connection_init (WebSocketConnection *self)
 {
-  WebSocketConnectionPrivate *pv;
-
-  pv = self->pv = G_TYPE_INSTANCE_GET_PRIVATE (self, WEB_SOCKET_TYPE_CONNECTION,
-                                               WebSocketConnectionPrivate);
+  WebSocketConnectionPrivate *pv = web_socket_connection_get_instance_private (self);
 
   g_queue_init (&pv->outgoing);
   pv->main_context = g_main_context_ref_thread_default ();
@@ -190,7 +190,7 @@ on_iostream_closed (GObject *source,
                     gpointer user_data)
 {
   WebSocketConnection *self = user_data;
-  WebSocketConnectionPrivate *pv = self->pv;
+  WebSocketConnectionPrivate *pv = web_socket_connection_get_instance_private (self);
   GError *error = NULL;
   gboolean unused;
 
@@ -217,7 +217,7 @@ on_iostream_closed (GObject *source,
 static void
 stop_input (WebSocketConnection *self)
 {
-  WebSocketConnectionPrivate *pv = self->pv;
+  WebSocketConnectionPrivate *pv = web_socket_connection_get_instance_private (self);
 
   if (pv->input_source)
     {
@@ -231,7 +231,7 @@ stop_input (WebSocketConnection *self)
 static void
 stop_output (WebSocketConnection *self)
 {
-  WebSocketConnectionPrivate *pv = self->pv;
+  WebSocketConnectionPrivate *pv = web_socket_connection_get_instance_private (self);
 
   if (pv->output_source)
     {
@@ -245,7 +245,7 @@ stop_output (WebSocketConnection *self)
 static void
 close_io_stop_timeout (WebSocketConnection *self)
 {
-  WebSocketConnectionPrivate *pv = self->pv;
+  WebSocketConnectionPrivate *pv = web_socket_connection_get_instance_private (self);
 
   if (pv->close_timeout)
     {
@@ -265,7 +265,7 @@ close_io_stop_timeout (WebSocketConnection *self)
 static void
 close_io_stream (WebSocketConnection *self)
 {
-  WebSocketConnectionPrivate *pv = self->pv;
+  WebSocketConnectionPrivate *pv = web_socket_connection_get_instance_private (self);
 
   close_io_stop_timeout (self);
 
@@ -295,7 +295,7 @@ close_io_stream (WebSocketConnection *self)
 static void
 shutdown_wr_io_stream (WebSocketConnection *self)
 {
-  WebSocketConnectionPrivate *pv = self->pv;
+  WebSocketConnectionPrivate *pv = web_socket_connection_get_instance_private (self);
   GSocket *socket;
   GError *error = NULL;
 
@@ -319,7 +319,7 @@ static gboolean
 on_timeout_close_io (gpointer user_data)
 {
   WebSocketConnection *self = WEB_SOCKET_CONNECTION (user_data);
-  WebSocketConnectionPrivate *pv = self->pv;
+  WebSocketConnectionPrivate *pv = web_socket_connection_get_instance_private (self);
 
   pv->close_timeout = 0;
   g_message ("peer did not close io when expected");
@@ -332,7 +332,7 @@ on_timeout_close_io (gpointer user_data)
 static void
 close_io_after_timeout (WebSocketConnection *self)
 {
-  WebSocketConnectionPrivate *pv = self->pv;
+  WebSocketConnectionPrivate *pv = web_socket_connection_get_instance_private (self);
   const gint timeout = 5;
 
   if (pv->close_timeout)
@@ -429,7 +429,7 @@ send_prefixed_message_rfc6455 (WebSocketConnection *self,
    * The server side doesn't need to mask, so we don't. There's
    * probably a client somewhere that's not expecting it.
    */
-  const gboolean is_client_side = !self->pv->server_side;
+  const gboolean is_client_side = !GET_PRIV(self)->server_side;
   if (is_client_side)
     {
       guint32 rand = g_random_int ();
@@ -481,7 +481,7 @@ send_close_rfc6455 (WebSocketConnection *self,
     }
 
   send_message_rfc6455 (self, flags, 0x08, (guint8 *)buffer, len);
-  self->pv->close_sent = TRUE;
+  GET_PRIV(self)->close_sent = TRUE;
 }
 
 gboolean
@@ -494,7 +494,7 @@ _web_socket_connection_error (WebSocketConnection *self,
     {
       if (error)
         {
-          self->pv->dirty_close = TRUE;
+          GET_PRIV(self)->dirty_close = TRUE;
           g_signal_emit (self, signals[ERROR], 0, error, &unused);
         }
 
@@ -519,24 +519,24 @@ _web_socket_connection_error_and_close (WebSocketConnection *self,
   else
     code = WEB_SOCKET_CLOSE_GOING_AWAY;
 
-  if (!self->pv->server_side && error && error->domain == G_TLS_ERROR)
+  if (!GET_PRIV(self)->server_side && error && error->domain == G_TLS_ERROR)
     {
-      self->pv->peer_close_code = WEB_SOCKET_CLOSE_TLS_HANDSHAKE;
+      GET_PRIV(self)->peer_close_code = WEB_SOCKET_CLOSE_TLS_HANDSHAKE;
       if (g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_NOT_TLS) ||
           g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_MISC))
         {
-          self->pv->peer_close_data = g_strdup ("protocol-error");
+          GET_PRIV(self)->peer_close_data = g_strdup ("protocol-error");
         }
       else if (g_error_matches (error, G_TLS_ERROR, G_TLS_ERROR_BAD_CERTIFICATE))
         {
-          self->pv->peer_close_data = g_strdup ("unknown-hostkey");
+          GET_PRIV(self)->peer_close_data = g_strdup ("unknown-hostkey");
         }
     }
 
   if (!_web_socket_connection_error (self, error))
     return;
 
-  if (!self->pv->handshake_done)
+  if (!GET_PRIV(self)->handshake_done)
     prejudice = TRUE;
 
   /* If already closing, so just ignore this stuff */
@@ -574,7 +574,7 @@ protocol_error_and_close_full (WebSocketConnection *self,
 {
   GError *error = g_error_new_literal (WEB_SOCKET_ERROR,
                                        WEB_SOCKET_CLOSE_PROTOCOL,
-                                       self->pv->server_side ?
+                                       GET_PRIV(self)->server_side ?
                                            "Received invalid WebSocket response from the server" :
                                            "Received invalid WebSocket response from the client");
   _web_socket_connection_error_and_close (self, error, prejudice);
@@ -591,7 +591,7 @@ bad_data_error_and_close (WebSocketConnection *self)
 {
   GError *error = g_error_new_literal (WEB_SOCKET_ERROR,
                                        WEB_SOCKET_CLOSE_BAD_DATA,
-                                       self->pv->server_side ?
+                                       GET_PRIV(self)->server_side ?
                                            "Received invalid WebSocket data from the server" :
                                            "Received invalid WebSocket data from the client");
   _web_socket_connection_error_and_close (self, error, FALSE);
@@ -603,11 +603,11 @@ too_big_error_and_close (WebSocketConnection *self,
 {
   GError *error = g_error_new_literal (WEB_SOCKET_ERROR,
                                        WEB_SOCKET_CLOSE_TOO_BIG,
-                                       self->pv->server_side ?
+                                       GET_PRIV(self)->server_side ?
                                            "Received extremely large WebSocket data from the server" :
                                            "Received extremely large WebSocket data from the client");
   g_message ("%s is trying to frame of size %" G_GSIZE_FORMAT " or greater, but max supported size is 128KiB",
-             self->pv->server_side ? "server" : "client", payload_len);
+             GET_PRIV(self)->server_side ? "server" : "client", payload_len);
   _web_socket_connection_error_and_close (self, error, TRUE);
 
   /* The input is in an invalid state now */
@@ -636,7 +636,7 @@ receive_close_rfc6455 (WebSocketConnection *self,
                        const guint8 *data,
                        gsize len)
 {
-  WebSocketConnectionPrivate *pv = self->pv;
+  WebSocketConnectionPrivate *pv = web_socket_connection_get_instance_private (self);
 
   pv->peer_close_code = 0;
   g_free (pv->peer_close_data);
@@ -691,7 +691,7 @@ process_contents_rfc6455 (WebSocketConnection *self,
                           gconstpointer payload,
                           gsize payload_len)
 {
-  WebSocketConnectionPrivate *pv = self->pv;
+  WebSocketConnectionPrivate *pv = web_socket_connection_get_instance_private (self);
   GBytes *message;
 
   if (control)
@@ -844,11 +844,11 @@ process_frame_rfc6455 (WebSocketConnection *self)
   gsize len;
   gsize at;
 
-  len = self->pv->incoming->len;
+  len = GET_PRIV(self)->incoming->len;
   if (len < 2)
     return FALSE; /* need more data */
 
-  header = self->pv->incoming->data;
+  header = GET_PRIV(self)->incoming->data;
   fin = ((header[0] & 0x80) != 0);
   control = header[0] & 0x08;
   opcode = header[0] & 0x0f;
@@ -913,14 +913,14 @@ process_frame_rfc6455 (WebSocketConnection *self)
   process_contents_rfc6455 (self, control, fin, opcode, payload, payload_len);
 
   /* Move past the parsed frame */
-  g_byte_array_remove_range (self->pv->incoming, 0, at + payload_len);
+  g_byte_array_remove_range (GET_PRIV(self)->incoming, 0, at + payload_len);
   return TRUE;
 }
 
 static void
 process_incoming (WebSocketConnection *self)
 {
-  WebSocketConnectionPrivate *pv = self->pv;
+  WebSocketConnectionPrivate *pv = web_socket_connection_get_instance_private (self);
   WebSocketConnectionClass *klass;
   gboolean more;
 
@@ -951,7 +951,7 @@ on_web_socket_input (GObject *pollable_stream,
                      gpointer user_data)
 {
   WebSocketConnection *self = WEB_SOCKET_CONNECTION (user_data);
-  WebSocketConnectionPrivate *pv = self->pv;
+  WebSocketConnectionPrivate *pv = web_socket_connection_get_instance_private (self);
   GError *error = NULL;
   gboolean end = FALSE;
   gssize count;
@@ -1011,7 +1011,7 @@ on_web_socket_input (GObject *pollable_stream,
 static void
 start_input (WebSocketConnection *self)
 {
-  WebSocketConnectionPrivate *pv = self->pv;
+  WebSocketConnectionPrivate *pv = web_socket_connection_get_instance_private (self);
 
   g_debug ("starting input source");
   pv->input_source = g_pollable_input_stream_create_source (pv->input, NULL);
@@ -1024,7 +1024,7 @@ on_web_socket_output (GObject *pollable_stream,
                       gpointer user_data)
 {
   WebSocketConnection *self = WEB_SOCKET_CONNECTION (user_data);
-  WebSocketConnectionPrivate *pv = self->pv;
+  WebSocketConnectionPrivate *pv = web_socket_connection_get_instance_private (self);
   const guint8 *data;
   GError *error = NULL;
   gsize before;
@@ -1093,7 +1093,7 @@ on_web_socket_output (GObject *pollable_stream,
    * If we're controlling another flow, turn off back pressure when
    * our output buffer size becomes less than the low mark.
    */
-  if (before >= QUEUE_PRESSURE && self->pv->output_queued < QUEUE_PRESSURE)
+  if (before >= QUEUE_PRESSURE && GET_PRIV(self)->output_queued < QUEUE_PRESSURE)
     cockpit_flow_emit_pressure (COCKPIT_FLOW (self), FALSE);
 
   return TRUE;
@@ -1102,7 +1102,7 @@ on_web_socket_output (GObject *pollable_stream,
 static void
 start_output (WebSocketConnection *self)
 {
-  WebSocketConnectionPrivate *pv = self->pv;
+  WebSocketConnectionPrivate *pv = web_socket_connection_get_instance_private (self);
 
   if (pv->output_source)
     return;
@@ -1120,7 +1120,7 @@ _web_socket_connection_queue (WebSocketConnection *self,
                               gsize len,
                               gsize amount)
 {
-  WebSocketConnectionPrivate *pv = self->pv;
+  WebSocketConnectionPrivate *pv = web_socket_connection_get_instance_private (self);
   gsize before;
   Frame *frame;
   Frame *prev;
@@ -1168,7 +1168,7 @@ _web_socket_connection_queue (WebSocketConnection *self,
    * If we have two much data queued, and are controlling another flow
    * tell it to stop sending data, each time we cross over the high bound.
    */
-  if (before < QUEUE_PRESSURE && self->pv->output_queued >= QUEUE_PRESSURE)
+  if (before < QUEUE_PRESSURE && GET_PRIV(self)->output_queued >= QUEUE_PRESSURE)
     cockpit_flow_emit_pressure (COCKPIT_FLOW (self), TRUE);
 
   start_output (self);
@@ -1177,7 +1177,7 @@ _web_socket_connection_queue (WebSocketConnection *self,
 static gboolean
 check_streams (WebSocketConnection *self)
 {
-  WebSocketConnectionPrivate *pv = self->pv;
+  WebSocketConnectionPrivate *pv = web_socket_connection_get_instance_private (self);
 
   if (!pv->input || !g_pollable_input_stream_can_poll (pv->input))
     {
@@ -1200,8 +1200,8 @@ _web_socket_connection_take_incoming (WebSocketConnection *self,
 {
   g_return_if_fail (WEB_SOCKET_IS_CONNECTION (self));
 
-  g_return_if_fail (self->pv->incoming == NULL);
-  self->pv->incoming = input_buffer;
+  g_return_if_fail (GET_PRIV(self)->incoming == NULL);
+  GET_PRIV(self)->incoming = input_buffer;
 }
 
 static gboolean
@@ -1209,8 +1209,8 @@ on_idle_start_input (gpointer user_data)
 {
   WebSocketConnection *self = WEB_SOCKET_CONNECTION (user_data);
 
-  g_source_unref (self->pv->start_idle);
-  self->pv->start_idle = NULL;
+  g_source_unref (GET_PRIV(self)->start_idle);
+  GET_PRIV(self)->start_idle = NULL;
 
   if (check_streams (self))
     {
@@ -1225,7 +1225,7 @@ void
 _web_socket_connection_take_io_stream (WebSocketConnection *self,
                                        GIOStream *io_stream)
 {
-  WebSocketConnectionPrivate *pv = self->pv;
+  WebSocketConnectionPrivate *pv = web_socket_connection_get_instance_private (self);
   GInputStream *is;
   GOutputStream *os;
 
@@ -1258,7 +1258,7 @@ static void
 web_socket_connection_constructed (GObject *object)
 {
   WebSocketConnection *self = WEB_SOCKET_CONNECTION (object);
-  WebSocketConnectionPrivate *pv = self->pv;
+  WebSocketConnectionPrivate *pv = web_socket_connection_get_instance_private (self);
   WebSocketConnectionClass *klass;
 
   G_OBJECT_CLASS (web_socket_connection_parent_class)->constructed (object);
@@ -1318,7 +1318,7 @@ web_socket_connection_set_property (GObject *object,
                                     GParamSpec *pspec)
 {
   WebSocketConnection *self = WEB_SOCKET_CONNECTION (object);
-  WebSocketConnectionPrivate *pv = self->pv;
+  WebSocketConnectionPrivate *pv = web_socket_connection_get_instance_private (self);
   GIOStream *io_stream;
 
   switch (prop_id)
@@ -1346,11 +1346,11 @@ web_socket_connection_dispose (GObject *object)
 {
   WebSocketConnection *self = WEB_SOCKET_CONNECTION (object);
 
-  self->pv->dirty_close = TRUE;
+  GET_PRIV(self)->dirty_close = TRUE;
   close_io_stream (self);
 
   cockpit_flow_throttle (COCKPIT_FLOW (self), NULL);
-  g_assert (self->pv->pressure == NULL);
+  g_assert (GET_PRIV(self)->pressure == NULL);
 
   G_OBJECT_CLASS (web_socket_connection_parent_class)->dispose (object);
 }
@@ -1359,7 +1359,7 @@ static void
 web_socket_connection_finalize (GObject *object)
 {
   WebSocketConnection *self = WEB_SOCKET_CONNECTION (object);
-  WebSocketConnectionPrivate *pv = self->pv;
+  WebSocketConnectionPrivate *pv = web_socket_connection_get_instance_private (self);
 
   g_free (pv->url);
   g_free (pv->chosen_protocol);
@@ -1392,8 +1392,6 @@ static void
 web_socket_connection_class_init (WebSocketConnectionClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (WebSocketConnectionPrivate));
 
   gobject_class->constructed = web_socket_connection_constructed;
   gobject_class->get_property = web_socket_connection_get_property;
@@ -1562,7 +1560,7 @@ const gchar *
 web_socket_connection_get_url (WebSocketConnection *self)
 {
   g_return_val_if_fail (WEB_SOCKET_IS_CONNECTION (self), NULL);
-  return self->pv->url;
+  return GET_PRIV(self)->url;
 }
 
 /**
@@ -1583,7 +1581,7 @@ const gchar *
 web_socket_connection_get_protocol (WebSocketConnection *self)
 {
   g_return_val_if_fail (WEB_SOCKET_IS_CONNECTION (self), NULL);
-  return self->pv->chosen_protocol;
+  return GET_PRIV(self)->chosen_protocol;
 }
 
 /**
@@ -1599,11 +1597,11 @@ web_socket_connection_get_ready_state (WebSocketConnection *self)
 {
   g_return_val_if_fail (WEB_SOCKET_IS_CONNECTION (self), 0);
 
-  if (self->pv->io_closed)
+  if (GET_PRIV(self)->io_closed)
     return WEB_SOCKET_STATE_CLOSED;
-  else if ((self->pv->io_stream && !self->pv->io_open) || self->pv->close_sent)
+  else if ((GET_PRIV(self)->io_stream && !GET_PRIV(self)->io_open) || GET_PRIV(self)->close_sent)
     return WEB_SOCKET_STATE_CLOSING;
-  else if (self->pv->handshake_done)
+  else if (GET_PRIV(self)->handshake_done)
     return WEB_SOCKET_STATE_OPEN;
   else
     return WEB_SOCKET_STATE_CONNECTING;
@@ -1629,7 +1627,7 @@ web_socket_connection_get_buffered_amount (WebSocketConnection *self)
 
   g_return_val_if_fail (WEB_SOCKET_IS_CONNECTION (self), 0);
 
-  for (l = self->pv->outgoing.head; l != NULL; l = g_list_next (l))
+  for (l = GET_PRIV(self)->outgoing.head; l != NULL; l = g_list_next (l))
     {
       frame = l->data;
       amount += frame->amount;
@@ -1650,7 +1648,7 @@ GIOStream *
 web_socket_connection_get_io_stream (WebSocketConnection *self)
 {
   g_return_val_if_fail (WEB_SOCKET_IS_CONNECTION (self), NULL);
-  return self->pv->io_stream;
+  return GET_PRIV(self)->io_stream;
 }
 
 /**
@@ -1670,7 +1668,7 @@ gushort
 web_socket_connection_get_close_code (WebSocketConnection *self)
 {
   g_return_val_if_fail (WEB_SOCKET_IS_CONNECTION (self), 0);
-  return self->pv->peer_close_code;
+  return GET_PRIV(self)->peer_close_code;
 }
 
 /**
@@ -1689,7 +1687,7 @@ const gchar *
 web_socket_connection_get_close_data (WebSocketConnection *self)
 {
   g_return_val_if_fail (WEB_SOCKET_IS_CONNECTION (self), NULL);
-  return self->pv->peer_close_data;
+  return GET_PRIV(self)->peer_close_data;
 }
 
 /**
@@ -1784,19 +1782,19 @@ web_socket_connection_close (WebSocketConnection *self,
   gboolean handled = FALSE;
 
   g_return_if_fail (WEB_SOCKET_IS_CONNECTION (self));
-  g_return_if_fail (!self->pv->close_sent);
+  g_return_if_fail (!GET_PRIV(self)->close_sent);
 
   g_signal_emit (self, signals[CLOSING], 0, &handled);
   if (!handled)
     return;
 
-  if (self->pv->close_received)
+  if (GET_PRIV(self)->close_received)
     g_debug ("responding to close request");
 
-  if (self->pv->handshake_done)
+  if (GET_PRIV(self)->handshake_done)
     {
       flags = 0;
-      if (self->pv->server_side && self->pv->close_received)
+      if (GET_PRIV(self)->server_side && GET_PRIV(self)->close_received)
         flags |= WEB_SOCKET_QUEUE_LAST;
       send_close_rfc6455 (self, flags, code, data);
       close_io_after_timeout (self);
@@ -1815,7 +1813,7 @@ on_throttle_pressure (GObject *object,
   WebSocketConnection *self = WEB_SOCKET_CONNECTION (user_data);
   if (throttle)
     {
-      if (self->pv->io_open && self->pv->input_source != NULL)
+      if (GET_PRIV(self)->io_open && GET_PRIV(self)->input_source != NULL)
         {
           g_debug ("applying back pressure in web socket");
           stop_input (self);
@@ -1823,7 +1821,7 @@ on_throttle_pressure (GObject *object,
     }
   else
     {
-      if (self->pv->io_open && self->pv->input_source == NULL)
+      if (GET_PRIV(self)->io_open && GET_PRIV(self)->input_source == NULL)
         {
           g_debug ("relieving back pressure in web socket");
           start_input (self);
@@ -1837,18 +1835,18 @@ web_socket_connection_throttle (CockpitFlow *flow,
 {
   WebSocketConnection *self = WEB_SOCKET_CONNECTION (flow);
 
-  if (self->pv->pressure)
+  if (GET_PRIV(self)->pressure)
     {
-      g_signal_handler_disconnect (self->pv->pressure, self->pv->pressure_sig);
-      g_object_remove_weak_pointer (G_OBJECT (self->pv->pressure), (gpointer *)&self->pv->pressure);
-      self->pv->pressure = NULL;
+      g_signal_handler_disconnect (GET_PRIV(self)->pressure, GET_PRIV(self)->pressure_sig);
+      g_object_remove_weak_pointer (G_OBJECT (GET_PRIV(self)->pressure), (gpointer *)&GET_PRIV(self)->pressure);
+      GET_PRIV(self)->pressure = NULL;
     }
 
   if (controlling)
     {
-      self->pv->pressure = controlling;
-      g_object_add_weak_pointer (G_OBJECT (self->pv->pressure), (gpointer *)&self->pv->pressure);
-      self->pv->pressure_sig = g_signal_connect (controlling, "pressure", G_CALLBACK (on_throttle_pressure), self);
+      GET_PRIV(self)->pressure = controlling;
+      g_object_add_weak_pointer (G_OBJECT (GET_PRIV(self)->pressure), (gpointer *)&GET_PRIV(self)->pressure);
+      GET_PRIV(self)->pressure_sig = g_signal_connect (controlling, "pressure", G_CALLBACK (on_throttle_pressure), self);
     }
 }
 
@@ -1857,7 +1855,7 @@ _web_socket_connection_choose_protocol (WebSocketConnection *self,
                                         const gchar **protocols,
                                         const gchar *value)
 {
-  WebSocketConnectionPrivate *pv = self->pv;
+  WebSocketConnectionPrivate *pv = web_socket_connection_get_instance_private (self);
   gboolean chosen = FALSE;
   gchar **values;
   gint i, j;
@@ -1921,7 +1919,7 @@ GMainContext *
 _web_socket_connection_get_main_context (WebSocketConnection *self)
 {
   g_return_val_if_fail (WEB_SOCKET_IS_CONNECTION (self), NULL);
-  return self->pv->main_context;
+  return GET_PRIV(self)->main_context;
 }
 
 static void

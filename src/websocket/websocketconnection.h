@@ -17,8 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __WEB_SOCKET_CONNECTION_H__
-#define __WEB_SOCKET_CONNECTION_H__
+#pragma once
 
 #include "websocket.h"
 
@@ -26,22 +25,8 @@
 
 G_BEGIN_DECLS
 
-#define WEB_SOCKET_TYPE_CONNECTION         (web_socket_connection_get_type ())
-#define WEB_SOCKET_CONNECTION(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), WEB_SOCKET_TYPE_CONNECTION, WebSocketConnection))
-#define WEB_SOCKET_IS_CONNECTION(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), WEB_SOCKET_TYPE_CONNECTION))
-#define WEB_SOCKET_CONNECTION_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST ((k), WEB_SOCKET_TYPE_CONNECTION, WebSocketConnectionClass))
-#define WEB_SOCKET_CONNECTION_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), WEB_SOCKET_TYPE_CONNECTION, WebSocketConnectionClass))
-#define WEB_SOCKET_IS_CONNECTION_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), WEB_SOCKET_TYPE_CONNECTION))
-
-typedef struct _WebSocketConnectionPrivate  WebSocketConnectionPrivate;
-
-struct _WebSocketConnection
-{
-  GObject parent;
-
-  /*< private >*/
-  WebSocketConnectionPrivate *pv;
-};
+#define WEB_SOCKET_TYPE_CONNECTION (web_socket_connection_get_type ())
+G_DECLARE_DERIVABLE_TYPE(WebSocketConnection, web_socket_connection, WEB_SOCKET, CONNECTION, GObject)
 
 struct _WebSocketConnectionClass
 {
@@ -93,7 +78,3 @@ void            web_socket_connection_send                (WebSocketConnection *
 void            web_socket_connection_close               (WebSocketConnection *self,
                                                            gushort code,
                                                            const gchar *data);
-
-G_END_DECLS
-
-#endif /* __WEB_SOCKET_CONNECTION_H__ */

@@ -287,7 +287,7 @@ function setupFrameTracking(client) {
 function setupLocalFunctions(client) {
     client.reloadPageAndWait = (args) => {
         return new Promise((resolve, reject) => {
-            pageLoadHandler = () => { pageLoadHandler = null; resolve(); };
+            pageLoadHandler = () => { pageLoadHandler = null; resolve({}) };
             client.Page.reload(args);
         });
     };

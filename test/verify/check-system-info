@@ -762,7 +762,7 @@ fi
             self.skipTest("insights-client is only on RHEL")
 
         # Pretend that the Subscriptions page can do Insights stuff
-        m.write("/usr/share/cockpit/subscription-manager/override.json", '{ "features": { "insights": true } }')
+        m.write("/etc/cockpit/subscription-manager.override.json", '{ "features": { "insights": true } }')
 
         # Run a mock version of the Insights API locally and configure
         # insights-client to access it. That requires a good enough

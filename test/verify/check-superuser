@@ -179,8 +179,7 @@ session include system-auth
         b = self.browser
         m = self.machine
 
-        m.needs_writable_usr()
-        m.write("/usr/share/cockpit/shell/override.json", """
+        m.write("/etc/cockpit/shell.override.json", """
 {
   "bridges": [
     {
@@ -213,13 +212,11 @@ session include system-auth
         b = self.browser
         m = self.machine
 
-        m.needs_writable_usr()
-
         self.login_and_go("/playground/pkgs", superuser=True)
         b.leave_page()
         b.check_superuser_indicator("Administrative access")
 
-        m.write("/usr/share/cockpit/shell/override.json", """
+        m.write("/etc/cockpit/shell.override.json", """
 {
   "bridges": [ ]
 }

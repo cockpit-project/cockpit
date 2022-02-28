@@ -81,35 +81,37 @@ class TestMenu(MachineCase):
 
         m.execute("printf '[Session]\nIdleTimeout = 1\n' >> /etc/cockpit/cockpit.conf")
 
+        # does not time out immediately
         self.login_and_go()
         time.sleep(20)
-        b.wait_not_present("#session-timeout-modal")
+        self.assertFalse(b.is_present("#session-timeout-modal"))
         b.wait_visible("#hosts-sel")
+
+        # a mouse event resets the timer
         b.enter_page("/system")
         b.mouse("#system_information_hardware_text", "mousemove", 24, 24)
         b.switch_to_top()
+
+        # 30s before the 1 min timeout the dialog pops up
         time.sleep(35)
         with b.wait_timeout(3):
             b.wait_visible("#session-timeout-modal")
             self.assertGreater(int(b.text("#session-timeout-modal .pf-c-modal-box__body").split()[-2]), 15)
+        # click on "Continue session"
         b.click("#session-timeout-modal footer button")
         b.wait_not_present("#session-timeout-modal")
+
+        # now wait for timeout dialog again, but don't click; instead, wait for the full minute
         time.sleep(30)
         with b.wait_timeout(8):
             b.wait_popup("session-timeout-modal")
             self.assertGreater(int(b.text("#session-timeout-modal .pf-c-modal-box__body").split()[-2]), 20)
+
         time.sleep(30)
+        # that logs you out
         b.wait_visible("#login")
         b.wait_visible("#login-info-message")
         b.wait_text("#login-info-message", "You have been logged out due to inactivity.")
-        m.execute("sed -i '/IdleTimeout/d' /etc/cockpit/cockpit.conf")
-        m.restart_cockpit()
-        b.reload()
-        self.login_and_go("/system")
-        b.switch_to_top()
-        time.sleep(75)
-        b.wait_not_present("#session-timeout-modal")
-        b.wait_visible("#hosts-sel")
 
 
 if __name__ == '__main__':

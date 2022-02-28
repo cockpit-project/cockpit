@@ -621,7 +621,7 @@ maybe_add_package (GHashTable *listing,
 
   if (bundle_checksum || paths)
     {
-      if (!package_walk_directory (bundle_checksum, own_checksum, paths, directory, NULL))
+      if (!package_walk_directory (own_checksum, bundle_checksum, paths, directory, NULL))
         goto out;
     }
 

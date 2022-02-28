@@ -118,7 +118,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
           if (expected.length != lines.length)
             return false;
           for (i = 0; i < expected.length; i++)
-            if (JSON.stringify(expected[i]) != JSON.stringify(lines[i]))
+            if (!new RegExp(JSON.stringify(expected[i])).test(JSON.stringify(lines[i])))
               return false;
           return true;
         })""", expected)
@@ -187,14 +187,9 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
                 stop_message = "Deactivated successfully."
             else:
                 stop_message = "Succeeded."
-            if systemd_version >= 250:
-                # changed in https://github.com/systemd/systemd/pull/20058/commits/580e198a50449e892aa110c81d74f277d2ae8fa0
-                start_message = "Started slow10.service - "
-            else:
-                start_message = "Started "
 
             wait_log_lines([["systemd", "slow10.service: " + stop_message, ""], ["sh", "SLOW", "10"],
-                            ["systemd", start_message + "Slowly log 10 identical lines.", ""]])
+                            ["systemd", "Started.*Slowly log 10 identical lines.", ""]])
 
         def wait_log_present(message):
             b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{message}')")

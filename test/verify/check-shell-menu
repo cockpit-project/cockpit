@@ -23,6 +23,7 @@ import parent
 from testlib import *
 
 
+@nondestructive
 @skipDistroPackage()
 class TestMenu(MachineCase):
 
@@ -35,7 +36,7 @@ class TestMenu(MachineCase):
         m.execute("mkdir -p /usr/local/share/cockpit/systemd && cp -rp /usr/share/cockpit/systemd/* /usr/local/share/cockpit/systemd")
         m.execute(
             """sed -i '/"menu"/a "memory": { "label": "Memory", "path": "#/memory" },' /usr/local/share/cockpit/systemd/manifest.json""")
-        m.execute("printf '[Session]\nIdleTimeout = 1\n' >> /etc/cockpit/cockpit.conf")
+        self.addCleanup(m.execute, "rm -r /usr/local/share/cockpit")
 
         self.login_and_go("/system")
 
@@ -49,7 +50,38 @@ class TestMenu(MachineCase):
         b.click('.pf-c-about-modal-box__close button')
         b.wait_not_present('#about-cockpit-modal')
 
-        # Test session timeout
+        self.check_axe("Test-navigation")
+
+        # Check that we can use a link with a hash in it
+        b.click_system_menu("/system/#/memory")
+
+        # Ensure that our tests pick up unhandled JS exceptions
+        b.switch_to_top()
+        b.go("/playground/exception")
+
+        # Test that subpages are correctly shown in the navigation (twice - once that only one page is shown as active)
+        b.wait_in_text("#host-apps .pf-m-current", "Development")
+
+        b.enter_page("/playground/exception")
+        b.wait_visible("button")
+        with self.assertRaisesRegex(RuntimeError, "TypeError:.*undefined"):
+            b.click("button")
+            # Some round trips, one of which should update the deferred exception
+            for i in range(0, 5):
+                b.wait_visible("button")
+                time.sleep(2)
+
+        # UI should also show the crash
+        b.switch_to_top()
+        b.wait_visible("#navbar-oops")
+
+    def testSessionTimeout(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute("printf '[Session]\nIdleTimeout = 1\n' >> /etc/cockpit/cockpit.conf")
+
+        self.login_and_go()
         time.sleep(20)
         b.wait_not_present("#session-timeout-modal")
         b.wait_visible("#hosts-sel")
@@ -78,31 +110,6 @@ class TestMenu(MachineCase):
         time.sleep(75)
         b.wait_not_present("#session-timeout-modal")
         b.wait_visible("#hosts-sel")
-
-        self.check_axe("Test-navigation")
-
-        # Check that we can use a link with a hash in it
-        b.click_system_menu("/system/#/memory")
-
-        # Ensure that our tests pick up unhandled JS exceptions
-        b.switch_to_top()
-        b.go("/playground/exception")
-
-        # Test that subpages are correctly shown in the navigation (twice - once that only one page is shown as active)
-        b.wait_in_text("#host-apps .pf-m-current", "Development")
-
-        b.enter_page("/playground/exception")
-        b.wait_visible("button")
-        with self.assertRaisesRegex(RuntimeError, "TypeError:.*undefined"):
-            b.click("button")
-            # Some round trips, one of which should update the deferred exception
-            for i in range(0, 5):
-                b.wait_visible("button")
-                time.sleep(2)
-
-        # UI should also show the crash
-        b.switch_to_top()
-        b.wait_visible("#navbar-oops")
 
 
 if __name__ == '__main__':

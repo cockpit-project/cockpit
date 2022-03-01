@@ -7,12 +7,11 @@
 
 function ph_select(sel) {
     if (!window.Sizzle)
-        throw "Sizzle was not properly loaded"
+        throw "Sizzle was not properly loaded";
     return window.Sizzle(sel);
 }
 
-function ph_only(els, sel)
-{
+function ph_only(els, sel) {
     if (els.length === 0)
         throw sel + " not found";
     if (els.length > 1)
@@ -20,14 +19,13 @@ function ph_only(els, sel)
     return els[0];
 }
 
-function ph_find (sel)
-{
-    var els = ph_select(sel);
+function ph_find (sel) {
+    const els = ph_select(sel);
     return ph_only(els, sel);
 }
 
 function ph_count(sel) {
-    var els = ph_select(sel);
+    const els = ph_select(sel);
     return els.length;
 }
 
@@ -35,87 +33,78 @@ function ph_count_check(sel, expected_num) {
     return (ph_count(sel) == expected_num);
 }
 
-function ph_val (sel)
-{
-    var el = ph_find(sel);
+function ph_val (sel) {
+    const el = ph_find(sel);
     if (el.value === undefined)
         throw sel + " does not have a value";
     return el.value;
 }
 
-function ph_set_val (sel, val)
-{
-    var el = ph_find(sel);
+function ph_set_val (sel, val) {
+    const el = ph_find(sel);
     if (el.value === undefined)
         throw sel + " does not have a value";
     el.value = val;
-    var ev = new Event("change", { bubbles: true, cancelable: false });
+    const ev = new Event("change", { bubbles: true, cancelable: false });
     el.dispatchEvent(ev);
 }
 
-function ph_has_val (sel, val)
-{
+function ph_has_val (sel, val) {
     return ph_val(sel) == val;
 }
 
-function ph_collected_text_is (sel, val)
-{
-    var els = ph_select(sel);
-    var rest = els.map(el => {
+function ph_collected_text_is (sel, val) {
+    const els = ph_select(sel);
+    const rest = els.map(el => {
         if (el.textContent === undefined)
             throw sel + " can not have text";
-        return el.textContent.replace(/\xa0/g, " ")
+        return el.textContent.replace(/\xa0/g, " ");
     }).join("");
     return rest === val;
 }
 
-function ph_text (sel)
-{
-    var el = ph_find(sel);
+function ph_text (sel) {
+    const el = ph_find(sel);
     if (el.textContent === undefined)
         throw sel + " can not have text";
     // 0xa0 is a non-breakable space, which is a rendering detail of Chromium
     // and awkward to handle in tests; turn it into normal spaces
-    return el.textContent.replace(/\xa0/g, " ")
+    return el.textContent.replace(/\xa0/g, " ");
 }
 
-function ph_attr (sel, attr)
-{
+function ph_attr (sel, attr) {
     return ph_find(sel).getAttribute(attr);
 }
 
-function ph_set_attr (sel, attr, val)
-{
-    var el = ph_find(sel);
+function ph_set_attr (sel, attr, val) {
+    const el = ph_find(sel);
     if (val === null || val === undefined)
         el.removeAttribute(attr);
     else
         el.setAttribute(attr, val);
 
-    var ev = new Event("change", { bubbles: true, cancelable: false });
+    const ev = new Event("change", { bubbles: true, cancelable: false });
     el.dispatchEvent(ev);
 }
 
-function ph_has_attr (sel, attr, val)
-{
+function ph_has_attr (sel, attr, val) {
     return ph_attr(sel, attr) == val;
 }
 
-function ph_attr_contains (sel, attr, val)
-{
-    var a = ph_attr(sel, attr);
+function ph_attr_contains (sel, attr, val) {
+    const a = ph_attr(sel, attr);
     return a && a.indexOf(val) > -1;
 }
 
 function ph_mouse(sel, type, x, y, btn, ctrlKey, shiftKey, altKey, metaKey) {
-    let el = ph_find(sel);
+    const el = ph_find(sel);
 
     /* The element has to be visible, and not collapsed */
     if (el.offsetWidth <= 0 && el.offsetHeight <= 0 && el.tagName != 'svg')
         throw sel + " is not visible";
 
     /* The event has to actually work */
-    var processed = false;
+    let processed = false;
     function handler() {
         processed = true;
     }
@@ -131,13 +120,13 @@ function ph_mouse(sel, type, x, y, btn, ctrlKey, shiftKey, altKey, metaKey) {
         top += elp.offsetTop;
     }
 
-    var detail = 0;
+    let detail = 0;
     if (["click", "mousedown", "mouseup"].indexOf(type) > -1)
         detail = 1;
     else if (type === "dblclick")
         detail = 2;
 
-    var ev = new MouseEvent(type, {
+    const ev = new MouseEvent(type, {
         bubbles: true,
         cancelable: true,
         view: window,
@@ -162,18 +151,16 @@ function ph_mouse(sel, type, x, y, btn, ctrlKey, shiftKey, altKey, metaKey) {
         throw sel + " is disabled or somehow doesn't process events";
 }
 
-function ph_get_checked (sel)
-{
-    var el = ph_find(sel);
+function ph_get_checked (sel) {
+    const el = ph_find(sel);
     if (el.checked === undefined)
         throw sel + " is not checkable";
 
     return el.checked;
 }
 
-function ph_set_checked (sel, val)
-{
-    var el = ph_find(sel);
+function ph_set_checked (sel, val) {
+    const el = ph_find(sel);
     if (el.checked === undefined)
         throw sel + " is not checkable";
 
@@ -181,41 +168,35 @@ function ph_set_checked (sel, val)
         ph_mouse(sel, "click", 0, 0, 0);
 }
 
-function ph_is_visible (sel)
-{
-    var el = ph_find(sel);
+function ph_is_visible (sel) {
+    const el = ph_find(sel);
     return el.tagName == "svg" || ((el.offsetWidth > 0 || el.offsetHeight > 0) && !(el.style.visibility == "hidden" || el.style.display == "none"));
 }
 
-function ph_is_present(sel)
-{
-    var els = ph_select(sel);
+function ph_is_present(sel) {
+    const els = ph_select(sel);
     return els.length > 0;
 }
 
-function ph_in_text (sel, text)
-{
+function ph_in_text (sel, text) {
     return ph_text(sel).indexOf(text) != -1;
 }
 
-function ph_text_is (sel, text)
-{
+function ph_text_is (sel, text) {
     return ph_text(sel) == text;
 }
 
-function ph_text_matches (sel, pattern)
-{
+function ph_text_matches (sel, pattern) {
     return ph_text(sel).match(pattern);
 }
 
 function ph_go(href) {
     if (href.indexOf("#") === 0) {
         window.location.hash = href;
-
     } else {
         if (window.name.indexOf("cockpit1") !== 0)
             throw "ph_go() called in non cockpit window";
-        var control = {
+        const control = {
             command: "jump",
             location: href
         };
@@ -223,23 +204,19 @@ function ph_go(href) {
     }
 }
 
-function ph_focus(sel)
-{
+function ph_focus(sel) {
     ph_find(sel).focus();
 }
 
-function ph_scrollIntoViewIfNeeded(sel)
-{
+function ph_scrollIntoViewIfNeeded(sel) {
     ph_find(sel).scrollIntoViewIfNeeded();
 }
 
-function ph_blur(sel)
-{
+function ph_blur(sel) {
     ph_find(sel).blur();
 }
 
-function ph_blur_active()
-{
+function ph_blur_active() {
     const elt = window.document.activeElement;
     if (elt)
         elt.blur();
@@ -262,11 +239,11 @@ function ph_wait_cond(cond, timeout, error_description) {
         // https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
         let stepTimer = null;
         let last_err = null;
-        let tm = window.setTimeout( () => {
-                if (stepTimer)
-                    window.clearTimeout(stepTimer);
-                reject(last_err || new PhWaitCondTimeout(error_description));
-            }, timeout);
+        const tm = window.setTimeout(() => {
+            if (stepTimer)
+                window.clearTimeout(stepTimer);
+            reject(last_err || new PhWaitCondTimeout(error_description));
+        }, timeout);
         function step() {
             try {
                 if (cond()) {
@@ -286,17 +263,17 @@ function ph_wait_cond(cond, timeout, error_description) {
 function currentFrameAbsolutePosition() {
     let currentWindow = window;
     let currentParentWindow;
-    let positions = [];
+    const positions = [];
     let rect;
 
     while (currentWindow !== window.top) {
         currentParentWindow = currentWindow.parent;
         for (let idx = 0; idx < currentParentWindow.frames.length; idx++)
             if (currentParentWindow.frames[idx] === currentWindow) {
-                for (let frameElement of currentParentWindow.document.getElementsByTagName('iframe')) {
+                for (const frameElement of currentParentWindow.document.getElementsByTagName('iframe')) {
                     if (frameElement.contentWindow === currentWindow) {
                         rect = frameElement.getBoundingClientRect();
-                        positions.push({x: rect.x, y: rect.y});
+                        positions.push({ x: rect.x, y: rect.y });
                     }
                 }
                 currentWindow = currentParentWindow;
@@ -320,8 +297,8 @@ function flatten(array_of_arrays) {
 }
 
 function ph_selector_clips(sels) {
-    var f = currentFrameAbsolutePosition();
-    var elts = flatten(sels.map(ph_select))
+    const f = currentFrameAbsolutePosition();
+    const elts = flatten(sels.map(ph_select));
     return elts.map(e => {
         const r = e.getBoundingClientRect();
         return { x: r.x + f.x, y: r.y + f.y, width: r.width, height: r.height, scale: 1 };
@@ -334,5 +311,5 @@ function ph_element_clip(sel) {
 }
 
 function ph_count_animations(sel) {
-    return ph_find(sel).getAnimations({subtree:true}).length;
+    return ph_find(sel).getAnimations({ subtree:true }).length;
 }

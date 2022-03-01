@@ -379,7 +379,7 @@ CDP(options)
 
                             // run the command
                             seq = ++cur_cmd_seq;
-                            eval(command).then(reply => {
+                            eval(command).then(reply => { // eslint-disable-line no-eval
                                 currentExecId = null;
                                 if (unhandledExceptions.length === 0) {
                                     success(seq, reply);

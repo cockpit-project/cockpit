@@ -71,7 +71,7 @@ class TestSelinux(MachineCase):
         m = self.machine
 
         # fix audit events first
-        self.machine.execute(script=FIX_AUDITD)
+        self.machine.execute(FIX_AUDITD)
 
         # Do some local modifications
         m.execute("semanage fcontext --add -t samba_share_t /var/tmp/")
@@ -113,7 +113,7 @@ class TestSelinux(MachineCase):
         # trigger an sebool alert
         # this triggers two solutions -- the preferred sebool module, which can be applied automatically,
         # and the fallback "report a bug" ausearch one, which cannot be applied automatically
-        self.machine.execute(script=SELINUX_SEBOOL_ALERT_SCRIPT)
+        self.machine.execute(SELINUX_SEBOOL_ALERT_SCRIPT)
 
         row_selector = "tbody:contains('ls from read access on the directory')"
 
@@ -158,7 +158,7 @@ class TestSelinux(MachineCase):
 
         #########################################################
         # trigger a fixable restorecon alert
-        self.machine.execute(script=SELINUX_RESTORECON_ALERT_SCRIPT)
+        self.machine.execute(SELINUX_RESTORECON_ALERT_SCRIPT)
 
         row_selector = "tbody:contains('read access on the file /root/.ssh/authorized_keys')"
 

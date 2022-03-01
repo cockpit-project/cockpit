@@ -1214,7 +1214,7 @@ class TestUpdatesSubscriptions(PackageCase):
         self.sed_file("s/insecure = 0/insecure = 1/g", "/etc/rhsm/rhsm.conf")
 
         # Wait for the web service to be accessible
-        m.execute(script=WAIT_SCRIPT % {"addr": "10.111.112.100"})
+        m.execute(WAIT_SCRIPT % {"addr": "10.111.112.100"})
         self.update_icon = "#page_status_notification_updates svg"
         self.update_text = "#page_status_notification_updates"
         self.update_text_action = "#page_status_notification_updates a"

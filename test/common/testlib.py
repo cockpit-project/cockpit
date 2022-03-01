@@ -774,7 +774,7 @@ class Browser:
         action = ignore and "continue" or "cancel"
         if opts.trace:
             print("-> Setting SSL certificate error policy to %s" % action)
-        self.cdp.command("new Promise((resolve, _) => { ssl_bad_certificate_action = '%s'; resolve() })" % action)
+        self.cdp.command(f"setSSLBadCertificateAction('{action}')")
 
     def grant_permissions(self, *args):
         """Grant permissions to the browser"""

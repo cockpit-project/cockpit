@@ -243,7 +243,16 @@ function getFrameExecId(frame) {
 
 // secure by default; tests can override to "continue"
 // https://chromedevtools.github.io/devtools-protocol/1-3/Security/#type-CertificateErrorAction
-var ssl_bad_certificate_action = "cancel";
+let ssl_bad_certificate_action = "cancel";
+
+/**
+ * Change what happens when the browser opens a page with an invalid SSL certificate.
+ * Defaults to "cancel", can be set to "continue".
+ */
+function setSSLBadCertificateAction(action) { // eslint-disable-line no-unused-vars
+    ssl_bad_certificate_action = action;
+    return Promise.resolve();
+}
 
 function setupSSLCertHandling(client) {
     client.Security.enable();

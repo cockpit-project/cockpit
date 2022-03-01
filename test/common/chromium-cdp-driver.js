@@ -314,7 +314,7 @@ CDP.New(options)
                                         const command = input_buf.slice(0, i);
 
                                         // run the command
-                                        eval(command).then(reply => {
+                                        eval(command).then(reply => { // eslint-disable-line no-eval
                                             if (unhandledExceptions.length === 0) {
                                                 success(reply);
                                             } else {

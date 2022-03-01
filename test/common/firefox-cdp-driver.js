@@ -145,7 +145,7 @@ function setupLogging(client) {
         if (msg.stackTrace !== undefined &&
             typeof text === "string" &&
             text.indexOf("Error: ") !== -1) {
-            trace = text.split(": ", 1);
+            const trace = text.split(": ", 1);
             processException({
                 exceptionDetails: {
                     exception: {
@@ -320,7 +320,7 @@ process.stdin.setEncoding('utf8');
 if (process.env.TEST_CDP_DEBUG)
     enable_debug = true;
 
-options = { };
+const options = { };
 if (process.argv.length >= 3) {
     options.port = parseInt(process.argv[2]);
     if (!options.port) {

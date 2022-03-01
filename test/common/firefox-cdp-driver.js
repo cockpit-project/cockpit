@@ -31,7 +31,6 @@
 const CDP = require('chrome-remote-interface');
 
 let enable_debug = false;
-let the_client = null;
 
 function debug(msg) {
     if (enable_debug)
@@ -195,7 +194,7 @@ function resolveLogPromise() {
  * Only one such promise can be active at a given time. Once the promise is
  * resolved, this function can be called again to wait for further messages.
  */
-function waitLog() {
+function waitLog() { // eslint-disable-line no-unused-vars
     console.assert(logPromiseResolver === undefined);
 
     return new Promise((resolve, reject) => {
@@ -295,7 +294,7 @@ function setupLocalFunctions(client) {
 }
 
 // helper functions for testlib.py which are too unwieldy to be poked in from Python
-function getFrameExecId(frame) {
+function getFrameExecId(frame) { // eslint-disable-line no-unused-vars
     if (frame === null)
         frame = "cockpit1";
     const frameId = frameNameToFrameId[frame];
@@ -334,7 +333,7 @@ if (process.argv.length >= 3) {
 // thus save all scripts in array and on each new context just execute these
 // scripts in them
 // https://bugzilla.mozilla.org/show_bug.cgi?id=1549465
-function addScriptToEvaluateOnNewDocument(script) {
+function addScriptToEvaluateOnNewDocument(script) { // eslint-disable-line no-unused-vars
     return new Promise((resolve, reject) => {
         scriptsOnNewContext.push(script.source);
         resolve();
@@ -358,7 +357,6 @@ function addScriptToEvaluateOnNewDocument(script) {
 // should be fine
 CDP(options)
         .then(client => {
-            the_client = client;
             setupLogging(client);
             setupFrameTracking(client);
             setupLocalFunctions(client);

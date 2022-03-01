@@ -157,7 +157,7 @@ function resolveLogPromise() {
  * Only one such promise can be active at a given time. Once the promise is
  * resolved, this function can be called again to wait for further messages.
  */
-function waitLog() {
+function waitLog() { // eslint-disable-line no-unused-vars
     console.assert(logPromiseResolver === undefined);
 
     return new Promise((resolve, reject) => {
@@ -225,7 +225,7 @@ function setupLocalFunctions(client) {
 }
 
 // helper functions for testlib.py which are too unwieldy to be poked in from Python
-function getFrameExecId(frame) {
+function getFrameExecId(frame) { // eslint-disable-line no-unused-vars
     if (frame === null)
         frame = "cockpit1";
     const frameId = frameNameToFrameId[frame];

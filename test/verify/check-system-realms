@@ -532,7 +532,7 @@ ExecStart=/bin/true
 
         # validate Kerberos setup for ws
         m.execute(f"echo {self.admin_password} | kinit -f {self.admin_user}@COCKPIT.LAN")
-        m.execute(script=WAIT_KRB_SCRIPT.format(f"{self.admin_user}@cockpit.lan"), timeout=300)
+        m.execute(WAIT_KRB_SCRIPT.format(f"{self.admin_user}@cockpit.lan"), timeout=300)
 
         # kerberos login should work
         output = m.execute(['curl', '-s', '--negotiate', '--delegation', 'always', '-u', ':', "-D", "-",
@@ -714,7 +714,7 @@ ipa-advise enable-admins-sudo | sh -ex
         persistent_ticket = m.execute(alice_klist_cmd)
 
         # enable sudo GSSAPI authentication
-        m.execute(script=r"""#!/bin/sh -eu
+        m.execute(r"""#!/bin/sh -eu
         sed -i '/\[domain\/cockpit.lan\]/ a pam_gssapi_services = sudo, sudo-i' /etc/sssd/sssd.conf
         sed -i '1 a auth sufficient pam_sss_gss.so' /etc/pam.d/sudo
         systemctl restart sssd
@@ -1020,8 +1020,8 @@ ExecStart=/bin/true
         if "ubuntu" in self.machine.image:
             # no nss-myhostname there
             self.machine.execute("echo '10.111.113.1 x0.cockpit.lan' >> /etc/hosts")
-        self.machine.execute(script=JOIN_SCRIPT % args, timeout=1800)
-        self.machine.execute(script=WAIT_KRB_SCRIPT.format("admin"), timeout=300)
+        self.machine.execute(JOIN_SCRIPT % args, timeout=1800)
+        self.machine.execute(WAIT_KRB_SCRIPT.format("admin"), timeout=300)
 
     @skipBrowser("Firefox cannot work with cookies", "firefox")
     def testNegotiate(self):

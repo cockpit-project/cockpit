@@ -1,3 +1,5 @@
+/* eslint no-unused-vars: 0 */
+
 /*
  * These are routines used by our testing code.
  *
@@ -7,15 +9,15 @@
 
 function ph_select(sel) {
     if (!window.Sizzle)
-        throw "Sizzle was not properly loaded";
+        throw new Error("Sizzle was not properly loaded");
     return window.Sizzle(sel);
 }
 
 function ph_only(els, sel) {
     if (els.length === 0)
-        throw sel + " not found";
+        throw new Error(sel + " not found");
     if (els.length > 1)
-        throw sel + " is ambiguous";
+        throw new Error(sel + " is ambiguous");
     return els[0];
 }
 
@@ -36,14 +38,14 @@ function ph_count_check(sel, expected_num) {
 function ph_val (sel) {
     const el = ph_find(sel);
     if (el.value === undefined)
-        throw sel + " does not have a value";
+        throw new Error(sel + " does not have a value");
     return el.value;
 }
 
 function ph_set_val (sel, val) {
     const el = ph_find(sel);
     if (el.value === undefined)
-        throw sel + " does not have a value";
+        throw new Error(sel + " does not have a value");
     el.value = val;
     const ev = new Event("change", { bubbles: true, cancelable: false });
     el.dispatchEvent(ev);
@@ -57,7 +59,7 @@ function ph_collected_text_is (sel, val) {
     const els = ph_select(sel);
     const rest = els.map(el => {
         if (el.textContent === undefined)
-            throw sel + " can not have text";
+            throw new Error(sel + " can not have text");
         return el.textContent.replace(/\xa0/g, " ");
     }).join("");
     return rest === val;
@@ -66,7 +68,7 @@ function ph_collected_text_is (sel, val) {
 function ph_text (sel) {
     const el = ph_find(sel);
     if (el.textContent === undefined)
-        throw sel + " can not have text";
+        throw new Error(sel + " can not have text");
     // 0xa0 is a non-breakable space, which is a rendering detail of Chromium
     // and awkward to handle in tests; turn it into normal spaces
     return el.textContent.replace(/\xa0/g, " ");
@@ -101,7 +103,7 @@ function ph_mouse(sel, type, x, y, btn, ctrlKey, shiftKey, altKey, metaKey) {
 
     /* The element has to be visible, and not collapsed */
     if (el.offsetWidth <= 0 && el.offsetHeight <= 0 && el.tagName != 'svg')
-        throw sel + " is not visible";
+        throw new Error(sel + " is not visible");
 
     /* The event has to actually work */
     let processed = false;
@@ -148,13 +150,13 @@ function ph_mouse(sel, type, x, y, btn, ctrlKey, shiftKey, altKey, metaKey) {
 
     /* It really had to work */
     if (!processed)
-        throw sel + " is disabled or somehow doesn't process events";
+        throw new Error(sel + " is disabled or somehow doesn't process events");
 }
 
 function ph_get_checked (sel) {
     const el = ph_find(sel);
     if (el.checked === undefined)
-        throw sel + " is not checkable";
+        throw new Error(sel + " is not checkable");
 
     return el.checked;
 }
@@ -162,7 +164,7 @@ function ph_get_checked (sel) {
 function ph_set_checked (sel, val) {
     const el = ph_find(sel);
     if (el.checked === undefined)
-        throw sel + " is not checkable";
+        throw new Error(sel + " is not checkable");
 
     if (el.checked != val)
         ph_mouse(sel, "click", 0, 0, 0);
@@ -195,7 +197,7 @@ function ph_go(href) {
         window.location.hash = href;
     } else {
         if (window.name.indexOf("cockpit1") !== 0)
-            throw "ph_go() called in non cockpit window";
+            throw new Error("ph_go() called in non cockpit window");
         const control = {
             command: "jump",
             location: href

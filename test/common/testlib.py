@@ -43,6 +43,8 @@ import testvm
 import cdp
 from fmf_metadata.base import set_obj_attribute, is_test_function, generic_metadata_setter
 
+from lcov import write_lcov
+
 try:
     from PIL import Image
     import io
@@ -93,6 +95,7 @@ opts.revision = None
 opts.address = None
 opts.jobs = 1
 opts.fetch = True
+opts.coverage = False
 
 # Browser layouts
 #
@@ -154,7 +157,7 @@ def attach(filename, move=False):
 
 
 class Browser:
-    def __init__(self, address, label, machine, pixels_label=None, port=None):
+    def __init__(self, address, label, machine, pixels_label=None, coverage_label=None, port=None):
         if ":" in address:
             self.address, _, self.port = address.rpartition(":")
         else:
@@ -166,10 +169,12 @@ class Browser:
         self.label = label
         self.pixels_label = pixels_label
         self.used_pixel_references = set()
+        self.coverage_label = coverage_label
         self.machine = machine
         path = os.path.dirname(__file__)
         self.cdp = cdp.CDP("C.utf8", verbose=opts.trace, trace=opts.trace,
-                           inject_helpers=[os.path.join(path, "test-functions.js"), os.path.join(path, "sizzle.js")])
+                           inject_helpers=[os.path.join(path, "test-functions.js"), os.path.join(path, "sizzle.js")],
+                           start_profile=coverage_label is not None)
         self.password = "foobar"
         self.timeout_factor = int(os.getenv("TEST_TIMEOUT_FACTOR", "1"))
         self.failed_pixel_tests = 0
@@ -1030,6 +1035,11 @@ class Browser:
     def kill(self):
         self.cdp.kill()
 
+    def write_coverage_data(self):
+        if self.coverage_label and self.cdp and self.cdp.valid:
+            coverage = self.cdp.invoke("Profiler.takePreciseCoverage")
+            write_lcov(BASE_DIR, coverage['result'], self.coverage_label)
+
 
 class _DebugOutcome(unittest.case._Outcome):
     '''Run debug actions after test methods
@@ -1135,7 +1145,7 @@ class MachineCase(unittest.TestCase):
                 self.addCleanup(machine.kill)
         return machine
 
-    def new_browser(self, machine=None):
+    def new_browser(self, machine=None, coverage=False):
         if machine is None:
             machine = self.machine
         label = self.label() + "-" + machine.label
@@ -1144,7 +1154,9 @@ class MachineCase(unittest.TestCase):
             reference_image = fp.read().strip()
         if machine.image == reference_image and os.environ.get("TEST_BROWSER", "chromium") == "chromium" and not self.is_devel_build():
             pixels_label = self.label()
-        browser = Browser(machine.web_address, label=label, pixels_label=pixels_label, port=machine.web_port, machine=self)
+        browser = Browser(machine.web_address,
+                          label=label, pixels_label=pixels_label, coverage_label=self.label() if coverage else None,
+                          port=machine.web_port, machine=self)
         self.addCleanup(browser.kill)
         return browser
 
@@ -1261,7 +1273,7 @@ class MachineCase(unittest.TestCase):
 
         if self.machine:
             self.journal_start = self.machine.journal_cursor()
-            self.browser = self.new_browser()
+            self.browser = self.new_browser(coverage=opts.coverage)
             # fail tests on criticals
             self.machine.write("/etc/cockpit/cockpit.conf", "[Log]\nFatal = criticals\n")
             if self.is_nondestructive():
@@ -1370,6 +1382,8 @@ class MachineCase(unittest.TestCase):
         self.addCleanup(terminate_sessions)
 
     def tearDown(self):
+        if self.browser:
+            self.browser.write_coverage_data()
         if self.machine.ssh_reachable:
             self.check_journal_messages()
             if self.checkSuccess():
@@ -2033,6 +2047,8 @@ def arg_parser(enable_sit=True):
                         help="Don't go online to download images or data")
     parser.add_argument('--enable-network', dest='enable_network', action='store_true',
                         help="Enable network access for tests")
+    parser.add_argument('--coverage', action='store_true',
+                        help="Collect code coverage data")
     parser.add_argument("-l", "--list", action="store_true", help="Print the list of tests that would be executed")
     # TMT compatibility, pass testnames as whitespace separated list
     parser.add_argument('tests', nargs='*', default=os.getenv("TEST_NAMES").split() if os.getenv("TEST_NAMES") else [])

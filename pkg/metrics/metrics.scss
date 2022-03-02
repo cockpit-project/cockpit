@@ -127,6 +127,11 @@
       // PF4 uses end; it probably should arguably use last baseline.
       // (perhaps end may work better for non-text content?)
       align-items: last baseline;
+
+      + .pf-c-progress {
+          // Add a tiny gap for sandwiched usage bars (as in CPU)
+          padding-top: 1px;
+      }
   }
 
   // Only underline the description

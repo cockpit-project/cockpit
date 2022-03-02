@@ -151,7 +151,8 @@ class MDRaidSidebar extends React.Component {
                                    block={block}
                                    detail={states}
                                    actions={action}
-                                   key={block.path} />);
+                                   key={block.path} />
+            );
         }
 
         let add_excuse = false;
@@ -165,10 +166,7 @@ class MDRaidSidebar extends React.Component {
                     <PlusIcon />
                 </StorageButton>);
 
-        return (
-            <SidePanel title={_("Disks")} actions={action}>
-                { members.map(render_member) }
-            </SidePanel>);
+        return <SidePanel title={_("Disks")} actions={action}>{ members.map(render_member) }</SidePanel>;
     }
 }
 
@@ -371,6 +369,7 @@ export class MDRaidDetails extends React.Component {
         return <StdDetailsLayout client={this.props.client} alert={degraded_message}
                                  header={ header }
                                  sidebar={ sidebar }
-                                 content={ content } />;
+                                 content={ content }
+        />;
     }
 }

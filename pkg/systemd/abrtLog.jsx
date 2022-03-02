@@ -106,7 +106,8 @@ function render_dso_list(val) {
                 variant="compact"
                 showHeader={false}
                 columns={new Array(rows[0].split(" ").length)}
-                rows={rows.map((row, i) => { return { columns: row.split(" ") } })} />;
+                rows={rows.map((row, i) => { return { columns: row.split(" ") } })}
+    />;
 }
 
 function render_m(val) {
@@ -118,7 +119,8 @@ function render_m(val) {
                 variant="compact"
                 showHeader={false}
                 columns={new Array(rows[0].split(" ").length)}
-                rows={rows.map((row, i) => { return { columns: row.split(" ") } })} />;
+                rows={rows.map((row, i) => { return { columns: row.split(" ") } })}
+    />;
 }
 
 function render_cgroups(val) {
@@ -130,7 +132,8 @@ function render_cgroups(val) {
                 variant="compact"
                 showHeader={false}
                 columns={columns}
-                rows={rows.map((row, i) => { return { columns: row.split(":") } })} />;
+                rows={rows.map((row, i) => { return { columns: row.split(":") } })}
+    />;
 }
 
 function render_limits(val) {
@@ -141,7 +144,8 @@ function render_limits(val) {
                 gridBreakPoint='grid-lg'
                 variant="compact"
                 columns={columns.split(":")}
-                rows={rows.map((row, i) => { return { columns: row.split(":") } })} />;
+                rows={rows.map((row, i) => { return { columns: row.split(":") } })}
+    />;
 }
 
 function render_open_fds(val) {

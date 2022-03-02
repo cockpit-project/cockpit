@@ -1281,7 +1281,8 @@ export function is_managed(dev) {
 function render_interface_link(iface) {
     return <Button variant='link' tabindex="0"
                    isInline
-                   onClick={() => cockpit.location.go([iface])}>{iface}</Button>;
+                   onClick={() => cockpit.location.go([iface])}>{iface}
+    </Button>;
 }
 
 export function device_state_text(dev) {

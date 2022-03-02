@@ -76,7 +76,8 @@ export class PrivilegedButton extends React.Component {
                         isInline isDisabled={ !this.state.allowed } aria-label={ this.props.ariaLabel }>
                     { this.props.children }
                 </Button>
-            </Privileged>);
+            </Privileged>
+        );
     }
 }
 

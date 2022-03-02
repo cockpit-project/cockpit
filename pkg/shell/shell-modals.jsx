@@ -83,7 +83,8 @@ export class AboutCockpitModal extends React.Component {
                         )}
                     </TextList>
                 </TextContent>
-            </AboutModal>);
+            </AboutModal>
+        );
     }
 }
 
@@ -156,7 +157,8 @@ export class LangModal extends React.Component {
                         </MenuContent>
                     </Menu>
                 </Flex>
-            </Modal>);
+            </Modal>
+        );
     }
 }
 
@@ -169,7 +171,8 @@ export function TimeoutModal(props) {
                footer={<Button variant='primary' onClick={props.onClose}>{_("Continue session")}</Button>}
         >
             {props.text}
-        </Modal>);
+        </Modal>
+    );
 }
 
 export function OopsModal(props) {
@@ -186,5 +189,6 @@ export function OopsModal(props) {
                 <b>{_("Ctrl-Shift-J")}</b>
                 {" " + _("in most browsers") + ")."}
             </span>
-        </Modal>);
+        </Modal>
+    );
 }

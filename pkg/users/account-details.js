@@ -382,5 +382,6 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                     <AccountLogs name={account.name} />
                 </Gallery>
             </PageSection>
-        </Page>);
+        </Page>
+    );
 }

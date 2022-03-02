@@ -122,7 +122,8 @@ class VGroupSidebar extends React.Component {
                                     actions={<StorageButton aria-label={_("Remove")} onClick={remove_action} excuse={remove_excuse}>
                                         <MinusIcon />
                                     </StorageButton>}
-                                    key={pvol.path} />);
+                                    key={pvol.path} />
+            );
         }
 
         return (
@@ -249,9 +250,6 @@ export class VGroupDetails extends React.Component {
 
         const content = <VGroup client={this.props.client} vgroup={vgroup} />;
 
-        return <StdDetailsLayout client={this.props.client}
-                                 header={ header }
-                                 sidebar={ sidebar }
-                                 content={ content } />;
+        return <StdDetailsLayout client={this.props.client} header={ header } sidebar={ sidebar } content={ content } />;
     }
 }

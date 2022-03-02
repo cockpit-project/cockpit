@@ -363,7 +363,8 @@ export class AutoUpdates extends React.Component {
                         variant="info"
                         className="autoupdates-card-error"
                         title={_("Failed to parse unit files for dnf-automatic.timer or dnf-automatic-install.timer. Please remove custom overrides to configure automatic updates.")} />
-                </div>);
+                </div>
+            );
 
         return (<>
             <div id="autoupdates-settings">

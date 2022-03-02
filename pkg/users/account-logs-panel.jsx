@@ -88,5 +88,6 @@ export function AccountLogs({ name }) {
                         columns: [timeformat.dateTime(line.started), timeformat.dateTime(line.ended), line.from]
                     }))} />
             </CardBody>
-        </Card>);
+        </Card>
+    );
 }

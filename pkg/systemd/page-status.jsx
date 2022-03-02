@@ -105,7 +105,8 @@ export class PageStatusNotifications extends React.Component {
                             {icon}
                             {action}
                         </Flex>
-                    </li>);
+                    </li>
+                );
             } else {
                 return null;
             }

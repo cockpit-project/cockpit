@@ -556,7 +556,8 @@ function ChangeSystimeBody({ state, errors, change }) {
                     </Validated>
                 }
             </FormGroup>
-        </Form>);
+        </Form>
+    );
 }
 
 function has_errors(errors) {

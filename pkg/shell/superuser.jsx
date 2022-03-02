@@ -113,7 +113,8 @@ class UnlockDialog extends React.Component {
                    titleIconVariant={title_icon}
                    footer={footer}>
                 {body}
-            </Modal>);
+            </Modal>
+        );
     }
 }
 
@@ -169,7 +170,8 @@ class LockDialog extends React.Component {
                     <p>{_("Limited access mode restricts administrative privileges. Some parts of the web console will have reduced functionality.")}</p>
                     <p>{_("Your browser will remember your access level across sessions.")}</p>
                 </>
-            </Modal>);
+            </Modal>
+        );
     }
 }
 
@@ -345,7 +347,8 @@ export class SuperuserDialogs extends React.Component {
                             host={this.props.host}
                             show={this.state.show_lock_dialog}
                             onClose={() => this.setState({ show_lock_dialog: false })} />
-            </>);
+            </>
+        );
     }
 }
 
@@ -358,7 +361,8 @@ export class SuperuserIndicator extends React.Component {
                         {!unlocked && <LockIcon />}
                         {unlocked ? _("Administrative access") : _("Limited access")}
                     </span>
-                </Button>);
+                </Button>
+            );
         }
 
         return <SuperuserDialogs proxy={this.props.proxy} host={this.props.host} create_trigger={create_trigger} />;

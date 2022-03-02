@@ -145,6 +145,7 @@ export class SidePanelBlockRow extends React.Component {
                              devname={block_name(backing || block)}
                              detail={detail}
                              go={() => { cockpit.location.go(parts.location) }}
-                             actions={actions} />;
+                             actions={actions}
+        />;
     }
 }

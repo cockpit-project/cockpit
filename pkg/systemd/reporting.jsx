@@ -157,7 +157,8 @@ class FAFWorkflowRow extends React.Component {
                             onCancelButtonClick={this._onCancelButtonClick}
                             onReportButtonClick={this._onReportButtonClick}
                             problemState={this.state.problemState}
-                            reportLinks={this.state.reportLinks} />;
+                            reportLinks={this.state.reportLinks}
+        />;
     }
 }
 
@@ -340,7 +341,8 @@ class BusWorkflowRow extends React.Component {
                             onCancelButtonClick={this._onCancelButtonClick}
                             onReportButtonClick={this._onReportButtonClick}
                             problemState={this.state.problemState}
-                            reportLinks={this.state.reportLinks} />;
+                            reportLinks={this.state.reportLinks}
+        />;
     }
 
     updateStatusFromBus() {

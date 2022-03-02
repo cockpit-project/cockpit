@@ -162,7 +162,8 @@ function PasswordExpirationDialogBody({ state, errors, change }) {
                     {errors.days}
                 </FormHelperText>}
             </FormGroup>
-        </Form>);
+        </Form>
+    );
 }
 
 export function password_expiration_dialog(account, expire_days) {

@@ -596,7 +596,8 @@ class CurrentMetrics extends React.Component {
                                         content={ cockpit.format(_("$0 total"), cockpit.format_bytes(info.size, 1000)) }
                                         position="bottom">
                                         {progress}
-                                    </Tooltip>);
+                                    </Tooltip>
+                                );
                             })
                         }
                         </div>
@@ -621,7 +622,8 @@ class CurrentMetrics extends React.Component {
                         </Table>
                     </CardBody>
                 </Card>
-            </Gallery>);
+            </Gallery>
+        );
     }
 }
 
@@ -1327,13 +1329,15 @@ class MetricsHistory extends React.Component {
             return <EmptyStatePanel
                         icon={ExclamationCircleIcon}
                         title={_("You need to relogin to be able to see metrics history")}
-                        action={<Button onClick={() => cockpit.logout(true)}>{_("Log out")}</Button>} />;
+                        action={<Button onClick={() => cockpit.logout(true)}>{_("Log out")}</Button>}
+            />;
 
         if (cockpit.manifests && !cockpit.manifests.pcp)
             return <EmptyStatePanel
                         icon={ExclamationCircleIcon}
                         title={_("Package cockpit-pcp is missing for metrics history")}
-                        action={this.state.packagekitExists ? <Button onClick={() => this.handleInstall()}>{_("Install cockpit-pcp")}</Button> : null} />;
+                        action={this.state.packagekitExists ? <Button onClick={() => this.handleInstall()}>{_("Install cockpit-pcp")}</Button> : null}
+            />;
 
         if (!this.state.metricsAvailable) {
             let action;
@@ -1357,14 +1361,16 @@ class MetricsHistory extends React.Component {
                         icon={ExclamationCircleIcon}
                         title={_("Metrics history could not be loaded")}
                         paragraph={paragraph}
-                        action={action} />;
+                        action={action}
+            />;
         }
 
         if (this.state.error)
             return <EmptyStatePanel
                         icon={ExclamationCircleIcon}
                         title={_("Error has occurred")}
-                        paragraph={this.state.error} />;
+                        paragraph={this.state.error}
+            />;
 
         let nodata_alert = null;
         if (!this.state.loading && this.state.hours.length > 0 && this.oldest_timestamp < this.state.hours[this.state.hours.length - 1]) {

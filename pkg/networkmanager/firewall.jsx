@@ -919,7 +919,8 @@ export class Firewall extends React.Component {
         if (!this.state.firewall.installed) {
             return <EmptyStatePanel title={ _("Firewall is not available") }
                                     paragraph={ cockpit.format(_("Please install the $0 package"), "firewalld") }
-                                    icon={ ExclamationCircleIcon } />;
+                                    icon={ ExclamationCircleIcon }
+            />;
         }
 
         const addZoneAction = (

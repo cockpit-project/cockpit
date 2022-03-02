@@ -252,7 +252,8 @@ export const ZoomControls = ({ plot_state }) => {
                               zoom_state.set_range(seconds);
                           }}>
                 {title}
-            </DropdownItem>);
+            </DropdownItem>
+        );
     }
 
     if (!zoom_state)
@@ -480,7 +481,8 @@ export const SvgPlot = ({ title, config, plot_state, plot_id, className }) => {
                 { selection &&
                 <rect x={selection.left} y={m_top} width={selection.right - selection.left} height={h - m_top - m_bottom}
                         className="ct-plot-selection" /> }
-            </svg>);
+            </svg>
+        );
     }
 
     return (

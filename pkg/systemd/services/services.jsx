@@ -749,7 +749,8 @@ class ServicesPageBody extends React.Component {
                                         onClick={() => cockpit.jump(path, cockpit.transport.host)}>
                                     {_("View all services")}
                                 </Button>
-                            } />;
+                            }
+                />;
             }
 
             const unit = this.state.unit_by_path[unit_path];
@@ -758,7 +759,8 @@ class ServicesPageBody extends React.Component {
                             key={unit_id}
                             loadingUnits={this.state.loadingUnits}
                             getUnitByPath={this.getUnitByPath}
-                            unit={unit} />;
+                            unit={unit}
+            />;
         }
 
         const fileStateDropdownOptions = [

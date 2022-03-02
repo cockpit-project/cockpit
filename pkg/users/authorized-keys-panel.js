@@ -158,5 +158,6 @@ export function AuthorizedKeys({ name, home, allow_mods }) {
                     { key_items }
                 </ul>
             </div>
-        </div>);
+        </div>
+    );
 }

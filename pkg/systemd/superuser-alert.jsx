@@ -57,6 +57,7 @@ export class SuperuserAlert extends React.Component {
                        customIcon={<LockIcon />}
                        actionClose={actions}
                        title={_("Web console is running in limited access mode.")} />
-            </>);
+            </>
+        );
     }
 }

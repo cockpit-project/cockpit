@@ -549,7 +549,8 @@ class ApplyUpdates extends React.Component {
                                     headingLevel="h5"
                                     titleSize="4xl"
                                     secondary={cancelButton}
-                                    loading />;
+                                    loading
+            />;
         }
 
         const lastAction = this.state.actions[this.state.actions.length - 1];
@@ -1307,7 +1308,8 @@ class OsUpdates extends React.Component {
                 paragraph={ _("To get software updates, this system needs to be registered with Red Hat, either using the Red Hat Customer Portal or a local subscription server.") }
                 icon={ExclamationCircleIcon}
                 action={ _("Register…") }
-                onAction={ () => cockpit.jump("/subscriptions", cockpit.transport.host) } />;
+                onAction={ () => cockpit.jump("/subscriptions", cockpit.transport.host) }
+            />;
         }
 
         switch (this.state.state) {
@@ -1329,7 +1331,8 @@ class OsUpdates extends React.Component {
                 return <EmptyStatePanel loading title={ _("Checking software status")}
                                         headingLevel="h5"
                                         titleSize="4xl"
-                                        paragraph={STATE_HEADINGS[this.state.state]} />;
+                                        paragraph={STATE_HEADINGS[this.state.state]}
+                />;
 
         case "available":
         {
@@ -1426,7 +1429,8 @@ class OsUpdates extends React.Component {
             page_status.set_own(null);
             return <ApplyUpdates transaction={this.state.applyTransaction}
                                  onCancel={ () => PK.call(this.state.applyTransaction, PK.transactionInterface, "Cancel", []) }
-                                 allowCancel={this.state.allowCancel} />;
+                                 allowCancel={this.state.allowCancel}
+            />;
 
         case "updateSuccess": {
             let warningTitle;
@@ -1473,7 +1477,8 @@ class OsUpdates extends React.Component {
                             onValueChanged={delta => this.setState(delta)}
                             loadUpdates={this.loadUpdates} />
                     }
-                </>);
+                </>
+            );
         }
 
         case "restart":
@@ -1481,7 +1486,8 @@ class OsUpdates extends React.Component {
             return <EmptyStatePanel loading title={ _("Restarting") }
                                     headingLevel="h5"
                                     titleSize="4xl"
-                                    paragraph={ _("Your server will close the connection soon. You can reconnect after it has restarted.") } />;
+                                    paragraph={ _("Your server will close the connection soon. You can reconnect after it has restarted.") }
+            />;
 
         case "uptodate":
         {

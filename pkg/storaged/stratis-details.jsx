@@ -208,7 +208,8 @@ const StratisPoolSidebar = ({ client, pool }) => {
             <SidePanelBlockRow client={client}
                                    block={block}
                                    detail={desc}
-                                   key={blockdev.path} />);
+                                   key={blockdev.path} />
+        );
     }
 
     const actions = (
@@ -745,10 +746,7 @@ const StratisLockedPoolSidebar = ({ client, uuid }) => {
         if (!block)
             return null;
 
-        return (
-            <SidePanelBlockRow client={client}
-                               block={block}
-                               key={dev} />);
+        return <SidePanelBlockRow client={client} block={block} key={dev} />;
     }
 
     return (

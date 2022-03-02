@@ -344,9 +344,6 @@ export class VDODetails extends React.Component {
 
         const content = <Block client={client} block={block} allow_partitions={false} />;
 
-        return <StdDetailsLayout client={this.props.client}
-                                 alert={alert}
-                                 header={header}
-                                 content={content} />;
+        return <StdDetailsLayout client={this.props.client} alert={alert} header={header} content={content} />;
     }
 }

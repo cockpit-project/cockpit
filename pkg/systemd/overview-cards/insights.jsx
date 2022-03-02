@@ -127,7 +127,8 @@ export class InsightsStatus extends React.Component {
                                 {_("Not connected to Insights")}
                             </Button>
                         </Flex>
-                    </li>);
+                    </li>
+                );
             } else
                 return null;
         }
@@ -192,6 +193,7 @@ export class InsightsStatus extends React.Component {
                         {_("Insights: ")} {text}
                     </Button>
                 </Flex>
-            </li>);
+            </li>
+        );
     }
 }

@@ -43,8 +43,10 @@ function AccountsPage() {
     if (path.length === 0)
         return <AccountsList accounts={accounts} current_user={current_user_info.name} />;
     else
-        return <AccountDetails accounts={accounts} groups={groups} shadow={shadow}
-                               current_user={current_user_info.name} user={path[0]} />;
+        return (
+            <AccountDetails accounts={accounts} groups={groups} shadow={shadow}
+                            current_user={current_user_info.name} user={path[0]} />
+        );
 }
 
 function init() {

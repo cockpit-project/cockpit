@@ -635,7 +635,8 @@ export const NetworkInterfacePage = ({
                                      interfaces={interfaces}
                                      iface={iface}
                                      usage_monitor={usage_monitor}
-                                     privileged={privileged} />);
+                                     privileged={privileged} />
+        );
     }
 
     function createGhostConnectionSettings() {

@@ -84,5 +84,6 @@ export function AccountsList({ accounts, current_user }) {
                     { filtered_accounts.map(a => <AccountItem key={a.name} account={a} current={current_user == a.name} />) }
                 </Gallery>
             </PageSection>
-        </Page>);
+        </Page>
+    );
 }

@@ -205,7 +205,8 @@ class SystemInformationSshKeys extends React.Component {
                    </>}
             >
                 {body}
-            </Modal>);
+            </Modal>
+        );
     }
 }
 
@@ -313,6 +314,7 @@ class PageSystemInformationChangeHostname extends React.Component {
                         <TextInput id="sich-hostname" value={this.state.hostname} onChange={this.onHostnameChanged} />
                     </FormGroup>
                 </Form>
-            </Modal>);
+            </Modal>
+        );
     }
 }

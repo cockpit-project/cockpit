@@ -888,7 +888,7 @@
                     }
                 }
             } else if (xhr.status == 403) {
-                login_failure(decodeURIComponent(xhr.statusText) || _("Permission denied"));
+                login_failure(_(decodeURIComponent(xhr.statusText)) || _("Permission denied"));
             } else if (xhr.statusText) {
                 fatal(decodeURIComponent(xhr.statusText));
             } else {

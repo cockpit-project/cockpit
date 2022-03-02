@@ -12,21 +12,23 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-15 18:03+0000\n"
-"PO-Revision-Date: 2022-02-16 22:16+0000\n"
+"POT-Creation-Date: 2022-02-28 09:29+0000\n"
+"PO-Revision-Date: 2021-09-23 11:05+0000\n"
 "Last-Translator: Pavel Borecki <pavel.borecki@gmail.com>\n"
 "Language-Team: Czech <https://translate.fedoraproject.org/projects/cockpit/"
-"main/cs/>\n"
+"rhel-9-0/cs/>\n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2\n"
-"X-Generator: Weblate 4.10.1\n"
+"X-Generator: Weblate 4.8\n"
 
 #: pkg/storaged/content-views.jsx:501
+#, fuzzy
+#| msgid "Encrypted $0"
 msgid "$0 (encrypted)"
-msgstr "$0 (šifrované)"
+msgstr "Šifrované $0"
 
 #: pkg/metrics/metrics.jsx:419
 msgid "$0 CPU"
@@ -36,8 +38,10 @@ msgstr[1] "$0 procesory"
 msgstr[2] "$0 procesorů"
 
 #: pkg/lib/machine-info.js:248
+#, fuzzy
+#| msgid "$0 GiB total"
 msgid "$0 GiB"
-msgstr "$0 GiB"
+msgstr "$0 GiB celkem"
 
 #: pkg/metrics/metrics.jsx:442 pkg/metrics/metrics.jsx:519
 msgid "$0 GiB available"
@@ -48,23 +52,30 @@ msgid "$0 GiB total"
 msgstr "$0 GiB celkem"
 
 #: pkg/storaged/stratis-panel.jsx:58
+#, fuzzy
+#| msgid "$0 Storage pool"
+#| msgid_plural "$0 Storage pools"
 msgid "$0 Stratis pool"
-msgstr "$0 Stratis fond"
+msgstr "$0 fond úložiště"
 
 #: pkg/networkmanager/network-main.jsx:167
+#, fuzzy
+#| msgid "$0 active zone"
 msgid "$0 active zone"
 msgid_plural "$0 active zones"
 msgstr[0] "$0 aktivní zóna"
-msgstr[1] "$0 aktivní zóny"
-msgstr[2] "$0 aktivních zón"
+msgstr[1] "$0 aktivní zóna"
+msgstr[2] "$0 aktivní zóna"
 
 #: pkg/storaged/others-panel.jsx:42
 msgid "$0 block device"
 msgstr "$0 Blokové zařízení"
 
 #: pkg/storaged/stratis-details.jsx:201
+#, fuzzy
+#| msgid "Cache"
 msgid "$0 cache"
-msgstr "$0 mezipaměť"
+msgstr "Mezipaměť"
 
 #: pkg/storaged/mdraid-details.jsx:196
 msgid "$0 chunk size"
@@ -78,8 +89,11 @@ msgstr[1] "$0 kritické zásahy"
 msgstr[2] "$0 kritických zásahů"
 
 #: pkg/storaged/stratis-details.jsx:198
+#, fuzzy
+#| msgid "$0 day"
+#| msgid_plural "$0 days"
 msgid "$0 data"
-msgstr "$0 data"
+msgstr "$0 den"
 
 #: pkg/storaged/vdo-details.jsx:294
 msgid "$0 data + $1 overhead used of $2 ($3)"
@@ -116,7 +130,7 @@ msgstr "$0 Disky"
 msgid "$0 documentation"
 msgstr "Dokumentace k $0"
 
-#: pkg/static/login.js:389 pkg/static/login.js:893
+#: pkg/static/login.js:391 pkg/static/login.js:895
 msgid "$0 error"
 msgstr "$0 chyba"
 
@@ -129,16 +143,21 @@ msgid "$0 failed"
 msgstr "$0 se nezdařilo"
 
 #: pkg/systemd/overview-cards/lastLogin.jsx:102
+#, fuzzy
+#| msgid "VM $0 failed to pause"
 msgid "$0 failed login attempt"
 msgid_plural "$0 failed login attempts"
-msgstr[0] "$0 nepodařený pokus o přihlášení"
-msgstr[1] "$0 nepodařené pokusy o přihlášení"
-msgstr[2] "$0 nepodařených pokusů o přihlášení"
+msgstr[0] "Virt. stroj $0 se nezdařilo pozastavit"
+msgstr[1] "Virt. stroj $0 se nezdařilo pozastavit"
+msgstr[2] "Virt. stroj $0 se nezdařilo pozastavit"
 
 #: pkg/storaged/content-views.jsx:455
+#, fuzzy
+#| msgctxt "storage-id-desc"
+#| msgid "$0 file system"
 msgctxt "storage-id-desc"
 msgid "$0 filesystem"
-msgstr "$0 souborový systém"
+msgstr "$0 Souborový systém"
 
 #: pkg/storaged/lvol-tabs.jsx:190
 msgid "$0 filesystems can not be made larger."
@@ -176,15 +195,17 @@ msgstr[2] "$0 zásahů, včetně důležitého"
 #: pkg/storaged/mdraid-details.jsx:240 pkg/storaged/mdraid-details.jsx:295
 #: pkg/storaged/vdo-details.jsx:133 pkg/storaged/vdo-details.jsx:167
 #: pkg/storaged/stratis-details.jsx:246 pkg/storaged/stratis-details.jsx:545
+#, fuzzy
+#| msgid "$0 is in active use"
 msgid "$0 is in use"
-msgstr "$0 je používáno"
+msgstr "$0 je právě používáno"
 
 #: pkg/storaged/content-views.jsx:829
 #: pkg/lib/cockpit-components-install-dialog.jsx:158
 msgid "$0 is not available from any repository."
 msgstr "$0 není k dispozici z žádného z repozitářů."
 
-#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:715
+#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:717
 msgid "$0 key changed"
 msgstr "$0 klíč změněn"
 
@@ -221,8 +242,10 @@ msgstr[1] "$0 měsíce"
 msgstr[2] "$0 měsíců"
 
 #: pkg/storaged/stratis-details.jsx:204
+#, fuzzy
+#| msgid "unknown target"
 msgid "$0 of unknown tier"
-msgstr "$0 neznámé úrovně (tier)"
+msgstr "neznámý cíl"
 
 #: pkg/packagekit/history.jsx:86
 msgid "$0 package"
@@ -252,7 +275,7 @@ msgstr[0] "Je k dispozici $0 oprava zabezpečení"
 msgstr[1] "Jsou k dispozici $0 opravy zabezpečení"
 msgstr[2] "Je k dispozici $0 oprav zabezpečení"
 
-#: pkg/systemd/services/services.jsx:708
+#: pkg/systemd/services/services.jsx:716
 msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
 msgstr[0] "$0 služba zhavarovala"
@@ -553,12 +576,18 @@ msgid "9th"
 msgstr "9."
 
 #: pkg/shell/hosts_dialog.jsx:85
+#, fuzzy
+#| msgid ""
+#| "A compatible version of Cockpit is not installed on {{#strong}}{{host}}{{/"
+#| "strong}}."
 msgid "A compatible version of Cockpit is not installed on $0."
-msgstr "Na $0 není nainstalovaná kompatibilní verze Cockpit."
+msgstr ""
+"Na {{#strong}}{{host}}{{/strong}} není nainstalovaná kompatibilní verze "
+"Cockpit."
 
 #: pkg/storaged/stratis-details.jsx:356
 msgid "A filesystem with this name exists already in this pool."
-msgstr "Souborový systém s tímto názvem už v tomto fondu existuje."
+msgstr ""
 
 #: pkg/static/login.html:133
 msgid ""
@@ -597,7 +626,7 @@ msgstr[2] "Aby se uplatnily, aktualizované balíčky potřebují restart systé
 
 #: pkg/storaged/stratis-details.jsx:232
 msgid "A pool with this name exists already."
-msgstr "Fond s takovým názvem už existuje."
+msgstr ""
 
 #: pkg/packagekit/updates.jsx:1441
 msgid "A service needs to be restarted for the updates to take effect:"
@@ -635,7 +664,7 @@ msgstr "Chybí"
 msgid "Accept key and connect"
 msgstr "Přijmout klíč a připojit se"
 
-#: pkg/static/login.js:625
+#: pkg/static/login.js:627
 msgid "Accept key and log in"
 msgstr "Přijmout klíč a přihlásit se"
 
@@ -652,6 +681,8 @@ msgid "Accounts"
 msgstr "Účty"
 
 #: pkg/storaged/dialog.jsx:1130
+#, fuzzy
+#| msgid "Actions"
 msgid "Action"
 msgstr "Akce"
 
@@ -686,8 +717,8 @@ msgstr "Aktivní stránky"
 msgid "Active since "
 msgstr "Aktivní od "
 
-#: pkg/systemd/services/services.jsx:915 pkg/systemd/services/services.jsx:916
-#: pkg/systemd/services/services.jsx:923
+#: pkg/systemd/services/services.jsx:933 pkg/systemd/services/services.jsx:934
+#: pkg/systemd/services/services.jsx:941
 msgid "Active state"
 msgstr "Aktivní stav"
 
@@ -727,8 +758,10 @@ msgid "Add a new zone"
 msgstr "Přidat novou zónu"
 
 #: pkg/storaged/stratis-details.jsx:123
+#, fuzzy
+#| msgid "$0 block device"
 msgid "Add block devices"
-msgstr "Přidat blokové zařízení"
+msgstr "$0 Blokové zařízení"
 
 #: pkg/networkmanager/network-main.jsx:175
 msgid "Add bond"
@@ -750,8 +783,10 @@ msgstr "Přidat iSCSI portál"
 #: pkg/networkmanager/ip-settings.jsx:221
 #: pkg/networkmanager/ip-settings.jsx:266
 #: pkg/networkmanager/ip-settings.jsx:311
+#, fuzzy
+#| msgid "Add team"
 msgid "Add item"
-msgstr "Přidat položku"
+msgstr "Přidat tým"
 
 #: pkg/users/authorized-keys-panel.js:153 pkg/storaged/crypto-keyslots.jsx:280
 #: pkg/shell/credentials.jsx:91
@@ -800,12 +835,16 @@ msgid "Add zone"
 msgstr "Přidat zónu"
 
 #: pkg/networkmanager/network-interface-members.jsx:175
+#, fuzzy
+#| msgid ""
+#| "Adding <b>$0</b> will break the connection to the server, and will make "
+#| "the administration UI unavailable."
 msgid ""
 "Adding $0 will break the connection to the server, and will make the "
 "administration UI unavailable."
 msgstr ""
-"Přidání $0 přeruší spojení se serverem a znepřístupní tak rozhraní pro jeho "
-"správu."
+"Přidání <b>$0</b> přeruší spojení se serverem a znepřístupní tak rozhraní "
+"pro jeho správu."
 
 #: pkg/networkmanager/firewall.jsx:536
 msgid ""
@@ -911,7 +950,7 @@ msgstr "Výstraha"
 msgid "Alert and above"
 msgstr "Výstraha a závažnější"
 
-#: pkg/systemd/services/services.jsx:203
+#: pkg/systemd/services/services.jsx:206
 msgid "Alias"
 msgstr "Alternativní název"
 
@@ -945,6 +984,12 @@ msgid "Ansible roles documentation"
 msgstr "Dokumentace k Ansible rolím"
 
 #: pkg/systemd/logs.jsx:380
+#, fuzzy
+#| msgid ""
+#| "Any text string in the logs messages can be filtered. The string can also "
+#| "be in the form of a regular expressions. Also supports filtering by "
+#| "message log fields. These are space separated values, in form "
+#| "FIELD=VALUE, where value can be comma separated list of possible values."
 msgid ""
 "Any text string in the logs messages can be filtered. The string can also be "
 "in the form of a regular expression. Also supports filtering by message log "
@@ -952,7 +997,7 @@ msgid ""
 "can be comma separated list of possible values."
 msgstr ""
 "V hlášeních v záznamu událostí (log) je možné filtrovat podle libovolného "
-"textového řetězce. Řetězec také může mít podobu regulárního výrazu. Také je "
+"textového řetězce. Řetězec také může mít podobu regulárních výrazů. Také je "
 "podporováno filtrování podle kolonek zprávy záznamu událostí. Zde se jedná o "
 "mezerami oddělované hodnoty v podobě KOLONKA=HODNOTA, kde hodnota může být "
 "čárkou oddělovaný seznam možných hodnot."
@@ -980,8 +1025,10 @@ msgid "Apply"
 msgstr "Použít"
 
 #: pkg/packagekit/kpatch.jsx:259
+#, fuzzy
+#| msgid "Apply kernel patches"
 msgid "Apply kernel live patches"
-msgstr "Aplikovat záplaty pro jádro systému za chodu"
+msgstr "Aplikovat záplaty pro jádro systému"
 
 #: pkg/selinux/setroubleshoot-view.jsx:104
 msgid "Apply this solution"
@@ -1020,8 +1067,10 @@ msgstr[1] "Jsou vyžadovány alespoň $0 disky."
 msgstr[2] "Je vyžadováno alespoň $0 disků."
 
 #: pkg/storaged/stratis-panel.jsx:163
+#, fuzzy
+#| msgid "At least one disk is needed."
 msgid "At least one block device is needed."
-msgstr "Je vyžadováno alespoň jedno blokové zařízení."
+msgstr "Je vyžadován alespoň 1 disk."
 
 #: pkg/storaged/vgroup-details.jsx:72 pkg/storaged/mdraid-details.jsx:70
 #: pkg/storaged/vgroups-panel.jsx:84 pkg/storaged/stratis-details.jsx:142
@@ -1052,11 +1101,11 @@ msgstr "Ověřování"
 msgid "Authentication"
 msgstr "Ověření"
 
-#: pkg/static/login.js:883
+#: pkg/static/login.js:885
 msgid "Authentication failed"
 msgstr "Ověření se nezdařilo"
 
-#: pkg/static/login.js:873
+#: pkg/static/login.js:875
 msgid "Authentication failed: Server closed connection"
 msgstr "Ověření se nezdařilo: Server přerušil spojení"
 
@@ -1075,8 +1124,10 @@ msgid "Authentication required"
 msgstr "Nutné ověření"
 
 #: pkg/shell/hosts_dialog.jsx:799
+#, fuzzy
+#| msgid "Authorize SSH key."
 msgid "Authorize SSH key"
-msgstr "Pověřit SSH klíč"
+msgstr "Pověřit veřejný SSH klíč."
 
 #: pkg/users/authorized-keys-panel.js:149
 msgid "Authorized public SSH keys"
@@ -1154,11 +1205,11 @@ msgstr "Zpět k účtům"
 msgid "Backing device"
 msgstr "Podkladové zařízení"
 
-#: pkg/systemd/services/services.jsx:211
+#: pkg/systemd/services/services.jsx:214
 msgid "Bad"
 msgstr "Chybné"
 
-#: pkg/systemd/services/services.jsx:177
+#: pkg/systemd/services/services.jsx:180
 msgid "Bad setting"
 msgstr "Chybné nastavení"
 
@@ -1201,8 +1252,10 @@ msgstr "Blokové zařízení pro souborové systémy"
 
 #: pkg/storaged/stratis-panel.jsx:158 pkg/storaged/stratis-details.jsx:137
 #: pkg/storaged/stratis-details.jsx:220 pkg/storaged/stratis-details.jsx:755
+#, fuzzy
+#| msgid "Locked devices"
 msgid "Block devices"
-msgstr "Bloková zařízení"
+msgstr "Zamčená zařízení"
 
 #: pkg/storaged/mdraid-details.jsx:115
 msgid "Blocked"
@@ -1349,11 +1402,13 @@ msgstr "Storno"
 
 #: pkg/systemd/overview-cards/shutdownStatus.jsx:89
 msgid "Cancel poweroff"
-msgstr "Zrušit vypínání"
+msgstr ""
 
 #: pkg/systemd/overview-cards/shutdownStatus.jsx:93
+#, fuzzy
+#| msgid "Force restart"
 msgid "Cancel reboot"
-msgstr "Zrušit restartování"
+msgstr "Vynutit restart"
 
 #: pkg/systemd/services/services-list.jsx:82
 msgid "Cannot be enabled"
@@ -1424,10 +1479,12 @@ msgid "Change system time"
 msgstr "Změnit systémový čas"
 
 #: pkg/shell/hosts_dialog.jsx:785
+#, fuzzy
+#| msgid "Change the password of ${key}."
 msgid "Change the password of $0"
-msgstr "Změnit heslo $0"
+msgstr "Změnit heslo klíče ${key}."
 
-#: pkg/networkmanager/interfaces.js:1590
+#: pkg/networkmanager/interfaces.js:1591
 msgid "Change the settings"
 msgstr "Změnit nastavení"
 
@@ -1441,7 +1498,7 @@ msgstr ""
 "neočekávaná změna může značit pokus třetí strany o vložení se do vaší "
 "komunikace."
 
-#: pkg/networkmanager/interfaces.js:1589
+#: pkg/networkmanager/interfaces.js:1590
 msgid ""
 "Changing the settings will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -1483,8 +1540,10 @@ msgid "Checking installed software"
 msgstr "Zjišťuje se nainstalovaný sofware"
 
 #: pkg/storaged/fsys-tab.jsx:428 pkg/storaged/dialog.jsx:1139
+#, fuzzy
+#| msgid "Checking for public keys"
 msgid "Checking related processes"
-msgstr "Zjišťování souvisejících procesů"
+msgstr "Hledají se veřejné klíče"
 
 #: pkg/packagekit/updates.jsx:1329
 msgid "Checking software status"
@@ -1512,7 +1571,7 @@ msgstr "Čištění pro $target"
 msgid "Clear 'Failed to start'"
 msgstr "Vyčistit „Nepodařilo se spustit“"
 
-#: pkg/systemd/services/services.jsx:815 pkg/systemd/logsJournal.jsx:278
+#: pkg/systemd/services/services.jsx:833 pkg/systemd/logsJournal.jsx:278
 msgid "Clear all filters"
 msgstr "Vyčistit všechny filtry"
 
@@ -1521,12 +1580,10 @@ msgid "Clear search"
 msgstr "Vyčistit vyhledávání"
 
 #: pkg/storaged/crypto-tab.jsx:238
+#, fuzzy
+#| msgid "Create devices"
 msgid "Cleartext device"
-msgstr "Znakové zařízení"
-
-#: pkg/users/account-create-dialog.js:220 pkg/users/password-dialogs.js:219
-msgid "Click $0 again to use the password anyway."
-msgstr "Pokud chcete heslo použít i tak, klikněte znovu na $0."
+msgstr "Vytvořit zařízení"
 
 #: pkg/systemd/overview-cards/realmd.jsx:287
 msgid "Client software"
@@ -1553,7 +1610,7 @@ msgstr "Zavřít vybrané stránky"
 msgid "Cockpit"
 msgstr "Cockpit"
 
-#: pkg/static/login.js:409
+#: pkg/static/login.js:411
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "Cockpit ověřování není nastaveno správně."
 
@@ -1695,7 +1752,7 @@ msgstr "Probíhá nastavení systému"
 
 # auto translated by TM merge from project: ibus-input-pad, version: head,
 # DocId: ibus-input-pad
-#: pkg/users/account-create-dialog.js:62 pkg/storaged/format-dialog.jsx:273
+#: pkg/users/account-create-dialog.js:59 pkg/storaged/format-dialog.jsx:273
 #: pkg/storaged/stratis-panel.jsx:148
 msgid "Confirm"
 msgstr "Potvrdit"
@@ -1708,13 +1765,15 @@ msgstr "Potvrdit heslo ke klíči"
 msgid "Confirm new key password"
 msgstr "Potvrdit nové heslo ke klíči"
 
-#: pkg/users/password-dialogs.js:152
+#: pkg/users/password-dialogs.js:147
 msgid "Confirm new password"
 msgstr "Potvrdit nové heslo"
 
 #: pkg/shell/credentials.jsx:269
+#, fuzzy
+#| msgid "Confirm key password"
 msgid "Confirm password"
-msgstr "Potvrzení hesla"
+msgstr "Potvrdit heslo ke klíči"
 
 #: pkg/networkmanager/firewall.jsx:809
 msgid "Confirm removal of $0"
@@ -1740,13 +1799,21 @@ msgstr "Připojit se automaticky"
 msgid "Connect to"
 msgstr "Připojit se k"
 
-#: pkg/static/login.js:617
+#: pkg/static/login.js:619
+#, fuzzy
+#| msgid "Connect to"
 msgid "Connect to:"
-msgstr "Připojit se k:"
+msgstr "Připojit se k"
 
 #: pkg/selinux/setroubleshoot-view.jsx:328
 msgid "Connecting to SETroubleshoot daemon..."
 msgstr "Připojování k procesu služby SETroubleshoot…"
+
+#: pkg/systemd/services/services.jsx:245
+#, fuzzy
+#| msgid "Connection failed"
+msgid "Connecting to dbus failed: $0"
+msgstr "Připojení se nezdařilo"
 
 #: pkg/shell/indexes.js:447
 msgid "Connecting to the machine"
@@ -1808,8 +1875,10 @@ msgid "Control"
 msgstr "Ovládání"
 
 #: pkg/systemd/abrtLog.jsx:126
+#, fuzzy
+#| msgid "Control"
 msgid "Controller"
-msgstr "Řadič"
+msgstr "Ovládání"
 
 #: pkg/lib/machine-info.js:88
 msgid "Convertible"
@@ -1817,7 +1886,7 @@ msgstr "Počítač 2v1"
 
 #: pkg/shell/failures.jsx:41 pkg/shell/credentials.jsx:213
 msgid "Copied"
-msgstr "Zkopírováno"
+msgstr ""
 
 #: pkg/shell/failures.jsx:41 pkg/shell/credentials.jsx:213
 #: pkg/lib/cockpit-components-context-menu.jsx:103
@@ -1834,8 +1903,10 @@ msgid "Core $0"
 msgstr "Jádro $0"
 
 #: pkg/shell/hosts_dialog.jsx:346
+#, fuzzy
+#| msgid "Could not contact {{host}}"
 msgid "Could not contact $0"
-msgstr "Nedaří se kontaktovat $0"
+msgstr "Nedaří se kontaktovat {{host}}"
 
 #: pkg/kdump/kdump-view.jsx:343 pkg/kdump/kdump-view.jsx:533
 msgid "Crash dump location"
@@ -1849,8 +1920,7 @@ msgstr "Nahlašování pádů"
 msgid "Crash system"
 msgstr "Zhavarovat systém"
 
-#: pkg/users/account-create-dialog.js:220
-#: pkg/users/account-create-dialog.js:267 pkg/storaged/mdraids-panel.jsx:140
+#: pkg/users/account-create-dialog.js:259 pkg/storaged/mdraids-panel.jsx:140
 #: pkg/storaged/stratis-panel.jsx:169 pkg/storaged/content-views.jsx:196
 #: pkg/storaged/content-views.jsx:311 pkg/storaged/content-views.jsx:957
 #: pkg/storaged/vgroups-panel.jsx:90 pkg/storaged/stratis-details.jsx:393
@@ -1859,20 +1929,26 @@ msgid "Create"
 msgstr "Vytvořit"
 
 #: pkg/storaged/things-panel.jsx:79
+#, fuzzy
+#| msgid "Create volume group"
 msgid "Create LVM2 volume group"
-msgstr "Vytvořit LVM2 skupinu svazků"
+msgstr "Vytvořit skupinu svazků"
 
 #: pkg/storaged/things-panel.jsx:78 pkg/storaged/mdraids-panel.jsx:73
 msgid "Create RAID device"
 msgstr "Vytvořit RAID zařízení"
 
 #: pkg/storaged/things-panel.jsx:80 pkg/storaged/stratis-panel.jsx:127
+#, fuzzy
+#| msgid "Create storage pool"
 msgid "Create Stratis pool"
-msgstr "Vytvořit Stratis fond úložiště"
+msgstr "Vytvořit fond úložiště"
 
 #: pkg/shell/hosts_dialog.jsx:771
+#, fuzzy
+#| msgid "Create a new SSH key and authorize it."
 msgid "Create a new SSH key and authorize it"
-msgstr "Vytvořit nový SSH klíč a autorizovat ho"
+msgstr "Vytvořit nový SSH klíč a autorizovat ho."
 
 #: pkg/storaged/stratis-details.jsx:492
 #, fuzzy
@@ -1880,21 +1956,25 @@ msgstr "Vytvořit nový SSH klíč a autorizovat ho"
 msgid "Create a snapshot of filesystem $0"
 msgstr "Pořizování zachyceného stavu $target"
 
+#: pkg/users/account-create-dialog.js:271
+msgid "Create account with weak password"
+msgstr ""
+
 #: pkg/storaged/things-panel.jsx:77
 msgid "Create devices"
 msgstr "Vytvořit zařízení"
 
 #: pkg/sosreport/index.jsx:178
+#, fuzzy
+#| msgid "Diagnostic reports"
 msgid "Create diagnostic report"
 msgstr "Diagnostická hlášení"
 
-# auto translated by TM merge from project: usermode, version: default, DocId:
-# usermode
 #: pkg/storaged/stratis-details.jsx:363
 #, fuzzy
-#| msgid "Filesystem"
+#| msgid "filesystem"
 msgid "Create filesystem"
-msgstr "Souborový systém"
+msgstr "souborový systém"
 
 #: pkg/networkmanager/dialogs-common.jsx:292
 msgid "Create it"
@@ -1904,15 +1984,15 @@ msgstr "Vytvořit to"
 msgid "Create logical volume"
 msgstr "Vytvořit logický svazek"
 
-#: pkg/users/accounts-list.js:78 pkg/users/account-create-dialog.js:260
+#: pkg/users/accounts-list.js:78 pkg/users/account-create-dialog.js:252
 msgid "Create new account"
 msgstr "Vytvořit nový účet"
 
 #: pkg/storaged/stratis-details.jsx:651
 #, fuzzy
-#| msgid "Create new volume"
+#| msgid "Network file system"
 msgid "Create new filesystem"
-msgstr "Vytvořit nový svazek"
+msgstr "Síťový souborový systém"
 
 #: pkg/storaged/content-views.jsx:987
 msgid "Create new logical volume"
@@ -2136,7 +2216,7 @@ msgstr "Je třeba, aby prodleva byla číslo"
 #: pkg/storaged/mdraid-details.jsx:331 pkg/storaged/vdo-details.jsx:205
 #: pkg/storaged/vdo-details.jsx:271 pkg/storaged/stratis-details.jsx:258
 #: pkg/storaged/stratis-details.jsx:422 pkg/storaged/stratis-details.jsx:557
-#: pkg/storaged/stratis-details.jsx:605 pkg/systemd/abrtLog.jsx:285
+#: pkg/storaged/stratis-details.jsx:605 pkg/systemd/abrtLog.jsx:287
 msgid "Delete"
 msgstr "Smazat"
 
@@ -2301,12 +2381,12 @@ msgstr "Vypnout proces služby tuned"
 
 #: pkg/networkmanager/ip-settings.jsx:46 pkg/networkmanager/ip-settings.jsx:57
 #: pkg/systemd/services/service-details.jsx:347
-#: pkg/systemd/services/services.jsx:200 pkg/systemd/services/services.jsx:748
+#: pkg/systemd/services/services.jsx:203 pkg/systemd/services/services.jsx:766
 #: pkg/packagekit/autoupdates.jsx:332 pkg/packagekit/kpatch.jsx:248
 msgid "Disabled"
 msgstr "Vypnuto"
 
-#: pkg/users/account-create-dialog.js:74 pkg/users/account-details.js:323
+#: pkg/users/account-create-dialog.js:69 pkg/users/account-details.js:323
 #, fuzzy
 #| msgid "Domain administrator password"
 msgid "Disallow interactive password"
@@ -2356,15 +2436,19 @@ msgid "Disks"
 msgstr "Disky"
 
 #: pkg/selinux/setroubleshoot-view.jsx:399
+#, fuzzy
+#| msgid "Dismiss"
 msgid "Dismiss $0 alert"
 msgid_plural "Dismiss $0 alerts"
-msgstr[0] "Zahodit $0 výstrahu"
-msgstr[1] "Zahodit $0 výstrahy"
-msgstr[2] "Zahodit $0 výstrah"
+msgstr[0] "Zahodit"
+msgstr[1] "Zahodit"
+msgstr[2] "Zahodit"
 
 #: pkg/selinux/setroubleshoot-view.jsx:399
+#, fuzzy
+#| msgid "Close selected pages"
 msgid "Dismiss selected alerts"
-msgstr "Zahodit označené výstrahy"
+msgstr "Zavřít vybrané stránky"
 
 #: pkg/shell/topnav.jsx:153 pkg/shell/shell-modals.jsx:125
 msgid "Display language"
@@ -2549,8 +2633,8 @@ msgstr "Zapnout službu"
 msgid "Enable the firewall"
 msgstr "Zapnout bránu firewall"
 
-#: pkg/systemd/services/services.jsx:198 pkg/systemd/services/services.jsx:199
-#: pkg/systemd/services/services.jsx:747 pkg/packagekit/kpatch.jsx:251
+#: pkg/systemd/services/services.jsx:201 pkg/systemd/services/services.jsx:202
+#: pkg/systemd/services/services.jsx:765 pkg/packagekit/kpatch.jsx:251
 msgid "Enabled"
 msgstr "Povoleno"
 
@@ -2602,7 +2686,7 @@ msgstr "Typ šifrování"
 
 #: pkg/users/account-logs-panel.jsx:83
 msgid "Ended"
-msgstr "Ukončeno"
+msgstr ""
 
 #: pkg/selinux/setroubleshoot-view.jsx:260
 msgid "Enforcing"
@@ -2638,7 +2722,7 @@ msgstr "Errata"
 #: pkg/storaged/storage-controls.jsx:91 pkg/storaged/storage-controls.jsx:168
 #: pkg/storaged/stratis-details.jsx:680
 #: pkg/systemd/services/service-details.jsx:498
-#: pkg/systemd/services/services.jsx:178 pkg/apps/utils.jsx:78
+#: pkg/systemd/services/services.jsx:181 pkg/apps/utils.jsx:78
 msgid "Error"
 msgstr "Chyba"
 
@@ -2719,7 +2803,7 @@ msgstr "Ukončit platnost účtu v $0"
 msgid "Export to network"
 msgstr "Exportovat do sítě"
 
-#: pkg/systemd/abrtLog.jsx:287
+#: pkg/systemd/abrtLog.jsx:289
 msgid "Extended information"
 msgstr "Rozšířené informace"
 
@@ -2816,7 +2900,7 @@ msgid "Failed to save changes in /etc/motd"
 msgstr "Nepodařilo se uložit změny v /etc/motd"
 
 #: pkg/systemd/services/service-details.jsx:356
-#: pkg/systemd/services/services.jsx:189
+#: pkg/systemd/services/services.jsx:192
 msgid "Failed to start"
 msgstr "Nepodařilo se spustit"
 
@@ -2824,8 +2908,8 @@ msgstr "Nepodařilo se spustit"
 msgid "Failed to switch profile"
 msgstr "Nepodařilo se přepnout profil"
 
-#: pkg/systemd/services/services.jsx:931 pkg/systemd/services/services.jsx:932
-#: pkg/systemd/services/services.jsx:939
+#: pkg/systemd/services/services.jsx:949 pkg/systemd/services/services.jsx:950
+#: pkg/systemd/services/services.jsx:957
 msgid "File state"
 msgstr "Stav souboru"
 
@@ -2837,15 +2921,19 @@ msgid "Filesystem"
 msgstr "Souborový systém"
 
 #: pkg/storaged/content-views.jsx:444
+#, fuzzy
+#| msgid "Filesystem directory"
 msgctxt "storage-id-desc"
 msgid "Filesystem (encrypted)"
-msgstr "Souborový systém (šifrované)"
+msgstr "Složka v souborovém systému"
 
 # auto translated by TM merge from project: comps, version: master, DocId:
 # comps
 #: pkg/storaged/fsys-tab.jsx:689
+#, fuzzy
+#| msgid "Filesystems"
 msgid "Filesystem is locked"
-msgstr "Souborový systém je uzamčen"
+msgstr "Souborové systémy"
 
 #: pkg/storaged/fsys-tab.jsx:478
 msgid "Filesystem name"
@@ -2859,7 +2947,7 @@ msgstr "Název souborového systému"
 msgid "Filesystems"
 msgstr "Souborové systémy"
 
-#: pkg/systemd/services/services.jsx:907
+#: pkg/systemd/services/services.jsx:925
 msgid "Filter by name or description"
 msgstr "Filtrovat podle názvu nebo popisu"
 
@@ -2910,7 +2998,7 @@ msgstr "Spuštění zakázáno"
 msgid "Force change"
 msgstr "Vynutit změnu"
 
-#: pkg/users/password-dialogs.js:278
+#: pkg/users/password-dialogs.js:270
 msgid "Force password change"
 msgstr "Vynutit změnu hesla"
 
@@ -2969,11 +3057,11 @@ msgstr "Pátky"
 
 #: pkg/users/account-logs-panel.jsx:84
 msgid "From"
-msgstr "Z"
+msgstr ""
 
 # auto translated by TM merge from project: anaconda, version: f25, DocId:
 # main
-#: pkg/users/account-create-dialog.js:41 pkg/users/account-details.js:285
+#: pkg/users/account-create-dialog.js:40 pkg/users/account-details.js:285
 msgid "Full name"
 msgstr "Celé jméno"
 
@@ -2981,18 +3069,20 @@ msgstr "Celé jméno"
 # cockpit
 #: pkg/networkmanager/ip-settings.jsx:186
 #: pkg/networkmanager/ip-settings.jsx:337
+#, fuzzy
+#| msgid "Gateway:"
 msgid "Gateway"
-msgstr "Brána"
+msgstr "Brána:"
 
 # auto translated by TM merge from project: Cockpit, version: rhel-7.4, DocId:
 # cockpit
-#: pkg/networkmanager/network-interface.jsx:326 pkg/systemd/abrtLog.jsx:291
+#: pkg/networkmanager/network-interface.jsx:326 pkg/systemd/abrtLog.jsx:293
 msgid "General"
 msgstr "Obecné"
 
 # auto translated by TM merge from project: Cockpit, version: rhel-7.4, DocId:
 # cockpit
-#: pkg/systemd/services/services.jsx:209
+#: pkg/systemd/services/services.jsx:212
 msgid "Generated"
 msgstr "Vytvořeno"
 
@@ -3068,7 +3158,7 @@ msgstr "Nápověda"
 
 #: pkg/systemd/abrtLog.jsx:126
 msgid "Hierarchy ID"
-msgstr "Identifikátor hierarchie"
+msgstr ""
 
 #: pkg/packagekit/history.jsx:107
 msgid "History package count"
@@ -3186,11 +3276,6 @@ msgid ""
 "during boot is not possible, such as when a passphrase is required to unlock "
 "the filesystem but booting is unattended."
 msgstr ""
-"Když je tato volba zaškrtnuta, souborový systém nebude připojován v průběhu "
-"příštího startu systému, i když předtím byl. Toto je užitečné pokud není "
-"připojování při spouštění systému možné, jako například když je zapotřebí "
-"heslo pro odemknutí souborového systému, ale start systému probíhá bez "
-"přítomnosti člověka."
 
 # auto translated by TM merge from project: authconfig, version: master,
 # DocId: po/authconfig
@@ -3229,8 +3314,8 @@ msgstr "Synchronní"
 # auto translated by TM merge from project: Cockpit, version: rhel-7.4, DocId:
 # cockpit
 #: pkg/networkmanager/network-interface.jsx:255
-#: pkg/networkmanager/interfaces.js:739 pkg/networkmanager/interfaces.js:1288
-#: pkg/networkmanager/interfaces.js:1295
+#: pkg/networkmanager/interfaces.js:739 pkg/networkmanager/interfaces.js:1289
+#: pkg/networkmanager/interfaces.js:1296
 msgid "Inactive"
 msgstr "Neaktivní"
 
@@ -3254,7 +3339,7 @@ msgstr "Navýšit o jednu"
 msgid "Index memory"
 msgstr "Paměť indexu"
 
-#: pkg/systemd/services/services.jsx:208
+#: pkg/systemd/services/services.jsx:211
 msgid "Indirect"
 msgstr "Nepřímé"
 
@@ -3267,12 +3352,16 @@ msgid "Info and above"
 msgstr "Informace a závažnější"
 
 #: pkg/storaged/content-views.jsx:706
+#, fuzzy
+#| msgid "Initializing..."
 msgid "Initialize"
-msgstr "inicializovat"
+msgstr "Inicializace…"
 
 #: pkg/storaged/content-views.jsx:683
+#, fuzzy
+#| msgid "Initializing..."
 msgid "Initialize disk $0"
-msgstr "Inicializovat disk $0"
+msgstr "Inicializace…"
 
 #: pkg/storaged/content-views.jsx:707
 #, fuzzy
@@ -3342,8 +3431,10 @@ msgid "Installing $0"
 msgstr "Instaluje se $0"
 
 #: pkg/storaged/content-views.jsx:833
+#, fuzzy
+#| msgid "Installing $0"
 msgid "Installing $0 would remove $1."
-msgstr "Instalace $0 by odebrala $1."
+msgstr "Instaluje se $0"
 
 # auto translated by TM merge from project: dnf, version: master, DocId:
 # po/dnf
@@ -3381,11 +3472,11 @@ msgstr "Rozhraní"
 msgid "Internal error"
 msgstr "Vnitřní chyba"
 
-#: pkg/static/login.js:863
+#: pkg/static/login.js:865
 msgid "Internal error: Invalid challenge header"
 msgstr "Vnitřní chyba: neplatná hlavička výzvy"
 
-#: pkg/systemd/services/services.jsx:207
+#: pkg/systemd/services/services.jsx:210
 msgid "Invalid"
 msgstr "Neplatné"
 
@@ -3668,8 +3759,10 @@ msgid "Leave domain"
 msgstr "Opustit doménu"
 
 #: pkg/shell/shell-modals.jsx:67
+#, fuzzy
+#| msgid "GNU LGPL version 2.1"
 msgid "Licensed under GNU LGPL version 2.1"
-msgstr "Licencováno pod GNU LGPL verze 2.1"
+msgstr "GNU LGPL verze 2.1"
 
 #: pkg/systemd/terminal.jsx:155
 msgid "Light"
@@ -3717,13 +3810,33 @@ msgstr "Prodleva aktivní linky"
 msgid "Link watch"
 msgstr "Hlídání linky"
 
-#: pkg/systemd/services/services.jsx:201 pkg/systemd/services/services.jsx:202
+#: pkg/systemd/services/services.jsx:204 pkg/systemd/services/services.jsx:205
 msgid "Linked"
 msgstr "Odkazováno"
 
 #: pkg/systemd/services/service-details.jsx:543
 msgid "Listen"
 msgstr "Očekávat spojení"
+
+#: pkg/systemd/services/services.jsx:412
+msgid "Listing unit files"
+msgstr ""
+
+#: pkg/systemd/services/services.jsx:474
+msgid "Listing unit files failed: $0"
+msgstr ""
+
+#: pkg/systemd/services/services.jsx:380
+#, fuzzy
+#| msgid "Systemd units"
+msgid "Listing units"
+msgstr "Systemd jednotky"
+
+#: pkg/systemd/services/services.jsx:475
+#, fuzzy
+#| msgid "Last modified: $0"
+msgid "Listing units failed: $0"
+msgstr "Naposledy zkontrolováno: $0"
 
 #: pkg/metrics/metrics.jsx:103 pkg/metrics/metrics.jsx:480
 #: pkg/metrics/metrics.jsx:1393
@@ -3766,16 +3879,30 @@ msgstr "Načítání klíčů…"
 msgid "Loading of SSH keys failed"
 msgstr "Načítání SSH klíčů se nezdařilo"
 
+#: pkg/systemd/services/services.jsx:731
+#, fuzzy
+#| msgid "Loading of SSH keys failed"
+msgid "Loading of units failed"
+msgstr "Načítání SSH klíčů se nezdařilo"
+
 #: pkg/shell/shell-modals.jsx:77
+#, fuzzy
+#| msgid "Loading keys..."
 msgid "Loading packages..."
-msgstr "Načítání balíčků…"
+msgstr "Načítání klíčů…"
 
 #: pkg/lib/cockpit-components-modifications.jsx:142
 msgid "Loading system modifications..."
 msgstr "Načítání modifikací systému…"
 
+#: pkg/systemd/services/services.jsx:445
+#, fuzzy
+#| msgid "Login failed"
+msgid "Loading unit failed: $0"
+msgstr "Přihlášení se nezdařilo"
+
 #: pkg/kdump/kdump-view.jsx:375 pkg/storaged/devices.jsx:69
-#: pkg/systemd/services/services.jsx:723 pkg/systemd/logsJournal.jsx:269
+#: pkg/systemd/services/services.jsx:733 pkg/systemd/logsJournal.jsx:269
 #: pkg/systemd/logDetails.jsx:152 pkg/metrics/metrics.jsx:750
 #: pkg/metrics/metrics.jsx:1411
 msgid "Loading..."
@@ -3811,16 +3938,16 @@ msgid "Locked devices"
 msgstr "Zamčená zařízení"
 
 #: pkg/storaged/stratis-panel.jsx:71 pkg/storaged/stratis-details.jsx:770
-#, fuzzy
-#| msgctxt "storage-id-desc"
-#| msgid "Locked encrypted data"
 msgid "Locked encrypted Stratis pool"
-msgstr "Uzamčená šifrovaná data"
+msgstr ""
 
 #: pkg/storaged/content-views.jsx:452
+#, fuzzy
+#| msgctxt "storage-id-desc"
+#| msgid "Encrypted data"
 msgctxt "storage-id-desc"
 msgid "Locked encrypted data"
-msgstr "Uzamčená šifrovaná data"
+msgstr "Šifrovaná data"
 
 #: pkg/storaged/jobs-panel.jsx:45
 msgid "Locking $target"
@@ -3829,7 +3956,7 @@ msgstr "Uzamyká se $target"
 # auto translated by TM merge from project: python-fedora, version: 0.4.0,
 # DocId: python-fedora
 #: pkg/static/login.html:115 pkg/shell/failures.jsx:72
-#: pkg/shell/hosts_dialog.jsx:742 pkg/static/login.js:625
+#: pkg/shell/hosts_dialog.jsx:742 pkg/static/login.js:627
 msgid "Log in"
 msgstr "Přihlásit"
 
@@ -3839,7 +3966,7 @@ msgstr "Přihlásit"
 msgid "Log in to $0"
 msgstr "Jít na $0"
 
-#: pkg/static/login.js:660
+#: pkg/static/login.js:662
 msgid "Log in with your server user account."
 msgstr "Přihlášení pomocí uživatelského účtu na tomto serveru."
 
@@ -3883,13 +4010,13 @@ msgstr "Logický svazek na $0"
 msgid "Logical volumes"
 msgstr "Logické svazky"
 
-#: pkg/static/login.js:320
+#: pkg/static/login.js:322
 #, fuzzy
 #| msgid "login"
 msgid "Login"
 msgstr "přihlášení"
 
-#: pkg/static/login.js:361
+#: pkg/static/login.js:363
 msgid "Login again"
 msgstr "Znovu přihlásit"
 
@@ -3913,7 +4040,7 @@ msgstr "historie"
 msgid "Login history list"
 msgstr "Formát přihlašování"
 
-#: pkg/static/login.js:362
+#: pkg/static/login.js:364
 msgid "Logout successful"
 msgstr "Odhlášení úspěšné"
 
@@ -3957,7 +4084,7 @@ msgstr "Otisky SSH klíče stroje"
 msgid "Main server chassis"
 msgstr "Hlavní skříň serveru"
 
-#: pkg/systemd/services/services.jsx:192
+#: pkg/systemd/services/services.jsx:195
 #, fuzzy
 #| msgid "Maintanance"
 msgid "Maintenance"
@@ -4059,7 +4186,7 @@ msgid "Mask service"
 msgstr "Maskovat službu"
 
 #: pkg/systemd/services/service-details.jsx:337
-#: pkg/systemd/services/services.jsx:204 pkg/systemd/services/services.jsx:205
+#: pkg/systemd/services/services.jsx:207 pkg/systemd/services/services.jsx:208
 msgid "Masked"
 msgstr "Maskováno"
 
@@ -4097,7 +4224,7 @@ msgstr "Technologie paměti"
 msgid "Memory usage"
 msgstr "Využití paměti"
 
-#: pkg/systemd/services/services.jsx:179
+#: pkg/systemd/services/services.jsx:182
 msgid "Merged"
 msgstr "Sloučeno"
 
@@ -4417,14 +4544,16 @@ msgstr "Heslo platí napořád"
 
 #: pkg/storaged/fsys-tab.jsx:333 pkg/storaged/format-dialog.jsx:253
 #: pkg/storaged/stratis-details.jsx:385 pkg/storaged/stratis-details.jsx:515
+#, fuzzy
+#| msgid "Mount at boot"
 msgid "Never mount at boot"
-msgstr "Nikdy nepřipojovat při startu systému"
+msgstr "Připojit při startu"
 
 #: pkg/storaged/nfs-details.jsx:131
 msgid "New NFS mount"
 msgstr "Nové NFS připojení"
 
-#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:719
+#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:721
 msgid "New host"
 msgstr "Nový hostitel"
 
@@ -4436,7 +4565,7 @@ msgstr "Nové heslo ke klíči"
 msgid "New passphrase"
 msgstr "Nová heslová fráze"
 
-#: pkg/users/password-dialogs.js:151 pkg/shell/credentials.jsx:266
+#: pkg/users/password-dialogs.js:146 pkg/shell/credentials.jsx:266
 msgid "New password"
 msgstr "Nové heslo"
 
@@ -4463,8 +4592,10 @@ msgid "No SELinux alerts."
 msgstr "Žádné výstrahy SELinux."
 
 #: pkg/apps/application-list.jsx:155
+#, fuzzy
+#| msgid "No applications installed or available"
 msgid "No applications installed or available."
-msgstr "Nejsou nainstalované ani dostupné žádné aplikace."
+msgstr "Nejsou nainstalované ani dostupné žádné aplikace"
 
 #: pkg/sosreport/index.jsx:107
 msgid "No archive has been created."
@@ -4480,7 +4611,7 @@ msgstr "Nejsou k dispozici žádné sloty"
 msgid "No block devices are available."
 msgstr "Nejsou k dispozici žádné disky."
 
-#: pkg/networkmanager/interfaces.js:1290
+#: pkg/networkmanager/interfaces.js:1291
 msgid "No carrier"
 msgstr "Bez signálu"
 
@@ -4575,7 +4706,7 @@ msgstr "Žádné logické svazky"
 msgid "No logs found"
 msgstr "Nenalezeny žádné záznamy událostí"
 
-#: pkg/systemd/services/services.jsx:816
+#: pkg/systemd/services/services.jsx:834
 msgid "No matching results"
 msgstr "Žádné shodující se výsledky"
 
@@ -4597,7 +4728,7 @@ msgstr ""
 msgid "No partitioning"
 msgstr "Žádný oddíl"
 
-#: pkg/users/account-create-dialog.js:207
+#: pkg/users/account-create-dialog.js:186
 msgid "No real name specified"
 msgstr "Není zadán skutečný název"
 
@@ -4605,7 +4736,7 @@ msgstr "Není zadán skutečný název"
 msgid "No results found"
 msgstr "Nenalezeny žádné výsledky"
 
-#: pkg/systemd/services/services.jsx:814
+#: pkg/systemd/services/services.jsx:832
 msgid ""
 "No results match the filter criteria. Clear all filters to show results."
 msgstr ""
@@ -4629,7 +4760,7 @@ msgstr "Žádné modifikace systému"
 msgid "No updates"
 msgstr "Žádné aktualizace"
 
-#: pkg/users/account-create-dialog.js:95
+#: pkg/users/account-create-dialog.js:90
 msgid "No user name specified"
 msgstr "Nebylo zadáno uživatelské jméno"
 
@@ -4676,7 +4807,7 @@ msgstr "Pro zvětšení není k dispozici dostatek prostoru."
 
 # auto translated by TM merge from project: system-config-printer, version:
 # master, DocId: system-config-printer
-#: pkg/storaged/details.jsx:132 pkg/systemd/services/services.jsx:176
+#: pkg/storaged/details.jsx:132 pkg/systemd/services/services.jsx:179
 msgid "Not found"
 msgstr "Nenalezeno"
 
@@ -4710,8 +4841,8 @@ msgstr "Nezaregistrováno"
 
 #: pkg/storaged/mdraid-details.jsx:360
 #: pkg/systemd/services/service-details.jsx:377
-#: pkg/systemd/services/services.jsx:188 pkg/systemd/services/services.jsx:191
-#: pkg/systemd/services/services.jsx:758
+#: pkg/systemd/services/services.jsx:191 pkg/systemd/services/services.jsx:194
+#: pkg/systemd/services/services.jsx:776
 msgid "Not running"
 msgstr "Není spuštěné"
 
@@ -4759,7 +4890,7 @@ msgstr "Ok"
 msgid "Old passphrase"
 msgstr "Původní heslová fráze"
 
-#: pkg/users/password-dialogs.js:141
+#: pkg/users/password-dialogs.js:138
 msgid "Old password"
 msgstr "Původní heslo"
 
@@ -4817,7 +4948,7 @@ msgstr "Mechanika optických disků"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/networkmanager/bridge.jsx:104 pkg/users/account-create-dialog.js:70
+#: pkg/networkmanager/bridge.jsx:104 pkg/users/account-create-dialog.js:65
 #: pkg/users/account-details.js:315 pkg/storaged/content-views.jsx:937
 #: pkg/storaged/crypto-tab.jsx:253
 msgid "Options"
@@ -4831,7 +4962,7 @@ msgstr "Nebo použijte přibalený prohlížeč"
 msgid "Other"
 msgstr "Ostatní"
 
-#: pkg/users/account-create-dialog.js:76 pkg/users/account-details.js:325
+#: pkg/users/account-create-dialog.js:71 pkg/users/account-details.js:325
 msgid ""
 "Other authentication methods are still available even when interactive "
 "password authentication is not allowed."
@@ -4856,7 +4987,7 @@ msgstr "Výstup"
 
 # auto translated by TM merge from project: Fedora Release Notes, version:
 # f23, DocId: pot/Overview
-#: pkg/systemd/hwinfo.jsx:326 pkg/metrics/metrics.jsx:1429
+#: pkg/systemd/hwinfo.jsx:326 pkg/metrics/metrics.jsx:1428
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "Přehled"
@@ -4933,9 +5064,11 @@ msgstr "Nadřazené $parent"
 msgid "Part of"
 msgstr "Součástí"
 
-#: pkg/networkmanager/interfaces.js:1319
+#: pkg/networkmanager/interfaces.js:1320
+#, fuzzy
+#| msgid "Part of "
 msgid "Part of $0"
-msgstr "Součástí $0"
+msgstr "Součástí "
 
 # auto translated by TM merge from project: blivet-gui, version: f23-branch,
 # DocId: blivet-gui
@@ -5006,7 +5139,7 @@ msgstr "Zadání heslové fráze se neshodují"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/static/login.html:81 pkg/users/account-create-dialog.js:61
+#: pkg/static/login.html:81 pkg/users/account-create-dialog.js:58
 #: pkg/users/account-details.js:346 pkg/storaged/iscsi-panel.jsx:50
 #: pkg/storaged/iscsi-panel.jsx:160 pkg/shell/superuser.jsx:52
 #: pkg/shell/hosts_dialog.jsx:818 pkg/shell/hosts_dialog.jsx:827
@@ -5025,7 +5158,7 @@ msgstr "Řešení úspěšně uplatněno"
 msgid "Password expiration"
 msgstr "Skončení platnosti hesla"
 
-#: pkg/users/account-create-dialog.js:213 pkg/users/password-dialogs.js:214
+#: pkg/users/account-create-dialog.js:192 pkg/users/password-dialogs.js:193
 msgid "Password is longer than 256 characters"
 msgstr "Heslo nemůže být delší než 256 znaků"
 
@@ -5116,7 +5249,7 @@ msgstr ""
 "Performance Co-Pilot shromažďuje a analyzuje výkonnostní metriky z vašeho "
 "systému."
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1430
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1429
 msgid "Performance Metrics"
 msgstr "Metriky výkonu"
 
@@ -5138,11 +5271,11 @@ msgstr "Trvalá"
 #: pkg/storaged/mdraid-details.jsx:302 pkg/storaged/vdo-details.jsx:202
 #: pkg/storaged/stratis-details.jsx:254
 msgid "Permanently delete $0?"
-msgstr "Nadobro smazat $0?"
+msgstr ""
 
 # auto translated by TM merge from project: Linux PAM, version: master, DocId:
 # po/Linux-PAM
-#: pkg/static/login.js:889
+#: pkg/static/login.js:891
 msgid "Permission denied"
 msgstr "Přístup zamítnut"
 
@@ -5207,7 +5340,7 @@ msgstr "Po vyřešení problému stránku načtěte znovu."
 msgid "Please specify an expiration date"
 msgstr "Zadejte datum skončení platnosti"
 
-#: pkg/static/login.js:533
+#: pkg/static/login.js:535
 msgid "Please specify the host to connect to"
 msgstr "Zadejte stroj ke kterému se připojit"
 
@@ -5274,8 +5407,6 @@ msgstr "Přítomno"
 # auto translated by TM merge from project: anaconda, version: master, DocId:
 # main
 #: pkg/networkmanager/dialogs-common.jsx:69
-#, fuzzy
-#| msgid "Preserve"
 msgid "Preserve"
 msgstr "Zachovat"
 
@@ -5311,11 +5442,11 @@ msgstr "Problém s tím, stát se správcem"
 
 # auto translated by TM merge from project: libreport, version: master, DocId:
 # libreport
-#: pkg/systemd/abrtLog.jsx:297
+#: pkg/systemd/abrtLog.jsx:299
 msgid "Problem details"
 msgstr "Podrobnosti o problému"
 
-#: pkg/systemd/abrtLog.jsx:294
+#: pkg/systemd/abrtLog.jsx:296
 msgid "Problem info"
 msgstr "Informace o problému"
 
@@ -5345,7 +5476,7 @@ msgstr "Propaguje načíst znovu k"
 
 #: pkg/storaged/stratis-details.jsx:701
 msgid "Provide the passphrase for the pool on these block devices:"
-msgstr "Zadejte heslovou frázi pro fond na těchto blokových zařízeních:"
+msgstr ""
 
 #: pkg/shell/credentials.jsx:115
 msgid "Public key"
@@ -5550,15 +5681,15 @@ msgstr "Zotavování RAID zařízení $target"
 msgid "Refreshing package information"
 msgstr "Obnovují se informace o balíčcích"
 
-#: pkg/static/login.js:879
+#: pkg/static/login.js:881
 msgid "Refusing to connect. Host is unknown"
 msgstr "Odmítá se připojit. Stroj není znám"
 
-#: pkg/static/login.js:881
+#: pkg/static/login.js:883
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "Odmítá se připojit. Klíč stroje neodpovídá"
 
-#: pkg/static/login.js:877
+#: pkg/static/login.js:879
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "Odmítá se připojit. Klíč stroje není znám"
 
@@ -5586,7 +5717,7 @@ msgstr "Načíst znovu"
 msgid "Reload propagated from"
 msgstr "Znovu načíst propagováno z"
 
-#: pkg/systemd/services/services.jsx:187
+#: pkg/systemd/services/services.jsx:190
 msgid "Reloading"
 msgstr "Opětovné načítání"
 
@@ -5635,18 +5766,22 @@ msgid "Remove $0?"
 msgstr "Odebrat $0?"
 
 #: pkg/storaged/crypto-keyslots.jsx:498
+#, fuzzy
+#| msgid "Remove Tang keyserver"
 msgid "Remove Tang keyserver?"
-msgstr "Odebrat Tang server s klíči?"
+msgstr "Odebrat Tang server s klíči"
 
 #: pkg/storaged/vdo-details.jsx:109
 msgid "Remove device"
 msgstr "Odebrat zařízení"
 
-#: pkg/static/login.js:591
+# auto translated by TM merge from project: system-config-printer, version:
+# master, DocId: system-config-printer
+#: pkg/static/login.js:593
 #, fuzzy
-#| msgid "Remove device"
+#| msgid "Remove"
 msgid "Remove host"
-msgstr "Odebrat zařízení"
+msgstr "Odebrat"
 
 #: pkg/networkmanager/ip-settings.jsx:198
 #: pkg/networkmanager/ip-settings.jsx:243
@@ -5658,8 +5793,10 @@ msgid "Remove item"
 msgstr "Odebrat zařízení"
 
 #: pkg/storaged/crypto-keyslots.jsx:462
+#, fuzzy
+#| msgid "Remove passphrase in key slot $0"
 msgid "Remove passphrase in key slot $0?"
-msgstr "Odebrat heslovou frázi v slotu na klíč $0?"
+msgstr "Odebrat heslovou frázi v slotu na klíč $0"
 
 #: pkg/networkmanager/firewall.jsx:68
 msgid "Remove service $0"
@@ -5730,17 +5867,15 @@ msgstr "Přejmenovat"
 
 #: pkg/storaged/stratis-details.jsx:275
 #, fuzzy
-#| msgid "Reset Storage Pool"
+#| msgid "Create storage pool"
 msgid "Rename Stratis pool"
-msgstr "Resetovat fond úložišť"
+msgstr "Vytvořit fond úložiště"
 
-# auto translated by TM merge from project: usermode, version: default, DocId:
-# usermode
 #: pkg/storaged/stratis-details.jsx:469
 #, fuzzy
-#| msgid "Filesystem"
+#| msgid "Unmount filesystem"
 msgid "Rename filesystem"
-msgstr "Souborový systém"
+msgstr "Odpojit souborový systém"
 
 #: pkg/storaged/lvol-tabs.jsx:46
 msgid "Rename logical volume"
@@ -5843,7 +5978,7 @@ msgstr "Vyhrazená paměť"
 msgid "Reset"
 msgstr "Reset"
 
-#: pkg/users/password-dialogs.js:285
+#: pkg/users/password-dialogs.js:277
 msgid "Reset password"
 msgstr "Resetovat heslo"
 
@@ -5885,12 +6020,14 @@ msgid "Resume"
 msgstr "Obnovit chod"
 
 #: pkg/storaged/format-dialog.jsx:167
+#, fuzzy
+#| msgid "Using LUKS encryption"
 msgid "Reuse existing encryption"
-msgstr "Použít stávající šifrování"
+msgstr "S použitím LUKS šifrování"
 
 #: pkg/storaged/format-dialog.jsx:164
 msgid "Reuse existing encryption ($0)"
-msgstr "Použít stávající šifrování ($0)"
+msgstr ""
 
 #: pkg/systemd/manifest.json:0
 msgid "Reviewing logs"
@@ -5925,8 +6062,8 @@ msgstr "Spouštěč"
 # po/dnf
 #: pkg/storaged/mdraid-details.jsx:360
 #: pkg/systemd/services/service-details.jsx:369
-#: pkg/systemd/services/services.jsx:186 pkg/systemd/services/services.jsx:190
-#: pkg/systemd/services/services.jsx:757
+#: pkg/systemd/services/services.jsx:189 pkg/systemd/services/services.jsx:193
+#: pkg/systemd/services/services.jsx:775
 msgid "Running"
 msgstr "Spuštěné"
 
@@ -6221,8 +6358,8 @@ msgstr "Nastavit"
 msgid "Set hostname"
 msgstr "Nastavit název stroje"
 
-#: pkg/users/password-dialogs.js:219 pkg/users/password-dialogs.js:230
-#: pkg/users/password-dialogs.js:237 pkg/users/account-details.js:352
+#: pkg/users/password-dialogs.js:225 pkg/users/password-dialogs.js:232
+#: pkg/users/account-details.js:352
 msgid "Set password"
 msgstr "Nastavit heslo"
 
@@ -6237,6 +6374,12 @@ msgstr "Nastavit na"
 #: pkg/packagekit/updates.jsx:93
 msgid "Set up"
 msgstr "Nastavit"
+
+#: pkg/users/password-dialogs.js:244
+#, fuzzy
+#| msgid "Set password"
+msgid "Set weak password"
+msgstr "Nastavit heslo"
 
 #: pkg/selinux/setroubleshoot-view.jsx:253
 msgid ""
@@ -6294,7 +6437,7 @@ msgstr[2] "Zobrazit všech $0 jednotek"
 msgid "Show all"
 msgstr "Zobrazit vše"
 
-#: pkg/systemd/abrtLog.jsx:257
+#: pkg/systemd/abrtLog.jsx:259
 msgid "Show all threads"
 msgstr "Zobrazit všechna vlákna"
 
@@ -6548,7 +6691,7 @@ msgid "State"
 msgstr "Stav"
 
 #: pkg/systemd/services/service-details.jsx:387
-#: pkg/systemd/services/services.jsx:206 pkg/systemd/services/services.jsx:749
+#: pkg/systemd/services/services.jsx:209 pkg/systemd/services/services.jsx:767
 msgid "Static"
 msgstr "Statické"
 
@@ -6648,7 +6791,7 @@ msgstr "Fondy úložiště"
 msgid "Stratis pool $0"
 msgstr "Fondy úložiště"
 
-#: pkg/systemd/services/services.jsx:174
+#: pkg/systemd/services/services.jsx:177
 msgid "Stub"
 msgstr "Pahýl"
 
@@ -6659,6 +6802,10 @@ msgstr "Dílčí skříň"
 #: pkg/lib/machine-info.js:71
 msgid "Sub-Notebook"
 msgstr "Zmenšený notebook"
+
+#: pkg/systemd/services/services.jsx:242
+msgid "Subscribing to systemd signals failed: $0"
+msgstr ""
 
 #: pkg/storaged/crypto-keyslots.jsx:400
 msgid "Successfully copied to clipboard!"
@@ -6758,7 +6905,7 @@ msgstr "Synchronizuje se RAID zařízení $target"
 
 # auto translated by TM merge from project: selinux (policycoreutils),
 # version: master, DocId: policycoreutils
-#: pkg/systemd/services/services.jsx:995 pkg/shell/indexes.js:332
+#: pkg/systemd/services/services.jsx:1013 pkg/shell/indexes.js:332
 #: pkg/shell/nav.jsx:28
 msgid "System"
 msgstr "Systém"
@@ -6929,7 +7076,7 @@ msgstr ""
 "chráněn. Můžete se buď přihlásit svým přihlašovacím heslem nebo zadáním "
 "hesla ke klíči na {{#strong}}{{key}}{{/strong}}."
 
-#: pkg/users/password-dialogs.js:273
+#: pkg/users/password-dialogs.js:265
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr "Účet „$0“ bude při příštím přihlášení vyzván k vynucené změně hesla"
 
@@ -6960,8 +7107,6 @@ msgid ""
 "The disk needs to be unlocked before formatting.  Please provide a existing "
 "passphrase."
 msgstr ""
-"Aby ho bylo možné naformátovat, disk je třeba odemknout. Zadejte stávající "
-"heslovou frázi."
 
 #: pkg/storaged/fsys-tab.jsx:526
 msgid "The filesystem has no permanent mount point."
@@ -7018,8 +7163,6 @@ msgid ""
 "The filesystem will be unlocked and mounted on the next boot. This might "
 "require inputting a passphrase."
 msgstr ""
-"Souborový systém bude odemčen při příštím startu systému. To může vyžadovat "
-"zadání heslové fráze."
 
 #: pkg/packagekit/updates.jsx:445
 msgid "The following service will be restarted:"
@@ -7071,8 +7214,11 @@ msgid "The listed processes will be forcefully stopped."
 msgstr ""
 
 #: pkg/storaged/dialog.jsx:1243
+#, fuzzy
+#| msgid "The following service will be restarted:"
+#| msgid_plural "The following services will be restarted:"
 msgid "The listed services will be forcefully stopped."
-msgstr "Uvedené služby budou vynuceně zastaveny."
+msgstr "Je třeba restartovat následující službu:"
 
 #: pkg/lib/cockpit-components-modifications.jsx:137
 msgid "The logged in user is not permitted to view system modifications"
@@ -7100,7 +7246,7 @@ msgstr "Nové heslo ke klíči je třeba vyplnit"
 msgid "The password can not be empty"
 msgstr "Heslo ke klíči je třeba vyplnit"
 
-#: pkg/users/account-create-dialog.js:210 pkg/users/password-dialogs.js:211
+#: pkg/users/account-create-dialog.js:189 pkg/users/password-dialogs.js:190
 msgid "The passwords do not match"
 msgstr "Zadání hesla se neshodují"
 
@@ -7115,7 +7261,7 @@ msgid ""
 "email."
 msgstr "Výsledný otisk je možné sdílet veřejnými způsoby, včetně e-mailu."
 
-#: pkg/static/login.js:871
+#: pkg/static/login.js:873
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -7137,7 +7283,7 @@ msgid "The user must log out and log back in to fully change roles."
 msgstr ""
 "Pro úplnou změnu rolí je třeba, aby se uživatel odhlásil a přihlásil znovu."
 
-#: pkg/users/account-create-dialog.js:99
+#: pkg/users/account-create-dialog.js:94
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
@@ -7183,8 +7329,10 @@ msgid "There was an unexpected error while connecting to the machine."
 msgstr "Při připojování ke stroji došlo k neočekávané chybě."
 
 #: pkg/storaged/dialog.jsx:1125
+#, fuzzy
+#| msgid "This web console will be updated."
 msgid "These changes will be made:"
-msgstr "Budou učiněny tyto změny:"
+msgstr "Tato webová konzole bude aktualizována."
 
 #: pkg/storaged/utils.js:204
 msgid "Thin logical volume"
@@ -7249,8 +7397,6 @@ msgid ""
 "This pool can not be unlocked here because its key description is not in the "
 "expected format."
 msgstr ""
-"Tento fond zde není možné odemknout protože popis jeho klíče není v "
-"očekávaném formátu."
 
 #: pkg/packagekit/updates.jsx:1304
 msgid "This system is not registered"
@@ -7276,7 +7422,7 @@ msgstr ""
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "Tato jednotka není navržena k tomu, aby byla výslovně zapnuta."
 
-#: pkg/users/account-create-dialog.js:104
+#: pkg/users/account-create-dialog.js:99
 msgid "This user name already exists"
 msgstr "Toto uživatelské jméno už existuje"
 
@@ -7350,7 +7496,7 @@ msgstr "Čtvrtky"
 
 #: pkg/storaged/stratis-details.jsx:125
 msgid "Tier"
-msgstr "Tier"
+msgstr ""
 
 #: pkg/systemd/logs.jsx:200 pkg/packagekit/history.jsx:107
 msgid "Time"
@@ -7394,7 +7540,7 @@ msgstr ""
 "buď pomocí Red Hat portálu pro zákazníky nebo místního serveru předplatného."
 
 #: pkg/shell/hosts_dialog.jsx:463 pkg/shell/hosts_dialog.jsx:474
-#: pkg/static/login.js:724
+#: pkg/static/login.js:726
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
 "the machine or through a trusted network:"
@@ -7419,7 +7565,7 @@ msgstr "Přepnout bitovou mapu"
 msgid "Toggle date picker"
 msgstr "Přepnout volič datumů"
 
-#: pkg/systemd/services/services.jsx:902 pkg/systemd/logs.jsx:189
+#: pkg/systemd/services/services.jsx:920 pkg/systemd/logs.jsx:189
 msgid "Toggle filters"
 msgstr "Přepnout filtry"
 
@@ -7447,7 +7593,7 @@ msgstr "Celková velikost: $0"
 msgid "Tower"
 msgstr "Věž"
 
-#: pkg/systemd/services/services.jsx:210
+#: pkg/systemd/services/services.jsx:213
 msgid "Transient"
 msgstr "Přechodné"
 
@@ -7572,13 +7718,15 @@ msgstr "Nastavení se nedaří uplatnit: $0"
 msgid "Unable to apply this solution automatically"
 msgstr "Nedaří se automaticky uplatnit toto řešení"
 
-#: pkg/static/login.js:875
+#: pkg/static/login.js:877
 msgid "Unable to connect to that address"
 msgstr "K této adrese se nedaří připojit"
 
 #: pkg/shell/hosts_dialog.jsx:351
+#, fuzzy
+#| msgid "Unable to get alert: $0"
 msgid "Unable to contact $0."
-msgstr "Nedaří se kontaktovat $0."
+msgstr "Nedaří se získat výstrahu: $0"
 
 #: pkg/shell/hosts_dialog.jsx:229
 msgid ""
@@ -7669,7 +7817,7 @@ msgstr "Jednotka"
 
 # auto translated by TM merge from project: system-config-printer, version:
 # master, DocId: system-config-printer
-#: pkg/systemd/services/services.jsx:734
+#: pkg/systemd/services/services.jsx:745
 msgid "Unit not found"
 msgstr "Jednotka nenalezena"
 
@@ -7725,15 +7873,14 @@ msgid "Unlock"
 msgstr "Odemknout"
 
 #: pkg/storaged/fsys-tab.jsx:660
+#, fuzzy
+#| msgid "Mount also automatically on boot"
 msgid "Unlock automatically on boot"
-msgstr "Automaticky odemknout při startu systému"
+msgstr "Připojovat také automaticky při startu systému"
 
 #: pkg/storaged/stratis-details.jsx:698
-#, fuzzy
-#| msgctxt "storage-id-desc"
-#| msgid "Locked encrypted data"
 msgid "Unlock encrypted Stratis pool"
-msgstr "Uzamčená šifrovaná data"
+msgstr ""
 
 #: pkg/shell/credentials.jsx:310
 #, fuzzy
@@ -7742,16 +7889,20 @@ msgid "Unlock key $0"
 msgstr "Odemknout klíč"
 
 #: pkg/storaged/stratis-details.jsx:792
+#, fuzzy
+#| msgid "Block device for filesystems"
 msgid "Unlock pool to see filesystems."
-msgstr "Pokud chcete vidět souborové systémy, odemkněte fond."
+msgstr "Blokové zařízení pro souborové systémy"
 
 #: pkg/storaged/jobs-panel.jsx:44
 msgid "Unlocking $target"
 msgstr "Odemyká se $target"
 
 #: pkg/storaged/crypto-keyslots.jsx:243
+#, fuzzy
+#| msgid "Unlocking disk..."
 msgid "Unlocking disk"
-msgstr "Odemykání disku"
+msgstr "Odemykání disku…"
 
 #: pkg/networkmanager/network-main.jsx:194
 #: pkg/networkmanager/network-main.jsx:196
@@ -7928,7 +8079,7 @@ msgstr "Používá"
 
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/storaged/dialog.jsx:1204 pkg/systemd/services/services.jsx:999
+#: pkg/storaged/dialog.jsx:1204 pkg/systemd/services/services.jsx:1017
 msgid "User"
 msgstr "Uživatel"
 
@@ -7938,12 +8089,12 @@ msgstr "Uživatel"
 # #-#-#-#-#  cs.po (PACKAGE VERSION)  #-#-#-#-#
 # auto translated by TM merge from project: FreeIPA, version: ipa-4-5, DocId:
 # po/ipa
-#: pkg/static/login.html:76 pkg/users/account-create-dialog.js:50
+#: pkg/static/login.html:76 pkg/users/account-create-dialog.js:49
 #: pkg/users/account-details.js:299 pkg/shell/hosts_dialog.jsx:257
 msgid "User name"
 msgstr "Uživatelské jméno"
 
-#: pkg/static/login.js:531
+#: pkg/static/login.js:533
 msgid "User name cannot be empty"
 msgstr "Uživatelské jméno je třeba vyplnit"
 
@@ -7980,15 +8131,11 @@ msgstr "VDO zařízení $0"
 
 #: pkg/storaged/content-views.jsx:864
 msgid "VDO filesystem volume (compression/deduplication)"
-msgstr "Svazek VDO souborového systému (komprese/deduplikace)"
+msgstr ""
 
-# auto translated by TM merge from project: anaconda, version: f25, DocId:
-# main
 #: pkg/storaged/content-views.jsx:212
-#, fuzzy
-#| msgid "Pool"
 msgid "VDO pool"
-msgstr "Úložiště"
+msgstr ""
 
 # auto translated by TM merge from project: anaconda, version: f25, DocId:
 # main
@@ -8051,6 +8198,12 @@ msgstr "Velmi jisté vymazávání $target"
 #: pkg/metrics/metrics.jsx:743 pkg/lib/cockpit-components-logs-panel.jsx:171
 msgid "View all logs"
 msgstr "Zobrazit všechny záznamy událostí"
+
+#: pkg/systemd/services/services.jsx:750
+#, fuzzy
+#| msgid "Filter services"
+msgid "View all services"
+msgstr "Filtrovat služby"
 
 #: pkg/lib/cockpit-components-modifications.jsx:162
 msgid "View automation script"
@@ -8156,8 +8309,10 @@ msgid "Web console is running in limited access mode."
 msgstr "Webová konzole je spuštěná v režimu omezeného přístupu."
 
 #: pkg/shell/shell-modals.jsx:70
+#, fuzzy
+#| msgid "Web Console"
 msgid "Web console logo"
-msgstr "Logo webové konzole"
+msgstr "Webová konzole"
 
 #: pkg/systemd/services/timer-dialog.jsx:285 pkg/packagekit/autoupdates.jsx:308
 msgid "Wednesdays"
@@ -8206,7 +8361,7 @@ msgstr "Zápis"
 msgid "Write-mostly"
 msgstr "Převážně zápis"
 
-#: pkg/static/login.js:885
+#: pkg/static/login.js:887
 msgid "Wrong user name or password"
 msgstr "Chybné uživatelské jméno nebo heslo"
 
@@ -8224,7 +8379,7 @@ msgstr "Každý rok"
 msgid "Yes"
 msgstr "Ano"
 
-#: pkg/shell/hosts_dialog.jsx:470 pkg/static/login.js:721
+#: pkg/shell/hosts_dialog.jsx:470 pkg/static/login.js:723
 msgid "You are connecting to $0 for the first time."
 msgstr "K $0 se připojujete poprvé."
 
@@ -8370,9 +8525,9 @@ msgstr "avc"
 
 #: pkg/storaged/dialog.jsx:1028
 #, fuzzy
-#| msgid "Create VDO device"
+#| msgid "This device is currently used for VDO devices."
 msgid "backing device for VDO device"
-msgstr "Vytvořit VDO zařízení"
+msgstr "Toto zařízení je v tuto chvíli používáno pro VDO zařízení."
 
 #: pkg/systemd/manifest.json:0
 msgid "bash"
@@ -8622,9 +8777,9 @@ msgstr "ve většině prohlížečů"
 
 #: pkg/storaged/content-views.jsx:672
 #, fuzzy
-#| msgid "Initialize"
+#| msgid "Initializing..."
 msgid "initialize"
-msgstr "inicializovat"
+msgstr "Inicializace…"
 
 #: pkg/apps/manifest.json:0
 msgid "install"
@@ -8705,10 +8860,8 @@ msgid "member of RAID device"
 msgstr "Člen RAID zařízení"
 
 #: pkg/storaged/dialog.jsx:1029
-#, fuzzy
-#| msgid "Reset Storage Pool"
 msgid "member of Stratis pool"
-msgstr "Resetovat fond úložišť"
+msgstr ""
 
 #: pkg/systemd/manifest.json:0
 msgid "memory"
@@ -8745,8 +8898,10 @@ msgid "network"
 msgstr "síť"
 
 #: pkg/storaged/fsys-tab.jsx:513
+#, fuzzy
+#| msgid "Mount at boot"
 msgid "never mounted at boot"
-msgstr "nikdy nepřipojeno při startu systému"
+msgstr "Připojit při startu"
 
 #: pkg/storaged/manifest.json:0
 msgid "nfs"
@@ -8810,7 +8965,7 @@ msgstr "passwd"
 msgid "password"
 msgstr "heslo"
 
-#: pkg/lib/cockpit-components-password.jsx:85
+#: pkg/lib/cockpit-components-password.jsx:107
 msgid "password quality"
 msgstr "odolnost hesla"
 
@@ -8838,9 +8993,9 @@ msgstr "Metriky výkonu"
 
 #: pkg/storaged/dialog.jsx:1026
 #, fuzzy
-#| msgid "Create volume group"
+#| msgid "The last physical volume of a volume group cannot be removed."
 msgid "physical volume of LVM2 volume group"
-msgstr "Vytvořit skupinu svazků"
+msgstr "Poslední zbývající fyzický svazek skupiny svazků není možné odebrat."
 
 #: pkg/apps/manifest.json:0
 msgid "plugin"
@@ -9038,8 +9193,8 @@ msgstr "jednotka"
 
 # auto translated by TM merge from project: Spacewalk Backend, version:
 # master, DocId: client/rhel/rhn-client-tools/po/rhn-client-tools
-#: pkg/systemd/services/services.jsx:516 pkg/systemd/services/services.jsx:517
-#: pkg/systemd/services/services.jsx:539 pkg/systemd/services/services.jsx:540
+#: pkg/systemd/services/services.jsx:524 pkg/systemd/services/services.jsx:525
+#: pkg/systemd/services/services.jsx:547 pkg/systemd/services/services.jsx:548
 msgid "unknown"
 msgstr "neznámý"
 
@@ -9107,67 +9262,185 @@ msgstr "yum"
 msgid "zone"
 msgstr "zóna"
 
-#~ msgid "Access"
-#~ msgstr "Přístup"
+#~ msgid "$0 active zones"
+#~ msgstr "$0 aktivní zóny"
 
-#~ msgid "DISK IS FAILING"
-#~ msgstr "DISK SELHÁVÁ"
+#~ msgctxt "<date> from <host> on <terminal>"
+#~ msgid "$0 from $1 on $2"
+#~ msgstr "$0 z $1 na $2"
 
-#~ msgid "Lock account"
-#~ msgstr "Uzamknout účet"
+#~ msgid "$0 occurrence"
+#~ msgid_plural "$0 occurrences"
+#~ msgstr[0] "$0 výskyt"
+#~ msgstr[1] "$0 výskyty"
+#~ msgstr[2] "$0 výskytů"
 
-#, fuzzy
-#~| msgid "Logical size"
-#~ msgid "Logical Size"
-#~ msgstr "Logická velikost"
-
-#~ msgid "Security updates "
-#~ msgstr "Aktualizace zabezpečení "
-
-# auto translated by TM merge from project: Cockpit, version: rhel-7.4, DocId:
-# cockpit
-#~ msgid "Updates "
-#~ msgstr "Aktualizace "
+#~ msgid "$0 of $1"
+#~ msgstr "$0 z $1"
 
 #~ msgid "(Optional)"
 #~ msgstr "(Volitelné)"
 
+#~ msgid "A disk is needed."
+#~ msgstr "Je zapotřebí disk."
+
+#~ msgid "Access"
+#~ msgstr "Přístup"
+
 #~ msgid "Active since"
 #~ msgstr "Aktivní od"
+
+#~ msgid "Administrator password"
+#~ msgstr "Heslo správce"
 
 #~ msgid "Affected locations"
 #~ msgstr "Umístění, kterých se týká"
 
+#~ msgid "Clear mount point configuration"
+#~ msgstr "Vyčistit nastavení přípojného bodu"
+
+#~ msgid "Click $0 again to use the password anyway."
+#~ msgstr "Pokud chcete heslo použít i tak, klikněte znovu na $0."
+
+#~ msgid "Computer OU"
+#~ msgstr "Organizační jednotka počítače"
+
+#~ msgid ""
+#~ "Connecting simultaneously to more than {{ limit }} machines is "
+#~ "unsupported."
+#~ msgstr "Souběžné spojení s více než {{ limit }} stroji není podporováno."
+
+#~ msgid "Create diagnostic report                    "
+#~ msgstr "Vytvořit diagnostické hlášení                    "
+
+#~ msgid ""
+#~ "Creating this bond will break the connection to the server, and will make "
+#~ "the administration UI unavailable."
+#~ msgstr ""
+#~ "Vytvoření tohoto sdružení linek přeruší spojení se serverem a "
+#~ "znepřístupní tak rozhraní pro jeho správu."
+
+#~ msgid ""
+#~ "Creating this bridge will break the connection to the server, and will "
+#~ "make the administration UI unavailable."
+#~ msgstr ""
+#~ "Vytvoření tohoto mostu přeruší spojení se serverem a znepřístupní tak "
+#~ "rozhraní pro jeho správu."
+
+#~ msgid ""
+#~ "Creating this team will break the connection to the server, and will make "
+#~ "the administration UI unavailable."
+#~ msgstr ""
+#~ "Vytvoření tohoto týmu přeruší spojení se serverem a znepřístupní tak "
+#~ "rozhraní pro jeho správu."
+
+#~ msgid "Custom encryption options"
+#~ msgstr "Uživatelsky určené předvolby šifrování"
+
+#~ msgid "DISK IS FAILING"
+#~ msgstr "DISK SELHÁVÁ"
+
+#~ msgid "Deleting a RAID device will erase all data on it."
+#~ msgstr ""
+#~ "Smazání RAID zařízení vymaže veškerá data, která se na něm nacházejí."
+
+#~ msgid "Deleting a volume group will erase all data on it."
+#~ msgstr "Smazání skupiny svazků vymaže veškerá data v ní."
+
+# auto translated by TM merge from project: anaconda, version: f25, DocId:
+# main
+#~ msgid "Disk"
+#~ msgstr "Disk"
+
+#~ msgid "Don't overwrite existing data"
+#~ msgstr "Nepřepisovat existující data"
+
+# auto translated by TM merge from project: dnf, version: master, DocId:
+# po/dnf
+#~ msgid "Erase"
+#~ msgstr "Smazat"
+
+#~ msgid "For legacy applications only. Reduces performance."
+#~ msgstr "Pouze pro staré aplikace. Snižuje výkon."
+
+#~ msgid "Format disk $0"
+#~ msgstr "Naformátovat disk $0"
+
+#~ msgid "Formatting a storage device will erase all data on it."
+#~ msgstr ""
+#~ "Formátování úložného zařízení vymaže všechna data, která na něm nyní jsou."
+
+#~ msgid "Host name should not be changed in a domain"
+#~ msgstr "Název stroje není v doméně možné měnit"
+
+#~ msgid "Hours must be a number between 0 and 23"
+#~ msgstr "Je třeba, aby hodina bylo číslo z rozmezí 0 až 23"
+
+#~ msgid "IP settings"
+#~ msgstr "Nastavení pro IP protokol"
+
+#~ msgid "Install VDO support"
+#~ msgstr "Nainstalovat podporu pro VDO"
+
+#~ msgid "Kerberos based SSO"
+#~ msgstr "Sjednocené přihlašování (SSO), založené na Kerberos"
+
+#~ msgid "Last login:"
+#~ msgstr "Poslední přihlášení:"
+
+#~ msgid "Licensed under:"
+#~ msgstr "Licencováno pod:"
+
+#~ msgid "Lock account"
+#~ msgstr "Uzamknout účet"
+
+#~ msgid "Log in to {{host}}"
+#~ msgstr "Přihlásit na {{host}}"
+
+#~ msgid "Member of RAID device $0"
+#~ msgstr "Člen RAID zařízení $0"
+
+#~ msgid "Menu"
+#~ msgstr "Nabídka"
+
+#~ msgid "Minutes must be a number between 0 and 59"
+#~ msgstr "Je třeba, aby minuta bylo číslo z rozmezí 0-59"
+
+# auto translated by TM merge from project: system-config-printer, version:
+# master, DocId: system-config-printer
+#~ msgid "More"
+#~ msgstr "Další"
+
+#~ msgid "Not joined"
+#~ msgstr "Nepřidáno do"
+
+#~ msgid "One time password"
+#~ msgstr "Jednorázové heslo"
+
+#~ msgid "Physical volume"
+#~ msgstr "Fyzický svazek"
+
+#~ msgid "Physical volume of $0"
+#~ msgstr "Fyzický svazek od $0"
+
 #~ msgid "Process"
 #~ msgstr "Proces"
-
-#, fuzzy
-#~| msgid "Stop and delete"
-#~ msgid "Remove and delete"
-#~ msgstr "Zastavit a smazat"
 
 #~ msgid "Remove and format"
 #~ msgstr "Odebrat a zformátovat"
 
-#, fuzzy
-#~| msgid "Remove and format"
-#~ msgid "Remove and grow"
-#~ msgstr "Odebrat a zformátovat"
+#~ msgid "Security updates "
+#~ msgstr "Aktualizace zabezpečení "
 
-#, fuzzy
-#~| msgid "Remove and format"
-#~ msgid "Remove and initialize"
-#~ msgstr "Odebrat a zformátovat"
+#~ msgid ""
+#~ "Switching off <b>$0</b>  will break the connection to the server, and "
+#~ "will make the administration UI unavailable."
+#~ msgstr ""
+#~ "Vypnutí <b>$0</b> přeruší spojení se serverem a znepřístupní tak rozhraní "
+#~ "pro jeho správu."
 
-#, fuzzy
-#~| msgid "Remove and format"
-#~ msgid "Remove and shrink"
-#~ msgstr "Odebrat a zformátovat"
-
-#, fuzzy
-#~| msgid "Remove device"
-#~ msgid "Remove and stop device"
-#~ msgstr "Odebrat zařízení"
+#~ msgid "System services"
+#~ msgstr "Systémové služby"
 
 #~ msgid ""
 #~ "The filesystem is in use by login sessions and system services. "
@@ -9187,28 +9460,25 @@ msgstr "zóna"
 #~ msgstr ""
 #~ "Souborový systém je používán systémovými službami. Pokračování je zastaví."
 
+#~ msgid "The new key passwords do not match"
+#~ msgstr "Zadání nového hesla ke klíči se neshodují"
+
+#~ msgid "There was $0 failed login attempt since the last successful login."
+#~ msgid_plural ""
+#~ "There were $0 failed login attempts since the last successful login."
+#~ msgstr[0] ""
+#~ "Od minulého úspěšného přihlášení mezitím došlo k $0 neúspěšnému pokusu."
+#~ msgstr[1] ""
+#~ "Od minulého úspěšného přihlášení mezitím došlo k $0 neúspěšným pokusům."
+#~ msgstr[2] ""
+#~ "Od minulého úspěšného přihlášení mezitím došlo k $0 neúspěšným pokusům."
+
 #~ msgid ""
 #~ "This device has filesystems that are currently in use. Proceeding will "
 #~ "unmount all filesystems on it."
 #~ msgstr ""
 #~ "Na tomto zařízení se nacházejí souborové systémy, které jsou v tuto "
 #~ "chvíli používány. Pokračování je odpojí."
-
-#, fuzzy
-#~| msgid "This device is currently used for volume groups."
-#~ msgid "This device is currently used for LVM2 volume groups."
-#~ msgstr "Toto zařízení je v tuto chvíli používáno ve skupinách svazků."
-
-#, fuzzy
-#~| msgid ""
-#~| "This device is currently used for volume groups. Proceeding will remove "
-#~| "it from its volume groups."
-#~ msgid ""
-#~ "This device is currently used for LVM2 volume groups. Proceeding will "
-#~ "remove it from its volume groups."
-#~ msgstr ""
-#~ "Toto zařízení je v tuto chvíli používáno ve skupinách svazků. Pokračování "
-#~ "ho odebere z jeho skupin svazků."
 
 #~ msgid "This device is currently used for RAID devices."
 #~ msgstr "Toto zařízení je v tuto chvíli používáno pro RAID zařízení."
@@ -9220,130 +9490,15 @@ msgstr "zóna"
 #~ "Toto zařízení je v tuto chvíli používáno pro RAID zařízení. Pokračování "
 #~ "ho z nich odebere."
 
-#, fuzzy
-#~| msgid "This device is currently used for volume groups."
-#~ msgid "This device is currently used for Stratis pools."
+#~ msgid "This device is currently used for volume groups."
 #~ msgstr "Toto zařízení je v tuto chvíli používáno ve skupinách svazků."
 
-#, fuzzy
-#~| msgid "Stop and delete"
-#~ msgid "Unmount and delete"
-#~ msgstr "Zastavit a smazat"
-
-#~ msgid "Unmount and format"
-#~ msgstr "Odpojit a zformátovat"
-
-#, fuzzy
-#~| msgid "Unmount now"
-#~ msgid "Unmount and grow"
-#~ msgstr "Odpojit nyní"
-
-#, fuzzy
-#~| msgid "Unmount and format"
-#~ msgid "Unmount and initialize"
-#~ msgstr "Odpojit a zformátovat"
-
-#, fuzzy
-#~| msgid "Unmount and format"
-#~ msgid "Unmount and shrink"
-#~ msgstr "Odpojit a zformátovat"
-
-#, fuzzy
-#~| msgid "On a mounted device"
-#~ msgid "Unmount and stop device"
-#~ msgstr "Na připojeném zařízení"
-
-#~ msgid "$0 of $1"
-#~ msgstr "$0 z $1"
-
-#, fuzzy
-#~| msgid "Blocked"
-#~ msgid "Blockdev"
-#~ msgstr "Blokované"
-
-#~ msgid "Blockdev of Stratis pool $0"
-#~ msgstr "Blokové zařízení Stratis fondu $0"
-
-#~ msgid "Blockdev of locked Stratis pool $0"
-#~ msgstr "Blokové zařízení zamčeného Stratis fondu $0"
-
-#, fuzzy
-#~| msgid "Physical volume"
-#~ msgid "LVM2 physical volume"
-#~ msgstr "Fyzický svazek"
-
-#, fuzzy
-#~| msgid "Physical volume of $0"
-#~ msgid "LVM2 physical volume of $0"
-#~ msgstr "Fyzický svazek od $0"
-
-#~ msgid "Member of RAID device $0"
-#~ msgstr "Člen RAID zařízení $0"
-
-#~ msgid "Menu"
-#~ msgstr "Nabídka"
-
-#~ msgid "VDO backing"
-#~ msgstr "Podklad pro VDO"
-
-#, fuzzy
-#~| msgid "Create storage pool"
-#~ msgid "Create Stratis Pool"
-#~ msgstr "Vytvořit fond úložiště"
-
-#, fuzzy
-#~| msgid "Mount options"
-#~ msgid "Mount Options"
-#~ msgstr "Předvolby připojení"
-
-# auto translated by TM merge from project: anaconda, version: rhel6-branch,
-# DocId: anaconda
-#, fuzzy
-#~| msgid "Mount point"
-#~ msgid "Mount Point"
-#~ msgstr "Přípojný bod"
-
-#, fuzzy
-#~| msgid "Reset Storage Pool"
-#~ msgid "Stratis Pool"
-#~ msgstr "Resetovat fond úložišť"
-
-#~ msgid "A disk is needed."
-#~ msgstr "Je zapotřebí disk."
-
-# auto translated by TM merge from project: anaconda, version: f25, DocId:
-# main
-#~ msgid "Disk"
-#~ msgstr "Disk"
-
-#~ msgid "For legacy applications only. Reduces performance."
-#~ msgstr "Pouze pro staré aplikace. Snižuje výkon."
-
-#~ msgid "Install VDO support"
-#~ msgstr "Nainstalovat podporu pro VDO"
-
-#~ msgid "Use 512 byte emulation"
-#~ msgstr "Použít emulaci 512 bajtů"
-
-#~ msgid "System services"
-#~ msgstr "Systémové služby"
-
-#~ msgid "Create diagnostic report                    "
-#~ msgstr "Vytvořit diagnostické hlášení                    "
-
 #~ msgid ""
-#~ "Connecting simultaneously to more than {{ limit }} machines is "
-#~ "unsupported."
-#~ msgstr "Souběžné spojení s více než {{ limit }} stroji není podporováno."
-
-#~ msgid "Kerberos based SSO"
-#~ msgstr "Sjednocené přihlašování (SSO), založené na Kerberos"
-
-#~ msgid "Log in to {{host}}"
-#~ msgstr "Přihlásit na {{host}}"
-
-#~ msgid "The new key passwords do not match"
-#~ msgstr "Zadání nového hesla ke klíči se neshodují"
+#~ "This device is currently used for volume groups. Proceeding will remove "
+#~ "it from its volume groups."
+#~ msgstr ""
+#~ "Toto zařízení je v tuto chvíli používáno ve skupinách svazků. Pokračování "
+#~ "ho odebere z jeho skupin svazků."
 
 #~ msgid ""
 #~ "To verify a fingerprint, run the following on {{host}} while physically "
@@ -9373,140 +9528,40 @@ msgstr "zóna"
 #~ "se připojit k tomuto stroji, je třeba zapnout následující metody "
 #~ "ověřování v nastavení sshd na {{#strong}}{{host}}{{/strong}}:"
 
+#~ msgid "Unlock at boot"
+#~ msgstr "Odemknout při startu systému"
+
+#~ msgid "Unlock read only"
+#~ msgstr "Odemknout pouze pro čtení"
+
+#~ msgid "Unmount and format"
+#~ msgstr "Odpojit a zformátovat"
+
+# auto translated by TM merge from project: Cockpit, version: rhel-7.4, DocId:
+# cockpit
+#~ msgid "Updates "
+#~ msgstr "Aktualizace "
+
+#~ msgid "Use 512 byte emulation"
+#~ msgstr "Použít emulaci 512 bajtů"
+
+#~ msgid "User password"
+#~ msgstr "Heslo uživatele"
+
+#~ msgid "VDO backing"
+#~ msgstr "Podklad pro VDO"
+
 #~ msgid "Volume group $0"
 #~ msgstr "Skupina svazků $0"
 
 #~ msgid "You are connecting to {{host}} for the first time."
 #~ msgstr "Připojujete se k {{host}} poprvé."
 
-#~ msgid "{{host}} key changed"
-#~ msgstr "klíč hostitele {{host}} se změnil"
-
-#~ msgid "Clear mount point configuration"
-#~ msgstr "Vyčistit nastavení přípojného bodu"
-
-#~ msgid ""
-#~ "Creating this bond will break the connection to the server, and will make "
-#~ "the administration UI unavailable."
-#~ msgstr ""
-#~ "Vytvoření tohoto sdružení linek přeruší spojení se serverem a "
-#~ "znepřístupní tak rozhraní pro jeho správu."
-
-#~ msgid ""
-#~ "Creating this bridge will break the connection to the server, and will "
-#~ "make the administration UI unavailable."
-#~ msgstr ""
-#~ "Vytvoření tohoto mostu přeruší spojení se serverem a znepřístupní tak "
-#~ "rozhraní pro jeho správu."
-
-#~ msgid ""
-#~ "Creating this team will break the connection to the server, and will make "
-#~ "the administration UI unavailable."
-#~ msgstr ""
-#~ "Vytvoření tohoto týmu přeruší spojení se serverem a znepřístupní tak "
-#~ "rozhraní pro jeho správu."
-
-#~ msgid "IP settings"
-#~ msgstr "Nastavení pro IP protokol"
-
-#~ msgid ""
-#~ "Switching off <b>$0</b>  will break the connection to the server, and "
-#~ "will make the administration UI unavailable."
-#~ msgstr ""
-#~ "Vypnutí <b>$0</b> přeruší spojení se serverem a znepřístupní tak rozhraní "
-#~ "pro jeho správu."
-
-#~ msgid "Administrator password"
-#~ msgstr "Heslo správce"
-
-#~ msgid "Computer OU"
-#~ msgstr "Organizační jednotka počítače"
-
-#~ msgid "Deleting a RAID device will erase all data on it."
-#~ msgstr ""
-#~ "Smazání RAID zařízení vymaže veškerá data, která se na něm nacházejí."
-
-#~ msgid "Deleting a volume group will erase all data on it."
-#~ msgstr "Smazání skupiny svazků vymaže veškerá data v ní."
-
-#~ msgid "Don't overwrite existing data"
-#~ msgstr "Nepřepisovat existující data"
-
-# auto translated by TM merge from project: dnf, version: master, DocId:
-# po/dnf
-#~ msgid "Erase"
-#~ msgstr "Smazat"
-
-#~ msgid "Format disk $0"
-#~ msgstr "Naformátovat disk $0"
-
-#~ msgid "Formatting a storage device will erase all data on it."
-#~ msgstr ""
-#~ "Formátování úložného zařízení vymaže všechna data, která na něm nyní jsou."
-
-#~ msgid "Host name should not be changed in a domain"
-#~ msgstr "Název stroje není v doméně možné měnit"
-
-# auto translated by TM merge from project: system-config-printer, version:
-# master, DocId: system-config-printer
-#~ msgid "More"
-#~ msgstr "Další"
-
-#~ msgid "Not joined"
-#~ msgstr "Nepřidáno do"
-
-#~ msgid "One time password"
-#~ msgstr "Jednorázové heslo"
-
-#~ msgid "User password"
-#~ msgstr "Heslo uživatele"
-
-#~ msgctxt "<date> from <host> on <terminal>"
-#~ msgid "$0 from $1 on $2"
-#~ msgstr "$0 z $1 na $2"
-
-#~ msgid "Hours must be a number between 0 and 23"
-#~ msgstr "Je třeba, aby hodina bylo číslo z rozmezí 0 až 23"
-
-#~ msgid "Last login:"
-#~ msgstr "Poslední přihlášení:"
-
-#~ msgid "Minutes must be a number between 0 and 59"
-#~ msgstr "Je třeba, aby minuta bylo číslo z rozmezí 0-59"
-
-#~ msgid "There was $0 failed login attempt since the last successful login."
-#~ msgid_plural ""
-#~ "There were $0 failed login attempts since the last successful login."
-#~ msgstr[0] ""
-#~ "Od minulého úspěšného přihlášení mezitím došlo k $0 neúspěšnému pokusu."
-#~ msgstr[1] ""
-#~ "Od minulého úspěšného přihlášení mezitím došlo k $0 neúspěšným pokusům."
-#~ msgstr[2] ""
-#~ "Od minulého úspěšného přihlášení mezitím došlo k $0 neúspěšným pokusům."
-
 #~ msgid "e.g. \"$0\""
 #~ msgstr "např. „$0“"
 
-#~ msgid "$0 active zones"
-#~ msgstr "$0 aktivní zóny"
-
-#~ msgid "$0 occurrence"
-#~ msgid_plural "$0 occurrences"
-#~ msgstr[0] "$0 výskyt"
-#~ msgstr[1] "$0 výskyty"
-#~ msgstr[2] "$0 výskytů"
-
-#~ msgid "Custom encryption options"
-#~ msgstr "Uživatelsky určené předvolby šifrování"
-
-#~ msgid "Licensed under:"
-#~ msgstr "Licencováno pod:"
-
-#~ msgid "Unlock at boot"
-#~ msgstr "Odemknout při startu systému"
-
-#~ msgid "Unlock read only"
-#~ msgstr "Odemknout pouze pro čtení"
+#~ msgid "{{host}} key changed"
+#~ msgstr "klíč hostitele {{host}} se změnil"
 
 #~ msgid "Search the logs with a combination of terms:"
 #~ msgstr "Prohledat záznamy událostí pomocí kombinace pojmů:"
@@ -9761,6 +9816,9 @@ msgstr "zóna"
 
 #~ msgid "Create new virtual machine"
 #~ msgstr "Vytvořit nový virtuální stroj"
+
+#~ msgid "Create new volume"
+#~ msgstr "Vytvořit nový svazek"
 
 #~ msgid "Create storage volume"
 #~ msgstr "Vytvořit svazek úložiště"
@@ -10165,9 +10223,6 @@ msgstr "zóna"
 
 #~ msgid "Network boot (PXE)"
 #~ msgstr "Zavádění ze sítě (PXE)"
-
-#~ msgid "Network file system"
-#~ msgstr "Síťový souborový systém"
 
 #~ msgid "Network interface settings could not be saved"
 #~ msgstr "Nastavení síťového rozhraní se nepodařilo uložit"
@@ -11648,6 +11703,9 @@ msgstr "zóna"
 #~ msgid "State:"
 #~ msgstr "Stav:"
 
+#~ msgid "Stop and delete"
+#~ msgstr "Zastavit a smazat"
+
 # auto translated by TM merge from project: system-config-printer, version:
 # master, DocId: system-config-printer
 #~ msgid "Stopped"
@@ -11881,6 +11939,9 @@ msgstr "zóna"
 
 #~ msgid "Reformat and add disks"
 #~ msgstr "Znovu naformátovat a přidat disky"
+
+#~ msgid "Reset Storage Pool"
+#~ msgstr "Resetovat fond úložišť"
 
 #~ msgid ""
 #~ "Resetting the storage pool will erase all containers and release disks in "

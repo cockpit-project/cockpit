@@ -66,21 +66,21 @@
 
       .progress-stack {
           display: grid;
-          padding-bottom: var(--pf-global--spacer--md);
-          grid-gap: var(--pf-global--spacer--md) var(--pf-global--spacer--lg);
+          padding-bottom: var(--pf-global--spacer--sm);
+          grid-gap: var(--pf-global--spacer--sm) var(--pf-global--spacer--md);
 
           &:not(:first-child) {
-            padding-top: var(--pf-global--spacer--md);
+            padding-top: var(--pf-global--spacer--sm);
           }
       }
 
       .progress-stack-no-space {
           display: grid;
-          padding-bottom: var(--pf-global--spacer--lg);
+          padding-bottom: var(--pf-global--spacer--sm);
           grid-gap: 0;
 
           &:not(:first-child) {
-            padding-top: var(--pf-global--spacer--lg);
+            padding-top: var(--pf-global--spacer--sm);
           }
 
           // avoid the "x" icon on high CPU usage

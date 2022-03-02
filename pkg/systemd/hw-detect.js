@@ -16,8 +16,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
+import cockpit from "cockpit";
 
 import * as machine_info from "machine-info.js";
+const _ = cockpit.gettext;
 
 // map an info.system key to a /sys/class/dmi/id/* attribute name
 const InfoDMIKey = {
@@ -61,6 +63,63 @@ function findPCI(udevdb, info) {
     }
 }
 
+function findMemoryDevices(udevdb, info) {
+    const memoryArray = [];
+    const dmipath = '/devices/virtual/dmi/id';
+    if (!(dmipath in udevdb))
+        return;
+
+    const props = udevdb[dmipath];
+    // Systemd now exposes memory information in udev, introduced in systemd => 248
+    // https://github.com/systemd/systemd/blob/main/NEWS#L1713
+    if (!('MEMORY_ARRAY_NUM_DEVICES' in props)) {
+        return;
+    }
+
+    const devices = parseInt(props.MEMORY_ARRAY_NUM_DEVICES, 10);
+    for (let slot = 0; slot < devices; slot++) {
+        let memorySize = parseInt(props[`MEMORY_DEVICE_${slot}_SIZE`], 10);
+        if (memorySize) {
+            memorySize = cockpit.format_bytes(memorySize);
+        } else {
+            memorySize = _("Unknown");
+        }
+
+        let memoryRank = props[`MEMORY_DEVICE_${slot}_RANK`];
+        if (memoryRank == 1) {
+            memoryRank = _("Single rank");
+        } else if (memoryRank == 2) {
+            memoryRank = _("Dual rank");
+        } else {
+            memoryRank = _("Unknown");
+        }
+
+        let speed = props[`MEMORY_DEVICE_${slot}_SPEED_MTS`];
+        if (speed) {
+            speed += ' MT/s';
+        } else {
+            speed = _("Unknown");
+        }
+
+        let locator = _("Unknown");
+        if (props[`MEMORY_DEVICE_${slot}_BANK_LOCATOR`] && props[`MEMORY_DEVICE_${slot}_LOCATOR`]) {
+            locator = props[`MEMORY_DEVICE_${slot}_BANK_LOCATOR`] + ': ' + props[`MEMORY_DEVICE_${slot}_LOCATOR`];
+        }
+
+        memoryArray.push({
+            locator,
+            technology: props[`MEMORY_DEVICE_${slot}_MEMORY_TECHNOLOGY`] || _("Unknown"),
+            type: props[`MEMORY_DEVICE_${slot}_TYPE`] || _("Unknown"),
+            size: memorySize,
+            state: props[`MEMORY_DEVICE_${slot}_TOTAL_WIDTH`] ? _("Present") : _("Absent"),
+            rank: memoryRank,
+            speed,
+        });
+    }
+
+    info.memory = memoryArray;
+}
+
 export default function detect() {
     const info = { system: {}, pci: [], memory: [] };
     const tasks = [];
@@ -87,6 +146,7 @@ export default function detect() {
     tasks.push(machine_info.udev_info()
             .then(result => {
                 findPCI(result, info);
+                findMemoryDevices(result, info);
                 return true;
             })
             .catch(error => {
@@ -94,15 +154,18 @@ export default function detect() {
                 return true;
             }));
 
-    tasks.push(machine_info.memory_info()
-            .then(result => {
-                info.memory = result;
-                return true;
-            })
-            .catch(error => {
-                console.warn("Failed to get dmidecode information: ", error.toString());
-                return true;
-            }));
+    // Fallback if systemd < 248
+    if (info.memory.length === 0) {
+        tasks.push(machine_info.memory_info()
+                .then(result => {
+                    info.memory = result;
+                    return true;
+                })
+                .catch(error => {
+                    console.warn("Failed to get dmidecode information: ", error.toString());
+                    return true;
+                }));
+    }
 
     // return info after all task promises got done
     return Promise.all(tasks).then(() => info);

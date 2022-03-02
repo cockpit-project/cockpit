@@ -40,59 +40,6 @@ echo 'Core(s) per socket:  4'
 echo 'Socket(s):           1'
 """
 
-dmidecode = """#!/bin/sh
-[ "$1" = "-t" -a "$2" = "memory" ] || exit 1
-cat <<EOF
-# dmidecode 3.2
-Getting SMBIOS data from sysfs.
-SMBIOS 2.7 present.
-
-Handle 0x0008, DMI type 17, 34 bytes
-Memory Device
-\tTotal Width: 64 bits
-\tSize: 8192 MB
-\tForm Factor: SODIMM
-\tLocator: ChannelA-DIMM0
-\tBank Locator: BANK 0
-\tType: DDR3
-\tSpeed: 1600 MT/s
-\tManufacturer: Samsung
-\tAsset Tag: None
-\tRank: Unknown
-\tConfigured Memory Speed: 1600 MT/s
-
-Handle 0x0009, DMI type 17, 34 bytes
-Memory Device
-\tTotal Width: 64 bits
-\tSize: 8192 MB
-\tForm Factor: SODIMM
-\tLocator: ChannelB-DIMM0
-\tBank Locator: BANK 0
-\tMemory technology: Awesome
-\tType: DDR3
-\tSpeed: 1600 MT/s
-\tManufacturer: Samsung
-\tAsset Tag: None
-\tRank: 1
-\tConfigured Memory Speed: 1600 MT/s
-
-Handle 0x0010, DMI type 17, 34 bytes
-Memory Device
-\tTotal Width: 64 bits
-\tSize: 8192 MB
-\tForm Factor: SODIMM
-\tLocator: ChannelB-DIMM0
-\tBank Locator: BANK 1
-\tMemory technology: Awesome
-\tType: DDR3
-\tSpeed: 1600 MT/s
-\tManufacturer: Samsung
-\tAsset Tag: None
-\tRank: 1
-\tConfigured Memory Speed: 1600 MT/s
-EOF
-"""
-
 
 def ssh_reconnect(machine, timeout_sec=120):
     start_time = time.time()
@@ -477,7 +424,8 @@ class TestSystemInfo(MachineCase):
         # now pretend this is a system without DMI
         b.logout()
         m.execute("mount -t tmpfs none /sys/class/dmi/id")
-        self.addCleanup(m.execute, "umount /sys/class/dmi/id")
+        # check if it's mounted as the memory tests umount it.
+        self.addCleanup(m.execute, "! mountpoint -q /sys/class/dmi/id || umount /sys/class/dmi/id")
         self.login_and_go("/system")
         # asset tag should be hidden
         b.wait_not_present('#system_information_asset_tag_text')
@@ -559,35 +507,53 @@ revision\t: 2.3 (pvr 004e 1203)
         b.enter_page('/system/hwinfo')
         b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-c-description-list__group:nth-of-type(1) dd', "2x POWER9 (architected), altivec supported")
 
-        # Memory details should be shown for generic QEMU memory
-        # demidecode not available on certain images
-        if not m.ostree_image:
-            b.wait_in_text('#hwinfo #memory-listing' + heading_selector, "Memory")
-            b.wait_in_text('#hwinfo #memory-listing table', "DIMM")
-            b.wait_in_text('#hwinfo #memory-listing table', "RAM")
+        # umount mocked /sys/class/dmi/id
+        m.execute("umount /sys/class/dmi/id")
+        m.execute("udevadm trigger --verbose /sys/devices/virtual/dmi/id")
+        b.reload()
+        b.enter_page('/system/hwinfo')
 
-            # Test more specific memory data with a fake dmidecode
-            m.write('/tmp/dmidecode', dmidecode)
-            m.execute('chmod +x /tmp/dmidecode; mount -o bind /tmp/dmidecode $(which dmidecode)')
-            self.addCleanup(m.execute, 'until umount $(which dmidecode); do sleep 1; done')
-            b.reload()
-            b.enter_page('/system/hwinfo')
-            # first DIMM has unknown technology and rank
-            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=ID]', "BANK 0: ChannelA-DIMM0")
-            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Type]', "DDR3")
-            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Size]', "8 GiB")
-            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=State]', "Present")
-            b.wait_text('#memory-listing tr:nth-of-type(1) td[data-label="Memory technology"]', "Unknown")
-            b.wait_text('#memory-listing tr:nth-of-type(1) td[data-label=Rank]', "Unknown")
-            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Speed]', "1600 MT/s")
-            # second DIMM has known technology and rank
-            b.wait_in_text('#memory-listing tr:nth-of-type(2) td[data-label=ID]', "BANK 0: ChannelB-DIMM0")
-            b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label="Memory technology"]', "Awesome")
-            b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label=Rank]', "Single rank")
-            # Locator can be the same on multi-channel memory platforms - bank locator should differentiate them
-            b.wait_in_text('#memory-listing tr:nth-of-type(3) td[data-label=ID]', "BANK 1: ChannelB-DIMM0")
+        # Memory details should be shown from our mocked DMI information from systemd's test files.
+        b.wait_in_text('#hwinfo #memory-listing' + heading_selector, "Memory")
+        b.wait_in_text('#hwinfo #memory-listing table', "DIMM")
+        b.wait_in_text('#hwinfo #memory-listing table', "RAM")
 
-    @nondestructive
+        tmp_dmi_tables = "/tmp/dmi_tables"
+        m.execute(f"mkdir {tmp_dmi_tables}")
+        self.addCleanup(m.execute, f"rm -rf {tmp_dmi_tables}")
+        m.upload(["verify/files/dmi/smbios_entry_point", "verify/files/dmi/DMI"], tmp_dmi_tables)
+        m.execute(f"mount -o bind {tmp_dmi_tables} /sys/firmware/dmi/tables")
+        self.addCleanup(m.execute, "umount /sys/firmware/dmi/tables")
+        m.execute("udevadm trigger --verbose /sys/devices/virtual/dmi/id")
+
+        b.reload()
+        b.enter_page('/system/hwinfo')
+        distros_without_systemd_memory_dmi = ['rhel-8-6', 'centos-8-stream', 'debian-stable']
+
+        # Test more specific memory data with a fake dmidecode
+        b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=ID]', "BANK 0: ChannelA-DIMM0")
+        b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Type]', "DDR4")
+        if m.image in distros_without_systemd_memory_dmi:
+            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Size]', "4 GB")
+        else:
+            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Size]', "4 GiB")
+        b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=State]', "Present")
+        b.wait_text('#memory-listing tr:nth-of-type(1) td[data-label="Memory technology"]', "Unknown")
+        b.wait_text('#memory-listing tr:nth-of-type(1) td[data-label=Rank]', "Single rank")
+        b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Speed]', "2400 MT/s")
+
+        b.wait_in_text('#memory-listing tr:nth-of-type(2) td[data-label=ID]', "BANK 2: ChannelB-DIMM0")
+        b.wait_in_text('#memory-listing tr:nth-of-type(2) td[data-label=Type]', "DDR4")
+        if m.image in distros_without_systemd_memory_dmi:
+            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Size]', "4 GB")
+        else:
+            b.wait_in_text('#memory-listing tr:nth-of-type(1) td[data-label=Size]', "4 GiB")
+        b.wait_in_text('#memory-listing tr:nth-of-type(2) td[data-label=State]', "Present")
+        b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label="Memory technology"]', "Unknown")
+        b.wait_text('#memory-listing tr:nth-of-type(2) td[data-label=Rank]', "Single rank")
+        b.wait_in_text('#memory-listing tr:nth-of-type(2) td[data-label=Speed]', "2400 MT/s")
+
+    @ nondestructive
     def testCPUSecurityMitigationsDetect(self):
         b = self.browser
         m = self.machine

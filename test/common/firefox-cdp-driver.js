@@ -363,7 +363,6 @@ CDP(options)
             // TODO: Security handling not yet supported in Firefox
 
             let input_buf = '';
-            let seq = 0;
             process.stdin
                     .on('data', chunk => {
                         input_buf += chunk;
@@ -378,7 +377,7 @@ CDP(options)
                                 command = command.substring(12);
 
                             // run the command
-                            seq = ++cur_cmd_seq;
+                            const seq = ++cur_cmd_seq;
                             eval(command).then(reply => { // eslint-disable-line no-eval
                                 currentExecId = null;
                                 if (unhandledExceptions.length === 0) {

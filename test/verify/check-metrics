@@ -772,8 +772,13 @@ class TestCurrentMetrics(MachineCase):
         # allocate a chunk of memory; this may cause other stuff to get unmapped,
         # thus not exact addition, but usage should go up
         size = 300 if have_swap else 200
-        m.execute("systemd-run --collect --slice cockpittest --unit mem-hog awk "
-                  """'BEGIN { x = sprintf("%""" + str(size) + """000000s",""); system("touch /tmp/hogged; sleep infinity") }'""")
+        self.write_file("/usr/local/bin/memhog.sh", f"""#!/usr/bin/awk -f
+BEGIN {{
+    x = sprintf("%{size}000000s","");
+    system("touch /tmp/hogged; sleep infinity")
+}}""", perm="755")
+
+        m.execute("systemd-run --collect --slice cockpittest --unit mem-hog memhog.sh")
         m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
         # bars update every 3s
         time.sleep(8)
@@ -793,7 +798,7 @@ class TestCurrentMetrics(MachineCase):
         b.click("table[aria-label='Top 5 memory services'] tbody tr:nth-of-type(1) td[data-label='Service'] a span")
         b.enter_page("/system/services")
         b.wait_in_text("#path", "/mem-hog.service")
-        b.wait_in_text(".service-name", "/tmp/hogged")
+        b.wait_in_text(".service-name", "memhog.sh")
 
         b.go("/metrics")
         b.enter_page("/metrics")

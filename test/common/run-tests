@@ -228,6 +228,8 @@ def build_command(filename, test, opts):
         cmd.append("--nonet")
     if opts.list:
         cmd.append("-l")
+    if opts.coverage:
+        cmd.append("--coverage")
     cmd.append(test)
     return cmd
 
@@ -331,6 +333,10 @@ def run(opts, image):
     fail_count = 0
     start_time = time.time()
 
+    if opts.coverage:
+        # This gives us a convenient link at the top of the logs, see link-patterns.json
+        print("Code coverage report in Coverage")
+
     test_files = glob.glob(os.path.join(opts.test_dir, "check-*"))
     changed_tests = get_affected_tests(opts.test_dir, opts.base, test_files)
     serial_tests, parallel_tests = detect_tests(test_files, image, opts)
@@ -433,6 +439,17 @@ def run(opts, image):
         # Sleep if we didn't make progress
         if not made_progress:
             time.sleep(0.5)
+
+    # Create coverage report
+    if opts.coverage:
+        base_dir = os.path.realpath(f'{__file__}/../../..')
+        output = os.environ.get("TEST_ATTACHMENTS", base_dir)
+        lcov_files = glob.glob(f"{base_dir}/lcov/*.info.gz")
+        if len(lcov_files) > 0:
+            try:
+                subprocess.check_call(["genhtml", "--no-function-coverage", "--output-dir", f"{output}/Coverage"] + lcov_files)
+            except subprocess.CalledProcessError as e:
+                print(f"Failed to create coverage report: {e}")
 
     # print summary
     duration = int(time.time() - start_time)

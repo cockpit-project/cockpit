@@ -157,13 +157,14 @@ def jsquote(str):
 
 
 class CDP:
-    def __init__(self, lang=None, verbose=False, trace=False, inject_helpers=[]):
+    def __init__(self, lang=None, verbose=False, trace=False, inject_helpers=[], start_profile=False):
         self.lang = lang
         self.timeout = 60
         self.valid = False
         self.verbose = verbose
         self.trace = trace
         self.inject_helpers = inject_helpers
+        self.start_profile = start_profile
         self.browser = get_browser(os.environ.get("TEST_BROWSER", "chromium"))
         self.show_browser = bool(os.environ.get("TEST_SHOW_BROWSER", ""))
         self.download_dir = tempfile.mkdtemp()
@@ -318,6 +319,10 @@ class CDP:
             if (self.browser.name == "firefox"):
                 src = src.replace('context = context || document;', 'context = context || window.document;')
             self.invoke("Page.addScriptToEvaluateOnNewDocument", source=src, no_trace=True)
+
+        if self.start_profile:
+            self.invoke("Profiler.enable")
+            self.invoke("Profiler.startPreciseCoverage", callCount=False, detailed=True)
 
     def kill(self):
         self.valid = False

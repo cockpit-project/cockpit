@@ -12,10 +12,12 @@ TEST_SCENARIO=${TEST_SCENARIO:-verify}
 
 case $TEST_SCENARIO in
     verify|devel|firefox|firefox-devel)
+        OPTS=""
         [ "${TEST_SCENARIO}" = "${TEST_SCENARIO%%devel}" ] || export NODE_ENV=development
+        [ "${TEST_SCENARIO}" = "${TEST_SCENARIO%%devel}" ] || OPTS="$OPTS --coverage"
         [ "${TEST_SCENARIO}" = "${TEST_SCENARIO##firefox}" ] || export TEST_BROWSER=firefox
         test/image-prepare --verbose $TEST_OS
-        test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify
+        test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify ${OPTS}
         ;;
     container-*)
         test/image-prepare --quick --containers --verbose $TEST_OS

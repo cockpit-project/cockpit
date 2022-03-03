@@ -1335,15 +1335,15 @@ class MachineCase(unittest.TestCase):
                         "    umount /dev/$dev 2>/dev/null || true; "
                         "done; until rmmod scsi_debug; do sleep 1; done")
 
-        # Terminate all lingering Cockpit sessions
         def terminate_sessions():
-            if self.machine.ostree_image:
-                # on OSTree we don't get "web console" sessions with the cockpit/ws container; just SSH
-                self.machine.execute("loginctl kill-user admin 2>/dev/null || true;"
-                                     "loginctl terminate-user admin 2>/dev/null || true")
-                self.machine.execute("while pgrep -u admin; do sleep 1; done;")
-                return
+            # on OSTree we don't get "web console" sessions with the cockpit/ws container; just SSH; but also, some tests start
+            # admin sessions without Cockpit
+            self.machine.execute("loginctl kill-user admin 2>/dev/null || true;"
+                                 "loginctl terminate-user admin 2>/dev/null || true;"
+                                 "pkill -u admin || true")
+            self.machine.execute("while pgrep -u admin; do sleep 1; done;")
 
+            # Terminate all other Cockpit sessions
             sessions = self.machine.execute("loginctl --no-legend list-sessions | awk '/web console/ { print $1 }'").strip().split()
             for s in sessions:
                 # Don't insist that terminating works, the session might be gone by now.

@@ -179,9 +179,7 @@ class Browser:
                 self.layouts = json.load(fp)
         except FileNotFoundError:
             self.layouts = default_layouts
-        self.current_layout = self.layouts[0]
-        size = self.current_layout["shell_size"]
-        self._set_window_size(size[0], size[1])
+        self.current_layout = None
 
     def title(self):
         return self.cdp.eval('document.title')
@@ -202,6 +200,10 @@ class Browser:
             schema = tls and "https" or "http"
             href = "%s://%s:%s%s" % (schema, self.address, self.port, href)
 
+        if not self.current_layout:
+            self.current_layout = self.layouts[0]
+            size = self.current_layout["shell_size"]
+            self._set_window_size(size[0], size[1])
         if cookie:
             self.cdp.invoke("Network.setCookie", **cookie)
         self.switch_to_top()

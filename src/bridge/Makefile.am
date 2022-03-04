@@ -1,9 +1,20 @@
+# -----------------------------------------------------------------------------
+# libcockpit-metrics.a: code used in both cockpit-bridge and cockpit-pcp
 
-noinst_LIBRARIES += \
-	libcockpit-bridge.a \
+noinst_LIBRARIES += libcockpit-metrics.a
+
+libcockpit_metrics_a_CFLAGS = \
+	-DG_LOG_DOMAIN=\"cockpit-bridge\" \
+	$(COCKPIT_BRIDGE_CFLAGS) \
 	$(NULL)
 
-libcockpit_bridge_METRICS = \
+libcockpit_metrics_a_LIBS = \
+	libcockpit-metrics.a \
+	$(libcockpit_common_a_LIBS) \
+	-lm \
+	$(NULL)
+
+libcockpit_metrics_a_SOURCES = \
 	src/bridge/cockpitblocksamples.c \
 	src/bridge/cockpitblocksamples.h \
 	src/bridge/cockpitcgroupsamples.c \
@@ -25,6 +36,11 @@ libcockpit_bridge_METRICS = \
 	src/bridge/cockpitsamples.c \
 	src/bridge/cockpitsamples.h \
 	$(NULL)
+
+# -----------------------------------------------------------------------------
+# libcockpit-bridge.a: code used in cockpit-bridge and its tests
+
+noinst_LIBRARIES += libcockpit-bridge.a
 
 libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitconnect.c \
@@ -76,7 +92,6 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitstream.h \
 	src/bridge/cockpitwebsocketstream.c \
 	src/bridge/cockpitwebsocketstream.h \
-	$(libcockpit_bridge_METRICS) \
 	$(NULL)
 
 if WITH_POLKIT
@@ -94,8 +109,7 @@ libcockpit_bridge_a_CFLAGS = \
 
 libcockpit_bridge_LIBS = \
 	libcockpit-bridge.a \
-	libcockpit-common.a \
-	libcockpit-common-nodeps.a \
+	$(libcockpit_metrics_a_LIBS) \
 	libwebsocket.a \
 	$(COCKPIT_BRIDGE_LIBS) \
 	$(NULL)
@@ -292,7 +306,6 @@ libcockpit_pcp_a_SOURCES = \
 	src/bridge/cockpitpeer.h \
 	src/bridge/cockpitrouter.c \
 	src/bridge/cockpitrouter.h \
-	$(libcockpit_bridge_METRICS) \
 	$(NULL)
 
 libcockpit_pcp_a_CFLAGS = \
@@ -303,8 +316,7 @@ libcockpit_pcp_a_CFLAGS = \
 
 libcockpit_pcp_LIBS = \
 	libcockpit-pcp.a \
-	libcockpit-common.a \
-	libcockpit-common-nodeps.a \
+	$(libcockpit_metrics_a_LIBS) \
 	$(COCKPIT_PCP_LIBS) \
 	$(NULL)
 

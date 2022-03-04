@@ -21,9 +21,8 @@
 
 #include "cockpittest.h"
 
-#include "cockpitjson.h"
-
-#include "cockpitconf.h"
+#include "common/cockpitconf.h"
+#include "common/cockpitjson.h"
 #include "common/cockpitsystem.h"
 
 #include <glib-object.h>

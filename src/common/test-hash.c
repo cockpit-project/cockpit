@@ -21,7 +21,7 @@
 
 #include "cockpithash.h"
 
-#include "cockpittest.h"
+#include "testlib/cockpittest.h"
 
 static void
 test_case_hash (void)

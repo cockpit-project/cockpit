@@ -24,7 +24,7 @@
 
 #include "common/cockpitflow.h"
 #include "common/cockpitsocket.h"
-#include "common/mock-pressure.h"
+#include "testlib/mock-pressure.h"
 
 #include <string.h>
 

@@ -19,14 +19,14 @@
 
 #include "config.h"
 
-#include "mock-transport.h"
-
 #include "cockpitchannel.h"
 #include "cockpitjson.h"
 #include "cockpitpipe.h"
 #include "cockpitpipetransport.h"
-#include "cockpittest.h"
-#include "mock-pressure.h"
+
+#include "testlib/cockpittest.h"
+#include "testlib/mock-pressure.h"
+#include "testlib/mock-transport.h"
 
 #include <json-glib/json-glib.h>
 

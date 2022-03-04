@@ -28,7 +28,7 @@
 #include "common/cockpitconf.h"
 #include "common/cockpitpipetransport.h"
 #include "common/cockpitsystem.h"
-#include "common/cockpittest.h"
+#include "testlib/cockpittest.h"
 #include "common/cockpitwebserver.h"
 #include "common/cockpitwebinject.h"
 

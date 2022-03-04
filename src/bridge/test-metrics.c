@@ -24,9 +24,9 @@
 
 #include "cockpitinternalmetrics.h"
 
-#include "common/cockpittest.h"
+#include "testlib/cockpittest.h"
 #include "common/cockpitjson.h"
-#include "common/mock-transport.h"
+#include "testlib/mock-transport.h"
 
 #include <unistd.h>
 

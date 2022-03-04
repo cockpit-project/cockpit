@@ -21,7 +21,7 @@
 
 #include "cockpitdbusinternal.h"
 
-#include "common/cockpittest.h"
+#include "testlib/cockpittest.h"
 
 #include <gio/gio.h>
 #include <glib/gstdio.h>

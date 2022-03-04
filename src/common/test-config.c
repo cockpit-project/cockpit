@@ -22,7 +22,8 @@
 #include "cockpitconf.h"
 
 #include "cockpitsystem.h"
-#include "cockpittest.h"
+
+#include "testlib/cockpittest.h"
 
 #include <glib.h>
 

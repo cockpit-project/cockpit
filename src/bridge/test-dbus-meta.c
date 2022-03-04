@@ -22,7 +22,7 @@
 #include "cockpitdbusmeta.h"
 
 #include "common/cockpitjson.h"
-#include "common/cockpittest.h"
+#include "testlib/cockpittest.h"
 
 #include <string.h>
 

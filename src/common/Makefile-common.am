@@ -64,8 +64,8 @@ libcockpit_common_a_SOURCES = \
 	src/common/cockpitsystem.h \
 	src/common/cockpittemplate.c \
 	src/common/cockpittemplate.h \
-	src/common/cockpittest.c \
-	src/common/cockpittest.h \
+	src/testlib/cockpittest.c \
+	src/testlib/cockpittest.h \
 	src/common/cockpittransport.c \
 	src/common/cockpittransport.h \
 	src/common/cockpitunicode.c \
@@ -139,8 +139,8 @@ test_base64_LDADD = libcockpit-common-nodeps.a libretest.a
 
 test_channel_SOURCES = \
 	src/common/test-channel.c \
-	src/common/mock-pressure.c src/common/mock-pressure.h \
-	src/common/mock-transport.c src/common/mock-transport.h
+	src/testlib/mock-pressure.c src/testlib/mock-pressure.h \
+	src/testlib/mock-transport.c src/testlib/mock-transport.h
 test_channel_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_channel_LDADD = $(libcockpit_common_a_LIBS)
 
@@ -178,7 +178,7 @@ test_locale_LDADD = $(libcockpit_common_a_LIBS)
 
 test_pipe_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_pipe_SOURCES = src/common/test-pipe.c \
-	src/common/mock-pressure.c src/common/mock-pressure.h
+	src/testlib/mock-pressure.c src/testlib/mock-pressure.h
 test_pipe_LDADD = $(libcockpit_common_a_LIBS)
 
 test_system_CFLAGS = $(libcockpit_common_a_CFLAGS)
@@ -191,7 +191,7 @@ test_template_LDADD = $(libcockpit_common_a_LIBS)
 
 test_transport_CFLAGS = $(libcockpit_common_a_CFLAGS)
 test_transport_SOURCES = src/common/test-transport.c \
-	src/common/mock-transport.c src/common/mock-transport.h
+	src/testlib/mock-transport.c src/testlib/mock-transport.h
 test_transport_LDADD = $(libcockpit_common_a_LIBS)
 
 test_unicode_CFLAGS = $(libcockpit_common_a_CFLAGS)

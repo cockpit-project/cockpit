@@ -22,8 +22,8 @@
 #include "cockpitstream.h"
 
 #include "common/cockpitloopback.h"
-#include "common/cockpittest.h"
-#include "common/mock-pressure.h"
+#include "testlib/cockpittest.h"
+#include "testlib/mock-pressure.h"
 
 #include <glib.h>
 #include <glib-unix.h>

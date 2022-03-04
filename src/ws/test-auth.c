@@ -21,16 +21,16 @@
 
 #include "cockpitauth.h"
 #include "cockpitws.h"
-#include "mock-auth.h"
 
 #include "common/cockpitconf.h"
 #include "common/cockpiterror.h"
 #include "common/cockpitsystem.h"
-#include "common/cockpittest.h"
-
 #include "common/cockpitwebrequest-private.h"
 
 #include "websocket/websocket.h"
+
+#include "testlib/cockpittest.h"
+#include "testlib/mock-auth.h"
 
 #include <string.h>
 

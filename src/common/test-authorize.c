@@ -34,7 +34,7 @@
 
 #include "config.h"
 
-#include "retest/retest.h"
+#include "testlib/retest.h"
 
 #include "cockpitauthorize.h"
 

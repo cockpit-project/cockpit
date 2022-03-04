@@ -23,8 +23,8 @@
 
 #include "common/cockpitchannel.h"
 #include "common/cockpitjson.h"
-#include "common/cockpittest.h"
-#include "common/mock-transport.h"
+#include "testlib/cockpittest.h"
+#include "testlib/mock-transport.h"
 
 #include <json-glib/json-glib.h>
 

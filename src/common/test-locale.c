@@ -20,7 +20,8 @@
 #include "config.h"
 
 #include "cockpitlocale.h"
-#include "cockpittest.h"
+
+#include "testlib/cockpittest.h"
 
 #include <libintl.h>
 #include <string.h>

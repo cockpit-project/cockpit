@@ -19,7 +19,7 @@
 
 import '../lib/patternfly/patternfly-4-cockpit.scss';
 import cockpit from "cockpit";
-import React from "react";
+import React, { useState } from 'react';
 import ReactDOM from "react-dom";
 import {
     Alert, Button,
@@ -27,13 +27,15 @@ import {
     Checkbox,
     Card, CardTitle, CardHeader, CardActions, CardBody,
     DataList, DataListItem, DataListCell, DataListItemRow, DataListCheck, DataListItemCells,
+    Dropdown, DropdownItem,
     Flex, FlexItem,
     Form, FormGroup, FormHelperText,
-    Radio, Split, SplitItem, Stack,
+    KebabToggle,
+    Radio, Stack,
     TextInput, Title, Toolbar, ToolbarContent, ToolbarItem,
-    Tooltip, Page, PageSection, PageSectionVariants, Modal,
+    Page, PageSection, PageSectionVariants, Modal,
 } from '@patternfly/react-core';
-import { ExclamationCircleIcon, TrashIcon } from '@patternfly/react-icons';
+import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 import firewall from "./firewall-client.js";
 import { ListingTable } from 'cockpit-components-table.jsx';
@@ -48,6 +50,24 @@ import "./networking.scss";
 const _ = cockpit.gettext;
 
 superuser.reload_page_on_change();
+
+const upperCaseFirstLetter = text => text[0].toUpperCase() + text.slice(1);
+
+const DeleteDropdown = ({ handleClick, ariaLabel, id }) => {
+    const [isActionsKebabOpen, setActionsKebabOpen] = useState(false);
+    return (<Dropdown toggle={<KebabToggle onToggle={isOpen => setActionsKebabOpen(isOpen)} id={id || null} />}
+                      isOpen={isActionsKebabOpen}
+                      isPlain
+                      position="right"
+                      dropdownItems={[
+                          <DropdownItem key="delete"
+                            className="pf-m-danger"
+                            aria-label={ariaLabel}
+                            onClick={handleClick}>
+                              {_("Delete")}
+                          </DropdownItem>
+                      ]} />);
+};
 
 function serviceRow(props) {
     let tcp = props.service.ports.filter(p => p.protocol.toUpperCase() == 'TCP');
@@ -65,8 +85,6 @@ function serviceRow(props) {
         event.stopPropagation();
     }
 
-    const deleteButton = <Button key={props.service.id + "-delete-button"} variant="danger" onClick={onRemoveService} aria-label={cockpit.format(_("Remove service $0"), props.service.id)}><TrashIcon /></Button>;
-
     const columns = [
         {
             title: props.service.id, header: true
@@ -83,6 +101,13 @@ function serviceRow(props) {
         },
     ];
 
+    if (!props.readonly) {
+        columns.push({
+            title: <DeleteDropdown ariaLabel={cockpit.format(_("Remove service $0"), props.service.id)}
+                                              handleClick={onRemoveService} id={props.service.key} />
+        });
+    }
+
     let description, includes;
     if (props.service.description)
         description = <p>{props.service.description}</p>;
@@ -96,16 +121,12 @@ function serviceRow(props) {
                     return <li key={service.id}><strong>{service.id}</strong>: {service.description}</li>;
             })} </ul></>;
     }
-    const simpleBody = <Split>
-        <SplitItem key="description" isFilled>{description}{includes}</SplitItem>
-        {!props.readonly && <SplitItem key="actions">{deleteButton}</SplitItem>}
-    </Split>;
 
     return ({
         props: { key: props.service.id, 'data-row-id': props.service.id },
         columns,
         hasPadding: true,
-        expandedContent: simpleBody,
+        expandedContent: <>{description}{includes}</>,
     });
 }
 
@@ -139,23 +160,7 @@ function ZoneSection(props) {
         props.onRemoveZone(props.zone.id);
     }
 
-    let deleteButton;
-    if (props.readonly) {
-        deleteButton = (
-            <Tooltip id="tip-auth" content={ _("You are not authorized to modify the firewall.") }>
-                <span>
-                    <Button variant="danger"
-                            aria-label={cockpit.format(_("Not authorized to remove zone $0"), props.zone.id)}
-                            isDisabled icon={<TrashIcon />} />
-                </span>
-            </Tooltip>
-        );
-    } else {
-        deleteButton = <Button variant="danger" onClick={onRemoveZone}
-                               aria-label={cockpit.format(_("Remove zone $0"), props.zone.id)}
-                               icon={<TrashIcon />} />;
-    }
-
+    const deleteButton = (<DeleteDropdown ariaLabel={cockpit.format(_("Remove zone $0"), props.zone.id)} handleClick={onRemoveZone} id={`dropdown-${props.zone.id}`} />);
     const addServiceAction = (
         <Button variant="primary" onClick={() => props.openServicesDialog(props.zone.id, props.zone.id)} className="add-services-button" aria-label={cockpit.format(_("Add services to zone $0"), props.zone.id)}>
             {_("Add services")}
@@ -165,30 +170,35 @@ function ZoneSection(props) {
     return <Card className="zone-section" data-id={props.zone.id}>
         <CardHeader className="zone-section-heading">
             <CardTitle>
-                <h4>{ cockpit.format(_("$0 zone"), props.zone.id) }</h4>
-                <div className="zone-section-targets">
-                    { props.zone.interfaces.length > 0 && <span className="zone-section-target"><strong>{_("Interfaces")}</strong> {props.zone.interfaces.join(", ")}</span> }
-                    { props.zone.source.length > 0 && <span className="zone-section-target"><strong>{_("Addresses")}</strong> {props.zone.source.join(", ")}</span> }
-                </div>
+                <Flex alignItems={{ default: 'alignItemsCenter' }}>
+                    <Title headingLevel="h2" size="xl">
+                        { cockpit.format(_("$0 Zone"), upperCaseFirstLetter(props.zone.id)) }
+                    </Title>
+                    <div className="zone-section-targets">
+                        { props.zone.interfaces.length > 0 && <span className="zone-section-target"><strong>{_("Interfaces")}</strong> {props.zone.interfaces.join(", ")}</span> }
+                        { props.zone.source.length > 0 && <span className="zone-section-target"><strong>{_("Addresses")}</strong> {props.zone.source.join(", ")}</span> }
+                    </div>
+                </Flex>
             </CardTitle>
-            { !firewall.readonly && <CardActions className="zone-section-buttons">{deleteButton}{addServiceAction}</CardActions> }
+            { !firewall.readonly && <CardActions className="zone-section-buttons">{addServiceAction}{deleteButton}</CardActions> }
         </CardHeader>
         {props.zone.services.length > 0 &&
         <CardBody className="contains-list">
-            <ListingTable columns={[{ title: _("Service"), props: { width: 40 } }, { title: _("TCP"), props: { width: 30 } }, { title: _("UDP"), props: { width: 30 } }]}
+            <ListingTable columns={[{ title: _("Service"), props: { width: 40 } }, { title: _("TCP"), props: { width: 30 } }, { title: _("UDP"), props: { width: 30 } }, { title: "", props: { width: 10 } }]}
                           id={props.zone.id}
                           aria-label={props.zone.id}
                           variant="compact"
                           emptyCaption={_("There are no active services in this zone")}
                           rows={
                               props.zone.services.map(s => {
-                                  if (s in firewall.services)
+                                  if (s in firewall.services) {
                                       return serviceRow({
                                           key: firewall.services[s].id,
                                           service: firewall.services[s],
                                           onRemoveService: service => props.onRemoveService(props.zone.id, service),
-                                          readonly: firewall.readonly
+                                          readonly: firewall.readonly,
                                       });
+                                  }
                               }).concat(
                                   props.zone.ports.length > 0
                                       ? portRow({

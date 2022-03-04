@@ -175,7 +175,11 @@ function ZoneSection(props) {
                         { cockpit.format(_("$0 Zone"), upperCaseFirstLetter(props.zone.id)) }
                     </Title>
                     <div className="zone-section-targets">
-                        { props.zone.interfaces.length > 0 && <span className="zone-section-target"><strong>{_("Interfaces")}</strong> {props.zone.interfaces.join(", ")}</span> }
+                        { props.zone.interfaces.length > 0 &&
+                        <span className="zone-section-target">
+                            <strong>{cockpit.ngettext("Interface", "Interfaces", props.zone.interfaces.length)}</strong> {props.zone.interfaces.join(", ")}
+                        </span>
+                        }
                         { props.zone.source.length > 0 && <span className="zone-section-target"><strong>{_("Addresses")}</strong> {props.zone.source.join(", ")}</span> }
                     </div>
                 </Flex>

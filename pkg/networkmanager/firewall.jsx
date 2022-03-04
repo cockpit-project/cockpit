@@ -941,7 +941,7 @@ export class Firewall extends React.Component {
 
         const addZoneAction = (
             <Button variant="primary" onClick={this.openAddZoneDialog} id="add-zone-button" aria-label={_("Add a new zone")}>
-                {_("Add zone")}
+                {_("Add new zone")}
             </Button>
         );
 

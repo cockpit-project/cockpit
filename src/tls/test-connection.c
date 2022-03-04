@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#include "common/cockpittest.h"
+#include "testlib/cockpittest.h"
 
 int
 main (int argc,

@@ -22,8 +22,8 @@
 #include "cockpitconnect.h"
 
 #include "common/cockpitloopback.h"
-#include "common/cockpittest.h"
-#include "common/mock-transport.h"
+#include "testlib/cockpittest.h"
+#include "testlib/mock-transport.h"
 
 #include <glib.h>
 #include <glib-unix.h>

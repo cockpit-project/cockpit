@@ -175,7 +175,7 @@ test_bridge_LDADD = $(libcockpit_bridge_LIBS)
 
 test_connect_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_connect_SOURCES = src/bridge/test-connect.c \
-	src/common/mock-transport.c src/common/mock-transport.h
+	src/testlib/mock-transport.c src/testlib/mock-transport.h
 test_connect_LDADD = $(libcockpit_bridge_LIBS)
 
 test_dbus_meta_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
@@ -183,7 +183,7 @@ test_dbus_meta_SOURCES = src/bridge/test-dbus-meta.c
 test_dbus_meta_LDADD = $(libcockpit_bridge_LIBS)
 
 test_packages_SOURCES = src/bridge/test-packages.c \
-	src/common/mock-transport.c src/common/mock-transport.h
+	src/testlib/mock-transport.c src/testlib/mock-transport.h
 test_packages_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_packages_LDADD = $(libcockpit_bridge_LIBS)
 
@@ -192,13 +192,13 @@ test_paths_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_paths_LDADD = $(libcockpit_bridge_LIBS)
 
 test_peer_SOURCES = src/bridge/test-peer.c \
-	src/common/mock-transport.c src/common/mock-transport.h
+	src/testlib/mock-transport.c src/testlib/mock-transport.h
 test_peer_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_peer_LDADD = $(libcockpit_bridge_LIBS)
 
 test_router_SOURCES = src/bridge/test-router.c \
-	src/common/mock-channel.c src/common/mock-channel.h \
-	src/common/mock-transport.c src/common/mock-transport.h
+	src/testlib/mock-channel.c src/testlib/mock-channel.h \
+	src/testlib/mock-transport.c src/testlib/mock-transport.h
 test_router_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_router_LDADD = $(libcockpit_bridge_LIBS)
 
@@ -209,7 +209,7 @@ test_rules_LDADD = $(libcockpit_bridge_LIBS)
 
 test_stream_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_stream_SOURCES = src/bridge/test-stream.c \
-	src/common/mock-pressure.c src/common/mock-pressure.h
+	src/testlib/mock-pressure.c src/testlib/mock-pressure.h
 test_stream_LDADD = $(libcockpit_bridge_LIBS)
 
 test_process_SOURCES = src/bridge/test-process.c
@@ -218,37 +218,37 @@ test_process_LDADD = $(libcockpit_bridge_LIBS)
 
 test_packet_channel_SOURCES = \
 	src/bridge/test-packet-channel.c \
-	src/common/mock-transport.c src/common/mock-transport.h
+	src/testlib/mock-transport.c src/testlib/mock-transport.h
 test_packet_channel_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_packet_channel_LDADD = $(libcockpit_bridge_LIBS)
 
 test_pipe_channel_SOURCES = \
 	src/bridge/test-pipe-channel.c \
-	src/common/mock-transport.c src/common/mock-transport.h
+	src/testlib/mock-transport.c src/testlib/mock-transport.h
 test_pipe_channel_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_pipe_channel_LDADD = $(libcockpit_bridge_LIBS)
 
 test_fs_SOURCES = \
 	src/bridge/test-fs.c \
-	src/common/mock-transport.c src/common/mock-transport.h
+	src/testlib/mock-transport.c src/testlib/mock-transport.h
 test_fs_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_fs_LDADD = $(libcockpit_bridge_LIBS)
 
 test_metrics_SOURCES = \
 	src/bridge/test-metrics.c \
-	src/common/mock-transport.c src/common/mock-transport.h
+	src/testlib/mock-transport.c src/testlib/mock-transport.h
 test_metrics_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_metrics_LDADD = $(libcockpit_bridge_LIBS) -lm
 
 test_httpstream_SOURCES = \
 	src/bridge/test-httpstream.c \
-	src/common/mock-transport.c src/common/mock-transport.h
+	src/testlib/mock-transport.c src/testlib/mock-transport.h
 test_httpstream_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_httpstream_LDADD = $(libcockpit_bridge_LIBS) -ldl
 
 test_websocketstream_SOURCES = \
 	src/bridge/test-websocketstream.c \
-	src/common/mock-transport.c src/common/mock-transport.h
+	src/testlib/mock-transport.c src/testlib/mock-transport.h
 test_websocketstream_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
 test_websocketstream_LDADD = $(libcockpit_bridge_LIBS) -ldl
 
@@ -345,13 +345,13 @@ CLEANFILES += mock-archives/*
 
 test_pcp_SOURCES = \
 	src/bridge/test-pcp.c \
-	src/common/mock-transport.c src/common/mock-transport.h
+	src/testlib/mock-transport.c src/testlib/mock-transport.h
 test_pcp_CFLAGS = $(libcockpit_pcp_a_CFLAGS)
 test_pcp_LDADD = $(libcockpit_pcp_LIBS) -ldl
 
 test_pcp_archives_SOURCES = \
 	src/bridge/test-pcp-archives.c \
-	src/common/mock-transport.c src/common/mock-transport.h
+	src/testlib/mock-transport.c src/testlib/mock-transport.h
 test_pcp_archives_CFLAGS = $(libcockpit_pcp_a_CFLAGS)
 test_pcp_archives_LDADD = $(libcockpit_pcp_LIBS) -ldl -lpcp_import
 

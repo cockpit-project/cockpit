@@ -21,7 +21,7 @@
 
 #include "pam-ssh-add.h"
 
-#include "retest/retest.h"
+#include "testlib/retest.h"
 
 #include <sys/types.h>
 #include <sys/wait.h>

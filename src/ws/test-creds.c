@@ -22,7 +22,7 @@
 #include "ws/cockpitcreds.h"
 
 #include "common/cockpitjson.h"
-#include "common/cockpittest.h"
+#include "testlib/cockpittest.h"
 
 static void
 assert_all_zeros (GBytes *bytes)

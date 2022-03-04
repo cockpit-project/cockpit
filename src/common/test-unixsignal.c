@@ -21,7 +21,7 @@
 
 #include "cockpitunixsignal.h"
 
-#include "cockpittest.h"
+#include "testlib/cockpittest.h"
 
 #include <glib.h>
 

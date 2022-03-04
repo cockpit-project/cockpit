@@ -19,7 +19,6 @@
 
 #include "config.h"
 
-#include "mock-auth.h"
 
 #include "cockpithandlers.h"
 #include "cockpitws.h"
@@ -27,10 +26,11 @@
 #include "common/cockpitconf.h"
 #include "common/cockpitsocket.h"
 #include "common/cockpitsystem.h"
-#include "common/cockpittest.h"
 #include "common/cockpitwebserver.h"
-
 #include "common/cockpitwebrequest-private.h"
+
+#include "testlib/cockpittest.h"
+#include "testlib/mock-auth.h"
 
 #include <glib.h>
 

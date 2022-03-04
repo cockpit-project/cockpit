@@ -24,7 +24,8 @@
 #include "cockpitwebcertificate.h"
 
 #include "cockpitsystem.h"
-#include "cockpittest.h"
+
+#include "testlib/cockpittest.h"
 
 static void
 do_locate_test (int dirfd, const char *certname, const char *expected_path, const char *expected_error)

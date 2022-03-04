@@ -49,7 +49,7 @@ frob_websocket_CPPFLAGS = $(libwebsocket_a_CPPFLAGS)
 frob_websocket_LDADD = libwebsocket.a $(libwebsocket_a_LIBS)
 
 test_websocket_SOURCES = src/websocket/test-websocket.c \
-	src/common/mock-pressure.c src/common/mock-pressure.h
+	src/testlib/mock-pressure.c src/testlib/mock-pressure.h
 test_websocket_CPPFLAGS = $(libwebsocket_a_CPPFLAGS)
 test_websocket_LDADD = libwebsocket.a $(libwebsocket_a_LIBS)
 

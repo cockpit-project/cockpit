@@ -21,7 +21,7 @@
 
 #include "cockpitsystem.h"
 
-#include "common/cockpittest.h"
+#include "testlib/cockpittest.h"
 
 #include <glib/gstdio.h>
 

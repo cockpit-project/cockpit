@@ -20,7 +20,7 @@
 #include "config.h"
 
 #include "common/cockpitconf.h"
-#include "common/cockpittest.h"
+#include "testlib/cockpittest.h"
 
 #include "cockpitsshoptions.h"
 

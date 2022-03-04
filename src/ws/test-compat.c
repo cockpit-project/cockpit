@@ -37,7 +37,7 @@
 #include "cockpitcompat.h"
 
 #include "common/cockpitauthorize.h"
-#include "common/cockpittest.h"
+#include "testlib/cockpittest.h"
 
 #include <sys/types.h>
 #include <sys/wait.h>

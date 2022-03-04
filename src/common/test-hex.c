@@ -21,7 +21,7 @@
 
 #include "cockpithex.h"
 
-#include "retest/retest.h"
+#include "testlib/retest.h"
 
 #include <stdlib.h>
 

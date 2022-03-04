@@ -22,8 +22,9 @@
 #include "cockpitpipe.h"
 
 #include "cockpitsystem.h"
-#include "cockpittest.h"
-#include "mock-pressure.h"
+
+#include "testlib/cockpittest.h"
+#include "testlib/mock-pressure.h"
 
 #include <glib.h>
 #include <glib/gstdio.h>

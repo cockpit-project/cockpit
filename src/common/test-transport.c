@@ -23,8 +23,8 @@
 #include "cockpitpipe.h"
 #include "cockpitpipetransport.h"
 
-#include "common/cockpittest.h"
-#include "common/mock-transport.h"
+#include "testlib/cockpittest.h"
+#include "testlib/mock-transport.h"
 
 #include "websocket/websocket.h"
 

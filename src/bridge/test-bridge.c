@@ -23,7 +23,7 @@
 #include "common/cockpitpipe.h"
 #include "common/cockpitpipetransport.h"
 #include "common/cockpitsystem.h"
-#include "common/cockpittest.h"
+#include "testlib/cockpittest.h"
 
 #include <string.h>
 

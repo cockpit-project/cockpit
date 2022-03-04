@@ -24,7 +24,8 @@
 #include "cockpitjsonprint.h"
 #include "cockpitmemfdread.h"
 #include "cockpitsocket.h"
-#include "cockpittest.h"
+
+#include "testlib/cockpittest.h"
 
 #include <gio/gunixfdmessage.h>
 #include <gio/gunixcredentialsmessage.h>

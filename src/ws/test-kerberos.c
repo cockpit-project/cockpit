@@ -23,10 +23,10 @@
 #include "cockpitws.h"
 
 #include "common/cockpitsystem.h"
-#include "common/cockpittest.h"
 #include "common/cockpitwebserver.h"
-
 #include "common/cockpitwebrequest-private.h"
+
+#include "testlib/cockpittest.h"
 
 #include <krb5/krb5.h>
 #include <gssapi/gssapi_krb5.h>

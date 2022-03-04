@@ -22,7 +22,7 @@
 
 #include <glib-object.h>
 
-#include "cockpitflow.h"
+#include "common/cockpitflow.h"
 
 #define MOCK_TYPE_PRESSURE         (mock_pressure_get_type ())
 

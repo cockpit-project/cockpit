@@ -21,7 +21,7 @@
 
 #include "cockpitversion.h"
 
-#include "common/cockpittest.h"
+#include "testlib/cockpittest.h"
 
 #include <string.h>
 

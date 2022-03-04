@@ -165,8 +165,8 @@ test_auth_CFLAGS = $(cockpit_ws_CFLAGS)
 
 test_auth_SOURCES = \
 	src/ws/test-auth.c \
-	src/ws/mock-auth.c \
-	src/ws/mock-auth.h \
+	src/testlib/mock-auth.c \
+	src/testlib/mock-auth.h \
 	$(NULL)
 
 test_auth_LDADD = \
@@ -176,7 +176,7 @@ test_auth_LDADD = \
 
 test_channelresponse_CFLAGS = $(cockpit_ws_CFLAGS)
 test_channelresponse_SOURCES = src/ws/test-channelresponse.c \
-	src/ws/mock-auth.c src/ws/mock-auth.h \
+	src/testlib/mock-auth.c src/testlib/mock-auth.h \
 	$(NULL)
 test_channelresponse_LDADD = \
 	libwebsocket.a \
@@ -198,7 +198,7 @@ test_handlers_CFLAGS = $(cockpit_ws_CFLAGS)
 
 test_handlers_SOURCES = \
 	src/ws/test-handlers.c \
-	src/ws/mock-auth.c src/ws/mock-auth.h \
+	src/testlib/mock-auth.c src/testlib/mock-auth.h \
 	$(NULL)
 
 test_handlers_LDADD = \
@@ -208,7 +208,7 @@ test_handlers_LDADD = \
 
 test_webservice_SOURCES = \
 	src/ws/test-webservice.c \
-	src/ws/mock-auth.c src/ws/mock-auth.h \
+	src/testlib/mock-auth.c src/testlib/mock-auth.h \
 	$(NULL)
 
 test_webservice_CFLAGS = $(cockpit_ws_CFLAGS)
@@ -249,8 +249,8 @@ WS_CHECKS += \
 test_authssh_CFLAGS = $(cockpit_ws_CFLAGS)
 test_authssh_SOURCES = \
 	src/ws/test-authssh.c \
-	src/ws/mock-auth.c \
-	src/ws/mock-auth.h \
+	src/testlib/mock-auth.c \
+	src/testlib/mock-auth.h \
 	$(NULL)
 test_authssh_LDADD = \
 	libcockpit-ws.a \

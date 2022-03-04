@@ -33,7 +33,7 @@
  */
 
 #include "config.h"
-#include "retest/retest.h"
+#include "testlib/retest.h"
 
 #include "cockpitbase64.h"
 

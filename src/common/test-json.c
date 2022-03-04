@@ -21,7 +21,7 @@
 
 #include "cockpitjson.h"
 
-#include "common/cockpittest.h"
+#include "testlib/cockpittest.h"
 
 #include <math.h>
 #include <string.h>

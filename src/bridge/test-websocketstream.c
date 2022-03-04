@@ -23,11 +23,11 @@
 #include "cockpitwebsocketstream.h"
 
 #include "common/cockpitchannel.h"
-#include "common/cockpittest.h"
+#include "testlib/cockpittest.h"
 #include "common/cockpitjson.h"
 #include "common/cockpitwebresponse.h"
 #include "common/cockpitwebserver.h"
-#include "common/mock-transport.h"
+#include "testlib/mock-transport.h"
 
 #include "websocket/websocketclient.h"
 

@@ -47,6 +47,33 @@
 #endif
 
 #ifndef HAVE_CLOSEFROM
+/* closefrom:
+ *
+ * We strictly require at least one of:
+ *
+ *   - closefrom() in the libc
+ *   - close_range() in the kernel
+ *
+ * Our preference is for closefrom(), but we can emulate it with
+ * close_range() if we need to.
+ */
+
+#include <err.h>
+#include <stdlib.h>
+#include <sys/syscall.h>
+#include <unistd.h>
+
 #define closefrom(lowfd) cockpit_closefrom(lowfd)
-void cockpit_closefrom (int lowfd);
+
+static inline void
+cockpit_closefrom (int lowfd)
+{
+  int r = syscall (__NR_close_range, lowfd, ~0U, 0);
+  if (r != 0)
+    {
+      warn ("close_range(%d)", lowfd);
+      abort ();
+    }
+}
+
 #endif

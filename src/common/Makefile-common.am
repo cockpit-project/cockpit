@@ -29,10 +29,6 @@ libcockpit_common_nodeps_a_SOURCES = \
 	src/common/cockpitwebcertificate.c \
 	$(NULL)
 
-libcockpit_common_nodeps_a_CFLAGS = \
-	-fPIC \
-	$(NULL)
-
 noinst_LIBRARIES += libcockpit-common.a
 
 # Code that has other dependencies, like glib or libsystemd
@@ -96,7 +92,6 @@ CLEANFILES += src/common/fail.html.c
 EXTRA_DIST += src/common/fail.html
 
 libcockpit_common_a_CFLAGS = \
-	-fPIC \
 	-DG_LOG_DOMAIN=\"cockpit-protocol\" \
 	$(COCKPIT_CFLAGS) \
 	$(NULL)

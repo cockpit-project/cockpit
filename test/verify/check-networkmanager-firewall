@@ -58,7 +58,7 @@ class TestFirewall(NetworkCase):
         m.execute("systemctl restart firewalld")
         self.btn_danger = "pf-m-danger"
         self.btn_primary = "pf-m-primary"
-        self.default_zone = "public zone"
+        self.default_zone = "Public Zone"
 
         # Temporary remove the test Dbus port 8765, this workaround can be
         # removed once the pixel tests are merged and the image updated to not
@@ -172,10 +172,11 @@ class TestFirewall(NetworkCase):
         active_rules = get_active_rules(m)
         b.wait_js_func("((sel, count) => ph_count(sel) == count)", ".zone-section table.ct-table tbody", len(active_rules))
 
-        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] #expand-togglepop3")
         b.wait_in_text(".zone-section[data-id='public'] tbody.pf-m-expanded tr.pf-c-table__expandable-row", "Post Office Protocol")
 
-        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] + tr ." + self.btn_danger)
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button.pf-c-dropdown__toggle")
+        b.click(".zone-section[data-id='public'] a.pf-m-danger.pf-c-dropdown__menu-item")
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
         self.assertNotIn('pop3', m.execute("firewall-cmd --list-services").split())
 
@@ -257,9 +258,9 @@ class TestFirewall(NetworkCase):
         # now add pop3
         addService('public', 'pop3')
         addService('public', 'freeipa-4')
-        b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4'] button")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4'] #expand-togglefreeipa-4")
         b.wait_visible(".zone-section[data-id='public'] tbody.pf-m-expanded .pf-c-table__expandable-row:contains(Included Services)")
-        b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4'] button")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4'] #expand-togglefreeipa-4")
 
         # pop3 should now not appear any more in Add Services dialog
         b.click(".zone-section[data-id='public'] .add-services-button")
@@ -285,8 +286,8 @@ class TestFirewall(NetworkCase):
         # requiring checkboxes to be clicked), then remove all the services
         # belonging either libvirt or public
         for service in services:
-            b.click(f".zone-section[data-id='public'] tr[data-row-id='{service}'] button")
-            b.click(f".zone-section[data-id='public'] tr[data-row-id='{service}'] + tr button.{self.btn_danger}")
+            b.click(f".zone-section[data-id='public'] tr[data-row-id='{service}'] button.pf-c-dropdown__toggle")
+            b.click(".zone-section[data-id='public'] a.pf-m-danger.pf-c-dropdown__menu-item")
             # removing cockpit services requires confirmation
             if service == "cockpit":
                 b.click(f"#delete-confirmation-dialog button.{self.btn_danger}")
@@ -298,8 +299,8 @@ class TestFirewall(NetworkCase):
         b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='pop3']")
         # remove service via cli and cockpit
         m.execute("firewall-cmd --remove-service=pop3")
-        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button")
-        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] + tr ." + self.btn_danger)
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button.pf-c-dropdown__toggle")
+        b.click(".zone-section[data-id='public'] a.pf-m-danger.pf-c-dropdown__menu-item")
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
 
     def testAddCustomServices(self):
@@ -331,12 +332,15 @@ class TestFirewall(NetworkCase):
         def save(identifier, tcp, udp, desc=""):
             b.click("button:contains(Add ports)")
             b.wait_not_present("#add-services-dialog")
+            # expand-togglecustom--80-82-echo-83-123-snmp
+            print(identifier)
+            # expand-togglefreeipa-4
             line_sel = f".zone-section[data-id='public'] tr[data-row-id='{identifier}']"
             b.wait_visible(line_sel)
             b.wait_in_text(line_sel, "".join([identifier, tcp, udp]))
             if desc:
                 # Click expand button
-                b.click(line_sel + " button")
+                b.click(line_sel + f" #expand-toggle{identifier}")
                 b.wait_text(line_sel + " + tr", desc)
 
             out = m.execute("firewall-cmd --zone public --list-services")
@@ -450,7 +454,8 @@ class TestFirewall(NetworkCase):
             b.wait_visible(f"#zones-listing .zone-section[data-id='{zone}'] tr[data-row-id='cockpit']")
 
         def removeZone(zone):
-            b.click(f".zone-section[data-id='{zone}'] .zone-section-buttons button.{self.btn_danger}")
+            b.click(f".zone-section[data-id='{zone}'] #dropdown-{zone}")
+            b.click(f".zone-section[data-id='{zone}'] a.pf-m-danger.pf-c-dropdown__menu-item")
             b.click(f"#delete-confirmation-dialog button.{self.btn_danger}")
             b.wait_not_present(f".zone-section[data-id='{zone}']")
 
@@ -467,14 +472,15 @@ class TestFirewall(NetworkCase):
         b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='pop3']")
 
         # Remove the service from public zone
-        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button")
-        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] + tr ." + self.btn_danger)
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] #expand-togglepop3")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button.pf-c-dropdown__toggle")
+        b.click(".zone-section[data-id='public'] a.pf-m-danger.pf-c-dropdown__menu-item")
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
         b.wait_visible(".zone-section[data-id='work'] tr[data-row-id='pop3']")
 
         # Remove the service from the work zone
-        b.click(".zone-section[data-id='work'] tr[data-row-id='pop3'] button")
-        b.click(".zone-section[data-id='work'] tr[data-row-id='pop3'] + tr ." + self.btn_danger)
+        b.click(".zone-section[data-id='work'] tr[data-row-id='pop3'] button.pf-c-dropdown__toggle")
+        b.click(".zone-section[data-id='work'] a.pf-m-danger.pf-c-dropdown__menu-item")
         b.wait_not_present(".zone-section[data-id='work'] tr[data-row-id='pop3']")
 
         # remove predefined work zone

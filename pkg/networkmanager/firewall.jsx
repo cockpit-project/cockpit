@@ -170,18 +170,20 @@ function ZoneSection(props) {
     return <Card className="zone-section" data-id={props.zone.id}>
         <CardHeader className="zone-section-heading">
             <CardTitle>
-                <Flex alignItems={{ default: 'alignItemsCenter' }}>
+                <Flex alignItems={{ default: 'alignSelfBaseline' }} spaceItems={{ default: 'spaceItemsXl' }}>
                     <Title headingLevel="h2" size="xl">
                         { cockpit.format(_("$0 Zone"), upperCaseFirstLetter(props.zone.id)) }
                     </Title>
-                    <div className="zone-section-targets">
+                    <Flex>
                         { props.zone.interfaces.length > 0 &&
-                        <span className="zone-section-target">
+                        <span>
                             <strong>{cockpit.ngettext("Interface", "Interfaces", props.zone.interfaces.length)}</strong> {props.zone.interfaces.join(", ")}
                         </span>
                         }
-                        { props.zone.source.length > 0 && <span className="zone-section-target"><strong>{_("Addresses")}</strong> {props.zone.source.join(", ")}</span> }
-                    </div>
+                        <span>
+                            <strong>{_("Allowed addresses")}</strong> {props.zone.source.length ? props.zone.source.join(", ") : _("Entire subnet")}
+                        </span>
+                    </Flex>
                 </Flex>
             </CardTitle>
             { !firewall.readonly && <CardActions className="zone-section-buttons">{addServiceAction}{deleteButton}</CardActions> }

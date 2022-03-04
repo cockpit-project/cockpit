@@ -29,6 +29,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <assert.h>
+#include <err.h>
 #include <errno.h>
 #include <limits.h>
 #include <stdio.h>
@@ -45,8 +46,6 @@
 #include <security/pam_modutil.h>
 
 #include "pam-ssh-add.h"
-
-#include "../common/cockpitmemory.h"
 
 /* programs that can be overwidden in tests */
 const char *pam_ssh_agent_program = PATH_SSH_AGENT;
@@ -807,6 +806,17 @@ cleanup_free_password (pam_handle_t *pamh,
                        int pam_end_status)
 {
   free_password (data);
+}
+
+static char *
+strdupx (const char *string)
+{
+  char *copy = strdup (string);
+  if (copy != NULL)
+    return copy;
+
+  warn ("failed to allocate memory for strdup");
+  abort ();
 }
 
 static int

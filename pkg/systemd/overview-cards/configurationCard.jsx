@@ -19,7 +19,7 @@
 import React, { useState } from 'react';
 import {
     Card, CardBody, Button, CardTitle, Modal, Alert,
-    Form, FormGroup, TextInput
+    Form, FormGroup, List, ListItem, TextInput
 } from '@patternfly/react-core';
 
 import host_keys_script from "raw-loader!./ssh-list-host-keys.sh";
@@ -186,14 +186,14 @@ class SystemInformationSshKeys extends React.Component {
         else if (!this.state.keys.length)
             body = <EmptyStatePanel title={ _("No host keys found.") } />;
         else
-            body = <div className="list-group dialog-list-ct">
+            body = <List isPlain isBordered>
                 {this.state.keys.map(key =>
-                    <div className="list-group-item" key={key.title}>
+                    <ListItem key={key.title}>
                         <h4>{key.title}</h4>
                         {key.fps.map((fp, i) => <div key={i}><small>{fp}</small></div>)}
-                    </div>
+                    </ListItem>
                 )}
-            </div>;
+            </List>;
 
         return (
             <Modal isOpen position="top" variant="medium"

@@ -111,16 +111,13 @@
  * Fix up table row hovering.
  *
  * When you hover over table rows it's because they're clickable.
- * Make the table row hover color match the list-group-item.
  */
 .table-hover > tbody > tr > td,
-.table-hover > tbody > tr > th,
-.dialog-list-ct .list-group-item {
+.table-hover > tbody > tr > th {
     cursor: pointer;
 }
 .table-hover > tbody > tr:hover > td,
-.table-hover > tbody > tr:hover > th,
-.dialog-list-ct .list-group-item:hover:not(.active) {
+.table-hover > tbody > tr:hover > th {
     /* PF3 uses a light blue; we have to force the override for hover colors */
     background-color: var(--ct-color-list-hover-bg) !important;
     color: var(--ct-color-list-hover-text) !important;

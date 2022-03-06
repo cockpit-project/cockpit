@@ -153,20 +153,6 @@ th {
 /********** Firewall section **********/
 
 #add-services-dialog {
-    .dialog-list-ct {
-        height: 100vh;
-
-        /* Constrain the list to a maximum size of the viewport height - UI chrome */
-        max-height: calc(100vh - 30rem);
-        min-height: 13em;
-
-        @media screen and (min-width: 640px) {
-            /* Add a bit more padding in desktop mode */
-
-            max-height: calc(100vh - 40rem);
-        }
-    }
-
     .service-list {
         max-height: 13rem;
         overflow-y: auto;

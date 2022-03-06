@@ -336,36 +336,6 @@ select.form-control {
   }
 }
 
-// Adjust list group font sizes
-.list-group {
-  font-size: var(--pf-global--FontSize--sm);
-
-  &-item {
-    .dialog-list-ct > &.active {
-      background-color: var(--pf-global--active-color--100);
-      color: var(--pf-global--Color--light-100);
-    }
-
-    > p {
-      font-size: var(--pf-global--FontSize--md);
-    }
-  }
-
-  // Navigation should be standard size
-  nav > & {
-    font-size: var(--pf-global--FontSize--md);
-  }
-
-}
-
-// Adjust list views
-.list-view-pf {
-  .list-group-item-heading {
-      font-size: var(--pf-global--FontSize--md);
-      font-weight: 600;
-  }
-}
-
 // Standardize small font size to PF4 small font
 small {
   font-size: var(--pf-global--FontSize--sm);
@@ -418,7 +388,6 @@ label {
 
 .help-block,
 .label,
-.list-group-item-heading,
 .control-label,
 th > label {
   font-weight: normal;

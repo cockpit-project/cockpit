@@ -393,8 +393,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         m.execute("systemctl stop systemd-journald.service")
 
         # Now reboot things
-        m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
-        m.wait_reboot()
+        m.reboot()
         m.execute("timedatectl set-time '2037-01-01 00:05:00'")
         m.execute("logger -p user.err --tag check-journal AFTER BOOT")
 

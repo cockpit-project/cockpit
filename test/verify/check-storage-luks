@@ -535,8 +535,7 @@ class TestStorageLuks(StorageCase):
         self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
 
         self.setup_systemd_password_agent("vainu-reku-toma-rolle-kaja")
-        m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
-        m.wait_reboot()
+        m.reboot()
         m.start_cockpit()
         b.relogin()
         b.enter_page("/storage")

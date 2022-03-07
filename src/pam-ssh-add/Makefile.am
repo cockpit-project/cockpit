@@ -1,8 +1,6 @@
 noinst_LIBRARIES += libpam_ssh_add.a
 
 libpam_ssh_add_a_SOURCES = \
-	src/common/cockpitclosefrom.c \
-	src/common/cockpithacks.h \
 	src/common/cockpitmemory.h \
 	src/common/cockpitmemory.c \
 	src/pam-ssh-add/pam-ssh-add.c \

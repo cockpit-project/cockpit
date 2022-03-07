@@ -42,10 +42,10 @@
 #include <grp.h>
 
 #include <security/pam_modules.h>
+#include <security/pam_modutil.h>
 
 #include "pam-ssh-add.h"
 
-#include "../common/cockpithacks.h"
 #include "../common/cockpitmemory.h"
 
 /* programs that can be overwidden in tests */
@@ -324,7 +324,8 @@ out:
 }
 
 static void
-setup_child (const char **args,
+setup_child (pam_handle_t *pamh,
+             const char **args,
              char **env,
              struct passwd *pwd,
              int inp[2],
@@ -343,7 +344,10 @@ setup_child (const char **args,
       exit (EXIT_FAILURE);
     }
 
-  closefrom (STDERR + 1);
+  pam_modutil_sanitize_helper_fds (pamh,
+                                   PAM_MODUTIL_IGNORE_FD,
+                                   PAM_MODUTIL_IGNORE_FD,
+                                   PAM_MODUTIL_IGNORE_FD);
 
   /* Close unnecessary file descriptors */
   close (inp[READ_END]);
@@ -415,7 +419,8 @@ restore_signals (struct sigaction *oldsact,
 }
 
 static pid_t
-run_as_user (const char **args,
+run_as_user (pam_handle_t *pamh,
+             const char **args,
              char **env,
              struct passwd *pwd,
              int inp[2],
@@ -433,7 +438,7 @@ run_as_user (const char **args,
 
     /* This is the child */
     case 0:
-      setup_child (args, env, pwd, inp, outp, errp);
+      setup_child (pamh, args, env, pwd, inp, outp, errp);
       /* Should never be reached */
       break;
 
@@ -491,7 +496,8 @@ get_environ_vars_from_agent (char *line,
 }
 
 int
-pam_ssh_add_load (struct passwd *pwd,
+pam_ssh_add_load (pam_handle_t *pamh,
+                  struct passwd *pwd,
                   const char *agent_socket,
                   const char *password)
 {
@@ -537,7 +543,7 @@ pam_ssh_add_load (struct passwd *pwd,
       goto done;
     }
 
-  pid = run_as_user (args, env, pwd,
+  pid = run_as_user (pamh, args, env, pwd,
                      inp, outp, errp);
   if (pid < 1)
     goto done;
@@ -618,7 +624,8 @@ done:
 }
 
 int
-pam_ssh_add_start_agent (struct passwd *pwd,
+pam_ssh_add_start_agent (pam_handle_t *pamh,
+                         struct passwd *pwd,
                          const char *xdg_runtime_overide,
                          char **out_auth_sock_var,
                          char **out_agent_pid_var)
@@ -665,7 +672,7 @@ pam_ssh_add_start_agent (struct passwd *pwd,
       goto done;
     }
 
-  pid = run_as_user (args, env, pwd,
+  pid = run_as_user (pamh, args, env, pwd,
                      inp, outp, errp);
   if (pid < 1)
     goto done;
@@ -828,7 +835,7 @@ start_agent (pam_handle_t *pamh,
   int success = 0;
   int res;
 
-  success = pam_ssh_add_start_agent (auth_pwd,
+  success = pam_ssh_add_start_agent (pamh, auth_pwd,
                                      pam_getenv (pamh, "XDG_RUNTIME_DIR"),
                                      &auth_socket,
                                      &auth_pid);
@@ -871,7 +878,7 @@ load_keys (pam_handle_t *pamh,
       password = NULL;
     }
 
-  success = pam_ssh_add_load (auth_pwd,
+  success = pam_ssh_add_load (pamh, auth_pwd,
                               pam_getenv (pamh, "SSH_AUTH_SOCK"),
                               password);
 

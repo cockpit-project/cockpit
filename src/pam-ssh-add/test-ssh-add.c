@@ -204,7 +204,7 @@ run_test_agent_environment (void *data,
   expect_message ("NO SSH_AUTH_SOCK");
   expect_message ("Failed to start ssh-agent");
 
-  ret = pam_ssh_add_start_agent (fix->pw, xdg_runtime, NULL, NULL);
+  ret = pam_ssh_add_start_agent (NULL, fix->pw, xdg_runtime, NULL, NULL);
 
   assert_num_eq (0, ret);
 
@@ -248,7 +248,7 @@ test_failed_agent (void *data)
 
   expect_message ("Bad things");
   expect_message ("Failed to start ssh-agent");
-  ret = pam_ssh_add_start_agent (fix->pw, NULL, &sock, &pid);
+  ret = pam_ssh_add_start_agent (NULL, fix->pw, NULL, &sock, &pid);
 
   assert_num_eq (0, ret);
   assert_ptr_eq (sock, NULL);
@@ -271,7 +271,7 @@ test_bad_agent_vars (void *data)
   int ret;
 
   expect_message ("Expected agent environment variables not found");
-  ret = pam_ssh_add_start_agent (fix->pw, NULL, &sock, &pid);
+  ret = pam_ssh_add_start_agent (NULL, fix->pw, NULL, &sock, &pid);
 
   assert_num_eq (0, ret);
   assert_ptr_eq (sock, NULL);
@@ -293,7 +293,7 @@ test_good_agent_vars (void *data)
   char *pid = NULL;
   int ret;
 
-  ret = pam_ssh_add_start_agent (fix->pw, NULL, &sock, &pid);
+  ret = pam_ssh_add_start_agent (NULL, fix->pw, NULL, &sock, &pid);
 
   assert_num_eq (1, ret);
   assert_str_cmp (sock, ==, "SSH_AUTH_SOCKET=socket");
@@ -344,7 +344,7 @@ test_keys (void *data)
   if (expect)
     expect_message ("Failed adding some keys");
 
-  ret = pam_ssh_add_load (fix->pw, "mock-socket", fix->password);
+  ret = pam_ssh_add_load (NULL, fix->pw, "mock-socket", fix->password);
 
   assert_num_eq (1, ret);
 }
@@ -362,7 +362,7 @@ test_key_environment (void *data)
   char *home_expect = NULL;
 
   expect_message ("ssh-add requires an agent socket");
-  ret = pam_ssh_add_load (fix->pw, NULL, NULL);
+  ret = pam_ssh_add_load (NULL, fix->pw, NULL, NULL);
   assert_num_eq (0, ret);
 
   if (asprintf (&home_expect, "HOME=%s", fix->pw->pw_dir) < 0)
@@ -378,7 +378,7 @@ test_key_environment (void *data)
   expect_message ("SSH_AUTH_SOCK=mock-socket");
   expect_message ("Failed adding some keys");
 
-  ret = pam_ssh_add_load (fix->pw, "mock-socket", NULL);
+  ret = pam_ssh_add_load (NULL, fix->pw, "mock-socket", NULL);
 
   assert_num_eq (1, ret);
 

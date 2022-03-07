@@ -20,6 +20,7 @@
 #ifndef PAM_SSH_ADD_H__
 #define PAM_SSH_ADD_H__
 
+#include <security/pam_modules.h>
 #include "pwd.h"
 
 #define N_ELEMENTS(x) (sizeof(x) / sizeof (x)[0])
@@ -33,12 +34,14 @@ extern int pam_ssh_add_verbose_mode;
 typedef void (*pam_ssh_add_logger) (int level, const char *data);
 extern pam_ssh_add_logger pam_ssh_add_log_handler;
 
-int     pam_ssh_add_start_agent     (struct passwd *pwd,
+int     pam_ssh_add_start_agent     (pam_handle_t *pamh,
+                                     struct passwd *pwd,
                                      const char *xdg_runtime_overide,
                                      char **out_auth_sock_var,
                                      char **out_agent_pid_var);
 
-int     pam_ssh_add_load            (struct passwd *pwd,
+int     pam_ssh_add_load            (pam_handle_t *pamh,
+                                     struct passwd *pwd,
                                      const char *agent_socket,
                                      const char *password);
 

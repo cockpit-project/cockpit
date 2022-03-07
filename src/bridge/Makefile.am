@@ -3,10 +3,11 @@
 
 noinst_LIBRARIES += libcockpit-metrics.a
 
-libcockpit_metrics_a_CFLAGS = \
+libcockpit_metrics_a_CPPFLAGS = \
 	-DG_LOG_DOMAIN=\"cockpit-bridge\" \
-	$(COCKPIT_BRIDGE_CFLAGS) \
-	$(NULL)
+	$(glib_CFLAGS) \
+	$(json_glib_CFLAGS) \
+	$(AM_CPPFLAGS)
 
 libcockpit_metrics_a_LIBS = \
 	libcockpit-metrics.a \
@@ -42,6 +43,18 @@ libcockpit_metrics_a_SOURCES = \
 
 noinst_LIBRARIES += libcockpit-bridge.a
 
+libcockpit_bridge_a_CPPFLAGS = \
+	-DG_LOG_DOMAIN=\"cockpit-bridge\" \
+	$(glib_CFLAGS) \
+	$(json_glib_CFLAGS) \
+	$(AM_CPPFLAGS)
+
+libcockpit_bridge_a_LIBS = \
+	libcockpit-bridge.a \
+	$(libcockpit_metrics_a_LIBS) \
+	$(libsystemd_LIBS) \
+	$(NULL)
+
 libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitconnect.c \
 	src/bridge/cockpitconnect.h \
@@ -52,6 +65,7 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitdbusinternal.h \
 	src/bridge/cockpitdbusjson.c \
 	src/bridge/cockpitdbusjson.h \
+	src/bridge/cockpitdbusloginmessages.c \
 	src/bridge/cockpitdbusmachines.c \
 	src/bridge/cockpitdbusmeta.c \
 	src/bridge/cockpitdbusmeta.h \
@@ -59,7 +73,6 @@ libcockpit_bridge_a_SOURCES = \
 	src/bridge/cockpitdbusrules.c \
 	src/bridge/cockpitdbusrules.h \
 	src/bridge/cockpitdbususer.c \
-	src/bridge/cockpitdbusloginmessages.c \
 	src/bridge/cockpitechochannel.c \
 	src/bridge/cockpitechochannel.h \
 	src/bridge/cockpitfslist.c \
@@ -95,167 +108,116 @@ libcockpit_bridge_a_SOURCES = \
 	$(NULL)
 
 if WITH_POLKIT
+libcockpit_bridge_a_CPPFLAGS += $(polkit_CFLAGS)
+libcockpit_bridge_a_LIBS += $(polkit_LIBS)
 libcockpit_bridge_a_SOURCES += \
 	src/bridge/cockpitpolkitagent.c \
 	src/bridge/cockpitpolkitagent.h \
 	$(NULL)
 endif
 
-libcockpit_bridge_a_CFLAGS = \
-	-I$(srcdir)/src/bridge \
-	-DG_LOG_DOMAIN=\"cockpit-bridge\" \
-	$(COCKPIT_BRIDGE_CFLAGS) \
-	$(NULL)
-
-libcockpit_bridge_LIBS = \
-	libcockpit-bridge.a \
-	$(libcockpit_metrics_a_LIBS) \
-	libwebsocket.a \
-	$(COCKPIT_BRIDGE_LIBS) \
-	$(NULL)
-
 # -----------------------------------------------------------------------------
+# PROGRAMS
 
 bin_PROGRAMS += cockpit-bridge
-
+cockpit_bridge_CPPFLAGS = $(libcockpit_bridge_a_CPPFLAGS)
+cockpit_bridge_LDADD = $(libcockpit_bridge_a_LIBS)
 cockpit_bridge_SOURCES = src/bridge/bridge.c
-cockpit_bridge_CFLAGS = \
-	-I$(srcdir)/src/bridge \
-	-DG_LOG_DOMAIN=\"cockpit-bridge\" \
-	$(COCKPIT_BRIDGE_CFLAGS) \
-	$(NULL)
-cockpit_bridge_LDADD = $(libcockpit_bridge_LIBS)
 
 libexec_PROGRAMS += cockpit-askpass
-
+cockpit_askpass_CPPFLAGS = $(libcockpit_bridge_a_CPPFLAGS)
+cockpit_askpass_LDADD = $(libcockpit_bridge_a_LIBS)
 cockpit_askpass_SOURCES = src/bridge/askpass.c
-cockpit_askpass_CFLAGS = \
-	-I$(srcdir)/src/bridge \
-	-DG_LOG_DOMAIN=\"cockpit-askpass\" \
-	$(COCKPIT_BRIDGE_CFLAGS) \
-	$(NULL)
-cockpit_askpass_LDADD = $(libcockpit_bridge_LIBS)
-
-EXTRA_DIST += \
-	src/bridge/cockpit.pam.insecure \
-	$(NULL)
 
 # -----------------------------------------------------------------------------
 # TESTS
 
-BRIDGE_CHECKS = \
-	test-paths \
-	test-rules \
-	test-pipe-channel \
-	test-packet-channel \
-	test-packages \
-	test-peer \
-	test-dbus-meta \
-	test-fs \
-	test-metrics \
-	test-connect \
-	test-stream \
-	test-httpstream \
-	test-websocketstream \
-	test-process \
-	test-bridge \
-	test-router \
-	$(NULL)
-
+check_PROGRAMS += mock-bridge
+mock_bridge_CPPFLAGS = $(libcockpit_bridge_a_CPPFLAGS)
+mock_bridge_LDADD = $(libcockpit_bridge_a_LIBS)
 mock_bridge_SOURCES = src/bridge/mock-bridge.c
-mock_bridge_CFLAGS = \
-	-DG_LOG_DOMAIN=\"mock-bridge\" \
-	$(COCKPIT_BRIDGE_CFLAGS) \
-	$(NULL)
-mock_bridge_LDADD = $(libcockpit_bridge_LIBS)
 
+TEST_PROGRAM += test-bridge
+test_bridge_CPPFLAGS = $(libcockpit_bridge_a_CPPFLAGS) $(TEST_CPP)
+test_bridge_LDADD = $(libcockpit_bridge_a_LIBS) $(TEST_LIBS)
 test_bridge_SOURCES = src/bridge/test-bridge.c
-test_bridge_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_bridge_LDADD = $(libcockpit_bridge_LIBS)
 
-test_connect_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_connect_SOURCES = src/bridge/test-connect.c \
-	src/testlib/mock-transport.c src/testlib/mock-transport.h
-test_connect_LDADD = $(libcockpit_bridge_LIBS)
+TEST_PROGRAM += test-connect
+test_connect_CPPFLAGS = $(libcockpit_bridge_a_CPPFLAGS) $(TEST_CPP)
+test_connect_LDADD = $(test_bridge_LDADD) $(TEST_LIBS)
+test_connect_SOURCES = src/bridge/test-connect.c
 
-test_dbus_meta_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
+TEST_PROGRAM += test-dbus-meta
+test_dbus_meta_CPPFLAGS = $(libcockpit_bridge_a_CPPFLAGS) $(TEST_CPP)
+test_dbus_meta_LDADD = $(libcockpit_bridge_a_LIBS) $(TEST_LIBS)
 test_dbus_meta_SOURCES = src/bridge/test-dbus-meta.c
-test_dbus_meta_LDADD = $(libcockpit_bridge_LIBS)
 
-test_packages_SOURCES = src/bridge/test-packages.c \
-	src/testlib/mock-transport.c src/testlib/mock-transport.h
-test_packages_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_packages_LDADD = $(libcockpit_bridge_LIBS)
+TEST_PROGRAM += test-fs
+test_fs_CPPFLAGS = $(libcockpit_bridge_a_CPPFLAGS) $(TEST_CPP)
+test_fs_LDADD = $(libcockpit_bridge_a_LIBS) $(TEST_LIBS)
+test_fs_SOURCES = src/bridge/test-fs.c
 
+TEST_PROGRAM += test-httpstream
+test_httpstream_CPPFLAGS = $(libcockpit_bridge_a_CPPFLAGS) $(TEST_CPP)
+test_httpstream_LDADD = $(libcockpit_bridge_a_LIBS) $(TEST_LIBS)
+test_httpstream_SOURCES = src/bridge/test-httpstream.c
+
+TEST_PROGRAM += test-metrics
+test_metrics_CPPFLAGS = $(libcockpit_bridge_a_CPPFLAGS) $(TEST_CPP)
+test_metrics_LDADD = $(libcockpit_bridge_a_LIBS) $(TEST_LIBS)
+test_metrics_SOURCES = src/bridge/test-metrics.c
+
+TEST_PROGRAM += test-packages
+test_packages_CPPFLAGS = $(libcockpit_bridge_a_CPPFLAGS) $(TEST_CPP)
+test_packages_LDADD = $(libcockpit_bridge_a_LIBS) $(TEST_LIBS)
+test_packages_SOURCES = src/bridge/test-packages.c
+
+TEST_PROGRAM += test-packet-channel
+test_packet_channel_CPPFLAGS = $(libcockpit_bridge_a_CPPFLAGS) $(TEST_CPP)
+test_packet_channel_LDADD = $(libcockpit_bridge_a_LIBS) $(TEST_LIBS)
+test_packet_channel_SOURCES = src/bridge/test-packet-channel.c
+
+TEST_PROGRAM += test-paths
+test_paths_CPPFLAGS = $(libcockpit_bridge_a_CPPFLAGS) $(TEST_CPP)
+test_paths_LDADD = $(libcockpit_bridge_a_LIBS) $(TEST_LIBS)
 test_paths_SOURCES = src/bridge/test-paths.c
-test_paths_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_paths_LDADD = $(libcockpit_bridge_LIBS)
 
-test_peer_SOURCES = src/bridge/test-peer.c \
-	src/testlib/mock-transport.c src/testlib/mock-transport.h
-test_peer_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_peer_LDADD = $(libcockpit_bridge_LIBS)
+TEST_PROGRAM += test-peer
+test_peer_CPPFLAGS = $(libcockpit_bridge_a_CPPFLAGS) $(TEST_CPP)
+test_peer_LDADD = $(libcockpit_bridge_a_LIBS) $(TEST_LIBS)
+test_peer_SOURCES = src/bridge/test-peer.c
 
-test_router_SOURCES = src/bridge/test-router.c \
-	src/testlib/mock-channel.c src/testlib/mock-channel.h \
-	src/testlib/mock-transport.c src/testlib/mock-transport.h
-test_router_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_router_LDADD = $(libcockpit_bridge_LIBS)
+TEST_PROGRAM += test-pipe-channel
+test_pipe_channel_CPPFLAGS = $(libcockpit_bridge_a_CPPFLAGS) $(TEST_CPP)
+test_pipe_channel_LDADD = $(libcockpit_bridge_a_LIBS) $(TEST_LIBS)
+test_pipe_channel_SOURCES = src/bridge/test-pipe-channel.c
 
-
-test_rules_SOURCES = src/bridge/test-rules.c
-test_rules_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_rules_LDADD = $(libcockpit_bridge_LIBS)
-
-test_stream_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_stream_SOURCES = src/bridge/test-stream.c \
-	src/testlib/mock-pressure.c src/testlib/mock-pressure.h
-test_stream_LDADD = $(libcockpit_bridge_LIBS)
-
+TEST_PROGRAM += test-process
+test_process_CPPFLAGS = $(libcockpit_bridge_a_CPPFLAGS) $(TEST_CPP)
+test_process_LDADD = $(libcockpit_bridge_a_LIBS) $(TEST_LIBS)
 test_process_SOURCES = src/bridge/test-process.c
-test_process_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_process_LDADD = $(libcockpit_bridge_LIBS)
 
-test_packet_channel_SOURCES = \
-	src/bridge/test-packet-channel.c \
-	src/testlib/mock-transport.c src/testlib/mock-transport.h
-test_packet_channel_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_packet_channel_LDADD = $(libcockpit_bridge_LIBS)
+TEST_PROGRAM += test-router
+test_router_CPPFLAGS = $(libcockpit_bridge_a_CPPFLAGS) $(TEST_CPP)
+test_router_LDADD = $(libcockpit_bridge_a_LIBS) $(TEST_LIBS)
+test_router_SOURCES = src/bridge/test-router.c
 
-test_pipe_channel_SOURCES = \
-	src/bridge/test-pipe-channel.c \
-	src/testlib/mock-transport.c src/testlib/mock-transport.h
-test_pipe_channel_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_pipe_channel_LDADD = $(libcockpit_bridge_LIBS)
+TEST_PROGRAM += test-rules
+test_rules_CPPFLAGS = $(libcockpit_bridge_a_CPPFLAGS) $(TEST_CPP)
+test_rules_LDADD = $(libcockpit_bridge_a_LIBS) $(TEST_LIBS)
+test_rules_SOURCES = src/bridge/test-rules.c
 
-test_fs_SOURCES = \
-	src/bridge/test-fs.c \
-	src/testlib/mock-transport.c src/testlib/mock-transport.h
-test_fs_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_fs_LDADD = $(libcockpit_bridge_LIBS)
+TEST_PROGRAM += test-stream
+test_stream_CPPFLAGS = $(libcockpit_bridge_a_CPPFLAGS) $(TEST_CPP)
+test_stream_LDADD = $(libcockpit_bridge_a_LIBS) $(TEST_LIBS)
+test_stream_SOURCES = src/bridge/test-stream.c
 
-test_metrics_SOURCES = \
-	src/bridge/test-metrics.c \
-	src/testlib/mock-transport.c src/testlib/mock-transport.h
-test_metrics_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_metrics_LDADD = $(libcockpit_bridge_LIBS) -lm
+TEST_PROGRAM += test-websocketstream
+test_websocketstream_CPPFLAGS = $(libcockpit_bridge_a_CPPFLAGS) $(TEST_CPP)
+test_websocketstream_LDADD = $(libcockpit_bridge_a_LIBS) $(TEST_LIBS)
+test_websocketstream_SOURCES = src/bridge/test-websocketstream.c
 
-test_httpstream_SOURCES = \
-	src/bridge/test-httpstream.c \
-	src/testlib/mock-transport.c src/testlib/mock-transport.h
-test_httpstream_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_httpstream_LDADD = $(libcockpit_bridge_LIBS) -ldl
-
-test_websocketstream_SOURCES = \
-	src/bridge/test-websocketstream.c \
-	src/testlib/mock-transport.c src/testlib/mock-transport.h
-test_websocketstream_CFLAGS = $(libcockpit_bridge_a_CFLAGS)
-test_websocketstream_LDADD = $(libcockpit_bridge_LIBS) -ldl
-
-check_PROGRAMS += $(BRIDGE_CHECKS) mock-bridge
-TESTS += $(BRIDGE_CHECKS)
-
-EXTRA_DIST += \
+dist_check_DATA += \
 	src/bridge/mock-resource \
 	src/bridge/mock-pmda.c \
 	src/bridge/mock-pmns \
@@ -277,7 +239,7 @@ polkitdir        = $(datadir)/polkit-1/actions
 polkit_DATA = $(polkit_in_files:.policy.in=.policy)
 
 %.policy: %.policy.in $(PO_FILES)
-	GETTEXTDATADIRS=$(srcdir)/po msgfmt --xml -d $(top_srcdir)/po --template $< --output $@
+	$(AM_V_GEN) GETTEXTDATADIRS=$(srcdir)/po msgfmt --xml -d $(top_srcdir)/po --template $< --output $@
 
 CLEANFILES += $(polkit_DATA)
 endif
@@ -285,15 +247,26 @@ endif
 # -----------------------------------------------------------------------------
 # PCP
 
-# make sure this ends up in the tarball, even with --disable-pcp
-pmlogconf_files = src/bridge/pmlogconf/cockpit
-EXTRA_DIST += $(pmlogconf_files)
-
 if ENABLE_PCP
+
+pmlogconfdir = $(localstatedir)/lib/pcp/config/pmlogconf/tools
+dist_pmlogconf_DATA = src/bridge/pmlogconf/cockpit
 
 libexec_PROGRAMS += cockpit-pcp
 
 noinst_LIBRARIES += libcockpit-pcp.a
+
+libcockpit_pcp_a_CPPFLAGS = \
+	-DG_LOG_DOMAIN=\"cockpit-pcp\" \
+	$(glib_CFLAGS) \
+	$(json_glib_CFLAGS) \
+	$(AM_CPPFLAGS)
+
+libcockpit_pcp_a_LIBS = \
+	libcockpit-pcp.a \
+	$(libcockpit_metrics_a_LIBS) \
+	-lpcp_pmda -lpcp -lpcp_import \
+	$(NULL)
 
 libcockpit_pcp_a_SOURCES = \
 	src/bridge/cockpitconnect.c \
@@ -306,53 +279,33 @@ libcockpit_pcp_a_SOURCES = \
 	src/bridge/cockpitpeer.h \
 	src/bridge/cockpitrouter.c \
 	src/bridge/cockpitrouter.h \
+	$(libcockpit_bridge_METRICS) \
 	$(NULL)
 
-libcockpit_pcp_a_CFLAGS = \
-	-I$(srcdir)/src/bridge \
-	-DG_LOG_DOMAIN=\"cockpit-pcp\" \
-	$(COCKPIT_PCP_CFLAGS) \
-	$(NULL)
-
-libcockpit_pcp_LIBS = \
-	libcockpit-pcp.a \
-	$(libcockpit_metrics_a_LIBS) \
-	$(COCKPIT_PCP_LIBS) \
-	$(NULL)
-
+cockpit_pcp_CPPFLAGS = $(libcockpit_pcp_a_CPPFLAGS)
+cockpit_pcp_LDADD = $(libcockpit_pcp_a_LIBS)
 cockpit_pcp_SOURCES = src/bridge/cockpitpcp.c
-cockpit_pcp_CFLAGS = \
-	-DG_LOG_DOMAIN=\"cockpit-pcp\" \
-	$(COCKPIT_PCP_CFLAGS) \
-	$(NULL)
-cockpit_pcp_LDADD = $(libcockpit_pcp_LIBS)
-
-pmlogconfdir = $(localstatedir)/lib/pcp/config/pmlogconf/tools
-pmlogconf_DATA = $(pmlogconf_files)
-
-BRIDGE_CHECKS += \
-	test-pcp \
-	test-pcp-archives \
-	$(NULL)
 
 check_PROGRAMS += mock-pmda.so
-mock_pmda_so_SOURCES = src/bridge/mock-pmda.c
-mock_pmda_so_CFLAGS = -fPIC
+mock_pmda_so_CFLAGS = -fPIC $(AM_CFLAGS)
 mock_pmda_so_LDFLAGS = -shared
 mock_pmda_so_LDADD = -lpcp_pmda -lpcp
+mock_pmda_so_SOURCES = src/bridge/mock-pmda.c
+
+TEST_PROGRAM += test-pcp
+test_pcp_CPPFLAGS = $(libcockpit_pcp_a_CFLAGS) $(TEST_CPP)
+test_pcp_LDADD = $(libcockpit_pcp_a_LIBS) $(TEST_LIBS) -ldl
+test_pcp_SOURCES = src/bridge/test-pcp.c
+
+TEST_PROGRAM += test-pcp-archives
+test_pcp_archives_CPPFLAGS = $(libcockpit_pcp_a_CPPFLAGS) $(TEST_CPP)
+test_pcp_archives_LDADD = $(libcockpit_pcp_a_LIBS) $(TEST_LIBS)
+test_pcp_archives_SOURCES = src/bridge/test-pcp-archives.c
 
 CLEANFILES += mock-archives/*
 
-test_pcp_SOURCES = \
-	src/bridge/test-pcp.c \
-	src/testlib/mock-transport.c src/testlib/mock-transport.h
-test_pcp_CFLAGS = $(libcockpit_pcp_a_CFLAGS)
-test_pcp_LDADD = $(libcockpit_pcp_LIBS) -ldl
-
-test_pcp_archives_SOURCES = \
-	src/bridge/test-pcp-archives.c \
-	src/testlib/mock-transport.c src/testlib/mock-transport.h
-test_pcp_archives_CFLAGS = $(libcockpit_pcp_a_CFLAGS)
-test_pcp_archives_LDADD = $(libcockpit_pcp_LIBS) -ldl -lpcp_import
-
 endif
+
+EXTRA_DIST += \
+	src/bridge/cockpit.pam.insecure \
+	$(NULL)

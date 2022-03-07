@@ -68,93 +68,35 @@ AM_CONDITIONAL(SELINUX_POLICY_ENABLED, test "$enable_selinux_policy" != "no")
 AC_SUBST(SELINUX_POLICY_TYPE, [${enable_selinux_policy}])
 AC_MSG_RESULT($enable_selinux_policy)
 
+# --disable-polkit
+AC_MSG_CHECKING([whether to build polkit support])
+AC_ARG_ENABLE(polkit, AS_HELP_STRING([--disable-polkit], [Disable usage of polkit]))
+AM_CONDITIONAL(WITH_POLKIT, test "$enable_polkit" != 'no')
+AC_MSG_RESULT(${enable_polkit:=yes})
 
-# Initialization
-#
-
-GLIB_VERSION="2.50"
-LIBSSH_VERSION="0.8.5"
-
-GIO_REQUIREMENT="gio-unix-2.0 >= $GLIB_VERSION gio-2.0 >= $GLIB_VERSION"
-LIBSYSTEMD_REQUIREMENT="libsystemd >= 235"
-JSON_GLIB_REQUIREMENT="json-glib-1.0 >= 1.4"
-POLKIT_REQUIREMENT="polkit-agent-1 >= 0.105"
-GNUTLS_REQUIREMENT="gnutls >= 3.6.0"
-KRB5_REQUIREMENT="krb5-gssapi >= 1.11 krb5 >= 1.11"
-
-PKG_CHECK_MODULES(GIO, [$GIO_REQUIREMENT])
-GLIB_VERSION_DEF="GLIB_VERSION_$(echo $GLIB_VERSION | tr '.' '_')"
-GIO_CFLAGS="$GIO_CFLAGS -DGLIB_VERSION_MIN_REQUIRED=$GLIB_VERSION_DEF"
-GIO_CFLAGS="$GIO_CFLAGS -DGLIB_VERSION_MAX_ALLOWED=$GLIB_VERSION_DEF"
-
-PKG_CHECK_MODULES(LIBSYSTEMD, [$LIBSYSTEMD_REQUIREMENT])
-PKG_CHECK_MODULES(JSON_GLIB, [$JSON_GLIB_REQUIREMENT])
-PKG_CHECK_MODULES(GNUTLS, [$GNUTLS_REQUIREMENT])
-PKG_CHECK_MODULES(KRB5, [$KRB5_REQUIREMENT])
-
-COCKPIT_CFLAGS="$GIO_CFLAGS $JSON_GLIB_CFLAGS $LIBSYSTEMD_CFLAGS"
-COCKPIT_LIBS="$GIO_LIBS $JSON_GLIB_LIBS $LIBSYSTEMD_LIBS -lutil"
-AC_SUBST(COCKPIT_CFLAGS)
-AC_SUBST(COCKPIT_LIBS)
-
-# bridge with optional polkit
-AC_ARG_ENABLE(polkit, AS_HELP_STRING([--disable-polkit], [Disable usage of polkit]),,enable_polkit=yes)
-
-if test "$enable_polkit" = "yes"; then
-  PKG_CHECK_MODULES(POLKIT, [$POLKIT_REQUIREMENT])
-  COCKPIT_BRIDGE_CFLAGS="$COCKPIT_CFLAGS $POLKIT_CFLAGS"
-  COCKPIT_BRIDGE_LIBS="$COCKPIT_LIBS $POLKIT_LIBS"
-  AC_DEFINE_UNQUOTED([WITH_POLKIT], [], [Build with polkit])
-else
-  COCKPIT_BRIDGE_CFLAGS="$COCKPIT_CFLAGS"
-  COCKPIT_BRIDGE_LIBS="$COCKPIT_LIBS"
-fi
-AM_CONDITIONAL(WITH_POLKIT, test "$enable_polkit" = "yes")
-AC_SUBST(COCKPIT_BRIDGE_CFLAGS)
-AC_SUBST(COCKPIT_BRIDGE_LIBS)
-
-COCKPIT_PCP_CFLAGS="$COCKPIT_CFLAGS"
-COCKPIT_PCP_LIBS="$COCKPIT_LIBS"
-AC_SUBST(COCKPIT_PCP_CFLAGS)
-AC_SUBST(COCKPIT_PCP_LIBS)
-
-COCKPIT_SESSION_CFLAGS="$KRB5_CFLAGS $LIBSYSTEMD_CFLAGS"
-COCKPIT_SESSION_LIBS="$KRB5_LIBS $LIBSYSTEMD_LIBS"
-AC_SUBST(COCKPIT_SESSION_CFLAGS)
-AC_SUBST(COCKPIT_SESSION_LIBS)
-
-PAM_COCKPIT_CERT_CFLAGS="$COCKPIT_CFLAGS"
-PAM_COCKPIT_CERT_LIBS=""
-AC_SUBST(PAM_COCKPIT_CERT_CFLAGS)
-AC_SUBST(PAM_COCKPIT_CERT_LIBS)
-
-COCKPIT_WS_CFLAGS="$COCKPIT_CFLAGS"
-COCKPIT_WS_LIBS="$COCKPIT_LIBS"
-AC_SUBST(COCKPIT_WS_CFLAGS)
-AC_SUBST(COCKPIT_WS_LIBS)
-
-COCKPIT_TLS_CFLAGS="$GNUTLS_CFLAGS"
-COCKPIT_TLS_LIBS="$GNUTLS_LIBS"
-AC_SUBST(COCKPIT_TLS_CFLAGS)
-AC_SUBST(COCKPIT_TLS_LIBS)
-
-# whether to build cockpit-ssh
+# --disable-ssh
+AC_MSG_CHECKING([whether to build cockpit-ssh])
 AC_ARG_ENABLE(ssh, AS_HELP_STRING([--disable-ssh], [Disable cockpit-ssh build and libssh dependency]))
-AC_MSG_CHECKING([build with cockpit-ssh])
-if test "$enable_ssh" != "no"; then
-  enable_ssh="yes"
-  AC_MSG_RESULT([$enable_ssh])
-  PKG_CHECK_MODULES(LIBSSH, [libssh >= $LIBSSH_VERSION])
-  COCKPIT_SSH_SESSION_CFLAGS="$COCKPIT_CFLAGS $LIBSSH_CFLAGS $KRB5_CFLAGS"
-  COCKPIT_SSH_SESSION_LIBS="$COCKPIT_LIBS $LIBSSH_LIBS $KRB5_LIBS"
-  AC_SUBST(COCKPIT_SSH_SESSION_LIBS)
-  AC_SUBST(COCKPIT_SSH_SESSION_CFLAGS)
-else
-  enable_ssh="no"
-  AC_MSG_RESULT([$enable_ssh])
-fi
+AM_CONDITIONAL(WITH_COCKPIT_SSH, test "$enable_ssh" != "no")
+AC_MSG_RESULT(${enable_ssh:=yes})
 
-AM_CONDITIONAL(WITH_COCKPIT_SSH, test "$enable_ssh" = "yes")
+
+# pkg-config
+GLIB_API_VERSION="GLIB_VERSION_2_56"
+PKG_CHECK_MODULES(glib, [gio-2.0 >= 2.56 gio-unix-2.0])
+glib_CFLAGS="${glib_CFLAGS} -DGLIB_VERSION_MIN_REQUIRED=$GLIB_API_VERSION"
+glib_CFLAGS="${glib_CFLAGS} -DGLIB_VERSION_MAX_ALLOWED=$GLIB_API_VERSION"
+
+PKG_CHECK_MODULES(libsystemd, [libsystemd >= 235])
+PKG_CHECK_MODULES(json_glib, [json-glib-1.0 >= 1.4])
+PKG_CHECK_MODULES(gnutls, [gnutls >= 3.6.0])
+PKG_CHECK_MODULES(krb5, [krb5-gssapi >= 1.11 krb5 >= 1.11])
+if test "$enable_polkit" != "no"; then
+  PKG_CHECK_MODULES(polkit, [polkit-agent-1 >= 0.105])
+fi
+if test "$enable_ssh" != "no"; then
+  PKG_CHECK_MODULES(libssh, [libssh >= 0.8.5])
+fi
 
 # pam
 AC_CHECK_HEADER([security/pam_appl.h], ,
@@ -256,21 +198,7 @@ AC_DEFINE_UNQUOTED([PATH_SSH_ADD], ["$SSH_ADD"], [Location of ssh-add binary])
 AC_PATH_PROG([SSH_AGENT], [ssh-agent], [/usr/bin/ssh-agent], [$PATH:/usr/local/bin:/usr/bin:/bin])
 AC_DEFINE_UNQUOTED([PATH_SSH_AGENT], ["$SSH_AGENT"], [Location of ssh-agent binary])
 
-changequote(,)dnl
-if test "x$GCC" = "xyes"; then
-  CFLAGS="-Wall \
-          -Werror=strict-prototypes -Werror=missing-prototypes \
-          -Werror=implicit-function-declaration \
-          -Werror=pointer-arith -Werror=init-self \
-          -Werror=format=2 \
-          -Werror=return-type \
-          -Werror=missing-include-dirs \
-          $CFLAGS"
-fi
-changequote([,])dnl
-
 # Address sanitizer
-
 AC_MSG_CHECKING([for asan flags])
 AC_ARG_ENABLE(asan,
               AS_HELP_STRING([--enable-asan=no/yes],

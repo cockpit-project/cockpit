@@ -942,12 +942,15 @@ Where=/fail
 
         self.allow_journal_messages(".*type=1400 audit(.*): avc:  denied  { create } .* comm=\"systemd\" name=\"fail\".*")
 
-    def testTransientFailingUnits(self):
+    def testTransientUnits(self):
+        m = self.machine
+        b = self.browser
+
         self.login_and_go("/system/services")
         self.wait_page_load()
 
-        self.machine.execute("systemd-run --collect --unit test-autocollect@1.service sh -c 'sleep 10; false'")
-        self.machine.execute("systemd-run --unit test-manual-collect@1.service sh -c 'sleep 3; false'")
+        m.execute("systemd-run --collect --unit test-autocollect@1.service sh -c 'sleep 10; false'")
+        m.execute("systemd-run --unit test-manual-collect@1.service sh -c 'sleep 3; false'")
 
         self.wait_service_present("test-autocollect@1.service")
         self.wait_service_present("test-manual-collect@1.service")
@@ -957,8 +960,22 @@ Where=/fail
         self.wait_service_not_present("test-autocollect@1.service")
         self.wait_service_present("test-manual-collect@1.service")
 
-        self.machine.execute("systemctl reset-failed")
+        m.execute("systemctl reset-failed")
         self.wait_service_not_present("test-manual-collect@1.service")
+
+        # details page handles units going away
+        m.execute("systemd-run --collect --unit test-transient.service sleep infinity")
+        self.addCleanup(m.execute, "systemctl stop test-transient.service || true")
+        self.wait_service_present("test-transient.service")
+        self.goto_service("test-transient.service")
+        self.check_service_details(["Static", "Running"], ["Restart", "Stop", "Disallow running (mask)"], False, onoff=False)
+
+        self.do_action("Stop")
+
+        b.wait_in_text(".pf-c-empty-state", "Unit not found")
+        b.click("a:contains('View all services')")
+        b.switch_to_top()
+        b.wait_js_cond('window.location.pathname == "/system/services"')
 
 
 @skipDistroPackage()

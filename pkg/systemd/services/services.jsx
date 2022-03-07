@@ -737,8 +737,9 @@ class ServicesPageBody extends React.Component {
             const unit_id = path[0];
             const get_unit_path = (unit_id) => this.path_by_id[unit_id];
             const unit_path = get_unit_path(unit_id);
+            const unit = this.state.unit_by_path[unit_path];
 
-            if (unit_path === undefined) {
+            if (unit_path === undefined || unit === undefined || unit.LoadState === 'not-found') {
                 const path = "/system/services" + (this.props.owner === "user" ? "#/?owner=user" : "");
                 return <EmptyStatePanel
                             icon={ExclamationCircleIcon}
@@ -753,7 +754,6 @@ class ServicesPageBody extends React.Component {
                 />;
             }
 
-            const unit = this.state.unit_by_path[unit_path];
             return <Service unitIsValid={unitId => { const path = get_unit_path(unitId); return path !== undefined && this.state.unit_by_path[path].LoadState != 'not-found' }}
                             owner={this.props.owner}
                             key={unit_id}

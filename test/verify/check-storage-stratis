@@ -234,9 +234,7 @@ class TestStorageStratis(StorageCase):
         b.wait_in_text('#detail-sidebar', dev_2)
         b.wait_in_text(f'#detail-sidebar .sidepanel-row:contains({dev_2})', "data")
 
-        # Reboot
-        m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
-        m.wait_reboot()
+        m.reboot()
         m.start_cockpit()
         b.relogin()
         b.enter_page("/storage")
@@ -259,8 +257,7 @@ class TestStorageStratis(StorageCase):
 
         # Reboot (this requires the passphrase)
         self.setup_systemd_password_agent("foodeeboodeebar")
-        m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
-        m.wait_reboot()
+        m.reboot()
         m.start_cockpit()
         b.relogin()
         b.enter_page("/storage")
@@ -360,9 +357,7 @@ class TestStorageStratis(StorageCase):
                      'mount_point': '/run/fsys1'})
         b.wait_in_text("#detail-content", "fsys1")
 
-        # Reboot
-        m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
-        m.wait_reboot()
+        m.reboot()
         m.start_cockpit()
         b.relogin()
         b.enter_page("/storage")

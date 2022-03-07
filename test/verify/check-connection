@@ -46,8 +46,7 @@ class TestConnection(MachineCase):
         m.execute("rm /etc/systemd/system/cockpit.service")
         # overlay cockpit-ws rpm
         m.execute("rpm-ostree install --cache-only /var/tmp/cockpit-ws-*.rpm")
-        m.spawn("sync && sync && sync && sleep 0.1 && reboot", "reboot")
-        m.wait_reboot()
+        m.reboot()
 
     @skipBrowser("Firefox cannot work with cookies", "firefox")
     def testBasic(self):

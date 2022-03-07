@@ -678,8 +678,7 @@ fi
         # updates mitigations=nosmt when that is present
         m.upload(["../pkg/systemd/kernelopt.sh"], "/tmp/")
         m.execute("/tmp/kernelopt.sh remove nosmt && /tmp/kernelopt.sh set mitigations=auto,nosmt")
-        m.spawn("sync && sleep 0.1 && reboot", "reboot")
-        m.wait_reboot()
+        m.reboot()
         self.login_and_go('/system/hwinfo')
         b.click('#hwinfo button:contains(Mitigations)')
         b.wait_visible('#cpu-mitigations-dialog .nosmt-heading:contains(nosmt)')

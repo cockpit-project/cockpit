@@ -14,6 +14,7 @@ case "${1:-}" in
         exec ./configure \
             CPPFLAGS=-Itools/mock-build-env \
             PKG_CONFIG_PATH=tools/mock-build-env \
+            --disable-doc \
             --enable-prefix-only \
             --disable-pcp \
             --disable-polkit \

@@ -15,10 +15,28 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+# Note: Because of its use of cockpitflow, libwebsocket_a_LIBS should
+#       rightfully include a reference to libcockpit_common_a_LIBS, but it
+#       can't do this because libcockpit-common.a depends, in turn, on
+#       libwebsocket.
+#
+#       At this point, libwebsocket should probably just be merged into
+#       libcockpit-common, but we can't do that because the log domain is
+#       different, and some of the tests depend on that.
+
+# -----------------------------------------------------------------------------
+# libwebsocket.a: low-level websocket handling code
+
 noinst_LIBRARIES += libwebsocket.a
-check_PROGRAMS += \
-	frob-websocket \
-	test-websocket \
+
+libwebsocket_a_CPPFLAGS = \
+	-DG_LOG_DOMAIN=\"WebSocket\" \
+	$(glib_CFLAGS) \
+	$(AM_CPPFLAGS)
+
+libwebsocket_a_LIBS = \
+	libwebsocket.a \
+	$(glib_LIBS) \
 	$(NULL)
 
 libwebsocket_a_SOURCES = \
@@ -33,26 +51,15 @@ libwebsocket_a_SOURCES = \
 	src/websocket/websocketprivate.h \
 	$(NULL)
 
-libwebsocket_a_CPPFLAGS = \
-	-DG_LOG_DOMAIN=\"WebSocket\" \
-	-I$(srcdir)/src \
-	$(GIO_CFLAGS) \
-	$(NULL)
+# -----------------------------------------------------------------------------
+# Unit tests
 
-libwebsocket_a_LIBS = \
-	libcockpit-common.a \
-	$(GIO_LIBS) \
-	$(NULL)
-
+check_PROGRAMS += frob-websocket
+frob_websocket_CPPFLAGS = $(libwebsocket_a_CPPFLAGS) $(TEST_CPP)
+frob_websocket_LDADD = $(libwebsocket_a_LIBS) $(TEST_LIBS)
 frob_websocket_SOURCES = src/websocket/frob-websocket.c
-frob_websocket_CPPFLAGS = $(libwebsocket_a_CPPFLAGS)
-frob_websocket_LDADD = libwebsocket.a $(libwebsocket_a_LIBS)
 
-test_websocket_SOURCES = src/websocket/test-websocket.c \
-	src/testlib/mock-pressure.c src/testlib/mock-pressure.h
-test_websocket_CPPFLAGS = $(libwebsocket_a_CPPFLAGS)
-test_websocket_LDADD = libwebsocket.a $(libwebsocket_a_LIBS)
-
-TESTS += \
-	test-websocket \
-	$(NULL)
+TEST_PROGRAM += test-websocket
+test_websocket_CPPFLAGS = $(libwebsocket_a_CPPFLAGS) $(TEST_CPP)
+test_websocket_LDADD = $(libwebsocket_a_LIBS) $(TEST_LIBS)
+test_websocket_SOURCES = src/websocket/test-websocket.c

@@ -2,19 +2,13 @@ NULL =
 BUILT_SOURCES =
 CLEANFILES =
 bin_PROGRAMS =
-check_DATA =
-check_SCRIPTS =
-check_PROGRAMS =
-noinst_SCRIPTS =
 libexec_PROGRAMS =
 libexec_SCRIPTS =
+man_MANS =
+noinst_DATA =
+noinst_LIBRARIES =
 noinst_PROGRAMS =
 sbin_PROGRAMS =
-noinst_LIBRARIES =
-noinst_DATA =
-man_MANS =
-nodist_noinst_DATA =
-nodist_noinst_SCRIPTS =
 
 TESTS = \
 	test/check-dist \
@@ -87,11 +81,21 @@ DISTCHECK_CONFIGURE_FLAGS=						        \
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/src \
-	-DSRCDIR=\"$(abs_srcdir)\" \
-	-DBUILDDIR=\"$(abs_builddir)\" \
 	-DDATADIR=\"$(datadir)\" \
 	-DLIBEXECDIR=\""$(libexecdir)"\" \
 	-DPACKAGE_SYSCONF_DIR=\""$(sysconfdir)"\" \
+	$(NULL)
+
+AM_CFLAGS = \
+	-pthread \
+	-Wall \
+	-Werror=strict-prototypes \
+	-Werror=missing-prototypes \
+	-Werror=implicit-function-declaration \
+	-Werror=pointer-arith -Werror=init-self \
+	-Werror=format=2 \
+	-Werror=return-type \
+	-Werror=missing-include-dirs \
 	$(NULL)
 
 LOG_DRIVER = $(PYTHON) $(top_srcdir)/tools/tap-driver
@@ -184,6 +188,9 @@ rsync:
 	$(MAKE) install DESTDIR=tmp/rsync >/dev/null
 	rsync --recursive --links --checksum --verbose --inplace tmp/rsync/ $(RSYNC_DEST)
 
+# This Makefile includes several variable definitions that must come first
+include src/testlib/Makefile.am
+
 include containers/Makefile.am
 include containers/flatpak/Makefile.am
 include doc/Makefile-doc.am
@@ -207,7 +214,6 @@ include src/bridge/Makefile.am
 include src/client/Makefile.am
 include src/common/Makefile-common.am
 include src/pam-ssh-add/Makefile.am
-include src/retest/Makefile.am
 include src/session/Makefile-session.am
 include src/ssh/Makefile-ssh.am
 include src/systemd/Makefile.am

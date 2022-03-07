@@ -1,3 +1,6 @@
+# -----------------------------------------------------------------------------
+# Cockpit Client
+
 # We actually always install cockpit-client in libexec,
 # but ENABLE_COCKPIT_CLIENT controls whether we install
 # the desktop file, icons, a symlink in /usr/bin, and
@@ -5,13 +8,8 @@
 # This is currently **EXPERIMENTAL**
 
 cockpitclientdir = $(libexecdir)
-dist_cockpitclient_SCRIPTS = \
-	src/client/cockpit-client \
-	$(NULL)
-
-dist_cockpitclient_DATA = \
-	src/client/cockpit-client.ui \
-	$(NULL)
+dist_cockpitclient_SCRIPTS = src/client/cockpit-client
+dist_cockpitclient_DATA = src/client/cockpit-client.ui
 
 install-exec-hook::
 if ENABLE_COCKPIT_CLIENT

@@ -755,7 +755,7 @@ class TestCurrentMetrics(MachineCase):
         m.execute("systemctl stop load-hog 2>/dev/null || true")  # ok to fail, as the command exits by itself
 
         # this settles down slowly, don't wait for becoming really quiet
-        with b.wait_timeout(180):
+        with b.wait_timeout(300):
             b.wait(lambda: float(b.text("#load-avg .pf-l-flex div:first-child").split()[-1].rstrip(',')) < 10)
 
         # Test link to user services

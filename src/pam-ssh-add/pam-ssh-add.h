@@ -20,8 +20,8 @@
 #ifndef PAM_SSH_ADD_H__
 #define PAM_SSH_ADD_H__
 
+#include <pwd.h>
 #include <security/pam_modules.h>
-#include "pwd.h"
 
 #define N_ELEMENTS(x) (sizeof(x) / sizeof (x)[0])
 

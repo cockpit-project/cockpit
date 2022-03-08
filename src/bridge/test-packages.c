@@ -826,7 +826,7 @@ test_glob (TestCase *tc,
   message = mock_transport_pop_channel (tc->transport, "444");
   object = cockpit_json_parse_bytes (message, &error);
   g_assert_no_error (error);
-  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS ",\"X-Cockpit-Pkg-Checksum\":\"" CHECKSUM_GLOB "\",\"Content-Type\":\"text/plain\"}}");
+  cockpit_assert_json_eq (object, "{\"status\":200,\"reason\":\"OK\",\"headers\":{" STATIC_HEADERS_CACHECONTROL ",\"X-Cockpit-Pkg-Checksum\":\"" CHECKSUM_GLOB "\",\"Content-Type\":\"text/plain\"}}");
   json_object_unref (object);
 
   message = mock_transport_pop_channel (tc->transport, "444");

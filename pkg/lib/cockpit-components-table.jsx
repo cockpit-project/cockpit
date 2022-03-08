@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     ExpandableRowContent,
     TableComposable, Thead, Tbody, Tr, Th, Td,
@@ -75,8 +75,36 @@ export const ListingTable = ({
     let rows = tableRows;
 
     const [expanded, setExpanded] = useState({});
+    const [newItems, setNewItems] = useState([]);
+    const [currentRowsKeys, setCurrentRowsKeys] = useState([]);
     const [activeSortIndex, setActiveSortIndex] = useState(sortBy ? sortBy.index : 0);
     const [activeSortDirection, setActiveSortDirection] = useState(sortBy ? sortBy.direction : SortByDirection.asc);
+
+    useEffect(() => {
+        const getRowKeys = rows => {
+            const keys = [];
+
+            rows.forEach(row => {
+                if (row.props && row.props.key)
+                    keys.push(row.props.key);
+            });
+
+            return keys;
+        };
+
+        const current_keys = getRowKeys(rows);
+        if (JSON.stringify(current_keys) === JSON.stringify(currentRowsKeys))
+            return;
+
+        // Don't highlight all when the list gets loaded
+        if (currentRowsKeys.length !== 0) {
+            const new_keys = current_keys.filter(key => currentRowsKeys.indexOf(key) === -1);
+            if (new_keys.length)
+                setNewItems([...newItems, ...new_keys]);
+        }
+
+        setCurrentRowsKeys(current_keys);
+    }, [rows, currentRowsKeys, newItems]);
 
     const isSortable = cells.some(col => col.sortable);
     const isExpandable = rows.some(row => row.expandedContent);
@@ -147,6 +175,9 @@ export const ListingTable = ({
             rowProps.isHoverable = true;
             rowProps.onRowClick = (event) => onRowClick(event, row);
         }
+
+        if (rowProps.key && newItems.indexOf(rowProps.key) >= 0)
+            rowProps.className = (rowProps.className || "") + " new-item-ct";
 
         const rowKey = rowProps.key || rowIndex;
         const isExpanded = expanded[rowKey] === undefined ? !!row.initiallyExpanded : expanded[rowKey];

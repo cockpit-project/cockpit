@@ -75,6 +75,50 @@ a.disabled:hover {
     width: 100%;
 }
 
+/* Animation of new items */
+.new-item-ct {
+    animation: newRowCt 4s ease-in;
+}
+
+:root {
+    --ct-animation-new-background: #fdf4dd;
+}
+
+/* Simple fade animation by default (mainly for reduced motion) */
+@keyframes newRowCt {
+  0% {
+    background-color: var(--ct-animation-new-background);
+  }
+  50% {
+    background-color: var(--ct-animation-new-background);
+  }
+}
+
+/* Redefine to a fancy animation when reduced-motion is not requested */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes newRowCt {
+    0% {
+      height: 0;
+      background-color: var(--ct-animation-new-background);
+      transform: scaleX(0) scaleY(0);
+      opacity: 0;
+    }
+    10% {
+      transform: scaleX(1) scaleY(1);
+    }
+    12% {
+      transform: scaleX(1) scaleY(1.25);
+      opacity: 1;
+    }
+    15% {
+      transform: scaleX(1) scaleY(1);
+    }
+    70% {
+      background-color: var(--ct-animation-new-background);
+    }
+  }
+}
+
 /* Dialog patterns */
 
 .dialog-wait-ct {

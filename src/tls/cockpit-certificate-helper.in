@@ -59,7 +59,7 @@ selfsign_openssl() {
     distinguished_name = req_distinguished_name
     [ req_distinguished_name ]
     [ v3_req ]
-    subjectAltName=IP:127.0.0.1,DNS:localhost
+    subjectAltName=IP:127.0.0.1,DNS:localhost,DNS:${HOSTNAME}
     basicConstraints = critical, CA:TRUE
     keyUsage = critical, digitalSignature,cRLSign,keyCertSign,keyEncipherment,keyAgreement
     extendedKeyUsage = serverAuth

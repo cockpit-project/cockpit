@@ -414,7 +414,7 @@ send_login_html (CockpitWebResponse *response,
           language = languages[0];
         }
 
-      po_bytes = cockpit_web_response_negotiation (ws->login_po_js, NULL, language, NULL, &error);
+      po_bytes = cockpit_web_response_negotiation (ws->login_po_js, NULL, language, NULL, NULL, &error);
       if (error)
         {
           g_message ("%s", error->message);
@@ -429,7 +429,7 @@ send_login_html (CockpitWebResponse *response,
         }
     }
 
-  bytes = cockpit_web_response_negotiation (ws->login_html, NULL, NULL, NULL, &error);
+  bytes = cockpit_web_response_negotiation (ws->login_html, NULL, NULL, NULL, NULL, &error);
   if (error)
     {
       g_message ("%s", error->message);

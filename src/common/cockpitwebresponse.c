@@ -1593,7 +1593,9 @@ load_file (const gchar *filename,
  * cockpit_web_response_negotiation:
  * @path: likely filesystem path
  * @existing: a table of existing files
- * @chosen: out, a pointer to the suffix that was chosen
+ * @language: requested client language
+ * @out_is_language_specific: a pointer to a gboolean whether the actual file is specific to @language
+ * @out_is_compressed: a pointer to a gboolean whether the actual file is compressed
  * @error: a failure
  *
  * Find a file to serve based on the suffixes. We prune off extra
@@ -1608,7 +1610,8 @@ GBytes *
 cockpit_web_response_negotiation (const gchar *path,
                                   GHashTable *existing,
                                   const gchar *language,
-                                  gchar **actual,
+                                  gboolean *out_is_language_specific,
+                                  gboolean *out_is_compressed,
                                   GError **error)
 {
   gchar *base = NULL;
@@ -1621,6 +1624,7 @@ cockpit_web_response_negotiation (const gchar *path,
   gchar *shorter = NULL;
   gchar *lang = NULL;
   gchar *lang_region = NULL;
+  gboolean is_language_specific, is_compressed;
 
   gint i;
 
@@ -1678,27 +1682,43 @@ cockpit_web_response_negotiation (const gchar *path,
             {
             case 0:
               name = g_strconcat (base, ".", lang_region, ext, NULL);
+              is_language_specific = TRUE;
+              is_compressed = FALSE;
               break;
             case 1:
               name = g_strconcat (base, ".", lang_region, ext, ".gz", NULL);
+              is_language_specific = TRUE;
+              is_compressed = TRUE;
               break;
             case 2:
               name = g_strconcat (base, ".", lang, ext, NULL);
+              is_language_specific = TRUE;
+              is_compressed = FALSE;
               break;
             case 3:
               name = g_strconcat (base, ".", lang, ext, ".gz", NULL);
+              is_language_specific = TRUE;
+              is_compressed = TRUE;
               break;
             case 4:
               name = g_strconcat (base, ext, NULL);
+              is_language_specific = FALSE;
+              is_compressed = FALSE;
               break;
             case 5:
               name = g_strconcat (base, ".min", ext, NULL);
+              is_language_specific = FALSE;
+              is_compressed = FALSE;
               break;
             case 6:
               name = g_strconcat (base, ext, ".gz", NULL);
+              is_language_specific = FALSE;
+              is_compressed = TRUE;
               break;
             case 7:
               name = g_strconcat (base, ".min", ext, ".gz", NULL);
+              is_language_specific = FALSE;
+              is_compressed = TRUE;
               break;
             default:
               g_assert_not_reached ();
@@ -1728,10 +1748,12 @@ cockpit_web_response_negotiation (const gchar *path,
 out:
   if (local_error)
     g_propagate_error (error, local_error);
-  if (bytes && name && actual)
+  if (bytes)
     {
-      *actual = name;
-      name = NULL;
+      if (out_is_language_specific)
+        *out_is_language_specific = is_language_specific;
+      if (out_is_compressed)
+        *out_is_compressed = is_compressed;
     }
   g_free (name);
   g_free (base);

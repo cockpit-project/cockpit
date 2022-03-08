@@ -963,9 +963,8 @@ package_content (CockpitPackages *packages,
   gchar *filename = NULL;
   GError *error = NULL;
   GBytes *bytes = NULL;
-  gchar *chosen = NULL;
   gboolean globbing;
-  gboolean gzipped;
+  gboolean gzipped = FALSE;
   gboolean allow_gzipped = FALSE;
   const gchar *type;
   gchar *policy;
@@ -1029,10 +1028,8 @@ package_content (CockpitPackages *packages,
         g_bytes_unref (bytes);
 
       g_clear_error (&error);
-      g_free (chosen);
-      chosen = NULL;
 
-      bytes = cockpit_web_response_negotiation (filename, package ? package->paths : NULL, language, &chosen, &error);
+      bytes = cockpit_web_response_negotiation (filename, package ? package->paths : NULL, language, NULL, &gzipped, &error);
 
       /* When globbing most errors result in a zero length block */
       if (globbing)
@@ -1040,8 +1037,8 @@ package_content (CockpitPackages *packages,
           if (error)
             {
               g_message ("%s", error->message);
-              chosen = g_strdup ("");
               bytes = g_bytes_new_static ("", 0);
+              gzipped = FALSE;
             }
         }
       else
@@ -1074,14 +1071,13 @@ package_content (CockpitPackages *packages,
         }
 
       /* Do we need to decompress this content? */
-      gzipped = chosen && g_str_has_suffix (chosen, ".gz");
       if (gzipped && !allow_gzipped)
         {
           g_clear_error (&error);
           uncompressed = cockpit_web_response_gunzip (bytes, &error);
           if (error)
             {
-              g_message ("couldn't decompress: %s: %s", chosen, error->message);
+              g_message ("couldn't decompress: %s: %s", filename, error->message);
               g_clear_error (&error);
               uncompressed = g_bytes_new_static ("", 0);
             }
@@ -1125,7 +1121,6 @@ out:
   if (bytes)
     g_bytes_unref (bytes);
   g_list_free (names);
-  g_free (chosen);
   g_free (filename);
   g_clear_error (&error);
   return result;

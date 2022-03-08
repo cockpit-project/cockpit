@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-15 18:03+0000\n"
-"PO-Revision-Date: 2021-12-24 16:16+0000\n"
+"POT-Creation-Date: 2022-03-01 18:03+0000\n"
+"PO-Revision-Date: 2022-03-04 20:16+0000\n"
 "Last-Translator: Ludek Janda <ljanda@redhat.com>\n"
 "Language-Team: Japanese <https://translate.fedoraproject.org/projects/"
 "cockpit/main/ja/>\n"
@@ -22,13 +22,13 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
-"X-Generator: Weblate 4.10.1\n"
+"X-Generator: Weblate 4.11.2\n"
 
 #: pkg/storaged/content-views.jsx:501
 msgid "$0 (encrypted)"
 msgstr "$0 (暗号化)"
 
-#: pkg/metrics/metrics.jsx:419
+#: pkg/metrics/metrics.jsx:421
 msgid "$0 CPU"
 msgid_plural "$0 CPUs"
 msgstr[0] "$0 CPU"
@@ -37,11 +37,11 @@ msgstr[0] "$0 CPU"
 msgid "$0 GiB"
 msgstr "$0 GiB"
 
-#: pkg/metrics/metrics.jsx:442 pkg/metrics/metrics.jsx:519
+#: pkg/metrics/metrics.jsx:444 pkg/metrics/metrics.jsx:546
 msgid "$0 GiB available"
 msgstr "$0 GiB が利用可能"
 
-#: pkg/metrics/metrics.jsx:434 pkg/metrics/metrics.jsx:510
+#: pkg/metrics/metrics.jsx:436 pkg/metrics/metrics.jsx:537
 msgid "$0 GiB total"
 msgstr "$0 GiB の合計"
 
@@ -104,7 +104,7 @@ msgstr "$0 ディスク"
 msgid "$0 documentation"
 msgstr "$0 ドキュメント"
 
-#: pkg/static/login.js:389 pkg/static/login.js:893
+#: pkg/static/login.js:391 pkg/static/login.js:895
 msgid "$0 error"
 msgstr "$0 エラー"
 
@@ -138,7 +138,7 @@ msgstr "$0 ファイルシステムは小さくすることができません。
 msgid "$0 filesystems can not be resized here."
 msgstr "ここでは、$0 ファイルシステムのサイズを変更できません。"
 
-#: pkg/metrics/metrics.jsx:561
+#: pkg/metrics/metrics.jsx:588
 msgid "$0 free"
 msgstr "$0 空き"
 
@@ -158,17 +158,15 @@ msgstr[0] "「重要な影響」を含む $0 件が該当"
 #: pkg/storaged/mdraid-details.jsx:240 pkg/storaged/mdraid-details.jsx:295
 #: pkg/storaged/vdo-details.jsx:133 pkg/storaged/vdo-details.jsx:167
 #: pkg/storaged/stratis-details.jsx:246 pkg/storaged/stratis-details.jsx:545
-#, fuzzy
-#| msgid "$0 is in active use"
 msgid "$0 is in use"
-msgstr "$0 は、アクティブに使用されています"
+msgstr "$0 は使用されています"
 
 #: pkg/storaged/content-views.jsx:829
 #: pkg/lib/cockpit-components-install-dialog.jsx:158
 msgid "$0 is not available from any repository."
 msgstr "$0 は、あらゆるリポジトリーから利用できません。"
 
-#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:715
+#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:717
 msgid "$0 key changed"
 msgstr "$0 キーが変更されました"
 
@@ -210,7 +208,7 @@ msgid "$0 package needs a system reboot"
 msgid_plural "$0 packages need a system reboot"
 msgstr[0] "$0 パッケージにはシステムの再起動が必要です"
 
-#: pkg/metrics/metrics.jsx:122
+#: pkg/metrics/metrics.jsx:124
 msgid "$0 page"
 msgid_plural "$0 pages"
 msgstr[0] "$0 ページ"
@@ -220,7 +218,7 @@ msgid "$0 security fix available"
 msgid_plural "$0 security fixes available"
 msgstr[0] "$0 セキュリティー修正が利用可能"
 
-#: pkg/systemd/services/services.jsx:708
+#: pkg/systemd/services/services.jsx:716
 msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
 msgstr[0] "失敗したサービスの数 ($0)"
@@ -235,7 +233,7 @@ msgid "$0 slot remains"
 msgid_plural "$0 slots remain"
 msgstr[0] "$0 スロットが残ります"
 
-#: pkg/metrics/metrics.jsx:569
+#: pkg/metrics/metrics.jsx:596
 msgid "$0 total"
 msgstr "$0 合計"
 
@@ -299,7 +297,7 @@ msgstr "1 日"
 msgid "1 hour"
 msgstr "1 時間"
 
-#: pkg/metrics/metrics.jsx:483
+#: pkg/metrics/metrics.jsx:510
 msgid "1 min"
 msgstr "1 分"
 
@@ -335,7 +333,7 @@ msgstr "13 日"
 msgid "14th"
 msgstr "14 日"
 
-#: pkg/metrics/metrics.jsx:485
+#: pkg/metrics/metrics.jsx:512
 msgid "15 min"
 msgstr "15 分"
 
@@ -447,7 +445,7 @@ msgstr "40 分"
 msgid "4th"
 msgstr "4 日"
 
-#: pkg/metrics/metrics.jsx:484
+#: pkg/metrics/metrics.jsx:511
 msgid "5 min"
 msgstr "5 分"
 
@@ -580,7 +578,7 @@ msgstr "不在"
 msgid "Accept key and connect"
 msgstr "キーを受け入れて接続"
 
-#: pkg/static/login.js:625
+#: pkg/static/login.js:627
 msgid "Accept key and log in"
 msgstr "キーを受け入れてログイン"
 
@@ -597,10 +595,8 @@ msgid "Accounts"
 msgstr "アカウント"
 
 #: pkg/storaged/dialog.jsx:1130
-#, fuzzy
-#| msgid "Actions"
 msgid "Action"
-msgstr "動作"
+msgstr "アクション"
 
 #: pkg/apps/application-list.jsx:85
 msgid "Actions"
@@ -631,8 +627,8 @@ msgstr "アクティブページ"
 msgid "Active since "
 msgstr "以下以降アクティブ "
 
-#: pkg/systemd/services/services.jsx:915 pkg/systemd/services/services.jsx:916
-#: pkg/systemd/services/services.jsx:923
+#: pkg/systemd/services/services.jsx:933 pkg/systemd/services/services.jsx:934
+#: pkg/systemd/services/services.jsx:941
 msgid "Active state"
 msgstr "アクティブな状態"
 
@@ -848,7 +844,7 @@ msgstr "アラート"
 msgid "Alert and above"
 msgstr "アラート以上のレベル"
 
-#: pkg/systemd/services/services.jsx:203
+#: pkg/systemd/services/services.jsx:206
 msgid "Alias"
 msgstr "alias"
 
@@ -914,10 +910,8 @@ msgid "Apply"
 msgstr "適用"
 
 #: pkg/packagekit/kpatch.jsx:259
-#, fuzzy
-#| msgid "Apply kernel patches"
 msgid "Apply kernel live patches"
-msgstr "カーネルパッチの適用"
+msgstr "カーネルライブパッチの適用"
 
 #: pkg/selinux/setroubleshoot-view.jsx:104
 msgid "Apply this solution"
@@ -986,11 +980,11 @@ msgstr "認証"
 msgid "Authentication"
 msgstr "認証"
 
-#: pkg/static/login.js:883
+#: pkg/static/login.js:885
 msgid "Authentication failed"
 msgstr "認証に失敗しました"
 
-#: pkg/static/login.js:873
+#: pkg/static/login.js:875
 msgid "Authentication failed: Server closed connection"
 msgstr "認証に失敗しました: サーバーの接続が切断されました"
 
@@ -1080,11 +1074,11 @@ msgstr "アカウントに戻る"
 msgid "Backing device"
 msgstr "バッキングデバイス"
 
-#: pkg/systemd/services/services.jsx:211
+#: pkg/systemd/services/services.jsx:214
 msgid "Bad"
 msgstr "正しくない"
 
-#: pkg/systemd/services/services.jsx:177
+#: pkg/systemd/services/services.jsx:180
 msgid "Bad setting"
 msgstr "正しくない設定"
 
@@ -1202,7 +1196,7 @@ msgstr ""
 "るようになります。"
 
 #: pkg/systemd/overview-cards/usageCard.jsx:122 pkg/systemd/hwinfo.jsx:120
-#: pkg/metrics/metrics.jsx:469 pkg/metrics/metrics.jsx:1393
+#: pkg/metrics/metrics.jsx:489 pkg/metrics/metrics.jsx:1420
 msgid "CPU"
 msgstr "CPU"
 
@@ -1214,11 +1208,11 @@ msgstr "CPU セキュリティー"
 msgid "CPU security toggles"
 msgstr "CPU セキュリティートグル"
 
-#: pkg/metrics/metrics.jsx:97
+#: pkg/metrics/metrics.jsx:99
 msgid "CPU spike"
 msgstr "cpu スパイク"
 
-#: pkg/metrics/metrics.jsx:96
+#: pkg/metrics/metrics.jsx:98
 msgid "CPU usage"
 msgstr "CPU 使用率"
 
@@ -1248,7 +1242,7 @@ msgstr ""
 #: pkg/systemd/overview-cards/motdCard.jsx:102
 #: pkg/systemd/overview-cards/configurationCard.jsx:303
 #: pkg/systemd/overview-cards/realmd.jsx:416 pkg/systemd/hwinfo.jsx:247
-#: pkg/metrics/metrics.jsx:1040 pkg/tuned/dialog.jsx:309
+#: pkg/metrics/metrics.jsx:1067 pkg/tuned/dialog.jsx:309
 #: pkg/shell/active-pages-modal.jsx:96 pkg/shell/shell-modals.jsx:128
 #: pkg/shell/superuser.jsx:86 pkg/shell/superuser.jsx:158
 #: pkg/shell/hosts_dialog.jsx:278 pkg/shell/hosts_dialog.jsx:373
@@ -1262,13 +1256,11 @@ msgstr "取り消し"
 
 #: pkg/systemd/overview-cards/shutdownStatus.jsx:89
 msgid "Cancel poweroff"
-msgstr ""
+msgstr "電源オフの取り消し"
 
 #: pkg/systemd/overview-cards/shutdownStatus.jsx:93
-#, fuzzy
-#| msgid "Force reboot"
 msgid "Cancel reboot"
-msgstr "再起動の強制"
+msgstr "再起動の取り消し"
 
 #: pkg/systemd/services/services-list.jsx:82
 msgid "Cannot be enabled"
@@ -1338,9 +1330,9 @@ msgstr "システム時間の変更"
 
 #: pkg/shell/hosts_dialog.jsx:785
 msgid "Change the password of $0"
-msgstr "$0 のパスワードを変更します。"
+msgstr "$0 のパスワードを変更します"
 
-#: pkg/networkmanager/interfaces.js:1590
+#: pkg/networkmanager/interfaces.js:1591
 msgid "Change the settings"
 msgstr "設定の変更"
 
@@ -1354,7 +1346,7 @@ msgstr ""
 "が多くあります。ただし、予期しない変更により接続の傍受が試行される場合もあり"
 "ます。"
 
-#: pkg/networkmanager/interfaces.js:1589
+#: pkg/networkmanager/interfaces.js:1590
 msgid ""
 "Changing the settings will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -1396,10 +1388,8 @@ msgid "Checking installed software"
 msgstr "インストールされたソフトウェアの確認中"
 
 #: pkg/storaged/fsys-tab.jsx:428 pkg/storaged/dialog.jsx:1139
-#, fuzzy
-#| msgid "Checking for public keys"
 msgid "Checking related processes"
-msgstr "公開鍵の確認中"
+msgstr "関連プロセスの確認中"
 
 #: pkg/packagekit/updates.jsx:1329
 msgid "Checking software status"
@@ -1425,7 +1415,7 @@ msgstr "$target のクリーンアップ中"
 msgid "Clear 'Failed to start'"
 msgstr "'起動に失敗' を消去"
 
-#: pkg/systemd/services/services.jsx:815 pkg/systemd/logsJournal.jsx:278
+#: pkg/systemd/services/services.jsx:833 pkg/systemd/logsJournal.jsx:278
 msgid "Clear all filters"
 msgstr "すべてのフィルターの消去"
 
@@ -1436,10 +1426,6 @@ msgstr "検索の消去"
 #: pkg/storaged/crypto-tab.jsx:238
 msgid "Cleartext device"
 msgstr "cleartext デバイス"
-
-#: pkg/users/account-create-dialog.js:220 pkg/users/password-dialogs.js:219
-msgid "Click $0 again to use the password anyway."
-msgstr "$0 を再びクリックしてこのパスワードを使用します。"
 
 #: pkg/systemd/overview-cards/realmd.jsx:287
 msgid "Client software"
@@ -1464,7 +1450,7 @@ msgstr "選択されたページを閉じる"
 msgid "Cockpit"
 msgstr "Cockpit"
 
-#: pkg/static/login.js:409
+#: pkg/static/login.js:411
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "Cockpit の認証が間違って設定されています。"
 
@@ -1519,7 +1505,7 @@ msgstr ""
 "きます。これらのサーバーはクリックするだけで追加できます。追加後に、ご使用の"
 "マシンは他のマシンを管理するようになります。"
 
-#: pkg/metrics/metrics.jsx:1049
+#: pkg/metrics/metrics.jsx:1076
 msgid "Collect metrics"
 msgstr "メトリックスの収集"
 
@@ -1528,10 +1514,8 @@ msgid "Color"
 msgstr "色"
 
 #: pkg/networkmanager/firewall.jsx:602 pkg/networkmanager/firewall.jsx:612
-#, fuzzy
-#| msgid "Comma-separated ports, ranges, and aliases are accepted"
 msgid "Comma-separated ports, ranges, and services are accepted"
-msgstr "コンマで区切られたポート、範囲、およびエイリアスは使用できます"
+msgstr "コンマで区切られたポート、範囲、およびサービスを指定できます"
 
 #: pkg/storaged/dialog.jsx:1203 pkg/storaged/dialog.jsx:1222
 #: pkg/systemd/services/timer-dialog.jsx:159
@@ -1596,7 +1580,7 @@ msgstr "kdumpを設定中"
 msgid "Configuring system settings"
 msgstr "システム設定の変更"
 
-#: pkg/users/account-create-dialog.js:62 pkg/storaged/format-dialog.jsx:273
+#: pkg/users/account-create-dialog.js:59 pkg/storaged/format-dialog.jsx:273
 #: pkg/storaged/stratis-panel.jsx:148
 msgid "Confirm"
 msgstr "確定します"
@@ -1609,7 +1593,7 @@ msgstr "キーパスワードの確認"
 msgid "Confirm new key password"
 msgstr "新しいキーパスワードの確認"
 
-#: pkg/users/password-dialogs.js:152
+#: pkg/users/password-dialogs.js:147
 msgid "Confirm new password"
 msgstr "新規パスワードの確認"
 
@@ -1641,15 +1625,17 @@ msgstr "自動的に接続"
 msgid "Connect to"
 msgstr "接続先"
 
-#: pkg/static/login.js:617
-#, fuzzy
-#| msgid "Connect to"
+#: pkg/static/login.js:619
 msgid "Connect to:"
-msgstr "接続先"
+msgstr "接続先:"
 
 #: pkg/selinux/setroubleshoot-view.jsx:328
 msgid "Connecting to SETroubleshoot daemon..."
 msgstr "SETroubleshoot デーモンへ接続中 ..."
+
+#: pkg/systemd/services/services.jsx:245
+msgid "Connecting to dbus failed: $0"
+msgstr "dbus への接続に失敗しました: $0"
 
 #: pkg/shell/indexes.js:447
 msgid "Connecting to the machine"
@@ -1730,7 +1716,7 @@ msgstr "コピー"
 msgid "Copy to clipboard"
 msgstr "クリップボードにコピー"
 
-#: pkg/metrics/metrics.jsx:451
+#: pkg/metrics/metrics.jsx:458
 msgid "Core $0"
 msgstr "コア $0"
 
@@ -1750,8 +1736,7 @@ msgstr "クラッシュの報告"
 msgid "Crash system"
 msgstr "クラッシュシステム"
 
-#: pkg/users/account-create-dialog.js:220
-#: pkg/users/account-create-dialog.js:267 pkg/storaged/mdraids-panel.jsx:140
+#: pkg/users/account-create-dialog.js:259 pkg/storaged/mdraids-panel.jsx:140
 #: pkg/storaged/stratis-panel.jsx:169 pkg/storaged/content-views.jsx:196
 #: pkg/storaged/content-views.jsx:311 pkg/storaged/content-views.jsx:957
 #: pkg/storaged/vgroups-panel.jsx:90 pkg/storaged/stratis-details.jsx:393
@@ -1779,6 +1764,10 @@ msgstr "新しい SSH キーを作成し、その鍵を承認"
 msgid "Create a snapshot of filesystem $0"
 msgstr "ファイルシステム $0 のスナップショットの作成"
 
+#: pkg/users/account-create-dialog.js:271
+msgid "Create account with weak password"
+msgstr "脆弱なパスワードを使用したアカウントの作成"
+
 #: pkg/storaged/things-panel.jsx:77
 msgid "Create devices"
 msgstr "デバイスの作成"
@@ -1799,7 +1788,7 @@ msgstr "作成"
 msgid "Create logical volume"
 msgstr "論理ボリュームの作成"
 
-#: pkg/users/accounts-list.js:78 pkg/users/account-create-dialog.js:260
+#: pkg/users/accounts-list.js:78 pkg/users/account-create-dialog.js:252
 msgid "Create new account"
 msgstr "アカウントの新規作成"
 
@@ -1903,10 +1892,8 @@ msgid "Current boot"
 msgstr "現在の起動"
 
 #: pkg/storaged/dialog.jsx:1094
-#, fuzzy
-#| msgid "Current"
 msgid "Currently in use"
-msgstr "現在"
+msgstr "現在使用されています"
 
 #: pkg/storaged/nfs-details.jsx:171 pkg/storaged/fsys-tab.jsx:336
 #: pkg/storaged/format-dialog.jsx:256 pkg/storaged/stratis-details.jsx:388
@@ -2013,7 +2000,7 @@ msgstr "遅延は数字である必要があります"
 #: pkg/storaged/mdraid-details.jsx:331 pkg/storaged/vdo-details.jsx:205
 #: pkg/storaged/vdo-details.jsx:271 pkg/storaged/stratis-details.jsx:258
 #: pkg/storaged/stratis-details.jsx:422 pkg/storaged/stratis-details.jsx:557
-#: pkg/storaged/stratis-details.jsx:605 pkg/systemd/abrtLog.jsx:285
+#: pkg/storaged/stratis-details.jsx:605 pkg/systemd/abrtLog.jsx:287
 msgid "Delete"
 msgstr "削除"
 
@@ -2155,16 +2142,14 @@ msgstr "tuned の無効化"
 
 #: pkg/networkmanager/ip-settings.jsx:46 pkg/networkmanager/ip-settings.jsx:57
 #: pkg/systemd/services/service-details.jsx:347
-#: pkg/systemd/services/services.jsx:200 pkg/systemd/services/services.jsx:748
+#: pkg/systemd/services/services.jsx:203 pkg/systemd/services/services.jsx:766
 #: pkg/packagekit/autoupdates.jsx:332 pkg/packagekit/kpatch.jsx:248
 msgid "Disabled"
 msgstr "無効"
 
-#: pkg/users/account-create-dialog.js:74 pkg/users/account-details.js:323
-#, fuzzy
-#| msgid "Domain administrator password"
+#: pkg/users/account-create-dialog.js:69 pkg/users/account-details.js:323
 msgid "Disallow interactive password"
-msgstr "ドメイン管理者パスワード"
+msgstr "対話式パスワードを禁止"
 
 #: pkg/systemd/services/service-details.jsx:158
 msgid "Disallow running (mask)"
@@ -2174,11 +2159,11 @@ msgstr "実行を禁止 (マスク)"
 msgid "Disconnected"
 msgstr "切断されています"
 
-#: pkg/metrics/metrics.jsx:125 pkg/metrics/metrics.jsx:1395
+#: pkg/metrics/metrics.jsx:127 pkg/metrics/metrics.jsx:1422
 msgid "Disk I/O"
 msgstr "ディスク I/O"
 
-#: pkg/metrics/metrics.jsx:126
+#: pkg/metrics/metrics.jsx:128
 msgid "Disk I/O spike"
 msgstr "ディスク I/O スパイク"
 
@@ -2187,11 +2172,8 @@ msgid "Disk is OK"
 msgstr "ディスクは OK です"
 
 #: pkg/storaged/drive-details.jsx:63
-#, fuzzy
-#| msgid "$0 disk is missing"
-#| msgid_plural "$0 disks are missing"
 msgid "Disk is failing"
-msgstr "$0 本のディスクがありません"
+msgstr "ディスクで障害が発生中"
 
 #: pkg/storaged/crypto-keyslots.jsx:197
 msgid "Disk passphrase"
@@ -2199,7 +2181,7 @@ msgstr "ディスクのパスフレーズ"
 
 #: pkg/storaged/vgroup-details.jsx:67 pkg/storaged/mdraids-panel.jsx:127
 #: pkg/storaged/mdraid-details.jsx:65 pkg/storaged/mdraid-details.jsx:169
-#: pkg/storaged/vgroups-panel.jsx:79 pkg/metrics/metrics.jsx:539
+#: pkg/storaged/vgroups-panel.jsx:79 pkg/metrics/metrics.jsx:566
 msgid "Disks"
 msgstr "ディスク"
 
@@ -2371,8 +2353,8 @@ msgstr "サービスを有効にします"
 msgid "Enable the firewall"
 msgstr "ファイアウォールを有効にします"
 
-#: pkg/systemd/services/services.jsx:198 pkg/systemd/services/services.jsx:199
-#: pkg/systemd/services/services.jsx:747 pkg/packagekit/kpatch.jsx:251
+#: pkg/systemd/services/services.jsx:201 pkg/systemd/services/services.jsx:202
+#: pkg/systemd/services/services.jsx:765 pkg/packagekit/kpatch.jsx:251
 msgid "Enabled"
 msgstr "有効"
 
@@ -2453,7 +2435,7 @@ msgstr "エラータ"
 #: pkg/storaged/storage-controls.jsx:91 pkg/storaged/storage-controls.jsx:168
 #: pkg/storaged/stratis-details.jsx:680
 #: pkg/systemd/services/service-details.jsx:498
-#: pkg/systemd/services/services.jsx:178 pkg/apps/utils.jsx:78
+#: pkg/systemd/services/services.jsx:181 pkg/apps/utils.jsx:78
 msgid "Error"
 msgstr "エラー"
 
@@ -2461,7 +2443,7 @@ msgstr "エラー"
 msgid "Error and above"
 msgstr "エラー以上のレベル"
 
-#: pkg/metrics/metrics.jsx:1339
+#: pkg/metrics/metrics.jsx:1366
 msgid "Error has occurred"
 msgstr "エラーが発生しました"
 
@@ -2498,11 +2480,11 @@ msgstr "Ethernet MTU"
 msgid "Ethtool"
 msgstr "Ethtool"
 
-#: pkg/metrics/metrics.jsx:770
+#: pkg/metrics/metrics.jsx:797
 msgid "Event"
 msgstr "イベント"
 
-#: pkg/metrics/metrics.jsx:762
+#: pkg/metrics/metrics.jsx:789
 msgid "Event logs"
 msgstr "イベントログ"
 
@@ -2530,11 +2512,11 @@ msgstr "アカウントの有効期限"
 msgid "Expire account on $0"
 msgstr "アカウントの有効期限: $0"
 
-#: pkg/metrics/metrics.jsx:1066
+#: pkg/metrics/metrics.jsx:1093
 msgid "Export to network"
 msgstr "ネットワークへエクスポート"
 
-#: pkg/systemd/abrtLog.jsx:287
+#: pkg/systemd/abrtLog.jsx:289
 msgid "Extended information"
 msgstr "拡張情報"
 
@@ -2571,7 +2553,7 @@ msgstr "設定の適用に失敗しました"
 msgid "Failed to change password"
 msgstr "パスワードの変更に失敗しました"
 
-#: pkg/metrics/metrics.jsx:1034
+#: pkg/metrics/metrics.jsx:1061
 msgid "Failed to configure PCP"
 msgstr "PCP の設定に失敗しました"
 
@@ -2625,7 +2607,7 @@ msgid "Failed to save changes in /etc/motd"
 msgstr "変更を /etc/motd に保存できませんでした"
 
 #: pkg/systemd/services/service-details.jsx:356
-#: pkg/systemd/services/services.jsx:189
+#: pkg/systemd/services/services.jsx:192
 msgid "Failed to start"
 msgstr "起動に失敗しました"
 
@@ -2633,8 +2615,8 @@ msgstr "起動に失敗しました"
 msgid "Failed to switch profile"
 msgstr "プロファイルの切り替えに失敗しました"
 
-#: pkg/systemd/services/services.jsx:931 pkg/systemd/services/services.jsx:932
-#: pkg/systemd/services/services.jsx:939
+#: pkg/systemd/services/services.jsx:949 pkg/systemd/services/services.jsx:950
+#: pkg/systemd/services/services.jsx:957
 msgid "File state"
 msgstr "ファイル状態"
 
@@ -2662,7 +2644,7 @@ msgstr "ファイルシステム名"
 msgid "Filesystems"
 msgstr "ファイルシステム"
 
-#: pkg/systemd/services/services.jsx:907
+#: pkg/systemd/services/services.jsx:925
 msgid "Filter by name or description"
 msgstr "名前または説明による絞り込み"
 
@@ -2709,7 +2691,7 @@ msgstr "実行が禁止されています"
 msgid "Force change"
 msgstr "変更の強制"
 
-#: pkg/users/password-dialogs.js:278
+#: pkg/users/password-dialogs.js:270
 msgid "Force password change"
 msgstr "パスワード変更の強制"
 
@@ -2762,7 +2744,7 @@ msgstr "毎週金曜日"
 msgid "From"
 msgstr "以下から"
 
-#: pkg/users/account-create-dialog.js:41 pkg/users/account-details.js:285
+#: pkg/users/account-create-dialog.js:40 pkg/users/account-details.js:285
 msgid "Full name"
 msgstr "フルネーム"
 
@@ -2771,11 +2753,11 @@ msgstr "フルネーム"
 msgid "Gateway"
 msgstr "ゲートウェイ"
 
-#: pkg/networkmanager/network-interface.jsx:326 pkg/systemd/abrtLog.jsx:291
+#: pkg/networkmanager/network-interface.jsx:326 pkg/systemd/abrtLog.jsx:293
 msgid "General"
 msgstr "全般"
 
-#: pkg/systemd/services/services.jsx:209
+#: pkg/systemd/services/services.jsx:212
 msgid "Generated"
 msgstr "生成しました"
 
@@ -2926,7 +2908,8 @@ msgstr "識別子"
 msgid ""
 "If left empty, ID will be generated based on associated port services and "
 "port numbers"
-msgstr ""
+msgstr "空白のままの場合、関連付けられたポートサービスおよびポート番号に基づいて ID "
+"が生成されます"
 
 #: pkg/static/login.html:72
 msgid ""
@@ -2965,7 +2948,7 @@ msgstr "無視"
 msgid "Image builder"
 msgstr "イメージビルダー"
 
-#: pkg/metrics/metrics.jsx:590
+#: pkg/metrics/metrics.jsx:617
 msgid "In"
 msgstr "内"
 
@@ -2984,8 +2967,8 @@ msgid "In sync"
 msgstr "同期"
 
 #: pkg/networkmanager/network-interface.jsx:255
-#: pkg/networkmanager/interfaces.js:739 pkg/networkmanager/interfaces.js:1288
-#: pkg/networkmanager/interfaces.js:1295
+#: pkg/networkmanager/interfaces.js:739 pkg/networkmanager/interfaces.js:1289
+#: pkg/networkmanager/interfaces.js:1296
 msgid "Inactive"
 msgstr "停止"
 
@@ -3009,7 +2992,7 @@ msgstr "1 ずつ増加"
 msgid "Index memory"
 msgstr "インデックスメモリー"
 
-#: pkg/systemd/services/services.jsx:208
+#: pkg/systemd/services/services.jsx:211
 msgid "Indirect"
 msgstr "間接"
 
@@ -3059,7 +3042,7 @@ msgstr "Stratis サポートのインストール"
 msgid "Install all updates"
 msgstr "すべてのアップデートをインストール"
 
-#: pkg/metrics/metrics.jsx:1309
+#: pkg/metrics/metrics.jsx:1336
 msgid "Install cockpit-pcp"
 msgstr "cockpit-pcp をインストール"
 
@@ -3097,7 +3080,7 @@ msgstr "$0 をインストールすると、$1 が削除されます。"
 msgid "Installing packages"
 msgstr "パッケージのインストール"
 
-#: pkg/metrics/metrics.jsx:590
+#: pkg/metrics/metrics.jsx:617
 msgid "Interface"
 msgstr "インターフェース"
 
@@ -3117,11 +3100,11 @@ msgstr "インターフェース"
 msgid "Internal error"
 msgstr "内部エラー"
 
-#: pkg/static/login.js:863
+#: pkg/static/login.js:865
 msgid "Internal error: Invalid challenge header"
 msgstr "内部エラー: 無効なチャレンジヘッダー"
 
-#: pkg/systemd/services/services.jsx:207
+#: pkg/systemd/services/services.jsx:210
 msgid "Invalid"
 msgstr "無効"
 
@@ -3240,7 +3223,7 @@ msgstr "ジャーナルエントリー"
 msgid "Journal entry not found"
 msgstr "ジャーナルエントリーが見つかりません"
 
-#: pkg/metrics/metrics.jsx:1383
+#: pkg/metrics/metrics.jsx:1410
 msgid "Jump to"
 msgstr "次にジャンプ"
 
@@ -3268,28 +3251,20 @@ msgid "Kernel dump"
 msgstr "カーネルダンプ"
 
 #: pkg/packagekit/kpatch.jsx:364
-#, fuzzy
-#| msgid "Kernel patch $0 is active"
 msgid "Kernel live patch $0 is active"
-msgstr "カーネルパッチ $0 はアクティブです"
+msgstr "カーネルライブパッチ $0 はアクティブです"
 
 #: pkg/packagekit/kpatch.jsx:371
-#, fuzzy
-#| msgid "Kernel patch $0 is installed"
 msgid "Kernel live patch $0 is installed"
-msgstr "カーネルパッチ $0 がインストールされています"
+msgstr "カーネルライブパッチ $0 がインストールされています"
 
 #: pkg/packagekit/kpatch.jsx:297
-#, fuzzy
-#| msgid "Kernel patch settings"
 msgid "Kernel live patch settings"
-msgstr "カーネルパッチ設定"
+msgstr "カーネルライブパッチの設定"
 
 #: pkg/packagekit/kpatch.jsx:280
-#, fuzzy
-#| msgid "Kernel patching"
 msgid "Kernel live patching"
-msgstr "カーネルパッチ"
+msgstr "カーネルライブパッチ"
 
 #: pkg/shell/hosts_dialog.jsx:774 pkg/shell/hosts_dialog.jsx:833
 msgid "Key password"
@@ -3427,7 +3402,7 @@ msgstr "リンクアップの遅延"
 msgid "Link watch"
 msgstr "リンクの監視"
 
-#: pkg/systemd/services/services.jsx:201 pkg/systemd/services/services.jsx:202
+#: pkg/systemd/services/services.jsx:204 pkg/systemd/services/services.jsx:205
 msgid "Linked"
 msgstr "リンク済み"
 
@@ -3435,8 +3410,24 @@ msgstr "リンク済み"
 msgid "Listen"
 msgstr "リッスン"
 
-#: pkg/metrics/metrics.jsx:103 pkg/metrics/metrics.jsx:480
-#: pkg/metrics/metrics.jsx:1393
+#: pkg/systemd/services/services.jsx:412
+msgid "Listing unit files"
+msgstr "ユニットファイルの一覧表示"
+
+#: pkg/systemd/services/services.jsx:474
+msgid "Listing unit files failed: $0"
+msgstr "ユニットファイルの一覧表示に失敗しました: $0"
+
+#: pkg/systemd/services/services.jsx:380
+msgid "Listing units"
+msgstr "ユニットの一覧表示"
+
+#: pkg/systemd/services/services.jsx:475
+msgid "Listing units failed: $0"
+msgstr "ユニットの一覧表示に失敗しました: $0"
+
+#: pkg/metrics/metrics.jsx:105 pkg/metrics/metrics.jsx:507
+#: pkg/metrics/metrics.jsx:1420
 msgid "Load"
 msgstr "ロード"
 
@@ -3444,7 +3435,7 @@ msgstr "ロード"
 msgid "Load balancing"
 msgstr "ロードバランシング"
 
-#: pkg/metrics/metrics.jsx:1412
+#: pkg/metrics/metrics.jsx:1439
 msgid "Load earlier data"
 msgstr "以前のデータのロード"
 
@@ -3452,7 +3443,7 @@ msgstr "以前のデータのロード"
 msgid "Load earlier entries"
 msgstr "以前のエントリーのロード"
 
-#: pkg/metrics/metrics.jsx:104
+#: pkg/metrics/metrics.jsx:106
 msgid "Load spike"
 msgstr "スパイクのロード"
 
@@ -3476,6 +3467,10 @@ msgstr "キーをロード中..."
 msgid "Loading of SSH keys failed"
 msgstr "SSH キーの読み込みに失敗しました"
 
+#: pkg/systemd/services/services.jsx:731
+msgid "Loading of units failed"
+msgstr "ユニットの読み込みに失敗しました"
+
 #: pkg/shell/shell-modals.jsx:77
 msgid "Loading packages..."
 msgstr "パッケージの読み込み中..."
@@ -3484,10 +3479,14 @@ msgstr "パッケージの読み込み中..."
 msgid "Loading system modifications..."
 msgstr "システム変更をロード中..."
 
+#: pkg/systemd/services/services.jsx:445
+msgid "Loading unit failed: $0"
+msgstr "ユニットの読み込みに失敗しました: $0"
+
 #: pkg/kdump/kdump-view.jsx:375 pkg/storaged/devices.jsx:69
-#: pkg/systemd/services/services.jsx:723 pkg/systemd/logsJournal.jsx:269
-#: pkg/systemd/logDetails.jsx:152 pkg/metrics/metrics.jsx:750
-#: pkg/metrics/metrics.jsx:1411
+#: pkg/systemd/services/services.jsx:733 pkg/systemd/logsJournal.jsx:269
+#: pkg/systemd/logDetails.jsx:152 pkg/metrics/metrics.jsx:777
+#: pkg/metrics/metrics.jsx:1438
 msgid "Loading..."
 msgstr "ロード中..."
 
@@ -3530,7 +3529,7 @@ msgid "Locking $target"
 msgstr "$target のロック中"
 
 #: pkg/static/login.html:115 pkg/shell/failures.jsx:72
-#: pkg/shell/hosts_dialog.jsx:742 pkg/static/login.js:625
+#: pkg/shell/hosts_dialog.jsx:742 pkg/static/login.js:627
 msgid "Log in"
 msgstr "ログイン"
 
@@ -3538,7 +3537,7 @@ msgstr "ログイン"
 msgid "Log in to $0"
 msgstr "$0 へのログイン"
 
-#: pkg/static/login.js:660
+#: pkg/static/login.js:662
 msgid "Log in with your server user account."
 msgstr "サーバーのユーザーアカウントでログインします。"
 
@@ -3546,7 +3545,7 @@ msgstr "サーバーのユーザーアカウントでログインします。"
 msgid "Log messages"
 msgstr "ログメッセージ"
 
-#: pkg/metrics/metrics.jsx:1303 pkg/shell/topnav.jsx:167
+#: pkg/metrics/metrics.jsx:1330 pkg/shell/topnav.jsx:167
 msgid "Log out"
 msgstr "ログアウト"
 
@@ -3578,11 +3577,11 @@ msgstr "$0 の論理ボリューム"
 msgid "Logical volumes"
 msgstr "論理ボリューム"
 
-#: pkg/static/login.js:320
+#: pkg/static/login.js:322
 msgid "Login"
 msgstr "ログイン"
 
-#: pkg/static/login.js:361
+#: pkg/static/login.js:363
 msgid "Login again"
 msgstr "再ログイン"
 
@@ -3602,7 +3601,7 @@ msgstr "ログイン履歴"
 msgid "Login history list"
 msgstr "ログイン履歴の一覧"
 
-#: pkg/static/login.js:362
+#: pkg/static/login.js:364
 msgid "Logout successful"
 msgstr "ログアウトが正常に行われました"
 
@@ -3646,7 +3645,7 @@ msgstr "マシンSSH 鍵フィンガープリント"
 msgid "Main server chassis"
 msgstr "メインサーバーシャーシ"
 
-#: pkg/systemd/services/services.jsx:192
+#: pkg/systemd/services/services.jsx:195
 msgid "Maintenance"
 msgstr "メンテナンス"
 
@@ -3738,7 +3737,7 @@ msgid "Mask service"
 msgstr "サービスのマスク"
 
 #: pkg/systemd/services/service-details.jsx:337
-#: pkg/systemd/services/services.jsx:204 pkg/systemd/services/services.jsx:205
+#: pkg/systemd/services/services.jsx:207 pkg/systemd/services/services.jsx:208
 msgid "Masked"
 msgstr "マスク"
 
@@ -3758,12 +3757,12 @@ msgstr "メッセージ最大期間 $max_age"
 
 #: pkg/systemd/services/service-details.jsx:539
 #: pkg/systemd/overview-cards/usageCard.jsx:134 pkg/systemd/hwinfo.jsx:312
-#: pkg/systemd/hwinfo.jsx:356 pkg/metrics/metrics.jsx:506
-#: pkg/metrics/metrics.jsx:1394
+#: pkg/systemd/hwinfo.jsx:356 pkg/metrics/metrics.jsx:533
+#: pkg/metrics/metrics.jsx:1421
 msgid "Memory"
 msgstr "メモリ"
 
-#: pkg/metrics/metrics.jsx:111
+#: pkg/metrics/metrics.jsx:113
 msgid "Memory spike"
 msgstr "メモリーのスパイク"
 
@@ -3771,11 +3770,11 @@ msgstr "メモリーのスパイク"
 msgid "Memory technology"
 msgstr "メモリーテクノロジー"
 
-#: pkg/metrics/metrics.jsx:110
+#: pkg/metrics/metrics.jsx:112
 msgid "Memory usage"
 msgstr "メモリー使用状況"
 
-#: pkg/systemd/services/services.jsx:179
+#: pkg/systemd/services/services.jsx:182
 msgid "Merged"
 msgstr "マージ済み"
 
@@ -3795,11 +3794,11 @@ msgstr "使用済みメタデータ"
 msgid "Metric"
 msgstr "メトリック"
 
-#: pkg/metrics/metrics.jsx:1331
+#: pkg/metrics/metrics.jsx:1358
 msgid "Metrics history could not be loaded"
 msgstr "メトリクス履歴をロードできませんでした"
 
-#: pkg/metrics/metrics.jsx:1013 pkg/metrics/metrics.jsx:1020
+#: pkg/metrics/metrics.jsx:1040 pkg/metrics/metrics.jsx:1047
 msgid "Metrics settings"
 msgstr "メトリックス設定"
 
@@ -4019,15 +4018,15 @@ msgstr "名前にはスペースを含めることができません。"
 msgid "Need at least one NTP server"
 msgstr "少なくとも 1 つの NTP サーバーが必要です"
 
-#: pkg/metrics/metrics.jsx:580 pkg/metrics/metrics.jsx:1396
+#: pkg/metrics/metrics.jsx:607 pkg/metrics/metrics.jsx:1423
 msgid "Network"
 msgstr "ネットワーク"
 
-#: pkg/metrics/metrics.jsx:132
+#: pkg/metrics/metrics.jsx:134
 msgid "Network I/O"
 msgstr "ネットワーク I/O"
 
-#: pkg/metrics/metrics.jsx:133
+#: pkg/metrics/metrics.jsx:135
 msgid "Network I/O spike"
 msgstr "ネットワーク I/O スパイク"
 
@@ -4043,7 +4042,7 @@ msgstr "ネットワークデバイスおよびグラフには、NetworkManager 
 msgid "Network logs"
 msgstr "ネットワークログ"
 
-#: pkg/metrics/metrics.jsx:589
+#: pkg/metrics/metrics.jsx:616
 msgid "Network usage"
 msgstr "ネットワーク使用量"
 
@@ -4082,7 +4081,7 @@ msgstr "起動時のマウントなし"
 msgid "New NFS mount"
 msgstr "NFS の新規マウント"
 
-#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:719
+#: pkg/shell/hosts_dialog.jsx:451 pkg/static/login.js:721
 msgid "New host"
 msgstr "新規ホスト"
 
@@ -4094,7 +4093,7 @@ msgstr "新しいキーパスワード"
 msgid "New passphrase"
 msgstr "新しいパスフレーズ"
 
-#: pkg/users/password-dialogs.js:151 pkg/shell/credentials.jsx:266
+#: pkg/users/password-dialogs.js:146 pkg/shell/credentials.jsx:266
 msgid "New password"
 msgstr "新規パスワード"
 
@@ -4120,7 +4119,7 @@ msgstr "SELinux アラートがありません。"
 
 #: pkg/apps/application-list.jsx:155
 msgid "No applications installed or available."
-msgstr "アプリケーションがインストールされていないか、利用できません"
+msgstr "アプリケーションがインストールされていないか、利用できません。"
 
 #: pkg/sosreport/index.jsx:107
 msgid "No archive has been created."
@@ -4134,7 +4133,7 @@ msgstr "利用可能なスロットはありません"
 msgid "No block devices are available."
 msgstr "ブロックデバイスは利用できません。"
 
-#: pkg/networkmanager/interfaces.js:1290
+#: pkg/networkmanager/interfaces.js:1291
 msgid "No carrier"
 msgstr "キャリアなし"
 
@@ -4142,11 +4141,11 @@ msgstr "キャリアなし"
 msgid "No configuration found"
 msgstr "設定が見つかりません"
 
-#: pkg/metrics/metrics.jsx:1356
+#: pkg/metrics/metrics.jsx:1383
 msgid "No data available"
 msgstr "利用可能なデータなし"
 
-#: pkg/metrics/metrics.jsx:1352
+#: pkg/metrics/metrics.jsx:1379
 msgid "No data available between $0 and $1"
 msgstr "$0 と $1 間で利用できるデータなし"
 
@@ -4221,11 +4220,11 @@ msgid "No logical volumes"
 msgstr "論理ボリュームなし"
 
 #: pkg/systemd/logsJournal.jsx:282 pkg/systemd/logsJournal.jsx:325
-#: pkg/metrics/metrics.jsx:750
+#: pkg/metrics/metrics.jsx:777
 msgid "No logs found"
 msgstr "ログが見つかりません"
 
-#: pkg/systemd/services/services.jsx:816
+#: pkg/systemd/services/services.jsx:834
 msgid "No matching results"
 msgstr "一致する結果はありません"
 
@@ -4247,7 +4246,7 @@ msgstr ""
 msgid "No partitioning"
 msgstr "パーティションなし"
 
-#: pkg/users/account-create-dialog.js:207
+#: pkg/users/account-create-dialog.js:186
 msgid "No real name specified"
 msgstr "実際の名前が指定されていません"
 
@@ -4255,7 +4254,7 @@ msgstr "実際の名前が指定されていません"
 msgid "No results found"
 msgstr "結果が見つかりません"
 
-#: pkg/systemd/services/services.jsx:814
+#: pkg/systemd/services/services.jsx:832
 msgid ""
 "No results match the filter criteria. Clear all filters to show results."
 msgstr ""
@@ -4279,7 +4278,7 @@ msgstr "システム変更がありません"
 msgid "No updates"
 msgstr "更新なし"
 
-#: pkg/users/account-create-dialog.js:95
+#: pkg/users/account-create-dialog.js:90
 msgid "No user name specified"
 msgstr "ユーザー名が指定されていません"
 
@@ -4324,7 +4323,7 @@ msgstr "ホストに接続されていません"
 msgid "Not enough space to grow."
 msgstr "スペースが不足しています。"
 
-#: pkg/storaged/details.jsx:132 pkg/systemd/services/services.jsx:176
+#: pkg/storaged/details.jsx:132 pkg/systemd/services/services.jsx:179
 msgid "Not found"
 msgstr "見つかりません"
 
@@ -4354,8 +4353,8 @@ msgstr "登録されていません"
 
 #: pkg/storaged/mdraid-details.jsx:360
 #: pkg/systemd/services/service-details.jsx:377
-#: pkg/systemd/services/services.jsx:188 pkg/systemd/services/services.jsx:191
-#: pkg/systemd/services/services.jsx:758
+#: pkg/systemd/services/services.jsx:191 pkg/systemd/services/services.jsx:194
+#: pkg/systemd/services/services.jsx:776
 msgid "Not running"
 msgstr "実行中ではありません"
 
@@ -4399,7 +4398,7 @@ msgstr "OK"
 msgid "Old passphrase"
 msgstr "古いパスフレーズ"
 
-#: pkg/users/password-dialogs.js:141
+#: pkg/users/password-dialogs.js:138
 msgid "Old password"
 msgstr "古いパスワード"
 
@@ -4439,7 +4438,7 @@ msgstr "緊急時限定"
 msgid "Ooops!"
 msgstr "問題が発生しました!"
 
-#: pkg/metrics/metrics.jsx:983
+#: pkg/metrics/metrics.jsx:1010
 msgid "Open the pmproxy service in the firewall to share metrics."
 msgstr "ファイアウォールで pmproxy サービスを開き、メトリックを共有します。"
 
@@ -4452,7 +4451,7 @@ msgctxt "storage"
 msgid "Optical drive"
 msgstr "光学ドライブ"
 
-#: pkg/networkmanager/bridge.jsx:104 pkg/users/account-create-dialog.js:70
+#: pkg/networkmanager/bridge.jsx:104 pkg/users/account-create-dialog.js:65
 #: pkg/users/account-details.js:315 pkg/storaged/content-views.jsx:937
 #: pkg/storaged/crypto-tab.jsx:253
 msgid "Options"
@@ -4466,11 +4465,11 @@ msgstr "あるいは、バンドルされたブラウザーを使用します"
 msgid "Other"
 msgstr "その他"
 
-#: pkg/users/account-create-dialog.js:76 pkg/users/account-details.js:325
+#: pkg/users/account-create-dialog.js:71 pkg/users/account-details.js:325
 msgid ""
 "Other authentication methods are still available even when interactive "
 "password authentication is not allowed."
-msgstr ""
+msgstr "対話式パスワード認証が許可されない場合でも、他の認証方法を利用できます。"
 
 #: pkg/storaged/content-views.jsx:490
 msgctxt "storage-id-desc"
@@ -4485,11 +4484,11 @@ msgstr "他のデバイス"
 msgid "Other options"
 msgstr "他のオプション"
 
-#: pkg/metrics/metrics.jsx:590
+#: pkg/metrics/metrics.jsx:617
 msgid "Out"
 msgstr "外"
 
-#: pkg/systemd/hwinfo.jsx:326 pkg/metrics/metrics.jsx:1429
+#: pkg/systemd/hwinfo.jsx:326 pkg/metrics/metrics.jsx:1455
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "概要"
@@ -4507,12 +4506,10 @@ msgid "PCI"
 msgstr "PCI"
 
 #: pkg/storaged/dialog.jsx:1202
-#, fuzzy
-#| msgid "ID"
 msgid "PID"
-msgstr "ID"
+msgstr "PID"
 
-#: pkg/metrics/metrics.jsx:1308
+#: pkg/metrics/metrics.jsx:1335
 msgid "Package cockpit-pcp is missing for metrics history"
 msgstr "メトリクス履歴に、パッケージ cockpit-pcp が欠如しています"
 
@@ -4552,7 +4549,7 @@ msgstr "親 $parent"
 msgid "Part of"
 msgstr "一部"
 
-#: pkg/networkmanager/interfaces.js:1319
+#: pkg/networkmanager/interfaces.js:1320
 msgid "Part of $0"
 msgstr "$0 の一部"
 
@@ -4613,7 +4610,7 @@ msgstr "パスフレーズの削除で、$0 のロック解除ができない可
 msgid "Passphrases do not match"
 msgstr "パスフレーズが一致しません"
 
-#: pkg/static/login.html:81 pkg/users/account-create-dialog.js:61
+#: pkg/static/login.html:81 pkg/users/account-create-dialog.js:58
 #: pkg/users/account-details.js:346 pkg/storaged/iscsi-panel.jsx:50
 #: pkg/storaged/iscsi-panel.jsx:160 pkg/shell/superuser.jsx:52
 #: pkg/shell/hosts_dialog.jsx:818 pkg/shell/hosts_dialog.jsx:827
@@ -4630,7 +4627,7 @@ msgstr "パスワードが正しく変更されました"
 msgid "Password expiration"
 msgstr "パスワードの有効期限"
 
-#: pkg/users/account-create-dialog.js:213 pkg/users/password-dialogs.js:214
+#: pkg/users/account-create-dialog.js:192 pkg/users/password-dialogs.js:193
 msgid "Password is longer than 256 characters"
 msgstr "パスワードは 256 文字以内で設定する必要があります"
 
@@ -4703,7 +4700,7 @@ msgstr "パス"
 msgid "Pause"
 msgstr "一時停止"
 
-#: pkg/metrics/metrics.jsx:1023
+#: pkg/metrics/metrics.jsx:1050
 msgid ""
 "Performance Co-Pilot collects and analyzes performance metrics from your "
 "system."
@@ -4711,7 +4708,7 @@ msgstr ""
 "パフォーマンス Co-Pilot は、お使いのシステムからパフォーマンスメトリックスを"
 "収集して分析します。"
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1430
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1456
 msgid "Performance Metrics"
 msgstr "パフォーマンスメトリックス"
 
@@ -4733,7 +4730,7 @@ msgstr "永続"
 msgid "Permanently delete $0?"
 msgstr "$0 を永続的に削除しますか？"
 
-#: pkg/static/login.js:889
+#: pkg/static/login.js:891
 msgid "Permission denied"
 msgstr "パーミッションが拒否されました"
 
@@ -4798,7 +4795,7 @@ msgstr "問題の解決後にページをリロードしてください。"
 msgid "Please specify an expiration date"
 msgstr "有効期限を指定してください"
 
-#: pkg/static/login.js:533
+#: pkg/static/login.js:535
 msgid "Please specify the host to connect to"
 msgstr "接続するホストを指定してください"
 
@@ -4883,17 +4880,17 @@ msgstr "優先度 $priority"
 msgid "Problem becoming administrator"
 msgstr "管理者への切り替えに問題が発生しました"
 
-#: pkg/systemd/abrtLog.jsx:297
+#: pkg/systemd/abrtLog.jsx:299
 msgid "Problem details"
 msgstr "問題の詳細"
 
-#: pkg/systemd/abrtLog.jsx:294
+#: pkg/systemd/abrtLog.jsx:296
 msgid "Problem info"
 msgstr "問題の情報"
 
 #: pkg/storaged/dialog.jsx:1083
 msgid "Processes using the location"
-msgstr ""
+msgstr "ロケーションを使用するプロセス"
 
 #: pkg/shell/shell-modals.jsx:74
 msgid "Project website"
@@ -5004,7 +5001,7 @@ msgstr "RAID レベル"
 msgid "RAID member"
 msgstr "RAID メンバー"
 
-#: pkg/metrics/metrics.jsx:514
+#: pkg/metrics/metrics.jsx:541
 msgid "RAM"
 msgstr "RAM"
 
@@ -5032,11 +5029,11 @@ msgstr "ランク"
 msgid "Raw to a device"
 msgstr "デバイスに対する Raw"
 
-#: pkg/metrics/metrics.jsx:543
+#: pkg/metrics/metrics.jsx:570
 msgid "Read"
 msgstr "読み取り"
 
-#: pkg/systemd/hwinfo.jsx:223 pkg/metrics/metrics.jsx:1029
+#: pkg/systemd/hwinfo.jsx:223 pkg/metrics/metrics.jsx:1056
 msgid "Read more..."
 msgstr "さらに読む..."
 
@@ -5097,10 +5094,8 @@ msgid "Receiving"
 msgstr "受信"
 
 #: pkg/static/login.html:161
-#, fuzzy
-#| msgid "Recent"
 msgid "Recent hosts"
-msgstr "最近開いたファイル"
+msgstr "直近のホスト"
 
 #: pkg/shell/failures.jsx:71
 msgid "Reconnect"
@@ -5118,15 +5113,15 @@ msgstr "RAID デバイス $target の復旧"
 msgid "Refreshing package information"
 msgstr "パッケージ情報の更新中"
 
-#: pkg/static/login.js:879
+#: pkg/static/login.js:881
 msgid "Refusing to connect. Host is unknown"
 msgstr "接続を拒否しています。ホストが不明です"
 
-#: pkg/static/login.js:881
+#: pkg/static/login.js:883
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "接続を拒否しています。ホストキーが一致しません"
 
-#: pkg/static/login.js:877
+#: pkg/static/login.js:879
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "接続を拒否しています。ホストキーが不明です"
 
@@ -5136,15 +5131,15 @@ msgstr "登録中…"
 
 #: pkg/storaged/dialog.jsx:1158
 msgid "Related processes and services will be forcefully stopped."
-msgstr ""
+msgstr "関連するプロセスとサービスは強制的に停止されます。"
 
 #: pkg/storaged/dialog.jsx:1160
 msgid "Related processes will be forcefully stopped."
-msgstr ""
+msgstr "関連するプロセスは強制的に停止されます。"
 
 #: pkg/storaged/dialog.jsx:1162
 msgid "Related services will be forcefully stopped."
-msgstr ""
+msgstr "関連するサービスは強制的に停止されます。"
 
 #: pkg/systemd/services/service-details.jsx:131
 msgid "Reload"
@@ -5154,7 +5149,7 @@ msgstr "再ロード"
 msgid "Reload propagated from"
 msgstr "伝搬元を再ロード"
 
-#: pkg/systemd/services/services.jsx:187
+#: pkg/systemd/services/services.jsx:190
 msgid "Reloading"
 msgstr "リロード中"
 
@@ -5194,7 +5189,7 @@ msgstr "$0 の削除"
 
 #: pkg/networkmanager/firewall.jsx:874
 msgid "Remove $0 service from $1 zone"
-msgstr "$1 ゾーンから $0 サービスを削除します"
+msgstr "$1 ゾーンからの $0 サービスの削除"
 
 #: pkg/storaged/crypto-keyslots.jsx:488
 msgid "Remove $0?"
@@ -5206,13 +5201,11 @@ msgstr "Tang キーサーバーを削除しますか？"
 
 #: pkg/storaged/vdo-details.jsx:109
 msgid "Remove device"
-msgstr "リモートデバイス"
+msgstr "デバイスの削除"
 
-#: pkg/static/login.js:591
-#, fuzzy
-#| msgid "Remove item"
+#: pkg/static/login.js:593
 msgid "Remove host"
-msgstr "アイテムの削除"
+msgstr "ホストの削除"
 
 #: pkg/networkmanager/ip-settings.jsx:198
 #: pkg/networkmanager/ip-settings.jsx:243
@@ -5391,7 +5384,7 @@ msgstr "予約済みメモリー"
 msgid "Reset"
 msgstr "リセット"
 
-#: pkg/users/password-dialogs.js:285
+#: pkg/users/password-dialogs.js:277
 msgid "Reset password"
 msgstr "パスワードのリセット"
 
@@ -5471,16 +5464,14 @@ msgstr "ランナー"
 
 #: pkg/storaged/mdraid-details.jsx:360
 #: pkg/systemd/services/service-details.jsx:369
-#: pkg/systemd/services/services.jsx:186 pkg/systemd/services/services.jsx:190
-#: pkg/systemd/services/services.jsx:757
+#: pkg/systemd/services/services.jsx:189 pkg/systemd/services/services.jsx:193
+#: pkg/systemd/services/services.jsx:775
 msgid "Running"
 msgstr "実行中"
 
 #: pkg/storaged/dialog.jsx:1205 pkg/storaged/dialog.jsx:1224
-#, fuzzy
-#| msgid "time"
 msgid "Runtime"
-msgstr "時間"
+msgstr "ランタイム"
 
 #: pkg/selinux/manifest.json:0
 msgid "SELinux"
@@ -5558,7 +5549,7 @@ msgid "Saturdays"
 msgstr "毎週土曜日"
 
 #: pkg/storaged/crypto-keyslots.jsx:346 pkg/storaged/crypto-keyslots.jsx:365
-#: pkg/systemd/services/timer-dialog.jsx:133 pkg/metrics/metrics.jsx:1037
+#: pkg/systemd/services/timer-dialog.jsx:133 pkg/metrics/metrics.jsx:1064
 msgid "Save"
 msgstr "保存"
 
@@ -5590,11 +5581,11 @@ msgstr ""
 
 #: pkg/systemd/overview-cards/shutdownStatus.jsx:88
 msgid "Scheduled poweroff at $0"
-msgstr ""
+msgstr "電源オフが $0 に予定されています"
 
 #: pkg/systemd/overview-cards/shutdownStatus.jsx:92
 msgid "Scheduled reboot at $0"
-msgstr ""
+msgstr "再起動が $0 に予定されています"
 
 #: pkg/lib/machine-info.js:81
 msgid "Sealed-case PC"
@@ -5629,10 +5620,8 @@ msgid "Security updates only"
 msgstr "セキュリティー更新のみ"
 
 #: pkg/packagekit/autoupdates.jsx:353
-#, fuzzy
-#| msgid "will be applied $0 at $1"
 msgid "Security updates will be applied $0 at $1"
-msgstr "$1 で $0 に適用されます"
+msgstr "$0 $1 にセキュリティーアップデートが適用されます"
 
 #: pkg/shell/shell-modals.jsx:127
 msgid "Select"
@@ -5687,16 +5676,16 @@ msgstr "サーバーは空欄にできません。"
 msgid "Server has closed the connection."
 msgstr "サーバーの接続が終了しました。"
 
-#: src/bridge/cockpitpackages.c:1003
+#: src/bridge/cockpitpackages.c:1019
 msgid "Server is missing the cockpit-system package"
-msgstr ""
+msgstr "サーバーに cockpit-system パッケージがありません"
 
 #: pkg/systemd/overview-cards/realmd.jsx:281
 msgid "Server software"
 msgstr "サーバーソフトウェア"
 
 #: pkg/networkmanager/firewall.jsx:178 pkg/storaged/dialog.jsx:1221
-#: pkg/metrics/metrics.jsx:497 pkg/metrics/metrics.jsx:530
+#: pkg/metrics/metrics.jsx:524 pkg/metrics/metrics.jsx:557
 msgid "Service"
 msgstr "サービス"
 
@@ -5731,10 +5720,8 @@ msgid "Services"
 msgstr "サービス"
 
 #: pkg/storaged/dialog.jsx:1069
-#, fuzzy
-#| msgid "Service is starting"
 msgid "Services using the location"
-msgstr "サービスが起動中です"
+msgstr "ロケーションを使用するサービス"
 
 #: pkg/shell/topnav.jsx:216
 msgid "Session"
@@ -5752,8 +5739,8 @@ msgstr "セット"
 msgid "Set hostname"
 msgstr "ホスト名を設定します"
 
-#: pkg/users/password-dialogs.js:219 pkg/users/password-dialogs.js:230
-#: pkg/users/password-dialogs.js:237 pkg/users/account-details.js:352
+#: pkg/users/password-dialogs.js:225 pkg/users/password-dialogs.js:232
+#: pkg/users/account-details.js:352
 msgid "Set password"
 msgstr "パスワードの設定"
 
@@ -5768,6 +5755,10 @@ msgstr "設定値"
 #: pkg/packagekit/updates.jsx:93
 msgid "Set up"
 msgstr "設定"
+
+#: pkg/users/password-dialogs.js:244
+msgid "Set weak password"
+msgstr "脆弱なパスワードの設定"
 
 #: pkg/selinux/setroubleshoot-view.jsx:253
 msgid ""
@@ -5816,7 +5807,7 @@ msgstr[0] "$0 ドライブを表示します"
 msgid "Show all"
 msgstr "すべて表示"
 
-#: pkg/systemd/abrtLog.jsx:257
+#: pkg/systemd/abrtLog.jsx:259
 msgid "Show all threads"
 msgstr "すべてのスレッドの表示"
 
@@ -6055,7 +6046,7 @@ msgid "State"
 msgstr "状態"
 
 #: pkg/systemd/services/service-details.jsx:387
-#: pkg/systemd/services/services.jsx:206 pkg/systemd/services/services.jsx:749
+#: pkg/systemd/services/services.jsx:209 pkg/systemd/services/services.jsx:767
 msgid "Static"
 msgstr "静的"
 
@@ -6141,7 +6132,7 @@ msgstr "Stratis プール"
 msgid "Stratis pool $0"
 msgstr "Stratis プール $0"
 
-#: pkg/systemd/services/services.jsx:174
+#: pkg/systemd/services/services.jsx:177
 msgid "Stub"
 msgstr "スタブ"
 
@@ -6152,6 +6143,10 @@ msgstr "サブシャーシ"
 #: pkg/lib/machine-info.js:71
 msgid "Sub-Notebook"
 msgstr "サブノート"
+
+#: pkg/systemd/services/services.jsx:242
+msgid "Subscribing to systemd signals failed: $0"
+msgstr "systemd シグナルへのサブスクライブに失敗しました: $0"
 
 #: pkg/storaged/crypto-keyslots.jsx:400
 msgid "Successfully copied to clipboard!"
@@ -6169,12 +6164,12 @@ msgstr "毎週日曜日"
 msgid "Support is installed."
 msgstr "サポートはインストールされました。"
 
-#: pkg/storaged/content-views.jsx:228 pkg/metrics/metrics.jsx:118
-#: pkg/metrics/metrics.jsx:437 pkg/metrics/metrics.jsx:1394
+#: pkg/storaged/content-views.jsx:228 pkg/metrics/metrics.jsx:120
+#: pkg/metrics/metrics.jsx:439 pkg/metrics/metrics.jsx:1421
 msgid "Swap"
 msgstr "スワップ"
 
-#: pkg/metrics/metrics.jsx:117
+#: pkg/metrics/metrics.jsx:119
 msgid "Swap out"
 msgstr "スワップアウト"
 
@@ -6239,7 +6234,7 @@ msgstr "同期中"
 msgid "Synchronizing RAID device $target"
 msgstr "RAID デバイス $target の同期"
 
-#: pkg/systemd/services/services.jsx:995 pkg/shell/indexes.js:332
+#: pkg/systemd/services/services.jsx:1013 pkg/shell/indexes.js:332
 #: pkg/shell/nav.jsx:28
 msgid "System"
 msgstr "システム"
@@ -6379,7 +6374,7 @@ msgstr ""
 "$0 にログインするための SSH キーは保護されています。ログインパスワードでログ"
 "インするか、$1 で鍵のパスワードを提供することでログインできます。"
 
-#: pkg/users/password-dialogs.js:273
+#: pkg/users/password-dialogs.js:265
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr "アカウント '$0' が次回ログインする際に、パスワードの変更が求められます"
 
@@ -6515,18 +6510,15 @@ msgstr "ボリュームグループの最後の物理ボリュームは削除で
 
 #: pkg/storaged/dialog.jsx:1239
 msgid "The listed processes and services will be forcefully stopped."
-msgstr ""
+msgstr "一覧表示されたプロセスとサービスは強制的に停止されます。"
 
 #: pkg/storaged/dialog.jsx:1241
 msgid "The listed processes will be forcefully stopped."
-msgstr ""
+msgstr "一覧表示されたプロセスは強制的に停止されます。"
 
 #: pkg/storaged/dialog.jsx:1243
-#, fuzzy
-#| msgid "The following service will be restarted:"
-#| msgid_plural "The following services will be restarted:"
 msgid "The listed services will be forcefully stopped."
-msgstr "以下のサービスが再起動します:"
+msgstr "一覧表示されたサービスは強制的に停止されます。"
 
 #: pkg/lib/cockpit-components-modifications.jsx:137
 msgid "The logged in user is not permitted to view system modifications"
@@ -6538,11 +6530,11 @@ msgstr "マシンが再起動中です"
 
 #: pkg/storaged/dialog.jsx:1198
 msgid "The mount point $0 is in use by these processes:"
-msgstr ""
+msgstr "マウントポイント $0 は、以下のプロセスにより使用されています。"
 
 #: pkg/storaged/dialog.jsx:1217
 msgid "The mount point $0 is in use by these services:"
-msgstr ""
+msgstr "マウントポイント $0 は、以下のサービスにより使用されています。"
 
 #: pkg/shell/hosts_dialog.jsx:679
 msgid "The new key password can not be empty"
@@ -6552,7 +6544,7 @@ msgstr "新しいキーのパスワードは空にすることはできません
 msgid "The password can not be empty"
 msgstr "パスワードは空にできません"
 
-#: pkg/users/account-create-dialog.js:210 pkg/users/password-dialogs.js:211
+#: pkg/users/account-create-dialog.js:189 pkg/users/password-dialogs.js:190
 msgid "The passwords do not match"
 msgstr "パスワードが一致しません"
 
@@ -6569,7 +6561,7 @@ msgstr ""
 "作成されたフィンガープリントは、電子メールを含むパブリックメソッドを介して共"
 "有すると問題ありません。"
 
-#: pkg/static/login.js:871
+#: pkg/static/login.js:873
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -6591,7 +6583,7 @@ msgstr ""
 "ロールを完全に変更するには、ユーザーはログアウトしてからログインし直す必要が"
 "あります。"
 
-#: pkg/users/account-create-dialog.js:99
+#: pkg/users/account-create-dialog.js:94
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
@@ -6638,10 +6630,8 @@ msgid "There was an unexpected error while connecting to the machine."
 msgstr "マシンへの接続中に予期しないエラーが発生しました。"
 
 #: pkg/storaged/dialog.jsx:1125
-#, fuzzy
-#| msgid "This web console will be updated."
 msgid "These changes will be made:"
-msgstr "この Web コンソールは更新されます。"
+msgstr "以下の変更が行われます。"
 
 #: pkg/storaged/utils.js:204
 msgid "Thin logical volume"
@@ -6660,10 +6650,8 @@ msgid "This device cannot be managed here."
 msgstr "このデバイスはここで管理できません。"
 
 #: pkg/storaged/dialog.jsx:1047
-#, fuzzy
-#| msgid "This device is currently used for VDO devices."
 msgid "This device is currently in use."
-msgstr "このデバイスは、現在 VDO デバイスに使用されています。"
+msgstr "このデバイスは現在使用されています。"
 
 #: pkg/storaged/mdraid-details.jsx:132
 msgid "This disk cannot be removed while the device is recovering."
@@ -6691,11 +6679,11 @@ msgstr "このマシンはすでに追加されています。"
 msgid "This may take a while"
 msgstr "これにはしばらく時間がかかることがあります"
 
-#: src/bridge/cockpitpackages.c:525
+#: src/bridge/cockpitpackages.c:533
 msgid "This package is not compatible with this version of Cockpit"
 msgstr "このパッケージには Cockpit のこのバージョンとの互換性がありません"
 
-#: src/bridge/cockpitpackages.c:514
+#: src/bridge/cockpitpackages.c:522
 #, c-format
 msgid "This package requires Cockpit version %s or later"
 msgstr "このパッケージには Cockpit バージョン %s 以降が必要です"
@@ -6732,7 +6720,7 @@ msgstr ""
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "このユニットは明示的に有効にするよう設計されていません。"
 
-#: pkg/users/account-create-dialog.js:104
+#: pkg/users/account-create-dialog.js:99
 msgid "This user name already exists"
 msgstr "このユーザー名はすでに存在します"
 
@@ -6851,7 +6839,7 @@ msgstr ""
 "ションサーバーを使用します。"
 
 #: pkg/shell/hosts_dialog.jsx:463 pkg/shell/hosts_dialog.jsx:474
-#: pkg/static/login.js:724
+#: pkg/static/login.js:726
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
 "the machine or through a trusted network:"
@@ -6859,7 +6847,7 @@ msgstr ""
 "フィンガープリントを確認するには、マシン上に物理的に置かれるか、信頼できる"
 "ネットワークを介して $0 で次のコマンドを実行します:"
 
-#: pkg/metrics/metrics.jsx:1362
+#: pkg/metrics/metrics.jsx:1389
 msgid "Today"
 msgstr "今日"
 
@@ -6876,7 +6864,7 @@ msgstr "ビットマップを切り替える"
 msgid "Toggle date picker"
 msgstr "日付選択の切り替え"
 
-#: pkg/systemd/services/services.jsx:902 pkg/systemd/logs.jsx:189
+#: pkg/systemd/services/services.jsx:920 pkg/systemd/logs.jsx:189
 msgid "Toggle filters"
 msgstr "フィルターの切り替え"
 
@@ -6888,11 +6876,11 @@ msgstr "データが多すぎます"
 msgid "Tools"
 msgstr "ツール"
 
-#: pkg/metrics/metrics.jsx:496
+#: pkg/metrics/metrics.jsx:523
 msgid "Top 5 CPU services"
 msgstr "上位 5 CPU サービス"
 
-#: pkg/metrics/metrics.jsx:529
+#: pkg/metrics/metrics.jsx:556
 msgid "Top 5 memory services"
 msgstr "上位 5 メモリーサービス"
 
@@ -6904,7 +6892,7 @@ msgstr "合計サイズ: $0"
 msgid "Tower"
 msgstr "タワー"
 
-#: pkg/systemd/services/services.jsx:210
+#: pkg/systemd/services/services.jsx:213
 msgid "Transient"
 msgstr "一時的"
 
@@ -6925,7 +6913,7 @@ msgstr "トリガー元"
 msgid "Triggers"
 msgstr "トリガー"
 
-#: pkg/metrics/metrics.jsx:1326
+#: pkg/metrics/metrics.jsx:1353
 msgid "Troubleshoot"
 msgstr "トラブルシュート"
 
@@ -7017,7 +7005,7 @@ msgstr "設定を適用できません: $0"
 msgid "Unable to apply this solution automatically"
 msgstr "このソリューションを自動的に適用できません"
 
-#: pkg/static/login.js:875
+#: pkg/static/login.js:877
 msgid "Unable to connect to that address"
 msgstr "そのアドレスに接続できません"
 
@@ -7083,10 +7071,8 @@ msgid "Unavailable"
 msgstr "利用できません"
 
 #: pkg/packagekit/kpatch.jsx:236
-#, fuzzy
-#| msgid "Unavailable"
 msgid "Unavailable packages"
-msgstr "利用できません"
+msgstr "利用できないパッケージ"
 
 #: pkg/networkmanager/interfaces.js:50 pkg/users/dialog-utils.js:65
 #: pkg/shell/shell-modals.jsx:179
@@ -7098,7 +7084,7 @@ msgstr "予期しないエラー"
 msgid "Unit"
 msgstr "単位"
 
-#: pkg/systemd/services/services.jsx:734
+#: pkg/systemd/services/services.jsx:745
 msgid "Unit not found"
 msgstr "単位が見つかりません"
 
@@ -7172,10 +7158,8 @@ msgid "Unlocking $target"
 msgstr "$target をロック解除中"
 
 #: pkg/storaged/crypto-keyslots.jsx:243
-#, fuzzy
-#| msgid "Unlocking disk..."
 msgid "Unlocking disk"
-msgstr "ディスクをロック解除中..."
+msgstr "ディスクのロック解除"
 
 #: pkg/networkmanager/network-main.jsx:194
 #: pkg/networkmanager/network-main.jsx:196
@@ -7188,10 +7172,8 @@ msgid "Unmount"
 msgstr "アンマウント"
 
 #: pkg/storaged/fsys-tab.jsx:364
-#, fuzzy
-#| msgid "Unmount filesystem"
 msgid "Unmount filesystem $0"
-msgstr "ファイルシステムをアンマウントします"
+msgstr "ファイルシステム $0 のアンマウント"
 
 #: pkg/storaged/fsys-tab.jsx:652 pkg/storaged/fsys-tab.jsx:656
 msgid "Unmount now"
@@ -7271,10 +7253,8 @@ msgid "Updates history"
 msgstr "更新履歴"
 
 #: pkg/packagekit/autoupdates.jsx:354
-#, fuzzy
-#| msgid "will be applied $0 at $1"
 msgid "Updates will be applied $0 at $1"
-msgstr "$1 で $0 に適用されます"
+msgstr "$0 $1 に更新が適用されます"
 
 #: pkg/packagekit/updates.jsx:86
 msgid "Updating"
@@ -7289,9 +7269,9 @@ msgid "Uptime"
 msgstr "稼働時間"
 
 #: pkg/storaged/unrecognized-tab.jsx:37
-#: pkg/systemd/overview-cards/usageCard.jsx:117 pkg/metrics/metrics.jsx:1393
-#: pkg/metrics/metrics.jsx:1394 pkg/metrics/metrics.jsx:1395
-#: pkg/metrics/metrics.jsx:1396
+#: pkg/systemd/overview-cards/usageCard.jsx:117 pkg/metrics/metrics.jsx:1420
+#: pkg/metrics/metrics.jsx:1421 pkg/metrics/metrics.jsx:1422
+#: pkg/metrics/metrics.jsx:1423
 msgid "Usage"
 msgstr "使用率"
 
@@ -7325,7 +7305,7 @@ msgstr "キーの使用"
 msgid "Use the following keys to authenticate against other systems"
 msgstr "他のシステムに対して認証する場合は次の鍵を使用します"
 
-#: pkg/storaged/swap-tab.jsx:70 pkg/metrics/metrics.jsx:530
+#: pkg/storaged/swap-tab.jsx:70 pkg/metrics/metrics.jsx:557
 msgid "Used"
 msgstr "使用済み"
 
@@ -7334,16 +7314,16 @@ msgstr "使用済み"
 msgid "Used for"
 msgstr "用途"
 
-#: pkg/storaged/dialog.jsx:1204 pkg/systemd/services/services.jsx:999
+#: pkg/storaged/dialog.jsx:1204 pkg/systemd/services/services.jsx:1017
 msgid "User"
 msgstr "ユーザー"
 
-#: pkg/static/login.html:76 pkg/users/account-create-dialog.js:50
+#: pkg/static/login.html:76 pkg/users/account-create-dialog.js:49
 #: pkg/users/account-details.js:299 pkg/shell/hosts_dialog.jsx:257
 msgid "User name"
 msgstr "ユーザー名"
 
-#: pkg/static/login.js:531
+#: pkg/static/login.js:533
 msgid "User name cannot be empty"
 msgstr "ユーザー名は空にできません"
 
@@ -7381,8 +7361,6 @@ msgid "VDO filesystem volume (compression/deduplication)"
 msgstr "VDO ファイルシステムボリューム (圧縮/重複排除)"
 
 #: pkg/storaged/content-views.jsx:212
-#, fuzzy
-#| msgid "VDO Pool"
 msgid "VDO pool"
 msgstr "VDO プール"
 
@@ -7436,9 +7414,19 @@ msgstr "バージョン"
 msgid "Very securely erasing $target"
 msgstr "$target を非常に安全に削除"
 
-#: pkg/metrics/metrics.jsx:743 pkg/lib/cockpit-components-logs-panel.jsx:171
+#: pkg/metrics/metrics.jsx:479 pkg/metrics/metrics.jsx:480
+#, fuzzy
+#| msgid "View all logs"
+msgid "View all CPUs"
+msgstr "すべてのログの表示"
+
+#: pkg/metrics/metrics.jsx:770 pkg/lib/cockpit-components-logs-panel.jsx:171
 msgid "View all logs"
 msgstr "すべてのログの表示"
+
+#: pkg/systemd/services/services.jsx:750
+msgid "View all services"
+msgstr "すべてのサービスの表示"
 
 #: pkg/lib/cockpit-components-modifications.jsx:162
 msgid "View automation script"
@@ -7466,8 +7454,6 @@ msgstr "レポートの表示"
 
 #: pkg/lib/cockpit-components-firewalld-request.jsx:120
 #: pkg/lib/cockpit-components-firewalld-request.jsx:157
-#, fuzzy
-#| msgid "Visit Firewall"
 msgid "Visit firewall"
 msgstr "ファイアウォールへのアクセス"
 
@@ -7581,7 +7567,7 @@ msgctxt "storage"
 msgid "World wide name"
 msgstr "World wide name"
 
-#: pkg/metrics/metrics.jsx:547
+#: pkg/metrics/metrics.jsx:574
 msgid "Write"
 msgstr "書き込み"
 
@@ -7589,7 +7575,7 @@ msgstr "書き込み"
 msgid "Write-mostly"
 msgstr "Write-mostly"
 
-#: pkg/static/login.js:885
+#: pkg/static/login.js:887
 msgid "Wrong user name or password"
 msgstr "ユーザー名またはパスワードが間違っています"
 
@@ -7605,7 +7591,7 @@ msgstr "年次"
 msgid "Yes"
 msgstr "はい"
 
-#: pkg/shell/hosts_dialog.jsx:470 pkg/static/login.js:721
+#: pkg/shell/hosts_dialog.jsx:470 pkg/static/login.js:723
 msgid "You are connecting to $0 for the first time."
 msgstr "初めて $0 に接続しています。"
 
@@ -7636,7 +7622,7 @@ msgstr "自動ログイン用の鍵のパスワードの変更が必要な場合
 msgid "You must wait longer to change your password"
 msgstr "パスワードを変更するにはより長い時間の経過が必要です"
 
-#: pkg/metrics/metrics.jsx:1302
+#: pkg/metrics/metrics.jsx:1329
 msgid "You need to relogin to be able to see metrics history"
 msgstr "メトリクス履歴を表示するには、ログインし直す必要があります"
 
@@ -7740,11 +7726,13 @@ msgstr "時間"
 msgid "avc"
 msgstr "avc"
 
+#: pkg/metrics/metrics.jsx:466
+msgid "average: $0%"
+msgstr ""
+
 #: pkg/storaged/dialog.jsx:1028
-#, fuzzy
-#| msgid "Creating VDO device"
 msgid "backing device for VDO device"
-msgstr "VDO デバイスの作成"
+msgstr "VDO デバイスのバッキングデバイス"
 
 #: pkg/systemd/manifest.json:0
 msgid "bash"
@@ -7811,8 +7799,6 @@ msgstr "デバッグ"
 #: pkg/storaged/content-views.jsx:367 pkg/storaged/content-views.jsx:672
 #: pkg/storaged/mdraid-details.jsx:291 pkg/storaged/vdo-details.jsx:163
 #: pkg/storaged/stratis-details.jsx:242 pkg/storaged/stratis-details.jsx:541
-#, fuzzy
-#| msgid "Delete"
 msgid "delete"
 msgstr "削除"
 
@@ -7954,7 +7940,7 @@ msgstr "グラフ"
 
 #: pkg/storaged/lvol-tabs.jsx:228
 msgid "grow"
-msgstr ""
+msgstr "増加"
 
 #: pkg/systemd/manifest.json:0
 msgid "hardware"
@@ -7977,8 +7963,6 @@ msgid "in most browsers"
 msgstr "多くのブラウザー"
 
 #: pkg/storaged/content-views.jsx:672
-#, fuzzy
-#| msgid "Initialize"
 msgid "initialize"
 msgstr "初期化"
 
@@ -8054,17 +8038,17 @@ msgstr "マシン"
 msgid "mask"
 msgstr "マスク"
 
+#: pkg/metrics/metrics.jsx:467
+msgid "max: $0%"
+msgstr ""
+
 #: pkg/storaged/dialog.jsx:1027
-#, fuzzy
-#| msgid "Member of RAID device"
 msgid "member of RAID device"
 msgstr "RAID デバイスのメンバー"
 
 #: pkg/storaged/dialog.jsx:1029
-#, fuzzy
-#| msgid "Reset Storage Pool"
 msgid "member of Stratis pool"
-msgstr "ストレージプールのリセット"
+msgstr "Stratis プールのメンバー"
 
 #: pkg/systemd/manifest.json:0
 msgid "memory"
@@ -8110,7 +8094,7 @@ msgstr "nfs"
 msgid "nfs dump target isn't formatted as server:path"
 msgstr "nfs ダンプターゲットは server:path の形式になっていません"
 
-#: pkg/metrics/metrics.jsx:100
+#: pkg/metrics/metrics.jsx:102
 msgid "nice"
 msgstr "Nice 値"
 
@@ -8157,7 +8141,7 @@ msgstr "passwd"
 msgid "password"
 msgstr "パスワード"
 
-#: pkg/lib/cockpit-components-password.jsx:85
+#: pkg/lib/cockpit-components-password.jsx:107
 msgid "password quality"
 msgstr "パスワードの強度"
 
@@ -8182,24 +8166,22 @@ msgid "performance"
 msgstr "パフォーマンス"
 
 #: pkg/storaged/dialog.jsx:1026
-#, fuzzy
-#| msgid "Create LVM2 volume group"
 msgid "physical volume of LVM2 volume group"
-msgstr "LVM2 ボリュームグループの作成"
+msgstr "LVM2 ボリュームグループの物理ボリューム"
 
 #: pkg/apps/manifest.json:0
 msgid "plugin"
 msgstr "プラグイン"
 
-#: pkg/metrics/metrics.jsx:1323
+#: pkg/metrics/metrics.jsx:1350
 msgid "pmlogger.service has failed"
 msgstr "pmlogger.service が失敗しました"
 
-#: pkg/metrics/metrics.jsx:1325
+#: pkg/metrics/metrics.jsx:1352
 msgid "pmlogger.service is failing to collect data"
 msgstr "pmlogger.service がデータの収集に失敗しました"
 
-#: pkg/metrics/metrics.jsx:1316
+#: pkg/metrics/metrics.jsx:1343
 msgid "pmlogger.service is not running"
 msgstr "pmlogger.service サービスが実行されていません"
 
@@ -8229,13 +8211,11 @@ msgstr "推奨"
 
 #: pkg/storaged/utils.js:668
 msgid "remove from LVM2"
-msgstr ""
+msgstr "LVM2 からの削除"
 
 #: pkg/storaged/utils.js:657
-#, fuzzy
-#| msgid "Removing $target from RAID device"
 msgid "remove from RAID"
-msgstr "$target を RAID デバイスから削除"
+msgstr "RAID からの削除"
 
 #: pkg/systemd/manifest.json:0
 msgid "restart"
@@ -8283,8 +8263,6 @@ msgid "show more"
 msgstr "詳細表示"
 
 #: pkg/storaged/lvol-tabs.jsx:295
-#, fuzzy
-#| msgid "Shrink"
 msgid "shrink"
 msgstr "縮小"
 
@@ -8327,9 +8305,9 @@ msgstr "ssh サーバーが空です"
 
 #: pkg/storaged/mdraid-details.jsx:236 pkg/storaged/vdo-details.jsx:129
 msgid "stop"
-msgstr ""
+msgstr "停止"
 
-#: pkg/metrics/metrics.jsx:100
+#: pkg/metrics/metrics.jsx:102
 msgid "sys"
 msgstr "sys"
 
@@ -8377,8 +8355,8 @@ msgstr "udp"
 msgid "unit"
 msgstr "単位"
 
-#: pkg/systemd/services/services.jsx:516 pkg/systemd/services/services.jsx:517
-#: pkg/systemd/services/services.jsx:539 pkg/systemd/services/services.jsx:540
+#: pkg/systemd/services/services.jsx:524 pkg/systemd/services/services.jsx:525
+#: pkg/systemd/services/services.jsx:547 pkg/systemd/services/services.jsx:548
 msgid "unknown"
 msgstr "不明"
 
@@ -8398,7 +8376,7 @@ msgstr "アンマウント"
 msgid "unpartitioned space on $0"
 msgstr "$0 の未パーティション領域"
 
-#: pkg/metrics/metrics.jsx:100 pkg/users/manifest.json:0
+#: pkg/metrics/metrics.jsx:102 pkg/users/manifest.json:0
 msgid "user"
 msgstr "ユーザー"
 
@@ -8441,6 +8419,9 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "ゾーン"
+
+#~ msgid "Click $0 again to use the password anyway."
+#~ msgstr "$0 を再びクリックしてこのパスワードを使用します。"
 
 #~ msgid "Access"
 #~ msgstr "アクセス"

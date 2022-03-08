@@ -446,7 +446,7 @@ test_cache (TestCase *tc,
     g_assert_null (g_hash_table_lookup (headers, "Vary"));
 
   if (fixture->cache == COCKPIT_WEB_RESPONSE_CACHE_FOREVER)
-    g_assert_cmpstr (g_hash_table_lookup (headers, "Cache-Control"), ==, "max-age=31556926, public");
+    g_assert_cmpstr (g_hash_table_lookup (headers, "Cache-Control"), ==, "max-age=86400, public");
   else if (fixture->cache == COCKPIT_WEB_RESPONSE_NO_CACHE)
     g_assert_cmpstr (g_hash_table_lookup (headers, "Cache-Control"), ==, "no-cache, no-store");
   else if (fixture->cache == COCKPIT_WEB_RESPONSE_CACHE_PRIVATE)

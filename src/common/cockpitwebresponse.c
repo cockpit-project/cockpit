@@ -848,8 +848,9 @@ finish_headers (CockpitWebResponse *self,
 
   if ((seen & HEADER_CACHE_CONTROL) == 0 && status >= 200 && status <= 299)
     {
+      /* treat "forever" as "one day", so that browsers do refresh regularly in case we mess up caching for a resource */
       if (self->cache_type == COCKPIT_WEB_RESPONSE_CACHE_FOREVER)
-        g_string_append (string, "Cache-Control: max-age=31556926, public\r\n");
+        g_string_append (string, "Cache-Control: max-age=86400, public\r\n");
       else if (self->cache_type == COCKPIT_WEB_RESPONSE_NO_CACHE)
         g_string_append (string, "Cache-Control: no-cache, no-store\r\n");
       else if (self->cache_type == COCKPIT_WEB_RESPONSE_CACHE_PRIVATE)

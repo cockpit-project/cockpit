@@ -118,7 +118,8 @@ GBytes *              cockpit_web_response_gunzip        (GBytes *bytes,
 GBytes *              cockpit_web_response_negotiation   (const gchar *path,
                                                           GHashTable *existing,
                                                           const gchar *language,
-                                                          gchar **actual,
+                                                          gboolean *out_is_language_specific,
+                                                          gboolean *out_is_compressed,
                                                           GError **error);
 
 const gchar *         cockpit_web_response_content_type  (const gchar *path);

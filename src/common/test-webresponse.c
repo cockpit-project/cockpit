@@ -1304,35 +1304,35 @@ test_gunzip_invalid (void)
 static void
 test_negotiation_first (void)
 {
-  gchar *chosen = NULL;
+  gboolean is_language_specific, is_compressed;
   GError *error = NULL;
   GBytes *bytes;
 
   bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/test-file.txt",
-                                            NULL, NULL, &chosen, &error);
+                                            NULL, NULL, &is_language_specific, &is_compressed, &error);
 
   cockpit_assert_bytes_eq (bytes, "A small test file\n", -1);
   g_assert_no_error (error);
   g_bytes_unref (bytes);
 
-  g_assert_cmpstr (chosen, ==, SRCDIR "/src/common/mock-content/test-file.txt");
-  g_free (chosen);
+  g_assert (!is_language_specific);
+  g_assert (!is_compressed);
 }
 
 static void
 test_negotiation_last (void)
 {
-  gchar *chosen = NULL;
+  gboolean is_language_specific, is_compressed;
   GError *error = NULL;
   gchar *checksum;
   GBytes *bytes;
 
   bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/large.js",
-                                            NULL, NULL, &chosen, &error);
+                                            NULL, NULL, &is_language_specific, &is_compressed, &error);
 
   g_assert_no_error (error);
-  g_assert_cmpstr (chosen, ==, SRCDIR "/src/common/mock-content/large.min.js.gz");
-  g_free (chosen);
+  g_assert (!is_language_specific);
+  g_assert (is_compressed);
 
   checksum = g_compute_checksum_for_bytes (G_CHECKSUM_MD5, bytes);
   g_assert_cmpstr (checksum, ==, "e5284b625b7665fc04e082827de3436c");
@@ -1344,19 +1344,15 @@ test_negotiation_last (void)
 static void
 test_negotiation_prune (void)
 {
-  gchar *chosen = NULL;
   GError *error = NULL;
   GBytes *bytes;
 
   bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/test-file.extra.extension.txt",
-                                            NULL, NULL, &chosen, &error);
+                                            NULL, NULL, NULL, NULL, &error);
 
   cockpit_assert_bytes_eq (bytes, "A small test file\n", -1);
   g_assert_no_error (error);
   g_bytes_unref (bytes);
-
-  g_assert_cmpstr (chosen, ==, SRCDIR "/src/common/mock-content/test-file.txt");
-  g_free (chosen);
 }
 
 static void
@@ -1371,7 +1367,7 @@ test_negotiation_with_listing (void)
   g_hash_table_add (existing, SRCDIR "/src/common/mock-content/test-file.txt.gz");
 
   bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/test-file.txt",
-                                            existing, NULL, NULL, &error);
+                                            existing, NULL, NULL, NULL, &error);
 
   cockpit_assert_bytes_eq (bytes, "\x1F\x8B\x08\x08N1\x03U\x00\x03test-file.txt\x00"
                            "sT(\xCEM\xCC\xC9Q(I-.QH\xCB\xCCI\xE5\x02\x00>PjG\x12\x00\x00\x00", 52);
@@ -1384,53 +1380,47 @@ test_negotiation_with_listing (void)
 static void
 test_negotiation_locale (void)
 {
-  gchar *chosen = NULL;
+  gboolean is_language_specific, is_compressed;
   GError *error = NULL;
   GBytes *bytes;
 
   bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/test-file.txt",
-                                            NULL, "zh-cn", &chosen, &error);
+                                            NULL, "zh-cn", &is_language_specific, &is_compressed, &error);
 
   cockpit_assert_bytes_eq (bytes, "A translated test file\n", -1);
   g_assert_no_error (error);
   g_bytes_unref (bytes);
 
-  g_assert_cmpstr (chosen, ==, SRCDIR "/src/common/mock-content/test-file.zh_CN.txt");
-  g_free (chosen);
+  g_assert (is_language_specific);
+  g_assert (!is_compressed);
 }
 
 static void
 test_negotiation_notfound (void)
 {
-  gchar *chosen = NULL;
   GError *error = NULL;
   GBytes *bytes;
 
   bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/non-existent",
-                                            NULL, NULL, &chosen, &error);
+                                            NULL, NULL, NULL, NULL, &error);
 
   g_assert_no_error (error);
   g_assert (bytes == NULL);
-
-  g_assert (chosen == NULL);
 }
 
 static void
 test_negotiation_failure (void)
 {
-  gchar *chosen = NULL;
   GError *error = NULL;
   GBytes *bytes;
 
   bytes = cockpit_web_response_negotiation (SRCDIR "/src/common/mock-content/directory",
-                                            NULL, NULL, &chosen, &error);
+                                            NULL, NULL, NULL, NULL, &error);
 
   g_assert (error != NULL);
   g_error_free (error);
 
   g_assert (bytes == NULL);
-
-  g_assert (chosen == NULL);
 }
 
 int

@@ -21,11 +21,13 @@ import argparse
 import contextlib
 import fileinput
 import json
+import os.path
 import re
 import sys
 
 
 DOWNLOAD_URL = 'https://github.com/cockpit-project/cockpit/releases/download/'
+BASE_DIR = os.path.realpath(f'{__file__}/../..')
 
 
 def wip_version(args):
@@ -48,11 +50,11 @@ def substitute(match, args, package):
         return '1' if args.build_all else '0'
 
     elif variable == 'PATTERNFLY_VERSION':
-        with open('package.json') as fp:
+        with open(f'{BASE_DIR}/package.json') as fp:
             return json.load(fp)['dependencies']['patternfly']
 
     elif variable == 'REQUIRED_BASE':
-        with open(f'pkg/{package}/manifest.json') as fp:
+        with open(f'{BASE_DIR}/pkg/{package}/manifest.json') as fp:
             return json.load(fp)['requires']['cockpit']
 
     else:

@@ -10,16 +10,11 @@ actions:
     - make XZ_OPT=-0 dist
     - sh -c 'echo cockpit-*.tar.xz'
 srpm_build_deps:
-  - npm
-  - selinux-policy
-  - autogen
-  - autoconf
   - automake
-  - make
   - gcc
   - glib2-devel
+  - make
   - systemd-devel
-  - xmlto
 jobs:
   - job: tests
     trigger: pull_request

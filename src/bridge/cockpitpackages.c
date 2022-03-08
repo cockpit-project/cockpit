@@ -965,6 +965,7 @@ package_content (CockpitPackages *packages,
   GBytes *bytes = NULL;
   gboolean globbing;
   gboolean gzipped = FALSE;
+  gboolean is_language_specific = FALSE;
   gboolean allow_gzipped = FALSE;
   const gchar *type;
   gchar *policy;
@@ -1029,7 +1030,7 @@ package_content (CockpitPackages *packages,
 
       g_clear_error (&error);
 
-      bytes = cockpit_web_response_negotiation (filename, package ? package->paths : NULL, language, NULL, &gzipped, &error);
+      bytes = cockpit_web_response_negotiation (filename, package ? package->paths : NULL, language, &is_language_specific, &gzipped, &error);
 
       /* When globbing most errors result in a zero length block */
       if (globbing)
@@ -1039,6 +1040,7 @@ package_content (CockpitPackages *packages,
               g_message ("%s", error->message);
               bytes = g_bytes_new_static ("", 0);
               gzipped = FALSE;
+              is_language_specific = FALSE;
             }
         }
       else
@@ -1069,6 +1071,12 @@ package_content (CockpitPackages *packages,
               goto out;
             }
         }
+
+      /* If the response is language specific, don't cache the file. Caching "po.js" breaks
+       * changing the language in Chromium, as that does not respect `Vary: Cookie` properly.
+       * See https://github.com/cockpit-project/cockpit/issues/8160 */
+      if (is_language_specific || globbing)
+        cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_NO_CACHE);
 
       /* Do we need to decompress this content? */
       if (gzipped && !allow_gzipped)

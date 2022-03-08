@@ -178,9 +178,6 @@ OnCalendar=daily
         self.open_lang_modal()
         b.click('#display-language-modal li[data-value=de-de] button')
         b.click("#display-language-modal footer button.pf-m-primary")
-        if b.cdp.browser.name == "chromium":
-            # HACK: work around language switching in Chrome not working in current session (issue #8160)
-            b.reload(ignore_cache=True)
         b.wait_language("de-de")
 
         # Check that the system page is translated
@@ -272,9 +269,6 @@ OnCalendar=daily
             self.open_lang_modal()
             b.click(f"#display-language-modal li[data-value={language}] button")
             b.click("#display-language-modal footer button.pf-m-primary")
-            if b.cdp.browser.name == "chromium":
-                # HACK: work around language switching in Chrome not working in current session (issue #8160)
-                b.reload(ignore_cache=True)
             b.wait_language(language)
 
             # Test some pages, end up in terminal
@@ -324,9 +318,6 @@ OnCalendar=daily
         self.open_lang_modal()
         b.click('#display-language-modal li[data-value=pt-br] button')
         b.click('#display-language-modal footer button.pf-m-primary')
-        if b.cdp.browser.name == "chromium":
-            # HACK: work around language switching in Chrome not working in current session (issue #8160)
-            b.reload(ignore_cache=True)
         b.wait_language("pt-br")
 
         # Check that the system page is translated
@@ -524,9 +515,6 @@ OnCalendar=daily
 
         b.click('#display-language-modal li[data-value=de-de] button')
         b.click("#display-language-modal footer button.pf-m-primary")
-        if b.cdp.browser.name == "chromium":
-            # HACK: work around language switching in Chrome not working in current session (issue #8160)
-            b.reload(ignore_cache=True)
         b.wait_language("de-de")
         b.go("/system")
         b.enter_page("/system")

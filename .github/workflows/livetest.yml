@@ -75,9 +75,9 @@ jobs:
 
       - name: Download dists tarball for current git SHA from GitHub
         id: make_dist
-        run: ./test/make_dist.py --wait
+        run: tools/make-dist --wait
 
-      - name: Write a comment on the PR prompting the user to try later if make_dist.py failed
+      - name: Write a comment on the PR prompting the user to try later if make-dist failed
         uses: actions/github-script@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}

@@ -56,7 +56,7 @@ if [ $# -gt 1 ]; then
 fi
 
 if [ -z "${1-}" ]; then
-    source=$("$base/test/make_dist.py" | tail -n1)
+    source="$("$base/tools/make-dist")"
 else
     source="$1"
 fi

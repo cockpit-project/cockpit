@@ -27,9 +27,6 @@ clean-local::
 	find $(builddir) -name '*.gc??' -delete
 	find $(srcdir) -name '*.pyc' -delete
 
-# Webpack related
-include pkg/build
-
 # required for running unit and integration tests; commander and ws are deps of chrome-remote-interface
 WEBPACK_TEST_DEPS = \
 	node_modules/chrome-remote-interface \
@@ -38,26 +35,6 @@ WEBPACK_TEST_DEPS = \
 	node_modules/ws \
 	$(NULL)
 
-install-data-local:: $(WEBPACK_INSTALL) $(MANIFESTS)
-	mkdir -p $(DESTDIR)$(pkgdatadir)
-	$(V_TAR) tar --format=posix -cf - $^ | tar --no-same-owner -C $(DESTDIR)$(pkgdatadir) --strip-components=1 -xvf -
-install-data-local:: $(WEBPACK_GZ_INSTALL)
-	@for file in $^; do \
-		target="$(DESTDIR)$(pkgdatadir)/$${file##*dist/}.gz"; \
-		[ -n "$(DESTDIR)" -a "$${target}" -nt "$${file}" ] && continue; \
-		mkdir -p "$${target%/*}"; \
-		echo "$${file} → $${target}"; \
-		gzip -9 < "$${file}" > "$${target}"; \
-	done
-install-data-local:: $(wildcard $(top_srcdir)/dist/*/*.map)
-	$(V_TAR) tar --format=posix -c --transform="s@.*dist/@$(debugdir)$(pkgdatadir)/@" -T/dev/null $^ | tar --no-same-owner -C $(DESTDIR)/ -xv
-uninstall-local::
-	test ! -d $(DESTDIR)$(pkgdatadir) || \
-	  (find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type f -exec rm -f {} \; && \
-	   find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete)
-	test ! -d $(DESTDIR)$(debugdir)$(pkgdatadir) || \
-	  (find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type f -delete && \
-	   find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete)
 dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS) $(WEBPACK_TEST_DEPS) $(MANIFESTS)
 	$(V_TAR) tar --format=posix -cf - $^ | tar -C $(distdir) -xf -
 	cp $(srcdir)/tools/README.node_modules $(distdir)/node_modules/README

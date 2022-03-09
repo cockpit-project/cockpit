@@ -46,12 +46,7 @@ dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS) $(MANIFESTS)
 
 ACLOCAL_AMFLAGS = -I tools ${ACLOCAL_FLAGS}
 
-DISTCHECK_CONFIGURE_FLAGS=						        \
-	--disable-debug \
-	--disable-coverage \
-	--disable-silent-rules \
-	--enable-prefix-only \
-	$(NULL)
+DISTCHECK_CONFIGURE_FLAGS = --enable-prefix-only
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/src \

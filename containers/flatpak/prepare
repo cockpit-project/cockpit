@@ -48,20 +48,7 @@ prepare() {
     URLBASE="${2:-}"
 
     if test -z "${TARBALL}"; then
-        if ! test -f ./configure; then
-            ./autogen.sh
-        elif ! test -f ./Makefile; then
-            ./configure
-        fi
-
-        if ! test -e dist; then
-            # best effort
-            tools/webpack-jumpstart || true
-        fi
-
-        IGNORE_UNUSED_PATTERNS=1 XZ_OPT=-0 make -j$(nproc) dist WEBPACK_PACKAGES=static
-
-        TARBALL="$(make dump-dist)"
+        TARBALL="$(tools/make-dist IGNORE_UNUSED_PATTERNS=1 WEBPACK_PACKAGES=static)"
     fi
 
     test -f "${TARBALL}"

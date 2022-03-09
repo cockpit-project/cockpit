@@ -688,7 +688,7 @@ static const DefaultFixture fixture_static_simple = {
   .path = "/cockpit/static/branding.css",
   .auth = "/cockpit",
   .expect = "HTTP/1.1 200*"
-    "Cache-Control: max-age=31556926, public*"
+    "Cache-Control: max-age=86400, private*"
     "#badge*"
     "url(\"logo.png\");*"
 };
@@ -724,7 +724,7 @@ static const DefaultFixture fixture_static_application = {
   .path = "/cockpit+application/static/branding.css",
   .auth = NULL,
   .expect = "HTTP/1.1 200*"
-    "Cache-Control: max-age=31556926, public*"
+    "Cache-Control: max-age=86400, private*"
     "#badge*"
     "url(\"logo.png\");*"
 };

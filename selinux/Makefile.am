@@ -1,3 +1,5 @@
+if SELINUX_POLICY_ENABLED
+
 SELINUX_POLICY_FILES = \
 	selinux/cockpit.fc \
 	selinux/cockpit.if \
@@ -9,7 +11,7 @@ SELINUX_POLICY_MANPAGES = \
 	selinux/cockpit_ws_selinux.8cockpit \
 	$(NULL)
 
-EXTRA_DIST += \
+dist_noinst_DATA += \
 	$(SELINUX_POLICY_FILES) \
 	$(SELINUX_POLICY_MANPAGES) \
 	$(NULL)
@@ -23,10 +25,11 @@ cockpit.pp.bz2: cockpit.pp
 selinuxpackagesdir = $(datadir)/selinux/packages/$(SELINUX_POLICY_TYPE)/
 selinuxactivedir = $(sharedstatedir)/selinux/$(SELINUX_POLICY_TYPE)/active/modules/200/cockpit
 
-install-data-hook::
-if SELINUX_POLICY_ENABLED
+INSTALL_DATA_LOCAL_TARGETS += install-selinux
+install-selinux:
 	$(INSTALL) -d -m 700 $(DESTDIR)$(selinuxactivedir)
 
 selinuxpackages_DATA = cockpit.pp.bz2
 man_MANS += $(SELINUX_POLICY_MANPAGES)
+
 endif

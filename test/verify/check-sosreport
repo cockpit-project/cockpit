@@ -35,12 +35,8 @@ class TestSOS(MachineCase):
         b = self.browser
         m = self.machine
 
-        # HACK: sos ships wrong sos.conf, we need to mkdir it, see https://bugzilla.redhat.com/show_bug.cgi?id=1903281
-        m.execute("mkdir -p /etc/sos")
-
-        self.restore_file("/etc/sos/sos.conf")
-        m.write("/etc/sos/sos.conf",
-                """
+        self.write_file("/etc/sos/sos.conf",
+                        """
 [global]
 threads=1
 

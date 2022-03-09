@@ -29,11 +29,12 @@ import {
     DataList, DataListItem, DataListCell, DataListItemRow, DataListCheck, DataListItemCells,
     Flex, FlexItem,
     Form, FormGroup, FormHelperText,
+    Popover,
     Radio, Split, SplitItem, Stack,
     TextInput, Title, Toolbar, ToolbarContent, ToolbarItem,
     Tooltip, Page, PageSection, PageSectionVariants, Modal,
 } from '@patternfly/react-core';
-import { ExclamationCircleIcon, TrashIcon } from '@patternfly/react-icons';
+import { ExclamationCircleIcon, OutlinedQuestionCircleIcon, TrashIcon } from '@patternfly/react-icons';
 
 import firewall from "./firewall-client.js";
 import { ListingTable } from 'cockpit-components-table.jsx';
@@ -760,7 +761,24 @@ class ActivateZoneModal extends React.Component {
                         <FormHelperText isHidden={false}>{_("The cockpit service is automatically included")}</FormHelperText>
                     </FormGroup>
 
-                    <FormGroup label={ _("Interfaces") } hasNoPaddingTop isInline>
+                    <FormGroup label={ _("Interfaces") }
+                               hasNoPaddingTop
+                               isInline
+                               labelIcon={
+                                   <Popover aria-label={_("Inerfaces help")}
+                                     enableFlip
+                                     bodyContent={
+                                         <Flex direction={{ default: 'column' }}>
+                                             <FlexItem>{_("Traffic passing through selected interfaces will respect this zone's settings.")}</FlexItem>
+                                             <FlexItem>{_("An interface cannot belong to multiple zones.")}</FlexItem>
+                                         </Flex>
+                                     }>
+                                       <button onClick={e => e.preventDefault()} className="pf-c-form__group-label-help">
+                                           <OutlinedQuestionCircleIcon />
+                                       </button>
+                                   </Popover>
+                               }
+                    >
                         { physicalDevices.map(i =>
                             <Checkbox key={i.device}
                                       id={i.device}

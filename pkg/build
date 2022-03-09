@@ -54,6 +54,7 @@ WEBPACK_DEPS = $(WEBPACK_PACKAGES:%=$(srcdir)/dist/%/Makefile.deps)
 
 noinst_DATA += $(MANIFESTS)
 EXTRA_DIST += $(MANIFESTS) $(WEBPACK_DEPS) webpack.config.js
+EXTRA_DIST += $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS)
 
 # Nothing generates this directly, but it's included as a dependency in
 # various places.  It will automatically appear as part of the webpack

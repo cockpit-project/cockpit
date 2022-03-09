@@ -16,24 +16,18 @@ sbin_PROGRAMS =
 
 EXTRA_DIST = README.md
 
+# We override distdir for two reasons:
+#  - we need to make sure DISTFILES is built before calling `make distdir-am`
+#    to ensure that the Makefile.deps from the webpack build are available
+#  - we want to dist all files in tools/ and test/ without explicitly listing
+EXTRA_DIST += $(EXTRA_FILES)
+distdir: $(DISTFILES)
+	@if [ -e '$(srcdir)/.git' ]; then \
+		git -C '$(srcdir)' ls-files -x test/reference test tools > .extra_dist.tmp && \
+		mv .extra_dist.tmp '$(srcdir)/.extra_dist'; fi
+	$(MAKE) $(AM_MAKEFLAGS) distdir-am EXTRA_FILES="$$(tr '\n' ' ' < $(srcdir)/.extra_dist) .extra_dist"
 
-# This is the stock rule with $(BUILT_SOURCES) dependency removed.
-# In the future, we can do this via "no-dist-built-sources" automake option:
-# https://git.savannah.gnu.org/cgit/automake.git/commit/?id=13659a7385
-distdir:
-	$(MAKE) $(AM_MAKEFLAGS) distdir-am
-
-# Subdirectories to distribute everything that's committed to git
-COMMITTED_DIST = \
-	tools/ \
-	test \
-	$(NULL)
-
-dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS) $(MANIFESTS)
-	$(V_TAR) tar --format=posix -cf - $^ | tar -C $(distdir) -xf -
-	cp $(srcdir)/tools/README.node_modules $(distdir)/node_modules/README
-	( cd $(srcdir); git ls-tree HEAD --name-only -r $(COMMITTED_DIST) || (echo $(COMMITTED_DIST) | tr ' ' '\n' ) ) | \
-		tar --format=posix -C $(srcdir) --exclude test/reference -cf - -T - | tar -C $(distdir) -xf -
+dist-hook:
 	echo $(VERSION) > $(distdir)/.tarball
 	tools/create-spec --version '$(VERSION)' -o $(distdir)/tools/cockpit.spec $(srcdir)/tools/cockpit.spec.in
 	sed 's/VERSION/$(VERSION)/' $(srcdir)/tools/debian/changelog.in > $(distdir)/tools/debian/changelog

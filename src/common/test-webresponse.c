@@ -395,19 +395,14 @@ test_template (TestCase *tc,
   g_hash_table_unref (data);
 }
 
-static const TestFixture cache_forever_fixture = {
-  .path = "/pkg/shell/index.html",
-  .cache = COCKPIT_WEB_RESPONSE_CACHE_FOREVER,
-};
-
 static const TestFixture cache_none_fixture = {
   .path = "/pkg/shell/index.html",
   .cache = COCKPIT_WEB_RESPONSE_NO_CACHE
 };
 
-static const TestFixture cache_private_fixture = {
+static const TestFixture cache_fixture = {
   .path = "/pkg/shell/index.html",
-  .cache = COCKPIT_WEB_RESPONSE_CACHE_PRIVATE
+  .cache = COCKPIT_WEB_RESPONSE_CACHE
 };
 
 static const TestFixture cache_unset_fixture = {
@@ -440,16 +435,14 @@ test_cache (TestCase *tc,
   off = web_socket_util_parse_headers (resp + off, length - off, &headers);
   g_assert_cmpuint (off, >, 0);
 
-  if (fixture->cache == COCKPIT_WEB_RESPONSE_CACHE_PRIVATE)
+  if (fixture->cache == COCKPIT_WEB_RESPONSE_CACHE)
     g_assert_cmpstr (g_hash_table_lookup (headers, "Vary"), ==, "Cookie");
   else
     g_assert_null (g_hash_table_lookup (headers, "Vary"));
 
-  if (fixture->cache == COCKPIT_WEB_RESPONSE_CACHE_FOREVER)
-    g_assert_cmpstr (g_hash_table_lookup (headers, "Cache-Control"), ==, "max-age=31556926, public");
-  else if (fixture->cache == COCKPIT_WEB_RESPONSE_NO_CACHE)
+  if (fixture->cache == COCKPIT_WEB_RESPONSE_NO_CACHE)
     g_assert_cmpstr (g_hash_table_lookup (headers, "Cache-Control"), ==, "no-cache, no-store");
-  else if (fixture->cache == COCKPIT_WEB_RESPONSE_CACHE_PRIVATE)
+  else if (fixture->cache == COCKPIT_WEB_RESPONSE_CACHE)
     g_assert_cmpstr (g_hash_table_lookup (headers, "Cache-Control"), ==, "max-age=86400, private");
   else
     g_assert_null (g_hash_table_lookup (headers, "Cache-Control"));
@@ -1508,9 +1501,7 @@ main (int argc,
   g_test_add ("/web-response/origin-tls-proxy", TestCase, &fixture_origin_tls_proxy,
               setup, test_origin, teardown);
 
-  g_test_add ("/web-response/cache-forever", TestCase, &cache_forever_fixture,
-              setup, test_cache, teardown);
-  g_test_add ("/web-response/cache-private", TestCase, &cache_private_fixture,
+  g_test_add ("/web-response/cache", TestCase, &cache_fixture,
               setup, test_cache, teardown);
   g_test_add ("/web-response/cache-none", TestCase, &cache_none_fixture,
               setup, test_cache, teardown);

@@ -571,7 +571,7 @@ cockpit_channel_response_serve (CockpitWebService *service,
 {
   CockpitChannelResponse *self = NULL;
   CockpitTransport *transport = NULL;
-  CockpitCacheType cache_type = COCKPIT_WEB_RESPONSE_CACHE_PRIVATE;
+  CockpitCacheType cache_type = COCKPIT_WEB_RESPONSE_CACHE;
   const gchar *injecting_base_path = NULL;
   const gchar *host = NULL;
   const gchar *pragma;
@@ -602,7 +602,7 @@ cockpit_channel_response_serve (CockpitWebService *service,
 
   if (quoted_etag)
     {
-      cache_type = COCKPIT_WEB_RESPONSE_CACHE_FOREVER;
+      cache_type = COCKPIT_WEB_RESPONSE_CACHE;
       pragma = g_hash_table_lookup (in_headers, "Pragma");
 
       if ((!pragma || !strstr (pragma, "no-cache")) &&

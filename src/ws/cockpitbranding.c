@@ -188,10 +188,7 @@ cockpit_branding_serve (CockpitWebService *service,
       goto out;
     }
 
-  if (is_host)
-    cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_CACHE_PRIVATE);
-  else
-    cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_CACHE_FOREVER);
+  cockpit_web_response_set_cache_type (response, COCKPIT_WEB_RESPONSE_CACHE);
 
   if (g_str_has_suffix (static_path, ".css"))
     {

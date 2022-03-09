@@ -1,10 +1,8 @@
 centosbrandingdir = $(datadir)/cockpit/branding/centos
 
-centosbranding_DATA = \
+dist_centosbranding_DATA = \
 	src/branding/centos/branding.css \
 	$(NULL)
-
-EXTRA_DIST += $(centosbranding_DATA)
 
 # Opportunistically use fedora-logos
 install-data-hook::

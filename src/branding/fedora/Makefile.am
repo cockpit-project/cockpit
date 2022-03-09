@@ -1,10 +1,8 @@
 fedorabrandingdir = $(datadir)/cockpit/branding/fedora
 
-fedorabranding_DATA = \
+dist_fedorabranding_DATA = \
 	src/branding/fedora/branding.css \
 	$(NULL)
-
-EXTRA_DIST += $(fedorabranding_DATA)
 
 # Opportunistically use fedora-logos
 install-data-hook::

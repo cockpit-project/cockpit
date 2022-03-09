@@ -11,8 +11,10 @@ cockpitclientdir = $(libexecdir)
 dist_cockpitclient_SCRIPTS = src/client/cockpit-client
 dist_cockpitclient_DATA = src/client/cockpit-client.ui
 
-install-exec-hook::
 if ENABLE_COCKPIT_CLIENT
+
+INSTALL_EXEC_HOOK_TARGETS += install-cockpit-client-symlink
+install-cockpit-client-symlink:
 	mkdir -p $(DESTDIR)/$(bindir)
 	ln -sfTv $(cockpitclientdir)/cockpit-client $(DESTDIR)/$(bindir)/cockpit-client
 
@@ -29,4 +31,5 @@ dist_scalableicon_DATA = src/client/cockpit-client.svg
 
 symbolicicondir = $(datadir)/icons/hicolor/symbolic/apps
 dist_symbolicicon_DATA = src/client/cockpit-client-symbolic.svg
+
 endif

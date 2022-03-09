@@ -40,11 +40,5 @@ timestamp "${distdir}/package-lock.json"
 # and dist/ needs to be newer than that
 timestamp "${distdir}/dist"
 
-# we generate these files during `make dist`
-timestamp \
-    "${distdir}/.tarball" \
-    "${distdir}/tools/debian/copyright" \
-    "${distdir}/tools/cockpit.spec"
-
 # finally, the directories should be newer than everything else
 timestamp "${distdir}" -type d

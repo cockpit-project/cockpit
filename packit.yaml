@@ -4,9 +4,6 @@ actions:
     - tools/create-spec --version 0 --build-all -o cockpit.spec tools/cockpit.spec.in
   create-archive:
     - ./autogen.sh mock
-    # The sandcastle doesn't have enough ram to run webpack, so wait
-    # until the webpack-jumpstart workflow has run and grab the result.
-    - tools/webpack-jumpstart --wait --rebase
     - make XZ_OPT=-0 dist
     - sh -c 'echo cockpit-*.tar.xz'
 srpm_build_deps:
@@ -14,6 +11,7 @@ srpm_build_deps:
   - gcc
   - glib2-devel
   - make
+  - nodejs
   - systemd-devel
 jobs:
   - job: tests

@@ -23,10 +23,6 @@ jobs:
           # need this to also fetch tags
           fetch-depth: 0
 
-      - name: Minimum configuration for building dist tarball
-        run: |
-          ./autogen.sh mock
-
       - name: Build and install flatpak
         run: sh -x containers/flatpak/install --user --install-deps-from=flathub
 

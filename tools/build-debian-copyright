@@ -10,6 +10,10 @@ import sys
 import time
 
 
+BASE_DIR = os.path.realpath(f'{__file__}/../..')
+TEMPLATE_FILE = f'{BASE_DIR}/tools/debian/copyright.template'
+
+
 own_copyright = f"Copyright (C) 2013 - {time.strftime('%Y')} Red Hat, Inc."
 
 license_patterns = {
@@ -31,9 +35,6 @@ copyright_patterns = {
 }
 
 used_patterns = set()
-
-debian_dir = os.path.join(os.path.dirname(__file__), 'debian')
-template_file = os.path.join(debian_dir, 'copyright.template')
 
 
 def parse_args():
@@ -68,7 +69,7 @@ def find_patterns(patterns, text):
 
 args = parse_args()
 
-with open(template_file, encoding='UTF-8') as f:
+with open(TEMPLATE_FILE, encoding='UTF-8') as f:
     template = f.read()
 
 license_ids = template_licenses(template)
@@ -78,7 +79,7 @@ license_ids = template_licenses(template)
 dist_copyrights = {}  # Files: dirglob → set(copyrights)
 dist_licenses = {}  # Files: dirglob → set(licenses)
 
-for directory, _subdirs, files in os.walk('dist'):
+for directory, _subdirs, files in os.walk(f'{BASE_DIR}/dist'):
     for file in files:
         if not file.endswith('.LICENSE.txt'):
             continue
@@ -92,7 +93,7 @@ for directory, _subdirs, files in os.walk('dist'):
                 raise SystemError('Can not determine licenses of:\n%s' % comment)
             for license in licenses:
                 if license.lower() not in license_ids:
-                    raise KeyError('License {license} not found in {template_file}')
+                    raise KeyError('License {license} not found in {TEMPLATE_FILE}')
 
             # All webpacks also contain our own code
             licenses.add("LGPL-2.1-or-later")

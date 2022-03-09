@@ -34,7 +34,6 @@ fi
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_AUX_DIR([tools])
-AC_CONFIG_MACRO_DIR([tools])
 
 AM_INIT_AUTOMAKE([1.11 foreign dist-xz no-dist-gzip subdir-objects])
 # we want tar-ustar to avoid introducing extra metadata (ctime, atime) which

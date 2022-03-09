@@ -1,0 +1,60 @@
+#!/bin/sh
+
+set -eu
+cd "$(realpath -m "$0"/../..)"
+
+jumpstart_flags=''
+download_only=''
+while [ $# != 0 ] ; do
+    case "$1" in
+        --wait|-w)
+            jumpstart_flags='--wait'; download_only="$1";;
+        --download-only|-d)
+            download_only="$1";;
+        *=*)
+            break;;
+        *)
+            echo "usage: $0 [--wait|-w] [--download-only|-d] [MAKE_VAR=VALUE...]" >&2
+            exit 1
+    esac
+    shift
+done
+
+# NB: only the filename of the tarball should be written to stdout.
+# Everything else should go to stderr.
+if [ ! -d dist ]; then
+    if ! tools/webpack-jumpstart ${jumpstart_flags} >&2; then
+        if [ -n "${download_only}" ]; then
+            echo "fatal: webpack-jumpstart failed and ${download_only} specified." >&2
+            exit 1
+        fi
+    fi
+fi
+
+# autogen, if not already done
+test configure -nt configure.ac || NOCONFIGURE=1 ./autogen.sh >&2
+
+# If we have a configured tree, use it to build the tarball.  Otherwise, create
+# a temporary directory and configure it with a minimal config to build the
+# tarball.
+if [ -f Makefile ]; then
+    :
+else
+    builddir='tmp/build-dist'
+    rm -rf "${builddir}"
+    mkdir -p "${builddir}"
+    cd "${builddir}"
+    ../../configure \
+        CPPFLAGS=-I../../tools/mock-build-env \
+        PKG_CONFIG_PATH=../../tools/mock-build-env \
+        --disable-doc \
+        --enable-prefix-only \
+        --disable-pcp \
+        --disable-polkit \
+        --disable-ssh \
+        > /dev/null
+fi
+
+# Do the actual build
+make -s -j"$(nproc)" XZ_OPT='-0' "$@" dist >&2
+make dump-dist

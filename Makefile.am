@@ -28,14 +28,14 @@ clean-local::
 	find $(srcdir) -name '*.pyc' -delete
 
 # required for running unit and integration tests; commander and ws are deps of chrome-remote-interface
-WEBPACK_TEST_DEPS = \
+EXTRA_DIST += \
 	node_modules/chrome-remote-interface \
 	node_modules/commander \
 	node_modules/sizzle \
 	node_modules/ws \
 	$(NULL)
 
-dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS) $(WEBPACK_TEST_DEPS) $(MANIFESTS)
+dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS) $(MANIFESTS)
 	$(V_TAR) tar --format=posix -cf - $^ | tar -C $(distdir) -xf -
 	cp $(srcdir)/tools/README.node_modules $(distdir)/node_modules/README
 	( cd $(srcdir); git ls-tree HEAD --name-only -r $(COMMITTED_DIST) || (echo $(COMMITTED_DIST) | tr ' ' '\n' ) ) | \

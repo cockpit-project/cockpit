@@ -20,7 +20,6 @@ EXTRA_DIST = \
 	package.json \
 	package-lock.json \
 	README.md \
-	tools/debian/copyright \
 	$(NULL)
 
 clean-local::
@@ -43,6 +42,7 @@ dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS) $(MANIFESTS)
 	echo $(VERSION) > $(distdir)/.tarball
 	tools/create-spec --version '$(VERSION)' -o $(distdir)/tools/cockpit.spec $(srcdir)/tools/cockpit.spec.in
 	sed 's/VERSION/$(VERSION)/' $(srcdir)/tools/debian/changelog.in > $(distdir)/tools/debian/changelog
+	NODE_ENV=$(NODE_ENV) $(srcdir)/tools/build-debian-copyright > $(distdir)/tools/debian/copyright
 	sed 's/VERSION/$(VERSION)/' $(srcdir)/tools/arch/PKGBUILD.in > $(distdir)/tools/arch/PKGBUILD
 	tools/adjust-distdir-timestamps "$(distdir)"
 
@@ -117,10 +117,6 @@ COMMITTED_DIST = \
 	tools/ \
 	test \
 	$(NULL)
-
-tools/debian/copyright: tools/debian/copyright.template $(MANIFESTS)
-	$(AM_V_GEN) (cd $(srcdir) && NODE_ENV=$(NODE_ENV) ./tools/build-debian-copyright) > $@.tmp && \
-	mv -f $@.tmp $@
 
 # This is the stock rule with $(BUILT_SOURCES) dependency removed.
 # In the future, we can do this via "no-dist-built-sources" automake option:

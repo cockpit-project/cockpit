@@ -77,6 +77,7 @@ package-lock.json: FORCE
 	$(V_NODE_MODULES) $(srcdir)/tools/node-modules make_package_lock_json
 
 node_modules/%: package-lock.json
+EXTRA_DIST += package.json package-lock.json
 
 # Write the current git tree hash, and touch the file only if it changed.
 # Make sure the tree is clean, first.  Gets included in the jumpstart tar.

@@ -16,11 +16,7 @@ TESTS = \
 	test/static-code \
 	$(NULL)
 
-EXTRA_DIST = \
-	package.json \
-	package-lock.json \
-	README.md \
-	$(NULL)
+EXTRA_DIST = README.md
 
 clean-local::
 	find $(builddir) -name '*.gc??' -delete

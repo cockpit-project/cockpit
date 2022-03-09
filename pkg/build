@@ -24,7 +24,7 @@ WEBPACK_PACKAGES = \
 	$(NULL)
 
 MANIFESTS = \
-	$(WEBPACK_PACKAGES:%=dist/%/manifest.json) \
+	$(WEBPACK_PACKAGES:%=$(srcdir)/dist/%/manifest.json) \
 	pkg/pcp/manifest.json \
 	pkg/ssh/manifest.json \
 	$(NULL)
@@ -41,11 +41,8 @@ webpack-jumpstart.tar: $(MANIFESTS) package-lock.json tree
 
 V_WEBPACK = $(V_WEBPACK_$(V))
 V_WEBPACK_ = $(V_WEBPACK_$(AM_DEFAULT_VERBOSITY))
-V_WEBPACK_0 = @echo "  WEBPACK  $(@:dist/%/manifest.json=%)";
+V_WEBPACK_0 = @echo "  WEBPACK  $*";
 
-WEBPACK_MAKE = NODE_ENV=$(NODE_ENV) SRCDIR=$(abspath $(srcdir)) $(srcdir)/tools/termschutz -- $(srcdir)/tools/webpack-make
-
-WEBPACK_CONFIG = $(srcdir)/webpack.config.js
 WEBPACK_INPUTS =
 WEBPACK_OUTPUTS =
 WEBPACK_INSTALL =
@@ -59,11 +56,11 @@ EXTRA_DIST += $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS)
 # Nothing generates this directly, but it's included as a dependency in
 # various places.  It will automatically appear as part of the webpack
 # build.
-dist/%/Makefile.deps:
+$(srcdir)/dist/%/Makefile.deps:
 	@true
 
-dist/%/manifest.json: $(srcdir)/tools/webpack-make $(srcdir)/package-lock.json $(WEBPACK_CONFIG)
-	$(V_WEBPACK) $(WEBPACK_MAKE) -c $(WEBPACK_CONFIG) $*
+$(srcdir)/dist/%/manifest.json: $(srcdir)/tools/webpack-make $(srcdir)/package-lock.json $(srcdir)/webpack.config.js
+	$(V_WEBPACK) cd $(srcdir) && NODE_ENV='$(NODE_ENV)' tools/termschutz tools/webpack-make $*
 
 -include $(WEBPACK_DEPS)
 
@@ -74,10 +71,12 @@ V_NODE_MODULES_0 = @V=0
 # We want tools/node-modules to run every time package-lock.json is requested
 # See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html
 FORCE:
-package-lock.json: FORCE
+$(srcdir)/package-lock.json: FORCE
 	$(V_NODE_MODULES) $(srcdir)/tools/node-modules make_package_lock_json
 
-node_modules/%: package-lock.json
+node_modules/%: $(srcdir)/package-lock.json
+	@true
+
 EXTRA_DIST += package.json package-lock.json
 
 # Write the current git tree hash, and touch the file only if it changed.

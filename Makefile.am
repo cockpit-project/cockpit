@@ -11,23 +11,22 @@ noinst_LIBRARIES =
 noinst_PROGRAMS =
 sbin_PROGRAMS =
 
-TESTS = \
-	test/check-dist \
-	test/static-code \
-	$(NULL)
+# -----------------------------------------------------------------------------
+#  make dist
 
 EXTRA_DIST = README.md
 
-clean-local::
-	find $(builddir) -name '*.gc??' -delete
-	find $(srcdir) -name '*.pyc' -delete
 
-# required for running unit and integration tests; commander and ws are deps of chrome-remote-interface
-EXTRA_DIST += \
-	node_modules/chrome-remote-interface \
-	node_modules/commander \
-	node_modules/sizzle \
-	node_modules/ws \
+# This is the stock rule with $(BUILT_SOURCES) dependency removed.
+# In the future, we can do this via "no-dist-built-sources" automake option:
+# https://git.savannah.gnu.org/cgit/automake.git/commit/?id=13659a7385
+distdir:
+	$(MAKE) $(AM_MAKEFLAGS) distdir-am
+
+# Subdirectories to distribute everything that's committed to git
+COMMITTED_DIST = \
+	tools/ \
+	test \
 	$(NULL)
 
 dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS) $(MANIFESTS)
@@ -42,9 +41,32 @@ dist-hook:: $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS) $(MANIFESTS)
 	sed 's/VERSION/$(VERSION)/' $(srcdir)/tools/arch/PKGBUILD.in > $(distdir)/tools/arch/PKGBUILD
 	tools/adjust-distdir-timestamps "$(distdir)"
 
-#
-
 DISTCHECK_CONFIGURE_FLAGS = --enable-prefix-only
+
+distcheck-hook:
+	$(srcdir)/tools/check-dist $(distdir)
+
+dump-dist:
+	@echo "$(abs_builddir)/$(distdir).tar.xz"
+
+# -----------------------------------------------------------------------------
+
+TESTS = \
+	test/check-dist \
+	test/static-code \
+	$(NULL)
+
+clean-local::
+	find $(builddir) -name '*.gc??' -delete
+	find $(srcdir) -name '*.pyc' -delete
+
+# required for running unit and integration tests; commander and ws are deps of chrome-remote-interface
+EXTRA_DIST += \
+	node_modules/chrome-remote-interface \
+	node_modules/commander \
+	node_modules/sizzle \
+	node_modules/ws \
+	$(NULL)
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/src \
@@ -96,25 +118,6 @@ recheck-memory:
 	$(MAKE) LOG_FLAGS="-- valgrind $(VALGRIND_ARGS)" \
 	        HTML_LOG_FLAGS="valgrind $(VALGRIND_ARGS)" \
 		$(AM_MAKEFLAGS) recheck
-
-# See test/image-prepare
-dump-dist:
-	@echo "$(abs_builddir)/$(distdir).tar.xz"
-
-# Subdirectories to distribute everything that's committed to git
-COMMITTED_DIST = \
-	tools/ \
-	test \
-	$(NULL)
-
-# This is the stock rule with $(BUILT_SOURCES) dependency removed.
-# In the future, we can do this via "no-dist-built-sources" automake option:
-# https://git.savannah.gnu.org/cgit/automake.git/commit/?id=13659a7385
-distdir:
-	$(MAKE) $(AM_MAKEFLAGS) distdir-am
-
-distcheck-hook::
-	$(srcdir)/tools/check-dist $(distdir)
 
 # checkout Cockpit's bots for standard test VM images and API to launch them
 # must be from main, as only that has current and existing images; but testvm.py API is stable

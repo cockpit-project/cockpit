@@ -25,8 +25,6 @@ import shutil
 import sys
 import subprocess
 
-import make_dist
-
 from common.parent import BASE_DIR, TEST_DIR, BOTS_DIR, ensure_bots
 ensure_bots()  # NOQA: testvm lives in bots/
 from lib import testmap
@@ -180,7 +178,7 @@ def main():
     parser.add_argument('image', nargs='?', default=DEFAULT_IMAGE, help='The image to use')
     args = parser.parse_args()
 
-    dist_tar = make_dist.make_dist()
+    dist_tar = subprocess.check_output([f'{BASE_DIR}/tools/make-dist'], text=True).strip()
 
     customize = [os.path.join(BOTS_DIR, "image-customize")]
     if not args.overlay:

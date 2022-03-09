@@ -1,10 +1,8 @@
 scientificbrandingdir = $(datadir)/cockpit/branding/scientific
 
-scientificbranding_DATA = \
+dist_scientificbranding_DATA = \
 	src/branding/scientific/branding.css \
 	$(NULL)
-
-EXTRA_DIST += $(scientificbranding_DATA)
 
 # Opportunistically use Scientific Linux logos. 
 install-data-hook::

@@ -1,10 +1,8 @@
 archbrandingdir = $(datadir)/cockpit/branding/arch
 
-archbranding_DATA = \
+dist_archbranding_DATA = \
 	src/branding/arch/branding.css \
 	$(NULL)
-
-EXTRA_DIST += $(archbranding_DATA)
 
 install-data-hook::
 	ln -sTfr $(DESTDIR)/usr/share/pixmaps/archlinux-logo.png $(DESTDIR)$(archbrandingdir)/logo.png

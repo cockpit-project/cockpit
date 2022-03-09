@@ -2,7 +2,7 @@ build-for-flatpak: cockpit-ws
 
 install-for-flatpak: \
 		install-cockpitwsPROGRAMS \
-		install-defaultbrandingDATA \
+		install-dist_defaultbrandingDATA \
 		install-dist_applicationsDATA \
 		install-dist_cockpitclientDATA \
 		install-dist_cockpitclientSCRIPTS \

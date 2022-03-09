@@ -1,10 +1,8 @@
 debianbrandingdir = $(datadir)/cockpit/branding/debian
 
-debianbranding_DATA = \
+dist_debianbranding_DATA = \
 	src/branding/debian/branding.css \
 	$(NULL)
-
-EXTRA_DIST += $(debianbranding_DATA)
 
 # Opportunistically use debconf debian logos
 install-data-hook::

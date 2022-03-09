@@ -35,6 +35,9 @@ class TestSOS(MachineCase):
         b = self.browser
         m = self.machine
 
+        # HACK: sos ships wrong sos.conf, we need to mkdir it, see https://bugzilla.redhat.com/show_bug.cgi?id=1903281
+        if m.image == "centos-8-stream":
+            m.execute("mkdir -p /etc/sos")
         self.write_file("/etc/sos/sos.conf",
                         """
 [global]
@@ -52,9 +55,8 @@ only-plugins=release,date,host,cgroups,networking
         b.click("button:contains('Create report')")
         b.wait_visible("#sos-dialog")
 
-        with b.wait_timeout(540):
-            b.wait(lambda: b.eval_js('ph_find("#sos-progress .pf-c-progress__bar").offsetWidth') > 0)
-            b.wait_visible("#sos-download")
+        b.wait(lambda: b.eval_js('ph_find("#sos-progress .pf-c-progress__bar").offsetWidth') > 0)
+        b.wait_visible("#sos-download")
 
         if b.cdp.browser.name == "chromium":
             b.cdp.invoke("Page.setDownloadBehavior", behavior="allow", downloadPath=b.cdp.download_dir)

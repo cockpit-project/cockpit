@@ -2,6 +2,7 @@ NULL =
 BUILT_SOURCES =
 CLEANFILES =
 bin_PROGRAMS =
+dist_noinst_DATA =
 libexec_PROGRAMS =
 libexec_SCRIPTS =
 man_MANS =
@@ -130,27 +131,6 @@ recheck-memory:
 	        HTML_LOG_FLAGS="valgrind $(VALGRIND_ARGS)" \
 		$(AM_MAKEFLAGS) recheck
 
-if ENABLE_DOC
-DOCS_INSTALL_DEPS = dist/guide/html/index.html
-else
-DOCS_INSTALL_DEPS =
-endif
-
-install-data-local:: $(DOCS_INSTALL_DEPS)
-if ENABLE_DOC
-	mkdir -p $(DESTDIR)$(htmldir)
-	$(INSTALL_DATA) $(dir $<)/* $(DESTDIR)$(htmldir)
-else
-	@true
-endif
-
-uninstall-local::
-if ENABLE_DOC
-	rm -rf $(DESTDIR)$(htmldir)
-else
-	@true
-endif
-
 # See test/image-prepare
 dump-dist:
 	@echo "$(abs_builddir)/$(distdir).tar.xz"
@@ -187,6 +167,27 @@ rsync:
 	$(MAKE)
 	$(MAKE) install DESTDIR=tmp/rsync >/dev/null
 	rsync --recursive --links --checksum --verbose --inplace tmp/rsync/ $(RSYNC_DEST)
+
+
+# We use these to add conditionally-enabled extra rules
+# automake doesn't like mixing `::` and `if`
+
+CHECK_LOCAL_TARGETS =
+.PHONY: $(CHECK_LOCAL_TARGETS)
+check-local:: $(CHECK_LOCAL_TARGETS)
+
+CLEAN_LOCAL_TARGETS =
+.PHONY: $(CLEAN_LOCAL_TARGETS)
+clean-local:: $(CLEAN_LOCAL_TARGETS)
+
+INSTALL_DATA_LOCAL_TARGETS =
+.PHONY: $(INSTALL_DATA_LOCAL_TARGETS)
+install-data-local:: $(INSTALL_DATA_LOCAL_TARGETS)
+
+UNINSTALL_LOCAL_TARGETS =
+.PHONY: $(UNINSTALL_LOCAL_TARGETS)
+uninstall-local:: $(UNINSTALL_LOCAL_TARGETS)
+
 
 # This Makefile includes several variable definitions that must come first
 include src/testlib/Makefile.am

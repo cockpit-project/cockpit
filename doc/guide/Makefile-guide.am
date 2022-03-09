@@ -1,3 +1,5 @@
+if ENABLE_DOC
+
 GUIDE_DOCBOOK = doc/guide/cockpit-guide.xml
 
 GUIDE_INCLUDES = \
@@ -65,14 +67,12 @@ GUIDE_FONTS = \
 	dist/guide/html/RedHatText-Medium.woff2 \
 	$(NULL)
 
-EXTRA_DIST += \
+dist_noinst_DATA += \
 	$(GUIDE_DOCBOOK) \
 	$(GUIDE_INCLUDES) \
 	$(GUIDE_XSLT) \
 	$(GUIDE_STATIC) \
 	$(NULL)
-
-if ENABLE_DOC
 
 noinst_DATA += dist/guide/html/index.html
 
@@ -91,12 +91,24 @@ dist/guide/html/index.html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(GUIDE_STATIC) $
 		$(srcdir)/$(GUIDE_DOCBOOK) && \
 	rm -f dist/guide/html/cockpit-guide.proc
 
-dist/guide/html: dist/guide/html/index.html
+CLEAN_LOCAL_TARGETS += clean-guide
+clean-guide:
+	rm -rf dist/guide/html
 
-check-local::
+CHECK_LOCAL_TARGETS += check-guide
+check-guide:
 	if grep -n -r 'name=\"id' dist/guide/html >&2; then \
 		echo "Unexpected generated id in the documentation" >&2; \
 		exit 1; \
 	fi
+
+INSTALL_DATA_LOCAL_TARGETS += install-guide
+install-guide:
+	mkdir -p $(DESTDIR)$(htmldir)
+	$(INSTALL_DATA) dist/guide/html/* $(DESTDIR)$(htmldir)
+
+UNINSTALL_LOCAL_TARGETS += uninstall-guide
+uninstall-guide:
+	rm -rf $(DESTDIR)$(htmldir)
 
 endif

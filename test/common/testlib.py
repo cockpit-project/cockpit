@@ -1350,9 +1350,6 @@ class MachineCase(unittest.TestCase):
             for s in sessions:
                 # Don't insist that terminating works, the session might be gone by now.
                 self.machine.execute(f"loginctl kill-session {s}; loginctl terminate-session {s} || true")
-                # HACK: fedora 34's systemd has dangling empty session scopes
-                if self.machine.image in ["fedora-34"]:
-                    self.machine.execute(f"if scope=$(loginctl show-session --property Scope --value {s} 2>/dev/null); then systemctl stop $scope; fi")
 
                 # Wait for it to be gone
                 try:
@@ -1529,10 +1526,6 @@ class MachineCase(unittest.TestCase):
             "GLIB_DOMAIN=cockpit-ssh",
             "GLIB_DOMAIN=cockpit-pcp"
         ]
-
-        # older c-ws versions always log an assertion, fixed in PR #16765
-        if self.image == "rhel-8-5-distropkg":
-            self.allowed_messages.append("json_object_get_string_member: assertion 'node != NULL' failed")
 
         if not self.allow_core_dumps:
             matches += ["SYSLOG_IDENTIFIER=systemd-coredump"]

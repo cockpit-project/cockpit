@@ -38,7 +38,7 @@ done
 
 OSesWithoutTracer = ["debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-stable", "fedora-coreos"]
 OSesWithoutKpatch = ["debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-stable",
-                     "fedora-coreos", "fedora-34", "fedora-35", "fedora-36", "fedora-testing", "centos-8-stream", "arch"]
+                     "fedora-coreos", "fedora-35", "fedora-36", "fedora-testing", "centos-8-stream", "arch"]
 
 
 class NoSubManCase(PackageCase):
@@ -74,10 +74,7 @@ class TestUpdates(NoSubManCase):
         else:
             self.enhancement_severity = "bug"
 
-        if self.machine.image == 'rhel-8-5-distropkg':
-            self.update_icon = "#page_status_notification_updates span:first-child"
-        else:
-            self.update_icon = "#page_status_notification_updates svg"
+        self.update_icon = "#page_status_notification_updates svg"
         self.update_text = "#page_status_notification_updates"
         self.update_text_action = "#page_status_notification_updates a"
 
@@ -302,8 +299,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         # status on /system front page: no repos at all, thus no updates
         self.wait_checking_updates()
         b.wait_text(self.update_text, "System is up to date")
-        if m.image != 'rhel-8-5-distropkg':  # changed in #16520
-            self.assertEqual(b.attr(self.update_icon, "data-pficon"), "check")
+        self.assertEqual(b.attr(self.update_icon, "data-pficon"), "check")
 
         # no updates on the Software Updates page
         b.go("/updates")
@@ -337,8 +333,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         b.enter_page("/system")
         self.wait_checking_updates()
         b.wait_text(self.update_text, "Bug fix updates available")
-        if m.image != 'rhel-8-5-distropkg':  # changed in #16520
-            self.assertEqual(b.attr(self.update_icon, "data-pficon"), "bug")
+        self.assertEqual(b.attr(self.update_icon, "data-pficon"), "bug")
         # should be a link, click on it to go to /updates
         b.click(self.update_text_action)
         b.enter_page("/updates")
@@ -394,8 +389,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         b.go("/system")
         b.enter_page("/system")
         self.wait_checking_updates()
-        if m.image != 'rhel-8-5-distropkg':  # changed in #16520
-            self.assertEqual(b.attr(self.update_icon, "data-pficon"), "check")
+        self.assertEqual(b.attr(self.update_icon, "data-pficon"), "check")
         b.wait_text(self.update_text, "System is up to date")
 
     @skipImage("TODO: Packagekit on Arch does not detect the pear update", "arch")
@@ -746,8 +740,7 @@ ExecStart=/usr/local/bin/{packageName}
         b.enter_page("/system")
         self.wait_checking_updates()
         b.wait_text(self.update_text, "Security updates available")
-        if m.image != 'rhel-8-5-distropkg':  # changed in #16520
-            b.wait_attr(self.update_icon, "data-pficon", "security")
+        b.wait_attr(self.update_icon, "data-pficon", "security")
 
         # should be a link, click on it to go to back to /updates
         b.click(self.update_text_action)
@@ -1036,8 +1029,7 @@ ExecStart=/usr/local/bin/{packageName}
         b.go("/system")
         b.enter_page("/system")
         b.wait_text(self.update_text, "Loading available updates failed")
-        if m.image != 'rhel-8-5-distropkg':  # changed in #16520
-            self.assertIn("exclamation", b.attr(self.update_icon, "class"))
+        self.assertIn("exclamation", b.attr(self.update_icon, "class"))
 
     @skipDistroPackage()
     @nondestructive
@@ -1178,7 +1170,7 @@ class TestKpatchInstall(NoSubManCase):
 
 @skipImage("Image uses OSTree", "fedora-coreos")
 @skipImage("No subscriptions", "debian-stable", "debian-testing", "centos-8-stream",
-           "fedora-34", "fedora-35", "fedora-36", "fedora-testing", "ubuntu-2004", "ubuntu-stable", "arch")
+           "fedora-35", "fedora-36", "fedora-testing", "ubuntu-2004", "ubuntu-stable", "arch")
 class TestUpdatesSubscriptions(PackageCase):
     provision = {
         "0": {"address": "10.111.112.1/20", "dns": "10.111.112.1"},
@@ -1228,8 +1220,7 @@ class TestUpdatesSubscriptions(PackageCase):
         b.login_and_go("/system")
         # show unregistered status on system front page
         b.wait_in_text(self.update_text, "Not registered")
-        if m.image != 'rhel-8-5-distropkg':  # changed in #16520
-            self.assertIn("triangle", b.attr(self.update_icon, "class"))
+        self.assertIn("triangle", b.attr(self.update_icon, "class"))
 
         # software updates page also shows unregistered
         b.go("/updates")
@@ -1254,8 +1245,7 @@ class TestUpdatesSubscriptions(PackageCase):
         # same on system page
         b.go("/system")
         b.enter_page("/system")
-        if m.image != 'rhel-8-5-distropkg':  # changed in #16520
-            self.assertEqual(b.attr(self.update_icon, "data-pficon"), "check")
+        self.assertEqual(b.attr(self.update_icon, "data-pficon"), "check")
         b.wait_text(self.update_text, "System is up to date")
 
     def testAvailableUpdates(self):
@@ -1272,8 +1262,7 @@ class TestUpdatesSubscriptions(PackageCase):
         b.login_and_go("/system")
         # by default our rhel-* images are not registered; show warning on system page
         b.wait_in_text(self.update_text, "Not registered")
-        if m.image != 'rhel-8-5-distropkg':  # changed in #16520
-            self.assertIn("triangle", b.attr(self.update_icon, "class"))
+        self.assertIn("triangle", b.attr(self.update_icon, "class"))
         # should be a link leading to subscriptions page
         b.click(self.update_text_action)
         b.enter_page("/subscriptions")
@@ -1303,8 +1292,7 @@ class TestUpdatesSubscriptions(PackageCase):
         b.go("/system")
         b.enter_page("/system")
         b.wait_text(self.update_text, "Bug fix updates available")
-        if m.image != 'rhel-8-5-distropkg':  # changed in #16520
-            self.assertEqual(b.attr(self.update_icon, "data-pficon"), "bug")
+        self.assertEqual(b.attr(self.update_icon, "data-pficon"), "bug")
 
     def testNoSubOsRepo(self):
         m = self.machine

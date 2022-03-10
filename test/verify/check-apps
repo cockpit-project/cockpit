@@ -168,12 +168,8 @@ class TestApps(PackageCase):
 
         def set_lang(lang):
             b.switch_to_top()
-            if m.image == "rhel-8-5-distropkg":
-                b.click("#navbar-dropdown")
-                b.click(".display-language-menu a")
-            else:
-                b.open_session_menu()
-                b.click(".display-language-menu")
+            b.open_session_menu()
+            b.click(".display-language-menu")
             b.wait_visible('#display-language-modal')
             if self.system_before(242):  # Changed in #15667
                 b.set_val("#display-language-modal select", lang)

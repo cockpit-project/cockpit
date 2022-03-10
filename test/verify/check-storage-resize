@@ -123,7 +123,7 @@ class TestStorageResize(StorageCase):
                          can_shrink=False,
                          can_grow=True, grow_needs_unmount=False)
 
-    @skipImage("No NTFS support installed", "rhel-8-4", "rhel-8-4-distropkg", "rhel-8-5", "rhel-8-6", "rhel-8-5-distropkg", "rhel-8-6-distropkg", "rhel-9-0", "rhel-9-0-distropkg", "centos-8-stream")
+    @skipImage("No NTFS support installed", "rhel-8-6", "rhel-8-6-distropkg", "rhel-9-0", "rhel-9-0-distropkg", "centos-8-stream")
     def testResizeNtfs(self):
         self.checkResize("ntfs", False,
                          can_shrink=True, shrink_needs_unmount=True,

@@ -39,10 +39,7 @@ class TestPages(MachineCase):
         expected += "About Web Console"
         # DOCUMENTATION_URL is only in Fedora, RHEL and Arch
         if "fedora" in m.image:
-            if m.image in ["fedora-34"]:
-                expected = "Fedora documentation" + expected
-            else:
-                expected = "Fedora Linux documentation" + expected
+            expected = "Fedora Linux documentation" + expected
         elif m.image.startswith("rhel-"):
             expected = "Red Hat Enterprise Linux documentation" + expected
         elif m.image == "arch":

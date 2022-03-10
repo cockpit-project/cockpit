@@ -390,7 +390,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_restart_journal_messages()
 
     @skipImage("No tlog", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004",
-               "rhel-8-4", "rhel-8-5", "rhel-8-6", "rhel-8-5-distropkg", "rhel-9-0", "rhel-9-0-distropkg", "centos-8-stream", "fedora-coreos", "arch")
+               "rhel-8-6", "rhel-9-0", "rhel-9-0-distropkg", "centos-8-stream", "fedora-coreos", "arch")
     def testSessionRecordingShell(self):
         m = self.machine
         b = self.browser
@@ -491,7 +491,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # This should work, but it will not because of
         # https://bugzilla.redhat.com/show_bug.cgi?id=1814569
-        working_images = ["fedora-34", "fedora-35", "fedora-36", "fedora-testing"]
+        working_images = ["fedora-35", "fedora-36", "fedora-testing"]
         if m.image in working_images:
             self.assertIn('result: uid=0', b.text(".super-channel span"))
         else:
@@ -633,7 +633,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # pam_faillock tries to chown the file to be owned by the user itself,
         # which is currently an selinux fail on the following distros:
-        if m.image in ['centos-8-stream', 'fedora-testing', 'fedora-34', 'fedora-35', 'rhel-8-4', 'rhel-8-5', 'rhel-8-6', 'rhel-8-5-distropkg', 'rhel-9-0']:
+        if m.image in ['centos-8-stream', 'fedora-testing', 'fedora-35', 'rhel-8-6', 'rhel-9-0']:
             # https://bugzilla.redhat.com/show_bug.cgi?id=1836182
             self.allow_journal_messages('.*type=1400.*avc:  denied  { chown }.*comm="cockpit-session".*')
 

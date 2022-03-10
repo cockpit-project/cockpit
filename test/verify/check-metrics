@@ -396,7 +396,7 @@ class TestHistoryMetrics(MachineCase):
 
         # Journal was recorded on Fedora 33 and when trying to use it with older systemd it fails with:
         # `Journal file /var/log/journal/*/journal.journal uses an unsupported feature, ignoring file.`
-        if self.machine.image in ["centos-8-stream", "rhel-8-4", "rhel-8-5", "rhel-8-6", "ubuntu-2004", "ubuntu-stable", "debian-stable", "debian-testing"]:
+        if self.machine.image in ["centos-8-stream", "rhel-8-6", "ubuntu-2004", "ubuntu-stable", "debian-stable", "debian-testing"]:
             return
 
         prepareArchive(m, "with_journal.tar.gz", 1615200500, "m1.cockpit.lan")

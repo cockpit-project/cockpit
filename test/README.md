@@ -101,7 +101,6 @@ You can set these environment variables to configure the test suite:
                   "fedora-36"
                   "fedora-coreos"
                   "fedora-testing"
-                  "rhel-8-5"
                   "rhel-8-6"
                   "rhel-8-6-distropkg"
                   "rhel-9-0"

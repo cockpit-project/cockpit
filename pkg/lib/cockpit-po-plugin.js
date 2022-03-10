@@ -68,8 +68,6 @@ module.exports = class {
         const patterns = [
             // all translations for that page, including manifest.json and *.html
             `pkg/${this.subdir}.*`,
-            // FIXME: https://github.com/cockpit-project/cockpit/issues/13906
-            'pkg/base1/cockpit.js'
         ];
 
         // add translations from libraries outside of page directory

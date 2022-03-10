@@ -272,10 +272,6 @@ class CommonTests:
 
         # delete the local admin user, going to use the domain one instead
         m.execute("userdel --remove admin; systemctl try-restart sssd")
-
-        # Tell realmd to not enable domain-qualified logins
-        # (https://bugzilla.redhat.com/show_bug.cgi?id=1575538)
-        m.write("/etc/realmd.conf", "[cockpit.lan]\nfully-qualified-names = no\n", append=True)
         m.execute(f"echo {self.admin_password} | realm join -vU {self.admin_user} cockpit.lan", timeout=300)
 
         # wait until domain user works

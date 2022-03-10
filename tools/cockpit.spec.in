@@ -167,19 +167,13 @@ Recommends: subscription-manager-cockpit
 
 %check
 exec 2>&1
-# HACK: Fedora koji builders are very slow, unreliable, and inaccessible for debugging; https://github.com/cockpit-project/cockpit/issues/13909
-%if 0%{?fedora} >= 0
-%ifarch s390x
-%define testsuite_fail || true
-%endif
-%endif
 # HACK: RHEL i686 builders hang after running all tests; not a supported architecture, so don't bother
 %if 0%{?rhel} >= 8
 %ifarch i686
 %define testsuite_skip #
 %endif
 %endif
-%{?testsuite_skip} make -j$(nproc) check %{?testsuite_fail}
+%{?testsuite_skip} make -j$(nproc) check
 
 %install
 %make_install

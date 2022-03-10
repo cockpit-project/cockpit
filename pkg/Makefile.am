@@ -25,22 +25,19 @@ EXTRA_DIST += \
 	$(pixmaps_DATA) \
 	$(NULL)
 
+pcpmanifestdir = $(datadir)/cockpit/pcp
+dist_pcpmanifest_DATA = pkg/pcp/manifest.json
+
+sshmanifestdir = $(datadir)/cockpit/ssh
+dist_sshmanifest_DATA = pkg/ssh/manifest.json
+
 include pkg/build
 
-INSTALL_DATA_LOCAL_TARGETS += install-webpack
-install-webpack: $(WEBPACK_INSTALL) $(MANIFESTS)
-	mkdir -p $(DESTDIR)$(pkgdatadir)
-	$(V_TAR) tar --format=posix -cf - $^ | tar --no-same-owner -C $(DESTDIR)$(pkgdatadir) --strip-components=1 -xvf -
+# automake doesn't support stripping initial path components (ie: `dist`) with
+# `nobase_`, so we create a cockpit/ symlink and use that instead.
+# That way, the files land in $(datadir)/cockpit/ and `dist` is avoided.
+all-local:: cockpit
+cockpit:
+	$(AM_V_GEN) ln -sf $(srcdir)/dist $@
 
-INSTALL_DATA_LOCAL_TARGETS += install-webpack-map
-install-webpack-map: $(wildcard $(top_srcdir)/dist/*/*.map)
-	$(V_TAR) tar --format=posix -c --transform="s@.*dist/@$(debugdir)$(pkgdatadir)/@" -T/dev/null $^ | tar --no-same-owner -C $(DESTDIR)/ -xv
-
-UNINSTALL_LOCAL_TARGETS += uninstall-webpack
-uninstall-webpack:
-	test ! -d $(DESTDIR)$(pkgdatadir) || \
-	  (find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type f -exec rm -f {} \; && \
-	   find $(DESTDIR)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete)
-	test ! -d $(DESTDIR)$(debugdir)$(pkgdatadir) || \
-	  (find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type f -delete && \
-	   find $(DESTDIR)$(debugdir)$(pkgdatadir) -ignore_readdir_race -type d -empty -delete)
+nobase_data_DATA = $(patsubst dist/%,cockpit/%,$(WEBPACK_INSTALL))

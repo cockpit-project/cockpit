@@ -23,11 +23,7 @@ WEBPACK_PACKAGES = \
 	users \
 	$(NULL)
 
-MANIFESTS = \
-	$(WEBPACK_PACKAGES:%=$(srcdir)/dist/%/manifest.json) \
-	pkg/pcp/manifest.json \
-	pkg/ssh/manifest.json \
-	$(NULL)
+MANIFESTS = $(WEBPACK_PACKAGES:%=$(srcdir)/dist/%/manifest.json)
 
 .PHONY: all-webpack
 all-webpack: $(MANIFESTS)

@@ -192,11 +192,6 @@ def main():
     if args.image != 'arch':
         customize.append("--no-network")
 
-    # HACK: freeze the repository so we don't pull a newer GLIBC; until we refresh the arch image (https://github.com/cockpit-project/bots/pull/2796)
-    if args.image == 'arch':
-        customize += ['--run-command',
-                      "echo 'Server = https://america.archive.pkgbuild.com/repos/2021/12/18/$repo/os/$arch' > /etc/pacman.d/mirrorlist"]
-
     if args.image == "fedora-coreos":
         customize += build_install_coreos(dist_tar, args.image, args.verbose, args.quick)
     elif "distropkg" not in args.image:

@@ -179,7 +179,7 @@ exec 2>&1
 %define testsuite_skip #
 %endif
 %endif
-%{?testsuite_skip} make -j4 check %{?testsuite_fail}
+%{?testsuite_skip} make -j$(nproc) check %{?testsuite_fail}
 
 %install
 %make_install

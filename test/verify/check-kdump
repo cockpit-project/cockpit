@@ -249,8 +249,8 @@ class TestKdump(KdumpHelpers):
 @skipDistroPackage()
 class TestKdumpNFS(KdumpHelpers):
     provision = {
-        "0": {"address": "10.111.113.1/24"},
-        "nfs": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/24"}
+        "0": {"address": "10.111.113.1/24", "memory_mb": 1024},
+        "nfs": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/24", "memory_mb": 512}
     }
 
     def testBasic(self):

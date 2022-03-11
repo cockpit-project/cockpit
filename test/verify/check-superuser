@@ -249,8 +249,8 @@ session include system-auth
 @skipDistroPackage()
 class TestSuperuserOldShell(MachineCase):
     provision = {
-        "machine1": {"address": "10.111.113.1/20"},
-        "machine2": {"address": "10.111.113.2/20", "image": "centos-7"},
+        "machine1": {"address": "10.111.113.1/20", "memory_mb": 512},
+        "machine2": {"address": "10.111.113.2/20", "image": "centos-7", "memory_mb": 512},
     }
 
     def test(self):
@@ -286,8 +286,8 @@ class TestSuperuserOldShell(MachineCase):
 @skipDistroPackage()
 class TestSuperuserOldWebserver(MachineCase):
     provision = {
-        "machine1": {"address": "10.111.113.1/20", "image": "centos-7"},
-        "machine2": {"address": "10.111.113.2/20"},
+        "machine1": {"address": "10.111.113.1/20", "image": "centos-7", "memory_mb": 512},
+        "machine2": {"address": "10.111.113.2/20", "memory_mb": 512},
     }
 
     def test(self):
@@ -376,8 +376,8 @@ class TestSuperuserOldWebserver(MachineCase):
 @skipDistroPackage()
 class TestSuperuserDashboard(MachineCase):
     provision = {
-        "machine1": {"address": "10.111.113.1/20"},
-        "machine2": {"address": "10.111.113.2/20"},
+        "machine1": {"address": "10.111.113.1/20", "memory_mb": 512},
+        "machine2": {"address": "10.111.113.2/20", "memory_mb": 512},
     }
 
     def test(self):
@@ -441,8 +441,8 @@ class TestSuperuserDashboard(MachineCase):
 @skipDistroPackage()
 class TestSuperuserOldDashboard(MachineCase):
     provision = {
-        "machine1": {"address": "10.111.113.1/20", "image": "centos-7"},
-        "machine2": {"address": "10.111.113.2/20"},
+        "machine1": {"address": "10.111.113.1/20", "image": "centos-7", "memory_mb": 512},
+        "machine2": {"address": "10.111.113.2/20", "memory_mb": 512},
     }
 
     def test(self):

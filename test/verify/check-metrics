@@ -1117,9 +1117,9 @@ class TestMultiCPU(MachineCase):
 class TestGrafanaClient(MachineCase):
 
     provision = {
-        "0": {"address": "10.111.112.1/20", "dns": "10.111.112.1"},
+        "0": {"address": "10.111.112.1/20", "dns": "10.111.112.1", "memory_mb": 512},
         # forward Grafana port, so that a developer can connect to it with local browser
-        "services": {"image": "services", "forward": {"3000": 3000}}
+        "services": {"image": "services", "forward": {"3000": 3000}, "memory_mb": 512}
     }
 
     def testBasic(self):

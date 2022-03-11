@@ -28,8 +28,8 @@ from machine_core.constants import TEST_OS_DEFAULT
 @skipImage("TODO: testBasic fails on Arch Linux", "arch")
 class TestNetworkingMAC(NetworkCase):
     provision = {
-        "machine1": {},
-        "machine2": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/20", "dhcp": True}
+        "machine1": {"memory_mb": 512},
+        "machine2": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/20", "dhcp": True, "memory_mb": 256}
     }
 
     def testMac(self):

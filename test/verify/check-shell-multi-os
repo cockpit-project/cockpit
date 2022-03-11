@@ -72,8 +72,8 @@ def add_stock_machine(b, address, password):
 @skipDistroPackage()
 class TestMultiOS(MachineCase):
     provision = {
-        "0": {"address": "10.111.113.1/20"},
-        "centos-7": {"address": "10.111.113.5/20", "image": "centos-7"}
+        "0": {"address": "10.111.113.1/20", "memory_mb": 512},
+        "centos-7": {"address": "10.111.113.5/20", "image": "centos-7", "memory_mb": 512}
     }
 
     def check_spawn(self, b, address):
@@ -162,8 +162,8 @@ class TestMultiOS(MachineCase):
 @skipDistroPackage()
 class TestMultiOSDirect(MachineCase):
     provision = {
-        "0": {"address": "10.111.113.1/20"},
-        "centos-7": {"address": "10.111.113.5/20", "image": "centos-7"}
+        "0": {"address": "10.111.113.1/20", "memory_mb": 512},
+        "centos-7": {"address": "10.111.113.5/20", "image": "centos-7", "memory_mb": 512}
     }
 
     def testCentos7Direct(self):

@@ -60,8 +60,8 @@ mv -f ~/.ssh/authorized_keys.test-avc ~/.ssh/authorized_keys
 @skipDistroPackage()
 class TestSelinux(MachineCase):
     provision = {
-        "0": {},
-        "ansible_machine": {"image": TEST_OS_DEFAULT}
+        "0": {"memory_mb": 768},
+        "ansible_machine": {"image": TEST_OS_DEFAULT, "memory_mb": 512}
     }
 
     @skipImage("No setroubleshoot", "debian-stable", "debian-testing", "fedora-coreos", "ubuntu-2004", "ubuntu-stable", "arch")

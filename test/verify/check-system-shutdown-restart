@@ -24,8 +24,8 @@ from testlib import *
 @skipDistroPackage()
 class TestShutdownRestart(MachineCase):
     provision = {
-        "machine1": {"address": "10.111.113.1/20"},
-        "machine2": {"address": "10.111.113.2/20"}
+        "machine1": {"address": "10.111.113.1/20", "memory_mb": 512},
+        "machine2": {"address": "10.111.113.2/20", "memory_mb": 512}
     }
 
     def setUp(self):

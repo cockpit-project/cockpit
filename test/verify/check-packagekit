@@ -1173,8 +1173,8 @@ class TestKpatchInstall(NoSubManCase):
            "fedora-35", "fedora-36", "fedora-testing", "ubuntu-2004", "ubuntu-stable", "arch")
 class TestUpdatesSubscriptions(PackageCase):
     provision = {
-        "0": {"address": "10.111.112.1/20", "dns": "10.111.112.1"},
-        "services": {"image": "services"}
+        "0": {"address": "10.111.112.1/20", "dns": "10.111.112.1", "memory_mb": 512},
+        "services": {"image": "services", "memory_mb": 1024}
     }
 
     def register(self):

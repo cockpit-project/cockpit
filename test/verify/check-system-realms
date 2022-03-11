@@ -459,8 +459,8 @@ class TestRealms(MachineCase):
     '''Common variables and tests for all supported domain backends'''
 
     provision = {
-        "0": {"address": "10.111.113.1/20", "dns": "10.111.112.100"},
-        "services": {"image": "services", "memory_mb": 2048}
+        "0": {"address": "10.111.113.1/20", "dns": "10.111.112.100", "memory_mb": 700},
+        "services": {"image": "services", "memory_mb": 1500}
     }
 
     def setUp(self):
@@ -992,8 +992,8 @@ sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
 @no_retry_when_changed
 class TestKerberos(MachineCase):
     provision = {
-        "0": {"address": "10.111.113.1/20", "dns": "10.111.112.100"},
-        "services": {"image": "services", "memory_mb": 2048}
+        "0": {"address": "10.111.113.1/20", "dns": "10.111.112.100", "memory_mb": 512},
+        "services": {"image": "services", "memory_mb": 1500}
     }
 
     def setUp(self):

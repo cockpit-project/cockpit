@@ -967,6 +967,7 @@ export class Firewall extends React.Component {
                                       {_("Firewall")}
                                   </Title>
                                   <FirewallSwitch firewall={firewall} />
+                                  <p>{_("Incoming requests are blocked by default. Outgoing requests are not blocked.")}</p>
                               </Flex>
                               { enabled && !firewall.readonly && <span className="btn-group">{addZoneAction}</span> }
                           </Flex>

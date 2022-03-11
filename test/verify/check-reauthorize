@@ -90,10 +90,10 @@ class TestReauthorize(MachineCase):
         m = self.machine
         b = self.browser
 
-        m.execute("useradd user -s /bin/bash -c 'Barney' || true")
-        m.execute("echo user:foobar | chpasswd")
+        m.execute("useradd barney -s /bin/bash -c 'Barney' || true")
+        m.execute("echo barney:foobar | chpasswd")
 
-        b.default_user = "user"
+        b.default_user = "barney"
         self.login_and_go("/playground/test")
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'result: ')
@@ -101,7 +101,7 @@ class TestReauthorize(MachineCase):
         b.logout()
 
         # So first ask the user to retype their password
-        self.write_file("/etc/sudoers.d/user-override", "user ALL=(ALL) ALL", append=True)
+        self.write_file("/etc/sudoers.d/barney-override", "barney ALL=(ALL) ALL", append=True)
         self.login_and_go("/playground/test")
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'result: ')
@@ -116,7 +116,7 @@ class TestReauthorize(MachineCase):
         b.logout()
 
         # Even if sudo doesn't require a password, we shouldn't start a privileged bridge
-        self.write_file("/etc/sudoers.d/user-override", "user ALL=(ALL) NOPASSWD:ALL", append=True)
+        self.write_file("/etc/sudoers.d/barney-override", "barney ALL=(ALL) NOPASSWD:ALL", append=True)
         self.login_and_go("/playground/test", superuser=False)
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'result: ')

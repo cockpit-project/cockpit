@@ -89,7 +89,7 @@ export class History extends React.Component {
             const expandedContent = <PackageList packages={update.packages} />;
 
             return ({
-                props: { key: index },
+                props: { key: update.time },
                 columns: [
                     { title: timeformat.dateTime(update.time), props: { className: "history-time" } },
                     { title: pkgcount, props: { className: "history-pkgcount" } },

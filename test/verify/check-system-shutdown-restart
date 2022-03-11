@@ -33,34 +33,6 @@ class TestShutdownRestart(MachineCase):
         self.machine.execute("hostnamectl set-hostname machine1")
         self.machines['machine2'].execute("hostnamectl set-hostname machine2")
 
-    def testNoAdminGroup(self):
-        m = self.machine
-        b = self.browser
-
-        self.allow_restart_journal_messages()
-
-        # Create a user that is not in wheel but can sudo
-        m.execute("useradd user -s /bin/bash -c 'User' || true")
-        m.execute("echo user:foobar | chpasswd")
-        m.execute("echo 'user ALL=(ALL) ALL' > /etc/sudoers.d/user")
-        self.password = "foobar"
-
-        self.login_and_go("/system", user="user")
-
-        # shutdown button should be enabled and working
-        b.click("#reboot-button")
-        b.wait_popup("shutdown-dialog")
-        b.wait_in_text(f"#shutdown-dialog button{self.danger_btn_class}", 'Reboot')
-        b.click("#delay")
-        b.click("button:contains('No delay')")
-        b.wait_text("#delay .pf-c-select__toggle-text", "No delay")
-        b.click(f"#shutdown-dialog button{self.danger_btn_class}")
-        b.switch_to_top()
-
-        b.wait_in_text(".curtains-ct h1", "Disconnected")
-
-        m.wait_reboot()
-
     def testBasic(self):
         m = self.machine
         b = self.browser

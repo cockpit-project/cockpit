@@ -129,7 +129,6 @@ for try in $(seq 50 -1 0); do
         break
     fi
     if [ -z "${wait}" -o "$try" = '0' ]; then
-        echo "There is no cache entry ${tag}" >&2
         exit 1
     fi
     message WAIT 30s

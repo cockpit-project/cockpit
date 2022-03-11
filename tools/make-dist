@@ -3,6 +3,8 @@
 set -eu
 cd "$(realpath -m "$0"/../..)"
 
+message() { printf "  %-8s %s\n" "$1" "$2" >&2; }
+
 jumpstart_flags=''
 download_only=''
 while [ $# != 0 ] ; do
@@ -32,7 +34,11 @@ if [ ! -d dist ]; then
 fi
 
 # autogen, if not already done
-test configure -nt configure.ac || NOCONFIGURE=1 ./autogen.sh >&2
+if [ ! configure -nt configure.ac ]; then
+    message AUTOGEN 'configure, Makefile.in'
+    # Unfortunately there's no better way to silence this
+    NOCONFIGURE=1 ./autogen.sh >/dev/null 2>&1
+fi
 
 # If we have a configured tree, use it to build the tarball.  Otherwise, create
 # a temporary directory and configure it with a minimal config to build the
@@ -44,6 +50,7 @@ else
     rm -rf "${builddir}"
     mkdir -p "${builddir}"
     cd "${builddir}"
+    message CONFIG "${builddir}/Makefile"
     ../../configure \
         CPPFLAGS=-I../../tools/mock-build-env \
         PKG_CONFIG_PATH=../../tools/mock-build-env \

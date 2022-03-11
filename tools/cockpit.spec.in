@@ -184,7 +184,7 @@ rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 install -D -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
 
 # only ship deprecated PatternFly API for stable releases
-%if 0%{?rhel} <= 8
+%if 0%{?rhel} == 8
     ln -s cockpit.css.gz %{buildroot}/%{_datadir}/cockpit/base1/patternfly.css.gz
 %endif
 

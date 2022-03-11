@@ -34,6 +34,7 @@ dist-hook:
 	NODE_ENV=$(NODE_ENV) $(srcdir)/tools/build-debian-copyright > $(distdir)/tools/debian/copyright
 	sed 's/VERSION/$(VERSION)/' $(srcdir)/tools/arch/PKGBUILD.in > $(distdir)/tools/arch/PKGBUILD
 	$(srcdir)/tools/adjust-distdir-timestamps "$(distdir)"
+	@echo '  DIST     $(DIST_ARCHIVES)'
 
 DISTCHECK_CONFIGURE_FLAGS = --enable-prefix-only
 

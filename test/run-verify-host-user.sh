@@ -53,35 +53,36 @@ fi
 
 export TEST_ALLOW_JOURNAL_MESSAGES
 
-# select tests
+# We only have one VM and tests should take at most one hour. So run those tests which exercise external API
+# (and thus are useful for reverse dependency testing and gating), and exclude those which test cockpit-internal
+# functionality to upstream CI. We also need to leave out some which make too strict assumptions about the testbed.
 TESTS=""
 EXCLUDES=""
 RC=0
 if [ -n "$test_optional" ]; then
     TESTS="$TESTS
-         TestUpdates
-         TestAutoUpdates
-         TestStorage"
+           TestAutoUpdates
+           TestUpdates
+           TestStorage
+           "
 
     # Testing Farm machines often have pending restarts/reboot
     EXCLUDES="$EXCLUDES TestUpdates.testBasic TestUpdates.testFailServiceRestart"
+
+    # These don't test more external APIs
+    EXCLUDES="$EXCLUDES
+              TestAutoUpdates.testBasic
+              TestAutoUpdates.testPrivilegeChange
+
+              TestUpdates.testUnprivileged
+              TestUpdates.testPackageKitCrash
+              TestUpdates.testNoPackageKit
+              TestUpdates.testInfoTruncation
+              "
 fi
 
 if [ -n "$test_basic" ]; then
-    # PCI devices list is not predictable
-    EXCLUDES="$EXCLUDES TestSystemInfo.testHardwareInfo"
-
-    # No ABRT in CentOS/RHEL, thus not a test dependency
-    EXCLUDES="$EXCLUDES
-              TestJournal.testAbrtDelete
-              TestJournal.testAbrtReportCancel
-              TestJournal.testAbrtReport
-              TestJournal.testAbrtReportNoReportd
-              TestJournal.testAbrtSegv"
-
-    # FIXME: Often times out on at least c8s and f34 in TF
-    EXCLUDES="$EXCLUDES TestPages.testHistory"
-
+    # Don't run TestPages, TestPackages, and TestTerminal at all -- not testing external APIs
     TESTS="$TESTS
         TestAccounts
         TestBonding
@@ -91,24 +92,80 @@ if [ -n "$test_basic" ]; then
         TestJournal
         TestLogin
         TestNetworking
-        TestPackages
-        TestPages
         TestServices
         TestSOS
         TestSystemInfo
         TestTeam
-        TestTerminal
         TestTuned
         "
 
-    # HACK: check-sos fails 100% on Testing Farm Fedora 36 without any error message; works in local tmt VM
-    if [ "$TEST_OS" = "fedora-36" ]; then
-        TESTS="${TESTS/TestSOS/}"
-    fi
+    # PCI devices list is not predictable
+    EXCLUDES="$EXCLUDES TestSystemInfo.testHardwareInfo"
 
-    # HACK: repeatedly fails on RHEL Testing Farm without error message, then corrupts VM
-    if [ "$TEST_OS" = "rhel-9-0" ]; then
-        EXCLUDES="$EXCLUDES TestPages.testBasic"
+    # No ABRT in CentOS/RHEL, thus not a test dependency
+    EXCLUDES="$EXCLUDES
+              TestJournal.testAbrtDelete
+              TestJournal.testAbrtReportCancel
+              TestJournal.testAbrtReport
+              TestJournal.testAbrtReportNoReportd
+              TestJournal.testAbrtSegv
+              "
+
+    # These don't test more external APIs
+    EXCLUDES="$EXCLUDES
+              TestAccounts.testAccountLogs
+              TestAccounts.testExpire
+              TestAccounts.testRootLogin
+              TestAccounts.testUnprivileged
+
+              TestBonding.testActive
+              TestBonding.testAmbiguousMember
+              TestBonding.testNonDefaultSettings
+
+              TestFirewall.testAddCustomServices
+              TestFirewall.testNetworkingPage
+
+              TestNetworkingBasic.testNoService
+
+              TestLogin.testConversation
+              TestLogin.testExpired
+              TestLogin.testFailingWebsocket
+              TestLogin.testFailingWebsocketSafari
+              TestLogin.testFailingWebsocketSafariNoCA
+              TestLogin.testLogging
+              TestLogin.testRaw
+              TestLogin.testServer
+              TestLogin.testUnsupportedBrowser
+
+              TestStoragePackagesNFS.testNfsMissingPackages
+              TestStoragePartitions.testSizeSlider
+              TestStorageIgnored.testIgnored
+
+              TestSOS.testWithUrlRoot
+              TestSOS.testCancel
+              TestSOS.testAppStream
+
+              TestSystemInfo.testMotd
+              TestSystemInfo.testShutdownStatus
+
+              TestJournal.testBinary
+              TestJournal.testNoMessage
+
+              TestServices.testApi
+              TestServices.testConditions
+              TestServices.testHiddenFailure
+              TestServices.testLogs
+              TestServices.testNotFound
+              TestServices.testNotifyFailed
+              TestServices.testRelationships
+              TestServices.testRelationshipsUser
+              TestServices.testResetFailed
+              TestServices.testTransientUnits
+              "
+
+    # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=2058142
+    if [ "$TEST_OS" = "fedora-36" ]; then
+        EXCLUDES="$EXCLUDES TestSOS.testBasic"
     fi
 fi
 

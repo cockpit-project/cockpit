@@ -207,13 +207,14 @@ const initStore = function(rootElement) {
        The list is added without details at first (if it's a new entry) to preserve the order
      */
     const handleMultipleMessages = function(entries) {
+        const detailPromises = [];
         for (let idxEntry = 0; idxEntry != entries.length; ++idxEntry) {
             const entry = entries[idxEntry];
             maybeUpdateAlert(entry.localId, entry.summary, entry.reportCount, undefined);
-            dataStore.getAlertDetails(entry.localId);
+            detailPromises.push(dataStore.getAlertDetails(entry.localId));
         }
-        // make sure we render
-        render();
+
+        Promise.all(detailPromises).then(render);
     };
 
     dataStore.handleAlert = function(level, localId) {
@@ -221,17 +222,16 @@ const initStore = function(rootElement) {
 
         // we receive the item details in added delayed fashion, render only once we have the full info
         dataStore.getAlertDetails(localId);
+        render();
     };
 
     const getAlertDetails = function(id) {
-        dataStore.client.getAlert(id)
+        return dataStore.client.getAlert(id)
                 .then(details => {
                     maybeUpdateAlert(id, details.summary, details.reportCount, details);
-                    render();
                 })
                 .catch(() => {
                     maybeUpdateAlert(id, undefined, undefined, null);
-                    render();
                 });
     };
     dataStore.getAlertDetails = getAlertDetails;

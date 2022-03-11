@@ -497,6 +497,37 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         else:
             self.assertIn('result: access-denied', b.text(".super-channel span"))
 
+    def testNoAdminGroup(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user that is not in wheel but can sudo
+        m.execute("useradd user -s /bin/bash -c 'User' || true")
+        m.execute("echo user:foobar | chpasswd")
+        m.execute("echo 'user ALL=(ALL) ALL' > /etc/sudoers.d/user")
+        self.password = "foobar"
+
+        self.login_and_go("/system", user="user")
+
+        # session is privileged
+        b.switch_to_top()
+        b.check_superuser_indicator("Administrative access")
+        b.enter_page('/system')
+
+        # shutdown button should be enabled and working
+        b.click("#reboot-button")
+        b.wait_popup("shutdown-dialog")
+        b.wait_in_text(f"#shutdown-dialog button{self.danger_btn_class}", 'Reboot')
+        b.click("#delay")
+        b.click("button:contains('5 minutes')")
+        b.wait_text("#delay .pf-c-select__toggle-text", "5 minutes")
+        b.click(f"#shutdown-dialog button{self.danger_btn_class}")
+
+        # cancel reboot
+        b.wait_in_text('#system-health-shutdown-status-text', "Scheduled reboot")
+        b.click("#system-health-shutdown-status-cancel-btn")
+        b.wait_not_present('#system-health-shutdown-status')
+
     def testUnsupportedBrowser(self):
         m = self.machine
         b = self.browser

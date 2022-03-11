@@ -473,10 +473,15 @@ class TestMultiMachine(MachineCase):
         m2 = self.machine2
 
         # Modify the terminals to be different on the two machines.
-        m1.execute("zcat /usr/share/cockpit/systemd/terminal.html.gz | sed -e 's|</body>|magic-m1-token</body>|' | gzip"
-                   " > /tmp/terminal.html.gz && mount -o bind /tmp/terminal.html.gz /usr/share/cockpit/systemd/terminal.html.gz")
-        m2.execute("zcat /usr/share/cockpit/systemd/terminal.html.gz | sed -e 's|</body>|magic-m2-token</body>|' | gzip"
-                   " > /tmp/terminal.html.gz && mount -o bind /tmp/terminal.html.gz /usr/share/cockpit/systemd/terminal.html.gz")
+        for machine, name in zip((m1, m2), ('m1', 'm2')):
+            # This page may be either compressed or uncompressed
+            machine.execute(f"""
+                FILENAME=/usr/share/cockpit/systemd/terminal.html*
+                cp $FILENAME /tmp
+                test -f /tmp/terminal.html || gzip -d /tmp/terminal.html.gz
+                sed -ie 's|</body>|magic-{name}-token</body>|' /tmp/terminal.html
+                gzip < /tmp/terminal.html > /tmp/terminal.html.gz
+                mount -o bind /tmp/"$(basename $FILENAME)" $FILENAME""")
 
         self.login_and_go("/system")
         add_machine(b, "10.111.113.2")

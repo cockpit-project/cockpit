@@ -75,7 +75,7 @@ cockpit.file("/path/to/file").read()
       to provide a different access level to the file.</para>
     <para>You can use the <code>max_read_size</code> option to limit
       the amount of data that is read.  If the file is larger than the
-      given limit, no data is read and the channel is closed with
+      given number of bytes, no data is read and the channel is closed with
       problem code <code>too-large</code>.  The default limit is 16 MiB.</para>
     <para>To write to a file, use code like this:
 <programlisting>

@@ -455,7 +455,7 @@ class TestAccounts(MachineCase):
         m = self.machine
         b = self.browser
 
-        m.execute("useradd scruffy -s /bin/bash -c 'Scruffy' || true")
+        m.execute("useradd scruffy -s /bin/bash -c Scruffy")
         m.execute("echo scruffy:foobar | chpasswd")
 
         self.login_and_go("/users")

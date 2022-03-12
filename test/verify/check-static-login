@@ -502,7 +502,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b = self.browser
 
         # Create a user that is not in wheel but can sudo
-        m.execute("useradd user -s /bin/bash -c 'User' || true")
+        m.execute("useradd user -s /bin/bash -c User")
         m.execute("echo user:foobar | chpasswd")
         m.execute("echo 'user ALL=(ALL) ALL' > /etc/sudoers.d/user")
         self.password = "foobar"

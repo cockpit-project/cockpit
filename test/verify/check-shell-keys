@@ -35,7 +35,7 @@ class TestKeys(MachineCase):
         b = self.browser
 
         # Create a user without any role
-        m.execute("useradd user -s /bin/bash -m -c 'User' || true")
+        m.execute("useradd user -s /bin/bash -m -c User")
         m.execute("echo user:foobar | chpasswd")
 
         m.start_cockpit()

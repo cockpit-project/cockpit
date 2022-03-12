@@ -101,7 +101,7 @@ class TestMultiMachineKeyAuth(MachineCase):
 
         # Add user
         self.machine2.disconnect()
-        self.machine2.execute("useradd user -c 'User' || true", direct=True)
+        self.machine2.execute("useradd user -c User", direct=True)
         self.machine2.execute(
             "sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config $(ls /etc/ssh/sshd_config.d/* 2>/dev/null || true)", direct=True)
         # HACK - Increase MaxAuthTries because of

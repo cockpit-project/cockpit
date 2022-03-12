@@ -299,7 +299,7 @@ OnCalendar=daily
         m = self.machine
         b = self.browser
 
-        m.execute('useradd scruffy -s /bin/bash -c \'Scruffy\' || true')
+        m.execute('useradd scruffy -s /bin/bash -c Scruffy')
         m.execute('echo scruffy:foobar | chpasswd')
 
         if "debian" in m.image:

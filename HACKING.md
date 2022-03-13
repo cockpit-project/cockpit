@@ -409,25 +409,3 @@ And you can run cockpit-ws and cockpit-bridge under valgrind like this:
 
 Note that cockpit-session and cockpit-bridge will run from the installed
 prefix, rather than your build tree.
-
-# Running Microsoft Edge to test Cockpit
-
-While running Firefox or Chrome on your Linux or Mac development machine may be
-easy, some people find it harder to test Edge. To use the following method you
-need access to the ```windows-10``` testing image. This image cannot be freely
-distributed for licensing reasons.
-
-Make sure you have the ```virt-viewer``` package installed on your Linux
-machine. And then run the following from the Cockpit checkout directory:
-
-    $ bots/vm-run windows-10
-
-If the image is not yet downloaded, it'll take a while to download and you'll
-see progress on the command line. A screen will pop up and Windows will boot.
-Various command lines will show up once Windows has started. Ignore or minimize
-them, before starting Edge.
-
-Type the following into Edge's address bar to access Cockpit running on your
-development machine:
-
-     https://10.0.2.2:9090

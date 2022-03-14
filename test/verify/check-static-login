@@ -33,6 +33,7 @@ class TestLogin(MachineCase):
         # arch configures pam_faillock by default, and tests here do a lot of failed login attempts
         if self.machine.image == "arch":
             self.machine.execute("rm -rf /run/faillock")
+        super().tearDown()
 
     def check_shell(self):
         b = self.browser
@@ -469,6 +470,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_journal_messages('.*type=1400.*avc:  denied  { map }.*comm="cockpit-pcp".*')
         self.allow_journal_messages('.*type=1400.*avc:  denied .* comm="sudo".*')
         self.allow_journal_messages('.*type=1400.*avc:  denied .* comm="systemd".*')
+        self.allow_journal_messages('.*type=1400.*avc:  denied  { watch } .* comm="cockpit-bridge".*')
         # https://bugzilla.redhat.com/show_bug.cgi?id=1727887
         self.allow_journal_messages('.*type=1400.*avc:  denied  { connectto } .* path="/run/user/.*/bus" scontext=user_u:user_r:user_t:s0.*')
 
@@ -719,7 +721,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                 expect_failed_login("root", "bad", n)
             expect_successful_login("root", "foobar")
 
-        self.allow_journal_messages(".*Account locked due to .* failed logins")
+        self.allow_journal_messages(".*[aA]ccount .*locked due to .* failed logins.*")
+        self.allow_journal_messages(".*minutes left to unlock.*")
 
     @skipImage("sssd not available", "fedora-coreos")
     def testClientCertAuthentication(self):
@@ -873,6 +876,7 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         if has_validate_api:
             m.execute("rm /etc/sssd/pki/sssd_auth_ca_db.pem")
             self.allow_journal_messages("cockpit-session: Failed to map .* Invalid certificate provided")
+            self.allow_journal_messages("cockpit-session: Failed to map .* Certificate authority file not found")
             do_test(alice_cert_key, ['HTTP/1.1 401 Authentication failed'])
 
         # sssd-dbus not available

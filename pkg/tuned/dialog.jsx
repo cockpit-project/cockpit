@@ -26,7 +26,7 @@ import { ExternalLinkSquareAltIcon, HelpIcon } from '@patternfly/react-icons';
 import * as service from "service";
 import { EmptyStatePanel } from 'cockpit-components-empty-state.jsx';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
-import { TunedDialogBody } from './change-profile.jsx';
+import { ProfilesMenuDialogBody } from '../systemd/overview-cards/profiles-menu-dialog-body.jsx';
 import { superuser } from 'superuser';
 import { useObject, useEvent } from "hooks";
 
@@ -312,7 +312,7 @@ const TunedDialog = ({
                }
         >
             {loading && <EmptyStatePanel loading />}
-            {activeProfile && <TunedDialogBody active_profile={activeProfile}
+            {activeProfile && <ProfilesMenuDialogBody active_profile={activeProfile}
                                                change_selected={setSelected}
                                                profiles={profiles} />}
         </Modal>

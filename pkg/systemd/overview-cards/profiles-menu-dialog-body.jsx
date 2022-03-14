@@ -27,18 +27,18 @@ import "menu-select-widget.scss";
 
 const _ = cockpit.gettext;
 
-/* dialog body with list of performance profiles
+/* dialog body with list of profiles
  * Expected props:
  *  - active_profile (key of the active profile)
  *  - change_selected callback, called with profile name each time the selected entry changes
- *  - profiles (array of entries passed to TunedDialogProfile)
+ *  - profiles (array of entries)
  *    - name (string, key)
  *    - recommended (boolean)
  *    - active (boolean)
  *    - title (string)
  *    - description (string)
  */
-export class TunedDialogBody extends React.Component {
+export class ProfilesMenuDialogBody extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -81,7 +81,7 @@ export class TunedDialogBody extends React.Component {
         );
     }
 }
-TunedDialogBody.propTypes = {
+ProfilesMenuDialogBody.propTypes = {
     active_profile: PropTypes.string.isRequired,
     change_selected: PropTypes.func.isRequired,
     profiles: PropTypes.array.isRequired,

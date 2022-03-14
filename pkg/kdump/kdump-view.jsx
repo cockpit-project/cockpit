@@ -375,7 +375,7 @@ export class KdumpPage extends React.Component {
                 <span>{ _("Loading...") }</span>
             </div>
         );
-        let targetCanChange = true;
+        let targetCanChange = false;
         if (this.props.kdumpStatus && this.props.kdumpStatus.target) {
             // if we have multiple targets defined, the config is invalid
             const target = this.props.kdumpStatus.target;
@@ -387,26 +387,26 @@ export class KdumpPage extends React.Component {
                         kdumpLocation = cockpit.format(_("locally in $0"), target.path);
                     else
                         kdumpLocation = cockpit.format(_("locally in $0"), "/var/crash");
+                    targetCanChange = true;
                 } else if (target.target == "ssh") {
                     kdumpLocation = _("Remote over SSH");
+                    targetCanChange = true;
                 } else if (target.target == "nfs") {
                     kdumpLocation = _("Remote over NFS");
+                    targetCanChange = true;
                 } else if (target.target == "raw") {
                     kdumpLocation = _("Raw to a device");
-                    targetCanChange = false;
                 } else if (target.target == "mount") {
                     /* mount targets outside of nfs are too complex for the
                      * current target dialog */
                     kdumpLocation = _("On a mounted device");
-                    targetCanChange = false;
                 } else {
                     kdumpLocation = _("No configuration found");
-                    targetCanChange = false;
                 }
             }
         }
         // this.storeLocation(this.props.kdumpStatus.config);
-        const settingsLink = (targetCanChange && !!this.props.kdumpStatus)
+        const settingsLink = targetCanChange
             ? <Button variant="link" isInline id="kdump-change-target" onClick={this.handleSettingsClick}>{ kdumpLocation }</Button>
             : <span>{ kdumpLocation }</span>;
         let reservedMemory;

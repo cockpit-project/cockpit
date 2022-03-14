@@ -53,7 +53,8 @@ typedef enum {
   NETWORK_SAMPLER = 1 << 3,
   MOUNT_SAMPLER = 1 << 4,
   CGROUP_SAMPLER = 1 << 5,
-  DISK_SAMPLER = 1 << 6
+  DISK_SAMPLER = 1 << 6,
+  THERMAL_SAMPLER = 1 << 7,
 } SamplerSet;
 
 typedef struct {
@@ -99,6 +100,8 @@ static MetricDescription metric_descriptions[] = {
   { "cgroup.memory.sw-limit", "bytes",    "instant", TRUE, CGROUP_SAMPLER },
   { "cgroup.cpu.usage",       "millisec", "counter", TRUE, CGROUP_SAMPLER },
   { "cgroup.cpu.shares",      "count",    "instant", TRUE, CGROUP_SAMPLER },
+
+  { "cpu.temperature",        "celsius",  "instant", TRUE, THERMAL_SAMPLER },
 
   { NULL }
 };
@@ -334,6 +337,8 @@ cockpit_internal_metrics_tick (CockpitMetrics *metrics,
     cockpit_cgroup_samples (COCKPIT_SAMPLES (self));
   if (self->samplers & DISK_SAMPLER)
     cockpit_disk_samples (COCKPIT_SAMPLES (self));
+  if (self->samplers & THERMAL_SAMPLER)
+    cockpit_cpu_temperature (COCKPIT_SAMPLES (self));
 
   /* Check for disappeared instances
    */

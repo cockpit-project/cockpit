@@ -850,6 +850,58 @@ test_cpu_cores (void)
   g_object_unref (transport);
 }
 
+static void
+test_cpu_temperature (void)
+{
+  MockTransport *transport = mock_transport_new ();
+
+  g_signal_connect (transport, "closed", G_CALLBACK (on_transport_closed), NULL);
+
+  g_autoptr(JsonObject) options = json_obj ("{ 'metrics': [ { 'name': 'cpu.temperature' } ],"
+                                  "  'interval': 1000"
+                                  "}");
+
+  CockpitChannel *channel = g_object_new (cockpit_internal_metrics_get_type (),
+                          "transport", transport,
+                          "id", "1234",
+                          "options", options,
+                          NULL);
+
+  cockpit_channel_prepare (channel);
+
+  g_autoptr(GBytes) msg = NULL;
+  /* receive meta information */
+  while ((msg = mock_transport_pop_channel (transport, "1234")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_autoptr(GError) error = NULL;
+  g_autoptr(JsonObject) res = cockpit_json_parse_bytes (msg, &error);
+  g_assert_no_error (error);
+  g_assert (res != NULL);
+  g_assert (json_object_has_member (res, "metrics"));
+
+  JsonArray *metrics = json_object_get_array_member (res, "metrics");
+  g_assert_cmpint (json_array_get_length (metrics), ==, 1);
+
+  JsonObject *description = json_array_get_object_element (metrics, 0);
+  g_assert (description);
+  g_assert_cmpstr (json_object_get_string_member (description, "name"), ==, "cpu.temperature");
+  g_assert_cmpstr (json_object_get_string_member (description, "units"), ==, "celsius");
+
+  g_autoptr(JsonArray) samples = recv_array (transport);
+  g_assert_cmpint (json_array_get_length (samples), ==, 1);
+  JsonArray *core = json_array_get_array_element (samples, 0);
+  g_assert_cmpint (json_array_get_length (core), ==, 1);
+  JsonArray *temperature = json_array_get_array_element (core, 0);
+
+  // file does not exist in virtual machines, skip value check
+  if (json_array_get_length (temperature) >= 1)
+    {
+      g_assert_cmpint (json_array_get_int_element (temperature, 0), >, 0);
+      g_assert_cmpint (json_array_get_int_element (temperature, 0), <, 150);
+    }
+}
+
 int
 main (int argc,
       char *argv[])
@@ -879,6 +931,7 @@ main (int argc,
   g_test_add_func ("/metrics/cgroup-memory", test_cgroup);
 
   g_test_add_func ("/metrics/cpu-cores", test_cpu_cores);
+  g_test_add_func ("/metrics/cpu-temperature", test_cpu_temperature);
 
   return g_test_run ();
 }

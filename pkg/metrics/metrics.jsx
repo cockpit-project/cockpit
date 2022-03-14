@@ -23,7 +23,7 @@ import {
     Alert,
     Breadcrumb, BreadcrumbItem,
     Button,
-    Card, CardTitle, CardBody, Gallery,
+    Card, CardTitle, CardBody, CardHeader, Gallery,
     DescriptionList, DescriptionListGroup, DescriptionListTerm, DescriptionListDescription,
     Flex, FlexItem,
     Grid, GridItem,
@@ -37,7 +37,7 @@ import {
     Tooltip,
 } from '@patternfly/react-core';
 import { Table, TableHeader, TableBody, TableGridBreakpoint, TableVariant, TableText, RowWrapper, cellWidth } from '@patternfly/react-table';
-import { ExclamationCircleIcon, CogIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
+import { ExclamationTriangleIcon, ExclamationCircleIcon, CogIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
 
 import cockpit from 'cockpit';
 import * as machine_info from "../lib/machine-info.js";
@@ -161,6 +161,10 @@ const CURRENT_METRICS = [
     { name: "cpu.core.nice", derive: "rate" },
 ];
 
+const CPU_TEMPERATURE_METRICS = [
+    { name: "cpu.temperature" },
+];
+
 const HISTORY_METRICS = [
     // CPU utilization
     { name: "kernel.all.cpu.nice", derive: "rate" },
@@ -213,10 +217,17 @@ class CurrentMetrics extends React.Component {
         super(props);
 
         this.metrics_channel = null;
+        this.temperature_channel = null;
         this.samples = [];
+        this.temperatureSamples = [];
         this.netInterfacesNames = [];
         this.cgroupCPUNames = [];
         this.cgroupMemoryNames = [];
+        this.cpuTemperatureColors = {
+            textColor: "",
+            iconColor: "",
+            icon: null,
+        };
 
         this.state = {
             userid: null,
@@ -224,6 +235,7 @@ class CurrentMetrics extends React.Component {
             swapUsed: null, // bytes
             cpuUsed: 0, // percentage
             cpuCoresUsed: [], // [ percentage ]
+            cpuTemperature: NaN, // degree Celsius
             loadAvg: null, // [ 1min, 5min, 15min ]
             disksRead: 0, // B/s
             disksWritten: 0, // B/s
@@ -237,6 +249,7 @@ class CurrentMetrics extends React.Component {
 
         this.onVisibilityChange = this.onVisibilityChange.bind(this);
         this.onMetricsUpdate = this.onMetricsUpdate.bind(this);
+        this.onTemperatureUpdate = this.onTemperatureUpdate.bind(this);
         this.updateMounts = this.updateMounts.bind(this);
         this.updateLoad = this.updateLoad.bind(this);
 
@@ -256,11 +269,23 @@ class CurrentMetrics extends React.Component {
     }
 
     onVisibilityChange() {
+        if (cockpit.hidden && this.temperature_channel !== null) {
+            this.temperature_channel.removeEventListener("message", this.onTemperatureUpdate);
+            this.temperature_channel.close();
+            this.temperature_channel = null;
+        }
+
         if (cockpit.hidden && this.metrics_channel !== null) {
             this.metrics_channel.removeEventListener("message", this.onMetricsUpdate);
             this.metrics_channel.close();
             this.metrics_channel = null;
             return;
+        }
+
+        if (!cockpit.hidden && (this.temperature_channel === null)) {
+            this.temperature_channel = cockpit.channel({ payload: "metrics1", source: "internal", interval: 3000, metrics: CPU_TEMPERATURE_METRICS });
+            this.temperature_channel.addEventListener("close", (ev, error) => console.error("CPU temperature metric closed:", error));
+            this.temperature_channel.addEventListener("message", this.onTemperatureUpdate);
         }
 
         if (!cockpit.hidden && this.metrics_channel === null) {
@@ -343,6 +368,33 @@ class CurrentMetrics extends React.Component {
                     console.warn("Failed to read /proc/loadavg:", ex.toString());
                     this.setState({ loadAvg: null });
                 });
+    }
+
+    onTemperatureUpdate(event, message) {
+        debug("current CPU temperature  message", message);
+        const data = JSON.parse(message);
+
+        if (!Array.isArray(data)) {
+            return;
+        }
+
+        data.forEach(temperatureSamples => decompress_samples(temperatureSamples, this.temperatureSamples));
+
+        this.cpuTemperature = parseInt(Math.max(...this.temperatureSamples[0]));
+
+        if (this.cpuTemperature <= 80) {
+            this.cpuTemperatureColors.textColor = "";
+            this.cpuTemperatureColors.iconColor = "";
+            this.cpuTemperatureColors.icon = null;
+        } else if (this.cpuTemperature < 95) {
+            this.cpuTemperatureColors.textColor = "text-color-warning";
+            this.cpuTemperatureColors.iconColor = "icon-color-warning";
+            this.cpuTemperatureColors.icon = <ExclamationTriangleIcon />;
+        } else {
+            this.cpuTemperatureColors.textColor = "text-color-critical";
+            this.cpuTemperatureColors.iconColor = "icon-color-critical";
+            this.cpuTemperatureColors.icon = <ExclamationCircleIcon />;
+        }
     }
 
     onMetricsUpdate(event, message) {
@@ -592,7 +644,19 @@ class CurrentMetrics extends React.Component {
         return (
             <Gallery className="current-metrics" hasGutter>
                 <Card id="current-metrics-card-cpu">
-                    <CardTitle>{ _("CPU") }</CardTitle>
+                    <CardHeader className='align-baseline'>
+                        <CardTitle>{ _("CPU") }</CardTitle>
+                        { !isNaN(this.cpuTemperature) &&
+                        <span className="temperature">
+                            <span className={this.cpuTemperatureColors.iconColor}>
+                                {this.cpuTemperatureColors.icon}
+                            </span>
+                            &nbsp;
+                            <span className={this.cpuTemperatureColors.textColor}>
+                                { cockpit.format("$0 °C", this.cpuTemperature) }
+                            </span>
+                        </span> }
+                    </CardHeader>
                     <CardBody>
                         <div className="progress-stack-no-space">
                             <Progress

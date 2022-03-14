@@ -26,6 +26,7 @@ G_BEGIN_DECLS
 
 void            cockpit_cpu_samples         (CockpitSamples *samples);
 
+void            cockpit_cpu_temperature     (CockpitSamples *samples);
 
 G_END_DECLS
 

@@ -112,3 +112,88 @@ out:
   g_strfreev (lines);
   g_free (contents);
 }
+
+static gchar*
+read_file (const gchar *path)
+{
+  g_autoptr(GError) error = NULL;
+  gchar *content = NULL;
+
+  if (!g_file_get_contents (path, &content, NULL, &error))
+    {
+      // ENOENT is used to break loops, do not log it
+      if (!g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT))
+          g_warning ("error reading file: %s", error->message);
+
+      return NULL;
+    }
+
+  return content;
+}
+
+static void
+sample_cpu_sensors (CockpitSamples *samples,
+                    int hwmonID)
+{
+  for (int i = 1; TRUE; i++)
+    {
+      g_autofree gchar *temp = g_strdup_printf ("/sys/class/hwmon/hwmon%d/temp%d_input", hwmonID, i);
+      g_autofree gchar *temp_content = read_file (temp);
+
+      // end loop on error
+      if (temp_content == NULL)
+          break;
+
+      gint64 temperature = g_ascii_strtoll (temp_content, NULL, 10);
+      // overflow or invalid
+      if (temperature == G_MAXINT64 || temperature == G_MININT64 || temperature == 0)
+        {
+          g_debug("Invalid number in %s: %m", temp);
+          continue;
+        }
+
+      g_autofree gchar *label = g_strdup_printf ("/sys/class/hwmon/hwmon%d/temp%d_label", hwmonID, i);
+      g_autofree gchar *label_content = read_file (label);
+
+      if (label_content == NULL)
+        {
+          // labels aren't used on ARM
+          label_content = g_strdup_printf ("Core %d", i);
+        }
+
+      g_strchomp (label_content);
+
+      // ignore Tctl on AMD devices
+      if (g_str_equal (label_content, "Tctl"))
+          continue;
+
+      g_autofree gchar *instance = g_strdup_printf ("hwmon%d %s", hwmonID, label_content);
+      cockpit_samples_sample (samples, "cpu.temperature", instance, temperature/1000);
+    }
+}
+
+void
+cockpit_cpu_temperature (CockpitSamples *samples)
+{
+  // iterate through all hwmon folders to find CPU sensors
+  for (int i = 0; TRUE; i++)
+    {
+      g_autofree gchar *path = g_strdup_printf ("/sys/class/hwmon/hwmon%d/name", i);
+      g_autofree gchar *name = read_file (path);
+
+      // end loop on error
+      if (name == NULL)
+          break;
+
+      g_strchomp (name);
+
+      // compare device name with CPU names
+      // Intel: coretemp, AMD: k8temp or k10temp, ARM: cpu_thermal
+      if (g_str_equal (name, "coretemp") || g_str_equal (name, "cpu_thermal") ||
+          g_str_equal (name, "k8temp") || g_str_equal (name, "k10temp"))
+        {
+          // hwmon contains CPU info
+          sample_cpu_sensors (samples, i);
+        }
+    }
+}

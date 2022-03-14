@@ -25,7 +25,7 @@ import { ExternalLinkSquareAltIcon, HelpIcon, InProgressIcon } from '@patternfly
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { ShutdownModal } from 'cockpit-components-shutdown.jsx';
 import { PrivilegedButton } from "cockpit-components-privileged.jsx";
-import { TunedDialogBody } from '../../../pkg/tuned/change-profile.jsx';
+import { ProfilesMenuDialogBody } from "./profiles-menu-dialog-body.jsx";
 
 import "./cryptoPolicies.scss";
 
@@ -172,7 +172,7 @@ const CryptoPolicyDialog = ({
                    </>
                }
         >
-            {currentCryptoPolicy && <TunedDialogBody active_profile={currentCryptoPolicy}
+            {currentCryptoPolicy && <ProfilesMenuDialogBody active_profile={currentCryptoPolicy}
                                                      change_selected={setSelected}
                                                      profiles={policies} />}
         </Modal>

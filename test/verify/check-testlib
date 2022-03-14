@@ -190,10 +190,12 @@ class TestTestlib(MachineCase):
         m = self.machine
 
         self.assertEqual(m.execute("whoami").strip(), "root")
+        # /etc gets restored wholesale
+        m.execute("echo spam > /etc/spam; mkdir /etc/spamdir")
         # existing file
-        m.execute("echo original > /etc/someconfig")
-        self.restore_file("/etc/someconfig")
-        m.execute("echo changed > /etc/someconfig")
+        m.execute("echo original > /var/somefile")
+        self.restore_file("/var/somefile")
+        m.execute("echo changed > /var/somefile")
         # nonexisting file
         self.restore_file("/var/lib/cockpittest.txt")
         m.execute("echo data > /var/lib/cockpittest.txt")
@@ -206,15 +208,19 @@ class TestTestlib(MachineCase):
         self.restore_dir("/var/lib/cockpittestnew")
         m.execute("mkdir -p /var/lib/cockpittestnew && echo hello > /var/lib/cockpittestnew/cruft")
 
-        # NSS is backed up by default
+        # NSS is backed up by default (as part of /etc)
         m.execute("useradd cockpittest")
 
         # now pretend the test ends here
         self.doCleanups()
 
+        # restored /etc
+        m.execute("test ! -e /etc/spam")
+        m.execute("test ! -e /etc/spamdir")
+
         # correctly restored existing file
-        self.assertEqual("original", m.execute("cat /etc/someconfig").strip())
-        m.execute("rm /etc/someconfig")
+        self.assertEqual("original", m.execute("cat /var/somefile").strip())
+        m.execute("rm /var/somefile")
         # correctly cleaned up nonexisting file
         m.execute("test ! -e /var/lib/cockpittest.txt")
 

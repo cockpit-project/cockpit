@@ -177,8 +177,6 @@ class TestKdump(KdumpHelpers):
         b = self.browser
         m = self.machine
 
-        self.restore_file("/etc/kdump.conf")
-
         m.execute("systemctl disable --now kdump")
 
         self.login_and_go("/kdump")

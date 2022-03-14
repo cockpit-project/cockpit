@@ -609,13 +609,11 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         self.addCleanup(m.execute, "pkill -f '[m]ock-.*-server' || true")
         m.upload(["verify/files/mock-bugzilla-server.py"], "/tmp/")
         m.spawn("setsid /tmp/mock-bugzilla-server.py", "mock-bugzilla.log")
-        self.restore_file("/etc/libreport/plugins/bugzilla.conf")
         m.execute("echo 'BugzillaURL=http://localhost:8080' > /etc/libreport/plugins/bugzilla.conf")
 
         # start mock FAF server
         m.upload(["verify/files/mock-faf-server.py"], "/tmp/")
         m.spawn("setsid /tmp/mock-faf-server.py", "mock-faf.log")
-        self.restore_file("/etc/libreport/plugins/ureport.conf")
         m.execute("echo 'URL=http://localhost:12345' > /etc/libreport/plugins/ureport.conf")
 
         m.upload(["verify/files/cockpit_event.conf"], "/etc/libreport/events.d/")
@@ -673,13 +671,11 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         self.addCleanup(m.execute, "pkill -f '[m]ock-.*-server' || true")
         m.upload(["verify/files/mock-bugzilla-server.py"], "/tmp/")
         m.spawn("setsid /tmp/mock-bugzilla-server.py", "mock-bugzilla.log")
-        self.restore_file("/etc/libreport/plugins/bugzilla.conf")
         m.execute("echo 'BugzillaURL=http://localhost:8080' > /etc/libreport/plugins/bugzilla.conf")
 
         # start mock FAF server
         m.upload(["verify/files/mock-faf-server.py"], "/tmp/")
         m.spawn("setsid /tmp/mock-faf-server.py", "mock-faf.log")
-        self.restore_file("/etc/libreport/plugins/ureport.conf")
         m.execute("echo 'URL=http://localhost:12345' > /etc/libreport/plugins/ureport.conf")
 
         m.upload(["verify/files/cockpit_event.conf"], "/etc/libreport/events.d/")
@@ -712,7 +708,6 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         self.addCleanup(m.execute, "pkill -f '[m]ock-.*-server' || true")
         m.upload(["verify/files/mock-faf-server.py"], "/tmp/")
         m.execute("setsid /tmp/mock-faf-server.py >/tmp/mock-faf.log 2>&1 &")
-        self.restore_file("/etc/libreport/plugins/ureport.conf")
         m.execute("echo 'URL=http://localhost:12345' > /etc/libreport/plugins/ureport.conf")
 
         m.execute("systemctl mask --now reportd")

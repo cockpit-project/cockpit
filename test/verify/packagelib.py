@@ -60,15 +60,11 @@ class PackageCase(MachineCase):
         if self.backend == "apt":
             self.restore_dir("/var/lib/apt", reboot_safe=True)
             self.restore_dir("/var/cache/apt", reboot_safe=True)
-            self.restore_dir("/etc/apt", reboot_safe=True)
             self.machine.execute("echo > /etc/apt/sources.list && rm -f /etc/apt/sources.list.d/* && apt-get clean && apt-get update")
         elif self.backend == "alpm":
             self.restore_dir("/var/lib/pacman", reboot_safe=True)
             self.restore_dir("/var/cache/pacman", reboot_safe=True)
-            self.restore_dir("/etc/pacman.d", reboot_safe=True)
             self.restore_dir("/var/lib/PackageKit/alpm", reboot_safe=True)
-            self.restore_file("/etc/pacman.conf")
-            self.restore_file("/etc/pacman.d/mirrorlist")
             self.restore_file("/usr/share/libalpm/hooks/90-packagekit-refresh.hook")
             self.machine.execute("rm /etc/pacman.conf /etc/pacman.d/mirrorlist /var/lib/pacman/sync/* /usr/share/libalpm/hooks/90-packagekit-refresh.hook")
             # Initial config for installation
@@ -88,7 +84,6 @@ Server = file://{empty_repo_dir}
             self.machine.write("/etc/pacman.conf", config)
             self.machine.execute("pacman -Sy")
         else:
-            self.restore_dir("/etc/yum.repos.d", reboot_safe=True)
             self.restore_dir("/var/cache/dnf", reboot_safe=True)
             self.machine.execute("rm -rf /etc/yum.repos.d/* /var/cache/yum/* /var/cache/dnf/*")
 

@@ -94,7 +94,6 @@ class TestPackages(MachineCase):
             return
 
         # Hide the terminal with a system override
-        self.restore_dir("/etc/cockpit")
         m.write("/etc/cockpit/systemd.override.json", """{
     "tools": {
         "terminal": null

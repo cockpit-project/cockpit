@@ -564,5 +564,8 @@ class StorageCase(MachineCase, StorageHelpers):
             # HACK: missing /etc/crypttab file upsets udisks: https://github.com/storaged-project/udisks/pull/835
             self.machine.write("/etc/crypttab", "")
 
+        # make udisks pick up files from restored /etc
+        self.machine.execute("systemctl try-restart udisks2")
+
         # starting out with empty PCP logs and pmlogger not running causes these metrics channel messages
         self.allow_journal_messages("pcp-archive: no such metric: disk.*")

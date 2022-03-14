@@ -82,11 +82,9 @@ class NetworkCase(MachineCase, NetworkHelpers):
                 self.machine.execute(f"for d in {' '.join(new)}; do nmcli dev del $d; done")
 
             self.orig_devs = devs()
-            self.restore_dir("/etc/NetworkManager", post_restore_action="systemctl try-restart NetworkManager")
-            self.restore_dir("/etc/sysconfig/network-scripts")
             self.addCleanup(cleanupDevs)
 
-        m.execute("systemctl start NetworkManager")
+        m.execute("systemctl restart NetworkManager")
 
         # Ensure a clean and consistent state.  We remove rogue
         # connections that might still be here from the time of

@@ -343,7 +343,6 @@ class TestSystemInfo(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.restore_file("/etc/motd")
         m.execute("rm -f /etc/motd")
 
         self.login_and_go("/system")

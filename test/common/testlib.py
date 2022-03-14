@@ -1293,13 +1293,9 @@ class MachineCase(unittest.TestCase):
         # temporary directory in the VM
         self.addCleanup(m.execute, "if [ -d {0} ]; then findmnt --list --noheadings --output TARGET | grep ^{0} | xargs -r umount && rm -r {0}; fi".format(self.vm_tmpdir))
 
-        # users/groups/home dirs
-        self.restore_file("/etc/passwd")
-        self.restore_file("/etc/group")
-        self.restore_file("/etc/shadow")
-        self.restore_file("/etc/gshadow")
-        self.restore_file("/etc/subuid")
-        self.restore_file("/etc/subgid")
+        # configuration (including users) and home dirs
+        self.addCleanup(m.execute, "systemctl daemon-reload; systemctl reset-failed")
+        self.restore_dir("/etc")
         home_dirs = m.execute("ls /home").strip().split()
 
         def cleanup_home_dirs():
@@ -1308,14 +1304,7 @@ class MachineCase(unittest.TestCase):
                     m.execute("rm -rf /home/" + d)
         self.addCleanup(cleanup_home_dirs)
 
-        # cockpit configuration
-        self.addCleanup(m.execute, "rm -f /etc/cockpit/cockpit.conf /etc/cockpit/machines.d/* /etc/cockpit/*.override.json")
-
         if not m.ostree_image:
-            # for storage tests
-            self.restore_file("/etc/fstab")
-            self.restore_file("/etc/crypttab")
-
             # tests expect cockpit.service to not run at start; also, avoid log leakage into the next test
             self.addCleanup(m.execute, "systemctl stop --quiet cockpit")
 
@@ -1806,7 +1795,9 @@ class MachineCase(unittest.TestCase):
         @perm is the desired file permission as chmod shell string (e.g. "0600")
         '''
         m = self.machine
-        self.restore_file(path)
+        # /etc already gets restored wholesale
+        if not path.startswith("/etc/"):
+            self.restore_file(path)
         m.write(path, content, append=append, owner=owner, perm=perm)
 
 

@@ -18,7 +18,7 @@
  */
 import cockpit from "cockpit";
 import React from "react";
-import { Switch, Tooltip } from "@patternfly/react-core";
+import { HelperText, HelperTextItem, Switch, Tooltip } from "@patternfly/react-core";
 
 const _ = cockpit.gettext;
 
@@ -71,6 +71,13 @@ export class FirewallSwitch extends React.Component {
                                     onChange={this.onSwitchChanged}
                                     aria-label={enabled ? _("Disable the firewall") : _("Enable the firewall")} />;
         }
-        return firewallOnOff;
+        return (
+            <>
+                {firewallOnOff}
+                <HelperText>
+                    <HelperTextItem variant="indeterminate">{enabled ? _("Enabled") : _("Disabled")}</HelperTextItem>
+                </HelperText>
+            </>
+        );
     }
 }

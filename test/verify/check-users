@@ -31,6 +31,7 @@ class TestAccounts(MachineCase):
         # ensure that there are no lingering processes after the test which prevent userdel
         self.machine.execute("pkill -e -u anton 2>/dev/null; pkill -e -u scruffy 2>/dev/null ; pkill -e -u jussi 2>/dev/null || true")
         self.machine.execute("while pgrep -u anton; do sleep 1; done; while pgrep -u scruffy; do sleep 1; done; while pgrep -u jussi; do sleep 1; done;")
+        super().tearDown()
 
     def testBasic(self):
         b = self.browser
@@ -363,7 +364,10 @@ class TestAccounts(MachineCase):
         self.allow_journal_messages("Password quality check failed:")
         self.allow_journal_messages("The password is a palindrome")
         self.allow_journal_messages("passwd: user.*does not exist")
+        self.allow_journal_messages("passwd: Unknown user name 'anton'.")
         self.allow_journal_messages("lastlog: Unknown user or range: anton")
+        self.allow_journal_messages(".*required to change your password immediately.*")
+        self.allow_journal_messages(".*user account or password has expired.*")
 
     def testUnprivileged(self):
         m = self.machine

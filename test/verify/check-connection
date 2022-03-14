@@ -45,7 +45,7 @@ class TestConnection(MachineCase):
         # uninstall cockpit/ws container startup script
         m.execute("rm /etc/systemd/system/cockpit.service")
         # overlay cockpit-ws rpm
-        m.execute("rpm-ostree install --cache-only /var/tmp/cockpit-ws-*.rpm")
+        m.execute("rpm-ostree install --cache-only /var/tmp/cockpit-ws-*.rpm", timeout=180)
         m.reboot()
 
     @skipBrowser("Firefox cannot work with cookies", "firefox")

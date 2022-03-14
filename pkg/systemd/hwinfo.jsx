@@ -55,11 +55,6 @@ import { PrivilegedButton } from "cockpit-components-privileged.jsx";
 const _ = cockpit.gettext;
 
 class SystemInfo extends React.Component {
-    constructor(props) {
-        super(props);
-        this.permission = cockpit.permission({ admin: true });
-    }
-
     render() {
         const info = this.props.info;
         if ((!info.name || !info.version) && info.alt_name && info.alt_version) {
@@ -71,7 +66,7 @@ class SystemInfo extends React.Component {
         const mitigations = (
             <PrivilegedButton variant="link" buttonId="cpu_mitigations" tooltipId="tip-cpu-security"
                         excuse={ _("The user $0 is not permitted to change cpu security mitigations") }
-                        permission={ this.permission } onClick={ onSecurityClick }>
+                        onClick={ onSecurityClick }>
                 { _("Mitigations") }
             </PrivilegedButton>
         );

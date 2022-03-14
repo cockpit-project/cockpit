@@ -364,6 +364,9 @@ OnCalendar=daily
         b.logout()
         b.wait_text('#password-group > label', 'Senha')
 
+        # translated variants of standard messages in testlib.py
+        self.allow_journal_messages("xargs: basename: .*13.*")
+
     def testFrameReload(self):
         b = self.browser
         frame = "cockpit1:localhost/playground/test"

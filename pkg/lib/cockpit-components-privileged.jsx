@@ -16,12 +16,14 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { Button, Tooltip, TooltipPosition } from '@patternfly/react-core';
 
 import cockpit from "cockpit";
+import { superuser } from 'superuser';
+import { useEvent } from "hooks";
 
 /**
  * UI element wrapper for something that requires privilege. When access is not
@@ -47,42 +49,23 @@ export function Privileged({ excuse, allowed, placement, tooltipId, children }) 
 /**
  * Convenience element for a Privilege wrapped Button
  */
-export class PrivilegedButton extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = { allowed: !!this.props.permission.allowed };
-        this.onPermissionChanged = this.onPermissionChanged.bind(this);
-    }
+export const PrivilegedButton = ({ tooltipId, placement, excuse, buttonId, onClick, ariaLabel, variant, children }) => {
+    const [user, setUser] = useState(null);
+    useEvent(superuser, "changed");
+    useEffect(() => cockpit.user().then(user => setUser(user)));
 
-    componentDidMount() {
-        this.props.permission.addEventListener("changed", this.onPermissionChanged);
-        this.onPermissionChanged();
-    }
-
-    componentWillUnmount() {
-        this.props.permission.removeEventListener("changed", this.onPermissionChanged);
-    }
-
-    onPermissionChanged() {
-        // default to allowed while not yet initialized
-        this.setState({ allowed: !!this.props.permission.allowed });
-    }
-
-    render() {
-        return (
-            <Privileged allowed={ this.state.allowed } tooltipId={ this.props.tooltipId } placement={ this.props.placement }
-                        excuse={ cockpit.format(this.props.excuse, this.props.permission.user ? this.props.permission.user.name : '') }>
-                <Button id={ this.props.buttonId } variant={ this.props.variant } onClick={ this.props.onClick }
-                        isInline isDisabled={ !this.state.allowed } aria-label={ this.props.ariaLabel }>
-                    { this.props.children }
-                </Button>
-            </Privileged>
-        );
-    }
-}
+    return (
+        <Privileged allowed={ superuser.allowed } tooltipId={ tooltipId } placement={ placement }
+                    excuse={ cockpit.format(excuse, user ? user.name : '') }>
+            <Button id={ buttonId } variant={ variant } onClick={ onClick }
+                    isInline isDisabled={ !superuser.allowed } aria-label={ ariaLabel }>
+                { children }
+            </Button>
+        </Privileged>
+    );
+};
 
 PrivilegedButton.propTypes = {
-    permission: PropTypes.object.isRequired,
     excuse: PropTypes.string.isRequired, // must contain a $0, replaced with user name
     onClick: PropTypes.func,
     variant: PropTypes.string,

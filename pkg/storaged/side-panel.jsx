@@ -32,12 +32,27 @@ export class SidePanel extends React.Component {
     constructor() {
         super();
         this.state = { collapsed: true };
+        this.current_rows_keys = [];
+        this.new_keys = [];
     }
 
     render() {
         let show_all_button = null;
-        let rows = this.props.rows;
+        let rows = this.props.rows.filter(row => !!row);
 
+        // Find new items for animations
+        const current_keys = rows.map(row => row.key);
+
+        if (JSON.stringify(this.current_rows_keys) !== JSON.stringify(current_keys)) {
+            if (this.current_rows_keys.length !== 0) {
+                const new_keys = current_keys.filter(key => this.current_rows_keys.indexOf(key) === -1);
+                if (new_keys.length)
+                    this.new_keys.push(...new_keys);
+            }
+            this.current_rows_keys = current_keys;
+        }
+
+        // Collapse items by default if more than 20
         if (this.state.collapsed && rows.length > 20) {
             show_all_button = (
                 <FlexItem alignSelf={{ default: 'alignSelfCenter' }}>
@@ -49,6 +64,11 @@ export class SidePanel extends React.Component {
                 </FlexItem>);
             rows = rows.slice(0, 20);
         }
+
+        rows.forEach(row => {
+            if (row.key && this.new_keys.indexOf(row.key) !== -1)
+                row.className = (row.className || "") + " new-item-ct";
+        });
 
         const children = rows.map(row => row.block ? <SidePanelBlockRow {...row} /> : <SidePanelRow {...row} />);
 
@@ -117,7 +137,7 @@ class SidePanelRow extends React.Component {
 
         return (
             <FlexItem data-testkey={this.props.testkey}
-                      className="sidepanel-row"
+                      className={"sidepanel-row " + (this.props.className || "")}
                       role="link" tabIndex="0"
                       onKeyPress={this.props.go ? go : null}
                       onClick={this.props.go ? go : null}>
@@ -148,6 +168,7 @@ class SidePanelBlockRow extends React.Component {
                              detail={detail}
                              go={() => { cockpit.location.go(parts.location) }}
                              actions={actions}
+                             className={this.props.className}
         />;
     }
 }

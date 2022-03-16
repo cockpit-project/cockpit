@@ -23,7 +23,7 @@ import React from "react";
 import { Button } from "@patternfly/react-core";
 import { CheckIcon, EditIcon, PlusIcon, TrashIcon } from "@patternfly/react-icons";
 
-import { SidePanel, SidePanelRow } from "./side-panel.jsx";
+import { SidePanel } from "./side-panel.jsx";
 import { } from "./utils.js";
 import { StorageButton } from "./storage-controls.jsx";
 import { dialog_open, TextInput, PassInput, SelectRow } from "./dialog.jsx";
@@ -225,15 +225,10 @@ export class IscsiPanel extends React.Component {
                     </StorageButton>
                 );
 
-            return (
-                <SidePanelRow client={client}
-                              kind="array"
-                              name={session.data.target_name || ""}
-                              detail={session.data.persistent_address + ":" +
-                                      session.data.persistent_port}
-                              actions={actions}
-                              key={path} />
-            );
+            return {
+                client, actions, kind: "array", name: session.data.target_name || "", key: path,
+                detail: session.data.persistent_address + ":" + session.data.persistent_port
+            };
         }
 
         const toggle_armed = (event) => {
@@ -273,9 +268,8 @@ export class IscsiPanel extends React.Component {
                        hover={false}
                        actions={actions}
                        client={client}
-                       feature={iscsi_feature}>
-                { sessions }
-            </SidePanel>
+                       feature={iscsi_feature}
+                       rows={sessions} />
         );
     }
 }

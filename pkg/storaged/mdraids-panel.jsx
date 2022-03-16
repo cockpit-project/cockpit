@@ -18,9 +18,7 @@
  */
 
 import cockpit from "cockpit";
-import React from "react";
 
-import { SidePanelRow } from "./side-panel.jsx";
 import {
     fmt_size, mdraid_name, block_name, validate_mdraid_name,
     get_available_spaces, prepare_available_spaces
@@ -29,20 +27,16 @@ import { dialog_open, TextInput, SelectOne, SelectSpaces } from "./dialog.jsx";
 
 const _ = cockpit.gettext;
 
-const MDRaidRow = ({ client, path }) => {
+function mdraid_row(client, path) {
     const mdraid = client.mdraids[path];
     const block = client.mdraids_block[path];
 
-    return (
-        <SidePanelRow client={client}
-                      kind="array"
-                      name={mdraid_name(mdraid)}
-                      devname={block && block_name(block)}
-                      detail={fmt_size(mdraid.Size) + " " + _("RAID device")}
-                      go={() => cockpit.location.go(["mdraid", mdraid.UUID])}
-                      job_path={path} />
-    );
-};
+    return {
+        client, kind: "array", name: mdraid_name(mdraid), devname: block && block_name(block),
+        detail: fmt_size(mdraid.Size) + " " + _("RAID device"), job_path: path, key: path,
+        go: () => cockpit.location.go(["mdraid", mdraid.UUID])
+    };
+}
 
 export function mdraid_rows(client) {
     function cmp_mdraid(path_a, path_b) {
@@ -50,7 +44,7 @@ export function mdraid_rows(client) {
     }
 
     return Object.keys(client.mdraids).sort(cmp_mdraid)
-            .map(p => <MDRaidRow key={p} client={client} path={p} />);
+            .map(p => mdraid_row(client, p));
 }
 
 export function create_mdraid(client) {

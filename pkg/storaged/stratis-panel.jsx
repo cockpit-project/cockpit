@@ -20,7 +20,6 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { SidePanelRow } from "./side-panel.jsx";
 import { dialog_open, TextInput, CheckBoxes, PassInput, SelectSpaces } from "./dialog.jsx";
 import {
     decode_filename, fmt_size,
@@ -48,31 +47,24 @@ export function stratis_feature(client) {
     };
 }
 
-const StratisPoolRow = ({ client, path }) => {
+function stratis_pool_row(client, path) {
     const pool = client.stratis_pools[path];
 
-    return (
-        <SidePanelRow client={client}
-                      name={pool.Name}
-                      devname={"/dev/stratis/" + pool.Name + "/"}
-                      detail={cockpit.format(_("$0 Stratis pool"), fmt_size(pool.TotalPhysicalSize))}
-                      go={() => cockpit.location.go(["pool", pool.Uuid])}
-                      job_path={path} />
-    );
-};
+    return {
+        client, name: pool.Name, key: path, devname: "/dev/stratis/" + pool.Name + "/",
+        detail: cockpit.format(_("$0 Stratis pool"), fmt_size(pool.TotalPhysicalSize)),
+        go: () => cockpit.location.go(["pool", pool.Uuid]), job_path: path
+    };
+}
 
-const StratisLockedPoolRow = ({ client, uuid }) => {
+function stratis_locked_pool_row(client, uuid) {
     const action = <StorageButton onClick={() => unlock_pool(client, uuid, true)}><UnlockIcon /></StorageButton>;
 
-    return (
-        <SidePanelRow client={client}
-                      name={uuid}
-                      truncate_name={false}
-                      detail={_("Locked encrypted Stratis pool")}
-                      actions={action}
-                      go={() => cockpit.location.go(["pool", uuid])} />
-    );
-};
+    return {
+        client, actions: action, name: uuid, key: uuid, truncate_name: false,
+        detail: _("Locked encrypted Stratis pool"), go: () => cockpit.location.go(["pool", uuid])
+    };
+}
 
 export function stratis_rows(client) {
     function cmp_pool(path_a, path_b) {
@@ -84,10 +76,10 @@ export function stratis_rows(client) {
     }
 
     const pools = Object.keys(client.stratis_pools).sort(cmp_pool)
-            .map(p => <StratisPoolRow key={p} client={client} path={p} />);
+            .map(p => stratis_pool_row(client, p));
 
     const locked_pools = Object.keys(client.stratis_manager.LockedPools).sort(cmp_locked_pool)
-            .map(uuid => <StratisLockedPoolRow key={uuid} client={client} uuid={uuid} />);
+            .map(uuid => stratis_locked_pool_row(client, uuid));
 
     return pools.concat(locked_pools);
 }

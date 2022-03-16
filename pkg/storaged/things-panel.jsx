@@ -92,9 +92,8 @@ export class ThingsPanel extends React.Component {
                        actions={actions}
                        empty_text={_("No devices")}
                        show_all_text={cockpit.format(cockpit.ngettext("Show $0 device", "Show all $0 devices", devices.length), devices.length)}
-                       client={client}>
-                { devices }
-            </SidePanel>
+                       client={client}
+                       rows={devices} />
         );
     }
 }

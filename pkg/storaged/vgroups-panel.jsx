@@ -18,9 +18,7 @@
  */
 
 import cockpit from "cockpit";
-import React from "react";
 
-import { SidePanelRow } from "./side-panel.jsx";
 import {
     fmt_size, validate_lvm2_name,
     get_available_spaces, prepare_available_spaces
@@ -29,19 +27,16 @@ import { dialog_open, TextInput, SelectSpaces } from "./dialog.jsx";
 
 const _ = cockpit.gettext;
 
-const VGroupRow = ({ client, path }) => {
+function vgroup_row(client, path) {
     const vgroup = client.vgroups[path];
 
-    return (
-        <SidePanelRow client={client}
-                      kind="array"
-                      name={vgroup.Name}
-                      devname={"/dev/" + vgroup.Name + "/"}
-                      detail={fmt_size(vgroup.Size) + " " + _("LVM2 volume group")}
-                      go={() => cockpit.location.go(["vg", vgroup.Name])}
-                      job_path={path} />
-    );
-};
+    return {
+        client, kind: "array", key: path, name: vgroup.Name, job_path: path,
+        devname: "/dev/" + vgroup.Name + "/",
+        detail: fmt_size(vgroup.Size) + " " + _("LVM2 volume group"),
+        go: () => cockpit.location.go(["vg", vgroup.Name])
+    };
+}
 
 export function vgroup_rows(client) {
     function cmp_vgroup(path_a, path_b) {
@@ -49,7 +44,7 @@ export function vgroup_rows(client) {
     }
 
     return Object.keys(client.vgroups).sort(cmp_vgroup)
-            .map(p => <VGroupRow key={p} client={client} path={p} />);
+            .map(p => vgroup_row(client, p));
 }
 
 export function create_vgroup(client) {

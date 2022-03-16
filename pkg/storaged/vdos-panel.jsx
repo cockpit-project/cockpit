@@ -18,32 +18,27 @@
  */
 
 import cockpit from "cockpit";
-import React from "react";
 
-import { SidePanelRow } from "./side-panel.jsx";
 import { fmt_size } from "./utils.js";
 
 const _ = cockpit.gettext;
 
 // these are deprecated kinds of VDO volumes created with `vdo create`
 // the official way is `lvcreate --type vdo`, these are handled in content-views.jsx
-const VDORow = ({ client, vdo }) => {
+function vdo_row(client, vdo) {
     const block = client.slashdevs_block[vdo.dev];
-    return (
-        <SidePanelRow client={client}
-                      kind="array"
-                      name={vdo.name}
-                      devname={vdo.dev}
-                      detail={fmt_size(vdo.logical_size) + " " + _("VDO device")}
-                      go={() => cockpit.location.go(["vdo", vdo.name])}
-                      job_path={block && block.path} />
-    );
-};
+    return {
+        client, key: vdo.name, kind: "array", name: vdo.name, devname: vdo.dev,
+        detail: fmt_size(vdo.logical_size) + " " + _("VDO device"),
+        go: () => cockpit.location.go(["vdo", vdo.name]),
+        job_path: block && block.path
+    };
+}
 
 export function vdo_rows(client) {
     function cmp_vdo(a, b) {
         return a.name.localeCompare(b.Name);
     }
     return client.vdo_overlay.volumes.sort(cmp_vdo)
-            .map(vdo => <VDORow key={vdo.name} client={client} vdo={vdo} />);
+            .map(vdo => vdo_row(client, vdo));
 }

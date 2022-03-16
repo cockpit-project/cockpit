@@ -32,7 +32,7 @@ import { PlusIcon, MinusIcon } from "@patternfly/react-icons";
 import * as utils from "./utils.js";
 import { fmt_to_fragments } from "utils.jsx";
 import { StdDetailsLayout } from "./details.jsx";
-import { SidePanel, SidePanelBlockRow } from "./side-panel.jsx";
+import { SidePanel } from "./side-panel.jsx";
 import { VGroup } from "./content-views.jsx";
 import { StorageButton } from "./storage-controls.jsx";
 import {
@@ -113,24 +113,19 @@ class VGroupSidebar extends React.Component {
                 remove_action = pvol_remove;
             }
 
-            return (
-                <SidePanelBlockRow client={client}
-                                    block={client.blocks[pvol.path]}
-                                    detail={cockpit.format(_("$0, $1 free"),
-                                                           utils.fmt_size(pvol.Size),
-                                                           utils.fmt_size(pvol.FreeSize))}
-                                    actions={<StorageButton aria-label={_("Remove")} onClick={remove_action} excuse={remove_excuse}>
-                                        <MinusIcon />
-                                    </StorageButton>}
-                                    key={pvol.path} />
-            );
+            return {
+                client, block: client.blocks[pvol.path], key: pvol.path,
+                detail: cockpit.format(_("$0, $1 free"), utils.fmt_size(pvol.Size), utils.fmt_size(pvol.FreeSize)),
+                actions: <StorageButton aria-label={_("Remove")} onClick={remove_action} excuse={remove_excuse}>
+                    <MinusIcon />
+                </StorageButton>
+            };
         }
 
         return (
             <SidePanel title={_("Physical volumes")}
-                       actions={<StorageButton aria-label={_("Add")} onClick={add_disk}><PlusIcon /></StorageButton>}>
-                { pvols.map(render_pvol) }
-            </SidePanel>
+                       actions={<StorageButton aria-label={_("Add")} onClick={add_disk}><PlusIcon /></StorageButton>}
+                       rows={pvols.map(render_pvol)} />
         );
     }
 }

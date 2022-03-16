@@ -32,7 +32,7 @@ import { ListingTable } from "cockpit-components-table.jsx";
 import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
 import { StdDetailsLayout } from "./details.jsx";
 import { StorageButton, StorageBarMenu, StorageMenuItem, StorageUsageBar } from "./storage-controls.jsx";
-import { SidePanel, SidePanelBlockRow } from "./side-panel.jsx";
+import { SidePanel } from "./side-panel.jsx";
 import {
     dialog_open,
     TextInput, PassInput, SelectOne, SelectSpaces,
@@ -204,12 +204,7 @@ const StratisPoolSidebar = ({ client, pool }) => {
             desc = cockpit.format(_("$0 of unknown tier"),
                                   fmt_size(Number(blockdev.TotalPhysicalSize)));
 
-        return (
-            <SidePanelBlockRow client={client}
-                                   block={block}
-                                   detail={desc}
-                                   key={blockdev.path} />
-        );
+        return { client, block, detail: desc, key:blockdev.path };
     }
 
     const actions = (
@@ -220,9 +215,8 @@ const StratisPoolSidebar = ({ client, pool }) => {
     return (
         <SidePanel title={_("Block devices")}
                        actions={actions}
-                       client={client}>
-            { blockdevs.map(render_blockdev) }
-        </SidePanel>
+                       client={client}
+                       rows={blockdevs.map(render_blockdev)} />
     );
 };
 
@@ -746,14 +740,13 @@ const StratisLockedPoolSidebar = ({ client, uuid }) => {
         if (!block)
             return null;
 
-        return <SidePanelBlockRow client={client} block={block} key={dev} />;
+        return { client, block, key: dev };
     }
 
     return (
         <SidePanel title={_("Block devices")}
-                   client={client}>
-            { devs.map(render_dev) }
-        </SidePanel>
+                   client={client}
+                   rows={devs.map(render_dev)} />
     );
 };
 

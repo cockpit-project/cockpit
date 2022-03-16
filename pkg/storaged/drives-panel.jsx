@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { SidePanel, SidePanelRow } from "./side-panel.jsx";
+import { SidePanel } from "./side-panel.jsx";
 import { fmt_size, drive_name, decode_filename, block_name } from "./utils.js";
 
 const _ = cockpit.gettext;
@@ -81,15 +81,10 @@ export class DrivesPanel extends React.Component {
                     desc = size_str;
             }
 
-            return (
-                <SidePanelRow client={client}
-                              name={name}
-                              devname={block_name(block)}
-                              detail={desc}
-                              go={() => cockpit.location.go([dev])}
-                              job_path={path}
-                              key={path} />
-            );
+            return {
+                client, name, devname: block_name(block), detail: desc,
+                go: () => cockpit.location.go([dev]), job_path: path, key: path
+            };
         }
 
         const drives = Object.keys(client.drives).sort(cmp_drive)
@@ -100,9 +95,8 @@ export class DrivesPanel extends React.Component {
                        className="storage-drives-list"
                        title={_("Drives")}
                        empty_text={_("No drives attached")}
-                       show_all_text={cockpit.format(cockpit.ngettext("Show $0 drive", "Show all $0 drives", drives.length), drives.length)}>
-                { drives }
-            </SidePanel>
+                       show_all_text={cockpit.format(cockpit.ngettext("Show $0 drive", "Show all $0 drives", drives.length), drives.length)}
+                       rows={drives} />
         );
     }
 }

@@ -30,7 +30,7 @@ import {
 import { MinusIcon, PlusIcon } from "@patternfly/react-icons";
 import * as utils from "./utils.js";
 import { StdDetailsLayout } from "./details.jsx";
-import { SidePanel, SidePanelBlockRow } from "./side-panel.jsx";
+import { SidePanel } from "./side-panel.jsx";
 import { Block } from "./content-views.jsx";
 import { StorageButton, StorageOnOff } from "./storage-controls.jsx";
 import {
@@ -146,13 +146,7 @@ class MDRaidSidebar extends React.Component {
                         <MinusIcon />
                     </StorageButton>);
 
-            return (
-                <SidePanelBlockRow client={client}
-                                   block={block}
-                                   detail={states}
-                                   actions={action}
-                                   key={block.path} />
-            );
+            return { client, block, actions: action, detail: states, key: block.path };
         }
 
         let add_excuse = false;
@@ -166,7 +160,7 @@ class MDRaidSidebar extends React.Component {
                     <PlusIcon />
                 </StorageButton>);
 
-        return <SidePanel title={_("Disks")} actions={action}>{ members.map(render_member) }</SidePanel>;
+        return <SidePanel title={_("Disks")} actions={action} rows={members.map(render_member)} />;
     }
 }
 

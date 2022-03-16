@@ -36,9 +36,9 @@ export class SidePanel extends React.Component {
 
     render() {
         let show_all_button = null;
-        let children = this.props.children;
+        let rows = this.props.rows;
 
-        if (this.state.collapsed && children.length > 20) {
+        if (this.state.collapsed && rows.length > 20) {
             show_all_button = (
                 <FlexItem alignSelf={{ default: 'alignSelfCenter' }}>
                     <Button variant='link'
@@ -47,8 +47,10 @@ export class SidePanel extends React.Component {
                         {this.props.show_all_text || _("Show all")}
                     </Button>
                 </FlexItem>);
-            children = children.slice(0, 20);
+            rows = rows.slice(0, 20);
         }
+
+        const children = rows.map(row => row.block ? <SidePanelBlockRow {...row} /> : <SidePanelRow {...row} />);
 
         return (
             <OptionalPanel id={this.props.id}
@@ -58,7 +60,7 @@ export class SidePanel extends React.Component {
                            feature={this.props.feature}
                            not_installed_text={this.props.not_installed_text}
                            install_title={this.props.install_title}>
-                { this.props.children.length > 0
+                { this.props.rows.length > 0
                     ? <Flex direction={{ default: 'column' }}
                           spaceItems={{ default: 'spaceItemsNone' }}>
                         { children }
@@ -75,7 +77,7 @@ export class SidePanel extends React.Component {
     }
 }
 
-export class SidePanelRow extends React.Component {
+class SidePanelRow extends React.Component {
     render() {
         const { client, job_path } = this.props;
 
@@ -132,7 +134,7 @@ export class SidePanelRow extends React.Component {
     }
 }
 
-export class SidePanelBlockRow extends React.Component {
+class SidePanelBlockRow extends React.Component {
     render() {
         const { client, block, detail, actions } = this.props;
 

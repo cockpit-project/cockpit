@@ -1340,10 +1340,12 @@ class MachineCase(unittest.TestCase):
         def terminate_sessions():
             # on OSTree we don't get "web console" sessions with the cockpit/ws container; just SSH; but also, some tests start
             # admin sessions without Cockpit
-            self.machine.execute("loginctl kill-user admin 2>/dev/null || true;"
-                                 "loginctl terminate-user admin 2>/dev/null || true;"
-                                 "pkill -u admin || true")
-            self.machine.execute("while pgrep -u admin; do sleep 1; done;")
+            self.machine.execute("""for u in $(loginctl --no-legend list-users  | awk '{ if ($2 != "root") print $2 }'); do
+                                        loginctl terminate-user $u 2>/dev/null || true
+                                        loginctl kill-user $u 2>/dev/null || true
+                                        pkill -u $u || true
+                                        while pgrep -u $u; do sleep 1; done
+                                    done""")
 
             # Terminate all other Cockpit sessions
             sessions = self.machine.execute("loginctl --no-legend list-sessions | awk '/web console/ { print $1 }'").strip().split()

@@ -93,7 +93,7 @@ prepare()
     mkdir build
     cd build
     "../extract/${subdir}/configure"
-    make "$DIRECTORY/html"
+    make "$DIRECTORY/html/index.html"
     cd ..
 
     trace "Committing documentation for version $version"

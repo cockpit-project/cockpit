@@ -1308,6 +1308,10 @@ class MachineCase(unittest.TestCase):
                     m.execute("rm -rf /home/" + d)
         self.addCleanup(cleanup_home_dirs)
 
+        if m.image == "arch":
+            # arch configures pam_faillock by default
+            self.addCleanup(m.execute, "rm -rf /run/faillock")
+
         # cockpit configuration
         self.addCleanup(m.execute, "rm -f /etc/cockpit/cockpit.conf /etc/cockpit/machines.d/* /etc/cockpit/*.override.json")
 

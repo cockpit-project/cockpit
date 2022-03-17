@@ -1,5 +1,8 @@
 extraction:
   cpp:
+    prepare:
+      packages:
+        - appstream
     index:
       build_command:
         - make -j$(nproc) WEBPACK_PACKAGES=

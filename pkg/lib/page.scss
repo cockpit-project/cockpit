@@ -76,8 +76,8 @@ a.disabled:hover {
 }
 
 /* Animation of new items */
-.new-item-ct {
-    animation: newRowCt 4s ease-in;
+.ct-new-item {
+    animation: ctNewRow 4s ease-in;
 }
 
 :root {
@@ -85,7 +85,7 @@ a.disabled:hover {
 }
 
 /* Simple fade animation by default (mainly for reduced motion) */
-@keyframes newRowCt {
+@keyframes ctNewRow {
   0% {
     background-color: var(--ct-animation-new-background);
   }
@@ -96,9 +96,8 @@ a.disabled:hover {
 
 /* Redefine to a fancy animation when reduced-motion is not requested */
 @media (prefers-reduced-motion: no-preference) {
-  @keyframes newRowCt {
+  @keyframes ctNewRow {
     0% {
-      height: 0;
       background-color: var(--ct-animation-new-background);
       transform: scaleX(0) scaleY(0);
       opacity: 0;

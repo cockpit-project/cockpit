@@ -67,7 +67,7 @@ export class SidePanel extends React.Component {
 
         rows.forEach(row => {
             if (row.key && this.new_keys.indexOf(row.key) !== -1)
-                row.className = (row.className || "") + " new-item-ct";
+                row.className = (row.className || "") + " ct-new-item";
         });
 
         const children = rows.map(row => row.block ? <SidePanelBlockRow {...row} /> : <SidePanelRow {...row} />);

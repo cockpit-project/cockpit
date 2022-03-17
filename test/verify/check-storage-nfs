@@ -34,7 +34,7 @@ class TestStorageNfs(StorageCase):
 
         m.execute("mkdir /home/foo /home/bar /mnt/test")
         # Removing the nfs mount removes the target dir.
-        self.addCleanup(m.execute, "! test -e /mnt/test || rm -r /mnt/test")
+        self.addCleanup(m.execute, "if [ -e /mnt/test ]; then umount /mnt/test 2>/dev/null || true; rm -r /mnt/test; fi")
         self.write_file("/etc/exports", "/home/foo 127.0.0.0/24(rw)\n/home/bar 127.0.0.0/24(rw)\n",
                         post_restore_action="systemctl restart nfs-server")
         m.execute("systemctl restart nfs-server")

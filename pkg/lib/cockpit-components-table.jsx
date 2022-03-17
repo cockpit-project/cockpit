@@ -177,7 +177,7 @@ export const ListingTable = ({
         }
 
         if (rowProps.key && newItems.indexOf(rowProps.key) >= 0)
-            rowProps.className = (rowProps.className || "") + " new-item-ct";
+            rowProps.className = (rowProps.className || "") + " ct-new-item";
 
         const rowKey = rowProps.key || rowIndex;
         const isExpanded = expanded[rowKey] === undefined ? !!row.initiallyExpanded : expanded[rowKey];

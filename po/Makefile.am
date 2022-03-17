@@ -86,7 +86,7 @@ po/cockpit.manifest.pot: package-lock.json
 po/cockpit.appstream.pot:
 	$(AM_V_GEN) mkdir -p $(dir $@) && \
 	GETTEXTDATADIRS=$(srcdir)/po xgettext --output=$@ --directory=$(srcdir) \
-		$$(cd $(srcdir) && find $(TRANSLATE) -name '*.appdata.xml.in')
+		$$(cd $(srcdir) && find $(TRANSLATE) -name '*.appdata.xml.in' -o -name '*.metainfo.xml.in')
 
 po/cockpit.polkit.pot:
 	$(AM_V_GEN) mkdir -p $(dir $@) && \

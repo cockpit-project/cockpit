@@ -89,7 +89,13 @@ BuildRequires: pam-devel
 BuildRequires: autoconf automake
 BuildRequires: make
 BuildRequires: /usr/bin/python3
+%if 0%{?rhel} && 0%{?rhel} <= 8
+# RHEL 8's gettext does not yet have metainfo.its
 BuildRequires: gettext >= 0.19.7
+BuildRequires: libappstream-glib-devel
+%else
+BuildRequires: gettext >= 0.21
+%endif
 %if 0%{?build_basic}
 BuildRequires: libssh-devel >= 0.8.5
 %endif

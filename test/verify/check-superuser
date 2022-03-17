@@ -132,14 +132,10 @@ session include system-auth
 
     def testWrongPasswd(self):
         b = self.browser
-        m = self.machine
 
         # Log in with limited access
         self.login_and_go(superuser=False)
         b.check_superuser_indicator("Limited access")
-
-        if m.image == "arch":
-            self.addCleanup(m.execute, "rm -f /var/run/faillock/admin")
 
         b.open_superuser_dialog()
         b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Password for admin:")

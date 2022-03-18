@@ -776,14 +776,14 @@ class TestCurrentMetrics(MachineCase):
         # wait until RAM usage is initialized
         b.wait(lambda: progressValue(self, "#current-memory-usage") > 10)
 
-        # our test machines have ~ 1 GiB of memory, a reasonable chunk of it should be used
-        b.wait_in_text("#current-memory-usage", " GiB")
+        # our test machines should use a reasonable chunk of available memory
         initial_usage = progressValue(self, "#current-memory-usage")
         self.assertGreater(initial_usage, 10)
         self.assertLess(initial_usage, 80)
         # allocate a chunk of memory; this may cause other stuff to get unmapped,
         # thus not exact addition, but usage should go up
-        size = 300 if have_swap else 200
+        size = 300 if have_swap else 200  # MB
+        size_MiB = size / 1.024 / 1.024
         self.write_file("/usr/local/bin/memhog.sh", f"""#!/usr/bin/awk -f
 BEGIN {{
     x = sprintf("%{size}000000s","");
@@ -798,12 +798,12 @@ BEGIN {{
         self.assertGreater(hog_usage, initial_usage + 8)
 
         b.wait_text("table[aria-label='Top 5 memory services'] tbody tr:nth-of-type(1) td[data-label='Service']", "mem-hog")
-        b.wait(lambda: topServiceValue(self, "Top 5 memory services", "Used", 1) > size)
-        b.wait(lambda: topServiceValue(self, "Top 5 memory services", "Used", 1) < size + 50)
+        b.wait(lambda: topServiceValue(self, "Top 5 memory services", "Used", 1) > size_MiB)
+        b.wait(lambda: topServiceValue(self, "Top 5 memory services", "Used", 1) < size_MiB + 50)
 
         # total memory is shown as tooltip
         b.mouse("#current-memory-usage", "mouseenter")
-        b.wait_in_text(".pf-c-tooltip", "GiB total")
+        b.wait_in_text(".pf-c-tooltip", "iB total")
         b.mouse("#current-memory-usage", "mouseleave")
 
         # table entries are links to Services page
@@ -833,7 +833,7 @@ BEGIN {{
 
             # total swap is shown as tooltip
             b.mouse("#current-swap-usage", "mouseenter")
-            b.wait_in_text(".pf-c-tooltip", "GiB total")
+            b.wait_in_text(".pf-c-tooltip", "iB total")
             b.mouse("#current-swap-usage", "mouseleave")
         else:
             m.execute("systemctl stop mem-hog")

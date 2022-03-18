@@ -173,7 +173,7 @@ session include system-auth
         b.open_superuser_dialog()
         b.set_input_text(".pf-c-modal-box:contains('Switch to administrative access') input", "foobar")
         b.click(".pf-c-modal-box button:contains('Authenticate')")
-        b.wait_in_text(".pf-c-modal-box:contains('Problem becoming administrator')", "Admin is not in the sudoers file.  This incident will be reported.")
+        b.wait_in_text(".pf-c-modal-box:contains('Problem becoming administrator')", "Admin is not in the sudoers file.")
         b.click(".pf-c-modal-box:contains('Problem becoming administrator') button:contains('Close')")
         b.wait_not_present(".pf-c-modal-box:contains('Problem becoming administrator')")
 

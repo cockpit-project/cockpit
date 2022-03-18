@@ -71,10 +71,7 @@ const initStore = function(rootElement) {
 
     // read memory reserved for kdump from system
     dataStore.kdumpMemory = undefined;
-    // HACK cockpit.file() can't be used for /sys yet, since those files can't be mapped
-    // https://github.com/cockpit-project/cockpit/issues/5597
-    // cockpit.file("/sys/kernel/kexec_crash_size").read()
-    cockpit.spawn(["cat", "/sys/kernel/kexec_crash_size"])
+    cockpit.file("/sys/kernel/kexec_crash_size").read()
             .then(content => {
                 const value = parseInt(content, 10);
                 if (!isNaN(value)) {

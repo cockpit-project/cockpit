@@ -18,17 +18,4 @@ jobs:
     trigger: pull_request
     metadata:
       targets:
-      - fedora-35
-      - fedora-36
-      - centos-stream-8-x86_64
       - centos-stream-9-x86_64
-
-  # run build/unit tests on some interesting architectures
-  - job: copr_build
-    trigger: pull_request
-    metadata:
-      targets:
-        # 32 bit
-        - fedora-development-i386
-        # big-endian
-        - fedora-development-s390x

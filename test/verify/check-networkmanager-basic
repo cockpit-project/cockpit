@@ -46,26 +46,16 @@ class TestNetworkingBasic(NetworkCase):
         b.wait_in_text("#networking-graphs", "Transmitting")
         b.wait_in_text("#networking-graphs", "Receiving")
 
-        ifaces = list(m.execute("ls /sys/class/net").split())
-        ifaces.remove("lo")
-        try:
-            # not a real interface
-            ifaces.remove("bonding_masters")
-        except ValueError:
-            pass
-        ignore = []
-        for iface_name in ifaces:
-            ignore.append(f"tr[data-interface={iface_name}] td[data-label=Sending]")
-            if not any(status in b.text(f"tr[data-interface={iface_name}] td[data-label=Sending]") for status in ["Inactive", "No carrier"]):
-                ignore.append(f"tr[data-interface={iface_name}] td[data-label=Receiving]")
-            ignore.append(f"tr[data-interface={iface_name}] td[data-label='IP address']")
-        ignore.append("#networking-graphs .pf-l-grid")
-        ignore.append(".cockpit-log-panel .pf-c-card__body")
-        ignore.append("#networking-firewall-summary .pf-c-card__body")
-
         b.assert_pixels(
             "#networking", "network-main",
-            ignore
+            [
+                "td[data-label=Sending]",
+                "td[data-label=Receiving]",
+                "td[data-label='IP address']",
+                "#networking-graphs .pf-l-grid",
+                ".cockpit-log-panel .pf-c-card__body",
+                "#networking-firewall-summary .pf-c-card__body",
+            ]
         )
 
         # Details of test iface

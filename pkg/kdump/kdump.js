@@ -76,14 +76,14 @@ const initStore = function(rootElement) {
                 const value = parseInt(content, 10);
                 if (!isNaN(value)) {
                 // if it's only a number, guess from the size what units we should use
-                // https://access.redhat.com/solutions/59432 states limit to be 896M and the auto at 768M max
-                // default unit is M
-                    if (value >= 1000000)
-                        dataStore.kdumpMemory = cockpit.format_bytes(value);
-                    else if (value >= 1000)
-                        dataStore.kdumpMemory = cockpit.format_bytes(value * 1024);
+                // https://access.redhat.com/solutions/59432 states limit to be 896MiB and the auto at 768MiB max
+                // default unit is MiB
+                    if (value >= 1024 * 1024)
+                        dataStore.kdumpMemory = cockpit.format_bytes(value, 1024);
+                    else if (value >= 1024)
+                        dataStore.kdumpMemory = cockpit.format_bytes(value * 1024, 1024);
                     else
-                        dataStore.kdumpMemory = cockpit.format_bytes(value * 1024 * 1024);
+                        dataStore.kdumpMemory = cockpit.format_bytes(value * 1024 * 1024, 1024);
                 } else {
                     dataStore.kdumpMemory = content.trim();
                 }

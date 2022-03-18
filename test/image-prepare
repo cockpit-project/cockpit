@@ -180,17 +180,13 @@ def main():
 
     dist_tar = subprocess.check_output([f'{BASE_DIR}/tools/make-dist'], text=True).strip()
 
-    customize = [os.path.join(BOTS_DIR, "image-customize")]
+    customize = [os.path.join(BOTS_DIR, "image-customize"), "--no-network"]
     if not args.overlay:
         customize.append("--fresh")
     if args.verbose:
         customize.append("--verbose")
     if args.quick:
         customize.append("--quick")
-
-    # rpms/debs can be built offline; arch can't yet
-    if args.image != 'arch':
-        customize.append("--no-network")
 
     if args.image == "fedora-coreos":
         customize += build_install_coreos(dist_tar, args.image, args.verbose, args.quick)

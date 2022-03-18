@@ -74,15 +74,14 @@ let scaleUseDisks = 10000; // KB/s
 let scaleUseNetwork = 100000; // B/s
 
 let numCpu = 1;
-let memTotal; // GiB
-let swapTotal; // GiB, can be undefined
+let memTotal; // bytes
+let swapTotal; // bytes, can be undefined
 
 const machine_info_promise = machine_info.cpu_ram_info();
 machine_info_promise.then(info => {
     numCpu = info.cpus;
-    memTotal = Number((info.memory / (1024 * 1024 * 1024)).toFixed(1));
-    if (info.swap)
-        swapTotal = Number((info.swap / (1024 * 1024 * 1024)).toFixed(1));
+    memTotal = info.memory;
+    swapTotal = info.swap;
 });
 
 // round up to the nearest number that has all zeroes except for the first digit
@@ -214,8 +213,8 @@ class CurrentMetrics extends React.Component {
         this.cgroupMemoryNames = [];
 
         this.state = {
-            memUsed: 0, // GiB
-            swapUsed: null, // GiB
+            memUsed: 0, // bytes
+            swapUsed: null, // bytes
             cpuUsed: 0, // percentage
             cpuCoresUsed: [], // [ percentage ]
             loadAvg: null, // [ 1min, 5min, 15min ]
@@ -359,8 +358,8 @@ class CurrentMetrics extends React.Component {
             newState.cpuUsed = cpu;
         }
 
-        newState.memUsed = Number((this.samples[3] / (1024 * 1024 * 1024)).toFixed(1));
-        newState.swapUsed = Number((this.samples[4] / (1024 * 1024 * 1024)).toFixed(1));
+        newState.memUsed = this.samples[3];
+        newState.swapUsed = this.samples[4];
 
         if (typeof this.samples[5] === 'number')
             newState.disksRead = this.samples[5];
@@ -416,15 +415,15 @@ class CurrentMetrics extends React.Component {
         );
 
         newState.topServicesMemory = n_biggest(this.cgroupMemoryNames, this.samples[10], 5).map(
-            ([key, value, is_user]) => serviceRow(key, cockpit.format_bytes(value, 1000), is_user)
+            ([key, value, is_user]) => serviceRow(key, cockpit.format_bytes(value), is_user)
         );
 
         this.setState(newState);
     }
 
     render() {
-        const memUsedFraction = this.state.memUsed / memTotal || 0;
-        const memAvail = Number((memTotal - this.state.memUsed) || 0).toFixed(1);
+        const memUsedFraction = memTotal ? this.state.memUsed / memTotal : 0;
+        const memAvail = memTotal ? (memTotal - this.state.memUsed) : 0;
         const num_cpu_str = cockpit.format(cockpit.ngettext("$0 CPU", "$0 CPUs", numCpu), numCpu);
         const have_storage = cockpit.manifests && cockpit.manifests.storage;
 
@@ -438,9 +437,9 @@ class CurrentMetrics extends React.Component {
 
         if (swapTotal) {
             const swapUsedFraction = this.state.swapUsed / swapTotal;
-            const swapAvail = Number(swapTotal - this.state.swapUsed).toFixed(1);
+            const swapAvail = swapTotal - this.state.swapUsed;
             swapProgress = (
-                <Tooltip content={ cockpit.format(_("$0 GiB total"), swapTotal) } position="bottom">
+                <Tooltip content={ cockpit.format(_("$0 total"), cockpit.format_bytes(swapTotal)) } position="bottom">
                     <Progress
                         id="current-swap-usage"
                         title={ _("Swap") }
@@ -448,7 +447,7 @@ class CurrentMetrics extends React.Component {
                         className="pf-m-sm"
                         min={0} max={swapTotal}
                         variant={swapUsedFraction > 0.9 ? ProgressVariant.danger : null}
-                        label={ cockpit.format(_("$0 GiB available"), swapAvail) } />
+                        label={ cockpit.format(_("$0 available"), cockpit.format_bytes(swapAvail)) } />
                 </Tooltip>);
         }
 
@@ -541,16 +540,16 @@ class CurrentMetrics extends React.Component {
                     <CardBody>
                         <div className="progress-stack">
                             <Tooltip
-                                content={ cockpit.format(_("$0 GiB total"), memTotal) }
+                                content={ cockpit.format(_("$0 total"), cockpit.format_bytes(memTotal)) }
                                 position="bottom">
                                 <Progress
                                     id="current-memory-usage"
                                     title={ _("RAM") }
-                                    value={this.state.memUsed}
+                                    value={memTotal ? this.state.memUsed : undefined}
                                     className="pf-m-sm"
                                     min={0} max={memTotal}
                                     variant={memUsedFraction > 0.9 ? ProgressVariant.danger : null}
-                                    label={ cockpit.format(_("$0 GiB available"), memAvail) } />
+                                    label={ memAvail ? cockpit.format(_("$0 available"), cockpit.format_bytes(memAvail)) : "" } />
                             </Tooltip>
                             {swapProgress}
                         </div>
@@ -742,7 +741,7 @@ class MetricsMinute extends React.Component {
             let have_sat = !!RESOURCES["sat_" + resource];
 
             // If there is no swap, don't render it
-            if (resource === "memory" && swapTotal === undefined)
+            if (resource === "memory" && !swapTotal)
                 have_sat = false;
 
             let graph = null;
@@ -910,7 +909,7 @@ class MetricsHour extends React.Component {
 
     render() {
         return (
-            <div id={ "metrics-hour-" + this.props.startTime.toString() } style={{ "--has-swap": swapTotal === undefined ? "var(--half-column-size)" : "var(--column-size)" }} className="metrics-hour">
+            <div id={ "metrics-hour-" + this.props.startTime.toString() } style={{ "--has-swap": swapTotal ? "var(--column-size)" : "var(--half-column-size)" }} className="metrics-hour">
                 { this.state.minuteGraphs }
                 <h3 className="metrics-time"><time>{ timeformat.dateTime(this.props.startTime) }</time></h3>
             </div>
@@ -1417,7 +1416,7 @@ class MetricsHistory extends React.Component {
         return (
             <div className="metrics">
                 <div className="metrics-heading-sticky">
-                    <section className="metrics-heading" style={{ "--has-swap": swapTotal === undefined ? "var(--half-column-size)" : "var(--column-size)" }}>
+                    <section className="metrics-heading" style={{ "--has-swap": swapTotal ? "var(--column-size)" : "var(--half-column-size)" }}>
                         <Select
                             className="select-min metrics-label"
                             aria-label={_("Jump to")}
@@ -1431,7 +1430,7 @@ class MetricsHistory extends React.Component {
                         </Select>
                         <div className="metrics-graphs">
                             <Label label={_("CPU")} items={[_("Usage"), _("Load")]} />
-                            <Label label={_("Memory")} items={[_("Usage"), ...swapTotal !== undefined ? [_("Swap")] : []]} />
+                            <Label label={_("Memory")} items={[_("Usage"), ...swapTotal ? [_("Swap")] : []]} />
                             <Label label={_("Disk I/O")} items={[_("Usage")]} />
                             <Label label={_("Network")} items={[_("Usage")]} />
                         </div>

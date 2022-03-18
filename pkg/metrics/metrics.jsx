@@ -112,8 +112,8 @@ const RESOURCES = {
         name: _("Memory usage"),
         event_description: _("Memory spike"),
         // assume used == total - available
-        normalize: ([total, avail]) => 1 - (avail / total),
-        format: ([total, avail]) => `${cockpit.format_bytes((total - avail) * 1024)} / ${cockpit.format_bytes(total * 1024)}`,
+        normalize: ([totalKiB, availKiB]) => 1 - (availKiB / totalKiB),
+        format: ([totalKiB, availKiB]) => `${cockpit.format_bytes((totalKiB - availKiB) * 1024)} / ${cockpit.format_bytes(totalKiB * 1024)}`,
     },
     sat_memory: {
         name: _("Swap out"),
@@ -126,9 +126,9 @@ const RESOURCES = {
     use_disks: {
         name: _("Disk I/O"),
         event_description: _("Disk I/O spike"),
-        // kB/s, unbounded, dynamic scaling for normalization
-        normalize: kBps => kBps / scaleUseDisks,
-        format: kBps => cockpit.format_bytes_per_sec(kBps * 1024),
+        // KiB/s, unbounded, dynamic scaling for normalization
+        normalize: KiBps => KiBps / scaleUseDisks,
+        format: KiBps => cockpit.format_bytes_per_sec(KiBps * 1024),
     },
     use_network: {
         name: _("Network I/O"),
@@ -165,15 +165,15 @@ const HISTORY_METRICS = [
     // CPU saturation
     { name: "kernel.all.load" },
 
-    // memory utilization
+    // memory utilization (unit: KiB)
     { name: "mem.physmem" },
-    // mem.util.used is useless, it includes cache
+    // mem.util.used is useless, it includes cache (unit: KiB)
     { name: "mem.util.available" },
 
     // memory saturation
     { name: "swap.pagesout", derive: "rate" },
 
-    // disk utilization
+    // disk utilization; despite the name, the unit is in KiB! (pminfo -d -F disk.all.total_bytes)
     { name: "disk.all.total_bytes", derive: "rate" },
 
     // network utilization

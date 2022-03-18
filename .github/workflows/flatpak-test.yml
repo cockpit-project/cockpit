@@ -32,7 +32,7 @@ jobs:
       - name: Smoke-test the installed flatpak
         run: |
           . /etc/profile.d/flatpak.sh
-          xvfb-run dbus-run-session sh -ec '
-            containers/flatpak/test/test-ssh
-            containers/flatpak/test/test-browser
+          xvfb-run sh -ec '
+            dbus-run-session containers/flatpak/test/test-ssh
+            dbus-run-session containers/flatpak/test/test-browser
           '

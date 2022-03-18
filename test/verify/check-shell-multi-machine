@@ -390,8 +390,7 @@ class TestMultiMachine(MachineCase):
         # enable FIPS: RHEL has and needs a convenience script for that
         # https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/security_hardening/using-the-system-wide-cryptographic-policies_security-hardening#switching-the-system-to-fips-mode_using-the-system-wide-cryptographic-policies
         self.machine.execute('set -e; fips-mode-setup --enable', timeout=300)
-        self.machine.spawn('sync && sync && sync && sleep 0.1 && reboot', 'reboot')
-        self.machine.wait_reboot()
+        self.machine.reboot()
         # ensure it's really enabled
         self.assertEqual(self.machine.execute('cat /proc/sys/crypto/fips_enabled').strip(), "1")
 

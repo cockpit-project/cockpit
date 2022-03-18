@@ -201,7 +201,7 @@ export const StorageUsageBar = ({ stats, critical, block, offset, total, small }
     const fraction = stats[0] / stats[1];
     const off_fraction = offset / stats[1];
     const total_fraction = total / stats[1];
-    const labelText = small ? cockpit.format_bytes(stats[0], 1024) : utils.format_fsys_usage(stats[0], stats[1]);
+    const labelText = small ? cockpit.format_bytes(stats[0]) : utils.format_fsys_usage(stats[0], stats[1]);
 
     return (
         <div className={"pf-c-progress pf-m-outside pf-m-singleline" + (fraction > critical ? " pf-m-danger" : "") + (small ? " pf-m-sm" : "")}>

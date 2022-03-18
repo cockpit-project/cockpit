@@ -85,7 +85,7 @@ export function encode_filename(decoded) {
 }
 
 export function fmt_size(bytes) {
-    return cockpit.format_bytes(bytes, 1024);
+    return cockpit.format_bytes(bytes);
 }
 
 export function fmt_size_long(bytes) {
@@ -96,7 +96,7 @@ export function fmt_size_long(bytes) {
 }
 
 export function fmt_rate(bytes_per_sec) {
-    return cockpit.format_bytes_per_sec(bytes_per_sec, 1024);
+    return cockpit.format_bytes_per_sec(bytes_per_sec);
 }
 
 export function format_temperature(kelvin) {
@@ -107,12 +107,11 @@ export function format_temperature(kelvin) {
 
 export function format_fsys_usage(used, total) {
     let text = "";
-    let units = 1024;
-    let parts = cockpit.format_bytes(total, units, true);
+    let parts = cockpit.format_bytes(total, undefined, true);
     text = " / " + parts.join(" ");
-    units = parts[1];
+    const unit = parts[1];
 
-    parts = cockpit.format_bytes(used, units, true);
+    parts = cockpit.format_bytes(used, unit, true);
     if (parts[0].indexOf("0.") == 0)
         parts[0] = parts[0].substring(0, 4);
     return parts[0] + text;

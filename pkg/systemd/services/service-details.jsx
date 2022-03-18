@@ -537,7 +537,7 @@ export class ServiceDetails extends React.Component {
                                 </DescriptionListGroup>
                                 {unit.MemoryCurrent ? <DescriptionListGroup>
                                     <DescriptionListTerm>{ _("Memory") }</DescriptionListTerm>
-                                    <DescriptionListDescription id="memory">{cockpit.format_bytes(unit.MemoryCurrent, 1024)}</DescriptionListDescription>
+                                    <DescriptionListDescription id="memory">{cockpit.format_bytes(unit.MemoryCurrent)}</DescriptionListDescription>
                                 </DescriptionListGroup> : null}
                                 {this.props.unit.Listen && this.props.unit.Listen.length && <DescriptionListGroup>
                                     <DescriptionListTerm>{ _("Listen") }</DescriptionListTerm>

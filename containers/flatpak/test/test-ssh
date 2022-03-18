@@ -12,6 +12,7 @@ FLATPAK_ID="${1:-org.cockpit_project.CockpitClient}"
 if mkdir ~/.ssh; then
     # ~/.ssh didn't exist yet.  Assume that we're safe to configure this.
     echo 'Include cockpit-client-test.config' > ~/.ssh/config
+    trap 'rm -rf ~/.ssh' EXIT INT QUIT PIPE
 else
     # There's already a ~/.ssh directory.  Don't modify that, but check it.
     if ! grep -q 'Include cockpit-client-test.config' ~/.ssh/config; then

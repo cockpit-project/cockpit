@@ -1305,7 +1305,7 @@ class MachineCase(unittest.TestCase):
         def cleanup_home_dirs():
             for d in m.execute("ls /home").strip().split():
                 if d not in home_dirs:
-                    m.execute("rm -rf /home/" + d)
+                    m.execute("rm -r /home/" + d)
         self.addCleanup(cleanup_home_dirs)
 
         if m.image == "arch":

@@ -1347,7 +1347,7 @@ class MachineCase(unittest.TestCase):
             self.machine.execute("""for u in $(loginctl --no-legend list-users  | awk '{ if ($2 != "root") print $2 }'); do
                                         loginctl terminate-user $u 2>/dev/null || true
                                         loginctl kill-user $u 2>/dev/null || true
-                                        pkill -u $u || true
+                                        pkill -9 -u $u || true
                                         while pgrep -u $u; do sleep 1; done
                                     done""")
 

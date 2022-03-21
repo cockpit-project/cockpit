@@ -50,16 +50,18 @@ export class UsageCard extends React.Component {
         this.samples = [];
 
         this.state = {
-            memTotal: 0, // GiB
-            memUsed: 0, // GiB
+            memTotal: 0, // bytes
+            memUsed: 0, // bytes
+            memUsedText: " ",
             numCpu: 1, // number
             cpuUsed: 0, // percentage
         };
 
-        machine_info.cpu_ram_info().done(info => this.setState({
-            memTotal: Number((info.memory / (1024 * 1024 * 1024)).toFixed(1)),
-            numCpu: info.cpus,
-        }));
+        machine_info.cpu_ram_info()
+                .then(info => this.setState({
+                    memTotal: info.memory,
+                    numCpu: info.cpus,
+                }));
 
         this.onVisibilityChange = this.onVisibilityChange.bind(this);
         this.onMetricsUpdate = this.onMetricsUpdate.bind(this);
@@ -105,11 +107,21 @@ export class UsageCard extends React.Component {
             const cpu = Math.round((this.samples[0] + this.samples[1] + this.samples[2]) / 10 / this.state.numCpu);
             this.setState({ cpuUsed: cpu });
         }
-        this.setState({ memUsed: Number((this.samples[3] / (1024 * 1024 * 1024)).toFixed(1)) });
+
+        let used_text;
+        if (this.state.memTotal) {
+            const [total_fmt, unit] = cockpit.format_bytes(this.state.memTotal, 1024, { separate: true, precision: 2 });
+            const used_fmt = cockpit.format_bytes(this.samples[3], unit, { separate: true, precision: 2 })[0];
+            used_text = cockpit.format("$0 / $1 $2", used_fmt, total_fmt, unit);
+        } else {
+            used_text = " ";
+        }
+
+        this.setState({ memUsed: this.samples[3], memUsedText: used_text });
     }
 
     render() {
-        const fraction = this.state.memUsed / this.state.memTotal;
+        const fraction = this.state.memTotal ? this.state.memUsed / this.state.memTotal : 0;
         const cores_str = cockpit.format(cockpit.ngettext("of $0 CPU", "of $0 CPUs", this.state.numCpu), this.state.numCpu);
 
         return (
@@ -135,10 +147,10 @@ export class UsageCard extends React.Component {
                                 <td>
                                     <Progress value={this.state.memUsed}
                                         className="pf-m-sm"
-                                        min={0} max={Number(this.state.memTotal)}
+                                        min={0} max={this.state.memTotal}
                                         variant={fraction > 0.9 ? ProgressVariant.danger : null}
                                         aria-labelledby="system-usage-memory-progress"
-                                        label={cockpit.format("$0 / $1 GiB", this.state.memUsed, this.state.memTotal)}
+                                        label={this.state.memUsedText}
                                         measureLocation={ProgressMeasureLocation.outside} />
                                 </td>
                             </tr>

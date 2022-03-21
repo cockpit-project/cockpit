@@ -103,16 +103,20 @@ QUnit.test("format_bytes", function (assert) {
         [null, "KB", ""],
     ];
 
-    assert.expect(checks.length * 2);
+    assert.expect(checks.length * 2 + 2);
     for (let i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_bytes(checks[i][0], checks[i][1]), checks[i][2],
                            "format_bytes(" + checks[i][0] + ", " + String(checks[i][1]) + ") = " + checks[i][2]);
     }
     for (let i = 0; i < checks.length; i++) {
         const split = checks[i][2].split(" ");
-        assert.deepEqual(cockpit.format_bytes(checks[i][0], checks[i][1], true), split,
+        assert.deepEqual(cockpit.format_bytes(checks[i][0], checks[i][1], { separate: true }), split,
                          "format_bytes(" + checks[i][0] + ", " + String(checks[i][1]) + ", true) = " + split);
     }
+
+    // backwards compatible API: format_bytes with a boolean options (used to be a single "separate" flag)
+    assert.strictEqual(cockpit.format_bytes(2500000, 1000, false), "2.50 MB");
+    assert.deepEqual(cockpit.format_bytes(2500000, 1000, true), ["2.50", "MB"]);
 });
 
 QUnit.test("get_byte_units", function (assert) {
@@ -152,11 +156,18 @@ QUnit.test("format_bytes_per_sec", function (assert) {
         [2555, "2.50 KiB/s"]
     ];
 
-    assert.expect(checks.length);
+    assert.expect(checks.length + 2);
     for (let i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_bytes_per_sec(checks[i][0]), checks[i][1],
                            "format_bytes_per_sec(" + checks[i][0] + ") = " + checks[i][1]);
     }
+
+    // separate unit
+    assert.deepEqual(cockpit.format_bytes_per_sec(2555, undefined, { separate: true }),
+                     ["2.50", "KiB/s"]);
+    // backwards compatible API for separate flag
+    assert.deepEqual(cockpit.format_bytes_per_sec(2555, undefined, true),
+                     ["2.50", "KiB/s"]);
 });
 
 QUnit.test("format_bits_per_sec", function (assert) {

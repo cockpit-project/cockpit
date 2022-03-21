@@ -1491,7 +1491,11 @@ function factory() {
             });
     };
 
-    function format_units(number, suffixes, factor, separate) {
+    function format_units(number, suffixes, factor, options) {
+        // backwards compat: "options" argument position used to be a boolean flag "separate"
+        if (!is_object(options))
+            options = { separate: options };
+
         let suffix = null;
 
         /* Find that factor string */
@@ -1537,7 +1541,7 @@ function factory() {
         else
             ret = [string_representation];
 
-        if (!separate)
+        if (!options.separate)
             ret = ret.join(" ");
 
         return ret;
@@ -1548,10 +1552,10 @@ function factory() {
         1024: [null, "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB"]
     };
 
-    cockpit.format_bytes = function format_bytes(number, factor, separate) {
+    cockpit.format_bytes = function format_bytes(number, factor, options) {
         if (factor === undefined)
             factor = 1024;
-        return format_units(number, byte_suffixes, factor, separate);
+        return format_units(number, byte_suffixes, factor, options);
     };
 
     cockpit.get_byte_units = function get_byte_units(guide_value, factor) {
@@ -1584,20 +1588,20 @@ function factory() {
         1024: ["B/s", "KiB/s", "MiB/s", "GiB/s", "TiB/s", "PiB/s", "EiB/s", "ZiB/s"]
     };
 
-    cockpit.format_bytes_per_sec = function format_bytes_per_sec(number, factor, separate) {
+    cockpit.format_bytes_per_sec = function format_bytes_per_sec(number, factor, options) {
         if (factor === undefined)
             factor = 1024;
-        return format_units(number, byte_sec_suffixes, factor, separate);
+        return format_units(number, byte_sec_suffixes, factor, options);
     };
 
     const bit_suffixes = {
         1000: ["bps", "Kbps", "Mbps", "Gbps", "Tbps", "Pbps", "Ebps", "Zbps"]
     };
 
-    cockpit.format_bits_per_sec = function format_bits_per_sec(number, factor, separate) {
+    cockpit.format_bits_per_sec = function format_bits_per_sec(number, factor, options) {
         if (factor === undefined)
             factor = 1000;
-        return format_units(number, bit_suffixes, factor, separate);
+        return format_units(number, bit_suffixes, factor, options);
     };
 
     /* ---------------------------------------------------------------------

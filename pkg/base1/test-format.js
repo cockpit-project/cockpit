@@ -156,11 +156,16 @@ QUnit.test("format_bytes_per_sec", function (assert) {
         [2555, "2.50 KiB/s"]
     ];
 
-    assert.expect(checks.length + 2);
+    assert.expect(checks.length + 5);
     for (let i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_bytes_per_sec(checks[i][0]), checks[i][1],
                            "format_bytes_per_sec(" + checks[i][0] + ") = " + checks[i][1]);
     }
+
+    // base-10 units
+    assert.strictEqual(cockpit.format_bytes_per_sec(2555, 1000), "2.56 kB/s");
+    assert.strictEqual(cockpit.format_bytes_per_sec(12345678, 1000), "12.3 MB/s");
+    assert.strictEqual(cockpit.format_bytes_per_sec(12345678, "kB/s"), "12346 kB/s");
 
     // separate unit
     assert.deepEqual(cockpit.format_bytes_per_sec(2555, undefined, { separate: true }),

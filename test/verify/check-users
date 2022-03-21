@@ -27,12 +27,6 @@ from testlib import *
 @skipDistroPackage()
 class TestAccounts(MachineCase):
 
-    def tearDown(self):
-        # ensure that there are no lingering processes after the test which prevent userdel
-        self.machine.execute("pkill -e -u anton 2>/dev/null; pkill -e -u scruffy 2>/dev/null ; pkill -e -u jussi 2>/dev/null || true")
-        self.machine.execute("while pgrep -u anton; do sleep 1; done; while pgrep -u scruffy; do sleep 1; done; while pgrep -u jussi; do sleep 1; done;")
-        super().tearDown()
-
     def testBasic(self):
         b = self.browser
         m = self.machine

@@ -30,11 +30,12 @@ string = cockpit.format(template, [arg, ...])
   <refsection id="cockpit-format-number">
     <title>cockpit.format_number()</title>
 <programlisting>
-string = cockpit.format_number(number)
+string = cockpit.format_number(number, [precision])
 </programlisting>
     <para>Formats <code>number</code> into a displayable <code>string</code>. If the number is not
-      an integer, it is rounded to three decimal places. If the number is near zero, but
-      not quite zero it is rounded to ±0.001.</para>
+      an integer, it is rounded to the given number of decimal places, defaulting to 3. If the number
+      is near zero, but not quite zero it is rounded to the smallest non-zero value of the given precision;
+      i.e. ±0.001 for default precision 3.</para>
 
     <para>If <code>number</code> is <code>null</code> or <code>undefined</code> an empty string
       will be returned.</para>

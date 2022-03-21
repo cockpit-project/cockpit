@@ -46,7 +46,7 @@ QUnit.test("format_number", function (assert) {
 
     const saved_language = cockpit.language;
 
-    assert.expect(checks.length * 3);
+    assert.expect(checks.length * 3 + 7);
 
     cockpit.language = 'en';
     for (let i = 0; i < checks.length; i++) {
@@ -68,6 +68,15 @@ QUnit.test("format_number", function (assert) {
 
     /* restore this as not to break the other tests */
     cockpit.language = saved_language;
+
+    // custom precision
+    assert.strictEqual(cockpit.format_number(1.23456, 2), "1.2", "format_number@en(precision 2)");
+    assert.strictEqual(cockpit.format_number(-1.23456, 2), "-1.2", "format_number@en(negative, precision 2)");
+    assert.strictEqual(cockpit.format_number(0.23456, 2), "0.23", "format_number@en(precision 2)");
+    assert.strictEqual(cockpit.format_number(1.23456, 4), "1.235", "format_number@en(precision 4)");
+    assert.strictEqual(cockpit.format_number(0.23456, 4), "0.2346", "format_number@en(precision 4)");
+    assert.strictEqual(cockpit.format_number(0.000123, 2), "0.01", "format_number@en(very small, precision 2)");
+    assert.strictEqual(cockpit.format_number(-0.000123, 2), "-0.01", "format_number@en(negative, very small, precision 2)");
 });
 
 QUnit.test("format_bytes", function (assert) {

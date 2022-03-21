@@ -1585,6 +1585,7 @@ function factory() {
     };
 
     const byte_sec_suffixes = {
+        1000: ["B/s", "kB/s", "MB/s", "GB/s", "TB/s", "PB/s", "EB/s", "ZB/s"],
         1024: ["B/s", "KiB/s", "MiB/s", "GiB/s", "TiB/s", "PiB/s", "EiB/s", "ZiB/s"]
     };
 

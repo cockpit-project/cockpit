@@ -75,13 +75,14 @@ const CreateTimerDialogBody = ({ setIsOpen, owner }) => {
     const [repeatPatterns, setRepeatPatterns] = useState([]);
     const [specificTime, setSpecificTime] = useState("00:00");
     const [submitted, setSubmitted] = useState(false);
+    const [commandNotFound, setCommandNotFound] = useState(false);
     const validationFailed = {};
 
     if (!name.trim().length || !/^[a-zA-Z0-9:_.@-]+$/.test(name))
         validationFailed.name = true;
     if (!description.trim().length)
         validationFailed.description = true;
-    if (!command.trim().length)
+    if (!command.trim().length || commandNotFound)
         validationFailed.command = true;
     if (!/^[0-9]+$/.test(delayNumber))
         validationFailed.delayNumber = true;
@@ -109,9 +110,19 @@ const CreateTimerDialogBody = ({ setIsOpen, owner }) => {
             return false;
 
         setInProgress(true);
-        create_timer({ name, description, command, delay, delayUnit, delayNumber, repeat, specificTime, repeatPatterns, owner })
-                .then(() => setIsOpen(false), exc => {
-                    setDialogError(exc.message);
+
+        // Verify if the command exists
+        const command_parts = command.split(" ");
+        cockpit.spawn(["test", "-f", command_parts[0]], { err: "ignore" })
+                .then(() => {
+                    create_timer({ name, description, command, delay, delayUnit, delayNumber, repeat, specificTime, repeatPatterns, owner })
+                            .then(setIsOpen(false), exc => {
+                                setDialogError(exc.message);
+                                setInProgress(false);
+                            });
+                })
+                .fail(() => {
+                    setCommandNotFound(true);
                     setInProgress(false);
                 });
 
@@ -128,7 +139,7 @@ const CreateTimerDialogBody = ({ setIsOpen, owner }) => {
                    <Button variant='primary'
                            id="timer-save-button"
                            isLoading={inProgress}
-                           isDisabled={inProgress}
+                           isDisabled={inProgress || commandNotFound}
                            onClick={onSubmit}>
                        {_("Save")}
                    </Button>
@@ -159,11 +170,11 @@ const CreateTimerDialogBody = ({ setIsOpen, owner }) => {
                 <FormGroup label={_("Command")}
                            fieldId="command"
                            validated={submitted && validationFailed.command ? "error" : "default"}
-                           helperTextInvalid={_("This field cannot be empty")}>
+                           helperTextInvalid={commandNotFound ? _("Command not found") : _("This field cannot be empty")}>
                     <TextInput id='command'
                                value={command}
                                validated={submitted && validationFailed.command ? "error" : "default"}
-                               onChange={setCommand} />
+                               onChange={str => { setCommandNotFound(false); setCommand(str) }} />
                 </FormGroup>
                 <FormGroup label={_("Trigger")} hasNoPaddingTop>
                     <Flex>

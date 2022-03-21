@@ -1028,9 +1028,19 @@ class TestTimers(MachineCase):
         b.wait_text("#description-helper", "This field cannot be empty")
         b.wait_text(".pf-c-date-picker__helper-text", "Invalid time format")
 
+        # checks for command not found
+        b.set_input_text("#servicename", "testing")
+        b.set_input_text("#description", "desc")
+        b.set_input_text("#command", "this is not found")
+        b.set_input_text(".create-timer-time-picker input", "14:12")
+        b.click("#timer-save-button")
+
+        b.wait_text("#command-helper", "Command not found")
+
         # creates a new yearly timer at 2036-01-01 16:00 and at 2037-01-01 01:22
         b.set_input_text("#servicename", "yearly_timer")
         b.set_input_text("#description", "Yearly timer")
+        b.set_input_text("#command", "/bin/sh -c '/bin/date >> /tmp/date'")
         b.select_from_dropdown("#drop-repeat", "yearly")
         b.click("[data-index=0] [aria-label=Add]")
         b.set_input_text("[data-index=0] .pf-c-date-picker:nth-child(1) input", "2036-01-01")

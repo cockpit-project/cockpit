@@ -186,7 +186,8 @@ svg {
     gap: var(--pf-l-flex--spacer-base);
 
     // Negate the margin hack used by immediate flex children
-    > * {
+    // (except for nested flex, as we want to mind the gap)
+    > :not(.pf-l-flex) {
         --pf-l-flex--spacer-base: 0;
     }
 

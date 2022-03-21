@@ -1459,32 +1459,35 @@ function factory() {
         return fmt.replace(fmt_re, replace);
     };
 
-    cockpit.format_number = function format_number(number) {
-        /* We show 3 digits of precision but avoid scientific notation.
+    cockpit.format_number = function format_number(number, precision) {
+        /* We show given number of digits of precision (default 3), but avoid scientific notation.
          * We also show integers without digits after the comma.
          *
-         * We want to localise the decimal place, but we never want to
+         * We want to localise the decimal separator, but we never want to
          * show thousands separators (to avoid ambiguity).  For this
          * reason, for integers and large enough numbers, we use
          * non-localised conversions (and in both cases, show no
          * fractional part).
          */
+        if (precision === undefined)
+            precision = 3;
         const lang = cockpit.language === undefined ? undefined : cockpit.language.replace('_', '-');
+        const smallestValue = 10 ** (-precision);
 
         if (!number && number !== 0)
             return "";
         else if (number % 1 === 0)
             return number.toString();
-        else if (number > 0 && number <= 0.001)
-            return (0.001).toLocaleString(lang);
-        else if (number < 0 && number >= -0.001)
-            return (-0.001).toLocaleString(lang);
+        else if (number > 0 && number <= smallestValue)
+            return smallestValue.toLocaleString(lang);
+        else if (number < 0 && number >= -smallestValue)
+            return (-smallestValue).toLocaleString(lang);
         else if (number > 999 || number < -999)
             return number.toFixed(0);
         else
             return number.toLocaleString(lang, {
-                maximumSignificantDigits: 3,
-                minimumSignificantDigits: 3
+                maximumSignificantDigits: precision,
+                minimumSignificantDigits: precision,
             });
     };
 

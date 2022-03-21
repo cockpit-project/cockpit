@@ -56,8 +56,8 @@ array = cockpit.format_bytes(number, [factor, separate])
 string = cockpit.format_number(number)
 </programlisting>
     <para>Formats <code>number</code> into a displayable <code>string</code>. If the number is not
-      an integer, it is rounded to a single decimal place precision. If the number is near zero, but
-      not quite zero it is rounded up or down to a single decimal place.</para>
+      an integer, it is rounded to three decimal places. If the number is near zero, but
+      not quite zero it is rounded to ±0.001.</para>
 
     <para>If <code>number</code> is <code>null</code> or <code>undefined</code> an empty string
       will be returned.</para>

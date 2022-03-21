@@ -107,13 +107,11 @@ export function format_temperature(kelvin) {
 
 export function format_fsys_usage(used, total) {
     let text = "";
-    let parts = cockpit.format_bytes(total, undefined, { separate: true });
+    let parts = cockpit.format_bytes(total, undefined, { separate: true, precision: 2 });
     text = " / " + parts.join(" ");
     const unit = parts[1];
 
-    parts = cockpit.format_bytes(used, unit, { separate: true });
-    if (parts[0].indexOf("0.") == 0)
-        parts[0] = parts[0].substring(0, 4);
+    parts = cockpit.format_bytes(used, unit, { separate: true, precision: 2 });
     return parts[0] + text;
 }
 

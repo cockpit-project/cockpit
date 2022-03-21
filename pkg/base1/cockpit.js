@@ -1533,7 +1533,7 @@ function factory() {
             }
         }
 
-        const string_representation = cockpit.format_number(number);
+        const string_representation = cockpit.format_number(number, options.precision);
         let ret;
 
         if (string_representation && suffix)

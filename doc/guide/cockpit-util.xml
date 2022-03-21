@@ -60,6 +60,9 @@ array = cockpit.format_bytes(number, [factor, options])
       is true, returns an array of <code>[formatted_number, suffix]</code> or
       <code>[formatted_number]</code> if returned without a suffix.</para>
 
+    <para>By default, non-integer numbers will be formatted with 3 digits of precision. This can be changed
+      with <code>options.precision</code>.</para>
+
     <para>If <code>number</code> is <code>null</code> or <code>undefined</code> an empty string or
       an array without a suffix will be returned.</para>
   </refsection>
@@ -81,6 +84,9 @@ array = cockpit.format_bytes(number, [factor, options])
       is true, returns an array of <code>[formatted_number, suffix]</code> or
       <code>[formatted_number]</code> if returned without a suffix.</para>
 
+    <para>By default, non-integer numbers will be formatted with 3 digits of precision. This can be changed
+      with <code>options.precision</code>.</para>
+
     <para>If <code>number</code> is <code>null</code> or <code>undefined</code> an empty string or array
       will be returned.</para>
   </refsection>
@@ -101,6 +107,9 @@ array = cockpit.format_bytes(number, [factor, options])
       was passed in, then the formatted number is returned without a suffix. If <code>options.separate</code>
       is true, returns an array of <code>[formatted_number, suffix]</code> or
       <code>[formatted_number]</code> if returned without a suffix.</para>
+
+    <para>By default, non-integer numbers will be formatted with 3 digits of precision. This can be changed
+      with <code>options.precision</code>.</para>
 
     <para>If <code>number</code> is <code>null</code> or <code>undefined</code> an empty string or array
       will be returned.</para>

@@ -156,7 +156,7 @@ QUnit.test("format_bytes_per_sec", function (assert) {
         [2555, "2.50 KiB/s"]
     ];
 
-    assert.expect(checks.length + 5);
+    assert.expect(checks.length + 9);
     for (let i = 0; i < checks.length; i++) {
         assert.strictEqual(cockpit.format_bytes_per_sec(checks[i][0]), checks[i][1],
                            "format_bytes_per_sec(" + checks[i][0] + ") = " + checks[i][1]);
@@ -166,6 +166,13 @@ QUnit.test("format_bytes_per_sec", function (assert) {
     assert.strictEqual(cockpit.format_bytes_per_sec(2555, 1000), "2.56 kB/s");
     assert.strictEqual(cockpit.format_bytes_per_sec(12345678, 1000), "12.3 MB/s");
     assert.strictEqual(cockpit.format_bytes_per_sec(12345678, "kB/s"), "12346 kB/s");
+
+    // custom precision
+    assert.strictEqual(cockpit.format_bytes_per_sec(2555, 1000, { precision: 2 }), "2.6 kB/s");
+    assert.strictEqual(cockpit.format_bytes_per_sec(25555, "MB/s", { precision: 2 }), "0.026 MB/s");
+    // significant integer digits exceed custom precision
+    assert.strictEqual(cockpit.format_bytes_per_sec(25555000, "kB/s", { precision: 2 }), "25555 kB/s");
+    assert.strictEqual(cockpit.format_bytes_per_sec(25555678, "kB/s", { precision: 2 }), "25556 kB/s");
 
     // separate unit
     assert.deepEqual(cockpit.format_bytes_per_sec(2555, undefined, { separate: true }),

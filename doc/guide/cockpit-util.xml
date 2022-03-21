@@ -27,6 +27,19 @@ string = cockpit.format(template, [arg, ...])
       replaced by an empty string.</para>
   </refsection>
 
+  <refsection id="cockpit-format-number">
+    <title>cockpit.format_number()</title>
+<programlisting>
+string = cockpit.format_number(number)
+</programlisting>
+    <para>Formats <code>number</code> into a displayable <code>string</code>. If the number is not
+      an integer, it is rounded to three decimal places. If the number is near zero, but
+      not quite zero it is rounded to ±0.001.</para>
+
+    <para>If <code>number</code> is <code>null</code> or <code>undefined</code> an empty string
+      will be returned.</para>
+  </refsection>
+
   <refsection id="cockpit-format-bytes">
     <title>cockpit.format_bytes()</title>
 <programlisting>
@@ -48,19 +61,6 @@ array = cockpit.format_bytes(number, [factor, separate])
 
     <para>If <code>number</code> is <code>null</code> or <code>undefined</code> an empty string or
       an array without a suffix will be returned.</para>
-  </refsection>
-
-  <refsection id="cockpit-format-number">
-    <title>cockpit.format_number()</title>
-<programlisting>
-string = cockpit.format_number(number)
-</programlisting>
-    <para>Formats <code>number</code> into a displayable <code>string</code>. If the number is not
-      an integer, it is rounded to three decimal places. If the number is near zero, but
-      not quite zero it is rounded to ±0.001.</para>
-
-    <para>If <code>number</code> is <code>null</code> or <code>undefined</code> an empty string
-      will be returned.</para>
   </refsection>
 
   <refsection id="cockpit-format-bytes-per-sec">

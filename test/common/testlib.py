@@ -1349,7 +1349,7 @@ class MachineCase(unittest.TestCase):
                                         loginctl kill-user $u 2>/dev/null || true
                                         pkill -9 -u $u || true
                                         while pgrep -u $u; do sleep 1; done
-                                        umount /run/user/$u || true
+                                        while mountpoint -q /run/user/$u && ! umount /run/user/$u; do sleep 1; done
                                         rm -rf /run/user/$u
                                     done""")
 

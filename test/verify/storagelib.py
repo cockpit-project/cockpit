@@ -74,8 +74,10 @@ class StorageHelpers:
         # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1969408
         # It would be nicer to remove $F immediately after the call to
         # losetup, but that will break some versions of lvm2.
+        # PR#17163 moved units from base-2 to base-10
+        bs = 1048576 if self.image == 'rhel-8-6-distropkg' else 1000000
         dev = self.machine.execute("set -e; F=$(mktemp /var/tmp/loop.XXXX); "
-                                   "dd if=/dev/zero of=$F bs=1M count=%s; "
+                                   f"dd if=/dev/zero of=$F bs={bs} count=%s; "
                                    "losetup --show %s $F" % (size, name if name else "--find")).strip()
         # right after unmounting the device is often still busy, so retry a few times
         self.addCleanup(self.machine.execute, "umount {0}; rm $(losetup -n -O BACK-FILE -l {0}); until losetup -d {0}; do sleep 1; done".format(dev), timeout=10)
@@ -259,7 +261,8 @@ class StorageHelpers:
             for label in val:
                 self.browser.set_checked(f'{sel} :contains("{label}") input', val)
         elif ftype == "size-slider":
-            self.browser.set_val(sel + " .size-unit", "1048576")
+            # PR#17163 moved units from base-2 to base-10
+            self.browser.set_val(sel + " .size-unit", "1048576" if self.image == 'rhel-8-6-distropkg' else "1000000")
             self.browser.set_input_text(sel + " .size-text", str(val))
         elif ftype == "select":
             self.browser.set_val(sel + " select", val)
@@ -291,7 +294,11 @@ class StorageHelpers:
     def dialog_is_present(self, field, label):
         return self.browser.is_present(f'{self.dialog_field(field)} :contains("{label}") input')
 
-    def dialog_wait_val(self, field, val, unit="1048576"):
+    def dialog_wait_val(self, field, val, unit=None):
+        if unit is None:
+            # PR#17163 moved units from base-2 to base-10
+            unit = "1048576" if self.image == 'rhel-8-6-distropkg' else "1000000"
+
         sel = self.dialog_field(field)
         ftype = self.browser.attr(sel, "data-field-type")
         if ftype == "size-slider":

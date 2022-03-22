@@ -82,7 +82,7 @@ QUnit.test("format_number", function (assert) {
 QUnit.test("format_bytes", function (assert) {
     const checks = [
         [999, 1000, "999"],
-        [1934, undefined, "1.89 KiB"],
+        [1934, undefined, "1.93 KB"],
         [1934, 1000, "1.93 KB"],
         [2000, 1024, "1.95 KiB"],
         [1999, 1000, "2.00 KB"],
@@ -155,8 +155,8 @@ QUnit.test("format_bytes_per_sec", function (assert) {
     const checks = [
         // default unit
         [5, undefined, undefined, "5 B/s"],
-        [2555, undefined, undefined, "2.50 KiB/s"],
-        [12345678, undefined, undefined, "11.8 MiB/s"],
+        [2555, undefined, undefined, "2.56 kB/s"],
+        [12345678, undefined, undefined, "12.3 MB/s"],
         // explicit base-2 unit
         [2555, 1024, undefined, "2.50 KiB/s"],
         // explicit base-10 unit

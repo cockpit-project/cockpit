@@ -1554,13 +1554,13 @@ function factory() {
 
     cockpit.format_bytes = function format_bytes(number, factor, options) {
         if (factor === undefined)
-            factor = 1024;
+            factor = 1000;
         return format_units(number, byte_suffixes, factor, options);
     };
 
     cockpit.get_byte_units = function get_byte_units(guide_value, factor) {
         if (factor === undefined || !(factor in byte_suffixes))
-            factor = 1024;
+            factor = 1000;
 
         function unit(index) {
             return {
@@ -1591,7 +1591,7 @@ function factory() {
 
     cockpit.format_bytes_per_sec = function format_bytes_per_sec(number, factor, options) {
         if (factor === undefined)
-            factor = 1024;
+            factor = 1000;
         return format_units(number, byte_sec_suffixes, factor, options);
     };
 

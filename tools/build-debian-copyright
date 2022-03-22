@@ -82,13 +82,19 @@ dist_licenses = {}  # Files: dirglob → set(licenses)
 
 for directory, _subdirs, files in os.walk(f'{BASE_DIR}/dist'):
     for file in files:
-        if not file.endswith('.LICENSE.txt.gz'):
+        if '.LICENSE.txt' not in file:
             continue
 
-        with gzip.open(os.path.join(directory, file), 'rt') as license_file:
-            comments = license_file.read().split('\n\n')
+        full_filename = os.path.join(directory, file)
 
-        for comment in comments:
+        if file.endswith('.gz'):
+            with gzip.open(full_filename, 'rt') as license_file_gz:
+                contents = license_file_gz.read()
+        else:
+            with open(full_filename, 'rt') as license_file:
+                contents = license_file.read()
+
+        for comment in contents.split('\n\n'):
             licenses = find_patterns(license_patterns, comment)
             if not licenses:
                 raise SystemError('Can not determine licenses of:\n%s' % comment)

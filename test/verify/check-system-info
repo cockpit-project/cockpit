@@ -871,26 +871,30 @@ password=foobar
         dbus_call = 'busctl get-property org.freedesktop.login1 /org/freedesktop/login1  org.freedesktop.login1.Manager ScheduledShutdown'
         self.assertEqual('(st) "" 0', m.execute(dbus_call).strip())
 
-    @skipImage("crypto-policies not avaiable", "fedora-coreos", "debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-2204", "ubuntu-stable", "arch")
+    @skipImage("crypto-policies not available", "fedora-coreos", "debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-2204", "ubuntu-stable", "arch")
     def testCryptoPolicies(self):
-        def shown_profile_text(profile):
-            return profile[0] + profile[1:].lower()
+        m = self.machine
+        b = self.browser
+        self.allow_restart_journal_messages()
 
-        def change_profile(profile, new_profile, reboot=False):
+        def shown_profile_text(profile):
+            return profile if profile == "FIPS" else profile[0] + profile[1:].lower()
+
+        def change_profile(profile, new_profile):
             b.click("#crypto-policy-button")
             b.wait_in_text(".pf-c-menu__item.pf-m-selected", shown_profile_text(profile))
             profile_button_name = shown_profile_text(new_profile)
             b.click(f".pf-c-menu__item-main .pf-c-menu__item-text:contains('{profile_button_name}')")
-            if reboot:
-                b.click("#crypto-policy-save-reboot")
+            b.click("#crypto-policy-save-reboot")
+            if new_profile == "FIPS":
+                # Initramfs re-generation takes a while
+                m.wait_reboot(timeout_sec=600)
             else:
-                b.click("#crypto-policy-save-reboot-later")
-                b.wait_text("#crypto-policy-button", shown_profile_text(new_profile))
-                profile = m.execute(cmd + " --show").strip()
-                self.assertEqual(new_profile, profile)
+                m.wait_reboot()
+            m.start_cockpit()
+            self.login_and_go("/system")
+            b.wait_text("#crypto-policy-button", shown_profile_text(new_profile))
 
-        m = self.machine
-        b = self.browser
         cmd = "update-crypto-policies"
 
         self.login_and_go("/system")
@@ -898,28 +902,8 @@ password=foobar
         profile = m.execute(cmd + " --show").strip()
         b.wait_text("#crypto-policy-button", shown_profile_text(profile))
 
-        # Select a different profile and reboot later, verify health card status.
-        new_profile = "LEGACY"
+        new_profile = "FIPS"
         change_profile(profile, new_profile)
-
-        b.wait_text(".system-health-crypto-policies", "Reboot to apply new crypto policy")
-        # Check that reloading still shows the reboot text
-        b.reload()
-        b.enter_page("/system")
-        b.wait_text(".system-health-crypto-policies", "Reboot to apply new crypto policy")
-
-        b.click(".system-health-crypto-policies button")
-        b.wait_text("#shutdown-dialog .pf-c-modal-box__header .pf-c-modal-box__title-text", "Reboot")
-        # Cancel reboot
-        b.click("#shutdown-dialog button.pf-c-button.pf-m-link")
-
-        # Select a new profile and reboot
-        profile = new_profile
-        new_profile = "FUTURE"
-        change_profile(profile, new_profile, True)
-        m.wait_reboot()
-        self.login_and_go('/system')
-        b.wait_text("#crypto-policy-button", shown_profile_text(new_profile))
 
         # Select a custom policy (non-selectable option)
         profile = "EMPTY"
@@ -930,6 +914,39 @@ password=foobar
         b.wait_in_text(".pf-c-menu__item.pf-m-selected", shown_profile_text(profile))
         b.wait_in_text(".pf-c-menu__item.pf-m-selected", "Custom crypto policy")
         b.click("#crypto-policy-dialog button.pf-c-button.pf-m-link")
+
+    @skipImage("crypto-policies not available", "fedora-coreos", "debian-stable", "debian-testing", "ubuntu-2204", "ubuntu-2004", "ubuntu-stable", "arch")
+    def testInconsistentCryptoPolicy(self):
+        m = self.machine
+        b = self.browser
+        self.allow_restart_journal_messages()
+        cmd = "update-crypto-policies"
+
+        # Admin sets FIPS crypto policy in terminal, but FIPS mode is disabled
+        m.execute(cmd + " --set FIPS")
+        self.login_and_go("/system")
+        b.wait_text("#inconsistent_crypto_policy", "FIPS is not properly enabled")
+        b.click(".system-health-crypto-policies button.pf-c-button.pf-m-link")
+        b.wait_in_text(".pf-c-menu__item.pf-m-selected .pf-c-label.pf-m-orange", "inconsistent")
+        b.click("#crypto-policy-save-reboot")
+        # Initramfs re-generation takes a while
+        m.wait_reboot(timeout_sec=600)
+        m.start_cockpit()
+        self.login_and_go("/system")
+        b.wait_text("#crypto-policy-button", "FIPS")
+        self.assertEqual(m.execute("cat /proc/sys/crypto/fips_enabled").strip(), "1")
+
+        # Setting via dialog
+        m.execute(cmd + " --set DEFAULT")
+        b.wait_text("#inconsistent_crypto_policy", "Crypto policy is inconsistent")
+        b.click(".system-health-crypto-policies button.pf-c-button.pf-m-link")
+        b.wait_in_text(".pf-c-menu__item.pf-m-selected .pf-c-label.pf-m-orange", "inconsistent")
+        b.click("#crypto-policy-save-reboot")
+        m.wait_reboot()
+        m.start_cockpit()
+        self.login_and_go("/system")
+        b.wait_text("#crypto-policy-button", "Default")
+        self.assertEqual(m.execute("cat /proc/sys/crypto/fips_enabled").strip(), "0")
 
 
 if __name__ == '__main__':

@@ -80,7 +80,7 @@ function findMemoryDevices(udevdb, info) {
     for (let slot = 0; slot < devices; slot++) {
         let memorySize = parseInt(props[`MEMORY_DEVICE_${slot}_SIZE`], 10);
         if (memorySize) {
-            memorySize = cockpit.format_bytes(memorySize);
+            memorySize = cockpit.format_bytes(memorySize, 1024);
         } else {
             memorySize = _("Unknown");
         }

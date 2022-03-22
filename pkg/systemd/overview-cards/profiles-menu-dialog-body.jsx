@@ -48,16 +48,17 @@ export class ProfilesMenuDialogBody extends React.Component {
 
     render() {
         const profiles = this.props.profiles.map((itm) => {
-            const active = this.props.active_profile == itm.name;
-
             return (
-                <MenuItem itemId={itm.name} key={itm.name} data-value={itm.name} description={itm.description}>
+                <MenuItem itemId={itm.name} key={itm.name} data-value={itm.name}
+                          description={itm.description} isDisabled={this.props.isDisabled}
+                          isActive={itm.active}>
                     <Flex alignItems={{ default: 'alignItemsCenter' }}>
                         <p>{ itm.title }</p>
                         <FlexItem>
                             <LabelGroup>
                                 {itm.recommended && <Label color="green" variant='filled'>{_("recommended")}</Label>}
-                                {active && <Label color="blue" variant='filled'>{_("active")}</Label>}
+                                {itm.active && <Label color="blue" variant='filled'>{_("active")}</Label>}
+                                {itm.inconsistent && <Label color="orange" variant='filled'>{_("inconsistent")}</Label>}
                             </LabelGroup>
                         </FlexItem>
                     </Flex>
@@ -70,7 +71,6 @@ export class ProfilesMenuDialogBody extends React.Component {
                       this.setState({ selected_profile: selected });
                       this.props.change_selected(selected);
                   }}
-                  activeItemId={this.state.selected_profile}
                   selected={this.state.selected_profile}>
                 <MenuContent>
                     <MenuList>
@@ -85,4 +85,5 @@ ProfilesMenuDialogBody.propTypes = {
     active_profile: PropTypes.string.isRequired,
     change_selected: PropTypes.func.isRequired,
     profiles: PropTypes.array.isRequired,
+    isDisabled: PropTypes.bool,
 };

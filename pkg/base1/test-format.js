@@ -153,32 +153,37 @@ QUnit.test("get_byte_units", function (assert) {
 
 QUnit.test("format_bytes_per_sec", function (assert) {
     const checks = [
-        [2555, "2.50 KiB/s"]
+        // default unit
+        [5, undefined, undefined, "5 B/s"],
+        [2555, undefined, undefined, "2.50 KiB/s"],
+        [12345678, undefined, undefined, "11.8 MiB/s"],
+        // explicit base-2 unit
+        [2555, 1024, undefined, "2.50 KiB/s"],
+        // explicit base-10 unit
+        [2555, 1000, undefined, "2.56 kB/s"],
+        [12345678, 1000, undefined, "12.3 MB/s"],
+        // explicit unit
+        [12345678, "kB/s", undefined, "12346 kB/s"],
+        [12345678, "MiB/s", undefined, "11.8 MiB/s"],
+        // custom precision
+        [2555, 1000, { precision: 2 }, "2.6 kB/s"],
+        [25555, "MB/s", { precision: 2 }, "0.026 MB/s"],
+        // significant integer digits exceed custom precision
+        [25555000, "kB/s", { precision: 2 }, "25555 kB/s"],
+        [25555678, "kB/s", { precision: 2 }, "25556 kB/s"],
     ];
 
-    assert.expect(checks.length + 9);
+    assert.expect(checks.length + 2);
     for (let i = 0; i < checks.length; i++) {
-        assert.strictEqual(cockpit.format_bytes_per_sec(checks[i][0]), checks[i][1],
-                           "format_bytes_per_sec(" + checks[i][0] + ") = " + checks[i][1]);
+        assert.strictEqual(cockpit.format_bytes_per_sec(checks[i][0], checks[i][1], checks[i][2]), checks[i][3],
+                           `format_bytes_per_sec(${checks[i][0]}, ${checks[i][1]}, ${checks[i][2]}) = ${checks[i][3]}`);
     }
 
-    // base-10 units
-    assert.strictEqual(cockpit.format_bytes_per_sec(2555, 1000), "2.56 kB/s");
-    assert.strictEqual(cockpit.format_bytes_per_sec(12345678, 1000), "12.3 MB/s");
-    assert.strictEqual(cockpit.format_bytes_per_sec(12345678, "kB/s"), "12346 kB/s");
-
-    // custom precision
-    assert.strictEqual(cockpit.format_bytes_per_sec(2555, 1000, { precision: 2 }), "2.6 kB/s");
-    assert.strictEqual(cockpit.format_bytes_per_sec(25555, "MB/s", { precision: 2 }), "0.026 MB/s");
-    // significant integer digits exceed custom precision
-    assert.strictEqual(cockpit.format_bytes_per_sec(25555000, "kB/s", { precision: 2 }), "25555 kB/s");
-    assert.strictEqual(cockpit.format_bytes_per_sec(25555678, "kB/s", { precision: 2 }), "25556 kB/s");
-
     // separate unit
-    assert.deepEqual(cockpit.format_bytes_per_sec(2555, undefined, { separate: true }),
+    assert.deepEqual(cockpit.format_bytes_per_sec(2555, 1024, { separate: true }),
                      ["2.50", "KiB/s"]);
     // backwards compatible API for separate flag
-    assert.deepEqual(cockpit.format_bytes_per_sec(2555, undefined, true),
+    assert.deepEqual(cockpit.format_bytes_per_sec(2555, 1024, true),
                      ["2.50", "KiB/s"]);
 });
 

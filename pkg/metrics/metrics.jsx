@@ -474,6 +474,7 @@ class CurrentMetrics extends React.Component {
                 </Flex>);
 
             topCore = <Progress
+                           aria-label={_("Current top CPU usage")}
                            id="current-top-cpu-usage"
                            value={top_cores[0][1]}
                            className="pf-m-sm"

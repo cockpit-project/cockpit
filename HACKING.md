@@ -233,6 +233,14 @@ You need to disable SELinux with
 for this to work, as your local build tree does not otherwise have the expected
 SELinux type.
 
+Some cockpit binaries rely on specific paths in /usr/share or libexecdir to be
+set correctly, by default they are set to `/usr/local`.
+
+On RPM based systems this can be set using an autogen.sh argument, and
+afterwards you need to rebuild:
+
+    $ ./autogen.sh rpm
+
 ## Installation from upstream sources
 
     $ make

@@ -33,20 +33,25 @@ class TestStorageStratis(StorageCase):
 
         self.login_and_go("/storage")
 
+        if m.image == "rhel-8-6-distropkg":
+            SIZE_4GB = 4 * 1024 * 1024 * 1024
+        else:
+            SIZE_4GB = 4 * 1000000000
+
         dev_1 = "/dev/sda"
-        m.add_disk("4G", serial="DISK1")
+        m.add_disk(SIZE_4GB, serial="DISK1")
         b.wait_in_text("#drives", dev_1)
 
         dev_2 = "/dev/sdb"
-        m.add_disk("4G", serial="DISK2")
+        m.add_disk(SIZE_4GB, serial="DISK2")
         b.wait_in_text("#drives", dev_2)
 
         dev_3 = "/dev/sdc"
-        m.add_disk("4G", serial="DISK3")
+        m.add_disk(SIZE_4GB, serial="DISK3")
         b.wait_in_text("#drives", dev_3)
 
         dev_4 = "/dev/sdd"
-        m.add_disk("4G", serial="DISK4")
+        m.add_disk(SIZE_4GB, serial="DISK4")
         b.wait_in_text("#drives", dev_4)
 
         # Create a pool
@@ -60,7 +65,10 @@ class TestStorageStratis(StorageCase):
         self.dialog_wait_close()
 
         b.wait_in_text("#devices", "pool0")
-        b.wait_in_text("#devices", "8 GiB Stratis pool")
+        if m.image == "rhel-8-6-distropkg":
+            b.wait_in_text("#devices", "8 GiB Stratis pool")
+        else:
+            b.wait_in_text("#devices", "8 GB Stratis pool")
         b.assert_pixels("#devices", "pool-row")
 
         # Check that the next name is "pool1"

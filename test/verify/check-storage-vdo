@@ -28,8 +28,11 @@ from testlib import *
 # vdo only exists on RHEL
 SUPPORTED_OS = ["centos-8-stream", "rhel-8-6", "rhel-8-6-distropkg"]
 
+SIZE_10G = "10000000000"
+
 
 @skipImage("no matching kmod-kvdo package yet on RHEL 9", "rhel-9-0", "rhel-9-0-distropkg")
+@skipImage("cockpit 266 changed base-2 to base-10 units, too much hassle to make this work for both", "rhel-8-6-distropkg")
 class TestStorageVDO(StorageCase):
 
     def testVdo(self):
@@ -39,7 +42,7 @@ class TestStorageVDO(StorageCase):
         self.login_and_go("/storage")
 
         # Make a volume group in which to create the VDO LV
-        m.add_disk("10G", serial="DISK1")
+        m.add_disk(SIZE_10G, serial="DISK1")
         b.wait_in_text("#drives", "DISK1")
         m.execute("vgcreate vdo_vgroup /dev/sda")
         b.wait_in_text("#devices", "vdo_vgroup")
@@ -58,7 +61,7 @@ class TestStorageVDO(StorageCase):
         # create VDO LV with default options and default virtual size
         self.dialog_set_val("name", "vdo0")
         self.dialog_set_val("purpose", "vdo")
-        self.dialog_set_val("vdo_psize", 6 * 1024)
+        self.dialog_set_val("vdo_psize", 6000)
         self.dialog_apply()
         self.dialog_wait_close()
 
@@ -70,12 +73,12 @@ class TestStorageVDO(StorageCase):
         b.wait_not_in_text("#detail-content", pool_name)
         # Volume tab
         self.content_tab_wait_in_info(1, 1, "Name", "vdo0")
-        self.content_tab_wait_in_info(1, 1, "Size", "10 GiB", "10.0 GiB")
+        self.content_tab_wait_in_info(1, 1, "Size", "10 GB", "10.0 GB")
         # VDO Pool tab
         self.content_tab_wait_in_info(1, 2, "Name", pool_name)
-        self.content_tab_wait_in_info(1, 2, "Size", "6 GiB")
-        # initial physical usage is 4 GiB, overhead for the deduplication index
-        self.content_tab_wait_in_info(1, 2, "Data used", "4.00 GiB (67%)")
+        self.content_tab_wait_in_info(1, 2, "Size", "6.00 GB")
+        # initial physical usage is ~ 4 GB, overhead for the deduplication index
+        self.content_tab_wait_in_info(1, 2, "Data used", "3.86 GB (64%)")
         self.content_tab_wait_in_info(1, 2, "Metadata used", "0%")
         b.wait_visible("input[aria-label='Use compression']:checked")
         b.wait_visible("input[aria-label='Use deduplication']:checked")
@@ -89,15 +92,15 @@ class TestStorageVDO(StorageCase):
 
         # compressible data should affect logical usage
         m.execute("dd if=/dev/zero of=/run/data/empty bs=1M count=1000")
-        self.content_row_wait_in_col(1, 4, "1.08 / 9.99 GiB")
+        self.content_row_wait_in_col(1, 4, "1.15 / 9.98 GB")
         # but not physical usage
-        self.content_tab_wait_in_info(1, 2, "Data used", "4.00 GiB (67%)")
+        self.content_tab_wait_in_info(1, 2, "Data used", "3.86 GB (64%)")
 
         # incompressible data
         m.execute("dd if=/dev/urandom of=/run/data/gibberish bs=1M count=1000")
-        self.content_row_wait_in_col(1, 4, "2.05 / 9.99 GiB")
+        self.content_row_wait_in_col(1, 4, "2.20 / 9.98 GB")
         # equal amount of physical space (not completely predictable due to random data)
-        self.content_tab_wait_in_info(1, 2, "Data used", "4.8", "4.9")
+        self.content_tab_wait_in_info(1, 2, "Data used", "4.8", "4.9", "5.0")
         self.content_tab_wait_in_info(1, 2, "Data used", cond=lambda sel: re.search(r"\(8[1234]%\)", b.text(sel)))
 
         def wait_prop(device, prop, value):
@@ -120,15 +123,15 @@ class TestStorageVDO(StorageCase):
 
         # grow volume
         self.content_tab_action(1, 1, "Grow")
-        self.dialog({"size": 12 * 1024})
-        self.content_tab_wait_in_info(1, 1, "Size", "12 GiB")
-        wait_prop("vdo0", "lv_size", "12.00g")
+        self.dialog({"size": 12000})
+        self.content_tab_wait_in_info(1, 1, "Size", "12.0 GB")
+        wait_prop("vdo0", "lv_size", "11.18g")
 
         # grow pool
         self.content_tab_action(1, 2, "Grow")
-        self.dialog({"size": 8 * 1024})
-        self.content_tab_wait_in_info(1, 2, "Size", "8 GiB")
-        wait_prop(pool_name, "lv_size", "8.00g")
+        self.dialog({"size": 8000})
+        self.content_tab_wait_in_info(1, 2, "Size", "8.15 GB")
+        wait_prop(pool_name, "lv_size", "7.59g")
 
         # deleting the vdo0 volume deletes the pool as well
         self.content_dropdown_action(1, "Delete")
@@ -142,9 +145,9 @@ class TestStorageVDO(StorageCase):
         b._wait_present("[data-field='purpose'] select option[value='block']")
         self.dialog_set_val("name", "vdo0")
         self.dialog_set_val("purpose", "vdo")
-        self.dialog_set_val("vdo_psize", 6 * 1024)
+        self.dialog_set_val("vdo_psize", 6000)
         # grossly overcommitted
-        self.dialog_set_val("vdo_lsize", 20 * 1024)
+        self.dialog_set_val("vdo_lsize", 20000)
         self.dialog_set_val("vdo_options.compression", False)
         self.dialog_apply()
         self.dialog_wait_close()
@@ -152,9 +155,9 @@ class TestStorageVDO(StorageCase):
         self.content_row_wait_in_col(1, 1, "vdo0")
         # Volume tab
         self.content_tab_wait_in_info(1, 1, "Name", "vdo0")
-        self.content_tab_wait_in_info(1, 1, "Size", "20 GiB")
+        self.content_tab_wait_in_info(1, 1, "Size", "20.0 GB")
         # VDO Pool tab
-        self.content_tab_wait_in_info(1, 2, "Size", "6 GiB")
+        self.content_tab_wait_in_info(1, 2, "Size", "6.0 GB", "6.00 GB")
         b.wait_visible("input[aria-label='Use compression']:not(:checked)")
         b.wait_visible("input[aria-label='Use deduplication']:checked")
         wait_prop(pool_name, "vdo_compression_state", "offline")
@@ -174,6 +177,7 @@ class TestStorageVDO(StorageCase):
 
 
 @skipImage("no matching kmod-kvdo package yet on RHEL 9", "rhel-9-0", "rhel-9-0-distropkg")
+@skipImage("cockpit 266 changed base-2 to base-10 units, too much hassle to make this work for both", "rhel-8-6-distropkg")
 class TestStorageLegacyVDO(StorageCase):
 
     def testVdo(self):
@@ -188,7 +192,7 @@ class TestStorageLegacyVDO(StorageCase):
         b.wait_visible("#devices")
 
         # Make a logical volume for use as the backing device.
-        m.add_disk("10G", serial="DISK1")
+        m.add_disk(SIZE_10G, serial="DISK1")
         b.wait_in_text("#drives", "DISK1")
         m.execute("vgcreate vdo_vgroup /dev/sda && lvcreate -n lvol -L 5G vdo_vgroup")
         # Create VDO; this is not supported any more, thus no UI for it
@@ -203,9 +207,9 @@ class TestStorageLegacyVDO(StorageCase):
 
         b.wait_text(detail(1), "/dev/mapper/vdo0")
         b.wait_in_text(detail(2), "vdo_vgroup")
-        b.wait_in_text(detail(3), "used of 5 GiB")
-        b.wait_in_text(detail(4), "used of 5 GiB")
-        b.wait_text(detail(5), "256 MiB")
+        b.wait_in_text(detail(3), "used of 5.37 GB")
+        b.wait_in_text(detail(4), "used of 5.37 GB")
+        b.wait_text(detail(5), "268 MB")
         b.wait_visible(detail(6) + " input:checked")
         b.wait_visible(detail(7) + " input:checked")
 
@@ -221,22 +225,22 @@ class TestStorageLegacyVDO(StorageCase):
         self.content_tab_wait_in_info(1, 1, "Mount point", "_netdev")
         self.content_tab_wait_in_info(1, 1, "Mount point", "x-systemd.device-timeout=0")
         self.content_tab_wait_in_info(1, 1, "Mount point", "x-systemd.requires=vdo.service")
-        self.content_row_wait_in_col(1, 4, "/ 4.99 GiB", alternate_val="/ 5.0 GiB")
+        self.content_row_wait_in_col(1, 4, "/ 5.36 GB", alternate_val="/ 5.37 GB")
 
         # Grow physical
 
         m.execute("lvresize vdo_vgroup/lvol -L 9G")
-        b.wait_in_text(".pf-c-alert__description", '5 GiB of 9 GiB')
+        b.wait_in_text(".pf-c-alert__description", 'Only 5.37 GB of 9')
         b.click("button:contains('Grow to take all space')")
         b.wait_not_present(".pf-c-alert")
-        b.wait_in_text(detail(3), "used of 9 GiB")
+        b.wait_in_text(detail(3), "used of 9.66 GB")
 
         # Grow logical
 
         b.click(detail(4) + " button:contains(Grow)")
-        self.dialog({"lsize": 10 * 1024})
-        b.wait_in_text(detail(4), "used of 10 GiB")
-        self.content_row_wait_in_col(1, 4, "/ 9.99 GiB", alternate_val="/ 10.0 GiB")
+        self.dialog({"lsize": 10000})
+        b.wait_in_text(detail(4), "used of 10.0 GB")
+        self.content_row_wait_in_col(1, 4, "/ 9.99 GB", alternate_val="/ 10.0 GB")
 
         # Stop
 
@@ -267,7 +271,7 @@ class TestStorageLegacyVDO(StorageCase):
 
         b.wait_visible("#devices")
 
-        m.add_disk("10G", serial="DISK1")
+        m.add_disk(SIZE_10G, serial="DISK1")
         b.wait_in_text("#drives", "DISK1")
 
         # Install a valid configuration file that describes a broken VDO
@@ -418,7 +422,7 @@ class TestStoragePackagesVDO(PackageCase, StorageHelpers):
         m.execute("pkcon refresh")
 
         self.login_and_go("/storage")
-        m.add_disk("10G", serial="DISK1")
+        m.add_disk(SIZE_10G, serial="DISK1")
         b.wait_in_text("#drives", "DISK1")
         m.execute("vgcreate vdo_vgroup /dev/sda")
         b.wait_in_text("#devices", "vdo_vgroup")

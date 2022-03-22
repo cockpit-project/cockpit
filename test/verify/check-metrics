@@ -783,7 +783,6 @@ class TestCurrentMetrics(MachineCase):
         # allocate a chunk of memory; this may cause other stuff to get unmapped,
         # thus not exact addition, but usage should go up
         size = 300 if have_swap else 200  # MB
-        size_MiB = size / 1.024 / 1.024
         self.write_file("/usr/local/bin/memhog.sh", f"""#!/usr/bin/awk -f
 BEGIN {{
     x = sprintf("%{size}000000s","");
@@ -798,12 +797,12 @@ BEGIN {{
         self.assertGreater(hog_usage, initial_usage + 8)
 
         b.wait_text("table[aria-label='Top 5 memory services'] tbody tr:nth-of-type(1) td[data-label='Service']", "mem-hog")
-        b.wait(lambda: topServiceValue(self, "Top 5 memory services", "Used", 1) > size_MiB)
-        b.wait(lambda: topServiceValue(self, "Top 5 memory services", "Used", 1) < size_MiB + 50)
+        b.wait(lambda: topServiceValue(self, "Top 5 memory services", "Used", 1) > size)
+        b.wait(lambda: topServiceValue(self, "Top 5 memory services", "Used", 1) < size + 50)
 
         # total memory is shown as tooltip
         b.mouse("#current-memory-usage", "mouseenter")
-        b.wait_in_text(".pf-c-tooltip", "iB total")
+        b.wait_in_text(".pf-c-tooltip", "B total")
         b.mouse("#current-memory-usage", "mouseleave")
 
         # table entries are links to Services page
@@ -833,7 +832,7 @@ BEGIN {{
 
             # total swap is shown as tooltip
             b.mouse("#current-swap-usage", "mouseenter")
-            b.wait_in_text(".pf-c-tooltip", "iB total")
+            b.wait_in_text(".pf-c-tooltip", "B total")
             b.mouse("#current-swap-usage", "mouseleave")
         else:
             m.execute("systemctl stop mem-hog")
@@ -857,22 +856,22 @@ BEGIN {{
         login(self)
 
         # test env should be quiet enough to not transmit MB/s
-        b.wait(lambda: re.match(r'^(0|[0-9.]+ (KiB|B)/s)$', b.text("#current-disks-read")))
-        b.wait(lambda: re.match(r'^(0|[0-9.]+ (KiB|B)/s)$', b.text("#current-disks-write")))
+        b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("#current-disks-read")))
+        b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("#current-disks-write")))
         # reading lots of data
         m.execute("systemd-run --collect --slice cockpittest --unit disk-read-hog sh -ec 'while true; do echo 3 > /proc/sys/vm/drop_caches; grep -r . /usr >/dev/null; done'")
-        b.wait(lambda: re.match(r'^[0-9.]+ (MiB|GiB)/s$', b.text("#current-disks-read")))
-        b.wait(lambda: re.match(r'^[0-9.]+ (KiB|B)/s$', b.text("#current-disks-write")))  # this should stay calm
+        b.wait(lambda: re.match(r'^[0-9.]+ (MB|GB)/s$', b.text("#current-disks-read")))
+        b.wait(lambda: re.match(r'^[0-9.]+ (kB|B)/s$', b.text("#current-disks-write")))  # this should stay calm
         m.execute("systemctl stop disk-read-hog")
-        b.wait(lambda: re.match(r'^[0-9.]+ (KiB|B)/s$', b.text("#current-disks-read")))  # back to quiet
+        b.wait(lambda: re.match(r'^[0-9.]+ (kB|B)/s$', b.text("#current-disks-read")))  # back to quiet
         # writing lots of data
         m.execute("systemd-run --collect --slice cockpittest --unit disk-write-hog sh -ec "
                   " 'while true; do dd if=/dev/zero of=/var/tmp/blob bs=1M count=100; done'")
         self.addCleanup(m.execute, "rm -f /var/tmp/blob")
-        b.wait(lambda: re.match(r'^[0-9.]+ (MiB|GiB)/s$', b.text("#current-disks-write")))
-        b.wait(lambda: re.match(r'^[0-9.]+ (KiB|B)/s$', b.text("#current-disks-read")))  # this should stay calm
+        b.wait(lambda: re.match(r'^[0-9.]+ (MB|GB)/s$', b.text("#current-disks-write")))
+        b.wait(lambda: re.match(r'^[0-9.]+ (kB|B)/s$', b.text("#current-disks-read")))  # this should stay calm
         m.execute("systemctl stop disk-write-hog")
-        b.wait(lambda: re.match(r'^(0|[0-9.]+ (KiB|B)/s)$', b.text("#current-disks-write")))
+        b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("#current-disks-write")))
 
         # Disk usage
 
@@ -946,13 +945,13 @@ BEGIN {{
             return re.match(regexp, text) is not None
 
         # loopback is quiet enough to not transmit MB/s
-        b.wait(lambda: rateMatches("In", r'^(0|[0-9.]+ (KiB|B)/s)$'))
-        b.wait(lambda: rateMatches("Out", r'^(0|[0-9.]+ (KiB|B)/s)$'))
+        b.wait(lambda: rateMatches("In", r'^(0|[0-9.]+ (kB|B)/s)$'))
+        b.wait(lambda: rateMatches("Out", r'^(0|[0-9.]+ (kB|B)/s)$'))
         # pipe lots of data through lo
         m.execute("systemd-run --collect --slice cockpittest --unit lo-hog sh -ec "
                   " 'nc -n -vv -l 2000 > /dev/null & sleep 1; nc -vv localhost 2000 </dev/zero'")
-        b.wait(lambda: rateMatches("In", r'^[0-9.]+ (MiB|GiB)/s$'))
-        b.wait(lambda: rateMatches("Out", r'^[0-9.]+ (MiB|GiB)/s$'))
+        b.wait(lambda: rateMatches("In", r'^[0-9.]+ (MB|GB)/s$'))
+        b.wait(lambda: rateMatches("Out", r'^[0-9.]+ (MB|GB)/s$'))
         m.execute("systemctl stop lo-hog")
 
         # nothing happens on cockpittest1

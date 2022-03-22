@@ -86,6 +86,7 @@ for directory, _subdirs, files in os.walk(f'{BASE_DIR}/dist'):
             continue
 
         full_filename = os.path.join(directory, file)
+        directory_glob = os.path.relpath(directory, start=BASE_DIR) + '/*'
 
         if file.endswith('.gz'):
             with gzip.open(full_filename, 'rt') as license_file_gz:
@@ -105,7 +106,7 @@ for directory, _subdirs, files in os.walk(f'{BASE_DIR}/dist'):
             # All webpacks also contain our own code
             licenses.add("LGPL-2.1-or-later")
 
-            dist_licenses.setdefault(f'{directory}/*', set()).update(licenses)
+            dist_licenses.setdefault(directory_glob, set()).update(licenses)
 
             copyrights = find_patterns(copyright_patterns, comment)
             if not copyrights:
@@ -114,7 +115,7 @@ for directory, _subdirs, files in os.walk(f'{BASE_DIR}/dist'):
             # All webpacks also contain our own code
             copyrights.add(own_copyright)
 
-            dist_copyrights.setdefault(f'{directory}/*', set()).update(copyrights)
+            dist_copyrights.setdefault(directory_glob, set()).update(copyrights)
 
 for pattern in set.union(set(license_patterns), set(copyright_patterns)):
     if pattern not in used_patterns:

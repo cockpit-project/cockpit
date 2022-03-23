@@ -26,7 +26,7 @@ import {
     Select, SelectOption, SelectVariant,
     Spinner, TimePicker
 } from '@patternfly/react-core';
-import { CloseIcon, ExclamationCircleIcon, InfoCircleIcon, PlusIcon } from "@patternfly/react-icons";
+import { CloseIcon, ExclamationCircleIcon, PlusIcon } from "@patternfly/react-icons";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { useObject, useEvent } from "hooks.js";
 
@@ -374,12 +374,7 @@ export function ServerTimeConfig() {
     let ntp_status = null;
     if (ntp && ntp.active) {
         let icon; let header; let body = ""; let footer = null;
-        if (ntp.synch) {
-            icon = <InfoCircleIcon className="ct-info-circle" />;
-            header = _("Synchronized");
-            if (ntp.server)
-                body = <div>{cockpit.format(_("Synchronized with $0"), ntp.server)}</div>;
-        } else {
+        if (!ntp.synch) {
             if (ntp.server) {
                 icon = <Spinner size="md" isSVG />;
                 header = _("Synchronizing");

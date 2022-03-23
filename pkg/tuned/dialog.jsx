@@ -102,20 +102,24 @@ export const TunedPerformanceProfile = () => {
     }, [updateButton]);
 
     return (
-        <Tooltip id="tuned-status-tooltip" content={status}>
+        <>
+            <Tooltip id="tuned-status-tooltip" content={status}>
+                <span>{btnText}</span>
+            </Tooltip>
             <Button id="tuned-status-button"
+                    className="tuned-status-button"
                     isAriaDisabled={btnText == "error" || state == "not-installed" || !superuser.allowed}
                     isInline
                     onClick={() => setIsOpen(true)}
                     variant='link'>
-                {btnText}
+                {_("change")}
             </Button>
             {isOpen && <TunedDialog close={() => setIsOpen(false)}
                                     updateButton={updateButton}
                                     poll={poll}
                                     tunedDbus={tuned} tunedService={tunedService}
             />}
-        </Tooltip>
+        </>
     );
 };
 

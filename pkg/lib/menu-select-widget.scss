@@ -4,19 +4,19 @@
 // Therefore, we're changing the visuals here locally.
 // PF4 upstream request for multi-select @ https://github.com/patternfly/patternfly/issues/4027
 .ct-menu-select-widget.pf-c-menu {
-  // It's  not really a menu, so it shouldn't have a shadow
-  box-shadow: none;
-
   // Divider is silly between the widgets in this context
   .pf-c-divider {
     display: none;
+
+    + .pf-c-menu__content {
+      // There should be minimal space between the widgets (replacing the divider)
+      margin-top: var(--pf-global--spacer--sm);
+    }
   }
 
   .pf-c-menu__content {
     // An overflow multi-select widget needs an outline
     border: 1px solid var(--pf-global--BorderColor--100);
-    // There should be minimal space between the widgets (replacing the divider)
-    margin-top: var(--pf-global--spacer--sm);
   }
 
   // Search should not be inset when there's no border containing it

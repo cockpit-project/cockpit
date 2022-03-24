@@ -67,6 +67,8 @@ export class ProfilesMenuDialogBody extends React.Component {
         });
         return (
             <Menu className="ct-menu-select-widget"
+                  isPlain
+                  isScrollable
                   onSelect={(_, selected) => {
                       this.setState({ selected_profile: selected });
                       this.props.change_selected(selected);

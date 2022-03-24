@@ -297,6 +297,7 @@ const TunedDialog = ({
 
     return (
         <Modal position="top" variant="medium"
+               className="ct-m-stretch-body"
                isOpen
                help={help}
                onClose={Dialogs.close}

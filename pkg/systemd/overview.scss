@@ -265,3 +265,26 @@
 .pf-c-alert .pf-c-alert__description a {
   padding-left: 15px;
 }
+
+// Stretch modal content to fill body
+// This redirects scrolling from the modal body to the select widget
+.ct-m-stretch-body {
+  // Use flex to let children fully expand to the content
+  .pf-c-modal-box__body {
+    &, > :only-child {
+      // Let children fully stretch to content
+      display: flex;
+    }
+
+    > :only-child,
+    .pf-c-menu__content {
+      // Get squishy with children and the menu content
+      flex: auto;
+    }
+
+    .pf-c-menu__content {
+      // Relax the height constraint
+      --pf-c-menu__content--MaxHeight: 100%;
+    }
+  }
+}

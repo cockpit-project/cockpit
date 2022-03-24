@@ -21,6 +21,9 @@ import parent
 from storagelib import *
 from testlib import *
 
+import unittest
+import testvm
+
 
 class TestStorageHidden(StorageCase):
 
@@ -122,6 +125,32 @@ class TestStorageHidden(StorageCase):
         self.confirm()
         b.wait_visible("#storage")
         self.assertEqual(m.execute(f"grep {mount_point_2} /etc/fstab || true"), "")
+
+    @unittest.skipUnless("ubuntu" in testvm.DEFAULT_IMAGE, "Only test snaps on Ubuntu")
+    def testHiddenSnap(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        # We expect there to be at least one loop back device mounted
+        # somewhere below /snap.
+        snap_loops = []
+        devices = json.loads(m.execute("lsblk --json --list --output NAME,TYPE,MOUNTPOINT"))
+        for d in devices["blockdevices"]:
+            if d["type"] == "loop" and d["mountpoint"].startswith("/snap/"):
+                snap_loops.append(d["name"])
+        self.assertTrue(len(snap_loops) > 0)
+
+        # Make one more loopback device that we expect to see in the UI.
+        dev = self.add_loopback_disk()
+
+        # Now we wait until the regular loopback device is shown.  The
+        # snaps should not be shown.
+        b.wait_in_text("#others", dev)
+        for sl in snap_loops:
+            b.wait_not_in_text("#others", sl)
+            b.wait_not_in_text("#mounts", sl)
 
 
 if __name__ == '__main__':

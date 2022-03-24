@@ -319,7 +319,7 @@ on_other_control (CockpitTransport *transport,
 
               if (explicit_superuser_capability)
                 {
-                  const gchar *superuser = "any";
+                  const gchar *superuser = "none";
                   if (self->init_superuser && *self->init_superuser)
                     superuser = self->init_superuser;
 

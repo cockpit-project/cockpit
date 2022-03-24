@@ -258,7 +258,11 @@ def get_affected_tests(test_dir, base_branch, test_files):
     # "only do this for max. 3 check-* changes" (even if the PR also changes ≥ 3 check-*)
     # (this does not apply to other projects)
     diff_out = subprocess.check_output(["git", "diff", "--name-only", "origin/" + base_branch, "--", "pkg/"])
-    changed_pkgs = set(pkg.decode("utf-8").split('/')[1] for pkg in diff_out.strip().splitlines())
+
+    # Drop changes in css files - this does not affect tests thus no reason to retry
+    files = [f.decode("utf-8") for f in diff_out.strip().splitlines() if not f.endswith(b"css")]
+
+    changed_pkgs = set(pkg.split('/')[1] for pkg in files)
     changed_tests.extend([test for test in test_files if any(pkg in test for pkg in changed_pkgs)])
 
     return changed_tests

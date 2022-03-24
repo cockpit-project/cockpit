@@ -71,6 +71,22 @@ def hotp_token(secret, counter, digits=6, hash_alg=hashlib.sha1):
     return numbers[-digits:].rjust(digits, '0')
 
 
+def setup_fake_chrony(machine):
+    # Our Debian/Ubuntu VM images have systemd-timesyncd installed, which conflicts with chrony.
+    # Set up a mock chrony.service to make ipa-client-install happy
+    machine.write("/run/systemd/system/chrony.service", """
+[Service]
+Type=oneshot
+ExecStart=/bin/true
+""")
+    machine.execute("ln -s /bin/true /usr/bin/chronyc")
+    machine.execute("systemctl unmask chrony")
+
+    if machine.image == 'ubuntu-2004':
+        # HACK: https://launchpad.net/bugs/1890786
+        machine.execute("ln -s chrony.service /run/systemd/system/chronyd.service")
+
+
 @skipImage("No realmd available", "arch")
 @skipDistroPackage()
 class CommonTests:
@@ -490,18 +506,8 @@ class TestIPA(TestRealms, CommonTests):
         # https://bugzilla.redhat.com/show_bug.cgi?id=1071356#c11
         wait(lambda: self.machine.execute("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
 
-        # HACK: ipa-client-install fails on restarting absent chronyd.service: https://launchpad.net/bugs/1890786
-        if self.machine.image in ["ubuntu-2004", "ubuntu-stable"]:
-            self.write_file("/run/systemd/system/chronyd.service", """
-[Service]
-Type=oneshot
-ExecStart=/bin/true
-""")
-            self.machine.execute("ln -s /bin/true /usr/bin/chronyc")
-
-            # HACK: It now expects chrony.service and not chronyd.service: https://bugs.debian.org/968428
-            # Not to be attached to a specific version of a testing image, support both for now
-            self.machine.execute("ln -s /run/systemd/system/chronyd.service /run/systemd/system/chrony.service")
+        if "ubuntu" in self.machine.image or "debian" in self.machine.image:
+            setup_fake_chrony(self.machine)
 
         # wait until FreeIPA started up
         self.machines['services'].execute("""podman exec -i freeipa sh -ec '
@@ -998,18 +1004,8 @@ class TestKerberos(MachineCase):
 
     def setUp(self):
         super().setUp()
-        # HACK: ipa-client-install fails on restarting absent chronyd.service: https://launchpad.net/bugs/1890786
-        if self.machine.image in ["ubuntu-2004", "ubuntu-stable"]:
-            self.write_file("/run/systemd/system/chronyd.service", """
-[Service]
-Type=oneshot
-ExecStart=/bin/true
-""")
-            self.machine.execute("ln -s /bin/true /usr/bin/chronyc")
-
-            # HACK: It now expects chrony.service and not chronyd.service: https://bugs.debian.org/968428
-            # Not to be attached to a specific version of a testing image, support both for now
-            self.machine.execute("ln -s /run/systemd/system/chronyd.service /run/systemd/system/chrony.service")
+        if "ubuntu" in self.machine.image or "debian" in self.machine.image:
+            setup_fake_chrony(self.machine)
 
     def configure_kerberos(self, keytab):
         self.machines["services"].execute("/root/run-freeipa")

@@ -462,6 +462,11 @@ export function prepare_available_spaces(client, spcs) {
     return Promise.all(spcs.map(prepare));
 }
 
+export function is_snap(client, block) {
+    const block_fsys = client.blocks_fsys[block.path];
+    return block_fsys && block_fsys.MountPoints.map(decode_filename).some(mp => mp.indexOf("/snap/") == 0 || mp.indexOf("/var/lib/snapd/snap/") == 0);
+}
+
 export function get_other_devices(client) {
     return Object.keys(client.blocks).filter(path => {
         const block = client.blocks[path];
@@ -476,7 +481,8 @@ export function get_other_devices(client) {
                 !block.HintIgnore &&
                 block.Size > 0 &&
                 !client.vdo_overlay.find_by_block(block) &&
-                !client.blocks_stratis_fsys[block.path]);
+                !client.blocks_stratis_fsys[block.path] &&
+                !is_snap(client, block));
     });
 }
 

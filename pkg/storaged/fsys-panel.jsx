@@ -23,7 +23,7 @@ import { SortByDirection } from '@patternfly/react-table';
 
 import { ListingTable } from "cockpit-components-table.jsx";
 import { StorageUsageBar } from "./storage-controls.jsx";
-import { block_name, fmt_size, go_to_block, flatten } from "./utils.js";
+import { block_name, fmt_size, go_to_block, flatten, is_snap } from "./utils.js";
 import { OptionalPanel } from "./optional-panel.jsx";
 import { get_fstab_config } from "./fsys-tab.jsx";
 
@@ -49,11 +49,14 @@ export class FilesystemsPanel extends React.Component {
         function is_mount(path) {
             const block = client.blocks[path];
 
-            // Stratis filesystems are handled separate
+            // Stratis filesystems are handled separately
             if (client.blocks_stratis_fsys[path])
                 return false;
 
             if (block.HintIgnore)
+                return false;
+
+            if (is_snap(client, block))
                 return false;
 
             if (block.IdUsage == "filesystem" && block.IdType != "mpath_member")

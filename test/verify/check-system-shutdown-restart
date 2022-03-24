@@ -86,6 +86,7 @@ class TestShutdownRestart(MachineCase):
         b2.wait_text("#system_information_hostname_text", "machine1")
 
         # Check auto reconnect on reboot
+        b2.become_superuser()
         b2.click("#reboot-button")
         b2.wait_popup("shutdown-dialog")
         b2.wait_in_text(f"#shutdown-dialog button{self.danger_btn_class}", 'Reboot')

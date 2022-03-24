@@ -117,6 +117,8 @@ export const LangModal = () => {
             <Flex direction={{ default: 'column' }}>
                 <p>{_("Choose the language to be used in the application")}</p>
                 <Menu id="display-language-list"
+                      isPlain
+                      isScrollable
                       className="ct-menu-select-widget"
                       onSelect={(_, selected) => setSelected(selected)}
                       activeItemId={selected}

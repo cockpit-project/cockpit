@@ -182,6 +182,32 @@ class TestRunTest(MachineCase):
         self.assertRegex(stdout, b"\nok .* TestRetryExample.testNoRetry\n")
         self.assertNotRegex(stdout, b"TestRetryExample.testNoRetry # RETRY")
 
+        # Check that just .css changes do no affect retry logic
+        systemd = os.path.join("pkg", "systemd", "overview.scss")
+        self.assertTrue(os.path.exists(systemd))
+
+        with open(systemd, 'r') as f:
+            original_source = f.read()
+
+        self.addCleanup(writeFile, systemd, original_source)
+        writeFile(systemd, original_source + "\n")
+
+        # create affected test for systemd changes
+        affected_testfile = os.path.join(VERIFY_DIR, "check-system-testlib")
+        writeFile(affected_testfile, """#!/usr/bin/python3
+import unittest
+class TestSystemd(unittest.TestCase):
+    def testBasic(self):
+        self.assertTrue(True)
+        """)
+        os.chmod(affected_testfile, 0o555)
+        self.addCleanup(os.unlink, affected_testfile)
+
+        process = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "TestSystemd.testBasic"],
+                                 env=env, capture_output=True)
+        stdout = process.stdout
+        self.assertRegex(stdout, rb"\nok .* TestSystemd.testBasic\n")
+        self.assertNotRegex(stdout, b"RETRY")
 
 @skipDistroPackage()
 class TestTestlib(MachineCase):

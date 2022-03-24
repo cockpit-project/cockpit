@@ -20,7 +20,6 @@
 import parent
 from testlib import *
 import time
-from packaging import version
 
 sleep_crash_list_sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('(sleep) crashed in')"
 
@@ -643,18 +642,11 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.click("#abrt-reporting .pf-l-split:contains('Report to Cockpit') button:contains('Report')")
 
         test_user = 'correcthorsebatterystaple'
-        fields = ['text', 'password']
 
-        # Since libreport version `2.15.2-7` bugzilla plugin does not require username and password but API key
-        # See https://github.com/abrt/libreport/commit/7c3c5d1ae1c39f0a3a3e9730bd25643a3f04fd50
-        libreport_version = m.execute('rpm -qa --qf "%{VERSION}-%{RELEASE}" libreport-plugin-bugzilla').rsplit(".", 1)[0]
-        if version.parse(libreport_version) > version.parse("2.15.2-6"):
-            fields = ['password']
-
-        for purpose in fields:
-            b.wait_visible(f".pf-c-modal-box__body input[type='{purpose}']")
-            b.set_val(".pf-c-modal-box__body input", test_user)
-            b.click(".pf-c-modal-box__footer button:contains('Send')")
+        # Since libreport version `2.15.2-7` bugzilla plugin only requires API key
+        b.wait_visible(".pf-c-modal-box__body input[type='password']")
+        b.set_val(".pf-c-modal-box__body input", test_user)
+        b.click(".pf-c-modal-box__footer button:contains('Send')")
 
         b.wait_not_present(".pf-c-modal-box__body p:contains('Password')")
         b.click(".pf-c-modal-box__footer button:contains('No')")

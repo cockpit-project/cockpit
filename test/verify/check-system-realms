@@ -488,7 +488,7 @@ class TestIPA(TestRealms, CommonTests):
         self.machines['services'].execute("/root/run-freeipa")
         # Wait for FreeIPA to come up and DNS to work as expected
         # https://bugzilla.redhat.com/show_bug.cgi?id=1071356#c11
-        wait(lambda: self.machine.execute("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
+        wait(lambda: self.machine.execute("nslookup type=SRV _ldap._tcp.cockpit.lan"))
 
         # HACK: ipa-client-install fails on restarting absent chronyd.service: https://launchpad.net/bugs/1890786
         if self.machine.image in ["ubuntu-2004", "ubuntu-stable"]:
@@ -853,7 +853,7 @@ class TestAD(TestRealms, CommonTests):
         m = self.machine
 
         # Wait for AD to come up and DNS to work as expected
-        wait(lambda: m.execute("nslookup -type=SRV _ldap._tcp.cockpit.lan"))
+        wait(lambda: m.execute("nslookup type=SRV _ldap._tcp.cockpit.lan"))
         # DNS is not sufficient yet, needs to start LDAP server as well
         m.execute("until nc -z f0.cockpit.lan 389; do sleep 1; done")
         # also wait for Kerberos
@@ -945,7 +945,7 @@ JOIN_SCRIPT = """
 set -ex
 # Wait until zones from LDAP get loaded
 for x in $(seq 1 20); do
-    if nslookup -type=SRV _ldap._tcp.cockpit.lan; then
+    if nslookup type=SRV _ldap._tcp.cockpit.lan; then
         break
     else
         sleep $x

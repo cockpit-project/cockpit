@@ -385,7 +385,7 @@ class TestMultiMachine(MachineCase):
         self.checkDirectLogin('/')
 
     @skipImage("test VM image does not have FIPS support", "debian-stable",
-               "debian-testing", "ubuntu-2004", "ubuntu-stable", "fedora-coreos", "arch")
+               "debian-testing", "ubuntu-2004", "ubuntu-2204", "ubuntu-stable", "fedora-coreos", "arch")
     def testFIPS(self):
         # enable FIPS: RHEL has and needs a convenience script for that
         # https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/security_hardening/using-the-system-wide-cryptographic-policies_security-hardening#switching-the-system-to-fips-mode_using-the-system-wide-cryptographic-policies

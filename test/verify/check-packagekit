@@ -36,8 +36,8 @@ for x in $(seq 1 200); do
 done
 """
 
-OSesWithoutTracer = ["debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-stable", "fedora-coreos"]
-OSesWithoutKpatch = ["debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-stable",
+OSesWithoutTracer = ["debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-2204", "ubuntu-stable", "fedora-coreos"]
+OSesWithoutKpatch = ["debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-2204", "ubuntu-stable",
                      "fedora-coreos", "fedora-35", "fedora-36", "fedora-testing", "centos-8-stream", "arch"]
 
 
@@ -1170,7 +1170,7 @@ class TestKpatchInstall(NoSubManCase):
 
 @skipImage("Image uses OSTree", "fedora-coreos")
 @skipImage("No subscriptions", "debian-stable", "debian-testing", "centos-8-stream",
-           "fedora-35", "fedora-36", "fedora-testing", "ubuntu-2004", "ubuntu-stable", "arch")
+           "fedora-35", "fedora-36", "fedora-testing", "ubuntu-2004", "ubuntu-2204", "ubuntu-stable", "arch")
 class TestUpdatesSubscriptions(PackageCase):
     provision = {
         "0": {"address": "10.111.112.1/20", "dns": "10.111.112.1", "memory_mb": 512},
@@ -1614,7 +1614,7 @@ class TestAutoUpdatesInstall(NoSubManCase):
             b.wait_not_present("#settings")
             b.wait_not_present("#autoupdates-settings")
 
-    @skipImage("No supported auto update backend", "debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-stable", "arch")
+    @skipImage("No supported auto update backend", "debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-2204", "ubuntu-stable", "arch")
     def testInstall(self):
         b = self.browser
         m = self.machine

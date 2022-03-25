@@ -619,8 +619,11 @@ class TestIPA(TestRealms, CommonTests):
         super().testUnqualifiedUsers()
 
         # now try 2FA with OTP
-        # This does not yet work with sssd < 2.2.2-1 on Ubuntu
-        if m.image in ["ubuntu-2004", "ubuntu-stable"]:
+        if m.image == "ubuntu-2004":
+            # This does not yet work with sssd < 2.2.2-1
+            return
+        if "debian" in m.image or "ubuntu" in m.image:
+            # FIXME: needs some additional setup on Debian to actually work
             return
 
         # set up "alice" user with HOTP; that won't affect existing users (admin)

@@ -89,10 +89,10 @@ export function fmt_size(bytes) {
 }
 
 export function fmt_size_long(bytes) {
-    const with_binary_unit = cockpit.format_bytes(bytes, 1024);
     const with_decimal_unit = cockpit.format_bytes(bytes, 1000);
+    const with_binary_unit = cockpit.format_bytes(bytes, 1024);
     /* Translators: Used in "..." */
-    return with_binary_unit + ", " + with_decimal_unit + ", " + bytes + " " + C_("format-bytes", "bytes");
+    return with_decimal_unit + ", " + with_binary_unit + ", " + bytes + " " + C_("format-bytes", "bytes");
 }
 
 export function fmt_rate(bytes_per_sec) {

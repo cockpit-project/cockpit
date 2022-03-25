@@ -195,9 +195,9 @@ class TestStorageLvm2(StorageCase):
         self.dialog_apply()
         self.dialog_wait_close()
         b.wait_in_text("#detail-sidebar", dev_2)
-        # this is sometimes 92, sometimes 96 MiB
-        b.wait_js_cond("Number(ph_text('#detail-header dt:contains(Capacity) + dd').split(' ')[0]) >= 92")
-        b.wait_js_cond("Number(ph_text('#detail-header dt:contains(Capacity) + dd').split(' ')[0]) <= 96")
+        # this is sometimes 96, sometimes 100 MB
+        b.wait_js_cond("Number(ph_text('#detail-header dt:contains(Capacity) + dd').split(' ')[0]) >= 96")
+        b.wait_js_cond("Number(ph_text('#detail-header dt:contains(Capacity) + dd').split(' ')[0]) <= 101")
 
         self.content_tab_action(1, 1, "Grow")
         self.dialog({"size": 70})

@@ -835,7 +835,7 @@ password=foobar
         dbus_call = 'busctl get-property org.freedesktop.login1 /org/freedesktop/login1  org.freedesktop.login1.Manager ScheduledShutdown'
         self.assertEqual('(st) "" 0', m.execute(dbus_call).strip())
 
-    @skipImage("crypto-policies not avaiable", "fedora-coreos", "debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-stable", "arch")
+    @skipImage("crypto-policies not avaiable", "fedora-coreos", "debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-2204", "ubuntu-stable", "arch")
     def testCryptoPolicies(self):
         def shown_profile_text(profile):
             return profile[0] + profile[1:].lower()

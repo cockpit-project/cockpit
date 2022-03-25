@@ -24,7 +24,7 @@ from testlib import *
 
 
 # TODO: Arch Linux has Stratis packages, tests need adjustments
-@skipImage("No Stratis", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004", "arch")
+@skipImage("No Stratis", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004", "ubuntu-2204", "arch")
 class TestStorageStratis(StorageCase):
 
     def testBasic(self):
@@ -367,7 +367,7 @@ class TestStorageStratis(StorageCase):
         self.wait_mounted(1, 1)
 
 
-@skipImage("No Stratis", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004", "arch")
+@skipImage("No Stratis", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004", "ubuntu-2204", "arch")
 @skipImage("No Stratis on demand", "rhel-9-0", "rhel-8-6")
 class TestStoragePackagesStratis(PackageCase, StorageCase):
 

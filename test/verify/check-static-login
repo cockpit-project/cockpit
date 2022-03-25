@@ -384,7 +384,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         self.allow_restart_journal_messages()
 
-    @skipImage("No tlog", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004",
+    @skipImage("No tlog", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004", "ubuntu-2204",
                "rhel-8-6", "rhel-9-0", "rhel-9-0-distropkg", "centos-8-stream", "fedora-coreos", "arch")
     def testSessionRecordingShell(self):
         m = self.machine
@@ -439,7 +439,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     "couldn't parse login input: Malformed input",
                                     "couldn't parse login input: Authentication failed")
 
-    @skipImage("No SELinux", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004", "arch")
+    @skipImage("No SELinux", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004", "ubuntu-2204", "arch")
     @skipImage("No semanage", "fedora-coreos")
     def testSELinuxRestrictedUser(self):
         m = self.machine
@@ -588,7 +588,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         m = self.machine
         b = self.browser
 
-        is_pam_tally2 = m.image.startswith('ubuntu')
+        is_pam_tally2 = m.image in ["ubuntu-2004", "ubuntu-stable"]
 
         if is_pam_tally2:
             module = 'pam_tally2'
@@ -639,7 +639,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # add it to the pam config
         if is_pam_tally2:
             self.sed_file("/common-auth/ { iauth required pam_tally2.so deny=4\n }", "/etc/pam.d/cockpit")
-        elif m.image.startswith('debian-'):
+        elif m.image.startswith('debian-') or m.image.startswith('ubuntu'):
             # enable pam_faillock.  see example in pam_faillock(8), adopted for sss
             self.sed_file("""s/re.*pam_deny.so/[default=die] pam_faillock.so authfail deny=4/;
                              s/re.*pam_permit.so/sufficient pam_faillock.so authsucc deny=4/;

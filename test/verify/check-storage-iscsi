@@ -23,7 +23,7 @@ from testlib import *
 
 
 @skipImage("UDisks doesn't have support for iSCSI", "debian-stable", "debian-testing",
-           "ubuntu-2004", "ubuntu-stable", "arch")
+           "ubuntu-2004", "ubuntu-2204", "ubuntu-stable", "arch")
 class TestStorageISCSI(StorageCase):
 
     def testISCSI(self):

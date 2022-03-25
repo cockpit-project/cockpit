@@ -167,20 +167,22 @@ class TestRunTest(MachineCase):
         # create affected test for shell changes
         with open(__file__) as f:
             original_test = f.read()
-        affected_testfile = os.path.join(VERIFY_DIR, "test-shell-testlib")
-        writeFile(affected_testfile, original_test.replace("class NoTest", "class Test"))
+        affected_testfile = os.path.join(VERIFY_DIR, "check-shell-testlib")
+        new_content = original_test.replace("class Test", "class NeinTest")
+        writeFile(affected_testfile, new_content.replace("class NeinTestRetryExample", "class TestShell"))
+        os.chmod(affected_testfile, 0o555)
         self.addCleanup(os.unlink, affected_testfile)
 
         process = subprocess.run([run_tests, "--test-dir", VERIFY_DIR,
-                                  "TestRetryExample.testBasic", "TestRetryExample.testNoRetry"],
+                                  "TestShell.testBasic", "TestShell.testNoRetry"],
                                  env=env, capture_output=True)
         stdout = process.stdout
-        self.assertRegex(stdout, rb"\nok .* TestRetryExample.testBasic # RETRY 1 \(test affected tests 3 times\)\n")
-        self.assertRegex(stdout, rb"\nok .* TestRetryExample.testBasic # RETRY 2 \(test affected tests 3 times\)\n")
-        self.assertRegex(stdout, rb"\nok .* TestRetryExample.testBasic\n")
+        self.assertRegex(stdout, rb"\nok .* TestShell.testBasic # RETRY 1 \(test affected tests 3 times\)\n")
+        self.assertRegex(stdout, rb"\nok .* TestShell.testBasic # RETRY 2 \(test affected tests 3 times\)\n")
+        self.assertRegex(stdout, rb"\nok .* TestShell.testBasic\n")
         self.assertNotRegex(stdout, b"RETRY 3")
-        self.assertRegex(stdout, b"\nok .* TestRetryExample.testNoRetry\n")
-        self.assertNotRegex(stdout, b"TestRetryExample.testNoRetry # RETRY")
+        self.assertRegex(stdout, b"\nok .* TestShell.testNoRetry\n")
+        self.assertNotRegex(stdout, b"TestShell.testNoRetry # RETRY")
 
         # Check that just .css changes do no affect retry logic
         systemd = os.path.join("pkg", "systemd", "overview.scss")
@@ -208,6 +210,7 @@ class TestSystemd(unittest.TestCase):
         stdout = process.stdout
         self.assertRegex(stdout, rb"\nok .* TestSystemd.testBasic\n")
         self.assertNotRegex(stdout, b"RETRY")
+
 
 @skipDistroPackage()
 class TestTestlib(MachineCase):

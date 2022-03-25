@@ -584,7 +584,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
     def testFailingWebsocketSafariNoCA(self):
         self.testFailingWebsocket(safari=True, cacert=False)
 
-    def testTally(self):
+    def testFaillock(self):
         m = self.machine
         b = self.browser
 

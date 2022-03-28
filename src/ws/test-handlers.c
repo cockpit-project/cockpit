@@ -42,7 +42,7 @@
  * To recalculate the checksums found in this file, do something like:
  * $ XDG_DATA_DIRS=$PWD/src/bridge/mock-resource/system/ XDG_DATA_HOME=/nonexistent ./cockpit-bridge --packages
  */
-#define CHECKSUM "$9d638a2193c715687af4399a2dd8a2e4fe7debbc82df27b38540048766d4e2b5"
+#define CHECKSUM "$9a9ee8f5711446a46289cd1451c2a7125fb586456884b96807401ac2f055e669"
 
 /* Mock override this from cockpitconf.c */
 extern const gchar *cockpit_config_file;

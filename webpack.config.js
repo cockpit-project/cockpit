@@ -260,8 +260,8 @@ const section = process.env.ONLYDIR || null;
 /* A standard nodejs and webpack pattern */
 const production = process.env.NODE_ENV === 'production';
 
-/* development options for faster iteration */
-const eslint = process.env.ESLINT !== '0';
+/* Default to disable eslint for faster production builds */
+const eslint = process.env.ESLINT ? (process.env.ESLINT !== '0') : !production;
 
 /*
  * Note that we're avoiding the use of path.join as webpack and nodejs

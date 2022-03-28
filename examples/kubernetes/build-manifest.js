@@ -1,8 +1,8 @@
 #!/usr/bin/node
 
-var fs = require('fs');
+const fs = require('fs');
 
-var input;
+let input;
 
 function fatal(message, code) {
     console.log((input || "build-manifest") + ": " + message);
@@ -14,12 +14,12 @@ if (process.argv.length < 3) {
     process.exit(2);
 }
 
-var files = process.argv.slice(2);
+const files = process.argv.slice(2);
 
-var manifest = {
-    "kind": "List",
-    "apiVersion": "v1beta3",
-    "items": []
+const manifest = {
+    kind: "List",
+    apiVersion: "v1beta3",
+    items: []
 };
 
 function step() {
@@ -27,7 +27,6 @@ function step() {
         input = null;
         process.stdout.write(JSON.stringify(manifest, null, 4));
         process.exit(0);
-        return;
     }
 
     input = files.shift();
@@ -35,10 +34,10 @@ function step() {
     fs.readFile(input, { encoding: "utf-8" }, function(err, data) {
         if (err)
             fatal(err.message);
-        var item;
+        let item;
         try {
             item = JSON.parse(data);
-        } catch(ex) {
+        } catch (ex) {
             fatal(ex.message);
         }
         manifest.items.push(item);

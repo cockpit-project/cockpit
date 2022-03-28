@@ -1,3 +1,5 @@
+/* global ph_mouse ph_set_result ph_switch_to_frame ph_wait_present */
+
 async function test() {
     try {
         await ph_wait_present("#topnav");
@@ -15,7 +17,7 @@ async function test() {
         // await ph_wait_not_present("#system_information_ssh_keys");
 
         ph_set_result("PASS");
-    } catch(e) {
+    } catch (e) {
         ph_set_result(e);
     }
 }

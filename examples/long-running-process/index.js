@@ -27,26 +27,26 @@ function update(process) {
     state.innerHTML = cockpit.format("$0 $1", process.serviceName, process.state);
 
     switch (process.state) {
-        case ProcessState.INIT:
-            break;
-        case ProcessState.STOPPED:
-            run_button.removeAttribute("disabled");
-            run_button.innerHTML = "Start";
-            break;
-        case ProcessState.RUNNING:
-            run_button.removeAttribute("disabled");
-            run_button.innerHTML = "Terminate";
-            // StateChangeTimestamp property is in µs since epoch, but journalctl expects seconds
-            showJournal(process.serviceName, "--since=@" + Math.floor(process.startTimestamp / 1000000));
-            break;
-        case ProcessState.FAILED:
-            run_button.setAttribute("disabled", "");
-            run_button.innerHTML = "Start";
-            // Show the whole journal of this boot
-            showJournal(process.serviceName, "--boot");
-            break;
-        default:
-            throw new Error("unexpected process.state: " + process.state);
+    case ProcessState.INIT:
+        break;
+    case ProcessState.STOPPED:
+        run_button.removeAttribute("disabled");
+        run_button.innerHTML = "Start";
+        break;
+    case ProcessState.RUNNING:
+        run_button.removeAttribute("disabled");
+        run_button.innerHTML = "Terminate";
+        // StateChangeTimestamp property is in µs since epoch, but journalctl expects seconds
+        showJournal(process.serviceName, "--since=@" + Math.floor(process.startTimestamp / 1000000));
+        break;
+    case ProcessState.FAILED:
+        run_button.setAttribute("disabled", "");
+        run_button.innerHTML = "Start";
+        // Show the whole journal of this boot
+        showJournal(process.serviceName, "--boot");
+        break;
+    default:
+        throw new Error("unexpected process.state: " + process.state);
     }
 }
 

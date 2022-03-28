@@ -4,10 +4,11 @@ const result = document.getElementById("result");
 const button = document.getElementById("ping");
 
 function ping_run() {
+    /* global cockpit */
     cockpit.spawn(["ping", "-c", "4", address.value])
-        .stream(ping_output)
-        .then(ping_success)
-        .catch(ping_fail);
+            .stream(ping_output)
+            .then(ping_success)
+            .catch(ping_fail);
 
     result.innerHTML = "";
     output.innerHTML = "";

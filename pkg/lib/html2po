@@ -27,21 +27,21 @@ const path = require('path');
 const htmlparser = require('htmlparser');
 const { ArgumentParser } = require('argparse');
 
-const parser = new ArgumentParser()
-parser.add_argument('-d', '--directory', { help: "Base directory for input files" })
-parser.add_argument('-o', '--output', { help: 'Output file', required: true })
-parser.add_argument('files', { nargs: '+', help: "One or more input files", metavar: "FILE" })
-const args = parser.parse_args()
+const parser = new ArgumentParser();
+parser.add_argument('-d', '--directory', { help: "Base directory for input files" });
+parser.add_argument('-o', '--output', { help: 'Output file', required: true });
+parser.add_argument('files', { nargs: '+', help: "One or more input files", metavar: "FILE" });
+const args = parser.parse_args();
 
-var input = args.files;
-var entries = { };
+const input = args.files;
+const entries = { };
 
 /* Filename being parsed and offset of line number */
-var filename = null;
-var offsets = 0;
+let filename = null;
+let offsets = 0;
 
 /* The HTML parser we're using */
-var handler = new htmlparser.DefaultHandler(function(error, dom) {
+const handler = new htmlparser.DefaultHandler(function(error, dom) {
     if (error)
         fatal(error);
     else
@@ -59,15 +59,15 @@ function step() {
     }
 
     /* Qualify the filename if necessary */
-    var full = filename;
+    let full = filename;
     if (args.directory)
         full = path.join(args.directory, filename);
 
-    fs.readFile(full, { encoding: "utf-8"}, function(err, data) {
+    fs.readFile(full, { encoding: "utf-8" }, function(err, data) {
         if (err)
             fatal(err.message);
 
-        var parser = new htmlparser.Parser(handler, { includeLocation: true });
+        const parser = new htmlparser.Parser(handler, { includeLocation: true });
         parser.parseComplete(data);
         step();
     });
@@ -79,12 +79,12 @@ function walk(children) {
         return;
 
     children.forEach(function(child) {
-        var line = (child.location || { }).line || 0;
-        var offset = line - 1;
+        const line = (child.location || { }).line || 0;
+        const offset = line - 1;
 
         /* Scripts get their text processed as HTML */
         if (child.type == 'script' && child.children) {
-            var parser = new htmlparser.Parser(handler, { includeLocation: true });
+            const parser = new htmlparser.Parser(handler, { includeLocation: true });
 
             /* Make note of how far into the outer HTML file we are */
             offsets += offset;
@@ -105,28 +105,27 @@ function walk(children) {
 
 /* Process a single loaded tag */
 function tag(node) {
-
-    var tasks, line, entry;
-    var attrs = node.attribs || { };
-    var nest = true;
+    let tasks, line, entry;
+    const attrs = node.attribs || { };
+    let nest = true;
 
     /* Extract translate strings */
     if ("translate" in attrs || "translatable" in attrs) {
-        tasks = (attrs["translate"] || attrs["translatable"] || "yes").split(" ");
+        tasks = (attrs.translate || attrs.translatable || "yes").split(" ");
 
         /* Calculate the line location taking into account nested parsing */
-        line = (node.location || { })["line"] || 0;
+        line = (node.location || { }).line || 0;
         line += offsets;
 
         entry = {
-            msgctxt: attrs['translate-context'] || attrs['context'],
+            msgctxt: attrs['translate-context'] || attrs.context,
             msgid_plural: attrs['translate-plural'],
-            locations: [ filename + ":" + line ]
+            locations: [filename + ":" + line]
         };
 
         /* For each thing listed */
         tasks.forEach(function(task) {
-            var copy = Object.assign({}, entry);
+            const copy = Object.assign({}, entry);
 
             /* The element text itself */
             if (task == "yes" || task == "translate") {
@@ -150,8 +149,8 @@ function tag(node) {
 
 /* Push an entry onto the list */
 function push(entry) {
-    var key = entry.msgid + "\0" + entry.msgid_plural + "\0" + entry.msgctxt;
-    var prev = entries[key];
+    const key = entry.msgid + "\0" + entry.msgid_plural + "\0" + entry.msgctxt;
+    const prev = entries[key];
     if (prev) {
         prev.locations = prev.locations.concat(entry.locations);
     } else {
@@ -164,10 +163,10 @@ function extract(children) {
     if (!children)
         return null;
 
-    var i, len, node, str = [];
+    const str = [];
     children.forEach(function(node) {
         if (node.type == 'tag' && node.children)
-            str.push(extract(node.children))
+            str.push(extract(node.children));
         else if (node.type == 'text' && node.data)
             str.push(node.data);
     });
@@ -177,7 +176,10 @@ function extract(children) {
 
 /* Escape a string for inclusion in po file */
 function escape(string) {
-    var bs = string.split('\\').join('\\\\').split('"').join('\\"');
+    const bs = string.split('\\')
+            .join('\\\\')
+            .split('"')
+            .join('\\"');
     return bs.split("\n").map(function(line) {
         return '"' + line + '"';
     }).join("\n");
@@ -185,7 +187,7 @@ function escape(string) {
 
 /* Finish by writing out the strings */
 function finish() {
-    var result = [
+    const result = [
         'msgid ""',
         'msgstr ""',
         '"Project-Id-Version: PACKAGE_VERSION\\n"',
@@ -196,9 +198,8 @@ function finish() {
         '',
     ];
 
-    var msgid, entry;
-    for (msgid in entries) {
-        entry = entries[msgid];
+    for (const msgid in entries) {
+        const entry = entries[msgid];
         result.push('#: ' + entry.locations.join(" "));
         if (entry.msgctxt)
             result.push('msgctxt ' + escape(entry.msgctxt));
@@ -213,7 +214,7 @@ function finish() {
         result.push('');
     }
 
-    var data = result.join('\n');
+    const data = result.join('\n');
     if (!args.output) {
         process.stdout.write(data);
         process.exit(0);

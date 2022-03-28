@@ -9,33 +9,32 @@ const webpack = require("webpack");
 const path = require("path");
 const argparse = require("argparse");
 const fs = require("fs");
-const child_process = require("child_process");
 const CockpitRsyncPlugin = require("../pkg/lib/cockpit-rsync-plugin");
 
 // argv0 is node
 const webpack_watch = process.argv[1].includes('webpack-watch');
 
-const parser = argparse.ArgumentParser()
-parser.add_argument('-c', '--config', { help: "Path to webpack.config.js", default: "webpack.config.js" })
-parser.add_argument('-r', '--rsync', { help: "rsync webpack to ssh target after build", metavar: "HOST" })
-parser.add_argument('-w', '--watch', { action: 'store_true', help: "Enable webpack watch mode", default: webpack_watch })
-parser.add_argument('-e', '--no-eslint', { action: 'store_true', help: "Disable eslint linting" })
-parser.add_argument('prefix', { help: "The directory to build (eg. base1, shell, ...)", metavar: "DIRECTORY" })
-args = parser.parse_args()
+const parser = argparse.ArgumentParser();
+parser.add_argument('-c', '--config', { help: "Path to webpack.config.js", default: "webpack.config.js" });
+parser.add_argument('-r', '--rsync', { help: "rsync webpack to ssh target after build", metavar: "HOST" });
+parser.add_argument('-w', '--watch', { action: 'store_true', help: "Enable webpack watch mode", default: webpack_watch });
+parser.add_argument('-e', '--no-eslint', { action: 'store_true', help: "Disable eslint linting" });
+parser.add_argument('prefix', { help: "The directory to build (eg. base1, shell, ...)", metavar: "DIRECTORY" });
+const args = parser.parse_args();
 
 if (args.no_eslint) {
-    process.env["ESLINT"] = "0";
+    process.env.ESLINT = "0";
 } else if (args.watch) {
-    process.env["ESLINT"] = "1";
+    process.env.ESLINT = "1";
 }
 
 if (args.prefix.includes('/')) {
-    parser.error("Directory must not contain '/'")
+    parser.error("Directory must not contain '/'");
 }
 
 const prefix = args.prefix;
 const makefile = "dist/" + prefix + "/Makefile.deps";
-process.env["ONLYDIR"] = prefix + "/";
+process.env.ONLYDIR = prefix + "/";
 
 const srcdir = (process.env.SRCDIR || ".").replace(/\/$/, '');
 const cwd = process.cwd();
@@ -43,8 +42,8 @@ const config_path = path.resolve(cwd, args.config);
 const config = require(config_path);
 
 if (args.rsync) {
-  process.env["RSYNC"] = args.rsync;
-  config.plugins.push(new CockpitRsyncPlugin({source: path.dirname(makefile)}));
+    process.env.RSYNC = args.rsync;
+    config.plugins.push(new CockpitRsyncPlugin({ source: path.dirname(makefile) }));
 }
 
 const compiler = webpack(config);
@@ -52,7 +51,7 @@ const compiler = webpack(config);
 if (args.watch) {
     compiler.hooks.watchRun.tap("WebpackInfo", compilation => {
         const time = new Date().toTimeString().split(' ')[0];
-        process.stdout.write(`${ time  } Build started\n`);
+        process.stdout.write(`${time} Build started\n`);
     });
     compiler.watch(config.watchOptions, process_result);
 } else {
@@ -65,13 +64,12 @@ function process_result(err, stats) {
     if (err) {
         console.log(JSON.stringify(err));
         process.exit(1);
-        return;
     }
 
     if (args.watch) {
         const info = stats.toJson();
         const time = new Date().toTimeString().split(' ')[0];
-        process.stdout.write(`${ time  } Build succeeded, took ${ info.time/1000 }s\n`);
+        process.stdout.write(`${time} Build succeeded, took ${info.time / 1000}s\n`);
     }
 
     // Failure exit code when compilation fails
@@ -136,7 +134,7 @@ function generateDeps(makefile, stats) {
         installs.add(output);
     }
 
-    const lines = [ "# Generated Makefile data for " + prefix ];
+    const lines = ["# Generated Makefile data for " + prefix];
 
     function makeArray(name, set) {
         lines.push(name + " = \\");
@@ -158,12 +156,12 @@ function generateDeps(makefile, stats) {
 
     for (const name of [...outputs.keys()].sort()) {
         lines.push(name + ": " + stampfile);
-        lines.push("")
+        lines.push("");
     }
 
     for (const name of [...inputs.keys()].sort()) {
         lines.push(name + ":");
-        lines.push("")
+        lines.push("");
     }
 
     lines.push("WEBPACK_INPUTS += $(" + prefix + "_INPUTS)");

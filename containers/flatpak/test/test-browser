@@ -67,6 +67,9 @@ class BrowserTest(unittest.TestCase):
         with open(os.path.join(TEST_DIR, js_name)) as f:
             js = f.read()
 
+        # WebKit.run_javascript() needs some serializable return value
+        js += '\ntrue\n'
+
         result = None
 
         def on_done(_group, name, value):

@@ -10,6 +10,3 @@ async function test() {
 }
 
 test();
-
-// WebKit.run_javascript() needs some serializable return value
-true

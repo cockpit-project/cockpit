@@ -1,13 +1,13 @@
 /* simplified subset of test/common/test-functions.js; no sizzle */
 
-var cur_doc = document;
+window.cur_doc = document;
 
 async function ph_switch_to_frame(frame) {
-    cur_doc = document;
+    window.cur_doc = document;
     if (frame) {
         const frame_sel = "iframe[name='cockpit1:localhost/" + frame + "'][data-loaded]";
         await ph_wait_present(frame_sel);
-        cur_doc = document.querySelector(frame_sel).contentWindow.document;
+        window.cur_doc = document.querySelector(frame_sel).contentWindow.document;
     }
 }
 
@@ -38,16 +38,16 @@ function ph_wait_cond(cond, timeout, error_description) {
 }
 
 function ph_wait_present(sel) {
-    return ph_wait_cond(() => (cur_doc.querySelector(sel) != null), 10000, "timed out waiting for " + sel);
+    return ph_wait_cond(() => (window.cur_doc.querySelector(sel) != null), 10000, "timed out waiting for " + sel);
 }
 
 function ph_wait_not_present(sel) {
-    return ph_wait_cond(() => (cur_doc.querySelector(sel) === null), 10000, "timed out waiting for " + sel + " to disappear");
+    return ph_wait_cond(() => (window.cur_doc.querySelector(sel) === null), 10000, "timed out waiting for " + sel + " to disappear");
 }
 
 function ph_wait_visible(sel) {
     return ph_wait_cond(() => {
-        const el = cur_doc.querySelector(sel);
+        const el = window.cur_doc.querySelector(sel);
         if (el === null)
             return false;
         return el.tagName == "svg" || ((el.offsetWidth > 0 || el.offsetHeight > 0) && !(el.style.visibility == "hidden" || el.style.display == "none"));
@@ -56,7 +56,7 @@ function ph_wait_visible(sel) {
 
 function ph_wait_not_visible(sel) {
     return ph_wait_cond(() => {
-        const el = cur_doc.querySelector(sel);
+        const el = window.cur_doc.querySelector(sel);
         if (el === null)
             return true;
         return !(el.tagName == "svg" || ((el.offsetWidth > 0 || el.offsetHeight > 0) && !(el.style.visibility == "hidden" || el.style.display == "none")));
@@ -64,7 +64,7 @@ function ph_wait_not_visible(sel) {
 }
 
 function ph_wait_count(sel, count) {
-    return ph_wait_cond(() => (cur_doc.querySelectorAll(sel).length === count), 10000, "timed out waiting for " + sel + " to be visible");
+    return ph_wait_cond(() => (window.cur_doc.querySelectorAll(sel).length === count), 10000, "timed out waiting for " + sel + " to be visible");
 }
 
 function ph_mouse(sel, type, x, y, btn, ctrlKey, shiftKey, altKey, metaKey) {

@@ -25,6 +25,8 @@ args = parser.parse_args()
 
 if (args.no_eslint) {
     process.env["ESLINT"] = "0";
+} else if (args.watch) {
+    process.env["ESLINT"] = "1";
 }
 
 if (args.prefix.includes('/')) {

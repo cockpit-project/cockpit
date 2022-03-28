@@ -1152,6 +1152,12 @@ class MetricsHistory extends React.Component {
 
         // FIXME: load less up-front, load more when scrolling
         machine_info_promise.then(() => this.initialLoadData());
+
+        cockpit.addEventListener("visibilitychange", () => {
+            // update history metrics when in auto-update mode
+            if (!cockpit.hidden && this.history_refresh_timer)
+                this.load_data(this.most_recent);
+        });
     }
 
     // load and render the last 24 hours (plus current one) initially; this needs numCpu initialized for correct scaling
@@ -1322,9 +1328,13 @@ class MetricsHistory extends React.Component {
                 // re-render
                 this.setState({ hours, loading: false });
 
-                // trigger automatic update every minute
-                if (!limit)
-                    this.history_refresh_timer = window.setTimeout(() => this.load_data(this.most_recent), 60000, false);
+                // trigger automatic update every minute when visible
+                if (!limit) {
+                    this.history_refresh_timer = window.setTimeout(() => {
+                        if (!cockpit.hidden)
+                            this.load_data(this.most_recent);
+                    }, 60000);
+                }
             }
 
             metrics.close();

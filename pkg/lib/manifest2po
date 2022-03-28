@@ -14,17 +14,17 @@ const fs = require('fs');
 const path = require('path');
 const { ArgumentParser } = require('argparse');
 
-const parser = new ArgumentParser()
-parser.add_argument('-d', '--directory', { help: "Base directory for input files" })
-parser.add_argument('-o', '--output', { help: 'Output file', required: true })
-parser.add_argument('files', { nargs: '+', help: "One or more input files", metavar: "FILE" })
-const args = parser.parse_args()
+const parser = new ArgumentParser();
+parser.add_argument('-d', '--directory', { help: "Base directory for input files" });
+parser.add_argument('-o', '--output', { help: 'Output file', required: true });
+parser.add_argument('files', { nargs: '+', help: "One or more input files", metavar: "FILE" });
+const args = parser.parse_args();
 
-var input = args.files;
-var entries = { };
+const input = args.files;
+const entries = { };
 
 /* Filename being parsed */
-var filename = null;
+let filename = null;
 
 /* Now process each file in turn */
 step();
@@ -40,17 +40,17 @@ function step() {
         return step();
 
     /* Qualify the filename if necessary */
-    var full = filename;
+    let full = filename;
     if (args.directory)
         full = path.join(args.directory, filename);
 
-    fs.readFile(full, { encoding: "utf-8"}, function(err, data) {
+    fs.readFile(full, { encoding: "utf-8" }, function(err, data) {
         if (err)
             fatal(err.message);
 
         // There are variables which when not substituted can cause JSON.parse to fail
         // Dummy replace them. None variable is going to be translated anyway
-        safe_data = data.replace(/\@.+?\@/gi, 1);
+        const safe_data = data.replace(/@.+?@/gi, 1);
         process_manifest(JSON.parse(safe_data));
 
         return step();
@@ -69,7 +69,7 @@ function process_keywords(keywords) {
         v.matches.forEach(keyword =>
             push({
                 msgid: keyword,
-                locations: [ filename + ":0" ]
+                locations: [filename + ":0"]
             })
         );
     });
@@ -79,17 +79,17 @@ function process_docs(docs) {
     docs.forEach(doc => {
         push({
             msgid: doc.label,
-            locations: [ filename + ":0" ]
-        })
+            locations: [filename + ":0"]
+        });
     });
 }
 
 function process_menu(menu) {
-    for (var m in menu) {
+    for (const m in menu) {
         if (menu[m].label) {
             push({
                 msgid: menu[m].label,
-                locations: [ filename + ":0" ]
+                locations: [filename + ":0"]
             });
         }
         if (menu[m].keywords)
@@ -101,8 +101,8 @@ function process_menu(menu) {
 
 /* Push an entry onto the list */
 function push(entry) {
-    var key = entry.msgid + "\0" + entry.msgid_plural + "\0" + entry.msgctxt;
-    var prev = entries[key];
+    const key = entry.msgid + "\0" + entry.msgid_plural + "\0" + entry.msgctxt;
+    const prev = entries[key];
     if (prev) {
         prev.locations = prev.locations.concat(entry.locations);
     } else {
@@ -112,7 +112,10 @@ function push(entry) {
 
 /* Escape a string for inclusion in po file */
 function escape(string) {
-    var bs = string.split('\\').join('\\\\').split('"').join('\\"');
+    const bs = string.split('\\')
+            .join('\\\\')
+            .split('"')
+            .join('\\"');
     return bs.split("\n").map(function(line) {
         return '"' + line + '"';
     }).join("\n");
@@ -120,7 +123,7 @@ function escape(string) {
 
 /* Finish by writing out the strings */
 function finish() {
-    var result = [
+    const result = [
         'msgid ""',
         'msgstr ""',
         '"Project-Id-Version: PACKAGE_VERSION\\n"',
@@ -131,9 +134,8 @@ function finish() {
         '',
     ];
 
-    var msgid, entry;
-    for (msgid in entries) {
-        entry = entries[msgid];
+    for (const msgid in entries) {
+        const entry = entries[msgid];
         result.push('#: ' + entry.locations.join(" "));
         if (entry.msgctxt)
             result.push('msgctxt ' + escape(entry.msgctxt));
@@ -148,7 +150,7 @@ function finish() {
         result.push('');
     }
 
-    var data = result.join('\n');
+    const data = result.join('\n');
     if (!args.output) {
         process.stdout.write(data);
         process.exit(0);

@@ -241,9 +241,9 @@ process.traceDeprecation = true;
 const path = require("path");
 const fs = require("fs");
 
-const copy = require("copy-webpack-plugin");
-const html = require('html-webpack-plugin');
-const miniCssExtractPlugin = require('mini-css-extract-plugin');
+const Copy = require("copy-webpack-plugin");
+const Html = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CompressionPlugin = require("compression-webpack-plugin");
 const TerserJSPlugin = require('terser-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
@@ -315,21 +315,25 @@ const base1_fonts = [
 ];
 
 // main font for all our pages
-const redhat_fonts = ["Text-Bold", "Text-BoldItalic", "Text-Italic", "Text-Medium", "Text-MediumItalic", "Text-Regular",
-                      "Display-Black", "Display-BlackItalic", "Display-Bold", "Display-BoldItalic",
-                      "Display-Italic", "Display-Medium", "Display-MediumItalic", "Display-Regular"].map(name => {
-                          const subdir = 'RedHat' + name.split('-')[0];
-                          return  {
-                              from: path.resolve(nodedir, '@redhat/redhat-font/webfonts', subdir, 'RedHat' + name + '.woff2'),
-                              to: 'static/fonts/'
-                          };
-                      });
+const redhat_fonts = [
+    "Text-Bold", "Text-BoldItalic", "Text-Italic", "Text-Medium", "Text-MediumItalic", "Text-Regular",
+    "Display-Black", "Display-BlackItalic", "Display-Bold", "Display-BoldItalic",
+    "Display-Italic", "Display-Medium", "Display-MediumItalic", "Display-Regular"
+].map(name => {
+    const subdir = 'RedHat' + name.split('-')[0];
+    return {
+        from: path.resolve(nodedir, '@redhat/redhat-font/webfonts', subdir, 'RedHat' + name + '.woff2'),
+        to: 'static/fonts/'
+    };
+});
 
 // deprecated OpenSans static font for cockpit-ws package (still necessary for RHEL 7 remote hosts)
-const opensans_fonts = ["Bold", "BoldItalic", "ExtraBold", "ExtraBoldItalic", "Italic", "Light",
-                        "LightItalic", "Regular", "Semibold", "SemiboldItalic"].map(name => (
-        { from: path.resolve(nodedir, 'patternfly/dist/fonts/OpenSans-' + name + '-webfont.woff'), to: 'static/fonts/' }
-    ));
+const opensans_fonts = [
+    "Bold", "BoldItalic", "ExtraBold", "ExtraBoldItalic", "Italic", "Light",
+    "LightItalic", "Regular", "Semibold", "SemiboldItalic"
+].map(name => (
+    { from: path.resolve(nodedir, 'patternfly/dist/fonts/OpenSans-' + name + '-webfont.woff'), to: 'static/fonts/' }
+));
 
 function get_translation_reference_patterns () {
     // shell needs all manifest translations for search
@@ -341,8 +345,8 @@ function get_translation_reference_patterns () {
 }
 
 const plugins = [
-    new copy({ patterns: info.files }),
-    new miniCssExtractPlugin({ filename: "[name].css" }),
+    new Copy({ patterns: info.files }),
+    new MiniCssExtractPlugin({ filename: "[name].css" }),
     new CockpitPoPlugin({
         subdir: section,
         reference_patterns: get_translation_reference_patterns(),
@@ -368,18 +372,18 @@ if (eslint) {
 }
 
 if (section.startsWith('base1'))
-    plugins.push(new copy({ patterns: base1_fonts }));
+    plugins.push(new Copy({ patterns: base1_fonts }));
 
 if (section.startsWith('static')) {
-    plugins.push(new copy({ patterns: redhat_fonts }));
-    plugins.push(new copy({ patterns: opensans_fonts }));
+    plugins.push(new Copy({ patterns: redhat_fonts }));
+    plugins.push(new Copy({ patterns: opensans_fonts }));
 }
 
 /* Fill in the tests properly */
 info.tests.forEach(test => {
     if (!section || test.indexOf(section) === 0) {
         info.entries[test] = vpath("pkg", test + ".js");
-        plugins.push(new html({
+        plugins.push(new Html({
             title: path.basename(test),
             filename: test + ".html",
             template: libdir + path.sep + "qunit-template.html",
@@ -398,15 +402,15 @@ module.exports = {
     mode: production ? 'production' : 'development',
     resolve: {
         alias: aliases,
-        modules: [ libdir, nodedir ],
+        modules: [libdir, nodedir],
         extensions: ["*", ".js", ".json"]
     },
     resolveLoader: {
-        modules: [ nodedir, path.resolve(__dirname, 'pkg/lib') ],
+        modules: [nodedir, path.resolve(__dirname, 'pkg/lib')],
     },
     entry: info.entries,
     // cockpit.js gets included via <script>, everything else should be bundled
-    externals: { "cockpit": "cockpit" },
+    externals: { cockpit: "cockpit" },
     plugins: plugins,
 
     devtool: production ? false : "source-map",
@@ -425,14 +429,13 @@ module.exports = {
     optimization: {
         minimize: production,
         minimizer: [
-           new TerserJSPlugin(),
-           new CssMinimizerPlugin({
-               minimizerOptions: {
-                   preset: ['lite']
-               }
-           })
-       ],
-
+            new TerserJSPlugin(),
+            new CssMinimizerPlugin({
+                minimizerOptions: {
+                    preset: ['lite']
+                }
+            })
+        ],
     },
 
     module: {
@@ -458,7 +461,7 @@ module.exports = {
             {
                 test: /patternfly-cockpit.scss$/,
                 use: [
-                    miniCssExtractPlugin.loader,
+                    MiniCssExtractPlugin.loader,
                     {
                         loader: 'css-loader',
                         options: {
@@ -515,7 +518,7 @@ module.exports = {
             {
                 test: /patternfly-4-cockpit.scss$/,
                 use: [
-                    miniCssExtractPlugin.loader,
+                    MiniCssExtractPlugin.loader,
                     {
                         loader: 'css-loader',
                         options: {
@@ -554,7 +557,7 @@ module.exports = {
                 test: /\.s?css$/,
                 exclude: /patternfly-(4-)?cockpit.scss/,
                 use: [
-                    miniCssExtractPlugin.loader,
+                    MiniCssExtractPlugin.loader,
                     {
                         loader: 'css-loader',
                         options: {

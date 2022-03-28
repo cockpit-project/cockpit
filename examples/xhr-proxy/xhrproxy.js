@@ -52,10 +52,10 @@ document.getElementById("get").addEventListener("click", () => {
     const url = document.getElementById("address").value;
     const xhr = new XMLHttpRequest();
 
-    xhr.open("GET", address.value);
+    xhr.open("GET", url);
     xhr.onreadystatechange = () => {
         if (xhr.readyState === XMLHttpRequest.DONE) {
-            console.log("XMLHttpRequest to", address.value, "done with status", xhr.status, "text", xhr.responseText);
+            console.log("XMLHttpRequest to", url, "done with status", xhr.status, "text", xhr.responseText);
             document.getElementById("result").innerHTML = xhr.status.toString();
             const output = document.getElementById("output");
             output.innerHTML = "";

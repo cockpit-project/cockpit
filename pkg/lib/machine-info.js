@@ -42,11 +42,13 @@ export const cpu_ram_info = address =>
                 let model_match = text.match(/^model name\s*:\s*(.*)$/m);
                 if (!model_match)
                     model_match = text.match(/^cpu\s*:\s*(.*)$/m); // PowerPC
+                if (!model_match)
+                    model_match = text.match(/^vendor_id\s*:\s*(.*)$/m); // s390x
                 if (model_match)
                     info.cpu_model = model_match[1];
 
                 info.cpus = 0;
-                const re = /^processor\s*:/gm;
+                const re = /^(processor|cpu number)\s*:/gm;
                 while (re.test(text))
                     info.cpus += 1;
                 return info;

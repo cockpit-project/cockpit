@@ -43,6 +43,9 @@ class TestServices(MachineCase):
         self.restore_dir("/etc/systemd/user", user_post_restore, True)
         self.restore_dir("/etc/xdg/systemd/user", user_post_restore, True)
 
+        # FIXME: this page is too slow
+        self.browser.wait_timeout(60)
+
     def run_systemctl(self, user, cmd):
         if user:
             self.machine.execute(f"su - admin -c 'export XDG_RUNTIME_DIR=/run/user/$(id -u admin); systemctl --user {cmd}'")
@@ -517,8 +520,9 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
             self.assertGreater(initial_memory, 0.5)
             m.execute(f"touch /tmp/continue{params}")
             self.addCleanup(m.execute, f"rm /tmp/continue{params}")
-            # MemoryCurrent auto-updates every 30s - default timeout is 60s - when it updates the memory used should be ~50MiB
-            b.wait(lambda: float(b.text("#memory .pf-c-description-list__text").split(" ")[0]) > 40)
+            # MemoryCurrent auto-updates every 30s - when it updates the memory used should be ~50MiB
+            with b.wait_timeout(60):
+                b.wait(lambda: float(b.text("#memory .pf-c-description-list__text").split(" ")[0]) > 40)
             self.run_systemctl(user, "stop mem-hog.service")
             b.wait_not_present("#memory")
         # Check that listen is not shown for .service units
@@ -1013,6 +1017,9 @@ class TestTimers(MachineCase):
             "busctl get-property org.freedesktop.timedate1 /org/freedesktop/timedate1 org.freedesktop.timedate1 NTP"))
         m.execute("timedatectl set-time '2036-01-01 12:00:00'")
         m.reboot()
+
+        # FIXME: this page is too slow
+        b.wait_timeout(30)
 
         m.execute("timedatectl set-time '2036-01-01 15:30:00'")
         self.login_and_go("/system/services")

@@ -43,7 +43,8 @@ class KdumpHelpers(MachineCase):
 
         # wait for disconnect and then try connecting again
         b.switch_to_top()
-        b.wait_in_text("div.curtains-ct h1", "Disconnected")
+        with b.wait_timeout(60):
+            b.wait_in_text("div.curtains-ct h1", "Disconnected")
         self.machine.disconnect()
         self.machine.wait_boot(timeout_sec=300)
 

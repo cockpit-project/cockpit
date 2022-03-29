@@ -49,7 +49,8 @@ class TestNetworkingCheckpoints(NetworkCase):
         self.toggle_onoff(f".pf-c-card__header:contains('{iface}')")
 
         # Wait for dialog to appear and dismiss it
-        b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
+        with b.wait_timeout(60):
+            b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
         b.wait_not_present("#confirm-breaking-change-popup")
 
         if m.image not in ["debian-testing", "debian-stable"]:
@@ -60,7 +61,8 @@ class TestNetworkingCheckpoints(NetworkCase):
             b.set_input_text('#network-ip-settings-address-0', "1.2.3.4")
             b.set_input_text('#network-ip-settings-netmask-0', "24")
             b.click("#network-ip-settings-save")
-            b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
+            with b.wait_timeout(60):
+                b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
             b.wait_not_present("#confirm-breaking-change-popup")
 
     @skipImage("Main interface settings are read-only", "debian-stable", "debian-testing")

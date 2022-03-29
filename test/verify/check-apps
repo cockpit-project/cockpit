@@ -106,7 +106,8 @@ class TestApps(PackageCase):
         # Refresh package info
         b.click("#refresh")
 
-        b.click(".app-list #app-1")
+        with b.wait_timeout(30):
+            b.click(".app-list #app-1")
         b.wait_visible('a[href="https://app-1.com"]')
         b.wait_visible(f'#app-page img[src^="{urlroot}/cockpit/channel/"]')
         b.click(".pf-c-breadcrumb a:contains('Applications')")

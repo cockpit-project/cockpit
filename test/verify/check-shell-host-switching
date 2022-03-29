@@ -72,7 +72,8 @@ class HostSwitcherHelpers:
         if not known_host:
             b.wait_in_text('#hosts_setup_server_dialog', f"You are connecting to {address} for the first time")
             b.click('#hosts_setup_server_dialog .pf-m-primary')
-        b.wait_not_present('#hosts_setup_server_dialog')
+        with b.wait_timeout(30):
+            b.wait_not_present('#hosts_setup_server_dialog')
 
     def connect_and_wait(self, b, address):
         b.click(f"a[href='/@{address}']")
@@ -404,7 +405,8 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
             enter()
 
         b.click('#hosts_setup_server_dialog .pf-m-primary')
-        b.wait_not_present('#hosts_setup_server_dialog')
+        with b.wait_timeout(30):
+            b.wait_not_present('#hosts_setup_server_dialog')
 
         b.wait_text(".nav-item a[href='/@10.111.113.3']", "franz @machine3")
 
@@ -429,7 +431,8 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.click('#hosts_setup_server_dialog .pf-m-primary')
         b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
         b.click('#hosts_setup_server_dialog .pf-m-primary')
-        b.wait_not_present('#hosts_setup_server_dialog')
+        with b.wait_timeout(30):
+            b.wait_not_present('#hosts_setup_server_dialog')
 
         b.wait_text("#hosts-sel button .pf-c-select__toggle-text", "admin@machine2")
 

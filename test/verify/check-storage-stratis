@@ -399,7 +399,8 @@ class TestStoragePackagesStratis(PackageCase, StorageCase):
         self.devices_dropdown("Create Stratis pool")
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "The fake-stratisd package must be installed")
-        self.dialog_apply()
+        with b.wait_timeout(60):
+            self.dialog_apply()
         self.dialog_wait_val("name", "pool0")
         self.dialog_set_val("disks", {dev_1: True})
         self.dialog_apply()

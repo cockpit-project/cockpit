@@ -184,10 +184,12 @@ class TestMultiMachineAdd(MachineCase):
         b.click("#hosts-sel button")
 
         kill_user_admin(m2)
-        b.wait_visible("#machine2-error")
+        with b.wait_timeout(30):
+            b.wait_visible("#machine2-error")
 
         kill_user_admin(m3)
-        b.wait_visible("#machine3-error")
+        with b.wait_timeout(30):
+            b.wait_visible("#machine3-error")
 
         # Navigating reconnects
         b.click("a[href='/@10.111.113.2']")
@@ -495,7 +497,8 @@ class TestMultiMachine(MachineCase):
         m2.execute('passwd -l admin')
         kill_user_admin(m2)
 
-        b.wait_text(".curtains-ct h1", "Not connected to host")
+        with b.wait_timeout(30):
+            b.wait_text(".curtains-ct h1", "Not connected to host")
         b.wait_text("#machine-reconnect", "Reconnect")
 
         b.click("#hosts-sel button")
@@ -508,7 +511,8 @@ class TestMultiMachine(MachineCase):
 
         # navigating there again will fail
         b.go(m2_path)
-        b.wait_text(".curtains-ct h1", "Not connected to host")
+        with b.wait_timeout(30):
+            b.wait_text(".curtains-ct h1", "Not connected to host")
         b.wait_text("#machine-troubleshoot", "Log in")
 
         # wait for system to load
@@ -523,7 +527,8 @@ class TestMultiMachine(MachineCase):
         # path should reconnect at this point
         b.reload()
         b.go(m2_path)
-        b.wait_text(".curtains-ct h1", "Not connected to host")
+        with b.wait_timeout(30):
+            b.wait_text(".curtains-ct h1", "Not connected to host")
         b.click("#machine-troubleshoot")
         b.wait_visible('#hosts_setup_server_dialog')
         b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
@@ -543,7 +548,8 @@ class TestMultiMachine(MachineCase):
 
         # Bad host also bounces
         b.go("/@10.0.0.0/playground/test")
-        b.wait_text(".curtains-ct h1", "Not connected to host")
+        with b.wait_timeout(30):
+            b.wait_text(".curtains-ct h1", "Not connected to host")
         self.assertEqual(b.text(".curtains-ct .pf-c-empty-state__body"), "Cannot connect to an unknown host")
 
         self.allow_hostkey_messages()
@@ -786,7 +792,8 @@ class TestMultiMachine(MachineCase):
             b.set_input_text('#hosts_setup_server_dialog #login-setup-new-key-password', "foobar")
             b.set_input_text('#hosts_setup_server_dialog #login-setup-new-key-password2', "foobar")
         b.click('#hosts_setup_server_dialog button:contains(Log in)')
-        b.wait_not_present('#hosts_setup_server_dialog')
+        with b.wait_timeout(30):
+            b.wait_not_present('#hosts_setup_server_dialog')
 
         b.enter_page("/system", host="fred@10.111.113.2")
         m1.execute("test -f /home/admin/.ssh/id_rsa && test -f /home/admin/.ssh/id_rsa.pub")

@@ -109,7 +109,9 @@ OnCalendar=daily
         b.enter_page("/system/services")
         b.reload()
         b.enter_page("/system/services")
-        b.wait_text(".service-name", "Test Service")
+        # FIXME: Services page is too slow
+        with b.wait_timeout(30):
+            b.wait_text(".service-name", "Test Service")
         b.switch_to_top()
         self.checkDocs(["Managing services"])
         b.click("#toggle-docs")
@@ -125,7 +127,9 @@ OnCalendar=daily
 
         m.restart_cockpit()
         b.relogin("/system/services")
-        b.wait_text(".service-name", "Test Service")
+        # FIXME: Services page is too slow
+        with b.wait_timeout(30):
+            b.wait_text(".service-name", "Test Service")
 
         # check that navigating away and back preserves place
         b.click_system_menu("/system")
@@ -668,11 +672,13 @@ OnCalendar=daily
 
         meminfo = read_mem_info(m)
         mem_avail = meminfo['MemAvailable']
-        b.wait_js_func("ph_plot_data_plateau", "direct", mem_avail * 0.85, mem_avail * 1.15, 15, "mem")
+        with b.wait_timeout(60):
+            b.wait_js_func("ph_plot_data_plateau", "direct", mem_avail * 0.85, mem_avail * 1.15, 15, "mem")
 
         meminfo = read_mem_info(m)
         mem_avail = meminfo['MemAvailable']
-        b.wait_js_func("ph_plot_data_plateau", "pmcd", mem_avail * 0.85, mem_avail * 1.15, 15, "mem")
+        with b.wait_timeout(60):
+            b.wait_js_func("ph_plot_data_plateau", "pmcd", mem_avail * 0.85, mem_avail * 1.15, 15, "mem")
 
     def testPageStatus(self):
         b = self.browser

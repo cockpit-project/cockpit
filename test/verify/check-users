@@ -36,7 +36,8 @@ class TestAccounts(MachineCase):
         # Add a user externally
         m.execute("useradd anton")
         m.execute("echo anton:foobar | chpasswd")
-        b.wait_in_text('#accounts-list', "anton")
+        with b.wait_timeout(30):
+            b.wait_in_text('#accounts-list', "anton")
 
         # There is only one badge and it is for admin
         b.wait_text('.cockpit-account-badge', 'Your account')

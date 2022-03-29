@@ -5,28 +5,34 @@ srcdir ?= .
 AM_DEFAULT_VERBOSITY ?= 0
 NODE_ENV ?= production
 
+# Sorted by build time.  See webpack-benchmark rule below.
 WEBPACK_PACKAGES = \
-	base1 \
-	apps \
-	kdump \
-	metrics \
-	networkmanager \
-	packagekit \
-	playground \
-	selinux \
-	shell \
-	sosreport \
-	static \
 	storaged \
 	systemd \
-	tuned \
+	networkmanager \
+	base1 \
+	packagekit \
+	shell \
+	metrics \
+	playground \
 	users \
+	selinux \
+	kdump \
+	apps \
+	tuned \
+	sosreport \
+	static \
 	$(NULL)
 
 MANIFESTS = $(WEBPACK_PACKAGES:%=$(srcdir)/dist/%/manifest.json)
 
 .PHONY: all-webpack
 all-webpack: $(MANIFESTS)
+
+webpack-benchmark:
+	@hyperfine --export-markdown $@ --warmup 5 --prepare 'rm -rf dist' \
+		--parameter-list pkg "$$(echo '$(WEBPACK_PACKAGES)' | sed -E 's/\>\s+\</,/g;s/\s//g')" \
+		'pkg/build dist/{pkg}/manifest.json'
 
 V_TAR = $(V_TAR_$(V))
 V_TAR_ = $(V_TAR_$(AM_DEFAULT_VERBOSITY))

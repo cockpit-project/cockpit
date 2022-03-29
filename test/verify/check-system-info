@@ -512,6 +512,36 @@ revision\t: 2.3 (pvr 004e 1203)
         b.enter_page("/system")
         b.wait_in_text("#system-usage-cpu-progress + td", "of 2 CPUs")
 
+        # /proc/cpuinfo on s390x (reduced)
+        m.write("/tmp/cpuinfo", """vendor_id       : IBM/S390
+# processors    : 2
+bogomips per cpu: 3241.00
+max thread id   : 0
+features	: esan3 zarch stfle msa ldisp eimm dfp edat etf3eh highgprs te vx vxd vxe gs vxe2 vxp sort dflt sie
+processor 0: version = FF,  identification = 2EB428,  machine = 8561
+processor 1: version = FF,  identification = 2EB428,  machine = 8561
+
+cpu number      : 0
+cpu cores       : 1
+version         : FF
+identification  : 2EB428
+machine         : 8561
+
+cpu number      : 1
+cpu cores       : 1
+version         : FF
+identification  : 2EB428
+machine         : 8561
+""")
+
+        b.reload()
+        b.enter_page("/system")
+        b.wait_in_text("#system-usage-cpu-progress + td", "of 2 CPUs")
+
+        b.go('/system/hwinfo')
+        b.enter_page('/system/hwinfo')
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-c-description-list__group:nth-of-type(1) dd', "2x IBM/S390")
+
         # umount mocked /sys/class/dmi/id
         m.execute("umount /sys/class/dmi/id")
         m.execute("udevadm trigger --verbose /sys/devices/virtual/dmi/id")

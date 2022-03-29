@@ -507,10 +507,16 @@ revision\t: 2.3 (pvr 004e 1203)
         b.enter_page('/system/hwinfo')
         b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-c-description-list__group:nth-of-type(1) dd', "2x POWER9 (architected), altivec supported")
 
+        # correct CPU count on overview
+        b.go("/system")
+        b.enter_page("/system")
+        b.wait_in_text("#system-usage-cpu-progress + td", "of 2 CPUs")
+
         # umount mocked /sys/class/dmi/id
         m.execute("umount /sys/class/dmi/id")
         m.execute("udevadm trigger --verbose /sys/devices/virtual/dmi/id")
         b.reload()
+        b.go("/system/hwinfo")
         b.enter_page('/system/hwinfo')
 
         # Memory details should be shown from our mocked DMI information from systemd's test files.

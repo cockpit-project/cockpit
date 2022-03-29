@@ -162,7 +162,6 @@ export const LogsPage = () => {
 
     const onTextFilterChange = (value) => {
         setUpdateIdentifiersList(true);
-
         updateUrl(Object.assign(getOptionsFromTextInput(value)));
     };
 

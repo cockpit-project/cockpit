@@ -166,7 +166,8 @@ class TestUpdates(NoSubManCase):
         b.login_and_go("/updates")
 
         # Enable and install kpatch
-        b.wait_in_text("#kpatch-settings", "Disabled")
+        with b.wait_timeout(30):
+            b.wait_in_text("#kpatch-settings", "Disabled")
         b.click("#kpatch-settings button:contains('Enable')")
 
         # Apply kernel live patches for current and future kernels
@@ -332,7 +333,8 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         # check again
         b.click("#status .pf-c-card__header button")
 
-        b.wait_visible("#available-updates")
+        with b.wait_timeout(30):
+            b.wait_visible("#available-updates")
         b.wait_in_text("#status", "2 updates available")
 
         b.wait_in_text("table[aria-label='Available updates']", "vanilla")
@@ -454,14 +456,16 @@ ExecStart=/usr/local/bin/{self.packageName}
                 b.login_and_go("/updates")
 
                 # check update is present
-                b.wait_in_text("#status", "1 update available")
+                with b.wait_timeout(30):
+                    b.wait_in_text("#status", "1 update available")
                 b.wait_in_text("#available-updates table", self.packageName)
 
                 # install updates
                 b.wait_visible("#install-all")
                 b.wait_in_text("#install-all", "Install all updates")
                 b.click("#install-all")
-                b.wait_visible(".pf-c-empty-state .pf-c-title:contains('Update was successful')")
+                with b.wait_timeout(60):
+                    b.wait_visible(".pf-c-empty-state .pf-c-title:contains('Update was successful')")
 
                 b.wait_visible("#ignore")
                 b.wait_visible(".updates-success-table")
@@ -620,14 +624,16 @@ ExecStart=/usr/local/bin/{packageName}
         b.login_and_go("/updates")
 
         # check update is present
-        b.wait_in_text("#status", "1 update available")
+        with b.wait_timeout(30):
+            b.wait_in_text("#status", "1 update available")
         b.wait_in_text("#available-updates table", packageName)
 
         # install updates
         b.wait_visible("#install-all")
         b.wait_in_text("#install-all", "Install all updates")
         b.click("#install-all")
-        b.wait_visible(".pf-c-empty-state .pf-c-title:contains('Update was successful')")
+        with b.wait_timeout(60):
+            b.wait_visible(".pf-c-empty-state .pf-c-title:contains('Update was successful')")
 
         b.wait_visible("#ignore")
         b.wait_visible(".updates-success-table")
@@ -682,7 +688,8 @@ ExecStart=/usr/local/bin/{packageName}
 
         m.start_cockpit()
         b.login_and_go("/updates")
-        b.wait_visible("#available-updates")
+        with b.wait_timeout(30):
+            b.wait_visible("#available-updates")
         b.wait_in_text("#status", "6 updates available, including 3 security fixes")
 
         b.wait_in_text("table[aria-label='Available updates']", "sevcritical")
@@ -761,7 +768,8 @@ ExecStart=/usr/local/bin/{packageName}
         self.assertEqual(b.text("#available-updates button#install-security"), "Install security updates")
         b.wait_not_present("#available-updates button#install-kpatches")
         b.click("#available-updates button#install-security")
-        b.wait_visible(".pf-c-empty-state .pf-c-title:contains('Update was successful')")
+        with b.wait_timeout(60):
+            b.wait_visible(".pf-c-empty-state .pf-c-title:contains('Update was successful')")
 
         # history on restart page should show the three security updates
         b.click(".pf-c-expandable-section__toggle")
@@ -798,7 +806,8 @@ ExecStart=/usr/local/bin/{packageName}
         b.wait_visible("#app div.pf-c-progress__bar")
 
         # should have succeeded and show restart
-        b.wait_visible(".pf-c-empty-state .pf-c-title:contains('Update was successful')")
+        with b.wait_timeout(60):
+            b.wait_visible(".pf-c-empty-state .pf-c-title:contains('Update was successful')")
         b.wait_visible("#ignore")
 
         # history on restart page should show the three non-security updates
@@ -851,7 +860,8 @@ ExecStart=/usr/local/bin/{packageName}
 
         m.start_cockpit()
         b.login_and_go("/updates")
-        b.wait_visible("#available-updates")
+        with b.wait_timeout(30):
+            b.wait_visible("#available-updates")
         b.wait_in_text("#status", "1 security fix available")
 
         # should only have one button (only security updates)
@@ -866,7 +876,8 @@ ExecStart=/usr/local/bin/{packageName}
             self.enableRepo()
             # check for updates
             b.click("#status .pf-c-card__header button")
-            b.wait_visible("#available-updates")
+            with b.wait_timeout(30):
+                b.wait_visible("#available-updates")
             b.wait_in_text("#status", "2")
 
             b.wait_in_text("table[aria-label='Available updates']", "secnocve")
@@ -902,7 +913,8 @@ ExecStart=/usr/local/bin/{packageName}
         m.start_cockpit()
         b.login_and_go("/updates")
 
-        b.wait_in_text("table[aria-label='Available updates']", "Things change")
+        with b.wait_timeout(30):
+            b.wait_in_text("table[aria-label='Available updates']", "Things change")
 
         # "coarse" package list should be complete
         t = b.text("#app .ct-table tbody:nth-of-type(1) tr:first-child [data-label=Name]")
@@ -958,7 +970,8 @@ ExecStart=/usr/local/bin/{packageName}
 
         m.start_cockpit()
         b.login_and_go("/updates")
-        b.wait_visible("#available-updates")
+        with b.wait_timeout(30):
+            b.wait_visible("#available-updates")
         b.wait_in_text("#status", "1 update available")
 
         b.click("#available-updates button#install-all")
@@ -996,7 +1009,8 @@ ExecStart=/usr/local/bin/{packageName}
         m.start_cockpit()
         b.login_and_go("/updates")
 
-        b.click("#available-updates button#install-all")
+        with b.wait_timeout(30):
+            b.click("#available-updates button#install-all")
 
         # let updates start and zap PackageKit
         b.wait_visible("#app div.pf-c-progress__bar")
@@ -1057,7 +1071,8 @@ ExecStart=/usr/local/bin/{packageName}
 
         # getting update info is allowed to all users
         self.login_and_go("/updates", superuser=False)
-        b.wait_in_text("#status", "1 update available")
+        with b.wait_timeout(30):
+            b.wait_in_text("#status", "1 update available")
         b.wait_visible("#available-updates")
 
         # but applying updates is not; FIXME: this is a crappy UX
@@ -1073,7 +1088,8 @@ ExecStart=/usr/local/bin/{packageName}
         # applying updates works now
         b.click("#available-updates button#install-all")
 
-        b.wait_visible(".pf-c-empty-state .pf-c-title:contains('Update was successful')")
+        with b.wait_timeout(60):
+            b.wait_visible(".pf-c-empty-state .pf-c-title:contains('Update was successful')")
         b.click("#ignore")
 
         # should go back to updates overview, nothing pending any more
@@ -1106,7 +1122,8 @@ class TestWsUpdate(NoSubManCase):
         m.start_cockpit()
         b.login_and_go("/updates")
 
-        b.click("#available-updates button#install-all")
+        with b.wait_timeout(30):
+            b.click("#available-updates button#install-all")
 
         # applying updates panel present
         b.wait_in_text("#app div.progress-description", "slow")
@@ -1133,7 +1150,8 @@ class TestWsUpdate(NoSubManCase):
         self.enableRepo()
         b.click("#status .pf-c-card__header button")
 
-        b.wait_visible("#available-updates")
+        with b.wait_timeout(30):
+            b.wait_visible("#available-updates")
         b.wait_in_text("#status", "2 updates available")
         b.wait_in_text("table[aria-label='Available updates']", "cockpit-ws")
 
@@ -1153,7 +1171,8 @@ class TestKpatchInstall(NoSubManCase):
 
         m.start_cockpit()
         b.login_and_go("/updates")
-        b.wait_visible("#status")
+        with b.wait_timeout(30):
+            b.wait_visible("#status")
         b.wait_in_text("#kpatch-settings", "Not available")
         # show unavailable packages in popover
         b.click("#kpatch-settings .ct-info-circle")
@@ -1232,7 +1251,8 @@ class TestUpdatesSubscriptions(PackageCase):
         m.start_cockpit()
         b.login_and_go("/system")
         # show unregistered status on system front page
-        b.wait_in_text(self.update_text, "Not registered")
+        with b.wait_timeout(30):
+            b.wait_in_text(self.update_text, "Not registered")
         self.assertIn("triangle", b.attr(self.update_icon, "class"))
 
         # software updates page also shows unregistered
@@ -1274,7 +1294,8 @@ class TestUpdatesSubscriptions(PackageCase):
 
         b.login_and_go("/system")
         # by default our rhel-* images are not registered; show warning on system page
-        b.wait_in_text(self.update_text, "Not registered")
+        with b.wait_timeout(30):
+            b.wait_in_text(self.update_text, "Not registered")
         self.assertIn("triangle", b.attr(self.update_icon, "class"))
         # should be a link leading to subscriptions page
         b.click(self.update_text_action)
@@ -1293,7 +1314,8 @@ class TestUpdatesSubscriptions(PackageCase):
         b.go("/updates")
         b.enter_page("/updates")
         b.wait_not_present(".pf-c-empty-state")
-        b.wait_visible("#available-updates")
+        with b.wait_timeout(30):
+            b.wait_visible("#available-updates")
         # no update history yet
         self.assertFalse(b.is_present("table.updates-history"))
 
@@ -1318,7 +1340,8 @@ class TestUpdatesSubscriptions(PackageCase):
 
         m.start_cockpit()
         b.login_and_go("/system")
-        b.wait_text(self.update_text, "System is up to date")
+        with b.wait_timeout(30):
+            b.wait_text(self.update_text, "System is up to date")
 
         b.go("/updates")
         b.enter_page("/updates")
@@ -1338,7 +1361,8 @@ class TestAutoUpdates(NoSubManCase):
 
     def closeSettings(self, browser):
         browser.click("#automatic-updates-dialog button:contains('Save changes')")
-        browser.wait_not_present("#automatic-updates-dialog")
+        with browser.wait_timeout(30):
+            browser.wait_not_present("#automatic-updates-dialog")
 
     def testBasic(self):
         b = self.browser
@@ -1346,7 +1370,8 @@ class TestAutoUpdates(NoSubManCase):
 
         m.start_cockpit()
         b.login_and_go("/updates")
-        b.wait_visible("#status")
+        with b.wait_timeout(30):
+            b.wait_visible("#status")
 
         if not self.supported_backend:
             self.assertFalse(b.is_present("#automatic"))
@@ -1452,7 +1477,8 @@ class TestAutoUpdates(NoSubManCase):
         # page should parse it correctly from the timer
         b.logout()
         b.login_and_go("/updates")
-        b.wait_in_text("#autoupdates-settings", "Updates will be applied every Thursday at 21:00")
+        with b.wait_timeout(30):
+            b.wait_in_text("#autoupdates-settings", "Updates will be applied every Thursday at 21:00")
 
         # change back to daily
         b.click("#autoupdates-settings button:contains('Edit')")
@@ -1522,7 +1548,8 @@ class TestAutoUpdates(NoSubManCase):
 
         m.start_cockpit()
         b.login_and_go("/updates")
-        b.wait_visible("#available-updates")
+        with b.wait_timeout(30):
+            b.wait_visible("#available-updates")
 
         if not self.supported_backend:
             return
@@ -1554,7 +1581,8 @@ class TestAutoUpdates(NoSubManCase):
             return
 
         # detecting auto updates configuration works unprivileged, but changing does not
-        b.wait_visible("#autoupdates-settings button:disabled")
+        with b.wait_timeout(30):
+            b.wait_visible("#autoupdates-settings button:disabled")
 
         # become superuser, enable auto-updates
         b.become_superuser()
@@ -1615,12 +1643,14 @@ class TestAutoUpdatesInstall(NoSubManCase):
 
         m.start_cockpit()
         b.login_and_go("/updates")
-        b.wait_visible("#available-updates")
+        with b.wait_timeout(30):
+            b.wait_visible("#available-updates")
 
         # apply updates
         b.click("#available-updates button#install-all")
         # wait until installation is finished
-        b.wait_visible(".pf-c-empty-state .pf-c-title:contains('Update was successful')")
+        with b.wait_timeout(60):
+            b.wait_visible(".pf-c-empty-state .pf-c-title:contains('Update was successful')")
         b.click("#ignore")
 
         if self.backend == 'dnf':
@@ -1664,7 +1694,8 @@ WantedBy=basic.target
         b.login_and_go('/updates')
 
         # click through install dialog
-        b.wait_in_text("#autoupdates-settings", "Not set up")
+        with b.wait_timeout(30):
+            b.wait_in_text("#autoupdates-settings", "Not set up")
         b.wait_not_present("#settings .pf-c-alert")
         b.click("#autoupdates-settings button:contains('Enable')")
         b.wait_popup('dialog')

@@ -43,7 +43,8 @@ class TestNetworkingUnmanaged(NetworkCase):
 
         self.login_and_go("/network")
 
-        b.wait_visible("#networking-unmanaged-interfaces tr[data-interface='" + iface + "']")
+        with b.wait_timeout(60):
+            b.wait_visible("#networking-unmanaged-interfaces tr[data-interface='" + iface + "']")
 
 
 if __name__ == '__main__':

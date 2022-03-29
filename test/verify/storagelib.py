@@ -327,7 +327,9 @@ class StorageHelpers:
         self.browser.click('#dialog button.cancel')
 
     def dialog_wait_close(self):
-        self.browser.wait_not_present('#dialog')
+        # file system operations often take longer than 10s
+        with self.browser.wait_timeout(60):
+            self.browser.wait_not_present('#dialog')
 
     def dialog_check(self, expect):
         for f in expect:
@@ -509,8 +511,9 @@ class StorageHelpers:
         self.browser.wait(lambda: text in self.lvol_child_configuration_field(lvol, tab, field))
 
     def wait_mounted(self, row, col):
-        self.content_tab_wait_in_info(row, col, "Mount point",
-                                      cond=lambda cell: "The filesystem is not mounted" not in self.browser.text(cell))
+        with self.browser.wait_timeout(30):
+            self.content_tab_wait_in_info(row, col, "Mount point",
+                                          cond=lambda cell: "The filesystem is not mounted" not in self.browser.text(cell))
 
     def setup_systemd_password_agent(self, password):
         # This sets up a systemd password agent that replies to all

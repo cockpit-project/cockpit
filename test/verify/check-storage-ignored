@@ -34,7 +34,8 @@ class TestStorageIgnored(StorageCase):
         b.wait_in_text("#drives", disk)
 
         m.execute(f"yes | mke2fs -q -L TEST {disk}")
-        b.wait_in_text("#mounts", disk)
+        with b.wait_timeout(30):
+            b.wait_in_text("#mounts", disk)
 
         # Hide it via a udev rule
         m.execute("mkdir -p /run/udev/rules.d")

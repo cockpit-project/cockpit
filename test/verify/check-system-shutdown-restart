@@ -71,7 +71,8 @@ class TestShutdownRestart(MachineCase):
         # Add machine with static IP to m2
         b2.switch_to_top()
         b2.go("/@10.111.113.1")
-        b2.wait_visible("#machine-troubleshoot")
+        with b2.wait_timeout(30):
+            b2.wait_visible("#machine-troubleshoot")
         b2.click('#machine-troubleshoot')
         b2.wait_visible('#hosts_setup_server_dialog')
         b2.wait_text(f'#hosts_setup_server_dialog {self.primary_btn_class}', "Add")
@@ -102,7 +103,8 @@ class TestShutdownRestart(MachineCase):
 
         m.wait_reboot()
 
-        b2.wait_visible("#machine-troubleshoot")
+        with b2.wait_timeout(30):
+            b2.wait_visible("#machine-troubleshoot")
         b2.click('#machine-troubleshoot')
         b2.wait_visible('#hosts_setup_server_dialog')
         b2.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")

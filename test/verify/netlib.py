@@ -155,7 +155,8 @@ class NetworkCase(MachineCase, NetworkHelpers):
             text = "Inactive"
 
         try:
-            self.browser.wait_in_text(sel, text)
+            with self.browser.wait_timeout(20):
+                self.browser.wait_in_text(sel, text)
         except Error as e:
             print(f"Interface {iface} didn't show up.")
             print(self.machine.execute(f"grep . /sys/class/net/*/address; nmcli con; nmcli dev; nmcli dev show {iface} || true"))

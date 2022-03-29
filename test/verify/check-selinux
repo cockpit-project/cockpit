@@ -84,7 +84,8 @@ class TestSelinux(MachineCase):
         # Starting Cockpit might produce some alerts (e.g. from
         # starting rhsm.service), so let's give them some time to
         # appear before cleaning it all out.
-        b.wait_js_cond("ph_in_text('body', 'No SELinux alerts.') || ph_is_present('tbody .pf-c-table__toggle')")
+        with b.wait_timeout(60):
+            b.wait_js_cond("ph_in_text('body', 'No SELinux alerts.') || ph_is_present('tbody .pf-c-table__toggle')")
         time.sleep(30)
 
         dismiss_sel = ".selinux-alert-dismiss"
@@ -118,7 +119,8 @@ class TestSelinux(MachineCase):
         row_selector = "tbody:contains('ls from read access on the directory')"
 
         # wait for the alert to appear
-        b.wait_visible(row_selector)
+        with b.wait_timeout(60):
+            b.wait_visible(row_selector)
 
         # expand it to see details
         toggle_selector = row_selector + " .pf-c-table__toggle button"
@@ -163,7 +165,8 @@ class TestSelinux(MachineCase):
         row_selector = "tbody:contains('read access on the file /root/.ssh/authorized_keys')"
 
         # wait for the alert to appear
-        b.wait_visible(row_selector)
+        with b.wait_timeout(60):
+            b.wait_visible(row_selector)
 
         # expand it to see details
         toggle_selector = row_selector + " .pf-c-table__toggle button"
@@ -240,7 +243,8 @@ class TestSelinux(MachineCase):
         m.execute("semanage boolean --modify --off zebra_write_config")
         b.reload()
         b.enter_page("/selinux/setroubleshoot")
-        b.wait_visible(".pf-c-data-list__cell:contains(Disallow zebra)")
+        with b.wait_timeout(30):
+            b.wait_visible(".pf-c-data-list__cell:contains(Disallow zebra)")
         b.click("button:contains('View automation script')")
         b.click("button:contains('Ansible')")
         ansible_m.write("roles/selinux/tasks/main.yml", b.text(ansible_script_sel))
@@ -272,7 +276,8 @@ class TestSelinux(MachineCase):
         b.enter_page("/selinux/setroubleshoot")
         b.reload()
         b.enter_page("/selinux/setroubleshoot")
-        b.wait_text("ul[aria-label='System modifications']", "No system modifications")
+        with b.wait_timeout(30):
+            b.wait_text("ul[aria-label='System modifications']", "No system modifications")
         b.relogin("/selinux/setroubleshoot", "admin", superuser=False)
         b.wait_text("ul[aria-label='System modifications']", "The logged in user is not permitted to view system modifications")
 
@@ -288,7 +293,9 @@ class TestSelinux(MachineCase):
         b.wait_in_text("body", "SELinux policy")
 
         def assertEnforce(active):
-            b.wait_visible(".pf-c-switch__input" + (active and ":checked" or ":not(:checked)"))
+            # polled every 10s
+            with b.wait_timeout(20):
+                b.wait_visible(".pf-c-switch__input" + (active and ":checked" or ":not(:checked)"))
 
         # SELinux should be enabled and enforcing at the beginning
         assertEnforce(True)

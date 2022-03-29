@@ -115,8 +115,7 @@ class TestConnection(MachineCase):
         # sever the connection on the login page
         m.execute("iptables -w -I INPUT -p tcp --dport 9090 -j REJECT --reject-with tcp-reset")
         b.click('#login-button')
-        with b.wait_timeout(20):
-            b.wait_text_not('#login-fatal-message', "")
+        b.wait_text_not('#login-fatal-message', "")
         m.execute("iptables -w -D INPUT -p tcp --dport 9090 -j REJECT --reject-with tcp-reset")
         b.reload()
         b.wait_visible("#login")

@@ -171,10 +171,11 @@ class TestStorageMdRaid(StorageCase):
         wait_degraded_state(False)
 
         # Turn it off and on again
-        self.raid_default_action("Stop")
-        b.wait_in_text(info_field("State"), "Not running")
-        self.raid_default_action("Start")
-        b.wait_in_text(info_field("State"), "Running")
+        with b.wait_timeout(30):
+            self.raid_default_action("Stop")
+            b.wait_in_text(info_field("State"), "Not running")
+            self.raid_default_action("Start")
+            b.wait_in_text(info_field("State"), "Running")
 
         # Stopping and starting the array will create the expected
         # symlink in /dev/md/.
@@ -282,6 +283,9 @@ class TestStorageMdRaid(StorageCase):
 
         self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "In sync",
                           "QEMU QEMU HARDDISK (DISK2)": "In sync"})
+
+        # event processing is a bit slow for these
+        b.wait_timeout(60)
 
         # All buttons should be disabled when the array is stopped
 

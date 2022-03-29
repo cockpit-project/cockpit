@@ -31,9 +31,10 @@ class TestStorageScaling(StorageCase):
         m.execute("modprobe scsi_debug num_tgts=200")
 
         self.login_and_go("/storage")
-        b.click("#drives button:contains(Show all 202 drives)")
-        b.wait_not_in_text("#drives", "Show all")
-        b.wait_js_cond('ph_select("#drives .sidepanel-row").length == 202')
+        with b.wait_timeout(60):
+            b.click("#drives button:contains(Show all 202 drives)")
+            b.wait_not_in_text("#drives", "Show all")
+            b.wait_js_cond('ph_select("#drives .sidepanel-row").length == 202')
 
 
 if __name__ == '__main__':

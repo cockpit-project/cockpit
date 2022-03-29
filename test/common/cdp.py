@@ -163,7 +163,7 @@ def jsquote(str):
 class CDP:
     def __init__(self, lang=None, verbose=False, trace=False, inject_helpers=[], start_profile=False):
         self.lang = lang
-        self.timeout = 60
+        self.timeout = 15
         self.valid = False
         self.verbose = verbose
         self.trace = trace

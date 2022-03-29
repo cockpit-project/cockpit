@@ -83,7 +83,8 @@ def redisService(image):
 
 def applySettings(browser):
     browser.click("#pcp-settings-modal button.pf-m-primary")
-    browser.wait_not_present("#pcp-settings-modal")
+    with browser.wait_timeout(30):
+        browser.wait_not_present("#pcp-settings-modal")
 
 
 def login(self):
@@ -205,6 +206,8 @@ class TestHistoryMetrics(MachineCase):
     def testEvents(self):
         b = self.browser
         m = self.machine
+
+        b.wait_timeout(60)
 
         def events_at(hour, minute):
             return b.text(f"#metrics-hour-{hour} div.metrics-minute[data-minute={minute}] .metrics-events")
@@ -484,8 +487,10 @@ class TestHistoryMetrics(MachineCase):
 
         # Troubleshoot
         b.click(".pf-c-empty-state button.pf-m-link")
-        b.enter_page("/system/services")
-        b.wait_in_text("#service-details", "pmlogger.service")
+        # FIXME: Services page is too slow
+        with b.wait_timeout(30):
+            b.enter_page("/system/services")
+            b.wait_in_text("#service-details", "pmlogger.service")
 
     @nondestructive
     @skipImage("no PCP support", "fedora-coreos")
@@ -707,6 +712,8 @@ class TestCurrentMetrics(MachineCase):
         b = self.browser
         m = self.machine
 
+        b.wait_timeout(60)
+
         nproc = m.execute("nproc").strip()
         b.wait_in_text("#current-cpu-usage", nproc + " CPU")
         # top CPU core is not visible with just 1 core; our upstream test VMs have only 1 core,
@@ -807,7 +814,9 @@ BEGIN {{
         # table entries are links to Services page
         b.click("table[aria-label='Top 5 memory services'] tbody tr:nth-of-type(1) td[data-label='Service'] a span")
         b.enter_page("/system/services")
-        b.wait_in_text("#path", "/mem-hog.service")
+        # FIXME: Services page is too slow
+        with b.wait_timeout(30):
+            b.wait_in_text("#path", "/mem-hog.service")
         b.wait_in_text(".service-name", "memhog.sh")
 
         b.go("/metrics")
@@ -853,6 +862,8 @@ BEGIN {{
         b = self.browser
         m = self.machine
         login(self)
+
+        b.wait_timeout(60)
 
         # test env should be quiet enough to not transmit MB/s
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("#current-disks-read")))
@@ -1087,6 +1098,8 @@ class TestMultiCPU(MachineCase):
         self.assertGreaterEqual(getMaximumSpike(self, "cpu", False, 1598968800000, 45), 0.5)
         self.assertLessEqual(getMaximumSpike(self, "cpu", False, 1598968800000, 45), 1.0)
 
+        b.wait_timeout(60)
+
         # Test current usage of cores
         b.wait_text("#current-cpu-usage-description", "2 CPUs")
         b.wait(lambda: progressValue(self, "#current-cpu-usage") < 20)
@@ -1172,10 +1185,11 @@ class TestGrafanaClient(MachineCase):
             # HACK Unsigned plugin needs to be enabled manually
             # See https://github.com/performancecopilot/grafana-pcp/issues/94
             bg.open("/plugins/performancecopilot-pcp-app")
-            bg.wait_visible(".gf-form-button-row button")
-            if bg.text(".gf-form-button-row button") == "Enable":
-                bg.click(".gf-form-button-row button")
-                bg.wait_text(".gf-form-button-row button", "Disable")
+            with bg.wait_timeout(30):
+                bg.wait_visible(".gf-form-button-row button")
+                if bg.text(".gf-form-button-row button") == "Enable":
+                    bg.click(".gf-form-button-row button")
+                    bg.wait_text(".gf-form-button-row button", "Disable")
 
             # Add the PCP redis data source for our client machine
             # Cog (Configuration) menu → Data Sources → Add

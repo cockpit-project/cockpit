@@ -1174,13 +1174,21 @@ class TestGrafanaClient(MachineCase):
             bg.wait_in_text("body", "Add your first data source")
             bg.wait_visible(".sidemenu")
 
+            # HACK Unsigned plugin needs to be enabled manually
+            # See https://github.com/performancecopilot/grafana-pcp/issues/94
+            bg.open("/plugins/performancecopilot-pcp-app")
+            bg.wait_visible(".gf-form-button-row button")
+            if bg.text(".gf-form-button-row button") == "Enable":
+                bg.click(".gf-form-button-row button")
+                bg.wait_text(".gf-form-button-row button", "Disable")
+
             # Add the PCP redis data source for our client machine
             # Cog (Configuration) menu → Data Sources → Add
             # Select PCP redis, HTTP URL http://10.111.112.1:44322
             redis_url = 'http://10.111.112.1:44322'
             bg.open("/datasources/new")
-            bg.wait_visible("[aria-label='Data source plugin item PCP Redis']")
-            bg.click("[aria-label='Data source plugin item PCP Redis']")
+            bg.wait_visible("[aria-label='Add data source PCP Redis']")
+            bg.click("[aria-label='Add data source PCP Redis']")
             bg.set_input_text("input[placeholder='http://localhost:44322']", redis_url)
             bg.click("button:contains('Save &')")  # Save & [tT]est
             bg.wait_in_text(".page-body", "Data source is working")

@@ -622,9 +622,11 @@ class TestIPA(TestRealms, CommonTests):
         if m.image == "ubuntu-2004":
             # This does not yet work with sssd < 2.2.2-1
             return
+
         if "debian" in m.image or "ubuntu" in m.image:
-            # FIXME: needs some additional setup on Debian to actually work
-            return
+            # additional PAM setup on Debian to actually use pam_sss for non-local users
+            self.sed_file(r"/pam_unix/ s/^/auth [default=1 ignore=ignore success=ok] pam_localuser.so\n/; "
+                          r"/pam_sss/ s/use_first_pass/forward_pass/", "/etc/pam.d/common-auth")
 
         # set up "alice" user with HOTP; that won't affect existing users (admin)
         # https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/linux_domain_identity_authentication_and_policy_guide/otp

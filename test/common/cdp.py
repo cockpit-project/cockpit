@@ -102,7 +102,7 @@ class Chromium(Browser):
 
 class Firefox(Browser):
     NAME = "firefox"
-    EXECUTABLES = ["firefox-nightly", "firefox"]
+    EXECUTABLES = ["firefox-developer-edition", "firefox-nightly", "firefox"]
     CDP_DRIVER_FILENAME = "firefox-cdp-driver.js"
 
     def _path(self, show_browser):

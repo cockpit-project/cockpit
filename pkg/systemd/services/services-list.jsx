@@ -25,7 +25,7 @@ import {
     Tooltip, TooltipPosition, Badge,
 } from '@patternfly/react-core';
 import { ListingTable } from 'cockpit-components-table.jsx';
-import { ExclamationCircleIcon } from '@patternfly/react-icons';
+import { ExclamationCircleIcon, ThumbtackIcon } from '@patternfly/react-icons';
 
 import cockpit from "cockpit";
 
@@ -55,7 +55,7 @@ export const ServicesList = ({ units, isTimer }) => {
     );
 };
 
-const getServicesRow = ({ Id, shortId, AutomaticStartup, UnitFileState, LoadState, HasFailed, CombinedState, LastTriggerTime, NextRunTime, Description, isTimer }) => {
+const getServicesRow = ({ Id, shortId, AutomaticStartup, UnitFileState, LoadState, HasFailed, IsPinned, CombinedState, LastTriggerTime, NextRunTime, Description, isTimer }) => {
     let displayName = shortId;
     // Remove ".service" from services as this is not necessary
     if (shortId.endsWith(".service"))
@@ -85,13 +85,19 @@ const getServicesRow = ({ Id, shortId, AutomaticStartup, UnitFileState, LoadStat
         {
             title: (
                 <div className='service-unit-first-column'>
-                    <Button className='service-unit-id'
+                    <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                        <Button className='service-unit-id'
                             isInline
                             component="a"
                             onClick={() => cockpit.location.go([shortId], cockpit.location.options)}
                             variant='link'>
-                        {props.displayName}
-                    </Button>
+                            {props.displayName}
+                        </Button>
+                        {IsPinned &&
+                            <Tooltip content={_("Pinned unit")}>
+                                <ThumbtackIcon className='service-thumbtack-icon-color' />
+                            </Tooltip>}
+                    </Flex>
                     {props.Description != shortId && <div className='service-unit-description'>{props.Description}</div>}
                 </div>
             )

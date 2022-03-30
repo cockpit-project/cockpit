@@ -371,13 +371,13 @@ WantedBy=default.target
         self.wait_service_present("test.service")
         m.execute("udevadm trigger; udevadm settle")
         self.goto_service("test.service")
-        self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)"], True)
+        self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)", "Pin unit"], True)
 
         # Stop and disable and back again
         self.toggle_onoff()
-        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Pin unit"], False)
         self.toggle_onoff()
-        self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)"], True)
+        self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)", "Pin unit"], True)
 
         testUrl = f'/system/services#/test.service{suffix}'
         # Check without permissions
@@ -387,14 +387,14 @@ WantedBy=default.target
         b.relogin(testUrl, superuser=True)
         self.wait_page_load()
         self.toggle_onoff()  # later on we need some disabled test
-        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Pin unit"], False)
 
         # Check service that fails to start
         b.go(f'/system/services#/{suffix}')
         self.goto_service("test-fail.service")
-        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Pin unit"], False)
         self.toggle_onoff()
-        self.check_service_details(["Failed to start", "Automatically starts"], ["Start", "Clear 'Failed to start'", "Disallow running (mask)"], True)
+        self.check_service_details(["Failed to start", "Automatically starts"], ["Start", "Clear 'Failed to start'", "Disallow running (mask)", "Pin unit"], True)
         if not user:
             b.assert_pixels("#service-details", "details-test-fail",
                             # in medium layout we sometimes get a scrollbar depending on how many test-fail logs exist
@@ -407,7 +407,7 @@ WantedBy=default.target
 
         # Check static service
         self.goto_service("systemd-exit.service")
-        self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)"], True, onoff=False)
+        self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)", "Pin unit"], True, onoff=False)
 
         # Mask and unmask
         self.do_action("Disallow running (mask)")
@@ -418,7 +418,41 @@ WantedBy=default.target
         b.wait_not_present("#service-details-show-relationships")
 
         self.do_action("Allow running (unmask)")
-        self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)"], True, onoff=False)
+        self.check_service_details(["Static", "Not running"], ["Start", "Disallow running (mask)", "Pin unit"], True, onoff=False)
+
+        # Pin unit
+        b.go(f'/system/services#/{suffix}')
+        b.wait_not_present('#test.service > svg.service-thumbtack-icon-color')
+
+        self.goto_service("test.service")
+        b.wait_not_present('#service-details-unit > article > div > svg.service-thumbtack-icon')
+        self.do_action("Pin unit")
+        b.is_present('#service-details-unit > article > div > svg.service-thumbtack-icon')
+        b.go(f'/system/services#/{suffix}')
+
+        # returns index of first unit that isn't failed
+        b.inject_js("""
+                    function firstWorkingUnitPos() {
+                        const arr = document.getElementById('services-list').firstChild;
+                        for (var i = 0; i < arr.childElementCount; i++) {
+                            const child = arr.children[i];
+                            if (!child.classList.contains('service-unit-failed')) {
+                                return i + 1;
+                            }
+                        }
+                    }
+                  """)
+        pos = b.eval_js('firstWorkingUnitPos();')
+        b.wait_text(f'#services-list > tbody > tr:nth-child({pos}) > th > div > div > a', 'test')
+        b.is_present('#test.service > svg.service-thumbtack-icon-color')
+
+        # Unpin unit
+        self.goto_service("test.service")
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Unpin unit"], False)
+        self.do_action("Unpin unit")
+        b.wait_not_present('#service-details-unit > article > div > svg.service-thumbtack-icon')
+        b.go(f'/system/services#/{suffix}')
+        b.wait_not_present('#test.service > svg.service-thumbtack-icon-color')
 
         def init_filter_state():
             if not b.is_visible("#services-text-filter"):
@@ -610,9 +644,9 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
 
         # Check test.service and then start it
         self.goto_service("test.service")
-        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Pin unit"], False)
         self.toggle_onoff()
-        self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)"], True)
+        self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)", "Pin unit"], True)
         b.wait_in_text('.cockpit-log-panel .pf-c-card__body', "START")
         b.wait_in_text('.cockpit-log-panel .pf-c-card__body', "WORKING")
         b.click(".cockpit-log-panel .pf-c-card__header button")
@@ -700,7 +734,7 @@ WantedBy=multi-user.target
 
         self.wait_service_in_panel("condtest.service", "Enabled")
         self.goto_service("condtest.service")
-        self.check_service_details(["Not running", "Automatically starts"], ["Start", "Disallow running (mask)"], True)
+        self.check_service_details(["Not running", "Automatically starts"], ["Start", "Disallow running (mask)", "Pin unit"], True)
         self.do_action("Start")
         b.wait_text("#condition", "Condition ConditionDirectoryNotEmpty=/var/tmp/empty was not met")
 
@@ -708,7 +742,7 @@ WantedBy=multi-user.target
         m.execute("touch /var/tmp/empty/non-empty")
         self.addCleanup(m.execute, "rm /var/tmp/empty/non-empty")
         self.do_action("Start")
-        self.check_service_details(["Running", "Automatically starts"], ["Restart", "Stop", "Disallow running (mask)"], True)
+        self.check_service_details(["Running", "Automatically starts"], ["Restart", "Stop", "Disallow running (mask)", "Pin unit"], True)
         b.wait_not_present("#condition")
 
     def testRelationships(self):
@@ -856,35 +890,35 @@ WantedBy=default.target
         self.goto_service("test-fail.service")
         b.wait_js_cond('window.location.hash === "#/test-fail.service"')
 
-        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Pin unit"], False)
 
         self.wait_onoff(False)
         self.toggle_onoff()
 
         self.check_service_details(["Failed to start", "Automatically starts"],
-                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)"], True)
+                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)", "Pin unit"], True)
 
         # Disabling should reset the "Failed to start" status
         self.wait_onoff(True)
         self.toggle_onoff()
 
-        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)"], False)
+        self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Pin unit"], False)
 
         self.wait_onoff(False)
         self.toggle_onoff()
 
         self.check_service_details(["Failed to start", "Automatically starts"],
-                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)"], True)
+                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)", "Pin unit"], True)
 
         # Just reset the failed status, but leave it enabled
         self.do_action("Clear")
 
         self.check_service_details(["Not running", "Automatically starts"],
-                                   ["Start", "Disallow running (mask)"], True)
+                                   ["Start", "Disallow running (mask)", "Pin unit"], True)
 
         self.do_action("Start")
         self.check_service_details(["Failed to start", "Automatically starts"],
-                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)"], True)
+                                   ["Start", "Clear 'Failed to start'", "Disallow running (mask)", "Pin unit"], True)
 
         # Masking should also clear the failed status
         self.do_action("Disallow running (mask)")
@@ -1040,7 +1074,7 @@ Where=/fail
         self.addCleanup(m.execute, "systemctl stop test-transient.service || true")
         self.wait_service_present("test-transient.service")
         self.goto_service("test-transient.service")
-        self.check_service_details(["Static", "Running"], ["Restart", "Stop", "Disallow running (mask)"], False, onoff=False)
+        self.check_service_details(["Static", "Running"], ["Restart", "Stop", "Disallow running (mask)", "Pin unit"], False, onoff=False)
 
         self.do_action("Stop")
 

@@ -62,7 +62,9 @@ export class Service extends React.Component {
                                 owner={this.props.owner}
                                 permitted={superuser.allowed}
                                 loadingUnits={this.props.loadingUnits}
-                                isValid={this.props.unitIsValid} />;
+                                isValid={this.props.unitIsValid}
+                                isPinned={this.props.isPinned}
+        />;
 
         const cur_unit_id = this.props.unit.Id;
         const match = [

@@ -32,7 +32,7 @@ import {
 import {
     AsleepIcon,
     BanIcon, ErrorCircleOIcon, OnRunningIcon, OffIcon,
-    OkIcon, UserIcon,
+    OkIcon, UserIcon, ThumbtackIcon,
 } from "@patternfly/react-icons";
 
 import cockpit from "cockpit";
@@ -89,11 +89,13 @@ const ServiceConfirmDialog = ({ id, title, message, confirmText, confirmAction }
  * React template for showing possible service action (in a kebab menu)
  * Required props:
  *  - masked
- *     Unit is masked
+ *      Unit is masked
  *  - active
- *     Unit is active (running)
+ *      Unit is active (running)
  *  - failed
- *     Unit has failed
+ *      Unit has failed
+ *  - isPinned
+ *      Unit is pinned
  *  - canReload
  *      Unit can be reloaded
  *  - actionCallback
@@ -102,10 +104,12 @@ const ServiceConfirmDialog = ({ id, title, message, confirmText, confirmAction }
  *      Method for calling unit file methods like `EnableUnitFiles`
  *  - deleteActionCallback
  *      Method for calling deleting the systemd unit
+ *  - pinUnitCallback
+ *      Method to pin unit
  *  - disabled
  *      Button is disabled
  */
-const ServiceActions = ({ masked, active, failed, canReload, actionCallback, deleteActionCallback, fileActionCallback, disabled }) => {
+const ServiceActions = ({ masked, active, failed, canReload, actionCallback, deleteActionCallback, fileActionCallback, disabled, isPinned, pinUnitCallback }) => {
     const Dialogs = useDialogs();
     const [isActionOpen, setIsActionOpen] = useState(false);
 
@@ -169,6 +173,11 @@ const ServiceActions = ({ masked, active, failed, canReload, actionCallback, del
         actions.push(
             <DropdownItem key="mask" onClick={confirm}>{ _("Disallow running (mask)") }</DropdownItem>
         );
+
+        actions.push(<DropdownSeparator key="pin-divider" />);
+        actions.push(
+            <DropdownItem key="pin" onClick={() => pinUnitCallback() }>{isPinned ? _("Unpin unit") : _("Pin unit")}</DropdownItem>
+        );
     }
 
     return (
@@ -216,6 +225,7 @@ export class ServiceDetails extends React.Component {
         this.unitFileAction = this.unitFileAction.bind(this);
         this.deleteAction = this.deleteAction.bind(this);
         this.deleteTimer = this.deleteTimer.bind(this);
+        this.pinUnit = this.pinUnit.bind(this);
 
         this.unitType = props.unit.Id.split('.').slice(-1)[0];
         this.unitTypeCapitalized = this.unitType.charAt(0).toUpperCase() + this.unitType.slice(1);
@@ -306,6 +316,24 @@ export class ServiceDetails extends React.Component {
         } else {
             return promise;
         }
+    }
+
+    pinUnit() {
+        let pinnedUnits = [];
+        try {
+            pinnedUnits = JSON.parse(localStorage.getItem('systemd:pinnedUnits')) || [];
+        } catch (err) {
+            console.warn("exception while parsing systemd:pinnedUnits", err);
+        }
+
+        if (this.props.isPinned) {
+            pinnedUnits = pinnedUnits.filter(unitId => unitId != this.props.unit.path);
+        } else {
+            pinnedUnits.push(this.props.unit.path);
+        }
+
+        localStorage.setItem('systemd:pinnedUnits', JSON.stringify(pinnedUnits));
+        dispatchEvent(new Event('storage'));
     }
 
     unitFileAction(method, force, catchExc = true) {
@@ -576,6 +604,10 @@ export class ServiceDetails extends React.Component {
                     : <>
                         <CardTitle className="service-top-panel">
                             <Text component={TextVariants.h2} className="service-name">{this.props.unit.Description}</Text>
+                            {this.props.isPinned &&
+                                <Tooltip content={_("Pinned unit")}>
+                                    <ThumbtackIcon className='service-thumbtack-icon' />
+                                </Tooltip>}
                             { showAction &&
                                 <>
                                     { !masked && !isStatic &&
@@ -591,7 +623,8 @@ export class ServiceDetails extends React.Component {
                                     <ServiceActions { ...{ active, failed, enabled, masked } } canReload={this.props.unit.CanReload}
                                                     actionCallback={this.unitAction} fileActionCallback={this.unitFileAction}
                                                     deleteActionCallback={isCustom && isTimer ? this.deleteAction : null}
-                                                    disabled={this.state.waitsAction || this.state.waitsFileAction} />
+                                                    disabled={this.state.waitsAction || this.state.waitsFileAction}
+                                                    isPinned={this.props.isPinned} pinUnitCallback={this.pinUnit} />
                                 </>
                             }
                         </CardTitle>

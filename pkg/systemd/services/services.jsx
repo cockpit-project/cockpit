@@ -162,6 +162,13 @@ class ServicesPageBody extends React.Component {
             currentStatus: null,
         };
 
+        try {
+            this.state.pinnedUnits = JSON.parse(localStorage.getItem('systemd:pinnedUnits')) || [];
+        } catch (err) {
+            console.warn("exception while parsing systemd:pinnedUnits", err);
+            this.state.pinnedUnits = [];
+        }
+
         this.onCurrentTextFilterChanged = (currentTextFilter) => {
             this.setState({ currentTextFilter });
         };
@@ -305,6 +312,15 @@ class ServicesPageBody extends React.Component {
             const reloading = args[0];
             if (!reloading && !this.state.loadingUnits)
                 this.listUnits();
+        });
+
+        addEventListener('storage', () => {
+            try {
+                this.setState({ pinnedUnits: JSON.parse(localStorage.getItem('systemd:pinnedUnits')) || [] });
+            } catch (err) {
+                console.warn("exception while parsing systemd:pinnedUnits", err);
+                this.setState({ pinnedUnits: [] });
+            }
         });
 
         this.timedated_subscription = timedate_client.subscribe({
@@ -484,12 +500,16 @@ class ServicesPageBody extends React.Component {
         const unit_b = unit_b_t[1];
         const failed_a = unit_a.HasFailed ? 1 : 0;
         const failed_b = unit_b.HasFailed ? 1 : 0;
+        const pinned_a = this.state.pinnedUnits.includes(unit_a.path) ? 1 : 0;
+        const pinned_b = this.state.pinnedUnits.includes(unit_b.path) ? 1 : 0;
 
         if (!unit_a || !unit_b)
             return false;
 
         if (failed_a != failed_b)
             return failed_b - failed_a;
+        else if (pinned_a != pinned_b)
+            return pinned_b - pinned_a;
         else
             return unit_a_t[0].localeCompare(unit_b_t[0]);
     }
@@ -761,6 +781,7 @@ class ServicesPageBody extends React.Component {
                             loadingUnits={this.state.loadingUnits}
                             getUnitByPath={this.getUnitByPath}
                             unit={unit}
+                            isPinned={this.state.pinnedUnits.includes(unit.path)}
             />;
         }
 
@@ -811,6 +832,7 @@ class ServicesPageBody extends React.Component {
                         !filters.activeState.includes(this.activeState[unit.ActiveState]))
                         return false;
 
+                    unit.IsPinned = this.state.pinnedUnits.includes(unit.path);
                     return true;
                 })
                 .map(unit_id => [unit_id, unit_by_path[this.path_by_id[unit_id]]])

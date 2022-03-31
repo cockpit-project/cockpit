@@ -29,6 +29,7 @@ distdir: $(DISTFILES)
 
 dist-hook:
 	echo $(VERSION) > $(distdir)/.tarball
+	$(srcdir)/src/client/add-metainfo-releases --version '$(VERSION)' '$(distdir)'/src/client/*.metainfo.xml
 	$(srcdir)/tools/create-spec --version '$(VERSION)' -o $(distdir)/tools/cockpit.spec $(srcdir)/tools/cockpit.spec.in
 	sed 's/VERSION/$(VERSION)/' $(srcdir)/tools/debian/changelog.in > $(distdir)/tools/debian/changelog
 	NODE_ENV=$(NODE_ENV) $(srcdir)/tools/build-debian-copyright > $(distdir)/tools/debian/copyright

@@ -26,20 +26,13 @@ test -f "${TARBALL}"
 test -d "${FLATHUB_REPO}"
 test -e "${FLATHUB_REPO}/.git"
 test -z "$(git -C "${FLATHUB_REPO}" status --porcelain)"
-test -f "${FLATHUB_REPO}/${FLATPAK_ID}.metainfo.xml"
 test -f "${FLATHUB_REPO}/${FLATPAK_ID}.yml"
-
-# Mine the previous versions out of the existing metainfo file
-PREVIOUS_RELEASES="$(sed -n 's/^\(    <release .*\)$/\1\\n/p' "${FLATHUB_REPO}/${FLATPAK_ID}.metainfo.xml" | tr -d '\n')"
 
 prepare "${TARBALL}" "${URLBASE}"
 
-cp "${FLATPAK_ID}".metainfo.xml "${FLATHUB_REPO}"/
 cp "${FLATPAK_ID}".yml "${FLATHUB_REPO}"/
 cd "${FLATHUB_REPO}"
 
 # Create a branch named after the version and push it to the origin
 git checkout -b "${VERSION}"
-git commit --message "Update to version ${VERSION}" --only \
-    "${FLATPAK_ID}".metainfo.xml \
-    "${FLATPAK_ID}".yml
+git commit --message "Update to version ${VERSION}" --only "${FLATPAK_ID}".yml

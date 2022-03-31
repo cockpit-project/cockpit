@@ -18,30 +18,10 @@
 #
 # If the FLATPAK_ID environment variable is set, it overrides the
 # default value of org.cockpit_project.CockpitClient.
-#
-# If the PREVIOUS_RELEASES environment variable is set, it is written verbatim
-# into the metainfo xml after the current release info.
 
 set -eu
 
 FLATPAK_ID="${FLATPAK_ID:-org.cockpit_project.CockpitClient}"
-
-subst() {
-    ext="$1"
-
-    sed \
-        -e "s|@FLATPAK_ID@|${FLATPAK_ID}|" \
-        -e "s|@VERSION@|${VERSION}|" \
-        -e "s|@TODAY@|${TODAY}|" \
-        -e "s|@FLATPAK_BRANCH@|${FLATPAK_BRANCH}|" \
-        -e "s|@RELEASE_TYPE@|${RELEASE_TYPE}|" \
-        -e "s|@ARCHIVE_TYPE@|${ARCHIVE_TYPE}|" \
-        -e "s|@ARCHIVE_LOCATION@|${ARCHIVE_LOCATION}|" \
-        -e "s|@ARCHIVE_SHA256@|${ARCHIVE_SHA256}|" \
-        -e "s|@PREVIOUS_RELEASES@|${PREVIOUS_RELEASES:-}|" \
-        containers/flatpak/cockpit-client."${ext}".in > "${FLATPAK_ID}.${ext}.tmp"
-    mv "${FLATPAK_ID}.${ext}.tmp" "${FLATPAK_ID}.${ext}"
-}
 
 prepare() {
     TARBALL="${1:-}"
@@ -76,10 +56,15 @@ prepare() {
         FLATPAK_BRANCH=stable
     fi
 
-    TODAY="$(date +%F)"
-
-    subst metainfo.xml
-    subst yml
+    printf "  %-8s %s\n" GEN "${FLATPAK_ID}.yml" >&2
+    sed \
+        -e "s|@FLATPAK_ID@|${FLATPAK_ID}|" \
+        -e "s|@FLATPAK_BRANCH@|${FLATPAK_BRANCH}|" \
+        -e "s|@ARCHIVE_TYPE@|${ARCHIVE_TYPE}|" \
+        -e "s|@ARCHIVE_LOCATION@|${ARCHIVE_LOCATION}|" \
+        -e "s|@ARCHIVE_SHA256@|${ARCHIVE_SHA256}|" \
+        containers/flatpak/cockpit-client.yml.in > "${FLATPAK_ID}.yml.tmp"
+    mv "${FLATPAK_ID}.yml.tmp" "${FLATPAK_ID}.yml"
 }
 
 if [ $(basename -- "$0") = "prepare" ]; then

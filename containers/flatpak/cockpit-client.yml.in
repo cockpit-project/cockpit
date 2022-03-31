@@ -26,13 +26,8 @@ modules:
     make-args:
       - build-for-flatpak
     install-rule: install-for-flatpak
-    post-install:
-      - install -Dt /app/share/metainfo ${FLATPAK_ID}.metainfo.xml
 
     sources:
       - type: archive
         @ARCHIVE_TYPE@: @ARCHIVE_LOCATION@
         sha256: @ARCHIVE_SHA256@
-
-      - type: file
-        path: @FLATPAK_ID@.metainfo.xml

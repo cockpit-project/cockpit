@@ -32,4 +32,7 @@ dist_scalableicon_DATA = src/client/cockpit-client.svg
 symbolicicondir = $(datadir)/icons/hicolor/symbolic/apps
 dist_symbolicicon_DATA = src/client/cockpit-client-symbolic.svg
 
+client_metainfodir = $(datadir)/metainfo
+dist_client_metainfo_DATA = src/client/org.cockpit_project.CockpitClient.metainfo.xml
+
 endif

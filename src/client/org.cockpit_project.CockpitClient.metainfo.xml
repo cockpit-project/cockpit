@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?xml version='1.0' encoding='utf-8'?>
 <component type="desktop-application">
-  <id>@FLATPAK_ID@</id>
+  <id>org.cockpit_project.CockpitClient</id>
 
   <name>Cockpit Client</name>
   <summary>Connect via ssh to servers with Cockpit</summary>
@@ -14,7 +13,7 @@
       Cockpit Client provides a graphical interface to your servers, containers, and virtual machines.  Connections are made over SSH, using the SSH configuration of the local user (including aliases, known hosts, key files, hardware tokens, etc).
     </p>
     <p>
-      The server needs to have Cockpit installed, but the Cockpit webserver doesn&apos;t need to be enabled, and no extra ports need to be opened.
+      The server needs to have Cockpit installed, but the Cockpit webserver doesn't need to be enabled, and no extra ports need to be opened.
     </p>
   </description>
 
@@ -33,9 +32,7 @@
     </screenshot>
   </screenshots>
 
-  <releases>
-    <release date="@TODAY@" version="@VERSION@" type="@RELEASE_TYPE@"/>
-@PREVIOUS_RELEASES@  </releases>
+  <releases/>
 
   <launchable type="desktop-id">org.cockpit_project.CockpitClient.desktop</launchable>
 

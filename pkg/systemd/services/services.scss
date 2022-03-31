@@ -91,40 +91,51 @@
 
 // Magic pixie dust to make the list a bit faster and more furious
 .services-list {
-    // Prevent reflows; only applies to desktop (mobile changes display)
-    // table-layout: fixed;
-
     tr {
         // Skip a lot of computations
         contain: content;
-        // Only render what's needed
-        // content-visibility: auto;
     }
 }
 
-// Optimize layout, mainly using block, so we don't nest multiple levels of
-// grids and flex on thousands of elements.
-.services-list {
+// Optimize layout with simpler approaches to layout, as to avoid nesting
+// multiple levels of grids and flex on thousands of elements.
+//
+// (We're using an ID here to bump up specificity for overriding, so we don't
+// need !important)
+#services-list {
     @media screen and (max-width: $pf-global--breakpoint--md) {
-        display: block !important;
-
-        tbody {
-            display: block !important;
-        }
+        // Grid is providing nothing here that a simple block can't do
+        display: block;
 
         th, td {
-            // display: grid;
-            display: block !important;
+            // Convert nested grids to block, as the layout looks the same here
+            display: block
+        }
+
+        .service-unit-first-column {
+            // Simplify layout further removing yet another grid
+            display: block;
+
+            > .service-unit-id {
+                // Since we're just stacking blocks, might as well use block
+                // instead of yet another nested grid
+                display: block;
+                // Replicate the gap spacing by increasing the clickable area
+                padding-bottom: var(--pf-global--spacer--xs);
+            }
         }
     }
 
     @media screen and (max-width: $pf-global--breakpoint--sm) {
         td {
             > .service-unit-status-flex-container {
-                // display: grid !important;
-                display: flex !important;
+                // We only need to stack; grid isn't needed
+                display: flex;
+                // Flex is needed to flip the order, so the label is prominent
                 flex-direction: column-reverse;
+                // Right-align elements
                 align-items: end;
+                // Use consistent space between the items
                 gap: var(--pf-global--spacer--sm);
             }
         }

@@ -105,7 +105,7 @@ def login(self):
                     });
                 });
             })"""))
-        self.browser.click("a:contains('View details and history')")
+        self.browser.click("a:contains('View metrics and history')")
         self.browser.enter_page("/metrics")
     else:
         self.login_and_go("/metrics")

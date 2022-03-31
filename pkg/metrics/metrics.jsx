@@ -1476,7 +1476,7 @@ export const Application = () => {
                 <FlexItem>
                     <Breadcrumb>
                         <BreadcrumbItem onClick={() => cockpit.jump("/system")} className="pf-c-breadcrumb__link">{_("Overview")}</BreadcrumbItem>
-                        <BreadcrumbItem isActive>{_("Performance Metrics")}</BreadcrumbItem>
+                        <BreadcrumbItem isActive>{_("Metrics and history")}</BreadcrumbItem>
                     </Breadcrumb>
                 </FlexItem>
                 <FlexItem align={{ default: 'alignRight' }}>

@@ -159,7 +159,7 @@ export class UsageCard extends React.Component {
                 </CardBody>
                 <CardFooter>
                     <Button isInline variant="link" component="a" onClick={ev => { ev.preventDefault(); cockpit.jump("/metrics", cockpit.transport.host) }}>
-                        {_("View details and history")}
+                        {_("View metrics and history")}
                     </Button>
                 </CardFooter>
             </Card>

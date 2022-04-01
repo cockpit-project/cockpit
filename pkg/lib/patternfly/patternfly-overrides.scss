@@ -221,9 +221,6 @@ select.form-control {
 
   // Shrink embedded buttons
   .content-filter &,
-  .listing-ct-head &,
-  .listing-ct-body &,
-  .listing-ct-item &,
   .action &,
   .panel-heading &,
   .panel tr & {
@@ -427,9 +424,8 @@ th > label {
         pointer-events: none;
       }
 
-      // listing-ct uses tertitiary nav, which has a bottom line
-      .pf-c-table__expandable-row &::before,
-      .listing-ct-panel &::before {
+      // PF table uses tertitiary nav, which has a bottom line
+      .pf-c-table__expandable-row &::before {
         top: auto;
         bottom: 0;
       }

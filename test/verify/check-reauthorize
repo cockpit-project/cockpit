@@ -64,8 +64,6 @@ class TestReauthorize(MachineCase):
 
     @skipImage("ssh root login not allowed", "fedora-coreos")
     def testSuper(self):
-        self.allow_journal_messages("Error receiving data: Connection reset by peer")
-        self.allow_journal_messages("connection unexpectedly closed by peer")
         b = self.browser
 
         self.login_and_go("/playground/test")

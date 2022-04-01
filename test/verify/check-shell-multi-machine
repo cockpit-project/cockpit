@@ -376,9 +376,7 @@ class TestMultiMachine(MachineCase):
 
         # Might happen when we switch away.
         self.allow_hostkey_messages()
-        self.allow_journal_messages(".*: Connection reset by peer",
-                                    "connection unexpectedly closed by peer",
-                                    ".* Failed to resolve hostname bad .*")
+        self.allow_journal_messages(".* Failed to resolve hostname bad .*")
 
     def testDirectLogin(self):
         self.machine.start_cockpit()
@@ -754,7 +752,6 @@ class TestMultiMachine(MachineCase):
 
         self.allow_hostkey_messages()
         self.allow_journal_messages('.* couldn\'t connect: .*',
-                                    '.*: Connection reset by peer',
                                     '.* failed to retrieve resource: invalid-hostkey',
                                     '.* host key for server has changed to: .*',
                                     '.* spawning remote bridge failed .*',

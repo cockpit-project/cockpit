@@ -122,10 +122,6 @@ class TestBonding(NetworkCase):
         self.wait_for_iface(iface1)
         self.wait_for_iface(iface2)
 
-        # Due to above reload
-        self.allow_journal_messages(".*Connection reset by peer.*",
-                                    "connection unexpectedly closed by peer")
-
     def testNonDefaultSettings(self):
         b = self.browser
         m = self.machine

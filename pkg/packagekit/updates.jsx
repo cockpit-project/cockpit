@@ -284,7 +284,7 @@ function updateItem(info, pkgNames, key) {
         pkgsTruncated.push(<span key="more">…</span>);
 
     if (pkgNames.some(p => p.name.startsWith("kpatch-patch")))
-        pkgsTruncated.push(<>{" "}<Badge>{_("patches")}</Badge></>);
+        pkgsTruncated.push(<React.Fragment key={`${key}-kpatches-spacer`}>{" "}<Badge>{_("patches")}</Badge></React.Fragment>);
 
     let descriptionFirstLine = (info.description || "").trim();
     if (descriptionFirstLine.indexOf("\n") >= 0)

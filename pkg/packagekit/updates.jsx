@@ -74,6 +74,12 @@ const PK_STATUS_STRINGS = {};
 const PK_STATUS_LOG_STRINGS = {};
 const packageSummaries = {};
 
+const UPDATES = {
+    ALL: 0,
+    SECURITY: 1,
+    KPATCHES: 2,
+};
+
 function init() {
     STATE_HEADINGS.loading = _("Loading available updates, please wait...");
     STATE_HEADINGS.locked = _("Some other program is currently using the package manager, please wait...");
@@ -156,6 +162,18 @@ function count_security_updates(updates) {
         if (updates[u].severity === PK.Enum.INFO_SECURITY)
             ++num_security;
     return num_security;
+}
+
+function isKpatchPackage(name) {
+    return name.startsWith("kpatch-patch");
+}
+
+function count_kpatch_updates(updates) {
+    let num_kpatches = 0;
+    for (const u in updates)
+        if (isKpatchPackage(updates[u].name))
+            ++num_kpatches;
+    return num_kpatches;
 }
 
 function find_highest_severity(updates) {
@@ -285,7 +303,7 @@ function updateItem(info, pkgNames, key) {
     if (pkgList.length > 4)
         pkgsTruncated.push(<span key="more">…</span>);
 
-    if (pkgNames.some(p => p.name.startsWith("kpatch-patch")))
+    if (pkgNames.some(pkg => isKpatchPackage(pkg.name)))
         pkgsTruncated.push(
             <LabelGroup key={`${key}-kpatches-labelgroup`} className="kpatches-labelgroup">
                 {" "}<Badge color="blue" variant="filled">{_("patches")}</Badge>
@@ -907,6 +925,7 @@ class CardsPage extends React.Component {
                             </FlexItem>
                         </Flex>}
                     {this.props.applySecurity}
+                    {this.props.applyKpatches}
                     {this.props.applyAll}
                 </div>),
                 containsList: true,
@@ -1275,10 +1294,13 @@ class OsUpdates extends React.Component {
                 });
     }
 
-    applyUpdates(securityOnly) {
+    applyUpdates(type) {
         let ids = Object.keys(this.state.updates);
-        if (securityOnly)
+        if (type === UPDATES.SECURITY)
             ids = ids.filter(id => this.state.updates[id].severity === PK.Enum.INFO_SECURITY);
+        if (type === UPDATES.KPATCHES) {
+            ids = ids.filter(id => isKpatchPackage(this.state.updates[id].name));
+        }
 
         PK.transaction()
                 .then(transactionPath => {
@@ -1301,7 +1323,7 @@ class OsUpdates extends React.Component {
     }
 
     renderContent() {
-        let applySecurity, applyAll;
+        let applySecurity, applyKpatches, applyAll;
 
         /* On unregistered RHEL systems we need some heuristics: If the "main" OS repos (which provide coreutils) require
          * a subscription, then point this out and don't show available updates, even if there are some auxiliary
@@ -1353,10 +1375,11 @@ class OsUpdates extends React.Component {
         {
             const num_updates = Object.keys(this.state.updates).length;
             const num_security_updates = count_security_updates(this.state.updates);
+            const num_kpatches = count_kpatch_updates(this.state.updates);
             const highest_severity = find_highest_severity(this.state.updates);
 
             applyAll = (
-                <Button id={num_updates == num_security_updates ? "install-security" : "install-all"} variant="primary" onClick={ () => this.applyUpdates(false) }>
+                <Button id={num_updates == num_security_updates ? "install-security" : "install-all"} variant="primary" onClick={ () => this.applyUpdates(UPDATES.ALL) }>
                     { num_updates == num_security_updates
                         ? _("Install security updates")
                         : _("Install all updates") }
@@ -1364,8 +1387,15 @@ class OsUpdates extends React.Component {
 
             if (num_security_updates > 0 && num_updates > num_security_updates) {
                 applySecurity = (
-                    <Button id="install-security" variant="secondary" onClick={ () => this.applyUpdates(true) }>
+                    <Button id="install-security" variant="secondary" onClick={ () => this.applyUpdates(UPDATES.SECURITY) }>
                         {_("Install security updates")}
+                    </Button>);
+            }
+
+            if (num_kpatches > 0) {
+                applyKpatches = (
+                    <Button id="install-kpatches" variant="secondary" onClick={ () => this.applyUpdates(UPDATES.KPATCHES) }>
+                        {_("Install kpatch updates")}
                     </Button>);
             }
 
@@ -1394,6 +1424,7 @@ class OsUpdates extends React.Component {
                             <CardsPage handleRefresh={this.handleRefresh}
                                        applySecurity={applySecurity}
                                        applyAll={applyAll}
+                                       applyKpatches={applyKpatches}
                                        highestSeverity={highest_severity}
                                        onValueChanged={this.onValueChanged}
                                        {...this.state} />

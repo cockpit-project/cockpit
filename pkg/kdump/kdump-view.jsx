@@ -280,11 +280,8 @@ export class KdumpPage extends React.Component {
     }
 
     handleSaveClick() {
-        return new Promise((resolve, reject) => {
-            this.props.onSaveSettings(this.state.dialogSettings)
-                    .then(resolve)
-                    .catch(error => reject(cockpit.format(_("Unable to save settings: $0"), String(error))));
-        });
+        return this.props.onSaveSettings(this.state.dialogSettings)
+                .catch(error => Promise.reject(cockpit.format(_("Unable to save settings: $0"), String(error))));
     }
 
     handleTestSettingsClick(e) {

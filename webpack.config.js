@@ -410,7 +410,7 @@ module.exports = {
     },
     entry: info.entries,
     // cockpit.js gets included via <script>, everything else should be bundled
-    externals: { cockpit: "cockpit" },
+    externals: (section === 'base1/') ? {} : { cockpit: "cockpit" },
     plugins: plugins,
 
     devtool: production ? false : "source-map",

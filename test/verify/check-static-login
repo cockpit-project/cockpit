@@ -640,10 +640,11 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         if is_pam_tally2:
             self.sed_file("/common-auth/ { iauth required pam_tally2.so deny=4\n }", "/etc/pam.d/cockpit")
         elif m.image.startswith('debian-') or m.image.startswith('ubuntu'):
-            # enable pam_faillock.  see example in pam_faillock(8), adopted for sss
-            self.sed_file("""s/re.*pam_deny.so/[default=die] pam_faillock.so authfail deny=4/;
-                             s/re.*pam_permit.so/sufficient pam_faillock.so authsucc deny=4/;
-                          """, "/etc/pam.d/common-auth")
+            # enable pam_faillock.  see example in pam_faillock(8)
+            self.sed_file(r"/fallback if no module succeeds/ s/^/"
+                          r"auth [default=die] pam_faillock.so authfail deny=4\n"
+                          r"auth sufficient pam_faillock.so authsucc deny=4\n/",
+                          "/etc/pam.d/common-auth")
         elif m.image == "arch":
             self.sed_file("s/# deny = 3/deny = 4/", "/etc/security/faillock.conf")
         else:

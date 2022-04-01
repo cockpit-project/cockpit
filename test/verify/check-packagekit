@@ -196,14 +196,25 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
                            provides=f"kpatch-patch = {kernel_ver_arch}",
                            content={"/usr/local/bin/kpatch": kpatch},
                            postinst="chmod +x /usr/local/bin/kpatch; mount -o bind /usr/local/bin/kpatch /usr/sbin/kpatch")
+        # Mix in an normal update and ensure it's not updated
+        self.createPackage("vanilla", "1.0", "1", install=True)
+        self.createPackage("vanilla", "1.0", "2")
+        self.createPackage("secdeclare", "3", "4.a1", install=True)
+        self.createPackage("secdeclare", "3", "4.b1", severity="security",
+                           changes="Will crash your data center", cves=["CVE-2014-123456"])
         self.enableRepo()
         self.addCleanup(m.execute, "umount /usr/sbin/kpatch")
 
         b.click("#status .pf-c-card__actions button")
         b.wait_visible(".pf-c-badge:contains('patches')")
-        b.click("button:contains('Install all updates')")
+        b.click("button:contains('Install kpatch updates')")
         b.click("button:contains('Continue')")
         b.wait_in_text("#status", "Kernel live patch kpatch_3_10_0_1062_1_1 is active")
+        # Other updates are not installed
+        self.check_nth_update(1, "secdeclare", "3-4.b1", "security", 1,
+                              desc_matches=["Will crash your data center"], cves=["CVE-2014-123456"])
+        self.check_nth_update(2, "vanilla", "1.0-2")
+        self.assertEqual(m.execute("rpm -q vanilla").strip(), "vanilla-1.0-1.noarch")
 
         # Switch to 'for current kernel only'
         b.click("#kpatch-settings button:contains('Edit')")
@@ -748,6 +759,7 @@ ExecStart=/usr/local/bin/{packageName}
 
         # install only security updates
         self.assertEqual(b.text("#available-updates button#install-security"), "Install security updates")
+        b.wait_not_present("#available-updates button#install-kpatches")
         b.click("#available-updates button#install-security")
         b.wait_visible(".pf-c-empty-state .pf-c-title:contains('Update was successful')")
 
@@ -844,6 +856,7 @@ ExecStart=/usr/local/bin/{packageName}
 
         # should only have one button (only security updates)
         b.wait_not_present("#available-updates button#install-all")
+        b.wait_not_present("#available-updates button#install-kpatches")
         self.assertEqual(b.text("#available-updates button#install-security"), "Install security updates")
 
         # security fix without CVE URLs

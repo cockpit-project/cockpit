@@ -173,7 +173,11 @@ export class DialogFooter extends React.Component {
         else
             error_message = this.state.error_message;
         if (error_message)
-            error_element = <Alert variant='danger' isInline title={React.isValidElement(error_message) ? error_message : error_message.toString() } />;
+            error_element = (
+                <Alert variant='danger' isInline title={React.isValidElement(error_message) ? error_message : error_message.toString() }>
+                    { error_message.details }
+                </Alert>
+            );
         return (
             <>
                 { error_element }

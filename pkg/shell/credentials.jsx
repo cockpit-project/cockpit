@@ -211,7 +211,7 @@ const KeyDetails = ({ currentKey }) => {
 const PublicKey = ({ currentKey }) => {
     return (
         <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} variant={ClipboardCopyVariant.expansion}>
-            {currentKey.data}
+            {currentKey.data.trim()}
         </ClipboardCopy>
     );
 };

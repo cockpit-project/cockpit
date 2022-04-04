@@ -109,10 +109,12 @@ class TestKdump(KdumpHelpers):
         mountInput = "#kdump-settings-nfs-mount"
         b.set_input_text(mountInput, ":/var/crash")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
-        b.wait_visible(".pf-c-alert__title:contains('Unable to save settings')")
+        b.wait_in_text("#kdump-settings-dialog h4.pf-c-alert__title", "Unable to save settings: nfs dump target isn't formatted as server:path")
+        # no further details/journal
+        self.assertFalse(b.is_present("#kdump-settings-dialog .pf-c-code-block__code"))
         b.set_input_text(mountInput, "localhost:")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
-        b.wait_visible(".pf-c-alert__title:contains('Unable to save settings')")
+        b.wait_in_text("#kdump-settings-dialog h4.pf-c-alert__title", "Unable to save settings: nfs dump target isn't formatted as server:path")
         b.click("#kdump-settings-dialog button.cancel")
         b.wait_not_present("#kdump-settings-dialog")
 
@@ -152,7 +154,8 @@ class TestKdump(KdumpHelpers):
         b.set_input_text(pathInput, customPath)
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
         # we should get an error
-        b.wait_visible("h4.pf-c-alert__title:contains('Unable to save settings')")
+        b.wait_in_text("#kdump-settings-dialog h4.pf-c-alert__title",
+                       "Unable to save settings: Directory /var/crash2 isn't writable or doesn't exist")
         # also allow the journal message about failed touch
         self.allow_journal_messages(".*mktemp: failed to create file via template.*")
         # create the directory and try again
@@ -303,7 +306,9 @@ class TestKdumpNFS(KdumpHelpers):
         b.set_input_text("#kdump-settings-nfs-directory", "dumps")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
         # dumps directory does not exist, error
-        b.wait_visible("h4.pf-c-alert__title:contains('Unable to save settings')")
+        b.wait_in_text("#kdump-settings-dialog h4.pf-c-alert__title", "Unable to save settings")
+        # also shows error details
+        b.wait_in_text("#kdump-settings-dialog .pf-c-code-block__code", 'does not exist in dump target "10.111.113.2:/srv/kdump"')
         # create the directory on the NFS server
         self.machines["nfs"].execute("mkdir /srv/kdump/dumps")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")

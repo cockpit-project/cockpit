@@ -2,7 +2,7 @@
 
 set -eu
 
-SUBDIR=test/reference
+TEST_REFERENCE_SUBDIR="${TEST_REFERENCE_SUBDIR:-test/reference}"
 REPO=pixel-test-reference
 
 GITHUB_BASE="${GITHUB_BASE:-cockpit-project/cockpit}"
@@ -15,15 +15,15 @@ message() {
 }
 
 cmd_init() {
-    git submodule add -b empty "$CLONE_REMOTE" "$SUBDIR"
+    git submodule add -b empty "$CLONE_REMOTE" "$TEST_REFERENCE_SUBDIR"
 }
 
 cmd_pull() {
-    git submodule update --init -- "$SUBDIR"
+    git submodule update --init -- "$TEST_REFERENCE_SUBDIR"
 }
 
 cmd_status() {
-    ( cd "$SUBDIR"
+    ( cd "$TEST_REFERENCE_SUBDIR"
       git rm --force --cached --quiet '*.png'
       git add *.png
       if git diff-index --name-status --cached --exit-code HEAD; then
@@ -33,7 +33,7 @@ cmd_status() {
 }
 
 cmd_push() {
-    ( cd "$SUBDIR"
+    ( cd "$TEST_REFERENCE_SUBDIR"
       git rm --force --cached --quiet '*.png'
       git add *.png
       if ! git diff-index --name-status --cached --exit-code HEAD; then
@@ -47,7 +47,7 @@ cmd_push() {
       [ $(git tag -l "$tag") ] || git tag "$tag" HEAD
       git push "$PUSH_REMOTE" "$tag"
     )
-    git add "$SUBDIR"
+    git add "$TEST_REFERENCE_SUBDIR"
 }
 
 main() {

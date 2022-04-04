@@ -131,10 +131,20 @@ export class KdumpClient {
         return this.configClient.write(settings)
                 .then(() => {
                     // after we've written the new config, we have to restart the service to pick up changes or clean up after errors
-                    if (this.kdumpService.enabled)
-                        return this.kdumpService.restart();
-                    else
+                    if (this.kdumpService.enabled) {
+                        return this.kdumpService.restart()
+                                .catch(error => this.kdumpService.getRunJournal(["--output=cat", "--identifier=kdumpctl"])
+                                        .then(journal => {
+                                            error.details = journal;
+                                            return Promise.reject(error);
+                                        }, ex => {
+                                            console.warn("Failed to get journal of kdump.service:", ex.toString());
+                                            return Promise.reject(error);
+                                        })
+                                );
+                    } else {
                         return true;
+                    }
                 });
     }
 

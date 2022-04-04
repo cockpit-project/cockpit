@@ -76,7 +76,7 @@ export class ShutdownModal extends React.Component {
     }
 
     updateDate(value, dateObject) {
-        this.setState({ date : value, dateObject });
+        this.setState({ date : value, dateObject }, this.calculate);
     }
 
     updateTime(value, hour, minute) {

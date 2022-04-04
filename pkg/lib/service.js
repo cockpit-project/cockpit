@@ -80,6 +80,11 @@ import cockpit from "cockpit";
  * - promise = proxy.disable()
  *
  * Disable the service.
+ *
+ * - journal = proxy.getRunJournal(options)
+ *
+ * Return the journal of the current (if running) or recent (if failed/stopped) service run,
+ * similar to `systemctl status`. `options` is an optional array that gets appended to the `journalctl` call.
  */
 
 let systemd_client;
@@ -124,7 +129,9 @@ export function proxy(name, kind) {
         tryRestart: tryRestart,
 
         enable: enable,
-        disable: disable
+        disable: disable,
+
+        getRunJournal: getRunJournal,
     };
 
     cockpit.event_target(self);
@@ -319,6 +326,17 @@ export function proxy(name, kind) {
 
     function disable() {
         return call_manager_with_reload("DisableUnitFiles", [[name], false]);
+    }
+
+    function getRunJournal(options) {
+        if (!details || !details.ExecMainStartTimestamp)
+            return Promise.reject(new Error("getRunJournal(): unit is not known"));
+
+        // collect the service journal since start time; property is μs, journal wants s
+        const startTime = Math.floor(details.ExecMainStartTimestamp / 1000000);
+        return cockpit.spawn(
+            ["journalctl", "--unit", name, "--since=@" + startTime.toString()].concat(options || []),
+            { superuser: "try", error: "message" });
     }
 
     return self;

@@ -21,6 +21,8 @@ import parent
 from storagelib import *
 from testlib import *
 
+import time
+
 
 @nondestructive
 class TestStorageLvm2(StorageCase):
@@ -100,6 +102,11 @@ class TestStorageLvm2(StorageCase):
         b.wait_visible("#storage")
         m.execute("vgremove -f TEST1")
         b.wait_not_in_text("#devices", "TEST1")
+
+        # HACK - https://github.com/storaged-project/udisks/issues/966
+        # Let's give udisks2 some time to fully digest the disappearance of TEST1
+        #
+        time.sleep(5)
 
         # create volume group in the UI
 

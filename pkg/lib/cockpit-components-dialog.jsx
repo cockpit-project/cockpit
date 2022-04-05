@@ -47,7 +47,7 @@ const _ = cockpit.gettext;
  *  - idle_message optional, always show this message on the last row when idle
  *  - dialog_done optional, callback when dialog is finished (param true if success, false on cancel)
  */
-export class DialogFooter extends React.Component {
+class DialogFooter extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -214,7 +214,7 @@ DialogFooter.propTypes = {
  *  - variant: See PF4 Modal component's 'variant' property
  *  - titleIconVariant: See PF4 Modal component's 'titleIconVariant' property
  */
-export class Dialog extends React.Component {
+class Dialog extends React.Component {
     componentDidMount() {
         // if we used a button to open this, make sure it's not focused anymore
         if (document.activeElement)

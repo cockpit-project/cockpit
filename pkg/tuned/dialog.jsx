@@ -304,7 +304,6 @@ const TunedDialog = ({
                title={_("Change performance profile")}
                footer={
                    <>
-                       {error && <ModalError dialogError={typeof error == 'string' ? error : error.message} />}
                        <Button variant='primary' isDisabled={!selected} onClick={setProfile}>
                            {_("Change profile")}
                        </Button>
@@ -314,6 +313,7 @@ const TunedDialog = ({
                    </>
                }
         >
+            {error && <ModalError dialogError={typeof error == 'string' ? error : error.message} />}
             {loading && <EmptyStatePanel loading />}
             {activeProfile && <ProfilesMenuDialogBody active_profile={activeProfile}
                                                change_selected={setSelected}

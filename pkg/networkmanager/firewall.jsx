@@ -591,9 +591,6 @@ class AddEditServicesModal extends React.Component {
                    onClose={Dialogs.close}
                    title={titleText}
                    footer={<>
-                       {
-                           this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />
-                       }
                        { !this.state.custom ||
                            <Alert variant="warning"
                                isInline
@@ -608,6 +605,9 @@ class AddEditServicesModal extends React.Component {
                    </>}
             >
                 <Form isHorizontal onSubmit={this.props.custom_id ? this.edit : this.save}>
+                    {
+                        this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />
+                    }
                     { !!this.props.custom_id ||
                         <FormGroup className="add-services-dialog-type" isInline>
                             <Radio name="type"
@@ -798,9 +798,6 @@ class ActivateZoneModal extends React.Component {
                    onClose={Dialogs.close}
                    title={_("Add zone")}
                    footer={<>
-                       {
-                           this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />
-                       }
                        <Button variant="primary" onClick={this.save} isDisabled={this.state.zone === null ||
                                                                                (this.state.interfaces.size === 0 && this.state.ipRange === "ip-entire-subnet") ||
                                                                                (this.state.ipRange === "ip-range" && !this.state.ipRangeValue)}>
@@ -812,6 +809,9 @@ class ActivateZoneModal extends React.Component {
                    </>}
             >
                 <Form isHorizontal onSubmit={this.save}>
+                    {
+                        this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />
+                    }
                     <FormGroup label={ _("Trust level") } className="add-zone-zones">
                         <Flex>
                             <FlexItem className="add-zone-zones-firewalld">

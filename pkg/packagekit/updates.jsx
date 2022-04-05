@@ -515,7 +515,6 @@ class RestartServices extends React.Component {
                    title={_("Restart services")}
                    footer={
                        <>
-                           {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
                            {this.props.tracerPackages.daemons.includes("cockpit") &&
                                <Alert variant="warning"
                                    title={_("Web Console will restart")}
@@ -534,7 +533,10 @@ class RestartServices extends React.Component {
                            </Button>
                        </>
                    }>
-                {body}
+                <Stack hasGutter>
+                    {this.state.dialogError && <ModalError dialogError={this.state.dialogError} dialogErrorDetail={this.state.dialogErrorDetail} />}
+                    <StackItem>{body}</StackItem>
+                </Stack>
             </Modal>
         );
     }

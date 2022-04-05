@@ -521,7 +521,7 @@ class TestAccounts(MachineCase):
         b.set_input_text("#account-set-password-pw1", new_password_2)
         b.set_input_text("#account-set-password-pw2", new_password_2)
         b.click('#account-set-password-dialog button.apply')
-        b.wait_in_text("#account-set-password-dialog .pf-c-modal-box__footer", "must wait longer")
+        b.wait_in_text("#account-set-password-dialog .pf-c-modal-box__body", "must wait longer")
 
     @skipImage("ssh root login not allowed", "fedora-coreos")
     def testRootLogin(self):

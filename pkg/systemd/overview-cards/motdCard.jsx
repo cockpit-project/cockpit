@@ -19,7 +19,13 @@
 
 import React, { useState } from 'react';
 
-import { Alert, AlertActionCloseButton, Button, Modal, TextArea } from '@patternfly/react-core';
+import {
+    Alert, AlertActionCloseButton,
+    Button,
+    Modal,
+    Stack,
+    TextArea
+} from '@patternfly/react-core';
 import { EditIcon } from '@patternfly/react-icons';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { superuser } from "superuser";
@@ -46,9 +52,6 @@ const MotdEditDialog = ({ text }) => {
                title={_("Edit /etc/motd")}
                footer={
                    <>
-                       {error &&
-                       <ModalError dialogError={error}
-                                    dialogErrorDetail={errorDetail} />}
                        <Button variant='primary'
                                onClick={() => cockpit.file("/etc/motd", { superuser: "try", err: "message" })
                                        .replace(value)
@@ -65,9 +68,15 @@ const MotdEditDialog = ({ text }) => {
                        </Button>
                    </>
                }>
-            <TextArea resizeOrientation="vertical"
-                      value={value}
-                      onChange={setValue} />
+
+            <Stack hasGutter>
+                {error &&
+                <ModalError dialogError={error}
+                             dialogErrorDetail={errorDetail} />}
+                <TextArea resizeOrientation="vertical"
+                          value={value}
+                          onChange={setValue} />
+            </Stack>
         </Modal>);
 };
 

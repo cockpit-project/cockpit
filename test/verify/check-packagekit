@@ -675,8 +675,8 @@ ExecStart=/usr/local/bin/{packageName}
         b.wait_visible("#restart-services-modal")
 
         # tracer updated the list of services which need a restart, so our service is no longer present
-        b.wait_not_in_text("#restart-services-modal .pf-c-modal-box__body", packageName)
-        b.wait_visible("#restart-services-modal footer .pf-c-alert")
+        b.wait_not_in_text("#restart-services-modal .pf-l-stack__item", packageName)
+        b.wait_visible("#restart-services-modal .pf-c-alert")
 
     @skipImage("No security changelog support in packagekit", "arch")
     def testInfoSecurity(self):

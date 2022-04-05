@@ -27,7 +27,7 @@ import {
     Tooltip, TooltipPosition,
     Card, CardBody, CardTitle, Text, TextVariants,
     List, ListItem,
-    Modal, Spinner, Switch
+    Modal, Spinner, Stack, Switch
 } from "@patternfly/react-core";
 import {
     AsleepIcon,
@@ -701,8 +701,10 @@ const DeleteModal = ({ reason, name, handleCancel, handleDelete }) => {
                    <Button variant="link" isDisabled={inProgress} onClick={handleCancel}>{_("Cancel")}</Button>
                </>}
         >
-            {dialogError && <ModalError dialogError={_("Timer deletion failed")} dialogErrorDetail={dialogError} />}
-            {reason}
+            <Stack hasGutter>
+                {dialogError && <ModalError dialogError={_("Timer deletion failed")} dialogErrorDetail={dialogError} />}
+                {reason}
+            </Stack>
         </Modal>
     );
 };

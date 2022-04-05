@@ -140,7 +140,6 @@ const CreateTimerDialogBody = ({ owner }) => {
            title={cockpit.format(_("Create timer"), name)}
            footer={
                <>
-                   {dialogError && <ModalError dialogError={_("Timer creation failed")} dialogErrorDetail={dialogError} />}
                    <Button variant='primary'
                            id="timer-save-button"
                            isLoading={inProgress}
@@ -153,6 +152,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                    </Button>
                </>
            }>
+            {dialogError && <ModalError dialogError={_("Timer creation failed")} dialogErrorDetail={dialogError} />}
             <Form isHorizontal onSubmit={onSubmit}>
                 <FormGroup label={_("Name")}
                            fieldId="servicename"

@@ -167,7 +167,6 @@ const CryptoPolicyDialog = ({
                title={_("Change crypto policy")}
                footer={
                    <>
-                       {error && <ModalError dialogError={typeof error == 'string' ? error : error.message} />}
                        {inProgress &&
                        <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
                            {_("Applying new policy... This may take a few minutes.")}
@@ -183,6 +182,7 @@ const CryptoPolicyDialog = ({
                    </>
                }
         >
+            {error && <ModalError dialogError={typeof error == 'string' ? error : error.message} />}
             {currentCryptoPolicy && <ProfilesMenuDialogBody active_profile={currentCryptoPolicy}
                                                      change_selected={setSelected}
                                                      isDisabled={inProgress}

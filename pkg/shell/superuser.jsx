@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React, { useState } from "react";
 import { useObject, useInit, useEvent } from "hooks";
 import { useDialogs } from "dialogs.jsx";
-import { Alert, Button, Form, FormGroup, Modal, TextInput, FormSelect, FormSelectOption } from '@patternfly/react-core';
+import { Alert, Button, Form, FormGroup, Modal, TextInput, FormSelect, FormSelectOption, Stack, StackItem } from '@patternfly/react-core';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { host_superuser_storage_key } from './machines/machines';
 import { LockIcon } from '@patternfly/react-icons';
@@ -144,27 +144,25 @@ const UnlockDialog = ({ proxy, host }) => {
 
         title = _("Switch to administrative access");
         body = (
-            <>
-                { error && <><Alert variant={errorVariant || 'danger'} isInline title={error} /><br /></> }
-                <Form isHorizontal onSubmit={event => { apply(); event.preventDefault(); return false }}>
-                    { prompt.message && <span>{prompt.message}</span> }
-                    <FormGroup
-                        fieldId="switch-to-admin-access-password"
-                        label={prompt.prompt}
+            <Form isHorizontal onSubmit={event => { apply(); event.preventDefault(); return false }}>
+                { error && <Alert variant={errorVariant || 'danger'} isInline title={error} /> }
+                { prompt.message && <span>{prompt.message}</span> }
+                <FormGroup
+                    fieldId="switch-to-admin-access-password"
+                    label={prompt.prompt}
+                    validated={!error ? "default" : validated || "error"}
+                >
+                    <TextInput
+                        autoFocus // eslint-disable-line jsx-a11y/no-autofocus
+                        id="switch-to-admin-access-password"
+                        isDisabled={busy}
+                        onChange={setValue}
+                        type={!prompt.echo ? 'password' : 'text'}
                         validated={!error ? "default" : validated || "error"}
-                    >
-                        <TextInput
-                            autoFocus // eslint-disable-line jsx-a11y/no-autofocus
-                            id="switch-to-admin-access-password"
-                            isDisabled={busy}
-                            onChange={setValue}
-                            type={!prompt.echo ? 'password' : 'text'}
-                            validated={!error ? "default" : validated || "error"}
-                            value={value}
-                        />
-                    </FormGroup>
-                </Form>
-            </>
+                        value={value}
+                    />
+                </FormGroup>
+            </Form>
         );
 
         footer = (
@@ -252,7 +250,6 @@ const LockDialog = ({ proxy, host }) => {
 
     const footer = (
         <>
-            {error && <ModalError dialogError={error} />}
             <Button variant='primary' onClick={apply}>
                 {_("Limit access")}
             </Button>
@@ -268,10 +265,13 @@ const LockDialog = ({ proxy, host }) => {
                onClose={D.close}
                footer={footer}
                title={_("Switch to limited access")}>
-            <>
-                <p>{_("Limited access mode restricts administrative privileges. Some parts of the web console will have reduced functionality.")}</p>
-                <p>{_("Your browser will remember your access level across sessions.")}</p>
-            </>
+            <Stack hasGutter>
+                {error && <ModalError dialogError={error} />}
+                <StackItem>
+                    <p>{_("Limited access mode restricts administrative privileges. Some parts of the web console will have reduced functionality.")}</p>
+                    <p>{_("Your browser will remember your access level across sessions.")}</p>
+                </StackItem>
+            </Stack>
         </Modal>
     );
 };

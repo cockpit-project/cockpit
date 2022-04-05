@@ -35,6 +35,7 @@ import {
     Form, FormGroup,
     Modal,
     Radio,
+    Stack,
     TextInput,
 } from '@patternfly/react-core';
 
@@ -76,13 +77,15 @@ class NotSupported extends React.Component {
                    onClose={this.props.onClose}
                    title={_("Cockpit is not installed")}
                    footer={<>
-                       { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
                        <Button variant="link" className="btn-cancel" onClick={this.props.onClose}>
                            { _("Close") }
                        </Button>
                    </>}
             >
-                <p>{cockpit.format(_("A compatible version of Cockpit is not installed on $0."), this.props.full_address)}</p>
+                <Stack hasGutter>
+                    { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
+                    <p>{cockpit.format(_("A compatible version of Cockpit is not installed on $0."), this.props.full_address)}</p>
+                </Stack>
             </Modal>
         );
     }
@@ -268,7 +271,6 @@ class AddMachine extends React.Component {
                    onClose={this.props.onClose}
                    title={title}
                    footer={<>
-                       { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
                        <Button variant="primary" onClick={callback} isLoading={this.state.inProgress}
                                isDisabled={this.state.address === "" || this.state.addressError !== "" || this.state.inProgress}>
                            { submitText }
@@ -278,7 +280,10 @@ class AddMachine extends React.Component {
                        </Button>
                    </>}
             >
-                {body}
+                <Stack hasGutter>
+                    { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
+                    {body}
+                </Stack>
             </Modal>
         );
     }
@@ -363,7 +368,6 @@ class MachinePort extends React.Component {
                    onClose={this.props.onClose}
                    title={title}
                    footer={<>
-                       { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
                        <Button variant="primary" onClick={callback} isLoading={this.state.inProgress}
                                isDisabled={this.state.inProgress}>
                            { submitText }
@@ -373,7 +377,10 @@ class MachinePort extends React.Component {
                        </Button>
                    </>}
             >
-                {body}
+                <Stack hasGutter>
+                    { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
+                    {body}
+                </Stack>
             </Modal>
         );
     }
@@ -483,7 +490,6 @@ class HostKey extends React.Component {
                    onClose={this.props.onClose}
                    title={title}
                    footer={<>
-                       { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
                        { unknown ||
                            <Button variant="primary" onClick={callback} isLoading={this.state.inProgress}
                                    isDisabled={this.state.inProgress}>
@@ -495,7 +501,10 @@ class HostKey extends React.Component {
                        </Button>
                    </>}
             >
-                {body}
+                <Stack hasGutter>
+                    { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
+                    {body}
+                </Stack>
             </Modal>
         );
     }
@@ -851,7 +860,6 @@ class ChangeAuth extends React.Component {
                    onClose={this.props.onClose}
                    title={title}
                    footer={<>
-                       { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
                        <Button variant="primary" onClick={callback} isLoading={this.state.inProgress}
                                isDisabled={this.state.inProgress || (!offer_login_password && !offer_key_password) || !this.state.default_ssh_key || !this.props.error_options}>
                            { submitText }
@@ -861,7 +869,10 @@ class ChangeAuth extends React.Component {
                        </Button>
                    </>}
             >
-                {body}
+                <Stack hasGutter>
+                    { this.props.dialogError && <ModalError dialogError={this.props.dialogError} />}
+                    {body}
+                </Stack>
             </Modal>
         );
     }

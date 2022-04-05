@@ -32,6 +32,7 @@ import {
     Popover,
     Progress, ProgressVariant,
     Select, SelectOption,
+    Stack, StackItem,
     Switch,
     Text, TextContent, TextVariants,
     Tooltip,
@@ -1270,8 +1271,6 @@ const PCPConfigDialog = ({
               </div>
           }
                    footer={<>
-                       { dialogError && <ModalError dialogError={ _("Failed to configure PCP") } dialogErrorDetail={dialogError} /> }
-
                        <Button variant='primary' onClick={handleSave} isDisabled={pending} isLoading={pending}>
                            { _("Save") }
                        </Button>
@@ -1281,36 +1280,41 @@ const PCPConfigDialog = ({
                    </>
                    }>
 
-            <Switch id="switch-pmlogger"
-                        isChecked={dialogLoggerValue}
-                        isDisabled={!s_pmlogger.exists && !packagekitExists}
-                        label={
-                            <Flex spaceItems={{ modifier: 'spaceItemsXl' }}>
-                                <FlexItem>{ _("Collect metrics") }</FlexItem>
-                                <TextContent>
-                                    <Text component={TextVariants.small}>(pmlogger.service)</Text>
-                                </TextContent>
-                            </Flex>
-                        }
-                        onChange={enable => {
-                            // pmproxy needs pmlogger, auto-disable it
-                            setDialogLoggerValue(enable);
-                            if (!enable)
-                                setDialogProxyValue(false);
-                        }} />
+            <Stack hasGutter>
+                { dialogError && <ModalError dialogError={ _("Failed to configure PCP") } dialogErrorDetail={dialogError} /> }
+                <StackItem>
+                    <Switch id="switch-pmlogger"
+                                isChecked={dialogLoggerValue}
+                                isDisabled={!s_pmlogger.exists && !packagekitExists}
+                                label={
+                                    <Flex spaceItems={{ modifier: 'spaceItemsXl' }}>
+                                        <FlexItem>{ _("Collect metrics") }</FlexItem>
+                                        <TextContent>
+                                            <Text component={TextVariants.small}>(pmlogger.service)</Text>
+                                        </TextContent>
+                                    </Flex>
+                                }
+                                onChange={enable => {
+                                    // pmproxy needs pmlogger, auto-disable it
+                                    setDialogLoggerValue(enable);
+                                    if (!enable)
+                                        setDialogProxyValue(false);
+                                }} />
 
-            <Switch id="switch-pmproxy"
-                        isChecked={dialogProxyValue}
-                        label={
-                            <Flex spaceItems={{ modifier: 'spaceItemsXl' }}>
-                                <FlexItem>{ _("Export to network") }</FlexItem>
-                                <TextContent>
-                                    <Text component={TextVariants.small}>(pmproxy.service)</Text>
-                                </TextContent>
-                            </Flex>
-                        }
-                        isDisabled={ !dialogLoggerValue }
-                        onChange={enable => setDialogProxyValue(enable)} />
+                    <Switch id="switch-pmproxy"
+                                isChecked={dialogProxyValue}
+                                label={
+                                    <Flex spaceItems={{ modifier: 'spaceItemsXl' }}>
+                                        <FlexItem>{ _("Export to network") }</FlexItem>
+                                        <TextContent>
+                                            <Text component={TextVariants.small}>(pmproxy.service)</Text>
+                                        </TextContent>
+                                    </Flex>
+                                }
+                                isDisabled={ !dialogLoggerValue }
+                            onChange={enable => setDialogProxyValue(enable)} />
+                </StackItem>
+            </Stack>
         </Modal>);
 };
 

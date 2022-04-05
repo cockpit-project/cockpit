@@ -316,14 +316,12 @@ const UnlockKey = ({ keyName, load, onClose }) => {
                        <Button variant='link' onClick={onClose}>{_("Cancel")}</Button>
                    </>
                }>
-            <>
+            <Form onSubmit={e => { e.preventDefault(); return false }} isHorizontal>
                 {dialogError && <ModalError dialogError={dialogError} />}
-                <Form onSubmit={e => { e.preventDefault(); return false }} isHorizontal>
-                    <FormGroup label={_("Password")} fieldId={keyName + "-password"} type="password">
-                        <TextInput type="password" id={keyName + "-password"} value={password} onChange={setPassword} />
-                    </FormGroup>
-                </Form>
-            </>
+                <FormGroup label={_("Password")} fieldId={keyName + "-password"} type="password">
+                    <TextInput type="password" id={keyName + "-password"} value={password} onChange={setPassword} />
+                </FormGroup>
+            </Form>
         </Modal>
     );
 };

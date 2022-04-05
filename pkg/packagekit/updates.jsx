@@ -29,11 +29,13 @@ import {
     DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
     ExpandableSection,
     Flex, FlexItem,
+    LabelGroup,
     Spinner,
     Stack, StackItem,
     Page, PageSection, PageSectionVariants,
     Text, TextContent, TextListItem, TextList, TextVariants,
 } from '@patternfly/react-core';
+
 import {
     BugIcon,
     CheckIcon,
@@ -284,7 +286,11 @@ function updateItem(info, pkgNames, key) {
         pkgsTruncated.push(<span key="more">…</span>);
 
     if (pkgNames.some(p => p.name.startsWith("kpatch-patch")))
-        pkgsTruncated.push(<React.Fragment key={`${key}-kpatches-spacer`}>{" "}<Badge>{_("patches")}</Badge></React.Fragment>);
+        pkgsTruncated.push(
+            <LabelGroup key={`${key}-kpatches-labelgroup`} className="kpatches-labelgroup">
+                {" "}<Badge color="blue" variant="filled">{_("patches")}</Badge>
+            </LabelGroup>
+        );
 
     let descriptionFirstLine = (info.description || "").trim();
     if (descriptionFirstLine.indexOf("\n") >= 0)

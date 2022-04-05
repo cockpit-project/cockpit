@@ -21,6 +21,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import {
     Alert, Button, Checkbox,
+    Form,
     Flex, FlexItem,
     Modal, Radio,
     Popover,
@@ -254,7 +255,7 @@ export class KpatchSettings extends React.Component {
         const kernel_name = this.state.kernelName ? " (" + this.state.kernelName + ")" : "";
         const error = this.state.error ? <Alert variant='danger' isInline title={this.state.error} /> : null;
 
-        const body = <Checkbox id="apply-kpatch"
+        const body = <Form><Checkbox id="apply-kpatch"
                                isChecked={this.state.applyCheckbox}
                                label={_("Apply kernel live patches")}
                                onChange={checked => this.setState({ applyCheckbox: checked })}
@@ -270,7 +271,7 @@ export class KpatchSettings extends React.Component {
                                           isDisabled={!this.state.applyCheckbox}
                                           isChecked={this.state.justCurrent} />
                                </>}
-        />;
+        /></Form>;
 
         return (<>
             <div id="kpatch-settings">

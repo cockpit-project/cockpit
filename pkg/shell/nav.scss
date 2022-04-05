@@ -113,6 +113,11 @@ $desktop: $phone + 1px;
         display: none !important;
     }
 
+    .area-ct-subnav {
+        // Make a separator between host selector & search
+        border-top: 1px solid var(--pf-global--Color--300);
+    }
+
     .view-hosts .sidebar-hosts {
         animation: navHostsSlide 300ms ease-out;
         transform-origin: top;

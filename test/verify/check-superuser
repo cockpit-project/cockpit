@@ -63,7 +63,7 @@ class TestSuperuser(MachineCase):
         # Get the privileges back, this time in the mobile layout
         b.set_layout("mobile")
         b.open_superuser_dialog()
-        if "ubuntu" not in m.image:
+        if "ubuntu" not in m.image and m.image != "debian-testing":
             b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')",
                            "We trust you have received the usual lecture")
         b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Password for admin:")

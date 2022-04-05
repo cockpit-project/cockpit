@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
-import { Alert, Button, Modal, Popover, Spinner, Stack } from "@patternfly/react-core";
+import { Alert, Button, Modal, Popover, Spinner, Stack, StackItem } from "@patternfly/react-core";
 import { HelpIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
 
 import "cockpit-components-dialog.scss";
@@ -30,7 +30,7 @@ const _ = cockpit.gettext;
 
 /*
  * React template for a Cockpit dialog footer
- * It can display an error, wait for an action to complete,
+ * It can wait for an action to complete,
  * has a 'Cancel' button and an action button (defaults to 'OK')
  * Expected props:
  *  - cancel_clicked optional
@@ -45,6 +45,7 @@ const _ = cockpit.gettext;
  *      - style defaults to 'secondary', other options: 'primary', 'danger'
  *  - idle_message optional, always show this message on the last row when idle
  *  - dialog_done optional, callback when dialog is finished (param true if success, false on cancel)
+ *  - set_error: required, callback to set/clear error message from actions
  */
 class DialogFooter extends React.Component {
     constructor(props) {
@@ -55,7 +56,6 @@ class DialogFooter extends React.Component {
             action_progress_message: '',
             action_progress_cancel: null,
             action_canceled: false,
-            error_message: null,
         };
         this.update_progress = this.update_progress.bind(this);
         this.cancel_click = this.cancel_click.bind(this);
@@ -67,7 +67,6 @@ class DialogFooter extends React.Component {
 
     action_click(handler, e) {
         this.setState({
-            error_message: null,
             action_progress_message: '',
             action_in_progress: true,
             action_canceled: false,
@@ -75,7 +74,8 @@ class DialogFooter extends React.Component {
 
         const p = handler(this.update_progress)
                 .then(() => {
-                    this.setState({ action_in_progress: false, error_message: null });
+                    this.props.set_error(null);
+                    this.setState({ action_in_progress: false });
                     if (this.props.dialog_done)
                         this.props.dialog_done(true);
                 })
@@ -84,9 +84,9 @@ class DialogFooter extends React.Component {
                         if (this.props.dialog_done)
                             this.props.dialog_done(false);
                     } else {
-                        this.setState({ action_in_progress: false, error_message: error });
+                        this.props.set_error(error);
+                        this.setState({ action_in_progress: false });
                     }
-
                     /* Always log global dialog errors for easier debugging */
                     if (error)
                         console.warn(error.message || error.toString());
@@ -164,18 +164,8 @@ class DialogFooter extends React.Component {
             );
         });
 
-        // If we have an error message, display the error
-        let error_element;
-        const error_message = this.state.error_message;
-        if (error_message)
-            error_element = (
-                <Alert variant='danger' isInline title={React.isValidElement(error_message) ? error_message : error_message.toString() }>
-                    { error_message.details }
-                </Alert>
-            );
         return (
             <>
-                { error_element }
                 { this.props.extra_element }
                 { action_buttons }
                 <Button variant={cancel_variant} className="cancel" onClick={this.cancel_click} isDisabled={cancel_disabled}>{ cancel_text }</Button>
@@ -190,6 +180,7 @@ DialogFooter.propTypes = {
     cancel_button: PropTypes.object,
     actions: PropTypes.array.isRequired,
     dialog_done: PropTypes.func,
+    set_error: PropTypes.func.isRequired,
 };
 
 /*
@@ -232,6 +223,9 @@ class Dialog extends React.Component {
                 </Button>
             </Popover>;
 
+        const error_alert = this.props.error &&
+            <Alert variant='danger' isInline title={React.isValidElement(this.props.error) ? this.props.error : this.props.error.toString() }>{this.props.error.details}</Alert>;
+
         return (
             <Modal position="top" variant={this.props.variant || "medium"}
                    titleIconVariant={this.props.titleIconVariant}
@@ -243,7 +237,10 @@ class Dialog extends React.Component {
                    footer={this.props.footer} title={this.props.title}>
                 <Stack hasGutter>
                     { this.props.static_error}
-                    { this.props.body }
+                    { error_alert }
+                    <StackItem>
+                        { this.props.body }
+                    </StackItem>
                 </Stack>
             </Modal>
         );
@@ -255,7 +252,8 @@ Dialog.propTypes = {
     body: PropTypes.element, // is effectively required, see above
     static_error: PropTypes.string,
     footer: PropTypes.element, // is effectively required, see above
-    id: PropTypes.string
+    id: PropTypes.string,
+    error: PropTypes.object,
 };
 
 /* Create and show a dialog
@@ -289,6 +287,7 @@ export function show_modal_dialog(props, footerProps) {
     };
 
     const dialogObj = { };
+    let error = null;
     dialogObj.props = props;
     dialogObj.footerProps = null;
     dialogObj.render = function() {
@@ -298,7 +297,7 @@ export function show_modal_dialog(props, footerProps) {
         // the input focus from whatever element has it, which is
         // unpleasant and also disrupts the tests.
         if (rootElement.offsetParent)
-            ReactDOM.render(<Dialog {...dialogObj.props} />, rootElement);
+            ReactDOM.render(<Dialog {...dialogObj.props} error={error} />, rootElement);
     };
     function updateFooterAndRender() {
         if (dialogObj.props === null || dialogObj.props === undefined)
@@ -312,6 +311,10 @@ export function show_modal_dialog(props, footerProps) {
             origCallback = dialogObj.footerProps.dialog_done;
             dialogObj.footerProps.dialog_done = closeCallback;
         }
+        dialogObj.footerProps.set_error = e => {
+            error = e;
+            dialogObj.render();
+        };
         updateFooterAndRender();
     };
     dialogObj.setProps = function(props) {

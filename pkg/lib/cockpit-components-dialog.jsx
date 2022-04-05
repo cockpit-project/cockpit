@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
-import { Alert, Button, Modal, Popover, Spinner } from "@patternfly/react-core";
+import { Alert, Button, Modal, Popover, Spinner, Stack } from "@patternfly/react-core";
 import { HelpIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
 
 import "cockpit-components-dialog.scss";
@@ -43,7 +43,6 @@ const _ = cockpit.gettext;
  *      - caption optional, defaults to 'Ok'
  *      - disabled optional, defaults to false
  *      - style defaults to 'secondary', other options: 'primary', 'danger'
- *  - static_error optional, always show this error
  *  - idle_message optional, always show this message on the last row when idle
  *  - dialog_done optional, callback when dialog is finished (param true if success, false on cancel)
  */
@@ -167,11 +166,7 @@ class DialogFooter extends React.Component {
 
         // If we have an error message, display the error
         let error_element;
-        let error_message;
-        if (this.props.static_error !== undefined && this.props.static_error !== null)
-            error_message = this.props.static_error;
-        else
-            error_message = this.state.error_message;
+        const error_message = this.state.error_message;
         if (error_message)
             error_element = (
                 <Alert variant='danger' isInline title={React.isValidElement(error_message) ? error_message : error_message.toString() }>
@@ -194,7 +189,6 @@ DialogFooter.propTypes = {
     cancel_clicked: PropTypes.func,
     cancel_button: PropTypes.object,
     actions: PropTypes.array.isRequired,
-    static_error: PropTypes.string,
     dialog_done: PropTypes.func,
 };
 
@@ -209,6 +203,7 @@ DialogFooter.propTypes = {
  *      to the input components to the controller. That way, the controller can
  *      extract all necessary information (e.g. for input validation) when an
  *      action is triggered.
+ *  - static_error optional, always show this error after the body element
  *  - footer (react element, top element should be of class modal-footer)
  *  - id optional, id that is assigned to the top level dialog node, but not the backdrop
  *  - variant: See PF4 Modal component's 'variant' property
@@ -246,7 +241,10 @@ class Dialog extends React.Component {
                    isOpen
                    help={help}
                    footer={this.props.footer} title={this.props.title}>
-                { this.props.body }
+                <Stack hasGutter>
+                    { this.props.static_error}
+                    { this.props.body }
+                </Stack>
             </Modal>
         );
     }
@@ -255,6 +253,7 @@ Dialog.propTypes = {
     // TODO: fix following by refactoring the logic showing modal dialog (recently show_modal_dialog())
     title: PropTypes.string, // is effectively required, but show_modal_dialog() provides initially no props and resets them later.
     body: PropTypes.element, // is effectively required, see above
+    static_error: PropTypes.string,
     footer: PropTypes.element, // is effectively required, see above
     id: PropTypes.string
 };
@@ -308,9 +307,6 @@ export function show_modal_dialog(props, footerProps) {
         dialogObj.render();
     }
     dialogObj.setFooterProps = function(footerProps) {
-        /* Always log error messages to console for easier debugging */
-        if (footerProps.static_error)
-            console.warn(footerProps.static_error);
         dialogObj.footerProps = footerProps;
         if (dialogObj.footerProps.dialog_done != closeCallback) {
             origCallback = dialogObj.footerProps.dialog_done;

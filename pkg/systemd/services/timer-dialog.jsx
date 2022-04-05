@@ -116,12 +116,12 @@ const CreateTimerDialogBody = ({ setIsOpen, owner }) => {
         cockpit.spawn(["test", "-f", command_parts[0]], { err: "ignore" })
                 .then(() => {
                     create_timer({ name, description, command, delay, delayUnit, delayNumber, repeat, specificTime, repeatPatterns, owner })
-                            .then(setIsOpen(false), exc => {
+                            .then(() => setIsOpen(false), exc => {
                                 setDialogError(exc.message);
                                 setInProgress(false);
                             });
                 })
-                .fail(() => {
+                .catch(() => {
                     setCommandNotFound(true);
                     setInProgress(false);
                 });

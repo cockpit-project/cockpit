@@ -72,21 +72,13 @@ function create_timer_file({ timer_unit, delay, owner }) {
     timer_file += install;
     // writing to file
     const service_path = "/etc/systemd/system/" + timer_unit.name + ".service";
-    cockpit.file(service_path, { superuser: 'try' })
-            .replace(service_file)
-            .catch(error => console.log(error.toString()));
     const timer_path = "/etc/systemd/system/" + timer_unit.name + ".timer";
-    return cockpit.file(timer_path, { superuser: 'try' })
-            .replace(timer_file)
-            .then(tag => {
-                return systemd_client[owner].call(SD_OBJ, SD_MANAGER, "EnableUnitFiles", [[timer_unit.name + ".timer"], false, false]);
-            })
-            .then(() => {
-                /* Executing daemon reload after file operations is necessary -
-                 * see https://github.com/systemd/systemd/blob/main/src/systemctl/systemctl.c [enable_unit function]
-                 */
-                systemd_client[owner].call(SD_OBJ, SD_MANAGER, "Reload", null);
-            })
+    return cockpit.file(service_path, { superuser: 'try' }).replace(service_file)
+            .then(() => cockpit.file(timer_path, { superuser: 'try' }).replace(timer_file))
+            .then(tag => systemd_client[owner].call(SD_OBJ, SD_MANAGER, "EnableUnitFiles", [[timer_unit.name + ".timer"], false, false]))
+            /* Executing daemon reload after file operations is necessary -
+            * see https://github.com/systemd/systemd/blob/main/src/systemctl/systemctl.c [enable_unit function] */
+            .then(() => systemd_client[owner].call(SD_OBJ, SD_MANAGER, "Reload", null))
             .then(() => {
                 // start calendar timers
                 if (timer_unit.OnCalendar)

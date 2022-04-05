@@ -114,7 +114,8 @@ export function install_dialog(pkg, options) {
                     { remove_details }
                     { extra_details }
                 </div>
-            )
+            ),
+            static_error: error_message,
         };
 
         const footer = {
@@ -126,7 +127,6 @@ export function install_dialog(pkg, options) {
                     disabled: data == null
                 }
             ],
-            static_error: error_message,
             idle_message: footer_message,
             dialog_done: f => { if (!f && cancel) cancel(); done(f) }
         };

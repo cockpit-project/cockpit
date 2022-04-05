@@ -71,10 +71,11 @@ const onDialogDone = function(success) {
     document.getElementById("demo-dialog-result").textContent = "Dialog closed: " + result + "(" + action + ")";
 };
 
-const onStandardDemoClicked = function(staticError) {
+const onStandardDemoClicked = (staticError) => {
     const dialogProps = {
         title: "This shouldn't be seen",
         body: React.createElement(PatternDialogBody, { clickNested: onStandardDemoClicked }),
+        static_error: staticError,
     };
     // also test modifying properties in subsequent render calls
     const footerProps = {
@@ -94,7 +95,6 @@ const onStandardDemoClicked = function(staticError) {
                 caption: "Wait",
             },
         ],
-        static_error: staticError,
         dialog_done: onDialogDone,
     };
     const dialogObj = show_modal_dialog(dialogProps, footerProps);

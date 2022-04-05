@@ -322,7 +322,7 @@ const redhat_fonts = [
 ].map(name => {
     const subdir = 'RedHat' + name.split('-')[0];
     return {
-        from: path.resolve(nodedir, '@redhat/redhat-font/webfonts', subdir, 'RedHat' + name + '.woff2'),
+        from: path.resolve(nodedir, '@patternfly/patternfly/assets/fonts', subdir, 'RedHat' + name + '.woff2'),
         to: 'static/fonts/'
     };
 });

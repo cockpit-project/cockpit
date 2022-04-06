@@ -12,7 +12,7 @@ TEST_SCENARIO=${TEST_SCENARIO:-verify}
 
 case $TEST_SCENARIO in
     verify|devel|firefox|firefox-devel)
-        OPTS=""
+        OPTS="--track-naughties"
         [ "${TEST_SCENARIO}" = "${TEST_SCENARIO%%devel}" ] || export NODE_ENV=development
         [ "${TEST_SCENARIO}" = "${TEST_SCENARIO%%devel}" ] || OPTS="$OPTS --coverage"
         [ "${TEST_SCENARIO}" = "${TEST_SCENARIO##firefox}" ] || export TEST_BROWSER=firefox
@@ -26,7 +26,7 @@ case $TEST_SCENARIO in
     dnf-copr*)
         bots/image-customize -v --run-command 'dnf -y copr enable rpmsoftwaremanagement/dnf-nightly && dnf -y --setopt=install_weak_deps=False update' $TEST_OS
         test/image-prepare --verbose --overlay $TEST_OS
-        test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify
+        test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify --track-naughties
         ;;
     *)
         echo "Unknown test scenario: $TEST_SCENARIO"

@@ -73,7 +73,7 @@ class Test:
 
         return poll_result
 
-    def finish(self, affected_tests, print_tap=True, thorough=False):
+    def finish(self, affected_tests, print_tap=True, thorough=False, track_naughties=False):
         """Returns if a test should retry or not
 
         Call test-failure-policy on the test's output, print if needed.
@@ -103,7 +103,10 @@ class Test:
             return None, 0
 
         if not thorough:
-            cmd = ["test-failure-policy", testvm.DEFAULT_IMAGE]
+            cmd = ["test-failure-policy"]
+            if not track_naughties:
+                cmd.append("--offline")
+            cmd.append(testvm.DEFAULT_IMAGE)
             try:
                 proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
                 reason = proc.communicate(self.output + ("not ok " + str(self)).encode())[0].strip()
@@ -374,7 +377,7 @@ def run(opts, image):
                 made_progress = True
                 running_tests.remove(test)
                 test_machine = test.machine_id  # test_finish() resets it
-                retry_reason, test_result = test.finish(changed_tests, print_tap=not opts.list, thorough=opts.thorough)
+                retry_reason, test_result = test.finish(changed_tests, print_tap=not opts.list, thorough=opts.thorough, track_naughties=opts.track_naughties)
                 fail_count += test_result
                 logging.debug(f"test {test} finished; result {test_result} retry reason {retry_reason}")
 
@@ -493,6 +496,8 @@ def main():
                         help="RAM size for nondestructive test global machines")
     parser.add_argument('--base', default=os.environ.get("BASE_BRANCH"),
                         help="Retry affected tests compared to given base branch; default: %(default)s")
+    parser.add_argument('--track-naughties', action='store_true',
+                        help='Update the occurrence of naughties on cockpit-project/bots')
     opts = parser.parse_args()
 
     if opts.machine:

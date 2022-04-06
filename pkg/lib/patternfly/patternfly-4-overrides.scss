@@ -173,13 +173,6 @@ svg {
      }
 }
 
-// In masthead dropdowns, hide line when focus-activated by a mouse
-// But still show the line when a keyboard focuses or a mouse hovers or clicks
-// https://github.com/patternfly/patternfly/issues/4534
-.pf-c-masthead .pf-c-dropdown:not(.pf-m-expanded) > .pf-c-dropdown__toggle:focus:not(:focus-visible):not(:hover):not(:active)::before {
-    border-color: transparent;
-}
-
 // Flex should use gap, not a margin hack
 // https://github.com/patternfly/patternfly/issues/4523
 .pf-l-flex {

@@ -109,6 +109,17 @@ $desktop: $phone + 1px;
 
 /* Desktop navigation */
 @media (min-width: $desktop) {
+    // Adapt PF4's new header select for 2-up
+    .ct-topnav-content .pf-c-toolbar__item:not(.super-user-indicator) {
+        // Remove the margin spacing between each
+        margin-right: 0;
+
+        // Collapse the 2 side border lines into 1
+        + .pf-c-toolbar__item button:before {
+            margin-left: -1px;
+        }
+    }
+
     .mobile_v {
         display: none !important;
     }
@@ -519,11 +530,6 @@ $desktop: $phone + 1px;
     background: transparent;
 }
 
-// Hide border from navigation items
-.ct-header-item button:before {
-    border: none;
-}
-
 .ct-nav-toggle:not(.pf-c-dropdown) {
     &:hover, &:active, &.active, &.interact, &[aria-expanded=true] {
         text-decoration: none;
@@ -560,6 +566,11 @@ $desktop: $phone + 1px;
             text-decoration: none;
             outline: 1px dotted var(--pf-global--BackgroundColor--light-100);
         }
+    }
+
+    // Hide border from navigation items for mobile
+    .ct-header-item:not(:hover) button:not(:hover):before {
+        border: none;
     }
 }
 

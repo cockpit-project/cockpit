@@ -202,6 +202,7 @@ export class TopNav extends React.Component {
                                     isOpen={this.state.docsOpened}
                                     dropdownItems={docItems}
                                     position={DropdownPosition.right}
+                                    isFullHeight
                                     className="ct-header-item ct-nav-toggle"
                                 />
                             </ToolbarItem>
@@ -219,6 +220,7 @@ export class TopNav extends React.Component {
                                     isOpen={this.state.menuOpened}
                                     dropdownItems={main_menu}
                                     position={DropdownPosition.right}
+                                    isFullHeight
                                     className="ct-header-item ct-nav-toggle"
                                 />
                             </ToolbarItem>

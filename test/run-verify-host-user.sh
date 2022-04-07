@@ -167,15 +167,6 @@ if [ -n "$test_basic" ]; then
     if [ "$TEST_OS" = "fedora-36" ]; then
         EXCLUDES="$EXCLUDES TestSOS.testBasic"
     fi
-
-    # Exclude NFS tests due to a timing issue https://github.com/cockpit-project/cockpit/issues/17142
-    EXCLUDES="$EXCLUDES
-            TestStorageNfs.testNfsBusy
-            TestStorageNfs.testNfsClient
-            TestStorageNfs.testNfsListExports
-            TestStorageNfs.testNfsMountWithoutDiscovery
-            TestStoragePackagesNFS.testNfsMissingPackages
-            "
 fi
 
 exclude_options=""

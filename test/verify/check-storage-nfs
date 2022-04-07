@@ -210,8 +210,9 @@ class TestStorageNfs(StorageCase):
         b.click("#nfs-mounts [aria-label=Add]")
         self.dialog_wait_open()
         self.dialog_set_val("server", "127.0.0.1")
-        b.wait_visible('#dialog [data-field="remote"][data-field-type="text-input"')
-        self.dialog_set_val("remote", "/home/foo")
+        # Manually add a remote location to the select
+        b.set_input_text("[data-field=remote] input", "/home/foo")
+        b.click("button.pf-c-select__menu-item")
         self.dialog_set_val("dir", "/mnt")
         self.dialog_apply()
         self.dialog_wait_close()

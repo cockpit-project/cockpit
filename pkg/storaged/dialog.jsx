@@ -554,7 +554,7 @@ export const PassInput = (tag, title, options) => {
 
 const TypeAheadSelectElement = ({ options, change }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [value, setValue] = useState(null);
+    const [value, setValue] = useState(options.value);
 
     return (
         <TypeAheadSelect

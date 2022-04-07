@@ -581,17 +581,9 @@ export const ComboBox = (tag, title, options) => {
         initial_value: options.value || "",
 
         render: (val, change, validated) => {
-            if (options.choices && options.choices.length > 0)
-                return <div data-field={tag} data-field-type="combobox">
-                    <TypeAheadSelectElement options={options} change={change} />
-                </div>;
-            else
-                return <TextInputPF4 data-field={tag} data-field-type="text-input"
-                                     validated={validated}
-                                     aria-label={title}
-                                     value={val}
-                                     isDisabled={options.disabled}
-                                     onChange={change} />;
+            return <div data-field={tag} data-field-type="combobox">
+                <TypeAheadSelectElement options={options} change={change} />
+            </div>;
         }
     };
 };

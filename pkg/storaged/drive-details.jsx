@@ -25,7 +25,8 @@ import {
     DescriptionList,
     DescriptionListTerm,
     DescriptionListGroup,
-    DescriptionListDescription
+    DescriptionListDescription,
+    Flex,
 } from "@patternfly/react-core";
 
 import * as utils from "./utils.js";
@@ -59,14 +60,16 @@ export class DriveDetails extends React.Component {
                 <DescriptionListGroup>
                     <DescriptionListTerm>{_("storage", "Assessment")}</DescriptionListTerm>
                     <DescriptionListDescription>
-                        { drive_ata.SmartFailing
-                            ? <span className="cockpit-disk-failing">{_("Disk is failing")}</span>
-                            : <span>{_("Disk is OK")}</span>
-                        }
-                        { drive_ata.SmartTemperature > 0
-                            ? <span>({utils.format_temperature(drive_ata.SmartTemperature)})</span>
-                            : null
-                        }
+                        <Flex spaceItems={{ default: 'spaceItemsXs' }}>
+                            { drive_ata.SmartFailing
+                                ? <span className="cockpit-disk-failing">{_("Disk is failing")}</span>
+                                : <span>{_("Disk is OK")}</span>
+                            }
+                            { drive_ata.SmartTemperature > 0
+                                ? <span>({utils.format_temperature(drive_ata.SmartTemperature)})</span>
+                                : null
+                            }
+                        </Flex>
                     </DescriptionListDescription>
                 </DescriptionListGroup>
             );

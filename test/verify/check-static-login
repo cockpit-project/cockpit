@@ -162,12 +162,14 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
             # test login with tcsh
             if not m.image.startswith("rhel") and not m.image.startswith("centos") and not m.image == "arch":  # no tcsh in RHEL and in Arch Linux (TODO: available in [community])
-                m.execute("sed -r -i.bak '/^admin:/ s_:[^:]+$_:/bin/tcsh_' /etc/passwd")
-                b.login_and_go()
-                b.enter_page('/system')
-                b.wait_visible('.system-information')
-                b.logout()
-                m.execute("mv /etc/passwd.bak /etc/passwd")
+                try:
+                    m.execute("sed -r -i.bak '/^admin:/ s_:[^:]+$_:/bin/tcsh_' /etc/passwd")
+                    b.login_and_go()
+                    b.enter_page('/system')
+                    b.wait_visible('.system-information')
+                    b.logout()
+                finally:
+                    m.execute("mv /etc/passwd.bak /etc/passwd")
 
             # login with user shell that prints some stdout/err noise
             # having stdout output in ~/.bashrc confuses docker, so don't run on OSTree

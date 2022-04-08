@@ -721,6 +721,22 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_journal_messages(".*[aA]ccount .*locked due to .* failed logins.*")
         self.allow_journal_messages(".*minutes left to unlock.*")
 
+    @skipImage("root logins disabled by default with ssh", "fedora-coreos")
+    def testPamAccess(self):
+        b = self.browser
+
+        # root login works by default
+        self.login_and_go(user="root")
+        b.logout()
+
+        # disable root login with pam_access
+        self.write_file("/etc/security/access.conf", "- : root : ALL\n", append=True)
+        self.sed_file("1 aaccount required pam_access.so", "/etc/pam.d/cockpit")
+        b.try_login(user="root")
+        b.wait_in_text("#login-error-message", "Permission denied")
+
+        self.allow_journal_messages(r"cockpit-session: user account access failed.*root.*")
+
     @skipImage("sssd not available", "fedora-coreos")
     def testClientCertAuthentication(self):
         m = self.machine

@@ -39,7 +39,7 @@ Options:
 
     - tools/node-modules checkout --force     # disable this check
 
-    - tools/node-modules rebuild              # npm install with our package.json
+    - tools/node-modules install              # npm install with our package.json
 
 $0: *** aborting
 
@@ -56,33 +56,88 @@ EOF
     clone_from_cache "${sha}"
 }
 
-cmd_rebuild() {
-    for file in npm-shrinkwrap.json package-lock.json yarn.lock; do
-        if [ -e "${file}" ]; then
-            echo "Please delete ${file} from $(pwd) and start again"
-            exit 1
-        fi
-    done
+cmd_npm_install() {
+    # Lots of cockpit developers are using toolbox, which can't recursively run
+    # podman, but flatpak-spawn offers a nice workaround for that.
+    if [ -f /run/.toolboxenv ]; then
+        exec flatpak-spawn --host -- "$0" npm_install "$@"
+        exit 1
+    fi
 
-    cmd_remove
+    CACHE="cockpit-project-npm-cache-volume"
+    IMAGE="docker.io/library/node:alpine"
 
-    npm install
+    # make sure the node user can write to the cache volume
+    podman run \
+        --rm \
+        --volume "${CACHE}":/home/node/.npm:U \
+        "${IMAGE}" chown -R node:node /home/node >&2
 
-    # try to keep this vaguely in sync with what .github/workflows/node_modules-* do
-    cp package.json node_modules/.package.json
-    cp package-lock.json node_modules/.package-lock.json
-    echo /.cache > node_modules/.gitignore
+    # do the actual work
+    exec podman run \
+        --log-driver='none' \
+        --rm \
+        --init \
+        --user node \
+        --workdir /home/node \
+        --interactive \
+        --attach stdin \
+        --attach stdout \
+        --attach stderr \
+        --volume "${CACHE}":/home/node/.npm \
+        "${IMAGE}" /bin/sh -c '
+            set -eux
+            tee package.json >/dev/null
+            npm install --ignore-scripts >&2 & wait -n    # allows the shell to catch SIGINT
+            cp package.json node_modules/.package.json
+            tar --directory=node_modules --create .
+        '
+}
 
-    git -C node_modules init -b main
-    git -C node_modules add .
-    git -C node_modules -c gc.autoDetach=false commit -a -m "$(sha256sum package.json)"
+cmd_install() {
+    # We first read the result directly into the cache, then we unpack it.
+    tree="$(cmd_npm_install < package.json | tar_to_cache)"
+    commit="$(sha256sum package.json | git_cache commit-tree "${tree}")"
+    git_cache tag "sha-${commit}" "${commit}"
+    cmd_checkout "${commit}"
 
     cat <<EOF
 Next steps:
 
   - git add node_modules && git commit
+  - tools/node-modules push
 
 EOF
+}
+
+cmd_verify() {
+    # Verifies that the package.json and node_modules of the given commit match.
+    commit="$(git rev-parse "$1:node_modules")"
+    fetch_sha_to_cache "${commit}"
+
+    committed_tree="$(git_cache rev-parse "${commit}^{tree}")"
+    expected_tree="$(git cat-file blob "$1:package.json" | cmd_npm_install | tar_to_cache)"
+
+    if [ "${committed_tree}" != "${expected_tree}" ]; then
+        exec >&2
+        printf "\nCommit %s package.json and node_modules aren't in sync!\n\n" "$1"
+        git --no-pager show --stat "$1"
+
+        printf "\nThe above commit refers to the following node_modules commit:\n\n"
+        git_cache --no-pager show --no-patch "${commit}"
+
+        printf "\nOur attempt to recreate that commit differs as follows:\n\n"
+        git_cache --no-pager diff --stat "${commit}" "${expected_tree}" --
+        git_cache --no-pager diff "${commit}" "${expected_tree}" -- .package-lock.json
+        exit 1
+    fi
+}
+
+cmd_push() {
+    # push via the cache: the shared history with the remote helps to thin out the pack we send
+    tag="sha-$(git -C node_modules rev-parse HEAD)"
+    message PUSH "${GITHUB_REPO} ${tag}"
+    git_cache push "${SSH_REMOTE}" "${tag}"
 }
 
 # called from Makefile.am
@@ -125,7 +180,7 @@ cmd_make_package_lock_json() {
 *** package.json is out of sync with node_modules
 *** If you modified package.json, please run:
 ***
-***    tools/node-modules rebuild
+***    tools/node-modules install
 ***
 *** and add the result to the index.
 EOF
@@ -146,20 +201,21 @@ EOF
 }
 
 main() {
-    local cmd="${1-}"
-
-    if [ -z "${cmd}" ]; then
+    if [ $# = 0 ]; then
         # don't list the "private" ones
-        echo 'This command requires a subcommand: remove checkout rebuild'
+        echo 'This command requires a subcommand: remove checkout install push'
         exit 1
-    elif ! type -t "cmd_${cmd}" | grep -q function; then
-        echo "Unknown subcommand ${cmd}"
+    fi
+
+    local fname="$(printf 'cmd_%s' "$1" | tr '-' '_')"
+    if ! type -t "${fname}" | grep -q function; then
+        echo "Unknown subcommand '$1'"
         exit 1
     fi
 
     shift
     [ -n "${quiet}" ] || set -x
-    "cmd_$cmd" "$@"
+    "${fname}" "$@"
 }
 
 main "$@"

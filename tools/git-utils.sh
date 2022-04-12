@@ -139,3 +139,9 @@ tar_to_cache() {
         git_cache write-tree
     )
 }
+
+ # Small helper to run a git command on the cache directory
+cmd_git() {
+    init_cache
+    git_cache "$@"
+}

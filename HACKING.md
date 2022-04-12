@@ -284,7 +284,7 @@ automatically unpacked from a cache kept in a separate git repository.  You can
 force the unpack to occur using the `tools/node-modules checkout` command, but
 this shouldn't be necessary.  In the event that you need to modify
 `package.json` (to install a new module, for example) then you'll need to run
-`tools/node-modules rebuild` to create a new cache from the result of running
+`tools/node-modules install` to create a new cache from the result of running
 `npm install` on your new `package.json`.
 
 Your locally rebuilt changes to `node_modules` won't be used by others.  A new

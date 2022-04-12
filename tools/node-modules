@@ -39,7 +39,7 @@ Options:
 
     - tools/node-modules checkout --force     # disable this check
 
-    - tools/node-modules rebuild              # npm install with our package.json
+    - tools/node-modules install              # npm install with our package.json
 
 $0: *** aborting
 
@@ -56,7 +56,7 @@ EOF
     clone_from_cache "${sha}"
 }
 
-cmd_rebuild() {
+cmd_install() {
     for file in npm-shrinkwrap.json package-lock.json yarn.lock; do
         if [ -e "${file}" ]; then
             echo "Please delete ${file} from $(pwd) and start again"
@@ -125,7 +125,7 @@ cmd_make_package_lock_json() {
 *** package.json is out of sync with node_modules
 *** If you modified package.json, please run:
 ***
-***    tools/node-modules rebuild
+***    tools/node-modules install
 ***
 *** and add the result to the index.
 EOF
@@ -150,7 +150,7 @@ main() {
 
     if [ -z "${cmd}" ]; then
         # don't list the "private" ones
-        echo 'This command requires a subcommand: remove checkout rebuild'
+        echo 'This command requires a subcommand: remove checkout install'
         exit 1
     elif ! type -t "cmd_${cmd}" | grep -q function; then
         echo "Unknown subcommand ${cmd}"

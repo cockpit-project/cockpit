@@ -56,26 +56,50 @@ EOF
     clone_from_cache "${sha}"
 }
 
+cmd_npm_install() {
+    # Lots of cockpit developers are using toolbox, which can't recursively run
+    # podman, but flatpak-spawn offers a nice workaround for that.
+    if [ -f /run/.toolboxenv ]; then
+        exec flatpak-spawn --host -- "$0" npm-install "$@"
+        exit 1
+    fi
+
+    CACHE="cockpit-project-npm-cache-volume"
+    IMAGE="docker.io/library/node:alpine"
+
+    # make sure the node user can write to the cache volume
+    podman run \
+        --rm \
+        --volume "${CACHE}":/home/node/.npm:U \
+        "${IMAGE}" chown -R node:node /home/node >&2
+
+    # do the actual work
+    exec podman run \
+        --log-driver='none' \
+        --rm \
+        --init \
+        --user node \
+        --workdir /home/node \
+        --interactive \
+        --attach stdin \
+        --attach stdout \
+        --attach stderr \
+        --volume "${CACHE}":/home/node/.npm \
+        "${IMAGE}" /bin/sh -c '
+            set -eux
+            tee package.json >/dev/null
+            npm install --ignore-scripts >&2 & wait -n    # allows the shell to catch SIGINT
+            cp package.json node_modules/.package.json
+            tar --directory=node_modules --create .
+        '
+}
+
 cmd_install() {
-    for file in npm-shrinkwrap.json package-lock.json yarn.lock; do
-        if [ -e "${file}" ]; then
-            echo "Please delete ${file} from $(pwd) and start again"
-            exit 1
-        fi
-    done
-
-    cmd_remove
-
-    npm install
-
-    # try to keep this vaguely in sync with what .github/workflows/node_modules-* do
-    cp package.json node_modules/.package.json
-    cp package-lock.json node_modules/.package-lock.json
-    echo /.cache > node_modules/.gitignore
-
-    git -C node_modules init -b main
-    git -C node_modules add .
-    git -C node_modules -c gc.autoDetach=false commit -a -m "$(sha256sum package.json)"
+    # We first read the result directly into the cache, then we unpack it.
+    tree="$(cmd_npm_install < package.json | tar_to_cache)"
+    commit="$(sha256sum package.json | git_cache commit-tree "${tree}")"
+    git_cache tag "sha-${commit}" "${commit}"
+    cmd_checkout "${commit}"
 
     cat <<EOF
 Next steps:

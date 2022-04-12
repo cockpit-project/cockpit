@@ -109,6 +109,29 @@ Next steps:
 EOF
 }
 
+cmd_verify() {
+    # Verifies that the package.json and node_modules of the given commit match.
+    commit="$(git rev-parse "$1:node_modules")"
+    fetch_sha_to_cache "${commit}"
+
+    committed_tree="$(git_cache rev-parse "${commit}^{tree}")"
+    expected_tree="$(git cat-file blob "$1:package.json" | cmd_npm_install | tar_to_cache)"
+
+    if [ "${committed_tree}" != "${expected_tree}" ]; then
+        exec >&2
+        printf "\nCommit %s package.json and node_modules aren't in sync!\n\n" "$1"
+        git --no-pager show --stat "$1"
+
+        printf "\nThe above commit refers to the following node_modules commit:\n\n"
+        git_cache --no-pager show --no-patch "${commit}"
+
+        printf "\nOur attempt to recreate that commit differs as follows:\n\n"
+        git_cache --no-pager diff --stat "${commit}" "${expected_tree}" --
+        git_cache --no-pager diff "${commit}" "${expected_tree}" -- .package-lock.json
+        exit 1
+    fi
+}
+
 # called from Makefile.am
 cmd_make_package_lock_json() {
     # Run from make to ensure package-lock.json is up to date
@@ -172,7 +195,7 @@ EOF
 main() {
     if [ $# = 0 ]; then
         # don't list the "private" ones
-        echo 'This command requires a subcommand: remove checkout install'
+        echo 'This command requires a subcommand: remove checkout install verify'
         exit 1
     fi
 

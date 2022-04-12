@@ -6,9 +6,10 @@ on:
   workflow_dispatch:
 jobs:
   npm-update:
-    environment: self
+    environment: node-cache
     permissions:
       pull-requests: write
+      contents: write
     runs-on: ubuntu-20.04
     steps:
       - name: Set up dependencies
@@ -18,8 +19,6 @@ jobs:
 
       - name: Clone repository
         uses: actions/checkout@v2
-        with:
-          ssh-key: ${{ secrets.DEPLOY_KEY }}
 
       - name: Run npm-update bot
         run: |
@@ -28,4 +27,9 @@ jobs:
           git config --global user.email "cockpituous@cockpit-project.org"
           mkdir -p ~/.config/cockpit-dev
           echo ${{ github.token }} >> ~/.config/cockpit-dev/github-token
+          eval $(ssh-agent)
+          ssh-add - <<< '${{ secrets.DEPLOY_KEY }}'
           bots/npm-update @patternfly >&2
+          ssh-add -D
+          ssh-agent -k
+

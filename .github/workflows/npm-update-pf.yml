@@ -1,7 +1,7 @@
-name: npm-update
+name: npm-update-pf
 on:
   schedule:
-    - cron: '0 3 * * 2,4,6'
+    - cron: '0 3 * * 1'
   # can be run manually on https://github.com/cockpit-project/cockpit/actions
   workflow_dispatch:
 jobs:
@@ -28,4 +28,4 @@ jobs:
           git config --global user.email "cockpituous@cockpit-project.org"
           mkdir -p ~/.config/cockpit-dev
           echo ${{ github.token }} >> ~/.config/cockpit-dev/github-token
-          bots/npm-update ~@patternfly >&2
+          bots/npm-update @patternfly >&2

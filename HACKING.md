@@ -1,4 +1,4 @@
-# Hacking on Cockpit
+# HACKing on Cockpit
 
 Here's where to get the code:
 

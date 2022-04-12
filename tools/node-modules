@@ -105,8 +105,16 @@ cmd_install() {
 Next steps:
 
   - git add node_modules && git commit
+  - tools/node-modules push
 
 EOF
+}
+
+cmd_push() {
+    # push via the cache: the shared history with the remote helps to thin out the pack we send
+    tag="sha-$(git -C node_modules rev-parse HEAD)"
+    message PUSH "${GITHUB_REPO} ${tag}"
+    git_cache push "${SSH_REMOTE}" "${tag}"
 }
 
 cmd_verify() {
@@ -195,7 +203,7 @@ EOF
 main() {
     if [ $# = 0 ]; then
         # don't list the "private" ones
-        echo 'This command requires a subcommand: remove checkout install verify'
+        echo 'This command requires a subcommand: remove checkout install push verify'
         exit 1
     fi
 

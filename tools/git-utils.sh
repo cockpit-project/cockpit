@@ -51,7 +51,7 @@ init_cache() {
 # we use git rev-list --objects to to avoid problems with incomplete fetches:
 # we want to make sure the complete commit is there
 check_ref() {
-    git_cache rev-list --quiet --objects "$1"
+    git_cache rev-list --quiet --objects "$1" -- 2>/dev/null
 }
 
 # Fetch a specific commit ID into the cache

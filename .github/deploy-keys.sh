@@ -58,7 +58,6 @@ deploy_env "${THIS}-weblate"
 deploy_env "${THIS}-dist"
 
 # https://github.com/cockpit-project/node-cache
-#   - npm-install.yml
 #   - release.yml
 deploy_env node-cache
 

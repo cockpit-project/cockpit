@@ -1,0 +1,129 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from storagelib import *
+from testlib import *
+
+
+class TestStorageFormat(StorageCase):
+
+    def testFormatTooSmall(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        # Try to format a disk that is too small for XFS.
+
+        m.add_disk("5M", serial="DISK1")
+        b.wait_in_text("#drives", "DISK1")
+        b.click('#drives .sidepanel-row:contains("DISK1")')
+        b.wait_visible('#storage-detail')
+
+        self.content_row_action(1, "Format")
+        self.dialog_wait_open()
+        self.dialog_set_val("type", "xfs")
+        self.dialog_set_val("mount_point", "/foo")
+        self.dialog_set_val("mount_options.auto", False)
+        self.dialog_apply()
+
+        b.wait_in_text("#dialog", "Error creating file system")
+
+    def testFormatTypes(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        m.add_disk("50M", serial="DISK1")
+        b.wait_in_text("#drives", "DISK1")
+        b.click('#drives .sidepanel-row:contains("DISK1")')
+        b.wait_visible('#storage-detail')
+
+        def check_type(type, label_limit, head_action=False):
+            if head_action:
+                self.content_row_action(1, "Format")
+            else:
+                self.content_dropdown_action(1, "Format")
+            self.dialog_wait_open()
+            self.dialog_set_val("type", type)
+            self.dialog_set_val("mount_point", "/foo")
+            self.dialog_set_val("mount_options.auto", False)
+            self.dialog_set_val("name", "X" * (label_limit + 1))
+            self.dialog_apply()
+            self.dialog_wait_error("name", "Name cannot be longer than %d characters" % label_limit)
+            self.dialog_set_val("name", "X" * label_limit)
+            self.dialog_apply()
+            self.dialog_wait_close()
+            self.content_row_wait_in_col(1, 2, type + " filesystem")
+
+        def check_unsupported_type(type):
+            self.content_dropdown_action(1, "Format")
+            self.dialog_wait_open()
+            b.wait_not_present(f'#dialog li[value={type}]')
+            self.dialog_cancel()
+            self.dialog_wait_close()
+
+        check_type("xfs", 12, head_action=True)
+        check_type("ext4", 16)
+        check_type("vfat", 11)
+
+        if m.image.startswith("rhel") or m.image.startswith("centos"):
+            check_unsupported_type("ntfs")
+        else:
+            check_type("ntfs", 128)
+
+    def testFormatCancel(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+        b.wait_in_text("#drives", "VirtIO")
+
+        # Make a super slow block device so that we have enough
+        # chances to cancel the Format.
+
+        disk = self.add_ram_disk()
+        m.execute(f"""disk={disk}; echo "0 `blockdev --getsz $disk` delay $disk 0 500" | dmsetup create superslow""")
+        b.click("#others .sidepanel-row:contains('/dev/mapper/superslow')")
+        b.wait_visible('#storage-detail')
+
+        self.content_row_action(1, "Format")
+        self.dialog_wait_open()
+        self.dialog_set_val("mount_point", "/foo")
+        self.dialog_apply()
+        b.wait_in_text("footer", "Creating filesystem on /dev/mapper/superslow")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+        self.content_row_wait_in_col(1, 2, "Unrecognized data")
+
+        self.content_row_action(1, "Format")
+        self.dialog_wait_open()
+        self.dialog_set_val("erase.on", True)
+        self.dialog_set_val("mount_point", "/foo")
+        self.dialog_apply()
+        b.wait_in_text("footer", "Erasing /dev/mapper/superslow")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+        self.content_row_wait_in_col(1, 2, "Unrecognized data")
+
+
+if __name__ == '__main__':
+    test_main()

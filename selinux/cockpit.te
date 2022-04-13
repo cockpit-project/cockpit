@@ -1,0 +1,193 @@
+policy_module(cockpit, 1.0.0)
+
+########################################
+#
+# Declarations
+#
+
+type cockpit_ws_t;
+type cockpit_ws_exec_t;
+init_daemon_domain(cockpit_ws_t,cockpit_ws_exec_t)
+init_nnp_daemon_domain(cockpit_ws_t)
+
+type cockpit_tmp_t;
+files_tmp_file(cockpit_tmp_t)
+
+type cockpit_tmpfs_t;
+userdom_user_tmp_file(cockpit_tmpfs_t)
+
+type cockpit_var_run_t;
+files_pid_file(cockpit_var_run_t)
+systemd_mount_dir(cockpit_var_run_t)
+systemd_private_tmp(cockpit_var_run_t)
+
+type cockpit_unit_file_t;
+systemd_unit_file(cockpit_unit_file_t)
+
+type cockpit_var_lib_t;
+files_type(cockpit_var_lib_t)
+
+type cockpit_session_t;
+type cockpit_session_exec_t;
+domain_type(cockpit_session_t)
+domain_entry_file(cockpit_session_t,cockpit_session_exec_t)
+
+########################################
+#
+# cockpit_ws_t local policy
+#
+
+allow cockpit_ws_t self:capability net_admin;
+allow cockpit_ws_t self:process setrlimit;
+allow cockpit_ws_t self:tcp_socket create_stream_socket_perms;
+
+kernel_read_system_state(cockpit_ws_t)
+
+# cockpit-tls can execute cockpit-ws
+can_exec(cockpit_ws_t,cockpit_ws_exec_t)
+
+# cockpit-ws can execute cockpit-session
+can_exec(cockpit_ws_t,cockpit_session_exec_t)
+
+# cockpit-ws can read from /dev/urandom
+dev_read_urand(cockpit_ws_t) # for authkey
+dev_read_rand(cockpit_ws_t)  # for libssh
+
+# cockpit-ws allows connections on websm port
+corenet_tcp_bind_websm_port(cockpit_ws_t)
+corenet_tcp_bind_generic_node(cockpit_ws_t)
+
+# cockpit-ws can connect to other hosts via ssh
+corenet_tcp_connect_ssh_port(cockpit_ws_t)
+
+# cockpit-ws can write to its temp files
+manage_dirs_pattern(cockpit_ws_t, cockpit_tmp_t, cockpit_tmp_t)
+manage_files_pattern(cockpit_ws_t, cockpit_tmp_t, cockpit_tmp_t)
+files_tmp_filetrans(cockpit_ws_t, cockpit_tmp_t, { dir file })
+
+manage_dirs_pattern(cockpit_ws_t, cockpit_tmpfs_t, cockpit_tmpfs_t)
+manage_files_pattern(cockpit_ws_t, cockpit_tmpfs_t, cockpit_tmpfs_t)
+fs_tmpfs_filetrans(cockpit_ws_t, cockpit_tmpfs_t, { file })
+
+manage_dirs_pattern(cockpit_ws_t, cockpit_var_run_t, cockpit_var_run_t)
+manage_files_pattern(cockpit_ws_t, cockpit_var_run_t, cockpit_var_run_t)
+manage_lnk_files_pattern(cockpit_ws_t, cockpit_var_run_t, cockpit_var_run_t)
+manage_sock_files_pattern(cockpit_ws_t, cockpit_var_run_t, cockpit_var_run_t)
+files_pid_filetrans(cockpit_ws_t, cockpit_var_run_t, { file dir sock_file })
+
+manage_files_pattern(cockpit_ws_t, cockpit_var_lib_t, cockpit_var_lib_t)
+manage_dirs_pattern(cockpit_ws_t, cockpit_var_lib_t, cockpit_var_lib_t)
+
+allow cockpit_ws_t cockpit_unit_file_t:service manage_service_perms;
+
+kernel_read_network_state(cockpit_ws_t)
+
+auth_use_nsswitch(cockpit_ws_t)
+
+corecmd_exec_bin(cockpit_ws_t)
+
+fs_getattr_xattr_fs(cockpit_ws_t)
+fs_read_efivarfs_files(cockpit_ws_t)
+
+init_read_state(cockpit_ws_t)
+init_stream_connect(cockpit_ws_t)
+
+logging_send_syslog_msg(cockpit_ws_t)
+
+sysnet_exec_ifconfig(cockpit_ws_t)
+
+# cockpit-ws launches cockpit-session
+cockpit_session_domtrans(cockpit_ws_t)
+allow cockpit_ws_t cockpit_session_t:process signal_perms;
+
+# cockpit-session communicates back with cockpit-ws
+allow cockpit_session_t cockpit_ws_t:unix_stream_socket rw_stream_socket_perms;
+
+# cockpit-tls and cockpit-ws communicate over a Unix socket
+allow cockpit_ws_t cockpit_ws_t:unix_stream_socket { connectto create_stream_socket_perms };
+
+optional_policy(`
+    hostname_exec(cockpit_ws_t)
+')
+
+optional_policy(`
+    kerberos_use(cockpit_ws_t)
+    kerberos_etc_filetrans_keytab(cockpit_ws_t)
+')
+
+optional_policy(`
+    miscfiles_dontaudit_map_generic_certs(cockpit_ws_t)
+')
+
+optional_policy(`
+    systemd_exec_systemctl(cockpit_ws_t)
+')
+
+optional_policy(`
+	ssh_read_user_home_files(cockpit_ws_t)
+')
+
+#########################################################
+#
+#  cockpit-session local policy
+#
+
+# cockpit-session changes to the actual logged in user
+# pam_faillock chowns the state file to the target user
+allow cockpit_session_t self:capability { chown dac_override dac_read_search setgid setuid sys_admin sys_resource };
+allow cockpit_session_t self:process { setexec setrlimit setsched signal_perms };
+
+read_files_pattern(cockpit_session_t, cockpit_var_lib_t, cockpit_var_lib_t)
+list_dirs_pattern(cockpit_session_t, cockpit_var_lib_t, cockpit_var_lib_t)
+
+manage_dirs_pattern(cockpit_session_t, cockpit_tmp_t, cockpit_tmp_t)
+manage_files_pattern(cockpit_session_t, cockpit_tmp_t, cockpit_tmp_t)
+manage_sock_files_pattern(cockpit_session_t, cockpit_tmp_t, cockpit_tmp_t)
+files_tmp_filetrans(cockpit_session_t, cockpit_tmp_t, { dir file sock_file })
+
+manage_dirs_pattern(cockpit_session_t, cockpit_tmpfs_t, cockpit_tmpfs_t)
+manage_files_pattern(cockpit_session_t, cockpit_tmpfs_t, cockpit_tmpfs_t)
+fs_tmpfs_filetrans(cockpit_session_t, cockpit_tmpfs_t, { file })
+
+read_files_pattern(cockpit_session_t, cockpit_var_run_t, cockpit_var_run_t)
+list_dirs_pattern(cockpit_session_t, cockpit_var_run_t, cockpit_var_run_t)
+
+kernel_read_network_state(cockpit_session_t)
+
+# cockpit-session runs a full pam stack, including pam_selinux.so
+auth_login_pgm_domain(cockpit_session_t)
+# cockpit-session resseting expired passwords
+auth_manage_passwd(cockpit_session_t)
+auth_manage_shadow(cockpit_session_t)
+auth_write_login_records(cockpit_session_t)
+
+corenet_tcp_bind_ssh_port(cockpit_session_t)
+corenet_tcp_connect_ssh_port(cockpit_session_t)
+
+# cockpit-session can execute cockpit-agent as the user
+userdom_spec_domtrans_all_users(cockpit_session_t)
+usermanage_read_crack_db(cockpit_session_t)
+
+optional_policy(`
+    ssh_agent_signal(cockpit_session_t)
+')
+
+optional_policy(`
+    sssd_dbus_chat(cockpit_session_t)
+')
+
+optional_policy(`
+    userdom_signal_all_users(cockpit_session_t)
+')
+
+optional_policy(`
+	unconfined_domtrans(cockpit_session_t)
+')
+
+# login may read motd file through pam
+optional_policy(`
+    gen_require(`
+        type local_login_t;
+    ')
+    cockpit_read_pid_files(local_login_t)
+')

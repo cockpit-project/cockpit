@@ -1,0 +1,98 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from storagelib import *
+from testlib import *
+
+
+@nondestructive
+class TestStorageUsed(StorageCase):
+
+    def testUsed(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        disk = self.add_ram_disk()
+        b.wait_in_text("#drives", disk)
+        m.execute(f"parted -s {disk} mktable msdos")
+        m.execute(f"parted -s {disk} mkpart primary ext2 1M 25")
+        m.execute("udevadm settle")
+        m.execute(f"echo einszweidrei | cryptsetup luksFormat --pbkdf-memory 32768 {disk}1")
+        m.execute(f"echo einszweidrei | cryptsetup luksOpen {disk}1 dm-test")
+        m.execute("udevadm settle")
+        m.execute("mke2fs -q -L TEST /dev/mapper/dm-test")
+        m.execute("mount /dev/mapper/dm-test /mnt")
+
+        # Keep the mount point busy
+        sleep_pid = m.spawn("cd /mnt; sleep infinity", "sleep")
+        self.write_file("/etc/systemd/system/keep-mnt-busy.service",
+                        """
+[Unit]
+Description=Test Service
+
+[Service]
+WorkingDirectory=/mnt
+ExecStart=/usr/bin/sleep infinity
+""")
+        m.execute("systemctl start keep-mnt-busy")
+
+        # Now all of /dev/mapper/dm-test, /dev/sda1, and /dev/sda
+        # should be 'in use' but Cockpit can clean them all up anyway.
+
+        b.click(f'.sidepanel-row:contains("{disk}")')
+        b.wait_visible("#storage-detail")
+
+        self.content_dropdown_action(1, "Format")
+        self.dialog_wait_open()
+        b.click("#dialog button:contains(Currently in use)")
+        b.wait_in_text(".pf-c-popover", str(sleep_pid))
+        b.wait_in_text(".pf-c-popover", "keep-mnt-busy")
+        b.assert_pixels(".pf-c-popover", "popover", ignore=["li"],
+                        scroll_into_view="#dialog button:contains(Currently in use)")
+        b.click(".pf-c-popover button")
+        b.assert_pixels('#dialog', "format")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        self.content_dropdown_action(1, "Delete")
+        self.dialog_wait_open()
+        b.wait_visible("#dialog button:contains(Currently in use)")
+        b.assert_pixels('#dialog', "delete")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        # No go ahead and let the automatic teardown take care of the mount
+
+        b.click('button:contains(Create partition table)')
+        self.dialog_wait_open()
+        b.wait_visible("#dialog tr:first-child button:contains(Currently in use)")
+        b.assert_pixels('#dialog', "format-disk")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        m.execute("! systemctl --quiet is-active keep-mnt-busy")
+
+        self.content_row_wait_in_col(1, 0, "Free space")
+
+
+if __name__ == '__main__':
+    test_main()

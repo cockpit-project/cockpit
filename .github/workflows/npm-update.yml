@@ -1,0 +1,44 @@
+name: npm-update
+on:
+  schedule:
+    - cron: '0 3 * * 2,4,6'
+  # can be run manually on https://github.com/cockpit-project/cockpit/actions
+  workflow_dispatch:
+jobs:
+  npm-update:
+    environment: npm-update
+    permissions:
+      pull-requests: write
+      contents: write
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Set up dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y npm
+
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Run npm-update bot
+        run: |
+          tools/make-bots
+          git config --global user.name "GitHub Workflow"
+          git config --global user.email "cockpituous@cockpit-project.org"
+          mkdir -p ~/.config/cockpit-dev
+          echo ${{ github.token }} >> ~/.config/cockpit-dev/github-token
+          eval $(ssh-agent)
+          ssh-add - <<< '${{ secrets.NODE_CACHE_DEPLOY_KEY }}'
+          bots/npm-update ~@patternfly >&2
+          ssh-add -D
+          ssh-agent -k
+
+      - name: Force push the change to trigger testing workflows
+        run: |
+          sleep 1 # make sure the timestamp changes
+          git commit --amend --no-edit
+          eval $(ssh-agent)
+          ssh-add - <<< '${{ secrets.COCKPIT_DEPLOY_KEY }}'
+          git push --force 'git@github.com:${{ github.repository }}' HEAD
+          ssh-add -D
+          ssh-agent -k

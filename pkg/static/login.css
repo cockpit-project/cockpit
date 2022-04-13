@@ -1,0 +1,946 @@
+/* Login page is standalone, all related CSS is here */
+
+@font-face {
+  font-family: RedHatText;
+  font-style: normal;
+  font-weight: 400;
+  src: url(/cockpit/static/fonts/RedHatText-Regular.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: RedHatText;
+  font-style: normal;
+  font-weight: 700;
+  src: url(/cockpit/static/fonts/RedHatText-Medium.woff2) format('woff2');
+}
+
+*,
+:after,
+:before {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+[hidden]:not([hidden=false]) {
+  display: none !important;
+}
+
+html {
+  font-family: sans-serif;
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  height: 100%;
+  background: #000;
+}
+
+body {
+  margin: 0;
+  font-family: RedHatText, Helvetica, Arial, sans-serif;
+  background-color: #333;
+  color: #fff;
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4 {
+  font-size: 1.25rem;
+  font-weight: 400;
+  margin: 0;
+}
+
+h1 {
+  font-size: 1.75rem;
+  line-height: 1.3;
+  padding: 0 0 1rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+pre {
+  white-space: pre-wrap;
+}
+
+.pf-c-button,
+label {
+  font-weight: 600;
+}
+
+.pf-c-button,
+img {
+  vertical-align: middle;
+}
+
+#option-group,
+.pf-c-button,
+.input-clear,
+button {
+  cursor: pointer;
+}
+
+#option-group svg,
+.input-clear {
+  opacity: .7;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.pf-c-button:focus,
+a:focus {
+  outline: -webkit-focus-ring-color auto 5px;
+  outline: dotted thin;
+  outline-offset: -2px;
+}
+
+a:active,
+a:hover {
+  outline: 0;
+}
+
+a:focus,
+a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+img {
+  border: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+button {
+  -webkit-appearance: button;
+  overflow: visible;
+  border-radius: 0.1875rem;
+  border: none;
+}
+
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+p {
+  margin: 0 0 1rem;
+}
+
+.container {
+  margin-right: auto;
+  margin-left: auto;
+}
+
+/* Bump options & connection away from user/pass */
+#option-group,
+#option-group[hidden] + #server-group {
+  margin-top: 2rem;
+}
+
+#option-group {
+  margin-bottom: 1rem;
+}
+
+#server-group {
+  margin-bottom: 2rem;
+}
+
+.form-group:not(:first-child) {
+  margin-top: 1rem;
+}
+
+.login-actions {
+  display: flex;
+  align-items: baseline;
+  grid-gap: 1rem;
+}
+
+label {
+  display: inline-block;
+}
+
+#option-group,
+.control-label {
+  font-size: 0.875rem;
+}
+
+[role=form] .control-label,
+form .control-label {
+  display: flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0 0 0.5rem;
+}
+
+.form-control {
+  color: #151515;
+}
+
+.pf-c-button.pf-m-control,
+.form-control[type=password],
+.form-control[type=text] {
+  display: block;
+  width: 100%;
+  padding: 0.25rem 0.5rem;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ededed;
+  border-bottom-color: #72767b;
+  border-radius: 1px;
+  transition: border-color .15s ease-in-out;
+  color: #151515;
+}
+
+.pf-c-button.pf-m-control:hover,
+.form-control[type=password]:hover,
+.form-control[type=text]:hover,
+.form-control[type=password]:focus,
+.form-control[type=text]:focus {
+  border-bottom-color: #06c;
+}
+
+.pf-c-button.pf-m-control:focus,
+.form-control[type=password]:focus,
+.form-control[type=text]:focus {
+  padding-bottom: calc(0.25rem - 1px);
+  border-bottom-width: 2px;
+}
+
+.pf-c-button.pf-m-control:focus,
+.form-control:focus {
+  outline: 0;
+}
+
+.form-control:-moz-placeholder {
+  color: #999;
+  font-style: italic;
+}
+
+.form-control::-moz-placeholder {
+  color: #999;
+  font-style: italic;
+  opacity: 1;
+}
+
+.form-control:-ms-input-placeholder {
+  color: #999;
+  font-style: italic;
+}
+
+.form-control::-webkit-input-placeholder {
+  color: #999;
+  font-style: italic;
+}
+
+.checkbox-row {
+  margin: 1rem 0 0;
+  display: flex;
+  align-items: baseline;
+}
+
+.checkbox-row > input[type=checkbox] {
+  width: 1rem;
+  height: 1rem;
+  align-self: flex-start;
+  margin-top: calc((1.5rem - 1rem) / 2);
+  margin-right: 0.5rem;
+}
+
+label.checkbox {
+  font: inherit;
+}
+
+.help-block {
+  display: block;
+  margin-top: 5px;
+  margin-bottom: 1rem;
+  color: #737373;
+}
+
+.pf-c-button,
+.caret {
+  display: inline-block;
+}
+
+#login-button[spinning] .spinner {
+  display: inline-flex;
+}
+
+.form-group:after {
+  clear: both;
+  margin-bottom: 1rem;
+}
+
+.pf-c-button {
+  text-align: center;
+  background-image: none;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  padding: 0.375rem 1rem;
+  border-radius: 3px;
+  font-size: inherit;
+  font-weight: 400;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+.pf-c-button:focus,
+.pf-c-button:hover {
+  color: #4d5258;
+  text-decoration: none;
+}
+
+.pf-c-button:active {
+  outline: 0;
+  background-image: none;
+}
+
+@-ms-viewport {
+  width: device-width;
+}
+
+.pf-m-primary {
+  background-color: #06c;
+  border-color: #06c;
+  color: #fff;
+}
+
+.pf-m-primary:active,
+.pf-m-primary:focus,
+.pf-m-primary:hover {
+  background-color: #004080;
+  border-color: #004080;
+  color: #fff;
+  outline: none;
+}
+
+.pf-m-tertiary {
+  background-color: transparent;
+  border-color: #151515;
+  color: #151515;
+}
+
+.pf-m-tertiary:active,
+.pf-m-tertiary:focus,
+.pf-m-tertiary:hover {
+  background-color: transparent;
+  border-color: #151515;
+  color: #151515;
+  border-width: 2px;
+}
+
+.pf-m-danger {
+  background-color: #c9190b;
+  border-color: #c9190b;
+  color: #fff;
+}
+
+.pf-m-danger:hover,
+.pf-m-danger:focus {
+  background-color: #a30000;
+  border-color: #a30000;
+  outline: none;
+}
+
+.login-pf {
+  height: 100%;
+}
+
+.login-pf #brand img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+}
+
+.brand-unsupported-browser #brand {
+  display: none;
+}
+
+.login-pf #banner {
+  margin: 1rem 0 0.5rem;
+  grid-area: banner;
+  width: 100%;
+}
+
+#banner-message {
+  white-space: pre-wrap;
+  max-height: 12em;
+  overflow: auto;
+}
+
+.login-pf .container {
+  background-color: rgba(255, 255, 255, 0.5);
+  background: white;
+  color: #333;
+  padding: 3rem 3rem 2rem;
+  width: 100%;
+}
+
+#main {
+  grid-area: login;
+}
+
+.login-pf .container .details p:first-child {
+  border-top: 1px solid #474747;
+  padding-top: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.login-pf .details p {
+  margin: 0;
+}
+.login-pf .details p + p {
+  margin-top: 0.5rem;
+}
+
+.login-pf .container .control-label {
+  font-weight: 600;
+}
+
+.login-pf .container .help-block {
+  color: #fff;
+}
+
+.login-pf .container .form-group:last-child,
+.login-pf .container .form-group:last-child .help-block:last-child {
+  margin-bottom: 0;
+}
+
+.spinner {
+  -webkit-animation: .6s linear infinite rotation;
+  animation: .6s linear infinite rotation;
+  border-bottom: 4px solid rgba(0, 0, 0, .25);
+  border-left: 4px solid rgba(0, 0, 0, .25);
+  border-right: 4px solid rgba(0, 0, 0, .25);
+  border-radius: 100%;
+  border-top: 4px solid rgba(0, 0, 0, .75);
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+/* Alerts */
+.pf-c-alert {
+  color: #151515;
+  position: relative;
+  grid-template-columns: max-content 1fr max-content;
+  grid-template-rows: 1fr auto;
+  grid-template-areas:
+    "icon title   action"
+    ".    content content";
+  background-color: #fff;
+  margin: 0 0 1.5rem;
+  display: grid;
+  border: 3px solid #009596;
+  border-width: 2px 0 0;
+  box-shadow: rgba(3, 3, 3, 0.16) 0 0.5rem 1rem 0, rgba(3, 3, 3, 0.08) 0 0 0.5rem 0;
+}
+
+.pf-c-alert.pf-m-inline {
+  box-shadow: none;
+}
+
+.pf-c-alert > svg {
+  grid-area: icon;
+  height: 1.125rem;
+  width: 1.125rem;
+  margin: 1.25rem 1rem 1rem 1rem;
+  float: left;
+  color: #009596;
+}
+
+@supports (display: grid) {
+  .pf-c-alert > svg {
+    float: none;
+    margin-right: 0;
+  }
+}
+
+.pf-c-alert__title {
+  grid-area: title;
+  font-size: 1rem;
+  margin: 1rem;
+}
+
+.pf-c-alert.pf-m-inline.pf-m-danger {
+  background: #faeae8;
+  border-color: #c9190b;
+}
+
+.pf-c-alert.pf-m-danger > svg {
+  color: #c9190b;
+}
+
+.pf-c-alert.pf-m-danger .pf-c-alert__title {
+  color: #a30000;
+}
+
+.pf-c-alert.pf-m-inline.pf-m-warning {
+  background: #fdf7e7;
+  border-color: #f0ab00;
+}
+
+.pf-c-alert.pf-m-warning > svg {
+  color: #f0ab00;
+}
+
+.pf-c-alert.pf-m-warning .pf-c-alert__title {
+  color: #795600;
+}
+
+.pf-c-alert.pf-m-inline.pf-m-info {
+  background: #e7f1fa;
+  border-color: #73bcf7;
+}
+
+.pf-c-alert.pf-m-info > svg {
+  color: #73bcf7;
+}
+
+.pf-c-alert.pf-m-info .pf-c-alert__title {
+  color: #004368;
+}
+
+#server-group:before {
+  clear: both;
+  margin-top: 5px;
+}
+
+.login-fatal {
+  font-size: 130%;
+}
+
+.unsupported-browser ul {
+  color: #aaa;
+  display: inline-block;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.unsupported-browser a {
+  color: #fff;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.input-clear,
+.inline .container .help-block {
+  color: #000;
+}
+
+.caret,
+.server-box {
+  position: relative;
+}
+
+.conversation-prompt {
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+.control-label {
+  white-space: nowrap;
+}
+
+.spinner {
+  border-color: rgba(255, 255, 255, .75) rgba(255, 255, 255, .25) rgba(255, 255, 255, .25);
+}
+
+#hostkey-fingerprint {
+  font-size: large;
+  font-weight: bold;
+  margin-bottom: 0px
+}
+
+#hostkey-type {
+  font-size: small;
+}
+
+#hostkey-verify-help-cmds {
+  border-radius: 0.25rem;
+  padding: 0.5rem 1rem;
+  background: #ddd;
+}
+
+#login-button .spinner,
+#login-button[spinning] #login-button-text,
+.hide-before:before {
+  display: none;
+}
+
+/* Hide inline login screen by default */
+.inline #badge,
+.inline #brand,
+.inline #login-details {
+  display: none;
+}
+
+.inline body {
+  background: 0 0!important;
+  color: #000;
+}
+
+.caret {
+  vertical-align: middle;
+  margin: calc((1.5rem - 16px) / 2) 0;
+  margin-right: 0.25rem;
+  transition: all 300ms;
+}
+
+.caret-down {
+  -moz-transform: rotate(90deg);
+  -webkit-transform: rotate(90deg);
+  transform: rotate(90deg);
+  -moz-transform-origin: 0.5rem 0.5rem;
+  -webkit-transform-origin: 0.5rem 0.5rem;
+  transform-origin: 0.5rem;
+}
+
+.input-clear {
+  display: flex;
+  padding: 0.5rem 0.75rem;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.input-clear > svg {
+  height: 1rem;
+  width: auto;
+}
+
+/* Only show clear icon when the field has text */
+.form-control:placeholder-shown + .input-clear {
+  display: none;
+}
+
+/* Reserve a little space for the clear icon in the input */
+.server-box > .form-control {
+  padding-right: 2rem;
+}
+
+#option-group:hover svg,
+.input-clear:hover {
+  opacity: 1;
+}
+
+#option-group div {
+  margin-left: -3px;
+  margin-top: 3px;
+  margin-bottom: 1rem;
+}
+
+#login-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  flex-basis: 100%;
+}
+
+#hostkey-group:not([hidden]) ~ .login-actions > #login-button {
+  flex-basis: max-content;
+}
+
+#login-button[disabled] {
+  background-color: #333;
+  background-image: none;
+  border-color: #555;
+}
+
+/*** Media breakpoints ***/
+
+/* Optimize for mobile phones in portrait mode */
+@media (max-width: 480px) {
+
+  .login-pf {
+    display: flex;
+    flex-direction: column-reverse;
+    position: relative;
+  }
+
+  .row {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .login-pf .container {
+    width: 100%;
+  }
+
+  .login-pf #badge {
+    max-width: calc(100vw - 2rem);
+  }
+
+  /* Brand container */
+  .login-pf #brand {
+    font-size: inherit;
+    background-position: 50% 50%;
+  }
+
+  .details {
+    text-align: center;
+  }
+
+}
+
+/* Large phones and desktops */
+@media (min-width: 481px) {
+
+  .unsupported-browser-heading {
+    margin: 2rem 0;
+  }
+
+  .browser-recommendations h3 {
+    font-weight: 400;
+    margin-top: 0;
+  }
+
+}
+
+/* Desktop only */
+@media (min-width: 1024px) {
+
+  .control-label {
+    text-align: right;
+  }
+
+  .login-pf #brand img {
+    margin: 0;
+    text-align: left;
+  }
+
+  .login-pf .container .login-area {
+    border-right: 1px solid #474747;
+  }
+
+}
+
+/* PF4-ish style overrides (depending on grid & CSS variables */
+
+.row {
+  display: flex;
+  flex-flow: column;
+  margin: 0;
+}
+
+body.login-pf {
+  color: #151515;
+  display: grid;
+  grid-template-areas: "banner" "login" "details" "recent" "logo";
+  grid-template-rows: repeat(3, auto) 1fr;
+  background-position: 0 0 !important;
+  padding: 0;
+}
+
+.login-pf .container .details p:first-child {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: 0;
+}
+
+.login-button {
+  width: 100%;
+}
+
+.login-pf .details {
+  grid-area: details;
+  padding: 1.5rem 3rem;
+  width: 100%;
+  background: #ededed;
+}
+
+#recent-hosts {
+  grid-area: recent;
+  margin-top: 1rem;
+  padding: 3rem 1.5rem 1.5rem;
+}
+
+#recent-hosts > h1 {
+  padding-left: 1.5rem;
+}
+
+.login-pf #badge {
+  grid-area: logo;
+}
+
+.login-pf .container .login-area {
+  border: none;
+  width: auto;
+}
+
+.login-pf #brand {
+  text-transform: initial;
+}
+
+#brand strong,
+#brand b {
+  font-weight: 600;
+}
+
+.login-pf #brand.text-brand {
+  width: auto;
+}
+
+.unsupported-browser a,
+a {
+  color: #06c;
+}
+
+.unsupported-browser a:focus,
+.unsupported-browser a:hover,
+a:focus,
+a:hover {
+  color: #004080;
+}
+
+.caret polygon {
+  fill: #06c;
+}
+
+.host-line {
+  display: grid;
+  grid: 1fr / 1fr auto;
+  border: 1px solid #d2d2d2;
+  border-width: 1px 0;
+}
+
+.host-line + .host-line {
+  border-top-width: 0;
+}
+
+.host-name {
+  flex: auto;
+  text-align: left;
+  color: #06c;
+  border: none;
+  /* As we're making the list flush to the card, we should indent the contents to align */
+  padding: 0.5rem 1rem 0.5rem 1.5rem;
+}
+
+.host-name:hover {
+  color: #004080;
+  text-decoration: underline;
+}
+
+.host-remove {
+  margin-right: 1.5rem;
+  background: center / contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='currentColor' viewBox='0 0 352 512'%3E%3Cpath d='m242.7 256 100-100a31.5 31.5 0 0 0 0-44.5l-22.2-22.3a31.5 31.5 0 0 0-44.4 0L176 189.2 76 89.3a31.5 31.5 0 0 0-44.5 0L9.2 111.5a31.5 31.5 0 0 0 0 44.4l100 100.1-100 100a31.5 31.5 0 0 0 0 44.5l22.3 22.3a31.5 31.5 0 0 0 44.4 0l100.1-100 100 100a31.5 31.5 0 0 0 44.5 0l22.3-22.2a31.5 31.5 0 0 0 0-44.5L242.8 256z'/%3E%3C/svg%3E");
+  background-size: 1rem 1rem;
+  border: none;
+  opacity: 0.6;
+}
+
+.host-remove:hover {
+  opacity: 1;
+}
+
+/* Mobile-specific */
+@media (max-width: 1023px) {
+  body.login-pf {
+    justify-items: center;
+  }
+
+  #badge {
+    background-position: center;
+    margin: 2rem;
+  }
+}
+
+/* Desktop-specific */
+@media (min-width: 1024px) {
+  body.login-pf {
+    grid-template-areas:
+      ". banner  banner ."
+      ". .       .      ."
+      ". login   logo   ."
+      ". details logo   ."
+      ". recent  logo   ."
+      ". .       .      .";
+    grid-template-rows: auto 1fr minmax(min-content,max-content) repeat(2, auto) 1fr;
+    grid-template-columns: minmax(0, 1fr) repeat(2, minmax(auto, 34rem)) minmax(0, 1fr);
+    grid-gap: 0 4rem;
+  }
+}
+
+.unsupported-browser ul {
+  color: #555;
+  margin: 0 0 2rem;
+}
+
+.browser-recommendations {
+  display: grid;
+  justify-content: space-around;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, max-content));
+  grid-gap: 0 1rem;
+}
+
+.dialog-error {
+  margin: 0 0 2rem;
+}
+
+#login-again {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.password-with-toggle {
+  display: grid;
+  grid-template-columns: 1fr auto;
+}
+
+.pf-c-button.login-password-toggle {
+  display: flex;
+  align-items: center;
+  border-left-width: 0;
+}
+
+.login-password-toggle > svg {
+  height: 1rem;
+  width: auto;
+}
+
+/* Show the appropriate eye icon based on the password text status */
+input[type=text] + .login-password-toggle .password-show,
+input[type=password] + .login-password-toggle .password-hide {
+  display: none;
+}
+
+/* Animation */
+
+@-webkit-keyframes rotation {
+  from {
+    -webkit-transform: rotate(0);
+  }
+
+  to {
+    -webkit-transform: rotate(359deg);
+  }
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0);
+  }
+
+  to {
+    transform: rotate(359deg);
+  }
+}

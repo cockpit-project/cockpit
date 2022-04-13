@@ -1,0 +1,73 @@
+#!/bin/sh
+
+# Usage:
+#    containers/flatpak/prepare [tarball] [urlbase]
+#
+# If a [tarball] parameter is given, them it refers to an (existing)
+# tarball which will be used as a basis for creating the flatpak
+# metadata.  If none is given, run `make dist` and use the result.
+#
+# If [urlbase] base parameter is given then the flatpak metadata will
+# use it as a basis for forming the download URL for the tarball, with
+# the version prefixed as a directory component.  eg:
+#
+#    [urlbase]/123/cockpit-123.tar.xz
+#
+# If no urlbase is given then we just use the local file (which must
+# always exist for checksum purposes).
+#
+# If the FLATPAK_ID environment variable is set, it overrides the
+# default value of org.cockpit_project.CockpitClient.
+
+set -eu
+
+FLATPAK_ID="${FLATPAK_ID:-org.cockpit_project.CockpitClient}"
+
+prepare() {
+    TARBALL="${1:-}"
+    URLBASE="${2:-}"
+
+    if test -z "${TARBALL}"; then
+        TARBALL="$(tools/make-dist IGNORE_UNUSED_PATTERNS=1 WEBPACK_PACKAGES=static)"
+    fi
+
+    test -f "${TARBALL}"
+
+    ARCHIVE_SHA256="$(sha256sum "${TARBALL}" | cut -f1 -d' ')"
+
+    # Extract version number from tarball name
+    VERSION="$(echo ${TARBALL} | sed -n 's/^.*cockpit-\([0-9a-g.]*\).tar.xz$/\1/p')"
+    test -n "${VERSION}"
+
+    if test -n "${URLBASE}"; then
+        ARCHIVE_TYPE="url"
+        ARCHIVE_LOCATION="${URLBASE}/${VERSION}/$(basename -- "${TARBALL}")"
+    else
+        ARCHIVE_TYPE="path"
+        ARCHIVE_LOCATION="${TARBALL}"
+    fi
+
+    # Check for versions like 257.55.g3082bbdef with 'g' in them
+    if echo "${VERSION}" | grep -q g; then
+        RELEASE_TYPE=development
+        FLATPAK_BRANCH=devel
+    else
+        RELEASE_TYPE=stable
+        FLATPAK_BRANCH=stable
+    fi
+
+    printf "  %-8s %s\n" GEN "${FLATPAK_ID}.yml" >&2
+    sed \
+        -e "s|@FLATPAK_ID@|${FLATPAK_ID}|" \
+        -e "s|@FLATPAK_BRANCH@|${FLATPAK_BRANCH}|" \
+        -e "s|@ARCHIVE_TYPE@|${ARCHIVE_TYPE}|" \
+        -e "s|@ARCHIVE_LOCATION@|${ARCHIVE_LOCATION}|" \
+        -e "s|@ARCHIVE_SHA256@|${ARCHIVE_SHA256}|" \
+        containers/flatpak/cockpit-client.yml.in > "${FLATPAK_ID}.yml.tmp"
+    mv "${FLATPAK_ID}.yml.tmp" "${FLATPAK_ID}.yml"
+}
+
+if [ $(basename -- "$0") = "prepare" ]; then
+    cd "$(realpath -m "$0"/../../..)"
+    prepare "$@"
+fi

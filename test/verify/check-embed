@@ -1,0 +1,107 @@
+#! /usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import subprocess
+
+import parent
+from testlib import *
+
+
+@skipDistroPackage()
+@nondestructive
+class TestEmbed(MachineCase):
+
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+
+        self.restore_dir("/home/admin/.local/share/cockpit")
+        m.execute("mkdir -p /home/admin/.local/share/cockpit/embed-cockpit")
+        m.upload(["verify/files/embed-cockpit/index.html",
+                  "verify/files/embed-cockpit/embed.js",
+                  "verify/files/embed-cockpit/embed.css",
+                  "verify/files/embed-cockpit/manifest.json"],
+                 "/home/admin/.local/share/cockpit/embed-cockpit/")
+
+        # replace the shell with our embedded page, this way we can avoid
+        # cross-origin errors when executing js in the iframe
+        m.write("/etc/cockpit/cockpit.conf", """
+[WebService]
+Shell=/embed-cockpit/index.html
+""")
+        m.start_cockpit()
+        self.login_and_go()
+
+        b.wait_visible("#embed-loaded")
+        b.wait_visible("#embed-address")
+        m.write("/etc/cockpit/cockpit.conf", """
+[WebService]
+Shell=/shell/index.html
+""")
+        b.set_val("#embed-address", f"http://{m.web_address}:{m.web_port}")
+        b.click("#embed-full")
+        b.wait_visible("iframe[name='embed-full'][loaded]")
+        b.switch_to_frame("embed-full")
+        b.wait_visible("#system_information_os_text")
+
+        # Page should show automatically now that other frame logged in
+        b.switch_to_top()
+        b.click("#embed-terminal")
+        b.wait_visible("iframe[name='embed-terminal'][loaded]")
+        b.switch_to_frame("embed-terminal")
+        b.wait_visible("#terminal")
+
+        # Clicking on the link with separate auth, shouldn't log in automatically
+        b.switch_to_top()
+        b.click("#embed-auth")
+        b.wait_visible("iframe[name='embed-auth'][loaded]")
+        b.switch_to_frame("embed-auth")
+        b.wait_visible("#login-user-input")
+
+    @skipBrowser("Chromium cannot inspect cross-origin frames", "chromium")
+    def testCrossOrigin(self):
+        b = self.browser
+        m = self.machine
+
+        pyhttpd = subprocess.Popen(['python3', '-m', 'http.server', '--bind=localhost',
+                                    '--directory=test/verify/files/embed-cockpit', '12346'])
+
+        def clean_pyhttpd():
+            pyhttpd.terminate()
+            pyhttpd.wait()
+
+        self.addCleanup(clean_pyhttpd)
+
+        # log in normally, to get the auth cookie into the browser and thus maximize possible cross-domain exposure
+        self.login_and_go()
+
+        b.open("http://localhost:12346/index.html")
+        b.set_val("#embed-address", f"http://{m.web_address}:{m.web_port}")
+        b.click("#embed-full")
+        b.wait_visible("iframe[name='embed-full'][loaded]")
+        b.switch_to_frame("embed-full")
+
+        # X-Frame-Options sameorigin blocks frame
+        if b.cdp.browser.name == "firefox":
+            b.wait_visible("body.neterror")
+        self.assertFalse(b.is_present("#login"))
+
+
+if __name__ == '__main__':
+    test_main()

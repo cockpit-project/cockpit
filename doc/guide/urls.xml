@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<chapter id="urls">
+  <title>Cockpit URLs</title>
+
+  <para>Cockpit URLs follow a specific structure, related to the components they are
+    loading. Various components are loaded in <code>&lt;iframe&gt;</code> tags. The
+    URLs for these components are described first. Further down below you can
+    find information about the top level bookmarkable Cockpit address URLs.</para>
+
+  <section id="urls-components">
+    <title>Component URLs</title>
+
+    <para>Cockpit components are HTML documents. They are organized into
+      <link linkend="packages">packages</link>. Each package contains information about
+      which HTML components are available in that package. Components should always use
+      relative URLs to access resources, such as images, scripts or CSS files, even
+      if they refer to a resource in another package.</para>
+
+    <para>The following are valid component URLs, each bit will be discussed
+      below:</para>
+
+<programlisting>
+/cockpit/@localhost/package/component.html#/hash
+/cockpit/$checksum/package/component.html#/hash
+/cockpit/@server.example.com/package/component.html#/hash
+/cockpit+embedder/@localhost/package/component.html#/hash
+</programlisting>
+
+    <para>All resource URLs are under the <code>/cockpit</code> namespace. In cases
+      where a Cockpit component is being <link linkend="embedding">embedded</link>
+      the <code>/cockpit</code> may be followed by a plus sign and another
+      <code>embedder</code> specific identifier.</para>
+
+    <para>What follows is either a <code>@host</code> or <code>$checksum</code> which
+      tells cockpit where to <link linkend="packages">find the package</link>.
+      Checksums are used when more than one host has identical packages and the resources
+      can be cached.</para>
+
+    <para>The <code>package</code> name is next, followed by the <code>component</code>
+      HTML path inside that package. And lastly a hash allows for navigation within a
+      single component. The hash should follow a URL path and/or query string form.</para>
+
+    <warning>
+      <para>Never assume that the <code>@host</code> or <code>$checksum</code> portion
+        is predictable. Only refer to resources in packages on the same host.</para>
+    </warning>
+  </section>
+
+  <section id="urls-visible">
+    <title>Visible URLs</title>
+
+    <para>The above Component URLs are usually not visible to the user. Instead the
+      Cockpit Web Service wraps the components in a shell which allows navigation, and
+      provides bookmarkable clean URLs to the component. These URLs do not affect
+      <link linkend="embedding">embedders</link> or
+      <link linkend="packages">components</link> directly.</para>
+
+    <para>If no path is present then the Cockpit will redirect to the default page for the server.</para>
+
+    <para>If the first segment of the path begins with an <code>@</code> sign, then
+      the component is being shown from a non-local host.</para>
+
+    <para>The next segment of the path, (or first if the component is being shown on
+      the local host) is the <link linkend="packages">package name</link>.
+      The remainder of the path is a component file in the package. If no further path
+      segments are present, a default <code>index.html</code> component in the package
+      is loaded. An extension of <filename>.html</filename> is automatically
+      appended.</para>
+
+    <para>The hash portion of the path is automatically transferred to the component
+      as the hash of its <link linkend="urls-components">resource URL</link>.</para>
+  </section>
+
+</chapter>

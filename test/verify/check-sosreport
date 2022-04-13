@@ -1,0 +1,124 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import time
+import glob
+import os.path
+import tarfile
+
+import parent
+from testlib import *
+
+
+@skipImage("No sosreport", "fedora-coreos", "arch")
+@nondestructive
+@skipDistroPackage()
+class TestSOS(MachineCase):
+
+    def testBasic(self, urlroot=""):
+        b = self.browser
+        m = self.machine
+
+        # HACK: sos ships wrong sos.conf, we need to mkdir it, see https://bugzilla.redhat.com/show_bug.cgi?id=1903281
+        if m.image == "centos-8-stream":
+            m.execute("mkdir -p /etc/sos")
+        self.write_file("/etc/sos/sos.conf",
+                        """
+[global]
+threads=1
+
+[report]
+only-plugins=release,date,host,cgroups,networking
+""")
+
+        if urlroot != "":
+            m.execute(f'mkdir -p /etc/cockpit/ && echo "[WebService]\nUrlRoot={urlroot}" > /etc/cockpit/cockpit.conf')
+
+        self.login_and_go("/sosreport", urlroot=urlroot)
+
+        b.click("button:contains('Create report')")
+        b.wait_visible("#sos-dialog")
+
+        b.wait(lambda: b.eval_js('ph_find("#sos-progress .pf-c-progress__bar").offsetWidth') > 0)
+        b.wait_visible("#sos-download")
+
+        if b.cdp.browser.name == "chromium":
+            b.cdp.invoke("Page.setDownloadBehavior", behavior="allow", downloadPath=b.cdp.download_dir)
+
+        b.click("#sos-download")
+        # while the download is ongoing, it will have an *.xz.tmpsuffix name, gets renamed to *.xz when done
+        wait(lambda: len(glob.glob(os.path.join(b.cdp.download_dir, "sosreport-*.xz"))) > 0)
+        report = glob.glob(os.path.join(b.cdp.download_dir, "sosreport-*.xz"))[0]
+
+        # Check that /etc/release was saved. It the files does not exist, getmember raises KeyError
+        # Sometimes it takes a bit of time until the file can be opened. Try it 3 times.
+        tries = 0
+        while True:
+            try:
+                with tarfile.open(report) as tar:
+                    tar.getmember(os.path.join(tar.getnames()[0], "etc/os-release"))
+                break
+            except tarfile.ReadError as ex:
+                tries += 1
+                if tries > 3:
+                    raise ex
+                time.sleep(1)
+
+        self.allow_journal_messages('.*comm="sosreport".*')
+
+    def testWithUrlRoot(self):
+        self.testBasic(urlroot="/webcon")
+
+    def testCancel(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute("rm -rf /var/tmp/sos*")
+
+        self.login_and_go("/sosreport")
+        b.click("button:contains('Create report')")
+        b.wait_visible("#sos-dialog")
+        m.execute("until pgrep -x sos >/dev/null; do sleep 1; done")
+
+        b.click("#sos-cancel")
+        b.wait_not_present("#sos-dialog")
+        # cleans up properly; unfortunately closing the process is async, so need to retry a few times
+        m.execute("while pgrep -a -x sos; do sleep 1; done", timeout=10)
+        self.assertEqual(m.execute("ls /var/tmp/sosreport* 2>/dev/null || true"), "")
+
+    def testAppStream(self):
+        b = self.browser
+        m = self.machine
+
+        self.allow_journal_messages("invalid or unusable locale.*")
+        # chromium rpm has broken appstream data, which causes various parser errors
+        self.allow_journal_messages(".*xml.*")
+
+        self.login_and_go("/apps")
+        b.wait_not_present(".pf-c-empty-state")
+        image_os = m.image.split('-')[0]
+        if image_os in ['fedora', 'debian', 'ubuntu']:
+            b.wait_visible(".app-list .pf-c-data-list__item-row div[rowId='Diagnostic reports']")
+            b.wait_visible(".app-list .pf-c-data-list__item-row div[rowId='Diagnostic reports'] button:contains('Remove')")
+        else:
+            b.wait_not_present(".app-list .pf-c-data-list__item-row div[rowId='Diagnostic reports']")
+
+
+if __name__ == '__main__':
+    test_main()

@@ -1,0 +1,50 @@
+#!/bin/sh
+
+set -eu
+
+if [ -t 2 ]; then
+    red="\e[1;31m"
+    green="\e[1;32m"
+    blue="\e[1;34m"
+    grey="\e[0m"
+else
+    red=""
+    green=""
+    blue=""
+    grey=""
+fi
+
+post_commit_hook="$(realpath -m "$0"/../git-hook-post-commit)"
+fail=''
+
+# cf. man 5 githooks
+# <local ref> SP <local object name> SP <remote ref> SP <remote object name> LF
+while read local_ref local_object_name remote_ref remote_object_name; do
+    # never check commits already on origin
+    opts='^origin'
+
+    # if we have the commit that the remote branch pointed to before, exclude it as well
+    opts="${opts} $(git rev-parse --not --quiet --verify "${remote_object_name}^{commit}" || true)"
+
+    # check the object being pushed (if it's not null)
+    opts="${opts} $(git rev-parse --quiet --verify "${local_object_name}^{commit}" || true)"
+
+    # compute the list of commits to check
+    commits="$(git rev-list ${opts})"
+    [ -z "${commits}" ] && continue
+
+    printf "${blue}Performing pre-push checks for %s:${grey}\n" "${remote_ref}" >&2
+    for commit in ${commits}; do
+        subject="$(git show --no-patch --format='%h %s' "${commit}" --)"
+
+        if output="$("${post_commit_hook}" "${commit}")" && test -z "${output}"; then
+            printf " - ${green}%s${grey}\n" "${subject}"
+        else
+            printf " - ${red}%s${grey}${output:+:}\n" "${subject}"
+            printf "%s" "${output}" | sed 's/^/     /;$a\\'
+            fail=1
+        fi
+    done
+done
+
+exit "${fail:-0}"

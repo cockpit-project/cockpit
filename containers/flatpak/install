@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# Usage:
+#    containers/flatpak/install [extra opts...]
+#
+# If [extra opts...] are specified, they are passed directly to
+# flatpak-builder, eg: --user.
+#
+# If the TARBALL environment variable is set, the named tarball will be used
+# instead of running `make dist`.  URLBASE can also be set.  See the comment in
+# containers/flatpak/prepare for more information about those.
+
+set -eu
+cd "$(realpath -m "$0"/../../..)"
+
+. containers/flatpak/prepare
+
+prepare "${TARBALL:-}" "${URLBASE:-}"
+
+flatpak-builder \
+    "$@" \
+    --disable-rofiles-fuse \
+    --force-clean \
+    --install flatpak-build-dir "${FLATPAK_ID}".yml

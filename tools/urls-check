@@ -1,0 +1,123 @@
+#!/usr/bin/env python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2020 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+
+import sys
+import time
+import argparse
+import subprocess
+import urllib
+from urllib.request import urlopen, Request
+from parent import BASE_DIR
+import task
+
+DAYS = 7
+TASK_NAME = "Validate all URLs"
+
+known_redirects = ["https://access.redhat.com/security/updates/classification/#",
+                   "https://firefox.com/", "https://www.microsoft.com/"]
+
+
+def main():
+    parser = argparse.ArgumentParser(description=TASK_NAME)
+    parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
+    opts = parser.parse_args()
+
+    task.verbose = opts.verbose
+
+    since = time.time() - (DAYS * 86400)
+
+    # When there is an open issue, don't do anything
+    issues = task.api.issues(state="open")
+    issues = [i for i in issues if i["title"] == TASK_NAME]
+    if issues:
+        return
+
+    issues = task.api.issues(state="closed", since=since)
+    issues = [i for i in issues if i["title"] == TASK_NAME]
+
+    # If related issue was not modified in last n-DAYS, then do your thing
+    if not issues:
+        (success, err) = check_urls(opts.verbose)
+        if err:
+            # Create a new issue
+            data = {
+                "title": TASK_NAME,
+                "body": err,
+                "labels": ["bot"]
+            }
+            task.api.post("issues", data)
+        else:
+            # Try to comment on the last issue (look in the last 4*DAYS)
+            # If there is not issue to be found, then just open a new one and close it
+            success = success or "Task hasn't produced any output"
+            since = time.time() - (DAYS * 4 * 86400)
+            issues = task.api.issues(state="closed", since=since)
+            issues = [i for i in issues if i["title"] == TASK_NAME]
+            if issues:
+                task.comment(issues[0], success)
+            else:
+                data = {
+                    "title": TASK_NAME,
+                    "body": success,
+                    "labels": ["bot"]
+                }
+                new_issue = task.api.post("issues", data)
+                task.api.post("issues/{0}".format(new_issue["number"]), {"state": "closed"})
+
+
+def check_urls(verbose):
+    command = r'git grep -IEho "(https?)://[-a-zA-Z0-9@:%_\+.~#?&=/]+" -- pkg ":!*.svg" | sort -u'
+    urls = subprocess.check_output(command, shell=True, universal_newlines=True, cwd=BASE_DIR).split("\n")
+    redirects = []
+    failed = []
+    for url in urls:
+        if not url:
+            continue
+
+        if "example.com" in url:  # Some tests use demo urls
+            continue
+
+        if verbose:
+            print("Checking: {0}".format(url))
+
+        try:
+            # Specify agent as some websites otherwise block requests
+            req = Request(url=url, headers={"User-Agent": "Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:90.0) Gecko/20100101 Firefox/90.0"})
+            resp = urlopen(req)
+            if resp.geturl() != url and url not in known_redirects and not url.startswith("https://github.com/patternfly/"):
+                redirects.append(url)
+            if resp.getcode() >= 400:
+                failed.append(url)
+        except urllib.error.URLError:
+            failed.append(url)
+
+    err = ""
+    success = ""
+    if failed:
+        err = "Checked {0} URLs out of which {1} is/are invalid:\n{2}".format(len(urls), len(failed), "\n".join(failed))
+    else:
+        success = "Checked {0} URLs and all are valid.".format(len(urls))
+        if redirects:
+            success += "\nFollowing URLs are redirected:\n    {0}".format("\n    ".join(redirects))
+    return (success, err)
+
+
+if __name__ == '__main__':
+    sys.exit(main())

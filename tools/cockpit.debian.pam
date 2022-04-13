@@ -1,0 +1,22 @@
+#%PAM-1.0
+auth       required     pam_sepermit.so
+auth       substack     common-auth
+auth       optional     pam_ssh_add.so
+account    required     pam_nologin.so
+account    include      common-account
+password   include      common-password
+# pam_selinux.so close should be the first session rule
+session    required     pam_selinux.so close
+session    required     pam_loginuid.so
+# pam_selinux.so open should only be followed by sessions to be executed in the user context
+session    required     pam_selinux.so open env_params
+session    optional     pam_keyinit.so force revoke
+session    optional     pam_ssh_add.so
+session    include      common-session
+
+# Read environment variables from /etc/environment and
+# /etc/security/pam_env.conf.
+session    required     pam_env.so # [1]
+# In Debian 4.0 (etch), locale-related environment variables were moved to
+# /etc/default/locale, so read that as well.
+session    required     pam_env.so user_readenv=1 envfile=/etc/default/locale

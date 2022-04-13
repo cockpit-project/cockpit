@@ -1,0 +1,35 @@
+name: flatpak-test
+on:
+  pull_request
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: none
+    timeout-minutes: 20
+    steps:
+      - name: Install required build and test dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y --no-install-recommends autoconf automake elfutils libglib2.0-dev libsystemd-dev xsltproc xmlto gettext flatpak-builder xvfb cockpit-system appstream appstream-util
+
+      - name: Configure flathub remote
+        run: flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+      - name: Clone repository
+        uses: actions/checkout@v2
+        with:
+          # need this to also fetch tags
+          fetch-depth: 0
+
+      - name: Build and install flatpak
+        run: ELEMENT_TREE_NO_INDENT=1 sh -x containers/flatpak/install --user --install-deps-from=flathub
+
+      - name: Smoke-test the installed flatpak
+        run: |
+          . /etc/profile.d/flatpak.sh
+          xvfb-run sh -ec '
+            dbus-run-session containers/flatpak/test/test-ssh
+            dbus-run-session containers/flatpak/test/test-browser
+          '

@@ -1,0 +1,150 @@
+@use "../lib/table.css";
+@use "../lib/journal.css";
+@use "./system-global.scss";
+
+@import "global-variables.scss";
+@import "@patternfly/patternfly/components/FormControl/form-control.scss";
+@import "@patternfly/patternfly/components/Toolbar/toolbar.scss";
+
+// https://github.com/patternfly/patternfly-react/issues/5993
+.pf-c-popover.pf-m-width-auto {
+    --pf-c-popover--MaxWidth: min(300px, 90%);
+}
+
+#journal {
+    grid-template-rows: auto 1fr;
+
+    .cockpit-log-panel {
+        border: none;
+    }
+
+    .pf-c-page__main {
+        // Constrain page to viewport height, so journal can overflow
+        max-height: 100vh;
+    }
+
+    // Static width for the service selector as it likes to resize a lot while loading
+    #journal-identifier-menu ul.pf-c-select__menu {
+        width: 10rem;
+    }
+
+    // Long names without spaces do not wrap; triggers overflow and overlaps with check icon
+    #journal-identifier-menu .pf-c-select__menu-item {
+        white-space: normal;
+    }
+}
+
+#log-details {
+    .pf-l-gallery {
+        --pf-l-gallery--GridTemplateColumns: 1fr;
+    }
+
+    .pf-c-page__main-breadcrumb {
+        padding: var(--pf-global--gutter);
+    }
+
+    .pf-c-card__title,
+    .multiline {
+        word-break: break-all;
+        white-space: pre-wrap !important;
+    }
+
+    .multiline {
+        font-family: monospace, monospace;
+    }
+
+    .pf-l-split {
+        padding-bottom: var(--pf-global--gutter);
+        align-items: center;
+    }
+
+    .pf-c-description-list {
+        --pf-c-description-list--m-horizontal__term--width: 25ch;
+    }
+
+    // For abrt log details: add some gutter between the tabs and their content
+    .pf-c-tab-content > .pf-c-description-list {
+        padding-top: var(--pf-global--spacer--md);
+    }
+
+    .table-hide-labels {
+        [data-label] {
+            display: revert;
+        }
+        [data-label]::before {
+            display: none;
+        }
+    }
+
+    // Let the description list set the color, not the wrapper accordion component
+    .pf-c-accordion__expanded-content {
+        color: unset;
+    }
+}
+
+#journal-box {
+    flex: auto;
+
+    .panel-heading {
+        position: sticky;
+        top: 0;
+        color: var(--pf-global--Color--300);
+        background-color: var(--pf-global--BackgroundColor--100);
+        border: none;
+        font-size: var(--pf-global--FontSize--md);
+        font-family: var(--pf-global--FontFamily--heading--sans-serif);
+        font-weight: var(--pf-global--FontWeight--semi-bold);
+        padding: var(--pf-global--spacer--lg) var(--pf-global--spacer--lg) var(--pf-global--spacer--sm);
+    }
+}
+
+/* Set min width for services in the journal view */
+#journal .cockpit-logline {
+    --log-service-min: 8rem;
+}
+
+#accordion-markup {
+    margin-bottom: 0px;
+}
+
+.pf-c-toolbar {
+    --pf-c-toolbar--BackgroundColor: var(--pf-c-page__main-section--BackgroundColor);
+
+    // Make toolbar stretch to all the available space and wrap up to two lines
+    --pf-c-toolbar--PaddingTop: 0;
+    --pf-c-toolbar--PaddingBottom: 0;
+
+    .pf-c-toolbar__group.pf-m-toggle-group.pf-m-show-on-md {
+        flex-grow: 1;
+        flex-wrap: wrap;
+    }
+
+    .pf-c-toolbar__group {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+
+    .pf-c-toolbar__group:nth-child(3) {
+        flex-grow: 1;
+    }
+
+   // Make text filter stretch to all the available space
+   .pf-c-toolbar__item.text-search, #journal-grep {
+       flex-grow: 1;
+   }
+
+   .text-help {
+       padding-left: var(--pf-global--spacer--xs);
+   }
+
+   // Hide filters from advanced search dropdown entries which already exist in the toolbar
+   #journal-grep .pf-c-search-input__menu-body {
+       .pf-c-form__group:nth-child(5), .pf-c-form__group:nth-child(6) {
+           display: none;
+       }
+   }
+
+    .pf-c-toolbar__expandable-content.pf-m-expanded .pf-c-divider {
+        display: none;
+   }
+}

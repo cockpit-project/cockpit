@@ -1,0 +1,687 @@
+@import "global-variables";
+@import "../../node_modules/@patternfly/patternfly/components/Toolbar/toolbar.scss";
+
+/* Navigation base, used for both desktop & mobile navigation */
+
+$phone-tiny: 360px;
+$phone: 767px;
+$desktop: $phone + 1px;
+
+:root {
+    --ct-color-nav            : #1b1b1b;
+    --ct-color-nav-sub        : var(--pf-global--BackgroundColor--dark-300);
+    --ct-color-nav-text       : var(--pf-global--BackgroundColor--light-300);
+    --ct-color-nav-active     : var(--pf-global--BackgroundColor--dark-400);
+    --ct-color-nav-active-text: var(--pf-global--BackgroundColor--light-100);
+    --ct-color-nav-cover-up   : linear-gradient(to bottom, var(--ct-color-nav-sub), rgba(21,21,21, 0));
+    --ct-color-nav-cover-down : linear-gradient(to top, var(--ct-color-nav-sub), rgba(21,21,21, 0));
+}
+
+.area-ct-subnav {
+    background: var(--ct-color-nav-sub);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+
+    mark {
+        padding-left: 0;
+        padding-right: 0;
+        font-weight: bold;
+        color: var(--ct-color-nav-active-text);
+        background: var(--pf-global--BackgroundColor--dark-400);
+    }
+
+    // https://github.com/patternfly/patternfly/issues/4541
+    .search {
+        padding: var(--pf-global--spacer--md) var(--pf-global--spacer--md) var(--pf-global--spacer--sm);
+
+        > .pf-c-input-group {
+            background: var(--ct-color-nav);
+            color: var(--ct-color-nav-text) !important;
+            transition: var(--pf-global--Transition);
+        }
+
+        .pf-c-search-input__text::after,
+        .pf-c-search-input__text::before {
+            border: none;
+        }
+
+        svg {
+            color: #fff;
+        }
+
+        input,
+        input::placeholder {
+            color: #fff;
+        }
+    }
+
+    .nav-item-hint {
+        width: 100%;
+        font-size: var(--pf-global--FontSize--sm);
+        font-weight: var(--pf-global--FontWeight--normal);
+        color: var(--pf-c-nav--m-dark__link--Color);
+        display: inline-block;
+        opacity: 0.8;
+    }
+
+    .pf-c-button.pf-m-link.nav-item-hint {
+        color: var(--pf-global--active-color--300);
+    }
+
+    .non-menu-item {
+        color: var(--pf-c-nav__link--Color);
+        display: flex;
+        justify-content: center;
+    }
+}
+
+.area-ct-content {
+    position: relative;
+    z-index: 1;
+    display: block;
+
+    > iframe {
+        height: 100%;
+        position: absolute;
+    }
+}
+
+.screenreader-text {
+    position: absolute;
+    left: -999px;
+    width:1px;
+    height: 1px;
+    top: auto;
+
+    &:focus {
+        display: inline-block;
+        height: auto;
+        width: auto;
+        position: static;
+        padding: 19px 0;
+        width: 100%;
+        text-align: center;
+        background-color: var(--pf-global--BackgroundColor--dark-300);
+        color: white;
+    }
+}
+
+/* Desktop navigation */
+@media (min-width: $desktop) {
+    // Adapt PF4's new header select for 2-up
+    .ct-topnav-content .pf-c-toolbar__item:not(.super-user-indicator) {
+        // Remove the margin spacing between each
+        margin-right: 0;
+
+        // Collapse the 2 side border lines into 1
+        + .pf-c-toolbar__item button:before {
+            margin-left: -1px;
+        }
+    }
+
+    .mobile_v {
+        display: none !important;
+    }
+
+    .area-ct-subnav {
+        // Make a separator between host selector & search
+        border-top: 1px solid var(--pf-global--Color--300);
+    }
+
+    .view-hosts .sidebar-hosts {
+        animation: navHostsSlide 300ms ease-out;
+        transform-origin: top;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background: var(--pf-global--BackgroundColor--dark-200);
+        z-index: 399; // Modals have 400 and modals should be in front of host switcher
+
+        &.edit-hosts {
+            .pf-c-nav__list {
+                .pf-c-button {
+                    animation: navHostsEditButtonsAppear 400ms;
+                    animation-timing-function: ease-in-out;
+                }
+            }
+        }
+    }
+
+    .header {
+        border-left: 1px solid var(--pf-global--BackgroundColor--dark-100);
+        background: linear-gradient(to right,var(--pf-global--BackgroundColor--dark-100) -1rem, var(--pf-global--BackgroundColor--dark-300) 1rem);
+
+        .credential-unlocked {
+            /* AAA contrast: simulate #a1a1a1 on #151515 */
+            opacity: 0.6;
+        }
+
+        .pf-c-dropdown__menu {
+            // Correct the offset
+            margin-top: -4px;
+        }
+    }
+
+    .pf-m-dark {
+        > .pf-c-select__toggle {
+            background-color: var(--pf-global--BackgroundColor--dark-300);
+        }
+    }
+
+    .ct-switcher {
+        background-color: var(--pf-global--BackgroundColor--dark-300);
+        > .pf-c-select > button {
+            padding-left: var(--pf-global--spacer--lg);
+        }
+    }
+
+    .nav-hosts-menu {
+        display: none;
+
+        &.interact {
+            display: block;
+        }
+    }
+}
+
+/* Mobile navigation */
+@media (max-width: $phone) {
+    :root {
+        --nav-icon-size: 4rem;
+    }
+
+    .desktop_v {
+        display: none !important;
+    }
+
+    .area-ct-subnav {
+        align-self: flex-end;
+        z-index: 2;
+
+        &:not(.interact) {
+            display: none;
+        }
+    }
+
+    .area-ct-subnav {
+        transform-origin: bottom;
+        animation: navHostsSlide 200ms ease-out;
+    }
+
+    .header {
+        .pf-c-toolbar__item {
+            margin-right: 0;
+        }
+    }
+
+    .nav-system-menu {
+        left: 0;
+        right: 0;
+        height: auto;
+        overflow: auto;
+        max-height: calc(100vh - var(--nav-icon-size));
+        max-width: 29rem;
+        display: block;
+    }
+
+    .nav-hosts-menu {
+        position: absolute;
+        bottom: var(--nav-icon-size);
+        right: var(--pf-global--spacer--md);
+        max-width: 100vw;
+    }
+
+    .pf-m-dark.pf-c-select {
+        .pf-c-select__toggle {
+            color: var(--pf-global--Color--light-100) !important;
+            background-color: transparent;
+        }
+    }
+
+    .ct-switcher > .pf-c-select {
+        .pf-c-select__toggle {
+            display: block;
+            width: auto;
+        }
+
+        .pf-c-select__toggle-arrow {
+            transform: rotate(180deg) scale(1.5);
+            margin: unset;
+            margin-top: 4px;
+        }
+
+        > button {
+            padding-left: 0;
+        }
+    }
+
+    .menu-toggle,
+    .sidebar-toggle .fa {
+        display: block;
+        transform: scale(1.5);
+        border-radius: 0 !important;
+    }
+
+    // Override some PF4isms to make sure the host switcher is 100% tall
+    .navbar-pf {
+        .ct-switcher {
+            display: flex;
+        }
+    }
+}
+
+@media (max-width: $phone-tiny) {
+    // Don't have a gap for the hosts selection
+    .nav-hosts-menu {
+        right: 0;
+    }
+
+    // Make the hosts selection fill the width of the page
+    .view-hosts .sidebar-hosts .pf-c-page__sidebar-body {
+        width: 100vw;
+    }
+}
+
+.navbar.navbar-pf-vertical {
+    border-top: 0px;
+}
+
+.ct-switcher {
+    height: 100%;
+
+    > .pf-c-select {
+        height: 100%;
+
+        .pf-c-select__toggle-text {
+            text-align: left;
+        }
+    }
+
+    .username {
+        display: inline-block;
+    }
+
+    .at {
+        opacity: 0.8;
+    }
+
+    .hostname {
+        display: block;
+        font-weight: 600;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+.pf-m-dark {
+    .pf-c-select__toggle {
+        //mobile
+        height: 100%;
+
+        > * {
+            color: var(--pf-global--Color--light-100);
+        }
+    }
+}
+
+.nav-action {
+    margin: 0 0 0 auto !important;
+}
+
+.host-apps {
+    flex: 1 1 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    position: relative;
+    scrollbar-color: var(--pf-global--Color--400) var(--pf-global--BackgroundColor--dark-200);
+
+    // In mobile, make the search at the top and the rest scroll
+    @media (max-width: $phone) {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        max-height: calc(100vh - var(--nav-icon-size));
+        position: sticky;
+        top: 0;
+
+        > .pf-c-nav {
+            overflow: auto;
+        }
+    }
+}
+
+// Support links in headings
+.nav-group-heading {
+    display: flex;
+    justify-content: space-between;
+
+    > .pf-c-nav__section-title:not(a) {
+        flex: auto;
+    }
+
+    a {
+        color: var(--pf-global--link--Color--light);
+        font-weight: normal;
+
+        &:hover {
+            color: var(--pf-global--link--Color--light--hover)
+        }
+    }
+}
+
+.nav-system-menu {
+    // Flow items, if wider (useful for mobile)
+    .pf-c-nav__list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(10rem, auto));
+
+        > a {
+            text-align: center;
+        }
+    }
+
+    // Give additional style to individual menu items
+    .pf-c-nav__link {
+        display: grid;
+        grid-template: "name status" "match match";
+        grid-template-columns: 1fr auto;
+        justify-content: space-between;
+        gap: 0 var(--pf-global--spacer--md);
+        padding-right: var(--pf-global--spacer--md);
+        // In mobile, sometimes items wrap; neighbors should also fill the space
+        height: 100%;
+
+        > .nav-item-name {
+            grid-area: name;
+        }
+
+        > .nav-item-status {
+            grid-area: status;
+        }
+
+        > .nav-item-hint {
+            grid-area: match;
+        }
+
+        > :empty {
+            display: none;
+        }
+
+        // Add a background to shine through the icon's gaps
+        // (for better contrast, even when hovering / selected)
+        .nav-item-status {
+            position: relative;
+
+            > svg {
+                // Set position for the icon sandwiching
+                position: relative;
+                // Add a shadow around the icon
+                // Move the icon up the stack
+                z-index: 1;
+            }
+
+            // Fill the interior gaps
+            &::before {
+                position: absolute;
+                content: "";
+                background-color: var(--pf-c-nav__link--Color);
+                border-radius: 3px;
+                top: 6px;
+                right: 5px;
+                bottom: 6px;
+                left: 5px;
+            }
+        }
+    }
+}
+
+.view-hosts .sidebar-hosts {
+    .pf-c-nav__list {
+        overflow-y: auto;
+    }
+
+    .pf-c-page__sidebar-body {
+        display: grid;
+        grid-template-rows: max-content 1fr max-content;
+
+        @media (min-width: $desktop) {
+            max-height: 100%;
+        }
+
+        @media (max-width: $phone) {
+            // Don't run off the top of the page in mobile
+            max-height: calc(100vh - var(--nav-icon-size));
+        }
+    }
+
+    .pf-c-nav {
+        overflow: auto;
+    }
+
+    .nav-hosts-actions {
+        --button-margin-x: 1rem;
+        --button-margin-y: 0.75rem;
+        display: grid;
+        gap: var(--pf-global--spacer--sm);
+        margin: var(--button-margin-y) var(--button-margin-x);
+
+        > button {
+            color: var(--pf-global--BackgroundColor--200);
+
+            &::after {
+                border-color: var(--pf-global--BackgroundColor--200);
+            }
+        }
+    }
+
+    .nav-item {
+        --pf-c-nav--m-dark__item--m-current--BackgroundColor: var(--pf-global--BackgroundColor--dark-400);
+        display: grid;
+        grid-template-columns: 1fr auto;
+
+        > .pf-c-nav__link {
+            flex-direction: column;
+            justify-content: center;
+        }
+
+    }
+
+    .nav-item-actions {
+        display: flex;
+        gap: var(--pf-global--spacer--xs);
+        padding: var(--pf-global--spacer--xs) var(--pf-global--spacer--sm);
+        // Pull the background color over
+        background: var(--pf-c-nav__link--BackgroundColor);
+
+        @media (min-width: $desktop) {
+            // Desktop has limited horizontal space, so stack these
+            // Ironically, mobile has more space here (due to being a popup)
+            flex-direction: column;
+        }
+
+        > button {
+            --pf-c-button--m-secondary--Color: rgba(255, 255, 255, 0.75);
+            --pf-c-button--m-secondary--BorderColor: rgba(255, 255, 255, 0.75);
+            --pf-c-button--m-secondary--hover--Color: rgba(255, 255, 255, 1);
+            --pf-c-button--m-secondary--hover--BorderColor: rgba(255, 255, 255, 1);
+            // Simulate PF4's disabled icon, but with alpha
+            --pf-c-button--disabled--BackgroundColor: rgba(255, 255, 255, 0.17);
+            --pf-c-button--disabled--Color: rgba(0, 7, 13, 0.45);
+            margin: 0;
+        }
+    }
+
+    // Use the "current" background for actions color when item is selected
+    .pf-m-current + .nav-item-actions {
+        --pf-c-nav__link--BackgroundColor: var(--pf-c-nav--m-dark__item--m-current--BackgroundColor);
+    }
+}
+
+.ct-topnav-content {
+    margin-left: auto;
+}
+
+// Rework navigation toggles in desktop and (especially) mobile modes
+.super-user-indicator > button,
+.ct-nav-toggle:not(.pf-c-dropdown) {
+    color: var(--pf-global--Color--light-100) !important;
+    background: transparent;
+}
+
+.ct-nav-toggle:not(.pf-c-dropdown) {
+    &:hover, &:active, &.active, &.interact, &[aria-expanded=true] {
+        text-decoration: none;
+        // approximate --pf-global--BackgroundColor--dark-400, but with opacity
+        background: rgba(249, 252, 255, 0.32) !important;
+
+        .hostname {
+            text-decoration: underline;
+        }
+    }
+
+    &:focus {
+        text-decoration: none;
+        outline: 1px dotted var(--pf-global--BackgroundColor--light-100);
+    }
+}
+
+// In mobile view keep the non PF4 of displaying hover / focus state in the masthead / toolbar items
+// This can go away once we move the host selector inside the Masthead
+// https://github.com/patternfly/patternfly/issues/4524
+@media (max-width: $phone) {
+    .ct-nav-toggle.pf-c-dropdown {
+        &:hover, &:active, &.active, &.interact, &[aria-expanded=true], &.pf-m-expanded {
+            text-decoration: none;
+            // approximate --pf-global--BackgroundColor--dark-400, but with opacity
+            background: rgba(249, 252, 255, 0.32);
+
+            .hostname {
+                text-decoration: underline;
+            }
+        }
+
+        &:focus {
+            text-decoration: none;
+            outline: 1px dotted var(--pf-global--BackgroundColor--light-100);
+        }
+    }
+
+    // Hide border from navigation items for mobile
+    .ct-header-item:not(:hover) button:not(:hover):before {
+        border: none;
+    }
+}
+
+.ct-locked > .ct-lock-wrapper > svg {
+    margin-right: var(--pf-global--spacer--sm);
+    color: var(--pf-global--palette--gold-400);
+}
+
+.super-user-indicator {
+    @media (min-width: $desktop) {
+        > .ct-locked {
+            > .ct-lock-wrapper {
+                background: var(--pf-global--BackgroundColor--dark-200);
+                border-radius: var(--pf-global--BorderRadius--sm);
+                padding: var(--pf-global--spacer--xs) var(--pf-global--spacer--sm);
+
+                > svg {
+                    color: var(--pf-global--palette--gold-300);
+                }
+            }
+
+            &:hover, &:focus {
+                background: none;
+                > .ct-lock-wrapper {
+                    background: var(--pf-global--BackgroundColor--dark-400);
+                }
+            }
+        }
+    }
+
+    > .ct-unlocked {
+        &:hover, &:focus {
+            text-decoration: underline;
+        }
+
+        svg {
+            display: none;
+        }
+    }
+}
+
+// Mobile sizes
+@media (max-width: $phone) {
+    #host-toggle,
+    #nav-system-item,
+    .ct-nav-toggle > button {
+        // Stretch to navbar
+        height: 100%;
+        // Don't stretch to fill content; make optimal width same as height
+        width: var(--pf-global--spacer--4xl);
+        // Leave enough space for 5 items (4 + spinner)
+        max-width: calc(100vw / 5);
+        display: grid !important;
+        grid-template-rows: 28px 1fr;
+        justify-content: center;
+        justify-items: center;
+        color: var(--pf-global--Color--light-100);
+        padding: var(--pf-global--spacer--sm) var(--pf-global--spacer--xs);
+        align-items: center;
+
+        > .pf-c-select__toggle-wrapper {
+            flex: none;
+            max-width: 100%;
+        }
+
+        // Remove the toggled outline
+        .pf-c-select__toggle::before {
+            display: none !important;
+        }
+        // Don't show dropdown icon
+        .pf-c-dropdown__toggle-icon {
+            display: none;
+        }
+
+        .pf-c-dropdown__toggle-image {
+            align-self: center;
+            margin: 0 !important;
+        }
+
+        .pf-c-select__toggle-arrow {
+            // This is here because Chrome is weird sometimes...
+            padding: 2px 0 5px;
+        }
+    }
+
+    .ct-nav-toggle .pf-c-dropdown__menu {
+        top: auto;
+        bottom: 100%;
+    }
+}
+
+// HACK: Don't span the navigation as wide or tall as possible
+.nav-hosts-menu {
+    height: auto;
+
+    .pf-c-page__sidebar .pf-c-nav {
+        width: unset;
+    }
+}
+
+/* Navigation animation */
+
+@keyframes navHostsSlide {
+    0% { opacity: 0.25; transform: scaleY(0); }
+    25% { opacity: 0.5; transform: scaleY(0.25); }
+    100% { opacity: 1; transform: scaleY(1); }
+}
+
+@keyframes navHostsEditButtonsAppear {
+    0% { opacity: 0; max-height: 0; max-width: 0; }
+    50% { opacity: 0; max-height: 0; max-width: 0; }
+    75% { opacity: 0; max-height: 100%; max-width: 100%; }
+    100% {opacity: 1; max-height: 100%; max-width: 100%}
+}

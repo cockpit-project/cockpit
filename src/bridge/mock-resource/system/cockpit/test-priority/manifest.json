@@ -1,0 +1,17 @@
+{
+	"name": "test",
+	"priority": 15,
+	"overridden": "hello",
+	"description": "this gets loaded instead of package in test/",
+	"bridges": [
+		{
+			"match": { "blah": "test*" },
+			"spawn": [ "/usr/bin/cat" ],
+			"environ": [ "TEST_ENV=test" ]
+		},
+		{
+			"match": { "blah": "marmalade*" },
+			"problem": "bogus-channel"
+		}
+	]
+}

@@ -1,0 +1,16 @@
+#!/bin/sh
+
+rebase_onto="$1"
+
+for dir in node_modules test/reference; do
+    # If a particular submodule is...
+    if test -e "${dir}/.git" &&                         # ...checked out...
+       test -z "$(git status --porcelain "${dir}")" &&  # ...clean...
+       ! git diff --quiet "${rebase_onto}" -- "${dir}"  # ...and changed on origin...
+    then
+        # then save ourselves the trouble of it being wrong post-rebase.
+        echo "Removing soon-to-be out-of-date ${dir}..."
+        rm -rf "${dir}"
+        mkdir "${dir}"
+    fi
+done

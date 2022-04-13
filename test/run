@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# This is the expected entry point for Cockpit CI; will be called without
+# arguments but with an appropriate $TEST_OS, and optionally $TEST_SCENARIO
+
+set -eu
+
+tools/make-bots
+test/common/pixel-tests pull
+
+TEST_SCENARIO=${TEST_SCENARIO:-verify}
+
+case $TEST_SCENARIO in
+    verify|devel|firefox|firefox-devel)
+        OPTS="--track-naughties"
+        [ "${TEST_SCENARIO}" = "${TEST_SCENARIO%%devel}" ] || export NODE_ENV=development
+        [ "${TEST_SCENARIO}" = "${TEST_SCENARIO%%devel}" ] || OPTS="$OPTS --coverage"
+        [ "${TEST_SCENARIO}" = "${TEST_SCENARIO##firefox}" ] || export TEST_BROWSER=firefox
+        test/image-prepare --verbose $TEST_OS
+        test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify ${OPTS}
+        ;;
+    container-*)
+        test/image-prepare --quick --containers --verbose $TEST_OS
+        test/containers/run-tests --container ${TEST_SCENARIO#*-}
+        ;;
+    dnf-copr*)
+        bots/image-customize -v --run-command 'dnf -y copr enable rpmsoftwaremanagement/dnf-nightly && dnf -y --setopt=install_weak_deps=False update' $TEST_OS
+        test/image-prepare --verbose --overlay $TEST_OS
+        test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify --track-naughties
+        ;;
+    *)
+        echo "Unknown test scenario: $TEST_SCENARIO"
+        exit 1
+esac

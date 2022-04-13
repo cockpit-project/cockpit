@@ -1,0 +1,11 @@
+/* Set fake font and icon path variables - we are going to identify these through
+ * patternfly.sed and remove the relevant font-face declarations
+ */
+$pf-global--font-path: 'patternfly-fonts-fake-path';
+$pf-global--fonticon-path: 'patternfly-icons-fake-path';
+$pf-global--disable-fontawesome: true !default; // Disable Font Awesome 5 Free
+
+@import '@patternfly/patternfly/patternfly-base.scss';
+
+/* Import our own fonts since the PF4 font-face rules are filtered out with patternfly.sed */
+@import "./fonts";

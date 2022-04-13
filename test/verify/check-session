@@ -1,0 +1,71 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+
+
+@skipDistroPackage()
+@nondestructive
+class TestSession(MachineCase):
+
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        def wait_session(should_exist):
+            wait(lambda: (should_exist == ("admin" in m.execute("loginctl list-sessions"))))
+
+        wait_session(False)
+
+        # Login
+        self.login_and_go("/system")
+        wait_session(True)
+
+        # Check session type
+        if not m.ostree_image:
+            id = m.execute("loginctl list-sessions | awk '/admin/ {print $1}'").strip()
+            self.assertEqual(m.execute(f"loginctl show-session -p Type {id}").strip(), "Type=web")
+
+        # Logout
+        b.logout()
+        b.wait_visible("#login")
+        wait_session(False)
+
+        # Login again
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#login-password-input", "foobar")
+        b.click('#login-button')
+        b.enter_page("/system")
+        wait_session(True)
+
+        # Kill session from the outside
+        m.execute("loginctl terminate-user admin")
+        wait_session(False)
+
+        b.relogin("/system", "admin")
+        wait_session(True)
+
+        # Kill session from the inside
+        b.logout()
+        wait_session(False)
+
+
+if __name__ == '__main__':
+    test_main()

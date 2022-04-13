@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<chapter id="feature-packagekit">
+  <title>Package Updates</title>
+
+  <para>Cockpit uses the <ulink url="https://www.freedesktop.org/software/PackageKit/gtk-doc/api-reference.html">PackageKit</ulink>
+    D-Bus API to get information about available package updates and to apply them, in an Operating System independent manner.</para>
+
+  <para>To perform similar tasks from the command line, use the
+    <ulink url="https://www.freedesktop.org/software/PackageKit/pk-using.html">pkcon</ulink> command:</para>
+
+<programlisting>
+$ <command>pkcon refresh</command>
+
+$ <command>pkcon get-updates</command>
+Available  sudo-1.8.20p2-1.fc26.x86_64 (updates-testing)
+    Allows restricted root access for specified users
+Available  vim-filesystem-2:8.0.617-1.fc26.x86_64 (updates-testing)
+    VIM filesystem layout
+Available  vim-minimal-2:8.0.617-1.fc26.x86_64 (updates-testing)
+    A minimal version of the VIM editor
+
+$ <command>pkcon get-update-detail sudo</command>
+Details about the update:6.x86_64 [fedora]
+ Package: sudo-1.8.20p2-1.fc26.x86_64
+ Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1452941
+ Update text: - update to 1.8.20p2
+    - added sudo package to dnf/yum protected packages
+
+$ <command>pkcon update</command>
+The following packages have to be updated:
+ sudo-1.8.20p2-1.fc26.x86_64	Allows restricted root access for specified users
+ vim-filesystem-2:8.0.617-1.fc26.x86_64	VIM filesystem layout
+ vim-minimal-2:8.0.617-1.fc26.x86_64	A minimal version of the VIM editor
+Proceed with changes? [N/y] y
+[...]
+</programlisting>
+
+<para>Of course you can also use your Operating System specific commands for that, such as
+  <command>dnf updateinfo info</command> on Fedora or
+  <command>sudo apt upgrade</command> on Debian.</para>
+
+</chapter>

@@ -1,0 +1,81 @@
+<refentry id="cockpit.1">
+
+  <!--
+  This file is part of Cockpit.
+
+  Copyright (C) 2015 Red Hat, Inc.
+
+  Cockpit is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  Cockpit is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+  <refentryinfo>
+    <title>cockpit</title>
+    <productname>cockpit</productname>
+  </refentryinfo>
+
+  <refmeta>
+    <refentrytitle>cockpit</refentrytitle>
+    <manvolnum>1</manvolnum>
+    <refmiscinfo class="version"></refmiscinfo>
+  </refmeta>
+
+  <refnamediv>
+    <refname>cockpit</refname>
+    <refpurpose>Cockpit</refpurpose>
+  </refnamediv>
+
+  <refsect1>
+    <title>DESCRIPTION</title>
+    <para>Cockpit is a web accessible interactive admin interface
+      for Linux machines. Cockpit can usually be accessed on port <literal>9090</literal>
+      of the machine it's installed on. Cockpit starts on demand. Use your
+      system credentials to log in.</para>
+  </refsect1>
+
+  <refsect1>
+    <title>COMPONENTS</title>
+    <para>The <command>cockpit-ws</command> web service listens on port
+      <literal>9090</literal> and is started on demand by <command>systemd</command>.
+      The Cockpit web service authenticates the user, loads Cockpit into the browser, and
+      starts <command>cockpit-bridge</command> in a Linux user session.</para>
+    <para>The <command>cockpit-bridge</command> provides Cockpit in the web browser with
+      access to the system APIs. It does this over its standard in and standard out. The
+      bridge is started like a shell once per Linux user session.</para>
+  </refsect1>
+
+  <refsect1>
+    <title>BUGS</title>
+    <para>
+      Please send bug reports to either the distribution bug tracker or the
+      <ulink url="https://github.com/cockpit-project/cockpit/issues/new">upstream bug tracker</ulink>.
+    </para>
+  </refsect1>
+
+  <refsect1>
+    <title>AUTHOR</title>
+    <para>Cockpit has been written by many
+      <ulink url="https://github.com/cockpit-project/cockpit/">contributors</ulink>.</para>
+  </refsect1>
+
+  <refsect1>
+    <title>SEE ALSO</title>
+    <simplelist type="inline">
+      <member><ulink url="https://cockpit-project.org/guide/latest/">Cockpit Guide</ulink></member>
+      <member><citerefentry><refentrytitle>cockpit-ws</refentrytitle><manvolnum>8</manvolnum></citerefentry></member>
+      <member><citerefentry><refentrytitle>cockpit-bridge</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
+      <member><citerefentry><refentrytitle>cockpit.conf</refentrytitle><manvolnum>5</manvolnum></citerefentry></member>
+      <member><citerefentry><refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum></citerefentry></member>
+    </simplelist>
+  </refsect1>
+</refentry>

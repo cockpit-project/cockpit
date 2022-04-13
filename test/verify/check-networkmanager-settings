@@ -1,0 +1,191 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from netlib import *
+from testlib import *
+
+from machine_core.constants import TEST_OS_DEFAULT
+
+
+@skipDistroPackage()
+@skipImage("TODO: networkmanager fails on Arch Linux", "arch")
+class TestNetworkingSettings(NetworkCase):
+    provision = {
+        "machine1": {"memory_mb": 512},
+        "machine2": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/20", "dhcp": True, "memory_mb": 256}
+    }
+
+    def testNoConnectionSettings(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        iface = self.add_iface(activate=False)
+        self.wait_for_iface(iface, active=False)
+        # checkpoints are realtime sensitive, avoid long NM operations
+        self.settle_cpu()
+
+        self.select_iface(iface)
+        b.wait_visible("#network-interface")
+
+        # Check that there is no connection for the device
+        cons = m.execute(f"nmcli -t -m tabular -f CONNECTIONS.AVAILABLE-CONNECTION-PATHS dev show {iface}")
+        self.assertEqual(cons.strip(), "")
+
+        # Edit and apply the ghost settings
+        self.configure_iface_setting('IPv4')
+        b.wait_visible("#network-ip-settings-dialog")
+        b.select_from_dropdown("#network-ip-settings-select-method", "manual")
+        b.set_input_text('#network-ip-settings-address-0', "1.2.3.4")
+        b.set_input_text('#network-ip-settings-netmask-0', "24")
+        b.click("#network-ip-settings-save")
+        b.wait_not_present("#network-ip-settings-dialog")
+        self.wait_for_iface_setting('IPv4', 'Address 1.2.3.4/24')
+
+        def assert_connection_setting(con_id, field, value):
+            self.assertEqual(m.execute(f'nmcli -m tabular -t -f {field} con show "{con_id}"').strip(),
+                             value)
+
+        # Check that we now have connection settings
+        con_id = wait(lambda: self.iface_con_id(iface))
+        assert_connection_setting(con_id, "ipv4.method", "manual")
+
+        # The interface will be activated. Deactivate it.
+        self.wait_for_iface_setting('Status', '1.2.3.4/24')
+        self.toggle_onoff(f".pf-c-card__header:contains('{iface}')")
+        self.wait_for_iface_setting('Status', 'Inactive')
+
+        # Delete the connection settings again and wait for the ghost
+        # settings to be re-created.
+        m.execute(f'nmcli con del "{con_id}"')
+        self.wait_for_iface_setting('IPv4', 'Automatic')
+
+        # Activate with ghost settings
+        self.toggle_onoff(f".pf-c-card__header:contains('{iface}')")
+        self.wait_for_iface_setting('Status', '10.111.')
+
+        # Check again that we now have connection settings
+        con_id = wait(lambda: self.iface_con_id(iface))
+        assert_connection_setting(con_id, "ipv4.method", "auto")
+
+        # Change some more settins and check that the actual config
+        # and dialog reflects the change
+
+        self.configure_iface_setting('IPv4')
+        b.wait_visible("#network-ip-settings-dialog")
+        self.wait_onoff("[data-field=dns]", True)
+        self.toggle_onoff("[data-field=dns]")
+        self.wait_onoff("[data-field=dns_search]", False)
+        b.click("#network-ip-settings-dns-add")
+        b.set_input_text("#network-ip-settings-dns-server-0", "1.2.3.4")
+        b.click("#network-ip-settings-dns-search-add")
+        b.set_input_text("#network-ip-settings-search-domain-0", "foo.com")
+        b.click("#network-ip-settings-save")
+        b.wait_not_present("#network-ip-settings-dialog")
+
+        assert_connection_setting(con_id, "ipv4.ignore-auto-dns", "yes")
+        assert_connection_setting(con_id, "ipv4.dns", "1.2.3.4")
+        assert_connection_setting(con_id, "ipv4.dns-search", "foo.com")
+
+        self.configure_iface_setting('IPv4')
+        self.wait_onoff("[data-field=dns]", False)
+        self.wait_onoff("[data-field=dns_search]", False)
+        b.wait_val("#network-ip-settings-dns-server-0", "1.2.3.4")
+        b.wait_val("#network-ip-settings-search-domain-0", "foo.com")
+        b.click("#network-ip-settings-cancel")
+        b.wait_not_present("#network-ip-settings-dialog")
+
+        self.configure_iface_setting('IPv6')
+        b.wait_visible("#network-ip-settings-dialog")
+        b.select_from_dropdown("#network-ip-settings-select-method", "disabled")
+        b.click("#network-ip-settings-save")
+        b.wait_not_present("#network-ip-settings-dialog")
+
+        assert_connection_setting(con_id, "ipv6.method", "disabled")
+
+    def testOtherSettings(self):
+        b = self.browser
+        m = self.machine
+
+        iface = self.add_iface()
+        con_id = self.iface_con_id(iface)
+        m.execute(f"nmcli con mod '{con_id}' connection.gateway-ping-timeout 12")
+
+        self.login_and_go("/network")
+        self.wait_for_iface(iface)
+
+        # IPv4 address sharing
+
+        self.select_iface(iface)
+        b.wait_visible("#network-interface")
+
+        self.configure_iface_setting('IPv4')
+        b.wait_visible("#network-ip-settings-dialog")
+        b.select_from_dropdown("#network-ip-settings-select-method", "shared")
+        b.click("#network-ip-settings-save")
+        b.wait_not_present("#network-ip-settings-dialog")
+
+        self.assertEqual(m.execute(f"nmcli -m tabular -t -f ipv4.method con show '{con_id}'").strip(),
+                         "shared")
+        self.assertEqual(m.execute(f"nmcli -m tabular -t -f connection.gateway-ping-timeout con show '{con_id}'").strip(),
+                         "12")
+
+        # IPv6 route
+
+        # by default there's a route to link-local only (fe80::)
+        show_cmd = f"ip -6 route show dev {iface}"
+        wait(lambda: "fe80::/64" in m.execute(show_cmd))
+        # add a manual one
+        self.configure_iface_setting('IPv6')
+        b.wait_visible("#network-ip-settings-dialog")
+        b.click('#network-ip-settings-route-add')
+        b.set_input_text('#network-ip-settings-route-address-0', "fe80:2::")
+        b.set_input_text('#network-ip-settings-route-netmask-0', "60")
+        b.set_input_text('#network-ip-settings-route-gateway-0', "fe80:2::3")
+        b.set_input_text('#network-ip-settings-route-metric-0', "42")
+        b.click('#network-ip-settings-save')
+        b.wait_not_present("#network-ip-settings-dialog")
+
+        # setting should be applied
+        wait(lambda: "metric 42" in m.execute(show_cmd))
+        out = m.execute(show_cmd)
+        self.assertIn("fe80:2::/60 via fe80:2::3 proto static metric 42", out)
+        self.assertIn("fe80:2::3 proto static metric 42", out)
+        # original link-local route still exists
+        self.assertIn("fe80::/64", out)
+
+        b.wait_attr("#network-interface", "data-test-wait", "false")
+
+        # dialog prefills fields with current settings
+        self.configure_iface_setting('IPv6')
+        b.wait_visible("#network-ip-settings-dialog")
+
+        b.wait_val('#network-ip-settings-route-address-0', "fe80:2:0:0:0:0:0:0")
+        b.wait_val('#network-ip-settings-route-netmask-0', "60")
+        b.wait_val('#network-ip-settings-route-gateway-0', "fe80:2:0:0:0:0:0:3")
+        b.wait_val('#network-ip-settings-route-metric-0', "42")
+        b.click('#network-ip-settings-cancel')
+        b.wait_not_present("#network-ip-settings-dialog")
+
+
+if __name__ == '__main__':
+    test_main()

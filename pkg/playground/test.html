@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Cockpit playground</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="test.css" type="text/css" rel="stylesheet">
+    <script src="../base1/cockpit.js"></script>
+    <script src="test.js"></script>
+</head>
+<body class="pf-m-redhat-font" hidden>
+    <div class="pf-c-page">
+        <main class="pf-c-page__main" tabindex="-1">
+            <section id="internal" class="pf-c-page__main-section pf-m-light">
+                <img src="hammer.gif" id="hammer">
+                <div id="nav"></div>
+                <button class="pf-c-button pf-m-secondary" id="go-down">Go down</button>
+                <br/>
+                <br/>
+                <div class="cockpit-internal-reauthorize">
+                    <button class="pf-c-button pf-m-secondary">Privileged Action</button>
+                    <span></span>
+                </div>
+                <div class="super-channel">
+                    <button class="pf-c-button pf-m-secondary">Superuser</button>
+                    <span></span>
+                </div>
+                <div class="lock-channel">
+                    <button class="pf-c-button pf-m-secondary">Lock /tmp/playground-test-lock</button>
+                    <span></span>
+                </div>
+                <button class="pf-c-button pf-m-secondary" id="modify-file">Increment /tmp/counter atomically</button>
+                <div id="file-content"></div>
+                <div id="file-error"></div>
+                <br/>
+                <div>
+                  <button class="pf-c-button pf-m-secondary" id="load-file">Load /tmp/counter</button>
+                  <button class="pf-c-button pf-m-secondary" id="save-file">Overwrite /tmp/counter</button>
+                  <button class="pf-c-button pf-m-secondary" id="delete-file">Delete /tmp/counter</button>
+                </div>
+                <textarea id="edit-file"></textarea>
+                <br/>
+                Visibility: <label id="hidden"></label>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

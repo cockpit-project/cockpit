@@ -1,0 +1,88 @@
+#!/usr/bin/make -f
+
+# Need some reasonable defaults in case we're run standalone
+srcdir ?= .
+AM_DEFAULT_VERBOSITY ?= 0
+NODE_ENV ?= production
+
+WEBPACK_PACKAGES = \
+	base1 \
+	apps \
+	kdump \
+	metrics \
+	networkmanager \
+	packagekit \
+	playground \
+	selinux \
+	shell \
+	sosreport \
+	static \
+	storaged \
+	systemd \
+	tuned \
+	users \
+	$(NULL)
+
+MANIFESTS = $(WEBPACK_PACKAGES:%=$(srcdir)/dist/%/manifest.json)
+
+.PHONY: all-webpack
+all-webpack: $(MANIFESTS)
+
+V_TAR = $(V_TAR_$(V))
+V_TAR_ = $(V_TAR_$(AM_DEFAULT_VERBOSITY))
+V_TAR_0 = @echo "  TAR     " $@;
+
+webpack-jumpstart.tar: $(MANIFESTS) package-lock.json tree
+	$(V_TAR) tar cf webpack-jumpstart.tar dist package-lock.json tree
+
+V_WEBPACK = $(V_WEBPACK_$(V))
+V_WEBPACK_ = $(V_WEBPACK_$(AM_DEFAULT_VERBOSITY))
+V_WEBPACK_0 = @echo "  WEBPACK  $*";
+
+WEBPACK_INPUTS =
+WEBPACK_OUTPUTS =
+WEBPACK_INSTALL =
+WEBPACK_GZ_INSTALL =
+WEBPACK_DEPS = $(WEBPACK_PACKAGES:%=$(srcdir)/dist/%/Makefile.deps)
+
+noinst_DATA += $(MANIFESTS)
+EXTRA_DIST += $(MANIFESTS) $(WEBPACK_DEPS) webpack.config.js
+EXTRA_DIST += $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS)
+
+# Nothing generates this directly, but it's included as a dependency in
+# various places.  It will automatically appear as part of the webpack
+# build.
+$(srcdir)/dist/%/Makefile.deps:
+	@true
+
+$(srcdir)/dist/%/manifest.json: $(srcdir)/tools/webpack-make $(srcdir)/package-lock.json $(srcdir)/webpack.config.js
+	$(V_WEBPACK) cd $(srcdir) && NODE_ENV='$(NODE_ENV)' tools/termschutz tools/webpack-make $*
+
+-include $(WEBPACK_DEPS)
+
+V_NODE_MODULES = $(V_NODE_MODULES_$(V))
+V_NODE_MODULES_ = $(V_NODE_MODULES_$(AM_DEFAULT_VERBOSITY))
+V_NODE_MODULES_0 = @V=0
+
+# We want tools/node-modules to run every time package-lock.json is requested
+# See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html
+FORCE:
+$(srcdir)/package-lock.json: FORCE
+	$(V_NODE_MODULES) $(srcdir)/tools/node-modules make_package_lock_json
+
+node_modules/%: $(srcdir)/package-lock.json
+	@true
+
+EXTRA_DIST += package.json package-lock.json
+
+# Write the current git tree hash, and touch the file only if it changed.
+# Make sure the tree is clean, first.  Gets included in the jumpstart tar.
+tree: FORCE
+	@test -z "$$(git status --porcelain)" || (git status && false)
+	@git rev-parse HEAD^{tree} > tree.tmp && \
+	if cmp -s tree tree.tmp; then \
+		rm tree.tmp; \
+	else \
+		printf "  %-8s %s\n" GEN "tree  [$$(cat tree.tmp)]"; \
+		mv tree.tmp tree; \
+	fi

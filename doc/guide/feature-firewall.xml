@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<chapter id="feature-firewall">
+  <title>Firewall</title>
+
+  <para>Cockpit uses <ulink url="https://www.firewalld.org">firewalld</ulink> to
+    interact with the system's firewall. No firewall configuration UI will be
+    shown if firewalld is not installed.</para>
+
+  <para>Firewalld controls access to its APIs via PolicyKit. The user logged
+    into Cockpit needs to have the appropriate permissions to view or modify
+    the settings.</para>
+
+  <para>Cockpit can currently only show, add, and remove predefined firewalld
+    services in the default zone.</para>
+
+  <para>To perform similar tasks from the command line, use
+    <ulink url="https://www.firewalld.org/documentation/man-pages/firewall-cmd.html">firewalld-cmd</ulink>.
+    For example, to get the same list of allowed services that Cockpit
+    displays:</para>
+
+<programlisting>
+$ <command>sudo firewall-cmd --list-services</command>
+dhcpv6-client samba-client mdns ssh cockpit
+</programlisting>
+
+  <para>To enable an additional service, use:</para>
+<programlisting>
+$ <command>firewall-cmd --add-service pop3</command>
+success
+</programlisting>
+
+</chapter>

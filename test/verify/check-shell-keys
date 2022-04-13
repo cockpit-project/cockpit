@@ -1,0 +1,427 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+
+
+FP_MD5 = "93:40:9e:67:82:78:a8:99:89:39:d5:ba:e0:50:70:e1"
+FP_SHA256 = "SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw"
+KEY = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDG4iipTovcMg0xn+089QLNKVGpP2Pgq2duxHgAXre2XgA3dZL+kooioGFwBQSEjbWssKy82hKIN/W82/lQtL6krf7JQWnT3LZwD5DPsvHFKhOLghbiFzSI0uEL4NFFcZOMo5tGLrM5LsZsaIkkv5QkAE0tHIyeYinK6dQ2d8ZsfmgqxHDUQUWnz1T75X9fWQsUugSWI+8xAe0cfa4qZRz/IC+K7DEB3x4Ot5pl8FBuydJj/gb+Lwo2Vs27/d87W/0KHCqOHNwaVC8RBb1WcmXRDDetLGH1A9m5x7Ip/KU/cyvWWxw8S4VKZkTIcrGUhFYJDnjtE3Axz+D7agtps41t test-name"
+
+
+@skipDistroPackage()
+class TestKeys(MachineCase):
+
+    @nondestructive
+    def testAuthorizedKeys(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -s /bin/bash -m -c User")
+        m.execute("echo user:foobar | chpasswd")
+
+        m.start_cockpit()
+
+        def login(user, password):
+            b.open("/system")
+            b.wait_visible("#login")
+            b.set_val("#login-user-input", user)
+            b.set_val("#login-password-input", password)
+            b.click('#login-button')
+            b.enter_page("/system")
+
+            b.go("/users#/" + user)
+            b.enter_page("/users")
+            b.wait_text("#account-user-name", user)
+
+        def add_key(key, fp_md5, fp_sh256, comment):
+            b.click('#authorized-key-add')
+            b.wait_visible("#add-authorized-key-dialog")
+            b.wait_val("#authorized-keys-text", "")
+            b.set_input_text("#authorized-keys-text", key)
+            b.click("#add-authorized-key-dialog button.apply")
+            b.wait_not_present("#add-authorized-key-dialog")
+
+            b.wait_in_text("#account-authorized-keys-list", comment)
+
+            b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
+            text = b.text("#account-authorized-keys-list")
+            if ("SHA256" in text):
+                self.assertIn(fp_sh256, text)
+            else:
+                self.assertIn(fp_md5, text)
+
+        # no keys
+        login("user", "foobar")
+        b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child", "no authorized public keys")
+        b.wait_js_func("ph_count_check", "#account-authorized-keys-list li.pf-c-data-list__item", 1)
+
+        # add bad
+        b.click('#authorized-key-add')
+        b.wait_visible("#add-authorized-key-dialog")
+        b.wait_val("#authorized-keys-text", "")
+        b.set_input_text("#authorized-keys-text", "bad")
+        b.click("#add-authorized-key-dialog button.apply")
+        b.wait_in_text("#add-authorized-key-dialog", "The key you provided was not valid")
+        b.click("#add-authorized-key-dialog button.cancel")
+
+        # add good
+        add_key(KEY, FP_MD5, FP_SHA256, "test-name")
+
+        # Try see admin
+        b.go("#/admin")
+        b.wait_text("#account-user-name", "admin")
+
+        # Not allowed, except on Ubuntu, where we can find out that ~/.ssh doesn't exist, which is shown as "no keys".
+        if "ubuntu" not in m.image and "debian" not in m.image:
+            b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child",
+                           "You do not have permission")
+            b.wait_js_func("ph_count_check", "#account-authorized-keys-list li.pf-c-data-list__item", 1)
+
+        b.logout()
+
+        # delete whole ssh to start fresh
+        m.execute("rm -rf /home/user/.ssh")
+        self.assertNotIn(".ssh", m.execute("ls /home/user"))
+
+        # Log in as admin
+        login("admin", "foobar")
+        b.go("#/user")
+
+        if "ubuntu" not in m.image and "debian" not in m.image:
+            b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child",
+                           "You do not have permission to view the authorized public keys for this account.")
+
+        b.become_superuser()
+
+        b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child",
+                       "no authorized public keys")
+        b.wait_js_func("ph_count_check", "#account-authorized-keys-list li.pf-c-data-list__item", 1)
+
+        # Adding keys sets permissions properly
+        b.wait_text("#account-user-name", "user")
+        add_key(KEY, FP_MD5, FP_SHA256, "test-name")
+        perms = m.execute("getfacl -a /home/user/.ssh")
+        self.assertIn("owner: user", perms)
+
+        perms = m.execute("getfacl -a /home/user/.ssh/authorized_keys")
+        self.assertIn("owner: user", perms)
+        self.assertIn("user::rw-", perms)
+        self.assertIn("group::---", perms)
+        self.assertIn("other::---", perms)
+
+        # Add invalid key directly
+        m.execute("(echo '' && echo 'bad') >> /home/user/.ssh/authorized_keys")
+        b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:last-child", "Invalid key")
+        b.wait_js_func("ph_count_check", "#account-authorized-keys-list li.pf-c-data-list__item", 2)
+
+        # Removing the key
+        b.click("#account-authorized-keys-list li.pf-c-data-list__item:last-child button")
+        b.wait_not_in_text("#account-authorized-keys-list li.pf-c-data-list__item:last-child", "Invalid key")
+        b.wait_js_func("ph_count_check", "#account-authorized-keys-list li.pf-c-data-list__item", 1)
+        data = m.execute("cat /home/user/.ssh/authorized_keys")
+        self.assertEqual(data, KEY + '\n')
+        b.logout()
+
+        # User can still see their keys
+        login("user", "foobar")
+        b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child", "test-name")
+
+        b.click("#account-authorized-keys-list li.pf-c-data-list__item:first-child button")
+        b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child", "no authorized public keys")
+        b.wait_js_func("ph_count_check", "#account-authorized-keys-list li.pf-c-data-list__item", 1)
+
+        self.allow_journal_messages('authorized_keys is not a public key file.')
+        self.allow_journal_messages('Missing callback called fullpath = /home/user/.ssh/authorized_keys')
+        self.allow_journal_messages('')
+
+    # Possible workaround - ssh as `admin` and just do `m.execute()`
+    @skipBrowser("Firefox cannot do `cockpit.spawn`", "firefox")
+    def testPrivateKeys(self):
+        b = self.browser
+        m = self.machine
+
+        def list_keys():
+            return b.eval_js("cockpit.spawn([ '/bin/sh', '-c', 'ssh-add -l || true' ])")
+
+        def toggleExpandedStateKey(identifier):
+            b.click(f"tr[data-name='{identifier}'] .pf-c-table__toggle > button")
+
+        def waitKeyPresent(identifier, present):
+            if present:
+                b.wait_visible(f"tr[data-name='{identifier}']")
+            else:
+                b.wait_not_present(f"tr[data-name='{identifier}']")
+
+        def waitKeyLoaded(identifier, enabled):
+            b.wait_visible(f"tr[data-name='{identifier}'] input[type=checkbox]" + (":checked" if enabled else ":not(checked)"))
+            b.wait_visible(f"tr[data-name='{identifier}'][data-loaded={'true' if enabled else 'false'}]")
+
+        def toggleKeyState(identifier):
+            b.click(f"tr[data-name='{identifier}'] .pf-c-switch__input")
+
+        def selectTab(identifier, title):
+            b.click(f"tr[data-name='{identifier}'] + tr li > button:contains('{title}')")
+
+        def waitTabActive(identifier, title):
+            b.wait_visible(f"tr[data-name='{identifier}'] + tr li.pf-m-current > button:contains('{title}')")
+
+        def waitKeyRowExpanded(identifier, expanded):
+            if expanded:
+                b.wait_visible(f"tr[data-name='{identifier}'] + tr .ct-listing-panel-body:not([hidden])")
+            else:
+                b.wait_not_visible(f"tr[data-name='{identifier}'] + tr")
+
+        def waitKeyDetail(identifier, dtype, value):
+            b.wait_in_text(f"tr[data-name='{identifier}'] + tr dt:contains({dtype}) + dd > div", value)
+
+        def getKeyDetail(identifier, dtype):
+            return b.text(f"tr[data-name='{identifier}'] + tr dt:contains({dtype}) + dd > div")
+
+        # Operating systems where auto loading doesn't work
+        auto_load = not m.ostree_image
+
+        if m.image == "arch":
+            self.write_file("/etc/pam.d/cockpit", """
+auth       optional     pam_ssh_add.so
+session    optional     pam_ssh_add.so
+""", append=True)
+
+        # Put all the keys in place
+        m.execute("mkdir -p /home/admin/.ssh")
+        m.upload([
+            "verify/files/ssh/id_rsa",
+            "verify/files/ssh/id_dsa",
+            "verify/files/ssh/id_rsa.pub",
+            "verify/files/ssh/id_dsa.pub"
+        ], "/home/admin/.ssh/")
+        m.execute("chmod 600 /home/admin/.ssh/*")
+        m.execute("chown -R admin:admin /home/admin/.ssh")
+
+        # Determine OpenSSH version
+        ver = m.execute("ssh -V 2>&1 |  grep -Eo 'OpenSSH_[[:digit:]]+.[[:digit:]]+'")
+        if ver:
+            openssh_version = [int(x) for x in ver.split("_")[1].split(".")]
+        else:
+            openssh_version = [0]
+
+        self.login_and_go()
+
+        id_rsa = "2048 SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw"
+        old_rsa = "2048 93:40:9e:67:82:78:a8:99:89:39:d5:ba:e0:50:70:e1"
+        id_dsa = "1024 SHA256:x6S6fxMuEyqhpwNRAIK7ms6bZDY6xK9wzdDr2kCaWVY"
+        old_dsa = "1024 d4:55:41:20:f1:0a:e0:52:15:fc:fc:f0:63:22:1f:76"
+
+        keys = list_keys()
+        if auto_load:
+            if "SHA256" in keys:
+                self.assertIn(id_rsa, keys)
+            else:
+                self.assertIn(old_rsa, keys)
+        self.assertNotIn(id_dsa, keys)
+        self.assertNotIn(old_dsa, keys)
+
+        b.open_session_menu()
+        b.click("#sshkeys")
+
+        # Automatically loaded
+        waitKeyLoaded('id_rsa', auto_load)
+        toggleExpandedStateKey('id_rsa')
+        waitKeyRowExpanded('id_rsa', True)
+        waitTabActive('id_rsa', 'Details')
+        waitKeyDetail('id_rsa', 'Comment', "test@test")
+        waitKeyDetail('id_rsa', 'Type', "RSA")
+        text = b.text("tr[data-name=id_rsa] + tr dt:contains(Fingerprint) + dd > div")
+        if "SHA256" in text:
+            self.assertEqual(text, id_rsa[5:])
+        else:
+            self.assertEqual(text, old_rsa[5:])
+
+        selectTab('id_rsa', 'Public key')
+        b.wait_val("tr[data-name=id_rsa] + tr .pf-c-clipboard-copy input",
+                   "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDG4iipTovcMg0xn+089QLNKVGpP"
+                   "2Pgq2duxHgAXre2XgA3dZL+kooioGFwBQSEjbWssKy82hKIN/W82/lQtL6krf7JQW"
+                   "nT3LZwD5DPsvHFKhOLghbiFzSI0uEL4NFFcZOMo5tGLrM5LsZsaIkkv5QkAE0tHIy"
+                   "eYinK6dQ2d8ZsfmgqxHDUQUWnz1T75X9fWQsUugSWI+8xAe0cfa4qZRz/IC+K7DEB"
+                   "3x4Ot5pl8FBuydJj/gb+Lwo2Vs27/d87W/0KHCqOHNwaVC8RBb1WcmXRDDetLGH1A"
+                   "9m5x7Ip/KU/cyvWWxw8S4VKZkTIcrGUhFYJDnjtE3Axz+D7agtps41t test@test")
+        toggleExpandedStateKey('id_rsa')
+        waitKeyRowExpanded('id_rsa', False)
+
+        # Load the id_dsa key
+        waitKeyLoaded('id_dsa', False)
+        toggleKeyState('id_dsa')
+        b.set_input_text("#id_dsa-password", "badbad")
+        b.click("#id_dsa-unlock")
+        waitKeyLoaded('id_dsa', True)
+
+        # Both keys are now loaded
+        keys = list_keys()
+        if "SHA256" in keys:
+            if auto_load:
+                self.assertIn(id_rsa, keys)
+            self.assertIn(id_dsa, keys)
+        else:
+            if auto_load:
+                self.assertIn(old_rsa, keys)
+            self.assertIn(old_dsa, keys)
+
+        # Unload the RSA key
+        if auto_load:
+            toggleKeyState('id_rsa')
+            waitKeyLoaded('id_rsa', False)
+
+        # Only DSA keys now loaded
+        keys = list_keys()
+        if "SHA256" in keys:
+            self.assertIn(id_dsa, keys)
+        else:
+            self.assertIn(old_dsa, keys)
+        self.assertNotIn(id_rsa, keys)
+        self.assertNotIn(old_rsa, keys)
+
+        # Change password of DSA key
+        toggleExpandedStateKey('id_dsa')
+        selectTab('id_dsa', 'Password')
+        b.set_input_text("#id_dsa-old-password", "badbad")
+        b.set_input_text("#id_dsa-new-password", "foobar")
+        b.set_input_text("#id_dsa-confirm-password", "foobar")
+        b.assert_pixels("#credentials-modal", "ssh-keys-dialog", ignore=[".ct-icon-info-circle", "tbody:nth-child(1) .pf-c-table__toggle-icon"])
+
+        b.click("#id_dsa-change-password")
+        b.wait_visible('#credentials-modal .pf-c-helper-text__item.pf-m-success')
+
+        # Log off and log back in, and we should have both loaded automatically
+        if auto_load:
+            b.logout()
+            b.login_and_go()
+            keys = list_keys()
+            if "SHA256" in keys:
+                self.assertIn(id_rsa, keys)
+                self.assertIn(id_dsa, keys)
+            else:
+                self.assertIn(old_rsa, keys)
+                self.assertIn(old_dsa, keys)
+
+            b.open_session_menu()
+            b.click("#sshkeys")
+            b.wait_visible("#credentials-modal")
+
+        # Add bad keys
+        # generate a new key
+        m.execute("ssh-keygen -t rsa -N '' -f /tmp/new.rsa")
+        m.execute("chown admin:admin /tmp/new.rsa")
+        new_pk = m.execute("cat /tmp/new.rsa.pub").strip().split()[0]
+        m.execute("rm /tmp/new.rsa.pub")
+
+        waitKeyPresent('id_rsa', True)
+
+        b.wait_visible("#credential-keys")
+        b.wait_not_present("#ssh-file-add")
+        b.click("#ssh-file-add-custom")
+        b.set_input_text("#credentials-modal .pf-c-select__toggle-typeahead", "/bad")
+        b.click("#ssh-file-add")
+        b.wait_text("#credentials-modal .pf-m-error > .pf-c-helper-text__item-text", "Not a valid private key")
+
+        b.set_file_autocomplete_val("#ssh-file-add-key", "/tmp/new.rsa")
+        b.click("#ssh-file-add")
+        b.wait_not_present("#ssh-file-add")
+        # OpenSSH 7.8 and up has a new default key format where
+        # keys are marked as "agent_only", thereby limiting functionality
+        keys = list_keys()
+        keys_length = 3 if auto_load else 2
+        if openssh_version >= [7, 8]:
+            # Keys are like: 1024 SHA256:x6S6fxMuEyqhpwNRAIK7ms6bZDY6xK9wzdDr2kCaWVY id_dsa (DSA)
+            # We need the id_dsa part, (name or comment)
+            new_key = keys.splitlines()[keys_length - 1].split(' ')[2]
+        else:
+            new_key = "new.rsa"
+        toggleKeyState(new_key)
+
+        toggleExpandedStateKey(new_key)
+        waitKeyRowExpanded(new_key, True)
+        waitTabActive(new_key, 'Details')
+        waitKeyDetail(new_key, 'Type', 'RSA')
+        self.assertNotEqual(getKeyDetail(new_key, 'Fingerprint'), "")
+        selectTab(new_key, 'Public key')
+        self.assertTrue(b.val(f"tr[data-name='{new_key}'] + tr .pf-c-clipboard-copy input").startswith(new_pk))
+
+        # OpenSSH 7.8 and up has a new default key format where
+        # keys are marked as "agent_only", thereby limiting functionality
+        if openssh_version >= [7, 8]:
+            # "agent_only" keys cannot be turned off, or have their passwords changed
+            waitKeyLoaded(new_key, True)
+        else:
+            # Change password of key
+            selectTab('new.rsa', 'Password')
+            b.set_input_text("#" + new_key + "-old-password", "")
+            b.set_input_text("#" + new_key + "-old-new", "foobar")
+            b.set_input_text("#" + new_key + "-old-two", "foobar")
+            b.click("#" + new_key + "-change-password")
+
+            waitTabActive(new_key, 'Details')
+
+            # Turn key off, it goes away
+            toggleKeyState(new_key)
+            waitKeyPresent(new_key, False)
+
+            # Key now has password that needs to be entered to add
+            b.wait_not_visible("tr.load-custom-key")
+            b.click("#credential-keys a")
+            b.wait_visible("tr.load-custom-key")
+            b.wait_visible("#ssh-file-add")
+            b.set_val("#ssh-file-container input[type=text]", "/bad")
+            b.click("#ssh-file-add")
+
+            b.set_val("#ssh-file-container input[type=text]", "/tmp/new.rsa")
+            b.click("#ssh-file-add")
+            b.wait_not_visible("tr.load-custom-key")
+            b.wait_visible("tbody.ssh-add-key-body[data-name='/tmp/new.rsa']")
+
+            b.set_input_text(f"{new_key}-password", "badbad")
+            b.click(f"{new_key}-unlock")
+
+            b.wait_in_text("#credential-dialog .pf-c-alert", "Password not accepted")
+            b.set_input_text(f"#{new_key}-password", "foobar")
+            b.click("#{new_key}-unlock")
+
+            waitKeyLoaded(new_key, True)
+            waitKeyPresent(new_key, False)
+
+        # Test adding key with passphrase
+        m.execute("ssh-keygen -t rsa -N 'foobar' -f /tmp/new_with_passphrase.rsa")
+        m.execute("chown admin:admin /tmp/new_with_passphrase.rsa")
+        m.execute("rm /tmp/new_with_passphrase.rsa.pub")
+
+        b.wait_not_present("#ssh-file-add")
+        b.click("#ssh-file-add-custom")
+        b.set_file_autocomplete_val("#ssh-file-add-key", "/tmp/new_with_passphrase.rsa")
+        b.click("#ssh-file-add")
+        b.wait_visible("h1:contains('Unlock key /tmp/new_with_passphrase.rsa')")
+        b.set_input_text("#\\/tmp\\/new_with_passphrase\\.rsa-password", "foobar")
+        b.click("button:contains('Unlock')")
+        b.wait_not_present("h1:contains('Unlock key /tmp/new_with_passphrase.rsa')")
+        b.wait_not_present("#ssh-file-add")
+        b.wait_js_func("ph_count_check", "#credential-keys tbody", 4)
+
+
+if __name__ == '__main__':
+    test_main()

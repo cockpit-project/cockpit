@@ -1,0 +1,90 @@
+.ct-listing-panel {
+  display: flex;
+  flex-wrap: wrap;
+
+  &-actions {
+      order: 2;
+      flex-grow: 1;
+      padding: var(--pf-global--spacer--sm) var(--pf-global--spacer--lg) var(--pf-global--spacer--sm) var(--pf-global--spacer--md);
+  }
+
+  &-caption {
+      margin-left: auto;
+  }
+
+  &-tabs {
+      flex-grow: 1;
+      order: 1;
+  }
+
+  .pf-c-tab-content {
+      order: 3;
+      flex-basis: 100%
+  }
+
+  &-body {
+    // Don't let PF4 automatically add a border in tables inside the body
+    --pf-c-table__expandable-row--after--BorderLeftWidth: 0;
+    --pf-c-table--border-width--base: 0;
+
+    // Add some sizing to the body
+    padding: var(--pf-global--spacer--md) var(--pf-global--spacer--lg);
+    width: 100%;
+
+    // Containing hack part 1
+    float: left;
+
+    &::after {
+      // Containing hack part 2: Clearfix CSS hack,
+      // to allow children content to float fine without setting overflow
+      content: "";
+      clear: both;
+      display: table;
+    }
+  }
+}
+
+.ct-table {
+  > tbody > .pf-c-table__expandable-row {
+    // Don't scroll table's expanded contents vertically.
+    // Instead, rely on page scrolling.
+    // Important for mobile; also useful for desktop.
+    overflow-y: visible !important;
+    max-height: unset !important;
+  }
+}
+
+// PF4 upstream issue to adopt expand animation:
+// https://github.com/patternfly/patternfly-design/issues/899
+
+@media not all and (prefers-reduced-motion: reduce) {
+  // Add expansion animations when prefers-reduced isn't enabled
+  .ct-table .pf-c-table__expandable-row-content {
+    // Animation ends at or before 2/3 in most cases; so we extend by 1.5 to compensate
+    animation: ctListingPanelShow calc(var(--pf-global--TransitionDuration) * 1.5) var(--pf-global--TimingFunction);
+  }
+}
+
+@keyframes ctListingPanelShow {
+  0% {
+    // The animation needs to flow downward to feel natural
+    transform-origin: top;
+    // Overflow will revert when done (but should be hidden during animation)
+    overflow: hidden;
+    max-height: 0;
+    // Padding should 'tween between 0 and the actual padding (unstated)
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  67% {
+    // Max height is tricky in animations, as auto doesn't work
+    // 100vh makes sense, but would cause different speeds on different devices
+    // Screens are almost all =< 12000px; data is almost always smaller
+    // we'll relax it to to 100vh at 100%, just in case.
+    max-height: 1200px;
+  }
+  100% {
+    // Allow content to extend to the height of the screen (just in case)
+    max-height: 100vh;
+  }
+}

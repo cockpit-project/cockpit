@@ -1,0 +1,177 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from netlib import *
+from testlib import *
+
+
+@skipImage("No network checkpoint support", "ubuntu-2004", "ubuntu-2204", "ubuntu-stable")
+@skipImage("TODO: testBasic fails on Arch Linux", "arch")
+@skipDistroPackage()
+class TestNetworkingCheckpoints(NetworkCase):
+    def testCheckpoint(self):
+        b = self.browser
+        m = self.machine
+
+        iface = self.get_iface(m, "52:54:00:12:34:56")
+
+        if "debian" in m.image:
+            self.sed_file("s/managed=false/managed=true/", "/etc/NetworkManager/NetworkManager.conf",
+                          "systemctl restart NetworkManager")
+            # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1400525
+            wait(lambda: m.execute(f"nmcli dev con {iface}"))
+
+        self.login_and_go("/network")
+        self.nm_checkpoints_enable()
+        self.wait_for_iface(iface, prefix="172.")
+        self.select_iface(iface)
+        b.wait_visible("#network-interface")
+
+        # Disconnect
+        self.wait_onoff(f".pf-c-card__header:contains('{iface}')", True)
+        self.toggle_onoff(f".pf-c-card__header:contains('{iface}')")
+
+        # Wait for dialog to appear and dismiss it
+        b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
+        b.wait_not_present("#confirm-breaking-change-popup")
+
+        if m.image not in ["debian-testing", "debian-stable"]:
+            # Change IP
+            self.configure_iface_setting('IPv4')
+            b.wait_visible("#network-ip-settings-dialog")
+            b.select_from_dropdown("#network-ip-settings-select-method", "manual")
+            b.set_input_text('#network-ip-settings-address-0', "1.2.3.4")
+            b.set_input_text('#network-ip-settings-netmask-0', "24")
+            b.click("#network-ip-settings-save")
+            b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
+            b.wait_not_present("#confirm-breaking-change-popup")
+
+    @skipImage("Main interface settings are read-only", "debian-stable", "debian-testing")
+    @skipImage("not using dhclient", "fedora-coreos")
+    def testCheckpointSlowRollback(self):
+        b = self.browser
+        m = self.machine
+
+        # A slow rollback would normally cause the global health check
+        # to fail during rollback and prevent showing the
+        # #confirm-breaking-change-popup.  We expect the global health
+        # check failure to be ignored.
+        #
+        # We test slow rollbacks by slowing down DHCP requests.
+        #
+        # We need at least 60 seconds of network disconnection to let
+        # the health check fail reliably.  A rollback is started 7
+        # seconds after disconnection, so we need to delay the DHCP
+        # request by at least 53 seconds.  However, NetworkManager has
+        # a default DHCP timeout of 45 seconds, so we need to increase
+        # that.
+        #
+        # Sometimes, NetworkManager extends the DHCP timeout by an
+        # additional 480 seconds grace period.  This doesn't always
+        # happen, so we don't rely on it.
+
+        dhcp_delay = 60
+        dhcp_timeout = 120
+
+        # There are a couple of considerations for ordering the
+        # following actions:
+        #
+        # - Changing the main.dhcp config value requires a restart of NM.
+        #
+        # - A restart of NM might run dhclient, and we don't want it
+        #   to be slowed down already at that point.
+        #
+        # - After restarting NM, we need to wait for it to settle
+        #   again before messing with dhclient.
+        #
+        # - Simply setting ipv4.dhcp_timeout is not enough if it
+        #   should be used immediately for a checkpoint rollback, see
+        #   https://bugzilla.redhat.com/show_bug.cgi?id=1690389.  A
+        #   additional restart is enough.
+        #
+        # So we set ipv4.dhcp_timeout and main.dhcp, do a restart, log
+        # into the UI and wait for the expected interface to appear
+        # and be active, and then slow down dhclient.
+
+        iface = self.get_iface(m, "52:54:00:12:34:56")
+        con_id = self.iface_con_id(iface)
+        m.execute(f'nmcli con mod "{con_id}" ipv4.dhcp-timeout {dhcp_timeout}')
+
+        self.ensure_nm_uses_dhclient()
+
+        self.login_and_go("/network")
+        self.nm_checkpoints_enable()
+        self.wait_for_iface(iface, prefix="172.")
+        self.select_iface(iface)
+        b.wait_visible("#network-interface")
+
+        # checkpoints are realtime sensitive, avoid long NM operations
+        self.settle_cpu()
+
+        self.slow_down_dhclient(dhcp_delay)
+
+        # Disconnect and trigger a slow rollback
+        self.wait_onoff(f".pf-c-card__header:contains('{iface}')", True)
+        self.toggle_onoff(f".pf-c-card__header:contains('{iface}')")
+        with b.wait_timeout(120):
+            b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
+            b.wait_not_present("#confirm-breaking-change-popup")
+
+    def testNoRollback(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+        self.nm_checkpoints_enable()
+        b.wait_visible("#networking")
+
+        iface = 'cockpit1'
+        self.add_veth(iface, dhcp_cidr="10.111.113.2/20")
+        self.nm_activate_eth(iface)
+        self.wait_for_iface(iface)
+
+        self.select_iface(iface)
+        b.wait_visible("#network-interface")
+
+        # Disconnect
+        self.wait_onoff(f".pf-c-card__header:contains('{iface}')", True)
+        self.toggle_onoff(f".pf-c-card__header:contains('{iface}')")
+
+        # The checkpoint should be destroyed before it is being rolled
+        # back.
+
+        def checkpoint_was_destroyed():
+            lines = m.execute("journalctl -n 1000 -u NetworkManager | grep op=").split("\n")
+            last_checkpoint = None
+            for line in lines:
+                match = re.search('op="checkpoint-create" arg="([^"]*)"', line)
+                if match:
+                    last_checkpoint = match[1]
+            if last_checkpoint:
+                for line in lines:
+                    if f'op="checkpoint-destroy" arg="{last_checkpoint}"' in line:
+                        return True
+            return False
+
+        wait(checkpoint_was_destroyed)
+
+
+if __name__ == '__main__':
+    test_main()

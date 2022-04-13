@@ -1,0 +1,115 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from storagelib import *
+from testlib import *
+
+
+@skipImage("UDisks doesn't have support for multipath", "debian-stable", "debian-testing", "ubuntu-2004", "ubuntu-2204", "ubuntu-stable", "arch")
+class TestStorageMultipath(StorageCase):
+
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        def detail_row_name(index):
+            return f'#detail-header .pf-c-description-list__group:nth-of-type({index}) > dt'
+
+        def detail_row_value(index):
+            return f'#detail-header .pf-c-description-list__group:nth-of-type({index}) > dd'
+
+        def wait_detail_row(index, name):
+            b.wait_visible(detail_row_name(index))
+            b.wait_text(detail_row_name(index), name)
+
+        def check_free_block_devices(expected):
+            blocks = b.eval_js("ph_texts('#dialog [data-field=\"disks\"] .checkbox')")
+            if len(blocks) != len(expected):
+                return False
+            for i in range(len(expected)):
+                if not expected[i] in blocks[i]:
+                    return False
+            return True
+
+        # At least on Fedora 27, multipath only looks at SCSI_IDENT_
+        # and ID_WWN properties, so we install a custom udev rule to
+        # set ID_WWN to something that can identify multipathed devices.
+        #
+        m.write("/etc/udev/rules.d/99-fake-wwn.rules", 'SUBSYSTEM=="block", ENV{ID_WWN}="$env{ID_SCSI_SERIAL}"\n')
+        m.execute("udevadm control --reload")
+        m.execute("udevadm trigger")
+
+        self.login_and_go("/storage")
+
+        b.inject_js("""
+          ph_texts = function (sel) {
+            return ph_select(sel).map(function (e) { return e.textContent });
+          }""")
+
+        # Add a disk
+        m.add_disk("10M", serial="MYSERIAL")
+
+        b.wait_in_text("#drives", "MYSERIAL")
+        b.click('.sidepanel-row:contains("MYSERIAL")')
+        b.wait_visible('#storage-detail')
+        wait_detail_row(5, "Device file")
+        b.wait_in_text(detail_row_value(5), "/dev/sda")
+
+        # Add another disk with the same serial, which fools
+        # multipathd into treating it as another path to the first
+        # disk.  Since we never actually write to it, this is fine.
+
+        # The primary device file should disappear and multipathed
+        # devices should be listed.
+        m.add_disk("10M", serial="MYSERIAL")
+        b.wait_text_not(detail_row_value(5), "/dev/sda")
+        wait_detail_row(6, "Multipathed devices")
+        b.wait_in_text(detail_row_value(6), "/dev/sda")
+        b.wait_in_text(detail_row_value(6), "/dev/sdb")
+
+        # Check that neither is offered as a free block device
+        b.go("#/")
+        self.devices_dropdown('Create LVM2 volume group')
+        self.dialog_wait_open()
+        check_free_block_devices([])
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        b.go("#/sda")
+        b.wait_visible('#storage-detail')
+
+        # Switch on multipathd.  A primary device should appear.
+
+        b.wait_visible('.pf-m-danger:contains(There are devices with multiple paths on the system, but)')
+        b.click('button:contains(Start multipath)')
+        b.wait_in_text(detail_row_value(5), "/dev/mapper/mpatha")
+        b.wait_not_present('.pf-m-danger:contains(There are devices with multiple paths on the system, but)')
+
+        # Check that (exactly) the primary device is offered as free
+        b.go("#/")
+        self.devices_dropdown('Create LVM2 volume group')
+        self.dialog_wait_open()
+        check_free_block_devices(["/dev/mapper/mpatha"])
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+
+if __name__ == '__main__':
+    test_main()

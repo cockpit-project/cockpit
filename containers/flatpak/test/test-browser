@@ -1,0 +1,122 @@
+#!/usr/bin/python3
+
+import os
+import shutil
+import subprocess
+import unittest
+
+from gi.repository import Gio, GLib
+
+TEST_DIR = os.path.dirname(__file__)
+TESTLIB = os.path.join(TEST_DIR, "test-lib.js")
+FLATPAK_ID = "org.cockpit_project.CockpitClient"
+JS_TIMEOUT = 15
+
+
+class BrowserTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(klass):
+        # Hide localstorage to start browser from clean state
+        klass.datadir = os.path.expanduser("~/.var/app/org.cockpit_project.CockpitClient")
+        if os.path.exists(klass.datadir):
+            klass.data_backup = klass.datadir + ".cockpittest"
+            os.rename(klass.datadir, klass.data_backup)
+        else:
+            klass.data_backup = None
+
+    @classmethod
+    def tearDownClass(klass):
+        shutil.rmtree(klass.datadir)
+        if klass.data_backup:
+            os.rename(klass.data_backup, klass.datadir)
+
+    def setUp(self):
+        with open(TESTLIB) as f:
+            self.testlib = f.read()
+
+        self.p_client = subprocess.Popen(["flatpak", "run", FLATPAK_ID, "--enable-run-js"])
+        # wait until flatpak run succeeded, to avoid talking to a D-Bus activated instance
+        subprocess.check_call(["gdbus", "wait", "--session", FLATPAK_ID])
+
+        self.app_actions = Gio.DBusActionGroup.get(
+            Gio.bus_get_sync(Gio.BusType.SESSION),
+            FLATPAK_ID,
+            "/org/cockpit_project/CockpitClient")
+
+        self.win_actions = Gio.DBusActionGroup.get(
+            Gio.bus_get_sync(Gio.BusType.SESSION),
+            FLATPAK_ID,
+            "/org/cockpit_project/CockpitClient/window/1")
+
+        # wait for window actions to populate
+        actions = set(self.win_actions.list_actions())
+        handler = self.win_actions.connect('action-added', lambda _group, name: actions.add(name))
+        main = GLib.MainContext.default()
+        while not actions:
+            main.iteration(True)
+        self.win_actions.disconnect(handler)
+        self.assertIn("run-js", actions)
+
+    def tearDown(self):
+        if shutil.which("import"):
+            subprocess.call(["import", "-window", "root", f"test-browser-{ self.id().split('.')[-1] }.png"])
+        self.app_actions.activate_action("quit")
+        self.assertEqual(self.p_client.wait(), 0)
+
+    def run_js(self, js_name):
+        with open(os.path.join(TEST_DIR, js_name)) as f:
+            js = f.read()
+
+        # WebKit.run_javascript() needs some serializable return value
+        js += '\ntrue\n'
+
+        result = None
+
+        def on_done(_group, name, value):
+            # cockpit-client resets the value to '' initially, to guarantee that a Changed signal happens
+            # even when two consecutive run-js calls have the same result
+            v = value.get_string()
+            if v == '':
+                return
+            nonlocal result
+            result = v
+
+        def on_timeout():
+            nonlocal result
+            result = "timed out waiting for JavaScript result"
+
+        handler = self.win_actions.connect('action-state-changed::run-js', on_done)
+        self.win_actions.activate_action("run-js", GLib.Variant.new_string(self.testlib + js))
+
+        main = GLib.MainContext.default()
+        GLib.timeout_add_seconds(JS_TIMEOUT, on_timeout)
+        while not result:
+            main.iteration(True)
+
+        self.win_actions.disconnect(handler)
+
+        return result
+
+    def testBasic(self):
+        # wait for initial (login) page load; this can end up in two ways: Either the page/context was
+        # already loaded at the time of our run-js call, or it will end by the successful page load
+        self.assertIn(self.run_js("test-browser-wait-init.js"), ["found", "page-load"])
+
+        self.assertEqual(self.run_js("test-browser-login.js"), "page-load")
+        self.assertEqual(self.run_js("test-browser-overview.js"), "PASS")
+        self.assertIn(self.run_js("test-browser-logout.js"), ["PASS", "page-load"])
+
+        self.assertIn(self.run_js("test-browser-wait-init.js"), ["found", "page-load"])
+
+        # try to log in by clicking on `localhost`
+        self.assertEqual(self.run_js("test-browser-login-recent.js"), "page-load")
+        self.assertIn(self.run_js("test-browser-logout.js"), ["PASS", "page-load"])
+
+        # try to log in to unreachable host
+        self.assertEqual(self.run_js("test-browser-login-invalid.js"), "page-load")
+
+        # check that `invalid` was not added and try to remove `localhost` from the list
+        self.assertEqual(self.run_js("test-browser-login-remove.js"), "PASS")
+
+
+unittest.main()

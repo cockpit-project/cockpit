@@ -1,0 +1,48 @@
+# This is a script run to release Cockpit
+#
+# This script is run in a cockpit/release container:
+# https://github.com/cockpit-project/cockpituous/tree/main/release
+#
+# This gets triggered on pushing a signed release tag, through a GitHub action:
+#
+#   .github/workflows/release.yml
+#
+# Anything that start with 'job' may run in a way that it SIGSTOP's
+# itself when preliminary preparition and then gets a SIGCONT in
+# order to complete its work
+
+# Initial variables which help the scripts share
+RELEASE_SPEC=tools/cockpit.spec
+RELEASE_CONTROL=tools/debian/control
+RELEASE_SRPM=$PWD/_release/srpm
+RELEASE_DSC=$PWD/_release/dsc
+RELEASE_SOURCE=$PWD/_release/source
+
+# Authenticate for pushing into Fedora dist-git
+cat ~/.fedora-password | kinit cockpit@FEDORAPROJECT.ORG
+
+# Build the source tarball patches and srpm
+job release-source
+job release-srpm
+
+
+# Do fedora builds for the tag, using tarball
+job release-koji -k rawhide
+job release-koji f35
+job release-koji f36
+
+# Upload release to github, using tarball
+job release-github
+
+# Push to COPR builds
+job release-copr @cockpit/cockpit-preview
+
+# Update the Github repo that Docker Hub is tracking
+job release-dockerhub cockpit-project/cockpit-container
+
+# Push out a Bodhi update
+job release-bodhi F35
+job release-bodhi F36
+
+# Upload documentation
+job tools/release-guide dist/guide cockpit-project/cockpit-project.github.io

@@ -1,0 +1,34 @@
+actions:
+  post-upstream-clone:
+    # packit will overwrite the version in its "fix spec file" stage
+    - tools/create-spec --version 0 --build-all -o cockpit.spec tools/cockpit.spec.in
+  create-archive:
+    # The sandcastle doesn't have enough ram to run webpack, so wait
+    # until the webpack-jumpstart workflow has run and grab the result.
+    - tools/webpack-jumpstart --wait --rebase
+    - tools/make-dist
+srpm_build_deps:
+  - automake
+  - gcc
+  - glib2-devel
+  - make
+  - systemd-devel
+jobs:
+  - job: tests
+    trigger: pull_request
+    metadata:
+      targets:
+      - fedora-35
+      - fedora-36
+      - centos-stream-8-x86_64
+      - centos-stream-9-x86_64
+
+  # run build/unit tests on some interesting architectures
+  - job: copr_build
+    trigger: pull_request
+    metadata:
+      targets:
+        # 32 bit
+        - fedora-development-i386
+        # big-endian
+        - fedora-development-s390x

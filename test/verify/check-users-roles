@@ -1,0 +1,122 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+
+
+@skipDistroPackage()
+class TestRoles(MachineCase):
+
+    @nondestructive
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        # Create a user without any role
+        m.execute("useradd user -s /bin/bash -c User")
+        m.execute("echo user:foobar | chpasswd")
+
+        m.start_cockpit()
+
+        def login(user, password):
+            b.set_val("#login-user-input", user)
+            b.set_val("#login-password-input", password)
+            b.click('#login-button')
+
+        # login
+        b.open("/system")
+        b.wait_visible("#login")
+        login("user", "foobar")
+        b.enter_page("/system")
+        b.switch_to_top()
+        b.wait_text('#current-username', 'user')
+        b.set_layout("mobile")
+        b.click("#hosts-sel button")
+        b.wait_in_text(".view-hosts .pf-m-current", "user @")
+        b.click("#hosts-sel button")
+        b.set_layout("desktop")
+
+        b.go("/users#/user")
+        b.enter_page("/users")
+
+        admin_role_sel = f'input[data-name="{m.get_admin_group()}"]'
+
+        b.wait_text("#account-user-name", "user")
+        b.wait_visible("#account-locked[disabled]")
+        b.wait_visible('output#account-real-name')
+        b.wait_visible("#account-set-password:not([disabled])")
+        b.wait_not_present("#account-delete")
+        b.wait_not_present("#account-logout")
+        b.wait_visible(admin_role_sel + "[disabled]")
+        b.wait_visible(admin_role_sel + ":not(:checked)")
+
+        # Check permissions for admin account
+        b.go("#/admin")
+        b.wait_text("#account-user-name", "admin")
+        b.wait_visible("#account-locked[disabled]")
+        b.wait_visible('output#account-real-name')
+        b.wait_not_present("#account-set-password")
+        b.wait_not_present("#account-delete")
+        b.wait_not_present("#account-logout")
+        b.wait_visible(admin_role_sel + "[disabled]")
+        b.wait_visible(admin_role_sel + ":checked")
+
+        # Add admin role from the outside (and wait for it to stick)
+        b.go("#/user")
+        b.wait_text("#account-user-name", "user")
+
+        b.wait_visible(admin_role_sel + ":not(:checked)")
+        m.execute(f"usermod -a -G {m.get_admin_group()} user")
+        b.wait_visible(admin_role_sel + ":checked")
+
+        b.relogin("/users", "user", superuser=True)
+        b.wait_text("#account-user-name", "user")
+
+        # Check permissions for admin again
+        b.go("#/admin")
+        b.wait_text("#account-user-name", "admin")
+        b.wait_visible("#account-locked:not([disabled])")
+        b.wait_visible("input#account-real-name")
+        b.wait_visible("#account-set-password:not([disabled])")
+        b.wait_visible("#account-delete:not([disabled])")
+        # admin is not logged in, thus still disabled
+        b.wait_visible("#account-logout[disabled]")
+        b.wait_visible(admin_role_sel + ":not([disabled])")
+        b.wait_visible(admin_role_sel + ":checked")
+
+    @nondestructive
+    def testDynamic(self):
+        m = self.machine
+        b = self.browser
+
+        self.addCleanup(m.execute, "groupdel docker || true")
+        m.execute("getent group docker >/dev/null || groupadd docker")
+
+        self.login_and_go("/users")
+        b.go("#/admin")
+
+        b.wait_in_text("#account-change-roles-roles", "Container administrator")
+
+        m.execute("groupdel docker")
+        b.wait_not_in_text("#account-change-roles-roles", "Container administrator")
+
+
+if __name__ == '__main__':
+    test_main()

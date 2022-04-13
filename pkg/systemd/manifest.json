@@ -1,0 +1,88 @@
+{
+    "name": "system",
+
+    "requires": {
+        "cockpit": "265"
+    },
+
+    "menu": {
+        "index": {
+            "label": "Overview",
+            "order": 10,
+            "docs": [
+                {
+                    "label": "Configuring system settings",
+                    "url": "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/getting-started-with-the-rhel-8-web-console_system-management-using-the-rhel-8-web-console"
+                }
+            ],
+            "keywords": [
+                {
+                    "matches": ["time", "date", "restart", "shut", "domain", "machine", "operating system", "os", "asset tag", "ssh", "power", "version", "host"]
+                },
+                {
+                    "matches": ["hardware", "mitigation", "pci", "memory", "cpu", "bios", "ram", "dimm", "serial"],
+                    "goto": "/system/hwinfo"
+                },
+                {
+                    "matches": ["graphs", "metrics", "history", "pcp", "cpu", "memory", "disks", "network", "cgroups", "performance"],
+                    "goto": "/metrics"
+                }
+            ]
+        },
+        "services": {
+            "label": "Services",
+            "order": 100,
+            "docs": [
+                {
+                    "label": "Managing services",
+                    "url": "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/managing-services-in-the-web-console_system-management-using-the-rhel-8-web-console"
+                }
+            ],
+            "keywords": [
+                {
+                    "matches": ["service", "systemd", "target", "socket", "timer", "path", "unit", "systemctl"]
+                },
+                {
+                    "matches": ["boot", "mask", "unmask", "restart", "enable", "disable"],
+                    "weight": 1
+                }
+            ]
+        },
+        "logs": {
+            "label": "Logs",
+            "order": 20,
+            "docs": [
+                {
+                    "label": "Reviewing logs",
+                    "url": "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/reviewing-logs_system-management-using-the-rhel-8-web-console"
+                }
+            ],
+            "keywords": [
+                {
+                    "matches": ["journal", "warning", "error", "debug"]
+                },
+                {
+                    "matches": ["abrt", "crash", "coredump"],
+                    "goto": "?tag=abrt-notification"
+                }
+            ]
+        }
+    },
+
+    "tools": {
+        "terminal": {
+            "label": "Terminal",
+            "keywords": [
+                {
+                    "matches": ["console", "command", "bash", "shell"]
+                }
+            ]
+        }
+    },
+
+    "libexecdir": "${libexecdir}",
+
+    "preload": [ "index", "services" ],
+
+    "content-security-policy": "img-src 'self' data:"
+}

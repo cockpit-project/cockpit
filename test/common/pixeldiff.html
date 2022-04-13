@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Cockpit Integration Tests - Pixel diffs</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <style>
+/*
+MIT License
+
+Copyright (c) 2018 Diamant Haxhimusa
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+.pixelcompare-wrapper.pixelcompare-horizontal {
+  height: 100% !important;
+}
+.pixelcompare-horizontal .pixelcompare-handle:before, .pixelcompare-horizontal .pixelcompare-handle:after, .pixelcompare-vertical .pixelcompare-handle:before, .pixelcompare-vertical .pixelcompare-handle:after {
+  content: "";
+  display: block;
+  background: #fff;
+  position: absolute;
+  z-index: 30;
+}
+img.pixelcompare-before, img.pixelcompare-after {
+  height: 100%;
+  object-fit: cover;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+.pixelcompare-before-label, .pixelcompare-after-label, .pixelcompare-overlay {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.pixelcompare-before-label, .pixelcompare-after-label, .pixelcompare-overlay {
+  transition-duration: 0.5s;
+}
+
+.pixelcompare-before-label, .pixelcompare-after-label {
+  transition-property: opacity;
+}
+
+.pixelcompare-horizontal .pixelcompare-before-label:before, .pixelcompare-horizontal .pixelcompare-after-label:before {
+  top: 50%;
+  margin-top: -19px;
+}
+
+.pixelcompare-vertical .pixelcompare-before-label:before, .pixelcompare-vertical .pixelcompare-after-label:before {
+  left: 50%;
+  margin-left: -45px;
+  text-align: center;
+  width: 90px;
+}
+
+.pixelcompare-left-arrow, .pixelcompare-right-arrow, .pixelcompare-up-arrow, .pixelcompare-down-arrow {
+  width: 0;
+  height: 0;
+  border: 6px inset transparent;
+  position: absolute;
+}
+
+.pixelcompare-left-arrow, .pixelcompare-right-arrow {
+  top: 50%;
+  margin-top: -6px;
+}
+
+.pixelcompare-up-arrow, .pixelcompare-down-arrow {
+  left: 50%;
+  margin-left: -6px;
+}
+
+.pixelcompare-container {
+  box-sizing: content-box;
+  z-index: 0;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+.pixelcompare-container img {
+  max-width: 100%;
+  position: absolute;
+  top: 0;
+  display: block;
+}
+/* .pixelcompare-container.active .pixelcompare-overlay,
+.pixelcompare-container.active :hover.pixelcompare-overlay {
+  background: transparent;
+} */
+.pixelcompare-container.active .pixelcompare-overlay .pixelcompare-before-label,
+.pixelcompare-container.active .pixelcompare-overlay .pixelcompare-after-label,
+.pixelcompare-container.active :hover.pixelcompare-overlay .pixelcompare-before-label,
+.pixelcompare-container.active :hover.pixelcompare-overlay .pixelcompare-after-label {
+  opacity: 0;
+}
+.pixelcompare-container * {
+  box-sizing: content-box;
+}
+
+.pixelcompare-before-label {
+  opacity: 0;
+}
+.pixelcompare-before-label:before {
+  content: attr(data-content);
+}
+
+.pixelcompare-after-label {
+  opacity: 0;
+}
+.pixelcompare-after-label:before {
+  content: attr(data-content);
+}
+
+.pixelcompare-horizontal .pixelcompare-before-label:before {
+  left: 10px;
+}
+
+.pixelcompare-horizontal .pixelcompare-after-label:before {
+  right: 10px;
+}
+
+.pixelcompare-vertical .pixelcompare-before-label:before {
+  top: 10px;
+}
+
+.pixelcompare-vertical .pixelcompare-after-label:before {
+  bottom: 10px;
+}
+
+.pixelcompare-overlay {
+  transition-property: background;
+  background: transparent;
+  z-index: 25;
+}
+.pixelcompare-overlay:hover,
+.pixelcompare-container.active .pixelcompare-overlay,
+.pixelcompare-handle:hover + .pixelcompare-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+.pixelcompare-overlay:hover .pixelcompare-after-label {
+  opacity: 1;
+}
+.pixelcompare-overlay:hover .pixelcompare-before-label {
+  opacity: 1;
+}
+
+.pixelcompare-before {
+  z-index: 20;
+}
+
+.pixelcompare-after {
+  z-index: 10;
+}
+
+.pixelcompare-vertical .pixelcompare-handle {
+  background-color: rgba(247, 237, 237, 0.71);
+  height: 20px;
+  width: 65px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: -19px;
+  margin-top: -10px;
+  border-radius: 1000px;
+  box-shadow: 0px 0px 12px rgba(51, 51, 51, 0.5);
+  z-index: 40;
+  cursor: pointer;
+}
+
+.pixelcompare-horizontal .pixelcompare-handle {
+  background-color: rgba(247, 237, 237, 0.71);
+  height: 65px;
+  width: 20px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-top: -19px;
+  margin-left: -10px;
+  border-radius: 1000px;
+  box-shadow: 0px 0px 12px rgba(51, 51, 51, 0.5);
+  z-index: 40;
+  cursor: pointer;
+}
+
+.pixelcompare-horizontal .pixelcompare-handle:before {
+  bottom: 50%;
+  height: 799px;
+  margin-bottom: 33px;
+  margin-left: 10px;
+  background: none;
+  position: absolute;
+  z-index: 999;
+  border-right: 1px dashed rgba(255, 255, 255, 0.5);
+}
+
+.pixelcompare-horizontal .pixelcompare-handle:after {
+  top: 50%;
+  height: 257px;
+  margin-top: 33px;
+  margin-left: 10px;
+  background: none;
+  position: absolute;
+  z-index: 999;
+  border-right: 1px dashed rgba(255, 255, 255, 0.5);
+}
+
+
+.pixelcompare-vertical .pixelcompare-handle:before {
+  margin-top: 10px;
+  margin-left: 11px;
+  width: 100vw;
+  background: none;
+  position: absolute;
+  z-index: 999;
+  border-top: 1px dashed rgba(255, 255, 255, 0.5);
+  right: 50%;
+  margin-right: 33px;
+}
+
+.pixelcompare-vertical .pixelcompare-handle:after {
+  margin-top: 10px;
+  width: 100vw;
+  background: none;
+  position: absolute;
+  z-index: 999;
+  border-top: 1px dashed rgba(255, 255, 255, 0.5);
+  left: 50%;
+  margin-left: 33px;
+}
+
+.pixelcompare-left-arrow {
+  border-right: 6px solid rgba(247, 237, 237, 0.71);
+  left: 50%;
+  margin-left: -13px;
+}
+
+.pixelcompare-right-arrow {
+  border-left: 6px solid rgba(247, 237, 237, 0.71);
+  right: 50%;
+  margin-right: -13px;
+}
+
+.pixelcompare-up-arrow {
+  border-bottom: 6px solid rgba(247, 237, 237, 0.71);
+  top: 50%;
+  margin-top: -13px;
+}
+
+.pixelcompare-down-arrow {
+  border-top: 6px solid rgba(247, 237, 237, 0.71);
+  bottom: 50%;
+  margin-bottom: -13px;
+}
+        </style>
+        <script>
+"use strict";
+/**
+ * PIXELCOMPARE
+ * Javascript image comparison
+ * @author diamanthaxhimusa@gmail.com
+
+MIT License
+
+Copyright (c) 2018 Diamant Haxhimusa
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+ */
+window.setup_pixelcompare = function() {
+  var _extend = function(defaults, options) {
+    var extended = {};
+    var prop;
+    for (prop in defaults) {
+      if(Object.prototype.hasOwnProperty.call(defaults, prop)) {
+        extended[prop] = defaults[prop];
+      }
+    }
+    for (prop in options) {
+      if(Object.prototype.hasOwnProperty.call(options, prop)) {
+        extended[prop] = options[prop];
+      }
+    }
+    return extended;
+  };
+
+  var _addClass = function(element, classname) {
+    var arr;
+    arr = element.className.split(" ");
+    if(arr.indexOf(classname) == -1) {
+      element.className += " " + classname;
+    }
+  };
+
+  var _hasClass = function(element, className) {
+    return new RegExp("(\\s|^)" + className + "(\\s|$)").test(
+      element.className
+    );
+  };
+
+  var _removeClass = function(element, className) {
+    element.classList.remove(className);
+  };
+
+  var _wrap = function(element, tag, sliderOrientation) {
+    var div = document.createElement(tag);
+    _addClass(div, "pixelcompare-wrapper pixelcompare-" + sliderOrientation);
+    element.parentElement.insertBefore(div, element);
+    div.appendChild(element);
+    return div;
+  };
+
+  var _createSlider = function(beforeDirection, afterDirection) {
+    var pxcHandleNode = document.createElement("div");
+    _addClass(pxcHandleNode, "pixelcompare-handle");
+
+    var sliderChildNodeBeforeDirection = document.createElement("span");
+    _addClass(
+      sliderChildNodeBeforeDirection,
+      "pixelcompare-" + beforeDirection + "-arrow"
+    );
+    pxcHandleNode.appendChild(sliderChildNodeBeforeDirection);
+    var sliderChildNodeAfterDirection = document.createElement("span");
+    _addClass(
+      sliderChildNodeAfterDirection,
+      "pixelcompare-" + afterDirection + "-arrow"
+    );
+    pxcHandleNode.appendChild(sliderChildNodeAfterDirection);
+
+    pxcHandleNode.addEventListener("touchmove", function(e) {
+      e.preventDefault();
+    });
+    return pxcHandleNode;
+  };
+
+  var options = {
+    default_offset_pct: 0.5,
+    orientation: "horizontal",
+    overlay: false,
+    hover: false,
+    move_with_handle_only: true,
+    click_to_move: false,
+    showSlider: true,
+  };
+
+  var pxcContainers = document.querySelectorAll("[data-pixelcompare]");
+
+  pxcContainers.forEach(function(pcContainer) {
+    var sliderPct = options.default_offset_pct;
+    var imageContainer = pcContainer;
+    options.hover = pcContainer.hasAttribute("data-hover");
+    options.showSlider = options.hover ? pcContainer.hasAttribute("data-show-slider") : options.showSlider;
+    options.orientation = pcContainer.hasAttribute("data-vertical")
+      ? "vertical"
+      : "horizontal";
+    var orientations = ["vertical", "horizontal", "sides"];
+
+    var datasetOrientation = imageContainer.dataset.pixelcompareOrientation;
+    var sliderOrientation = orientations.includes(datasetOrientation)
+      ? datasetOrientation
+      : options.orientation;
+    var beforeDirection = sliderOrientation === "vertical" ? "down" : "left";
+    var afterDirection = sliderOrientation === "vertical" ? "up" : "right";
+
+    var container = _wrap(pcContainer, "div", sliderOrientation);
+
+    var beforeImg = container.querySelectorAll("img")[0];
+    beforeImg.draggable = false;
+    var afterImg = container.querySelectorAll("img")[1];
+    afterImg.draggable = false;
+
+    var bounding_rect = beforeImg.getBoundingClientRect();
+
+    _addClass(container, "pixelcompare-container");
+    _addClass(beforeImg, "pixelcompare-before");
+    _addClass(afterImg, "pixelcompare-after");
+
+    var slider = null
+    if(options.showSlider) {
+      slider = _createSlider(beforeDirection, afterDirection);
+      container.appendChild(slider);
+    }
+    if(options.overlay) {
+      var overlayNode = document.createElement("div");
+      _addClass(overlayNode, "pixelcompare-overlay");
+      container.appendChild(overlayNode);
+    }
+
+    var calcOffset = function(dimensionPct) {
+      var w = beforeImg.getBoundingClientRect().width;
+      var h = beforeImg.getBoundingClientRect().height;
+      return {
+        w: w + "px",
+        h: h + "px",
+        wp: dimensionPct * 100,
+        cw: dimensionPct * w + "px",
+        ch: dimensionPct * h + "px",
+      };
+    };
+
+    var adjustContainer = function(offset) {
+      if(sliderOrientation === "vertical") {
+        beforeImg.style.clip =
+          "rect(0, " + offset.w + ", " + offset.ch + ", 0)";
+        afterImg.style.clip =
+          "rect(" + offset.ch + ", " + offset.w + ", " + offset.h + ", 0)";
+      } else if(sliderOrientation === "sides") {
+        beforeImg.style.clipPath = `polygon(0% ${2 * (50 - offset.wp)}%, ${
+          2 * offset.wp
+        }% 100%, 0% 100%)`;
+        afterImg.style.clipPath = `polygon(100% ${2 * (100 - offset.wp)}%, ${
+          -2 * (50 - offset.wp)
+        }% 0%, 100% 0%)`;
+      } else {
+        beforeImg.style.clip =
+          "rect(0, " + offset.cw + ", " + offset.h + ", 0)";
+        afterImg.style.clip =
+          "rect(0, " + offset.w + "," + offset.h + "," + offset.cw + ")";
+      }
+      container.style.height = offset.h;
+    };
+
+    var adjustSlider = function(pct) {
+      var offset = calcOffset(pct);
+      if(slider) {
+        if(sliderOrientation === "vertical") {
+          slider.style.top = offset.ch;
+        } else {
+          slider.style.left = offset.cw;
+        }
+      }
+      adjustContainer(offset);
+    };
+
+    // Return the number specified or the min/max number if it outside the range given.
+    var minMaxNumber = function(num, min, max) {
+      return Math.max(min, Math.min(max, num));
+    };
+
+    // Calculate the slider percentage based on the position.
+    var getSliderPercentage = function(positionX, positionY) {
+      var sliderPercentage =
+        sliderOrientation === "vertical"
+          ? (positionY - offsetY) / imgHeight
+          : (positionX - offsetX) / imgWidth;
+      return minMaxNumber(sliderPercentage, 0, 1);
+    };
+
+    window.addEventListener("resize.pixelcompare", function(e) {
+      adjustSlider(sliderPct);
+    });
+
+    var offsetX = 0;
+    var offsetY = 0;
+    var imgWidth = 0;
+    var imgHeight = 0;
+    var onMoveStart = function(e) {
+      if(
+        ((e.distX > e.distY && e.distX < -e.distY) ||
+          (e.distX < e.distY && e.distX > -e.distY)) &&
+        sliderOrientation !== "vertical"
+      ) {
+        e.preventDefault();
+      } else if(
+        ((e.distX < e.distY && e.distX < -e.distY) ||
+          (e.distX > e.distY && e.distX > -e.distY)) &&
+        sliderOrientation === "vertical"
+      ) {
+        e.preventDefault();
+      }
+      _addClass(container, "active");
+      offsetX = container.offsetLeft;
+      offsetY = container.offsetTop;
+      imgWidth = beforeImg.getBoundingClientRect().width;
+      imgHeight = beforeImg.getBoundingClientRect().height;
+    };
+    var onMove = function(e) {
+      if(_hasClass(container, "active")) {
+        sliderPct = getSliderPercentage(
+          e.pageX || e.changedTouches[0].pageX,
+          e.pageY || e.changedTouches[0].pageY
+        );
+        adjustSlider(sliderPct);
+      }
+    };
+    var onMoveEnd = function() {
+      _removeClass(container, "active");
+    };
+
+    if(options.hover) {
+      container.addEventListener("mouseenter", onMoveStart);
+      container.addEventListener("mouseleave", onMoveEnd);
+      container.addEventListener("mousemove", onMove);
+    } else {
+      var moveTarget = options.move_with_handle_only ? slider : container;
+      window.addEventListener("mouseup", onMoveEnd);
+      container.addEventListener("mousemove", onMove);
+      moveTarget.addEventListener("mousedown", onMoveStart);
+      moveTarget.addEventListener("touchstart", onMoveStart);
+      container.addEventListener("touchmove", onMove);
+      window.addEventListener("touchend", onMoveEnd);
+    }
+
+    container
+      .querySelector("img")
+      .addEventListener("mousedown", function(event) {
+        event.preventDefault();
+      });
+
+    if(options.click_to_move) {
+      container.on("click", function(e) {
+        offsetX = container.offset().left;
+        offsetY = container.offset().top;
+        imgWidth = beforeImg.width();
+        imgHeight = beforeImg.height();
+        sliderPct = getSliderPercentage(e.pageX, e.pageY);
+        adjustSlider(sliderPct);
+      });
+    }
+    window.dispatchEvent(new Event("resize.pixelcompare"));
+  });
+};
+        </script>
+        <script>
+document.addEventListener("DOMContentLoaded", () => {
+    const base = window.location.hash.replace("#", "");
+    document.getElementById("key").textContent = base;
+
+    const e_new = document.getElementById("new");
+    e_new.textContent = base + "-pixels.png";
+    e_new.setAttribute("href", base + "-pixels.png");
+
+    const img_now = document.createElement("img");
+    img_now.setAttribute("src", base + "-pixels.png");
+    img_now.setAttribute("width", "100%");
+
+    const img_ref = document.createElement("img");
+    img_ref.setAttribute("src", base + "-reference.png");
+    img_ref.setAttribute("width", "100%");
+
+    const img_delta = document.createElement("img");
+    img_delta.setAttribute("src", base + "-delta.png");
+    img_delta.setAttribute("width", "100%");
+
+    img_now.addEventListener("load", () => {
+        const diff = document.getElementById("diff");
+        diff.style.width = img_now.naturalWidth + "px";
+        diff.style.height = img_now.naturalHeight + "px";
+        const ecompare = document.createElement("div");
+        ecompare.classList.add("pixelcompare");
+        ecompare.setAttribute("data-pixelcompare", "");
+        ecompare.appendChild(img_now);
+        ecompare.appendChild(img_ref);
+        diff.appendChild(ecompare);
+        window.setup_pixelcompare();
+
+        const delta = document.getElementById("delta");
+        delta.style.width = img_now.naturalWidth + "px";
+        delta.style.height = img_now.naturalHeight + "px";
+        delta.appendChild(img_delta);
+    });
+});
+        </script>
+    </head
+    <body>
+      <h2>Pixel comparison for <span id="key"></span></h2>
+      <p>New <a id="new"></a> on the left, reference on the right.</p>
+      <div id="diff">
+      </div>
+      <h2>Changed pixels in red, ignored changes in green</h2>
+      <div id="delta">
+      </div>
+    </body>
+</html>

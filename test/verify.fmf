@@ -1,0 +1,26 @@
+summary: Run browser integration tests on the host
+require:
+  # build/test infra dependencies
+  - git
+  - make
+  - nodejs
+  - python3
+  # required by tests
+  - NetworkManager-team
+  - createrepo_c
+  - cryptsetup
+  - dnf-automatic
+  - glibc-all-langpacks
+  - firewalld
+  - libvirt-daemon-config-network
+  - libvirt-python3
+  - nfs-utils
+  - python3-tracer
+  - rpm-build
+  - sssd-dbus
+  - targetcli
+  - tlog
+  - tuned
+
+test: ./run-verify-host.sh
+duration: 1h

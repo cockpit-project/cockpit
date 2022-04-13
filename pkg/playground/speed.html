@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Cockpit Speed Tests</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="speed.css" type="text/css" rel="stylesheet">
+    <script src="../base1/cockpit.js"></script>
+    <script src="speed.js"></script>
+</head>
+<body class="pf-m-redhat-font" hidden>
+    <div class="pf-c-page">
+        <main class="pf-c-page__main" tabindex="-1">
+            <section class="pf-c-page__main-section pf-m-light">
+                <h1>Speed Tests</h1>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td><label class="control-label">Speed: </label></td>
+                            <td>&nbsp;&nbsp;<label id="speed"></label></td>
+                        </tr>
+                        <tr>
+                            <td><label class="control-label">Process ID: </label></td>
+                            <td>&nbsp;&nbsp;<label id="pid"></label></td>
+                        </tr>
+                        <tr>
+                            <td><label class="control-label">Bridge Memory: </label></td>
+                            <td>&nbsp;&nbsp;<label id="memory"></label></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p><button class="pf-c-button pf-m-secondary pf-m-primary" id="stop">Stop</button></p>
+
+                <h2>Echo Tests</h2>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td><label class="control-label" for="message">Message</label></td>
+                            <td><input class="form-control" id="message" value="100000"></td>
+                        </tr>
+                        <tr>
+                            <td><label class="control-label" for="batch">Batch</label></td>
+                            <td><input class="form-control" id="batch" value="1"></td>
+                        </tr>
+                        <tr>
+                            <td><label class="control-label" for="interval">Interval</label></td>
+                            <td><input class="form-control" id="interval" value="100"></td>
+                        </tr>
+                        <tr>
+                            <td><label class="control-label" for="binary">Binary</label></td>
+                            <td><input type="checkbox" id="binary"></td>
+                        </tr>
+                        <tr>
+                            <td><button class="pf-c-button pf-m-secondary pf-m-primary" id="echo-normal">Normal Channel</button></td>
+                            <td><button class="pf-c-button pf-m-secondary pf-m-primary" id="echo-sideband">Sideband Channel</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <section class="pf-c-page__main-section pf-m-light">
+                <h1>Read Test</h1>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td><label class="control-label" for="message">Path</label></td>
+                            <td><input class="form-control" id="read-path" value="/dev/sda"></td>
+                        </tr>
+                        <tr>
+                            <td><button class="pf-c-button pf-m-secondary pf-m-primary" id="read-normal">Normal Channel</button></td>
+                            <td><button class="pf-c-button pf-m-secondary pf-m-primary" id="read-sideband">Sideband Channel</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <section class="pf-c-page__main-section pf-m-light">
+                <h1>Download Test</h1>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td><label class="control-label" for="message">Path</label></td>
+                            <td><input class="form-control" id="download-path" value="/dev/sda"></td>
+                        </tr>
+                        <tr>
+                            <td><button class="pf-c-button pf-m-secondary pf-m-primary" id="download-external">External Download</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <section class="pf-c-page__main-section pf-m-light">
+                <h1>spawn test</h1>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td><label class="control-label" for="spawn">command</label></td>
+                            <td><input class="form-control" id="spawn-command" value="seq 1000000"></td>
+                        </tr>
+                        <tr>
+                            <td><label class="control-label" for="spawn-result">result</label></td>
+                            <td><label class="form-control" id="spawn-result"></label>
+                        </tr>
+                        <tr>
+                            <td><label class="control-label" for="spawn-output">output block</label></td>
+                            <td><pre id="spawn-output"></pre>
+                        </tr>
+                        <tr>
+                            <td><button class="pf-c-button pf-m-secondary pf-m-primary" id="spawn">spawn command</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

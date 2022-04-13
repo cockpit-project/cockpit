@@ -1,0 +1,329 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2016 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+from machine_core.constants import TEST_OS_DEFAULT
+
+import time
+
+FIX_AUDITD = """
+set -e
+mkdir -p /var/log/audit
+touch /var/log/audit.log
+restorecon -r /var/log/audit
+systemctl start auditd
+"""
+
+# simulate httpd accessing user ~/public_html without httpd_enable_homedirs
+SELINUX_SEBOOL_ALERT_SCRIPT = """
+set -e
+mkdir -p ~/selinux_temp
+cd ~/selinux_temp
+cp /bin/ls ls
+chcon -t httpd_exec_t ls
+su - -c 'mkdir public_html; echo world > public_html/hello.txt' admin
+# this won't work, but it generates an error
+runcon -u system_u -r system_r -t httpd_t -- ./ls  ~admin/public_html || true
+"""
+
+SELINUX_RESTORECON_ALERT_SCRIPT = """
+set -e
+mkdir -p ~/.ssh
+ssh-keygen -t rsa -f ~/.ssh/test-avc-rsa -N ""
+mv -f ~/.ssh/authorized_keys ~/.ssh/authorized_keys.test-avc
+cat .ssh/test-avc-rsa.pub >> ~/.ssh/authorized_keys
+chcon -t httpd_exec_t ~/.ssh/authorized_keys
+auditctl -D
+auditctl -w ~/.ssh/authorized_keys -p a
+ssh -o StrictHostKeyChecking=no -o 'BatchMode=yes' -i ~/.ssh/test-avc-rsa localhost || true
+mv -f ~/.ssh/authorized_keys.test-avc ~/.ssh/authorized_keys
+"""
+
+
+@skipDistroPackage()
+class TestSelinux(MachineCase):
+    provision = {
+        "0": {"memory_mb": 768},
+        "ansible_machine": {"image": TEST_OS_DEFAULT, "memory_mb": 512}
+    }
+
+    @skipImage("No setroubleshoot", "debian-stable", "debian-testing", "fedora-coreos", "ubuntu-2004", "ubuntu-2204", "ubuntu-stable", "arch")
+    @skipBrowser("Firefox needs http to access clipboard", "firefox")
+    def testTroubleshootAlerts(self):
+        b = self.browser
+        m = self.machine
+
+        # fix audit events first
+        self.machine.execute(FIX_AUDITD)
+
+        # Do some local modifications
+        m.execute("semanage fcontext --add -t samba_share_t /var/tmp/")
+        m.execute("semanage boolean --modify --on zebra_write_config")
+        self.allow_journal_messages("audit: type=1405 .* bool=zebra_write_config val=1 old_val=0.*")
+        self.allow_journal_messages(".*couldn't .* /org/fedoraproject/Setroubleshootd: GDBus.Error:org.freedesktop.DBus.Error.NoReply:.*")
+
+        self.login_and_go("/selinux/setroubleshoot")
+
+        # Starting Cockpit might produce some alerts (e.g. from
+        # starting rhsm.service), so let's give them some time to
+        # appear before cleaning it all out.
+        b.wait_js_cond("ph_in_text('body', 'No SELinux alerts.') || ph_is_present('tbody .pf-c-table__toggle')")
+        time.sleep(30)
+
+        dismiss_sel = ".selinux-alert-dismiss"
+
+        # there are some distros with broken SELinux policies which always appear; so first, clean these up
+        while True:
+            # we either have no alerts, or an expand button in the table
+            b.wait_js_cond("ph_in_text('body', 'No SELinux alerts.') || ph_is_present('tbody .pf-c-table__toggle')")
+            if "No SELinux alerts." in b.text('body'):
+                break
+            num_alerts = b.call_js_func("ph_count", "#selinux-alerts tbody")
+            b.click('tbody:first-of-type input[type=checkbox]')
+            b.click(dismiss_sel)
+            # wait for the dismissed alert to go away
+            num_alerts = b.wait_js_func("ph_count_check", "#selinux-alerts tbody", num_alerts - 1)
+
+        # wait for Modifications table to initialize
+        b.wait_text_matches(".modifications-table", "Allow zebra.*write.*config")
+
+        # httpd_read_user_content should be off by default
+        self.assertIn("-> off", m.execute("getsebool httpd_read_user_content"))
+        # and not part of modifications
+        b.wait_not_in_text(".modifications-table", "httpd to read user content")
+
+        #########################################################
+        # trigger an sebool alert
+        # this triggers two solutions -- the preferred sebool module, which can be applied automatically,
+        # and the fallback "report a bug" ausearch one, which cannot be applied automatically
+        self.machine.execute(SELINUX_SEBOOL_ALERT_SCRIPT)
+
+        row_selector = "tbody:contains('ls from read access on the directory')"
+
+        # wait for the alert to appear
+        b.wait_visible(row_selector)
+
+        # expand it to see details
+        toggle_selector = row_selector + " .pf-c-table__toggle button"
+        b.click(toggle_selector)
+
+        # this should have two alerts, but there seems to be a known issue that some messages are delayed
+        # b.wait_in_text(row_selector, "2 occurrences")
+
+        panel_selector = row_selector + " tr.pf-m-expanded .ct-listing-panel-body"
+
+        # manual label change solution is present
+        relabel_selector = panel_selector + " .selinux-details:contains('public_content_t')"
+        b.wait_in_text(relabel_selector, "You need to change the label on public_html to public_content_t")
+        b.wait_in_text(relabel_selector, "Unable to apply this solution automatically")
+
+        # an automatic solution is present for sebool
+        sebool_selector1 = panel_selector + " .selinux-details:contains('httpd_enable_homedirs')"
+        b.wait_in_text(sebool_selector1, "by enabling the 'httpd_enable_homedirs' boolean.")
+
+        b.click(sebool_selector1 + " button" + self.default_btn_class)
+        b.wait_in_text(sebool_selector1 + " .pf-c-alert__title", "Solution applied successfully")
+        self.assertIn("-> on", m.execute("getsebool httpd_enable_homedirs"))
+        # system modifications automatically update for this new sebool
+        # was "enable homedir", is now "read home directory"
+        b.wait_text_matches(".modifications-table", "Allow httpd to .* home ?dir")
+
+        # Second sebool solution can still be applied separately
+        sebool_selector2 = panel_selector + " .selinux-details:contains('httpd_unified')"
+        b.wait_text(sebool_selector2 + " button" + self.default_btn_class, "Apply this solution")
+
+        # now dismiss the alert
+        b.click(row_selector + " input[type=checkbox]")
+        b.assert_pixels("#app", "selinux", ignore=["table .ct-listing-panel-actions"])
+        b.click(dismiss_sel)
+        b.wait_not_present(row_selector)
+        b.wait_in_text("body", "No SELinux alerts.")
+
+        #########################################################
+        # trigger a fixable restorecon alert
+        self.machine.execute(SELINUX_RESTORECON_ALERT_SCRIPT)
+
+        row_selector = "tbody:contains('read access on the file /root/.ssh/authorized_keys')"
+
+        # wait for the alert to appear
+        b.wait_visible(row_selector)
+
+        # expand it to see details
+        toggle_selector = row_selector + " .pf-c-table__toggle button"
+        b.click(toggle_selector)
+
+        try:
+            # a solution is present
+            b.wait_in_text(row_selector + " tr.pf-m-expanded .ct-listing-panel-body", "you can run restorecon")
+
+            # and it can be applied
+            btn_sel = f".selinux-details:contains('you can run restorecon') button{self.default_btn_class}"
+            b.click(btn_sel)
+
+            # the button should disappear
+            b.wait_not_present(btn_sel)
+
+            # the fix should be applied
+            b.wait_in_text(row_selector + " .pf-c-alert__title", "Solution applied successfully")
+
+            # and the button should not come back
+            b.wait_not_present(btn_sel)
+        except Error:
+            print("==== sealert -l '*' ====")
+            print(m.execute("sealert -l '*'"))
+            print("==== audit.log  ====")
+            print(m.execute("cat /var/log/audit/audit.log"))
+            print("====================")
+            raise
+
+        b.click(row_selector + " input[type=checkbox]")
+        b.click(dismiss_sel)
+        b.wait_not_present(row_selector)
+
+        try:
+            b.grant_permissions("clipboardReadWrite", "clipboardSanitizedWrite")
+        except RuntimeError:
+            # fallback for older Chrome releases
+            b.grant_permissions("clipboardRead", "clipboardWrite")
+
+        b.wait_visible(".pf-c-data-list__cell:contains(Allow zebra)")
+        b.wait_visible(".pf-c-data-list__cell:contains(fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/')")
+        b.click("button:contains('View automation script')")
+        shell_script_sel = ".automation-script-modal .pf-c-modal-box__body section:nth-child(2) textarea"
+        ansible_script_sel = ".automation-script-modal .pf-c-modal-box__body section:nth-child(3) textarea"
+        b.wait_in_text(shell_script_sel, "boolean -D")
+        b.wait_in_text(shell_script_sel, "fcontext -D")
+        b.wait_in_text(shell_script_sel, "boolean -m -1 zebra_write_config")
+        b.wait_in_text(shell_script_sel, "fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/'")
+
+        # Check ansible
+        def normalize(script):
+            # HACK: `permissive` type is exported only since policycoreutils 3.0
+            # See https://github.com/SELinuxProject/selinux/commit/3a9b4505b
+            # Combining of versions < 3.0 with versions >= 3.0 provides a bit
+            # different outputs.
+            return script.replace("permissive -D\n", "")
+
+        b.click("button:contains('Ansible')")
+        b.wait_text_matches(ansible_script_sel, "Allow zebra.*write.*config")
+
+        ansible_m = self.machines["ansible_machine"]
+        ansible_m.execute("semanage module -D")
+        ansible_m.execute("mkdir -p roles/selinux/tasks/")
+        ansible_m.write("roles/selinux/tasks/main.yml", b.text(ansible_script_sel))
+        se_before = normalize(ansible_m.execute("semanage export"))
+        ansible_m.execute("ansible -m include_role -a name=selinux localhost")
+        se_after = normalize(ansible_m.execute("semanage export"))
+        local = normalize(m.execute("semanage export"))
+
+        self.assertNotEqual(se_before, se_after)
+        self.assertEqual(local, se_after)
+
+        # Check that ansible is idempotent
+        m.execute("semanage boolean --modify --off zebra_write_config")
+        b.reload()
+        b.enter_page("/selinux/setroubleshoot")
+        b.wait_visible(".pf-c-data-list__cell:contains(Disallow zebra)")
+        b.click("button:contains('View automation script')")
+        b.click("button:contains('Ansible')")
+        ansible_m.write("roles/selinux/tasks/main.yml", b.text(ansible_script_sel))
+        se_before = se_after
+        ansible_m.execute("ansible -m include_role -a name=selinux localhost")
+        se_after = normalize(ansible_m.execute("semanage export"))
+        local = normalize(m.execute("semanage export"))
+        self.assertNotEqual(se_before, se_after)
+        self.assertEqual(local, se_after)
+
+        # Check the content of clipboard by pasting the clipboard to the terminal
+        b.click("button:contains('Shell script')")
+        b.wait_in_text(shell_script_sel, "boolean -D")
+        b.click(".automation-script-modal .btn-clipboard")
+        b.go("/system/terminal")
+        b.enter_page("/system/terminal")
+        b.focus('.terminal')
+        b.key_press("\"\r")
+        # Right click and paste
+        b.mouse(".terminal", "contextmenu", btn=2)
+        b.click('.contextMenu .contextMenuOption:nth-child(2)')
+        b.wait_in_text(".xterm-accessibility-tree", "semanage import <<EOF")
+        b.wait_in_text(".xterm-accessibility-tree", "boolean -D")
+        b.wait_in_text(".xterm-accessibility-tree", "boolean -m -0 zebra_write_config")
+        b.wait_in_text(".xterm-accessibility-tree", "fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/'")
+
+        m.execute("semanage boolean -D && semanage fcontext -D && semanage module -D")
+        b.go("/selinux/setroubleshoot")
+        b.enter_page("/selinux/setroubleshoot")
+        b.reload()
+        b.enter_page("/selinux/setroubleshoot")
+        b.wait_text("ul[aria-label='System modifications']", "No system modifications")
+        b.relogin("/selinux/setroubleshoot", "admin", superuser=False)
+        b.wait_text("ul[aria-label='System modifications']", "The logged in user is not permitted to view system modifications")
+
+    @skipImage("No cockpit-selinux", "debian-stable", "debian-testing", "fedora-coreos", "ubuntu-2004", "ubuntu-2204", "ubuntu-stable", "arch")
+    def testEnforcingToggle(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/selinux/setroubleshoot")
+
+        #########################################################
+        # wait for the page to be present
+        b.wait_in_text("body", "SELinux policy")
+
+        def assertEnforce(active):
+            b.wait_visible(".pf-c-switch__input" + (active and ":checked" or ":not(:checked)"))
+
+        # SELinux should be enabled and enforcing at the beginning
+        assertEnforce(True)
+        m.execute("getenforce | grep -q 'Enforcing'")
+
+        # now set to permissive using the ui button
+        b.click(".pf-c-switch__input")
+        assertEnforce(False)
+        m.execute("getenforce | grep -q 'Permissive'")
+
+        # when in permissive mode, expect a warning
+        b.wait_in_text("div.selinux-policy-ct", "Setting deviates")
+
+        # switch back using cli, ui should react
+        m.execute("setenforce 1")
+        assertEnforce(True)
+
+        # warning should disappear
+        b.wait_not_in_text("div.selinux-policy-ct", "Setting deviates")
+
+        # Switch to another page
+        b.switch_to_top()
+        b.go("/system")
+        b.enter_page("/system")
+
+        # Now on another page change the status
+        m.execute("setenforce 0")
+
+        # Switch back into the page and we get the updated status
+        b.switch_to_top()
+        b.go("/selinux/setroubleshoot")
+        b.enter_page("/selinux/setroubleshoot")
+        assertEnforce(False)
+        b.wait_in_text("div.selinux-policy-ct", "Setting deviates")
+
+
+if __name__ == '__main__':
+    test_main()

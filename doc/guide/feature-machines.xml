@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<chapter id="feature-machines">
+  <title>Multiple Machines</title>
+
+  <para>Cockpit can connect to multiple machines from a single Cockpit session.
+    These are listed in the host switcher.</para>
+
+  <para>These additional machines are accessed via SSH from the machine that
+    the first machine connected to, and are
+    <link linkend="authentication">authenticated</link> with the logged in
+    user's password and/or SSH keys.</para>
+
+  <para>Using SSH keys is only supported when the system has the
+    necessary APIs in libssh.</para>
+
+  <para>SSH host keys are stored in
+    <filename>/etc/ssh/ssh_known_hosts</filename>.</para>
+
+  <para>The machine data is stored in
+    <filename>/etc/cockpit/machines.d/*.json</filename>.  Settings in
+    lexicographically later files amend or override settings in earlier ones.
+    Cockpit itself writes into <filename>99-webui.json</filename>; packages or
+    admins who want to pre-configure machines should ship files like
+    <filename>05-mymachine.json</filename> so that changes from the web
+    interface override the pre-configured files.</para>
+
+  <para>Each JSON file contains an object that maps machine IDs to objects that
+    define the properties of that machine. The ID can be a human readable name
+    or an IP address or any other unique value, and is shown in the web
+    interface until conneting to it the first time, at which point the web
+    interface will show the machine's host name.</para>
+
+  <para>The following properties are recognized:</para>
+
+  <variablelist>
+    <varlistentry>
+      <term><code>"address"</code></term>
+      <listitem><para><emphasis>(string, mandatory)</emphasis> IP address or
+          DNS name of the machine</para></listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><code>"visible"</code></term>
+      <listitem><para><emphasis>(boolean, optional)</emphasis> If
+          <code>true</code>, the machine will be displayed and
+          available for managing with Cockpit. If <code>false</code> (the
+          default), it will not be displayed, but still taken into account for
+          type-ahead search when adding new machines in the web
+          interface.</para></listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><code>"user"</code></term>
+      <listitem><para><emphasis>(string, optional)</emphasis> User name on the remote machine.
+          When not given, Cockpit will default to the user name that was being
+          used to log into Cockpit itself.</para></listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><code>"port"</code></term>
+      <listitem><para><emphasis>(integer, optional)</emphasis> ssh port of the
+          remote machine. When not given, the default port 22 is used.
+          </para></listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><code>"color"</code></term>
+      <listitem><para><emphasis>(string, optional)</emphasis> Color to
+          assign to the machine label in the web interface. This can be either given as
+          <code>rgb(r_value, g_value, b_value)</code> with each value being an
+          integer between 0 and 255, or as a color name like <code>yellow</code>.
+          When not given, Cockpit will assign an unused color automatically.
+          </para></listitem>
+    </varlistentry>
+
+    <!-- TODO: This cannot sensibly be used right now, as this neither accepts
+         a full (foreign) URL nor a relative path in the dist/ directory
+    <varlistentry>
+      <term><code>"avatar"</code></term>
+      <listitem><para><emphasis>(string, optional)</emphasis> Path to an image
+          file that will be shown as an icon for that machine in the web
+          interface. If not given, a generic "computer" icon is used.
+          </para></listitem>
+    </varlistentry>
+    -->
+  </variablelist>
+
+  <para>Example:</para>
+  <programlisting>
+{
+    "web server": {
+        "address": "192.168.2.4",
+        "visible": true,
+        "color": "rgb(100, 200, 0)",
+        "user": "admin"
+    },
+    "192.168.2.1": {
+        "address": "192.168.2.1",
+        "port": 2222,
+        "visible": true,
+        "color": "green"
+    }
+}</programlisting>
+</chapter>

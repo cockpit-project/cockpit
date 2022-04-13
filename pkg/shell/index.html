@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html class="index-page">
+  <head>
+    <title>Cockpit</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="index.css" rel="stylesheet">
+    <link href="../../static/branding.css" rel="stylesheet">
+    <script src="../base1/cockpit.js"></script>
+    <script src="../manifests.js"></script>
+    <script src="../*/po.js"></script>
+  </head>
+  <body class="pf-m-redhat-font" hidden>
+    <div id="main" class="page">
+        <a class="screenreader-text skiplink desktop_v" href="#content" translate>Skip to content</a>
+        <a class="screenreader-text skiplink desktop_v" href="#hosts-sel" translate>Skip main navigation</a>
+
+        <div id="sidebar-toggle" class="pf-c-select pf-m-dark sidebar-toggle">
+        </div>
+
+        <div id="nav-system" class="area-ct-subnav nav-system-menu sidebar interact">
+            <nav id="host-apps" class="host-apps">
+                <!-- Navigation goes here !-->
+            </nav>
+        </div>
+
+        <nav id="hosts-sel" class="navbar navbar-default navbar-pf navbar-pf-vertical" tabindex="-1">
+          <!-- Hosts selector goes here !-->
+        </nav>
+
+        <div id="nav-hosts" class="area-ct-subnav nav-hosts-menu sidebar">
+            <!-- Hosts go here !-->
+        </div>
+
+        <div id="topnav" class="header">
+            <!-- Top navigation goes here !-->
+        </div>
+
+
+        <div id="troubleshoot-dialog"></div>
+        <div id="session-timeout-dialog"></div>
+
+        <div id="content" role="main" class="area-ct-content" tabindex="-1">
+          <!-- This is where the iframes appear -->
+          <div id="early-failure-ready" class="curtains-ct" hidden></div>
+        </div>
+    </div>
+
+    <div id="early-failure" class="early-failure" hidden>
+    </div>
+
+    <script src="index.js"></script>
+  </body>
+</html>

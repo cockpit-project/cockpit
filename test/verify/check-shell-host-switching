@@ -1,0 +1,463 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2020 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import time
+
+import parent
+from testlib import *
+
+
+@skipDistroPackage()
+class HostSwitcherHelpers:
+
+    def check_discovered_addresses(self, b, addresses):
+        b.click("button:contains('Add new host')")
+        b.wait_visible('#hosts_setup_server_dialog')
+        self.wait_discovered_addresses(b, addresses)
+        b.click('#hosts_setup_server_dialog .pf-m-link')
+        b.wait_not_present('#hosts_setup_server_dialog')
+
+    def wait_discovered_addresses(self, b, expected):
+        b.wait_js_cond(f'ph_select("#hosts_setup_server_dialog datalist option").length == {len(expected)}')
+        # Check that we rendered all expected hosts
+        for address in expected:
+            b._wait_present(f"#hosts_setup_server_dialog datalist option[value='{address}']")
+
+    def wait_host_addresses(self, b, expected):
+        b.wait_js_cond(f'ph_select("#nav-hosts .nav-item a").length == {len(expected)}')
+        for address in expected:
+            b.wait_visible(f"#nav-hosts .nav-item a[href='/@{address}']")
+
+    def machine_remove(self, b, address, machine, second_to_last=False):
+        b.click("button:contains('Edit hosts')")
+        b.click(f".nav-item a[href='/@{address}'] + span button.nav-action.pf-m-danger")
+        if second_to_last:
+            b.wait_not_present("button:contains('Stop editing hosts')")
+            b.wait_not_visible(".nav-item a[href='/@localhost'] + span button.nav-action.pf-m-danger")
+        else:
+            b.click("button:contains('Stop editing hosts')")
+
+        # Wait until all related iframes are gone
+        b.wait_js_func("""(function (dropped) {
+          const frames = document.getElementsByTagName("iframe");
+          for (i = 0; i < frames.length; i++)
+            if (frames[i].getAttribute['data-host'] === dropped)
+              return false;
+          return true;
+        })""", address)
+
+    def add_machine(self, b, address, known_host=False, pixel_label=None):
+        b.click("button:contains('Add new host')")
+        b.wait_visible('#hosts_setup_server_dialog')
+        b.set_input_text('#add-machine-address', address)
+        if pixel_label:
+            b.assert_pixels("#hosts_setup_server_dialog", pixel_label)
+        b.click('#hosts_setup_server_dialog .pf-m-primary:contains("Add")')
+        if not known_host:
+            b.wait_in_text('#hosts_setup_server_dialog', f"You are connecting to {address} for the first time")
+            b.click('#hosts_setup_server_dialog .pf-m-primary')
+        b.wait_not_present('#hosts_setup_server_dialog')
+
+    def connect_and_wait(self, b, address):
+        b.click(f"a[href='/@{address}']")
+        b.click("#hosts-sel button")
+        b.wait_visible(f".connected a[href='/@{address}']")
+        # Switch back to localhost, since the rest of the test expects that
+        b.click("a[href='/@localhost']")
+        b.click("#hosts-sel button")
+
+    def get_pubkey(self, machine, account):
+        return machine.execute(f"cat /home/{account}/.ssh/id_rsa.pub")
+
+    def authorize_pubkey(self, machine, account, pubkey):
+        machine.execute(f"a={account} d=/home/$a/.ssh; mkdir -p $d; chown $a:$a $d; chmod 700 $d")
+        machine.write(f"/home/{account}/.ssh/authorized_keys", pubkey)
+        machine.execute(f"a={account}; chown $a:$a /home/$a/.ssh/authorized_keys")
+
+    def setup_ssh_auth(self):
+        self.machine.execute("d=/home/admin/.ssh; mkdir -p $d; chown admin:admin $d; chmod 700 $d")
+        self.machine.execute("test -f /home/admin/.ssh/id_rsa || ssh-keygen -f /home/admin/.ssh/id_rsa -t rsa -N ''")
+        self.machine.execute("chown admin:admin /home/admin/.ssh/id_rsa*")
+        pubkey = self.get_pubkey(self.machine, "admin")
+
+        for m in self.machines:
+            self.authorize_pubkey(self.machines[m], "admin", pubkey)
+
+
+@skipDistroPackage()
+class TestHostSwitching(MachineCase, HostSwitcherHelpers):
+    provision = {
+        'machine1': {"address": "10.111.113.1/20", "memory_mb": 512},
+        'machine2': {"address": "10.111.113.2/20", "memory_mb": 512},
+        'machine3': {"address": "10.111.113.3/20", "memory_mb": 512}
+    }
+
+    def setUp(self):
+        super().setUp()
+
+        # Disable preloading on all machines ("machine1" is done in testlib.py)
+        # Preloading on machines with debug build can overload the browser and cause slowness and browser crashes
+        # In these tests we actually switch between machines in quick succession which can make things even worse
+        if self.is_devel_build():
+            for machine in ["machine2", "machine3"]:
+                for pkg in ["packagekit", "systemd", "playground"]:
+                    self.machines[machine].write(f"/etc/cockpit/{pkg}.override.json", '{ "preload": [ ] }')
+        # Also, quick logouts cause async preloads to run into "ReferenceError: cockpit is not defined"
+        self.disable_preload("packagekit", "playground", "systemd")
+
+        self.machines["machine1"].execute("hostnamectl set-hostname localhost")
+        self.machines["machine2"].execute("hostnamectl set-hostname machine2")
+        self.machines["machine3"].execute("hostnamectl set-hostname machine3")
+        self.setup_ssh_auth()
+
+        # removing machines interrupts channels
+        self.allow_restart_journal_messages()
+        self.allow_hostkey_messages()
+
+    def testBasic(self):
+        b = self.browser
+        m1 = self.machines["machine1"]
+        m2 = self.machines["machine2"]
+        m3 = self.machines["machine3"]
+
+        m2.execute("hostnamectl set-hostname machine2")
+        m3.execute("hostnamectl set-hostname machine3")
+
+        # This should all work without being admin on machine1
+        self.login_and_go(superuser=False)
+
+        b.assert_pixels("#nav-system", "nav-system", skip_layouts=["mobile"])
+        b.set_layout("mobile")
+        b.click("#nav-system-item")
+        b.wait_visible("#nav-system.interact")
+        b.assert_pixels_in_current_layout("#nav-system", "nav-system")
+        b.click("#nav-system-item")
+        b.wait_not_present("#nav-system.interact")
+        b.set_layout("desktop")
+
+        b.assert_pixels("#hosts-sel", "hosts-sel-closed")
+
+        b.click("#hosts-sel button")
+        self.wait_host_addresses(b, ["localhost"])
+
+        b.wait_not_present("button:contains('Edit hosts')")
+
+        # Test that transient hostname shows up
+        m1.execute("hostnamectl set-hostname ''")
+        m1.execute("hostnamectl set-hostname --transient 'mydhcpname'")
+        b.wait_in_text("#nav-hosts .nav-item a", "mydhcpname")
+        m1.execute("hostnamectl set-hostname 'localhost'")
+
+        self.add_machine(b, "10.111.113.2", pixel_label="host-add-dialog")
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
+        self.connect_and_wait(b, "10.111.113.2")
+
+        # Main host should have both buttons disabled, the second both enabled
+        b.click("button:contains('Edit hosts')")
+        b.wait_visible(".nav-item a[href='/@localhost'] + span button.nav-action.pf-m-danger:disabled")
+        b.wait_visible(".nav-item a[href='/@localhost'] + span button.nav-action.pf-m-secondary:disabled")
+        b.wait_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-danger:not(:disabled)")
+        b.wait_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-secondary:not(:disabled)")
+        b.assert_pixels(".edit-hosts", "edit-hosts")
+        b.click("button:contains('Stop editing hosts')")
+        b.wait_not_visible(".nav-item a[href='/@localhost'] + span button.nav-action.pf-m-danger")
+        b.wait_not_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-secondary")
+
+        b.wait_not_present(".nav-item a[href='/@10.111.113.2'] .nav-status")
+
+        self.add_machine(b, "10.111.113.3")
+        self.wait_host_addresses(b, ["localhost", "10.111.113.3", "10.111.113.2"])
+        self.connect_and_wait(b, "10.111.113.3")
+
+        b.assert_pixels("#nav-hosts", "nav-hosts-2-remotes")
+
+        # Remove two
+        self.machine_remove(b, "10.111.113.2", m2)
+        self.wait_host_addresses(b, ["localhost", "10.111.113.3"])
+
+        self.machine_remove(b, "10.111.113.3", m3, True)
+        self.wait_host_addresses(b, ["localhost"])
+
+        # Check that the two removed machines are listed in "Add Host"
+        self.check_discovered_addresses(b, ["10.111.113.2", "10.111.113.3"])
+
+        # Add one back, check addresses on both browsers
+        self.add_machine(b, "10.111.113.2", True)
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
+        self.connect_and_wait(b, "10.111.113.2")
+        self.check_discovered_addresses(b, ["10.111.113.3"])
+
+        b.wait_not_present(".nav-item a[href='/@10.111.113.2'] .nav-status")
+
+        # And the second one, check addresses
+        self.add_machine(b, "10.111.113.3", True)
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2", "10.111.113.3"])
+        self.connect_and_wait(b, "10.111.113.3")
+        self.check_discovered_addresses(b, [])
+
+        # Test change user, not doing in edit to reuse machines
+
+        # Navigate to load iframe
+        b.click("#nav-hosts .nav-item a[href='/@10.111.113.3']")
+        b.wait_visible("iframe.container-frame[name='cockpit1:10.111.113.3/system']")
+
+        b.click("#hosts-sel button")
+        b.click("button:contains('Edit hosts')")
+
+        b.click("#nav-hosts .nav-item a[href='/@10.111.113.3'] + span button.nav-action.pf-m-secondary")
+
+        b.wait_visible('#hosts_setup_server_dialog')
+        b.set_input_text('#add-machine-user', 'bad-user')
+        b.click('#hosts_setup_server_dialog .pf-m-primary')
+        b.wait_in_text("#hosts_setup_server_dialog", "Unable to log in to")
+        b.click('#hosts_setup_server_dialog button:contains("Cancel")')
+        b.wait_not_present('#hosts_setup_server_dialog')
+
+        # Test switching
+        b.wait_js_cond('ph_select("#nav-hosts .nav-item a").length == 3')
+
+        b.click("#nav-hosts .nav-item a[href='/@localhost']")
+        b.wait_js_cond('window.location.pathname == "/system"')
+
+        b.click("#hosts-sel button")
+        b.click("#nav-hosts .nav-item a[href='/@10.111.113.2']")
+        b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.2") === 0')
+
+        b.click("#hosts-sel button")
+        b.click("#nav-hosts .nav-item a[href='/@10.111.113.3']")
+        b.wait_js_cond('window.location.pathname.indexOf("/@10.111.113.3") === 0')
+
+        b.enter_page("/system", "10.111.113.3")
+        b.wait_text_not("#system_information_systime_button", "")
+        b.click(".system-information a")  # View hardware details
+        b.enter_page("/system/hwinfo", "10.111.113.3")
+        b.click(".pf-c-breadcrumb li:first-child")
+        b.enter_page("/system", "10.111.113.3")
+        b.wait_in_text(".ct-overview-header-hostname", "machine3")
+
+        # Remove host underneath ourselves
+        b.switch_to_top()
+        b.click("#hosts-sel button")
+        b.click("button:contains('Edit hosts')")
+        b.click("#nav-hosts .nav-item a[href='/@10.111.113.3'] + span button.nav-action.pf-m-danger")
+        b.wait_not_present("iframe.container-frame[name='cockpit1:10.111.113.3/network']")
+        b.wait_js_cond('window.location.pathname == "/system"')
+        b.enter_page("/system", "localhost")
+
+        self.allow_journal_messages(".*server offered unsupported authentication methods: password public-key.*")
+
+    def testBasicAsAdmin(self):
+        b = self.browser
+        m2 = self.machines["machine2"]
+        m3 = self.machines["machine3"]
+
+        # When being admin, changes in the host switcher are supposed
+        # to be reflected in all browser sessions.
+
+        self.login_and_go()
+
+        b.click("#hosts-sel button")
+        self.wait_host_addresses(b, ["localhost"])
+
+        b.wait_not_present("button:contains('Edit hosts')")
+
+        # Start second browser and check that it is in sync
+        b2 = self.new_browser()
+        b2.default_user = "admin"
+        b2.login_and_go()
+
+        b2.click("#hosts-sel button")
+        self.wait_host_addresses(b2, ["localhost"])
+
+        self.add_machine(b, "10.111.113.2")
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
+        self.wait_host_addresses(b2, ["localhost", "10.111.113.2"])
+        self.connect_and_wait(b, "10.111.113.2")
+        self.connect_and_wait(b2, "10.111.113.2")
+
+        # Main host should have both buttons disabled, the second both enabled
+        b.click("button:contains('Edit hosts')")
+        b.wait_visible(".nav-item a[href='/@localhost'] + span button.nav-action.pf-m-danger:disabled")
+        b.wait_visible(".nav-item a[href='/@localhost'] + span button.nav-action.pf-m-secondary:disabled")
+        b.wait_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-danger:not(:disabled)")
+        b.wait_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-secondary:not(:disabled)")
+        b.click("button:contains('Stop editing hosts')")
+        b.wait_not_visible(".nav-item a[href='/@localhost'] + span button.nav-action.pf-m-danger")
+        b.wait_not_visible(".nav-item a[href='/@10.111.113.2'] + span button.nav-action.pf-m-secondary")
+
+        b.wait_not_present(".nav-item a[href='/@10.111.113.2'] .nav-status")
+
+        self.add_machine(b, "10.111.113.3")
+        self.wait_host_addresses(b, ["localhost", "10.111.113.3", "10.111.113.2"])
+        self.wait_host_addresses(b2, ["localhost", "10.111.113.3", "10.111.113.2"])
+        self.connect_and_wait(b, "10.111.113.3")
+        self.connect_and_wait(b2, "10.111.113.3")
+
+        # Remove two
+        self.machine_remove(b, "10.111.113.2", m2)
+        self.wait_host_addresses(b, ["localhost", "10.111.113.3"])
+        self.wait_host_addresses(b2, ["localhost", "10.111.113.3"])
+
+        self.machine_remove(b, "10.111.113.3", m3, True)
+        self.wait_host_addresses(b, ["localhost"])
+        self.wait_host_addresses(b2, ["localhost"])
+
+        # Check that the two removed machines are listed in "Add Host"
+        # on both browsers
+        self.check_discovered_addresses(b, ["10.111.113.2", "10.111.113.3"])
+        self.check_discovered_addresses(b2, ["10.111.113.2", "10.111.113.3"])
+
+        # Add one back, check addresses on both browsers
+        self.add_machine(b, "10.111.113.2", True)
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
+        self.wait_host_addresses(b2, ["localhost", "10.111.113.2"])
+        self.connect_and_wait(b, "10.111.113.2")
+        self.check_discovered_addresses(b, ["10.111.113.3"])
+        self.check_discovered_addresses(b2, ["10.111.113.3"])
+
+        b.wait_not_present(".nav-item a[href='/@10.111.113.2'] .nav-status")
+
+        # And the second one, check addresses on both browsers
+        self.add_machine(b, "10.111.113.3", True)
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2", "10.111.113.3"])
+        self.wait_host_addresses(b2, ["localhost", "10.111.113.2", "10.111.113.3"])
+        self.connect_and_wait(b, "10.111.113.3")
+        self.check_discovered_addresses(b, [])
+        self.check_discovered_addresses(b2, [])
+
+    @no_retry_when_changed
+    def testEdit(self):
+        b = self.browser
+        m1 = self.machines['machine1']
+        m2 = self.machines['machine2']
+        m3 = self.machines['machine3']
+
+        m2.execute("hostnamectl set-hostname machine2")
+        m3.execute("hostnamectl set-hostname machine3")
+
+        self.allow_journal_messages("Could not chdir to home directory /home/franz: No such file or directory")
+        m1.execute("useradd franz")
+        m1.execute("echo franz:foobar | chpasswd")
+        m3.execute("useradd franz")
+        m3.execute("echo franz:foobar | chpasswd")
+        self.authorize_pubkey(m3, "franz", self.get_pubkey(m1, "admin"))
+
+        # This should all work without being admin on m1
+        self.login_and_go(superuser=False)
+
+        b.click("#hosts-sel button")
+        self.add_machine(b, "10.111.113.3")
+        self.wait_host_addresses(b, ["localhost", "10.111.113.3"])
+        self.connect_and_wait(b, "10.111.113.3")
+
+        b.click("button:contains('Edit hosts')")
+        b.click("#nav-hosts .nav-item a[href='/@10.111.113.3'] + span button.nav-action.pf-m-secondary")
+
+        b.wait_visible('#hosts_setup_server_dialog')
+        b.set_input_text('#add-machine-user', 'franz')
+
+        def tab(n):
+            for _ in range(n):
+                args = {"type": "keyDown", "key": "Tab", "code": "Tab", "nativeVirtualKeyCode": 9, "windowsVirtualKeyCode": 9}
+                args = {"type": "keyDown", "key": "Tab"}
+                b.cdp.invoke("Input.dispatchKeyEvent", **args)
+                args["type"] = "keyUp"
+                b.cdp.invoke("Input.dispatchKeyEvent", **args)
+
+        def enter():
+            args = {"type": "keyDown", "key": "Enter", "code": "Enter", "nativeVirtualKeyCode": 13, "windowsVirtualKeyCode": 13}
+            args = {"type": "keyDown", "key": "Enter"}
+            b.cdp.invoke("Input.dispatchKeyEvent", **args)
+            args["type"] = "keyUp"
+            b.cdp.invoke("Input.dispatchKeyEvent", **args)
+
+        # <input type="color /> is rather difficult to set with tests
+        # On Firefox the popup window cannot be targeted nor with mouse nor keayboard
+        # On Chomium it is possible to tab-navigate through the color selector
+        # So tab to RGB inputs and type in zeros
+        if b.cdp.browser.name == "chromium":
+            b.focus("input[type=color]")
+            b.click("input[type=color]")
+            time.sleep(1)  # We cannot wait until the popup opens up, so just little of waiting
+            tab(3)
+            b.key_press("0")
+            tab(1)
+            b.key_press("0")
+            tab(1)
+            b.key_press("0")
+            enter()
+
+        b.click('#hosts_setup_server_dialog .pf-m-primary')
+        b.wait_not_present('#hosts_setup_server_dialog')
+
+        b.wait_text(".nav-item a[href='/@10.111.113.3']", "franz @machine3")
+
+        # Go to the updated machine and try to change whilst on it
+        b.click("#nav-hosts .nav-item a[href='/@10.111.113.3']")
+        b.wait_visible("iframe.container-frame[name='cockpit1:franz@10.111.113.3/system']")
+
+        b.wait_text("#hosts-sel button .pf-c-select__toggle-text", "franz@machine3")
+        b.click("#hosts-sel button")
+        b.wait_text(".nav-item a[href='/@10.111.113.3']", "franz @machine3")
+        b.click("button:contains('Edit hosts')")
+        b.click("#nav-hosts .nav-item a[href='/@10.111.113.3'] + span button.nav-action.pf-m-secondary")
+
+        b.wait_val('#add-machine-address', "10.111.113.3")
+        if b.cdp.browser.name == "chromium":
+            self.assertEqual(b.attr("input[type=color]", "value"), "#000000")
+        b.wait_val('#add-machine-user', 'franz')
+        b.set_input_text('#add-machine-address', "10.111.113.2")
+        b.set_input_text('#add-machine-user', 'admin')
+        if b.cdp.browser.name == "chromium":
+            self.assertNotEqual(b.attr("input[type=color]", "value"), "#000000")
+        b.click('#hosts_setup_server_dialog .pf-m-primary')
+        b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
+        b.click('#hosts_setup_server_dialog .pf-m-primary')
+        b.wait_not_present('#hosts_setup_server_dialog')
+
+        b.wait_text("#hosts-sel button .pf-c-select__toggle-text", "admin@machine2")
+
+        # Changing the address of a host will navigate to that host,
+        # and that will close the host switcher.  Let's open it again
+        # to check it.
+        b.click("#hosts-sel button")
+        b.wait_not_present(".nav-item a[href='/@10.111.113.3']")
+        b.wait_text(".nav-item a[href='/@10.111.113.2']", "admin @machine2")
+
+    def testNoAutoconnect(self):
+        b = self.browser
+        m2 = self.machines["machine2"]
+
+        self.login_and_go(None)
+
+        # And and connect to a second machine
+        b.click("#hosts-sel button")
+        self.add_machine(b, "10.111.113.2")
+        b.click("a[href='/@10.111.113.2']")
+        b.wait_visible("iframe.container-frame[name='cockpit1:10.111.113.2/system']")
+        self.assertIn("admin", m2.execute("loginctl"))
+        b.click("#hosts-sel button")
+        b.click("a[href='/@localhost']")
+        b.relogin()
+        time.sleep(60)
+        self.assertNotIn(m2.execute("loginctl"), "admin")
+
+
+if __name__ == '__main__':
+    test_main()

@@ -1,0 +1,87 @@
+# Please keep this file sorted (LC_COLLATE=C.UTF-8),
+# grouped into the 3 categories below:
+#  - general patterns (match in all directories)
+#  - patterns to match files at the toplevel
+#  - patterns to match files in subdirs
+
+# general patterns
+*.a
+*.gcda
+*.gcno
+*.log
+*.mo
+*.o
+*.pyc
+*.so
+*.trs
+.dirstamp
+.deps/
+.extra_dist
+Makefile
+Makefile.in
+
+# toplevel (/...)
+/*.list
+/.flatpak-builder
+/aclocal.m4
+/autom4te.cache
+/bots
+/cockpit
+/cockpit-*.tar*
+/cockpit-*.xz
+/cockpit-askpass
+/cockpit-bridge
+/cockpit-certificate-ensure
+/cockpit-pcp
+/cockpit-session
+/cockpit-ssh
+/cockpit-tls
+/cockpit-ws
+/cockpit-wsinstance-factory
+/cockpit.lang
+/cockpit.pp
+/cockpit.pp.bz2
+/cockpit.spec
+/config.*
+/compile_commands.json
+/configure
+/dist/
+/frob-websocket
+/mock-*
+/org.cockpit_project.CockpitClient.yml
+/package-lock.json
+/socket-activation-helper
+/stamp-h1
+/tags
+/test-*
+/test_rsa_key
+/tmp-dist
+/tmp/
+/valgrind-suppressions
+/webpack-jumpstart.tar
+/wsinstance-start
+/lcov/
+/Coverage
+
+# subdirs (/subdir/...)
+/doc/guide/version
+/doc/man/*.[1-8]
+/doc/version
+/pkg/*/*.metainfo.xml
+/po/*.pot
+/src/bridge/org.cockpit-project.cockpit-bridge.policy
+/src/common/fail.html.c
+/src/systemd/cockpit*.service
+/src/systemd/cockpit*.socket
+/src/systemd/cockpit-tempfiles.conf
+/src/tls/cockpit-certificate-helper
+/src/ws/cockpit-desktop
+/src/ws/cockpit.appdata.xml
+/src/ws/mock-dbus-tests.[ch]
+/test/images/
+/tools/compile
+/tools/debian/copyright
+/tools/depcomp
+/tools/install-sh
+/tools/missing
+/tools/test-driver

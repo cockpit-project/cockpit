@@ -1,0 +1,27 @@
+#!/bin/sh
+set -e
+
+check_out() {
+    echo "$OUT" | grep -q "$1" || {
+        echo "output does not match '$1'" >&2
+        exit 1
+    }
+}
+
+echo " * bridge works and has expected packages"
+OUT=$(cockpit-bridge --packages)
+echo "$OUT"
+check_out "^base1.* /usr/share/cockpit/base1"
+check_out "^system"
+check_out "^users"
+
+# on an RPM based system we expect cockpit.socket not to be enabled by default;
+# on a Debian-based system we do
+if rpm -q cockpit >/dev/null 2>&1; then
+    systemctl start cockpit.socket
+fi
+
+echo " * socket unit is set up correctly, login page available"
+OUT=$(curl --silent --show-error --insecure https://localhost:9090)
+check_out "login-user-input.*User"
+echo "smoke test passed"

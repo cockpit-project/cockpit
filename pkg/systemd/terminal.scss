@@ -1,0 +1,85 @@
+@use "../lib/console.css";
+@use "page";
+
+@import "global-variables";
+@import "@patternfly/patternfly/components/Button/button.css";
+@import "@patternfly/patternfly/components/Toolbar/toolbar.scss";
+@import "@patternfly/patternfly/components/InputGroup/input-group.scss";
+
+.console-ct-container {
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    overflow: hidden;
+}
+
+.console-ct-container .terminal-body,
+.console-ct-container .console-ct {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.console-ct-container .terminal-group {
+    border-bottom: 1px solid var(--ct-color-border);
+}
+
+.xterm-accessibility {
+    /* Allow for scrollbar clicking */
+    /* (scrollbars are 18px or less across common OSes) */
+    right: 18px !important;
+}
+
+.console-ct-container .terminal-body {
+    padding: 0;
+    position: relative;
+}
+
+.console-ct-container .console-ct {
+    position: absolute;
+}
+
+.black-theme {
+    background-color: #000000;
+}
+
+.dark-theme {
+    background-color: #002b36;
+}
+
+.light-theme {
+    background-color: #fdf6e3;
+}
+
+.white-theme {
+    background-color: #ffffff;
+}
+
+.terminal-group {
+    display: flex;
+    row-gap: 0.5rem;
+    justify-content: space-between;
+    align-content: center;
+    align-items: baseline;
+    flex-wrap: wrap;
+
+    /* Move the padding handling to the container element outside of the toolbar */
+    padding: var(--pf-global--spacer--md);
+
+    > .pf-c-toolbar {
+        padding: 0;
+        > .pf-c-toolbar__content {
+            padding: 0;
+            select {
+                min-width: 5rem;
+            }
+        }
+        padding: 0;
+    }
+}
+
+// HACK for https://forum.patternfly.org/t/read-only-number-input/422
+.font-size .pf-c-form-control[readonly] {
+    cursor: default;
+}

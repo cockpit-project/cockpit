@@ -1,0 +1,99 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright © 2022 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
+import contextlib
+import fileinput
+import json
+import os.path
+import re
+import sys
+
+
+DOWNLOAD_URL = 'https://github.com/cockpit-project/cockpit/releases/download/'
+BASE_DIR = os.path.realpath(f'{__file__}/../..')
+
+
+def wip_version(args):
+    return 'g' in args.version
+
+
+def substitute(match, args, package):
+    variable = match.group(1)
+
+    if variable == 'VERSION':
+        return args.version
+
+    elif variable == 'RELEASE':
+        return '1.wip' if wip_version(args) else '1'
+
+    elif variable == 'PATH':
+        return '' if wip_version(args) else f'{DOWNLOAD_URL}{args.version}/'
+
+    elif variable == 'BUILD_ALL':
+        return '1' if args.build_all else '0'
+
+    elif variable == 'PATTERNFLY_VERSION':
+        with open(f'{BASE_DIR}/package.json') as fp:
+            return json.load(fp)['dependencies']['patternfly']
+
+    elif variable == 'REQUIRED_BASE':
+        with open(f'{BASE_DIR}/pkg/{package}/manifest.json') as fp:
+            return json.load(fp)['requires']['cockpit']
+
+    else:
+        raise ValueError(f'Unsupported substitution @{variable}@')
+
+
+def replace_fields(output, lines, args):
+    variable_re = re.compile(r'@([A-Z_]+)@')
+    package_re = re.compile(r'%package (-n cockpit-)?([a-z]*)')
+    package = None
+
+    for line in lines:
+        if match := package_re.fullmatch(line.strip()):
+            package = match.group(2)
+        line = variable_re.sub(lambda m: substitute(m, args, package), line)
+        output.write(line)
+
+
+@contextlib.contextmanager
+def open_output(filename):
+    if filename:
+        fp = open(filename, 'w+')
+        yield fp
+        fp.close()
+    else:
+        yield sys.stdout
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--version', '-v', required=True, help='The version number')
+    parser.add_argument('--build-all', action='store_true', help='Disable RHEL 8 hacks')
+    parser.add_argument('--output', '-o', help='The output file (or stdout)')
+    parser.add_argument('template', nargs='*', help='The template (or stdin)')
+    args = parser.parse_args()
+
+    with open_output(args.output) as output:
+        replace_fields(output, fileinput.input(args.template), args)
+
+
+if __name__ == '__main__':
+    main()

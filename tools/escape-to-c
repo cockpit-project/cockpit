@@ -1,0 +1,12 @@
+#!/usr/bin/python3
+
+# ...until #embed comes along...
+# eg: tools/escape-to-c cockpit_webresponse_fail_html_text < fail.html > fail.html.c
+
+import json
+import sys
+
+# Use a pointer to allow overriding the value
+print('const char *', sys.argv[1], '=\n',
+      *[json.dumps(line) + '\n' for line in sys.stdin],
+      ';')

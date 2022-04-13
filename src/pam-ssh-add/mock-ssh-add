@@ -1,0 +1,40 @@
+#!/bin/sh
+PASSWORD="foobar"
+
+password_good=0
+password_bad=0
+password_blanks=0
+
+case "$1" in
+    "no-socket")
+        exit 2;;
+    *)
+        for dummy_key in 0 1 2
+        do
+          echo "Enter passphrase for $dummy_key" >&2
+          while true
+            do
+              read answer
+              case $answer in
+                "$PASSWORD")
+                  password_good=$(expr "$password_good" + 1)
+                  break;;
+                "")
+                  password_blanks=$(expr "$password_blanks" + 1)
+                  break;;
+                *)
+                  password_bad=$(expr "$password_bad" + 1)
+                  echo "Bad passphrase, try again for $dummy_key" >&2
+                  continue;;
+              esac
+            done
+        done
+
+        echo "Correct password $password_good, bad password $password_bad, password_blanks $password_blanks" >&2
+
+        if [ $password_good -eq 3 ]; then
+            exit 0;
+        else
+            exit 1;
+        fi
+esac

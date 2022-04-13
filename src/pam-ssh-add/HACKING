@@ -1,0 +1,16 @@
+
+Working on pam_ssh_add.so
+-------------------------
+
+For now this is part of Cockpit, but may eventually be split out. So only
+basic glibc and linux dependencies are allowed:
+
+ * glibc
+ * pam
+
+Tests
+-----
+Right now the bulk of the code is unit tested using mock versions of ssh-add
+and ssh-agent. However the pam module itself is only tested with integration
+tests. Hopefully the cwrap project will get the ability to mock pam. When that
+happens we should add unit tests for the actual pam module as well.

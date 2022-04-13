@@ -1,0 +1,208 @@
+<refentry id="cockpit-tls.8">
+
+  <!--
+  This file is part of Cockpit.
+
+  Copyright (C) 2019 Red Hat, Inc.
+
+  Cockpit is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  Cockpit is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+  <refentryinfo>
+    <title>cockpit-tls</title>
+    <productname>cockpit</productname>
+  </refentryinfo>
+
+  <refmeta>
+    <refentrytitle>cockpit-tls</refentrytitle>
+    <manvolnum>8</manvolnum>
+    <refmiscinfo class="version"></refmiscinfo>
+  </refmeta>
+
+  <refnamediv>
+    <refname>cockpit-tls</refname>
+    <refpurpose>TLS proxy for Cockpit web service</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>cockpit-tls</command>
+      <arg><option>--help</option></arg>
+      <arg><option>--port</option> <replaceable>PORT</replaceable></arg>
+      <arg><option>--no-tls</option></arg>
+      <arg><option>--idle-timeout</option> <replaceable>SECONDS</replaceable></arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+
+  <refsect1 id="cockpit-tls-description">
+    <title>DESCRIPTION</title>
+    <para>
+      The <command>cockpit-tls</command> program is a TLS terminating HTTP proxy for
+      <citerefentry>
+        <refentrytitle>cockpit-ws</refentrytitle><manvolnum>8</manvolnum>
+      </citerefentry>. It manages a set of isolated cockpit-ws instances, one per TLS
+      client certificate, plus one for TLS without a client certificate, and one for
+      unencrypted HTTP. With that, one session cannot tamper with another one through
+      possible security vulnerability exploits.
+    </para>
+    <para>
+      Users or administrators should never need to start this program
+      as it automatically started by
+      <citerefentry><refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+      via socket activation.
+    </para>
+  </refsect1>
+
+  <refsect1 id="cockpit-tls-transport">
+    <title>TRANSPORT SECURITY</title>
+    <para>
+      To specify the TLS certificate the web service should use, simply
+      drop a file with the extension <literal>.cert</literal> in the
+      <filename>/etc/cockpit/ws-certs.d</filename> directory. If there are
+      multiple files in this directory, then the highest priority one
+      is chosen after sorting.</para>
+    <para>The <literal>.cert</literal> file should contain at least two
+      OpenSSL style PEM blocks. First one or more <literal>BEGIN CERTIFICATE</literal>
+      blocks for the server certificate and intermediate certificate authorities
+      and a second one containing a <literal>BEGIN PRIVATE KEY</literal> or similar.
+      The key must not be encrypted.</para>
+    <para>If there is no TLS certificate, a self-signed certificate is
+      automatically generated using <command>sscg</command> (if available) or
+      <command>openssl</command> and stored in
+      the <filename>0-self-signed.cert</filename> file.</para>
+    <para>When enrolling into a FreeIPA domain, an SSL certificate is requested from
+      the IPA server and stored in <filename>10-ipa.cert</filename>.</para>
+
+    <para>To check which certificate <command>cockpit-ws</command> will use,
+      run the following command.</para>
+
+<programlisting>
+$ sudo /usr/libexec/cockpit-certificate-ensure --check
+</programlisting>
+    <para>Or, on Debian-based systems:</para>
+<programlisting>
+$ sudo /usr/lib/cockpit/cockpit-certificate-ensure --check
+</programlisting>
+
+    <para>If using <literal>certmonger</literal> to manage certificates, following command can
+      be used to automatically prepare concatenated <literal>.cert</literal> file:</para>
+<programlisting>
+CERT_FILE=/etc/pki/tls/certs/$(hostname).pem
+KEY_FILE=/etc/pki/tls/private/$(hostname).key
+
+getcert request -f ${CERT_FILE} -k ${KEY_FILE} -D $(hostname --fqdn) -C "sed -n w/etc/cockpit/ws-certs.d/50-from-certmonger.cert ${CERT_FILE} ${KEY_FILE}"
+</programlisting>
+
+  </refsect1>
+
+  <refsect1 id="cockpit-tls-options">
+    <title>OPTIONS</title>
+    <variablelist>
+      <varlistentry>
+        <term><option>--help</option></term>
+        <listitem>
+          <para>
+            Show help options.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>--port</option> <replaceable>PORT</replaceable></term>
+        <listitem>
+          <para>
+            Serve HTTP requests on <replaceable>PORT</replaceable> instead of port 9090.
+            Usually Cockpit is started on demand by <command>systemd</command> socket
+            activation, and this option has no effect. Update the
+            <literal>ListenStream</literal> directive <filename>cockpit.socket</filename>
+            file in the usual <command>systemd</command> manner.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>--no-tls</option></term>
+        <listitem>
+          <para>
+            Don't use TLS. Certificates will not be read, and https connections denied. Then
+            <command>cockpit-tls</command> will only manage a single cockpit-ws instance, and
+            thus not do anything different than running <command>cockpit-ws --no-tls</command>
+            directly. Only use this for debugging or testing.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>--idle-timeout</option> <replaceable>SECONDS</replaceable></term>
+        <listitem>
+          <para>
+            If greater than 0, exit if no connections have happened for the given number of
+            seconds, i. e. the server is idle. If not given, the default is 90.
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="cockpit-tls-environment">
+    <title>ENVIRONMENT</title>
+    <para>
+      The <command>cockpit-tls</command> program expects the <literal>RUNTIME_DIRECTORY</literal>
+      environment variable to be set to an empty directory (preferably in <literal>/run/</literal>)
+      that is only accessible by the system user under which it is running. This contains
+      the Unix sockets for communicating with the <command>cockpit-ws</command> instances,
+      and in the future, state information about client certificates.
+      This variable is normally set by the <literal>cockpit.service</literal> systemd unit.
+    </para>
+    <para>
+      In addition, <command>cockpit-tls</command> will use the <literal>XDG_CONFIG_DIRS</literal>
+      environment variable from the
+      <ulink url="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">XDG
+        basedir spec</ulink> to find its certificates and the
+      <citerefentry>
+        <refentrytitle>cockpit.conf</refentrytitle><manvolnum>5</manvolnum>
+      </citerefentry>
+      configuration file.
+    </para>
+  </refsect1>
+
+  <refsect1 id="cockpit-tls-bugs">
+    <title>BUGS</title>
+    <para>
+      Please send bug reports to either the distribution bug tracker or the
+      <ulink url="https://github.com/cockpit-project/cockpit/issues/new">upstream bug tracker</ulink>.
+    </para>
+  </refsect1>
+
+  <refsect1 id="cockpit-tls-author">
+    <title>AUTHOR</title>
+    <para>Cockpit has been written by many
+      <ulink url="https://github.com/cockpit-project/cockpit/graphs/contributors">contributors</ulink>.</para>
+  </refsect1>
+
+  <refsect1 id="cockpit-tls-also">
+    <title>SEE ALSO</title>
+    <para>
+      <citerefentry>
+        <refentrytitle>cockpit-ws</refentrytitle><manvolnum>8</manvolnum>
+      </citerefentry>
+      ,
+      <citerefentry>
+        <refentrytitle>cockpit.conf</refentrytitle><manvolnum>5</manvolnum>
+      </citerefentry>
+      ,
+      <citerefentry>
+        <refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum>
+      </citerefentry>
+    </para>
+  </refsect1>
+</refentry>

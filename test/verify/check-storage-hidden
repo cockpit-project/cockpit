@@ -1,0 +1,157 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from storagelib import *
+from testlib import *
+
+import unittest
+import testvm
+
+
+class TestStorageHidden(StorageCase):
+
+    def testHiddenLuks(self):
+        m = self.machine
+        b = self.browser
+
+        mount_point_1 = "/run/mount1"
+
+        self.login_and_go("/storage")
+
+        m.add_disk("50M", serial="DISK1")
+        m.add_disk("50M", serial="DISK2")
+        b.wait_in_text("#drives", "DISK1")
+        b.wait_in_text("#drives", "DISK2")
+
+        # Create a volume group with a logical volume with a encrypted
+        # filesystem.
+
+        self.devices_dropdown('Create LVM2 volume group')
+        self.dialog_wait_open()
+        self.dialog_set_val('name', "TEST")
+        self.dialog_set_val('disks', {"DISK1": True})
+        self.dialog_apply()
+        self.dialog_wait_close()
+        b.wait_in_text('#devices', "TEST")
+
+        b.click('#devices .sidepanel-row:contains("TEST")')
+        b.wait_visible('#storage-detail')
+        b.click("button:contains(Create new logical volume)")
+        self.dialog({'purpose': "block",
+                     'name': "lvol",
+                     'size': 48})
+        self.content_row_wait_in_col(1, 1, "lvol")
+
+        self.content_row_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "crypto": self.default_crypto_type,
+                     "name": "FS",
+                     "passphrase": "einszweidrei",
+                     "passphrase2": "einszweidrei",
+                     "mount_point": mount_point_1,
+                     "mount_options.auto": False,
+                     "crypto_options": "my-crypto-tag"})
+        self.content_row_wait_in_col(1, 2, "Filesystem (encrypted)")
+        self.wait_in_configuration("/dev/TEST/lvol", "crypttab", "options", "my-crypto-tag")
+        self.wait_in_child_configuration("/dev/TEST/lvol", "fstab", "dir", mount_point_1)
+        self.wait_in_lvol_child_configuration("lvol", "crypttab", "options", "my-crypto-tag")
+        self.wait_in_lvol_child_configuration("lvol", "fstab", "dir", mount_point_1)
+
+        # Now the filesystem is hidden because the LUKS device is
+        # locked.  Doubly hide it by deactivating /dev/TEST/lvol
+        self.content_dropdown_action(1, "Deactivate")
+        self.content_row_wait_in_col(1, 2, "Inactive volume")
+
+        # Deleting the volume group should still remove the fstab entry
+        b.click('.pf-c-card__header:contains("LVM2 volume group") button:contains("Delete")')
+        self.confirm()
+        b.wait_visible("#storage")
+        self.assertEqual(m.execute(f"grep {mount_point_1} /etc/fstab || true"), "")
+        self.assertEqual(m.execute(f"grep {'my-crypto-tag'} /etc/crypttab || true"), "")
+
+    def testHiddenRaid(self):
+        m = self.machine
+        b = self.browser
+
+        mount_point_2 = "/run/mount2"
+
+        self.login_and_go("/storage")
+
+        m.add_disk("50M", serial="DISK1")
+        m.add_disk("50M", serial="DISK2")
+        b.wait_in_text("#drives", "DISK1")
+        b.wait_in_text("#drives", "DISK2")
+
+        # Now do the same with a MDRAID
+
+        self.dialog_with_retry(trigger=lambda: self.devices_dropdown('Create RAID device'),
+                               expect=lambda: (self.dialog_is_present('disks', "DISK1") and
+                                               self.dialog_is_present('disks', "DISK2")),
+                               values={"name": "ARR",
+                                       "disks": {"DISK1": True,
+                                                 "DISK2": True}})
+        b.wait_in_text('#devices', "ARR")
+
+        b.click('#devices .sidepanel-row:contains("ARR")')
+        b.wait_visible('#storage-detail')
+        self.content_row_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "name": "FS2",
+                     "mount_point": mount_point_2})
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
+        self.wait_in_configuration("/dev/md127", "fstab", "dir", mount_point_2)
+
+        # we need to wait for mdadm --monitor to stop using the device before delete
+        m.execute("while fuser -s /dev/md127; do sleep 0.2; done", timeout=20)
+
+        self.browser.click('.pf-c-card__header:contains("RAID device") button:contains("Delete")')
+        self.confirm()
+        b.wait_visible("#storage")
+        self.assertEqual(m.execute(f"grep {mount_point_2} /etc/fstab || true"), "")
+
+    @unittest.skipUnless("ubuntu" in testvm.DEFAULT_IMAGE, "Only test snaps on Ubuntu")
+    def testHiddenSnap(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        # We expect there to be at least one loop back device mounted
+        # somewhere below /snap.
+        snap_loops = []
+        devices = json.loads(m.execute("lsblk --json --list --output NAME,TYPE,MOUNTPOINT"))
+        for d in devices["blockdevices"]:
+            if d["type"] == "loop" and d["mountpoint"].startswith("/snap/"):
+                snap_loops.append(d["name"])
+        self.assertTrue(len(snap_loops) > 0)
+
+        # Make one more loopback device that we expect to see in the UI.
+        dev = self.add_loopback_disk()
+
+        # Now we wait until the regular loopback device is shown.  The
+        # snaps should not be shown.
+        b.wait_in_text("#others", dev)
+        for sl in snap_loops:
+            b.wait_not_in_text("#others", sl)
+            b.wait_not_in_text("#mounts", sl)
+
+
+if __name__ == '__main__':
+    test_main()

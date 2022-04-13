@@ -1,0 +1,243 @@
+<refentry id="cockpit-ws.8">
+
+  <!--
+  This file is part of Cockpit.
+
+  Copyright (C) 2013 Red Hat, Inc.
+
+  Cockpit is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  Cockpit is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+  <refentryinfo>
+    <title>cockpit-ws</title>
+    <productname>cockpit</productname>
+  </refentryinfo>
+
+  <refmeta>
+    <refentrytitle>cockpit-ws</refentrytitle>
+    <manvolnum>8</manvolnum>
+    <refmiscinfo class="version"></refmiscinfo>
+  </refmeta>
+
+  <refnamediv>
+    <refname>cockpit-ws</refname>
+    <refpurpose>Cockpit web service</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>cockpit-ws</command>
+      <arg><option>--help</option></arg>
+      <arg><option>--port</option> <replaceable>PORT</replaceable></arg>
+      <arg><option>--address</option> <replaceable>ADDRESS</replaceable></arg>
+      <arg><option>--no-tls</option></arg>
+      <arg><option>--for-tls-proxy</option></arg>
+      <arg><option>--local-ssh</option></arg>
+      <arg><option>--local-session</option> <replaceable>BRIDGE</replaceable></arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+
+  <refsect1 id="cockpit-ws-description">
+    <title>DESCRIPTION</title>
+    <para>
+      The <command>cockpit-ws</command> program is the web service
+      component used for communication between the browser application
+      and various configuration tools and services like
+      <citerefentry>
+        <refentrytitle>cockpit-bridge</refentrytitle><manvolnum>1</manvolnum>
+      </citerefentry>.
+    </para>
+    <para>
+      Users or administrators should never need to start this program
+      as it automatically started by
+      <citerefentry><refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+      on bootup, through
+      <citerefentry><refentrytitle>cockpit-tls</refentrytitle><manvolnum>8</manvolnum></citerefentry>.
+    </para>
+  </refsect1>
+
+  <refsect1 id="cockpit-ws-transport">
+    <title>TRANSPORT SECURITY</title>
+    <para>
+      <command>cockpit-ws</command> is normally run behind the <command>cockpit-tls</command>
+      TLS terminating proxy, and only deals with unencrypted HTTP by itself. But for backwards
+      compatibility it can also handle TLS connections by itself when being run directly.
+      For details how to configure certificates, please refer to the
+      <citerefentry><refentrytitle>cockpit-tls</refentrytitle><manvolnum>8</manvolnum></citerefentry>
+      documentation.
+    </para>
+  </refsect1>
+
+  <refsect1 id="cockpit-ws-timeout">
+    <title>TIMEOUT</title>
+    <para>
+      When started via
+      <citerefentry>
+        <refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum>
+      </citerefentry>
+      then <command>cockpit-ws</command> will exit after 90 seconds
+      if nobody logs in, or after the last user is disconnected.
+    </para>
+  </refsect1>
+
+  <refsect1 id="cockpit-ws-options">
+    <title>OPTIONS</title>
+    <variablelist>
+      <varlistentry>
+        <term><option>--help</option></term>
+        <listitem>
+          <para>
+            Show help options.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>--port</option> <replaceable>PORT</replaceable></term>
+        <listitem>
+          <para>
+            Serve HTTP requests <replaceable>PORT</replaceable> instead of port 9090.
+            Usually Cockpit is started on demand by <command>systemd</command> socket
+            activation, and this option has no effect. Update the
+            <literal>ListenStream</literal> directive <filename>cockpit.socket</filename>
+            file in the usual <command>systemd</command> manner.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>--address</option> <replaceable>ADDRESS</replaceable></term>
+        <listitem>
+          <para>
+            Bind to address <replaceable>ADDRESS</replaceable> instead of binding to
+            all available addresses. Usually Cockpit is started on demand by
+            <command>systemd</command> socket activation, and this option has no effect.
+            In that case, update the <literal>ListenStream</literal> directive in the
+            <filename>cockpit.socket</filename> file in the usual <command>systemd</command> manner.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>--no-tls</option></term>
+        <listitem>
+          <para>
+            Don't use TLS.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>--for-tls-proxy</option></term>
+        <listitem>
+          <para>
+            Tell <command>cockpit-ws</command> that it is running behind a local reverse proxy that
+            does the TLS termination. Then Cockpit puts https:// URLs into the default
+            <literal>Content-Security-Policy</literal>, and accepts only https:// origins, instead of
+            http: ones by default. However, if <literal>Origins</literal> is set in the
+            <citerefentry>
+              <refentrytitle>cockpit.conf</refentrytitle><manvolnum>5</manvolnum>
+            </citerefentry>
+            configuration file, it will override this default.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>--local-ssh</option></term>
+        <listitem>
+          <para>
+            Normally <command>cockpit-ws</command> uses
+            <command>cockpit-session</command> and PAM to authenticate the user and start a
+            user session. With this option enabled, it will instead authenticate via SSH at
+            <literal>127.0.0.1</literal> port <literal>22</literal>.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>--local-session</option> <replaceable>BRIDGE</replaceable></term>
+        <listitem>
+          <para>
+            Skip all authentication and <command>cockpit-session</command>, and launch the
+            <command>cockpit-bridge</command> specified in <replaceable>BRIDGE</replaceable> in
+            the local session. If the <replaceable>BRIDGE</replaceable> is specified as
+            <command>-</command> then expect an already running bridge that is connected to
+            stdin and stdout of this <command>cockpit-ws</command> process. This allows the
+            web server to run as any unprivileged user in an already running session.
+          </para>
+          <para>
+            This mode implies <literal>--no-tls</literal>, thus you need to use http://
+            URLs with this.
+          </para>
+          <warning>
+            <para>
+              If you use this, you <emphasis>have to isolate the opened TCP port</emphasis>
+              somehow (for example in a network namespace), otherwise all other users (or
+              even remote machines if the port is not just listening on localhost) can access
+              the session!
+            </para>
+          </warning>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="cockpit-ws-environment">
+    <title>ENVIRONMENT</title>
+    <para>
+      The <command>cockpit-ws</command> process will use the <literal>XDG_CONFIG_DIRS</literal>
+      environment variable from the
+      <ulink url="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">XDG
+        basedir spec</ulink> to find its
+      <citerefentry>
+        <refentrytitle>cockpit.conf</refentrytitle><manvolnum>5</manvolnum>
+      </citerefentry>
+      configuration file.
+    </para>
+    <para>
+      In addition the <literal>XDG_DATA_DIRS</literal> environment variable from the
+      <ulink url="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">XDG
+        basedir spec</ulink>
+      can be used to override the location to serve static files from. These are the files that
+      are served to a non-logged in user.
+    </para>
+  </refsect1>
+
+  <refsect1 id="cockpit-ws-bugs">
+    <title>BUGS</title>
+    <para>
+      Please send bug reports to either the distribution bug tracker or the
+      <ulink url="https://github.com/cockpit-project/cockpit/issues/new">upstream bug tracker</ulink>.
+    </para>
+  </refsect1>
+
+  <refsect1 id="cockpit-ws-author">
+    <title>AUTHOR</title>
+    <para>Cockpit has been written by many
+      <ulink url="https://github.com/cockpit-project/cockpit/">contributors</ulink>.</para>
+  </refsect1>
+
+  <refsect1 id="cockpit-ws-also">
+    <title>SEE ALSO</title>
+    <para>
+      <citerefentry>
+        <refentrytitle>cockpit-tls</refentrytitle><manvolnum>8</manvolnum>
+      </citerefentry>
+      ,
+      <citerefentry>
+        <refentrytitle>cockpit.conf</refentrytitle><manvolnum>5</manvolnum>
+      </citerefentry>
+      ,
+      <citerefentry>
+        <refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum>
+      </citerefentry>
+    </para>
+  </refsect1>
+</refentry>

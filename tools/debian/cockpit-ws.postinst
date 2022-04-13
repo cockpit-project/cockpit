@@ -1,0 +1,38 @@
+#!/bin/sh
+set -e
+
+adduser --system --group --home /nonexistent --no-create-home --quiet cockpit-ws
+adduser --system --group --home /nonexistent --no-create-home --quiet cockpit-wsinstance
+
+# change group of cockpit-session on upgrades (changed in version 203)
+if OUT=$(dpkg-statoverride --list /usr/lib/cockpit/cockpit-session) && [ "$OUT#root cockpit-ws 4750}" != "$OUT" ]; then
+    echo "Adjusting /usr/lib/cockpit/cockpit-session permissions..."
+    dpkg-statoverride --remove /usr/lib/cockpit/cockpit-session
+fi
+
+if ! dpkg-statoverride --list /usr/lib/cockpit/cockpit-session >/dev/null; then
+    dpkg-statoverride --update --add root cockpit-wsinstance 4750 /usr/lib/cockpit/cockpit-session
+fi
+
+#DEBHELPER#
+
+# restart cockpit.service on package upgrades, if it's already running
+if [ -d /run/systemd/system ] && [ -n "$2" ]; then
+    deb-systemd-invoke try-restart cockpit.service >/dev/null || true
+fi
+
+# set up dynamic motd/issue symlinks on first-time install; don't bring them back on upgrades if admin removed them
+if [ "$1" = "configure" ] && [ -z "$2" ]; then
+    mkdir -p /etc/motd.d /etc/issue.d
+    ln -s ../../run/cockpit/motd /etc/motd.d/cockpit
+    ln -s ../../run/cockpit/motd /etc/issue.d/cockpit.issue
+fi
+
+# check for deprecated PAM config
+if grep --color=auto pam_cockpit_cert /etc/pam.d/cockpit; then
+    echo '**** WARNING:'
+    echo '**** WARNING: pam_cockpit_cert is a no-op and will be removed in a'
+    echo '**** WARNING: future release; remove it from your /etc/pam.d/cockpit.'
+    echo '**** WARNING:'
+fi
+

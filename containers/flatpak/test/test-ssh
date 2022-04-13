@@ -1,0 +1,59 @@
+#!/bin/sh
+
+set -eux
+cd "$(realpath -m "$0"/../../..)"
+
+FLATPAK_ID="${1:-org.cockpit_project.CockpitClient}"
+
+# We need to setup an entry in the ssh config, but this is difficult:
+# if this script is run by a normal user then they probably already
+# have their own configuration, and we need to be careful not to change
+# that.
+if mkdir ~/.ssh; then
+    # ~/.ssh didn't exist yet.  Assume that we're safe to configure this.
+    echo 'Include cockpit-client-test.config' > ~/.ssh/config
+    trap 'rm -rf ~/.ssh' EXIT INT QUIT PIPE
+else
+    # There's already a ~/.ssh directory.  Don't modify that, but check it.
+    if ! grep -q 'Include cockpit-client-test.config' ~/.ssh/config; then
+        echo 'Please add "Include cockpit-client-test.config" to your ssh config'
+        exit 1
+    fi
+fi
+
+rm -f cockpit-client-test-*-*-*
+cat > ~/.ssh/cockpit-client-test.config <<EOF
+Host cockpit-client-test
+    ProxyCommand touch $PWD/cockpit-client-test-%r-%h-%p
+EOF
+
+flatpak run "${FLATPAK_ID}" &
+CLIENT_PID=$!
+
+# wait until it comes up
+gdbus wait --session org.cockpit_project.CockpitClient
+
+# test some stuff
+test ! -f cockpit-client-test-"${USER}"-cockpit-client-test-22
+grep "${USER} cockpit-client-test 22" cockpit-client-test.log && exit 1
+gapplication action "${FLATPAK_ID}" open-path '"=cockpit-client-test"'
+until test -f cockpit-client-test-"${USER}"-cockpit-client-test-22; do sleep 0.5; done
+
+test ! -f cockpit-client-test-rupert-cockpit-client-test-22
+grep "rupert cockpit-client-test 22" cockpit-client-test.log && exit 1
+gapplication action "${FLATPAK_ID}" open-path '"=rupert@cockpit-client-test"'
+until test -f cockpit-client-test-rupert-cockpit-client-test-22; do sleep 0.5; done
+
+gapplication action "${FLATPAK_ID}" quit
+wait $CLIENT_PID
+
+rm cockpit-client-test-*-*-*
+
+# Check if we can start via pure DBus activation
+test ! -f cockpit-client-test-"${USER}"-cockpit-client-test-22
+gapplication action "${FLATPAK_ID}" open-path '"=cockpit-client-test"'
+until test -f cockpit-client-test-"${USER}"-cockpit-client-test-22; do sleep 0.5; done
+
+gapplication action "${FLATPAK_ID}" quit
+while flatpak ps | grep org.cockpit_project.CockpitClient; do sleep 1; done
+rm cockpit-client-test-*-*-*

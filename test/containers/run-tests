@@ -1,0 +1,78 @@
+#!/usr/bin/python3
+# This file is part of Cockpit.
+#
+# Copyright (C) 2016 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import sys
+import glob
+import importlib.machinery
+import importlib.util
+import os
+import string
+import unittest
+from parent import TEST_DIR, BASE_DIR
+import testlib
+
+
+sys.dont_write_bytecode = True
+
+
+def check_valid(filename):
+    name = os.path.basename(filename)
+    allowed = string.ascii_letters + string.digits + '-_'
+    if not all(c in allowed for c in name):
+        return None
+    return name.replace("-", "_")
+
+
+def run(opts):
+    # Now actually load the tests, any modules that start with "check-*"
+    test_loader = unittest.TestLoader()
+    suite = unittest.TestSuite()
+    for filename in glob.glob(os.path.join(TEST_DIR, "containers",
+                                           "check-{0}*".format(opts.container))):
+        name = check_valid(filename)
+        if not name or not os.path.isfile(filename):
+            continue
+        loader = importlib.machinery.SourceFileLoader(name, filename)
+        module = importlib.util.module_from_spec(importlib.util.spec_from_loader(loader.name, loader))
+        loader.exec_module(module)
+        suite.addTest(test_loader.loadTestsFromModule(module))
+
+    # And now load new testlib, and run all the tests we got
+    return testlib.test_main(options=opts, suite=suite)
+
+
+def main():
+    parser = testlib.arg_parser()
+    parser.add_argument('-c', '--container', dest="container", action='store',
+                        help='container to test')
+    opts = parser.parse_args()
+    if not opts.container:
+        opts.container = 'bastion'
+
+    if not os.path.isdir(os.path.abspath(os.path.join(BASE_DIR, "containers", opts.container))):
+        sys.stderr.write("Unable to run tests for unknown container {0}.\n".format(opts.container))
+        exit(1)
+
+    if run(opts):
+        return 1
+    else:
+        return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

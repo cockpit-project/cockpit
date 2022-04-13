@@ -1,0 +1,276 @@
+<refentry id="cockpit.conf.5">
+
+  <!--
+  This file is part of Cockpit.
+
+  Copyright (C) 2013 Red Hat, Inc.
+
+  Cockpit is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  Cockpit is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+  <refentryinfo>
+    <title>cockpit.conf</title>
+    <productname>cockpit</productname>
+  </refentryinfo>
+
+  <refmeta>
+    <refentrytitle>cockpit.conf</refentrytitle>
+    <manvolnum>5</manvolnum>
+    <refmiscinfo class="version"></refmiscinfo>
+  </refmeta>
+
+  <refnamediv>
+    <refname>cockpit.conf</refname>
+    <refpurpose>Cockpit configuration file</refpurpose>
+  </refnamediv>
+
+  <refsect1 id="cockpit-conf-description">
+    <title>DESCRIPTION</title>
+  <para>
+    Cockpit can be configured via /etc/cockpit/cockpit.conf.  This file is not required
+    and may need to be created manually.  The file has a INI file syntax and thus
+    contains key / value pairs, grouped into topical groups. See the examples below for
+    details..
+  </para>
+
+  <para>Note: The port that cockpit listens on cannot be changed in this file. To change
+    the port change the systemd <filename>cockpit.socket</filename> file.</para>
+  </refsect1>
+
+  <refsect1 id="cockpit-conf-webservice">
+	  <title>WebService</title>
+	  <variablelist>
+	    <varlistentry>
+	      <term><option>Origins</option></term>
+	      <listitem>
+                <para>By default cockpit will not accept crossdomain websocket connections. Use this
+                  setting to allow access from alternate domains. Origins should include scheme, host
+                  and port, if necessary.</para>
+
+          <informalexample>
+<programlisting language="ini">
+[WebService]
+Origins = https://somedomain1.com https://somedomain2.com:9090
+</programlisting>
+          </informalexample>
+        </listitem>
+      </varlistentry>
+	    <varlistentry>
+	      <term><option>ProtocolHeader</option></term>
+	      <listitem>
+                <para>Configure cockpit to look at the contents of this header to determine if a connection
+                  is using tls. This should only be used when cockpit is behind a reverse proxy, and care
+                  should be taken to make sure that incoming requests cannot set this header.</para>
+          <informalexample>
+<programlisting language="ini">
+[WebService]
+ProtocolHeader = X-Forwarded-Proto
+</programlisting>
+          </informalexample>
+        </listitem>
+      </varlistentry>
+        <varlistentry>
+          <term><option>ForwardedForHeader</option></term>
+          <listitem>
+            <para>Configure cockpit to look at the contents of this header to determine the real origin of a
+              connection.  This should only be used when cockpit is behind a reverse proxy, and care
+              should be taken to make sure that incoming requests cannot set this header.</para>
+          <informalexample>
+<programlisting language="ini">
+[WebService]
+ForwardedForHeader = X-Forwarded-For
+</programlisting>
+          </informalexample>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>LoginTitle</option></term>
+        <listitem><para>Set the browser title for the login screen.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>LoginTo</option></term>
+        <listitem>
+          <para>When set to <literal>true</literal> the <emphasis>Connect to</emphasis> option
+            on the login screen is visible and allows logging into another server. If this
+            option is not specified then it will be automatically detected based on whether
+            the <command>cockpit-ssh</command> process is available or not.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>RequireHost</option></term>
+        <listitem>
+          <para>When set to <literal>true</literal> cockpit will require users to use the
+            <emphasis>Connect to</emphasis> option to specify the host to log into.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>MaxStartups</option></term>
+        <listitem><para>Same as the <command>sshd</command> configuration option by the same name.
+            Specifies the maximum number of concurrent login attempts
+            allowed. Additional connections will be dropped until authentication
+            succeeds or the connections are closed. Defaults to 10.</para>
+
+            <para>Alternatively, random early drop can be enabled by specifying the
+             three colon separated values <literal>start:rate:full</literal> (e.g.
+             "10:30:60"). Cockpit will start refusing authentication attempts with a
+             probability of <literal>rate/100</literal> (30%) if there are currently
+             <literal>start</literal> (10) unauthenticated connections.  The probability
+             increases linearly and all connection attempts are refused if the
+             number of unauthenticated connections reaches <literal>full</literal> (60).</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>AllowUnencrypted</option></term>
+        <listitem>
+          <para>If true, cockpit will accept unencrypted HTTP connections. Otherwise, it
+            redirects all HTTP connections to HTTPS. Exceptions are connections from
+            localhost and for certain URLs (like <code>/ping</code>). Defaults to
+            false.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>UrlRoot</option></term>
+        <listitem>
+          <para>The root URL where you will be serving cockpit. When provided cockpit will expect all
+          requests to be prefixed with the given url. This is mostly useful when you are using
+          cockpit behind a reverse proxy, such as nginx. <code>/cockpit/</code> and <code>/cockpit+</code>
+          are reserved and should not be used. For example <code>/cockpit-new/</code> is ok.
+          <code>/cockpit/</code> and <code>/cockpit+new/</code> are not.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>ClientCertAuthentication</option></term>
+        <listitem>
+          <para>If true, enable TLS client certificates for authenticating users. Commonly
+            these are provided by a smart card, but it's equally possible to import
+            certificates directly into the web browser. Please see the
+            <ulink url="https://cockpit-project.org/guide/latest/cert-authentication.html">Certificate/smart card authentication</ulink>
+            section in the Cockpit guide for details.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>Shell</option></term>
+        <listitem>
+          <para>The relative URL to top level component to display in Cockpit once logged in.
+            Defaults to <code>/shell/index.html</code></para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="cockpit-conf-log">
+    <title>Log</title>
+    <variablelist>
+      <varlistentry>
+        <term><option>Fatal</option></term>
+        <listitem>
+          <para>The kind of log messages in the bridge to treat as fatal. Separate multiple values
+            with spaces. Relevant values are: <code>criticals</code> and <code>warnings</code>.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="cockpit-conf-oauth">
+    <title>OAuth</title>
+    <para>Cockpit can be configured to support the <ulink url="https://tools.ietf.org/html/rfc6749#section-4.2">
+        implicit grant</ulink> OAuth authorization flow. When successful the resulting oauth
+        token will be passed to cockpit-ws using the <literal>Bearer</literal> auth-scheme.
+        For a login to be successful, cockpit will also need a to be configured to verify
+        and allow <literal>Bearer</literal> tokens.</para>
+      <variablelist>
+        <varlistentry>
+          <term><option>URL</option></term>
+          <listitem>
+          <para>This is the url that cockpit will redirect the users browser to when it needs
+          to obtain an oauth token. Cockpit will add a redirect_uri parameter to the url with
+          the location of where the oauth provider should redirect to once a token has been
+          obtained.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+	  <term><option>ErrorParam</option></term>
+	  <listitem>
+          <para>When a oauth provider redirects a user back to cockpit, look for this parameter
+          in the querystring or fragment portion of the url to find a error message. When not
+          provided it will default to <literal>error_description</literal></para>
+          </listitem>
+        </varlistentry>
+	<varlistentry>
+        <term><option>TokenParam</option></term>
+        <listitem>
+          <para>When a oauth provider redirects a user back to cockpit, look for this parameter
+          in the querystring or fragment portion of the url to find the access token. When not
+          provided it will default to <literal>access_token</literal></para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="cockpit-conf-session">
+    <title>Session</title>
+    <variablelist>
+      <varlistentry>
+        <term><option>Banner</option></term>
+        <listitem>
+          <para>The contents of the specified file (commonly <literal>/etc/issue</literal>) are shown on the login page.
+          By default, no banner is displayed.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>IdleTimeout</option></term>
+        <listitem>
+          <para>Time in minutes after which session expires and user is logged out if no user action
+          has been performed in the given time. This idle timeout only applies to interactive password logins.
+          With non-interactive authentication methods like Kerberos, OAuth, or certificate login, the browser
+          cannot forget credentials, and thus automatic logouts are not useful for protecting credentials
+          of forgotten sessions. Set to <literal>0</literal> to disable session timeout.</para>
+          <informalexample>
+<programlisting language="ini">
+[Session]
+IdleTimeout=15
+</programlisting>
+          </informalexample>
+          <para>When not specified, there is no idle timeout by default.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="cockpit-conf-bugs">
+    <title>BUGS</title>
+    <para>
+      Please send bug reports to either the distribution bug tracker or the
+      <ulink url="https://github.com/cockpit-project/cockpit/issues/new">upstream bug tracker</ulink>.
+    </para>
+  </refsect1>
+
+  <refsect1 id="cockpit-conf-author">
+    <title>AUTHOR</title>
+    <para>Cockpit has been written by many
+      <ulink url="https://github.com/cockpit-project/cockpit/">contributors</ulink>.</para>
+  </refsect1>
+
+  <refsect1 id="cockpit-conf-also">
+    <title>SEE ALSO</title>
+    <para>
+      <citerefentry>
+        <refentrytitle>cockpit-ws</refentrytitle><manvolnum>8</manvolnum>
+      </citerefentry>,
+      <citerefentry>
+        <refentrytitle>cockpit-tls</refentrytitle><manvolnum>8</manvolnum>
+      </citerefentry>
+    </para>
+  </refsect1>
+</refentry>

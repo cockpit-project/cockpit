@@ -1,0 +1,52 @@
+#!/usr/bin/make -f
+
+DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+
+# only ship deprecated PatternFly API for stable releases (backports); Debian sid/testing has no VERSION_ID
+SHIP_PF_API = $(filter $(shell . /etc/os-release; echo $${VERSION_ID:-unstable}),10 20.04)
+
+# riscv is an emulated architecture for now, and too slow to run expensive unit tests
+# hppa's threading is absurdly slow (#981127)
+SLOW_ARCHES = $(filter $(shell dpkg-architecture -qDEB_BUILD_ARCH),riscv64 hppa)
+ifneq ($(SLOW_ARCHES),)
+	export COCKPIT_SKIP_SLOW_TESTS=1
+endif
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		--with-cockpit-user=cockpit-ws \
+		--with-cockpit-ws-instance-user=cockpit-wsinstance \
+		--with-pamdir=/lib/$(DEB_HOST_MULTIARCH)/security \
+		--libexecdir=/usr/lib/cockpit $(CONFIG_OPTIONS)
+
+override_dh_systemd_enable:
+	dh_systemd_enable -p cockpit-ws --name=cockpit cockpit.socket
+
+override_dh_systemd_start:
+	dh_systemd_start -p cockpit-ws cockpit.socket
+
+override_dh_install:
+	# Debian/Ubuntu PAM config
+	mkdir -p debian/tmp/etc/pam.d
+	install -p -m 644 tools/cockpit.debian.pam debian/tmp/etc/pam.d/cockpit
+ifneq ($(SHIP_PF_API),)
+	ln -s cockpit.css.gz debian/tmp/usr/share/cockpit/base1/patternfly.css.gz
+endif
+
+	# don't ship broken branding symlinks
+	for d in rhel fedora centos scientific opensuse; do rm -r debian/tmp/usr/share/cockpit/branding/$$d; done
+	dpkg-vendor --derives-from ubuntu || rm -r debian/tmp/usr/share/cockpit/branding/ubuntu
+
+	# handled by package maintainer scripts
+	rm debian/tmp/etc/motd.d/cockpit debian/tmp/etc/issue.d/cockpit.issue
+
+	# unpackaged modules
+	for m in kdump selinux; do rm -r debian/tmp/usr/share/cockpit/$$m; done
+	rm debian/tmp/usr/share/metainfo/org.cockpit-project.cockpit-kdump.metainfo.xml
+	rm debian/tmp/usr/share/metainfo/org.cockpit-project.cockpit-selinux.metainfo.xml
+
+	dh_install --fail-missing -Xusr/src/debug
+	make install-tests DESTDIR=debian/cockpit-tests

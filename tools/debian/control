@@ -1,0 +1,178 @@
+Source: cockpit
+Section: admin
+Priority: optional
+Maintainer: Cockpit <cockpit@cockpit-project.org>
+Build-Depends: debhelper (>= 12),
+               dpkg-dev (>= 1.17.14),
+               gettext (>= 0.19.7),
+               gettext (>= 0.21) | appstream,
+               libssh-dev (>= 0.8.5),
+               zlib1g-dev,
+               libkrb5-dev (>= 1.11),
+               libxslt1-dev,
+               libglib2.0-dev (>= 2.50),
+               libgnutls28-dev (>= 3.4.3) | gnutls-dev,
+               libsystemd-dev (>= 235),
+               libpolkit-agent-1-dev,
+               libpcp3-dev,
+               libjson-glib-dev,
+               libpam0g-dev,
+               libpcp-import1-dev,
+               libpcp-pmda3-dev,
+               systemd,
+               xsltproc,
+               xmlto,
+               docbook-xsl,
+               glib-networking,
+               openssh-client <!nocheck>,
+               python3,
+Standards-Version: 4.6.0
+Homepage: https://cockpit-project.org/
+Vcs-Git: https://salsa.debian.org/utopia-team/cockpit.git
+Vcs-Browser: https://salsa.debian.org/utopia-team/cockpit
+Rules-Requires-Root: no
+
+Package: cockpit
+Architecture: all
+Multi-Arch: foreign
+Depends: ${misc:Depends},
+         cockpit-bridge (>= ${source:Version}),
+         cockpit-ws (>= ${source:Version}),
+         cockpit-system (>= ${source:Version}),
+Recommends: cockpit-storaged (>= ${source:Version}),
+            cockpit-networkmanager (>= ${source:Version}),
+            cockpit-packagekit (>= ${source:Version}),
+Suggests: cockpit-doc (>= ${source:Version}),
+          cockpit-pcp (>= ${source:Version}),
+          cockpit-sosreport (>= ${source:Version}),
+          xdg-utils,
+Description: Web Console for Linux servers
+ The Cockpit Web Console enables users to administer GNU/Linux servers using a
+ web browser.
+ .
+ It offers network configuration, log inspection, diagnostic reports, SELinux
+ troubleshooting, interactive command-line sessions, and more.
+
+Package: cockpit-bridge
+Architecture: any
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         glib-networking
+Provides: cockpit-ssh
+Breaks: cockpit-ws (<< 181.x),
+Replaces: cockpit-dashboard (<< 170.x), cockpit-ws (<< 181.x)
+Description: Cockpit bridge server-side component
+ The Cockpit bridge component installed server side and runs commands on
+ the system on behalf of the web based user interface.
+
+Package: cockpit-doc
+Section: doc
+Architecture: all
+Multi-Arch: foreign
+Depends: ${misc:Depends}
+Description: Cockpit deployment and developer guide
+ The Cockpit Deployment and Developer Guide shows sysadmins how to deploy
+ Cockpit on their machines as well as helps developers who want to embed
+ or extend Cockpit.
+
+Package: cockpit-networkmanager
+Architecture: all
+Multi-Arch: foreign
+Depends: ${misc:Depends},
+         cockpit-bridge (>= ${source:Version}),
+         network-manager (>= 1.6)
+Description: Cockpit user interface for networking
+ The Cockpit components for interacting with networking configuration.
+
+Package: cockpit-pcp
+Architecture: any
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         cockpit-bridge (>= ${source:Version}),
+         pcp
+Description: Cockpit PCP integration
+ Cockpit support for reading PCP metrics and loading PCP archives.
+
+Package: cockpit-packagekit
+Architecture: all
+Multi-Arch: foreign
+Depends: ${misc:Depends},
+         cockpit-bridge (>= ${source:Version}),
+         packagekit
+Description: Cockpit user interface for packages
+ The Cockpit component for installing packages, via PackageKit.
+
+Package: cockpit-storaged
+Architecture: all
+Multi-Arch: foreign
+Depends: ${misc:Depends},
+         udisks2 (>= 2.7),
+         libblockdev-mdraid2,
+         cockpit-bridge (>= ${source:Version}),
+         python3,
+         python3-dbus
+Suggests: udisks2-lvm2
+Description: Cockpit user interface for storage
+ The Cockpit components for interacting with storage.
+ .
+ Install udisks2-lvm2 if you use LVM and want to manage it with Cockpit.
+
+Package: cockpit-system
+Architecture: all
+Multi-Arch: foreign
+Depends: ${misc:Depends},
+         cockpit-bridge (>= ${source:Version}),
+         libpwquality-tools,
+         openssl,
+Recommends: sudo | policykit-1
+Provides: cockpit-shell,
+          cockpit-systemd,
+          cockpit-tuned,
+          cockpit-users
+Conflicts: cockpit-shell
+Breaks: cockpit-dashboard
+Replaces: cockpit-shell, cockpit-dashboard
+Description: Cockpit admin interface for a system
+ Cockpit admin interface package for configuring and
+ troubleshooting a system.
+
+Package: cockpit-tests
+Architecture: any
+Multi-Arch: foreign
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         cockpit-system (>= ${source:Version}),
+         openssh-client
+Conflicts: cockpit-test-assets
+Replaces: cockpit-test-assets
+Provides: cockpit-test-assets
+Description: Tests for Cockpit
+ This package contains tests and files used while testing Cockpit.
+ These files are not required for running Cockpit.
+
+Package: cockpit-ws
+Architecture: any
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         glib-networking,
+         adduser,
+         openssl,
+         systemd (>= 235),
+Suggests: sssd-dbus,
+         python3,
+Description: Cockpit Web Service
+ The Cockpit Web Service listens on the network, and authenticates
+ users.
+ .
+ Install sssd-dbus for supporting client certificate/smart card authentication
+ via sssd/FreeIPA.
+
+Package: cockpit-sosreport
+Architecture: all
+Multi-Arch: foreign
+Depends: ${misc:Depends},
+         cockpit-bridge (>= ${source:Version}),
+         sosreport
+Description: Cockpit user interface for diagnostic reports
+ The Cockpit component for creating diagnostic reports with the
+ sosreport tool.

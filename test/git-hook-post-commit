@@ -1,0 +1,39 @@
+#!/bin/sh
+
+set -eu
+
+# if being run directly, add a dash of red
+if [ -t 1 ]; then
+    trap 'printf "\e[0m"' EXIT
+    printf "\e[1;31m"
+fi
+
+# resolve to a sha, ensure validity
+readonly commit="$(git rev-parse --verify "${1:-HEAD}^{commit}")"
+
+tmpdir="tmp/pre-push/${commit}"
+rm -rf "tmp/pre-push/${commit}"
+
+# unpack all of the changed files, plus the test/static-code from that commit
+files="$(git diff-tree --no-commit-id --no-renames --diff-filter=d --name-only -r "${commit}" --) test/static-code"
+git archive --prefix="${tmpdir}/" "${commit}" -- ${files} | tar x
+
+# check that node_modules always gets updated with package.json
+if [ -e "${tmpdir}/package.json" -a ! -e "${tmpdir}/node_modules" ]; then
+    echo 'not ok 0 /node-modules/update'
+    echo '# package.json changed, but node_modules not updated'
+fi
+
+# if any of the following commands fail, the function
+# will abort, leaving the temp directory in place
+(
+    unset -- $(env | sed -n '/^GIT_/{s/=.*//p}')
+    cd "${tmpdir}"
+    git init -qb main .
+    git add .
+    test/static-code
+)
+
+# paranoia: make sure we delete what we think we will
+rm -rf "tmp/pre-push/${commit}"
+rmdir --ignore-fail-on-non-empty tmp/pre-push tmp

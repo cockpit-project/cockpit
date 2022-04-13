@@ -1,0 +1,263 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+
+
+def line_sel(i):
+    return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
+
+
+@skipDistroPackage()
+class TestTerminal(MachineCase):
+    def setUp(self):
+        super().setUp()
+
+        self.allow_journal_messages(".*external channel failed: terminated")
+
+        # Make sure we get what we expect
+        self.write_file("/home/admin/.bashrc", r"""
+PS1="\u@local \W]\$ "
+PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/#$HOME/\~}"'
+""", append=True)
+
+        # Remove failed units which will show up in the first terminal line
+        self.machine.execute("systemctl reset-failed")
+
+    @skipBrowser("Firefox needs http to access clipboard", "firefox")
+    @nondestructive
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+        b.default_user = "admin"
+
+        self.login_and_go("/system/terminal")
+
+        blank_state = ' '
+
+        def wait_line(i, t):
+            try:
+                b.wait_text(line_sel(i), t)
+            except Exception as e:
+                print("-----")
+                for i in range(max(1, i - 5), i + 5):
+                    print(b.text(line_sel(i)))
+                print("-----")
+                raise e
+
+        # wait until first line is not empty
+        n = 1
+        b.wait_visible(".terminal .xterm-accessibility-tree")
+        function_str = "(function (sel) { return ph_text(sel).trim() != '%s'})" % blank_state
+        b.wait_js_func(function_str, line_sel(n))
+
+        # clear any messages (for example, instructions about sudo) and wait for prompt
+        b.key_press("clear")
+        b.wait_js_cond("ph_text('.terminal').indexOf('clear') >= 0")
+        # now wait for clear to take effect
+        b.key_press("\r")
+        b.wait_js_cond("ph_text('.xterm-accessibility-tree').indexOf('clear') < 0")
+        # now we should get a clean prompt
+        b.wait_in_text(line_sel(n), '$')
+
+        # cut trailing non-breaking spaces
+        prompt = b.text(line_sel(n))
+
+        # Make sure we are started in home directory
+        # Account for non-standard prompting
+        if "]" not in prompt:
+            self.assertIn(":~$", prompt)
+        else:
+            self.assertIn("~]$", prompt)
+
+        # Run some commands
+        b.key_press("whoami\r")
+        wait_line(n + 1, "admin")
+
+        wait_line(n + 2, prompt)
+
+        b.key_press('echo -e "1\\u0041"\r')
+        wait_line(n + 3, '1A')
+
+        # The '@' sign is in the default prompt
+        b.wait_in_text(".terminal-title", '@')
+
+        # output flooding
+        b.key_press("seq 1000000\r")
+        with b.wait_timeout(300):
+            b.wait_in_text(".terminal .xterm-accessibility-tree", "9999989999991000000admin@")
+
+        b.assert_pixels("#terminal .terminal-group", "header", ignore=[".terminal-title"])
+        b.assert_pixels("#terminal .xterm-text-layer", "text")
+
+        # now reset terminal
+        b.click('button:contains("Reset")')
+
+        # assert that the output from earlier is gone
+        wait_line(n + 1, blank_state)
+        self.assertNotIn('admin', b.text(line_sel(n + 1)))
+
+        # Check that when we `exit` we can still reconnect with the 'Reset' button
+        b.key_press("exit\r")
+        b.wait_in_text(".terminal .xterm-accessibility-tree", "disconnected")
+        b.click('button:contains("Reset")')
+        wait_line(n, prompt)
+        b.wait_not_in_text(".terminal .xterm-accessibility-tree", "disconnected")
+
+        def select_line(sel, width):
+            # Select line by dragging mouse
+            # Height on a line is around 14px, so start approx. in the middle of line
+            b.mouse(sel, "mousedown", 0, 17)
+            b.mouse(sel, "mousemove", width, 17)
+            b.mouse(sel, "mouseup", width, 17)
+
+        # Firefox does not support setting of permissions
+        # and therefore we cannot test copy/paste with context menu
+        if b.cdp.browser.name != "firefox":
+            try:
+                b.grant_permissions("clipboardReadWrite", "clipboardSanitizedWrite")
+            except RuntimeError:
+                # fallback for older Chrome releases
+                b.grant_permissions("clipboardRead", "clipboardWrite")
+
+            # Execute command
+            wait_line(n, prompt)
+            b.key_press('echo "XYZ"\r')
+            echo_result_line = n + 1
+
+            wait_line(echo_result_line, "XYZ")
+
+            sel = line_sel(echo_result_line)
+
+            # Highlight 40px (3 letters, never wider that ~14px)
+            select_line(sel, 40)
+
+            # Right click and pick copy
+            b.mouse(sel, "contextmenu", btn=2)
+            b.click('.contextMenu .contextMenuOption:first-child')
+
+            # Right click and pick paste
+            b.mouse(sel, "contextmenu", btn=2)
+            b.click('.contextMenu .contextMenuOption:nth-child(2)')
+
+            # Wait for text to show up
+            wait_line(echo_result_line + 1, prompt + "XYZ")
+            b.key_press('\r')
+            b.wait_in_text(line_sel(echo_result_line + 2), 'XYZ')
+
+        # now reset terminal
+        b.click('button:contains("Reset")')
+
+        # assert that the output from earlier is gone
+        wait_line(n + 1, blank_state)
+
+        # Execute another command
+        wait_line(n, prompt)
+        b.key_press('echo "foo"\r')
+        echo_result_line = n + 1
+
+        wait_line(echo_result_line, "foo")
+
+        sel = line_sel(echo_result_line)
+        # Highlight 40px (3 letters, never wider that ~14px)
+        select_line(sel, 40)
+
+        # Use keyboard shortcuts to copy text
+        b.key_press(chr(45), 2, use_ord=True)  # Ctrl + Insert
+        b.key_press(chr(45), 8, use_ord=True)  # Shift + Insert
+
+        # Wait for text to show up
+        wait_line(echo_result_line + 1, prompt + "foo")
+
+        # check that we get a sensible $PATH; this varies across OSes, so don't be too strict about it
+        b.key_press('\rclear\recho $PATH > /tmp/path\r')
+        # don't use wait_line() for the full match here, as line breaks get in the way; just wait until command has run
+        wait_line(echo_result_line, prompt)
+        path = m.execute("cat /tmp/path").strip()
+        if m.ostree_image:
+            self.assertIn("/usr/local/bin:/usr/bin", path)
+        else:
+            self.assertIn("/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", path)
+        self.assertNotIn(":/.local", path)  # would happen with empty $HOME
+
+        def check_theme_select(name, style):
+            b.select_from_dropdown("#theme-select + div select", name)
+            b.wait_attr_contains(".xterm-viewport", "style", style)
+
+        # Check that color theme changes
+        white_style = "background-color: rgb(255, 255, 255);"
+
+        check_theme_select("black-theme", "background-color: rgb(0, 0, 0);")
+        check_theme_select("dark-theme", "background-color: rgb(0, 43, 54);")
+        check_theme_select("light-theme", "background-color: rgb(253, 246, 227);")
+        check_theme_select("white-theme", white_style)
+
+        # Test changing of font size
+        b.wait_val("#toolbar input", 16)
+        current_style = b.attr(".xterm-accessibility-tree div:first-child", "style")
+        b.click("#toolbar button[aria-label='Increase by one']")
+        new_style = b.attr(".xterm-accessibility-tree div:first-child", "style")
+        self.assertNotEqual(current_style, new_style)
+
+        # Relogin and white-style and bigger font should be remembered
+        # Relogin on different page, as reloging on terminal prompts asking if you want to leave the site
+        b.go("/system")
+        b.relogin("/system")
+        b.go("/system/terminal")
+        b.enter_page("/system/terminal")
+        b.wait_visible('.terminal')
+        b.wait_attr_contains(".xterm-viewport", "style", white_style)
+        b.wait_val("#toolbar input", 17)
+        b.wait_attr(".xterm-accessibility-tree div:first-child", "style", new_style)
+        b.click("#toolbar button[aria-label='Decrease by one']")
+        b.wait_val("#toolbar input", 16)
+        b.wait_attr(".xterm-accessibility-tree div:first-child", "style", current_style)
+
+        # Check limit for font size
+        for i in range(15, 5, -1):
+            b.click("#toolbar button[aria-label='Decrease by one']")
+            b.wait_val("#toolbar input", i)
+        b.wait_visible("#toolbar button[aria-label='Decrease by one']:disabled")
+
+    @nondestructive
+    def testOnlyTerminal(self):
+        b = self.browser
+        m = self.machine
+
+        m.write("/etc/cockpit/cockpit.conf", "[WebService]\nShell = /system/terminal.html\n")
+        m.start_cockpit()
+        b.open("/")
+
+        b.try_login("admin", "foobar")
+        b.wait_visible("#terminal")
+
+        # wait until first line is not empty
+        n = 1
+        b.wait_visible(".terminal .xterm-accessibility-tree")
+        b.wait_js_func("(function (sel) { return ph_text(sel).trim() != ' '})", line_sel(n))
+
+        # execute a command we can see the effect of
+        b.wait_js_cond("ph_text('.terminal').indexOf('uid=') == -1")
+        b.key_press("id\r")
+        b.wait_js_cond("ph_text('.terminal').indexOf('uid=') >= 0")
+
+
+if __name__ == '__main__':
+    test_main()

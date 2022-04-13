@@ -1,0 +1,23 @@
+[Unit]
+Description=Cockpit Web Service
+Documentation=man:cockpit-ws(8)
+Requires=cockpit.socket
+Requires=cockpit-wsinstance-http.socket cockpit-wsinstance-https-factory.socket
+After=cockpit-wsinstance-http.socket cockpit-wsinstance-https-factory.socket
+
+[Service]
+RuntimeDirectory=cockpit/tls
+# systemd ≥ 241 sets this automatically
+Environment=RUNTIME_DIRECTORY=/run/cockpit/tls
+ExecStartPre=+@libexecdir@/cockpit-certificate-ensure --for-cockpit-tls
+ExecStart=@libexecdir@/cockpit-tls
+User=@user@
+Group=@group@
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryDenyWriteExecute=true

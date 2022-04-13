@@ -1,0 +1,67 @@
+#!/usr/bin/python3
+
+import argparse
+import os
+import re
+import shlex
+import subprocess
+import time
+import xml.etree.ElementTree as ET
+
+
+# Pretend like this is a little bit functional
+def element(tag, text=None, children=(), **kwargs):
+    tag = ET.Element(tag, kwargs)
+    tag.text = text
+    tag.extend(children)
+    return tag
+
+
+def points_from_body(body):
+    for text in re.split('^ *-', body, flags=re.MULTILINE):
+        if point := ' '.join(text.split()).strip():
+            yield element('li', point)
+
+
+def format_release(blob):
+    version, date, body = blob.split('|', 2)
+
+    return element('release', version=version, date=date, children=[
+        element('url', f'https://cockpit-project.org/blog/cockpit-{version}.html', type='details'),
+        element('description', children=[
+            element('p', f'Changes in Cockpit {version}:'),
+            element('ul', children=points_from_body(body))
+        ])
+    ])
+
+
+def get_releases():
+    # %(if)%(taggerdate) ensures we get only annotated tags.  258 was the first release
+    format = '%(if)%(taggerdate)%(then)%(refname:short)|%(taggerdate:short)|%(contents:body)%(end)'
+    output = subprocess.check_output(['git', 'for-each-ref', '--shell', '--sort=-taggerdate',
+                                      '--contains', '258', '--format', format, 'refs/tags'], text=True)
+    return shlex.split(output)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--version', help='Current version number', default='')
+    parser.add_argument('xml', help='Path to xml.in file in tree')
+    args = parser.parse_args()
+
+    tree = ET.parse(args.xml)
+    releases = tree.find('releases')
+
+    # Only update the file if it doesn't already contain releases.
+    if not releases.find('release'):
+        if 'g' in args.version:
+            today = time.strftime('%Y-%m-%d')
+            releases.append(element('release', version=args.version, date=today, type='development'))
+        releases.extend(format_release(r) for r in get_releases())
+        if 'ELEMENT_TREE_NO_INDENT' not in os.environ:
+            ET.indent(releases, space="  ", level=1)
+        tree.write(args.xml, encoding='utf-8', xml_declaration=True)
+
+
+if __name__ == '__main__':
+    main()

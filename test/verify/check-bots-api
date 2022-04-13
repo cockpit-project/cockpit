@@ -1,0 +1,168 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2018 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import json
+import os
+import shutil
+import subprocess
+import tempfile
+import unittest
+from glob import glob
+
+import parent
+import testvm
+from testlib import *
+
+
+@unittest.skipUnless("TEST_OS" in os.environ, "TEST_OS not set")
+@skipDistroPackage()
+class TestImageCustomize(unittest.TestCase):
+
+    def checkBoot(self, image):
+        with testvm.Timeout(seconds=300, error_message="Timed out waiting for image to run"):
+            network = testvm.VirtNetwork(0, image=image)
+            machine = testvm.VirtMachine(image=image, networking=network.host(), memory_mb=512)
+            machine.start()
+            machine.wait_boot()
+            out = machine.execute('cat /var/custom-test')
+            machine.stop()
+        self.assertEqual(out, "hello\n")
+
+    def testCustomDir(self):
+        dest = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, dest)
+
+        img = os.path.join(dest, os.environ["TEST_OS"])
+        with testvm.Timeout(seconds=300, error_message="Timed out waiting for image-customize"):
+            subprocess.check_call(["bots/image-customize", "--verbose", "--run-command",
+                                   "echo hello > /var/custom-test", img])
+
+        self.assertTrue(os.path.exists(img))
+        self.checkBoot(img)
+
+    def testBaseImage(self):
+        img = "custom-" + os.environ["TEST_OS"]
+
+        def cleanup():
+            for f in glob(f"test/images/{img}*"):
+                os.unlink(f)
+        self.addCleanup(cleanup)
+
+        with testvm.Timeout(seconds=300, error_message="Timed out waiting for image-customize"):
+            subprocess.check_call(["bots/image-customize", "--verbose", "--run-command",
+                                   "echo hello > /var/custom-test", "--base-image", os.environ["TEST_OS"], img])
+
+        self.assertTrue(os.path.exists(os.path.join("test/images", img)))
+        # notice, not giving directory here - test/images/ should be the default
+        self.checkBoot(img)
+
+    def testScriptRelativePath(self):
+        dest = tempfile.mkdtemp(dir=".")
+        self.addCleanup(shutil.rmtree, dest)
+
+        script = os.path.join(dest, "setup.sh")
+        with open(script, "w") as f:
+            f.write("#!/bin/sh -eu\necho hello > /var/custom-test\n")
+
+        img = os.path.join(dest, os.environ["TEST_OS"])
+        with testvm.Timeout(seconds=300, error_message="Timed out waiting for image-customize"):
+            subprocess.check_call(["bots/image-customize", "--verbose", "--script", script, img])
+
+        self.assertTrue(os.path.exists(img))
+        self.checkBoot(img)
+
+    def testUpload(self):
+        dest = tempfile.mkdtemp(dir=".")
+        self.addCleanup(shutil.rmtree, dest)
+        img = os.path.join(dest, os.environ["TEST_OS"])
+
+        with testvm.Timeout(seconds=300, error_message="Timed out waiting for image-customize"):
+            subprocess.check_call(["bots/image-customize", "--verbose",
+                                   "--upload", "/etc/passwd:/tmp/passwd",
+                                   "--run-command", "echo hello > /var/custom-test",
+                                   "--run-command", "grep ^root: /tmp/passwd", img])
+
+        self.checkBoot(img)
+
+    def testFailurePropagation(self):
+        dest = tempfile.mkdtemp(dir=".")
+        self.addCleanup(shutil.rmtree, dest)
+        img = os.path.join(dest, os.environ["TEST_OS"])
+
+        with testvm.Timeout(seconds=300, error_message="Timed out waiting for image-customize"):
+            subprocess.check_call(["bots/image-customize", "--verbose",
+                                   "--run-command", "true", img])
+
+            with self.assertRaises(subprocess.CalledProcessError):
+                subprocess.check_call(["bots/image-customize", "--verbose",
+                                       "--run-command", "false", img])
+
+    def testResize(self):
+        dest = tempfile.mkdtemp(dir=".")
+        self.addCleanup(shutil.rmtree, dest)
+        img = os.path.join(dest, os.environ["TEST_OS"])
+
+        with testvm.Timeout(seconds=300, error_message="Timed out waiting for image-customize"):
+            subprocess.check_call(["bots/image-customize", "--verbose",
+                                   "--resize", "20G", img])
+
+        output = subprocess.check_output(["qemu-img", "info", "--output=json", img], encoding="utf-8")
+        info = json.loads(output)
+        self.assertEqual(int(info['virtual-size']) // 1024 // 1024 // 1024, 20)
+
+
+@unittest.skipUnless("TEST_OS" in os.environ, "TEST_OS not set")
+@skipDistroPackage()
+class TestBotsVM(unittest.TestCase):
+
+    def testBasic(self):
+        dest = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, dest)
+        img = os.path.join(dest, os.environ["TEST_OS"])
+        with testvm.Timeout(seconds=300, error_message="Timed out waiting for image-customize"):
+            subprocess.check_call(["bots/image-customize", "--verbose", "--run-command",
+                                   "echo hello > /var/custom-test", img])
+
+        # boot it and wait for RUNNING marker, parse out ssh and cockpit addresses
+        with testvm.Timeout(seconds=300, error_message="Timed out waiting for testvm.py to boot VM"):
+            vm = subprocess.Popen(["bots/machine/testvm.py", img],
+                                  stdout=subprocess.PIPE, universal_newlines=True)
+            # first line should be the SSH command
+            ssh_command = vm.stdout.readline().split()
+            # second line is the redirected cockpit address
+            cockpit_address = vm.stdout.readline()
+            # third should be the "I am ready" flag
+            running = vm.stdout.readline()
+
+        self.assertEqual(running, "RUNNING\n")
+        self.assertTrue(cockpit_address.startswith("http://127.0.0.2:9"), cockpit_address)
+        # test SSH command and that we have the expected flag file
+        self.assertEqual(ssh_command[0], "ssh")
+        with testvm.Timeout(seconds=30, error_message="Timed out waiting for ssh command"):
+            out = subprocess.check_output(ssh_command + ["cat", "/var/custom-test"])
+        self.assertEqual(out, b"hello\n")
+
+        # should cleanly stop on SIGTERM
+        vm.terminate()
+        with testvm.Timeout(seconds=60, error_message="Timed out waiting for script to terminate"):
+            self.assertEqual(vm.wait(), 0)
+
+
+if __name__ == '__main__':
+    test_main()

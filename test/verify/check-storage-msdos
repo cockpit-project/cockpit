@@ -1,0 +1,90 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from storagelib import *
+from testlib import *
+
+
+class TestStorageMsDOS(StorageCase):
+
+    def testDosParts(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        # Add a disk
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#drives", "MYDISK")
+        b.click('.sidepanel-row:contains("MYDISK")')
+        b.wait_visible("#storage-detail")
+
+        # Format it with a DOS partition table
+        b.click('button:contains(Create partition table)')
+        self.dialog({"type": "dos"})
+        self.content_row_wait_in_col(1, 0, "Free space", False)
+
+        # Create a primary partition
+        self.content_row_action(1, "Create partition")
+        self.dialog({"size": 10,
+                     "type": "ext4",
+                     "mount_point": "/foo",
+                     "mount_options.auto": False,
+                     "name": "FIRST"})
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
+        self.content_tab_wait_in_info(1, 2, "Name", "FIRST")
+
+        # Open dialog for formatting the primary partition and check that "dos-extended" is not offered.
+        self.content_dropdown_action(1, "Format")
+        self.dialog_wait_open()
+        b.wait_not_present("select option[value='dos-extended']")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        # Create a extended partition to fill the rest of the disk
+        self.content_row_action(2, "Create partition", False)
+        self.dialog_wait_open()
+        self.dialog_set_val("type", "dos-extended")
+        self.dialog_wait_not_present("name")
+        self.dialog_wait_not_present("mount_point")
+        self.dialog_wait_not_present("mount_options")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.content_row_wait_in_col(2, 2, "Extended partition")
+        self.content_row_wait_in_col(3, 1, "Free space", False)
+
+        # Create logical partitions and check that "dos-extended" is
+        # not offered.
+        self.content_row_action(3, "Create partition", False)
+        self.dialog_wait_open()
+        b.wait_not_present("select option[value='dos-extended']")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        # Delete it
+
+        self.content_dropdown_action(2, "Delete")
+        self.confirm()
+
+        self.content_row_wait_in_col(2, 1, "Free space", False)
+
+
+if __name__ == '__main__':
+    test_main()

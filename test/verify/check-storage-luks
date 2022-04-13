@@ -1,0 +1,548 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from storagelib import *
+from testlib import *
+
+
+class TestStorageLuks(StorageCase):
+
+    # LUKS uses memory hard PBKDF, 1 GiB is not enough; see https://bugzilla.redhat.com/show_bug.cgi?id=1881829
+    provision = {
+        "0": {"memory_mb": 1536}
+    }
+
+    def testLuks(self):
+        self.allow_journal_messages("Device is not initialized.*", ".*could not be opened.")
+        m = self.machine
+        b = self.browser
+
+        mount_point_secret = "/run/secret"
+
+        self.login_and_go("/storage")
+
+        # Add a disk and partition it
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#drives", "MYDISK")
+        b.click('.sidepanel-row:contains("MYDISK")')
+        b.wait_visible("#storage-detail")
+        b.click('button:contains(Create partition table)')
+        self.dialog({"type": "gpt"})
+        self.content_row_wait_in_col(1, 0, "Free space")
+
+        self.assertEqual(m.execute("grep -v ^# /etc/crypttab || true").strip(), "")
+
+        # Format it with luks
+        self.content_row_action(1, "Create partition")
+        self.dialog_wait_open()
+        self.dialog_set_val("size", 17)
+        self.dialog_set_val("type", "ext4")
+        self.dialog_set_val("crypto", self.default_crypto_type)
+        self.dialog_set_val("name", "ENCRYPTED")
+        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+        self.dialog_set_val("passphrase2", "vainu-reku-toma-rolle-kaja")
+        self.dialog_set_val("store_passphrase.on", True)
+        self.dialog_set_val("crypto_options", "crypto,options")
+        self.dialog_set_val("mount_point", mount_point_secret)
+        self.dialog_set_val("mount_options.auto", True)
+        b.assert_pixels("#dialog", "format")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
+        self.content_tab_wait_in_info(1, 2, "Mount point", mount_point_secret)
+
+        dev = "/dev/sda1"
+
+        if self.default_crypto_type == "luks1":
+            self.content_tab_wait_in_info(1, 3, "Encryption type", "LUKS1")
+        elif self.default_crypto_type == "luks2":
+            self.content_tab_wait_in_info(1, 3, "Encryption type", "LUKS2")
+
+        uuid = m.execute(f"cryptsetup luksUUID {dev}").strip()
+        cleartext_dev = "/dev/mapper/luks-" + uuid
+        passphrase_path = "/etc/luks-keys/luks-" + uuid
+
+        self.wait_in_configuration(dev, "crypttab", "options", "crypto,options")
+        self.wait_not_in_configuration(dev, "crypttab", "options", "noauto")
+        self.wait_in_configuration(dev, "crypttab", "passphrase-path", passphrase_path)
+        self.assertEqual(m.execute(f"cat {passphrase_path}"), "vainu-reku-toma-rolle-kaja")
+
+        self.wait_in_configuration(cleartext_dev, "fstab", "dir", mount_point_secret)
+        self.wait_not_in_configuration(cleartext_dev, "fstab", "opts", "noauto")
+
+        # cut off minutes, to avoid a too wide race condition in the test
+        date_no_mins = b.eval_js("Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short' }).format()").split(':')[0]
+        self.content_tab_wait_in_info(1, 3, "Stored passphrase", f"Last modified: {date_no_mins}:")
+
+        tab = self.content_tab_expand(1, 3)
+        b.assert_pixels(tab, "tab", ignore=["dt:contains(Stored passphrase) + dd",
+                                            "dt:contains(Cleartext device) + dd"])
+
+        # Unmount. This locks it
+        self.content_dropdown_action(1, "Unmount")
+        self.confirm()
+        self.content_tab_wait_in_info(1, 2, "Mount point", "The filesystem is not mounted")
+        self.wait_in_configuration(dev, "crypttab", "options", "noauto")
+        self.wait_in_child_configuration(dev, "fstab", "opts", "noauto")
+
+        # It should be listed on the Overview. Click it to come back
+        # here.
+        b.go("#/")
+        b.click(f"#mounts tr:contains({mount_point_secret})")
+        b.wait_visible("#storage-detail")
+
+        # Mount, this uses the stored passphrase for unlocking
+        self.content_row_action(1, "Mount")
+        self.dialog_wait_open()
+        self.dialog_wait_val("mount_point", mount_point_secret)
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
+        self.wait_not_in_configuration(dev, "crypttab", "options", "noauto")
+        self.wait_not_in_configuration(cleartext_dev, "fstab", "opts", "noauto")
+
+        self.content_tab_info_action(1, 3, "Options")
+        self.dialog({"options": "weird,options"})
+        self.wait_in_configuration(dev, "crypttab", "options", "weird,options")
+
+        # Change stored passphrase
+        b.click(self.content_tab_info_label(1, 3, "Stored passphrase") + " + dd button")
+        self.dialog({"passphrase": "wrong-passphrase"})
+        self.wait_in_configuration(dev, "crypttab", "passphrase-path", passphrase_path)
+        self.assertEqual(m.execute(f"cat {passphrase_path}"), "wrong-passphrase")
+
+        # Unmount it
+        self.content_dropdown_action(1, "Unmount")
+        self.confirm()
+        b.wait_not_in_text("#detail-content", "ext4 filesystem")
+        self.wait_in_configuration(dev, "crypttab", "options", "noauto")
+        self.wait_in_child_configuration(dev, "fstab", "opts", "noauto")
+
+        # Mount, this tries the wrong passphrase but eventually prompts.
+        self.content_row_action(1, "Mount")
+        self.dialog_wait_open()
+        self.dialog_apply()
+        b.wait_in_text("#dialog", "Failed to activate device:")
+        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
+
+        self.wait_mounted(1, 2)
+        self.wait_not_in_configuration(dev, "crypttab", "options", "noauto")
+        self.wait_not_in_configuration(cleartext_dev, "fstab", "opts", "noauto")
+
+        # Remove passphrase
+        b.click(self.content_tab_info_label(1, 3, "Stored passphrase") + " + dd button")
+        self.dialog({"passphrase": ""})
+        self.wait_in_configuration(dev, "crypttab", "passphrase-path", "")
+
+        # Unmount it
+        self.content_dropdown_action(1, "Unmount")
+        self.confirm()
+        b.wait_not_in_text("#detail-content", "ext4 filesystem")
+        self.wait_in_configuration(dev, "crypttab", "options", "noauto")
+        self.wait_in_child_configuration(dev, "fstab", "opts", "noauto")
+
+        # Mount it readonly.  This asks for a passphrase.
+        self.content_row_action(1, "Mount")
+        self.dialog({"mount_options.ro": True,
+                     "passphrase": "vainu-reku-toma-rolle-kaja"})
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
+        self.wait_mounted(1, 2)
+        self.assertIn("ro", m.execute(f"findmnt -s -n -o OPTIONS {mount_point_secret}"))
+        self.wait_in_configuration(dev, "crypttab", "options", "readonly")
+        self.wait_in_configuration(cleartext_dev, "fstab", "opts", "ro")
+
+        # Delete the partition.
+        self.content_dropdown_action(1, "Delete")
+        self.confirm()
+        self.content_row_wait_in_col(1, 0, "Free space")
+        b.wait_not_in_text("#detail-content", "ext4 filesystem")
+        # luksmeta-monitor-hack.py races with the partition deletion
+        self.allow_journal_messages('Unknown device .*: No such file or directory')
+
+        self.assertEqual(m.execute("grep -v ^# /etc/crypttab || true").strip(), "")
+        self.assertEqual(m.execute(f"grep {mount_point_secret} /etc/fstab || true"), "")
+
+        # luksmeta-monitor-hack.py might leave a udevadm process
+        # behind, so let's check that the session goes away cleanly
+        # after a logout.
+
+        b.logout()
+        wait(lambda: m.execute("(loginctl list-users | grep admin) || true") == "")
+
+    @skipImage("TODO: clevis missing on Arch image", "arch")
+    def testClevisTang(self):
+        m = self.machine
+        b = self.browser
+
+        mount_point_secret = "/run/secret"
+
+        if m.image == "ubuntu-stable":
+            # ubuntu-stable needs this workaround.
+            m.execute("mkdir -p /var/db/tang")
+
+        m.execute("systemctl start tangd.socket")
+
+        self.login_and_go("/storage")
+
+        # Add a disk and format it with luks
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#drives", "MYDISK")
+        b.click('.sidepanel-row:contains("MYDISK")')
+        b.wait_visible("#storage-detail")
+
+        self.content_row_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "crypto": self.default_crypto_type,
+                     "name": "ENCRYPTED",
+                     "mount_point": mount_point_secret,
+                     "mount_options.auto": False,
+                     "passphrase": "vainu-reku-toma-rolle-kaja",
+                     "passphrase2": "vainu-reku-toma-rolle-kaja"})
+        self.content_row_wait_in_col(1, 2, "Filesystem (encrypted)")
+        self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
+
+        self.content_tab_wait_in_info(1, 2, "Options", "none")
+        tab = self.content_tab_expand(1, 2)
+        panel = tab + " .pf-c-card:contains(Keys) "
+        b.wait_visible(panel)
+        b.wait_in_text(panel + "ul li:nth-child(1)", "Passphrase")
+
+        # Add a key
+        #
+        b.click(panel + "[aria-label=Add]")
+        self.dialog_wait_open()
+        self.dialog_wait_apply_enabled()
+        self.dialog_set_val("type", "tang")
+        self.dialog_set_val("tang_url", "127.0.0.1")
+        self.dialog_set_val("passphrase", "wrong-passphrase")
+        self.dialog_apply()
+        b.wait_in_text("#dialog", "Make sure the key hash from the Tang server matches")
+        b.wait_in_text("#dialog", m.execute("tang-show-keys").strip())
+        self.dialog_apply()
+        b.wait_in_text("#dialog", "No key available with this passphrase.")
+        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        b.wait_visible(panel + "ul li:nth-child(2)")
+        b.wait_in_text(panel + "ul li:nth-child(2)", "127.0.0.1")
+
+        # Mount it.  This should succeed without passphrase.
+        #
+        self.content_row_action(1, "Mount")
+        self.dialog_wait_open()
+        self.dialog_wait_val("mount_point", mount_point_secret)
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
+
+        # Edit the key, without providing an existing passphrase
+        #
+        b.click(panel + "ul li:nth-child(2) [aria-label=Edit]")
+        self.dialog_wait_open()
+        self.dialog_wait_apply_enabled()
+        self.dialog_wait_val("tang_url", "127.0.0.1")
+        self.dialog_set_val("tang_url", "http://127.0.0.1/")
+        self.dialog_apply()
+        b.wait_in_text("#dialog", "Make sure the key hash from the Tang server matches")
+        b.wait_in_text("#dialog", m.execute("tang-show-keys").strip())
+        self.dialog_apply()
+        self.dialog_wait_close()
+        b.wait_in_text(panel + "ul li:nth-child(2)", "http://127.0.0.1/")
+
+        # Remove key on client
+        #
+        b.click(panel + "ul li:nth-child(2) button[aria-label=Remove]")
+        self.confirm()
+        b.wait_not_present(panel + "ul li:nth-child(2)")
+
+    @skipImage("TODO: luksmeta/clevis missing from Arch Image", "arch")
+    def testLuks1Slots(self):
+        self.allow_journal_messages("Device is not initialized.*", ".*could not be opened.")
+        m = self.machine
+        b = self.browser
+
+        # This should work without any of the Clevis stuff.
+        m.execute("rm /usr/bin/luksmeta /usr/bin/clevis*")
+
+        mount_point_secret = "/run/secret"
+
+        error_base = "Error unlocking /dev/sda: Failed to activate device: "
+        error_messages = [error_base + "Operation not permitted",
+                          error_base + "Incorrect passphrase."]
+
+        self.login_and_go("/storage")
+
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#drives", "MYDISK")
+        b.click('.sidepanel-row:contains("MYDISK")')
+        b.wait_visible("#storage-detail")
+        # create volume and passphrase
+        self.content_row_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "crypto": "luks1",
+                     "name": "ENCRYPTED",
+                     "mount_point": mount_point_secret,
+                     "mount_options.auto": False,
+                     "passphrase": "vainu-reku-toma-rolle-kaja",
+                     "passphrase2": "vainu-reku-toma-rolle-kaja"})
+        self.content_row_wait_in_col(1, 2, "Filesystem (encrypted)")
+        self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
+        self.content_tab_wait_in_info(1, 2, "Encryption type", "LUKS1")
+        self.content_tab_wait_in_info(1, 2, "Options", "none")
+
+        dev = "/dev/sda"
+        uuid = m.execute(f"cryptsetup luksUUID {dev}").strip()
+        cleartext_dev = "/dev/mapper/luks-" + uuid
+
+        # add one more passphrase
+        tab = self.content_tab_expand(1, 2)
+        panel = tab + " .pf-c-card:contains(Keys) "
+        b.wait_visible(panel)
+        b.click(panel + "[aria-label=Add]")
+        self.dialog_wait_open()
+        self.dialog_wait_apply_enabled()
+        self.dialog_set_val("new_passphrase", "vainu-reku-toma-rolle-kaja-1")
+        self.dialog_set_val("new_passphrase2", "vainu-reku-toma-rolle-kaja-1")
+        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        # unlock with first passphrase
+        self.content_row_action(1, "Mount")
+        self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
+        self.wait_not_in_configuration(dev, "crypttab", "options", "noauto")
+        self.wait_not_in_configuration(cleartext_dev, "fstab", "opts", "noauto")
+        # unlock with second passphrase
+        self.content_dropdown_action(1, "Unmount")
+        self.confirm()
+        b.wait_not_in_text("#detail-content", "ext4 filesystem")
+        self.wait_in_configuration(dev, "crypttab", "options", "noauto")
+        self.wait_in_child_configuration(dev, "fstab", "opts", "noauto")
+        self.content_row_action(1, "Mount")
+        self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja-1"})
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
+        self.wait_not_in_configuration(dev, "crypttab", "options", "noauto")
+        self.wait_not_in_configuration(cleartext_dev, "fstab", "opts", "noauto")
+        # delete second key slot
+        b.click(panel + "li:nth-child(2) button[aria-label=Remove]")
+        # do not accept the same passphrase
+        b.set_input_text("#remove-passphrase", "vainu-reku-toma-rolle-kaja-1")
+        b.click("button:contains('Remove')")
+        b.wait_in_text(".pf-c-alert__title", "No key available with this passphrase.")
+        # delete with passphrase from slot 0
+        b.set_input_text("#remove-passphrase", "vainu-reku-toma-rolle-kaja")
+        b.click("button:contains('Remove')")
+        b.wait_not_present("#remove-passphrase")
+        # check that it is not possible to unlock with deleted passphrase
+        self.content_dropdown_action(1, "Unmount")
+        self.confirm()
+        self.wait_in_configuration(dev, "crypttab", "options", "noauto")
+        self.wait_in_child_configuration(dev, "fstab", "opts", "noauto")
+        b.wait_not_in_text("#detail-content", "ext4 filesystem")
+        self.content_row_action(1, "Mount")
+        self.dialog_wait_open()
+        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja-1")
+        self.dialog_apply()
+        b.wait_visible(".pf-c-alert")
+        self.assertIn(b.text("h4.pf-c-alert__title:not(span)").split("Danger alert:", 1).pop(), error_messages)
+        self.dialog_cancel()
+
+        # add more passphrases, seven exactly, to reach the limit of eight for LUKSv1
+        for i in range(1, 8):
+            b.click(panel + "button[aria-label=Add]")
+            self.dialog_wait_open()
+            self.dialog_wait_apply_enabled()
+            self.dialog_set_val("new_passphrase", f"vainu-reku-toma-rolle-kaja-{i}")
+            self.dialog_set_val("new_passphrase2", f"vainu-reku-toma-rolle-kaja-{i}")
+            self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+            self.dialog_apply()
+            self.dialog_wait_close()
+
+        # check if add button is inactive
+        b.wait_visible(panel + ".pf-c-card__header button:disabled")
+        # check if edit button is inactive
+        slots_row = tab + " .pf-c-card ul li:first-child"
+        b.wait_visible(slots_row + " button:disabled")
+
+        # remove one slot
+        slots_list = tab + " .pf-c-card ul "
+        b.wait_visible(".pf-c-data-list__cell:contains('Slot 7')")
+        b.click(slots_list + "li:last-child button[aria-label=Remove]")
+        b.set_input_text("#remove-passphrase", "vainu-reku-toma-rolle-kaja-6")
+        b.click("button:contains('Remove')")
+        b.wait_not_present("#remove-passphrase")
+        # check if buttons have become enabled after removing last slot
+        b.wait_not_present(slots_list + ":disabled")
+        b.wait_not_present(panel + ":disabled")
+        # remove slot 0, with the original passphrase
+        b.click(slots_list + "li:nth-child(1) button[aria-label=Remove]")
+        b.click("#force-remove-passphrase")
+        b.click("button:contains('Remove')")
+        b.wait_not_present("#remove-passphrase")
+        # check that it is not possible to unlock with deleted passphrase
+        self.content_row_action(1, "Mount")
+        self.dialog_wait_open()
+        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+        self.dialog_apply()
+        b.wait_visible(".pf-c-alert")
+        self.assertIn(b.text("h4.pf-c-alert__title:not(span)").split("Danger alert:", 1).pop(), error_messages)
+        self.dialog_cancel()
+        # change one of the passphrases
+        b.wait_visible(slots_list + "li:last-child [aria-label=Edit]")
+        b.click(slots_list + "li:last-child [aria-label=Edit]")
+        self.dialog_wait_open()
+        self.dialog_wait_apply_enabled()
+        self.dialog_set_val("old_passphrase", "vainu-reku-toma-rolle-kaja-6")
+        self.dialog_set_val("new_passphrase", "vainu-reku-toma-rolle-kaja-8")
+        self.dialog_set_val("new_passphrase2", "vainu-reku-toma-rolle-kaja-8")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        # unlock volume with the newly created passphrase
+        self.content_row_action(1, "Mount")
+        self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja-8"})
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
+        self.wait_mounted(1, 1)
+        self.wait_not_in_configuration(dev, "crypttab", "options", "noauto")
+        self.wait_not_in_configuration(cleartext_dev, "fstab", "opts", "noauto")
+
+    def testNoFsys(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        # Add a disk and format it with luks, but without filesystem
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#drives", "MYDISK")
+        b.click('.sidepanel-row:contains("MYDISK")')
+        b.wait_visible("#storage-detail")
+
+        self.content_row_action(1, "Format")
+        self.dialog({"type": "empty",
+                     "crypto": self.default_crypto_type,
+                     "passphrase": "vainu-reku-toma-rolle-kaja",
+                     "passphrase2": "vainu-reku-toma-rolle-kaja"})
+        self.content_row_wait_in_col(1, 2, "Unrecognized data (encrypted)")
+
+        # Lock it
+        self.content_dropdown_action(1, "Lock")
+        self.content_row_wait_in_col(1, 2, "Locked encrypted data")
+
+        # Make it readonly
+        self.content_tab_info_action(1, 1, "Options")
+        self.dialog({"options": "readonly"})
+        self.assertNotEqual(m.execute("grep readonly /etc/crypttab"), "")
+
+        # Unlock it
+        self.content_row_action(1, "Unlock")
+        self.dialog({"passphrase": "vainu-reku-toma-rolle-kaja"})
+
+        # Try to format it, just for kicks
+        self.content_row_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "mount_point": "/run/foo"})
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
+
+    def testKeepKeys(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        # Add a disk and format it with luks and a filesystem
+
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#drives", "MYDISK")
+        b.click('.sidepanel-row:contains("MYDISK")')
+        b.wait_visible("#storage-detail")
+
+        self.content_row_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "crypto": self.default_crypto_type,
+                     "passphrase": "vainu-reku-toma-rolle-kaja",
+                     "passphrase2": "vainu-reku-toma-rolle-kaja",
+                     "mount_options.auto": True,
+                     "mount_point": "/run/foo"})
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
+
+        # Format it again but keep the keys
+
+        self.content_dropdown_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "crypto": " keep",
+                     "mount_options.auto": True,
+                     "mount_point": "/run/foo"})
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
+
+        # Unmount (and lock) it
+
+        self.content_dropdown_action(1, "Unmount")
+        self.confirm()
+        self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
+
+        # Format it again and keep the keys.  Because it's locked, we
+        # need the old passphrase.
+
+        self.content_dropdown_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "crypto": " keep",
+                     "old_passphrase": "vainu-reku-toma-rolle-kaja",
+                     "mount_options.auto": True,
+                     "mount_point": "/run/foo"})
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
+
+    def testReboot(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        # Add a disk and format it with luks and a filesystem, then
+        # reboot and check that the filesystem is mounted.
+
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#drives", "MYDISK")
+        b.click('.sidepanel-row:contains("MYDISK")')
+        b.wait_visible("#storage-detail")
+
+        self.content_row_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "crypto": self.default_crypto_type,
+                     "passphrase": "vainu-reku-toma-rolle-kaja",
+                     "passphrase2": "vainu-reku-toma-rolle-kaja",
+                     "mount_options.auto": True,
+                     "mount_point": "/run/foo"})
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
+
+        self.setup_systemd_password_agent("vainu-reku-toma-rolle-kaja")
+        m.reboot()
+        m.start_cockpit()
+        b.relogin()
+        b.enter_page("/storage")
+        b.wait_visible("#storage-detail")
+
+        self.wait_mounted(1, 1)
+
+
+if __name__ == '__main__':
+    test_main()

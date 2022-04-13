@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+[
+  <!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
+]>
+<reference id="api-shell">
+  <title>API: shell</title>
+
+  <partintro>
+    <para>This package contains the shell that loads other components.</para>
+  </partintro>
+
+  <refentry id="api-shell-html">
+    <refmeta>
+      <refentrytitle>index.html</refentrytitle>
+    </refmeta>
+
+    <refnamediv>
+      <refname>index.html</refname>
+      <refpurpose>Main cockpit shell, for a single machine</refpurpose>
+    </refnamediv>
+
+    <refsection id="api-shell-html-description">
+      <title>Description</title>
+<programlisting>
+&lt;iframe src="http://127.0.0.1:9090/cockpit+app/@localhost/shell/index.html"
+    width="600" height="400"&gt;&lt;/iframe&gt;
+</programlisting>
+
+      <para>This is a Cockpit component that provides an interface to configure a
+        single machine. It loads other components on demand to make that happen.</para>
+
+      <variablelist>
+        <varlistentry>
+          <term>Component URL</term>
+          <listitem><para><code>/cockpit+app/@localhost/shell/index.html</code></para></listitem>
+        </varlistentry>
+      </variablelist>
+
+    </refsection>
+  </refentry>
+
+</reference>

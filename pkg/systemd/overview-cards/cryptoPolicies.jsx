@@ -1,0 +1,236 @@
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2022 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import cockpit from "cockpit";
+import React, { useState, useEffect } from 'react';
+import { Button, Flex, FlexItem, Modal, Popover } from "@patternfly/react-core";
+import { ExclamationTriangleIcon, ExternalLinkSquareAltIcon, HelpIcon } from '@patternfly/react-icons';
+
+import { ModalError } from 'cockpit-components-inline-notification.jsx';
+import { PrivilegedButton } from "cockpit-components-privileged.jsx";
+import { ProfilesMenuDialogBody } from "./profiles-menu-dialog-body.jsx";
+
+import "./cryptoPolicies.scss";
+
+const _ = cockpit.gettext;
+
+// Found in /usr/share/crypto-policies/policies/
+const cryptopolicies = {
+    DEFAULT: _("Recommended, secure settings for current threat models."),
+    FUTURE: _("Protects from anticipated near-term future attacks at the expense of interoperability."),
+    LEGACY: _("Higher interoperability at the cost of an increased attack surface."),
+    FIPS: (<Flex alignItems={{ default: 'alignItemsCenter' }}>
+        {_("Only use approved and allowed algorithms when booting in FIPS mode.")}
+        <Button component='a'
+                rel="noopener noreferrer" target="_blank"
+                variant='link'
+                isInline
+                icon={<ExternalLinkSquareAltIcon />} iconPosition="right"
+                href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/security_hardening/assembly_installing-a-rhel-8-system-with-fips-mode-enabled_security-hardening">
+            {_("Learn more")}
+        </Button>
+    </Flex>),
+};
+
+const displayProfileText = profile => profile === "FIPS" ? profile : profile.charAt(0) + profile.slice(1, profile.length).toLowerCase();
+const isInconsistentPolicy = (policy, fipsEnabled) => policy === "FIPS" !== fipsEnabled;
+
+export const CryptoPolicyRow = () => {
+    const [currentCryptoPolicy, setCurrentCryptoPolicy] = useState(null);
+    const [isOpen, setIsOpen] = useState(false);
+    const [fipsEnabled, setFipsEnabled] = useState(null);
+
+    useEffect(() => {
+        cockpit.file("/proc/sys/crypto/fips_enabled").read()
+                .then(content => setFipsEnabled(content ? content.trim() === "1" : false));
+        cockpit.file("/etc/crypto-policies/state/current")
+                .watch(content => setCurrentCryptoPolicy(content ? content.trim() : null));
+    }, []);
+
+    if (!currentCryptoPolicy) {
+        return null;
+    }
+
+    return (
+        <tr>
+            <th scope="row">{_("Crypto policy")}</th>
+            <td>
+                <PrivilegedButton variant="link" buttonId="crypto-policy-button" tooltipId="tip-crypto-policy"
+                                  excuse={ _("The user $0 is not permitted to change crypto policies") }
+                                  onClick={() => setIsOpen(true)}>
+                    {displayProfileText(currentCryptoPolicy)}
+                </PrivilegedButton>
+                {isOpen &&
+                <CryptoPolicyDialog close={() => setIsOpen(false)}
+                                    currentCryptoPolicy={currentCryptoPolicy}
+                                    setCurrentCryptoPolicy={setCurrentCryptoPolicy}
+                                    fipsEnabled={fipsEnabled}
+                />
+                }
+            </td>
+        </tr>
+    );
+};
+
+const setPolicy = (policy, setError, setInProgress) => {
+    setInProgress(true);
+
+    let promise;
+    if (policy === "FIPS") {
+        promise = cockpit.spawn(["fips-mode-setup", "--enable"], { superuser: "require", err: "message" });
+    } else {
+        promise = cockpit.spawn(["fips-mode-setup", "--disable"], { superuser: "require", err: "message" }).then(() =>
+            cockpit.spawn(["update-crypto-policies", "--set", policy], { superuser: "require", err: "message" }));
+    }
+
+    promise.then(() => cockpit.spawn(["shutdown", "--reboot", "now"], { superuser: "require", err: "message" }))
+            .catch(error => setError(error))
+            .finally(() => setInProgress(false));
+};
+
+const CryptoPolicyDialog = ({
+    close,
+    currentCryptoPolicy,
+    fipsEnabled,
+    reApply,
+}) => {
+    const [error, setError] = useState();
+    const [inProgress, setInProgress] = useState(false);
+    const [selected, setSelected] = useState(currentCryptoPolicy);
+
+    const policies = Object.keys(cryptopolicies).map(policy => ({
+        name: policy,
+        title: displayProfileText(policy),
+        description: cryptopolicies[policy],
+        active: !isInconsistentPolicy(policy, fipsEnabled) && policy === currentCryptoPolicy,
+        inconsistent: isInconsistentPolicy(policy, fipsEnabled) && policy === currentCryptoPolicy,
+        recommended: false,
+    }));
+
+    // Custom profile
+    if (!(currentCryptoPolicy in cryptopolicies)) {
+        policies.push({
+            name: currentCryptoPolicy,
+            title: displayProfileText(currentCryptoPolicy),
+            description: _("Custom crypto policy"),
+            active: !isInconsistentPolicy(currentCryptoPolicy, fipsEnabled),
+            inconsistent: isInconsistentPolicy(currentCryptoPolicy, fipsEnabled),
+            recommended: false,
+        });
+    }
+
+    const help = (
+        <Popover
+            id="crypto-policies-help"
+            bodyContent={
+                <div>
+                    {_("Crypto Policies is a system component that configures the core cryptographic subsystems, covering the TLS, IPSec, SSH, DNSSec, and Kerberos protocols.")}
+                </div>
+            }
+            footerContent={
+                <Button component='a'
+                        rel="noopener noreferrer" target="_blank"
+                        variant='link'
+                        isInline
+                        icon={<ExternalLinkSquareAltIcon />} iconPosition="right"
+                        href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/security_hardening/using-the-system-wide-cryptographic-policies_security-hardening">
+                    {_("Learn more")}
+                </Button>
+            }
+        >
+            <Button variant="plain" aria-label={_("Help")}>
+                <HelpIcon />
+            </Button>
+        </Popover>
+    );
+
+    return (
+        <Modal position="top" variant="medium"
+               isOpen
+               help={help}
+               onClose={close}
+               id="crypto-policy-dialog"
+               title={_("Change crypto policy")}
+               footer={
+                   <>
+                       {error && <ModalError dialogError={typeof error == 'string' ? error : error.message} />}
+                       {inProgress &&
+                       <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                           {_("Applying new policy... This may take a few minutes.")}
+                       </Flex>}
+                       <Button id="crypto-policy-save-reboot" variant='primary' onClick={() => setPolicy(selected, setError, setInProgress)}
+                               isDisabled={inProgress} isLoading={inProgress}
+                       >
+                           {reApply ? _("Reapply and reboot") : _("Apply and reboot")}
+                       </Button>
+                       <Button variant='link' onClick={close} isDisabled={inProgress}>
+                           {_("Cancel")}
+                       </Button>
+                   </>
+               }
+        >
+            {currentCryptoPolicy && <ProfilesMenuDialogBody active_profile={currentCryptoPolicy}
+                                                     change_selected={setSelected}
+                                                     isDisabled={inProgress}
+                                                     profiles={policies} />}
+        </Modal>
+    );
+};
+
+export const CryptoPolicyStatus = () => {
+    const [currentCryptoPolicy, setCurrentCryptoPolicy] = useState(null);
+    const [fipsEnabled, setFipsEnabled] = useState(null);
+    const [showReApplyCryptoPolicy, setShowReApplyCryptoPolicy] = useState(false);
+
+    useEffect(() => {
+        if (currentCryptoPolicy === null) {
+            cockpit.file("/etc/crypto-policies/state/current")
+                    .watch(content => setCurrentCryptoPolicy(content ? content.trim() : undefined));
+        }
+
+        cockpit.file("/proc/sys/crypto/fips_enabled").read()
+                .then(content => setFipsEnabled(content ? content.trim() === "1" : false));
+    }, [currentCryptoPolicy]);
+
+    if (isInconsistentPolicy(currentCryptoPolicy, fipsEnabled)) {
+        return (
+            <li className="system-health-crypto-policies">
+                <Flex spacer={{ default: 'spaceItemsSm' }} flexWrap={{ default: 'nowrap' }}>
+                    <FlexItem><ExclamationTriangleIcon size="sm" className="crypto-policies-health-card-icon" /></FlexItem>
+                    <div>
+                        <div id="inconsistent_crypto_policy">
+                            {currentCryptoPolicy === "FIPS" ? _("FIPS is not properly enabled") : _("Crypto policy is inconsistent")}
+                        </div>
+                        <Button isInline variant="link" className="pf-u-font-size-sm" onClick={() => setShowReApplyCryptoPolicy(true)}>
+                            {_("Review crypto policy")}
+                        </Button>
+                    </div>
+                </Flex>
+                {showReApplyCryptoPolicy &&
+                <CryptoPolicyDialog currentCryptoPolicy={currentCryptoPolicy}
+                                    close={() => setShowReApplyCryptoPolicy(false)}
+                                    fipsEnabled={fipsEnabled}
+                                    reApply />
+                }
+            </li>
+        );
+    }
+
+    return null;
+};

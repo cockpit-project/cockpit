@@ -1,0 +1,180 @@
+<node>
+  <!--
+  This file is part of Cockpit.
+
+  Copyright (C) 2013 Red Hat, Inc.
+
+  Cockpit is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  Cockpit is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+  <interface name="com.redhat.Cockpit.DBusTests.Alpha">
+  </interface>
+
+  <interface name="com.redhat.Cockpit.DBusTests.Frobber">
+    <method name="HelloWorld">
+      <arg name="greeting" direction="in" type="s"/>
+      <arg name="response" direction="out" type="s"/>
+    </method>
+
+    <method name="NeverReturn">
+    </method>
+
+    <method name="TestPrimitiveTypes">
+      <arg direction="in"  type="y" name="val_byte" />
+      <arg direction="in"  type="b" name="val_boolean" />
+      <arg direction="in"  type="n" name="val_int16" />
+      <arg direction="in"  type="q" name="val_uint16" />
+      <arg direction="in"  type="i" name="val_int32" />
+      <arg direction="in"  type="u" name="val_uint32" />
+      <arg direction="in"  type="x" name="val_int64" />
+      <arg direction="in"  type="t" name="val_uint64" />
+      <arg direction="in"  type="d" name="val_double" />
+      <arg direction="in"  type="s" name="val_string" />
+      <arg direction="in"  type="o" name="val_objpath" />
+      <arg direction="in"  type="g" name="val_signature" />
+      <arg direction="in"  type="ay" name="val_bytestring" />
+      <arg direction="out" type="y" name="ret_byte" />
+      <arg direction="out" type="b" name="ret_boolean" />
+      <arg direction="out" type="n" name="ret_int16" />
+      <arg direction="out" type="q" name="ret_uint16" />
+      <arg direction="out" type="i" name="ret_int32" />
+      <arg direction="out" type="u" name="ret_uint32" />
+      <arg direction="out" type="x" name="ret_int64" />
+      <arg direction="out" type="t" name="ret_uint64" />
+      <arg direction="out" type="d" name="ret_double" />
+      <arg direction="out" type="s" name="ret_string" />
+      <arg direction="out" type="o" name="ret_objpath" />
+      <arg direction="out" type="g" name="ret_signature" />
+      <arg direction="out" type="ay" name="ret_bytestring" />
+    </method>
+
+    <method name="TestNonPrimitiveTypes">
+      <arg direction="in" type="a{ss}" name="dict_s_to_s" />
+      <arg direction="in" type="a{s(ii)}" name="dict_s_to_pairs" />
+      <arg direction="in" type="(iss)" name="a_struct" />
+      <arg direction="in" type="as" name="array_of_strings" />
+      <arg direction="in" type="ao" name="array_of_objpaths" />
+      <arg direction="in" type="ag" name="array_of_signatures" />
+      <arg direction="in" type="aay" name="array_of_bytestrings" />
+      <arg direction="out" type="s" name="result" />
+    </method>
+
+    <method name="TestAsv">
+      <arg direction="in" type="a{sv}" name="asv" />
+      <arg direction="out" type="s" name="result" />
+    </method>
+
+    <method name="TestVariant">
+      <arg direction="in" type="v" name="v" />
+    </method>
+
+    <method name="RequestSignalEmission">
+      <arg direction="in" type="i" name="which_one" />
+    </method>
+
+    <method name="RequestPropertyMods"/>
+
+    <method name="RequestMultiPropertyMods"/>
+
+    <method name="UnimplementedMethod"/>
+
+    <method name="PropertyCancellation"/>
+
+    <signal name="TestSignal">
+      <arg type="i" name="val_int32"/>
+      <arg type="as" name="array_of_strings" />
+      <arg type="ao" name="array_of_objpaths" />
+      <arg type="a{s(ii)}" name="dict_s_to_pairs" />
+    </signal>
+
+    <signal name="AnotherSignal">
+      <arg type="s" name="word" />
+    </signal>
+
+    <method name="DeleteAllObjects"/>
+
+    <method name="CreateObject">
+      <arg direction="in" type="o" name="at_path" />
+    </method>
+
+    <method name="DeleteObject">
+      <arg direction="in" type="o" name="path" />
+    </method>
+
+    <method name="AddAlpha"/>
+    <method name="RemoveAlpha"/>
+
+    <method name="CreateClique">
+      <arg direction="in" type="s" name="name" />
+      <arg direction="out" type="o" name="member" />
+    </method>
+
+    <method name="EmitHidden">
+      <arg direction="in" type="s" name="name" />
+    </method>
+
+    <method name="ClaimOtherName">
+      <arg name="name" direction="in" type="s"/>
+    </method>
+
+    <method name="ReleaseOtherName">
+      <arg name="name" direction="in" type="s"/>
+    </method>
+
+    <method name="TellMeYourName">
+      <arg direction="out" name="name" type="s"/>
+    </method>
+
+    <method name="MakeTestFd">
+        <arg direction="in" name="type" type="s"/>
+        <arg direction="out" name="fd" type="h"/>
+    </method>
+
+    <property name="y" type="y" access="readwrite"/>
+    <property name="b" type="b" access="readwrite"/>
+    <property name="n" type="n" access="readwrite"/>
+    <property name="q" type="q" access="readwrite"/>
+    <property name="i" type="i" access="readwrite"/>
+    <property name="u" type="u" access="readwrite"/>
+    <property name="x" type="x" access="readwrite"/>
+    <property name="t" type="t" access="readwrite"/>
+    <property name="d" type="d" access="readwrite"/>
+    <property name="s" type="s" access="readwrite"/>
+    <property name="o" type="o" access="readwrite"/>
+    <property name="g" type="g" access="readwrite"/>
+    <property name="ay" type="ay" access="readwrite"/>
+    <property name="as" type="as" access="readwrite"/>
+    <property name="aay" type="aay" access="readwrite"/>
+    <property name="ao" type="ao" access="readwrite"/>
+    <property name="ag" type="ag" access="readwrite"/>
+    <property name="FinallyNormalName" type="s" access="readwrite"/>
+    <property name="ReadonlyProperty" type="s" access="read"/>
+    <property name="WriteonlyProperty" type="s" access="write"/>
+  </interface>
+
+  <interface name="com.redhat.Cockpit.DBusTests.Clique">
+    <property name="Friend" type="o" access="read"/>
+  </interface>
+
+  <interface name="com.redhat.Cockpit.DBusTests.Hidden">
+    <property name="Name" type="s" access="read"/>
+  </interface>
+
+</node>
+
+<!-- 
+  Local Variables:
+  indent-tabs-mode: nil
+  End:
+-->

@@ -1,0 +1,67 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from netlib import *
+from testlib import *
+
+from machine_core.constants import TEST_OS_DEFAULT
+
+
+@skipDistroPackage()
+@skipImage("TODO: networkmanager fails on Arch Linux", "arch")
+class TestNetworkingMTU(NetworkCase):
+    provision = {
+        "machine1": {"memory_mb": 512},
+        "machine2": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/20", "dhcp": True, "memory_mb": 256}
+    }
+
+    def testMtu(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        iface = self.add_iface()
+        self.wait_for_iface(iface)
+
+        self.select_iface(iface)
+        b.wait_visible("#network-interface")
+
+        self.configure_iface_setting('MTU')
+        b.wait_visible("#network-mtu-settings-dialog")
+
+        # wait until dialog initialized
+        b.wait_visible("#network-mtu-settings-dialog > button[aria-label=Close]")
+        b.wait_visible("#network-mtu-settings-custom")
+        b.assert_pixels("#network-mtu-settings-dialog", "networking-mtu-settings-dialog")
+
+        b.set_checked('#network-mtu-settings-custom', True)
+        b.set_input_text('#network-mtu-settings-input', "1400")
+        b.click("#network-mtu-settings-save")
+        b.wait_not_present("#network-mtu-settings-dialog")
+        self.wait_for_iface_setting('MTU', '1400')
+
+        # We're debugging failures here log status to journal for diagnosis
+        wait(lambda: "mtu 1400" in m.execute(f"ip link show {iface} | logger -s 2>&1"))
+
+
+if __name__ == '__main__':
+    test_main()

@@ -1,0 +1,102 @@
+# -----------------------------------------------------------------------------
+# libcockpit-tls.a: code used in cockpit-tls, helpers, and tests
+
+noinst_LIBRARIES += libcockpit-tls.a
+
+libcockpit_tls_a_LIBS = \
+	libcockpit-tls.a \
+	$(libcockpit_common_nodeps_a_LIBS) \
+	$(gnutls_LIBS) \
+	-lpthread \
+	$(NULL)
+
+libcockpit_tls_a_SOURCES = \
+	src/tls/certificate.c \
+	src/tls/certificate.h \
+	src/tls/client-certificate.c \
+	src/tls/client-certificate.h \
+	src/tls/connection.c \
+	src/tls/connection.h \
+	src/tls/httpredirect.c \
+	src/tls/httpredirect.h \
+	src/tls/server.c \
+	src/tls/server.h \
+	src/tls/socket-io.c \
+	src/tls/socket-io.h \
+	src/tls/testing.h \
+	src/tls/utils.h \
+	$(NULL)
+
+# -----------------------------------------------------------------------------
+# cockpit-tls
+
+libexec_PROGRAMS += cockpit-tls
+cockpit_tls_LDADD = $(libcockpit_tls_a_LIBS)
+cockpit_tls_SOURCES = src/tls/main.c
+
+# -----------------------------------------------------------------------------
+# cockpit-certificate-ensure
+
+libexec_PROGRAMS += cockpit-certificate-ensure
+cockpit_certificate_ensure_LDADD = $(libcockpit_tls_a_LIBS)
+cockpit_certificate_ensure_SOURCES = src/tls/cockpit-certificate-ensure.c
+
+libexec_SCRIPTS += src/tls/cockpit-certificate-helper
+
+# -----------------------------------------------------------------------------
+# cockpit-wsinstance-factory
+
+libexec_PROGRAMS += cockpit-wsinstance-factory
+
+cockpit_wsinstance_factory_CPPFLAGS = \
+	$(libsystemd_CPPFLAGS) \
+	$(AM_CPPFLAGS)
+
+cockpit_wsinstance_factory_LDADD = \
+	$(libcockpit_tls_a_LIBS) \
+	$(libsystemd_LIBS) \
+	$(NULL)
+
+cockpit_wsinstance_factory_SOURCES = src/tls/wsinstance-factory.c
+
+# -----------------------------------------------------------------------------
+# Unit tests
+
+dist_check_DATA += \
+	src/tls/ca/alice-expired.pem \
+	src/tls/ca/alice.key \
+	src/tls/ca/alice.p12 \
+	src/tls/ca/alice.pem \
+	src/tls/ca/bob.key \
+	src/tls/ca/bob.p12 \
+	src/tls/ca/bob.pem \
+	src/tls/ca/ca.conf \
+	src/tls/ca/ca.key \
+	src/tls/ca/ca.pem \
+	src/tls/ca/generate.sh \
+	$(NULL)
+
+check_PROGRAMS += wsinstance-start
+wsinstance_start_LDADD = $(libcockpit_tls_a_LIBS)
+wsinstance_start_SOURCES = src/tls/wsinstance-start.c
+
+check_PROGRAMS += socket-activation-helper
+socket_activation_helper_LDADD = $(libcockpit_tls_a_LIBS)
+socket_activation_helper_SOURCES = src/tls/socket-activation-helper.c
+
+dist_TEST_SCRIPT += src/tls/test-socket-activation-helper.sh
+
+TEST_PROGRAM += test-cockpit-certificate-ensure
+test_cockpit_certificate_ensure_CPPFLAGS = $(TEST_CPP)
+test_cockpit_certificate_ensure_LDADD = $(libcockpit_tls_a_LIBS) $(TEST_LIBS)
+test_cockpit_certificate_ensure_SOURCES = src/tls/test-cockpit-certificate-ensure.c
+
+TEST_PROGRAM += test-tls-connection
+test_tls_connection_CPPFLAGS = $(TEST_CPP)
+test_tls_connection_LDADD = $(libcockpit_tls_a_LIBS) $(TEST_LIBS)
+test_tls_connection_SOURCES = src/tls/test-connection.c
+
+TEST_PROGRAM += test-tls-server
+test_tls_server_CPPFLAGS = $(TEST_CPP)
+test_tls_server_LDADD = $(libcockpit_tls_a_LIBS) $(TEST_LIBS)
+test_tls_server_SOURCES = src/tls/test-server.c

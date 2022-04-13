@@ -1,0 +1,189 @@
+#!/bin/bash
+
+set -eu
+
+# prefix= is set because the default @sysconfdir@ contains "${prefix}"
+prefix="@prefix@"
+COCKPIT_GROUP="@COCKPIT_GROUP@"
+COCKPIT_CONFIG="@sysconfdir@/cockpit"
+COCKPIT_WS_CERTS_D="${COCKPIT_CONFIG}/ws-certs.d"
+COCKPIT_RUNTIME_DIR="/run/cockpit"
+
+install_cert() {
+    local destination="${COCKPIT_WS_CERTS_D}/$1"
+    mv -Z "$1" "${destination}"
+
+    # The certificate should be world-readable
+    chmod a+r "${destination}"
+}
+
+install_key() {
+    local destination="${COCKPIT_WS_CERTS_D}/$1"
+    mv -Z "$1" "${destination}"
+
+    # If COCKPIT_GROUP is set, then make sure the key is readable by that group too
+    if [ -n "${COCKPIT_GROUP}" ]; then
+        chown root:"${COCKPIT_GROUP}" "${destination}"
+        chmod g+r "${destination}"
+    fi
+}
+
+selfsign_sscg() {
+    sscg --quiet \
+        --lifetime "${DAYS}" \
+        --key-strength 2048 \
+        --cert-key-file "${KEYFILE}" \
+        --cert-file "${CERTFILE}" \
+        --ca-file "${CA_FILE}" \
+        --hostname "${HOSTNAME}" \
+        --organization "${MACHINE_ID}" \
+        --subject-alt-name localhost \
+        --subject-alt-name IP:127.0.0.1/255.255.255.255
+}
+
+selfsign_openssl() {
+    openssl req -x509 \
+        -days "${DAYS}" \
+        -newkey rsa:2048 \
+        -keyout "${KEYFILE}" \
+        -keyform PEM \
+        -nodes \
+        -out "${CERTFILE}" \
+        -outform PEM \
+        -subj "${MACHINE_ID:+/O=${MACHINE_ID}}/CN=${HOSTNAME}" \
+        -config - \
+        -extensions v3_req << EOF
+    [ req ]
+    req_extensions = v3_req
+    extensions = v3_req
+    distinguished_name = req_distinguished_name
+    [ req_distinguished_name ]
+    [ v3_req ]
+    subjectAltName=IP:127.0.0.1,DNS:localhost
+    basicConstraints = critical, CA:TRUE
+    keyUsage = critical, digitalSignature,cRLSign,keyCertSign,keyEncipherment,keyAgreement
+    extendedKeyUsage = serverAuth
+EOF
+}
+
+cmd_selfsign() {
+    # Common variables used by both methods
+    local MACHINE_ID
+    MACHINE_ID="$(tr -d -c '[:xdigit:]' < /etc/machine-id)"
+    local HOSTNAME="${HOSTNAME:-$(hostname)}"
+    local CERTFILE="0-self-signed.cert"
+    local KEYFILE="0-self-signed.key"
+    local CA_FILE="0-self-signed-ca.pem"
+
+    # We renew certificates up to 30 days before expiry, so give ourselves a
+    # year, plus 30 days.  The maximum is variously mentioned to be 397 or 398.
+    local DAYS=395
+
+    # If sscg fails, try openssl
+    selfsign_sscg || selfsign_openssl
+
+    # Install the files and set permissions ($CA_FILE is only created by sscg)
+    test ! -e "${CA_FILE}" || install_cert "${CA_FILE}"
+    install_cert "${CERTFILE}"
+    install_key "${KEYFILE}"
+}
+
+cmd_ipa_request() {
+    local USER="$1"
+
+    # IPA operations require auth; read password from stdin to avoid quoting issues
+    # if kinit fails, we can't handle this setup, exit cleanly
+    kinit "${USER}@${REALM}" || exit 0
+
+    # ensure this gets run with a non-C locale; ipa fails otherwise
+    if [ "$(sh -c 'eval `locale`; echo $LC_CTYPE')" = 'C' ]; then
+        export LC_CTYPE=C.UTF-8
+    fi
+
+    # create a kerberos Service Principal Name for cockpit-ws, unless already present
+    ipa service-show "${SERVICE}" || \
+        ipa service-add --ok-as-delegate=true --ok-to-auth-as-delegate=true --force "${SERVICE}"
+
+    # add cockpit-ws key, unless already present
+    klist -k "${KEYTAB}" | grep -qF "${SERVICE}" || \
+        ipa-getkeytab -p "HTTP/${HOST}" -k "${KEYTAB}"
+
+    # request the certificate and put it into our certificate directory, so that auto-refresh works
+    ipa-getcert request -f "${COCKPIT_WS_CERTS_D}/10-ipa.cert" -k "${COCKPIT_WS_CERTS_D}/10-ipa.key" -K "HTTP/${HOST}" -m 640 -o root:${COCKPIT_GROUP:-root} -M 644 -w -v
+}
+
+cmd_ipa_cleanup() {
+    # clean up keytab
+    if [ -e "${KEYTAB}" ]; then
+        ipa-rmkeytab -k "${KEYTAB}" -p "${SERVICE}"
+    fi
+
+    # clean up certificate; support both "copy" and "direct" modes from cmd_ipa_request()
+    rm "${COCKPIT_WS_CERTS_D}/10-ipa.cert" "${COCKPIT_WS_CERTS_D}/10-ipa.key"
+    ipa-getcert stop-tracking -f "${COCKPIT_WS_CERTS_D}/10-ipa.cert" -k "${COCKPIT_WS_CERTS_D}/10-ipa.key" || \
+        ipa-getcert stop-tracking -f /run/cockpit/certificate-helper/10-ipa.cert -k /run/cockpit/certificate-helper/10-ipa.key
+}
+
+cmd_ipa() {
+    local REALM="$2"
+
+    local HOST
+    HOST="$(hostname -f)"
+    local SERVICE="HTTP/${HOST}@${REALM}"
+    local KEYTAB="${COCKPIT_CONFIG}/krb5.keytab"
+
+    # use a temporary keytab to avoid interfering with the system one
+    export KRB5CCNAME=/run/cockpit/keytab-setup
+
+    # not an IPA setup? cannot handle this
+    if [ -z "$(which ipa)" ]; then
+        echo 'ipa must be installed for this command'
+        exit 1
+    fi
+
+    case "$1" in
+        request)
+            cmd_ipa_request "$3"
+            ;;
+        cleanup)
+            cmd_ipa_cleanup
+            ;;
+        *)
+            echo 'unknown subcommand'
+            exit 1
+            ;;
+    esac
+}
+
+main() {
+    # ipa-getkeytab needs root to create the file, same for cert installation
+    if [ "$(id -u)" != "0" ]; then
+        echo 'must be run as root'
+        exit 1
+    fi
+
+    # Create a private working directory
+    mkdir -p "${COCKPIT_RUNTIME_DIR}"
+    WORKDIR="${COCKPIT_RUNTIME_DIR}/certificate-helper"
+    mkdir -m 700 "${WORKDIR}" # we expect that not to have existed
+    trap 'exit' INT QUIT PIPE TERM
+    trap 'rm -rf "${WORKDIR}"' EXIT
+    cd "${WORKDIR}"
+
+    # Dispatch subcommand
+    case "$1" in
+        selfsign)
+            cmd_selfsign
+            ;;
+        ipa)
+            shift
+            cmd_ipa "$@"
+            ;;
+        *)
+            echo 'unknown subcommand'
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"

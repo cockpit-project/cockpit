@@ -1,0 +1,33 @@
+<html>
+<head>
+    <title>Example: Integrating Cockpit Terminal into a Web Application</title>
+    <meta charset="utf-8">
+</head>
+<body>
+    <h2>Example: Integrating Cockpit Terminal into a Web Application</h2>
+
+    <p>This example brings a web-based terminal from the server into another web
+        based GUI. It uses simple integration and lets the terminal component
+        establish a connection to the server directly.</p>
+
+    <p>If you have kerberos based SSO configured, or if the user has already logged
+        into cockpit, then you'll see the terminal immediately without additional
+        authentication prompts.</p>
+
+    <p>Server: <input type="text" id="address" value="127.0.0.1"> <button id="button">Go</button></p>
+
+    <iframe width="705" height="400" style="display:none" id="terminal" title="Terminal" src=""></iframe>
+
+    <script>
+        var button = document.getElementById("button");
+        button.onclick = function() {
+            var address = document.getElementById("address");
+            var iframe = document.getElementById("terminal");
+            iframe.setAttribute("src", "http://" + address.value + ":9090/cockpit/@localhost/system/terminal.html");
+            iframe.setAttribute("style", "display: block;");
+            return false;
+        };
+    </script>
+</body>
+</html>
+

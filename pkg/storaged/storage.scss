@@ -1,0 +1,439 @@
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2015 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
+@use "ct-card";
+@use "page";
+
+@import "global-variables";
+@import "@patternfly/patternfly/components/Card/card.scss";
+@import "@patternfly/patternfly/utilities/Flex/flex.scss";
+@import "@patternfly/patternfly/utilities/Text/text.scss";
+
+#storage .pf-c-card {
+    @extend .ct-card;
+}
+
+#storage .pf-l-gallery {
+    --pf-l-gallery--GridTemplateColumns: 1fr;
+}
+
+#storage-detail .pf-c-page__main-section,
+#storage-detail .pf-c-page__main-nav {
+    overflow: auto;
+}
+
+#storage .create-storage {
+    margin-bottom: 10px;
+}
+
+@media (max-width: 1560px) {
+    #storage .create-storage .col-lg-6 {
+        width: 100%;
+    }
+}
+
+#storage .create-storage button {
+    margin-bottom: 5px;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#storage .storage-sidebar table {
+    table-layout:fixed;
+}
+
+#storage .ct-table th {
+    font-weight: var(--pf-global--FontWeight--bold);
+}
+
+#storage .storage-sidebar table td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: top;
+}
+
+.dialog-select-row-table {
+    width: 100%;
+
+}
+
+.dialog-select-row-table td,
+.dialog-select-row-table td:first-child {
+    text-align: left;
+    padding-top: 0.75em;
+    padding-bottom: 0.75em;
+    padding-left: 0px;
+    padding-right: 0px;
+    vertical-align: top;
+    white-space: default;
+    color: black;
+    width: auto;
+    height: auto;
+    border-top: 1px solid #D1D1D1;
+    border-bottom: 1px solid #D1D1D1;
+}
+
+.dialog-select-row-table td:first-child {
+    padding-left: 0.75em;
+    border-left: 1px solid #D1D1D1;
+}
+
+.dialog-select-row-table td:last-child {
+    padding-right: 0.75em;
+    border-right: 1px solid #D1D1D1;
+}
+
+.dialog-select-row-table th {
+    font-weight: bold;
+    text-align: left;
+    color: var(--pf-global--palette--black-800);
+    padding: 0px;
+    padding-top: 0.75em;
+    padding-bottom: 0.75em;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.dialog-select-row-table th:first-child {
+    padding-left: 0.75em;
+}
+
+.dialog-select-row-table th:last-child {
+    padding-right: 0.75em;
+}
+
+td.storage-icon {
+    width: 48px;
+}
+
+div.progress {
+    width: 100%;
+    height: var(--pf-global--FontSize-xs);
+}
+
+#detail-header div.progress {
+    min-width: 250px;
+}
+
+#storage-detail .ct-table {
+    border-top: var(--pf-global--BorderWidth--sm) solid var(--pf-global--BorderColor--100);
+}
+
+td.usage-text {
+    text-align: right;
+}
+
+td.job-description {
+    width: 50%;
+}
+
+td.job-status {
+    width: 15%;
+    text-align: right;
+}
+
+td.job-action {
+    text-align: right;
+}
+
+.detail-jobs {
+    margin-top: 20px;
+}
+
+.storage-graph {
+    height: 180px;
+}
+
+.content-nav-item-warning:first-child {
+    padding-right: var(--pf-global--spacer--sm);
+}
+
+.content-action {
+    text-align: right;
+    white-space: nowrap !important;
+}
+
+.dialog-item-tooltip {
+    margin-left: 5px;
+    padding: 0;
+    white-space: nowrap;
+}
+
+.modal-footer-teardown {
+    text-align: left;
+}
+
+.pf-c-modal-box__body table {
+    --pf-c-table--m-compact--cell--first-last-child--PaddingLeft: 0px;
+}
+
+* + .modal-footer-teardown {
+    padding-top: var(--pf-global--spacer--xl);
+}
+
+tr[class*=content-level-] {
+    --multiplier: 0;
+    --offset: calc(var(--pf-global--spacer--lg) * var(--multiplier));
+
+    // Move the button over
+    > .pf-c-table__toggle > button {
+        position: relative;
+        left: var(--offset);
+    }
+
+    // Add space for the button and offset
+    > .pf-c-table__toggle + td {
+        padding-left: calc(var(--offset) + var(--pf-c-table--cell--PaddingLeft));
+    }
+}
+
+@for $i from 1 through 10 {
+    tr.content-level-#{$i} {
+        --multiplier: #{$i};
+    }
+}
+
+.tab-actions {
+    float: right;
+    margin-top: -15px;
+}
+
+.tab-actions button {
+    margin-left: 0.3em;
+}
+
+a.disabled {
+    color: var(--pf-global--palette--light-blue-200);
+    text-decoration: none;
+    cursor: not-allowed;
+}
+
+.tab-row-actions {
+    display: inline-block;
+    margin-left: 2em;
+}
+
+/* Make tooltips inside tables visible.
+ */
+
+td.storage-action {
+    overflow: visible !important;
+}
+
+.network-keys-table td {
+    vertical-align: baseline;
+    padding-right: 10px;
+}
+
+.combobox-container .input-group {
+    width: 100%;
+}
+
+/* Prevent long names from sticking out of dialog titles
+ */
+
+.modal-title {
+    word-break: break-all;
+}
+
+.just-installed {
+    margin-right: 1em;
+}
+
+.faded {
+    transition: opacity 1s, visibility 1s;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.widest-title {
+    visibility: hidden;
+    height: 0px;
+}
+
+.radio-horizontal input[type=radio] {
+    margin-top: 5px;
+}
+
+.radio-horizontal label {
+    margin-right: 1em;
+}
+
+.key-slot-panel-remaining {
+    margin-right: 1em;
+}
+
+.sigkey-heading {
+    color: var(--pf-global--Color--dark-100);
+    font-size: var(--pf-global--FontSize--sm);
+    margin: var(--pf-global--spacer--md) 0 0;
+}
+
+.sigkey-hash {
+    font-family: monospace;
+    font-size: 140%;
+}
+
+.pf-c-modal-box h3 {
+    margin-top: 0;
+    line-height: 24px;
+}
+
+.progressive-disclosure .form-group {
+    padding-left: 20px;
+}
+
+.progressive-disclosure .form-group > :first-child {
+    margin-left: -20px;
+}
+
+.progressive-disclosure .form-group > :not(:first-child) {
+    margin-top: 0.5em;
+    animation: showRemovalDisclosure ease-in-out 200ms;
+}
+
+@keyframes showRemovalDisclosure {
+    0% {
+        opacity: 0;
+        transform: scaleY(0);
+        transform-origin: top left;
+    }
+    100% {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+}
+
+.pf-c-modal-box .slot-warning {
+    color: var(--pf-global--danger-color--200);
+}
+
+.pf-c-modal-box .key-source .radio-horizontal {
+    margin-bottom: 2ex;
+}
+
+// This is needs to avoid showing scrollbar in dialog
+.size-slider {
+    padding-bottom: var(--pf-global--spacer--xs);
+}
+
+/* Overview side panels */
+
+.sidepanel-row {
+    padding: var(--pf-global--spacer--sm) var(--pf-global--spacer--lg);
+    border-top: var(--pf-global--BorderWidth--sm) solid var(--pf-global--BorderColor--100);
+}
+
+.sidepanel-row.pf-c-empty-state {
+    .pf-c-empty-state__body {
+        margin-top: 0;
+    }
+}
+
+.sidepanel-row:not(.pf-c-empty-state):hover {
+    color: var(--ct-color-list-hover-text);
+    cursor: pointer;
+}
+
+.sidepanel-row-name {
+    font-size: var(--pf-global--FontSize--sm);
+}
+
+.sidepanel-row-info {
+    font-size: var(--pf-global--FontSize--xs);
+    max-width: 50ch;
+}
+
+.panel-heading {
+    position: static;
+}
+
+.storage_alert_action_buttons button {
+    margin: 0.5rem 0.2rem 0.2rem 0;
+}
+
+// We wrap the data list row with a label to make checkboxes clickable from the whole row
+// we need this HACK in order to make alignRight property take effect
+.data-list-row-checkbox-label {
+    display: flex;
+    flex-wrap: wrap;
+    flex-grow: 1;
+}
+
+.crypto-keyslots-list {
+    border: none;
+}
+
+// So that "Stored passphrase" fits
+.pf-c-description-list.ct-wide-labels {
+    --pf-c-description-list--m-horizontal__term--width: minmax(0, 18ch);
+}
+
+.pf-c-description-list .pf-c-progress {
+    max-width: 30ch;
+}
+
+#mounts .pf-c-progress__measure, #nfs-mounts .pf-c-progress__measure, #detail-content .pf-c-progress__measure {
+    min-width: 7rem;
+}
+
+td.ct-text-align-right {
+    text-align: right;
+}
+
+// Hatched effect for progressbars that are parts of a group, but not the main
+.ct-progress-other {
+    // Use the page's default background color
+    --bg-light: var(--pf-global--BackgroundColor--100);
+    // Alternate with the used color of the progress bar
+    --bg-dark: var(--pf-c-progress__indicator--BackgroundColor);
+    // Repeat a gradient with hard stops, a perfect slant, and a consistency
+    // with all "other" hatched backgrounds (fixed, so they repeat the same)
+    background: repeating-linear-gradient(
+        -45deg,
+        var(--bg-light),
+        var(--bg-light) 25%,
+        var(--bg-dark) 25%,
+        var(--bg-dark) 50%,
+        var(--bg-light) 50%
+    ) top left fixed;
+    background-size: var(--pf-global--spacer--sm) var(--pf-global--spacer--sm);
+    // Overlay at 1/3  to mix the light and dark against the trough color
+    opacity: 0.333;
+}
+
+.ct-warning-text {
+    color: var(--pf-global--warning-color--200)
+}
+
+td button.pf-m-link {
+    padding: 0px;
+}
+
+@media ( max-width: $pf-global--breakpoint--md - 1 ) {
+    .show-only-when-wide {
+        display: none;
+    }
+}
+
+@media ( min-width: $pf-global--breakpoint--md ) {
+    .show-only-when-narrow {
+        display: none;
+    }
+}

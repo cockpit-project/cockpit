@@ -1,0 +1,122 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+
+
+test_manifest = """
+{
+  "tools": {
+    "test": {
+      "label": "Test"
+    }
+  },
+
+  "content-security-policy": "script-src 'self' 'unsafe-inline'"
+}
+"""
+
+test_html = """
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script src="../base1/cockpit.js"></script>
+    <script>
+      cockpit.transport.wait(function () { });
+    </script>
+  </head>
+  <body>
+    <h1>Test</h1>
+  </body>
+</html>
+"""
+
+
+@nondestructive
+class TestPackages(MachineCase):
+
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        self.restore_dir("/usr/local/share/cockpit")
+
+        def reload_packages():
+            b.go("/playground/pkgs")
+            b.enter_page("/playground/pkgs")
+            b.click("#reload")
+
+        def check_nav_entry(label, present):
+            b.switch_to_top()
+            if present:
+                b.wait_visible(f"#nav-system li:contains({label})")
+            else:
+                b.wait_not_present(f"#nav-system li:contains({label})")
+
+        self.login_and_go("/playground/pkgs")
+
+        check_nav_entry("Terminal", True)
+
+        m.execute("mkdir -p /usr/local/share/cockpit/test")
+        m.write("/usr/local/share/cockpit/test/manifest.json", test_manifest)
+        m.write("/usr/local/share/cockpit/test/test.html", test_html)
+        reload_packages()
+
+        b.switch_to_top()
+        b.click("#nav-system a:contains(Test)")
+
+        b.enter_page("/test/test")
+        b.wait_text("h1", "Test")
+
+        m.execute("rm -rf /usr/local/share/cockpit/test")
+        reload_packages()
+        check_nav_entry("Test", False)
+
+        # The following override.json tests were enabled with PR #16884
+        if m.image == 'rhel-8-6-distropkg':
+            return
+
+        # Hide the terminal with a system override
+        self.restore_dir("/etc/cockpit")
+        m.write("/etc/cockpit/systemd.override.json", """{
+    "tools": {
+        "terminal": null
+    }
+}""")
+        reload_packages()
+        check_nav_entry("Terminal", False)
+
+        # user override on top which renames the services label
+        self.restore_dir("/home/admin")
+        m.execute("mkdir -p /home/admin/.config/cockpit")
+        m.write("/home/admin/.config/cockpit/systemd.override.json", """{
+    "menu": {
+        "services": { "label": "Hackices" }
+    }
+}""")
+        reload_packages()
+        check_nav_entry("Services", False)
+        check_nav_entry("Hackices", True)
+        # it adds to, not replaces the /etc override
+        check_nav_entry("Terminal", False)
+
+
+if __name__ == '__main__':
+    test_main()

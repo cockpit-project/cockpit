@@ -1,0 +1,73 @@
+{
+    "root": true,
+    "env": {
+        "browser": true,
+        "es6": true
+    },
+    "extends": [
+        "eslint:recommended", "standard", "standard-jsx", "standard-react",
+        "plugin:flowtype/recommended",
+        "plugin:jsx-a11y/recommended"
+    ],
+    "parser": "@babel/eslint-parser",
+    "parserOptions": {
+        "ecmaVersion": "7",
+        "ecmaFeatures": {
+            "jsx": true
+        },
+        "sourceType": "module"
+    },
+    "plugins": ["react", "react-hooks"],
+    "rules": {
+        "indent": ["error", 4,
+            {
+                "ObjectExpression": "first",
+                "CallExpression": {"arguments": "first"},
+                "MemberExpression": 2,
+                "ignoredNodes": [ "JSXAttribute" ]
+            }],
+        "newline-per-chained-call": ["error", { "ignoreChainWithDepth": 3 }],
+        "lines-between-class-members": ["error", "always", { "exceptAfterSingleLine": true }],
+        "prefer-promise-reject-errors": ["error", { "allowEmptyReject": true }],
+        "no-var": "error",
+        "react/jsx-indent": ["error", 4],
+        "semi": ["error", "always", { "omitLastInOneLineBlock": true }],
+
+        "react-hooks/rules-of-hooks": "error",
+        "react-hooks/exhaustive-deps": "error",
+
+        "camelcase": "off",
+        "comma-dangle": "off",
+        "curly": "off",
+        "no-template-curly-in-string": "off",
+        "jsx-quotes": "off",
+        "key-spacing": "off",
+        "no-console": "off",
+        "quotes": "off",
+        "react/jsx-curly-spacing": "off",
+        "react/jsx-indent-props": "off",
+        "react/jsx-handler-names": "off",
+        "react/jsx-closing-bracket-location": "off",
+        "react/jsx-closing-tag-location": "off",
+        "react/jsx-curly-newline": "off",
+        "react/jsx-first-prop-new-line": "off",
+        "react/prop-types": "off",
+        "space-before-function-paren": "off",
+        "standard/no-callback-literal": "off",
+
+        "eqeqeq": "off",
+        "import/no-webpack-loader-syntax": "off",
+        "object-property-newline": "off",
+        "react/jsx-no-bind": "off",
+        "react/jsx-wrap-multilines": "off"
+    },
+    "globals": {
+        "require": false,
+        "module": false
+    },
+    "settings": {
+        "react": {
+            "version": "detect"
+        }
+    }
+}

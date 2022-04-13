@@ -1,0 +1,29 @@
+#!/usr/bin/python3
+
+import argparse
+import os
+
+# Implement `command < /dev/null 2>&1 | cat >&2` with `command`
+# as the main process (for signals, return status, etc).
+
+# This protects us against node setting stdio non-blocking.
+
+# NB: as of today (node v14.17.0) node doesn't mess with the
+# controlling terminal.
+
+parser = argparse.ArgumentParser()
+parser.add_argument('cmd', nargs='+', help='The command to run')
+args = parser.parse_args()
+
+n = os.open('/dev/null', os.O_RDONLY)
+r, w = os.pipe()
+
+if os.fork():
+    os.dup2(n, 0)  # stdin from /dev/null
+    os.dup2(w, 1)  # stdout to cat
+    os.dup2(w, 2)  # stderr to cat
+    os.execvp(args.cmd[0], args.cmd)
+else:
+    os.dup2(r, 0)  # read from wrapped process
+    os.dup2(2, 1)  # all output to stderr
+    os.execvp('cat', ['cat'])

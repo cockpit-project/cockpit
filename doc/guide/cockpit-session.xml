@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<refentry id="cockpit-login">
+  <refnamediv>
+    <refname>cockpit.js: User Session</refname>
+    <refpurpose>User information and login session state</refpurpose>
+  </refnamediv>
+
+  <refsection id="cockpit-logout">
+    <title>cockpit.logout()</title>
+<programlisting>
+cockpit.logout([reload])
+</programlisting>
+    <para>Logout of Cockpit. Unless <code>reload</code> is <code>false</code> this will also
+      cause the page to be reloaded, so that the user can see the logged out state.</para>
+  </refsection>
+
+  <refsection id="cockpit-user">
+    <title>cockpit.user()</title>
+<programlisting>
+var promise = cockpit.user();
+promise.then(user => { ... });
+</programlisting>
+    <para>This object contains information about the user that's currently logged into cockpit.
+      The following fields are defined:</para>
+
+    <variablelist>
+      <varlistentry>
+        <term><code>"id"</code></term>
+        <listitem><para>This is unix user id.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"name"</code></term>
+        <listitem><para>This is the unix user name like <code>"root"</code>.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"full_name"</code></term>
+        <listitem><para>This is a readable name for the user.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"groups"</code></term>
+        <listitem><para>This is an array of group names to which the user belongs.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"home"</code></term>
+        <listitem><para>This is user's home directory.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"shell"</code></term>
+        <listitem><para>This is unix user shell.</para></listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>Returns a promise that completes once the user information is available.</para>
+  </refsection>
+
+  <refsection id="cockpit-info-changed">
+    <title>cockpit.user.onchanged</title>
+<programlisting>
+cockpit.user.addEventListener("changed", function() { ... })
+</programlisting>
+    <para>This event is fired when the user info changes or first becomes available.</para>
+  </refsection>
+
+  <refsection id="cockpit-permission">
+    <title>Permission lookup</title>
+
+    <para>Cockpit provides a mechanism for checking if the current user satisfies a
+      given criteria. Currently capable of checking for root users, and group
+      membership. This is meant for updating UI elements based on what actions the
+      user can perform. It is <emphasis>not an access control mechanism</emphasis>.</para>
+
+    <refsection id="cockpit-permission-constructor">
+      <title>cockpit.permission()</title>
+<programlisting>
+permission = cockpit.permission([options])
+</programlisting>
+
+      <para>Create a new permission object to check if the current user has permission.
+        The "root" user is always given permission. The <code>options</code> argument
+        can contain a <code>"group"</code> field, and members of that group are also
+        given permission.</para>
+    </refsection>
+
+    <refsection id="cockpit-permission-allowed">
+      <title>permission.allowed</title>
+
+      <para>A boolean value which indicates if the permission is allowed or not. This will
+        be <code>null</code> if the permission is unknown, or there was an error checking
+        the permission or the permission data has not yet loaded. This property will update
+        asynchronously and if you wish to be notified of changes connect to the
+        <link linkend="cockpit-permission-changed">permission.onchanged</link> event.</para>
+    </refsection>
+
+    <refsection id="cockpit-permission-changed">
+      <title>permission.onchanged</title>
+<programlisting>
+permission.addEventListener("changed", function() { ... })
+</programlisting>
+      <para>This event is fired when the permission changes. In particular the
+        <link linkend="cockpit-permission-allowed">permission.allowed</link> property.</para>
+    </refsection>
+
+    <refsection id="cockpit-permission-close">
+      <title>permission.close()</title>
+<programlisting>
+permission.close()
+</programlisting>
+      <para>Closes the permission object and tears down any registered callbacks and dbus subscriptions.</para>
+    </refsection>
+
+  </refsection>
+
+</refentry>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Launch and reattach to long-running process</title>
+    <meta charset="utf-8">
+    <link href="./patternfly.css" type="text/css" rel="stylesheet">
+    <link href="long-running.css" type="text/css" rel="stylesheet">
+    <script src="../base1/cockpit.js"></script>
+    <script type="module" src="long-running-process.js"></script>
+    <script type="module" src="index.js"></script>
+</head>
+
+<body>
+    <div class="pf-c-page">
+        <main class="pf-c-page__main" tabindex="-1">
+            <section class="pf-c-page__main-section pf-m-light">
+                <div class="pf-l-stack pf-m-gutter">
+                    <div class="pf-l-stack__item">
+                        <label for="state">State:</label>
+                        <span id="state"></span></p>
+                    </div>
+
+                    <div class="pf-l-stack__item">
+                        <input id="command" type="text" />
+                        <button class="pf-c-button pf-m-primary" id="run" disabled>Start</button>
+                    </div>
+
+                    <div class="pf-l-stack__item pf-m-fill">
+                        <pre id="output"></pre>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

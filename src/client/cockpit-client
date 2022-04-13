@@ -1,0 +1,327 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2018-2021 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import configparser
+import ctypes
+import gi
+import logging
+import os
+import signal
+import socket
+import subprocess
+import sys
+import tempfile
+import textwrap
+
+gi.require_version("Gtk", "3.0")  # NOQA
+gi.require_version("WebKit2", "4.0")  # NOQA
+
+from gi.repository import GLib, Gio, Gtk, WebKit2
+
+libexecdir = os.path.realpath(__file__ + '/..')
+
+libc6 = ctypes.cdll.LoadLibrary('libc.so.6')
+
+
+def prctl(*args):
+    if libc6.prctl(*args) != 0:
+        raise Exception('prctl() failed')
+
+
+prctl.SET_PDEATHSIG = 1
+
+
+@Gtk.Template(filename=f'{libexecdir}/cockpit-client.ui')
+class CockpitClientWindow(Gtk.ApplicationWindow):
+    __gtype_name__ = 'CockpitClientWindow'
+    webview = Gtk.Template.Child()
+
+    def __init__(self, app, uri):
+        super().__init__(application=app)
+
+        self.add_action_entries([
+            ('reload', self.reload),
+            ('reload-bypass-cache', self.reload_bypass_cache),
+            ('go-back', self.go_back),
+            ('go-forward', self.go_forward),
+            ('zoom', self.zoom, 's'),
+            ('open-inspector', self.open_inspector),
+            ('run-js', self.run_js, 's', '""'),
+        ])
+        self.lookup_action('run-js').set_enabled(app.enable_run_js)
+
+        self.webview.get_settings().set_enable_developer_extras(True)
+        self.webview.connect('decide-policy', self.decide_policy)
+        self.webview.load_uri(uri)
+
+        history = self.webview.get_back_forward_list()
+        history.connect('changed', self.history_changed)
+        self.history_changed()
+
+        if app.no_ui:
+            self.set_titlebar(None)
+            self.webview.bind_property('title', self, 'title')
+
+    def history_changed(self, *args):
+        self.lookup_action('go-back').set_enabled(self.webview.can_go_back())
+        self.lookup_action('go-forward').set_enabled(self.webview.can_go_forward())
+
+    def reload(self, *args):
+        self.webview.reload()
+
+    def reload_bypass_cache(self, *args):
+        self.webview.reload_bypass_cache()
+
+    def go_back(self, *args):
+        self.webview.go_back()
+
+    def go_forward(self, *args):
+        self.webview.go_forward()
+
+    def decide_policy(self, _view, decision, decision_type):
+        if decision_type == WebKit2.PolicyDecisionType.NEW_WINDOW_ACTION:
+            uri = decision.get_navigation_action().get_request().get_uri()
+            if uri.startswith('http://127'):
+                logging.error('warning: no support for pop-ups')
+            else:
+                # We can't get the timestamp from the request, so use Gdk.CURRENT_TIME (== 0)
+                Gtk.show_uri_on_window(self, uri, 0)
+
+            decision.ignore()
+            return True
+
+        return False
+
+    def zoom(self, _action, parameter, *_unused):
+        current = self.webview.get_zoom_level()
+        factors = {'in': current * 1.1, 'default': 1.0, 'out': current * 0.9}
+        self.webview.set_zoom_level(factors[parameter.get_string()])
+
+    def open_inspector(self, *_unused):
+        self.webview.get_inspector().show()
+
+    def run_js(self, action, parameter, *_unused):
+        '''Run given JavaScript code in the current page/context
+
+        The JS code has to return a scalar value immediately. To process asynchronous
+        actions, this function installs signal handlers to wait until the code calls
+
+            window.webkit.messageHandlers.result.postMessage("some string")
+
+        or a page load happens.
+
+        This is because a page load (as reaction to clicking a link or other action)
+        impredictably and immediately stops the current context and execution of the
+        given JS code, with no reliable way of returning a result value.
+
+        The postMessage() string is returned via the action state.
+        If a page load happens instead, the action state will be "page-load".
+        If the JS code throws an error, the action state gets set to the error message.
+        '''
+        def set_result(result):
+            action.set_state(GLib.Variant.new_string(result))
+            print(f"run-js async result: {result}")
+            self.webview.disconnect(on_load_handler)
+            uc_manager.disconnect(on_result_handler)
+            uc_manager.unregister_script_message_handler("result")
+
+        def run_js_ready(webview, result, _user_data):
+            try:
+                js_res = webview.run_javascript_finish(result).get_js_value()
+                print(f"run-js return value: {js_res.to_json(2)}")
+            except GLib.GError as e:
+                sys.stderr.write(f"run-js error: {e.message}\n")
+                set_result(str(e))
+
+        # zero the current state, to ensure that the result triggers an Actions.Changed signal
+        action.set_state(GLib.Variant.new_string(""))
+
+        uc_manager = self.webview.get_user_content_manager()
+        on_result_handler = uc_manager.connect(
+            "script-message-received::result",
+            lambda _mgr, result: set_result(result.get_js_value().to_string()))
+        uc_manager.register_script_message_handler("result")
+
+        # wait for loads to complete, to avoid races and ensure that it did not fail
+        on_load_handler = self.webview.connect(
+            "load-changed",
+            lambda webview, event: set_result("page-load") if event == WebKit2.LoadEvent.FINISHED else None)
+
+        self.webview.run_javascript(parameter.get_string(), None, run_js_ready, None)
+
+
+class CockpitClient(Gtk.Application):
+    def __init__(self):
+        super().__init__(application_id='org.cockpit_project.CockpitClient')
+
+        self.add_main_option('no-ui', 0, GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
+                             'Show only a window with a webview')
+        self.add_main_option('external-ws', 0, GLib.OptionFlags.NONE, GLib.OptionArg.STRING,
+                             'Connect to existing cockpit-ws on the given URL')
+        self.add_main_option('disable-uniqueness', 0, GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
+                             'Disable GApplication single-instance mode')
+        self.add_main_option('enable-run-js', 0, GLib.OptionFlags.HIDDEN, GLib.OptionArg.NONE,
+                             'Enable run-js action for testing')
+        self.add_main_option('wildly-insecure', 0, GLib.OptionFlags.HIDDEN, GLib.OptionArg.NONE,
+                             '***DANGEROUS*** Allow anyone to use your ssh credentials')
+
+    def do_startup(self):
+        Gtk.Application.do_startup(self)
+
+        # .add_action_entries() binding is broken for GApplication
+        # https://gitlab.gnome.org/GNOME/pygobject/-/issues/426
+        Gio.ActionMap.add_action_entries(self, [
+            ('new-window', self.new_window),
+            ('quit', self.quit_action),
+            ('open-path', self.open_path, 's'),
+        ])
+
+        self.set_accels_for_action("app.new-window", ["<Ctrl>N"])
+        self.set_accels_for_action("win.reload", ["<Primary>r"])
+        self.set_accels_for_action("win.reload-bypass-cache", ["<Primary><Shift>r"])
+        self.set_accels_for_action("win.go-back", ["<Alt>Left"])
+        self.set_accels_for_action("win.go-forward", ["<Alt>Right"])
+        self.set_accels_for_action("win.zoom::in", ["<Primary>equal"])
+        self.set_accels_for_action("win.zoom::out", ["<Primary>minus"])
+        self.set_accels_for_action("win.zoom::default", ["<Primary>0"])
+        self.set_accels_for_action("win.open-inspector", ["<Primary><Shift>i", "F12"])
+
+        context = WebKit2.WebContext.get_default()
+        data_manager = context.get_website_data_manager()
+        data_manager.set_network_proxy_settings(WebKit2.NetworkProxyMode.NO_PROXY, None)
+        context.set_sandbox_enabled(True)
+        context.set_cache_model(WebKit2.CacheModel.DOCUMENT_VIEWER)
+
+        cookiesPath = os.path.join(data_manager.get_local_storage_directory(), "cookies.txt")
+        cookies = context.get_cookie_manager()
+        cookies.set_persistent_storage(cookiesPath, WebKit2.CookiePersistentStorage.TEXT)
+
+        self.uri = self.ws.start()
+
+    def new_window(self, *args):
+        self.activate()
+
+    def quit_action(self, *args):
+        self.quit()
+
+    def open_path(self, action, parameter, *args):
+        CockpitClientWindow(self, self.uri + parameter.get_string()).present()
+
+    def do_activate(self):
+        CockpitClientWindow(self, self.uri).present()
+
+    def do_shutdown(self):
+        self.ws.stop()
+
+        Gtk.Application.do_shutdown(self)
+
+    def do_handle_local_options(self, options):
+        self.no_ui = options.lookup_value('no-ui') is not None
+
+        if options.lookup_value('disable-uniqueness'):
+            self.flags = Gio.ApplicationFlags.NON_UNIQUE
+
+        self.enable_run_js = bool(options.lookup_value('enable-run-js'))
+
+        if flatpak_id := os.getenv('FLATPAK_ID'):
+            self.application_id = flatpak_id
+
+        if external_ws := options.lookup_value('external-ws'):
+            self.ws = ExternalCockpitWs(external_ws.get_string())
+
+        elif self.safely_sandboxed() or options.lookup_value('wildly-insecure'):
+            self.ws = InternalCockpitWs()
+
+        else:
+            logging.error('Unable to detect any sandboxing: refusing to spawn cockpit-ws')
+            return 1
+
+        return -1
+
+    def safely_sandboxed(self):
+        flatpak_info = configparser.ConfigParser()
+
+        if not flatpak_info.read('/.flatpak-info'):
+            return False
+
+        shared = flatpak_info.get('Context', 'Shared', fallback='').lower().split(';')
+        if 'network' in shared:
+            return False
+
+        return True
+
+
+class ExternalCockpitWs:
+    def __init__(self, uri):
+        self.uri = uri
+
+    def start(self):
+        return self.uri
+
+    def stop(self):
+        pass
+
+
+class InternalCockpitWs:
+    def start(self):
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # Static port is needed for WebKit local storage to persist across runs
+        self.socket.bind(('127.0.90.90', 9090))
+        self.socket.listen()
+
+        self.write_config()
+        self.ws = subprocess.Popen([f'{libexecdir}/cockpit-ws'],
+                                   preexec_fn=self.preexec_fn, pass_fds=[3])
+
+        host, port = self.socket.getsockname()
+        return f'http://{host}:{port}/'
+
+    def preexec_fn(self):
+        os.environ['XDG_CONFIG_DIRS'] = self.config_dir.name
+        os.environ['LISTEN_PID'] = str(os.getpid())
+        os.environ['LISTEN_FDS'] = str(1)
+        prctl(prctl.SET_PDEATHSIG, signal.SIGKILL)
+        os.dup2(self.socket.fileno(), 3)
+
+    def stop(self):
+        self.ws.kill()
+        self.config_dir.cleanup()
+
+    def write_config(self):
+        self.config_dir = tempfile.TemporaryDirectory(prefix='cockpit-client-', suffix='-etc')
+        os.mkdir(f'{self.config_dir.name}/cockpit')
+        with open(f'{self.config_dir.name}/cockpit/cockpit.conf', 'x') as cockpit_conf:
+            # avoid putting strings here that ought to be translated
+            config = f'''
+                # dynamically generated by cockpit-client
+                [WebService]
+                X-For-CockpitClient = true
+                LoginTo = true
+
+                [Ssh-Login]
+                ReportStderr = true
+                Command = {libexecdir}/cockpit-client-ssh
+                '''
+
+            cockpit_conf.write(textwrap.dedent(config))
+
+
+if __name__ == "__main__":
+    app = CockpitClient()
+    app.run(sys.argv)

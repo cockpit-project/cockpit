@@ -35,9 +35,6 @@ class TestSOS(MachineCase):
         b = self.browser
         m = self.machine
 
-        # HACK: sos ships wrong sos.conf, we need to mkdir it, see https://bugzilla.redhat.com/show_bug.cgi?id=1903281
-        if m.image == "centos-8-stream":
-            m.execute("mkdir -p /etc/sos")
         self.write_file("/etc/sos/sos.conf",
                         """
 [global]

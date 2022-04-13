@@ -54,7 +54,6 @@ class PackageCase(MachineCase):
             self.addCleanup(self.machine.execute, "nmcli con delete fake")
 
         # HACK: packagekit often hangs on shutdown; https://bugzilla.redhat.com/show_bug.cgi?id=1717185
-        self.machine.execute("mkdir -p /etc/systemd/system/packagekit.service.d")
         self.write_file("/etc/systemd/system/packagekit.service.d/timeout.conf", "[Service]\nTimeoutStopSec=5\n")
 
         # disable all existing repositories to avoid hitting the network

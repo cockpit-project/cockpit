@@ -3,6 +3,9 @@
 # (Re-)generate all deploy keys on
 #   https://github.com/cockpit-project/cockpit/settings/environments
 #
+# Your personal access token needs `public_repo` for this to work:
+#   https://github.com/settings/tokens
+#
 # You might want this first:
 #   dnf install python3-pynacl
 #

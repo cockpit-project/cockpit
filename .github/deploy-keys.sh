@@ -31,11 +31,12 @@ fi
 deploy_env() {
     ENVIRONMENT="$1"
     DEPLOY_TO="${2:-${ORG}/${ENVIRONMENT}}"
+    SECRET_NAME="${3:-DEPLOY_KEY}"
 
     bots/github-upload-secrets $DRY_RUN \
         --receiver "${ORG}/${THIS}" \
         --env "${ENVIRONMENT}" \
-        --ssh-keygen DEPLOY_KEY \
+        --ssh-keygen "${SECRET_NAME}" \
         --deploy-to "${DEPLOY_TO}"
 }
 

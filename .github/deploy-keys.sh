@@ -30,11 +30,7 @@ fi
 
 deploy_env() {
     ENVIRONMENT="$1"
-    if [ -n "${2:-}" ]; then
-        DEPLOY_TO="${ORG}/$2"
-    else
-        DEPLOY_TO="${ORG}/${ENVIRONMENT}"
-    fi
+    DEPLOY_TO="${2:-${ORG}/${ENVIRONMENT}}"
 
     bots/github-upload-secrets $DRY_RUN \
         --receiver "${ORG}/${THIS}" \
@@ -49,7 +45,7 @@ deploy_env() {
 # https://github.com/cockpit-project/cockpit
 #   - npm-update.yml
 #   - weblate-sync-po.yml
-deploy_env self cockpit
+deploy_env self cockpit-project/cockpit
 
 # https://github.com/cockpit-project/cockpit-weblate
 #   - weblate-sync-pot.yml
@@ -66,4 +62,4 @@ deploy_env node-cache
 
 # https://github.com/cockpit-project/org.cockpit_project.CockpitClient
 #   - update-flathub.yml
-deploy_env flathub org.cockpit_project.CockpitClient
+deploy_env flathub cockpit-project/org.cockpit_project.CockpitClient

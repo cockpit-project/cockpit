@@ -1829,6 +1829,8 @@ class MachineCase(unittest.TestCase):
         '''
         m = self.machine
         self.restore_file(path, post_restore_action=post_restore_action)
+        dirname = os.path.dirname(path)
+        m.execute(f"mkdir -p {dirname}")
         m.write(path, content, append=append, owner=owner, perm=perm)
 
 

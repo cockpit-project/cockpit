@@ -427,7 +427,6 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
             def prepare(self):
                 if self.rebootRequired:
                     # setting app as static in tracer's helper file will cause it to require a reboot
-                    m.execute("mkdir -p /etc/tracer")
                     self.testObj.write_file("/etc/tracer/applications.xml",
                                             """
 <applications>

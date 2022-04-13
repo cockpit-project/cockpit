@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      issues: write
+      pull-requests: write
     timeout-minutes: 5
     env:
       HEAD_SHA: ${{ github.event.pull_request.head.sha }}

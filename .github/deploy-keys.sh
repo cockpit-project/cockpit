@@ -64,3 +64,11 @@ deploy_env node-cache
 # https://github.com/cockpit-project/org.cockpit_project.CockpitClient
 #   - update-flathub.yml
 deploy_env flathub cockpit-project/org.cockpit_project.CockpitClient
+
+# https://github.com/cockpit-project/cockpit (COCKPIT_DEPLOY_KEY)
+# https://github.com/cockpit-project/node-cache (NODE_CACHE_DEPLOY_KEY)
+#   - npm-update.yml
+#   - npm-update-pf.yml
+# Installed additionally to the above keys (+).
+deploy_env npm-update +cockpit-project/cockpit COCKPIT_DEPLOY_KEY
+deploy_env npm-update +cockpit-project/node-cache NODE_CACHE_DEPLOY_KEY

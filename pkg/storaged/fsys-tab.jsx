@@ -159,7 +159,10 @@ export function check_mismounted_fsys(client, path, enter_warning) {
         else if (is_mounted && opt_noauto && !opt_noauto_intent && !opt_systemd_automount)
             type = "no-mount-on-boot";
     } else if (other_mounts.length > 0) {
-        type = "mounted-no-config";
+        // We don't complain about the rootfs, it's probably
+        // configured somewhere else, like in the bootloader.
+        if (other_mounts[0] != "/")
+            type = "mounted-no-config";
     }
 
     if (type)

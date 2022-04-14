@@ -33,11 +33,13 @@ class TestStorageNfs(StorageCase):
         self.login_and_go("/storage")
 
         m.execute("mkdir /home/foo /home/bar /mnt/test")
-        # Removing the nfs mount removes the target dir.
-        self.addCleanup(m.execute, "if [ -e /mnt/test ]; then umount /mnt/test 2>/dev/null || true; rm -r /mnt/test; fi")
         self.write_file("/etc/exports", "/home/foo 127.0.0.0/24(rw)\n/home/bar 127.0.0.0/24(rw)\n",
                         post_restore_action="systemctl restart nfs-server")
         m.execute("systemctl restart nfs-server")
+        # Removing the nfs mount removes the target dir, if the test fails it
+        # won't. It's important to umount before restoring /etc/exports as
+        # otherwise nfs is confused and we can't umount the share.
+        self.addCleanup(m.execute, "if [ -e /mnt/test ]; then umount /mnt/test 2>/dev/null || true; rm -r /mnt/test; fi")
 
         # Nothing there in the beginnging
         b.wait_visible("#nfs-mounts .pf-c-empty-state")

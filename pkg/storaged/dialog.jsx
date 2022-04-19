@@ -341,6 +341,7 @@ export const dialog_open = (def) => {
     const nested_fields = def.Fields || [];
     const fields = flatten_fields(nested_fields);
     const values = { };
+    let errors = null;
 
     fields.forEach(f => { values[f.tag] = f.initial_value });
 
@@ -349,13 +350,11 @@ export const dialog_open = (def) => {
     // Body component maybe, but we also want the values up here so
     // that we can pass them to validate and the action function.
 
-    const update = (errors, trigger) => {
-        if (def.update)
-            def.update(self, values, trigger);
-        dlg.setProps(props(errors));
+    const update = () => {
+        dlg.setProps(props());
     };
 
-    const props = (errors) => {
+    const props = () => {
         const title = (def.Action && (def.Action.Danger || def.Action.DangerButton)
             ? <><ExclamationTriangleIcon className="ct-icon-exclamation-triangle" /> {def.Title}</>
             : def.Title);
@@ -368,7 +367,12 @@ export const dialog_open = (def) => {
                         values={values}
                         errors={errors}
                         isFormHorizontal={def.isFormHorizontal}
-                        onChange={trigger => update(null, trigger)} />
+                        onChange={trigger => {
+                            errors = null;
+                            if (def.update)
+                                def.update(self, values, trigger);
+                            update();
+                        }} />
         };
     };
 
@@ -399,13 +403,14 @@ export const dialog_open = (def) => {
                                         else
                                             return def.Action.action(visible_values, progress_callback);
                                     })
-                                    .catch(errors => {
-                                        if (errors && errors.toString() != "[object Object]") {
+                                    .catch(errs => {
+                                        if (errs && errs.toString() != "[object Object]") {
                                             // Log errors from failed actions, for debugging and
                                             // to allow the test suite to catch known issues.
-                                            console.warn(errors.toString());
+                                            console.warn(errs.toString());
                                         }
-                                        update(errors, null);
+                                        errors = errs;
+                                        update();
                                         return Promise.reject();
                                     });
                         };
@@ -459,42 +464,44 @@ export const dialog_open = (def) => {
                 () => {
                     update_footer(null, null);
                 },
-                (errors) => {
-                    if (errors)
-                        update(errors, null);
+                (errs) => {
+                    if (errs) {
+                        errors = errs;
+                        update();
+                    }
                     update_footer(null, null);
                 });
         },
 
         set_values: (new_vals) => {
             Object.assign(values, new_vals);
-            update(null, null);
+            update();
         },
 
         set_nested_values: (key, new_vals) => {
             const updated = values[key];
             Object.assign(updated, new_vals);
             values[key] = updated;
-            update(null, null);
+            update();
         },
 
         set_options: (tag, new_options) => {
             fields.forEach(f => {
                 if (f.tag == tag) {
                     Object.assign(f.options, new_options);
-                    update(null, null);
+                    update();
                 }
             });
         },
 
         set_attribute: (name, value) => {
             def[name] = value;
-            update(null, null);
+            update();
         },
 
         add_danger: (danger) => {
             def.Action.Danger = <>{def.Action.Danger} {danger}</>;
-            update(null, null);
+            update();
         },
 
         close: () => {

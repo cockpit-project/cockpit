@@ -754,7 +754,7 @@ fi
                                     '.*warning: setlocale: LC_ALL: cannot change locale.*',
                                     'done')
 
-    @skipImage("Insights client not yet available on RHEL 9", "rhel-9-0")
+    @skipImage("Insights client not yet available on RHEL 9", "rhel-9-0", "rhel-9-1")
     def testInsightsStatus(self):
         m = self.machine
         b = self.browser

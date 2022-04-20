@@ -376,7 +376,7 @@ class TestStorageStratis(StorageCase):
 
 
 @skipImage("No Stratis", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004", "ubuntu-2204", "arch")
-@skipImage("No Stratis on demand", "rhel-9-0", "rhel-8-6")
+@skipImage("No Stratis on demand", "rhel-9-0", "rhel-9-1", "rhel-8-6")
 class TestStoragePackagesStratis(PackageCase, StorageCase):
 
     def testStratisOndemandInstallation(self):

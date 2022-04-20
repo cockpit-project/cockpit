@@ -216,7 +216,9 @@ class TestSystemInfo(MachineCase):
         # available.  This is harmless.
         #
         self.allow_journal_messages(
-            "org.freedesktop.systemd1: couldn't get property org.freedesktop.systemd1.Service ExecMain at /org/freedesktop/systemd1/unit/systemd_2dtimedated_2eservice: GDBus.Error:org.freedesktop.DBus.Error.UnknownProperty: Unknown property")
+            "org.freedesktop.systemd1: couldn't get property org.freedesktop.systemd1.Service ExecMain "
+            "at /org/freedesktop/systemd1/unit/systemd_2dtimedated_2eservice: "
+            "GDBus.Error:org.freedesktop.DBus.Error.UnknownProperty.*")
 
         self.login_and_go("/system", superuser=False)
         b.wait_text_not("#system_information_systime_button", "")

@@ -161,8 +161,13 @@ done
 
         # When the test fails while `test.service` is active, the process keeps running and
         # `systemct status test.service` still shows it as active until this process dies
-        self.addCleanup(self.machine.execute, "for op in stop reset-failed disable; do systemctl $op test test-fail || true; done")
-        self.addCleanup(self.machine.execute, "su - admin -c 'export XDG_RUNTIME_DIR=/run/user/$(id -u admin); for op in stop reset-failed disable; do systemctl --user $op test test-fail || true; done'")
+        self.addCleanup(
+            self.machine.execute,
+            "for op in stop reset-failed disable; do systemctl $op test test-fail || true; done")
+        self.addCleanup(
+            self.machine.execute,
+            "su - admin -c 'export XDG_RUNTIME_DIR=/run/user/$(id -u admin); "
+            "for op in stop reset-failed disable; do systemctl --user $op test test-fail || true; done'")
 
     def testBasic(self):
         self._testBasic()

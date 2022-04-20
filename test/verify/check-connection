@@ -1075,7 +1075,7 @@ ProtocolHeader = X-Forwarded-Proto
         b.logout()
 
     @skipImage("nginx not installed", "centos-8-stream", "debian-stable", "debian-testing", "fedora-coreos",
-               "rhel-8-6", "rhel-9-0", "ubuntu-stable", "ubuntu-2004", "ubuntu-2204", "arch")
+               "rhel-8-6", "rhel-9-0", "rhel-9-1", "ubuntu-stable", "ubuntu-2004", "ubuntu-2204", "arch")
     @skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testNginxTLS(self):
         '''test proxying to Cockpit with TLS
@@ -1159,7 +1159,7 @@ server {
         b.wait_visible('article.system-health')
 
     @skipImage("nginx not installed", "centos-8-stream", "debian-stable", "debian-testing", "fedora-coreos",
-               "rhel-8-6", "rhel-9-0", "ubuntu-stable", "ubuntu-2004", "ubuntu-2204", "arch")
+               "rhel-8-6", "rhel-9-0", "rhel-9-1", "ubuntu-stable", "ubuntu-2004", "ubuntu-2204", "arch")
     @skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testNginxNoTLS(self):
         '''test proxying to Cockpit with plain HTTP

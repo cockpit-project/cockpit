@@ -38,8 +38,9 @@ override_dh_install:
 	rm debian/tmp/etc/motd.d/cockpit debian/tmp/etc/issue.d/cockpit.issue
 
 	# unpackaged modules
-	for m in kdump selinux; do rm -r debian/tmp/usr/share/cockpit/$$m; done
+	rm -r debian/tmp/usr/share/cockpit/kdump
 	rm debian/tmp/usr/share/metainfo/org.cockpit-project.cockpit-kdump.metainfo.xml
+	rm -r debian/tmp/usr/share/cockpit/selinux
 	rm debian/tmp/usr/share/metainfo/org.cockpit-project.cockpit-selinux.metainfo.xml
 
 	dh_install --fail-missing -Xusr/src/debug

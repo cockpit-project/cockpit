@@ -35,6 +35,9 @@ jobs:
 
       - name: Force push the change to trigger testing workflows
         run: |
+          # Don't force-push if no branch was created
+          test "$(git symbolic-ref HEAD)" = '${{ github.ref }}' && exit
+
           sleep 1 # make sure the timestamp changes
           git commit --amend --no-edit
           eval $(ssh-agent)

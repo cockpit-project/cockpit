@@ -56,47 +56,11 @@ EOF
     clone_from_cache "${sha}"
 }
 
-cmd_npm_install() {
-    # Lots of cockpit developers are using toolbox, which can't recursively run
-    # podman, but flatpak-spawn offers a nice workaround for that.
-    if [ -f /run/.toolboxenv ]; then
-        exec flatpak-spawn --host -- "$0" npm-install "$@"
-        exit 1
-    fi
-
-    CACHE="cockpit-project-npm-cache-volume"
-    IMAGE="docker.io/library/node:alpine"
-
-    # make sure the node user can write to the cache volume
-    podman run \
-        --rm \
-        --volume "${CACHE}":/home/node/.npm:U \
-        "${IMAGE}" chown -R node:node /home/node >&2
-
-    # do the actual work
-    exec podman run \
-        --log-driver='none' \
-        --rm \
-        --init \
-        --user node \
-        --workdir /home/node \
-        --interactive \
-        --attach stdin \
-        --attach stdout \
-        --attach stderr \
-        --volume "${CACHE}":/home/node/.npm \
-        "${IMAGE}" /bin/sh -c '
-            set -eux
-            tee package.json >/dev/null
-            npm install --ignore-scripts >&2 & wait -n    # allows the shell to catch SIGINT
-            cp package.json node_modules/.package.json
-            tar --directory=node_modules --create .
-        '
-}
-
 cmd_install() {
+    test -e bots || tools/make-bots
+
     # We first read the result directly into the cache, then we unpack it.
-    tree="$(cmd_npm_install < package.json | tar_to_cache)"
+    tree="$(bots/npm download < package.json | tar_to_cache)"
     commit="$(sha256sum package.json | git_cache commit-tree "${tree}")"
     git_cache tag "sha-${commit}" "${commit}"
     cmd_checkout "${commit}"
@@ -118,12 +82,14 @@ cmd_push() {
 }
 
 cmd_verify() {
+    test -e bots || tools/make-bots
+
     # Verifies that the package.json and node_modules of the given commit match.
     commit="$(git rev-parse "$1:node_modules")"
     fetch_sha_to_cache "${commit}"
 
     committed_tree="$(git_cache rev-parse "${commit}^{tree}")"
-    expected_tree="$(git cat-file blob "$1:package.json" | cmd_npm_install | tar_to_cache)"
+    expected_tree="$(git cat-file blob "$1:package.json" | bots/npm download | tar_to_cache)"
 
     if [ "${committed_tree}" != "${expected_tree}" ]; then
         exec >&2

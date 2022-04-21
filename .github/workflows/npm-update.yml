@@ -12,11 +12,6 @@ jobs:
       contents: write
     runs-on: ubuntu-20.04
     steps:
-      - name: Set up dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y npm
-
       - name: Clone repository
         uses: actions/checkout@v2
 

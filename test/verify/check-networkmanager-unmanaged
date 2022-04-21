@@ -1,0 +1,50 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from netlib import *
+from testlib import *
+
+from machine_core.constants import TEST_OS_DEFAULT
+
+
+@skipDistroPackage()
+class TestNetworkingUnmanaged(NetworkCase):
+    provision = {
+        "machine1": {"memory_mb": 512},
+        "machine2": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/20", "dhcp": True, "memory_mb": 256}
+    }
+
+    def testUnmanaged(self):
+        b = self.browser
+        m = self.machine
+
+        iface = self.add_iface()
+
+        # Now mark this interface as unmanaged
+        m.execute(r"printf '[keyfile]\nunmanaged-devices=%s\n' > /etc/NetworkManager/conf.d/unmanaged.conf" % iface)
+        m.execute("systemctl restart NetworkManager")
+
+        self.login_and_go("/network")
+
+        b.wait_visible("#networking-unmanaged-interfaces tr[data-interface='" + iface + "']")
+
+
+if __name__ == '__main__':
+    test_main()

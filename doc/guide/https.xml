@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<chapter id="https">
+  <title>SSL/TLS Usage</title>
+
+  <para>Cockpit usually requires that web browsers communicate with it using HTTPS,
+    for security reasons.</para>
+
+  <section id="https-required">
+    <title>HTTPS Requirement</title>
+
+    <para>Cockpit listens for both HTTP and HTTPS connections on the same port, by
+      default 9090. If an HTTP connection is made, Cockpit will redirect that
+      connection to HTTPS. There are some exceptions:</para>
+
+    <itemizedlist>
+      <listitem><para>If an HTTP connection comes from <code>127.0.0.0/8</code>, then
+        Cockpit will allow communication without redirecting to HTTPS.</para></listitem>
+      <listitem><para>Certain URLs, like <code>/ping</code> are not required to use
+        HTTPS.</para></listitem>
+    </itemizedlist>
+
+    <para>This behavior can be overridden by setting the
+      <code>AllowUnencrypted</code> option in <code>cockpit.conf</code>.</para>
+  </section>
+    
+  <section id="https-certificates">
+    <title>Certificates</title>
+
+    <para>Cockpit will load a certificate from the <code>/etc/cockpit/ws-certs.d</code>
+      directory. It will use the last file with a <code>.cert</code> or <code>.crt</code>
+      extension in alphabetical order. The file should contain one or more OpenSSL
+      style <literal>BEGIN CERTIFICATE</literal> blocks for the server certificate and
+      the intermediate certificate authorities.</para>
+
+    <para>
+      The private key must be contained in a separate file with the same name as the
+      certificate, but with a <code>.key</code> suffix instead. The key must not be
+      encrypted.</para>
+
+    <para>If no certificate is found, a self-signed certificate is created and
+      stored in the <filename>0-self-signed.cert</filename> file. On some
+      platforms, Cockpit will also generate a ca.crt in that directory, which
+      may be safely imported into client browsers.</para>
+
+    <para>Cockpit will read the files as root, so they can have tight
+      permissions.</para>
+
+    <para>To check which certificate <code>cockpit-ws</code> will use run
+      the following command.</para>
+<programlisting>
+$ sudo /usr/libexec/cockpit-certificate-ensure --check
+</programlisting>
+    <para>Or, on Debian-based systems:</para>
+<programlisting>
+$ sudo /usr/lib/cockpit/cockpit-certificate-ensure --check
+</programlisting>
+
+    <para>If using <code>certmonger</code> to manage certificates, following command can
+    be used to automatically prepare a certificate/key file pair:</para>
+
+    <programlisting>
+getcert request -f /etc/cockpit/ws-certs.d/50-certmonger.cert \
+                -k /etc/cockpit/ws-certs.d/50-certmonger.key \
+                -D myhostname.example.com \
+                [--ca=...]</programlisting>
+
+    <para>This will not work on Red Hat Enterprise Linux/CentOS 8 by default. Adjust the SELinux type of the certificate directory to <code>cert_t</code> to allow certmonger to write its certificates there:</para>
+
+    <programlisting>
+semanage fcontext -a -t cert_t '/etc/cockpit/ws-certs\.d(/.*)?'
+restorecon -v /etc/cockpit/ws-certs.d</programlisting>
+  </section>
+
+</chapter>

@@ -1,0 +1,250 @@
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2013 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* ---------------------------------------------------------------------------------------------------- */
+
+@use "page";
+@use "../lib/table.css";
+@use "nav.scss";
+
+@import "@patternfly/patternfly/components/Button/button.css";
+
+:root {
+    --ct-color-host-accent: var(--pf-global--active-color--100);
+}
+
+/* Hacks on top for now */
+
+html.index-page body {
+    overflow: hidden;
+}
+
+.hide-before:before {
+    display: none;
+}
+
+#machine-change-auth > p {
+    margin-bottom: 5px;
+}
+
+// Fix fingerprint layout
+.add-host-fingerprint {
+    margin-top: var(--pf-global--spacer--md);
+
+    td {
+        padding: 0;
+        line-height: inherit;
+        height: auto;
+        vertical-align: middle !important;
+
+        &:first-child {
+            padding-right: var(--pf-global--spacer--md);
+        }
+    }
+}
+
+.machine-key {
+    margin: 0;
+    white-space: pre-line;
+    padding: var(--pf-global--spacer--xs) var(--pf-global--spacer--sm);
+}
+
+.login-setup-checkbox-wrapper {
+    // Use a flex layout to better vertically align the contents to the grid
+    display: flex;
+}
+
+#edit-machine-port {
+    width: 100px;
+}
+
+#connecting {
+    height: 100%;
+    background-color: var(--ct-global--palette--black-250);
+    text-align: center;
+    padding-top: 120px;
+}
+
+/* System information */
+
+#systime-date-input,
+#systime-time-hours,
+#systime-time-minutes {
+    display: inline;
+}
+
+/* index page */
+
+.display-language-modal {
+    /* Do not let the language menu expand to the end of the page */
+    .pf-c-menu__content {
+        max-height: 20rem;
+        overflow: auto;
+    }
+}
+
+iframe.container-frame {
+    display: none;
+    border: none;
+    width: 100%;
+}
+
+// Page layout
+
+$phone: 767px;
+$desktop: $phone + 1px;
+
+.page {
+    --nav-width: 15rem;
+    display: grid;
+    width: 100%;
+    height: 100%;
+
+    // Set masthead and toolbar to transparent, so the background shows through
+    // (including the accent line)
+
+    .pf-c-masthead {
+        --pf-c-masthead--BackgroundColor: transparent;
+    }
+
+    .pf-c-toolbar {
+        --pf-c-toolbar--BackgroundColor: transparent;
+    }
+
+    @media (max-width: $phone) {
+        grid-template-areas: "main main main" "sidebar switcher header";
+        grid-template-rows: 1fr 4rem;
+        grid-template-columns: 1fr auto auto;
+        overflow: hidden;
+
+        .area-ct-subnav {
+            grid-area: main;
+        }
+
+        .sidebar-toggle {
+            grid-area: sidebar;
+            display: flex;
+            background: var(--pf-global--BackgroundColor--dark-100);
+        }
+
+        > .header,
+        > .navbar,
+        > .sidebar-toggle {
+            background:
+                // Line on bottom
+                linear-gradient(to top,
+                    var(--ct-color-host-accent),
+                    var(--ct-color-host-accent) 0.1875rem,
+                    transparent 0.1875rem
+                ),
+                // Base color (with subtle glow)
+                linear-gradient(to top,
+                    var(--ct-color-host-accent) -1.5rem,
+                    var(--pf-global--BackgroundColor--dark-100) 0.75rem
+                );
+        }
+
+        // Remove excess padding from masthead in mobile
+        .pf-c-masthead {
+            --pf-c-masthead--inset: 0;
+        }
+    }
+
+    @media (min-width: $desktop) {
+        grid-template-areas: "switcher header" "sidebar main";
+        grid-template-rows: max-content 1fr;
+        grid-template-columns: minmax(min-content, var(--nav-width)) 1fr;
+
+        > .navbar {
+            max-width: var(--nav-width);
+        }
+
+        .sidebar {
+            grid-area: sidebar;
+        }
+
+        .sidebar-toggle {
+            grid-area: none;
+            display: none;
+        }
+
+        > .header {
+            background:
+                // Shadow to the left
+                linear-gradient(to right,
+                    var(--pf-global--BackgroundColor--dark-100) -1rem,
+                    transparent 1rem
+                ),
+                // Line on top
+                linear-gradient(to bottom,
+                    var(--ct-color-host-accent),
+                    var(--ct-color-host-accent) 0.1875rem,
+                    transparent 0.1875rem
+                ),
+                // Base color (with subtle glow)
+                linear-gradient(to bottom,
+                    var(--ct-color-host-accent) -1.5rem,
+                    var(--pf-global--BackgroundColor--dark-100) 0.75rem
+                );
+        }
+    }
+
+    // Shrink nav for VMs @ 1024×768 (and below)
+    @media (max-width: 1024px) and (max-height: 768px) and (orientation: landscape) {
+        --nav-width: 14rem;
+    }
+
+    .area-ct-content {
+        grid-area: main;
+    }
+
+    .header {
+        grid-area: header;
+    }
+}
+
+.hostkey-fingerprint {
+  font-size: large;
+  font-weight: bold;
+  margin-top: var(--pf-global--spacer--md);
+  border: none;
+  background-color: transparent;
+}
+
+.hostkey-type {
+  font-size: small;
+}
+
+.hostkey-verify-help-cmds {
+  border-radius: 0.25rem;
+  padding: 0.5rem 1rem;
+  background: #ddd;
+  margin-top: var(--pf-global--spacer--md);
+  margin-bottom: var(--pf-global--spacer--md);
+}
+
+/* Alert fixups */
+.modal-content .pf-c-alert {
+    text-align: left;
+    margin-bottom: 24px;
+}
+
+.early-failure {
+    height: 100%;
+}

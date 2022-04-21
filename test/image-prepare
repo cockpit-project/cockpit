@@ -1,0 +1,216 @@
+#!/usr/bin/env python3
+# Build and run a bots/image-customize command to prepare a VM for testing Cockpit.
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2022 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
+import os
+import shlex
+import shutil
+import sys
+import subprocess
+
+from common.parent import BASE_DIR, TEST_DIR, BOTS_DIR, ensure_bots
+ensure_bots()  # NOQA: testvm lives in bots/
+from lib import testmap
+from lib.constants import DEFAULT_IMAGE
+from machine.machine_core import machine_virtual
+
+
+def build_rpms(dist_tar, image, verbose, quick):
+    '''build RPMs from a tarball in an image
+
+    Return local rpm path list.
+    '''
+    subprocess.check_call([os.path.join(BOTS_DIR, "image-download"), image])
+    machine = machine_virtual.VirtMachine(image=image)
+    try:
+        machine.start()
+        machine.wait_boot()
+        vm_tar = os.path.join("/var/tmp", os.path.basename(dist_tar))
+        machine.upload([dist_tar], vm_tar)
+
+        # build srpm
+        machine.execute(f'''su builder -c 'rpmbuild --define "_topdir /var/tmp/build" -ts "{vm_tar}"' ''')
+
+        # build rpms
+        mock_opts = ("--verbose" if verbose else "") + (" --nocheck" if quick else "")
+        machine.execute("su builder -c 'mock --no-clean --disablerepo=* --offline --resultdir /var/tmp/build "
+                        f"{mock_opts} --rebuild /var/tmp/build/SRPMS/*.src.rpm'", timeout=1800)
+
+        # download rpms
+        vm_rpms = machine.execute("find /var/tmp/build -name '*.rpm' -not -name '*.src.rpm'").strip().split()
+
+        destdir = os.path.abspath("tmp/rpms")
+        if os.path.exists(destdir):
+            shutil.rmtree(destdir)
+        os.makedirs(destdir)
+
+        rpms = []
+        for rpm in vm_rpms:
+            machine.download(rpm, destdir)
+            rpms.append(os.path.join(destdir, os.path.basename(rpm)))
+        return rpms
+    finally:
+        machine.stop()
+
+
+#
+# Helper functions to build image-customize options for various steps
+#
+
+def build_install_package(dist_tar, image):
+    '''Default rpm/deb/arch package build/install'''
+
+    # our images have distro cockpit packages pre-installed, remove them
+    args = ["--run-command"]
+    if 'debian' in image or 'ubuntu' in image:
+        args.append("dpkg --purge cockpit cockpit-ws cockpit-bridge cockpit-system")
+    else:
+        # subscription-manager-cockpit needs these, thus --nodeps
+        args.append("if rpm -q cockpit-ws >/dev/null 2>&1; then rpm --erase --nodeps --verbose cockpit cockpit-ws cockpit-bridge cockpit-system; fi")
+
+    args += ["--build", dist_tar]
+    return args
+
+
+def build_install_coreos(dist_tar, image, verbose, quick):
+    '''Special treatment of build/install on CoreOS
+
+    OSTree image can't build packages, build them on corresponding Fedora and invoke
+    test/fedora-coreos.install to install them into the OSTree and the cockpit/ws container.
+    '''
+    rpms = build_rpms(dist_tar, testmap.get_build_image(image), verbose, quick)
+    args = []
+    for rpm in rpms:
+        args += ["--upload", f"{rpm}:/var/tmp/"]
+    args += [
+        "--upload", os.path.join(BASE_DIR, "containers") + ":/var/tmp/",
+        "--script", os.path.join(TEST_DIR, "fedora-coreos.install")]
+    return args
+
+
+def build_install_rhel8(dist_tar, verbose):
+    '''Special treatment of build/install on RHEL/CentOS 8
+
+    Here, cockpit is delivered as two mostly identical source packages: "cockpit" with
+    build_basic=1, and "cockpit-appstream" with build_optional=1. The spec has proper build_*
+    defaults depending on the Name:.
+
+    Basic is already built/installed in build_install_package() (except for distropkg); build the
+    cockpit-appstream variant here.
+    '''
+    vm_dist_tar = os.path.join("/var/tmp", os.path.basename(dist_tar))
+    return [
+        "--upload", f"{dist_tar}:{vm_dist_tar}",
+        # create cockpit-appstream.spec
+        "--run-command",
+        f"tar xf '{vm_dist_tar}' -O '*/tools/cockpit.spec' | sed '/^Name:/ s/$/-appstream/' > /var/tmp/cockpit-appstream.spec",
+
+        # create srpm
+        "--run-command",
+        """su builder -c 'rpmbuild --define "_topdir /var/tmp/appstream" --define "_sourcedir /var/tmp" """
+        """-bs /var/tmp/cockpit-appstream.spec' """,
+
+        # build rpms in mock
+        "--run-command",
+        """su builder -c 'mock --no-clean --disablerepo=* --offline --resultdir /var/tmp/appstream """
+        f"""--nocheck {"--verbose" if verbose else ""} --rebuild /var/tmp/appstream/SRPMS/*.src.rpm' """,
+
+        # install rpms
+        "--run-command",
+        "rpm -i --verbose $(find /var/tmp/appstream -name '*.rpm' -not -name '*.src.rpm')"]
+
+
+def validate_packages():
+    '''Post-install package checks'''
+
+    # check for files that are shipped by more than one RPM
+    return ["--run-command",
+            """set -eu
+                fail=
+                for f in $(find $(rpm -ql $(rpm -qa '*cockpit*') | sort | uniq -d) -maxdepth 0 -type f); do
+                    # -debugsource overlap is legit
+                    [ "${f#/usr/src/debug}" = "$f" ] || continue
+                    echo "ERROR: $f is shipped by multiple packages: $(rpm -qf $f)" >&2
+                    fail=1
+                done
+                [ -z "${fail}" ] || exit 1
+            """]
+
+
+def build_containers():
+    return [
+        "--upload", os.path.join(BASE_DIR, "containers") + ":/var/tmp/",
+
+        "--run-command",
+        """set -eu
+            cd /var/tmp/containers/bastion
+            mkdir rpms
+            cp /var/tmp/build/*.rpm rpms/
+            sed -i -e "s#FROM .*#FROM cockpit/base#" Dockerfile
+            podman build --build-arg OFFLINE=1 -t "cockpit/bastion" . 1>&2"""]
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description='Prepare testing environment, download images and build and install cockpit',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
+    parser.add_argument('-q', '--quick', action='store_true', help='Skip unit tests to build faster')
+    parser.add_argument('-o', '--overlay', action='store_true', help='Install into existing test/image/ overlay instead of from pristine base image')
+    parser.add_argument('-c', '--containers', action='store_true', help='Install container images')
+    parser.add_argument('image', nargs='?', default=DEFAULT_IMAGE, help='The image to use')
+    args = parser.parse_args()
+
+    dist_tar = subprocess.check_output([f'{BASE_DIR}/tools/make-dist'], text=True).strip()
+
+    customize = [os.path.join(BOTS_DIR, "image-customize"), "--no-network"]
+    if not args.overlay:
+        customize.append("--fresh")
+    if args.verbose:
+        customize.append("--verbose")
+    if args.quick:
+        customize.append("--quick")
+
+    if args.image == "fedora-coreos":
+        customize += build_install_coreos(dist_tar, args.image, args.verbose, args.quick)
+    elif "distropkg" not in args.image:
+        customize += build_install_package(dist_tar, args.image)
+
+    if args.image.startswith("rhel-8") or args.image.startswith("centos-8"):
+        customize += build_install_rhel8(dist_tar, args.verbose)
+
+    if args.containers:
+        customize += build_containers()
+
+    if not args.quick:
+        customize += validate_packages()
+
+    # post build/install test preparation
+    customize += ["--script", os.path.join(TEST_DIR, "vm.install"), args.image]
+
+    # show final command for easy copy&paste reproduction/debugging
+    if args.verbose:
+        print(' '.join([shlex.quote(arg) for arg in customize]))
+
+    return subprocess.call(customize)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

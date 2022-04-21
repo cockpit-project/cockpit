@@ -1,0 +1,109 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from storagelib import *
+from testlib import *
+
+
+@nondestructive
+class TestStoragePartitions(StorageCase):
+
+    def testPartitions(self):
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        # A loopback device ends with a digit and partitions have
+        # names like "/dev/loop0p1".  Check that the storage stack has
+        # no difficulties with that.
+        #
+        # We are especially careful to use a device name that doesn't
+        # end in all zeros, because that would be too easy and
+        # wouldn't trigger this bug:
+        #
+        # https://github.com/storaged-project/storaged/issues/97
+
+        dev = self.add_loopback_disk(10, "loop12")
+
+        b.wait_visible(f'.sidepanel-row:contains("{dev}")')
+        b.click(f'.sidepanel-row:contains("{dev}")')
+        b.wait_visible('#storage-detail')
+
+        b.click('button:contains(Create partition table)')
+        self.dialog({"type": "gpt"})
+        self.content_row_wait_in_col(1, 0, "Free space")
+
+        self.content_row_action(1, "Create partition")
+        self.dialog({"type": "ext4",
+                     "mount_point": "/foo",
+                     "mount_options.auto": True})
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
+
+        self.content_dropdown_action(1, "Delete")
+        self.confirm()
+        self.content_row_wait_in_col(1, 0, "Free space")
+
+    @skipMobile()
+    def testSizeSlider(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        disk = self.add_ram_disk()
+        b.click(f'#drives .sidepanel-row:contains("{disk}")')
+        b.wait_visible('#storage-detail')
+
+        b.click('button:contains(Create partition table)')
+        self.dialog({"type": "gpt"})
+        self.content_row_wait_in_col(1, 0, "Free space")
+
+        self.content_row_action(1, "Create partition")
+        self.dialog_wait_open()
+        self.dialog_set_val("type", "empty")
+
+        slider = self.dialog_field("size") + " .pf-c-slider .pf-c-slider__rail"
+
+        # Move the slider one pixel past the middle, this should give a fractional size.
+        # See https://github.com/cockpit-project/cockpit/pull/10968 for more about this.
+        width = b.call_js_func('(function (sel) { return ph_find(sel).offsetWidth; })', slider)
+        about_half_way = width / 2 + 1
+
+        b.mouse(slider, "click", about_half_way, 0)
+        self.dialog_wait_val("size", 26 if m.image == "rhel-8-6-distropkg" else 27.3)
+        b.focus(slider + " + .pf-c-slider__thumb")
+        b.key_press(chr(37), use_ord=True)  # arrow left
+        self.dialog_wait_val("size", 25.5 if m.image == "rhel-8-6-distropkg" else 26.7)
+
+        # Check that changing units affects the text input
+        unit = "1073741824" if m.image == "rhel-8-6-distropkg" else "1000000000"
+        b.select_from_dropdown(".size-unit", unit)
+        self.dialog_wait_val("size", "0.0249" if m.image == "rhel-8-6-distropkg" else "0.0267", unit)
+
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        # With old Udisks2 versions, the partition will end up being
+        # 25.1M while newer versions give us 26M.
+        wait(lambda: m.execute(f"lsblk -no SIZE {disk}1").strip() in ["25.1M", "26M"])
+
+
+if __name__ == '__main__':
+    test_main()

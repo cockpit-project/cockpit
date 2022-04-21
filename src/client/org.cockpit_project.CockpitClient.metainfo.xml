@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='utf-8'?>
+<component type="desktop-application">
+  <id>org.cockpit_project.CockpitClient</id>
+
+  <name>Cockpit Client</name>
+  <summary>Connect via ssh to servers with Cockpit</summary>
+
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>LGPL-2.1-or-later</project_license>
+
+  <description>
+    <p>
+      Cockpit Client provides a graphical interface to your servers, containers, and virtual machines.  Connections are made over SSH, using the SSH configuration of the local user (including aliases, known hosts, key files, hardware tokens, etc).
+    </p>
+    <p>
+      The server needs to have Cockpit installed, but the Cockpit webserver doesn't need to be enabled, and no extra ports need to be opened.
+    </p>
+  </description>
+
+  <screenshots>
+    <screenshot>
+      <caption>Cockpit Client login screen</caption>
+      <image>https://cockpit-project.org/images/flatpak/flatpak-screenshot-login.png</image>
+    </screenshot>
+    <screenshot type="default">
+      <caption>Cockpit overview</caption>
+      <image>https://cockpit-project.org/images/flatpak/flatpak-screenshot-overview.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Cockpit terminal</caption>
+      <image>https://cockpit-project.org/images/flatpak/flatpak-screenshot-terminal.png</image>
+    </screenshot>
+  </screenshots>
+
+  <releases/>
+
+  <launchable type="desktop-id">org.cockpit_project.CockpitClient.desktop</launchable>
+
+  <categories>
+    <category>Network</category>
+    <category>RemoteAccess</category>
+  </categories>
+
+  <provides>
+    <binary>cockpit-client</binary>
+  </provides>
+
+  <requires>
+    <control>keyboard</control>
+    <control>pointing</control>
+    <display_length compare="ge">medium</display_length>
+  </requires>
+
+  <content_rating type="oars-1.0"/>
+
+  <url type="homepage">https://cockpit-project.org/</url>
+  <url type="bugtracker">https://github.com/cockpit-project/cockpit/issues</url>
+  <url type="help">https://cockpit-project.org/documentation.html</url>
+  <url type="translate">https://translate.fedoraproject.org/projects/cockpit</url>
+</component>

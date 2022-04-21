@@ -1,0 +1,133 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from netlib import *
+from testlib import *
+
+
+@nondestructive
+@skipDistroPackage()
+@skipImage("TODO: testBasic fails on Arch Linux", "arch")
+class TestBridge(NetworkCase):
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        # These are two independent networks. Thus there is no loop between the
+        # bridge that all VMs are connected to, and the bridge we are creating here.
+        iface1 = "cockpit1"
+        self.add_veth(iface1, dhcp_cidr="10.111.113.1/24", dhcp_range=['10.111.113.2', '10.111.113.254'])
+        self.nm_activate_eth(iface1)
+        iface2 = "cockpit2"
+        self.add_veth(iface2, dhcp_cidr="10.111.114.1/24", dhcp_range=['10.111.114.2', '10.111.114.254'])
+        self.nm_activate_eth(iface2)
+        self.wait_for_iface(iface1)
+        self.wait_for_iface(iface2)
+
+        # Bridge them
+        b.click("button:contains('Add bridge')")
+        b.wait_visible("#network-bridge-settings-dialog")
+
+        # wait until dialog initialized
+        b.wait_visible("#network-bridge-settings-dialog > button[aria-label=Close]")
+        b.wait_in_text("#network-bridge-settings-body", "cockpit2")
+        b.assert_pixels("#network-bridge-settings-dialog", "networking-bridge-settings-dialog")
+
+        b.set_input_text("#network-bridge-settings-interface-name-input", "tbridge")
+        b.set_checked(f"input[data-iface='{iface1}']", True)
+        b.set_checked(f"input[data-iface='{iface2}']", True)
+        b.click("#network-bridge-settings-dialog button:contains('Save')")
+        b.wait_not_present("#network-bridge-settings-dialog")
+        b.wait_visible("#networking-interfaces tr[data-interface='tbridge']")
+
+        # Check that the configuration file has the expected sane name
+        # on systems that use "network-scripts".
+        if "ubuntu" not in m.image and "debian" not in m.image and m.image not in ["fedora-coreos", "fedora-testing", "fedora-36"]:
+            m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tbridge")
+
+        # Check that the members are displayed and both On
+        b.click("#networking-interfaces tr[data-interface='tbridge'] button")
+        b.wait_visible("#network-interface")
+        self.wait_onoff(f"#network-interface-members tr[data-interface='{iface1}']", True)
+        self.wait_onoff(f"#network-interface-members tr[data-interface='{iface2}']", True)
+
+        b.wait_text_not("#network-interface-mac", "")
+        self.configure_iface_setting('Bridge')
+        b.click("#network-bridge-settings-dialog button:contains('Cancel')")
+        b.wait_not_present("#network-bridge-settings-dialog")
+
+        # Delete the bridge
+        b.click("#network-interface button:contains('Delete')")
+        b.wait_visible("#networking")
+        b.wait_not_present("#networking-interfaces tr[data-interface='tbridge']")
+
+        # Check that the former members are displayed and both On
+        self.wait_for_iface(iface1)
+        self.wait_for_iface(iface2)
+
+    def testActive(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        iface = "cockpit1"
+        self.add_veth(iface, dhcp_cidr="10.111.112.2/20")
+        self.nm_activate_eth(iface)
+        self.wait_for_iface(iface)
+
+        # Put an active interface into a bridge. We can't select/copy the MAC, so we can't expect to
+        # get the same IP as the active interface, but it should get a valid DHCP IP.
+
+        b.click("button:contains('Add bridge')")
+        b.wait_visible("#network-bridge-settings-dialog")
+        b.set_input_text("#network-bridge-settings-interface-name-input", "tbridge")
+        b.set_checked(f"input[data-iface='{iface}']", True)
+        b.click("#network-bridge-settings-dialog button:contains('Save')")
+        b.wait_not_present("#network-bridge-settings-dialog")
+
+        # Check that it has the interface and the right IP address
+        b.click("#networking-interfaces tr[data-interface='tbridge'] th button")
+        b.wait_visible("#network-interface")
+        b.wait_visible(f"#network-interface-members tr[data-interface='{iface}']")
+        b.wait_in_text("#network-interface .pf-c-card:contains('tbridge')", "10.111")
+
+        # Check bridge port
+        b.click("#network-interface-members button:contains(cockpit1)")
+        b.click("#networking-edit-bridgeport")
+        b.wait_visible("#network-bridge-port-settings-dialog")
+        b.set_input_text("#network-bridge-port-settings-prio-input", "35")
+        b.set_input_text("#network-bridge-port-settings-path-cost-input", "90")
+        b.set_checked("#network-bridge-port-settings-hairPin-mode-input", True)
+        b.click("#network-bridge-port-settings-save")
+        b.wait_not_present("#network-bridge-port-settings-dialog")
+
+        # Confirm that bridge port settings are applied
+        self.assertEqual(m.execute("nmcli con show cockpit1 | grep -i bridge-port.priority | awk '{print $2}'").strip(), "35")
+        self.assertEqual(m.execute("nmcli con show cockpit1 | grep -i bridge-port.path-cost | awk '{print $2}'").strip(), "90")
+        self.assertEqual(m.execute("nmcli con show cockpit1 | grep -i bridge-port.hairpin-mode | awk '{print $2}'").strip(), "yes")
+
+
+if __name__ == '__main__':
+    test_main()

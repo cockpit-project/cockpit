@@ -1,0 +1,65 @@
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+# Note: Because of its use of cockpitflow, libwebsocket_a_LIBS should
+#       rightfully include a reference to libcockpit_common_a_LIBS, but it
+#       can't do this because libcockpit-common.a depends, in turn, on
+#       libwebsocket.
+#
+#       At this point, libwebsocket should probably just be merged into
+#       libcockpit-common, but we can't do that because the log domain is
+#       different, and some of the tests depend on that.
+
+# -----------------------------------------------------------------------------
+# libwebsocket.a: low-level websocket handling code
+
+noinst_LIBRARIES += libwebsocket.a
+
+libwebsocket_a_CPPFLAGS = \
+	-DG_LOG_DOMAIN=\"WebSocket\" \
+	$(glib_CFLAGS) \
+	$(AM_CPPFLAGS)
+
+libwebsocket_a_LIBS = \
+	libwebsocket.a \
+	$(glib_LIBS) \
+	$(NULL)
+
+libwebsocket_a_SOURCES = \
+	src/websocket/websocket.h \
+	src/websocket/websocket.c \
+	src/websocket/websocketclient.h \
+	src/websocket/websocketclient.c \
+	src/websocket/websocketserver.h \
+	src/websocket/websocketserver.c \
+	src/websocket/websocketconnection.h \
+	src/websocket/websocketconnection.c \
+	src/websocket/websocketprivate.h \
+	$(NULL)
+
+# -----------------------------------------------------------------------------
+# Unit tests
+
+check_PROGRAMS += frob-websocket
+frob_websocket_CPPFLAGS = $(libwebsocket_a_CPPFLAGS) $(TEST_CPP)
+frob_websocket_LDADD = $(libwebsocket_a_LIBS) $(TEST_LIBS)
+frob_websocket_SOURCES = src/websocket/frob-websocket.c
+
+TEST_PROGRAM += test-websocket
+test_websocket_CPPFLAGS = $(libwebsocket_a_CPPFLAGS) $(TEST_CPP)
+test_websocket_LDADD = $(libwebsocket_a_LIBS) $(TEST_LIBS)
+test_websocket_SOURCES = src/websocket/test-websocket.c

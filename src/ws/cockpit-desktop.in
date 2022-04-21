@@ -1,0 +1,139 @@
+#!/bin/bash
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2018 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+# Run a local bridge, web server, and browser for a particular Cockpit page.
+# This is useful for integration into .desktop files, for systems which don't
+# have cockpit.socket enabled. The web server and browser run in an unshared
+# network namespace, and thus are totally isolated from everything else.
+#
+# Examples:
+#   cockpit-desktop /cockpit/@localhost/system/index.html
+#   cockpit-desktop network/firewall
+#   cockpit-desktop users
+#
+# As an experimental/demo feature, the bridge can also be started on a remote
+# ssh host. The host name is given as (optional) second argument, which is
+# passed verbatim to ssh.
+#
+# Example:
+#   cockpit-desktop system svr1
+#   cockpit-desktop / username@svr1
+set -eu
+
+# exec_prefix= is set because the default @libexecdir@ contains "${exec_prefix}"
+exec_prefix="@prefix@"
+libexecdir="@libexecdir@"
+
+# find suitable browser, unless already set by $BROWSER
+# We can't use xdg-open, it does too much magic behind the back to connect to
+# existing instances (outside of our namespace) and does not allow us to reduce
+# the UI, or pass options like chromium's --no-sandbox.
+detect_browser()
+{
+    [ -z "${BROWSER:-}" ] || return 0
+
+    # First choice, but it depends on gi.repository WebKit2, so check it
+    if @libexecdir@/cockpit-client --help >/dev/null 2>/dev/null; then
+        BROWSER="@libexecdir@/cockpit-client --disable-uniqueness --no-ui --external-ws"
+        return 0
+    fi
+
+    for browser in chromium-browser chromium google-chrome; do
+        if type $browser >/dev/null 2>&1; then
+            # need to disable sandboxing in user namespace, but that already isolates
+            # TODO: Find a way to disable the URL bar
+            BROWSER="$browser --no-sandbox --disable-infobars"
+            return 0
+        fi
+    done
+
+    if type firefox >/dev/null 2>&1; then
+        # TODO: Find a way to disable the privacy notice tab, via mozilla.cfg?
+        # TODO: Find a way to disable the URL bar
+        BROWSER="firefox --no-remote"
+        return 0
+    fi
+
+    # TODO: is there a simple way to use webkitgtk?
+    echo "No suitable browser found (Chromium/Chrome, or Firefox)" >&2
+    exit 1
+}
+
+
+if [ -z "${1:-}" ]; then
+    echo "Usage: $0 <Cockpit path> [ssh host]" >&2
+    exit 1
+fi
+
+# Expand the commandline argument into a url
+case "$1" in
+    /*)
+        URL_PATH="$1"
+        ;;
+    */)
+        URL_PATH="/cockpit/@localhost/$1index.html"
+        ;;
+    */*)
+        URL_PATH="/cockpit/@localhost/$1.html"
+        ;;
+    *)
+        URL_PATH="/cockpit/@localhost/$1/index.html"
+        ;;
+esac
+
+detect_browser
+
+# start the bridge; this needs to run in the normal user session/namespace
+coproc ${2:+ssh "$2"} cockpit-bridge
+trap "kill $COPROC_PID; wait $COPROC_PID || true" EXIT INT QUIT PIPE
+
+# start ws and browser in a detached network namespace
+SCRIPT='
+set -eu
+# new namespaces have lo down by default
+ip link set lo up >&2
+
+# start browser in a temporary home dir, so that it does not interfere with your real one
+export BROWSER_HOME=$(mktemp --directory --tmpdir cockpit.desktop.XXXXXX)
+
+# forward parent stdin and stdout (from bridge) to cockpit-ws
+# it pretty well does not matter which port we use in our own namespace, so use standard http
+# disable /etc/cockpit/
+XDG_CONFIG_DIRS="$BROWSER_HOME" COCKPIT_SUPERUSER="pkexec" '${COCKPIT_WS:-@libexecdir@/cockpit-ws}' -p 80 -a 127.0.0.90 --local-session=- <&0 >&1 &
+WS_PID=$!
+# ... and stop using that stdin/out for everything else
+exec 0</dev/null
+exec 1>&2
+
+trap "set +e; kill $WS_PID; wait $WS_PID; rm -rf $BROWSER_HOME" EXIT INT QUIT PIPE
+
+# if we have netcat, use it for waiting until ws is up
+if type nc >/dev/null 2>&1; then
+    for retry in `seq 10`; do
+        nc -z 127.0.0.90 80 && break
+        sleep 0.5;
+    done
+else
+    # otherwise, just wait a bit
+    sleep 3
+fi
+
+HOME="$BROWSER_HOME" '$BROWSER' http://127.0.0.90'"$URL_PATH"'
+'
+unshare --user --map-root-user --net /bin/bash -c "$SCRIPT" <&${COPROC[0]} >&${COPROC[1]}

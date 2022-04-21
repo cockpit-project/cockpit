@@ -1,0 +1,17 @@
+#!/bin/sh
+case "$1" in
+    "good-vars")
+        echo "EXTRA=var; export EXTRA"
+        echo "SSH_AUTH_SOCKET=socket; export SSH_AUTH_SOCKET"
+        echo "SSH_AGENT_PID=100; export SSH_AGENT_PID"
+        echo "EXTRA2=100; export EXTRA2"
+        exit 0;;
+    "bad-vars")
+        echo "Just a bunch of nothing"
+        echo "TEST=var; export TEST"
+        exit 0;;
+    *)
+        echo "Normal output"
+        echo "Bad things" 1>&2
+        exit 1;;
+esac

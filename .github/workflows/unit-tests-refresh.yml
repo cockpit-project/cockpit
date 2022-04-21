@@ -1,0 +1,47 @@
+name: unit-test-refresh
+on:
+  schedule:
+    # auto-refresh every Sunday evening
+    - cron: '0 22 * * 0'
+  # can be run manually on https://github.com/cockpit-project/cockpit/actions
+  workflow_dispatch:
+jobs:
+  # we do both builds and all tests in a single run, so that we only upload the containers on success
+  refresh:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    timeout-minutes: 180
+    env:
+      # current podman backport falls over as non-root, and completely breaks down with :i386 image
+      docker: docker
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+        with:
+          # need this to also fetch tags
+          fetch-depth: 0
+
+      - name: Build fresh containers
+        run: containers/unit-tests/build
+
+      - name: Run amd64 gcc check-memory test
+        run: containers/unit-tests/start check-memory
+
+      - name: Run i386 clang check-memory test
+        run: containers/unit-tests/start :i386 CC=clang check-memory
+
+      - name: Run amd64 clang distcheck test
+        run: containers/unit-tests/start CC=clang distcheck
+
+      - name: Run i386 gcc distcheck test
+        run: containers/unit-tests/start :i386 distcheck
+
+      - name: Log into container registry
+        run: docker login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
+
+      - name: Push containers to registry
+        run: |
+          docker push ghcr.io/cockpit-project/unit-tests:latest
+          docker push ghcr.io/cockpit-project/unit-tests:i386

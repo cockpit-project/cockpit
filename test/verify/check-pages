@@ -1,0 +1,801 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import time
+import os
+
+import parent
+from testlib import *
+
+RHEL_DOC_BASE = "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console"
+
+
+@nondestructive
+@skipDistroPackage()
+class TestPages(MachineCase):
+    def checkDocs(self, items):
+        m = self.machine
+        b = self.browser
+
+        b.click("#toggle-docs")
+        b.wait_visible("#toggle-docs + ul")
+        expected = "Web Console"
+        expected += "".join(items)
+        expected += "About Web Console"
+        # DOCUMENTATION_URL is only in Fedora, RHEL and Arch
+        if "fedora" in m.image:
+            expected = "Fedora Linux documentation" + expected
+        elif m.image.startswith("rhel-"):
+            expected = "Red Hat Enterprise Linux documentation" + expected
+        elif m.image == "arch":
+            expected = "Arch Linux documentation" + expected
+
+        b.wait_collected_text("#toggle-docs + ul", expected)
+        b.click("#toggle-docs")
+        b.wait_not_present("#toggle-docs + ul")
+
+    def check_system_menu(self, label, present):
+        b = self.browser
+        if present:
+            b.wait_visible(f"#host-apps li a:contains('{label}')")
+        else:
+            b.wait_not_present(f"#host-apps li a:contains('{label}')")
+
+    def open_lang_modal(self):
+        self.browser.switch_to_top()
+        self.browser.open_session_menu()
+
+        self.browser.click(".display-language-menu")
+        self.browser.wait_visible('#display-language-modal')
+
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+        self.restore_dir("/etc/systemd/system", post_restore_action="systemctl stop test.timer test.service; systemctl daemon-reload")
+        m.write("/etc/systemd/system/test.service",
+                """
+[Unit]
+Description=Test Service
+
+[Service]
+ExecStart=/bin/true
+
+[Install]
+WantedBy=default.target
+""")
+        m.write("/etc/systemd/system/test.timer",
+                """
+[Unit]
+Description=Test timer
+
+[Timer]
+OnCalendar=daily
+""")
+        # After writing files out tell systemd about them
+        m.execute("systemctl daemon-reload")
+
+        m.execute("systemctl start test.timer")
+
+        self.allow_journal_messages("Failed to get realtime timestamp: Cannot assign requested address")
+
+        # On Debian and Ubuntu we have to generate the other locales
+        if "debian" in m.image:
+            m.execute("echo 'de_DE.UTF-8 UTF-8' >> /etc/locale.gen && locale-gen && update-locale")
+        elif "arch" == m.image:
+            m.execute("echo 'de_DE.UTF-8 UTF-8' >> /etc/locale.gen && locale-gen")
+        elif "ubuntu" in m.image:
+            m.execute("locale-gen de_DE && locale-gen de_DE.UTF-8 && update-locale")
+
+        # login so that we have a cookie.
+        self.login_and_go("/system/services#/test.service")
+
+        # check that reloading a page with parameters works
+        b.enter_page("/system/services")
+        b.reload()
+        b.enter_page("/system/services")
+        b.wait_text(".service-name", "Test Service")
+        b.switch_to_top()
+        self.checkDocs(["Managing services"])
+        b.click("#toggle-docs")
+        b.wait_visible(f'#toggle-docs + ul a:contains("Managing services")[href="{RHEL_DOC_BASE}/'
+                       'managing-services-in-the-web-console_system-management-using-the-rhel-8-web-console"]')
+        b.wait_visible(f'#toggle-docs + ul a:contains("Web Console")[href="{RHEL_DOC_BASE}/index"]')
+        b.click("#toggle-docs")
+        b.wait_not_present("#toggle-docs + ul")
+        b.go("/network")
+        self.checkDocs(["Managing networking bonds", "Managing networking teams",
+                        "Managing networking bridges", "Managing VLANs", "Managing firewall"])
+        b.go("/system/services")
+
+        m.restart_cockpit()
+        b.relogin("/system/services")
+        b.wait_text(".service-name", "Test Service")
+
+        # check that navigating away and back preserves place
+        b.click_system_menu("/system")
+        b.wait_visible("#system_information_systime_button")
+        b.switch_to_top()
+        self.checkDocs(["Configuring system settings"])
+        b.click_system_menu("/system/services")
+        b.wait_visible("ol.pf-c-breadcrumb__list")
+        b.wait_text(".service-name", "Test Service")
+        b.switch_to_top()
+        b.wait_js_cond('window.location.pathname === "/system/services"')
+        b.wait_js_cond('window.location.hash === "#/test.service"')
+
+        # check that when inside the component clicking the navbar
+        # takes you home
+        b.click_system_menu("/system/services")
+        b.wait_visible("#services-list")
+        b.wait_not_present("#service-details")
+        b.switch_to_top()
+        b.wait_js_cond('window.location.pathname === "/system/services"')
+        b.wait_js_cond('window.location.hash === ""')
+
+        # Navigate inside an iframe
+        b.switch_to_top()
+        b.go("/@localhost/playground/test")
+        b.enter_page("/playground/test")
+        b.click("button:contains('Go down')")
+        b.click("button:contains('Go down')")
+        b.switch_to_top()
+        b.wait_js_cond("window.location.hash == '#/0/1?length=1'")
+
+        # This should be visible now
+        b.switch_to_frame("cockpit1:localhost/playground/test")
+        b.wait_visible("#hidden")
+
+        # This should now say invisible
+        b.switch_to_top()
+        b.go("/@localhost/system/services")
+        b.switch_to_frame("cockpit1:localhost/playground/test")
+        b.wait_not_visible("#hidden")
+
+        # Test 'parent' manifest option
+        b.switch_to_top()
+        b.go("/metrics")
+        self.check_system_menu("Overview", True)
+        self.checkDocs(["Performance Co-Pilot"])
+
+        # Lets try changing the language
+
+        self.open_lang_modal()
+        b.click('#display-language-modal li[data-value=de-de] button')
+        b.click("#display-language-modal footer button.pf-m-primary")
+        b.wait_language("de-de")
+
+        # Check that the system page is translated
+        b.go("/system")
+        b.enter_page("/system")
+        b.wait_in_text(".ct-overview-header", "Neustart")
+
+        # Systemd timer localization
+        b.go("/system/services")
+        b.switch_to_top()
+        b.wait_js_cond('document.title.indexOf("Dienste") === 0')
+        b.enter_page("/system/services")
+        b.click('#services-filter li:nth-child(4) a')
+        # HACK: the timers' next run/last trigger (col 3/4) don't always get filled (issue #9439)
+        # b.wait_in_text("tr[data-goto-unit='test\.timer'] td:nth-child(3)", "morgen um")
+
+        # BIOS date parsing; we don't want to introduce too many assumptions, just that the original MM/DD/YYYY
+        # was parsed at all, and the bios is from the 21st century (20YY)
+        # TestSystemInfo.testHardwareInfo does this more carefully
+        b.go("/system/hwinfo")
+        b.enter_page("/system/hwinfo")
+        b.wait_in_text('#hwinfo-system-info-list .hwinfo-system-info-list-item:nth-of-type(2) .pf-c-description-list__group:nth-of-type(3) dd', " 20")
+
+        # Check the playground page
+        b.switch_to_top()
+        b.go("/playground/translate")
+        b.wait_js_cond('document.title.indexOf("Entwicklung") === 0')
+        b.enter_page("/playground/translate")
+
+        # HTML section
+        self.assertEqual(b.text("#translate-html"), "Bereit")
+        self.assertEqual(b.text("#translate-html-context"), "Bereiten")
+        self.assertEqual(b.text("#translate-html-yes"), "Nicht bereit")
+        self.assertEqual(b.attr("#translate-html-title", "title"), u"Nicht verfügbar")
+        self.assertEqual(b.text("#translate-html-title"), "Cancel")
+        self.assertEqual(b.attr("#translate-html-yes-title", "title"), u"Nicht verfügbar")
+        self.assertEqual(b.text("#translate-html-yes-title"), "Abbrechen")
+
+        # Glade section
+        self.assertEqual(b.text("#translatable-glade"), "Leer")
+        self.assertEqual(b.text("#translatable-glade-context"), "Leeren")
+
+        # Javascript
+        self.assertEqual(b.text("#underscore-empty"), "Leer")
+        self.assertEqual(b.text("#underscore-context-empty"), "Leeren")
+        self.assertEqual(b.text("#cunderscore-context-empty"), "Leeren")
+        self.assertEqual(b.text("#gettext-control"), "Steuerung")
+        self.assertEqual(b.text("#gettext-context-control"), "Strg")
+        self.assertEqual(b.text("#ngettext-disks-1"), "$0 Festplatte fehlt")
+        self.assertEqual(b.text("#ngettext-disks-2"), "$0 Festplatten fehlen")
+        self.assertEqual(b.text("#ngettext-context-disks-1"), u"$0 Datenträger fehlt")
+        self.assertEqual(b.text("#ngettext-context-disks-2"), u"$0 Datenträger fehlen")
+
+        # Frame title
+        b.switch_to_top()
+        b.wait_attr("iframe[name='cockpit1:localhost/system']", "title", "Überblick")
+
+        # Log out and check that login page is translated now
+        b.logout()
+        b.wait_visible('#password-group')
+        b.wait_text("#password-group > label", "Passwort")
+
+        # Test all languages
+        # Test that pages do not oops and that locale is valid
+
+        if not m.image.startswith("rhel-"):
+            return
+
+        def line_sel(i):
+            return '.terminal .xterm-accessibility-tree div:nth-child(%d)' % i
+
+        pages = ["/system", "/system/logs", "/network", "/users", "/system/services", "/system/terminal"]
+
+        self.login_and_go('/system')
+        b.wait_visible('#overview')
+
+        self.open_lang_modal()
+        languages = b.eval_js("ph_select('#display-language-list li').map(e => e.attributes['data-value'].nodeValue)")
+        self.assertIn('en-us', languages)
+        b.click("#display-language-modal footer button.pf-m-link")  # Close the menu
+
+        for language in languages:
+            # Remove failed units which will show up in the first terminal line
+            m.execute("systemctl reset-failed")
+
+            b.go("/system")
+            b.enter_page("/system")
+
+            self.open_lang_modal()
+            b.click(f"#display-language-modal li[data-value={language}] button")
+            b.click("#display-language-modal footer button.pf-m-primary")
+            b.wait_language(language)
+
+            # Test some pages, end up in terminal
+            for page in pages:
+                b.go(page)
+                b.enter_page(page)
+                b.wait_language(language)
+
+            locale = language.split("-")
+            if len(locale) == 1:
+                locale.append("")
+            locale = f"{locale[0]}_{locale[1].upper()}.UTF-8"
+
+            b.wait_visible(".terminal .xterm-accessibility-tree")
+            b.wait_in_text(line_sel(1), "admin")
+            b.key_press("echo $LANG\r")
+            b.wait_in_text(line_sel(2), locale)
+
+            b.switch_to_top()
+
+            b.wait_js_func("""(function (lang) {
+                let correct = true;
+                document.querySelectorAll('#content iframe').forEach(el => {
+                    if (el.contentDocument.documentElement.lang !== lang)
+                        correct = false;
+                });
+                return correct;
+            })""", language)
+            b.wait_attr(".index-page", "lang", language)
+
+    def testPtBRLocale(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute('useradd scruffy -s /bin/bash -c Scruffy')
+        m.execute('echo scruffy:foobar | chpasswd')
+
+        if "debian" in m.image:
+            m.execute('echo \'pt_BR.UTF-8 UTF-8\' >> /etc/locale.gen && locale-gen && update-locale')
+        elif "ubuntu" in m.image:
+            m.execute('locale-gen pt_BR && locale-gen pt_BR.UTF-8 && update-locale')
+        elif "arch" == m.image:
+            m.execute('echo \'pt_BR.UTF-8 UTF-8\' >> /etc/locale.gen && locale-gen')
+
+        self.login_and_go('/system')
+        b.wait_visible('#overview')
+        self.open_lang_modal()
+        b.click('#display-language-modal li[data-value=pt-br] button')
+        b.click('#display-language-modal footer button.pf-m-primary')
+        b.wait_language("pt-br")
+
+        # Check that the system page is translated
+        b.go('/system')
+        b.enter_page('/system')
+        b.wait_language("pt-br")
+        b.wait_in_text('.ct-overview-header', 'Reiniciar')
+
+        # Systemd timer localization
+        b.go('/system/services')
+        b.enter_page('/system/services')
+        b.wait_language("pt-br")
+        b.click('#services-filter li:nth-child(4) a')
+        # HACK: the timers' next run/last trigger (col 3/4) don't always get filled (issue #9439)
+        # b.wait_in_text('tr[data-goto-unit=\'test\.timer\'] td:nth-child(3)', 'morgen um')
+
+        # Check the playground page
+        b.switch_to_top()
+        b.go('/playground/translate')
+        b.enter_page('/playground/translate')
+        b.wait_language("pt-br")
+
+        # HTML section
+        self.assertEqual(b.text('#translate-html'), 'Pronto')
+        self.assertEqual(b.text('#translate-html-context'), 'Pronto')
+        self.assertEqual(b.text('#translate-html-yes'), u'Não está pronto')
+        self.assertEqual(b.attr('#translate-html-title', 'title'), u'Indisponível')
+        self.assertEqual(b.text('#translate-html-title'), 'Cancel')
+        self.assertEqual(b.attr('#translate-html-yes-title', 'title'), u'Indisponível')
+        self.assertEqual(b.text('#translate-html-yes-title'), 'Cancelar')
+
+        # Glade section
+        self.assertEqual(b.text('#translatable-glade'), 'Vazio')
+        self.assertEqual(b.text('#translatable-glade-context'), 'Vazio')
+
+        # Javascript
+        self.assertEqual(b.text('#underscore-empty'), 'Vazio')
+        self.assertEqual(b.text('#underscore-context-empty'), 'Vazio')
+        self.assertEqual(b.text('#cunderscore-context-empty'), 'Vazio')
+        self.assertEqual(b.text('#gettext-control'), 'Controle')
+        self.assertEqual(b.text('#gettext-context-control'), 'Controle')
+        self.assertEqual(b.text('#ngettext-disks-1'), u'$0 disco não encontrado')
+        self.assertEqual(b.text('#ngettext-disks-2'), u'$0 discos não encontrados')
+        self.assertEqual(b.text('#ngettext-context-disks-1'), u'$0 disco não encontrado')
+        self.assertEqual(b.text('#ngettext-context-disks-2'), u'$0 discos não encontrados')
+
+        # Log out and check that login page is translated now
+        b.logout()
+        b.wait_text('#password-group > label', 'Senha')
+
+        # translated variants of standard messages in testlib.py
+        self.allow_journal_messages("xargs: basename: .*13.*")
+
+    def testFrameReload(self):
+        b = self.browser
+        frame = "cockpit1:localhost/playground/test"
+        self.addCleanup(self.machine.execute, "rm -f /tmp/counter")
+
+        self.login_and_go("/playground/test")
+
+        b.wait_text('#file-content', "0")
+        b.click("#modify-file")
+        b.wait_text('#file-content', "1")
+
+        b.switch_to_top()
+        b.eval_js('ph_set_attr("iframe[name=\'%s\']", "data-ready", null)' % frame)
+        b.eval_js('ph_set_attr("iframe[name=\'%s\']", "src", "../playground/test.html?i=1#/")' % frame)
+        b.wait_visible(f"iframe.container-frame[name='{frame}'][data-ready]")
+
+        b.enter_page("/playground/test")
+
+        b.wait_text('#file-content', "1")
+
+        self.allow_restart_journal_messages()
+
+    def testShellReload(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go()
+
+        self.check_system_menu("Overview", True)
+        self.restore_dir("/home/admin")
+        m.execute("mkdir -p /home/admin/.local/share/cockpit/foo")
+        m.write("/home/admin/.local/share/cockpit/foo/manifest.json",
+                '{ "menu": { "index": { "label": "FOO!" } } }')
+        b.reload()
+        self.check_system_menu("FOO!", True)
+
+    def testMenuSearch(self):
+        b = self.browser
+        m = self.machine
+
+        # On Ubuntu and Debian we would need to generate locales - just ignore it
+        self.allow_journal_messages("invalid or unusable locale: de_DE.UTF-8")
+
+        self.login_and_go()
+
+        filter_sel = ".pf-c-search-input__text-input"
+
+        # Check that some page disappears and some stay
+        b.focus(filter_sel)
+        b.key_press("se")
+        b.wait_not_present("#host-apps li a:contains('Logs')")
+        b.wait_visible("#host-apps li a:contains('Services')")
+        b.wait_text("#host-apps li a:contains('Services') mark", "Se")
+
+        b.focus(filter_sel)
+        b.key_press("\b\b")
+        b.wait_visible("#host-apps li a:contains('Logs')")
+        b.wait_visible("#host-apps li a:contains('Services')")
+
+        # Check that any substring work
+        b.focus(filter_sel)
+        b.key_press("CoUN")
+        b.wait_not_present("#host-apps li a:contains('Overview')")
+        b.wait_visible("#host-apps li a:contains('Accounts')")
+        b.wait_text("#host-apps li a:contains('Accounts') mark", "coun")
+
+        # Check it can also search by keywords
+        b.focus(filter_sel)
+        b.key_press("\b\b\b\bsystemd")
+        b.wait_visible("#host-apps li a:contains('Services')")
+        b.wait_text("#host-apps li a:contains('Services')", "ServicesContains: systemd")
+        b.wait_text("#host-apps li a:contains('Services') mark", "systemd")
+
+        # Clean up failed services for screenshots
+        m.execute("systemctl reset-failed")
+        b.wait_not_present("#services-error")
+        b.assert_pixels("#nav-system", "menu-search", skip_layouts=["mobile"])
+        b.set_layout("mobile")
+        b.click("#nav-system-item")
+        b.assert_pixels_in_current_layout("#nav-system", "menu-search")
+        b.click("#nav-system-item")
+        b.set_layout("desktop")
+
+        # Check that enter activates first result
+        b.focus(filter_sel)
+        b.key_press("\b\b\b\b\b\b\blogs")
+        b.wait_not_present("#host-apps li a:contains('Services')")
+        b.wait_visible("#host-apps li a:contains('Logs')")
+        b.focus(filter_sel)
+        b.key_press("\r")
+        b.enter_page("/system/logs")
+        b.wait_visible("#journal")
+
+        # Visited page, search should be cleaned up
+        b.switch_to_top()
+        b.wait_val(filter_sel, "")
+
+        # Check that escape cleans the search
+        b.key_press("logs")
+        b.wait_not_present("#host-apps li a:contains('Services')")
+        b.wait_visible("#host-apps li a:contains('Logs')")
+        b.focus(filter_sel)
+        b.key_press(chr(27))  # escape
+        b.wait_val(filter_sel, "")
+        b.wait_visible("#host-apps li a:contains('Services')")
+
+        # Check that clicking on `Clear search` cleans the search
+        b.key_press("logs")
+        b.wait_not_present("#host-apps li a:contains('Services')")
+        b.wait_visible("#host-apps li a:contains('Logs')")
+        b.click("button:contains('Clear search')")
+        b.key_press("\b\b\b\b")
+        b.wait_visible("#host-apps li a:contains('Services')")
+        b.wait_not_present("button:contains('Clear search')")
+
+        # Check that arrows navigate the menu
+        b.focus(filter_sel)
+        b.key_press("s")
+        b.wait_not_present("#host-apps li a:contains('Logs')")
+        b.key_press(chr(40), use_ord=True)  # arrow down
+        b.key_press(chr(40), use_ord=True)  # arrow down
+        b.key_press("\r")
+        if m.image in ["fedora-coreos"]:
+            b.enter_page("/users")
+        else:
+            b.enter_page("/storage")
+
+        # Check we jump into subpage when defined in manifest
+        b.switch_to_top()
+        b.focus(filter_sel)
+        b.key_press("firew")
+        b.wait_visible("#host-apps li a:contains('Networking')")
+        b.wait_not_present("#host-apps li a:contains('Overview')")
+        b.click("#host-apps li a:contains('Networking')")
+        b.enter_page("/network/firewall")
+
+        # Search internationalized menu
+        self.open_lang_modal()
+
+        # Filter the available languages
+        b.set_input_text('#display-language-modal input[type=search]', "Deutsch")
+        b.click('#display-language-modal li[data-value=de-de] button')
+        b.wait_js_func("ph_count_check", "#display-language-modal li", 1)
+        b.set_input_text('#display-language-modal input[type=search]', "")
+
+        b.click('#display-language-modal li[data-value=de-de] button')
+        b.click("#display-language-modal footer button.pf-m-primary")
+        b.wait_language("de-de")
+        b.go("/system")
+        b.enter_page("/system")
+        b.wait_in_text(".ct-overview-header", "Neustart")
+
+        b.switch_to_top()
+        b.wait_visible("#host-apps li a:contains('Dienste')")
+        b.wait_visible("#host-apps li a:contains('Protokolle')")
+        b.focus(filter_sel)
+        b.key_press("dien")
+        b.wait_not_present("#host-apps li a:contains('Protokolle')")
+        b.wait_visible("#host-apps li a:contains('Dienste')")
+        b.wait_text("#host-apps li a:contains('Dienste') mark", "Dien")
+
+    def testShellPreload(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go()
+
+        # Check what's going on while playground/preloaded is still invisible
+        b.switch_to_top()
+        b.wait_attr('iframe[name="cockpit1:localhost/playground/preloaded"]', 'data-loaded', 1)
+        b.switch_to_frame("cockpit1:localhost/playground/preloaded")
+        b.wait_js_func('ph_text_is', "#host", m.execute("hostname").replace("\n", ""))
+        time.sleep(3)
+        b.wait_js_func('ph_text_is', "#release", "")
+
+        # Now navigate to it.
+        b.switch_to_top()
+        b.go("/playground/preloaded")
+        b.enter_page("/playground/preloaded")
+        b.wait_text("#release", m.execute("cat /etc/os-release").replace("\n", ""))
+
+    def testReactPatterns(self):
+        b = self.browser
+        m = self.machine
+
+        stuff = os.path.join(self.vm_tmpdir, "stuff")
+        # prepare a directory for testing file autocomplete widget
+        m.execute("mkdir -p {0}/dir1; touch {0}/file1.txt".format(stuff))
+
+        self.login_and_go("/playground/react-patterns")
+
+        # test file completion widget
+        b.focus("#demo-file-ac input[type=text]")
+        b.key_press(stuff + "/")
+        # need to wait for the widget's "fast typing" inhibition delay to trigger the completion popup
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(1) button", stuff + "/")
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(2) button", "dir1/")
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(3) button", "file1.txt")
+        b.click("#file-autocomplete-widget li:nth-of-type(2) button")
+
+        # clear the file completion widget
+        b.click("#demo-file-ac div:first-of-type div:first-of-type button:nth-of-type(1)")
+        b.wait_not_present("#file-autocomplete-widget li")
+        b.focus("#demo-file-ac input[type=text]")
+        b.key_press(stuff + "/")
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(1) button", stuff + "/")
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(3) button", "file1.txt")
+        b.click("#file-autocomplete-widget li:nth-of-type(3) button")
+        b.wait_not_present("#file-autocomplete-widget li")
+
+        # now update file1, check robustness with dynamic events
+        m.execute(f"touch {stuff}/file1.txt")
+        b.focus("#demo-file-ac input[type=text]")
+        time.sleep(1)
+        b.key_press(["\b"] * 5)
+        # input is now $stuff/file
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(1) button", "file1.txt")
+        b.key_press(["\b"] * 4)
+        # input is now $stuff/, so all listings should be available
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(3) button", "file1.txt")
+
+        # add new file
+        m.execute(f"touch {stuff}/other")
+        b.focus("#demo-file-ac input[type=text]")
+        # We need to tickle the widget to re-read the directory by changing to
+        # the previous directory and back to the directory we want to list.
+        # This is an implementation choice, to avoid re-reading the directories
+        # content with every user input change, which is definitely a performance cost
+        b.key_press(["\b"] * 6)
+        time.sleep(1)
+        b.key_press("stuff/")
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(4) button", "other")
+
+    @skipImage("No PCP available", "fedora-coreos")
+    def testPlots(self):
+        b = self.browser
+        m = self.machine
+
+        self.addCleanup(m.execute, "systemctl stop pmcd")
+        m.execute("systemctl start pmcd")
+
+        self.login_and_go("/playground/plot")
+        b.wait_visible("#plot-direct")
+        b.wait_visible("#plot-pmcd")
+
+        def read_mem_info(machine):
+            info = {}
+            for line in machine.execute("cat /proc/meminfo").splitlines():
+                (name, value) = line.strip().split(":")
+                if value.endswith("kB"):
+                    info[name] = int(value[:-2]) * 1024
+                else:
+                    info[name] = int(value)
+            return info
+
+        # When checking whether the plots show the expected results,
+        # we look for a segment of the data of a certain duration
+        # whose average is in a certain range.  Otherwise any short
+        # outlier will make us miss the expected plateau.  Such
+        # outliers happen frequently with the CPU plot.  We also
+        # insist that the first and last value of the segment are in
+        # range, otherwise we would find any arbitrary average in a
+        # graph with a slope.
+
+        b.inject_js("""
+          ph_plateau = function (data, min, max, duration, label) {
+              var i, j;
+              var sum;  // sum of data[i..j]
+
+              function ok(val) {
+                  return val >= min && val <= max;
+              }
+
+              sum = 0;
+              i = 0;
+              for (j = 0; j < data.length; j++) {
+                  sum += data[j][1];
+                  while (i < j && (data[j][0] - data[i][0]) > duration * 1000) {
+                      avg = sum / (j - i + 1);
+                      if (ok(avg) && ok(data[i][1]) && ok(data[j][1]))
+                          return true;
+                      sum -= data[i][1];
+                      i++;
+                  }
+              }
+            return false;
+          }
+        """)
+
+        b.inject_js("""
+          ph_plot_data_plateau = function (sel, min, max, duration, label) {
+            return ph_plateau(window.plot_state.data(sel)[0].data, min, max, duration, label);
+          }
+        """)
+
+        meminfo = read_mem_info(m)
+        mem_avail = meminfo['MemAvailable']
+        b.wait_js_func("ph_plot_data_plateau", "direct", mem_avail * 0.85, mem_avail * 1.15, 15, "mem")
+
+        meminfo = read_mem_info(m)
+        mem_avail = meminfo['MemAvailable']
+        b.wait_js_func("ph_plot_data_plateau", "pmcd", mem_avail * 0.85, mem_avail * 1.15, 15, "mem")
+
+    def testPageStatus(self):
+        b = self.browser
+
+        self.login_and_go("/playground")
+
+        b.set_input_text("#type", "info")
+        b.set_input_text("#title", "My Little Page Status")
+        b.click("#set-status")
+
+        b.switch_to_top()
+        b.wait_visible("#development-info")
+        b.mouse("#development-info", "mouseenter")
+        b.wait_in_text(".pf-c-tooltip", "My Little Page Status")
+        b.mouse("#development-info", "mouseleave")
+
+        b.go("/playground/notifications-receiver")
+        b.enter_page("/playground/notifications-receiver")
+        b.wait_text("#received-type", "info")
+        b.wait_text("#received-title", "My Little Page Status")
+
+        b.switch_to_top()
+        b.go("/playground")
+        b.enter_page("/playground")
+        b.click("#clear-status")
+
+        b.switch_to_top()
+        b.wait_not_present("#development-info")
+
+        b.go("/playground/notifications-receiver")
+        b.enter_page("/playground/notifications-receiver")
+        b.wait_text("#received-type", "-")
+        b.wait_text("#received-title", "-")
+
+    def testHistory(self):
+
+        b = self.browser
+
+        def assert_location(path_hash):
+            self.assertEqual(path_hash,
+                             self.browser.eval_js("window.location.pathname + window.location.hash"))
+
+        self.login_and_go("/system")
+
+        # Create a login entry so that the "View last login" button appears
+        b.logout()
+        self.login_and_go("/system")
+
+        b.switch_to_top()
+        assert_location("/system")
+
+        b.click('#nav-system a[href="/users"]')
+        b.enter_page("/users")
+        b.switch_to_top()
+        assert_location("/users")
+
+        b.enter_page("/users")
+        b.click('a[href="#/root"]')
+        b.wait_text("#account-title", "root")
+        b.switch_to_top()
+        assert_location("/users#/root")
+
+        b.enter_page("/users")
+        b.click("nav a:contains(Accounts)")
+        b.wait_visible("button:contains('Create new account')")
+        b.switch_to_top()
+        assert_location("/users")
+
+        b.eval_js("window.history.back()")
+        b.enter_page("/users")
+        b.wait_text("#account-title", "root")
+        b.switch_to_top()
+        assert_location("/users#/root")
+
+        b.eval_js("window.history.forward()")
+        b.enter_page("/users")
+        b.wait_visible("button:contains('Create new account')")
+        b.switch_to_top()
+        assert_location("/users")
+
+        b.eval_js("window.history.back()")
+        b.enter_page("/users")
+        b.wait_text("#account-title", "root")
+        b.switch_to_top()
+        assert_location("/users#/root")
+
+        b.eval_js("window.history.back()")
+        b.enter_page("/users")
+        b.wait_visible("button:contains('Create new account')")
+        b.switch_to_top()
+        assert_location("/users")
+
+        b.click('#nav-system a[href="/system/terminal"]')
+        b.enter_page("/system/terminal")
+        b.switch_to_top()
+        assert_location("/system/terminal")
+
+        b.eval_js("window.history.back()")
+        b.enter_page("/users")
+        b.wait_visible("button:contains('Create new account')")
+        b.switch_to_top()
+        assert_location("/users")
+
+        b.eval_js("window.history.back()")
+        b.enter_page("/system")
+        b.switch_to_top()
+        assert_location("/system")
+
+        # CoreOS does not keep login history
+        if self.machine.image not in ["fedora-coreos"]:
+
+            b.enter_page("/system")
+            b.click("button:contains(View login history)")
+            b.enter_page("/users")
+            b.wait_text("#account-title", "Administrator")
+            b.switch_to_top()
+            assert_location("/users#/admin")
+
+            b.eval_js("window.history.back()")
+            b.enter_page("/system")
+            b.switch_to_top()
+            assert_location("/system")
+
+
+if __name__ == '__main__':
+    test_main()

@@ -1,0 +1,200 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<chapter id="sso">
+  <title>Single Sign On</title>
+
+  <para>Cockpit can use Kerberos for Single Sign On authentication, where users are
+    automatically authenticated if they have a valid Kerberos ticket.</para>
+
+  <section id="sso-server">
+    <title>Server Requirements</title>
+
+    <para>To authenticate users, the server that Cockpit is running on must be
+      joined to a domain. This can usually be accomplished using the
+      <ulink url="https://freedesktop.org/software/realmd/docs/realm.html"><code>realm join example.com</code></ulink>
+      command.</para>
+
+    <para>The domain must be resolvable by DNS. For instance, the SRV records of the
+      kerberos server should be resolvable:</para>
+
+<programlisting>
+$ host -t SRV  _kerberos._udp.example.com
+_kerberos._udp.example.com has SRV record 0 100 88 dc.example.com
+</programlisting>
+
+    <para>The server running Cockpit should have a fully qualified name that ends with
+      the domain name.</para>
+
+    <para>There must be a valid Kerberos host key for the server in the <code>/etc/krb5.keytab</code>
+      file. Alternatively, if you would like to use a different keytab, you can do so
+      by placing it in <code>/etc/cockpit/krb5.keytab</code>. It may be necessary to
+      create a kerberos service principal and update the keytab if it is not present.
+      Depending on your domain type different service names are required:</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>Active Directory</term>
+        <listitem><para><code>HOST/server.example.com@EXAMPLE.COM</code></para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>IPA and MIT</term>
+        <listitem><para><code>HTTP/server.example.com@EXAMPLE.COM</code></para></listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>When joining an IPA domain with Cockpit and the <code>ipa</code> command line tool is
+      available, both the service principal name and a <code>/etc/cockpit/krb5.keytab</code> get
+      created automatically, so that Kerberos based single sign on into Cockpit works out of the
+      box. If you want/need to do this by hand or in a script, first create or modify the
+      <code>HTTP/</code> service principal:</para>
+
+<programlisting>
+$ sudo ipa service-add --ok-as-delegate=true --ok-to-auth-as-delegate=true \
+    HTTP/server.example.com@EXAMPLE.COM
+# or, if it already exists, just enable delegation:
+$ sudo ipa service-mod --ok-as-delegate=true --ok-to-auth-as-delegate=true \
+    HTTP/server.example.com@EXAMPLE.COM
+</programlisting>
+
+    <para>Then generate a key for that principal:</para>
+
+<programlisting>
+$ sudo ipa-getkeytab -p HTTP/server.example.com@EXAMPLE.COM -k /etc/cockpit/krb5.keytab
+</programlisting>
+
+    <para>The following command can be used to list the <code>/etc/cockpit/krb5.keytab</code>:</para>
+
+<programlisting>
+$ sudo klist -k /etc/cockpit/krb5.keytab
+</programlisting>
+
+    <para>Lastly accounts from the domain must be resolvable to unix accounts on the server
+      running Cockpit. For example:</para>
+
+<programlisting>
+$ getent passwd user@example.com
+user@example.com:*:381001109:381000513:User Name:/home/user:/bin/sh
+</programlisting>
+
+    <para>If you wish to delegate your kerberos credentials to Cockpit, and allow Cockpit
+      to then connect to other machines using those credentials, you should enable delegation
+      for the hosts running Cockpit, and in some cases the <code>HTTP</code> service as well.
+      When joining an IPA domain, this is enabled by default.</para>
+
+    <para>Domain admins (usually the <code>admins@example.com</code> group) should normally
+      also be able to administer any joined machine. Enable sudo access for that group
+      with the following command on the IPA server, for version 4.7.1 and later:</para>
+
+<programlisting>
+ipa-advise enable-admins-sudo | sh -ex
+</programlisting>
+
+    <para>On earlier FreeIPA versions, run these commands instead, as a domain admin on
+      any joined machine:</para>
+
+<programlisting>
+ipa sudorule-add --hostcat=all --cmdcat=all All
+ipa sudorule-add-user --groups=admins All
+</programlisting>
+
+    <para>Note that this does not change security properties; domain admins can give this
+      privilege to themselves, so it is safe to enable by default.</para>
+  </section>
+
+  <section id="sso-client">
+    <title>Client Requirements</title>
+
+    <para>The client side, where your web browser is running, should have a valid kerberos
+      ticket in the current user session. A command like this will get one:</para>
+
+<programlisting>
+$ kinit user@EXAMPLE.COM
+Password for user@EXAMPLE.COM:
+</programlisting>
+
+    <para>In addition your browser must be usually be configured to allow kerberos
+      authentication for the domain.</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>Mozilla Firefox</term>
+        <listitem><para>Go to <code>about:config</code> and set the
+          <code>network.negotiate-auth.trusted-uris</code> setting to your domain name
+          preceded by a dot, ie: <code>.example.com</code></para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Google Chrome</term>
+        <listitem><para>
+          On Linux: create the file
+          <code>/etc/opt/chrome/policies/managed/example-com.json</code>
+          with the contents:
+<programlisting>
+{
+  "AuthServerWhitelist": "*example.com"
+}
+</programlisting>
+          and restart the browser. On other platforms, exit your browser
+          completely, and start it with a command line like this:
+          <code>google-chrome --auth-server-whitelist=*example.com</code>
+          </para></listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>Use a fully qualified server name (with the domain name at the end) to access
+      Cockpit in your web browser.</para>
+
+    <para>If you wish to connect from one server to another in Cockpit using kerberos SSO,
+      then you have to explicitly enable all sorts of things. For starters, make sure that
+      delegated credentials are allowed by your domain (see above). Next when requesting your
+      kerberos ticket make sure that forwardable tickets are requested:</para>
+
+<programlisting>
+$ kinit -f user@EXAMPLE.COM
+Password for user@EXAMPLE.COM:
+</programlisting>
+
+    <para>Make sure that the forwardable flag <code>F</code> is present in your ticket:</para>
+
+<programlisting>
+$ klist -f
+Ticket cache: KEYRING:persistent:1000:1000
+Default principal: user@EXAMPLE.COM
+
+Valid starting       Expires              Service principal
+18.03.2017 05:39:23  19.03.2017 05:39:20  krbtgt/EXAMPLE.COM@EXAMPLE.COM
+	Flags: FIA
+</programlisting>
+
+    <para>Lastly configure your browser to allow delegated, forwardable kerberos
+      credentials to be sent to Cockpit:</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>Mozilla Firefox</term>
+        <listitem><para>Go to <code>about:config</code> and set the
+          <code>network.negotiate-auth.delegation-uris</code> setting to your domain name
+          preceded by a dot, ie: <code>.example.com</code></para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Google Chrome</term>
+        <listitem><para>
+          On Linux: create the file
+          <code>/etc/opt/chrome/policies/managed/example-com.json</code>
+          with the contents:
+<programlisting>
+{
+  "AuthServerWhitelist": "*example.com",
+  "AuthNegotiateDelegateWhitelist": "*example.com"
+}
+</programlisting>
+          and restart the browser. On other platforms, exit your browser
+          completely, and start it with a command line like this:
+          <code>google-chrome --auth-server-whitelist=*example.com --auth-negotiate-delegate-whitelist=*example.com</code>
+          </para></listitem>
+      </varlistentry>
+    </variablelist>
+
+  </section>
+
+</chapter>

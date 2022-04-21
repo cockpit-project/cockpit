@@ -1,0 +1,170 @@
+#!/bin/bash
+# run static code checks like pyflakes and pycodestyle
+
+set -eu
+
+# we consider any function named test_* to be a test case
+# each test is considered to succeed if it exits with no output
+# exit with status 77 is a skip, with the message in the output
+# otherwise, any output is a failure, even if exit status is 0
+
+# note: `set -e` is not active during the tests.
+
+find_scripts() {
+    # Helper to find all Python files in the tree
+    (
+        # Any non-binary file which contains a python3 shebang
+        git grep --cached -lIz '^#!.*'"$1"
+        # Any file ending in '.py'
+        git ls-files -z "$2"
+    ) | sort -z | uniq -z
+}
+
+find_python_files() {
+    find_scripts 'python3' '*.py'
+}
+
+test_pyflakes() {
+    # Run pyflakes on all Python files except those in test/verify/
+
+    python3 -c 'import pyflakes' 2>/dev/null || skip 'no pyflakes'
+    filter="undefined name '(Inotify|IN_[A-Z_]+)'" # inotify.py get pasted together with other files
+    ! find_python_files | grep -zv '^test/verify' | xargs -r -0 python3 -m pyflakes 2>&1 | grep -Ev "${filter}"
+}
+
+test_pyflakes_test_verify() {
+    # Run pyflakes on all Python files in test/verify/
+
+    python3 -c 'import pyflakes' 2>/dev/null || skip 'no pyflakes'
+
+    # TODO: there are currently a lot of pyflakes errors like
+    #   'parent' imported but unused
+    #   'from testlib import *' used; unable to detect undefined names
+    # Filter these out until these get fixed properly.
+    filter="(unable to detect undefined names|defined from star imports|'parent' imported but unused)"
+    ! find_python_files | grep -z '^test/verify' | xargs -r -0 python3 -m pyflakes 2>&1 | grep -Ev "${filter}"
+}
+
+test_pycodestyle() {
+    # pycodestyle python syntax check
+
+    python3 -c 'import pycodestyle' 2>/dev/null || skip 'no pycodestyle'
+    find_python_files | xargs -r -0 python3 -m pycodestyle --max-line-length=200 --ignore W504
+}
+
+test_pyvulture() {
+    # vulture to find unused variables/functions
+
+    python3 -c 'import vulture' 2>/dev/null || skip 'no python3-vulture'
+    find_python_files | xargs -r -0 python3 -m vulture \
+        --min-confidence "${VULTURE_CONFIDENCE:-100}" \
+        --ignore-names 'do_*,test[A-Z0-9]*,__*__' \
+        --ignore-decorators '@*'
+}
+
+test_js_translatable_strings() {
+    # Translatable strings must be marked with _(""), not _('')
+
+    ! git grep -n -E "(gettext|_)\(['\`]" -- {src,pkg}/'*'.{js,jsx}
+}
+
+test_eslint() {
+    test -x node_modules/.bin/eslint -a -x /usr/bin/node || skip 'no eslint'
+    find_scripts 'node' '*.js?' | xargs -0 node_modules/.bin/eslint
+}
+
+test_no_translatable_attr() {
+    # Use of translatable attribute in HTML: should be 'translate' instead
+
+    ! git grep -n 'translatable=["'\'']yes' -- pkg doc
+}
+
+test_unsafe_security_policy() {
+    # It's dangerous to have 'unsafe-inline' or 'unsafe-eval' in our
+    # content-security-policy entries.
+
+    git grep -lIz -E 'content-security-policy.*(\*|unsafe)' 'pkg/*/manifest.json' | while read -d '' filename; do
+        if test ! -f "$(dirname ${filename})/content-security-policy.override"; then
+            echo "${filename} contains unsafe content security policy"
+        fi
+    done
+}
+
+test_json_verify() {
+    # Check all JSON files for validity
+
+    git ls-files -z '*.json' | while read -d '' filename; do
+        python3 -m json.tool "${filename}" /dev/null 2>&1 | sed "s@^@${filename}: @"
+    done
+}
+
+test_include_config_h() {
+    # Every C file should #include "config.h" at the top
+
+    git ls-files -cz '*.c' | while read -d '' filename; do
+        if sed -n '/^#include "config.h"$/q1; /^\s*#/q;' "${filename}"; then
+            printf '%s: #include "config.h" is not the first line\n' "${filename}"
+        fi
+    done
+}
+
+### end of tests.  start of machinery.
+
+skip() {
+    printf "%s" "$*"
+    exit 77
+}
+
+main() {
+    if [ $# = 0 ]; then
+        tap=''
+    elif [ $# = 1 -a "$1" = "--tap" ]; then
+        tap='1'
+    else
+        printf "usage: %s [--tap]\n" "$0" >&2
+        exit 1
+    fi
+
+    cd "$(realpath -m "$0/../..")"
+    if [ ! -e .git ]; then
+        echo '1..0 # SKIP not in a git checkout'
+        exit 0
+    fi
+
+    exit_status=0
+    counter=0
+
+    tests=($(compgen -A function 'test_'))
+    [ -n "${tap}" ] && printf "1..%d\n" "${#tests[@]}"
+
+    for test_function in ${tests[@]}; do
+        path="/static-code/$(echo ${test_function} | tr '_' '-')"
+        counter=$((counter + 1))
+        fail=''
+        skip=''
+
+        # run the test, capturing its output and exit status
+        output="$(${test_function} 2>&1)" && test_status=0 || test_status=$?
+
+        if [ "${test_status}" = 77 ]; then
+            skip=" # SKIP ${output}"
+            output=''
+        elif [ "${test_status}" != 0 -o -n "${output}" ]; then
+            exit_status=1
+            fail=1
+        fi
+
+        # Only print output on failures or --tap mode
+        [ -n "${tap}" -o -n "${fail}" ] || continue
+
+        # excluding the plan, this is the only output that we ever generate
+        printf "%s %d %s%s\n" "${fail:+not }ok" "${counter}" "${path}" "${skip}"
+        if [ -n "${output}" ]; then
+            printf "%s\n" "${output}" | sed -e 's/^/# /'
+        fi
+    done
+
+    exit "${exit_status}"
+}
+
+main "$@"

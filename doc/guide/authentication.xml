@@ -1,0 +1,148 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<chapter id="authentication">
+  <title>Cockpit Authentication</title>
+
+    <para>While cockpit allows you to monitor and administer several servers at the
+      same time, there is always a primary server your browser connects to
+      that runs the Cockpit web service (cockpit-ws) through which connections to
+      additional servers are established.
+      See <ulink url="https://raw.githubusercontent.com/cockpit-project/cockpit/main/doc/cockpit-transport.png">this diagram</ulink> for how it works.</para>
+
+      <para>Normally, a session is established on the primary server,
+      and you use the Shell UI of that session to connect to secondary
+      servers.</para>
+
+      <para>However, it is also possible to instruct the
+      <filename>cockpit-ws</filename> process on the primary server to
+      directly connect to a secondary server, without opening a
+      session on the primary server at all. This is done on the main
+      login page of Cockpit, by filling out the "Connect to"
+      field.</para>
+
+  <section id="initial-auth">
+    <title>Directly logging into the primary server</title>
+
+    <para>The most common way to use Cockpit is to just log directly
+    into the server that you want to access. This can be done if you
+    have direct network access to port 9090 on that server.</para>
+
+    <para>By default the cockpit web service is installed on the base system and
+      <link linkend="listen">socket activated by systemd</link>. In this setup
+      access is controlled by a cockpit specific pam stack, generally located
+      at <filename>/etc/pam.d/cockpit</filename>. By default this is configured
+      to allow you to login with the username and password of any local account on the
+      system. You can also setup a <link linkend="sso">Kerberos based SSO
+      solution</link> or <link linkend="cert-authentication">certificate/smart
+      card authentication</link>.
+    </para>
+
+    <para>You can also <ulink url="https://github.com/cockpit-project/cockpit/blob/main/doc/authentication.md#actions">disable
+    authentication schemes</ulink> to enforce authentication policies, or to suppress
+    undesired browser GSSAPI authentication dialogs.</para>
+
+    <para>The web server can also be run from the
+      <ulink url="https://hub.docker.com/r/cockpit/ws/">cockpit/ws</ulink>
+      container. If you are running cockpit on a container host operating system like
+      <ulink url="https://getfedora.org/coreos/">Fedora CoreOS</ulink>
+      this will be the only supported mode. In this setup, cockpit establishes an
+      SSH connection from the container to the underlying host, meaning that it is up to
+      your SSH server to grant access. To login with a local account, <filename>sshd
+      </filename> will need to be configured to allow password based authentication.
+      Alternatively you can setup a <link linkend="sso">Kerberos based SSO
+      solution</link>.</para>
+
+    <para>Like <filename>sshd</filename>, cockpit can be configured to limit the number
+      of concurrent login attempts allowed. This is done by adding a <code>MaxStartups</code>
+      option to the <code>WebService</code> section of your <code>cockpit.conf</code>.
+      Additional connections will be dropped until authentication succeeds or
+      the connections are closed.</para>
+
+  </section>
+
+  <section id="secondary-auth">
+    <title>Logging into a secondary server from the primary session</title>
+
+    <para>Once you have a session on the primary server you will be
+    able to connect to additional servers by using the host switching
+    UI of the Cockpit Shell. This is useful if you have direct network
+    access to the primary server, but not to the secondary server.</para>
+
+    <para>On the command line, you would log into the primary server
+    and then use SSH to log into the secondary one. Cockpit does just
+    the same, and uses SSH to log into the secondary server. Instead
+    of running a interactive shell there, however, it starts a
+    <filename>cockpit-bridge</filename> process.</para>
+
+    <para>Thus, these servers will need to be running an SSH server on
+    port 22 and be configured to support one of the following
+    authentication methods.</para>
+
+    <section id="password">
+      <title>Password</title>
+      <para>The target server will need to have password based authentication
+        enabled in <filename>sshd</filename>.</para>
+    </section>
+
+    <section id="kerberos">
+      <title>Kerberos</title>
+      <para>The target server will need to be a member of the same domain as the
+        primary server and your domain must be whitelisted in your browser.
+        See the <link linkend="sso">SSO documentation</link> for how to set
+        this up.</para>
+    </section>
+
+    <section id="public-key">
+      <title>Public key</title>
+
+    <para>When you successfully log into the primary server, a
+    <filename>ssh-agent</filename> is started and keys are loaded into
+    it by running <filename>ssh-add</filename> without any arguments.
+    Any passphrase prompt is answered with the password used to log
+    into the primary server.</para>
+
+    <para>Cockpit provides a user interface for loading other keys into the agent
+      that could not be automatically loaded.</para>
+
+    <para>The target server will need to have public key
+    authentication enabled in <filename>sshd</filename>, and the
+    public key you wish to use must be present in
+    <filename>~/.ssh/authorized_keys</filename>. Cockpit has a user
+    interface for creating SSH keys and for authorizing them.</para>
+
+    </section>
+
+    <section id="host-keys">
+      <title>SSH host keys</title>
+      <para>Cockpit will prompt the user to verify unknown SSH host
+      keys, and will write accepted host keys into
+      <filename>~/.ssh/known_hosts</filename>.</para>
+    </section>
+  </section>
+
+  <section id="direct-secondary-auth">
+    <title>Directly logging into a secondary server without a primary session</title>
+
+    <para>It is also possible to log into a secondary server without
+    opening a session on the primary server. This is useful if you
+    are not actually interested in the primary server and would only
+    use it because you do not have direct network access to the
+    secondary server.</para>
+
+    <para>In this case, <filename>cockpit-ws</filename> still runs on
+    the primary server, but the credentials from the login screen are
+    directly used with SSH to log into the secondary server given in
+    the "Connect To" field of the login screen.</para>
+
+    <para>Thus, the PAM configuration and accounts on the primary
+    server don't matter at all. Often, the only purpose of the primary
+    server is to sit on the boundary of your network and forward
+    connections to internal machines.</para>
+
+    <para>In this case, the login page will prompt you to verify
+    unknown SSH keys. Accepted keys will be remembered in the local
+    storage of your browser.</para>
+  </section>
+
+</chapter>

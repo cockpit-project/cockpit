@@ -1,0 +1,162 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+
+
+@skipDistroPackage()
+class TestShutdownRestart(MachineCase):
+    provision = {
+        "machine1": {"address": "10.111.113.1/20", "memory_mb": 512},
+        "machine2": {"address": "10.111.113.2/20", "memory_mb": 512}
+    }
+
+    def setUp(self):
+        super().setUp()
+        self.machine.execute("hostnamectl set-hostname machine1")
+        self.machines['machine2'].execute("hostnamectl set-hostname machine2")
+
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        m2 = self.machines['machine2']
+        b2 = self.new_browser(m2)
+
+        m.start_cockpit()
+
+        self.login_and_go("/system")
+
+        # Reboot
+        b.click("#reboot-button")
+        b.wait_popup("shutdown-dialog")
+        b.wait_in_text(f"#shutdown-dialog button{self.danger_btn_class}", 'Reboot')
+        b.click("#delay")
+        b.click("button:contains('No delay')")
+        b.wait_text("#delay .pf-c-select__toggle-text", "No delay")
+        b.click(f"#shutdown-dialog button{self.danger_btn_class}")
+        b.switch_to_top()
+
+        b.wait_in_text(".curtains-ct h1", "Disconnected")
+
+        m.wait_reboot()
+        m.start_cockpit()
+        b.click("#machine-reconnect")
+        b.wait_visible("#login")
+
+        self.allow_restart_journal_messages()
+        self.allow_journal_messages("Shutdown scheduled for .*")
+        self.check_journal_messages()
+
+        m2.start_cockpit()
+        b2.login_and_go("/system")
+
+        # Add machine with static IP to m2
+        b2.switch_to_top()
+        b2.go("/@10.111.113.1")
+        b2.wait_visible("#machine-troubleshoot")
+        b2.click('#machine-troubleshoot')
+        b2.wait_visible('#hosts_setup_server_dialog')
+        b2.wait_text(f'#hosts_setup_server_dialog {self.primary_btn_class}', "Add")
+        b2.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
+        b2.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.1 for the first time.")
+        b2.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
+        b2.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
+        b2.set_input_text("#login-custom-password", "foobar")
+        b2.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
+        b2.wait_not_present('#hosts_setup_server_dialog')
+        b2.enter_page("/system", host="10.111.113.1")
+        b2.wait_text("#system_information_hostname_text", "machine1")
+
+        # Check auto reconnect on reboot
+        b2.become_superuser()
+        b2.click("#reboot-button")
+        b2.wait_popup("shutdown-dialog")
+        b2.wait_in_text(f"#shutdown-dialog button{self.danger_btn_class}", 'Reboot')
+        b2.click("#delay")
+        b2.click("button:contains('No delay')")
+        b2.wait_text("#delay .pf-c-select__toggle-text", "No delay")
+        b2.click(f"#shutdown-dialog button{self.danger_btn_class}")
+        b2.switch_to_top()
+
+        b2.wait_visible(".curtains-ct")
+        b2.wait_visible(".curtains-ct .ct-spinner")
+        b2.wait_in_text(".curtains-ct h1", "rebooting")
+
+        m.wait_reboot()
+
+        b2.wait_visible("#machine-troubleshoot")
+        b2.click('#machine-troubleshoot')
+        b2.wait_visible('#hosts_setup_server_dialog')
+        b2.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
+        b2.set_input_text("#login-custom-password", "foobar")
+        b2.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
+        b2.wait_not_present('#hosts_setup_server_dialog')
+
+        b2.enter_page("/system", host="10.111.113.1", reconnect=False)
+
+        # Try to insert an invalid time
+        self.login_and_go("/system")
+        b.enter_page("/system")
+        b.click("#shutdown-group")  # caret
+        b.click("#shutdown")
+        b.wait_popup("shutdown-dialog")
+        b.wait_not_present("#delay-helper")
+        b.click("#delay")
+        b.click("button:contains('Specific time')")
+        b.wait_text("#delay .pf-c-select__toggle-text", "Specific time")
+        b.wait_not_val("#shutdown-time-input", "")
+        b.wait_not_present("#delay-helper")
+        old = b.val("#shutdown-time-input")
+        b.set_input_text("#shutdown-time-input", "blah")
+        b.wait_text("#delay-helper", "Invalid time format")
+        b.wait_visible(f"#shutdown-dialog button{self.danger_btn_class}:disabled")
+
+        # Now set a correct time
+        b.set_input_text("#shutdown-time-input", old)
+        b.wait_visible(f"#shutdown-dialog button{self.danger_btn_class}:not(disabled)")
+        b.wait_not_present("#delay-helper")
+
+        # Try to insert an invalid date
+        b.set_input_text(".shutdown-date-picker input", "20/0x/2021")
+        b.wait_val(".shutdown-date-picker input", "20/0x/2021")
+        b.wait_text("#delay-helper", "Invalid date format")
+        b.wait_visible(f"#shutdown-dialog button{self.danger_btn_class}:disabled")
+
+        # Insert a date using the widget dropdown
+        b.click("button[aria-label='Toggle date picker']")
+        today_label = m.execute("date +'%-d %B %Y'").strip()
+        today_format = m.execute("date +'%-m/%-d/%Y'").strip()
+        b.click(f".pf-c-calendar-month__dates-cell:not(.pf-m-adjacent-month) button[aria-label='{today_label}']")
+        b.wait_val(".shutdown-date-picker input", today_format)
+        b.blur(".shutdown-date-picker input")
+
+        # Power off
+        b.click(f"#shutdown-dialog button{self.danger_btn_class}")
+        b.switch_to_top()
+
+        # we don't need to wait for the dialog to close here, just the disconnect
+        b.wait_in_text(".curtains-ct h1", "Disconnected")
+
+        m.wait_poweroff()
+
+
+if __name__ == '__main__':
+    test_main()

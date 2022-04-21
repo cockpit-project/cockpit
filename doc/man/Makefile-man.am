@@ -1,0 +1,36 @@
+EXTRA_DIST += \
+	doc/man/cockpit.xml \
+	doc/man/cockpit-bridge.xml \
+	doc/man/cockpit-ws.xml \
+	doc/man/cockpit-tls.xml \
+	doc/man/cockpit-desktop.xml \
+	doc/man/cockpit.conf.xml \
+	doc/man/pam_ssh_add.xml \
+	$(NULL)
+
+if ENABLE_DOC
+
+MANPAGES = \
+	doc/man/cockpit.1 \
+	doc/man/cockpit-bridge.1 \
+	doc/man/cockpit-desktop.1 \
+	doc/man/cockpit-ws.8 \
+	doc/man/cockpit-tls.8 \
+	doc/man/cockpit.conf.5 \
+	doc/man/pam_ssh_add.8 \
+	$(NULL)
+
+man_MANS += $(MANPAGES)
+CLEANFILES += $(MANPAGES)
+
+MAN_PROC = mkdir -p doc/man/ && $(XSLTPROC) -nonet --param man.output.quietly 1 --output $@ \
+	http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
+
+%.8: %.xml
+	$(AM_V_GEN) $(MAN_PROC)
+%.1: %.xml
+	$(AM_V_GEN) $(MAN_PROC)
+%.5: %.xml
+	$(AM_V_GEN) $(MAN_PROC)
+
+endif ENABLE_DOC

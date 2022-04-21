@@ -1,0 +1,61 @@
+name: repository
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, labeled, unlabeled]
+
+jobs:
+  check:
+    name: Protection checks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    timeout-minutes: 5
+    env:
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      BASE_SHA: ${{ github.event.pull_request.base.sha }}
+
+    steps:
+      - name: Clone target branch
+        uses: actions/checkout@v2
+
+      - name: Fetch PR commits
+        run: git fetch origin "${BASE_SHA}" "${HEAD_SHA}"
+
+      - name: Clear .github-changes label
+        if: ${{ !endsWith(github.event.action, 'labeled') }}
+        uses: actions/github-script@v3
+        with:
+          script: |
+            try {
+              await github.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                name: '.github-changes'
+              });
+            } catch (e) {
+              if (e.name == 'HttpError' && e.status == 404) {
+                /* expected: 404 if label is unset */
+              } else {
+                throw e;
+              }
+            }
+
+      - name: Check for .github changes
+        # We want to run this check any time the .github-changes label is not
+        # set, which needs to include the case where we just unset it above.
+        if: ${{ !endsWith(github.event.action, 'labeled') ||
+                !contains(github.event.pull_request.labels.*.name, '.github-changes') }}
+        run: |
+          set -x
+          git log --full-history --exit-code --patch "${HEAD_SHA}" --not "${BASE_SHA}" -- .github >&2
+
+      - name: Check for node_modules availability and package.json consistency
+        run: |
+          # for each commit in the PR which modifies package.json or node_modules...
+          for commit in $(git log --reverse --full-history --format=%H \
+                              "${HEAD_SHA}" --not "${BASE_SHA}" -- package.json node_modules); do
+              # ... check that package.json and node_modules/.package.json are in sync
+              tools/node-modules verify "${commit}"
+          done

@@ -1,0 +1,228 @@
+# -----------------------------------------------------------------------------
+# libcockpit-common-nodeps.a: code that has no dependencies other than libc
+
+noinst_LIBRARIES += libcockpit-common-nodeps.a
+
+libcockpit_common_nodeps_a_LIBS = libcockpit-common-nodeps.a
+
+libcockpit_common_nodeps_a_SOURCES = \
+	src/common/cockpitauthorize.c \
+	src/common/cockpitauthorize.h \
+	src/common/cockpitbase64.c \
+	src/common/cockpitbase64.h \
+	src/common/cockpitconf.h \
+	src/common/cockpitconf.c \
+	src/common/cockpitfdpassing.c \
+	src/common/cockpitfdpassing.h \
+	src/common/cockpitframe.c \
+	src/common/cockpitframe.h \
+	src/common/cockpithacks.h \
+	src/common/cockpithex.c \
+	src/common/cockpithex.h \
+	src/common/cockpitjsonprint.c \
+	src/common/cockpitjsonprint.h \
+	src/common/cockpitmemory.c \
+	src/common/cockpitmemory.h \
+	src/common/cockpitwebcertificate.h \
+	src/common/cockpitwebcertificate.c \
+	$(NULL)
+
+# -----------------------------------------------------------------------------
+# libcockpit-common.a: code that has other dependencies, like glib or libsystemd
+
+noinst_LIBRARIES += libcockpit-common.a
+
+libcockpit_common_a_CPPFLAGS = \
+	-DG_LOG_DOMAIN=\"cockpit-protocol\" \
+	$(glib_CFLAGS) \
+	$(json_glib_CFLAGS) \
+	$(AM_CPPFLAGS)
+
+libcockpit_common_a_LIBS = \
+	libcockpit-common.a \
+	$(libcockpit_common_nodeps_a_LIBS) \
+	$(libwebsocket_a_LIBS) \
+	$(json_glib_LIBS) \
+	$(libsystemd_LIBS) \
+	-lutil \
+	$(NULL)
+
+libcockpit_common_a_SOURCES = \
+	src/common/cockpitchannel.c \
+	src/common/cockpitchannel.h \
+	src/common/cockpitclosefrom.c \
+	src/common/cockpitcontrolmessages.c \
+	src/common/cockpitcontrolmessages.h \
+	src/common/cockpiterror.c \
+	src/common/cockpiterror.h \
+	src/common/cockpitflow.c \
+	src/common/cockpitflow.h \
+	src/common/cockpithacks-glib.h \
+	src/common/cockpithash.c \
+	src/common/cockpithash.h \
+	src/common/cockpitjson.c \
+	src/common/cockpitjson.h \
+	src/common/cockpitlocale.c \
+	src/common/cockpitlocale.h \
+	src/common/cockpitloopback.c \
+	src/common/cockpitloopback.h \
+	src/common/cockpitmachinesjson.c \
+	src/common/cockpitmachinesjson.h \
+	src/common/cockpitmemfdread.c \
+	src/common/cockpitmemfdread.h \
+	src/common/cockpitpipe.c \
+	src/common/cockpitpipe.h \
+	src/common/cockpitpipetransport.c \
+	src/common/cockpitpipetransport.h \
+	src/common/cockpitsocket.c \
+	src/common/cockpitsocket.h \
+	src/common/cockpitsystem.c \
+	src/common/cockpitsystem.h \
+	src/common/cockpittemplate.c \
+	src/common/cockpittemplate.h \
+	src/common/cockpittransport.c \
+	src/common/cockpittransport.h \
+	src/common/cockpitunicode.c \
+	src/common/cockpitunicode.h \
+	src/common/cockpitunixsignal.c \
+	src/common/cockpitunixsignal.h \
+	src/common/cockpitversion.c \
+	src/common/cockpitversion.h \
+	src/common/cockpitwebfilter.c \
+	src/common/cockpitwebfilter.h \
+	src/common/cockpitwebinject.c \
+	src/common/cockpitwebinject.h \
+	src/common/cockpitwebrequest-private.h \
+	src/common/cockpitwebresponse.c \
+	src/common/cockpitwebresponse.h \
+	src/common/cockpitwebserver.c \
+	src/common/cockpitwebserver.h \
+	$(NULL)
+
+# libcockpit-common.a static-links an HTML template to use on failures
+nodist_libcockpit_common_a_SOURCES = src/common/fail.html.c
+src/common/fail.html.c: src/common/fail.html
+	$(AM_V_GEN) $(top_srcdir)/tools/escape-to-c cockpit_webresponse_fail_html_text < $< > $@.tmp && mv $@.tmp $@
+CLEANFILES += src/common/fail.html.c
+EXTRA_DIST += src/common/fail.html
+
+# -----------------------------------------------------------------------------
+# Unit tests
+
+dist_check_SCRIPTS += src/common/mock-stderr
+dist_check_DATA += src/common/mock-content
+
+dist_check_DATA += $(test_locale_PO)
+test_locale_PO = \
+       src/common/mock-locale/de_DE/LC_MESSAGES/test.po \
+       src/common/mock-locale/zh_CN/LC_MESSAGES/test.po \
+       $(NULL)
+test_locale_MO = $(test_locale_PO:.po=.mo)
+check_DATA += $(test_locale_MO)
+CLEANFILES += $(test_locale_MO)
+
+# preload wrapper library for unit tests that need a temp home dir
+check_PROGRAMS += libpreload-temp-home.so
+libpreload_temp_home_so_SOURCES = src/common/preload-temp-home.c
+libpreload_temp_home_so_CFLAGS = -fPIC $(AM_CFLAGS)
+libpreload_temp_home_so_LDFLAGS = -shared
+
+TEST_PROGRAM += test-authorize
+test_authorize_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_authorize_LDADD = $(TEST_LIBS)
+test_authorize_SOURCES = src/common/test-authorize.c
+
+TEST_PROGRAM += test-base64
+test_base64_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_base64_LDADD = $(TEST_LIBS)
+test_base64_SOURCES = src/common/test-base64.c
+
+TEST_PROGRAM += test-channel
+test_channel_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_channel_LDADD = $(TEST_LIBS)
+test_channel_SOURCES = src/common/test-channel.c
+
+TEST_PROGRAM += test-config
+test_config_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_config_LDADD = $(TEST_LIBS)
+test_config_SOURCES = src/common/test-config.c
+
+TEST_PROGRAM += test-frame
+test_frame_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_frame_LDADD = $(TEST_LIBS)
+test_frame_SOURCES = src/common/test-frame.c
+
+TEST_PROGRAM += test-hash
+test_hash_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_hash_LDADD = $(TEST_LIBS)
+test_hash_SOURCES = src/common/test-hash.c
+
+TEST_PROGRAM += test-hex
+test_hex_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_hex_LDADD = $(TEST_LIBS)
+test_hex_SOURCES = src/common/test-hex.c
+
+TEST_PROGRAM += test-json
+test_json_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_json_LDADD = $(TEST_LIBS)
+test_json_SOURCES = src/common/test-json.c
+
+TEST_PROGRAM += test-jsonfds
+test_jsonfds_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_jsonfds_LDADD = $(TEST_LIBS)
+test_jsonfds_SOURCES = src/common/test-jsonfds.c
+
+TEST_PROGRAM += test-locale
+test_locale_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_locale_LDADD = $(TEST_LIBS)
+test_locale_SOURCES = src/common/test-locale.c
+
+TEST_PROGRAM += test-pipe
+test_pipe_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_pipe_LDADD = $(TEST_LIBS)
+test_pipe_SOURCES = src/common/test-pipe.c
+
+TEST_PROGRAM += test-system
+test_system_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_system_LDADD = $(TEST_LIBS)
+test_system_SOURCES = src/common/test-system.c
+
+TEST_PROGRAM += test-template
+test_template_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_template_LDADD = $(TEST_LIBS)
+test_template_SOURCES = src/common/test-template.c
+
+TEST_PROGRAM += test-transport
+test_transport_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_transport_LDADD = $(TEST_LIBS)
+test_transport_SOURCES = src/common/test-transport.c
+
+TEST_PROGRAM += test-unicode
+test_unicode_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_unicode_LDADD = $(TEST_LIBS)
+test_unicode_SOURCES = src/common/test-unicode.c
+
+TEST_PROGRAM += test-unixsignal
+test_unixsignal_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_unixsignal_LDADD = $(TEST_LIBS)
+test_unixsignal_SOURCES = src/common/test-unixsignal.c
+
+TEST_PROGRAM += test-version
+test_version_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_version_LDADD = $(TEST_LIBS)
+test_version_SOURCES = src/common/test-version.c
+
+TEST_PROGRAM += test-webcertificate
+test_webcertificate_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_webcertificate_LDADD = $(TEST_LIBS)
+test_webcertificate_SOURCES = src/common/test-webcertificate.c
+
+TEST_PROGRAM += test-webresponse
+test_webresponse_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_webresponse_LDADD = $(TEST_LIBS)
+test_webresponse_SOURCES = src/common/test-webresponse.c
+
+TEST_PROGRAM += test-webserver
+test_webserver_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+test_webserver_LDADD = $(TEST_LIBS)
+test_webserver_SOURCES = src/common/test-webserver.c

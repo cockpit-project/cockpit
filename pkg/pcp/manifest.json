@@ -1,0 +1,11 @@
+{
+    "requires": {
+        "cockpit": "238.1.1"
+    },
+    "bridges": [
+        {
+            "match": { "payload": "metrics1" },
+            "spawn": [ "${libexecdir}/cockpit-pcp" ]
+        }
+    ]
+}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@@message@@</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+	body {
+            margin: 0;
+            font-family: "RedHatDisplay", "Open Sans", Helvetica, Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.66666667;
+            color: #333333;
+            background-color: #f5f5f5;
+        }
+        img {
+            border: 0;
+            vertical-align: middle;
+        }
+        h1 {
+            font-weight: 300;
+        }
+        p {
+            margin: 0 0 10px;
+        }
+        @font-face {
+            font-family: 'RedHatDisplay';
+            font-style: normal;
+            font-weight: 300;
+            src: url('/cockpit/static/fonts/RedHatDisplay-Medium.woff2') format('woff');
+        }
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 300;
+            src: url('/cockpit/static/fonts/OpenSans-Light-webfont.woff') format('woff');
+        }
+        .blank-slate-pf {
+            text-align: center;
+            padding: 90px 120px;
+        }
+    </style>
+</head>
+<body>
+    <div class="blank-slate-pf">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAWGSURBVGiBzZtNaJxFGMd/z2R3YxHbtZa2pqdcPInS9CCUov3QiuhF2hIUjOZrd5NA9VoPuiJSTx6S0s27SVxJ8aOpPSgqpbZVlIIIJirqtRdNpBU3FUqhm53HQzZpPjfvm51J8oeFZd5n5v/8eWbemXfmGcETBgcHt1prm1S1CWgSkUZV3QIkgS0Vs5vAZOV3DRhV1VFr7Wh3d3fRh1/isrFcLrerrq7uKHBMVffW2P4fqjocj8fPtLe3jzty0Y3gfD7/pLX2hIjsB4yLNufAAleste90dXV9W2tjNQkOgmCfqr4lIgdrdSQMROSqtfbNTCZzedVtrKbSwMDAjnK5nBOR51dLXAtU9Yt4PJ5eTVePLDgIgmPAaWBb1LqOURSRV1Op1JkolUILHhkZSRSLxUHgpciu+cX7QCadTpfCGIcSPDQ0dF+pVDonIk/X5Jo/XAaOpNPpmysZrig4l8vtMsZcAB524ZlH/AI8k06nJ6oZVZ1Cent7NxtjvmTjiwV4FLhYKBSS1YyWjXBlzH4FHKrRkY82bdqUamlpuVXNaHh4+N7bt2/ngRdr5LsIPLfcmF42wsVisZ/axaKqV1YSC9DS0nJLVa/UygccZnoWWRJLCu7v728GWh2QIyKJCLb3uOAEOirT5yIsEhwEwTYR6XVEDFAfwdaVYIDTAwMDOxYWLhIsIjlgu0Pi0CKi9IYQ2Gat7VtYOE9wZW181CFpJBHWWpcRBjiWz+efmFswT7CIvO2YEFUN3aWNMVG6fyhYa9+YxzHzJwiCA6q63zUhEcawhwgjIgfnRnluhF93TVZBaBE+IgxgrT0xywEQBMGDwAEfZKq6nmMYABF5amhoqAHuRrgZqPNBFiVqviIMmFKpdAQqglW12RNRpJeWrwgDGGOaAczg4OBWEXnMF1GU1ZPHCKOqewuFQtJYa5twvHu5gCj0GI7SG1YBuXPnzm5jrd3jkSSSCIdr6eXa32NEZLdnktAiPEcYVd1tRKTRJwnr9/GwFBqNqlbdIXCAKIK9Rhi43zB91uMTGynCScPdgy1f2HARVs8kG0mwNUwfVfrERurSk4bpM1qfCCVYVQVwueOxFCY3TIT7+voSeFzxVVA0TJ+8+4TJZrOxEHa+xy+qes0Ao76Jdu7cueLiJpFIPOTbDxEZi6nqqIjfniQiP+bz+Z9VdWoZkzjQ5NWJaYzGYrHYWLlcVvyOn6Sn/bIo0EQiMWY6Ojr+BX5YZ2fWAldbW1snDYCInF1vb9YAZwFiAOVy+VNjzHu4z8ABQETax8fHP8hms3ap56oq+Xz+BeBDH/xAGTgPFYFdXV1/Ad94IqOaWAAR0YmJiU988QOXZw7KZyMqIu/6YqsmNorNamGtPTnzf1ZwKpW6BHzni3S9ICJX5ya0eT9bWm+IyNJnSzAb5c/X1COPEJHPOjs752UVLHorx+PxDuD6mnnlD/+USqXMwsJFgtva2m6o6mtr45M/iEhPT0/P3wvLl5x3M5nMxyIy7Io8m82uOL+HsYmAQiqVGlnqwbIkyWSy01FWDQ0NDa9UE6Sq0tDQ4Crz4BKQXu5h1Q+G3t7ezfX19d8Djzhyxjd+TyQS+1pbW5fd1KjajY4fP/6fMeZZ4DfnrrnHr7FY7HA1sRBi7dzZ2flnLBbbC1xw5pp7XAIeD5M/HTV9OA+8XItnHjAIdDtNH56LDZQgfl1EulOp1PkolVa1y5HL5baLSP96XQEAzsXj8Z62trYbUSvWfMkDyOIgCTUM1u2Sx0IEQXBARE6o6iHcbyKUga9V9WQmk6n5a87pxt2pU6ceiMfjR0SkxcFFrZ9E5IyqjqyU5R4F3nYqC4VCcmpqavYqnrW2UUSSTB/PzhzRzlzDK1K5igeMJhKJsZXm09XifyIP5eSF+BKpAAAAAElFTkSuQmC">
+        <h1>@@message@@</h1>
+    </div>
+</body>
+</html>

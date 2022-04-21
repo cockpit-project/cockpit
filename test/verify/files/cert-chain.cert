@@ -1,0 +1,31 @@
+# How to regenerate the following certificates
+$ openssl req -new -newkey rsa:1024 -nodes -out ca.csr -keyout ca.key -subj '/OU=CA'
+$ openssl x509 -trustout -signkey ca.key -days 36500 -req -in ca.csr -out ca.pem
+$ openssl req -new -newkey rsa:1024 -nodes -keyout inter.key -out inter.csr -subj '/OU=Intermediate'
+$ openssl x509 -req -days 36500 -in inter.csr -CA ca.pem -CAkey ca.key -set_serial 01 -out inter.pem
+$ openssl req -new -newkey rsa:1024 -nodes -keyout cert-chain.key -out cert-chain.csr -subj '/CN=localhost'
+$ openssl x509 -req -days 36500 -in cert-chain.csr -CA inter.pem -CAkey inter.key -set_serial 02 -out cert-chain.pem
+$ cat server.pem inter.pem > cert-chain.cert
+
+-----BEGIN CERTIFICATE-----
+MIIBnDCCAQUCAQIwDQYJKoZIhvcNAQELBQAwFzEVMBMGA1UECwwMSW50ZXJtZWRp
+YXRlMCAXDTE1MTAyMDA5MTI0M1oYDzIxMTUwOTI2MDkxMjQzWjAUMRIwEAYDVQQD
+DAlsb2NhbGhvc3QwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAKmd9yN41PjZ
+9EnULLm2gaaiBZaV3W61XjUe/etEOU8m5ullhNiv0DGZNbt0ZgfL9aW8dbekTV9Q
+e8+YaPPzFKlQnaqt7lt4IVu+xA6qzEmRC6mP5odAqmoElJich3GrF6x2x3jWrCbX
+zijIlOKDAAgLedLixML7aVPOCpY1Bmk7AgMBAAEwDQYJKoZIhvcNAQELBQADgYEA
+DmvvCUi/xEgvsRWoDt4dJmhga+qgZ7649a2EdYIavNqphpmLWncCrvi9AstpWnvY
+BJSivqYCUwLrgteRDxPf7XkRT17OafgW0Xyss+rng+PzSGVR77swAf7v9rzrfWKC
+JWma5uFMIDqJCReG1Ox93N2juZdI6auqbYnUYi/4YgA=
+-----END CERTIFICATE-----
+-----BEGIN CERTIFICATE-----
+MIIBlDCB/gIBATANBgkqhkiG9w0BAQsFADANMQswCQYDVQQLDAJDQTAgFw0xNTEw
+MjAwOTA4MDNaGA8yMTE1MDkyNjA5MDgwM1owFzEVMBMGA1UECwwMSW50ZXJtZWRp
+YXRlMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDYLKL3UTbKWrvZKq06NW/b
+8f87lLw/sH0DSNs09aT8aVq4wLqGA/RC0ky53rH/IQXrHvoxR6h/+DrrxtGERBFO
+MIKhU5rH0UuE+vPcNCt30W3Igs4l2pYTDGEeUV5U5WpqQarnjFv5RTDM3ky2WEWR
+hLstwlEVKWMcmL5n3x/InwIDAQABMA0GCSqGSIb3DQEBCwUAA4GBAJczX3JveUjJ
+a4WMLnKBJsAvyTcpFyuY+NwlmAnJyWCkdxYFloIUqk0RyyC0zeJ/8zhCQ2ebGBGW
+Veuxze4Co53Ukikt2S3lbGKz56yjYXUvxcus731KY7m0U5PF+yNdwbLds21Qn3oF
+ykBKf8Wtclujqbuf7W97JiiNsPzMnQR0
+-----END CERTIFICATE-----

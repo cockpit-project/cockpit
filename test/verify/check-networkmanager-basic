@@ -1,0 +1,214 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from netlib import *
+from testlib import *
+
+
+@nondestructive
+@skipDistroPackage()
+@skipImage("TODO: testBasic fails on Arch Linux", "arch")
+class TestNetworkingBasic(NetworkCase):
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+
+        if not m.ostree_image:
+            # screenshot assumes running firewalld and absent virbr0 (in particular, *3* interfaces)
+            m.execute("systemctl start firewalld")
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        iface = 'cockpit1'
+        self.add_veth(iface, dhcp_cidr="10.111.113.2/20")
+        self.nm_activate_eth(iface)
+        self.wait_for_iface(iface)
+        b.wait_not_present("#network-interface")
+
+        b.wait_in_text("#networking-graphs", "Transmitting")
+        b.wait_in_text("#networking-graphs", "Receiving")
+
+        b.assert_pixels(
+            "#networking", "network-main",
+            [
+                "td[data-label=Sending]",
+                "td[data-label=Receiving]",
+                "td[data-label='IP address']",
+                "#networking-graphs .pf-l-grid",
+                ".cockpit-log-panel .pf-c-card__body",
+                "#networking-firewall-summary .pf-c-card__body",
+            ]
+        )
+
+        # Details of test iface
+        self.select_iface(iface)
+        b.wait_visible("#network-interface")
+
+        con_id = wait(lambda: self.iface_con_id(iface))
+
+        # Toggle "Connect automatically"
+        #
+        b.wait_visible('#autoreconnect:checked')
+        b.set_checked('#autoreconnect', False)
+        self.assertEqual(m.execute(f"nmcli -g connection.autoconnect con show {con_id}"), "no\n")
+        b.wait_visible('#autoreconnect:not(:checked)')
+        b.set_checked('#autoreconnect', True)
+        b.wait_visible('#autoreconnect:checked')
+        self.assertEqual(m.execute(f"nmcli -g connection.autoconnect con show {con_id}"), "yes\n")
+
+        # Configure a manual IP address
+        #
+        self.configure_iface_setting('IPv4')
+        b.wait_visible("#network-ip-settings-dialog")
+        b.select_from_dropdown("#network-ip-settings-dialog select", "manual")
+        # Manual mode  disables automatic switches
+        b.wait_visible("#network-ip-settings-dialog [data-field='dns'] input[type=checkbox]:disabled")
+        b.wait_visible("#network-ip-settings-dialog [data-field='dns_search'] input[type=checkbox]:disabled")
+        b.wait_visible("#network-ip-settings-dialog [data-field='routes'] input[type=checkbox]:disabled")
+
+        b.set_input_text('#network-ip-settings-address-0', "1.2.3.4")
+        b.set_input_text('#network-ip-settings-netmask-0', "255.255.0.8")
+        b.click("#network-ip-settings-save")
+        b.wait_text_not("#network-ip-settings-error h4", "")
+        b.set_input_text('#network-ip-settings-netmask-0', "255.255.192.0")
+        b.click("#network-ip-settings-save")
+        b.wait_not_present("#network-ip-settings-dialog")
+        b.wait_in_text(f"#network-interface .pf-c-card:contains('{iface}')", "1.2.3.4/18")
+
+        # Disconnect
+        self.wait_onoff(f".pf-c-card__header:contains('{iface}')", True)
+        self.toggle_onoff(f".pf-c-card__header:contains('{iface}')")
+        self.wait_for_iface_setting('Status', 'Inactive')
+
+        # Reconnect through the UI
+        self.toggle_onoff(f".pf-c-card__header:contains('{iface}')")
+        b.wait_in_text(f"#network-interface .pf-c-card:contains('{iface}')", "1.2.3.4/18")
+
+        # Disconnect from the CLI, UI reacts
+        m.execute(f"nmcli device disconnect {iface}")
+        self.wait_onoff(f".pf-c-card__header:contains('{iface}')", False)
+
+        # Switch it back to "auto" from the command line and bring it
+        # up again
+        #
+        m.execute(f"nmcli connection modify '{con_id}' ipv4.method auto")
+        m.execute(f"nmcli connection modify '{con_id}' ipv4.addresses ''")
+        self.wait_for_iface_setting('IPv4', "Automatic (DHCP)")
+        m.execute(f"nmcli connection up '{con_id}'")
+        self.wait_for_iface_setting('Status', '10.111.')
+
+        # Switch off automatic DNS
+        #
+        self.configure_iface_setting('IPv4')
+        b.wait_visible("#network-ip-settings-dialog")
+        self.wait_onoff("#network-ip-settings-dialog [data-field='dns']", True)
+        self.toggle_onoff("#network-ip-settings-dialog [data-field='dns']")
+        # The "DNS search domains" setting should follow suit
+        self.wait_onoff("#network-ip-settings-dialog [data-field='dns_search']", False)
+        b.click("#network-ip-settings-save")
+        b.wait_not_present("#network-ip-settings-dialog")
+
+        wait(lambda: "yes" in m.execute(f"nmcli -f ipv4.ignore-auto-dns connection show '{con_id}'"))
+
+    def testNoService(self):
+        b = self.browser
+        m = self.machine
+
+        iface = "cockpit42"
+        self.add_veth(iface)
+        self.addCleanup(m.execute, "systemctl enable --now NetworkManager")
+
+        def assert_running():
+            b.wait_not_present("#networking-nm-crashed")
+            b.wait_not_present("#networking-nm-disabled")
+            b.wait_visible("#networking-graphs")
+            b.wait_visible("#networking-interfaces")
+            b.wait_in_text("#networking-interfaces", iface)
+
+        def assert_stopped(enabled):
+            # should hide graphs and actions and show the appropriate notification
+            b.wait_not_present("#networking-graphs")
+            b.wait_not_present("#networking-interfaces")
+            if enabled:
+                b.wait_visible("#networking-nm-crashed")
+                b.wait_not_present("#networking-nm-disabled")
+            else:
+                b.wait_not_present("#networking-nm-crashed")
+                b.wait_visible("#networking-nm-disabled")
+
+        def assert_not_found():
+            # should hide graphs and actions and show the appropriate notification
+            b.wait_not_present("#networking-graphs")
+            b.wait_not_present("#networking-interfaces")
+            b.wait_visible("#networking-nm-not-found")
+
+        self.login_and_go("/network")
+        assert_running()
+
+        # stop/start NM on CLI, page should notice
+        m.execute("systemctl stop NetworkManager")
+        assert_stopped(True)
+        m.execute("systemctl start NetworkManager")
+        assert_running()
+
+        # stop NM, test inline start button
+        m.execute("systemctl stop NetworkManager")
+        assert_stopped(True)
+        b.click("#networking-nm-crashed button")
+        assert_running()
+
+        # stop NM, test troubleshoot button
+        m.execute("systemctl stop NetworkManager")
+        assert_stopped(True)
+        b.click("#networking-nm-crashed a")
+        b.enter_page("/system/services")
+        b.wait_text(".service-name", "Network Manager")
+        b.click(".service-top-panel .pf-c-dropdown button")
+        b.click(".service-top-panel .pf-c-dropdown__menu a:contains('Start')")
+        b.wait_in_text("#statuses", "Running")
+
+        # networking page should notice start from Services page
+        b.go("/network")
+        b.enter_page("/network")
+        assert_running()
+
+        # stop and disable NM, enablement info notification
+        m.execute("systemctl stop NetworkManager; systemctl disable NetworkManager")
+        assert_stopped(False)
+        b.click("#networking-nm-disabled button")
+        assert_running()
+        wait(lambda: m.execute("systemctl is-enabled NetworkManager"))
+
+        # /usr in coreos is readonly
+        if m.image not in ["fedora-coreos"]:
+            # remove the NM service file, test 'no-found' notification
+            # This works for ND tests since there is a self.addCleanup(m.execute, "systemctl enable --now NetworkManager") in the start of the test
+            self.restore_file('/usr/lib/systemd/system/NetworkManager.service')
+            m.execute("rm /usr/lib/systemd/system/NetworkManager.service && systemctl daemon-reload && systemctl stop NetworkManager")
+            assert_not_found()
+
+        self.allow_journal_messages(".*org.freedesktop.NetworkManager.*")
+        # Killing NM affects realmd as well
+        self.allow_journal_messages(".*org.freedesktop.realmd.Service.*")
+
+
+if __name__ == '__main__':
+    test_main()

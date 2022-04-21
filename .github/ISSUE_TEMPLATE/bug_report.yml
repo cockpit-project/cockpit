@@ -1,0 +1,149 @@
+name: Bug Report
+description: This is for bugs and general problems.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report! It helps to make sure Cockpit works well everyone, including you! :sparkles:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Explain what happens
+      description: |
+        Include steps on how to reproduce. Including screenshots is very helpful.
+      value: |
+        1. 
+        2. 
+        3. 
+
+
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        :left_speech_bubble: Want to discuss something? [Post a new discussion](https://github.com/cockpit-project/cockpit/discussions/new) in our [discussion forum](https://github.com/cockpit-project/cockpit/discussions).
+        :jigsaw: Have a problem with a component? Some issues are filed elsewhere: [Machines](https://github.com/cockpit-project/cockpit-machines/issues/new), [Podman](https://github.com/cockpit-project/cockpit-podman/issues/new/choose), [OStree](https://github.com/cockpit-project/cockpit-ostree/issues/new), or the [starter kit](https://github.com/cockpit-project/starter-kit/issues/new). 
+  - type: markdown
+    attributes:
+      value: |
+        <!-- add a bit of space -->
+  - type: input
+    id: cockpit-version
+    attributes:
+      label: Version of Cockpit
+      description: |
+        You can find this in "About Web Console" under the help menu at the top-right of Cockpit.
+        (In older versions, the about menu option was under the rightmost menu.)
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: |
+        :airplane: If you're using Debian or Ubuntu, a newer version of Cockpit (which might solve your issue) is available in backports. For more details, please [read about backports on our installation page](https://cockpit-project.org/running.html#debian).
+  - type: markdown
+    attributes:
+      value: |
+        <br>
+
+        ---
+
+        _Everything below is optional, but useful for us to help fix the problem._
+
+        ---
+  - type: markdown
+    attributes:
+      value: |
+        <!-- add a bit of space -->
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where is the problem in Cockpit?
+      options:
+        - Overview
+        - Metrics
+        - Logs
+        - Storage
+        - Networking
+        - Firewall
+        - Accounts
+        - Services
+        - Applications
+        - Software updates
+        - Diagnostic Reports
+        - SELinux
+        - Terminal
+        - "Navigation & Shell"
+        - Documentation
+        - Unknown or not applicable
+  - type: markdown
+    attributes:
+      value: |
+        <!-- add a bit of space -->
+  - type: dropdown
+    id: os-server
+    attributes:
+      label: Server operating system
+      description: Which Linux distribution are you using on the server where Cockpit is installed?
+      options:
+        - Arch Linux
+        - CentOS
+        - Clear Linux
+        - Debian
+        - Fedora
+        - Red Hat Enterprise Linux
+        - Ubuntu
+        - openSUSE
+        - other
+    validations:
+      required: false
+  - type: input
+    id: os-version
+    attributes:
+      label: Server operating system version
+      description: Which version of the above selected operating system are you using? (This is especially useful, if it's not the latest version.)
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: |
+        <!-- add a bit of space -->
+  - type: dropdown
+    id: browsers
+    attributes:
+      label: What browsers are you using?
+      description: |
+        (Multiple choices available.) Browser information helps with debugging, especially if things look odd or if pages are blank.
+
+        If your browser isn't in the list, select other and mention in the explaination text entry above.
+      multiple: true
+      options:
+        - Firefox
+        - Firefox Mobile on Android
+        - Chrome
+        - Chrome on Android
+        - Edge
+        - Brave
+        - Safari macOS
+        - Safari on iPhone
+        - Safari on iPad
+        - GNOME Web
+        - Cockpit Client / Cockpit Desktop
+        - Other
+  - type: markdown
+    attributes:
+      value: |
+        <!-- add a bit of space -->
+  - type: textarea
+    id: logs
+    attributes:
+      label: System log
+      description: |
+        Relevant parts of the server's log are useful.  This will be automatically formatted, backticks are not needed.
+
+        - If the issue happened in the last 10 minutes, use: `journalctl --since -10m`
+        - If you know which systemd unit was affected, use: `journalctl -u cockpit -u <unit>`
+
+        Leave empty if unsure or if this doesn't apply.
+      render: shell

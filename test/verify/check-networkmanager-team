@@ -1,0 +1,151 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+import json
+from netlib import *
+from testlib import *
+
+
+@skipImage("NetworkManager-team not installed", "fedora-coreos")
+@skipImage("TODO: networkmanager fails on Arch Linux", "arch")
+@skipDistroPackage()
+@nondestructive
+class TestTeam(NetworkCase):
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+
+        b.wait_visible("button:contains('Add team')")
+
+        iface1 = "cockpit1"
+        self.add_veth(iface1, dhcp_cidr="10.111.113.1/24", dhcp_range=['10.111.113.2', '10.111.113.254'])
+        self.nm_activate_eth(iface1)
+        iface2 = "cockpit2"
+        self.add_veth(iface2, dhcp_cidr="10.111.114.1/24", dhcp_range=['10.111.114.2', '10.111.114.254'])
+        self.nm_activate_eth(iface2)
+        self.wait_for_iface(iface1)
+        self.wait_for_iface(iface2)
+
+        # team them
+        b.click("button:contains('Add team')")
+        b.wait_visible("#network-team-settings-dialog")
+
+        # wait until dialog initialized
+        b.wait_visible("#network-team-settings-dialog > button[aria-label=Close]")
+        b.wait_in_text("#network-team-settings-body", "cockpit2")
+        b.assert_pixels("#network-team-settings-dialog", "networking-team-settings-dialog")
+
+        b.set_input_text("#network-team-settings-interface-name-input", "tteam")
+        b.set_checked(f"input[data-iface='{iface1}']", True)
+        b.set_checked(f"input[data-iface='{iface2}']", True)
+        b.click("#network-team-settings-dialog button:contains('Save')")
+        b.wait_not_present("#network-team-settings-dialog")
+
+        b.wait_attr("#networking", "data-test-wait", "false")
+        b.wait(lambda: 'nmcli con show | grep tteam')
+        b.wait_visible("#networking-interfaces tr[data-interface='tteam']")
+
+        # Check that the configuration file has the expected sane name
+        # on systems that use "network-scripts".
+        if m.image not in ["fedora-coreos", "fedora-testing", "fedora-36"]:
+            m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tteam")
+
+        # Check that the members are displayed
+        self.select_iface('tteam')
+        b.wait_visible("#network-interface")
+        b.wait_visible(f"#network-interface-members tr[data-interface='{iface1}']")
+        b.wait_visible(f"#network-interface-members tr[data-interface='{iface2}']")
+
+        # Deactivate the team and make sure it is still there after a
+        # reload.
+        self.wait_onoff(".pf-c-card__header:contains('tteam')", True)
+        self.toggle_onoff(".pf-c-card__header:contains('tteam')")
+        self.wait_for_iface_setting('Status', 'Inactive')
+        b.reload()
+        b.enter_page("/network")
+        b.wait_text("#network-interface-name", "tteam")
+        b.wait_text("#network-interface-hw", "Team")
+        b.wait_visible(f"#network-interface-members tr[data-interface='{iface1}']")
+        b.wait_visible(f"#network-interface-members tr[data-interface='{iface2}']")
+
+        # Delete the team
+        b.click("#network-interface button:contains('Delete')")
+        b.wait_visible("#networking")
+        b.wait_not_present("#networking-interfaces tr[data-interface='tteam']")
+
+        # Check that the former members are displayed and both On
+        self.wait_for_iface(iface1)
+        self.wait_for_iface(iface2)
+
+    def testActive(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        iface = "cockpit1"
+        self.add_veth(iface, dhcp_cidr="10.111.112.2/20")
+        self.nm_activate_eth(iface)
+        self.wait_for_iface(iface)
+
+        # Put an active interface into a team. We can't select/copy the MAC, so we can't expect to
+        # get the same IP as the active interface, but it should get a valid DHCP IP.
+
+        b.click("button:contains('Add team')")
+        b.wait_visible("#network-team-settings-dialog")
+        b.set_input_text("#network-team-settings-interface-name-input", "tteam")
+        b.set_checked(f"input[data-iface='{iface}']", True)
+        b.click("#network-team-settings-dialog button:contains('Save')")
+        b.wait_not_present("#network-team-settings-dialog")
+
+        b.wait_attr("#networking", "data-test-wait", "false")
+        b.wait(lambda: 'nmcli con show | grep tteam')
+
+        # Check that it has the interface and the right IP address
+        self.select_iface('tteam')
+        b.wait_visible("#network-interface")
+        b.wait_visible(f"#network-interface-members tr[data-interface='{iface}']")
+        b.wait_in_text("#network-interface .pf-c-card:contains('tteam')", "10.111")
+
+        # Check team port
+        b.click("#network-interface-members button:contains(cockpit1)")
+        b.click("#networking-edit-teamport")
+        b.wait_visible("#network-team-port-settings-dialog")
+        b.set_input_text("#network-team-port-settings-activebackup-prio-input", "10")
+        b.set_checked("#network-team-port-settings-activebackup-sticky-input", True)
+        b.click("#network-team-port-settings-save")
+        b.wait_not_present("#network-team-port-settings-dialog")
+
+        b.wait_attr("#network-interface", "data-test-wait", "false")
+
+        # Confirm that team port settings are applied
+        dump_config_cmd = "teamdctl tteam port config dump cockpit1 || true"
+        b.wait(lambda: "sticky" in m.execute(dump_config_cmd))
+        cockpit1_config = m.execute(dump_config_cmd)
+        team_port_config = json.loads(cockpit1_config)
+        self.assertEqual(team_port_config.get("prio"), "10")
+        self.assertTrue(team_port_config.get("sticky"))
+
+
+if __name__ == '__main__':
+    test_main()

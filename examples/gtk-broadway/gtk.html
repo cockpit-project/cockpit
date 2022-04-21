@@ -1,0 +1,94 @@
+<head>
+<title>GTK Example</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<script src="../base1/cockpit.js"></script>
+<style type="text/css">
+body { overflow: hidden; }
+</style>
+<script>
+    "use strict";
+
+    function broadway_js() {
+        /* Force connections through our own path */
+        var RealWebSocket = window.WebSocket;
+        window.WebSocket = function(loc, protocols) {
+            var url, loc = window.location.toString();
+            if (loc.indexOf('http:') === 0)
+                url = "ws://" + window.location.host;
+            else if (loc.indexOf('https:') === 0)
+                url = "wss://" + window.location.host;
+            url += "/cockpit/channel/" + cockpit.transport.csrf_token + "?" + window.btoa(JSON.stringify({
+                payload: "websocket-stream1",
+                address: "127.0.0.1",
+                port: 8085,
+                path: "/socket",
+                binary: "raw",
+            }));
+            return new RealWebSocket(url, protocols);
+        };
+
+        var script = document.createElement("script");
+        script.async = true;
+        script.type = 'text/javascript';
+        script.src = "/cockpit/channel/" + cockpit.transport.csrf_token + "?" + window.btoa(JSON.stringify({
+            payload: "http-stream2",
+            address: "127.0.0.1",
+            port: 8085,
+            binary: "raw",
+            method: "GET",
+            path: "/broadway.js",
+        }));
+
+        script.onload = function() {
+            connect(); /* defined in broadway.js */
+        };
+
+        script.onerror = function() {
+            console.warn("failed to load broadway.js");
+        };
+
+        document.head.appendChild(script);
+    }
+
+    function process(cmd, env) {
+        var proc = cockpit.channel({
+            "payload": "stream",
+            "spawn": cmd,
+            "err": "out",
+            "environ": env || undefined,
+        });
+
+        proc.addEventListener("message", function(ev, payload) {
+            console.log(payload);
+        });
+
+        proc.addEventListener("close", function(ev, options) {
+            console.warn(cmd[0] +  " exited " + (options.problem || ""));
+        });
+
+        return proc;
+    }
+
+    function applications() {
+        var environ = [ "GDK_BACKEND=broadway", "BROADWAY_DISPLAY=:5", "LANG=C.UTF-8" ];
+        process(["nautilus"], environ);
+        process(["gnome-calculator"], environ);
+    }
+
+    var started = false;
+    var broadwayd = process(["broadwayd", ":5"]);
+    broadwayd.addEventListener("message", function(ev, payload) {
+        if (!started) {
+            started = true;
+            broadway_js();
+            applications();
+        }
+    });
+</script>
+</head>
+<body>
+
+</body>
+</html>
+

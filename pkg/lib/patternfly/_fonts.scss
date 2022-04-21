@@ -1,0 +1,32 @@
+@mixin printRedHatFont(
+$weightValue: 400,
+$weightName: "Regular",
+$familyName: "RedHatText",
+$style: "normal",
+$relative: true
+) {
+    $filePath: "../../static/fonts" + "/" + $familyName + "-" + $weightName;
+    @font-face {
+        font-family: $familyName;
+        src: url('#{$filePath}.woff2') format('woff2');
+        font-style: #{$style};
+        font-weight: $weightValue;
+        text-rendering: optimizeLegibility;
+    }
+}
+
+@include printRedHatFont(700, "Bold", $familyName: "RedHatDisplay");
+@include printRedHatFont(700, "BoldItalic", $style: "italic", $familyName: "RedHatDisplay");
+@include printRedHatFont(900, "Black", $familyName: "RedHatDisplay");
+@include printRedHatFont(900, "BlackItalic", $style: "italic", $familyName: "RedHatDisplay");
+@include printRedHatFont(300, "Italic", $style: "italic", $familyName: "RedHatDisplay");
+@include printRedHatFont(400, "Medium", $familyName: "RedHatDisplay");
+@include printRedHatFont(400, "MediumItalic", $style: "italic", $familyName: "RedHatDisplay");
+@include printRedHatFont(300, "Regular", $familyName: "RedHatDisplay");
+
+@include printRedHatFont(700, "Bold");
+@include printRedHatFont(700, "BoldItalic", $style: "italic");
+@include printRedHatFont(400, "Italic", $style: "italic");
+@include printRedHatFont(700, "Medium");
+@include printRedHatFont(700, "MediumItalic", $style: "italic");
+@include printRedHatFont(400, "Regular");

@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<chapter id="feature-storaged">
+  <title>storaged</title>
+
+  <para>If available on the system, Cockpit uses <ulink
+    url="https://github.com/storaged-project/storaged/"><code>storaged</code></ulink>
+    to configure and monitor storage, disks, mounts etc. on the
+    system. This functionality is present in the Cockpit
+    <emphasis>storaged</emphasis> package.</para>
+
+  <para>The <code>storaged</code> project is originally based on a project called
+    <ulink url="https://www.freedesktop.org/wiki/Software/udisks/"><code>udisks</code></ulink>
+    and added support for many more features such as
+    <ulink url="https://en.wikipedia.org/wiki/Logical_Volume_Manager_(Linux)">LVM</ulink>,
+    <ulink url="https://en.wikipedia.org/wiki/ISCSI">iSCSI</ulink>,
+    <ulink url="https://en.wikipedia.org/wiki/Linux_DM_Multipath">Multipath</ulink>, and
+    <ulink url="https://btrfs.wiki.kernel.org/index.php/Main_Page">BTRFS</ulink>.
+    The same tools and backwards compatible API are available between <code>storaged</code>
+    and <code>udisks</code> the projects. Cockpit can use <code>udisks</code> but disables
+    many of it's storage related features, including updating <code>/etc/fstab</code>
+    and <code>/etc/crypttab</code> for stability reasons.</para>
+
+  <para>For non root users, storaged controls access to its APIs via
+    <link linkend="privileges">Policy Kit</link> and a user logged into Cockpit will have
+    the same permissions as they do from the command line.</para>
+
+  <para>To perform similar tasks from the command line, use the <code>storagedctl</code> command:</para>
+
+<programlisting>
+$ <command>udisksctl dump</command>
+...
+</programlisting>
+
+  <para>To perform LVM tasks, you may use the various LVM commands, such as
+    <code>vgcreate</code>, <code>lvresize</code> and so on. Cockpit will detect such changes
+    made at the command line.</para>
+
+  <para>Cockpit recognizes devices with multiple paths and can start
+    the <code>multipathd</code> service in case it is not running.  On
+    the command line, you can control multipath features with the
+    <code>mpathconf</code>, <code>multipathd</code>, and
+    <code>multipath</code> commands.</para>
+
+  <para>To manage iSCSI initiators from the command line, you can use
+    <code>iscsiadm</code> and related tools.</para>
+
+</chapter>

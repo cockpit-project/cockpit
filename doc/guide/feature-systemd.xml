@@ -1,0 +1,124 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<chapter id="feature-systemd">
+  <title>systemd</title>
+
+  <para>Cockpit uses
+    <ulink url="https://www.freedesktop.org/wiki/Software/systemd/">systemd</ulink>
+    and the DBus APIs it provides to configure and monitor core aspects of the system.
+    Use of alternate system APIs are not currently implemented.</para>
+
+  <para>For non root users, systemd controls access to its APIs via
+    <link linkend="privileges">Policy Kit</link> and a user logged into Cockpit will have
+    the same permissions as they do from the command line.</para>
+
+  <para>Cockpit retrieves information about the host and changes the hostname via the
+    <code>hostnamed</code> daemon. To perform similar tasks from the command line use the
+    <ulink url="https://www.freedesktop.org/software/systemd/man/hostnamectl.html"><code>hostnamectl</code></ulink>
+    command:</para>
+
+<programlisting>
+$ <command>hostnamectl</command>
+   Static hostname: pink.example.com
+   Pretty hostname: Pink
+         Icon name: computer-desktop
+           Chassis: desktop
+        Machine ID: ef00b79be229463cbb844c3e715de96c
+           Boot ID: 934983d64d34465cb5a8383b5a89ad8c
+  Operating System: Fedora 22 (Twenty Two)
+       CPE OS Name: cpe:/o:fedoraproject:fedora:22
+            Kernel: Linux 4.0.4-301.fc22.x86_64
+      Architecture: x86-64
+</programlisting>
+
+  <para>Cockpit configures the system time and time zone via the <code>timedated</code> daemon.
+    To perform similar tasks from the command line use the
+    <ulink url="https://www.freedesktop.org/software/systemd/man/timedatectl.html"><code>timedatectl</code></ulink>
+    command:</para>
+
+<programlisting>
+$ <command>timedatectl list-timezones</command>
+Africa/Abidjan
+Africa/Accra
+Africa/Addis_Ababa
+Africa/Algiers
+...
+</programlisting>
+
+  <para>Cockpit can manage the list of NTP servers used by
+    <code>systemd-timesyncd</code> by putting its own file into
+    <code>/etc/systemd/timesyncd.conf.d/</code>.  Note that
+    <code>systemd-timesyncd</code> is not always enabled, depending on
+    the configuration of the machine.  In that case, Cockpit disabled the
+    UI for managing the list of NTP servers. In some cases use of
+    <code>ntpd</code> can cause the <code>timedated</code> daemon to
+    behave inconsistently with regards to time synchronization.</para>
+
+  <para>Cockpit reboots or powers down the machine by using the
+    <ulink url="https://www.freedesktop.org/software/systemd/man/shutdown.html"><code>shutdown</code></ulink>
+    command. To perform similar tasks from the command line, run it directly:</para>
+
+<programlisting>
+$ <command>sudo shutdown +15</command>
+Shutdown scheduled for Sa 2015-09-26 15:49:40 CEST, use 'shutdown -c' to cancel.
+</programlisting>
+
+  <para>Cockpit manages system services and sockets via systemd. To perform similar tasks from the
+    command line use the
+    <ulink url="https://www.freedesktop.org/software/systemd/man/systemctl.html"><code>systemctl</code></ulink>
+    command:</para>
+
+<programlisting>
+$ <command>systemctl status cockpit</command>
+● cockpit.service - Cockpit Web Service
+   Loaded: loaded (/usr/lib/systemd/system/cockpit.service; static; vendor preset: disabled)
+  Drop-In: /etc/systemd/system/cockpit.service.d
+           └─debug.conf
+   Active: active (running) since Sa 2015-09-26 13:28:02 CEST; 2h 7min ago
+     Docs: man:cockpit-ws(8)
+ Main PID: 6957 (cockpit-ws)
+   Memory: 1.8M
+   CGroup: /system.slice/cockpit.service
+           ├─ 6957 /usr/libexec/cockpit-ws
+           └─29598 /usr/bin/ssh-agent
+</programlisting>
+
+  <para>In order to customize who can perform various actions in system,
+    <link linkend="privileges-polkit">create polkit rules</link> with the following
+    actions and details:</para>
+
+  <variablelist>
+    <varlistentry>
+      <term><option>org.freedesktop.systemd1.manage-units</option></term>
+      <listitem><para>Permission to manage system services or other units.
+        Details available: <code>unit</code>, <code>verb</code></para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>org.freedesktop.systemd1.manage-unit-files</option></term>
+      <listitem><para>Permission to manage system services or other unit files.</para></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>org.freedesktop.systemd1.reload-daemon</option></term>
+      <listitem><para>Permission to reload the systemd state.</para></listitem>
+    </varlistentry>
+  </variablelist>
+
+  <para>For example, placing the following polkit rule to
+    <filename>/etc/polkit-1.rules.d/10-http.rule</filename> allows all users in the
+    <code>operators</code> group start, stop, and restart the Apache HTTP service:</para>
+
+<programlisting>
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.systemd1.manage-units") {
+        if (subject.isInGroup("operators") &amp;&amp; action.lookup("unit") == "httpd.service") {
+            var verb = action.lookup("verb");
+            if (verb == "start" || verb == "stop" || verb == "restart") {
+                return polkit.Result.YES;
+            }
+        }
+    }
+});
+</programlisting>
+
+</chapter>

@@ -1,0 +1,146 @@
+#! /usr/bin/python3
+
+# This is just enough of the Insights REST API to make the following
+# work:
+#
+#   insights-client --register
+#   insights-client --status
+#   insights-client --check-results
+#   insights-client --unregister
+#
+# You need these in your insights-client.conf:
+#
+# gpg=False
+# auto_config=False
+# base_url=127.0.0.1:8888/r/insights
+# insecure_connection=True
+# username=admin
+# password=foobar
+
+from http.server import *
+import json
+import re
+import ssl
+
+systems = {}
+
+
+class handler(BaseHTTPRequestHandler):
+    def match(self, p):
+        return re.fullmatch(p, self.path)
+
+    def do_GET(self):
+
+        m = self.match("/r/insights")
+        if m:
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b"lub-dup")
+            return
+
+        m = self.match("/r/insights/v1/static/core/insights-core.egg")
+        if m:
+            self.send_response(304)
+            self.end_headers()
+            return
+
+        m = self.match("/r/insights/v1/static/uploader.v2.json")
+        if m:
+            # This is not a valid response and will cause the client
+            # to fall back to the builtin rules.
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b"{ }\n")
+            return
+
+        m = self.match("/r/insights/v1/systems/([^/]+)")
+        if m:
+            machine_id = m[1]
+            self.send_response(200)
+            self.end_headers()
+            if machine_id in systems:
+                self.wfile.write(json.dumps(systems[machine_id]).encode('utf-8') + b"\n")
+            else:
+                self.wfile.write(b"{ }\n")
+            return
+
+        m = self.match("/r/insights/v1/branch_info")
+        if m:
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b'{ "remote_branch": -1, "remote_leaf": -1 }\n')
+            return
+
+        m = self.match("/r/insights/platform/inventory/v1/hosts\\?insights_id=(.*)")
+        if m:
+            machine_id = m[1]
+            self.send_response(200)
+            self.end_headers()
+            if machine_id in systems:
+                self.wfile.write(b'{ "total": 1, "results": [ { "id": "123-nice-id" } ] }\n')
+            else:
+                self.wfile.write(b'{ "total": 0, "results": [ ] }\n')
+            return
+
+        m = self.match("/r/insights/platform/insights/v1/system/([^/]+)/reports/")
+        if m:
+            platform_id = m[1]
+            self.send_response(200)
+            self.end_headers()
+            if platform_id == "123-nice-id":
+                self.wfile.write(b'[ { "rule": { "total_risk": 3 } }, { "rule": { "total_risk": 2 } }, { "rule": { "total_risk": 1 } }]\n')
+            else:
+                self.wfile.write(b'[ ]\n')
+            return
+
+        self.send_response(404)
+        self.end_headers()
+
+    def do_POST(self):
+        len = int(self.headers.get('content-length', 0))
+        data = self.rfile.read(len)
+
+        m = self.match("/r/insights/v1/systems")
+        if m:
+            s = json.loads(data)
+            s["unregistered_at"] = None
+            s["account_number"] = "123456"
+            print(s)
+            systems[s["machine_id"]] = s
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(data)
+            return
+
+        m = self.match("/r/insights/uploads/([^/])+")
+        if m:
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b'{ "reports": [ "foo", "bar" ] }\n')
+            return
+
+        self.send_response(404)
+        self.end_headers()
+
+    def do_DELETE(self):
+
+        m = self.match("/r/insights/v1/systems/([^/]+)")
+        if m:
+            machine_id = m[1]
+            self.send_response(200)
+            self.end_headers()
+            if machine_id in systems:
+                del systems[machine_id]
+            return
+
+        self.send_response(404)
+        self.end_headers()
+
+
+def insights_server(port):
+    httpd = HTTPServer(('', port), handler)
+    httpd.socket = ssl.wrap_socket(httpd.socket, certfile='/var/tmp/alice.pem', keyfile='/var/tmp/alice.key', server_side=True)
+    httpd.serve_forever()
+
+
+insights_server(8888)

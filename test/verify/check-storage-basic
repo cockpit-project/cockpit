@@ -1,0 +1,81 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from storagelib import *
+from testlib import *
+
+
+@nondestructive
+class TestStorageBasic(StorageCase):
+
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage", superuser=False)
+
+        b.wait_visible("#devices")
+        b.wait_not_present("#devices .pf-c-dropdown button")
+
+        b.relogin('/storage', superuser=True)
+
+        b.wait_visible("#devices .pf-c-dropdown button:not([disabled])")
+
+        # Add a disk, partition it, format it, and finally remove it.
+        disk = self.add_ram_disk()
+
+        b.click(f'.sidepanel-row:contains("{disk}")')
+        b.wait_visible('#storage-detail')
+        self.content_row_wait_in_col(1, 2, "Unrecognized data")
+
+        def info_field_value(name):
+            return b.text(f'#detail-header dt:contains("{name}") + dd')
+
+        self.assertEqual(self.inode(info_field_value("Device file")), self.inode(disk))
+
+        m.execute(f'parted -s {disk} mktable gpt')
+        m.execute(f'parted -s {disk} mkpart primary ext2 1M 8M')
+        self.content_row_wait_in_col(1, 2, "Unrecognized data")
+        self.content_tab_wait_in_info(1, 1, "Name", "primary")
+
+        # create filesystem on the first partition
+        # HACK - the block device might disappear briefly when udevd does its BLKRRPART.
+        wait(lambda: m.execute(f'mke2fs {disk}1'), delay=1, tries=5)
+        self.content_row_wait_in_col(1, 2, "ext2 filesystem")
+
+        self.content_tab_expand(1, 1)
+        b.assert_pixels("#detail-content", "partition", ignore=[
+            # UUID is not stable
+            "dt:contains(UUID) + dd",
+            # browsers/harfbuzz don't render "ext2 filesystem" label reliably
+            "td[data-label='Type']",
+        ])
+        self.content_tab_expand(1, 2)
+        b.assert_pixels("#detail-content", "filesystem")
+
+        b.go("#/")
+        b.wait_visible('#storage')
+        b.wait_in_text("#drives", disk)
+        self.force_remove_disk(disk)
+        b.wait_not_in_text("#drives", disk)
+
+
+if __name__ == '__main__':
+    test_main()

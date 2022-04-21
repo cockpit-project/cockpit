@@ -1,0 +1,348 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from packagelib import *
+from storagelib import *
+from testlib import *
+
+
+@nondestructive
+class TestStorageNfs(StorageCase):
+
+    def testNfsClient(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        m.execute("mkdir /home/foo /home/bar /mnt/test")
+        self.write_file("/etc/exports", "/home/foo 127.0.0.0/24(rw)\n/home/bar 127.0.0.0/24(rw)\n",
+                        post_restore_action="systemctl restart nfs-server")
+        m.execute("systemctl restart nfs-server")
+        # Removing the nfs mount removes the target dir, if the test fails it
+        # won't. It's important to umount before restoring /etc/exports as
+        # otherwise nfs is confused and we can't umount the share.
+        self.addCleanup(m.execute, "if [ -e /mnt/test ]; then umount /mnt/test 2>/dev/null || true; rm -r /mnt/test; fi")
+
+        # Nothing there in the beginnging
+        b.wait_visible("#nfs-mounts .pf-c-empty-state")
+
+        # Add /home/foo
+        b.click("#nfs-mounts button[aria-label=Add]")
+        self.dialog_wait_open()
+        self.dialog_set_val("server", "127.0.0.1")
+        self.dialog_set_val("remote", "/home/foo")
+        self.dialog_set_val("dir", "/mnt/test")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        b.wait_visible("#nfs-mounts td:contains(/home/foo)")
+        b.wait_visible("#nfs-mounts td:contains(/mnt/test)")
+        b.wait_text_not("#nfs-mounts tr:contains(/mnt/test) .pf-c-progress__status", "")
+
+        # Should be saved to fstab
+        self.assertEqual(m.execute("grep -w nfs /etc/fstab").strip(),
+                         "127.0.0.1:/home/foo /mnt/test nfs defaults")
+
+        # Try to add some non-exported directory
+        b.click("#nfs-mounts button[aria-label=Add]")
+        self.dialog_wait_open()
+        self.dialog_set_val("server", "127.0.0.1")
+        b.set_input_text(self.dialog_field("remote") + " input", "/usr/share")
+        b.click(self.dialog_field("remote") + " .pf-c-select ul > li > button")
+        self.dialog_set_val("dir", "/run/share")
+        self.dialog_apply()
+        b.wait_visible("#dialog .pf-c-alert.pf-m-danger")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        # Add /home/bar
+        b.click("#nfs-mounts button[aria-label=Add]")
+        self.dialog_wait_open()
+        self.dialog_set_val("server", "127.0.0.1")
+        self.dialog_set_val("remote", "/home/bar")
+        self.dialog_set_val("dir", "/mounts/bar")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        b.wait_visible("#nfs-mounts td:contains(/home/bar)")
+        b.wait_visible("#nfs-mounts td:contains(/mounts/bar)")
+        b.wait_text_not("#nfs-mounts tr:contains(/mounts/bar) .pf-c-progress__status", "")
+        m.execute("test -d /mounts/bar")
+
+        # Go to details of /home/bar
+        b.click("#nfs-mounts tr:contains(/home/bar)")
+        b.wait_visible('#storage-detail')
+        b.wait_text('#detail-header dt:contains("Server") + dd', "127.0.0.1:/home/bar")
+        b.wait_text('#detail-header dt:contains("Mount point") + dd', "/mounts/bar")
+
+        # Change mount point of /home/bar
+        b.click('#detail-header button:contains("Edit")')
+        self.dialog_wait_open()
+        self.dialog_set_val("dir", "/mounts/barbar")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.addCleanup(m.execute, "set -e; umount /mounts/barbar; rmdir /mounts/barbar")
+
+        b.wait_text('#detail-header dt:contains("Mount point") + dd', "/mounts/barbar")
+        m.execute("! test -e /mounts/bar")
+        m.execute("test -d /mounts/barbar")
+        self.assertEqual(m.execute("findmnt -s -n -o OPTIONS /mounts/barbar").strip(), "defaults")
+
+        # Set options for /home/bar
+        b.click('#detail-header button:contains("Edit")')
+
+        def wait_checked(field):
+            b.wait_visible(self.dialog_field(field) + ":checked")
+
+        def wait_not_checked(field):
+            b.wait_visible(self.dialog_field(field) + ":not(:checked)")
+
+        self.dialog_wait_open()
+        wait_checked("mount_options.auto")
+        wait_not_checked("mount_options.ro")
+        self.dialog_set_val("mount_options.auto", False)
+        self.dialog_set_val("mount_options.ro", True)
+        self.dialog_set_val("mount_options.extra", "ac")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        self.assertEqual(m.execute("findmnt -s -n -o OPTIONS /mounts/barbar").strip(), "noauto,ro,ac")
+
+        # Should be saved to fstab
+        self.assertEqual(m.execute("grep /barbar /etc/fstab").strip(),
+                         "127.0.0.1:/home/bar /mounts/barbar nfs noauto,ro,ac")
+
+        # Go to details of /home/foo
+        b.go("#/")
+        b.wait_visible("#storage")
+        b.click("#nfs-mounts tr:contains(/home/foo)")
+        b.wait_visible('#storage-detail')
+        b.wait_text('#detail-header dt:contains("Server") + dd', "127.0.0.1:/home/foo")
+        b.wait_text('#detail-header dt:contains("Mount point") + dd', "/mnt/test")
+
+        # Unmount and remount /home/foo
+        b.click("#detail-header button:contains(Unmount)")
+        b.click("#detail-header button:contains(Mount)")
+        b.wait_visible("#detail-header button:contains(Unmount)")
+
+        # Remove /home/foo
+        b.click("#detail-header button:contains(Remove)")
+        b.wait_not_present('#storage-detail')
+        b.wait_visible("#storage")
+        b.wait_not_present("#nfs-mounts td:contains(/home/foo)")
+        m.execute("! test -e /mnt/test")
+        # Should be removed from fstab, too
+        self.assertNotIn("/home/foo", m.execute("cat /etc/fstab"))
+
+        # Picks up mounts in fstab
+        m.execute("echo '1.2.3.4:/something /somewhere nfs defaults 0 0' >> /etc/fstab")
+        b.wait_visible("#nfs-mounts td:contains(1.2.3.4 /something)")
+        b.wait_visible("#nfs-mounts td:contains(/somewhere)")
+        b.wait_visible("#nfs-mounts td:contains(Not mounted)")
+
+        # Ignores non-FS mounts which look similar
+        m.execute("echo '2.3.4.5:/marmalade /dunno rfs defaults 0 0' >> /etc/fstab")
+        # But recognizes variants like "nfs4"
+        m.execute("echo '5.6.7.8:/stuff /four nfs4 defaults 0 0' >> /etc/fstab")
+        b.wait_visible("#nfs-mounts td:contains(5.6.7.8)")
+        b.wait_visible("#nfs-mounts td:contains(/four)")
+        self.assertFalse(b.is_present("#nfs-mounts td:contains(marmalade)"))
+
+    def testNfsListExports(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        m.execute("mkdir /home/foo /home/bar")
+        self.write_file("/etc/exports", "/home/foo 127.0.0.0/24(rw)\n/home/bar 127.0.0.0/24(rw)\n",
+                        post_restore_action="systemctl restart nfs-server")
+        m.execute("systemctl restart nfs-server")
+
+        b.click("#nfs-mounts [aria-label=Add]")
+        self.dialog_wait_open()
+        self.dialog_set_val("server", "127.0.0.1")
+
+        def wait_for_exports():
+            def check():
+                choices = self.dialog_combobox_choices("remote")
+                return len(choices) == 2 and "/home/foo" in choices and "/home/bar" in choices
+            self.retry(None, check, None)
+
+        b.click('#dialog [data-field="remote"] button.pf-c-select__toggle-button')
+        wait_for_exports()
+
+    def testNfsMountWithoutDiscovery(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        m.execute("mkdir /home/foo /home/bar")
+        self.addCleanup(m.execute, "systemctl restart nfs-server")
+        self.write_file("/etc/exports", "/home/foo 127.0.0.0/24(rw)\n/home/bar 127.0.0.0/24(rw)\n",
+                        post_restore_action="systemctl restart nfs-server")
+        m.execute("systemctl restart nfs-server")
+
+        # Break showmount.  Cockpit uses showmount to list exported
+        # directories, but that relies on a properly configured
+        # firewall etc.  Even if showmount doesn't work, Cockpit
+        # should allow people to mount arbitrary directories.
+        self.restore_file("/usr/sbin/showmount")
+        m.execute("chmod a-x /usr/sbin/showmount")
+
+        b.click("#nfs-mounts [aria-label=Add]")
+        self.dialog_wait_open()
+        self.dialog_set_val("server", "127.0.0.1")
+        # Manually add a remote location to the select
+        b.set_input_text("[data-field=remote] input", "/home/foo")
+        b.click("button.pf-c-select__menu-item")
+        self.dialog_set_val("dir", "/mnt")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.addCleanup(m.execute, "umount /mnt")
+
+        b.wait_visible("#nfs-mounts td:contains(/home/foo)")
+        b.wait_visible("#nfs-mounts td:contains(/mnt)")
+        b.wait_text_not("#nfs-mounts tr:contains(/mnt) .pf-c-progress__status", "")
+
+    def testNfsBusy(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        m.execute("mkdir /home/foo /home/bar")
+        self.addCleanup(m.execute, "systemctl restart nfs-server")
+        self.write_file("/etc/exports", "/home/foo 127.0.0.0/24(rw)\n/home/bar 127.0.0.0/24(rw)\n",
+                        post_restore_action="systemctl restart nfs-server")
+        m.execute("systemctl restart nfs-server")
+
+        # Nothing there in the beginnging
+        b.wait_visible("#nfs-mounts .pf-c-empty-state")
+
+        # Add /home/foo
+        b.click("#nfs-mounts [aria-label=Add]")
+        self.dialog_wait_open()
+        self.dialog_set_val("server", "127.0.0.1")
+        self.dialog_set_val("remote", "/home/foo")
+        self.dialog_set_val("dir", "/mounts/foo")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        b.wait_visible("#nfs-mounts td:contains(/home/foo)")
+        b.wait_visible("#nfs-mounts td:contains(/mounts/foo)")
+        b.wait_text_not("#nfs-mounts tr:contains(/mounts/foo) .pf-c-progress__status", "")
+
+        # Go to details of /home/foo
+        b.go("#/")
+        b.wait_visible("#storage")
+        b.click("#nfs-mounts tr:contains(/home/foo)")
+        b.wait_visible('#storage-detail')
+        b.wait_text('#detail-header dt:contains("Server") + dd', "127.0.0.1:/home/foo")
+        b.wait_text('#detail-header dt:contains("Mount point") + dd', "/mounts/foo")
+
+        sleep_pid = m.spawn("cd /mounts/foo; sleep infinity", "busy")
+        b.click('#detail-header button:contains("Edit")')
+
+        self.dialog_wait_open()
+        self.dialog_wait_alert("This NFS mount is in use")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        b.click("#detail-header button:contains(Unmount)")
+        self.dialog_wait_open()
+        b.wait_in_text("#dialog", str(sleep_pid))
+        b.assert_pixels("#dialog", "umount", ignore=["td:nth-child(1)", "td:nth-child(4)"])
+        self.dialog_apply()
+
+        b.wait_visible("#detail-header button:contains(Mount)")
+
+
+# Re-use allowed journal messages from StorageCase
+@skipImage("No udisks/cockpit-storaged on OSTree images", "fedora-coreos")
+@skipImage("TODO: bug in refreshing removed/installed state on Arch Linux", "arch")
+@nondestructive
+class TestStoragePackagesNFS(PackageCase, StorageCase, StorageHelpers):
+
+    def testNfsMissingPackages(self):
+        m = self.machine
+        b = self.browser
+
+        # Override configuration so that we don't have to remove the
+        # real package.
+
+        self.machine.write("/usr/share/cockpit/storaged/override.json",
+                           """{ "config": { "nfs_client_package": "fake-nfs-utils" } }""")
+        self.addCleanup(self.machine.execute, "rm /usr/share/cockpit/storaged/override.json")
+
+        if m.execute("if test -e /sbin/mount.nfs; then echo yes; fi").strip():
+            m.execute("mv /sbin/mount.nfs /sbin/mount.nfs.off")
+            self.addCleanup(m.execute, "mv /sbin/mount.nfs.off /sbin/mount.nfs")
+
+        self.login_and_go("/storage")
+
+        # The fake-nfs-utils package is not available yet
+
+        b.click("button:contains('Install NFS support')")
+
+        self.dialog_wait_open()
+        b.wait_in_text("#dialog", "fake-nfs-utils is not available from any repository.")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        # Now make the package available
+
+        self.createPackage("dummy", "1.0", "1")
+        self.createPackage("fake-nfs-utils", "1.0", "1", depends="fake-libnfs")
+        self.createPackage("fake-libnfs", "1.0", "1")
+        self.enableRepo()
+
+        # HACK
+        #
+        # The first simulated install seems to silently not report
+        # anything on the Debian test images, for unknown reasons.  So
+        # we install a dummy package to warm up all parts of the
+        # machinery and distribute the fluids evenly.
+        #
+        if "debian" in m.image or "ubuntu" in m.image:
+            m.execute("pkcon refresh && pkcon install -y dummy")
+
+        # HACK
+        # Packagekit on Arch Linux does not deal well with detecting new repositories
+        if m.image == "arch":
+            m.execute("systemctl restart packagekit")
+            m.execute("pkcon refresh force && pkcon install -y dummy")
+
+        b.reload()
+        b.enter_page("/storage")
+        b.click("button:contains('Install NFS support')")
+        self.dialog_wait_open()
+        b.wait_in_text("#dialog", "fake-nfs-utils will be installed")
+        b.wait_in_text("#dialog", "fake-libnfs")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        b.wait_visible("#nfs-mounts button[aria-label=Add]")
+
+
+if __name__ == '__main__':
+    test_main()

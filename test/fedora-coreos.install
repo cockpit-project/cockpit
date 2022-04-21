@@ -1,0 +1,25 @@
+#!/bin/sh
+set -eu
+
+# install/upgrade RPMs that apply to Fedora CoreOS
+# Note: cockpit-selinux would be desirable, but needs setroubleshoot-server which isn't installed
+cd /var/tmp/
+rpm-ostree install --cache-only cockpit-bridge-*.rpm \
+    cockpit-networkmanager-*.rpm cockpit-system-*.rpm cockpit-tests-*.rpm
+
+# update cockpit-ws and install scripts in the container
+podman run --name build-cockpit -i \
+    -v /var/tmp/:/run/build:Z \
+    quay.io/cockpit/ws sh -exc '
+rpm --freshen --verbose /run/build/cockpit-ws-*.rpm /run/build/cockpit-bridge-*.rpm
+cp /run/build/containers/ws/atomic-* /container/
+'
+podman commit --change CMD=/container/atomic-run build-cockpit localhost/cockpit/ws
+podman rm -f build-cockpit
+
+# move original quay.io image away, to make sure that our tests use the updated one
+podman tag quay.io/cockpit/ws:latest quay.io/cockpit/original-ws:released
+podman rmi quay.io/cockpit/ws:latest
+
+# run cockpit/ws once to generate certificate; avoids slow down on every start
+podman container runlabel INSTALL cockpit/ws

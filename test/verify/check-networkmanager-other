@@ -1,0 +1,58 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from netlib import *
+from testlib import *
+
+
+@skipDistroPackage()
+@skipImage("TODO: networkmanager fails on Arch Linux", "arch")
+@nondestructive
+class TestNetworkingOther(NetworkCase):
+    def testOther(self):
+        b = self.browser
+        m = self.machine
+
+        iface = "tun0"
+
+        # Create a tun device and let NetworkManager manage it
+        m.execute(f"ip tuntap add mode tun dev {iface}")
+        wait(lambda: m.execute(f'nmcli device | grep {iface} | grep -v unavailable'))
+        m.execute(f"nmcli dev set {iface} managed yes")
+
+        self.login_and_go("/network")
+        self.wait_for_iface(iface, active=False)
+        self.select_iface(iface)
+        b.wait_visible("#network-interface")
+
+        # Configure a manual IP address
+        #
+        self.configure_iface_setting('IPv4')
+        b.wait_visible("#network-ip-settings-dialog")
+        b.select_from_dropdown("#network-ip-settings-dialog select", "manual")
+        b.set_input_text('#network-ip-settings-address-0', "1.2.3.4")
+        b.set_input_text('#network-ip-settings-netmask-0', "24")
+        b.click("#network-ip-settings-dialog button:contains('Save')")
+        b.wait_not_present("#network-ip-settings-dialog")
+        self.wait_for_iface_setting('Status', '1.2.3.4/24')
+
+
+if __name__ == '__main__':
+    test_main()

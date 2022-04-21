@@ -1,0 +1,124 @@
+<refentry id="cockpit-desktop.1">
+
+  <!--
+  This file is part of Cockpit.
+
+  Copyright (C) 2018 Red Hat, Inc.
+
+  Cockpit is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  Cockpit is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+  <refentryinfo>
+    <title>cockpit-desktop</title>
+    <productname>cockpit</productname>
+  </refentryinfo>
+
+  <refmeta>
+    <refentrytitle>cockpit-desktop</refentrytitle>
+    <manvolnum>1</manvolnum>
+    <refmiscinfo class="version"></refmiscinfo>
+  </refmeta>
+
+  <refnamediv>
+    <refname>cockpit-desktop</refname>
+    <refpurpose>Cockpit Desktop integration</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>cockpit-desktop</command>
+       <arg choice="req">URLPATH</arg>
+       <arg choice="opt">SSH_HOST</arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+
+  <refsect1 id="cockpit-desktop-description">
+    <title>DESCRIPTION</title>
+    <para>
+      The <command>cockpit-desktop</command> program provides secure access to
+      Cockpit pages in an already running desktop session. It starts a web server
+      (<command>cockpit-ws</command>) and a web browser in an isolated network
+      namespace, and a
+      <citerefentry>
+        <refentrytitle>cockpit-bridge</refentrytitle><manvolnum>8</manvolnum>
+      </citerefentry>
+      in the running user session.
+    </para>
+    <para>
+      This avoids having to log into Cockpit, and having to enable
+      <filename>cockpit.socket</filename> system-wide. The network isolation
+      ensures that no other user, and not even other processes in the user's
+      session, can access this local web server.
+    </para>
+
+    <para>
+      <literal>URLPATH</literal> is the Cockpit page to open, i. e. the path
+      component of Cockpit URLs. It is highly recommended to only open a
+      <ulink url="https://cockpit-project.org/guide/latest/embedding.html">particular page frame</ulink>,
+      not the entire Cockpit navigation and menu. For example, the path
+      <literal>/cockpit/@localhost/storage/index.html</literal> will open the Storage
+      page.  It is also possible to give abbreviated forms of urls, such as "<literal>storage</literal>"
+      or "<literal>network/firewall</literal>".
+    </para>
+
+    <para>
+      <literal>SSH_HOST</literal> is an optional SSH remote host specification
+        (<code>hostname</code> or <code>username@hostname</code>). If given,
+        <literal>cockpit-bridge</literal> will be started on the remote host through
+        <citerefentry>
+          <refentrytitle>ssh</refentrytitle><manvolnum>1</manvolnum>
+        </citerefentry>
+        instead, i. e. the Cockpit web browser will show that remote host.
+        Note that this is more of an experimental/demo feature.
+    </para>
+  </refsect1>
+
+  <refsect1 id="cockpit-desktop-environment">
+    <title>ENVIRONMENT</title>
+    <para>
+      The <literal>BROWSER </literal> environment variable specifies
+      the browser command (and possibly options) that will be used to open the
+      requested Cockpit page. If not set, <command>cockpit-desktop</command> attempts to use
+      an internal minimalistic WebKit browser, and failing that, will attempt to detect some
+      reasonable alternatives.
+    </para>
+  </refsect1>
+
+  <refsect1 id="cockpit-desktop-bugs">
+    <title>BUGS</title>
+    <para>
+      Please send bug reports to either the distribution bug tracker or the
+      <ulink url="https://github.com/cockpit-project/cockpit/issues/new">upstream bug tracker</ulink>.
+    </para>
+  </refsect1>
+
+  <refsect1 id="cockpit-desktop-author">
+    <title>AUTHOR</title>
+    <para>Cockpit has been written by many
+      <ulink url="https://github.com/cockpit-project/cockpit/">contributors</ulink>.</para>
+  </refsect1>
+
+  <refsect1 id="cockpit-desktop-also">
+    <title>SEE ALSO</title>
+    <para>
+      <citerefentry>
+        <refentrytitle>cockpit-ws</refentrytitle><manvolnum>8</manvolnum>
+      </citerefentry>,
+      <citerefentry>
+        <refentrytitle>cockpit-bridge</refentrytitle><manvolnum>1</manvolnum>
+      </citerefentry>
+    </para>
+  </refsect1>
+</refentry>

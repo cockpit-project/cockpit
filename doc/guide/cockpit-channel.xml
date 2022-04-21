@@ -1,0 +1,358 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<refentry id="cockpit-channels">
+  <refnamediv>
+    <refname>cockpit.js: Raw Channels</refname>
+    <refpurpose>Raw communication channels</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <para>At a low level Cockpit communicates with the system via messages passed
+      through various channels. These are usually exposed via higher level APIs,
+      such as the <code><link linkend="cockpit-spawn">cockpit.spawn()</link></code> function.
+      It is rare to use raw channels directly.</para>
+  </refsynopsisdiv>
+
+  <refsection id="cockpit-channels-channel">
+    <title>cockpit.channel()</title>
+<programlisting>
+channel = cockpit.channel(options)
+</programlisting>
+
+    <para>This function creates a new channel for communication with the system.
+      It returns a new channel object. The <code>options</code> argument is a
+      plain object. At least the <code>"payload"</code> option is required, and
+      based on the payload type, other options may be required.</para>
+
+    <variablelist>
+      <varlistentry>
+        <term><code>"binary"</code></term>
+        <listitem><para>Set to <code>true</code> to transfer binary payloads. Both messages
+          sent via <link linkend="cockpit-channels-send"><code>channel.send()</code></link>
+          and those received via
+          <link linkend="cockpit-channels-message"><code>channel.onmessage</code></link>
+          should be arrays of bytes, either <code>Uint8Array</code> or <code>Array</code>
+          depending on browser support.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"host"</code></term>
+        <listitem><para>The host to open the channel to. If an alternate user or port is
+          required it can be specified as <code>"user@myhost:port"</code>. If no host
+          is specified then the correct one will be automatically selected based on the page
+          calling this function.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"payload"</code></term>
+        <listitem><para>The payload type for the channel. Only specific payload
+          types are supported.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"superuser"</code></term>
+        <listitem><para>Set to <code>"require"</code> to open this channel as root. If the currently
+          logged in user is not permitted to become root (eg: via <code>pkexec</code>) then the
+          <code>channel</code> will immediately be
+          <link linkend="cockpit-channels-close-ev">closed</link> with a <code>"access-denied"</code>
+          problem code.</para>
+        <para>Set to <code>"try"</code> to try to open the channel as root, but if that fails,
+          then fall back to an unprivileged channel.</para></listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>The channel object returned has the following fields and methods and
+      events. You should call the
+      <code><link linkend="cockpit-channels-close">channel.close()</link></code>
+      method when done with the channel.</para>
+
+    <para>A valid channel will always be returned and the is ready to
+      <code><link linkend="cockpit-channels-send">channel.send()</link></code>. The channel may
+      <link linkend="cockpit-channels-close-ev">close shortly afterword</link> due
+      to a failure.</para>
+  </refsection>
+
+  <refsection id="cockpit-channels-binary">
+    <title>channel.binary</title>
+    <para>Will be <code>true</code> for an binary channel. Will be set to <code>false</code> if the
+      channel is textual.</para>
+  </refsection>
+
+  <refsection id="cockpit-channels-options">
+    <title>channel.options</title>
+    <para>The options used to open this channel. This should not be changed.</para>
+  </refsection>
+
+  <refsection id="cockpit-channels-valid">
+    <title>channel.valid</title>
+    <para>Will be <code>true</code> for an open channel. Will be set to <code>false</code> if the channel
+      closes.</para>
+  </refsection>
+
+  <refsection id="cockpit-channels-send">
+    <title>channel.send()</title>
+<programlisting>
+channel.send(data)
+</programlisting>
+    <para>Send a message over the channel. The contents of the message depends on the
+      payload type of the channel. If a binary channel, then <code>data</code> is expected
+      to be an <code>Array</code> of bytes or a <code>Uint8Array</code>. If not binary,
+      then the <code>data</code> will be converted to a string if not already a string.</para>
+  </refsection>
+
+  <refsection id="cockpit-channels-control">
+    <title>channel.control()</title>
+<programlisting>
+channel.control(options)
+</programlisting>
+    <para>Notify the channel to tune certain parameters on the fly. The <code>options</code>
+      is a plain javascript object, and the contents depend on the <code>"payload"</code>
+      of the channel.</para>
+    <para>One common operation is to set <code>"command"</code> to <code>"done"</code> in the
+      options field. To indicate that no further messages will be sent through the channel.</para>
+  </refsection>
+
+  <refsection id="cockpit-channels-wait">
+    <title>channel.wait()</title>
+<programlisting>
+promise = channel.wait([callback])
+</programlisting>
+
+    <para>Returns a <code>promise</code> that is ready when the channel is ready, or fails if the
+      client closes. If a <code>callback</code> is specified, it is attached to the promise. The
+      promise will be rejected or resolved with the contents <code>options</code> passed to the
+      <link linkend="cockpit-channels-onready">channel.onready</link> and
+      <link linkend="cockpit-channels-close-ev">channel.onclose</link> events respectively.</para>
+    <para>In general it's not necessary to wait for the channel before starting to use the channel.</para>
+  </refsection>
+
+  <refsection id="cockpit-channels-close">
+    <title>channel.close()</title>
+<programlisting>
+channel.close([options])
+</programlisting>
+    <para>Close the channel.</para>
+    <para>If <code>options</code> is present it can be a plain javascript object
+      containing additional channel close options to send to the peer. If closing for
+      because of a problem, set the <code>"problem"</code> field to a
+      <link linkend="cockpit-problems">problem code</link>. If <code>options</code>
+      is not an object it will be treated as a <code>"problem"</code>.</para>
+    <para>The <link linkend="cockpit-channels-close-ev">close event</link> will fire.
+      A channel can also be closed by a peer or if the underlying transport closes.</para>
+  </refsection>
+
+  <refsection id="cockpit-channels-message">
+    <title>channel.onmessage</title>
+<programlisting>
+channel.addEventListener("message", function(event, data) { ... })
+</programlisting>
+    <para>An event triggered when the channel receives a message. The message is
+      passed as a string to the handler in the <code>data</code>. In the case of binary
+      channels <code>data</code> is an <code>Uint8Array</code> or an <code>Array</code>
+      of bytes if the former is not supported by the browser. The contents of
+      the message depends on the payload type of the channel.</para>
+  </refsection>
+
+  <refsection id="cockpit-channels-oncontrol">
+    <title>channel.oncontrol</title>
+<programlisting>
+channel.addEventListener("control", function(event, options) { ... })
+</programlisting>
+    <para>An event triggered when the channel receives an control message in the
+      middle of the flow. One particular use is when the <code>command</code> is set to
+      <code>"done"</code> then no further messages will be received in the channel.
+      The exact form of these messages depend on the <code>"payload"</code> of the
+      channel.</para>
+  </refsection>
+
+  <refsection id="cockpit-channels-onready">
+    <title>channel.onready</title>
+<programlisting>
+channel.addEventListener("ready", function(event, options) { ... })
+</programlisting>
+    <para>An event triggered when the other end of the channel is ready to start processing
+      messages. This indicates the channel is completely open. It is possible to start
+      sending messages on the channel before this point.</para>
+  </refsection>
+
+  <refsection id="cockpit-channels-close-ev">
+    <title>channel.onclose</title>
+<programlisting>
+channel.addEventListener("close", function(event, options) { ... })
+</programlisting>
+    <para>An event triggered when the channel closes. This can happen either because
+      <link linkend="cockpit-channels-close">channel.close()</link> function was called,
+      or if the peer closed the channel, or the underlying transport closes.</para>
+    <para>The <code>options</code> will contain various close information, including a
+      <code>"problem"</code> field which will be set if the channel was closed because
+      of a problem.</para>
+  </refsection>
+
+  <refsection id="cockpit-transport-origin">
+    <title>cockpit.transport.origin</title>
+<programlisting>
+cockpit.transport.origin
+</programlisting>
+    <para>The HTTP origin that is being used by the underlying channel transport. This is
+      read-only, you should not assign a value. If the browser supports
+      <code>window.location.origin</code> then this will be identical to that value.</para>
+  </refsection>
+
+  <refsection id="cockpit-transport-host">
+    <title>cockpit.transport.host</title>
+<programlisting>
+cockpit.transport.host
+</programlisting>
+    <para>The host that this transport is going to talk to by default. This is
+      read-only, you should not assign a value. If the value is null that means that the
+      transport has not been setup yet.</para>
+  </refsection>
+
+  <refsection id="cockpit-transport-csrf-token">
+    <title>cockpit.transport.csrf_token</title>
+<programlisting>
+cockpit.transport.csrf_token
+</programlisting>
+    <para>A cross site request forgery token for use with external channels. This becomes
+      valid once the connection is properly established.</para>
+  </refsection>
+
+  <refsection id="cockpit-transport-options">
+    <title>cockpit.transport.options</title>
+<programlisting>
+cockpit.transport.options
+</programlisting>
+    <para>Initialization options received over the underlying channel transport. These
+      will be empty until connection is properly established.</para>
+  </refsection>
+
+  <refsection id="cockpit-transport-wait">
+    <title>cockpit.transport.wait()</title>
+<programlisting>
+cockpit.transport.wait(callback)
+</programlisting>
+    <para>Call the <code>callback</code> function once the underlying channel transport is initialized.
+      This will start the initialization if not already in progress or completed. If the
+      channel transport is already initialized, then <code>callback</code> will be called
+      immediately.</para>
+    <para>In general it's not necessary to wait for the transport before starting to open channels.</para>
+  </refsection>
+
+  <refsection id="cockpit-transport-close">
+    <title>cockpit.transport.close()</title>
+<programlisting>
+cockpit.transport.close([problem])
+</programlisting>
+    <para>Close the underlying channel transport. All channels open channels will close.
+      The <code>problem</code> argument should be a problem code string. If not specified
+      it will default to <code>"disconnected"</code>.</para>
+  </refsection>
+
+  <refsection id="cockpit-transport-filter">
+    <title>cockpit.transport.filter()</title>
+<programlisting>
+cockpit.transport.filter((message, channelid, control) =>  { ... }, [out])
+</programlisting>
+    <para>Add a filter to the underlying channel transport. All incoming messages will be
+      passed to each of the filter callbacks that are registered. If the <code>out</code>
+      argument is equal to <code>true</code> then the filter will receive outgoing messages
+      that being sent on the underlying channel transport.</para>
+    <para>This function is rarely used.</para>
+    <para>Filter callbacks are called in the order they are registered. If a filter
+      callback returns <code>false</code> then the message will not be dispatched
+      further, whether to other filters, or to channels, etc.</para>
+
+    <para>The <code>message</code> is the string or array with the raw message including,
+      the framing. The <code>channelid</code> is the channel identifier or an empty string
+      for control messages. If <code>control</code> is set then this is a control message,d
+      and the <code>control</code> argument contains the parsed JSON object of the
+      control message.</para>
+  </refsection>
+
+  <refsection id="cockpit-transport-inject">
+    <title>cockpit.transport.inject()</title>
+<programlisting>
+cockpit.transport.inject(message, [out])
+</programlisting>
+    <para>Inject a message into the underlying channel transport. The <code>message</code>
+      should be a <code>string</code> or an array of bytes, and should be valid
+      according to the Cockpit message protocol. If the <code>out</code> argument is equal
+      to <code>false</code> then the message will be injected as an incoming message as if
+      it was received on the underlying channel transport.</para>
+    <para>This function is rarely used. In general you should only <code>inject()</code>
+      messages you got from a <code><link linkend="cockpit-transport-filter">filter()</link></code>.</para>
+  </refsection>
+
+  <refsection id="cockpit-base64-encode">
+    <title>cockpit.base64_encode()</title>
+<programlisting>
+string = cockpit.base64_encode(data)
+</programlisting>
+    <para>Encode binary data into a string using the Base64 encoding. The <code>data</code>
+      argument can either be a <code>string</code>, an <code>Array</code>, an <code>ArrayBuffer</code>
+      or a <code>Uint8Array</code>. The return value is a string.</para>
+  </refsection>
+
+  <refsection id="cockpit-base64-decode">
+    <title>cockpit.base64_decode()</title>
+<programlisting>
+data = cockpit.base64_decode(string, [constructor])
+</programlisting>
+    <para>Decode binary data from a Base64 encoded string. The <code>string</code>
+      argument should be a javascript string. The returned <code>data</code>> will be an
+      array of bytes.</para>
+    <para>You can pass <code>Uint8Array</code>, <code>Array</code> or <code>String</code>
+      as an alternate <code>constructor</code> if you want the decoded data in an
+      alternate form. The default is to return an <code>Array</code>. Note that if you use a
+      <code>String</code> for the decoded data, then you must guarantee that the data
+      does not contain bytes that would be invalid for a string.</para>
+  </refsection>
+
+  <refsection id="cockpit-utf8-encoder">
+    <title>cockpit.utf8_encoder()</title>
+<programlisting>
+encoder = cockpit.utf8_encoder([constructor])
+</programlisting>
+    <para>Create an encoder for encoding a string into a UTF8 sequence of bytes.</para>
+    <para>You can pass <code>Uint8Array</code>, <code>Array</code> or <code>String</code>
+      as an alternate <code>constructor</code> if you want the decoded data in an
+      alternate form. The default is to return an <code>Array</code>.</para>
+  </refsection>
+
+  <refsection id="cockpit-utf8-encoder-encode">
+    <title>encoder.encode()</title>
+<programlisting>
+data = encoder.encode(string)
+</programlisting>
+    <para>Encode a <code>string</code> into a UTF8 sequence of bytes.</para>
+    <para>The resulting <code>data</code> is an array of bytes, but it's type may be
+      modified by passing an alternate <code>constructor</code> to
+      <link linkend="cockpit-utf8-encoder">cockpit.utf8_encoder()</link>.</para>
+  </refsection>
+
+  <refsection id="cockpit-utf8-decoder">
+    <title>cockpit.utf8_decoder()</title>
+<programlisting>
+decoder = cockpit.utf8_decoder([fatal])
+</programlisting>
+    <para>Creates a decoder to decode a UTF8 sequence of bytes data into a string.</para>
+    <para>If the <code>fatal</code> is set to <code>true</code> then the <code>decoder</code>
+      will throw an exception when it encounters invalid UTF8 data. By default invalid data
+      will be substituted with special UTF8 characters.</para>
+  </refsection>
+
+  <refsection id="cockpit-utf8-decoder-decode">
+    <title>decoder.decode()</title>
+<programlisting>
+string = decoder.decode(data, [options])
+</programlisting>
+    <para>Decode an array of UTF8 bytes into a <code>string</code>. The <code>data</code>
+      argument may be an <code>Array</code>, a <code>Uint8Array</code> or a string containing
+      binary data.</para>
+    <para>If <code>options</code> is passed it should be a plain javascript object. If
+      <code>options</code> has a <code>stream</code> property equal to <code>true</code>,
+      then multiple invocations of this function can be made with parts of the UTF8 sequence
+      of bytes. Any trailing bytes that don't yet build a complete unicode character, will be
+      cached until the next invocation. To drain the last data, call this function without
+      the <code>stream</code> property set.</para>
+  </refsection>
+
+</refentry>

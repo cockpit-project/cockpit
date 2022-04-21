@@ -1,0 +1,569 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import datetime
+
+import parent
+from testlib import *
+
+
+@nondestructive
+@skipDistroPackage()
+class TestAccounts(MachineCase):
+
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/users")
+
+        # Add a user externally
+        m.execute("useradd anton")
+        m.execute("echo anton:foobar | chpasswd")
+        b.wait_in_text('#accounts-list', "anton")
+
+        # There is only one badge and it is for admin
+        b.wait_text('.cockpit-account-badge', 'Your account')
+        b.wait_js_cond('document.querySelector(".cockpit-account-badge").previousSibling.getAttribute("href") === "#/admin"')
+
+        # The current account is the first in the list
+        b.wait_visible(".pf-c-card:first-child .cockpit-account-badge")
+
+        # Set a real name
+        b.go("#/anton")
+        b.wait_text("#account-user-name", "anton")
+        b.wait_text("#account-title", "anton")
+        b.wait_not_attr("#account-delete", "disabled", "disabled")
+        b.set_input_text('#account-real-name', "")  # Check that we can delete the name before setting it up
+        b.set_input_text('#account-real-name', "Anton Arbitrary")
+        b.wait_visible('#account-real-name:not([disabled])')
+        b.wait_text("#account-title", "Anton Arbitrary")
+        self.assertIn(":Anton Arbitrary:", m.execute("grep anton /etc/passwd"))
+
+        # Add some other GECOS fields
+        b.set_input_text('#account-real-name', "Anton Arbitrary,1,123")
+        b.wait_visible('#account-real-name:not([disabled])')
+        self.assertIn(":Anton Arbitrary,1,123:", m.execute("grep anton /etc/passwd"))
+        # Table title only shows real name, no other GECOS fields
+        b.wait_text("#account-title", "Anton Arbitrary")
+        # On the overview page it also shows only real name
+        b.go("/users")
+        b.wait_text('.cockpit-account-real-name:contains("Anton")', "Anton Arbitrary")
+        b.go("/users/#anton")
+
+        good_password = "tqymuVh.ZfZnP§9Wr=LM3JyG5yx"
+        # Delete it
+        b.click('#account-delete')
+        b.wait_visible('#account-confirm-delete-dialog')
+        b.click('#account-confirm-delete-dialog button.apply')
+        b.wait_not_present('#account-confirm-delete-dialog')
+        b.wait_visible("#accounts")
+        b.wait_not_in_text('#accounts-list', "Anton Arbitrary")
+
+        # Check root user
+        b.go("#/root")
+        b.wait_text("#account-user-name", "root")
+        # some operations are not allowed for root user
+        b.wait_visible("#account-delete[disabled]")
+        b.wait_visible("#account-real-name[disabled]")
+        # when running against existing machines there might be an ssh root session
+        if "root" in m.execute("who"):
+            b.wait_visible("#account-logout:not([disabled])")
+        else:
+            b.wait_visible("#account-logout[disabled]")
+        b.wait_visible("#account-locked:not(:checked)")
+        # root account should not be locked by default on our images
+        self.assertIn(m.execute("passwd -S root").split()[1], ["P", "PS"])
+        # now lock account
+        b.set_checked("#account-locked", True)
+        b.wait(lambda: m.execute("passwd -S root").split()[1] in ["L", "LK"])
+
+        # go back to accounts overview, check pf-c-breadcrumb
+        b.click("#account .pf-c-breadcrumb a")
+        b.wait_visible("#accounts-create")
+
+        # Create a user from the UI
+        self.sed_file('s@^SHELL=.*$@SHELL=/bin/true@', '/etc/default/useradd')
+        b.click('#accounts-create')
+        b.wait_visible('#accounts-create-dialog')
+        b.set_input_text('#accounts-create-user-name', "berta")
+        b.set_input_text('#accounts-create-real-name', "Berta Bestimmt")
+        b.set_input_text('#accounts-create-password-pw1', "foo")
+        b.wait_visible("#accounts-create-password-meter.danger")
+        b.set_input_text('#accounts-create-password-pw1', good_password)
+        b.wait_visible("#accounts-create-password-meter.success")
+
+        # wrong password confirmation
+        b.set_input_text('#accounts-create-password-pw2', good_password + 'b')
+        b.click('#accounts-create-dialog button.apply')
+        b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error", "The passwords do not match")
+        b.wait_not_present('#accounts-create-dialog button.pf-m-warning')
+
+        # too long password
+        long_password = "2a02-x!h4a" * 30
+        b.set_input_text('#accounts-create-password-pw1', long_password)
+        b.set_input_text('#accounts-create-password-pw2', long_password)
+        b.click('#accounts-create-dialog button.apply')
+        b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error", "Password is longer than 256 characters")
+        b.wait_not_present('#accounts-create-dialog button.pf-m-warning')
+
+        # changing input clears the error message
+        b.set_input_text('#accounts-create-password-pw1', "test")
+        b.wait_not_present("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error")
+
+        # correct password confirmation
+        b.set_input_text('#accounts-create-password-pw1', good_password)
+        b.set_input_text('#accounts-create-password-pw2', good_password)
+        b.click('#accounts-create-dialog button.apply')
+        b.wait_not_present("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error")
+        b.wait_not_present('#accounts-create-dialog')
+        b.wait_in_text('#accounts-list', "Berta Bestimmt")
+
+        # Check home directory
+        home_dir = m.execute("getent passwd berta | cut -f6 -d:").strip()
+        self.assertTrue(home_dir.endswith("/berta"))
+        self.assertEqual(m.execute(f"stat -c '%U' {home_dir}").strip(), "berta")
+
+        # Check that we set up shell configured in /etc/default/useradd
+        shell = m.execute("getent passwd berta | cut -f7 -d:").strip()
+        self.assertEqual(shell, '/bin/true')
+
+        # Delete it externally
+        m.execute("userdel berta")
+        b.wait_not_in_text('#accounts-list', "Berta Bestimmt")
+
+        # Create a locked user with weak password
+        m.execute("sed -i 's/^SHELL=.*$/SHELL=/' /etc/default/useradd")
+        b.click('#accounts-create')
+        b.wait_visible('#accounts-create-dialog')
+        b.set_input_text('#accounts-create-user-name', "jussi")
+        b.set_input_text('#accounts-create-real-name', "Jussi Junior")
+        b.set_input_text('#accounts-create-password-pw1', "foo")
+        b.set_input_text('#accounts-create-password-pw2', "foo")
+        b.set_checked('#accounts-create-locked', True)
+        b.wait_visible('#account-use-password:not(:checked)')
+        b.wait_visible('#accounts-create-force-password-change:not(:checked)')
+        b.click('#accounts-create-dialog button.apply')
+
+        # Password is weak, lets change it to another weak - this should still not accept
+        b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error", "Password quality check failed:")
+        b.wait_visible('#accounts-create-dialog button.pf-m-warning')
+        b.set_input_text('#accounts-create-password-pw1', "bar")
+        b.set_input_text('#accounts-create-password-pw2', "bar")
+        b.wait_not_present("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error")
+        b.wait_not_present('#accounts-create-dialog button.pf-m-warning')
+        b.click('#accounts-create-dialog button.apply')
+
+        # Password is weak, confirm button should be disabled after first click
+        b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error", "Password quality check failed:")
+        b.wait_visible("button.apply:disabled")
+
+        # Lets confirm the weak password now
+        b.click('#accounts-create-dialog button.pf-m-warning')
+
+        b.wait_not_present('#accounts-create-dialog')
+        b.wait_in_text('#accounts-list', "Jussi Junior")
+
+        def is_locked():
+            return m.execute("passwd -S jussi | cut -d' ' -f2").strip() in ["L", "LK"]
+
+        def is_admin():
+            return "jussi" in m.execute(f"getent group {m.get_admin_group()}")
+
+        admin_role_sel = f'input[data-name="{m.get_admin_group()}"]'
+        b.wait(lambda: "jussi" in m.execute("grep jussi /etc/passwd"))
+        b.wait(lambda: not is_admin())
+        b.wait(is_locked)
+
+        # Check that by default we set up `/bin/bash`
+        shell = m.execute("getent passwd jussi | cut -f7 -d:").strip()
+        self.assertEqual(shell, '/bin/bash')
+
+        # Unlock it and make it an admin
+        b.go("#/jussi")
+        b.wait_text("#account-user-name", "jussi")
+        b.set_checked('#account-locked', False)
+        b.wait(lambda: not is_locked())
+        b.wait_visible(admin_role_sel + ":not(:checked)")
+        b.set_checked(admin_role_sel, True)
+        b.wait(is_admin)
+        b.wait_visible(admin_role_sel + ":checked")
+        b.wait_not_present("#account-roles .pf-c-alert.pf-m-info")
+
+        # Login as jussi and change role admin for itself
+        b.logout()
+        b.login_and_go("/users", user="jussi", password="bar")
+
+        # There is only one badge and it is for jussi
+        b.wait_text('.cockpit-account-badge', 'Your account')
+        b.wait_js_cond('document.querySelector(".cockpit-account-badge").previousSibling.getAttribute("href") === "#/jussi"')
+
+        # The current account is the first in the list
+        b.wait_visible(".pf-c-card:first-child .cockpit-account-badge")
+
+        b.go("#/jussi")
+        b.wait_text("#account-user-name", "jussi")
+        b.wait_visible(admin_role_sel + ":checked")
+        b.set_checked(admin_role_sel, False)
+        b.wait(lambda: not is_admin())
+        if m.image != "fedora-coreos":  # User is not shown as logged in when logged in through Cockpit
+            b.wait_visible("#account-roles .pf-c-alert.pf-m-info")
+        m.execute(f"/usr/sbin/usermod jussi -G {m.get_admin_group()} -a")
+        b.wait_visible(admin_role_sel + ":checked:not([disabled])")
+
+        # Cannot lock the current account
+        b.wait_visible("#account-locked[disabled]")
+
+        b.go("#/admin")
+        b.wait_text("#account-user-name", "admin")
+        b.wait_visible(admin_role_sel + ":checked")
+        b.wait_not_present("#account-roles .pf-c-alert.pf-m-info")
+        b.logout()
+        b.login_and_go("/users")
+
+        # Change the password of this account
+        b.go("#/jussi")
+        b.wait_text("#account-user-name", "jussi")
+        b.click('#account-set-password')
+        b.wait_visible('#account-set-password-dialog')
+
+        # weak password
+        b.set_input_text("#account-set-password-pw1", 'a')
+        b.set_input_text("#account-set-password-pw2", 'a')
+        b.wait_visible("#account-set-password-meter.danger")
+        b.click('#account-set-password-dialog button.apply')
+        b.wait_in_text("#account-set-password-dialog .pf-c-form__helper-text.pf-m-error", "Password quality check failed:")
+        b.wait_visible('#account-set-password-dialog button.pf-m-warning')
+
+        # password mismatch
+        b.set_input_text("#account-set-password-pw1", good_password + 'a')
+        b.set_input_text("#account-set-password-pw2", good_password + 'b')
+        b.click('#account-set-password-dialog button.apply')
+        b.wait_in_text("#account-set-password-dialog .pf-c-form__helper-text.pf-m-error", "The passwords do not match")
+        b.wait_not_present('#account-set-password-dialog button.pf-m-warning')
+
+        # too long password
+        long_password = "2a02-x!h4a" * 30
+        b.set_input_text('#account-set-password-pw1', long_password)
+        b.set_input_text('#account-set-password-pw2', long_password)
+        b.wait_not_present("#account-set-password-dialog .pf-c-form__helper-text.pf-m-error")
+        b.click('#account-set-password-dialog button.apply')
+        b.wait_in_text("#account-set-password-dialog .pf-c-form__helper-text.pf-m-error", "Password is longer than 256 characters")
+        b.wait_not_present('#account-set-password-dialog button.pf-m-warning')
+
+        good_password_2 = "cEwghLY§X9R&m8RLwk4Xfed9Bw="
+        # Now set to something valid
+        b.set_input_text("#account-set-password-pw1", good_password_2)
+        b.set_input_text("#account-set-password-pw2", good_password_2)
+        b.wait_visible("#account-set-password-meter.success")
+        b.wait_not_present("#account-set-password-dialog .pf-c-form__helper-text.pf-m-error")
+        b.click('#account-set-password-dialog button.apply')
+        b.wait_not_present('#account-set-password-dialog')
+
+        # Logout and login with the new password
+        b.relogin(path="/users", user="jussi", password=good_password_2)
+
+        # incomplete passwd entry; fixed in PR #13384
+        m.execute('echo "damaged:x:1234:1234:Damaged" >> /etc/passwd')
+        b.go("/users")
+        b.enter_page("/users")
+        b.wait_in_text('#accounts-list', "damaged")
+        b.click('.cockpit-account-user-name a[href="#/damaged"]')
+        b.wait_in_text("#account-title", "Damaged")
+
+        if m.image != "fedora-coreos":  # User is not shown as logged in when logged in through Cockpit
+            b.go("#/admin")
+            b.wait_visible("#account-logout[disabled]")
+
+            (year, month) = m.execute("date +'%Y %b'").strip().split()
+
+            # Log in as "admin" and the open details in other browser should update
+            b2 = self.new_browser(m)
+            b2.login_and_go("/system")
+            b.wait_text("#account-last-login", "Logged in")
+            b.wait_visible("#account-logout:not(:disabled)")
+
+            # Now log out and it should update again
+            b2.logout()
+            b.wait_in_text("#account-last-login", year)
+            b.wait_in_text("#account-last-login", month)
+            b.wait_visible("#account-logout[disabled]")
+
+            # Terminate session
+            b2.login_and_go("/system")
+            b.wait_text("#account-last-login", "Logged in")
+            b.click("#account-details button:contains('Terminate session')")
+            b.wait_in_text("#account-last-login", year)
+            b.wait_in_text("#account-last-login", month)
+            b.wait_visible("#account-logout[disabled]")
+
+        # Create an account and force password change on first login
+        b.go('/users')
+        b.click('#accounts-create')
+        b.wait_visible('#accounts-create-dialog')
+        b.set_input_text('#accounts-create-user-name', "robert")
+        b.set_input_text('#accounts-create-real-name', "Robert Robertson")
+        b.set_input_text('#accounts-create-password-pw1', good_password)
+        b.set_input_text('#accounts-create-password-pw2', good_password)
+        b.set_checked('#accounts-create-force-password-change', True)
+        b.wait_visible('#accounts-create-locked:not(:checked)')
+        b.click('#accounts-create-dialog button.apply')
+
+        b.wait_not_present('#accounts-create-dialog')
+        b.wait_in_text('#accounts-list', "Robert Robertson")
+
+        # Login as robert and check if password change is required
+        b.logout()
+
+        # On OSTree this happens over ssh
+        if m.ostree_image:
+            self.restore_dir("/etc/ssh", '( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service')
+            m.execute("sed -i 's/.*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*")
+            m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
+
+        b.wait_visible("#login")
+        b.wait_not_visible("#conversation-group")
+        b.try_login(user="robert", password=good_password)
+        b.wait_visible('#conversation-input')
+        b.set_val('#conversation-input', good_password)
+        b.click('#login-button')
+
+        # Set new password
+        b.wait_in_text('#conversation-prompt', "New password:")
+        b.set_val('#conversation-input', good_password_2)
+        b.click('#login-button')
+
+        # Confirm new password
+        b.wait_in_text('#conversation-prompt', "Retype new password:")
+        b.set_val('#conversation-input', good_password_2)
+        b.click('#login-button')
+        b.wait_visible('#content')
+
+        self.allow_journal_messages("Password quality check failed:")
+        self.allow_journal_messages("The password is a palindrome")
+        self.allow_journal_messages("passwd: user.*does not exist")
+        self.allow_journal_messages("passwd: Unknown user name 'anton'.")
+        self.allow_journal_messages("lastlog: Unknown user or range: anton")
+        self.allow_journal_messages(".*required to change your password immediately.*")
+        self.allow_journal_messages(".*user account or password has expired.*")
+
+    def testUnprivileged(self):
+        m = self.machine
+        b = self.browser
+        new_password = "tqymuVh.Zf5"
+        new_password_2 = "cEwghLYX"
+
+        m.execute("useradd anton; echo anton:foobar | chpasswd")
+        self.login_and_go("/users", user="anton", superuser=False)
+        b.go("#/anton")
+        b.wait_text("#account-user-name", "anton")
+        b.wait_visible('#account-set-password:enabled')
+        b.click('#account-set-password')
+        b.wait_visible('#account-set-password-dialog')
+        b.set_input_text("#account-set-password-old", "foobar")
+        b.set_input_text("#account-set-password-pw1", new_password)
+        b.set_input_text("#account-set-password-pw2", new_password)
+        b.click('#account-set-password-dialog button.apply')
+        b.wait_not_present('#account-set-password-dialog')
+
+        # Logout and login with the new password
+        b.logout()
+        b.open("/users")
+        b.wait_visible("#login")
+        b.set_val("#login-user-input", "anton")
+        b.set_val("#login-password-input", new_password)
+        b.click('#login-button')
+        b.wait_visible('#content')
+
+        # Set minimum age to disallow changing it immediately again
+        m.execute("chage --mindays 7 anton")
+        b.enter_page("/users")
+        b.go("#/anton")
+        b.wait_text("#account-user-name", "anton")
+        b.wait_visible('#account-set-password:enabled')
+        b.click('#account-set-password')
+        b.wait_visible('#account-set-password-dialog')
+        b.set_input_text("#account-set-password-old", new_password)
+        b.set_input_text("#account-set-password-pw1", new_password_2)
+        b.set_input_text("#account-set-password-pw2", new_password_2)
+        b.click('#account-set-password-dialog button.apply')
+        b.wait_in_text("#account-set-password-dialog .pf-c-modal-box__footer", "must wait longer")
+
+    @skipImage("ssh root login not allowed", "fedora-coreos")
+    def testRootLogin(self):
+        m = self.machine
+        b = self.browser
+        new_password = "tqymuVh.Zf5"
+
+        # this test uses quick logouts; async preloads cause "ReferenceError: cockpit is not defined"
+        self.disable_preload("packagekit", "playground", "systemd")
+
+        m.execute("useradd anton; echo anton:foobar | chpasswd")
+        self.login_and_go("/users", user="root", superuser=False)
+
+        # test this on root and a normal user account
+        for user in ["anton", "root"]:
+            b.go("#/" + user)
+            b.wait_text("#account-user-name", user)
+            b.wait_visible('#account-set-password:enabled')
+            b.click('#account-set-password')
+            b.wait_visible('#account-set-password-dialog')
+            b.wait_visible("#account-set-password-pw1")
+            # root does not need to know old password
+            b.wait_not_present("#account-set-password-old")
+            b.set_input_text("#account-set-password-pw1", new_password)
+            b.set_input_text("#account-set-password-pw2", new_password)
+            b.click('#account-set-password-dialog button.apply')
+            b.wait_not_present('#account-set-password-dialog')
+
+        # Logout and login with the new password
+        for user in ["anton", "root"]:
+            b.logout()
+            b.open("/users")
+            b.wait_visible("#login")
+            b.set_val("#login-user-input", user)
+            b.set_val("#login-password-input", new_password)
+            b.click('#login-button')
+            b.wait_visible('#content')
+
+    def accountExpiryInfo(self, account, field):
+        for line in self.machine.execute(f"LC_ALL=C chage -l {account}").split("\n"):
+            if line.startswith(field):
+                _, _, value = line.partition(":")
+                return value.strip()
+        return None
+
+    def testExpire(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute("useradd scruffy -s /bin/bash -c Scruffy")
+        m.execute("echo scruffy:foobar | chpasswd")
+
+        self.login_and_go("/users")
+        b.go("#/scruffy")
+        b.wait_text("#account-user-name", "scruffy")
+
+        # Try to expire the account
+        b.wait_text("#account-expiration-text", "Never expire account")
+        self.assertEqual(self.accountExpiryInfo("scruffy", "Account expires"), "never")
+        b.click("#account-expiration-button")
+        b.wait_visible("#account-expiration")
+        b.click("#account-expiration-expires")
+
+        # Try an invalid date
+        b.set_input_text("#account-expiration-input input", "blah")
+        b.click("#account-expiration .pf-c-modal-box__footer button:contains(Change)")
+        b.wait_text("#account-expiration .pf-c-form__helper-text.pf-m-error", "Invalid expiration date")
+
+        # Now a valid date 30 days in the future
+        when = datetime.datetime.now() + datetime.timedelta(days=30)
+        b.set_input_text("#account-expiration-input input", when.isoformat().split("T")[0])
+        b.click("#account-expiration .pf-c-modal-box__footer button:contains(Change)")
+        b.wait_not_present("#account-expiration")
+        b.wait_in_text("#account-expiration-text", "Expire account on")
+        self.assertNotEqual(self.accountExpiryInfo("scruffy", "Account expires"), "never")
+
+        # Now try and change it back
+        b.click("#account-expiration-button")
+        b.wait_visible("#account-expiration")
+        b.click("#account-expiration-never")
+        b.click("#account-expiration .pf-c-modal-box__footer button:contains(Change)")
+        b.wait_not_present("#account-expiration")
+        b.wait_text("#account-expiration-text", "Never expire account")
+        self.assertEqual(self.accountExpiryInfo("scruffy", "Account expires"), "never")
+
+        # Try to expire a password
+        b.wait_text("#password-expiration-text", "Never expire password")
+        self.assertEqual(self.accountExpiryInfo("scruffy", "Password expires"), "never")
+        b.click("#password-expiration-button")
+        b.wait_visible("#password-expiration")
+        b.click("#password-expiration-expires")
+
+        # Try an invalid number
+        b.set_input_text("#password-expiration-input", "-3")
+        b.click("#password-expiration .pf-c-modal-box__footer button:contains(Change)")
+        b.wait_text("#password-expiration .pf-c-form__helper-text.pf-m-error", "Invalid number of days")
+
+        # Expire password every 30 days
+        b.set_input_text("#password-expiration-input", "30")
+        b.click("#password-expiration .pf-c-modal-box__footer button:contains(Change)")
+        b.wait_not_present("#password-expiration")
+        b.wait_in_text("#password-expiration-text", "Require password change on")
+        self.assertNotEqual(self.accountExpiryInfo("scruffy", "Password expires"), "never")
+
+        # Now try and change it back
+        b.click("#password-expiration-button")
+        b.wait_visible("#password-expiration")
+        b.click("#password-expiration-never")
+        b.click("#password-expiration .pf-c-modal-box__footer button:contains(Change)")
+        b.wait_not_present("#password-expiration")
+        b.wait_text("#password-expiration-text", "Never expire password")
+        self.assertEqual(self.accountExpiryInfo("scruffy", "Password expires"), "never")
+
+        # Now change it to expire again
+        b.click("#password-expiration-button")
+        b.wait_visible("#password-expiration")
+        b.click("#password-expiration-expires")
+        b.set_input_text("#password-expiration-input", "30")
+        b.click("#password-expiration .pf-c-modal-box__footer button:contains(Change)")
+        b.wait_not_present("#password-expiration")
+
+        b.logout()
+        self.login_and_go("/users", user="scruffy")
+        b.go("#/scruffy")
+        b.wait_text("#account-user-name", "scruffy")
+        b.wait_text("#account-expiration-text", "Never expire account")
+        b.wait_visible("#account-expiration-button[disabled]")
+        b.wait_in_text("#password-expiration-text", "Require password change on")
+        b.wait_visible("#password-expiration-button[disabled]")
+
+        # Lastly force a password change
+        b.logout()
+        self.login_and_go("/users")
+        b.go("#/scruffy")
+        b.wait_text("#account-user-name", "scruffy")
+        b.click("#password-reset-button")
+        b.wait_visible("#password-reset")
+        b.click("#password-reset .pf-c-modal-box__footer button:contains(Reset)")
+        b.wait_not_present("password-reset")
+        b.wait_in_text("#password-expiration-text", "Password must be changed")
+        self.assertEqual(self.accountExpiryInfo("scruffy", "Password expires"), "password must be changed")
+
+    @skipImage("User is not shown as logged in when logged in through Cockpit", "fedora-coreos")
+    def testAccountLogs(self):
+        b = self.browser
+        m = self.machine
+
+        # Clean out the relevant logfiles
+        m.execute("truncate -s0 /var/log/{[bw]tmp,lastlog} /var/run/utmp")
+
+        # Login once to create an entry
+        self.login_and_go("/users")
+        b.logout()
+
+        self.login_and_go("/users")
+        b.go("#/admin")
+        b.wait_visible("#account-logs")
+        # Header + one line of logins
+        b.wait_js_func("ph_count_check", "#account-logs tr", 2)
+
+
+if __name__ == '__main__':
+    test_main()

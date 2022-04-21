@@ -1,0 +1,12 @@
+# This redirects all make targets to builddir
+.PHONY: dist
+all:
+	$(MAKE) $(ARG) -C $(REDIRECT) all
+dist:
+	$(MAKE) $(ARG) -C $(REDIRECT) dist
+%:
+	$(MAKE) $(ARG) -C $(REDIRECT) $@
+ifeq ($(MAKEFLAGS), )
+ARG = -j8
+endif
+# REDIRECT=build

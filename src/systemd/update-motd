@@ -1,0 +1,24 @@
+#!/bin/sh -e
+
+# syntax: update-motd [port [hostname [ipaddr [protocol]]]]
+# each argument can be given as the empty string to use the default
+
+# port number from cmdline, then systemctl file, then 9090
+# take the last Listen line; this will be the user-specified one
+port=${1:-$(systemctl show --property Listen cockpit.socket |
+              sed -E '$!d;$s/.*[^0-9]([0-9]+).*/\1/;')}
+port=${port:-9090}
+
+# hostname from cmdline, then `hostname -f`
+hostname=${2:-$(hostname -f || hostname)}
+
+# ip addr from cmdline, then default route source addr
+ip=${3:-$(ip -o route get 255.0 2>/dev/null | sed -e 's/.*src \([^ ]*\) .*/\1/')}
+
+# protocol from cmdline, then https
+protocol=${4:-https}
+
+hostname_url="${protocol}://${hostname}:${port}/"
+ip_url="${ip:+ or ${protocol}://${ip}:${port}/}"
+
+printf 'Web console: %s%s\n\n' "${hostname_url}" "${ip_url}"  > /run/cockpit/active.motd

@@ -1,0 +1,1 @@
+/* stub header to satisfy configure check */

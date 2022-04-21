@@ -1,0 +1,45 @@
+name: update-flathub
+on:
+  workflow_dispatch:
+
+jobs:
+  update-flathub:
+    environment: flathub
+    permissions:
+      pull-requests: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Clone source repository
+        uses: actions/checkout@v2
+        with:
+          path: src
+          # we need tags for what comes next...
+          fetch-depth: 0
+
+      - name: Clone flathub repository
+        uses: actions/checkout@v2
+        with:
+          path: flathub
+          repository: flathub/org.cockpit_project.CockpitClient
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+          # this is needed so we can push to a different repository
+          fetch-depth: 0
+
+      - name: Download latest tarball (hack)
+        run: |
+          set -x
+          # Download the latest tag
+          VERSION="$(git -C src describe --abbrev=0)"
+          URLBASE="https://github.com/cockpit-project/cockpit/releases/download"
+          TARBALL="cockpit-${VERSION}.tar.xz"
+          wget "${URLBASE}/${VERSION}/${TARBALL}"
+          test -f "${TARBALL}"
+
+      - name: Update flathub repository
+        run: |
+          set -x
+          git config --global user.name "GitHub Workflow"
+          git config --global user.email "cockpituous@cockpit-project.org"
+          src/containers/flatpak/update-flathub "$(realpath *.tar.xz)" "$(realpath flathub)"
+          git -C flathub push git@github.com:cockpit-project/org.cockpit_project.CockpitClient HEAD

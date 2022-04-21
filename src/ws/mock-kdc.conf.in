@@ -1,0 +1,18 @@
+[kdcdefaults]
+ kdc_ports = 20088, 20750
+ kdc_tcp_ports = 20088, 20750
+
+[logging]
+ default = FILE:@dir@/krb5.log
+ kdc = FILE:@dir@/kdc.log
+ admin_server = FILE:@dir@/kadmind.log
+
+[realms]
+ COCKPIT.MOCK = {
+  #master_key_type = aes256-cts
+  key_stash_file = @dir@/key_stash
+  acl_file = @dir@/kadm5.acl
+  admin_keytab = @dir@/kadm5.keytab
+  supported_enctypes = DEFAULT
+  database_name = @dir@/database
+ }

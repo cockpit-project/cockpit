@@ -1,0 +1,961 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<refentry id="cockpit-dbus">
+  <refnamediv>
+    <refname>cockpit.js: DBus Client</refname>
+    <refpurpose>DBus API communication</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <para>Cockpit allows access to DBus services via this API.</para>
+  </refsynopsisdiv>
+
+  <refsection id="cockpit-dbus-types">
+    <title>DBus Types</title>
+    <para>DBus values are represented as javascript values and objects as follows:</para>
+
+    <variablelist>
+      <varlistentry>
+        <term><code>BYTE 'y'</code></term>
+        <listitem><para>Javascript number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>BOOLEAN 'b'</code></term>
+        <listitem><para>Javascript boolean.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>INT16 'n'</code></term>
+        <listitem><para>Javascript number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>UINT16 'q'</code></term>
+        <listitem><para>Javascript number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>INT32 'i'</code></term>
+        <listitem><para>Javascript number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>UINT32 'u'</code></term>
+        <listitem><para>Javascript number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>INT64 'x'</code></term>
+        <listitem><para>Javascript number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>UINT64 't'</code></term>
+        <listitem><para>Javascript number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>DOUBLE 'd'</code></term>
+        <listitem><para>Javascript number.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>STRING 's'</code></term>
+        <listitem><para>Javascript string.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>OBJECT_PATH 'o'</code></term>
+        <listitem><para>Javascript string.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>SIGNATURE 'g'</code></term>
+        <listitem><para>Javascript string.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>ARRAY of BYTE 'ay'</code></term>
+        <listitem><para>A string containing base64 encoded data.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>ARRAY of DICT_ENTRY with STRING keys 'a{s?}'</code></term>
+        <listitem><para>A javascript plain object with the keys as property names.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>ARRAY of DICT_ENTRY with other keys 'a{??}'</code></term>
+        <listitem><para>A javascript plain object each key JSON encoded into a string property
+            name.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>ARRAY of other</code></term>
+        <listitem><para>A javascript array.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>VARIANT</code></term>
+        <listitem><para>A javascript plain object with the <code>"t"</code> property set to a DBus type string,
+            and the <code>"v"</code> property set to a value.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>HANDLE 'h'</code></term>
+        <listitem><para>A javascript object that describes a cockpit channel which represents the
+           passed file descriptor. The <code>payload</code> is always set to <code>stream</code>.
+           Pass it to <link linkend="cockpit-channels-channel">cockpit.channel()</link> to create
+           the channel and start reading or writing on it. Handles can only be
+           received, not sent from within cockpit.</para></listitem>
+      </varlistentry>
+    </variablelist>
+  </refsection>
+
+  <refsection id="cockpit-dbus-dbus">
+    <title>cockpit.dbus()</title>
+<programlisting>
+client = cockpit.dbus(name, [options])
+</programlisting>
+
+    <para>Create a DBus client for the given bus <code>name</code> (eg: service name). Use the
+      following functions to make DBus method calls, watch for events, etc. The optional
+      <code>options</code> argument is a javascript plain object, and may include:</para>
+
+    <variablelist>
+      <varlistentry>
+        <term><code>"bus"</code></term>
+        <listitem><para>The DBus bus to connect to. Specifying <code>"session"</code> will
+            connect to the DBus user session bus, <code>"user"</code> will connect to the
+            user bus (on some systems this is identical to the session bus), <code>"system"</code>
+            will connect to the DBus system bus, and <code>"none"</code> to the non-standard bus
+            specified with the <code>address</code> option. This defaults to "system" if not
+            present.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"address"</code></term>
+        <listitem><para>The bus address to connect to in case <code>bus</code> is
+            <code>"none"</code>.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"host"</code></term>
+        <listitem><para>The host to open the channel to. If an alternate user or port is
+          required it can be specified as <code>"user@myhost:port"</code>. If no host is
+          specified then the correct one will be automatically selected based on the page
+          calling this function.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"superuser"</code></term>
+        <listitem><para>Set to <code>"require"</code> to talk to this service as root.
+          The DBus service will see the DBus method calls and accesses as coming from root,
+          rather than the logged in user. This is useful for talking to services that do not
+          correctly use <ulink url="https://www.freedesktop.org/software/polkit">polkit</ulink>
+          to authorize administrative users. If the currently logged in user is not
+          permitted to become root (eg: via <code>pkexec</code>) then the <code>client</code> will
+          immediately be <link linkend="cockpit-dbus-onclose">closed</link> with a
+          <code>"access-denied"</code> problem code.</para>
+        <para>Set to <code>"try"</code> to try to talk as root, but if that fails,
+          fall back to unprivileged.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>"track"</code></term>
+        <listitem><para>It is valid for a DBus service to exit, and be restarted in such a
+          way that clients continue to talk to it across the restart. Some services are not
+          written with this in mind. If the <code>"track"</code> option is set to
+          <code>true</code> then the channel will close when the service exits and/or disconnects
+          from the DBus bus.</para></listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>If the <code>name</code> argument is null, and no options other than <code>"bus"</code>
+      are specified, then a shared DBus <code>client</code> is created. When using such a client
+      with a DBus bus, a <code>"name"</code> option must be specified on various other methods
+      in order to specify which client to talk to.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-wait">
+    <title>client.wait()</title>
+<programlisting>
+promise = client.wait([callback])
+</programlisting>
+
+    <para>Returns a <code>promise</code> that is ready when the client is ready, or fails if the
+      client closes. If a <code>callback</code> is specified, it is attached to the promise.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-close">
+    <title>client.close()</title>
+<programlisting>
+client.close([problem])
+</programlisting>
+    <para>Close the DBus client. If <code>problem</code> is specified it should be a
+      <link linkend="cockpit-problems">problem code</link> string.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-onclose">
+    <title>client.onclose</title>
+<programlisting>
+client.addEventListener("close", options => { ... })
+</programlisting>
+    <para>An event triggered when the DBus client closes. This can happen either because
+      <link linkend="cockpit-dbus-close">client.close()</link> function was called,
+      or the DBus service went away, or some other problem or disconnection.</para>
+    <para>The <code>options</code> will contain various close information, including a
+      <code>"problem"</code> field which will be set if the channel was closed because
+      of a problem.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-onowned">
+    <title>client.onowner</title>
+<programlisting>
+client.addEventListener("owner", (event, owner) => { ... })
+</programlisting>
+    <para>An event triggered when the owner of the DBus name changes. The owner
+      value will be the id of the name owner on the bus or null if the name
+      is unowned. The absence of an owner should not be treated as a disconnection.
+      However this makes it possible to take some action based on the
+      actual status of the service, for example disconnecting a pending signal handler.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-options">
+    <title>client.options</title>
+    <para>Set to the options used when creating the client. Will not change for the life of
+      the client.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-unique-name">
+    <title>client.unique_name</title>
+    <para>The unique DBus name of the client. Initially null, and becomes valid once the
+      the client is ready.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-proxy">
+    <title>client.proxy()</title>
+<programlisting>
+proxy = client.proxy([interface, path], [options])
+</programlisting>
+
+    <para>Create proxy javascript object for a DBus <code>interface</code>. At the
+      specified DBus object <code>path</code>. The proxy will have
+      properties, methods and signals from to the DBus interface, and allows for
+      natural interaction. If no <code>interface</code> is specified then the DBus
+      bus name of the client is used. If no <code>path</code> is specified, then
+      the DBus name of the client is converted to a path.</para>
+
+    <para>If creating lots of proxies for a given <code>interface</code> it is more
+      efficient to use the
+      <link linkend="cockpit-dbus-proxies"><code>client.proxies()</code></link>
+      function.</para>
+
+    <para>The proxy is loaded when the
+      <link linkend="cockpit-dbus-proxy-valid"><code>proxy.valid</code></link> field is
+      <code>true</code>, and it is set to <code>false</code> if the underlying
+      <code>interface</code> and/or <code>path</code> don't or no longer exist, or
+      the <code>client</code> has closed. You can wait for proxy to become valid
+      by passing a callback to its
+      <link linkend="cockpit-dbus-proxy-wait"><code>proxy.wait()</code></link> function.
+      The <link linkend="cockpit-dbus-proxy-onchanged"><code>proxy.onchanged</code></link>
+      event will also fire when the proxy becomes valid or invalid. DBus properties and
+      methods on the proxy are not defined until the proxy becomes valid.</para>
+
+<programlisting>
+value = proxy.Prop1
+proxy.WritableProp = value
+</programlisting>
+
+    <para>All DBus properties on the <code>interface</code> that start with an upper case
+      letter (as is convention) will be automatically defined on this proxy, and will update
+      their values as the DBus property values change. In addition the
+      <link linkend="cockpit-dbus-proxy-onchanged"><code>proxy.onchanged</code></link> event
+      will fire every time the properties change.</para>
+
+    <para>If you assign a value to a writable property on the proxy, the proxy will try to set
+      that property on the DBus <code>interface</code> at <code>path</code>. The actual proxy
+      property value will not update until the DBus service has notified the proxy of the
+      change. If setting a property fails a warning will be logged. In order to have more
+      reliable setting of properties, or track when they have been set, or if setting fails,
+      use the <link linkend="cockpit-dbus-call"><code>client.call()</code></link> directly.
+      It should be noted that DBus service implementations may also be inconsistent in
+      their behavior when setting a property fails.</para>
+
+    <para>You can access the raw property data using the
+      <link linkend="cockpit-dbus-proxy-data"><code>proxy.data</code></link> field, including
+      data for properties that do not start with an upper case letter.</para>
+
+<programlisting>
+proxy.Method(arg1, arg2)
+    .then((retval1, retval2) => {
+        ...
+    })
+    .catch(ex => {
+        ...
+    });
+</programlisting>
+    <para>All DBus methods on the <code>interface</code> that start with an upper case
+      letter (as is convention) will be automatically defined on this proxy. These
+      methods are called with arguments as normal javascript arguments. A
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</ulink>
+      that will complete successfully when the method returns, or fail if an error occurs.
+      The return values from the DBus method will be passed to the <code>then</code> handler
+      function directly.</para>
+
+    <para>Methods that do not start with an upper case letter can be invoked by using
+      the usual <link linkend="cockpit-dbus-proxy-call"><code>proxy.call()</code></link> directly.</para>
+
+<programlisting>
+proxy.addEventListener("Signal", (event, arg1, arg2) => {
+    ...
+});
+</programlisting>
+
+    <para>All DBus signals on the <code>interface</code> that start with an upper case
+      letter (as is convention) will be automatically emit events on this proxy. These
+      events will contain the signal arguments after the standard <code>event</code>
+      argument.</para>
+
+    <para>Signals that do not start with an upper case letter can be subscribed to by
+      using <link linkend="cockpit-dbus-proxy-signal"><code>proxy.onsignal</code></link>
+      directly.</para>
+
+    <para>Usually a proxy asks the <code>client</code> to watch and notify it of changes
+      to the relevant object or path. You can pass an <code>options</code> argument with
+      the <code>watch</code> field set to <code>false</code> to prevent this.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-proxy-client">
+    <title>proxy.client</title>
+    <para>Set to the DBus client of the proxy. Will not change for the life of
+      the proxy.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-proxy-path">
+    <title>proxy.path</title>
+    <para>Set to the DBus object path of the proxy. Will not change for the life of
+      the proxy.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-proxy-iface">
+    <title>proxy.iface</title>
+    <para>Set to the DBus interface name of the proxy. Will not change for the life
+      of the proxy.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-proxy-valid">
+    <title>proxy.valid</title>
+    <para>Set to <code>true</code> when the proxy's DBus interface is present at its
+      DBus path, and all information for the proxy has loaded. Is set to <code>false</code>
+      while loading, and after the proxy no longer refers a DBus interface and path.
+      Also set to <code>false</code> if the <code>client</code> closes.</para>
+    <para>Use the by <link linkend="cockpit-dbus-proxy-wait"><code>proxy.wait()</code></link>
+      function to wait for a proxy to load. The
+      <link linkend="cockpit-dbus-proxy-onchanged"><code>proxy.onchanged</code></link>
+      event will also be emitted when the proxy becomes valid or invalid. DBus properties and
+      methods on the proxy are not defined until the proxy becomes valid.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-proxy-data">
+    <title>proxy.data</title>
+    <para>A plain javascript object containing all the raw property data that this
+      proxy has loaded. This will be updated automatically as the proxy is notified
+      of property changes from the DBus service. The
+      <link linkend="cockpit-dbus-proxy-onchanged"><code>proxy.onchanged</code></link>
+      event will be emitted when it changes.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-proxy-call">
+    <title>proxy.call()</title>
+<programlisting>
+invocation = proxy.call(method, args, [options])
+</programlisting>
+    <para>Make a DBus method call on this proxy.</para>
+
+    <para>For DBus methods that start with an upper case letter, is usually more convenient
+      <link linkend="cockpit-dbus-proxy">to call the method directly on the proxy</link>.
+      However if methods that do not follow the usual DBus convention,
+      or specify additional options, or the caller cannot be sure that the method actually
+      exists, you can use this method.</para>
+
+    <para>This function also works on proxies that have are still loading and have not
+      become valid yet.</para>
+
+    <para>The <code>method</code> should be a DBus method name, and the <code>args</code>
+      should be an array of arguments to pass to the method. The <code>options</code>
+      are <link linkend="cockpit-dbus-call">described elsewhere</link>.</para>
+
+    <para>The returned value is identical to the one returned from
+      <link linkend="cockpit-dbus-call">client.call()</link>. It is a
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</ulink>
+      that will complete successfully when the method returns, or fail if an error occurs.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-proxy-wait">
+    <title>proxy.wait()</title>
+<programlisting>
+promise = proxy.wait()
+proxy.wait(() => {
+    ...
+});
+</programlisting>
+  <para>Wait for a proxy to finish loading. This function returns a promise. If a callback function
+      is passed as an argument then that function will be invoked when the proxy is ready.
+      If this method is called after a proxy has already loaded, then the promise will be
+      resolved immediately, and any callback will be invoked immediately. Use the promise or
+      <code>proxy.valid</code> to determine whether the proxy is valid.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-proxy-onchanged">
+    <title>proxy.onchanged</title>
+<programlisting>
+proxy.addEventListener("changed", (event, data) => {
+    ...
+});
+</programlisting>
+    <para>This event is emitted when the proxy's properties change.</para>
+
+    <para>The <code>data</code> has the following form, and will only include
+      properties that have changed:</para>
+
+<programlisting>
+{
+    "Prop1": "value",
+    "Prop2": 5
+}
+</programlisting>
+  </refsection>
+
+  <refsection id="cockpit-dbus-proxy-signal">
+    <title>proxy.onsignal</title>
+<programlisting>
+proxy.addEventListener("signal", (event, name, args) => {
+    ...
+});
+</programlisting>
+    <para>This event is emitted when the proxy's emits an event.</para>
+
+    <para>For most events, that have names which start with an upper case letter, you can
+      just <link linkend="cockpit-dbus-proxy">connect to that event as a signal directly</link>.
+      However if you wish to be notified when any signal is emitted, or for signals that do not
+      follow the usual DBus convention, you can connect to this event.</para>
+
+    <para>The <code>name</code> is the DBus signal name, and the <code>args</code> is an array
+      of arguments that were emitted with the signal.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-proxies">
+    <title>client.proxies()</title>
+<programlisting>
+proxies = client.proxies([interface], [path_namespace], [options])
+</programlisting>
+
+    <para>Create <link linkend="cockpit-dbus-proxy">proxy javascript objects</link> for
+      a DBus interfaces. The proxies will have properties, methods and signals from
+      the DBus <code>interface</code>, and allow for natural interaction. If no
+      <code>interface</code> is specified then the DBus bus name of the client is used.
+      If no <code>path_namespace</code> is provided then <code>"/"</code> will be used.</para>
+
+    <para>Proxies will be automatically created for instances of the
+      <code>interface</code> available at the DBus service. The optional
+      <code>path_namespace</code> argument can be used to restrict the proxies for
+      instances that have DBus paths which have the namespace path prefix.</para>
+
+<programlisting>
+proxy1 = proxies["/dbus/path1"];
+proxy2 = proxies["/dbus/path2"];
+for (proxy in proxies) {
+    ...
+}
+</programlisting>
+    <para>The returned <code>proxies</code> object will is used as a dictionary,
+      and will have values containing proxies for DBus interface instances, with the
+      keys being the DBus paths of those instances. It is possible to enumerate over
+      the returned <code>proxies</code>.</para>
+
+    <para>Proxies will be automatically added and removed from the <code>proxies</code>
+      object as they appear and disappear in the service. The
+      <link linkend="cockpit-dbus-proxies-onadded"><code>proxies.onadded</code></link>
+      and <link linkend="cockpit-dbus-proxies-onremoved"><code>proxies.onremoved</code></link>
+      events will be emitted. DBus services may not support notifications of paths
+      disappearing.</para>
+
+    <para>Use the <code>proxies.wait()</code> function to be notified when the initial
+      set of proxies has been populated.</para>
+
+    <para>Usually a proxies ask the <code>client</code> to watch and be notified of changes
+      to the relevant object or path. You can pass an <code>options</code> argument with
+      the <code>watch</code> field set to <code>false</code> to prevent this.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-proxies-wait">
+    <title>proxies.wait()</title>
+<programlisting>
+promise = proxies.wait()
+proxies.wait(() => {
+    ...
+});
+</programlisting>
+    <para>Wait for a <code>proxies</code> object to populate its initial set of proxies.
+      This function returns a promise. If a callback function is passed as an argument then
+      that function will be invoked when the proxies are ready. If this method is called after
+      the proxies have populated, then the promise will be resolved immediately, and any callback
+      will be invoked immediately.</para>
+
+  </refsection>
+
+  <refsection id="cockpit-dbus-proxies-client">
+    <title>proxies.client</title>
+    <para>Set to the DBus client of the proxies. Will not change.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-proxies-iface">
+    <title>proxies.iface</title>
+    <para>Set to the DBus interface name of the proxies. Will not change.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-proxies-path_namespace">
+    <title>proxies.path_namespace</title>
+    <para>Set to the DBus path namespace used which the proxies must have as a DBus
+      path prefix. Will not change.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-proxies-onadded">
+    <title>proxies.onadded</title>
+<programlisting>
+proxies.addEventListener("added", (event, proxy) => {
+    ...
+})
+</programlisting>
+    <para>This event is emitted when a proxy is added to the <code>proxies</code> object.
+      The proxy will already have loaded.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-proxies-onchanged">
+    <title>proxies.onchanged</title>
+<programlisting>
+proxies.addEventListener("changed", (event, proxy) => {
+    ...
+})
+</programlisting>
+    <para>This event is emitted when one of the proxy in the <code>proxies</code> object
+      changes its properties.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-proxies-onremoved">
+    <title>proxies.onremoved</title>
+<programlisting>
+proxies.addEventListener("removed", (event, proxy) => {
+    ...
+})
+</programlisting>
+    <para>This event is emitted when a proxy is removed to the <code>proxies</code> object.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-call">
+    <title>client.call()</title>
+<programlisting>
+invocation = client.call(path, interface, method, args, [options])
+</programlisting>
+
+    <para>Make a DBus method call.</para>
+
+    <para>The <code>path</code> is the DBus object path to make
+      the call on, <code>interface</code> is the DBus interface for the method and
+      <code>method</code> is the name of the method to call. The <code>args</code> is an
+      array of arguments to pass to the method, each of which must be appropriate for the
+      expected <link linkend="cockpit-dbus">DBus type</link> of that argument. The
+      <code>args</code> may be <code>null</code> if no arguments are to be sent.</para>
+
+    <para>The returned value is a
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</ulink>
+      that will complete successfully when the method returns, or fail if an error occurs.</para>
+
+    <para>If <code>options</code> is specified it should be a plain javascript object,
+      which may contain the following properties:</para>
+
+    <variablelist>
+      <varlistentry>
+        <term><code>flags</code></term>
+        <listitem><para>A string containing DBus message flags. The character <code>"i"</code>
+            indicates to the dbus service that interactive authentication is allowed. If the
+            entire <code>flags</code> field is missing, then <code>"i"</code> is set by
+            default.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>type</code></term>
+        <listitem><para>A valid DBus type signature to use when calling the method. In the
+            absence of this, the DBus service will be introspected (and the result cached) to
+            ask what the method type signature is.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>timeout</code></term>
+        <listitem><para>The timeout of the call in milliseconds. The call will fail with
+           the <code>"timeout"</code> problem code. If "timeout" is not given,
+           the call will never time out.</para></listitem>
+      </varlistentry>
+    </variablelist>
+  </refsection>
+
+  <refsection id="cockpit-dbus-then">
+    <title>invocation.then()</title>
+<programlisting>
+invocation.then((args, options) => { ... })
+</programlisting>
+    <para>This is a standard
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</ulink>
+      method. It sets up a handler to be called when the DBus method call finishes
+      successfully.</para>
+    <para>The <code>args</code> argument is an array of return values from the DBus method.
+      Each of them will be converted to an appropriate
+      <link linkend="cockpit-dbus">javascript type</link>.</para>
+    <para>The <code>options</code> argument may contain additional information about the
+      reply. If the <code>type</code> option was specified when performing the method call,
+      then the <code>options</code> in the reply here will also contain a <code>type</code>
+      field containing the DBus type signature of the output. If the <code>flags</code> option
+      was specified when performing the call then the <code>options</code> in the reply here
+      will contain message flags. Possible out message flags are:</para>
+
+    <variablelist>
+      <varlistentry>
+        <term><code>&gt;</code></term>
+        <listitem><para>A big endian message.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>&lt;</code></term>
+        <listitem><para>A little endian message.</para></listitem>
+      </varlistentry>
+    </variablelist>
+
+  </refsection>
+
+  <refsection id="cockpit-dbus-catch">
+    <title>invocation.catch()</title>
+<programlisting>
+invocation.catch(exception => { ... })
+</programlisting>
+    <para>This is a standard
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</ulink> method.
+      It sets up a handler to be called when the DBus method call fails.</para>
+
+    <para>The <code>exception</code> object passed to the handler can have the
+      following properties:</para>
+
+    <variablelist>
+      <varlistentry>
+        <term><code>problem</code></term>
+        <listitem><para>A <link linkend="cockpit-problems">problem code</link> string when
+            a problem occurred starting or communicating with the DBus service. This is
+            <code>null</code> in the cases where an actual DBus error was occurred.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>name</code></term>
+        <listitem><para>The DBus error name. This will be <code>null</code> in cases where the
+          failure was not due to a DBus error.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>message</code></term>
+        <listitem><para>A DBus error message. This will be <code>null</code> in cases where the
+          failure was not due to a DBus error.</para></listitem>
+      </varlistentry>
+    </variablelist>
+  </refsection>
+
+  <refsection id="cockpit-dbus-subscribe">
+    <title>client.subscribe()</title>
+<programlisting>
+subscription = client.subscribe(match, (path, interface, signal, args) => { ... })
+</programlisting>
+    <para>Subscribe to signals. The <code>match</code> argument is a javascript plain object which
+      defines what signals to subscribe to. Each property in the <code>match</code> argument restricts
+      signals subscribed to. If a property is not present then it is treated as a wildcard, matching
+      anything. If an empty object is specified as <code>match</code> then all signals will be
+      subscribed to. The <code>match</code> argument may contain the following properties:</para>
+
+    <variablelist>
+      <varlistentry>
+        <term><code>interface</code></term>
+        <listitem><para>A DBus interface to match.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>path</code></term>
+        <listitem><para>A DBus object path to match. May not be used together with the
+          <code>path_namespace</code> property. It should be a valid DBus object path,
+          that is, it should have no trailing slash.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>path_namespace</code></term>
+        <listitem><para>A DBus object path prefix to match. Any paths in the hierarchy below this
+          top path will match. May not be used together with the <code>path</code>
+          property.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>member</code></term>
+        <listitem><para>The DBus signal name to match.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>arg0</code></term>
+        <listitem><para>Matches the first argument of a DBus message, which must be a
+           string.</para></listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>The handler passed as the second argument will be invoked when the signal is received.
+      A <code>subscription</code> is returned which can be used to remove the subscription by
+      calling its <code>subscription.remove()</code> method.</para>
+
+    <para>It is not a problem to subscribe to the same signals more than once, with identical
+      or slightly different <code>match</code> arguments.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-remove">
+    <title>subscription.remove()</title>
+<programlisting>
+subscription.remove()
+</programlisting>
+
+    <para>Unsubscribe from the DBus signal subscription.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-watch">
+    <title>client.watch()</title>
+<programlisting>
+watch = client.watch(path)
+watch = client.watch({ "path_namespace": path_namespace, "interface": interface })
+</programlisting>
+    <para>Watch for property and interface changes on the given DBus object
+      <code>path</code> DBus <code>path_namespace</code>. If <code>interface</code> is
+      specified only properties on that DBus interface will be watched.</para>
+
+    <para>The <link linkend="cockpit-dbus-proxy"><code>client.proxy()</code></link> and
+        <link linkend="cockpit-dbus-proxies"><code>client.proxies()</code></link> functions and
+      the objects they return are high level wrappers around <code>client.watch()</code>.</para>
+
+    <para>The property and interface changes will be available in raw form on the
+      <link linkend="cockpit-dbus-onnotify"><code>client.onnotify</code></link> event.</para>
+
+    <para>Property and interface changes that are caused by a method call or signal will
+      show up before that method call reply is received, or signal event is triggered.
+      It should be possible to rely on this guarantee, unless the DBus service in question
+      behaves incorrectly. Internally these watches work well with code that implements the
+      <ulink url="https://dbus.freedesktop.org/doc/dbus-specification.html#standard-interfaces-objectmanager">ObjectManager</ulink>
+      portion of the DBus specification. If no ObjectManager implementation is available, the
+      watch falls back to using DBus
+      <ulink url="https://dbus.freedesktop.org/doc/dbus-specification.html#standard-interfaces-introspectable">Introspection</ulink> along with the usual
+      <ulink url="https://dbus.freedesktop.org/doc/dbus-specification.html#standard-interfaces-properties">PropertiesChanged</ulink> signal. If the DBus service implements none of these, or implements them in an
+      inconsistent manner, then this function will provide inconsistent or unexpected
+      results.</para>
+
+    <para>The parameter is either a DBus <code>path</code> or a plain javascript object
+      with zero or more of the following fields. If an empty javascript object is used as
+      an argument, then all paths, interfaces and properties will be watched.</para>
+
+    <variablelist>
+      <varlistentry>
+        <term><code>interface</code></term>
+        <listitem><para>Watch properties on this DBus interface.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>path</code></term>
+        <listitem><para>Watch interfaces and properties at this DBus path. May not be
+            used together with the <code>path_namespace</code> property.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><code>path_namespace</code></term>
+        <listitem><para>Watch interfaces and properties under this DBus path. It should
+            be a valid DBus object path, that is, it should have no trailing slash.
+            If an ObjectManager implementation is available at this interface, then it
+            is used. May not be used together with the <code>path</code> property.</para></listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>The returned value is a
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</ulink>
+      that will complete successfully when the watch has populated its initial set of properties
+      and interfaces, and these have been notified via
+      <link linkend="cockpit-dbus-onnotify"><code>client.onnotify</code></link>.</para>
+
+    <para>A watch can be removed by calling the
+      <link linkend="cockpit-dbus-watch-remove"><code>watch.remove()</code></link> method on
+      the returned value. If identical watches are added more than once, then they must
+      also be removed the same number of times before the removal takes effect.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-watch-then">
+    <title>watch.then()</title>
+<programlisting>
+watch.then(() => { ... })
+</programlisting>
+    <para>This is a standard
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</ulink>
+      method. It sets up a handler to be called when the watch has populated its initial
+      properties and interfaces.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-watch-catch">
+    <title>watch.catch()</title>
+<programlisting>
+watch.catch(ex => { ... })
+</programlisting>
+    <para>This is a standard
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</ulink>
+      method. It sets up a handler to be called if the watch fails to populate its initial
+      properties and interfaces. Note that a watch will only fail if the DBus client
+      closes or is somehow disconnected. It does not fail in the case of missing
+      interfaces or properties.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-watch-remove">
+    <title>watch.remove()</title>
+<programlisting>
+watch.remove()
+</programlisting>
+    <para>Remove the watch. This may not have any immediate effect if other watches are in
+      place. In particular, if identical watches are added more than once, then they must
+      also be removed the same number of times before the removal takes effect.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-onnotify">
+    <title>client.onnotify</title>
+<programlisting>
+client.addEventListener("notify", data => { ... })
+</programlisting>
+    <para>An event triggered when
+      <link linkend="cockpit-dbus-watch">watched</link> properties or interfaces change.</para>
+
+    <para>The <link linkend="cockpit-dbus-proxy"><code>client.proxy()</code></link> and
+        <link linkend="cockpit-dbus-proxies"><code>client.proxies()</code></link> functions and
+        the objects they return are high level wrappers around the <code>data</code> provided
+        by this event.</para>
+
+    <para>The <code>data</code> has the following form:</para>
+
+<programlisting>
+{
+    "/path1": {
+        "org.Interface1": {
+            "Prop1": "value",
+            "Prop2": 5
+        },
+        "org.Interface2": null
+    }
+}
+</programlisting>
+
+    <para>Multiple paths may be present, each of which may have multiple interfaces, each
+      of which may have multiple properties. The first time a given path and interface is
+      emitted from this signal, it will have all its properties and interfaces. Thereafter
+      only changes are noted. If an interface is set to <code>null</code>, then that
+      interface has disappeared.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-notify">
+    <title>client.notify()</title>
+<programlisting>
+client.notify(data)
+</programlisting>
+  <para>Emits a synthetic <link
+  linkend="cockpit-dbus-onnotify"><code>notify</code></link> event.
+  The <code>data</code> argument should follow the same layout as
+  described for the <code>notify</code> event.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-onmeta">
+    <title>client.onmeta</title>
+<programlisting>
+client.onmeta = (ev, data) => { ... }
+</programlisting>
+    <para>An event triggered when the meta data about
+      <link linkend="cockpit-dbus-watch">watched</link> interfaces is loaded.</para>
+
+    <para>The <link linkend="cockpit-dbus-proxy"><code>client.proxy()</code></link> and
+        <link linkend="cockpit-dbus-proxies"><code>client.proxies()</code></link> functions and
+        the objects they return are high level wrappers around the <code>data</code> provided
+        by this event.</para>
+
+    <para>The <code>data</code> has the following form:</para>
+
+<programlisting>
+  {
+      "org.Interface": {
+          "methods": {
+              "Method1": {
+                  "in": [ "s", "v" ],
+                  "out": [ "i" ]
+              },
+              "Method2": { }
+          },
+          "signals": {
+              "Signal": {
+                  "in": [ "b", "s" ]
+              }
+          },
+          "properties": {
+              "Prop1": {
+                  "flags": "rw",
+                  "type": "s"
+              },
+              "Prop2": {
+                  "flags": "r",
+                  "type": "b"
+              }
+          }
+      }
+  }
+</programlisting>
+
+    <para>Multiple interfaces may be present, each of which may have methods and properties.
+      This is emitted before the first <link linkend="cockpit-dbus-proxy"><code>client.onnotify</code></link>
+      event for the relevant interface.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-meta">
+    <title>client.meta()</title>
+<programlisting>
+client.meta(data)
+</programlisting>
+    <para>Populate DBus introspection metadata about DBus interfaces. Usually this metadata
+      is automatically introspected from the DBus services called by the <code>client</code>,
+      but in certain cases it is useful to populate this info from javascript code. One such
+      case is when exporting a DBus service from javascript.</para>
+
+    <para>The <link linkend="cockpit-dbus-onmeta"><code>client.onmeta</code></link> event will
+      be emitted by this method call. It's documentation includes information about the form
+      of the <code>data</code>.</para>
+
+  </refsection>
+
+  <refsection id="cockpit-dbus-publish">
+    <title>client.publish()</title>
+<programlisting>
+published = client.publish(path, interface, object, [options])
+</programlisting>
+
+    <para>Publish a DBus <code>interface</code> at the specified object <code>path</code>.
+      Methods on the Javascript <code>object</code> will be invoked when DBus methods on the
+      specified <code>interface</code> are invoked by callers.</para>
+
+    <para>The meta data for the DBus interface must have been populated using the
+      <link linkend="cockpit-dbus-meta"><code>client.meta()</code></link> function. The
+      returned <code>published</code> object is a promise object. It will resolve when the
+      DBus interface has been published on the bus. It is not an error to publish the same
+      interface and path repeatedly: Previously published objects at the interface and
+      path are replaced by those published later.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-published">
+    <title>published.remove()</title>
+<programlisting>
+published.remove()
+</programlisting>
+
+    <para>Un-publishes a DBus interface at an object path. This method can be invoked
+      on the <code>published</code> result returned from the
+      <link linkend="cockpit-dbus-publish"><code>client.publish()</code></link> function.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-variant">
+    <title>cockpit.variant()</title>
+<programlisting>
+variant = cockpit.variant(type, value)
+</programlisting>
+
+    <para>A DBus variant is represented as a plain javascript object with a
+      <code>"t"</code> property represesting the full DBus type of the variant,
+      and a <code>"v"</code> property containing the variant value.</para>
+
+    <para>This is a helper function for creating such a variant object.</para>
+  </refsection>
+
+  <refsection id="cockpit-dbus-byte-array">
+    <title>cockpit.byte_array()</title>
+<programlisting>
+byte_array = cockpit.byte_array(value)
+</programlisting>
+
+    <para>A DBus byte array is represented as base64 data encoded in a string. This
+      is a helper function for creating such a byte array.</para>
+  </refsection>
+</refentry>

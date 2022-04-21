@@ -1,0 +1,13 @@
+[Unit]
+Description=Cockpit Web Service Socket
+Documentation=man:cockpit-ws(8)
+Wants=cockpit-motd.service
+
+[Socket]
+ListenStream=9090
+ExecStartPost=-@datadir@/@PACKAGE@/motd/update-motd '' localhost
+ExecStartPost=-/bin/ln -snf active.motd /run/cockpit/motd
+ExecStopPost=-/bin/ln -snf inactive.motd /run/cockpit/motd
+
+[Install]
+WantedBy=sockets.target

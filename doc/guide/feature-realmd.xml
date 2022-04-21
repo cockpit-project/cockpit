@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<chapter id="feature-realmd">
+  <title>realmd</title>
+
+  <para>If available on the system, Cockpit uses
+    <ulink url="https://www.freedesktop.org/software/realmd/">realmd</ulink>
+    and the DBus APIs it provides to configure the system's Active Directory
+    or IPA domain membership.</para>
+
+  <para>Not all systems can join all kinds of domains.  This depends
+    on the availability of the necessary client software.</para>
+
+  <para>For non root users, realmd controls access to its APIs via
+    <link linkend="privileges">Policy Kit</link> and a user logged into Cockpit will have
+    the same permissions as they do from the command line.</para>
+
+  <para>To perform similar tasks from the command line, use the
+    <ulink url="https://www.freedesktop.org/software/realmd/docs/realm.html">realm</ulink> command:</para>
+
+<programlisting>
+$ <command>realm join example.com</command>
+Password for Administrator:
+</programlisting>
+
+  <para>
+    <ulink url="http://www.freedesktop.org/software/realmd/">realmd</ulink>
+    sets up domain-qualified user names by default, i. e. login user names look like
+    "<code>user@example.com</code>". For using unqualified names (just
+    "<code>user</code>"), set the <code>fully-qualified-names</code> option in
+    <ulink url="https://www.freedesktop.org/software/realmd/docs/realmd-conf.html">/etc/realmd.conf</ulink>
+    before joining a domain.</para>
+
+  <para>Cockpit requests an SSL certificate from the IPA server for
+    <command>cockpit-ws</command> with the
+    <ulink url="https://www.freeipa.org/page/Certmonger">ipa-getcert</ulink> command.</para>
+
+</chapter>

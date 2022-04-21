@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Cockpit Generic Service Monitor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../base1/cockpit.js"></script>
+    <script src="service.js"></script>
+</head>
+<body class="pf-m-redhat-font" hidden>
+  <table>
+    <tbody>
+      <tr><td>Exists</td><td id="exists"></td></tr>
+      <tr><td>State</td><td id="state"></td></tr>
+      <tr><td>Enabled</td><td id="enabled"></td></tr>
+    </tbody>
+  </table>
+
+  <button id="start">Start</button>
+  <button id="stop">Stop</button>
+  <button id="enable">Enable</button>
+  <button id="disable">Disable</button>
+</body>
+</html>

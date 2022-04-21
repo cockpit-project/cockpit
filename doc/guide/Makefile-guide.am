@@ -1,0 +1,114 @@
+if ENABLE_DOC
+
+GUIDE_DOCBOOK = doc/guide/cockpit-guide.xml
+
+GUIDE_INCLUDES = \
+	doc/guide/api-cockpit.xml \
+	doc/guide/api-base1.xml \
+	doc/guide/api-shell.xml \
+	doc/guide/api-system.xml \
+	doc/guide/cockpit-cache.xml \
+	doc/guide/cockpit-channel.xml \
+	doc/guide/cockpit-dbus.xml \
+	doc/guide/cockpit-error.xml \
+	doc/guide/cockpit-file.xml \
+	doc/guide/cockpit-http.xml \
+	doc/guide/cockpit-locale.xml \
+	doc/guide/cockpit-location.xml \
+	doc/guide/cockpit-manifest.xml \
+	doc/guide/cockpit-metrics.xml \
+	doc/guide/cockpit-series.xml \
+	doc/guide/cockpit-session.xml \
+	doc/guide/cockpit-spawn.xml \
+	doc/guide/cockpit-util.xml \
+	doc/guide/authentication.xml \
+	doc/guide/embedding.xml \
+	doc/guide/feature-firewall.xml \
+	doc/guide/feature-journal.xml \
+	doc/guide/feature-machines.xml \
+	doc/guide/feature-networkmanager.xml \
+	doc/guide/feature-packagekit.xml \
+	doc/guide/feature-pcp.xml \
+	doc/guide/feature-realmd.xml \
+	doc/guide/feature-selinux.xml \
+	doc/guide/feature-sosreport.xml \
+	doc/guide/feature-storaged.xml \
+	doc/guide/feature-systemd.xml \
+	doc/guide/feature-terminal.xml \
+	doc/guide/feature-tuned.xml \
+	doc/guide/feature-users.xml \
+	doc/guide/packages.xml \
+	doc/guide/privileges.xml \
+	doc/guide/https.xml \
+	doc/guide/listen.xml \
+	doc/guide/sso.xml \
+	doc/guide/cert-authentication.xml \
+	doc/guide/startup.xml \
+	doc/guide/urls.xml \
+	$(NULL)
+
+GUIDE_STATIC = \
+	doc/guide/static/home.png \
+	doc/guide/static/gtk-doc.css \
+	doc/guide/static/left.png \
+	doc/guide/static/right.png \
+	doc/guide/static/style.css \
+	doc/guide/static/up.png \
+	$(NULL)
+
+GUIDE_XSLT = \
+	doc/guide/gtk-doc.xsl \
+	doc/guide/version-greater-or-equal.xsl \
+	$(NULL)
+
+# keep in sync with doc/guide/static/style.css
+GUIDE_FONTS = \
+	dist/guide/html/RedHatText-Regular.woff2 \
+	dist/guide/html/RedHatText-Medium.woff2 \
+	$(NULL)
+
+dist_noinst_DATA += \
+	$(GUIDE_DOCBOOK) \
+	$(GUIDE_INCLUDES) \
+	$(GUIDE_XSLT) \
+	$(GUIDE_STATIC) \
+	$(NULL)
+
+noinst_DATA += dist/guide/html/index.html
+
+dist/guide/html/%.woff2: dist/static/manifest.json
+	@target='$(dir $@)'; \
+	source='dist/static/fonts/$(notdir $@)'; \
+	printf '  %-8s %s → %s\n' 'COPY' "$${source}" "$${target}"; \
+	mkdir -p "$${target}" && \
+	cp "$(top_srcdir)/$${source}" "$${target}"
+
+dist/guide/html/index.html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(GUIDE_STATIC) $(GUIDE_XSLT) $(GUIDE_FONTS)
+	$(AM_V_GEN) mkdir -p dist/guide/html/ && \
+	cp $(addprefix $(srcdir)/,$(GUIDE_STATIC)) dist/guide/html/ && \
+	LANG=C.UTF-8 $(XMLTO) html -m $(srcdir)/doc/guide/gtk-doc.xsl -o dist/guide/html/ \
+		--searchpath $(abs_builddir):$(abs_srcdir):$(abs_builddir)/doc/guide \
+		$(srcdir)/$(GUIDE_DOCBOOK) && \
+	rm -f dist/guide/html/cockpit-guide.proc
+
+CLEAN_LOCAL_TARGETS += clean-guide
+clean-guide:
+	rm -rf dist/guide/html
+
+CHECK_LOCAL_TARGETS += check-guide
+check-guide:
+	if grep -n -r 'name=\"id' dist/guide/html >&2; then \
+		echo "Unexpected generated id in the documentation" >&2; \
+		exit 1; \
+	fi
+
+INSTALL_DATA_LOCAL_TARGETS += install-guide
+install-guide:
+	mkdir -p $(DESTDIR)$(htmldir)
+	$(INSTALL_DATA) dist/guide/html/* $(DESTDIR)$(htmldir)
+
+UNINSTALL_LOCAL_TARGETS += uninstall-guide
+uninstall-guide:
+	rm -rf $(DESTDIR)$(htmldir)
+
+endif

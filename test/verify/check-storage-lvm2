@@ -1,0 +1,334 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from storagelib import *
+from testlib import *
+
+
+@nondestructive
+class TestStorageLvm2(StorageCase):
+
+    def testLvm(self):
+        m = self.machine
+        b = self.browser
+
+        mount_point_one = "/run/one"
+        mount_point_thin = "/run/thin"
+
+        self.login_and_go("/storage")
+
+        dev_1 = self.add_ram_disk()
+        dev_2 = self.add_loopback_disk()
+        b.wait_in_text("#drives", dev_1)
+        b.wait_in_text("#others", dev_2)
+
+        # Create a volume group out of two disks
+        m.execute(f"vgcreate TEST1 {dev_1} {dev_2}")
+        # just in case the test fails
+        self.addCleanup(m.execute, "vgremove --force TEST1 2>/dev/null || true")
+        b.wait_in_text("#devices", "TEST1")
+        b.wait_in_text("#devices", "/dev/TEST1/")
+        b.click('.sidepanel-row:contains("TEST1")')
+        b.wait_visible("#storage-detail")
+        b.wait_in_text("#detail-sidebar", "scsi_debug")
+        b.wait_in_text("#detail-sidebar", dev_2)
+
+        # Both of them should be empty and removable
+        b.wait_not_present('#detail-sidebar tr:nth-child(1) button.disabled')
+        b.wait_not_present('#detail-sidebar tr:nth-child(2) button.disabled')
+
+        # Create two logical volumes
+        m.execute("lvcreate TEST1 -n one -L 20m")
+        self.content_row_wait_in_col(1, 1, "one")
+        m.execute("lvcreate TEST1 -n two -L 20m")
+        self.content_row_wait_in_col(2, 1, "two")
+
+        # Deactivate one
+        m.execute("lvchange TEST1/one -a n")
+        self.content_row_wait_in_col(1, 2, "Inactive volume")
+
+        # and remove it
+        m.execute("until lvremove -f TEST1/one; do sleep 5; done")
+        b.wait_not_in_text("#detail-content", "one")
+
+        # remove a disk from the volume group
+        m.execute(f"pvmove {dev_2} &>/dev/null || true")
+        m.execute(f"vgreduce TEST1 {dev_2}")
+        b.wait_not_in_text("#detail-sidebar", dev_2)
+
+        # The remaining lone disk is not removable
+        b.wait_visible('#detail-sidebar .sidepanel-row:nth-child(1) button:disabled')
+
+        # Wipe the disk and make sure lvmetad forgets about it.  This
+        # might help with reusing it in the second half of this test.
+        #
+        # HACK - the pvscan is necessary because of
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1063813
+        #
+        m.execute(f"wipefs -a {dev_2}")
+        m.execute(f"pvscan --cache {dev_2}")
+
+        # Thin volumes
+        m.execute("lvcreate TEST1 --thinpool pool -L 20m")
+        self.content_row_wait_in_col(1, 1, "pool")
+        m.execute("lvcreate -T TEST1/pool -n thin -V 100m")
+        self.content_row_wait_in_col(2, 1, "thin")
+        m.execute("dd if=/dev/urandom of=/dev/mapper/TEST1-thin bs=1M count=10 status=none")
+        self.content_tab_wait_in_info(1, 1, "Data used", "50%")
+        m.execute("until lvremove -f TEST1/thin; do sleep 5; done")
+        self.content_tab_wait_in_info(1, 1, "Data used", "0%")
+
+        # remove the volume group
+        b.go("#/")
+        b.wait_visible("#storage")
+        m.execute("vgremove -f TEST1")
+        b.wait_not_in_text("#devices", "TEST1")
+
+        # create volume group in the UI
+
+        self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create LVM2 volume group"),
+                               expect=lambda: (self.dialog_is_present('disks', dev_1) and
+                                               self.dialog_is_present('disks', dev_2) and
+                                               self.dialog_check({"name": "vgroup0"})),
+                               values={"disks": {dev_1: True,
+                                                 dev_2: True}})
+
+        # just in case the test fails
+        self.addCleanup(m.execute, "vgremove --force vgroup0 2>/dev/null || true")
+        b.wait_in_text("#devices", "vgroup0")
+
+        # Check that the next name is "vgroup1"
+        self.devices_dropdown("Create LVM2 volume group")
+        self.dialog_wait_open()
+        self.dialog_wait_val("name", "vgroup1")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        b.click('.sidepanel-row:contains("vgroup0")')
+        b.wait_visible('#storage-detail')
+
+        # create a logical volume
+        b.click("button:contains(Create new logical volume)")
+        self.dialog(expect={"name": "lvol0"},
+                    values={"purpose": "block",
+                            "size": 20})
+        self.content_row_wait_in_col(1, 1, "lvol0")
+
+        # check that the next default name is "lvol1"
+        b.click("button:contains(Create new logical volume)")
+        self.dialog_wait_open()
+        self.dialog_wait_val("name", "lvol1")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        # grow it
+        self.content_tab_action(1, 1, "Grow")
+        self.dialog({"size": 30})
+
+        # format and mount it
+        self.content_row_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "mount_point": mount_point_one})
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
+        self.wait_in_configuration("/dev/vgroup0/lvol0", "fstab", "dir", mount_point_one)
+        self.content_tab_wait_in_info(1, 2, "Mount point", mount_point_one)
+
+        # unmount it
+        self.content_dropdown_action(1, "Unmount")
+        self.confirm()
+        self.content_tab_wait_in_info(1, 2, "Mount point", "The filesystem is not mounted.")
+
+        # shrink it, this time with a filesystem.
+        self.content_tab_action(1, 1, "Shrink")
+        self.dialog({"size": 10})
+
+        # delete it
+        self.content_dropdown_action(1, "Delete")
+        self.confirm()
+        b.wait_not_in_text("#detail-content", "/dev/vgroup0/lvol0")
+        self.assertEqual(m.execute(f"grep {mount_point_one} /etc/fstab || true"), "")
+
+        # remove disk2
+        b.click(f'#detail-sidebar .sidepanel-row:contains({dev_2}) button.pf-m-secondary')
+        b.wait_not_in_text("#detail-sidebar", dev_2)
+        if m.image == "rhel-8-6-distropkg":
+            b.wait_in_text("#detail-header dt:contains(Capacity) + dd", "48 MiB")
+        else:
+            b.wait_in_text("#detail-header dt:contains(Capacity) + dd", "50.3 MB")
+
+        # create thin pool and volume
+        # the pool will be maximum size, 50.3 MB
+        b.click("button:contains(Create new logical volume)")
+        self.dialog(expect={"size": 48 if m.image == "rhel-8-6-distropkg" else 50.3},
+                    values={"purpose": "pool",
+                            "name": "pool",
+                            "size": 38})
+        self.content_row_wait_in_col(1, 1, "pool")
+
+        self.content_row_action(1, "Create thin volume")
+        self.dialog(expect={"name": "lvol0"},
+                    values={"name": "thin",
+                            "size": 50})
+        self.content_row_wait_in_col(2, 1, "thin")
+
+        # add a disk and resize the pool
+        b.click('#detail-sidebar .pf-c-card__header button')
+        self.dialog_wait_open()
+        self.dialog_set_val('disks', {dev_2: True})
+        self.dialog_apply()
+        self.dialog_wait_close()
+        b.wait_in_text("#detail-sidebar", dev_2)
+        # this is sometimes 96, sometimes 100 MB
+        b.wait_js_cond("Number(ph_text('#detail-header dt:contains(Capacity) + dd').split(' ')[0]) >= 96")
+        b.wait_js_cond("Number(ph_text('#detail-header dt:contains(Capacity) + dd').split(' ')[0]) <= 101")
+
+        self.content_tab_action(1, 1, "Grow")
+        self.dialog({"size": 70})
+
+        # There is not enough free space to remove any of the disks.
+        b.wait_visible('#detail-sidebar .sidepanel-row:nth-child(1) button:disabled')
+        b.wait_visible('#detail-sidebar .sidepanel-row:nth-child(2) button:disabled')
+
+        # use almost all of the pool by erasing the thin volume
+        self.content_row_action(2, "Format")
+        self.dialog({"erase.on": True,
+                     "type": "ext4",
+                     "mount_point": mount_point_thin})
+        self.content_row_wait_in_col(2, 2, "ext4 filesystem")
+        self.wait_in_configuration("/dev/vgroup0/thin", "fstab", "dir", mount_point_thin)
+
+        # remove pool
+        self.content_dropdown_action(1, "Delete")
+        self.confirm()
+        b.wait_not_in_text("#detail-content", "pool")
+        self.assertEqual(m.execute(f"grep {mount_point_thin} /etc/fstab || true"), "")
+
+        # make another logical volume and format it, just so that we
+        # can see whether deleting the volume group will clean it all
+        # up.
+        b.click("button:contains(Create new logical volume)")
+        self.dialog(expect={"name": "lvol0"},
+                    values={"purpose": "block"})
+        self.content_row_wait_in_col(1, 1, "lvol0")
+        self.content_row_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "mount_point": mount_point_one})
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
+        self.wait_in_configuration("/dev/vgroup0/lvol0", "fstab", "dir", mount_point_one)
+        self.content_tab_wait_in_info(1, 2, "Mount point", mount_point_one)
+
+        # remove volume group
+        b.click('.pf-c-card__header:contains("LVM2 volume group") button:contains("Delete")')
+        self.confirm()
+        b.wait_visible("#storage")
+        b.wait_not_in_text("#devices", "vgroup0")
+        self.assertEqual(m.execute(f"grep {mount_point_thin} /etc/fstab || true"), "")
+
+    def testUnpartitionedSpace(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        disk1 = self.add_ram_disk()
+        disk2 = self.add_loopback_disk()
+        b.wait_in_text("#drives", disk1)
+        b.wait_in_text("#others", disk2)
+
+        # Put a partition table on disk1 and disk2
+        m.execute(f'parted -s {disk1} mktable gpt')
+        m.execute(f'parted -s {disk2} mktable gpt')
+
+        # Create a volume group out of disk1
+        self.dialog_with_retry(trigger=lambda: self.devices_dropdown('Create LVM2 volume group'),
+                               expect=lambda: self.dialog_is_present('disks', disk1) and
+                               self.dialog_is_present('disks', "unpartitioned space on Linux scsi_debug"),
+                               values={"disks": {disk1: True}})
+
+        b.wait_in_text("#devices", "vgroup0")
+        b.click('.sidepanel-row:contains("vgroup0")')
+        b.wait_visible('#storage-detail')
+
+        # Check the we are really using a partition on disk1 now
+        b.wait_in_text("#detail-sidebar", "Partition of Linux scsi_debug")
+
+        # Add the unused space of disk2
+        self.dialog_with_retry(trigger=lambda: b.click('#detail-sidebar .pf-c-card__header button'),
+                               expect=lambda: self.dialog_is_present(
+                                   'disks', "unpartitioned space on " + disk2),
+                               values={"disks": {disk2: True}})
+        b.wait_in_text("#detail-sidebar", "Partition of " + disk2)
+
+    def testSnapshots(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        disk = self.add_ram_disk(100)
+        b.wait_in_text("#drives", disk)
+
+        m.execute(f"vgcreate TEST {disk}")
+
+        # HACK - Sometimes the vgcreate call above doesn't update
+        #        udev.  Make sure it happens.
+        #
+        m.execute("udevadm trigger")
+
+        self.addCleanup(m.execute, "vgremove --force TEST")
+        b.wait_in_text("#devices", "TEST")
+        b.click('.sidepanel-row:contains("TEST")')
+        b.wait_visible("#storage-detail")
+
+        # Create a thinpool and a thin volume in it
+
+        m.execute("lvcreate TEST --thinpool pool -L 10m")
+        m.execute("lvcreate -T TEST/pool -n thin -V 30m")
+        self.content_row_wait_in_col(2, 1, "thin")
+
+        # Create a logical volume and take a snapshot of it.  We will
+        # later check that the snapshot isn't shown.
+
+        m.execute("lvcreate TEST -n lvol0 -L 10m")
+        m.execute("lvcreate -s -n snap0 -L 10m TEST/lvol0")
+
+        # the above lvol0 will be the new first entry in the table, so
+        # TEST/thin moves to he third row
+        self.content_row_wait_in_col(1, 1, "lvol0")
+        self.content_row_wait_in_col(2, 1, "pool")
+        self.content_row_wait_in_col(3, 1, "thin")
+
+        # Take a snapshot of the thin volume and check that it appears
+
+        self.content_dropdown_action(3, "Create snapshot")
+        self.dialog({"name": "mysnapshot"})
+        self.content_row_wait_in_col(3, 1, "mysnapshot")
+
+        # Now check that the traditional snapshot is not shown.  We do
+        # this here to be sure that Cockpit is fully caught up and has
+        # actually ignored it instead of just not having gotten around
+        # to showing it.
+
+        self.content_row_wait_in_col(1, 1, "lvol0")
+        b.wait_not_in_text("#storage-detail", "snap0")
+
+
+if __name__ == '__main__':
+    test_main()

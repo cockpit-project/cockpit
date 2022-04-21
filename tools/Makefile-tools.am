@@ -1,0 +1,25 @@
+
+if WITH_COVERAGE
+coverage:
+	mkdir -p tools/coverage
+	$(MAKE)
+	lcov --directory . --capture --initial \
+		--output-file tools/coverage.base
+	$(MAKE) check
+	lcov --directory . --capture \
+		--output-file tools/coverage.test
+	lcov --directory . \
+		--output tools/coverage.all \
+		--add-tracefile tools/coverage.base \
+		--add-tracefile tools/coverage.test
+	lcov --directory . \
+		--remove tools/coverage.all \
+		--output tools/coverage.info \
+		$(BUILT_SOURCES) 'test-*' 'mock-*' 'frob-*' '/usr/include/*'
+	genhtml --output-directory tools/coverage \
+		--title "cockpit $(PACKAGE_VERSION)" \
+		tools/coverage.info
+	@echo "file://$(abs_top_builddir)/tools/coverage/index.html"
+endif
+
+EXTRA_DIST += pkg/apps/content-security-policy.override

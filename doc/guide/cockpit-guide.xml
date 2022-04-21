@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+               "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+[
+  <!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
+  <!ENTITY version SYSTEM "version">
+]>
+<book id="index">
+  <bookinfo>
+    <title>Cockpit Guide</title>
+    <releaseinfo>Documentation for Cockpit &version; --
+    latest version available at:
+      <ulink url="https://cockpit-project.org/guide/latest">https://cockpit-project.org/guide/latest/</ulink></releaseinfo>
+  </bookinfo>
+
+  <part id="guide">
+    <title>Deployment Guide</title>
+    <chapter id="cockpit-manual">
+      <title>Manual pages</title>
+      <xi:include href="../man/cockpit.conf.xml"/>
+      <xi:include href="../man/cockpit-ws.xml"/>
+      <xi:include href="../man/cockpit-tls.xml"/>
+      <xi:include href="../man/cockpit-desktop.xml"/>
+      <xi:include href="../man/cockpit-bridge.xml"/>
+    </chapter>
+
+    <xi:include href="https.xml"/>
+    <xi:include href="listen.xml"/>
+    <xi:include href="startup.xml"/>
+    <xi:include href="authentication.xml"/>
+    <xi:include href="sso.xml"/>
+    <xi:include href="cert-authentication.xml"/>
+    <xi:include href="privileges.xml"/>
+  </part>
+
+  <part id="features">
+    <title>Feature Internals</title>
+    <xi:include href="feature-systemd.xml"/>
+    <xi:include href="feature-journal.xml"/>
+    <xi:include href="feature-networkmanager.xml"/>
+    <xi:include href="feature-firewall.xml"/>
+    <xi:include href="feature-storaged.xml"/>
+    <xi:include href="feature-users.xml"/>
+    <xi:include href="feature-realmd.xml"/>
+    <xi:include href="feature-terminal.xml"/>
+    <xi:include href="feature-pcp.xml"/>
+    <xi:include href="feature-machines.xml"/>
+    <xi:include href="feature-selinux.xml"/>
+    <xi:include href="feature-tuned.xml"/>
+    <xi:include href="feature-sosreport.xml"/>
+    <xi:include href="feature-packagekit.xml"/>
+  </part>
+
+  <part id="development">
+    <title>Developer Guide</title>
+    <xi:include href="embedding.xml"/>
+    <xi:include href="packages.xml"/>
+    <xi:include href="urls.xml"/>
+    <xi:include href="api-base1.xml"/>
+    <xi:include href="api-shell.xml"/>
+    <xi:include href="api-system.xml"/>
+  </part>
+</book>

@@ -1,0 +1,118 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import time
+
+import parent
+from testlib import *
+
+
+@nondestructive
+@skipDistroPackage()
+class TestMenu(MachineCase):
+
+    @enableAxe
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+
+        # Add a link with a hash in it to test that this works
+        m.execute("mkdir -p /usr/local/share/cockpit/systemd && cp -rp /usr/share/cockpit/systemd/* /usr/local/share/cockpit/systemd")
+        m.execute(
+            """sed -i '/"menu"/a "memory": { "label": "Memory", "path": "#/memory" },' /usr/local/share/cockpit/systemd/manifest.json""")
+        self.addCleanup(m.execute, "rm -r /usr/local/share/cockpit")
+
+        self.login_and_go("/system")
+
+        b.switch_to_top()
+        b.click('#toggle-docs')
+        b.click('button:contains("About Web Console")')
+        b.wait_visible('#about-cockpit-modal:contains("Cockpit is an interactive Linux server admin interface")')
+        if m.image != "fedora-coreos":
+            pkgname = "cockpit" if m.image == "arch" else "cockpit-bridge"
+            b.wait_visible(f'#about-cockpit-modal:contains("{pkgname}")')
+        b.click('.pf-c-about-modal-box__close button')
+        b.wait_not_present('#about-cockpit-modal')
+
+        self.check_axe("Test-navigation")
+
+        # Check that we can use a link with a hash in it
+        b.click_system_menu("/system/#/memory")
+
+        # Ensure that our tests pick up unhandled JS exceptions
+        b.switch_to_top()
+        b.go("/playground/exception")
+
+        # Test that subpages are correctly shown in the navigation (twice - once that only one page is shown as active)
+        b.wait_in_text("#host-apps .pf-m-current", "Development")
+
+        b.enter_page("/playground/exception")
+        b.wait_visible("button")
+        with self.assertRaisesRegex(RuntimeError, "TypeError:.*undefined"):
+            b.click("button")
+            # Some round trips, one of which should update the deferred exception
+            for i in range(0, 5):
+                b.wait_visible("button")
+                time.sleep(2)
+
+        # UI should also show the crash
+        b.switch_to_top()
+        b.wait_visible("#navbar-oops")
+
+    def testSessionTimeout(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute("printf '[Session]\nIdleTimeout = 1\n' >> /etc/cockpit/cockpit.conf")
+
+        # does not time out immediately
+        self.login_and_go()
+        time.sleep(20)
+        self.assertFalse(b.is_present("#session-timeout-modal"))
+        b.wait_visible("#hosts-sel")
+
+        # a mouse event resets the timer
+        b.enter_page("/system")
+        b.mouse("#system_information_hardware_text", "mousemove", 24, 24)
+        b.switch_to_top()
+
+        # 30s before the 1 min timeout the dialog pops up
+        time.sleep(35)
+        with b.wait_timeout(3):
+            b.wait_visible("#session-timeout-modal")
+            self.assertGreater(int(b.text("#session-timeout-modal .pf-c-modal-box__body").split()[-2]), 15)
+        # click on "Continue session"
+        b.click("#session-timeout-modal footer button")
+        b.wait_not_present("#session-timeout-modal")
+
+        # now wait for timeout dialog again, but don't click; instead, wait for the full minute
+        time.sleep(30)
+        with b.wait_timeout(8):
+            b.wait_popup("session-timeout-modal")
+            self.assertGreater(int(b.text("#session-timeout-modal .pf-c-modal-box__body").split()[-2]), 20)
+
+        time.sleep(30)
+        # that logs you out
+        b.wait_visible("#login")
+        b.wait_visible("#login-info-message")
+        b.wait_text("#login-info-message", "You have been logged out due to inactivity.")
+
+
+if __name__ == '__main__':
+    test_main()

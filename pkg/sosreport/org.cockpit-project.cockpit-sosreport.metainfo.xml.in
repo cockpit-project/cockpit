@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="addon">
+  <id>org.cockpit_project.cockpit_sosreport</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <name>Diagnostic reports</name>
+  <icon type="local" height="64" width="64">/usr/share/pixmaps/cockpit-sosreport.png</icon>
+  <summary>Collect and package diagnostic and support data</summary>
+  <description>
+    <p>
+      This tool generates an archive of configuration and diagnostic
+      information from the running system. The archive may be stored
+      locally or centrally for recording or tracking purposes or may
+      be sent to technical support representatives, developers or
+      system administrators to assist with technical fault-finding and
+      debugging.
+    </p>
+  </description>
+  <extends>org.cockpit_project.cockpit</extends>
+  <launchable type="cockpit-manifest">sosreport</launchable>
+  <url type="homepage">https://cockpit-project.org/</url>
+  <update_contact>cockpit-devel_AT_lists.fedorahosted.org</update_contact>
+</component>

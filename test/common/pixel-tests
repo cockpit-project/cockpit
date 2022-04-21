@@ -1,0 +1,69 @@
+#!/bin/bash
+
+set -eu
+
+TEST_REFERENCE_SUBDIR="${TEST_REFERENCE_SUBDIR:-test/reference}"
+REPO=pixel-test-reference
+
+GITHUB_BASE="${GITHUB_BASE:-cockpit-project/cockpit}"
+GITHUB_REPOSITORY="${GITHUB_BASE%/*}/${REPO}"
+CLONE_REMOTE="https://github.com/${GITHUB_REPOSITORY}"
+PUSH_REMOTE="git@github.com:${GITHUB_REPOSITORY}"
+
+message() {
+    [ "${V-}" != 0 ] || printf "  %-8s %s\n" "$1" "$2"
+}
+
+cmd_init() {
+    git submodule add -b empty "$CLONE_REMOTE" "$TEST_REFERENCE_SUBDIR"
+}
+
+cmd_pull() {
+    git submodule update --init -- "$TEST_REFERENCE_SUBDIR"
+}
+
+cmd_status() {
+    ( cd "$TEST_REFERENCE_SUBDIR"
+      git rm --force --cached --quiet '*.png'
+      git add *.png
+      if git diff-index --name-status --cached --exit-code HEAD; then
+          echo No changes
+      fi
+    )
+}
+
+cmd_push() {
+    ( cd "$TEST_REFERENCE_SUBDIR"
+      git rm --force --cached --quiet '*.png'
+      git add *.png
+      if ! git diff-index --name-status --cached --exit-code HEAD; then
+          git fetch origin empty:empty
+          git reset --soft empty
+          git commit --quiet -m "$(date)"
+      else
+          echo No changes
+      fi
+      tag="sha-$(git rev-parse HEAD)"
+      [ $(git tag -l "$tag") ] || git tag "$tag" HEAD
+      git push "$PUSH_REMOTE" "$tag"
+    )
+    git add "$TEST_REFERENCE_SUBDIR"
+}
+
+main() {
+    local cmd="${1-}"
+
+    if [ -z "${cmd}" ]; then
+        echo 'This command requires a subcommand: init pull status push'
+        exit 1
+    elif ! type -t "cmd_${cmd}" | grep -q function; then
+        echo "Unknown subcommand ${cmd}"
+        exit 1
+    fi
+
+    shift
+    [ "${V-0}" = 0 ] || set -x
+    "cmd_$cmd" "$@"
+}
+
+main "$@"

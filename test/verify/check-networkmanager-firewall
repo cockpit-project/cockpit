@@ -1,0 +1,506 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2018 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+import time
+from testlib import *
+from netlib import NetworkCase
+
+
+def wait_unit_state(machine, unit, state):
+
+    def active_state(unit):
+        # HACK: don't use `systemctl is-active` here because of
+        #   https://bugzilla.redhat.com/show_bug.cgi?id=1073481
+        # Also, use `systemctl --value` once that exists everywhere
+        line = machine.execute(f"systemctl show -p ActiveState {unit}")
+        return line.strip().split("=")[1]
+
+    wait(lambda: active_state(unit) == state, delay=0.2)
+
+
+def get_active_rules(machine):
+    active_zones = machine.execute("firewall-cmd --get-active-zones | grep '^[a-zA-Z]'").split()
+    active_rules = []
+    for zone in active_zones:
+        active_rules += machine.execute(f"firewall-cmd --zone '{zone}' --list-services").split()
+        ports = machine.execute(f"firewall-cmd --zone '{zone}' --list-ports").strip()
+        if ports:
+            active_rules += [ports]
+    return active_rules
+
+
+@skipImage("TODO: Arch Linux shows no firewalld page", "arch")
+@skipImage("no firewalld", "fedora-coreos")
+@nondestructive
+@skipDistroPackage()
+class TestFirewall(NetworkCase):
+    def setUp(self):
+        super().setUp()
+        m = self.machine
+        self.restore_dir("/etc/firewalld", "systemctl try-restart firewalld")
+        m.execute("systemctl restart firewalld")
+        self.btn_danger = "pf-m-danger"
+        self.btn_primary = "pf-m-primary"
+        self.default_zone = "Public Zone"
+
+        # Temporary remove the test Dbus port 8765, this workaround can be
+        # removed once the pixel tests are merged and the image updated to not
+        # open port 8765
+        if m.image.startswith("fedora"):
+            m.execute("firewall-cmd --permanent --remove-port=8765/tcp")
+            m.execute("firewall-cmd --remove-port=8765/tcp")
+            m.execute("firewall-cmd --reload")
+
+    def testNetworkingPage(self):
+        b = self.browser
+        m = self.machine
+        active_zones = len(m.execute("firewall-cmd --get-active-zones | grep '^[a-zA-Z]'").split())
+
+        # Zones should be visible as unprivileged user
+        self.login_and_go("/network", superuser=False)
+        self.wait_onoff("#networking-firewall-summary", True)
+        wait_unit_state(m, "firewalld", "active")
+        b.wait_in_text("#networking-firewall-summary", f"{active_zones} active zone")
+        m.execute("systemctl stop firewalld")
+        b.relogin("/network", superuser=True)
+
+        self.wait_onoff("#networking-firewall-summary", False)
+        self.toggle_onoff("#networking-firewall-summary")
+        self.wait_onoff("#networking-firewall-summary", True)
+        wait_unit_state(m, "firewalld", "active")
+
+        b.wait_in_text("#networking-firewall-summary", f"{active_zones} active zone")
+
+        self.toggle_onoff("#networking-firewall-summary")
+        self.wait_onoff("#networking-firewall-summary", False)
+        wait_unit_state(m, "firewalld", "inactive")
+        b.wait_in_text("#networking-firewall-summary", "0 active zones")
+
+        # toggle the service from CLI, page should react
+        try:
+            m.execute("systemctl start firewalld")
+            wait_unit_state(m, "firewalld", "active")
+        except Error:
+            print("====== firewalld.service =======")
+            print(m.execute("systemctl status firewalld"))
+            raise
+
+        self.wait_onoff("#networking-firewall-summary", True)
+        b.wait_in_text("#networking-firewall-summary", f"{active_zones} active zone")
+
+        try:
+            m.execute("systemctl stop firewalld")
+            wait_unit_state(m, "firewalld", "inactive")
+        except Error:
+            print("====== firewalld.service =======")
+            print(m.execute("systemctl status firewalld"))
+            raise
+
+        self.wait_onoff("#networking-firewall-summary", False)
+        b.wait_in_text("#networking-firewall-summary", "0 active zones")
+
+        b.click("#networking-firewall-link")
+        b.enter_page("/network/firewall")
+
+        b.click(".pf-c-breadcrumb li:first")
+
+        b.enter_page("/network")
+
+        self.allow_journal_messages(
+            ".*The name org.fedoraproject.FirewallD1 was not provided by any .service files.*",
+            ".*org.fedoraproject.FirewallD1: .*: GDBus.Error:org.freedesktop.DBus.Error.NoReply.*")
+
+    def testFirewallPage(self):
+        b = self.browser
+        m = self.machine
+
+        # Changed in #13686, remove all existing ports before testing
+        for port in m.execute("firewall-cmd --zone 'public' --list-ports").split():
+            m.execute(f"firewall-cmd --remove-port='{port}' --zone 'public'")
+            m.execute(f"firewall-cmd --permanent --remove-port='{port}' --zone 'public'")
+
+        # Zones should be visible as unprivileged user
+        self.login_and_go("/network/firewall", superuser=False)
+        self.wait_onoff("#firewall-heading-title-group", False)
+        wait_unit_state(m, "firewalld", "active")
+        # Wait until the default zone is listed
+        b.wait_in_text("#zones-listing .zone-section[data-id='public']", self.default_zone)
+        b.wait_not_present("#add-zone-button")
+        # "Add services" button should be disabled
+        b.wait_not_present(".zone-section[data-id='public'] .add-services-button")
+        m.execute("systemctl stop firewalld")
+        b.relogin("/network/firewall", superuser=True)
+
+        # "Add services" button should not be present
+        b.wait_not_present(".add-services-button")
+
+        self.wait_onoff("#firewall-heading-title-group", False)
+        self.toggle_onoff("#firewall-heading-title-group")
+        self.wait_onoff("#firewall-heading-title-group", True)
+        wait_unit_state(m, "firewalld", "active")
+
+        # Wait until the default zone is listed
+        b.wait_in_text("#zones-listing .zone-section[data-id='public']", self.default_zone)
+
+        # "Add services" button should be enabled
+        b.wait_visible(".zone-section[data-id='public'] .add-services-button:enabled")
+
+        # ensure that pop3 is not enabled (shouldn't be on any of our images),
+        # so that we can use it for testing
+        b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
+
+        m.execute("firewall-cmd --add-service=pop3")
+        b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='pop3']")
+
+        # Check that all services are shown.  This only works reliably since #12806
+        active_rules = get_active_rules(m)
+        b.wait_js_func("((sel, count) => ph_count(sel) == count)", ".zone-section table.ct-table tbody", len(active_rules))
+
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] #expand-togglepop3")
+        b.wait_in_text(".zone-section[data-id='public'] tbody.pf-m-expanded tr.pf-c-table__expandable-row", "Post Office Protocol")
+
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button.pf-c-dropdown__toggle")
+        b.click(".zone-section[data-id='public'] a.pf-m-danger.pf-c-dropdown__menu-item")
+        b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
+        self.assertNotIn('pop3', m.execute("firewall-cmd --list-services").split())
+
+        # Test that service without name is shown properly
+        m.execute("firewall-cmd --permanent --new-service=empty && firewall-cmd --reload && firewall-cmd --add-service=empty")
+        b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='empty']")
+
+        m.execute("firewall-cmd --add-port=9998/udp --add-port=9999/udp --add-port=6666/tcp")
+        b.wait_in_text(".zone-section[data-id='public'] tr[data-row-id='public-ports'] > td:nth-of-type(3)", "6666")
+        b.wait_in_text(".zone-section[data-id='public'] tr[data-row-id='public-ports'] > td:nth-of-type(4)", "9998, 9999")
+        m.execute("firewall-cmd --remove-port=9998/udp --remove-port=9999/udp --remove-port=6666/tcp")
+        b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='public-ports']")
+
+        # switch service off again
+        self.toggle_onoff("#firewall-heading-title-group")
+        self.wait_onoff("#firewall-heading-title-group", False)
+        wait_unit_state(m, "firewalld", "inactive")
+        # "Add services" button should be hidden again
+        b.wait_not_present(".zone-section[data-id='public'] .add-services-button")
+
+    def testAddServices(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network/firewall")
+        b.wait_in_text("#zones-listing .zone-section[data-id='public']", self.default_zone)
+
+        # add a service to the runtime configuration via the cli, after all the
+        # operations it should still be there, indicating no reload took place
+        m.execute("firewall-cmd --add-service=http")
+        b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='http']")
+
+        b.assert_pixels("#zones-listing .zone-section[data-id='public']", "firewall-default-zone-card",
+                        # HACK: medium layout has unstable horizontal width
+                        skip_layouts=["medium"])
+
+        # click on the "Add services" button
+        b.click(".zone-section[data-id='public'] .add-services-button")
+        b.wait_visible(".pf-c-modal-box .service-list #firewall-service-pop3")
+
+        # filter for pop3
+        b.wait_visible(".pf-c-modal-box .service-list #firewall-service-imap")
+        b.set_input_text("#filter-services-input", "pop")
+        b.wait_not_present(".pf-c-modal-box .service-list #firewall-service-imap")
+        b.wait_visible(".pf-c-modal-box .service-list #firewall-service-pop3")
+        self.assertIn("TCP: 110", b.text(".pf-c-modal-box .service-list li:first-child .service-ports.tcp"))
+        b.wait_not_present(".pf-c-modal-box .service-list li:first-child .service-ports.udp")
+        # clear filter
+        b.set_input_text("#filter-services-input", "")
+        b.wait_visible(".pf-c-modal-box .service-list #firewall-service-imap")
+        b.wait_visible(".pf-c-modal-box .service-list #firewall-service-pop3")
+
+        # filter for port 110
+        b.wait_visible(".pf-c-modal-box .service-list #firewall-service-imap")
+        b.set_input_text("#filter-services-input", "110")
+        b.wait_not_present(".pf-c-modal-box .service-list #firewall-service-imap")
+        b.wait_visible(".pf-c-modal-box .service-list #firewall-service-pop3")
+        self.assertIn("TCP: 110", b.text(".pf-c-modal-box .service-list li:first-child .service-ports.tcp"))
+        b.wait_not_present(".pf-c-modal-box .service-list li:first-child .service-ports.udp")
+        # clear filter
+        b.set_input_text("#filter-services-input", "")
+        b.wait_visible(".pf-c-modal-box .service-list #firewall-service-imap")
+        b.wait_visible(".pf-c-modal-box .service-list #firewall-service-pop3")
+
+        b.assert_pixels(".pf-c-modal-box", "firewall-add-services-to-zone-modal")
+
+        # don't select anything in the dialog
+        b.click(f"#add-services-dialog footer .{self.btn_primary}")
+        b.wait_not_present(".pf-c-modal-box")
+
+        def addService(zone, service):
+            b.click(f".zone-section[data-id='{zone}'] .add-services-button")
+            b.click(f"#add-services-dialog .service-list #firewall-service-{service}")
+            b.click(f"#add-services-dialog footer .{self.btn_primary}")
+            b.wait_not_present(".pf-c-modal-box")
+            b.wait_visible(f".zone-section[data-id='{zone}'] tr[data-row-id='{service}']")
+            self.assertIn(service, m.execute(f"firewall-cmd --zone={zone} --list-services"))
+
+        # now add pop3
+        addService('public', 'pop3')
+        addService('public', 'freeipa-4')
+        b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4'] #expand-togglefreeipa-4")
+        b.wait_visible(".zone-section[data-id='public'] tbody.pf-m-expanded .pf-c-table__expandable-row:contains(Included Services)")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='freeipa-4'] #expand-togglefreeipa-4")
+
+        # pop3 should now not appear any more in Add Services dialog
+        b.click(".zone-section[data-id='public'] .add-services-button")
+        b.wait_visible(".pf-c-modal-box .service-list #firewall-service-imap")
+        b.wait_not_present(".pf-c-modal-box .service-list #firewall-service-pop3")
+        b.click("#add-services-dialog footer .btn-cancel")
+        b.wait_not_present(".pf-c-modal-box")
+
+        # should still be here
+        b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='http']")
+
+        # Service without name should appear in the dialog
+        m.execute("firewall-cmd --permanent --new-service=empty && firewall-cmd --reload")
+        b.click(".zone-section[data-id='public'] .add-services-button")
+        b.wait_visible(".pf-c-modal-box .service-list #firewall-service-empty")
+        b.click("#add-services-dialog footer .btn-cancel")
+        b.wait_not_present(".pf-c-modal-box")
+
+        # remove all services
+        services = set(m.execute("firewall-cmd --list-services").strip().split(" "))
+        # some images come with an extra preconfigured libvirt zone so remove all
+        # the service which belong to both libvirt and public (and thus
+        # requiring checkboxes to be clicked), then remove all the services
+        # belonging either libvirt or public
+        for service in services:
+            b.click(f".zone-section[data-id='public'] tr[data-row-id='{service}'] button.pf-c-dropdown__toggle")
+            b.click(".zone-section[data-id='public'] a.pf-m-danger.pf-c-dropdown__menu-item")
+            # removing cockpit services requires confirmation
+            if service == "cockpit":
+                b.click(f"#delete-confirmation-dialog button.{self.btn_danger}")
+            b.wait_not_present(f".zone-section[data-id='public'] tr[data-row-id='{service}']")
+        self.assertEqual(m.execute("firewall-cmd --list-services").strip(), "")
+
+        # test error handling
+        m.execute("firewall-cmd --add-service=pop3")
+        b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='pop3']")
+        # remove service via cli and cockpit
+        m.execute("firewall-cmd --remove-service=pop3")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button.pf-c-dropdown__toggle")
+        b.click(".zone-section[data-id='public'] a.pf-m-danger.pf-c-dropdown__menu-item")
+        b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
+
+    def testAddCustomServices(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network/firewall")
+        b.wait_in_text("#zones-listing .zone-section[data-id='public']", self.default_zone)
+
+        # add a service to the runtime configuration via the cli, after all the
+        # operations it should be removed, indicating a reload took place
+        m.execute("firewall-cmd --add-service=http")
+        b.wait_visible("tr[data-row-id='http']")
+
+        def open_dialog():
+            b.click(".zone-section[data-id='public'] .add-services-button")
+            b.wait_visible("#add-services-dialog input[value='ports']:enabled")
+            b.click("#add-services-dialog input[value='ports']")
+            b.wait_visible("#tcp-ports")
+            b.wait_visible("#tcp-ports")
+
+        def set_field(sel, val, expected):
+            b.set_input_text(sel, val)
+            b.wait_val("#service-name", expected)
+
+        def check_error(text):
+            b.wait_visible(f".pf-c-form__helper-text.pf-m-error:contains({text})")
+
+        def save(identifier, tcp, udp, desc=""):
+            b.click("button:contains(Add ports)")
+            b.wait_not_present("#add-services-dialog")
+            # expand-togglecustom--80-82-echo-83-123-snmp
+            print(identifier)
+            # expand-togglefreeipa-4
+            line_sel = f".zone-section[data-id='public'] tr[data-row-id='{identifier}']"
+            b.wait_visible(line_sel)
+            b.wait_in_text(line_sel, "".join([identifier, tcp, udp]))
+            if desc:
+                # Click expand button
+                b.click(line_sel + f" #expand-toggle{identifier}")
+                b.wait_text(line_sel + " + tr", desc)
+
+            out = m.execute("firewall-cmd --zone public --list-services")
+            self.assertIn(identifier, out)
+
+        open_dialog()
+        set_field("#tcp-ports", "80", "custom--http")
+        set_field("#tcp-ports", "", "")
+        set_field("#tcp-ports", "80,7", "custom--http-echo")
+        set_field("#udp-ports", "123", "custom--http-echo-ntp")
+        set_field("#udp-ports", "123,   50000", "custom--http-echo-ntp-50000")
+        set_field("#tcp-ports", "", "custom--ntp-50000")
+        set_field("#tcp-ports", "https", "custom--https-ntp-50000")
+        save("custom--https-ntp-50000", "443", "123, 50000")
+
+        open_dialog()
+        set_field("#tcp-ports", "80-82", "custom--80-82")
+        set_field("#tcp-ports", "80-82, echo", "custom--80-82-echo")
+        set_field("#udp-ports", "ntp, snmp", "custom--80-82-echo-ntp-snmp")
+        set_field("#udp-ports", "83-ntp", "custom--80-82-echo-83-123")
+        set_field("#udp-ports", "83-ntp, snmp", "custom--80-82-echo-83-123-snmp")
+        b.set_input_text("#service-description", "custom snmp firewall rule")
+        # Test that the service name field is really optional
+        b.set_input_text("#service-name", "")
+        save("custom--80-82-echo-83-123-snmp", "80-82, 7", "83-123, 161", "custom snmp firewall rule")
+
+        open_dialog()
+        set_field("#tcp-ports", "80", "custom--http")
+        b.set_input_text("#service-name", "I-am-persistent")
+        b.set_input_text("#tcp-ports", "7")
+        time.sleep(5)  # We need to validate that the service name did not change
+        b.wait_val("#service-name", "I-am-persistent")
+        save("I-am-persistent", "7", "")
+
+        open_dialog()
+        set_field("#tcp-ports", "500000", "")
+        check_error("Invalid port number")
+        set_field("#tcp-ports", "-1", "")
+        check_error("Invalid port number")
+        set_field("#tcp-ports", "8a", "")
+        check_error("Unknown service name")
+        set_field("#tcp-ports", "foobar", "")
+        check_error("Unknown service name")
+        set_field("#tcp-ports", "80-80", "")
+        check_error("Range must be strictly ordered")
+        set_field("#tcp-ports", "80-79", "")
+        check_error("Range must be strictly ordered")
+        set_field("#tcp-ports", "https-http", "")
+        check_error("Range must be strictly ordered")
+        set_field("#tcp-ports", "80-90-", "")
+        check_error("Invalid range")
+        set_field("#tcp-ports", "80-90-100", "")
+        check_error("Invalid range")
+        b.click("#add-services-dialog button.btn-cancel")
+
+        # test error handling
+        # attempt to create custom service which already exists
+        m.execute("firewall-cmd --permanent --new-service=custom--19834")
+        m.execute("firewall-cmd --permanent --service=custom--19834 --add-port=19834/udp")
+        open_dialog()
+        set_field("#udp-ports", "19834", "custom--19834")
+        b.click(f"#add-services-dialog .{self.btn_primary}")
+        b.wait_in_text("#add-services-dialog div.pf-m-danger", "org.fedoraproject.FirewallD1.Exception: NAME_CONFLICT: new_service(): 'custom--19834'")
+
+        # should have been removed in the reload
+        b.wait_not_present("tr[data-row-id='http']")
+
+    def testMultipleZones(self):
+        b = self.browser
+        m = self.machine
+
+        # create unused interface for adding a new zone
+        # FIXME: Firewall page does not pick this up once it's already open
+        home_iface = "ethome"
+        self.add_veth(home_iface)
+
+        def addServiceToZone(service, zone):
+            b.click(f".zone-section[data-id='{zone}'] .add-services-button")
+            b.click(f"#add-services-dialog .service-list #firewall-service-{service}")
+            b.click(f"#add-services-dialog footer .{self.btn_primary}")
+            b.wait_not_present(".pf-c-modal-box")
+            b.wait_visible(f".zone-section[data-id='{zone}'] tr[data-row-id='{service}']")
+            self.assertIn(service, m.execute(f"firewall-cmd --zone={zone} --list-services"))
+
+        def addZone(zone, interfaces=[], sources=None, error=None):
+            b.click("#add-zone-button")
+            b.wait_visible("#add-zone-dialog")
+            b.wait_visible(f"#add-zone-dialog footer button.{self.btn_primary}:disabled")
+            b.click(f"#add-zone-dialog .add-zone-zones-firewalld input[value='{zone}']")
+
+            for i in interfaces:
+                b.click(f"#add-zone-dialog input[value='{i}']")
+            if sources:
+                b.click("#add-zone-dialog input[value='ip-range']")
+                b.set_input_text("#add-zone-dialog #add-zone-ip", sources)
+
+            b.click(f"#add-zone-dialog footer button.{self.btn_primary}:enabled")
+
+            if error:
+                b.wait_in_text("#add-zone-dialog div.pf-m-danger", error)
+                b.click("#add-zone-dialog footer button.btn-cancel")
+                b.wait_not_present("#add-zone-dialog")
+                return
+
+            b.wait_not_present("#add-zone-dialog")
+            for source in sources.split(",") if sources else []:
+                b.wait_in_text(f"#zones-listing .zone-section[data-id='{zone}']", source)
+            for i in interfaces:
+                b.wait_in_text(f"#zones-listing .zone-section[data-id='{zone}']", i)
+            b.wait_visible(f"#zones-listing .zone-section[data-id='{zone}']")
+            b.wait_visible(f"#zones-listing .zone-section[data-id='{zone}'] tr[data-row-id='cockpit']")
+
+        def removeZone(zone):
+            b.click(f".zone-section[data-id='{zone}'] #dropdown-{zone}")
+            b.click(f".zone-section[data-id='{zone}'] a.pf-m-danger.pf-c-dropdown__menu-item")
+            b.click(f"#delete-confirmation-dialog button.{self.btn_danger}")
+            b.wait_not_present(f".zone-section[data-id='{zone}']")
+
+        self.login_and_go("/network/firewall")
+        b.wait_in_text("#zones-listing .zone-section[data-id='public']", self.default_zone)
+
+        # add predefined work zone
+        addZone("work", sources="192.168.1.0/24")
+
+        addServiceToZone("pop3", "work")
+        b.wait_visible(".zone-section[data-id='work'] tr[data-row-id='pop3']")
+        self.assertNotIn(self.default_zone.split(" ")[0], b.text("tr[data-row-id='pop3']"))
+        addServiceToZone("pop3", "public")
+        b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='pop3']")
+
+        # Remove the service from public zone
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] #expand-togglepop3")
+        b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button.pf-c-dropdown__toggle")
+        b.click(".zone-section[data-id='public'] a.pf-m-danger.pf-c-dropdown__menu-item")
+        b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
+        b.wait_visible(".zone-section[data-id='work'] tr[data-row-id='pop3']")
+
+        # Remove the service from the work zone
+        b.click(".zone-section[data-id='work'] tr[data-row-id='pop3'] button.pf-c-dropdown__toggle")
+        b.click(".zone-section[data-id='work'] a.pf-m-danger.pf-c-dropdown__menu-item")
+        b.wait_not_present(".zone-section[data-id='work'] tr[data-row-id='pop3']")
+
+        # remove predefined work zone
+        removeZone("work")
+        # add zone with previously unused interface
+        addZone("home", interfaces=[home_iface])
+        # Interfaces which already belong to an active zone shouldn't show up in
+        # the Add Zone dialog anymore
+        b.click("#add-zone-button")
+        b.wait_visible("#add-zone-dialog")
+        b.wait_not_present(f"#add-zone-body input[value='{home_iface}']")
+        b.click("#add-zone-dialog footer button.btn-cancel")
+        b.wait_not_present("#add-zone-dialog")
+
+        addServiceToZone("pop3", "home")
+        removeZone("home")
+
+        addZone("work", sources="totally invalid address", error="org.fedoraproject.FirewallD1.Exception: INVALID_ADDR: totally invalid address")
+
+
+if __name__ == '__main__':
+    test_main()

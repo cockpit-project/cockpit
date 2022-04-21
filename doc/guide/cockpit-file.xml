@@ -1,0 +1,237 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<refentry id="cockpit-file">
+  <refnamediv>
+    <refname>cockpit.js: File Access</refname>
+    <refpurpose>Reading, writing, and watching files.</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <para>The <code>cockpit.file</code> API lets you read, write, and watch regular files in their entirety.
+    It cannot efficiently do random access in a big file or read non-regular files such as
+    <code>/dev/random</code>.
+    </para>
+<programlisting>
+file = cockpit.file(path,
+                    { syntax: syntax_object,
+                      binary: boolean,
+                      max_read_size: int,
+                      superuser: string,
+                      host: string
+                    })
+
+promise = file.read()
+promise
+    .then((content, tag) => { ... })
+    .catch(error => { ... })
+
+promise = file.replace(content, [ expected_tag ])
+promise
+    .then(new_tag => { ... })
+    .catch(error => { ... })
+
+promise = file.modify(callback, [ initial_content, initial_tag ]
+promise
+    .then((new_content, new_tag) => { ... })
+    .catch(error => { ... })
+
+file.watch((content, tag, [error]) => { }, [ { read: boolean } ])
+
+file.close()
+</programlisting>
+  </refsynopsisdiv>
+
+  <refsection id="cockpit-file-simple">
+    <title>Simple reading and writing</title>
+
+    <para>You can read a file with code like this:</para>
+<programlisting>
+cockpit.file("/path/to/file").read()
+    .then((content, tag) => {
+        ...
+    })
+    .catch(error => {
+        ...
+    });
+</programlisting>
+    <para>It is recommended to use absolute paths. Relative paths are resolved against <code>/</code>.
+      To work with the current user's files <link linkend="cockpit-user">cockpit.user()</link> can be used to get the user's home directory.
+    </para>
+    <para>The <code>read()</code> method returns a
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</ulink>.</para>
+    <para>When successful, the promise will be resolved with the content of the
+      file. Unless you specify options to change this (see below), the file
+      is assumed to be text in the UTF-8 encoding, and <code>content</code>
+      will be a string.</para>
+    <para>The tag that is passed to the <code>then()</code> callback is a short
+      string that is associated with the file and changes whenever the
+      content of the file changes.  It is meant to be used with <code>replace()</code>.</para>
+    <para>It is not an error when the file does not exist. In this case, the
+      <code>then()</code> callback will be called with a <code>null</code>
+      value for <code>content</code> and <code>tag</code> is <code>"-"</code>.</para>
+      <para>The <code>superuser</code> and <code>host</code> options can be used the same way
+      as described in the <link linkend="cockpit-channels-channel">cockpit.channel()</link>
+      to provide a different access level to the file.</para>
+    <para>You can use the <code>max_read_size</code> option to limit
+      the amount of data that is read.  If the file is larger than the
+      given number of bytes, no data is read and the channel is closed with
+      problem code <code>too-large</code>.  The default limit is 16 MiB.</para>
+    <para>To write to a file, use code like this:
+<programlisting>
+cockpit.file("/path/to/file").replace("my new content\n")
+    .then(tag => {
+        ...
+    })
+    .catch(error => {
+        ...
+    });
+</programlisting>
+    </para>
+    <para>The <code>replace()</code> method returns a
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</ulink>.</para>
+    <para>When the promise is resolved, the file has been atomically replaced
+      (via the <code>rename()</code> syscall) with the new content. As with
+      <code>read()</code>, by default the new content is a string and will
+      be written to the file as UTF-8. The returned tag corresponds to the
+      new content of the file.</para>
+    <para>When the promise is rejected because of an error, the file or its meta
+      data has not been changed in any way.</para>
+    <para>As a special case, passing the value <code>null</code> to
+      <code>replace()</code> will remove the file.</para>
+    <para>The <code>replace()</code> method can also check for conflicting
+      changes to a file.  You can pass a tag (as returned by
+      <code>read()</code> or <code>replace()</code>) to
+      <code>replace()</code>, and the file will only be replaced if it still
+      has the given tag.  If the tag of the file has changed,
+      <code>replace()</code> will fail with an error object that has
+      <code>error.problem == "change-conflict"</code>. See
+      <code>modify()</code> below for a convenient way to achieve
+      transactional updates to a file.</para>
+  </refsection>
+
+  <refsection id="cockpit-file-format">
+    <title>File format</title>
+    <para>By default, a file is assumed to be text encoded in UTF-8, and the
+      <code>read()</code> and <code>replace()</code> functions use strings to
+      represent the content.</para>
+    <para>By specifying the <code>syntax.parser()</code> and
+      <code>syntax.stringify()</code> options, you can cause
+      <code>read()</code> to parse the content before passing it back to
+      you, and <code>replace()</code> to unparse it before writing.</para>
+    <para>The main idea is to be able to write <code>{ syntax: JSON }</code>, of
+      course, but you can easily pass in individual functions or make your
+      own parser/unparser object:
+<programlisting>
+cockpit.file("/path/to/file.json", { syntax: JSON })
+
+var syntax_object = {
+    parse:     my_parser,
+    stringify: my_unparser
+};
+
+cockpit.file("/path/to/file", { syntax: syntax_object })
+</programlisting>
+      Any exceptions thrown by the <code>parse()</code> and
+      <code>stringify()</code> functions are caught and reported as read or
+      write errors.</para>
+    <para>The <code>null</code> value that is used to represent the content of a
+      non-existing file (see "Simple reading and writing", above) is not
+      passed through the <code>parse()</code> and <code>stringify()</code>
+      functions.</para>
+  </refsection>
+
+  <refsection id="cockpit-file-binary">
+    <title>Binary files</title>
+    <para>By default the content of the file is assumed to be text encoded as
+      UTF-8 and it can not contain zero bytes.  The content is represented
+      as a JavaScript string with <code>read()</code>,
+      <code>replace()</code>, etc. By setting the <code>binary</code> option
+      to true when creating the proxy, no assumptions are placed on the
+      content, and it is represented as a <code>Uint8Array</code> in
+      JavaScript.</para>
+  </refsection>
+
+  <refsection id="cockpit-file-atomic">
+    <title>Atomic modifications</title>
+    <para>Use <code>modify()</code> to modify the content of the file safely.  A
+      call to <code>modify()</code> will read the content of the file, call
+      <code>callback</code> on the content, and then replace the content of
+      the file with the return value of the callback.</para>
+    <para>The <code>modify()</code> method uses the <code>read()</code> and
+      <code>replace()</code> methods internally in the obvious way. Thus,
+      the <code>syntax.parse()</code> and <code>syntax.stringify()</code>
+      options work as expected, <code>null</code> represents a non-existing
+      file, and the watch callbacks are fired.</para>
+    <para>It will do this one or more times, until no other conflicting changes
+      have been made to the file between reading and replacing it.</para>
+    <para>The callback is called like this
+<programlisting>
+new_content = callback (old_content)
+</programlisting>
+      The callback is allowed to mutate <code>old_content</code>, but note
+      that this will also mutate the objects that are passed to the watch
+      callbacks. Returning <code>undefined</code> from the proxy is the
+      same as returning <code>old_content</code>.</para>
+    <para>The <code>modify()</code> method returns a
+      <ulink url="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</ulink>.</para>
+    <para>The promise will be resolved with the new content and its tag, like so
+<programlisting>
+function shout(old_content) {
+    return old_content.toUpperCase();
+}
+
+cockpit.file("/path/to/file").modify(shout)
+    .then((content, tag) => {
+        ...
+    })
+    .catch(error => {
+        ...
+    });
+</programlisting>
+      If you have cached the last content and tag results of the
+      <code>read()</code> or <code>modify()</code> method, or the last
+      values passed to a watch callback, you can pass them to
+      <code>modify()</code> as the second and third argument.  In this case,
+      <code>modify()</code> will skip the initial read and start with the
+      given values.</para>
+  </refsection>
+
+  <refsection id="cockpit-file-notify">
+    <title>Change notifications</title>
+    <para>Calling <code>watch()</code> will start monitoring the file for
+      external changes.
+<programlisting>
+handle = file.watch(callback);
+
+handle_no_read = file.watch(callback, { read: false });
+</programlisting>
+      Whenever a change occurs, the <code>callback()</code> is called with
+      the new content and tag of the file.  This might happen because of
+      external changes, but also as part of calls to <code>read()</code>,
+      <code>replace()</code>, and <code>modify()</code>.</para>
+    <para>When a read error occurs, the <code>callback()</code> is called with
+      an error as a third argument. Write errors are not reported via the watch callback.</para>
+    <para>Calling <code>watch()</code> will also automatically call <code>read()</code>
+      to get the initial content of the file. Thus, you normally don't need to call
+      <code>read()</code> at all when using <code>watch()</code>.</para>
+    <para>To disable the automatic reading, e.g. for large files or unreadable
+      file system objects, set the <code>read</code> option to <code>false</code>. The first
+      <code>content</code> argument of the callback will then always be <code>null</code>.</para>
+    <para>To free the resources used for monitoring, call <code>handle.remove()</code>.</para>
+  </refsection>
+
+  <refsection id="cockpit-file-path">
+    <title>file.path</title>
+    <para>A string containing the path that was passed to the <code>cockpit.file()</code>
+      method.</para>
+  </refsection>
+
+  <refsection id="cockpit-file-close">
+    <title>Closing</title>
+    <para>Call the <code>close()</code> method on a file proxy to cancel all
+      ongoing operations, such as reading, writing, and monitoring. The
+      proxy should not be used after closing it.</para>
+  </refsection>
+
+</refentry>

@@ -1,0 +1,87 @@
+#!/bin/sh
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+#
+
+set -euf
+
+cd $(dirname $0)
+srcdir=$(pwd)
+
+warning()
+{
+	echo "mock-kdc: $@" >&2
+}
+
+check_require()
+{
+	for n in $@; do
+		if ! which $n 2> /dev/null; then
+			warning "$n not present"
+			exit 18
+		fi
+	done
+}
+
+check_require kadmin.local krb5kdc kdb5_util
+
+dir=$(mktemp -d)
+
+# Generate the KDC configuration file
+sed -e "s,[@]dir[@],$dir,g" mock-krb5.conf.in > $dir/krb5.conf
+sed -e "s,[@]dir[@],$dir,g" mock-kdc.conf.in > $dir/kdc.conf
+KRB5_KDC_PROFILE=$dir/kdc.conf
+export KRB5_KDC_PROFILE
+KRB5_CONFIG=$dir/krb5.conf
+export KRB5_CONFIG
+
+echo "KRB5_CONFIG=$dir/krb5.conf"
+echo "KRB5_KTNAME=$dir/localhost.keytab"
+
+touch $dir/kadmind.log
+
+# Generate the KDC database, undocumented -W argument: no strong random
+kdb5_util create -r COCKPIT.MOCK -s -W -P foobar > /dev/null
+
+# Generate the ACL file
+echo "*/admin@COCKPIT.MOCK      *" > $dir/kadm5.acl
+
+# Add the users
+kadmin="kadmin.local -r COCKPIT.MOCK"
+$kadmin -q "addprinc -pw foobar -clearpolicy root/admin"# > /dev/null
+$kadmin -q "addprinc -pw marmalade -clearpolicy $USER" > /dev/null
+
+unique_localhosts()
+{
+	grep '\blocalhost\b' /etc/hosts | while read addr names; do
+		for name in $names; do
+			echo $name
+		done
+	done | sort | uniq
+}
+
+# Add the hosts
+unique_localhosts | while read name; do
+	$kadmin -q "addprinc -randkey -clearpolicy host/$name@COCKPIT.MOCK" > /dev/null
+        $kadmin -q "ktadd -q -keytab $dir/localhost.keytab host/$name@COCKPIT.MOCK" > /dev/null
+done
+
+# Run krb5kdc
+LC_ALL=C krb5kdc -n -r COCKPIT.MOCK 2>&1
+
+rm -rf $dir/

@@ -1,0 +1,202 @@
+# -----------------------------------------------------------------------------
+# libcockpit-ws.a: code used in cockpit-ws and its tests
+
+noinst_LIBRARIES += libcockpit-ws.a
+
+libcockpit_ws_a_CPPFLAGS = \
+	-DG_LOG_DOMAIN=\"cockpit-ws\" \
+	$(glib_CFLAGS) \
+	$(json_glib_CFLAGS) \
+	$(AM_CPPFLAGS)
+
+libcockpit_ws_a_LIBS = \
+	libcockpit-ws.a \
+	$(libcockpit_common_a_LIBS) \
+	$(libsystemd_LIBS) \
+	-lcrypt \
+	$(NULL)
+
+libcockpit_ws_a_SOURCES = \
+	src/ws/cockpitws.h \
+	src/ws/cockpithandlers.h \
+	src/ws/cockpithandlers.c \
+	src/ws/cockpitauth.h \
+	src/ws/cockpitauth.c \
+	src/ws/cockpitcompat.c \
+	src/ws/cockpitcompat.h \
+	src/ws/cockpitbranding.h \
+	src/ws/cockpitbranding.c \
+	src/ws/cockpitchannelresponse.h \
+	src/ws/cockpitchannelresponse.c \
+	src/ws/cockpitchannelsocket.h \
+	src/ws/cockpitchannelsocket.c \
+	src/ws/cockpitcreds.h src/ws/cockpitcreds.c \
+	src/ws/cockpitwebservice.h \
+	src/ws/cockpitwebservice.c \
+	$(NULL)
+
+# -----------------------------------------------------------------------------
+# cockpit-ws
+
+cockpitwsdir = $(libexecdir)
+cockpitws_PROGRAMS = cockpit-ws
+
+cockpit_ws_SOURCES = \
+	src/ws/main.c \
+	$(NULL)
+
+cockpit_ws_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS)
+cockpit_ws_LDADD = $(libcockpit_ws_a_LIBS)
+
+# -----------------------------------------------------------------------------
+# pam_cockpit_cert.so: Client certificate authentication PAM module
+
+pam_PROGRAMS += pam_cockpit_cert.so
+pam_cockpit_cert_so_CFLAGS = -fPIC $(AM_CFLAGS)
+pam_cockpit_cert_so_LDADD = -lpam
+pam_cockpit_cert_so_LDFLAGS = -shared
+pam_cockpit_cert_so_SOURCES = src/ws/pam_cockpit_cert.c
+
+# -----------------------------------------------------------------------------
+# test-server: server for running the html/browser unit tests against
+
+check_PROGRAMS += test-server
+
+test_server_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
+test_server_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS)
+
+test_server_SOURCES = \
+	src/ws/mock-service.c \
+	src/ws/mock-service.h \
+	src/ws/test-server.c \
+	$(NULL)
+
+test_server_CPPFLAGS += -I$(top_builddir)/src/ws
+nodist_test_server_SOURCES = $(GDBUS_CODEGEN_GENERATED)
+
+BUILT_SOURCES += $(GDBUS_CODEGEN_GENERATED)
+CLEANFILES += $(GDBUS_CODEGEN_GENERATED)
+GDBUS_CODEGEN_GENERATED = \
+	src/ws/mock-dbus-tests.h \
+	src/ws/mock-dbus-tests.c \
+	$(NULL)
+
+EXTRA_DIST += $(GDBUS_CODEGEN_XML)
+GDBUS_CODEGEN_XML = $(srcdir)/src/ws/com.redhat.Cockpit.DBusTests.xml
+
+GDBUS_CODEGEN_INVOCATION = \
+	$(AM_V_GEN) gdbus-codegen \
+	--interface-prefix com.redhat.Cockpit.DBusTests \
+	--c-namespace Test \
+	--c-generate-object-manager \
+	$(NULL)
+
+src/ws/mock-dbus-tests.h: $(GDBUS_CODEGEN_XML)
+	$(GDBUS_CODEGEN_INVOCATION) --header --output $@ $<
+
+src/ws/mock-dbus-tests.c: $(GDBUS_CODEGEN_XML)
+	$(GDBUS_CODEGEN_INVOCATION) --body --output $@ $<
+
+# -----------------------------------------------------------------------------
+# Unit tests
+
+check_SCRIPTS += src/ws/mock-cat-with-init
+
+check_PROGRAMS += mock-echo
+mock_echo_CPPFLAGS = $(glib_CFLAGS) $(AM_CPPFLAGS)
+mock_echo_LDADD = $(glib_LIBS)
+mock_echo_SOURCES = src/ws/mock-echo.c
+
+check_PROGRAMS += mock-auth-command
+mock_auth_command_CPPFLAGS = $(libcockpit_common_a_CPPFLAGS) $(TEST_CPP)
+mock_auth_command_LDADD = $(libcockpit_common_a_LIBS) $(TEST_LIBS)
+mock_auth_command_SOURCES = src/ws/mock-auth-command.c
+
+TEST_PROGRAM += test-auth
+test_auth_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
+test_auth_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS)
+test_auth_SOURCES = src/ws/test-auth.c
+
+TEST_PROGRAM += test-channelresponse
+test_channelresponse_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
+test_channelresponse_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS)
+test_channelresponse_SOURCES = src/ws/test-channelresponse.c
+
+TEST_PROGRAM += test-compat
+test_compat_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
+test_compat_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS)
+test_compat_SOURCES = src/ws/test-compat.c
+
+TEST_PROGRAM += test-creds
+test_creds_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
+test_creds_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS)
+test_creds_SOURCES = src/ws/test-creds.c
+
+TEST_PROGRAM += test-handlers
+test_handlers_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
+test_handlers_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS)
+test_handlers_SOURCES = src/ws/test-handlers.c
+
+TEST_PROGRAM += test-kerberos
+test_kerberos_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
+test_kerberos_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS) $(krb5_LIBS)
+test_kerberos_SOURCES = src/ws/test-kerberos.c
+
+TEST_PROGRAM += test-webservice
+test_webservice_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
+test_webservice_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS)
+test_webservice_SOURCES = src/ws/test-webservice.c
+
+if WITH_COCKPIT_SSH
+
+TEST_PROGRAM += test-authssh
+test_authssh_CPPFLAGS = $(libcockpit_ws_a_CPPFLAGS) $(TEST_CPP)
+test_authssh_LDADD = $(libcockpit_ws_a_LIBS) $(TEST_LIBS)
+test_authssh_SOURCES = src/ws/test-authssh.c
+
+endif
+
+noinst_PROGRAMS += mock-pam-conv-mod.so
+mock_pam_conv_mod_so_SOURCES = src/ws/mock-pam-conv-mod.c
+mock_pam_conv_mod_so_CFLAGS = -fPIC $(AM_CFLAGS)
+mock_pam_conv_mod_so_LDFLAGS = -shared
+mock_pam_conv_mod_so_LDADD = $(PAM_LIBS)
+
+testassetsdir = $(prefix)/lib/cockpit-test-assets
+testserviceddir = $(systemdunitdir)/cockpit.service.d
+
+install-tests::
+	mkdir -p $(DESTDIR)$(testassetsdir) $(DESTDIR)$(testserviceddir) $(DESTDIR)/etc/cockpit
+	$(INSTALL_DATA) mock-pam-conv-mod.so $(DESTDIR)$(testassetsdir)
+
+install-exec-hook::
+	mkdir -p $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d $(DESTDIR)$(sysconfdir)/cockpit/machines.d
+	chmod 755 $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d $(DESTDIR)$(sysconfdir)/cockpit/machines.d
+
+dist_check_DATA += \
+	src/ws/mock-combined.crt \
+	src/ws/mock-ecc.crt \
+	src/ws/mock-ecc.key \
+	src/ws/mock-cat-with-init \
+	src/ws/mock-kdc \
+	src/ws/mock-krb5.conf.in \
+	src/ws/mock-kdc.conf.in \
+	src/ws/mock-static \
+	src/ws/mock-config \
+	src/ws/mock-pipes/exit127 \
+	src/ws/mock-pipes/someprogram \
+	src/ws/mock-pipes/cockpit-session \
+	$(NULL)
+
+appdatadir = $(datadir)/metainfo
+nodist_appdata_DATA = src/ws/cockpit.appdata.xml
+appdata_in = src/ws/cockpit.appdata.xml.in
+$(nodist_appdata_DATA): $(appdata_in) $(PO_FILES)
+	$(AM_V_GEN) msgfmt --xml -d $(top_srcdir)/po --template $< --output $@
+CLEANFILES += $(nodist_appdata_DATA)
+EXTRA_DIST += $(appdata_in)
+
+pixmapdir = $(datadir)/pixmaps
+dist_pixmap_DATA = src/ws/cockpit.png
+
+libexec_SCRIPTS += src/ws/cockpit-desktop

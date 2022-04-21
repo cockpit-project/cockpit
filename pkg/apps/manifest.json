@@ -1,0 +1,27 @@
+{
+    "requires": {
+	"cockpit": "122"
+    },
+
+    "tools": {
+        "index": {
+            "label": "Applications",
+            "keywords": [
+                {
+                    "matches": ["plugin", "apps", "addon", "add-on", "install", "extension"]
+                }
+            ]
+        }
+    },
+
+    "content-security-policy": "img-src *",
+
+    "config": {
+        "appstream_config_packages": {
+            "debian": ["appstream"], "ubuntu": ["appstream"]
+        },
+        "appstream_data_packages": {
+            "fedora": ["appstream-data"], "rhel": ["appstream-data"]
+        }
+    }
+}

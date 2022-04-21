@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2014 Richard Hughes <richard@hughsie.com> -->
+<component type="web-application">
+  <id>org.cockpit_project.cockpit</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>LGPL-2.0+</project_license>
+  <name>Cockpit</name>
+  <summary>Web Console for Linux servers</summary>
+  <description>
+    <p>
+      Cockpit is a server manager that makes it easy to administer your Linux
+      servers via a web browser.
+      Jumping between the terminal and the web tool is no problem.
+      A service started via Cockpit can be stopped via the terminal.
+      Likewise, if an error occurs in the terminal, it can be seen in the
+      Cockpit journal interface.
+    </p>
+    <p>
+      Cockpit is perfect for new sysadmins, allowing them to easily perform
+      simple tasks such as storage administration, inspecting journals and
+      starting and stopping services.
+      You can monitor and administer several servers at the same time.
+      Just add them with a single click and your machines will look after its
+      buddies.
+    </p>
+    <p>
+      Once Cockpit is installed, enable it with "systemctl enable --now cockpit.socket".
+    </p>
+  </description>
+  <categories>
+    <category>System</category>
+  </categories>
+  <translation type="gettext">cockpit</translation>
+  <icon type="local" width="128" height="128">/usr/share/pixmaps/cockpit.png</icon>
+  <launchable type="url">https://localhost:9090</launchable>
+  <screenshots>
+    <screenshot type="default">
+        <image>https://cockpit-project.org/images/site/screenshot-storage.png</image>
+    </screenshot>
+    <screenshot>
+        <image>https://cockpit-project.org/images/site/screenshot-network.png</image>
+    </screenshot>
+  </screenshots>
+  <url type="homepage">https://cockpit-project.org/</url>
+  <url type="help">https://cockpit-project.org/running.html</url>
+  <update_contact>cockpit-devel_AT_lists.fedorahosted.org</update_contact>
+</component>

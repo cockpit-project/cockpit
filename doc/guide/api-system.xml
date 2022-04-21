@@ -1,0 +1,143 @@
+<?xml version="1.0"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+[
+  <!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
+]>
+<reference id="api-system">
+  <title>API: system</title>
+
+  <partintro>
+    <para>This package contains general components for basic control of a system.</para>
+  </partintro>
+
+  <refentry id="api-logs-html">
+    <refmeta>
+      <refentrytitle>logs.html</refentrytitle>
+    </refmeta>
+
+    <refnamediv>
+      <refname>logs.html</refname>
+      <refpurpose>System log component</refpurpose>
+    </refnamediv>
+
+    <refsection id="api-logs-html-description">
+      <title>Description</title>
+<programlisting>
+&lt;iframe src="http://127.0.0.1:9090/cockpit+app/@localhost/system/logs.html"
+    width="600" height="400"&gt;&lt;/iframe&gt;
+</programlisting>
+
+      <para>This is a Cockpit component that brings up system log viewer, with filtering
+        capabilities. On systemd based systems this displays the entries from journal.</para>
+
+      <variablelist>
+        <varlistentry>
+          <term>Component URL</term>
+          <listitem><para><code>/cockpit+app/@localhost/system/logs.html</code></para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Filter by priority</term>
+          <listitem>
+            <para><code>#?prio=notice</code></para>
+            <para>Filters the log to show entries below the specific priority, inclusive. These
+              <ulink url="https://en.wikipedia.org/wiki/Syslog#Severity_levels">priorities are syslog level keywords</ulink>.
+              Specifying <code>*</code> as a priority will show all available entries. The default
+              priority is <code>err</code>.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Filter by service</term>
+          <listitem>
+            <para><code>#?service=sshd.service</code></para>
+            <para>Filters the log to show entries related to the specific service. The format of
+              the service is specific to the logging implementation. For journald these are systemd
+              service unit names.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Filter by tag</term>
+          <listitem>
+            <para><code>#?tag=kernel</code></para>
+            <para>Filters the log to show entries related to the specific syslog identifier.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Filter by message</term>
+          <listitem>
+            <para><code>#?grep=</code></para>
+            <para>Filters the log to show entries where the <code>MESSAGE=</code> field matches the specified regular expression.
+              PERL-compatible regular expressions are used. If the pattern is all lowercase, matching is case insensitive.
+              Otherwise, matching is case sensitive.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Filter by any field</term>
+          <listitem>
+            <para><code>#?FIELD=VALUE</code></para>
+            <para>A field is referring to the components of a structured journal entry. The match must be exact.
+              Value can be comma separated list in which case they are automatically matched as alternatives.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Start at point</term>
+          <listitem>
+            <para><code>#?start=boot</code></para>
+            <para>Filters the log to show entries after the specific point in time. Valid values
+              are <code>boot</code> (since last boot), <code>last-24h</code> (last 24 hours),
+              <code>last-week</code> (last seven days) and <code>previous-boot</code> (previous boot).</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Follow the journal</term>
+          <listitem>
+            <para><code>#?follow=true</code></para>
+            <para>Keep listening on new entries. Valid values are <code>true</code> (follow) and <code>false</code> (do not follow).</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Show log entry</term>
+          <listitem>
+            <para><code>#/6e272d82993c4e0d...</code></para>
+            <para>To show a specific log entry, put the log entry cursor in a path after
+              the hash above. Note that cursors are logging system specific, and journal
+              cursors are subject to change.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+    </refsection>
+  </refentry>
+
+  <refentry id="api-terminal-html">
+    <refmeta>
+      <refentrytitle>terminal.html</refentrytitle>
+    </refmeta>
+
+    <refnamediv>
+      <refname>terminal.html</refname>
+      <refpurpose>Server terminal component</refpurpose>
+    </refnamediv>
+
+    <refsection id="api-terminal-html-description">
+      <title>Description</title>
+<programlisting>
+&lt;iframe src="http://127.0.0.1:9090/cockpit+app/@localhost/system/terminal.html"
+    width="600" height="400"&gt;&lt;/iframe&gt;
+</programlisting>
+
+      <para>This is a Cockpit component that brings up a web-based terminal for
+        the logged in user.</para>
+
+      <variablelist>
+        <varlistentry>
+          <term>Component URL</term>
+          <listitem><para><code>/cockpit+app/@localhost/system/terminal.html</code></para></listitem>
+        </varlistentry>
+      </variablelist>
+
+    </refsection>
+  </refentry>
+
+
+</reference>

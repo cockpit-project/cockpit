@@ -1,0 +1,42 @@
+<html>
+<head>
+    <title>Example: Ping Cockpit</title>
+    <meta charset="utf-8">
+</head>
+<body>
+    <h2>Example: Ping Cockpit</h2>
+
+    <p>This example shows how you can ping a server to detect whether Cockpit is
+        available there from a web browser. Your browser must support CORS.</p>
+
+    <p>Server: <input type="text" id="address" value="127.0.0.1"> <button id="button">Go</button></p>
+
+    <pre id="state" style="font-weight: bold;"></pre>
+    <iframe width="700" height="400" style="display:none" id="terminal" title="Terminal" src=""></iframe>
+
+    <script>
+        var button = document.getElementById("button");
+        var state = document.getElementById("state");
+        button.onclick = function() {
+            state.textContent = "...";
+            var xhr = new XMLHttpRequest();
+            var address = document.getElementById("address");
+            xhr.open("GET", "http://" + address.value + ":9090/ping", true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState != 4) {
+                    return;
+                } else if (xhr.status == 200) {
+                    state.textContent = "available: " + xhr.responseText;
+                } else if (xhr.statusText) {
+                    state.textContent = "not available: " + xhr.statusText;
+                } else {
+                    state.textContent = "not available";
+                }
+            }
+            xhr.send();
+            return false;
+        };
+    </script>
+</body>
+</html>
+

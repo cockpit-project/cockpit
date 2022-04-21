@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<refentry id="cockpit-manifest">
+  <refnamediv>
+    <refname>cockpit.js: Manifests</refname>
+    <refpurpose>Manifest info</refpurpose>
+  </refnamediv>
+
+  <refsection id="cockpit-manifest-loading">
+    <title>Loading Manifests</title>
+    <para>You can load manifest info by loading the <code>./manifest.json</code> file in
+      your package. In addition there is a shortcut, by loading the <code>../manifests.json</code>
+      you can load all the manifests at once.</para>
+
+    <para>Lastly load the <code>../manifests.js</code> file to register the manifests at
+      the <code>cockpit.manifests</code> global variable.</para>
+  </refsection>
+
+</refentry>

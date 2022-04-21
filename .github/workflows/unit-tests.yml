@@ -1,0 +1,38 @@
+name: unit-tests
+on: [pull_request, workflow_dispatch]
+jobs:
+  unit-tests:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        startarg:
+         - check-memory
+         - CC=clang :i386 check-memory
+         - CC=clang distcheck
+         - :i386 distcheck
+      fail-fast: false
+    timeout-minutes: 60
+    env:
+      # current podman backport falls over as non-root, and completely breaks down with :i386 image
+      docker: docker
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+        with:
+          # need this to also fetch tags
+          fetch-depth: 0
+
+      - name: Build unit test container if it changed
+        run: |
+          changes=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}..HEAD -- containers/unit-tests/)
+          if [ -n "${changes}" ]; then
+            case '${{ matrix.startarg }}' in
+              *:i386*) arch=i386;;
+              *) arch=amd64;;
+            esac
+            containers/unit-tests/build $arch
+          fi
+
+      - name: Run unit-tests container
+        timeout-minutes: 30
+        run: containers/unit-tests/start ${{ matrix.startarg }}

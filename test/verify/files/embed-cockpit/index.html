@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Embed Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript" src="embed.js"></script>
+    <link rel="stylesheet" href="embed.css">
+</head>
+<body id="content" class="cards-pf">
+
+    <!-- BOILERPLATE: Makes this look like another app -->
+    <main class="pf-c-page__main" tabindex="-1">
+        <section class="pf-c-page__main-section pf-m-light container-cards-pf">
+            <div class="row row-cards-pf">
+                <div id="embed-links" class="col-xs-3 col-sm-3 col-md-2">
+                    <div class="row row-cards-pf">
+                        <input id="embed-address" class="form-control" value="http://127.0.0.1"/>
+                    </div>
+                    <div class="card-pf card-pf-accented card-pf-aggregate-status">
+                        <h2 class="card-pf-title">
+                            <a id="embed-full" href="/cockpit/@localhost/system/index.html">
+                                Full Server
+                            </a>
+                        </h2>
+                        <div class="card-pf-body">
+                            <p class="card-pf-aggregate-status-notifications">
+                                <span class="card-pf-aggregate-status-notification" />
+                            </p>
+                        </div>
+                    </div>
+                    <div class="card-pf card-pf-accented card-pf-aggregate-status card-pf-with-action">
+                        <h2 class="card-pf-title">
+                            <a id="embed-terminal" href="/cockpit/@localhost/system/terminal.html">
+                                Server Terminal</a>
+                        </h2>
+                        <div class="card-pf-body">
+                            <p class="card-pf-aggregate-status-notifications">
+                                <span class="card-pf-aggregate-status-notification">4</span>
+                                <span class="card-pf-aggregate-status-notification">1</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="card-pf card-pf-accented card-pf-aggregate-status">
+                        <h2 class="card-pf-title">
+                            <a id="embed-network" href="/cockpit/@localhost/network/index.html">
+                                Server Networking</a>
+                        </h2>
+                        <div class="card-pf-body">
+                            <p class="card-pf-aggregate-status-notifications">
+                            <span class="card-pf-aggregate-status-notification"></span>1</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="card-pf card-pf-accented card-pf-aggregate-status">
+                        <h2 class="card-pf-title">
+                            <a id="embed-storage" href="/cockpit/@localhost/storage/index.html">
+                                Server Storage</a>
+                        </h2>
+                        <div class="card-pf-body">
+                            <p class="card-pf-aggregate-status-notifications">
+                            <span class="card-pf-aggregate-status-notification"></span>1</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="card-pf card-pf-accented card-pf-aggregate-status">
+                        <h2 class="card-pf-title">
+                            <a id="embed-auth" href="/cockpit+app/@localhost/shell/index.html">
+                                Separate Auth
+                            </a>
+                        </h2>
+                        <div class="card-pf-body">
+                            <p class="card-pf-aggregate-status-notifications">
+                            <span class="card-pf-aggregate-status-notification">1</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-9 col-sm-9 col-md-10">
+                    <div class="card-pf">
+                        <div class="card-pf-heading">
+                            <h2 id="embed-title" class="card-pf-title">
+                                Embedded Cockpit Here
+                            </h2>
+                        </div>
+                        <div id="embed-here" class="card-pf-body">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /row -->
+    </div><!-- /container -->
+    <div id="embed-loaded">
+    </div>
+</body>
+</html>

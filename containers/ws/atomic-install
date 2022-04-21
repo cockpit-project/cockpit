@@ -1,0 +1,68 @@
+#!/bin/sh -eu
+
+# This is the install script for cockpit-ws when run in a privileged container
+# We expect that cockpit-bridge and related stuff is already in the host.
+#
+# The host file system must be mounted at /host
+
+IMAGE=${1:-}
+
+cd /
+PATH="/bin:/sbin"
+
+if [ ! -d /host/etc -o ! -d /host/proc -o ! -d /host/var/run ]; then
+    echo "cockpit-run: host file system is not mounted at /host" >&2
+    exit 1
+fi
+if [ ! -f /host/usr/bin/cockpit-bridge ]; then
+    echo "cockpit-run: cockpit-bridge must be installed in the host" >&2
+    exit 1
+fi
+if [ ! -d /host/usr/share/cockpit ]; then
+    echo "cockpit-run: cockpit-system and other resources must be installed in the host" >&2
+    exit 1
+fi
+if [ -f /host/usr/libexec/cockpit-ws ]; then
+    echo "cockpit-ws must not be installed in the host" >&2
+    exit 1
+fi
+
+set -x
+
+# Copy the cockpit pam file into the host, since the PAM stack is gonna run
+# on the host with host PAM modules, and the host files, such as /etc/shadow
+# However we must ensure that it doesn't have selinux stuff ... because well,
+# containers and SELinux don't mix (yet?)
+sed -e '/pam_selinux/d' -e '/pam_sepermit/d' /etc/pam.d/cockpit > /host/etc/pam.d/cockpit
+
+# Make sure that we have required directories in the host
+mkdir -p /host/etc/cockpit/ws-certs.d /host/etc/cockpit/machines.d
+chmod 755 /host/etc/cockpit/ws-certs.d /host/etc/cockpit/machines.d
+chown root:root /host/etc/cockpit/ws-certs.d /host/etc/cockpit/machines.d
+
+# For sharing ssh's known hosts with container
+mkdir -p /etc/ssh
+
+# For podman, generate a systemd unit for starting on boot
+if [ "${container:-}" = oci ] && [ -n "$IMAGE" ] && [ ! -e /host/etc/systemd/system/cockpit.service ]; then
+    mkdir -p /host/etc/systemd/system/
+    cat << EOF > /host/etc/systemd/system/cockpit.service
+[Unit]
+Description=$IMAGE podman container
+
+[Service]
+Type=oneshot
+ExecStartPre=-/usr/bin/podman rm -f cockpit-ws
+ExecStart=/usr/bin/podman container runlabel --name cockpit-ws RUN $IMAGE
+ExecStop=/usr/bin/podman rm -f cockpit-ws
+RemainAfterExit=yes
+KillMode=none
+
+[Install]
+WantedBy=multi-user.target
+EOF
+fi
+
+# Ensure we have certificates
+/bin/mount --bind /host/etc/cockpit /etc/cockpit
+/usr/libexec/cockpit-certificate-ensure

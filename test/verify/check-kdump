@@ -1,0 +1,329 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2016 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from testlib import *
+from machine_core.constants import TEST_OS_DEFAULT
+
+
+class KdumpHelpers(MachineCase):
+    def enableKdump(self):
+        # all current Fedora/CentOS/RHEL images use BootLoaderSpec
+        self.machine.execute("grubby --args=crashkernel=256M --update-kernel=ALL")
+        self.machine.execute("mkdir -p /var/crash")
+        self.machine.reboot()
+        self.allow_restart_journal_messages()
+        self.machine.start_cockpit()
+        self.browser.switch_to_top()
+        self.browser.relogin("/kdump")
+
+    def crashKernel(self):
+        b = self.browser
+        b.click(f"button{self.default_btn_class}")
+        # we should get a warning dialog, confirm
+        b.click(f"button{self.danger_btn_class}")
+        # wait until we've actually triggered a crash
+        b.wait_visible(".dialog-wait-ct")
+
+        # wait for disconnect and then try connecting again
+        b.switch_to_top()
+        b.wait_in_text("div.curtains-ct h1", "Disconnected")
+        self.machine.disconnect()
+        self.machine.wait_boot(timeout_sec=300)
+
+
+@skipImage("kexec-tools not installed", "fedora-coreos", "debian-stable",
+           "debian-testing", "ubuntu-2004", "ubuntu-2204", "ubuntu-stable", "arch")
+@timeout(900)
+@skipDistroPackage()
+class TestKdump(KdumpHelpers):
+
+    def enableLocalSsh(self):
+        self.machine.execute("[ -f /root/.ssh/id_rsa ] || ssh-keygen -t rsa -N '' -f /root/.ssh/id_rsa")
+        self.machine.execute("cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys")
+        self.machine.execute("ssh-keyscan -H localhost >> /root/.ssh/known_hosts")
+
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+
+        b.wait_timeout(120)
+        m.execute("systemctl enable kdump && systemctl start kdump || true")
+
+        self.login_and_go("/kdump")
+
+        b.wait_visible("#app")
+
+        def assertActive(active):
+            b.wait_visible(".pf-c-switch__input" + (active and ":checked" or ":not(:checked)"))
+
+        if m.image.startswith("rhel-") or m.image in ["centos-8-stream"]:
+            # some OSes have kdump enabled by default (crashkernel=auto)
+            b.wait_in_text("#app", "Service is running")
+            assertActive(True)
+        else:
+            # right now we have no memory reserved
+            b.mouse("span + .popover-ct-kdump", "mouseenter")
+            b.wait_in_text(".pf-c-tooltip", "No memory reserved.")
+            b.mouse("span + .popover-ct-kdump", "mouseleave")
+            # newer kdump.service have `ConditionKernelCommandLine=crashkernel` which fails gracefully
+            unit = m.execute("systemctl cat kdump.service")
+            if 'ConditionKernelCommandLine=crashkernel' in unit:
+                # service should indicate that the unit is stopped
+                b.wait_in_text("#app", "Service is stopped")
+            else:
+                # service should indicate an error
+                b.wait_in_text("#app", "Service has an error")
+            # ... and the button should be off
+            assertActive(False)
+
+        # there shouldn't be any crash reports in the target directory
+        self.assertEqual(m.execute("find /var/crash -maxdepth 1 -mindepth 1 -type d"), "")
+
+        self.enableKdump()
+        b.wait_visible("#app")
+        self.enableLocalSsh()
+
+        # minimal nfs validation
+        b.wait_text("#kdump-change-target", "locally in /var/crash")
+
+        b.click("#kdump-change-target")
+        b.wait_visible("#kdump-settings-dialog")
+        b.set_val("#kdump-settings-location", "nfs")
+        mountInput = "#kdump-settings-nfs-mount"
+        b.set_input_text(mountInput, ":/var/crash")
+        b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
+        b.wait_in_text("#kdump-settings-dialog h4.pf-c-alert__title", "Unable to save settings: nfs dump target isn't formatted as server:path")
+        # no further details/journal
+        self.assertFalse(b.is_present("#kdump-settings-dialog .pf-c-code-block__code"))
+        b.set_input_text(mountInput, "localhost:")
+        b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
+        b.wait_in_text("#kdump-settings-dialog h4.pf-c-alert__title", "Unable to save settings: nfs dump target isn't formatted as server:path")
+        b.click("#kdump-settings-dialog button.cancel")
+        b.wait_not_present("#kdump-settings-dialog")
+
+        # test compression
+        b.click("#kdump-change-target")
+        b.click("#kdump-settings-compression")
+        pathInput = "#kdump-settings-local-directory"
+        b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
+        b.wait_not_present(pathInput)
+        m.execute("cat /etc/kdump.conf | grep -qE 'makedumpfile.*-c.*'")
+
+        # generate a valid kdump config with ssh target
+        b.click("#kdump-change-target")
+        b.set_val("#kdump-settings-location", "ssh")
+        sshInput = "#kdump-settings-ssh-server"
+        b.set_input_text(sshInput, "root@localhost")
+        sshKeyInput = "#kdump-settings-ssh-key"
+        pathInput = "#kdump-settings-ssh-directory"
+        b.set_input_text(sshKeyInput, "/root/.ssh/id_rsa")
+        b.set_input_text(pathInput, "/var/crash")
+        b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
+        b.wait_not_present(pathInput)
+
+        # we should have the amount of memory reserved that we indicated
+        b.wait_in_text("#app", "256 MiB")
+        # service should start up properly and the button should be on
+        b.wait_in_text("#app", "Service is running")
+        assertActive(True)
+        b.wait_in_text("#app", "Service is running")
+        b.wait_text("#kdump-change-target", "Remote over SSH")
+
+        # try to change the path to a directory that doesn't exist
+        customPath = "/var/crash2"
+        b.click("#kdump-change-target")
+        b.set_val("#kdump-settings-location", "local")
+        pathInput = "#kdump-settings-local-directory"
+        b.set_input_text(pathInput, customPath)
+        b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
+        # we should get an error
+        b.wait_in_text("#kdump-settings-dialog h4.pf-c-alert__title",
+                       "Unable to save settings: Directory /var/crash2 isn't writable or doesn't exist")
+        # also allow the journal message about failed touch
+        self.allow_journal_messages(".*mktemp: failed to create file via template.*")
+        # create the directory and try again
+        m.execute(f"mkdir -p {customPath}")
+        b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
+        b.wait_not_present(pathInput)
+        b.wait_text("#kdump-change-target", f"locally in {customPath}")
+
+        # service has to restart after changing the config, wait for it to be running
+        # otherwise the button to test will be disabled
+        b.wait_in_text("#app", "Service is running")
+        assertActive(True)
+
+        # crash the kernel and make sure it wrote a report into the right directory
+        self.crashKernel()
+        m.execute(f"until test -e {customPath}/127.0.0.1*/vmcore; do sleep 1; done")
+        self.assertIn("Kdump compressed dump", m.execute(f"file {customPath}/127.0.0.1*/vmcore"))
+
+    @nondestructive
+    def testConfiguration(self):
+        b = self.browser
+        m = self.machine
+
+        self.restore_file("/etc/kdump.conf")
+
+        m.execute("systemctl disable --now kdump")
+
+        self.login_and_go("/kdump")
+        b.wait_visible("#app")
+
+        # Check remote ssh location
+        b.click("#kdump-change-target")
+        b.wait_visible("#kdump-settings-dialog")
+        b.set_val("#kdump-settings-location", "ssh")
+        b.set_input_text("#kdump-settings-ssh-server", "admin@localhost")
+        b.set_input_text("#kdump-settings-ssh-key", "/home/admin/.ssh/id_rsa")
+        b.set_input_text("#kdump-settings-ssh-directory", "/var/tmp/crash")
+        b.click("button:contains('Save')")
+        b.wait_not_present("#kdump-settings-dialog")
+        conf = m.execute("cat /etc/kdump.conf")
+        self.assertIn("path /var/tmp/crash", conf)
+        self.assertIn("ssh admin@localhost", conf)
+        self.assertIn("sshkey /home/admin/.ssh/id_rsa", conf)
+
+        # Check remote NFS location
+        b.click("#kdump-change-target")
+        b.wait_visible("#kdump-settings-dialog")
+        b.set_val("#kdump-settings-location", "nfs")
+        b.set_input_text("#kdump-settings-nfs-mount", "someserver:/srv")
+        b.click("button:contains('Save')")
+        b.wait_not_present("#kdump-settings-dialog")
+        conf = m.execute("cat /etc/kdump.conf")
+        self.assertIn("nfs someserver:/srv", conf)
+        # directory unspecified, using default path
+        self.assertNotIn("\npath ", conf)
+        self.assertNotIn("\nssh ", conf)
+
+        # NFS with custom path
+        b.click("#kdump-change-target")
+        b.wait_visible("#kdump-settings-dialog")
+        b.set_input_text("#kdump-settings-nfs-directory", "dumps")
+        b.click("button:contains('Save')")
+        b.wait_not_present("#kdump-settings-dialog")
+        conf = m.execute("cat /etc/kdump.conf")
+        self.assertIn("nfs someserver:/srv", conf)
+        self.assertIn("\npath dumps", conf)
+
+        # Check local location
+        b.click("#kdump-change-target")
+        b.wait_visible("#kdump-settings-dialog")
+        b.set_val("#kdump-settings-location", "local")
+        b.set_input_text("#kdump-settings-local-directory", "/var/tmp")
+        b.click("button:contains('Save')")
+        b.wait_not_present("#kdump-settings-dialog")
+        conf = m.execute("cat /etc/kdump.conf")
+        self.assertIn("path /var/tmp", conf)
+        self.assertNotIn("\nnfs ", conf)
+
+        # Check compression
+        current = m.execute("grep '^core_collector' /etc/kdump.conf").strip()
+        b.click("#kdump-change-target")
+        b.wait_visible("#kdump-settings-dialog")
+        b.set_checked("#kdump-settings-compression", True)
+        b.click("button:contains('Save')")
+        b.wait_not_present("#kdump-settings-dialog")
+        conf = m.execute("cat /etc/kdump.conf")
+        self.assertIn(current + " -c", conf)
+
+
+@skipImage("kexec-tools not installed", "fedora-coreos", "debian-stable",
+           "debian-testing", "ubuntu-2004", "ubuntu-2204", "ubuntu-stable", "arch")
+@timeout(900)
+@skipDistroPackage()
+class TestKdumpNFS(KdumpHelpers):
+    provision = {
+        "0": {"address": "10.111.113.1/24", "memory_mb": 1024},
+        "nfs": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/24", "memory_mb": 512}
+    }
+
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        # set up NFS server
+        self.machines["nfs"].write("/etc/exports", "/srv/kdump 10.111.113.0/24(rw,no_root_squash)\n")
+        self.machines["nfs"].execute("mkdir -p /srv/kdump/var/crash; firewall-cmd --add-service nfs; systemctl restart nfs-server")
+
+        # set up client machine
+        m.execute("systemctl disable kdump")
+        # ensure there is no local /var/crash, should not break kdump
+        m.execute("rmdir /var/crash")
+        self.login_and_go("/kdump")
+        self.enableKdump()
+
+        # switch to NFS
+        b.click("#kdump-change-target")
+        b.wait_visible("#kdump-settings-dialog")
+        b.set_val("#kdump-settings-location", "nfs")
+        b.set_input_text("#kdump-settings-nfs-mount", "10.111.113.2:/srv/kdump")
+        b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
+        # rebuilding initrd might take a while on busy CI machines
+        with b.wait_timeout(300):
+            b.wait_not_present("#kdump-settings-dialog")
+
+        # enable service, regenerates initrd and tests NFS settings
+        b.wait_visible(".pf-c-switch__input:not(:checked)")
+        b.click(".pf-c-switch__input")
+        with b.wait_timeout(300):
+            b.wait_visible(".pf-c-switch__input:checked")
+        b.wait_in_text("#app", "Service is running")
+
+        # explicit nfs option, unset path
+        conf = m.execute("cat /etc/kdump.conf")
+        self.assertIn("\nnfs 10.111.113.2:/srv/kdump\n", conf)
+        self.assertNotIn("\npath", conf)
+
+        self.crashKernel()
+
+        # dump is done during boot, so should exist now
+        self.assertIn("Kdump compressed dump",
+                      self.machines["nfs"].execute("file /srv/kdump/var/crash/10.111.113.1*/vmcore"))
+
+        # set custom path
+        self.login_and_go("/kdump")
+        b.wait_visible(".pf-c-switch__input:checked")
+        b.click("#kdump-change-target")
+        b.wait_visible("#kdump-settings-dialog")
+        b.set_input_text("#kdump-settings-nfs-directory", "dumps")
+        b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
+        # dumps directory does not exist, error
+        b.wait_in_text("#kdump-settings-dialog h4.pf-c-alert__title", "Unable to save settings")
+        # also shows error details
+        b.wait_in_text("#kdump-settings-dialog .pf-c-code-block__code", 'does not exist in dump target "10.111.113.2:/srv/kdump"')
+        # create the directory on the NFS server
+        self.machines["nfs"].execute("mkdir /srv/kdump/dumps")
+        b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
+        with b.wait_timeout(300):
+            b.wait_not_present("#kdump-settings-dialog")
+        conf = m.execute("cat /etc/kdump.conf")
+        self.assertIn("\nnfs 10.111.113.2:/srv/kdump\n", conf)
+        self.assertIn("\npath dumps\n", conf)
+
+        b.wait_visible(".pf-c-switch__input:checked")
+
+        self.crashKernel()
+        self.assertIn("Kdump compressed dump",
+                      self.machines["nfs"].execute("file /srv/kdump/dumps/10.111.113.1*/vmcore"))
+
+
+if __name__ == '__main__':
+    test_main()

@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+	"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<chapter id="embedding">
+  <title>Embedding and Integrating Cockpit</title>
+
+  <para>Cockpit can be embedded in other web applications either as a whole or specific
+    Cockpit components can be integrated. Due to frame security policy restrictions,
+    this only works if Cockpit and the web application have the <emphasis>same origin</emphasis>;
+    this is commonly achieved by running both from a common reverse proxy.</para>
+
+  <section id="embedding-full">
+    <title>Embedding the Cockpit Interface</title>
+
+    <para>Cockpit can be embedded into a larger web page as a frame. To embed
+      the entire Cockpit Window use the URI:
+      <code>https://server.example.com:9090/</code></para>
+
+    <programlisting language="html"><![CDATA[
+<html>
+  <head>
+    <title>Embedded Cockpit</title>
+  </head>
+  <body>
+    This is Cockpit.
+    <br/>
+    <iframe width="800px" height="600px"
+            src="https://server.example.com:9090/"/>
+  </body>
+</html>
+]]></programlisting>
+
+  </section>
+
+  <section id="embedding-components">
+    <title>Integrating Cockpit Components into Web Applications</title>
+
+    <para>Instead of embedding the entirety of Cockpit, you can integrate specific components.
+      Only those components explicitly documented as API should be integrated. Other components
+      can and will change regularly.</para>
+
+    <para>The component will load from the server in question and a WebSocket connection
+      will be established with the server to relay the component's message stream.</para>
+
+    <para>Cockpit components are HTML files contained in
+      <link linkend="packages">packages</link>. These can be placed in an iframe or web browser
+      window. Each documented and stable component has a well-known URL and these are documented
+      in the <link linkend="development">API reference</link>. Each component URL begins with the string
+      <code>/cockpit/@localhost/</code> followed a package name, and then the component itself.</para>
+
+    <para>For example the
+      <link linkend="api-terminal-html">terminal.html</link> in the
+      <link linkend="api-system">system</link> package, has this URL:
+      <code>/cockpit/@localhost/system/terminal.html</code></para>
+
+    <programlisting language="html"><![CDATA[
+<html>
+  <head>
+    <title>Embedded Terminal</title>
+  </head>
+  <body>
+    This is a terminal.
+    <br/>
+    <iframe width="800px" height="600px"
+      src="https://server.example.com:9090/cockpit/@localhost/system/terminal.html"/>
+  </body>
+</html>
+]]></programlisting>
+
+  </section>
+
+  <section id="embedding-deep">
+    <title>Deep Integration</title>
+
+    <para>Most often <link linkend="embedding-components">simple integration</link> will be used
+      to bring Cockpit components into web applications. However it is also possible to do deep
+      integration for embedders who wish to perform non-standard authentication with the server,
+      and relay the component's message stream to the server themselves.</para>
+
+    <warning>
+      <para>Deep integration capability is in heavy flux and is not yet documented.</para>
+    </warning>
+  </section>
+
+  <section id="embedding-cors">
+    <title>Pinging Cockpit</title>
+
+    <para>When embedding Cockpit or integrating Cockpit components, it may be necessary to check
+      whether Cockpit is available on a server before proceeding.</para>
+
+    <para>To do this perform a <code>/ping</code> request to Cockpit. This is a simple HTTP
+      GET request. It returns the following:</para>
+
+<programlisting>
+GET: https://server.example.com:9090/ping
+200 OK: { "service": "cockpit" }
+</programlisting>
+
+    <para>The <code>/ping</code> request allows
+      <ulink url="https://en.wikipedia.org/wiki/Cross-origin_resource_sharing">Cross Origin Resource Sharing</ulink>
+      headers and as such can be performed from Javascript code with any origin. The request can also be
+      made via plain HTTP without SSL. It is by design that no further information is present in the
+      response.</para>
+
+    <para>A complete example of using <code>/ping</code> is available in the Cockpit sources in the
+      <code>/examples/ping-server/</code> directory.</para>
+
+  </section>
+
+</chapter>

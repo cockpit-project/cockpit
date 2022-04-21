@@ -1,0 +1,44 @@
+{
+    "name": "network",
+    "requires": {
+        "cockpit": "186"
+    },
+
+    "menu": {
+        "index": {
+            "label": "Networking",
+            "order": 40,
+            "docs": [
+                {
+                    "label": "Managing networking bonds",
+                    "url": "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/configuring-network-bonds-using-the-web-console_system-management-using-the-rhel-8-web-console"
+                },
+                {
+                    "label": "Managing networking teams",
+                    "url": "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/configuring-network-teams-using-the-web-console_system-management-using-the-rhel-8-web-console"
+                },
+                {
+                    "label": "Managing networking bridges",
+                    "url": "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/configuring-network-bridges-in-the-web-console_system-management-using-the-rhel-8-web-console"
+                },
+                {
+                    "label": "Managing VLANs",
+                    "url": "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/configuring-vlans-in-the-web-console_system-management-using-the-rhel-8-web-console"
+                },
+                {
+                    "label": "Managing firewall",
+                    "url": "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/using-the-web-console-for-managing-firewall_system-management-using-the-rhel-8-web-console"
+                }
+            ],
+            "keywords": [
+                {
+                    "matches": ["network", "interface", "bridge", "vlan", "bond", "team", "port", "mac", "ipv4", "ipv6"]
+                },
+                {
+                    "matches": ["firewall", "firewalld", "zone", "tcp", "udp"],
+                    "goto": "/network/firewall"
+                }
+            ]
+        }
+    }
+}

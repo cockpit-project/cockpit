@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -eu
+
+echo '1..1'
+
+output="$(grep --color=auto -H -n "\.\./fonts/OpenSans\|fonts/.*eot\|truetype" -r dist 2>&1)" || true
+
+printf "%s %d %s%s\n" "${output:+not }ok" '1' "/dist/patternfly-font-paths" "${skip:-}"
+if [ -n "${output:-}" ]; then
+    printf "%s\n" "${output}" | sed -e 's/^/# /'
+    exit 1
+fi

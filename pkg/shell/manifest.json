@@ -1,0 +1,52 @@
+{
+    "requires": {
+        "cockpit": "238.1.1"
+    },
+    "locales": {
+        "cs-cz": "čeština",
+        "de-de": "Deutsch",
+        "en-us": "English",
+        "es-es": "español",
+        "fi-fi": "suomi",
+        "fr-fr": "français",
+        "he-il": "עברית",
+        "it-it": "italiano",
+        "ja-jp": "日本語",
+        "ka-ge" :"ქართული",
+        "ko-kr": "한국어",
+        "nb-no": "norsk bokmål",
+        "nl-nl": "Nederlands",
+        "pl-pl": "polski",
+        "pt-br": "português (Brasil)",
+        "ru-ru": "русский",
+        "sk-sk": "slovenčina",
+        "sv-se": "svenska",
+        "tr-tr": "Türkçe",
+        "uk-ua": "Українська",
+        "zh-cn": "中文（中国）",
+        "zh-tw": "中文（台灣）"
+    },
+    "bridges": [
+        {
+            "privileged": true,
+            "environ": [
+                "SUDO_ASKPASS=${libexecdir}/cockpit-askpass"
+            ],
+            "spawn": [
+                "sudo",
+                "-A",
+                "cockpit-bridge",
+                "--privileged"
+            ]
+        },
+        {
+            "privileged": true,
+            "spawn": [
+                "pkexec",
+                "--disable-internal-agent",
+                "cockpit-bridge",
+                "--privileged"
+            ]
+        }
+    ]
+}

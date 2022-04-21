@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="addon">
+  <id>org.cockpit_project.cockpit_selinux</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <name>SELinux</name>
+  <summary>Security Enhanced Linux configuration and troubleshooting</summary>
+  <description>
+    <p>
+      This tool configures the SELinux policy and can help with
+      understanding and resolving policy violations.
+    </p>
+  </description>
+  <extends>org.cockpit_project.cockpit</extends>
+  <launchable type="cockpit-manifest">selinux/setroubleshoot</launchable>
+  <url type="homepage">https://cockpit-project.org/</url>
+  <update_contact>cockpit-devel_AT_lists.fedorahosted.org</update_contact>
+</component>

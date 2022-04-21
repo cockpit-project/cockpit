@@ -1,0 +1,82 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import parent
+from storagelib import *
+from testlib import *
+
+
+class TestStorageUnused(StorageCase):
+
+    def testUnused(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        # The following block devices should not be offered for creating a
+        # raid
+        #
+        # - filesystems
+        # - extended partition containers
+        # - partition tables
+        #
+        # So we partition a disk with two logical partitions, one of which
+        # has a filesystem on it.
+
+        m.add_disk("50M", serial="DISK1")
+        m.add_disk("50M", serial="DISK2")
+        b.wait_in_text("#drives", "DISK1")
+        b.wait_in_text("#drives", "DISK2")
+        script = """mktable msdos \
+mkpart extended 1 50 \
+mkpart logical ext2 2 24 \
+mkpart logical ext2 24 48"""
+        m.execute("parted -s /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 " + script)
+        m.execute("udevadm settle")
+        m.execute("mke2fs -q -L TEST /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1-part5")
+
+        b.inject_js("""
+          ph_texts = function (sel) {
+            return ph_select(sel).map(function(e) { return e.textContent });
+          }""")
+
+        def check_free_block_devices():
+            blocks = b.eval_js("ph_texts('#dialog [data-field=\"disks\"] .select-space-details')")
+            print("blocks", blocks)
+            # On Ubuntu we see /dev/ram devices as well
+            # On Fedora also /dev/zram0 - see https://github.com/cockpit-project/cockpit/issues/14516
+            allowed = ["/dev/sda", "/dev/sdb", "/dev/vda", "/dev/ram", "/dev/zram"]
+            for block in blocks:
+                for allow in allowed:
+                    if allow in block:
+                        break
+                else:
+                    return False
+
+            # Require these two to be present
+            return "/dev/sda6" in blocks and "/dev/sdb" in blocks
+
+        self.dialog_with_retry(trigger=lambda: self.devices_dropdown('Create RAID device'),
+                               expect=check_free_block_devices,
+                               values=None)
+
+
+if __name__ == '__main__':
+    test_main()

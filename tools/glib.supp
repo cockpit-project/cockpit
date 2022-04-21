@@ -1,0 +1,15 @@
+# cockpit specific valgrind glib suppressions which are not in /usr/share/glib-2.0/valgrind/glib.supp
+{
+   leak_dbus_message_from_blob
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:g_malloc
+   fun:g_slice_alloc
+   ...
+   fun:g_variant_new_dict_entry
+   ...
+   fun:g_dbus_message_new_from_blob
+   ...
+}
+

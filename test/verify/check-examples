@@ -1,0 +1,193 @@
+#!/usr/bin/python3
+
+import os
+
+import parent
+from testlib import *
+from fmf_metadata import FMF
+
+
+EXAMPLES_DIR = os.path.join(os.path.dirname(TEST_DIR), "examples")
+
+
+@FMF.tag("example")
+@FMF.link("https://bugzilla.redhat.com/show_bug.cgi?id=1")
+@skipDistroPackage()
+class TestPinger(MachineCase):
+
+    def setUp(self):
+        super().setUp()
+        self.machine.execute("mkdir -p ~admin/.local/share/cockpit")
+        self.machine.upload([os.path.join(EXAMPLES_DIR, "pinger")], "~admin/.local/share/cockpit/")
+
+    @FMF.summary("This basic test: pinger")
+    @FMF.link("https://github.com/cockpit-project/cockpit/issues/2", "https://github.com/cockpit-project/cockpit/issues/3")
+    def testBasic(self):
+        b = self.browser
+
+        self.login_and_go("/pinger/ping")
+        b.set_val("#address", "127.0.0.1")
+        b.click("button#ping")
+        b.wait_in_text("#result", "success")
+        b.wait_in_text("#output", "--- 127.0.0.1 ping statistics")
+
+    @FMF.tag("fast", "tier1")
+    def testExtend(self):
+        """
+        This is example test should set summary
+
+        and it also setup description text
+        """
+        self.testBasic()
+
+
+@FMF.tag("example")
+@nondestructive
+@skipDistroPackage()
+class TestXHRProxy(MachineCase):
+    def setUp(self):
+        super().setUp()
+        self.restore_dir("/home/admin")
+        self.machine.execute("mkdir -p ~admin/.local/share/cockpit")
+        self.machine.upload([os.path.join(EXAMPLES_DIR, "xhr-proxy")], "~admin/.local/share/cockpit/")
+
+    @FMF.tag("example2")
+    @skipImage("No Python installed", "fedora-coreos")
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        # set up served directory
+        httpdir = self.vm_tmpdir + "/root"
+        m.execute("mkdir {0} && echo world > {0}/hello.txt".format(httpdir))
+        # start webserver
+        pid = m.spawn(f"cd {httpdir} && exec python3 -m http.server 12345", "httpserver")
+        self.addCleanup(m.execute, "kill %i" % pid)
+        self.machine.wait_for_cockpit_running(port=12345)  # wait for changelog HTTP server to start up
+
+        self.login_and_go("/xhr-proxy/xhrproxy")
+
+        # directory index
+        b.set_val("#address", "http://localhost:12345/")
+        b.click("#get")
+        b.wait_text("#result", "200")
+        b.wait_in_text("#output", "Directory listing")
+        b.wait_in_text("#output", "hello.txt")
+
+        # specific file
+        b.set_val("#address", "http://localhost:12345/hello.txt")
+        b.click("#get")
+        b.wait_text("#result", "200")
+        b.wait_text("#output", "world\n")
+
+        # nonexisting path
+        b.set_val("#address", "http://localhost:12345/nosuchfile")
+        b.click("#get")
+        b.wait_text("#result", "404")
+        b.wait_in_text("#output", "File not found")
+
+
+@FMF.tag("example")
+@nondestructive
+@skipDistroPackage()
+class TestLongRunning(MachineCase):
+
+    def setUp(self):
+        super().setUp()
+        m = self.machine
+        m.execute("mkdir -p ~admin/.local/share/cockpit")
+        m.upload([os.path.join(EXAMPLES_DIR, "long-running-process")], "~admin/.local/share/cockpit/")
+        # clean up after test failures
+        self.addCleanup(m.execute, "systemctl stop cockpit-longrunning.service 2>/dev/null && systemctl reset-failed cockpit-longrunning.service || true")
+
+    def testBasic(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/long-running-process")
+
+        self.assertEqual(m.execute("systemctl is-active cockpit-longrunning.service || true").strip(), "inactive")
+        b.wait_text("#state", "cockpit-longrunning.service stopped")
+        b.wait_text("#output", "")
+
+        # run a command that the test can control synchronously
+        ack_file = self.vm_tmpdir + "/ack_a"
+        b.set_val("#command", f"date; echo STEP_A; until [ -e {ack_file} ]; do sleep 1; done; echo STEP_B; sleep 1; echo DONE")
+        b.wait_text("button#run", "Start")
+        b.click("button#run")
+
+        b.wait_text("#state", "cockpit-longrunning.service running")
+        b.wait_in_text("#output", "\nSTEP_A\n")
+        self.assertNotIn("\nSTEP_B", b.text("#output"))
+        self.assertEqual(m.execute("systemctl is-active cockpit-longrunning.service || true").strip(), "activating")
+
+        # reattaches in new session
+        b.logout()
+        b.login_and_go("/long-running-process")
+        b.wait_text("#state", "cockpit-longrunning.service running")
+        b.wait_text("button#run", "Terminate")
+        b.wait_in_text("#output", "\nSTEP_A\n")
+        self.assertEqual(m.execute("systemctl is-active cockpit-longrunning.service || true").strip(), "activating")
+
+        # resume process
+        m.execute(f"mkdir -p {self.vm_tmpdir} && touch {ack_file}")
+        b.wait_in_text("#output", "\nSTEP_B\n")
+        # wait for completion
+        b.wait_in_text("#output", "\nDONE\n")
+        b.wait_text("#state", "cockpit-longrunning.service stopped")
+        self.assertEqual(m.execute("systemctl is-active cockpit-longrunning.service || true").strip(), "inactive")
+
+        # in next session it is back at "not running"
+        b.logout()
+        b.login_and_go("/long-running-process")
+        b.wait_text("#state", "cockpit-longrunning.service stopped")
+        b.wait_text("#output", "")
+        b.wait_text("button#run", "Start")
+
+        # failing process
+        m.execute("rm -f " + ack_file)
+        b.set_val("#command", f"date; echo BREAK_A; until [ -e {ack_file} ]; do sleep 1; done; false; echo NOTME")
+        b.click("button#run")
+        b.wait_text("#state", "cockpit-longrunning.service running")
+        b.wait_in_text("#output", "\nBREAK_A\n")
+        m.execute("touch " + ack_file)
+        b.wait_text("#state", "cockpit-longrunning.service failed")
+        b.wait_in_text("#output", "cockpit-longrunning.service: Main process exited, code=exited, status=1/FAILURE")
+        out = b.text("#output")
+        self.assertNotIn("\nNOTME", out)
+        # does not contain previous logs
+        self.assertNotIn("STEP_B", out)
+        b.wait_text("button#run", "Start")
+
+        # failing state gets picked up on page reconnect
+        b.logout()
+        b.login_and_go("/long-running-process")
+        b.wait_text("#state", "cockpit-longrunning.service failed")
+        b.wait_in_text("#output", "cockpit-longrunning.service: Main process exited, code=exited, status=1/FAILURE")
+        out = b.text("#output")
+        self.assertIn("\nBREAK_A\n", out)
+        self.assertNotIn("\nNOTME", out)
+        b.wait_visible("button#run:disabled")
+        b.wait_text("button#run", "Start")
+
+        # reset
+        m.execute("systemctl reset-failed cockpit-longrunning.service")
+        b.wait_text("#state", "cockpit-longrunning.service stopped")
+
+        # cancel long-running command
+        b.set_val("#command", "for i in $(seq 100); do echo LONG$i; sleep 1; done")
+        b.wait_text("button#run", "Start")
+        b.click("button#run")
+        b.wait_text("#state", "cockpit-longrunning.service running")
+        b.wait_text("button#run", "Terminate")
+        b.wait_in_text("#output", "\nLONG2\n")
+        b.click("button#run")
+        # terminates cleanly
+        b.wait_text("#state", "cockpit-longrunning.service stopped")
+        self.assertEqual(m.execute("systemctl is-active cockpit-longrunning.service || true").strip(), "inactive")
+        b.wait_in_text("#output", "\nLONG2\n")
+        self.assertNotIn("\nLONG30\n", b.text("#output"))
+
+
+if __name__ == '__main__':
+    test_main()

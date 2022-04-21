@@ -1,0 +1,882 @@
+#!/usr/bin/python3
+
+# This file is part of Cockpit.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+#
+# Cockpit is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 2.1 of the License, or
+# (at your option) any later version.
+#
+# Cockpit is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+
+import re
+import subprocess
+import time
+
+import parent
+from testlib import *
+
+
+def break_hostkey(m, address):
+    filename = "/home/admin/.ssh/known_hosts"
+
+    m.execute(f'su admin -c "mkdir -p -m 700 `dirname {filename}`"')
+    m.execute(f'su admin -c "touch {filename}"')
+
+    line = f"{address} ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJqfgO2FPiix1n2sCJCXbaffwog1Vvi3zRdmcAxG//5T"
+    m.execute(f"echo '{line}'> {filename}")
+
+
+def fix_hostkey(m, key=None):
+    filename = "/home/admin/.ssh/known_hosts"
+
+    if not key:
+        key = ''
+
+    m.execute(f'su admin -c "mkdir -p -m 700 `dirname {filename}`"')
+    m.execute(f'su admin -c "touch {filename}"')
+    m.execute(f"echo '{key}' > {filename}")
+
+
+def break_bridge(m):
+    m.execute("ln -snf /bin/false /usr/local/bin/cockpit-bridge")
+
+
+def fix_bridge(m):
+    m.execute("rm /usr/local/bin/cockpit-bridge")
+
+
+def check_failed_state(b, expected_title):
+    b.wait_in_text('#hosts_setup_server_dialog h1', expected_title)
+    b.click("#hosts_setup_server_dialog button:contains(Close)")
+    b.wait_not_present('#hosts_setup_server_dialog')
+
+
+def start_machine_troubleshoot(b, new=False, known_host=False, password=None):
+    b.wait_visible("#machine-troubleshoot")
+    b.click('#machine-troubleshoot')
+    b.wait_visible('#hosts_setup_server_dialog')
+    if new:
+        b.click('#hosts_setup_server_dialog button:contains(Add)')
+        if not known_host:
+            b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to")
+            b.wait_in_text('#hosts_setup_server_dialog', "for the first time.")
+            b.click('#hosts_setup_server_dialog button:contains(Accept key and connect)')
+    if password:
+        b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
+        b.set_input_text('#login-custom-password', password)
+        b.click('#hosts_setup_server_dialog button:contains(Log in)')
+
+
+def fail_login(b):
+    b.click('#hosts_setup_server_dialog button:contains(Log in)')
+    b.wait_visible('#hosts_setup_server_dialog button:contains(Log in):not([disabled])')
+    b.wait_in_text("#hosts_setup_server_dialog .pf-c-alert", "Login failed")
+
+
+def add_machine(b, address, known_host=False, password="foobar"):
+    b.switch_to_top()
+    b.go(f"/@{address}")
+    start_machine_troubleshoot(b, new=True, known_host=known_host, password=password)
+    b.wait_not_present('#hosts_setup_server_dialog')
+    b.enter_page("/system", host=address)
+
+
+def kill_user_admin(machine):
+    machine.execute("loginctl terminate-user admin")
+
+
+def change_ssh_port(machine, address, port=None, timeout_sec=120):
+    try:
+        port = int(port)
+    except (ValueError, TypeError):
+        port = 22
+
+    # Keep in mind that not all operating systems have firewalld
+    machine.execute(f"firewall-cmd --permanent --zone=public --add-port={port}/tcp || true")
+    machine.execute("firewall-cmd --reload || true")
+    if machine.image in ["fedora-coreos"]:  # no semanage
+        machine.execute("setenforce 0")
+    else:
+        machine.execute(f"! selinuxenabled || semanage port -a -t ssh_port_t -p tcp {port}")
+    machine.execute("sed -i 's/.*Port .*/#\\0/' /etc/ssh/sshd_config")
+    machine.execute(
+        f"printf 'ListenAddress 127.27.0.15:22\nListenAddress {address}:{port}\n' >> /etc/ssh/sshd_config")
+
+    # We stop the sshd.socket unit and just go with a regular
+    # daemon.  This is more portable and reloading/restarting the
+    # socket doesn't seem to work well.
+    #
+    machine.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
+
+    start_time = time.time()
+    error = None
+    while (time.time() - start_time) < timeout_sec:
+        try:
+            machine.execute(
+                f"ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no -o PasswordAuthentication=no -p {port} {address} 2>&1 | grep -q 'Permission denied'", quiet=True)
+            return
+        except Exception as e:
+            error = e
+        time.sleep(0.5)
+    raise error
+
+
+@skipDistroPackage()
+class TestMultiMachineAdd(MachineCase):
+    provision = {
+        "machine1": {"address": "10.111.113.1/20", "memory_mb": 660},
+        "machine2": {"address": "10.111.113.2/20", "memory_mb": 660},
+        "machine3": {"address": "10.111.113.3/20", "memory_mb": 660},
+    }
+
+    def setup_ssh_auth(self):
+        self.machine.execute("d=/home/admin/.ssh; mkdir -p $d; chown admin:admin $d; chmod 700 $d")
+        self.machine.execute("test -f /home/admin/.ssh/id_rsa || ssh-keygen -f /home/admin/.ssh/id_rsa -t rsa -N ''")
+        self.machine.execute("chown admin:admin /home/admin/.ssh/id_rsa*")
+        pubkey = self.machine.execute("cat /home/admin/.ssh/id_rsa.pub")
+
+        for m in self.machines:
+            self.machines[m].execute("d=/home/admin/.ssh; mkdir -p $d; chown admin:admin $d; chmod 700 $d")
+            self.machines[m].write("/home/admin/.ssh/authorized_keys", pubkey)
+            self.machines[m].execute("chown admin:admin /home/admin/.ssh/authorized_keys")
+
+    def setUp(self):
+        super().setUp()
+        self.machine2 = self.machines['machine2']
+        self.machine3 = self.machines['machine3']
+
+        for name in ['machine2', 'machine3']:
+            m = self.machines[name]
+            m.execute(f"hostnamectl set-hostname {name}")
+
+            # Disable preloading on all machines ("machine1" is done in testlib.py)
+            # Preloading on machines with debug build can overload the browser and cause slowness and browser crashes
+            # In these tests we actually switch between machines in quick succession which can make things even worse
+            if self.is_devel_build():
+                m.write("/etc/cockpit/packagekit.override.json", '{ "preload": [ ] }')
+                m.write("/etc/cockpit/systemd.override.json", '{ "preload": [ ] }')
+
+        self.setup_ssh_auth()
+
+    def testBasic(self):
+        b = self.browser
+        m2 = self.machine2
+        m3 = self.machine3
+        m3_host = "10.111.113.3:2222"
+        change_ssh_port(m3, "10.111.113.3", 2222)
+
+        hostname_selector = "#system_information_hostname_text"
+
+        self.login_and_go(None)
+        add_machine(b, "10.111.113.2", password=None)
+        add_machine(b, m3_host, password=None)
+
+        b.switch_to_top()
+        b.click("#hosts-sel button")
+
+        kill_user_admin(m2)
+        b.wait_visible("#machine2-error")
+
+        kill_user_admin(m3)
+        b.wait_visible("#machine3-error")
+
+        # Navigating reconnects
+        b.click("a[href='/@10.111.113.2']")
+
+        b.wait_js_cond('window.location.pathname == "/@10.111.113.2/system"')
+        b.enter_page("/system", host="10.111.113.2")
+        b.wait_text(hostname_selector, "machine2")
+
+        b.switch_to_top()
+        b.click("#hosts-sel button")
+        b.wait_visible("a[href='/@10.111.113.2']")
+        b.wait_not_present("#machine2-error")
+
+        b.click("a[href='/@10.111.113.3']")
+
+        b.wait_js_cond('window.location.pathname == "/@10.111.113.3/system"')
+        b.enter_page("/system", host=m3_host)
+        b.wait_text(hostname_selector, "machine3")
+
+        b.switch_to_top()
+        b.click("#hosts-sel button")
+        b.wait_visible("a[href='/@10.111.113.3']")
+        b.wait_not_present("#machine3-error")
+
+        self.allow_restart_journal_messages()
+        self.allow_hostkey_messages()
+        # Might happen when killing the bridge.
+        self.allow_journal_messages("localhost: dropping message while waiting for child to exit",
+                                    "Received message for unknown channel: .*",
+                                    '.*: Socket error: disconnected',
+                                    ".*: error reading from ssh",
+                                    ".*: bridge failed: .*",
+                                    ".*: bridge program failed: Child process exited with code .*")
+
+    def testGlobalSSHConfig(self):
+        b = self.browser
+        m = self.machine
+        m3 = self.machine3
+
+        change_ssh_port(m3, "10.111.113.3", 2222)
+        m.execute("echo -e 'Host m2\n\tHostName 10.111.113.2\n' >> /etc/ssh/ssh_config")
+        m.execute("echo -e 'Host m3\n\tHostName 10.111.113.3\n\tPort 2222\n' >> /etc/ssh/ssh_config")
+
+        self.login_and_go(None)
+        add_machine(b, "m2", password=None)
+        add_machine(b, "m3", password=None)
+
+        b.switch_to_top()
+        b.click("#hosts-sel button")
+        b.wait_visible("a[href='/@m2']")
+        b.wait_visible("a[href='/@m3']")
+        b.wait_not_present("#page-sidebar .nav-status")
+
+        self.allow_hostkey_messages()
+
+
+@skipDistroPackage()
+class TestMultiMachine(MachineCase):
+    provision = {
+        "machine1": {"address": "10.111.113.1/20", "memory_mb": 660},
+        "machine2": {"address": "10.111.113.2/20", "memory_mb": 660},
+        "machine3": {"address": "10.111.113.3/20", "memory_mb": 660},
+    }
+
+    def setUp(self):
+        super().setUp()
+
+        self.machine.execute("hostnamectl set-hostname machine1")
+        self.allow_journal_messages("sudo: unable to resolve host machine1: .*")
+
+        self.machine2 = self.machines['machine2']
+        self.machine3 = self.machines['machine3']
+
+        for name in ['machine2', 'machine3']:
+            m = self.machines[name]
+            m.execute(f"hostnamectl set-hostname {name}")
+
+            # Disable preloading on all machines ("machine1" is done in testlib.py)
+            # Preloading on machines with debug build can overload the browser and cause slowness and browser crashes
+            # In these tests we actually switch between machines in quick succession which can make things even worse
+            if self.is_devel_build():
+                m.write("/etc/cockpit/packagekit.override.json", '{ "preload": [ ] }')
+                m.write("/etc/cockpit/systemd.override.json", '{ "preload": [ ] }')
+
+    def checkDirectLogin(self, root='/', known_host=False):
+        b = self.browser
+        m2 = self.machine2
+        m = self.machine
+
+        hostname_selector = "#system_information_hostname_text"
+
+        # Direct to machine2, new login
+        m2.execute("echo admin:alt-password | chpasswd")
+        b.switch_to_top()
+        b.open(f"{root}=10.111.113.2")
+        b.wait_visible("#login")
+        b.wait_visible("#server-name")
+        b.wait_not_visible("#badge")
+        b.wait_not_visible("#brand")
+        b.wait_in_text("#server-name", "10.111.113.2")
+        b.wait_val("#server-field", "10.111.113.2")
+        b.set_input_text("#login-user-input", "admin")
+        b.set_input_text("#login-password-input", "alt-password")
+        b.click('#login-button')
+        if not known_host:
+            b.wait_in_text("#hostkey-message-1", "10.111.113.2")
+            match = re.match(r'\((?:ssh-)?([^-]*).*\)', b.text("#hostkey-type"))
+            self.assertIsNotNone(match)
+            algo = match.groups()[0]
+            try:
+                # This assumes that all fingerprints use SHA256.
+                line = m2.execute("ssh-keygen -l -E SHA256 -f /etc/ssh/ssh_host_%s_key.pub" %
+                                  (algo.lower()), quiet=True)
+                fp = line.split(" ")[1]
+                self.assertEqual(b.text('#hostkey-fingerprint'), fp)
+            except subprocess.CalledProcessError:
+                # ssh-keygen doesn't support -E, just make sure we have a fp
+                self.assertTrue(b.val('#hostkey-fingerprint'))
+            b.click('#login-button')
+
+        b.enter_page("/system")
+        b.wait_in_text(hostname_selector, "machine2")
+        b.switch_to_top()
+
+        b.wait_js_cond(f'window.location.pathname == "{root}=10.111.113.2/system"')
+
+        b.click("#hosts-sel button")
+        b.wait_in_text("a[href='/@localhost']", "machine2")
+        b.wait_not_present("a[href='/@10.111.113.2']")
+        b.logout()
+
+        # Bad host key
+        m.execute("echo '10.111.113.2 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDgPMmTosSQ4NxMtq+aL2NKLC+W4I9/jbD1e74cnOKTW' > /etc/ssh/ssh_known_hosts")
+        b.open(f"{root}=10.111.113.2")
+        b.wait_visible("#login")
+        b.set_input_text("#login-user-input", "admin")
+        b.set_input_text("#login-password-input", "alt-password")
+        b.click('#login-button')
+
+        b.wait_not_visible("#conversation-group")
+        b.wait_visible("#password-group")
+        b.wait_visible("#user-group")
+        b.wait_visible("#option-group")
+        b.wait_visible("#server-group")
+        b.wait_in_text("#login-error-message", "Hostkey does not match")
+
+        # Clear bad host key in /etc and set bad host key in
+        # localStorage.
+        m.execute("echo '' > /etc/ssh/ssh_known_hosts")
+        b.eval_js("""window.localStorage.setItem("known_hosts", '{"10.111.113.2":"BAD"}')""")
+        b.set_input_text("#login-user-input", "admin")
+        b.set_input_text("#login-password-input", "alt-password")
+        b.click('#login-button')
+        b.wait_visible("#hostkey-group")
+        b.wait_in_text("#hostkey-title", "10.111.113.2 key changed")
+        b.click('#login-button')
+
+        b.enter_page("/system")
+        b.wait_in_text(hostname_selector, "machine2")
+        b.logout()
+
+        # Clear localStorage and set correct host key in /etc
+        b.eval_js("""window.localStorage.setItem("known_hosts", '{}')""")
+        m.execute("ssh-keyscan 10.111.113.2 > /etc/ssh/ssh_known_hosts")
+        b.set_input_text("#login-user-input", "admin")
+        b.set_input_text("#login-password-input", "alt-password")
+        b.click('#login-button')
+        b.enter_page("/system")
+        b.wait_in_text(hostname_selector, "machine2")
+        b.logout()
+
+        login_options = '#show-other-login-options'
+
+        # Connect to bad machine
+        b.open(f"{root}other")
+        b.set_input_text("#login-user-input", "admin")
+        b.set_input_text("#login-password-input", "bad-password")
+        b.click(login_options)
+        b.wait_visible("#server-group")
+        b.set_input_text("#server-field", "bad")
+        b.click(login_options)
+        b.wait_not_visible("#server-group")
+        b.click('#login-button')
+        b.wait_visible("#server-group")
+        b.wait_in_text("#login-error-message", "Unable to connect")
+
+        # Might happen when we switch away.
+        self.allow_hostkey_messages()
+        self.allow_journal_messages(".* Failed to resolve hostname bad .*")
+
+    def testDirectLogin(self):
+        self.machine.start_cockpit()
+        self.checkDirectLogin('/')
+
+    def testUrlRoot(self):
+        b = self.browser
+        m = self.machine
+
+        hostname_selector = "#system_information_hostname_text"
+
+        m.execute('mkdir -p /etc/cockpit/ && echo "[WebService]\nUrlRoot = cockpit-new" > /etc/cockpit/cockpit.conf')
+        m.start_cockpit()
+
+        # Make sure normal urls don't work.
+        output = m.execute('curl -s -o /dev/null -w "%{http_code}" http://localhost:9090/cockpit/socket')
+        self.assertIn('404', output)
+
+        output = m.execute('curl -s -o /dev/null -w "%{http_code}" http://localhost:9090/cockpit/socket')
+        self.assertIn('404', output)
+
+        b.open("/cockpit-new/system")
+        b.wait_visible("#login")
+        b.set_input_text("#login-user-input", "admin")
+        b.set_input_text("#login-password-input", "foobar")
+        b.click('#login-button')
+        b.enter_page("/system")
+        b.switch_to_top()
+        b.wait_js_cond('window.location.pathname == "/cockpit-new/system"')
+
+        # Test 2nd machine
+        add_machine(b, "10.111.113.2")
+        b.enter_page("/system", host="10.111.113.2")
+        b.wait_text(hostname_selector, "machine2")
+        b.switch_to_top()
+        b.wait_js_cond('window.location.pathname == "/cockpit-new/@10.111.113.2/system"')
+
+        # Test subnav
+        b.click_system_menu("/@10.111.113.2/users", enter=False)
+        b.enter_page("/users", host="10.111.113.2")
+        b.wait_visible("#accounts-list")
+        b.click("#accounts-list .pf-c-card:first-child")
+        b.wait_text("#account-user-name", "admin")
+        b.switch_to_top()
+        b.wait_js_cond('window.location.pathname == "/cockpit-new/@10.111.113.2/users"')
+        b.wait_js_cond('window.location.hash == "#/admin"')
+
+        b.logout()
+        self.checkDirectLogin('/cockpit-new/')
+        self.allow_hostkey_messages()
+
+    def testUrlRootWithQuery(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute('mkdir -p /etc/cockpit/ && echo "[WebService]\nUrlRoot = cockpit-new" > /etc/cockpit/cockpit.conf')
+        m.start_cockpit()
+
+        b.open("/cockpit-new/system?access_token=XXXX")
+        b.wait_visible("#login")
+        b.set_input_text("#login-user-input", "admin")
+        b.set_input_text("#login-password-input", "foobar")
+        b.click('#login-button')
+        b.enter_page("/system")
+        b.switch_to_top()
+        b.wait_js_cond('window.location.pathname == "/cockpit-new/system"')
+
+    def testExternalPage(self):
+        b = self.browser
+        m1 = self.machine
+        m2 = self.machine2
+
+        # Modify the terminals to be different on the two machines.
+        for machine, name in zip((m1, m2), ('m1', 'm2')):
+            # This page may be either compressed or uncompressed
+            machine.execute(f"""
+                FILENAME=/usr/share/cockpit/systemd/terminal.html*
+                cp $FILENAME /tmp
+                test -f /tmp/terminal.html || gzip -d /tmp/terminal.html.gz
+                sed -ie 's|</body>|magic-{name}-token</body>|' /tmp/terminal.html
+                gzip < /tmp/terminal.html > /tmp/terminal.html.gz
+                mount -o bind /tmp/"$(basename $FILENAME)" $FILENAME""")
+
+        self.login_and_go("/system")
+        add_machine(b, "10.111.113.2")
+
+        b.leave_page()
+        b.go("/@10.111.113.2/system/terminal")
+        b.enter_page("/system/terminal", host="10.111.113.2")
+        b.wait_in_text("body", "magic-m2-token")
+
+        b.leave_page()
+        b.go("/@localhost/system/terminal")
+        b.enter_page("/system/terminal")
+        b.wait_in_text("body", "magic-m1-token")
+
+        self.allow_hostkey_messages()
+
+    def testFrameNavigation(self):
+        b = self.browser
+        m2 = self.machine2
+
+        m2_path = "/@10.111.113.2/playground/test"
+
+        # Add a machine
+        self.login_and_go(None)
+        add_machine(b, "10.111.113.2")
+
+        # Go to the path, remove the image
+        b.go(m2_path)
+        b.enter_page("/playground/test", "10.111.113.2")
+        b.click("img[src='hammer.gif']")
+        b.switch_to_top()
+
+        # kill admin, lock account
+        m2.execute('passwd -l admin')
+        kill_user_admin(m2)
+
+        b.wait_text(".curtains-ct h1", "Not connected to host")
+        b.wait_text("#machine-reconnect", "Reconnect")
+
+        b.click("#hosts-sel button")
+        b.wait_visible("a[href='/@10.111.113.2']")
+        b.wait_visible("#machine2-error")
+        b.go("/system")
+        b.enter_page("/system")
+        b.wait_in_text("#system_information_hostname_text", "machine1")
+        b.switch_to_top()
+
+        # navigating there again will fail
+        b.go(m2_path)
+        b.wait_text(".curtains-ct h1", "Not connected to host")
+        b.wait_text("#machine-troubleshoot", "Log in")
+
+        # wait for system to load
+        b.go("/system")
+        b.enter_page("/system")
+        b.wait_in_text("#system_information_hostname_text", "machine1")
+        b.switch_to_top()
+
+        # renable admin
+        m2.execute('passwd -u admin')
+
+        # path should reconnect at this point
+        b.reload()
+        b.go(m2_path)
+        b.wait_text(".curtains-ct h1", "Not connected to host")
+        b.click("#machine-troubleshoot")
+        b.wait_visible('#hosts_setup_server_dialog')
+        b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
+        b.set_input_text('#login-custom-password', "foobar")
+        b.click('#hosts_setup_server_dialog button:contains(Log in)')
+        b.wait_not_present('#hosts_setup_server_dialog')
+
+        b.enter_page("/playground/test", "10.111.113.2", reconnect=True)
+        # image is back because it page was reloaded after disconnection
+        b.wait_visible("img[src='hammer.gif']")
+        b.switch_to_top()
+
+        # Host shows it is up
+        b.click("#hosts-sel button")
+        b.wait_visible("a[href='/@10.111.113.2']")
+        b.wait_not_present("#page-sidebar .nav-status")
+
+        # Bad host also bounces
+        b.go("/@10.0.0.0/playground/test")
+        b.wait_text(".curtains-ct h1", "Not connected to host")
+        self.assertEqual(b.text(".curtains-ct .pf-c-empty-state__body"), "Cannot connect to an unknown host")
+
+        self.allow_hostkey_messages()
+        # Might happen when killing the bridge.
+        self.allow_journal_messages("localhost: dropping message while waiting for child to exit",
+                                    "Received message for unknown channel: .*",
+                                    '.*: Socket error: disconnected',
+                                    ".*: error reading from ssh",
+                                    ".*: bridge failed: .*",
+                                    ".*: bridge program failed: Child process exited with code .*",
+                                    "/playground/test.html: failed to retrieve resource: authentication-failed")
+
+    def testFrameReload(self):
+        b = self.browser
+
+        frame = "cockpit1:10.111.113.2/playground/test"
+        m2_path = "/@10.111.113.2/playground/test"
+
+        # Add a machine
+        self.login_and_go(None)
+        add_machine(b, "10.111.113.2")
+
+        b.switch_to_top()
+        b.go(m2_path)
+        b.enter_page("/playground/test", "10.111.113.2")
+
+        b.wait_text('#file-content', "0")
+        b.click("#modify-file")
+        b.wait_text('#file-content', "1")
+
+        # load the same page on m1
+        b.switch_to_top()
+        b.go("/@localhost/playground/test")
+        b.enter_page("/playground/test")
+        b.wait_text('#file-content', "0")
+
+        # go back to m2 and reload frame.
+        b.switch_to_top()
+        b.go(m2_path)
+        b.enter_page("/playground/test", "10.111.113.2")
+        b.wait_text('#file-content', "1")
+        b.switch_to_top()
+
+        b.eval_js('ph_set_attr("iframe[name=\'%s\']", "data-ready", null)' % frame)
+        b.eval_js('ph_set_attr("iframe[name=\'%s\']", "src", "../playground/test.html?i=1#/")' % frame)
+        b.wait_visible(f"iframe.container-frame[name='{frame}'][data-ready]")
+
+        b.enter_page("/playground/test", "10.111.113.2")
+
+        b.wait_text('#file-content', "1")
+
+        self.allow_hostkey_messages()
+
+    def testTroubleshooting(self):
+        b = self.browser
+        m1 = self.machine
+        m2 = self.machine2
+
+        # Logging in as root is no longer allowed by default by sshd
+        m2.execute("sed -ri 's/#?PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config")
+        m2.execute("systemctl restart sshd")
+
+        machine_path = "/@10.111.113.2"
+
+        self.login_and_go(None)
+
+        # Troubleshoot while adding
+        b.go(machine_path)
+
+        # Bad hostkey
+        break_hostkey(m1, "10.111.113.2")
+        start_machine_troubleshoot(b, True, True)
+        b.wait_in_text('#hosts_setup_server_dialog', "10.111.113.2 key changed")
+        b.click("#hosts_setup_server_dialog button:contains(Cancel)")
+        b.wait_not_present('#hosts_setup_server_dialog')
+        fix_hostkey(m1)
+
+        # Host key path is correct
+        m1.execute("mkdir -p /home/admin/.ssh/")
+        break_hostkey(m1, "10.111.113.2")
+
+        start_machine_troubleshoot(b, True, True)
+        b.wait_in_text('#hosts_setup_server_dialog', "10.111.113.2 key changed")
+        b.click("#hosts_setup_server_dialog button:contains(Cancel)")
+        fix_hostkey(m1)
+
+        # Bad cockpit
+        break_bridge(m2)
+        start_machine_troubleshoot(b, True, password="foobar")
+        check_failed_state(b, "Cockpit is not installed")
+        fix_bridge(m2)
+
+        # Troubleshoot existing
+        # Properly add machine
+        fix_hostkey(m1)
+        add_machine(b, "10.111.113.2")
+        b.logout()
+        b.wait_visible("#login")
+
+        # Bad cockpit
+        break_bridge(m2)
+        self.login_and_go(None)
+        b.go(machine_path)
+        with b.wait_timeout(240):
+            start_machine_troubleshoot(b, password="foobar")
+
+        check_failed_state(b, "Cockpit is not installed")
+        b.wait_visible("#machine-troubleshoot")
+        fix_bridge(m2)
+
+        # Clear host key
+        fix_hostkey(m1)
+        start_machine_troubleshoot(b)
+        b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
+        b.click('#hosts_setup_server_dialog button:contains(Accept key and connect)')
+        b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
+        b.set_input_text('#login-custom-password', "foobar")
+        b.click('#hosts_setup_server_dialog button:contains(Log in)')
+        b.wait_not_present('#hosts_setup_server_dialog')
+
+        # Reconnect
+        b.wait_not_visible(".curtains-ct")
+        b.enter_page('/system', "10.111.113.2")
+
+        b.logout()
+        b.wait_visible("#login")
+
+        # Break auth
+        m2.execute("echo admin:alt-password | chpasswd")
+        self.login_and_go(None)
+        b.go(machine_path)
+
+        with b.wait_timeout(120):
+            b.wait_visible("#machine-troubleshoot")
+        start_machine_troubleshoot(b)
+        b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
+        b.set_input_text('#login-custom-password', "")
+        fail_login(b)
+
+        b.set_input_text("#login-custom-password", "bad")
+        fail_login(b)
+        b.set_input_text("#login-custom-password", "alt-password")
+        b.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
+        b.wait_not_present('#hosts_setup_server_dialog')
+
+        # Reconnect
+        b.wait_not_visible(".curtains-ct")
+        b.enter_page('/system', "10.111.113.2")
+        b.logout()
+        b.wait_visible("#login")
+
+        if m1.image in ["fedora-coreos"]:  # no semanage
+            m1.execute("setenforce 0")
+        else:
+            m1.execute("! selinuxenabled || semanage port -a -t ssh_port_t -p tcp 2222")
+
+        # Keep in mind that not all operating systems have firewalld
+        m2.execute("firewall-cmd --permanent --zone=public --add-port=2222/tcp || true")
+        m2.execute("firewall-cmd --reload || true")
+        if m2.image in ["fedora-coreos"]:  # no semanage
+            m2.execute("setenforce 0")
+        else:
+            m2.execute("! selinuxenabled || semanage port -a -t ssh_port_t -p tcp 2222")
+        m2.execute("sed -i 's/.*Port .*/#\\0/' /etc/ssh/sshd_config")
+        m2.execute("printf 'ListenAddress 127.27.0.15:22\nListenAddress 10.111.113.2:2222\n' >> /etc/ssh/sshd_config")
+
+        # We stop the sshd.socket unit and just go with a regular
+        # daemon.  This is more portable and reloading/restarting the
+        # socket doesn't seem to work well.
+        m2.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
+        m2.disconnect()
+        m2 = None  # No more access to m2
+
+        self.login_and_go(None)
+        b.go(machine_path)
+        with b.wait_timeout(120):
+            b.wait_visible("#machine-troubleshoot")
+        start_machine_troubleshoot(b)
+        b.wait_in_text('#hosts_setup_server_dialog h1', "Could not contact")
+        b.set_input_text("#edit-machine-port", "2222")
+        b.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
+        # Using libssh's knownhosts api port is taken into account when verifying a host
+        b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
+        b.click('#hosts_setup_server_dialog button:contains(Accept key and connect)')
+        b.wait_in_text('#hosts_setup_server_dialog h1', "Log in to")
+        b.set_input_text("#login-custom-password", "alt-password")
+        b.click(f'#hosts_setup_server_dialog {self.primary_btn_class}')
+        b.wait_not_present('#hosts_setup_server_dialog')
+
+        b.wait_not_visible(".curtains-ct")
+        b.enter_page('/system', "10.111.113.2:2222")
+        b.logout()
+
+        self.allow_hostkey_messages()
+        self.allow_journal_messages('.* couldn\'t connect: .*',
+                                    '.* failed to retrieve resource: invalid-hostkey',
+                                    '.* host key for server has changed to: .*',
+                                    '.* spawning remote bridge failed .*',
+                                    '.*: bridge failed: .*',
+                                    '.*: received truncated .*',
+                                    '.*: Socket error: disconnected',
+                                    '.*: host key for this server changed key type: .*',
+                                    '.*: server offered unsupported authentication methods: .*')
+
+    @skipImage("TODO: Broken on Arch Linux", "arch")
+    def testSshKeySetup(self):
+        b = self.browser
+        m1 = self.machine
+        m2 = self.machine2
+
+        # Let's not use "admin" on the remote machine.  Creating a
+        # dedicated user gives us a guaranteed clean slate and also
+        # tests more code paths.
+
+        m2.execute("useradd -m fred")
+        m2.execute("echo fred:foobar | chpasswd")
+
+        self.login_and_go(None)
+        b.go("/@10.111.113.2")
+        b.wait_visible("#machine-troubleshoot")
+        b.click('#machine-troubleshoot')
+        b.wait_visible('#hosts_setup_server_dialog')
+        b.wait_in_text('#hosts_setup_server_dialog', "new host")
+        b.set_input_text('#add-machine-user', "fred")
+        b.click('#hosts_setup_server_dialog button:contains(Add)')
+        b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
+        b.click('#hosts_setup_server_dialog button:contains(Accept key and connect)')
+        b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
+
+        # There is no key yet.  Create and authorize it.
+
+        m1.execute("! test -f /home/admin/.ssh/id_rsa")
+        m2.execute("! test -f /home/fred/.ssh/authorized_keys")
+
+        b.wait_in_text("#hosts_setup_server_dialog", "Create a new SSH key and authorize it")
+        b.set_input_text('#login-custom-password', "foobar")
+        b.set_checked("#login-setup-keys", True)
+        # Leave passphrase empty on Coreos, since it can't load keys into the agent
+        if not m1.ostree_image:
+            b.set_input_text('#hosts_setup_server_dialog #login-setup-new-key-password', "foobar")
+            b.set_input_text('#hosts_setup_server_dialog #login-setup-new-key-password2', "foobar")
+        b.click('#hosts_setup_server_dialog button:contains(Log in)')
+        b.wait_not_present('#hosts_setup_server_dialog')
+
+        b.enter_page("/system", host="fred@10.111.113.2")
+        m1.execute("test -f /home/admin/.ssh/id_rsa && test -f /home/admin/.ssh/id_rsa.pub")
+        self.assertEqual(m1.execute("cat /home/admin/.ssh/id_rsa.pub"),
+                         m2.execute("cat /home/fred/.ssh/authorized_keys"))
+
+        # Relogin.  This should now work seamlessly.
+        b.relogin(None, wait_remote_session_machine=m1)
+        b.enter_page("/system", host="fred@10.111.113.2")
+
+        # De-authorize key and relogin, then re-authorize.
+        m2.execute("rm /home/fred/.ssh/authorized_keys")
+        b.relogin(None, wait_remote_session_machine=m1)
+        b.wait_visible("#machine-troubleshoot")
+        b.click('#machine-troubleshoot')
+        b.wait_visible('#hosts_setup_server_dialog')
+        b.wait_in_text('#hosts_setup_server_dialog', "Unable to log in")
+        b.wait_in_text("#hosts_setup_server_dialog", "Authorize SSH key")
+        b.set_checked("#login-setup-keys", True)
+        b.set_input_text('#login-custom-password', "foobar")
+        b.click('#hosts_setup_server_dialog button:contains(Log in)')
+        b.wait_not_present('#hosts_setup_server_dialog')
+        b.enter_page("/system", host="fred@10.111.113.2")
+        self.assertEqual(m1.execute("cat /home/admin/.ssh/id_rsa.pub"),
+                         m2.execute("cat /home/fred/.ssh/authorized_keys"))
+
+        # Put a 'better' passphrase on the key and relogin, then
+        # change the passphrase back to the login password
+        m1.execute("ssh-keygen -q -f /home/admin/.ssh/id_rsa -p -P foobar -N foobarfoo")
+        b.relogin(None, wait_remote_session_machine=m1)
+        b.wait_visible("#machine-troubleshoot")
+        b.click('#machine-troubleshoot')
+        b.wait_visible('#hosts_setup_server_dialog')
+        b.wait_in_text('#hosts_setup_server_dialog', "The SSH key for logging in")
+        b.set_checked('#hosts_setup_server_dialog input[value=key]', True)
+        b.set_input_text('#hosts_setup_server_dialog #locked-identity-password', "foobarfoo")
+        b.set_checked("#login-setup-keys", True)
+        b.set_input_text('#hosts_setup_server_dialog #login-setup-new-key-password', "foobar")
+        b.set_input_text('#hosts_setup_server_dialog #login-setup-new-key-password2', "foobar")
+        b.click('#hosts_setup_server_dialog button:contains(Log in)')
+        b.wait_not_present('#hosts_setup_server_dialog')
+        b.enter_page("/system", host="fred@10.111.113.2")
+
+        # Relogin.  This should now work seamlessly (except on
+        # fedora-coreos, which doesn't have pam-ssh-add in its PAM
+        # stack.)
+        #
+        if not m1.ostree_image:
+            b.relogin(None, wait_remote_session_machine=m1)
+            b.enter_page("/system", host="fred@10.111.113.2")
+
+        # The authorized_keys files should still only have a single key
+        self.assertEqual(m1.execute("cat /home/admin/.ssh/id_rsa.pub"),
+                         m2.execute("cat /home/fred/.ssh/authorized_keys"))
+
+        self.allow_hostkey_messages()
+
+    def testSshKeySetupCustom(self):
+        b = self.browser
+        m1 = self.machine
+        m2 = self.machine2
+
+        # This tests how the ssh key setup reacts to a already
+        # existing configuration involving a custom key with a
+        # passphrase.
+
+        m1.execute("d=/home/admin/.ssh; mkdir -p $d; chown admin:admin $d; chmod 700 $d")
+        m1.execute("ssh-keygen -f /home/admin/.ssh/id_local -t rsa -N 'foobar'")
+        m1.execute("chown admin:admin /home/admin/.ssh/id_local*")
+        m1.write("/home/admin/.ssh/config", "Host 10.111.113.2\n  IdentityFile /home/admin/.ssh/id_local\n")
+        pubkey = self.machine.execute("cat /home/admin/.ssh/id_local.pub")
+
+        m2.execute("d=/home/admin/.ssh; mkdir -p $d; chown admin:admin $d; chmod 700 $d")
+        m2.write("/home/admin/.ssh/authorized_keys", pubkey)
+        m2.execute("chown admin:admin /home/admin/.ssh/authorized_keys")
+
+        self.login_and_go(None)
+        b.go("/@10.111.113.2")
+        b.wait_visible("#machine-troubleshoot")
+        b.click('#machine-troubleshoot')
+        b.wait_visible('#hosts_setup_server_dialog')
+        b.click('#hosts_setup_server_dialog button:contains(Add)')
+        b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to 10.111.113.2 for the first time.")
+        b.click('#hosts_setup_server_dialog button:contains(Accept key and connect)')
+        b.wait_in_text('#hosts_setup_server_dialog', "The SSH key")
+        b.wait_not_present('.password-change-advice')
+        b.wait_not_present('.login-setup-auto')
+
+        self.allow_hostkey_messages()
+
+
+if __name__ == '__main__':
+    test_main()

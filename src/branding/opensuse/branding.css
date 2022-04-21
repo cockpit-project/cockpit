@@ -1,0 +1,30 @@
+:root {
+    --ct-color-host-accent: #73ba25 !important;
+}
+
+body.login-pf {
+    background: url("default-1920x1200.jpg") no-repeat 50% 0;
+    background-size: cover;
+    background-color: #42474c;
+}
+
+#badge {
+    width: 5em;
+    height: 5em;
+    background-image: url("square-hicolor.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+#brand {
+    font-size: 18pt;
+    text-transform: uppercase;
+}
+
+#brand:before {
+    content: "${NAME}";
+}
+
+#index-brand:before {
+    content: "${NAME}";
+}

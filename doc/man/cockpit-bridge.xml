@@ -1,0 +1,110 @@
+<refentry id="cockpit-bridge.1">
+
+  <!--
+  This file is part of Cockpit.
+
+  Copyright (C) 2014 Red Hat, Inc.
+
+  Cockpit is free software; you can redistribute it and/or modify it
+  under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation; either version 2.1 of the License, or
+  (at your option) any later version.
+
+  Cockpit is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+  <refentryinfo>
+    <title>cockpit-bridge</title>
+    <productname>cockpit</productname>
+  </refentryinfo>
+
+  <refmeta>
+    <refentrytitle>cockpit-bridge</refentrytitle>
+    <manvolnum>1</manvolnum>
+    <refmiscinfo class="version"></refmiscinfo>
+  </refmeta>
+
+  <refnamediv>
+    <refname>cockpit-bridge</refname>
+    <refpurpose>Cockpit Host Bridge</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>cockpit-bridge</command>
+      <arg><option>--help</option></arg>
+      <arg><option>--packages</option></arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+
+  <refsect1 id="cockpit-bridge-description">
+    <title>DESCRIPTION</title>
+    <para>The <command>cockpit-bridge</command> program is used by Cockpit to
+      relay messages and commands from the Web front end to the server. Among
+      other things it relays DBus, and spawns processes on behalf of the
+      Web user interface.</para>
+    <para>This program is not routinely run by users or administrators. It
+      is in the <code>$PATH</code> so that Cockpit can find it when connecting
+      between hosts. However there are some diagnostics available when running
+      from the command line.</para>
+  </refsect1>
+
+  <refsect1 id="cockpit-bridge-options">
+    <title>OPTIONS</title>
+    <variablelist>
+      <varlistentry>
+        <term><option>--help</option></term>
+        <listitem>
+          <para>
+            Show help options.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>--interact=boundary</option></term>
+        <listitem>
+          <para>Interact with the raw cockpit1 protocol. Useful for debugging and testing.
+            Specify a <option>boundary</option> which should be on an empty line between
+            messages.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>--packages</option></term>
+        <listitem>
+          <para>List all available Cockpit packages and exit. Note this includes packages
+            available to the user running this command.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="cockpit-bridge-bugs">
+    <title>BUGS</title>
+    <para>
+      Please send bug reports to either the distribution bug tracker or the
+      <ulink url="https://github.com/cockpit-project/cockpit/issues/new">upstream bug tracker</ulink>.
+    </para>
+  </refsect1>
+
+  <refsect1 id="cockpit-bridge-author">
+    <title>AUTHOR</title>
+    <para>Cockpit has been written by many
+      <ulink url="https://github.com/cockpit-project/cockpit/">contributors</ulink>.</para>
+  </refsect1>
+
+  <refsect1 id="cockpit-bridge-also">
+    <title>SEE ALSO</title>
+    <para>
+      <citerefentry>
+        <refentrytitle>cockpit-ws</refentrytitle><manvolnum>8</manvolnum>
+      </citerefentry>
+    </para>
+  </refsect1>
+</refentry>

@@ -1,0 +1,44 @@
+#!/bin/sh
+
+# Help create a deterministic distribution tarball with timestamps
+# based on the time of the latest git commit.
+
+set -eu
+
+distdir="$1"
+
+# This will work for .git or for .tarball
+#
+# Note: we give the .tarball file the exact same timestamp as the git commit,
+# so producing a tarball from a tarball should also create the exact same
+# output.
+
+stamp="$(git show --format=%ct --no-patch 2>/dev/null || stat -c %Y .tarball)"
+
+test -n "${stamp}"
+
+timestamp() {
+    find "$@" -exec touch -d "@${stamp}" '{}' '+'
+    stamp="$((stamp + 1))"
+}
+
+# all files get the same timestamp as the commit date
+timestamp "${distdir}"
+
+# aclocal.m4 comes next
+timestamp "${distdir}/aclocal.m4"
+
+# then the other automake generated files
+timestamp \
+    "${distdir}/config.h.in" \
+    "${distdir}/configure" \
+    "${distdir}/Makefile.in"
+
+# package-lock.json needs to be newer than package.json
+timestamp "${distdir}/package-lock.json"
+
+# and dist/ needs to be newer than that
+timestamp "${distdir}/dist"
+
+# finally, the directories should be newer than everything else
+timestamp "${distdir}" -type d

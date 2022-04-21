@@ -1,0 +1,43 @@
+#!/bin/sh
+# image-customize script to prepare a bots VM for testing cockpit
+# The cockpit packages will be installed separately
+set -eu
+
+if type firewall-cmd >/dev/null 2>&1; then
+    firewall-cmd --add-service=cockpit --permanent
+fi
+
+. /usr/lib/os-release
+
+# our tests expect cockpit.socket to not be running after boot, only after start_cockpit()
+if [ "${VARIANT_ID:-}" != "coreos" ]; then
+    systemctl disable cockpit.socket
+fi
+
+# OS specific hacks
+
+if [ "$ID" = "debian" ] || [ "$ID" = "ubuntu" ]; then
+    # avoid random dpkg database locks, they break our package related tests
+    systemctl disable apt-daily-upgrade.timer
+
+    # create public firewalld zone for our firewall tests
+    systemctl start firewalld
+    firewall-cmd --zone=public --permanent --add-interface=eth1
+
+    # HACK: tuned breaks QEMU (https://launchpad.net/bugs/1774000)
+    systemctl disable tuned.service 2>/dev/null || true
+fi
+
+if [ "$ID" = "debian" ]; then
+    # make libpwquality less aggressive, so that our "foobar" password works
+    printf 'dictcheck = 0\nminlen = 6\n' >> /etc/security/pwquality.conf
+
+    # Allow libvirtd coredumps
+    echo '* soft core unlimited' >> /etc/security/limits.conf
+fi
+
+# clean out the journal
+journalctl --flush
+journalctl --sync || killall systemd-journald
+rm -rf /var/log/journal/*
+rm -rf /var/lib/NetworkManager/dhclient-*.lease

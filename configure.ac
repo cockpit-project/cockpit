@@ -42,6 +42,7 @@ am__tar='tar --format=ustar --sort=name --owner=root:0 --group=root:0 -chf - "$$
 
 AC_USE_SYSTEM_EXTENSIONS
 AC_SYS_LARGEFILE
+AM_PROG_AR
 AC_PROG_RANLIB
 
 AC_CHECK_FUNCS(

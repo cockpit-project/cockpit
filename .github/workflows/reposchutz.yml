@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Clone target branch
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Fetch PR commits
         run: git fetch origin "${BASE_SHA}" "${HEAD_SHA}"

@@ -81,6 +81,11 @@ def redisService(image):
     return "redis"
 
 
+def applySettings(browser):
+    browser.click("#pcp-settings-modal button.pf-m-primary")
+    browser.wait_not_present("#pcp-settings-modal")
+
+
 def login(self):
     # HACK: Ubuntu and Debian need some time until metrics channel is available
     # Really no idea what it needs to wait for, so let's just try channel until it succeeds
@@ -443,8 +448,7 @@ class TestHistoryMetrics(MachineCase):
         b.wait_visible("#switch-pmlogger:not(:checked)")
         b.click("#switch-pmlogger")
         b.wait_visible("#switch-pmlogger:checked")
-        b.click("#pcp-settings-modal button.pf-m-primary")
-        b.wait_not_present("#pcp-settings-modal")
+        applySettings(b)
 
         m.execute("until systemctl is-active pmlogger; do sleep 1; done")
 
@@ -501,8 +505,7 @@ class TestHistoryMetrics(MachineCase):
         b.wait_visible("#switch-pmlogger:checked")
         b.click("#switch-pmlogger")
         b.wait_visible("#switch-pmlogger:not(:checked)")
-        b.click("#pcp-settings-modal button.pf-m-primary")
-        b.wait_not_present("#pcp-settings-modal")
+        applySettings(b)
 
         self.assertEqual(m.execute("systemctl is-active pmlogger || true").strip(), "inactive")
         self.assertEqual(m.execute("systemctl is-enabled pmlogger || true").strip(), "disabled")
@@ -513,8 +516,7 @@ class TestHistoryMetrics(MachineCase):
         b.wait_visible("#switch-pmlogger:not(:checked)")
         b.click("#switch-pmlogger")
         b.wait_visible("#switch-pmlogger:checked")
-        b.click("#pcp-settings-modal button.pf-m-primary")
-        b.wait_not_present("#pcp-settings-modal")
+        applySettings(b)
 
         m.execute("until systemctl is-active pmlogger; do sleep 1; done")
         self.assertEqual(m.execute("systemctl is-enabled pmlogger").strip(), "enabled")
@@ -537,8 +539,7 @@ class TestHistoryMetrics(MachineCase):
             b.wait_visible("#switch-pmproxy:not(:checked)")
             b.click('#switch-pmproxy')
             b.wait_visible('#switch-pmproxy:checked')
-            b.click("#pcp-settings-modal button.pf-m-primary")
-            b.wait_not_present("#pcp-settings-modal")
+            applySettings(b)
             if firewalld_alert:
                 b.wait_visible(".pf-c-alert:contains(pmproxy)")
             else:
@@ -556,8 +557,7 @@ class TestHistoryMetrics(MachineCase):
             b.wait_visible('#switch-pmproxy:checked')
             b.click('#switch-pmproxy')
             b.wait_visible("#switch-pmproxy:not(:checked)")
-            b.click("#pcp-settings-modal button.pf-m-primary")
-            b.wait_not_present("#pcp-settings-modal")
+            applySettings(b)
             # always clears the firewalld alert
             b.wait_not_present(".pf-c-alert:contains(pmproxy)")
             self.assertEqual(m.execute("! systemctl is-active pmproxy").strip(), "inactive")
@@ -585,8 +585,7 @@ class TestHistoryMetrics(MachineCase):
         # enable pmlogger
         b.click('#switch-pmlogger')
         b.wait_visible('#switch-pmlogger:checked')
-        b.click("#pcp-settings-modal button.pf-m-primary")
-        b.wait_not_present("#pcp-settings-modal")
+        applySettings(b)
         m.execute('while [ $(systemctl is-active pmlogger) = activating ]; do sleep 1; done')
         self.assertEqual(m.execute("systemctl is-active pmlogger").strip(), "active")
         b.wait_not_present(".pf-c-alert:contains(pmproxy)")
@@ -1028,8 +1027,7 @@ class TestMetricsPackages(packagelib.PackageCase):
         b.wait_visible("#switch-pmlogger:not(:checked)")
         b.click("#switch-pmlogger")
         b.wait_visible("#switch-pmlogger:checked")
-        b.click("#pcp-settings-modal button.pf-m-primary")
-        b.wait_not_present("#pcp-settings-modal")
+        applySettings(b)
         # install dialog
         b.click("#dialog button:contains('Install')")
         b.wait_not_present("#dialog")
@@ -1055,8 +1053,7 @@ class TestMetricsPackages(packagelib.PackageCase):
         b.wait_visible("#switch-pmproxy:not(:checked)")
         b.click("#switch-pmproxy")
         b.wait_visible("#switch-pmproxy:checked")
-        b.click("#pcp-settings-modal button.pf-m-primary")
-        b.wait_not_present("#pcp-settings-modal")
+        applySettings(b)
         # install dialog
         b.click("#dialog button:contains('Install')")
         b.wait_not_present("#dialog")
@@ -1147,8 +1144,7 @@ class TestGrafanaClient(MachineCase):
         b.wait_visible("#switch-pmlogger:not(:checked)")
         b.click("#switch-pmlogger")
         b.wait_visible("#switch-pmlogger:checked")
-        b.click("#pcp-settings-modal button.pf-m-primary")
-        b.wait_not_present("#pcp-settings-modal")
+        applySettings(b)
 
         # enable pmproxy+redis (none of our test OSes have both of them running by default)
         b.click("#metrics-header-section button.pf-m-secondary")
@@ -1156,8 +1152,7 @@ class TestGrafanaClient(MachineCase):
         b.wait_visible("#switch-pmproxy:not(:checked)")
         b.click('#switch-pmproxy')
         b.wait_visible('#switch-pmproxy:checked')
-        b.click("#pcp-settings-modal button.pf-m-primary")
-        b.wait_not_present("#pcp-settings-modal")
+        applySettings(b)
 
         # enable pmproxy service in firewalld in the alert
         b.wait_visible("#firewalld-request-pmproxy")

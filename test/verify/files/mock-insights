@@ -10,17 +10,19 @@
 #
 # You need these in your insights-client.conf:
 #
-# gpg=False
 # auto_config=False
-# base_url=127.0.0.1:8888/r/insights
-# insecure_connection=True
+# auto_update=False
+# base_url=127.0.0.1:8443/r/insights
+# cert_verify=/var/lib/insights/mock-certs/ca.crt
 # username=admin
 # password=foobar
 
 from http.server import *
 import json
+import os
 import re
 import ssl
+import subprocess
 
 systems = {}
 
@@ -36,12 +38,6 @@ class handler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.end_headers()
             self.wfile.write(b"lub-dup")
-            return
-
-        m = self.match("/r/insights/v1/static/core/insights-core.egg")
-        if m:
-            self.send_response(304)
-            self.end_headers()
             return
 
         m = self.match("/r/insights/v1/static/uploader.v2.json")
@@ -138,9 +134,22 @@ class handler(BaseHTTPRequestHandler):
 
 
 def insights_server(port):
+    # Let's put the certs into /var/lib/insights so that SELinux
+    # allows insights-client to actually read ca.crt when running as a
+    # systemd service.
+    certdir = "/var/lib/insights/mock-certs"
+    if not os.path.exists(certdir):
+        os.makedirs(certdir)
+        subprocess.check_call(["sscg"], cwd=certdir)
+
     httpd = HTTPServer(('', port), handler)
-    httpd.socket = ssl.wrap_socket(httpd.socket, certfile='/var/tmp/alice.pem', keyfile='/var/tmp/alice.key', server_side=True)
+    ssl_args = {
+        'certfile': f'{certdir}/service.pem',
+        'keyfile': f'{certdir}/service-key.pem',
+        'server_side': True,
+    }
+    httpd.socket = ssl.wrap_socket(httpd.socket, **ssl_args)
     httpd.serve_forever()
 
 
-insights_server(8888)
+insights_server(8443)

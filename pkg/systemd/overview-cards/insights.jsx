@@ -23,6 +23,7 @@ import { CheckIcon, ExclamationTriangleIcon, ExternalLinkAltIcon } from '@patter
 
 import cockpit from "cockpit";
 import * as service from "service.js";
+import { superuser } from "superuser";
 
 import insights_poll_hack_sh from "raw-loader!./insights-poll-hack.sh";
 
@@ -54,22 +55,36 @@ export class InsightsStatus extends React.Component {
         this.subman_supports_insights = (cockpit.manifests.subscriptions &&
                                          cockpit.manifests.subscriptions.features &&
                                          cockpit.manifests.subscriptions.features.insights);
-    }
 
-    componentDidMount() {
         this.insights_client_timer = service.proxy("insights-client.timer");
         this.insights_client_timer.addEventListener("changed", () => this.setState({}));
 
+        superuser.addEventListener("changed", () => {
+            if (this.is_mounted)
+                this.setup_watches();
+        });
+    }
+
+    setup_watches() {
+        if (superuser.allowed == null)
+            return;
+
         const watch = (name, state, parser) => {
-            return cockpit.file(name, { syntax: { parse: parser } }).watch((data, tag, error) => {
+            return cockpit.file(name, { superuser: "try", syntax: { parse: parser } }).watch((data, tag, error) => {
                 if (error)
                     console.warn("Parse error", name, error.toString());
                 this.setState({ [state]: data });
             });
         };
 
+        if (this.id_watch)
+            this.id_watch.remove();
+
         this.id_watch = watch("/var/lib/insights/host-details.json", "id",
                               data => JSON.parse(data).results[0].id);
+
+        if (this.hits_watch)
+            this.hits_watch.remove();
 
         this.hits_watch = watch("/var/lib/insights/insights-details.json", "hits",
                                 data => {
@@ -87,6 +102,9 @@ export class InsightsStatus extends React.Component {
                                     };
                                 });
 
+        if (this.upload_watch)
+            this.upload_watch.remove();
+
         // Let's try to keep the results up-to-date
         this.upload_watch = cockpit.file("/etc/insights-client/.lastupload").watch(data => {
             if (this.pollster) {
@@ -98,10 +116,28 @@ export class InsightsStatus extends React.Component {
         });
     }
 
+    close_watches() {
+        if (this.id_watch)
+            this.id_watch.remove();
+        this.id_watch = null;
+
+        if (this.hits_watch)
+            this.hits_watch.remove();
+        this.hits_watch = null;
+
+        if (this.upload_watch)
+            this.upload_watch.remove();
+        this.upload_watch = null;
+    }
+
+    componentDidMount() {
+        this.is_mounted = true;
+        this.setup_watches();
+    }
+
     componentWillUnmount() {
-        this.id_watch.remove();
-        this.hits_watch.remove();
-        this.upload_watch.remove();
+        this.close_watches();
+        this.is_mounted = false;
     }
 
     render() {

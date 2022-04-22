@@ -1336,6 +1336,10 @@ class TestAutoUpdates(NoSubManCase):
         self.supported_backend = self.backend in ["dnf"]
         self.addCleanup(self.machine.execute, "systemctl disable --now dnf-automatic-install.timer 2>/dev/null; rm -rf /etc/systemd/system/dnf-automatic-*")
 
+    def closeSettings(self, browser):
+        browser.click("#automatic-updates-dialog button:contains('Save changes')")
+        browser.wait_not_present("#automatic-updates-dialog")
+
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -1403,7 +1407,7 @@ class TestAutoUpdates(NoSubManCase):
         b.click("#all-updates")
         b.wait_val("#auto-update-time-input", "06:00")
         b.wait_in_text("#auto-update-day", "every day")
-        b.click("#automatic-updates-dialog button:contains('Save changes')")
+        self.closeSettings(b)
         b.wait_in_text("#autoupdates-settings", "Updates will be applied every day at 06:00")
         assertTimer("06")
         assertType("all")
@@ -1412,7 +1416,7 @@ class TestAutoUpdates(NoSubManCase):
         b.click("#autoupdates-settings button:contains('Edit')")
         b.wait_visible("#automatic-updates-dialog")
         b.click("#security-updates")
-        b.click("#automatic-updates-dialog button:contains('Save changes')")
+        self.closeSettings(b)
         b.wait_in_text("#autoupdates-settings", "Security updates will be applied every day at 06:00")
         assertType("security")
         assertTimer("06")
@@ -1421,7 +1425,7 @@ class TestAutoUpdates(NoSubManCase):
         b.click("#autoupdates-settings button:contains('Edit')")
         b.wait_visible("#automatic-updates-dialog")
         b.click("#all-updates")
-        b.click("#automatic-updates-dialog button:contains('Save changes')")
+        self.closeSettings(b)
         b.wait_in_text("#autoupdates-settings", "Updates will be applied every day at 06:00")
         assertType("all")
         assertTimer("06")
@@ -1430,7 +1434,7 @@ class TestAutoUpdates(NoSubManCase):
         b.click("#autoupdates-settings button:contains('Edit')")
         b.wait_visible("#automatic-updates-dialog")
         b.select_from_dropdown("#auto-update-day", "thu")
-        b.click("#automatic-updates-dialog button:contains('Save changes')")
+        self.closeSettings(b)
         b.wait_in_text("#autoupdates-settings", "Updates will be applied every Thursday at 06:00")
         assertType("all")
         assertTimer("06", "Thu")
@@ -1439,7 +1443,7 @@ class TestAutoUpdates(NoSubManCase):
         b.click("#autoupdates-settings button:contains('Edit')")
         b.wait_visible("#automatic-updates-dialog")
         b.set_input_text("#auto-update-time-input", "21:00")
-        b.click("#automatic-updates-dialog button:contains('Save changes')")
+        self.closeSettings(b)
         b.wait_in_text("#autoupdates-settings", "Updates will be applied every Thursday at 21:00")
         assertType("all")
         assertTimer("21", "Thu")
@@ -1453,7 +1457,7 @@ class TestAutoUpdates(NoSubManCase):
         b.click("#autoupdates-settings button:contains('Edit')")
         b.wait_visible("#automatic-updates-dialog")
         b.select_from_dropdown("#auto-update-day", "everyday")
-        b.click("#automatic-updates-dialog button:contains('Save changes')")
+        self.closeSettings(b)
         b.wait_in_text("#autoupdates-settings", "Updates will be applied every day at 21:00")
         assertType("all")
         assertTimer("21")
@@ -1462,7 +1466,7 @@ class TestAutoUpdates(NoSubManCase):
         b.click("#autoupdates-settings button:contains('Edit')")
         b.wait_visible("#automatic-updates-dialog")
         b.click("#no-updates")
-        b.click("#automatic-updates-dialog button:contains('Save changes')")
+        self.closeSettings(b)
         b.wait_in_text("#autoupdates-settings", "Disabled")
         assertTimer(None)
 
@@ -1470,8 +1474,7 @@ class TestAutoUpdates(NoSubManCase):
             b.click("#autoupdates-settings button:contains('Edit')")
             b.wait_visible("#automatic-updates-dialog")
             b.click("#all-updates")
-            b.click("#automatic-updates-dialog button:contains('Save changes')")
-            b.wait_not_present("#automatic-updates-dialog")
+            self.closeSettings(b)
             # OnCalendar= parsing: only time
             m.execute("mkdir -p /etc/systemd/system/dnf-automatic.timer.d")
             m.execute(r'printf "[Timer]\nOnUnitInactiveSec=\nOnCalendar=08:00\n" > '
@@ -1529,7 +1532,7 @@ class TestAutoUpdates(NoSubManCase):
         b.click("#autoupdates-settings button:contains('Edit')")
         b.wait_visible("#automatic-updates-dialog")
         b.click("#all-updates")
-        b.click("#automatic-updates-dialog button:contains('Save changes')")
+        self.closeSettings(b)
         b.wait_in_text("#autoupdates-settings", "Updates will be applied every day at 06:00")
 
         if self.backend == 'dnf':
@@ -1558,7 +1561,7 @@ class TestAutoUpdates(NoSubManCase):
         b.click("#autoupdates-settings button:contains('Edit')")
         b.wait_visible("#automatic-updates-dialog")
         b.click("#all-updates")
-        b.click("#automatic-updates-dialog button:contains('Save changes')")
+        self.closeSettings(b)
         b.wait_in_text("#autoupdates-settings", "Updates will be applied every day at 06:00")
 
         # without superuser, auto-update status still visible, but disabled

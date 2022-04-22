@@ -756,7 +756,6 @@ fi
                                     '.*warning: setlocale: LC_ALL: cannot change locale.*',
                                     'done')
 
-    @skipImage("Insights client not yet available on RHEL 9", "rhel-9-0", "rhel-9-1")
     def testInsightsStatus(self):
         m = self.machine
         b = self.browser
@@ -772,15 +771,15 @@ fi
         # TLS mock insights server certificate
         m.upload(["verify/files/mock-insights", "../src/tls/ca/alice.key", "../src/tls/ca/alice.pem"], "/var/tmp")
         m.spawn("/var/tmp/mock-insights", "mock-insights")
+
+        hostname = m.execute("hostname").rstrip()
         m.write("/etc/insights-client/insights-client.conf",
-                """
+                f"""
 [insights-client]
-gpg=False
 auto_config=False
-base_url=localhost:8888/r/insights
-# even if we would add tls/ca/ca.pem (the signer of alice.pem) to /etc/pki, some later part of insights still
-# does not respect that; so just give in, and disable validation
-cert_verify=False
+auto_update=False
+base_url={hostname}:8443/r/insights
+cert_verify=/var/lib/insights/mock-certs/ca.crt
 username=admin
 password=foobar
 """)
@@ -791,6 +790,15 @@ password=foobar
 
         # Enable insights, results should appear automatically
         m.execute("insights-client --register")
+        b.wait_in_text(".system-health-insights a", "3 hits, including important")
+        self.assertIn("123-nice-id", b.attr(".system-health-insights a", "href"))
+
+        # Switch to limited access, insights status will disappear completely
+        b.drop_superuser()
+        b.wait_not_present(".system-health-insights")
+
+        # Switch to admin access, insights status will re-appear
+        b.become_superuser()
         b.wait_in_text(".system-health-insights a", "3 hits, including important")
         self.assertIn("123-nice-id", b.attr(".system-health-insights a", "href"))
 

@@ -1346,6 +1346,7 @@ class TestAutoUpdates(NoSubManCase):
 
         m.start_cockpit()
         b.login_and_go("/updates")
+        b.wait_visible("#status")
 
         if not self.supported_backend:
             self.assertFalse(b.is_present("#automatic"))

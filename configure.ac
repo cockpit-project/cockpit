@@ -44,6 +44,9 @@ AC_USE_SYSTEM_EXTENSIONS
 AC_SYS_LARGEFILE
 AC_PROG_RANLIB
 
+# This is required to find the correct `ar` for cross-compiling
+AC_CHECK_TOOL(AR, ar)
+
 AC_CHECK_FUNCS(
     closefrom
 )

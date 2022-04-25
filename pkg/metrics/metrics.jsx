@@ -67,6 +67,9 @@ const _ = cockpit.gettext;
 // format Date as YYYY-MM-DD HH:mm:ss UTC which is human friendly and systemd compatible
 const formatUTC_ISO = t => `${t.getUTCFullYear()}-${t.getUTCMonth() + 1}-${t.getUTCDate()} ${t.getUTCHours()}:${t.getUTCMinutes()}:${t.getUTCSeconds()} UTC`;
 
+// podman's containers cgroup
+const podmanCgroupRe = /libpod-(?<containerid>[a-z|0-9]{64})\.scope$/;
+
 // keep track of maximum values for unbounded data, so that we can normalize it properly
 // pre-init them to avoid inflating noise
 let scaleSatCPU = 4;
@@ -377,7 +380,7 @@ class CurrentMetrics extends React.Component {
             }
         }
 
-        // return [ { [key, value, is_user] } ] list of the biggest n values
+        // return [ { [key, value, is_user, is_container] } ] list of the biggest n values
         function n_biggest(names, values, n) {
             const merged = [];
             names.forEach((k, i) => {
@@ -387,21 +390,48 @@ class CurrentMetrics extends React.Component {
                     const is_user = k.match(/^user.*user@\d+\.service.+/);
                     const label = k.replace(/.*\//, '').replace(/\.service$/, '');
                     // only keep cgroup basenames, and drop redundant .service suffix
-                    merged.push([label, v, is_user]);
+                    merged.push([label, v, is_user, false]);
+                }
+                // filter out podman containers
+                const matches = k.match(podmanCgroupRe);
+                if (matches && v) {
+                    // truncate to 12 chars like the podman output
+                    const containerid = matches.groups.containerid.substr(0, 12);
+                    const is_user = k.match(/^user.slice/);
+                    merged.push([containerid, v, is_user, true]);
                 }
             });
             merged.sort((a, b) => b[1] - a[1]);
             return merged.slice(0, n);
         }
 
-        function serviceRow(name, value, is_user) {
-            const name_text = (
-                <Button variant="link" isInline component="a" key={name} onClick={ e => cockpit.jump("/system/services#/" + name + ".service" + (is_user ? "?owner=user" : "")) }>
+        function cgroupClickHandler(name, is_user, is_container) {
+            if (is_container) {
+                cockpit.jump("/podman");
+            } else {
+                cockpit.jump("/system/services#/" + name + ".service" + (is_user ? "?owner=user" : ""));
+            }
+        }
+
+        function cgroupRow(name, value, is_user, is_container) {
+            const podman_installed = cockpit.manifests && cockpit.manifests.podman;
+            let name_text = (
+                <Button variant="link" isInline component="a" key={name}
+                        onClick={() => cgroupClickHandler(name, is_user, is_container)}
+                        isDisabled={is_container && !podman_installed}>
                     <TableText wrapModifier="truncate">
-                        {name}
+                        {is_container ? _("pod") + " " + name : name}
                     </TableText>
                 </Button>
             );
+            if (is_container && !podman_installed) {
+                name_text = (
+                    <Tooltip content={_("cockpit-podman is not installed")} key={name + "_tooltip"}>
+                        <div>
+                            {name_text}
+                        </div>
+                    </Tooltip>);
+            }
             const value_text = <TableText wrapModifier="nowrap">{value}</TableText>;
             return {
                 cells: [{ title: name_text }, { title: value_text }]
@@ -410,11 +440,11 @@ class CurrentMetrics extends React.Component {
 
         // top 5 CPU and memory consuming systemd units
         newState.topServicesCPU = n_biggest(this.cgroupCPUNames, this.samples[9], 5).map(
-            ([key, value, is_user]) => serviceRow(key, Number(value / 10 / numCpu).toFixed(1), is_user) // usec/s → percent
+            ([key, value, is_user, is_container]) => cgroupRow(key, Number(value / 10 / numCpu).toFixed(1), is_user, is_container) // usec/s → percent
         );
 
         newState.topServicesMemory = n_biggest(this.cgroupMemoryNames, this.samples[10], 5).map(
-            ([key, value, is_user]) => serviceRow(key, cockpit.format_bytes(value), is_user)
+            ([key, value, is_user, is_container]) => cgroupRow(key, cockpit.format_bytes(value), is_user, is_container)
         );
 
         this.setState(newState);

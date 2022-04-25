@@ -29,21 +29,8 @@ grub() {
     if type grubby >/dev/null 2>&1; then
         if [ "$1" = set ]; then
             grubby --args="$2" --update-kernel=ALL
-            # HACK: grubby on RHEL 8.0 does not change default kernel args (https://bugzilla.redhat.com/show_bug.cgi?id=1690765)
-            envopts=$(grub2-editenv - list | grep ^kernelopts) || envopts=""
-            if [ -n "$envopts" ]; then
-                newenvopts=$(echo "$envopts" | sed -r "s/$key(=[^[:space:]\"]*)?/$2/g; t; s/$/ $2/")
-            fi
         else
             grubby --remove-args="$2" --update-kernel=ALL
-            envopts=$(grub2-editenv - list | grep ^kernelopts) || envopts=""
-            if [ -n "$envopts" ]; then
-                newenvopts=$(echo "$envopts" | sed -r "s/$key(=[^[:space:]\"]*)?//g")
-            fi
-        fi
-
-        if [ -n "$envopts" ] && [ "$newenvopts" != "$envopts" ]; then
-            grub2-editenv - set "$newenvopts"
         fi
 
     # on Debian/Ubuntu, use update-grub, which reads from /etc/default/grub

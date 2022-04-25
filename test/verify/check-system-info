@@ -658,24 +658,21 @@ machine         : 8561
         else:
             self.assertIn('nosmt', m.execute('cat /proc/cmdline'))
 
-        # Ensure that future kernel upgrades also retain the option; various
-        # Fedora and RHEL version are in different stages of the BLS
-        # transition, so there are three cases:
-        # - no BLS, options go into /etc/default/grub and grub.cfg (oldest)
-        # - BLS, options go directly into entries (RHEL 8.0)
-        # - BLS, entries use $kernelopt, that is defined in grubenv (newest)
+        # Ensure that future kernel upgrades also retain the option
+        # - Debian: no BLS, options go into /etc/default/grub and grub.cfg
+        # - BLS, options go directly into entries, or entries use $kernelopt (defined in grubenv)
         if not m.ostree_image:
             m.execute(r"""set -e
 touch /boot/vmlinuz-42.0.0; mkdir -p /lib/modules/42.0.0/
 if type update-grub >/dev/null 2>&1; then
     update-grub  # Debian/Ubuntu
+    grep -q 'linux.*/vmlinuz-42.0.0.*nosmt' /boot/grub*/grub.cfg
 else
     kernel-install add 42.0.0 /boot/vmlinuz-42.0.0 2>/dev/null
+    grep -q '^options.*\bnosmt\b' /boot/loader/entries/*42.0.0*.conf ||
+    ( grub2-editenv list | grep -q kernelopts.*nosmt &&
+      grep -q '^options.*$kernelopts' /boot/loader/entries/*42.0.0*.conf )
 fi
-grep -q 'linux.*/vmlinuz-42.0.0.*nosmt' /boot/grub*/grub.cfg ||
-  grep -q '^options.*\bnosmt\b' /boot/loader/entries/*42.0.0*.conf ||
-  ( grub2-editenv list | grep -q kernelopts.*nosmt &&
-    grep -q '^options.*$kernelopts' /boot/loader/entries/*42.0.0*.conf )
 """)
             # clean up so that next reboot works
             m.execute(r"""set -e

@@ -726,7 +726,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b = self.browser
 
         # root login works by default
-        self.login_and_go(user="root")
+        self.login_and_go("/system", user="root")
+        b.wait_visible('.system-information')
         b.logout()
 
         # disable root login with pam_access

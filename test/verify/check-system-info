@@ -666,16 +666,11 @@ machine         : 8561
         # - BLS, entries use $kernelopt, that is defined in grubenv (newest)
         if not m.ostree_image:
             m.execute(r"""set -e
-. /etc/os-release
 touch /boot/vmlinuz-42.0.0; mkdir -p /lib/modules/42.0.0/
 if type update-grub >/dev/null 2>&1; then
     update-grub  # Debian/Ubuntu
 else
-    if [ "$ID" = rhel -o "$ID" = centos ] && [ "${VERSION_ID#7}" != "$VERSION_ID" ]; then
-        new-kernel-pkg --package kernel --install 42.0.0  # RHEL/CentOS 7
-    else
-        kernel-install add 42.0.0 /boot/vmlinuz-42.0.0 2>/dev/null # Fedora/RHEL >= 8
-    fi
+    kernel-install add 42.0.0 /boot/vmlinuz-42.0.0 2>/dev/null
 fi
 grep -q 'linux.*/vmlinuz-42.0.0.*nosmt' /boot/grub*/grub.cfg ||
   grep -q '^options.*\bnosmt\b' /boot/loader/entries/*42.0.0*.conf ||
@@ -684,16 +679,11 @@ grep -q 'linux.*/vmlinuz-42.0.0.*nosmt' /boot/grub*/grub.cfg ||
 """)
             # clean up so that next reboot works
             m.execute(r"""set -e
-. /etc/os-release
 rm /boot/vmlinuz-42.0.0
 if type update-grub >/dev/null 2>&1; then
     update-grub  # Debian/Ubuntu
 else
-    if [ "$ID" = rhel -o "$ID" = centos ] && [ "${VERSION_ID#7}" != "$VERSION_ID" ]; then
-        new-kernel-pkg --package kernel --remove 42.0.0  # RHEL/CentOS 7
-    else
-        kernel-install remove 42.0.0 /boot/vmlinuz-42.0.0  # Fedora/RHEL >= 8
-    fi
+    kernel-install remove 42.0.0 /boot/vmlinuz-42.0.0
 fi
 """)
 

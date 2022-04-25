@@ -11,6 +11,7 @@ import parent
 import packagelib
 from testlib import *
 
+from machine_core import ssh_connection
 from machine_core.constants import TEST_OS_DEFAULT
 
 
@@ -781,6 +782,46 @@ class TestCurrentMetrics(MachineCase):
                   "  'for i in `seq 500`; do dd if=/dev/urandom of=/dev/zero bs=100K count=500 status=none & done'")
         b.wait(lambda: float(b.text("#load-avg .pf-l-flex div:first-child").split()[-1].rstrip(',')) > 15)
         m.execute("systemctl stop load-hog 2>/dev/null || true")  # ok to fail, as the command exits by itself
+
+        # Test podman containers
+        # HACK: coreos does not have a busybox image
+        if m.image != "fedora-coreos":
+            container_name = "pod-cpu-hog"
+            m.execute(f"podman run --rm -d --name {container_name} quay.io/libpod/busybox /bin/dd if=/dev/urandom of=/dev/null")
+
+            container_sha = m.execute(f"podman inspect --format '{{{{.Id}}}}' {container_name}").strip()
+            shortid = container_sha[:12]
+
+            # On some test images the container takes a while to show up
+            with b.wait_timeout(300):
+                b.wait_in_text("#current-metrics-card-cpu", f"pod {shortid}")
+            b.wait(lambda: topServiceValue(self, "Top 5 CPU services", "%", 1) > 70)
+            m.execute(f"podman stop -t 0 {container_name}")
+
+            # RHEL-8 / CentOS-8's podman user containers do not show up as
+            # libpod-$containerid but as podman-3679.scope.
+            if m.image != "centos-8-stream" and not m.image.startswith("rhel-8"):
+                # copy images for user podman tests; podman insists on user session
+                m.execute("""
+    podman save quay.io/libpod/busybox | sudo -i -u admin podman load
+                """)
+
+                # Test user containers
+                admin_s = ssh_connection.SSHConnection(user="admin",
+                                                       address=m.ssh_address,
+                                                       ssh_port=m.ssh_port,
+                                                       identity_file=m.identity_file)
+                user_container_name = "user-cpu-hog"
+                admin_s.execute(f"podman run --rm -d --name {user_container_name} quay.io/libpod/busybox /bin/dd if=/dev/urandom of=/dev/null")
+
+                container_sha = admin_s.execute(f"podman inspect --format '{{{{.Id}}}}' {user_container_name}").strip()
+                shortid = container_sha[:12]
+
+                # On some test images the container takes a while to show up
+                with b.wait_timeout(300):
+                    b.wait_in_text("#current-metrics-card-cpu", f"pod {shortid}")
+                b.wait(lambda: topServiceValue(self, "Top 5 CPU services", "%", 1) > 70)
+                admin_s.execute(f"podman stop -t 0 {user_container_name}")
 
         # this settles down slowly, don't wait for becoming really quiet
         with b.wait_timeout(300):

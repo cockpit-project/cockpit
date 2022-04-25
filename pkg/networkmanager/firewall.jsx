@@ -724,8 +724,10 @@ class ActivateZoneModal extends React.Component {
             });
             return !inZone;
         });
-        const virtualDevices = interfaces.filter(i => i.capabilities >= 7 && i.device !== "lo").sort((a, b) => a.device.localeCompare(b.device));
-        const physicalDevices = interfaces.filter(i => (i.capabilities < 5 || i.capabilities > 7) && i.device !== "lo").sort((a, b) => a.device.localeCompare(b.device));
+        // https://networkmanager.dev/docs/api/latest/nm-dbus-types.html#NMDeviceCapabilities
+        const NM_DEVICE_CAP_IS_SOFTWARE = 4;
+        const virtualDevices = interfaces.filter(i => i.capabilities & NM_DEVICE_CAP_IS_SOFTWARE !== 0 && i.device !== "lo").sort((a, b) => a.device.localeCompare(b.device));
+        const physicalDevices = interfaces.filter(i => (i.capabilities & NM_DEVICE_CAP_IS_SOFTWARE === 0) && i.device !== "lo").sort((a, b) => a.device.localeCompare(b.device));
         return (
             <Modal id="add-zone-dialog" isOpen
                    position="top" variant="medium"

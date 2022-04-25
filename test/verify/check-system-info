@@ -668,6 +668,7 @@ if type update-grub >/dev/null 2>&1; then
     update-grub  # Debian/Ubuntu
     grep -q 'linux.*/vmlinuz-42.0.0.*nosmt' /boot/grub*/grub.cfg
 else
+    cp -a /boot/grub2/grubenv /boot/grub2/grubenv.prev
     kernel-install add 42.0.0 /boot/vmlinuz-42.0.0 2>/dev/null
     grep -q '^options.*\bnosmt\b' /boot/loader/entries/*42.0.0*.conf ||
     ( grub2-editenv list | grep -q kernelopts.*nosmt &&
@@ -681,6 +682,8 @@ if type update-grub >/dev/null 2>&1; then
     update-grub  # Debian/Ubuntu
 else
     kernel-install remove 42.0.0 /boot/vmlinuz-42.0.0
+    # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=2078359 and https://bugzilla.redhat.com/show_bug.cgi?id=2078379
+    mv /boot/grub2/grubenv.prev /boot/grub2/grubenv
 fi
 """)
 

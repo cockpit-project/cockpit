@@ -22,7 +22,7 @@ from netlib import *
 from testlib import *
 
 
-@skipImage("No network checkpoint support", "ubuntu-2004", "ubuntu-2204", "ubuntu-stable")
+@skipImage("No network checkpoint support", "ubuntu-2204", "ubuntu-stable")
 @skipImage("TODO: testBasic fails on Arch Linux", "arch")
 @skipDistroPackage()
 class TestNetworkingCheckpoints(NetworkCase):

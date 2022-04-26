@@ -396,7 +396,7 @@ class TestHistoryMetrics(MachineCase):
 
         # Journal was recorded on Fedora 33 and when trying to use it with older systemd it fails with:
         # `Journal file /var/log/journal/*/journal.journal uses an unsupported feature, ignoring file.`
-        if self.machine.image in ["centos-8-stream", "rhel-8-6", "ubuntu-2004", "debian-stable"]:
+        if self.machine.image in ["centos-8-stream", "rhel-8-6", "debian-stable"]:
             return
 
         prepareArchive(m, "with_journal.tar.gz", 1615200500, "m1.cockpit.lan")
@@ -760,7 +760,7 @@ class TestCurrentMetrics(MachineCase):
 
         # Test link to user services
         # older releases don't have CPU accounting enabled for user services
-        if m.image not in ["ubuntu-2004", "rhel-8-6", "centos-8-stream"]:
+        if m.image not in ["rhel-8-6", "centos-8-stream"]:
             m.execute("su - admin -c 'XDG_RUNTIME_DIR=/run/user/$(id -u admin) systemd-run --user --collect --slice cockpittest -p CPUQuota=60% --unit cpu-userhog dd if=/dev/urandom of=/dev/null'")
             # user services are always running underneath user@1000.service, so these two will compete for row 1 or 2
             b.wait_in_text("table[aria-label='Top 5 CPU services'] tbody", "cpu-userhog")
@@ -841,7 +841,7 @@ BEGIN {{
 
         # Test link to user services
         # older releases don't have memory accounting enabled for user services
-        if m.image not in ["ubuntu-2004", "rhel-8-6", "centos-8-stream"]:
+        if m.image not in ["rhel-8-6", "centos-8-stream"]:
             m.execute("su - admin -c 'XDG_RUNTIME_DIR=/run/user/$(id -u admin) systemd-run --user --collect --slice cockpittest --unit mem-userhog memhog.sh'")
             m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
             # user services are always running underneath user@1000.service, so these two will compete for row 1 or 2

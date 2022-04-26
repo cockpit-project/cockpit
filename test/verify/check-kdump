@@ -49,7 +49,7 @@ class KdumpHelpers(MachineCase):
 
 
 @skipImage("kexec-tools not installed", "fedora-coreos", "debian-stable",
-           "debian-testing", "ubuntu-2004", "ubuntu-2204", "ubuntu-stable", "arch")
+           "debian-testing", "ubuntu-2204", "ubuntu-stable", "arch")
 @timeout(900)
 @skipDistroPackage()
 class TestKdump(KdumpHelpers):
@@ -246,7 +246,7 @@ class TestKdump(KdumpHelpers):
 
 
 @skipImage("kexec-tools not installed", "fedora-coreos", "debian-stable",
-           "debian-testing", "ubuntu-2004", "ubuntu-2204", "ubuntu-stable", "arch")
+           "debian-testing", "ubuntu-2204", "ubuntu-stable", "arch")
 @timeout(900)
 @skipDistroPackage()
 class TestKdumpNFS(KdumpHelpers):

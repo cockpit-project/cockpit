@@ -82,10 +82,6 @@ ExecStart=/bin/true
     machine.execute("ln -s /bin/true /usr/bin/chronyc")
     machine.execute("systemctl unmask chrony")
 
-    if machine.image == 'ubuntu-2004':
-        # HACK: https://launchpad.net/bugs/1890786
-        machine.execute("ln -s chrony.service /run/systemd/system/chronyd.service")
-
 
 @skipImage("No realmd available", "arch")
 @skipDistroPackage()
@@ -115,7 +111,7 @@ class CommonTests:
 
         def set_address():
             # old realmd/IPA don't support realmd auto-detection yet
-            if m.image.startswith("rhel-8") or m.image in ["centos-8-stream", "ubuntu-2004"]:
+            if m.image.startswith("rhel-8") or m.image in ["centos-8-stream"]:
                 b.wait_attr("#realms-op-address", "data-discover", "done")
                 b.wait_val(self.op_address, "")
                 b.wait_not_present("#realms-op-address-helper")
@@ -618,11 +614,6 @@ class TestIPA(TestRealms, CommonTests):
 
         super().testUnqualifiedUsers()
 
-        # now try 2FA with OTP
-        if m.image == "ubuntu-2004":
-            # This does not yet work with sssd < 2.2.2-1
-            return
-
         if "debian" in m.image or "ubuntu" in m.image:
             # additional PAM setup on Debian to actually use pam_sss for non-local users
             self.sed_file(r"/pam_unix/ s/^/auth [default=1 ignore=ignore success=ok] pam_localuser.so\n/; "
@@ -792,26 +783,15 @@ ipa-advise enable-admins-sudo | sh -ex
         """
         ipa_machine.execute(f"podman exec freeipa bash -euc '{script}'")
 
-        # now sudo works with the delegated ticket
-        # this requires https://github.com/sudo-project/sudo/commit/3b7977a42c0 (see https://bugzilla.redhat.com/show_bug.cgi?id=1917379)
-        # to actually work, so on older distros it fails
-        supports_sudo_krb = m.image not in ["ubuntu-2004"]
         b.open_superuser_dialog()
+        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "You now have administrative access")
+        self.assertEqual("root\n", m.execute(f"su -c '{ccache_env} sudo -A whoami' alice"))
+        b.click(".pf-c-modal-box:contains('Administrative access') .btn-cancel")
+        b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
 
-        if supports_sudo_krb:
-            b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "You now have administrative access")
-            self.assertEqual("root\n", m.execute(f"su -c '{ccache_env} sudo -A whoami' alice"))
-            b.click(".pf-c-modal-box:contains('Administrative access') .btn-cancel")
-            b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
-
-            b.go("/system")
-            b.enter_page("/system")
-            b.wait_visible("#reboot-button")
-        else:
-            b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Password for alice:")
-            b.click(".pf-c-modal-box:contains('Switch to administrative access') .btn-cancel")
-            b.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
-            self.assertIn("no askpass program", m.execute(f"su -c '! {ccache_env} sudo -A whoami' alice 2>&1"))
+        b.go("/system")
+        b.enter_page("/system")
+        b.wait_visible("#reboot-button")
 
         # ssh works with the delegated ticket
         out = m.execute(f"su -c '{ccache_env} ssh -vv -K x0.cockpit.lan echo hello' alice")
@@ -834,12 +814,11 @@ ipa-advise enable-admins-sudo | sh -ex
         # ssh -K is supposed to forward the credentials cache, but doesn't; klist in the ssh session is empty
         # and there is no ccache; so, emulate what cockpit-ssh could eventually do and check that *if* the
         # session had the ticket forwarded, it *could* do sudo. See https://issues.redhat.com/browse/COCKPIT-643
-        if supports_sudo_krb:
-            b.open("/@x0.cockpit.lan/system/terminal")
-            b.enter_page("/system/terminal", host="x0.cockpit.lan")
-            b.wait_in_text(".terminal .xterm-accessibility-tree", "alice")
-            b.key_press(f"{ccache_env} sudo whoami\r")
-            b.wait_in_text(".terminal .xterm-accessibility-tree", "root")
+        b.open("/@x0.cockpit.lan/system/terminal")
+        b.enter_page("/system/terminal", host="x0.cockpit.lan")
+        b.wait_in_text(".terminal .xterm-accessibility-tree", "alice")
+        b.key_press(f"{ccache_env} sudo whoami\r")
+        b.wait_in_text(".terminal .xterm-accessibility-tree", "root")
 
         # S4U proxy ticket gets cleaned up on logout
         b.logout()
@@ -847,7 +826,7 @@ ipa-advise enable-admins-sudo | sh -ex
         m.execute(f"! su -c '{ccache_env} klist' alice")
 
 
-@skipImage("adcli not on test images", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2004", "ubuntu-2204", "arch")
+@skipImage("adcli not on test images", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2204", "arch")
 @skipDistroPackage()
 @no_retry_when_changed
 class TestAD(TestRealms, CommonTests):

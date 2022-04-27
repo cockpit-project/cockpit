@@ -402,17 +402,34 @@ class TestHistoryMetrics(MachineCase):
         # Journal logs
         #
 
+        prepareArchive(m, "with_journal.tar.gz", 1615200500, "m1.cockpit.lan")
+        # first check the "no logs found" case
+        login(self)
+        b.wait_in_text(".metrics-heading", "CPU")
+        b.click("#metrics-hour-1615197600000 div.metrics-minute[data-minute=39] .metrics-events button")
+        b.wait_in_text("#metrics-hour-1615197600000 div.metrics-minute[data-minute=39] .cockpit-log-panel", "No logs found")
+        b.click("button:contains('View detailed logs')")
+        b.enter_page("/system/logs")
+        # jumps to the right time with larger window and debug level
+        url = b.eval_js('window.location.hash')
+        self.assertIn("priority=debug", url)
+        self.assertIn("since=2021-3-8%2010%3A24%3A0", url)
+        self.assertIn("until=2021-3-8%2010%3A40%3A0", url)
+        b.go("/metrics")
+
+        # Now add the journal
         # Journal was recorded on Fedora 33 and when trying to use it with older systemd it fails with:
         # `Journal file /var/log/journal/*/journal.journal uses an unsupported feature, ignoring file.`
+
         if self.machine.image in ["centos-8-stream", "rhel-8-6", "debian-stable"]:
             return
 
-        prepareArchive(m, "with_journal.tar.gz", 1615200500, "m1.cockpit.lan")
         m.upload(["verify/files/metrics-archives/journal.journal.gz"], "/tmp")
         m.execute('''gunzip /tmp/journal.journal.gz
                      cp /tmp/journal.journal /var/log/journal/*/''')
+        b.reload()
+        b.enter_page("/metrics")
 
-        login(self)
         b.wait_in_text(".metrics-heading", "CPU")
         b.click("#metrics-hour-1615197600000 div.metrics-minute[data-minute=39] .metrics-events button")
         b.wait_visible(".cockpit-log-message:contains('Created slice cockpittest.slice.')")
@@ -425,9 +442,14 @@ class TestHistoryMetrics(MachineCase):
 
         b.go("/metrics")
         b.enter_page("/metrics")
-        b.click("button:contains('View all logs')")
+        # logs exist, should show tight range
+        b.click("button:contains('View detailed logs')")
         b.enter_page("/system/logs")
         b.wait_visible(".cockpit-log-message:contains('Created slice cockpittest.slice.')")
+        url = b.eval_js('window.location.hash')
+        self.assertIn("priority=info", url)
+        self.assertIn("since=2021-3-8%2010%3A39%3A0", url)
+        self.assertIn("until=2021-3-8%2010%3A39%3A45", url)
 
     @nondestructive
     @skipImage("no PCP support", "fedora-coreos")

@@ -720,13 +720,24 @@ class MetricsMinute extends React.Component {
         out.render_day_header = () => { return null };
         const render = journal.renderer(out);
 
-        const logsUrl = `/system/logs/#/?priority=info&since=${encodeURIComponent(since)}&until=${encodeURIComponent(until)}&follow=false`;
-
         journalctl.stream(entries => {
             entries.forEach(entry => render.prepend(entry));
             render.prepend_flush();
         })
-                .then(() => this.setState({ logs: out.logs, logsUrl }));
+                .then(() => {
+                    let logsUrl;
+                    if (out.logs.length === 0) {
+                        // without logs, increase verbosity and time range (-15 mins to + 1 min)
+                        const since = formatUTC_ISO(new Date(timestamp - 15 * 60000));
+                        const until = formatUTC_ISO(new Date(timestamp + 60000));
+                        logsUrl = `/system/logs/#/?priority=debug&since=${encodeURIComponent(since)}&until=${encodeURIComponent(until)}&follow=false`;
+                    } else {
+                        // with logs, show the exact minute and same log level as on the metrics page
+                        logsUrl = `/system/logs/#/?priority=info&since=${encodeURIComponent(since)}&until=${encodeURIComponent(until)}&follow=false`;
+                    }
+
+                    this.setState({ logs: out.logs, logsUrl });
+                });
     }
 
     render() {
@@ -771,7 +782,10 @@ class MetricsMinute extends React.Component {
                 { this.props.events.events.map(t => <span className="type" key={ t }>{ RESOURCES[t].event_description }</span>) }
                 <div className="details">
                     <time>{ timeformat.time(timestamp) }</time>
-                    {this.state.expanded && this.state.logsUrl && this.state.logs && this.state.logs.length ? <Button variant="link" isInline onClick={e => cockpit.jump(this.state.logsUrl)}>{_("View all logs")}</Button> : null}
+                    {this.state.expanded && this.state.logsUrl &&
+                        <Button variant="link" isInline onClick={e => cockpit.jump(this.state.logsUrl)}>
+                            { _("View detailed logs") }
+                        </Button>}
                 </div>
             </div>;
 

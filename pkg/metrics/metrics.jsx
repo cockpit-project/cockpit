@@ -723,15 +723,11 @@ class MetricsMinute extends React.Component {
 
         const logsUrl = `/system/logs/#/?priority=info&since=${encodeURIComponent(since)}&until=${encodeURIComponent(until)}&follow=false`;
 
-        journalctl.stream((entries) => {
+        journalctl.stream(entries => {
             entries.forEach(entry => render.prepend(entry));
             render.prepend_flush();
-            this.setState({ logs: out.logs, logsUrl: logsUrl });
         })
-                .then(() => {
-                    if (out.logs.length === 0)
-                        this.setState({ logs: [], logsUrl: logsUrl });
-                });
+                .then(() => this.setState({ logs: out.logs, logsUrl }));
     }
 
     render() {

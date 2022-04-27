@@ -252,7 +252,6 @@ class CurrentMetrics extends React.Component {
 
         if (!cockpit.hidden && this.metrics_channel === null) {
             this.metrics_channel = cockpit.channel({ payload: "metrics1", source: "internal", interval: 3000, metrics: CURRENT_METRICS });
-            this.metrics_channel.addEventListener("close", (ev, error) => console.error("metrics closed:", error));
             this.metrics_channel.addEventListener("message", this.onMetricsUpdate);
         }
     }

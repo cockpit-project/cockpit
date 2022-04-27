@@ -596,7 +596,10 @@ function Index() {
 
     const old_onerror = window.onerror;
     window.onerror = function cockpit_error_handler(msg, url, line) {
-        self.show_oops();
+        // Errors with url == "" are not logged apparently, so let's
+        // not show the "Oops" for them either.
+        if (url != "")
+            self.show_oops();
         if (old_onerror)
             return old_onerror(msg, url, line);
         return false;

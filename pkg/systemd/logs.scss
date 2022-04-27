@@ -5,6 +5,7 @@
 @import "global-variables.scss";
 @import "@patternfly/patternfly/components/FormControl/form-control.scss";
 @import "@patternfly/patternfly/components/Toolbar/toolbar.scss";
+@import "@patternfly/patternfly/utilities/Flex/flex.scss";
 
 // https://github.com/patternfly/patternfly-react/issues/5993
 .pf-c-popover.pf-m-width-auto {
@@ -113,11 +114,6 @@
     // Make toolbar stretch to all the available space and wrap up to two lines
     --pf-c-toolbar--PaddingTop: 0;
     --pf-c-toolbar--PaddingBottom: 0;
-
-    .pf-c-toolbar__group.pf-m-toggle-group.pf-m-show-on-md {
-        flex-grow: 1;
-        flex-wrap: wrap;
-    }
 
     .pf-c-toolbar__group {
         padding-top: 0.5rem;

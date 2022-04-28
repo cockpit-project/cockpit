@@ -924,8 +924,8 @@ class CardsPage extends React.Component {
                                 </Popover>
                             </FlexItem>
                         </Flex>}
-                    {this.props.applySecurity}
                     {this.props.applyKpatches}
+                    {this.props.applySecurity}
                     {this.props.applyAll}
                 </div>),
                 containsList: true,

@@ -1233,10 +1233,17 @@ class MachineCase(unittest.TestCase):
             machine = self.machine
         label = self.label() + "-" + machine.label
         pixels_label = None
-        with open(f'{TEST_DIR}/reference-image') as fp:
-            reference_image = fp.read().strip()
-        if machine.image == reference_image and os.environ.get("TEST_BROWSER", "chromium") == "chromium" and not self.is_devel_build():
-            pixels_label = self.label()
+        if os.environ.get("TEST_BROWSER", "chromium") == "chromium" and not self.is_devel_build():
+            try:
+                with open(f'{TEST_DIR}/reference-image') as fp:
+                    reference_image = fp.read().strip()
+            except FileNotFoundError:
+                # no "reference-image" file available; this most likely means that
+                # there are no pixel tests to execute
+                pass
+            else:
+                if machine.image == reference_image:
+                    pixels_label = self.label()
         browser = Browser(machine.web_address,
                           label=label, pixels_label=pixels_label, coverage_label=self.label() if coverage else None,
                           port=machine.web_port, machine=self)

@@ -19,21 +19,21 @@
 
 import cockpit from "cockpit";
 
-import React from "react";
+import React, { useState } from "react";
 import { ListingTable } from "cockpit-components-table.jsx";
 import { Button, Label, Split, SplitItem, Modal } from '@patternfly/react-core';
+import { useDialogs } from "dialogs.jsx";
+import { useInit } from "hooks";
 
 const _ = cockpit.gettext;
 
-export class ActivePagesDialog extends React.Component {
-    constructor(props) {
-        super(props);
-
-        const frames = [];
-        for (const address in props.frames.iframes) {
-            for (const component in props.frames.iframes[address]) {
-                const iframe = props.frames.iframes[address][component];
-                frames.push({
+export const ActivePagesDialog = ({ frames }) => {
+    function get_pages() {
+        const result = [];
+        for (const address in frames.iframes) {
+            for (const component in frames.iframes[address]) {
+                const iframe = frames.iframes[address][component];
+                result.push({
                     frame: iframe,
                     component: component,
                     address: address,
@@ -46,67 +46,67 @@ export class ActivePagesDialog extends React.Component {
         }
 
         // sort the frames by displayName, active ones first
-        frames.sort(function(a, b) {
+        result.sort(function(a, b) {
             return (a.active ? -2 : 0) + (b.active ? 2 : 0) +
                    ((a.displayName < b.displayName) ? -1 : 0) + ((b.displayName < a.displayName) ? 1 : 0);
         });
 
-        this.state = { frames: frames };
-
-        this.onRemove = this.onRemove.bind(this);
+        return result;
     }
 
-    onRemove() {
-        this.state.frames.forEach(element => {
+    const Dialogs = useDialogs();
+    const init_pages = useInit(get_pages, [frames]);
+    const [pages, setPages] = useState(init_pages);
+
+    function onRemove() {
+        pages.forEach(element => {
             if (element.selected)
-                this.props.frames.remove(element.host, element.component);
+                frames.remove(element.host, element.component);
         });
-        this.props.onClose();
+        Dialogs.close();
     }
 
-    render() {
-        const frames = this.state.frames.map(frame => {
-            const columns = [{
-                title: <Split>
-                    <SplitItem isFilled>
-                        {frame.displayName}
-                    </SplitItem>
-                    <SplitItem>
-                        {frame.active && <Label color="blue">{_("active")}</Label>}
-                    </SplitItem>
-                </Split>,
-            }];
-            return ({
-                props: {
-                    key: frame.name,
-                    'data-row-id': frame.name
-                },
-                columns,
-                selected: frame.selected,
-            });
+    const rows = pages.map(page => {
+        const columns = [{
+            title: <Split>
+                <SplitItem isFilled>
+                    {page.displayName}
+                </SplitItem>
+                <SplitItem>
+                    {page.active && <Label color="blue">{_("active")}</Label>}
+                </SplitItem>
+            </Split>,
+        }];
+        return ({
+            props: {
+                key: page.name,
+                'data-row-id': page.name
+            },
+            columns,
+            selected: page.selected,
         });
+    });
 
-        return (
-            <Modal isOpen position="top" variant="small"
-                   id="active-pages-dialog"
-                   onClose={this.props.onClose}
-                   title={_("Active pages")}
-                   footer={<>
-                       <Button variant='primary' onClick={this.onRemove}>{_("Close selected pages")}</Button>
-                       <Button variant='link' onClick={this.props.onClose}>{_("Cancel")}</Button>
-                   </>}
-            >
-                <ListingTable showHeader={false}
-                              columns={[{ title: _("Page name") }]}
-                              aria-label={_("Active pages")}
-                              emptyCaption={ _("There are currently no active pages") }
+    return (
+        <Modal isOpen position="top" variant="small"
+               id="active-pages-dialog"
+               onClose={Dialogs.close}
+               title={_("Active pages")}
+               footer={<>
+                   <Button variant='primary' onClick={onRemove}>{_("Close selected pages")}</Button>
+                   <Button variant='link' onClick={Dialogs.close}>{_("Cancel")}</Button>
+               </>}
+        >
+            <ListingTable showHeader={false}
+                          columns={[{ title: _("Page name") }]}
+                          aria-label={_("Active pages")}
+                          emptyCaption={ _("There are currently no active pages") }
                               onSelect={(_event, isSelected, rowIndex) => {
-                                  const frames = [...this.state.frames];
-                                  frames[rowIndex].selected = isSelected;
-                                  this.setState({ frames });
+                                  const new_pages = [...pages];
+                                  new_pages[rowIndex].selected = isSelected;
+                                  setPages(new_pages);
                               }}
-                              rows={frames} />
-            </Modal>
-        );
-    }
-}
+                          rows={rows} />
+        </Modal>
+    );
+};

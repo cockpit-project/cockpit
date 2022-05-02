@@ -26,6 +26,7 @@ import { TopNav } from ".//topnav.jsx";
 import { CockpitHosts } from "./hosts.jsx";
 import { codes, HostModal } from "./hosts_dialog.jsx";
 import { EarlyFailure, EarlyFailureReady } from './failures.jsx';
+import { WithDialogs } from "dialogs.jsx";
 
 import * as base_index from "./base_index";
 
@@ -213,12 +214,9 @@ function MachinesIndex(index_options, machines, loader) {
             compiled = compile(machine);
 
         ReactDOM.render(
-            React.createElement(TopNav, {
-                index: index,
-                state: state,
-                machine: machine,
-                compiled: compiled,
-            }),
+            <WithDialogs>
+                <TopNav index={index} state={state} machine={machine} compiled={compiled} />
+            </WithDialogs>,
             document.getElementById("topnav"));
     }
 

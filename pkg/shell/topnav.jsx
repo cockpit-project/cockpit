@@ -32,10 +32,13 @@ import { CredentialsModal } from './credentials.jsx';
 import { AboutCockpitModal, LangModal, OopsModal } from "./shell-modals.jsx";
 import { SuperuserIndicator } from "./superuser.jsx";
 import { read_os_release } from "os-release.js";
+import { DialogsContext } from "dialogs.jsx";
 
 const _ = cockpit.gettext;
 
 export class TopNav extends React.Component {
+    static contextType = DialogsContext;
+
     constructor(props) {
         super(props);
 
@@ -51,10 +54,6 @@ export class TopNav extends React.Component {
         this.state = {
             component: component,
             frame: frame,
-            oopsDialogOpened: false,
-            aboutDialogOpened: false,
-            localesDialogOpened: false,
-            framesDialogOpened: false,
             credentialsDialogOpened: false,
             docsOpened: false,
             menuOpened: false,
@@ -99,6 +98,7 @@ export class TopNav extends React.Component {
     }
 
     render() {
+        const Dialogs = this.context;
         const connected = this.props.machine.state === "connected";
 
         let docs = [];
@@ -135,7 +135,8 @@ export class TopNav extends React.Component {
         });
 
         docItems.push(<DropdownSeparator key="separator1" />);
-        docItems.push(<DropdownItem key="about" component="button" onClick={() => this.setState({ aboutDialogOpened: true })}>
+        docItems.push(<DropdownItem key="about" component="button"
+                                    onClick={() => Dialogs.show(<AboutCockpitModal />)}>
             {_("About Web Console")}
         </DropdownItem>);
 
@@ -149,17 +150,21 @@ export class TopNav extends React.Component {
         ];
 
         if (manifest.locales)
-            main_menu.push(<DropdownItem key="languages" className="display-language-menu" component="button" onClick={() => this.setState({ localesDialogOpened: true })}>
+            main_menu.push(<DropdownItem key="languages" className="display-language-menu" component="button"
+                                         onClick={() => Dialogs.show(<LangModal />)}>
                 {_("Display language")}
             </DropdownItem>);
 
         if (this.state.showActivePages)
-            main_menu.push(<DropdownItem key="frames" id="active-pages" component="button" onClick={() => this.setState({ framesDialogOpened: true })}>
-                {_("Active pages")}
-            </DropdownItem>);
+            main_menu.push(
+                <DropdownItem key="frames" id="active-pages" component="button"
+                              onClick={() => Dialogs.show(<ActivePagesDialog frames={this.props.index.frames} />)}>
+                    {_("Active pages")}
+                </DropdownItem>);
 
         main_menu.push(
-            <DropdownItem key="creds" id="sshkeys" component="button" onClick={() => this.setState({ credentialsDialogOpened: true })}>
+            <DropdownItem key="creds" id="sshkeys" component="button"
+                          onClick={() => Dialogs.show(<CredentialsModal />)}>
                 {_("SSH keys")}
             </DropdownItem>,
             <DropdownSeparator key="separator3" />,
@@ -185,7 +190,8 @@ export class TopNav extends React.Component {
                             }
                             { this.props.index.has_oops &&
                                 <ToolbarItem>
-                                    <Button id="navbar-oops" variant="link" isLarge isDanger onClick={() => this.setState({ oopsDialogOpened: true }) }>{_("Ooops!")}</Button>
+                                    <Button id="navbar-oops" variant="link" isLarge isDanger
+                                            onClick={() => Dialogs.show(<OopsModal />)}>{_("Ooops!")}</Button>
                                 </ToolbarItem>
                             }
                             <ToolbarItem>
@@ -224,12 +230,6 @@ export class TopNav extends React.Component {
                                     className="ct-header-item ct-nav-toggle"
                                 />
                             </ToolbarItem>
-
-                            { this.state.oopsDialogOpened && <OopsModal onClose={() => this.setState({ oopsDialogOpened: false }) } /> }
-                            { this.state.aboutDialogOpened && <AboutCockpitModal onClose={() => this.setState({ aboutDialogOpened: false }) } /> }
-                            { this.state.localesDialogOpened && <LangModal onClose={() => this.setState({ localesDialogOpened: false }) } /> }
-                            { this.state.framesDialogOpened && <ActivePagesDialog frames={this.props.index.frames} onClose={() => this.setState({ framesDialogOpened: false }) } /> }
-                            { this.state.credentialsDialogOpened && <CredentialsModal onClose={() => this.setState({ credentialsDialogOpened : false }) } /> }
                         </ToolbarContent>
                     </Toolbar>
                 </MastheadContent>

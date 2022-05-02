@@ -18,7 +18,7 @@
  */
 
 import cockpit from "cockpit";
-import React from "react";
+import React, { useState } from "react";
 import {
     AboutModal,
     Button,
@@ -30,20 +30,18 @@ import {
     TextContent, TextList, TextListItem
 } from '@patternfly/react-core';
 
+import { useInit } from "hooks";
+import { useDialogs } from "dialogs.jsx";
+
 import "menu-select-widget.scss";
 
 const _ = cockpit.gettext;
 
-export class AboutCockpitModal extends React.Component {
-    constructor(props) {
-        super();
+export const AboutCockpitModal = () => {
+    const Dialogs = useDialogs();
+    const [packages, setPackages] = useState(null);
 
-        this.state = {
-            packages: null,
-        };
-    }
-
-    componentDidMount() {
+    useInit(() => {
         const packages = [];
         const cmd = "(set +e; rpm -qa --qf '%{NAME} %{VERSION}\\n'; dpkg-query -f '${Package} ${Version}\n' --show; pacman -Q) 2> /dev/null | grep cockpit | sort";
         cockpit.spawn(["bash", "-c", cmd], [], { err: "message" })
@@ -55,112 +53,98 @@ export class AboutCockpitModal extends React.Component {
                             })
                 )
                 .catch(error => console.error("Could not read packages versions:", error))
-                .finally(() => this.setState({ packages: packages }));
-    }
+                .finally(() => setPackages(packages));
+    });
 
-    render() {
-        return (
-            <AboutModal
-                isOpen
-                onClose={this.props.onClose}
-                id="about-cockpit-modal"
-                trademark={_("Licensed under GNU LGPL version 2.1")}
-                productName={_("Web Console")}
-                brandImageSrc="../shell/images/cockpit-icon.svg"
-                brandImageAlt={_("Web console logo")}
-                backgroundImageSrc="../shell/images/bg-plain.jpg"
-            >
-                <div>{_("Cockpit is an interactive Linux server admin interface.")}</div>
-                <div><a rel="noopener noreferrer" target="_blank" href="https://cockpit-project.org/">{_("Project website")}</a></div>
-                <TextContent>
-                    <TextList component="dl">
-                        {this.state.packages === null && <span>{_("Loading packages...")}</span>}
-                        {this.state.packages !== null && this.state.packages.map(p =>
-                            <React.Fragment key={p.name}>
-                                <TextListItem key={p.name} component="dt">{p.name}</TextListItem>
-                                <TextListItem component="dd">{p.version}</TextListItem>
-                            </React.Fragment>
-                        )}
-                    </TextList>
-                </TextContent>
-            </AboutModal>
-        );
-    }
-}
+    return (
+        <AboutModal
+            isOpen
+            onClose={Dialogs.close}
+            id="about-cockpit-modal"
+            trademark={_("Licensed under GNU LGPL version 2.1")}
+            productName={_("Web Console")}
+            brandImageSrc="../shell/images/cockpit-icon.svg"
+            brandImageAlt={_("Web console logo")}
+            backgroundImageSrc="../shell/images/bg-plain.jpg"
+        >
+            <div>{_("Cockpit is an interactive Linux server admin interface.")}</div>
+            <div><a rel="noopener noreferrer" target="_blank" href="https://cockpit-project.org/">{_("Project website")}</a></div>
+            <TextContent>
+                <TextList component="dl">
+                    {packages === null && <span>{_("Loading packages...")}</span>}
+                    {packages !== null && packages.map(p =>
+                        <React.Fragment key={p.name}>
+                            <TextListItem key={p.name} component="dt">{p.name}</TextListItem>
+                            <TextListItem component="dd">{p.version}</TextListItem>
+                        </React.Fragment>
+                    )}
+                </TextList>
+            </TextContent>
+        </AboutModal>
+    );
+};
 
-export class LangModal extends React.Component {
-    constructor(props) {
-        super();
+export const LangModal = () => {
+    const language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1") || "en-us";
 
-        let language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1");
-        if (!language)
-            language = "en-us";
+    const Dialogs = useDialogs();
+    const [selected, setSelected] = useState(language);
+    const [searchInput, setSearchInput] = useState("");
 
-        this.state = {
-            selected: language,
-        };
-
-        this.onSelect = this.onSelect.bind(this);
-    }
-
-    onSelect() {
-        const lang = this.state.selected;
-
-        if (!lang)
+    function onSelect() {
+        if (!selected)
             return;
 
-        const cookie = "CockpitLang=" + encodeURIComponent(lang) + "; path=/; expires=Sun, 16 Jul 3567 06:23:41 GMT";
+        const cookie = "CockpitLang=" + encodeURIComponent(selected) + "; path=/; expires=Sun, 16 Jul 3567 06:23:41 GMT";
         document.cookie = cookie;
-        window.localStorage.setItem("cockpit.lang", lang);
+        window.localStorage.setItem("cockpit.lang", selected);
         window.location.reload(true);
     }
 
-    render() {
-        const manifest = cockpit.manifests.shell || { };
+    const manifest = cockpit.manifests.shell || { };
 
-        return (
-            <Modal isOpen position="top" variant="small"
-                   id="display-language-modal"
-                   className="display-language-modal"
-                   onClose={this.props.onClose}
-                   title={_("Display language")}
-                   footer={<>
-                       <Button variant='primary' onClick={this.onSelect}>{_("Select")}</Button>
-                       <Button variant='link' onClick={this.props.onClose}>{_("Cancel")}</Button>
-                   </>}
-            >
-                <Flex direction={{ default: 'column' }}>
-                    <p>{_("Choose the language to be used in the application")}</p>
-                    <Menu id="display-language-list"
-                          className="ct-menu-select-widget"
-                          onSelect={(_, selected) => this.setState({ selected })}
-                          activeItemId={this.state.selected}
-                          selected={this.state.selected}>
-                        <MenuInput>
-                            <TextInput
-                                value={this.state.searchInput}
-                                aria-label={_("Filter menu items")}
-                                iconVariant="search"
-                                type="search"
-                                onChange={searchInput => this.setState({ searchInput })}
-                            />
-                        </MenuInput>
-                        <Divider />
-                        <MenuContent>
-                            <MenuList>
-                                {Object.keys(manifest.locales || { })
-                                        .filter(key => !this.state.searchInput || manifest.locales[key].toLowerCase().includes(this.state.searchInput.toString().toLowerCase()))
-                                        .map(key => {
-                                            return <MenuItem itemId={key} key={key} data-value={key}>{manifest.locales[key]}</MenuItem>;
-                                        })}
-                            </MenuList>
-                        </MenuContent>
-                    </Menu>
-                </Flex>
-            </Modal>
-        );
-    }
-}
+    return (
+        <Modal isOpen position="top" variant="small"
+               id="display-language-modal"
+               className="display-language-modal"
+               onClose={Dialogs.close}
+               title={_("Display language")}
+               footer={<>
+                   <Button variant='primary' onClick={onSelect}>{_("Select")}</Button>
+                   <Button variant='link' onClick={Dialogs.close}>{_("Cancel")}</Button>
+               </>}
+        >
+            <Flex direction={{ default: 'column' }}>
+                <p>{_("Choose the language to be used in the application")}</p>
+                <Menu id="display-language-list"
+                      className="ct-menu-select-widget"
+                      onSelect={(_, selected) => setSelected(selected)}
+                      activeItemId={selected}
+                      selected={selected}>
+                    <MenuInput>
+                        <TextInput
+                            value={searchInput}
+                            aria-label={_("Filter menu items")}
+                            iconVariant="search"
+                            type="search"
+                            onChange={setSearchInput}
+                        />
+                    </MenuInput>
+                    <Divider />
+                    <MenuContent>
+                        <MenuList>
+                            {Object.keys(manifest.locales || { })
+                                    .filter(key => !searchInput || manifest.locales[key].toLowerCase().includes(searchInput.toString().toLowerCase()))
+                                    .map(key => {
+                                        return <MenuItem itemId={key} key={key} data-value={key}>{manifest.locales[key]}</MenuItem>;
+                                    })}
+                        </MenuList>
+                    </MenuContent>
+                </Menu>
+            </Flex>
+        </Modal>
+    );
+};
 
 export function TimeoutModal(props) {
     return (
@@ -176,11 +160,12 @@ export function TimeoutModal(props) {
 }
 
 export function OopsModal(props) {
+    const Dialogs = useDialogs();
     return (
         <Modal isOpen position="top" variant="medium"
-               onClose={props.onClose}
+               onClose={Dialogs.close}
                title={_("Unexpected error")}
-               footer={<Button variant='secondary' onClick={props.onClose}>{_("Close")}</Button>}
+               footer={<Button variant='secondary' onClick={Dialogs.close}>{_("Close")}</Button>}
         >
             {_("Cockpit had an unexpected internal error.")}
             <br />

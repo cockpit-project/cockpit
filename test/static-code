@@ -125,7 +125,7 @@ main() {
         exit 1
     fi
 
-    cd "$(realpath -m "$0/../..")"
+    cd "${0%/*}/.."
     if [ ! -e .git ]; then
         echo '1..0 # SKIP not in a git checkout'
         exit 0

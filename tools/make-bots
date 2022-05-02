@@ -9,7 +9,7 @@ SUBDIR='bots'
 V="${V-0}" # default to friendly messages
 
 set -eu
-cd "$(realpath -m "$0"/../..)"
+cd "${0%/*}/.."
 . tools/git-utils.sh
 
 if [ ! -e bots ]; then

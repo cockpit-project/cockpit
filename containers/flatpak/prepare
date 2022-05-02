@@ -68,6 +68,6 @@ prepare() {
 }
 
 if [ $(basename -- "$0") = "prepare" ]; then
-    cd "$(realpath -m "$0"/../../..)"
+    cd "${0%/*}/../.."
     prepare "$@"
 fi

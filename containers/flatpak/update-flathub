@@ -10,7 +10,7 @@
 # If the URLBASE environment variable is set, it overrides the default value.
 
 set -eu
-cd "$(realpath -m "$0"/../../..)"
+cd "${0%/*}/../.."
 
 . containers/flatpak/prepare
 

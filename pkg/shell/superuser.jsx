@@ -18,7 +18,9 @@
  */
 
 import cockpit from "cockpit";
-import React from "react";
+import React, { useState } from "react";
+import { useObject, useEvent } from "hooks";
+import { useDialogs } from "dialogs.jsx";
 import { Alert, Button, Form, FormGroup, Modal, TextInput } from '@patternfly/react-core';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { host_superuser_storage_key } from './machines/machines';
@@ -36,335 +38,270 @@ function sudo_polish(msg) {
     return msg;
 }
 
-class UnlockDialog extends React.Component {
-    render() {
-        const { state } = this.props;
-        const validated = state.error_variant == "danger" ? "error" : state.error_variant;
+const UnlockDialog = ({ proxy, host }) => {
+    const D = useDialogs();
+    useObject(init, null, [proxy, host]);
 
-        let title = null;
-        let title_icon = null;
-        let body = null;
-        let footer = null;
+    const [busy, setBusy] = useState(false);
+    const [cancel, setCancel] = useState(null);
+    const [prompt, setPrompt] = useState(null);
+    const [message, setMessage] = useState(null);
+    const [error, setError] = useState(null);
+    const [errorVariant, setErrorVariant] = useState(null);
+    const [value, setValue] = useState("");
 
-        if (state.prompt) {
-            if (!state.prompt.message && !state.prompt.prompt) {
-                state.prompt.message = _("Please authenticate to gain administrative access");
-                state.prompt.prompt = _("Password");
-            }
-
-            title = _("Switch to administrative access");
-            body = (
-                <>
-                    { state.error && <><Alert variant={state.error_variant || 'danger'} isInline title={state.error} /><br /></> }
-                    <Form isHorizontal onSubmit={event => { state.apply(); event.preventDefault(); return false }}>
-                        { state.prompt.message && <span>{state.prompt.message}</span> }
-                        <FormGroup
-                          fieldId="switch-to-admin-access-password"
-                          label={state.prompt.prompt}
-                          validated={!state.error ? "default" : validated || "error"}
-                        >
-                            <TextInput
-                                autoFocus // eslint-disable-line jsx-a11y/no-autofocus
-                                id="switch-to-admin-access-password"
-                                isDisabled={state.busy}
-                                onChange={state.change}
-                                type={!state.prompt.echo ? 'password' : 'text'}
-                                validated={!state.error ? "default" : validated || "error"}
-                                value={state.prompt.value}
-                            />
-                        </FormGroup>
-                    </Form>
-                </>
-            );
-
-            footer = (
-                <>
-                    <Button variant='primary' onClick={state.apply} isDisabled={state.busy} isLoading={state.busy}>
-                        {_("Authenticate")}
-                    </Button>
-                    <Button variant='link' className='btn-cancel' onClick={state.cancel} isDisabled={!state.cancel}>
-                        {_("Cancel")}
-                    </Button>
-                </>);
-        } else if (state.message) {
-            title = _("Administrative access");
-            body = <p>{state.message}</p>;
-            footer = (
-                <Button variant="secondary" className='btn-cancel' onClick={state.cancel}>
-                    {_("Close")}
-                </Button>);
-        } else if (state.error) {
-            title_icon = "danger";
-            title = _("Problem becoming administrator");
-            body = <p>{state.error}</p>;
-            footer = (
-                <Button variant="secondary" className='btn-cancel' onClick={state.cancel}>
-                    {_("Close")}
-                </Button>);
-        }
-
-        if (body === null)
-            return null;
-
-        return (
-            <Modal isOpen={!state.closed} position="top" variant="medium"
-                   onClose={this.props.onClose}
-                   title={title}
-                   titleIconVariant={title_icon}
-                   footer={footer}>
-                {body}
-            </Modal>
-        );
-    }
-}
-
-class LockDialog extends React.Component {
-    constructor() {
-        super();
-        this.state = {
-            error: null
-        };
-    }
-
-    render() {
-        const { onClose, proxy } = this.props;
-
-        const close = () => {
-            this.setState({ error: null });
-            onClose();
-        };
-
-        const apply = () => {
-            this.setState({ error: null });
-            proxy.Stop()
-                    .then(() => {
-                        return cockpit.spawn(["sudo", "-k"], { host: this.props.host }).always(() => {
-                            const key = host_superuser_storage_key(this.props.host);
-                            if (key)
-                                window.localStorage.setItem(key, "none");
-                            onClose();
-                        });
-                    })
-                    .catch(err => {
-                        this.setState({ error: err.toString() });
-                    });
-        };
-        const footer = (
-            <>
-                {this.state.error && <ModalError dialogError={this.state.error} />}
-                <Button variant='primary' onClick={apply}>
-                    {_("Limit access")}
-                </Button>
-                <Button variant='link' className='btn-cancel' onClick={close}>
-                    {_("Cancel")}
-                </Button>
-            </>
-        );
-
-        return (
-            <Modal isOpen={this.props.show} position="top" variant="medium"
-                onClose={close}
-                footer={footer}
-                title={_("Switch to limited access")}>
-                <>
-                    <p>{_("Limited access mode restricts administrative privileges. Some parts of the web console will have reduced functionality.")}</p>
-                    <p>{_("Your browser will remember your access level across sessions.")}</p>
-                </>
-            </Modal>
-        );
-    }
-}
-
-export class SuperuserDialogs extends React.Component {
-    constructor(props) {
-        super();
-
-        this.state = {
-            show: false,
-            unlocked: false,
-
-            show_lock_dialog: false,
-            unlock_dialog_state: { closed: true }
-        };
-
-        this.connect = this.connect.bind(this);
-        this.start = this.start.bind(this);
-        this.unlock = this.unlock.bind(this);
-    }
-
-    connect(host) {
-        this.props.proxy.addEventListener("changed", () => {
-            const key = host_superuser_storage_key(host);
-            if (key) {
-                // Reset wanted state if we fail to gain admin privs.
-                // Failing to gain admin privs might take a noticeable
-                // time, and we don't want to suffer through the
-                // associated intermediate UI state on every login.
-                const want = window.localStorage.getItem(key);
-                if (this.props.proxy.Current == "none" && this.props.proxy.Current != want)
-                    window.localStorage.setItem(key, this.props.proxy.Current);
-            }
-
-            this.setState({
-                show: this.props.proxy.Current != "root" && this.props.proxy.Current != "init",
-                unlocked: this.props.proxy.Current != "none"
-            });
-        });
-
-        this.setState({
-            show: this.props.proxy.Current != "root" && this.props.proxy.Current != "init",
-            unlocked: this.props.proxy.Current != "none",
-
-            show_lock_dialog: false,
-            unlock_dialog_state: { closed: true }
-        });
-    }
-
-    componentDidMount() {
-        this.connect(this.props.host);
-    }
-
-    componentDidUpdate(prevProps) {
-        if (prevProps.host != this.props.host)
-            this.connect(this.props.host);
-    }
-
-    /* We have to drive the unlock dialog state from here since we
-     * might want to call proxy.Start before opening it.
-     */
-
-    set_unlock_state(state) {
-        this.setState({ unlock_dialog_state: state });
-    }
-
-    update_unlock_state(state) {
-        this.set_unlock_state(Object.assign(this.state.unlock_dialog_state, state));
-    }
-
-    unlock() {
-        this.props.proxy.Stop().always(() => {
-            this.start("sudo");
-        });
-    }
-
-    start(method) {
-        const cancel = () => {
-            this.props.proxy.Stop();
-            this.set_unlock_state({
-                busy: true,
-                prompt: this.state.unlock_dialog_state.prompt,
-                error: this.state.unlock_dialog_state.error
-            });
-        };
-
-        this.set_unlock_state({
-            busy: true,
-            prompt: this.state.unlock_dialog_state.prompt,
-            cancel: cancel
+    function start(method) {
+        setBusy(true);
+        setCancel(() => () => {
+            proxy.Stop();
+            setBusy(true);
+            setCancel(null);
         });
 
         let did_prompt = false;
 
         const onprompt = (event, message, prompt, def, echo, error) => {
-            const p = {
+            setBusy(false);
+            setPrompt({
                 message: sudo_polish(message),
                 prompt: sudo_polish(prompt),
-                value: def,
                 echo: echo
-            };
-            this.set_unlock_state({
-                prompt: p,
-
-                error: sudo_polish(error) || this.state.unlock_dialog_state.error,
-                error_variant: did_prompt ? 'danger' : 'warning',
-                change: val => {
-                    p.value = val;
-                    this.update_unlock_state({ prompt: p });
-                },
-                cancel: cancel,
-                apply: () => {
-                    this.props.proxy.Answer(p.value);
-                    this.set_unlock_state({
-                        busy: true,
-                        prompt: this.state.unlock_dialog_state.prompt,
-                        cancel: cancel
-                    });
-                }
             });
+            setValue(def);
+
+            if (error) {
+                setError(sudo_polish(error));
+                setErrorVariant(did_prompt ? 'danger' : 'warning');
+            }
+
             did_prompt = true;
         };
 
-        this.props.proxy.addEventListener("Prompt", onprompt);
-        this.props.proxy.Start(method)
+        proxy.addEventListener("Prompt", onprompt);
+        proxy.Start(method)
                 .then(() => {
-                    this.props.proxy.removeEventListener("Prompt", onprompt);
+                    proxy.removeEventListener("Prompt", onprompt);
 
-                    const key = host_superuser_storage_key(this.props.host);
+                    const key = host_superuser_storage_key(host);
                     if (key)
                         window.localStorage.setItem(key, method);
-                    if (did_prompt)
-                        this.set_unlock_state({ closed: true });
-                    else
-                        this.set_unlock_state({
-                            message: _("You now have administrative access."),
-                            cancel: () => this.set_unlock_state({ closed: true })
-                        });
+                    if (did_prompt) {
+                        D.close();
+                    } else {
+                        setBusy(false);
+                        setPrompt(null);
+                        setMessage(_("You now have administrative access."));
+                        setCancel(() => D.close);
+                    }
                 })
                 .catch(err => {
                     console.warn(err);
-                    this.props.proxy.removeEventListener("Prompt", onprompt);
+                    proxy.removeEventListener("Prompt", onprompt);
                     if (err && err.message != "cancelled") {
-                        this.set_unlock_state({
-                            error: sudo_polish(err.toString()),
-                            cancel: () => this.set_unlock_state({ closed: true })
-                        });
+                        setBusy(false);
+                        setPrompt(null);
+                        setError(sudo_polish(err.toString()));
+                        setCancel(() => D.close);
                     } else
-                        this.set_unlock_state({ closed: true });
+                        D.close();
                 });
     }
 
-    lock() {
-        this.setState({ show_lock_dialog: true });
+    function init() {
+        return proxy.Stop().always(() => {
+            start("sudo");
+        });
     }
 
-    render () {
-        if (!this.state.show || this.state.unlocked == null ||
-            !this.props.proxy.Bridges || this.props.proxy.Bridges.length == 0)
-            return null;
+    const validated = errorVariant == "danger" ? "error" : errorVariant;
 
-        const trigger = this.props.create_trigger(this.state.unlocked,
-                                                  this.state.unlocked ? () => this.lock() : () => this.unlock(null));
+    let title = null;
+    let title_icon = null;
+    let body = null;
+    let footer = null;
 
-        return (
-            <>
-                {trigger}
-
-                <UnlockDialog proxy={this.props.proxy}
-                              state={this.state.unlock_dialog_state}
-                              onClose={() => this.set_unlock_state({ closed: true }) } />
-
-                <LockDialog proxy={this.props.proxy}
-                            host={this.props.host}
-                            show={this.state.show_lock_dialog}
-                            onClose={() => this.setState({ show_lock_dialog: false })} />
-            </>
-        );
-    }
-}
-
-export class SuperuserIndicator extends React.Component {
-    render() {
-        function create_trigger(unlocked, onclick) {
-            return (
-                <Button variant="link" onClick={onclick} className={unlocked ? "ct-unlocked" : "ct-locked"}>
-                    <span className="ct-lock-wrapper">
-                        {!unlocked && <LockIcon />}
-                        {unlocked ? _("Administrative access") : _("Limited access")}
-                    </span>
-                </Button>
-            );
+    if (prompt) {
+        if (!prompt.message && !prompt.prompt) {
+            prompt.message = _("Please authenticate to gain administrative access");
+            prompt.prompt = _("Password");
         }
 
-        return <SuperuserDialogs proxy={this.props.proxy} host={this.props.host} create_trigger={create_trigger} />;
+        const apply = () => {
+            proxy.Answer(value);
+            setError(null);
+            setBusy(true);
+        };
+
+        title = _("Switch to administrative access");
+        body = (
+            <>
+                { error && <><Alert variant={errorVariant || 'danger'} isInline title={error} /><br /></> }
+                <Form isHorizontal onSubmit={event => { apply(); event.preventDefault(); return false }}>
+                    { prompt.message && <span>{prompt.message}</span> }
+                    <FormGroup
+                        fieldId="switch-to-admin-access-password"
+                        label={prompt.prompt}
+                        validated={!error ? "default" : validated || "error"}
+                    >
+                        <TextInput
+                            autoFocus // eslint-disable-line jsx-a11y/no-autofocus
+                            id="switch-to-admin-access-password"
+                            isDisabled={busy}
+                            onChange={setValue}
+                            type={!prompt.echo ? 'password' : 'text'}
+                            validated={!error ? "default" : validated || "error"}
+                            value={value}
+                        />
+                    </FormGroup>
+                </Form>
+            </>
+        );
+
+        footer = (
+            <>
+                <Button variant='primary' onClick={apply} isDisabled={busy} isLoading={busy}>
+                    {_("Authenticate")}
+                </Button>
+                <Button variant='link' className='btn-cancel' onClick={cancel} isDisabled={!cancel}>
+                    {_("Cancel")}
+                </Button>
+            </>);
+    } else if (message) {
+        title = _("Administrative access");
+        body = <p>{message}</p>;
+        footer = (
+            <Button variant="secondary" className='btn-cancel' onClick={cancel}>
+                {_("Close")}
+            </Button>);
+    } else if (error) {
+        title_icon = "danger";
+        title = _("Problem becoming administrator");
+        body = <p>{error}</p>;
+        footer = (
+            <Button variant="secondary" className='btn-cancel' onClick={cancel}>
+                {_("Close")}
+            </Button>);
     }
-}
+
+    if (body === null)
+        return null;
+
+    return (
+        <Modal isOpen
+               position="top"
+               variant="medium"
+               onClose={D.close}
+               title={title}
+               titleIconVariant={title_icon}
+               footer={footer}>
+            {body}
+        </Modal>
+    );
+};
+
+const LockDialog = ({ proxy, host }) => {
+    const D = useDialogs();
+    const [error, setError] = useState(null);
+
+    const apply = () => {
+        setError(null);
+        proxy.Stop()
+                .then(() => {
+                    return cockpit.spawn(["sudo", "-k"], { host: host }).always(() => {
+                        const key = host_superuser_storage_key(host);
+                        if (key)
+                            window.localStorage.setItem(key, "none");
+                        D.close();
+                    });
+                })
+                .catch(err => {
+                    setError(err.toString());
+                });
+    };
+
+    const footer = (
+        <>
+            {error && <ModalError dialogError={error} />}
+            <Button variant='primary' onClick={apply}>
+                {_("Limit access")}
+            </Button>
+            <Button variant='link' className='btn-cancel' onClick={D.close}>
+                {_("Cancel")}
+            </Button>
+        </>
+    );
+
+    return (
+        <Modal isOpen
+               position="top" variant="medium"
+               onClose={D.close}
+               footer={footer}
+               title={_("Switch to limited access")}>
+            <>
+                <p>{_("Limited access mode restricts administrative privileges. Some parts of the web console will have reduced functionality.")}</p>
+                <p>{_("Your browser will remember your access level across sessions.")}</p>
+            </>
+        </Modal>
+    );
+};
+
+const SuperuserDialogs = ({ superuser_proxy, host, create_trigger }) => {
+    const D = useDialogs();
+    useEvent(superuser_proxy, "changed",
+             () => {
+                 const key = host_superuser_storage_key(host);
+                 if (key) {
+                     // Reset wanted state if we fail to gain admin privs.
+                     // Failing to gain admin privs might take a noticeable
+                     // time, and we don't want to suffer through the
+                     // associated intermediate UI state on every login.
+                     const want = window.localStorage.getItem(key);
+                     if (superuser_proxy.Current == "none" && superuser_proxy.Current != want)
+                         window.localStorage.setItem(key, superuser_proxy.Current);
+                 }
+             });
+
+    const show = superuser_proxy.Current != "root" && superuser_proxy.Current != "init";
+    const unlocked = superuser_proxy.Current != "none";
+
+    function unlock() {
+        D.show(<UnlockDialog proxy={superuser_proxy} host={host} />);
+    }
+
+    function lock() {
+        D.show(<LockDialog proxy={superuser_proxy} host={host} />);
+    }
+
+    if (!show || !superuser_proxy.Bridges || superuser_proxy.Bridges.length == 0)
+        return null;
+
+    return create_trigger(unlocked, unlocked ? lock : unlock);
+};
+
+export const SuperuserIndicator = ({ proxy, host }) => {
+    function create_trigger(unlocked, onclick) {
+        return (
+            <Button variant="link" onClick={onclick} className={unlocked ? "ct-unlocked" : "ct-locked"}>
+                <span className="ct-lock-wrapper">
+                    {!unlocked && <LockIcon />}
+                    {unlocked ? _("Administrative access") : _("Limited access")}
+                </span>
+            </Button>
+        );
+    }
+
+    return <SuperuserDialogs superuser_proxy={proxy}
+                             host={host}
+                             create_trigger={create_trigger} />;
+};
+
+export const SuperuserButton = () => {
+    const proxy = useObject(() => cockpit.dbus(null, { bus: "internal" }).proxy("cockpit.Superuser", "/superuser"));
+
+    const create_trigger = (unlocked, onclick) =>
+        <Button onClick={onclick}>
+            {unlocked ? _("Switch to limited access") : _("Turn on administrative access")}
+        </Button>;
+
+    return <SuperuserDialogs superuser_proxy={proxy} create_trigger={create_trigger} />;
+};

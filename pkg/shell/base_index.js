@@ -776,7 +776,7 @@ function Index() {
     };
 
     self.start = function() {
-        /* window.messages is initialized in shell/indexes.js */
+        /* window.messages is initialized in shell/indexes.jsx */
         const messages = window.messages;
         if (messages)
             messages.cancel();

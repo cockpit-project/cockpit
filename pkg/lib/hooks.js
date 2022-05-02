@@ -39,6 +39,8 @@ import deep_equal from "deep-equal";
  *
  * - useEvent: For reacting to events emitted by arbitrary objects.
  *
+ * - useInit: For running a function once.
+ *
  * - useDeepEqualMemo: A utility hook that can help with things that
  * need deep equal comparisons in places where React only offers
  * Object identity comparisons, such as with useEffect.
@@ -298,4 +300,28 @@ export function useEvent(obj, event, handler) {
         obj && obj.addEventListener(event, update);
         return () => obj && obj.removeEventListener(event, update);
     }, [obj, event, handler]);
+}
+
+/* - useInit(func, deps, comps)
+ *
+ * function Component(arg) {
+ *   useInit(() => {
+ *     cockpit.spawn([ ..., arg ]);
+ *   }, [arg]);
+ *
+ *   ...
+ * }
+ *
+ * The function will be called once during the first render, and
+ * whenever "arg" changes.
+ *
+ * "useInit(func, deps, comps)" is the same as "useObject(func, null,
+ * deps, comps)" but if you want to emphasize that you just want to
+ * run a function (instead of creating a object), it is clearer to use
+ * the "useInit" name for that.  Also, "deps" are optional for
+ * "useInit" and default to "[]".
+ */
+
+export function useInit(func, deps, comps) {
+    return useObject(func, null, deps || [], comps);
 }

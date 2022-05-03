@@ -51,9 +51,9 @@ class TestStorageMounting(StorageCase):
         self.dialog_set_val("mount_point", mount_point_foo)
         self.dialog_apply()
         self.dialog_wait_close()
+        self.assert_in_configuration("/dev/sda", "fstab", "dir", mount_point_foo)
         self.content_row_wait_in_col(1, 2, "ext4 filesystem")
         self.content_tab_wait_in_info(1, 1, "Name", "FILESYSTEM")
-        self.wait_in_configuration("/dev/sda", "fstab", "dir", mount_point_foo)
 
         self.content_tab_wait_in_info(1, 1, "Mount point", mount_point_foo)
 
@@ -83,10 +83,10 @@ ExecStart=/usr/bin/sleep infinity
         self.dialog({"name": "filesystem"})
         self.content_tab_wait_in_info(1, 1, "Name", "filesystem")
 
-        self.dialog_with_retry(trigger=lambda: self.content_tab_info_action(1, 1, "Mount point"),
-                               expect={"mount_point": mount_point_foo},
-                               values={"mount_point": mount_point_bar})
-        self.wait_in_configuration("/dev/sda", "fstab", "dir", mount_point_bar)
+        self.content_tab_info_action(1, 1, "Mount point")
+        self.dialog(expect={"mount_point": mount_point_foo},
+                    values={"mount_point": mount_point_bar})
+        self.assert_in_configuration("/dev/sda", "fstab", "dir", mount_point_bar)
         self.content_tab_wait_in_info(1, 1, "Mount point", mount_point_bar)
 
         self.content_row_action(1, "Mount")

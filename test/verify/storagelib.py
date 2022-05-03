@@ -370,39 +370,13 @@ class StorageHelpers:
     def confirm(self):
         self.dialog({})
 
-    # There is a lot of asynchronous activity in the storage stack.
-    # For example, changing fstab or crypttab via the storaged API
-    # will not immediately update the Configuration properties of
-    # block objects.  The storaged daemon will only do that once it
-    # gets a change notification for those files, which happens some
-    # time later.  As another example, wiping a block device has to be
-    # noticed by udev and be propagated back to the daemon before it
-    # updates its properties.
+    # There is some asynchronous activity in the storage stack.  (It
+    # used to be much worse, but it has improved over the years, yay!)
     #
-    # Concretely, the tests have to mainly deal with the cases listed
-    # below, and we offer some functions to help with that.
-    #
-    # - Waiting until a expected change to fstab or crypttab has
-    #   arrived in udisksd.  This is important so that subsequent
-    #   changes to fstab or crypttab will start from the right values
-    #   among other things.
-    #
-    #   This is done with wait_in_configuration and
-    #   wait_not_in_configuration.
-    #
-    # - Waiting until a expected change to fstab or crypttab has
-    #   arrived in Cockpit.  This is important so that dialogs will
-    #   show the right things, and try to modify the right
-    #   configuration.
-    #
-    #   This is done by repeatedly opening a dialog until it shows the
-    #   right values, via dialog_with_retry.
-    #
-    # - Waiting until a block device is considered 'free' and can be
-    #   used as a physical volume or raid member.
-    #
-    #   This is also done by repeatedly opening a dialog until all
-    #   needed block devices are listed.
+    # The tests deal with that by waiting for the right conditions,
+    # which sometimes means opening a dialog a couple of times until
+    # it has the right contents, or applying it a couple of times
+    # until it works.
 
     def dialog_open_with_retry(self, trigger, expect):
         def setup():
@@ -469,11 +443,11 @@ class StorageHelpers:
                                 return from_udisks_ascii(entry[1][field])
         return ""
 
-    def wait_in_configuration(self, dev, tab, field, text):
-        self.browser.wait(lambda: text in self.configuration_field(dev, tab, field))
+    def assert_in_configuration(self, dev, tab, field, text):
+        self.assertIn(text, self.configuration_field(dev, tab, field))
 
-    def wait_not_in_configuration(self, dev, tab, field, text):
-        self.browser.wait(lambda: text not in self.configuration_field(dev, tab, field))
+    def assert_not_in_configuration(self, dev, tab, field, text):
+        self.assertNotIn(text, self.configuration_field(dev, tab, field))
 
     def child_configuration_field(self, dev, tab, field):
         all = self.udisks_objects()
@@ -490,8 +464,8 @@ class StorageHelpers:
                                 return from_udisks_ascii(entry[1][field])
         return ""
 
-    def wait_in_child_configuration(self, dev, tab, field, text):
-        self.browser.wait(lambda: text in self.child_configuration_field(dev, tab, field))
+    def assert_in_child_configuration(self, dev, tab, field, text):
+        self.assertIn(text, self.child_configuration_field(dev, tab, field))
 
     def lvol_child_configuration_field(self, lvol, tab, field):
         all = self.udisks_objects()
@@ -507,8 +481,8 @@ class StorageHelpers:
                                 return from_udisks_ascii(entry[1][field])
         return ""
 
-    def wait_in_lvol_child_configuration(self, lvol, tab, field, text):
-        self.browser.wait(lambda: text in self.lvol_child_configuration_field(lvol, tab, field))
+    def assert_in_lvol_child_configuration(self, lvol, tab, field, text):
+        self.assertIn(text, self.lvol_child_configuration_field(lvol, tab, field))
 
     def wait_mounted(self, row, col):
         with self.browser.wait_timeout(30):

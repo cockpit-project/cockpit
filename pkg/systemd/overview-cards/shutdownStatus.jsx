@@ -40,7 +40,7 @@ const getScheduledShutdown = (setShutdownTime, setShutdownType) => {
 };
 
 const cancelShutdownAction = () => {
-    const client = cockpit.dbus("org.freedesktop.login1");
+    const client = cockpit.dbus("org.freedesktop.login1", { superuser: "try" });
     return client.call("/org/freedesktop/login1", "org.freedesktop.login1.Manager", "CancelScheduledShutdown")
             .then(([cancelled]) => {
                 if (!cancelled) {

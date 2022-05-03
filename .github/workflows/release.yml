@@ -24,7 +24,6 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           echo 'cockpit' > ~/.config/bodhi-user
           echo '${{ secrets.GITHUB_TOKEN }}' > ~/.config/github-token
-          echo '${{ secrets.COPR_TOKEN }}' > ~/.config/copr
           echo '${{ secrets.COCKPIT_FEDORA_PASSWORD }}' > ~/.fedora-password
 
       - name: Run cockpituous

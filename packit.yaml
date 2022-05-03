@@ -32,3 +32,16 @@ jobs:
         - fedora-development-i386
         # big-endian
         - fedora-development-s390x
+
+  - job: copr_build
+    trigger: release
+    metadata:
+      owner: cockpit
+      project: cockpit-preview
+      preserve_project: True
+      targets:
+      - fedora-35
+      - fedora-36
+      - fedora-development
+      - centos-stream-8-x86_64
+      - centos-stream-9-x86_64

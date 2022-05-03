@@ -34,9 +34,6 @@ job release-koji f36
 # Upload release to github, using tarball
 job release-github
 
-# Push to COPR builds
-job release-copr @cockpit/cockpit-preview
-
 # Update the Github repo that Docker Hub is tracking
 job release-dockerhub cockpit-project/cockpit-container
 

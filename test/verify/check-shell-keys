@@ -168,7 +168,7 @@ class TestKeys(MachineCase):
                 b.wait_not_present(f"tr[data-name='{identifier}']")
 
         def waitKeyLoaded(identifier, enabled):
-            b.wait_visible(f"tr[data-name='{identifier}'] input[type=checkbox]" + (":checked" if enabled else ":not(checked)"))
+            b.wait_visible(f"tr[data-name='{identifier}'] input[type=checkbox]" + (":checked" if enabled else ":not(:checked)"))
             b.wait_visible(f"tr[data-name='{identifier}'][data-loaded={'true' if enabled else 'false'}]")
 
         def toggleKeyState(identifier):

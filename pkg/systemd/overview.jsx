@@ -26,7 +26,7 @@ import ReactDOM from 'react-dom';
 import {
     Page, PageSection, PageSectionVariants,
     Gallery,
-    Dropdown, DropdownItem, DropdownToggle, DropdownToggleAction,
+    Dropdown, DropdownItem, DropdownToggle, DropdownToggleAction, DropdownPosition,
 } from '@patternfly/react-core';
 
 import { superuser } from "superuser";
@@ -125,6 +125,7 @@ class OverviewPage extends React.Component {
                               />
                           }
                     isOpen={actionIsOpen}
+                    position={DropdownPosition.right}
                     dropdownItems={dropdownItems}
                 />);
 

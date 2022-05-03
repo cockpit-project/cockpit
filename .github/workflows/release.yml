@@ -52,7 +52,8 @@ jobs:
       - name: Tag node-cache
         run: |
           set -eux
-          TAG="$(basename $GITHUB_REF)"
+          # this is a shared repo, prefix with project name
+          TAG="${GITHUB_REPOSITORY#*/}-$(basename $GITHUB_REF)"
 
           tools/node-modules checkout
           cd node_modules

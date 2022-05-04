@@ -130,7 +130,7 @@ export class TopNav extends React.Component {
 
         docs.forEach(e => {
             docItems.push(<DropdownItem key={e.label} href={e.url} target="blank" rel="noopener noreferrer" icon={<ExternalLinkAltIcon />}>
-                {e.label}
+                {_(e.label)}
             </DropdownItem>);
         });
 

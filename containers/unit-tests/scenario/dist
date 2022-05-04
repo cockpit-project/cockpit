@@ -1,6 +1,0 @@
-#!/bin/sh -eux
-
-# configure first
-"$(dirname "$0")"/configure
-
-make XZ_OPT=-0 dist

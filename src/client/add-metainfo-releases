@@ -8,6 +8,8 @@ import subprocess
 import time
 import xml.etree.ElementTree as ET
 
+BASE_DIR = os.path.realpath(f'{__file__}/../../..')
+
 
 # Pretend like this is a little bit functional
 def element(tag, text=None, children=(), **kwargs):
@@ -38,7 +40,7 @@ def format_release(blob):
 def get_releases():
     # %(if)%(taggerdate) ensures we get only annotated tags.  258 was the first release
     format = '%(if)%(taggerdate)%(then)%(refname:short)|%(taggerdate:short)|%(contents:body)%(end)'
-    output = subprocess.check_output(['git', 'for-each-ref', '--shell', '--sort=-taggerdate',
+    output = subprocess.check_output(['git', '-C', BASE_DIR, 'for-each-ref', '--shell', '--sort=-taggerdate',
                                       '--contains', '258', '--format', format, 'refs/tags'], text=True)
     return shlex.split(output)
 

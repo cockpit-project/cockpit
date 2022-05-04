@@ -7,13 +7,13 @@ set -eu
 
 distdir="$1"
 
-# This will work for .git or for .tarball
+# This will work for git or for tarball
 #
 # Note: we give the .tarball file the exact same timestamp as the git commit,
 # so producing a tarball from a tarball should also create the exact same
 # output.
 
-stamp="$(git show --format=%ct --no-patch 2>/dev/null || stat -c %Y .tarball)"
+stamp="$(cd "${0%/*}/.." && git show --format=%ct --no-patch 2>/dev/null || stat -c %Y version.m4)"
 
 test -n "${stamp}"
 

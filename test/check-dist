@@ -2,9 +2,10 @@
 
 set -eu
 
+srcdir="${0%/*}/.."
 echo '1..1'
 
-output="$(grep --color=auto -H -n "\.\./fonts/OpenSans\|fonts/.*eot\|truetype" -r dist 2>&1)" || true
+output="$(grep --color=auto -H -n "\.\./fonts/OpenSans\|fonts/.*eot\|truetype" -r "$srcdir"/dist 2>&1)" || true
 
 printf "%s %d %s%s\n" "${output:+not }ok" '1' "/dist/patternfly-font-paths" "${skip:-}"
 if [ -n "${output:-}" ]; then

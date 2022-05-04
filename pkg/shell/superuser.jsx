@@ -263,7 +263,9 @@ export class SuperuserDialogs extends React.Component {
             cancel: cancel
         });
 
+        let user;
         let did_prompt = false;
+        let should_remember = false;
 
         const onprompt = (event, message, prompt, def, echo, error) => {
             const p = {
@@ -291,36 +293,47 @@ export class SuperuserDialogs extends React.Component {
                     });
                 }
             });
+
+            if (did_prompt)
+                should_remember = false;
+            else if (prompt == "[sudo] password for " + user + ": ")
+                should_remember = true;
+
             did_prompt = true;
         };
 
         this.props.proxy.addEventListener("Prompt", onprompt);
-        this.props.proxy.Start(method)
-                .then(() => {
-                    this.props.proxy.removeEventListener("Prompt", onprompt);
+        cockpit.spawn(["id", "-un"], { host: this.props.host })
+            .then(output => {
+                user = output.trim();
 
-                    const key = host_superuser_storage_key(this.props.host);
-                    if (key)
-                        window.localStorage.setItem(key, method);
-                    if (did_prompt)
-                        this.set_unlock_state({ closed: true });
-                    else
-                        this.set_unlock_state({
-                            message: _("You now have administrative access."),
-                            cancel: () => this.set_unlock_state({ closed: true })
-                        });
-                })
-                .catch(err => {
-                    console.warn(err);
-                    this.props.proxy.removeEventListener("Prompt", onprompt);
-                    if (err && err.message != "cancelled") {
-                        this.set_unlock_state({
-                            error: sudo_polish(err.toString()),
-                            cancel: () => this.set_unlock_state({ closed: true })
-                        });
-                    } else
-                        this.set_unlock_state({ closed: true });
-                });
+                this.props.proxy.Start(method)
+                    .then(() => {
+                        this.props.proxy.removeEventListener("Prompt", onprompt);
+
+                        const key = host_superuser_storage_key(this.props.host);
+                        if (key && should_remember)
+                            window.localStorage.setItem(key, method);
+                        if (did_prompt)
+                            this.set_unlock_state({ closed: true });
+                        else
+                            this.set_unlock_state({
+                                message: _("You now have administrative access."),
+                                cancel: () => this.set_unlock_state({ closed: true })
+                            });
+                    })
+                    .catch(err => {
+                        console.warn(err);
+                        this.props.proxy.removeEventListener("Prompt", onprompt);
+                        if (err && err.message != "cancelled") {
+                            this.set_unlock_state({
+                                error: sudo_polish(err.toString()),
+                                cancel: () => this.set_unlock_state({ closed: true })
+                            });
+                        } else
+                            this.set_unlock_state({ closed: true });
+                    });
+            })
     }
 
     lock() {

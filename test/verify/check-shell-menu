@@ -75,6 +75,13 @@ class TestMenu(MachineCase):
         b.switch_to_top()
         b.wait_visible("#navbar-oops")
 
+        # normally called at the end of the test, should fail due to the oops
+        with self.assertRaisesRegex(AssertionError, "Cockpit shows an Oops"):
+            self.check_browser_errors()
+
+        # don't actually fail this test
+        b.allow_oops = True
+
     def testSessionTimeout(self):
         b = self.browser
         m = self.machine

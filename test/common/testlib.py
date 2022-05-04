@@ -178,6 +178,7 @@ class Browser:
         self.password = "foobar"
         self.timeout_factor = int(os.getenv("TEST_TIMEOUT_FACTOR", "1"))
         self.failed_pixel_tests = 0
+        self.allow_oops = False
         self.body_clip = None
         try:
             with open(f'{TEST_DIR}/browser-layouts.json') as fp:
@@ -680,6 +681,8 @@ class Browser:
             self.enter_page(path.split("#")[0], host=host)
 
     def logout(self):
+        self.assert_no_oops()
+
         self.switch_to_top()
 
         # changed in #16522
@@ -1039,6 +1042,15 @@ class Browser:
         if self.coverage_label and self.cdp and self.cdp.valid:
             coverage = self.cdp.invoke("Profiler.takePreciseCoverage")
             write_lcov(BASE_DIR, coverage['result'], self.coverage_label)
+
+    def assert_no_oops(self):
+        if self.allow_oops:
+            return
+
+        if self.cdp and self.cdp.valid:
+            self.switch_to_top()
+            if self.is_present("#navbar-oops"):
+                assert not self.is_visible("#navbar-oops"), "Cockpit shows an Oops"
 
 
 class _DebugOutcome(unittest.case._Outcome):
@@ -1615,6 +1627,8 @@ class MachineCase(unittest.TestCase):
                     break
             else:
                 raise Error(UNEXPECTED_MESSAGE + "browser errors:\n" + log)
+
+        self.browser.assert_no_oops()
 
     def check_pixel_tests(self):
         if self.browser:

@@ -31,8 +31,8 @@
  *   </WithDialogs>;
  *
  * const ExampleButton = () => {
- *   const D = useDialogs();
- *   return <Button onClick={() => D.show(<MyDialog />)}>Open dialog</Button>;
+ *   const Dialogs = useDialogs();
+ *   return <Button onClick={() => Dialogs.show(<MyDialog />)}>Open dialog</Button>;
  * };
  *
  * const MyDialog = () => {
@@ -40,7 +40,7 @@
  *   return (
  *     <Modal title="My dialog"
  *            isOpen
- *            onClose={D.close}>
+ *            onClose={Dialogs.close}>
  *       <p>Hello!</p>
  *     </Modal>);
  * };

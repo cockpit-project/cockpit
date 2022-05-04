@@ -481,7 +481,7 @@ test_read_error (void)
   if (pipe (fds) < 0)
     g_assert_not_reached ();
 
-  out = dup (2);
+  out = dup (fds[1]); /* write end */
   g_assert (out >= 0);
 
   cockpit_expect_message ("*Bad file descriptor");

@@ -265,7 +265,7 @@ for pkg in base1 branding motd kdump networkmanager selinux shell sosreport ssh 
     rm -r %{buildroot}/%{_datadir}/cockpit/$pkg
     rm -f %{buildroot}/%{_datadir}/metainfo/org.cockpit-project.cockpit-${pkg}.metainfo.xml
 done
-for data in doc locale man pixmaps polkit-1; do
+for data in doc man pixmaps polkit-1; do
     rm -r %{buildroot}/%{_datadir}/$data
 done
 for lib in systemd tmpfiles.d; do
@@ -318,10 +318,6 @@ rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-sosreport.met
 rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-kdump.metainfo.xml
 rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-selinux.metainfo.xml
 rm -f %{buildroot}%{_datadir}/pixmaps/cockpit-sosreport.png
-%endif
-
-%if 0%{?build_basic}
-%find_lang cockpit
 %endif
 
 # -------------------------------------------------------------------------------
@@ -446,7 +442,7 @@ The Cockpit Web Service listens on the network, and authenticates users.
 If sssd-dbus is installed, you can enable client certificate/smart card
 authentication via sssd/FreeIPA.
 
-%files ws -f cockpit.lang -f static.list
+%files ws -f static.list
 %doc %{_mandir}/man1/cockpit-desktop.1.gz
 %doc %{_mandir}/man5/cockpit.conf.5.gz
 %doc %{_mandir}/man8/cockpit-ws.8.gz

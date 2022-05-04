@@ -37,7 +37,6 @@
 #include <json-glib/json-glib.h>
 
 #include <gio/gio.h>
-#include <glib/gi18n.h>
 
 #include <string.h>
 

@@ -85,15 +85,8 @@ AM_CFLAGS = \
 
 check: export VERBOSE=1
 
-LOG_DRIVER = $(PYTHON) $(top_srcdir)/tools/tap-driver
-LOG_COMPILER = sh -c 'timeout 300 "$$0" "$$@" --tap' # For GLib < 2.62
-
 TEST_EXTENSIONS = .html .sh
-SH_LOG_DRIVER = $(LOG_DRIVER)
-HTML_LOG_DRIVER = $(LOG_DRIVER)
-HTML_TEST_SERVER = $(builddir)/test-server
-
-HTML_LOG_COMPILER = timeout 60 $(PYTHON) $(top_srcdir)/test/common/tap-cdp --strip=$(abs_top_srcdir)/ -- $(HTML_TEST_SERVER)
+HTML_LOG_COMPILER = $(top_srcdir)/test/common/tap-cdp --strip=$(abs_top_srcdir)/ ./test-server
 
 VALGRIND_ARGS = --trace-children=yes --quiet --error-exitcode=33 --gen-suppressions=all \
 	$(foreach file,$(VALGRIND_SUPPRESSIONS),--suppressions=$(file)) \

@@ -29,7 +29,4 @@ cd _distcleancheck/cockpit-*
 ./configure
 make distclean
 ./configure
-make check 2>&1 || {
-    find -name test-suite.log | xargs cat
-    exit 1
-}
+make check

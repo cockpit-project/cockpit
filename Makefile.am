@@ -83,6 +83,8 @@ AM_CFLAGS = \
 	-Werror=missing-include-dirs \
 	$(NULL)
 
+check: export VERBOSE=1
+
 LOG_DRIVER = $(PYTHON) $(top_srcdir)/tools/tap-driver
 LOG_COMPILER = sh -c 'timeout 300 "$$0" "$$@" --tap' # For GLib < 2.62
 

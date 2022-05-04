@@ -869,7 +869,7 @@ class Browser:
         self.switch_to_top()
 
         self.open_superuser_dialog()
-        self.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", f"Password for {user or 'admin'}:")
+        self.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", f"Password for {user or 'admin'}")
         self.set_input_text(".pf-c-modal-box:contains('Switch to administrative access') input", password or "foobar")
         self.click(".pf-c-modal-box button:contains('Authenticate')")
         self.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")

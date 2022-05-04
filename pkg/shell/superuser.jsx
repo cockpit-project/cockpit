@@ -32,7 +32,8 @@ function sudo_polish(msg) {
     if (!msg)
         return msg;
 
-    msg = msg.replace(/^\[sudo] /, "");
+    msg = msg.trim();
+    msg = msg.replace(/^\[sudo] /, "").replace(/:$/, "");
     msg = msg[0].toUpperCase() + msg.slice(1);
 
     return msg;

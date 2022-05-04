@@ -779,7 +779,7 @@ ipa-advise enable-admins-sudo | sh -ex
         self.assertIn("Permission denied", m.execute(f"su -c '! {ccache_env} ssh x0.cockpit.lan 2>&1' alice"))
         b.switch_to_top()
         b.open_superuser_dialog()
-        b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Password for alice:")
+        b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Password for alice")
         b.click(".pf-c-modal-box:contains('Switch to administrative access') .btn-cancel")
         b.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
 

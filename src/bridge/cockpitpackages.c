@@ -39,7 +39,6 @@
 #include "common/cockpitwebserver.h"
 
 #include <glib.h>
-#include <glib/gi18n.h>
 
 #include <string.h>
 
@@ -519,7 +518,7 @@ check_package_compatible (CockpitPackage *package,
     {
       g_message ("%s: package requires a later version of cockpit: %s > %s",
                  package->name, minimum, PACKAGE_VERSION);
-      package->unavailable = g_strdup_printf (_("This package requires Cockpit version %s or later"), minimum);
+      package->unavailable = g_strdup_printf ("This package requires Cockpit version %s or later", minimum);
     }
 
   /* Look for any other unknown keys */
@@ -530,7 +529,7 @@ check_package_compatible (CockpitPackage *package,
       if (!g_str_equal (l->data, "cockpit"))
         {
           g_message ("%s: package has an unknown requirement: %s", package->name, (gchar *)l->data);
-          package->unavailable = g_strdup (_("This package is not compatible with this version of Cockpit"));
+          package->unavailable = g_strdup ("This package is not compatible with this version of Cockpit");
         }
     }
   g_list_free (keys);
@@ -1004,7 +1003,7 @@ package_content (CockpitPackages *packages,
                * message.
                */
               if (g_str_equal (name, "shell") || g_str_equal (name, "systemd"))
-                cockpit_web_response_error (response, 404, NULL, _("Server is missing the cockpit-system package"));
+                cockpit_web_response_error (response, 404, NULL, "Server is missing the cockpit-system package");
               else
                 cockpit_web_response_error (response, 404, NULL, NULL);
             }

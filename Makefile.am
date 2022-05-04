@@ -107,16 +107,9 @@ TEST_EXTENSIONS = .html .sh
 HTML_LOG_COMPILER = $(top_srcdir)/test/common/tap-cdp --strip=$(abs_top_srcdir)/ ./test-server
 
 VALGRIND_ARGS = --trace-children=yes --quiet --error-exitcode=33 --gen-suppressions=all \
-	$(foreach file,$(VALGRIND_SUPPRESSIONS),--suppressions=$(file)) \
+	$(foreach file,$(wildcard $(srcdir)/tools/*.supp),--suppressions=$(file)) \
 	--num-callers=16 --leak-check=yes --show-leak-kinds=definite \
 	--errors-for-leak-kinds=definite --trace-children-skip='*mock*,/bin*,/usr/bin/*,/usr/local/bin'
-VALGRIND_SUPPRESSIONS = \
-	tools/glib.supp \
-	tools/libssh.supp \
-	tools/polkit.supp \
-	tools/gnutls.supp \
-	tools/valgrind.supp \
-	$(NULL)
 
 check-memory:
 	$(MAKE) LOG_FLAGS="valgrind $(VALGRIND_ARGS)" \

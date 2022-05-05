@@ -38,6 +38,7 @@
 #include "server.h"
 #include "utils.h"
 #include "testlib/cockpittest.h"
+#include "common/cockpithacks-glib.h"
 
 #define SOCKET_ACTIVATION_HELPER BUILDDIR "/socket-activation-helper"
 #define COCKPIT_WS BUILDDIR "/cockpit-ws"
@@ -50,8 +51,6 @@
 #define ALTERNATE_CERTFILE SRCDIR "/src/tls/ca/bob.pem"
 #define ALTERNATE_KEYFILE SRCDIR "/src/tls/ca/bob.key"
 #define CLIENT_EXPIRED_CERTFILE SRCDIR "/src/tls/ca/alice-expired.pem"
-
-const unsigned server_port = 9123;
 
 typedef struct {
   gchar *ws_socket_dir;
@@ -384,13 +383,20 @@ setup (TestCase *tc, gconstpointer data)
     }
   close (socket_dir_fd);
 
-  server_init (tc->ws_socket_dir, tc->runtime_dir, fixture ? fixture->idle_timeout : 0, server_port);
+  /* Let the kernel assign a port */
+  server_init (tc->ws_socket_dir, tc->runtime_dir, fixture ? fixture->idle_timeout : 0, 0);
+
   if (fixture && fixture->certfile)
     connection_crypto_init (fixture->certfile, fixture->keyfile, false, fixture->cert_request_mode);
 
-  tc->server_addr.sin_family = AF_INET;
-  tc->server_addr.sin_port = htons (server_port);
-  tc->server_addr.sin_addr.s_addr = htonl (INADDR_LOOPBACK);
+  /* Figure out the socket address we ought to connect to */
+  socklen_t addrlen = sizeof tc->server_addr;
+  int r = getsockname (server_get_listener (), (struct sockaddr *) &tc->server_addr, &addrlen);
+  g_assert_no_errno (r);
+
+  /* Sanity check */
+  g_assert_cmpint (addrlen, ==, sizeof tc->server_addr);
+  g_assert_cmpint (tc->server_addr.sin_family, ==, AF_INET);
 }
 
 static void

@@ -112,15 +112,6 @@ EXTRA_DIST += src/common/fail.html
 dist_check_SCRIPTS += src/common/mock-stderr
 dist_check_DATA += src/common/mock-content
 
-dist_check_DATA += $(test_locale_PO)
-test_locale_PO = \
-       src/common/mock-locale/de_DE/LC_MESSAGES/test.po \
-       src/common/mock-locale/zh_CN/LC_MESSAGES/test.po \
-       $(NULL)
-test_locale_MO = $(test_locale_PO:.po=.mo)
-check_DATA += $(test_locale_MO)
-CLEANFILES += $(test_locale_MO)
-
 # preload wrapper library for unit tests that need a temp home dir
 check_PROGRAMS += libpreload-temp-home.so
 libpreload_temp_home_so_SOURCES = src/common/preload-temp-home.c

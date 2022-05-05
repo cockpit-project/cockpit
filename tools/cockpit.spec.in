@@ -172,7 +172,6 @@ Recommends: subscription-manager-cockpit
 %make_build
 
 %check
-exec 2>&1
 # HACK: RHEL i686 builders hang after running all tests; not a supported architecture, so don't bother
 %if 0%{?rhel} >= 8
 %ifarch i686

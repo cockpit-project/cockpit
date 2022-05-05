@@ -272,6 +272,13 @@ server_init (const char *wsinstance_sockdir,
     }
 }
 
+int
+server_get_listener (void)
+{
+  assert (server.first_listener == server.last_listener);
+  return server.first_listener;
+}
+
 /**
  * server_cleanup: Free all resources to the cockpit TLS proxy server
  *

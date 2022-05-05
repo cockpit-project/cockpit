@@ -36,6 +36,9 @@ server_run (void);
 void
 server_cleanup (void);
 
+int
+server_get_listener (void);
+
 /* these are for unit tests only */
 bool
 server_poll_event (int timeout);

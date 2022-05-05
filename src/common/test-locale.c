@@ -64,16 +64,15 @@ test_from_language (gconstpointer data)
 typedef struct {
     const gchar *language;
     const gchar *lang;
-    const gchar *string;
 } SetFixture;
 
 static SetFixture set_fixtures[] = {
-  { "en-us", "en_US.UTF-8", "Unavailable", },
-  { "de-de", "de_DE.UTF-8", "Nicht verfügbar" },
-  { "zh-cn", "zh_CN.UTF-8", "不可用" },
-  { "__xx;%%%", NULL, NULL },
-  { NULL, "C", "Unavailable" },
-  { "abcdefghijklmnopqrstuvwxyz-abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz", NULL, NULL },
+  { "en-us", "en_US.UTF-8" },
+  { "de-de", "de_DE.UTF-8" },
+  { "zh-cn", "zh_CN.UTF-8" },
+  { "__xx;%%%", NULL },
+  { NULL, "C" },
+  { "abcdefghijklmnopqrstuvwxyz-abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz", NULL },
 };
 
 static gboolean
@@ -104,6 +103,19 @@ locale_available (const gchar *locale)
 }
 
 static void
+verify_lc_messages_locale (const gchar *expected)
+{
+  g_autofree gchar *expected_line = g_strdup_printf ("LC_MESSAGES=\"%s\"\n", expected);
+  g_autoptr(GError) error = NULL;
+  g_autoptr(GSubprocess) subprocess = g_subprocess_new (G_SUBPROCESS_FLAGS_STDOUT_PIPE, &error, "locale", NULL);
+  g_assert_no_error (error);
+  g_autofree gchar *output = NULL;
+  g_subprocess_communicate_utf8 (subprocess, NULL, NULL, &output, NULL, &error);
+  g_assert_no_error (error);
+  g_assert (strstr (output, expected_line) != NULL);
+}
+
+static void
 test_set_language (const gconstpointer data)
 {
   const SetFixture *fixture = data;
@@ -130,7 +142,7 @@ test_set_language (const gconstpointer data)
   else
     {
       g_assert_cmpstr (fixture->lang, ==, g_getenv ("LANG"));
-      g_assert_cmpstr (dgettext ("test", "Unavailable"), ==, fixture->string);
+      verify_lc_messages_locale (fixture->lang);
     }
 
   /* A second time, exercise cache code */
@@ -146,7 +158,7 @@ test_set_language (const gconstpointer data)
   else
     {
       g_assert_cmpstr (fixture->lang, ==, g_getenv ("LANG"));
-      g_assert_cmpstr (dgettext ("test", "Unavailable"), ==, fixture->string);
+      verify_lc_messages_locale (fixture->lang);
     }
 
 }

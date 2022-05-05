@@ -172,13 +172,7 @@ Recommends: subscription-manager-cockpit
 %make_build
 
 %check
-# HACK: RHEL i686 builders hang after running all tests; not a supported architecture, so don't bother
-%if 0%{?rhel} >= 8
-%ifarch i686
-%define testsuite_skip #
-%endif
-%endif
-%{?testsuite_skip} make -j$(nproc) check
+make -j$(nproc) check
 
 %install
 %make_install

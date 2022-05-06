@@ -1020,6 +1020,18 @@ package_content (CockpitPackages *packages,
 
       bytes = cockpit_web_response_negotiation (filename, package ? package->paths : NULL, language, &is_language_specific, &gzipped, &error);
 
+      /* HACK: if a translation file is missing, just return empty
+       * content. This saves a whole lot of 404s in the developer
+       * console when trying to fetch po.js for English, for example.
+       * Note that error == NULL only in the 'not found' case.
+       */
+      if (bytes == NULL && error == NULL && g_str_has_suffix (filename, "/po.js"))
+        {
+          bytes = g_bytes_new_static ("", 0);
+          is_language_specific = TRUE;
+          gzipped = FALSE;
+        }
+
       /* When globbing most errors result in a zero length block */
       if (globbing)
         {

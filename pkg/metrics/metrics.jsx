@@ -792,7 +792,12 @@ class MetricsMinute extends React.Component {
             let body = " "; // Cannot be false-y, otherwise table does not show '>'
             if (this.state.expanded) {
                 body = <div className="cockpit-log-panel">
-                    {this.state.logs === null ? _("Loading...") : this.state.logs.length === 0 ? _("No logs found") : this.state.logs}
+                    {this.state.logs === null
+                        ? _("Loading...")
+                        : this.state.logs.length === 0
+                            ? <span className="pf-u-py-sm">{ _("No logs found") }</span>
+                            : this.state.logs
+                    }
                 </div>;
             }
 

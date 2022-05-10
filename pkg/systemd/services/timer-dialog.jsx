@@ -34,6 +34,7 @@ import {
 import { MinusIcon, PlusIcon } from '@patternfly/react-icons';
 
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
+import { useDialogs } from "dialogs.jsx";
 
 import { updateTime } from './services.jsx';
 import { create_timer } from './timer-dialog-helpers.js';
@@ -44,25 +45,22 @@ import "./timers.scss";
 const _ = cockpit.gettext;
 
 export const CreateTimerDialog = ({ owner }) => {
-    const [isOpen, setIsOpen] = useState(false);
-
+    const Dialogs = useDialogs();
     return (
-        <>
-            <Button key='create-timer-action'
-                    variant="secondary"
-                    id="create-timer"
-                    onClick={() => {
-                        updateTime();
-                        setIsOpen(true);
-                    }}>
-                {_("Create timer")}
-            </Button>
-            {isOpen && <CreateTimerDialogBody setIsOpen={setIsOpen} owner={owner} />}
-        </>
+        <Button key='create-timer-action'
+                variant="secondary"
+                id="create-timer"
+                onClick={() => {
+                    updateTime();
+                    Dialogs.show(<CreateTimerDialogBody owner={owner} />);
+                }}>
+            {_("Create timer")}
+        </Button>
     );
 };
 
-const CreateTimerDialogBody = ({ setIsOpen, owner }) => {
+const CreateTimerDialogBody = ({ owner }) => {
+    const Dialogs = useDialogs();
     const [command, setCommand] = useState('');
     const [delay, setDelay] = useState('specific-time');
     const [delayNumber, setDelayNumber] = useState(0);
@@ -116,7 +114,7 @@ const CreateTimerDialogBody = ({ setIsOpen, owner }) => {
         cockpit.spawn(["test", "-f", command_parts[0]], { err: "ignore" })
                 .then(() => {
                     create_timer({ name, description, command, delay, delayUnit, delayNumber, repeat, specificTime, repeatPatterns, owner })
-                            .then(() => setIsOpen(false), exc => {
+                            .then(Dialogs.close, exc => {
                                 setDialogError(exc.message);
                                 setInProgress(false);
                             });
@@ -131,7 +129,7 @@ const CreateTimerDialogBody = ({ setIsOpen, owner }) => {
 
     return (
         <Modal id="timer-dialog"
-           className="timer-dialog" position="top" variant="medium" isOpen onClose={() => setIsOpen(false)}
+           className="timer-dialog" position="top" variant="medium" isOpen onClose={Dialogs.close}
            title={cockpit.format(_("Create timer"), name)}
            footer={
                <>
@@ -143,7 +141,7 @@ const CreateTimerDialogBody = ({ setIsOpen, owner }) => {
                            onClick={onSubmit}>
                        {_("Save")}
                    </Button>
-                   <Button variant='link' onClick={() => setIsOpen(false)}>
+                   <Button variant='link' onClick={Dialogs.close}>
                        {_("Cancel")}
                    </Button>
                </>

@@ -39,10 +39,13 @@ import { UsageCard } from './overview-cards/usageCard.jsx';
 import { SuperuserAlert } from './superuser-alert.jsx';
 import { SuperuserIndicator } from "../shell/superuser.jsx";
 import { ShutdownModal } from 'cockpit-components-shutdown.jsx';
+import { WithDialogs, DialogsContext } from "dialogs.jsx";
 
 const _ = cockpit.gettext;
 
 class OverviewPage extends React.Component {
+    static contextType = DialogsContext;
+
     constructor(props) {
         super(props);
 
@@ -96,12 +99,17 @@ class OverviewPage extends React.Component {
     }
 
     render() {
+        const Dialogs = this.context;
         const { actionIsOpen } = this.state;
         const dropdownItems = [
-            <DropdownItem key="reboot" id="reboot" onClick={() => this.setState({ rebootModal: true })} component="button">
+            <DropdownItem key="reboot" id="reboot"
+                          onClick={() => Dialogs.show(<ShutdownModal />)}
+                          component="button">
                 {_("Reboot")}
             </DropdownItem>,
-            <DropdownItem key="shutdown" id="shutdown" onClick={() => this.setState({ shutdownModal: true })} component="button">
+            <DropdownItem key="shutdown" id="shutdown"
+                          onClick={() => Dialogs.show(<ShutdownModal shutdown />)}
+                          component="button">
                 {_("Shutdown")}
             </DropdownItem>,
         ];
@@ -114,8 +122,8 @@ class OverviewPage extends React.Component {
                               <DropdownToggle
                             splitButtonItems={[
                                 <DropdownToggleAction id='reboot-button' variant="secondary"
-                                    key='reboot-button'
-                                    onClick={() => this.setState({ rebootModal: true })}>
+                                                      key='reboot-button'
+                                                      onClick={() => Dialogs.show(<ShutdownModal />)}>
                                     {_("Reboot")}
                                 </DropdownToggleAction>
                             ]}
@@ -135,46 +143,42 @@ class OverviewPage extends React.Component {
               window.parent.features.navbar_is_for_current_machine));
 
         return (
-            <>
-                {this.state.rebootModal && <ShutdownModal onClose={() => this.setState({ rebootModal: false })} />}
-                {this.state.shutdownModal && <ShutdownModal shutdown onClose={() => this.setState({ shutdownModal: false })} />}
-                <Page>
-                    <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }} className="ct-pagesection-mobile">
-                        <SuperuserAlert />
-                    </PageSection>
-                    <PageSection variant={PageSectionVariants.light} className='ct-overview-header'>
-                        <div className='ct-overview-header-hostname'>
-                            <h1>
-                                {this.hostname_text()}
-                            </h1>
-                            {this.state.hostnameData &&
-                             this.state.hostnameData.OperatingSystemPrettyName &&
-                             <div className="ct-overview-header-subheading" id="system_information_os_text">{cockpit.format(_("running $0"), this.state.hostnameData.OperatingSystemPrettyName)}</div>}
-                        </div>
-                        <div className='ct-overview-header-actions'>
-                            { show_superuser && <SuperuserIndicator proxy={this.superuser} /> }
-                            { "\n" }
-                            { headerActions }
-                        </div>
-                    </PageSection>
-                    <PageSection variant={PageSectionVariants.default} className="ct-pagesection-mobile">
-                        <Gallery className='ct-system-overview' hasGutter>
-                            <MotdCard />
-                            <HealthCard />
-                            <UsageCard />
-                            <SystemInfomationCard />
-                            <ConfigurationCard hostname={this.hostname_text()} />
-                        </Gallery>
-                    </PageSection>
-                </Page>
-            </>
+            <Page>
+                <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }} className="ct-pagesection-mobile">
+                    <SuperuserAlert />
+                </PageSection>
+                <PageSection variant={PageSectionVariants.light} className='ct-overview-header'>
+                    <div className='ct-overview-header-hostname'>
+                        <h1>
+                            {this.hostname_text()}
+                        </h1>
+                        {this.state.hostnameData &&
+                         this.state.hostnameData.OperatingSystemPrettyName &&
+                         <div className="ct-overview-header-subheading" id="system_information_os_text">{cockpit.format(_("running $0"), this.state.hostnameData.OperatingSystemPrettyName)}</div>}
+                    </div>
+                    <div className='ct-overview-header-actions'>
+                        { show_superuser && <SuperuserIndicator proxy={this.superuser} /> }
+                        { "\n" }
+                        { headerActions }
+                    </div>
+                </PageSection>
+                <PageSection variant={PageSectionVariants.default} className="ct-pagesection-mobile">
+                    <Gallery className='ct-system-overview' hasGutter>
+                        <MotdCard />
+                        <HealthCard />
+                        <UsageCard />
+                        <SystemInfomationCard />
+                        <ConfigurationCard hostname={this.hostname_text()} />
+                    </Gallery>
+                </PageSection>
+            </Page>
         );
     }
 }
 
 function init() {
     cockpit.translate();
-    ReactDOM.render(<OverviewPage />, document.getElementById("overview"));
+    ReactDOM.render(<WithDialogs><OverviewPage /></WithDialogs>, document.getElementById("overview"));
 }
 
 document.addEventListener("DOMContentLoaded", init);

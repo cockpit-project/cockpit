@@ -49,6 +49,7 @@ import * as timeformat from "timeformat";
 import cockpit from "cockpit";
 import { superuser } from 'superuser';
 import { useEvent, usePageLocation } from "hooks";
+import { WithDialogs } from "dialogs.jsx";
 
 const _ = cockpit.gettext;
 
@@ -827,15 +828,15 @@ class ServicesPageBody extends React.Component {
                     />
                     {units.length
                         ? <ServicesList key={cockpit.format("$0-list", activeTab)}
-                        isTimer={activeTab == 'timer'}
-                        units={units} />
+                                     isTimer={activeTab == 'timer'}
+                                     units={units} />
                         : null}
                     {units.length == 0
                         ? <Bullseye>
                             <EmptyStatePanel icon={SearchIcon}
-                                paragraph={_("No results match the filter criteria. Clear all filters to show results.")}
-                                action={<Button id="clear-all-filters" onClick={() => { this.filtersRef.current() }} isInline variant='link'>{_("Clear all filters")}</Button>}
-                                title={_("No matching results")} />
+                                            paragraph={_("No results match the filter criteria. Clear all filters to show results.")}
+                                            action={<Button id="clear-all-filters" onClick={() => { this.filtersRef.current() }} isInline variant='link'>{_("Clear all filters")}</Button>}
+                                            title={_("No matching results")} />
                         </Bullseye>
                         : null}
                 </Card>
@@ -1002,39 +1003,41 @@ const ServicesPage = () => {
     }
 
     return (
-        <Page>
-            {path.length == 0 &&
-            <PageSection variant={PageSectionVariants.light} type="nav" className="services-header ct-pagesection-mobile">
-                <Flex>
-                    <ServiceTabs activeTab={activeTab}
-                                 tabErrors={tabErrors}
-                                 onChange={activeTab => {
-                                     cockpit.location.go([], Object.assign(options, { type: activeTab }));
-                                 }} />
-                    <FlexItem align={{ default: 'alignRight' }}>
-                        {loggedUser && loggedUser !== 'root' && <ToggleGroup>
-                            <ToggleGroupItem isSelected={owner == "system"}
-                                             buttonId="system"
-                                             text={_("System")}
-                                             onChange={() => setOwner("system")} />
-                            <ToggleGroupItem isSelected={owner == "user"}
-                                             buttonId="user"
-                                             text={_("User")}
-                                             onChange={() => setOwner("user")} />
-                        </ToggleGroup>}
-                    </FlexItem>
-                    {activeTab == "timer" && owner == "system" && superuser.allowed && <CreateTimerDialog owner={owner} />}
-                </Flex>
-            </PageSection>}
-            <ServicesPageBody
-                key={owner}
-                activeTab={activeTab}
-                owner={owner}
-                path={path}
-                privileged={superuser.allowed}
-                setTabErrors={setTabErrors}
-            />
-        </Page>
+        <WithDialogs>
+            <Page>
+                {path.length == 0 &&
+                <PageSection variant={PageSectionVariants.light} type="nav" className="services-header ct-pagesection-mobile">
+                    <Flex>
+                        <ServiceTabs activeTab={activeTab}
+                                      tabErrors={tabErrors}
+                                      onChange={activeTab => {
+                                          cockpit.location.go([], Object.assign(options, { type: activeTab }));
+                                      }} />
+                        <FlexItem align={{ default: 'alignRight' }}>
+                            {loggedUser && loggedUser !== 'root' && <ToggleGroup>
+                                <ToggleGroupItem isSelected={owner == "system"}
+                                                                                          buttonId="system"
+                                                                                          text={_("System")}
+                                                                                          onChange={() => setOwner("system")} />
+                                <ToggleGroupItem isSelected={owner == "user"}
+                                                                                          buttonId="user"
+                                                                                          text={_("User")}
+                                                                                          onChange={() => setOwner("user")} />
+                            </ToggleGroup>}
+                        </FlexItem>
+                        {activeTab == "timer" && owner == "system" && superuser.allowed && <CreateTimerDialog owner={owner} />}
+                    </Flex>
+                </PageSection>}
+                <ServicesPageBody
+                    key={owner}
+                    activeTab={activeTab}
+                    owner={owner}
+                    path={path}
+                    privileged={superuser.allowed}
+                    setTabErrors={setTabErrors}
+                />
+            </Page>
+        </WithDialogs>
     );
 };
 

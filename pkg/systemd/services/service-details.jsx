@@ -168,7 +168,8 @@ class ServiceActions extends React.Component {
                                           confirmText={ _("Mask service") }
                                           confirmAction={() => {
                                               this.props.fileActionCallback("MaskUnitFiles", false);
-                                              this.props.actionCallback("ResetFailedUnit", []);
+                                              if (this.props.failed)
+                                                  this.props.actionCallback("ResetFailedUnit", []);
                                               this.setState({ dialogMaskedOpened: false });
                                           }} />
                 }

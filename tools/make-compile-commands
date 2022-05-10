@@ -20,7 +20,11 @@ with tempfile.NamedTemporaryFile() as makefile_copy:
     # to run the whole configure machinery, so copy the Makefile to a temporary
     # path to short-circuit the exception.
     with open('Makefile', 'rb') as original_makefile:
-        makefile_copy.write(original_makefile.read())
+        original = original_makefile.readlines()
+
+    # Also remove include lines to prevent included makefiles from being rebuilt
+    patched = [line for line in original if not re.search(b'^-?include', line)]
+    makefile_copy.write(b''.join(patched))
 
     # get the build commands
     output = subprocess.check_output(['make',

@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import {
     Alert, Button,
@@ -37,6 +37,7 @@ import {
 import cockpit from "cockpit";
 import { systemd_client, SD_MANAGER, SD_OBJ } from "./services.jsx";
 import * as timeformat from "timeformat";
+import { useDialogs, DialogsContext } from "dialogs.jsx";
 
 import './service-details.scss';
 
@@ -58,36 +59,28 @@ const METRICS_POLL_DELAY = 30000; // 30s
  *  - confirmAction
  *     Action to be executed when the action is confirmed
  */
-class ServiceConfirmDialog extends React.Component {
-    render() {
-        return (
-            <Modal id={this.props.id} isOpen
-                   position="top" variant="medium"
-                   onClose={this.props.close}
-                   title={this.props.title}
-                   footer={
-                       <>
-                           { this.props.confirmText && this.props.confirmAction &&
-                               <Button variant='danger' onClick={this.props.confirmAction}>
-                                   {this.props.confirmText}
-                               </Button>
-                           }
-                           <Button variant='link' className='btn-cancel' onClick={this.props.close}>
-                               { _("Cancel") }
-                           </Button>
-                       </>
-                   }>
-                {this.props.message}
-            </Modal>
-        );
-    }
-}
-ServiceConfirmDialog.propTypes = {
-    title: PropTypes.string.isRequired,
-    message: PropTypes.string.isRequired,
-    close: PropTypes.func.isRequired,
-    confirmText: PropTypes.string,
-    confirmAction: PropTypes.func,
+const ServiceConfirmDialog = ({ id, title, message, confirmText, confirmAction }) => {
+    const Dialogs = useDialogs();
+    return (
+        <Modal id={id} isOpen
+               position="top" variant="medium"
+               onClose={Dialogs.close}
+               title={title}
+               footer={
+                   <>
+                       { confirmText && confirmAction &&
+                       <Button variant='danger' onClick={confirmAction}>
+                           {confirmText}
+                       </Button>
+                       }
+                       <Button variant='link' className='btn-cancel' onClick={Dialogs.close}>
+                           { _("Cancel") }
+                       </Button>
+                   </>
+               }>
+            {message}
+        </Modal>
+    );
 };
 
 /*
@@ -108,90 +101,75 @@ ServiceConfirmDialog.propTypes = {
  *  - disabled
  *      Button is disabled
  */
-class ServiceActions extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            dialogMaskedOpened: false,
-        };
-    }
+const ServiceActions = ({ masked, active, failed, canReload, actionCallback, fileActionCallback, disabled }) => {
+    const Dialogs = useDialogs();
+    const [isActionOpen, setIsActionOpen] = useState(false);
 
-    render() {
-        const actions = [];
+    const actions = [];
 
-        // If masked, only show unmasking and nothing else
-        if (this.props.masked) {
+    // If masked, only show unmasking and nothing else
+    if (masked) {
+        actions.push(
+            <DropdownItem key="unmask" onClick={() => fileActionCallback("UnmaskUnitFiles", undefined)}>{ _("Allow running (unmask)") }</DropdownItem>
+        );
+    } else { // All cases when not masked
+        if (active) {
+            if (canReload) {
+                actions.push(
+                    <DropdownItem key="reload" onClick={() => actionCallback("ReloadUnit")}>{ _("Reload") }</DropdownItem>
+                );
+            }
             actions.push(
-                <DropdownItem key="unmask" onClick={() => this.props.fileActionCallback("UnmaskUnitFiles", undefined)}>{ _("Allow running (unmask)") }</DropdownItem>
+                <DropdownItem key="restart" onClick={() => actionCallback("RestartUnit")}>{ _("Restart") }</DropdownItem>
             );
-        } else { // All cases when not masked
-            if (this.props.active) {
-                if (this.props.canReload) {
-                    actions.push(
-                        <DropdownItem key="reload" onClick={() => this.props.actionCallback("ReloadUnit")}>{ _("Reload") }</DropdownItem>
-                    );
-                }
-                actions.push(
-                    <DropdownItem key="restart" onClick={() => this.props.actionCallback("RestartUnit")}>{ _("Restart") }</DropdownItem>
-                );
-                actions.push(
-                    <DropdownItem key="stop" onClick={() => this.props.actionCallback("StopUnit")}>{ _("Stop") }</DropdownItem>,
-                );
-            } else {
-                actions.push(
-                    <DropdownItem key="start" onClick={() => this.props.actionCallback("StartUnit")}>{ _("Start") }</DropdownItem>
-                );
-            }
-
-            if (actions.length > 0) {
-                actions.push(
-                    <DropdownSeparator key="divider" />
-                );
-            }
-
-            if (this.props.failed)
-                actions.push(
-                    <DropdownItem key="reset" onClick={() => this.props.actionCallback("ResetFailedUnit", []) }>{ _("Clear 'Failed to start'") }</DropdownItem>
-                );
-
             actions.push(
-                <DropdownItem key="mask" onClick={() => this.setState({ dialogMaskedOpened: true }) }>{ _("Disallow running (mask)") }</DropdownItem>
+                <DropdownItem key="stop" onClick={() => actionCallback("StopUnit")}>{ _("Stop") }</DropdownItem>,
+            );
+        } else {
+            actions.push(
+                <DropdownItem key="start" onClick={() => actionCallback("StartUnit")}>{ _("Start") }</DropdownItem>
             );
         }
 
-        return (
-            <>
-                { this.state.dialogMaskedOpened &&
-                    <ServiceConfirmDialog id="mask-service" title={ _("Mask service") }
-                                          message={ _("Masking service prevents all dependent units from running. This can have bigger impact than anticipated. Please confirm that you want to mask this unit.")}
-                                          close={() => this.setState({ dialogMaskedOpened: false }) }
-                                          confirmText={ _("Mask service") }
-                                          confirmAction={() => {
-                                              this.props.fileActionCallback("MaskUnitFiles", false);
-                                              if (this.props.failed)
-                                                  this.props.actionCallback("ResetFailedUnit", []);
-                                              this.setState({ dialogMaskedOpened: false });
-                                          }} />
-                }
-                <Dropdown id="service-actions" title={ _("Additional actions") }
-                          toggle={<KebabToggle isDisabled={this.props.disabled} onToggle={isActionOpen => this.setState({ isActionOpen })} />}
-                          isOpen={this.state.isActionOpen}
-                          isPlain
-                          onSelect={() => this.setState({ isActionOpen: !this.state.isActionOpen })}
-                          position='right'
-                          dropdownItems={actions} />
-            </>
+        if (actions.length > 0) {
+            actions.push(
+                <DropdownSeparator key="divider" />
+            );
+        }
+
+        if (failed)
+            actions.push(
+                <DropdownItem key="reset" onClick={() => actionCallback("ResetFailedUnit", []) }>{ _("Clear 'Failed to start'") }</DropdownItem>
+            );
+
+        const confirm = () => {
+            Dialogs.show(<ServiceConfirmDialog id="mask-service"
+                                               title={ _("Mask service") }
+                                               message={ _("Masking service prevents all dependent units from running. This can have bigger impact than anticipated. Please confirm that you want to mask this unit.")}
+                                               confirmText={ _("Mask service") }
+                                               confirmAction={() => {
+                                                   fileActionCallback("MaskUnitFiles", false);
+                                                   if (failed)
+                                                       actionCallback("ResetFailedUnit", []);
+                                                   Dialogs.close();
+                                               }} />);
+        };
+
+        actions.push(
+            <DropdownItem key="mask" onClick={confirm}>{ _("Disallow running (mask)") }</DropdownItem>
         );
     }
-}
-ServiceActions.propTypes = {
-    masked: PropTypes.bool.isRequired,
-    active: PropTypes.bool.isRequired,
-    failed: PropTypes.bool.isRequired,
-    canReload: PropTypes.bool,
-    actionCallback: PropTypes.func.isRequired,
-    fileActionCallback: PropTypes.func.isRequired,
-    disabled: PropTypes.bool,
+
+    return (
+        <Dropdown id="service-actions" title={ _("Additional actions") }
+                  toggle={<KebabToggle isDisabled={disabled}
+                                       onToggle={setIsActionOpen} />}
+                  isOpen={isActionOpen}
+                  isPlain
+                  onSelect={() => setIsActionOpen(!isActionOpen)}
+                  position='right'
+                  dropdownItems={actions} />
+    );
 };
 
 /*
@@ -209,14 +187,14 @@ ServiceActions.propTypes = {
  *      Method for finding if unit is valid
  */
 export class ServiceDetails extends React.Component {
+    static contextType = DialogsContext;
+
     constructor(props) {
         super(props);
 
         this.state = {
             waitsAction: false,
             waitsFileAction: false,
-            note: "",
-            error: "",
             unit_properties: {},
         };
 
@@ -259,6 +237,16 @@ export class ServiceDetails extends React.Component {
         };
     }
 
+    show_note(note) {
+        const Dialogs = this.context;
+        Dialogs.show(<ServiceConfirmDialog title={_("Note")} message={note} />);
+    }
+
+    show_error(error) {
+        const Dialogs = this.context;
+        Dialogs.show(<ServiceConfirmDialog title={_("Error")} message={error} />);
+    }
+
     doMemoryCurrentPolling() {
         systemd_client[this.props.owner].call(this.props.unit.path,
                                               "org.freedesktop.DBus.Properties", "Get",
@@ -295,7 +283,10 @@ export class ServiceDetails extends React.Component {
             extra_args = ["fail"];
         this.setState({ waitsAction: true });
         systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, method, [this.props.unit.Names[0]].concat(extra_args))
-                .catch(error => this.setState({ error: error.toString(), waitsAction: false }));
+                .catch(error => {
+                    this.show_error(error.toString());
+                    this.setState({ waitsAction: false });
+                });
     }
 
     unitFileAction(method, force) {
@@ -306,17 +297,15 @@ export class ServiceDetails extends React.Component {
         systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, method, args)
                 .then(([results]) => {
                     if (results.length == 2 && !results[0])
-                        this.setState({ note:_("This unit is not designed to be enabled explicitly.") });
+                        this.show_note(_("This unit is not designed to be enabled explicitly."));
                     /* Executing daemon reload after file operations is necessary -
                      * see https://github.com/systemd/systemd/blob/main/src/systemctl/systemctl.c [enable_unit function]
                      */
                     systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "Reload", null);
                 })
                 .catch(error => {
-                    this.setState({
-                        error: error.toString(),
-                        waitsFileAction: false
-                    });
+                    this.show_error(error.toString());
+                    this.setState({ waitsFileAction: false });
                 });
     }
 
@@ -495,12 +484,6 @@ export class ServiceDetails extends React.Component {
 
         return (
             <Card>
-                { (this.state.note || this.state.error) &&
-                    <ServiceConfirmDialog title={ this.state.error ? _("Error") : _("Note") }
-                                          message={ this.state.error || this.state.note }
-                                          close={ () => this.setState(this.state.error ? { error:"" } : { note:"" }) }
-                    />
-                }
                 { (hasLoadError && this.props.unit.LoadState)
                     ? <Alert variant="danger" isInline title={this.props.unit.LoadState}>
                         {loadError}

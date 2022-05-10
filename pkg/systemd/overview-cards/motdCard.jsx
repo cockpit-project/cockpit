@@ -17,12 +17,14 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 
 import { Alert, AlertActionCloseButton, Button, Modal, TextArea } from '@patternfly/react-core';
 import { EditIcon } from '@patternfly/react-icons';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { superuser } from "superuser";
+import { useDialogs } from "dialogs.jsx";
+import { useInit } from "hooks";
 
 import cockpit from "cockpit";
 
@@ -30,84 +32,84 @@ import './motdCard.scss';
 
 const _ = cockpit.gettext;
 
-export class MotdCard extends React.Component {
-    constructor() {
-        super();
-        this.state = { motdText: "", motdVisible: false, motdEditMode: false };
+const MotdEditDialog = ({ text }) => {
+    const Dialogs = useDialogs();
+    const [value, setValue] = useState(text);
+    const [error, setError] = useState(null);
+    const [errorDetail, setErrorDetail] = useState(null);
 
-        this.hideAlert = () => {
-            this.setState({ motdVisible: false });
-            cockpit.localStorage.setItem('dismissed-motd', this.state.motdText);
-        };
-    }
+    return (
+        <Modal position="top"
+               variant="medium" isOpen
+               id="motd-box-edit-modal"
+               onClose={Dialogs.close}
+               title={_("Edit /etc/motd")}
+               footer={
+                   <>
+                       {error &&
+                       <ModalError dialogError={error}
+                                    dialogErrorDetail={errorDetail} />}
+                       <Button variant='primary'
+                               onClick={() => cockpit.file("/etc/motd", { superuser: "try", err: "message" })
+                                       .replace(value)
+                                       .done(Dialogs.close)
+                                       .fail(exc => {
+                                           setError(_("Failed to save changes in /etc/motd"));
+                                           setErrorDetail(exc.message);
+                                       })}>
+                           {_("Save changes")}
+                       </Button>
+                       <Button variant='link'
+                               onClick={() => this.setState({ motdEditMode: false })}>
+                           {_("Cancel")}
+                       </Button>
+                   </>
+               }>
+            <TextArea resizeOrientation="vertical"
+                      value={value}
+                      onChange={setValue} />
+        </Modal>);
+};
 
-    componentDidMount() {
+export const MotdCard = () => {
+    const Dialogs = useDialogs();
+    const [motdText, setMotdText] = useState("");
+    const [motdVisible, setMotdVisible] = useState(false);
+
+    useInit(() => {
         cockpit.file("/etc/motd").watch(content => {
             /* trim initial empty lines and trailing space, but keep initial spaces to not break ASCII art */
             if (content)
                 content = content.trimRight().replace(/^\s*\n/, '');
             if (content && content != cockpit.localStorage.getItem('dismissed-motd')) {
-                this.setState({ motdText: content, motdVisible: true });
+                setMotdText(content);
+                setMotdVisible(true);
             } else {
-                this.setState({ motdVisible: false });
+                setMotdVisible(false);
             }
         });
+    });
+
+    function hideAlert() {
+        setMotdVisible(false);
+        cockpit.localStorage.setItem('dismissed-motd', motdText);
     }
 
-    dialogErrorSet(text, detail) {
-        this.setState({ dialogError: text, dialogErrorDetail: detail });
-    }
+    if (!motdVisible)
+        return null;
 
-    render() {
-        if (!this.state.motdVisible)
-            return null;
+    const actionClose = <>
+        {superuser.allowed &&
+        <Button variant="plain"
+                                     id="motd-box-edit"
+                                     onClick={() => Dialogs.show(<MotdEditDialog text={motdText} />)}
+                                     aria-label={_("Edit motd")}>
+            <EditIcon />
+        </Button>}
+        <AlertActionCloseButton onClose={hideAlert} />
+    </>;
 
-        return (
-            <>
-                <Alert id="motd-box" isInline variant="default" className="motd-box"
-                       title={ <pre id="motd">{this.state.motdText}</pre> }
-                       actionClose={<>
-                           {superuser.allowed &&
-                           <Button variant="plain"
-                                   id="motd-box-edit"
-                                   onClick={() => this.setState({
-                                       motdEditMode: true,
-                                       motdTextEdited: this.state.motdText
-                                   })}
-                                   aria-label={_("Edit motd")}>
-                               <EditIcon />
-                           </Button>}
-                           <AlertActionCloseButton onClose={this.hideAlert} />
-                       </>} />
-                {this.state.motdEditMode &&
-                <Modal position="top"
-                       variant="medium" isOpen
-                       id="motd-box-edit-modal"
-                       onClose={() => this.setState({ motdEditMode: false })}
-                       title={_("Edit /etc/motd")}
-                       footer={
-                           <>
-                               {this.state.dialogError &&
-                               <ModalError dialogError={this.state.dialogError}
-                                           dialogErrorDetail={this.state.dialogErrorDetail} />}
-                               <Button variant='primary'
-                                       onClick={() => cockpit.file("/etc/motd", { superuser: "try", err: "message" })
-                                               .replace(this.state.motdTextEdited)
-                                               .done(() => this.setState({ motdEditMode: false }))
-                                               .fail(exc => this.dialogErrorSet(_("Failed to save changes in /etc/motd"), exc.message))}>
-                                   {_("Save changes")}
-                               </Button>
-                               <Button variant='link'
-                                       onClick={() => this.setState({ motdEditMode: false })}>
-                                   {_("Cancel")}
-                               </Button>
-                           </>
-                       }>
-                    <TextArea resizeOrientation="vertical"
-                              value={this.state.motdTextEdited}
-                              onChange={value => this.setState({ motdTextEdited: value })} />
-                </Modal>}
-            </>
-        );
-    }
-}
+    return <Alert id="motd-box" isInline variant="default" className="motd-box"
+                  title={<pre id="motd">{motdText}</pre>}
+                  actionClose={actionClose} />;
+};

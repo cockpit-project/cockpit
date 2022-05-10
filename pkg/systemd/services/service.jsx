@@ -27,6 +27,7 @@ import {
 import { ServiceDetails } from "./service-details.jsx";
 import { LogsPanel } from "cockpit-components-logs-panel.jsx";
 import { superuser } from 'superuser';
+import { WithDialogs } from "dialogs.jsx";
 
 import cockpit from "cockpit";
 
@@ -72,26 +73,28 @@ export class Service extends React.Component {
         const url = "/system/logs/#/?prio=debug&service=" + cur_unit_id;
 
         return (
-            <Page groupProps={{ sticky: 'top' }}
-                  isBreadcrumbGrouped
-                  id="service-details"
-                  breadcrumb={
-                      <Breadcrumb>
-                          <BreadcrumbItem to={"#" + cockpit.location.href.replace(cockpit.location.path[0], '')}>{_("Services")}</BreadcrumbItem>
-                          <BreadcrumbItem isActive>
-                              {this.props.unit.Id}
-                          </BreadcrumbItem>
-                      </Breadcrumb>}>
-                <PageSection className="ct-pagesection-mobile">
-                    <Gallery hasGutter>
-                        <GalleryItem id="service-details-unit">{serviceDetails}</GalleryItem>
-                        {((this.props.unit.LoadState === "loaded" || this.props.unit.LoadState === "masked") && this.props.owner == "system") &&
-                        <GalleryItem id="service-details-logs">
-                            <LogsPanel title={_("Service logs")} match={match} emptyMessage={_("No log entries")} max={10} goto_url={url} search_options={{ prio: "debug", service: cur_unit_id }} />
-                        </GalleryItem>}
-                    </Gallery>
-                </PageSection>
-            </Page>
+            <WithDialogs>
+                <Page groupProps={{ sticky: 'top' }}
+                      isBreadcrumbGrouped
+                      id="service-details"
+                      breadcrumb={
+                          <Breadcrumb>
+                              <BreadcrumbItem to={"#" + cockpit.location.href.replace(cockpit.location.path[0], '')}>{_("Services")}</BreadcrumbItem>
+                              <BreadcrumbItem isActive>
+                                  {this.props.unit.Id}
+                              </BreadcrumbItem>
+                          </Breadcrumb>}>
+                    <PageSection className="ct-pagesection-mobile">
+                        <Gallery hasGutter>
+                            <GalleryItem id="service-details-unit">{serviceDetails}</GalleryItem>
+                            {((this.props.unit.LoadState === "loaded" || this.props.unit.LoadState === "masked") && this.props.owner == "system") &&
+                            <GalleryItem id="service-details-logs">
+                                <LogsPanel title={_("Service logs")} match={match} emptyMessage={_("No log entries")} max={10} goto_url={url} search_options={{ prio: "debug", service: cur_unit_id }} />
+                            </GalleryItem>}
+                        </Gallery>
+                    </PageSection>
+                </Page>
+            </WithDialogs>
         );
     }
 }

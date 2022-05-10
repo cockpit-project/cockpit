@@ -25,6 +25,7 @@ import { ExclamationTriangleIcon, ExternalLinkSquareAltIcon, HelpIcon } from '@p
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { PrivilegedButton } from "cockpit-components-privileged.jsx";
 import { ProfilesMenuDialogBody } from "./profiles-menu-dialog-body.jsx";
+import { useDialogs } from "dialogs.jsx";
 
 import "./cryptoPolicies.scss";
 
@@ -52,8 +53,8 @@ const displayProfileText = profile => profile === "FIPS" ? profile : profile.cha
 const isInconsistentPolicy = (policy, fipsEnabled) => policy === "FIPS" !== fipsEnabled;
 
 export const CryptoPolicyRow = () => {
+    const Dialogs = useDialogs();
     const [currentCryptoPolicy, setCurrentCryptoPolicy] = useState(null);
-    const [isOpen, setIsOpen] = useState(false);
     const [fipsEnabled, setFipsEnabled] = useState(null);
 
     useEffect(() => {
@@ -73,16 +74,12 @@ export const CryptoPolicyRow = () => {
             <td>
                 <PrivilegedButton variant="link" buttonId="crypto-policy-button" tooltipId="tip-crypto-policy"
                                   excuse={ _("The user $0 is not permitted to change crypto policies") }
-                                  onClick={() => setIsOpen(true)}>
+                                  onClick={() => Dialogs.show(<CryptoPolicyDialog
+                                                                  currentCryptoPolicy={currentCryptoPolicy}
+                                                                  setCurrentCryptoPolicy={setCurrentCryptoPolicy}
+                                                                  fipsEnabled={fipsEnabled} />)}>
                     {displayProfileText(currentCryptoPolicy)}
                 </PrivilegedButton>
-                {isOpen &&
-                <CryptoPolicyDialog close={() => setIsOpen(false)}
-                                    currentCryptoPolicy={currentCryptoPolicy}
-                                    setCurrentCryptoPolicy={setCurrentCryptoPolicy}
-                                    fipsEnabled={fipsEnabled}
-                />
-                }
             </td>
         </tr>
     );
@@ -105,11 +102,11 @@ const setPolicy = (policy, setError, setInProgress) => {
 };
 
 const CryptoPolicyDialog = ({
-    close,
     currentCryptoPolicy,
     fipsEnabled,
     reApply,
 }) => {
+    const Dialogs = useDialogs();
     const [error, setError] = useState();
     const [inProgress, setInProgress] = useState(false);
     const [selected, setSelected] = useState(currentCryptoPolicy);
@@ -164,7 +161,7 @@ const CryptoPolicyDialog = ({
         <Modal position="top" variant="medium"
                isOpen
                help={help}
-               onClose={close}
+               onClose={Dialogs.close}
                id="crypto-policy-dialog"
                title={_("Change crypto policy")}
                footer={
@@ -179,7 +176,7 @@ const CryptoPolicyDialog = ({
                        >
                            {reApply ? _("Reapply and reboot") : _("Apply and reboot")}
                        </Button>
-                       <Button variant='link' onClick={close} isDisabled={inProgress}>
+                       <Button variant='link' onClick={Dialogs.close} isDisabled={inProgress}>
                            {_("Cancel")}
                        </Button>
                    </>
@@ -194,9 +191,9 @@ const CryptoPolicyDialog = ({
 };
 
 export const CryptoPolicyStatus = () => {
+    const Dialogs = useDialogs();
     const [currentCryptoPolicy, setCurrentCryptoPolicy] = useState(null);
     const [fipsEnabled, setFipsEnabled] = useState(null);
-    const [showReApplyCryptoPolicy, setShowReApplyCryptoPolicy] = useState(false);
 
     useEffect(() => {
         if (currentCryptoPolicy === null) {
@@ -217,17 +214,14 @@ export const CryptoPolicyStatus = () => {
                         <div id="inconsistent_crypto_policy">
                             {currentCryptoPolicy === "FIPS" ? _("FIPS is not properly enabled") : _("Crypto policy is inconsistent")}
                         </div>
-                        <Button isInline variant="link" className="pf-u-font-size-sm" onClick={() => setShowReApplyCryptoPolicy(true)}>
+                        <Button isInline variant="link" className="pf-u-font-size-sm"
+                                onClick={() => Dialogs.show(<CryptoPolicyDialog currentCryptoPolicy={currentCryptoPolicy}
+                                                                                fipsEnabled={fipsEnabled}
+                                                                                reApply />)}>
                             {_("Review crypto policy")}
                         </Button>
                     </div>
                 </Flex>
-                {showReApplyCryptoPolicy &&
-                <CryptoPolicyDialog currentCryptoPolicy={currentCryptoPolicy}
-                                    close={() => setShowReApplyCryptoPolicy(false)}
-                                    fipsEnabled={fipsEnabled}
-                                    reApply />
-                }
             </li>
         );
     }

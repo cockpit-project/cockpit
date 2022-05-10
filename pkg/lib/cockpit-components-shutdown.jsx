@@ -27,12 +27,15 @@ import {
 
 import { ServerTime } from 'serverTime.js';
 import * as timeformat from "timeformat.js";
+import { DialogsContext } from "dialogs.jsx";
 
 import "cockpit-components-shutdown.scss";
 
 const _ = cockpit.gettext;
 
 export class ShutdownModal extends React.Component {
+    static contextType = DialogsContext;
+
     constructor(props) {
         super(props);
         this.date_spawn = null;
@@ -140,12 +143,13 @@ export class ShutdownModal extends React.Component {
     }
 
     onSubmit(event) {
+        const Dialogs = this.context;
         const arg = this.props.shutdown ? "--poweroff" : "--reboot";
         if (!this.props.shutdown)
             cockpit.hint("restart");
 
         cockpit.spawn(["shutdown", arg, this.state.when, this.state.message], { superuser: true, err: "message" })
-                .then(this.props.onClose)
+                .then(this.props.onClose || Dialogs.close)
                 .catch(e => this.setState({ error: e }));
 
         event.preventDefault();
@@ -160,6 +164,7 @@ export class ShutdownModal extends React.Component {
     }
 
     render() {
+        const Dialogs = this.context;
         const options = [
             <SelectOption value="0" key="0">{_("No delay")}</SelectOption>,
             <Divider key="divider" component="li" />,
@@ -174,12 +179,12 @@ export class ShutdownModal extends React.Component {
 
         return (
             <Modal isOpen position="top" variant="medium"
-                   onClose={this.props.onClose}
+                   onClose={this.props.onClose || Dialogs.close}
                    id="shutdown-dialog"
                    title={this.props.shutdown ? _("Shut down") : _("Reboot")}
                    footer={<>
                        <Button variant='danger' isDisabled={this.state.error || this.state.dateError} onClick={this.onSubmit}>{this.props.shutdown ? _("Shut down") : _("Reboot")}</Button>
-                       <Button variant='link' onClick={this.props.onClose}>{_("Cancel")}</Button>
+                       <Button variant='link' onClick={this.props.onClose || Dialogs.close}>{_("Cancel")}</Button>
                    </>}
             >
                 <>

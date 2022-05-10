@@ -31,22 +31,22 @@ import { ServerTimeConfig } from 'serverTime.js';
 import { RealmdClient, RealmButton } from "./realmd.jsx";
 import { TunedPerformanceProfile } from '../../tuned/dialog.jsx';
 import { CryptoPolicyRow } from './cryptoPolicies.jsx';
+import { useDialogs } from "dialogs.jsx";
+import { useInit } from "hooks";
 
 import "./configurationCard.scss";
 
 const _ = cockpit.gettext;
 
 export const ConfigurationCard = ({ hostname }) => {
-    const [hostEditModal, setHostEditModal] = useState(false);
-    const [showKeysModal, setShowKeysModal] = useState(false);
-
+    const Dialogs = useDialogs();
     const realmd_client = useObject(() => new RealmdClient(), null, []);
     useEvent(realmd_client, "changed");
 
     const hostname_button = (superuser.allowed && realmd_client.allowHostnameChange())
         ? (
             <Button id="system_information_hostname_button" variant="link"
-                    onClick={ () => setHostEditModal(true) }
+                    onClick={() => Dialogs.show(<PageSystemInformationChangeHostname />)}
                     isInline aria-label="edit hostname">
                 {hostname !== "" ? _("edit") : _("Set hostname")}
             </Button>)
@@ -54,8 +54,6 @@ export const ConfigurationCard = ({ hostname }) => {
 
     return (
         <>
-            {hostEditModal && <PageSystemInformationChangeHostname onClose={() => setHostEditModal(false)} />}
-            {showKeysModal && <SystemInformationSshKeys onClose={() => setShowKeysModal(false)} />}
             <Card className="system-configuration">
                 <CardTitle>{_("Configuration")}</CardTitle>
                 <CardBody>
@@ -90,7 +88,7 @@ export const ConfigurationCard = ({ hostname }) => {
                                 <th scope="row">{_("Secure shell keys")}</th>
                                 <td>
                                     <Button variant="link" isInline id="system-ssh-keys-link"
-                                            onClick={() => setShowKeysModal(true)}>
+                                            onClick={() => Dialogs.show(<SystemInformationSshKeys />)}>
                                         {_("Show fingerprints")}
                                     </Button>
                                 </td>
@@ -103,35 +101,13 @@ export const ConfigurationCard = ({ hostname }) => {
     );
 };
 
-class SystemInformationSshKeys extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            keys: [],
-            error: "",
-            loading: true,
-        };
-        this.interval = null;
+const SystemInformationSshKeys = () => {
+    const Dialogs = useDialogs();
+    const [keys, setKeys] = useState([]);
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(true);
 
-        this.keysUpdate = this.keysUpdate.bind(this);
-    }
-
-    componentDidMount() {
-        /*
-         * Yes, we do refresh the keys while the dialog is open.
-         * It may occur that sshd is not running at the point when
-         * we try, or in rare cases the keys may change.
-         */
-        this.interval = window.setInterval(this.keysUpdate, 10 * 1000);
-        this.keysUpdate();
-    }
-
-    componentWillUnmount() {
-        window.clearInterval(this.interval);
-        this.interval = null;
-    }
-
-    keysUpdate() {
+    function keysUpdate() {
         cockpit.script(host_keys_script, [], { superuser: "try", err: "message" })
                 .then(data => {
                     const seen = {};
@@ -164,74 +140,76 @@ class SystemInformationSshKeys extends React.Component {
                         return { title: k, fps: keys[k] };
                     });
 
-                    this.setState({
-                        keys: arr,
-                        loading: false,
-                        error: "",
-                    });
+                    setKeys(arr);
+                    setLoading(false);
+                    setError("");
                 })
                 .catch(function(ex) {
-                    this.setState({
-                        loading: false,
-                        error: cockpit.format(_("failed to list ssh host keys: $0"), ex.message),
-                    });
+                    setLoading(false);
+                    setError(cockpit.format(_("failed to list ssh host keys: $0"), ex.message));
                 });
     }
 
-    render() {
-        let body = null;
-        if (this.state.error)
-            body = <Alert variant='danger' isInline title={_("Loading of SSH keys failed")}>
-                <p>{_("Error message")}: {this.state.error}</p>
-            </Alert>;
-        else if (this.state.loading)
-            body = <EmptyStatePanel loading title={ _("Loading keys...") } />;
-        else if (!this.state.keys.length)
-            body = <EmptyStatePanel title={ _("No host keys found.") } />;
-        else
-            body = <List isPlain isBordered>
-                {this.state.keys.map(key =>
-                    <ListItem key={key.title}>
-                        <h4>{key.title}</h4>
-                        {key.fps.map((fp, i) => <div key={i}><small>{fp}</small></div>)}
-                    </ListItem>
-                )}
-            </List>;
-
-        return (
-            <Modal isOpen position="top" variant="medium"
-                   onClose={this.props.onClose}
-                   id="system_information_ssh_keys"
-                   title={_("Machine SSH key fingerprints")}
-                   footer={<>
-                       <Button variant='secondary' onClick={this.props.onClose}>{_("Close")}</Button>
-                   </>}
-            >
-                {body}
-            </Modal>
-        );
-    }
-}
-
-class PageSystemInformationChangeHostname extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            update_from_pretty: true,
-            init_hostname: "",
-            hostname: "",
-            proxy: null,
-            pretty: "",
-            init_pretty: "",
-            error: [],
-
-        };
-        this.onSubmit = this.onSubmit.bind(this);
-        this.onPrettyChanged = this.onPrettyChanged.bind(this);
-        this.onHostnameChanged = this.onHostnameChanged.bind(this);
+    function create_keyUpdater() {
+        /*
+         * Yes, we do refresh the keys while the dialog is open.
+         * It may occur that sshd is not running at the point when
+         * we try, or in rare cases the keys may change.
+         */
+        keysUpdate();
+        return window.setInterval(keysUpdate, 10 * 1000);
     }
 
-    componentDidMount() {
+    function destroy_keyUpdater(interval) {
+        window.clearInterval(interval);
+    }
+
+    useObject(create_keyUpdater, destroy_keyUpdater, []);
+
+    let body = null;
+    if (error)
+        body = <Alert variant='danger' isInline title={_("Loading of SSH keys failed")}>
+            <p>{_("Error message")}: {error}</p>
+        </Alert>;
+    else if (loading)
+        body = <EmptyStatePanel loading title={ _("Loading keys...") } />;
+    else if (!keys.length)
+        body = <EmptyStatePanel title={ _("No host keys found.") } />;
+    else
+        body = <List isPlain isBordered>
+            {keys.map(key =>
+                <ListItem key={key.title}>
+                    <h4>{key.title}</h4>
+                    {key.fps.map((fp, i) => <div key={i}><small>{fp}</small></div>)}
+                </ListItem>
+            )}
+        </List>;
+
+    return (
+        <Modal isOpen position="top" variant="medium"
+               onClose={Dialogs.close}
+               id="system_information_ssh_keys"
+               title={_("Machine SSH key fingerprints")}
+               footer={<>
+                   <Button variant='secondary' onClick={Dialogs.close}>{_("Close")}</Button>
+               </>}
+        >
+            {body}
+        </Modal>
+    );
+};
+
+const PageSystemInformationChangeHostname = () => {
+    const Dialogs = useDialogs();
+    const [update_from_pretty, set_update_from_pretty] = useState(true);
+    const [init_hostname, set_init_hostname] = useState("");
+    const [hostname, set_hostname] = useState("");
+    const [proxy, set_proxy] = useState(null);
+    const [pretty, set_pretty] = useState("");
+    const [init_pretty, set_init_pretty] = useState("");
+    const [error, set_error] = useState([]);
+
+    useInit(() => {
         const client = cockpit.dbus('org.freedesktop.hostname1', { superuser : "try" });
         const hostname_proxy = client.proxy();
 
@@ -239,24 +217,23 @@ class PageSystemInformationChangeHostname extends React.Component {
                 .then(() => {
                     const initial_hostname = hostname_proxy.StaticHostname || "";
                     const initial_pretty_hostname = hostname_proxy.PrettyHostname || "";
-                    this.setState({
-                        proxy: hostname_proxy,
-                        hostname: initial_hostname,
-                        init_hostname: initial_hostname,
-                        pretty: initial_pretty_hostname,
-                        init_pretty: initial_pretty_hostname,
-                    });
-                });
-    }
 
-    onPrettyChanged(value) {
+                    set_proxy(hostname_proxy);
+                    set_hostname(initial_hostname);
+                    set_init_hostname(initial_hostname);
+                    set_pretty(initial_pretty_hostname);
+                    set_init_pretty(initial_pretty_hostname);
+                });
+    });
+
+    function onPrettyChanged(value) {
         // Whenever the pretty host name has changed (e.g. the user has edited it), we compute a new
         // simple host name (e.g. 7bit ASCII, no special chars/spaces, lower case) from it
 
-        const new_state = { pretty: value };
+        set_pretty(value);
 
-        if (this.state.update_from_pretty) {
-            const old_hostname = this.state.hostname;
+        if (update_from_pretty) {
+            const old_hostname = hostname;
             const first_dot = old_hostname.indexOf(".");
             let new_hostname = value
                     .toLowerCase()
@@ -265,59 +242,54 @@ class PageSystemInformationChangeHostname extends React.Component {
             new_hostname = new_hostname.substr(0, 64);
             if (first_dot >= 0)
                 new_hostname = new_hostname + old_hostname.substr(first_dot);
-            new_state.hostname = new_hostname;
+            set_hostname(new_hostname);
         }
-        this.setState(new_state);
     }
 
-    onHostnameChanged(value) {
+    function onHostnameChanged(value) {
         const error = [];
         if (value.length > 64)
             error.push(_("Real host name must be 64 characters or less"));
         if (value.match(/[.a-z0-9-]*/)[0] !== value || value.indexOf("..") !== -1)
             error.push(_("Real host name can only contain lower-case characters, digits, dashes, and periods (with populated subdomains)"));
 
-        this.setState({
-            hostname: value,
-            update_from_pretty: false,
-            error: error,
-        });
+        set_hostname(value);
+        set_update_from_pretty(false);
+        set_error(error);
     }
 
-    onSubmit(event) {
-        const one = this.state.proxy.call("SetStaticHostname", [this.state.hostname, true]);
-        const two = this.state.proxy.call("SetPrettyHostname", [this.state.pretty, true]);
+    function onSubmit(event) {
+        const one = proxy.call("SetStaticHostname", [hostname, true]);
+        const two = proxy.call("SetPrettyHostname", [pretty, true]);
 
-        Promise.all([one, two]).then(this.props.onClose);
+        Promise.all([one, two]).then(Dialogs.close);
 
         if (event)
             event.preventDefault();
         return false;
     }
 
-    render() {
-        const disabled = this.state.error.length || (this.state.init_hostname == this.state.hostname && this.state.init_pretty == this.state.pretty);
-        return (
-            <Modal isOpen position="top" variant="medium"
-                   onClose={this.props.onClose}
-                   id="system_information_change_hostname"
-                   title={_("Change host name")}
-                   footer={<>
-                       <Button variant='primary' isDisabled={disabled} onClick={this.onSubmit}>{_("Change")}</Button>
-                       <Button variant='link' onClick={this.props.onClose}>{_("Cancel")}</Button>
-                   </>}
-            >
-                <Form isHorizontal onSubmit={this.onSubmit}>
-                    <FormGroup fieldId="sich-pretty-hostname" label={_("Pretty host name")}>
-                        <TextInput id="sich-pretty-hostname" value={this.state.pretty} onChange={this.onPrettyChanged} />
-                    </FormGroup>
-                    <FormGroup fieldId="sich-hostname" label={_("Real host name")}
-                               helperTextInvalid={this.state.error.join("\n")}
-                               validated={this.state.error.length ? "error" : "default"}>
-                        <TextInput id="sich-hostname" value={this.state.hostname} onChange={this.onHostnameChanged} />
-                    </FormGroup>
-                </Form>
-            </Modal>
-        );
-    }
-}
+    const disabled = error.length || (init_hostname == hostname && init_pretty == pretty);
+    return (
+        <Modal isOpen position="top" variant="medium"
+               onClose={Dialogs.close}
+               id="system_information_change_hostname"
+               title={_("Change host name")}
+               footer={<>
+                   <Button variant='primary' isDisabled={disabled} onClick={onSubmit}>{_("Change")}</Button>
+                   <Button variant='link' onClick={Dialogs.close}>{_("Cancel")}</Button>
+               </>}
+        >
+            <Form isHorizontal onSubmit={onSubmit}>
+                <FormGroup fieldId="sich-pretty-hostname" label={_("Pretty host name")}>
+                    <TextInput id="sich-pretty-hostname" value={pretty} onChange={onPrettyChanged} />
+                </FormGroup>
+                <FormGroup fieldId="sich-hostname" label={_("Real host name")}
+                           helperTextInvalid={error.join("\n")}
+                           validated={error.length ? "error" : "default"}>
+                    <TextInput id="sich-hostname" value={hostname} onChange={onHostnameChanged} />
+                </FormGroup>
+            </Form>
+        </Modal>
+    );
+};

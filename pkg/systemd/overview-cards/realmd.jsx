@@ -37,6 +37,7 @@ import { superuser } from "superuser";
 import { useEvent } from "hooks.js";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import * as packagekit from "packagekit.js";
+import { useDialogs } from "dialogs.jsx";
 
 import "./realmd.scss";
 
@@ -235,7 +236,8 @@ function find_detail(realm, field) {
     return result;
 }
 
-const LeaveDialog = ({ realmd_client, onClose }) => {
+const LeaveDialog = ({ realmd_client }) => {
+    const Dialogs = useDialogs();
     const [expanded, setExpanded] = useState(false);
     const [pending, setPending] = useState(false);
     const [error, setError] = useState(null);
@@ -244,7 +246,7 @@ const LeaveDialog = ({ realmd_client, onClose }) => {
     const onLeave = () => {
         setPending(true);
         realmd_client.leave(realm)
-                .then(onClose)
+                .then(Dialogs.close)
                 .catch(err => {
                     console.warn("Failed to leave domain:", err.toString());
                     setPending(false);
@@ -254,11 +256,11 @@ const LeaveDialog = ({ realmd_client, onClose }) => {
 
     return (
         <Modal id="realms-leave-dialog" isOpen position="top" variant="medium"
-               onClose={onClose}
+               onClose={Dialogs.close}
                footer={
                    <>
                        { error && <Alert variant="danger" isInline className="realms-op-error" title={error.toString()} /> }
-                       <Button variant="secondary" isDisabled={pending} onClick={onClose}>{ _("Close") }</Button>
+                       <Button variant="secondary" isDisabled={pending} onClick={Dialogs.close}>{ _("Close") }</Button>
                    </>
                }
                title={ _("dialog-title", "Domain") }>
@@ -320,7 +322,8 @@ const DOMAIN_VALID_HELPER_ICON = {
 
 let domainValidateTimeout;
 
-const JoinDialog = ({ realmd_client, onClose }) => {
+const JoinDialog = ({ realmd_client }) => {
+    const Dialogs = useDialogs();
     const [pending, setPending] = useState(false);
     const [address, setAddress] = useState("");
     const [addressValid, setAddressValid] = useState(null); // success, error, unsupported, default (for pending check)
@@ -374,7 +377,7 @@ const JoinDialog = ({ realmd_client, onClose }) => {
         setDiagnosticsExpanded(null);
         setPending(true);
         realmd_client.join(realm, kerberosMembership, admin, adminPassword)
-                .then(onClose)
+                .then(Dialogs.close)
                 .catch(err => {
                     setPending(false);
                     setError(err);
@@ -402,7 +405,7 @@ const JoinDialog = ({ realmd_client, onClose }) => {
 
     return (
         <Modal id="realms-join-dialog" isOpen position="top" variant="medium"
-               onClose={onClose}
+               onClose={Dialogs.close}
                footer={
                    <>
                        { errorAlert }
@@ -413,7 +416,7 @@ const JoinDialog = ({ realmd_client, onClose }) => {
                                spinnerAriaValueText={ pending ? _("Joining") : null }>
                            { _("Join") }
                        </Button>
-                       <Button variant="link" isDisabled={pending} onClick={onClose}>{ _("Cancel") }</Button>
+                       <Button variant="link" isDisabled={pending} onClick={Dialogs.close}>{ _("Cancel") }</Button>
                        { pending && <span className="realms-op-wait-message">{ _("This may take a while") }</span> }
                    </>
                }
@@ -438,9 +441,7 @@ const JoinDialog = ({ realmd_client, onClose }) => {
 };
 
 export const RealmButton = ({ realmd_client }) => {
-    const [showLeaveDialog, setShowLeaveDialog] = useState(false);
-    const [showJoinDialog, setShowJoinDialog] = useState(false);
-
+    const Dialogs = useDialogs();
     useEvent(realmd_client, "changed");
     useEvent(superuser, "changed");
 
@@ -456,22 +457,19 @@ export const RealmButton = ({ realmd_client }) => {
             install_promise.then(success => success && onClicked());
             return null;
         }
-        realmd_client.joined.length > 0 ? setShowLeaveDialog(true) : setShowJoinDialog(true);
+        realmd_client.joined.length > 0
+            ? Dialogs.show(<LeaveDialog realmd_client={realmd_client} />)
+            : Dialogs.show(<JoinDialog realmd_client={realmd_client} />);
     };
 
     return (
-        <>
-            <Privileged allowed={ superuser.allowed && !realmd_client.error }
-                        tooltipId="system_information_domain_tooltip"
-                        excuse={ buttonTooltip }>
-                <Button id="system_information_domain_button" variant="link"
-                        onClick={onClicked}
-                        isInline isDisabled={buttonDisabled} aria-label={_("Join domain")}>
-                    { buttonText }
-                </Button>
-            </Privileged>
-
-            { showLeaveDialog && <LeaveDialog realmd_client={realmd_client} onClose={ () => setShowLeaveDialog(false) } /> }
-            { showJoinDialog && <JoinDialog realmd_client={realmd_client} onClose={ () => setShowJoinDialog(false) } /> }
-        </>);
+        <Privileged allowed={ superuser.allowed && !realmd_client.error }
+                    tooltipId="system_information_domain_tooltip"
+                    excuse={ buttonTooltip }>
+            <Button id="system_information_domain_button" variant="link"
+                    onClick={onClicked}
+                    isInline isDisabled={buttonDisabled} aria-label={_("Join domain")}>
+                { buttonText }
+            </Button>
+        </Privileged>);
 };

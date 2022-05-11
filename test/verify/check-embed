@@ -31,7 +31,7 @@ class TestEmbed(MachineCase):
         b = self.browser
         m = self.machine
 
-        self.restore_dir("/home/admin/.local/share/cockpit")
+        self.restore_dir("/home/admin")
         m.execute("mkdir -p /home/admin/.local/share/cockpit/embed-cockpit")
         m.upload(["verify/files/embed-cockpit/index.html",
                   "verify/files/embed-cockpit/embed.js",

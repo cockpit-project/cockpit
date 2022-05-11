@@ -17,6 +17,7 @@ class TestPinger(MachineCase):
 
     def setUp(self):
         super().setUp()
+        self.restore_dir("/home/admin")
         self.machine.execute("mkdir -p ~admin/.local/share/cockpit")
         self.machine.upload([os.path.join(EXAMPLES_DIR, "pinger")], "~admin/.local/share/cockpit/")
 
@@ -95,6 +96,7 @@ class TestLongRunning(MachineCase):
     def setUp(self):
         super().setUp()
         m = self.machine
+        self.restore_dir("/home/admin")
         m.execute("mkdir -p ~admin/.local/share/cockpit")
         m.upload([os.path.join(EXAMPLES_DIR, "long-running-process")], "~admin/.local/share/cockpit/")
         # clean up after test failures

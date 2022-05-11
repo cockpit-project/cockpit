@@ -11,8 +11,14 @@ if [ -z "$OFFLINE" ]; then
     "$INSTALLER" install -y python3 openssl systemd
 fi
 
-/container/scripts/install-rpms.sh cockpit-ws
-/container/scripts/install-rpms.sh --nodeps cockpit-bridge
+# Check for prebuilt rpms in /container/rpms
+# If not present there, they are fetched from dnf
+local_ws=$(ls /container/rpms/cockpit-ws-*.rpm || true)
+if [ -n "$local_ws" ]; then
+    rpm -i "$local_ws" $(ls /container/rpms/cockpit-bridge-*.rpm)
+else
+    "$INSTALLER" install -y cockpit-ws cockpit-bridge
+fi
 
 rm -rf /container/scripts
 rm -rf /container/rpms

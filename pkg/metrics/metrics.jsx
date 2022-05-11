@@ -47,6 +47,7 @@ import * as timeformat from "timeformat";
 import { superuser } from "superuser";
 import { journal } from "journal";
 import { useObject, useEvent } from "hooks.js";
+import { WithDialogs, useDialogs } from "dialogs.jsx";
 
 import { EmptyStatePanel } from "../lib/cockpit-components-empty-state.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
@@ -966,163 +967,142 @@ class MetricsHour extends React.Component {
 const invalidService = proxy => proxy.state === null;
 const runningService = proxy => ['running', 'starting'].indexOf(proxy.state) >= 0;
 
-const PCPConfig = ({ buttonVariant, firewalldRequest, needsLogout, setNeedsLogout }) => {
-    const [dialogVisible, setDialogVisible] = useState(false);
+const wait_cond = (cond, objects) => {
+    return new Promise((resolve, reject) => {
+        const check = () => {
+            if (cond()) {
+                objects.forEach(o => o.removeEventListener("changed", check));
+                resolve();
+            }
+        };
+        objects.forEach(o => o.addEventListener("changed", check));
+        check();
+    });
+};
+
+const PCPConfigDialog = ({
+    firewalldRequest,
+    needsLogout, setNeedsLogout,
+    s_pmlogger, s_pmproxy, s_redis, s_redis_server
+}) => {
+    const Dialogs = useDialogs();
+    const dialogInitialProxyValue = runningService(s_pmproxy) && (runningService(s_redis) || runningService(s_redis_server));
     const [dialogError, setDialogError] = useState(null);
-    const [dialogLoggerValue, setDialogLoggerValue] = useState(false);
-    const [dialogProxyValue, setDialogProxyValue] = useState(null);
-    const [dialogInitialProxyValue, setDialogInitialProxyValue] = useState(null);
+    const [dialogLoggerValue, setDialogLoggerValue] = useState(runningService(s_pmlogger));
+    const [dialogProxyValue, setDialogProxyValue] = useState(dialogInitialProxyValue);
     const [pending, setPending] = useState(false);
-    const [deferSaveOnInstall, setDeferSaveOnInstall] = useState(false);
 
-    const s_pmlogger = useObject(() => service.proxy("pmlogger.service"), null, []);
-    const s_pmproxy = useObject(() => service.proxy("pmproxy.service"), null, []);
-    // redis.service on Fedora/RHEL, redis-server.service on Debian/Ubuntu with an Alias=redis
-    const s_redis = useObject(() => service.proxy("redis.service"), null, []);
-    const s_redis_server = useObject(() => service.proxy("redis-server.service"), null, []);
-
-    useEvent(superuser, "changed");
-    useEvent(s_pmlogger, "changed");
-    useEvent(s_pmproxy, "changed");
-    useEvent(s_redis, "changed");
-    useEvent(s_redis_server, "changed");
-
-    let real_redis;
-    let redis_name;
-    if (s_redis_server.exists) {
-        real_redis = s_redis_server;
-        redis_name = "redis-server.service";
-    } else {
-        real_redis = s_redis;
-        redis_name = "redis.service";
-    }
-
-    debug("PCPConfig s_pmlogger.state", s_pmlogger.state, "needs logout", needsLogout, "deferSaveOnInstall", deferSaveOnInstall);
-    debug("PCPConfig s_pmproxy state", s_pmproxy.state, "redis exists", s_redis.exists, "state", s_redis.state, "redis-server exists", s_redis_server.exists, "state", s_redis_server.state);
-
-    if (!superuser.allowed)
-        return null;
+    const handleInstall = () => {
+    // when enabling services, install missing packages on demand
+        const missing = [];
+        if (dialogLoggerValue && !s_pmlogger.exists)
+            missing.push("cockpit-pcp");
+        if (dialogProxyValue && !(s_redis.exists || s_redis_server.exists))
+            missing.push("redis");
+        if (missing.length > 0) {
+            debug("PCPConfig: missing packages", JSON.stringify(missing), ", offering install");
+            Dialogs.close();
+            return install_dialog(missing)
+                    .then(() => {
+                        debug("PCPConfig: package installation successful");
+                        if (missing.indexOf("cockpit-pcp") >= 0)
+                            setNeedsLogout(true);
+                        return wait_cond(() => (s_pmlogger.exists &&
+                                                (!dialogProxyValue || (s_pmproxy.exists && (s_redis.exists || s_redis_server.exists)))),
+                                         [s_pmlogger, s_pmproxy, s_redis, s_redis_server]);
+                    });
+        } else
+            return Promise.resolve();
+    };
 
     const handleSave = () => {
         debug("PCPConfig handleSave(): dialogLoggerValue", dialogLoggerValue, "dialogInitialProxyValue", dialogInitialProxyValue, "dialogProxyValue", dialogProxyValue);
-        // when enabling services, install missing packages on demand
-        if (!deferSaveOnInstall) {
-            const missing = [];
-            if (dialogLoggerValue && !s_pmlogger.exists)
-                missing.push("cockpit-pcp");
-            if (dialogProxyValue && !real_redis.exists)
-                missing.push("redis");
-            if (missing.length > 0) {
-                debug("PCPConfig: missing packages", JSON.stringify(missing), ", offering install");
-                setDialogVisible(false);
-                install_dialog(missing)
-                        .then(() => {
-                            debug("PCPConfig: package installation successful");
-                            if (missing.indexOf("cockpit-pcp") >= 0)
-                                setNeedsLogout(true);
-                            setDeferSaveOnInstall(true); // avoid recursive install_dialog
-                        })
-                        .catch(() => null); // ignore cancel
-                return;
-            }
-        }
 
-        setPending(true);
-        const redis_enable_cmd = `mkdir -p /etc/systemd/system/pmproxy.service.wants; ln -sf ../${redis_name} /etc/systemd/system/pmproxy.service.wants/${redis_name}`;
-        const redis_disable_cmd = `rm -f /etc/systemd/system/pmproxy.service.wants/${redis_name}; rmdir -p /etc/systemd/system/pmproxy.service.wants 2>/dev/null || true`;
-        let action;
-
-        // enable/disable does a daemon-reload, which interferes with start on some distros; so don't run them in parallel
-        if (dialogLoggerValue)
-            action = s_pmlogger.start().then(() => s_pmlogger.enable());
-        else
-            action = s_pmlogger.stop().finally(() => s_pmlogger.disable());
-
-        if (dialogProxyValue !== null && dialogInitialProxyValue !== dialogProxyValue) {
-            if (dialogProxyValue === true) {
-                // pmproxy.service needs to (re)start *after* redis to recognize it
-                action = action
-                        .then(() => real_redis.start())
-                        .then(() => s_pmproxy.restart())
-                        // turn redis into a dependency, as the metrics API requires it
-                        .then(() => cockpit.script(redis_enable_cmd, { superuser: "require", err: "message" }))
-                        .then(() => s_pmproxy.enable());
-            } else {
-                // don't stop redis here -- it's a shared service, other things may be using it
-                action = action
-                        .then(() => s_pmproxy.stop())
-                        .then(() => cockpit.script(redis_disable_cmd, { superuser: "require", err: "message" }))
-                        .then(() => s_pmproxy.disable());
-            }
-        }
-
-        action
+        handleInstall()
                 .then(() => {
-                    setDialogVisible(false);
-                    if (dialogProxyValue && !dialogInitialProxyValue && firewalldRequest)
-                        firewalldRequest({ service: "pmproxy", title: _("Open the pmproxy service in the firewall to share metrics.") });
+                    setPending(true);
+
+                    let real_redis;
+                    let redis_name;
+                    if (s_redis_server.exists) {
+                        real_redis = s_redis_server;
+                        redis_name = "redis-server.service";
+                    } else {
+                        real_redis = s_redis;
+                        redis_name = "redis.service";
+                    }
+
+                    const redis_enable_cmd = `mkdir -p /etc/systemd/system/pmproxy.service.wants; ln -sf ../${redis_name} /etc/systemd/system/pmproxy.service.wants/${redis_name}`;
+                    const redis_disable_cmd = `rm -f /etc/systemd/system/pmproxy.service.wants/${redis_name}; rmdir -p /etc/systemd/system/pmproxy.service.wants 2>/dev/null || true`;
+                    let action;
+
+                    // enable/disable does a daemon-reload, which interferes with start on some distros; so don't run them in parallel
+                    if (dialogLoggerValue)
+                        action = s_pmlogger.start().then(() => s_pmlogger.enable());
                     else
-                        firewalldRequest(null);
+                        action = s_pmlogger.stop().finally(() => s_pmlogger.disable());
+
+                    if (dialogProxyValue !== null && dialogInitialProxyValue !== dialogProxyValue) {
+                        if (dialogProxyValue === true) {
+                        // pmproxy.service needs to (re)start *after* redis to recognize it
+                            action = action
+                                    .then(() => real_redis.start())
+                                    .then(() => s_pmproxy.restart())
+                            // turn redis into a dependency, as the metrics API requires it
+                                    .then(() => cockpit.script(redis_enable_cmd, { superuser: "require", err: "message" }))
+                                    .then(() => s_pmproxy.enable());
+                        } else {
+                        // don't stop redis here -- it's a shared service, other things may be using it
+                            action = action
+                                    .then(() => s_pmproxy.stop())
+                                    .then(() => cockpit.script(redis_disable_cmd, { superuser: "require", err: "message" }))
+                                    .then(() => s_pmproxy.disable());
+                        }
+                    }
+
+                    action
+                            .then(() => {
+                                Dialogs.close();
+                                if (dialogProxyValue && !dialogInitialProxyValue && firewalldRequest)
+                                    firewalldRequest({ service: "pmproxy", title: _("Open the pmproxy service in the firewall to share metrics.") });
+                                else
+                                    firewalldRequest(null);
+                            })
+                            .catch(err => { setPending(false); setDialogError(err.toString()) });
                 })
-                .catch(err => setDialogError(err.toString()))
-                .finally(() => setPending(false));
+                .catch(() => null); // ignore cancel in install dialog
     };
 
-    // handle deferred Save after package installation finished and pmlogger starts to exist
-    if (deferSaveOnInstall &&
-            (!dialogLoggerValue || s_pmlogger.exists) &&
-            (!dialogProxyValue || (s_pmproxy.exists && real_redis.exists))) {
-        debug("PCPConfig: handling deferred Save after package installation");
-        setDeferSaveOnInstall(false);
-        handleSave();
-        return;
-    }
-
     return (
-        <>
-            <Button variant={buttonVariant} icon={<CogIcon />}
-                    isDisabled={ invalidService(s_pmlogger) || invalidService(s_pmproxy) || invalidService(s_redis) || invalidService(s_redis_server) }
-                    onClick={ () => {
-                        setDialogLoggerValue(runningService(s_pmlogger));
-                        const proxy_value = runningService(s_pmproxy) && runningService(real_redis);
-                        setDialogInitialProxyValue(proxy_value);
-                        setDialogProxyValue(proxy_value);
-                        setDialogError(null);
-                        setDialogVisible(true);
-                    } }>
-                { _("Metrics settings") }
-            </Button>
+        <Modal position="top" variant="small" isOpen
+          id="pcp-settings-modal"
+          onClose={Dialogs.close}
+          title={ _("Metrics settings") }
+          description={
+              <div className="pcp-settings-modal-text">
+                  { _("Performance Co-Pilot collects and analyzes performance metrics from your system.") }
 
-            {dialogVisible &&
-            <Modal position="top" variant="small" isOpen
-                   id="pcp-settings-modal"
-                   onClose={ () => setDialogVisible(false) }
-                   title={ _("Metrics settings") }
-                   description={
-                       <div className="pcp-settings-modal-text">
-                           { _("Performance Co-Pilot collects and analyzes performance metrics from your system.") }
-
-                           <Button component="a" variant="link" href="https://cockpit-project.org/guide/latest/feature-pcp.html"
+                  <Button component="a" variant="link" href="https://cockpit-project.org/guide/latest/feature-pcp.html"
                                 isInline
                                 target="_blank" rel="noopener noreferrer"
                                 icon={<ExternalLinkAltIcon />}>
-                               { _("Read more...") }
-                           </Button>
-                       </div>
-                   }
+                      { _("Read more...") }
+                  </Button>
+              </div>
+          }
                    footer={<>
                        { dialogError && <ModalError dialogError={ _("Failed to configure PCP") } dialogErrorDetail={dialogError} /> }
 
                        <Button variant='primary' onClick={handleSave} isDisabled={pending} isLoading={pending}>
                            { _("Save") }
                        </Button>
-                       <Button variant='link' className='btn-cancel' onClick={ () => setDialogVisible(false) }>
+                       <Button variant='link' className='btn-cancel' onClick={Dialogs.close}>
                            {_("Cancel")}
                        </Button>
                    </>
                    }>
 
-                <Switch id="switch-pmlogger"
+            <Switch id="switch-pmlogger"
                         isChecked={dialogLoggerValue}
                         label={
                             <Flex spaceItems={{ modifier: 'spaceItemsXl' }}>
@@ -1139,7 +1119,7 @@ const PCPConfig = ({ buttonVariant, firewalldRequest, needsLogout, setNeedsLogou
                                 setDialogProxyValue(false);
                         }} />
 
-                <Switch id="switch-pmproxy"
+            <Switch id="switch-pmproxy"
                         isChecked={dialogProxyValue}
                         label={
                             <Flex spaceItems={{ modifier: 'spaceItemsXl' }}>
@@ -1151,8 +1131,44 @@ const PCPConfig = ({ buttonVariant, firewalldRequest, needsLogout, setNeedsLogou
                         }
                         isDisabled={ !dialogLoggerValue }
                         onChange={enable => setDialogProxyValue(enable)} />
-            </Modal>}
-        </>);
+        </Modal>);
+};
+
+const PCPConfig = ({ buttonVariant, firewalldRequest, needsLogout, setNeedsLogout }) => {
+    const Dialogs = useDialogs();
+
+    const s_pmlogger = useObject(() => service.proxy("pmlogger.service"), null, []);
+    const s_pmproxy = useObject(() => service.proxy("pmproxy.service"), null, []);
+    // redis.service on Fedora/RHEL, redis-server.service on Debian/Ubuntu with an Alias=redis
+    const s_redis = useObject(() => service.proxy("redis.service"), null, []);
+    const s_redis_server = useObject(() => service.proxy("redis-server.service"), null, []);
+
+    useEvent(superuser, "changed");
+    useEvent(s_pmlogger, "changed");
+    useEvent(s_pmproxy, "changed");
+    useEvent(s_redis, "changed");
+    useEvent(s_redis_server, "changed");
+
+    debug("PCPConfig s_pmlogger.state", s_pmlogger.state, "needs logout", needsLogout);
+    debug("PCPConfig s_pmproxy state", s_pmproxy.state, "redis exists", s_redis.exists, "state", s_redis.state, "redis-server exists", s_redis_server.exists, "state", s_redis_server.state);
+
+    if (!superuser.allowed)
+        return null;
+
+    function show_dialog() {
+        Dialogs.show(<PCPConfigDialog firewalldRequest={firewalldRequest}
+                                      needsLogout={needsLogout} setNeedsLogout={setNeedsLogout}
+                                      s_pmlogger={s_pmlogger}
+                                      s_pmproxy={s_pmproxy}
+                                      s_redis={s_redis} s_redis_server={s_redis_server} />);
+    }
+
+    return (
+        <Button variant={buttonVariant} icon={<CogIcon />}
+                isDisabled={ invalidService(s_pmlogger) || invalidService(s_pmproxy) || invalidService(s_redis) || invalidService(s_redis_server) }
+                onClick={show_dialog}>
+            { _("Metrics settings") }
+        </Button>);
 };
 
 class MetricsHistory extends React.Component {
@@ -1514,33 +1530,36 @@ export const Application = () => {
     const [firewalldRequest, setFirewalldRequest] = useState(null);
     const [needsLogout, setNeedsLogout] = useState(false);
 
-    return <Page additionalGroupedContent={
-        <PageSection id="metrics-header-section" variant={PageSectionVariants.light} type='breadcrumb'>
-            <Flex>
-                <FlexItem>
-                    <Breadcrumb>
-                        <BreadcrumbItem onClick={() => cockpit.jump("/system")} className="pf-c-breadcrumb__link">{_("Overview")}</BreadcrumbItem>
-                        <BreadcrumbItem isActive>{_("Metrics and history")}</BreadcrumbItem>
-                    </Breadcrumb>
-                </FlexItem>
-                <FlexItem align={{ default: 'alignRight' }}>
-                    <PCPConfig buttonVariant="secondary"
-                                     firewalldRequest={setFirewalldRequest}
-                                     needsLogout={needsLogout}
-                                     setNeedsLogout={setNeedsLogout} />
-                </FlexItem>
-            </Flex>
-        </PageSection>
-    }>
-        { firewalldRequest &&
-            <FirewalldRequest service={firewalldRequest.service} title={firewalldRequest.title} pageSection /> }
-        <PageSection className="ct-pagesection-mobile">
-            <CurrentMetrics />
-        </PageSection>
-        <PageSection className="ct-pagesection-mobile">
-            <MetricsHistory firewalldRequest={setFirewalldRequest}
-                            needsLogout={needsLogout}
-                            setNeedsLogout={setNeedsLogout} />
-        </PageSection>
-    </Page>;
+    return (
+        <WithDialogs>
+            <Page additionalGroupedContent={
+                <PageSection id="metrics-header-section" variant={PageSectionVariants.light} type='breadcrumb'>
+                    <Flex>
+                        <FlexItem>
+                            <Breadcrumb>
+                                <BreadcrumbItem onClick={() => cockpit.jump("/system")} className="pf-c-breadcrumb__link">{_("Overview")}</BreadcrumbItem>
+                                <BreadcrumbItem isActive>{_("Metrics and history")}</BreadcrumbItem>
+                            </Breadcrumb>
+                        </FlexItem>
+                        <FlexItem align={{ default: 'alignRight' }}>
+                            <PCPConfig buttonVariant="secondary"
+                                             firewalldRequest={setFirewalldRequest}
+                                             needsLogout={needsLogout}
+                                             setNeedsLogout={setNeedsLogout} />
+                        </FlexItem>
+                    </Flex>
+                </PageSection>
+            }>
+                { firewalldRequest &&
+                <FirewalldRequest service={firewalldRequest.service} title={firewalldRequest.title} pageSection /> }
+                <PageSection className="ct-pagesection-mobile">
+                    <CurrentMetrics />
+                </PageSection>
+                <PageSection className="ct-pagesection-mobile">
+                    <MetricsHistory firewalldRequest={setFirewalldRequest}
+                                    needsLogout={needsLogout}
+                                    setNeedsLogout={setNeedsLogout} />
+                </PageSection>
+            </Page>
+        </WithDialogs>);
 };

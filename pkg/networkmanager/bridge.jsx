@@ -28,6 +28,7 @@ import {
 
 import { MemberInterfaceChoices, NetworkModal, Name, dialogSave } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';
+import { useDialogs } from "dialogs.jsx";
 
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -37,7 +38,8 @@ import {
 
 const _ = cockpit.gettext;
 
-export const BridgeDialog = ({ connection, dev, setIsOpen, settings }) => {
+export const BridgeDialog = ({ connection, dev, settings }) => {
+    const Dialogs = useDialogs();
     const idPrefix = "network-bridge-settings";
     const model = useContext(ModelContext);
     const memberChoicesInit = {};
@@ -79,7 +81,7 @@ export const BridgeDialog = ({ connection, dev, setIsOpen, settings }) => {
             membersInit: memberChoicesInit,
             settings: createSettingsObj(),
             setDialogError,
-            setIsOpen,
+            onClose: Dialogs.close,
         });
 
         // Prevent dialog from closing because of <form> onsubmit event
@@ -93,7 +95,6 @@ export const BridgeDialog = ({ connection, dev, setIsOpen, settings }) => {
         <NetworkModal dialogError={dialogError}
                       idPrefix="network-bridge-settings"
                       onSubmit={onSubmit}
-                      setIsOpen={setIsOpen}
                       title={_("Bridge settings")}
         >
             <>

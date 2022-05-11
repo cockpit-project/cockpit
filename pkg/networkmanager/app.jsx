@@ -36,6 +36,7 @@ import { superuser } from 'superuser';
 import { PlotState } from 'plot';
 
 import { useObject, useEvent, usePageLocation } from "hooks";
+import { WithDialogs } from "dialogs.jsx";
 
 const _ = cockpit.gettext;
 
@@ -114,11 +115,13 @@ const App = () => {
     if (path.length == 0) {
         return (
             <ModelContext.Provider value={model}>
-                <NetworkPage privileged={superuser.allowed}
-                             operationInProgress={model.operationInProgress}
-                             usage_monitor={usage_monitor}
-                             plot_state={plot_state_main}
-                             interfaces={interfaces} />
+                <WithDialogs key="1">
+                    <NetworkPage privileged={superuser.allowed}
+                                 operationInProgress={model.operationInProgress}
+                                 usage_monitor={usage_monitor}
+                                 plot_state={plot_state_main}
+                                 interfaces={interfaces} />
+                </WithDialogs>
             </ModelContext.Provider>
         );
     } else if (path.length == 1) {
@@ -127,12 +130,14 @@ const App = () => {
         if (iface) {
             return (
                 <ModelContext.Provider value={model}>
-                    <NetworkInterfacePage privileged={superuser.allowed}
-                                          operationInProgress={model.operationInProgress}
-                                          usage_monitor={usage_monitor}
-                                          plot_state={plot_state_iface}
-                                          interfaces={interfaces}
-                                          iface={iface} />
+                    <WithDialogs key="2">
+                        <NetworkInterfacePage privileged={superuser.allowed}
+                                              operationInProgress={model.operationInProgress}
+                                              usage_monitor={usage_monitor}
+                                              plot_state={plot_state_iface}
+                                              interfaces={interfaces}
+                                              iface={iface} />
+                    </WithDialogs>
                 </ModelContext.Provider>
             );
         }

@@ -37,6 +37,7 @@ import { MtuDialog } from './mtu.jsx';
 import { MacDialog } from './mac.jsx';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { ModelContext } from './model-context.jsx';
+import { useDialogs } from "dialogs.jsx";
 
 import {
     apply_group_member,
@@ -136,19 +137,21 @@ export const Name = ({ idPrefix, iface, setIface }) => {
     );
 };
 
-export const NetworkModal = ({ dialogError, help, idPrefix, setIsOpen, title, onSubmit, children, isFormHorizontal }) => {
+export const NetworkModal = ({ dialogError, help, idPrefix, title, onSubmit, children, isFormHorizontal }) => {
+    const Dialogs = useDialogs();
+
     return (
         <Modal id={idPrefix + "-dialog"} position="top" variant="medium"
             isOpen
             help={help}
-            onClose={() => setIsOpen(false)}
+            onClose={Dialogs.close}
             title={title}
             footer={
                 <>
                     <Button variant='primary' id={idPrefix + "-save"} onClick={onSubmit}>
                         {_("Save")}
                     </Button>
-                    <Button variant='link' id={idPrefix + "-cancel"} onClick={() => setIsOpen(false)}>
+                    <Button variant='link' id={idPrefix + "-cancel"} onClick={Dialogs.close}>
                         {_("Cancel")}
                     </Button>
                 </>
@@ -163,7 +166,7 @@ export const NetworkModal = ({ dialogError, help, idPrefix, setIsOpen, title, on
 };
 
 export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) => {
-    const [isOpen, setIsOpen] = useState(false);
+    const Dialogs = useDialogs();
     const [showAddTeam, setShowAddTeam] = useState(undefined);
     const model = useContext(ModelContext);
 
@@ -212,26 +215,42 @@ export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) =
         if (type == 'bridge') settings = getBridgeGhostSettings({ newIfaceName });
     }
 
-    const properties = { connection: con, dev, setIsOpen, settings };
+    const properties = { connection: con, dev, settings };
+
+    function show() {
+        let dlg = null;
+        if (type == 'bond')
+            dlg = <BondDialog {...properties} />;
+        else if (type == 'vlan')
+            dlg = <VlanDialog {...properties} />;
+        else if (type == 'team')
+            dlg = <TeamDialog {...properties} />;
+        else if (type == 'bridge')
+            dlg = <BridgeDialog {...properties} />;
+        else if (type == 'mtu')
+            dlg = <MtuDialog {...properties} />;
+        else if (type == 'mac')
+            dlg = <MacDialog {...properties} />;
+        else if (type == 'teamport')
+            dlg = <TeamPortDialog {...properties} />;
+        else if (type == 'bridgeport')
+            dlg = <BridgePortDialog {...properties} />;
+        else if (type == 'ipv4')
+            dlg = <IpSettingsDialog topic="ipv4" {...properties} />;
+        else if (type == 'ipv6')
+            dlg = <IpSettingsDialog topic="ipv6" {...properties} />;
+        if (dlg)
+            Dialogs.show(dlg);
+    }
 
     return (
         <>
             <Button id={"networking-" + (!iface ? "add-" : "edit-") + type}
                     isInline={!!iface}
-                    onClick={syn_click(model, setIsOpen, true)}
+                    onClick={syn_click(model, show)}
                     variant={!iface ? "secondary" : "link"}>
                 {buttonText || _("edit")}
             </Button>
-            {isOpen && type == 'bond' ? <BondDialog {...properties} /> : null}
-            {isOpen && type == 'vlan' ? <VlanDialog {...properties} /> : null}
-            {isOpen && type == 'team' ? <TeamDialog {...properties} /> : null}
-            {isOpen && type == 'bridge' ? <BridgeDialog {...properties} /> : null}
-            {isOpen && type == 'mtu' ? <MtuDialog {...properties} /> : null}
-            {isOpen && type == 'mac' ? <MacDialog {...properties} /> : null}
-            {isOpen && type == 'teamport' ? <TeamPortDialog {...properties} /> : null}
-            {isOpen && type == 'bridgeport' ? <BridgePortDialog {...properties} /> : null}
-            {isOpen && type == 'ipv4' ? <IpSettingsDialog topic="ipv4" {...properties} /> : null}
-            {isOpen && type == 'ipv6' ? <IpSettingsDialog topic="ipv6" {...properties} /> : null}
         </>
     );
 };
@@ -247,7 +266,7 @@ function reactivateConnection({ con, dev }) {
     }
 }
 
-export const dialogSave = ({ model, dev, connection, members, membersInit, settings, setDialogError, setIsOpen }) => {
+export const dialogSave = ({ model, dev, connection, members, membersInit, settings, setDialogError, onClose }) => {
     const apply_settings = settings_applier(model, dev, connection);
     const iface = settings.connection.interface_name;
     const type = settings.connection.type;
@@ -265,7 +284,7 @@ export const dialogSave = ({ model, dev, connection, members, membersInit, setti
                                  type)
             : apply_settings(settings))
                 .then(() => {
-                    setIsOpen(false);
+                    onClose();
                     if (connection)
                         cockpit.location.go([iface]);
                     if (connection && dev && dev.ActiveConnection && dev.ActiveConnection.Connection === connection)

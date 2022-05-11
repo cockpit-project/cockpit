@@ -44,6 +44,7 @@ import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { FirewallSwitch } from "./firewall-switch.jsx";
 
 import { superuser } from "superuser";
+import { WithDialogs, DialogsContext } from "dialogs.jsx";
 
 import "./networking.scss";
 
@@ -287,6 +288,8 @@ const renderPorts = service => {
 };
 
 class AddServicesModal extends React.Component {
+    static contextType = DialogsContext;
+
     constructor() {
         super();
 
@@ -334,6 +337,7 @@ class AddServicesModal extends React.Component {
     }
 
     save(event) {
+        const Dialogs = this.context;
         let p;
         if (this.state.custom) {
             const custom_id = this.state.custom_id === "" ? this.getCustomId() : this.state.custom_id;
@@ -341,7 +345,7 @@ class AddServicesModal extends React.Component {
         } else {
             p = firewall.addServices(this.props.zoneId, [...this.state.selected]);
         }
-        p.then(() => this.props.close())
+        p.then(() => Dialogs.close())
                 .catch(error => {
                     this.setState({
                         dialogError: this.state.custom ? _("Failed to add port") : _("Failed to add service"),
@@ -523,6 +527,7 @@ class AddServicesModal extends React.Component {
     }
 
     render() {
+        const Dialogs = this.context;
         let services;
         if (this.state.filter && this.state.services && !isNaN(this.state.filter))
             services = this.state.services.filter(s => {
@@ -545,7 +550,7 @@ class AddServicesModal extends React.Component {
         return (
             <Modal id="add-services-dialog" isOpen
                    position="top" variant="medium"
-                   onClose={this.props.close}
+                   onClose={Dialogs.close}
                    title={titleText}
                    footer={<>
                        {
@@ -559,7 +564,7 @@ class AddServicesModal extends React.Component {
                        <Button variant='primary' onClick={this.save} aria-label={titleText}>
                            {addText}
                        </Button>
-                       <Button variant='link' className='btn-cancel' onClick={this.props.close}>
+                       <Button variant='link' className='btn-cancel' onClick={Dialogs.close}>
                            {_("Cancel")}
                        </Button>
                    </>}
@@ -658,6 +663,8 @@ class AddServicesModal extends React.Component {
 }
 
 class ActivateZoneModal extends React.Component {
+    static contextType = DialogsContext;
+
     constructor() {
         super();
 
@@ -669,9 +676,22 @@ class ActivateZoneModal extends React.Component {
             dialogError: null,
             dialogErrorDetail: null,
         };
+        this.onFirewallChanged = this.onFirewallChanged.bind(this);
         this.onInterfaceChange = this.onInterfaceChange.bind(this);
         this.onChange = this.onChange.bind(this);
         this.save = this.save.bind(this);
+    }
+
+    componentDidMount() {
+        firewall.addEventListener("changed", this.onFirewallChanged);
+    }
+
+    componentWillUnmount() {
+        firewall.removeEventListener("changed", this.onFirewallChanged);
+    }
+
+    onFirewallChanged() {
+        this.setState({});
     }
 
     onInterfaceChange(event) {
@@ -692,6 +712,7 @@ class ActivateZoneModal extends React.Component {
     }
 
     save(event) {
+        const Dialogs = this.context;
         let p;
         if (firewall.zones[this.state.zone].services.indexOf("cockpit") === -1)
             p = firewall.addService(this.state.zone, "cockpit");
@@ -701,7 +722,7 @@ class ActivateZoneModal extends React.Component {
         const sources = this.state.ipRange === "ip-range" ? this.state.ipRangeValue.split(",").map(ip => ip.trim()) : [];
         p.then(() =>
             firewall.activateZone(this.state.zone, [...this.state.interfaces], sources)
-                    .then(() => this.props.close())
+                    .then(Dialogs.close)
                     .catch(error => {
                         this.setState({
                             dialogError: _("Failed to add zone"),
@@ -715,6 +736,7 @@ class ActivateZoneModal extends React.Component {
     }
 
     render() {
+        const Dialogs = this.context;
         const zones = Object.keys(firewall.zones).filter(z => firewall.zones[z].target === "default" && !firewall.activeZones.has(z));
         const customZones = zones.filter(z => firewall.predefinedZones.indexOf(z) === -1);
         const interfaces = firewall.availableInterfaces.filter(i => {
@@ -731,7 +753,7 @@ class ActivateZoneModal extends React.Component {
         return (
             <Modal id="add-zone-dialog" isOpen
                    position="top" variant="medium"
-                   onClose={this.props.close}
+                   onClose={Dialogs.close}
                    title={_("Add zone")}
                    footer={<>
                        {
@@ -742,7 +764,7 @@ class ActivateZoneModal extends React.Component {
                                                                                (this.state.ipRange === "ip-range" && !this.state.ipRangeValue)}>
                            { _("Add zone") }
                        </Button>
-                       <Button variant="link" className="btn-cancel" onClick={this.props.close}>
+                       <Button variant="link" className="btn-cancel" onClick={Dialogs.close}>
                            { _("Cancel") }
                        </Button>
                    </>}
@@ -845,12 +867,12 @@ function DeleteConfirmationModal(props) {
 }
 
 export class Firewall extends React.Component {
+    static contextType = DialogsContext;
+
     constructor() {
         super();
 
         this.state = {
-            addServicesModal: undefined,
-            deleteConfirmationModal: undefined,
             firewall,
             pendingTarget: null /* `null` for not pending */
         };
@@ -860,7 +882,6 @@ export class Firewall extends React.Component {
         this.openAddZoneDialog = this.openAddZoneDialog.bind(this);
         this.onRemoveZone = this.onRemoveZone.bind(this);
         this.onRemoveService = this.onRemoveService.bind(this);
-        this.close = this.close.bind(this);
     }
 
     onFirewallChanged() {
@@ -873,40 +894,36 @@ export class Firewall extends React.Component {
     }
 
     onRemoveZone(zone) {
+        const Dialogs = this.context;
         let body;
         if (firewall.zones[zone].services.indexOf("cockpit") !== -1)
             body = _("This zone contains the cockpit service. Make sure that this zone does not apply to your current web console connection.");
         else
             body = _("Removing the zone will remove all services within it.");
-        this.setState({
-            deleteConfirmationModal: <DeleteConfirmationModal title={ cockpit.format(_("Remove zone $0"), zone) }
-            body={body}
-            target={zone}
-            onCancel={ () =>
-                this.setState({ deleteConfirmationModal: undefined })
-            }
-        onDelete={ () => {
-            firewall.deactiveateZone(zone);
-            this.setState({ deleteConfirmationModal: undefined });
-        }} />
-        });
+        Dialogs.show(<DeleteConfirmationModal title={ cockpit.format(_("Remove zone $0"), zone) }
+                                              body={body}
+                                              target={zone}
+                                              onCancel={Dialogs.close}
+                                              onDelete={ () => {
+                                                  firewall.deactiveateZone(zone);
+                                                  Dialogs.close();
+                                              }} />
+        );
     }
 
     onRemoveService(zone, service) {
+        const Dialogs = this.context;
         if (service === 'cockpit') {
             const body = _("Removing the cockpit service might result in the web console becoming unreachable. Make sure that this zone does not apply to your current web console connection.");
-            this.setState({
-                deleteConfirmationModal: <DeleteConfirmationModal title={ cockpit.format(_("Remove $0 service from $1 zone"), service, zone) }
-                body={body}
-                target={service}
-                onCancel={ () =>
-                    this.setState({ deleteConfirmationModal: undefined })
-                }
-                onDelete={ () => {
-                    firewall.removeService(zone, service);
-                    this.setState({ deleteConfirmationModal: undefined });
-                }} />
-            });
+            Dialogs.show(<DeleteConfirmationModal title={ cockpit.format(_("Remove $0 service from $1 zone"), service, zone) }
+                                                  body={body}
+                                                  target={service}
+                                                  onCancel={Dialogs.close}
+                                                  onDelete={ () => {
+                                                      firewall.removeService(zone, service);
+                                                      Dialogs.close();
+                                                  }} />
+            );
         } else {
             firewall.removeService(zone, service);
         }
@@ -920,20 +937,14 @@ export class Firewall extends React.Component {
         firewall.removeEventListener("changed", this.onFirewallChanged);
     }
 
-    close() {
-        this.setState({
-            addServicesModal: undefined,
-            showRemoveServicesModal: false,
-            showActivateZoneModal: false,
-        });
-    }
-
     openServicesDialog(zoneId, zoneName) {
-        this.setState({ addServicesModal: <AddServicesModal zoneId={zoneId} zoneName={zoneName} close={this.close} /> });
+        const Dialogs = this.context;
+        Dialogs.show(<AddServicesModal zoneId={zoneId} zoneName={zoneName} />);
     }
 
     openAddZoneDialog() {
-        this.setState({ showActivateZoneModal: true });
+        const Dialogs = this.context;
+        Dialogs.show(<ActivateZoneModal />);
     }
 
     render() {
@@ -994,9 +1005,6 @@ export class Firewall extends React.Component {
                         }
                     </Stack> }
                 </PageSection>
-                { this.state.addServicesModal !== undefined && this.state.addServicesModal }
-                { this.state.deleteConfirmationModal !== undefined && this.state.deleteConfirmationModal }
-                { this.state.showActivateZoneModal && <ActivateZoneModal close={this.close} /> }
             </Page>
         );
     }
@@ -1005,5 +1013,5 @@ export class Firewall extends React.Component {
 document.addEventListener("DOMContentLoaded", () => {
     document.title = cockpit.gettext(document.title);
 
-    ReactDOM.render(<Firewall />, document.getElementById("firewall"));
+    ReactDOM.render(<WithDialogs><Firewall /></WithDialogs>, document.getElementById("firewall"));
 });

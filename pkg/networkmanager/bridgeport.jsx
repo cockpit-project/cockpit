@@ -27,10 +27,12 @@ import {
 
 import { NetworkModal, dialogSave } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';
+import { useDialogs } from "dialogs.jsx";
 
 const _ = cockpit.gettext;
 
-export const BridgePortDialog = ({ connection, dev, setIsOpen, settings }) => {
+export const BridgePortDialog = ({ connection, dev, settings }) => {
+    const Dialogs = useDialogs();
     const idPrefix = "network-bridge-port-settings";
     const model = useContext(ModelContext);
 
@@ -61,7 +63,7 @@ export const BridgePortDialog = ({ connection, dev, setIsOpen, settings }) => {
             connection,
             settings: createSettingsObj(),
             setDialogError,
-            setIsOpen,
+            onClose: Dialogs.close,
         });
 
         // Prevent dialog from closing because of <form> onsubmit event
@@ -75,7 +77,6 @@ export const BridgePortDialog = ({ connection, dev, setIsOpen, settings }) => {
         <NetworkModal dialogError={dialogError}
                       idPrefix={idPrefix}
                       onSubmit={onSubmit}
-                      setIsOpen={setIsOpen}
                       title={_("Bridge port settings")}
         >
             <FormGroup fieldId={idPrefix + "-prio-input"} label={_("Priority")}>

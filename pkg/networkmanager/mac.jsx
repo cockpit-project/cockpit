@@ -25,10 +25,12 @@ import {
 
 import { MacMenu, NetworkModal, dialogSave } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';
+import { useDialogs } from "dialogs.jsx";
 
 const _ = cockpit.gettext;
 
-export const MacDialog = ({ connection, dev, setIsOpen, settings }) => {
+export const MacDialog = ({ connection, dev, settings }) => {
+    const Dialogs = useDialogs();
     const idPrefix = "network-mac-settings";
     const model = useContext(ModelContext);
 
@@ -54,7 +56,7 @@ export const MacDialog = ({ connection, dev, setIsOpen, settings }) => {
             connection,
             settings: createSettingsObj(),
             setDialogError,
-            setIsOpen,
+            onClose: Dialogs.close,
         });
 
         // Prevent dialog from closing because of <form> onsubmit event
@@ -68,7 +70,6 @@ export const MacDialog = ({ connection, dev, setIsOpen, settings }) => {
         <NetworkModal dialogError={dialogError}
                       idPrefix={idPrefix}
                       onSubmit={onSubmit}
-                      setIsOpen={setIsOpen}
                       title={_("Ethernet MAC")}
         >
             <FormGroup fieldId={idPrefix + "-mac-input"} label={_("MAC")}>

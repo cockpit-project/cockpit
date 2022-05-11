@@ -60,7 +60,8 @@
  * between these pages is controlled by the browser URL, then each of
  * these pages should have its own WithDialogs wrapper. This way, a
  * dialog opened on one page closes when the user navigates away from
- * that page.
+ * that page. To make sure that React maintains separate states for
+ * WithDialogs components, give them unique "key" properties.
  *
  * A component that wants to show a dialogs needs to get hold of the
  * current "Dialogs" context and then call it's "show" method.  For a

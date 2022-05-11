@@ -27,10 +27,12 @@ import {
 
 import { NetworkModal, dialogSave } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';
+import { useDialogs } from "dialogs.jsx";
 
 const _ = cockpit.gettext;
 
-export const TeamPortDialog = ({ connection, dev, setIsOpen, settings }) => {
+export const TeamPortDialog = ({ connection, dev, settings }) => {
+    const Dialogs = useDialogs();
     const idPrefix = "network-team-port-settings";
     const model = useContext(ModelContext);
 
@@ -65,7 +67,7 @@ export const TeamPortDialog = ({ connection, dev, setIsOpen, settings }) => {
             connection,
             settings: createSettingsObj(),
             setDialogError,
-            setIsOpen,
+            onClose: Dialogs.close,
         });
 
         // Prevent dialog from closing because of <form> onsubmit event
@@ -79,7 +81,6 @@ export const TeamPortDialog = ({ connection, dev, setIsOpen, settings }) => {
         <NetworkModal dialogError={dialogError}
                       idPrefix={idPrefix}
                       onSubmit={onSubmit}
-                      setIsOpen={setIsOpen}
                       title={_("Team port settings")}
         >
             <FormGroup fieldId={idPrefix + "-" + teamMode + "-prio-input"} label={_("Priority")}>

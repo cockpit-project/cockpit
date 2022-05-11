@@ -28,6 +28,7 @@ import {
 
 import { Name, NetworkModal, dialogSave } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';
+import { useDialogs } from "dialogs.jsx";
 
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -37,7 +38,8 @@ import {
 
 const _ = cockpit.gettext;
 
-export const VlanDialog = ({ connection, dev, setIsOpen, settings }) => {
+export const VlanDialog = ({ connection, dev, settings }) => {
+    const Dialogs = useDialogs();
     const idPrefix = "network-vlan-settings";
     const model = useContext(ModelContext);
     const parentChoices = [];
@@ -74,7 +76,7 @@ export const VlanDialog = ({ connection, dev, setIsOpen, settings }) => {
             connection,
             settings: createSettingsObj(),
             setDialogError,
-            setIsOpen,
+            onClose: Dialogs.close,
         });
 
         // Prevent dialog from closing because of <form> onsubmit event
@@ -88,7 +90,6 @@ export const VlanDialog = ({ connection, dev, setIsOpen, settings }) => {
         <NetworkModal dialogError={dialogError}
                       idPrefix={idPrefix}
                       onSubmit={onSubmit}
-                      setIsOpen={setIsOpen}
                       title={_("VLAN settings")}
         >
             <>

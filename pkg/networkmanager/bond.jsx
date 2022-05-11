@@ -30,6 +30,7 @@ import { ExternalLinkSquareAltIcon, HelpIcon } from '@patternfly/react-icons';
 
 import { MacMenu, MemberInterfaceChoices, NetworkModal, Name, dialogSave } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';
+import { useDialogs } from "dialogs.jsx";
 
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -56,7 +57,8 @@ const bond_monitoring_choices =
         { choice: 'arp', title: _("ARP") }
     ];
 
-export const BondDialog = ({ connection, dev, setIsOpen, settings }) => {
+export const BondDialog = ({ connection, dev, settings }) => {
+    const Dialogs = useDialogs();
     const idPrefix = "network-bond-settings";
     const model = useContext(ModelContext);
     const options = settings.bond.options;
@@ -118,7 +120,7 @@ export const BondDialog = ({ connection, dev, setIsOpen, settings }) => {
             membersInit: memberChoicesInit,
             settings: createSettingsObj(),
             setDialogError,
-            setIsOpen,
+            onClose: Dialogs.close,
         });
 
         // Prevent dialog from closing because of <form> onsubmit event
@@ -132,7 +134,6 @@ export const BondDialog = ({ connection, dev, setIsOpen, settings }) => {
         <NetworkModal dialogError={dialogError}
                       idPrefix={idPrefix}
                       onSubmit={onSubmit}
-                      setIsOpen={setIsOpen}
                       title={_("Bond settings")}
                       help={
                           <Popover

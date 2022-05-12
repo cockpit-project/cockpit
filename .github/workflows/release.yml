@@ -25,9 +25,7 @@ jobs:
           echo '${{ secrets.FEDPKG_SSH_PUBLIC }}' > ~/.ssh/id_rsa.pub
           echo '${{ secrets.FEDPKG_SSH_PRIVATE }}' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          echo 'cockpit' > ~/.config/bodhi-user
           echo '${{ secrets.GITHUB_TOKEN }}' > ~/.config/github-token
-          echo '${{ secrets.COCKPIT_FEDORA_PASSWORD }}' > ~/.fedora-password
 
       - name: Run cockpituous
         run: |

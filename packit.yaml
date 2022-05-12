@@ -1,3 +1,4 @@
+upstream_project_url: https://github.com/cockpit-project/cockpit
 actions:
   post-upstream-clone:
     # packit will overwrite the version in its "fix spec file" stage
@@ -13,6 +14,8 @@ srpm_build_deps:
   - glib2-devel
   - make
   - systemd-devel
+# use the nicely formatted release NEWS from our upstream release, instead of git shortlog
+copy_upstream_release_description: true
 jobs:
   - job: tests
     trigger: pull_request
@@ -46,3 +49,27 @@ jobs:
       - fedora-development
       - centos-stream-8-x86_64
       - centos-stream-9-x86_64
+
+  - job: propose_downstream
+    trigger: release
+    metadata:
+      dist_git_branches:
+        - fedora-development
+        - fedora-35
+        - fedora-36
+
+  - job: koji_build
+    trigger: commit
+    metadata:
+      dist_git_branches:
+        - fedora-development
+        - fedora-35
+        - fedora-36
+
+  - job: bodhi_update
+    trigger: commit
+    metadata:
+      dist_git_branches:
+        # rawhide updates are created automatically
+        - fedora-35
+        - fedora-36

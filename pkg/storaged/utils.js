@@ -256,7 +256,7 @@ export function get_block_link_parts(client, path) {
         location = ["vg", target];
         link = cockpit.format(_("LVM2 volume group $0"), target);
     } else {
-        const vdo = client.vdo_overlay.find_by_block(block);
+        const vdo = client.legacy_vdo_overlay.find_by_block(block);
         if (vdo) {
             location = ["vdo", vdo.name];
             link = cockpit.format(_("VDO device $0"), vdo.name);
@@ -404,7 +404,7 @@ export function get_available_spaces(client) {
         }
 
         function is_vdo_backing_dev() {
-            return !!client.vdo_overlay.find_by_backing_block(block);
+            return !!client.legacy_vdo_overlay.find_by_backing_block(block);
         }
 
         return (!block.HintIgnore &&
@@ -480,7 +480,7 @@ export function get_other_devices(client) {
                 (!block_lvm2 || block_lvm2.LogicalVolume == "/") &&
                 !block.HintIgnore &&
                 block.Size > 0 &&
-                !client.vdo_overlay.find_by_block(block) &&
+                !client.legacy_vdo_overlay.find_by_block(block) &&
                 !client.blocks_stratis_fsys[block.path] &&
                 !is_snap(client, block));
     });
@@ -623,7 +623,7 @@ export function get_active_usage(client, path, top_action, child_action) {
         const mdraid = block && client.mdraids[block.MDRaidMember];
         const pvol = client.blocks_pvol[path];
         const vgroup = pvol && client.vgroups[pvol.VolumeGroup];
-        const vdo = block && client.vdo_overlay.find_by_backing_block(block);
+        const vdo = block && client.legacy_vdo_overlay.find_by_backing_block(block);
         const stratis_blockdev = block && client.blocks_stratis_blockdev[path];
         const stratis_pool = stratis_blockdev && client.stratis_pools[stratis_blockdev.Pool];
 

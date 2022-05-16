@@ -65,7 +65,7 @@ export function initial_tab_options(client, block, for_fstab) {
             options._netdev = true;
         }
         // HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1589541
-        if (client.vdo_overlay.find_by_block(client.blocks[p])) {
+        if (client.legacy_vdo_overlay.find_by_block(client.blocks[p])) {
             options._netdev = true;
             options["x-systemd.device-timeout=0"] = true;
             if (for_fstab)
@@ -319,7 +319,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                     options.label = { t: 's', v: vals.name };
 
                 // HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1516041
-                if (client.vdo_overlay.find_by_block(block)) {
+                if (client.legacy_vdo_overlay.find_by_block(block)) {
                     options['no-discard'] = { t: 'b', v: true };
                 }
 

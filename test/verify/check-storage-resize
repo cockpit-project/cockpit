@@ -80,7 +80,7 @@ class TestStorageResize(StorageCase):
             self.dialog_wait_close()
             # HACK - https://github.com/storaged-project/udisks/pull/631
             m.execute("udevadm trigger")
-            self.content_tab_wait_in_info(1, 1, "Size", "400 MiB" if m.image == "rhel-8-6-distropkg" else "398 MB")
+            self.content_tab_wait_in_info(1, 1, "Size", "400 MiB" if m.image in ["rhel-8-6-distropkg", "rhel-8-7-distropkg"] else "398 MB")
             if grow_needs_unmount:
                 self.content_row_action(fsys_row, "Mount")
                 self.confirm()
@@ -104,7 +104,7 @@ class TestStorageResize(StorageCase):
             self.dialog_wait_close()
             # HACK - https://github.com/storaged-project/udisks/pull/631
             m.execute("udevadm trigger")
-            self.content_tab_wait_in_info(1, 1, "Size", "200 MiB" if m.image == "rhel-8-6-distropkg" else "201 MB")
+            self.content_tab_wait_in_info(1, 1, "Size", "200 MiB" if m.image in ["rhel-8-6-distropkg", "rhel-8-7-distropkg"] else "201 MB")
             if shrink_needs_unmount:
                 self.content_row_action(fsys_row, "Mount")
                 self.confirm()
@@ -124,7 +124,7 @@ class TestStorageResize(StorageCase):
                          can_shrink=False,
                          can_grow=True, grow_needs_unmount=False)
 
-    @skipImage("No NTFS support installed", "rhel-8-6", "rhel-8-6-distropkg", "rhel-9-0", "rhel-9-1", "centos-8-stream")
+    @skipImage("No NTFS support installed", "rhel-8-6", "rhel-8-6-distropkg", "rhel-8-7", "rhel-8-7-distropkg", "rhel-9-0", "rhel-9-1", "centos-8-stream")
     def testResizeNtfs(self):
         self.checkResize("ntfs", False,
                          can_shrink=True, shrink_needs_unmount=True,

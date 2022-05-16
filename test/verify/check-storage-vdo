@@ -30,7 +30,7 @@ import testvm
 SIZE_10G = "10000000000"
 
 
-@skipImage("cockpit 266 changed base-2 to base-10 units, too much hassle to make this work for both", "rhel-8-6-distropkg")
+@skipImage("cockpit 266 changed base-2 to base-10 units, too much hassle to make this work for both", "rhel-8-6-distropkg", "rhel-8-7-distropkg")
 class TestStorageVDO(StorageCase):
 
     def testVdo(self):
@@ -177,7 +177,7 @@ class TestStorageVDO(StorageCase):
 
 @unittest.skipUnless(testvm.DEFAULT_IMAGE.startswith("rhel-8") or testvm.DEFAULT_IMAGE.startswith("centos-8"),
                      "legacy VDO API only supported on RHEL 8")
-@skipImage("cockpit 266 changed base-2 to base-10 units, too much hassle to make this work for both", "rhel-8-6-distropkg")
+@skipImage("cockpit 266 changed base-2 to base-10 units, too much hassle to make this work for both", "rhel-8-6-distropkg", "rhel-8-7-distropkg")
 class TestStorageLegacyVDO(StorageCase):
 
     def testVdo(self):

@@ -54,8 +54,7 @@ const UnlockDialog = ({ proxy, host }) => {
         setBusy(true);
         setCancel(() => () => {
             proxy.Stop();
-            setBusy(true);
-            setCancel(null);
+            D.close();
         });
 
         let did_prompt = false;

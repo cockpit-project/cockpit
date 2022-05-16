@@ -858,9 +858,9 @@ export class VGroup extends React.Component {
             ];
 
             const vdo_package = client.get_config("vdo_package", null);
-            const need_vdo_install = vdo_package && !client.features.legacy_vdo;
+            const need_vdo_install = vdo_package && !(client.features.lvm_create_vdo || client.features.legacy_vdo);
 
-            if (client.features.legacy_vdo || vdo_package)
+            if (client.features.lvm_create_vdo || client.features.legacy_vdo || vdo_package)
                 purposes.push({ value: "vdo", title: _("VDO filesystem volume (compression/deduplication)") });
 
             dialog_open({

@@ -19,14 +19,13 @@
 
 import parent
 import re
+import unittest
 
 from packagelib import *
 from storagelib import *
 from testlib import *
+import testvm
 
-
-# vdo only exists on RHEL
-SUPPORTED_OS = ["centos-8-stream", "rhel-8-6", "rhel-8-6-distropkg"]
 
 SIZE_10G = "10000000000"
 
@@ -54,7 +53,8 @@ class TestStorageVDO(StorageCase):
         self.dialog_wait_open()
         b._wait_present("[data-field='purpose'] select option[value='block']")
 
-        if m.image not in SUPPORTED_OS:
+        # vdo only exists on RHEL
+        if not m.image.startswith("rhel") and not m.image.startswith("centos"):
             b.wait_not_present("[data-field='purpose'] select option[value='vdo']")
             return
 
@@ -176,7 +176,8 @@ class TestStorageVDO(StorageCase):
         b.wait_in_text("#detail-content", "No logical volumes")
 
 
-@skipImage("no matching kmod-kvdo package yet on RHEL 9", "rhel-9-0", "rhel-9-1")
+@unittest.skipUnless(testvm.DEFAULT_IMAGE.startswith("rhel-8") or testvm.DEFAULT_IMAGE.startswith("centos-8"),
+                     "legacy VDO API only supported on RHEL 8")
 @skipImage("cockpit 266 changed base-2 to base-10 units, too much hassle to make this work for both", "rhel-8-6-distropkg")
 class TestStorageLegacyVDO(StorageCase):
 
@@ -185,9 +186,6 @@ class TestStorageLegacyVDO(StorageCase):
         b = self.browser
 
         self.login_and_go("/storage")
-
-        if m.image not in SUPPORTED_OS:
-            return
 
         b.wait_visible("#devices")
 
@@ -266,9 +264,6 @@ class TestStorageLegacyVDO(StorageCase):
 
         self.login_and_go("/storage")
 
-        if m.image not in SUPPORTED_OS:
-            return
-
         b.wait_visible("#devices")
 
         m.add_disk(SIZE_10G, serial="DISK1")
@@ -320,9 +315,6 @@ config: !Configuration
         b = self.browser
 
         self.login_and_go("/storage")
-
-        if m.image not in SUPPORTED_OS:
-            return
 
         b.wait_visible("#devices")
 
@@ -409,14 +401,13 @@ config: !Configuration
         b.wait_in_text("#devices", "vdo1")
 
 
+@unittest.skipUnless(testvm.DEFAULT_IMAGE.startswith("rhel") or testvm.DEFAULT_IMAGE.startswith("centos"),
+                     "VDO API only supported on RHEL")
 class TestStoragePackagesVDO(PackageCase, StorageHelpers):
 
     def testVdoMissingPackages(self):
         m = self.machine
         b = self.browser
-
-        if m.image not in SUPPORTED_OS:
-            self.skipTest("No vdo available")
 
         m.execute("pkcon remove -y vdo")
         m.execute("pkcon refresh")

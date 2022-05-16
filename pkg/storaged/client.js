@@ -463,6 +463,12 @@ function init_model(callback) {
             });
     }
 
+    function enable_lvm_create_vdo_feature() {
+        return cockpit.spawn(["vdoformat", "--version"], { err: "ignore" })
+                .then(() => { client.features.lvm_create_vdo = true; return Promise.resolve() })
+                .catch(() => Promise.resolve());
+    }
+
     function enable_legacy_vdo_features() {
         return client.legacy_vdo_overlay.start().then(
             function (success) {
@@ -521,6 +527,7 @@ function init_model(callback) {
                 .then(enable_nfs_features)
                 .then(enable_pk_features)
                 .then(enable_stratis_feature)
+                .then(enable_lvm_create_vdo_feature)
                 .then(enable_legacy_vdo_features));
     }
 

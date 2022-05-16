@@ -30,7 +30,6 @@ import testvm
 SIZE_10G = "10000000000"
 
 
-@skipImage("no matching kmod-kvdo package yet on RHEL 9", "rhel-9-0", "rhel-9-1")
 @skipImage("cockpit 266 changed base-2 to base-10 units, too much hassle to make this work for both", "rhel-8-6-distropkg")
 class TestStorageVDO(StorageCase):
 

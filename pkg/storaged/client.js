@@ -463,10 +463,11 @@ function init_model(callback) {
             });
     }
 
-    function enable_vdo_features() {
-        return client.vdo_overlay.start().then(
+    function enable_legacy_vdo_features() {
+        return client.legacy_vdo_overlay.start().then(
             function (success) {
-                client.features.vdo = success;
+                // hack here
+                client.features.legacy_vdo = success;
                 return cockpit.resolve();
             },
             function () {
@@ -520,7 +521,7 @@ function init_model(callback) {
                 .then(enable_nfs_features)
                 .then(enable_pk_features)
                 .then(enable_stratis_feature)
-                .then(enable_vdo_features));
+                .then(enable_legacy_vdo_features));
     }
 
     function query_fsys_info() {
@@ -723,9 +724,9 @@ function nfs_mounts() {
 
 client.nfs = nfs_mounts();
 
-/* VDO */
+/* Legacy VDO CLI (RHEL 8), unsupported; newer versions use VDO through LVM API */
 
-function vdo_overlay() {
+function legacy_vdo_overlay() {
     const self = {
         start: start,
 
@@ -889,7 +890,7 @@ function vdo_overlay() {
     return self;
 }
 
-client.vdo_overlay = vdo_overlay();
+client.legacy_vdo_overlay = legacy_vdo_overlay();
 
 /* Stratis */
 

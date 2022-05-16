@@ -73,14 +73,14 @@ function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
         if (!cleartext)
             return;
         fsys = client.blocks_fsys[cleartext.path];
-        vdo = client.vdo_overlay.find_by_backing_block(cleartext);
+        vdo = client.legacy_vdo_overlay.find_by_backing_block(cleartext);
         if (crypto.MetadataSize !== undefined)
             crypto_overhead = crypto.MetadataSize;
         else
             crypto_overhead = block.Size - cleartext.Size;
     } else {
         fsys = client.blocks_fsys[block.path];
-        vdo = client.vdo_overlay.find_by_backing_block(block);
+        vdo = client.legacy_vdo_overlay.find_by_backing_block(block);
         crypto_overhead = 0;
     }
 
@@ -193,7 +193,7 @@ function get_resize_info(client, block, to_fit) {
         } else if (block.IdUsage == 'raid') {
             info = { };
             shrink_excuse = grow_excuse = _("Physical volumes can not be resized here.");
-        } else if (client.vdo_overlay.find_by_backing_block(block)) {
+        } else if (client.legacy_vdo_overlay.find_by_backing_block(block)) {
             info = {
                 can_shrink: false,
                 can_grow: true,
@@ -332,7 +332,7 @@ function lvol_shrink(client, lvol, info, to_fit) {
         if (fsys)
             shrink_size = fsys.Size + crypto_overhead;
 
-        const vdo = client.vdo_overlay.find_by_backing_block(client.blocks[content_path]);
+        const vdo = client.legacy_vdo_overlay.find_by_backing_block(client.blocks[content_path]);
         if (vdo)
             shrink_size = vdo.physical_size + crypto_overhead;
 

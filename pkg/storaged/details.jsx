@@ -108,7 +108,7 @@ export class Details extends React.Component {
                 body = <MDRaidDetails client={client} mdraid={mdraid} />;
             }
         } else if (this.props.type == "vdo") {
-            const vdo = client.vdo_overlay.by_name[this.props.name];
+            const vdo = client.legacy_vdo_overlay.by_name[this.props.name];
             if (vdo) {
                 name = vdo.name;
                 body = <VDODetails client={client} vdo={vdo} />;

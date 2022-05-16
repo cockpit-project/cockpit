@@ -80,7 +80,7 @@ export class MDRaidMemberTab extends React.Component {
 
 export class VDOBackingTab extends React.Component {
     render() {
-        const vdo = this.props.client.vdo_overlay.find_by_backing_block(this.props.block);
+        const vdo = this.props.client.legacy_vdo_overlay.find_by_backing_block(this.props.block);
 
         return (
             <DescriptionList className="pf-m-horizontal-on-sm">

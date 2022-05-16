@@ -39,6 +39,6 @@ export function vdo_rows(client) {
     function cmp_vdo(a, b) {
         return a.name.localeCompare(b.Name);
     }
-    return client.vdo_overlay.volumes.sort(cmp_vdo)
+    return client.legacy_vdo_overlay.volumes.sort(cmp_vdo)
             .map(vdo => vdo_row(client, vdo));
 }

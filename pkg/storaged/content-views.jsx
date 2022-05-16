@@ -222,7 +222,7 @@ function create_tabs(client, target, is_partition, is_extended) {
     if (is_filesystem) {
         add_tab(_("Filesystem"), FilesystemTab, true, ["mismounted-fsys"]);
     } else if (content_block && (content_block.IdUsage == "raid" ||
-                                 client.vdo_overlay.find_by_backing_block(content_block))) {
+                                 client.legacy_vdo_overlay.find_by_backing_block(content_block))) {
         // no tab for these
     } else if (content_block && content_block.IdUsage == "other" && content_block.IdType == "swap") {
         add_tab(_("Swap"), SwapTab, true);
@@ -428,7 +428,7 @@ function block_description(client, block) {
     let type, used_for, link, size, critical_size;
     const block_stratis_blockdev = client.blocks_stratis_blockdev[block.path];
     const block_stratis_locked_pool = client.blocks_stratis_locked_pool[block.path];
-    const vdo = client.vdo_overlay.find_by_backing_block(block);
+    const vdo = client.legacy_vdo_overlay.find_by_backing_block(block);
     const cleartext = client.blocks_cleartext[block.path];
     if (cleartext)
         block = cleartext;
@@ -858,9 +858,9 @@ export class VGroup extends React.Component {
             ];
 
             const vdo_package = client.get_config("vdo_package", null);
-            const need_vdo_install = vdo_package && !client.features.vdo;
+            const need_vdo_install = vdo_package && !client.features.legacy_vdo;
 
-            if (client.features.vdo || vdo_package)
+            if (client.features.legacy_vdo || vdo_package)
                 purposes.push({ value: "vdo", title: _("VDO filesystem volume (compression/deduplication)") });
 
             dialog_open({

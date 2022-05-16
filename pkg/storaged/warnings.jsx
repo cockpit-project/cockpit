@@ -71,7 +71,7 @@ export function find_warnings(client) {
 
         const fsys = client.blocks_fsys[content_path];
         const content_block = client.blocks[content_path];
-        const vdo = content_block ? client.vdo_overlay.find_by_backing_block(content_block) : null;
+        const vdo = content_block ? client.legacy_vdo_overlay.find_by_backing_block(content_block) : null;
 
         if (fsys && fsys.Size && (lvol.Size - fsys.Size - crypto_overhead) > vgroup.ExtentSize && fsys.Resize) {
             enter_warning(path, {

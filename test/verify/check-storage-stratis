@@ -33,7 +33,7 @@ class TestStorageStratis(StorageCase):
 
         self.login_and_go("/storage")
 
-        if m.image == "rhel-8-6-distropkg":
+        if m.image in ["rhel-8-6-distropkg", "rhel-8-7-distropkg"]:
             SIZE_4GB = 4 * 1024 * 1024 * 1024
         else:
             SIZE_4GB = 4 * 1000000000
@@ -65,7 +65,7 @@ class TestStorageStratis(StorageCase):
         self.dialog_wait_close()
 
         b.wait_in_text("#devices", "pool0")
-        if m.image == "rhel-8-6-distropkg":
+        if m.image in ["rhel-8-6-distropkg", "rhel-8-7-distropkg"]:
             b.wait_in_text("#devices", "8 GiB Stratis pool")
         else:
             b.wait_in_text("#devices", "8 GB Stratis pool")
@@ -376,7 +376,7 @@ class TestStorageStratis(StorageCase):
 
 
 @skipImage("No Stratis", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2204", "arch")
-@skipImage("No Stratis on demand", "rhel-9-0", "rhel-9-1", "rhel-8-6")
+@skipImage("No Stratis on demand", "rhel-9-0", "rhel-9-1", "rhel-8-6", "rhel-8-7")
 class TestStoragePackagesStratis(PackageCase, StorageCase):
 
     def testStratisOndemandInstallation(self):

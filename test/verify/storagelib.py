@@ -76,7 +76,7 @@ class StorageHelpers:
         # It would be nicer to remove $F immediately after the call to
         # losetup, but that will break some versions of lvm2.
         # PR#17163 moved units from base-2 to base-10
-        bs = 1048576 if self.image == 'rhel-8-6-distropkg' else 1000000
+        bs = 1048576 if self.image in ['rhel-8-6-distropkg', 'rhel-8-7-distropkg'] else 1000000
         dev = self.machine.execute("set -e; F=$(mktemp /var/tmp/loop.XXXX); "
                                    f"dd if=/dev/zero of=$F bs={bs} count=%s; "
                                    "losetup --show %s $F" % (size, name if name else "--find")).strip()
@@ -263,7 +263,7 @@ class StorageHelpers:
                 self.browser.set_checked(f'{sel} :contains("{label}") input', val)
         elif ftype == "size-slider":
             # PR#17163 moved units from base-2 to base-10
-            self.browser.set_val(sel + " .size-unit", "1048576" if self.image == 'rhel-8-6-distropkg' else "1000000")
+            self.browser.set_val(sel + " .size-unit", "1048576" if self.image in ['rhel-8-6-distropkg', 'rhel-8-7-distropkg'] else "1000000")
             self.browser.set_input_text(sel + " .size-text", str(val))
         elif ftype == "select":
             self.browser.set_val(sel + " select", val)
@@ -298,7 +298,7 @@ class StorageHelpers:
     def dialog_wait_val(self, field, val, unit=None):
         if unit is None:
             # PR#17163 moved units from base-2 to base-10
-            unit = "1048576" if self.image == 'rhel-8-6-distropkg' else "1000000"
+            unit = "1048576" if self.image in ['rhel-8-6-distropkg', 'rhel-8-7-distropkg'] else "1000000"
 
         sel = self.dialog_field(field)
         ftype = self.browser.attr(sel, "data-field-type")

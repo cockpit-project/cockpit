@@ -557,7 +557,7 @@ class TestConnection(MachineCase):
 
         def checkMotdContent(string, expected=True):
             # Needs https://github.com/linux-pam/linux-pam/pull/292 (or PAM 1.5.0)
-            old_pam = (m.image in ['centos-8-stream', 'debian-stable', 'debian-testing', 'ubuntu-2204', 'ubuntu-stable', 'rhel-8-6'])
+            old_pam = (m.image in ['centos-8-stream', 'debian-stable', 'debian-testing', 'ubuntu-2204', 'ubuntu-stable', 'rhel-8-6', 'rhel-8-7'])
 
             # check issue (should be exactly the same as motd)
             assertInOrNot(string, m.execute("cat /etc/issue.d/cockpit.issue"), expected)
@@ -1074,7 +1074,7 @@ ProtocolHeader = X-Forwarded-Proto
         b.logout()
 
     @skipImage("nginx not installed", "centos-8-stream", "debian-stable", "debian-testing", "fedora-coreos",
-               "rhel-8-6", "rhel-9-0", "rhel-9-1", "ubuntu-stable", "ubuntu-2204", "arch")
+               "rhel-8-6", "rhel-8-7", "rhel-9-0", "rhel-9-1", "ubuntu-stable", "ubuntu-2204", "arch")
     @skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testNginxTLS(self):
         '''test proxying to Cockpit with TLS
@@ -1158,7 +1158,7 @@ server {
         b.wait_visible('article.system-health')
 
     @skipImage("nginx not installed", "centos-8-stream", "debian-stable", "debian-testing", "fedora-coreos",
-               "rhel-8-6", "rhel-9-0", "rhel-9-1", "ubuntu-stable", "ubuntu-2204", "arch")
+               "rhel-8-6", "rhel-8-7", "rhel-9-0", "rhel-9-1", "ubuntu-stable", "ubuntu-2204", "arch")
     @skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testNginxNoTLS(self):
         '''test proxying to Cockpit with plain HTTP

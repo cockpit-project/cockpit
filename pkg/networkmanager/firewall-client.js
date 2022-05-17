@@ -23,7 +23,7 @@ import { debounce } from 'throttle-debounce';
 import * as utils from './utils';
 
 const firewall = {
-    owner: null,
+    owner: undefined,
     installed: true,
     enabled: false,
     readonly: true,
@@ -38,6 +38,7 @@ const firewall = {
         'dmz', 'work', 'home', 'internal', 'trusted'],
     defaultZone: null,
     availableInterfaces: [],
+    ready: false
 };
 
 cockpit.event_target(firewall);
@@ -71,7 +72,7 @@ function initFirewalldDbus() {
     firewalld_dbus = cockpit.dbus('org.fedoraproject.FirewallD1', { superuser: "try" });
 
     firewalld_dbus.addEventListener('owner', (event, owner) => {
-        if (firewall.owner == owner)
+        if (firewall.owner === owner)
             return;
 
         firewall.owner = owner;
@@ -83,14 +84,16 @@ function initFirewalldDbus() {
         firewall.enabledServices = new Set();
 
         if (!firewall.enabled) {
+            firewall.ready = true;
             firewall.dispatchEvent('changed');
             return;
         }
 
         getZones()
                 .then(() => getServices())
-                .then(() => firewall.debouncedEvent('changed'))
-                .catch(error => console.warn(error));
+                .catch(error => console.warn(error))
+                .then(() => { firewall.ready = true })
+                .then(() => firewall.debouncedEvent('changed'));
     });
 
     firewalld_dbus.subscribe({

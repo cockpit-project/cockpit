@@ -22,6 +22,23 @@
     }
 }
 
+/* Fix overflow issue with tabs, especially seen in small sizes, like mobile
+seen in:
+- https://github.com/cockpit-project/cockpit-podman/pull/897#issuecomment-1127637202
+- https://github.com/patternfly/patternfly/issues/1625
+- https://github.com/patternfly/patternfly/pull/2757
+- https://github.com/patternfly/patternfly/issues/4800
+- https://github.com/patternfly/patternfly-design/issues/840
+- https://github.com/patternfly/patternfly-design/issues/1034
+- https://github.com/cockpit-project/cockpit-podman/issues/845
+
+This disables the large and halfway useless overflow buttons and causes the tabs
+to wrap around when there isn't enough space.
+*/
+.pf-c-tabs__list {
+    flex-wrap: wrap;
+}
+
 ul.pf-c-select__menu {
     max-width: 20rem;
     max-height: 20rem;

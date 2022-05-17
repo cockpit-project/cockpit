@@ -959,6 +959,9 @@ export class Firewall extends React.Component {
             />;
         }
 
+        if (!this.state.firewall.ready)
+            return <EmptyStatePanel loading />;
+
         const addZoneAction = (
             <Button variant="primary" onClick={this.openAddZoneDialog} id="add-zone-button" aria-label={_("Add a new zone")}>
                 {_("Add new zone")}

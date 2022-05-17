@@ -17,40 +17,150 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import '../lib/patternfly/patternfly-4-cockpit.scss';
+import './sosreport.scss';
+import "polyfills";
+
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import {
     Alert,
     Button,
     CodeBlockCode,
-    EmptyState,
-    EmptyStateVariant,
-    EmptyStateBody,
     Modal,
-    Progress,
+    Card,
+    CardBody,
+    Page,
+    PageSection,
+    PageSectionVariants,
+    Flex,
+    Label,
+    LabelGroup,
+    Dropdown,
+    DropdownItem,
+    KebabToggle,
+    Form,
+    FormGroup,
+    InputGroup,
+    TextInput,
+    Checkbox,
+    CardHeader,
+    CardTitle,
+    CardActions,
+    Text,
+    TextVariants
 } from "@patternfly/react-core";
+import { EyeIcon, EyeSlashIcon } from '@patternfly/react-icons';
+
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+import { ListingTable } from "cockpit-components-table.jsx";
 
 import cockpit from "cockpit";
 import { superuser } from "superuser";
 import { useObject, useEvent } from "hooks";
 
-import "../lib/patternfly/patternfly-4-cockpit.scss";
-import "page.scss";
+import { SuperuserButton } from "../shell/superuser.jsx";
+
+import { fmt_to_fragments } from "utils.jsx";
+import * as timeformat from "timeformat";
+import { WithDialogs, useDialogs } from "dialogs.jsx";
 
 const _ = cockpit.gettext;
 
-function sosCreate(setProgress, setError, setErrorDetail) {
+function sosLister() {
+    const self = {
+        ready: false,
+        problem: null,
+        reports: {}
+    };
+
+    cockpit.event_target(self);
+
+    function emit_changed() {
+        self.dispatchEvent("changed");
+    }
+
+    function parse_report_name(path) {
+        const basename = path.replace(/.*\//, "");
+        const archive_rx = /^(secured-)?sosreport-(.*)\.tar\.[^.]+(\.gpg)?$/;
+        const m = basename.match(archive_rx);
+        if (m) {
+            let name = m[2];
+            let obfuscated = false;
+            if (name.endsWith("-obfuscated")) {
+                obfuscated = true;
+                name = name.replace(/-obfuscated$/, "");
+            }
+
+            return {
+                encrypted: !!m[1],
+                obfuscated: obfuscated,
+                name: name
+            };
+        }
+    }
+
+    function update_reports() {
+        cockpit.script('find /var/tmp -maxdepth 1 -name \'*sosreport-*.tar.*\' -print0 | xargs -0 -r stat --printf="%n\\r%W\\n"', { superuser: true, err: "message" })
+                .then(output => {
+                    const reports = { };
+                    const lines = output.split("\n");
+                    for (const line of lines) {
+                        const [path, date] = line.split("\r");
+                        const report = parse_report_name(path);
+                        if (report) {
+                            report.date = Number(date);
+                            reports[path] = report;
+                        }
+                    }
+                    self.reports = reports;
+                    self.ready = true;
+                    emit_changed();
+                })
+                .catch(err => {
+                    self.problem = err.problem || err.message;
+                    self.ready = true;
+                    emit_changed();
+                });
+    }
+
+    let watch = null;
+
+    function restart() {
+        if (superuser.allowed === null)
+            return;
+
+        if (watch)
+            watch.close("cancelled");
+        self.ready = false;
+        self.problem = null;
+        watch = null;
+
+        watch = cockpit.channel({ payload: "fslist1", path: "/var/tmp", superuser: true });
+        watch.addEventListener("message", (event, payload) => {
+            const msg = JSON.parse(payload);
+            if (msg.event != "present" && parse_report_name(msg.path))
+                update_reports();
+        });
+
+        update_reports();
+    }
+
+    restart();
+    superuser.addEventListener("changed", restart);
+    return self;
+}
+
+function sosCreate(args, setProgress, setError, setErrorDetail) {
     let output = "";
     let plugins_count = 0;
     const progress_regex = /Running ([0-9]+)\/([0-9]+):/; // Only for sos < 3.6
     const finishing_regex = /Finishing plugins.*\[Running: (.*)\]/;
     const starting_regex = /Starting ([0-9]+)\/([0-9]+).*\[Running: (.*)\]/;
-    const archive_regex = /Your sosreport has been generated and saved in:\s+(\/[^\r\n]+)/;
 
     // TODO - Use a real API instead of scraping stdout once such an API exists
-    const task = cockpit.spawn(["sos", "report", "--batch"], { superuser: true, err: "out", pty: true });
-
-    task.archive_url = null;
+    const task = cockpit.spawn(["sos", "report", "--batch"].concat(args),
+                               { superuser: true, err: "out", pty: true });
 
     task.stream(text => {
         let p = 0;
@@ -78,37 +188,6 @@ function sosCreate(setProgress, setError, setErrorDetail) {
         setProgress(p);
     });
 
-    task.then(() => {
-        const m = archive_regex.exec(output);
-        if (m) {
-            let archive = m[1];
-            const basename = archive.replace(/.*\//, "");
-
-            // When running sosreport in a container, the archive path needs to be adjusted
-            //
-            if (archive.indexOf("/host") === 0)
-                archive = archive.substr(5);
-
-            const query = window.btoa(JSON.stringify({
-                payload: "fsread1",
-                binary: "raw",
-                path: archive,
-                superuser: true,
-                max_read_size: 150 * 1024 * 1024,
-                external: {
-                    "content-disposition": 'attachment; filename="' + basename + '"',
-                    "content-type": "application/x-xz, application/octet-stream"
-                }
-            }));
-            const prefix = (new URL(cockpit.transport.uri("channel/" + cockpit.transport.csrf_token))).pathname;
-            task.archive_url = prefix + '?' + query;
-            setProgress(100);
-        } else {
-            setError(_("No archive has been created."));
-            setErrorDetail(output);
-        }
-    });
-
     task.catch(error => {
         setError(error.toString());
         setErrorDetail(output);
@@ -117,94 +196,348 @@ function sosCreate(setProgress, setError, setErrorDetail) {
     return task;
 }
 
-function sosDownload(task, setError, onClose) {
-    // We download via a hidden iframe to get better control over the error cases
-    const iframe = document.createElement("iframe");
-    iframe.setAttribute("src", task.archive_url);
-    iframe.setAttribute("hidden", "hidden");
-    iframe.addEventListener("load", () => {
-        const title = iframe.contentDocument.title;
-        if (title)
-            setError(title);
-        else
-            onClose();
+function sosDownload(path) {
+    const basename = path.replace(/.*\//, "");
+    const query = window.btoa(JSON.stringify({
+        payload: "fsread1",
+        binary: "raw",
+        path: path,
+        superuser: true,
+        max_read_size: 150 * 1024 * 1024,
+        external: {
+            "content-disposition": 'attachment; filename="' + basename + '"',
+            "content-type": "application/x-xz, application/octet-stream"
+        }
+    }));
+    const prefix = (new URL(cockpit.transport.uri("channel/" + cockpit.transport.csrf_token))).pathname;
+    const url = prefix + '?' + query;
+    return new Promise((resolve, reject) => {
+        // We download via a hidden iframe to get better control over the error cases
+        const iframe = document.createElement("iframe");
+        iframe.setAttribute("src", url);
+        iframe.setAttribute("hidden", "hidden");
+        iframe.addEventListener("load", () => {
+            const title = iframe.contentDocument.title;
+            if (title) {
+                reject(title);
+            } else {
+                resolve();
+            }
+        });
+        document.body.appendChild(iframe);
     });
-    document.body.appendChild(iframe);
 }
 
-const SOSDialog = ({ onClose }) => {
-    const [progress, setProgress] = useState(0);
+function sosRemove(path) {
+    return cockpit.script(cockpit.format("rm -f '$0' '$0'.*", path), { superuser: true, err: "message" });
+}
+
+const SOSDialog = () => {
+    const Dialogs = useDialogs();
+    const [label, setLabel] = useState("");
+    const [passphrase, setPassphrase] = useState("");
+    const [showPassphrase, setShowPassphrase] = useState(false);
+    const [obfuscate, setObfuscate] = useState(false);
+    const [verbose, setVerbose] = useState(false);
+    const [task, setTask] = useState(null);
+    const [progress, setProgress] = useState(null);
     const [error, setError] = useState(null);
     const [errorDetail, setErrorDetail] = useState(null);
 
-    const task = useObject(() => sosCreate(setProgress, setError, setErrorDetail),
-                           task => task.close(),
-                           []);
+    function run() {
+        setError(null);
+        setProgress(null);
+
+        const args = [];
+
+        if (label) {
+            args.push("--label");
+            args.push(label);
+        }
+
+        if (passphrase) {
+            args.push("--encrypt-pass");
+            args.push(passphrase);
+        }
+
+        if (obfuscate) {
+            args.push("--clean");
+        }
+
+        if (verbose) {
+            args.push("-vvv");
+        }
+
+        const task = sosCreate(args, setProgress, err => { if (err == "cancelled") Dialogs.close(); else setError(err); },
+                               setErrorDetail);
+        setTask(task);
+        task.then(Dialogs.close);
+        task.finally(() => setTask(null));
+    }
 
     const actions = [];
+    actions.push(<Button key="run" isLoading={!!task} isDisabled={!!task} onClick={run}>
+        {_("Run report")}
+    </Button>);
+    if (task)
+        actions.push(<Button key="stop" variant="secondary" onClick={() => task.close("cancelled")}>
+            {_("Stop report")}
+        </Button>);
+    else
+        actions.push(<Button key="cancel" variant="link" onClick={Dialogs.close}>
+            {_("Cancel")}
+        </Button>);
 
-    if (task.archive_url) {
-        // success
-        actions.push(
-            <Button id="sos-download" key="download" variant="primary" onClick={ () => sosDownload(task, setError, onClose) }>
-                { _("Download report") }
-            </Button>);
-    } else if (!error && progress < 100) {
-        // in progress
-        actions.push(<Button id="sos-cancel" key="cancel" variant="secondary" onClick={ () => {
-            task.close("cancelled");
-            onClose();
-        } }>{ _("Cancel") }</Button>);
-    } else {
-        // error
-        actions.push(<Button key="close" variant="secondary" onClick={onClose}>{ _("Close") }</Button>);
-    }
-
-    let content;
-    if (error) {
-        content = <Alert variant="warning" isInline title={error}><CodeBlockCode>{errorDetail}</CodeBlockCode></Alert>;
-    } else {
-        content = (
-            <>
-                <Alert variant="info" isInline
-                       title={ _("The generated archive contains data considered sensitive and its content should be reviewed by the originating organization before being passed to any third party.") } />
-
-                <Progress id="sos-progress" value={progress} title={ progress == 100 ? _("Done!") : _("Generating report") } />
+    return <Modal id="sos-dialog"
+                  position="top"
+                  variant="medium"
+                  isOpen
+                  onClose={Dialogs.close}
+                  footer={
+                      <>
+                          {actions}
+                          {progress ? <span>{cockpit.format(_("Progress: $0"), progress.toFixed() + "%")}</span> : null}
+                      </>
+                  }
+                  title={ _("Run new report") }>
+        { error
+            ? <>
+                <Alert variant="warning" isInline title={error}>
+                    <CodeBlockCode>{errorDetail}</CodeBlockCode>
+                </Alert>
+                <br />
             </>
-        );
+            : null }
+        <p>{ _("SOS reporting collects system information to help with diagnosing problems.") }</p>
+        <p>{ _("This information is stored only on the system.") }</p>
+        <br />
+        <Form isHorizontal>
+            <FormGroup label={_("Report label")}>
+                <TextInput id="sos-dialog-ti-1" value={label} onChange={setLabel} />
+            </FormGroup>
+            <FormGroup label={_("Encryption passphrase")}
+                       helperText={_("Leave empty to skip encryption")}>
+                <InputGroup>
+                    <TextInput type={showPassphrase ? "text" : "password"} value={passphrase} onChange={setPassphrase}
+                               id="sos-dialog-ti-2" autoComplete="new-password" />
+                    <Button variant="control" onClick={() => setShowPassphrase(!showPassphrase)}>
+                        { showPassphrase ? <EyeSlashIcon /> : <EyeIcon /> }
+                    </Button>
+                </InputGroup>
+            </FormGroup>
+            <FormGroup label={_("Options")} hasNoPaddingTop>
+                <Checkbox label={_("Obfuscate network addresses, hostnames, and usernames")}
+                          id="sos-dialog-cb-1" isChecked={obfuscate} onChange={setObfuscate} />
+                <Checkbox label={_("Use verbose logging")}
+                          id="sos-dialog-cb-2" isChecked={verbose} onChange={setVerbose} />
+            </FormGroup>
+        </Form>
+    </Modal>;
+};
+
+const SOSRemoveDialog = ({ path }) => {
+    const Dialogs = useDialogs();
+    const [task, setTask] = useState(null);
+    const [error, setError] = useState(null);
+
+    function remove() {
+        setError(null);
+        setTask(sosRemove(path)
+                .then(Dialogs.close)
+                .catch(err => {
+                    setTask(null);
+                    setError(err.toString());
+                }));
     }
 
-    return <Modal id="sos-dialog" position="top" variant="medium" isOpen onClose={onClose} actions={actions}
-                  title={ _("Create diagnostic report") }>{content}</Modal>;
+    return (
+        <Modal id="sos-remove-dialog"
+               position="top"
+               variant="medium"
+               isOpen
+               onClose={Dialogs.close}
+               title={_("Delete report permanently?")}
+               titleIconVariant="warning"
+               actions={[
+                   <Button key="apply"
+                           variant="danger"
+                           onClick={remove}
+                           isLoading={!!task}
+                           isDisabled={!!task}>
+                       {_("Delete")}
+                   </Button>,
+                   <Button key="cancel"
+                           onClick={Dialogs.close}
+                           isDisabled={!!task}
+                           variant="link">
+                       {_("Cancel")}
+                   </Button>
+               ]}>
+            { error && <><Alert variant="warning" isInline title={error} /><br /></> }
+            <p>{fmt_to_fragments(_("The file $0 will be deleted."), <b>{path}</b>)}</p>
+        </Modal>);
+};
+
+const SOSErrorDialog = ({ error }) => {
+    const Dialogs = useDialogs();
+
+    return (
+        <Modal id="sos-error-dialog"
+               position="top"
+               variant="medium"
+               isOpen
+               onClose={Dialogs.close}
+               title={ _("Error") }>
+            <p>{error}</p>
+        </Modal>);
+};
+
+const Menu = ({ items }) => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    return (
+        <Dropdown onSelect={() => setIsOpen(!isOpen)}
+                  toggle={<KebabToggle onToggle={setIsOpen} />}
+                  isOpen={isOpen}
+                  isPlain
+                  position="right"
+                  dropdownItems={items} />
+    );
+};
+
+const MenuItem = ({ onClick, onlyNarrow, children }) => (
+    <DropdownItem className={onlyNarrow ? "show-only-when-narrow" : null}
+                  onKeyPress={onClick}
+                  onClick={onClick}>
+        {children}
+    </DropdownItem>
+);
+
+const SOSBody = () => {
+    const Dialogs = useDialogs();
+    const lister = useObject(sosLister, obj => obj.close, []);
+    useEvent(lister, "changed");
+
+    const superuser_proxy = useObject(() => cockpit.dbus(null, { bus: "internal" }).proxy("cockpit.Superuser",
+                                                                                          "/superuser"),
+                                      obj => obj.close(),
+                                      []);
+    useEvent(superuser_proxy, "changed");
+
+    if (!lister.ready)
+        return <EmptyStatePanel loading />;
+
+    if (lister.problem) {
+        if (lister.problem == "access-denied")
+            return (
+                <EmptyStatePanel
+                    title={_("Administrative access required")}
+                    paragraph={_("Administrative access is required to create and access reports.")}
+                    action={<SuperuserButton />} />);
+        else
+            return <EmptyStatePanel title={lister.problem} />;
+    }
+
+    function run_report() {
+        Dialogs.show(<SOSDialog />);
+    }
+
+    function make_report_row(path) {
+        const report = lister.reports[path];
+
+        function download() {
+            sosDownload(path).catch(err => Dialogs.show(<SOSErrorDialog error={err.toString()} />));
+        }
+
+        function remove() {
+            Dialogs.show(<SOSRemoveDialog path={path} />);
+        }
+
+        const labels = [];
+        if (report.encrypted)
+            labels.push(<Label key="enc" color="orange">
+                {_("Encrypted")}
+            </Label>);
+        if (report.obfuscated)
+            labels.push(<Label key="obf" color="gray">
+                {_("Obfuscated")}
+            </Label>);
+
+        const action = (
+            <Button variant="secondary" className="show-only-when-wide"
+                    onClick={download}>
+                {_("Download")}
+            </Button>);
+        const menu = <Menu items={[
+            <MenuItem key="download"
+                      onlyNarrow
+                      onClick={download}>
+                {_("Download")}
+            </MenuItem>,
+            <MenuItem key="remove"
+                      onClick={remove}>
+                {_("Delete")}
+            </MenuItem>
+        ]} />;
+
+        return {
+            props: { key: path },
+            columns: [
+                report.name,
+                timeformat.distanceToNow(new Date(report.date * 1000), true),
+                { title: <LabelGroup>{labels}</LabelGroup> },
+                {
+                    title: <>{action}{menu}</>,
+                    props: { className: "pf-c-table__action table-row-action" }
+                },
+            ]
+        };
+    }
+
+    return (
+        <PageSection>
+            <Card className="ct-card">
+                <CardHeader>
+                    <CardTitle>
+                        <Text component={TextVariants.h2}>{_("Reports")}</Text>
+                    </CardTitle>
+                    <CardActions>
+                        <Button id="create-button" variant="primary" onClick={run_report}>
+                            {_("Run report")}
+                        </Button>
+                    </CardActions>
+                </CardHeader>
+                <CardBody className="contains-list">
+                    <ListingTable emptyCaption={_("No system reports.")}
+                                  columns={ [
+                                      { title: _("Report") },
+                                      { title: _("Created") },
+                                      { title: _("Attributes") },
+                                  ] }
+                                  rows={Object
+                                          .keys(lister.reports)
+                                          .sort((a, b) => lister.reports[b].date - lister.reports[a].date)
+                                          .map(make_report_row)} />
+                </CardBody>
+            </Card>
+        </PageSection>);
 };
 
 const SOSPage = () => {
-    const [showDialog, setShowDialog] = useState(false);
-
-    useEvent(superuser, "changed");
-
     return (
-        <>
-            <EmptyState variant={EmptyStateVariant.full}>
-                <img className="pf-c-empty-state__icon" aria-hidden="true" src="./sosreport.png" alt="" />
-                <EmptyStateBody>
-                    <p>{ _("This tool will collect system configuration and diagnostic information from this system for use with diagnosing problems with the system.") }</p>
-                    <p>{ _("The collected information will be stored locally on the system.") }</p>
-                    { superuser.allowed || <p id="switch-instructions">{ _("You need to switch to \"Administrative access\" in order to create reports.") }</p> }
-                </EmptyStateBody>
-
-                { superuser.allowed &&
-                    <Button id="create-button" variant="primary" onClick={ () => setShowDialog(true) }>
-                        { _("Create report") }
-                    </Button> }
-            </EmptyState>
-
-            { showDialog && <SOSDialog onClose={ () => setShowDialog(false) } /> }
-        </>
-    );
+        <WithDialogs>
+            <Page>
+                <PageSection variant={PageSectionVariants.light}>
+                    <Flex alignItems={{ default: 'alignItemsCenter' }}>
+                        <h2 className="pf-u-font-size-3xl">{_("System diagnostics")}</h2>
+                    </Flex>
+                </PageSection>
+                <SOSBody />
+            </Page>
+        </WithDialogs>);
 };
 
 document.addEventListener("DOMContentLoaded", () => {
     cockpit.translate();
-    ReactDOM.render(React.createElement(SOSPage, {}), document.getElementById('app'));
+    ReactDOM.render(<SOSPage />, document.getElementById('app'));
 });

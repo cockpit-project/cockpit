@@ -1,0 +1,25 @@
+@use "page";
+@use "ct-card.scss";
+@use "../../node_modules/@patternfly/patternfly/utilities/Text/text.css";
+@import "global-variables";
+
+.table-row-action {
+    text-align: right;
+    white-space: nowrap !important;
+}
+
+.hidden {
+    display: none;
+}
+
+@media ( max-width: $pf-global--breakpoint--md - 1 ) {
+    .show-only-when-wide {
+        display: none !important;
+    }
+}
+
+@media ( min-width: $pf-global--breakpoint--md ) {
+    .show-only-when-narrow {
+        display: none !important;
+    }
+}

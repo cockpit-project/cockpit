@@ -141,11 +141,11 @@ default_layouts = [
 
 
 def attach(filename, move=False):
-    '''Put a file into the attachments directory
+    """Put a file into the attachments directory
 
     By default the file gets copied. You can set move=True for dynamically generated
     files which are not touched by parallel tests.
-    '''
+    """
     if not opts.attachments:
         return
     dest = os.path.join(opts.attachments, os.path.basename(filename))
@@ -770,11 +770,11 @@ class Browser:
         self.switch_to_frame(cur_frame)
 
     def click_system_menu(self, path, enter=True):
-        '''Click on a "System" menu entry with given URL path
+        """Click on a "System" menu entry with given URL path
 
         Enters the given target frame afterwards, unless enter=False is given
         (useful for remote hosts).
-        '''
+        """
         self.switch_to_top()
         self.click(f"#host-apps a[href='{path}']")
         if enter:
@@ -1055,10 +1055,10 @@ class Browser:
 
 
 class _DebugOutcome(unittest.case._Outcome):
-    '''Run debug actions after test methods
+    """Run debug actions after test methods
 
     This will do screenshots, HTML dumps, and sitting before cleanup handlers run.
-    '''
+    """
 
     def testPartExecutor(self, test_case, isTest=False):
         # we want to do the debug actions after the test function got called (isTest==True), but before
@@ -1303,7 +1303,7 @@ class MachineCase(unittest.TestCase):
                 self.libexecdir = '/usr/libexec'
 
     def nonDestructiveSetup(self):
-        '''generic setUp/tearDown for @nondestructive tests'''
+        """generic setUp/tearDown for @nondestructive tests"""
 
         m = self.machine
 
@@ -1746,12 +1746,12 @@ class MachineCase(unittest.TestCase):
                         # attach(dest, move=True)
 
     def settle_cpu(self):
-        '''Wait until CPU usage in the VM settles down
+        """Wait until CPU usage in the VM settles down
 
         Wait until the process with the highest CPU usage drops below 20%
         usage. Wait for up to a minute, then return. There is no error if the
         CPU stays busy, as usually a test then should just try to run anyway.
-        '''
+        """
         for retry in range(20):
             # get the CPU percentage of the most busy process
             busy_proc = self.machine.execute("ps --no-headers -eo pcpu,pid,args | sort -k 1 -n -r | head -n1")
@@ -1760,12 +1760,12 @@ class MachineCase(unittest.TestCase):
             time.sleep(3)
 
     def sed_file(self, expr, path, apply_change_action=None):
-        '''sed a file on primary machine
+        """sed a file on primary machine
 
         This is safe for @nondestructive tests, the file will be restored during cleanup.
 
         The optional apply_change_action will be run both after sedding and after restoring the file.
-        '''
+        """
         m = self.machine
         m.execute("sed -i.cockpittest '{0}' {1}".format(expr, path))
         if apply_change_action:
@@ -1777,7 +1777,7 @@ class MachineCase(unittest.TestCase):
             self.addCleanup(m.execute, "mv {0}.cockpittest {0}".format(path))
 
     def restore_dir(self, path, post_restore_action=None, reboot_safe=False):
-        '''Backup/restore a directory for a nondestructive test
+        """Backup/restore a directory for a nondestructive test
 
         This takes care to not ever touch the original content on disk, but uses transient overlays.
         As this uses a bind mount, it does not work for files that get changed atomically (with mv);
@@ -1787,7 +1787,7 @@ class MachineCase(unittest.TestCase):
 
         If the directory needs to survive reboot, `reboot_safe=True` needs to be specified; then this
         will just backup/restore the directory instead of bind-mounting, which is less robust.
-        '''
+        """
         if not self.is_nondestructive() and not self.machine.ostree_image:
             return  # skip for efficiency reasons
 
@@ -1813,12 +1813,12 @@ class MachineCase(unittest.TestCase):
             self.addCleanup(self.machine.execute, "umount -lf " + path)
 
     def restore_file(self, path, post_restore_action=None):
-        '''Backup/restore a file for a nondestructive test
+        """Backup/restore a file for a nondestructive test
 
         This is less robust than restore_dir(), but works for files that need to get changed atomically.
 
         If path does not currently exist, it will be removed again on cleanup.
-        '''
+        """
         if not self.is_nondestructive():
             return  # skip for efficiency reasons
 
@@ -1834,14 +1834,14 @@ class MachineCase(unittest.TestCase):
             self.addCleanup(self.machine.execute, "rm -rf %s" % path)
 
     def write_file(self, path, content, append=False, owner=None, perm=None, post_restore_action=None):
-        '''Write a file on primary machine
+        """Write a file on primary machine
 
         This is safe for @nondestructive tests, the file will be removed during cleanup.
 
         If @append is True, append to existing file instead of replacing it.
         @owner is the desired file owner as chown shell string (e.g. "admin:nogroup")
         @perm is the desired file permission as chmod shell string (e.g. "0600")
-        '''
+        """
         m = self.machine
         self.restore_file(path, post_restore_action=post_restore_action)
         dirname = os.path.dirname(path)
@@ -1873,11 +1873,11 @@ def skipMobile():
 
 
 def skipDistroPackage():
-    '''For tests which apply to BaseOS packages
+    """For tests which apply to BaseOS packages
 
     With that, tests can evolve with latest code, without constantly breaking them when
     running against older package versions in the -distropkg tests.
-    '''
+    """
     if 'distropkg' in testvm.DEFAULT_IMAGE:
         return unittest.skip(f"{testvm.DEFAULT_IMAGE}: Do not test BaseOS packages")
     return lambda testEntity: set_obj_attribute(testEntity, "_testlib__skipImage", (testvm.DEFAULT_IMAGE, ))

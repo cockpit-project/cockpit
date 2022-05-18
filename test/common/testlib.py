@@ -139,10 +139,11 @@ default_layouts = [
 
 
 def attach(filename, move=False):
-    """Put a file into the attachments directory
+    """Put a file into the attachments directory.
 
-    By default the file gets copied. You can set move=True for dynamically generated
-    files which are not touched by parallel tests.
+    :param filename: file to put in attachments directory
+    :param move: set this to true to move dynamically generated files which
+                 are not touched by parallel tests. (default False)
     """
     if not opts.attachments:
         return
@@ -190,13 +191,11 @@ class Browser:
         return self.cdp.eval('document.title')
 
     def open(self, href, cookie=None, tls=False):
-        """
-        Load a page into the browser.
+        """Load a page into the browser.
 
-        Arguments:
-          href: The path of the Cockpit page to load, such as "/users".
-
-        Either PAGE or URL needs to be given.
+        :param href: the path of the Cockpit page to load, such as "/users". Either PAGE or URL needs to be given.
+        :param cookie: a dictionary object representing a cookie.
+        :param tls: load the page using https (default False)
 
         Raises:
           Error: When a timeout occurs waiting for the page to load.
@@ -215,9 +214,20 @@ class Browser:
         self.cdp.invoke("Page.navigate", url=href)
 
     def set_user_agent(self, ua):
+        """Set the user agent of the browser
+
+        :param ua: user agent string
+        :type ua: str
+        """
         self.cdp.invoke("Emulation.setUserAgentOverride", userAgent=ua)
 
     def reload(self, ignore_cache=False):
+        """Reload the current page
+
+        :param ignore_cache: if true browser cache is ignored (default False)
+        :type ignore_cache: bool
+        """
+
         self.switch_to_top()
         self.wait_js_cond("ph_select('iframe.container-frame').every(function (e) { return e.getAttribute('data-loaded'); })")
         self.cdp.invoke("reloadPageAndWait", ignoreCache=ignore_cache)
@@ -225,9 +235,20 @@ class Browser:
         self.machine.allow_restart_journal_messages()
 
     def switch_to_frame(self, name):
+        """Switch to frame in browser tab
+
+        Each page has a main frame and can have multiple subframes, usually
+        iframes.
+
+        :param name: frame name
+        """
         self.cdp.set_frame(name)
 
     def switch_to_top(self):
+        """Switch to the main frame
+
+        Switch to the main frame from for example an iframe.
+        """
         self.cdp.set_frame(None)
 
     def upload_file(self, selector, file):
@@ -247,13 +268,21 @@ class Browser:
             msg += "\n" + trailer
         raise Error("%s(%s): %s" % (func, arg, msg))
 
-    # Execute js code that does not return anything
     def inject_js(self, code):
+        """Execute JS code that does not return anything
+
+        :param code: a string containing JavaScript code
+        :type code: str
+        """
         self.cdp.invoke("Runtime.evaluate", expression=code, trace=code,
                         silent=False, awaitPromise=True, returnByValue=False, no_trace=True)
 
-    # Execute js code that returns something
     def eval_js(self, code, no_trace=False):
+        """Execute JS code that returns something
+
+        :param code: a string containing JavaScript code
+        :param no_trace: do not print information about unknown return values (default False)
+        """
         result = self.cdp.invoke("Runtime.evaluate", expression=code, trace=code,
                                  silent=False, awaitPromise=True, returnByValue=True, no_trace=no_trace)
         if "exceptionDetails" in result:
@@ -271,9 +300,19 @@ class Browser:
         return None
 
     def call_js_func(self, func, *args):
+        """Call a JavaScript function
+
+        :param func: JavaScript function to call
+        :param args: arguments for the JavaScript function
+        """
         return self.eval_js("%s(%s)" % (func, ','.join(map(jsquote, args))))
 
     def cookie(self, name):
+        """Retrieve a browser cookie by name
+
+        :param name: the name of the cookie
+        :type name: str
+        """
         cookies = self.cdp.invoke("Network.getCookies")
         for c in cookies["cookies"]:
             if c["name"] == name:
@@ -286,10 +325,26 @@ class Browser:
         self.call_js_func('ph_go', hash)
 
     def mouse(self, selector, type, x=0, y=0, btn=0, ctrlKey=False, shiftKey=False, altKey=False, metaKey=False):
+        """Simulate a browser mouse event
+
+        :param selector: the element to interact with
+        :param type: the mouse event to simulate, for example mouseenter, mouseleave, mousemove, click
+        :param x: the x coordinate
+        :param y: the y coordinate
+        :param btn: mouse button to click https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/buttons
+        :param crtlKey: press the ctrl key
+        :param shiftKey: press the shift key
+        :param altKey: press the alt key
+        :param metaKey: press the meta key
+        """
         self.wait_visible(selector)
         self.call_js_func('ph_mouse', selector, type, x, y, btn, ctrlKey, shiftKey, altKey, metaKey)
 
     def click(self, selector):
+        """Click on a ui element
+
+        :param selector: the selector to click on
+        """
         self.mouse(selector + ":not([disabled]):not([aria-disabled=true])", "click", 0, 0, 0)
 
     def mousedown(self, selector):
@@ -544,16 +599,14 @@ class Browser:
     def wait_popup(self, id):
         """Wait for a popup to open.
 
-        Arguments:
-          id: The 'id' attribute of the popup.
+        :param id: the 'id' attribute of the popup.
         """
         self.wait_visible('#' + id)
 
     def wait_popdown(self, id):
         """Wait for a popup to close.
 
-        Arguments:
-            id: The 'id' attribute of the popup.
+        :param id: the 'id' attribute of the popup.
         """
         self.wait_not_visible('#' + id)
 
@@ -589,9 +642,12 @@ class Browser:
     def enter_page(self, path, host=None, reconnect=True):
         """Wait for a page to become current.
 
-        Arguments:
-
-            id: The identifier the page.  This is a string starting with "/"
+        :param path: The identifier the page.  This is a string starting with "/"
+        :type path: str
+        :param host: The host to connect too
+        :type host: str
+        :param reconnect: Try to reconnect
+        :type reconnect: bool
         """
         assert path.startswith("/")
         if host:
@@ -640,13 +696,16 @@ class Browser:
 
         This differs from login_and_go() by not expecting any particular result.
 
-        The "superuser" parameter determines whether the new session
-        will try to get Administrative Access.
-
-        The "legacy_authorized" parameter is or old versions of the
-        login dialog that still have the "[ ] Reuse my password for
-        magic things" checkbox.  Such a dialog is encountered when
-        testing against old bastion hosts, for example.
+        :param user: the username to login with
+        :type user: str
+        :param password: the password of the user
+        :type password: str
+        :param superuser: determines whether the new session will try to get Administrative Access (default true)
+        :type superuser: bool
+        :param legacy_authorized: old versions of the login dialog that still
+             have the "[ ] Reuse my password for magic things" checkbox.  Such a
+             dialog is encountered when testing against old bastion hosts, for
+             example.
         """
         if user is None:
             user = self.default_user
@@ -663,6 +722,19 @@ class Browser:
 
     def login_and_go(self, path=None, user=None, host=None, superuser=True, urlroot=None, tls=False, password=None,
                      legacy_authorized=None):
+        """Fills in the login dialog, clicks the button and navigates to the given path
+
+        :param user: the username to login with
+        :type user: str
+        :param password: the password of the user
+        :type password: str
+        :param superuser: determines whether the new session will try to get Administrative Access (default true)
+        :type superuser: bool
+        :param legacy_authorized: old versions of the login dialog that still
+             have the "[ ] Reuse my password for magic things" checkbox.  Such a
+             dialog is encountered when testing against old bastion hosts, for
+             example.
+        """
         href = path
         if not href:
             href = "/"

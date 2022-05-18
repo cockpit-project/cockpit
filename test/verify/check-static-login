@@ -894,7 +894,7 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
             do_test(alice_cert_key, ['HTTP/1.1 401 Authentication failed'])
 
         # sssd-dbus not available
-        self.allow_journal_messages("cockpit-session: Failed to map .* Could not activate remote peer.")
+        self.allow_journal_messages("cockpit-session: Failed to map .* Could not activate remote peer.*")
         self.allow_journal_messages("cockpit-session: Failed to map .* Unit sssd-ifp.service is masked.")
         m.execute("systemctl mask sssd-ifp && systemctl stop sssd-ifp")
         do_test(alice_cert_key, ["HTTP/1.1 401 Authentication failed", '<h1>Authentication failed</h1>'],

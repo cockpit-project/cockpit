@@ -26,7 +26,9 @@ job release-srpm
 job release-github
 
 # Update the Github repo that Docker Hub is tracking
-job release-dockerhub cockpit-project/cockpit-container
+# FIXME: this broke with releasing to COPR via packit, needs to be triggered
+# manually for now and automated as a separate workflow
+# job release-dockerhub cockpit-project/cockpit-container
 
 # Upload documentation
 job tools/release-guide dist/guide cockpit-project/cockpit-project.github.io

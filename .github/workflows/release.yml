@@ -10,6 +10,9 @@ jobs:
     environment: release
     container:
       image: ghcr.io/cockpit-project/release
+    permissions:
+      # create GitHub release
+      contents: write
     steps:
       - name: Set up configuration and secrets
         run: |

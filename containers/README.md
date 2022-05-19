@@ -1,22 +1,23 @@
 Cockpit Containers
 ==================
 
-Much of Cockpit is a system configuration and troubleshooting tool. It doesn't
-all work in a container. But there are parts that do.
+ * [ws](./ws/): Cockpit's web server, for installation on CoreOS; uses SSH to connect to the local host or remote machines
+ * [bastion](./bastion/): A reduced variant of the web server that runs unprivileged, and can only connect to remote machines. Suitable for deploying on e.g. Kubernetes. This is currently a prototype.
+ * [unit-tests](./unit-tests/): Our project's unit tests run in this container; usually on GitHub PRs, but you can also run it locally for reproducing failures.
+ * [flatpak](./flatpak/): Scripts for locally building, running, and testing our [Cockpit Client flatpak](https://github.com/flathub/org.cockpit_project.CockpitClient).
 
+See the individual README.md files in the subdirectories for details.
 
-Contributing
-============
+ws container development
+========================
 
-Here are some commands to use while hacking on the containers. Replace
-'xxx' with the name of the container. That is the name of the directory.
+Build the container:
+
+    $ make ws-container
+
+Run the built container and log in interactively as a shell:
+
+    $ make ws-container-shell
+
 When running docker the 'sudo' command will be used to get necessary
 privileges.
-
-Build the given container:
-
-    $ make xxx-container
-
-Run the given built container and log in interactively as a shell:
-
-    $ make xxx-container-shell

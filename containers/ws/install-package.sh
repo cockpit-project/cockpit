@@ -37,6 +37,4 @@ rm -rf /container/rpms || true
 
 # And the stuff that starts the container
 ln -s /host/proc/1 /container/target-namespace
-chmod -v +x /container/atomic-install
-chmod -v +x /container/atomic-uninstall
-chmod -v +x /container/atomic-run
+chmod -v +x /container/label-install /container/label-uninstall /container/label-run

@@ -12,9 +12,9 @@ podman run --name build-cockpit -i \
     -v /var/tmp/:/run/build:Z \
     quay.io/cockpit/ws sh -exc '
 rpm --freshen --verbose /run/build/cockpit-ws-*.rpm /run/build/cockpit-bridge-*.rpm
-cp /run/build/containers/ws/atomic-* /container/
+cp /run/build/containers/ws/label-* /container/
 '
-podman commit --change CMD=/container/atomic-run build-cockpit localhost/cockpit/ws
+podman commit --change CMD=/container/label-run build-cockpit localhost/cockpit/ws
 podman rm -f build-cockpit
 
 # move original quay.io image away, to make sure that our tests use the updated one

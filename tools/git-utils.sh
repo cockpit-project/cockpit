@@ -25,8 +25,18 @@ else
     quiet=''
 fi
 
+init_cache() {
+    if [ ! -d "${CACHE_DIR}" ]; then
+        message INIT "${CACHE_DIR}"
+        mkdir -p "${CACHE_DIR}"
+        git init --bare --template='' ${quiet} "${CACHE_DIR}"
+        git --git-dir "${CACHE_DIR}" remote add origin "${HTTPS_REMOTE}"
+    fi
+}
+
 # runs a git command on the cache dir
 git_cache() {
+    init_cache
     git --git-dir "${CACHE_DIR}" "$@"
 }
 
@@ -36,15 +46,6 @@ get_index_gitlink() {
     if ! git ls-files -s "$1" | egrep -o '\<[[:xdigit:]]{40}\>'; then
         echo "*** couldn't read gitlink for file $1 from the index" >&2
         exit 1
-    fi
-}
-
-init_cache() {
-    if [ ! -d "${CACHE_DIR}" ]; then
-        message INIT "${CACHE_DIR}"
-        mkdir -p "${CACHE_DIR}"
-        git init --bare --template='' ${quiet} "${CACHE_DIR}"
-        git_cache remote add origin "${HTTPS_REMOTE}"
     fi
 }
 
@@ -62,7 +63,6 @@ check_ref() {
 fetch_sha_to_cache() {
     sha="$1"
 
-    init_cache
     # No "offline mode" here: we either have the commit, or we don't
     if ! check_ref "${sha}"; then
         message FETCH "${SUBDIR}  [ref: ${sha}]"
@@ -80,7 +80,6 @@ fetch_to_cache() {
     # We're fetching a named ref (or all refs), which means:
     #  - we should always do the fetch because it might have changed. but
     #  - we might be able to skip updating in case we already have it
-    init_cache
     if [ -z "${OFFLINE-}" ]; then
         message FETCH "${SUBDIR}  ${1+[ref: $*]}"
         git_cache fetch --prune ${quiet} origin "$@"
@@ -121,8 +120,6 @@ unpack_from_cache() {
 # This stores a .tar file from stdin into the cache as a tree object.
 # Returns the ID.  Opposite of `git archive`, basically.
 tar_to_cache() {
-    init_cache
-
     # Use a sub-shell to enable cleanup of the temporary directory
     (
         tmpdir="$(mktemp --tmpdir --directory cockpit-tar-to-git.XXXXXX)"
@@ -143,6 +140,5 @@ tar_to_cache() {
 
  # Small helper to run a git command on the cache directory
 cmd_git() {
-    init_cache
     git_cache "$@"
 }

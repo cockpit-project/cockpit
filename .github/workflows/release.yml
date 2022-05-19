@@ -19,13 +19,14 @@ jobs:
           # override GitHub's bind mount from host, we don't want anything from there and it interferes with ssh
           export HOME=$(getent passwd $(id -u) | cut -f6 -d:)
 
-          # This uses the shared cockpit-project organization secrets:
-          # https://github.com/organizations/cockpit-project/settings/secrets
-          echo '${{ secrets.SSH_KNOWN_HOSTS }}' > ~/.ssh/known_hosts
-          echo '${{ secrets.FEDPKG_SSH_PUBLIC }}' > ~/.ssh/id_rsa.pub
-          echo '${{ secrets.FEDPKG_SSH_PRIVATE }}' > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          git config user.name "GitHub Workflow"
+          git config user.email "cockpituous@cockpit-project.org"
+
           echo '${{ secrets.GITHUB_TOKEN }}' > ~/.config/github-token
+
+          # deploy key for updating the website repo, via tools/release-guide
+          eval $(ssh-agent)
+          ssh-add - <<< '${{ secrets.WEBSITE_DEPLOY_KEY }}'
 
       - name: Run cockpituous
         run: |

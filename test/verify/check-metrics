@@ -793,6 +793,11 @@ class TestCurrentMetrics(MachineCase):
         with b.wait_timeout(300):
             b.wait_in_text("#current-metrics-card-cpu", f"pod {shortid}")
         b.wait(lambda: topServiceValue(self, "Top 5 CPU services", "%", 1) > 70)
+
+        # It takes one re-render for the name lookup
+        with b.wait_timeout(30):
+            b.wait_in_text("#current-metrics-card-cpu", f"pod {container_name}")
+
         m.execute(f"podman stop -t 0 {container_name}")
 
         # RHEL-8 / CentOS-8's podman user containers do not show up as
@@ -818,6 +823,11 @@ podman save quay.io/libpod/busybox | sudo -i -u admin podman load
             with b.wait_timeout(300):
                 b.wait_in_text("#current-metrics-card-cpu", f"pod {shortid}")
             b.wait(lambda: topServiceValue(self, "Top 5 CPU services", "%", 1) > 70)
+
+            # It takes one re-render for the name lookup
+            with b.wait_timeout(30):
+                b.wait_in_text("#current-metrics-card-cpu", f"pod {user_container_name}")
+
             admin_s.execute(f"podman stop -t 0 {user_container_name}")
 
         # this settles down slowly, don't wait for becoming really quiet

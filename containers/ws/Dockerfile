@@ -10,9 +10,9 @@ RUN echo -e '[group_cockpit-cockpit-preview]\nname=Copr repo for cockpit-preview
 
 RUN /container/install.sh
 
-LABEL INSTALL="/usr/bin/docker run --rm --privileged -v /:/host -e IMAGE=\${IMAGE} \${IMAGE} /container/label-install \${IMAGE}"
-LABEL UNINSTALL="/usr/bin/docker run --rm --privileged -v /:/host -e IMAGE=\${IMAGE} \${IMAGE} /container/label-uninstall"
-LABEL RUN="/usr/bin/docker run -d --name \${NAME} --privileged --pid=host -v /:/host -e NAME=\${NAME} -e IMAGE=\${IMAGE} \${IMAGE} /container/label-run --local-ssh"
+LABEL INSTALL="docker run --rm --privileged -v /:/host -e IMAGE=\${IMAGE} \${IMAGE} /container/label-install \${IMAGE}"
+LABEL UNINSTALL="docker run --rm --privileged -v /:/host -e IMAGE=\${IMAGE} \${IMAGE} /container/label-uninstall"
+LABEL RUN="docker run -d --name \${NAME} --privileged --pid=host -v /:/host -e NAME=\${NAME} -e IMAGE=\${IMAGE} \${IMAGE} /container/label-run --local-ssh"
 
 # Look ma, no EXPOSE
 

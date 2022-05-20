@@ -63,8 +63,8 @@ GUIDE_XSLT = \
 
 # keep in sync with doc/guide/static/style.css
 GUIDE_FONTS = \
-	dist/guide/html/RedHatText-Regular.woff2 \
-	dist/guide/html/RedHatText-Medium.woff2 \
+	doc/guide/html/RedHatText-Regular.woff2 \
+	doc/guide/html/RedHatText-Medium.woff2 \
 	$(NULL)
 
 dist_noinst_DATA += \
@@ -74,30 +74,30 @@ dist_noinst_DATA += \
 	$(GUIDE_STATIC) \
 	$(NULL)
 
-noinst_DATA += dist/guide/html/index.html
+noinst_DATA += doc/guide/html/index.html
 
-dist/guide/html/%.woff2: dist/static/manifest.json
+doc/guide/html/%.woff2: dist/static/manifest.json
 	@target='$(dir $@)'; \
 	source='dist/static/fonts/$(notdir $@)'; \
 	printf '  %-8s %s → %s\n' 'COPY' "$${source}" "$${target}"; \
 	mkdir -p "$${target}" && \
 	cp "$(top_srcdir)/$${source}" "$${target}"
 
-dist/guide/html/index.html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(GUIDE_STATIC) $(GUIDE_XSLT) $(GUIDE_FONTS)
-	$(AM_V_GEN) mkdir -p dist/guide/html/ && \
-	cp $(addprefix $(srcdir)/,$(GUIDE_STATIC)) dist/guide/html/ && \
-	LANG=C.UTF-8 $(XMLTO) html -m $(srcdir)/doc/guide/gtk-doc.xsl -o dist/guide/html/ \
+doc/guide/html/index.html: $(GUIDE_DOCBOOK) $(GUIDE_INCLUDES) $(GUIDE_STATIC) $(GUIDE_XSLT) $(GUIDE_FONTS)
+	$(AM_V_GEN) mkdir -p doc/guide/html/ && \
+	cp $(addprefix $(srcdir)/,$(GUIDE_STATIC)) doc/guide/html/ && \
+	LANG=C.UTF-8 $(XMLTO) html -m $(srcdir)/doc/guide/gtk-doc.xsl -o doc/guide/html/ \
 		--searchpath $(abs_builddir):$(abs_srcdir):$(abs_builddir)/doc/guide \
 		$(srcdir)/$(GUIDE_DOCBOOK) && \
-	rm -f dist/guide/html/cockpit-guide.proc
+	rm -f doc/guide/html/cockpit-guide.proc
 
 CLEAN_LOCAL_TARGETS += clean-guide
 clean-guide:
-	rm -rf dist/guide/html
+	rm -rf doc/guide/html
 
 CHECK_LOCAL_TARGETS += check-guide
 check-guide:
-	if grep -n -r 'name=\"id' dist/guide/html >&2; then \
+	if grep -n -r 'name=\"id' doc/guide/html >&2; then \
 		echo "Unexpected generated id in the documentation" >&2; \
 		exit 1; \
 	fi
@@ -105,7 +105,7 @@ check-guide:
 INSTALL_DATA_LOCAL_TARGETS += install-guide
 install-guide:
 	mkdir -p $(DESTDIR)$(htmldir)
-	$(INSTALL_DATA) dist/guide/html/* $(DESTDIR)$(htmldir)
+	$(INSTALL_DATA) doc/guide/html/* $(DESTDIR)$(htmldir)
 
 UNINSTALL_LOCAL_TARGETS += uninstall-guide
 uninstall-guide:

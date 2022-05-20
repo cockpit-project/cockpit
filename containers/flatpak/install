@@ -13,12 +13,13 @@
 set -eu
 cd "${0%/*}/../.."
 
-. containers/flatpak/prepare
+mkdir -p tmp
+cd tmp
 
-prepare "${TARBALL:-}" "${URLBASE:-}"
+MANIFEST="$(../containers/flatpak/prepare)"
 
 flatpak-builder \
     "$@" \
     --disable-rofiles-fuse \
     --force-clean \
-    --install flatpak-build-dir "${FLATPAK_ID}".yml
+    --install flatpak-build-dir "${MANIFEST}"

@@ -14,7 +14,7 @@ else
     grey=""
 fi
 
-post_commit_hook="${0%/*}/git-hook-post-commit"
+post_commit_hook="$(realpath -m "$0"/../git-hook-post-commit)"
 fail=''
 
 # cf. man 5 githooks

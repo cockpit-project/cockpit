@@ -97,12 +97,12 @@ $ sudo /usr/lib/cockpit/cockpit-certificate-ensure --check
 </programlisting>
 
     <para>If using <literal>certmonger</literal> to manage certificates, following command can
-      be used to automatically prepare concatenated <literal>.cert</literal> file:</para>
+      be used to generate a certificate/key pair:</para>
 <programlisting>
-CERT_FILE=/etc/pki/tls/certs/$(hostname).pem
-KEY_FILE=/etc/pki/tls/private/$(hostname).key
+CERT_FILE=/etc/cockpit/ws-certs.d/50-certmonger.crt
+KEY_FILE=/etc/cockpit/ws-certs.d/50-certmonger.key
 
-getcert request -f ${CERT_FILE} -k ${KEY_FILE} -D $(hostname --fqdn) -C "sed -n w/etc/cockpit/ws-certs.d/50-from-certmonger.cert ${CERT_FILE} ${KEY_FILE}"
+getcert request -f ${CERT_FILE} -k ${KEY_FILE} -D $(hostname --fqdn)
 </programlisting>
 
   </refsect1>

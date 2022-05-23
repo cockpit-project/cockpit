@@ -25,4 +25,4 @@ if ! mountpoint -q /etc/os-release; then
 fi
 
 # And run cockpit-ws
-exec /usr/bin/nsenter --net=/container/target-namespace/ns/net --uts=/container/target-namespace/ns/uts -- /usr/libexec/cockpit-ws "$@"
+exec /usr/bin/nsenter --net=/container/target-namespace/ns/net --uts=/container/target-namespace/ns/uts -- /usr/libexec/cockpit-ws --local-ssh "$@"

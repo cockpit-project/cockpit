@@ -138,7 +138,7 @@ export class VDODetails extends React.Component {
 
             if (usage.Teardown) {
                 dialog_open({
-                    Title: cockpit.format(_("Please confirm stopping of $0"),
+                    Title: cockpit.format(_("Confirm stopping of $0"),
                                           vdo.name),
                     Teardown: TeardownMessage(usage),
                     Action: {

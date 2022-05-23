@@ -545,7 +545,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
             }
 
             dialog_open({
-                Title: cockpit.format(_("Please confirm deletion of $0"), fsys.Name),
+                Title: cockpit.format(_("Confirm deletion of $0"), fsys.Name),
                 Teardown: TeardownMessage(usage),
                 Action: {
                     Danger: _("Deleting a filesystem will delete all data in it."),

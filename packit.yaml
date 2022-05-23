@@ -51,6 +51,8 @@ jobs:
       - centos-stream-9-x86_64
     actions:
       post-upstream-clone:
+        # HACK: https://github.com/packit/packit/issues/1560
+        - tools/node-modules checkout
         # packit will overwrite the version in its "fix spec file" stage
         - tools/create-spec --version 0 --build-all -o cockpit.spec tools/cockpit.spec.in
       # HACK: tarball for releases (copr_build, koji, etc.), copying spec's Source0; this

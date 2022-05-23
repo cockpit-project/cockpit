@@ -172,8 +172,9 @@ class Browser:
         self.coverage_label = coverage_label
         self.machine = machine
         path = os.path.dirname(__file__)
+        sizzle_js = os.path.join(path, "../../node_modules/sizzle/dist/sizzle.js")
         self.cdp = cdp.CDP("C.utf8", verbose=opts.trace, trace=opts.trace,
-                           inject_helpers=[os.path.join(path, "test-functions.js"), os.path.join(path, "sizzle.js")],
+                           inject_helpers=[os.path.join(path, "test-functions.js"), sizzle_js],
                            start_profile=coverage_label is not None)
         self.password = "foobar"
         self.timeout_factor = int(os.getenv("TEST_TIMEOUT_FACTOR", "1"))

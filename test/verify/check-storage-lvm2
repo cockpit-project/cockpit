@@ -168,15 +168,12 @@ class TestStorageLvm2(StorageCase):
         # remove disk2
         b.click(f'#detail-sidebar .sidepanel-row:contains({dev_2}) button.pf-m-secondary')
         b.wait_not_in_text("#detail-sidebar", dev_2)
-        if m.image in ["rhel-8-6-distropkg", "rhel-8-7-distropkg"]:
-            b.wait_in_text("#detail-header dt:contains(Capacity) + dd", "48 MiB")
-        else:
-            b.wait_in_text("#detail-header dt:contains(Capacity) + dd", "50.3 MB")
+        b.wait_in_text("#detail-header dt:contains(Capacity) + dd", "50.3 MB")
 
         # create thin pool and volume
         # the pool will be maximum size, 50.3 MB
         b.click("button:contains(Create new logical volume)")
-        self.dialog(expect={"size": 48 if m.image in ["rhel-8-6-distropkg", "rhel-8-7-distropkg"] else 50.3},
+        self.dialog(expect={"size": 50.3},
                     values={"purpose": "pool",
                             "name": "pool",
                             "size": 38})

@@ -87,15 +87,15 @@ class TestStoragePartitions(StorageCase):
         about_half_way = width / 2 + 1
 
         b.mouse(slider, "click", about_half_way, 0)
-        self.dialog_wait_val("size", 26 if m.image in ["rhel-8-6-distropkg", "rhel-8-7-distropkg"] else 27.3)
+        self.dialog_wait_val("size", 27.3)
         b.focus(slider + " + .pf-c-slider__thumb")
         b.key_press(chr(37), use_ord=True)  # arrow left
-        self.dialog_wait_val("size", 25.5 if m.image in ["rhel-8-6-distropkg", "rhel-8-7-distropkg"] else 26.7)
+        self.dialog_wait_val("size", 26.7)
 
         # Check that changing units affects the text input
-        unit = "1073741824" if m.image in ["rhel-8-6-distropkg", "rhel-8-7-distropkg"] else "1000000000"
+        unit = "1000000000"
         b.select_from_dropdown(".size-unit", unit)
-        self.dialog_wait_val("size", "0.0249" if m.image in ["rhel-8-6-distropkg", "rhel-8-7-distropkg"] else "0.0267", unit)
+        self.dialog_wait_val("size", "0.0267", unit)
 
         self.dialog_apply()
         self.dialog_wait_close()

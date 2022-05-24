@@ -58,6 +58,7 @@ import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { ListingTable } from 'cockpit-components-table.jsx';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { ShutdownModal } from 'cockpit-components-shutdown.jsx';
+import { WithDialogs } from "dialogs.jsx";
 
 import { superuser } from 'superuser';
 import * as PK from "packagekit.js";
@@ -856,12 +857,12 @@ class CardsPage extends React.Component {
     constructor() {
         super();
         this.state = {
-            backend: undefined,
+            autoupdates_backend: undefined,
         };
     }
 
     componentDidMount() {
-        getBackend().then(b => { this.setState({ backend: b }) });
+        getBackend().then(b => { this.setState({ autoupdates_backend: b }) });
     }
 
     render() {
@@ -877,9 +878,9 @@ class CardsPage extends React.Component {
             <KpatchStatus />
         </Stack>;
 
-        if (this.state.backend) {
+        if (this.state.autoupdates_backend) {
             settingsContent = <Stack hasGutter>
-                <AutoUpdates backend={this.state.backend} privileged={this.props.privileged} />
+                <AutoUpdates privileged={this.props.privileged} />
                 <KpatchSettings privileged={this.props.privileged} />
             </Stack>;
         }
@@ -933,7 +934,7 @@ class CardsPage extends React.Component {
             });
         }
 
-        if ((!this.state.backend || !this.state.backend.enabled) && this.props.history.length > 0) { // automatic updates are not tracked by PackageKit, hide history when they are enabled
+        if ((!this.state.autoupdates_backend || !this.state.autoupdates_backend.enabled) && this.props.history.length > 0) { // automatic updates are not tracked by PackageKit, hide history when they are enabled
             cardContents.push({
                 id: "update-history",
                 title: _("Update history"),
@@ -1593,9 +1594,11 @@ class OsUpdates extends React.Component {
             content = <PageSection variant={PageSectionVariants.light} className="ct-pagesection-mobile">{content}</PageSection>;
 
         return (
-            <Page>
-                {content}
-            </Page>
+            <WithDialogs>
+                <Page>
+                    {content}
+                </Page>
+            </WithDialogs>
         );
     }
 }

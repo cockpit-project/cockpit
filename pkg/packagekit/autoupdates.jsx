@@ -18,8 +18,7 @@
  */
 
 import cockpit from "cockpit";
-import React from "react";
-import PropTypes from 'prop-types';
+import React, { useState } from "react";
 import {
     Alert, Button, Flex, FlexItem, Form, FormGroup,
     FormSelect, FormSelectOption,
@@ -27,6 +26,8 @@ import {
 } from '@patternfly/react-core';
 
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
+import { useDialogs } from "dialogs.jsx";
+import { useInit } from "hooks";
 
 const _ = cockpit.gettext;
 
@@ -237,71 +238,73 @@ export function getBackend(forceReinit) {
     return getBackend.promise;
 }
 
-export class AutoUpdates extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            pending: false,
-            showModal: false,
-            backend: props.backend,
-            enabled: props.backend && props.backend.enabled,
-            type: props.backend && props.backend.type,
-            day: props.backend && props.backend.day,
-            time: props.backend && props.backend.time && props.backend.time.padStart(5, "0"),
-        };
-        this.handleChange = this.handleChange.bind(this);
-    }
+const AutoUpdatesDialog = ({ backend }) => {
+    const Dialogs = useDialogs();
+    const [pending, setPending] = useState(false);
+    const [enabled, setEnabled] = useState(backend.enabled);
+    const [type, setType] = useState(backend.type);
+    const [day, setDay] = useState(backend.day);
+    const [time, setTime] = useState(backend.time && backend.time.padStart(5, "0"));
 
-    handleChange(event) {
-        const { enabled, type, day, time, hour, minute } = this.state;
-
-        if (hour === null || minute === null)
-            return;
-
-        this.setState({ pending: true });
-        this.state.backend.setConfig(enabled, type, day, time)
-                .always(() => {
-                    this.setState({ pending: false, showModal: false });
-                });
+    function save(event) {
+        setPending(true);
+        backend.setConfig(enabled, type, day, time)
+                .always(Dialogs.close);
 
         if (event)
             event.preventDefault();
         return false;
     }
 
-    render() {
-        if (!this.state.backend)
-            return null;
-
-        const enabled = !this.state.pending && this.props.privileged;
-        const body = (
-            <Form isHorizontal onSubmit={this.handleChange}>
+    return (
+        <Modal position="top" variant="small" id="automatic-updates-dialog" isOpen
+               title={_("Automatic updates")}
+               onClose={Dialogs.close}
+               footer={
+                   <>
+                       <Button variant="primary"
+                               isLoading={pending}
+                               isDisabled={pending}
+                               onClick={save}>
+                           {_("Save changes")}
+                       </Button>
+                       <Button variant="link"
+                               isDisabled={pending}
+                               onClick={Dialogs.close}>
+                           {_("Cancel")}
+                       </Button>
+                   </>
+               }>
+            <Form isHorizontal onSubmit={save}>
                 <FormGroup fieldId="type" label={_("Type")} hasNoPaddingTop>
-                    <Radio isChecked={!this.state.enabled}
-                           onChange={e => this.setState({ enabled: false, type: null })}
-                           isDisabled={!enabled}
+                    <Radio isChecked={!enabled}
+                           onChange={e => { setEnabled(false); setType(null) }}
+                           isDisabled={pending}
                            label={_("No updates")}
                            id="no-updates"
                            name="type" />
-                    <Radio isChecked={this.state.enabled && this.state.type === "security"}
-                           onChange={e => this.setState({ enabled: true, type: "security" })}
-                           isDisabled={!enabled}
+                    <Radio isChecked={enabled && type === "security"}
+                           onChange={e => { setEnabled(true); setType("security") }}
+                           isDisabled={pending}
                            label={_("Security updates only")}
                            id="security-updates"
                            name="type" />
-                    <Radio isChecked={this.state.enabled && this.state.type === "all"}
-                           onChange={e => this.setState({ enabled: true, type: "all" })}
-                           isDisabled={!enabled}
+                    <Radio isChecked={enabled && type === "all"}
+                           onChange={e => { setEnabled(true); setType("all") }}
+                           isDisabled={pending}
                            label={_("All updates")}
                            id="all-updates"
                            name="type" />
                 </FormGroup>
 
-                {this.state.enabled && <>
+                {enabled &&
+                <>
                     <FormGroup fieldId="when" label={_("When")}>
                         <Flex className="auto-update-group">
-                            <FormSelect id="auto-update-day" isDisabled={!enabled} value={this.state.day == "" ? "everyday" : this.state.day}
-                                        onChange={d => this.setState({ day: d == "everyday" ? "" : d })}>
+                            <FormSelect id="auto-update-day"
+                                         isDisabled={pending}
+                                         value={day == "" ? "everyday" : day}
+                                         onChange={d => setDay(d == "everyday" ? "" : d) }>
                                 <FormSelectOption value="everyday" label={_("every day")} />
                                 <FormSelectOption value="mon" label={_("Mondays")} />
                                 <FormSelectOption value="tue" label={_("Tuesdays")} />
@@ -314,123 +317,97 @@ export class AutoUpdates extends React.Component {
 
                             <span className="auto-conf-text">{_("at")}</span>
 
-                            <TimePicker time={this.state.time} is24Hour
-                                        menuAppendTo={() => document.body}
-                                        id="auto-update-time" isDisabled={!enabled}
-                                        invalidFormatErrorMessage={_("Invalid time format")}
-                                        onChange={(time, hour, minute) => this.setState({ time, hour, minute })} />
+                            <TimePicker time={time} is24Hour
+                                         menuAppendTo={() => document.body}
+                                         id="auto-update-time" isDisabled={pending}
+                                         invalidFormatErrorMessage={_("Invalid time format")}
+                                         onChange={time => setTime(time)} />
                         </Flex>
                     </FormGroup>
 
                     <Alert variant="info" title={_("This host will reboot after updates are installed.")} isInline />
                 </>}
             </Form>
+        </Modal>);
+};
+
+export const AutoUpdates = ({ privileged }) => {
+    const Dialogs = useDialogs();
+    const [backend, setBackend] = useState(null);
+    useInit(() => getBackend().then(setBackend));
+
+    if (!backend)
+        return null;
+
+    let state = null;
+    if (!backend.enabled)
+        state = _("Disabled");
+    if (!backend.installed)
+        state = _("Not set up");
+
+    const days = {
+        "": _("every day"),
+        mon: _("every Monday"),
+        tue: _("every Tuesday"),
+        wed: _("every Wednesday"),
+        thu: _("every Thursday"),
+        fri: _("every Friday"),
+        sat: _("every Saturday"),
+        sun: _("every Sunday")
+    };
+
+    let desc = null;
+
+    if (backend.enabled && backend.supported) {
+        const day = days[backend.day];
+        const time = backend.time;
+        desc = backend.type == "security"
+            ? cockpit.format(_("Security updates will be applied $0 at $1"), day, time)
+            : cockpit.format(_("Updates will be applied $0 at $1"), day, time);
+    }
+
+    if (privileged && backend.installed && !backend.supported)
+        return (
+            <div id="autoupdates-settings">
+                <Alert isInline
+                       variant="info"
+                       className="autoupdates-card-error"
+                       title={_("Failed to parse unit files for dnf-automatic.timer or dnf-automatic-install.timer. Please remove custom overrides to configure automatic updates.")} />
+            </div>
         );
 
-        let state = null;
-        if (!this.state.backend.enabled)
-            state = _("Disabled");
-        if (!this.state.backend.installed)
-            state = _("Not set up");
-
-        const days = {
-            "": _("every day"),
-            mon: _("every Monday"),
-            tue: _("every Tuesday"),
-            wed: _("every Wednesday"),
-            thu: _("every Thursday"),
-            fri: _("every Friday"),
-            sat: _("every Saturday"),
-            sun: _("every Sunday")
-        };
-
-        let desc = null;
-
-        if (this.state.backend.enabled && this.state.backend.supported) {
-            const day = days[this.state.backend.day];
-            const time = this.state.backend.time;
-            desc = this.state.backend.type == "security"
-                ? cockpit.format(_("Security updates will be applied $0 at $1"), day, time)
-                : cockpit.format(_("Updates will be applied $0 at $1"), day, time);
-        }
-
-        const self = this;
-
-        if (enabled && this.state.backend.installed && !this.state.backend.supported)
-            return (
-                <div id="autoupdates-settings">
-                    <Alert isInline
-                        variant="info"
-                        className="autoupdates-card-error"
-                        title={_("Failed to parse unit files for dnf-automatic.timer or dnf-automatic-install.timer. Please remove custom overrides to configure automatic updates.")} />
-                </div>
-            );
-
-        return (<>
-            <div id="autoupdates-settings">
-                <Flex alignItems={{ default: 'alignItemsCenter' }}>
-                    <Flex grow={{ default: 'grow' }} alignItems={{ default: 'alignItemsBaseline' }}>
-                        <FlexItem>
-                            <b>{_("Automatic updates")}</b>
-                        </FlexItem>
-                        <FlexItem>
-                            {state}
-                        </FlexItem>
-                    </Flex>
-                    <Flex>
-                        <Button variant="secondary"
-                                isDisabled={!enabled}
-                                isSmall
-                                onClick={() => {
-                                    if (!this.state.backend.installed) {
-                                        install_dialog(this.state.backend.packageName)
-                                                .then(() => {
-                                                    getBackend(true).then(b => {
-                                                        self.setState({
-                                                            backend: b,
-                                                            enabled: b.enabled,
-                                                            type: b.type,
-                                                            day: b.day,
-                                                            time: b.time && b.time.padStart(5, "0"),
-                                                            showModal: true,
-                                                        });
-                                                    });
-                                                }, () => null);
-                                    } else {
-                                        this.setState({ showModal: true });
-                                    }
-                                }}>
-                            {!this.state.backend.installed ? _("Enable") : _("Edit")}
-                        </Button>
-                    </Flex>
+    return (
+        <div id="autoupdates-settings">
+            <Flex alignItems={{ default: 'alignItemsCenter' }}>
+                <Flex grow={{ default: 'grow' }} alignItems={{ default: 'alignItemsBaseline' }}>
+                    <FlexItem>
+                        <b>{_("Automatic updates")}</b>
+                    </FlexItem>
+                    <FlexItem>
+                        {state}
+                    </FlexItem>
                 </Flex>
-                {desc}
-            </div>
-            <Modal position="top" variant="small" id="automatic-updates-dialog" isOpen={this.state.showModal}
-                title={_("Automatic updates")}
-                onClose={() => this.setState({ showModal: false })}
-                footer={
-                    <>
-                        <Button variant="primary"
-                                isLoading={ this.state.pending }
-                                isDisabled={ this.state.pending }
-                                onClick={ this.handleChange }>
-                            {_("Save changes")}
-                        </Button>
-                        <Button variant="link"
-                                isDisabled={ this.state.pending }
-                                onClick={() => this.setState({ showModal: false })}>
-                            {_("Cancel")}
-                        </Button>
-                    </>
-                }>
-                {body}
-            </Modal>
-        </>);
-    }
-}
-
-AutoUpdates.propTypes = {
-    privileged: PropTypes.bool.isRequired,
-    backend: PropTypes.object.isRequired,
+                <Flex>
+                    <Button variant="secondary"
+                            isDisabled={!privileged}
+                            isSmall
+                            onClick={() => {
+                                if (!backend.installed) {
+                                    install_dialog(backend.packageName)
+                                            .then(() => {
+                                                getBackend(true).then(b => {
+                                                    setBackend(b);
+                                                    Dialogs.show(<AutoUpdatesDialog backend={b} />);
+                                                });
+                                            }, () => null);
+                                } else {
+                                    Dialogs.show(<AutoUpdatesDialog backend={backend} />);
+                                }
+                            }}>
+                        {!backend.installed ? _("Enable") : _("Edit")}
+                    </Button>
+                </Flex>
+            </Flex>
+            {desc}
+        </div>);
 };

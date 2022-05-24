@@ -16,12 +16,12 @@
 *.trs
 .deps/
 .dirstamp
-.extra_dist
 Makefile
 Makefile.in
 
 # toplevel (/...)
 /*.list
+/.release-info
 /Coverage
 /aclocal.m4
 /autom4te.cache
@@ -58,6 +58,7 @@ Makefile.in
 /tmp-dist
 /tmp/
 /valgrind-suppressions
+/version.m4
 /webpack-jumpstart.tar
 /wsinstance-start
 
@@ -69,6 +70,7 @@ Makefile.in
 /pkg/*/*.metainfo.xml
 /po/*.pot
 /src/bridge/org.cockpit-project.cockpit-bridge.policy
+/src/client/org.cockpit_project.CockpitClient.metainfo.xml
 /src/common/fail.html.c
 /src/systemd/cockpit*.service
 /src/systemd/cockpit*.socket

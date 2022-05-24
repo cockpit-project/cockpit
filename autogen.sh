@@ -3,8 +3,8 @@
 set -eu
 
 srcdir="${0%/*}"
-
-(cd "${srcdir}" && autoreconf -is --warnings obsolete)
+"${srcdir}"/tools/release-info --init-dir=. --wip
+autoreconf -ifs --warnings obsolete "${srcdir}"
 [ -n "${NOCONFIGURE:-}" ] && exit
 
 case "${1:-}" in

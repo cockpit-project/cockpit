@@ -9,6 +9,3 @@ find $1/po -name '*.po' -print | while read file; do
         exit 1
     fi
 done
-
-# Validate our AppStream metadata
-find $1 -name '*.metainfo.xml' -o -name '*.appdata.xml' | xargs appstream-util validate

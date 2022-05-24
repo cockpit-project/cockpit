@@ -33,6 +33,11 @@ symbolicicondir = $(datadir)/icons/hicolor/symbolic/apps
 dist_symbolicicon_DATA = src/client/cockpit-client-symbolic.svg
 
 client_metainfodir = $(datadir)/metainfo
-dist_client_metainfo_DATA = src/client/org.cockpit_project.CockpitClient.metainfo.xml
+client_metainfo_DATA = src/client/org.cockpit_project.CockpitClient.metainfo.xml
+dist_noinst_SCRIPTS = src/client/add-metainfo-releases
+src/client/%.xml: src/client/%.xml.in $(srcdir)/src/client/add-metainfo-releases $(srcdir)/.release-info
+	$(AM_V_GEN) mkdir -p $(dir $@) && \
+		$(srcdir)/src/client/add-metainfo-releases $< $(srcdir)/.release-info $@
+	appstream-util validate '$@'
 
 endif

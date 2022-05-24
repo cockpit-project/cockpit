@@ -13,7 +13,7 @@ distdir="$1"
 # so producing a tarball from a tarball should also create the exact same
 # output.
 
-stamp="$(git show --format=%ct --no-patch 2>/dev/null || stat -c %Y .tarball)"
+stamp="$("${distdir}"/tools/release-info timestamp)"
 
 test -n "${stamp}"
 

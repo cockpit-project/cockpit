@@ -15,21 +15,12 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+m4_include([version.m4])
 AC_INIT([Cockpit],
-        [m4_esyscmd_s([if [ -f .tarball ]; then cat .tarball; else echo $(git describe | tr - . ); fi])],
+        VERSION_NUMBER,
         [devel@lists.cockpit-project.org],
         [cockpit],
         [https://cockpit-project.org/])
-
-# The above command needs to run in a git repository or `.tarball` file needs to be
-# present. If that didn't work bail early. Cockpit needs to know its own version number
-AC_MSG_CHECKING(that PACKAGE_VERSION is properly set)
-if test -z "$PACKAGE_VERSION"; then
-  AC_MSG_RESULT(no)
-  AC_MSG_ERROR(Please build from a .git checkout or .tar.xz tarball)
-else
-  AC_MSG_RESULT(yes)
-fi
 
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADERS([config.h])

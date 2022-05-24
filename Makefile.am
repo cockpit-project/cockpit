@@ -14,22 +14,34 @@ sbin_PROGRAMS =
 # -----------------------------------------------------------------------------
 #  make dist
 
+# Make sure we dist the current version, not the cached one from .release-info
+dist dist-xz distdir distcheck dump-dist distclean: VERSION=$(shell $(srcdir)/tools/release-info --fresh version)
+
 EXTRA_DIST = README.md
 
-# We override distdir for two reasons:
+# We override distdir for three reasons:
 #  - we need to make sure DISTFILES is built before calling `make distdir-am`
 #    to ensure that the Makefile.deps from the webpack build are available
 #  - we want to dist all files in tools/ and test/ without explicitly listing
+#  - we want to make sure every part of distdir-am runs with the same VERSION
 EXTRA_DIST += $(EXTRA_FILES)
 distdir: $(DISTFILES)
-	@if [ -e '$(srcdir)/.git' ]; then \
-		git -C '$(srcdir)' ls-files -x test/reference test tools > .extra_dist.tmp && \
-		mv .extra_dist.tmp '$(srcdir)/.extra_dist'; fi
-	$(MAKE) $(AM_MAKEFLAGS) distdir-am EXTRA_FILES="$$(tr '\n' ' ' < $(srcdir)/.extra_dist) .extra_dist"
-	echo $(VERSION) > $(distdir)/.tarball
-	$(srcdir)/src/client/add-metainfo-releases --version '$(VERSION)' '$(distdir)'/src/client/*.metainfo.xml
+	$(MAKE) $(AM_MAKEFLAGS) distdir-am VERSION="$(VERSION)" \
+		EXTRA_FILES="$$($(srcdir)/tools/release-info --fresh extra-dist)"
 	$(srcdir)/tools/adjust-distdir-timestamps "$(distdir)"
+	$(srcdir)/tools/check-dist $(distdir)
 	@echo '  DIST     $(DIST_ARCHIVES)'
+
+# Extra files that are created directly in the distdir
+$(distdir)/.release-info:
+	@rm -f '$(distdir)/version.m4'
+	$(AM_V_GEN) $(srcdir)/tools/release-info --init-dir $(distdir)
+
+# We regenerate configure to ensure it has the right version information
+dist-hook: $(distdir)/configure
+$(distdir)/configure: $(distdir)/.release-info
+	@rm -f '$(distdir)/configure'
+	$(AM_V_GEN) autoreconf $(distdir)
 
 # Various downstream packaging assets
 dist-hook: $(distdir)/tools/arch/PKGBUILD
@@ -49,9 +61,7 @@ $(distdir)/tools/debian/copyright:
 	$(AM_V_GEN) NODE_ENV=$(NODE_ENV) $(srcdir)/tools/build-debian-copyright > $@
 
 DISTCHECK_CONFIGURE_FLAGS = --enable-prefix-only
-
-distcheck-hook:
-	$(srcdir)/tools/check-dist $(distdir)
+CLEANFILES += cockpit-*.tar.xz
 
 dump-dist:
 	@echo "$(abs_builddir)/$(distdir).tar.xz"

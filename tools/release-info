@@ -1,0 +1,145 @@
+#!/usr/bin/python3
+
+import argparse
+import json
+import os
+import re
+import shlex
+import sys
+import subprocess
+import time
+
+BASE_DIR = os.path.realpath(f'{__file__}/../..')
+
+
+def git(*args, **kwargs):
+    return subprocess.check_output(['git', *args], cwd=BASE_DIR, text=True, **kwargs).strip()
+
+
+def release(version, timestamp, points, devel=False):
+    return dict(version=version.replace('-', '.'), timestamp=int(timestamp), points=points, devel=devel)
+
+
+def get_points(body):
+    for text in re.split('^ *[*-]', body, flags=re.MULTILINE):
+        if point := ' '.join(text.split()).strip():
+            yield point
+
+
+def release_for_blob(blob):
+    version, timestamp, body = blob.split('|', 2)
+    return release(version, timestamp, list(get_points(body)))
+
+
+def compute_tagged_releases(up_to):
+    output = git('for-each-ref', '--shell', '--sort=taggerdate', '--format',
+                 '%(if)%(taggerdate)%(then)%(refname:short)|%(taggerdate:unix)|%(contents:body)%(end)',
+                 'refs/tags', '--merged', up_to)
+
+    return [release_for_blob(blob) for blob in shlex.split(output) if blob]
+
+
+def compute_current_state():
+    return git('describe', '--dirty')
+
+
+def compute_dist_releases():
+    current_state = compute_current_state()
+    last_commit = git('describe', 'HEAD')
+    last_release = git('describe', '--abbrev=0', last_commit)
+    releases = compute_tagged_releases(up_to=last_release)
+
+    if last_commit != last_release:
+        commits_since_last_release = git('log', '--format=%s', last_commit, '--not', last_release).split('\n')
+        timestamp = git('log', '-n1', '--format=%ct', last_commit)
+        releases.append(release(last_commit, timestamp, points=commits_since_last_release, devel=True))
+
+    if current_state != last_commit:
+        changed_in_tree_since_commit = git('diff', '--name-only', last_commit).split('\n')
+        timestamp = time.time()  # Use the current time
+        releases.append(release(current_state, timestamp, points=changed_in_tree_since_commit, devel=True))
+
+    releases.reverse()
+
+    return releases
+
+
+def compute_wip_release():
+    last_release = git('describe', '--abbrev=0')
+    timestamp = git('log', '-n1', '--format=%ct', last_release)
+    return release(last_release + '.wip', timestamp, ['Built from git checkout'], devel=True)
+
+
+def compute_extra_dist():
+    return git('ls-files', '-x', 'test/reference', 'test', 'tools').split('\n')
+
+
+def compute_release_info(wip=False, args=None):
+    if not os.path.exists(f'{BASE_DIR}/.git'):
+        return None
+
+    # Optimisation: for common keys, don't do the whole computation
+    if args == 'version':
+        return {'version': compute_current_state().replace('-', '.')}
+    if args == 'extra-dist':
+        return {'extra-dist': compute_extra_dist()}
+
+    if wip:
+        releases = [compute_wip_release()]
+    else:
+        releases = compute_dist_releases()
+
+    return {
+        "package": "cockpit",
+        "version": releases[0]['version'],
+        "timestamp": releases[0]['timestamp'],
+        "releases": releases,
+        "extra-dist": [] if wip else compute_extra_dist()
+    }
+
+
+def load_from_file():
+    try:
+        with open(f'{BASE_DIR}/.release-info', encoding='utf-8') as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return None
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--fresh', action='store_true', help='Prefer to recalculate data, if in a WIP tree')
+    parser.add_argument('--wip', action='store_true', help='Use approximate version information')
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--init-dir', help='Initialise release information in a given directory (implies --fresh)')
+    group.add_argument('key', nargs='?', default=None, help='The information to print (eg. version)')
+    args = parser.parse_args()
+
+    if args.init_dir:
+        args.fresh = True
+
+    if args.fresh:
+        release_info = compute_release_info(args.wip, args.key) or load_from_file()
+    else:
+        release_info = load_from_file() or compute_release_info(args.wip, args.key)
+
+    if not release_info:
+        sys.exit(f'Unable to get release info from {BASE_DIR}/.release-info or git')
+
+    if args.key:
+        value = release_info[args.key]
+        if isinstance(value, str):
+            print(value)
+        elif args.key == 'extra-dist':
+            print(' '.join(value))
+        else:
+            print(value)
+    elif args.init_dir:
+        with open(f'{args.init_dir}/.release-info', 'w', encoding='utf-8') as file:
+            file.write(json.dumps(release_info, indent=4))
+        with open(f'{args.init_dir}/version.m4', 'w', encoding='utf-8') as file:
+            file.write(f'm4_define(VERSION_NUMBER, [{release_info["version"]}])\n')
+
+
+if __name__ == '__main__':
+    main()

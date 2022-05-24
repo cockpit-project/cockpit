@@ -26,16 +26,27 @@ distdir: $(DISTFILES)
 		git -C '$(srcdir)' ls-files -x test/reference test tools > .extra_dist.tmp && \
 		mv .extra_dist.tmp '$(srcdir)/.extra_dist'; fi
 	$(MAKE) $(AM_MAKEFLAGS) distdir-am EXTRA_FILES="$$(tr '\n' ' ' < $(srcdir)/.extra_dist) .extra_dist"
-
-dist-hook:
 	echo $(VERSION) > $(distdir)/.tarball
 	$(srcdir)/src/client/add-metainfo-releases --version '$(VERSION)' '$(distdir)'/src/client/*.metainfo.xml
-	$(srcdir)/tools/create-spec --version '$(VERSION)' -o $(distdir)/tools/cockpit.spec $(srcdir)/tools/cockpit.spec.in
-	sed 's/VERSION/$(VERSION)/' $(srcdir)/tools/debian/changelog.in > $(distdir)/tools/debian/changelog
-	NODE_ENV=$(NODE_ENV) $(srcdir)/tools/build-debian-copyright > $(distdir)/tools/debian/copyright
-	sed 's/VERSION/$(VERSION)/' $(srcdir)/tools/arch/PKGBUILD.in > $(distdir)/tools/arch/PKGBUILD
 	$(srcdir)/tools/adjust-distdir-timestamps "$(distdir)"
 	@echo '  DIST     $(DIST_ARCHIVES)'
+
+# Various downstream packaging assets
+dist-hook: $(distdir)/tools/arch/PKGBUILD
+$(distdir)/tools/arch/PKGBUILD: $(distdir)/tools/arch/PKGBUILD.in
+	$(AM_V_GEN) sed "s/VERSION/$(VERSION)/" $< > $@
+
+dist-hook: $(distdir)/tools/cockpit.spec
+$(distdir)/tools/cockpit.spec: $(distdir)/tools/cockpit.spec.in
+	$(AM_V_GEN) $(srcdir)/tools/create-spec --version "$(VERSION)" -o $@ $<
+
+dist-hook: $(distdir)/tools/debian/changelog
+$(distdir)/tools/debian/changelog: $(distdir)/tools/debian/changelog.in
+	$(AM_V_GEN) sed "s/VERSION/$(VERSION)/" $< > $@
+
+dist-hook: $(distdir)/tools/debian/copyright
+$(distdir)/tools/debian/copyright:
+	$(AM_V_GEN) NODE_ENV=$(NODE_ENV) $(srcdir)/tools/build-debian-copyright > $@
 
 DISTCHECK_CONFIGURE_FLAGS = --enable-prefix-only
 

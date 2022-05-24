@@ -4,11 +4,22 @@ actions:
     # HACK: packit's "fix spec file" stage does not kick in here, and it does not take the spec from the tarball
     # https://github.com/packit/packit-service/issues/1515
     - sh -exc 'tools/create-spec --version $(git describe | tr - .) --build-all -o cockpit.spec tools/cockpit.spec.in'
+    # HACK: until FMF uses tests from dist-git source tarball: https://github.com/teemtee/tmt/issues/585
+    - sh -exc 'mkdir -p tmp; curl --silent --fail https://src.fedoraproject.org/rpms/cockpit/raw/rawhide/f/plans/upstream.fmf | sed -r "/ref:/ s/[0-9.]+/$(git describe --abbrev=0)/" > tmp/upstream.fmf'
+
   create-archive:
     # The sandcastle doesn't have enough ram to run webpack, so wait
     # until the webpack-jumpstart workflow has run and grab the result.
     - tools/webpack-jumpstart --wait --rebase
     - tools/make-dist
+
+# HACK: packit.yml and spec get synced by default; drop this when the plans/upstream.fmf HACK above gets dropped
+files_to_sync:
+  - packit.yaml
+  - cockpit.spec
+  - src: tmp/upstream.fmf
+    dest: plans/upstream.fmf
+
 srpm_build_deps:
   - automake
   - gcc

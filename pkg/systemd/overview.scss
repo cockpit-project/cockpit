@@ -214,6 +214,13 @@
 
   .ct-overview-header-subheading {
     font-size: var(--pf-global--FontSize--lg);
+
+    // Work around WebKit selection bug
+    // https://bugs.webkit.org/show_bug.cgi?id=200251
+    &::before {
+      display: block;
+      content: "";
+    }
   }
 }
 

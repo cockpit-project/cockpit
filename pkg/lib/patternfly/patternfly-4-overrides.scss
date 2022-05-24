@@ -242,3 +242,12 @@ svg {
 .pf-c-breadcrumb__link {
   cursor: pointer;
 }
+
+// WebKit (Cockpit Client, GNOME Web, and Safari) has a problem with selections
+// https://bugs.webkit.org/show_bug.cgi?id=200251
+// We can work around this for description lists, which often cause this problem
+.pf-c-progress__status::before,
+.pf-c-description-list__description::before {
+  display: block;
+  content: "";
+}

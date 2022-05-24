@@ -29,12 +29,13 @@ import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { ProfilesMenuDialogBody } from '../systemd/overview-cards/profiles-menu-dialog-body.jsx';
 import { superuser } from 'superuser';
 import { useObject, useEvent } from "hooks";
+import { useDialogs } from "dialogs.jsx";
 
 const _ = cockpit.gettext;
 
 export const TunedPerformanceProfile = () => {
+    const Dialogs = useDialogs();
     const [btnText, setBtnText] = useState();
-    const [isOpen, setIsOpen] = useState();
     const [state, setState] = useState();
     const [status, setStatus] = useState();
 
@@ -101,31 +102,32 @@ export const TunedPerformanceProfile = () => {
         updateButton();
     }, [updateButton]);
 
+    const showDialog = () => {
+        Dialogs.show(<TunedDialog updateButton={updateButton}
+                                  poll={poll}
+                                  tunedDbus={tuned} tunedService={tunedService} />);
+    };
+
     return (
         <Tooltip id="tuned-status-tooltip" content={status}>
             <Button id="tuned-status-button"
                     isAriaDisabled={btnText == "error" || state == "not-installed" || !superuser.allowed}
                     isInline
-                    onClick={() => setIsOpen(true)}
+                    onClick={showDialog}
                     variant='link'>
                 {btnText}
             </Button>
-            {isOpen && <TunedDialog close={() => setIsOpen(false)}
-                                    updateButton={updateButton}
-                                    poll={poll}
-                                    tunedDbus={tuned} tunedService={tunedService}
-            />}
         </Tooltip>
     );
 };
 
 const TunedDialog = ({
-    close,
     updateButton,
     poll,
     tunedDbus,
     tunedService,
 }) => {
+    const Dialogs = useDialogs();
     const [activeProfile, setActiveProfile] = useState();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState();
@@ -195,7 +197,7 @@ const TunedDialog = ({
 
         return promise
                 .then(setService)
-                .then(close)
+                .then(Dialogs.close)
                 .catch(setError);
     };
 
@@ -297,7 +299,7 @@ const TunedDialog = ({
         <Modal position="top" variant="medium"
                isOpen
                help={help}
-               onClose={close}
+               onClose={Dialogs.close}
                title={_("Change performance profile")}
                footer={
                    <>
@@ -305,7 +307,7 @@ const TunedDialog = ({
                        <Button variant='primary' isDisabled={!selected} onClick={setProfile}>
                            {_("Change profile")}
                        </Button>
-                       <Button variant='link' onClick={close}>
+                       <Button variant='link' onClick={Dialogs.close}>
                            {_("Cancel")}
                        </Button>
                    </>

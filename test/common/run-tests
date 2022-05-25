@@ -338,7 +338,7 @@ def run(opts, image):
 
     if opts.coverage:
         # This gives us a convenient link at the top of the logs, see link-patterns.json
-        print("Code coverage report in Coverage")
+        print("Code coverage report in Coverage/index.html")
 
     test_files = glob.glob(os.path.join(opts.test_dir, "check-*"))
     changed_tests = get_affected_tests(opts.test_dir, opts.base, test_files)

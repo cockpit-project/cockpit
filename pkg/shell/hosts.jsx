@@ -7,7 +7,6 @@ import { PageSidebar, Button, Tooltip } from '@patternfly/react-core';
 import { EditIcon, MinusIcon, CaretUpIcon, CaretDownIcon } from '@patternfly/react-icons';
 
 import 'polyfills';
-import { superuser } from "superuser";
 import { CockpitNav, CockpitNavItem } from "./nav.jsx";
 import { HostModal } from "./hosts_dialog.jsx";
 
@@ -56,7 +55,6 @@ export class CockpitHosts extends React.Component {
             editing: false,
             current_user: "",
             current_key: props.machine.key,
-            privileged: false,
             show_modal: false,
             edit_machine: null,
         };
@@ -70,10 +68,6 @@ export class CockpitHosts extends React.Component {
     }
 
     componentDidMount() {
-        superuser.addEventListener("changed", () => this.setState({ privileged: !!superuser.allowed }));
-
-        this.setState({ privileged: superuser.allowed });
-
         cockpit.user().then(user => {
             this.setState({ current_user: user.name || "" });
         });

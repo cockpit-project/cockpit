@@ -74,7 +74,7 @@ only-plugins=release,date,host,cgroups,networking
         if urlroot == "":
             b.assert_pixels("#sos-dialog", "dialog")
         b.click("#sos-dialog button:contains(Run report)")
-        with b.wait_timeout(120):
+        with b.wait_timeout(180):
             b.wait_not_present("#sos-dialog")
 
         b.wait_visible("tr:contains(mylabel) button:contains(Download)")

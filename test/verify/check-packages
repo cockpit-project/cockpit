@@ -89,10 +89,6 @@ class TestPackages(MachineCase):
         reload_packages()
         check_nav_entry("Test", False)
 
-        # The following override.json tests were enabled with PR #16884
-        if m.image in ['rhel-8-6-distropkg', 'rhel-8-7-distropkg']:
-            return
-
         # Hide the terminal with a system override
         self.restore_dir("/etc/cockpit")
         m.write("/etc/cockpit/systemd.override.json", """{

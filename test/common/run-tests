@@ -332,6 +332,23 @@ def list_tests(opts):
         print(n)
 
 
+def create_coverage_report():
+    base_dir = os.path.realpath(f'{__file__}/../../..')
+    output = os.environ.get("TEST_ATTACHMENTS", base_dir)
+    lcov_files = glob.glob(f"{base_dir}/lcov/*.info.gz")
+    try:
+        title = os.path.basename(subprocess.check_output(["git", "remote", "get-url", "origin"]))
+    except subprocess.CalledProcessError:
+        title = "?"
+    if len(lcov_files) > 0:
+        try:
+            subprocess.check_call(["genhtml", "--no-function-coverage",
+                                   "--title", title,
+                                   "--output-dir", f"{output}/Coverage"] + lcov_files)
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to create coverage report: {e}")
+
+
 def run(opts, image):
     fail_count = 0
     start_time = time.time()
@@ -445,14 +462,7 @@ def run(opts, image):
 
     # Create coverage report
     if opts.coverage:
-        base_dir = os.path.realpath(f'{__file__}/../../..')
-        output = os.environ.get("TEST_ATTACHMENTS", base_dir)
-        lcov_files = glob.glob(f"{base_dir}/lcov/*.info.gz")
-        if len(lcov_files) > 0:
-            try:
-                subprocess.check_call(["genhtml", "--no-function-coverage", "--output-dir", f"{output}/Coverage"] + lcov_files)
-            except subprocess.CalledProcessError as e:
-                print(f"Failed to create coverage report: {e}")
+        create_coverage_report()
 
     # print summary
     duration = int(time.time() - start_time)

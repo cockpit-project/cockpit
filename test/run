@@ -20,8 +20,13 @@ case $TEST_SCENARIO in
         test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify ${OPTS}
         ;;
     container-*)
+        container=${TEST_SCENARIO#*-}
+        if [ ! -d "containers/$container" ]; then
+            echo "Unknown test container: $container"
+            exit 1
+        fi
         test/image-prepare --quick --containers --verbose $TEST_OS
-        test/containers/run-tests --container ${TEST_SCENARIO#*-}
+        test/common/run-tests --test-dir test/containers --test-glob check-"$container"'*'
         ;;
     dnf-copr*)
         bots/image-customize -v --run-command 'dnf -y copr enable rpmsoftwaremanagement/dnf-nightly && dnf -y --setopt=install_weak_deps=False update' $TEST_OS

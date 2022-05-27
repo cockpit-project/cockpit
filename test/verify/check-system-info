@@ -869,7 +869,7 @@ password=foobar
         b.click("#system-health-shutdown-status-cancel-btn")
         b.wait_not_present('#system-health-shutdown-status')
         dbus_call = 'busctl get-property org.freedesktop.login1 /org/freedesktop/login1  org.freedesktop.login1.Manager ScheduledShutdown'
-        self.assertEqual('(st) "" 0', m.execute(dbus_call).strip())
+        self.assertIn('(st) "" ', m.execute(dbus_call).strip())
 
     @skipImage("crypto-policies not available", "fedora-coreos", "debian-stable", "debian-testing", "ubuntu-2204", "ubuntu-stable", "arch")
     def testCryptoPolicies(self):

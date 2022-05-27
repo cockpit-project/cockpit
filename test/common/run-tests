@@ -325,7 +325,7 @@ def detect_tests(test_files, image, opts):
 
 
 def list_tests(opts):
-    test_files = glob.glob(os.path.join(opts.test_dir, "check-*"))
+    test_files = glob.glob(os.path.join(opts.test_dir, opts.test_glob))
     serial_tests, parallel_tests = detect_tests(test_files, "dummy", opts)
     names = {t.command[-1] for t in serial_tests + parallel_tests}
     for n in sorted(names):
@@ -340,7 +340,7 @@ def run(opts, image):
         # This gives us a convenient link at the top of the logs, see link-patterns.json
         print("Code coverage report in Coverage")
 
-    test_files = glob.glob(os.path.join(opts.test_dir, "check-*"))
+    test_files = glob.glob(os.path.join(opts.test_dir, opts.test_glob))
     changed_tests = get_affected_tests(opts.test_dir, opts.base, test_files)
     serial_tests, parallel_tests = detect_tests(test_files, image, opts)
     serial_tests_len = len(serial_tests)
@@ -487,7 +487,9 @@ def main():
     parser.add_argument('--browser', metavar="hostname[:port]",
                         default=None, help="When using --machine, use this cockpit web address")
     parser.add_argument('--test-dir', default=os.environ.get("TEST_DIR", testvm.TEST_DIR),
-                        help="Directory in which to glob check-* files; default: %(default)s")
+                        help="Directory in which to glob for test files; default: %(default)s")
+    parser.add_argument('--test-glob', default="check-*",
+                        help="Pattern with which to glob in the test directory; default: %(default)s")
     parser.add_argument('--exclude', action="append", default=[], metavar="TestClass.testName",
                         help="Exclude test (exact match only); can be specified multiple times")
     parser.add_argument('--nondestructive-cpus', type=int, default=None,

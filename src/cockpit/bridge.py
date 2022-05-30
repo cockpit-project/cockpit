@@ -155,19 +155,7 @@ class Router(CockpitProtocolServer):
         endpoint.do_channel_data(channel, data)
 
 
-async def main():
-    parser = argparse.ArgumentParser(description='cockpit-bridge is run automatically inside of a Cockpit session.')
-    parser.add_argument('--privileged', action='store_true', help='Privileged copy of the bridge')
-    parser.add_argument('--packages', action='store_true', help='Show Cockpit package information')
-    parser.add_argument('--rules', action='store_true', help='Show Cockpit bridge rules')
-    parser.add_argument('--version', action='store_true', help='Show Cockpit version information')
-    args = parser.parse_args()
-
-    packages = Packages()
-    if args.packages:
-        packages.show()
-        sys.exit()
-
+async def run():
     logger.debug("Hi. How are you today?")
 
     loop = asyncio.get_event_loop()
@@ -180,7 +168,23 @@ async def main():
     await stdio.forward()
 
 
-if __name__ == '__main__':
+def main():
+    parser = argparse.ArgumentParser(description='cockpit-bridge is run automatically inside of a Cockpit session.')
+    parser.add_argument('--privileged', action='store_true', help='Privileged copy of the bridge')
+    parser.add_argument('--packages', action='store_true', help='Show Cockpit package information')
+    parser.add_argument('--rules', action='store_true', help='Show Cockpit bridge rules')
+    parser.add_argument('--version', action='store_true', help='Show Cockpit version information')
+    args = parser.parse_args()
+
+    packages = Packages()
+    if args.packages:
+        packages.show()
+        sys.exit()
+
     output = 'bridge.log' if not sys.stdout.isatty() else None
     logging.basicConfig(filename=output, level=logging.DEBUG)
-    asyncio.run(main(), debug=True)
+    asyncio.run(run(), debug=True)
+
+
+if __name__ == '__main__':
+    main()

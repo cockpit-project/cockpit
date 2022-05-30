@@ -120,6 +120,9 @@ unpack_from_cache() {
 # This stores a .tar file from stdin into the cache as a tree object.
 # Returns the ID.  Opposite of `git archive`, basically.
 tar_to_cache() {
+    # Need to do this before we set the GIT_* variables
+    init_cache
+
     # Use a sub-shell to enable cleanup of the temporary directory
     (
         tmpdir="$(mktemp --tmpdir --directory cockpit-tar-to-git.XXXXXX)"

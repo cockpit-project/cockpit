@@ -19,9 +19,11 @@
 import collections
 import hashlib
 import json
+import fnmatch
 import logging
 import mimetypes
 import os
+import zipfile
 
 from pathlib import Path
 
@@ -172,6 +174,25 @@ class Package:
             channel.send_data(file.read())
 
 
+class ZipPathPolyfill(zipfile.Path):
+    def all_the_things(self, glob):
+        if self.is_file() and fnmatch.fnmatch(self.name, glob):
+            yield self
+        elif self.is_dir():
+            for item in self.iterdir():
+                yield from item.all_the_things(glob)
+
+    def rglob(self, glob):
+        assert '/' not in glob
+        yield from self.all_the_things(glob)
+
+    def relative_to(self, path):
+        x = str(self)
+        y = str(path)
+        assert x.startswith(y)
+        return x[len(y):]
+
+
 class Packages:
     def __init__(self):
         self.packages = {}
@@ -216,6 +237,10 @@ class Packages:
         # we only checksum the system content if there's no user content
         if not self.packages:
             checksums.append(hashlib.sha256())
+
+        if hasattr(__spec__.loader, 'archive'):
+            root = ZipPathPolyfill(zipfile.ZipFile(__spec__.loader.archive, 'r'))
+            self.try_packages_dir(root / 'dist', checksums)
 
         xdg_data_dirs = os.environ.get('XDG_DATA_DIRS', '/usr/local/share:/usr/share')
         for xdg_dir in xdg_data_dirs.split(':'):

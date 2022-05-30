@@ -23,12 +23,12 @@ import os
 import shlex
 import sys
 
-from asyncstdio import AsyncStdio
-from channeltypes import CHANNEL_TYPES
-from channel import Channel
-from packages import Packages
-from peer import Peer
-from protocol import CockpitProtocolServer, CockpitProtocolError
+from .asyncstdio import AsyncStdio
+from .channeltypes import CHANNEL_TYPES
+from .channel import Channel
+from .packages import Packages
+from .peer import Peer
+from .protocol import CockpitProtocolServer, CockpitProtocolError
 
 logger = logging.getLogger('cockpit.bridge')
 

@@ -23,6 +23,8 @@ import logging
 import mimetypes
 import os
 
+from pathlib import Path
+
 import packaging.version
 
 VERSION = packaging.version.Version("300")
@@ -37,37 +39,38 @@ logger = logging.getLogger('cockpit.packages')
 # We're allowed to change it as we wish, but let's try to match behaviour with
 # cockpitpackages.c for the time being, since the unit tests depend on it.
 def directory_items(path):
-    with os.scandir(path) as items:
-        return sorted(items, key=lambda item: item.name)
+    return sorted(path.iterdir(), key=lambda item: item.name)
 
 
 class Package:
-    def __init__(self, entry):
-        self.path = entry.path
+    def __init__(self, path):
+        self.path = path
 
-        with open(f'{self.path}/manifest.json') as manifest_file:
+        with (self.path / 'manifest.json').open(encoding='utf-8') as manifest_file:
             self.manifest = json.load(manifest_file)
 
         if 'name' in self.manifest:
             self.name = self.manifest['name']
         else:
-            self.name = entry.name
+            self.name = path.name
 
         self.content_security_policy = None
         self.priority = self.manifest.get('priority', 1)
 
         self.files = set()
-        for path, _, files in os.walk(self.path):
-            for file in files:
-                self.files.add(os.path.relpath(f'{path}/{file}', self.path))
+        for file in self.path.rglob('*'):
+            self.files.add(file.relative_to(self.path))
 
     def walk(self, checksums, path=None):
-        for item in directory_items(path or self.path):
+        if not path:
+            path = self.path
+
+        for item in directory_items(path):
             if item.is_dir():
-                self.walk(checksums, item.path)
+                self.walk(checksums, item)
             elif item.is_file():
-                rel = os.path.relpath(item.path, self.path)
-                with open(item.path, 'rb') as file:
+                rel = item.relative_to(path)
+                with item.open('rb') as file:
                     data = file.read()
                 sha = hashlib.sha256(data).hexdigest()
                 for context in checksums:
@@ -158,7 +161,7 @@ class Package:
 
         content_type, encoding = mimetypes.guess_type(filename)
 
-        with open(f'{self.path}/{filename}', 'rb') as file:
+        with (self.path / filename).open('rb') as file:
             headers = {
                 "Access-Control-Allow-Origin": channel.origin,
                 "Content-Encoding": encoding,
@@ -182,9 +185,9 @@ class Packages:
         if self.checksum:
             print(f'checksum = {self.checksum}')
 
-    def try_xdg_dir(self, xdg_dir, checksums):
+    def try_packages_dir(self, path, checksums):
         try:
-            items = directory_items(f'{xdg_dir}/cockpit')
+            items = directory_items(path)
         except FileNotFoundError:
             return
 
@@ -208,7 +211,7 @@ class Packages:
         checksums = []
 
         xdg_data_home = os.environ.get('XDG_DATA_HOME') or os.path.expanduser('~/.local/share')
-        self.try_xdg_dir(xdg_data_home, checksums)
+        self.try_packages_dir(Path(xdg_data_home) / 'cockpit', checksums)
 
         # we only checksum the system content if there's no user content
         if not self.packages:
@@ -216,7 +219,7 @@ class Packages:
 
         xdg_data_dirs = os.environ.get('XDG_DATA_DIRS', '/usr/local/share:/usr/share')
         for xdg_dir in xdg_data_dirs.split(':'):
-            self.try_xdg_dir(xdg_dir, checksums)
+            self.try_packages_dir(Path(xdg_dir) / 'cockpit', checksums)
 
         if checksums:
             self.checksum = checksums[0].hexdigest()

@@ -17,5 +17,12 @@ set +x
 /bin/mount --bind /host/var /var
 /bin/mount --bind /host/etc/ssh /etc/ssh
 
+# Make the container think it's the host OS version
+if ! mountpoint -q /etc/os-release; then
+    rm -f /etc/os-release /usr/lib/os-release
+    ln -sv /host/etc/os-release /etc/os-release
+    ln -sv /host/usr/lib/os-release /usr/lib/os-release
+fi
+
 # And run cockpit-ws
 exec /usr/bin/nsenter --net=/container/target-namespace/ns/net --uts=/container/target-namespace/ns/uts -- /usr/libexec/cockpit-ws "$@"

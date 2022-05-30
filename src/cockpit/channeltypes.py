@@ -22,7 +22,7 @@ import os
 import pwd
 import subprocess
 
-from channel import Endpoint, Channel
+from .channel import Endpoint, Channel
 
 CHANNEL_TYPES = []
 logger = logging.getLogger('cockpit.channeltypes')

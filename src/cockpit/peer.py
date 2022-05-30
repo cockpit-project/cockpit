@@ -19,8 +19,8 @@ import asyncio
 import socket
 import subprocess
 
-from channel import Endpoint
-from protocol import CockpitProtocolClient
+from .channel import Endpoint
+from .protocol import CockpitProtocolClient
 
 
 class PeerProtocol(CockpitProtocolClient):

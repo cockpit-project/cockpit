@@ -18,6 +18,7 @@
 import argparse
 import asyncio
 import logging
+import os
 import shlex
 import sys
 
@@ -181,7 +182,7 @@ def main():
         packages.show()
         sys.exit()
 
-    output = 'bridge.log' if not sys.stdout.isatty() else None
+    output = os.environ.get('COCKPIT_BRIDGE_LOG') if not sys.stdout.isatty() else None
     logging.basicConfig(filename=output, level=logging.DEBUG)
     asyncio.run(run(), debug=True)
 

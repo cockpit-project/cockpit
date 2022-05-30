@@ -32,7 +32,7 @@ logger = logging.getLogger('cockpit.bridge')
 
 
 def parse_os_release():
-    with open('/usr/lib/os-release') as os_release:
+    with open('/usr/lib/os-release', encoding='utf-8') as os_release:
         lexer = shlex.shlex(os_release, posix=True, punctuation_chars=True)
         return dict(token.split('=', 1) for token in lexer)
 

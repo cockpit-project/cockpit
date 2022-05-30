@@ -17,6 +17,7 @@
 
 import argparse
 import asyncio
+import json
 import logging
 import os
 import shlex
@@ -173,18 +174,20 @@ def main():
     parser = argparse.ArgumentParser(description='cockpit-bridge is run automatically inside of a Cockpit session.')
     parser.add_argument('--privileged', action='store_true', help='Privileged copy of the bridge')
     parser.add_argument('--packages', action='store_true', help='Show Cockpit package information')
+    parser.add_argument('--bridges', action='store_true', help='Show Cockpit bridges information')
     parser.add_argument('--rules', action='store_true', help='Show Cockpit bridge rules')
     parser.add_argument('--version', action='store_true', help='Show Cockpit version information')
     args = parser.parse_args()
 
-    packages = Packages()
-    if args.packages:
-        packages.show()
-        sys.exit()
-
     output = os.environ.get('COCKPIT_BRIDGE_LOG') if not sys.stdout.isatty() else None
     logging.basicConfig(filename=output, level=logging.DEBUG)
-    asyncio.run(run(), debug=True)
+
+    if args.packages:
+        Packages().show()
+    elif args.bridges:
+        print(json.dumps(Packages().get_bridges(), indent=2))
+    else:
+        asyncio.run(run(), debug=True)
 
 
 if __name__ == '__main__':

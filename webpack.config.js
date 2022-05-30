@@ -217,6 +217,7 @@ const info = {
         "sosreport/sosreport.png",
 
         "static/login.html",
+        "static/robots.txt",
 
         "storaged/index.html",
         "storaged/images/storage-array.png",

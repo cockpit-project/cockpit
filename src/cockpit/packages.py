@@ -58,6 +58,7 @@ class Package:
 
         self.content_security_policy = None
         self.priority = self.manifest.get('priority', 1)
+        self.bridges = self.manifest.get('bridges', [])
 
         self.files = set()
         for file in self.path.rglob('*'):
@@ -291,3 +292,9 @@ class Packages:
             channel.http_error(404, "Not Found")
         else:
             self.serve_package_file(path, channel)
+
+    def get_bridges(self):
+        bridges = []
+        for package in sorted(self.packages.values(), key=lambda package: -package.priority):
+            bridges.extend(package.bridges)
+        return bridges

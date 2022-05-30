@@ -24,68 +24,22 @@ jobs:
       - name: Workaround for https://github.com/actions/checkout/pull/697
         run: git fetch --force origin $(git describe --tags):refs/tags/$(git describe --tags)
 
-      - name: Get version number
-        run: git describe | tee version
-
-      - name: Extract tag body
-        run: git tag --points-at "${GITHUB_REF}" --format '%(contents:body)' | grep . | tee release-body
-
       - name: Bootstrap automake
         run: ./autogen.sh
 
       - name: Build release
         run: make dist -j$(nproc)
 
-      - name: Note source archive name
-        run: basename "$(make dump-dist)" | tee source-filename
-
       - id: publish
-        name: Publish release
-        uses: actions/github-script@v4
+        name: Publish GitHub release
+        uses: cockpit-project/action-release@62db9d9850a1adec300500d84035c4f523fd5290
         with:
-          script: |
-            const fs = require('fs');
-            const version = fs.readFileSync('version', {encoding: 'ascii'}).trim();
-            const source_filename = fs.readFileSync('source-filename', {encoding: 'ascii'}).trim();
-            const release_body = fs.readFileSync('release-body', {encoding: 'utf-8'});
-
-            const source = fs.readFileSync(source_filename);
-
-            const release = await github.repos.createRelease({
-                owner: context.repo.owner, repo: context.repo.repo,
-                tag_name: version, name: version, body: release_body, draft: true
-                });
-
-            /* We get a lot of connection reset errors... */
-            for (let retry = 0; retry < 5; retry++) {
-                try {
-                    const upload = await github.repos.uploadReleaseAsset({
-                        owner: context.repo.owner, repo: context.repo.repo, release_id: release.data.id,
-                        name: source_filename, headers: {'Content-Type': 'application/x-xz'}, data: source});
-                    break;
-                } catch (error) {
-                    console.log(`Failed to upload (status ${error.status})`);
-                    if (error.status != 500) {
-                        throw error;
-                    }
-                }
-            }
-
-            const update = await github.repos.updateRelease({
-              owner: context.repo.owner, repo: context.repo.repo, release_id: release.data.id,
-              draft: false});
-
-            core.setOutput('checksum', require('crypto').createHash('sha256').update(source).digest('hex'));
-            core.setOutput('download', update.data.assets[0].browser_download_url);
-            core.setOutput('filename', source_filename);
-            core.setOutput('version', version);
+          filename: "cockpit-${{ github.ref_name }}.tar.xz"
 
     outputs:
+      filename: ${{ steps.publish.outputs.filename }}
       checksum: ${{ steps.publish.outputs.checksum }}
       download: ${{ steps.publish.outputs.download }}
-      filename: ${{ steps.publish.outputs.filename }}
-      version: ${{ steps.publish.outputs.version }}
-
 
   guide:
     needs: source
@@ -136,7 +90,7 @@ jobs:
 
           cd website
           git add guide/
-          git commit --message='Update guide to version ${{ needs.source.outputs.version }}'
+          git commit --message='Update guide to version ${{ github.ref_name }}'
           git show --stat
           git push origin main
 
@@ -167,15 +121,14 @@ jobs:
 
           DOWNLOAD='${{ needs.source.outputs.download }}'
           CHECKSUM='${{ needs.source.outputs.checksum }}'
-          VERSION='${{ needs.source.outputs.version }}'
 
           git config --global user.name "GitHub Workflow"
           git config --global user.email "cockpituous@cockpit-project.org"
 
           cd flathub
-          git checkout -b "${VERSION}"
+          git checkout -b "${{ github.ref_name }}"
           git add "$(../src/containers/flatpak/prepare "${DOWNLOAD}" "${CHECKSUM}")"
-          git commit -m "Update to version ${VERSION}"
+          git commit -m "Update to version ${{ github.ref_name }}"
           git show
           git push git@github.com:cockpit-project/org.cockpit_project.CockpitClient HEAD
 

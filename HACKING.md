@@ -145,6 +145,29 @@ comments or unused identifiers:
 
     $ make ESLINT=0
 
+## Running stylelint
+
+Cockpit uses [Stylelint](https://stylelint.io/) to automatically check CSS code
+style in `.css` and `scss` files.
+
+The linter is executed within every build as a webpack preloader.
+
+For developer convenience, the Stylelint can be started explicitly by:
+
+    $ npm run stylelint
+
+Violations of some rules can be fixed automatically by:
+
+    $ npm run stylelint:fix
+
+Rules configuration can be found in the `.stylelintrc.json` file.
+
+During fast iterative development, you can also choose to not run stylelint.
+This speeds up the build and avoids build failures due to e. g. ill-formatted
+css or other issues:
+
+    $ make STYLELINT=0
+
 ## Working on your local machine: Cockpit's session pages
 
 It's easy to set up your local Linux machine for rapid development of Cockpit's

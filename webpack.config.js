@@ -248,6 +248,7 @@ const CompressionPlugin = require("compression-webpack-plugin");
 const TerserJSPlugin = require('terser-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
+const StylelintPlugin = require('stylelint-webpack-plugin');
 const CockpitPoPlugin = require("./pkg/lib/cockpit-po-plugin");
 
 /* These can be overridden, typically from the Makefile.am */
@@ -262,6 +263,9 @@ const production = process.env.NODE_ENV === 'production';
 
 /* Default to disable eslint for faster production builds */
 const eslint = process.env.ESLINT ? (process.env.ESLINT !== '0') : !production;
+
+/* Default to disable csslint for faster production builds */
+const stylelint = process.env.STYLELINT ? (process.env.STYLELINT !== '0') : !production;
 
 /*
  * Note that we're avoiding the use of path.join as webpack and nodejs
@@ -369,6 +373,12 @@ if (production) {
 
 if (eslint) {
     plugins.push(new ESLintPlugin({ extensions: ["js", "jsx"] }));
+}
+
+if (stylelint) {
+    plugins.push(new StylelintPlugin({
+      context: "pkg/" + section,
+    }));
 }
 
 if (section.startsWith('base1'))

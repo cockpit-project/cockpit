@@ -389,11 +389,11 @@ class Browser:
     # TODO: Unify them so we can have only one
     def key_press(self, keys, modifiers=0, use_ord=False):
         if self.cdp.browser.name == "chromium":
-            self.key_press_chromium(keys, modifiers, use_ord)
+            self._key_press_chromium(keys, modifiers, use_ord)
         else:
-            self.key_press_firefox(keys, modifiers, use_ord)
+            self._key_press_firefox(keys, modifiers, use_ord)
 
-    def key_press_chromium(self, keys, modifiers=0, use_ord=False):
+    def _key_press_chromium(self, keys, modifiers=0, use_ord=False):
         for key in keys:
             args = {"type": "keyDown", "modifiers": modifiers}
 
@@ -411,7 +411,7 @@ class Browser:
             args["type"] = "keyUp"
             self.cdp.invoke("Input.dispatchKeyEvent", **args)
 
-    def key_press_firefox(self, keys, modifiers=0, use_ord=False):
+    def _key_press_firefox(self, keys, modifiers=0, use_ord=False):
         # https://github.com/GoogleChrome/puppeteer/blob/master/lib/USKeyboardLayout.js
         keyMap = {
             8: "Backspace",   # Backspace key

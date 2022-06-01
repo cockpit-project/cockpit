@@ -28,7 +28,7 @@ jobs:
         run: ./autogen.sh
 
       - name: Build release
-        run: make dist -j$(nproc)
+        run: make dist -j$(nproc) VERSION='${{ github.ref_name }}'
 
       - id: publish
         name: Publish GitHub release

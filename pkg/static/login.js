@@ -843,7 +843,7 @@
         id("login-button").setAttribute('disabled', "true");
         id("login-button").setAttribute('spinning', "true");
         const xhr = new XMLHttpRequest();
-        xhr.open("GET", login_path, true);
+        xhr.open(method, login_path, true);
 
         for (const k in headers)
             xhr.setRequestHeader(k, headers[k]);

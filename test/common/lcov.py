@@ -217,6 +217,56 @@ def print_file_coverage(path, line_hits, base_dir, out):
     out.write("end_of_record\n")
 
 
+class DiffMap:
+    # Parse a unified diff and make a index for the added lines
+    def __init__(self, diff):
+        self.map = {}
+        plus_name = None
+        diff_line = 0
+        with open(diff) as f:
+            for line in f.readlines():
+                diff_line += 1
+                if line.startswith("+++ b/"):
+                    plus_name = os.path.normpath(line[6:].strip())
+                    plus_line = 1
+                    self.map[plus_name] = {}
+                elif line.startswith("@@ "):
+                    plus_line = int(line.split(" ")[2].split(",")[0])
+                elif line.startswith(" "):
+                    plus_line += 1
+                elif line.startswith("+"):
+                    self.map[plus_name][plus_line] = diff_line
+                    plus_line += 1
+
+    def find_line(self, file, line):
+        if file in self.map and line in self.map[file]:
+            return self.map[file][line]
+        return None
+
+
+def print_diff_coverage(path, file_hits, base_dir, out):
+    if not os.path.exists(path):
+        return
+    dm = DiffMap(path)
+    src = f"{base_dir}/{path}"
+    lines_found = 0
+    lines_hit = 0
+    out.write(f"SF:{src}\n")
+    for f in file_hits:
+        line_hits = file_hits[f]
+        for i in range(len(line_hits)):
+            if line_hits[i] is not None:
+                diff_line = dm.find_line(f, i + 1)
+                if diff_line:
+                    lines_found += 1
+                    out.write(f"DA:{diff_line},{line_hits[i]}\n")
+                    if line_hits[i] > 0:
+                        lines_hit += 1
+    out.write(f"LH:{lines_hit}\n")
+    out.write(f"LF:{lines_found}\n")
+    out.write("end_of_record\n")
+
+
 def write_lcov(base_dir, covdata, outlabel):
 
     package = json.load(open(f"{base_dir}/package.json"))
@@ -310,4 +360,5 @@ def write_lcov(base_dir, covdata, outlabel):
         with gzip.open(filename, "wt") as out:
             for f in file_hits:
                 print_file_coverage(f, file_hits[f], base_dir, out)
+            print_diff_coverage("github-pr.diff", file_hits, base_dir, out)
         print("Wrote coverage data to " + filename)

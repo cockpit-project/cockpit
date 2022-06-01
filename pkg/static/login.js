@@ -584,7 +584,7 @@
             const b2 = document.createElement("button");
             b2.title = _("Remove host");
             b2.ariaLabel = b2.title;
-            b2.classList.add("pf-c-button", "pf-m-tertiary", "host-remove");
+            b2.classList.add("host-remove");
             b2.addEventListener("click", () => {
                 const i = hosts.indexOf(host);
                 hosts.splice(i, 1);

@@ -5,6 +5,9 @@ cd "$(realpath -m "$0"/../..)"
 
 message() { printf "  %-8s %s\n" "$1" "$2" >&2; }
 
+# Set the version number from the state at the time the build was requested
+VERSION="$(git describe --tags --long --dirty | tr '-' '.')"
+
 jumpstart_flags=''
 download_only=''
 while [ $# != 0 ] ; do
@@ -63,5 +66,5 @@ else
 fi
 
 # Do the actual build
-make -s -j"$(nproc)" XZ_OPT='-0' "$@" dist >&2
-make dump-dist
+make -s -j"$(nproc)" XZ_OPT='-0' VERSION="${VERSION}" "$@" dist >&2
+realpath cockpit-${VERSION}.tar.xz  # (only) result to stdout

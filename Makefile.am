@@ -15,6 +15,7 @@ sbin_PROGRAMS =
 #  make dist
 
 EXTRA_DIST = README.md
+CLEANFILES += cockpit-*.tar.xz
 
 # We override distdir for two reasons:
 #  - we need to make sure DISTFILES is built before calling `make distdir-am`
@@ -26,10 +27,19 @@ distdir: $(DISTFILES)
 		git -C '$(srcdir)' ls-files -x test/reference test tools > .extra_dist.tmp && \
 		mv .extra_dist.tmp '$(srcdir)/.extra_dist'; fi
 	$(MAKE) $(AM_MAKEFLAGS) distdir-am EXTRA_FILES="$$(tr '\n' ' ' < $(srcdir)/.extra_dist) .extra_dist"
-	echo $(VERSION) > $(distdir)/.tarball
 	$(srcdir)/src/client/add-metainfo-releases --version '$(VERSION)' '$(distdir)'/src/client/*.metainfo.xml
 	$(srcdir)/tools/adjust-distdir-timestamps "$(distdir)"
 	@echo '  DIST     $(DIST_ARCHIVES)'
+
+# Needed to ensure the tarball is correct for $(VERSION) override
+$(distdir)/version.m4: FORCE
+	@rm -f $(distdir)/version.m4
+	$(AM_V_GEN) echo 'm4_define(VERSION_NUMBER, [$(VERSION)])' > $@
+
+dist-hook: $(distdir)/configure
+$(distdir)/configure: $(distdir)/version.m4
+	@rm -f $(distdir)/configure
+	$(AM_V_GEN) autoreconf $(distdir)
 
 # Various downstream packaging assets
 dist-hook: $(distdir)/tools/arch/PKGBUILD
@@ -52,9 +62,6 @@ DISTCHECK_CONFIGURE_FLAGS = --enable-prefix-only
 
 distcheck-hook:
 	$(srcdir)/tools/check-dist $(distdir)
-
-dump-dist:
-	@echo "$(abs_builddir)/$(distdir).tar.xz"
 
 # -----------------------------------------------------------------------------
 

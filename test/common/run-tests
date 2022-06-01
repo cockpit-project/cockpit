@@ -356,6 +356,11 @@ def run(opts, image):
     if opts.coverage:
         # This gives us a convenient link at the top of the logs, see link-patterns.json
         print("Code coverage report in Coverage/index.html")
+        try:
+            with open("github-pr.diff", "w") as f:
+                subprocess.check_call(["git", "diff", "main"], stdout=f)
+        except subprocess.CalledProcessError:
+            pass
 
     test_files = glob.glob(os.path.join(opts.test_dir, opts.test_glob))
     changed_tests = get_affected_tests(opts.test_dir, opts.base, test_files)

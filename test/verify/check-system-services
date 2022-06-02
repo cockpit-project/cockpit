@@ -239,6 +239,17 @@ Description=Delete Me Timer
 [Timer]
 OnCalendar=*:1/2
 """)
+        self.write_file(f"{path}/special@:-characters.service",
+                        """
+[Unit]
+Description=Service With Special Characters in Id
+
+[Service]
+ExecStart=/usr/bin/true
+
+[Install]
+WantedBy=default.target
+""")
 
         self.make_test_service(path)
 
@@ -265,6 +276,16 @@ OnCalendar=*:1/2
         self.run_systemctl(user, "start test.service")
 
         b.wait_attr("#services-toolbar", "data-loading", "false")
+
+        self.wait_service_present("special@:-characters.service")
+        self.wait_service_in_panel("special@:-characters.service", "Disabled")
+        self.wait_service_state("special@:-characters.service", "inactive")
+
+        # Test breadcrumb link when service id contains special characters
+        self.goto_service("special@:-characters.service")
+        b.wait_in_text(".pf-c-breadcrumb", "special@:-characters.service")
+        b.click(".pf-c-breadcrumb a:contains('Services')")
+        b.wait_visible("#services-list")
 
         # Selects Targets tab
         self.pick_tab(2)

@@ -128,6 +128,15 @@ class DBusInternalChannel(Channel):
             raise ValueError('unknown dbus method', message)
 
 
+@Endpoint.match(CHANNEL_TYPES, payload='dbus-json3')
+class DBusSessionChannel(Channel):
+    def do_open(self, options):
+        self.ready()
+
+    def do_data(self, data):
+        logger.debug('ignored dbus request %s', data)
+
+
 @Endpoint.match(CHANNEL_TYPES, payload='echo')
 class EchoChannel(Channel):
     def do_open(self, options):

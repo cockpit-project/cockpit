@@ -23,6 +23,7 @@ cmd_pull() {
 }
 
 cmd_status() {
+    cmd_pull
     ( cd "$TEST_REFERENCE_SUBDIR"
       git rm --force --cached --quiet '*.png'
       git add *.png
@@ -33,6 +34,7 @@ cmd_status() {
 }
 
 cmd_push() {
+    cmd_pull
     ( cd "$TEST_REFERENCE_SUBDIR"
       git rm --force --cached --quiet '*.png'
       git add *.png

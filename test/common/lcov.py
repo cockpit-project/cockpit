@@ -77,7 +77,7 @@ def parse_vlq(segment):
     return values
 
 
-def parse_sourcemap(f, line_starts):
+def parse_sourcemap(f, line_starts, webpack_name):
     smap = json.load(f)
     sources = smap['sources']
     mappings = smap['mappings']
@@ -108,17 +108,18 @@ def parse_sourcemap(f, line_starts):
                 src_col += parse[3]
 
             if src in our_sources:
-                our_map.append((line_starts[dst_line] + dst_col, src, src_line))
+                norm_src = os.path.normpath(src.replace(f"webpack://{webpack_name}/", ""))
+                our_map.append((line_starts[dst_line] + dst_col, norm_src, src_line))
 
     return our_map
 
 
 class DistFile:
-    def __init__(self, path):
+    def __init__(self, path, webpack_name):
         line_starts = [0]
         for line in open(path, newline='').readlines():
             line_starts.append(line_starts[-1] + len(line))
-        self.smap = parse_sourcemap(open(path + ".map"), line_starts)
+        self.smap = parse_sourcemap(open(path + ".map"), line_starts, webpack_name)
 
     def find_sources_slow(self, start, end):
         res = []
@@ -147,7 +148,7 @@ def get_dist_map(base_dir):
     return dmap
 
 
-def get_distfile(url, base_dir, dist_map):
+def get_distfile(url, base_dir, dist_map, webpack_name):
     parts = url.split("/")
     if len(parts) > 2 and "cockpit" in parts:
         base = parts[-2]
@@ -159,7 +160,7 @@ def get_distfile(url, base_dir, dist_map):
         else:
             path = f"{base_dir}/dist/" + base + "/" + file
         if os.path.exists(path) and os.path.exists(path + ".map"):
-            return DistFile(path)
+            return DistFile(path, webpack_name)
         else:
             sys.stderr.write(f"SKIP {url} -> {path}\n")
 
@@ -200,10 +201,10 @@ def merge_hits(file_hits, hits):
                     lines[i] += merge_lines[i]
 
 
-def print_file_coverage(path, line_hits, base_dir, webpack_name, out):
+def print_file_coverage(path, line_hits, base_dir, out):
     lines_found = 0
     lines_hit = 0
-    src = path.replace(f"webpack://{webpack_name}/", f"{base_dir}/")
+    src = f"{base_dir}/{path}"
     out.write(f"SF:{src}\n")
     for i in range(len(line_hits)):
         if line_hits[i] is not None:
@@ -218,6 +219,7 @@ def print_file_coverage(path, line_hits, base_dir, webpack_name, out):
 
 def write_lcov(base_dir, covdata, outlabel):
 
+    package = json.load(open(f"{base_dir}/package.json"))
     dist_map = get_dist_map(base_dir)
     file_hits = {}
 
@@ -293,7 +295,7 @@ def write_lcov(base_dir, covdata, outlabel):
     # from each mention.
 
     for script in covdata:
-        distfile = get_distfile(script['url'], base_dir, dist_map)
+        distfile = get_distfile(script['url'], base_dir, dist_map, package["name"])
         if distfile:
             ranges = sorted(covranges(script['functions']),
                             key=lambda r: r['endOffset'] - r['startOffset'], reverse=True)
@@ -303,10 +305,9 @@ def write_lcov(base_dir, covdata, outlabel):
             merge_hits(file_hits, hits)
 
     if len(file_hits) > 0:
-        package = json.load(open(f"{base_dir}/package.json"))
         os.makedirs(f"{base_dir}/lcov", exist_ok=True)
         filename = f"{base_dir}/lcov/{outlabel}.info.gz"
         with gzip.open(filename, "wt") as out:
             for f in file_hits:
-                print_file_coverage(f, file_hits[f], base_dir, package["name"], out)
+                print_file_coverage(f, file_hits[f], base_dir, out)
         print("Wrote coverage data to " + filename)

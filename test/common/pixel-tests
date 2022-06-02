@@ -50,6 +50,19 @@ cmd_push() {
       git push "$PUSH_REMOTE" "$tag"
     )
     git add "$TEST_REFERENCE_SUBDIR"
+    if [ -n "$(git status --porcelain "$TEST_REFERENCE_SUBDIR")" ]; then
+        echo ""
+        echo "The test/reference link has changed.  The next step is to commit and"
+        echo "push this change, just like any other change to a file."
+        echo ""
+        echo "The change has already been added with 'git add', so you could now"
+        echo "amend your current HEAD commit with it like this:"
+        echo ""
+        echo "    $ git commit --amend"
+        echo ""
+        echo "Then the HEAD commit can be pushed like normally.  There is nothing"
+        echo "special about committing and pushing a change to test/reference."
+    fi
 }
 
 main() {

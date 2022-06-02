@@ -18,7 +18,7 @@ cmd_init() {
     git submodule add -b empty "$CLONE_REMOTE" "$TEST_REFERENCE_SUBDIR"
 }
 
-cmd_pull() {
+cmd_update() {
     git submodule update --init -- "$TEST_REFERENCE_SUBDIR" || (
         echo ""
         echo "Updating test/reference has failed, maybe because of"
@@ -33,8 +33,12 @@ cmd_pull() {
     )
 }
 
+cmd_pull() {
+    cmd_update
+}
+
 cmd_status() {
-    cmd_pull
+    cmd_update
     ( cd "$TEST_REFERENCE_SUBDIR"
       git rm --force --cached --quiet '*.png'
       git add *.png
@@ -45,7 +49,7 @@ cmd_status() {
 }
 
 cmd_push() {
-    cmd_pull
+    cmd_update
     ( cd "$TEST_REFERENCE_SUBDIR"
       git rm --force --cached --quiet '*.png'
       git add *.png
@@ -78,7 +82,7 @@ cmd_push() {
 
 cmd_reset() {
     rm -rf "$TEST_REFERENCE_SUBDIR"
-    cmd_pull
+    cmd_update
 }
 
 pixel_test_logs_url() {
@@ -121,7 +125,7 @@ cmd_fetch() {
         echo >&2 "Can't find test results for $(cat test/reference-image), sorry."
         exit 1
     fi
-    cmd_pull
+    cmd_update
     echo "Fetching new pixel test references from $url"
     for f in $(curl -s "$url/index.html" | grep '[^=><"]*-pixels.png' -o | uniq); do
         echo "$f"
@@ -129,11 +133,110 @@ cmd_fetch() {
     done
 }
 
+cmd_help() {
+    cat <<EOF
+$0 - Maintain the test/reference directory
+
+The following commands are available:
+
+update - Ensure that test/reference matches the checked out branch
+
+    The test/reference directory is a git submodule, and it needs to
+    be kept in sync with the main worktree (just like any other
+    submodule).  This is necessary whenever you check out a different
+    branch and then start working on pixel tests, for example.
+
+    You can use "git checkout --recurse-submodules" when changing
+    branches to achieve this, or some variation of "git submodule
+    update test/reference", or run "pixel-tests update".
+
+    Most other pixel-tests commands will run "pixel-tests update"
+    automatically, so you might not actually need to run it explicitly
+    very often, but it's good to remember that this step is
+    unfortunately necessary.
+
+    Like other ways to update submodules, this command will not
+    overwrite your local changes, so it is safe to use often and "just
+    in case".  If your local changes conflict with the changes that
+    would be necessary for updating test/reference, the update will
+    not be done.
+
+    When "pixel-tests update" fails, it is probably easiest to throw
+    away local changes with "pixel-tests reset" and re-acquire the new
+    reference images that you want to install, maybe with "pixel-tests
+    fetch".
+
+pull - Old name for "update".
+
+reset - Throw away local changes
+
+    If you want to get rid of unpushed local changes, run "pixel-tests
+    reset".  This will remove the test/reference directory completely
+    and then run "pixel-tests update" to recreate it.
+
+status - Show local changes
+
+    After writing new reference images into test/reference, running
+    "pixel-test status" will summarize the local changes.  It will
+    list all images that have been modified (with a "M" prefix), added
+    ("A"), or deleted ("D").
+
+    The "status" command will run "update" as the first step, so it
+    might fail if it detects conflicts.  To avoid that risk, run
+    "update" explicitly before making any changes in test/reference.
+
+push - Upload local changes and prepare test/reference for committing
+
+    Once you have finished writing new reference images into
+    test/reference (maybe by running "pixel-tests fetch") and are
+    ready to make them part of your pull request, you need to upload
+    them to Github and record them in the main source repository.
+
+    First, run "pixel-tests push" to do the uploading and to stage a
+    changed test/reference in the main source repository.
+
+    In the main source reository, test/reference is a special kind of
+    object.  It's not a file, or directory, and not even a symlink
+    (although it is similar to a symlink).  It's a "gitlink".  But
+    whatever it is, changes to it need to be staged, committed, and
+    pushed, just like changes to regular files.
+
+    When "pixel-tests push" is done, the change to test/reference has
+    already been staged with "git add" to remind you that there is
+    something to commit.
+
+    Committing the change is identical to committing any other change.
+
+    "push" will also run "update" as the first step.
+
+fetch - Download fresh reference images from a test run
+
+    When code or tests are changed, we often need to install new or
+    changed reference images for the pixel tests.  A good way to do
+    that is to run the tests in our CI machinery, let them fail, and
+    grab the new reference images from the test log directory.
+    Running "pixel-tests fetch" can automate this.
+
+    Without any arguments, "fetch" will figure out all by itself where
+    to download the images from.  For this to work, your "origin"
+    remote needs to point to the repository on Github that the current
+    PR will be merged into.  For our main Cockpit repository, that
+    would be "cockpit-project/cockpit", for example.
+
+    You can also pass a PR number to "fetch" if the current branch
+    doesn't correspond to the PR with the new pixels.  Or you can pass
+    the URL of the log results.
+
+    "push" will also run "update" as the first step.
+EOF
+}
+
 main() {
     local cmd="${1-}"
 
     if [ -z "${cmd}" ]; then
-        echo 'This command requires a subcommand: init pull status push reset fetch'
+        echo 'This command requires a subcommand: update status push reset fetch'
+        echo "Run '$0 help' for a longer explanation"
         exit 1
     elif ! type -t "cmd_${cmd}" | grep -q function; then
         echo "Unknown subcommand ${cmd}"

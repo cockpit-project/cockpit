@@ -14,6 +14,11 @@ message() {
     [ "${V-}" != 0 ] || printf "  %-8s %s\n" "$1" "$2"
 }
 
+get_pixel_reference() {
+    local ref=$1
+    git ls-tree "${ref}" "${TEST_REFERENCE_SUBDIR}"
+}
+
 cmd_init() {
     git submodule add -b empty "$CLONE_REMOTE" "$TEST_REFERENCE_SUBDIR"
 }
@@ -33,6 +38,20 @@ cmd_status() {
 }
 
 cmd_push() {
+    # Check if the current branch is behind the project's main and has newer pixel-tests, in this case
+    # the user has to rebase to not run into pixel-tests conflicts. There is no
+    # elegant way figuring out the real "origin" of the cockpit project so we
+    # discover the project's repository name and hardcode the upstream url.
+    project=$(git remote -v | awk '/^origin/ { print $2; exit }' | xargs basename)
+    git fetch https://github.com/cockpit-project/${project} main
+
+    cur_sha=$(get_pixel_reference "FETCH_HEAD")
+    main_sha=$(get_pixel_reference "HEAD")
+    if [[ "$cur_sha" != "$main_sha" ]]; then
+	 echo "${TEST_REFERENCE_SUBDIR} is behind main, please rebase and pull the pixel-tests again before pushing."
+         exit 1
+    fi
+
     ( cd "$TEST_REFERENCE_SUBDIR"
       git rm --force --cached --quiet '*.png'
       git add *.png

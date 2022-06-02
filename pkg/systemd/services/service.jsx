@@ -79,7 +79,7 @@ export class Service extends React.Component {
                       id="service-details"
                       breadcrumb={
                           <Breadcrumb>
-                              <BreadcrumbItem to={"#" + cockpit.location.href.replace(cockpit.location.path[0], '')}>{_("Services")}</BreadcrumbItem>
+                              <BreadcrumbItem to={"#" + cockpit.location.href.replace(/\/[^?]*/, '')}>{_("Services")}</BreadcrumbItem>
                               <BreadcrumbItem isActive>
                                   {this.props.unit.Id}
                               </BreadcrumbItem>

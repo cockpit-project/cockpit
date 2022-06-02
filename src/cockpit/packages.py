@@ -23,13 +23,12 @@ import fnmatch
 import logging
 import mimetypes
 import os
+import pkg_resources
 import zipfile
 
 from pathlib import Path
 
-import packaging.version
-
-VERSION = packaging.version.Version("300")
+VERSION = pkg_resources.parse_version('300')
 logger = logging.getLogger('cockpit.packages')
 
 
@@ -85,7 +84,7 @@ class Package:
             if any(package != 'cockpit' for package in requires):
                 return False
 
-            if 'cockpit' in requires and VERSION < packaging.version.Version(requires['cockpit']):
+            if 'cockpit' in requires and VERSION < pkg_resources.parse_version(requires['cockpit']):
                 return False
 
         if at_least_prio is not None:

@@ -26,7 +26,7 @@ case $TEST_SCENARIO in
             exit 1
         fi
         test/image-prepare --quick --containers --verbose $TEST_OS
-        test/common/run-tests --test-dir test/containers --test-glob check-"$container"'*'
+        test/common/run-tests --test-dir test/containers --test-glob check-"$container"'*' --track-naughties
         ;;
     dnf-copr*)
         bots/image-customize -v --run-command 'dnf -y copr enable rpmsoftwaremanagement/dnf-nightly && dnf -y --setopt=install_weak_deps=False update' $TEST_OS

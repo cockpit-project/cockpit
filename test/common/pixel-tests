@@ -19,7 +19,18 @@ cmd_init() {
 }
 
 cmd_pull() {
-    git submodule update --init -- "$TEST_REFERENCE_SUBDIR"
+    git submodule update --init -- "$TEST_REFERENCE_SUBDIR" || (
+        echo ""
+        echo "Updating test/reference has failed, maybe because of"
+        echo "local changes that have been accidentally made while"
+        echo "it was out of date."
+        echo ""
+        echo "If you want to throw away these local changes, run"
+        echo ""
+        echo "    $ ./test/common/pixel-tests reset"
+        echo ""
+        exit 1
+    )
 }
 
 cmd_status() {
@@ -65,11 +76,16 @@ cmd_push() {
     fi
 }
 
+cmd_reset() {
+    rm -rf "$TEST_REFERENCE_SUBDIR"
+    cmd_pull
+}
+
 main() {
     local cmd="${1-}"
 
     if [ -z "${cmd}" ]; then
-        echo 'This command requires a subcommand: init pull status push'
+        echo 'This command requires a subcommand: init pull status push reset'
         exit 1
     elif ! type -t "cmd_${cmd}" | grep -q function; then
         echo "Unknown subcommand ${cmd}"

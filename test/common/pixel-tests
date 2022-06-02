@@ -81,11 +81,59 @@ cmd_reset() {
     cmd_pull
 }
 
+pixel_test_logs_url() {
+    arg=${1:-}
+
+    if [[ "$arg" == http* ]]; then
+        echo $arg
+        return
+    fi
+
+    repo=$(git remote get-url origin | sed -re 's,git@github.com:|https://github.com/,,' -e 's,\.git$,,')
+
+    if [ -n "$arg" ]; then
+        revision=$(curl -s "https://api.github.com/repos/$repo/pulls/$arg" | python3 -c "
+import json
+import sys
+
+print(json.load(sys.stdin)['head']['sha'])
+")
+    else
+        revision=$(git rev-parse @{upstream})
+    fi
+
+    context=$(cat test/reference-image)
+    curl -s "https://api.github.com/repos/$repo/statuses/$revision" | python3 -c "
+import json
+import sys
+import os
+
+for s in json.load(sys.stdin):
+    if s['context'] == sys.argv[1] and s['target_url']:
+        print(os.path.dirname(s['target_url']))
+        break
+" "$context"
+}
+
+cmd_fetch() {
+    url=$(pixel_test_logs_url ${1:-})
+    if [ -z "$url" ]; then
+        echo >&2 "Can't find test results for $(cat test/reference-image), sorry."
+        exit 1
+    fi
+    cmd_pull
+    echo "Fetching new pixel test references from $url"
+    for f in $(curl -s "$url/index.html" | grep '[^=><"]*-pixels.png' -o | uniq); do
+        echo "$f"
+        curl -s --output-dir test/reference/ -O "$url/$f"
+    done
+}
+
 main() {
     local cmd="${1-}"
 
     if [ -z "${cmd}" ]; then
-        echo 'This command requires a subcommand: init pull status push reset'
+        echo 'This command requires a subcommand: init pull status push reset fetch'
         exit 1
     elif ! type -t "cmd_${cmd}" | grep -q function; then
         echo "Unknown subcommand ${cmd}"

@@ -607,8 +607,8 @@ class TestConnection(MachineCase):
             # clean up debug symbols, they get in the way of upgrading
             m.execute("dpkg --purge cockpit-ws-dbgsym")
         elif m.image.startswith("rhel"):
-            # subscription-manager-cockpit depends on cockpit-ws
-            m.execute("rpm --erase subscription-manager-cockpit")
+            # subscription-manager-cockpit depends on cockpit-ws, and cockpit.rpm metapackage depends on sub-man on RHEL
+            m.execute("rpm --erase cockpit subscription-manager-cockpit")
 
         def install():
             if m.image.startswith("debian") or m.image.startswith("ubuntu"):
@@ -625,6 +625,8 @@ class TestConnection(MachineCase):
                 m.execute("dpkg --purge cockpit cockpit-ws")
             elif m.image == "arch":
                 m.execute("pacman -Rdd --noconfirm cockpit")
+            elif m.image.startswith("rhel"):
+                m.execute("rpm --erase cockpit-ws")
             else:
                 m.execute("rpm --erase cockpit cockpit-ws")
 

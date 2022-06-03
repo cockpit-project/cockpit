@@ -309,19 +309,18 @@ function fetchZoneInfos(zones) {
             return info;
         }
         return firewalld_dbus.call('/org/fedoraproject/FirewallD1',
-                                   'org.fedoraproject.FirewallD1',
-                                   'getZoneSettings', [zone])
-                .then(reply => {
-                    const [, name, description, , target, services, ports, , , , interfaces, source] = reply[0];
+                                   'org.fedoraproject.FirewallD1.zone',
+                                   'getZoneSettings2', [zone])
+                .then(([zoneInfo]) => {
                     const info = {
                         id: zone,
-                        name: name,
-                        description: description,
-                        target: target,
-                        services: services,
-                        ports: ports.map(p => ({ port: p[0], protocol: p[1] })),
-                        interfaces: interfaces,
-                        source: source,
+                        name: (zoneInfo.short || {}).v,
+                        description: (zoneInfo.description || {}).v,
+                        target: (zoneInfo.target || {}).v,
+                        services: ((zoneInfo.services || {}).v || []),
+                        ports: ((zoneInfo.ports || {}).v || []).map(p => ({ port: p[0], protocol: p[1] })),
+                        interfaces: ((zoneInfo.interfaces || {}).v || []),
+                        source: ((zoneInfo.sources || {}).v || []),
                     };
                     firewall.zones[zone] = info;
                     return info;
@@ -393,7 +392,7 @@ firewall.createService = (service, ports, zones, desc = "") => {
     });
     return firewalld_dbus.call('/org/fedoraproject/FirewallD1/config',
                                'org.fedoraproject.FirewallD1.config',
-                               'addService', [service, ["", "", desc, ports, [], {}, [], []]])
+                               'addService2', [service, { description: { t: 's', v: desc }, ports: { t: 'a(ss)', v: ports } }])
             .then(() => firewall.reload());
 };
 

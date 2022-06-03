@@ -450,14 +450,7 @@ firewall.activateZone = (zone, interfaces, sources) => {
 
         return firewalld_dbus.call(path[0],
                                    'org.fedoraproject.FirewallD1.config.zone',
-                                   'getSettings', [])
-                .then(settings => {
-                    settings[0][10] = interfaces;
-                    settings[0][11] = sources;
-                    return firewalld_dbus.call(path[0],
-                                               'org.fedoraproject.FirewallD1.config.zone',
-                                               'update', [settings[0]]);
-                });
+                                   'update2', [{ interfaces: { t: 'as', v: interfaces }, sources: { t: 'as', v: sources } }]);
     });
     return p;
 };
@@ -491,14 +484,7 @@ firewall.deactiveateZone = (zone) => {
 
         return firewalld_dbus.call(path[0],
                                    'org.fedoraproject.FirewallD1.config.zone',
-                                   'getSettings', [])
-                .then(settings => {
-                    settings[0][10] = [];
-                    settings[0][11] = [];
-                    return firewalld_dbus.call(path[0],
-                                               'org.fedoraproject.FirewallD1.config.zone',
-                                               'update', [settings[0]]);
-                });
+                                   'update2', [{ interfaces: { t: 'as', v: [] }, sources: { t: 'as', v: [] } }]);
     });
 
     return p.catch(error => console.warn(error));

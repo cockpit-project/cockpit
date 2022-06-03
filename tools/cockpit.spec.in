@@ -150,7 +150,7 @@ Recommends: (cockpit-networkmanager if NetworkManager)
 Suggests: cockpit-selinux
 %endif
 %if 0%{?rhel} && 0%{?centos} == 0
-Recommends: subscription-manager-cockpit
+Requires: subscription-manager-cockpit
 %endif
 
 %prep
@@ -388,17 +388,17 @@ Provides: cockpit-tuned = %{version}-%{release}
 Provides: cockpit-users = %{version}-%{release}
 Obsoletes: cockpit-dashboard < %{version}-%{release}
 %if 0%{?rhel}
-Provides: cockpit-networkmanager = %{version}-%{release}
 Requires: NetworkManager >= 1.6
-Provides: cockpit-kdump = %{version}-%{release}
 Requires: kexec-tools
-Recommends: (sudo or polkit)
+Requires: sos
+Requires: sudo
 Recommends: PackageKit
-Recommends: NetworkManager-team
 Recommends: setroubleshoot-server >= 3.3.3
+Suggests: NetworkManager-team
+Provides: cockpit-kdump = %{version}-%{release}
+Provides: cockpit-networkmanager = %{version}-%{release}
 Provides: cockpit-selinux = %{version}-%{release}
 Provides: cockpit-sosreport = %{version}-%{release}
-Requires: sos
 %endif
 %if 0%{?fedora}
 Recommends: (reportd if abrt)

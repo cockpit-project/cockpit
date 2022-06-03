@@ -63,10 +63,9 @@ export const FirewalldRequest = ({ service, title, pageSection }) => {
         firewalld.call("/org/fedoraproject/FirewallD1", "org.fedoraproject.FirewallD1.zone", "getActiveZones")
                 .then(([info]) => {
                     const names = Object.keys(info);
-                    // TODO: superseded by org.fedoraproject.FirewallD1.zone.getZoneSettings2, but not available on Ubuntu 20.04 yet
-                    Promise.all(names.map(name => firewalld.call("/org/fedoraproject/FirewallD1", "org.fedoraproject.FirewallD1", "getZoneSettings", [name])))
+                    Promise.all(names.map(name => firewalld.call("/org/fedoraproject/FirewallD1", "org.fedoraproject.FirewallD1.zone", "getZoneSettings2", [name])))
                             .then(zoneInfos => {
-                                setEnabledAnywhere(!!zoneInfos.find(zoneInfo => zoneInfo[0][5].indexOf(service) >= 0));
+                                setEnabledAnywhere(!!zoneInfos.find(zoneInfo => ((zoneInfo[0].services || {}).v || []).indexOf(service) >= 0));
                                 setZones(names);
                             })
                             .catch(ex => {

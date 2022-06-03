@@ -47,6 +47,7 @@ import {
 import { ExternalLinkAltIcon } from "@patternfly/react-icons";
 import { SortByDirection } from "@patternfly/react-table";
 import { ListingTable } from "cockpit-components-table.jsx";
+import { WithDialogs, DialogsContext } from "dialogs.jsx";
 
 import kernelopt_sh from "raw-loader!./kernelopt.sh";
 import detect from "./hw-detect.js";
@@ -160,9 +161,10 @@ function availableMitigations() {
 }
 
 class CPUSecurityMitigationsDialog extends React.Component {
+    static contextType = DialogsContext;
+
     constructor(props) {
         super(props);
-        this.close = this.close.bind(this);
         this.saveAndReboot = this.saveAndReboot.bind(this);
         this.state = {
             nosmt: undefined,
@@ -173,11 +175,6 @@ class CPUSecurityMitigationsDialog extends React.Component {
         availableMitigations().then(({ available, nosmt_enabled }) => {
             this.setState({ mitigationsAvailable: available, nosmt: nosmt_enabled });
         });
-    }
-
-    close() {
-        if (this.props.onClose)
-            this.props.onClose();
     }
 
     saveAndReboot() {
@@ -205,6 +202,7 @@ class CPUSecurityMitigationsDialog extends React.Component {
     }
 
     render() {
+        const Dialogs = this.context;
         const rows = [];
         if (this.state.nosmt !== undefined)
             rows.push(
@@ -240,17 +238,17 @@ class CPUSecurityMitigationsDialog extends React.Component {
                 <Button variant='danger' isDisabled={this.state.rebooting || this.state.nosmt === undefined} onClick={this.saveAndReboot}>
                     { _("Save and reboot") }
                 </Button>
-                <Button variant='link' className='btn-cancel' isDisabled={this.state.rebooting} onClick={this.close}>
+                <Button variant='link' className='btn-cancel' isDisabled={this.state.rebooting} onClick={Dialogs.close}>
                     { _("Cancel") }
                 </Button>
             </>
         );
 
         return (
-            <Modal isOpen={this.props.show} id="cpu-mitigations-dialog"
+            <Modal isOpen id="cpu-mitigations-dialog"
                    position="top" variant="medium"
                    footer={footer}
-                   onClose={this.props.onClose}
+                   onClose={Dialogs.close}
                    title={ _("CPU security toggles") }>
                 <>
                     <Text className='cpu-mitigations-dialog-info' component={TextVariants.p}>
@@ -270,10 +268,11 @@ class CPUSecurityMitigationsDialog extends React.Component {
 }
 
 class HardwareInfo extends React.Component {
+    static contextType = DialogsContext;
+
     constructor(props) {
         super(props);
         this.state = {
-            showCpuSecurityDialog: false,
             mitigationsAvailable: false,
         };
         availableMitigations().then(({ available }) => {
@@ -282,6 +281,7 @@ class HardwareInfo extends React.Component {
     }
 
     render() {
+        const Dialogs = this.context;
         let pci = null;
         let memory = null;
 
@@ -327,7 +327,6 @@ class HardwareInfo extends React.Component {
                           <BreadcrumbItem onClick={ () => cockpit.jump("/system", cockpit.transport.host)} className="pf-c-breadcrumb__link">{ _("Overview") }</BreadcrumbItem>
                           <BreadcrumbItem isActive>{ _("Hardware information") }</BreadcrumbItem>
                       </Breadcrumb>}>
-                <CPUSecurityMitigationsDialog show={this.state.showCpuSecurityDialog} onClose={ () => this.setState({ showCpuSecurityDialog: false }) } />
                 <PageSection className="ct-pagesection-mobile">
                     <Gallery hasGutter>
                         <Card>
@@ -338,7 +337,9 @@ class HardwareInfo extends React.Component {
                             </CardHeader>
                             <CardBody>
                                 <SystemInfo info={this.props.info.system}
-                                            onSecurityClick={ this.state.mitigationsAvailable ? () => this.setState({ showCpuSecurityDialog: true }) : undefined } />
+                                            onSecurityClick={ this.state.mitigationsAvailable
+                                                ? () => Dialogs.show(<CPUSecurityMitigationsDialog />)
+                                                : undefined } />
                             </CardBody>
                         </Card>
                         <Card id="pci-listing">
@@ -371,6 +372,6 @@ class HardwareInfo extends React.Component {
 document.addEventListener("DOMContentLoaded", () => {
     document.title = cockpit.gettext(document.title);
     detect().then(info => {
-        ReactDOM.render(<HardwareInfo info={info} />, document.getElementById("hwinfo"));
+        ReactDOM.render(<WithDialogs><HardwareInfo info={info} /></WithDialogs>, document.getElementById("hwinfo"));
     });
 });

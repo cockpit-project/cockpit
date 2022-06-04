@@ -363,6 +363,8 @@ class TestAccounts(MachineCase):
         self.allow_journal_messages("lastlog: Unknown user or range: anton")
         self.allow_journal_messages(".*required to change your password immediately.*")
         self.allow_journal_messages(".*user account or password has expired.*")
+        # when sed'ing, there is a short time when the config file does not exist
+        self.allow_journal_messages(".*libuser initialization error: .*/etc/default/useradd.*: No such file or directory")
 
     def testUnprivileged(self):
         m = self.machine

@@ -6,12 +6,13 @@ import os
 import random
 import resource
 import shutil
-import socket
 import subprocess
 import sys
 import tempfile
 import time
 import typing
+import urllib.request
+from urllib.error import URLError
 
 TEST_DIR = os.path.normpath(os.path.dirname(os.path.realpath(os.path.join(__file__, ".."))))
 
@@ -291,14 +292,15 @@ class CDP:
             if self.verbose:
                 sys.stderr.write("Started %s (pid %i) on port %i\n" % (cmd[0], self._browser.pid, cdp_port))
 
-        # wait for CDP to be up
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        for retry in range(3000):
+        # wait for CDP to be up and have at least one target
+        for retry in range(120):
             try:
-                s.connect(('127.0.0.1', cdp_port))
-                break
-            except socket.error:
-                time.sleep(0.1)
+                res = urllib.request.urlopen(f"http://127.0.0.1:{cdp_port}/json/list", timeout=5)
+                if res.getcode() == 200 and json.loads(res.read()):
+                    break
+            except URLError:
+                pass
+            time.sleep(0.5)
         else:
             raise RuntimeError('timed out waiting for browser to start')
 

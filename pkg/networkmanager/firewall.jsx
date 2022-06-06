@@ -175,7 +175,7 @@ function ZoneSection(props) {
             <CardTitle>
                 <Flex alignItems={{ default: 'alignSelfBaseline' }} spaceItems={{ default: 'spaceItemsXl' }}>
                     <Title headingLevel="h2" size="xl">
-                        { cockpit.format(_("$0 Zone"), upperCaseFirstLetter(props.zone.id)) }
+                        { cockpit.format(_("$0 zone"), upperCaseFirstLetter(props.zone.name || props.zone.id)) }
                     </Title>
                     <Flex>
                         { props.zone.interfaces.length > 0 &&

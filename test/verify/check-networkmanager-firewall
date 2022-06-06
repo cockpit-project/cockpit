@@ -58,7 +58,7 @@ class TestFirewall(NetworkCase):
         m.execute("systemctl restart firewalld")
         self.btn_danger = "pf-m-danger"
         self.btn_primary = "pf-m-primary"
-        self.default_zone = "Public Zone"
+        self.default_zone = "Public zone"
 
         # Temporary remove the test Dbus port 8765, this workaround can be
         # removed once the pixel tests are merged and the image updated to not

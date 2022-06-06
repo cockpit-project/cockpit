@@ -54,20 +54,21 @@ superuser.reload_page_on_change();
 
 const upperCaseFirstLetter = text => text[0].toUpperCase() + text.slice(1);
 
-const DeleteDropdown = ({ handleClick, ariaLabel, id }) => {
+const DeleteDropdown = ({ items, id }) => {
     const [isActionsKebabOpen, setActionsKebabOpen] = useState(false);
+
+    const dropdown_items = items.map(item => <DropdownItem key={item.text}
+                                                           className={item.danger ? "pf-m-danger" : ""}
+                                                           aria-label={item.ariaLabel}
+                                                           onClick={item.handleClick}>
+        {item.text}
+    </DropdownItem>);
+
     return (<Dropdown toggle={<KebabToggle onToggle={isOpen => setActionsKebabOpen(isOpen)} id={id || null} />}
                       isOpen={isActionsKebabOpen}
                       isPlain
                       position="right"
-                      dropdownItems={[
-                          <DropdownItem key="delete"
-                            className="pf-m-danger"
-                            aria-label={ariaLabel}
-                            onClick={handleClick}>
-                              {_("Delete")}
-                          </DropdownItem>
-                      ]} />);
+                      dropdownItems={dropdown_items} />);
 };
 
 function serviceRow(props) {
@@ -83,6 +84,11 @@ function serviceRow(props) {
 
     function onRemoveService(event) {
         props.onRemoveService(props.service.id);
+        event.stopPropagation();
+    }
+
+    function onEditService(event) {
+        props.onEditService(props.service.id);
         event.stopPropagation();
     }
 
@@ -103,9 +109,15 @@ function serviceRow(props) {
     ];
 
     if (!props.readonly) {
+        // Only allow editing manually created services - no name is a decent (and only) indicator
+        const items = [];
+        if (!props.service.name)
+            items.push({ text: _("Edit"), ariaLabel: cockpit.format(_("Edit service $0"), props.service.id), handleClick: onEditService });
+
+        items.push({ text: _("Delete"), danger: true, ariaLabel: cockpit.format(_("Remove service $0"), props.service.id), handleClick: onRemoveService });
+
         columns.push({
-            title: <DeleteDropdown ariaLabel={cockpit.format(_("Remove service $0"), props.service.id)}
-                                              handleClick={onRemoveService} id={props.service.key} />
+            title: <DeleteDropdown items={items} id={props.service.key} />
         });
     }
 
@@ -163,7 +175,7 @@ function ZoneSection(props) {
         props.onRemoveZone(props.zone.id);
     }
 
-    const deleteButton = (<DeleteDropdown ariaLabel={cockpit.format(_("Remove zone $0"), props.zone.id)} handleClick={onRemoveZone} id={`dropdown-${props.zone.id}`} />);
+    const deleteButton = (<DeleteDropdown items={[{ text: _("Delete"), danger: true, ariaLabel: cockpit.format(_("Remove zone $0"), props.zone.id), handleClick: onRemoveZone }]} id={`dropdown-${props.zone.id}`} />);
     const addServiceAction = (
         <Button variant="primary" onClick={() => props.openServicesDialog(props.zone.id, props.zone.id)} className="add-services-button" aria-label={cockpit.format(_("Add services to zone $0"), props.zone.id)}>
             {_("Add services")}
@@ -205,6 +217,7 @@ function ZoneSection(props) {
                                           key: firewall.services[s].id,
                                           service: firewall.services[s],
                                           onRemoveService: service => props.onRemoveService(props.zone.id, service),
+                                          onEditService: service => props.onEditService(props.zone, firewall.services[service]),
                                           readonly: firewall.readonly,
                                       });
                                   } else {
@@ -287,31 +300,32 @@ const renderPorts = service => {
     );
 };
 
-class AddServicesModal extends React.Component {
+class AddEditServicesModal extends React.Component {
     static contextType = DialogsContext;
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
 
         this.state = {
             services: null,
             selected: new Set(),
             filter: "",
-            custom: false,
-            generate_custom_id: true,
+            custom: !!props.custom_id,
+            generate_custom_id: !props.custom_id,
             tcp_error: "",
             udp_error: "",
             avail_services: null,
-            custom_id: "",
-            custom_description: "",
-            custom_tcp_ports: [],
-            custom_udp_ports: [],
-            custom_tcp_value: "",
-            custom_udp_value: "",
+            custom_id: props.custom_id || "",
+            custom_description: props.custom_description || "",
+            custom_tcp_ports: props.custom_tcp_ports || [],
+            custom_udp_ports: props.custom_udp_ports || [],
+            custom_tcp_value: props.custom_tcp_value || "",
+            custom_udp_value: props.custom_udp_value || "",
             dialogError: null,
             dialogErrorDetail: null,
         };
         this.save = this.save.bind(this);
+        this.edit = this.edit.bind(this);
         this.onFilterChanged = this.onFilterChanged.bind(this);
         this.onToggleService = this.onToggleService.bind(this);
         this.setId = this.setId.bind(this);
@@ -334,6 +348,22 @@ class AddServicesModal extends React.Component {
     getCustomId() {
         const all_ports = this.state.custom_tcp_ports.concat(this.state.custom_udp_ports);
         return "custom--" + all_ports.map(this.getName).join('-');
+    }
+
+    edit(event) {
+        const Dialogs = this.context;
+        firewall.editService(this.props.custom_id, this.createPorts(), this.state.custom_description)
+                .then(() => Dialogs.close())
+                .catch(error => {
+                    this.setState({
+                        dialogError: _("Failed to edit service"),
+                        dialogErrorDetail: error.name + ": " + error.message,
+                    });
+                });
+
+        if (event)
+            event.preventDefault();
+        return false;
     }
 
     save(event) {
@@ -545,8 +575,16 @@ class AddServicesModal extends React.Component {
         if (services)
             services = services.filter(s => firewall.zones[this.props.zoneId].services.indexOf(s.id) === -1);
 
-        const addText = this.state.custom ? _("Add ports") : _("Add services");
-        const titleText = this.state.custom ? cockpit.format(_("Add ports to $0 zone"), this.props.zoneName) : cockpit.format(_("Add services to $0 zone"), this.props.zoneName);
+        let addText = "";
+        let titleText = "";
+        if (this.props.custom_id) {
+            addText = _("Edit service");
+            titleText = cockpit.format(_("Edit custom service in $0 zone"), this.props.zoneName);
+        } else {
+            addText = this.state.custom ? _("Add ports") : _("Add services");
+            titleText = this.state.custom ? cockpit.format(_("Add ports to $0 zone"), this.props.zoneName) : cockpit.format(_("Add services to $0 zone"), this.props.zoneName);
+        }
+
         return (
             <Modal id="add-services-dialog" isOpen
                    position="top" variant="medium"
@@ -561,7 +599,7 @@ class AddServicesModal extends React.Component {
                                isInline
                                title={_("Adding custom ports will reload firewalld. A reload will result in the loss of any runtime-only configuration!")} />
                        }
-                       <Button variant='primary' onClick={this.save} aria-label={titleText}>
+                       <Button variant='primary' onClick={this.props.custom_id ? this.edit : this.save} aria-label={titleText}>
                            {addText}
                        </Button>
                        <Button variant='link' className='btn-cancel' onClick={Dialogs.close}>
@@ -569,22 +607,24 @@ class AddServicesModal extends React.Component {
                        </Button>
                    </>}
             >
-                <Form isHorizontal onSubmit={this.save}>
-                    <FormGroup className="add-services-dialog-type" isInline>
-                        <Radio name="type"
-                               id="add-services-dialog--services"
-                               value="services"
-                               isChecked={!this.state.custom}
-                               onChange={this.onToggleType}
-                               label={_("Services")} />
-                        <Radio name="type"
-                               id="add-services-dialog--ports"
-                               value="ports"
-                               isChecked={this.state.custom}
-                               onChange={this.onToggleType}
-                               isDisabled={this.state.avail_services == null}
-                               label={_("Custom ports")} />
-                    </FormGroup>
+                <Form isHorizontal onSubmit={this.props.custom_id ? this.edit : this.save}>
+                    { !!this.props.custom_id ||
+                        <FormGroup className="add-services-dialog-type" isInline>
+                            <Radio name="type"
+                                   id="add-services-dialog--services"
+                                   value="services"
+                                   isChecked={!this.state.custom}
+                                   onChange={this.onToggleType}
+                                   label={_("Services")} />
+                            <Radio name="type"
+                                   id="add-services-dialog--ports"
+                                   value="ports"
+                                   isChecked={this.state.custom}
+                                   onChange={this.onToggleType}
+                                   isDisabled={this.state.avail_services == null}
+                                   label={_("Custom ports")} />
+                        </FormGroup>
+                    }
                     { this.state.custom ||
                         <div>
                             { services
@@ -631,6 +671,7 @@ class AddServicesModal extends React.Component {
                                        helperTextInvalid={this.state.tcp_error}>
                                 <TextInput id="tcp-ports" type="text" onChange={this.validate}
                                            validated={this.state.tcp_error ? "error" : "default"}
+                                           isDisabled={this.state.avail_services == null}
                                            value={this.state.custom_tcp_value}
                                            placeholder={_("Example: 22,ssh,8080,5900-5910")} />
                             </FormGroup>
@@ -641,17 +682,18 @@ class AddServicesModal extends React.Component {
                                        helperTextInvalid={this.state.udp_error}>
                                 <TextInput id="udp-ports" type="text" onChange={this.validate}
                                            validated={this.state.udp_error ? "error" : "default"}
+                                           isDisabled={this.state.avail_services == null}
                                            value={this.state.custom_udp_value}
                                            placeholder={_("Example: 88,2019,nfs,rsync")} />
                             </FormGroup>
 
                             <FormGroup label={_("ID")} helperText={_("If left empty, ID will be generated based on associated port services and port numbers")}>
-                                <TextInput id="service-name" onChange={this.setId}
+                                <TextInput id="service-name" onChange={this.setId} isDisabled={!!this.props.custom_id || this.state.avail_services == null}
                                            value={this.state.custom_id} />
                             </FormGroup>
 
                             <FormGroup label={_("Description")}>
-                                <TextInput id="service-description" onChange={this.setDescription}
+                                <TextInput id="service-description" onChange={this.setDescription} isDisabled={this.state.avail_services == null}
                                            value={this.state.custom_description} />
                             </FormGroup>
                         </>
@@ -882,6 +924,7 @@ export class Firewall extends React.Component {
         this.openAddZoneDialog = this.openAddZoneDialog.bind(this);
         this.onRemoveZone = this.onRemoveZone.bind(this);
         this.onRemoveService = this.onRemoveService.bind(this);
+        this.onEditService = this.onEditService.bind(this);
     }
 
     onFirewallChanged() {
@@ -929,6 +972,24 @@ export class Firewall extends React.Component {
         }
     }
 
+    onEditService(zone, service) {
+        const tcp_ports = [];
+        const udp_ports = [];
+        service.ports.forEach(port => {
+            if (port.protocol === "tcp")
+                tcp_ports.push(port.port);
+            else
+                udp_ports.push(port.port);
+        });
+
+        const zone_name = zone.name ? zone.name : upperCaseFirstLetter(zone.id);
+
+        const Dialogs = this.context;
+        Dialogs.show(<AddEditServicesModal zoneId={zone.id} zoneName={zone_name} custom_id={service.id}
+                                           custom_tcp_ports={tcp_ports} custom_udp_ports={udp_ports} custom_description={service.description}
+                                           custom_tcp_value={tcp_ports.join(", ")} custom_udp_value={udp_ports.join(", ")} />);
+    }
+
     componentDidMount() {
         firewall.addEventListener("changed", this.onFirewallChanged);
     }
@@ -939,7 +1000,7 @@ export class Firewall extends React.Component {
 
     openServicesDialog(zoneId, zoneName) {
         const Dialogs = this.context;
-        Dialogs.show(<AddServicesModal zoneId={zoneId} zoneName={zoneName} />);
+        Dialogs.show(<AddEditServicesModal zoneId={zoneId} zoneName={zoneName} />);
     }
 
     openAddZoneDialog() {
@@ -1003,6 +1064,7 @@ export class Firewall extends React.Component {
                                                         openServicesDialog={this.openServicesDialog}
                                                         readonly={this.state.firewall.readonly}
                                                         onRemoveZone={this.onRemoveZone}
+                                                        onEditService={this.onEditService}
                                                         onRemoveService={this.onRemoveService} />
                             )
                         }

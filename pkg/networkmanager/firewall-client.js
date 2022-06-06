@@ -397,6 +397,28 @@ firewall.createService = (service, ports, zones, desc = "") => {
 };
 
 /*
+ * Edit firewalld service.
+ *
+ * Returns a promise that resolves when the service is edited.
+ */
+firewall.editService = (service, ports, desc = "") => {
+    return firewalld_dbus.call('/org/fedoraproject/FirewallD1/config',
+                               'org.fedoraproject.FirewallD1.config',
+                               'getServiceByName', [service])
+            .then(path => firewalld_dbus.call(path[0],
+                                              'org.fedoraproject.FirewallD1.config.service',
+                                              'update2', [{ description: { t: 's', v: desc }, ports: { t: 'a(ss)', v: ports } }])
+                    .then(() => {
+                        // No signal for updated service so we need to manually update it
+                        firewall.services[service].description = desc;
+                        firewall.services[service].ports = ports.map(port => ({ port: port[0], protocol: port[1] }));
+                        firewall.debouncedEvent('changed');
+                        return firewall.reload();
+                    })
+            );
+};
+
+/*
  * Add a predefined firewalld service to the specified zone (i.e., open its
  * ports).
  *

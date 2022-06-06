@@ -330,8 +330,8 @@ class TestFirewall(NetworkCase):
         def check_error(text):
             b.wait_visible(f".pf-c-form__helper-text.pf-m-error:contains({text})")
 
-        def save(identifier, tcp, udp, desc=""):
-            b.click("button:contains(Add ports)")
+        def save(identifier, tcp, udp, desc="", submit_text="Add ports"):
+            b.click(f"button:contains({submit_text})")
             b.wait_not_present("#add-services-dialog")
             # expand-togglecustom--80-82-echo-83-123-snmp
             print(identifier)
@@ -367,6 +367,8 @@ class TestFirewall(NetworkCase):
         # Test that the service name field is really optional
         b.set_input_text("#service-name", "")
         save("custom--80-82-echo-83-123-snmp", "80-82, 7", "83-123, 161", "custom snmp firewall rule")
+        out = m.execute("firewall-cmd --info-service custom--80-82-echo-83-123-snmp")
+        self.assertIn("ports: 80-82/tcp 7/tcp 83-123/udp 161/udp", out)
 
         open_dialog()
         set_field("#tcp-ports", "80", "custom--http")
@@ -405,9 +407,24 @@ class TestFirewall(NetworkCase):
         set_field("#udp-ports", "19834", "custom--19834")
         b.click(f"#add-services-dialog .{self.btn_primary}")
         b.wait_in_text("#add-services-dialog div.pf-m-danger", "org.fedoraproject.FirewallD1.Exception: NAME_CONFLICT: new_service(): 'custom--19834'")
+        b.click("#add-services-dialog button.btn-cancel")
 
         # should have been removed in the reload
         b.wait_not_present("tr[data-row-id='http']")
+
+        b.click("tr[data-row-id='custom--80-82-echo-83-123-snmp'] button[aria-label=Details]")
+        b.click("tr[data-row-id='custom--80-82-echo-83-123-snmp'] button[aria-label=Actions]")
+        b.click("a:contains(Edit)")
+        b.wait_val("#tcp-ports", "80-82, 7")
+        b.wait_val("#udp-ports", "83-123, 161")
+        b.wait_val("#service-name", "custom--80-82-echo-83-123-snmp")
+        b.wait_val("#service-description", "custom snmp firewall rule")
+        b.set_input_text("#tcp-ports", "80-82, 8")
+        b.set_input_text("#service-description", "edited snmp firewall rule")
+        b.wait_val("#service-name", "custom--80-82-echo-83-123-snmp")
+        save("custom--80-82-echo-83-123-snmp", "80-82, 8", "83-123, 161", "edited snmp firewall rule", 'Edit service')
+        out = m.execute("firewall-cmd --info-service custom--80-82-echo-83-123-snmp")
+        self.assertIn("ports: 80-82/tcp 8/tcp 83-123/udp 161/udp", out)
 
     def testMultipleZones(self):
         b = self.browser

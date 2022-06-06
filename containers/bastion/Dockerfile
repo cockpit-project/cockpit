@@ -1,4 +1,4 @@
-FROM registry.fedoraproject.org/fedora:34
+FROM registry.fedoraproject.org/fedora:36
 
 ARG VERSION
 ARG INSTALLER

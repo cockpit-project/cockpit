@@ -1,4 +1,4 @@
-FROM registry.fedoraproject.org/fedora:35
+FROM registry.fedoraproject.org/fedora:36
 LABEL maintainer="cockpit-devel@lists.fedorahosted.org"
 LABEL VERSION=main
 

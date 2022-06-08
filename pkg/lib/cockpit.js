@@ -479,8 +479,6 @@ function Transport() {
         if (ws_loc) {
             if ("WebSocket" in window) {
                 ws = new window.WebSocket(ws_loc, "cockpit1");
-            } else if ("MozWebSocket" in window) { // Firefox 6
-                ws = new window.MozWebSocket(ws_loc);
             } else {
                 console.error("WebSocket not supported, application will not work!");
             }

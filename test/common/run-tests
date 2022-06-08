@@ -151,7 +151,7 @@ class Test:
         )
 
     def _print_test(self, print_tap=True, retry_reason="", skip_reason=""):
-        for line in self.output.strip().splitlines(keepends=True):
+        def write_line(line):
             while line:
                 try:
                     sys.stdout.buffer.write(line)
@@ -159,6 +159,14 @@ class Test:
                 except BlockingIOError as e:
                     line = line[e.characters_written:]
                     time.sleep(0.1)
+
+        # be quiet in TAP mode for successful tests
+        lines = self.output.strip().splitlines(keepends=True)
+        if print_tap and self.returncode == 0 and len(lines) > 0:
+            write_line(lines[-1])
+        else:
+            for line in lines:
+                write_line(line)
 
         if retry_reason:
             retry_reason = " " + retry_reason

@@ -211,7 +211,7 @@
             return true;
         }
 
-        return ("MozWebSocket" in window || req("WebSocket", window)) &&
+        return req("WebSocket", window) &&
                req("XMLHttpRequest", window) &&
                req("sessionStorage", window) &&
                req("JSON", window) &&

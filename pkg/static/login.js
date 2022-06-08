@@ -235,15 +235,7 @@
     /* Sets values for application, url_root and login_path */
     function setup_path_globals (path) {
         const parser = document.createElement('a');
-        let base = document.baseURI;
-        /* Some IEs don't support baseURI */
-        if (!base) {
-            const base_tags = document.getElementsByTagName("base");
-            if (base_tags.length > 0)
-                base = base_tags[0].href;
-            else
-                base = "/";
-        }
+        const base = document.baseURI;
 
         path = path || "/";
         parser.href = base;

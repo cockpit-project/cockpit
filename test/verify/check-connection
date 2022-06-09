@@ -1049,7 +1049,7 @@ ProtocolHeader = X-Forwarded-Proto
         m.execute("setsebool -P httpd_can_network_connect on")
         self.allow_journal_messages("audit.*bool=httpd_can_network_connect.*val=1.*")
 
-    def checkCockpitOnProxy(self, urlroot=""):
+    def checkCockpitOnProxy(self, urlroot="", login=True):
         b = self.new_browser()
 
         # should use nginx' certificate, not cockpit's; use --resolve so that SNI matches the certificate's CN
@@ -1066,13 +1066,15 @@ ProtocolHeader = X-Forwarded-Proto
         # works with browser (but we can't set our CA)
         b.ignore_ssl_certificate_errors(True)
         b.open(f"https://{https_host}:{https_port}{urlroot}/system")
-        b.wait_visible("#login")
-        b.set_val("#login-user-input", "admin")
-        b.set_val("#login-password-input", "foobar")
-        b.click('#login-button')
+        if login:
+            b.wait_visible("#login")
+            b.set_val("#login-user-input", "admin")
+            b.set_val("#login-password-input", "foobar")
+            b.click('#login-button')
         b.wait_visible('#content')
-        # check that we show up in the system logs from the browser's IP, not the proxy's
-        self.assertIn('(172.27.0.2)', self.machine.execute('who'))
+        if login:
+            # check that we show up in the system logs from the browser's IP, not the proxy's
+            self.assertIn('(172.27.0.2)', self.machine.execute('who'))
         b.logout()
         b.cdp.invoke("Browser.close")
 
@@ -1200,13 +1202,39 @@ server {
 
         m.execute("systemctl start nginx")
 
+        def run_ws(extra_opts=""):
+            m.spawn(f"su -s /bin/sh -c '{self.libexecdir}/cockpit-ws --address=127.0.0.1 --for-tls-proxy {extra_opts}' cockpit-wsinstance", "ws.log")
+            m.wait_for_cockpit_running()
+
+        def kill_ws():
+            m.execute("pkill cockpit-ws; while pgrep -a cockpit-ws; do sleep 1; done")
+
         # start cockpit-ws in proxy mode, skip all the ws-certs.d/ steps
-        m.spawn(f"su -s /bin/sh -c '{self.libexecdir}/cockpit-ws --address=127.0.0.1 --for-tls-proxy' cockpit-wsinstance", "ws.log")
-        m.wait_for_cockpit_running()
-
+        run_ws()
         self.checkCockpitOnProxy()
+        kill_ws()
 
+        # works also without the login page (krb, oauth, --local-session, etc.)
+        run_ws("--local-session=cockpit-bridge")
+        self.checkCockpitOnProxy(login=False)
+        kill_ws()
+
+        # UrlRoot + login page
+        m.write("/etc/cockpit/cockpit.conf", "UrlRoot = myroot\n", append=True)
+        self.sed_file("s_location /_location /myroot_", "/etc/nginx/conf.d/cockpit.conf",
+                      "systemctl restart nginx")
+        run_ws()
+        self.checkCockpitOnProxy(urlroot="/myroot")
+        kill_ws()
+
+        # UrlRoot without login page
+        run_ws("--local-session=cockpit-bridge")
+        self.checkCockpitOnProxy(urlroot="/myroot", login=False)
+        kill_ws()
+
+        self.allow_restart_journal_messages()
         self.allow_journal_messages("couldn't register polkit authentication agent.*")
+        self.allow_journal_messages("couldn't change to runtime dir.*Permission denied")
 
 
 if __name__ == '__main__':

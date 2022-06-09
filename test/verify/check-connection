@@ -1050,7 +1050,7 @@ ProtocolHeader = X-Forwarded-Proto
         self.allow_journal_messages("audit.*bool=httpd_can_network_connect.*val=1.*")
 
     def checkCockpitOnProxy(self, urlroot=""):
-        b = self.browser
+        b = self.new_browser()
 
         # should use nginx' certificate, not cockpit's; use --resolve so that SNI matches the certificate's CN
         (https_host, https_port) = self.machine.forward["443"].split(':')
@@ -1074,6 +1074,7 @@ ProtocolHeader = X-Forwarded-Proto
         # check that we show up in the system logs from the browser's IP, not the proxy's
         self.assertIn('(172.27.0.2)', self.machine.execute('who'))
         b.logout()
+        b.cdp.invoke("Browser.close")
 
     @skipImage("nginx not installed", "centos-8-stream", "debian-stable", "debian-testing", "fedora-coreos",
                "rhel-8-7", "rhel-9-1", "ubuntu-stable", "ubuntu-2204", "arch")

@@ -26,7 +26,6 @@ import re
 import sys
 
 
-DOWNLOAD_URL = 'https://github.com/cockpit-project/cockpit/releases/download/'
 BASE_DIR = os.path.realpath(f'{__file__}/../..')
 
 
@@ -42,9 +41,6 @@ def substitute(match, args, package):
 
     elif variable == 'RELEASE':
         return '1.wip' if wip_version(args) else '1'
-
-    elif variable == 'PATH':
-        return '' if wip_version(args) else f'{DOWNLOAD_URL}{args.version}/'
 
     elif variable == 'BUILD_ALL':
         return '1' if args.build_all else '0'

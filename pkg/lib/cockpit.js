@@ -25,6 +25,14 @@ try {
     // Sometimes this throws a SecurityError such as during testing
     url_root = window.localStorage.getItem('url-root');
 } catch (e) { }
+if (url_root === null) {
+    // when not going through login page, derive it from URL; See doc/urls.md: /cockpit or /cockpit+,
+    // as well as /@host or /=host are special, and never part of the UrlRoot.
+    url_root = window.location.pathname
+        .replace(/\/cockpit[/+].*$/, '').replace(/\/[@=].*$/, '')
+        // url root must not start or end with slash
+        .replace(/^\/+|\/+$/g, '');
+}
 
 /* injected by tests */
 var mock = mock || { }; // eslint-disable-line no-use-before-define, no-var

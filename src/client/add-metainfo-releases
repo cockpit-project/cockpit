@@ -57,7 +57,7 @@ def main():
         if 'g' in args.version:
             today = time.strftime('%Y-%m-%d')
             releases.append(element('release', version=args.version, date=today, type='development'))
-        releases.extend(format_release(r) for r in get_releases())
+        releases.extend(format_release(r) for r in get_releases() if r)
         if 'ELEMENT_TREE_NO_INDENT' not in os.environ:
             ET.indent(releases, space="  ", level=1)
         tree.write(args.xml, encoding='utf-8', xml_declaration=True)

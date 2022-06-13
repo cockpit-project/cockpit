@@ -13,9 +13,9 @@ Cockpit git repository checkout.
 Cockpit uses Node.js during development. Node.js is not used at runtime.
 To make changes on Cockpit you'll want to install Node.js.
 
-On Debian and recent Ubuntu ≥ 19.04:
+On Debian/Ubuntu:
 
-    $ sudo apt-get install nodejs
+    $ sudo apt install nodejs
 
 On Fedora:
 

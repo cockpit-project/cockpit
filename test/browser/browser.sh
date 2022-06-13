@@ -2,12 +2,12 @@
 # This script is meant to be run on an ephemeral CI host, for packit/Fedora/RHEL gating.
 set -eux
 
-TESTS="$(realpath $(dirname "$0"))"
+MYDIR="$(realpath $(dirname "$0"))"
 if [ -d source ]; then
     # path for standard-test-source
     SOURCE="$(pwd)/source"
 else
-    SOURCE="$(realpath $TESTS/..)"
+    SOURCE="$(realpath $MYDIR/../..)"
 fi
 # https://tmt.readthedocs.io/en/stable/overview.html#variables
 LOGS="${TMT_TEST_DATA:-$(pwd)/logs}"
@@ -68,7 +68,7 @@ firewall-cmd --add-service=cockpit --permanent
 firewall-cmd --add-service=cockpit
 
 # Run tests as unprivileged user
-su - -c "env TEST_BROWSER=firefox SOURCE=$SOURCE LOGS=$LOGS $TESTS/run-verify-host-user.sh" runtest
+su - -c "env TEST_BROWSER=firefox SOURCE=$SOURCE LOGS=$LOGS $MYDIR/run-test.sh" runtest
 
 RC=$(cat $LOGS/exitcode)
 exit ${RC:-1}

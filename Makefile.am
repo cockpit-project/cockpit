@@ -24,7 +24,7 @@ CLEANFILES += cockpit-*.tar.xz
 EXTRA_DIST += $(EXTRA_FILES)
 distdir: $(DISTFILES)
 	@if [ -e '$(srcdir)/.git' ]; then \
-		git -C '$(srcdir)' ls-files -x test/reference test tools > .extra_dist.tmp && \
+		git -C '$(srcdir)' ls-files -x test/reference .fmf plans test tools > .extra_dist.tmp && \
 		mv .extra_dist.tmp '$(srcdir)/.extra_dist'; fi
 	$(MAKE) $(AM_MAKEFLAGS) distdir-am EXTRA_FILES="$$(tr '\n' ' ' < $(srcdir)/.extra_dist) .extra_dist"
 	$(srcdir)/src/client/add-metainfo-releases --version '$(VERSION)' '$(distdir)'/src/client/*.metainfo.xml

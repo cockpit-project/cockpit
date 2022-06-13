@@ -92,14 +92,22 @@ class Chromium(Browser):
         return None
 
     def cmd(self, cdp_port, env, show_browser, browser_home, download_dir):
-        exe = self.path(show_browser)
-
-        return [exe, "--headless" if not show_browser else "",
+        argv = [self.path(show_browser),
                 "--disable-gpu", "--no-sandbox", "--disable-setuid-sandbox",
                 "--disable-namespace-sandbox", "--disable-seccomp-filter-sandbox",
                 "--disable-sandbox-denial-logging", "--disable-pushstate-throttle",
                 "--font-render-hinting=none",
-                "--v=0", f"--remote-debugging-port={cdp_port}", "about:blank"]
+                "--v=0", f"--remote-debugging-port={cdp_port}"]
+        if not show_browser:
+            argv += "--headless"
+        # requires lots of /dev/shm; containers often only have 64 MiB
+        s = os.statvfs("/dev/shm")
+        if s.f_bsize * s.f_bavail < 200 * 1024 * 1024:
+            sys.stderr.write(f"WARNING: /dev/shm only has { s.f_bsize * s.f_bavail } bytes available, disabling SHM for chromium\n")
+            argv += "--disable-dev-shm-usage"
+
+        argv += "about:blank"
+        return argv
 
 
 class Firefox(Browser):

@@ -39,9 +39,6 @@ def substitute(match, args, package):
     if variable == 'VERSION':
         return args.version
 
-    elif variable == 'RELEASE':
-        return '1.wip' if wip_version(args) else '1'
-
     elif variable == 'BUILD_ALL':
         return '1' if args.build_all else '0'
 

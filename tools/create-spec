@@ -42,10 +42,6 @@ def substitute(match, args, package):
     elif variable == 'BUILD_ALL':
         return '1' if args.build_all else '0'
 
-    elif variable == 'PATTERNFLY_VERSION':
-        with open(f'{BASE_DIR}/package.json') as fp:
-            return json.load(fp)['dependencies']['patternfly']
-
     elif variable == 'REQUIRED_BASE':
         with open(f'{BASE_DIR}/pkg/{package}/manifest.json') as fp:
             return json.load(fp)['requires']['cockpit']

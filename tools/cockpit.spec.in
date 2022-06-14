@@ -403,8 +403,6 @@ Provides: cockpit-sosreport = %{version}-%{release}
 %if 0%{?fedora}
 Recommends: (reportd if abrt)
 %endif
-# NPM modules which are also available as packages
-Provides: bundled(xstatic-patternfly-common) = @PATTERNFLY_VERSION@
 
 %description system
 This package contains the Cockpit shell and system configuration interfaces.

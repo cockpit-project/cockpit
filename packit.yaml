@@ -2,7 +2,7 @@ upstream_project_url: https://github.com/cockpit-project/cockpit
 actions:
   post-upstream-clone:
     # packit will overwrite the version in its "fix spec file" stage
-    - tools/create-spec --version 0 --build-all -o cockpit.spec tools/cockpit.spec.in
+    - tools/create-spec --version 0 -o cockpit.spec tools/cockpit.spec.in
     # HACK: until FMF uses tests from dist-git source tarball: https://github.com/teemtee/tmt/issues/585
     - sh -exc 'mkdir -p tmp; curl --silent --fail https://src.fedoraproject.org/rpms/cockpit/raw/rawhide/f/plans/upstream.fmf | sed -r "/ref:/ s/[0-9.]+/$(git describe --abbrev=0)/" > tmp/upstream.fmf'
 
@@ -68,7 +68,7 @@ jobs:
         # HACK: https://github.com/packit/packit/issues/1560
         - tools/node-modules checkout
         # packit will overwrite the version in its "fix spec file" stage
-        - tools/create-spec --version 0 --build-all -o cockpit.spec tools/cockpit.spec.in
+        - tools/create-spec --version 0 -o cockpit.spec tools/cockpit.spec.in
       # HACK: tarball for releases (copr_build, koji, etc.), copying spec's Source0; this
       # really should be the default, see https://github.com/packit/packit-service/issues/1505
       create-archive:

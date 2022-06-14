@@ -504,6 +504,17 @@ export class KdumpPage extends React.Component {
             );
         }
         const tooltip_info = _("This will test the kdump configuration by crashing the kernel.");
+
+        let kdumpSwitch = (<Switch isChecked={!!serviceRunning}
+                              onChange={this.props.onSetServiceState}
+                              aria-label={_("kdump status")}
+                              isDisabled={this.props.stateChanging || !this.props.kdumpCmdlineEnabled} />);
+        if (!this.props.kdumpCmdlineEnabled) {
+            kdumpSwitch = (
+                <Tooltip content={_("crashkernel not configured in the kernel command line")} position={TooltipPosition.right}>
+                    {kdumpSwitch}
+                </Tooltip>);
+        }
         return (
             <Page>
                 <PageSection variant={PageSectionVariants.light}>
@@ -511,10 +522,7 @@ export class KdumpPage extends React.Component {
                         <Title headingLevel="h2" size="3xl">
                             {_("Kernel crash dump")}
                         </Title>
-                        <Switch isChecked={!!serviceRunning}
-                                onChange={this.props.onSetServiceState}
-                                aria-label={_("kdump status")}
-                                isDisabled={this.props.stateChanging} />
+                        {kdumpSwitch}
                     </Flex>
                 </PageSection>
                 <PageSection className="ct-pagesection-mobile">

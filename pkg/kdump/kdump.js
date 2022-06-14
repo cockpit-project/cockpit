@@ -63,11 +63,20 @@ const initStore = function(rootElement) {
             stateChanging: dataStore.stateChanging,
             reservedMemory: dataStore.kdumpMemory,
             kdumpStatus: dataStore.kdumpStatus,
+            kdumpCmdlineEnabled: dataStore.crashkernel || false,
             onSaveSettings: dataStore.saveSettings,
             onCrashKernel: dataStore.kdumpClient.crashKernel,
         }), rootElement);
     };
     dataStore.render = render;
+
+    cockpit.file("/proc/cmdline").read()
+            .then(content => {
+                if (content !== null) {
+                    dataStore.crashkernel = content.indexOf('crashkernel=') !== -1;
+                }
+            })
+            .catch(err => console.error("cannot read /proc/cmdline", err));
 
     // read memory reserved for kdump from system
     dataStore.kdumpMemory = undefined;

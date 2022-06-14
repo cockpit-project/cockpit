@@ -79,6 +79,8 @@ class TestKdump(KdumpHelpers):
             b.wait_in_text("#app", "Service is running")
             assertActive(True)
         else:
+            # crashkernel command line not set
+            b.wait_visible(".pf-c-switch__input:disabled")
             # right now we have no memory reserved
             b.mouse("span + .popover-ct-kdump", "mouseenter")
             b.wait_in_text(".pf-c-tooltip", "No memory reserved.")

@@ -20,7 +20,6 @@
 import argparse
 import contextlib
 import fileinput
-import json
 import os.path
 import re
 import sys
@@ -41,10 +40,6 @@ def substitute(match, args, package):
 
     elif variable == 'BUILD_ALL':
         return '1' if args.build_all else '0'
-
-    elif variable == 'REQUIRED_BASE':
-        with open(f'{BASE_DIR}/pkg/{package}/manifest.json') as fp:
-            return json.load(fp)['requires']['cockpit']
 
     else:
         raise ValueError(f'Unsupported substitution @{variable}@')

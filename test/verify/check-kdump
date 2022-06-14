@@ -118,6 +118,11 @@ class TestKdump(KdumpHelpers):
         b.set_input_text(mountInput, "localhost:")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
         b.wait_in_text("#kdump-settings-dialog h4.pf-c-alert__title", "Unable to save settings: nfs dump target isn't formatted as server:path")
+        # resolving failed
+        self.assertFalse(b.is_present("#kdump-settings-dialog .pf-c-code-block__code"))
+        b.set_input_text(mountInput, "example.com:/foo")
+        b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
+        b.wait_in_text("#kdump-settings-dialog h4.pf-c-alert__title", "Unable to resolve NFS server")
         b.click("#kdump-settings-dialog button.cancel")
         b.wait_not_present("#kdump-settings-dialog")
 
@@ -277,6 +282,10 @@ class TestKdumpNFS(KdumpHelpers):
         b.click("#kdump-change-target")
         b.wait_visible("#kdump-settings-dialog")
         b.set_val("#kdump-settings-location", "nfs")
+        # Validate path resolving
+        b.set_input_text("#kdump-settings-nfs-mount", "10.111.113.2:/srv/none")
+        b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
+        b.wait_in_text("#kdump-settings-dialog h4.pf-c-alert__title", "Cannot find remote path on server")
         b.set_input_text("#kdump-settings-nfs-mount", "10.111.113.2:/srv/kdump")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
         # rebuilding initrd might take a while on busy CI machines

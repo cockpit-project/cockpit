@@ -115,6 +115,19 @@ export class KdumpClient {
             } else if (target.target === "nfs") {
                 if (!target.nfs.value.match("\\S+:/.+"))
                     reject(_("nfs dump target isn't formatted as server:path"));
+                const [server, path] = target.nfs.value.split(":");
+                // showmount blocks forever
+                cockpit.spawn(["timeout", "-k", "5s", "5s", "showmount", "-e", "--no-headers", server])
+                        .then(function (output) {
+                            output.split("\n").forEach(function (line) {
+                                const dir = line.split(" ")[0];
+                                if (dir == path) {
+                                    resolve();
+                                }
+                            });
+                            reject(_("Cannot find remote path on server"));
+                        }).catch(() => reject(_("Unable to resolve NFS server")));
+                return;
             } else if (target.target === "ssh") {
                 if (!target.ssh.value.trim())
                     reject(_("ssh server is empty"));

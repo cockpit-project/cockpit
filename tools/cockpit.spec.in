@@ -24,9 +24,9 @@
 # Check first cockpit-devel@lists.fedorahosted.org
 #
 
-# earliest base that the subpackages work on; the instances of this get computed/updated
-# by tools/gen-spec-dependencies during "make dist", but keep a hardcoded fallback
-%define required_base 122
+# earliest base that the subpackages work on; this is still required as long as
+# we maintain the basic/optional split, then it can be replaced with just %{version}.
+%define required_base 266
 
 # we generally want CentOS packages to be like RHEL; special cases need to check %{centos} explicitly
 %if 0%{?centos}
@@ -529,8 +529,8 @@ fi
 
 %package kdump
 Summary: Cockpit user interface for kernel crash dumping
-Requires: cockpit-bridge >= @REQUIRED_BASE@
-Requires: cockpit-shell >= @REQUIRED_BASE@
+Requires: cockpit-bridge >= %{required_base}
+Requires: cockpit-shell >= %{required_base}
 Requires: kexec-tools
 BuildArch: noarch
 
@@ -542,8 +542,8 @@ The Cockpit component for configuring kernel crash dumping.
 
 %package sosreport
 Summary: Cockpit user interface for diagnostic reports
-Requires: cockpit-bridge >= @REQUIRED_BASE@
-Requires: cockpit-shell >= @REQUIRED_BASE@
+Requires: cockpit-bridge >= %{required_base}
+Requires: cockpit-shell >= %{required_base}
 Requires: sos
 BuildArch: noarch
 
@@ -557,8 +557,8 @@ sosreport tool.
 
 %package networkmanager
 Summary: Cockpit user interface for networking, using NetworkManager
-Requires: cockpit-bridge >= @REQUIRED_BASE@
-Requires: cockpit-shell >= @REQUIRED_BASE@
+Requires: cockpit-bridge >= %{required_base}
+Requires: cockpit-shell >= %{required_base}
 Requires: NetworkManager >= 1.6
 # Optional components
 Recommends: NetworkManager-team
@@ -575,8 +575,8 @@ The Cockpit component for managing networking.  This package uses NetworkManager
 
 %package selinux
 Summary: Cockpit SELinux package
-Requires: cockpit-bridge >= @REQUIRED_BASE@
-Requires: cockpit-shell >= @REQUIRED_BASE@
+Requires: cockpit-bridge >= %{required_base}
+Requires: cockpit-shell >= %{required_base}
 Requires: setroubleshoot-server >= 3.3.3
 BuildArch: noarch
 
@@ -606,7 +606,7 @@ Dummy package from building optional packages only; never install or publish me.
 
 %package -n cockpit-storaged
 Summary: Cockpit user interface for storage, using udisks
-Requires: cockpit-shell >= @REQUIRED_BASE@
+Requires: cockpit-shell >= %{required_base}
 Requires: udisks2 >= 2.9
 Recommends: udisks2-lvm2 >= 2.9
 Recommends: udisks2-iscsi >= 2.9
@@ -643,7 +643,7 @@ These files are not required for running Cockpit.
 
 %package -n cockpit-pcp
 Summary: Cockpit PCP integration
-Requires: cockpit-bridge >= @REQUIRED_BASE@
+Requires: cockpit-bridge >= %{required_base}
 Requires: pcp
 
 %description -n cockpit-pcp
@@ -659,7 +659,7 @@ systemctl reload-or-try-restart pmlogger
 %package -n cockpit-packagekit
 Summary: Cockpit user interface for packages
 BuildArch: noarch
-Requires: cockpit-bridge >= @REQUIRED_BASE@
+Requires: cockpit-bridge >= %{required_base}
 Requires: PackageKit
 Recommends: python3-tracer
 # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1800468

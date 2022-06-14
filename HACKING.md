@@ -32,14 +32,7 @@ locally (see [testing README](test/README.md)), you will need additional header
 files and other components. The following should work in a fresh Git clone:
 
     $ sudo dnf install dnf-utils python-srpm-macros
-    $ TEMPFILE=$(mktemp -u --suffix=.spec) && \
-      ./tools/create-spec --version 1 -o "$TEMPFILE" tools/cockpit.spec.in && \
-      sudo dnf builddep --spec "$TEMPFILE" &&
-      rm "$TEMPFILE"
-
-Note that `tools/cockpit.spec.in` is a template filled in by
-`tools/create-spec` when building RPMs, and cannot be directly parsed
-by dnf.
+    $ sudo dnf builddep --spec tools/cockpit.spec
 
 For running the browser unit tests, the following dependencies are required:
 

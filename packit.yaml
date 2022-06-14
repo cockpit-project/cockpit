@@ -55,6 +55,9 @@ jobs:
       owner: "@cockpit"
       project: "cockpit-preview"
       preserve_project: True
+      # HACK: hardcoding this list is redundant and hard to change; packit
+      # should just use the existing config for permanent COPRs;
+      # https://github.com/packit/packit-service/issues/1499
       targets:
       - fedora-35
       - fedora-36

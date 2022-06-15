@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import unittest
 
 import parent
@@ -166,6 +167,54 @@ class TestWsBastionContainer(MachineCase):
 
         b.wait_visible('#content')
         b.wait_text('#current-username', 'admin')
+
+    def testKeyLogin(self):
+        m = self.machine
+        b = self.browser
+
+        KEY_PASSWORD = "sshfoobar"
+        # FIXME: cockpit-auth-ssh-key only understands PEM format RSA keys
+        m.execute(f"ssh-keygen -q -f /root/id_bastion -t rsa -m PEM -N {KEY_PASSWORD}")
+        m.execute(f"ssh-keyscan localhost | sed 's/^localhost/{HOST}/' > /root/known_hosts")
+        self.addCleanup(m.execute, "rm /root/known_hosts /root/id_bastion /root/id_bastion.pub")
+
+        m.execute("podman run -d --name cockpit-bastion -p 9090:9090 "
+                  "-v /root/known_hosts:/etc/ssh/ssh_known_hosts:ro,Z "
+                  "-v /root/id_bastion:/id_bastion:ro,Z "
+                  "-e COCKPIT_SSH_KEY_PATH=/id_bastion "
+                  "-e G_MESSAGES_DEBUG=cockpit-ssh "
+                  "localhost/cockpit/ws")
+        m.execute("until curl --fail --head -k https://localhost:9090/; do sleep 1; done")
+
+        b.ignore_ssl_certificate_errors(True)
+        b.open("/", tls=True)
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#server-field", HOST)
+
+        # the account password does not work
+        b.set_val("#login-password-input", "foobar")
+        b.click("#login-button")
+        b.wait_text_not("#login-error-message", "")
+
+        # SSH key password, but key is not authorized
+        b.set_val("#login-password-input", KEY_PASSWORD)
+        b.click("#login-button")
+        b.wait_text_not("#login-error-message", "")
+
+        # authorize key
+        p = "/home/admin/.ssh/authorized_keys.d/bastion"
+        self.restore_dir(os.path.dirname(p))
+        m.execute(f"cp /root/id_bastion.pub {p} && chown admin:admin {p} && chmod 600 {p}")
+
+        # fails with wrong key password
+        b.set_val("#login-password-input", "notthispassword")
+        b.click("#login-button")
+        b.wait_text_not("#login-error-message", "")
+
+        # works with correct key password
+        b.set_val("#login-password-input", KEY_PASSWORD)
+        b.click("#login-button")
+        b.wait_visible('#content')
 
 
 if __name__ == '__main__':

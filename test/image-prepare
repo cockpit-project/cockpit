@@ -177,19 +177,6 @@ def validate_packages():
             """]
 
 
-def build_containers():
-    return [
-        "--upload", os.path.join(BASE_DIR, "containers") + ":/var/tmp/",
-
-        "--run-command",
-        """set -eu
-            cd /var/tmp/containers/bastion
-            mkdir rpms
-            cp /var/tmp/build/*.rpm rpms/
-            sed -i -e "s#FROM .*#FROM cockpit/base#" Dockerfile
-            podman build --build-arg OFFLINE=1 -t "cockpit/bastion" . 1>&2"""]
-
-
 def main():
     parser = argparse.ArgumentParser(
         description='Prepare testing environment, download images and build and install cockpit',
@@ -197,7 +184,6 @@ def main():
     parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
     parser.add_argument('-q', '--quick', action='store_true', help='Skip unit tests to build faster')
     parser.add_argument('-o', '--overlay', action='store_true', help='Install into existing test/image/ overlay instead of from pristine base image')
-    parser.add_argument('-c', '--containers', action='store_true', help='Install container images')
     parser.add_argument('image', nargs='?', default=DEFAULT_IMAGE, help='The image to use')
     args = parser.parse_args()
 
@@ -217,9 +203,6 @@ def main():
         customize += build_install_rhel8(dist_tar, args.image, args.verbose)
     else:
         customize += build_install_package(dist_tar, args.image)
-
-    if args.containers:
-        customize += build_containers()
 
     if not args.quick:
         customize += validate_packages()

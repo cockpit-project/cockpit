@@ -148,15 +148,11 @@ p {
 /* Bump options & connection away from user/pass */
 #option-group,
 #option-group[hidden] + #server-group {
-  margin-top: 2rem;
+  margin-top: 1rem;
 }
 
 #option-group {
   margin-bottom: 1rem;
-}
-
-#server-group {
-  margin-bottom: 2rem;
 }
 
 .form-group:not(:first-child) {
@@ -703,7 +699,6 @@ label.checkbox {
 
 /* Large phones and desktops */
 @media (min-width: 481px) {
-
   .unsupported-browser-heading {
     margin: 2rem 0;
   }
@@ -713,6 +708,10 @@ label.checkbox {
     margin-top: 0;
   }
 
+  .login-pf #brand {
+    padding: 0;
+    margin-bottom: 1rem;
+  }
 }
 
 /* Desktop only */
@@ -893,7 +892,7 @@ a:hover {
 }
 
 .dialog-error {
-  margin: 0 0 2rem;
+  margin: 0 0 1rem;
 }
 
 #login-again {

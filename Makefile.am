@@ -29,6 +29,8 @@ distdir: $(DISTFILES)
 	$(MAKE) $(AM_MAKEFLAGS) distdir-am EXTRA_FILES="$$(tr '\n' ' ' < $(srcdir)/.extra_dist) .extra_dist"
 	test ! -x $(srcdir)/src/client/add-metainfo-releases || $(srcdir)/src/client/add-metainfo-releases --version '$(VERSION)' '$(distdir)'/src/client/*.metainfo.xml
 	sed -i "/^Version:/ s/0/$(VERSION)/" "$(distdir)/tools/cockpit.spec"
+	sed -i "/^pkgver=/ s/0/$(VERSION)/" "$(distdir)/tools/arch/PKGBUILD"
+	sed -i "1 s/0/$(VERSION)/" "$(distdir)/tools/debian/changelog"
 	$(srcdir)/tools/adjust-distdir-timestamps "$(distdir)"
 	@echo '  DIST     $(DIST_ARCHIVES)'
 
@@ -43,14 +45,6 @@ $(distdir)/configure: $(distdir)/version.m4
 	$(AM_V_GEN) autoreconf $(distdir)
 
 # Various downstream packaging assets
-dist-hook: $(distdir)/tools/arch/PKGBUILD
-$(distdir)/tools/arch/PKGBUILD: $(distdir)/tools/arch/PKGBUILD.in
-	$(AM_V_GEN) sed "s/VERSION/$(VERSION)/" $< > $@
-
-dist-hook: $(distdir)/tools/debian/changelog
-$(distdir)/tools/debian/changelog: $(distdir)/tools/debian/changelog.in
-	$(AM_V_GEN) sed "s/VERSION/$(VERSION)/" $< > $@
-
 dist-hook: $(distdir)/tools/debian/copyright
 $(distdir)/tools/debian/copyright:
 	$(AM_V_GEN) NODE_ENV=$(NODE_ENV) $(srcdir)/tools/build-debian-copyright > $@

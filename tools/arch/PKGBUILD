@@ -5,7 +5,7 @@
 
 pkgbase=cockpit
 pkgname=(cockpit cockpit-pcp cockpit-test)
-pkgver=VERSION
+pkgver=0
 pkgrel=1
 pkgdesc='A systemd web based user interface for Linux servers'
 arch=('x86_64')
@@ -13,7 +13,7 @@ url='https://cockpit-project.org/'
 license=(LGPL)
 makedepends=(krb5 libssh accountsservice perl-json perl-locale-po json-glib glib-networking
              git intltool gtk-doc gobject-introspection networkmanager libgsystem xmlto npm pcp)
-source=("cockpit-VERSION.tar.xz"
+source=("cockpit-${pkgver}.tar.xz"
         "cockpit.pam"
         "cockpit-ws.sysuser.conf"
         "cockpit-wsinstance.sysuser.conf")

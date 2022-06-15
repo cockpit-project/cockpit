@@ -358,7 +358,7 @@ def run(opts, image):
         print("Code coverage report in Coverage/index.html")
         try:
             with open("github-pr.diff", "w") as f:
-                subprocess.check_call(["git", "diff", "main"], stdout=f)
+                subprocess.check_call(["git", "-c", "diff.noprefix=false", "diff", "main"], stdout=f)
         except subprocess.CalledProcessError:
             pass
 

@@ -65,6 +65,8 @@ You can still log into the ws container's host if you specify its *public*
 address. [podman](https://podman.io/) provides the special name
 `host.containers.internal` for that.
 
+### Configuration
+
 By default, the container uses an internal
 [cockpit.conf](https://cockpit-project.org/guide/latest/cockpit.conf.5.html)
 which sets `RequireHost = true` and a neutral login title. You can customize
@@ -75,12 +77,20 @@ this by passing your own configuration as a volume:
 Similarly you can also provide a custom `/etc/os-release` to change the
 branding.
 
+### SSH authentication
+
 The login page asks the user to confirm unknown SSH host key fingerprints.  You
 can mount your known host keys into the container at
 `/etc/ssh/ssh_known_hosts`, or set the environment variable
 `COCKPIT_SSH_KNOWN_HOSTS_FILE` to specify a different location:
 
     -v /path/to/known_hosts:/etc/ssh/ssh_known_hosts:ro,Z
+
+You can also mount an encrypted private key inside the container and set the environment variable `COCKPIT_SSH_KEY_PATH` to point to it:
+
+    -e COCKPIT_SSH_KEY_PATH=/id_rsa -v ~/.ssh/id_rsa:/id_rsa:ro,Z
+
+Then cockpit will use the provided password to decrypt the key and establish an SSH connection to the given host using that private key. **Warning:** This currently only supports RSA keys in the old PEM file format (`ssh-keygen -t rsa -m PEM`), not the current OpenSSH specific format.
 
 ## More Info
 

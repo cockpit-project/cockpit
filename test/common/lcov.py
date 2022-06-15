@@ -226,7 +226,10 @@ class DiffMap:
         with open(diff) as f:
             for line in f.readlines():
                 diff_line += 1
-                if line.startswith("+++ b/"):
+                if line.startswith("+++ /dev/null"):
+                    # removed file, only `^-` following after that until the next hunk
+                    continue
+                elif line.startswith("+++ b/"):
                     plus_name = os.path.normpath(line[6:].strip())
                     plus_line = 1
                     self.map[plus_name] = {}

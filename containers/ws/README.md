@@ -75,6 +75,13 @@ this by passing your own configuration as a volume:
 Similarly you can also provide a custom `/etc/os-release` to change the
 branding.
 
+The login page asks the user to confirm unknown SSH host key fingerprints.  You
+can mount your known host keys into the container at
+`/etc/ssh/ssh_known_hosts`, or set the environment variable
+`COCKPIT_SSH_KNOWN_HOSTS_FILE` to specify a different location:
+
+    -v /path/to/known_hosts:/etc/ssh/ssh_known_hosts:ro,Z
+
 ## More Info
 
  * [Cockpit Project](https://cockpit-project.org)

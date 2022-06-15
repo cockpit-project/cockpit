@@ -91,6 +91,45 @@ class TestWsBastionContainer(MachineCase):
         b.wait_visible('#content')
         b.logout()
 
+    def testKnownHosts(self):
+        m = self.machine
+        b = self.browser
+
+        m.execute(f"ssh-keyscan localhost | sed 's/^localhost/{HOST}/' > /root/known_hosts")
+        self.addCleanup(m.execute, "rm /root/known_hosts")
+        b.ignore_ssl_certificate_errors(True)
+
+        def check_login():
+            m.execute("until curl --fail --head -k https://localhost:9090/; do sleep 1; done")
+            b.open("/", tls=True)
+            b.set_val("#login-user-input", "admin")
+            b.set_val("#login-password-input", "foobar")
+            b.set_val("#server-field", HOST)
+            b.click("#login-button")
+            b.wait_visible('#content')
+            b.logout()
+            m.execute("podman rm -f cockpit-bastion")
+
+        # default location
+        m.execute("podman run -d --name cockpit-bastion -p 9090:9090 "
+                  "-v /root/known_hosts:/etc/ssh/ssh_known_hosts:ro,Z "
+                  "localhost/cockpit/ws")
+        check_login()
+
+        # custom location
+        m.execute("podman run -d --name cockpit-bastion -p 9090:9090 "
+                  "-v /root/known_hosts:/known_hosts:ro,Z "
+                  "-e COCKPIT_SSH_KNOWN_HOSTS_FILE=/known_hosts "
+                  "localhost/cockpit/ws")
+        check_login()
+
+        # connect to all unknown hosts
+        # FIXME: this does not work
+        # m.execute("podman run -d --name cockpit-bastion -p 9090:9090 "
+        #           "-e COCKPIT_SSH_CONNECT_TO_UNKNOWN_HOSTS=1 "
+        #           "localhost/cockpit/ws")
+        # check_login()
+
     def testCustomConf(self):
         m = self.machine
         b = self.browser

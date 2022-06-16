@@ -26,6 +26,8 @@ if [ ! -d node_modules/chrome-remote-interface ]; then
     npm install chrome-remote-interface sizzle
 fi
 
+npx chrome-remote-interface -v
+
 export TEST_OS="${ID}-${VERSION_ID/./-}"
 # HACK: upstream does not yet know about rawhide
 if [ "$TEST_OS" = "fedora-37" ]; then

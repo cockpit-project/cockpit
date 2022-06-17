@@ -837,6 +837,19 @@ function install_package(name, progress) {
 }
 
 export class VGroup extends React.Component {
+    constructor () {
+        super();
+        this.on_fsys_samples = () => { this.setState({}) };
+    }
+
+    componentDidMount() {
+        this.props.client.fsys_sizes.addEventListener("changed", this.on_fsys_samples);
+    }
+
+    componentWillUnmount() {
+        this.props.client.fsys_sizes.removeEventListener("changed", this.on_fsys_samples);
+    }
+
     render() {
         const self = this;
         const vgroup = this.props.vgroup;

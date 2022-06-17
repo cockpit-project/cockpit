@@ -24,6 +24,9 @@ git clone --depth=1 https://github.com/cockpit-project/bots
 # support running from clean git tree
 if [ ! -d node_modules/chrome-remote-interface ]; then
     npm install chrome-remote-interface sizzle
+else
+    # make sure we use the correct node_modules
+    ./tools/node-modules checkout
 fi
 
 export TEST_OS="${ID}-${VERSION_ID/./-}"

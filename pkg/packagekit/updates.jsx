@@ -1095,6 +1095,11 @@ class OsUpdates extends React.Component {
             UpdateDetail: (packageId, updates, obsoletes, vendor_urls, bug_urls, cve_urls, restart,
                 update_text, changelog /* state, issued, updated */) => {
                 const u = this.state.updates[packageId];
+                if (!u) {
+                    console.warn("Mismatching update:", packageId);
+                    return;
+                }
+
                 u.vendor_urls = vendor_urls;
                 // HACK: bug_urls and cve_urls also contain titles, in a not-quite-predictable order; ignore them,
                 // only pick out http[s] URLs (https://bugs.freedesktop.org/show_bug.cgi?id=104552)

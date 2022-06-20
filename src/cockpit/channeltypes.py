@@ -141,6 +141,9 @@ class EchoChannel(Channel):
     def do_data(self, data):
         self.send_data(data)
 
+    def do_done(self):
+        self.done()
+
 
 @Endpoint.match(CHANNEL_TYPES, payload='fsread1')
 class FsReadChannel(Channel):

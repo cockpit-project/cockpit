@@ -21,10 +21,16 @@
 
 let url_root;
 
-try {
-    // Sometimes this throws a SecurityError such as during testing
-    url_root = window.localStorage.getItem('url-root');
-} catch (e) { }
+const meta_url_root = document.head.querySelector("meta[name='url-root']");
+if (meta_url_root) {
+    url_root = meta_url_root.content.replace(/^\/+|\/+$/g, '');
+} else {
+    // fallback for cockpit-ws < 272
+    try {
+        // Sometimes this throws a SecurityError such as during testing
+        url_root = window.localStorage.getItem('url-root');
+    } catch (e) { }
+}
 
 /* injected by tests */
 var mock = mock || { }; // eslint-disable-line no-use-before-define, no-var

@@ -82,22 +82,20 @@ cockpit_channel_inject_perform (CockpitChannelInject *inject,
                                 CockpitTransport *transport)
 {
   static const gchar *marker = "<head>";
-  CockpitWebFilter *filter;
-  CockpitCreds *creds;
-  gchar *prefixed_application = NULL;
-  const gchar *checksum;
-  GString *str;
-  GBytes *base;
+  g_autofree gchar *prefixed_application = NULL;
 
-  if (!inject->base_path)
+  const gchar *url_root = cockpit_web_response_get_url_root (response);
+
+  if (!url_root && !inject->base_path)
     return;
 
-  str = g_string_new ("");
-  creds = cockpit_web_service_get_creds (inject->service);
-  if (cockpit_web_response_get_url_root (response))
+  g_autoptr(GString) str = g_string_new ("");
+  CockpitCreds *creds = cockpit_web_service_get_creds (inject->service);
+  if (url_root)
     {
+      g_string_append_printf (str, "\n    <meta name=\"url-root\" content=\"%s\">", url_root);
       prefixed_application = g_strdup_printf ("%s/%s",
-                                              cockpit_web_response_get_url_root (response),
+                                              url_root,
                                               cockpit_creds_get_application (creds));
     }
   else
@@ -105,26 +103,25 @@ cockpit_channel_inject_perform (CockpitChannelInject *inject,
       prefixed_application = g_strdup_printf ("/%s", cockpit_creds_get_application (creds));
     }
 
-  checksum = cockpit_web_service_get_checksum (inject->service, inject->host);
-  if (checksum)
+  if (inject->base_path)
     {
-      g_string_printf (str, "\n    <base href=\"%s/$%s%s\">",
-                       prefixed_application,
-                       checksum, inject->base_path);
-    }
-  else
-    {
-      g_string_printf (str, "\n    <base href=\"%s/@%s%s\">",
-                       prefixed_application, inject->host, inject->base_path);
+      const gchar *checksum = cockpit_web_service_get_checksum (inject->service, inject->host);
+      if (checksum)
+        {
+          g_string_append_printf (str, "\n    <base href=\"%s/$%s%s\">",
+                                  prefixed_application,
+                                  checksum, inject->base_path);
+        }
+      else
+        {
+          g_string_append_printf (str, "\n    <base href=\"%s/@%s%s\">",
+                                  prefixed_application, inject->host, inject->base_path);
+        }
     }
 
-  base = g_string_free_to_bytes (str);
-  filter = cockpit_web_inject_new (marker, base, 1);
-  g_bytes_unref (base);
-
+  g_autoptr(GBytes) content = g_string_free_to_bytes (g_steal_pointer(&str));
+  g_autoptr(CockpitWebFilter) filter = cockpit_web_inject_new (marker, content, 1);
   cockpit_web_response_add_filter (response, filter);
-  g_object_unref (filter);
-  g_free (prefixed_application);
 }
 
 #define COCKPIT_TYPE_CHANNEL_RESPONSE  (cockpit_channel_response_get_type ())
@@ -157,7 +154,7 @@ G_DEFINE_TYPE (CockpitChannelResponse, cockpit_channel_response, COCKPIT_TYPE_CH
 static void
 cockpit_channel_response_init (CockpitChannelResponse *self)
 {
-  
+
 }
 
 static void

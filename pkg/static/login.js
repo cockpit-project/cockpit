@@ -235,12 +235,14 @@
     /* Sets values for application, url_root and login_path */
     function setup_path_globals (path) {
         const parser = document.createElement('a');
+        // send_login_html() sets <base> to UrlRoot
         const base = document.baseURI;
 
         path = path || "/";
         parser.href = base;
         if (parser.pathname != "/") {
             url_root = parser.pathname.replace(/^\/+|\/+$/g, '');
+            // deprecated: for connecting to cockpit.js < 272
             localStorage.setItem('url-root', url_root);
             if (url_root && path.indexOf('/' + url_root) === 0)
                 path = path.replace('/' + url_root, '') || '/';
@@ -955,6 +957,7 @@
 
         /* URL Root is set by cockpit ws and shouldn't be prefixed
          * by application
+         * deprecated: for connecting to cockpit.js < 272
          */
         if (url_root)
             localStorage.setItem('url-root', url_root);

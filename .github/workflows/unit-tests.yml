@@ -12,9 +12,6 @@ jobs:
           - { make: 'distcheck', cc: 'gcc', tag: 'i386' }
       fail-fast: false
     timeout-minutes: 60
-    env:
-      # current podman backport falls over as non-root, and completely breaks down with :i386 image
-      docker: docker
     steps:
       - name: Clone repository
         uses: actions/checkout@v2

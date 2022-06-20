@@ -13,9 +13,6 @@ jobs:
       contents: read
       packages: write
     timeout-minutes: 180
-    env:
-      # current podman backport falls over as non-root, and completely breaks down with :i386 image
-      docker: docker
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -39,9 +36,9 @@ jobs:
         run: containers/unit-tests/start :i386 distcheck
 
       - name: Log into container registry
-        run: docker login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
+        run: podman login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
 
       - name: Push containers to registry
         run: |
-          docker push ghcr.io/cockpit-project/unit-tests:latest
-          docker push ghcr.io/cockpit-project/unit-tests:i386
+          podman push ghcr.io/cockpit-project/unit-tests:latest
+          podman push ghcr.io/cockpit-project/unit-tests:i386

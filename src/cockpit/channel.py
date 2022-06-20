@@ -98,8 +98,8 @@ class Channel(Endpoint):
     def done(self):
         self.send_control(command='done')
 
-    def close(self):
-        self.send_control(command='close')
+    def close(self, **kwargs):
+        self.send_control(command='close', **kwargs)
 
     def send_data(self, message):
         self.router.send_data(self.channel, message)
@@ -156,12 +156,13 @@ class AsyncChannel(Channel):
         return item
 
     async def write(self, data):
-        assert len(data) <= AsyncChannel.CHANNEL_FLOW_WINDOW
-        self.out_sequence += len(data)
+        if self.flow_control:
+            assert len(data) <= AsyncChannel.CHANNEL_FLOW_WINDOW
+            self.out_sequence += len(data)
 
-        while self.out_window < self.out_sequence:
-            self.write_waiter = self.loop.create_future()
-            await self.write_waiter
+            while self.out_window < self.out_sequence:
+                self.write_waiter = asyncio.get_running_loop().create_future()
+                await self.write_waiter
 
         self.send_data(data)
 
@@ -172,8 +173,9 @@ class AsyncChannel(Channel):
             self.write_waiter = None
 
     def do_open(self, options):
-        self.loop = asyncio.get_event_loop()
-        self.loop.create_task(self.run(options), name='f{self.__class__.__name__}.run({options})')
+        self.receive_queue = asyncio.Queue()
+        self.flow_control = options.get('flow-control') is True
+        asyncio.create_task(self.run(options), name='f{self.__class__.__name__}.run({options})')
 
     def do_done(self):
         self.receive_queue.put_nowait(b'')

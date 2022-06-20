@@ -20,9 +20,9 @@ import json
 import logging
 import os
 import pwd
-import subprocess
 
 from .channel import Endpoint, Channel
+from .channels.stream import StreamChannel
 
 CHANNEL_TYPES = []
 logger = logging.getLogger('cockpit.channeltypes')
@@ -237,11 +237,4 @@ class NullChannel(Channel):
         pass
 
 
-@Endpoint.match(CHANNEL_TYPES, payload='stream')
-class StreamChannel(Channel):
-
-    def do_open(self, options):
-        self.ready()
-        proc = subprocess.run(options['spawn'], capture_output=True, check=False)
-        self.send_data(proc.stdout)
-        self.done()
+Endpoint.match(CHANNEL_TYPES, payload='stream')(StreamChannel)

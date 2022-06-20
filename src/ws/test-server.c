@@ -903,7 +903,10 @@ main (int argc,
   bridge_argv = g_new0 (char *, argc + 2);
   for (i = 0; i < argc; i++)
     bridge_argv[i] = argv[i];
-  bridge_argv[i] = BUILDDIR "/cockpit-bridge";
+
+  /* Default case */
+  if (i == 0)
+    bridge_argv[i] = BUILDDIR "/cockpit-bridge";
 
   // Use a local ssh session command
   cockpit_ws_ssh_program = BUILDDIR "/cockpit-ssh";

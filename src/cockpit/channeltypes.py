@@ -22,6 +22,7 @@ import os
 import pwd
 
 from .channel import Endpoint, Channel
+from .channels.dbus import DBusChannel
 from .channels.stream import StreamChannel
 
 CHANNEL_TYPES = []
@@ -128,13 +129,7 @@ class DBusInternalChannel(Channel):
             raise ValueError('unknown dbus method', message)
 
 
-@Endpoint.match(CHANNEL_TYPES, payload='dbus-json3')
-class DBusSessionChannel(Channel):
-    def do_open(self, options):
-        self.ready()
-
-    def do_data(self, data):
-        logger.debug('ignored dbus request %s', data)
+Endpoint.match(CHANNEL_TYPES, payload='dbus-json3')(DBusChannel)
 
 
 @Endpoint.match(CHANNEL_TYPES, payload='echo')

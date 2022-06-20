@@ -22,6 +22,8 @@ import logging
 import os
 import sys
 
+from systemd_ctypes import EventLoopPolicy
+
 from .asyncstdio import AsyncStdio
 from .packages import Packages
 from .router import Router
@@ -59,6 +61,7 @@ def main():
     elif args.bridges:
         print(json.dumps(Packages().get_bridges(), indent=2))
     else:
+        asyncio.set_event_loop_policy(EventLoopPolicy())
         asyncio.run(run(), debug=True)
 
 

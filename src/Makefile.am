@@ -12,6 +12,7 @@ pyTESTS_PASSING = \
 	dist/base1/test-browser-storage.html \
 	dist/base1/test-cache.html \
 	dist/base1/test-chan.html \
+	dist/base1/test-echo.html \
 	dist/base1/test-events.html \
 	dist/base1/test-format.html \
 	dist/base1/test-framed-cache.html \
@@ -39,7 +40,6 @@ pyTESTS_FAILING = \
 	$(NULL)
 
 pyTESTS_HANGING = \
-	dist/base1/test-echo.html \
 	dist/base1/test-dbus-address.html \
 	dist/base1/test-dbus.html \
 	dist/base1/test-file.html \

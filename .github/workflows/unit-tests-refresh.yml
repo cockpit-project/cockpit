@@ -24,16 +24,16 @@ jobs:
         run: containers/unit-tests/build
 
       - name: Run amd64 gcc check-memory test
-        run: containers/unit-tests/start check-memory
+        run: containers/unit-tests/start --verbose --env=CC=gcc --image-tag=latest --make check-memory
 
       - name: Run i386 clang check-memory test
-        run: containers/unit-tests/start :i386 CC=clang check-memory
+        run: containers/unit-tests/start --verbose --env=CC=clang --image-tag=i386 --make check-memory
 
       - name: Run amd64 clang distcheck test
-        run: containers/unit-tests/start CC=clang distcheck
+        run: containers/unit-tests/start --verbose --env=CC=clang --image-tag=latest --make distcheck
 
       - name: Run i386 gcc distcheck test
-        run: containers/unit-tests/start :i386 distcheck
+        run: containers/unit-tests/start --verbose --env=CC=clang --image-tag=i386 --make distcheck
 
       - name: Log into container registry
         run: podman login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io

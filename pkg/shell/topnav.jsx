@@ -61,8 +61,8 @@ export class TopNav extends React.Component {
             osRelease: {},
         };
 
-        this.superuser_connection = cockpit.dbus(null, { bus: "internal", host: props.machine.connection_string });
-        this.superuser = this.superuser_connection.proxy("cockpit.Superuser", "/superuser");
+        this.superuser_connection = null;
+        this.superuser = null;
 
         read_os_release().then(os => this.setState({ osRelease: os || {} }));
     }
@@ -87,21 +87,20 @@ export class TopNav extends React.Component {
         return null;
     }
 
-    componentDidUpdate(prevProps) {
-        if (prevProps.machine.connection_string !== this.props.machine.connection_string) {
+    render() {
+        const Dialogs = this.context;
+        const connected = this.props.machine.state === "connected";
+
+        let docs = [];
+
+        if (!this.superuser_connection || (this.superuser_connection.options.host !=
+                                           this.props.machine.connection_string)) {
             if (this.superuser_connection)
                 this.superuser_connection.close();
 
             this.superuser_connection = cockpit.dbus(null, { bus: "internal", host: this.props.machine.connection_string });
             this.superuser = this.superuser_connection.proxy("cockpit.Superuser", "/superuser");
         }
-    }
-
-    render() {
-        const Dialogs = this.context;
-        const connected = this.props.machine.state === "connected";
-
-        let docs = [];
 
         const item = this.props.compiled.items[this.props.state.component];
         if (item && item.docs)

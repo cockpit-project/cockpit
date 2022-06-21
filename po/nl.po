@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 18:03+0000\n"
-"PO-Revision-Date: 2022-05-29 11:18+0000\n"
+"POT-Creation-Date: 2022-06-14 18:07+0000\n"
+"PO-Revision-Date: 2022-06-21 10:18+0000\n"
 "Last-Translator: Geert Warrink <geert.warrink@onsnet.nu>\n"
 "Language-Team: Dutch <https://translate.fedoraproject.org/projects/cockpit/"
 "main/nl/>\n"
@@ -18,13 +18,13 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1\n"
-"X-Generator: Weblate 4.12.2\n"
+"X-Generator: Weblate 4.13\n"
 
 #: pkg/storaged/content-views.jsx:501
 msgid "$0 (encrypted)"
 msgstr "$0 (versleuteld)"
 
-#: pkg/metrics/metrics.jsx:457
+#: pkg/metrics/metrics.jsx:526
 msgid "$0 CPU"
 msgid_plural "$0 CPUs"
 msgstr[0] "$0 CPU"
@@ -38,17 +38,13 @@ msgstr "$0 GiB"
 msgid "$0 Stratis pool"
 msgstr "$0 Stratis pool"
 
-#: pkg/networkmanager/firewall.jsx:178
-msgid "$0 Zone"
-msgstr "$0 Zone"
-
 #: pkg/networkmanager/network-main.jsx:167
 msgid "$0 active zone"
 msgid_plural "$0 active zones"
 msgstr[0] "$0 actieve zone"
 msgstr[1] "$0 actieve zones"
 
-#: pkg/metrics/metrics.jsx:480 pkg/metrics/metrics.jsx:583
+#: pkg/metrics/metrics.jsx:549 pkg/metrics/metrics.jsx:652
 msgid "$0 available"
 msgstr "$0 beschikbaar"
 
@@ -110,11 +106,11 @@ msgstr "$0 documentatie"
 msgid "$0 error"
 msgstr "$0 fout"
 
-#: pkg/lib/cockpit.js:2719
+#: pkg/lib/cockpit.js:2717
 msgid "$0 exited with code $1"
 msgstr "$0 verlaten met code $1"
 
-#: pkg/lib/cockpit.js:2721
+#: pkg/lib/cockpit.js:2719
 msgid "$0 failed"
 msgstr "$0 mislukte"
 
@@ -141,7 +137,7 @@ msgstr "Bestandssystemen kunnen niet verkleind worden."
 msgid "$0 filesystems can not be resized here."
 msgstr "De grootte van bestandssystemen kan hier niet gewijzigd worden."
 
-#: pkg/metrics/metrics.jsx:625
+#: pkg/metrics/metrics.jsx:694
 msgid "$0 free"
 msgstr "$0 vrij"
 
@@ -175,7 +171,7 @@ msgstr "$0 is van geen enkele repository beschikbaar."
 msgid "$0 key changed"
 msgstr "$0 sleutel gewijzigd"
 
-#: pkg/lib/cockpit.js:2717
+#: pkg/lib/cockpit.js:2715
 msgid "$0 killed with signal $1"
 msgstr "$0 is afgeschoten met signaal $1"
 
@@ -219,7 +215,7 @@ msgid_plural "$0 packages need a system reboot"
 msgstr[0] "$0 pakket moet opnieuw worden opgestart"
 msgstr[1] "$0 pakketten moeten opnieuw worden opgestart"
 
-#: pkg/metrics/metrics.jsx:127
+#: pkg/metrics/metrics.jsx:129
 msgid "$0 page"
 msgid_plural "$0 pages"
 msgstr[0] "$0 pagina"
@@ -249,8 +245,8 @@ msgid_plural "$0 slots remain"
 msgstr[0] "$0 slot blijft over"
 msgstr[1] "$0 slots blijven over"
 
-#: pkg/metrics/metrics.jsx:472 pkg/metrics/metrics.jsx:574
-#: pkg/metrics/metrics.jsx:633
+#: pkg/metrics/metrics.jsx:541 pkg/metrics/metrics.jsx:643
+#: pkg/metrics/metrics.jsx:702
 msgid "$0 total"
 msgstr "$0 totaal"
 
@@ -280,6 +276,10 @@ msgid_plural "$0 years"
 msgstr[0] "$0 jaar"
 msgstr[1] "$0 jaren"
 
+#: pkg/networkmanager/firewall.jsx:190
+msgid "$0 zone"
+msgstr "$0 zone"
+
 #: pkg/storaged/vgroup-details.jsx:118
 msgid "$0, $1 free"
 msgstr "$0, $1 vrij"
@@ -288,7 +288,7 @@ msgstr "$0, $1 vrij"
 msgid "$0: crash at $1"
 msgstr "$0: crash op $1"
 
-#: pkg/storaged/utils.js:191
+#: pkg/storaged/utils.js:189
 msgid "$name (from $host)"
 msgstr "$name (van $host)"
 
@@ -314,7 +314,7 @@ msgstr "1 dag"
 msgid "1 hour"
 msgstr "1 uur"
 
-#: pkg/metrics/metrics.jsx:547
+#: pkg/metrics/metrics.jsx:616
 msgid "1 min"
 msgstr "1 min"
 
@@ -350,7 +350,7 @@ msgstr "13e"
 msgid "14th"
 msgstr "14e"
 
-#: pkg/metrics/metrics.jsx:549
+#: pkg/metrics/metrics.jsx:618
 msgid "15 min"
 msgstr "15 min"
 
@@ -462,7 +462,7 @@ msgstr "40 minuten"
 msgid "4th"
 msgstr "4e"
 
-#: pkg/metrics/metrics.jsx:548
+#: pkg/metrics/metrics.jsx:617
 msgid "5 min"
 msgstr "5 min"
 
@@ -688,7 +688,7 @@ msgstr "Toevoegen $0"
 msgid "Add VLAN"
 msgstr "VLAN toevoegen"
 
-#: pkg/networkmanager/firewall.jsx:966
+#: pkg/networkmanager/firewall.jsx:1027
 msgid "Add a new zone"
 msgstr "Een nieuwe zone toevoegen"
 
@@ -732,15 +732,15 @@ msgstr "Voeg lid toe"
 msgid "Add new host"
 msgstr "Nieuwe host toevoegen"
 
-#: pkg/networkmanager/firewall.jsx:967
+#: pkg/networkmanager/firewall.jsx:1028
 msgid "Add new zone"
 msgstr "Nieuwe zone toevoegen"
 
-#: pkg/networkmanager/firewall.jsx:548
+#: pkg/networkmanager/firewall.jsx:584
 msgid "Add ports"
 msgstr "Poorten toevoegen"
 
-#: pkg/networkmanager/firewall.jsx:549
+#: pkg/networkmanager/firewall.jsx:585
 msgid "Add ports to $0 zone"
 msgstr "Poorten toevoegen aan $0 zone"
 
@@ -748,15 +748,15 @@ msgstr "Poorten toevoegen aan $0 zone"
 msgid "Add public key"
 msgstr "Publieke sleutel toevoegen"
 
-#: pkg/networkmanager/firewall.jsx:169 pkg/networkmanager/firewall.jsx:548
+#: pkg/networkmanager/firewall.jsx:181 pkg/networkmanager/firewall.jsx:584
 msgid "Add services"
 msgstr "Services toevoegen"
 
-#: pkg/networkmanager/firewall.jsx:549
+#: pkg/networkmanager/firewall.jsx:585
 msgid "Add services to $0 zone"
 msgstr "Services toevoegen aan $0 zone"
 
-#: pkg/networkmanager/firewall.jsx:168
+#: pkg/networkmanager/firewall.jsx:180
 msgid "Add services to zone $0"
 msgstr "Services toevoegen aan zone $0"
 
@@ -764,7 +764,7 @@ msgstr "Services toevoegen aan zone $0"
 msgid "Add team"
 msgstr "Team toevoegen"
 
-#: pkg/networkmanager/firewall.jsx:757 pkg/networkmanager/firewall.jsx:765
+#: pkg/networkmanager/firewall.jsx:799 pkg/networkmanager/firewall.jsx:807
 msgid "Add zone"
 msgstr "Zone toevoegen"
 
@@ -776,7 +776,7 @@ msgstr ""
 "Toevoegen van $0 verbreekt de verbinding met de server en maakt de "
 "beheerdersinterface onbereikbaar."
 
-#: pkg/networkmanager/firewall.jsx:562
+#: pkg/networkmanager/firewall.jsx:600
 msgid ""
 "Adding custom ports will reload firewalld. A reload will result in the loss "
 "of any runtime-only configuration!"
@@ -812,7 +812,7 @@ msgstr "Extra adres $val"
 msgid "Additional packages:"
 msgstr "Extra pakketten:"
 
-#: pkg/networkmanager/firewall.jsx:139
+#: pkg/networkmanager/firewall.jsx:151
 msgid "Additional ports"
 msgstr "Extra poorten"
 
@@ -905,7 +905,7 @@ msgstr "Alles in een"
 msgid "Allow running (unmask)"
 msgstr "Sta uitvoeren toe (ontmaskeren)"
 
-#: pkg/networkmanager/firewall.jsx:187 pkg/networkmanager/firewall.jsx:827
+#: pkg/networkmanager/firewall.jsx:199 pkg/networkmanager/firewall.jsx:869
 msgid "Allowed addresses"
 msgstr "Toegestane adressen"
 
@@ -1246,7 +1246,7 @@ msgstr ""
 "de toekomst zonder wachtwoord inloggen op $3."
 
 #: pkg/systemd/hwinfo.jsx:118 pkg/systemd/overview-cards/usageCard.jsx:134
-#: pkg/metrics/metrics.jsx:526 pkg/metrics/metrics.jsx:1503
+#: pkg/metrics/metrics.jsx:595 pkg/metrics/metrics.jsx:1572
 msgid "CPU"
 msgstr "CPU"
 
@@ -1258,11 +1258,11 @@ msgstr "CPU-beveiliging"
 msgid "CPU security toggles"
 msgstr "CPU-beveiliging schakelaars"
 
-#: pkg/metrics/metrics.jsx:102
+#: pkg/metrics/metrics.jsx:104
 msgid "CPU spike"
 msgstr "CPU-piek"
 
-#: pkg/metrics/metrics.jsx:101
+#: pkg/metrics/metrics.jsx:103
 msgid "CPU usage"
 msgstr "CPU-gebruik"
 
@@ -1297,11 +1297,11 @@ msgstr "Kan geen logboeken vinden met de huidige combinatie van filters."
 #: pkg/shell/hosts_dialog.jsx:278 pkg/shell/hosts_dialog.jsx:373
 #: pkg/shell/hosts_dialog.jsx:495 pkg/shell/hosts_dialog.jsx:861
 #: pkg/tuned/dialog.jsx:311 pkg/apps/utils.jsx:66
-#: pkg/networkmanager/firewall.jsx:568 pkg/networkmanager/firewall.jsx:768
-#: pkg/networkmanager/firewall.jsx:860
+#: pkg/networkmanager/firewall.jsx:606 pkg/networkmanager/firewall.jsx:810
+#: pkg/networkmanager/firewall.jsx:902
 #: pkg/networkmanager/dialogs-common.jsx:155 pkg/storaged/jobs-panel.jsx:139
 #: pkg/sosreport/index.jsx:288 pkg/sosreport/index.jsx:373
-#: pkg/metrics/metrics.jsx:1100 pkg/packagekit/autoupdates.jsx:274
+#: pkg/metrics/metrics.jsx:1169 pkg/packagekit/autoupdates.jsx:274
 #: pkg/packagekit/updates.jsx:506 pkg/packagekit/updates.jsx:577
 #: pkg/packagekit/kpatch.jsx:311
 msgid "Cancel"
@@ -1323,7 +1323,7 @@ msgstr "Kan niet worden ingeschakeld"
 msgid "Cannot connect to an unknown host"
 msgstr "Kan niet verbinden met een onbekende host"
 
-#: pkg/lib/cockpit.js:3969
+#: pkg/lib/cockpit.js:3967
 msgid "Cannot forward login credentials"
 msgstr "Kan inloggegevens niet doorsturen"
 
@@ -1512,7 +1512,7 @@ msgstr "Cockpit"
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "Cockpit authenticatie is verkeerd geconfigureerd."
 
-#: pkg/lib/cockpit.js:3975
+#: pkg/lib/cockpit.js:3973
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit kon geen contact maken met de opgegeven host."
 
@@ -1538,7 +1538,7 @@ msgstr ""
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit is een interactieve Linux-serverbeheerinterface."
 
-#: pkg/lib/cockpit.js:3973
+#: pkg/lib/cockpit.js:3971
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit is niet compatibel met de software op het systeem."
 
@@ -1546,7 +1546,7 @@ msgstr "Cockpit is niet compatibel met de software op het systeem."
 msgid "Cockpit is not installed"
 msgstr "Cockpit is niet geïnstalleerd"
 
-#: pkg/lib/cockpit.js:3967
+#: pkg/lib/cockpit.js:3965
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit is niet op het systeem geïnstalleerd."
 
@@ -1564,7 +1564,7 @@ msgstr ""
 "tegelijkertijd bewaken en beheren. Voeg ze gewoon toe met een enkele klik en "
 "je machines zullen voor zijn maatjes zorgen."
 
-#: pkg/metrics/metrics.jsx:1109
+#: pkg/metrics/metrics.jsx:1178
 msgid "Collect metrics"
 msgstr "Verzamel metriek"
 
@@ -1572,7 +1572,7 @@ msgstr "Verzamel metriek"
 msgid "Color"
 msgstr "Kleur"
 
-#: pkg/networkmanager/firewall.jsx:630 pkg/networkmanager/firewall.jsx:640
+#: pkg/networkmanager/firewall.jsx:670 pkg/networkmanager/firewall.jsx:681
 msgid "Comma-separated ports, ranges, and services are accepted"
 msgstr ""
 "Door komma's gescheiden poorten, bereiken en services worden geaccepteerd"
@@ -1669,7 +1669,7 @@ msgstr "Bevestig nieuw wachtwoord"
 msgid "Confirm password"
 msgstr "Bevestig wachtwoord"
 
-#: pkg/networkmanager/firewall.jsx:856
+#: pkg/networkmanager/firewall.jsx:898
 msgid "Confirm removal of $0"
 msgstr "Bevestig het verwijderen van $0"
 
@@ -1721,7 +1721,7 @@ msgstr "Verbindingsfout"
 msgid "Connection failed"
 msgstr "Verbinding mislukte"
 
-#: pkg/lib/cockpit.js:3965
+#: pkg/lib/cockpit.js:3963
 msgid "Connection has timed out."
 msgstr "Er is een time-out opgetreden voor de verbinding."
 
@@ -1788,7 +1788,7 @@ msgstr "Kopiëren"
 msgid "Copy to clipboard"
 msgstr "Kopiëren naar clipboard"
 
-#: pkg/metrics/metrics.jsx:494
+#: pkg/metrics/metrics.jsx:563
 msgid "Core $0"
 msgstr "Kern $0"
 
@@ -1976,7 +1976,7 @@ msgstr "Ctrl-Shift-J"
 msgid "Current boot"
 msgstr "Huidige opstartprocedure"
 
-#: pkg/metrics/metrics.jsx:507
+#: pkg/metrics/metrics.jsx:576
 msgid "Current top CPU usage"
 msgstr "Huidig top CPU-gebruik"
 
@@ -1994,11 +1994,11 @@ msgstr "Aangepast crypto-beleid"
 msgid "Custom mount options"
 msgstr "Aangepaste aankoppelopties"
 
-#: pkg/networkmanager/firewall.jsx:586
+#: pkg/networkmanager/firewall.jsx:625
 msgid "Custom ports"
 msgstr "Aangepaste poorten"
 
-#: pkg/networkmanager/firewall.jsx:786
+#: pkg/networkmanager/firewall.jsx:828
 msgid "Custom zones"
 msgstr "Aangepaste zones"
 
@@ -2088,15 +2088,16 @@ msgstr "Vertraging moet een getal zijn"
 #: pkg/systemd/services/service-details.jsx:141
 #: pkg/systemd/services/service-details.jsx:666 pkg/systemd/abrtLog.jsx:291
 #: pkg/networkmanager/network-interface.jsx:720
-#: pkg/networkmanager/firewall.jsx:68 pkg/networkmanager/firewall.jsx:857
-#: pkg/storaged/mdraid-details.jsx:297 pkg/storaged/mdraid-details.jsx:323
-#: pkg/storaged/vdo-details.jsx:205 pkg/storaged/vdo-details.jsx:271
-#: pkg/storaged/vgroup-details.jsx:200 pkg/storaged/vgroup-details.jsx:225
-#: pkg/storaged/content-views.jsx:382 pkg/storaged/content-views.jsx:408
-#: pkg/storaged/stratis-details.jsx:253 pkg/storaged/stratis-details.jsx:417
-#: pkg/storaged/stratis-details.jsx:552 pkg/storaged/stratis-details.jsx:600
-#: pkg/sosreport/index.jsx:367 pkg/sosreport/index.jsx:479
-#: pkg/users/account-details.js:278 pkg/users/delete-account-dialog.js:60
+#: pkg/networkmanager/firewall.jsx:117 pkg/networkmanager/firewall.jsx:178
+#: pkg/networkmanager/firewall.jsx:899 pkg/storaged/mdraid-details.jsx:297
+#: pkg/storaged/mdraid-details.jsx:323 pkg/storaged/vdo-details.jsx:205
+#: pkg/storaged/vdo-details.jsx:271 pkg/storaged/vgroup-details.jsx:200
+#: pkg/storaged/vgroup-details.jsx:225 pkg/storaged/content-views.jsx:382
+#: pkg/storaged/content-views.jsx:408 pkg/storaged/stratis-details.jsx:253
+#: pkg/storaged/stratis-details.jsx:417 pkg/storaged/stratis-details.jsx:552
+#: pkg/storaged/stratis-details.jsx:600 pkg/sosreport/index.jsx:367
+#: pkg/sosreport/index.jsx:479 pkg/users/account-details.js:278
+#: pkg/users/delete-account-dialog.js:60
 msgid "Delete"
 msgstr "Verwijderen"
 
@@ -2162,7 +2163,7 @@ msgid "Deletion will remove the following files:"
 msgstr "Bij verwijderen worden de volgende bestanden verwijderd:"
 
 #: pkg/systemd/services/timer-dialog.jsx:159
-#: pkg/networkmanager/firewall.jsx:653 pkg/networkmanager/firewall.jsx:797
+#: pkg/networkmanager/firewall.jsx:695 pkg/networkmanager/firewall.jsx:839
 #: pkg/storaged/dialog.jsx:1224
 msgid "Description"
 msgstr "Beschrijving"
@@ -2264,11 +2265,11 @@ msgstr "Uitvoeren niet toestaan (masker)"
 msgid "Disconnected"
 msgstr "Verbinding verbroken"
 
-#: pkg/metrics/metrics.jsx:130 pkg/metrics/metrics.jsx:1505
+#: pkg/metrics/metrics.jsx:132 pkg/metrics/metrics.jsx:1574
 msgid "Disk I/O"
 msgstr "Schijf I/O"
 
-#: pkg/metrics/metrics.jsx:131
+#: pkg/metrics/metrics.jsx:133
 msgid "Disk I/O spike"
 msgstr "Schijf I/O piek"
 
@@ -2286,7 +2287,7 @@ msgstr "Schijf wachtzin"
 
 #: pkg/storaged/vgroups-panel.jsx:74 pkg/storaged/mdraid-details.jsx:65
 #: pkg/storaged/mdraid-details.jsx:163 pkg/storaged/mdraids-panel.jsx:121
-#: pkg/storaged/vgroup-details.jsx:67 pkg/metrics/metrics.jsx:603
+#: pkg/storaged/vgroup-details.jsx:67 pkg/metrics/metrics.jsx:672
 msgid "Disks"
 msgstr "Schijven"
 
@@ -2383,9 +2384,9 @@ msgid "Dual rank"
 msgstr "Dubbele rangorde"
 
 #: pkg/shell/hosts.jsx:167 pkg/shell/indexes.jsx:339
-#: pkg/storaged/crypto-keyslots.jsx:577 pkg/storaged/nfs-details.jsx:305
-#: pkg/storaged/iscsi-panel.jsx:251 pkg/packagekit/autoupdates.jsx:407
-#: pkg/packagekit/kpatch.jsx:230
+#: pkg/networkmanager/firewall.jsx:115 pkg/storaged/crypto-keyslots.jsx:577
+#: pkg/storaged/nfs-details.jsx:305 pkg/storaged/iscsi-panel.jsx:251
+#: pkg/packagekit/autoupdates.jsx:407 pkg/packagekit/kpatch.jsx:230
 msgid "Edit"
 msgstr "Bewerken"
 
@@ -2396,6 +2397,10 @@ msgstr "Bewerk /etc/motd"
 #: pkg/storaged/crypto-keyslots.jsx:356
 msgid "Edit Tang keyserver"
 msgstr "Bewerk Tang sleutelserver"
+
+#: pkg/networkmanager/firewall.jsx:582
+msgid "Edit custom service in $0 zone"
+msgstr "Bewerk aangepaste service in $0 zone"
 
 #: pkg/shell/hosts_dialog.jsx:244
 msgid "Edit host"
@@ -2412,6 +2417,14 @@ msgstr "Bewerk motd"
 #: pkg/networkmanager/network-main.jsx:158
 msgid "Edit rules and zones"
 msgstr "Bewerk regels en zones"
+
+#: pkg/networkmanager/firewall.jsx:581
+msgid "Edit service"
+msgstr "Bewerk service"
+
+#: pkg/networkmanager/firewall.jsx:115
+msgid "Edit service $0"
+msgstr "Bewerk service $0"
 
 #: pkg/storaged/crypto-keyslots.jsx:579
 msgid "Editing a key requires a free slot"
@@ -2469,7 +2482,7 @@ msgstr "Data versleutelen"
 msgid "Encrypted"
 msgstr "Versleuteld"
 
-#: pkg/storaged/utils.js:283
+#: pkg/storaged/utils.js:281
 msgid "Encrypted $0"
 msgstr "$0 versleuteld"
 
@@ -2477,11 +2490,11 @@ msgstr "$0 versleuteld"
 msgid "Encrypted Stratis pool $0"
 msgstr "Versleutelde Stratis pool $0"
 
-#: pkg/storaged/utils.js:275
+#: pkg/storaged/utils.js:273
 msgid "Encrypted logical volume of $0"
 msgstr "Versleutelde logische volume van $0"
 
-#: pkg/storaged/utils.js:277
+#: pkg/storaged/utils.js:275
 msgid "Encrypted partition of $0"
 msgstr "Versleutelde partitie van $0"
 
@@ -2527,7 +2540,7 @@ msgstr "Verbeteringsupdates beschikbaar"
 msgid "Enter a valid MAC address"
 msgstr "Voer een geldig MAC-adres in"
 
-#: pkg/networkmanager/firewall.jsx:187 pkg/networkmanager/firewall.jsx:833
+#: pkg/networkmanager/firewall.jsx:199 pkg/networkmanager/firewall.jsx:875
 msgid "Entire subnet"
 msgstr "Volledig subnet"
 
@@ -2555,7 +2568,7 @@ msgstr "Fout"
 msgid "Error and above"
 msgstr "Fout en hoger"
 
-#: pkg/metrics/metrics.jsx:1448
+#: pkg/metrics/metrics.jsx:1517
 msgid "Error has occurred"
 msgstr "Er is een fout opgetreden"
 
@@ -2593,19 +2606,19 @@ msgstr "Ethernet MTU"
 msgid "Ethtool"
 msgstr "Ethtool"
 
-#: pkg/metrics/metrics.jsx:851
+#: pkg/metrics/metrics.jsx:920
 msgid "Event"
 msgstr "Gebeurtenis"
 
-#: pkg/metrics/metrics.jsx:843
+#: pkg/metrics/metrics.jsx:912
 msgid "Event logs"
 msgstr "Gebeurtenislogboeken"
 
-#: pkg/networkmanager/firewall.jsx:635
+#: pkg/networkmanager/firewall.jsx:676
 msgid "Example: 22,ssh,8080,5900-5910"
 msgstr "Voorbeeld: 22,ssh,8080,5900-5910"
 
-#: pkg/networkmanager/firewall.jsx:645
+#: pkg/networkmanager/firewall.jsx:687
 msgid "Example: 88,2019,nfs,rsync"
 msgstr "Voorbeeld: 88,2019,nfs,rsync"
 
@@ -2625,7 +2638,7 @@ msgstr "Account laten verlopen op"
 msgid "Expire account on $0"
 msgstr "Account laten verlopen op $0"
 
-#: pkg/metrics/metrics.jsx:1126
+#: pkg/metrics/metrics.jsx:1195
 msgid "Export to network"
 msgstr "Exporteer naar netwerk"
 
@@ -2649,15 +2662,15 @@ msgstr "Mislukt"
 msgid "Failed to add machine: $0"
 msgstr "Kan machine niet toevoegen: $0"
 
-#: pkg/networkmanager/firewall.jsx:351
+#: pkg/networkmanager/firewall.jsx:381
 msgid "Failed to add port"
 msgstr "Kan poort niet toevoegen"
 
-#: pkg/networkmanager/firewall.jsx:351
+#: pkg/networkmanager/firewall.jsx:381
 msgid "Failed to add service"
 msgstr "Kan service niet toevoegen"
 
-#: pkg/networkmanager/firewall.jsx:728
+#: pkg/networkmanager/firewall.jsx:770
 msgid "Failed to add zone"
 msgstr "Kan zone niet toevoegen"
 
@@ -2666,7 +2679,7 @@ msgstr "Kan zone niet toevoegen"
 msgid "Failed to change password"
 msgstr "Kan wachtwoord niet veranderen"
 
-#: pkg/metrics/metrics.jsx:1094
+#: pkg/metrics/metrics.jsx:1163
 msgid "Failed to configure PCP"
 msgstr "Kan PCP niet configureren"
 
@@ -2685,6 +2698,10 @@ msgstr "Kan tuned profiel niet uitzetten"
 #: pkg/shell/hosts_dialog.jsx:327
 msgid "Failed to edit machine: $0"
 msgstr "Kan machine niet bewerken: $0"
+
+#: pkg/networkmanager/firewall.jsx:359
+msgid "Failed to edit service"
+msgstr "Service bewerken mislukte"
 
 #: pkg/lib/cockpit-components-firewalld-request.jsx:115
 msgid "Failed to enable $0 in firewalld"
@@ -2769,7 +2786,7 @@ msgstr "Filteren op naam of beschrijving"
 msgid "Filter menu items"
 msgstr "Filtermenu items"
 
-#: pkg/networkmanager/firewall.jsx:252
+#: pkg/networkmanager/firewall.jsx:265
 msgid "Filter services"
 msgstr "Filter services"
 
@@ -2782,11 +2799,11 @@ msgid "Fingerprint"
 msgstr "Vingerafdruk"
 
 #: pkg/networkmanager/firewall.html:22 pkg/networkmanager/network-main.jsx:151
-#: pkg/networkmanager/firewall.jsx:983 pkg/networkmanager/firewall.jsx:990
+#: pkg/networkmanager/firewall.jsx:1044 pkg/networkmanager/firewall.jsx:1051
 msgid "Firewall"
 msgstr "Firewall"
 
-#: pkg/networkmanager/firewall.jsx:956
+#: pkg/networkmanager/firewall.jsx:1017
 msgid "Firewall is not available"
 msgstr "Firewall is niet beschikbaar"
 
@@ -2961,7 +2978,7 @@ msgstr "Geschiedenis van pakketaantallen"
 msgid "Host"
 msgstr "Host"
 
-#: pkg/lib/cockpit.js:3961
+#: pkg/lib/cockpit.js:3959
 msgid "Host key is incorrect"
 msgstr "Hostsleutel is onjuist"
 
@@ -2981,7 +2998,7 @@ msgstr "Elk uur"
 msgid "Hours"
 msgstr "Uren"
 
-#: pkg/systemd/hwinfo.jsx:310 pkg/networkmanager/firewall.jsx:648
+#: pkg/systemd/hwinfo.jsx:310 pkg/networkmanager/firewall.jsx:690
 msgid "ID"
 msgstr "ID"
 
@@ -2994,7 +3011,7 @@ msgstr "ID $id"
 msgid "IP address"
 msgstr "IP-adres"
 
-#: pkg/networkmanager/firewall.jsx:841
+#: pkg/networkmanager/firewall.jsx:883
 msgid ""
 "IP address with routing prefix. Separate multiple values with a comma. "
 "Example: 192.0.2.0/24, 2001:db8::/32"
@@ -3022,7 +3039,7 @@ msgstr "IPv6-instellingen"
 msgid "Identifier"
 msgstr "Identificatie"
 
-#: pkg/networkmanager/firewall.jsx:648
+#: pkg/networkmanager/firewall.jsx:690
 msgid ""
 "If left empty, ID will be generated based on associated port services and "
 "port numbers"
@@ -3068,7 +3085,7 @@ msgstr "Negeren"
 msgid "Image builder"
 msgstr "Image bouwer"
 
-#: pkg/metrics/metrics.jsx:655
+#: pkg/metrics/metrics.jsx:724
 msgid "In"
 msgstr "In"
 
@@ -3096,11 +3113,11 @@ msgstr "Inactief"
 msgid "Inactive volume"
 msgstr "Inactieve volume"
 
-#: pkg/networkmanager/firewall.jsx:803
+#: pkg/networkmanager/firewall.jsx:845
 msgid "Included services"
 msgstr "Inbegrepen services"
 
-#: pkg/networkmanager/firewall.jsx:993
+#: pkg/networkmanager/firewall.jsx:1054
 msgid ""
 "Incoming requests are blocked by default. Outgoing requests are not blocked."
 msgstr ""
@@ -3168,7 +3185,7 @@ msgstr "Installeer Stratis-ondersteuning"
 msgid "Install all updates"
 msgstr "Installeer alle updates"
 
-#: pkg/metrics/metrics.jsx:1416
+#: pkg/metrics/metrics.jsx:1485
 msgid "Install cockpit-pcp"
 msgstr "Installeer cockpit-pcp"
 
@@ -3209,7 +3226,7 @@ msgstr "Als je $0 installeert, wordt $1 verwijderd."
 msgid "Installing packages"
 msgstr "Pakketten installeren"
 
-#: pkg/networkmanager/firewall.jsx:183 pkg/metrics/metrics.jsx:655
+#: pkg/networkmanager/firewall.jsx:195 pkg/metrics/metrics.jsx:724
 msgid "Interface"
 msgid_plural "Interfaces"
 msgstr[0] "Interface"
@@ -3220,13 +3237,13 @@ msgstr[1] "Interfaces"
 msgid "Interface members"
 msgstr "Interface leden"
 
-#: pkg/networkmanager/network-main.jsx:173 pkg/networkmanager/firewall.jsx:810
+#: pkg/networkmanager/network-main.jsx:173 pkg/networkmanager/firewall.jsx:852
 #: pkg/networkmanager/network-interface-members.jsx:215
 #: pkg/networkmanager/bond.jsx:166
 msgid "Interfaces"
 msgstr "Interfaces"
 
-#: pkg/lib/cockpit.js:3963
+#: pkg/lib/cockpit.js:3961
 msgid "Internal error"
 msgstr "Interne fout"
 
@@ -3270,7 +3287,7 @@ msgstr "Ongeldige metriek $0"
 msgid "Invalid number of days"
 msgstr "Ongeldig aantal dagen"
 
-#: pkg/networkmanager/firewall.jsx:442
+#: pkg/networkmanager/firewall.jsx:472
 msgid "Invalid port number"
 msgstr "Ongeldig poortnummer"
 
@@ -3282,7 +3299,7 @@ msgstr "Ongeldig voorvoegsel $0"
 msgid "Invalid prefix or netmask $0"
 msgstr "Ongeldig voorvoegsel of netmasker $0"
 
-#: pkg/networkmanager/firewall.jsx:470
+#: pkg/networkmanager/firewall.jsx:500
 msgid "Invalid range"
 msgstr "Ongeldig bereik"
 
@@ -3353,7 +3370,7 @@ msgstr "Logboekingang"
 msgid "Journal entry not found"
 msgstr "Logboekingang werd niet gevonden"
 
-#: pkg/metrics/metrics.jsx:1493
+#: pkg/metrics/metrics.jsx:1562
 msgid "Jump to"
 msgstr "Spring naar"
 
@@ -3436,7 +3453,7 @@ msgstr "LVM2 lid"
 msgid "LVM2 volume group"
 msgstr "LVM2 volumegroep"
 
-#: pkg/storaged/utils.js:257 pkg/storaged/vgroup-details.jsx:221
+#: pkg/storaged/utils.js:255 pkg/storaged/vgroup-details.jsx:221
 msgid "LVM2 volume group $0"
 msgstr "LVM2 volumegroep $0"
 
@@ -3562,8 +3579,8 @@ msgstr "Eenheden weergeven"
 msgid "Listing units failed: $0"
 msgstr "Eenheden weergeven mislukte: $0"
 
-#: pkg/metrics/metrics.jsx:108 pkg/metrics/metrics.jsx:544
-#: pkg/metrics/metrics.jsx:1503
+#: pkg/metrics/metrics.jsx:110 pkg/metrics/metrics.jsx:613
+#: pkg/metrics/metrics.jsx:1572
 msgid "Load"
 msgstr "Belasting"
 
@@ -3571,7 +3588,7 @@ msgstr "Belasting"
 msgid "Load balancing"
 msgstr "Taakverdeling"
 
-#: pkg/metrics/metrics.jsx:1522
+#: pkg/metrics/metrics.jsx:1591
 msgid "Load earlier data"
 msgstr "Laad eerdere data"
 
@@ -3579,7 +3596,7 @@ msgstr "Laad eerdere data"
 msgid "Load earlier entries"
 msgstr "Laad eerdere ingangen"
 
-#: pkg/metrics/metrics.jsx:109
+#: pkg/metrics/metrics.jsx:111
 msgid "Load spike"
 msgstr "Laad piek"
 
@@ -3621,7 +3638,7 @@ msgstr "Het laden van eenheid mislukte: $0"
 
 #: pkg/systemd/services/services.jsx:734 pkg/systemd/logsJournal.jsx:269
 #: pkg/systemd/logDetails.jsx:154 pkg/storaged/devices.jsx:69
-#: pkg/metrics/metrics.jsx:827 pkg/metrics/metrics.jsx:1521
+#: pkg/metrics/metrics.jsx:896 pkg/metrics/metrics.jsx:1590
 #: pkg/kdump/kdump-view.jsx:384
 msgid "Loading..."
 msgstr "Laden..."
@@ -3681,7 +3698,7 @@ msgstr "Log in met je servergebruikersaccount."
 msgid "Log messages"
 msgstr "Log berichten"
 
-#: pkg/shell/topnav.jsx:172 pkg/metrics/metrics.jsx:1409
+#: pkg/shell/topnav.jsx:172 pkg/metrics/metrics.jsx:1478
 msgid "Log out"
 msgstr "Uitloggen"
 
@@ -3697,15 +3714,15 @@ msgstr "Logisch"
 msgid "Logical size"
 msgstr "Logische grootte"
 
-#: pkg/storaged/utils.js:207
+#: pkg/storaged/utils.js:205
 msgid "Logical volume"
 msgstr "Logische volume"
 
-#: pkg/storaged/utils.js:205
+#: pkg/storaged/utils.js:203
 msgid "Logical volume (snapshot)"
 msgstr "Logische volume (Snapshot)"
 
-#: pkg/storaged/utils.js:279
+#: pkg/storaged/utils.js:277
 msgid "Logical volume of $0"
 msgstr "Logische volume van $0"
 
@@ -3721,7 +3738,7 @@ msgstr "Log in"
 msgid "Login again"
 msgstr "Log opnieuw in"
 
-#: pkg/lib/cockpit.js:3953
+#: pkg/lib/cockpit.js:3951
 msgid "Login failed"
 msgstr "Inloggen mislukte"
 
@@ -3894,11 +3911,11 @@ msgstr "Maximale berichtleeftijd $max_age"
 
 #: pkg/systemd/services/service-details.jsx:612 pkg/systemd/hwinfo.jsx:309
 #: pkg/systemd/hwinfo.jsx:358 pkg/systemd/overview-cards/usageCard.jsx:146
-#: pkg/metrics/metrics.jsx:570 pkg/metrics/metrics.jsx:1504
+#: pkg/metrics/metrics.jsx:639 pkg/metrics/metrics.jsx:1573
 msgid "Memory"
 msgstr "Geheugen"
 
-#: pkg/metrics/metrics.jsx:116
+#: pkg/metrics/metrics.jsx:118
 msgid "Memory spike"
 msgstr "Geheugen piek"
 
@@ -3906,7 +3923,7 @@ msgstr "Geheugen piek"
 msgid "Memory technology"
 msgstr "Geheugen technologie"
 
-#: pkg/metrics/metrics.jsx:115
+#: pkg/metrics/metrics.jsx:117
 msgid "Memory usage"
 msgstr "Geheugengebruik"
 
@@ -3931,15 +3948,15 @@ msgstr "Gebruikte metadata"
 msgid "Metric"
 msgstr "Metriek"
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1541
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1610
 msgid "Metrics and history"
 msgstr "Statistieken en geschiedenis"
 
-#: pkg/metrics/metrics.jsx:1439
+#: pkg/metrics/metrics.jsx:1508
 msgid "Metrics history could not be loaded"
 msgstr "Statistieken kon niet worden geladen"
 
-#: pkg/metrics/metrics.jsx:1080 pkg/metrics/metrics.jsx:1170
+#: pkg/metrics/metrics.jsx:1149 pkg/metrics/metrics.jsx:1239
 msgid "Metrics settings"
 msgstr "Metriekinstellingen"
 
@@ -4130,27 +4147,27 @@ msgstr "Naam"
 msgid "Name can not be empty."
 msgstr "Naam mag niet leeg zijn."
 
-#: pkg/storaged/utils.js:134
+#: pkg/storaged/utils.js:132
 msgid "Name cannot be empty."
 msgstr "Naam mag niet leeg zijn."
 
-#: pkg/storaged/utils.js:162
+#: pkg/storaged/utils.js:160
 msgid "Name cannot be longer than $0 bytes"
 msgstr "Naam mag niet langer zijn dan $0 bytes"
 
-#: pkg/storaged/utils.js:160
+#: pkg/storaged/utils.js:158
 msgid "Name cannot be longer than $0 characters"
 msgstr "Naam mag niet langer dan $0 lettertekens"
 
-#: pkg/storaged/utils.js:136
+#: pkg/storaged/utils.js:134
 msgid "Name cannot be longer than 127 characters."
 msgstr "Naam mag niet langer zijn dan 127 lettertekens."
 
-#: pkg/storaged/utils.js:140
+#: pkg/storaged/utils.js:138
 msgid "Name cannot contain the character '$0'."
 msgstr "Naam mag het letterteken '$0' niet bevatten."
 
-#: pkg/storaged/utils.js:142
+#: pkg/storaged/utils.js:140
 msgid "Name cannot contain whitespace."
 msgstr "Naam mag geen spaties bevatten."
 
@@ -4158,15 +4175,15 @@ msgstr "Naam mag geen spaties bevatten."
 msgid "Need at least one NTP server"
 msgstr "Minimaal één NTP-server nodig"
 
-#: pkg/metrics/metrics.jsx:645 pkg/metrics/metrics.jsx:1506
+#: pkg/metrics/metrics.jsx:714 pkg/metrics/metrics.jsx:1575
 msgid "Network"
 msgstr "Netwerk"
 
-#: pkg/metrics/metrics.jsx:137
+#: pkg/metrics/metrics.jsx:139
 msgid "Network I/O"
 msgstr "Netwerk I/O"
 
-#: pkg/metrics/metrics.jsx:138
+#: pkg/metrics/metrics.jsx:140
 msgid "Network I/O spike"
 msgstr "Netwerk I/O piek"
 
@@ -4182,7 +4199,7 @@ msgstr "Netwerkapparaten en grafieken vereisen NetworkManager"
 msgid "Network logs"
 msgstr "Netwerklogboeken"
 
-#: pkg/metrics/metrics.jsx:654
+#: pkg/metrics/metrics.jsx:723
 msgid "Network usage"
 msgstr "Netwerkgebruik"
 
@@ -4196,7 +4213,7 @@ msgstr "NetworkManager is niet actief"
 
 #: pkg/networkmanager/index.html:23
 #: pkg/networkmanager/network-interface.jsx:697
-#: pkg/networkmanager/firewall.jsx:982 pkg/networkmanager/manifest.json:0
+#: pkg/networkmanager/firewall.jsx:1043 pkg/networkmanager/manifest.json:0
 msgid "Networking"
 msgstr "Netwerken"
 
@@ -4277,11 +4294,11 @@ msgstr "Geen signaal"
 msgid "No configuration found"
 msgstr "Geen configuratie gevonden"
 
-#: pkg/metrics/metrics.jsx:1466
+#: pkg/metrics/metrics.jsx:1535
 msgid "No data available"
 msgstr "Geen data beschikbaar"
 
-#: pkg/metrics/metrics.jsx:1462
+#: pkg/metrics/metrics.jsx:1531
 msgid "No data available between $0 and $1"
 msgstr "Geen data beschikbaar tussen $0 en $1"
 
@@ -4289,7 +4306,7 @@ msgstr "Geen data beschikbaar tussen $0 en $1"
 msgid "No delay"
 msgstr "Geen vertraging"
 
-#: pkg/networkmanager/firewall.jsx:799
+#: pkg/networkmanager/firewall.jsx:841
 msgid "No description available"
 msgstr "Geen beschrijving beschikbaar"
 
@@ -4356,7 +4373,7 @@ msgid "No logical volumes"
 msgstr "Geen logische volumes"
 
 #: pkg/systemd/logsJournal.jsx:282 pkg/systemd/logsJournal.jsx:325
-#: pkg/metrics/metrics.jsx:829
+#: pkg/metrics/metrics.jsx:898
 msgid "No logs found"
 msgstr "Geen logs gevonden"
 
@@ -4422,7 +4439,7 @@ msgstr "Geen updates"
 msgid "No user name specified"
 msgstr "Geen gebruikersnaam opgegeven"
 
-#: pkg/tuned/dialog.jsx:229 pkg/networkmanager/firewall.jsx:805
+#: pkg/tuned/dialog.jsx:229 pkg/networkmanager/firewall.jsx:847
 #: pkg/kdump/kdump-view.jsx:433
 msgid "None"
 msgstr "Geen"
@@ -4475,7 +4492,7 @@ msgstr "Niet aangekoppeld"
 msgid "Not permitted to configure realms"
 msgstr "Het is niet toegestaan om realms te configureren"
 
-#: pkg/lib/cockpit.js:3951
+#: pkg/lib/cockpit.js:3949
 msgid "Not permitted to perform this action."
 msgstr "Niet toegestaan om deze actie uit te voeren."
 
@@ -4587,7 +4604,7 @@ msgstr ""
 msgid "Ooops!"
 msgstr "Ooops!"
 
-#: pkg/metrics/metrics.jsx:1067
+#: pkg/metrics/metrics.jsx:1136
 msgid "Open the pmproxy service in the firewall to share metrics."
 msgstr "Open de pmproxy-service in de firewall om metrische gegevens te delen."
 
@@ -4635,11 +4652,11 @@ msgstr "Andere apparaten"
 msgid "Other options"
 msgstr "Andere opties"
 
-#: pkg/metrics/metrics.jsx:655
+#: pkg/metrics/metrics.jsx:724
 msgid "Out"
 msgstr "Uit"
 
-#: pkg/systemd/hwinfo.jsx:327 pkg/metrics/metrics.jsx:1540
+#: pkg/systemd/hwinfo.jsx:327 pkg/metrics/metrics.jsx:1609
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "Overzicht"
@@ -4660,7 +4677,7 @@ msgstr "PCI"
 msgid "PID"
 msgstr "PID"
 
-#: pkg/metrics/metrics.jsx:1415
+#: pkg/metrics/metrics.jsx:1484
 msgid "Package cockpit-pcp is missing for metrics history"
 msgstr "Pakket cockpit-pcp ontbreekt voor metrische geschiedenis"
 
@@ -4708,7 +4725,7 @@ msgstr "Onderdeel van $0"
 msgid "Partition"
 msgstr "Partitie"
 
-#: pkg/storaged/utils.js:281
+#: pkg/storaged/utils.js:279
 msgid "Partition of $0"
 msgstr "Partitie van $0"
 
@@ -4851,7 +4868,7 @@ msgstr "Paden"
 msgid "Pause"
 msgstr "Pauze"
 
-#: pkg/metrics/metrics.jsx:1083
+#: pkg/metrics/metrics.jsx:1152
 msgid ""
 "Performance Co-Pilot collects and analyzes performance metrics from your "
 "system."
@@ -4923,7 +4940,7 @@ msgstr "Authenticeer om administratieve toegang te krijgen"
 msgid "Please enable JavaScript to use the Web Console."
 msgstr "Zet JavaScript aan om de Webconsole te gebruiken."
 
-#: pkg/networkmanager/firewall.jsx:957
+#: pkg/networkmanager/firewall.jsx:1018
 msgid "Please install the $0 package"
 msgstr "Installeer het $0 pakket"
 
@@ -4943,7 +4960,7 @@ msgstr "Geef de host op waarmee je verbinding wilt maken"
 msgid "Pool"
 msgstr "Pool"
 
-#: pkg/storaged/utils.js:201
+#: pkg/storaged/utils.js:199
 msgid "Pool for thin logical volumes"
 msgstr "Pool voor dunne logische volumes"
 
@@ -4959,7 +4976,7 @@ msgstr "Pool voor dun ingerichte volumes"
 msgid "Port"
 msgstr "Poort"
 
-#: pkg/networkmanager/firewall.jsx:446
+#: pkg/networkmanager/firewall.jsx:476
 msgid "Port number and type do not match"
 msgstr "Poortnummer en type komen niet overeen"
 
@@ -5136,7 +5153,7 @@ msgstr "RAID-chassis"
 msgid "RAID device"
 msgstr "RAID-apparaat"
 
-#: pkg/storaged/mdraid-details.jsx:316 pkg/storaged/utils.js:251
+#: pkg/storaged/mdraid-details.jsx:316 pkg/storaged/utils.js:249
 msgid "RAID device $0"
 msgstr "RAID-apparaat $0"
 
@@ -5153,7 +5170,7 @@ msgstr "RAID-niveau"
 msgid "RAID member"
 msgstr "RAID-lid"
 
-#: pkg/metrics/metrics.jsx:578
+#: pkg/metrics/metrics.jsx:647
 msgid "RAM"
 msgstr "RAM"
 
@@ -5165,11 +5182,11 @@ msgstr "Rackmontagechassis"
 msgid "Random"
 msgstr "Willekeurig"
 
-#: pkg/networkmanager/firewall.jsx:839
+#: pkg/networkmanager/firewall.jsx:881
 msgid "Range"
 msgstr "Reeks"
 
-#: pkg/networkmanager/firewall.jsx:478
+#: pkg/networkmanager/firewall.jsx:508
 msgid "Range must be strictly ordered"
 msgstr "Bereik moet strikt geordend zijn"
 
@@ -5181,11 +5198,11 @@ msgstr "Rang"
 msgid "Raw to a device"
 msgstr "Raw naar een apparaat"
 
-#: pkg/metrics/metrics.jsx:607
+#: pkg/metrics/metrics.jsx:676
 msgid "Read"
 msgstr "Lezen"
 
-#: pkg/systemd/hwinfo.jsx:218 pkg/metrics/metrics.jsx:1089
+#: pkg/systemd/hwinfo.jsx:218 pkg/metrics/metrics.jsx:1158
 msgid "Read more..."
 msgstr "Lees meer..."
 
@@ -5345,7 +5362,7 @@ msgstr "Verwijderen"
 msgid "Remove $0"
 msgstr "Verwijder $0"
 
-#: pkg/networkmanager/firewall.jsx:918
+#: pkg/networkmanager/firewall.jsx:961
 msgid "Remove $0 service from $1 zone"
 msgstr "Verwijder $0 service uit $1 zone"
 
@@ -5376,11 +5393,11 @@ msgstr "Verwijder item"
 msgid "Remove passphrase in key slot $0?"
 msgstr "Wachtzin in sleutelslot $0 verwijderen?"
 
-#: pkg/networkmanager/firewall.jsx:107
+#: pkg/networkmanager/firewall.jsx:117
 msgid "Remove service $0"
 msgstr "Verwijder service $0"
 
-#: pkg/networkmanager/firewall.jsx:166 pkg/networkmanager/firewall.jsx:903
+#: pkg/networkmanager/firewall.jsx:178 pkg/networkmanager/firewall.jsx:946
 msgid "Remove zone $0"
 msgstr "Verwijder zone $0"
 
@@ -5417,7 +5434,7 @@ msgstr ""
 msgid "Removing physical volume from $target"
 msgstr "Fysiek volume verwijderen uit $target"
 
-#: pkg/networkmanager/firewall.jsx:917
+#: pkg/networkmanager/firewall.jsx:960
 msgid ""
 "Removing the cockpit service might result in the web console becoming "
 "unreachable. Make sure that this zone does not apply to your current web "
@@ -5427,7 +5444,7 @@ msgstr ""
 "Zorg ervoor dat deze zone niet van toepassing is op je huidige "
 "webconsoleverbinding."
 
-#: pkg/networkmanager/firewall.jsx:902
+#: pkg/networkmanager/firewall.jsx:945
 msgid "Removing the zone will remove all services within it."
 msgstr "Als je de zone verwijdert, worden alle services erin verwijderd."
 
@@ -5744,7 +5761,7 @@ msgstr "zaterdagen"
 #: pkg/storaged/crypto-keyslots.jsx:346 pkg/storaged/crypto-keyslots.jsx:365
 #: pkg/storaged/fsys-tab.jsx:374 pkg/storaged/fsys-tab.jsx:490
 #: pkg/storaged/crypto-tab.jsx:158 pkg/storaged/crypto-tab.jsx:202
-#: pkg/storaged/nfs-details.jsx:186 pkg/metrics/metrics.jsx:1097
+#: pkg/storaged/nfs-details.jsx:186 pkg/metrics/metrics.jsx:1166
 #: pkg/packagekit/kpatch.jsx:306 pkg/kdump/kdump-view.jsx:369
 msgid "Save"
 msgstr "Opslaan"
@@ -5868,7 +5885,7 @@ msgstr "Serverbeheerder"
 msgid "Server cannot be empty."
 msgstr "Server mag niet leeg zijn."
 
-#: pkg/lib/cockpit.js:3971
+#: pkg/lib/cockpit.js:3969
 msgid "Server has closed the connection."
 msgstr "Server heeft de verbinding verbroken."
 
@@ -5876,8 +5893,8 @@ msgstr "Server heeft de verbinding verbroken."
 msgid "Server software"
 msgstr "Server software"
 
-#: pkg/networkmanager/firewall.jsx:196 pkg/storaged/dialog.jsx:1222
-#: pkg/metrics/metrics.jsx:561 pkg/metrics/metrics.jsx:594
+#: pkg/networkmanager/firewall.jsx:208 pkg/storaged/dialog.jsx:1222
+#: pkg/metrics/metrics.jsx:630 pkg/metrics/metrics.jsx:663
 msgid "Service"
 msgstr "Service"
 
@@ -5906,7 +5923,7 @@ msgid "Service logs"
 msgstr "Servicelogboeken"
 
 #: pkg/systemd/services.html:4 pkg/systemd/services/service.jsx:82
-#: pkg/systemd/services/service-tabs.jsx:39 pkg/networkmanager/firewall.jsx:579
+#: pkg/systemd/services/service-tabs.jsx:39 pkg/networkmanager/firewall.jsx:618
 #: pkg/systemd/manifest.json:0
 msgid "Services"
 msgstr "Services"
@@ -6158,7 +6175,7 @@ msgstr ""
 msgid "Some software needs to be restarted manually"
 msgstr "Sommige software moet handmatig opnieuw worden opgestart"
 
-#: pkg/networkmanager/firewall.jsx:776
+#: pkg/networkmanager/firewall.jsx:818
 msgid "Sorted from least to most trusted"
 msgstr "Gesorteerd van minst tot meest vertrouwd"
 
@@ -6368,12 +6385,12 @@ msgstr "zondagen"
 msgid "Support is installed."
 msgstr "Ondersteuning is geïnstalleerd."
 
-#: pkg/storaged/content-views.jsx:228 pkg/metrics/metrics.jsx:123
-#: pkg/metrics/metrics.jsx:475 pkg/metrics/metrics.jsx:1504
+#: pkg/storaged/content-views.jsx:228 pkg/metrics/metrics.jsx:125
+#: pkg/metrics/metrics.jsx:544 pkg/metrics/metrics.jsx:1573
 msgid "Swap"
 msgstr "Swap"
 
-#: pkg/metrics/metrics.jsx:122
+#: pkg/metrics/metrics.jsx:124
 msgid "Swap out"
 msgstr "Uitwisselen"
 
@@ -6468,7 +6485,7 @@ msgstr "Systeemtijd"
 msgid "Systemd units"
 msgstr "Systemd units"
 
-#: pkg/networkmanager/firewall.jsx:196
+#: pkg/networkmanager/firewall.jsx:208
 msgid "TCP"
 msgstr "TCP"
 
@@ -6591,7 +6608,7 @@ msgid "The account '$0' will be forced to change their password on next login"
 msgstr ""
 "Het account '$0' zal zijn wachtwoord moeten wijzigen bij de volgende inlog"
 
-#: pkg/networkmanager/firewall.jsx:807
+#: pkg/networkmanager/firewall.jsx:849
 msgid "The cockpit service is automatically included"
 msgstr "De cockpit-service is automatisch inbegrepen"
 
@@ -6780,7 +6797,7 @@ msgstr ""
 "De server weigerde '$0' te verifiëren met wachtwoordverificatie en er zijn "
 "geen andere ondersteunde verificatiemethoden beschikbaar."
 
-#: pkg/lib/cockpit.js:3955
+#: pkg/lib/cockpit.js:3953
 msgid "The server refused to authenticate using any supported methods."
 msgstr "De server weigerde te verifiëren met behulp van ondersteunde methoden."
 
@@ -6826,7 +6843,7 @@ msgstr ""
 "Er zijn apparaten met meerdere paden op het systeem, maar de multipath-"
 "service is niet actief."
 
-#: pkg/networkmanager/firewall.jsx:200
+#: pkg/networkmanager/firewall.jsx:212
 msgid "There are no active services in this zone"
 msgstr "Er zijn geen actieve services in deze zone"
 
@@ -6851,7 +6868,7 @@ msgstr ""
 msgid "These changes will be made:"
 msgstr "Deze veranderingen zullen worden gemaakt:"
 
-#: pkg/storaged/utils.js:203
+#: pkg/storaged/utils.js:201
 msgid "Thin logical volume"
 msgstr "Dunne logische volume"
 
@@ -6988,7 +7005,7 @@ msgstr ""
 msgid "This will test the kdump configuration by crashing the kernel."
 msgstr "Dit test de kdump-configuratie door de kernel te laten crashen."
 
-#: pkg/networkmanager/firewall.jsx:900
+#: pkg/networkmanager/firewall.jsx:943
 msgid ""
 "This zone contains the cockpit service. Make sure that this zone does not "
 "apply to your current web console connection."
@@ -7059,7 +7076,7 @@ msgstr ""
 "Om een vingerafdruk te verifiëren, voer je het volgende uit op $0 terwijl je "
 "fysiek achter de machine zit of via een vertrouwd netwerk:"
 
-#: pkg/metrics/metrics.jsx:1472
+#: pkg/metrics/metrics.jsx:1541
 msgid "Today"
 msgstr "Vandaag"
 
@@ -7081,7 +7098,7 @@ msgstr "Datumkiezer omschakelen"
 msgid "Toggle filters"
 msgstr "Schakel filters om"
 
-#: pkg/lib/cockpit.js:3977
+#: pkg/lib/cockpit.js:3975
 msgid "Too much data"
 msgstr "Teveel data"
 
@@ -7089,11 +7106,11 @@ msgstr "Teveel data"
 msgid "Tools"
 msgstr "Gereedschappen"
 
-#: pkg/metrics/metrics.jsx:560
+#: pkg/metrics/metrics.jsx:629
 msgid "Top 5 CPU services"
 msgstr "Top 5 CPU-services"
 
-#: pkg/metrics/metrics.jsx:593
+#: pkg/metrics/metrics.jsx:662
 msgid "Top 5 memory services"
 msgstr "Top 5 geheugenservices"
 
@@ -7126,7 +7143,7 @@ msgstr "Veroorzaakt door"
 msgid "Triggers"
 msgstr "Triggers"
 
-#: pkg/metrics/metrics.jsx:1434
+#: pkg/metrics/metrics.jsx:1503
 msgid "Troubleshoot"
 msgstr "Problemen"
 
@@ -7138,7 +7155,7 @@ msgstr "Problemen oplossen…"
 msgid "Trust key"
 msgstr "Vertrouwenssleutel"
 
-#: pkg/networkmanager/firewall.jsx:773
+#: pkg/networkmanager/firewall.jsx:815
 msgid "Trust level"
 msgstr "Vertrouwensniveau"
 
@@ -7196,7 +7213,7 @@ msgstr "Type"
 msgid "Type to filter"
 msgstr "Typ om te filteren"
 
-#: pkg/networkmanager/firewall.jsx:196
+#: pkg/networkmanager/firewall.jsx:208
 msgid "UDP"
 msgstr "UDP"
 
@@ -7343,7 +7360,7 @@ msgstr "Onbekende configuratie"
 msgid "Unknown host name"
 msgstr "Onbekende hostnaam"
 
-#: pkg/networkmanager/firewall.jsx:440
+#: pkg/networkmanager/firewall.jsx:470
 msgid "Unknown service name"
 msgstr "Onbekende servicenaam"
 
@@ -7428,7 +7445,7 @@ msgstr "Niet-ondersteunde volume"
 msgid "Until"
 msgstr "Tot"
 
-#: pkg/lib/cockpit.js:3957 pkg/lib/cockpit.js:3959
+#: pkg/lib/cockpit.js:3955 pkg/lib/cockpit.js:3957
 msgid "Untrusted host"
 msgstr "Niet vertrouwde host"
 
@@ -7491,9 +7508,9 @@ msgid "Uptime"
 msgstr "Uptime"
 
 #: pkg/systemd/overview-cards/usageCard.jsx:129
-#: pkg/storaged/unrecognized-tab.jsx:37 pkg/metrics/metrics.jsx:1503
-#: pkg/metrics/metrics.jsx:1504 pkg/metrics/metrics.jsx:1505
-#: pkg/metrics/metrics.jsx:1506
+#: pkg/storaged/unrecognized-tab.jsx:37 pkg/metrics/metrics.jsx:1572
+#: pkg/metrics/metrics.jsx:1573 pkg/metrics/metrics.jsx:1574
+#: pkg/metrics/metrics.jsx:1575
 msgid "Usage"
 msgstr "Gebruik"
 
@@ -7535,7 +7552,7 @@ msgstr "Gebruik de volgende sleutels om te verifiëren bij andere systemen"
 msgid "Use verbose logging"
 msgstr "Uitgebreide logboekregistratie gebruiken"
 
-#: pkg/storaged/swap-tab.jsx:70 pkg/metrics/metrics.jsx:594
+#: pkg/storaged/swap-tab.jsx:70 pkg/metrics/metrics.jsx:663
 msgid "Used"
 msgstr "Gebruikt"
 
@@ -7582,7 +7599,7 @@ msgstr "VDO-ondersteuningsapparaten kunnen niet kleiner gemaakt worden"
 msgid "VDO device"
 msgstr "VDO-apparaat"
 
-#: pkg/storaged/utils.js:262 pkg/storaged/vdo-details.jsx:264
+#: pkg/storaged/utils.js:260 pkg/storaged/vdo-details.jsx:264
 msgid "VDO device $0"
 msgstr "VDO-apparaat $0"
 
@@ -7644,7 +7661,7 @@ msgstr "Versie"
 msgid "Very securely erasing $target"
 msgstr "Zeer veilig wissen van $target"
 
-#: pkg/metrics/metrics.jsx:516 pkg/metrics/metrics.jsx:517
+#: pkg/metrics/metrics.jsx:585 pkg/metrics/metrics.jsx:586
 msgid "View all CPUs"
 msgstr "Bekijk alle CPU's"
 
@@ -7660,7 +7677,7 @@ msgstr "Bekijk alle services"
 msgid "View automation script"
 msgstr "Bekijk automatiseringsscript"
 
-#: pkg/metrics/metrics.jsx:818
+#: pkg/metrics/metrics.jsx:887
 msgid "View detailed logs"
 msgstr "Bekijk gedetailleerde logboeken"
 
@@ -7804,7 +7821,7 @@ msgctxt "storage"
 msgid "World wide name"
 msgstr "Wereldwijde naam"
 
-#: pkg/metrics/metrics.jsx:611
+#: pkg/metrics/metrics.jsx:680
 msgid "Write"
 msgstr "Schrijven"
 
@@ -7862,7 +7879,7 @@ msgstr ""
 msgid "You must wait longer to change your password"
 msgstr "Je moet langer wachten om je wachtwoord te wijzigen"
 
-#: pkg/metrics/metrics.jsx:1408
+#: pkg/metrics/metrics.jsx:1477
 msgid "You need to relogin to be able to see metrics history"
 msgstr "Je moet opnieuw inloggen om statistieken te kunnen zien"
 
@@ -7898,11 +7915,11 @@ msgstr ""
 "Je server verbreekt de verbinding binnenkort. Je kunt opnieuw verbinding "
 "maken nadat deze opnieuw is opgestart."
 
-#: pkg/lib/cockpit.js:3947
+#: pkg/lib/cockpit.js:3945
 msgid "Your session has been terminated."
 msgstr "Je sessie is beëindigd."
 
-#: pkg/lib/cockpit.js:3949
+#: pkg/lib/cockpit.js:3947
 msgid "Your session has expired. Please log in again."
 msgstr "Je sessie is verlopen. Log nogmaals in."
 
@@ -7964,7 +7981,7 @@ msgstr "op"
 msgid "avc"
 msgstr "avc"
 
-#: pkg/metrics/metrics.jsx:502
+#: pkg/metrics/metrics.jsx:571
 msgid "average: $0%"
 msgstr "gemiddelde: $0%"
 
@@ -8005,7 +8022,7 @@ msgstr "bytes"
 msgid "cgroups"
 msgstr "cgroups"
 
-#: pkg/metrics/metrics.jsx:430
+#: pkg/metrics/metrics.jsx:456
 msgid "cockpit-podman is not installed"
 msgstr "cockpit-podman is niet geïnstalleerd"
 
@@ -8284,7 +8301,7 @@ msgstr "machine"
 msgid "mask"
 msgstr "masker"
 
-#: pkg/metrics/metrics.jsx:503
+#: pkg/metrics/metrics.jsx:572
 msgid "max: $0%"
 msgstr "max: $0%"
 
@@ -8340,7 +8357,7 @@ msgstr "nfs"
 msgid "nfs dump target isn't formatted as server:path"
 msgstr "nfs dump target is niet geformatteerd als server:pad"
 
-#: pkg/metrics/metrics.jsx:105
+#: pkg/metrics/metrics.jsx:107
 msgid "nice"
 msgstr "nice"
 
@@ -8420,19 +8437,19 @@ msgstr "fysieke volume van LVM2-volumegroep"
 msgid "plugin"
 msgstr "plug-in"
 
-#: pkg/metrics/metrics.jsx:1431
+#: pkg/metrics/metrics.jsx:1500
 msgid "pmlogger.service has failed"
 msgstr "pmlogger.service is mislukt"
 
-#: pkg/metrics/metrics.jsx:1433
+#: pkg/metrics/metrics.jsx:1502
 msgid "pmlogger.service is failing to collect data"
 msgstr "pmlogger.service kan geen data verzamelen"
 
-#: pkg/metrics/metrics.jsx:1424
+#: pkg/metrics/metrics.jsx:1493
 msgid "pmlogger.service is not running"
 msgstr "pmlogger.service is niet actief"
 
-#: pkg/metrics/metrics.jsx:424
+#: pkg/metrics/metrics.jsx:450
 msgid "pod"
 msgstr "pod"
 
@@ -8460,11 +8477,11 @@ msgstr "alleen-lezen"
 msgid "recommended"
 msgstr "aanbevolen"
 
-#: pkg/storaged/utils.js:673
+#: pkg/storaged/utils.js:671
 msgid "remove from LVM2"
 msgstr "verwijderen uit LVM2"
 
-#: pkg/storaged/utils.js:662
+#: pkg/storaged/utils.js:660
 msgid "remove from RAID"
 msgstr "verwijderen uit RAID"
 
@@ -8558,7 +8575,7 @@ msgstr "ssh-server is leeg"
 msgid "stop"
 msgstr "stop"
 
-#: pkg/metrics/metrics.jsx:105
+#: pkg/metrics/metrics.jsx:107
 msgid "sys"
 msgstr "sys"
 
@@ -8620,15 +8637,15 @@ msgstr "onbekend doel"
 msgid "unmask"
 msgstr "ontmaskeren"
 
-#: pkg/storaged/utils.js:649 pkg/storaged/manifest.json:0
+#: pkg/storaged/utils.js:647 pkg/storaged/manifest.json:0
 msgid "unmount"
 msgstr "afkoppelen"
 
-#: pkg/storaged/utils.js:440
+#: pkg/storaged/utils.js:438
 msgid "unpartitioned space on $0"
 msgstr "niet-gepartitioneerde ruimte op $0"
 
-#: pkg/metrics/metrics.jsx:105 pkg/users/manifest.json:0
+#: pkg/metrics/metrics.jsx:107 pkg/users/manifest.json:0
 msgid "user"
 msgstr "gebruiker"
 
@@ -8671,6 +8688,9 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "zone"
+
+#~ msgid "$0 Zone"
+#~ msgstr "$0 Zone"
 
 #~ msgid "Create diagnostic report"
 #~ msgstr "Maak diagnostisch rapport aan"
@@ -8727,9 +8747,6 @@ msgstr "zone"
 
 #~ msgid "$0 GiB total"
 #~ msgstr "$0 GiB totaal"
-
-#~ msgid "$0 zone"
-#~ msgstr "$0 zone"
 
 #~ msgid "Apply"
 #~ msgstr "Toepassen"
@@ -10615,9 +10632,6 @@ msgstr "zone"
 
 #~ msgid "Avatar"
 #~ msgstr "Avatar"
-
-#~ msgid "Edit server"
-#~ msgstr "Bewerk server"
 
 #~ msgid ""
 #~ "Leave blank to connect to this machine as the currently logged in user. "

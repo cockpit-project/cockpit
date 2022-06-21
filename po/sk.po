@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 18:03+0000\n"
+"POT-Creation-Date: 2022-06-14 18:07+0000\n"
 "PO-Revision-Date: 2021-11-20 10:16+0000\n"
 "Last-Translator: Matej Marusak <mmarusak@redhat.com>\n"
 "Language-Team: Slovak <https://translate.fedoraproject.org/projects/cockpit/"
@@ -19,7 +19,7 @@ msgstr ""
 msgid "$0 (encrypted)"
 msgstr "$0 (šifrované)"
 
-#: pkg/metrics/metrics.jsx:457
+#: pkg/metrics/metrics.jsx:526
 msgid "$0 CPU"
 msgid_plural "$0 CPUs"
 msgstr[0] "$0 procesor"
@@ -37,12 +37,6 @@ msgstr "$0 GiB"
 msgid "$0 Stratis pool"
 msgstr "$0 fond úložiska"
 
-#: pkg/networkmanager/firewall.jsx:178
-#, fuzzy
-#| msgid "Zone"
-msgid "$0 Zone"
-msgstr "Zóna"
-
 #: pkg/networkmanager/network-main.jsx:167
 msgid "$0 active zone"
 msgid_plural "$0 active zones"
@@ -50,7 +44,7 @@ msgstr[0] "$0 aktívna zóna"
 msgstr[1] "$0 aktívne zóny"
 msgstr[2] "$0 aktívnych zón"
 
-#: pkg/metrics/metrics.jsx:480 pkg/metrics/metrics.jsx:583
+#: pkg/metrics/metrics.jsx:549 pkg/metrics/metrics.jsx:652
 #, fuzzy
 #| msgid "$0 GiB available"
 msgid "$0 available"
@@ -118,11 +112,11 @@ msgstr "Dokumentácia k $0"
 msgid "$0 error"
 msgstr "$0 chyba"
 
-#: pkg/lib/cockpit.js:2719
+#: pkg/lib/cockpit.js:2717
 msgid "$0 exited with code $1"
 msgstr "$0 skončilo s kódom $1"
 
-#: pkg/lib/cockpit.js:2721
+#: pkg/lib/cockpit.js:2719
 msgid "$0 failed"
 msgstr "$0 sa nepodarilo"
 
@@ -153,7 +147,7 @@ msgstr ""
 msgid "$0 filesystems can not be resized here."
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:625
+#: pkg/metrics/metrics.jsx:694
 msgid "$0 free"
 msgstr "$0 dostupné"
 
@@ -191,7 +185,7 @@ msgstr "$0 nie je k dispozícií v žiadom repozitári."
 msgid "$0 key changed"
 msgstr "$0 kľúč sa zmenil"
 
-#: pkg/lib/cockpit.js:2717
+#: pkg/lib/cockpit.js:2715
 msgid "$0 killed with signal $1"
 msgstr "$0 nútene ukončené signálom $1"
 
@@ -241,7 +235,7 @@ msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: pkg/metrics/metrics.jsx:127
+#: pkg/metrics/metrics.jsx:129
 msgid "$0 page"
 msgid_plural "$0 pages"
 msgstr[0] "$0 stránka"
@@ -279,8 +273,8 @@ msgstr[0] "$0 slot ostáva"
 msgstr[1] "$0 sloty ostávajú"
 msgstr[2] "$0 slotov ostáva"
 
-#: pkg/metrics/metrics.jsx:472 pkg/metrics/metrics.jsx:574
-#: pkg/metrics/metrics.jsx:633
+#: pkg/metrics/metrics.jsx:541 pkg/metrics/metrics.jsx:643
+#: pkg/metrics/metrics.jsx:702
 msgid "$0 total"
 msgstr "$0 celkom"
 
@@ -313,6 +307,10 @@ msgstr[0] "$0 rok"
 msgstr[1] "$0 roky"
 msgstr[2] "$0 rokov"
 
+#: pkg/networkmanager/firewall.jsx:190
+msgid "$0 zone"
+msgstr "$ zóna"
+
 #: pkg/storaged/vgroup-details.jsx:118
 msgid "$0, $1 free"
 msgstr "$0, $1 k dispozícií"
@@ -321,7 +319,7 @@ msgstr "$0, $1 k dispozícií"
 msgid "$0: crash at $1"
 msgstr "$0: pád v $1"
 
-#: pkg/storaged/utils.js:191
+#: pkg/storaged/utils.js:189
 msgid "$name (from $host)"
 msgstr "$name (z $host)"
 
@@ -348,7 +346,7 @@ msgstr "1 deň"
 msgid "1 hour"
 msgstr "1 hodina"
 
-#: pkg/metrics/metrics.jsx:547
+#: pkg/metrics/metrics.jsx:616
 msgid "1 min"
 msgstr "1 min"
 
@@ -384,7 +382,7 @@ msgstr "13."
 msgid "14th"
 msgstr "14."
 
-#: pkg/metrics/metrics.jsx:549
+#: pkg/metrics/metrics.jsx:618
 msgid "15 min"
 msgstr "15 min"
 
@@ -496,7 +494,7 @@ msgstr "40 minút"
 msgid "4th"
 msgstr "4."
 
-#: pkg/metrics/metrics.jsx:548
+#: pkg/metrics/metrics.jsx:617
 msgid "5 min"
 msgstr "5 min"
 
@@ -726,7 +724,7 @@ msgstr "Pridať $0"
 msgid "Add VLAN"
 msgstr "Pridať VLAN"
 
-#: pkg/networkmanager/firewall.jsx:966
+#: pkg/networkmanager/firewall.jsx:1027
 msgid "Add a new zone"
 msgstr "Pridať novú zónu"
 
@@ -774,17 +772,17 @@ msgstr "RAID člen"
 msgid "Add new host"
 msgstr "Pridať nového hostiteľa"
 
-#: pkg/networkmanager/firewall.jsx:967
+#: pkg/networkmanager/firewall.jsx:1028
 #, fuzzy
 #| msgid "Add a new zone"
 msgid "Add new zone"
 msgstr "Pridať novú zónu"
 
-#: pkg/networkmanager/firewall.jsx:548
+#: pkg/networkmanager/firewall.jsx:584
 msgid "Add ports"
 msgstr "Pridať porty"
 
-#: pkg/networkmanager/firewall.jsx:549
+#: pkg/networkmanager/firewall.jsx:585
 msgid "Add ports to $0 zone"
 msgstr "Pridať porty do zóny $0"
 
@@ -792,15 +790,15 @@ msgstr "Pridať porty do zóny $0"
 msgid "Add public key"
 msgstr "Pridať verejný kĺúč"
 
-#: pkg/networkmanager/firewall.jsx:169 pkg/networkmanager/firewall.jsx:548
+#: pkg/networkmanager/firewall.jsx:181 pkg/networkmanager/firewall.jsx:584
 msgid "Add services"
 msgstr "Pridať služby"
 
-#: pkg/networkmanager/firewall.jsx:549
+#: pkg/networkmanager/firewall.jsx:585
 msgid "Add services to $0 zone"
 msgstr "Pridať službu do zóny $0"
 
-#: pkg/networkmanager/firewall.jsx:168
+#: pkg/networkmanager/firewall.jsx:180
 msgid "Add services to zone $0"
 msgstr "Pridať služby do zóny $0"
 
@@ -808,7 +806,7 @@ msgstr "Pridať služby do zóny $0"
 msgid "Add team"
 msgstr "Pridať tým"
 
-#: pkg/networkmanager/firewall.jsx:757 pkg/networkmanager/firewall.jsx:765
+#: pkg/networkmanager/firewall.jsx:799 pkg/networkmanager/firewall.jsx:807
 msgid "Add zone"
 msgstr "Pridať zónu"
 
@@ -820,7 +818,7 @@ msgstr ""
 "Pridaním $0 sa preruší spojenie so serverom a zneprístupní sa tak rozhranie "
 "pre jeho správu."
 
-#: pkg/networkmanager/firewall.jsx:562
+#: pkg/networkmanager/firewall.jsx:600
 msgid ""
 "Adding custom ports will reload firewalld. A reload will result in the loss "
 "of any runtime-only configuration!"
@@ -856,7 +854,7 @@ msgstr "Ďalšia adresa $val"
 msgid "Additional packages:"
 msgstr "Ďalšie balíky:"
 
-#: pkg/networkmanager/firewall.jsx:139
+#: pkg/networkmanager/firewall.jsx:151
 msgid "Additional ports"
 msgstr "Ďalšie porty"
 
@@ -950,7 +948,7 @@ msgstr "All-in-one"
 msgid "Allow running (unmask)"
 msgstr "Povoliť spustenie (odmaskovať)"
 
-#: pkg/networkmanager/firewall.jsx:187 pkg/networkmanager/firewall.jsx:827
+#: pkg/networkmanager/firewall.jsx:199 pkg/networkmanager/firewall.jsx:869
 msgid "Allowed addresses"
 msgstr "Povolené adresy"
 
@@ -1300,7 +1298,7 @@ msgstr ""
 "kľúč automaticky sprístupnený a na $3 sa nabudúce prihlásite už bez hesla."
 
 #: pkg/systemd/hwinfo.jsx:118 pkg/systemd/overview-cards/usageCard.jsx:134
-#: pkg/metrics/metrics.jsx:526 pkg/metrics/metrics.jsx:1503
+#: pkg/metrics/metrics.jsx:595 pkg/metrics/metrics.jsx:1572
 msgid "CPU"
 msgstr "CPU"
 
@@ -1312,11 +1310,11 @@ msgstr "Zabezpečenie procesoru"
 msgid "CPU security toggles"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:102
+#: pkg/metrics/metrics.jsx:104
 msgid "CPU spike"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:101
+#: pkg/metrics/metrics.jsx:103
 msgid "CPU usage"
 msgstr "Využitie procesoru"
 
@@ -1351,11 +1349,11 @@ msgstr "Nepodarilo sa nájsť žiadne záznamy pre danú kombináciu filtrov."
 #: pkg/shell/hosts_dialog.jsx:278 pkg/shell/hosts_dialog.jsx:373
 #: pkg/shell/hosts_dialog.jsx:495 pkg/shell/hosts_dialog.jsx:861
 #: pkg/tuned/dialog.jsx:311 pkg/apps/utils.jsx:66
-#: pkg/networkmanager/firewall.jsx:568 pkg/networkmanager/firewall.jsx:768
-#: pkg/networkmanager/firewall.jsx:860
+#: pkg/networkmanager/firewall.jsx:606 pkg/networkmanager/firewall.jsx:810
+#: pkg/networkmanager/firewall.jsx:902
 #: pkg/networkmanager/dialogs-common.jsx:155 pkg/storaged/jobs-panel.jsx:139
 #: pkg/sosreport/index.jsx:288 pkg/sosreport/index.jsx:373
-#: pkg/metrics/metrics.jsx:1100 pkg/packagekit/autoupdates.jsx:274
+#: pkg/metrics/metrics.jsx:1169 pkg/packagekit/autoupdates.jsx:274
 #: pkg/packagekit/updates.jsx:506 pkg/packagekit/updates.jsx:577
 #: pkg/packagekit/kpatch.jsx:311
 msgid "Cancel"
@@ -1379,7 +1377,7 @@ msgstr "Nie je možné povoliť"
 msgid "Cannot connect to an unknown host"
 msgstr "Nie je možné sa prihlásiť k neznámemu hostiteľovi"
 
-#: pkg/lib/cockpit.js:3969
+#: pkg/lib/cockpit.js:3967
 msgid "Cannot forward login credentials"
 msgstr "Nie je možné preposlať prístupové údaje"
 
@@ -1570,7 +1568,7 @@ msgstr "Cockpit"
 msgid "Cockpit authentication is configured incorrectly."
 msgstr ""
 
-#: pkg/lib/cockpit.js:3975
+#: pkg/lib/cockpit.js:3973
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpitu sa nepodarilo kontaktovať daného hostiteľa."
 
@@ -1596,7 +1594,7 @@ msgstr ""
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit je interaktívne rozhranie pre správu linuxových serverov."
 
-#: pkg/lib/cockpit.js:3973
+#: pkg/lib/cockpit.js:3971
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit nie je kompatibilný so sofvérom na systéme."
 
@@ -1604,7 +1602,7 @@ msgstr "Cockpit nie je kompatibilný so sofvérom na systéme."
 msgid "Cockpit is not installed"
 msgstr "Cockpit nie je nainštalovaný"
 
-#: pkg/lib/cockpit.js:3967
+#: pkg/lib/cockpit.js:3965
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit nie je nainštalovaný na tomto systéme."
 
@@ -1622,7 +1620,7 @@ msgstr ""
 "naraz. Stačí ich pridať jedným kliknutím a vaše stroje sa budú starať o "
 "svojích kamarátov."
 
-#: pkg/metrics/metrics.jsx:1109
+#: pkg/metrics/metrics.jsx:1178
 #, fuzzy
 #| msgid "Store metrics"
 msgid "Collect metrics"
@@ -1632,7 +1630,7 @@ msgstr "Ukladať metriky"
 msgid "Color"
 msgstr "Farba"
 
-#: pkg/networkmanager/firewall.jsx:630 pkg/networkmanager/firewall.jsx:640
+#: pkg/networkmanager/firewall.jsx:670 pkg/networkmanager/firewall.jsx:681
 #, fuzzy
 #| msgid "Comma-separated ports, ranges, and aliases are accepted"
 msgid "Comma-separated ports, ranges, and services are accepted"
@@ -1734,7 +1732,7 @@ msgstr "Potvrdiť nové heslo"
 msgid "Confirm password"
 msgstr "Potvrdiť heslo"
 
-#: pkg/networkmanager/firewall.jsx:856
+#: pkg/networkmanager/firewall.jsx:898
 msgid "Confirm removal of $0"
 msgstr ""
 
@@ -1792,7 +1790,7 @@ msgstr "Chyba pripojenia"
 msgid "Connection failed"
 msgstr "Pripojenie sa nepodarilo"
 
-#: pkg/lib/cockpit.js:3965
+#: pkg/lib/cockpit.js:3963
 msgid "Connection has timed out."
 msgstr "Časový limit spojenia vypršal."
 
@@ -1861,7 +1859,7 @@ msgstr "Kopírovať"
 msgid "Copy to clipboard"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:494
+#: pkg/metrics/metrics.jsx:563
 msgid "Core $0"
 msgstr ""
 
@@ -2062,7 +2060,7 @@ msgstr "Ctrl-Shift-J"
 msgid "Current boot"
 msgstr "Od tohto spustenia"
 
-#: pkg/metrics/metrics.jsx:507
+#: pkg/metrics/metrics.jsx:576
 #, fuzzy
 #| msgid "Current"
 msgid "Current top CPU usage"
@@ -2084,11 +2082,11 @@ msgstr ""
 msgid "Custom mount options"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:586
+#: pkg/networkmanager/firewall.jsx:625
 msgid "Custom ports"
 msgstr "Užívateľsky určené porty"
 
-#: pkg/networkmanager/firewall.jsx:786
+#: pkg/networkmanager/firewall.jsx:828
 msgid "Custom zones"
 msgstr "Užívateľsky určené zóny"
 
@@ -2178,15 +2176,16 @@ msgstr "Veľkosť musí byť číslo"
 #: pkg/systemd/services/service-details.jsx:141
 #: pkg/systemd/services/service-details.jsx:666 pkg/systemd/abrtLog.jsx:291
 #: pkg/networkmanager/network-interface.jsx:720
-#: pkg/networkmanager/firewall.jsx:68 pkg/networkmanager/firewall.jsx:857
-#: pkg/storaged/mdraid-details.jsx:297 pkg/storaged/mdraid-details.jsx:323
-#: pkg/storaged/vdo-details.jsx:205 pkg/storaged/vdo-details.jsx:271
-#: pkg/storaged/vgroup-details.jsx:200 pkg/storaged/vgroup-details.jsx:225
-#: pkg/storaged/content-views.jsx:382 pkg/storaged/content-views.jsx:408
-#: pkg/storaged/stratis-details.jsx:253 pkg/storaged/stratis-details.jsx:417
-#: pkg/storaged/stratis-details.jsx:552 pkg/storaged/stratis-details.jsx:600
-#: pkg/sosreport/index.jsx:367 pkg/sosreport/index.jsx:479
-#: pkg/users/account-details.js:278 pkg/users/delete-account-dialog.js:60
+#: pkg/networkmanager/firewall.jsx:117 pkg/networkmanager/firewall.jsx:178
+#: pkg/networkmanager/firewall.jsx:899 pkg/storaged/mdraid-details.jsx:297
+#: pkg/storaged/mdraid-details.jsx:323 pkg/storaged/vdo-details.jsx:205
+#: pkg/storaged/vdo-details.jsx:271 pkg/storaged/vgroup-details.jsx:200
+#: pkg/storaged/vgroup-details.jsx:225 pkg/storaged/content-views.jsx:382
+#: pkg/storaged/content-views.jsx:408 pkg/storaged/stratis-details.jsx:253
+#: pkg/storaged/stratis-details.jsx:417 pkg/storaged/stratis-details.jsx:552
+#: pkg/storaged/stratis-details.jsx:600 pkg/sosreport/index.jsx:367
+#: pkg/sosreport/index.jsx:479 pkg/users/account-details.js:278
+#: pkg/users/delete-account-dialog.js:60
 msgid "Delete"
 msgstr "Zmazať"
 
@@ -2264,7 +2263,7 @@ msgid "Deletion will remove the following files:"
 msgstr ""
 
 #: pkg/systemd/services/timer-dialog.jsx:159
-#: pkg/networkmanager/firewall.jsx:653 pkg/networkmanager/firewall.jsx:797
+#: pkg/networkmanager/firewall.jsx:695 pkg/networkmanager/firewall.jsx:839
 #: pkg/storaged/dialog.jsx:1224
 msgid "Description"
 msgstr "Popis"
@@ -2368,11 +2367,11 @@ msgstr "Nepovoliť spustenie (maskovať)"
 msgid "Disconnected"
 msgstr "Odpojené"
 
-#: pkg/metrics/metrics.jsx:130 pkg/metrics/metrics.jsx:1505
+#: pkg/metrics/metrics.jsx:132 pkg/metrics/metrics.jsx:1574
 msgid "Disk I/O"
 msgstr "Diskový V/V"
 
-#: pkg/metrics/metrics.jsx:131
+#: pkg/metrics/metrics.jsx:133
 msgid "Disk I/O spike"
 msgstr "Vrchol diskového V/V"
 
@@ -2393,7 +2392,7 @@ msgstr "Heslová fráza k disku"
 
 #: pkg/storaged/vgroups-panel.jsx:74 pkg/storaged/mdraid-details.jsx:65
 #: pkg/storaged/mdraid-details.jsx:163 pkg/storaged/mdraids-panel.jsx:121
-#: pkg/storaged/vgroup-details.jsx:67 pkg/metrics/metrics.jsx:603
+#: pkg/storaged/vgroup-details.jsx:67 pkg/metrics/metrics.jsx:672
 msgid "Disks"
 msgstr "Disky"
 
@@ -2491,9 +2490,9 @@ msgid "Dual rank"
 msgstr "Dual rank"
 
 #: pkg/shell/hosts.jsx:167 pkg/shell/indexes.jsx:339
-#: pkg/storaged/crypto-keyslots.jsx:577 pkg/storaged/nfs-details.jsx:305
-#: pkg/storaged/iscsi-panel.jsx:251 pkg/packagekit/autoupdates.jsx:407
-#: pkg/packagekit/kpatch.jsx:230
+#: pkg/networkmanager/firewall.jsx:115 pkg/storaged/crypto-keyslots.jsx:577
+#: pkg/storaged/nfs-details.jsx:305 pkg/storaged/iscsi-panel.jsx:251
+#: pkg/packagekit/autoupdates.jsx:407 pkg/packagekit/kpatch.jsx:230
 msgid "Edit"
 msgstr "Upraviť"
 
@@ -2504,6 +2503,12 @@ msgstr "Upraviť /etc/motd"
 #: pkg/storaged/crypto-keyslots.jsx:356
 msgid "Edit Tang keyserver"
 msgstr "Upraviť Tang server s kľúčami"
+
+#: pkg/networkmanager/firewall.jsx:582
+#, fuzzy
+#| msgid "Add services to $0 zone"
+msgid "Edit custom service in $0 zone"
+msgstr "Pridať službu do zóny $0"
 
 #: pkg/shell/hosts_dialog.jsx:244
 msgid "Edit host"
@@ -2520,6 +2525,18 @@ msgstr "Upraviť motd"
 #: pkg/networkmanager/network-main.jsx:158
 msgid "Edit rules and zones"
 msgstr "Upraviť pravidlá a zóny"
+
+#: pkg/networkmanager/firewall.jsx:581
+#, fuzzy
+#| msgid "Add services"
+msgid "Edit service"
+msgstr "Pridať služby"
+
+#: pkg/networkmanager/firewall.jsx:115
+#, fuzzy
+#| msgid "Remove service $0"
+msgid "Edit service $0"
+msgstr "Odstrániť službu $0"
 
 #: pkg/storaged/crypto-keyslots.jsx:579
 msgid "Editing a key requires a free slot"
@@ -2581,7 +2598,7 @@ msgstr "Šifrovať dáta"
 msgid "Encrypted"
 msgstr "Šifrované $0"
 
-#: pkg/storaged/utils.js:283
+#: pkg/storaged/utils.js:281
 msgid "Encrypted $0"
 msgstr "Šifrované $0"
 
@@ -2591,11 +2608,11 @@ msgstr "Šifrované $0"
 msgid "Encrypted Stratis pool $0"
 msgstr "Šifrovaný oddiel na $0"
 
-#: pkg/storaged/utils.js:275
+#: pkg/storaged/utils.js:273
 msgid "Encrypted logical volume of $0"
 msgstr "Šifrovaný logický zväzok na $0"
 
-#: pkg/storaged/utils.js:277
+#: pkg/storaged/utils.js:275
 msgid "Encrypted partition of $0"
 msgstr "Šifrovaný oddiel na $0"
 
@@ -2643,7 +2660,7 @@ msgstr ""
 msgid "Enter a valid MAC address"
 msgstr "MAC adresa"
 
-#: pkg/networkmanager/firewall.jsx:187 pkg/networkmanager/firewall.jsx:833
+#: pkg/networkmanager/firewall.jsx:199 pkg/networkmanager/firewall.jsx:875
 msgid "Entire subnet"
 msgstr "Celá podsieť"
 
@@ -2671,7 +2688,7 @@ msgstr "Chyba"
 msgid "Error and above"
 msgstr "Chyba a závažnejšie"
 
-#: pkg/metrics/metrics.jsx:1448
+#: pkg/metrics/metrics.jsx:1517
 msgid "Error has occurred"
 msgstr "Vyskytla sa chyba"
 
@@ -2708,21 +2725,21 @@ msgstr "Ethernet MTU"
 msgid "Ethtool"
 msgstr "Ethtool"
 
-#: pkg/metrics/metrics.jsx:851
+#: pkg/metrics/metrics.jsx:920
 msgid "Event"
 msgstr "Udalosť"
 
-#: pkg/metrics/metrics.jsx:843
+#: pkg/metrics/metrics.jsx:912
 #, fuzzy
 #| msgid "Reviewing logs"
 msgid "Event logs"
 msgstr "Vyhodnocovanie záznamov udalostí"
 
-#: pkg/networkmanager/firewall.jsx:635
+#: pkg/networkmanager/firewall.jsx:676
 msgid "Example: 22,ssh,8080,5900-5910"
 msgstr "Príklad: 22,ssh,8080,5900-5910"
 
-#: pkg/networkmanager/firewall.jsx:645
+#: pkg/networkmanager/firewall.jsx:687
 msgid "Example: 88,2019,nfs,rsync"
 msgstr "Príklad: 88,2019,nfs,rsync"
 
@@ -2746,7 +2763,7 @@ msgstr "Zamknúť účet na $0"
 msgid "Expire account on $0"
 msgstr "Zamknúť účet na $0"
 
-#: pkg/metrics/metrics.jsx:1126
+#: pkg/metrics/metrics.jsx:1195
 #, fuzzy
 #| msgid "Routed network"
 msgid "Export to network"
@@ -2772,15 +2789,15 @@ msgstr "Neúspešné"
 msgid "Failed to add machine: $0"
 msgstr "Nepodarilo sa pridať stroj: $0"
 
-#: pkg/networkmanager/firewall.jsx:351
+#: pkg/networkmanager/firewall.jsx:381
 msgid "Failed to add port"
 msgstr "Nepodarilo sa pridať port"
 
-#: pkg/networkmanager/firewall.jsx:351
+#: pkg/networkmanager/firewall.jsx:381
 msgid "Failed to add service"
 msgstr "Nepodarilo sa pridať službu"
 
-#: pkg/networkmanager/firewall.jsx:728
+#: pkg/networkmanager/firewall.jsx:770
 msgid "Failed to add zone"
 msgstr "Nepodarilo sa pridať zónu"
 
@@ -2789,7 +2806,7 @@ msgstr "Nepodarilo sa pridať zónu"
 msgid "Failed to change password"
 msgstr "Nepodarilo sa zmeniť heslo"
 
-#: pkg/metrics/metrics.jsx:1094
+#: pkg/metrics/metrics.jsx:1163
 #, fuzzy
 #| msgid "Failed to clone VM $0"
 msgid "Failed to configure PCP"
@@ -2812,6 +2829,12 @@ msgstr "Nepodarilo sa deaktivovať tuned"
 #: pkg/shell/hosts_dialog.jsx:327
 msgid "Failed to edit machine: $0"
 msgstr "Nepodarilo sa upraviť stroj: $0"
+
+#: pkg/networkmanager/firewall.jsx:359
+#, fuzzy
+#| msgid "Failed to add service"
+msgid "Failed to edit service"
+msgstr "Nepodarilo sa pridať službu"
 
 #: pkg/lib/cockpit-components-firewalld-request.jsx:115
 #, fuzzy
@@ -2909,7 +2932,7 @@ msgstr ""
 msgid "Filter menu items"
 msgstr "Filtrovať služby"
 
-#: pkg/networkmanager/firewall.jsx:252
+#: pkg/networkmanager/firewall.jsx:265
 msgid "Filter services"
 msgstr "Filtrovať služby"
 
@@ -2922,11 +2945,11 @@ msgid "Fingerprint"
 msgstr "Odtlačok"
 
 #: pkg/networkmanager/firewall.html:22 pkg/networkmanager/network-main.jsx:151
-#: pkg/networkmanager/firewall.jsx:983 pkg/networkmanager/firewall.jsx:990
+#: pkg/networkmanager/firewall.jsx:1044 pkg/networkmanager/firewall.jsx:1051
 msgid "Firewall"
 msgstr "Brána firewall"
 
-#: pkg/networkmanager/firewall.jsx:956
+#: pkg/networkmanager/firewall.jsx:1017
 msgid "Firewall is not available"
 msgstr ""
 
@@ -3107,7 +3130,7 @@ msgstr "Počet balíkov"
 msgid "Host"
 msgstr "Hostiteľ"
 
-#: pkg/lib/cockpit.js:3961
+#: pkg/lib/cockpit.js:3959
 msgid "Host key is incorrect"
 msgstr "Kľúč stroja nie je správny"
 
@@ -3129,7 +3152,7 @@ msgstr "Hodiny"
 msgid "Hours"
 msgstr "Hodiny"
 
-#: pkg/systemd/hwinfo.jsx:310 pkg/networkmanager/firewall.jsx:648
+#: pkg/systemd/hwinfo.jsx:310 pkg/networkmanager/firewall.jsx:690
 msgid "ID"
 msgstr "ID"
 
@@ -3142,7 +3165,7 @@ msgstr "ID $id"
 msgid "IP address"
 msgstr "IP adresa"
 
-#: pkg/networkmanager/firewall.jsx:841
+#: pkg/networkmanager/firewall.jsx:883
 msgid ""
 "IP address with routing prefix. Separate multiple values with a comma. "
 "Example: 192.0.2.0/24, 2001:db8::/32"
@@ -3168,7 +3191,7 @@ msgstr "Nastavenia IPv6"
 msgid "Identifier"
 msgstr "Identifikátor"
 
-#: pkg/networkmanager/firewall.jsx:648
+#: pkg/networkmanager/firewall.jsx:690
 msgid ""
 "If left empty, ID will be generated based on associated port services and "
 "port numbers"
@@ -3203,7 +3226,7 @@ msgstr "Ignorovať"
 msgid "Image builder"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:655
+#: pkg/metrics/metrics.jsx:724
 msgid "In"
 msgstr "Vstup"
 
@@ -3231,11 +3254,11 @@ msgstr "Neaktívne"
 msgid "Inactive volume"
 msgstr "Neaktívny zväzok"
 
-#: pkg/networkmanager/firewall.jsx:803
+#: pkg/networkmanager/firewall.jsx:845
 msgid "Included services"
 msgstr "Zahrnuté služby"
 
-#: pkg/networkmanager/firewall.jsx:993
+#: pkg/networkmanager/firewall.jsx:1054
 msgid ""
 "Incoming requests are blocked by default. Outgoing requests are not blocked."
 msgstr ""
@@ -3303,7 +3326,7 @@ msgstr "Nainštalovať podporu pre NFS"
 msgid "Install all updates"
 msgstr "Nainštalovať všetky aktualizácie"
 
-#: pkg/metrics/metrics.jsx:1416
+#: pkg/metrics/metrics.jsx:1485
 msgid "Install cockpit-pcp"
 msgstr "Nainštalovať cockpit-pcp"
 
@@ -3349,7 +3372,7 @@ msgstr "Inštaluje sa $0"
 msgid "Installing packages"
 msgstr "Inštaluje sa"
 
-#: pkg/networkmanager/firewall.jsx:183 pkg/metrics/metrics.jsx:655
+#: pkg/networkmanager/firewall.jsx:195 pkg/metrics/metrics.jsx:724
 #, fuzzy
 #| msgid "Interface"
 msgid "Interface"
@@ -3365,13 +3388,13 @@ msgstr[2] "Rozhranie"
 msgid "Interface members"
 msgstr "Rozhrania"
 
-#: pkg/networkmanager/network-main.jsx:173 pkg/networkmanager/firewall.jsx:810
+#: pkg/networkmanager/network-main.jsx:173 pkg/networkmanager/firewall.jsx:852
 #: pkg/networkmanager/network-interface-members.jsx:215
 #: pkg/networkmanager/bond.jsx:166
 msgid "Interfaces"
 msgstr "Rozhrania"
 
-#: pkg/lib/cockpit.js:3963
+#: pkg/lib/cockpit.js:3961
 msgid "Internal error"
 msgstr "Interná chyba"
 
@@ -3415,7 +3438,7 @@ msgstr ""
 msgid "Invalid number of days"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:442
+#: pkg/networkmanager/firewall.jsx:472
 msgid "Invalid port number"
 msgstr ""
 
@@ -3427,7 +3450,7 @@ msgstr ""
 msgid "Invalid prefix or netmask $0"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:470
+#: pkg/networkmanager/firewall.jsx:500
 msgid "Invalid range"
 msgstr "Neplatný rozsah"
 
@@ -3502,7 +3525,7 @@ msgstr "Položka žurnálu"
 msgid "Journal entry not found"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:1493
+#: pkg/metrics/metrics.jsx:1562
 msgid "Jump to"
 msgstr "Preskočiť na"
 
@@ -3595,7 +3618,7 @@ msgstr "RAID člen"
 msgid "LVM2 volume group"
 msgstr "LVM2 skupina zväzkov"
 
-#: pkg/storaged/utils.js:257 pkg/storaged/vgroup-details.jsx:221
+#: pkg/storaged/utils.js:255 pkg/storaged/vgroup-details.jsx:221
 msgid "LVM2 volume group $0"
 msgstr "LVM2 skupina zväzkov $0"
 
@@ -3731,8 +3754,8 @@ msgstr "Systemd jednotky"
 msgid "Listing units failed: $0"
 msgstr "Naposledy skontrolované: $0"
 
-#: pkg/metrics/metrics.jsx:108 pkg/metrics/metrics.jsx:544
-#: pkg/metrics/metrics.jsx:1503
+#: pkg/metrics/metrics.jsx:110 pkg/metrics/metrics.jsx:613
+#: pkg/metrics/metrics.jsx:1572
 msgid "Load"
 msgstr "Záťaž"
 
@@ -3740,7 +3763,7 @@ msgstr "Záťaž"
 msgid "Load balancing"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:1522
+#: pkg/metrics/metrics.jsx:1591
 msgid "Load earlier data"
 msgstr ""
 
@@ -3748,7 +3771,7 @@ msgstr ""
 msgid "Load earlier entries"
 msgstr "Načítať skoršie položky"
 
-#: pkg/metrics/metrics.jsx:109
+#: pkg/metrics/metrics.jsx:111
 msgid "Load spike"
 msgstr ""
 
@@ -3796,7 +3819,7 @@ msgstr "Prihlásenie sa nepodarilo"
 
 #: pkg/systemd/services/services.jsx:734 pkg/systemd/logsJournal.jsx:269
 #: pkg/systemd/logDetails.jsx:154 pkg/storaged/devices.jsx:69
-#: pkg/metrics/metrics.jsx:827 pkg/metrics/metrics.jsx:1521
+#: pkg/metrics/metrics.jsx:896 pkg/metrics/metrics.jsx:1590
 #: pkg/kdump/kdump-view.jsx:384
 msgid "Loading..."
 msgstr "Načítavanie..."
@@ -3864,7 +3887,7 @@ msgstr ""
 msgid "Log messages"
 msgstr "Záznamy udalostí"
 
-#: pkg/shell/topnav.jsx:172 pkg/metrics/metrics.jsx:1409
+#: pkg/shell/topnav.jsx:172 pkg/metrics/metrics.jsx:1478
 msgid "Log out"
 msgstr "Odhlásiť"
 
@@ -3880,15 +3903,15 @@ msgstr "Logický"
 msgid "Logical size"
 msgstr "Logická veľkosť"
 
-#: pkg/storaged/utils.js:207
+#: pkg/storaged/utils.js:205
 msgid "Logical volume"
 msgstr "Logický zväzok"
 
-#: pkg/storaged/utils.js:205
+#: pkg/storaged/utils.js:203
 msgid "Logical volume (snapshot)"
 msgstr "Logický zväzok (zachytený stav)"
 
-#: pkg/storaged/utils.js:279
+#: pkg/storaged/utils.js:277
 msgid "Logical volume of $0"
 msgstr "Logický zväzok na $0"
 
@@ -3906,7 +3929,7 @@ msgstr "prihlásenie"
 msgid "Login again"
 msgstr "Znovu prihlásiť"
 
-#: pkg/lib/cockpit.js:3953
+#: pkg/lib/cockpit.js:3951
 msgid "Login failed"
 msgstr "Prihlásenie sa nepodarilo"
 
@@ -4101,11 +4124,11 @@ msgstr ""
 
 #: pkg/systemd/services/service-details.jsx:612 pkg/systemd/hwinfo.jsx:309
 #: pkg/systemd/hwinfo.jsx:358 pkg/systemd/overview-cards/usageCard.jsx:146
-#: pkg/metrics/metrics.jsx:570 pkg/metrics/metrics.jsx:1504
+#: pkg/metrics/metrics.jsx:639 pkg/metrics/metrics.jsx:1573
 msgid "Memory"
 msgstr "Pamäť"
 
-#: pkg/metrics/metrics.jsx:116
+#: pkg/metrics/metrics.jsx:118
 msgid "Memory spike"
 msgstr ""
 
@@ -4113,7 +4136,7 @@ msgstr ""
 msgid "Memory technology"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:115
+#: pkg/metrics/metrics.jsx:117
 msgid "Memory usage"
 msgstr "Využitie pamäte"
 
@@ -4139,17 +4162,17 @@ msgstr ""
 msgid "Metric"
 msgstr "metriky"
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1541
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1610
 #, fuzzy
 #| msgid "View details and history"
 msgid "Metrics and history"
 msgstr "Ukázať podrobnosti a históriu"
 
-#: pkg/metrics/metrics.jsx:1439
+#: pkg/metrics/metrics.jsx:1508
 msgid "Metrics history could not be loaded"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:1080 pkg/metrics/metrics.jsx:1170
+#: pkg/metrics/metrics.jsx:1149 pkg/metrics/metrics.jsx:1239
 #, fuzzy
 #| msgid "Bridge settings"
 msgid "Metrics settings"
@@ -4342,27 +4365,27 @@ msgstr "Názov"
 msgid "Name can not be empty."
 msgstr ""
 
-#: pkg/storaged/utils.js:134
+#: pkg/storaged/utils.js:132
 msgid "Name cannot be empty."
 msgstr ""
 
-#: pkg/storaged/utils.js:162
+#: pkg/storaged/utils.js:160
 msgid "Name cannot be longer than $0 bytes"
 msgstr "Názov nemôže byť dlhší ako $0 bytov"
 
-#: pkg/storaged/utils.js:160
+#: pkg/storaged/utils.js:158
 msgid "Name cannot be longer than $0 characters"
 msgstr "Názov nemôže byť dlhší ako $0 znakov"
 
-#: pkg/storaged/utils.js:136
+#: pkg/storaged/utils.js:134
 msgid "Name cannot be longer than 127 characters."
 msgstr "Názov nemôže byť dlhší ako 127 znakov."
 
-#: pkg/storaged/utils.js:140
+#: pkg/storaged/utils.js:138
 msgid "Name cannot contain the character '$0'."
 msgstr ""
 
-#: pkg/storaged/utils.js:142
+#: pkg/storaged/utils.js:140
 msgid "Name cannot contain whitespace."
 msgstr ""
 
@@ -4370,15 +4393,15 @@ msgstr ""
 msgid "Need at least one NTP server"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:645 pkg/metrics/metrics.jsx:1506
+#: pkg/metrics/metrics.jsx:714 pkg/metrics/metrics.jsx:1575
 msgid "Network"
 msgstr "Sieť"
 
-#: pkg/metrics/metrics.jsx:137
+#: pkg/metrics/metrics.jsx:139
 msgid "Network I/O"
 msgstr "Sieťový vstup/výstup"
 
-#: pkg/metrics/metrics.jsx:138
+#: pkg/metrics/metrics.jsx:140
 msgid "Network I/O spike"
 msgstr ""
 
@@ -4394,7 +4417,7 @@ msgstr ""
 msgid "Network logs"
 msgstr "Záznamy udalostí siete"
 
-#: pkg/metrics/metrics.jsx:654
+#: pkg/metrics/metrics.jsx:723
 msgid "Network usage"
 msgstr "Využitie siete"
 
@@ -4408,7 +4431,7 @@ msgstr "NetworkManager nebeží"
 
 #: pkg/networkmanager/index.html:23
 #: pkg/networkmanager/network-interface.jsx:697
-#: pkg/networkmanager/firewall.jsx:982 pkg/networkmanager/manifest.json:0
+#: pkg/networkmanager/firewall.jsx:1043 pkg/networkmanager/manifest.json:0
 msgid "Networking"
 msgstr "Sieť"
 
@@ -4493,11 +4516,11 @@ msgstr ""
 msgid "No configuration found"
 msgstr "Nebola nájdená žiadna konfigurácia"
 
-#: pkg/metrics/metrics.jsx:1466
+#: pkg/metrics/metrics.jsx:1535
 msgid "No data available"
 msgstr "Nie sú dostupné žiadne dáta"
 
-#: pkg/metrics/metrics.jsx:1462
+#: pkg/metrics/metrics.jsx:1531
 msgid "No data available between $0 and $1"
 msgstr ""
 
@@ -4505,7 +4528,7 @@ msgstr ""
 msgid "No delay"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:799
+#: pkg/networkmanager/firewall.jsx:841
 msgid "No description available"
 msgstr "Nie je k dispozícií žiaden popis"
 
@@ -4576,7 +4599,7 @@ msgid "No logical volumes"
 msgstr "Žiadne logické zväzky"
 
 #: pkg/systemd/logsJournal.jsx:282 pkg/systemd/logsJournal.jsx:325
-#: pkg/metrics/metrics.jsx:829
+#: pkg/metrics/metrics.jsx:898
 msgid "No logs found"
 msgstr "Nenájdené žiadne záznamy udalostí"
 
@@ -4639,7 +4662,7 @@ msgstr "Žiadne aktualizácie"
 msgid "No user name specified"
 msgstr "Nebolo zadané užívateľské meno"
 
-#: pkg/tuned/dialog.jsx:229 pkg/networkmanager/firewall.jsx:805
+#: pkg/tuned/dialog.jsx:229 pkg/networkmanager/firewall.jsx:847
 #: pkg/kdump/kdump-view.jsx:433
 msgid "None"
 msgstr "Žiadny"
@@ -4694,7 +4717,7 @@ msgstr "Nepripojené"
 msgid "Not permitted to configure realms"
 msgstr "Nepodarilo sa klonovanie virt. stroja $0"
 
-#: pkg/lib/cockpit.js:3951
+#: pkg/lib/cockpit.js:3949
 msgid "Not permitted to perform this action."
 msgstr "Neoprávený k vykonaniu tejto akcie."
 
@@ -4808,7 +4831,7 @@ msgstr ""
 msgid "Ooops!"
 msgstr "Ooops!"
 
-#: pkg/metrics/metrics.jsx:1067
+#: pkg/metrics/metrics.jsx:1136
 msgid "Open the pmproxy service in the firewall to share metrics."
 msgstr ""
 
@@ -4854,11 +4877,11 @@ msgstr "Iné zariadenia"
 msgid "Other options"
 msgstr "Iné voľby"
 
-#: pkg/metrics/metrics.jsx:655
+#: pkg/metrics/metrics.jsx:724
 msgid "Out"
 msgstr "Výstup"
 
-#: pkg/systemd/hwinfo.jsx:327 pkg/metrics/metrics.jsx:1540
+#: pkg/systemd/hwinfo.jsx:327 pkg/metrics/metrics.jsx:1609
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "Prehľad"
@@ -4885,7 +4908,7 @@ msgstr "PCI"
 msgid "PID"
 msgstr "ID"
 
-#: pkg/metrics/metrics.jsx:1415
+#: pkg/metrics/metrics.jsx:1484
 msgid "Package cockpit-pcp is missing for metrics history"
 msgstr "Chýba balík cockpit-pcp a preto nie sú k dispozícií historické metriky"
 
@@ -4933,7 +4956,7 @@ msgstr "Súčasť $0"
 msgid "Partition"
 msgstr "Oddiel"
 
-#: pkg/storaged/utils.js:281
+#: pkg/storaged/utils.js:279
 msgid "Partition of $0"
 msgstr "Oddiel na $0"
 
@@ -5088,7 +5111,7 @@ msgstr "Cesty"
 msgid "Pause"
 msgstr "Pozastaviť"
 
-#: pkg/metrics/metrics.jsx:1083
+#: pkg/metrics/metrics.jsx:1152
 msgid ""
 "Performance Co-Pilot collects and analyzes performance metrics from your "
 "system."
@@ -5158,7 +5181,7 @@ msgstr ""
 msgid "Please enable JavaScript to use the Web Console."
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:957
+#: pkg/networkmanager/firewall.jsx:1018
 msgid "Please install the $0 package"
 msgstr "Nainštalujte $0 balík"
 
@@ -5178,7 +5201,7 @@ msgstr "Zadajte stroj, ku ktorému sa chcete pripojiť"
 msgid "Pool"
 msgstr "Úložisko"
 
-#: pkg/storaged/utils.js:201
+#: pkg/storaged/utils.js:199
 msgid "Pool for thin logical volumes"
 msgstr ""
 
@@ -5194,7 +5217,7 @@ msgstr ""
 msgid "Port"
 msgstr "Port"
 
-#: pkg/networkmanager/firewall.jsx:446
+#: pkg/networkmanager/firewall.jsx:476
 msgid "Port number and type do not match"
 msgstr ""
 
@@ -5373,7 +5396,7 @@ msgstr "RAID skriňa"
 msgid "RAID device"
 msgstr "RAID zariadenie"
 
-#: pkg/storaged/mdraid-details.jsx:316 pkg/storaged/utils.js:251
+#: pkg/storaged/mdraid-details.jsx:316 pkg/storaged/utils.js:249
 msgid "RAID device $0"
 msgstr "RAID zariadenie $0"
 
@@ -5390,7 +5413,7 @@ msgstr "RAID level"
 msgid "RAID member"
 msgstr "RAID člen"
 
-#: pkg/metrics/metrics.jsx:578
+#: pkg/metrics/metrics.jsx:647
 msgid "RAM"
 msgstr "RAM"
 
@@ -5402,11 +5425,11 @@ msgstr ""
 msgid "Random"
 msgstr "Náhodná"
 
-#: pkg/networkmanager/firewall.jsx:839
+#: pkg/networkmanager/firewall.jsx:881
 msgid "Range"
 msgstr "Rozsah"
 
-#: pkg/networkmanager/firewall.jsx:478
+#: pkg/networkmanager/firewall.jsx:508
 msgid "Range must be strictly ordered"
 msgstr ""
 
@@ -5418,11 +5441,11 @@ msgstr "Rank"
 msgid "Raw to a device"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:607
+#: pkg/metrics/metrics.jsx:676
 msgid "Read"
 msgstr "Čítanie"
 
-#: pkg/systemd/hwinfo.jsx:218 pkg/metrics/metrics.jsx:1089
+#: pkg/systemd/hwinfo.jsx:218 pkg/metrics/metrics.jsx:1158
 msgid "Read more..."
 msgstr ""
 
@@ -5590,7 +5613,7 @@ msgstr "Odobrať"
 msgid "Remove $0"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:918
+#: pkg/networkmanager/firewall.jsx:961
 msgid "Remove $0 service from $1 zone"
 msgstr "Odstrániť službu $0 zo zóny $1"
 
@@ -5625,11 +5648,11 @@ msgstr "Odstrániť zariadenie"
 msgid "Remove passphrase in key slot $0?"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:107
+#: pkg/networkmanager/firewall.jsx:117
 msgid "Remove service $0"
 msgstr "Odstrániť službu $0"
 
-#: pkg/networkmanager/firewall.jsx:166 pkg/networkmanager/firewall.jsx:903
+#: pkg/networkmanager/firewall.jsx:178 pkg/networkmanager/firewall.jsx:946
 msgid "Remove zone $0"
 msgstr ""
 
@@ -5663,14 +5686,14 @@ msgstr ""
 msgid "Removing physical volume from $target"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:917
+#: pkg/networkmanager/firewall.jsx:960
 msgid ""
 "Removing the cockpit service might result in the web console becoming "
 "unreachable. Make sure that this zone does not apply to your current web "
 "console connection."
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:902
+#: pkg/networkmanager/firewall.jsx:945
 msgid "Removing the zone will remove all services within it."
 msgstr ""
 
@@ -6001,7 +6024,7 @@ msgstr "Soboty"
 #: pkg/storaged/crypto-keyslots.jsx:346 pkg/storaged/crypto-keyslots.jsx:365
 #: pkg/storaged/fsys-tab.jsx:374 pkg/storaged/fsys-tab.jsx:490
 #: pkg/storaged/crypto-tab.jsx:158 pkg/storaged/crypto-tab.jsx:202
-#: pkg/storaged/nfs-details.jsx:186 pkg/metrics/metrics.jsx:1097
+#: pkg/storaged/nfs-details.jsx:186 pkg/metrics/metrics.jsx:1166
 #: pkg/packagekit/kpatch.jsx:306 pkg/kdump/kdump-view.jsx:369
 msgid "Save"
 msgstr "Uložiť"
@@ -6133,7 +6156,7 @@ msgstr "Správca serveru"
 msgid "Server cannot be empty."
 msgstr "Server nemôže byť prázdny."
 
-#: pkg/lib/cockpit.js:3971
+#: pkg/lib/cockpit.js:3969
 msgid "Server has closed the connection."
 msgstr "Server zavrel spojenie."
 
@@ -6141,8 +6164,8 @@ msgstr "Server zavrel spojenie."
 msgid "Server software"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:196 pkg/storaged/dialog.jsx:1222
-#: pkg/metrics/metrics.jsx:561 pkg/metrics/metrics.jsx:594
+#: pkg/networkmanager/firewall.jsx:208 pkg/storaged/dialog.jsx:1222
+#: pkg/metrics/metrics.jsx:630 pkg/metrics/metrics.jsx:663
 msgid "Service"
 msgstr "Služba"
 
@@ -6171,7 +6194,7 @@ msgid "Service logs"
 msgstr "Záznamy udalostí služby"
 
 #: pkg/systemd/services.html:4 pkg/systemd/services/service.jsx:82
-#: pkg/systemd/services/service-tabs.jsx:39 pkg/networkmanager/firewall.jsx:579
+#: pkg/systemd/services/service-tabs.jsx:39 pkg/networkmanager/firewall.jsx:618
 #: pkg/systemd/manifest.json:0
 msgid "Services"
 msgstr "Služby"
@@ -6424,7 +6447,7 @@ msgstr ""
 msgid "Some software needs to be restarted manually"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:776
+#: pkg/networkmanager/firewall.jsx:818
 msgid "Sorted from least to most trusted"
 msgstr "Zoradené od najmenej po najviac dôverihodné"
 
@@ -6642,12 +6665,12 @@ msgstr "Nedele"
 msgid "Support is installed."
 msgstr "Podpora je nainštalovaná."
 
-#: pkg/storaged/content-views.jsx:228 pkg/metrics/metrics.jsx:123
-#: pkg/metrics/metrics.jsx:475 pkg/metrics/metrics.jsx:1504
+#: pkg/storaged/content-views.jsx:228 pkg/metrics/metrics.jsx:125
+#: pkg/metrics/metrics.jsx:544 pkg/metrics/metrics.jsx:1573
 msgid "Swap"
 msgstr "Odkladanie"
 
-#: pkg/metrics/metrics.jsx:122
+#: pkg/metrics/metrics.jsx:124
 msgid "Swap out"
 msgstr ""
 
@@ -6746,7 +6769,7 @@ msgstr "Systémový čas"
 msgid "Systemd units"
 msgstr "Systemd jednotky"
 
-#: pkg/networkmanager/firewall.jsx:196
+#: pkg/networkmanager/firewall.jsx:208
 msgid "TCP"
 msgstr "TCP"
 
@@ -6889,7 +6912,7 @@ msgid "The account '$0' will be forced to change their password on next login"
 msgstr ""
 "Účet „$0“ bude pri najbližšom prihlásení vyzvaný k vynútenej zmene hesla"
 
-#: pkg/networkmanager/firewall.jsx:807
+#: pkg/networkmanager/firewall.jsx:849
 msgid "The cockpit service is automatically included"
 msgstr "Služba cockpit je zahrnutá automaticky"
 
@@ -7059,7 +7082,7 @@ msgstr ""
 "Server odmietol overiť „$0“ pomocou overenia heslom a nie sú k dispozícií "
 "žiadne ďalšie metódy overenia."
 
-#: pkg/lib/cockpit.js:3955
+#: pkg/lib/cockpit.js:3953
 msgid "The server refused to authenticate using any supported methods."
 msgstr ""
 
@@ -7098,7 +7121,7 @@ msgid ""
 "service is not running."
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:200
+#: pkg/networkmanager/firewall.jsx:212
 msgid "There are no active services in this zone"
 msgstr ""
 
@@ -7120,7 +7143,7 @@ msgstr "Pri pripojovaní k stroji sa vyskytla neočakávaná chyba."
 msgid "These changes will be made:"
 msgstr ""
 
-#: pkg/storaged/utils.js:203
+#: pkg/storaged/utils.js:201
 msgid "Thin logical volume"
 msgstr ""
 
@@ -7243,7 +7266,7 @@ msgstr ""
 msgid "This will test the kdump configuration by crashing the kernel."
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:900
+#: pkg/networkmanager/firewall.jsx:943
 msgid ""
 "This zone contains the cockpit service. Make sure that this zone does not "
 "apply to your current web console connection."
@@ -7309,7 +7332,7 @@ msgid ""
 "the machine or through a trusted network:"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:1472
+#: pkg/metrics/metrics.jsx:1541
 msgid "Today"
 msgstr "Dnes"
 
@@ -7333,7 +7356,7 @@ msgstr ""
 msgid "Toggle filters"
 msgstr "Skryť filtre"
 
-#: pkg/lib/cockpit.js:3977
+#: pkg/lib/cockpit.js:3975
 msgid "Too much data"
 msgstr ""
 
@@ -7341,11 +7364,11 @@ msgstr ""
 msgid "Tools"
 msgstr "Nástroje"
 
-#: pkg/metrics/metrics.jsx:560
+#: pkg/metrics/metrics.jsx:629
 msgid "Top 5 CPU services"
 msgstr "5 služieb najviac vyťažujúcich procesor"
 
-#: pkg/metrics/metrics.jsx:593
+#: pkg/metrics/metrics.jsx:662
 msgid "Top 5 memory services"
 msgstr ""
 
@@ -7380,7 +7403,7 @@ msgstr ""
 msgid "Triggers"
 msgstr "Spúšťače"
 
-#: pkg/metrics/metrics.jsx:1434
+#: pkg/metrics/metrics.jsx:1503
 msgid "Troubleshoot"
 msgstr "Riešiť problém"
 
@@ -7392,7 +7415,7 @@ msgstr "Riešiť problém…"
 msgid "Trust key"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:773
+#: pkg/networkmanager/firewall.jsx:815
 msgid "Trust level"
 msgstr "Stupeň dôveryhodnosti"
 
@@ -7447,7 +7470,7 @@ msgstr "Typ"
 msgid "Type to filter"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:196
+#: pkg/networkmanager/firewall.jsx:208
 msgid "UDP"
 msgstr "UDP"
 
@@ -7610,7 +7633,7 @@ msgstr "Neznáma konfigurácia"
 msgid "Unknown host name"
 msgstr ""
 
-#: pkg/networkmanager/firewall.jsx:440
+#: pkg/networkmanager/firewall.jsx:470
 msgid "Unknown service name"
 msgstr "Neznámy názov služby"
 
@@ -7706,7 +7729,7 @@ msgstr "Nepodporovaný zväzok"
 msgid "Until"
 msgstr ""
 
-#: pkg/lib/cockpit.js:3957 pkg/lib/cockpit.js:3959
+#: pkg/lib/cockpit.js:3955 pkg/lib/cockpit.js:3957
 msgid "Untrusted host"
 msgstr "Nedôveryhodnotný stroj"
 
@@ -7771,9 +7794,9 @@ msgid "Uptime"
 msgstr "Doba chodu"
 
 #: pkg/systemd/overview-cards/usageCard.jsx:129
-#: pkg/storaged/unrecognized-tab.jsx:37 pkg/metrics/metrics.jsx:1503
-#: pkg/metrics/metrics.jsx:1504 pkg/metrics/metrics.jsx:1505
-#: pkg/metrics/metrics.jsx:1506
+#: pkg/storaged/unrecognized-tab.jsx:37 pkg/metrics/metrics.jsx:1572
+#: pkg/metrics/metrics.jsx:1573 pkg/metrics/metrics.jsx:1574
+#: pkg/metrics/metrics.jsx:1575
 msgid "Usage"
 msgstr "Využitie"
 
@@ -7827,7 +7850,7 @@ msgstr ""
 msgid "Use verbose logging"
 msgstr "Posledné prihlásenie"
 
-#: pkg/storaged/swap-tab.jsx:70 pkg/metrics/metrics.jsx:594
+#: pkg/storaged/swap-tab.jsx:70 pkg/metrics/metrics.jsx:663
 msgid "Used"
 msgstr "Využité"
 
@@ -7880,7 +7903,7 @@ msgstr ""
 msgid "VDO device"
 msgstr "VDO zariadenie"
 
-#: pkg/storaged/utils.js:262 pkg/storaged/vdo-details.jsx:264
+#: pkg/storaged/utils.js:260 pkg/storaged/vdo-details.jsx:264
 msgid "VDO device $0"
 msgstr "VDO zariadenie $0"
 
@@ -7944,7 +7967,7 @@ msgstr "Verzia"
 msgid "Very securely erasing $target"
 msgstr "Veľmi bezpečne sa maže $target"
 
-#: pkg/metrics/metrics.jsx:516 pkg/metrics/metrics.jsx:517
+#: pkg/metrics/metrics.jsx:585 pkg/metrics/metrics.jsx:586
 #, fuzzy
 #| msgid "All logs"
 msgid "View all CPUs"
@@ -7966,7 +7989,7 @@ msgstr "Filtrovať služby"
 msgid "View automation script"
 msgstr "Ukázať automatizačný skript"
 
-#: pkg/metrics/metrics.jsx:818
+#: pkg/metrics/metrics.jsx:887
 #, fuzzy
 #| msgid "All logs"
 msgid "View detailed logs"
@@ -8121,7 +8144,7 @@ msgctxt "storage"
 msgid "World wide name"
 msgstr "World wide name"
 
-#: pkg/metrics/metrics.jsx:611
+#: pkg/metrics/metrics.jsx:680
 msgid "Write"
 msgstr "Zápis"
 
@@ -8176,7 +8199,7 @@ msgstr ""
 msgid "You must wait longer to change your password"
 msgstr "Musíte počkať dlhšie aby bolo možné zmeniť vaše heslo"
 
-#: pkg/metrics/metrics.jsx:1408
+#: pkg/metrics/metrics.jsx:1477
 msgid "You need to relogin to be able to see metrics history"
 msgstr ""
 
@@ -8208,11 +8231,11 @@ msgid ""
 "restarted."
 msgstr ""
 
-#: pkg/lib/cockpit.js:3947
+#: pkg/lib/cockpit.js:3945
 msgid "Your session has been terminated."
 msgstr ""
 
-#: pkg/lib/cockpit.js:3949
+#: pkg/lib/cockpit.js:3947
 msgid "Your session has expired. Please log in again."
 msgstr ""
 
@@ -8274,7 +8297,7 @@ msgstr "o"
 msgid "avc"
 msgstr "avc"
 
-#: pkg/metrics/metrics.jsx:502
+#: pkg/metrics/metrics.jsx:571
 msgid "average: $0%"
 msgstr ""
 
@@ -8317,7 +8340,7 @@ msgstr "bajty"
 msgid "cgroups"
 msgstr "cgroups"
 
-#: pkg/metrics/metrics.jsx:430
+#: pkg/metrics/metrics.jsx:456
 #, fuzzy
 #| msgid "Cockpit is not installed"
 msgid "cockpit-podman is not installed"
@@ -8626,7 +8649,7 @@ msgstr "stroj"
 msgid "mask"
 msgstr "maska"
 
-#: pkg/metrics/metrics.jsx:503
+#: pkg/metrics/metrics.jsx:572
 msgid "max: $0%"
 msgstr ""
 
@@ -8690,7 +8713,7 @@ msgstr "nfs"
 msgid "nfs dump target isn't formatted as server:path"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:105
+#: pkg/metrics/metrics.jsx:107
 msgid "nice"
 msgstr "prednosť (nice)"
 
@@ -8778,22 +8801,22 @@ msgstr "LVM skupina zväzkov"
 msgid "plugin"
 msgstr "zásuvný model"
 
-#: pkg/metrics/metrics.jsx:1431
+#: pkg/metrics/metrics.jsx:1500
 #, fuzzy
 #| msgid "$0 service has failed"
 #| msgid_plural "$0 services have failed"
 msgid "pmlogger.service has failed"
 msgstr "$0 služba zhavarovala"
 
-#: pkg/metrics/metrics.jsx:1433
+#: pkg/metrics/metrics.jsx:1502
 msgid "pmlogger.service is failing to collect data"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:1424
+#: pkg/metrics/metrics.jsx:1493
 msgid "pmlogger.service is not running"
 msgstr "pmlogger.service nebeží"
 
-#: pkg/metrics/metrics.jsx:424
+#: pkg/metrics/metrics.jsx:450
 msgid "pod"
 msgstr ""
 
@@ -8821,11 +8844,11 @@ msgstr "iba na čítanie"
 msgid "recommended"
 msgstr "odporúčaný"
 
-#: pkg/storaged/utils.js:673
+#: pkg/storaged/utils.js:671
 msgid "remove from LVM2"
 msgstr ""
 
-#: pkg/storaged/utils.js:662
+#: pkg/storaged/utils.js:660
 #, fuzzy
 #| msgid "Removing $target from RAID device"
 msgid "remove from RAID"
@@ -8923,7 +8946,7 @@ msgstr "ssh server je prázdny"
 msgid "stop"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:105
+#: pkg/metrics/metrics.jsx:107
 msgid "sys"
 msgstr "sys"
 
@@ -8985,15 +9008,15 @@ msgstr "neznámy cieľ"
 msgid "unmask"
 msgstr "odmaskovať"
 
-#: pkg/storaged/utils.js:649 pkg/storaged/manifest.json:0
+#: pkg/storaged/utils.js:647 pkg/storaged/manifest.json:0
 msgid "unmount"
 msgstr "odpojiť"
 
-#: pkg/storaged/utils.js:440
+#: pkg/storaged/utils.js:438
 msgid "unpartitioned space on $0"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:105 pkg/users/manifest.json:0
+#: pkg/metrics/metrics.jsx:107 pkg/users/manifest.json:0
 msgid "user"
 msgstr "užívateľ"
 
@@ -9038,6 +9061,11 @@ msgid "zone"
 msgstr "zóna"
 
 #, fuzzy
+#~| msgid "Zone"
+#~ msgid "$0 Zone"
+#~ msgstr "Zóna"
+
+#, fuzzy
 #~| msgid "Diagnostic reports"
 #~ msgid "Create diagnostic report"
 #~ msgstr "Diagnostické hlásenia"
@@ -9064,9 +9092,6 @@ msgstr "zóna"
 
 #~ msgid "$0 GiB total"
 #~ msgstr "$0 GiB celkom"
-
-#~ msgid "$0 zone"
-#~ msgstr "$ zóna"
 
 #~ msgid "Apply"
 #~ msgstr "Použiť"

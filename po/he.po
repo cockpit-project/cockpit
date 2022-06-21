@@ -24,7 +24,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 18:03+0000\n"
+"POT-Creation-Date: 2022-06-14 18:07+0000\n"
 "PO-Revision-Date: 2022-01-14 07:16+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language-Team: Hebrew <https://translate.fedoraproject.org/projects/cockpit/"
@@ -41,7 +41,7 @@ msgstr ""
 msgid "$0 (encrypted)"
 msgstr "$0 (מוצפן)"
 
-#: pkg/metrics/metrics.jsx:457
+#: pkg/metrics/metrics.jsx:526
 msgid "$0 CPU"
 msgid_plural "$0 CPUs"
 msgstr[0] "מעבד אחד"
@@ -57,10 +57,6 @@ msgstr "$0 GiB"
 msgid "$0 Stratis pool"
 msgstr "מאגר Stratis‏ $0"
 
-#: pkg/networkmanager/firewall.jsx:178
-msgid "$0 Zone"
-msgstr ""
-
 #: pkg/networkmanager/network-main.jsx:167
 msgid "$0 active zone"
 msgid_plural "$0 active zones"
@@ -69,7 +65,7 @@ msgstr[1] "שני אזורים פעילים"
 msgstr[2] "$0 אזורים פעילים"
 msgstr[3] "$0 אזורים פעילים"
 
-#: pkg/metrics/metrics.jsx:480 pkg/metrics/metrics.jsx:583
+#: pkg/metrics/metrics.jsx:549 pkg/metrics/metrics.jsx:652
 #, fuzzy
 #| msgid "$0 GiB available"
 msgid "$0 available"
@@ -141,11 +137,11 @@ msgstr "התיעוד של $0"
 msgid "$0 error"
 msgstr "שגיאת $0"
 
-#: pkg/lib/cockpit.js:2719
+#: pkg/lib/cockpit.js:2717
 msgid "$0 exited with code $1"
 msgstr "$0 הסתיים עם הקוד $1"
 
-#: pkg/lib/cockpit.js:2721
+#: pkg/lib/cockpit.js:2719
 msgid "$0 failed"
 msgstr "$0 נכשל"
 
@@ -174,7 +170,7 @@ msgstr "אי אפשר להקטין $0 ממערכות הקבצים."
 msgid "$0 filesystems can not be resized here."
 msgstr "אי אפשר לשנות כאן גודל של $0 ממערכות הקבצים."
 
-#: pkg/metrics/metrics.jsx:625
+#: pkg/metrics/metrics.jsx:694
 msgid "$0 free"
 msgstr "$0 פנויים"
 
@@ -214,7 +210,7 @@ msgstr "$0 אינו זמין מאף מאגר."
 msgid "$0 key changed"
 msgstr "המפתח $0 השתנה"
 
-#: pkg/lib/cockpit.js:2717
+#: pkg/lib/cockpit.js:2715
 msgid "$0 killed with signal $1"
 msgstr "$0 נקטל עם האות $1"
 
@@ -272,7 +268,7 @@ msgstr[1] "$0 חבילות דורשות הפעלה מחדש של המערכת"
 msgstr[2] "$0 חבילות דורשות הפעלה מחדש של המערכת"
 msgstr[3] "$0 חבילות דורשות הפעלה מחדש של המערכת"
 
-#: pkg/metrics/metrics.jsx:127
+#: pkg/metrics/metrics.jsx:129
 msgid "$0 page"
 msgid_plural "$0 pages"
 msgstr[0] "עמוד אחד"
@@ -312,8 +308,8 @@ msgstr[1] "נותרו $0 משבצות"
 msgstr[2] "נותרו $0 משבצות"
 msgstr[3] "נותרו $0 משבצות"
 
-#: pkg/metrics/metrics.jsx:472 pkg/metrics/metrics.jsx:574
-#: pkg/metrics/metrics.jsx:633
+#: pkg/metrics/metrics.jsx:541 pkg/metrics/metrics.jsx:643
+#: pkg/metrics/metrics.jsx:702
 msgid "$0 total"
 msgstr "$0 סך הכול"
 
@@ -349,6 +345,10 @@ msgstr[1] "שנתיים"
 msgstr[2] "$0 שנים"
 msgstr[3] "$0 שנים"
 
+#: pkg/networkmanager/firewall.jsx:190
+msgid "$0 zone"
+msgstr "אזור $0"
+
 #: pkg/storaged/vgroup-details.jsx:118
 msgid "$0, $1 free"
 msgstr "$0,‏ $1 פנויים"
@@ -357,7 +357,7 @@ msgstr "$0,‏ $1 פנויים"
 msgid "$0: crash at $1"
 msgstr "$0: קריסה ב־$1"
 
-#: pkg/storaged/utils.js:191
+#: pkg/storaged/utils.js:189
 msgid "$name (from $host)"
 msgstr "$name (מ־$host)"
 
@@ -385,7 +385,7 @@ msgstr "יום"
 msgid "1 hour"
 msgstr "שעה"
 
-#: pkg/metrics/metrics.jsx:547
+#: pkg/metrics/metrics.jsx:616
 msgid "1 min"
 msgstr "דקה"
 
@@ -421,7 +421,7 @@ msgstr "שלושה עשר"
 msgid "14th"
 msgstr "ארבעה עשר"
 
-#: pkg/metrics/metrics.jsx:549
+#: pkg/metrics/metrics.jsx:618
 msgid "15 min"
 msgstr "15 דקות"
 
@@ -533,7 +533,7 @@ msgstr "40 דקות"
 msgid "4th"
 msgstr "ארבעה"
 
-#: pkg/metrics/metrics.jsx:548
+#: pkg/metrics/metrics.jsx:617
 msgid "5 min"
 msgstr "5 דקות"
 
@@ -752,7 +752,7 @@ msgstr "הוספת $0"
 msgid "Add VLAN"
 msgstr "הוספת VLAN"
 
-#: pkg/networkmanager/firewall.jsx:966
+#: pkg/networkmanager/firewall.jsx:1027
 msgid "Add a new zone"
 msgstr "הוספת אזור חדש"
 
@@ -796,17 +796,17 @@ msgstr "הוספת חבר"
 msgid "Add new host"
 msgstr "הוספת מארח חדש"
 
-#: pkg/networkmanager/firewall.jsx:967
+#: pkg/networkmanager/firewall.jsx:1028
 #, fuzzy
 #| msgid "Add a new zone"
 msgid "Add new zone"
 msgstr "הוספת אזור חדש"
 
-#: pkg/networkmanager/firewall.jsx:548
+#: pkg/networkmanager/firewall.jsx:584
 msgid "Add ports"
 msgstr "הוספת פתחות"
 
-#: pkg/networkmanager/firewall.jsx:549
+#: pkg/networkmanager/firewall.jsx:585
 msgid "Add ports to $0 zone"
 msgstr "הוספת פתחות לאזור $0"
 
@@ -814,15 +814,15 @@ msgstr "הוספת פתחות לאזור $0"
 msgid "Add public key"
 msgstr "הוספת מפתח ציבורי"
 
-#: pkg/networkmanager/firewall.jsx:169 pkg/networkmanager/firewall.jsx:548
+#: pkg/networkmanager/firewall.jsx:181 pkg/networkmanager/firewall.jsx:584
 msgid "Add services"
 msgstr "הוספת שירותים"
 
-#: pkg/networkmanager/firewall.jsx:549
+#: pkg/networkmanager/firewall.jsx:585
 msgid "Add services to $0 zone"
 msgstr "הוספת שירותים לאזור $0"
 
-#: pkg/networkmanager/firewall.jsx:168
+#: pkg/networkmanager/firewall.jsx:180
 msgid "Add services to zone $0"
 msgstr "הוספת שירותים לאזור $0"
 
@@ -830,7 +830,7 @@ msgstr "הוספת שירותים לאזור $0"
 msgid "Add team"
 msgstr "הוספת צוות"
 
-#: pkg/networkmanager/firewall.jsx:757 pkg/networkmanager/firewall.jsx:765
+#: pkg/networkmanager/firewall.jsx:799 pkg/networkmanager/firewall.jsx:807
 msgid "Add zone"
 msgstr "הוספת אזור"
 
@@ -840,7 +840,7 @@ msgid ""
 "administration UI unavailable."
 msgstr "הוספת $0 תקטע את החיבור לשרת ותגרום לכך שמנשק הניהול לא יהיה זמין."
 
-#: pkg/networkmanager/firewall.jsx:562
+#: pkg/networkmanager/firewall.jsx:600
 msgid ""
 "Adding custom ports will reload firewalld. A reload will result in the loss "
 "of any runtime-only configuration!"
@@ -876,7 +876,7 @@ msgstr "כתובת נוספת $val"
 msgid "Additional packages:"
 msgstr "חבילות נוספות:"
 
-#: pkg/networkmanager/firewall.jsx:139
+#: pkg/networkmanager/firewall.jsx:151
 msgid "Additional ports"
 msgstr "פתחות נוספות"
 
@@ -974,7 +974,7 @@ msgstr "אול אין ואן"
 msgid "Allow running (unmask)"
 msgstr "לאפשר הרצה (ביטול מיסוך)"
 
-#: pkg/networkmanager/firewall.jsx:187 pkg/networkmanager/firewall.jsx:827
+#: pkg/networkmanager/firewall.jsx:199 pkg/networkmanager/firewall.jsx:869
 msgid "Allowed addresses"
 msgstr "כתובות מורשות"
 
@@ -1315,7 +1315,7 @@ msgstr ""
 "אוטומטית יהיה זמין ותהיה לך אפשרות להיכנס אל $3 ללא סיסמה בעתיד."
 
 #: pkg/systemd/hwinfo.jsx:118 pkg/systemd/overview-cards/usageCard.jsx:134
-#: pkg/metrics/metrics.jsx:526 pkg/metrics/metrics.jsx:1503
+#: pkg/metrics/metrics.jsx:595 pkg/metrics/metrics.jsx:1572
 msgid "CPU"
 msgstr "מעבד"
 
@@ -1327,11 +1327,11 @@ msgstr "אבטחת מעבד"
 msgid "CPU security toggles"
 msgstr "מתגי אבטחת מעבד"
 
-#: pkg/metrics/metrics.jsx:102
+#: pkg/metrics/metrics.jsx:104
 msgid "CPU spike"
 msgstr "קפיצה פתאומית בניצולת מעבד"
 
-#: pkg/metrics/metrics.jsx:101
+#: pkg/metrics/metrics.jsx:103
 msgid "CPU usage"
 msgstr "ניצולת מעבד"
 
@@ -1366,11 +1366,11 @@ msgstr "לא ניתן למצוא יומנים עם שילוב המסננים ה�
 #: pkg/shell/hosts_dialog.jsx:278 pkg/shell/hosts_dialog.jsx:373
 #: pkg/shell/hosts_dialog.jsx:495 pkg/shell/hosts_dialog.jsx:861
 #: pkg/tuned/dialog.jsx:311 pkg/apps/utils.jsx:66
-#: pkg/networkmanager/firewall.jsx:568 pkg/networkmanager/firewall.jsx:768
-#: pkg/networkmanager/firewall.jsx:860
+#: pkg/networkmanager/firewall.jsx:606 pkg/networkmanager/firewall.jsx:810
+#: pkg/networkmanager/firewall.jsx:902
 #: pkg/networkmanager/dialogs-common.jsx:155 pkg/storaged/jobs-panel.jsx:139
 #: pkg/sosreport/index.jsx:288 pkg/sosreport/index.jsx:373
-#: pkg/metrics/metrics.jsx:1100 pkg/packagekit/autoupdates.jsx:274
+#: pkg/metrics/metrics.jsx:1169 pkg/packagekit/autoupdates.jsx:274
 #: pkg/packagekit/updates.jsx:506 pkg/packagekit/updates.jsx:577
 #: pkg/packagekit/kpatch.jsx:311
 msgid "Cancel"
@@ -1394,7 +1394,7 @@ msgstr "לא ניתן להפעיל"
 msgid "Cannot connect to an unknown host"
 msgstr "לא ניתן להתחבר למארח לא ידוע"
 
-#: pkg/lib/cockpit.js:3969
+#: pkg/lib/cockpit.js:3967
 msgid "Cannot forward login credentials"
 msgstr "לא ניתן להעביר פרטי גישה"
 
@@ -1580,7 +1580,7 @@ msgstr "Cockpit"
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "האימות של Cockpit לא מוגדר נכון."
 
-#: pkg/lib/cockpit.js:3975
+#: pkg/lib/cockpit.js:3973
 msgid "Cockpit could not contact the given host."
 msgstr "ל־Cockpit אין אפשרות ליצור קשר עם המארח שסופק."
 
@@ -1605,7 +1605,7 @@ msgstr ""
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit הוא מנשק אינטראקטיבי לניהול שרתי לינוקס."
 
-#: pkg/lib/cockpit.js:3973
+#: pkg/lib/cockpit.js:3971
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit אינו תואם לתכנה שרצה על המערכת."
 
@@ -1613,7 +1613,7 @@ msgstr "Cockpit אינו תואם לתכנה שרצה על המערכת."
 msgid "Cockpit is not installed"
 msgstr "Cockpit אינו מותקן"
 
-#: pkg/lib/cockpit.js:3967
+#: pkg/lib/cockpit.js:3965
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit אינו מותקן על המערכת."
 
@@ -1630,7 +1630,7 @@ msgstr ""
 "אחר מספר שרתים בו־זמנית. כל שעליך לעשות הוא להוסיף אותם בלחיצה בודדת "
 "והמכונות שלך תדאגנה לחברותיהן."
 
-#: pkg/metrics/metrics.jsx:1109
+#: pkg/metrics/metrics.jsx:1178
 msgid "Collect metrics"
 msgstr "איסוף מדדים"
 
@@ -1638,7 +1638,7 @@ msgstr "איסוף מדדים"
 msgid "Color"
 msgstr "צבע"
 
-#: pkg/networkmanager/firewall.jsx:630 pkg/networkmanager/firewall.jsx:640
+#: pkg/networkmanager/firewall.jsx:670 pkg/networkmanager/firewall.jsx:681
 #, fuzzy
 #| msgid "Comma-separated ports, ranges, and aliases are accepted"
 msgid "Comma-separated ports, ranges, and services are accepted"
@@ -1740,7 +1740,7 @@ msgstr "אישור סיסמה חדשה"
 msgid "Confirm password"
 msgstr "אישור סיסמה"
 
-#: pkg/networkmanager/firewall.jsx:856
+#: pkg/networkmanager/firewall.jsx:898
 msgid "Confirm removal of $0"
 msgstr "אישור הסרת $0"
 
@@ -1796,7 +1796,7 @@ msgstr "שגיאת התחברות"
 msgid "Connection failed"
 msgstr "ההתחברות נכשלה"
 
-#: pkg/lib/cockpit.js:3965
+#: pkg/lib/cockpit.js:3963
 msgid "Connection has timed out."
 msgstr "הזמן שהוקצב להתחברות תם."
 
@@ -1863,7 +1863,7 @@ msgstr "העתקה"
 msgid "Copy to clipboard"
 msgstr "העתקה ללוח הגזירים"
 
-#: pkg/metrics/metrics.jsx:494
+#: pkg/metrics/metrics.jsx:563
 msgid "Core $0"
 msgstr "ליבה $0"
 
@@ -2050,7 +2050,7 @@ msgstr "Ctrl-Shift-J"
 msgid "Current boot"
 msgstr "עלייה נוכחית"
 
-#: pkg/metrics/metrics.jsx:507
+#: pkg/metrics/metrics.jsx:576
 #, fuzzy
 #| msgid "Current"
 msgid "Current top CPU usage"
@@ -2074,11 +2074,11 @@ msgstr "אפשרויות הצפנה מותאמות אישית"
 msgid "Custom mount options"
 msgstr "אפשרויות עיגון מותאמות אישית"
 
-#: pkg/networkmanager/firewall.jsx:586
+#: pkg/networkmanager/firewall.jsx:625
 msgid "Custom ports"
 msgstr "פתחות מותאמות אישית"
 
-#: pkg/networkmanager/firewall.jsx:786
+#: pkg/networkmanager/firewall.jsx:828
 msgid "Custom zones"
 msgstr "אזורים מותאמים אישית"
 
@@ -2164,15 +2164,16 @@ msgstr "השהיה חייבת להיות מספר"
 #: pkg/systemd/services/service-details.jsx:141
 #: pkg/systemd/services/service-details.jsx:666 pkg/systemd/abrtLog.jsx:291
 #: pkg/networkmanager/network-interface.jsx:720
-#: pkg/networkmanager/firewall.jsx:68 pkg/networkmanager/firewall.jsx:857
-#: pkg/storaged/mdraid-details.jsx:297 pkg/storaged/mdraid-details.jsx:323
-#: pkg/storaged/vdo-details.jsx:205 pkg/storaged/vdo-details.jsx:271
-#: pkg/storaged/vgroup-details.jsx:200 pkg/storaged/vgroup-details.jsx:225
-#: pkg/storaged/content-views.jsx:382 pkg/storaged/content-views.jsx:408
-#: pkg/storaged/stratis-details.jsx:253 pkg/storaged/stratis-details.jsx:417
-#: pkg/storaged/stratis-details.jsx:552 pkg/storaged/stratis-details.jsx:600
-#: pkg/sosreport/index.jsx:367 pkg/sosreport/index.jsx:479
-#: pkg/users/account-details.js:278 pkg/users/delete-account-dialog.js:60
+#: pkg/networkmanager/firewall.jsx:117 pkg/networkmanager/firewall.jsx:178
+#: pkg/networkmanager/firewall.jsx:899 pkg/storaged/mdraid-details.jsx:297
+#: pkg/storaged/mdraid-details.jsx:323 pkg/storaged/vdo-details.jsx:205
+#: pkg/storaged/vdo-details.jsx:271 pkg/storaged/vgroup-details.jsx:200
+#: pkg/storaged/vgroup-details.jsx:225 pkg/storaged/content-views.jsx:382
+#: pkg/storaged/content-views.jsx:408 pkg/storaged/stratis-details.jsx:253
+#: pkg/storaged/stratis-details.jsx:417 pkg/storaged/stratis-details.jsx:552
+#: pkg/storaged/stratis-details.jsx:600 pkg/sosreport/index.jsx:367
+#: pkg/sosreport/index.jsx:479 pkg/users/account-details.js:278
+#: pkg/users/delete-account-dialog.js:60
 msgid "Delete"
 msgstr "מחיקה"
 
@@ -2240,7 +2241,7 @@ msgid "Deletion will remove the following files:"
 msgstr ""
 
 #: pkg/systemd/services/timer-dialog.jsx:159
-#: pkg/networkmanager/firewall.jsx:653 pkg/networkmanager/firewall.jsx:797
+#: pkg/networkmanager/firewall.jsx:695 pkg/networkmanager/firewall.jsx:839
 #: pkg/storaged/dialog.jsx:1224
 msgid "Description"
 msgstr "תיאור"
@@ -2344,11 +2345,11 @@ msgstr "לא לאפשר הרצה (מיסוך)"
 msgid "Disconnected"
 msgstr "מנותק"
 
-#: pkg/metrics/metrics.jsx:130 pkg/metrics/metrics.jsx:1505
+#: pkg/metrics/metrics.jsx:132 pkg/metrics/metrics.jsx:1574
 msgid "Disk I/O"
 msgstr "קלט/פלט של כונן"
 
-#: pkg/metrics/metrics.jsx:131
+#: pkg/metrics/metrics.jsx:133
 msgid "Disk I/O spike"
 msgstr "קפיצה פתאומית בפעולות קלט/פלט של כונן"
 
@@ -2369,7 +2370,7 @@ msgstr "מילת צופן לכונן"
 
 #: pkg/storaged/vgroups-panel.jsx:74 pkg/storaged/mdraid-details.jsx:65
 #: pkg/storaged/mdraid-details.jsx:163 pkg/storaged/mdraids-panel.jsx:121
-#: pkg/storaged/vgroup-details.jsx:67 pkg/metrics/metrics.jsx:603
+#: pkg/storaged/vgroup-details.jsx:67 pkg/metrics/metrics.jsx:672
 msgid "Disks"
 msgstr "כוננים"
 
@@ -2468,9 +2469,9 @@ msgid "Dual rank"
 msgstr "דו־צדדי"
 
 #: pkg/shell/hosts.jsx:167 pkg/shell/indexes.jsx:339
-#: pkg/storaged/crypto-keyslots.jsx:577 pkg/storaged/nfs-details.jsx:305
-#: pkg/storaged/iscsi-panel.jsx:251 pkg/packagekit/autoupdates.jsx:407
-#: pkg/packagekit/kpatch.jsx:230
+#: pkg/networkmanager/firewall.jsx:115 pkg/storaged/crypto-keyslots.jsx:577
+#: pkg/storaged/nfs-details.jsx:305 pkg/storaged/iscsi-panel.jsx:251
+#: pkg/packagekit/autoupdates.jsx:407 pkg/packagekit/kpatch.jsx:230
 msgid "Edit"
 msgstr "עריכה"
 
@@ -2481,6 +2482,12 @@ msgstr "עריכת ‎/etc/motd"
 #: pkg/storaged/crypto-keyslots.jsx:356
 msgid "Edit Tang keyserver"
 msgstr "עריכת שרת מפתחות Tang"
+
+#: pkg/networkmanager/firewall.jsx:582
+#, fuzzy
+#| msgid "Add services to $0 zone"
+msgid "Edit custom service in $0 zone"
+msgstr "הוספת שירותים לאזור $0"
 
 #: pkg/shell/hosts_dialog.jsx:244
 msgid "Edit host"
@@ -2497,6 +2504,18 @@ msgstr "עריכת ההודעה היומית"
 #: pkg/networkmanager/network-main.jsx:158
 msgid "Edit rules and zones"
 msgstr "עריכת כללים ואזורים"
+
+#: pkg/networkmanager/firewall.jsx:581
+#, fuzzy
+#| msgid "Edit server"
+msgid "Edit service"
+msgstr "עריכת שרת"
+
+#: pkg/networkmanager/firewall.jsx:115
+#, fuzzy
+#| msgid "Edit server"
+msgid "Edit service $0"
+msgstr "עריכת שרת"
 
 #: pkg/storaged/crypto-keyslots.jsx:579
 msgid "Editing a key requires a free slot"
@@ -2556,7 +2575,7 @@ msgstr "הצפנת נתונים"
 msgid "Encrypted"
 msgstr "$0 מוצפן"
 
-#: pkg/storaged/utils.js:283
+#: pkg/storaged/utils.js:281
 msgid "Encrypted $0"
 msgstr "$0 מוצפן"
 
@@ -2564,11 +2583,11 @@ msgstr "$0 מוצפן"
 msgid "Encrypted Stratis pool $0"
 msgstr "מאגר Stratis מוצפן $0"
 
-#: pkg/storaged/utils.js:275
+#: pkg/storaged/utils.js:273
 msgid "Encrypted logical volume of $0"
 msgstr "כרך לוגי מוצפן בגודל $0"
 
-#: pkg/storaged/utils.js:277
+#: pkg/storaged/utils.js:275
 msgid "Encrypted partition of $0"
 msgstr "מחיצה מוצפנת בגודל $0"
 
@@ -2614,7 +2633,7 @@ msgstr "קיימים עדכוני שיפורים"
 msgid "Enter a valid MAC address"
 msgstr "נא למלא כתובת MAC תקנית"
 
-#: pkg/networkmanager/firewall.jsx:187 pkg/networkmanager/firewall.jsx:833
+#: pkg/networkmanager/firewall.jsx:199 pkg/networkmanager/firewall.jsx:875
 msgid "Entire subnet"
 msgstr "כל תת־הרשת"
 
@@ -2642,7 +2661,7 @@ msgstr "שגיאה"
 msgid "Error and above"
 msgstr "שגיאה ומעלה"
 
-#: pkg/metrics/metrics.jsx:1448
+#: pkg/metrics/metrics.jsx:1517
 msgid "Error has occurred"
 msgstr "אירעה שגיאה"
 
@@ -2679,19 +2698,19 @@ msgstr "יחידת העברה מרבית של אתרנט"
 msgid "Ethtool"
 msgstr "Ethtool"
 
-#: pkg/metrics/metrics.jsx:851
+#: pkg/metrics/metrics.jsx:920
 msgid "Event"
 msgstr "אירוע"
 
-#: pkg/metrics/metrics.jsx:843
+#: pkg/metrics/metrics.jsx:912
 msgid "Event logs"
 msgstr "יומני אירועים"
 
-#: pkg/networkmanager/firewall.jsx:635
+#: pkg/networkmanager/firewall.jsx:676
 msgid "Example: 22,ssh,8080,5900-5910"
 msgstr "לדוגמה: 22,ssh,8080,5900-5910"
 
-#: pkg/networkmanager/firewall.jsx:645
+#: pkg/networkmanager/firewall.jsx:687
 msgid "Example: 88,2019,nfs,rsync"
 msgstr "לדוגמה: 88,2019,nfs,rsync"
 
@@ -2711,7 +2730,7 @@ msgstr "החשבון יפוג ב־"
 msgid "Expire account on $0"
 msgstr "החשבון יפוג ב־$0"
 
-#: pkg/metrics/metrics.jsx:1126
+#: pkg/metrics/metrics.jsx:1195
 msgid "Export to network"
 msgstr "ייצוא לרשת"
 
@@ -2735,15 +2754,15 @@ msgstr "נכשל"
 msgid "Failed to add machine: $0"
 msgstr "הוספת המכונה נכשלה: $0"
 
-#: pkg/networkmanager/firewall.jsx:351
+#: pkg/networkmanager/firewall.jsx:381
 msgid "Failed to add port"
 msgstr "הוספת הפתחה נכשלה"
 
-#: pkg/networkmanager/firewall.jsx:351
+#: pkg/networkmanager/firewall.jsx:381
 msgid "Failed to add service"
 msgstr "הוספת השירות נכשל"
 
-#: pkg/networkmanager/firewall.jsx:728
+#: pkg/networkmanager/firewall.jsx:770
 msgid "Failed to add zone"
 msgstr "הוספת האזור נכשלה"
 
@@ -2752,7 +2771,7 @@ msgstr "הוספת האזור נכשלה"
 msgid "Failed to change password"
 msgstr "החלפת הסיסמה נכשלה"
 
-#: pkg/metrics/metrics.jsx:1094
+#: pkg/metrics/metrics.jsx:1163
 msgid "Failed to configure PCP"
 msgstr "הגדרת PCP נכשלה"
 
@@ -2773,6 +2792,12 @@ msgstr "השבתת פרופיל ה־tuned נכשלה"
 #: pkg/shell/hosts_dialog.jsx:327
 msgid "Failed to edit machine: $0"
 msgstr "עריכת המכונה נכשלה: $0"
+
+#: pkg/networkmanager/firewall.jsx:359
+#, fuzzy
+#| msgid "Failed to add service"
+msgid "Failed to edit service"
+msgstr "הוספת השירות נכשל"
 
 #: pkg/lib/cockpit-components-firewalld-request.jsx:115
 msgid "Failed to enable $0 in firewalld"
@@ -2858,7 +2883,7 @@ msgstr "סינון לפי שם או תיאור"
 msgid "Filter menu items"
 msgstr "סינון פריטי תפריט"
 
-#: pkg/networkmanager/firewall.jsx:252
+#: pkg/networkmanager/firewall.jsx:265
 msgid "Filter services"
 msgstr "סינון שירותים"
 
@@ -2871,11 +2896,11 @@ msgid "Fingerprint"
 msgstr "טביעת אצבע"
 
 #: pkg/networkmanager/firewall.html:22 pkg/networkmanager/network-main.jsx:151
-#: pkg/networkmanager/firewall.jsx:983 pkg/networkmanager/firewall.jsx:990
+#: pkg/networkmanager/firewall.jsx:1044 pkg/networkmanager/firewall.jsx:1051
 msgid "Firewall"
 msgstr "חומת אש"
 
-#: pkg/networkmanager/firewall.jsx:956
+#: pkg/networkmanager/firewall.jsx:1017
 msgid "Firewall is not available"
 msgstr "חומת האש אינה זמינה"
 
@@ -3050,7 +3075,7 @@ msgstr "ספירת חבילות היסטורית"
 msgid "Host"
 msgstr "מארח"
 
-#: pkg/lib/cockpit.js:3961
+#: pkg/lib/cockpit.js:3959
 msgid "Host key is incorrect"
 msgstr "מפתח המארח שגוי"
 
@@ -3070,7 +3095,7 @@ msgstr "שעתי"
 msgid "Hours"
 msgstr "שעות"
 
-#: pkg/systemd/hwinfo.jsx:310 pkg/networkmanager/firewall.jsx:648
+#: pkg/systemd/hwinfo.jsx:310 pkg/networkmanager/firewall.jsx:690
 msgid "ID"
 msgstr "מזהה"
 
@@ -3083,7 +3108,7 @@ msgstr "מזהה $id"
 msgid "IP address"
 msgstr "כתובת IP"
 
-#: pkg/networkmanager/firewall.jsx:841
+#: pkg/networkmanager/firewall.jsx:883
 msgid ""
 "IP address with routing prefix. Separate multiple values with a comma. "
 "Example: 192.0.2.0/24, 2001:db8::/32"
@@ -3111,7 +3136,7 @@ msgstr "הגדרות IPv6"
 msgid "Identifier"
 msgstr "מזהה"
 
-#: pkg/networkmanager/firewall.jsx:648
+#: pkg/networkmanager/firewall.jsx:690
 msgid ""
 "If left empty, ID will be generated based on associated port services and "
 "port numbers"
@@ -3153,7 +3178,7 @@ msgstr "התעלמות"
 msgid "Image builder"
 msgstr "בונה תמונות"
 
-#: pkg/metrics/metrics.jsx:655
+#: pkg/metrics/metrics.jsx:724
 msgid "In"
 msgstr "נכנס"
 
@@ -3180,11 +3205,11 @@ msgstr "לא פעיל"
 msgid "Inactive volume"
 msgstr "כרך לא פעיל"
 
-#: pkg/networkmanager/firewall.jsx:803
+#: pkg/networkmanager/firewall.jsx:845
 msgid "Included services"
 msgstr "שירותים כלולים"
 
-#: pkg/networkmanager/firewall.jsx:993
+#: pkg/networkmanager/firewall.jsx:1054
 msgid ""
 "Incoming requests are blocked by default. Outgoing requests are not blocked."
 msgstr ""
@@ -3250,7 +3275,7 @@ msgstr "התקנת תמיכה ב־Stratis"
 msgid "Install all updates"
 msgstr "התקנת כל העדכונים"
 
-#: pkg/metrics/metrics.jsx:1416
+#: pkg/metrics/metrics.jsx:1485
 msgid "Install cockpit-pcp"
 msgstr "התקנת cockpit-pcp"
 
@@ -3292,7 +3317,7 @@ msgstr "התקנת $0 תסיר את $1."
 msgid "Installing packages"
 msgstr "חבילות מותקנות"
 
-#: pkg/networkmanager/firewall.jsx:183 pkg/metrics/metrics.jsx:655
+#: pkg/networkmanager/firewall.jsx:195 pkg/metrics/metrics.jsx:724
 #, fuzzy
 #| msgid "Interface"
 msgid "Interface"
@@ -3307,13 +3332,13 @@ msgstr[3] "מנשק"
 msgid "Interface members"
 msgstr "חברים במנשק"
 
-#: pkg/networkmanager/network-main.jsx:173 pkg/networkmanager/firewall.jsx:810
+#: pkg/networkmanager/network-main.jsx:173 pkg/networkmanager/firewall.jsx:852
 #: pkg/networkmanager/network-interface-members.jsx:215
 #: pkg/networkmanager/bond.jsx:166
 msgid "Interfaces"
 msgstr "מנשקים"
 
-#: pkg/lib/cockpit.js:3963
+#: pkg/lib/cockpit.js:3961
 msgid "Internal error"
 msgstr "שגיאה פנימה"
 
@@ -3357,7 +3382,7 @@ msgstr "מדד שגוי $0"
 msgid "Invalid number of days"
 msgstr "מספר הימים שגוי"
 
-#: pkg/networkmanager/firewall.jsx:442
+#: pkg/networkmanager/firewall.jsx:472
 msgid "Invalid port number"
 msgstr "מספר הפתחה שגוי"
 
@@ -3369,7 +3394,7 @@ msgstr "קידומת שגויה $0"
 msgid "Invalid prefix or netmask $0"
 msgstr "קידומת או מסכת רשת שגויה $0"
 
-#: pkg/networkmanager/firewall.jsx:470
+#: pkg/networkmanager/firewall.jsx:500
 msgid "Invalid range"
 msgstr "טווח שגוי"
 
@@ -3440,7 +3465,7 @@ msgstr "רשומת ז׳ורנל"
 msgid "Journal entry not found"
 msgstr "רשומת הז׳ורנל לא נמצאה"
 
-#: pkg/metrics/metrics.jsx:1493
+#: pkg/metrics/metrics.jsx:1562
 msgid "Jump to"
 msgstr "מעבר אל"
 
@@ -3529,7 +3554,7 @@ msgstr "חבר ב־LVM2"
 msgid "LVM2 volume group"
 msgstr "קבוצת כרכים ב־LVM2"
 
-#: pkg/storaged/utils.js:257 pkg/storaged/vgroup-details.jsx:221
+#: pkg/storaged/utils.js:255 pkg/storaged/vgroup-details.jsx:221
 msgid "LVM2 volume group $0"
 msgstr "קבוצת כרכים LVM2‏ $0"
 
@@ -3661,8 +3686,8 @@ msgstr "יחידות Systemd"
 msgid "Listing units failed: $0"
 msgstr "שינוי אחרון: $0"
 
-#: pkg/metrics/metrics.jsx:108 pkg/metrics/metrics.jsx:544
-#: pkg/metrics/metrics.jsx:1503
+#: pkg/metrics/metrics.jsx:110 pkg/metrics/metrics.jsx:613
+#: pkg/metrics/metrics.jsx:1572
 msgid "Load"
 msgstr "טעינה"
 
@@ -3670,7 +3695,7 @@ msgstr "טעינה"
 msgid "Load balancing"
 msgstr "איזון עומס"
 
-#: pkg/metrics/metrics.jsx:1522
+#: pkg/metrics/metrics.jsx:1591
 msgid "Load earlier data"
 msgstr "טעינת נתונים קודמים"
 
@@ -3678,7 +3703,7 @@ msgstr "טעינת נתונים קודמים"
 msgid "Load earlier entries"
 msgstr "טעינת רשומות קודמות"
 
-#: pkg/metrics/metrics.jsx:109
+#: pkg/metrics/metrics.jsx:111
 msgid "Load spike"
 msgstr "קפיצת עומס פתאומית"
 
@@ -3724,7 +3749,7 @@ msgstr "הכניסה נכשלה"
 
 #: pkg/systemd/services/services.jsx:734 pkg/systemd/logsJournal.jsx:269
 #: pkg/systemd/logDetails.jsx:154 pkg/storaged/devices.jsx:69
-#: pkg/metrics/metrics.jsx:827 pkg/metrics/metrics.jsx:1521
+#: pkg/metrics/metrics.jsx:896 pkg/metrics/metrics.jsx:1590
 #: pkg/kdump/kdump-view.jsx:384
 msgid "Loading..."
 msgstr "בטעינה…"
@@ -3784,7 +3809,7 @@ msgstr "כניסה עם חשבון המשתמש שלך בשרת."
 msgid "Log messages"
 msgstr "הודעות יומן"
 
-#: pkg/shell/topnav.jsx:172 pkg/metrics/metrics.jsx:1409
+#: pkg/shell/topnav.jsx:172 pkg/metrics/metrics.jsx:1478
 msgid "Log out"
 msgstr "יציאה"
 
@@ -3800,15 +3825,15 @@ msgstr "לוגי"
 msgid "Logical size"
 msgstr "גודל לוגי"
 
-#: pkg/storaged/utils.js:207
+#: pkg/storaged/utils.js:205
 msgid "Logical volume"
 msgstr "כרך לוגי"
 
-#: pkg/storaged/utils.js:205
+#: pkg/storaged/utils.js:203
 msgid "Logical volume (snapshot)"
 msgstr "כרך לוגי (תמונת מצב)"
 
-#: pkg/storaged/utils.js:279
+#: pkg/storaged/utils.js:277
 msgid "Logical volume of $0"
 msgstr "כרך לוגי בגודל $0"
 
@@ -3824,7 +3849,7 @@ msgstr "כניסה"
 msgid "Login again"
 msgstr "נא להיכנס שוב"
 
-#: pkg/lib/cockpit.js:3953
+#: pkg/lib/cockpit.js:3951
 msgid "Login failed"
 msgstr "הכניסה נכשלה"
 
@@ -3994,11 +4019,11 @@ msgstr "גיל הודעה מרבי $max_age"
 
 #: pkg/systemd/services/service-details.jsx:612 pkg/systemd/hwinfo.jsx:309
 #: pkg/systemd/hwinfo.jsx:358 pkg/systemd/overview-cards/usageCard.jsx:146
-#: pkg/metrics/metrics.jsx:570 pkg/metrics/metrics.jsx:1504
+#: pkg/metrics/metrics.jsx:639 pkg/metrics/metrics.jsx:1573
 msgid "Memory"
 msgstr "זיכרון"
 
-#: pkg/metrics/metrics.jsx:116
+#: pkg/metrics/metrics.jsx:118
 msgid "Memory spike"
 msgstr "קפיצה פתאומית בניצול הזיכרון"
 
@@ -4006,7 +4031,7 @@ msgstr "קפיצה פתאומית בניצול הזיכרון"
 msgid "Memory technology"
 msgstr "טכנולוגיית זיכרון"
 
-#: pkg/metrics/metrics.jsx:115
+#: pkg/metrics/metrics.jsx:117
 msgid "Memory usage"
 msgstr "שימוש בזיכרון"
 
@@ -4030,17 +4055,17 @@ msgstr "נתוני על בשימוש"
 msgid "Metric"
 msgstr "מדד"
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1541
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1610
 #, fuzzy
 #| msgid "View details and history"
 msgid "Metrics and history"
 msgstr "הצגת פרטים והיסטוריה"
 
-#: pkg/metrics/metrics.jsx:1439
+#: pkg/metrics/metrics.jsx:1508
 msgid "Metrics history could not be loaded"
 msgstr "לא ניתן לטעון את היסטוריית המדדים"
 
-#: pkg/metrics/metrics.jsx:1080 pkg/metrics/metrics.jsx:1170
+#: pkg/metrics/metrics.jsx:1149 pkg/metrics/metrics.jsx:1239
 msgid "Metrics settings"
 msgstr "הגדרות מדדים"
 
@@ -4231,27 +4256,27 @@ msgstr "שם"
 msgid "Name can not be empty."
 msgstr "השם לא יכול להיות ריק."
 
-#: pkg/storaged/utils.js:134
+#: pkg/storaged/utils.js:132
 msgid "Name cannot be empty."
 msgstr "השם לא יכול להיות ריק."
 
-#: pkg/storaged/utils.js:162
+#: pkg/storaged/utils.js:160
 msgid "Name cannot be longer than $0 bytes"
 msgstr "השם לא יכול להיות יותר מ־$0 בתים"
 
-#: pkg/storaged/utils.js:160
+#: pkg/storaged/utils.js:158
 msgid "Name cannot be longer than $0 characters"
 msgstr "השם לא יכול להיות ארוך מ־$0 תווים"
 
-#: pkg/storaged/utils.js:136
+#: pkg/storaged/utils.js:134
 msgid "Name cannot be longer than 127 characters."
 msgstr "השם לא יכול להיות ארוך מ־127 תווים."
 
-#: pkg/storaged/utils.js:140
+#: pkg/storaged/utils.js:138
 msgid "Name cannot contain the character '$0'."
 msgstr "השם לא יכול להכיל את התו ‚$0’."
 
-#: pkg/storaged/utils.js:142
+#: pkg/storaged/utils.js:140
 msgid "Name cannot contain whitespace."
 msgstr "השם לא יכול להכיל רווח."
 
@@ -4259,15 +4284,15 @@ msgstr "השם לא יכול להכיל רווח."
 msgid "Need at least one NTP server"
 msgstr "נדרש שרת NTP אחד לפחות"
 
-#: pkg/metrics/metrics.jsx:645 pkg/metrics/metrics.jsx:1506
+#: pkg/metrics/metrics.jsx:714 pkg/metrics/metrics.jsx:1575
 msgid "Network"
 msgstr "רשת"
 
-#: pkg/metrics/metrics.jsx:137
+#: pkg/metrics/metrics.jsx:139
 msgid "Network I/O"
 msgstr "קלט/פלט רשת"
 
-#: pkg/metrics/metrics.jsx:138
+#: pkg/metrics/metrics.jsx:140
 msgid "Network I/O spike"
 msgstr "קפיצה פתאומית בפעולות קלט/פלט של רשת"
 
@@ -4283,7 +4308,7 @@ msgstr "התקני רשת ותרשימים דורשים NetworkManager"
 msgid "Network logs"
 msgstr "יומני תקשורת"
 
-#: pkg/metrics/metrics.jsx:654
+#: pkg/metrics/metrics.jsx:723
 msgid "Network usage"
 msgstr "ניצולת רשת"
 
@@ -4297,7 +4322,7 @@ msgstr "NetworkManager אינו פעיל"
 
 #: pkg/networkmanager/index.html:23
 #: pkg/networkmanager/network-interface.jsx:697
-#: pkg/networkmanager/firewall.jsx:982 pkg/networkmanager/manifest.json:0
+#: pkg/networkmanager/firewall.jsx:1043 pkg/networkmanager/manifest.json:0
 msgid "Networking"
 msgstr "תקשורת"
 
@@ -4382,11 +4407,11 @@ msgstr "אין ספקית"
 msgid "No configuration found"
 msgstr "לא נמצאו הגדרות"
 
-#: pkg/metrics/metrics.jsx:1466
+#: pkg/metrics/metrics.jsx:1535
 msgid "No data available"
 msgstr "אין נתונים זמינים"
 
-#: pkg/metrics/metrics.jsx:1462
+#: pkg/metrics/metrics.jsx:1531
 msgid "No data available between $0 and $1"
 msgstr "אין נתונים זמינים בין $0 ל־$1"
 
@@ -4394,7 +4419,7 @@ msgstr "אין נתונים זמינים בין $0 ל־$1"
 msgid "No delay"
 msgstr "אין השהיה"
 
-#: pkg/networkmanager/firewall.jsx:799
+#: pkg/networkmanager/firewall.jsx:841
 msgid "No description available"
 msgstr "אין תיאור זמין"
 
@@ -4463,7 +4488,7 @@ msgid "No logical volumes"
 msgstr "אין כרכים לוגיים"
 
 #: pkg/systemd/logsJournal.jsx:282 pkg/systemd/logsJournal.jsx:325
-#: pkg/metrics/metrics.jsx:829
+#: pkg/metrics/metrics.jsx:898
 msgid "No logs found"
 msgstr "לא נמצאו יומנים"
 
@@ -4529,7 +4554,7 @@ msgstr "אין עדכונים"
 msgid "No user name specified"
 msgstr "לא צוין שם משתמש"
 
-#: pkg/tuned/dialog.jsx:229 pkg/networkmanager/firewall.jsx:805
+#: pkg/tuned/dialog.jsx:229 pkg/networkmanager/firewall.jsx:847
 #: pkg/kdump/kdump-view.jsx:433
 msgid "None"
 msgstr "אין"
@@ -4584,7 +4609,7 @@ msgstr "לא מעוגן"
 msgid "Not permitted to configure realms"
 msgstr "המשתמש $0 אינו מורשה לשנות תחומים"
 
-#: pkg/lib/cockpit.js:3951
+#: pkg/lib/cockpit.js:3949
 msgid "Not permitted to perform this action."
 msgstr "לא מורשה לבצע את הפעולה הזאת."
 
@@ -4696,7 +4721,7 @@ msgstr ""
 msgid "Ooops!"
 msgstr "אופס!"
 
-#: pkg/metrics/metrics.jsx:1067
+#: pkg/metrics/metrics.jsx:1136
 msgid "Open the pmproxy service in the firewall to share metrics."
 msgstr ""
 
@@ -4742,11 +4767,11 @@ msgstr "התקנים אחרים"
 msgid "Other options"
 msgstr "אפשרויות אחרות"
 
-#: pkg/metrics/metrics.jsx:655
+#: pkg/metrics/metrics.jsx:724
 msgid "Out"
 msgstr "יוצא"
 
-#: pkg/systemd/hwinfo.jsx:327 pkg/metrics/metrics.jsx:1540
+#: pkg/systemd/hwinfo.jsx:327 pkg/metrics/metrics.jsx:1609
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "סקירה"
@@ -4769,7 +4794,7 @@ msgstr "PCI"
 msgid "PID"
 msgstr "מזהה"
 
-#: pkg/metrics/metrics.jsx:1415
+#: pkg/metrics/metrics.jsx:1484
 msgid "Package cockpit-pcp is missing for metrics history"
 msgstr "החבילה cockpit-pcp חסרה להיסטוריית מדדים"
 
@@ -4817,7 +4842,7 @@ msgstr "חלק מתוך $0"
 msgid "Partition"
 msgstr "מחיצה"
 
-#: pkg/storaged/utils.js:281
+#: pkg/storaged/utils.js:279
 msgid "Partition of $0"
 msgstr "מחיצה של $0"
 
@@ -4970,7 +4995,7 @@ msgstr "נתיבים"
 msgid "Pause"
 msgstr "השהיה"
 
-#: pkg/metrics/metrics.jsx:1083
+#: pkg/metrics/metrics.jsx:1152
 msgid ""
 "Performance Co-Pilot collects and analyzes performance metrics from your "
 "system."
@@ -5040,7 +5065,7 @@ msgstr "נא לעבור אימות כדי לקבל גישת ניהול"
 msgid "Please enable JavaScript to use the Web Console."
 msgstr "נא להפעיל JavaScript כדי להשתמש במסוף לדפדפן."
 
-#: pkg/networkmanager/firewall.jsx:957
+#: pkg/networkmanager/firewall.jsx:1018
 msgid "Please install the $0 package"
 msgstr "נא להתקין את החבילה $0"
 
@@ -5060,7 +5085,7 @@ msgstr "נא לציין את המארח לחיבור"
 msgid "Pool"
 msgstr "מאגר"
 
-#: pkg/storaged/utils.js:201
+#: pkg/storaged/utils.js:199
 msgid "Pool for thin logical volumes"
 msgstr "מאגר לכרכים לוגיים רזים"
 
@@ -5076,7 +5101,7 @@ msgstr "מאגר לכרכים באפסנה צרה"
 msgid "Port"
 msgstr "פתחה"
 
-#: pkg/networkmanager/firewall.jsx:446
+#: pkg/networkmanager/firewall.jsx:476
 msgid "Port number and type do not match"
 msgstr "מספר הפתחה והסוג אינם תואמים"
 
@@ -5255,7 +5280,7 @@ msgstr "שלדת RAID"
 msgid "RAID device"
 msgstr "התקן RAID"
 
-#: pkg/storaged/mdraid-details.jsx:316 pkg/storaged/utils.js:251
+#: pkg/storaged/mdraid-details.jsx:316 pkg/storaged/utils.js:249
 msgid "RAID device $0"
 msgstr "התקן RAID‏ $0"
 
@@ -5272,7 +5297,7 @@ msgstr "רמת RAID"
 msgid "RAID member"
 msgstr "חבר ב־RAID"
 
-#: pkg/metrics/metrics.jsx:578
+#: pkg/metrics/metrics.jsx:647
 msgid "RAM"
 msgstr "זיכרון"
 
@@ -5284,11 +5309,11 @@ msgstr "שלדת מעגן מתלה (Rack)"
 msgid "Random"
 msgstr "אקראי"
 
-#: pkg/networkmanager/firewall.jsx:839
+#: pkg/networkmanager/firewall.jsx:881
 msgid "Range"
 msgstr "טווח"
 
-#: pkg/networkmanager/firewall.jsx:478
+#: pkg/networkmanager/firewall.jsx:508
 msgid "Range must be strictly ordered"
 msgstr "הטווח חייב להיות מסודר בקפידה"
 
@@ -5300,11 +5325,11 @@ msgstr "דירוג"
 msgid "Raw to a device"
 msgstr "גולמי להתקן"
 
-#: pkg/metrics/metrics.jsx:607
+#: pkg/metrics/metrics.jsx:676
 msgid "Read"
 msgstr "קריאה"
 
-#: pkg/systemd/hwinfo.jsx:218 pkg/metrics/metrics.jsx:1089
+#: pkg/systemd/hwinfo.jsx:218 pkg/metrics/metrics.jsx:1158
 msgid "Read more..."
 msgstr "מידע נוסף…"
 
@@ -5470,7 +5495,7 @@ msgstr "הסרה"
 msgid "Remove $0"
 msgstr "הסרת $0"
 
-#: pkg/networkmanager/firewall.jsx:918
+#: pkg/networkmanager/firewall.jsx:961
 msgid "Remove $0 service from $1 zone"
 msgstr "הסרת השירות $0 מהאזור $1"
 
@@ -5507,11 +5532,11 @@ msgstr "הסרת התקן"
 msgid "Remove passphrase in key slot $0?"
 msgstr "להסיר את מילת הצופן מעל $0?"
 
-#: pkg/networkmanager/firewall.jsx:107
+#: pkg/networkmanager/firewall.jsx:117
 msgid "Remove service $0"
 msgstr "הסרת השירות $0"
 
-#: pkg/networkmanager/firewall.jsx:166 pkg/networkmanager/firewall.jsx:903
+#: pkg/networkmanager/firewall.jsx:178 pkg/networkmanager/firewall.jsx:946
 msgid "Remove zone $0"
 msgstr "הסרת האזור $0"
 
@@ -5547,7 +5572,7 @@ msgstr ""
 msgid "Removing physical volume from $target"
 msgstr "מתבצעת הסרה של כרך פיזי מתוך $target"
 
-#: pkg/networkmanager/firewall.jsx:917
+#: pkg/networkmanager/firewall.jsx:960
 msgid ""
 "Removing the cockpit service might result in the web console becoming "
 "unreachable. Make sure that this zone does not apply to your current web "
@@ -5556,7 +5581,7 @@ msgstr ""
 "הסרת השירות cockpit עלול לגרום לקטיעת שירות המסוף המקוון. נא לוודא שאזור זה "
 "אינו חל על חיבור המסוף המקוון הנוכחי שלך."
 
-#: pkg/networkmanager/firewall.jsx:902
+#: pkg/networkmanager/firewall.jsx:945
 msgid "Removing the zone will remove all services within it."
 msgstr "הסרת האזור תסיר את כל השירותים שבו."
 
@@ -5892,7 +5917,7 @@ msgstr "שבתות"
 #: pkg/storaged/crypto-keyslots.jsx:346 pkg/storaged/crypto-keyslots.jsx:365
 #: pkg/storaged/fsys-tab.jsx:374 pkg/storaged/fsys-tab.jsx:490
 #: pkg/storaged/crypto-tab.jsx:158 pkg/storaged/crypto-tab.jsx:202
-#: pkg/storaged/nfs-details.jsx:186 pkg/metrics/metrics.jsx:1097
+#: pkg/storaged/nfs-details.jsx:186 pkg/metrics/metrics.jsx:1166
 #: pkg/packagekit/kpatch.jsx:306 pkg/kdump/kdump-view.jsx:369
 msgid "Save"
 msgstr "שמירה"
@@ -6024,7 +6049,7 @@ msgstr "הנהלת השרת"
 msgid "Server cannot be empty."
 msgstr "השרת לא יכול להיות ריק."
 
-#: pkg/lib/cockpit.js:3971
+#: pkg/lib/cockpit.js:3969
 msgid "Server has closed the connection."
 msgstr "השרת סגר את החיבור."
 
@@ -6032,8 +6057,8 @@ msgstr "השרת סגר את החיבור."
 msgid "Server software"
 msgstr "התכנה בשרת"
 
-#: pkg/networkmanager/firewall.jsx:196 pkg/storaged/dialog.jsx:1222
-#: pkg/metrics/metrics.jsx:561 pkg/metrics/metrics.jsx:594
+#: pkg/networkmanager/firewall.jsx:208 pkg/storaged/dialog.jsx:1222
+#: pkg/metrics/metrics.jsx:630 pkg/metrics/metrics.jsx:663
 msgid "Service"
 msgstr "שירות"
 
@@ -6062,7 +6087,7 @@ msgid "Service logs"
 msgstr "יומני שירות"
 
 #: pkg/systemd/services.html:4 pkg/systemd/services/service.jsx:82
-#: pkg/systemd/services/service-tabs.jsx:39 pkg/networkmanager/firewall.jsx:579
+#: pkg/systemd/services/service-tabs.jsx:39 pkg/networkmanager/firewall.jsx:618
 #: pkg/systemd/manifest.json:0
 msgid "Services"
 msgstr "שירותים"
@@ -6321,7 +6346,7 @@ msgstr "תכנית אחרת משתמשת כרגע במנהל החבילות, נ�
 msgid "Some software needs to be restarted manually"
 msgstr "יש להפעיל חלק מהתכניות מחדש"
 
-#: pkg/networkmanager/firewall.jsx:776
+#: pkg/networkmanager/firewall.jsx:818
 msgid "Sorted from least to most trusted"
 msgstr "מסודר מהכי מהימן להכי פחות"
 
@@ -6541,12 +6566,12 @@ msgstr "ימי ראשון"
 msgid "Support is installed."
 msgstr "התמיכה מותקנת."
 
-#: pkg/storaged/content-views.jsx:228 pkg/metrics/metrics.jsx:123
-#: pkg/metrics/metrics.jsx:475 pkg/metrics/metrics.jsx:1504
+#: pkg/storaged/content-views.jsx:228 pkg/metrics/metrics.jsx:125
+#: pkg/metrics/metrics.jsx:544 pkg/metrics/metrics.jsx:1573
 msgid "Swap"
 msgstr "החלפה"
 
-#: pkg/metrics/metrics.jsx:122
+#: pkg/metrics/metrics.jsx:124
 msgid "Swap out"
 msgstr "יציאה מההחלפה"
 
@@ -6651,7 +6676,7 @@ msgstr "שעון המערכת"
 msgid "Systemd units"
 msgstr "יחידות Systemd"
 
-#: pkg/networkmanager/firewall.jsx:196
+#: pkg/networkmanager/firewall.jsx:208
 msgid "TCP"
 msgstr "TCP"
 
@@ -6793,7 +6818,7 @@ msgstr ""
 msgid "The account '$0' will be forced to change their password on next login"
 msgstr "החשבון ‚$0’ יאולץ להחליף את הסיסמה שלו עם כניסתו הבאה למערכת"
 
-#: pkg/networkmanager/firewall.jsx:807
+#: pkg/networkmanager/firewall.jsx:849
 msgid "The cockpit service is automatically included"
 msgstr "שירות ה־cockpit נכלל אוטומטית"
 
@@ -6967,7 +6992,7 @@ msgid ""
 "no other supported authentication methods are available."
 msgstr "השרת סירב לאמת את ‚$0’ עם אימות בסיסמה ואין שיטות אימות אחרות נתמכות."
 
-#: pkg/lib/cockpit.js:3955
+#: pkg/lib/cockpit.js:3953
 msgid "The server refused to authenticate using any supported methods."
 msgstr "השרת סירב לאמת בעזרת השיטות הנתמכות."
 
@@ -7008,7 +7033,7 @@ msgid ""
 "service is not running."
 msgstr "יש התקנים עם מגוון נתיבים במערכת אך שירות ריבוי הנתיבים אינו פועל."
 
-#: pkg/networkmanager/firewall.jsx:200
+#: pkg/networkmanager/firewall.jsx:212
 msgid "There are no active services in this zone"
 msgstr "אין שירותים פעילים באזור הזה"
 
@@ -7034,7 +7059,7 @@ msgstr "הייתה שגיאה בלתי צפויה בעת ההתחברות למכ
 msgid "These changes will be made:"
 msgstr "מסוף מקוון זה יעודכן."
 
-#: pkg/storaged/utils.js:203
+#: pkg/storaged/utils.js:201
 msgid "Thin logical volume"
 msgstr "כרך לוגי צר"
 
@@ -7157,7 +7182,7 @@ msgstr ""
 msgid "This will test the kdump configuration by crashing the kernel."
 msgstr "פעולה זו תבדוק את ההגדרות של kdump על ידי הקרסת הליבה."
 
-#: pkg/networkmanager/firewall.jsx:900
+#: pkg/networkmanager/firewall.jsx:943
 msgid ""
 "This zone contains the cockpit service. Make sure that this zone does not "
 "apply to your current web console connection."
@@ -7229,7 +7254,7 @@ msgstr ""
 "כדי לאמת את טביעת האצבע, יש להריץ את הפקודה הבאה על $0 במהלך ישיבה פיזית מול "
 "המכונה או דרך רשת מהימנה:"
 
-#: pkg/metrics/metrics.jsx:1472
+#: pkg/metrics/metrics.jsx:1541
 msgid "Today"
 msgstr "היום"
 
@@ -7253,7 +7278,7 @@ msgstr ""
 msgid "Toggle filters"
 msgstr "הסתרת מסננים"
 
-#: pkg/lib/cockpit.js:3977
+#: pkg/lib/cockpit.js:3975
 msgid "Too much data"
 msgstr "יותר מדי נתונים"
 
@@ -7261,11 +7286,11 @@ msgstr "יותר מדי נתונים"
 msgid "Tools"
 msgstr "כלים"
 
-#: pkg/metrics/metrics.jsx:560
+#: pkg/metrics/metrics.jsx:629
 msgid "Top 5 CPU services"
 msgstr "5 שירותי המעבד המובילים"
 
-#: pkg/metrics/metrics.jsx:593
+#: pkg/metrics/metrics.jsx:662
 msgid "Top 5 memory services"
 msgstr "5 שירותי הזיכרון המובילים"
 
@@ -7302,7 +7327,7 @@ msgstr "מוקפץ על ידי"
 msgid "Triggers"
 msgstr "הקפצות"
 
-#: pkg/metrics/metrics.jsx:1434
+#: pkg/metrics/metrics.jsx:1503
 msgid "Troubleshoot"
 msgstr "איתור תקלות"
 
@@ -7314,7 +7339,7 @@ msgstr "פתרון תקלות…"
 msgid "Trust key"
 msgstr "לתת אמון במפתח"
 
-#: pkg/networkmanager/firewall.jsx:773
+#: pkg/networkmanager/firewall.jsx:815
 msgid "Trust level"
 msgstr "רמת אמון"
 
@@ -7371,7 +7396,7 @@ msgstr "סוג"
 msgid "Type to filter"
 msgstr "יש להקליד כדי לסנן"
 
-#: pkg/networkmanager/firewall.jsx:196
+#: pkg/networkmanager/firewall.jsx:208
 msgid "UDP"
 msgstr "UDP"
 
@@ -7536,7 +7561,7 @@ msgstr "הגדרות לא ידועות"
 msgid "Unknown host name"
 msgstr "שם המארח לא ידוע"
 
-#: pkg/networkmanager/firewall.jsx:440
+#: pkg/networkmanager/firewall.jsx:470
 msgid "Unknown service name"
 msgstr "שם השירות לא ידוע"
 
@@ -7634,7 +7659,7 @@ msgstr "כרך לא נתמך"
 msgid "Until"
 msgstr ""
 
-#: pkg/lib/cockpit.js:3957 pkg/lib/cockpit.js:3959
+#: pkg/lib/cockpit.js:3955 pkg/lib/cockpit.js:3957
 msgid "Untrusted host"
 msgstr "מארח בלתי מהימן"
 
@@ -7697,9 +7722,9 @@ msgid "Uptime"
 msgstr "זמן פעילות"
 
 #: pkg/systemd/overview-cards/usageCard.jsx:129
-#: pkg/storaged/unrecognized-tab.jsx:37 pkg/metrics/metrics.jsx:1503
-#: pkg/metrics/metrics.jsx:1504 pkg/metrics/metrics.jsx:1505
-#: pkg/metrics/metrics.jsx:1506
+#: pkg/storaged/unrecognized-tab.jsx:37 pkg/metrics/metrics.jsx:1572
+#: pkg/metrics/metrics.jsx:1573 pkg/metrics/metrics.jsx:1574
+#: pkg/metrics/metrics.jsx:1575
 msgid "Usage"
 msgstr "שימוש"
 
@@ -7752,7 +7777,7 @@ msgstr "להשתמש במפתחות הבאים כדי להתאמת מול שרת
 msgid "Use verbose logging"
 msgstr "שם המשתמש"
 
-#: pkg/storaged/swap-tab.jsx:70 pkg/metrics/metrics.jsx:594
+#: pkg/storaged/swap-tab.jsx:70 pkg/metrics/metrics.jsx:663
 msgid "Used"
 msgstr "בשימוש"
 
@@ -7801,7 +7826,7 @@ msgstr "אין אפשרות להקטין התקני גיבוי VDO"
 msgid "VDO device"
 msgstr "התקן VDO"
 
-#: pkg/storaged/utils.js:262 pkg/storaged/vdo-details.jsx:264
+#: pkg/storaged/utils.js:260 pkg/storaged/vdo-details.jsx:264
 msgid "VDO device $0"
 msgstr "התקן VDO‏ $0"
 
@@ -7865,7 +7890,7 @@ msgstr "גרסה"
 msgid "Very securely erasing $target"
 msgstr "$target נמחק באופן מאוד מאובטח"
 
-#: pkg/metrics/metrics.jsx:516 pkg/metrics/metrics.jsx:517
+#: pkg/metrics/metrics.jsx:585 pkg/metrics/metrics.jsx:586
 #, fuzzy
 #| msgid "All logs"
 msgid "View all CPUs"
@@ -7887,7 +7912,7 @@ msgstr "סינון שירותים"
 msgid "View automation script"
 msgstr "הצגת סקריפט אוטומציה"
 
-#: pkg/metrics/metrics.jsx:818
+#: pkg/metrics/metrics.jsx:887
 #, fuzzy
 #| msgid "All logs"
 msgid "View detailed logs"
@@ -8040,7 +8065,7 @@ msgctxt "storage"
 msgid "World wide name"
 msgstr "שם בינלאומי (WWN)"
 
-#: pkg/metrics/metrics.jsx:611
+#: pkg/metrics/metrics.jsx:680
 msgid "Write"
 msgstr "כתיבה"
 
@@ -8094,7 +8119,7 @@ msgstr "יתכן שעדיף לך להחליף את הסיסמה של המפתח 
 msgid "You must wait longer to change your password"
 msgstr "עליך להמתין זמן רב יותר כדי להחליף את הסיסמה שלך"
 
-#: pkg/metrics/metrics.jsx:1408
+#: pkg/metrics/metrics.jsx:1477
 #, fuzzy
 #| msgid "You need to relogin to be able to see metrics"
 msgid "You need to relogin to be able to see metrics history"
@@ -8129,11 +8154,11 @@ msgid ""
 msgstr ""
 "השרת שלך יסגור את החיבור בקרוב. באפשרותך להתחבר אליו מחדש לאחר שיופעל מחדש."
 
-#: pkg/lib/cockpit.js:3947
+#: pkg/lib/cockpit.js:3945
 msgid "Your session has been terminated."
 msgstr "ההפעלה שלך הושמדה."
 
-#: pkg/lib/cockpit.js:3949
+#: pkg/lib/cockpit.js:3947
 msgid "Your session has expired. Please log in again."
 msgstr "תוקף ההפעלה שלך פג. נא להיכנס שוב."
 
@@ -8195,7 +8220,7 @@ msgstr "at"
 msgid "avc"
 msgstr "avc"
 
-#: pkg/metrics/metrics.jsx:502
+#: pkg/metrics/metrics.jsx:571
 msgid "average: $0%"
 msgstr ""
 
@@ -8238,7 +8263,7 @@ msgstr "בתים"
 msgid "cgroups"
 msgstr "cgroups"
 
-#: pkg/metrics/metrics.jsx:430
+#: pkg/metrics/metrics.jsx:456
 #, fuzzy
 #| msgid "Cockpit is not installed"
 msgid "cockpit-podman is not installed"
@@ -8547,7 +8572,7 @@ msgstr "מכונה"
 msgid "mask"
 msgstr "מסכה"
 
-#: pkg/metrics/metrics.jsx:503
+#: pkg/metrics/metrics.jsx:572
 msgid "max: $0%"
 msgstr ""
 
@@ -8611,7 +8636,7 @@ msgstr "nfs"
 msgid "nfs dump target isn't formatted as server:path"
 msgstr "יעד היטל ה־nfs אינו כתוב בצורה server:path"
 
-#: pkg/metrics/metrics.jsx:105
+#: pkg/metrics/metrics.jsx:107
 msgid "nice"
 msgstr "nice"
 
@@ -8700,22 +8725,22 @@ msgstr "יצירת קבוצת כרכים מסוג LVM2"
 msgid "plugin"
 msgstr "תוסף"
 
-#: pkg/metrics/metrics.jsx:1431
+#: pkg/metrics/metrics.jsx:1500
 #, fuzzy
 #| msgid "$0 service has failed"
 #| msgid_plural "$0 services have failed"
 msgid "pmlogger.service has failed"
 msgstr "שירות אחד נכשל"
 
-#: pkg/metrics/metrics.jsx:1433
+#: pkg/metrics/metrics.jsx:1502
 msgid "pmlogger.service is failing to collect data"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:1424
+#: pkg/metrics/metrics.jsx:1493
 msgid "pmlogger.service is not running"
 msgstr "השירות ‚pmlogger.service’ אינו פעיל"
 
-#: pkg/metrics/metrics.jsx:424
+#: pkg/metrics/metrics.jsx:450
 msgid "pod"
 msgstr ""
 
@@ -8743,11 +8768,11 @@ msgstr "קריאה בלבד"
 msgid "recommended"
 msgstr "מומלץ"
 
-#: pkg/storaged/utils.js:673
+#: pkg/storaged/utils.js:671
 msgid "remove from LVM2"
 msgstr ""
 
-#: pkg/storaged/utils.js:662
+#: pkg/storaged/utils.js:660
 #, fuzzy
 #| msgid "Removing $target from RAID device"
 msgid "remove from RAID"
@@ -8845,7 +8870,7 @@ msgstr "שרת ה־ssh ריק"
 msgid "stop"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:105
+#: pkg/metrics/metrics.jsx:107
 msgid "sys"
 msgstr "sys"
 
@@ -8907,15 +8932,15 @@ msgstr "יעד לא ידוע"
 msgid "unmask"
 msgstr "הסרת מיסוך"
 
-#: pkg/storaged/utils.js:649 pkg/storaged/manifest.json:0
+#: pkg/storaged/utils.js:647 pkg/storaged/manifest.json:0
 msgid "unmount"
 msgstr "ניתוק"
 
-#: pkg/storaged/utils.js:440
+#: pkg/storaged/utils.js:438
 msgid "unpartitioned space on $0"
 msgstr "מקום שאינו מחיצה ב־$0"
 
-#: pkg/metrics/metrics.jsx:105 pkg/users/manifest.json:0
+#: pkg/metrics/metrics.jsx:107 pkg/users/manifest.json:0
 msgid "user"
 msgstr "משתמש"
 
@@ -9008,9 +9033,6 @@ msgstr "אזור"
 
 #~ msgid "$0 GiB total"
 #~ msgstr "$0 GiB סך הכול"
-
-#~ msgid "$0 zone"
-#~ msgstr "אזור $0"
 
 #~ msgid "Apply"
 #~ msgstr "החלה"
@@ -10877,9 +10899,6 @@ msgstr "אזור"
 
 #~ msgid "Avatar"
 #~ msgstr "תמונת משתמש"
-
-#~ msgid "Edit server"
-#~ msgstr "עריכת שרת"
 
 #~ msgid ""
 #~ "Leave blank to connect to this machine as the currently logged in user. "

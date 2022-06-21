@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 18:03+0000\n"
-"PO-Revision-Date: 2022-05-29 11:18+0000\n"
+"POT-Creation-Date: 2022-06-14 18:07+0000\n"
+"PO-Revision-Date: 2022-06-21 10:18+0000\n"
 "Last-Translator: Burak Yavuz <hitowerdigit@hotmail.com>\n"
 "Language-Team: Turkish <https://translate.fedoraproject.org/projects/cockpit/"
 "main/tr/>\n"
@@ -20,13 +20,13 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n>1)\n"
-"X-Generator: Weblate 4.12.2\n"
+"X-Generator: Weblate 4.13\n"
 
 #: pkg/storaged/content-views.jsx:501
 msgid "$0 (encrypted)"
 msgstr "$0 (şifrelenmiş)"
 
-#: pkg/metrics/metrics.jsx:457
+#: pkg/metrics/metrics.jsx:526
 msgid "$0 CPU"
 msgid_plural "$0 CPUs"
 msgstr[0] "$0 CPU"
@@ -40,17 +40,13 @@ msgstr "$0 GiB"
 msgid "$0 Stratis pool"
 msgstr "$0 Stratis havuzu"
 
-#: pkg/networkmanager/firewall.jsx:178
-msgid "$0 Zone"
-msgstr "$0 Bölgesi"
-
 #: pkg/networkmanager/network-main.jsx:167
 msgid "$0 active zone"
 msgid_plural "$0 active zones"
 msgstr[0] "$0 etkin bölge"
 msgstr[1] "$0 etkin bölge"
 
-#: pkg/metrics/metrics.jsx:480 pkg/metrics/metrics.jsx:583
+#: pkg/metrics/metrics.jsx:549 pkg/metrics/metrics.jsx:652
 msgid "$0 available"
 msgstr "$0 kullanılabilir"
 
@@ -112,11 +108,11 @@ msgstr "$0 belgeleleri"
 msgid "$0 error"
 msgstr "$0 hatası"
 
-#: pkg/lib/cockpit.js:2719
+#: pkg/lib/cockpit.js:2717
 msgid "$0 exited with code $1"
 msgstr "$0, $1 koduyla çıkış yaptı"
 
-#: pkg/lib/cockpit.js:2721
+#: pkg/lib/cockpit.js:2719
 msgid "$0 failed"
 msgstr "$0 başarısız oldu"
 
@@ -143,7 +139,7 @@ msgstr "$0 dosya sistemleri küçültülemez."
 msgid "$0 filesystems can not be resized here."
 msgstr "$0 dosya sistemleri burada yeniden boyutlandırılamaz."
 
-#: pkg/metrics/metrics.jsx:625
+#: pkg/metrics/metrics.jsx:694
 msgid "$0 free"
 msgstr "$0 boş"
 
@@ -177,7 +173,7 @@ msgstr "$0, hiçbir depoda yok."
 msgid "$0 key changed"
 msgstr "$0 anahtarı değişti"
 
-#: pkg/lib/cockpit.js:2717
+#: pkg/lib/cockpit.js:2715
 msgid "$0 killed with signal $1"
 msgstr "$0, $1 sinyali ile sonlandırıldı"
 
@@ -221,7 +217,7 @@ msgid_plural "$0 packages need a system reboot"
 msgstr[0] "$0 paketin, sistemin yeniden başlatılmasına ihtiyacı var"
 msgstr[1] "$0 paketin, sistemin yeniden başlatılmasına ihtiyacı var"
 
-#: pkg/metrics/metrics.jsx:127
+#: pkg/metrics/metrics.jsx:129
 msgid "$0 page"
 msgid_plural "$0 pages"
 msgstr[0] "$0 sayfa"
@@ -251,8 +247,8 @@ msgid_plural "$0 slots remain"
 msgstr[0] "$0 yuva kaldı"
 msgstr[1] "$0 yuva kaldı"
 
-#: pkg/metrics/metrics.jsx:472 pkg/metrics/metrics.jsx:574
-#: pkg/metrics/metrics.jsx:633
+#: pkg/metrics/metrics.jsx:541 pkg/metrics/metrics.jsx:643
+#: pkg/metrics/metrics.jsx:702
 msgid "$0 total"
 msgstr "$0 toplam"
 
@@ -282,6 +278,10 @@ msgid_plural "$0 years"
 msgstr[0] "$0 yıl"
 msgstr[1] "$0 yıl"
 
+#: pkg/networkmanager/firewall.jsx:190
+msgid "$0 zone"
+msgstr "$0 bölgesi"
+
 #: pkg/storaged/vgroup-details.jsx:118
 msgid "$0, $1 free"
 msgstr "$0, $1 boş"
@@ -290,7 +290,7 @@ msgstr "$0, $1 boş"
 msgid "$0: crash at $1"
 msgstr "$0: $1 tarihinde çökme"
 
-#: pkg/storaged/utils.js:191
+#: pkg/storaged/utils.js:189
 msgid "$name (from $host)"
 msgstr "$name ($host cihazından)"
 
@@ -316,7 +316,7 @@ msgstr "1 gün"
 msgid "1 hour"
 msgstr "1 saat"
 
-#: pkg/metrics/metrics.jsx:547
+#: pkg/metrics/metrics.jsx:616
 msgid "1 min"
 msgstr "1 dak"
 
@@ -352,7 +352,7 @@ msgstr "13."
 msgid "14th"
 msgstr "14."
 
-#: pkg/metrics/metrics.jsx:549
+#: pkg/metrics/metrics.jsx:618
 msgid "15 min"
 msgstr "15 dak"
 
@@ -464,7 +464,7 @@ msgstr "40 dakika"
 msgid "4th"
 msgstr "4."
 
-#: pkg/metrics/metrics.jsx:548
+#: pkg/metrics/metrics.jsx:617
 msgid "5 min"
 msgstr "5 dak"
 
@@ -688,7 +688,7 @@ msgstr "$0 ekle"
 msgid "Add VLAN"
 msgstr "VLAN ekle"
 
-#: pkg/networkmanager/firewall.jsx:966
+#: pkg/networkmanager/firewall.jsx:1027
 msgid "Add a new zone"
 msgstr "Yeni bir bölge ekle"
 
@@ -732,15 +732,15 @@ msgstr "Üye ekle"
 msgid "Add new host"
 msgstr "Yeni anamakine ekle"
 
-#: pkg/networkmanager/firewall.jsx:967
+#: pkg/networkmanager/firewall.jsx:1028
 msgid "Add new zone"
 msgstr "Yeni bölge ekle"
 
-#: pkg/networkmanager/firewall.jsx:548
+#: pkg/networkmanager/firewall.jsx:584
 msgid "Add ports"
 msgstr "Bağlantı noktaları ekle"
 
-#: pkg/networkmanager/firewall.jsx:549
+#: pkg/networkmanager/firewall.jsx:585
 msgid "Add ports to $0 zone"
 msgstr "$0 bölgesine bağlantı noktaları ekle"
 
@@ -748,15 +748,15 @@ msgstr "$0 bölgesine bağlantı noktaları ekle"
 msgid "Add public key"
 msgstr "Ortak anahtar ekle"
 
-#: pkg/networkmanager/firewall.jsx:169 pkg/networkmanager/firewall.jsx:548
+#: pkg/networkmanager/firewall.jsx:181 pkg/networkmanager/firewall.jsx:584
 msgid "Add services"
 msgstr "Hizmetleri ekle"
 
-#: pkg/networkmanager/firewall.jsx:549
+#: pkg/networkmanager/firewall.jsx:585
 msgid "Add services to $0 zone"
 msgstr "$0 bölgesine hizmetleri ekle"
 
-#: pkg/networkmanager/firewall.jsx:168
+#: pkg/networkmanager/firewall.jsx:180
 msgid "Add services to zone $0"
 msgstr "$0 bölgesine hizmetleri ekle"
 
@@ -764,7 +764,7 @@ msgstr "$0 bölgesine hizmetleri ekle"
 msgid "Add team"
 msgstr "Takım ekle"
 
-#: pkg/networkmanager/firewall.jsx:757 pkg/networkmanager/firewall.jsx:765
+#: pkg/networkmanager/firewall.jsx:799 pkg/networkmanager/firewall.jsx:807
 msgid "Add zone"
 msgstr "Bölge ekle"
 
@@ -776,7 +776,7 @@ msgstr ""
 "$0 eklemek sunucuyla bağlantıyı kesecek ve yönetim kullanıcı arayüzünü "
 "kullanılamaz hale getirecektir."
 
-#: pkg/networkmanager/firewall.jsx:562
+#: pkg/networkmanager/firewall.jsx:600
 msgid ""
 "Adding custom ports will reload firewalld. A reload will result in the loss "
 "of any runtime-only configuration!"
@@ -813,7 +813,7 @@ msgstr "Ek adres $val"
 msgid "Additional packages:"
 msgstr "Ek paketler:"
 
-#: pkg/networkmanager/firewall.jsx:139
+#: pkg/networkmanager/firewall.jsx:151
 msgid "Additional ports"
 msgstr "Ek bağlantı noktaları"
 
@@ -907,7 +907,7 @@ msgstr "Hepsi-bir-arada"
 msgid "Allow running (unmask)"
 msgstr "Çalıştırmaya izin ver (maskelemeyi kaldır)"
 
-#: pkg/networkmanager/firewall.jsx:187 pkg/networkmanager/firewall.jsx:827
+#: pkg/networkmanager/firewall.jsx:199 pkg/networkmanager/firewall.jsx:869
 msgid "Allowed addresses"
 msgstr "İzin verilen adresler"
 
@@ -1247,7 +1247,7 @@ msgstr ""
 "getirilecek ve gelecekte parola olmadan $3 üzerinde oturum açabileceksiniz."
 
 #: pkg/systemd/hwinfo.jsx:118 pkg/systemd/overview-cards/usageCard.jsx:134
-#: pkg/metrics/metrics.jsx:526 pkg/metrics/metrics.jsx:1503
+#: pkg/metrics/metrics.jsx:595 pkg/metrics/metrics.jsx:1572
 msgid "CPU"
 msgstr "CPU"
 
@@ -1259,11 +1259,11 @@ msgstr "CPU güvenliği"
 msgid "CPU security toggles"
 msgstr "CPU güvenlik geçişleri"
 
-#: pkg/metrics/metrics.jsx:102
+#: pkg/metrics/metrics.jsx:104
 msgid "CPU spike"
 msgstr "CPU sıçraması"
 
-#: pkg/metrics/metrics.jsx:101
+#: pkg/metrics/metrics.jsx:103
 msgid "CPU usage"
 msgstr "CPU kullanımı"
 
@@ -1299,11 +1299,11 @@ msgstr ""
 #: pkg/shell/hosts_dialog.jsx:278 pkg/shell/hosts_dialog.jsx:373
 #: pkg/shell/hosts_dialog.jsx:495 pkg/shell/hosts_dialog.jsx:861
 #: pkg/tuned/dialog.jsx:311 pkg/apps/utils.jsx:66
-#: pkg/networkmanager/firewall.jsx:568 pkg/networkmanager/firewall.jsx:768
-#: pkg/networkmanager/firewall.jsx:860
+#: pkg/networkmanager/firewall.jsx:606 pkg/networkmanager/firewall.jsx:810
+#: pkg/networkmanager/firewall.jsx:902
 #: pkg/networkmanager/dialogs-common.jsx:155 pkg/storaged/jobs-panel.jsx:139
 #: pkg/sosreport/index.jsx:288 pkg/sosreport/index.jsx:373
-#: pkg/metrics/metrics.jsx:1100 pkg/packagekit/autoupdates.jsx:274
+#: pkg/metrics/metrics.jsx:1169 pkg/packagekit/autoupdates.jsx:274
 #: pkg/packagekit/updates.jsx:506 pkg/packagekit/updates.jsx:577
 #: pkg/packagekit/kpatch.jsx:311
 msgid "Cancel"
@@ -1325,7 +1325,7 @@ msgstr "Etkinleştirilemez"
 msgid "Cannot connect to an unknown host"
 msgstr "Bilinmeyen bir anamakineye bağlanılamıyor"
 
-#: pkg/lib/cockpit.js:3969
+#: pkg/lib/cockpit.js:3967
 msgid "Cannot forward login credentials"
 msgstr "Oturum açma kimlik bilgileri yönlendirilemiyor"
 
@@ -1512,7 +1512,7 @@ msgstr "Cockpit"
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "Cockpit kimlik doğrulaması yanlış yapılandırılmış."
 
-#: pkg/lib/cockpit.js:3975
+#: pkg/lib/cockpit.js:3973
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit, verilen anamakineyle iletişim kuramadı."
 
@@ -1538,7 +1538,7 @@ msgstr ""
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit, etkileşimli bir Linux sunucu yönetim arayüzüdür."
 
-#: pkg/lib/cockpit.js:3973
+#: pkg/lib/cockpit.js:3971
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit, sistemdeki yazılımla uyumlu değil."
 
@@ -1546,7 +1546,7 @@ msgstr "Cockpit, sistemdeki yazılımla uyumlu değil."
 msgid "Cockpit is not installed"
 msgstr "Cockpit yüklü değil"
 
-#: pkg/lib/cockpit.js:3967
+#: pkg/lib/cockpit.js:3965
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit sistemde yüklü değil."
 
@@ -1564,7 +1564,7 @@ msgstr ""
 "izleyebilir ve yönetebilirsiniz. Bunları tek bir tıklama ile ekleyin ve "
 "makineleriniz arkadaşlarıyla ilgilensin."
 
-#: pkg/metrics/metrics.jsx:1109
+#: pkg/metrics/metrics.jsx:1178
 msgid "Collect metrics"
 msgstr "Ölçümleri topla"
 
@@ -1572,7 +1572,7 @@ msgstr "Ölçümleri topla"
 msgid "Color"
 msgstr "Renk"
 
-#: pkg/networkmanager/firewall.jsx:630 pkg/networkmanager/firewall.jsx:640
+#: pkg/networkmanager/firewall.jsx:670 pkg/networkmanager/firewall.jsx:681
 msgid "Comma-separated ports, ranges, and services are accepted"
 msgstr ""
 "Virgülle ayrılmış bağlantı noktaları, aralıklar ve hizmetler kabul edilir"
@@ -1669,7 +1669,7 @@ msgstr "Yeni parolayı onayla"
 msgid "Confirm password"
 msgstr "Parolayı onayla"
 
-#: pkg/networkmanager/firewall.jsx:856
+#: pkg/networkmanager/firewall.jsx:898
 msgid "Confirm removal of $0"
 msgstr "$0 kaldırılmasını onayla"
 
@@ -1721,7 +1721,7 @@ msgstr "Bağlantı hatası"
 msgid "Connection failed"
 msgstr "Bağlantı başarısız oldu"
 
-#: pkg/lib/cockpit.js:3965
+#: pkg/lib/cockpit.js:3963
 msgid "Connection has timed out."
 msgstr "Bağlantı zaman aşımına uğradı."
 
@@ -1788,7 +1788,7 @@ msgstr "Kopyala"
 msgid "Copy to clipboard"
 msgstr "Panoya kopyala"
 
-#: pkg/metrics/metrics.jsx:494
+#: pkg/metrics/metrics.jsx:563
 msgid "Core $0"
 msgstr "Çekirdek $0"
 
@@ -1976,7 +1976,7 @@ msgstr "Ctrl-Shift-J"
 msgid "Current boot"
 msgstr "Şu anki önyükleme"
 
-#: pkg/metrics/metrics.jsx:507
+#: pkg/metrics/metrics.jsx:576
 msgid "Current top CPU usage"
 msgstr "Şu anki en yüksek CPU kullanımı"
 
@@ -1994,11 +1994,11 @@ msgstr "Özel şifreleme ilkesi"
 msgid "Custom mount options"
 msgstr "Özel bağlama seçenekleri"
 
-#: pkg/networkmanager/firewall.jsx:586
+#: pkg/networkmanager/firewall.jsx:625
 msgid "Custom ports"
 msgstr "Özel bağlantı noktaları"
 
-#: pkg/networkmanager/firewall.jsx:786
+#: pkg/networkmanager/firewall.jsx:828
 msgid "Custom zones"
 msgstr "Özel bölgeler"
 
@@ -2088,15 +2088,16 @@ msgstr "Gecikme bir sayı olmak zorundadır"
 #: pkg/systemd/services/service-details.jsx:141
 #: pkg/systemd/services/service-details.jsx:666 pkg/systemd/abrtLog.jsx:291
 #: pkg/networkmanager/network-interface.jsx:720
-#: pkg/networkmanager/firewall.jsx:68 pkg/networkmanager/firewall.jsx:857
-#: pkg/storaged/mdraid-details.jsx:297 pkg/storaged/mdraid-details.jsx:323
-#: pkg/storaged/vdo-details.jsx:205 pkg/storaged/vdo-details.jsx:271
-#: pkg/storaged/vgroup-details.jsx:200 pkg/storaged/vgroup-details.jsx:225
-#: pkg/storaged/content-views.jsx:382 pkg/storaged/content-views.jsx:408
-#: pkg/storaged/stratis-details.jsx:253 pkg/storaged/stratis-details.jsx:417
-#: pkg/storaged/stratis-details.jsx:552 pkg/storaged/stratis-details.jsx:600
-#: pkg/sosreport/index.jsx:367 pkg/sosreport/index.jsx:479
-#: pkg/users/account-details.js:278 pkg/users/delete-account-dialog.js:60
+#: pkg/networkmanager/firewall.jsx:117 pkg/networkmanager/firewall.jsx:178
+#: pkg/networkmanager/firewall.jsx:899 pkg/storaged/mdraid-details.jsx:297
+#: pkg/storaged/mdraid-details.jsx:323 pkg/storaged/vdo-details.jsx:205
+#: pkg/storaged/vdo-details.jsx:271 pkg/storaged/vgroup-details.jsx:200
+#: pkg/storaged/vgroup-details.jsx:225 pkg/storaged/content-views.jsx:382
+#: pkg/storaged/content-views.jsx:408 pkg/storaged/stratis-details.jsx:253
+#: pkg/storaged/stratis-details.jsx:417 pkg/storaged/stratis-details.jsx:552
+#: pkg/storaged/stratis-details.jsx:600 pkg/sosreport/index.jsx:367
+#: pkg/sosreport/index.jsx:479 pkg/users/account-details.js:278
+#: pkg/users/delete-account-dialog.js:60
 msgid "Delete"
 msgstr "Sil"
 
@@ -2162,7 +2163,7 @@ msgid "Deletion will remove the following files:"
 msgstr "Silme işlemi aşağıdaki dosyaları kaldıracak:"
 
 #: pkg/systemd/services/timer-dialog.jsx:159
-#: pkg/networkmanager/firewall.jsx:653 pkg/networkmanager/firewall.jsx:797
+#: pkg/networkmanager/firewall.jsx:695 pkg/networkmanager/firewall.jsx:839
 #: pkg/storaged/dialog.jsx:1224
 msgid "Description"
 msgstr "Açıklama"
@@ -2264,11 +2265,11 @@ msgstr "Çalıştırmaya izin verme (maskele)"
 msgid "Disconnected"
 msgstr "Bağlantı kesildi"
 
-#: pkg/metrics/metrics.jsx:130 pkg/metrics/metrics.jsx:1505
+#: pkg/metrics/metrics.jsx:132 pkg/metrics/metrics.jsx:1574
 msgid "Disk I/O"
 msgstr "Disk okuma/yazma"
 
-#: pkg/metrics/metrics.jsx:131
+#: pkg/metrics/metrics.jsx:133
 msgid "Disk I/O spike"
 msgstr "Disk G/Ç sıçraması"
 
@@ -2286,7 +2287,7 @@ msgstr "Disk parolası"
 
 #: pkg/storaged/vgroups-panel.jsx:74 pkg/storaged/mdraid-details.jsx:65
 #: pkg/storaged/mdraid-details.jsx:163 pkg/storaged/mdraids-panel.jsx:121
-#: pkg/storaged/vgroup-details.jsx:67 pkg/metrics/metrics.jsx:603
+#: pkg/storaged/vgroup-details.jsx:67 pkg/metrics/metrics.jsx:672
 msgid "Disks"
 msgstr "Diskler"
 
@@ -2383,9 +2384,9 @@ msgid "Dual rank"
 msgstr "Çift sıra"
 
 #: pkg/shell/hosts.jsx:167 pkg/shell/indexes.jsx:339
-#: pkg/storaged/crypto-keyslots.jsx:577 pkg/storaged/nfs-details.jsx:305
-#: pkg/storaged/iscsi-panel.jsx:251 pkg/packagekit/autoupdates.jsx:407
-#: pkg/packagekit/kpatch.jsx:230
+#: pkg/networkmanager/firewall.jsx:115 pkg/storaged/crypto-keyslots.jsx:577
+#: pkg/storaged/nfs-details.jsx:305 pkg/storaged/iscsi-panel.jsx:251
+#: pkg/packagekit/autoupdates.jsx:407 pkg/packagekit/kpatch.jsx:230
 msgid "Edit"
 msgstr "Düzenle"
 
@@ -2396,6 +2397,10 @@ msgstr "/etc/motd'yi düzenle"
 #: pkg/storaged/crypto-keyslots.jsx:356
 msgid "Edit Tang keyserver"
 msgstr "Tang anahtar sunucusunu düzenle"
+
+#: pkg/networkmanager/firewall.jsx:582
+msgid "Edit custom service in $0 zone"
+msgstr "$0 bölgesinde özel hizmeti düzenle"
 
 #: pkg/shell/hosts_dialog.jsx:244
 msgid "Edit host"
@@ -2412,6 +2417,14 @@ msgstr "motd'yi düzenle"
 #: pkg/networkmanager/network-main.jsx:158
 msgid "Edit rules and zones"
 msgstr "Kuralları ve bölgeleri düzenle"
+
+#: pkg/networkmanager/firewall.jsx:581
+msgid "Edit service"
+msgstr "Hizmeti düzenle"
+
+#: pkg/networkmanager/firewall.jsx:115
+msgid "Edit service $0"
+msgstr "$0 hizmetini düzenle"
 
 #: pkg/storaged/crypto-keyslots.jsx:579
 msgid "Editing a key requires a free slot"
@@ -2469,7 +2482,7 @@ msgstr "Verileri şifrele"
 msgid "Encrypted"
 msgstr "Şifrelenmiş"
 
-#: pkg/storaged/utils.js:283
+#: pkg/storaged/utils.js:281
 msgid "Encrypted $0"
 msgstr "Şifrelenmiş $0"
 
@@ -2477,11 +2490,11 @@ msgstr "Şifrelenmiş $0"
 msgid "Encrypted Stratis pool $0"
 msgstr "Şifrelenmiş $0 Stratis havuzu"
 
-#: pkg/storaged/utils.js:275
+#: pkg/storaged/utils.js:273
 msgid "Encrypted logical volume of $0"
 msgstr "$0 aygıtının şifrelenmiş mantıksal birimi"
 
-#: pkg/storaged/utils.js:277
+#: pkg/storaged/utils.js:275
 msgid "Encrypted partition of $0"
 msgstr "$0 aygıtının şifrelenmiş bölümü"
 
@@ -2527,7 +2540,7 @@ msgstr "İyileştirme güncellemeleri mevcut"
 msgid "Enter a valid MAC address"
 msgstr "Geçerli bir MAC adresi girin"
 
-#: pkg/networkmanager/firewall.jsx:187 pkg/networkmanager/firewall.jsx:833
+#: pkg/networkmanager/firewall.jsx:199 pkg/networkmanager/firewall.jsx:875
 msgid "Entire subnet"
 msgstr "Tüm alt ağ"
 
@@ -2555,7 +2568,7 @@ msgstr "Hata"
 msgid "Error and above"
 msgstr "Hata ve üstü"
 
-#: pkg/metrics/metrics.jsx:1448
+#: pkg/metrics/metrics.jsx:1517
 msgid "Error has occurred"
 msgstr "Hata meydana geldi"
 
@@ -2593,19 +2606,19 @@ msgstr "Ethernet MTU değeri"
 msgid "Ethtool"
 msgstr "Ethtool"
 
-#: pkg/metrics/metrics.jsx:851
+#: pkg/metrics/metrics.jsx:920
 msgid "Event"
 msgstr "Olay"
 
-#: pkg/metrics/metrics.jsx:843
+#: pkg/metrics/metrics.jsx:912
 msgid "Event logs"
 msgstr "Olay günlükleri"
 
-#: pkg/networkmanager/firewall.jsx:635
+#: pkg/networkmanager/firewall.jsx:676
 msgid "Example: 22,ssh,8080,5900-5910"
 msgstr "Örnek: 22,ssh,8080,5900-5910"
 
-#: pkg/networkmanager/firewall.jsx:645
+#: pkg/networkmanager/firewall.jsx:687
 msgid "Example: 88,2019,nfs,rsync"
 msgstr "Örnek: 88,2019,nfs,rsync"
 
@@ -2625,7 +2638,7 @@ msgstr "Hesap süresi dolma zamanı"
 msgid "Expire account on $0"
 msgstr "$0 tarihinde hesap süresi doluyor"
 
-#: pkg/metrics/metrics.jsx:1126
+#: pkg/metrics/metrics.jsx:1195
 msgid "Export to network"
 msgstr "Ağa aktar"
 
@@ -2649,15 +2662,15 @@ msgstr "Başarısız oldu"
 msgid "Failed to add machine: $0"
 msgstr "Makine ekleme başarısız oldu: $0"
 
-#: pkg/networkmanager/firewall.jsx:351
+#: pkg/networkmanager/firewall.jsx:381
 msgid "Failed to add port"
 msgstr "Bağlantı noktası ekleme başarısız oldu"
 
-#: pkg/networkmanager/firewall.jsx:351
+#: pkg/networkmanager/firewall.jsx:381
 msgid "Failed to add service"
 msgstr "Hizmet ekleme başarısız oldu"
 
-#: pkg/networkmanager/firewall.jsx:728
+#: pkg/networkmanager/firewall.jsx:770
 msgid "Failed to add zone"
 msgstr "Bölge ekleme başarısız oldu"
 
@@ -2666,7 +2679,7 @@ msgstr "Bölge ekleme başarısız oldu"
 msgid "Failed to change password"
 msgstr "Parolayı değiştirme başarısız oldu"
 
-#: pkg/metrics/metrics.jsx:1094
+#: pkg/metrics/metrics.jsx:1163
 msgid "Failed to configure PCP"
 msgstr "PCP yapılandırma başarısız oldu"
 
@@ -2685,6 +2698,10 @@ msgstr "tuned profilini etkisizleştirmesi başarısız oldu"
 #: pkg/shell/hosts_dialog.jsx:327
 msgid "Failed to edit machine: $0"
 msgstr "Şu makineyi düzenleme başarısız oldu: $0"
+
+#: pkg/networkmanager/firewall.jsx:359
+msgid "Failed to edit service"
+msgstr "Hizmeti düzenleme başarısız oldu"
 
 #: pkg/lib/cockpit-components-firewalld-request.jsx:115
 msgid "Failed to enable $0 in firewalld"
@@ -2769,7 +2786,7 @@ msgstr "Ada veya açıklamaya göre süz"
 msgid "Filter menu items"
 msgstr "Menü öğelerini süz"
 
-#: pkg/networkmanager/firewall.jsx:252
+#: pkg/networkmanager/firewall.jsx:265
 msgid "Filter services"
 msgstr "Hizmetleri süz"
 
@@ -2782,11 +2799,11 @@ msgid "Fingerprint"
 msgstr "Parmak izi"
 
 #: pkg/networkmanager/firewall.html:22 pkg/networkmanager/network-main.jsx:151
-#: pkg/networkmanager/firewall.jsx:983 pkg/networkmanager/firewall.jsx:990
+#: pkg/networkmanager/firewall.jsx:1044 pkg/networkmanager/firewall.jsx:1051
 msgid "Firewall"
 msgstr "Güvenlik duvarı"
 
-#: pkg/networkmanager/firewall.jsx:956
+#: pkg/networkmanager/firewall.jsx:1017
 msgid "Firewall is not available"
 msgstr "Güvenlik duvarı kullanılabilir değil"
 
@@ -2961,7 +2978,7 @@ msgstr "Geçmiş paket sayısı"
 msgid "Host"
 msgstr "Anamakine"
 
-#: pkg/lib/cockpit.js:3961
+#: pkg/lib/cockpit.js:3959
 msgid "Host key is incorrect"
 msgstr "Anamakine anahtarı yanlış"
 
@@ -2981,7 +2998,7 @@ msgstr "Saatlik"
 msgid "Hours"
 msgstr "Saat"
 
-#: pkg/systemd/hwinfo.jsx:310 pkg/networkmanager/firewall.jsx:648
+#: pkg/systemd/hwinfo.jsx:310 pkg/networkmanager/firewall.jsx:690
 msgid "ID"
 msgstr "Kimlik"
 
@@ -2994,7 +3011,7 @@ msgstr "Kimlik $id"
 msgid "IP address"
 msgstr "IP adresi"
 
-#: pkg/networkmanager/firewall.jsx:841
+#: pkg/networkmanager/firewall.jsx:883
 msgid ""
 "IP address with routing prefix. Separate multiple values with a comma. "
 "Example: 192.0.2.0/24, 2001:db8::/32"
@@ -3022,7 +3039,7 @@ msgstr "IPv6 ayarları"
 msgid "Identifier"
 msgstr "Tanımlayıcı"
 
-#: pkg/networkmanager/firewall.jsx:648
+#: pkg/networkmanager/firewall.jsx:690
 msgid ""
 "If left empty, ID will be generated based on associated port services and "
 "port numbers"
@@ -3068,7 +3085,7 @@ msgstr "Yoksay"
 msgid "Image builder"
 msgstr "Kalıp oluşturucu"
 
-#: pkg/metrics/metrics.jsx:655
+#: pkg/metrics/metrics.jsx:724
 msgid "In"
 msgstr "Gelen"
 
@@ -3096,11 +3113,11 @@ msgstr "Etkin değil"
 msgid "Inactive volume"
 msgstr "Etkin olmayan birim"
 
-#: pkg/networkmanager/firewall.jsx:803
+#: pkg/networkmanager/firewall.jsx:845
 msgid "Included services"
 msgstr "Dahil olan hizmetler"
 
-#: pkg/networkmanager/firewall.jsx:993
+#: pkg/networkmanager/firewall.jsx:1054
 msgid ""
 "Incoming requests are blocked by default. Outgoing requests are not blocked."
 msgstr ""
@@ -3167,7 +3184,7 @@ msgstr "Stratis desteğini yükle"
 msgid "Install all updates"
 msgstr "Tüm güncellemeleri yükle"
 
-#: pkg/metrics/metrics.jsx:1416
+#: pkg/metrics/metrics.jsx:1485
 msgid "Install cockpit-pcp"
 msgstr "cockpit-pcp'yi yükle"
 
@@ -3209,7 +3226,7 @@ msgstr "$0 paketini yüklemek $1 paketini kaldırır."
 msgid "Installing packages"
 msgstr "Paketler yükleniyor"
 
-#: pkg/networkmanager/firewall.jsx:183 pkg/metrics/metrics.jsx:655
+#: pkg/networkmanager/firewall.jsx:195 pkg/metrics/metrics.jsx:724
 msgid "Interface"
 msgid_plural "Interfaces"
 msgstr[0] "Arayüz"
@@ -3220,13 +3237,13 @@ msgstr[1] "Arayüzler"
 msgid "Interface members"
 msgstr "Arayüz üyeleri"
 
-#: pkg/networkmanager/network-main.jsx:173 pkg/networkmanager/firewall.jsx:810
+#: pkg/networkmanager/network-main.jsx:173 pkg/networkmanager/firewall.jsx:852
 #: pkg/networkmanager/network-interface-members.jsx:215
 #: pkg/networkmanager/bond.jsx:166
 msgid "Interfaces"
 msgstr "Arayüzler"
 
-#: pkg/lib/cockpit.js:3963
+#: pkg/lib/cockpit.js:3961
 msgid "Internal error"
 msgstr "Dahili hata"
 
@@ -3270,7 +3287,7 @@ msgstr "Geçersiz ölçüm $0"
 msgid "Invalid number of days"
 msgstr "Geçersiz gün sayısı"
 
-#: pkg/networkmanager/firewall.jsx:442
+#: pkg/networkmanager/firewall.jsx:472
 msgid "Invalid port number"
 msgstr "Geçersiz bağlantı noktası numarası"
 
@@ -3282,7 +3299,7 @@ msgstr "Geçersiz ön ek $0"
 msgid "Invalid prefix or netmask $0"
 msgstr "Geçersiz ön ek veya ağ maskesi $0"
 
-#: pkg/networkmanager/firewall.jsx:470
+#: pkg/networkmanager/firewall.jsx:500
 msgid "Invalid range"
 msgstr "Geçersiz aralık"
 
@@ -3353,7 +3370,7 @@ msgstr "Günlük girişi"
 msgid "Journal entry not found"
 msgstr "Günlük girişi bulunamadı"
 
-#: pkg/metrics/metrics.jsx:1493
+#: pkg/metrics/metrics.jsx:1562
 msgid "Jump to"
 msgstr "Şuna atla"
 
@@ -3436,7 +3453,7 @@ msgstr "LVM2 üyesi"
 msgid "LVM2 volume group"
 msgstr "LVM2 birimi grubu"
 
-#: pkg/storaged/utils.js:257 pkg/storaged/vgroup-details.jsx:221
+#: pkg/storaged/utils.js:255 pkg/storaged/vgroup-details.jsx:221
 msgid "LVM2 volume group $0"
 msgstr "$0 LVM2 birimi grubu"
 
@@ -3562,8 +3579,8 @@ msgstr "Birimleri listeleme"
 msgid "Listing units failed: $0"
 msgstr "Birimleri listeleme başarısız oldu: $0"
 
-#: pkg/metrics/metrics.jsx:108 pkg/metrics/metrics.jsx:544
-#: pkg/metrics/metrics.jsx:1503
+#: pkg/metrics/metrics.jsx:110 pkg/metrics/metrics.jsx:613
+#: pkg/metrics/metrics.jsx:1572
 msgid "Load"
 msgstr "Yük"
 
@@ -3571,7 +3588,7 @@ msgstr "Yük"
 msgid "Load balancing"
 msgstr "Yük dengeleme"
 
-#: pkg/metrics/metrics.jsx:1522
+#: pkg/metrics/metrics.jsx:1591
 msgid "Load earlier data"
 msgstr "Daha önceki verileri yükle"
 
@@ -3579,7 +3596,7 @@ msgstr "Daha önceki verileri yükle"
 msgid "Load earlier entries"
 msgstr "Daha önceki girişleri yükle"
 
-#: pkg/metrics/metrics.jsx:109
+#: pkg/metrics/metrics.jsx:111
 msgid "Load spike"
 msgstr "Yük sıçraması"
 
@@ -3621,7 +3638,7 @@ msgstr "Birimin yüklenmesi başarısız oldu: $0"
 
 #: pkg/systemd/services/services.jsx:734 pkg/systemd/logsJournal.jsx:269
 #: pkg/systemd/logDetails.jsx:154 pkg/storaged/devices.jsx:69
-#: pkg/metrics/metrics.jsx:827 pkg/metrics/metrics.jsx:1521
+#: pkg/metrics/metrics.jsx:896 pkg/metrics/metrics.jsx:1590
 #: pkg/kdump/kdump-view.jsx:384
 msgid "Loading..."
 msgstr "Yükleniyor..."
@@ -3681,7 +3698,7 @@ msgstr "Sunucu kullanıcı hesabınızla oturum açın."
 msgid "Log messages"
 msgstr "Günlük iletileri"
 
-#: pkg/shell/topnav.jsx:172 pkg/metrics/metrics.jsx:1409
+#: pkg/shell/topnav.jsx:172 pkg/metrics/metrics.jsx:1478
 msgid "Log out"
 msgstr "Oturumu kapat"
 
@@ -3697,15 +3714,15 @@ msgstr "Mantıksal"
 msgid "Logical size"
 msgstr "Mantıksal boyut"
 
-#: pkg/storaged/utils.js:207
+#: pkg/storaged/utils.js:205
 msgid "Logical volume"
 msgstr "Mantıksal birim"
 
-#: pkg/storaged/utils.js:205
+#: pkg/storaged/utils.js:203
 msgid "Logical volume (snapshot)"
 msgstr "Mantıksal birim (anlık görüntü)"
 
-#: pkg/storaged/utils.js:279
+#: pkg/storaged/utils.js:277
 msgid "Logical volume of $0"
 msgstr "$0 bölümünün mantıksal birimi"
 
@@ -3721,7 +3738,7 @@ msgstr "Oturum aç"
 msgid "Login again"
 msgstr "Tekrar oturum aç"
 
-#: pkg/lib/cockpit.js:3953
+#: pkg/lib/cockpit.js:3951
 msgid "Login failed"
 msgstr "Oturum açma başarısız oldu"
 
@@ -3894,11 +3911,11 @@ msgstr "En fazla ileti yaşı $max_age"
 
 #: pkg/systemd/services/service-details.jsx:612 pkg/systemd/hwinfo.jsx:309
 #: pkg/systemd/hwinfo.jsx:358 pkg/systemd/overview-cards/usageCard.jsx:146
-#: pkg/metrics/metrics.jsx:570 pkg/metrics/metrics.jsx:1504
+#: pkg/metrics/metrics.jsx:639 pkg/metrics/metrics.jsx:1573
 msgid "Memory"
 msgstr "Bellek"
 
-#: pkg/metrics/metrics.jsx:116
+#: pkg/metrics/metrics.jsx:118
 msgid "Memory spike"
 msgstr "Bellek sıçraması"
 
@@ -3906,7 +3923,7 @@ msgstr "Bellek sıçraması"
 msgid "Memory technology"
 msgstr "Bellek teknolojisi"
 
-#: pkg/metrics/metrics.jsx:115
+#: pkg/metrics/metrics.jsx:117
 msgid "Memory usage"
 msgstr "Bellek kullanımı"
 
@@ -3930,15 +3947,15 @@ msgstr "Kullanılan üst veri"
 msgid "Metric"
 msgstr "Ölçüm"
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1541
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1610
 msgid "Metrics and history"
 msgstr "Ölçümler ve geçmiş"
 
-#: pkg/metrics/metrics.jsx:1439
+#: pkg/metrics/metrics.jsx:1508
 msgid "Metrics history could not be loaded"
 msgstr "Ölçümler geçmişi yüklenemedi"
 
-#: pkg/metrics/metrics.jsx:1080 pkg/metrics/metrics.jsx:1170
+#: pkg/metrics/metrics.jsx:1149 pkg/metrics/metrics.jsx:1239
 msgid "Metrics settings"
 msgstr "Ölçümler ayarları"
 
@@ -4129,27 +4146,27 @@ msgstr "Ad"
 msgid "Name can not be empty."
 msgstr "Ad boş olamaz."
 
-#: pkg/storaged/utils.js:134
+#: pkg/storaged/utils.js:132
 msgid "Name cannot be empty."
 msgstr "Ad boş olamaz."
 
-#: pkg/storaged/utils.js:162
+#: pkg/storaged/utils.js:160
 msgid "Name cannot be longer than $0 bytes"
 msgstr "Ad $0 bayt'tan uzun olamaz"
 
-#: pkg/storaged/utils.js:160
+#: pkg/storaged/utils.js:158
 msgid "Name cannot be longer than $0 characters"
 msgstr "Ad $0 karakterden uzun olamaz"
 
-#: pkg/storaged/utils.js:136
+#: pkg/storaged/utils.js:134
 msgid "Name cannot be longer than 127 characters."
 msgstr "Ad 127 karakterden uzun olamaz."
 
-#: pkg/storaged/utils.js:140
+#: pkg/storaged/utils.js:138
 msgid "Name cannot contain the character '$0'."
 msgstr "Ad '$0' karakterini içeremez."
 
-#: pkg/storaged/utils.js:142
+#: pkg/storaged/utils.js:140
 msgid "Name cannot contain whitespace."
 msgstr "Ad boşluk karakterleri içeremez."
 
@@ -4157,15 +4174,15 @@ msgstr "Ad boşluk karakterleri içeremez."
 msgid "Need at least one NTP server"
 msgstr "En az bir NTP sunucusu gerekli"
 
-#: pkg/metrics/metrics.jsx:645 pkg/metrics/metrics.jsx:1506
+#: pkg/metrics/metrics.jsx:714 pkg/metrics/metrics.jsx:1575
 msgid "Network"
 msgstr "Ağ"
 
-#: pkg/metrics/metrics.jsx:137
+#: pkg/metrics/metrics.jsx:139
 msgid "Network I/O"
 msgstr "Ağ G/Ç"
 
-#: pkg/metrics/metrics.jsx:138
+#: pkg/metrics/metrics.jsx:140
 msgid "Network I/O spike"
 msgstr "Ağ G/Ç sıçraması"
 
@@ -4181,7 +4198,7 @@ msgstr "Ağ aygıtları ve grafikleri için NetworkManager gerekir"
 msgid "Network logs"
 msgstr "Ağ günlükleri"
 
-#: pkg/metrics/metrics.jsx:654
+#: pkg/metrics/metrics.jsx:723
 msgid "Network usage"
 msgstr "Ağ kullanımı"
 
@@ -4195,7 +4212,7 @@ msgstr "NetworkManager çalışmıyor"
 
 #: pkg/networkmanager/index.html:23
 #: pkg/networkmanager/network-interface.jsx:697
-#: pkg/networkmanager/firewall.jsx:982 pkg/networkmanager/manifest.json:0
+#: pkg/networkmanager/firewall.jsx:1043 pkg/networkmanager/manifest.json:0
 msgid "Networking"
 msgstr "Ağ"
 
@@ -4276,11 +4293,11 @@ msgstr "Taşıyıcı yok"
 msgid "No configuration found"
 msgstr "Bulunan yapılandırma yok"
 
-#: pkg/metrics/metrics.jsx:1466
+#: pkg/metrics/metrics.jsx:1535
 msgid "No data available"
 msgstr "Mevcut veri yok"
 
-#: pkg/metrics/metrics.jsx:1462
+#: pkg/metrics/metrics.jsx:1531
 msgid "No data available between $0 and $1"
 msgstr "$0 ile $1 arasında mevcut veri yok"
 
@@ -4288,7 +4305,7 @@ msgstr "$0 ile $1 arasında mevcut veri yok"
 msgid "No delay"
 msgstr "Gecikme yok"
 
-#: pkg/networkmanager/firewall.jsx:799
+#: pkg/networkmanager/firewall.jsx:841
 msgid "No description available"
 msgstr "Mevcut açıklama yok"
 
@@ -4355,7 +4372,7 @@ msgid "No logical volumes"
 msgstr "Mantıksal birimler yok"
 
 #: pkg/systemd/logsJournal.jsx:282 pkg/systemd/logsJournal.jsx:325
-#: pkg/metrics/metrics.jsx:829
+#: pkg/metrics/metrics.jsx:898
 msgid "No logs found"
 msgstr "Bulunan günlükler yok"
 
@@ -4421,7 +4438,7 @@ msgstr "Güncellemeler yok"
 msgid "No user name specified"
 msgstr "Belirtilen kullanıcı adı yok"
 
-#: pkg/tuned/dialog.jsx:229 pkg/networkmanager/firewall.jsx:805
+#: pkg/tuned/dialog.jsx:229 pkg/networkmanager/firewall.jsx:847
 #: pkg/kdump/kdump-view.jsx:433
 msgid "None"
 msgstr "Yok"
@@ -4474,7 +4491,7 @@ msgstr "Bağlanmadı"
 msgid "Not permitted to configure realms"
 msgstr "Bölgeleri yapılandırmaya izin verilmiyor"
 
-#: pkg/lib/cockpit.js:3951
+#: pkg/lib/cockpit.js:3949
 msgid "Not permitted to perform this action."
 msgstr "Bu eylemi gerçekleştirmeye izinli değil."
 
@@ -4586,7 +4603,7 @@ msgstr ""
 msgid "Ooops!"
 msgstr "Eyvah!"
 
-#: pkg/metrics/metrics.jsx:1067
+#: pkg/metrics/metrics.jsx:1136
 msgid "Open the pmproxy service in the firewall to share metrics."
 msgstr "Ölçümleri paylaşmak için güvenlik duvarındaki pmproxy hizmetini açın."
 
@@ -4634,11 +4651,11 @@ msgstr "Diğer aygıtlar"
 msgid "Other options"
 msgstr "Diğer seçenekler"
 
-#: pkg/metrics/metrics.jsx:655
+#: pkg/metrics/metrics.jsx:724
 msgid "Out"
 msgstr "Giden"
 
-#: pkg/systemd/hwinfo.jsx:327 pkg/metrics/metrics.jsx:1540
+#: pkg/systemd/hwinfo.jsx:327 pkg/metrics/metrics.jsx:1609
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "Genel Bakış"
@@ -4659,7 +4676,7 @@ msgstr "PCI"
 msgid "PID"
 msgstr "PID"
 
-#: pkg/metrics/metrics.jsx:1415
+#: pkg/metrics/metrics.jsx:1484
 msgid "Package cockpit-pcp is missing for metrics history"
 msgstr "Ölçüm geçmişi için cockpit-pcp paketi eksik"
 
@@ -4707,7 +4724,7 @@ msgstr "$0 parçası"
 msgid "Partition"
 msgstr "Bölüm"
 
-#: pkg/storaged/utils.js:281
+#: pkg/storaged/utils.js:279
 msgid "Partition of $0"
 msgstr "$0'ın bölümü"
 
@@ -4850,7 +4867,7 @@ msgstr "Yollar"
 msgid "Pause"
 msgstr "Duraklat"
 
-#: pkg/metrics/metrics.jsx:1083
+#: pkg/metrics/metrics.jsx:1152
 msgid ""
 "Performance Co-Pilot collects and analyzes performance metrics from your "
 "system."
@@ -4922,7 +4939,7 @@ msgstr "Lütfen yönetimsel erişim elde etmek için kimlik doğrulayın"
 msgid "Please enable JavaScript to use the Web Console."
 msgstr "Web Konsolunu kullanmak için lütfen JavaScript'i etkinleştirin."
 
-#: pkg/networkmanager/firewall.jsx:957
+#: pkg/networkmanager/firewall.jsx:1018
 msgid "Please install the $0 package"
 msgstr "Lütfen $0 paketini yükleyin"
 
@@ -4942,7 +4959,7 @@ msgstr "Lütfen bağlanılacak anamakineyi belirtin"
 msgid "Pool"
 msgstr "Havuz"
 
-#: pkg/storaged/utils.js:201
+#: pkg/storaged/utils.js:199
 msgid "Pool for thin logical volumes"
 msgstr "İnce mantıksal birimler için havuz"
 
@@ -4958,7 +4975,7 @@ msgstr "İnce sağlanan birimler için havuz"
 msgid "Port"
 msgstr "Bağlantı noktası"
 
-#: pkg/networkmanager/firewall.jsx:446
+#: pkg/networkmanager/firewall.jsx:476
 msgid "Port number and type do not match"
 msgstr "Bağlantı noktası numarası ve türü eşleşmiyor"
 
@@ -5135,7 +5152,7 @@ msgstr "RAID kasası"
 msgid "RAID device"
 msgstr "RAID aygıtı"
 
-#: pkg/storaged/mdraid-details.jsx:316 pkg/storaged/utils.js:251
+#: pkg/storaged/mdraid-details.jsx:316 pkg/storaged/utils.js:249
 msgid "RAID device $0"
 msgstr "RAID aygıtı $0"
 
@@ -5152,7 +5169,7 @@ msgstr "RAID seviyesi"
 msgid "RAID member"
 msgstr "RAID üyesi"
 
-#: pkg/metrics/metrics.jsx:578
+#: pkg/metrics/metrics.jsx:647
 msgid "RAM"
 msgstr "RAM"
 
@@ -5164,11 +5181,11 @@ msgstr "Raf montajlı kasa"
 msgid "Random"
 msgstr "Rastgele"
 
-#: pkg/networkmanager/firewall.jsx:839
+#: pkg/networkmanager/firewall.jsx:881
 msgid "Range"
 msgstr "Aralık"
 
-#: pkg/networkmanager/firewall.jsx:478
+#: pkg/networkmanager/firewall.jsx:508
 msgid "Range must be strictly ordered"
 msgstr "Aralık kesin bir şekilde sıralı olmalıdır"
 
@@ -5180,11 +5197,11 @@ msgstr "Sıra"
 msgid "Raw to a device"
 msgstr "Bir aygıta ham olarak"
 
-#: pkg/metrics/metrics.jsx:607
+#: pkg/metrics/metrics.jsx:676
 msgid "Read"
 msgstr "Okuma"
 
-#: pkg/systemd/hwinfo.jsx:218 pkg/metrics/metrics.jsx:1089
+#: pkg/systemd/hwinfo.jsx:218 pkg/metrics/metrics.jsx:1158
 msgid "Read more..."
 msgstr "Daha fazlasını okuyun..."
 
@@ -5344,7 +5361,7 @@ msgstr "Kaldır"
 msgid "Remove $0"
 msgstr "$0'ı kaldır"
 
-#: pkg/networkmanager/firewall.jsx:918
+#: pkg/networkmanager/firewall.jsx:961
 msgid "Remove $0 service from $1 zone"
 msgstr "$0 hizmetini $1 bölgesinden kaldır"
 
@@ -5375,11 +5392,11 @@ msgstr "Öğeyi kaldır"
 msgid "Remove passphrase in key slot $0?"
 msgstr "$0 anahtar yuvası içindeki parola kaldırılsın mı?"
 
-#: pkg/networkmanager/firewall.jsx:107
+#: pkg/networkmanager/firewall.jsx:117
 msgid "Remove service $0"
 msgstr "$0 hizmetini kaldır"
 
-#: pkg/networkmanager/firewall.jsx:166 pkg/networkmanager/firewall.jsx:903
+#: pkg/networkmanager/firewall.jsx:178 pkg/networkmanager/firewall.jsx:946
 msgid "Remove zone $0"
 msgstr "$0 bölgesini kaldır"
 
@@ -5415,7 +5432,7 @@ msgstr ""
 msgid "Removing physical volume from $target"
 msgstr "$target aygıtından fiziksel birim kaldırılıyor"
 
-#: pkg/networkmanager/firewall.jsx:917
+#: pkg/networkmanager/firewall.jsx:960
 msgid ""
 "Removing the cockpit service might result in the web console becoming "
 "unreachable. Make sure that this zone does not apply to your current web "
@@ -5424,7 +5441,7 @@ msgstr ""
 "Cockpit hizmetinin kaldırılması web konsolunu erişilemez hale getirebilir. "
 "Bu bölgenin şu anki web konsolu bağlantınıza uygulanmadığından emin olun."
 
-#: pkg/networkmanager/firewall.jsx:902
+#: pkg/networkmanager/firewall.jsx:945
 msgid "Removing the zone will remove all services within it."
 msgstr "Bölgenin kaldırılması, içindeki tüm hizmetleri kaldıracak."
 
@@ -5741,7 +5758,7 @@ msgstr "Cumartesi günleri"
 #: pkg/storaged/crypto-keyslots.jsx:346 pkg/storaged/crypto-keyslots.jsx:365
 #: pkg/storaged/fsys-tab.jsx:374 pkg/storaged/fsys-tab.jsx:490
 #: pkg/storaged/crypto-tab.jsx:158 pkg/storaged/crypto-tab.jsx:202
-#: pkg/storaged/nfs-details.jsx:186 pkg/metrics/metrics.jsx:1097
+#: pkg/storaged/nfs-details.jsx:186 pkg/metrics/metrics.jsx:1166
 #: pkg/packagekit/kpatch.jsx:306 pkg/kdump/kdump-view.jsx:369
 msgid "Save"
 msgstr "Kaydet"
@@ -5865,7 +5882,7 @@ msgstr "Sunucu yöneticisi"
 msgid "Server cannot be empty."
 msgstr "Sunucu boş olamaz."
 
-#: pkg/lib/cockpit.js:3971
+#: pkg/lib/cockpit.js:3969
 msgid "Server has closed the connection."
 msgstr "Sunucu bağlantıyı kapattı."
 
@@ -5873,8 +5890,8 @@ msgstr "Sunucu bağlantıyı kapattı."
 msgid "Server software"
 msgstr "Sunucu yazılımı"
 
-#: pkg/networkmanager/firewall.jsx:196 pkg/storaged/dialog.jsx:1222
-#: pkg/metrics/metrics.jsx:561 pkg/metrics/metrics.jsx:594
+#: pkg/networkmanager/firewall.jsx:208 pkg/storaged/dialog.jsx:1222
+#: pkg/metrics/metrics.jsx:630 pkg/metrics/metrics.jsx:663
 msgid "Service"
 msgstr "Hizmet"
 
@@ -5903,7 +5920,7 @@ msgid "Service logs"
 msgstr "Hizmet günlükleri"
 
 #: pkg/systemd/services.html:4 pkg/systemd/services/service.jsx:82
-#: pkg/systemd/services/service-tabs.jsx:39 pkg/networkmanager/firewall.jsx:579
+#: pkg/systemd/services/service-tabs.jsx:39 pkg/networkmanager/firewall.jsx:618
 #: pkg/systemd/manifest.json:0
 msgid "Services"
 msgstr "Hizmetler"
@@ -6154,7 +6171,7 @@ msgstr ""
 msgid "Some software needs to be restarted manually"
 msgstr "Bazı yazılımların el ile yeniden başlatılması gerekiyor"
 
-#: pkg/networkmanager/firewall.jsx:776
+#: pkg/networkmanager/firewall.jsx:818
 msgid "Sorted from least to most trusted"
 msgstr "En azdan en çok güvenilene doğru sıralandı"
 
@@ -6364,12 +6381,12 @@ msgstr "Pazar günleri"
 msgid "Support is installed."
 msgstr "Destek yüklendi."
 
-#: pkg/storaged/content-views.jsx:228 pkg/metrics/metrics.jsx:123
-#: pkg/metrics/metrics.jsx:475 pkg/metrics/metrics.jsx:1504
+#: pkg/storaged/content-views.jsx:228 pkg/metrics/metrics.jsx:125
+#: pkg/metrics/metrics.jsx:544 pkg/metrics/metrics.jsx:1573
 msgid "Swap"
 msgstr "Takas"
 
-#: pkg/metrics/metrics.jsx:122
+#: pkg/metrics/metrics.jsx:124
 msgid "Swap out"
 msgstr "Giden takas"
 
@@ -6464,7 +6481,7 @@ msgstr "Sistem saati"
 msgid "Systemd units"
 msgstr "Systemd birimleri"
 
-#: pkg/networkmanager/firewall.jsx:196
+#: pkg/networkmanager/firewall.jsx:208
 msgid "TCP"
 msgstr "TCP"
 
@@ -6585,7 +6602,7 @@ msgstr ""
 "'$0' hesabı, bir sonraki oturum açışında parolasını değiştirmeye "
 "zorlanacaktır"
 
-#: pkg/networkmanager/firewall.jsx:807
+#: pkg/networkmanager/firewall.jsx:849
 msgid "The cockpit service is automatically included"
 msgstr "Cockpit hizmeti otomatik olarak dahil edildi"
 
@@ -6771,7 +6788,7 @@ msgstr ""
 "Sunucu, parola kimlik doğrulamasını kullanarak '$0' kullanıcısının kimliğini "
 "doğrulamayı reddetti ve kullanılabilir başka kimlik doğrulama yöntemi yok."
 
-#: pkg/lib/cockpit.js:3955
+#: pkg/lib/cockpit.js:3953
 msgid "The server refused to authenticate using any supported methods."
 msgstr ""
 "Sunucu, desteklenen herhangi bir yöntemi kullanarak kimlik doğrulamayı "
@@ -6820,7 +6837,7 @@ msgstr ""
 "Sistemde birden çok yola sahip aygıtlar var, ancak multipath hizmeti "
 "çalışmıyor."
 
-#: pkg/networkmanager/firewall.jsx:200
+#: pkg/networkmanager/firewall.jsx:212
 msgid "There are no active services in this zone"
 msgstr "Bu bölgede etkin hizmetler yok"
 
@@ -6844,7 +6861,7 @@ msgstr "Makineye bağlanırken beklenmeyen bir hata oldu."
 msgid "These changes will be made:"
 msgstr "Şu değişiklikler yapılacaktır:"
 
-#: pkg/storaged/utils.js:203
+#: pkg/storaged/utils.js:201
 msgid "Thin logical volume"
 msgstr "İnce mantıksal birim"
 
@@ -6978,7 +6995,7 @@ msgstr ""
 msgid "This will test the kdump configuration by crashing the kernel."
 msgstr "Bu, çekirdeği çöktürerek kdump yapılandırmasını deneyecek."
 
-#: pkg/networkmanager/firewall.jsx:900
+#: pkg/networkmanager/firewall.jsx:943
 msgid ""
 "This zone contains the cockpit service. Make sure that this zone does not "
 "apply to your current web console connection."
@@ -7048,7 +7065,7 @@ msgstr ""
 "Bir parmak izini doğrulamak için makinede fiziksel olarak bulunurken veya "
 "güvenilir bir ağ aracılığıyla 0$ üzerinde aşağıdakileri çalıştırın:"
 
-#: pkg/metrics/metrics.jsx:1472
+#: pkg/metrics/metrics.jsx:1541
 msgid "Today"
 msgstr "Bugün"
 
@@ -7070,7 +7087,7 @@ msgstr "Tarihi seçiciyi aç/kapat"
 msgid "Toggle filters"
 msgstr "Süzgeçleri aç/kapat"
 
-#: pkg/lib/cockpit.js:3977
+#: pkg/lib/cockpit.js:3975
 msgid "Too much data"
 msgstr "Çok fazla veri"
 
@@ -7078,11 +7095,11 @@ msgstr "Çok fazla veri"
 msgid "Tools"
 msgstr "Araçlar"
 
-#: pkg/metrics/metrics.jsx:560
+#: pkg/metrics/metrics.jsx:629
 msgid "Top 5 CPU services"
 msgstr "En iyi 5 CPU hizmeti"
 
-#: pkg/metrics/metrics.jsx:593
+#: pkg/metrics/metrics.jsx:662
 msgid "Top 5 memory services"
 msgstr "En iyi 5 bellek hizmeti"
 
@@ -7115,7 +7132,7 @@ msgstr "Tetikleyen"
 msgid "Triggers"
 msgstr "Tetikleyiciler"
 
-#: pkg/metrics/metrics.jsx:1434
+#: pkg/metrics/metrics.jsx:1503
 msgid "Troubleshoot"
 msgstr "Sorun gider"
 
@@ -7127,7 +7144,7 @@ msgstr "Sorun gider…"
 msgid "Trust key"
 msgstr "Güvenilen anahtar"
 
-#: pkg/networkmanager/firewall.jsx:773
+#: pkg/networkmanager/firewall.jsx:815
 msgid "Trust level"
 msgstr "Güven seviyesi"
 
@@ -7185,7 +7202,7 @@ msgstr "Tür"
 msgid "Type to filter"
 msgstr "Süzmek için yazın"
 
-#: pkg/networkmanager/firewall.jsx:196
+#: pkg/networkmanager/firewall.jsx:208
 msgid "UDP"
 msgstr "UDP"
 
@@ -7334,7 +7351,7 @@ msgstr "Bilinmeyen yapılandırma"
 msgid "Unknown host name"
 msgstr "Bilinmeyen anamakine adı"
 
-#: pkg/networkmanager/firewall.jsx:440
+#: pkg/networkmanager/firewall.jsx:470
 msgid "Unknown service name"
 msgstr "Bilinmeyen hizmet adı"
 
@@ -7419,7 +7436,7 @@ msgstr "Desteklenmeyen birim"
 msgid "Until"
 msgstr "Bitiş"
 
-#: pkg/lib/cockpit.js:3957 pkg/lib/cockpit.js:3959
+#: pkg/lib/cockpit.js:3955 pkg/lib/cockpit.js:3957
 msgid "Untrusted host"
 msgstr "Güvenilmeyen anamakine"
 
@@ -7481,9 +7498,9 @@ msgid "Uptime"
 msgstr "Çalışma süresi"
 
 #: pkg/systemd/overview-cards/usageCard.jsx:129
-#: pkg/storaged/unrecognized-tab.jsx:37 pkg/metrics/metrics.jsx:1503
-#: pkg/metrics/metrics.jsx:1504 pkg/metrics/metrics.jsx:1505
-#: pkg/metrics/metrics.jsx:1506
+#: pkg/storaged/unrecognized-tab.jsx:37 pkg/metrics/metrics.jsx:1572
+#: pkg/metrics/metrics.jsx:1573 pkg/metrics/metrics.jsx:1574
+#: pkg/metrics/metrics.jsx:1575
 msgid "Usage"
 msgstr "Kullanım"
 
@@ -7525,7 +7542,7 @@ msgstr "Diğer sistemlerde kimlik doğrulamak için aşağıdaki anahtarları ku
 msgid "Use verbose logging"
 msgstr "Ayrıntılı günlükleme kullan"
 
-#: pkg/storaged/swap-tab.jsx:70 pkg/metrics/metrics.jsx:594
+#: pkg/storaged/swap-tab.jsx:70 pkg/metrics/metrics.jsx:663
 msgid "Used"
 msgstr "Kullanılan"
 
@@ -7572,7 +7589,7 @@ msgstr "VDO yedek aygıtları küçültülemez"
 msgid "VDO device"
 msgstr "VDO aygıtı"
 
-#: pkg/storaged/utils.js:262 pkg/storaged/vdo-details.jsx:264
+#: pkg/storaged/utils.js:260 pkg/storaged/vdo-details.jsx:264
 msgid "VDO device $0"
 msgstr "VDO aygıtı $0"
 
@@ -7634,7 +7651,7 @@ msgstr "Sürüm"
 msgid "Very securely erasing $target"
 msgstr "$target çok güvenli bir şekilde siliniyor"
 
-#: pkg/metrics/metrics.jsx:516 pkg/metrics/metrics.jsx:517
+#: pkg/metrics/metrics.jsx:585 pkg/metrics/metrics.jsx:586
 msgid "View all CPUs"
 msgstr "Tüm CPU'ları görüntüle"
 
@@ -7650,7 +7667,7 @@ msgstr "Tüm hizmetleri görüntüle"
 msgid "View automation script"
 msgstr "Otomatikleştirme betiğini görüntüle"
 
-#: pkg/metrics/metrics.jsx:818
+#: pkg/metrics/metrics.jsx:887
 msgid "View detailed logs"
 msgstr "Ayrıntılı günlükleri görüntüle"
 
@@ -7793,7 +7810,7 @@ msgctxt "storage"
 msgid "World wide name"
 msgstr "Dünya geneli ad (WWN)"
 
-#: pkg/metrics/metrics.jsx:611
+#: pkg/metrics/metrics.jsx:680
 msgid "Write"
 msgstr "Yazma"
 
@@ -7849,7 +7866,7 @@ msgstr ""
 msgid "You must wait longer to change your password"
 msgstr "Parolanızı değiştirmek için daha uzun süre beklemek zorundasınız"
 
-#: pkg/metrics/metrics.jsx:1408
+#: pkg/metrics/metrics.jsx:1477
 msgid "You need to relogin to be able to see metrics history"
 msgstr "Ölçümler geçmişini görebilmek için yeniden oturum açmanız gerekli"
 
@@ -7885,11 +7902,11 @@ msgstr ""
 "Sunucunuz bağlantıyı yakında kapatacak. Yeniden başlatıldıktan sonra yeniden "
 "bağlanabilirsiniz."
 
-#: pkg/lib/cockpit.js:3947
+#: pkg/lib/cockpit.js:3945
 msgid "Your session has been terminated."
 msgstr "Oturumunuz sonlandırıldı."
 
-#: pkg/lib/cockpit.js:3949
+#: pkg/lib/cockpit.js:3947
 msgid "Your session has expired. Please log in again."
 msgstr "Oturumunuzun süresi doldu. Lütfen tekrar oturum açın."
 
@@ -7951,7 +7968,7 @@ msgstr "saat"
 msgid "avc"
 msgstr "avc"
 
-#: pkg/metrics/metrics.jsx:502
+#: pkg/metrics/metrics.jsx:571
 msgid "average: $0%"
 msgstr "ortalama: %$0"
 
@@ -7992,7 +8009,7 @@ msgstr "bayt"
 msgid "cgroups"
 msgstr "cgruplar"
 
-#: pkg/metrics/metrics.jsx:430
+#: pkg/metrics/metrics.jsx:456
 msgid "cockpit-podman is not installed"
 msgstr "cockpit-podman yüklü değil"
 
@@ -8271,7 +8288,7 @@ msgstr "makine"
 msgid "mask"
 msgstr "maskele"
 
-#: pkg/metrics/metrics.jsx:503
+#: pkg/metrics/metrics.jsx:572
 msgid "max: $0%"
 msgstr "en fazla: $0%"
 
@@ -8327,7 +8344,7 @@ msgstr "nfs"
 msgid "nfs dump target isn't formatted as server:path"
 msgstr "nfs döküm hedefi sunucu:yol olarak biçimlendirilmedi"
 
-#: pkg/metrics/metrics.jsx:105
+#: pkg/metrics/metrics.jsx:107
 msgid "nice"
 msgstr "harika"
 
@@ -8407,19 +8424,19 @@ msgstr "LVM2 birim grubunun fiziksel birimi"
 msgid "plugin"
 msgstr "eklenti"
 
-#: pkg/metrics/metrics.jsx:1431
+#: pkg/metrics/metrics.jsx:1500
 msgid "pmlogger.service has failed"
 msgstr "pmlogger.service başarısız oldu"
 
-#: pkg/metrics/metrics.jsx:1433
+#: pkg/metrics/metrics.jsx:1502
 msgid "pmlogger.service is failing to collect data"
 msgstr "pmlogger.service veri toplamada başarısız oluyor"
 
-#: pkg/metrics/metrics.jsx:1424
+#: pkg/metrics/metrics.jsx:1493
 msgid "pmlogger.service is not running"
 msgstr "pmlogger.service çalışmıyor"
 
-#: pkg/metrics/metrics.jsx:424
+#: pkg/metrics/metrics.jsx:450
 msgid "pod"
 msgstr "bölme"
 
@@ -8447,11 +8464,11 @@ msgstr "salt okunur"
 msgid "recommended"
 msgstr "önerilir"
 
-#: pkg/storaged/utils.js:673
+#: pkg/storaged/utils.js:671
 msgid "remove from LVM2"
 msgstr "LVM2'den kaldır"
 
-#: pkg/storaged/utils.js:662
+#: pkg/storaged/utils.js:660
 msgid "remove from RAID"
 msgstr "RAID'den kaldır"
 
@@ -8545,7 +8562,7 @@ msgstr "ssh sunucusu boş"
 msgid "stop"
 msgstr "durdur"
 
-#: pkg/metrics/metrics.jsx:105
+#: pkg/metrics/metrics.jsx:107
 msgid "sys"
 msgstr "sys"
 
@@ -8607,15 +8624,15 @@ msgstr "bilinmeyen hedef"
 msgid "unmask"
 msgstr "maskelemeyi kaldır"
 
-#: pkg/storaged/utils.js:649 pkg/storaged/manifest.json:0
+#: pkg/storaged/utils.js:647 pkg/storaged/manifest.json:0
 msgid "unmount"
 msgstr "bağlantıyı kaldır"
 
-#: pkg/storaged/utils.js:440
+#: pkg/storaged/utils.js:438
 msgid "unpartitioned space on $0"
 msgstr "$0 üzerinde bölümlendirilmemiş alan"
 
-#: pkg/metrics/metrics.jsx:105 pkg/users/manifest.json:0
+#: pkg/metrics/metrics.jsx:107 pkg/users/manifest.json:0
 msgid "user"
 msgstr "kullanıcı"
 
@@ -8658,6 +8675,9 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "bölge"
+
+#~ msgid "$0 Zone"
+#~ msgstr "$0 Bölgesi"
 
 #~ msgid "Create diagnostic report"
 #~ msgstr "Tanılama raporu oluştur"
@@ -8713,9 +8733,6 @@ msgstr "bölge"
 
 #~ msgid "$0 GiB total"
 #~ msgstr "$0 GiB toplam"
-
-#~ msgid "$0 zone"
-#~ msgstr "$0 bölgesi"
 
 #~ msgid "Apply"
 #~ msgstr "Uygula"
@@ -10593,9 +10610,6 @@ msgstr "bölge"
 
 #~ msgid "Avatar"
 #~ msgstr "Avatar"
-
-#~ msgid "Edit server"
-#~ msgstr "Sunucuyu düzenle"
 
 #~ msgid ""
 #~ "Leave blank to connect to this machine as the currently logged in user. "

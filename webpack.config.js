@@ -377,7 +377,7 @@ if (eslint) {
 
 if (stylelint) {
     plugins.push(new StylelintPlugin({
-      context: "pkg/" + section,
+        context: "pkg/" + section,
     }));
 }
 

@@ -52,7 +52,8 @@ $(distdir)/tools/debian/copyright:
 DISTCHECK_CONFIGURE_FLAGS = --enable-prefix-only
 
 distcheck-hook:
-	$(srcdir)/tools/check-dist $(distdir)
+	# Validate our AppStream metadata
+	find $(distdir) -name '*.metainfo.xml' -o -name '*.appdata.xml' | xargs appstream-util validate --nonet
 
 # -----------------------------------------------------------------------------
 

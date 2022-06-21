@@ -19,9 +19,6 @@ case $TEST_SCENARIO in
         test/image-prepare --verbose $TEST_OS
         test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify ${OPTS}
         ;;
-    container-bastion)
-        echo "Obsolete, absorbed by test/verify/check-ws-bastion"
-        ;;
     dnf-copr*)
         bots/image-customize -v --run-command 'dnf -y copr enable rpmsoftwaremanagement/dnf-nightly && dnf -y --setopt=install_weak_deps=False update' $TEST_OS
         test/image-prepare --verbose --overlay $TEST_OS

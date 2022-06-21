@@ -58,12 +58,14 @@ PYTHON_BRIDGE_FILES = \
 	src/cockpit/asyncstdio.py \
 	src/cockpit/bridge.py \
 	src/cockpit/channel.py \
+	src/cockpit/channels/__init__.py \
 	src/cockpit/channels/dbus.py \
-	src/cockpit/channels/fslist.py \
-	src/cockpit/channels/fsread.py \
-	src/cockpit/channels/fsreplace.py \
+	src/cockpit/channels/dbus_internal.py \
+	src/cockpit/channels/filesystem.py \
+	src/cockpit/channels/metrics.py \
+	src/cockpit/channels/packages.py \
 	src/cockpit/channels/stream.py \
-	src/cockpit/channeltypes.py \
+	src/cockpit/channels/trivial.py \
 	src/cockpit/packages.py \
 	src/cockpit/peer.py \
 	src/cockpit/protocol.py \

@@ -18,7 +18,7 @@
 import logging
 import shlex
 
-from .channeltypes import CHANNEL_TYPES
+from .channels import CHANNEL_TYPES
 from .channel import Channel
 from .packages import Packages
 from .peer import Peer
@@ -35,7 +35,7 @@ def parse_os_release():
 
 class Router(CockpitProtocolServer):
     def __init__(self):
-        self.match_rules = CHANNEL_TYPES
+        self.match_rules = Channel.create_match_rules(CHANNEL_TYPES)
         self.os_release = parse_os_release()
         self.packages = Packages()
         self.endpoints = {}

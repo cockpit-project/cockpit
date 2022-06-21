@@ -51,14 +51,17 @@ $(distdir)/tools/debian/copyright:
 
 DISTCHECK_CONFIGURE_FLAGS = --enable-prefix-only
 
-distcheck-hook:
-	# Validate our AppStream metadata
+# Validate our AppStream metadata
+distcheck-hook::
 	find $(distdir) -name '*.metainfo.xml' -o -name '*.appdata.xml' | xargs appstream-util validate --nonet
+
+# validate that we don't bundle fonts in webpacks
+distcheck-hook::
+	! grep --color=auto -rn "\.\./fonts/OpenSans\|fonts/.*eot\|truetype" $(distdir)/dist
 
 # -----------------------------------------------------------------------------
 
 TESTS = \
-	test/check-dist \
 	test/static-code \
 	$(NULL)
 

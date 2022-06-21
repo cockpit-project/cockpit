@@ -3,6 +3,9 @@ extraction:
     prepare:
       packages:
         - appstream
+    configure:
+      command:  # disable documentation building as this indirectly triggers a build of pkg/static
+        - ./autogen.sh --disable-doc
     index:
       build_command:
         - make -j$(nproc) WEBPACK_PACKAGES=

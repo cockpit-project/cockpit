@@ -52,6 +52,7 @@ struct _CockpitWebServer {
   GTlsCertificate *certificate;
   GString *ssl_exception_prefix;
   GString *url_root;
+  GString *websocket_root;
   gint request_timeout;
   gint request_max;
   CockpitWebServerFlags flags;
@@ -71,6 +72,7 @@ enum
   PROP_SSL_EXCEPTION_PREFIX,
   PROP_FLAGS,
   PROP_URL_ROOT,
+  PROP_WEBSOCKET_ROOT,
 };
 
 static gint sig_handle_stream = 0;
@@ -107,6 +109,7 @@ cockpit_web_server_init (CockpitWebServer *server)
   server->main_context = g_main_context_ref_thread_default ();
   server->ssl_exception_prefix = g_string_new ("");
   server->url_root = g_string_new ("");
+  server->websocket_root = g_string_new ("");
 
   server->socket_service = g_socket_service_new ();
 
@@ -138,6 +141,7 @@ cockpit_web_server_finalize (GObject *object)
     g_main_context_unref (server->main_context);
   g_string_free (server->ssl_exception_prefix, TRUE);
   g_string_free (server->url_root, TRUE);
+  g_string_free (server->websocket_root, TRUE);
   g_clear_object (&server->socket_service);
   g_free (server->protocol_header);
   g_free (server->forwarded_for_header);
@@ -166,6 +170,13 @@ cockpit_web_server_get_property (GObject *object,
     case PROP_URL_ROOT:
       if (server->url_root->len)
         g_value_set_string (value, server->url_root->str);
+      else
+        g_value_set_string (value, NULL);
+      break;
+
+    case PROP_WEBSOCKET_ROOT:
+      if (server->websocket_root && server->websocket_root->len)
+        g_value_set_string (value, server->websocket_root->str);
       else
         g_value_set_string (value, NULL);
       break;
@@ -215,6 +226,26 @@ cockpit_web_server_set_property (GObject *object,
         g_string_printf (server->url_root, "/%s", str->str);
       else
         g_string_assign (server->url_root, str->str);
+
+      g_string_free (str, TRUE);
+      break;
+
+    case PROP_WEBSOCKET_ROOT:
+      str = g_string_new (g_value_get_string (value));
+
+      while (str->str[0] == '/')
+        g_string_erase (str, 0, 1);
+
+      if (str->len)
+        {
+          while (str->str[str->len - 1] == '/')
+            g_string_truncate (str, str->len - 1);
+        }
+
+      if (str->len)
+        g_string_printf (server->websocket_root, "/%s", str->str);
+      else
+        g_string_assign (server->websocket_root, str->str);
 
       g_string_free (str, TRUE);
       break;
@@ -360,6 +391,10 @@ cockpit_web_server_class_init (CockpitWebServerClass *klass)
 
   g_object_class_install_property (gobject_class, PROP_URL_ROOT,
                                    g_param_spec_string ("url-root", NULL, NULL, "",
+                                                        G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PROP_WEBSOCKET_ROOT,
+                                   g_param_spec_string ("websocket-root", NULL, NULL, "",
                                                         G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_FLAGS,
@@ -783,7 +818,7 @@ cockpit_web_request_process_delayed_reply (CockpitWebRequest *self,
 
 static gboolean
 path_has_prefix (const gchar *path,
-                 GString *prefix)
+                 const GString *prefix)
 {
   return prefix->len > 0 &&
          strncmp (path, prefix->str, prefix->len) == 0 &&
@@ -811,12 +846,12 @@ cockpit_web_request_process (CockpitWebRequest *self,
                              GHashTable *headers)
 {
   gboolean claimed = FALSE;
+  // FIXME: This path hardcoding is ugly, it duplicates cockpit_handler_socket()
+  const GString *url_root = g_str_has_suffix (path, "/socket") && self->web_server->websocket_root->len
+      ? self->web_server->websocket_root : self->web_server->url_root;
 
-  if (self->web_server->url_root->len &&
-      !path_has_prefix (path, self->web_server->url_root))
-    {
+  if (url_root->len && !path_has_prefix (path, url_root))
       self->delayed_reply = 404;
-    }
 
   /* Redirect to TLS? */
   if (!self->delayed_reply && self->check_tls_redirect)
@@ -843,7 +878,7 @@ cockpit_web_request_process (CockpitWebRequest *self,
   g_autofree gchar *path_copy = g_strdup (path);
 
   self->original_path = path_copy;
-  self->path = path_copy + self->web_server->url_root->len;
+  self->path = path_copy + url_root->len;
   self->method = method;
   self->headers = headers;
   self->host = host;

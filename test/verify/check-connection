@@ -1235,6 +1235,15 @@ server {
         self.checkCockpitOnProxy(urlroot="/myroot", login=False)
         kill_ws()
 
+        # separate websocket URL root like on 3scale
+        # reject /api path to websocket with distinct error 418
+        self.sed_file('s_/myroot_~ ^/(api|wss)/myroot/_; /location/i location ~ ^/api/myroot/cockpit/socket { return 418 "wrong path"; }',
+                      "/etc/nginx/conf.d/cockpit.conf", "systemctl restart nginx")
+        m.write("/etc/cockpit/cockpit.conf", "UrlRoot = /api/myroot\nWebsocketRoot = /wss/myroot\n", append=True)
+        run_ws("--local-session=cockpit-bridge")
+        self.checkCockpitOnProxy(urlroot="/api/myroot", login=False)
+        kill_ws()
+
         self.allow_restart_journal_messages()
         self.allow_journal_messages("couldn't register polkit authentication agent.*")
         self.allow_journal_messages("couldn't change to runtime dir.*Permission denied")

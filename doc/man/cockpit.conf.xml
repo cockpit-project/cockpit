@@ -150,6 +150,14 @@ ForwardedForHeader = X-Forwarded-For
         </listitem>
       </varlistentry>
       <varlistentry>
+        <term><option>WebsocketRoot</option></term>
+        <listitem>
+          <para>The root URL where you will be serving cockpit's web socket. This defaults to
+            <code>UrlRoot</code>, but some reverse proxies like <ulink url="https://www.3scale.net/">3scale</ulink>
+            route websocket requests through a different path.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
         <term><option>ClientCertAuthentication</option></term>
         <listitem>
           <para>If true, enable TLS client certificates for authenticating users. Commonly

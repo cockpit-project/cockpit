@@ -230,6 +230,12 @@ main (int argc,
                     cockpit_conf_string ("WebService", "UrlRoot"),
                     NULL);
     }
+  if (cockpit_conf_string ("WebService", "WebsocketRoot"))
+    {
+      g_object_set (server, "websocket-root",
+                    cockpit_conf_string ("WebService", "WebsocketRoot"),
+                    NULL);
+    }
 
   cockpit_web_server_set_protocol_header (server, cockpit_conf_string ("WebService", "ProtocolHeader"));
   cockpit_web_server_set_forwarded_for_header (server, cockpit_conf_string ("WebService", "ForwardedForHeader"));

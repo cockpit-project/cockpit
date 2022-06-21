@@ -22,6 +22,7 @@
 #include "cockpitchannelresponse.h"
 
 #include "common/cockpitchannel.h"
+#include "common/cockpitconf.h"
 #include "common/cockpitflow.h"
 #include "common/cockpitwebinject.h"
 #include "common/cockpitwebserver.h"
@@ -85,12 +86,17 @@ cockpit_channel_inject_perform (CockpitChannelInject *inject,
   g_autofree gchar *prefixed_application = NULL;
 
   const gchar *url_root = cockpit_web_response_get_url_root (response);
+  const gchar *websocket_root = cockpit_conf_string ("WebService", "WebsocketRoot");
 
-  if (!url_root && !inject->base_path)
+  if (!url_root && !websocket_root && !inject->base_path)
     return;
 
   g_autoptr(GString) str = g_string_new ("");
   CockpitCreds *creds = cockpit_web_service_get_creds (inject->service);
+
+  if (websocket_root)
+      g_string_append_printf (str, "\n    <meta name=\"websocket-root\" content=\"%s\">", websocket_root);
+
   if (url_root)
     {
       g_string_append_printf (str, "\n    <meta name=\"url-root\" content=\"%s\">", url_root);

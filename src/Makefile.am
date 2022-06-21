@@ -60,6 +60,7 @@ PYTHON_BRIDGE_FILES = \
 	src/cockpit/channel.py \
 	src/cockpit/channels/dbus.py \
 	src/cockpit/channels/fslist.py \
+	src/cockpit/channels/fsread.py \
 	src/cockpit/channels/fsreplace.py \
 	src/cockpit/channels/stream.py \
 	src/cockpit/channeltypes.py \

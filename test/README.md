@@ -159,14 +159,6 @@ mode), copy it into the VM, and run the test against it:
 
     $ test/verify/check-connection --machine 127.0.0.2:2201 --browser 127.0.0.2:9091
 
-# Container tests
-
-The `test/containers/` tests use the same VMs as the above `test/verify/` ones.
-But they don't have a separate "prepare" step/script; instead, the first time
-you run `test/containers/run-tests` you need to use the `-i` option to
-build/install cockpit into the test VM. This needs to be done with a compatible
-`TEST_OS` (usually a recent `fedora-*`).
-
 ## Debugging tests
 
 If you pass the `-s` ("sit on failure") option to a test program, it

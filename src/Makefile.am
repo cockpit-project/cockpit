@@ -29,6 +29,7 @@ pyTESTS_PASSING = \
 	dist/base1/test-spawn.html \
 	dist/base1/test-user.html \
 	dist/base1/test-utf8.html \
+	dist/kdump/test-config-client.html \
 	dist/networkmanager/test-utils.html \
 	dist/storaged/test-util.html \
 	$(NULL)
@@ -44,7 +45,6 @@ pyTESTS_HANGING = \
 	dist/base1/test-dbus.html \
 	dist/base1/test-file.html \
 	dist/base1/test-spawn-proc.html \
-	dist/kdump/test-config-client.html \
 	dist/base1/test-http.html \
 	$(NULL)
 
@@ -60,6 +60,7 @@ PYTHON_BRIDGE_FILES = \
 	src/cockpit/channel.py \
 	src/cockpit/channels/dbus.py \
 	src/cockpit/channels/fslist.py \
+	src/cockpit/channels/fsreplace.py \
 	src/cockpit/channels/stream.py \
 	src/cockpit/channeltypes.py \
 	src/cockpit/packages.py \

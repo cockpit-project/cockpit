@@ -316,7 +316,10 @@ function calculate_url(suffix) {
     if (!suffix)
         suffix = "socket";
     const window_loc = window.location.toString();
-    let _url_root = url_root;
+    /* this is not set by anything right now, just a client-side stub; see
+     * https://github.com/cockpit-project/cockpit/pull/17473 for the server-side and complete solution */
+    const meta_websocket_root = document.head.querySelector("meta[name='websocket-root']");
+    let _url_root = meta_websocket_root ? meta_websocket_root.content.replace(/^\/+|\/+$/g, '') : url_root;
 
     if (window.mock && window.mock.url)
         return window.mock.url;

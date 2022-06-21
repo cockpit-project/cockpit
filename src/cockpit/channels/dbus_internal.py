@@ -21,12 +21,9 @@ import logging
 import os
 import pwd
 
-from .channel import Endpoint, Channel
-from .channels.dbus import DBusChannel
-from .channels.stream import StreamChannel
+from ..channel import Channel
 
-CHANNEL_TYPES = []
-logger = logging.getLogger('cockpit.channeltypes')
+logger = logging.getLogger(__name__)
 
 
 def internal_dbus_call(path, _iface, method, args):
@@ -55,8 +52,10 @@ def internal_dbus_call(path, _iface, method, args):
     raise ValueError('unknown call', path, method)
 
 
-@Endpoint.match(CHANNEL_TYPES, payload='dbus-json3', bus='internal')
 class DBusInternalChannel(Channel):
+    payload = 'dbus-json3'
+    restrictions = {'bus': 'internal'}
+
     def do_open(self, options):
         self.ready()
 
@@ -128,112 +127,3 @@ class DBusInternalChannel(Channel):
             self.send_message(reply=[reply], id=message['id'])
         else:
             raise ValueError('unknown dbus method', message)
-
-
-Endpoint.match(CHANNEL_TYPES, payload='dbus-json3')(DBusChannel)
-
-
-@Endpoint.match(CHANNEL_TYPES, payload='echo')
-class EchoChannel(Channel):
-    def do_open(self, options):
-        self.ready()
-
-    def do_data(self, data):
-        self.send_data(data)
-
-    def do_done(self):
-        self.done()
-
-
-@Endpoint.match(CHANNEL_TYPES, payload='fsread1')
-class FsReadChannel(Channel):
-    def do_open(self, options):
-        self.ready()
-        try:
-            with open(options['path'], 'rb') as filep:
-                self.send_data(filep.read())
-        except FileNotFoundError:
-            pass
-        self.done()
-
-
-@Endpoint.match(CHANNEL_TYPES, payload='fswatch1')
-class FsWatchChannel(Channel):
-    def do_open(self, options):
-        pass
-
-
-@Endpoint.match(CHANNEL_TYPES, payload='http-stream1', internal='packages')
-class HttpPackagesChannel(Channel):
-    headers = None
-    protocol = None
-    host = None
-    origin = None
-    out_headers = None
-    options = None
-    post = None
-
-    def push_header(self, key, value):
-        if self.out_headers is None:
-            self.out_headers = {}
-        self.out_headers[key] = value
-
-    def http_ok(self, content_type, extra_headers=None):
-        headers = {'Content-Type': content_type}
-        if self.out_headers is not None:
-            headers.update(self.out_headers)
-        if extra_headers is not None:
-            headers.update(extra_headers)
-        self.send_message(status=200, reason='OK', headers={k: v for k, v in headers.items() if v is not None})
-
-    def http_error(self, status, message):
-        self.send_message(status=status, reason='ERROR')
-        self.send_data(message.encode('utf-8'))
-
-    def do_done(self):
-        assert not self.post
-        assert self.options['method'] == 'GET'
-        path = self.options['path']
-
-        self.headers = self.options['headers']
-        self.protocol = self.headers['X-Forwarded-Proto']
-        self.host = self.headers['X-Forwarded-Host']
-        self.origin = f'{self.protocol}://{self.host}'
-
-        try:
-            self.router.packages.serve_file(path, self)
-        except FileNotFoundError:
-            self.http_error(404, 'Not Found')
-
-        self.done()
-
-    def do_data(self, data):
-        self.post += data
-
-    def do_open(self, options):
-        self.post = b''
-        self.options = options
-        self.ready()
-
-
-@Endpoint.match(CHANNEL_TYPES, payload='metrics1')
-class MetricsChannel(Channel):
-    def do_open(self, options):
-        assert options['source'] == 'internal'
-        assert options['interval'] == 3000
-        assert 'omit-instances' not in options
-        assert options['metrics'] == [
-            {"name": "cpu.basic.user", "derive": "rate"},
-            {"name": "cpu.basic.system", "derive": "rate"},
-            {"name": "cpu.basic.nice", "derive": "rate"},
-            {"name": "memory.used"},
-        ]
-
-
-@Endpoint.match(CHANNEL_TYPES, payload='null')
-class NullChannel(Channel):
-    def do_open(self, options):
-        pass
-
-
-Endpoint.match(CHANNEL_TYPES, payload='stream')(StreamChannel)

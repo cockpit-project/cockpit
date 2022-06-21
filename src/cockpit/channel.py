@@ -22,13 +22,6 @@ import asyncio
 class Endpoint:
     router = None
 
-    @staticmethod
-    def match(match_list, **kwargs):
-        def wrapper(cls):
-            match_list.append((kwargs, cls))
-            return cls
-        return wrapper
-
     def do_channel_control(self, command, message):
         raise NotImplementedError
 
@@ -37,6 +30,20 @@ class Endpoint:
 
 
 class Channel(Endpoint):
+    payload = None
+    restrictions = ()
+
+    @staticmethod
+    def create_match_rule(channel):
+        assert channel.payload is not None, f'{channel} declares no payload'
+        return dict(channel.restrictions, payload=channel.payload)
+
+    @staticmethod
+    def create_match_rules(channels):
+        rules = [(Channel.create_match_rule(cls), cls) for cls in channels]
+        rules.sort(key=lambda rule: len(rule[0]), reverse=True)  # more restrictive rules match first
+        return rules
+
     channel = None
 
     # input

@@ -104,13 +104,13 @@ There are also static code and syntax checks which you should run often:
 It is highly recommended to set up a git pre-push hook, to avoid pushing PRs
 that will fail on trivial errors:
 
-    $ ln -s ../../test/git-hook-pre-push .git/hooks/pre-push
+    $ ln -s ../../tools/git-hook-pre-push .git/hooks/pre-push
 
 This calls `test/static-code` for each commit you're trying to push.
 
 You can also set up a post-commit hook to do the same, after each commit:
 
-    $ ln -s ../../test/git-hook-post-commit .git/hooks/post-commit
+    $ ln -s ../../tools/git-hook-post-commit .git/hooks/post-commit
 
 We also have a hook to ameliorate one of the more annoying drawbacks of using
 git submodules:

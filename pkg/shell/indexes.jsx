@@ -460,11 +460,7 @@ function MachinesIndex(index_options, machines, loader) {
             let troubleshooting = false;
 
             if (!machine.restarting && (machine.problem === "no-host" || !!codes[machine.problem])) {
-                if (!troubleshooting) {
-                    troubleshooting = true;
-                }
-            } else {
-                troubleshooting = false;
+                troubleshooting = true;
             }
 
             const restarting = !!machine.restarting;

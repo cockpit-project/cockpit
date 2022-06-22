@@ -497,7 +497,7 @@ class TestRealms(MachineCase):
         self.allow_journal_messages("couldn't get all properties of org.freedesktop.realmd.Service.*org.freedesktop.DBus.Error.NoReply: Remote peer disconnected")
 
 
-@skipImage("freeipa not currently available", "debian-stable", "arch")
+@skipImage("freeipa not currently available", "debian-stable", "debian-testing", "arch")
 @skipDistroPackage()
 @no_retry_when_changed
 class TestIPA(TestRealms, CommonTests):
@@ -997,7 +997,7 @@ sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
 
 
 @skipImage("No realmd available", "fedora-coreos", "arch")
-@skipImage("freeipa not currently available", "debian-stable", "arch")
+@skipImage("freeipa not currently available", "debian-stable", "debian-testing", "arch")
 @skipDistroPackage()
 @no_retry_when_changed
 class TestKerberos(MachineCase):

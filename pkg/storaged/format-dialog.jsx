@@ -329,7 +329,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                 let new_crypto_options;
                 if (is_encrypted(vals)) {
                     let opts = [];
-                    if (vals.mount_options && vals.mount_options &&
+                    if (vals.mount_options &&
                         (!vals.mount_options.auto || vals.mount_options.never_auto)) {
                         opts.push("noauto");
                     }

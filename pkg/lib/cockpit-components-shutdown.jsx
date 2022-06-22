@@ -45,7 +45,7 @@ export class ShutdownModal extends React.Component {
             message: "",
             isOpen: false,
             selected: "1",
-            dateObj: undefined,
+            dateObject: undefined,
             startDate: undefined,
             date: "",
             time: "",

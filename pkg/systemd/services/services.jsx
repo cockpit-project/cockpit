@@ -146,7 +146,6 @@ class ServicesPageBody extends React.Component {
         super(props);
         this.state = {
             /* State related to the toolbar components */
-            stateDropdownIsExpanded: false,
             filters: {
                 activeState: [],
                 fileState: []
@@ -155,7 +154,6 @@ class ServicesPageBody extends React.Component {
 
             unit_by_path: {},
             loadingUnits: false,
-            path: cockpit.location.path,
             isFullyLoaded: false,
 
             error: null,

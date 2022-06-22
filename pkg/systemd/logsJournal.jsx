@@ -46,7 +46,6 @@ export class JournalBox extends React.Component {
             cursor: undefined,
             loading: true,
             logs: [],
-            running: true,
             streamFinished: false,
             didntReachStart: true,
         };

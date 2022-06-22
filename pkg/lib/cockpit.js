@@ -2524,11 +2524,7 @@ function factory() {
                 href = href.substr(1);
 
             const pos = href.indexOf('?');
-            let first = href;
-            if (pos === -1)
-                first = href;
-            else
-                first = href.substr(0, pos);
+            const first = (pos === -1) ? href : href.substr(0, pos);
             const path = decode_path(first);
             if (pos !== -1 && options) {
                 href.substring(pos + 1).split("&")

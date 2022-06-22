@@ -177,7 +177,7 @@ export class KpatchSettings extends React.Component {
         this.setState({ updating: true });
 
         if (this.state.applyCheckbox) {
-            let install = Promise.resolve(true);
+            let install;
             if (this.state.justCurrent) {
                 install = new Promise((resolve, reject) => {
                     cockpit.spawn(["dnf", "-y", "kpatch", "manual"], { superuser: "require", err: "message" })

@@ -455,7 +455,7 @@ export const dialog_open = (def) => {
         });
     };
 
-    const dlg = show_modal_dialog(props(null), footer_props(null, null));
+    const dlg = show_modal_dialog(props(), footer_props(null, null));
 
     const self = {
         run: (title, promise) => {
@@ -1135,7 +1135,7 @@ export const TeardownMessage = (usage) => {
         </div>);
 };
 
-export function init_active_usage_processes(client, usage, top_action, child_action) {
+export function init_active_usage_processes(client, usage) {
     return {
         title: _("Checking related processes"),
         func: dlg => {
@@ -1151,7 +1151,7 @@ export function init_active_usage_processes(client, usage, top_action, child_act
                 } else
                     return Promise.resolve();
             }).then(() => {
-                dlg.set_attribute("Teardown", TeardownMessage(usage, top_action, child_action));
+                dlg.set_attribute("Teardown", TeardownMessage(usage));
                 const usage_with_users = usage.filter(u => u.users);
                 const n_processes = usage_with_users.reduce((sum, u) => sum + u.users.filter(u => u.pid).length, 0);
                 const n_services = usage_with_users.reduce((sum, u) => sum + u.users.filter(u => u.unit).length, 0);

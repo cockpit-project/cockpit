@@ -54,7 +54,6 @@ export class TopNav extends React.Component {
         this.state = {
             component: component,
             frame: frame,
-            credentialsDialogOpened: false,
             docsOpened: false,
             menuOpened: false,
             showActivePages: false,

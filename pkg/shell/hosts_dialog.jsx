@@ -118,7 +118,6 @@ class AddMachine extends React.Component {
             color: color,
             addressError: "",
             inProgress: false,
-            run_error: null,
             old_machine: old_machine,
             userChanged: false,
         };

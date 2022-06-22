@@ -374,7 +374,7 @@ export class KdumpPage extends React.Component {
         };
         const dialogObj = show_modal_dialog(dialogProps, footerProps);
         dialogObj.updateDialogBody = updateDialogBody;
-        this.setState({ dialogSettings: settings, dialogTarget: self.props.kdumpStatus.target, dialogObj: dialogObj });
+        this.setState({ dialogSettings: settings, dialogObj });
     }
 
     render() {

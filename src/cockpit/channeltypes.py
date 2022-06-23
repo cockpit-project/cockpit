@@ -36,7 +36,8 @@ def internal_dbus_call(path, _iface, method, args):
             groups = [gr.gr_name for gr in grp.getgrall() if user.pw_name in gr.gr_mem]
             attrs = {"Name": user.pw_name, "Full": user.pw_gecos, "Id": user.pw_uid,
                      "Home": user.pw_dir, "Shell": user.pw_shell, "Groups": groups}
-            return [{k: {"v": v} for k, v in attrs.items()}]
+            types = {str: "s", list: "as", int: "i"}
+            return [{k: {"t": types[v.__class__], "v": v} for k, v in attrs.items()}]
 
     elif path == '/config':
         if method == 'GetUInt':

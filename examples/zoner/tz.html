@@ -1,32 +1,29 @@
 <head>
     <title>Time Zone</title>
     <meta charset="utf-8">
-    <link href="./patternfly.css" type="text/css" rel="stylesheet">
     <script src="../base1/cockpit.js"></script>
 </head>
 <body>
-    <div class="pf-c-page">
-        <main class="pf-c-page__main" tabindex="-1">
-            <section class="pf-c-page__main-section pf-m-light">
-                <div class="pf-l-stack pf-m-gutter">
-                    <div class="pf-l-stack__item">
-                        <label for="current">Time Zone</label>
-                        <span id="current"></span>
-                    </div>
-
-                    <div class="pf-l-stack__item">
-                        <label class="control-label" for="new">New Zone</label>
-                        <input class="form-control" id="new" value="UTC">
-                    </div>
-
-                    <div class="pf-l-stack__item">
-                        <button class="pf-c-button pf-m-primary" id="change">Change</button>
-                        <span id="failure"></span>
-                    </div>
+    <main tabindex="-1">
+        <section>
+            <div>
+                <div>
+                    <label for="current">Time Zone</label>
+                    <span id="current"></span>
                 </div>
-            </section>
-        </main>
-    </div>
+
+                <div>
+                    <label class="control-label" for="new">New Zone</label>
+                    <input class="form-control" id="new" value="UTC">
+                    <button id="change">Change</button>
+                </div>
+
+                <div>
+                    <span id="failure"></span>
+                </div>
+            </div>
+        </section>
+    </main>
 
     <script>
         const input = document.getElementById("new");
@@ -56,4 +53,3 @@
     </script>
 </body>
 </html>
-

@@ -111,6 +111,8 @@ for t, message in cdp.read_log():
 
     # TAP lines go to stdout, everything else to stderr
     if tap_line_re.match(message):
+        if message.startswith('not ok'):
+            success = False
         print(message)
     else:
         print(message, file=sys.stderr)

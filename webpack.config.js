@@ -331,14 +331,6 @@ const redhat_fonts = [
     };
 });
 
-// deprecated OpenSans static font for cockpit-ws package (still necessary for RHEL 7 remote hosts)
-const opensans_fonts = [
-    "Bold", "BoldItalic", "ExtraBold", "ExtraBoldItalic", "Italic", "Light",
-    "LightItalic", "Regular", "Semibold", "SemiboldItalic"
-].map(name => (
-    { from: path.resolve(nodedir, 'patternfly/dist/fonts/OpenSans-' + name + '-webfont.woff'), to: 'static/fonts/' }
-));
-
 function get_translation_reference_patterns () {
     // shell needs all manifest translations for search
     if (section === 'shell/')
@@ -384,10 +376,8 @@ if (stylelint) {
 if (section.startsWith('base1'))
     plugins.push(new Copy({ patterns: base1_fonts }));
 
-if (section.startsWith('static')) {
+if (section.startsWith('static'))
     plugins.push(new Copy({ patterns: redhat_fonts }));
-    plugins.push(new Copy({ patterns: opensans_fonts }));
-}
 
 /* Fill in the tests properly */
 info.tests.forEach(test => {

@@ -37,6 +37,7 @@ pyTESTS_PASSING = \
 	$(NULL)
 
 pyTESTS_FAILING = \
+	dist/base1/test-http.html \
 	dist/base1/test-websocket.html \
 	$(NULL)
 
@@ -45,7 +46,6 @@ pyTESTS_HANGING = \
 	dist/base1/test-dbus.html \
 	dist/base1/test-file.html \
 	dist/base1/test-spawn-proc.html \
-	dist/base1/test-http.html \
 	$(NULL)
 
 pyTESTS = $(pyTESTS_PASSING) $(pyTESTS_FAILING)

@@ -119,7 +119,7 @@ QUnit.test("not found", function (assert) {
                 assert.strictEqual(ex.problem, null, "mapped to cockpit code");
                 assert.strictEqual(ex.status, 404, "has status code");
                 assert.equal(ex.message, "Not Found", "has reason");
-                assert.true(data.includes('<h1>Not Found</h1>'), "got body");
+                assert.true(data !== undefined && data.includes('<h1>Not Found</h1>'), "got body");
             })
             .always(function() {
                 assert.equal(this.state(), "rejected", "should fail");
@@ -284,102 +284,47 @@ QUnit.test("http promise recursive", function (assert) {
     assert.equal(typeof promise3.input, "function", "promise3.input()");
 });
 
-QUnit.test("http keep alive", function (assert) {
-    const done = assert.async();
-    assert.expect(3);
+QUnit.test("http keep alive", async function (assert) {
+    assert.expect(1);
 
     /*
      * The /mock/connection handler returns an identifier that changes if
      * a different connection is used.
      */
-
-    cockpit.http({ port: test_server.port, connection: "marmalade" }).get("/mock/connection")
-            .always(function() {
-                assert.equal(this.state(), "resolved", "response didn't fail");
-            })
-            .done(function(data) {
-                const first = data;
-                cockpit.http({ port: test_server.port, connection: "marmalade" }).get("/mock/connection")
-                        .done(function(data) {
-                            assert.equal(first, data, "same connection");
-                        })
-                        .always(function() {
-                            assert.equal(this.state(), "resolved", "response didn't fail");
-                            done();
-                        });
-            });
+    const first = await cockpit.http({ port: test_server.port, connection: "marmalade" }).get("/mock/connection");
+    const second = await cockpit.http({ port: test_server.port, connection: "marmalade" }).get("/mock/connection");
+    assert.equal(first, second, "same connection");
 });
 
-QUnit.test("http connection different", function (assert) {
-    const done = assert.async();
-    assert.expect(3);
+QUnit.test("http connection different", async function (assert) {
+    assert.expect(1);
 
     /*
      * The /mock/connection handler returns an identifier that changes if
      * a different connection is used.
      */
-
-    cockpit.http({ port: test_server.port, connection: "one" }).get("/mock/connection")
-            .always(function() {
-                assert.equal(this.state(), "resolved", "response didn't fail");
-            })
-            .done(function(data) {
-                const first = data;
-                cockpit.http({ port: test_server.port, connection: "two" }).get("/mock/connection")
-                        .done(function(data) {
-                            assert.notEqual(first, data, "different connection");
-                        })
-                        .always(function() {
-                            assert.equal(this.state(), "resolved", "response didn't fail");
-                            done();
-                        });
-            });
+    const first = await cockpit.http({ port: test_server.port, connection: "one" }).get("/mock/connection");
+    const second = await cockpit.http({ port: test_server.port, connection: "two" }).get("/mock/connection");
+    assert.notEqual(first, second, "different connection");
 });
 
-QUnit.test("http connection without address ", function (assert) {
-    const done = assert.async();
-    assert.expect(3);
+QUnit.test("http connection without address", async function (assert) {
+    assert.expect(1);
 
     /*
      * Able to reuse connection client info and not specify address again.
      */
-
-    cockpit.http({ port: test_server.port, connection: "one" }).get("/mock/connection")
-            .always(function() {
-                assert.equal(this.state(), "resolved", "response didn't fail");
-            })
-            .done(function(data) {
-                const first = data;
-                cockpit.http({ connection: "one" }).get("/mock/connection")
-                        .done(function(data) {
-                            assert.equal(first, data, "different connection");
-                        })
-                        .always(function() {
-                            assert.equal(this.state(), "resolved", "response didn't fail");
-                            done();
-                        });
-            });
+    const first = await cockpit.http({ port: test_server.port, connection: "one" }).get("/mock/connection");
+    const second = await cockpit.http({ connection: "one" }).get("/mock/connection");
+    assert.equal(first, second, "same connection");
 });
 
 QUnit.test("no dns address", function (assert) {
-    const done = assert.async();
-    assert.expect(2);
+    assert.expect(1);
 
-    cockpit.http({
-        port: 8080,
-        address: "the-other-host.example.com"
-    })
-            .get("/")
-            .fail(function(ex, data) {
-            /* Unfortunately we can see either of these errors when running unit tests */
-                if (ex.problem === "timeout")
-                    ex.problem = "not-found";
-                assert.strictEqual(ex.problem, "not-found", "can't resolve is not found");
-            })
-            .always(function() {
-                assert.equal(this.state(), "rejected", "should fail");
-                done();
-            });
+    assert.rejects(cockpit.http({ port: 8080, address: "the-other-host.example.com" }).get("/"),
+                   /* Unfortunately we can see either of these errors when running unit tests */
+                   ex => { return ex.problem === "timeout" || ex.problem === "not-found" });
 });
 
 QUnit.test("address with params", function (assert) {

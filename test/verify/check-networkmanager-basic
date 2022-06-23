@@ -110,6 +110,7 @@ class TestNetworkingBasic(NetworkCase):
         # up again
         #
         m.execute(f"nmcli connection modify '{con_id}' ipv4.method auto")
+        m.execute(f"nmcli connection modify '{con_id}' ipv4.gateway ''")
         m.execute(f"nmcli connection modify '{con_id}' ipv4.addresses ''")
         self.wait_for_iface_setting('IPv4', "Automatic (DHCP)")
         m.execute(f"nmcli connection up '{con_id}'")
@@ -127,6 +128,54 @@ class TestNetworkingBasic(NetworkCase):
         b.wait_not_present("#network-ip-settings-dialog")
 
         wait(lambda: "yes" in m.execute(f"nmcli -f ipv4.ignore-auto-dns connection show '{con_id}'"))
+
+    def testIpHelper(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/network")
+        b.wait_visible("#networking")
+
+        iface = "cockpit1"
+        self.add_veth(iface, dhcp_cidr="10.111.113.2/20")
+        self.nm_activate_eth(iface)
+        self.wait_for_iface(iface)
+        b.click("button:contains('cockpit1')")
+
+        # wait until dialog initialized
+        b.click("#networking-edit-ipv4:contains('edit')")
+        b.wait_visible("#network-ip-settings-dialog")
+
+        b.select_from_dropdown("#network-ip-settings-select-method", "manual")
+        b.wait_visible("#network-ip-settings-address-0")
+        # test class A IP
+        b.set_input_text("#network-ip-settings-address-0", "10.0.5.1")
+        b.wait_val("#network-ip-settings-netmask-0", "255.0.0.0")
+        b.wait_val("#network-ip-settings-gateway-0", "10.0.5.254")
+
+        # test class B IP
+        b.set_input_text("#network-ip-settings-address-0", "172.16.44.2")
+        b.wait_val("#network-ip-settings-netmask-0", "255.255.0.0")
+        b.wait_val("#network-ip-settings-gateway-0", "172.16.44.1")
+        # test class C IP
+        b.set_input_text("#network-ip-settings-address-0", "192.168.1.1")
+        b.wait_val("#network-ip-settings-netmask-0", "255.255.255.0")
+        b.wait_val("#network-ip-settings-gateway-0", "192.168.1.254")
+        # others | Need to manually reset fields
+        b.set_input_text("#network-ip-settings-netmask-0", "")
+        b.set_input_text("#network-ip-settings-gateway-0", "")
+        b.set_input_text("#network-ip-settings-address-0", "225.4.3.2")
+        b.wait_val("#network-ip-settings-netmask-0", "")
+        b.wait_val("#network-ip-settings-gateway-0", "")
+        # free manual edit & save
+        b.set_input_text("#network-ip-settings-address-0", "192.168.1.1")
+        b.set_input_text("#network-ip-settings-netmask-0", "255.255.255.128")
+        b.set_input_text("#network-ip-settings-gateway-0", "192.168.1.126")
+        b.click("#network-ip-settings-save")
+        b.wait_not_present("#network-ip-settings-dialog")
+
+        self.assertIn("192.168.1.1/25", m.execute("nmcli -g ipv4.addresses connection show {0}".format(iface)))
+        self.assertIn("192.168.1.126", m.execute("nmcli -g ipv4.gateway connection show {0}".format(iface)))
 
     def testNoService(self):
         b = self.browser

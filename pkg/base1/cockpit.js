@@ -17,14 +17,5 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * WARNING: This is a legacy part of cockpit to produce cockpit.css (aka patternfly.css); retained for backwards compatibility
- * Newer code should not include cockpit.css, but let's not break API on RHEL 8
- */
-import "../lib/patternfly/patternfly-cockpit.scss";
-import "../lib/page.scss";
-import "@patternfly/patternfly/components/Button/button.css";
-import "../lib/table.css";
-
 // this registers itself as global on window.cockpit
 import cockpit from "cockpit"; // eslint-disable-line no-unused-vars

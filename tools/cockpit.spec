@@ -182,23 +182,10 @@ install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 install -D -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
 
-# only ship deprecated PatternFly API for stable releases
-%if 0%{?rhel} == 8
-    if [ -f %{buildroot}/%{_datadir}/cockpit/base1/cockpit.css.gz ]; then
-        ln -s cockpit.css.gz %{buildroot}/%{_datadir}/cockpit/base1/patternfly.css.gz
-    elif [ -f %{buildroot}/%{_datadir}/cockpit/base1/cockpit.css ]; then
-        ln -s cockpit.css %{buildroot}/%{_datadir}/cockpit/base1/patternfly.css
-    else
-        echo >&2 Neither cockpit.css.gz nor cockpit.css exists.
-        exit 1
-    fi
-%endif
-
 # Build the package lists for resource packages
 # cockpit-bridge is the basic dependency for all cockpit-* packages, so centrally own the page directory
 echo '%dir %{_datadir}/cockpit' > base.list
 echo '%dir %{_datadir}/cockpit/base1' >> base.list
-echo '%dir %{_datadir}/cockpit/base1/fonts' >> base.list
 find %{buildroot}%{_datadir}/cockpit/base1 -type f -o -type l >> base.list
 echo '%{_sysconfdir}/cockpit/machines.d' >> base.list
 echo %{buildroot}%{_datadir}/polkit-1/actions/org.cockpit-project.cockpit-bridge.policy >> base.list

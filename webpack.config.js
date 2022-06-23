@@ -311,13 +311,6 @@ if (section) {
 }
 info.files = files;
 
-// base1 fonts for cockpit-bridge package
-const base1_fonts = [
-    { from: path.resolve(nodedir, 'patternfly/dist/fonts/fontawesome-webfont.woff'), to: 'base1/fonts/fontawesome.woff' },
-    { from: path.resolve(nodedir, 'patternfly/dist/fonts/glyphicons-halflings-regular.woff'), to: 'base1/fonts/glyphicons.woff' },
-    { from: path.resolve(nodedir, 'patternfly/dist/fonts/PatternFlyIcons-webfont.woff'), to: 'base1/fonts/patternfly.woff' },
-];
-
 // main font for all our pages
 const redhat_fonts = [
     "Text-Bold", "Text-BoldItalic", "Text-Italic", "Text-Medium", "Text-MediumItalic", "Text-Regular",
@@ -372,9 +365,6 @@ if (stylelint) {
         context: "pkg/" + section,
     }));
 }
-
-if (section.startsWith('base1'))
-    plugins.push(new Copy({ patterns: base1_fonts }));
 
 if (section.startsWith('static'))
     plugins.push(new Copy({ patterns: redhat_fonts }));
@@ -456,64 +446,6 @@ module.exports = {
                 // also exclude unit tests, we don't need it for them, just a waste and makes failures harder to read
                 exclude: /\/node_modules|\/test-/,
                 use: "babel-loader"
-            },
-            /* HACK: remove unwanted fonts from PatternFly's css */
-            {
-                test: /patternfly-cockpit.scss$/,
-                use: [
-                    MiniCssExtractPlugin.loader,
-                    {
-                        loader: 'css-loader',
-                        options: {
-                            sourceMap: !production,
-                            url: false,
-                        },
-                    },
-                    {
-                        loader: 'string-replace-loader',
-                        options: {
-                            multiple: [
-                                {
-                                    search: /src: ?url[(]"patternfly-icons-fake-path\/glyphicons-halflings-regular[^}]*/g,
-                                    replace: 'font-display:block; src:url("../base1/fonts/glyphicons.woff") format("woff");',
-                                },
-                                {
-                                    search: /src: ?url[(]"patternfly-fonts-fake-path\/PatternFlyIcons[^}]*/g,
-                                    replace: 'src:url("../base1/fonts/patternfly.woff") format("woff");',
-                                },
-                                {
-                                    search: /src: ?url[(]"patternfly-fonts-fake-path\/fontawesome[^}]*/,
-                                    replace: 'font-display:block; src:url("../base1/fonts/fontawesome.woff?v=4.2.0") format("woff");',
-                                },
-                                {
-                                    search: /src: ?url\("patternfly-icons-fake-path\/pficon[^}]*/g,
-                                    replace: 'src:url("../base1/fonts/patternfly.woff") format("woff");',
-                                },
-                                {
-                                    search: /@font-face[^}]*patternfly-fonts-fake-path[^}]*}/g,
-                                    replace: '',
-                                },
-                            ]
-                        },
-                    },
-                    {
-                        loader: 'sass-loader',
-                        options: {
-                            sourceMap: !production,
-                            sassOptions: {
-                                quietDeps: true,
-                                outputStyle: production ? 'compressed' : undefined,
-                                includePaths: [
-                                    // Teach webpack to resolve these references in order to build PF3 scss
-                                    path.resolve(nodedir),
-                                    path.resolve(nodedir, 'font-awesome-sass', 'assets', 'stylesheets'),
-                                    path.resolve(nodedir, 'patternfly', 'dist', 'sass'),
-                                    path.resolve(nodedir, 'bootstrap-sass', 'assets', 'stylesheets'),
-                                ],
-                            },
-                        },
-                    },
-                ]
             },
             {
                 test: /patternfly-4-cockpit.scss$/,

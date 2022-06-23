@@ -12,6 +12,7 @@ EXAMPLES_DIR = os.path.join(os.path.dirname(TEST_DIR), "examples")
 
 @FMF.tag("example")
 @FMF.link("https://bugzilla.redhat.com/show_bug.cgi?id=1")
+@nondestructive
 @skipDistroPackage()
 class TestPinger(MachineCase):
 

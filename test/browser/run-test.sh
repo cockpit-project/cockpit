@@ -125,6 +125,7 @@ if [ -n "$test_basic" ]; then
               TestFirewall.testAddCustomServices
               TestFirewall.testNetworkingPage
 
+              TestNetworkingBasic.testIpHelper
               TestNetworkingBasic.testNoService
 
               TestLogin.testConversation

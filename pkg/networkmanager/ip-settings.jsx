@@ -130,6 +130,22 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
 
         return false;
     };
+    const addressIpv4Helper = (address) => {
+        const config = { address: address, netmask: null, gateway: null };
+        const split = address.split('.');
+
+        if (split.length !== 4)
+            return config;
+
+        config.gateway = `${split[0]}.${split[1]}.${split[2]}.${split[3] === "1" ? "254" : "1"}`;
+        if (split[0] >= 0 && split[0] <= 127) {
+            return { ...config, netmask: "255.0.0.0" };
+        } else if (split[0] >= 128 && split[0] <= 191) {
+            return { ...config, netmask: "255.255.0.0" };
+        } else if (split[0] <= 192 && split[0] <= 223) {
+            return { ...config, netmask: "255.255.255.0" };
+        } else return { ...config, gateway: null };
+    };
 
     return (
         <NetworkModal dialogError={dialogError}
@@ -172,7 +188,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
                                 <TextInput id={idPrefix + "-address-" + i} value={address.address} onChange={value => setAddresses(
                                     addresses.map((item, index) =>
                                         i === index
-                                            ? { ...item, address: value }
+                                            ? addressIpv4Helper(value)
                                             : item
                                     ))} />
                             </FormGroup>

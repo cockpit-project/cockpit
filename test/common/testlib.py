@@ -352,38 +352,82 @@ class Browser:
         self.mouse(selector + ":not([disabled]):not([aria-disabled=true])", "mousedown", 0, 0, 0)
 
     def val(self, selector):
+        """Get the value attribute of a selector.
+
+        :param selector: the selector to get the value of
+        """
         self.wait_visible(selector)
         return self.call_js_func('ph_val', selector)
 
     def set_val(self, selector, val):
+        """Set the value attribute of a non disabled DOM element.
+
+        This also emits a change DOM change event.
+
+        :param selector: the selector to set the value of
+        :param val: the value to set
+        """
         self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')
         self.call_js_func('ph_set_val', selector, val)
 
     def text(self, selector):
+        """Get an element's textContent value.
+
+        :param selector: the selector to get the value of
+        """
         self.wait_visible(selector)
         return self.call_js_func('ph_text', selector)
 
     def attr(self, selector, attr):
+        """Get the value of a given attribute of an element.
+
+        :param selector: the selector to get the attribute of
+        :param attr: the DOM element attribute
+        """
         self._wait_present(selector)
         return self.call_js_func('ph_attr', selector, attr)
 
     def set_attr(self, selector, attr, val):
+        """Set an attribute value of an element.
+
+        :param selector: the selector
+        :param attr: the element attribute
+        :param val: the value of the attribute
+        """
         self._wait_present(selector + ':not([disabled]):not([aria-disabled=true])')
         self.call_js_func('ph_set_attr', selector, attr, val and 'true' or 'false')
 
     def get_checked(self, selector):
+        """Get checked state of a given selector.
+
+        :param selector: the selector
+        :return: the checked state
+        """
         self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')
         return self.call_js_func('ph_get_checked', selector)
 
     def set_checked(self, selector, val):
+        """Set checked state of a given selector.
+
+        :param selector: the selector
+        :param val: boolean value to enable or disable checkbox
+        """
         self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')
         self.call_js_func('ph_set_checked', selector, val)
 
     def focus(self, selector):
+        """Set focus on selected element.
+
+        :param selector: the selector
+        """
         self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')
         self.call_js_func('ph_focus', selector)
 
     def blur(self, selector):
+        """Remove keyboard focus from selected element.
+
+        :param selector: the selector
+        """
         self.wait_visible(selector + ':not([disabled]):not([aria-disabled=true])')
         self.call_js_func('ph_blur', selector)
 
@@ -2250,24 +2294,19 @@ class Error(Exception):
 
 
 def wait(func, msg=None, delay=1, tries=60):
-    """
-    Wait for FUNC to return something truthy, and return that.
+    """Wait for FUNC to return something truthy, and return that.
 
     FUNC is called repeatedly until it returns a true value or until a
     timeout occurs.  In the latter case, a exception is raised that
     describes the situation.  The exception is either the last one
     thrown by FUNC, or includes MSG, or a default message.
 
-    Arguments:
-      func: The function to call.
-      msg: A error message to use when the timeout occurs.  Defaults
-        to a generic message.
-      delay: How long to wait between calls to FUNC, in seconds.
-        Defaults to 1.
-      tries: How often to call FUNC.  Defaults to 60.
-
-    Raises:
-      Error: When a timeout occurs.
+    :param func: The function to call
+    :param msg: A error message to use when the timeout occurs. Defaults
+                to a generic message.
+    :param delay: How long to wait between calls to FUNC, in seconds. (default 1)
+    :param tries: How often to call FUNC.  (defaults 60)
+    :raises Error: When a timeout occurs.
     """
 
     t = 0

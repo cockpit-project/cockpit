@@ -82,7 +82,7 @@ class Router(CockpitProtocolServer):
             if self.rule_matches(rule, options):
                 break
         else:
-            raise CockpitProtocolError('cannot match open request', problem='not-supported')
+            return None
 
         if issubclass(result, Peer):
             # Take the (sorted-by-name) list of all of the keys that the peer
@@ -125,14 +125,20 @@ class Router(CockpitProtocolServer):
         # message, then we expect the endpoint to already exist.
         if command == 'open':
             endpoint = self.route(message)
+
+            if endpoint is None:
+                self.send_control(command='close', channel=channel, problem='not-supported')
+                return
+
             # can't find a more pythonic way to do this without two lookups...
             if self.endpoints.setdefault(channel, endpoint) != endpoint:
                 raise CockpitProtocolError('channel is already open')
         else:
             try:
                 endpoint = self.endpoints[channel]
-            except KeyError as exc:
-                raise CockpitProtocolError('channel does not exist') from exc
+            except KeyError:
+                # sending to a non-existent channel can happen due to races and is not an error
+                return
 
         # At this point, we have the endpoint.  Route the message.
         endpoint.do_channel_control(command, message)
@@ -145,7 +151,7 @@ class Router(CockpitProtocolServer):
         logger.debug('Received %d bytes of data for channel %s', len(data), channel)
         try:
             endpoint = self.endpoints[channel]
-        except KeyError as exc:
-            raise CockpitProtocolError('channel does not exist') from exc
+        except KeyError:
+            return
 
         endpoint.do_channel_data(channel, data)

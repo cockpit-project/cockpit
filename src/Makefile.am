@@ -12,11 +12,13 @@ pyTESTS_PASSING = \
 	dist/base1/test-browser-storage.html \
 	dist/base1/test-cache.html \
 	dist/base1/test-chan.html \
+	dist/base1/test-dbus-framed.html \
 	dist/base1/test-echo.html \
 	dist/base1/test-events.html \
 	dist/base1/test-external.html \
 	dist/base1/test-format.html \
 	dist/base1/test-framed-cache.html \
+	dist/base1/test-framed.html \
 	dist/base1/test-journal-renderer.html \
 	dist/base1/test-locale.html \
 	dist/base1/test-location.html \
@@ -35,8 +37,6 @@ pyTESTS_PASSING = \
 	$(NULL)
 
 pyTESTS_FAILING = \
-	dist/base1/test-dbus-framed.html \
-	dist/base1/test-framed.html \
 	dist/base1/test-websocket.html \
 	$(NULL)
 

@@ -84,37 +84,13 @@ a.disabled:hover {
     --ct-animation-new-background: #fdf4dd;
 }
 
-/* Simple fade animation by default (mainly for reduced motion) */
+/* Animation background is instantly yellow and fades out halfway through */
 @keyframes ctNewRow {
   0% {
     background-color: var(--ct-animation-new-background);
   }
   50% {
     background-color: var(--ct-animation-new-background);
-  }
-}
-
-/* Redefine to a fancy animation when reduced-motion is not requested */
-@media (prefers-reduced-motion: no-preference) {
-  @keyframes ctNewRow {
-    0% {
-      background-color: var(--ct-animation-new-background);
-      transform: scaleX(0) scaleY(0);
-      opacity: 0;
-    }
-    10% {
-      transform: scaleX(1) scaleY(1);
-    }
-    12% {
-      transform: scaleX(1) scaleY(1.25);
-      opacity: 1;
-    }
-    15% {
-      transform: scaleX(1) scaleY(1);
-    }
-    70% {
-      background-color: var(--ct-animation-new-background);
-    }
   }
 }
 

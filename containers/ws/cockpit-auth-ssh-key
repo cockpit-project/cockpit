@@ -15,16 +15,7 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
-
-import os
-import sys
-import json
-import time
-import base64
-import subprocess
-
-COCKPIT_SSH_COMMAND = "/usr/libexec/cockpit-ssh"
-
+#
 # This command is meant to be used as an authentication command launched
 # by cockpit-ws. It asks for authentication from cockpit-ws and expects
 # to receive a basic auth header in response. If COCKPIT_SSH_KEY_PATH is set
@@ -35,10 +26,26 @@ COCKPIT_SSH_COMMAND = "/usr/libexec/cockpit-ssh"
 # cockpit protocol
 # (https://github.com/cockpit-project/cockpit/blob/main/doc/protocol.md)
 
+import base64
+import json
+import os
+import subprocess
+import sys
+import time
+
+COCKPIT_SSH_COMMAND = "/usr/libexec/cockpit-ssh"
+
 
 def usage():
-    sys.stderr.write("usage {} [user@]host[:port]\n".format(sys.argv[0]))
+    print("usage", sys.argv[0], "[user@]host[:port]", file=sys.stderr)
     sys.exit(os.EX_USAGE)
+
+
+def send_frame(content):
+    data = json.dumps(content).encode('utf-8')
+    os.write(1, str(len(data) + 1).encode('utf-8'))
+    os.write(1, b"\n\n")
+    os.write(1, data)
 
 
 def send_auth_command(challenge, response):
@@ -47,14 +54,12 @@ def send_auth_command(challenge, response):
     }
 
     if challenge:
-        cmd["cookie"] = "session{}{}".format(os.getpid(), time.time())
+        cmd["cookie"] = f"session{os.getpid()}{time.time()}"
         cmd["challenge"] = challenge
     if response:
         cmd["response"] = response
 
-    text = json.dumps(cmd).encode('utf-8')
-    os.write(1, "{}\n\n".format(len(text) + 1).encode('utf-8'))
-    os.write(1, text)
+    send_frame(cmd)
 
 
 def send_problem_init(problem, message, auth_methods):
@@ -69,9 +74,7 @@ def send_problem_init(problem, message, auth_methods):
     if auth_methods:
         cmd["auth-method-results"] = auth_methods
 
-    text = json.dumps(cmd).encode('utf-8')
-    os.write(1, "{}\n\n".format(len(text) + 1).encode('utf-8'))
-    os.write(1, text)
+    send_frame(cmd)
 
 
 def read_size(fd):
@@ -135,7 +138,7 @@ def send_decrypted_key(fname, password):
     r, w = os.pipe()
     os.set_inheritable(r, True)
     os.set_inheritable(w, True)
-    p = subprocess.Popen(["openssl", "rsa", "-in", fname, "-passin", "fd:{}".format(r)],
+    p = subprocess.Popen(["openssl", "rsa", "-in", fname, "-passin", f"fd:{r}"],
                          preexec_fn=lambda: os.close(w),
                          pass_fds=(r,),
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -146,10 +149,10 @@ def send_decrypted_key(fname, password):
 
     data, err = p.communicate()
     if p.returncode == 0:
-        send_auth_command(None, "private-key {}".format(data.decode('utf-8')))
+        send_auth_command(None, f"private-key {data.decode('utf-8')}")
         return True
     else:
-        sys.stderr.write("Couldn't open private key: {}".format(err))
+        print("Couldn't open private key:", err, file=sys.stderr)
         return False
 
 
@@ -169,7 +172,7 @@ def main(args):
             raise
 
         if send_decrypted_key(key_name, password):
-            host = "{}@{}".format(user, host)
+            host = f"{user}@{host}"
         else:
             send_problem_init("authentication-failed", "Couldn't open private key",
                               {"password": "denied"})

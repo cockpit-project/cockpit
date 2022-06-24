@@ -64,11 +64,6 @@ class TestTeam(NetworkCase):
         b.wait(lambda: 'nmcli con show | grep tteam')
         b.wait_visible("#networking-interfaces tr[data-interface='tteam']")
 
-        # Check that the configuration file has the expected sane name
-        # on systems that use "network-scripts".
-        if m.image not in ["fedora-coreos", "fedora-testing", "fedora-36"]:
-            m.execute("! test -d /etc/sysconfig || test -f /etc/sysconfig/network-scripts/ifcfg-tteam")
-
         # Check that the members are displayed
         self.select_iface('tteam')
         b.wait_visible("#network-interface")

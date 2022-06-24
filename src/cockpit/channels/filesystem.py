@@ -24,6 +24,26 @@ from ..channel import Channel
 logger = logging.getLogger(__name__)
 
 
+def tag_from_stat(buf):
+    return f'1:{buf.st_ino}-{buf.st_mtime}'
+
+
+def tag_from_path(path):
+    try:
+        return tag_from_stat(os.stat(path))
+    except FileNotFoundError:
+        return '-'
+    except OSError:
+        return None
+
+
+def tag_from_file(file):
+    try:
+        return tag_from_stat(os.fstat(file.fileno()))
+    except OSError:
+        return None
+
+
 class FsListChannel(Channel):
     payload = 'fslist1'
 
@@ -58,37 +78,70 @@ class FsReadChannel(Channel):
         self.ready()
         try:
             logger.debug('Opening file "%s" for reading', options['path'])
-            with open(options['path'], 'rb') as filep:
-                data = filep.read()
-                logger.debug('  ...sending %d bytes', len(data))
-                self.send_data(data)
+            try:
+                with open(options['path'], 'rb') as filep:
+                    buf = os.stat(filep.fileno())
+                    tag = tag_from_stat(buf)
+                    if max_read_size := options.get('max_read_size'):
+                        if buf.st_size > max_read_size:
+                            self.close(problem='too-large')
+                            return
+
+                    data = filep.read()
+            except IsADirectoryError:
+                self.close(problem='internal-error')
+                return
+            except FileNotFoundError:
+                tag = '-'
+                data = b''
+
+            if 'binary' not in options:
+                data = data.replace(b'\0', b'').decode('utf-8', errors='ignore').encode('utf-8')
+
+            logger.debug('  ...sending %d bytes', len(data))
+            self.send_data(data)
         except FileNotFoundError:
             logger.debug('  ...file not found!')
         self.done()
-        self.close()
+        self.close(tag=tag)
 
 
 class FsReplaceChannel(Channel):
     payload = 'fsreplace1'
 
-    _tempfile = None
     _path = None
+    _tag = None
+    _tempfile = None
 
     def do_open(self, options):
         self._path = options.get('path')
-        dirname, basename = os.path.split(self._path)
-        self._tempfile = tempfile.NamedTemporaryFile(dir=dirname, prefix=f'.{basename}-', delete=False)
+        self._tag = options.get('tag')
 
     def do_data(self, data):
+        if self._tempfile is None:
+            dirname, basename = os.path.split(self._path)
+            self._tempfile = tempfile.NamedTemporaryFile(dir=dirname, prefix=f'.{basename}-', delete=False)
         self._tempfile.write(data)
 
     def do_done(self):
-        self._tempfile.flush()
-        os.rename(self._tempfile.name, self._path)
-        self._tempfile.close()
-        self._tempfile = None
+        if self._tempfile is None:
+            try:
+                os.unlink(self._path)
+            except FileNotFoundError:
+                pass
+        else:
+            self._tempfile.flush()
+
+            if self._tag and self._tag != tag_from_path(self._path):
+                self.close(problem="change-conflict")
+                return
+
+            os.rename(self._tempfile.name, self._path)
+            self._tempfile.close()
+            self._tempfile = None
+
         self.done()
-        self.close()
+        self.close(tag=tag_from_path(self._path))
 
     def do_close(self):
         if self._tempfile is not None:

@@ -204,7 +204,7 @@ class Browser:
             schema = tls and "https" or "http"
             href = "%s://%s:%s%s" % (schema, self.address, self.port, href)
 
-        if not self.current_layout:
+        if not self.current_layout and os.environ.get("TEST_SHOW_BROWSER") in [None, "pixels"]:
             self.current_layout = self.layouts[0]
             size = self.current_layout["shell_size"]
             self._set_window_size(size[0], size[1])

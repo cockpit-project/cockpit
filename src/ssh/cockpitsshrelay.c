@@ -1044,7 +1044,7 @@ do_key_auth (CockpitSshData *data)
       rc = ssh_pki_import_privkey_base64 (key_data, NULL, NULL, NULL, &key);
       if (rc != SSH_OK)
         {
-          g_message ("%s: Got invalid key data, %s", data->logname, data->initial_auth_data);
+          g_message ("%s: Got invalid key data: %s\n%s", data->logname, ssh_get_error (data->session), data->initial_auth_data);
           return rc;
         }
       rc = ssh_userauth_publickey (data->session, NULL, key);

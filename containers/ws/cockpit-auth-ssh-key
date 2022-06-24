@@ -103,13 +103,13 @@ def read_size(fd):
 def read_frame(fd):
     size = read_size(fd)
 
-    data = ""
+    data = b""
     while size > 0:
         d = os.read(fd, size)
         size = size - len(d)
-        data = data + d.decode('utf8')
+        data += d
 
-    return data
+    return data.decode("UTF-8")
 
 
 def read_auth_reply():

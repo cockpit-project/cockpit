@@ -20,7 +20,7 @@ import '../lib/patternfly/patternfly-4-cockpit.scss';
 import 'polyfills'; // once per application
 
 import cockpit from "cockpit";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from 'react-dom';
 
 import {
@@ -513,17 +513,14 @@ class RestartServices extends React.Component {
     }
 }
 
-class ApplyUpdates extends React.Component {
-    constructor() {
-        super();
-        // actions is a chronological list of { status: PK_STATUS_*, package: "name version" } events
-        // that happen during applying updates
-        this.state = { percentage: 0, timeRemaining: null, actions: [] };
-    }
+const ApplyUpdates = ({ transaction, onCancel, allowCancel }) => {
+    const [percentage, setPercentage] = useState(0);
+    const [timeRemaining, setTimeRemaining] = useState(null);
+    // chronological list of { status: PK_STATUS_*, package: "name version" } events that happen during applying updates
+    const [actions, setActions] = useState([]);
 
-    componentDidMount() {
-        this._mounted = true;
-        const transactionPath = this.props.transaction;
+    useEffect(() => {
+        const transactionPath = transaction;
 
         PK.watchTransaction(transactionPath, {
             Package: (info, packageId) => {
@@ -531,17 +528,16 @@ class ApplyUpdates extends React.Component {
 
                 // small timeout to avoid excessive overlaps from the next PackageKit progress signal
                 PK.call(transactionPath, "org.freedesktop.DBus.Properties", "GetAll", [PK.transactionInterface], { timeout: 500 })
-                        .done(reply => {
-                            if (this._mounted === false)
-                                return;
-
+                        .then(reply => {
                             const percent = reply[0].Percentage.v;
                             let remain = -1;
                             if ("RemainingTime" in reply[0])
                                 remain = reply[0].RemainingTime.v;
                             // info: see PK_STATUS_* at https://github.com/PackageKit/PackageKit/blob/main/lib/packagekit-glib2/pk-enum.h
-                            const newActions = this.state.actions.slice();
-                            newActions.push({ status: info, package: pfields[0] + " " + pfields[1] + " (" + pfields[2] + ")" });
+                            setActions(prevActions => [...prevActions, {
+                                status: info,
+                                package: pfields[0] + " " + pfields[1] + " (" + pfields[2] + ")"
+                            }]);
 
                             const log = document.getElementById("update-log");
                             let atBottom = false;
@@ -550,11 +546,8 @@ class ApplyUpdates extends React.Component {
                                     atBottom = true;
                             }
 
-                            this.setState({
-                                actions: newActions,
-                                percentage: percent <= 100 ? percent : 0,
-                                timeRemaining: remain > 0 ? remain : null
-                            });
+                            setPercentage(percent <= 100 ? percent : 0);
+                            setTimeRemaining(remain > 0 ? remain : null);
 
                             // scroll update log to the bottom, if it already is (almost) at the bottom
                             if (log && atBottom)
@@ -562,67 +555,61 @@ class ApplyUpdates extends React.Component {
                         });
             },
         });
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const cancelButton = (
+        <Button className={actions.length !== 0 && "progress-cancel"}
+                variant="secondary"
+                onClick={onCancel}
+                isDisabled={!allowCancel}>
+            {_("Cancel")}
+        </Button>
+    );
+    if (actions.length === 0) {
+        return <EmptyStatePanel title={ _("Initializing...") }
+                                headingLevel="h5"
+                                titleSize="4xl"
+                                secondary={cancelButton}
+                                loading
+        />;
     }
 
-    componentWillUnmount() {
-        this._mounted = false;
-    }
+    const lastAction = actions[actions.length - 1];
+    const formatTimeRemaining = timeRemaining && timeformat.distanceToNow(new Date().valueOf() + timeRemaining * 1000);
+    return (
+        <>
+            <div className="progress-main-view">
+                <div className="progress-description">
+                    <Spinner isSVG size="sm" />
+                    <strong>{ PK_STATUS_STRINGS[lastAction.status] || PK_STATUS_STRINGS[PK.Enum.STATUS_UPDATE] }</strong>
+                    &nbsp;{lastAction.package}
+                </div>
+                <Progress title={formatTimeRemaining} value={percentage} />
+                {cancelButton}
+            </div>
 
-    render() {
-        const cancelButton = (
-            <Button className={this.state.actions.length !== 0 && "progress-cancel"}
-                   variant="secondary"
-                   onClick={this.props.onCancel}
-                   isDisabled={!this.props.allowCancel}>
-                {_("Cancel")}
-            </Button>
-        );
-        if (this.state.actions.length === 0) {
-            return <EmptyStatePanel title={ _("Initializing...") }
-                                    headingLevel="h5"
-                                    titleSize="4xl"
-                                    secondary={cancelButton}
-                                    loading
-            />;
-        }
-
-        const lastAction = this.state.actions[this.state.actions.length - 1];
-        const timeRemaining = this.state.timeRemaining && timeformat.distanceToNow(new Date().valueOf() + this.state.timeRemaining * 1000);
-        return (
-            <>
-                <div className="progress-main-view">
-                    <div className="progress-description">
-                        <Spinner isSVG size="sm" />
-                        <strong>{ PK_STATUS_STRINGS[lastAction.status] || PK_STATUS_STRINGS[PK.Enum.STATUS_UPDATE] }</strong>
-                        &nbsp;{lastAction.package}
+            <div className="update-log">
+                <ExpandableSection toggleText={_("Update log")} onToggle={() => {
+                    // always scroll down on expansion
+                    const log = document.getElementById("update-log");
+                    log.scrollTop = log.scrollHeight;
+                }}>
+                    <div id="update-log" className="update-log-content">
+                        <table>
+                            <tbody>
+                                { actions.slice(0, -1).map((action, i) => (
+                                    <tr key={action.package + i}>
+                                        <th>{PK_STATUS_LOG_STRINGS[action.status] || PK_STATUS_LOG_STRINGS[PK.Enum.STATUS_UPDATE]}</th>
+                                        <td>{action.package}</td>
+                                    </tr>)) }
+                            </tbody>
+                        </table>
                     </div>
-                    <Progress title={timeRemaining} value={this.state.percentage} />
-                    {cancelButton}
-                </div>
-
-                <div className="update-log">
-                    <ExpandableSection toggleText={_("Update log")} onToggle={() => {
-                        // always scroll down on expansion
-                        const log = document.getElementById("update-log");
-                        log.scrollTop = log.scrollHeight;
-                    }}>
-                        <div id="update-log" className="update-log-content">
-                            <table>
-                                <tbody>
-                                    { this.state.actions.slice(0, -1).map((action, i) => (
-                                        <tr key={action.package + i}>
-                                            <th>{PK_STATUS_LOG_STRINGS[action.status] || PK_STATUS_LOG_STRINGS[PK.Enum.STATUS_UPDATE]}</th>
-                                            <td>{action.package}</td>
-                                        </tr>)) }
-                                </tbody>
-                            </table>
-                        </div>
-                    </ExpandableSection>
-                </div>
-            </>
-        );
-    }
-}
+                </ExpandableSection>
+            </div>
+        </>
+    );
+};
 
 const TwoColumnContent = ({ list, flexClassName }) => {
     const half = Math.round(list.length / 2);

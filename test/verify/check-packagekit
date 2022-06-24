@@ -375,8 +375,8 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         b.wait_visible("#app div.pf-c-progress__bar")
 
         # cancel the installation
-        b.wait_in_text(".progress-main-view button.progress-cancel", "Cancel")
-        b.click(".progress-main-view button.progress-cancel")
+        b.wait_in_text(".progress-main-view button.pf-m-secondary", "Cancel")
+        b.click(".progress-main-view button.pf-m-secondary")
         # abort the current download, so that read calls don't hang indefinitely
         m.spawn(f"echo > {self.vm_tmpdir}/fifo", "fifo")
 
@@ -386,10 +386,11 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         self.assertFalse(b.is_present("table.updates-history"))
         m.execute("test -f /stamp-vanilla-1.0-1 && test -f /stamp-chocolate-2.0-1")
 
-        # update again; Cancel button should eventually get disabled
+        # update again; Cancel button should eventually disappear
         m.execute(f"umount {chocolate}")
         b.click("#available-updates button#install-all")
-        b.wait_visible(".progress-main-view button.progress-cancel:disabled")
+        b.wait_visible(".progress-main-view")
+        b.wait_not_present(".progress-main-view button.pf-m-secondary")
 
         # update log only exists in the expander, collapsed by default
         self.assertFalse(b.is_visible("#update-log"))
@@ -975,6 +976,37 @@ ExecStart=/usr/local/bin/{packageName}
                               desc_matches=["Things change #00", "Things change #29"])
 
         # seems we can't verify that the description has a scrollbar
+
+    def testRebootAfterSuccess(self):
+        b = self.browser
+        m = self.machine
+
+        install_lockfile = "/tmp/finish-pk"
+        # create two updates; force installing chocolate before vanilla
+        self.createPackage("vanilla", "1.0", "1", install=True)
+        self.createPackage("vanilla", "1.0", "2",
+                           postinst="while [ ! -e {0} ]; do sleep 1; done; rm -f {0}".format(install_lockfile))
+        self.enableRepo()
+        m.execute("pkcon refresh")
+
+        m.start_cockpit()
+        b.login_and_go("/updates")
+        with b.wait_timeout(30):
+            b.wait_visible("#available-updates")
+        b.click("#available-updates button#install-all")
+
+        b.wait_visible("#app div.pf-c-progress__bar")
+        # auto-reboot is off by default
+        b.wait_visible("#reboot-after:not(:checked)")
+        b.click("#reboot-after")
+        b.wait_visible("#reboot-after:checked")
+
+        m.execute(f"touch {install_lockfile}")
+        # reboots automatically
+        b.switch_to_top()
+        b.wait_in_text(".curtains-ct h1", "Disconnected")
+        m.wait_reboot()
+        self.allow_restart_journal_messages()
 
     @nondestructive
     def testUpdateError(self):

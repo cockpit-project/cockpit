@@ -24,15 +24,18 @@ import React, { useState, useEffect } from "react";
 import ReactDOM from 'react-dom';
 
 import {
-    Alert, Badge, Button, Gallery, Modal, Progress, Popover, Tooltip,
+    Alert, Badge, Button, Gallery, Modal, Popover, Tooltip,
     Card, CardTitle, CardActions, CardHeader, CardBody,
     DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
     ExpandableSection,
     Flex, FlexItem,
+    Grid, GridItem,
     LabelGroup,
+    Page, PageSection, PageSectionVariants,
+    Progress, ProgressSize,
     Spinner,
     Stack, StackItem,
-    Page, PageSection, PageSectionVariants,
+    Switch,
     Text, TextContent, TextListItem, TextList, TextVariants,
 } from '@patternfly/react-core';
 
@@ -513,7 +516,7 @@ class RestartServices extends React.Component {
     }
 }
 
-const ApplyUpdates = ({ transaction, onCancel, allowCancel }) => {
+const ApplyUpdates = ({ transaction, onCancel, allowCancel, rebootAfter, setRebootAfter }) => {
     const [percentage, setPercentage] = useState(0);
     const [timeRemaining, setTimeRemaining] = useState(null);
     // chronological list of { status: PK_STATUS_*, package: "name version" } events that happen during applying updates
@@ -560,14 +563,10 @@ const ApplyUpdates = ({ transaction, onCancel, allowCancel }) => {
         });
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const cancelButton = (
-        <Button className={actions.length !== 0 && "progress-cancel"}
-                variant="secondary"
-                onClick={onCancel}
-                isDisabled={!allowCancel}>
-            {_("Cancel")}
-        </Button>
-    );
+    const cancelButton = allowCancel
+        ? <Button variant="secondary" onClick={onCancel} isSmall>{_("Cancel")}</Button>
+        : null;
+
     if (actions.length === 0) {
         return <EmptyStatePanel title={ _("Initializing...") }
                                 headingLevel="h5"
@@ -580,37 +579,49 @@ const ApplyUpdates = ({ transaction, onCancel, allowCancel }) => {
     const lastAction = actions[actions.length - 1];
     const formatTimeRemaining = timeRemaining && timeformat.distanceToNow(new Date().valueOf() + timeRemaining * 1000);
     return (
-        <>
-            <div className="progress-main-view">
-                <div className="progress-description">
-                    <Spinner isSVG size="sm" />
-                    <strong>{ PK_STATUS_STRINGS[lastAction.status] || PK_STATUS_STRINGS[PK.Enum.STATUS_UPDATE] }</strong>
-                    &nbsp;{lastAction.package}
-                </div>
-                <Progress title={formatTimeRemaining} value={percentage} />
-                {cancelButton}
-            </div>
-
-            <div className="update-log">
-                <ExpandableSection toggleText={_("Update log")} onToggle={() => {
-                    // always scroll down on expansion
-                    const log = document.getElementById("update-log");
-                    log.scrollTop = log.scrollHeight;
-                }}>
-                    <div id="update-log" className="update-log-content">
-                        <table>
-                            <tbody>
-                                { actions.slice(0, -1).map((action, i) => (
-                                    <tr key={action.package + i}>
-                                        <th>{PK_STATUS_LOG_STRINGS[action.status] || PK_STATUS_LOG_STRINGS[PK.Enum.STATUS_UPDATE]}</th>
-                                        <td>{action.package}</td>
-                                    </tr>)) }
-                            </tbody>
-                        </table>
+        <div className="progress-main-view">
+            <Grid hasGutter>
+                <GridItem span="9">
+                    <div className="progress-description">
+                        <Spinner isSVG size="md" />
+                        <strong>{ PK_STATUS_STRINGS[lastAction.status] || PK_STATUS_STRINGS[PK.Enum.STATUS_UPDATE] }</strong>
+                        &nbsp;{lastAction.package}
                     </div>
-                </ExpandableSection>
-            </div>
-        </>
+                    <Progress title={formatTimeRemaining}
+                              value={percentage}
+                              size={ProgressSize.sm}
+                              className="pf-u-mb-xs" />
+                </GridItem>
+
+                <GridItem span="3">{cancelButton}</GridItem>
+
+                <GridItem span="12">
+                    <Switch id="reboot-after" isChecked={rebootAfter}
+                            label={ _("Reboot after completion") }
+                            onChange={setRebootAfter} />
+                </GridItem>
+
+                <GridItem span="12" className="update-log">
+                    <ExpandableSection toggleText={_("View update log")} onToggle={() => {
+                        // always scroll down on expansion
+                        const log = document.getElementById("update-log");
+                        log.scrollTop = log.scrollHeight;
+                    }}>
+                        <div id="update-log" className="update-log-content">
+                            <table>
+                                <tbody>
+                                    { actions.slice(0, -1).map((action, i) => (
+                                        <tr key={action.package + i}>
+                                            <th>{PK_STATUS_LOG_STRINGS[action.status] || PK_STATUS_LOG_STRINGS[PK.Enum.STATUS_UPDATE]}</th>
+                                            <td>{action.package}</td>
+                                        </tr>)) }
+                                </tbody>
+                            </table>
+                        </div>
+                    </ExpandableSection>
+                </GridItem>
+            </Grid>
+        </div>
     );
 };
 
@@ -973,6 +984,7 @@ class OsUpdates extends React.Component {
             showRestartServicesDialog: false,
             showRebootSystemDialog: false,
             backend: "",
+            rebootAfterSuccess: false,
         };
         this.handleLoadError = this.handleLoadError.bind(this);
         this.handleRefresh = this.handleRefresh.bind(this);
@@ -1470,9 +1482,17 @@ class OsUpdates extends React.Component {
             return <ApplyUpdates transaction={this.state.applyTransaction}
                                  onCancel={ () => PK.call(this.state.applyTransaction, PK.transactionInterface, "Cancel", []) }
                                  allowCancel={this.state.allowCancel}
+                                 rebootAfter={this.state.rebootAfterSuccess}
+                                 setRebootAfter={ enabled => this.setState({ rebootAfterSuccess: enabled }) }
             />;
 
         case "updateSuccess": {
+            if (this.state.rebootAfterSuccess) {
+                this.setState({ state: "restart" });
+                cockpit.spawn(["shutdown", "--reboot", "now"], { superuser: "require" });
+                return null;
+            }
+
             let warningTitle;
             if (!this.state.tracerAvailable) {
                 warningTitle = _("Reboot recommended");

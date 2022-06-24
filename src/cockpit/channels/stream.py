@@ -85,7 +85,7 @@ class StreamChannel(AsyncChannel):
             stderr = asyncio.subprocess.STDOUT
         elif err == 'ignore':
             stderr = asyncio.subprocess.DEVNULL
-        elif err == 'message':
+        elif err == 'message' or err is None:
             stderr = asyncio.subprocess.PIPE
         else:
             stderr = None

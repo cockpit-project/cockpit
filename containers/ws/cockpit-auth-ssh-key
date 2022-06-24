@@ -135,24 +135,15 @@ def decode_basic_header(response):
 
 
 def send_decrypted_key(fname, password):
-    r, w = os.pipe()
-    os.set_inheritable(r, True)
-    os.set_inheritable(w, True)
-    p = subprocess.Popen(["openssl", "rsa", "-in", fname, "-passin", f"fd:{r}"],
-                         preexec_fn=lambda: os.close(w),
-                         pass_fds=(r,),
-                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.run(["openssl", "rsa", "-in", fname, "-passin", "stdin"],
+                       check=False, capture_output=True, encoding="UTF-8",
+                       input=password)
 
-    os.write(w, password.encode('utf-8'))
-    os.close(w)
-    os.close(r)
-
-    data, err = p.communicate()
     if p.returncode == 0:
-        send_auth_command(None, f"private-key {data.decode('utf-8')}")
+        send_auth_command(None, f"private-key {p.stdout}")
         return True
     else:
-        print("Couldn't open private key:", err, file=sys.stderr)
+        print("Couldn't open private key:", p.stderr, file=sys.stderr)
         return False
 
 

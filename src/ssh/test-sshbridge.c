@@ -679,7 +679,7 @@ test_echo_large (TestCase *tc,
   g_bytes_unref (received);
   received = NULL;
 
-  /* Double check that didn't csrew things up */
+  /* Double check that didn't screw things up */
   sent = g_bytes_new_static ("yello", 5);
   cockpit_transport_send (tc->transport, "546", sent);
   while (received == NULL)
@@ -1163,79 +1163,33 @@ test_cannot_connect (void)
   g_strfreev (env);
 }
 
-/* test_rsa */
-static const gchar MOCK_PRIV_KEY[] = "-----BEGIN RSA PRIVATE KEY-----\n"
-"MIIEowIBAAKCAQEAvkPEj9GX9I0v/3dxCUB73TgOYjxkXB/m2ecKnUYmYtEwgirA\n"
-"onCgZRMAvB7UaP5e6U/pNCXuZ+UgS0yU6tqEXD7MQ4YZiiNU1RaLe/gQ21NEx27h\n"
-"hCGTZOLKcSfOFv2Z77OUcXSop2PZxQweYaH1+RB7hojOd7ZchN/tIBxvea5JSg/0\n"
-"wLC8Lm65gpCZCxG2TNgfymovnyrYB44HnwEm4jCMU4uP68h0+D297US4oWwcpcqE\n"
-"2S4LOxazjw1Brvntpqwtq624tUb1QVYMxdHpCR7Qu843r3XSpS4BwrnOks7Sbgyg\n"
-"tHiKgogY5Xhu7ZqsTODtzyJ950YD0scnY41qHQIDAQABAoIBAFlQHnkUfixCCoH1\n"
-"Y45gQsS5h6b9im7kWs128ziYsXQ5lnfD8eFO1TwdC39DSZpvrcX/yQy9sYf7uoke\n"
-"Tdlg8jkLEX+w91Qs+al9h8SN0fvivqqPljUcPcBh5X3wnYGVUil/NvN7O6A38wXY\n"
-"hnp2OKzN2+5vUdxIMm39X6ZvMrT/FyQjvdp393G4f0blYl7Npdc+HYPNnhHdgi4I\n"
-"NUa32pG3ypoWkQRAYApaG2RXPTWQXTM2w4CFK5uJx/pB3r5NidU/H0XAl4TAuw9M\n"
-"V9hrIPAOh5zKvHcPv8xOwR0Bt36F+/QATjO9pvlzQO6Rn3x2dyAVdaFMgdYTNpQQ\n"
-"t0ZYsYECgYEA8yAhKUnArEQ4A+AI+pCtZuftzkXmnQ5SHNUtF2GeR5tRZ1PBF/tp\n"
-"zoVRW+5ge1hI2VEx3ziGHEIBr7FfVej7twQ3URv5ILYj6CoNOf+HxkZgkTDGpYdj\n"
-"AVvyjeD5qJEwCSeJ2bxD5LmxS9is8b8rXjVKRuPxwLeWqEjemPb0KNUCgYEAyFcL\n"
-"TdN9cZghuzLZ0vfP4k9Hratunskz5njTFKnJx90riE7VqPH9OHvTeHn1xJ5WACnb\n"
-"mFpAUG1v7BmC+WLEIPnKRKvuzL5C1yr+mntwTZsrwsLDdT/nfTS9hWzk9U6ykhJA\n"
-"De8nNfxHuCoqM++CNvh+rA4W2Zc6WmE0uCwXYCkCgYEA70KMP+Sb3yvXcEDWtTcR\n"
-"3raZ+agitib0ufk0QdFIgbGhH6111lMOIjZjBbSGcHxGXM8h5Ens+PwgSrWkW5hH\n"
-"tylIAuMjfYShu4U+tPf6ty5lNB0rMJUW4qyI/AUNzEztV+T4LTWwHvR7PWgDcniu\n"
-"hiytZyxFqmFBu2TS4vgM+e0CgYAvAL0WNVhpHlhLo1KXvKx5XEBk7qO1fV8/43ki\n"
-"j/NXgPyFrnlSefP/HI4w5exThRKIV0m+JO6R8BsiOZoRCKsbUX+zPON6BemIsf2q\n"
-"IOvoSU+rEibpi2S0a3tLopDVPPGIc9+zZTi94cKx4rKkHL1gSEzv8R5LTr/SFJxZ\n"
-"2X5igQKBgBTkIeB0yI2PGf1drI+YbhDfgIphEeSCPbWxcUzPCcwLqXGo41cr8RXY\n"
-"TgWtKk0gXhJWkMSIIXrfucCvXHTkk8wlqqgAVwrTgq4Q16LfBuucLwSe4TLp4SJZ\n"
-"Lko5CzOq+EIv6DIlZ3tRHeDFatWe+41w27KhrV9yxB6Ay0MalP4i\n"
-"-----END RSA PRIVATE KEY-----";
-
- /* mock_dsa_key */
-static const gchar MOCK_DSA_KEY[] = "-----BEGIN DSA PRIVATE KEY-----\n"
-"MIIBugIBAAKBgQCCt0UxFgcPqwD3GFDNkKuJBMOfYF6VEP1r5HXmO0AzuuDB2mqK\n"
-"8ko/MbK2jbnZkBYeMW/4uUNRDJzXIThcbYpX1OW1CYHU73rcmRFhS/th8agbPBml\n"
-"kcgdb7UhQMNxjvFVBJ4xfOODd3Tci6HNDV/CL88DSGkIaOik7LnkJRtV/QIVAJdS\n"
-"XhrlS8SUvi2GL/xCXFHk+0R7AoGAajaZeTEwcSkLuY09PlgEmu6QKsE+d6H7+2Uw\n"
-"yBKJGEW+e/58Mw4JHLNX7AUayOnnMyf1ZV1sCm7IJMdjYd2YlmMAvh2ObqkaQ2o9\n"
-"xxEQuizJ+Hc3XJdvX2Hs4hImwm0YyV+ZWRdryGgNRML/Mk9FJbp8h2UYssOFpRIJ\n"
-"ZH/zSEwCgYBxLsdBBXn+8qEYwWK9KT+arRqNXC/lrl0Fp5YyxGNGCv82JcnuOShG\n"
-"GTzhYf8AtTCY1u5oixiW9kea6KXGAKgTjfJShr7n47SZVfOPOrBT3VLhRdGGO3Gb\n"
-"lDUppzfL8wsEdoqXjzrJuxSdrGnkFu8S9QjkPn9dCtScvWEcluHqMwIUUd82Co5T\n"
-"738f4g+9Iuj9G/rNdfg=\n"
-"-----END DSA PRIVATE KEY-----";
-
 static void
 test_key_good (TestCase *tc,
                gconstpointer data)
 {
-  JsonObject *init = NULL;
-  gchar *msg = g_strdup_printf ("private-key %s", MOCK_PRIV_KEY);
+  g_autofree gchar *privkey = NULL;
+  g_assert (g_file_get_contents (SRCDIR "/src/ssh/test_rsa", &privkey, NULL, NULL));
+
+  g_autofree gchar *msg = g_strdup_printf ("private-key %s", privkey);
 
   do_auth_response (tc->transport, "*", msg);
-  init = wait_until_transport_init (tc->transport, NULL);
+  g_autoptr(JsonObject) init = wait_until_transport_init (tc->transport, NULL);
   do_echo_and_close (tc);
-
-  json_object_unref (init);
-  g_free (msg);
 }
 
 static void
 test_key_fail (TestCase *tc,
                gconstpointer data)
 {
-  JsonObject *init = NULL;
-  JsonObject *auth_results = NULL;
-  gchar *msg = g_strdup_printf ("private-key %s", MOCK_DSA_KEY);
+  g_autofree gchar *privkey = NULL;
+  g_assert (g_file_get_contents (SRCDIR "/src/ssh/mock_dsa_key", &privkey, NULL, NULL));
+
+  g_autofree gchar *msg = g_strdup_printf ("private-key %s", privkey);
 
   do_auth_response (tc->transport, "*", msg);
-  init = wait_until_transport_init (tc->transport, "authentication-failed");
-  auth_results = json_object_get_object_member (init, "auth-method-results");
+  g_autoptr(JsonObject) init = wait_until_transport_init (tc->transport, "authentication-failed");
+  JsonObject *auth_results = json_object_get_object_member (init, "auth-method-results");
   cockpit_assert_json_eq (auth_results, "{\"password\":\"not-provided\",\"public-key\":\"denied\",\"gssapi-mic\":\"no-server-support\"}");
-
-  json_object_unref (init);
-  g_free (msg);
 }
 
 static void

@@ -1,6 +1,8 @@
 @use "ct-card";
 @use "page";
 
+@import "@patternfly/patternfly/utilities/Spacing/spacing.css";
+
 /* Style the list cards as ct-cards */
 .pf-c-page__main-section .pf-c-card {
     @extend .ct-card;
@@ -112,17 +114,15 @@ div.changelog {
 .progress-main-view {
     max-width: 60rem;
     margin: 10ex auto 0;
+
+    .pf-l-grid {
+        align-items: end;
+    }
 }
 
 /* workaround font not supporting tabular numbers yet https://github.com/cockpit-project/cockpit/issues/15090 */
 .pf-c-progress__status {
     min-width: 3ch;
-}
-
-/* don't let the install progress bar get too wide */
-.progress-cancel {
-    display: flex;
-    margin: 1em auto;
 }
 
 /* Add some space between the spinner and the text */
@@ -154,8 +154,6 @@ div.changelog {
 }
 
 .update-log {
-    margin: 0 auto;
-    max-width: 69rem;
     text-align: center;
 
     th {

@@ -86,9 +86,8 @@ If the authentication command has additional data that it would like to return w
 it can do so by sending a `x-login-data` challenge. The command should have an additional JSON field
 `login-data`. The string placed there will be returned by along with a successful json response.
 
-For a simple python example see:
-
-[https://github.com/cockpit-project/cockpit/blob/main/containers/bastion/cockpit-auth-ssh-key]
+For a simple python example see
+[cockpit-auth-ssh-key](https://github.com/cockpit-project/cockpit/blob/main/containers/ws/cockpit-auth-ssh-key).
 
 Remote machines
 ---------------

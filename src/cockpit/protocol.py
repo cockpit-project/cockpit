@@ -18,6 +18,7 @@
 import asyncio
 import json
 import logging
+import os
 
 logger = logging.getLogger('cockpit.protocol')
 
@@ -35,6 +36,7 @@ class CockpitProtocol(asyncio.Protocol):
     buffered protocols.
     '''
     transport = None
+    is_interactive = os.isatty(0)
     buffer = b''
 
     def do_ready(self):
@@ -77,8 +79,17 @@ class CockpitProtocol(asyncio.Protocol):
         # Nothing to look at?  Save ourselves the trouble...
         if not view:
             return 0
-
         view = bytes(view)
+
+        if self.is_interactive:
+            # we read until we get a '---' separator
+            try:
+                sep = view.index(b'---\n')
+                self.do_frame(view[0:sep])
+                return sep + 4
+            except ValueError:
+                return 0
+
         # We know the length + newline is never more than 10 bytes, so just
         # slice that out and deal with it directly.  We don't have .index() on
         # a memoryview, for example.

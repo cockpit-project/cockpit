@@ -53,7 +53,7 @@ login page. The user always has to specify a host name, and it connects to that
 host with SSH.
 
 ```
-podman run -d --name cockpit-bastion -p 9090:9090 quay.io/cockit/ws
+podman run -d --name cockpit-bastion -p 9090:9090 quay.io/cockpit/ws
 ```
 
 This mode is suitable for deploying to e.g. Kubernetes or similar environments

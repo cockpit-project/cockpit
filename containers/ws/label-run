@@ -40,5 +40,7 @@ else
     mountpoint --quiet /etc/cockpit/cockpit.conf || ln -s /container/default-bastion.conf /etc/cockpit/cockpit.conf
 
     /usr/libexec/cockpit-certificate-ensure
+
+    eval $(ssh-agent)
     exec /usr/libexec/cockpit-ws --local-ssh "$@"
 fi

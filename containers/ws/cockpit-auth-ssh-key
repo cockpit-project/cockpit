@@ -134,16 +134,36 @@ def decode_basic_header(response):
     return user, password
 
 
-def send_decrypted_key(fname, password):
-    p = subprocess.run(["openssl", "rsa", "-in", fname, "-passin", "stdin"],
-                       check=False, capture_output=True, encoding="UTF-8",
-                       input=password)
+def load_key(fname, password):
+    # ssh-add has the annoying behavior that it re-asks without any limit if the password is wrong
+    # to mitigate, self-destruct to only allow one iteration
+    with open("/run/askpass", "w") as fd:
+        fd.write("""#!/bin/sh
+rm -f $0
+cat /run/password""")
+
+        os.fchmod(fd.fileno(), 0o755)
+
+    env = os.environ.copy()
+    env["SSH_ASKPASS_REQUIRE"] = "force"
+    env["SSH_ASKPASS"] = "/run/askpass"
+
+    pass_fd = os.open("/run/password", os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_CLOEXEC, mode=0o600)
+    try:
+        os.write(pass_fd, password.encode("UTF-8"))
+        os.close(pass_fd)
+
+        p = subprocess.run(["ssh-add", "-t", "30", fname],
+                           check=False, env=env,
+                           capture_output=True, encoding="UTF-8")
+    finally:
+        os.unlink("/run/password")
 
     if p.returncode == 0:
-        send_auth_command(None, f"private-key {p.stdout}")
+        send_auth_command(None, "ssh-agent")
         return True
     else:
-        print("Couldn't open private key:", p.stderr, file=sys.stderr)
+        print("Couldn't load private key:", p.stderr, file=sys.stderr)
         return False
 
 
@@ -162,7 +182,7 @@ def main(args):
             send_problem_init("internal-error", str(e), {})
             raise
 
-        if send_decrypted_key(key_name, password):
+        if load_key(key_name, password):
             host = f"{user}@{host}"
         else:
             send_problem_init("authentication-failed", "Couldn't open private key",

@@ -173,7 +173,7 @@ class TestWsBastionContainer(MachineCase):
         b = self.browser
 
         KEY_PASSWORD = "sshfoobar"
-        # FIXME: cockpit-auth-ssh-key only understands PEM format RSA keys
+        # old RSA/PEM format
         m.execute(f"ssh-keygen -q -f /root/id_bastion -t rsa -m PEM -N {KEY_PASSWORD}")
         m.execute(f"ssh-keyscan localhost | sed 's/^localhost/{HOST}/' > /root/known_hosts")
         self.addCleanup(m.execute, "rm /root/known_hosts /root/id_bastion /root/id_bastion.pub")
@@ -212,6 +212,16 @@ class TestWsBastionContainer(MachineCase):
         b.wait_text_not("#login-error-message", "")
 
         # works with correct key password
+        b.set_val("#login-password-input", KEY_PASSWORD)
+        b.click("#login-button")
+        b.wait_visible('#content')
+        b.logout()
+
+        # now test with current OpenSSH format
+        m.execute(f"yes | ssh-keygen -q -f /root/id_bastion -t rsa -N {KEY_PASSWORD}")
+        m.execute(f"cp /root/id_bastion.pub {p} && chown admin:admin {p} && chmod 600 {p}")
+        b.set_val("#login-user-input", "admin")
+        b.set_val("#server-field", HOST)
         b.set_val("#login-password-input", KEY_PASSWORD)
         b.click("#login-button")
         b.wait_visible('#content')

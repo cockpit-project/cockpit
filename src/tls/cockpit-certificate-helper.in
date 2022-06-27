@@ -36,7 +36,7 @@ selfsign_sscg() {
         --cert-file "${CERTFILE}" \
         --ca-file "${CA_FILE}" \
         --hostname "${HOSTNAME}" \
-        --organization "${MACHINE_ID}" \
+        --organization "${MACHINE_ID:-unspecified}" \
         --subject-alt-name localhost \
         --subject-alt-name IP:127.0.0.1/255.255.255.255
 }
@@ -69,7 +69,9 @@ EOF
 cmd_selfsign() {
     # Common variables used by both methods
     local MACHINE_ID
-    MACHINE_ID="$(tr -d -c '[:xdigit:]' < /etc/machine-id)"
+    if [ -e /etc/machine-id ]; then
+        MACHINE_ID="$(tr -d -c '[:xdigit:]' < /etc/machine-id)"
+    fi
     local HOSTNAME="${HOSTNAME:-$(hostname)}"
     local CERTFILE="0-self-signed.cert"
     local KEYFILE="0-self-signed.key"

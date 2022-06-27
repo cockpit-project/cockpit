@@ -4,7 +4,6 @@ set -eu
 
 # prefix= is set because the default @sysconfdir@ contains "${prefix}"
 prefix="@prefix@"
-COCKPIT_GROUP="@COCKPIT_GROUP@"
 COCKPIT_CONFIG="@sysconfdir@/cockpit"
 COCKPIT_WS_CERTS_D="${COCKPIT_CONFIG}/ws-certs.d"
 COCKPIT_RUNTIME_DIR="/run/cockpit"
@@ -20,12 +19,6 @@ install_cert() {
 install_key() {
     local destination="${COCKPIT_WS_CERTS_D}/$1"
     mv -Z "$1" "${destination}"
-
-    # If COCKPIT_GROUP is set, then make sure the key is readable by that group too
-    if [ -n "${COCKPIT_GROUP}" ]; then
-        chown root:"${COCKPIT_GROUP}" "${destination}"
-        chmod g+r "${destination}"
-    fi
 }
 
 selfsign_sscg() {
@@ -111,7 +104,7 @@ cmd_ipa_request() {
         ipa-getkeytab -p "HTTP/${HOST}" -k "${KEYTAB}"
 
     # request the certificate and put it into our certificate directory, so that auto-refresh works
-    ipa-getcert request -f "${COCKPIT_WS_CERTS_D}/10-ipa.cert" -k "${COCKPIT_WS_CERTS_D}/10-ipa.key" -K "HTTP/${HOST}" -m 640 -o root:${COCKPIT_GROUP:-root} -M 644 -w -v
+    ipa-getcert request -f "${COCKPIT_WS_CERTS_D}/10-ipa.cert" -k "${COCKPIT_WS_CERTS_D}/10-ipa.key" -K "HTTP/${HOST}" -m 640 -o root:root -M 644 -w -v
 }
 
 cmd_ipa_cleanup() {

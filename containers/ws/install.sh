@@ -36,6 +36,3 @@ fi
 
 "$INSTALLER" clean all
 rm -rf /container/rpms || true
-
-# And the stuff that starts the container
-chmod -v +x /container/label-install /container/label-uninstall /container/label-run

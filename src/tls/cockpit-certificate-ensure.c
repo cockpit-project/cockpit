@@ -425,7 +425,7 @@ main (int argc, char **argv)
     }
 
   if (check)
-    printf ("Would use certificate %s", result.certificate_filename);
+    printf ("Would use certificate %s\n", result.certificate_filename);
 
   if (for_cockpit_tls)
     {

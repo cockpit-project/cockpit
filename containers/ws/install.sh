@@ -13,10 +13,8 @@ package_name()
 
 OSVER=$(. /etc/os-release && echo "$VERSION_ID")
 
-dnf -y update
-
-INSTALL="dnf install -y"
-$INSTALL util-linux-core sed
+INSTALL="dnf install -y --installroot=/build --releasever=$OSVER --setopt=install_weak_deps=False"
+$INSTALL coreutils-single util-linux-core sed sscg python3
 
 arch=`uname -p`
 rpm=$(ls /container/rpms/cockpit-ws-*$OSVER.*$arch.rpm /container/rpms/cockpit-bridge-*$OSVER.*$arch.rpm || true)
@@ -32,5 +30,8 @@ else
     $INSTALL "$ws" "$bridge"
 fi
 
-dnf clean all
+# HACK: fix for older cockpit-certificate-helper
+sed -i '/^COCKPIT_GROUP=/ s/=.*$/=/; s_/etc/machine-id_/dev/null_' /build/usr/libexec/cockpit-certificate-helper
+
+rm -rf /build/var/cache/dnf /build/var/lib/dnf /build/var/lib/rpm* /build/var/log/*
 rm -rf /container/rpms || true

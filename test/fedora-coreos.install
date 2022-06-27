@@ -8,10 +8,13 @@ rpm-ostree install --cache-only cockpit-bridge-*.rpm \
     cockpit-networkmanager-*.rpm cockpit-system-*.rpm cockpit-tests-*.rpm
 
 # update cockpit-ws and install scripts in the container
+for rpm in /var/tmp/cockpit-ws-*.rpm /var/tmp/cockpit-bridge-*.rpm; do
+    rpm2cpio "$rpm" | cpio -i --make-directories --directory=/var/tmp/install
+done
 podman run --name build-cockpit -i \
     -v /var/tmp/:/run/build:Z \
     quay.io/cockpit/ws sh -exc '
-rpm --freshen --verbose /run/build/cockpit-ws-*.rpm /run/build/cockpit-bridge-*.rpm
+cp -a /run/build/install/* /
 cp /run/build/containers/ws/label-* /run/build/containers/ws/default-bastion.conf /run/build/containers/ws/cockpit-auth-ssh-key /container/
 '
 podman commit --change CMD=/container/label-run build-cockpit localhost/cockpit/ws

@@ -90,7 +90,7 @@ You can also mount an encrypted private key inside the container and set the env
 
     -e COCKPIT_SSH_KEY_PATH=/id_rsa -v ~/.ssh/id_rsa:/id_rsa:ro,Z
 
-Then cockpit will use the provided password to decrypt the key and establish an SSH connection to the given host using that private key. **Warning:** This currently only supports RSA keys in the old PEM file format (`ssh-keygen -t rsa -m PEM`), not the current OpenSSH specific format.
+Then cockpit will use the provided password to decrypt the key and establish an SSH connection to the given host using that private key.
 
 ## More Info
 

@@ -14,7 +14,7 @@ package_name()
 OSVER=$(. /etc/os-release && echo "$VERSION_ID")
 
 INSTALL="dnf install -y --installroot=/build --releasever=$OSVER --setopt=install_weak_deps=False"
-$INSTALL coreutils-single util-linux-core sed sscg python3
+$INSTALL coreutils-single util-linux-core sed sscg python3 openssh-clients
 
 arch=`uname -p`
 rpm=$(ls /container/rpms/cockpit-ws-*$OSVER.*$arch.rpm /container/rpms/cockpit-bridge-*$OSVER.*$arch.rpm || true)

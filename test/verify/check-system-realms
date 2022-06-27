@@ -566,7 +566,7 @@ class TestIPA(TestRealms, CommonTests):
         self.assertIn("/etc/cockpit/ws-certs.d/10-ipa.cert",
                       m.execute(f"{self.libexecdir}/cockpit-certificate-ensure --check"))
         # correct permissions
-        self.assertEqual("root:cockpit-ws/640", m.execute("stat --printf '%U:%G/%a' /etc/cockpit/ws-certs.d/10-ipa.key"))
+        self.assertEqual("root:root/640", m.execute("stat --printf '%U:%G/%a' /etc/cockpit/ws-certs.d/10-ipa.key"))
         # cert is being tracked
         out = m.execute("ipa-getcert list")
         self.assertIn("MONITORING", out)

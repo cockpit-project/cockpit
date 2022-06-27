@@ -40,6 +40,7 @@ import tempfile
 import time
 import unittest
 import gzip
+import itertools
 
 import tap
 try:
@@ -597,6 +598,61 @@ class Browser:
         self.cdp.kill()
 
 
+class _DebugOutcome(unittest.case._Outcome):
+    """Run debug actions after test methods
+
+    This will do screenshots, HTML dumps, and sitting before cleanup handlers run.
+    """
+
+    def testPartExecutor(self, test_case, isTest=False):
+        def failureHandler(exc_info, python_311=False):
+            if python_311:
+                # exc_info is now a string
+                print(exc_info, file=sys.stderr)
+            else:
+                # strip off the two topmost frames for testPartExecutor and TestCase.run(); uninteresting and breaks naughties
+                traceback.print_exception(exc_info[0], exc_info[1], exc_info[2].tb_next.tb_next)
+            try:
+                test_case.snapshot("FAIL")
+                test_case.copy_js_log("FAIL")
+                test_case.copy_journal("FAIL")
+                test_case.copy_cores("FAIL")
+            except (OSError, RuntimeError):
+                # failures in these debug artifacts should not skip cleanup actions
+                sys.stderr.write("Failed to generate debug artifact:\n")
+                traceback.print_exc(file=sys.stderr)
+
+            if opts.sit:
+                sit(test_case.machines)
+
+        superResult = super().testPartExecutor(test_case, isTest)
+        ran_debug = hasattr(test_case, "_ran_debug")
+
+        if ran_debug or not isinstance(test_case, MachineCase):
+            return superResult
+
+        # Python < 3.11 (Outcome class does not have a errors attribute anymore
+        # https://github.com/python/cpython/commit/664448d81f41c5fa971d8523a71b0f19e76cc136#diff-c6fe1ffe930def48a6adf1fa99b974737bac586fdacccacd1474e7b2f11370ebL79
+        if hasattr(self, 'errors'):
+            if self.errors and not isTest:
+                (err_case, exc_info) = self.errors[-1]
+                if exc_info:
+                    assert err_case == test_case
+                    setattr(test_case, "_ran_debug", True)
+                    failureHandler(exc_info, False)
+        elif self.result.errors or self.result.failures:
+            errors = [err for err in itertools.chain(self.result.errors, self.result.failures) if err[0] == test_case]
+            if errors:
+                (err_case, exc_info) = errors[-1]
+                setattr(test_case, "_ran_debug", True)
+                failureHandler(exc_info, True)
+
+        return superResult
+
+
+unittest.case._Outcome = _DebugOutcome
+
+
 class MachineCase(unittest.TestCase):
     image = testvm.DEFAULT_IMAGE
     runner = None
@@ -655,7 +711,17 @@ class MachineCase(unittest.TestCase):
         if _PY3 and self._outcome:
             # errors is a list of (method, exception) calls (usually multiple
             # per method); None exception means success
-            return not any(e[1] for e in self._outcome.errors)
+            errors = []
+            if hasattr(self._outcome, 'errors'):
+                # Python 3.4 - 3.10  (These two methods have no side effects)
+                result = self.defaultTestResult()
+                errors = result.errors
+                self._feedErrorsToResult(result, self._outcome.errors)
+            else:
+                # Python 3.11+ now records errors and failures seperate
+                errors = self._outcome.result.errors + self._outcome.result.failures
+
+            return not any(e[1] for e in errors)
 
         if not self.currentResult:
             return False

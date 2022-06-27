@@ -25,7 +25,8 @@ if [ -d /host ]; then
     fi
 
     # And run cockpit-ws
-    exec /usr/bin/nsenter --net=/container/target-namespace/ns/net --uts=/container/target-namespace/ns/uts -- /usr/libexec/cockpit-ws --local-ssh "$@"
+    TARGET_NS=/host/proc/1/ns
+    exec /usr/bin/nsenter --net=$TARGET_NS/net --uts=$TARGET_NS/uts -- /usr/libexec/cockpit-ws --local-ssh "$@"
 else
     # unprivileged mode
 

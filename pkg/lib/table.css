@@ -4,7 +4,7 @@
 
 /* Panels don't draw borders between them */
 .panel > .table > tbody:first-child td {
-    border-top: 1px solid rgb(221, 221, 221);
+    border-top: 1px solid rgb(221 221 221);
 }
 
 /* Table headers should not generate a double border */
@@ -72,7 +72,7 @@
         --bg-color: var(--ct-color-bg);
         --hi-width: 20px;
         --hi-width3: calc(var(--hi-width) * 3);
-        --transparent: rgba(255, 255, 255, 0%); /* WebKit needs white transparent */
+        --transparent: rgb(255 255 255 / 0%); /* WebKit needs white transparent */
         max-width: 100vw;
         overflow-x: auto;
         position: relative;

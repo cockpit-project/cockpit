@@ -13,8 +13,8 @@ $desktop: $phone + 1px;
     --ct-color-nav-text       : var(--pf-global--BackgroundColor--light-300);
     --ct-color-nav-active     : var(--pf-global--BackgroundColor--dark-400);
     --ct-color-nav-active-text: var(--pf-global--BackgroundColor--light-100);
-    --ct-color-nav-cover-up   : linear-gradient(to bottom, var(--ct-color-nav-sub), rgba(21, 21, 21, 0));
-    --ct-color-nav-cover-down : linear-gradient(to top, var(--ct-color-nav-sub), rgba(21, 21, 21, 0));
+    --ct-color-nav-cover-up   : linear-gradient(to bottom, var(--ct-color-nav-sub), rgba(21, 21, 21, 0%));
+    --ct-color-nav-cover-down : linear-gradient(to top, var(--ct-color-nav-sub), rgba(21, 21, 21, 0%));
 }
 
 .area-ct-subnav {
@@ -501,13 +501,14 @@ $desktop: $phone + 1px;
         }
 
         > button {
-            --pf-c-button--m-secondary--Color: rgba(255, 255, 255, 0.75);
-            --pf-c-button--m-secondary--BorderColor: rgba(255, 255, 255, 0.75);
-            --pf-c-button--m-secondary--hover--Color: rgba(255, 255, 255, 1);
-            --pf-c-button--m-secondary--hover--BorderColor: rgba(255, 255, 255, 1);
+            --pf-c-button--m-secondary--Color: rgba(255, 255, 255, 75%);
+            --pf-c-button--m-secondary--BorderColor: rgba(255, 255, 255, 75%);
+            --pf-c-button--m-secondary--hover--Color: rgba(255, 255, 255, 100%);
+            --pf-c-button--m-secondary--hover--BorderColor: rgba(255, 255, 255, 100%);
+
             // Simulate PF4's disabled icon, but with alpha
-            --pf-c-button--disabled--BackgroundColor: rgba(255, 255, 255, 0.17);
-            --pf-c-button--disabled--Color: rgba(0, 7, 13, 0.45);
+            --pf-c-button--disabled--BackgroundColor: rgba(255, 255, 255, 17%);
+            --pf-c-button--disabled--Color: rgba(0, 7, 13, 45%);
             margin: 0;
         }
     }
@@ -533,7 +534,7 @@ $desktop: $phone + 1px;
     &:hover, &:active, &.active, &.interact, &[aria-expanded="true"] {
         text-decoration: none;
         // approximate --pf-global--BackgroundColor--dark-400, but with opacity
-        background: rgba(249, 252, 255, 0.32) !important;
+        background: rgba(249, 252, 255, 32%) !important;
 
         .hostname {
             text-decoration: underline;
@@ -554,7 +555,7 @@ $desktop: $phone + 1px;
         &:hover, &:active, &.active, &.interact, &[aria-expanded="true"], &.pf-m-expanded {
             text-decoration: none;
             // approximate --pf-global--BackgroundColor--dark-400, but with opacity
-            background: rgba(249, 252, 255, 0.32);
+            background: rgba(249, 252, 255, 32%);
 
             .hostname {
                 text-decoration: underline;

@@ -6,6 +6,7 @@ $style: "normal",
 $relative: true
 ) {
     $filePath: "../../static/fonts" + "/" + $familyName + "-" + $weightName;
+
     @font-face {
         font-family: $familyName;
         src: url("#{$filePath}.woff2") format("woff2");
@@ -23,7 +24,6 @@ $relative: true
 @include printRedHatFont(400, "Medium", $familyName: "RedHatDisplay");
 @include printRedHatFont(400, "MediumItalic", $style: "italic", $familyName: "RedHatDisplay");
 @include printRedHatFont(300, "Regular", $familyName: "RedHatDisplay");
-
 @include printRedHatFont(700, "Bold");
 @include printRedHatFont(700, "BoldItalic", $style: "italic");
 @include printRedHatFont(400, "Italic", $style: "italic");

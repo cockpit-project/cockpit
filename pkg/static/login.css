@@ -17,8 +17,6 @@
 *,
 ::after,
 ::before {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
 
@@ -28,8 +26,6 @@
 
 html {
   font-family: sans-serif;
-  -ms-text-size-adjust: 100%;
-  -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
   height: 100%;
@@ -121,7 +117,7 @@ textarea {
 }
 
 button {
-  -webkit-appearance: button;
+  appearance: button;
   overflow: visible;
   border-radius: 0.1875rem;
   border: none;
@@ -218,25 +214,10 @@ form .control-label {
   outline: 0;
 }
 
-.form-control:-moz-placeholder {
-  color: #999;
-  font-style: italic;
-}
-
-.form-control::-moz-placeholder {
+.form-control::placeholder {
   color: #999;
   font-style: italic;
   opacity: 1;
-}
-
-.form-control:-ms-input-placeholder {
-  color: #999;
-  font-style: italic;
-}
-
-.form-control::-webkit-input-placeholder {
-  color: #999;
-  font-style: italic;
 }
 
 .checkbox-row {
@@ -287,10 +268,6 @@ label.checkbox {
   border-radius: 3px;
   font-size: inherit;
   font-weight: 400;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
   user-select: none;
 }
 
@@ -302,10 +279,6 @@ label.checkbox {
 .pf-c-button:active {
   outline: 0;
   background-image: none;
-}
-
-@-ms-viewport {
-  width: device-width;
 }
 
 .pf-m-primary {
@@ -417,7 +390,6 @@ label.checkbox {
 }
 
 .spinner {
-  -webkit-animation: 0.6s linear infinite rotation;
   animation: 0.6s linear infinite rotation;
   border-bottom: 4px solid rgb(0 0 0 / 25%);
   border-left: 4px solid rgb(0 0 0 / 25%);
@@ -595,11 +567,8 @@ label.checkbox {
 }
 
 .caret-down {
-  -moz-transform: rotate(90deg);
-  -webkit-transform: rotate(90deg);
   transform: rotate(90deg);
-  -moz-transform-origin: 0.5rem 0.5rem;
-  -webkit-transform-origin: 0.5rem 0.5rem;
+  transform-origin: 0.5rem 0.5rem;
   transform-origin: 0.5rem;
 }
 
@@ -1039,16 +1008,6 @@ input[type="password"] + .login-password-toggle .password-hide {
 }
 
 /* Animation */
-
-@-webkit-keyframes rotation {
-  from {
-    -webkit-transform: rotate(0);
-  }
-
-  to {
-    -webkit-transform: rotate(359deg);
-  }
-}
 
 @keyframes rotation {
   from {

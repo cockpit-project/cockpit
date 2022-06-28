@@ -146,18 +146,18 @@ $desktop: $phone + 1px;
         > .header,
         > .navbar,
         > .sidebar-toggle {
-            background:
-                // Line on bottom
-                linear-gradient(to top,
-                    var(--ct-color-host-accent),
-                    var(--ct-color-host-accent) 0.1875rem,
-                    transparent 0.1875rem
-                ),
-                // Base color (with subtle glow)
-                linear-gradient(to top,
-                    var(--ct-color-host-accent) -1.5rem,
-                    var(--pf-global--BackgroundColor--dark-100) 0.75rem
-                );
+            // Line on bottom, Base color (with subtle glow)
+            background: linear-gradient(
+                to top,
+                var(--ct-color-host-accent),
+                var(--ct-color-host-accent) 0.1875rem,
+                transparent 0.1875rem
+            ),
+            linear-gradient(
+                to top,
+                var(--ct-color-host-accent) -1.5rem,
+                var(--pf-global--BackgroundColor--dark-100) 0.75rem
+            );
         }
 
         // Remove excess padding from masthead in mobile
@@ -185,23 +185,23 @@ $desktop: $phone + 1px;
         }
 
         > .header {
-            background:
-                // Shadow to the left
-                linear-gradient(to right,
-                    var(--pf-global--BackgroundColor--dark-100) -1rem,
-                    transparent 1rem
-                ),
-                // Line on top
-                linear-gradient(to bottom,
-                    var(--ct-color-host-accent),
-                    var(--ct-color-host-accent) 0.1875rem,
-                    transparent 0.1875rem
-                ),
-                // Base color (with subtle glow)
-                linear-gradient(to bottom,
-                    var(--ct-color-host-accent) -1.5rem,
-                    var(--pf-global--BackgroundColor--dark-100) 0.75rem
-                );
+            // Shadow to the left, Line on top, Base color (with subtle glow)
+            background: linear-gradient(
+                to right,
+                var(--pf-global--BackgroundColor--dark-100) -1rem,
+                transparent 1rem
+            ),
+            linear-gradient(
+                to bottom,
+                var(--ct-color-host-accent),
+                var(--ct-color-host-accent) 0.1875rem,
+                transparent 0.1875rem
+            ),
+            linear-gradient(
+                to bottom,
+                var(--ct-color-host-accent) -1.5rem,
+                var(--pf-global--BackgroundColor--dark-100) 0.75rem
+            );
         }
     }
 

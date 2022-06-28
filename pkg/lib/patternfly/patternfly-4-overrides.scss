@@ -202,7 +202,7 @@ svg {
     }
 
     // Undo all spacer modification adjustments
-    &[class*=pf-m-space-items-] {
+    &[class*="pf-m-space-items-"] {
         > * {
             --pf-l-flex--spacer: 0;
         }
@@ -211,7 +211,7 @@ svg {
     // Re-add spacer modification adjustments on the flex layout widget
     // (using class attribute matching for handling breakpoint -on- also)
     @each $size in (none, xs, sm, md, lg, xl, 2xl, 3xl, 4xl) {
-        &[class*=pf-m-space-items-#{$size}] {
+        &[class*="pf-m-space-items-#{$size}"] {
             --pf-l-flex--spacer-base: var(--pf-l-flex--spacer--#{$size});
         }
     }

@@ -1113,7 +1113,7 @@ class Browser:
     def write_coverage_data(self):
         if self.coverage_label and self.cdp and self.cdp.valid:
             coverage = self.cdp.invoke("Profiler.takePreciseCoverage")
-            write_lcov(BASE_DIR, coverage['result'], self.coverage_label)
+            write_lcov(coverage['result'], self.coverage_label)
 
     def assert_no_oops(self):
         if self.allow_oops:

@@ -1050,6 +1050,8 @@ class MachineCase(unittest.TestCase):
                     attach(log)
 
     def copy_cores(self, title, label=None):
+        # HACK: Do not save cores due to https://github.com/cockpit-project/bots/issues/3565
+        return
         for name, m in self.machines.items():
             if m.ssh_reachable:
                 directory = "%s-%s-%s.core" % (label or self.label(), m.label, title)

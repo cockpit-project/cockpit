@@ -1,6 +1,5 @@
 @use "page";
 @use "ct-card";
-
 @import "global-variables";
 @import "@patternfly/patternfly/components/Table/table.scss";
 @import "@patternfly/patternfly/components/Toolbar/toolbar.scss";
@@ -419,7 +418,6 @@
             width: 50%;
         }
 
-
         // horizontal tick mark for saturation half, for resources that have it
         &.valid-data.have-saturation::after {
             content: "";
@@ -520,6 +518,7 @@
         font-size: var(--pf-global--FontSize--s);
     }
 }
+
 @media (max-width: 800px) {
     .metrics-label-graph {
         font-size: var(--pf-global--FontSize--xs);

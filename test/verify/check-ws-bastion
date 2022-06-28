@@ -217,5 +217,40 @@ class TestWsBastionContainer(MachineCase):
         b.wait_visible('#content')
 
 
+@unittest.skipUnless(DEFAULT_IMAGE == "fedora-coreos", "no cockpit/ws container on this image")
+@nondestructive
+class TestWsPrivileged(MachineCase):
+    def testService(self):
+        # the install script should have created a cockpit.service, but not started it
+        m = self.machine
+
+        self.assertEqual(m.execute("! systemctl is-enabled cockpit.service").strip(), "disabled")
+        self.assertEqual(m.execute("! systemctl is-active cockpit.service").strip(), "inactive")
+        # stop ws container from previous test runs
+        self.machine.stop_cockpit()
+        self.assertEqual(m.execute("podman ps --noheading"), "")
+        self.addCleanup(m.execute, "systemctl disable --now cockpit.service")
+
+        m.execute("systemctl start cockpit.service")
+        self.assertEqual(m.execute("systemctl is-active cockpit.service").strip(), "active")
+        firstStartTime = m.execute("podman inspect cockpit-ws| jq '.[0].Created'")
+        m.execute("until curl --fail --head -k https://localhost:9090/; do sleep 1; done")
+
+        m.execute("systemctl restart cockpit.service")
+        self.assertEqual(m.execute("systemctl is-active cockpit.service").strip(), "active")
+        secondStartTime = m.execute("podman inspect cockpit-ws| jq '.[0].Created'")
+        m.execute("until curl --fail --head -k https://localhost:9090/; do sleep 1; done")
+
+        self.assertNotEqual(firstStartTime, secondStartTime)
+
+        m.execute("systemctl stop cockpit.service")
+        self.assertEqual(m.execute("! systemctl is-enabled cockpit.service").strip(), "disabled")
+        self.assertEqual(m.execute("! systemctl is-active cockpit.service").strip(), "inactive")
+        self.assertEqual(m.execute("podman ps --noheading"), "")
+
+        # current container has `set -x` in its startup script, which ends up in the journal
+        self.allow_journal_messages("^[/+'].*")
+
+
 if __name__ == '__main__':
     test_main()

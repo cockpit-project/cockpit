@@ -404,7 +404,7 @@
         position: relative;
 
         // vertical ruler line for areas with data, and horizontal tick mark for utilization half
-        &.valid-data:before {
+        &.valid-data::before {
             content: "";
             position: absolute;
             z-index: 1;
@@ -415,13 +415,13 @@
             border-top: 1px solid rgb(0 0 0 / 30%);
         }
 
-        &.valid-data.have-saturation:before {
+        &.valid-data.have-saturation::before {
             width: 50%;
         }
 
 
         // horizontal tick mark for saturation half, for resources that have it
-        &.valid-data.have-saturation:after {
+        &.valid-data.have-saturation::after {
             content: "";
             position: absolute;
             z-index: 1;
@@ -489,7 +489,7 @@
     }
 
     // vertical dotted line through graph center, for areas without data
-    &-data:after {
+    &-data::after {
         content: "";
         z-index: -1;
         top: 0;
@@ -497,12 +497,12 @@
         position: absolute;
     }
 
-    &-data.empty-data:after {
+    &-data.empty-data::after {
         position: initial;
         border-right: 1px dotted rgb(0 0 0 / 30%);
     }
 
-    &-data.empty-data.have-saturation:after {
+    &-data.empty-data.have-saturation::after {
         position: absolute;
         border-left: 1px dotted rgb(0 0 0 / 30%);
         border-right: none;

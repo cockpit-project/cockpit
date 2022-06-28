@@ -17,22 +17,25 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-# This module can convert profile data from CDP to LCOV.
+# This module can convert profile data from CDP to LCOV, produce a
+# HTML report, and post review comments.
 #
-# - write_lcov (base_dir, coverage_data, outlabel)
-
+# - write_lcov (coverage_data, outlabel)
+# - create_coverage_report()
 
 import json
 import os
 import sys
 import glob
 import gzip
+import subprocess
 
 from bisect import bisect_left
 
-__all__ = (
-    "write_lcov"
-)
+import parent
+from task import github
+
+BASE_DIR = os.path.realpath(f'{__file__}/../../..')
 
 debug = False
 
@@ -139,16 +142,16 @@ class DistFile:
         return res
 
 
-def get_dist_map(base_dir):
+def get_dist_map():
     dmap = {}
-    for f in glob.glob(f"{base_dir}/dist/*/manifest.json") + glob.glob(f"{base_dir}/dist/manifest.json"):
+    for f in glob.glob(f"{BASE_DIR}/dist/*/manifest.json") + glob.glob(f"{BASE_DIR}/dist/manifest.json"):
         m = json.load(open(f))
         if "name" in m:
             dmap[m["name"]] = os.path.dirname(f)
     return dmap
 
 
-def get_distfile(url, base_dir, dist_map, webpack_name):
+def get_distfile(url, dist_map, webpack_name):
     parts = url.split("/")
     if len(parts) > 2 and "cockpit" in parts:
         base = parts[-2]
@@ -158,7 +161,7 @@ def get_distfile(url, base_dir, dist_map, webpack_name):
         if base in dist_map:
             path = dist_map[base] + "/" + file
         else:
-            path = f"{base_dir}/dist/" + base + "/" + file
+            path = f"{BASE_DIR}/dist/" + base + "/" + file
         if os.path.exists(path) and os.path.exists(path + ".map"):
             return DistFile(path, webpack_name)
         else:
@@ -201,10 +204,10 @@ def merge_hits(file_hits, hits):
                     lines[i] += merge_lines[i]
 
 
-def print_file_coverage(path, line_hits, base_dir, out):
+def print_file_coverage(path, line_hits, out):
     lines_found = 0
     lines_hit = 0
-    src = f"{base_dir}/{path}"
+    src = f"{BASE_DIR}/{path}"
     out.write(f"SF:{src}\n")
     for i in range(len(line_hits)):
         if line_hits[i] is not None:
@@ -221,6 +224,7 @@ class DiffMap:
     # Parse a unified diff and make a index for the added lines
     def __init__(self, diff):
         self.map = {}
+        self.source_map = {}
         plus_name = None
         diff_line = 0
         with open(diff) as f:
@@ -239,6 +243,7 @@ class DiffMap:
                     plus_line += 1
                 elif line.startswith("+"):
                     self.map[plus_name][plus_line] = diff_line
+                    self.source_map[diff_line] = (plus_name, plus_line)
                     plus_line += 1
 
     def find_line(self, file, line):
@@ -246,12 +251,15 @@ class DiffMap:
             return self.map[file][line]
         return None
 
+    def find_source(self, diff_line):
+        return self.source_map[diff_line]
 
-def print_diff_coverage(path, file_hits, base_dir, out):
+
+def print_diff_coverage(path, file_hits, out):
     if not os.path.exists(path):
         return
     dm = DiffMap(path)
-    src = f"{base_dir}/{path}"
+    src = f"{BASE_DIR}/{path}"
     lines_found = 0
     lines_hit = 0
     out.write(f"SF:{src}\n")
@@ -270,10 +278,10 @@ def print_diff_coverage(path, file_hits, base_dir, out):
     out.write("end_of_record\n")
 
 
-def write_lcov(base_dir, covdata, outlabel):
+def write_lcov(covdata, outlabel):
 
-    package = json.load(open(f"{base_dir}/package.json"))
-    dist_map = get_dist_map(base_dir)
+    package = json.load(open(f"{BASE_DIR}/package.json"))
+    dist_map = get_dist_map()
     file_hits = {}
 
     def covranges(functions):
@@ -348,7 +356,7 @@ def write_lcov(base_dir, covdata, outlabel):
     # from each mention.
 
     for script in covdata:
-        distfile = get_distfile(script['url'], base_dir, dist_map, package["name"])
+        distfile = get_distfile(script['url'], dist_map, package["name"])
         if distfile:
             ranges = sorted(covranges(script['functions']),
                             key=lambda r: r['endOffset'] - r['startOffset'], reverse=True)
@@ -358,10 +366,98 @@ def write_lcov(base_dir, covdata, outlabel):
             merge_hits(file_hits, hits)
 
     if len(file_hits) > 0:
-        os.makedirs(f"{base_dir}/lcov", exist_ok=True)
-        filename = f"{base_dir}/lcov/{outlabel}.info.gz"
+        os.makedirs(f"{BASE_DIR}/lcov", exist_ok=True)
+        filename = f"{BASE_DIR}/lcov/{outlabel}.info.gz"
         with gzip.open(filename, "wt") as out:
             for f in file_hits:
-                print_file_coverage(f, file_hits[f], base_dir, out)
-            print_diff_coverage("github-pr.diff", file_hits, base_dir, out)
+                print_file_coverage(f, file_hits[f], out)
+            print_diff_coverage("lcov/github-pr.diff", file_hits, out)
         print("Wrote coverage data to " + filename)
+
+
+def get_review_comments(diff_info_file):
+    comments = []
+    cur_src = None
+    start_line = None
+    cur_line = None
+
+    def flush_cur_comment():
+        nonlocal comments
+        if cur_src:
+            ta_url = os.environ.get("TEST_ATTACHMENTS_URL", None)
+            comment = {"path": cur_src,
+                       "line": cur_line}
+            if start_line != cur_line:
+                comment["start_line"] = start_line
+                body = f"These {cur_line - start_line + 1} added lines are not executed by any test."
+            else:
+                body = "This added line is not executed by any test."
+            if ta_url:
+                body += f"  [Details]({ta_url}/Coverage/lcov/github-pr.diff.gcov.html)"
+            comment["body"] = body
+            comments.append(comment)
+
+    dm = DiffMap("lcov/github-pr.diff")
+
+    with open(diff_info_file) as f:
+        for line in f.readlines():
+            if line.startswith("DA:"):
+                parts = line[3:].split(",")
+                if int(parts[1]) == 0:
+                    (src, line) = dm.find_source(int(parts[0]))
+                    if src == cur_src and line == cur_line + 1:
+                        cur_line = line
+                    else:
+                        flush_cur_comment()
+                        cur_src = src
+                        start_line = line
+                        cur_line = line
+        flush_cur_comment()
+
+    return comments
+
+def prepare_for_code_coverage():
+    # This gives us a convenient link at the top of the logs, see link-patterns.json
+    print("Code coverage report in Coverage/index.html")
+    try:
+        os.makedirs("lcov", exist_ok=True)
+        with open("lcov/github-pr.diff", "w") as f:
+            subprocess.check_call(["git", "-c", "diff.noprefix=false", "diff", "--patience", "main"], stdout=f)
+    except subprocess.CalledProcessError:
+        pass
+
+def create_coverage_report():
+    output = os.environ.get("TEST_ATTACHMENTS", BASE_DIR)
+    lcov_files = glob.glob(f"{BASE_DIR}/lcov/*.info.gz")
+    try:
+        title = os.path.basename(subprocess.check_output(["git", "remote", "get-url", "origin"]))
+    except subprocess.CalledProcessError:
+        title = "?"
+    if len(lcov_files) > 0:
+        try:
+            all_file = f"{BASE_DIR}/lcov/all.info"
+            diff_file = f"{BASE_DIR}/lcov/diff.info"
+            subprocess.check_call(["lcov", "--output", all_file] +
+                                  sum(map(lambda f: ["--add", f], lcov_files), []))
+            subprocess.check_call(["lcov", "--output", diff_file,
+                                   "--extract", all_file, "*/github-pr.diff"])
+            subprocess.check_call(["genhtml", "--no-function-coverage",
+                                   "--prefix", os.getcwd(),
+                                   "--title", title,
+                                   "--output-dir", f"{output}/Coverage", all_file])
+            comments = get_review_comments(diff_file)
+            rev = os.environ.get("TEST_REVISION", None)
+            pull = os.environ.get("TEST_PULL", None)
+            if rev and pull:
+                api = github.GitHub()
+                old_comments = api.get(f"pulls/{pull}/comments?sort=created&direction=desc&per_page=100") or []
+                for oc in old_comments:
+                    if ("body" in oc and "path" in oc and "line" in oc and
+                        "not executed by any test." in oc["body"]):
+                        api.delete(f"pulls/comments/{oc['id']}")
+                if len(comments) > 0:
+                    api.post(f"pulls/{pull}/reviews",
+                             {"commit_id": rev, "event": "REQUEST_CHANGES",
+                              "comments": comments})
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to create coverage report: {e}")

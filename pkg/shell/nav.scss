@@ -530,7 +530,7 @@ $desktop: $phone + 1px;
 }
 
 .ct-nav-toggle:not(.pf-c-dropdown) {
-    &:hover, &:active, &.active, &.interact, &[aria-expanded=true] {
+    &:hover, &:active, &.active, &.interact, &[aria-expanded="true"] {
         text-decoration: none;
         // approximate --pf-global--BackgroundColor--dark-400, but with opacity
         background: rgba(249, 252, 255, 0.32) !important;
@@ -551,7 +551,7 @@ $desktop: $phone + 1px;
 // https://github.com/patternfly/patternfly/issues/4524
 @media (max-width: $phone) {
     .ct-nav-toggle.pf-c-dropdown {
-        &:hover, &:active, &.active, &.interact, &[aria-expanded=true], &.pf-m-expanded {
+        &:hover, &:active, &.active, &.interact, &[aria-expanded="true"], &.pf-m-expanded {
             text-decoration: none;
             // approximate --pf-global--BackgroundColor--dark-400, but with opacity
             background: rgba(249, 252, 255, 0.32);

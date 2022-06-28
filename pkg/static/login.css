@@ -22,7 +22,7 @@
   box-sizing: border-box;
 }
 
-[hidden]:not([hidden=false]) {
+[hidden]:not([hidden="false"]) {
   display: none !important;
 }
 
@@ -171,7 +171,7 @@ label {
   font-size: 0.875rem;
 }
 
-[role=form] .control-label,
+[role="form"] .control-label,
 form .control-label {
   display: flex;
   align-items: center;
@@ -184,8 +184,8 @@ form .control-label {
 }
 
 .pf-c-button.pf-m-control,
-.form-control[type=password],
-.form-control[type=text] {
+.form-control[type="password"],
+.form-control[type="text"] {
   display: block;
   width: 100%;
   padding: 0.25rem 0.5rem;
@@ -199,16 +199,16 @@ form .control-label {
 }
 
 .pf-c-button.pf-m-control:hover,
-.form-control[type=password]:hover,
-.form-control[type=text]:hover,
-.form-control[type=password]:focus,
-.form-control[type=text]:focus {
+.form-control[type="password"]:hover,
+.form-control[type="text"]:hover,
+.form-control[type="password"]:focus,
+.form-control[type="text"]:focus {
   border-bottom-color: #06c;
 }
 
 .pf-c-button.pf-m-control:focus,
-.form-control[type=password]:focus,
-.form-control[type=text]:focus {
+.form-control[type="password"]:focus,
+.form-control[type="text"]:focus {
   padding-bottom: calc(0.25rem - 1px);
   border-bottom-width: 2px;
 }
@@ -245,7 +245,7 @@ form .control-label {
   align-items: baseline;
 }
 
-.checkbox-row > input[type=checkbox] {
+.checkbox-row > input[type="checkbox"] {
   width: 1rem;
   height: 1rem;
   align-self: flex-start;
@@ -922,8 +922,8 @@ a:hover {
 }
 
 /* Show the appropriate eye icon based on the password text status */
-input[type=text] + .login-password-toggle .password-show,
-input[type=password] + .login-password-toggle .password-hide {
+input[type="text"] + .login-password-toggle .password-show,
+input[type="password"] + .login-password-toggle .password-hide {
   display: none;
 }
 
@@ -945,8 +945,8 @@ input[type=password] + .login-password-toggle .password-hide {
   }
 
   .pf-c-button.pf-m-control,
-  .form-control[type=password],
-  .form-control[type=text] {
+  .form-control[type="password"],
+  .form-control[type="text"] {
     background: #393f44;
     border-color: #393f44;
     border-bottom-color: #6c6f72;

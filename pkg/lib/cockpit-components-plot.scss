@@ -18,7 +18,7 @@ $plotColors: (
     &-border {
         stroke: var(--pf-chart-global--Fill--Color--300);
         fill: transparent;
-        shape-rendering: crispEdges;
+        shape-rendering: crispedges;
     }
 
     &-title {
@@ -40,19 +40,19 @@ $plotColors: (
     &-lines,
     &-ticks {
         stroke: var(--pf-chart-global--Fill--Color--300);
-        shape-rendering: crispEdges;
+        shape-rendering: crispedges;
     }
 
     &-selection {
         fill: tan;
         stroke: black;
         opacity: 0.5;
-        shape-rendering: crispEdges;
+        shape-rendering: crispedges;
     }
 
     &-paths {
         stroke-width: var(--pf-chart-global--stroke--Width--sm);
-        shape-rendering: geometricPrecision;
+        shape-rendering: geometricprecision;
 
         > path {
             fill: var(--ct-plot-path-color);

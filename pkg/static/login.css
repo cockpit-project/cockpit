@@ -15,8 +15,8 @@
 }
 
 *,
-:after,
-:before {
+::after,
+::before {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -273,7 +273,7 @@ label.checkbox {
   display: inline-flex;
 }
 
-.form-group:after {
+.form-group::after {
   clear: both;
   margin-bottom: 1rem;
 }
@@ -509,7 +509,7 @@ label.checkbox {
   color: #004368;
 }
 
-#server-group:before {
+#server-group::before {
   clear: both;
   margin-top: 5px;
 }
@@ -570,7 +570,7 @@ label.checkbox {
 
 .pf-c-button .spinner,
 .pf-c-button[spinning] .button-text,
-.hide-before:before {
+.hide-before::before {
   display: none;
 }
 

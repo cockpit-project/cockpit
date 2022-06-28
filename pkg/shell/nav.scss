@@ -115,7 +115,7 @@ $desktop: $phone + 1px;
         margin-right: 0;
 
         // Collapse the 2 side border lines into 1
-        + .pf-c-toolbar__item button:before {
+        + .pf-c-toolbar__item button::before {
             margin-left: -1px;
         }
     }
@@ -568,7 +568,7 @@ $desktop: $phone + 1px;
     }
 
     // Hide border from navigation items for mobile
-    .ct-header-item:not(:hover) button:not(:hover):before {
+    .ct-header-item:not(:hover) button:not(:hover)::before {
         border: none;
     }
 }

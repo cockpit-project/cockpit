@@ -21,6 +21,9 @@ parent.ensure_bots()  # NOQA: testvm lives in bots/
 import testlib
 import testvm
 
+from task import github
+from lcov import prepare_for_code_coverage, create_coverage_report
+
 sys.dont_write_bytecode = True
 os.environ['PYTHONUNBUFFERED'] = '1'
 
@@ -332,35 +335,12 @@ def list_tests(opts):
         print(n)
 
 
-def create_coverage_report():
-    base_dir = os.path.realpath(f'{__file__}/../../..')
-    output = os.environ.get("TEST_ATTACHMENTS", base_dir)
-    lcov_files = glob.glob(f"{base_dir}/lcov/*.info.gz")
-    try:
-        title = os.path.basename(subprocess.check_output(["git", "remote", "get-url", "origin"]))
-    except subprocess.CalledProcessError:
-        title = "?"
-    if len(lcov_files) > 0:
-        try:
-            subprocess.check_call(["genhtml", "--no-function-coverage",
-                                   "--title", title,
-                                   "--output-dir", f"{output}/Coverage"] + lcov_files)
-        except subprocess.CalledProcessError as e:
-            print(f"Failed to create coverage report: {e}")
-
-
 def run(opts, image):
     fail_count = 0
     start_time = time.time()
 
     if opts.coverage:
-        # This gives us a convenient link at the top of the logs, see link-patterns.json
-        print("Code coverage report in Coverage/index.html")
-        try:
-            with open("github-pr.diff", "w") as f:
-                subprocess.check_call(["git", "-c", "diff.noprefix=false", "diff", "--patience", "main"], stdout=f)
-        except subprocess.CalledProcessError:
-            pass
+        prepare_for_code_coverage()
 
     test_files = glob.glob(os.path.join(opts.test_dir, opts.test_glob))
     changed_tests = get_affected_tests(opts.test_dir, opts.base, test_files)

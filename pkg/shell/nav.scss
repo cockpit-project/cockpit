@@ -33,46 +33,86 @@ $desktop: $phone + 1px;
 
     // https://github.com/patternfly/patternfly/issues/4541
     .search {
+        background: transparent !important;
         padding: var(--pf-global--spacer--md) var(--pf-global--spacer--md) var(--pf-global--spacer--sm);
 
-        > .pf-c-input-group {
+        > .pf-c-text-input-group__main {
             background: var(--ct-color-nav);
             color: var(--ct-color-nav-text) !important;
             transition: var(--pf-global--Transition);
         }
 
-        .pf-c-search-input__text::after,
-        .pf-c-search-input__text::before {
+        .pf-c-text-input-group__text::after,
+        .pf-c-text-input-group__text::before {
             border: none;
         }
 
-        svg {
-            color: #fff;
+        // Adjust search icon
+        .pf-c-text-input-group__icon {
+            padding: var(--pf-global--spacer--md) var(--pf-global--spacer--md) var(--pf-global--spacer--sm) !important;
+            color: var(--pf-global--palette--black-200);
         }
 
-        input,
-        input::placeholder {
-            color: #fff;
+        .pf-c-text-input-group__text-input,
+        .pf-c-text-input-group__text-input::placeholder {
+            color: var(--pf-global--palette--black-100);
+        }
+
+        .pf-c-text-input-group__text-input {
+            // Reserve space for the × icon
+            padding-right: var(--pf-global--spacer--xl);
+            // Stroke outside, based on PF search dark mode mockups
+            border: 1px solid var(--pf-global--palette--black-700);
+        }
+
+        // Reposition the × icon over the entry & recolor it
+        .pf-c-text-input-group__utilities {
+            align-self: center;
+            justify-content: center;
+            position: absolute;
+            right: var(--pf-global--spacer--sm);
+            width: var(--pf-global--spacer--xl);
+
+            // Recolor × icon
+            > .pf-c-button {
+                color: var(--pf-global--palette--black-400);
+
+                &:hover {
+                    color: var(--pf-global--palette--black-200);
+                }
+            }
         }
     }
 
     .nav-item-hint {
-        width: 100%;
+        color: var(--pf-global--palette--black-400);
+        display: inline-block;
         font-size: var(--pf-global--FontSize--sm);
         font-weight: var(--pf-global--FontWeight--normal);
-        color: var(--pf-c-nav--m-dark__link--Color);
-        display: inline-block;
-        opacity: 0.8;
+        width: 100%;
     }
 
-    .pf-c-button.pf-m-link.nav-item-hint {
-        color: var(--pf-global--active-color--300);
+    .pf-m-current .nav-item-hint {
+        color: var(--pf-global--palette--black-300);
+    }
+
+    .non-menu-item .nav-item-hint {
+        color: var(--pf-global--primary-color--light-100);
+    }
+
+    // Add hover effect for clear search link
+    .non-menu-item:hover .nav-item-hint {
+        text-decoration: underline;
     }
 
     .non-menu-item {
         color: var(--pf-c-nav__link--Color);
         display: flex;
         justify-content: center;
+    }
+
+    .no-results {
+        padding: var(--pf-global--spacer--md) 0;
     }
 }
 

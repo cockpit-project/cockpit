@@ -519,41 +519,44 @@ const ApplyUpdates = ({ transaction, onCancel, allowCancel }) => {
     // chronological list of { status: PK_STATUS_*, package: "name version" } events that happen during applying updates
     const [actions, setActions] = useState([]);
 
+    const updateForProperties = (status, packageId) => {
+        // small timeout to avoid excessive overlaps from the next PackageKit progress signal
+        PK.call(transaction, "org.freedesktop.DBus.Properties", "GetAll", [PK.transactionInterface], { timeout: 500 })
+                .then(([props]) => {
+                    const percent = props.Percentage.v;
+                    let remain = -1;
+                    if ("RemainingTime" in props)
+                        remain = props.RemainingTime.v;
+
+                    const pfields = (packageId || props.LastPackage.v).split(";");
+                    // status: see PK_STATUS_* at https://github.com/PackageKit/PackageKit/blob/main/lib/packagekit-glib2/pk-enum.h
+                    setActions(prevActions => [...prevActions, {
+                        status: status || props.Status.v,
+                        package: pfields[0] + " " + pfields[1] + " (" + pfields[2] + ")"
+                    }]);
+
+                    const log = document.getElementById("update-log");
+                    let atBottom = false;
+                    if (log) {
+                        if (log.scrollHeight - log.clientHeight <= log.scrollTop + 2)
+                            atBottom = true;
+                    }
+
+                    setPercentage(percent <= 100 ? percent : 0);
+                    setTimeRemaining(remain > 0 ? remain : null);
+
+                    // scroll update log to the bottom, if it already is (almost) at the bottom
+                    if (log && atBottom)
+                        log.scrollTop = log.scrollHeight;
+                });
+    };
+
     useEffect(() => {
-        const transactionPath = transaction;
-
-        PK.watchTransaction(transactionPath, {
-            Package: (info, packageId) => {
-                const pfields = packageId.split(";");
-
-                // small timeout to avoid excessive overlaps from the next PackageKit progress signal
-                PK.call(transactionPath, "org.freedesktop.DBus.Properties", "GetAll", [PK.transactionInterface], { timeout: 500 })
-                        .then(([props]) => {
-                            const percent = props.Percentage.v;
-                            let remain = -1;
-                            if ("RemainingTime" in props)
-                                remain = props.RemainingTime.v;
-                            // info: see PK_STATUS_* at https://github.com/PackageKit/PackageKit/blob/main/lib/packagekit-glib2/pk-enum.h
-                            setActions(prevActions => [...prevActions, {
-                                status: info,
-                                package: pfields[0] + " " + pfields[1] + " (" + pfields[2] + ")"
-                            }]);
-
-                            const log = document.getElementById("update-log");
-                            let atBottom = false;
-                            if (log) {
-                                if (log.scrollHeight - log.clientHeight <= log.scrollTop + 2)
-                                    atBottom = true;
-                            }
-
-                            setPercentage(percent <= 100 ? percent : 0);
-                            setTimeRemaining(remain > 0 ? remain : null);
-
-                            // scroll update log to the bottom, if it already is (almost) at the bottom
-                            if (log && atBottom)
-                                log.scrollTop = log.scrollHeight;
-                        });
-            },
+        // read the current package from the transaction
+        updateForProperties(null, null);
+        // keep updating it when new Package signals come in
+        PK.watchTransaction(transaction, {
+            Package: (status, packageId) => updateForProperties(status, packageId),
         });
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

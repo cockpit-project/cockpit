@@ -18,6 +18,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import re
 import time
 
 import parent
@@ -1104,7 +1105,6 @@ class TestWsUpdate(NoSubManCase):
         # restarts the service and terminates the connection. As we can't
         # (efficiently) build a newer working cockpit-ws package, test the two
         # parts (reconnect and warning about disconnect) separately.
-        # This test is destructive and thus must run last.
 
         # no security updates, no changelogs
         b = self.browser
@@ -1131,7 +1131,13 @@ class TestWsUpdate(NoSubManCase):
         m.restart_cockpit()
         b.login_and_go("/updates")
 
-        b.wait_in_text(".pf-c-empty-state .pf-c-title", "Initializing")
+        b.wait_in_text("#app div.progress-description", "slow 1-2")
+        # progress bar has some reasonable value
+        b.wait_attr_contains(".progress-main-view .pf-c-progress__indicator", "style", "width:")
+        rm = re.search(r"width: (\d+)%;", b.attr(".progress-main-view .pf-c-progress__indicator", "style"))
+        progress = int(rm.group(1))
+        self.assertGreater(progress, 20)
+        self.assertLess(progress, 80)
 
         # finish the package installation
         m.execute(f"touch {install_lockfile}")

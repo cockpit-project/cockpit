@@ -528,11 +528,11 @@ const ApplyUpdates = ({ transaction, onCancel, allowCancel }) => {
 
                 // small timeout to avoid excessive overlaps from the next PackageKit progress signal
                 PK.call(transactionPath, "org.freedesktop.DBus.Properties", "GetAll", [PK.transactionInterface], { timeout: 500 })
-                        .then(reply => {
-                            const percent = reply[0].Percentage.v;
+                        .then(([props]) => {
+                            const percent = props.Percentage.v;
                             let remain = -1;
-                            if ("RemainingTime" in reply[0])
-                                remain = reply[0].RemainingTime.v;
+                            if ("RemainingTime" in props)
+                                remain = props.RemainingTime.v;
                             // info: see PK_STATUS_* at https://github.com/PackageKit/PackageKit/blob/main/lib/packagekit-glib2/pk-enum.h
                             setActions(prevActions => [...prevActions, {
                                 status: info,
@@ -990,17 +990,14 @@ class OsUpdates extends React.Component {
         this._mounted = true;
         this.callTracer(null);
 
-        PK.getBackendName().then(reply => {
-            this.setState({ backend: reply[0].v });
-        });
+        PK.getBackendName().then(([prop]) => this.setState({ backend: prop.v }));
 
         // check if there is an upgrade in progress already; if so, switch to "applying" state right away
         PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTransactionList", [])
-                .done(result => {
+                .then(([transactions]) => {
                     if (!this._mounted)
                         return;
 
-                    const transactions = result[0];
                     const promises = transactions.map(transactionPath => PK.call(
                         transactionPath, "org.freedesktop.DBus.Properties", "Get", [PK.transactionInterface, "Role"]));
 
@@ -1023,7 +1020,7 @@ class OsUpdates extends React.Component {
                                 this.initialLoadOrRefresh();
                             });
                 })
-                .fail(this.handleLoadError);
+                .catch(this.handleLoadError);
     }
 
     componentWillUnmount() {
@@ -1224,9 +1221,7 @@ class OsUpdates extends React.Component {
     loadOrRefresh(always_load) {
         PK.call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "GetTimeSinceAction",
                 [PK.Enum.ROLE_REFRESH_CACHE])
-                .done(results => {
-                    const seconds = results[0];
-
+                .then(([seconds]) => {
                     this.setState({ timeSinceRefresh: seconds });
 
                     // automatically trigger refresh for ≥ 1 day or if never refreshed
@@ -1235,14 +1230,14 @@ class OsUpdates extends React.Component {
                     else if (always_load)
                         this.loadUpdates();
                 })
-                .fail(this.handleLoadError);
+                .catch(this.handleLoadError);
     }
 
     watchUpdates(transactionPath) {
         this.setState({ state: "applying", applyTransaction: transactionPath, allowCancel: false });
 
         PK.call(transactionPath, "DBus.Properties", "Get", [PK.transactionInterface, "AllowCancel"])
-                .done(reply => this.setState({ allowCancel: reply[0].v }));
+                .then(([prop]) => this.setState({ allowCancel: prop.v }));
 
         return PK.watchTransaction(transactionPath,
                                    {
@@ -1281,7 +1276,7 @@ class OsUpdates extends React.Component {
                                        if ("AllowCancel" in notify)
                                            this.setState({ allowCancel: notify.AllowCancel });
                                    })
-                .fail(ex => {
+                .catch(ex => {
                     this.state.errorMessages.push(ex);
                     this.setState({ state: "updateError" });
                 });
@@ -1300,7 +1295,7 @@ class OsUpdates extends React.Component {
                     this.watchUpdates(transactionPath)
                             .then(() => {
                                 PK.call(transactionPath, PK.transactionInterface, "UpdatePackages", [0, ids])
-                                        .fail(ex => {
+                                        .catch(ex => {
                                             // We get more useful error messages through ErrorCode or "PackageKit has crashed", so only
                                             // show this if we don't have anything else
                                             if (this.state.errorMessages.length === 0)

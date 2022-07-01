@@ -728,6 +728,8 @@ const UpdateSuccess = ({ onIgnore, openServiceRestartDialog, openRebootDialog, r
         });
     }
 
+    const showReboot = reboot.length > 0 || manual.length > 0;
+
     return (<>
         <EmptyStatePanel title={ _("Update was successful") }
             headingLevel="h5"
@@ -740,8 +742,8 @@ const UpdateSuccess = ({ onIgnore, openServiceRestartDialog, openRebootDialog, r
                         className="updates-success-table"
                         rows={entries} /> }
                     <div className="update-success-actions">
-                        { (reboot.length > 0 || manual.length > 0) && <Button id="reboot-system" variant="primary" onClick={openRebootDialog}>{_("Reboot system...")}</Button> }
-                        { restart.length > 0 && <Button id="choose-service" variant={reboot.length > 0 ? "secondary" : "primary"} onClick={openServiceRestartDialog}>{_("Restart services...")}</Button> }
+                        { showReboot && <Button id="reboot-system" variant="primary" onClick={openRebootDialog}>{_("Reboot system...")}</Button> }
+                        { restart.length > 0 && <Button id="choose-service" variant={showReboot ? "secondary" : "primary"} onClick={openServiceRestartDialog}>{_("Restart services...")}</Button> }
                         { reboot.length > 0 || restart.length > 0 || manual.length > 0
                             ? <Button id="ignore" variant="link" onClick={onIgnore}>{_("Ignore")}</Button>
                             : <Button id="ignore" variant="primary" onClick={onIgnore}>{_("Continue")}</Button> }

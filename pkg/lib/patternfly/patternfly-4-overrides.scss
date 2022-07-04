@@ -217,3 +217,13 @@ svg {
         }
     }
 }
+
+// InputMenus now use the PF Panel component which mistakenly uses position:
+// relative, when it needs to be set to absolute.
+// Additionally, it needs to be full width to properly align to the widget the
+// popover panel describes.
+// https://github.com/patternfly/patternfly-react/issues/7592
+.pf-c-search-input__menu.pf-c-panel {
+    position: absolute;
+    width: 100%;
+ }

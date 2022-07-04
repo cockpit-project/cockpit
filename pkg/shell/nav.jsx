@@ -70,7 +70,7 @@ export class CockpitNav extends React.Component {
                 let i = all.findIndex(item => item === cur);
                 i += step;
                 if (i < 0 || i >= all.length)
-                    document.querySelector("#" + sel + " .pf-c-search-input__text-input").focus();
+                    document.querySelector("#" + sel + " .pf-c-text-input-group__text-input").focus();
                 else
                     all[i].focus();
             }
@@ -85,7 +85,7 @@ export class CockpitNav extends React.Component {
                 focusNextItem(-1, -1);
             else if (ev.keyCode === 27) { // Escape - clean selection
                 self.setState({ search: "" });
-                document.querySelector("#" + sel + " .pf-c-search-input__text-input").focus();
+                document.querySelector("#" + sel + " .pf-c-text-input-group__text-input").focus();
             }
         }
 
@@ -118,7 +118,7 @@ export class CockpitNav extends React.Component {
 
         return (
             <>
-                <SearchInput placeholder={_("Search")} value={this.state.search} onChange={search => this.setState({ search })} className="search" />
+                <SearchInput placeholder={_("Search")} value={this.state.search} onChange={search => this.setState({ search })} onClear={() => this.setState({ search: "" })} className="search" />
                 <Nav onSelect={this.onSelect} theme="dark">
                     { groups.map(g =>
                         <section className="pf-c-nav__section" aria-labelledby={"section-title-" + g.name} key={g.name}>
@@ -136,7 +136,7 @@ export class CockpitNav extends React.Component {
                             </ul>
                         </section>
                     )}
-                    { groups.length < 1 && <span className="non-menu-item">{_("No results found")}</span> }
+                    { groups.length < 1 && <span className="non-menu-item no-results">{_("No results found")}</span> }
                     { this.state.search !== "" && <span className="non-menu-item"><Button variant="link" onClick={this.clearSearch} className="nav-item-hint">{_("Clear search")}</Button></span> }
                 </Nav>
             </>

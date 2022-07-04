@@ -75,7 +75,7 @@ EXTRA_DIST += \
 check: export VERBOSE=1
 
 TEST_EXTENSIONS = .html .sh
-HTML_LOG_COMPILER = $(top_srcdir)/test/common/tap-cdp --strip=$(abs_top_srcdir)/ ./test-server
+HTML_LOG_COMPILER = $(top_srcdir)/test/common/tap-cdp --strip=$(abs_top_srcdir)/ ./test-server $(COCKPIT_BRIDGE)
 
 VALGRIND_ARGS = --trace-children=yes --quiet --error-exitcode=33 --gen-suppressions=all \
 	$(foreach file,$(wildcard $(srcdir)/tools/*.supp),--suppressions=$(file)) \

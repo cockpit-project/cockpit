@@ -19,6 +19,8 @@ import logging
 import os
 import tempfile
 
+from systemd_ctypes import PathWatch
+
 from ..channel import Channel
 
 logger = logging.getLogger(__name__)
@@ -37,9 +39,9 @@ def tag_from_path(path):
         return None
 
 
-def tag_from_file(file):
+def tag_from_fd(fd):
     try:
-        return tag_from_stat(os.fstat(file.fileno()))
+        return tag_from_stat(os.fstat(fd))
     except OSError:
         return None
 
@@ -155,6 +157,40 @@ class FsReplaceChannel(Channel):
 
 class FsWatchChannel(Channel):
     payload = 'fswatch1'
+    _tag = None
+    _path = None
+    _watch = None
+
+    # The C bridge doesn't send the initial event, and the JS calls read()
+    # instead to figure out the initial state of the file.  If we send the
+    # initial state then we cause the event to get delivered twice.
+    # Ideally we'll sort that out at some point, but for now, suppress it.
+    _active = False
+
+    def set_tag(self, tag):
+        if tag == self._tag:
+            return
+        self._tag = tag
+        if self._active:
+            self.send_message(path=self._path, tag=self._tag)
+
+    def do_inotify_event(self, _mask, _cookie, _name):
+        self.set_tag(tag_from_path(self._path))
+
+    def do_identity_changed(self, fd, _err):
+        self.set_tag(tag_from_fd(fd) if fd else '-')
 
     def do_open(self, options):
-        ...
+        self._path = options['path']
+        self._tag = None
+
+        self._active = False
+        self._watch = PathWatch(self._path, self)
+        self._active = True
+
+        self.ready()
+
+    def do_close(self):
+        self._watch.close()
+        self._watch = None
+        self.close()

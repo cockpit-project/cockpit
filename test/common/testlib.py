@@ -1385,7 +1385,6 @@ class MachineCase(unittest.TestCase):
         if opts.address and self.provision is not None:
             raise unittest.SkipTest("Cannot provision multiple machines if a specific machine address is specified")
 
-        self.browser: Optional[Browser] = None
         self.machines = {}
         provision = self.provision or {'machine1': {}}
         self.tmpdir = tempfile.mkdtemp()
@@ -1435,23 +1434,22 @@ class MachineCase(unittest.TestCase):
             if dhcp:
                 machine.dhcp_server()
 
-        if self.machine:
-            self.journal_start = self.machine.journal_cursor()
-            self.browser = self.new_browser(coverage=opts.coverage)
-            # fail tests on criticals
-            self.machine.write("/etc/cockpit/cockpit.conf", "[Log]\nFatal = criticals\n")
-            if self.is_nondestructive():
-                self.nonDestructiveSetup()
+        self.journal_start = self.machine.journal_cursor()
+        self.browser: Browser = self.new_browser(coverage=opts.coverage)
+        # fail tests on criticals
+        self.machine.write("/etc/cockpit/cockpit.conf", "[Log]\nFatal = criticals\n")
+        if self.is_nondestructive():
+            self.nonDestructiveSetup()
 
-            # Pages with debug enabled are huge and loading/executing them is heavy for browsers
-            # To make it easier for browsers and thus make tests quicker, disable packagekit and systemd preloads
-            if self.is_devel_build():
-                self.disable_preload("packagekit", "systemd")
+        # Pages with debug enabled are huge and loading/executing them is heavy for browsers
+        # To make it easier for browsers and thus make tests quicker, disable packagekit and systemd preloads
+        if self.is_devel_build():
+            self.disable_preload("packagekit", "systemd")
 
-            if self.machine.image.startswith('debian') or self.machine.image.startswith('ubuntu') or self.machine.image == 'arch':
-                self.libexecdir = '/usr/lib/cockpit'
-            else:
-                self.libexecdir = '/usr/libexec'
+        if self.machine.image.startswith('debian') or self.machine.image.startswith('ubuntu') or self.machine.image == 'arch':
+            self.libexecdir = '/usr/lib/cockpit'
+        else:
+            self.libexecdir = '/usr/libexec'
 
     def nonDestructiveSetup(self):
         """generic setUp/tearDown for @nondestructive tests"""

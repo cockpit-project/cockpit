@@ -1,15 +1,10 @@
 NULL =
-BUILT_SOURCES =
 CLEANFILES =
-bin_PROGRAMS =
 dist_noinst_DATA =
-libexec_PROGRAMS =
-libexec_SCRIPTS =
 man_MANS =
 noinst_DATA =
 noinst_LIBRARIES =
 noinst_PROGRAMS =
-sbin_PROGRAMS =
 
 # -----------------------------------------------------------------------------
 #  make dist
@@ -75,25 +70,6 @@ EXTRA_DIST += \
 	node_modules/commander \
 	node_modules/sizzle \
 	node_modules/ws \
-	$(NULL)
-
-AM_CPPFLAGS = \
-	-I$(top_srcdir)/src \
-	-DDATADIR=\"$(datadir)\" \
-	-DLIBEXECDIR=\""$(libexecdir)"\" \
-	-DPACKAGE_SYSCONF_DIR=\""$(sysconfdir)"\" \
-	$(NULL)
-
-AM_CFLAGS = \
-	-pthread \
-	-Wall \
-	-Werror=strict-prototypes \
-	-Werror=missing-prototypes \
-	-Werror=implicit-function-declaration \
-	-Werror=pointer-arith -Werror=init-self \
-	-Werror=format=2 \
-	-Werror=return-type \
-	-Werror=missing-include-dirs \
 	$(NULL)
 
 check: export VERBOSE=1
@@ -171,6 +147,7 @@ include doc/man/Makefile-man.am
 include pkg/Makefile.am
 include po/Makefile.am
 include selinux/Makefile.am
+include src/Makefile.am
 include src/branding/arch/Makefile.am
 include src/branding/centos/Makefile.am
 include src/branding/debian/Makefile.am

@@ -16,6 +16,7 @@ pyTESTS_PASSING = \
 	dist/base1/test-echo.html \
 	dist/base1/test-events.html \
 	dist/base1/test-external.html \
+	dist/base1/test-file.html \
 	dist/base1/test-format.html \
 	dist/base1/test-framed-cache.html \
 	dist/base1/test-framed.html \
@@ -44,7 +45,6 @@ pyTESTS_FAILING = \
 pyTESTS_HANGING = \
 	dist/base1/test-dbus-address.html \
 	dist/base1/test-dbus.html \
-	dist/base1/test-file.html \
 	dist/base1/test-spawn-proc.html \
 	$(NULL)
 
@@ -74,7 +74,7 @@ PYTHON_BRIDGE_FILES = \
 
 SYSTEMD_CTYPES_STAMP = src/systemd_ctypes/__init__.py
 SYSTEMD_CTYPES_REPO_URL = https://github.com/allisonkarlitskaya/systemd_ctypes
-SYSTEMD_CTYPES_REPO_COMMIT = f08eafe8e542772de66f82d047160f0d391b9e2f
+SYSTEMD_CTYPES_REPO_COMMIT = ee3fe59df2e32a94e207fa2be09bb3170c07b359
 
 SYSTEMD_CTYPES_REPO_TREE = '$(strip $(SYSTEMD_CTYPES_REPO_COMMIT))^{tree}'
 $(SYSTEMD_CTYPES_STAMP):

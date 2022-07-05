@@ -1231,10 +1231,10 @@ class MachineCase(unittest.TestCase):
     image = testvm.DEFAULT_IMAGE
     libexecdir = None
     runner = None
-    machine = None
+    machine: testvm.Machine
     machines = Dict[str, testvm.Machine]
     machine_class = None
-    browser = None
+    browser: Browser
     network = None
     journal_start = None
 
@@ -1396,7 +1396,7 @@ class MachineCase(unittest.TestCase):
                 raise unittest.SkipTest("Cannot provision machines if test is marked as nondestructive")
             self.machine = self.machines['machine1'] = MachineCase.get_global_machine()
         else:
-            self.machine: Optional[testvm.Machine] = None
+            first_machine = True
             # First create all machines, wait for them later
             for key in sorted(provision.keys()):
                 options = provision[key].copy()
@@ -1410,7 +1410,8 @@ class MachineCase(unittest.TestCase):
                     options['restrict'] = restrict
                 machine = self.new_machine(**options)
                 self.machines[key] = machine
-                if not self.machine:
+                if first_machine:
+                    first_machine = False
                     self.machine = machine
                 if opts.trace:
                     print("Starting {0} {1}".format(key, machine.label))

@@ -88,12 +88,15 @@ class FsReadChannel(Channel):
                             return
 
                     data = filep.read()
-            except IsADirectoryError:
+            except FileNotFoundError:
+                self.close(tag='-')
+                return
+            except PermissionError:
+                self.close(problem='access-denied')
+                return
+            except OSError:
                 self.close(problem='internal-error')
                 return
-            except FileNotFoundError:
-                tag = '-'
-                data = b''
 
             if 'binary' not in options:
                 data = data.replace(b'\0', b'').decode('utf-8', errors='ignore').encode('utf-8')

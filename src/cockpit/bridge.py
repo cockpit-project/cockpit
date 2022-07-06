@@ -19,6 +19,7 @@ import argparse
 import asyncio
 import json
 import logging
+import pwd
 import os
 import sys
 
@@ -33,6 +34,12 @@ logger = logging.getLogger('cockpit.bridge')
 
 async def run():
     logger.debug("Hi. How are you today?")
+
+    # Unit tests require this
+    me = pwd.getpwuid(os.getuid())
+    os.environ['HOME'] = me.pw_dir
+    os.environ['SHELL'] = me.pw_shell
+    os.environ['USER'] = me.pw_name
 
     loop = asyncio.get_event_loop()
     stdio = AsyncStdio(loop)

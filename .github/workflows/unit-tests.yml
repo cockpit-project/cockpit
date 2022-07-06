@@ -10,6 +10,7 @@ jobs:
           - { make: 'check-memory', cc: 'gcc', tag: 'latest' }
           - { make: 'distcheck', cc: 'clang', tag: 'latest' }
           - { make: 'distcheck', cc: 'gcc', tag: 'i386' }
+          - { make: 'pycheck', cc: 'gcc', tag: 'latest', network: '--network' }
       fail-fast: false
     timeout-minutes: 60
     steps:
@@ -35,6 +36,7 @@ jobs:
         run: |
           containers/unit-tests/start \
               --verbose --no-jumpstart \
+              ${{ matrix.startarg.network }} \
               --env=CC='${{ matrix.startarg.cc }}' \
               --image-tag='${{ matrix.startarg.tag }}' \
               --make '${{ matrix.startarg.make }}'

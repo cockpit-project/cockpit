@@ -331,7 +331,11 @@ WantedBy=default.target
         self.run_systemctl(user, "start test-onboot.timer")
         # Check the next run. Since it triggers 200mins after the boot, it might be today or tomorrow (after 20:40)
         today_stamp = int(m.execute("date +%s").strip())
+        print(today_stamp)
         today_plus_200min = m.execute(f"date --date=@{today_stamp + 200 * 60} '+%b %-d, %Y'").strip()
+        print(today_plus_200min)
+        print(m.execute("systemctl list-timers"))
+
         b.wait_in_text(self.svc_sel('test-onboot.timer') + ' .service-unit-next-trigger', today_plus_200min)
         b.wait_in_text(self.svc_sel('test-onboot.timer') + ' .service-unit-last-trigger', "unknown")  # last trigger
         self.run_systemctl(user, "stop test-onboot.timer")

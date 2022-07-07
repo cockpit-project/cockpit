@@ -27,8 +27,10 @@ if [ ! -d node_modules/chrome-remote-interface ] && [ -d . git ]; then
 fi
 
 export TEST_OS="${ID}-${VERSION_ID/./-}"
+export RAWHIDE=
 # HACK: upstream does not yet know about rawhide
 if [ "$TEST_OS" = "fedora-37" ]; then
+    export RAWHIDE=1
     export TEST_OS=fedora-36
 fi
 
@@ -96,8 +98,14 @@ if [ -n "$test_basic" ]; then
         TestSOS
         TestSystemInfo
         TestTeam
-        TestTuned
         "
+
+    # HACK: python3-linux-procfs can't be installed on rawhide
+    if [ -z "$RAWHIDE" ]; then
+         TESTS="$TESTS
+            TestTuned
+            "
+    fi
 
     # PCI devices list is not predictable
     EXCLUDES="$EXCLUDES TestSystemInfo.testHardwareInfo"

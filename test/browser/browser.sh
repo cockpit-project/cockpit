@@ -34,6 +34,9 @@ if grep -q 'ID=.*fedora' /etc/os-release; then
     dnf install -y tcsh
 fi
 
+# HACK: python3-linux-procfs can't be installed on rawhide
+dnf install -y --skip-broken tuned
+
 #HACK: unbreak RHEL 9's default choice of 999999999 rounds, see https://bugzilla.redhat.com/show_bug.cgi?id=1993919
 sed -ie 's/#SHA_CRYPT_MAX_ROUNDS 5000/SHA_CRYPT_MAX_ROUNDS 5000/' /etc/login.defs
 

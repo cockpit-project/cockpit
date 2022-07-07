@@ -20,7 +20,8 @@ require:
   - sssd-dbus
   - targetcli
   - tlog
-  - tuned
+# HACK this should be in require, but Fedora-rawhide's python3-linux-procfs package is broken
+#  - tuned
 
 test: ./browser.sh
 duration: 1h

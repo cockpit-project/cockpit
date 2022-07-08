@@ -11,6 +11,7 @@ jobs:
           - { make: 'distcheck', cc: 'clang', tag: 'latest' }
           - { make: 'distcheck', cc: 'gcc', tag: 'i386' }
           - { make: 'pycheck', cc: 'gcc', tag: 'latest', network: '--network' }
+          - { make: 'check', cc: 'gcc', tag: 'latest' }
       fail-fast: false
     timeout-minutes: 60
     steps:

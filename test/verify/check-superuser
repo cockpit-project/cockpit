@@ -181,13 +181,14 @@ session include system-auth
         b = self.browser
         m = self.machine
 
-        m.write("/etc/cockpit/shell.override.json", """
+        self.write_file("/etc/cockpit/shell.override.json", """
 {
   "bridges": [
     {
       "privileged": true,
       "spawn": [
         "sudo",
+        "-k",
         "-A",
         "cockpit-bridge",
         "--privileged"
@@ -212,13 +213,12 @@ session include system-auth
 
     def testRemoveBridgeConfig(self):
         b = self.browser
-        m = self.machine
 
         self.login_and_go("/playground/pkgs", superuser=True)
         b.leave_page()
         b.check_superuser_indicator("Administrative access")
 
-        m.write("/etc/cockpit/shell.override.json", """
+        self.write_file("/etc/cockpit/shell.override.json", """
 {
   "bridges": [ ]
 }
@@ -228,6 +228,99 @@ session include system-auth
         b.click("#reload")
         b.leave_page()
         b.check_superuser_indicator("Limited access")
+
+    def testSingleLabelBridgeConfig(self):
+        b = self.browser
+
+        # When there is a single labeled privileged bridge, Cockit will start it automatically.
+
+        self.write_file("/etc/cockpit/shell.override.json", """
+{
+  "bridges": [
+    {
+      "privileged": true,
+      "label": "Always fails",
+      "spawn": [
+        "/bin/bash", "-c", "echo >&2 'Hello from the bash method'; exit 1"
+      ]
+    }
+  ]
+}
+""")
+
+        self.login_and_go("/playground/pkgs", superuser=False)
+        b.leave_page()
+        b.check_superuser_indicator("Limited access")
+        b.open_superuser_dialog()
+        b.wait_in_text(".pf-c-modal-box:contains('Problem becoming administrator')", "Hello from the bash method")
+        b.click(".pf-c-modal-box button:contains('Close')")
+        b.check_superuser_indicator("Limited access")
+
+    def testMultipleBridgeConfig(self):
+        b = self.browser
+
+        self.write_file("/etc/cockpit/shell.override.json", """
+{
+  "bridges": [
+    {
+      "privileged": true,
+      "label": "Sudo",
+      "environ": [
+        "SUDO_ASKPASS=${libexecdir}/cockpit-askpass"
+      ],
+      "spawn": [
+        "sudo",
+        "-k",
+        "-A",
+        "cockpit-bridge",
+        "--privileged"
+      ]
+    },
+    {
+        "privileged": true,
+        "label": "Polkit",
+        "spawn": [
+            "pkexec",
+            "--disable-internal-agent",
+            "cockpit-bridge",
+            "--privileged"
+        ]
+    }
+  ]
+}
+""")
+
+        self.login_and_go("/playground/pkgs", superuser=False)
+        b.leave_page()
+        b.check_superuser_indicator("Limited access")
+
+        # Get admin rights with "pkexec" method
+        b.open_superuser_dialog()
+        b.set_val(".pf-c-modal-box:contains('Switch to administrative access') select", "pkexec")
+        b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access') select", "Polkit")
+        b.click(".pf-c-modal-box button:contains('Authenticate')")
+        b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Please authenticate")
+        b.set_input_text(".pf-c-modal-box:contains('Switch to administrative access') input", "foobar")
+        b.click(".pf-c-modal-box button:contains('Authenticate')")
+        b.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
+        b.check_superuser_indicator("Administrative access")
+
+        # Drop them
+        b.open_superuser_dialog()
+        b.click(".pf-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
+        b.wait_not_present(".pf-c-modal-box:contains('Switch to limited access')")
+        b.check_superuser_indicator("Limited access")
+
+        # Run the regular sudo method, which should work as always
+        b.open_superuser_dialog()
+        b.set_val(".pf-c-modal-box:contains('Switch to administrative access') select", "sudo")
+        b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access') select", "Sudo")
+        b.click(".pf-c-modal-box button:contains('Authenticate')")
+        b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
+        b.set_input_text(".pf-c-modal-box:contains('Switch to administrative access') input", "foobar")
+        b.click(".pf-c-modal-box button:contains('Authenticate')")
+        b.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
+        b.check_superuser_indicator("Administrative access")
 
     def testOverview(self):
         b = self.browser

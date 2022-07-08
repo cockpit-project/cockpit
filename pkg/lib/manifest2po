@@ -62,6 +62,8 @@ function process_manifest(manifest) {
         process_menu(manifest.menu);
     if (manifest.tools)
         process_menu(manifest.tools);
+    if (manifest.bridges)
+        process_bridges(manifest.bridges);
 }
 
 function process_keywords(keywords) {
@@ -96,6 +98,17 @@ function process_menu(menu) {
             process_keywords(menu[m].keywords);
         if (menu[m].docs)
             process_docs(menu[m].docs);
+    }
+}
+
+function process_bridges(bridges) {
+    for (const b in bridges) {
+        if (bridges[b].label) {
+            push({
+                msgid: bridges[b].label,
+                locations: [filename + ":0"]
+            });
+        }
     }
 }
 

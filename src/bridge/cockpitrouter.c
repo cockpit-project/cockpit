@@ -1407,6 +1407,38 @@ superuser_get_property (GDBusConnection *connection,
 
       return g_variant_new ("as", &bob);
     }
+  if (g_str_equal (property_name, "Methods"))
+    {
+      GVariantBuilder bob;
+      GVariant *value;
+
+      g_variant_builder_init (&bob, G_VARIANT_TYPE("a{sv}"));
+      for (GList *l = router->rules; l; l = g_list_next (l))
+        {
+          RouterRule *rule = l->data;
+          gchar *id = rule_superuser_id (rule);
+          if (id)
+            {
+              GVariantBuilder config_builder;
+              const gchar *label;
+              if (cockpit_json_get_string (rule->config, "label", NULL, &label) && label) {
+                g_variant_builder_init (&config_builder, G_VARIANT_TYPE("a{sv}"));
+                g_variant_builder_add (&config_builder, "{sv}", "label", g_variant_new_string (label));
+                g_variant_builder_add (&bob, "{sv}", id, g_variant_builder_end (&config_builder));
+              }
+              g_free (id);
+            }
+        }
+
+      value = g_variant_builder_end (&bob);
+      if (g_variant_n_children (value) > 0)
+        return value;
+      else
+        {
+          g_variant_unref (value);
+          return NULL;
+        }
+    }
   else if (g_str_equal (property_name, "Current"))
     {
       /* The Current property is either the "superuser id" of the
@@ -1502,12 +1534,17 @@ static GDBusPropertyInfo superuser_bridges_property = {
   -1, "Bridges", "as", G_DBUS_PROPERTY_INFO_FLAGS_READABLE, NULL
 };
 
+static GDBusPropertyInfo superuser_methods_property = {
+  -1, "Methods", "a{sv}", G_DBUS_PROPERTY_INFO_FLAGS_READABLE, NULL
+};
+
 static GDBusPropertyInfo superuser_current_property = {
   -1, "Current", "s", G_DBUS_PROPERTY_INFO_FLAGS_READABLE, NULL
 };
 
 static GDBusPropertyInfo *superuser_properties[] = {
   &superuser_bridges_property,
+  &superuser_methods_property,
   &superuser_current_property,
   NULL
 };

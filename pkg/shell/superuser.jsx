@@ -19,9 +19,9 @@
 
 import cockpit from "cockpit";
 import React, { useState } from "react";
-import { useObject, useEvent } from "hooks";
+import { useObject, useInit, useEvent } from "hooks";
 import { useDialogs } from "dialogs.jsx";
-import { Alert, Button, Form, FormGroup, Modal, TextInput } from '@patternfly/react-core';
+import { Alert, Button, Form, FormGroup, Modal, TextInput, FormSelect, FormSelectOption } from '@patternfly/react-core';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { host_superuser_storage_key } from './machines/machines';
 import { LockIcon } from '@patternfly/react-icons';
@@ -40,8 +40,10 @@ function sudo_polish(msg) {
 
 const UnlockDialog = ({ proxy, host }) => {
     const D = useDialogs();
-    useObject(init, null, [proxy, host]);
+    useInit(init, [proxy, host]);
 
+    const [methods, setMethods] = useState(null);
+    const [method, setMethod] = useState(false);
     const [busy, setBusy] = useState(false);
     const [cancel, setCancel] = useState(null);
     const [prompt, setPrompt] = useState(null);
@@ -108,7 +110,16 @@ const UnlockDialog = ({ proxy, host }) => {
 
     function init() {
         return proxy.Stop().always(() => {
-            start("sudo");
+            if (proxy.Methods) {
+                const ids = Object.keys(proxy.Methods);
+                if (ids.length == 1)
+                    start(ids[0]);
+                else {
+                    setMethods(ids);
+                    setMethod(ids[0]);
+                }
+            } else
+                start("sudo");
         });
     }
 
@@ -180,6 +191,29 @@ const UnlockDialog = ({ proxy, host }) => {
             <Button variant="secondary" className='btn-cancel' onClick={cancel}>
                 {_("Close")}
             </Button>);
+    } else if (methods) {
+        title = _("Switch to administrative access");
+        body = (
+            <Form isHorizontal>
+                <FormGroup fieldId="switch-to-admin-access-bridge-select"
+                           label={_("Method")}>
+                    <FormSelect value={method} onChange={setMethod} isDisabled={busy}>
+                        { methods.map(m => <FormSelectOption value={m} key={m}
+                                                             label={_(proxy.Methods[m].v.label.v)} />) }
+                    </FormSelect>
+                </FormGroup>
+            </Form>);
+
+        footer = (
+            <>
+                <Button variant='primary' onClick={() => start(method)} isDisabled={busy} isLoading={busy}>
+                    {_("Authenticate")}
+                </Button>
+                <Button variant='link' className='btn-cancel' onClick={busy ? cancel : D.close}
+                        isDisabled={busy && !cancel}>
+                    {_("Cancel")}
+                </Button>
+            </>);
     }
 
     if (body === null)

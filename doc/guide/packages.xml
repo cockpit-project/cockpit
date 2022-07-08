@@ -400,6 +400,25 @@ mypackage/test.min.js.gz
         <listitem><para>If set to <code>true</code>, this marks the bridge as a superuser bridge.  Cockpit will start one of these explicitly when trying to escalate the privileges of a session.  A privileged bridge can not have a <code>"match"</code> property.</para></listitem>
       </varlistentry>
       <varlistentry>
+        <term>label</term>
+        <listitem><para>Setting this enables selection of privileged
+        bridges in the UI.  When no privileged bridge has a
+        <code>label</code>, then Cockpit will start the bridge that
+        runs <code>sudo</code>.  This is the case in a default Cockpit
+        installation.  When at least one privileged bridge has a
+        <code>label</code> then the user can select one of them when
+        escalating privileges.  As a special case, if only one bridge
+        has a <code>label</code>, then the step of selecting a bridge
+        is omitted in the UI and that one bridge is always started.</para>
+        <para>Thus, if you add a privileged bridge with a
+        <code>label</code> in a new manifest, Cockpit will use that
+        bridge the next time a user opens the "Administrative access"
+        dialog. If you want the user to choose between the
+        <code>sudo</code> method and your new one, you need to
+        duplicate the <code>sudo</code> bridge definition in your
+        manifest and give it a label.</para></listitem>
+      </varlistentry>
+      <varlistentry>
         <term>problem</term>
         <listitem><para>If a problem is specified, and this bridge fails to start up then
             channels will be closed with this problem code. Otherwise later bridges or internal

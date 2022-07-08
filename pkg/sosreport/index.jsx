@@ -24,10 +24,8 @@ import "polyfills";
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import {
-    Alert,
     Button,
     CodeBlockCode,
-    Modal,
     Card,
     CardBody,
     Page,
@@ -39,18 +37,12 @@ import {
     Dropdown,
     DropdownItem,
     KebabToggle,
-    Form,
-    FormGroup,
-    InputGroup,
-    TextInput,
-    Checkbox,
     CardHeader,
     CardTitle,
     CardActions,
     Text,
     TextVariants
 } from "@patternfly/react-core";
-import { EyeIcon, EyeSlashIcon } from '@patternfly/react-icons';
 
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
@@ -60,6 +52,17 @@ import { superuser } from "superuser";
 import { useObject, useEvent } from "hooks";
 
 import { SuperuserButton } from "../shell/superuser.jsx";
+
+import {
+    useNewDialogState,
+    Dialog,
+    DialogError,
+    Fields,
+    TextField,
+    NewPasswordField,
+    CheckboxField,
+    CheckboxFieldItem
+} from "./dialogs.jsx";
 
 import { fmt_to_fragments } from "utils.jsx";
 import * as timeformat from "timeformat";
@@ -151,7 +154,7 @@ function sosLister() {
     return self;
 }
 
-function sosCreate(args, setProgress, setError, setErrorDetail) {
+function sosCreate(args, setProgress) {
     let output = "";
     let plugins_count = 0;
     const progress_regex = /Running ([0-9]+)\/([0-9]+):/; // Only for sos < 3.6
@@ -161,6 +164,8 @@ function sosCreate(args, setProgress, setError, setErrorDetail) {
     // TODO - Use a real API instead of scraping stdout once such an API exists
     const task = cockpit.spawn(["sos", "report", "--batch"].concat(args),
                                { superuser: true, err: "out", pty: true });
+
+    setProgress(0, () => task.close("cancelled"));
 
     task.stream(text => {
         let p = 0;
@@ -185,15 +190,15 @@ function sosCreate(args, setProgress, setError, setErrorDetail) {
             }
         }
 
-        setProgress(p);
+        setProgress(p, () => task.close("cancelled"));
     });
 
-    task.catch(error => {
-        setError(error.toString());
-        setErrorDetail(output);
+    return task.catch(error => {
+        if (error.problem == "cancelled")
+            return Promise.resolve();
+        else
+            return Promise.reject(new DialogError(error.toString(), <CodeBlockCode>{output}</CodeBlockCode>));
     });
-
-    return task;
 }
 
 function sosDownload(path) {
@@ -233,163 +238,95 @@ function sosRemove(path) {
 }
 
 const SOSDialog = () => {
-    const Dialogs = useDialogs();
-    const [label, setLabel] = useState("");
-    const [passphrase, setPassphrase] = useState("");
-    const [showPassphrase, setShowPassphrase] = useState(false);
-    const [obfuscate, setObfuscate] = useState(false);
-    const [verbose, setVerbose] = useState(false);
-    const [task, setTask] = useState(null);
-    const [progress, setProgress] = useState(null);
-    const [error, setError] = useState(null);
-    const [errorDetail, setErrorDetail] = useState(null);
+    const dlg = useNewDialogState({
+        label: "",
+        passphrase: "",
+        obfuscate: false,
+        verbose: false,
+    });
 
     function run() {
-        setError(null);
-        setProgress(null);
-
         const args = [];
 
-        if (label) {
-            args.push("--label");
-            args.push(label);
+        if (dlg.values.label) {
+            if (dlg.values.label == "FOO")
+                dlg.set_value_error("label", "Label can not be FOO");
+
+            args.push("--labelll");
+            args.push("cockpit-" + dlg.values.label);
         }
 
-        if (passphrase) {
+        if (dlg.values.passphrase) {
             args.push("--encrypt-pass");
-            args.push(passphrase);
+            args.push(dlg.values.passphrase);
         }
 
-        if (obfuscate) {
+        if (dlg.values.obfuscate) {
             args.push("--clean");
         }
 
-        if (verbose) {
+        if (dlg.values.verbose) {
             args.push("-vvv");
         }
 
-        const task = sosCreate(args, setProgress, err => { if (err == "cancelled") Dialogs.close(); else setError(err); },
-                               setErrorDetail);
-        setTask(task);
-        task.then(Dialogs.close);
-        task.finally(() => setTask(null));
+        if (dlg.has_value_errors())
+            return;
+
+        function set_progress(perc, cancel) {
+            dlg.set_progress(cockpit.format(_("Progress: $0"), perc.toFixed() + "%"));
+            dlg.set_cancel(cancel);
+        }
+
+        return sosCreate(args, set_progress);
     }
 
-    const actions = [];
-    actions.push(<Button key="run" isLoading={!!task} isDisabled={!!task} onClick={run}>
-        {_("Run report")}
-    </Button>);
-    if (task)
-        actions.push(<Button key="stop" variant="secondary" onClick={() => task.close("cancelled")}>
-            {_("Stop report")}
-        </Button>);
-    else
-        actions.push(<Button key="cancel" variant="link" onClick={Dialogs.close}>
-            {_("Cancel")}
-        </Button>);
-
-    return <Modal id="sos-dialog"
-                  position="top"
-                  variant="medium"
-                  isOpen
-                  onClose={Dialogs.close}
-                  footer={
-                      <>
-                          {actions}
-                          {progress ? <span>{cockpit.format(_("Progress: $0"), progress.toFixed() + "%")}</span> : null}
-                      </>
-                  }
-                  title={ _("Run new report") }>
-        { error
-            ? <>
-                <Alert variant="warning" isInline title={error}>
-                    <CodeBlockCode>{errorDetail}</CodeBlockCode>
-                </Alert>
-                <br />
-            </>
-            : null }
-        <p>{ _("SOS reporting collects system information to help with diagnosing problems.") }</p>
-        <p>{ _("This information is stored only on the system.") }</p>
-        <br />
-        <Form isHorizontal>
-            <FormGroup label={_("Report label")}>
-                <TextInput id="sos-dialog-ti-1" value={label} onChange={setLabel} />
-            </FormGroup>
-            <FormGroup label={_("Encryption passphrase")}
-                       helperText={_("Leave empty to skip encryption")}>
-                <InputGroup>
-                    <TextInput type={showPassphrase ? "text" : "password"} value={passphrase} onChange={setPassphrase}
-                               id="sos-dialog-ti-2" autoComplete="new-password" />
-                    <Button variant="control" onClick={() => setShowPassphrase(!showPassphrase)}>
-                        { showPassphrase ? <EyeSlashIcon /> : <EyeIcon /> }
-                    </Button>
-                </InputGroup>
-            </FormGroup>
-            <FormGroup label={_("Options")} hasNoPaddingTop>
-                <Checkbox label={_("Obfuscate network addresses, hostnames, and usernames")}
-                          id="sos-dialog-cb-1" isChecked={obfuscate} onChange={setObfuscate} />
-                <Checkbox label={_("Use verbose logging")}
-                          id="sos-dialog-cb-2" isChecked={verbose} onChange={setVerbose} />
-            </FormGroup>
-        </Form>
-    </Modal>;
+    return (
+        <Dialog state={dlg}
+                id="sos-dialog"
+                title={_("Run new report")}
+                actionLabel={_("Run report")} action={run}
+                cancelLabel={_("Stop report")}>
+            <p>{ _("SOS reporting collects system information to help with diagnosing problems.") }</p>
+            <p>{ _("This information is stored only on the system.") }</p>
+            <br />
+            <Fields>
+                <TextField tag="label"
+                           label={_("Report label")} />
+                <NewPasswordField tag="passphrase"
+                                  label={_("Encryption passphrase")}
+                                  helperText="Leave empty to skip encryption" />
+                <CheckboxField label={_("Options")}>
+                    <CheckboxFieldItem tag="obfuscate"
+                                       label={_("Obfuscate network addresses, hostnames, and usernames")} />
+                    <CheckboxFieldItem tag="verbose"
+                                       label={_("Use verbose logging")} />
+                </CheckboxField>
+            </Fields>
+        </Dialog>);
 };
 
 const SOSRemoveDialog = ({ path }) => {
-    const Dialogs = useDialogs();
-    const [task, setTask] = useState(null);
-    const [error, setError] = useState(null);
-
-    function remove() {
-        setError(null);
-        setTask(sosRemove(path)
-                .then(Dialogs.close)
-                .catch(err => {
-                    setTask(null);
-                    setError(err.toString());
-                }));
-    }
+    const dlg = useNewDialogState({});
 
     return (
-        <Modal id="sos-remove-dialog"
-               position="top"
-               variant="medium"
-               isOpen
-               onClose={Dialogs.close}
-               title={_("Delete report permanently?")}
-               titleIconVariant="warning"
-               actions={[
-                   <Button key="apply"
-                           variant="danger"
-                           onClick={remove}
-                           isLoading={!!task}
-                           isDisabled={!!task}>
-                       {_("Delete")}
-                   </Button>,
-                   <Button key="cancel"
-                           onClick={Dialogs.close}
-                           isDisabled={!!task}
-                           variant="link">
-                       {_("Cancel")}
-                   </Button>
-               ]}>
-            { error && <><Alert variant="warning" isInline title={error} /><br /></> }
+        <Dialog state={dlg}
+                id="sos-remove-dialog"
+                danger
+                title={_("Delete report permanently?")}
+                actionLabel={_("Delete")} action={() => sosRemove(path)}>
             <p>{fmt_to_fragments(_("The file $0 will be deleted."), <b>{path}</b>)}</p>
-        </Modal>);
+        </Dialog>);
 };
 
 const SOSErrorDialog = ({ error }) => {
-    const Dialogs = useDialogs();
+    const dlg = useNewDialogState({});
 
     return (
-        <Modal id="sos-error-dialog"
-               position="top"
-               variant="medium"
-               isOpen
-               onClose={Dialogs.close}
-               title={ _("Error") }>
+        <Dialog state={dlg}
+                id="sos-error-dialog"
+                title={_("Error")}>
             <p>{error}</p>
-        </Modal>);
+        </Dialog>);
 };
 
 const Menu = ({ items }) => {

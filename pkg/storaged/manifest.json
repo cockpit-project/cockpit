@@ -54,11 +54,13 @@
         "nfs_client_package": {
             "rhel": "nfs-utils", "fedora": "nfs-utils",
             "opensuse": "nfs-client", "opensuse-leap": "nfs-client",
-            "debian": "nfs-common", "ubuntu": "nfs-common"
+            "debian": "nfs-common", "ubuntu": "nfs-common",
+            "arch": "nfs-utils"
         },
         "vdo_package": { "rhel": "vdo", "centos": "vdo" },
         "stratis_package": { "fedora": "stratisd",
-                             "centos": "stratisd"
+                             "centos": "stratisd",
+                             "arch": "stratisd"
                            }
     },
     "content-security-policy": "img-src 'self' data:"

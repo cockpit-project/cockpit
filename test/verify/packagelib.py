@@ -323,7 +323,7 @@ post_upgrade() {{
         if postinst:
             cmd += f"rm /tmp/{name}.install"
         self.machine.execute(cmd)
-        self.addCleanup(self.machine.execute, f"pacman -R --noconfirm {name} 2>/dev/null || true")
+        self.addCleanup(self.machine.execute, f"pacman -Rdd --noconfirm {name} 2>/dev/null || true")
 
     def createAptChangelogs(self):
         # apt metadata has no formal field for bugs/CVEs, they are parsed from the changelog

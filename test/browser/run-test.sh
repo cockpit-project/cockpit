@@ -87,23 +87,24 @@ if [ -n "$test_basic" ]; then
     # Don't run TestPages, TestPackages, and TestTerminal at all -- not testing external APIs
     TESTS="$TESTS
         TestAccounts
-        TestBonding
-        TestBridge
         TestFirewall
         TestKdump
         TestJournal
         TestLogin
-        TestNetworking
         TestServices
         TestSOS
         TestSystemInfo
-        TestTeam
         "
 
     # HACK: python3-linux-procfs can't be installed on rawhide
+    # HACK: NetworkManager 1.39.8 IpConfig.Addresses is an empty list
     if [ -z "$RAWHIDE" ]; then
          TESTS="$TESTS
+            TestBonding
+            TestBridge
+            TestNetworking
             TestTuned
+            TestTeam
             "
     fi
 

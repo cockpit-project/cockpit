@@ -28,7 +28,7 @@ test_pyflakes() {
     # Run pyflakes on all Python files except those in test/verify/
 
     python3 -c 'import pyflakes' 2>/dev/null || skip 'no pyflakes'
-    filter="undefined name '(Inotify|IN_[A-Z_]+)'" # inotify.py get pasted together with other files
+    filter="(undefined name '(Inotify|IN_[A-Z_]+)'|'parent' imported but unused)" # inotify.py get pasted together with other files
     ! find_python_files | grep -zv '^test/verify' | xargs -r -0 python3 -m pyflakes 2>&1 | grep -Ev "${filter}"
 }
 
@@ -58,7 +58,7 @@ test_pyvulture() {
     python3 -c 'import vulture' 2>/dev/null || skip 'no python3-vulture'
     find_python_files | xargs -r -0 python3 -m vulture \
         --min-confidence "${VULTURE_CONFIDENCE:-100}" \
-        --ignore-names 'do_*,test[A-Z0-9]*,__*__' \
+        --ignore-names 'do_*,test[A-Z0-9]*,__*__,_rmtree' \
         --ignore-decorators '@*'
 }
 

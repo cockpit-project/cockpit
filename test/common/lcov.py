@@ -416,6 +416,7 @@ def get_review_comments(diff_info_file):
 
     return comments
 
+
 def prepare_for_code_coverage():
     # This gives us a convenient link at the top of the logs, see link-patterns.json
     print("Code coverage report in Coverage/index.html")
@@ -425,6 +426,7 @@ def prepare_for_code_coverage():
             subprocess.check_call(["git", "-c", "diff.noprefix=false", "diff", "--patience", "main"], stdout=f)
     except subprocess.CalledProcessError:
         pass
+
 
 def create_coverage_report():
     output = os.environ.get("TEST_ATTACHMENTS", BASE_DIR)
@@ -453,7 +455,7 @@ def create_coverage_report():
                 old_comments = api.get(f"pulls/{pull}/comments?sort=created&direction=desc&per_page=100") or []
                 for oc in old_comments:
                     if ("body" in oc and "path" in oc and "line" in oc and
-                        "not executed by any test." in oc["body"]):
+                       "not executed by any test." in oc["body"]):
                         api.delete(f"pulls/comments/{oc['id']}")
                 if len(comments) > 0:
                     api.post(f"pulls/{pull}/reviews",

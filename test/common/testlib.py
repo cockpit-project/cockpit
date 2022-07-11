@@ -826,7 +826,8 @@ class Browser:
 
         self.machine.allow_restart_journal_messages()
 
-    def relogin(self, path: Optional[str] = None, user: Optional[str] = None, password: Optional[str] = None, superuser: Optional[bool] = None, wait_remote_session_machine: Optional[testvm.Machine] = None):
+    def relogin(self, path: Optional[str] = None, user: Optional[str] = None, password: Optional[str] = None,
+                superuser: Optional[bool] = None, wait_remote_session_machine: Optional[testvm.Machine] = None):
         self.logout()
         if wait_remote_session_machine:
             wait_remote_session_machine.execute("while pgrep -a cockpit-ssh; do sleep 1; done")

@@ -9,7 +9,8 @@ import time
 # import Cockpit's machinery for test VMs and its browser test API
 import parent  # noqa: F401
 import packagelib
-from testlib import *
+from testlib import (Browser, Error, MachineCase, nondestructive, skipDistroPackage, skipImage,
+                     skipMobile, test_main, wait)
 
 from machine_core import ssh_connection
 from machine_core.constants import TEST_OS_DEFAULT

@@ -41,7 +41,7 @@ test_pyflakes_test_verify() {
     #   'parent' imported but unused
     #   'from testlib import *' used; unable to detect undefined names
     # Filter these out until these get fixed properly.
-    filter="(unable to detect undefined names|defined from star imports|'parent' imported but unused)"
+    filter="(unable to detect undefined names|'parent' imported but unused)"
     ! find_python_files | grep -z '^test/verify' | xargs -r -0 python3 -m pyflakes 2>&1 | grep -Ev "${filter}"
 }
 

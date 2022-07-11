@@ -27,7 +27,7 @@ import base64
 import parent  # noqa: F401
 
 import packagelib
-from testlib import *
+from testlib import Error, MachineCase, no_retry_when_changed, nondestructive, skipBrowser, skipDistroPackage, skipImage, test_main, wait
 
 
 WAIT_KRB_SCRIPT = """

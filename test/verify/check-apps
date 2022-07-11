@@ -18,8 +18,8 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent  # noqa: F401
-from packagelib import *
-from testlib import *
+from packagelib import PackageCase
+from testlib import skipImage, skipPackage, test_main
 
 
 @skipImage("TODO: bug in refreshing removed/installed state on Arch Linux", "arch")

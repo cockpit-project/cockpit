@@ -23,7 +23,8 @@ import os
 import re
 
 import parent  # noqa: F401
-from testlib import *
+from testlib import (MachineCase, TEST_DIR, no_retry_when_changed, nondestructive,
+                     skipDistroPackage, test_main)
 
 dirname = os.path.dirname(__file__)
 run_tests = os.path.join(TEST_DIR, "common", "run-tests")

@@ -18,8 +18,8 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent  # noqa: F401
-from storagelib import *
-from testlib import *
+from storagelib import StorageCase
+from testlib import skipImage, test_main, wait
 
 
 class TestStorageLuks(StorageCase):

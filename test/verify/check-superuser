@@ -18,7 +18,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent  # noqa: F401
-from testlib import *
+from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, test_main
 
 
 def allow_old_cockpit_ws_messsages(test):

@@ -18,7 +18,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent  # noqa: F401
-from testlib import *
+from testlib import MachineCase, skipDistroPackage, test_main, wait
 
 
 def wait_addresses(b, expected):

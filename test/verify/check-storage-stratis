@@ -18,9 +18,9 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent  # noqa: F401
-from packagelib import *
-from storagelib import *
-from testlib import *
+from packagelib import PackageCase
+from storagelib import StorageCase
+from testlib import skipImage, test_main
 
 
 # TODO: Arch Linux has Stratis packages, tests need adjustments

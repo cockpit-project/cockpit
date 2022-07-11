@@ -23,7 +23,7 @@ import os
 import subprocess
 
 import parent  # noqa: F401
-from testlib import *
+from testlib import MachineCase, TEST_DIR, nondestructive, skipBrowser, skipDistroPackage, skipImage, test_main, wait
 
 
 @skipDistroPackage()

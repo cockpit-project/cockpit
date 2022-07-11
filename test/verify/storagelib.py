@@ -20,7 +20,7 @@ import os.path
 import re
 import textwrap
 
-from testlib import *
+from testlib import Error, MachineCase, wait
 
 
 def from_udisks_ascii(bytes):

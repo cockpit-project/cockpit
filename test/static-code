@@ -58,7 +58,7 @@ test_pyvulture() {
     python3 -c 'import vulture' 2>/dev/null || skip 'no python3-vulture'
     find_python_files | xargs -r -0 python3 -m vulture \
         --min-confidence "${VULTURE_CONFIDENCE:-100}" \
-        --ignore-names 'do_*,test[A-Z0-9]*,__*__,_rmtree' \
+        --ignore-names 'do_*,test[A-Z0-9]*,__*__,ignore_errors' \
         --ignore-decorators '@*'
 }
 

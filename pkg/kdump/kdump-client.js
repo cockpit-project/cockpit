@@ -25,12 +25,6 @@ import crashKernelScript from 'raw-loader!./crashkernel.sh';
 import testWritableScript from 'raw-loader!./testwritable.sh';
 const _ = cockpit.gettext;
 
-const deprecatedKeys = ["net", "options", "link_delay", "disk_timeout", "debug_mem_level", "blacklist"];
-const knownKeys = [
-    "raw", "nfs", "ssh", "sshkey", "path", "core_collector", "kdump_post", "kdump_pre", "extra_bins", "extra_modules",
-    "default", "force_rebuild", "override_resettable", "dracut_args", "fence_kdump_args", "fence_kdump_nodes"
-];
-
 /*  initializes the kdump status
  *  emits "kdumpStatusChanged" when the status changes, along with a status object:
  *  {
@@ -40,7 +34,7 @@ const knownKeys = [
  *      config:    settings from kdump.conf
  *      target:    dump target info, content depends on dump type
  *                 always contains the keys:
- *                     target          value in ["local", "nfs", "ssh", "raw", "mount", "unknown"]
+ *                     type          value in ["local", "nfs", "ssh", "raw", "mount", "unknown"]
  *                     multipleTargets true if the config file has more than one target defined, false otherwise
  *  }
  *
@@ -106,19 +100,24 @@ export class KdumpClient {
             path = "/var/crash";
 
         return new Promise((resolve, reject) => {
-            if (target.target === "local") {
+            if (target.type === "local") {
                 // local path, try to see if we can write
                 cockpit.script(testWritableScript, [path], { superuser: "try" })
                         .then(resolve)
                         .catch(() => reject(cockpit.format(_("Directory $0 isn't writable or doesn't exist."), path)));
                 return;
-            } else if (target.target === "nfs") {
-                if (!target.nfs.value.match("\\S+:/.+"))
-                    reject(_("nfs dump target isn't formatted as server:path"));
-            } else if (target.target === "ssh") {
-                if (!target.ssh.value.trim())
+            } else if (target.type === "nfs") {
+                if (!target.server || !target.server.trim())
+                    reject(_("nfs server is empty"));
+                // IPv6 must be enclosed in square brackets
+                if (target.server.trim().match(/^\[.*[^\]]$/))
+                    reject(_("nfs server is not valid IPv6"));
+                if (!target.export || !target.export.trim())
+                    reject(_("nfs export is empty"));
+            } else if (target.type === "ssh") {
+                if (!target.server || !target.server.trim())
                     reject(_("ssh server is empty"));
-                if (target.sshkey && !target.sshkey.value.match("/.+"))
+                if (target.sshkey && !target.sshkey.match("/.+"))
                     reject(_("ssh key isn't a path"));
             }
 
@@ -149,67 +148,17 @@ export class KdumpClient {
     }
 
     targetFromSettings(settings) {
-        // since local target is the default and can be used even without "path", we need to
-        // check for the presence of all known targets
-        // we have the additional difficulty that partitions don't have a good config key, since their
-        // lines begin with the fs_type
         const target = {
-            target: "unknown",
+            type: "unknown",
             multipleTargets: false,
         };
 
-        if (!settings)
+        if (!settings || Object.keys(settings.targets).length === 0)
             return target;
 
-        if ("nfs" in settings) {
-            if (target.target != "unknown")
-                target.multipleTargets = true;
-            target.target = "nfs";
-            target.nfs = settings.nfs;
-            if ("path" in settings)
-                target.path = settings.path;
-        } else if ("ssh" in settings) {
-            if (target.target != "unknown")
-                target.multipleTargets = true;
-            target.target = "ssh";
-            target.ssh = settings.ssh;
-            target.sshkey = settings.sshkey;
-        } else if ("raw" in settings) {
-            if (target.target != "unknown")
-                target.multipleTargets = true;
-            target.target = "raw";
-            target.raw = settings.raw;
-        } else {
-            // probably local, but we might also have a mount
-            // check all keys against known keys, the ones left over may be a mount target
-            Object.keys(settings).forEach((key) => {
-                // if the key is empty or known, we don't care about it here
-                if (!key || key in knownKeys || key in deprecatedKeys)
-                    return;
-                // if we have a UUID, LABEL or /dev in the value, we can be pretty sure it's a mount option
-                const value = JSON.stringify(settings[key]).toLowerCase();
-                if (value.indexOf("uuid") > -1 || value.indexOf("label") > -1 || value.indexOf("/dev") > -1) {
-                    if (target.target != "unknown")
-                        target.multipleTargets = true;
-                    target.target = "mount";
-                    target.fsType = key;
-                    target.partition = settings[key].value;
-                } else {
-                    // TODO: check for know filesystem types here
-                }
-            });
-        }
-
-        // if no target matches, then we use the local filesystem
-        if (target.target == "unknown")
-            target.target = "local";
-
-        // "path" applies to all targets
-        // default to "/var/crash for "
-        if ("path" in settings)
-            target.path = settings.path.value;
-        else if (["local", "ssh", "nfs", "mount"].indexOf(target.target) !== -1)
-            target.path = "/var/crash";
+        // copy first target
+        cockpit.extend(target, Object.values(settings.targets)[0]);
+        target.multipleTargets = Object.keys(settings.targets).length > 1;
         return target;
     }
 }

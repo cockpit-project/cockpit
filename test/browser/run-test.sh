@@ -19,7 +19,7 @@ if [ "$ID" = "fedora" ]; then
 fi
 
 # tests need cockpit's bots/ libraries
-git clone --depth=1 https://github.com/cockpit-project/bots
+git clone https://github.com/jelly/bots.git && cd bots && git checkout fedora-rawhide-naughty && cd ..
 
 # support running from clean git tree; this doesn't work from release tarballs
 if [ ! -d node_modules/chrome-remote-interface ] && [ -d . git ]; then

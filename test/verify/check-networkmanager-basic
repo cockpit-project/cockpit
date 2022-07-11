@@ -18,8 +18,8 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent  # noqa: F401
-from netlib import *
-from testlib import *
+from netlib import NetworkCase
+from testlib import nondestructive, skipDistroPackage, skipImage, test_main, wait
 
 
 @nondestructive

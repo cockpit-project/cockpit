@@ -24,7 +24,7 @@ import tarfile
 import subprocess
 
 import parent  # noqa: F401
-from testlib import *
+from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, test_main, wait
 
 
 @skipImage("No sosreport", "fedora-coreos", "arch")

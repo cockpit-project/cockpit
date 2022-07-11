@@ -18,7 +18,7 @@
 import re
 import subprocess
 
-from testlib import *
+from testlib import Error, MachineCase, wait
 
 
 class NetworkHelpers:

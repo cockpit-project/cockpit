@@ -19,7 +19,7 @@ import os
 import textwrap
 import warnings
 
-from testlib import *
+from testlib import MachineCase
 
 
 class PackageCase(MachineCase):

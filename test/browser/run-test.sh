@@ -22,7 +22,7 @@ fi
 git clone --depth=1 https://github.com/cockpit-project/bots
 
 # support running from clean git tree; this doesn't work from release tarballs
-if [ ! -d node_modules/chrome-remote-interface ] && [ -d . git ]; then
+if [ ! -d node_modules/chrome-remote-interface ] && [ -d .git ]; then
     ./tools/node-modules checkout
 fi
 

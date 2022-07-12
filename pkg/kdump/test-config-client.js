@@ -49,10 +49,10 @@ QUnit.test("config_update", function (assert) {
     const dataWasChanged = new Promise(resolve => { this.dataWasChangedResolve = resolve });
     let config;
     const configChanged = (event, settings) => {
-        assert.equal(settings.foo.value, "moo", "value changed correctly");
-        assert.equal("key" in settings, false, "setting with comment deleted correctly");
-        assert.equal("will" in settings, false, "setting without comment deleted correctly");
-        assert.equal(settings.hooray.value, "value", "value added correctly");
+        assert.equal(settings._internal.foo.value, "moo", "value changed correctly");
+        assert.equal("key" in settings._internal, false, "setting with comment deleted correctly");
+        assert.equal("will" in settings._internal, false, "setting without comment deleted correctly");
+        assert.equal(settings._internal.hooray.value, "value", "value added correctly");
         assert.equal(config._rawContent, changedConfig, "raw text for changed config is correct");
         this.dataWasChangedResolve();
     };
@@ -65,10 +65,10 @@ QUnit.test("config_update", function (assert) {
                 assert.equal(configFile.path, filename, "file has correct path");
                 config = new kdump.ConfigFile(filename);
                 config.wait().then(() => {
-                    config.settings.foo.value = "moo";
-                    delete config.settings.key;
-                    delete config.settings.will;
-                    config.settings.hooray = { value: "value" };
+                    config.settings._internal.foo.value = "moo";
+                    delete config.settings._internal.key;
+                    delete config.settings._internal.will;
+                    config.settings._internal.hooray = { value: "value" };
                     config.addEventListener('kdumpConfigChanged', configChanged);
                     config.write(config.settings)
                             .then(() => dataWasChanged.then(done));

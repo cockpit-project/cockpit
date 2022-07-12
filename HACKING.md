@@ -42,7 +42,7 @@ For running integration tests, the following dependencies are required:
 
     $ sudo dnf install curl expect xz rpm-build chromium-headless \
         libvirt-daemon-driver-storage-core libvirt-daemon-driver-qemu libvirt-client python3-libvirt \
-        python3-pyflakes python3-pycodestyle python3-pyyaml
+        python3-flake8 python3-pyyaml
 
 Creating VM images locally (not necessary for running tests) needs the
 following:

@@ -32,7 +32,7 @@ import textwrap
 gi.require_version("Gtk", "3.0")  # NOQA
 gi.require_version("WebKit2", "4.0")  # NOQA
 
-from gi.repository import GLib, Gio, Gtk, WebKit2
+from gi.repository import GLib, Gio, Gtk, WebKit2  # NOQA: E402
 
 try:
     gi.require_version("Handy", "1")

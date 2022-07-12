@@ -27,9 +27,9 @@ import subprocess
 
 from common.parent import BASE_DIR, TEST_DIR, BOTS_DIR, ensure_bots
 ensure_bots()  # NOQA: testvm lives in bots/
-from lib import testmap
-from lib.constants import DEFAULT_IMAGE
-from machine.machine_core import machine_virtual
+from lib import testmap  # NOQA: imported through parent.py
+from lib.constants import DEFAULT_IMAGE  # NOQA: imported through parent.py
+from machine.machine_core import machine_virtual  # NOQA: imported through parent.py
 
 
 def build_rpms(dist_tar, image, verbose, quick):

@@ -11,6 +11,7 @@ dependencies="\
     curl \
     dbus \
     firefox-esr \
+    flake8 \
     gcc-multilib \
     gdb \
     git \
@@ -39,9 +40,7 @@ dependencies="\
     npm \
     nodejs \
     pkg-config \
-    pyflakes3 \
     python3 \
-    python3-pycodestyle \
     sassc \
     ssh \
     strace \

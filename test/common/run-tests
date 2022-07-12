@@ -18,10 +18,10 @@ import importlib.util
 
 import parent
 parent.ensure_bots()  # NOQA: testvm lives in bots/
-import testlib
-import testvm
+import testlib   # NOQA: imported through parent.py
+import testvm   # NOQA: imported through parent.py
 
-from lcov import prepare_for_code_coverage, create_coverage_report
+from lcov import prepare_for_code_coverage, create_coverage_report  # NOQA: E402
 
 sys.dont_write_bytecode = True
 os.environ['PYTHONUNBUFFERED'] = '1'

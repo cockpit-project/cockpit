@@ -1,5 +1,5 @@
 #!/bin/bash
-# run static code checks like pyflakes and pycodestyle
+# run static code checks like flake8, pyvulture.
 
 set -eu
 
@@ -24,32 +24,10 @@ find_python_files() {
     find_scripts 'python3' '*.py'
 }
 
-test_pyflakes() {
-    # Run pyflakes on all Python files except those in test/verify/
-
-    python3 -c 'import pyflakes' 2>/dev/null || skip 'no pyflakes'
+test_flake8() {
+    python3 -c 'import flake8' 2>/dev/null || skip 'no flake8'
     filter="(undefined name '(Inotify|IN_[A-Z_]+)'|'parent' imported but unused)" # inotify.py get pasted together with other files
-    ! find_python_files | grep -zv '^test/verify' | xargs -r -0 python3 -m pyflakes 2>&1 | grep -Ev "${filter}"
-}
-
-test_pyflakes_test_verify() {
-    # Run pyflakes on all Python files in test/verify/
-
-    python3 -c 'import pyflakes' 2>/dev/null || skip 'no pyflakes'
-
-    # TODO: there are currently a lot of pyflakes errors like
-    #   'parent' imported but unused
-    #   'from testlib import *' used; unable to detect undefined names
-    # Filter these out until these get fixed properly.
-    filter="(unable to detect undefined names|'parent' imported but unused)"
-    ! find_python_files | grep -z '^test/verify' | xargs -r -0 python3 -m pyflakes 2>&1 | grep -Ev "${filter}"
-}
-
-test_pycodestyle() {
-    # pycodestyle python syntax check
-
-    python3 -c 'import pycodestyle' 2>/dev/null || skip 'no pycodestyle'
-    find_python_files | xargs -r -0 python3 -m pycodestyle --max-line-length=200 --ignore W504
+    ! find_python_files | xargs -r -0 python3 -m flake8 --max-line-length=200 --ignore W504 2>&1 | grep -Ev "${filter}"
 }
 
 test_pyvulture() {

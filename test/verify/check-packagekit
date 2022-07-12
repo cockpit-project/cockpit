@@ -360,13 +360,35 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
 
         # should only have one button (no security updates)
         self.assertEqual(b.text("#available-updates button#install-all"), "Install all updates")
+
+        # stall the download of chocolate by replacing the package with a pipe, so that we can test cancelling
+        chocolate = m.execute(f"""set -eux;
+            p=$(ls {self.vm_tmpdir}/repo/chocolate*2.0*2*)
+            f={self.vm_tmpdir}/fifo
+            mkfifo $f
+            mount -o bind $f $p
+            echo $p""").strip()
+
         b.click("#available-updates button#install-all")
 
         # applying updates panel present
         b.wait_visible("#app div.pf-c-progress__bar")
 
+        # cancel the installation
         b.wait_in_text(".progress-main-view button.progress-cancel", "Cancel")
-        # Cancel button should eventually get disabled
+        b.click(".progress-main-view button.progress-cancel")
+        # abort the current download, so that read calls don't hang indefinitely
+        m.spawn(f"echo > {self.vm_tmpdir}/fifo", "fifo")
+
+        # going back to overview, nothing happened just yet
+        b.wait_not_present(".progress-main-view")
+        self.assertEqual(b.text("#available-updates button#install-all"), "Install all updates")
+        self.assertFalse(b.is_present("table.updates-history"))
+        m.execute("test -f /stamp-vanilla-1.0-1 && test -f /stamp-chocolate-2.0-1")
+
+        # update again; Cancel button should eventually get disabled
+        m.execute(f"umount {chocolate}")
+        b.click("#available-updates button#install-all")
         b.wait_visible(".progress-main-view button.progress-cancel:disabled")
 
         # update log only exists in the expander, collapsed by default

@@ -311,11 +311,11 @@ post_upgrade() {{
 
         cmd = """
         cd /tmp/
-        su builder -c "makepkg -f -d --skipinteg --noconfirm"
+        su builder -c "makepkg -f -d --skipinteg --noconfirm
 """
 
         if install:
-            cmd += f"pacman -U --noconfirm {name}-{version}-{release}-{arch}.pkg.tar.zst\n"
+            cmd += f"pacman -U --overwrite '*' --noconfirm {name}-{version}-{release}-{arch}.pkg.tar.zst\n"
 
         cmd += f"mkdir -p {self.repo_dir}\n"
         cmd += f"mv *.pkg.tar.zst {self.repo_dir}\n"

@@ -190,7 +190,7 @@ class CockpitClient(Gtk.Application):
     def do_startup(self):
         Gtk.Application.do_startup(self)
 
-        if Handy:
+        if Handy and hasattr(Handy, 'StyleManager'):
             Handy.StyleManager.get_default().set_color_scheme(Handy.ColorScheme.PREFER_LIGHT)
 
         # .add_action_entries() binding is broken for GApplication

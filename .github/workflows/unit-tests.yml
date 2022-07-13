@@ -2,7 +2,7 @@ name: unit-tests
 on: [pull_request, workflow_dispatch]
 jobs:
   unit-tests:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         startarg:

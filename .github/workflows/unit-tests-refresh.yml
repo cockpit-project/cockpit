@@ -8,7 +8,7 @@ on:
 jobs:
   # we do both builds and all tests in a single run, so that we only upload the containers on success
   refresh:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     permissions:
       contents: read
       packages: write

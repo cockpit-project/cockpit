@@ -828,15 +828,10 @@ int
 main (int argc,
       char *argv[])
 {
-  GTestDBus *bus;
   GError *error = NULL;
-  GOptionContext *context;
   guint sig_term;
   guint sig_int;
   int i;
-  gchar *guid = NULL;
-  GDBusServer *direct_dbus_server = NULL;
-  gchar *config_dir, *machines_dir;
   gchar *rm_rf_argv[] = {"rm", "-rfv", NULL, NULL};
 
   GOptionEntry entries[] = {
@@ -848,11 +843,10 @@ main (int argc,
   cockpit_setenv_check ("GIO_USE_VFS", "local", TRUE);
 
   /* playground config directory */
-  config_dir = g_dir_make_tmp ("cockpit.config.XXXXXX", NULL);
+  g_autofree gchar *config_dir = g_dir_make_tmp ("cockpit.config.XXXXXX", NULL);
   g_assert (config_dir);
-  machines_dir = g_build_filename (config_dir, "cockpit", "machines.d", NULL);
+  g_autofree gchar *machines_dir = g_build_filename (config_dir, "cockpit", "machines.d", NULL);
   g_assert (g_mkdir_with_parents (machines_dir, 0755) == 0);
-  g_free (machines_dir);
 
   cockpit_setenv_check ("XDG_DATA_HOME", SRCDIR "/src/bridge/mock-resource/home", TRUE);
   cockpit_setenv_check ("XDG_DATA_DIRS", SRCDIR "/src/bridge/mock-resource/system", TRUE);
@@ -868,7 +862,7 @@ main (int argc,
   // System cockpit configuration file should not be loaded
   cockpit_config_file = NULL;
 
-  context = g_option_context_new ("- test dbus json server");
+  g_autoptr(GOptionContext) context = g_option_context_new ("- test dbus json server");
   g_option_context_add_main_entries (context, entries, NULL);
   g_option_context_set_ignore_unknown_options (context, TRUE);
   if (!g_option_context_parse (context, &argc, &argv, &error))
@@ -878,17 +872,18 @@ main (int argc,
     }
 
   /* This isolates us from affecting other processes during tests */
-  bus = g_test_dbus_new (G_TEST_DBUS_NONE);
+  g_autoptr(GTestDBus) bus = g_test_dbus_new (G_TEST_DBUS_NONE);
   g_test_dbus_up (bus);
   bus_address = g_test_dbus_get_bus_address (bus);
 
-  guid = g_dbus_generate_guid ();
-  direct_dbus_server = g_dbus_server_new_sync ("unix:tmpdir=/tmp/dbus-tests",
-                                               G_DBUS_SERVER_FLAGS_NONE,
-                                               guid,
-                                               NULL,
-                                               NULL,
-                                               &error);
+  g_autofree gchar *guid = g_dbus_generate_guid ();
+  g_autoptr(GDBusServer) direct_dbus_server = g_dbus_server_new_sync (
+          "unix:tmpdir=/tmp/dbus-tests",
+          G_DBUS_SERVER_FLAGS_NONE,
+          guid,
+          NULL,
+          NULL,
+          &error);
   if (direct_dbus_server == NULL)
     {
       g_printerr ("test-server: %s\n", error->message);
@@ -946,21 +941,17 @@ main (int argc,
   g_clear_object (&bridge);
   g_clear_object (&exported);
   g_clear_object (&exported_b);
-  g_clear_object (&direct_dbus_server);
   g_clear_object (&direct);
   g_clear_object (&direct_b);
   g_main_loop_unref (loop);
 
   g_strfreev (server_roots);
   g_test_dbus_down (bus);
-  g_object_unref (bus);
   g_free (bridge_argv);
-  g_free (guid);
 
   /* clean up temporary config dir */
   rm_rf_argv[2] = config_dir;
   g_spawn_sync (NULL, rm_rf_argv, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL);
-  g_free (config_dir);
 
   return exit_code;
 }

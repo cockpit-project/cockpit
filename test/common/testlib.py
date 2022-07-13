@@ -972,7 +972,10 @@ class Browser:
             if delta[0] != 0 or delta[1] != 0:
                 self._set_window_size(shell_size[0] + delta[0], shell_size[1] + delta[1])
 
-    def assert_pixels_in_current_layout(self, selector: str, key: str, ignore: List[str] = [], scroll_into_view: Optional[str] = None):
+    def assert_pixels_in_current_layout(self, selector: str, key: str,
+                                        ignore: List[str] = [],
+                                        scroll_into_view: Optional[str] = None,
+                                        wait_animations: bool = True):
         """Compare the given element with its reference in the current layout"""
 
         if not (Image and self.pixels_label):
@@ -1003,7 +1006,8 @@ class Browser:
         # wait half a second to and side-step all that complexity.
 
         time.sleep(0.5)
-        self.wait_js_cond('ph_count_animations(%s) == 0' % jsquote(selector))
+        if wait_animations:
+            self.wait_js_cond('ph_count_animations(%s) == 0' % jsquote(selector))
 
         rect = self.call_js_func('ph_element_clip', selector)
 
@@ -1111,7 +1115,11 @@ class Browser:
                 print("Differences in pixel test " + base)
                 self.failed_pixel_tests += 1
 
-    def assert_pixels(self, selector: str, key: str, ignore: List[str] = [], skip_layouts: List[str] = [], scroll_into_view: Optional[str] = None):
+    def assert_pixels(self, selector: str, key: str,
+                      ignore: List[str] = [],
+                      skip_layouts: List[str] = [],
+                      scroll_into_view: Optional[str] = None,
+                      wait_animations: bool = True):
         """Compare the given element with its reference in all layouts"""
 
         if not (Image and self.pixels_label):
@@ -1122,7 +1130,8 @@ class Browser:
             if layout["name"] not in skip_layouts:
                 self.set_layout(layout["name"])
                 self.assert_pixels_in_current_layout(selector, key, ignore=ignore,
-                                                     scroll_into_view=scroll_into_view)
+                                                     scroll_into_view=scroll_into_view,
+                                                     wait_animations=wait_animations)
         self.set_layout(previous_layout)
 
     def assert_no_unused_pixel_test_references(self):

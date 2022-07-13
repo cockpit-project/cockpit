@@ -511,7 +511,7 @@ module.exports = {
             },
             {
                 // See https://github.com/patternfly/patternfly-react/issues/3815 and
-                // [Redefine grid breakpoints] section in pkg/lib/_global-variables.scss for more details
+                // [Redefine grid breakpoints] section in pkg/lib/_breakpoints.scss for more details
                 // Components which are using the pf-global--breakpoint-* variables should import scss manually
                 // instead off the automatically imported CSS stylesheets
                 test: /\.css$/,

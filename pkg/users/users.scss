@@ -1,10 +1,10 @@
 @use "ct-card";
 @use "page";
 
-// Import utilities for `pf-u...` classes
-@import "@patternfly/patternfly/utilities/Spacing/spacing.css";
-@import "global-variables.scss";
+@import "breakpoints";
 @import "@patternfly/patternfly/components/DataList/data-list.scss";
+// Import utilities for `pf-u...` classes, used in account-create-dialog.js
+@import "@patternfly/patternfly/utilities/Spacing/spacing.css";
 
 #account .pf-c-card {
   @extend .ct-card;

@@ -12,7 +12,7 @@ jobs:
     permissions:
       contents: read
       packages: write
-    timeout-minutes: 180
+    timeout-minutes: 60
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
@@ -21,18 +21,23 @@ jobs:
           fetch-depth: 0
 
       - name: Build fresh containers
+        timeout-minutes: 10
         run: containers/unit-tests/build
 
       - name: Run amd64 gcc check-memory test
+        timeout-minutes: 20
         run: containers/unit-tests/start --verbose --env=CC=gcc --image-tag=latest --make check-memory
 
       - name: Run i386 clang check-memory test
+        timeout-minutes: 20
         run: containers/unit-tests/start --verbose --env=CC=clang --image-tag=i386 --make check-memory
 
       - name: Run amd64 clang distcheck test
+        timeout-minutes: 15
         run: containers/unit-tests/start --verbose --env=CC=clang --image-tag=latest --make distcheck
 
       - name: Run i386 gcc distcheck test
+        timeout-minutes: 15
         run: containers/unit-tests/start --verbose --env=CC=clang --image-tag=i386 --make distcheck
 
       - name: Log into container registry

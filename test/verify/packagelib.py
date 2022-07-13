@@ -311,7 +311,7 @@ post_upgrade() {{
 
         cmd = """
         cd /tmp/
-        su builder -c "makepkg -f -d --skipinteg --noconfirm
+        su builder -c "makepkg --cleanbuild --clean --force --nodeps --skipinteg --noconfirm"
 """
 
         if install:

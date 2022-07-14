@@ -24,7 +24,8 @@ import * as timeformat from "timeformat";
 
 import cockpit from "cockpit";
 
-import './lastLogin.scss';
+import "./lastLogin.scss";
+import "@patternfly/patternfly/utilities/Text/text.css";
 
 const _ = cockpit.gettext;
 

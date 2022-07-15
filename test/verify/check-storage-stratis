@@ -94,6 +94,7 @@ class TestStorageStratis(StorageCase):
         self.dialog({'name': 'fsys2',
                      'mount_point': '/run/fsys2'})
         b.wait_in_text("#detail-content", "fsys2")
+        b.assert_pixels("#detail-content", "fsys-rows")
         self.assertEqual(self.inode(m.execute("findmnt -n -o SOURCE /run/fsys2").strip()),
                          self.inode("/dev/stratis/pool0/fsys2"))
         m.write("/run/fsys2/FILE", "Hello Stratis!")

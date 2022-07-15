@@ -32,8 +32,7 @@ copy_upstream_release_description: true
 jobs:
   - job: tests
     trigger: pull_request
-    metadata:
-      targets:
+    targets:
       - fedora-35
       - fedora-36
       - fedora-development
@@ -43,23 +42,21 @@ jobs:
   # run build/unit tests on some interesting architectures
   - job: copr_build
     trigger: pull_request
-    metadata:
-      targets:
-        # 32 bit
-        - fedora-development-i386
-        # big-endian
-        - fedora-development-s390x
+    targets:
+      # 32 bit
+      - fedora-development-i386
+      # big-endian
+      - fedora-development-s390x
 
   - job: copr_build
     trigger: release
-    metadata:
-      owner: "@cockpit"
-      project: "cockpit-preview"
-      preserve_project: True
-      # HACK: hardcoding this list is redundant and hard to change; packit
-      # should just use the existing config for permanent COPRs;
-      # https://github.com/packit/packit-service/issues/1499
-      targets:
+    owner: "@cockpit"
+    project: "cockpit-preview"
+    preserve_project: True
+    # HACK: hardcoding this list is redundant and hard to change; packit
+    # should just use the existing config for permanent COPRs;
+    # https://github.com/packit/packit-service/issues/1499
+    targets:
       - fedora-35
       - fedora-36
       - fedora-development
@@ -79,24 +76,21 @@ jobs:
 
   - job: propose_downstream
     trigger: release
-    metadata:
-      dist_git_branches:
-        - fedora-development
-        - fedora-35
-        - fedora-36
+    dist_git_branches:
+      - fedora-development
+      - fedora-35
+      - fedora-36
 
   - job: koji_build
     trigger: commit
-    metadata:
-      dist_git_branches:
-        - fedora-development
-        - fedora-35
-        - fedora-36
+    dist_git_branches:
+      - fedora-development
+      - fedora-35
+      - fedora-36
 
   - job: bodhi_update
     trigger: commit
-    metadata:
-      dist_git_branches:
-        # rawhide updates are created automatically
-        - fedora-35
-        - fedora-36
+    dist_git_branches:
+      # rawhide updates are created automatically
+      - fedora-35
+      - fedora-36

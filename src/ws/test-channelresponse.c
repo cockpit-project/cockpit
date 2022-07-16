@@ -520,7 +520,7 @@ test_resource_failure (TestResourceCase *tc,
   gconstpointer str;
   GPid pid;
   const gchar *expected = "HTTP/1.1 500 terminated\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\n" STATIC_HEADERS "\r\n13\r\n<html><head><title>\r\na\r\nterminated\r\n15\r\n</title></head><body>\r\na\r\nterminated\r\nf\r\n</body></html>\n\r\n0\r\n\r\n";
-  const gchar *expected_alt = "HTTP/1.1 500 internal-error\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\n" STATIC_HEADERS "\r\n13\r\n<html><head><title>\r\ne\r\ninternal-error\r\n15\r\n</title></head><body>\r\ne\r\ninternal-error\r\nf\r\n</body></html>\n\r\n0\r\n\r\n";
+  const gchar *expected_alt = "HTTP/1.1 502 disconnected\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\n" STATIC_HEADERS "\r\n13\r\n<html><head><title>\r\nc\r\ndisconnected\r\n15\r\n</title></head><body>\r\nc\r\ndisconnected\r\nf\r\n</body></html>\n\r\n0\r\n\r\n";
 
   cockpit_expect_possible_log ("cockpit-protocol", G_LOG_LEVEL_WARNING, "*: bridge program failed:*");
   cockpit_expect_possible_log ("cockpit-ws", G_LOG_LEVEL_MESSAGE, "*: external channel failed: *");

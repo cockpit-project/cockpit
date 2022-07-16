@@ -529,9 +529,15 @@ test_resource_failure (TestResourceCase *tc,
   g_assert (cockpit_pipe_get_pid (tc->pipe, &pid));
   g_assert_cmpint (pid, >, 0);
   g_assert_cmpint (kill (pid, SIGTERM), ==, 0);
-  /* Wait until it's gone; we can't use waitpid(), it interferes with GChildWatch */
+  /* Wait until it's gone */
+#if GLIB_CHECK_VERSION(2,73,2)
+  /* https://gitlab.gnome.org/GNOME/glib/-/commit/f615eef4bafaa2f dropped global GChildWatch, we need to wait ourselves */
+  g_assert_cmpint (waitpid (pid, NULL, 0), ==, pid);
+#else
+  /* on older glib versions, waitpid interferes with GChildWatch */
   while (kill (pid, 0) >= 0)
     g_usleep (1000);
+#endif
 
   response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, NULL);
   cockpit_channel_response_serve (tc->service, tc->headers, response, "@localhost", "/another/test.html");

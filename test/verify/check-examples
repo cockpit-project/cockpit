@@ -14,7 +14,7 @@ class TestPinger(MachineCase):
     def setUp(self):
         super(TestPinger, self).setUp()
         self.machine.execute("mkdir -p ~admin/.local/share/cockpit")
-        self.machine.upload([os.path.join(EXAMPLES_DIR, "pinger")], "~admin/.local/share/cockpit/")
+        self.machine.upload([os.path.join(EXAMPLES_DIR, "pinger")], "/home/admin/.local/share/cockpit/")
 
     def testBasic(self):
         b = self.browser

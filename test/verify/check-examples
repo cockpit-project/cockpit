@@ -20,7 +20,7 @@ class TestPinger(MachineCase):
         super().setUp()
         self.restore_dir("/home/admin")
         self.machine.execute("mkdir -p ~admin/.local/share/cockpit")
-        self.machine.upload([os.path.join(EXAMPLES_DIR, "pinger")], "~admin/.local/share/cockpit/")
+        self.machine.upload([os.path.join(EXAMPLES_DIR, "pinger")], "/home/admin/.local/share/cockpit/")
 
     @FMF.summary("This basic test: pinger")
     @FMF.link("https://github.com/cockpit-project/cockpit/issues/2", "https://github.com/cockpit-project/cockpit/issues/3")
@@ -51,7 +51,7 @@ class TestXHRProxy(MachineCase):
         super().setUp()
         self.restore_dir("/home/admin")
         self.machine.execute("mkdir -p ~admin/.local/share/cockpit")
-        self.machine.upload([os.path.join(EXAMPLES_DIR, "xhr-proxy")], "~admin/.local/share/cockpit/")
+        self.machine.upload([os.path.join(EXAMPLES_DIR, "xhr-proxy")], "/home/admin/.local/share/cockpit/")
 
     @FMF.tag("example2")
     @skipImage("No Python installed", "fedora-coreos")
@@ -99,7 +99,7 @@ class TestLongRunning(MachineCase):
         m = self.machine
         self.restore_dir("/home/admin")
         m.execute("mkdir -p ~admin/.local/share/cockpit")
-        m.upload([os.path.join(EXAMPLES_DIR, "long-running-process")], "~admin/.local/share/cockpit/")
+        m.upload([os.path.join(EXAMPLES_DIR, "long-running-process")], "/home/admin/.local/share/cockpit/")
         # clean up after test failures
         self.addCleanup(m.execute, "systemctl stop cockpit-longrunning.service 2>/dev/null && systemctl reset-failed cockpit-longrunning.service || true")
 

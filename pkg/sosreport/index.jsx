@@ -265,7 +265,7 @@ const SOSDialog = () => {
         }
 
         if (verbose) {
-            args.push("-vvv");
+            args.push("-v");
         }
 
         const task = sosCreate(args, setProgress, err => { if (err == "cancelled") Dialogs.close(); else setError(err); },

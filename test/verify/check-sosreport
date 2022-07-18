@@ -119,6 +119,37 @@ only-plugins=release,date,host,cgroups,networking
     def testWithUrlRoot(self):
         self.testBasic(urlroot="/webcon")
 
+    def testVerbose(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute("rm -rf /var/tmp/*sos*")
+
+        self.write_file("/etc/sos/sos.conf",
+                        """
+[global]
+threads=1
+
+[report]
+only-plugins=release,date,host,cgroups,networking
+""")
+
+        self.login_and_go("/sosreport")
+
+        b.wait_in_text("#app", "No system reports.")
+
+        b.click("button:contains('Run report')")
+        b.wait_visible("#sos-dialog")
+        b.set_input_text("#sos-dialog .pf-c-form__group:contains(Report label) input", "mylabel")
+        b.set_checked("#sos-dialog .pf-c-check:contains(Use verbose logging) input", True)
+        b.click("#sos-dialog button:contains(Run report)")
+        with b.wait_timeout(120):
+            b.wait_not_present("#sos-dialog")
+
+        # There should be one archive and it should contain a bunch of debug messages
+        self.assertEqual(m.execute("ls -l /var/tmp/sosreport*mylabel*.tar.xz | wc -l").strip(), "1")
+        self.assertGreater(int(m.execute("tar --wildcards -xaOf /var/tmp/sosreport*mylabel*.tar.xz '*/sos_logs/sos.log' | grep -c 'DEBUG: \\[plugin:release\\]'")), 5)
+
     def testCancel(self):
         m = self.machine
         b = self.browser

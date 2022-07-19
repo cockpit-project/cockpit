@@ -233,6 +233,9 @@ export class ConfigFile {
                 const oldTarget = this.settings.targets[key];
                 if (oldTarget.type == "mount") {
                     delete settings._internal[oldTarget.fsType];
+                } else if (oldTarget.type == "ssh") {
+                    delete settings._internal.ssh;
+                    delete settings._internal.sshkey;
                 } else {
                     delete settings._internal[key];
                 }

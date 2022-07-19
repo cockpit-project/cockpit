@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 # This file is part of Cockpit.
 #
@@ -197,7 +197,7 @@ class TestRunTest(MachineCase):
 
         # create affected test for systemd changes
         affected_testfile = os.path.join(VERIFY_DIR, "check-system-testlib")
-        writeFile(affected_testfile, """#!/usr/bin/python3
+        writeFile(affected_testfile, """#!/usr/bin/env python3
 import unittest
 class TestSystemd(unittest.TestCase):
     def testBasic(self):

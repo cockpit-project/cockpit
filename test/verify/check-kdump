@@ -109,15 +109,15 @@ class TestKdump(KdumpHelpers):
         b.click("#kdump-change-target")
         b.wait_visible("#kdump-settings-dialog")
         b.set_val("#kdump-settings-location", "nfs")
-        mountInput = "#kdump-settings-nfs-mount"
-        b.set_input_text(mountInput, ":/var/crash")
+        serverInput = "#kdump-settings-nfs-server"
+        b.set_input_text(serverInput, "")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
-        b.wait_in_text("#kdump-settings-dialog h4.pf-c-alert__title", "Unable to save settings: nfs dump target isn't formatted as server:path")
+        b.wait_in_text("#kdump-settings-dialog h4.pf-c-alert__title", "Unable to save settings: nfs server is empty")
         # no further details/journal
         self.assertFalse(b.is_present("#kdump-settings-dialog .pf-c-code-block__code"))
-        b.set_input_text(mountInput, "localhost:")
+        b.set_input_text(serverInput, "localhost")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
-        b.wait_in_text("#kdump-settings-dialog h4.pf-c-alert__title", "Unable to save settings: nfs dump target isn't formatted as server:path")
+        b.wait_in_text("#kdump-settings-dialog h4.pf-c-alert__title", "Unable to save settings: nfs export is empty")
         b.click("#kdump-settings-dialog button.cancel")
         b.wait_not_present("#kdump-settings-dialog")
 
@@ -207,7 +207,8 @@ class TestKdump(KdumpHelpers):
         b.click("#kdump-change-target")
         b.wait_visible("#kdump-settings-dialog")
         b.set_val("#kdump-settings-location", "nfs")
-        b.set_input_text("#kdump-settings-nfs-mount", "someserver:/srv")
+        b.set_input_text("#kdump-settings-nfs-server", "someserver")
+        b.set_input_text("#kdump-settings-nfs-export", "/srv")
         b.click("button:contains('Save')")
         b.wait_not_present("#kdump-settings-dialog")
         conf = m.execute("cat /etc/kdump.conf")
@@ -277,7 +278,8 @@ class TestKdumpNFS(KdumpHelpers):
         b.click("#kdump-change-target")
         b.wait_visible("#kdump-settings-dialog")
         b.set_val("#kdump-settings-location", "nfs")
-        b.set_input_text("#kdump-settings-nfs-mount", "10.111.113.2:/srv/kdump")
+        b.set_input_text("#kdump-settings-nfs-server", "10.111.113.2")
+        b.set_input_text("#kdump-settings-nfs-export", "/srv/kdump")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
         # rebuilding initrd might take a while on busy CI machines
         with b.wait_timeout(300):

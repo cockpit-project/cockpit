@@ -57,7 +57,7 @@ class KdumpTargetBody extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            storeDest: this.props.initialTarget.target, // dialog mode, depends on location
+            storeDest: this.props.initialTarget.type, // dialog mode, depends on location
         };
         this.changeLocation = this.changeLocation.bind(this);
     }
@@ -71,15 +71,10 @@ class KdumpTargetBody extends React.Component {
 
     render() {
         let detailRows;
-        // only allow compression if there is no core collector set or it's set to makedumpfile
-        const compressionPossible = (
-            !this.props.settings ||
-            !("core_collector" in this.props.settings) ||
-            (this.props.settings.core_collector.value.trim().indexOf("makedumpfile") === 0)
-        );
+        const compressionPossible = !this.props.settings || this.props.settings.compression.allowed;
         let directory = "";
-        if (this.props.settings && "path" in this.props.settings)
-            directory = this.props.settings.path.value;
+        if (this.props.settings && "path" in this.props.settings.targets[this.state.storeDest])
+            directory = this.props.settings.targets[this.state.storeDest].path;
 
         if (this.state.storeDest == "local") {
             detailRows = (
@@ -91,15 +86,22 @@ class KdumpTargetBody extends React.Component {
                 </FormGroup>
             );
         } else if (this.state.storeDest == "nfs") {
-            let nfs = "";
-            if (this.props.settings && "nfs" in this.props.settings)
-                nfs = this.props.settings.nfs.value;
+            let nfs = {};
+            if (this.props.settings && "nfs" in this.props.settings.targets)
+                nfs = this.props.settings.targets.nfs;
+            const server = nfs.server || "";
+            const exportpath = nfs.export || "";
             detailRows = (
                 <>
-                    <FormGroup fieldId="kdump-settings-nfs-mount" label={_("Mount")}>
-                        <TextInput id="kdump-settings-nfs-mount" key="mount"
-                                placeholder="penguin.example.com:/export/cores" value={nfs}
-                                onChange={value => this.props.onChange("nfs", value)} />
+                    <FormGroup fieldId="kdump-settings-nfs-server" label={_("Server")}>
+                        <TextInput id="kdump-settings-nfs-server" key="server"
+                                placeholder="penguin.example.com" value={server}
+                                onChange={value => this.props.onChange("server", value)} />
+                    </FormGroup>
+                    <FormGroup fieldId="kdump-settings-nfs-export" label={_("Export")}>
+                        <TextInput id="kdump-settings-nfs-export" key="export"
+                                placeholder="/export/cores" value={exportpath}
+                                onChange={value => this.props.onChange("export", value)} />
                     </FormGroup>
                     <FormGroup fieldId="kdump-settings-nfs-directory" label={_("Directory")}>
                         <TextInput id="kdump-settings-nfs-directory" key="directory"
@@ -110,18 +112,17 @@ class KdumpTargetBody extends React.Component {
                 </>
             );
         } else if (this.state.storeDest == "ssh") {
-            let ssh = "";
-            if (this.props.settings && "ssh" in this.props.settings)
-                ssh = this.props.settings.ssh.value;
-            let sshkey = "";
-            if (this.props.settings && "sshkey" in this.props.settings)
-                sshkey = this.props.settings.sshkey.value;
+            let ssh = {};
+            if (this.props.settings && "ssh" in this.props.settings.targets)
+                ssh = this.props.settings.targets.ssh;
+            const server = ssh.server || "";
+            const sshkey = ssh.sshkey || "";
             detailRows = (
                 <>
                     <FormGroup fieldId="kdump-settings-ssh-server" label={_("Server")}>
                         <TextInput id="kdump-settings-ssh-server" key="server"
-                                   placeholder="user@server.com" value={ssh}
-                                   onChange={value => this.props.onChange("ssh", value)} />
+                                   placeholder="user@server.com" value={server}
+                                   onChange={value => this.props.onChange("server", value)} />
                     </FormGroup>
 
                     <FormGroup fieldId="kdump-settings-ssh-key" label={_("ssh key")}>
@@ -201,78 +202,32 @@ export class KdumpPage extends React.Component {
     }
 
     compressionStatus(settings) {
-        // compression is enabled if we have a core_collector command with the "-c" parameter
-        return (
-            settings &&
-              ("core_collector" in settings) &&
-              settings.core_collector.value &&
-              (settings.core_collector.value.split(" ").indexOf("-c") != -1)
-        );
+        return settings && settings.compression.enabled;
     }
 
     changeSetting(key, value) {
         let settings = this.state.dialogSettings;
 
-        // a few special cases, otherwise write to config directly
+        // a few special cases, otherwise write to config target directly
         if (key == "compression") {
-            if (value) {
-                // enable compression
-                if ("core_collector" in settings)
-                    settings.core_collector.value = settings.core_collector.value + " -c";
-                else
-                    settings.core_collector = { value: "makedumpfile -c" };
-            } else {
-                // disable compression
-                if ("core_collector" in this.props.kdumpStatus.config) {
-                    // just remove all "-c" parameters
-                    settings.core_collector.value =
-                        settings.core_collector.value
-                                .split(" ")
-                                .filter((e) => { return (e != "-c") })
-                                .join(" ");
-                } else {
-                    // if we don't have anything on this in the original settings,
-                    // we can get rid of the entry altogether
-                    delete settings.core_collector;
-                }
-            }
+            settings.compression.enabled = value;
         } else if (key === "target") {
             /* target changed, restore settings and wipe all settings associated
              * with a target so no conflicting settings remain */
             settings = {};
+            // TODO: do we need a deep copy here?
             Object.keys(this.props.kdumpStatus.config).forEach((key) => {
                 settings[key] = { ...this.props.kdumpStatus.config[key] };
             });
-            Object.keys(this.props.kdumpStatus.target).forEach((key) => {
-                if (settings[key])
-                    delete settings[key];
-            });
-            if (value === "ssh")
-                settings.ssh = { value: "" };
-            else if (value === "nfs")
-                settings.nfs = { value: "" };
-
-            if ("core_collector" in settings &&
-                settings.core_collector.value.includes("makedumpfile")) {
-                /* ssh target needs a flattened vmcore for transport */
-                if (value === "ssh" && !settings.core_collector.value.includes("-F"))
-                    settings.core_collector.value += " -F";
-                else if (settings.core_collector.value.includes("-F"))
-                    settings.core_collector.value =
-                        settings.core_collector.value
-                                .split(" ")
-                                .filter(e => e != "-F")
-                                .join(" ");
-            }
+            settings.targets = {};
+            settings.targets[value] = { type: value };
         } else if (key !== undefined) {
+            const type = Object.keys(settings.targets)[0];
             if (!value) {
-                if (settings[key])
-                    delete settings[key];
+                if (settings.targets[type][key])
+                    delete settings.targets[type][key];
             } else {
-                if (key in settings)
-                    settings[key].value = value;
-                else
-                    settings[key] = { value: value };
+                settings.targets[type][key] = value;
             }
         }
         this.setState({ dialogSettings: settings });
@@ -391,21 +346,21 @@ export class KdumpPage extends React.Component {
             if (target.multipleTargets) {
                 kdumpLocation = _("invalid: multiple targets defined");
             } else {
-                if (target.target == "local") {
+                if (target.type == "local") {
                     if (target.path)
                         kdumpLocation = cockpit.format(_("locally in $0"), target.path);
                     else
                         kdumpLocation = cockpit.format(_("locally in $0"), "/var/crash");
                     targetCanChange = true;
-                } else if (target.target == "ssh") {
+                } else if (target.type == "ssh") {
                     kdumpLocation = _("Remote over SSH");
                     targetCanChange = true;
-                } else if (target.target == "nfs") {
+                } else if (target.type == "nfs") {
                     kdumpLocation = _("Remote over NFS");
                     targetCanChange = true;
-                } else if (target.target == "raw") {
+                } else if (target.type == "raw") {
                     kdumpLocation = _("Raw to a device");
-                } else if (target.target == "mount") {
+                } else if (target.type == "mount") {
                     /* mount targets outside of nfs are too complex for the
                      * current target dialog */
                     kdumpLocation = _("On a mounted device");

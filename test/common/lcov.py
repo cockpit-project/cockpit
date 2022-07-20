@@ -32,7 +32,7 @@ import subprocess
 
 from bisect import bisect_left
 
-import parent
+import parent  # NOQA: imported through a custom PYTHONPATH
 from task import github
 
 BASE_DIR = os.path.realpath(f'{__file__}/../../..')

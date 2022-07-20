@@ -98,6 +98,7 @@ export const PasswordFormFields = ({
                        }
                        helperTextInvalid={error_password}
                        validated={error_password ? "error" : "default"}
+                       id={idPrefix + "-pw1-group"}
                        fieldId={idPrefix + "-pw1"}>
                 <TextInput className="check-passwords" type="password" id={idPrefix + "-pw1"}
                            autocomplete="new-password" value={password} onChange={onPasswordChanged} />
@@ -116,6 +117,7 @@ export const PasswordFormFields = ({
             {password_confirm_label && <FormGroup label={password_confirm_label}
                        helperTextInvalid={error_password_confirm}
                        validated={error_password_confirm ? "error" : "default"}
+                       id={idPrefix + "-pw2-group"}
                        fieldId={idPrefix + "-pw2"}>
                 <TextInput type="password" id={idPrefix + "-pw2"} autocomplete="new-password"
                            value={passwordConfirm} onChange={value => { setConfirmPassword(value); change("password_confirm", value) }} />

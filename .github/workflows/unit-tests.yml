@@ -36,7 +36,7 @@ jobs:
         timeout-minutes: 30
         run: |
           containers/unit-tests/start \
-              --verbose --no-jumpstart \
+              --verbose \
               ${{ matrix.startarg.network }} \
               --env=CC='${{ matrix.startarg.cc }}' \
               --image-tag='${{ matrix.startarg.tag }}' \

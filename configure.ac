@@ -65,6 +65,9 @@ AC_MSG_RESULT($enable_selinux_policy)
 AC_MSG_CHECKING([whether to build polkit support])
 AC_ARG_ENABLE(polkit, AS_HELP_STRING([--disable-polkit], [Disable usage of polkit]))
 AM_CONDITIONAL(WITH_POLKIT, test "$enable_polkit" != 'no')
+if test "$enable_polkit" != 'no'; then
+  AC_DEFINE([WITH_POLKIT], 1, [Whether to build with polkit support])
+fi
 AC_MSG_RESULT(${enable_polkit:=yes})
 
 # --disable-ssh

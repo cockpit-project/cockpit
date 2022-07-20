@@ -1640,6 +1640,9 @@ cockpit_router_prompt (CockpitRouter *self,
   if (prompt == NULL)
     prompt = "";
 
+  if (previous_error == NULL)
+    previous_error = "";
+
   if (self->superuser_answer_function)
     {
       g_warning ("Overlapping prompts");

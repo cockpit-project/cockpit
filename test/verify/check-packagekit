@@ -1588,7 +1588,6 @@ class TestAutoUpdates(NoSubManCase):
             # don't allow stomping over unparsable custom settings
             b.wait_not_present("#autoupdates-settings button")
 
-    @skipImage("TODO: Fails with 401 on our test runners", "arch")
     def testWithAvailableUpdates(self):
         b = self.browser
         m = self.machine

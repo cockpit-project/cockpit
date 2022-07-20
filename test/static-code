@@ -27,7 +27,7 @@ find_python_files() {
 test_flake8() {
     command -v flake8 >/dev/null || skip 'no flake8'
     filter="(undefined name '(Inotify|IN_[A-Z_]+)')" # inotify.py get pasted together with other files
-    ! find_python_files | xargs -r -0 flake8 --max-line-length=200 --ignore W504 2>&1 | grep -Ev "${filter}"
+    ! find_python_files | xargs -r -0 flake8 2>&1 | grep -Ev "${filter}"
 }
 
 test_pyvulture() {

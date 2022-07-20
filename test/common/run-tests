@@ -12,6 +12,7 @@ import socket
 import tempfile
 import binascii
 import logging
+import functools
 
 import importlib.machinery
 import importlib.util
@@ -37,7 +38,7 @@ def flush_stdout():
 
 
 class Test:
-    def __init__(self, test_id, command, timeout, nondestructive, retry_when_affected):
+    def __init__(self, test_id, command, timeout, nondestructive, retry_when_affected, cost=1):
         self.process = None
         self.retries = 0
         self.test_id = test_id
@@ -46,6 +47,7 @@ class Test:
         self.nondestructive = nondestructive
         self.machine_id = None
         self.retry_when_affected = retry_when_affected
+        self.cost = cost
         self.returncode = None
 
     def assign_machine(self, machine_id, ssh_address, web_address):
@@ -143,12 +145,9 @@ class Test:
     # internal methods
 
     def __str__(self):
-        return "{0} {1} {2}{3}".format(
-            self.test_id,
-            self.command[0],
-            self.command[-1],
-            " [ND@{0}]".format(self.machine_id) if self.nondestructive else "",
-        )
+        cost = "" if self.cost == 1 else f" ${self.cost}"
+        nd = f" [ND@{self.machine_id}]" if self.nondestructive else ""
+        return f"{self.test_id} {self.command[0]} {self.command[-1]}{cost}{nd}"
 
     def _print_test(self, print_tap=True, retry_reason="", skip_reason=""):
         def write_line(line):
@@ -318,7 +317,12 @@ def detect_tests(test_files, image, opts):
                     continue
                 nd = getattr(test_method, "_testlib__non_destructive", False)
                 rwa = getattr(test_method, "_testlib__retry_when_affected", True)
-                test = Test(test_id, build_command(filename, test_str, opts), test_timeout, nd, rwa)
+                if getattr(test.__class__, "provision", None):
+                    # each additionally provisioned VM costs half a parallel test capacity
+                    cost = 1 + (len(test.__class__.provision) - 1) / 2
+                else:
+                    cost = 1
+                test = Test(test_id, build_command(filename, test_str, opts), test_timeout, nd, rwa, cost=cost)
                 if nd:
                     serial_tests.append(test)
                 else:
@@ -434,10 +438,13 @@ def run(opts, image):
 
                     made_progress = True
 
+        def running_cost():
+            return functools.reduce(lambda cost, test: cost + test.cost, running_tests, 0)
+
         # fill the remaining available job slots with parallel tests
-        while parallel_tests and len(running_tests) < opts.jobs:
+        while parallel_tests and running_cost() + parallel_tests[0].cost <= opts.jobs:
             test = parallel_tests.pop(0)
-            logging.debug(f"{len(running_tests)} running tests, starting next parallel test {test}")
+            logging.debug(f"{len(running_tests)} running tests with total cost {running_cost()}, starting next parallel test {test}")
             test.start()
             running_tests.append(test)
             made_progress = True

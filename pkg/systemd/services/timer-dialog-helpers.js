@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import { systemd_client, SD_OBJ, SD_MANAGER, clock_realtime_now } from "./services.jsx";
 
-export function create_timer({ name, description, command, delay, delayUnit, delayNumber, repeat, repeatPatterns, specificTime, owner }) {
+export function create_timer({ name, description, command, delay, delayUnit, delayNumber, repeat, repeatPatterns, specificTime, owner, custom }) {
     const timer_unit = {};
     const repeat_array = repeatPatterns;
     timer_unit.name = name.replace(/\s/g, '');
@@ -38,6 +38,9 @@ export function create_timer({ name, description, command, delay, delayUnit, del
     if (delay == "specific-time" && repeat == "no") {
         const today = new Date(clock_realtime_now);
         timer_unit.OnCalendar = `OnCalendar=${today.getFullYear()}-${month_day_str(today)} ${specificTime}:00`;
+    } else if (repeat == "minutely") {
+        timer_unit.repeat_second = repeat_array.map(item => Number(item.second));
+        timer_unit.OnCalendar = "OnCalendar=*-*-* *:*:" + timer_unit.repeat_second.join(",");
     } else if (repeat == "hourly") {
         timer_unit.repeat_minute = repeat_array.map(item => Number(item.minute));
         timer_unit.OnCalendar = "OnCalendar=*-*-* *:" + timer_unit.repeat_minute.join(",");
@@ -49,8 +52,10 @@ export function create_timer({ name, description, command, delay, delayUnit, del
         timer_unit.OnCalendar = repeat_array.map(item => `OnCalendar=*-*-${item.day} ${item.time}:00`);
     } else if (repeat == "yearly") {
         timer_unit.OnCalendar = repeat_array.map(item => `OnCalendar=*-${month_day_str(new Date(item.date))} ${item.time}:00`);
+    } else if (repeat == "custom") {
+        timer_unit.OnCalendar = "OnCalendar=" + custom;
     }
-    if (repeat != "hourly" && delay == "specific-time")
+    if (repeat != "hourly" && repeat != "minutely" && delay == "specific-time")
         timer_unit.OnCalendar = timer_unit.OnCalendar.toString().replaceAll(",", "\n");
     return create_timer_file({ timer_unit, delay, owner });
 }

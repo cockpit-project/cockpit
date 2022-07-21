@@ -322,6 +322,7 @@ class ServicesPageBody extends React.Component {
         });
 
         this.timedated_subscription = timedate_client.subscribe({
+            path_namespace: "/org/freedesktop/timedate1",
             interface: "org.freedesktop.DBus.Properties",
             member: "PropertiesChanged"
         }, updateTime);

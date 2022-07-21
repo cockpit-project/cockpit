@@ -26,6 +26,9 @@ if [ "$ID" = "debian" ] || [ "$ID" = "ubuntu" ]; then
 
     # HACK: tuned breaks QEMU (https://launchpad.net/bugs/1774000)
     systemctl disable tuned.service 2>/dev/null || true
+
+    # disarm 10-cloudimg-settings.conf
+    sed -i '/.*PasswordAuthentication no/d' /etc/ssh/sshd_config $(ls /etc/ssh/sshd_config.d/* 2>/dev/null || true)
 fi
 
 if [ "$ID" = "debian" ]; then

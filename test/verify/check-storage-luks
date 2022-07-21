@@ -196,10 +196,6 @@ class TestStorageLuks(StorageCase):
 
         mount_point_secret = "/run/secret"
 
-        if m.image == "ubuntu-stable":
-            # ubuntu-stable needs this workaround.
-            m.execute("mkdir -p /var/db/tang")
-
         m.execute("systemctl start tangd.socket")
 
         self.login_and_go("/storage")

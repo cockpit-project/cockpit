@@ -590,18 +590,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         m = self.machine
         b = self.browser
 
-        is_pam_tally2 = m.image in ["ubuntu-stable"]
-
-        if is_pam_tally2:
-            module = 'pam_tally2'
-        else:
-            module = 'faillock'
+        module = 'faillock'
 
         def logfile(user):
-            if is_pam_tally2:
-                return '/var/log/tallylog'
-            else:
-                return '/var/run/faillock/' + user
+            return '/var/run/faillock/' + user
 
         def expect_fail_count(expected, user="admin", must_exist=True):
             if must_exist:
@@ -609,15 +601,11 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
             output = m.execute(f"{module} --user {user}")
 
-            if is_pam_tally2:
-                self.assertIn(f' {expected} ', output)
+            n_lines = len(output.splitlines())
+            if n_lines:
+                n_lines -= 2  # remove the header, if it's there
 
-            else:  # faillock
-                n_lines = len(output.splitlines())
-                if n_lines:
-                    n_lines -= 2  # remove the header, if it's there
-
-                self.assertEqual(expected, n_lines)
+            self.assertEqual(expected, n_lines)
 
             # make sure the above command didn't change the file
             if must_exist:
@@ -639,9 +627,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             m.execute(f"! grep -r '{module}' /etc/pam.d")
 
         # add it to the pam config
-        if is_pam_tally2:
-            self.sed_file("/common-auth/ { iauth required pam_tally2.so deny=4\n }", "/etc/pam.d/cockpit")
-        elif m.image.startswith('debian-') or m.image.startswith('ubuntu'):
+        if m.image.startswith('debian-') or m.image.startswith('ubuntu'):
             # enable pam_faillock.  see example in pam_faillock(8)
             self.sed_file(r"/fallback if no module succeeds/ s/^/"
                           r"auth [default=die] pam_faillock.so authfail deny=4\n"
@@ -670,10 +656,6 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.login_and_go("/system")
         b.logout()
 
-        if is_pam_tally2:
-            # now we should have it
-            m.execute(f"test -f {logfile('admin')}")
-
         # and it should show zero fails
         expect_fail_count(0, must_exist=False)
 
@@ -695,13 +677,9 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             expect_failed_login("admin", "bad", n)
 
         # logging in should fail now
-        if is_pam_tally2:  # this is counted differently by each module
-            n += 1
         expect_failed_login("admin", "foobar", n)
 
         # having given the correct password the last time should not have helped things
-        if is_pam_tally2:
-            n += 1
         expect_failed_login("admin", "foobar", n)
 
         # but we can reset the lockout

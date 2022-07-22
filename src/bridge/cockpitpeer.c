@@ -1013,6 +1013,8 @@ cockpit_peer_handle (CockpitPeer *self,
 
           if (!user)
             user = g_getenv ("USER");
+          // $USER is set in bridge main()
+          g_assert (user);
 
           char *user_hex = cockpit_hex_encode (user, -1);
           gchar *plain1_challenge = g_strdup_printf ("plain1:%s:", user_hex);

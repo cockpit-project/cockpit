@@ -29,6 +29,7 @@ import sys
 import glob
 import gzip
 import subprocess
+import re
 
 from bisect import bisect_left
 
@@ -439,14 +440,20 @@ def create_coverage_report():
         try:
             all_file = f"{BASE_DIR}/lcov/all.info"
             diff_file = f"{BASE_DIR}/lcov/diff.info"
-            subprocess.check_call(["lcov", "--output", all_file] +
+            subprocess.check_call(["lcov", "--quiet", "--output", all_file] +
                                   sum(map(lambda f: ["--add", f], lcov_files), []))
-            subprocess.check_call(["lcov", "--output", diff_file,
+            subprocess.check_call(["lcov", "--quiet", "--output", diff_file,
                                    "--extract", all_file, "*/github-pr.diff"])
-            subprocess.check_call(["genhtml", "--no-function-coverage",
-                                   "--prefix", os.getcwd(),
-                                   "--title", title,
-                                   "--output-dir", f"{output}/Coverage", all_file])
+            summary = subprocess.check_output(["genhtml", "--no-function-coverage",
+                                               "--prefix", os.getcwd(),
+                                               "--title", title,
+                                               "--output-dir", f"{output}/Coverage", all_file]).decode()
+
+            coverage = summary.split("\n")[-2]
+            match = re.search(r".*lines\.*:\s*([\d\.]*%).*", coverage)
+            if match:
+                print("Overall line coverage:", match.group(1))
+
             comments = get_review_comments(diff_file)
             rev = os.environ.get("TEST_REVISION", None)
             pull = os.environ.get("TEST_PULL", None)

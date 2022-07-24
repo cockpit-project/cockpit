@@ -1,8 +1,7 @@
+# false positive: this *is* the source
+cockpit source: source-is-missing [pkg/static/login.html]
+cockpit source: source-is-missing [src/common/fail.html]
 # source contains NPM modules required for running browser integration tests
-cockpit source: source-is-missing node_modules/*
-cockpit source: source-contains-prebuilt-javascript-object node_modules/*
-cockpit source: very-long-line-length-in-source-file node_modules/*
+cockpit source: source-is-missing [node_modules/*]
 # dist/ is (pre-)built by webpack from pkg/ and node_modules, see webpack.config.js
-cockpit source: source-is-missing dist/*.js*
-cockpit source: source-contains-prebuilt-javascript-object dist/*.js*
-cockpit source: very-long-line-length-in-source-file dist/*.js*
+cockpit source: source-is-missing [dist/*]

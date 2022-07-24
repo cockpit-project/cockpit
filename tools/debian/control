@@ -98,7 +98,8 @@ Architecture: all
 Multi-Arch: foreign
 Depends: ${misc:Depends},
          cockpit-bridge (>= ${source:Version}),
-         packagekit
+         packagekit,
+         python3,
 Description: Cockpit user interface for packages
  The Cockpit component for installing packages, via PackageKit.
 

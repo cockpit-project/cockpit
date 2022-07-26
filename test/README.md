@@ -21,7 +21,7 @@ You first need to build cockpit, and install it into a VM:
 
     $ test/image-prepare
 
-This uses the default OS image, which is currently Fedora 35. See `$TEST_OS`
+This uses the default OS image, which is currently Fedora 36. See `$TEST_OS`
 below how to select a different one.
 
 In most cases you want to run an individual test in a suite, for example:

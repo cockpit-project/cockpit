@@ -72,6 +72,7 @@ const CreateTimerDialogBody = ({ owner }) => {
     const [repeat, setRepeat] = useState('no');
     const [repeatPatterns, setRepeatPatterns] = useState([]);
     const [specificTime, setSpecificTime] = useState("00:00");
+    const [isSpecificTimeOpen, setSpecificTimeOpen] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [commandNotFound, setCommandNotFound] = useState(false);
     const validationFailed = {};
@@ -89,6 +90,12 @@ const CreateTimerDialogBody = ({ owner }) => {
         <TimePicker className="create-timer-time-picker"
                     time={repeatPatterns[idx].time || "00:00"}
                     is24Hour
+                    isOpen={repeatPatterns[idx].isOpen || false}
+                    setIsOpen={isOpen => {
+                        const arr = [...repeatPatterns];
+                        arr[idx].isOpen = isOpen;
+                        setRepeatPatterns(arr);
+                    }}
                     menuAppendTo={() => document.body}
                     onChange={time => {
                         const arr = [...repeatPatterns];
@@ -243,6 +250,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                         {repeat == "no" &&
                         <FormGroup label={_("Run at")}>
                             <TimePicker className="create-timer-time-picker specific-no-repeat"
+                                        isOpen={isSpecificTimeOpen} setIsOpen={setSpecificTimeOpen}
                                         menuAppendTo={() => document.body} time={specificTime} is24Hour onChange={setSpecificTime} />
                         </FormGroup>}
                         {repeatPatterns.map((item, idx) => {

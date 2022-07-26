@@ -318,8 +318,8 @@ def detect_tests(test_files, image, opts):
                 nd = getattr(test_method, "_testlib__non_destructive", False)
                 rwa = getattr(test_method, "_testlib__retry_when_affected", True)
                 if getattr(test.__class__, "provision", None):
-                    # each additionally provisioned VM costs half a parallel test capacity
-                    cost = 1 + (len(test.__class__.provision) - 1) / 2
+                    # each additionally provisioned VM costs parallel test capacity
+                    cost = len(test.__class__.provision)
                 else:
                     cost = 1
                 test = Test(test_id, build_command(filename, test_str, opts), test_timeout, nd, rwa, cost=cost)

@@ -64,7 +64,7 @@ cockpit_hex_decode (const char *hex,
   if (hexlen % 2 != 0)
     return NULL;
 
-  out = mallocx (hexlen * 2 + 1);
+  out = mallocx (hexlen / 2 + 1);
   for (i = 0; i < hexlen / 2; i++)
     {
       hpos = strchr (HEX, hex[i * 2]);

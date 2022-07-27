@@ -183,18 +183,18 @@ const CreateTimerDialogBody = ({ owner }) => {
                 </FormGroup>
                 <FormGroup label={_("Trigger")} hasNoPaddingTop>
                     <Flex>
-                        <Radio value="system-boot"
-                               id="system-boot"
-                               name="boot-or-specific-time"
-                               onChange={() => setDelay("system-boot")}
-                               isChecked={delay == "system-boot"}
-                               label={_("After system boot")} />
                         <Radio value="specific-time"
                                id="specific-time"
                                name="boot-or-specific-time"
                                onChange={() => setDelay("specific-time")}
                                isChecked={delay == "specific-time"}
                                label={_("At specific time")} />
+                        <Radio value="system-boot"
+                               id="system-boot"
+                               name="boot-or-specific-time"
+                               onChange={() => setDelay("system-boot")}
+                               isChecked={delay == "system-boot"}
+                               label={_("After system boot")} />
                     </Flex>
                     { delay == "system-boot" &&
                     <FormGroup className="delay-group"

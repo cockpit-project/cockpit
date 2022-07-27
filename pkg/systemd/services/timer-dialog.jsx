@@ -92,13 +92,13 @@ const CreateTimerDialogBody = ({ owner }) => {
                     is24Hour
                     isOpen={repeatPatterns[idx].isOpen || false}
                     setIsOpen={isOpen => {
-                        const arr = [...repeatPatterns];
+                        const arr = JSON.parse(JSON.stringify(repeatPatterns));
                         arr[idx].isOpen = isOpen;
                         setRepeatPatterns(arr);
                     }}
                     menuAppendTo={() => document.body}
                     onChange={time => {
-                        const arr = [...repeatPatterns];
+                        const arr = JSON.parse(JSON.stringify(repeatPatterns));
                         arr[idx].time = time;
                         setRepeatPatterns(arr);
                     }}

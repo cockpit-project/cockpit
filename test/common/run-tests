@@ -441,8 +441,8 @@ def run(opts, image):
         def running_cost():
             return functools.reduce(lambda cost, test: cost + test.cost, running_tests, 0)
 
-        # fill the remaining available job slots with parallel tests
-        while parallel_tests and running_cost() + parallel_tests[0].cost <= opts.jobs:
+        # fill the remaining available job slots with parallel tests; run tests with a cost higher than #jobs by themselves
+        while parallel_tests and (running_cost() + parallel_tests[0].cost <= opts.jobs or len(running_tests) == 0):
             test = parallel_tests.pop(0)
             logging.debug(f"{len(running_tests)} running tests with total cost {running_cost()}, starting next parallel test {test}")
             test.start()

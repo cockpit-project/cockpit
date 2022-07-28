@@ -132,25 +132,37 @@ read_file (const gchar *path)
 }
 
 static void
-sample_cpu_sensors (CockpitSamples *samples,
+sample_cpu_sensors (gchar *sensor_path,
+                    CockpitSamples *samples)
+{
+    g_autofree gchar *temp_content = read_file (sensor_path);
+
+    if (temp_content == NULL)
+        return;
+
+    gint64 temperature = g_ascii_strtoll (temp_content, NULL, 10);
+    // overflow or invalid
+    if (temperature == G_MAXINT64 || temperature == G_MININT64 || temperature == 0)
+      {
+        g_debug("Invalid number in %s: %m", sensor_path);
+        return;
+      }
+
+    cockpit_samples_sample (samples, "cpu.temperature", sensor_path, temperature/1000);
+}
+
+static void
+detect_cpu_sensors (GList **devices,
+                    const gchar *name,
                     int hwmonID)
 {
   for (int i = 1; TRUE; i++)
     {
-      g_autofree gchar *temp = g_strdup_printf ("/sys/class/hwmon/hwmon%d/temp%d_input", hwmonID, i);
-      g_autofree gchar *temp_content = read_file (temp);
-
-      // end loop on error
-      if (temp_content == NULL)
+      g_assert (devices != NULL);
+      // break loop if input file does not exist
+      g_autofree gchar *sensor_path = g_strdup_printf ("/sys/class/hwmon/hwmon%d/temp%d_input", hwmonID, i);
+      if (!g_file_test (sensor_path, G_FILE_TEST_EXISTS))
           break;
-
-      gint64 temperature = g_ascii_strtoll (temp_content, NULL, 10);
-      // overflow or invalid
-      if (temperature == G_MAXINT64 || temperature == G_MININT64 || temperature == 0)
-        {
-          g_debug("Invalid number in %s: %m", temp);
-          continue;
-        }
 
       g_autofree gchar *label = g_strdup_printf ("/sys/class/hwmon/hwmon%d/temp%d_label", hwmonID, i);
       g_autofree gchar *label_content = read_file (label);
@@ -158,22 +170,27 @@ sample_cpu_sensors (CockpitSamples *samples,
       if (label_content == NULL)
         {
           // labels aren't used on ARM
-          label_content = g_strdup_printf ("Core %d", i);
+          if (!g_str_equal (name, "cpu_thermal"))
+              continue;
+        }
+      else
+        {
+          g_strchomp (label_content);
+
+          // only sample CPU Temperature in atk0110
+          if (!g_str_equal (label_content, "CPU Temperature") && g_str_equal (name, "atk0110"))
+              continue;
+          // ignore Tctl on AMD devices
+          if (g_str_equal (label_content, "Tctl"))
+              continue;
         }
 
-      g_strchomp (label_content);
-
-      // ignore Tctl on AMD devices
-      if (g_str_equal (label_content, "Tctl"))
-          continue;
-
-      g_autofree gchar *instance = g_strdup_printf ("hwmon%d %s", hwmonID, label_content);
-      cockpit_samples_sample (samples, "cpu.temperature", instance, temperature/1000);
+      *devices = g_list_append (*devices, g_steal_pointer (&sensor_path));
     }
 }
 
-void
-cockpit_cpu_temperature (CockpitSamples *samples)
+static void
+detect_hwmon_device (GList **devices)
 {
   // iterate through all hwmon folders to find CPU sensors
   for (int i = 0; TRUE; i++)
@@ -188,12 +205,26 @@ cockpit_cpu_temperature (CockpitSamples *samples)
       g_strchomp (name);
 
       // compare device name with CPU names
-      // Intel: coretemp, AMD: k8temp or k10temp, ARM: cpu_thermal
+      // Intel: coretemp, AMD: k8temp or k10temp, ARM: cpu_thermal, Asus motherboard: atk0110
       if (g_str_equal (name, "coretemp") || g_str_equal (name, "cpu_thermal") ||
-          g_str_equal (name, "k8temp") || g_str_equal (name, "k10temp"))
+          g_str_equal (name, "k8temp") || g_str_equal (name, "k10temp") || g_str_equal (name, "atk0110"))
         {
           // hwmon contains CPU info
-          sample_cpu_sensors (samples, i);
+          detect_cpu_sensors (devices, name, i);
         }
     }
+}
+
+void
+cockpit_cpu_temperature (CockpitSamples *samples)
+{
+  static GList *devices = NULL;
+  static gboolean initialized = FALSE;
+  if (!initialized)
+    {
+      detect_hwmon_device (&devices);
+      initialized = TRUE;
+    }
+
+  g_list_foreach (devices, (GFunc)sample_cpu_sensors, samples);
 }

@@ -839,65 +839,113 @@ podman save quay.io/libpod/busybox | sudo -i -u admin podman load
         b.wait_not_present("#current-metrics-card-cpu .temperature")
 
         # No matching type
-        m.execute("mkdir -p /tmp/hwmon/hwmon0")
-        m.execute("echo BAT0 > /tmp/hwmon/hwmon0/name")
-        m.execute("mount -o bind /tmp /sys/class")
+        m.execute("mkdir -p /tmp/sensor-sys-class/hwmon/hwmon0")
+        self.addCleanup(m.execute, "rm -rf /tmp/sensor-sys-class")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon0/name", "BAT0")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon0/temp1_input", "40000")
+        m.execute("mount -o bind /tmp/sensor-sys-class /sys/class")
+        self.addCleanup(m.execute, "umount /sys/class")
+        b.logout()
+        self.login_and_go("/metrics")
 
         b.wait_not_present("#current-metrics-card-cpu .temperature")
 
         # create files that contain CPU temperature
-        m.execute("mkdir -p /tmp/hwmon/hwmon1")
+        # ARM
+        m.execute("mkdir -p /tmp/sensor-sys-class/hwmon/hwmon1")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/name", "cpu_thermal")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp1_input", "30000")
 
-        # Testing on ARM devices
-        m.execute("echo cpu_thermal > /tmp/hwmon/hwmon1/name")
-        m.execute("echo 60000 > /tmp/hwmon/hwmon1/temp1_input")
+        b.logout()
+        self.login_and_go("/metrics")
 
-        b.wait_in_text("#current-metrics-card-cpu", "60 °C")
-
-        # Testing on AMD devices
-        m.execute("echo k10temp > /tmp/hwmon/hwmon1/name")
-        m.execute("echo Tctl > /tmp/hwmon/hwmon1/temp1_label && echo Tccd1 > /tmp/hwmon/hwmon1/temp2_label && echo Tccd3 > /tmp/hwmon/hwmon1/temp3_label")
-        # setting temp1_input to the highest value as Tctl should be ignored
-        m.execute("echo 150000 > /tmp/hwmon/hwmon1/temp1_input && echo 45000 > /tmp/hwmon/hwmon1/temp2_input && echo 43000 > /tmp/hwmon/hwmon1/temp3_input")
-
+        b.wait_in_text("#current-metrics-card-cpu", "30 °C")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp1_input", "45000")
         b.wait_in_text("#current-metrics-card-cpu", "45 °C")
 
-        m.execute("echo 90000 > /tmp/hwmon/hwmon1/temp3_input")
+        # AMD
+        m.execute("rm -rf /tmp/sensor-sys-class/hwmon/hwmon1/*")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/name", "k10temp")
+        # Tctl (temp1_input) will be ignored
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp1_label", "Tctl")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp1_input", "40000")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp2_label", "Tccd1")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp2_input", "35000")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp3_label", "Tccd3")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp3_input", "30000")
+
+        b.logout()
+        self.login_and_go("/metrics")
+
+        b.wait_in_text("#current-metrics-card-cpu", "35 °C")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp3_input", "55000")
+        b.wait_in_text("#current-metrics-card-cpu", "55 °C")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp2_input", "90000")
         b.wait_visible("#current-metrics-card-cpu .text-color-warning")
         b.wait_in_text("#current-metrics-card-cpu .text-color-warning", "90 °C")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp2_input", "45000")
+        # temp2_input cooled down, temp3_input is the hottest again
+        b.wait_in_text("#current-metrics-card-cpu", "55 °C")
 
-        # Testing on Intel devices
-        m.execute("echo coretemp > /tmp/hwmon/hwmon1/name")
-        m.execute("echo Package id 0 > /tmp/hwmon/hwmon1/temp1_label && echo Core 0 > /tmp/hwmon/hwmon1/temp2_label && echo Core 1 > /tmp/hwmon/hwmon1/temp3_label")
-        m.execute("echo 45000 > /tmp/hwmon/hwmon1/temp1_input && echo 50000 > /tmp/hwmon/hwmon1/temp2_input && echo 43000 > /tmp/hwmon/hwmon1/temp3_input")
+        # atk0110 motherboard
+        m.execute("rm -rf /tmp/sensor-sys-class/hwmon/hwmon1/*")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/name", "atk0110")
+        # MB Temperature (temp2_label) will be ignored
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp1_label", "CPU Temperature")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp1_input", "50000")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp2_label", "MB Temperature")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp2_input", "70000")
+
+        b.logout()
+        self.login_and_go("/metrics")
 
         b.wait_in_text("#current-metrics-card-cpu", "50 °C")
-
-        # change temperature, check color and icon
-        m.execute("echo 85000 > /tmp/hwmon/hwmon1/temp2_input")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp1_input", "95000")
+        b.wait_visible("#current-metrics-card-cpu .text-color-critical")
+        b.wait_in_text("#current-metrics-card-cpu .text-color-critical", "95 °C")
+        # cooled down a little, warning color changes from red to yellow
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp1_input", "85000")
         b.wait_visible("#current-metrics-card-cpu .text-color-warning")
         b.wait_in_text("#current-metrics-card-cpu .text-color-warning", "85 °C")
 
-        # change temperature, check color and icon
-        m.execute("echo 100000 > /tmp/hwmon/hwmon1/temp3_input")
-        b.wait_visible("#current-metrics-card-cpu .text-color-critical")
-        b.wait_in_text("#current-metrics-card-cpu .text-color-critical", "100 °C")
+        # intel
+        m.execute("rm -rf /tmp/sensor-sys-class/hwmon/hwmon1/*")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/name", "coretemp")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp1_label", "Package id 0")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp1_input", "60000")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp2_label", "Core 0")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp2_input", "50000")
 
-        # test multiple CPUs
-        m.execute("mkdir -p /tmp/hwmon/hwmon2")
-        m.execute("echo coretemp > /tmp/hwmon/hwmon2/name")
-        m.execute("echo Package id 0 > /tmp/hwmon/hwmon2/temp1_label && echo Core 0 > /tmp/hwmon/hwmon2/temp2_label && echo Core 1 > /tmp/hwmon/hwmon2/temp3_label")
-        m.execute("echo 45000 > /tmp/hwmon/hwmon2/temp1_input && echo 50000 > /tmp/hwmon/hwmon2/temp2_input && echo 110000 > /tmp/hwmon/hwmon2/temp3_input")
+        b.logout()
+        self.login_and_go("/metrics")
 
-        b.wait_visible("#current-metrics-card-cpu .text-color-critical")
-        b.wait_in_text("#current-metrics-card-cpu .text-color-critical", "110 °C")
+        b.wait_in_text("#current-metrics-card-cpu", "60 °C")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp2_input", "85000")
+        b.wait_visible("#current-metrics-card-cpu .text-color-warning")
+        b.wait_in_text("#current-metrics-card-cpu .text-color-warning", "85 °C")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp2_input", "70000")
+        # cooled down, warning color is not visible
+        b.wait_not_present("#current-metrics-card-cpu .text-color-warning")
+        b.wait_in_text("#current-metrics-card-cpu", "70 °C")
 
-        m.execute("echo 120000 > /tmp/hwmon/hwmon1/temp2_input")
-        b.wait_visible("#current-metrics-card-cpu .text-color-critical")
-        b.wait_in_text("#current-metrics-card-cpu .text-color-critical", "120 °C")
+        # add second CPU
+        m.execute("mkdir -p /tmp/sensor-sys-class/hwmon/hwmon2")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon2/name", "coretemp")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon2/temp1_label", "Package id 0")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon2/temp1_input", "60000")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon2/temp2_label", "Core 0")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon2/temp2_input", "75000")
 
-        m.execute("umount /sys/class")
-        m.execute("rm -rf /tmp/hwmon")
+        b.logout()
+        self.login_and_go("/metrics")
+
+        # CPU 2 is the hottest
+        b.wait_in_text("#current-metrics-card-cpu", "75 °C")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon2/temp1_input", "80000")
+        b.wait_in_text("#current-metrics-card-cpu", "80 °C")
+        # CPU 1 is the hottest again
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp1_input", "90000")
+        b.wait_in_text("#current-metrics-card-cpu", "90 °C")
 
         # Test link to user services
         # older releases don't have CPU accounting enabled for user services

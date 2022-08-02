@@ -21,6 +21,8 @@
             oauth.ErrorParam = "error_description";
     }
 
+    const authorization_header = environment.authorization_header || "Authorization";
+
     const fmt_re = /\$\{([^}]+)\}|\$([a-zA-Z0-9_]+)/g;
     function format(fmt /* ... */) {
         const args = Array.prototype.slice.call(arguments, 1);
@@ -422,7 +424,7 @@
             show("#login-wait-validating");
             const xhr = new XMLHttpRequest();
             xhr.open("GET", login_path, true);
-            xhr.setRequestHeader("Authorization", "Bearer " + token_val);
+            xhr.setRequestHeader(authorization_header, "Bearer " + token_val);
             xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4) {
                     if (xhr.status == 200) {
@@ -555,7 +557,7 @@
             localStorage.setItem('standard-login', true);
 
             const headers = {
-                Authorization: "Basic " + window.btoa(utf8(user + ":" + password)),
+                [authorization_header]: "Basic " + window.btoa(utf8(user + ":" + password)),
                 "X-Superuser": superuser,
             };
             // allow unknown remote hosts with interactive logins with "Connect to:"
@@ -894,7 +896,7 @@
 
     function converse(id, msg) {
         const headers = {
-            Authorization: "X-Conversation " + id + " " + window.btoa(utf8(msg))
+            [authorization_header]: "X-Conversation " + id + " " + window.btoa(utf8(msg))
         };
         send_login_request("GET", headers, true);
     }

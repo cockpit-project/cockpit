@@ -321,6 +321,7 @@ cockpit_auth_steal_authorization (CockpitWebRequest *request,
   gchar *ret = NULL;
   gchar *line;
   gpointer key;
+  const gchar *auth_header = cockpit_conf_string ("Webservice", "AuthorizationHeader") ?: "Authorization";
 
   g_assert (request != NULL);
   g_assert (ret_conversation != NULL);
@@ -329,15 +330,15 @@ cockpit_auth_steal_authorization (CockpitWebRequest *request,
   /* Avoid copying as it can contain passwords */
   GHashTable *headers = cockpit_web_request_get_headers (request);
   g_assert (headers != NULL);
-  if (g_hash_table_lookup_extended (headers, "Authorization", &key, (gpointer *)&line))
+  if (g_hash_table_lookup_extended (headers, auth_header, &key, (gpointer *)&line))
     {
-      g_hash_table_steal (headers, "Authorization");
+      g_hash_table_steal (headers, auth_header);
       g_free (key);
 
       /* This is being parsed heavily, enforce ASCII */
       if (!g_str_is_ascii (line))
         {
-          g_message ("received invalid Authorize header, must be ASCII");
+          g_message ("received invalid %s header, must be ASCII", auth_header);
           goto out;
         }
     }
@@ -361,7 +362,7 @@ cockpit_auth_steal_authorization (CockpitWebRequest *request,
   /* It's never valid for a "tls-cert" to come via Authorization: */
   if (g_str_equal (type, "tls-cert"))
     {
-      g_message ("received invalid 'Authorization: tls-cert' header");
+      g_message ("received invalid '%s: tls-cert' header", auth_header);
       goto out;
     }
 

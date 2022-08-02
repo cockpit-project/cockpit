@@ -347,6 +347,10 @@ build_environment (GHashTable *os_release)
         json_object_set_string_member (object, "banner", contents);
     }
 
+  const gchar *authorization_header = cockpit_conf_string ("Webservice", "AuthorizationHeader");
+  if (authorization_header)
+      json_object_set_string_member (object, "authorization_header", authorization_header);
+
   bytes = cockpit_json_write_bytes (object);
   json_object_unref (object);
 

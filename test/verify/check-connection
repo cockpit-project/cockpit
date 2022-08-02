@@ -1196,6 +1196,8 @@ server {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
 
+        #HOOK
+
         # Pass ETag header from Cockpit to clients.
         # See: https://github.com/cockpit-project/cockpit/issues/5239
         gzip off;
@@ -1233,6 +1235,25 @@ server {
         # UrlRoot without login page
         run_ws("--local-session=cockpit-bridge")
         self.checkCockpitOnProxy(urlroot="/myroot", login=False)
+        kill_ws()
+
+        # custom authorization header; block standard Authorization: header in the proxy
+        self.sed_file('s/#HOOK/proxy_set_header Authorization "";/', "/etc/nginx/conf.d/cockpit.conf",
+                      "systemctl restart nginx")
+        m.write("/etc/cockpit/cockpit.conf", "AuthorizationHeader = X-Cockpit-Authorization\n", append=True)
+        run_ws()
+        self.checkCockpitOnProxy(urlroot="/myroot")
+        # does not accept standard header
+        basic_auth = base64.b64encode(b"admin:foobar").decode()
+        (https_host, https_port) = self.machine.forward["443"].split(':')
+        out = self.callProxyCurl("/myroot/cockpit/login", "--head",
+                                 "--header", f"Authorization: Basic {basic_auth}")
+        self.assertRegex(out, b"HTTP/1.1 (401 Authentication failed|403 Permission denied).*")
+        # accepts custom header
+        out = self.callProxyCurl("/myroot/cockpit/login", "--head",
+                                 "--header", f"X-Cockpit-Authorization: Basic {basic_auth}")
+        self.assertIn(b"HTTP/1.1 200 OK", out)
+        self.assertIn(b"\nSet-Cookie:", out)
         kill_ws()
 
         # separate websocket URL root like on 3scale

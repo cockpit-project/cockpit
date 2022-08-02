@@ -95,6 +95,21 @@ ForwardedForHeader = X-Forwarded-For
       </listitem>
       </varlistentry>
       <varlistentry>
+        <term><option>AuthorizationHeader</option></term>
+        <listitem>
+          <para>Cockpit normally uses the <code>Authorization:</code> header for sending credentials from
+            the login page to the web server. In some cases, this header is already being used for
+            authenticating to a reverse proxy. Then you can tell cockpit's web server to use a different header
+            header for itself. It is recommended to use <code>X-Cockpit-Authorization</code>.</para>
+        <informalexample>
+<programlisting language="ini">
+[WebService]
+AuthorizationHeader = X-Cockpit-Authorization
+</programlisting>
+        </informalexample>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
         <term><option>LoginTitle</option></term>
         <listitem><para>Set the browser title for the login screen.</para></listitem>
       </varlistentry>

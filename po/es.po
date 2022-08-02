@@ -23,8 +23,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-12 18:11+0000\n"
-"PO-Revision-Date: 2022-07-05 13:19+0000\n"
+"POT-Creation-Date: 2022-07-26 18:03+0000\n"
+"PO-Revision-Date: 2022-07-29 14:19+0000\n"
 "Last-Translator: Miguel Ángel Sánchez <maletils@gmail.com>\n"
 "Language-Team: Spanish <https://translate.fedoraproject.org/projects/cockpit/"
 "main/es/>\n"
@@ -95,8 +95,8 @@ msgid_plural "$0 days"
 msgstr[0] "$0 día"
 msgstr[1] "$0 días"
 
-#: pkg/storaged/mdraid-details.jsx:210 pkg/playground/translate.js:26
-#: pkg/playground/translate.js:29
+#: pkg/playground/translate.js:26 pkg/playground/translate.js:29
+#: pkg/storaged/mdraid-details.jsx:210
 msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] "Falta $0 disco"
@@ -168,12 +168,12 @@ msgid_plural "$0 hits, including important"
 msgstr[0] "$0 impacto importante"
 msgstr[1] "$0 impactos, incluyendo impactos importantes"
 
-#: pkg/storaged/vgroup-details.jsx:188 pkg/storaged/mdraid-details.jsx:232
-#: pkg/storaged/mdraid-details.jsx:287 pkg/storaged/format-dialog.jsx:176
 #: pkg/storaged/lvol-tabs.jsx:232 pkg/storaged/lvol-tabs.jsx:299
-#: pkg/storaged/vdo-details.jsx:133 pkg/storaged/vdo-details.jsx:167
-#: pkg/storaged/stratis-details.jsx:241 pkg/storaged/stratis-details.jsx:540
 #: pkg/storaged/content-views.jsx:371 pkg/storaged/content-views.jsx:676
+#: pkg/storaged/stratis-details.jsx:241 pkg/storaged/stratis-details.jsx:540
+#: pkg/storaged/vgroup-details.jsx:188 pkg/storaged/vdo-details.jsx:133
+#: pkg/storaged/vdo-details.jsx:167 pkg/storaged/mdraid-details.jsx:232
+#: pkg/storaged/mdraid-details.jsx:287 pkg/storaged/format-dialog.jsx:176
 msgid "$0 is in use"
 msgstr "$0 está en uso"
 
@@ -226,7 +226,7 @@ msgid_plural "$0 packages"
 msgstr[0] "$0 paquete"
 msgstr[1] "$0 paquetes"
 
-#: pkg/packagekit/updates.jsx:678 pkg/packagekit/updates.jsx:793
+#: pkg/packagekit/updates.jsx:689 pkg/packagekit/updates.jsx:804
 msgid "$0 package needs a system reboot"
 msgid_plural "$0 packages need a system reboot"
 msgstr[0] "$0 paquete necesita un reinicio del sistema"
@@ -238,19 +238,19 @@ msgid_plural "$0 pages"
 msgstr[0] "$0 página"
 msgstr[1] "$0 páginas"
 
-#: pkg/packagekit/updates.jsx:765
+#: pkg/packagekit/updates.jsx:776
 msgid "$0 security fix available"
 msgid_plural "$0 security fixes available"
 msgstr[0] "$0 Actualización de seguridad disponible"
 msgstr[1] "$0 Actualizaciones de seguridad disponibles"
 
-#: pkg/systemd/services/services.jsx:735
+#: pkg/systemd/services/services.jsx:736
 msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
 msgstr[0] "$0 servicio ha fallado"
 msgstr[1] "$0 servicios han fallado"
 
-#: pkg/packagekit/updates.jsx:695 pkg/packagekit/updates.jsx:805
+#: pkg/packagekit/updates.jsx:706 pkg/packagekit/updates.jsx:816
 msgid "$0 service needs to be restarted"
 msgid_plural "$0 services need to be restarted"
 msgstr[0] "$0 servicio necesita reiniciarse"
@@ -267,7 +267,7 @@ msgstr[1] "$0 huecos disponibles"
 msgid "$0 total"
 msgstr "$0 total"
 
-#: pkg/packagekit/updates.jsx:773
+#: pkg/packagekit/updates.jsx:784
 msgid "$0 update available"
 msgid_plural "$0 updates available"
 msgstr[0] "$0 Actualización disponible"
@@ -315,7 +315,7 @@ msgstr "$name (del $host)"
 msgid "(recommended)"
 msgstr "(recomendado)"
 
-#: pkg/packagekit/updates.jsx:775
+#: pkg/packagekit/updates.jsx:786
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
 msgstr[0] ", incluyendo $1 corrección de seguridad"
@@ -485,8 +485,8 @@ msgstr "4"
 msgid "5 min"
 msgstr "5 min"
 
-#: pkg/lib/cockpit-components-plot.jsx:272
 #: pkg/lib/cockpit-components-shutdown.jsx:172
+#: pkg/lib/cockpit-components-plot.jsx:272
 msgid "5 minutes"
 msgstr "5 minutos"
 
@@ -572,7 +572,7 @@ msgstr ""
 "Se creará una nueva clave SSH en $0 para $1 en $2 y se añadirá al fichero $3 "
 "de $4 en $5."
 
-#: pkg/packagekit/updates.jsx:1481
+#: pkg/packagekit/updates.jsx:1501
 msgid "A package needs a system reboot for the updates to take effect:"
 msgid_plural ""
 "Some packages need a system reboot for the updates to take effect:"
@@ -587,7 +587,7 @@ msgstr[1] ""
 msgid "A pool with this name exists already."
 msgstr "Ya existe un grupo de almacenamiento con este nombre."
 
-#: pkg/packagekit/updates.jsx:1485
+#: pkg/packagekit/updates.jsx:1505
 msgid "A service needs to be restarted for the updates to take effect:"
 msgid_plural ""
 "Some services need to be restarted for the updates to take effect:"
@@ -617,7 +617,7 @@ msgstr "Ping de ARP"
 msgid "About Web Console"
 msgstr "Acerca de la consola Web"
 
-#: pkg/systemd/hw-detect.js:114 pkg/lib/machine-info.js:268
+#: pkg/lib/machine-info.js:268 pkg/systemd/hw-detect.js:114
 msgid "Absent"
 msgstr "Ausente"
 
@@ -641,7 +641,7 @@ msgstr "La cuenta no está disponible o no se puede modificar."
 msgid "Accounts"
 msgstr "Cuentas"
 
-#: pkg/storaged/dialog.jsx:1131
+#: pkg/storaged/dialog.jsx:1129
 msgid "Action"
 msgstr "Acción"
 
@@ -661,12 +661,12 @@ msgstr "Activando $target"
 msgid "Active"
 msgstr "Activo"
 
-#: pkg/networkmanager/bond.jsx:46 pkg/networkmanager/team.jsx:44
+#: pkg/networkmanager/team.jsx:44 pkg/networkmanager/bond.jsx:46
 msgid "Active backup"
 msgstr "Copia de seguridad activa"
 
-#: pkg/shell/topnav.jsx:160 pkg/shell/active-pages-modal.jsx:94
-#: pkg/shell/active-pages-modal.jsx:102
+#: pkg/shell/active-pages-modal.jsx:94 pkg/shell/active-pages-modal.jsx:102
+#: pkg/shell/topnav.jsx:160
 msgid "Active pages"
 msgstr "Páginas activas"
 
@@ -674,8 +674,8 @@ msgstr "Páginas activas"
 msgid "Active since "
 msgstr "Activo desde "
 
-#: pkg/systemd/services/services.jsx:959 pkg/systemd/services/services.jsx:960
-#: pkg/systemd/services/services.jsx:967
+#: pkg/systemd/services/services.jsx:960 pkg/systemd/services/services.jsx:961
+#: pkg/systemd/services/services.jsx:968
 msgid "Active state"
 msgstr "Estado de actividad"
 
@@ -687,20 +687,20 @@ msgstr "Balanceo de carga adaptativo"
 msgid "Adaptive transmit load balancing"
 msgstr "Transmisión adaptativo para el balanceo de carga"
 
-#: pkg/storaged/crypto-keyslots.jsx:314 pkg/storaged/crypto-keyslots.jsx:627
-#: pkg/storaged/vgroup-details.jsx:78 pkg/storaged/vgroup-details.jsx:127
-#: pkg/storaged/nfs-details.jsx:186 pkg/storaged/mdraid-details.jsx:76
-#: pkg/storaged/mdraid-details.jsx:159 pkg/storaged/nfs-panel.jsx:65
-#: pkg/storaged/stratis-details.jsx:148 pkg/storaged/iscsi-panel.jsx:140
-#: pkg/storaged/iscsi-panel.jsx:164 pkg/storaged/iscsi-panel.jsx:255
-#: pkg/users/authorized-keys-panel.js:63
-#: pkg/systemd/services/timer-dialog.jsx:341 pkg/shell/credentials.jsx:187
-#: pkg/shell/hosts_dialog.jsx:244
+#: pkg/shell/credentials.jsx:187 pkg/shell/hosts_dialog.jsx:244
+#: pkg/users/authorized-keys-panel.js:63 pkg/storaged/nfs-details.jsx:186
+#: pkg/storaged/iscsi-panel.jsx:140 pkg/storaged/iscsi-panel.jsx:164
+#: pkg/storaged/iscsi-panel.jsx:255 pkg/storaged/nfs-panel.jsx:65
+#: pkg/storaged/stratis-details.jsx:148 pkg/storaged/vgroup-details.jsx:78
+#: pkg/storaged/vgroup-details.jsx:127 pkg/storaged/mdraid-details.jsx:76
+#: pkg/storaged/mdraid-details.jsx:159 pkg/storaged/crypto-keyslots.jsx:314
+#: pkg/storaged/crypto-keyslots.jsx:627
+#: pkg/systemd/services/timer-dialog.jsx:341
 msgid "Add"
 msgstr "Añadir"
 
-#: pkg/lib/cockpit-components-firewalld-request.jsx:148
 #: pkg/networkmanager/network-interface-members.jsx:176
+#: pkg/lib/cockpit-components-firewalld-request.jsx:148
 msgid "Add $0"
 msgstr "Añadir $0"
 
@@ -732,18 +732,18 @@ msgstr "Añadir discos"
 msgid "Add iSCSI portal"
 msgstr "Agregar portal de iSCSI"
 
-#: pkg/networkmanager/ip-settings.jsx:159
-#: pkg/networkmanager/ip-settings.jsx:222
-#: pkg/networkmanager/ip-settings.jsx:267
-#: pkg/networkmanager/ip-settings.jsx:312
+#: pkg/networkmanager/ip-settings.jsx:175
+#: pkg/networkmanager/ip-settings.jsx:238
+#: pkg/networkmanager/ip-settings.jsx:283
+#: pkg/networkmanager/ip-settings.jsx:328
 msgid "Add item"
 msgstr "Añadir elemento"
 
 # #-#-#-#-#  es.po (PACKAGE VERSION)  #-#-#-#-#
 # auto translated by TM merge from project: Cockpit, version: rhel-8.0, DocId:
 # cockpit
-#: pkg/storaged/crypto-keyslots.jsx:280 pkg/users/authorized-keys-panel.js:153
-#: pkg/shell/credentials.jsx:93
+#: pkg/shell/credentials.jsx:93 pkg/users/authorized-keys-panel.js:153
+#: pkg/storaged/crypto-keyslots.jsx:280
 msgid "Add key"
 msgstr "Añadir clave"
 
@@ -753,7 +753,7 @@ msgstr "Añadir miembro"
 
 #: pkg/shell/hosts.jsx:204 pkg/shell/hosts_dialog.jsx:243
 msgid "Add new host"
-msgstr "Añadir un nuevo host"
+msgstr "Añadir un nuevo anfitrión"
 
 #: pkg/networkmanager/firewall.jsx:1028
 msgid "Add new zone"
@@ -841,8 +841,8 @@ msgstr "Paquetes adicionales:"
 msgid "Additional ports"
 msgstr "Puertos adicionales"
 
-#: pkg/storaged/iscsi-panel.jsx:131 pkg/networkmanager/ip-settings.jsx:171
-#: pkg/networkmanager/ip-settings.jsx:322
+#: pkg/networkmanager/ip-settings.jsx:187
+#: pkg/networkmanager/ip-settings.jsx:338 pkg/storaged/iscsi-panel.jsx:131
 msgid "Address"
 msgstr "Dirección"
 
@@ -860,7 +860,7 @@ msgstr "La dirección no puede estar vacía"
 msgid "Address is not a valid URL"
 msgstr "La dirección no es una URL válida"
 
-#: pkg/networkmanager/ip-settings.jsx:145
+#: pkg/networkmanager/ip-settings.jsx:161
 msgid "Addresses"
 msgstr "Dirección"
 
@@ -990,11 +990,11 @@ msgstr "Aplicando la nueva política... Esto puede tardar unos minutos."
 msgid "Applying solution..."
 msgstr "Aplicando la solución..."
 
-#: pkg/packagekit/updates.jsx:89
+#: pkg/packagekit/updates.jsx:92
 msgid "Applying updates"
 msgstr "Instalando las actualizaciones"
 
-#: pkg/packagekit/updates.jsx:90
+#: pkg/packagekit/updates.jsx:93
 msgid "Applying updates failed"
 msgstr "Fallo al instalar las actualizaciones"
 
@@ -1021,8 +1021,8 @@ msgstr[1] "Se necesita al menos $0 discos."
 msgid "At least one block device is needed."
 msgstr "Se necesita al menos un dispositivo de bloques."
 
+#: pkg/storaged/vgroups-panel.jsx:79 pkg/storaged/stratis-details.jsx:142
 #: pkg/storaged/vgroup-details.jsx:72 pkg/storaged/mdraid-details.jsx:70
-#: pkg/storaged/stratis-details.jsx:142 pkg/storaged/vgroups-panel.jsx:79
 msgid "At least one disk is needed."
 msgstr "Se necesita al menos un disco."
 
@@ -1050,7 +1050,7 @@ msgstr "Autenticar"
 msgid "Authenticating"
 msgstr "Autenticando"
 
-#: pkg/users/account-create-dialog.js:65 pkg/shell/hosts_dialog.jsx:812
+#: pkg/shell/hosts_dialog.jsx:812 pkg/users/account-create-dialog.js:65
 msgid "Authentication"
 msgstr "Autenticación"
 
@@ -1082,10 +1082,10 @@ msgstr "Autorizar la clave SSH"
 msgid "Authorized public SSH keys"
 msgstr "Claves SSH públicas autorizadas"
 
-#: pkg/networkmanager/network-interface.jsx:388 pkg/networkmanager/mtu.jsx:81
-#: pkg/networkmanager/ip-settings.jsx:52 pkg/networkmanager/ip-settings.jsx:217
-#: pkg/networkmanager/ip-settings.jsx:262
-#: pkg/networkmanager/ip-settings.jsx:307
+#: pkg/networkmanager/mtu.jsx:81 pkg/networkmanager/network-interface.jsx:388
+#: pkg/networkmanager/ip-settings.jsx:52 pkg/networkmanager/ip-settings.jsx:233
+#: pkg/networkmanager/ip-settings.jsx:278
+#: pkg/networkmanager/ip-settings.jsx:323
 msgid "Automatic"
 msgstr "Automático"
 
@@ -1105,8 +1105,8 @@ msgstr "Acceso automático"
 msgid "Automatic updates"
 msgstr "Actualizaciones automáticas"
 
-#: pkg/systemd/services/service-details.jsx:503
 #: pkg/systemd/services/services-list.jsx:76
+#: pkg/systemd/services/service-details.jsx:503
 msgid "Automatically starts"
 msgstr "Se ejecuta automáticamente"
 
@@ -1126,7 +1126,7 @@ msgstr "Script de automatización"
 msgid "Available targets on $0"
 msgstr "Objetivos disponibles en $0"
 
-#: pkg/packagekit/updates.jsx:410 pkg/packagekit/updates.jsx:902
+#: pkg/packagekit/updates.jsx:413 pkg/packagekit/updates.jsx:913
 msgid "Available updates"
 msgstr "Actualizaciones disponibles"
 
@@ -1199,8 +1199,8 @@ msgstr "Bloque"
 msgid "Block device for filesystems"
 msgstr "Dispositivo de bloques para sistemas de archivos"
 
-#: pkg/storaged/stratis-panel.jsx:150 pkg/storaged/stratis-details.jsx:137
-#: pkg/storaged/stratis-details.jsx:216 pkg/storaged/stratis-details.jsx:747
+#: pkg/storaged/stratis-details.jsx:137 pkg/storaged/stratis-details.jsx:216
+#: pkg/storaged/stratis-details.jsx:747 pkg/storaged/stratis-panel.jsx:150
 msgid "Block devices"
 msgstr "Dispositivos de bloques"
 
@@ -1244,7 +1244,7 @@ msgstr "Configuración del puerto puente"
 msgid "Bridge settings"
 msgstr "Configuración del puente"
 
-#: pkg/networkmanager/bond.jsx:48 pkg/networkmanager/team.jsx:46
+#: pkg/networkmanager/team.jsx:46 pkg/networkmanager/bond.jsx:48
 msgid "Broadcast"
 msgstr "Difusión"
 
@@ -1253,11 +1253,11 @@ msgstr "Difusión"
 msgid "Broken configuration"
 msgstr "Configuración inválida"
 
-#: pkg/packagekit/updates.jsx:1399
+#: pkg/packagekit/updates.jsx:1411
 msgid "Bug fix updates available"
 msgstr "Actualizaciones disponibles que corrigen errores"
 
-#: pkg/packagekit/updates.jsx:353
+#: pkg/packagekit/updates.jsx:356
 msgid "Bugs"
 msgstr "Errores"
 
@@ -1276,7 +1276,7 @@ msgstr ""
 "sin contraseña en el futuro."
 
 #: pkg/metrics/metrics.jsx:648 pkg/metrics/metrics.jsx:1636
-#: pkg/systemd/overview-cards/usageCard.jsx:134 pkg/systemd/hwinfo.jsx:118
+#: pkg/systemd/hwinfo.jsx:118 pkg/systemd/overview-cards/usageCard.jsx:134
 msgid "CPU"
 msgstr "CPU"
 
@@ -1296,7 +1296,7 @@ msgstr "Pico de CPU"
 msgid "CPU usage"
 msgstr "Uso de CPU"
 
-#: pkg/packagekit/updates.jsx:335
+#: pkg/packagekit/updates.jsx:338
 msgid "CVE"
 msgstr "CVE"
 
@@ -1306,7 +1306,7 @@ msgstr "Antememoria"
 
 #: pkg/shell/hosts_dialog.jsx:247
 msgid "Can be a hostname, IP address, alias name, or ssh:// URI"
-msgstr "Puede ser un hostname, dirección IP, alias, o ssh:// URI"
+msgstr "Puede ser un hostname, dirección IP, alias, o URI ssh://"
 
 #: pkg/systemd/logsJournal.jsx:280
 msgid "Can not find any logs using the current combination of filters."
@@ -1314,28 +1314,27 @@ msgstr ""
 "No se pudo encontrar ningún registro mediante la combinación de filtros "
 "actuales."
 
-#: pkg/static/login.html:117 pkg/playground/translate.html:39
-#: pkg/storaged/jobs-panel.jsx:139 pkg/packagekit/kpatch.jsx:311
-#: pkg/packagekit/updates.jsx:506 pkg/packagekit/updates.jsx:568
-#: pkg/packagekit/autoupdates.jsx:274 pkg/metrics/metrics.jsx:1233
-#: pkg/apps/utils.jsx:66 pkg/sosreport/index.jsx:288
-#: pkg/sosreport/index.jsx:373
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:180
-#: pkg/systemd/overview-cards/realmd.jsx:419
-#: pkg/systemd/overview-cards/configurationCard.jsx:280
-#: pkg/systemd/overview-cards/motdCard.jsx:64 pkg/systemd/reporting.jsx:422
-#: pkg/systemd/hwinfo.jsx:242 pkg/systemd/services/service-details.jsx:79
-#: pkg/systemd/services/service-details.jsx:701
-#: pkg/systemd/services/timer-dialog.jsx:145 pkg/tuned/dialog.jsx:311
-#: pkg/shell/shell-modals.jsx:114 pkg/shell/credentials.jsx:316
-#: pkg/shell/hosts_dialog.jsx:277 pkg/shell/hosts_dialog.jsx:372
-#: pkg/shell/hosts_dialog.jsx:494 pkg/shell/hosts_dialog.jsx:860
-#: pkg/shell/active-pages-modal.jsx:97 pkg/shell/superuser.jsx:165
-#: pkg/shell/superuser.jsx:228 pkg/lib/cockpit-components-dialog.jsx:127
-#: pkg/lib/cockpit-components-shutdown.jsx:187
+#: pkg/playground/translate.html:39 pkg/static/login.html:117
+#: pkg/tuned/dialog.jsx:311 pkg/metrics/metrics.jsx:1233
+#: pkg/shell/credentials.jsx:316 pkg/shell/superuser.jsx:165
+#: pkg/shell/superuser.jsx:228 pkg/shell/active-pages-modal.jsx:97
+#: pkg/shell/shell-modals.jsx:114 pkg/shell/hosts_dialog.jsx:277
+#: pkg/shell/hosts_dialog.jsx:372 pkg/shell/hosts_dialog.jsx:494
+#: pkg/shell/hosts_dialog.jsx:860 pkg/networkmanager/dialogs-common.jsx:155
 #: pkg/networkmanager/firewall.jsx:606 pkg/networkmanager/firewall.jsx:810
-#: pkg/networkmanager/firewall.jsx:902
-#: pkg/networkmanager/dialogs-common.jsx:155
+#: pkg/networkmanager/firewall.jsx:902 pkg/storaged/jobs-panel.jsx:139
+#: pkg/lib/cockpit-components-dialog.jsx:127
+#: pkg/lib/cockpit-components-shutdown.jsx:187 pkg/systemd/hwinfo.jsx:242
+#: pkg/systemd/reporting.jsx:422 pkg/systemd/overview-cards/realmd.jsx:419
+#: pkg/systemd/overview-cards/motdCard.jsx:64
+#: pkg/systemd/overview-cards/configurationCard.jsx:280
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:180
+#: pkg/systemd/services/timer-dialog.jsx:145
+#: pkg/systemd/services/service-details.jsx:79
+#: pkg/systemd/services/service-details.jsx:701 pkg/apps/utils.jsx:66
+#: pkg/sosreport/index.jsx:288 pkg/sosreport/index.jsx:373
+#: pkg/packagekit/autoupdates.jsx:274 pkg/packagekit/updates.jsx:509
+#: pkg/packagekit/updates.jsx:567 pkg/packagekit/kpatch.jsx:311
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -1371,7 +1370,7 @@ msgid "Cannot schedule event in the past"
 msgstr "No se puede planificar un evento ocurrido en el pasado"
 
 #: pkg/storaged/vgroup-details.jsx:236 pkg/storaged/mdraid-details.jsx:339
-#: pkg/storaged/drive-details.jsx:87 pkg/storaged/block-details.jsx:48
+#: pkg/storaged/block-details.jsx:48 pkg/storaged/drive-details.jsx:87
 msgctxt "storage"
 msgid "Capacity"
 msgstr "Capacidad"
@@ -1380,10 +1379,9 @@ msgstr "Capacidad"
 msgid "Carrier"
 msgstr "Transporte"
 
-#: pkg/storaged/iscsi-panel.jsx:191 pkg/users/expiration-dialogs.js:110
-#: pkg/users/expiration-dialogs.js:215
+#: pkg/users/expiration-dialogs.js:110 pkg/users/expiration-dialogs.js:215
+#: pkg/storaged/iscsi-panel.jsx:191 pkg/lib/serverTime.js:660
 #: pkg/systemd/overview-cards/configurationCard.jsx:279
-#: pkg/lib/serverTime.js:660
 msgid "Change"
 msgstr "Cambiar"
 
@@ -1447,7 +1445,7 @@ msgstr ""
 "Cambiando los ajustes cerrará la conexión al servidor, y se perderá la "
 "interfaz de administración de usuario."
 
-#: pkg/packagekit/updates.jsx:884
+#: pkg/packagekit/updates.jsx:895
 msgid "Check for updates"
 msgstr "Comprobar si hay actualizaciones"
 
@@ -1471,7 +1469,7 @@ msgstr "Comprobando y reparando el dispositivo RAID $target"
 msgid "Checking for new applications"
 msgstr "Comprobando si hay nuevas aplicaciones"
 
-#: pkg/packagekit/updates.jsx:1351
+#: pkg/packagekit/updates.jsx:1363
 msgid "Checking for package updates..."
 msgstr "Comprobando si hay actualizaciones de paquetes..."
 
@@ -1482,11 +1480,11 @@ msgstr "Comprobando si hay actualizaciones de paquetes..."
 msgid "Checking installed software"
 msgstr "Comprobando el software instalado"
 
-#: pkg/storaged/fsys-tab.jsx:431 pkg/storaged/dialog.jsx:1140
+#: pkg/storaged/dialog.jsx:1138 pkg/storaged/fsys-tab.jsx:431
 msgid "Checking related processes"
 msgstr "Comprobando procesos relacionados"
 
-#: pkg/packagekit/updates.jsx:1361
+#: pkg/packagekit/updates.jsx:1373
 msgid "Checking software status"
 msgstr "Comprobando estado del software"
 
@@ -1510,7 +1508,7 @@ msgstr "Limpiando el $target"
 msgid "Clear 'Failed to start'"
 msgstr "Borrar 'Falló al iniciar'"
 
-#: pkg/systemd/logsJournal.jsx:277 pkg/systemd/services/services.jsx:858
+#: pkg/systemd/logsJournal.jsx:277 pkg/systemd/services/services.jsx:859
 msgid "Clear all filters"
 msgstr "Limpiar todos los filtros"
 
@@ -1526,14 +1524,14 @@ msgstr "Dispositivo en texto plano"
 msgid "Client software"
 msgstr "Cliente de software"
 
-#: pkg/storaged/dialog.jsx:440 pkg/apps/utils.jsx:84
-#: pkg/users/dialog-utils.js:58 pkg/systemd/overview-cards/realmd.jsx:263
-#: pkg/systemd/overview-cards/configurationCard.jsx:194
-#: pkg/shell/shell-modals.jsx:168 pkg/shell/credentials.jsx:84
-#: pkg/shell/hosts_dialog.jsx:81 pkg/shell/superuser.jsx:173
-#: pkg/shell/superuser.jsx:181 pkg/lib/cockpit-components-modifications.jsx:78
+#: pkg/shell/credentials.jsx:84 pkg/shell/superuser.jsx:173
+#: pkg/shell/superuser.jsx:181 pkg/shell/shell-modals.jsx:168
+#: pkg/shell/hosts_dialog.jsx:81 pkg/users/dialog-utils.js:58
+#: pkg/networkmanager/interfaces.js:43 pkg/storaged/dialog.jsx:438
 #: pkg/lib/cockpit-components-terminal.jsx:208
-#: pkg/networkmanager/interfaces.js:43
+#: pkg/lib/cockpit-components-modifications.jsx:78
+#: pkg/systemd/overview-cards/realmd.jsx:263
+#: pkg/systemd/overview-cards/configurationCard.jsx:194 pkg/apps/utils.jsx:84
 msgid "Close"
 msgstr "Cerrar"
 
@@ -1617,7 +1615,7 @@ msgstr ""
 "Los puertos, rangos y/o servicios deben estar separados por comas para que "
 "sean válidos"
 
-#: pkg/storaged/dialog.jsx:1204 pkg/storaged/dialog.jsx:1223
+#: pkg/storaged/dialog.jsx:1202 pkg/storaged/dialog.jsx:1221
 #: pkg/systemd/services/timer-dialog.jsx:168
 msgid "Command"
 msgstr "Comando"
@@ -1646,12 +1644,12 @@ msgstr "Compatible con todos los sistemas y dispositivos (MBR)"
 msgid "Compatible with modern system and hard disks > 2TB (GPT)"
 msgstr "Compatible con los sistemas modernos y discos duros > 2TB (GPT)"
 
-#: pkg/kdump/kdump-view.jsx:172
+#: pkg/kdump/kdump-view.jsx:173
 msgid "Compress crash dumps to save space"
 msgstr "Comprimir volcado de colapsos para ahorrar espacio"
 
-#: pkg/storaged/lvol-tabs.jsx:563 pkg/storaged/vdo-details.jsx:325
-#: pkg/storaged/content-views.jsx:955 pkg/kdump/kdump-view.jsx:167
+#: pkg/kdump/kdump-view.jsx:168 pkg/storaged/lvol-tabs.jsx:563
+#: pkg/storaged/content-views.jsx:955 pkg/storaged/vdo-details.jsx:325
 msgid "Compression"
 msgstr "Compresión"
 
@@ -1683,8 +1681,8 @@ msgstr "Configurando el servicio de kdump"
 msgid "Configuring system settings"
 msgstr "Cambiando la configuración del sistema"
 
-#: pkg/storaged/stratis-panel.jsx:140 pkg/storaged/format-dialog.jsx:273
-#: pkg/users/account-create-dialog.js:59
+#: pkg/users/account-create-dialog.js:59 pkg/storaged/stratis-panel.jsx:140
+#: pkg/storaged/format-dialog.jsx:273
 msgid "Confirm"
 msgstr "Confirmar"
 
@@ -1719,7 +1717,7 @@ msgstr "Confirme el borrado de $0"
 msgid "Confirm removal with an alternate passphrase"
 msgstr "Confirme la eliminación con otra contraseña alternativa"
 
-#: pkg/storaged/mdraid-details.jsx:240 pkg/storaged/vdo-details.jsx:141
+#: pkg/storaged/vdo-details.jsx:141 pkg/storaged/mdraid-details.jsx:240
 msgid "Confirm stopping of $0"
 msgstr "Confirme la parada de $0"
 
@@ -1795,7 +1793,7 @@ msgstr "Contenidos:"
 msgid "Content"
 msgstr "Contenido"
 
-#: pkg/packagekit/updates.jsx:739
+#: pkg/packagekit/updates.jsx:750
 msgid "Continue"
 msgstr "Continuar"
 
@@ -1820,17 +1818,17 @@ msgstr "Controlador"
 msgid "Convertible"
 msgstr "Convertible"
 
-#: pkg/shell/failures.jsx:41 pkg/shell/credentials.jsx:215
+#: pkg/shell/credentials.jsx:215 pkg/shell/failures.jsx:41
 msgid "Copied"
 msgstr "Copiado"
 
-#: pkg/shell/failures.jsx:41 pkg/shell/credentials.jsx:215
+#: pkg/shell/credentials.jsx:215 pkg/shell/failures.jsx:41
 #: pkg/lib/cockpit-components-context-menu.jsx:103
 msgid "Copy"
 msgstr "Copiar"
 
-#: pkg/storaged/crypto-keyslots.jsx:399 pkg/systemd/logs.jsx:415
-#: pkg/lib/cockpit-components-modifications.jsx:75
+#: pkg/storaged/crypto-keyslots.jsx:399
+#: pkg/lib/cockpit-components-modifications.jsx:75 pkg/systemd/logs.jsx:415
 msgid "Copy to clipboard"
 msgstr "Copiar al portapapeles"
 
@@ -1842,7 +1840,7 @@ msgstr "Núcleo $0"
 msgid "Could not contact $0"
 msgstr "No se pudo contactar con $0"
 
-#: pkg/kdump/kdump-view.jsx:352 pkg/kdump/kdump-view.jsx:550
+#: pkg/kdump/kdump-view.jsx:307 pkg/kdump/kdump-view.jsx:505
 msgid "Crash dump location"
 msgstr "Ubicación del volcado de colapsos"
 
@@ -1850,14 +1848,14 @@ msgstr "Ubicación del volcado de colapsos"
 msgid "Crash reporting"
 msgstr "Reporte de colapso"
 
-#: pkg/kdump/kdump-view.jsx:319
+#: pkg/kdump/kdump-view.jsx:274
 msgid "Crash system"
 msgstr "Colapsar el sistema"
 
-#: pkg/storaged/stratis-panel.jsx:161 pkg/storaged/mdraids-panel.jsx:134
-#: pkg/storaged/stratis-details.jsx:388 pkg/storaged/content-views.jsx:196
-#: pkg/storaged/content-views.jsx:311 pkg/storaged/content-views.jsx:970
-#: pkg/storaged/vgroups-panel.jsx:85 pkg/users/account-create-dialog.js:286
+#: pkg/users/account-create-dialog.js:286 pkg/storaged/vgroups-panel.jsx:85
+#: pkg/storaged/content-views.jsx:196 pkg/storaged/content-views.jsx:311
+#: pkg/storaged/content-views.jsx:970 pkg/storaged/stratis-details.jsx:388
+#: pkg/storaged/mdraids-panel.jsx:134 pkg/storaged/stratis-panel.jsx:161
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:185
 msgid "Create"
 msgstr "Crear"
@@ -1918,8 +1916,8 @@ msgstr "Crear un volumen lógico"
 msgid "Create new task file with this content."
 msgstr "Crear un archivo de tarea con este contenido."
 
-#: pkg/storaged/format-dialog.jsx:309 pkg/storaged/content-views.jsx:594
-#: pkg/storaged/content-views.jsx:602
+#: pkg/storaged/content-views.jsx:594 pkg/storaged/content-views.jsx:602
+#: pkg/storaged/format-dialog.jsx:309
 msgid "Create partition"
 msgstr "Crear una partición"
 
@@ -1931,8 +1929,8 @@ msgstr "Crear una partición en $0"
 msgid "Create partition table"
 msgstr "Crear una tabla de particiones"
 
-#: pkg/storaged/stratis-details.jsx:518 pkg/storaged/content-views.jsx:305
-#: pkg/storaged/content-views.jsx:328
+#: pkg/storaged/content-views.jsx:305 pkg/storaged/content-views.jsx:328
+#: pkg/storaged/stratis-details.jsx:518
 msgid "Create snapshot"
 msgstr "Crear una instantánea"
 
@@ -2026,7 +2024,7 @@ msgstr "Arranque actual"
 msgid "Current top CPU usage"
 msgstr "Uso máximo de CPU actual"
 
-#: pkg/storaged/dialog.jsx:1095
+#: pkg/storaged/dialog.jsx:1093
 msgid "Currently in use"
 msgstr "Usado actualmente"
 
@@ -2034,9 +2032,9 @@ msgstr "Usado actualmente"
 msgid "Custom crypto policy"
 msgstr "Política de criptografía personalizada"
 
-#: pkg/storaged/nfs-details.jsx:171 pkg/storaged/fsys-tab.jsx:339
-#: pkg/storaged/format-dialog.jsx:256 pkg/storaged/stratis-details.jsx:383
-#: pkg/storaged/stratis-details.jsx:513
+#: pkg/storaged/nfs-details.jsx:171 pkg/storaged/stratis-details.jsx:383
+#: pkg/storaged/stratis-details.jsx:513 pkg/storaged/format-dialog.jsx:256
+#: pkg/storaged/fsys-tab.jsx:339
 msgid "Custom mount options"
 msgstr "Opciones de montaje personalizadas"
 
@@ -2048,7 +2046,7 @@ msgstr "Puertos específicos"
 msgid "Custom zones"
 msgstr "Zonas personalizadas"
 
-#: pkg/networkmanager/ip-settings.jsx:210
+#: pkg/networkmanager/ip-settings.jsx:226
 msgid "DNS"
 msgstr "DNS"
 
@@ -2056,7 +2054,7 @@ msgstr "DNS"
 msgid "DNS $val"
 msgstr "DNS $val"
 
-#: pkg/networkmanager/ip-settings.jsx:255
+#: pkg/networkmanager/ip-settings.jsx:271
 msgid "DNS search domains"
 msgstr "Búsqueda de dominios DNS"
 
@@ -2068,7 +2066,7 @@ msgstr "Buscar dominios DNS $val"
 msgid "Daily"
 msgstr "Diario"
 
-#: pkg/packagekit/updates.jsx:909
+#: pkg/packagekit/updates.jsx:920
 msgid "Danger alert:"
 msgstr "Alerta de peligro:"
 
@@ -2116,14 +2114,14 @@ msgstr "Debug y superior"
 msgid "Decrease by one"
 msgstr "Disminuir en uno"
 
-#: pkg/storaged/lvol-tabs.jsx:570 pkg/storaged/vdo-details.jsx:334
-#: pkg/storaged/content-views.jsx:959
+#: pkg/storaged/lvol-tabs.jsx:570 pkg/storaged/content-views.jsx:959
+#: pkg/storaged/vdo-details.jsx:334
 msgid "Deduplication"
 msgstr "Deduplicación"
 
+#: pkg/lib/cockpit-components-shutdown.jsx:195
 #: pkg/systemd/services/timer-dialog.jsx:194
 #: pkg/systemd/services/timer-dialog.jsx:205
-#: pkg/lib/cockpit-components-shutdown.jsx:195
 msgid "Delay"
 msgstr "Retardo"
 
@@ -2131,19 +2129,19 @@ msgstr "Retardo"
 msgid "Delay must be a number"
 msgstr "El retardo debe ser númerico"
 
-#: pkg/storaged/vgroup-details.jsx:200 pkg/storaged/vgroup-details.jsx:225
-#: pkg/storaged/mdraid-details.jsx:297 pkg/storaged/mdraid-details.jsx:323
-#: pkg/storaged/vdo-details.jsx:205 pkg/storaged/vdo-details.jsx:271
-#: pkg/storaged/stratis-details.jsx:253 pkg/storaged/stratis-details.jsx:417
-#: pkg/storaged/stratis-details.jsx:552 pkg/storaged/stratis-details.jsx:600
-#: pkg/storaged/content-views.jsx:382 pkg/storaged/content-views.jsx:408
-#: pkg/sosreport/index.jsx:367 pkg/sosreport/index.jsx:479
-#: pkg/users/account-details.js:278 pkg/users/delete-account-dialog.js:60
-#: pkg/systemd/services/service-details.jsx:145
-#: pkg/systemd/services/service-details.jsx:699 pkg/systemd/abrtLog.jsx:291
+#: pkg/users/delete-account-dialog.js:60 pkg/users/account-details.js:278
 #: pkg/networkmanager/network-interface.jsx:720
 #: pkg/networkmanager/firewall.jsx:117 pkg/networkmanager/firewall.jsx:178
-#: pkg/networkmanager/firewall.jsx:899
+#: pkg/networkmanager/firewall.jsx:899 pkg/storaged/content-views.jsx:382
+#: pkg/storaged/content-views.jsx:408 pkg/storaged/stratis-details.jsx:253
+#: pkg/storaged/stratis-details.jsx:417 pkg/storaged/stratis-details.jsx:552
+#: pkg/storaged/stratis-details.jsx:600 pkg/storaged/vgroup-details.jsx:200
+#: pkg/storaged/vgroup-details.jsx:225 pkg/storaged/vdo-details.jsx:205
+#: pkg/storaged/vdo-details.jsx:271 pkg/storaged/mdraid-details.jsx:297
+#: pkg/storaged/mdraid-details.jsx:323 pkg/systemd/abrtLog.jsx:291
+#: pkg/systemd/services/service-details.jsx:145
+#: pkg/systemd/services/service-details.jsx:699 pkg/sosreport/index.jsx:367
+#: pkg/sosreport/index.jsx:479
 msgid "Delete"
 msgstr "Eliminar"
 
@@ -2212,8 +2210,8 @@ msgstr "La eliminación borrará toda la información en un grupo de volúmenes.
 msgid "Deletion will remove the following files:"
 msgstr "El proceso eliminará los siguientes archivos:"
 
-#: pkg/storaged/dialog.jsx:1224 pkg/systemd/services/timer-dialog.jsx:159
 #: pkg/networkmanager/firewall.jsx:695 pkg/networkmanager/firewall.jsx:839
+#: pkg/storaged/dialog.jsx:1222 pkg/systemd/services/timer-dialog.jsx:159
 msgid "Description"
 msgstr "Descripción"
 
@@ -2225,8 +2223,8 @@ msgstr "Escritorio"
 msgid "Detachable"
 msgstr "Desmontable"
 
-#: pkg/packagekit/updates.jsx:416 pkg/systemd/overview-cards/realmd.jsx:401
-#: pkg/shell/credentials.jsx:112
+#: pkg/shell/credentials.jsx:112 pkg/systemd/overview-cards/realmd.jsx:401
+#: pkg/packagekit/updates.jsx:419
 msgid "Details"
 msgstr "Detalles"
 
@@ -2234,8 +2232,8 @@ msgstr "Detalles"
 msgid "Development"
 msgstr "Desarrollo"
 
-#: pkg/storaged/crypto-panel.jsx:85 pkg/storaged/dialog.jsx:1051
-#: pkg/storaged/dialog.jsx:1129
+#: pkg/storaged/dialog.jsx:1049 pkg/storaged/dialog.jsx:1127
+#: pkg/storaged/crypto-panel.jsx:85
 msgid "Device"
 msgstr "Dispositivo"
 
@@ -2248,7 +2246,7 @@ msgstr "Dispositivo"
 msgid "Device file"
 msgstr "Fichero de dispositivo"
 
-#: pkg/storaged/drive-details.jsx:89 pkg/storaged/block-details.jsx:52
+#: pkg/storaged/block-details.jsx:52 pkg/storaged/drive-details.jsx:89
 msgctxt "storage"
 msgid "Device file"
 msgstr "Fichero de dispositivo"
@@ -2261,20 +2259,16 @@ msgstr "El dispositivo es de sólo lectura"
 msgid "Devices"
 msgstr "Dispositivos"
 
-#: pkg/sosreport/manifest.json:0
-msgid "Diagnostic Reports"
-msgstr "Informes de diagnóstico"
-
-#: pkg/sosreport/index.html:22
+#: pkg/sosreport/index.html:22 pkg/sosreport/manifest.json:0
 msgid "Diagnostic reports"
 msgstr "Informes de diagnóstico"
 
-#: pkg/kdump/kdump-view.jsx:86 pkg/kdump/kdump-view.jsx:104
-#: pkg/kdump/kdump-view.jsx:133
+#: pkg/kdump/kdump-view.jsx:81 pkg/kdump/kdump-view.jsx:106
+#: pkg/kdump/kdump-view.jsx:134
 msgid "Directory"
 msgstr "Directorio"
 
-#: pkg/kdump/kdump-client.js:113
+#: pkg/kdump/kdump-client.js:107
 msgid "Directory $0 isn't writable or doesn't exist."
 msgstr "El directorio $0 no es editable o no existe."
 
@@ -2290,11 +2284,11 @@ msgstr "Desactivar el cortafuegos"
 msgid "Disable tuned"
 msgstr "Deshabilitar tuned"
 
-#: pkg/packagekit/kpatch.jsx:249 pkg/packagekit/autoupdates.jsx:344
-#: pkg/systemd/services/services.jsx:209 pkg/systemd/services/services.jsx:788
-#: pkg/systemd/services/service-details.jsx:436
-#: pkg/networkmanager/firewall-switch.jsx:78
 #: pkg/networkmanager/ip-settings.jsx:47 pkg/networkmanager/ip-settings.jsx:58
+#: pkg/networkmanager/firewall-switch.jsx:78
+#: pkg/systemd/services/services.jsx:209 pkg/systemd/services/services.jsx:789
+#: pkg/systemd/services/service-details.jsx:436
+#: pkg/packagekit/autoupdates.jsx:344 pkg/packagekit/kpatch.jsx:249
 msgid "Disabled"
 msgstr "Deshabilitado"
 
@@ -2336,9 +2330,9 @@ msgstr "El disco está fallando"
 msgid "Disk passphrase"
 msgstr "Contraseña del disco"
 
-#: pkg/storaged/vgroup-details.jsx:67 pkg/storaged/mdraid-details.jsx:65
-#: pkg/storaged/mdraid-details.jsx:163 pkg/storaged/mdraids-panel.jsx:121
-#: pkg/storaged/vgroups-panel.jsx:74 pkg/metrics/metrics.jsx:736
+#: pkg/metrics/metrics.jsx:736 pkg/storaged/vgroups-panel.jsx:74
+#: pkg/storaged/vgroup-details.jsx:67 pkg/storaged/mdraids-panel.jsx:121
+#: pkg/storaged/mdraid-details.jsx:65 pkg/storaged/mdraid-details.jsx:163
 msgid "Disks"
 msgstr "Discos"
 
@@ -2412,11 +2406,11 @@ msgstr "Descargar"
 msgid "Download a new browser for free"
 msgstr "Descargar un navegador libre"
 
-#: pkg/packagekit/updates.jsx:99
+#: pkg/packagekit/updates.jsx:102
 msgid "Downloaded"
 msgstr "Descargado"
 
-#: pkg/packagekit/updates.jsx:93
+#: pkg/packagekit/updates.jsx:96
 msgid "Downloading"
 msgstr "Descargando"
 
@@ -2434,14 +2428,14 @@ msgstr "Disco"
 msgid "Drives"
 msgstr "Discos"
 
-#: pkg/systemd/hw-detect.js:92 pkg/lib/machine-info.js:261
+#: pkg/lib/machine-info.js:261 pkg/systemd/hw-detect.js:92
 msgid "Dual rank"
 msgstr "Rango dual"
 
-#: pkg/storaged/crypto-keyslots.jsx:577 pkg/storaged/nfs-details.jsx:305
-#: pkg/storaged/iscsi-panel.jsx:251 pkg/packagekit/kpatch.jsx:230
-#: pkg/packagekit/autoupdates.jsx:407 pkg/shell/indexes.jsx:339
-#: pkg/shell/hosts.jsx:167 pkg/networkmanager/firewall.jsx:115
+#: pkg/shell/hosts.jsx:167 pkg/shell/indexes.jsx:339
+#: pkg/networkmanager/firewall.jsx:115 pkg/storaged/nfs-details.jsx:305
+#: pkg/storaged/iscsi-panel.jsx:251 pkg/storaged/crypto-keyslots.jsx:577
+#: pkg/packagekit/autoupdates.jsx:407 pkg/packagekit/kpatch.jsx:230
 msgid "Edit"
 msgstr "Editar"
 
@@ -2459,11 +2453,11 @@ msgstr "Editar servicio personalizado en la zona $0"
 
 #: pkg/shell/hosts_dialog.jsx:243
 msgid "Edit host"
-msgstr "Editar Host"
+msgstr "Editar anfitrión"
 
 #: pkg/shell/hosts.jsx:203
 msgid "Edit hosts"
-msgstr "Editar hosts"
+msgstr "Editar anfitriones"
 
 #: pkg/systemd/overview-cards/motdCard.jsx:106
 msgid "Edit motd"
@@ -2507,7 +2501,7 @@ msgstr "Vacío"
 msgid "Emptying $target"
 msgstr "Eliminando el contenido de $target"
 
-#: pkg/packagekit/kpatch.jsx:250 pkg/packagekit/autoupdates.jsx:407
+#: pkg/packagekit/autoupdates.jsx:407 pkg/packagekit/kpatch.jsx:250
 msgid "Enable"
 msgstr "Habilitar"
 
@@ -2525,9 +2519,9 @@ msgstr "Habilitar servicio"
 msgid "Enable the firewall"
 msgstr "Habilitar el cortafuegos"
 
-#: pkg/packagekit/kpatch.jsx:252 pkg/systemd/services/services.jsx:207
-#: pkg/systemd/services/services.jsx:208 pkg/systemd/services/services.jsx:787
 #: pkg/networkmanager/firewall-switch.jsx:78
+#: pkg/systemd/services/services.jsx:207 pkg/systemd/services/services.jsx:208
+#: pkg/systemd/services/services.jsx:788 pkg/packagekit/kpatch.jsx:252
 msgid "Enabled"
 msgstr "Habilitado"
 
@@ -2565,7 +2559,7 @@ msgstr ""
 "Es necesario que los volúmenes cifrados estén desbloqueados para poder "
 "cambiar sus tamaños."
 
-#: pkg/storaged/format-dialog.jsx:259 pkg/storaged/content-views.jsx:238
+#: pkg/storaged/content-views.jsx:238 pkg/storaged/format-dialog.jsx:259
 msgid "Encryption"
 msgstr "Encriptación"
 
@@ -2589,7 +2583,7 @@ msgstr "Finalizado"
 msgid "Enforcing"
 msgstr "Hacer cumplir"
 
-#: pkg/packagekit/updates.jsx:1401
+#: pkg/packagekit/updates.jsx:1413
 msgid "Enhancement updates available"
 msgstr "Actualizaciones de mejora disponibles"
 
@@ -2609,15 +2603,15 @@ msgstr "Entrada en $0"
 msgid "Erasing $target"
 msgstr "Eliminando $target"
 
-#: pkg/packagekit/updates.jsx:347
+#: pkg/packagekit/updates.jsx:350
 msgid "Errata"
 msgstr "Errata"
 
-#: pkg/storaged/things-panel.jsx:57 pkg/storaged/multipath.jsx:61
-#: pkg/storaged/stratis-details.jsx:675 pkg/storaged/storage-controls.jsx:91
-#: pkg/storaged/storage-controls.jsx:168 pkg/apps/utils.jsx:78
-#: pkg/sosreport/index.jsx:390 pkg/systemd/services/services.jsx:187
-#: pkg/systemd/services/service-details.jsx:272
+#: pkg/storaged/multipath.jsx:61 pkg/storaged/stratis-details.jsx:675
+#: pkg/storaged/things-panel.jsx:57 pkg/storaged/storage-controls.jsx:91
+#: pkg/storaged/storage-controls.jsx:168 pkg/systemd/services/services.jsx:187
+#: pkg/systemd/services/service-details.jsx:272 pkg/apps/utils.jsx:78
+#: pkg/sosreport/index.jsx:390
 msgid "Error"
 msgstr "Error"
 
@@ -2695,6 +2689,10 @@ msgstr "Expirar la cuenta en"
 msgid "Expire account on $0"
 msgstr "Expirar la cuenta en $0"
 
+#: pkg/kdump/kdump-view.jsx:101
+msgid "Export"
+msgstr "Fichero export"
+
 #: pkg/metrics/metrics.jsx:1259
 msgid "Export to network"
 msgstr "Exportar a la red"
@@ -2703,7 +2701,7 @@ msgstr "Exportar a la red"
 msgid "Extended information"
 msgstr "Información extendida"
 
-#: pkg/storaged/format-dialog.jsx:143 pkg/storaged/content-views.jsx:624
+#: pkg/storaged/content-views.jsx:624 pkg/storaged/format-dialog.jsx:143
 msgid "Extended partition"
 msgstr "Partición extendida"
 
@@ -2711,7 +2709,7 @@ msgstr "Partición extendida"
 msgid "FIPS is not properly enabled"
 msgstr "FIPS no está activado adecuadamente"
 
-#: pkg/storaged/mdraid-details.jsx:111 pkg/networkmanager/interfaces.js:757
+#: pkg/networkmanager/interfaces.js:757 pkg/storaged/mdraid-details.jsx:111
 msgid "Failed"
 msgstr "Falló"
 
@@ -2785,7 +2783,7 @@ msgstr ""
 "dnf-automatic-install.timer. Elimine las anulaciones personalizadas para "
 "configurar las actualizaciones automáticas."
 
-#: pkg/packagekit/updates.jsx:463
+#: pkg/packagekit/updates.jsx:466
 msgid "Failed to restart service"
 msgstr "Fallo al reiniciar el servicio"
 
@@ -2806,13 +2804,13 @@ msgstr "Falló al iniciar"
 msgid "Failed to switch profile"
 msgstr "Falló el cambio de perfil"
 
-#: pkg/systemd/services/services.jsx:975 pkg/systemd/services/services.jsx:976
-#: pkg/systemd/services/services.jsx:983
+#: pkg/systemd/services/services.jsx:976 pkg/systemd/services/services.jsx:977
+#: pkg/systemd/services/services.jsx:984
 msgid "File state"
 msgstr "Estado del archivo de unidad"
 
-#: pkg/storaged/stratis-details.jsx:567 pkg/storaged/content-views.jsx:223
-#: pkg/storaged/content-views.jsx:237
+#: pkg/storaged/content-views.jsx:223 pkg/storaged/content-views.jsx:237
+#: pkg/storaged/stratis-details.jsx:567
 msgid "Filesystem"
 msgstr "Sistema de archivos"
 
@@ -2829,13 +2827,13 @@ msgstr "El sistema de archivos está bloqueado"
 msgid "Filesystem name"
 msgstr "Nombre del sistema de archivos"
 
-#: pkg/storaged/fsys-panel.jsx:167 pkg/storaged/fsys-panel.jsx:170
 #: pkg/storaged/stratis-details.jsx:644 pkg/storaged/stratis-details.jsx:651
 #: pkg/storaged/stratis-details.jsx:780 pkg/storaged/stratis-details.jsx:784
+#: pkg/storaged/fsys-panel.jsx:167 pkg/storaged/fsys-panel.jsx:170
 msgid "Filesystems"
 msgstr "Sistema de archivos"
 
-#: pkg/systemd/services/services.jsx:951
+#: pkg/systemd/services/services.jsx:952
 msgid "Filter by name or description"
 msgstr "Filtrar por nombre o descripción"
 
@@ -2873,8 +2871,8 @@ msgstr "Versión del firmware"
 msgid "Font size"
 msgstr "Tamaño de la fuente"
 
-#: pkg/systemd/services/service-details.jsx:427
 #: pkg/systemd/services/services-list.jsx:80
+#: pkg/systemd/services/service-details.jsx:427
 msgid "Forbidden from running"
 msgstr "Prohibido ejecutarlo"
 
@@ -2886,8 +2884,8 @@ msgstr "Forzar cambio"
 msgid "Force password change"
 msgstr "Cambio forzado de la contraseña"
 
-#: pkg/storaged/format-dialog.jsx:309 pkg/storaged/content-views.jsx:402
-#: pkg/storaged/content-views.jsx:404
+#: pkg/storaged/content-views.jsx:402 pkg/storaged/content-views.jsx:404
+#: pkg/storaged/format-dialog.jsx:309
 msgid "Format"
 msgstr "Formato"
 
@@ -2928,7 +2926,7 @@ msgstr ""
 msgid "Free-form search"
 msgstr "Búsqueda libre"
 
-#: pkg/packagekit/autoupdates.jsx:313 pkg/systemd/services/timer-dialog.jsx:296
+#: pkg/systemd/services/timer-dialog.jsx:296 pkg/packagekit/autoupdates.jsx:313
 msgid "Fridays"
 msgstr "Los viernes"
 
@@ -2936,16 +2934,16 @@ msgstr "Los viernes"
 msgid "From"
 msgstr "Desde"
 
-#: pkg/users/account-details.js:285 pkg/users/account-create-dialog.js:40
+#: pkg/users/account-create-dialog.js:40 pkg/users/account-details.js:285
 msgid "Full name"
 msgstr "Nombre completo"
 
-#: pkg/networkmanager/ip-settings.jsx:187
-#: pkg/networkmanager/ip-settings.jsx:338
+#: pkg/networkmanager/ip-settings.jsx:203
+#: pkg/networkmanager/ip-settings.jsx:354
 msgid "Gateway"
 msgstr "Pasarela"
 
-#: pkg/systemd/abrtLog.jsx:297 pkg/networkmanager/network-interface.jsx:326
+#: pkg/networkmanager/network-interface.jsx:326 pkg/systemd/abrtLog.jsx:297
 msgid "General"
 msgstr "General"
 
@@ -3015,8 +3013,8 @@ msgstr "Salud"
 msgid "Hello time $hello_time"
 msgstr "Tiempo de vida $hello_time"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:154 pkg/tuned/dialog.jsx:292
-#: pkg/shell/topnav.jsx:203
+#: pkg/tuned/dialog.jsx:292 pkg/shell/topnav.jsx:203
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:154
 msgid "Help"
 msgstr "Ayuda"
 
@@ -3046,7 +3044,7 @@ msgstr "Nombre del anfitrión"
 
 #: pkg/shell/hosts.jsx:152
 msgid "Hosts"
-msgstr "Hosts"
+msgstr "Anfitriones"
 
 #: pkg/systemd/services/timer-dialog.jsx:236
 msgid "Hourly"
@@ -3056,7 +3054,7 @@ msgstr "Cada hora"
 msgid "Hours"
 msgstr "Horas"
 
-#: pkg/systemd/hwinfo.jsx:310 pkg/networkmanager/firewall.jsx:690
+#: pkg/networkmanager/firewall.jsx:690 pkg/systemd/hwinfo.jsx:310
 msgid "ID"
 msgstr "ID"
 
@@ -3081,7 +3079,7 @@ msgstr ""
 msgid "IPv4"
 msgstr "IPv4"
 
-#: pkg/networkmanager/ip-settings.jsx:138
+#: pkg/networkmanager/ip-settings.jsx:154
 msgid "IPv4 settings"
 msgstr "Configuración IPv4"
 
@@ -3089,7 +3087,7 @@ msgstr "Configuración IPv4"
 msgid "IPv6"
 msgstr "IPv6"
 
-#: pkg/networkmanager/ip-settings.jsx:138
+#: pkg/networkmanager/ip-settings.jsx:154
 msgid "IPv6 settings"
 msgstr "Configuración IPv6"
 
@@ -3134,8 +3132,8 @@ msgstr ""
 "contraseña para desbloquear el sistema de archivos y se usa un inicio "
 "desatendido."
 
-#: pkg/packagekit/updates.jsx:661 pkg/packagekit/updates.jsx:738
-#: pkg/networkmanager/ip-settings.jsx:56
+#: pkg/networkmanager/ip-settings.jsx:56 pkg/packagekit/updates.jsx:672
+#: pkg/packagekit/updates.jsx:749
 msgid "Ignore"
 msgstr "Ignorar"
 
@@ -3163,9 +3161,9 @@ msgstr ""
 msgid "In sync"
 msgstr "En sincronía"
 
-#: pkg/networkmanager/network-interface.jsx:255
 #: pkg/networkmanager/interfaces.js:739 pkg/networkmanager/interfaces.js:1298
 #: pkg/networkmanager/interfaces.js:1305
+#: pkg/networkmanager/network-interface.jsx:255
 msgid "Inactive"
 msgstr "Inactivo"
 
@@ -3200,7 +3198,7 @@ msgstr "Índice de memoria"
 msgid "Indirect"
 msgstr "Indirecto"
 
-#: pkg/packagekit/updates.jsx:730
+#: pkg/packagekit/updates.jsx:741
 msgid "Info"
 msgstr "Información"
 
@@ -3220,7 +3218,7 @@ msgstr "Inicializar disco $0"
 msgid "Initializing erases all data on a disk."
 msgstr "Inicializando un disco eliminará todos los datos que contenga."
 
-#: pkg/packagekit/updates.jsx:572
+#: pkg/packagekit/updates.jsx:571
 msgid "Initializing..."
 msgstr "Inicializando..."
 
@@ -3228,8 +3226,8 @@ msgstr "Inicializando..."
 msgid "Insights: "
 msgstr "Insights: "
 
-#: pkg/packagekit/kpatch.jsx:246 pkg/apps/application.jsx:53
 #: pkg/lib/cockpit-components-install-dialog.jsx:123
+#: pkg/apps/application.jsx:53 pkg/packagekit/kpatch.jsx:246
 msgid "Install"
 msgstr "Instalar"
 
@@ -3245,7 +3243,7 @@ msgstr "Instalar el soporte NFS"
 msgid "Install Stratis support"
 msgstr "Instalar soporte para Stratis"
 
-#: pkg/packagekit/updates.jsx:1378
+#: pkg/packagekit/updates.jsx:1390
 msgid "Install all updates"
 msgstr "Instalar todas las actualizaciones"
 
@@ -3253,11 +3251,11 @@ msgstr "Instalar todas las actualizaciones"
 msgid "Install cockpit-pcp"
 msgstr "Instalar cockpit-pcp"
 
-#: pkg/packagekit/updates.jsx:1391
+#: pkg/packagekit/updates.jsx:1403
 msgid "Install kpatch updates"
 msgstr "Instalar todas las actualizaciones de kpatch"
 
-#: pkg/packagekit/updates.jsx:1377 pkg/packagekit/updates.jsx:1384
+#: pkg/packagekit/updates.jsx:1389 pkg/packagekit/updates.jsx:1396
 msgid "Install security updates"
 msgstr "Instalar las actualizaciones de seguridad"
 
@@ -3273,11 +3271,11 @@ msgstr ""
 msgid "Install software"
 msgstr "Instalar software"
 
-#: pkg/packagekit/updates.jsx:100
+#: pkg/packagekit/updates.jsx:103
 msgid "Installed"
 msgstr "Instalado"
 
-#: pkg/packagekit/updates.jsx:94 pkg/apps/application.jsx:41
+#: pkg/apps/application.jsx:41 pkg/packagekit/updates.jsx:97
 msgid "Installing"
 msgstr "Instalando"
 
@@ -3308,9 +3306,9 @@ msgstr[1] "Interfaces"
 msgid "Interface members"
 msgstr "Miembros de la interfaz"
 
-#: pkg/networkmanager/bond.jsx:166
+#: pkg/networkmanager/network-main.jsx:173 pkg/networkmanager/bond.jsx:166
 #: pkg/networkmanager/network-interface-members.jsx:215
-#: pkg/networkmanager/network-main.jsx:173 pkg/networkmanager/firewall.jsx:852
+#: pkg/networkmanager/firewall.jsx:852
 msgid "Interfaces"
 msgstr "Interfaces"
 
@@ -3374,8 +3372,8 @@ msgstr "El prefijo o la máscara de red $0 no es válido"
 msgid "Invalid range"
 msgstr "Rango inválido"
 
-#: pkg/packagekit/autoupdates.jsx:323 pkg/lib/serverTime.js:617
-#: pkg/lib/cockpit-components-shutdown.jsx:109
+#: pkg/lib/serverTime.js:617 pkg/lib/cockpit-components-shutdown.jsx:109
+#: pkg/packagekit/autoupdates.jsx:323
 msgid "Invalid time format"
 msgstr "Formato de hora inválido"
 
@@ -3445,7 +3443,7 @@ msgstr "Entrada de bitácora no encontrada"
 msgid "Jump to"
 msgstr "Ir a"
 
-#: pkg/kdump/kdump-view.jsx:477
+#: pkg/kdump/kdump-view.jsx:432
 msgid ""
 "Kdump service not installed. Please ensure package kexec-tools is installed."
 msgstr ""
@@ -3456,15 +3454,11 @@ msgstr ""
 msgid "Keep connection"
 msgstr "Mantener la conexión"
 
-#: pkg/kdump/manifest.json:0
-msgid "Kernel Dump"
-msgstr "Volcado del kernel"
-
-#: pkg/kdump/kdump-view.jsx:523
+#: pkg/kdump/kdump-view.jsx:478
 msgid "Kernel crash dump"
 msgstr "Volcado de colapso del kernel"
 
-#: pkg/kdump/index.html:23
+#: pkg/kdump/index.html:23 pkg/kdump/manifest.json:0
 msgid "Kernel dump"
 msgstr "Volcado del kernel"
 
@@ -3546,7 +3540,7 @@ msgstr "Últimas 24 horas"
 msgid "Last 7 days"
 msgstr "Últimos 7 días"
 
-#: pkg/packagekit/updates.jsx:760
+#: pkg/packagekit/updates.jsx:771
 msgid "Last checked: $0"
 msgstr "Última comprobación: $0"
 
@@ -3562,10 +3556,11 @@ msgstr "Última modificación: $0"
 msgid "Last successful login:"
 msgstr "Último inicio de sesión correcto:"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:47
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:150 pkg/tuned/dialog.jsx:288
+#: pkg/tuned/dialog.jsx:288 pkg/networkmanager/bond.jsx:154
 #: pkg/lib/cockpit-components-dialog.jsx:228
-#: pkg/lib/cockpit-components-dialog.jsx:235 pkg/networkmanager/bond.jsx:154
+#: pkg/lib/cockpit-components-dialog.jsx:235
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:47
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:150
 msgid "Learn more"
 msgstr "Aprenda más"
 
@@ -3611,7 +3606,7 @@ msgstr ""
 msgid "Limits"
 msgstr "Límites"
 
-#: pkg/networkmanager/bond.jsx:202 pkg/networkmanager/team.jsx:196
+#: pkg/networkmanager/team.jsx:196 pkg/networkmanager/bond.jsx:202
 msgid "Link down delay"
 msgstr "Retardo a desconexión de enlace"
 
@@ -3623,7 +3618,7 @@ msgstr "Enlace local"
 msgid "Link monitoring"
 msgstr "Monitorización del enlace"
 
-#: pkg/networkmanager/bond.jsx:199 pkg/networkmanager/team.jsx:193
+#: pkg/networkmanager/team.jsx:193 pkg/networkmanager/bond.jsx:199
 msgid "Link up delay"
 msgstr "Retardo a conexión de enlace"
 
@@ -3639,19 +3634,19 @@ msgstr "Vinculado"
 msgid "Listen"
 msgstr "Escuchando"
 
-#: pkg/systemd/services/services.jsx:427
+#: pkg/systemd/services/services.jsx:428
 msgid "Listing unit files"
 msgstr "Listando los archivos de unidad"
 
-#: pkg/systemd/services/services.jsx:489
+#: pkg/systemd/services/services.jsx:490
 msgid "Listing unit files failed: $0"
 msgstr "Fallo al listar los archivos de unidad: $0"
 
-#: pkg/systemd/services/services.jsx:395
+#: pkg/systemd/services/services.jsx:396
 msgid "Listing units"
 msgstr "Listando unidades"
 
-#: pkg/systemd/services/services.jsx:490
+#: pkg/systemd/services/services.jsx:491
 msgid "Listing units failed: $0"
 msgstr "Fallo al listar unidades: $0"
 
@@ -3676,11 +3671,11 @@ msgstr "Cargar entradas anteriores"
 msgid "Load spike"
 msgstr "Pico de Load"
 
-#: pkg/packagekit/updates.jsx:91
+#: pkg/packagekit/updates.jsx:94
 msgid "Loading available updates failed"
 msgstr "Fallo al cargar las actualizaciones disponibles"
 
-#: pkg/packagekit/updates.jsx:85
+#: pkg/packagekit/updates.jsx:88
 msgid "Loading available updates, please wait..."
 msgstr "Cargando actualizaciones disponibles, por favor espere..."
 
@@ -3696,7 +3691,7 @@ msgstr "Cargando claves..."
 msgid "Loading of SSH keys failed"
 msgstr "Fallo al cargar las claves SSH"
 
-#: pkg/systemd/services/services.jsx:750
+#: pkg/systemd/services/services.jsx:751
 msgid "Loading of units failed"
 msgstr "Fallo al cargar las unidades"
 
@@ -3708,14 +3703,14 @@ msgstr "Cargando paquetes..."
 msgid "Loading system modifications..."
 msgstr "Cargando modificaciones del sistema..."
 
-#: pkg/systemd/services/services.jsx:460
+#: pkg/systemd/services/services.jsx:461
 msgid "Loading unit failed: $0"
 msgstr "Fallo al cargar la unidad: $0"
 
-#: pkg/storaged/devices.jsx:69 pkg/metrics/metrics.jsx:960
-#: pkg/metrics/metrics.jsx:1654 pkg/systemd/logsJournal.jsx:268
-#: pkg/systemd/services/services.jsx:752 pkg/systemd/logDetails.jsx:154
-#: pkg/kdump/kdump-view.jsx:384
+#: pkg/metrics/metrics.jsx:960 pkg/metrics/metrics.jsx:1654
+#: pkg/kdump/kdump-view.jsx:339 pkg/storaged/devices.jsx:69
+#: pkg/systemd/logDetails.jsx:154 pkg/systemd/logsJournal.jsx:268
+#: pkg/systemd/services/services.jsx:753
 msgid "Loading..."
 msgstr "Cargando..."
 
@@ -3723,7 +3718,7 @@ msgstr "Cargando..."
 msgid "Local accounts"
 msgstr "Cuentas locales"
 
-#: pkg/kdump/kdump-view.jsx:144
+#: pkg/kdump/kdump-view.jsx:145
 msgid "Local filesystem"
 msgstr "Sistema de archivos local"
 
@@ -3731,8 +3726,8 @@ msgstr "Sistema de archivos local"
 msgid "Local mount point"
 msgstr "Punto de montaje local"
 
-#: pkg/storaged/dialog.jsx:1052 pkg/storaged/dialog.jsx:1130
-#: pkg/kdump/kdump-view.jsx:152
+#: pkg/kdump/kdump-view.jsx:153 pkg/storaged/dialog.jsx:1050
+#: pkg/storaged/dialog.jsx:1128
 msgid "Location"
 msgstr "Ubicación"
 
@@ -3744,7 +3739,7 @@ msgstr "Bloquear"
 msgid "Locked devices"
 msgstr "Dispositivos bloqueados"
 
-#: pkg/storaged/stratis-panel.jsx:65 pkg/storaged/stratis-details.jsx:761
+#: pkg/storaged/stratis-details.jsx:761 pkg/storaged/stratis-panel.jsx:65
 msgid "Locked encrypted Stratis pool"
 msgstr "Grupo de almacenamiento Stratis bloqueado y cifrado"
 
@@ -3786,7 +3781,7 @@ msgstr "Sesión iniciada"
 msgid "Logical"
 msgstr "Lógico"
 
-#: pkg/storaged/vdo-details.jsx:228 pkg/storaged/content-views.jsx:940
+#: pkg/storaged/content-views.jsx:940 pkg/storaged/vdo-details.jsx:228
 msgid "Logical size"
 msgstr "Tamaño lógico"
 
@@ -3846,7 +3841,7 @@ msgstr "Perfil bajo de escritorio"
 msgid "Lunch box"
 msgstr "Caja de almuerzo"
 
-#: pkg/networkmanager/bond.jsx:169 pkg/networkmanager/mac.jsx:75
+#: pkg/networkmanager/mac.jsx:75 pkg/networkmanager/bond.jsx:169
 msgid "MAC"
 msgstr "MAC"
 
@@ -3986,8 +3981,9 @@ msgid "Maximum message age $max_age"
 msgstr "Tiempo máximo del mensaje $max_age"
 
 #: pkg/metrics/metrics.jsx:703 pkg/metrics/metrics.jsx:1637
-#: pkg/systemd/overview-cards/usageCard.jsx:146 pkg/systemd/hwinfo.jsx:309
-#: pkg/systemd/hwinfo.jsx:358 pkg/systemd/services/service-details.jsx:645
+#: pkg/systemd/hwinfo.jsx:309 pkg/systemd/hwinfo.jsx:358
+#: pkg/systemd/overview-cards/usageCard.jsx:146
+#: pkg/systemd/services/service-details.jsx:645
 msgid "Memory"
 msgstr "Memoria"
 
@@ -4020,7 +4016,7 @@ msgstr ""
 msgid "Metadata used"
 msgstr "Metadatos utilizados"
 
-#: pkg/networkmanager/ip-settings.jsx:346
+#: pkg/networkmanager/ip-settings.jsx:362
 msgid "Metric"
 msgstr "Métrica"
 
@@ -4060,8 +4056,8 @@ msgstr "Mitigaciones"
 msgid "Mode"
 msgstr "Modo"
 
-#: pkg/systemd/overview-cards/systemInformationCard.jsx:117
 #: pkg/systemd/hwinfo.jsx:296
+#: pkg/systemd/overview-cards/systemInformationCard.jsx:117
 msgid "Model"
 msgstr "Modelo"
 
@@ -4075,7 +4071,7 @@ msgstr "Modelo"
 msgid "Modifying $target"
 msgstr "Modificando $target"
 
-#: pkg/packagekit/autoupdates.jsx:309 pkg/systemd/services/timer-dialog.jsx:292
+#: pkg/systemd/services/timer-dialog.jsx:292 pkg/packagekit/autoupdates.jsx:309
 msgid "Mondays"
 msgstr "Los lunes"
 
@@ -4091,14 +4087,14 @@ msgstr "Monitorizar objetivos"
 msgid "Monthly"
 msgstr "Mensualmente"
 
-#: pkg/packagekit/updates.jsx:916
+#: pkg/packagekit/updates.jsx:927
 msgid "More info..."
 msgstr "Más información..."
 
-#: pkg/storaged/nfs-details.jsx:300 pkg/storaged/fsys-tab.jsx:372
-#: pkg/storaged/fsys-panel.jsx:176 pkg/storaged/stratis-details.jsx:592
-#: pkg/storaged/stratis-details.jsx:593 pkg/storaged/content-views.jsx:289
-#: pkg/storaged/content-views.jsx:415 pkg/kdump/kdump-view.jsx:99
+#: pkg/storaged/nfs-details.jsx:300 pkg/storaged/content-views.jsx:289
+#: pkg/storaged/content-views.jsx:415 pkg/storaged/stratis-details.jsx:592
+#: pkg/storaged/stratis-details.jsx:593 pkg/storaged/fsys-panel.jsx:176
+#: pkg/storaged/fsys-tab.jsx:372
 msgid "Mount"
 msgstr "Montar"
 
@@ -4122,8 +4118,8 @@ msgstr "Configuración de montaje"
 msgid "Mount filesystem"
 msgstr "Montar sistema de archivos"
 
-#: pkg/storaged/fsys-tab.jsx:651 pkg/storaged/format-dialog.jsx:250
 #: pkg/storaged/stratis-details.jsx:377 pkg/storaged/stratis-details.jsx:507
+#: pkg/storaged/format-dialog.jsx:250 pkg/storaged/fsys-tab.jsx:651
 msgid "Mount now"
 msgstr "Montar ahora"
 
@@ -4131,16 +4127,16 @@ msgstr "Montar ahora"
 msgid "Mount on $0 now"
 msgstr "Montar en $0 ahora"
 
-#: pkg/storaged/nfs-details.jsx:166 pkg/storaged/fsys-tab.jsx:326
-#: pkg/storaged/format-dialog.jsx:240 pkg/storaged/stratis-details.jsx:368
-#: pkg/storaged/stratis-details.jsx:498
+#: pkg/storaged/nfs-details.jsx:166 pkg/storaged/stratis-details.jsx:368
+#: pkg/storaged/stratis-details.jsx:498 pkg/storaged/format-dialog.jsx:240
+#: pkg/storaged/fsys-tab.jsx:326
 msgid "Mount options"
 msgstr "Opciones de montaje"
 
-#: pkg/storaged/nfs-details.jsx:322 pkg/storaged/fsys-tab.jsx:321
-#: pkg/storaged/fsys-tab.jsx:700 pkg/storaged/format-dialog.jsx:234
-#: pkg/storaged/nfs-panel.jsx:103 pkg/storaged/stratis-details.jsx:364
-#: pkg/storaged/stratis-details.jsx:494
+#: pkg/storaged/nfs-details.jsx:322 pkg/storaged/nfs-panel.jsx:103
+#: pkg/storaged/stratis-details.jsx:364 pkg/storaged/stratis-details.jsx:494
+#: pkg/storaged/format-dialog.jsx:234 pkg/storaged/fsys-tab.jsx:321
+#: pkg/storaged/fsys-tab.jsx:700
 msgid "Mount point"
 msgstr "Punto de montaje"
 
@@ -4160,9 +4156,9 @@ msgstr "El punto de montaje se está utilizando para $0"
 msgid "Mount point must start with \"/\"."
 msgstr "El punto de montaje debe empezar con \"/\"."
 
-#: pkg/storaged/nfs-details.jsx:170 pkg/storaged/fsys-tab.jsx:334
-#: pkg/storaged/format-dialog.jsx:251 pkg/storaged/stratis-details.jsx:378
-#: pkg/storaged/stratis-details.jsx:508
+#: pkg/storaged/nfs-details.jsx:170 pkg/storaged/stratis-details.jsx:378
+#: pkg/storaged/stratis-details.jsx:508 pkg/storaged/format-dialog.jsx:251
+#: pkg/storaged/fsys-tab.jsx:334
 msgid "Mount read only"
 msgstr "Montar en modo sólo lectura"
 
@@ -4201,24 +4197,23 @@ msgstr "Ping de NSNA"
 msgid "NTP server"
 msgstr "Servidor NTP"
 
-#: pkg/storaged/vgroup-details.jsx:164 pkg/storaged/stratis-panel.jsx:121
-#: pkg/storaged/fsys-tab.jsx:483 pkg/storaged/fsys-tab.jsx:686
-#: pkg/storaged/mdraids-panel.jsx:69 pkg/storaged/format-dialog.jsx:213
-#: pkg/storaged/lvol-tabs.jsx:48 pkg/storaged/lvol-tabs.jsx:419
-#: pkg/storaged/lvol-tabs.jsx:480 pkg/storaged/lvol-tabs.jsx:538
-#: pkg/storaged/crypto-panel.jsx:84 pkg/storaged/part-tab.jsx:40
-#: pkg/storaged/stratis-details.jsx:272 pkg/storaged/stratis-details.jsx:360
-#: pkg/storaged/stratis-details.jsx:466 pkg/storaged/stratis-details.jsx:489
-#: pkg/storaged/stratis-details.jsx:652 pkg/storaged/stratis-details.jsx:785
-#: pkg/storaged/iscsi-panel.jsx:131 pkg/storaged/iscsi-panel.jsx:188
+#: pkg/shell/credentials.jsx:104 pkg/networkmanager/network-main.jsx:184
+#: pkg/networkmanager/network-main.jsx:199
+#: pkg/networkmanager/dialogs-common.jsx:134 pkg/storaged/lvol-tabs.jsx:48
+#: pkg/storaged/lvol-tabs.jsx:419 pkg/storaged/lvol-tabs.jsx:480
+#: pkg/storaged/lvol-tabs.jsx:538 pkg/storaged/iscsi-panel.jsx:131
+#: pkg/storaged/iscsi-panel.jsx:188 pkg/storaged/vgroups-panel.jsx:69
 #: pkg/storaged/content-views.jsx:182 pkg/storaged/content-views.jsx:307
 #: pkg/storaged/content-views.jsx:750 pkg/storaged/content-views.jsx:882
-#: pkg/storaged/content-views.jsx:1013 pkg/storaged/vgroups-panel.jsx:69
-#: pkg/packagekit/updates.jsx:413 pkg/systemd/hwinfo.jsx:90
-#: pkg/systemd/services/timer-dialog.jsx:150 pkg/shell/credentials.jsx:104
-#: pkg/networkmanager/network-main.jsx:184
-#: pkg/networkmanager/network-main.jsx:199
-#: pkg/networkmanager/dialogs-common.jsx:134
+#: pkg/storaged/content-views.jsx:1013 pkg/storaged/stratis-details.jsx:272
+#: pkg/storaged/stratis-details.jsx:360 pkg/storaged/stratis-details.jsx:466
+#: pkg/storaged/stratis-details.jsx:489 pkg/storaged/stratis-details.jsx:652
+#: pkg/storaged/stratis-details.jsx:785 pkg/storaged/vgroup-details.jsx:164
+#: pkg/storaged/mdraids-panel.jsx:69 pkg/storaged/crypto-panel.jsx:84
+#: pkg/storaged/stratis-panel.jsx:121 pkg/storaged/format-dialog.jsx:213
+#: pkg/storaged/part-tab.jsx:40 pkg/storaged/fsys-tab.jsx:483
+#: pkg/storaged/fsys-tab.jsx:686 pkg/systemd/hwinfo.jsx:90
+#: pkg/systemd/services/timer-dialog.jsx:150 pkg/packagekit/updates.jsx:416
 msgid "Name"
 msgstr "Nombre"
 
@@ -4304,16 +4299,16 @@ msgstr "Redes"
 msgid "Never"
 msgstr "Nunca"
 
-#: pkg/users/account-details.js:109 pkg/users/expiration-dialogs.js:37
+#: pkg/users/expiration-dialogs.js:37 pkg/users/account-details.js:109
 msgid "Never expire account"
 msgstr "La cuenta nunca expira"
 
-#: pkg/users/account-details.js:101 pkg/users/expiration-dialogs.js:149
+#: pkg/users/expiration-dialogs.js:149 pkg/users/account-details.js:101
 msgid "Never expire password"
 msgstr "La clave nunca expira"
 
-#: pkg/storaged/fsys-tab.jsx:336 pkg/storaged/format-dialog.jsx:253
 #: pkg/storaged/stratis-details.jsx:380 pkg/storaged/stratis-details.jsx:510
+#: pkg/storaged/format-dialog.jsx:253 pkg/storaged/fsys-tab.jsx:336
 msgid "Never mount at boot"
 msgstr "Nunca montar en el arranque"
 
@@ -4335,7 +4330,7 @@ msgstr "Nueva contraseña de la clave"
 msgid "New passphrase"
 msgstr "Nueva contraseña"
 
-#: pkg/users/password-dialogs.js:146 pkg/shell/credentials.jsx:268
+#: pkg/shell/credentials.jsx:268 pkg/users/password-dialogs.js:146
 msgid "New password"
 msgstr "Nueva contraseña"
 
@@ -4347,7 +4342,7 @@ msgstr "No se aceptó la nueva contraseña"
 msgid "Next"
 msgstr "Siguiente"
 
-#: pkg/systemd/reporting.jsx:274 pkg/networkmanager/network-interface.jsx:240
+#: pkg/networkmanager/network-interface.jsx:240 pkg/systemd/reporting.jsx:274
 msgid "No"
 msgstr "No"
 
@@ -4375,7 +4370,7 @@ msgstr "No hay dispositivos de bloques disponibles."
 msgid "No carrier"
 msgstr "No hay un proveedor"
 
-#: pkg/kdump/kdump-view.jsx:413
+#: pkg/kdump/kdump-view.jsx:368
 msgid "No configuration found"
 msgstr "No se encontró ninguna configuración"
 
@@ -4403,9 +4398,9 @@ msgstr "No se ha suministrado una descripción."
 msgid "No devices"
 msgstr "No hay dispositivos"
 
-#: pkg/storaged/vgroup-details.jsx:69 pkg/storaged/mdraid-details.jsx:67
-#: pkg/storaged/mdraids-panel.jsx:123 pkg/storaged/stratis-details.jsx:139
-#: pkg/storaged/vgroups-panel.jsx:76
+#: pkg/storaged/vgroups-panel.jsx:76 pkg/storaged/stratis-details.jsx:139
+#: pkg/storaged/vgroup-details.jsx:69 pkg/storaged/mdraids-panel.jsx:123
+#: pkg/storaged/mdraid-details.jsx:67
 msgid "No disks are available."
 msgstr "No hay discos disponibles."
 
@@ -4462,7 +4457,7 @@ msgstr "No hay volúmenes lógicos"
 msgid "No logs found"
 msgstr "No se encontraron registros"
 
-#: pkg/systemd/services/services.jsx:859
+#: pkg/systemd/services/services.jsx:860
 msgid "No matching results"
 msgstr "No se encontraron resultados"
 
@@ -4470,7 +4465,7 @@ msgstr "No se encontraron resultados"
 msgid "No media inserted"
 msgstr "No hay un medio insertado"
 
-#: pkg/kdump/kdump-view.jsx:462
+#: pkg/kdump/kdump-view.jsx:417
 msgid ""
 "No memory reserved. Append a crashkernel option to the kernel command line "
 "(e.g. in /etc/default/grub) to reserve memory at boot time. Example: "
@@ -4488,11 +4483,11 @@ msgstr "No se particiona"
 msgid "No real name specified"
 msgstr "No hay un nombre real especificado"
 
-#: pkg/systemd/logs.jsx:314 pkg/shell/nav.jsx:139
+#: pkg/shell/nav.jsx:139 pkg/systemd/logs.jsx:314
 msgid "No results found"
 msgstr "No se encontraron resultados"
 
-#: pkg/systemd/services/services.jsx:857
+#: pkg/systemd/services/services.jsx:858
 msgid ""
 "No results match the filter criteria. Clear all filters to show results."
 msgstr ""
@@ -4524,7 +4519,7 @@ msgstr "No actualizar"
 msgid "No user name specified"
 msgstr "Nombre de usuario no especificado"
 
-#: pkg/tuned/dialog.jsx:229 pkg/kdump/kdump-view.jsx:433
+#: pkg/tuned/dialog.jsx:229 pkg/kdump/kdump-view.jsx:388
 #: pkg/networkmanager/firewall.jsx:847
 msgid "None"
 msgstr "Ninguno"
@@ -4541,7 +4536,7 @@ msgstr "No está autorizado para desactivar el cortafuegos"
 msgid "Not authorized to enable the firewall"
 msgstr "No está autorizado para activar el cortafuegos"
 
-#: pkg/packagekit/kpatch.jsx:239 pkg/networkmanager/interfaces.js:737
+#: pkg/networkmanager/interfaces.js:737 pkg/packagekit/kpatch.jsx:239
 msgid "Not available"
 msgstr "No está disponible"
 
@@ -4585,12 +4580,12 @@ msgstr "No está permitido llevar a cabo esta acción."
 msgid "Not ready"
 msgstr "No está listo"
 
-#: pkg/packagekit/updates.jsx:1328
+#: pkg/packagekit/updates.jsx:1340
 msgid "Not registered"
 msgstr "No está registrado"
 
 #: pkg/storaged/mdraid-details.jsx:352 pkg/systemd/services/services.jsx:197
-#: pkg/systemd/services/services.jsx:200 pkg/systemd/services/services.jsx:798
+#: pkg/systemd/services/services.jsx:200 pkg/systemd/services/services.jsx:799
 #: pkg/systemd/services/service-details.jsx:466
 msgid "Not running"
 msgstr "No está ejecutándose"
@@ -4653,7 +4648,7 @@ msgstr "Contraseña vieja"
 msgid "Old password not accepted"
 msgstr "No se aceptó la contraseña vieja"
 
-#: pkg/kdump/kdump-view.jsx:411
+#: pkg/kdump/kdump-view.jsx:366
 msgid "On a mounted device"
 msgstr "En un dispositivo montado"
 
@@ -4704,9 +4699,9 @@ msgctxt "storage"
 msgid "Optical drive"
 msgstr "Disco óptico"
 
+#: pkg/users/account-details.js:315 pkg/networkmanager/bridge.jsx:105
 #: pkg/storaged/crypto-tab.jsx:253 pkg/storaged/content-views.jsx:950
-#: pkg/sosreport/index.jsx:328 pkg/users/account-details.js:315
-#: pkg/networkmanager/bridge.jsx:105
+#: pkg/sosreport/index.jsx:328
 msgid "Options"
 msgstr "Opciones"
 
@@ -4718,7 +4713,7 @@ msgstr "O use un navegador integrado"
 msgid "Other"
 msgstr "Otro"
 
-#: pkg/users/account-details.js:325 pkg/users/account-create-dialog.js:84
+#: pkg/users/account-create-dialog.js:84 pkg/users/account-details.js:325
 msgid ""
 "Other authentication methods are still available even when interactive "
 "password authentication is not allowed."
@@ -4748,11 +4743,11 @@ msgstr "Saliente"
 msgid "Overview"
 msgstr "Visión global"
 
-#: pkg/storaged/format-dialog.jsx:228 pkg/storaged/content-views.jsx:698
+#: pkg/storaged/content-views.jsx:698 pkg/storaged/format-dialog.jsx:228
 msgid "Overwrite"
 msgstr "Sobrescribir"
 
-#: pkg/storaged/format-dialog.jsx:231 pkg/storaged/content-views.jsx:701
+#: pkg/storaged/content-views.jsx:701 pkg/storaged/format-dialog.jsx:231
 msgid "Overwrite existing data with zeros (slower)"
 msgstr "Sobrescribir los datos existentes con ceros (más lento)"
 
@@ -4760,7 +4755,7 @@ msgstr "Sobrescribir los datos existentes con ceros (más lento)"
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/storaged/dialog.jsx:1203
+#: pkg/storaged/dialog.jsx:1201
 msgid "PID"
 msgstr "PID"
 
@@ -4768,7 +4763,7 @@ msgstr "PID"
 msgid "Package cockpit-pcp is missing for metrics history"
 msgstr "Falta el paquete cockpit-pcp para realizar un histórico de métricas"
 
-#: pkg/packagekit/updates.jsx:665 pkg/packagekit/updates.jsx:744
+#: pkg/packagekit/updates.jsx:676 pkg/packagekit/updates.jsx:755
 msgid "Package information"
 msgstr "Información de paquetes"
 
@@ -4776,15 +4771,15 @@ msgstr "Información de paquetes"
 msgid "PackageKit crashed"
 msgstr "PackageKit colapsó"
 
-#: pkg/packagekit/updates.jsx:1067
+#: pkg/packagekit/updates.jsx:1079
 msgid "PackageKit is not installed"
 msgstr "PackageKit no está instalado"
 
-#: pkg/packagekit/updates.jsx:1271
+#: pkg/packagekit/updates.jsx:1283
 msgid "PackageKit reported error code $0"
 msgstr "PackageKit reportó un error con código $0"
 
-#: pkg/packagekit/updates.jsx:330
+#: pkg/packagekit/updates.jsx:333
 msgid "Packages"
 msgstr "Paquetes"
 
@@ -4834,11 +4829,11 @@ msgstr "Particiones"
 msgid "Passive"
 msgstr "Pasivo"
 
-#: pkg/storaged/crypto-keyslots.jsx:288 pkg/storaged/crypto-keyslots.jsx:600
-#: pkg/storaged/stratis-panel.jsx:132 pkg/storaged/fsys-tab.jsx:346
+#: pkg/storaged/content-views.jsx:269 pkg/storaged/stratis-details.jsx:132
+#: pkg/storaged/stratis-details.jsx:701 pkg/storaged/stratis-panel.jsx:132
 #: pkg/storaged/format-dialog.jsx:265 pkg/storaged/format-dialog.jsx:291
-#: pkg/storaged/stratis-details.jsx:132 pkg/storaged/stratis-details.jsx:701
-#: pkg/storaged/content-views.jsx:269
+#: pkg/storaged/crypto-keyslots.jsx:288 pkg/storaged/crypto-keyslots.jsx:600
+#: pkg/storaged/fsys-tab.jsx:346
 msgid "Passphrase"
 msgstr "Contraseña"
 
@@ -4846,11 +4841,11 @@ msgstr "Contraseña"
 msgid "Passphrase can not be empty"
 msgstr "La contraseña no puede estar vacía"
 
+#: pkg/storaged/stratis-details.jsx:135 pkg/storaged/stratis-panel.jsx:136
+#: pkg/storaged/format-dialog.jsx:269 pkg/storaged/format-dialog.jsx:295
 #: pkg/storaged/crypto-keyslots.jsx:200 pkg/storaged/crypto-keyslots.jsx:296
 #: pkg/storaged/crypto-keyslots.jsx:338 pkg/storaged/crypto-keyslots.jsx:341
-#: pkg/storaged/stratis-panel.jsx:136 pkg/storaged/fsys-tab.jsx:349
-#: pkg/storaged/format-dialog.jsx:269 pkg/storaged/format-dialog.jsx:295
-#: pkg/storaged/stratis-details.jsx:135
+#: pkg/storaged/fsys-tab.jsx:349
 msgid "Passphrase cannot be empty"
 msgstr "La contraseña no puede estar vacía"
 
@@ -4862,17 +4857,17 @@ msgstr "Contraseña de cualquier otro guardaclaves"
 msgid "Passphrase removal may prevent unlocking $0."
 msgstr "Eliminar la contraseña puede prevenir el desbloqueo $0."
 
-#: pkg/storaged/crypto-keyslots.jsx:304 pkg/storaged/crypto-keyslots.jsx:343
 #: pkg/storaged/stratis-panel.jsx:144 pkg/storaged/format-dialog.jsx:277
+#: pkg/storaged/crypto-keyslots.jsx:304 pkg/storaged/crypto-keyslots.jsx:343
 msgid "Passphrases do not match"
 msgstr "La contraseña no coincide"
 
-#: pkg/static/login.html:81 pkg/storaged/iscsi-panel.jsx:50
-#: pkg/storaged/iscsi-panel.jsx:160 pkg/users/account-details.js:346
-#: pkg/users/account-create-dialog.js:58 pkg/shell/credentials.jsx:122
+#: pkg/static/login.html:81 pkg/shell/credentials.jsx:122
 #: pkg/shell/credentials.jsx:265 pkg/shell/credentials.jsx:322
-#: pkg/shell/hosts_dialog.jsx:817 pkg/shell/hosts_dialog.jsx:826
-#: pkg/shell/superuser.jsx:125
+#: pkg/shell/superuser.jsx:125 pkg/shell/hosts_dialog.jsx:817
+#: pkg/shell/hosts_dialog.jsx:826 pkg/users/account-create-dialog.js:58
+#: pkg/users/account-details.js:346 pkg/storaged/iscsi-panel.jsx:50
+#: pkg/storaged/iscsi-panel.jsx:160
 msgid "Password"
 msgstr "Contraseña"
 
@@ -4884,7 +4879,7 @@ msgstr "Contraseña cambiada con éxito"
 msgid "Password expiration"
 msgstr "Expiración de la contraseña"
 
-#: pkg/users/password-dialogs.js:193 pkg/users/account-create-dialog.js:213
+#: pkg/users/account-create-dialog.js:213 pkg/users/password-dialogs.js:193
 msgid "Password is longer than 256 characters"
 msgstr "La contraseña no puede superar los 256 caracteres"
 
@@ -4920,7 +4915,7 @@ msgstr "Error al pegar"
 msgid "Paste the contents of your public SSH key file here"
 msgstr "Pegue aquí el contenido de su clave SSH pública"
 
-#: pkg/systemd/services/service-details.jsx:640 pkg/systemd/abrtLog.jsx:128
+#: pkg/systemd/abrtLog.jsx:128 pkg/systemd/services/service-details.jsx:640
 msgid "Path"
 msgstr "Ruta"
 
@@ -4977,9 +4972,9 @@ msgstr "Chasis periférico"
 msgid "Permanent"
 msgstr "Permanente"
 
-#: pkg/storaged/vgroup-details.jsx:196 pkg/storaged/mdraid-details.jsx:294
-#: pkg/storaged/vdo-details.jsx:202 pkg/storaged/stratis-details.jsx:249
-#: pkg/storaged/content-views.jsx:378
+#: pkg/storaged/content-views.jsx:378 pkg/storaged/stratis-details.jsx:249
+#: pkg/storaged/vgroup-details.jsx:196 pkg/storaged/vdo-details.jsx:202
+#: pkg/storaged/mdraid-details.jsx:294
 msgid "Permanently delete $0?"
 msgstr "¿Eliminar $0 permanentemente?"
 
@@ -5003,8 +4998,9 @@ msgstr "Volúmenes físicos"
 msgid "Physical volumes can not be resized here."
 msgstr "No se puede modificar el tamaño de los volúmenes físicos aquí."
 
-#: pkg/users/expiration-dialogs.js:43 pkg/systemd/services/timer-dialog.jsx:322
-#: pkg/lib/serverTime.js:525 pkg/lib/cockpit-components-shutdown.jsx:207
+#: pkg/users/expiration-dialogs.js:43 pkg/lib/serverTime.js:525
+#: pkg/lib/cockpit-components-shutdown.jsx:207
+#: pkg/systemd/services/timer-dialog.jsx:322
 msgid "Pick date"
 msgstr "Selecciona una fecha"
 
@@ -5020,8 +5016,8 @@ msgstr "Intervalo de ping"
 msgid "Ping target"
 msgstr "Hacer ping al objetivo"
 
-#: pkg/systemd/services/service-details.jsx:608
 #: pkg/systemd/services/services-list.jsx:97
+#: pkg/systemd/services/service-details.jsx:608
 msgid "Pinned unit"
 msgstr "Unidad fijada"
 
@@ -5041,7 +5037,7 @@ msgstr "Por favor, habilite JavaScript para usar la consola Web."
 msgid "Please install the $0 package"
 msgstr "Por favor, instale el paquete $0"
 
-#: pkg/packagekit/updates.jsx:1460
+#: pkg/packagekit/updates.jsx:1472
 msgid "Please reload the page after resolving the issue."
 msgstr "Por favor, recarga la página después de resolver el problema."
 
@@ -5069,7 +5065,7 @@ msgstr "Grupo de aprovisionamiento de volúmenes finos"
 msgid "Pool for thinly provisioned volumes"
 msgstr "Grupo para volúmenes de aprovisionamiento fino"
 
-#: pkg/storaged/iscsi-panel.jsx:131 pkg/shell/hosts_dialog.jsx:354
+#: pkg/shell/hosts_dialog.jsx:354 pkg/storaged/iscsi-panel.jsx:131
 msgid "Port"
 msgstr "Puerto"
 
@@ -5081,17 +5077,17 @@ msgstr "El número de puerto y el tipo no coinciden"
 msgid "Portable"
 msgstr "Portable"
 
-#: pkg/networkmanager/network-interface-members.jsx:215
 #: pkg/networkmanager/bridge.jsx:102 pkg/networkmanager/team.jsx:160
+#: pkg/networkmanager/network-interface-members.jsx:215
 msgid "Ports"
 msgstr "Puertos"
 
-#: pkg/networkmanager/ip-settings.jsx:167
+#: pkg/networkmanager/ip-settings.jsx:183
 msgid "Prefix length"
 msgstr "Longitud del prefijo"
 
-#: pkg/networkmanager/ip-settings.jsx:167
-#: pkg/networkmanager/ip-settings.jsx:330
+#: pkg/networkmanager/ip-settings.jsx:183
+#: pkg/networkmanager/ip-settings.jsx:346
 msgid "Prefix length or netmask"
 msgstr "Tamaño del prefijo o máscara de red"
 
@@ -5099,7 +5095,7 @@ msgstr "Tamaño del prefijo o máscara de red"
 msgid "Preparing"
 msgstr "Preparando"
 
-#: pkg/systemd/hw-detect.js:114 pkg/lib/machine-info.js:268
+#: pkg/lib/machine-info.js:268 pkg/systemd/hw-detect.js:114
 msgid "Present"
 msgstr "Presente"
 
@@ -5115,12 +5111,12 @@ msgstr "Nombre bonito del anfitrión"
 msgid "Previous boot"
 msgstr "Arranque previo"
 
-#: pkg/networkmanager/bond.jsx:178 pkg/networkmanager/team.jsx:175
+#: pkg/networkmanager/team.jsx:175 pkg/networkmanager/bond.jsx:178
 msgid "Primary"
 msgstr "Primario"
 
-#: pkg/systemd/logs.jsx:207 pkg/networkmanager/bridgeport.jsx:82
-#: pkg/networkmanager/teamport.jsx:86
+#: pkg/networkmanager/bridgeport.jsx:82 pkg/networkmanager/teamport.jsx:86
+#: pkg/systemd/logs.jsx:207
 msgid "Priority"
 msgstr "Prioridad"
 
@@ -5141,7 +5137,7 @@ msgstr "Detalles del problema"
 msgid "Problem info"
 msgstr "Información del problema"
 
-#: pkg/storaged/dialog.jsx:1084
+#: pkg/storaged/dialog.jsx:1082
 msgid "Processes using the location"
 msgstr "Procesos usando la ubicación"
 
@@ -5247,7 +5243,7 @@ msgstr "RAID 6 (Doble paridad distribuida)"
 msgid "RAID chassis"
 msgstr "Chasis RAID"
 
-#: pkg/storaged/mdraids-panel.jsx:36 pkg/storaged/pvol-tabs.jsx:67
+#: pkg/storaged/pvol-tabs.jsx:67 pkg/storaged/mdraids-panel.jsx:36
 msgid "RAID device"
 msgstr "Dispositivo RAID"
 
@@ -5292,7 +5288,7 @@ msgstr "El rango debe estar estrictamente ordenado"
 msgid "Rank"
 msgstr "Posición"
 
-#: pkg/kdump/kdump-view.jsx:407
+#: pkg/kdump/kdump-view.jsx:362
 msgid "Raw to a device"
 msgstr "Raw a un dispositivo"
 
@@ -5308,7 +5304,7 @@ msgstr "Leer más..."
 msgid "Read-only"
 msgstr "Solo lectura"
 
-#: pkg/kdump/kdump-view.jsx:427
+#: pkg/kdump/kdump-view.jsx:382
 msgid "Reading..."
 msgstr "Leyendo…"
 
@@ -5341,25 +5337,29 @@ msgstr "El nombre real del anfitrión debe tener 64 caracteres o menos"
 msgid "Reapply and reboot"
 msgstr "Aplicar y reiniciar"
 
-#: pkg/systemd/overview.jsx:108 pkg/systemd/overview.jsx:127
-#: pkg/lib/cockpit-components-logs-panel.jsx:112
 #: pkg/lib/cockpit-components-shutdown.jsx:184
 #: pkg/lib/cockpit-components-shutdown.jsx:186
+#: pkg/lib/cockpit-components-logs-panel.jsx:112 pkg/systemd/overview.jsx:108
+#: pkg/systemd/overview.jsx:127
 msgid "Reboot"
 msgstr "Reiniciar"
 
-#: pkg/packagekit/updates.jsx:1478
+#: pkg/packagekit/updates.jsx:600
+msgid "Reboot after completion"
+msgstr "Reiniciar al terminar"
+
+#: pkg/packagekit/updates.jsx:1498
 msgid "Reboot recommended"
 msgstr "Se recomienda reiniciar"
 
-#: pkg/packagekit/updates.jsx:660 pkg/packagekit/updates.jsx:735
-#: pkg/packagekit/updates.jsx:799
+#: pkg/packagekit/updates.jsx:671 pkg/packagekit/updates.jsx:746
+#: pkg/packagekit/updates.jsx:810
 msgid "Reboot system..."
 msgstr "Reiniciar el sistema..."
 
+#: pkg/networkmanager/plots.js:43 pkg/networkmanager/network-main.jsx:187
+#: pkg/networkmanager/network-main.jsx:202
 #: pkg/networkmanager/network-interface-members.jsx:217
-#: pkg/networkmanager/network-main.jsx:187
-#: pkg/networkmanager/network-main.jsx:202 pkg/networkmanager/plots.js:43
 msgid "Receiving"
 msgstr "Recibiendo"
 
@@ -5383,7 +5383,7 @@ msgstr "Recuperando"
 msgid "Recovering RAID device $target"
 msgstr "Recuperando el dispositivo RAID $target"
 
-#: pkg/packagekit/updates.jsx:87
+#: pkg/packagekit/updates.jsx:90
 msgid "Refreshing package information"
 msgstr "Actualizando la información de paquetes"
 
@@ -5399,19 +5399,19 @@ msgstr "Rechazando conexión. La clave del anfitrión no coincide"
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "Rechazando la conexión. La clave de anfitrión es desconocida"
 
-#: pkg/packagekit/updates.jsx:1340
+#: pkg/packagekit/updates.jsx:1352
 msgid "Register…"
 msgstr "Registrar…"
 
-#: pkg/storaged/dialog.jsx:1159
+#: pkg/storaged/dialog.jsx:1157
 msgid "Related processes and services will be forcefully stopped."
 msgstr "Los procesos y servicios relacionados serán detenidos forzadamente."
 
-#: pkg/storaged/dialog.jsx:1161
+#: pkg/storaged/dialog.jsx:1159
 msgid "Related processes will be forcefully stopped."
 msgstr "Los procesos relacionados serán detenidos forzadamente."
 
-#: pkg/storaged/dialog.jsx:1163
+#: pkg/storaged/dialog.jsx:1161
 msgid "Related services will be forcefully stopped."
 msgstr "Los servicios relacionados serán detenidos forzadamente."
 
@@ -5427,15 +5427,15 @@ msgstr "Recargar la propagación desde"
 msgid "Reloading"
 msgstr "Recargando"
 
-#: pkg/packagekit/updates.jsx:474
+#: pkg/packagekit/updates.jsx:477
 msgid "Reloading the state of remaining services"
 msgstr "Recargando el estado del resto de servicios"
 
-#: pkg/kdump/kdump-view.jsx:145 pkg/kdump/kdump-view.jsx:404
+#: pkg/kdump/kdump-view.jsx:146 pkg/kdump/kdump-view.jsx:359
 msgid "Remote over NFS"
 msgstr "Remoto sobre NFS"
 
-#: pkg/kdump/kdump-view.jsx:146 pkg/kdump/kdump-view.jsx:401
+#: pkg/kdump/kdump-view.jsx:147 pkg/kdump/kdump-view.jsx:356
 msgid "Remote over SSH"
 msgstr "Remoto sobre SSH"
 
@@ -5450,11 +5450,11 @@ msgstr "Disco extraíble"
 msgid "Removals:"
 msgstr "Borrados:"
 
-#: pkg/storaged/crypto-keyslots.jsx:469 pkg/storaged/crypto-keyslots.jsx:504
-#: pkg/storaged/crypto-keyslots.jsx:585 pkg/storaged/vgroup-details.jsx:119
-#: pkg/storaged/nfs-details.jsx:307 pkg/storaged/mdraid-details.jsx:145
-#: pkg/apps/application.jsx:51 pkg/users/authorized-keys-panel.js:137
-#: pkg/systemd/services/timer-dialog.jsx:335 pkg/shell/hosts.jsx:170
+#: pkg/shell/hosts.jsx:170 pkg/users/authorized-keys-panel.js:137
+#: pkg/storaged/nfs-details.jsx:307 pkg/storaged/vgroup-details.jsx:119
+#: pkg/storaged/mdraid-details.jsx:145 pkg/storaged/crypto-keyslots.jsx:469
+#: pkg/storaged/crypto-keyslots.jsx:504 pkg/storaged/crypto-keyslots.jsx:585
+#: pkg/systemd/services/timer-dialog.jsx:335 pkg/apps/application.jsx:51
 msgid "Remove"
 msgstr "Eliminar"
 
@@ -5484,10 +5484,10 @@ msgstr "Eliminar el dispositivo"
 msgid "Remove host"
 msgstr "Eliminar anfitrión"
 
-#: pkg/networkmanager/ip-settings.jsx:199
-#: pkg/networkmanager/ip-settings.jsx:244
-#: pkg/networkmanager/ip-settings.jsx:289
-#: pkg/networkmanager/ip-settings.jsx:358
+#: pkg/networkmanager/ip-settings.jsx:215
+#: pkg/networkmanager/ip-settings.jsx:260
+#: pkg/networkmanager/ip-settings.jsx:305
+#: pkg/networkmanager/ip-settings.jsx:374
 msgid "Remove item"
 msgstr "Eliminar elemento"
 
@@ -5555,10 +5555,10 @@ msgid "Removing the zone will remove all services within it."
 msgstr ""
 "Eliminando la zona eliminará todos los servicios que estén asociados a esta."
 
-#: pkg/storaged/vgroup-details.jsx:171 pkg/storaged/vgroup-details.jsx:223
 #: pkg/storaged/lvol-tabs.jsx:52 pkg/storaged/stratis-details.jsx:279
 #: pkg/storaged/stratis-details.jsx:416 pkg/storaged/stratis-details.jsx:473
-#: pkg/storaged/stratis-details.jsx:598
+#: pkg/storaged/stratis-details.jsx:598 pkg/storaged/vgroup-details.jsx:171
+#: pkg/storaged/vgroup-details.jsx:223
 msgid "Rename"
 msgstr "Renombrar"
 
@@ -5606,7 +5606,7 @@ msgstr "Repita la contraseña"
 msgid "Repeat weekly"
 msgstr "Repetir cada semana"
 
-#: pkg/sosreport/index.jsx:513 pkg/systemd/reporting.jsx:431
+#: pkg/systemd/reporting.jsx:431 pkg/sosreport/index.jsx:513
 msgid "Report"
 msgstr "Informe"
 
@@ -5678,7 +5678,7 @@ msgstr "Requisito"
 msgid "Requisite of"
 msgstr "Requisito de"
 
-#: pkg/kdump/kdump-view.jsx:543
+#: pkg/kdump/kdump-view.jsx:498
 msgid "Reserved memory"
 msgstr "Memoria reservada"
 
@@ -5710,17 +5710,17 @@ msgstr "Reiniciar"
 
 # auto translated by TM merge from project: Cockpit, version: rhel-8.0, DocId:
 # cockpit
-#: pkg/packagekit/updates.jsx:488 pkg/packagekit/updates.jsx:503
+#: pkg/packagekit/updates.jsx:491 pkg/packagekit/updates.jsx:506
 msgid "Restart services"
 msgstr "Reiniciar servicios"
 
 # auto translated by TM merge from project: Cockpit, version: rhel-8.0, DocId:
 # cockpit
-#: pkg/packagekit/updates.jsx:736 pkg/packagekit/updates.jsx:811
+#: pkg/packagekit/updates.jsx:747 pkg/packagekit/updates.jsx:822
 msgid "Restart services..."
 msgstr "Reiniciar servicios..."
 
-#: pkg/packagekit/updates.jsx:1526
+#: pkg/packagekit/updates.jsx:1546
 msgid "Restarting"
 msgstr "Reiniciando"
 
@@ -5752,11 +5752,11 @@ msgstr "Revisión de registros"
 msgid "Roles"
 msgstr "Roles"
 
-#: pkg/networkmanager/bond.jsx:45 pkg/networkmanager/team.jsx:43
+#: pkg/networkmanager/team.jsx:43 pkg/networkmanager/bond.jsx:45
 msgid "Round robin"
 msgstr "Round robin"
 
-#: pkg/networkmanager/ip-settings.jsx:300
+#: pkg/networkmanager/ip-settings.jsx:316
 msgid "Routes"
 msgstr "Rutas"
 
@@ -5782,12 +5782,12 @@ msgid "Runner"
 msgstr "Lanzador"
 
 #: pkg/storaged/mdraid-details.jsx:352 pkg/systemd/services/services.jsx:195
-#: pkg/systemd/services/services.jsx:199 pkg/systemd/services/services.jsx:797
+#: pkg/systemd/services/services.jsx:199 pkg/systemd/services/services.jsx:798
 #: pkg/systemd/services/service-details.jsx:458
 msgid "Running"
 msgstr "Ejecutando"
 
-#: pkg/storaged/dialog.jsx:1206 pkg/storaged/dialog.jsx:1225
+#: pkg/storaged/dialog.jsx:1204 pkg/storaged/dialog.jsx:1223
 msgid "Runtime"
 msgstr "Tiempo de ejecución"
 
@@ -5874,16 +5874,16 @@ msgstr ""
 "Los usuarios de Safari tienen que importar y confiar en la CA del "
 "certificado autofirmado:"
 
-#: pkg/packagekit/autoupdates.jsx:314 pkg/systemd/services/timer-dialog.jsx:297
+#: pkg/systemd/services/timer-dialog.jsx:297 pkg/packagekit/autoupdates.jsx:314
 msgid "Saturdays"
 msgstr "Los sábados"
 
+#: pkg/metrics/metrics.jsx:1230 pkg/kdump/kdump-view.jsx:324
+#: pkg/networkmanager/dialogs-common.jsx:152 pkg/storaged/nfs-details.jsx:186
+#: pkg/storaged/crypto-tab.jsx:158 pkg/storaged/crypto-tab.jsx:202
 #: pkg/storaged/crypto-keyslots.jsx:346 pkg/storaged/crypto-keyslots.jsx:365
-#: pkg/storaged/nfs-details.jsx:186 pkg/storaged/crypto-tab.jsx:158
-#: pkg/storaged/crypto-tab.jsx:202 pkg/storaged/fsys-tab.jsx:374
-#: pkg/storaged/fsys-tab.jsx:490 pkg/packagekit/kpatch.jsx:306
-#: pkg/metrics/metrics.jsx:1230 pkg/systemd/services/timer-dialog.jsx:142
-#: pkg/kdump/kdump-view.jsx:369 pkg/networkmanager/dialogs-common.jsx:152
+#: pkg/storaged/fsys-tab.jsx:374 pkg/storaged/fsys-tab.jsx:490
+#: pkg/systemd/services/timer-dialog.jsx:142 pkg/packagekit/kpatch.jsx:306
 msgid "Save"
 msgstr "Guardar"
 
@@ -5891,8 +5891,8 @@ msgstr "Guardar"
 msgid "Save and reboot"
 msgstr "Guardar y reiniciar"
 
-#: pkg/packagekit/autoupdates.jsx:269
 #: pkg/systemd/overview-cards/motdCard.jsx:60
+#: pkg/packagekit/autoupdates.jsx:269
 msgid "Save changes"
 msgstr "Guardar cambios"
 
@@ -5927,11 +5927,11 @@ msgstr "Reinicio programado el $0"
 msgid "Sealed-case PC"
 msgstr "PC de caja sellada"
 
-#: pkg/systemd/logs.jsx:405 pkg/shell/nav.jsx:121
+#: pkg/shell/nav.jsx:121 pkg/systemd/logs.jsx:405
 msgid "Search"
 msgstr "Buscar"
 
-#: pkg/networkmanager/ip-settings.jsx:277
+#: pkg/networkmanager/ip-settings.jsx:293
 msgid "Search domain"
 msgstr "Dominio de búsquedas"
 
@@ -5947,7 +5947,7 @@ msgstr "Claves de Secure Shell"
 msgid "Securely erasing $target"
 msgstr "Eliminando de forma segura $target"
 
-#: pkg/packagekit/updates.jsx:1397
+#: pkg/packagekit/updates.jsx:1409
 msgid "Security updates available"
 msgstr "Actualizaciones de seguridad disponibles"
 
@@ -5967,7 +5967,7 @@ msgstr "Seleccionar"
 msgid "Select a identifier"
 msgstr "Seleccionar un identificador"
 
-#: pkg/networkmanager/ip-settings.jsx:150
+#: pkg/networkmanager/ip-settings.jsx:166
 msgid "Select method"
 msgstr "Seleccionar método"
 
@@ -5975,9 +5975,9 @@ msgstr "Seleccionar método"
 msgid "Send"
 msgstr "Enviar"
 
-#: pkg/networkmanager/network-interface-members.jsx:216
 #: pkg/networkmanager/network-main.jsx:186
 #: pkg/networkmanager/network-main.jsx:201
+#: pkg/networkmanager/network-interface-members.jsx:216
 msgid "Sending"
 msgstr "Enviando"
 
@@ -5986,9 +5986,9 @@ msgctxt "storage"
 msgid "Serial number"
 msgstr "Número de serie"
 
-#: pkg/static/login.html:155 pkg/storaged/nfs-details.jsx:317
-#: pkg/storaged/nfs-panel.jsx:102 pkg/kdump/kdump-view.jsx:121
-#: pkg/networkmanager/ip-settings.jsx:232
+#: pkg/static/login.html:155 pkg/kdump/kdump-view.jsx:96
+#: pkg/kdump/kdump-view.jsx:122 pkg/networkmanager/ip-settings.jsx:248
+#: pkg/storaged/nfs-details.jsx:317 pkg/storaged/nfs-panel.jsx:102
 msgid "Server"
 msgstr "Servidor"
 
@@ -6016,28 +6016,28 @@ msgstr "El servidor ha cerrado la conexión."
 msgid "Server software"
 msgstr "Software de servidor"
 
-#: pkg/storaged/dialog.jsx:1222 pkg/metrics/metrics.jsx:694
-#: pkg/metrics/metrics.jsx:727 pkg/networkmanager/firewall.jsx:208
+#: pkg/metrics/metrics.jsx:694 pkg/metrics/metrics.jsx:727
+#: pkg/networkmanager/firewall.jsx:208 pkg/storaged/dialog.jsx:1220
 msgid "Service"
 msgstr "Servicio"
 
-#: pkg/kdump/kdump-view.jsx:456
+#: pkg/kdump/kdump-view.jsx:411
 msgid "Service has an error"
 msgstr "El servicio tiene un error"
 
-#: pkg/kdump/kdump-view.jsx:452
+#: pkg/kdump/kdump-view.jsx:407
 msgid "Service is running"
 msgstr "Se está ejecutando el servicio"
 
-#: pkg/kdump/kdump-view.jsx:458
+#: pkg/kdump/kdump-view.jsx:413
 msgid "Service is starting"
 msgstr "Se está iniciando el servicio"
 
-#: pkg/kdump/kdump-view.jsx:454
+#: pkg/kdump/kdump-view.jsx:409
 msgid "Service is stopped"
 msgstr "Se ha detenido el servicio"
 
-#: pkg/kdump/kdump-view.jsx:460
+#: pkg/kdump/kdump-view.jsx:415
 msgid "Service is stopping"
 msgstr "Se está deteniendo el servicio"
 
@@ -6045,13 +6045,13 @@ msgstr "Se está deteniendo el servicio"
 msgid "Service logs"
 msgstr "Bitácoras del servicio"
 
-#: pkg/systemd/services.html:4 pkg/systemd/services/service-tabs.jsx:39
-#: pkg/systemd/services/service.jsx:83 pkg/networkmanager/firewall.jsx:618
+#: pkg/systemd/services.html:4 pkg/networkmanager/firewall.jsx:618
+#: pkg/systemd/services/service.jsx:83 pkg/systemd/services/service-tabs.jsx:39
 #: pkg/systemd/manifest.json:0
 msgid "Services"
 msgstr "Servicios"
 
-#: pkg/storaged/dialog.jsx:1070
+#: pkg/storaged/dialog.jsx:1068
 msgid "Services using the location"
 msgstr "Servicios usando la ubicación"
 
@@ -6084,7 +6084,7 @@ msgstr "Establecer la hora"
 msgid "Set to"
 msgstr "Ajustar a"
 
-#: pkg/packagekit/updates.jsx:102
+#: pkg/packagekit/updates.jsx:105
 msgid "Set up"
 msgstr "Preparar"
 
@@ -6099,7 +6099,7 @@ msgstr ""
 "Los ajustes se desvían del estado configurado y serán revertidos en el "
 "próximo arranque."
 
-#: pkg/packagekit/updates.jsx:96
+#: pkg/packagekit/updates.jsx:99
 msgid "Setting up"
 msgstr "Configurar"
 
@@ -6107,11 +6107,11 @@ msgstr "Configurar"
 msgid "Setting up loop device $target"
 msgstr "Configurando el dispositivo de retorno $target"
 
-#: pkg/packagekit/updates.jsx:894
+#: pkg/packagekit/updates.jsx:905
 msgid "Settings"
 msgstr "Ajustes"
 
-#: pkg/packagekit/updates.jsx:341 pkg/packagekit/updates.jsx:415
+#: pkg/packagekit/updates.jsx:344 pkg/packagekit/updates.jsx:418
 msgid "Severity"
 msgstr "Severidad"
 
@@ -6196,39 +6196,39 @@ msgstr "Apagar"
 msgid "Since"
 msgstr "Desde"
 
-#: pkg/systemd/hw-detect.js:90 pkg/lib/machine-info.js:259
+#: pkg/lib/machine-info.js:259 pkg/systemd/hw-detect.js:90
 msgid "Single rank"
 msgstr "Rango único"
 
-#: pkg/storaged/nfs-details.jsx:327 pkg/storaged/format-dialog.jsx:220
 #: pkg/storaged/lvol-tabs.jsx:242 pkg/storaged/lvol-tabs.jsx:309
 #: pkg/storaged/lvol-tabs.jsx:429 pkg/storaged/lvol-tabs.jsx:490
-#: pkg/storaged/lvol-tabs.jsx:543 pkg/storaged/fsys-panel.jsx:177
-#: pkg/storaged/nfs-panel.jsx:104 pkg/storaged/part-tab.jsx:45
+#: pkg/storaged/lvol-tabs.jsx:543 pkg/storaged/nfs-details.jsx:327
+#: pkg/storaged/nfs-panel.jsx:104 pkg/storaged/content-views.jsx:187
+#: pkg/storaged/content-views.jsx:750 pkg/storaged/content-views.jsx:925
+#: pkg/storaged/content-views.jsx:933 pkg/storaged/content-views.jsx:1013
 #: pkg/storaged/stratis-details.jsx:652 pkg/storaged/stratis-details.jsx:785
-#: pkg/storaged/content-views.jsx:187 pkg/storaged/content-views.jsx:750
-#: pkg/storaged/content-views.jsx:925 pkg/storaged/content-views.jsx:933
-#: pkg/storaged/content-views.jsx:1013 pkg/systemd/hwinfo.jsx:310
+#: pkg/storaged/format-dialog.jsx:220 pkg/storaged/part-tab.jsx:45
+#: pkg/storaged/fsys-panel.jsx:177 pkg/systemd/hwinfo.jsx:310
 msgid "Size"
 msgstr "Tamaño"
 
-#: pkg/storaged/dialog.jsx:987
+#: pkg/storaged/dialog.jsx:985
 msgid "Size cannot be negative"
 msgstr "El tamaño no puede ser negativo"
 
-#: pkg/storaged/dialog.jsx:985
+#: pkg/storaged/dialog.jsx:983
 msgid "Size cannot be zero"
 msgstr "El tamaño no puede ser cero"
 
-#: pkg/storaged/dialog.jsx:989
+#: pkg/storaged/dialog.jsx:987
 msgid "Size is too large"
 msgstr "El tamaño es demasiado grande"
 
-#: pkg/storaged/dialog.jsx:983
+#: pkg/storaged/dialog.jsx:981
 msgid "Size must be a number"
 msgstr "El tamaño debe ser un número"
 
-#: pkg/storaged/dialog.jsx:991
+#: pkg/storaged/dialog.jsx:989
 msgid "Size must be at least $0"
 msgstr "El tamaño debe ser al menos $0"
 
@@ -6244,7 +6244,7 @@ msgstr "Saltar al contenido"
 msgid "Slot"
 msgstr "Compartimento"
 
-#: pkg/storaged/crypto-keyslots.jsx:573 pkg/storaged/mdraid-details.jsx:123
+#: pkg/storaged/mdraid-details.jsx:123 pkg/storaged/crypto-keyslots.jsx:573
 msgid "Slot $0"
 msgstr "Compartimento $0"
 
@@ -6256,11 +6256,7 @@ msgstr "Crear una instantánea"
 msgid "Sockets"
 msgstr "Sockets"
 
-#: pkg/packagekit/manifest.json:0
-msgid "Software Updates"
-msgstr "Actualizaciones de software"
-
-#: pkg/packagekit/index.html:23
+#: pkg/packagekit/index.html:23 pkg/packagekit/manifest.json:0
 msgid "Software updates"
 msgstr "Actualizaciones de software"
 
@@ -6286,15 +6282,15 @@ msgstr "Fallo en la solución"
 msgid "Solutions"
 msgstr "Soluciones"
 
-#: pkg/packagekit/updates.jsx:86
+#: pkg/packagekit/updates.jsx:89
 msgid ""
 "Some other program is currently using the package manager, please wait..."
 msgstr ""
 "Algún otro programa está usando actualmente el gestor de paquetes, por favor "
 "espere..."
 
-#: pkg/packagekit/updates.jsx:712 pkg/packagekit/updates.jsx:819
-#: pkg/packagekit/updates.jsx:1489
+#: pkg/packagekit/updates.jsx:723 pkg/packagekit/updates.jsx:830
+#: pkg/packagekit/updates.jsx:1509
 msgid "Some software needs to be restarted manually"
 msgstr "Parte del software necesita ser reiniciado manualmente"
 
@@ -6334,8 +6330,8 @@ msgstr "Velocidad"
 msgid "Stable"
 msgstr "Estable"
 
-#: pkg/storaged/mdraid-details.jsx:320 pkg/storaged/vdo-details.jsx:268
-#: pkg/storaged/content-views.jsx:344
+#: pkg/storaged/content-views.jsx:344 pkg/storaged/vdo-details.jsx:268
+#: pkg/storaged/mdraid-details.jsx:320
 #: pkg/systemd/services/service-details.jsx:138
 msgid "Start"
 msgstr "Iniciar"
@@ -6350,7 +6346,7 @@ msgstr "Inicio multitrayecto"
 
 # auto translated by TM merge from project: Cockpit, version: rhel-8.0, DocId:
 # cockpit
-#: pkg/systemd/services/service-details.jsx:447 pkg/networkmanager/app.jsx:77
+#: pkg/networkmanager/app.jsx:77 pkg/systemd/services/service-details.jsx:447
 msgid "Start service"
 msgstr "Iniciar servicio"
 
@@ -6388,13 +6384,13 @@ msgctxt "storage"
 msgid "State"
 msgstr "Estado"
 
-#: pkg/systemd/services/services.jsx:215 pkg/systemd/services/services.jsx:789
+#: pkg/systemd/services/services.jsx:215 pkg/systemd/services/services.jsx:790
 #: pkg/systemd/services/service-details.jsx:476
 msgid "Static"
 msgstr "Estático"
 
-#: pkg/packagekit/updates.jsx:883 pkg/systemd/services/service-details.jsx:634
-#: pkg/kdump/kdump-view.jsx:533 pkg/networkmanager/network-interface.jsx:264
+#: pkg/kdump/kdump-view.jsx:488 pkg/networkmanager/network-interface.jsx:264
+#: pkg/systemd/services/service-details.jsx:634 pkg/packagekit/updates.jsx:894
 msgid "Status"
 msgstr "Estado"
 
@@ -6406,8 +6402,8 @@ msgstr "PC USB"
 msgid "Sticky"
 msgstr "Pegajoso"
 
-#: pkg/storaged/mdraid-details.jsx:319 pkg/storaged/vdo-details.jsx:145
-#: pkg/storaged/vdo-details.jsx:267 pkg/storaged/content-views.jsx:342
+#: pkg/storaged/content-views.jsx:342 pkg/storaged/vdo-details.jsx:145
+#: pkg/storaged/vdo-details.jsx:267 pkg/storaged/mdraid-details.jsx:319
 #: pkg/systemd/services/service-details.jsx:134
 msgid "Stop"
 msgstr "Detener"
@@ -6430,7 +6426,7 @@ msgstr "Parar dispositivo"
 
 #: pkg/shell/hosts.jsx:203
 msgid "Stop editing hosts"
-msgstr "Para la edición de hosts"
+msgstr "Dejar de editar anfitriones"
 
 #: pkg/sosreport/index.jsx:284
 msgid "Stop report"
@@ -6503,7 +6499,7 @@ msgstr "¡Copiado al portapapeles con éxito!"
 msgid "Successfully copied to keyboard"
 msgstr "Copiado al portapapeles"
 
-#: pkg/packagekit/autoupdates.jsx:315 pkg/systemd/services/timer-dialog.jsx:298
+#: pkg/systemd/services/timer-dialog.jsx:298 pkg/packagekit/autoupdates.jsx:315
 msgid "Sundays"
 msgstr "Los domingos"
 
@@ -6511,8 +6507,8 @@ msgstr "Los domingos"
 msgid "Support is installed."
 msgstr "El soporte está instalado."
 
-#: pkg/storaged/content-views.jsx:228 pkg/metrics/metrics.jsx:125
-#: pkg/metrics/metrics.jsx:596 pkg/metrics/metrics.jsx:1637
+#: pkg/metrics/metrics.jsx:125 pkg/metrics/metrics.jsx:596
+#: pkg/metrics/metrics.jsx:1637 pkg/storaged/content-views.jsx:228
 msgid "Swap"
 msgstr "Área de intercambio"
 
@@ -6581,8 +6577,8 @@ msgstr "Sincronizando"
 msgid "Synchronizing RAID device $target"
 msgstr "Sincronizando el dispositivo RAID $target"
 
-#: pkg/systemd/services/services.jsx:1040 pkg/shell/nav.jsx:28
-#: pkg/shell/indexes.jsx:330
+#: pkg/shell/nav.jsx:28 pkg/shell/indexes.jsx:330
+#: pkg/systemd/services/services.jsx:1041
 msgid "System"
 msgstr "Sistema"
 
@@ -6590,12 +6586,12 @@ msgstr "Sistema"
 msgid "System diagnostics"
 msgstr "Diagnósticos del sistema"
 
-#: pkg/systemd/overview-cards/systemInformationCard.jsx:112
 #: pkg/systemd/hwinfo.jsx:335
+#: pkg/systemd/overview-cards/systemInformationCard.jsx:112
 msgid "System information"
 msgstr "Información del sistema"
 
-#: pkg/packagekit/updates.jsx:88
+#: pkg/packagekit/updates.jsx:91
 msgid "System is up to date"
 msgstr "El sistema está actualizado"
 
@@ -6653,17 +6649,17 @@ msgstr "Terminal"
 msgid "Terminate session"
 msgstr "Cerrar sesión"
 
-#: pkg/kdump/kdump-view.jsx:493 pkg/kdump/kdump-view.jsx:501
+#: pkg/kdump/kdump-view.jsx:448 pkg/kdump/kdump-view.jsx:456
 msgid "Test configuration"
 msgstr "Comprobar la configuración"
 
-#: pkg/kdump/kdump-view.jsx:497
+#: pkg/kdump/kdump-view.jsx:452
 msgid "Test is only available while the kdump service is running."
 msgstr ""
 "Las pruebas solo están disponibles cuando el servicio kdump esté "
 "ejecutándose."
 
-#: pkg/kdump/kdump-view.jsx:309
+#: pkg/kdump/kdump-view.jsx:264
 msgid "Test kdump settings"
 msgstr "Ajustes de prueba de kdump"
 
@@ -6830,7 +6826,7 @@ msgstr ""
 "El sistema de archivos se desbloqueará en el siguiente arranque. Puede que "
 "se requiera introducir una contraseña."
 
-#: pkg/packagekit/updates.jsx:478
+#: pkg/packagekit/updates.jsx:481
 msgid "The following service will be restarted:"
 msgid_plural "The following services will be restarted:"
 msgstr[0] "El siguiente servicio será reiniciado:"
@@ -6860,15 +6856,15 @@ msgstr "No se puede eliminar el último guardaclaves"
 msgid "The last physical volume of a volume group cannot be removed."
 msgstr "El último volumen físico de un grupo de volumen no se puede eliminar."
 
-#: pkg/storaged/dialog.jsx:1240
+#: pkg/storaged/dialog.jsx:1238
 msgid "The listed processes and services will be forcefully stopped."
 msgstr "Los procesos y servicios listados serán detenidos forzadamente."
 
-#: pkg/storaged/dialog.jsx:1242
+#: pkg/storaged/dialog.jsx:1240
 msgid "The listed processes will be forcefully stopped."
 msgstr "Los procesos listados serán detenidos forzadamente."
 
-#: pkg/storaged/dialog.jsx:1244
+#: pkg/storaged/dialog.jsx:1242
 msgid "The listed services will be forcefully stopped."
 msgstr "Los servicios listados serán detenidos forzadamente."
 
@@ -6882,11 +6878,11 @@ msgstr ""
 msgid "The machine is rebooting"
 msgstr "La máquina se está reiniciando"
 
-#: pkg/storaged/dialog.jsx:1199
+#: pkg/storaged/dialog.jsx:1197
 msgid "The mount point $0 is in use by these processes:"
 msgstr "El punto de montaje $0 está siendo usado por los siguientes procesos:"
 
-#: pkg/storaged/dialog.jsx:1218
+#: pkg/storaged/dialog.jsx:1216
 msgid "The mount point $0 is in use by these services:"
 msgstr "El punto de montaje $0 está siendo usado por los siguientes servicios:"
 
@@ -6898,7 +6894,7 @@ msgstr "La nueva contraseña de la clave no puede estar vacía"
 msgid "The password can not be empty"
 msgstr "La contraseña no puede estar vacía"
 
-#: pkg/users/password-dialogs.js:190 pkg/users/account-create-dialog.js:210
+#: pkg/users/account-create-dialog.js:210 pkg/users/password-dialogs.js:190
 msgid "The passwords do not match"
 msgstr "Las contraseñas no coinciden"
 
@@ -6990,7 +6986,7 @@ msgstr ""
 msgid "There was an unexpected error while connecting to the machine."
 msgstr "Hubo un error no esperado mientra se conectaba a la máquina."
 
-#: pkg/storaged/dialog.jsx:1126
+#: pkg/storaged/dialog.jsx:1124
 msgid "These changes will be made:"
 msgstr "Se realizarán los siguientes cambios:"
 
@@ -7010,7 +7006,7 @@ msgstr "Este dispositivo VDO no usa todos sus dispositivos de respaldo."
 msgid "This device cannot be managed here."
 msgstr "Este dispositivo no se puede gestionar aquí."
 
-#: pkg/storaged/dialog.jsx:1048
+#: pkg/storaged/dialog.jsx:1046
 msgid "This device is currently in use."
 msgstr "Este dispositivo está en uso."
 
@@ -7054,7 +7050,7 @@ msgstr ""
 "Este grupo de almacenamiento no puede ser desbloqueado aquí porque su "
 "formato de descripción de clave no es el esperado."
 
-#: pkg/packagekit/updates.jsx:1335
+#: pkg/packagekit/updates.jsx:1347
 msgid "This system is not registered"
 msgstr "Este sistema no está registrado"
 
@@ -7116,7 +7112,7 @@ msgstr ""
 msgid "This will allow you to log in without password in the future."
 msgstr "Esto te permitirá iniciar sesión sin contraseña en el futuro."
 
-#: pkg/kdump/kdump-view.jsx:311
+#: pkg/kdump/kdump-view.jsx:266
 msgid ""
 "This will test kdump settings by crashing the kernel and thereby the system. "
 "Depending on the settings, the system may not automatically reboot and the "
@@ -7126,7 +7122,7 @@ msgstr ""
 "tanto el sistema. Dependiendo de los ajustes, puede que el sistema no se "
 "reinicie automáticamente y el proceso tome un tiempo."
 
-#: pkg/kdump/kdump-view.jsx:506
+#: pkg/kdump/kdump-view.jsx:461
 msgid "This will test the kdump configuration by crashing the kernel."
 msgstr "Esto comprobará la configuración de kdump colapsando el kernel."
 
@@ -7138,7 +7134,7 @@ msgstr ""
 "Esta zona contiene un servicio cockpit. Estese seguro de que esta zona no se "
 "aplica en su conexión con la consola web actual."
 
-#: pkg/packagekit/autoupdates.jsx:312 pkg/systemd/services/timer-dialog.jsx:295
+#: pkg/systemd/services/timer-dialog.jsx:295 pkg/packagekit/autoupdates.jsx:312
 msgid "Thursdays"
 msgstr "Los jueves"
 
@@ -7146,7 +7142,7 @@ msgstr "Los jueves"
 msgid "Tier"
 msgstr "Clase"
 
-#: pkg/packagekit/history.jsx:107 pkg/systemd/logs.jsx:200
+#: pkg/systemd/logs.jsx:200 pkg/packagekit/history.jsx:107
 msgid "Time"
 msgstr "Hora"
 
@@ -7183,7 +7179,7 @@ msgstr ""
 "Para garantizar que su conexión no sea interceptada por un tercero "
 "malicioso, por favor verifique la clave de huella del anfitrión:"
 
-#: pkg/packagekit/updates.jsx:1338
+#: pkg/packagekit/updates.jsx:1350
 msgid ""
 "To get software updates, this system needs to be registered with Red Hat, "
 "either using the Red Hat Customer Portal or a local subscription server."
@@ -7205,7 +7201,7 @@ msgstr ""
 msgid "Today"
 msgstr "Hoy"
 
-#: pkg/storaged/iscsi-panel.jsx:246 pkg/shell/credentials.jsx:105
+#: pkg/shell/credentials.jsx:105 pkg/storaged/iscsi-panel.jsx:246
 msgid "Toggle"
 msgstr "Alternar"
 
@@ -7213,12 +7209,13 @@ msgstr "Alternar"
 msgid "Toggle bitmap"
 msgstr "Alternar bitmap"
 
-#: pkg/users/expiration-dialogs.js:44 pkg/systemd/services/timer-dialog.jsx:323
-#: pkg/lib/serverTime.js:526 pkg/lib/cockpit-components-shutdown.jsx:208
+#: pkg/users/expiration-dialogs.js:44 pkg/lib/serverTime.js:526
+#: pkg/lib/cockpit-components-shutdown.jsx:208
+#: pkg/systemd/services/timer-dialog.jsx:323
 msgid "Toggle date picker"
 msgstr "Alternar el selector de fecha"
 
-#: pkg/systemd/logs.jsx:189 pkg/systemd/services/services.jsx:946
+#: pkg/systemd/logs.jsx:189 pkg/systemd/services/services.jsx:947
 msgid "Toggle filters"
 msgstr "Alternar filtros"
 
@@ -7293,7 +7290,7 @@ msgstr "Intentar otra vez"
 msgid "Trying to synchronize with $0"
 msgstr "Intentando sincronizar con $0"
 
-#: pkg/packagekit/autoupdates.jsx:310 pkg/systemd/services/timer-dialog.jsx:293
+#: pkg/systemd/services/timer-dialog.jsx:293 pkg/packagekit/autoupdates.jsx:310
 msgid "Tuesdays"
 msgstr "Los martes"
 
@@ -7327,11 +7324,11 @@ msgstr "Tuned está apagado"
 msgid "Turn on administrative access"
 msgstr "Habilitar el acceso administrativo"
 
-#: pkg/storaged/unrecognized-tab.jsx:41 pkg/storaged/format-dialog.jsx:218
-#: pkg/storaged/fsys-panel.jsx:175 pkg/storaged/part-tab.jsx:55
-#: pkg/storaged/content-views.jsx:750 pkg/storaged/content-views.jsx:1013
-#: pkg/packagekit/autoupdates.jsx:279 pkg/systemd/hwinfo.jsx:85
-#: pkg/systemd/hwinfo.jsx:310 pkg/shell/credentials.jsx:202
+#: pkg/shell/credentials.jsx:202 pkg/storaged/content-views.jsx:750
+#: pkg/storaged/content-views.jsx:1013 pkg/storaged/format-dialog.jsx:218
+#: pkg/storaged/unrecognized-tab.jsx:41 pkg/storaged/part-tab.jsx:55
+#: pkg/storaged/fsys-panel.jsx:175 pkg/systemd/hwinfo.jsx:85
+#: pkg/systemd/hwinfo.jsx:310 pkg/packagekit/autoupdates.jsx:279
 msgid "Type"
 msgstr "Tipo"
 
@@ -7347,8 +7344,8 @@ msgstr "UDP"
 msgid "UUID"
 msgstr "UUID"
 
-#: pkg/storaged/vgroup-details.jsx:231 pkg/storaged/mdraid-details.jsx:334
 #: pkg/storaged/stratis-details.jsx:423 pkg/storaged/stratis-details.jsx:769
+#: pkg/storaged/vgroup-details.jsx:231 pkg/storaged/mdraid-details.jsx:334
 msgctxt "storage"
 msgid "UUID"
 msgstr "UUID"
@@ -7412,11 +7409,11 @@ msgstr "Incapaz de eliminar el montaje"
 msgid "Unable to run fix: %0"
 msgstr "Incapaz de ejecutar correción: %0"
 
-#: pkg/kdump/kdump-view.jsx:289
+#: pkg/kdump/kdump-view.jsx:244
 msgid "Unable to save settings"
 msgstr "No se pudo aplicar los ajustes"
 
-#: pkg/kdump/kdump-view.jsx:293
+#: pkg/kdump/kdump-view.jsx:248
 msgid "Unable to save settings: $0"
 msgstr "Incapaz de aplicar los ajustes: $0"
 
@@ -7436,7 +7433,7 @@ msgstr "No disponible"
 msgid "Unavailable packages"
 msgstr "Paquetes no disponibles"
 
-#: pkg/users/dialog-utils.js:65 pkg/shell/shell-modals.jsx:167
+#: pkg/shell/shell-modals.jsx:167 pkg/users/dialog-utils.js:65
 #: pkg/networkmanager/interfaces.js:50
 msgid "Unexpected error"
 msgstr "Error inesperado"
@@ -7446,7 +7443,7 @@ msgstr "Error inesperado"
 msgid "Unit"
 msgstr "Unidad"
 
-#: pkg/systemd/services/services.jsx:765
+#: pkg/systemd/services/services.jsx:766
 msgid "Unit not found"
 msgstr "Unidad no encontrada"
 
@@ -7454,16 +7451,16 @@ msgstr "Unidad no encontrada"
 msgid "Unix group: $0"
 msgstr "Grupo Unix: $0"
 
-#: pkg/storaged/swap-tab.jsx:62 pkg/systemd/hw-detect.js:85
+#: pkg/networkmanager/interfaces.js:506 pkg/networkmanager/interfaces.js:981
+#: pkg/networkmanager/network-interface.jsx:198
+#: pkg/networkmanager/network-interface.jsx:200 pkg/storaged/swap-tab.jsx:62
+#: pkg/lib/machine-info.js:61 pkg/lib/machine-info.js:247
+#: pkg/lib/machine-info.js:255 pkg/lib/machine-info.js:257
+#: pkg/lib/machine-info.js:264 pkg/lib/machine-info.js:266
+#: pkg/lib/machine-info.js:270 pkg/systemd/hw-detect.js:85
 #: pkg/systemd/hw-detect.js:94 pkg/systemd/hw-detect.js:101
 #: pkg/systemd/hw-detect.js:104 pkg/systemd/hw-detect.js:111
-#: pkg/systemd/hw-detect.js:112 pkg/lib/machine-info.js:61
-#: pkg/lib/machine-info.js:247 pkg/lib/machine-info.js:255
-#: pkg/lib/machine-info.js:257 pkg/lib/machine-info.js:264
-#: pkg/lib/machine-info.js:266 pkg/lib/machine-info.js:270
-#: pkg/networkmanager/network-interface.jsx:198
-#: pkg/networkmanager/network-interface.jsx:200
-#: pkg/networkmanager/interfaces.js:506 pkg/networkmanager/interfaces.js:981
+#: pkg/systemd/hw-detect.js:112
 msgid "Unknown"
 msgstr "Desconocido"
 
@@ -7498,9 +7495,9 @@ msgstr "Nombre del servicio desconocido"
 msgid "Unknown type"
 msgstr "Tipo desconocido"
 
+#: pkg/shell/credentials.jsx:315 pkg/storaged/content-views.jsx:267
+#: pkg/storaged/content-views.jsx:272 pkg/storaged/content-views.jsx:291
 #: pkg/storaged/stratis-details.jsx:704 pkg/storaged/stratis-details.jsx:763
-#: pkg/storaged/content-views.jsx:267 pkg/storaged/content-views.jsx:272
-#: pkg/storaged/content-views.jsx:291 pkg/shell/credentials.jsx:315
 msgid "Unlock"
 msgstr "Desbloquear"
 
@@ -7536,8 +7533,8 @@ msgstr "Desbloqueando el disco"
 msgid "Unmanaged interfaces"
 msgstr "Interfaces no gestionadas"
 
-#: pkg/storaged/nfs-details.jsx:299 pkg/storaged/fsys-tab.jsx:373
-#: pkg/storaged/stratis-details.jsx:597 pkg/storaged/content-views.jsx:413
+#: pkg/storaged/nfs-details.jsx:299 pkg/storaged/content-views.jsx:413
+#: pkg/storaged/stratis-details.jsx:597 pkg/storaged/fsys-tab.jsx:373
 msgid "Unmount"
 msgstr "Desmontar"
 
@@ -7591,36 +7588,32 @@ msgstr "Anfitrión no seguro"
 msgid "Update"
 msgstr "Actualizar"
 
-#: pkg/packagekit/updates.jsx:729
+#: pkg/packagekit/updates.jsx:740
 msgid "Update Success Table"
 msgstr "Tabla de actualización exitosa"
 
-#: pkg/packagekit/updates.jsx:932
+#: pkg/packagekit/updates.jsx:943
 msgid "Update history"
 msgstr "Histórico de actualización"
-
-#: pkg/packagekit/updates.jsx:595
-msgid "Update log"
-msgstr "Registro de actualización"
 
 #: pkg/apps/application-list.jsx:128
 msgid "Update package information"
 msgstr "Actualizar la información de paquetes"
 
-#: pkg/packagekit/updates.jsx:654 pkg/packagekit/updates.jsx:724
+#: pkg/packagekit/updates.jsx:665 pkg/packagekit/updates.jsx:735
 msgid "Update was successful"
 msgstr "La actualización fue correcta"
 
-#: pkg/packagekit/updates.jsx:101
+#: pkg/packagekit/updates.jsx:104
 msgid "Updated"
 msgstr "Actualizado"
 
-#: pkg/packagekit/updates.jsx:657
+#: pkg/packagekit/updates.jsx:668
 msgid "Updated packages may require a reboot to take effect."
 msgstr ""
 "Los paquetes actualizados pueden necesitar un reinicio para tomar efecto."
 
-#: pkg/packagekit/updates.jsx:1403
+#: pkg/packagekit/updates.jsx:1415
 msgid "Updates available"
 msgstr "Actualizaciones disponibles"
 
@@ -7632,7 +7625,7 @@ msgstr "Histórico de actualizaciones"
 msgid "Updates will be applied $0 at $1"
 msgstr "Las actualizaciones se aplicarán el $0 a las $1"
 
-#: pkg/packagekit/updates.jsx:95
+#: pkg/packagekit/updates.jsx:98
 msgid "Updating"
 msgstr "Actualizando"
 
@@ -7644,9 +7637,10 @@ msgstr "Actualizando el estado..."
 msgid "Uptime"
 msgstr "Tiempo en línea"
 
-#: pkg/storaged/unrecognized-tab.jsx:37 pkg/metrics/metrics.jsx:1636
-#: pkg/metrics/metrics.jsx:1637 pkg/metrics/metrics.jsx:1638
-#: pkg/metrics/metrics.jsx:1639 pkg/systemd/overview-cards/usageCard.jsx:129
+#: pkg/metrics/metrics.jsx:1636 pkg/metrics/metrics.jsx:1637
+#: pkg/metrics/metrics.jsx:1638 pkg/metrics/metrics.jsx:1639
+#: pkg/storaged/unrecognized-tab.jsx:37
+#: pkg/systemd/overview-cards/usageCard.jsx:129
 msgid "Usage"
 msgstr "Uso"
 
@@ -7659,8 +7653,8 @@ msgstr "Uso"
 msgid "Usage of $0"
 msgstr "Uso de $0"
 
-#: pkg/storaged/dialog.jsx:570 pkg/storaged/dialog.jsx:1053
-#: pkg/networkmanager/dialogs-common.jsx:95
+#: pkg/networkmanager/dialogs-common.jsx:95 pkg/storaged/dialog.jsx:568
+#: pkg/storaged/dialog.jsx:1051
 msgid "Use"
 msgstr "Uso"
 
@@ -7688,21 +7682,21 @@ msgstr "Se utilizan las siguientes claves para autenticarse con otros sistemas"
 msgid "Use verbose logging"
 msgstr "Usar registros detallados"
 
-#: pkg/storaged/swap-tab.jsx:70 pkg/metrics/metrics.jsx:727
+#: pkg/metrics/metrics.jsx:727 pkg/storaged/swap-tab.jsx:70
 msgid "Used"
 msgstr "Usado"
 
-#: pkg/storaged/stratis-details.jsx:652 pkg/storaged/stratis-details.jsx:785
 #: pkg/storaged/content-views.jsx:750 pkg/storaged/content-views.jsx:1013
+#: pkg/storaged/stratis-details.jsx:652 pkg/storaged/stratis-details.jsx:785
 msgid "Used for"
 msgstr "Usado para"
 
-#: pkg/storaged/dialog.jsx:1205 pkg/systemd/services/services.jsx:1044
+#: pkg/storaged/dialog.jsx:1203 pkg/systemd/services/services.jsx:1045
 msgid "User"
 msgstr "Usuario"
 
-#: pkg/static/login.html:76 pkg/users/account-details.js:299
-#: pkg/users/account-create-dialog.js:49 pkg/shell/hosts_dialog.jsx:256
+#: pkg/static/login.html:76 pkg/shell/hosts_dialog.jsx:256
+#: pkg/users/account-create-dialog.js:49 pkg/users/account-details.js:299
 msgid "User name"
 msgstr "Nombre de usuario"
 
@@ -7731,11 +7725,11 @@ msgstr "Respaldo VDO"
 msgid "VDO backing devices can not be made smaller"
 msgstr "Los dispositivos de respaldo VDO no se pueden hacer más pequeños"
 
-#: pkg/storaged/vdos-panel.jsx:32 pkg/storaged/pvol-tabs.jsx:88
+#: pkg/storaged/pvol-tabs.jsx:88 pkg/storaged/vdos-panel.jsx:32
 msgid "VDO device"
 msgstr "Dispositivo VDO"
 
-#: pkg/storaged/utils.js:260 pkg/storaged/vdo-details.jsx:264
+#: pkg/storaged/vdo-details.jsx:264 pkg/storaged/utils.js:260
 msgid "VDO device $0"
 msgstr "Dispositivo VDO $0"
 
@@ -7777,7 +7771,7 @@ msgstr "Validando clave"
 msgid "Vendor"
 msgstr "Proveedor"
 
-#: pkg/packagekit/updates.jsx:103
+#: pkg/packagekit/updates.jsx:106
 msgid "Verified"
 msgstr "Verificado"
 
@@ -7787,11 +7781,11 @@ msgstr "Verificado"
 msgid "Verify key"
 msgstr "Verificar clave"
 
-#: pkg/packagekit/updates.jsx:97
+#: pkg/packagekit/updates.jsx:100
 msgid "Verifying"
 msgstr "Verificando"
 
-#: pkg/packagekit/updates.jsx:414 pkg/systemd/hwinfo.jsx:95
+#: pkg/systemd/hwinfo.jsx:95 pkg/packagekit/updates.jsx:417
 msgid "Version"
 msgstr "Versión"
 
@@ -7807,7 +7801,7 @@ msgstr "Mostrar todas las CPUs"
 msgid "View all logs"
 msgstr "Ver todos los registros"
 
-#: pkg/systemd/services/services.jsx:770
+#: pkg/systemd/services/services.jsx:771
 msgid "View all services"
 msgstr "Mostrar todos los servicios"
 
@@ -7838,6 +7832,10 @@ msgstr "Sitio Web del proyecto"
 #: pkg/systemd/reporting.jsx:400
 msgid "View report"
 msgstr "Ver el informe"
+
+#: pkg/packagekit/updates.jsx:605
+msgid "View update log"
+msgstr "Ver registro de actualización"
 
 #: pkg/systemd/hwinfo.jsx:318
 msgid "Viewing memory information requires administrative access."
@@ -7909,7 +7907,7 @@ msgstr "Consola web"
 msgid "Web Console for Linux servers"
 msgstr "Consola web para servidores Linux"
 
-#: pkg/packagekit/updates.jsx:494 pkg/packagekit/updates.jsx:910
+#: pkg/packagekit/updates.jsx:497 pkg/packagekit/updates.jsx:921
 msgid "Web Console will restart"
 msgstr "La consola web se reiniciará"
 
@@ -7921,7 +7919,7 @@ msgstr "La consola Web está en modo de acceso limitado."
 msgid "Web console logo"
 msgstr "Logotipo de la consola Web"
 
-#: pkg/packagekit/autoupdates.jsx:311 pkg/systemd/services/timer-dialog.jsx:294
+#: pkg/systemd/services/timer-dialog.jsx:294 pkg/packagekit/autoupdates.jsx:311
 msgid "Wednesdays"
 msgstr "Los miércoles"
 
@@ -7941,7 +7939,7 @@ msgstr "Intervalo"
 msgid "When empty, connect with the current user"
 msgstr "Si se deja vacío, se conectará usando el usuario actual"
 
-#: pkg/packagekit/updates.jsx:497 pkg/packagekit/updates.jsx:915
+#: pkg/packagekit/updates.jsx:500 pkg/packagekit/updates.jsx:926
 msgid ""
 "When the Web Console is restarted, you will no longer see progress "
 "information. However, the update process will continue in the background. "
@@ -7980,7 +7978,7 @@ msgstr "XOR"
 msgid "Yearly"
 msgstr "Anualmente"
 
-#: pkg/systemd/reporting.jsx:265 pkg/networkmanager/network-interface.jsx:240
+#: pkg/networkmanager/network-interface.jsx:240 pkg/systemd/reporting.jsx:265
 msgid "Yes"
 msgstr "Sí"
 
@@ -8046,7 +8044,7 @@ msgstr ""
 msgid "Your browser will remember your access level across sessions."
 msgstr "Su navegador recordará tu nivel de acceso entre sesiones."
 
-#: pkg/packagekit/updates.jsx:1529
+#: pkg/packagekit/updates.jsx:1549
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
@@ -8087,8 +8085,8 @@ msgstr "abrt"
 msgid "access"
 msgstr "acceso"
 
-#: pkg/systemd/overview-cards/profiles-menu-dialog-body.jsx:60
 #: pkg/shell/active-pages-modal.jsx:76
+#: pkg/systemd/overview-cards/profiles-menu-dialog-body.jsx:60
 msgid "active"
 msgstr "activo"
 
@@ -8124,7 +8122,7 @@ msgstr "avc"
 msgid "average: $0%"
 msgstr "media: $0%"
 
-#: pkg/storaged/dialog.jsx:1029
+#: pkg/storaged/dialog.jsx:1027
 msgid "backing device for VDO device"
 msgstr "Dispositivo de respaldo para dispositivo VDO"
 
@@ -8148,7 +8146,7 @@ msgstr "arrancar"
 msgid "bridge"
 msgstr "puente"
 
-#: pkg/packagekit/updates.jsx:204 pkg/packagekit/updates.jsx:287
+#: pkg/packagekit/updates.jsx:207 pkg/packagekit/updates.jsx:290
 msgid "bug fix"
 msgstr "correción del fallo"
 
@@ -8181,11 +8179,11 @@ msgstr "coredump"
 msgid "cpu"
 msgstr "cpu"
 
-#: pkg/systemd/manifest.json:0 pkg/kdump/manifest.json:0
+#: pkg/kdump/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "crash"
 msgstr "colapso"
 
-#: pkg/kdump/kdump-view.jsx:514
+#: pkg/kdump/kdump-view.jsx:469
 msgid "crashkernel not configured in the kernel command line"
 msgstr ""
 "crashkernel no está configurado en los parámetros de arranque del núcleo"
@@ -8198,10 +8196,10 @@ msgstr "fecha"
 msgid "debug"
 msgstr "depurar"
 
-#: pkg/storaged/vgroup-details.jsx:184 pkg/storaged/mdraid-details.jsx:283
-#: pkg/storaged/format-dialog.jsx:172 pkg/storaged/vdo-details.jsx:163
-#: pkg/storaged/stratis-details.jsx:237 pkg/storaged/stratis-details.jsx:536
 #: pkg/storaged/content-views.jsx:367 pkg/storaged/content-views.jsx:672
+#: pkg/storaged/stratis-details.jsx:237 pkg/storaged/stratis-details.jsx:536
+#: pkg/storaged/vgroup-details.jsx:184 pkg/storaged/vdo-details.jsx:163
+#: pkg/storaged/mdraid-details.jsx:283 pkg/storaged/format-dialog.jsx:172
 msgid "delete"
 msgstr "Eliminar"
 
@@ -8233,13 +8231,13 @@ msgstr "dominio"
 msgid "drive"
 msgstr "disco"
 
-#: pkg/storaged/crypto-tab.jsx:248 pkg/storaged/crypto-tab.jsx:257
-#: pkg/storaged/fsys-tab.jsx:693 pkg/storaged/fsys-tab.jsx:708
-#: pkg/storaged/lvol-tabs.jsx:423 pkg/storaged/lvol-tabs.jsx:484
 #: pkg/users/account-details.js:340 pkg/users/account-details.js:372
-#: pkg/systemd/overview-cards/configurationCard.jsx:51
 #: pkg/networkmanager/network-interface.jsx:359
-#: pkg/networkmanager/dialogs-common.jsx:252
+#: pkg/networkmanager/dialogs-common.jsx:252 pkg/storaged/lvol-tabs.jsx:423
+#: pkg/storaged/lvol-tabs.jsx:484 pkg/storaged/crypto-tab.jsx:248
+#: pkg/storaged/crypto-tab.jsx:257 pkg/storaged/fsys-tab.jsx:693
+#: pkg/storaged/fsys-tab.jsx:708
+#: pkg/systemd/overview-cards/configurationCard.jsx:51
 msgid "edit"
 msgstr "editar"
 
@@ -8251,7 +8249,7 @@ msgstr "activar"
 msgid "encryption"
 msgstr "cifrado"
 
-#: pkg/packagekit/updates.jsx:206 pkg/packagekit/updates.jsx:287
+#: pkg/packagekit/updates.jsx:209 pkg/packagekit/updates.jsx:290
 msgid "enhancement"
 msgstr "mejora"
 
@@ -8381,7 +8379,7 @@ msgstr "instalar"
 msgid "interface"
 msgstr "interfaz"
 
-#: pkg/kdump/kdump-view.jsx:392
+#: pkg/kdump/kdump-view.jsx:347
 msgid "invalid: multiple targets defined"
 msgstr "no válido: definidos múltiples objetivos"
 
@@ -8409,7 +8407,7 @@ msgstr "Página de manual de journalctl"
 msgid "kdump"
 msgstr "kdump"
 
-#: pkg/kdump/kdump-view.jsx:510
+#: pkg/kdump/kdump-view.jsx:465
 msgid "kdump status"
 msgstr "estado de kdump"
 
@@ -8417,7 +8415,7 @@ msgstr "estado de kdump"
 msgid "keys"
 msgstr "teclas"
 
-#: pkg/kdump/kdump-view.jsx:396 pkg/kdump/kdump-view.jsx:398
+#: pkg/kdump/kdump-view.jsx:351 pkg/kdump/kdump-view.jsx:353
 msgid "locally in $0"
 msgstr "localmente en $0"
 
@@ -8449,11 +8447,11 @@ msgstr "máscara"
 msgid "max: $0%"
 msgstr "máx: $0%"
 
-#: pkg/storaged/dialog.jsx:1028
+#: pkg/storaged/dialog.jsx:1026
 msgid "member of RAID device"
 msgstr "Miembro de dispositivo RAID"
 
-#: pkg/storaged/dialog.jsx:1030
+#: pkg/storaged/dialog.jsx:1028
 msgid "member of Stratis pool"
 msgstr "miembro del grupo de almacenamiento Stratis"
 
@@ -8473,7 +8471,7 @@ msgstr "migitación"
 msgid "mkfs"
 msgstr "mkfs"
 
-#: pkg/kdump/kdump-view.jsx:473
+#: pkg/kdump/kdump-view.jsx:428
 msgid "more details"
 msgstr "más detalles"
 
@@ -8485,7 +8483,7 @@ msgstr "mount"
 msgid "nbde"
 msgstr "nbde"
 
-#: pkg/systemd/manifest.json:0 pkg/networkmanager/manifest.json:0
+#: pkg/networkmanager/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "network"
 msgstr "red"
 
@@ -8497,16 +8495,24 @@ msgstr "no se monta en el arranque"
 msgid "nfs"
 msgstr "nfs"
 
-#: pkg/kdump/kdump-client.js:117
-msgid "nfs dump target isn't formatted as server:path"
-msgstr "nfs dump target no está declarado como servidor:ruta"
+#: pkg/kdump/kdump-client.js:116
+msgid "nfs export is empty"
+msgstr "la ruta al fichero export está vacía"
+
+#: pkg/kdump/kdump-client.js:111
+msgid "nfs server is empty"
+msgstr "la dirección del servidor nfs está vacía"
+
+#: pkg/kdump/kdump-client.js:114
+msgid "nfs server is not valid IPv6"
+msgstr "el servidor nfs no es una dirección IPv6 válida"
 
 #: pkg/metrics/metrics.jsx:107
 msgid "nice"
 msgstr "nice"
 
-#: pkg/storaged/crypto-tab.jsx:247 pkg/storaged/crypto-tab.jsx:256
-#: pkg/tuned/dialog.jsx:86
+#: pkg/tuned/dialog.jsx:86 pkg/storaged/crypto-tab.jsx:247
+#: pkg/storaged/crypto-tab.jsx:256
 msgid "none"
 msgstr "ninguno"
 
@@ -8549,11 +8555,11 @@ msgstr "passwd"
 msgid "password"
 msgstr "contraseña"
 
-#: pkg/lib/cockpit-components-password.jsx:107
+#: pkg/lib/cockpit-components-password.jsx:108
 msgid "password quality"
 msgstr "calidad de la contraseña"
 
-#: pkg/packagekit/updates.jsx:310
+#: pkg/packagekit/updates.jsx:313
 msgid "patches"
 msgstr "parches"
 
@@ -8573,7 +8579,7 @@ msgstr "pcp"
 msgid "performance"
 msgstr "rendimiento"
 
-#: pkg/storaged/dialog.jsx:1027
+#: pkg/storaged/dialog.jsx:1025
 msgid "physical volume of LVM2 volume group"
 msgstr "volumen físico de un grupo de volúmenes LVM2"
 
@@ -8641,7 +8647,7 @@ msgstr "roles"
 msgid "running $0"
 msgstr "ejecutando $0"
 
-#: pkg/packagekit/updates.jsx:202 pkg/packagekit/updates.jsx:281
+#: pkg/packagekit/updates.jsx:205 pkg/packagekit/updates.jsx:284
 #: pkg/packagekit/manifest.json:0
 msgid "security"
 msgstr "seguridad"
@@ -8703,19 +8709,19 @@ msgstr "sos"
 msgid "ssh"
 msgstr "ssh"
 
-#: pkg/kdump/kdump-view.jsx:127
+#: pkg/kdump/kdump-view.jsx:128
 msgid "ssh key"
 msgstr "clave ssh"
 
-#: pkg/kdump/kdump-client.js:122
+#: pkg/kdump/kdump-client.js:121
 msgid "ssh key isn't a path"
 msgstr "La clave ssh no es una ruta"
 
-#: pkg/kdump/kdump-client.js:120
+#: pkg/kdump/kdump-client.js:119
 msgid "ssh server is empty"
 msgstr "el servidor ssh está vacío"
 
-#: pkg/storaged/mdraid-details.jsx:228 pkg/storaged/vdo-details.jsx:129
+#: pkg/storaged/vdo-details.jsx:129 pkg/storaged/mdraid-details.jsx:228
 msgid "stop"
 msgstr "detener"
 
@@ -8767,9 +8773,9 @@ msgstr "udp"
 msgid "unit"
 msgstr "unit"
 
-#: pkg/systemd/hw-detect.js:129 pkg/systemd/services/services.jsx:543
-#: pkg/systemd/services/services.jsx:544 pkg/systemd/services/services.jsx:566
-#: pkg/systemd/services/services.jsx:567
+#: pkg/systemd/hw-detect.js:129 pkg/systemd/services/services.jsx:544
+#: pkg/systemd/services/services.jsx:545 pkg/systemd/services/services.jsx:567
+#: pkg/systemd/services/services.jsx:568
 msgid "unknown"
 msgstr "desconocido"
 
@@ -8832,6 +8838,21 @@ msgstr "yum"
 #: pkg/networkmanager/manifest.json:0
 msgid "zone"
 msgstr "zona"
+
+#~ msgid "Diagnostic Reports"
+#~ msgstr "Informes de diagnóstico"
+
+#~ msgid "Kernel Dump"
+#~ msgstr "Volcado del kernel"
+
+#~ msgid "Software Updates"
+#~ msgstr "Actualizaciones de software"
+
+#~ msgid "Update log"
+#~ msgstr "Registro de actualización"
+
+#~ msgid "nfs dump target isn't formatted as server:path"
+#~ msgstr "nfs dump target no está declarado como servidor:ruta"
 
 #~ msgid "$0 Zone"
 #~ msgstr "Zona $0"

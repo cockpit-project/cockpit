@@ -1142,7 +1142,7 @@ cockpit_web_request_on_socket_input (GSocket *socket,
   GError *error = NULL;
   GIOStream *tls_stream;
   gssize num_read;
-  g_auto(CockpitControlMessages) ccm;
+  g_auto(CockpitControlMessages) ccm = COCKPIT_CONTROL_MESSAGES_INIT;
 
   num_read = g_socket_receive_message (socket,
                                        NULL, /* out GSocketAddress */

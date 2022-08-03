@@ -975,8 +975,7 @@ class Browser:
     def assert_pixels_in_current_layout(self, selector: str, key: str,
                                         ignore: List[str] = [],
                                         scroll_into_view: Optional[str] = None,
-                                        wait_animations: bool = True,
-                                        wait_delay: float = 0.5):
+                                        wait_animations: bool = True):
         """Compare the given element with its reference in the current layout"""
 
         if not (Image and self.pixels_label):
@@ -1006,7 +1005,7 @@ class Browser:
         # But we know that tooltips fade in within 300ms, so we just
         # wait half a second to and side-step all that complexity.
 
-        time.sleep(wait_delay)
+        time.sleep(0.5)
         if wait_animations:
             self.wait_js_cond('ph_count_animations(%s) == 0' % jsquote(selector))
 
@@ -1120,8 +1119,7 @@ class Browser:
                       ignore: List[str] = [],
                       skip_layouts: List[str] = [],
                       scroll_into_view: Optional[str] = None,
-                      wait_animations: bool = True,
-                      wait_delay: float = 0.5):
+                      wait_animations: bool = True):
         """Compare the given element with its reference in all layouts"""
 
         if not (Image and self.pixels_label):
@@ -1133,8 +1131,7 @@ class Browser:
                 self.set_layout(layout["name"])
                 self.assert_pixels_in_current_layout(selector, key, ignore=ignore,
                                                      scroll_into_view=scroll_into_view,
-                                                     wait_animations=wait_animations,
-                                                     wait_delay=wait_delay)
+                                                     wait_animations=wait_animations)
         self.set_layout(previous_layout)
 
     def assert_no_unused_pixel_test_references(self):

@@ -304,6 +304,30 @@ class TestFirewall(NetworkCase):
         b.click(".zone-section[data-id='public'] a.pf-m-danger.pf-c-dropdown__menu-item")
         b.wait_not_present(".zone-section[data-id='public'] tr[data-row-id='pop3']")
 
+    def testAddServices2(self):
+        self.testAddServices()
+
+    def testAddServices3(self):
+        self.testAddServices()
+
+    def testAddServices4(self):
+        self.testAddServices()
+
+    def testAddServices5(self):
+        self.testAddServices()
+
+    def testAddServices6(self):
+        self.testAddServices()
+
+    def testAddServices7(self):
+        self.testAddServices()
+
+    def testAddServices8(self):
+        self.testAddServices()
+
+    def testAddServices9(self):
+        self.testAddServices()
+
     def testAddCustomServices(self):
         b = self.browser
         m = self.machine

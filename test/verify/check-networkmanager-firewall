@@ -243,6 +243,7 @@ class TestFirewall(NetworkCase):
         b.wait_visible(".pf-c-modal-box .service-list #firewall-service-pop3")
 
         b.assert_pixels(".pf-c-modal-box", "firewall-add-services-to-zone-modal")
+        assert False
 
         # don't select anything in the dialog
         b.click(f"#add-services-dialog footer .{self.btn_primary}")

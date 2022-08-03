@@ -32,7 +32,7 @@ export class FileAutoComplete extends React.Component {
             directory: '', // The current directory we list files/dirs from
             displayFiles: [],
             isOpen: false,
-            value: null,
+            value: this.props.value || null,
         };
         this.updateFiles(props.value || '/');
         this.typeaheadInputValue = "";
@@ -196,6 +196,7 @@ FileAutoComplete.propTypes = {
     superuser: PropTypes.string,
     isOptionCreatable: PropTypes.bool,
     onChange: PropTypes.func,
+    value: PropTypes.string,
 };
 FileAutoComplete.defaultProps = {
     isOptionCreatable: false,

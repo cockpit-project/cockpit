@@ -27,6 +27,8 @@ import { password_quality, PasswordFormFields } from "cockpit-components-passwor
 import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";
 import { HelpIcon } from '@patternfly/react-icons';
 
+import "@patternfly/patternfly/utilities/Spacing/spacing.css";
+
 const _ = cockpit.gettext;
 
 function AccountCreateBody({ state, errors, change }) {

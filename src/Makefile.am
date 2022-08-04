@@ -20,6 +20,7 @@ pyTESTS_PASSING = \
 	dist/base1/test-format.html \
 	dist/base1/test-framed-cache.html \
 	dist/base1/test-framed.html \
+	dist/base1/test-http.html \
 	dist/base1/test-journal-renderer.html \
 	dist/base1/test-locale.html \
 	dist/base1/test-location.html \
@@ -38,7 +39,6 @@ pyTESTS_PASSING = \
 	$(NULL)
 
 pyTESTS_FAILING = \
-	dist/base1/test-http.html \
 	dist/base1/test-websocket.html \
 	$(NULL)
 
@@ -62,6 +62,7 @@ PYTHON_BRIDGE_FILES = \
 	src/cockpit/channels/dbus.py \
 	src/cockpit/channels/dbus_internal.py \
 	src/cockpit/channels/filesystem.py \
+	src/cockpit/channels/http.py \
 	src/cockpit/channels/metrics.py \
 	src/cockpit/channels/packages.py \
 	src/cockpit/channels/stream.py \

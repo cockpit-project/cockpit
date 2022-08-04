@@ -306,4 +306,17 @@ QUnit.test("address with params", assert => {
             .finally(done);
 });
 
+QUnit.test("wrong options", assert => {
+    assert.rejects(
+        cockpit.http({}).get("/"),
+        // unfortunately cockpit.js does not propagate the detailed error message
+        ex => ex.problem == "protocol-error" && ex.status == undefined,
+        "rejects request without port or unix option");
+
+    assert.rejects(
+        cockpit.http({ port: 1234, unix: "/nonexisting/socket" }).get("/"),
+        ex => ex.problem == "protocol-error" && ex.status == undefined,
+        "rejects request with both port and unix option");
+});
+
 QUnit.start();

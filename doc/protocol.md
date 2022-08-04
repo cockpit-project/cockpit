@@ -720,7 +720,10 @@ payload type:
 
 You may also specify these options:
 
- * "connection": A stable connection identifier.
+ * "connection": A stable identifier for connection sharing, i.e.
+   sending multiple requests to a single open connection.
+ * "method": "GET" (default if not specified), "POST", or other valid HTTP method
+ * "headers": JSON object with additional request headers
  * "tls": Set to a object to use an https connection.
 
 The TLS object can have the following options:

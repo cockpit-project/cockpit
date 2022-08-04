@@ -18,6 +18,7 @@
 from .dbus import DBusChannel
 from .dbus_internal import DBusInternalChannel
 from .filesystem import FsListChannel, FsReadChannel, FsReplaceChannel, FsWatchChannel
+from .http import HttpChannel
 from .metrics import MetricsChannel
 from .packages import PackagesChannel
 from .stream import StreamChannel
@@ -32,6 +33,7 @@ CHANNEL_TYPES = [
     FsReadChannel,
     FsReplaceChannel,
     FsWatchChannel,
+    HttpChannel,
     MetricsChannel,
     NullChannel,
     PackagesChannel,

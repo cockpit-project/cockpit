@@ -306,6 +306,31 @@ QUnit.test("address with params", assert => {
             .finally(done);
 });
 
+QUnit.test("HEAD method", assert => {
+    const done = assert.async();
+    assert.expect(4);
+
+    assert.rejects(
+        cockpit.http(test_server).get("/mock/headonly"),
+        ex => ex.status == 400 && ex.reason == "Only HEAD allowed on this path",
+        "rejects GET request on /headonly path");
+
+    const InputData = "some chars";
+
+    cockpit.http(test_server).request({
+        path: "/mock/headonly",
+        method: "HEAD",
+        headers: { InputData },
+        body: "",
+    })
+            .response((status, headers) => {
+                assert.equal(status, 200);
+                assert.equal(headers.InputDataLength, InputData.length);
+            })
+            .then(data => assert.equal(data, ""))
+            .finally(done);
+});
+
 QUnit.test("wrong options", assert => {
     assert.rejects(
         cockpit.http({}).get("/"),

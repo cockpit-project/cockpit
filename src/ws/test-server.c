@@ -235,6 +235,32 @@ mock_http_connection (CockpitWebResponse *response)
 }
 
 static gboolean
+mock_http_headonly (CockpitWebRequest *request,
+                    CockpitWebResponse *response)
+{
+  if (!g_str_equal (cockpit_web_request_get_method (request), "HEAD"))
+    {
+      cockpit_web_response_error (response, 400, NULL, "Only HEAD allowed on this path");
+    }
+  else
+    {
+      const char *input_data = cockpit_web_request_lookup_header (request, "InputData");
+      if (!input_data)
+        {
+          cockpit_web_response_error (response, 400, NULL, "Requires InputData header");
+          return TRUE;
+        }
+
+      g_autoptr(GHashTable) headers = cockpit_web_server_new_table();
+      g_hash_table_insert (headers, g_strdup ("InputDataLength"), g_strdup_printf ("%zu", strlen (input_data)));
+      cockpit_web_response_headers_full (response, 200, "OK", -1, headers);
+      cockpit_web_response_complete (response);
+    }
+
+  return TRUE;
+}
+
+static gboolean
 mock_http_expect_warnings (CockpitWebResponse *response,
                            GLogLevelFlags warnings)
 {
@@ -267,6 +293,8 @@ on_handle_mock (CockpitWebServer *server,
     return mock_http_host (response, headers);
   if (g_str_equal (path, "/connection"))
     return mock_http_connection (response);
+  if (g_str_equal (path, "/headonly"))
+    return mock_http_headonly (request, response);
   if (g_str_equal (path, "/expect-warnings"))
     return mock_http_expect_warnings (response, 0);
   if (g_str_equal (path, "/dont-expect-warnings"))

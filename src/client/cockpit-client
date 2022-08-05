@@ -29,10 +29,15 @@ import sys
 import tempfile
 import textwrap
 
-gi.require_version("Gtk", "3.0")  # NOQA
-gi.require_version("WebKit2", "4.0")  # NOQA
+gi.require_version("Gtk", "3.0")
+from gi.repository import GLib, Gio, Gtk  # NOQA
 
-from gi.repository import GLib, Gio, Gtk, WebKit2  # NOQA: E402
+try:
+    gi.require_version("WebKit2", "4.1")
+    from gi.repository import WebKit2
+except (ValueError, ImportError):
+    gi.require_version("WebKit2", "4.0")
+    from gi.repository import WebKit2
 
 try:
     gi.require_version("Handy", "1")

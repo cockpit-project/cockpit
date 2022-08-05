@@ -115,21 +115,20 @@ QUnit.test("not found", assert => {
 
 QUnit.test("streaming", assert => {
     const done = assert.async();
-    assert.expect(1);
+    assert.expect(3);
 
-    let at = 0;
+    let num_chunks = 0;
     let got = "";
     cockpit.http(test_server)
             .get("/mock/stream")
             .stream(resp => {
                 got += resp;
-                at++;
+                num_chunks++;
             })
             .finally(() => {
-                let expected = "";
-                for (let i = 0; i < at; i++)
-                    expected += String(i) + " ";
-                assert.equal(got, expected, "stream got right data");
+                assert.true(num_chunks > 1, "got at least two chunks");
+                assert.true(num_chunks <= 10, "got at most 10 chunks");
+                assert.equal(got, "0 1 2 3 4 5 6 7 8 9 ", "stream got right data");
                 done();
             });
 });

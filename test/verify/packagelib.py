@@ -95,7 +95,7 @@ Server = file://{empty_repo_dir}
 
         # have PackageKit start from a clean slate
         self.machine.execute("systemctl stop packagekit")
-        self.machine.execute("systemctl kill --signal=SIGKILL packagekit; rm -rf /var/cache/PackageKit")
+        self.machine.execute("systemctl kill --signal=SIGKILL packagekit || true; rm -rf /var/cache/PackageKit")
         self.machine.execute("systemctl reset-failed packagekit || true")
         self.restore_file("/var/lib/PackageKit/transactions.db")
 

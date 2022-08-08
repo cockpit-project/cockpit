@@ -772,7 +772,7 @@ class TestConnection(MachineCase):
         self.assertIn('id="overview"', out)
 
         # shut it down, wait until it is gone
-        m.execute("pkill -ef cockpit-ws")
+        m.execute("pkill cockpit-ws; while pgrep -a cockpit-ws; do sleep 1; done")
 
         # start ws with --local-session and existing running bridge
         self.write_file("/tmp/local.sh", f'''#!/bin/bash -eu
@@ -788,6 +788,9 @@ export XDG_CONFIG_DIRS=/usr/local
         # System frame should work directly, no login page
         out = m.execute("curl --compressed http://127.0.0.90:9999/cockpit/@localhost/system/index.html")
         self.assertIn('id="overview"', out)
+
+        # shut it down, wait until it is gone
+        m.execute("pkill cockpit-ws; while pgrep -a cockpit-ws; do sleep 1; done")
 
         self.allow_journal_messages("couldn't register polkit authentication agent.*")
 

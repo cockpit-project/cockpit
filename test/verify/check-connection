@@ -775,12 +775,12 @@ class TestConnection(MachineCase):
         m.execute("pkill -ef cockpit-ws")
 
         # start ws with --local-session and existing running bridge
-        script = '''#!/bin/bash -eu
+        self.write_file("/tmp/local.sh", f'''#!/bin/bash -eu
 coproc env G_MESSAGES_DEBUG=all cockpit-bridge
-G_MESSAGES_DEBUG=all XDG_CONFIG_DIRS=/usr/local %s -p 9999 -a 127.0.0.90 --local-session=- <&${COPROC[0]} >&${COPROC[1]}
-''' % self.ws_executable
-        m.execute(["tee", "/tmp/local.sh"], input=script)
-        self.addCleanup(m.execute, "rm /tmp/local.sh")
+export G_MESSAGES_DEBUG=all
+export XDG_CONFIG_DIRS=/usr/local
+{self.ws_executable} -p 9999 -a 127.0.0.90 --local-session=- <&${{COPROC[0]}} >&${{COPROC[1]}}
+''')
         m.execute("chmod a+x /tmp/local.sh")
         m.spawn("su - -c /tmp/local.sh admin", "local.sh")
         m.wait_for_cockpit_running('127.0.0.90', 9999)

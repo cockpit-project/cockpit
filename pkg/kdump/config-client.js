@@ -47,7 +47,7 @@ export class ConfigFile {
 
     close() {
         if (this._fileHandle) {
-            this._fileHandle.remove();
+            this._fileHandle.close();
             this._fileHandle = undefined;
         }
     }

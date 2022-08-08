@@ -206,12 +206,10 @@ const LockDialog = ({ proxy, host }) => {
         setError(null);
         proxy.Stop()
                 .then(() => {
-                    return cockpit.spawn(["sudo", "-k"], { host: host }).always(() => {
-                        const key = host_superuser_storage_key(host);
-                        if (key)
-                            window.localStorage.setItem(key, "none");
-                        D.close();
-                    });
+                    const key = host_superuser_storage_key(host);
+                    if (key)
+                        window.localStorage.setItem(key, "none");
+                    D.close();
                 })
                 .catch(err => {
                     setError(err.toString());

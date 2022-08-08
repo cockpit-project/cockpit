@@ -67,7 +67,8 @@ class TestPages(MachineCase):
     def testBasic(self):
         m = self.machine
         b = self.browser
-        self.restore_dir("/etc/systemd/system", post_restore_action="systemctl stop test.timer test.service; systemctl daemon-reload")
+        self.restore_dir("/etc/systemd/system", post_restore_action="systemctl daemon-reload")
+        self.addCleanup(m.execute, "systemctl stop test.timer test.service")
         m.write("/etc/systemd/system/test.service",
                 """
 [Unit]

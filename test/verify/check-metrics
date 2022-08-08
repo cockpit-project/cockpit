@@ -1321,7 +1321,7 @@ class TestGrafanaClient(MachineCase):
 
         # avoid dynamic host name changes during PCP data collection, and start from clean slate
         m.execute("""systemctl stop pmlogger || true
-                     systemctl reset-failed pmlogger
+                     systemctl reset-failed pmlogger || true
                      rm -rf /var/log/pcp/pmlogger
                      hostnamectl set-hostname grafana-client""")
 

@@ -364,6 +364,12 @@ export class KdumpPage extends React.Component {
                     /* mount targets outside of nfs are too complex for the
                      * current target dialog */
                     kdumpLocation = _("On a mounted device");
+                } else if (target.type == "ftp") {
+                    kdumpLocation = _("Remote over FTP");
+                } else if (target.type == "sftp") {
+                    kdumpLocation = _("Remote over SFTP");
+                } else if (target.type == "cifs") {
+                    kdumpLocation = _("Remote over CIFS/SMB");
                 } else {
                     kdumpLocation = _("No configuration found");
                 }

@@ -37,6 +37,11 @@ $plotColors: (
     letter-spacing: var(--pf-chart-global--letter-spacing);
   }
 
+  .pf-theme-dark &-axis,
+  .pf-theme-dark &-unit {
+    fill: var(--pf-chart-global--Fill--Color--400);
+  }
+
   &-lines,
   &-ticks {
     stroke: var(--pf-chart-global--Fill--Color--300);
@@ -59,6 +64,10 @@ $plotColors: (
       stroke: var(--ct-plot-path-color);
     }
   }
+}
+
+.ct-plot-title {
+  fill: var(--pf-global--Color--100);
 }
 
 $plotColorCurrent: 0;

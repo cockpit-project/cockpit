@@ -72,8 +72,11 @@ ExecStart=/usr/bin/sleep infinity
 
         self.content_dropdown_action(1, "Unmount")
         b.wait_in_text("#dialog", str(sleep_pid))
+        b.wait_in_text("#dialog", "sleep infinity")
         b.wait_in_text("#dialog", "keep-mnt-busy")
-        b.assert_pixels("#dialog", "busy-unmount", ignore=["td:nth-child(1)", "td:nth-child(4)"])
+        b.wait_in_text("#dialog", "Test Service")
+        b.wait_in_text("#dialog", "/usr/bin/sleep infinity")
+        b.wait_in_text("#dialog", "The listed processes and services will be forcefully stopped.")
         self.confirm()
         self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
 

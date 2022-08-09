@@ -271,7 +271,9 @@ class TestStorageNfs(StorageCase):
         b.click("#detail-header button:contains(Unmount)")
         self.dialog_wait_open()
         b.wait_in_text("#dialog", str(sleep_pid))
-        b.assert_pixels("#dialog", "umount", ignore=["td:nth-child(1)", "td:nth-child(4)"])
+        b.wait_in_text("#dialog", "sleep infinity")
+        b.wait_in_text("#dialog", "The listed processes will be forcefully stopped.")
+        b.wait_in_text("#dialog", "Stop and unmount")
         self.dialog_apply()
 
         b.wait_visible("#detail-header button:contains(Mount)")

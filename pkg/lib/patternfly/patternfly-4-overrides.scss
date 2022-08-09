@@ -227,3 +227,18 @@ svg {
     position: absolute;
     width: 100%;
  }
+
+// Breadcrumb links should have the correct pointing hand cursor.
+//
+// PatternFly requires a "to" attribute for an actual link, but we use some
+// funky onClick JS for navigating and override it with a className.
+//
+// Therefore, instead of having a proper <a href="..."> being rendered, we need
+// to override the link. This is a problem with a (correct) assumption in PF
+// and our (incorrect) way of not using links (but using JavaScript) for
+// linking.
+//
+// Nevertheless, Cockpit needs to be adapted for this to work as expected.
+.pf-c-breadcrumb__link {
+    cursor: pointer;
+}

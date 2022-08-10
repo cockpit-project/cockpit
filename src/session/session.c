@@ -867,7 +867,7 @@ save_environment (void)
 
   /* Force save our default path */
   if (!getenv ("COCKPIT_TEST_KEEP_PATH"))
-    setenv ("PATH", DEFAULT_PATH, 1);
+    setenv ("PATH", DEFAULT_SESSION_PATH, 1);
 
   for (i = 0, j = 0; env_names[i] != NULL; i++)
     {
@@ -928,7 +928,7 @@ main (int argc,
         err (1, "couldn't clear environment");
 
       /* set a minimal environment */
-      setenv ("PATH", DEFAULT_PATH, 1);
+      setenv ("PATH", DEFAULT_SESSION_PATH, 1);
 
       if (setgid (0) != 0 || setuid (0) != 0)
         err (1, "couldn't switch permissions correctly");

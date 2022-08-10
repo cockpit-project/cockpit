@@ -10,8 +10,6 @@ import 'polyfills';
 import { CockpitNav, CockpitNavItem } from "./nav.jsx";
 import { HostModal } from "./hosts_dialog.jsx";
 
-import "../../node_modules/@patternfly/patternfly/components/Select/select.css";
-
 const _ = cockpit.gettext;
 const hosts_sel = document.getElementById("nav-hosts");
 

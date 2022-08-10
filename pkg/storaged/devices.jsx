@@ -33,8 +33,6 @@ import { Overview } from "./overview.jsx";
 import { Details } from "./details.jsx";
 import { update_plot_state } from "./plot.jsx";
 
-import "table.css";
-import "journal.css";
 import "./storage.scss";
 
 const _ = cockpit.gettext;

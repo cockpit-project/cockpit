@@ -1,6 +1,8 @@
 import cockpit from "cockpit";
 import QUnit from "qunit-tests";
 
+const EXPECT_MOCK_STREAM = "0 1 2 3 4 5 6 7 8 9 ";
+
 /* Set this to a regexp to ignore that warning once */
 /*
 function console_ignore_warning(exp) {
@@ -128,7 +130,7 @@ QUnit.test("streaming", assert => {
             .finally(() => {
                 assert.true(num_chunks > 1, "got at least two chunks");
                 assert.true(num_chunks <= 10, "got at most 10 chunks");
-                assert.equal(got, "0 1 2 3 4 5 6 7 8 9 ", "stream got right data");
+                assert.equal(got, EXPECT_MOCK_STREAM, "stream got right data");
                 done();
             });
 });
@@ -342,6 +344,28 @@ QUnit.test("wrong options", assert => {
         cockpit.http({ port: 1234, unix: "/nonexisting/socket" }).get("/"),
         ex => ex.problem == "protocol-error" && ex.status == undefined,
         "rejects request with both port and unix option");
+});
+
+QUnit.test("parallel stress test", async assert => {
+    const response = await fetch(`http://${window.location.hostname}:${window.location.port}/mock/info`);
+    const info = await response.json();
+    // This is way too slow under valgrind
+    if (info.skip_slow_tests) {
+        assert.ok(true, "skipping on python bridge, not implemented");
+        return;
+    }
+
+    const num = 1000;
+    assert.expect(num + 1);
+
+    const promises = [];
+    for (let i = 0; i < num; ++i)
+        promises.push(cockpit.http(test_server).get("/mock/stream"));
+
+    const results = await Promise.all(promises);
+    assert.equal(results.length, num, "got correct number of responses");
+    for (let i = 0; i < num; ++i)
+        assert.equal(results[i], EXPECT_MOCK_STREAM);
 });
 
 QUnit.start();

@@ -220,6 +220,13 @@ parse_address (CockpitChannel *channel,
       goto out;
     }
 
+  if (unix_path && json_object_has_member (options, "tls"))
+    {
+      cockpit_channel_fail (channel, "protocol-error",
+                            "TLS on Unix socket is not supported");
+      goto out;
+    }
+
   if (port != G_MAXINT64 && unix_path)
     {
       cockpit_channel_fail (channel, "protocol-error", "cannot specify both \"port\" and \"unix\" options");
@@ -654,4 +661,3 @@ cockpit_connect_parse_stream (CockpitChannel *channel)
 
   return connectable;
 }
-

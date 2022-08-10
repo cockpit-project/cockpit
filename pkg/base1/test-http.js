@@ -342,6 +342,11 @@ QUnit.test("wrong options", assert => {
         cockpit.http({ port: 1234, unix: "/nonexisting/socket" }).get("/"),
         ex => ex.problem == "protocol-error" && ex.status == undefined,
         "rejects request with both port and unix option");
+
+    assert.rejects(
+        cockpit.http({ unix: "/nonexisting/socket", tls: {} }).get("/"),
+        ex => ex.problem == "protocol-error" && ex.status == undefined,
+        "rejects request with both unix and tls option");
 });
 
 QUnit.start();

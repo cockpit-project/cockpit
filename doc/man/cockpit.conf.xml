@@ -49,50 +49,50 @@
   </refsect1>
 
   <refsect1 id="cockpit-conf-webservice">
-	  <title>WebService</title>
-	  <variablelist>
-	    <varlistentry>
-	      <term><option>Origins</option></term>
-	      <listitem>
-                <para>By default cockpit will not accept crossdomain websocket connections. Use this
-                  setting to allow access from alternate domains. Origins should include scheme, host
-                  and port, if necessary.</para>
+  <title>WebService</title>
+  <variablelist>
+    <varlistentry>
+      <term><option>Origins</option></term>
+      <listitem>
+        <para>By default cockpit will not accept crossdomain websocket connections. Use this
+            setting to allow access from alternate domains. Origins should include scheme, host
+            and port, if necessary.</para>
 
-          <informalexample>
+        <informalexample>
 <programlisting language="ini">
 [WebService]
 Origins = https://somedomain1.com https://somedomain2.com:9090
 </programlisting>
-          </informalexample>
-        </listitem>
-      </varlistentry>
-	    <varlistentry>
-	      <term><option>ProtocolHeader</option></term>
-	      <listitem>
-                <para>Configure cockpit to look at the contents of this header to determine if a connection
-                  is using tls. This should only be used when cockpit is behind a reverse proxy, and care
-                  should be taken to make sure that incoming requests cannot set this header.</para>
-          <informalexample>
+        </informalexample>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>ProtocolHeader</option></term>
+      <listitem>
+        <para>Configure cockpit to look at the contents of this header to determine if a connection
+          is using tls. This should only be used when cockpit is behind a reverse proxy, and care
+          should be taken to make sure that incoming requests cannot set this header.</para>
+        <informalexample>
 <programlisting language="ini">
 [WebService]
 ProtocolHeader = X-Forwarded-Proto
 </programlisting>
-          </informalexample>
-        </listitem>
-      </varlistentry>
-        <varlistentry>
-          <term><option>ForwardedForHeader</option></term>
-          <listitem>
-            <para>Configure cockpit to look at the contents of this header to determine the real origin of a
-              connection.  This should only be used when cockpit is behind a reverse proxy, and care
-              should be taken to make sure that incoming requests cannot set this header.</para>
-          <informalexample>
+        </informalexample>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>ForwardedForHeader</option></term>
+      <listitem>
+        <para>Configure cockpit to look at the contents of this header to determine the real origin of a
+          connection.  This should only be used when cockpit is behind a reverse proxy, and care
+          should be taken to make sure that incoming requests cannot set this header.</para>
+        <informalexample>
 <programlisting language="ini">
 [WebService]
 ForwardedForHeader = X-Forwarded-For
 </programlisting>
-          </informalexample>
-        </listitem>
+        </informalexample>
+      </listitem>
       </varlistentry>
       <varlistentry>
         <term><option>LoginTitle</option></term>

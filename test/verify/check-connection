@@ -1052,22 +1052,27 @@ ProtocolHeader = X-Forwarded-Proto
         m.execute("setsebool -P httpd_can_network_connect on")
         self.allow_journal_messages("audit.*bool=httpd_can_network_connect.*val=1.*")
 
+    def callProxyCurl(self, path, *args):
+        # should use nginx' certificate, not cockpit's; use --resolve so that SNI matches the certificate's CN
+        (https_host, https_port) = self.machine.forward["443"].split(':')
+        return subprocess.check_output(
+            ["curl", "--verbose",
+             "--resolve", f"alice:{https_port}:{https_host}",
+             "--cacert", os.path.join(TEST_DIR, "../src/tls/ca/ca.pem"),
+             *args,
+             f"https://alice:{https_port}{path}"],
+            stderr=subprocess.STDOUT)
+
     def checkCockpitOnProxy(self, urlroot="", login=True):
         b = self.new_browser()
 
-        # should use nginx' certificate, not cockpit's; use --resolve so that SNI matches the certificate's CN
-        (https_host, https_port) = self.machine.forward["443"].split(':')
-        out = subprocess.check_output(
-            ["curl", "--verbose", "--head",
-             "--resolve", f"alice:{https_port}:{https_host}",
-             "--cacert", os.path.join(TEST_DIR, "../src/tls/ca/ca.pem"),
-             f"https://alice:{https_port}{urlroot}/cockpit/static/login.html"],
-            stderr=subprocess.STDOUT)
+        out = self.callProxyCurl(f"{urlroot}/cockpit/static/login.html", "--head")
         self.assertIn(b"HTTP/1.1 200 OK", out)
         self.assertIn(b"subject: CN=alice; DC=COCKPIT", out)
 
         # works with browser (but we can't set our CA)
         b.ignore_ssl_certificate_errors(True)
+        (https_host, https_port) = self.machine.forward["443"].split(':')
         b.open(f"https://{https_host}:{https_port}{urlroot}/system")
         if login:
             b.wait_visible("#login")
@@ -1140,19 +1145,14 @@ server {
                  "/srv/www/embed-cockpit/")
         m.execute("if selinuxenabled 2>&1; then chcon -R -t httpd_sys_content_t /srv/www; fi")
 
-        (https_host, https_port) = self.machine.forward["443"].split(':')
-        out = subprocess.check_output(
-            ["curl", "--verbose",
-             "--resolve", f"alice:{https_port}:{https_host}",
-             "--cacert", os.path.join(TEST_DIR, "../src/tls/ca/ca.pem"),
-             f"https://alice:{https_port}/embed-cockpit/embed.css"],
-            stderr=subprocess.STDOUT)
+        out = self.callProxyCurl("/embed-cockpit/embed.css")
         self.assertIn(b"HTTP/1.1 200 OK", out)
         self.assertIn(b"#embed-links", out)
 
         # embedding
         b = self.browser
         b.ignore_ssl_certificate_errors(True)
+        (https_host, https_port) = self.machine.forward["443"].split(':')
         b.open(f"https://{https_host}:{https_port}/embed-cockpit/index.html")
         b.set_val("#embed-address", f"https://{https_host}:{https_port}/cockpit-root")
         b.click("#embed-full")

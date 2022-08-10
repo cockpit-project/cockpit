@@ -278,6 +278,28 @@ AC_ARG_WITH([admin-group],
             ])
 AC_SUBST(admin_group)
 
+# Default PATH for cockpit-session
+AC_ARG_WITH([default-session-path],
+            [AS_HELP_STRING([--with-default-session-path=PATH],
+                            [The value for the PATH environment variable in a session started by cockpit-session])],
+            [default_session_path=$withval],
+            [
+              AC_MSG_CHECKING([for cockpit-session PATH value])
+              if test "$(readlink /sbin)" == "usr/bin"; then
+                 # This is Arch where "sbin" is symlinked to "bin" and
+                 # "/bin" is symlinked to "/usr/bin".  We use the
+                 # normal Arch PATH which omits "sbin" and "/bin" for
+                 # those reasons.  Otherwise "pkexec" will find
+                 # cockpit-bridge in "/usr/sbin" and our rule wont
+                 # match.
+                 default_session_path=/usr/local/sbin:/usr/local/bin:/usr/bin
+              else
+                 default_session_path=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+              fi
+              AC_MSG_RESULT([$default_session_path])
+            ])
+AC_DEFINE_UNQUOTED([DEFAULT_SESSION_PATH], ["$default_session_path"], [Default value of PATH for cockpit-session])
+
 # Documentation
 
 AC_MSG_CHECKING([whether to build documentation])
@@ -430,6 +452,7 @@ echo "
         cockpit-ws instance user:   ${COCKPIT_WSINSTANCE_USER}
         cockpit-ws instance group:  ${COCKPIT_WSINSTANCE_GROUP}
         admin group:                ${admin_group}
+        cockpit-session PATH:       ${default_session_path}
 
         Building docs:              ${enable_doc}
         Debug mode:                 ${debug_status}

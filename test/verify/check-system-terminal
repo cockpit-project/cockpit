@@ -193,6 +193,8 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         path = m.execute("cat /tmp/path").strip()
         if m.ostree_image:
             self.assertIn("/usr/local/bin:/usr/bin", path)
+        elif m.image == "arch":
+            self.assertIn("/usr/local/sbin:/usr/local/bin:/usr/bin", path)
         else:
             self.assertIn("/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", path)
         self.assertNotIn(":/.local", path)  # would happen with empty $HOME

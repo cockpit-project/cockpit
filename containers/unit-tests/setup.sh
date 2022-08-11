@@ -37,6 +37,7 @@ dependencies="\
     libssh-4-dbgsym \
     libssh-dev \
     libsystemd-dev \
+    mypy \
     npm \
     nodejs \
     pkg-config \

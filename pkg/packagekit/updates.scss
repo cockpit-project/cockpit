@@ -5,254 +5,254 @@
 
 /* Style the list cards as ct-cards */
 .pf-c-page__main-section .pf-c-card {
-    @extend .ct-card;
+  @extend .ct-card;
 }
 
 .pf-c-table tr:nth-child(1) {
-    > td, th {
-        --pf-c-table--cell--PaddingTop: 0.5rem;
-        --pf-c-table--cell--PaddingBottom: 0.5rem;
+  > td, th {
+    --pf-c-table--cell--PaddingTop: 0.5rem;
+    --pf-c-table--cell--PaddingBottom: 0.5rem;
 
-        padding: var(--pf-c-table--cell--PaddingTop) var(--pf-c-table--cell--PaddingRight) var(--pf-c-table--cell--PaddingBottom) var(--pf-c-table--cell--PaddingLeft);
-    }
+    padding: var(--pf-c-table--cell--PaddingTop) var(--pf-c-table--cell--PaddingRight) var(--pf-c-table--cell--PaddingBottom) var(--pf-c-table--cell--PaddingLeft);
+  }
 }
 
 .kpatches-labelgroup ul.pf-c-label-group__list,
 .kpatches-labelgroup li.pf-c-label-group__list-item:last-child, {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 .pk-updates--header {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.5rem 0 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 0 1rem;
 
-    &--actions {
-        > .pf-c-button,
-        > .btn-group {
-            margin: 5px 5px 0 0;
+  &--actions {
+    > .pf-c-button,
+    > .btn-group {
+      margin: 5px 5px 0 0;
 
-            &:last-child {
-                margin-right: 0;
-            }
-        }
+      &:last-child {
+        margin-right: 0;
+      }
     }
+  }
 }
 
 @media screen and (min-width: 640px) {
-    .pk-updates--header--auto {
-        justify-content: flex-start;
-    }
+  .pk-updates--header--auto {
+    justify-content: flex-start;
+  }
 }
 
 // Make header's content bold
 .pf-c-table tr:nth-child(1) td:nth-child(2) {
-    font-weight: var(--pf-global--FontWeight--bold);
+  font-weight: var(--pf-global--FontWeight--bold);
 }
 
 .ct-table tr {
-    .severity-icon {
-        margin-right: var(--pf-global--spacer--xs);
+  .severity-icon {
+    margin-right: var(--pf-global--spacer--xs);
+  }
+
+  td.changelog {
+    vertical-align: top;
+
+    * {
+      display: inline;
+      font: inherit;
+      background: inherit;
+      color: inherit;
     }
 
-    td.changelog {
-        vertical-align: top;
-
-        * {
-            display: inline;
-            font: inherit;
-            background: inherit;
-            color: inherit;
-        }
-
-        &, p {
-            max-width: 60vw;
-            margin-bottom: 0;  // counter-act <Markdown>
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+    &, p {
+      max-width: 60vw;
+      margin-bottom: 0;  // counter-act <Markdown>
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
+  }
 
-    th:last-child,
-    td.changelog:last-child {
-        text-align: left;
-    }
+  th:last-child,
+  td.changelog:last-child {
+    text-align: left;
+  }
 }
 
 .severity-critical {
-    color: #a30000;
+  color: #a30000;
 }
 
 .severity-important {
-    color: #ec7a08;
+  color: #ec7a08;
 }
 
 .severity-low {
-    color: var(--ct-color-subtle-copy);
+  color: var(--ct-color-subtle-copy);
 }
 
 div.changelog {
-    max-height: 20em;
-    overflow: auto;
-    white-space: pre-wrap;
+  max-height: 20em;
+  overflow: auto;
+  white-space: pre-wrap;
 }
 
 /* Hide changelog summaries in narrow widths */
 @media screen and (max-width: 80ch) {
-    table.ct-table {
-        /* Hide changelog header (there's no class) & data */
-        thead th:last-child,
-        td.changelog {
-            display: none;
-        }
+  table.ct-table {
+    /* Hide changelog header (there's no class) & data */
+    thead th:last-child,
+    td.changelog {
+      display: none;
     }
+  }
 }
 
 /* don't let the install progress bar get too wide */
 .progress-main-view {
-    max-width: 60rem;
-    margin: 10ex auto 0;
+  max-width: 60rem;
+  margin: 10ex auto 0;
 
-    .pf-l-grid {
-        align-items: end;
-    }
+  .pf-l-grid {
+    align-items: end;
+  }
 }
 
 /* workaround font not supporting tabular numbers yet https://github.com/cockpit-project/cockpit/issues/15090 */
 .pf-c-progress__status {
-    min-width: 3ch;
+  min-width: 3ch;
 }
 
 /* Add some space between the spinner and the text */
 .progress-description > svg {
-    margin-right: var(--pf-global--spacer--sm);
+  margin-right: var(--pf-global--spacer--sm);
 }
 
 .flow-list-blank-slate {
-    margin: 0 auto;
-    max-width: 69rem;
-    text-align: center;
+  margin: 0 auto;
+  max-width: 69rem;
+  text-align: center;
 }
 
 .flow-list {
-    padding: 0;
+  padding: 0;
+  text-align: left;
+  box-sizing: border-box;
+
+  li {
     text-align: left;
     box-sizing: border-box;
-
-    li {
-        text-align: left;
-        box-sizing: border-box;
-        width: 22rem;
-        padding: 0 1ex 0 0;
-        display: inline-block;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-    }
+    width: 22rem;
+    padding: 0 1ex 0 0;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
 }
 
 .update-log {
-    text-align: center;
+  text-align: center;
 
-    th {
-        text-align: left;
-        padding-right: 3ex;
-    }
+  th {
+    text-align: left;
+    padding-right: 3ex;
+  }
 
-    td {
-        text-align: left;
-    }
+  td {
+    text-align: left;
+  }
 }
 
 .update-log-content {
-    margin: 0 10ex;
-    height: 13em;
-    overflow-y: auto;
+  margin: 0 10ex;
+  height: 13em;
+  overflow-y: auto;
 }
 
 table.header-buttons {
-    margin-bottom: 20px; /* replacement for h2's margin-bottom */
-    td {
-        vertical-align: middle;
-    }
+  margin-bottom: 20px; /* replacement for h2's margin-bottom */
+  td {
+    vertical-align: middle;
+  }
 
-    h2 {
-        margin: 0 4rem 0 0; /* vertical default ones break vertical alignment */
-    }
+  h2 {
+    margin: 0 4rem 0 0; /* vertical default ones break vertical alignment */
+  }
 }
 
 #auto-update-day {
-    max-width: 10rem;
+  max-width: 10rem;
 }
 
 #auto-update-time {
-    max-width: 7rem;
+  max-width: 7rem;
 }
 
 .auto-update-group {
-    // Add spacing between rows for when the flex items wrap
-    row-gap: var(--pf-global--spacer--sm);
+  // Add spacing between rows for when the flex items wrap
+  row-gap: var(--pf-global--spacer--sm);
 }
 
 .pk-updates .pf-c-description-list + div {
-    padding-top: var(--pf-global--spacer--md);
+  padding-top: var(--pf-global--spacer--md);
 }
 
 .restart-services-modal-body {
-    padding: 1em 0;
+  padding: 1em 0;
 }
 
 .pf-c-content ul {
-    list-style-type: none;
+  list-style-type: none;
 }
 
 .updates-history {
-    // Constrain  time's width
-    .history-time {
-        width: 0;
-        white-space: nowrap;
-    }
+  // Constrain  time's width
+  .history-time {
+    width: 0;
+    white-space: nowrap;
+  }
 
-    // Fix alignment of the package count's icon
-    .list-view-pf-additional-info-item {
-        align-items: baseline;
+  // Fix alignment of the package count's icon
+  .list-view-pf-additional-info-item {
+    align-items: baseline;
 
-        > svg {
-            margin-right: 1ex;
-        }
+    > svg {
+      margin-right: 1ex;
     }
+  }
 }
 
 .updates-success-table {
-    margin-bottom: 1em;
+  margin-bottom: 1em;
 }
 
 .update-success-actions > button {
-    margin: 0.25rem 0 0.25rem 0.5rem;
+  margin: 0.25rem 0 0.25rem 0.5rem;
 }
 
 .update-success-table-title {
-    padding-left: 0.5em;
+  padding-left: 0.5em;
 }
 
 .cockpit-update-warning {
-    margin-right: 1rem;
+  margin-right: 1rem;
 }
 
 .cockpit-update-warning-icon {
-    margin-right: 0.5rem;
+  margin-right: 0.5rem;
 }
 
 .cockpit-update-warning-text {
-    color: var(--pf-global--warning-color--200);
+  color: var(--pf-global--warning-color--200);
 }
 
 .autoupdates-card-error {
-    margin-bottom: var(--pf-global--spacer--md);
+  margin-bottom: var(--pf-global--spacer--md);
 }
 
 .ct-info-circle {
-    color: var(--pf-global--info-color--100);
+  color: var(--pf-global--info-color--100);
 }

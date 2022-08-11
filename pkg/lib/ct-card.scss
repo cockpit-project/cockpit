@@ -2,30 +2,30 @@
 
 /* Rely on the margin from the Card for spacing */
 .ct-card.pf-c-card .table {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 // FIXME: Once PF4 provides a property for removing padding: https://github.com/patternfly/patternfly-react/issues/5606
 .ct-card.pf-c-card .pf-c-card__body.contains-list {
-    padding-left: 0;
-    padding-right: 0;
-    padding-bottom: 0;
+  padding-left: 0;
+  padding-right: 0;
+  padding-bottom: 0;
 
-    > .pf-c-table > :last-child > tr:last-child {
-        border-bottom: none;
+  > .pf-c-table > :last-child > tr:last-child {
+    border-bottom: none;
+  }
+
+  // Remove excess padding from compact tables toggles
+  // And adjust the padding to left align the toggles with the card header
+  > .pf-c-table {
+    .pf-c-table__toggle {
+      padding-left: 0;
+
+      > .pf-c-button {
+        padding-left: var(--pf-global--spacer--lg);
+      }
     }
-
-    // Remove excess padding from compact tables toggles
-    // And adjust the padding to left align the toggles with the card header
-    > .pf-c-table {
-        .pf-c-table__toggle {
-            padding-left: 0;
-
-            > .pf-c-button {
-                padding-left: var(--pf-global--spacer--lg);
-            }
-        }
-    }
+  }
 }
 
 .ct-card.pf-c-card .pf-c-card__title {
@@ -39,25 +39,25 @@
 // Remove excess top padding from top-level empty state in cards,
 // as card headers already add enough space
 .ct-card > .pf-c-card__body > .pf-c-empty-state {
-    --pf-c-empty-state__body--MarginTop: 0;
-    padding-top: 0;
-    padding-bottom: var(--pf-global--spacer--md);
+  --pf-c-empty-state__body--MarginTop: 0;
+  padding-top: 0;
+  padding-bottom: var(--pf-global--spacer--md);
 }
 
 .ct-cards-grid {
-    --ct-grid-columns: 2;
-    --pf-l-gallery--GridTemplateColumns: repeat(var(--ct-grid-columns), 1fr);
+  --ct-grid-columns: 2;
+  --pf-l-gallery--GridTemplateColumns: repeat(var(--ct-grid-columns), 1fr);
 
-    > .pf-c-card:not(.ct-card-info) {
-        // Extend all non-info cards to be full width;
-        // let ct-card-info fit 1 column of the grid
-        grid-column: 1 / -1;
-    }
+  > .pf-c-card:not(.ct-card-info) {
+    // Extend all non-info cards to be full width;
+    // let ct-card-info fit 1 column of the grid
+    grid-column: 1 / -1;
+  }
 
-    @media screen and (max-width: $pf-global--breakpoint--lg) {
-        // Shrink to 1 column when space is constrained
-        --ct-grid-columns: 1;
-    }
+  @media screen and (max-width: $pf-global--breakpoint--lg) {
+    // Shrink to 1 column when space is constrained
+    --ct-grid-columns: 1;
+  }
 }
 
 // Remove redundant padding from embedded toolbars (handled by header)

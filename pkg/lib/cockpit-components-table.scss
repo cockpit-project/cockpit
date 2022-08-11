@@ -3,105 +3,105 @@
 @import "@patternfly/patternfly/components/Table/table-grid.scss";
 
 .ct-table {
-    &.pf-m-compact {
-        > thead, > tbody {
-            > tr:not(.pf-c-table__expandable-row) {
-                // We actually want the normal font size for our lists
-                --pf-c-table-cell--FontSize: var(--pf-global--FontSize--md);
-            }
-        }
+  &.pf-m-compact {
+    > thead, > tbody {
+      > tr:not(.pf-c-table__expandable-row) {
+        // We actually want the normal font size for our lists
+        --pf-c-table-cell--FontSize: var(--pf-global--FontSize--md);
+      }
+    }
+  }
+
+  &-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    > :only-child {
+      flex: auto;
+    }
+  }
+
+  &-heading {
+    // Push buttons to the right by stretching the heading
+    flex: auto;
+    // Add a bit of minimum margin to the right of the heading
+    margin-right: var(--pf-global--spacer--md);
+    // Set a minimum height of 3rem, so when buttons wrap, there's spacing
+    min-height: var(--pf-global--spacer--2xl);
+    // Make sure textual content is aligned to the center
+    display: flex;
+    align-items: center;
+  }
+
+  &-actions {
+    > * {
+      margin: var(--pf-global--spacer--xs) 0 var(--pf-global--spacer--xs) var(--pf-global--spacer--sm);
     }
 
-    &-header {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
+    > :first-child {
+      margin-left: 0;
+    }
+  }
 
-        > :only-child {
-            flex: auto;
-        }
+  // https://github.com/patternfly/patternfly-react/issues/5379
+  &-empty {
+    [data-label] {
+      display: revert;
     }
 
-    &-heading {
-        // Push buttons to the right by stretching the heading
-        flex: auto;
-        // Add a bit of minimum margin to the right of the heading
-        margin-right: var(--pf-global--spacer--md);
-        // Set a minimum height of 3rem, so when buttons wrap, there's spacing
-        min-height: var(--pf-global--spacer--2xl);
-        // Make sure textual content is aligned to the center
-        display: flex;
-        align-items: center;
-    }
-
-    &-actions {
-        > * {
-            margin: var(--pf-global--spacer--xs) 0 var(--pf-global--spacer--xs) var(--pf-global--spacer--sm);
-        }
-
-        > :first-child {
-            margin-left: 0;
-        }
-    }
-
-    // https://github.com/patternfly/patternfly-react/issues/5379
-    &-empty {
-        [data-label] {
-            display: revert;
-        }
-
-        [data-label]::before {
-            display: none;
-        }
-    }
-
-    // Don't wrap labels
     [data-label]::before {
-        white-space: nowrap;
+      display: none;
     }
+  }
 
-    // Fix toggle button alignment
-    .pf-c-table__toggle {
-        // Workaround: Chrome sometimes oddly expands the table,
-        // unless a width is set. (This affects panels the most, but not only.)
-        // As the width is smaller than the contents, and this is a table,
-        // the cell will stay at the correct width.
-        width: 1px;
+  // Don't wrap labels
+  [data-label]::before {
+    white-space: nowrap;
+  }
+
+  // Fix toggle button alignment
+  .pf-c-table__toggle {
+    // Workaround: Chrome sometimes oddly expands the table,
+    // unless a width is set. (This affects panels the most, but not only.)
+    // As the width is smaller than the contents, and this is a table,
+    // the cell will stay at the correct width.
+    width: 1px;
+  }
+
+  // Properly align actions on the end
+  > tbody > tr > td:last-child > .btn-group {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  // Use PF4 style headings
+  > thead th {
+    font-size: var(--pf-global--FontSize--sm);
+    font-weight: var(--pf-global--FontWeight--semi-bold);
+  }
+
+  // Adjust the padding for nested ct-tables in ct-tables
+  // FIXME: https://github.com/patternfly/patternfly/issues/4280
+  .ct-table {
+    td, th {
+      &:first-child {
+        --pf-c-table--nested--first-last-child--PaddingLeft: var(--pf-global--spacer--lg);
+      }
+
+      &:last-child {
+        --pf-c-table--nested--first-last-child--PaddingRight: var(--pf-global--spacer--lg);
+      }
     }
-
-    // Properly align actions on the end
-    > tbody > tr > td:last-child > .btn-group {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-    }
-
-    // Use PF4 style headings
-    > thead th {
-        font-size: var(--pf-global--FontSize--sm);
-        font-weight: var(--pf-global--FontWeight--semi-bold);
-    }
-
-    // Adjust the padding for nested ct-tables in ct-tables
-    // FIXME: https://github.com/patternfly/patternfly/issues/4280
-    .ct-table {
-        td, th {
-            &:first-child {
-                --pf-c-table--nested--first-last-child--PaddingLeft: var(--pf-global--spacer--lg);
-            }
-
-            &:last-child {
-                --pf-c-table--nested--first-last-child--PaddingRight: var(--pf-global--spacer--lg);
-            }
-        }
-    }
+  }
 }
 
 // Special handling for rows with errors
 .pf-c-table tbody tr:first-child.error {
-    &, tbody.pf-m-expanded > & {
-        background-color: var(--ct-color-list-critical-bg) !important; /* keep red background when expanded */
-        border-top: 1px solid var(--ct-color-list-critical-border);
-        border-bottom: 1px solid var(--ct-color-list-critical-border);
-    }
+  &, tbody.pf-m-expanded > & {
+    background-color: var(--ct-color-list-critical-bg) !important; /* keep red background when expanded */
+    border-top: 1px solid var(--ct-color-list-critical-border);
+    border-bottom: 1px solid var(--ct-color-list-critical-border);
+  }
 }

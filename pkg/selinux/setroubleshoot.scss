@@ -21,47 +21,47 @@
 @use "page";
 
 #app .pf-c-card {
-    @extend .ct-card;
+  @extend .ct-card;
 }
 
 .setroubleshoot-log {
-    font-family: monospace;
+  font-family: monospace;
 }
 
 .setroubleshoot-progress-spinner {
-    display: inline-block;
+  display: inline-block;
 }
 
 .setroubleshoot-progress-message {
-    vertical-align: top;
+  vertical-align: top;
 }
 
 /* Table cells should collapse on mobile */
 .ct-table.pf-c-table tbody > tr > * {
-    word-break: break-word;
+  word-break: break-word;
 }
 
 .selinux-details {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: var(--pf-global--spacer--sm) var(--pf-global--spacer--md);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--pf-global--spacer--sm) var(--pf-global--spacer--md);
 
-    > div:first-child {
-        width: 70%;
-        flex: auto;
-    }
+  > div:first-child {
+    width: 70%;
+    flex: auto;
+  }
 
-    + hr {
-        margin-top: var(--pf-global--spacer--sm);
-    }
+  + hr {
+    margin-top: var(--pf-global--spacer--sm);
+  }
 
-    .pf-c-expandable-section__content {
-        margin-top: unset;
-    }
+  .pf-c-expandable-section__content {
+    margin-top: unset;
+  }
 }
 
 .selinux-details textarea {
-    margin-top: var(--pf-global--spacer--xs);
-    resize: none;
+  margin-top: var(--pf-global--spacer--xs);
+  resize: none;
 }

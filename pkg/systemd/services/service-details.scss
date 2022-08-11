@@ -3,19 +3,19 @@
 @use "_global-variables.scss";
 
 #service-details .pf-l-gallery {
-    --pf-l-gallery--GridTemplateColumns: 1fr;
+  --pf-l-gallery--GridTemplateColumns: 1fr;
 }
 
 #service-details .pf-c-page__main-breadcrumb {
-    padding: var(--pf-global--gutter);
+  padding: var(--pf-global--gutter);
 }
 
 #service-details .pf-c-card {
-    @extend .ct-card;
+  @extend .ct-card;
 }
 
 #service-details .pf-c-expandable-section {
-    margin-top: var(--pf-global--spacer--md);
+  margin-top: var(--pf-global--spacer--md);
 }
 
 .comma-list {
@@ -34,68 +34,68 @@
 }
 
 .service-top-panel {
-    padding-bottom: 1.25rem;
-    display: flex;
-    align-items: baseline;
+  padding-bottom: 1.25rem;
+  display: flex;
+  align-items: baseline;
 }
 
 .service-top-panel > .service-name {
-    margin: 0 0.75rem 0 0;
+  margin: 0 0.75rem 0 0;
 }
 
 .service-top-panel .pf-c-switch {
-    vertical-align: text-bottom;
-    margin: 0 0 0 0.75rem;
+  vertical-align: text-bottom;
+  margin: 0 0 0 0.75rem;
 }
 
 .service-top-panel > .service-thumbtack-icon {
-    color: var(--pf-global--icon--Color--light);
-    margin: 0 0.5rem 0 0;
+  color: var(--pf-global--icon--Color--light);
+  margin: 0 0.5rem 0 0;
 }
 
 /* Make the kebab wrapper flex to parents for proper alignment */
 .service-top-panel .pf-c-dropdown {
-    display: flex;
+  display: flex;
 }
 
 .action-button {
-    margin-left: 2rem;
+  margin-left: 2rem;
 }
 
 .status-icon::before {
-    color: inherit;
+  color: inherit;
 }
 
 .status-icon {
-    margin-right: 0.5rem;
-    color: var(--pf-global--icon--Color--light);
+  margin-right: 0.5rem;
+  color: var(--pf-global--icon--Color--light);
 }
 
 .status-running > .status-icon,
 .status-enabled > .status-icon {
-    /* mid-way between PF4 success-100 & 200; then rounded to AA contrast */
-    color: #6da000;
+  /* mid-way between PF4 success-100 & 200; then rounded to AA contrast */
+  color: #6da000;
 }
 
 .status-failed > .status-icon,
 .status-failed > .status,
 .control-label.failed {
-    color: var(--pf-global--danger-color--200);
+  color: var(--pf-global--danger-color--200);
 }
 
 .side-note {
-    color: var(--pf-global--Color--300);
-    padding-left: 1em;
+  color: var(--pf-global--Color--300);
+  padding-left: 1em;
 }
 
 .font-xs {
-    font-size: var(--pf-global--FontSize--xs);
+  font-size: var(--pf-global--FontSize--xs);
 }
 
 .pf-c-dropdown__menu-item.pf-m-danger {
-	    color: var(--pf-global--danger-color--200);
+  color: var(--pf-global--danger-color--200);
 }
 
 .pf-c-alert.pf-m-inline.pf-m-danger {
-    margin-bottom: var(--pf-global--spacer--sm);
+  margin-bottom: var(--pf-global--spacer--sm);
 }

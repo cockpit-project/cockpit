@@ -18,142 +18,142 @@
  */
 
 .cockpit-log-panel:empty {
-    border: none;
+  border: none;
 }
 
 .cockpit-log-panel {
-    overflow-x: unset;
+  overflow-x: unset;
 }
 
 .cockpit-log-panel .panel-body {
-    padding: 0;
+  padding: 0;
 }
 
 .cockpit-log-panel .pf-c-card__body .panel-heading,
 .cockpit-log-panel .panel-body .panel-heading {
-    border-top: 0;
-    background-color: var(--ct-color-bg);
-    font-weight: var(--pf-global--FontWeight--normal);
-    padding-top: var(--pf-global--spacer--sm);
-    padding-bottom: var(--pf-global--spacer--sm);
-    width: auto;
-    color: var(--ct-color-list-text);
-    display: flex;
+  border-top: 0;
+  background-color: var(--ct-color-bg);
+  font-weight: var(--pf-global--FontWeight--normal);
+  padding-top: var(--pf-global--spacer--sm);
+  padding-bottom: var(--pf-global--spacer--sm);
+  width: auto;
+  color: var(--ct-color-list-text);
+  display: flex;
 }
 
 .cockpit-log-panel .pf-c-card__body .panel-heading {
-    /* Align sub-heading within a PF4 card to the heading of the card */
-    padding-left: var(--pf-global--spacer--lg);
+  /* Align sub-heading within a PF4 card to the heading of the card */
+  padding-left: var(--pf-global--spacer--lg);
 }
 
 .cockpit-log-panel .panel-body .panel-heading:not(:first-child)::after {
-    content: "\a0";
-    display: block;
-    flex: auto;
-    background: linear-gradient(var(--ct-color-bg) 50%, var(--ct-color-border) calc(50% + 1px), var(--ct-color-bg) calc(50% + 2px));
-    margin: 0 0 0 0.5rem;
+  content: "\a0";
+  display: block;
+  flex: auto;
+  background: linear-gradient(var(--ct-color-bg) 50%, var(--ct-color-border) calc(50% + 1px), var(--ct-color-bg) calc(50% + 2px));
+  margin: 0 0 0 0.5rem;
 }
 
 .cockpit-logline {
-    --log-icon: 24px;
-    --log-time: 3rem;
-    --log-message: 1fr;
-    --log-service-min: 0;
-    --log-service: minmax(var(--log-service-min), max-content);
-    background-color: var(--ct-color-list-bg);
-    font-size: var(--font-small);
-    padding: 0.5rem 1rem;
-    display: grid;
-    grid-template-columns: var(--log-icon) var(--log-time) var(--log-message) var(--log-service);
-    grid-gap: var(--pf-global--spacer--sm);
-    align-items: baseline;
+  --log-icon: 24px;
+  --log-time: 3rem;
+  --log-message: 1fr;
+  --log-service-min: 0;
+  --log-service: minmax(var(--log-service-min), max-content);
+  background-color: var(--ct-color-list-bg);
+  font-size: var(--font-small);
+  padding: 0.5rem 1rem;
+  display: grid;
+  grid-template-columns: var(--log-icon) var(--log-time) var(--log-message) var(--log-service);
+  grid-gap: var(--pf-global--spacer--sm);
+  align-items: baseline;
 }
 
 .cockpit-log-panel .cockpit-logline:hover {
-    background-color: var(--ct-color-list-hover-bg);
-    cursor: pointer;
+  background-color: var(--ct-color-list-hover-bg);
+  cursor: pointer;
 }
 
 .cockpit-log-panel .cockpit-logline:hover .cockpit-log-message:not(.cockpit-logmsg-reboot) {
-    color: var(--ct-color-list-hover-text);
-    text-decoration: underline;
+  color: var(--ct-color-list-hover-text);
+  text-decoration: underline;
 }
 
 .cockpit-log-panel .cockpit-logline + .panel-heading {
-    border-top-width: 1px;
+  border-top-width: 1px;
 }
 
 /* Don't show headers without content */
 .cockpit-log-panel .panel-heading:last-child {
-    display: none !important;
+  display: none !important;
 }
 
 .cockpit-logmsg-reboot {
-    font-style: italic;
+  font-style: italic;
 }
 
 .cockpit-log-warning {
-    display: flex;
-    align-self: center;
-    justify-content: center;
+  display: flex;
+  align-self: center;
+  justify-content: center;
 }
 
 .empty-message {
-    width: 100%;
-    color: var(--pf-global--Color--200);
-    display: block;
-    padding: 0.5rem 1rem;
-    text-align: center;
+  width: 100%;
+  color: var(--pf-global--Color--200);
+  display: block;
+  padding: 0.5rem 1rem;
+  text-align: center;
 }
 
 .cockpit-log-time,
 .cockpit-log-service,
 .cockpit-log-service-reduced {
-    color: var(--pf-global--Color--200);
+  color: var(--pf-global--Color--200);
 }
 
 .cockpit-log-time {
-    color: var(--pf-global--Color--200);
-    font-family: monospace;
-    font-size: var(--pf-global--FontSize--xs);
-    justify-self: end;
-    white-space: nowrap;
+  color: var(--pf-global--Color--200);
+  font-family: monospace;
+  font-size: var(--pf-global--FontSize--xs);
+  justify-self: end;
+  white-space: nowrap;
 }
 
 .cockpit-log-message,
 .cockpit-log-service,
 .cockpit-log-service-reduced {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    flex: auto;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  flex: auto;
 }
 
 .cockpit-log-message,
 .cockpit-log-service,
 .cockpit-log-service-reduced {
-    font-size: var(--pf-global--FontSize--sm);
+  font-size: var(--pf-global--FontSize--sm);
 }
 
 .cockpit-log-service-container > .pf-c-badge {
-    margin-left: var(--pf-global--spacer--xs);
+  margin-left: var(--pf-global--spacer--xs);
 }
 
 .cockpit-log-service-container {
-    display: flex;
-    align-items: baseline;
+  display: flex;
+  align-items: baseline;
 }
 
 @media screen and (max-width: 428px) {
-    .cockpit-logline {
-        /* Remove space for service */
-        --log-service: 0;
-    }
+  .cockpit-logline {
+    /* Remove space for service */
+    --log-service: 0;
+  }
 
-    .cockpit-log-service,
-    .cockpit-log-service-reduced,
-    .cockpit-log-service-container {
-        /* Move service under message */
-        grid-area: 2 / 3;
-    }
+  .cockpit-log-service,
+  .cockpit-log-service-reduced,
+  .cockpit-log-service-container {
+    /* Move service under message */
+    grid-area: 2 / 3;
+  }
 }

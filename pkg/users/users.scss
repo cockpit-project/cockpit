@@ -7,215 +7,215 @@
 @import "@patternfly/patternfly/components/DataList/data-list.scss";
 
 #account .pf-c-card {
-    @extend .ct-card;
+  @extend .ct-card;
 }
 
 .account-details .pf-c-card__header {
-    margin-bottom: var(--pf-global--spacer--lg);
+  margin-bottom: var(--pf-global--spacer--lg);
 }
 
 #account {
-    --pf-c-page__main-breadcrumb--PaddingBottom: var(--pf-c-page__main-breadcrumb--PaddingTop);
+  --pf-c-page__main-breadcrumb--PaddingBottom: var(--pf-c-page__main-breadcrumb--PaddingTop);
 }
 
 #account .pf-l-gallery {
-    --pf-l-gallery--GridTemplateColumns: 1fr;
+  --pf-l-gallery--GridTemplateColumns: 1fr;
 }
 
 #account .pf-c-page__main-section,
 #account .pf-c-page__main-nav {
-    padding: var(--pf-global--gutter);
+  padding: var(--pf-global--gutter);
 }
 
 #accounts-list {
-    --ct-account-pic-size: 3rem;
+  --ct-account-pic-size: 3rem;
 }
 
 @media (max-width: 640px) {
-    #accounts-list {
-        --ct-account-pic-size: 0;
-    }
+  #accounts-list {
+    --ct-account-pic-size: 0;
+  }
 }
 
 .cockpit-account {
-    display: grid;
-    grid-template-areas: "pic name"
-                         "pic account";
-    grid-template-columns: var(--ct-account-pic-size) 1fr;
-    grid-gap: 0 0.25rem;
-    min-height: 4rem;
-    padding: 0.5rem;
+  display: grid;
+  grid-template-areas: "pic name"
+    "pic account";
+  grid-template-columns: var(--ct-account-pic-size) 1fr;
+  grid-gap: 0 0.25rem;
+  min-height: 4rem;
+  padding: 0.5rem;
 }
 
 .cockpit-account > .cockpit-account-pic {
-    font-size: var(--ct-account-pic-size);
-    color: #bebebe;
-    grid-area: pic;
+  font-size: var(--ct-account-pic-size);
+  color: #bebebe;
+  grid-area: pic;
 }
 
 .cockpit-account > .cockpit-account-real-name {
-    font-weight: bold;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    grid-area: name;
+  font-weight: bold;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  grid-area: name;
 }
 
 .cockpit-account > .cockpit-account-user-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    grid-area: account;
-    outline: none;
-    align-self: end;
-    display: flex;
-    justify-content: space-between;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  grid-area: account;
+  outline: none;
+  align-self: end;
+  display: flex;
+  justify-content: space-between;
 
-    > a {
-        margin-right: 0.5rem;
-    }
+  > a {
+    margin-right: 0.5rem;
+  }
 }
 
 #account-details div.checkbox:first-child {
-	margin-top: 0;
+  margin-top: 0;
 }
 
 #account-details div.checkbox:last-child {
-	margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 #account-pic {
-    background: #d3d7cf;
-    border-radius: 5px;
-    cursor: pointer;
+  background: #d3d7cf;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 #account-authorized-keys {
-    .pf-c-data-list__item {
-        // Align text with heading
-        --pf-c-data-list__item-row--PaddingLeft: var(--pf-global--spacer--lg);
+  .pf-c-data-list__item {
+    // Align text with heading
+    --pf-c-data-list__item-row--PaddingLeft: var(--pf-global--spacer--lg);
 
-        // Align - buttons with + button
-        --pf-c-data-list__item-row--PaddingRight: var(--pf-global--spacer--md);
+    // Align - buttons with + button
+    --pf-c-data-list__item-row--PaddingRight: var(--pf-global--spacer--md);
 
-        // Add a border to the top item
-        &:first-child {
-            border-top: var(--pf-c-data-list__item--BorderBottomWidth) solid var(--pf-c-data-list__item--BorderBottomColor);
-        }
-
-        // Remove a border from the bottom item
-        &:last-child {
-            border-bottom: none;
-        }
+    // Add a border to the top item
+    &:first-child {
+      border-top: var(--pf-c-data-list__item--BorderBottomWidth) solid var(--pf-c-data-list__item--BorderBottomColor);
     }
 
-    .pf-c-data-list__cell {
-        // Align to center (when stretched wide)
-        align-self: center;
-        // Allow cells to be wrappable
-        overflow-wrap: anywhere;
+    // Remove a border from the bottom item
+    &:last-child {
+      border-bottom: none;
+    }
+  }
 
-        // Comment is user@hostname
-        &.comment {
-            // Grow, shrink, and try to be around 12rem (or more or less)
-            flex: 1 1 10rem;
-        }
+  .pf-c-data-list__cell {
+    // Align to center (when stretched wide)
+    align-self: center;
+    // Allow cells to be wrappable
+    overflow-wrap: anywhere;
 
-        &.fingerprint {
-            // Grow more, shrink, and try to be around 20rem (or more or less)
-            flex: 100 1 50%;
-        }
+    // Comment is user@hostname
+    &.comment {
+      // Grow, shrink, and try to be around 12rem (or more or less)
+      flex: 1 1 10rem;
     }
 
-    // Handle empty state
-    .no-keys {
-        display: block;
-        text-align: center;
-        padding: var(--pf-global--spacer--lg);
+    &.fingerprint {
+      // Grow more, shrink, and try to be around 20rem (or more or less)
+      flex: 100 1 50%;
     }
+  }
+
+  // Handle empty state
+  .no-keys {
+    display: block;
+    text-align: center;
+    padding: var(--pf-global--spacer--lg);
+  }
 }
 
 /* Use subgrid to properly align items, making the list act like a table  */
 @supports (grid-template-columns: subgrid) {
-    @media screen and (min-width: 512px) {
-        #account-authorized-keys-list {
-            display: grid;
-            // This template will apply to the subgrids too
-            grid-template-columns: minmax(8rem, auto) minmax(33%, 1fr) auto;
+  @media screen and (min-width: 512px) {
+    #account-authorized-keys-list {
+      display: grid;
+      // This template will apply to the subgrids too
+      grid-template-columns: minmax(8rem, auto) minmax(33%, 1fr) auto;
 
-            /* Bring the grid through all the children */
-            .pf-c-data-list__item,
-            .pf-c-data-list__item-row:not(.no-keys),
-            .pf-c-data-list__item-content {
-                display: grid;
-                grid-template-columns: subgrid;
-            }
+      /* Bring the grid through all the children */
+      .pf-c-data-list__item,
+      .pf-c-data-list__item-row:not(.no-keys),
+      .pf-c-data-list__item-content {
+        display: grid;
+        grid-template-columns: subgrid;
+      }
 
-            /* Align children across all the grid */
-            .pf-c-data-list__item,
-            .pf-c-data-list__item-row {
-                grid-column: 1 / -1;
-            }
+      /* Align children across all the grid */
+      .pf-c-data-list__item,
+      .pf-c-data-list__item-row {
+        grid-column: 1 / -1;
+      }
 
-            /* Put the wrapper for the items on the first two grid cells (leaving the actions on the third) */
-            .pf-c-data-list__item-content {
-                grid-column: 1 / -2;
-            }
+      /* Put the wrapper for the items on the first two grid cells (leaving the actions on the third) */
+      .pf-c-data-list__item-content {
+        grid-column: 1 / -2;
+      }
 
-            /* Place comment and fingerprint on their cells */
-            .pf-c-data-list__cell {
-                &.comment {
-                    grid-column: 1;
-                }
-
-                &.fingerprint {
-                    grid-column: 2;
-                }
-            }
+      /* Place comment and fingerprint on their cells */
+      .pf-c-data-list__cell {
+        &.comment {
+          grid-column: 1;
         }
+
+        &.fingerprint {
+          grid-column: 2;
+        }
+      }
     }
+  }
 }
 
 #account-authorized-keys-list {
-    border: none;
-    margin-bottom: 0;
+  border: none;
+  margin-bottom: 0;
 }
 
 .align-top {
-    vertical-align: top;
+  vertical-align: top;
 }
 
 .size-text-ct {
-    display: inline;
-    width: 8em;
-    text-align: left;
-    margin: 2px;
+  display: inline;
+  width: 8em;
+  text-align: left;
+  margin: 2px;
 }
 
 @media (min-width: 500px) {
-    .modal-sm-ct {
-        width: 32rem;
-    }
+  .modal-sm-ct {
+    width: 32rem;
+  }
 }
 
 .account-column-one {
-    min-width: 270px;
-    display: inline-block;
+  min-width: 270px;
+  display: inline-block;
 }
 
 .expiration-modal .pf-c-form__group-control {
-    .pf-c-radio:first-child {
-        padding-bottom: var(--pf-global--spacer--sm);
-    }
-    // Work around for https://github.com/patternfly/patternfly/issues/4061
-    .pf-c-radio:nth-child(2) input {
-        align-self: center;
-    }
+  .pf-c-radio:first-child {
+    padding-bottom: var(--pf-global--spacer--sm);
+  }
+  // Work around for https://github.com/patternfly/patternfly/issues/4061
+  .pf-c-radio:nth-child(2) input {
+    align-self: center;
+  }
 }
 
 .help-block {
-    white-space: pre-wrap;
+  white-space: pre-wrap;
 }
 
 .outline-question-circle-icon {
-    margin-left: var(--pf-global--spacer--sm);
+  margin-left: var(--pf-global--spacer--sm);
 }

@@ -1,61 +1,61 @@
 .insights-icon {
-    width: auto;
-    height: 1.25rem;
-    flex-basis: 22px;
-    margin-right: 0.5rem;
-    justify-self: center;
+  width: auto;
+  height: 1.25rem;
+  flex-basis: 22px;
+  margin-right: 0.5rem;
+  justify-self: center;
 
-    /* JavaScript-set numbers; default to 0 */
-    --critical: 0;
-    --important: 0;
-    --moderate: 0;
-    --low: 0;
-    /*  Add the numbers together, making calculations easier later on */
-    --total: calc(var(--critical) + var(--important) + var(--moderate) + var(--low));
-    border-radius: 3px;
-    border: 1px solid var(--pf-global--BorderColor--200);
-    /*  Use flex here (with auto below) so everything always adds up properly */
-    display: flex;
-    flex-direction: column;
-    width: 22px;
-    height: 22px;
-    /*  Inner gap between colors and border */
-    padding: 1px;
-    /* The top border offset is provided by the border of the first block */
-    padding-top: 0;
+  /* JavaScript-set numbers; default to 0 */
+  --critical: 0;
+  --important: 0;
+  --moderate: 0;
+  --low: 0;
+  /*  Add the numbers together, making calculations easier later on */
+  --total: calc(var(--critical) + var(--important) + var(--moderate) + var(--low));
+  border-radius: 3px;
+  border: 1px solid var(--pf-global--BorderColor--200);
+  /*  Use flex here (with auto below) so everything always adds up properly */
+  display: flex;
+  flex-direction: column;
+  width: 22px;
+  height: 22px;
+  /*  Inner gap between colors and border */
+  padding: 1px;
+  /* The top border offset is provided by the border of the first block */
+  padding-top: 0;
 
-    > * {
-        /*  If there's a value, set to 1px. Otherwise, divide by 0 and it becomes invalid */
-        --pixel-onoff: calc(var(--severity) / var(--severity) * 1px);
-        /*  Hit severity is mapped to the --servity variable in blocks below. */
-        height: calc(var(--severity) / var(--total) * 100%);
-        /*  Make it stretchy so the math always works out. ("Fudge factor") */
-        flex: auto;
-        /*  Anti-alias the edges ever-so-slightly */
-        border-radius: 1px;
-        /* If there's a value, then there's a gap at top */
-        margin-top: var(--pixel-onoff);
-        /* If there's a value, always round height up to 1px minimum */
-        min-height: var(--pixel-onoff);
-    }
+  > * {
+    /*  If there's a value, set to 1px. Otherwise, divide by 0 and it becomes invalid */
+    --pixel-onoff: calc(var(--severity) / var(--severity) * 1px);
+    /*  Hit severity is mapped to the --servity variable in blocks below. */
+    height: calc(var(--severity) / var(--total) * 100%);
+    /*  Make it stretchy so the math always works out. ("Fudge factor") */
+    flex: auto;
+    /*  Anti-alias the edges ever-so-slightly */
+    border-radius: 1px;
+    /* If there's a value, then there's a gap at top */
+    margin-top: var(--pixel-onoff);
+    /* If there's a value, always round height up to 1px minimum */
+    min-height: var(--pixel-onoff);
+  }
 
-    &-critical {
-        --severity: var(--critical);
-        background: #c9190b;
-    }
+  &-critical {
+    --severity: var(--critical);
+    background: #c9190b;
+  }
 
-    &-important {
-        --severity: var(--important);
-        background: #ec7a08;
-    }
+  &-important {
+    --severity: var(--important);
+    background: #ec7a08;
+  }
 
-    &-moderate {
-        --severity: var(--moderate);
-        background: #f0ab00;
-    }
+  &-moderate {
+    --severity: var(--moderate);
+    background: #f0ab00;
+  }
 
-    &-low {
-        --severity: var(--low);
-        background: #d2d2d2;
-    }
+  &-low {
+    --severity: var(--low);
+    background: #d2d2d2;
+  }
 }

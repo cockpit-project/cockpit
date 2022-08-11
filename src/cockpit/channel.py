@@ -17,6 +17,7 @@
 
 
 import asyncio
+from typing import Dict
 
 
 class Endpoint:
@@ -30,12 +31,12 @@ class Endpoint:
 
 
 class Channel(Endpoint):
-    payload = None
-    restrictions = ()
+    payload = ""
+    restrictions: Dict[str, str] = {}
 
     @staticmethod
     def create_match_rule(channel):
-        assert channel.payload is not None, f'{channel} declares no payload'
+        assert channel.payload != "", f'{channel} declares no payload'
         return dict(channel.restrictions, payload=channel.payload)
 
     @staticmethod

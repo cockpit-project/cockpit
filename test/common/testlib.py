@@ -1398,7 +1398,7 @@ class MachineCase(unittest.TestCase):
         if opts.address and self.provision is not None:
             raise unittest.SkipTest("Cannot provision multiple machines if a specific machine address is specified")
 
-        self.machines = {}
+        self.machines: Dict[str, testvm.Machine] = {}
         provision = self.provision or {'machine1': {}}
         self.tmpdir = tempfile.mkdtemp()
         # automatically cleaned up for @nondestructive tests, but you have to create it yourself
@@ -1889,7 +1889,7 @@ class MachineCase(unittest.TestCase):
                     print("Journal extracted to %s" % (log))
                     attach(log, move=True)
 
-    def copy_cores(self, title: str, label: Optional[str] = None):
+    def copy_cores(self, title, label=None):
         if self.allow_core_dumps:
             return
         for name, m in self.machines.items():

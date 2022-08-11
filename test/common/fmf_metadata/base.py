@@ -4,6 +4,8 @@ import inspect
 import unittest
 import yaml
 import importlib
+import importlib.util
+import importlib.machinery
 import os
 import glob
 import sys
@@ -66,14 +68,15 @@ class _TestCls:
 
 def filepath_tests(filename) -> List[_TestCls]:
     test_loader = unittest.TestLoader()
-    output = []
+    output: List[_TestCls] = []
     loader = importlib.machinery.SourceFileLoader("non_important", filename)
-    module = importlib.util.module_from_spec(
-        importlib.util.spec_from_loader(loader.name, loader)
-    )
+    spec = importlib.util.spec_from_loader(loader.name, loader)
+    if not spec:
+        return output
+    module = importlib.util.module_from_spec(spec)
     loader.exec_module(module)
     for test_suite in test_loader.loadTestsFromModule(module):
-        for test in test_suite:
+        for test in test_suite:  # type: ignore
             cls = _TestCls(test.__class__, filename)
             if cls.name in [x for x in output if x.name == cls.name]:
                 cls = [x for x in output if x.name == cls.name][0]

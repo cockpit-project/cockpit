@@ -39,6 +39,11 @@ test_pyvulture() {
         --ignore-decorators '@*'
 }
 
+test_mypy() {
+    command -v mypy >/dev/null || skip 'no mypy'
+    mypy --no-error-summary test/common/testlib.py
+}
+
 test_js_translatable_strings() {
     # Translatable strings must be marked with _(""), not _('')
 

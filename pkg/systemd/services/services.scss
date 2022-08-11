@@ -6,98 +6,98 @@
 // However, the toolbar also lacks a border and is sticky, so add a bottom
 // border to the toolbar to separate the toolbar and list.
 .services-toolbar {
-    border-bottom: 1px solid var(--pf-global--BorderColor--100);
+  border-bottom: 1px solid var(--pf-global--BorderColor--100);
 }
 
 // Magic pixie dust to make the list a bit faster and more furious
 .services-list tbody {
-    // Skip a lot of computations
-    contain: content;
+  // Skip a lot of computations
+  contain: content;
 }
 
 .service-unit-failed {
-    background-color: var(--ct-color-list-critical-bg);
+  background-color: var(--ct-color-list-critical-bg);
 
-    .service-unit-status {
-        color: var(--ct-color-list-critical-alert-text);
-    }
+  .service-unit-status {
+    color: var(--ct-color-list-critical-alert-text);
+  }
 }
 
 .service-unit-status {
-    white-space: nowrap;
-    text-align: right;
+  white-space: nowrap;
+  text-align: right;
 
-    &-failed {
-        color: red;
-        white-space: break-spaces;
-    }
+  &-failed {
+    color: red;
+    white-space: break-spaces;
+  }
 
-    &-flex-container {
-        --pf-l-flex--FlexWrap: nowrap;
-    }
+  &-flex-container {
+    --pf-l-flex--FlexWrap: nowrap;
+  }
 }
 
 .service-unit-file-state {
-    display: inline-block;
-    font-size: var(--pf-global--FontSize--sm);
-    min-width: 5rem;
-    text-align: center;
+  display: inline-block;
+  font-size: var(--pf-global--FontSize--sm);
+  min-width: 5rem;
+  text-align: center;
 }
 
 .service-unit-file-state:not(.pf-c-badge) {
-    text-align: center;
-    opacity: 0.8;
+  text-align: center;
+  opacity: 0.8;
 }
 
 // Add some spacing between the tab label and the icon
 .pf-c-nav__link > .ct-exclamation-circle {
-    margin-left: 0.5rem;
+  margin-left: 0.5rem;
 }
 
 .services-header.pf-c-page__main-nav {
-    padding-bottom: 1rem;
-    padding-right: 0;
+  padding-bottom: 1rem;
+  padding-right: 0;
 
-    > .pf-l-flex {
-        // Add spacing between the tabs and the 'Create timer' button in mobile
-        row-gap: var(--pf-global--spacer--sm);
-        // Align 'Create timer' button with the right side of the services list card
-        margin-right: var(--pf-c-page__main-section--PaddingRight);
-    }
+  > .pf-l-flex {
+    // Add spacing between the tabs and the 'Create timer' button in mobile
+    row-gap: var(--pf-global--spacer--sm);
+    // Align 'Create timer' button with the right side of the services list card
+    margin-right: var(--pf-c-page__main-section--PaddingRight);
+  }
 }
 
 // Add some spacing between the icon and the status string in the list
 .service-unit-status-failed > .ct-exclamation-circle {
-    margin-right: 0.5rem;
+  margin-right: 0.5rem;
 }
 
 .service-unit-first-column {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(5rem, 25rem));
-    grid-gap: var(--pf-global--spacer--sm);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5rem, 25rem));
+  grid-gap: var(--pf-global--spacer--sm);
 
-    .service-unit-description {
-        font-weight: bold;
-    }
+  .service-unit-description {
+    font-weight: bold;
+  }
 }
 
 .service-thumbtack-icon-color {
-    color: var(--pf-global--icon--Color--light);
+  color: var(--pf-global--icon--Color--light);
 }
 
 .pf-c-table .pf-c-table__action.service-unit-second-column {
-    --pf-c-table--cell--Width: 20%;
+  --pf-c-table--cell--Width: 20%;
 
-    &-flex-container {
-        row-gap: var(--pf-global--spacer--sm);
-    }
+  &-flex-container {
+    row-gap: var(--pf-global--spacer--sm);
+  }
 }
 
 // Don't show labels from mobile mode
 .pf-m-grid-md.pf-c-table [data-label]::before {
-    display: none;
+  display: none;
 }
 
 .pf-m-grid-md.pf-c-table [data-label] {
-    display: revert;
+  display: revert;
 }

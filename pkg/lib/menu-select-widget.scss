@@ -4,32 +4,32 @@
 // Therefore, we're changing the visuals here locally.
 // PF4 upstream request for multi-select @ https://github.com/patternfly/patternfly/issues/4027
 .ct-menu-select-widget.pf-c-menu {
-    // It's  not really a menu, so it shouldn't have a shadow
-    box-shadow: none;
+  // It's  not really a menu, so it shouldn't have a shadow
+  box-shadow: none;
 
-    // Divider is silly between the widgets in this context
-    .pf-c-divider {
-        display: none;
-    }
+  // Divider is silly between the widgets in this context
+  .pf-c-divider {
+    display: none;
+  }
 
-    .pf-c-menu__content {
-        // An overflow multi-select widget needs an outline
-        border: 1px solid var(--pf-global--BorderColor--100);
-        // There should be minimal space between the widgets (replacing the divider)
-        margin-top: var(--pf-global--spacer--sm);
-    }
+  .pf-c-menu__content {
+    // An overflow multi-select widget needs an outline
+    border: 1px solid var(--pf-global--BorderColor--100);
+    // There should be minimal space between the widgets (replacing the divider)
+    margin-top: var(--pf-global--spacer--sm);
+  }
 
-    // Search should not be inset when there's no border containing it
-    .pf-c-menu__search {
-        padding: 0;
-    }
+  // Search should not be inset when there's no border containing it
+  .pf-c-menu__search {
+    padding: 0;
+  }
 
-    // Keep the background on a selected item even when it doesn't have
-    // focus, allowing keyboard control to have the only background color
-    // when active but also keep the background color when the list loses
-    // focus (such as when the keyboard or mouse navigates outside,
-    // including initial rendering of the list.
-    .pf-c-menu__list:not(:focus-within) .pf-m-selected {
-        background-color: var(--pf-c-menu__list-item--hover--BackgroundColor);
-    }
+  // Keep the background on a selected item even when it doesn't have
+  // focus, allowing keyboard control to have the only background color
+  // when active but also keep the background color when the list loses
+  // focus (such as when the keyboard or mouse navigates outside,
+  // including initial rendering of the list.
+  .pf-c-menu__list:not(:focus-within) .pf-m-selected {
+    background-color: var(--pf-c-menu__list-item--hover--BackgroundColor);
+  }
 }

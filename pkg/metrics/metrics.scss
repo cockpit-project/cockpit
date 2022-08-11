@@ -7,14 +7,14 @@
 @import "@patternfly/patternfly/utilities/Spacing/spacing.css";
 
 #app {
-    section.pf-c-page__main-breadcrumb {
-        padding-bottom: var(--pf-c-page__main-breadcrumb--PaddingTop);
-     }
+  section.pf-c-page__main-breadcrumb {
+    padding-bottom: var(--pf-c-page__main-breadcrumb--PaddingTop);
+  }
 }
 
 // Remove doubled-up padding on "main" sections, when two+ sections are used.
 .pf-c-page__main-section + .pf-c-page__main-section {
-    padding-top: 0;
+  padding-top: 0;
 }
 
 // FIXME: More styles from ct-system-overview
@@ -24,169 +24,169 @@
 
   // the cards already have padding, align the "top 5" tables with the other content
   .pf-c-table {
-      --pf-c-table--m-compact--cell--first-last-child--PaddingLeft: 0;
-      --pf-c-table--m-compact--cell--first-last-child--PaddingRight: 0;
+    --pf-c-table--m-compact--cell--first-last-child--PaddingLeft: 0;
+    --pf-c-table--m-compact--cell--first-last-child--PaddingRight: 0;
 
-      tr > * {
-        --pf-c-table--cell--PaddingTop: var(--pf-global--spacer--xs);
-        --pf-c-table--cell--PaddingBottom: var(--pf-global--spacer--xs);
-      }
+    tr > * {
+      --pf-c-table--cell--PaddingTop: var(--pf-global--spacer--xs);
+      --pf-c-table--cell--PaddingBottom: var(--pf-global--spacer--xs);
+    }
   }
 
   .pf-c-card {
-      // Make sure the cards do not get taller than 50% of the screen
-      // ...and when they do, they should scroll
-      @media screen and (orientation: landscape) {
-        max-height: 50vh;
-        overflow: auto;
+    // Make sure the cards do not get taller than 50% of the screen
+    // ...and when they do, they should scroll
+    @media screen and (orientation: landscape) {
+      max-height: 50vh;
+      overflow: auto;
+    }
+
+    &__title {
+      font-size: var(--pf-global--FontSize--xl);
+      font-weight: var(--pf-global--FontWeight--normal);
+    }
+
+    // Let the children get flexy
+    &__body {
+      display: flex;
+      flex-direction: column;
+
+      // Strip the padding from the first item,
+      // including table headings
+      > :first-child,
+      > :first-child > thead > tr > th {
+        padding-top: 0;
       }
 
-      &__title {
-          font-size: var(--pf-global--FontSize--xl);
-          font-weight: var(--pf-global--FontWeight--normal);
+      .pf-c-table thead th:not(:first-child),
+      .pf-c-table tbody td:not(:first-child) {
+        text-align: right;
+      }
+    }
+
+    .align-baseline {
+      align-items: baseline;
+    }
+
+    .text-color-warning {
+      color: var(--pf-global--warning-color--200);
+    }
+
+    .icon-color-warning {
+      color: var(--pf-global--warning-color--100);
+    }
+
+    .text-color-critical {
+      color: var(--pf-global--danger-color--200);
+    }
+
+    .icon-color-critical {
+      color: var(--pf-global--danger-color--100);
+    }
+
+    .progress-stack {
+      display: grid;
+      padding-bottom: var(--pf-global--spacer--sm);
+      grid-gap: var(--pf-global--spacer--sm) var(--pf-global--spacer--md);
+
+      &:not(:first-child) {
+        padding-top: var(--pf-global--spacer--sm);
+      }
+    }
+
+    .progress-stack-no-space {
+      display: grid;
+      padding-bottom: var(--pf-global--spacer--sm);
+      grid-gap: 0;
+
+      &:not(:first-child) {
+        padding-top: var(--pf-global--spacer--sm);
       }
 
-      // Let the children get flexy
-      &__body {
-          display: flex;
-          flex-direction: column;
-
-          // Strip the padding from the first item,
-          // including table headings
-          > :first-child,
-          > :first-child > thead > tr > th {
-              padding-top: 0;
-          }
-
-          .pf-c-table thead th:not(:first-child),
-          .pf-c-table tbody td:not(:first-child) {
-              text-align: right;
-          }
+      // avoid the "x" icon on high CPU usage
+      .pf-c-progress__status-icon {
+        display: none;
       }
 
-      .align-baseline {
-          align-items: baseline;
+      // don't center the "View all CPUs" button
+      button {
+        padding-left: 0;
+        width: fit-content;
       }
+    }
 
-      .text-color-warning {
-          color: var(--pf-global--warning-color--200);
-      }
+    // Stretch the progress stack and description list so they fill up remaining space.
+    // This pushes the (unflexing) tables to the bottom.
+    .progress-stack,
+    .pf-c-description-list {
+      flex: 1 1 0;
+      align-content: start;
+    }
 
-      .icon-color-warning {
-          color: var(--pf-global--warning-color--100);
-      }
+    // When progress stack and description list are used sequentially,
+    // give the most space to the latter of the two elements.
+    .progress-stack + .pf-c-description-list,
+    .pf-c-description-list + .progress-stack {
+      flex-basis: 100%;
+    }
 
-      .text-color-critical {
-          color: var(--pf-global--danger-color--200);
-      }
+    // WebKit is a little wonky with flex sizing; it needs specific instructions here
+    .pf-c-description-list:first-child {
+      flex-grow: 0;
+    }
 
-      .icon-color-critical {
-          color: var(--pf-global--danger-color--100);
-      }
-
-      .progress-stack {
-          display: grid;
-          padding-bottom: var(--pf-global--spacer--sm);
-          grid-gap: var(--pf-global--spacer--sm) var(--pf-global--spacer--md);
-
-          &:not(:first-child) {
-            padding-top: var(--pf-global--spacer--sm);
-          }
-      }
-
-      .progress-stack-no-space {
-          display: grid;
-          padding-bottom: var(--pf-global--spacer--sm);
-          grid-gap: 0;
-
-          &:not(:first-child) {
-            padding-top: var(--pf-global--spacer--sm);
-          }
-
-          // avoid the "x" icon on high CPU usage
-          .pf-c-progress__status-icon {
-              display: none;
-          }
-
-          // don't center the "View all CPUs" button
-          button {
-            padding-left: 0;
-            width: fit-content;
-          }
-      }
-
-      // Stretch the progress stack and description list so they fill up remaining space.
-      // This pushes the (unflexing) tables to the bottom.
-      .progress-stack,
-      .pf-c-description-list {
-          flex: 1 1 0;
-          align-content: start;
-      }
-
-      // When progress stack and description list are used sequentially,
-      // give the most space to the latter of the two elements.
-      .progress-stack + .pf-c-description-list,
-      .pf-c-description-list + .progress-stack {
-          flex-basis: 100%;
-      }
-
-      // WebKit is a little wonky with flex sizing; it needs specific instructions here
-      .pf-c-description-list:first-child {
-          flex-grow: 0;
-      }
-
-      .pf-c-description-list__description {
-          font-size: var(--pf-global--FontSize--sm);
-      }
+    .pf-c-description-list__description {
+      font-size: var(--pf-global--FontSize--sm);
+    }
   }
 
   // Shrink progress bars and their gap a little
   .pf-c-progress {
-      grid-gap: 0;
-      --pf-c-progress__bar--Height: var(--pf-global--spacer--xs);
-      // PF4 uses end; it probably should arguably use last baseline.
-      // (perhaps end may work better for non-text content?)
-      align-items: last baseline;
+    grid-gap: 0;
+    --pf-c-progress__bar--Height: var(--pf-global--spacer--xs);
+    // PF4 uses end; it probably should arguably use last baseline.
+    // (perhaps end may work better for non-text content?)
+    align-items: last baseline;
 
-      + .pf-c-progress {
-          // Add a tiny gap for sandwiched usage bars (as in CPU)
-          padding-top: 1px;
-      }
+    + .pf-c-progress {
+      // Add a tiny gap for sandwiched usage bars (as in CPU)
+      padding-top: 1px;
+    }
   }
 
   // Only underline the description
   .pf-c-button.pf-m-link.pf-m-inline:hover {
-      text-decoration: none;
+    text-decoration: none;
 
-      .pf-c-progress__description {
-          text-decoration: var(--pf-c-button--m-link--m-inline--hover--TextDecoration);
-      }
+    .pf-c-progress__description {
+      text-decoration: var(--pf-c-button--m-link--m-inline--hover--TextDecoration);
+    }
   }
 
   // Match font weight with description list terms
   .pf-c-progress__description {
-      font-weight: var(--pf-global--FontWeight--bold);
+    font-weight: var(--pf-global--FontWeight--bold);
   }
 
   // Recolor text
   .pf-m-link {
-      &, &:hover {
-        .pf-c-progress__measure {
-            color: var(--pf-global--Color--100);
+    &, &:hover {
+      .pf-c-progress__measure {
+        color: var(--pf-global--Color--100);
       }
     }
   }
 
   // default is way too wide for the cards
   .pf-c-description-list {
-      --pf-c-description-list--m-horizontal__term--width: minmax(0, auto);
-      --pf-c-description-list--m-horizontal__description--width: minmax(0, auto);
+    --pf-c-description-list--m-horizontal__term--width: minmax(0, auto);
+    --pf-c-description-list--m-horizontal__description--width: minmax(0, auto);
   }
 
   // Don't wrap network in / out data
   td[data-label="In"],
   td[data-label="Out"] {
-      white-space: nowrap;
+    white-space: nowrap;
   }
 
   // Shrink network cards and data a little more
@@ -195,43 +195,43 @@
   td[data-label="In"],
   td[data-label="Out"],
   td[data-label="Interface"] {
-      font-size: var(--pf-global--FontSize--xs);
+    font-size: var(--pf-global--FontSize--xs);
   }
 
   // Shrink percentage column to allow for more service text
   th[data-label="%"],
   td[data-label="%"] {
-      .pf-c-table__text {
+    .pf-c-table__text {
       --pf-c-table--cell--MinWidth: 0;
       display: inline;
-      }
-      width: 2rem;
-      min-width: 0;
+    }
+    width: 2rem;
+    min-width: 0;
   }
 
   // Adjust responsive versions of lg grid tables
   // (mainly for the network table, as it is more information dense)
   .pf-m-grid-lg.pf-c-table {
-      tbody:first-of-type {
-          border-top: none;
+    tbody:first-of-type {
+      border-top: none;
+    }
+
+    tbody tr:not(.pf-c-table__expandable-row) {
+      --pf-c-table-tr--responsive--PaddingTop: var(--pf-global--spacer--sm);
+      --pf-c-table-tr--responsive--PaddingRight: 0;
+      --pf-c-table-tr--responsive--PaddingBottom: var(--pf-global--spacer--sm);
+      --pf-c-table-tr--responsive--PaddingLeft: 0;
+      --pf-c-table-tr--responsive--border-width--base: 1px;
+
+      &:last-child {
+        border-bottom: none;
       }
 
-      tbody tr:not(.pf-c-table__expandable-row) {
-          --pf-c-table-tr--responsive--PaddingTop: var(--pf-global--spacer--sm);
-          --pf-c-table-tr--responsive--PaddingRight: 0;
-          --pf-c-table-tr--responsive--PaddingBottom: var(--pf-global--spacer--sm);
-          --pf-c-table-tr--responsive--PaddingLeft: 0;
-          --pf-c-table-tr--responsive--border-width--base: 1px;
-
-          &:last-child {
-              border-bottom: none;
-          }
-
-          > * {
-              --pf-c-table--cell--responsive--PaddingTop: 0;
-              --pf-c-table--cell--responsive--PaddingBottom: 0;
-          }
+      > * {
+        --pf-c-table--cell--responsive--PaddingTop: 0;
+        --pf-c-table--cell--responsive--PaddingBottom: 0;
       }
+    }
   }
 }
 
@@ -247,7 +247,7 @@
 
   // Trim down the gutter space between cards
   .current-metrics.pf-l-gallery.pf-m-gutter {
-      grid-gap: var(--pf-global--spacer--sm);
+    grid-gap: var(--pf-global--spacer--sm);
   }
 
   // Shave off a few pixels from cards
@@ -265,331 +265,331 @@
 @media (min-width: 460px) and (max-width: 1200px) {
   // Stack description lists (instead of grid)
   .pf-c-description-list__group {
-        display: block;
+    display: block;
   }
 }
 
 // Stretch network card and reflow items
 @media (min-width: 660px) and (max-width: 860px) {
-    .current-metrics-network {
-        grid-column: 1 / -1;
+  .current-metrics-network {
+    grid-column: 1 / -1;
 
-        // Reflow interfaces horizontally, with wrapping
-        .pf-c-table > tbody {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
-            grid-gap: 0 var(--pf-global--spacer--lg);
-        }
+    // Reflow interfaces horizontally, with wrapping
+    .pf-c-table > tbody {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+      grid-gap: 0 var(--pf-global--spacer--lg);
     }
+  }
 }
 
 .metrics {
-    --column-size: 10vw;
-    --half-column-size: 8vw;
-    --data-min-height: 5px;
+  --column-size: 10vw;
+  --half-column-size: 8vw;
+  --data-min-height: 5px;
 
-    &-heading,
-    &-minute {
+  &-heading,
+  &-minute {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &-graphs {
+    display: inherit;
+
+    .metrics-data,
+    .metrics-label {
+      width: var(--half-column-size);
+    }
+
+    .metrics-data.have-saturation,
+    .metrics-label.have-saturation {
+      width: var(--column-size);
+    }
+
+    .metrics-data {
+      min-height: var(--data-min-height);
+    }
+  }
+
+  &-label {
+    margin: 0.5rem;
+  }
+
+  &-sublabels {
+    font-size: var(--pf-global--FontSize--xs);
+    color: rgb(0 0 0 / 70%);
+    display: flex;
+  }
+
+  &-label-graph {
+    text-align: right;
+
+    & .metrics-sublabels {
+      justify-content: flex-end;
+    }
+  }
+
+  &-label-graph.have-saturation {
+    text-align: center;
+
+    & .metrics-sublabels {
+      justify-content: space-evenly;
+    }
+  }
+
+  &-events-wrapper {
+    width: 100%;
+  }
+
+  &-events {
+    width: 100%;
+
+    // Remove left padding from the table toggle
+    .pf-c-table__toggle {
+      padding-left: 0;
+    }
+
+    .description {
+      display: grid;
+      grid-template-columns: [info] 1fr [time] 1fr;
+
+      .details {
+        grid-column: time;
+        grid-row: 1;
         display: flex;
         justify-content: space-between;
-    }
-
-    &-graphs {
-        display: inherit;
-
-        .metrics-data,
-        .metrics-label {
-            width: var(--half-column-size);
-        }
-
-        .metrics-data.have-saturation,
-        .metrics-label.have-saturation {
-            width: var(--column-size);
-        }
-
-        .metrics-data {
-            min-height: var(--data-min-height);
-        }
-    }
-
-    &-label {
-        margin: 0.5rem;
-    }
-
-    &-sublabels {
-        font-size: var(--pf-global--FontSize--xs);
-        color: rgb(0 0 0 / 70%);
-        display: flex;
-    }
-
-    &-label-graph {
-        text-align: right;
-
-        & .metrics-sublabels {
-            justify-content: flex-end;
-        }
-    }
-
-    &-label-graph.have-saturation {
-        text-align: center;
-
-        & .metrics-sublabels {
-            justify-content: space-evenly;
-        }
-    }
-
-    &-events-wrapper {
         width: 100%;
+      }
+
+      .type {
+        grid-column: info;
+      }
     }
 
-    &-events {
-        width: 100%;
+    // Make messages such as `Loading...` or `No logs found` centered
+    .cockpit-log-panel {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
 
-        // Remove left padding from the table toggle
-        .pf-c-table__toggle {
-            padding-left: 0;
-        }
+      .cockpit-logline {
+        flex: 0 0 100%;
+      }
+    }
+  }
 
-        .description {
-            display: grid;
-            grid-template-columns: [info] 1fr [time] 1fr;
+  &-time,
+  &-heading {
+    position: relative;
+    width: calc(100% + var(--pf-c-page__main-section--PaddingRight) + var(--pf-c-page__main-section--PaddingLeft));
+    right: var(--pf-c-page__main-section--PaddingRight);
 
-            .details {
-                grid-column: time;
-                grid-row: 1;
-                display: flex;
-                justify-content: space-between;
-                width: 100%;
-            }
+    padding-right: var(--pf-c-page__main-section--PaddingRight);
+    padding-left: var(--pf-c-page__main-section--PaddingLeft);
+  }
 
-            .type {
-                grid-column: info;
-            }
-        }
+  &-time {
+    background: #eee;
 
-        // Make messages such as `Loading...` or `No logs found` centered
-        .cockpit-log-panel {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+    padding: 0.5rem 1rem;
+    margin-left: var(--pf-global--spacer--md);
+  }
 
-            .cockpit-logline {
-                flex: 0 0 100%;
-            }
-        }
+  &-heading {
+    background: #fff;
+    margin-bottom: 0.25rem;
+    box-shadow: var(--pf-global--BoxShadow--sm);
+
+    &-sticky {
+      position: sticky;
+      top: 0;
+      z-index: 99;
+    }
+  }
+
+  &-history {
+    padding: 0;
+  }
+
+  &-data {
+    display: grid;
+    contain: strict;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    // Make SVG and generated before/after line position relative to metrics-data
+    position: relative;
+
+    // vertical ruler line for areas with data, and horizontal tick mark for utilization half
+    &.valid-data::before {
+      content: "";
+      position: absolute;
+      z-index: 1;
+      width: 100%;
+      top: 0;
+      bottom: 0;
+      border-right: 1px solid rgb(0 0 0 / 30%);
+      border-top: 1px solid rgb(0 0 0 / 30%);
     }
 
-    &-time,
-    &-heading {
-        position: relative;
-        width: calc(100% + var(--pf-c-page__main-section--PaddingRight) + var(--pf-c-page__main-section--PaddingLeft));
-        right: var(--pf-c-page__main-section--PaddingRight);
-
-        padding-right: var(--pf-c-page__main-section--PaddingRight);
-        padding-left: var(--pf-c-page__main-section--PaddingLeft);
+    &.valid-data.have-saturation::before {
+      width: 50%;
     }
 
-    &-time {
-        background: #eee;
-
-        padding: 0.5rem 1rem;
-        margin-left: var(--pf-global--spacer--md);
+    // horizontal tick mark for saturation half, for resources that have it
+    &.valid-data.have-saturation::after {
+      content: "";
+      position: absolute;
+      z-index: 1;
+      width: 50%;
+      left: 50%;
+      border-top: 1px solid rgb(0 0 0 / 30%);
     }
 
-    &-heading {
-        background: #fff;
-        margin-bottom: 0.25rem;
-        box-shadow: var(--pf-global--BoxShadow--sm);
-
-        &-sticky {
-            position: sticky;
-            top: 0;
-            z-index: 99;
-        }
+    > svg {
+      fill: var(--color);
+      min-width: 2px;
+      width: 100%;
+      height: 100%;
+      // WebKit has an issue with normal positioning (height exceeds bounds), but absolute works fine
+      position: absolute;
+      top: 0;
+      left: 0;
     }
 
-    &-history {
-        padding: 0;
+    &-cpu {
+      --color: plum;
     }
 
-    &-data {
-        display: grid;
-        contain: strict;
-        margin-left: 0.5rem;
-        margin-right: 0.5rem;
-        // Make SVG and generated before/after line position relative to metrics-data
-        position: relative;
-
-        // vertical ruler line for areas with data, and horizontal tick mark for utilization half
-        &.valid-data::before {
-            content: "";
-            position: absolute;
-            z-index: 1;
-            width: 100%;
-            top: 0;
-            bottom: 0;
-            border-right: 1px solid rgb(0 0 0 / 30%);
-            border-top: 1px solid rgb(0 0 0 / 30%);
-        }
-
-        &.valid-data.have-saturation::before {
-            width: 50%;
-        }
-
-        // horizontal tick mark for saturation half, for resources that have it
-        &.valid-data.have-saturation::after {
-            content: "";
-            position: absolute;
-            z-index: 1;
-            width: 50%;
-            left: 50%;
-            border-top: 1px solid rgb(0 0 0 / 30%);
-        }
-
-        > svg {
-            fill: var(--color);
-            min-width: 2px;
-            width: 100%;
-            height: 100%;
-            // WebKit has an issue with normal positioning (height exceeds bounds), but absolute works fine
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-
-        &-cpu {
-            --color: plum;
-        }
-
-        &-memory {
-            --color: lightblue;
-        }
-
-        &-disks {
-            --color: lightgreen;
-        }
-
-        &-network {
-            --color: lightsalmon;
-        }
-
-        // compressed minutes without events are simple bars
-        .compressed {
-            display: grid;
-            grid-template-areas: ". utilization .";
-
-            --util-pct: calc(100% * var(--utilization));
-            grid-template-columns: calc(100% - var(--util-pct)) var(--util-pct);
-
-            > .saturation,
-            > .utilization {
-                background-color: var(--color);
-            }
-
-            > .utilization {
-                grid-area: utilization;
-            }
-
-            > .saturation {
-                grid-area: saturation;
-                opacity: 0.7;
-            }
-        }
-
-        &.have-saturation .compressed {
-            grid-template-areas: ". utilization saturation .";
-            --util-pct: calc(50% * var(--utilization));
-            --sat-pct: calc(50% * var(--saturation));
-            grid-template-columns: calc(50% - var(--util-pct)) var(--util-pct) var(--sat-pct) calc(50% - var(--sat-pct));
-        }
+    &-memory {
+      --color: lightblue;
     }
 
-    // vertical dotted line through graph center, for areas without data
-    &-data::after {
-        content: "";
-        z-index: -1;
-        top: 0;
-        bottom: 0;
-        position: absolute;
+    &-disks {
+      --color: lightgreen;
     }
 
-    &-data.empty-data::after {
-        position: initial;
-        border-right: 1px dotted rgb(0 0 0 / 30%);
+    &-network {
+      --color: lightsalmon;
     }
 
-    &-data.empty-data.have-saturation::after {
-        position: absolute;
-        border-left: 1px dotted rgb(0 0 0 / 30%);
-        border-right: none;
-        left: 50%;
+    // compressed minutes without events are simple bars
+    .compressed {
+      display: grid;
+      grid-template-areas: ". utilization .";
+
+      --util-pct: calc(100% * var(--utilization));
+      grid-template-columns: calc(100% - var(--util-pct)) var(--util-pct);
+
+      > .saturation,
+      > .utilization {
+        background-color: var(--color);
+      }
+
+      > .utilization {
+        grid-area: utilization;
+      }
+
+      > .saturation {
+        grid-area: saturation;
+        opacity: 0.7;
+      }
     }
 
-    .pf-c-card__body:first-child {
-        padding-top: 0;
+    &.have-saturation .compressed {
+      grid-template-areas: ". utilization saturation .";
+      --util-pct: calc(50% * var(--utilization));
+      --sat-pct: calc(50% * var(--saturation));
+      grid-template-columns: calc(50% - var(--util-pct)) var(--util-pct) var(--sat-pct) calc(50% - var(--sat-pct));
     }
+  }
+
+  // vertical dotted line through graph center, for areas without data
+  &-data::after {
+    content: "";
+    z-index: -1;
+    top: 0;
+    bottom: 0;
+    position: absolute;
+  }
+
+  &-data.empty-data::after {
+    position: initial;
+    border-right: 1px dotted rgb(0 0 0 / 30%);
+  }
+
+  &-data.empty-data.have-saturation::after {
+    position: absolute;
+    border-left: 1px dotted rgb(0 0 0 / 30%);
+    border-right: none;
+    left: 50%;
+  }
+
+  .pf-c-card__body:first-child {
+    padding-top: 0;
+  }
 }
 
 // Graph column labels are the widest part; scale down the labels for narrow widths
 @media (min-width: 800px) and (max-width: 1200px) {
-    .metrics-label-graph {
-        font-size: var(--pf-global--FontSize--s);
-    }
+  .metrics-label-graph {
+    font-size: var(--pf-global--FontSize--s);
+  }
 }
 
 @media (max-width: 800px) {
-    .metrics-label-graph {
-        font-size: var(--pf-global--FontSize--xs);
-    }
+  .metrics-label-graph {
+    font-size: var(--pf-global--FontSize--xs);
+  }
 }
 
 .bottom-panel {
-    display: flex;
-    justify-content: space-around;
-    padding: 1em;
+  display: flex;
+  justify-content: space-around;
+  padding: 1em;
 }
 
 .nodata {
-    margin: 1em;
+  margin: 1em;
 }
 
 .select-min {
-    width: min-content;
+  width: min-content;
 }
 
 #pcp-settings-modal {
-    .pcp-settings-modal-text {
-        // "Read more..." link
-        a {
-                padding-left: 1em;
-                white-space: nowrap;
-        }
+  .pcp-settings-modal-text {
+    // "Read more..." link
+    a {
+      padding-left: 1em;
+      white-space: nowrap;
     }
+  }
 
-    // leave some space for the focus rings
-    .pf-c-switch {
-        margin-bottom: 10px;
-    }
+  // leave some space for the focus rings
+  .pf-c-switch {
+    margin-bottom: 10px;
+  }
 }
 
 .cpu-all {
-    --pf-l-grid--m-gutter--GridGap: var(--pf-global--spacer--xs) var(--pf-global--spacer--md);
-    // Mixing font families need to be aligned properly (to the baseline)
-    align-items: baseline;
-    // In monospaced text, "100%" is 4 characters
-    grid-template-columns: 1fr minmax(4ch, auto);
+  --pf-l-grid--m-gutter--GridGap: var(--pf-global--spacer--xs) var(--pf-global--spacer--md);
+  // Mixing font families need to be aligned properly (to the baseline)
+  align-items: baseline;
+  // In monospaced text, "100%" is 4 characters
+  grid-template-columns: 1fr minmax(4ch, auto);
 
-    > .pf-l-grid__item {
-        // Don't use PF's hardcoded 12-column grid
-        grid-column: auto;
-    }
+  > .pf-l-grid__item {
+    // Don't use PF's hardcoded 12-column grid
+    grid-column: auto;
+  }
 
-    > dd {
-        // TODO: Use tabular numbers instead of monospace,
-        // after new font usage is enabled
-        font-family: var(--pf-global--FontFamily--monospace);
-        // Aligning percentages to the right, especially when monospaced,
-        // makes  it easier to see high percentages
-        text-align: right;
-    }
+  > dd {
+    // TODO: Use tabular numbers instead of monospace,
+    // after new font usage is enabled
+    font-family: var(--pf-global--FontFamily--monospace);
+    // Aligning percentages to the right, especially when monospaced,
+    // makes  it easier to see high percentages
+    text-align: right;
+  }
 }

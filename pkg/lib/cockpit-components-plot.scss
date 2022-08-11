@@ -1,64 +1,64 @@
 // Selected set of PF chart colors to optimize for full-spectrum and colorblindness
 // using unique part of PF name and a hex color fallback
 $plotColors: (
-    blue-300   #06c,
-    green-100  #bde2b9,
-    cyan-200   #73c5c5,
-    purple-100 #b2b0ea,
-    gold-300   #f4c145,
-    orange-300 #ec7a08,
-    red-200    #a30000,
-    cyan-300   #009596,
-    black-500  #4d5258
+  blue-300   #06c,
+  green-100  #bde2b9,
+  cyan-200   #73c5c5,
+  purple-100 #b2b0ea,
+  gold-300   #f4c145,
+  orange-300 #ec7a08,
+  red-200    #a30000,
+  cyan-300   #009596,
+  black-500  #4d5258
 );
 
 .ct-plot {
-    font-family: var(--pf-chart-global--FontFamily);
+  font-family: var(--pf-chart-global--FontFamily);
 
-    &-border {
-        stroke: var(--pf-chart-global--Fill--Color--300);
-        fill: transparent;
-        shape-rendering: crispedges;
+  &-border {
+    stroke: var(--pf-chart-global--Fill--Color--300);
+    fill: transparent;
+    shape-rendering: crispedges;
+  }
+
+  &-title {
+    font-size: calc(var(--pf-chart-global--FontSize--md) * 1px);
+  }
+
+  // Placeholder string to stretch the column, set offscreen
+  &-widest {
+    fill: transparent;
+  }
+
+  &-axis,
+  &-unit {
+    font-size: calc(var(--pf-chart-global--FontSize--xs) * 1px);
+    fill: var(--pf-chart-global--Fill--Color--700);
+    letter-spacing: var(--pf-chart-global--letter-spacing);
+  }
+
+  &-lines,
+  &-ticks {
+    stroke: var(--pf-chart-global--Fill--Color--300);
+    shape-rendering: crispedges;
+  }
+
+  &-selection {
+    fill: tan;
+    stroke: black;
+    opacity: 0.5;
+    shape-rendering: crispedges;
+  }
+
+  &-paths {
+    stroke-width: var(--pf-chart-global--stroke--Width--sm);
+    shape-rendering: geometricprecision;
+
+    > path {
+      fill: var(--ct-plot-path-color);
+      stroke: var(--ct-plot-path-color);
     }
-
-    &-title {
-        font-size: calc(var(--pf-chart-global--FontSize--md) * 1px);
-    }
-
-    // Placeholder string to stretch the column, set offscreen
-    &-widest {
-        fill: transparent;
-    }
-
-    &-axis,
-    &-unit {
-        font-size: calc(var(--pf-chart-global--FontSize--xs) * 1px);
-        fill: var(--pf-chart-global--Fill--Color--700);
-        letter-spacing: var(--pf-chart-global--letter-spacing);
-    }
-
-    &-lines,
-    &-ticks {
-        stroke: var(--pf-chart-global--Fill--Color--300);
-        shape-rendering: crispedges;
-    }
-
-    &-selection {
-        fill: tan;
-        stroke: black;
-        opacity: 0.5;
-        shape-rendering: crispedges;
-    }
-
-    &-paths {
-        stroke-width: var(--pf-chart-global--stroke--Width--sm);
-        shape-rendering: geometricprecision;
-
-        > path {
-            fill: var(--ct-plot-path-color);
-            stroke: var(--ct-plot-path-color);
-        }
-    }
+  }
 }
 
 $plotColorCurrent: 0;
@@ -69,17 +69,17 @@ $plotColorTotal: 0;
 
 // Iterate through colors and set each graph area to a color
 @each $plotColor, $plotColorBackup in $plotColors {
-    $plotColorCurrent: $plotColorCurrent + 1;
-    .ct-plot-paths > path:nth-last-child(#{$plotColorTotal}n + #{$plotColorCurrent}) {
-        --ct-plot-path-color: var(--pf-chart-color-#{$plotColor}, #{$plotColorBackup});
-    }
+  $plotColorCurrent: $plotColorCurrent + 1;
+  .ct-plot-paths > path:nth-last-child(#{$plotColorTotal}n + #{$plotColorCurrent}) {
+    --ct-plot-path-color: var(--pf-chart-color-#{$plotColor}, #{$plotColorBackup});
+  }
 }
 
 // Make plot colors available to the entire page
 :root {
-    --ct-plot-color-total: #{$plotColorTotal};
+  --ct-plot-color-total: #{$plotColorTotal};
 
-    @for $i from 1 through $plotColorTotal {
-        --ct-plot-color-#{i}: #{$plotColors[$i]};
-    }
+  @for $i from 1 through $plotColorTotal {
+    --ct-plot-color-#{i}: #{$plotColors[$i]};
+  }
 }

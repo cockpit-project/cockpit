@@ -1,19 +1,19 @@
 @mixin printRedHatFont(
-$weightValue: 400,
+  $weightValue: 400,
 $weightName: "Regular",
 $familyName: "RedHatText",
 $style: "normal",
 $relative: true
 ) {
-    $filePath: "../../static/fonts" + "/" + $familyName + "-" + $weightName;
+  $filePath: "../../static/fonts" + "/" + $familyName + "-" + $weightName;
 
-    @font-face {
-        font-family: $familyName;
-        src: url("#{$filePath}.woff2") format("woff2");
-        font-style: #{$style};
-        font-weight: $weightValue;
-        text-rendering: optimizelegibility;
-    }
+  @font-face {
+    font-family: $familyName;
+    src: url("#{$filePath}.woff2") format("woff2");
+    font-style: #{$style};
+    font-weight: $weightValue;
+    text-rendering: optimizelegibility;
+  }
 }
 
 @include printRedHatFont(700, "Bold", $familyName: "RedHatDisplay");

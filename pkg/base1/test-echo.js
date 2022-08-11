@@ -79,10 +79,18 @@ QUnit.test("binary", function (assert) {
     channel.send(buffer);
 });
 
-// This is implemented in the C bridge, but not in Python.
-// Nobody uses it, so skip the test for now.
-QUnit.test.skip("fence", function (assert) {
+QUnit.test("fence", async assert => {
     const done = assert.async();
+
+    const response = await fetch(`http://${window.location.hostname}:${window.location.port}/mock/info`);
+    const info = await response.json();
+    // This is implemented in the C bridge, but not in Python.
+    if (info.bridge == "cockpit-bridge.pyz") {
+        assert.ok(true, "skipping on python bridge, not implemented");
+        done();
+        return;
+    }
+
     assert.expect(2);
 
     const before = cockpit.channel({ payload: "echo" });

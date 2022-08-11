@@ -8,27 +8,48 @@ $phone: 767px;
 $desktop: $phone + 1px;
 
 :root {
-  --ct-color-nav            : #1b1b1b;
-  --ct-color-nav-sub        : var(--pf-global--BackgroundColor--dark-300);
-  --ct-color-nav-text       : var(--pf-global--BackgroundColor--light-300);
-  --ct-color-nav-active     : var(--pf-global--BackgroundColor--dark-400);
-  --ct-color-nav-active-text: var(--pf-global--BackgroundColor--light-100);
-  --ct-color-nav-cover-up   : linear-gradient(to bottom, var(--ct-color-nav-sub), rgb(21 21 21 / 0%));
-  --ct-color-nav-cover-down : linear-gradient(to top, var(--ct-color-nav-sub), rgb(21 21 21 / 0%));
+  --ct-color-nav-menu: var(--pf-global--BackgroundColor--dark-300);
+  --ct-color-nav-highlight: var(--pf-global--BackgroundColor--dark--400);
+  --ct-color-nav-highlight-text: var(--pf-global--BackgroundColor--light-100);
+  --ct-color-nav-search: #1b1b1b;
 }
 
 .area-ct-subnav {
-  background: var(--ct-color-nav-sub);
+  background: var(--ct-color-nav-menu);
   display: flex;
   flex-direction: column;
   position: relative;
 
+  // Overrides for dark theme (as PF's dark theme is currently odd with nav)
+  .pf-theme-dark & {
+    --ct-color-nav-menu: var(--pf-global--BackgroundColor--150);
+    --ct-color-nav-search: var(--pf-global--BackgroundColor--200);
+    --ct-color-nav-highlight: var(--pf-global--palette--gold-600);
+    --ct-color-nav-highlight-text: var(--pf-global--palette--gold-300);
+
+    .pf-c-nav__link {
+      --pf-c-nav__link--hover--BackgroundColor: var(--pf-global--BackgroundColor--dark-300);
+      --pf-c-nav__link--m-current--BackgroundColor: var(--pf-global--BackgroundColor--dark-400);
+    }
+
+    .search .pf-c-text-input-group__text-input {
+      border-color: var(--pf-global--BorderColor--300);
+    }
+
+    .sidebar-hosts .pf-c-nav__item {
+      --pf-c-nav__link--hover--BackgroundColor: var(--pf-global--BackgroundColor--dark-300);
+      --pf-c-nav__link--m-current--BackgroundColor: var(--pf-global--BackgroundColor--dark-400);
+    }
+
+    .nav-item-hint {
+      color: var(--pf-global--palette--black-300);
+    }
+  }
+
   mark {
-    padding-left: 0;
-    padding-right: 0;
     font-weight: bold;
-    color: var(--ct-color-nav-active-text);
-    background: var(--pf-global--BackgroundColor--dark-400);
+    background: var(--ct-color-nav-highlight);
+    color: var(--ct-color-nav-highlight-text);
   }
 
   // https://github.com/patternfly/patternfly-design/issues/1112
@@ -37,9 +58,7 @@ $desktop: $phone + 1px;
     padding: var(--pf-global--spacer--md) var(--pf-global--spacer--md) var(--pf-global--spacer--sm);
 
     > .pf-c-text-input-group__main {
-      background: var(--ct-color-nav);
-      color: var(--ct-color-nav-text) !important;
-      transition: var(--pf-global--Transition);
+      background: var(--ct-color-nav-search);
     }
 
     .pf-c-text-input-group__text::after,
@@ -178,6 +197,11 @@ $desktop: $phone + 1px;
     bottom: 0;
     left: 0;
     background: var(--pf-global--BackgroundColor--dark-200);
+
+    .pf-theme-dark & {
+      background: var(--pf-global--BackgroundColor--dark-300);
+    }
+
     z-index: 399; // Modals have 400 and modals should be in front of host switcher
 
     &.edit-hosts {
@@ -509,10 +533,12 @@ $desktop: $phone + 1px;
     margin: var(--button-margin-y) var(--button-margin-x);
 
     > button {
-      color: var(--pf-global--BackgroundColor--200);
+      html:not(.pf-theme-dark) & {
+        color: var(--pf-global--BackgroundColor--200);
 
-      &::after {
-        border-color: var(--pf-global--BackgroundColor--200);
+        &::after {
+          border-color: var(--pf-global--BackgroundColor--200);
+        }
       }
     }
   }
@@ -710,6 +736,40 @@ $desktop: $phone + 1px;
 
   .pf-c-page__sidebar .pf-c-nav {
     width: unset;
+  }
+}
+
+/* Dark mode adjustments */
+
+@media (prefers-color-scheme: dark) {
+  // Change sidebar background color when dark
+  nav,
+  .ct-switcher > .pf-c-select {
+    --ct-color-nav-menu: var(--pf-global--BackgroundColor--dark-100);
+    --pf-global--BackgroundColor--300: var(--pf-global--BackgroundColor--dark-200);
+    background: var(--pf-global--BackgroundColor--dark-100);
+  }
+
+  // Redefine the background color for current links
+  .pf-theme-dark .area-ct-subnav .pf-c-nav__link {
+    --pf-c-nav__link--m-current--BackgroundColor: var(--pf-global--BackgroundColor--dark-200);
+  }
+
+  // Add a border to the right of the sidebar (without affecting flow)
+  .ct-switcher > .pf-c-select,
+  .area-ct-subnav.nav-system-menu.sidebar,
+  .navbar.navbar-default navbar-pf.navbar-pf-vertical {
+    &::after {
+      pointer-events: none;
+      border: 1px solid #444548;
+      border-width: 0 1px 0 0;
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      content: "";
+    }
   }
 }
 

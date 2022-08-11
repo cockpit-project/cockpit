@@ -20,8 +20,8 @@
 /* ---------------------------------------------------------------------------------------------------- */
 
 @use "page";
-@use "../lib/table.css";
-@use "nav.scss";
+@use "table";
+@use "nav";
 
 :root {
   --ct-color-host-accent: var(--pf-global--active-color--100);
@@ -200,6 +200,10 @@ $desktop: $phone + 1px;
         var(--ct-color-host-accent) -1.5rem,
         var(--pf-global--BackgroundColor--dark-100) 0.75rem
       );
+
+      @media (prefers-color-scheme: dark) {
+        --pf-global--BackgroundColor--dark-100: var(--pf-global--BackgroundColor--dark-200);
+      }
     }
   }
 
@@ -245,4 +249,14 @@ $desktop: $phone + 1px;
 
 .early-failure {
   height: 100%;
+}
+
+// Header menu buttons don't need a background color (especially in dark mode)
+.pf-c-toolbar .pf-c-dropdown__toggle {
+  --pf-c-dropdown__toggle--BackgroundColor: transparent;
+}
+
+// Header menu buttons don't need a background color (especially in dark mode)
+.pf-c-toolbar .pf-c-dropdown__toggle {
+  --pf-c-dropdown__toggle--BackgroundColor: transparent;
 }

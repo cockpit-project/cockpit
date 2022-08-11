@@ -117,6 +117,20 @@ on_bus_acquired (GDBusConnection *connection,
 /* ---------------------------------------------------------------------------------------------------- */
 
 static gboolean
+mock_http_info (CockpitWebRequest *request,
+                CockpitWebResponse *response)
+{
+  g_autoptr(JsonObject) info = json_object_new ();
+  g_autofree gchar *bridge_name = g_path_get_basename (bridge_argv[0]);
+  json_object_set_string_member (info, "bridge", bridge_name);
+  json_object_set_boolean_member (info, "skip_slow_tests", g_getenv ("COCKPIT_SKIP_SLOW_TESTS") != NULL);
+
+  g_autoptr(GBytes) bytes = cockpit_json_write_bytes (info);
+  cockpit_web_response_content (response, NULL, bytes, NULL);
+  return TRUE;
+}
+
+static gboolean
 mock_http_qs (CockpitWebRequest *request,
               CockpitWebResponse *response)
 {
@@ -283,6 +297,8 @@ on_handle_mock (CockpitWebServer *server,
   g_assert (g_str_has_prefix (path, "/mock/"));
   path += 5;
 
+  if (g_str_equal (path, "/info"))
+    return mock_http_info (request, response);
   if (g_str_equal (path, "/qs"))
     return mock_http_qs (request, response);
   if (g_str_equal (path, "/stream"))

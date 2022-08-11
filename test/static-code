@@ -41,7 +41,7 @@ test_pyvulture() {
 
 test_mypy() {
     command -v mypy >/dev/null || skip 'no mypy'
-    mypy --no-error-summary test/common/testlib.py
+    mypy --no-error-summary test/common/testlib.py src/cockpit
 }
 
 test_js_translatable_strings() {

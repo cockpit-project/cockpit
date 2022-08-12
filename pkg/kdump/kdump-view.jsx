@@ -378,7 +378,7 @@ export class KdumpPage extends React.Component {
         // this.storeLocation(this.props.kdumpStatus.config);
         const settingsLink = targetCanChange
             ? <Button variant="link" isInline id="kdump-change-target" onClick={this.handleSettingsClick}>{ kdumpLocation }</Button>
-            : <span>{ kdumpLocation }</span>;
+            : <span id="kdump-target-info">{ kdumpLocation }</span>;
         let reservedMemory;
         if (this.props.reservedMemory === undefined) {
             // still waiting for result

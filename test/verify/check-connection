@@ -58,8 +58,8 @@ class TestConnection(MachineCase):
         # on OSTree, also check with overlaid cockpit-ws rpm
         if m.ostree_image:
             def ws_start():
-                m.execute(r"""set -e;
-                    mkdir -p /etc/systemd/system/cockpit.service.d/ &&
+                m.execute(r"""
+                    mkdir -p /etc/systemd/system/cockpit.service.d/
                     printf "[Service]\nExecStart=\n%s --no-tls" `grep ExecStart= /lib/systemd/system/cockpit.service` \
                             > /etc/systemd/system/cockpit.service.d/notls.conf
                     systemctl daemon-reload
@@ -458,7 +458,8 @@ class TestConnection(MachineCase):
         self.assertIn("HTTP/1.1 301 Moved Permanently", output)
         self.assertIn("Location: https://172.27.0.15:9090/", output)
         # enable AllowUnencrypted, this disables redirect
-        m.execute('mkdir -p /etc/cockpit/ && echo "[WebService]\nAllowUnencrypted=true" > /etc/cockpit/cockpit.conf')
+        m.execute("mkdir -p /etc/cockpit")
+        m.write("/etc/cockpit/cockpit.conf", "[WebService]\nAllowUnencrypted=true")
         m.restart_cockpit()
         # now it should not redirect
         self.assertIn("HTTP/1.1 200 OK", m.execute("curl --head http://127.0.0.1:9090"))
@@ -467,8 +468,8 @@ class TestConnection(MachineCase):
     @nondestructive
     def testConfigOrigins(self):
         m = self.machine
-        m.execute(
-            'mkdir -p /etc/cockpit/ && echo "[WebService]\nOrigins = http://other-origin:9090 http://localhost:9090" > /etc/cockpit/cockpit.conf')
+        m.execute("mkdir -p /etc/cockpit")
+        m.write("/etc/cockpit/cockpit.conf", "[WebService]\nOrigins = http://other-origin:9090 http://localhost:9090")
         m.start_cockpit()
         headers = {
             'Connection': 'Upgrade',
@@ -577,8 +578,10 @@ class TestConnection(MachineCase):
 
         # Change port according to documentation: https://cockpit-project.org/guide/latest/listen.html
         m.execute('! selinuxenabled || semanage port -m -t websm_port_t -p tcp 443')
-        m.execute(
-            'mkdir -p /etc/systemd/system/cockpit.socket.d/ && printf "[Socket]\nListenStream=\nListenStream=/run/cockpit/sock\nListenStream=443" > /etc/systemd/system/cockpit.socket.d/listen.conf')
+        m.execute("""
+            mkdir -p /etc/systemd/system/cockpit.socket.d/
+            printf "[Socket]\nListenStream=\nListenStream=/run/cockpit/sock\nListenStream=443" > \
+                    /etc/systemd/system/cockpit.socket.d/listen.conf""")
 
         checkMotdContent('systemctl')
         checkMotdContent(':9090/', expected=False)
@@ -839,7 +842,7 @@ export XDG_CONFIG_DIRS=/usr/local
                     self.assertIn(a, out)
 
                 # should clean up processes
-                self.assertEqual(m.execute("! pgrep -a cockpit-ws && ! pgrep -a cockpit-bridge"), "")
+                self.assertEqual(m.execute("! pgrep -a cockpit-ws; ! pgrep -a cockpit-bridge"), "")
 
         # cockpit-desktop can start a privileged bridge through polkit
         # we don't have an agent, so just allow the privilege without interactive authentication

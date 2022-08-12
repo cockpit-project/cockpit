@@ -97,11 +97,11 @@ OnCalendar=daily
 
         # On Debian and Ubuntu we have to generate the other locales
         if "debian" in m.image:
-            m.execute("echo 'de_DE.UTF-8 UTF-8' >> /etc/locale.gen && locale-gen && update-locale")
+            m.execute("echo 'de_DE.UTF-8 UTF-8' >> /etc/locale.gen; locale-gen; update-locale")
         elif "arch" == m.image:
-            m.execute("echo 'de_DE.UTF-8 UTF-8' >> /etc/locale.gen && locale-gen")
+            m.execute("echo 'de_DE.UTF-8 UTF-8' >> /etc/locale.gen; locale-gen")
         elif "ubuntu" in m.image:
-            m.execute("locale-gen de_DE && locale-gen de_DE.UTF-8 && update-locale")
+            m.execute("locale-gen de_DE; locale-gen de_DE.UTF-8; update-locale")
 
         # login so that we have a cookie.
         self.login_and_go("/system/services#/test.service")
@@ -312,11 +312,11 @@ OnCalendar=daily
         m.execute('echo scruffy:foobar | chpasswd')
 
         if "debian" in m.image:
-            m.execute('echo \'pt_BR.UTF-8 UTF-8\' >> /etc/locale.gen && locale-gen && update-locale')
+            m.execute('echo \'pt_BR.UTF-8 UTF-8\' >> /etc/locale.gen; locale-gen; update-locale')
         elif "ubuntu" in m.image:
-            m.execute('locale-gen pt_BR && locale-gen pt_BR.UTF-8 && update-locale')
+            m.execute('locale-gen pt_BR; locale-gen pt_BR.UTF-8; update-locale')
         elif "arch" == m.image:
-            m.execute('echo \'pt_BR.UTF-8 UTF-8\' >> /etc/locale.gen && locale-gen')
+            m.execute('echo \'pt_BR.UTF-8 UTF-8\' >> /etc/locale.gen; locale-gen')
 
         self.login_and_go('/system')
         b.wait_visible('#overview')

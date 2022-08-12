@@ -48,7 +48,8 @@ only-plugins=release,date,host,cgroups,networking
 """)
 
         if urlroot != "":
-            m.execute(f'mkdir -p /etc/cockpit/ && echo "[WebService]\nUrlRoot={urlroot}" > /etc/cockpit/cockpit.conf')
+            m.execute("mkdir -p /etc/cockpit/")
+            m.write("/etc/cockpit/cockpit.conf", f"[WebService]\nUrlRoot={urlroot}")
 
         self.login_and_go("/sosreport", urlroot=urlroot, superuser=False)
 

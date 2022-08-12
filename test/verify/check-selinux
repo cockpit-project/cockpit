@@ -271,7 +271,7 @@ class TestSelinux(MachineCase):
         b.wait_in_text(".xterm-accessibility-tree", "boolean -m -0 zebra_write_config")
         b.wait_in_text(".xterm-accessibility-tree", "fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/'")
 
-        m.execute("semanage boolean -D && semanage fcontext -D && semanage module -D")
+        m.execute("semanage boolean -D; semanage fcontext -D; semanage module -D")
         b.go("/selinux/setroubleshoot")
         b.enter_page("/selinux/setroubleshoot")
         b.reload()

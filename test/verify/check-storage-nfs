@@ -339,13 +339,13 @@ class TestStoragePackagesNFS(PackageCase, StorageCase, StorageHelpers):
         # machinery and distribute the fluids evenly.
         #
         if "debian" in m.image or "ubuntu" in m.image:
-            m.execute("pkcon refresh && pkcon install -y dummy")
+            m.execute("pkcon refresh; pkcon install -y dummy")
 
         # HACK
         # Packagekit on Arch Linux does not deal well with detecting new repositories
         if m.image == "arch":
             m.execute("systemctl restart packagekit")
-            m.execute("pkcon refresh force && pkcon install -y dummy")
+            m.execute("pkcon refresh force; pkcon install -y dummy")
 
         b.reload()
         b.enter_page("/storage")

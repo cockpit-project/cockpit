@@ -189,7 +189,7 @@ class TestStorageLegacyVDO(StorageCase):
         # Make a logical volume for use as the backing device.
         m.add_disk(SIZE_10G, serial="DISK1")
         b.wait_in_text("#drives", "DISK1")
-        m.execute("vgcreate vdo_vgroup /dev/sda && lvcreate -n lvol -L 5G vdo_vgroup")
+        m.execute("vgcreate vdo_vgroup /dev/sda; lvcreate -n lvol -L 5G vdo_vgroup")
         # Create VDO; this is not supported any more, thus no UI for it
         m.execute("vdo create --device /dev/vdo_vgroup/lvol --name vdo0 --vdoLogicalSize 5G")
 

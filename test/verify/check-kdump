@@ -65,7 +65,7 @@ class TestKdump(KdumpHelpers):
         m = self.machine
 
         b.wait_timeout(120)
-        m.execute("systemctl enable kdump && systemctl start kdump || true")
+        m.execute("systemctl enable kdump; systemctl start kdump || true")
 
         self.login_and_go("/kdump")
 

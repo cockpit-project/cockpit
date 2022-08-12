@@ -308,7 +308,7 @@ class TestStorageStratis(StorageCase):
         b.wait_in_text("#detail-content", "fsys2")
 
         # Mount externally, adjust fstab with Cockpit
-        m.execute("mkdir /run/fsys1 && mount /dev/stratis/TEST1/fsys1 /run/fsys1")
+        m.execute("mkdir /run/fsys1; mount /dev/stratis/TEST1/fsys1 /run/fsys1")
         fsys_tab = self.content_tab_expand(1, 1)
         b.click(fsys_tab + " button:contains(Mount automatically on /run/fsys1 on boot)")
         b.wait_not_present(fsys_tab + " button:contains(Mount automatically on /run/fsys1 on boot)")

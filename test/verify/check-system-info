@@ -81,7 +81,7 @@ class TestSystemInfo(MachineCase):
         #
         m.execute("rm /etc/os-release")
         m.write("/etc/os-release", os_release)
-        m.execute("chattr +i /etc/os-release && (systemctl restart systemd-hostnamed || systemctl restart hostnamed)")
+        m.execute("chattr +i /etc/os-release; (systemctl restart systemd-hostnamed || systemctl restart hostnamed)")
 
         self.login_and_go("/system")
 
@@ -172,7 +172,7 @@ class TestSystemInfo(MachineCase):
         b.wait_in_text('#system_information_hostname_text', 'mydhcpname')
 
         b.logout()
-        m.execute("chattr -i /etc/os-release && rm /etc/os-release")
+        m.execute("chattr -i /etc/os-release; rm /etc/os-release")
         m.execute("rm /usr/lib/os-release || true")
 
         self.login_and_go("/system")
@@ -605,7 +605,7 @@ machine         : 8561
             if cmdline:
                 m.write('/run/cmdline', cmdline)
                 m.execute('if selinuxenabled 2>/dev/null; then chcon --reference /proc/cmdline /run/cmdline; fi')
-                m.execute('mount --bind /run/cmdline /proc/cmdline && rm /run/cmdline')
+                m.execute('mount --bind /run/cmdline /proc/cmdline; rm /run/cmdline')
 
             try:
                 b.login_and_go('/system/hwinfo')
@@ -705,7 +705,7 @@ fi
 
         # updates mitigations=nosmt when that is present
         m.upload(["../pkg/systemd/kernelopt.sh"], "/tmp/")
-        m.execute("/tmp/kernelopt.sh remove nosmt && /tmp/kernelopt.sh set mitigations=auto,nosmt")
+        m.execute("/tmp/kernelopt.sh remove nosmt; /tmp/kernelopt.sh set mitigations=auto,nosmt")
         m.reboot()
         self.login_and_go('/system/hwinfo')
         b.click('#hwinfo button:contains(Mitigations)')

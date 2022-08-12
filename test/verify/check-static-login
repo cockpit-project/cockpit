@@ -727,7 +727,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         else:
             self.restore_dir("/etc/sssd", post_restore_action="systemctl try-restart sssd")
 
-        m.execute("useradd alice && echo alice:foobar123 | chpasswd")
+        m.execute("useradd alice; echo alice:foobar123 | chpasswd")
         m.upload(["alice.pem", "alice.key", "alice-expired.pem", "bob.pem", "bob.key"], self.vm_tmpdir,
                  relative_dir="src/tls/ca/")
         alice_cert = self.vm_tmpdir + "/alice.pem"
@@ -874,7 +874,7 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         # sssd-dbus not available
         self.allow_journal_messages("cockpit-session: Failed to map .* Could not activate remote peer.*")
         self.allow_journal_messages("cockpit-session: Failed to map .* Unit sssd-ifp.service is masked.")
-        m.execute("systemctl mask sssd-ifp && systemctl stop sssd-ifp")
+        m.execute("systemctl mask sssd-ifp; systemctl stop sssd-ifp")
         do_test(alice_cert_key, ["HTTP/1.1 401 Authentication failed", '<h1>Authentication failed</h1>'],
                 not_expected=["crsf-token"])
         m.execute("systemctl unmask sssd-ifp")

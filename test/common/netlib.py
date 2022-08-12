@@ -41,7 +41,7 @@ class NetworkHelpers:
         self.addCleanup(self.machine.execute, "rm /run/udev/rules.d/99-nm-veth-{0}-test.rules; ip link del dev {0}".format(name))
         if dhcp_cidr:
             # up the remote end, give it an IP, and start DHCP server
-            self.machine.execute("ip a add {0} dev v_{1} && ip link set v_{1} up".format(dhcp_cidr, name))
+            self.machine.execute("ip a add {0} dev v_{1}; ip link set v_{1} up".format(dhcp_cidr, name))
             server = self.machine.spawn("dnsmasq --keep-in-foreground --log-queries --log-facility=- "
                                         "--conf-file=/dev/null --dhcp-leasefile=/tmp/leases.{0} "
                                         "--bind-interfaces --except-interface=lo --interface=v_{0} --dhcp-range={1},{2},4h".format(name, dhcp_range[0], dhcp_range[1]),
@@ -138,7 +138,7 @@ class NetworkCase(MachineCase, NetworkHelpers):
         # Wait for the interface to show up
         self.get_iface(m, mac)
         # Trigger udev to make sure that it has been renamed to its final name
-        m.execute("udevadm trigger && udevadm settle")
+        m.execute("udevadm trigger; udevadm settle")
         iface = self.get_iface(m, mac)
         if activate:
             self.nm_activate_eth(iface)

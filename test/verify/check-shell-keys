@@ -129,7 +129,7 @@ class TestKeys(MachineCase):
         self.assertIn("other::---", perms)
 
         # Add invalid key directly
-        m.execute("(echo '' && echo 'bad') >> /home/user/.ssh/authorized_keys")
+        m.write("/home/user/.ssh/authorized_keys", "\nbad\n", append=True)
         b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:last-child", "Invalid key")
         b.wait_js_func("ph_count_check", "#account-authorized-keys-list li.pf-c-data-list__item", 2)
 

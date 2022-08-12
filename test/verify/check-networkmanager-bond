@@ -135,7 +135,7 @@ class TestBonding(NetworkCase):
         self.wait_for_iface(iface1)
         self.wait_for_iface(iface2)
 
-        m.execute("nmcli con mod TEST1 ipv4.method link-local && nmcli con up TEST1")
+        m.execute("nmcli con mod TEST1 ipv4.method link-local; nmcli con up TEST1")
         m.execute(f"nmcli dev dis {iface2}")
 
         b.wait_in_text(f"tr[data-interface='{iface1}'] td:nth-child(2)", "169.254.")
@@ -162,7 +162,7 @@ class TestBonding(NetworkCase):
 
         # Wait until the page is really ready by waiting for some ethernet interface
         # to show up in some row.
-        iface = m.execute("cd /sys/class/net && ls -d e* | head -n1").strip()
+        iface = m.execute("cd /sys/class/net; ls -d e* | head -n1").strip()
         b.wait_visible(f"tr[data-interface='{iface}']")
 
         # Make a simple bond without any members.  This is enough to

@@ -353,7 +353,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         b.enter_page("/updates")
 
         # old versions are still installed
-        m.execute("test -f /stamp-vanilla-1.0-1 && test -f /stamp-chocolate-2.0-1")
+        m.execute("test -f /stamp-vanilla-1.0-1; test -f /stamp-chocolate-2.0-1")
 
         # no update history yet
         self.assertFalse(b.is_present("table.updates-history"))
@@ -384,7 +384,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         b.wait_not_present(".progress-main-view")
         self.assertEqual(b.text("#available-updates button#install-all"), "Install all updates")
         self.assertFalse(b.is_present("table.updates-history"))
-        m.execute("test -f /stamp-vanilla-1.0-1 && test -f /stamp-chocolate-2.0-1")
+        m.execute("test -f /stamp-vanilla-1.0-1; test -f /stamp-chocolate-2.0-1")
 
         # update again; Cancel button should eventually disappear
         m.execute(f"umount {chocolate}")
@@ -415,7 +415,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         b.wait_not_present("#available-updates")
 
         # new versions are now installed
-        m.execute("test -f /stamp-vanilla-1.0-2 && test -f /stamp-chocolate-2.0-2")
+        m.execute("test -f /stamp-vanilla-1.0-2; test -f /stamp-chocolate-2.0-2")
 
         # history shows the two packages, expanded by default
         b.wait_text("table.updates-history tbody.pf-m-expanded td.history-pkgcount", "2 packages")
@@ -817,9 +817,9 @@ ExecStart=/usr/local/bin/{packageName}
         m.execute("systemctl stop packagekit; systemctl reset-failed packagekit || true")
 
         # new security versions are now installed
-        m.execute("test -f /stamp-secdeclare-3-4.b1 && test -f /stamp-secparse-4-2 && test -f /stamp-sevcritical-5-2")
+        m.execute("test -f /stamp-secdeclare-3-4.b1; test -f /stamp-secparse-4-2; test -f /stamp-sevcritical-5-2")
         # but the three others are untouched
-        m.execute("test -f /stamp-buggy-2-1 && test -f /stamp-norefs-bin-1-1 && test -f /stamp-norefs-doc-1-1")
+        m.execute("test -f /stamp-buggy-2-1; test -f /stamp-norefs-bin-1-1; test -f /stamp-norefs-doc-1-1")
 
         # should now only have one button (no security updates left)
         self.assertEqual(b.text("#available-updates button#install-all"), "Install all updates")
@@ -857,7 +857,7 @@ ExecStart=/usr/local/bin/{packageName}
             b.click("#ignore")
 
         # new versions are now installed
-        m.execute("test -f /stamp-norefs-bin-2-1 && test -f /stamp-norefs-doc-2-1")
+        m.execute("test -f /stamp-norefs-bin-2-1; test -f /stamp-norefs-doc-2-1")
 
         # no further updates
         b.wait_in_text("#status", "System is up to date")

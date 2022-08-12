@@ -1479,7 +1479,7 @@ class MachineCase(unittest.TestCase):
         self.addCleanup(m.execute, "find /var/lib/systemd/coredump -type f -delete")
 
         # temporary directory in the VM
-        self.addCleanup(m.execute, "if [ -d {0} ]; then findmnt --list --noheadings --output TARGET | grep ^{0} | xargs -r umount && rm -r {0}; fi".format(self.vm_tmpdir))
+        self.addCleanup(m.execute, "if [ -d {0} ]; then findmnt --list --noheadings --output TARGET | grep ^{0} | xargs -r umount; rm -r {0}; fi".format(self.vm_tmpdir))
 
         # users/groups/home dirs
         self.restore_file("/etc/passwd")
@@ -1960,7 +1960,7 @@ class MachineCase(unittest.TestCase):
             return
 
         backup = os.path.join(self.vm_tmpdir, path.replace('/', '_'))
-        self.machine.execute("mkdir -p %(vm_tmpdir)s && cp -a %(path)s/ %(backup)s/" % {
+        self.machine.execute("mkdir -p %(vm_tmpdir)s; cp -a %(path)s/ %(backup)s/" % {
             "vm_tmpdir": self.vm_tmpdir, "path": path, "backup": backup})
 
         if not reboot_safe:
@@ -1971,7 +1971,7 @@ class MachineCase(unittest.TestCase):
             self.addCleanup(self.machine.execute, post_restore_action)
 
         if reboot_safe:
-            self.addCleanup(self.machine.execute, "rm -rf {0} && mv {1} {0}".format(path, backup))
+            self.addCleanup(self.machine.execute, "rm -rf {0}; mv {1} {0}".format(path, backup))
         else:
             self.addCleanup(self.machine.execute, "umount -lf " + path)
 
@@ -1988,7 +1988,7 @@ class MachineCase(unittest.TestCase):
         exists = self.machine.execute("if test -e %s; then echo yes; fi" % path).strip() != ""
         if exists:
             backup = os.path.join(self.vm_tmpdir, path.replace('/', '_'))
-            self.machine.execute("mkdir -p %(vm_tmpdir)s && cp -a %(path)s %(backup)s" % {
+            self.machine.execute("mkdir -p %(vm_tmpdir)s; cp -a %(path)s %(backup)s" % {
                 "vm_tmpdir": self.vm_tmpdir, "path": path, "backup": backup})
             if post_restore_action:
                 self.addCleanup(self.machine.execute, post_restore_action)

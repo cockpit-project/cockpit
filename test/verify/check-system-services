@@ -38,8 +38,8 @@ class TestServices(MachineCase):
         # We manipulate with `/etc/systemd/system` so `daemon-reload` to keep it in proper state
         # Also `reset-failed` as failed units can be still listed with `systemctl` even when all files
         # were removed and daemon reloaded.
-        self.restore_dir("/etc/systemd/system", "systemctl daemon-reload && systemctl reset-failed", True)
-        user_post_restore = "su - admin -c 'export XDG_RUNTIME_DIR=/run/user/$(id -u admin); systemctl --user daemon-reload && systemctl --user reset-failed'"
+        self.restore_dir("/etc/systemd/system", "systemctl daemon-reload; systemctl reset-failed", True)
+        user_post_restore = "su - admin -c 'export XDG_RUNTIME_DIR=/run/user/$(id -u admin); systemctl --user daemon-reload; systemctl --user reset-failed'"
         self.restore_dir("/etc/systemd/user", user_post_restore, True)
         self.restore_dir("/etc/xdg/systemd/user", user_post_restore, True)
 

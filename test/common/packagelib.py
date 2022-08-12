@@ -61,7 +61,7 @@ class PackageCase(MachineCase):
             self.restore_dir("/var/lib/apt", reboot_safe=True)
             self.restore_dir("/var/cache/apt", reboot_safe=True)
             self.restore_dir("/etc/apt", reboot_safe=True)
-            self.machine.execute("echo > /etc/apt/sources.list && rm -f /etc/apt/sources.list.d/* && apt-get clean && apt-get update")
+            self.machine.execute("echo > /etc/apt/sources.list; rm -f /etc/apt/sources.list.d/*; apt-get clean; apt-get update")
         elif self.backend == "alpm":
             self.restore_dir("/var/lib/pacman", reboot_safe=True)
             self.restore_dir("/var/cache/pacman", reboot_safe=True)
@@ -392,7 +392,7 @@ post_upgrade() {{
                                     O=$(apt-ftparchive -o APT::FTPArchive::Release::Origin=cockpittest release .); echo "$O" > Release
                                     echo 'Changelogs: http://localhost:12345/changelogs/@CHANGEPATH@' >> Release
                                     '''.format(self.repo_dir))
-            pid = self.machine.spawn(f"cd {self.repo_dir} && exec python3 -m http.server 12345", "changelog")
+            pid = self.machine.spawn(f"cd {self.repo_dir}; exec python3 -m http.server 12345", "changelog")
             # pid will not be present for rebooting tests
             self.addCleanup(self.machine.execute, "kill %i || true" % pid)
             self.machine.wait_for_cockpit_running(port=12345)  # wait for changelog HTTP server to start up

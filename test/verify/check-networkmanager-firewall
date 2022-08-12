@@ -182,7 +182,7 @@ class TestFirewall(NetworkCase):
         self.assertNotIn('pop3', m.execute("firewall-cmd --list-services").split())
 
         # Test that service without name is shown properly
-        m.execute("firewall-cmd --permanent --new-service=empty && firewall-cmd --reload && firewall-cmd --add-service=empty")
+        m.execute("firewall-cmd --permanent --new-service=empty; firewall-cmd --reload; firewall-cmd --add-service=empty")
         b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='empty']")
 
         m.execute("firewall-cmd --add-port=9998/udp --add-port=9999/udp --add-port=6666/tcp")
@@ -275,7 +275,7 @@ class TestFirewall(NetworkCase):
         b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='http']")
 
         # Service without name should appear in the dialog
-        m.execute("firewall-cmd --permanent --new-service=empty && firewall-cmd --reload")
+        m.execute("firewall-cmd --permanent --new-service=empty; firewall-cmd --reload")
         b.click(".zone-section[data-id='public'] .add-services-button")
         b.wait_visible(".pf-c-modal-box .service-list #firewall-service-empty")
         b.click("#add-services-dialog footer .btn-cancel")

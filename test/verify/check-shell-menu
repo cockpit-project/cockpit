@@ -33,7 +33,7 @@ class TestMenu(MachineCase):
         m = self.machine
 
         # Add a link with a hash in it to test that this works
-        m.execute("mkdir -p /usr/local/share/cockpit/systemd && cp -rp /usr/share/cockpit/systemd/* /usr/local/share/cockpit/systemd")
+        m.execute("mkdir -p /usr/local/share/cockpit/systemd; cp -rp /usr/share/cockpit/systemd/* /usr/local/share/cockpit/systemd")
         m.execute(
             """sed -i '/"menu"/a "memory": { "label": "Memory", "path": "#/memory" },' /usr/local/share/cockpit/systemd/manifest.json""")
         self.addCleanup(m.execute, "rm -r /usr/local/share/cockpit")

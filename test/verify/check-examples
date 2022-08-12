@@ -61,9 +61,9 @@ class TestXHRProxy(MachineCase):
 
         # set up served directory
         httpdir = self.vm_tmpdir + "/root"
-        m.execute("mkdir {0} && echo world > {0}/hello.txt".format(httpdir))
+        m.execute("mkdir {0}; echo world > {0}/hello.txt".format(httpdir))
         # start webserver
-        pid = m.spawn(f"cd {httpdir} && exec python3 -m http.server 12345", "httpserver")
+        pid = m.spawn(f"cd {httpdir}; exec python3 -m http.server 12345", "httpserver")
         self.addCleanup(m.execute, "kill %i" % pid)
         self.machine.wait_for_cockpit_running(port=12345)  # wait for changelog HTTP server to start up
 
@@ -133,7 +133,7 @@ class TestLongRunning(MachineCase):
         self.assertEqual(m.execute("systemctl is-active cockpit-longrunning.service || true").strip(), "activating")
 
         # resume process
-        m.execute(f"mkdir -p {self.vm_tmpdir} && touch {ack_file}")
+        m.execute(f"mkdir -p {self.vm_tmpdir}; touch {ack_file}")
         b.wait_in_text("#output", "\nSTEP_B\n")
         # wait for completion
         b.wait_in_text("#output", "\nDONE\n")

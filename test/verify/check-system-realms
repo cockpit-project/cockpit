@@ -1160,7 +1160,7 @@ class TestPackageInstall(packagelib.PackageCase):
         m.execute("dpkg --purge realmd 2>/dev/null || rpm --erase realmd || yum remove -y realmd")
 
         # case 1: disable PackageKit
-        m.execute("systemctl mask packagekit && systemctl stop packagekit.service || true")
+        m.execute("systemctl mask packagekit; systemctl stop packagekit.service || true")
         self.login_and_go("/system")
         b.wait_text(self.domain_sel, "Join domain")
         b.wait_visible(self.domain_sel + "[disabled]")
@@ -1208,7 +1208,7 @@ class TestPackageInstall(packagelib.PackageCase):
 
         # disable the realmd package's service, so that we can restore it, but
         # the package install code path will be triggered
-        m.execute("systemctl stop realmd && systemctl mask realmd")
+        m.execute("systemctl stop realmd; systemctl mask realmd")
 
         self.login_and_go("/system")
 

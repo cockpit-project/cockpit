@@ -254,7 +254,7 @@ class TestNetworkingBasic(NetworkCase):
             # remove the NM service file, test 'no-found' notification
             # This works for ND tests since there is a self.addCleanup(m.execute, "systemctl enable --now NetworkManager") in the start of the test
             self.restore_file('/usr/lib/systemd/system/NetworkManager.service')
-            m.execute("rm /usr/lib/systemd/system/NetworkManager.service && systemctl daemon-reload && systemctl stop NetworkManager")
+            m.execute("rm /usr/lib/systemd/system/NetworkManager.service; systemctl daemon-reload; systemctl stop NetworkManager")
             assert_not_found()
 
         self.allow_journal_messages(".*org.freedesktop.NetworkManager.*")

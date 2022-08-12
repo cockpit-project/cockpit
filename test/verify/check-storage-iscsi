@@ -32,7 +32,7 @@ class TestStorageISCSI(StorageCase):
         b.wait_timeout(120)
 
         # ensure that we generate a /etc/iscsi/initiatorname.iscsi
-        m.execute("systemctl start iscsid && systemctl stop iscsid")
+        m.execute("systemctl start iscsid; systemctl stop iscsid")
 
         target_iqn = "iqn.2015-09.cockpit.lan"
         initiator_iqn = "iqn.2015-10.cockpit.lan"

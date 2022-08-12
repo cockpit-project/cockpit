@@ -156,7 +156,7 @@ class TestStorageMdRaid(StorageCase):
 
         # Degrade and repair it
 
-        m.execute(f"mdadm --quiet {dev} --fail /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 && udevadm trigger")
+        m.execute(f"mdadm --quiet {dev} --fail /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1; udevadm trigger")
         wait_degraded_state(True)
 
         self.wait_states({"QEMU QEMU HARDDISK (DISK1)": "Failed"})

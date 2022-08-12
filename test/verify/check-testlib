@@ -229,12 +229,12 @@ class TestTestlib(MachineCase):
         m.execute("echo data > /var/lib/cockpittest.txt")
 
         # existing dir
-        m.execute("mkdir -p /var/lib/existing_dir && echo hello > /var/lib/existing_dir/original")
+        m.execute("mkdir -p /var/lib/existing_dir; echo hello > /var/lib/existing_dir/original")
         self.restore_dir("/var/lib/existing_dir")
-        m.execute("rm /var/lib/existing_dir/original && echo pwned > /var/lib/existing_dir/new")
+        m.execute("rm /var/lib/existing_dir/original; echo pwned > /var/lib/existing_dir/new")
         # nonexisting dir
         self.restore_dir("/var/lib/cockpittestnew")
-        m.execute("mkdir -p /var/lib/cockpittestnew && echo hello > /var/lib/cockpittestnew/cruft")
+        m.execute("mkdir -p /var/lib/cockpittestnew; echo hello > /var/lib/cockpittestnew/cruft")
 
         # NSS is backed up by default
         m.execute("useradd cockpittest")

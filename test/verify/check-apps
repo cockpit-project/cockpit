@@ -74,7 +74,7 @@ class TestApps(PackageCase):
             """,
             "/usr/share/app-info/icons/test/64x64/test.png": {"path": "/var/tmp/test.png"}})
         self.enableRepo()
-        self.machine.execute("systemctl stop packagekit && pkcon refresh force")
+        self.machine.execute("systemctl stop packagekit; pkcon refresh force")
         # ignore the corresponding journal entry
         self.allow_journal_messages("org.freedesktop.PackageKit.*org.freedesktop.DBus.Error.NoReply.*")
 
@@ -94,7 +94,8 @@ class TestApps(PackageCase):
                 '{ "config": { "appstream_data_packages": [ "appstream-data-test" ] } }')
 
         if urlroot != "":
-            m.execute(f'mkdir -p /etc/cockpit/ && echo "[WebService]\nUrlRoot={urlroot}" > /etc/cockpit/cockpit.conf')
+            m.execute("mkdir -p /etc/cockpit")
+            m.write("/etc/cockpit/cockpit.conf", f"[WebService]\nUrlRoot={urlroot}")
 
         m.start_cockpit()
         b.login_and_go("/apps", urlroot=urlroot)

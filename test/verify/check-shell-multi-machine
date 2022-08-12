@@ -390,7 +390,8 @@ class TestMultiMachine(MachineCase):
 
         hostname_selector = "#system_information_hostname_text"
 
-        m.execute('mkdir -p /etc/cockpit/ && echo "[WebService]\nUrlRoot = cockpit-new" > /etc/cockpit/cockpit.conf')
+        m.execute("mkdir -p /etc/cockpit/")
+        m.write("/etc/cockpit/cockpit.conf", "[WebService]\nUrlRoot = cockpit-new")
         m.start_cockpit()
 
         # Make sure normal urls don't work.
@@ -434,7 +435,8 @@ class TestMultiMachine(MachineCase):
         b = self.browser
         m = self.machine
 
-        m.execute('mkdir -p /etc/cockpit/ && echo "[WebService]\nUrlRoot = cockpit-new" > /etc/cockpit/cockpit.conf')
+        m.execute("mkdir -p /etc/cockpit/")
+        m.write("/etc/cockpit/cockpit.conf", "[WebService]\nUrlRoot = cockpit-new")
         m.start_cockpit()
 
         b.open("/cockpit-new/system?access_token=XXXX")
@@ -796,7 +798,7 @@ class TestMultiMachine(MachineCase):
             b.wait_not_present('#hosts_setup_server_dialog')
 
         b.enter_page("/system", host="fred@10.111.113.2")
-        m1.execute("test -f /home/admin/.ssh/id_rsa && test -f /home/admin/.ssh/id_rsa.pub")
+        m1.execute("test -f /home/admin/.ssh/id_rsa; test -f /home/admin/.ssh/id_rsa.pub")
         self.assertEqual(m1.execute("cat /home/admin/.ssh/id_rsa.pub"),
                          m2.execute("cat /home/fred/.ssh/authorized_keys"))
 

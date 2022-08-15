@@ -28,7 +28,7 @@ fi
 
 export TEST_OS="${ID}-${VERSION_ID/./-}"
 # HACK: upstream does not yet know about rawhide
-if [ "$TEST_OS" = "fedora-37" ]; then
+if [ "$TEST_OS" = "fedora-38" ]; then
     export TEST_OS=fedora-36
 fi
 

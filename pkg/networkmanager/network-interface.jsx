@@ -180,6 +180,8 @@ export const NetworkInterfacePage = ({
                 desc = _("VLAN");
             } else if (dev.DeviceType == 'bridge') {
                 desc = _("Bridge");
+            } else if (dev.Driver == 'wireguard') {
+                desc = "WireGuard";
             } else
                 desc = cockpit.format(_("Unknown \"$0\""), dev.DeviceType);
         } else if (iface) {
@@ -192,6 +194,8 @@ export const NetworkInterfacePage = ({
                 desc = _("VLAN");
             else if (cs.type == "bridge")
                 desc = _("Bridge");
+            else if (cs.type == "wireguard")
+                desc = "WireGuard";
             else if (cs.type)
                 desc = cockpit.format(_("Unknown \"$0\""), cs.type);
             else

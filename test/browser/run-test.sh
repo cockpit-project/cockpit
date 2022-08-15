@@ -19,7 +19,7 @@ if [ "$ID" = "fedora" ]; then
 fi
 
 # tests need cockpit's bots/ libraries
-git clone --depth=1 https://github.com/cockpit-project/bots
+git clone --depth=1 -b input-vs-stdin https://github.com/cockpit-project/bots
 
 # release tarballs include the necessary npm modules for testing
 if [ -d .git ]; then

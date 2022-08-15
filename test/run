@@ -5,6 +5,8 @@
 
 set -eu
 
+export COCKPIT_BOTS_REF=99de8b31767ff36ee75e3b21c2528d9d313f171a
+
 tools/make-bots
 test/common/pixel-tests pull
 

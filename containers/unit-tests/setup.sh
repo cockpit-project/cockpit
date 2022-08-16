@@ -56,7 +56,8 @@ apt-get update
 apt-get install -y --no-install-recommends eatmydata
 DEBIAN_FRONTEND=noninteractive eatmydata apt-get install -y --no-install-recommends ${dependencies}
 
-adduser --system --gecos "Builder" builder
+# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=679746
+adduser --system --gecos "Builder" builder --home /home/builder
 
 # minimize image
 # useful command: dpkg-query --show -f '${package} ${installed-size}\n' | sort -k2n

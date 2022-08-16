@@ -48,6 +48,7 @@ dependencies="\
     vulture \
     xmlto \
     xsltproc \
+    mypy \
 "
 
 echo "deb http://deb.debian.org/debian-debug/ testing-debug main" > /etc/apt/sources.list.d/ddebs.list

@@ -102,7 +102,7 @@ systemctl try-restart docker""")
         echo "Timed out waiting for service/kubernetes to appear" >&2
         exit 1
         """.format(**locals())
-        self.machine.execute(script=waiter)
+        self.machine.execute(waiter)
 
 
 class VolumeTests(object):

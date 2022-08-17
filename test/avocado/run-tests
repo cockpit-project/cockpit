@@ -113,7 +113,7 @@ def run_avocado_tests(machine, avocado_tests, print_failed=True, env={}, timeout
 
     # HACK override env for LC_ALL to utf, python3 avocado fails with LANG set to C
     try:
-        machine.execute(script=" ".join(cmd_parts), timeout=timeout, environment=env)
+        machine.execute(" ".join(cmd_parts), timeout=timeout, environment=env)
     except subprocess.CalledProcessError:
         if print_failed:
             # try to get the list of failed tests
@@ -164,13 +164,13 @@ def copy_avocado_logs(machine, title):
 
 
 def wait_for_selenium_running(machine, host, port=4444):
-    WAIT_SELENIUM_RUNNING = """#!/bin/sh
+    WAIT_SELENIUM_RUNNING = """
 until curl -s --connect-timeout 3 http://%s:%d >/dev/null; do
 sleep 0.5;
 done;
 """ % (host, port)
     with testvm.Timeout(seconds=300, error_message="Timeout while waiting for selenium to start"):
-        machine.execute(script=WAIT_SELENIUM_RUNNING)
+        machine.execute(WAIT_SELENIUM_RUNNING)
 
 
 def prepare_machines_test_env(avocado_tests, machine):

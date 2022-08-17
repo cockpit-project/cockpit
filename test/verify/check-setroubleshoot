@@ -23,7 +23,6 @@ from testlib import *
 
 
 FIX_AUDITD = """
-set -e
 mkdir -p /var/log/audit
 touch /var/log/audit.log
 restorecon -r /var/log/audit
@@ -31,7 +30,6 @@ systemctl start auditd
 """
 
 SELINUX_ALERT_SCRIPT = """
-set -e
 mkdir -p ~/selinux_temp
 cd ~/selinux_temp
 cp /bin/ls ls
@@ -41,7 +39,6 @@ runcon -u system_u -r system_r -t httpd_t -- ./ls  /home/* || true
 """
 
 SELINUX_FIXABLE_ALERT_SCRIPT = """
-set -e
 mkdir -p ~/.ssh
 ssh-keygen -t rsa -f ~/.ssh/test-avc-rsa -N ""
 mv -f ~/.ssh/authorized_keys ~/.ssh/authorized_keys.test-avc
@@ -68,11 +65,11 @@ class TestSelinux(MachineCase):
         b.wait_in_text("body", "No SELinux alerts.")
 
         # fix audit events first
-        self.machine.execute(script=FIX_AUDITD)
+        self.machine.execute(FIX_AUDITD)
 
         #########################################################
         # trigger an alert
-        self.machine.execute(script=SELINUX_ALERT_SCRIPT)
+        self.machine.execute(SELINUX_ALERT_SCRIPT)
 
         row_selector = "tbody:contains('ls from read access on the directory')"
 
@@ -117,7 +114,7 @@ class TestSelinux(MachineCase):
 
         #########################################################
         # trigger a fixable alert
-        self.machine.execute(script=SELINUX_FIXABLE_ALERT_SCRIPT)
+        self.machine.execute(SELINUX_FIXABLE_ALERT_SCRIPT)
 
         row_selector = "tbody:contains('read access on the file /root/.ssh/authorized_keys')"
 

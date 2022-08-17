@@ -28,7 +28,7 @@ from testlib import *
 
 
 WAIT_KRB_SCRIPT = """
-set -ex
+set -x
 # HACK: This needs to work, but may take a minute
 for x in $(seq 1 60); do
     if getent passwd {0}; then
@@ -135,7 +135,7 @@ class TestRealms(MachineCase):
 
         # validate Kerberos setup for ws
         m.execute("echo foobarfoo | kinit -f admin@COCKPIT.LAN")
-        m.execute(script=WAIT_KRB_SCRIPT.format("admin@cockpit.lan"), timeout=300)
+        m.execute(WAIT_KRB_SCRIPT.format("admin@cockpit.lan"), timeout=300)
 
         # should have added SPN to ws keytab
         output = m.execute(['klist', '-k', '/etc/cockpit/krb5.keytab'])
@@ -461,8 +461,8 @@ class TestKerberos(MachineCase):
         if "ubuntu" in self.machine.image:
             # no nss-myhostname there
             self.machine.execute("echo '10.111.113.1 x0.cockpit.lan' >> /etc/hosts")
-        self.machine.execute(script=JOIN_SCRIPT % args, timeout=1800)
-        self.machine.execute(script=WAIT_KRB_SCRIPT.format("admin"), timeout=300)
+        self.machine.execute(JOIN_SCRIPT % args, timeout=1800)
+        self.machine.execute(WAIT_KRB_SCRIPT.format("admin"), timeout=300)
 
     def testNegotiate(self):
         self.allow_authorize_journal_messages()

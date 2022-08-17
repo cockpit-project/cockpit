@@ -52,7 +52,7 @@ from testlib import *
 # in order to get the right ids for the activation key and pool, see ACTIVATION_KEY_COMMAND and POOL_COMMAND
 
 WAIT_SCRIPT = """
-set -ex
+set -x
 for x in $(seq 1 200); do
     if curl -s https://%(addr)s:8443/candlepin; then
         break
@@ -109,7 +109,7 @@ class SubscriptionsCase(MachineCase):
 
         # Wait for the web service to be accessible
         args = {"addr": "services.cockpit.lan"}
-        m.execute(script=WAIT_SCRIPT % args)
+        m.execute(WAIT_SCRIPT % args)
 
         if m.image != "rhel-atomic":  # insights-client not installed there
             m.write("/etc/insights-client/insights-client.conf",

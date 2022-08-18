@@ -55,7 +55,8 @@ class TestNetworkingBasic(NetworkCase):
                 "#networking-graphs .pf-l-grid",
                 ".cockpit-log-panel .pf-c-card__body",
                 "#networking-firewall-summary .pf-c-card__body",
-            ]
+            ],
+            skip_layouts=['mobile']
         )
 
         # Details of test iface

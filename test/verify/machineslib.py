@@ -1994,7 +1994,7 @@ class TestMachines(NetworkCase):
 
         def _commandNotRunning(self, command):
             try:
-                self.machine.execute("pgrep -fc {0}".format(command))
+                self.machine.execute("pgrep -c {0}".format(command))
                 return False
             except subprocess.CalledProcessError as e:
                 return hasattr(e, 'returncode') and e.returncode == 1

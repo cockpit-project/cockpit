@@ -125,6 +125,8 @@ class TestMetrics(MachineCase):
         # Disk.  Anything above 100 kiB/s is good for now.
         #
         m.add_disk("10M", serial="MYSERIAL")
+        m.execute("until test -b /dev/sda; do sleep 0.2; done")
+
         disk_pid = m.spawn("while true; do dd if=/dev/sda of=/dev/sda; done", "load-disk.log")
         b.wait_js_func("ph_flot_data_plateau", "#server_disk_io_graph", 100 * 1024, None, 5, "disk io")
         m.execute("kill %d" % disk_pid)

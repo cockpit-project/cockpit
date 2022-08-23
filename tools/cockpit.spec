@@ -275,13 +275,7 @@ rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-storage
 
 sed -i "s|%{buildroot}||" *.list
 
-%if 0%{?suse_version}
-# remove brandings with stale symlinks. Means they don't match
-# the distro.
-pushd %{buildroot}/%{_datadir}/cockpit/branding
-find -L * -type l -printf "%H\n" | sort -u | xargs rm -rv
-popd
-%else
+%if ! 0%{?suse_version}
 %global _debugsource_packages 1
 %global _debuginfo_subpackages 0
 

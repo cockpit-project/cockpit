@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-02 18:03+0000\n"
+"POT-Creation-Date: 2022-08-16 18:04+0000\n"
 "PO-Revision-Date: 2022-07-29 14:19+0000\n"
 "Last-Translator: 김인수 <simmon@nplob.com>\n"
 "Language-Team: Korean <https://translate.fedoraproject.org/projects/cockpit/"
@@ -79,8 +79,8 @@ msgid "$0 day"
 msgid_plural "$0 days"
 msgstr[0] "$0 일"
 
-#: pkg/playground/translate.js:26 pkg/playground/translate.js:29
-#: pkg/storaged/mdraid-details.jsx:210
+#: pkg/storaged/mdraid-details.jsx:210 pkg/playground/translate.js:26
+#: pkg/playground/translate.js:29
 msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] "$0 디스크가 없습니다"
@@ -103,11 +103,11 @@ msgstr "$0 문서"
 msgid "$0 error"
 msgstr "$0 오류"
 
-#: pkg/lib/cockpit.js:2719
+#: pkg/lib/cockpit.js:2722
 msgid "$0 exited with code $1"
 msgstr "$0가 코드 $1로 종료됨"
 
-#: pkg/lib/cockpit.js:2721
+#: pkg/lib/cockpit.js:2724
 msgid "$0 failed"
 msgstr "$0가 실패"
 
@@ -148,11 +148,11 @@ msgid_plural "$0 hits, including important"
 msgstr[0] "중요한 영향을 포함 $0 건 해당"
 
 #: pkg/storaged/lvol-tabs.jsx:232 pkg/storaged/lvol-tabs.jsx:299
+#: pkg/storaged/vdo-details.jsx:133 pkg/storaged/vdo-details.jsx:167
 #: pkg/storaged/content-views.jsx:371 pkg/storaged/content-views.jsx:676
-#: pkg/storaged/stratis-details.jsx:241 pkg/storaged/stratis-details.jsx:540
-#: pkg/storaged/vgroup-details.jsx:188 pkg/storaged/vdo-details.jsx:133
-#: pkg/storaged/vdo-details.jsx:167 pkg/storaged/mdraid-details.jsx:232
-#: pkg/storaged/mdraid-details.jsx:287 pkg/storaged/format-dialog.jsx:176
+#: pkg/storaged/vgroup-details.jsx:188 pkg/storaged/stratis-details.jsx:241
+#: pkg/storaged/stratis-details.jsx:540 pkg/storaged/format-dialog.jsx:176
+#: pkg/storaged/mdraid-details.jsx:232 pkg/storaged/mdraid-details.jsx:287
 msgid "$0 is in use"
 msgstr "$0 사용 중"
 
@@ -161,11 +161,11 @@ msgstr "$0 사용 중"
 msgid "$0 is not available from any repository."
 msgstr "$0는 저장소에서 사용 할 수 없습니다."
 
-#: pkg/shell/hosts_dialog.jsx:450 pkg/static/login.js:711
+#: pkg/static/login.js:711 pkg/shell/hosts_dialog.jsx:450
 msgid "$0 key changed"
 msgstr "$0 키 변경됩니다"
 
-#: pkg/lib/cockpit.js:2717
+#: pkg/lib/cockpit.js:2720
 msgid "$0 killed with signal $1"
 msgstr "$1 시그널에 의해 $0가 종료되었습니다"
 
@@ -445,8 +445,8 @@ msgstr "4일"
 msgid "5 min"
 msgstr "5분"
 
-#: pkg/lib/cockpit-components-shutdown.jsx:172
 #: pkg/lib/cockpit-components-plot.jsx:272
+#: pkg/lib/cockpit-components-shutdown.jsx:172
 msgid "5 minutes"
 msgstr "5분"
 
@@ -603,7 +603,7 @@ msgstr "활성화"
 msgid "Activating $target"
 msgstr "$target 활성화 중"
 
-#: pkg/networkmanager/interfaces.js:753 pkg/networkmanager/team.jsx:53
+#: pkg/networkmanager/team.jsx:53 pkg/networkmanager/interfaces.js:753
 msgid "Active"
 msgstr "활성"
 
@@ -633,20 +633,20 @@ msgstr "적응형 로드 밸런싱"
 msgid "Adaptive transmit load balancing"
 msgstr "적응형 전송 로드 밸런싱"
 
-#: pkg/shell/credentials.jsx:187 pkg/shell/hosts_dialog.jsx:244
-#: pkg/users/authorized-keys-panel.js:63 pkg/storaged/nfs-details.jsx:186
-#: pkg/storaged/iscsi-panel.jsx:140 pkg/storaged/iscsi-panel.jsx:164
-#: pkg/storaged/iscsi-panel.jsx:255 pkg/storaged/nfs-panel.jsx:65
-#: pkg/storaged/stratis-details.jsx:148 pkg/storaged/vgroup-details.jsx:78
-#: pkg/storaged/vgroup-details.jsx:127 pkg/storaged/mdraid-details.jsx:76
-#: pkg/storaged/mdraid-details.jsx:159 pkg/storaged/crypto-keyslots.jsx:314
-#: pkg/storaged/crypto-keyslots.jsx:627
-#: pkg/systemd/services/timer-dialog.jsx:349
+#: pkg/storaged/nfs-panel.jsx:65 pkg/storaged/iscsi-panel.jsx:140
+#: pkg/storaged/iscsi-panel.jsx:164 pkg/storaged/iscsi-panel.jsx:255
+#: pkg/storaged/nfs-details.jsx:186 pkg/storaged/vgroup-details.jsx:78
+#: pkg/storaged/vgroup-details.jsx:127 pkg/storaged/stratis-details.jsx:148
+#: pkg/storaged/crypto-keyslots.jsx:314 pkg/storaged/crypto-keyslots.jsx:627
+#: pkg/storaged/mdraid-details.jsx:76 pkg/storaged/mdraid-details.jsx:159
+#: pkg/users/authorized-keys-panel.js:63
+#: pkg/systemd/services/timer-dialog.jsx:349 pkg/shell/hosts_dialog.jsx:244
+#: pkg/shell/credentials.jsx:187
 msgid "Add"
 msgstr "추가"
 
-#: pkg/networkmanager/network-interface-members.jsx:176
 #: pkg/lib/cockpit-components-firewalld-request.jsx:148
+#: pkg/networkmanager/network-interface-members.jsx:176
 msgid "Add $0"
 msgstr "$0 추가"
 
@@ -685,8 +685,8 @@ msgstr "iSCSI 포털 추가"
 msgid "Add item"
 msgstr "항목 추가"
 
-#: pkg/shell/credentials.jsx:93 pkg/users/authorized-keys-panel.js:153
-#: pkg/storaged/crypto-keyslots.jsx:280
+#: pkg/storaged/crypto-keyslots.jsx:280 pkg/users/authorized-keys-panel.js:153
+#: pkg/shell/credentials.jsx:93
 msgid "Add key"
 msgstr "키 추가"
 
@@ -694,7 +694,7 @@ msgstr "키 추가"
 msgid "Add member"
 msgstr "멤버 추가"
 
-#: pkg/shell/hosts.jsx:204 pkg/shell/hosts_dialog.jsx:243
+#: pkg/shell/hosts_dialog.jsx:243 pkg/shell/hosts.jsx:204
 msgid "Add new host"
 msgstr "신규 호스트 추가"
 
@@ -781,8 +781,8 @@ msgstr "추가 꾸러미 :"
 msgid "Additional ports"
 msgstr "추가 포트"
 
-#: pkg/networkmanager/ip-settings.jsx:187
-#: pkg/networkmanager/ip-settings.jsx:338 pkg/storaged/iscsi-panel.jsx:131
+#: pkg/storaged/iscsi-panel.jsx:131 pkg/networkmanager/ip-settings.jsx:187
+#: pkg/networkmanager/ip-settings.jsx:338
 msgid "Address"
 msgstr "주소"
 
@@ -806,7 +806,7 @@ msgstr "주소"
 msgid "Administration with Cockpit Web Console"
 msgstr "Cockpit 웹 콘솔로 관리"
 
-#: pkg/shell/superuser.jsx:169 pkg/shell/superuser.jsx:286
+#: pkg/shell/superuser.jsx:180 pkg/shell/superuser.jsx:318
 msgid "Administrative access"
 msgstr "관리 액세스"
 
@@ -956,8 +956,8 @@ msgstr[0] "최소 $0개의 디스크가 필요합니다."
 msgid "At least one block device is needed."
 msgstr "최소 1개의 블록 장치가 필요합니다."
 
-#: pkg/storaged/vgroups-panel.jsx:79 pkg/storaged/stratis-details.jsx:142
-#: pkg/storaged/vgroup-details.jsx:72 pkg/storaged/mdraid-details.jsx:70
+#: pkg/storaged/vgroups-panel.jsx:79 pkg/storaged/vgroup-details.jsx:72
+#: pkg/storaged/stratis-details.jsx:142 pkg/storaged/mdraid-details.jsx:70
 msgid "At least one disk is needed."
 msgstr "최소 1개의 디스크가 필요합니다."
 
@@ -977,7 +977,7 @@ msgstr "속성"
 msgid "Audit log"
 msgstr "감사 로그"
 
-#: pkg/shell/superuser.jsx:162
+#: pkg/shell/superuser.jsx:173 pkg/shell/superuser.jsx:210
 msgid "Authenticate"
 msgstr "인증"
 
@@ -985,7 +985,7 @@ msgstr "인증"
 msgid "Authenticating"
 msgstr "인증 중입니다"
 
-#: pkg/shell/hosts_dialog.jsx:812 pkg/users/account-create-dialog.js:65
+#: pkg/users/account-create-dialog.js:65 pkg/shell/hosts_dialog.jsx:812
 msgid "Authentication"
 msgstr "인증"
 
@@ -1015,10 +1015,10 @@ msgstr "SSH 키 승인"
 msgid "Authorized public SSH keys"
 msgstr "승인된 공개 SSH 키"
 
-#: pkg/networkmanager/mtu.jsx:81 pkg/networkmanager/network-interface.jsx:388
 #: pkg/networkmanager/ip-settings.jsx:52 pkg/networkmanager/ip-settings.jsx:233
 #: pkg/networkmanager/ip-settings.jsx:278
-#: pkg/networkmanager/ip-settings.jsx:323
+#: pkg/networkmanager/ip-settings.jsx:323 pkg/networkmanager/mtu.jsx:81
+#: pkg/networkmanager/network-interface.jsx:388
 msgid "Automatic"
 msgstr "자동"
 
@@ -1241,27 +1241,29 @@ msgstr "호스트 이름, IP 주소, 별칭 이름 또는 ssh:// URI일 수 있�
 msgid "Can not find any logs using the current combination of filters."
 msgstr "현재 필터 조합을 사용하여 기록을 찾을 수 없습니다."
 
-#: pkg/playground/translate.html:39 pkg/static/login.html:117
-#: pkg/tuned/dialog.jsx:311 pkg/metrics/metrics.jsx:1233
-#: pkg/shell/credentials.jsx:316 pkg/shell/superuser.jsx:165
-#: pkg/shell/superuser.jsx:228 pkg/shell/active-pages-modal.jsx:97
-#: pkg/shell/shell-modals.jsx:114 pkg/shell/hosts_dialog.jsx:277
-#: pkg/shell/hosts_dialog.jsx:372 pkg/shell/hosts_dialog.jsx:494
-#: pkg/shell/hosts_dialog.jsx:860 pkg/networkmanager/dialogs-common.jsx:155
+#: pkg/static/login.html:117 pkg/playground/translate.html:39
+#: pkg/storaged/jobs-panel.jsx:139 pkg/sosreport/index.jsx:288
+#: pkg/sosreport/index.jsx:373 pkg/lib/cockpit-components-dialog.jsx:127
+#: pkg/lib/cockpit-components-shutdown.jsx:187
 #: pkg/networkmanager/firewall.jsx:606 pkg/networkmanager/firewall.jsx:810
-#: pkg/networkmanager/firewall.jsx:902 pkg/storaged/jobs-panel.jsx:139
-#: pkg/lib/cockpit-components-dialog.jsx:127
-#: pkg/lib/cockpit-components-shutdown.jsx:187 pkg/systemd/hwinfo.jsx:242
-#: pkg/systemd/reporting.jsx:422 pkg/systemd/overview-cards/realmd.jsx:419
-#: pkg/systemd/overview-cards/motdCard.jsx:64
-#: pkg/systemd/overview-cards/configurationCard.jsx:280
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:180
-#: pkg/systemd/services/timer-dialog.jsx:152
+#: pkg/networkmanager/firewall.jsx:902
+#: pkg/networkmanager/dialogs-common.jsx:155 pkg/tuned/dialog.jsx:311
+#: pkg/metrics/metrics.jsx:1233 pkg/apps/utils.jsx:66
+#: pkg/packagekit/kpatch.jsx:311 pkg/packagekit/autoupdates.jsx:274
+#: pkg/packagekit/updates.jsx:509 pkg/packagekit/updates.jsx:567
 #: pkg/systemd/services/service-details.jsx:79
-#: pkg/systemd/services/service-details.jsx:701 pkg/apps/utils.jsx:66
-#: pkg/sosreport/index.jsx:288 pkg/sosreport/index.jsx:373
-#: pkg/packagekit/autoupdates.jsx:274 pkg/packagekit/updates.jsx:509
-#: pkg/packagekit/updates.jsx:567 pkg/packagekit/kpatch.jsx:311
+#: pkg/systemd/services/service-details.jsx:701
+#: pkg/systemd/services/timer-dialog.jsx:152 pkg/systemd/hwinfo.jsx:242
+#: pkg/systemd/reporting.jsx:422
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:180
+#: pkg/systemd/overview-cards/configurationCard.jsx:280
+#: pkg/systemd/overview-cards/motdCard.jsx:64
+#: pkg/systemd/overview-cards/realmd.jsx:419 pkg/shell/hosts_dialog.jsx:277
+#: pkg/shell/hosts_dialog.jsx:372 pkg/shell/hosts_dialog.jsx:494
+#: pkg/shell/hosts_dialog.jsx:860 pkg/shell/active-pages-modal.jsx:97
+#: pkg/shell/shell-modals.jsx:114 pkg/shell/credentials.jsx:316
+#: pkg/shell/superuser.jsx:176 pkg/shell/superuser.jsx:214
+#: pkg/shell/superuser.jsx:260
 msgid "Cancel"
 msgstr "취소"
 
@@ -1281,7 +1283,7 @@ msgstr "활성화할 수 없습니다"
 msgid "Cannot connect to an unknown host"
 msgstr "알 수 없는 호스트에 연결 할 수 없습니다"
 
-#: pkg/lib/cockpit.js:3969
+#: pkg/lib/cockpit.js:3972
 msgid "Cannot forward login credentials"
 msgstr "로그인 정보를 전송할 수 없습니다"
 
@@ -1294,8 +1296,8 @@ msgstr "이 시스템에서 realmd를 사용할 수 없으므로 도메인에 �
 msgid "Cannot schedule event in the past"
 msgstr "이전 이벤트를 예약할 수 없습니다"
 
-#: pkg/storaged/vgroup-details.jsx:236 pkg/storaged/mdraid-details.jsx:339
 #: pkg/storaged/block-details.jsx:48 pkg/storaged/drive-details.jsx:87
+#: pkg/storaged/vgroup-details.jsx:236 pkg/storaged/mdraid-details.jsx:339
 msgctxt "storage"
 msgid "Capacity"
 msgstr "용량"
@@ -1304,8 +1306,8 @@ msgstr "용량"
 msgid "Carrier"
 msgstr "캐리어"
 
-#: pkg/users/expiration-dialogs.js:110 pkg/users/expiration-dialogs.js:215
 #: pkg/storaged/iscsi-panel.jsx:191 pkg/lib/serverTime.js:660
+#: pkg/users/expiration-dialogs.js:110 pkg/users/expiration-dialogs.js:215
 #: pkg/systemd/overview-cards/configurationCard.jsx:279
 msgid "Change"
 msgstr "변경"
@@ -1399,7 +1401,7 @@ msgstr "꾸러미 최신화 점검 중 ..."
 msgid "Checking installed software"
 msgstr "설치된 소프트웨어 확인 중"
 
-#: pkg/storaged/dialog.jsx:1138 pkg/storaged/fsys-tab.jsx:431
+#: pkg/storaged/fsys-tab.jsx:431 pkg/storaged/dialog.jsx:1138
 msgid "Checking related processes"
 msgstr "연관된 프로세서 확인 중"
 
@@ -1443,14 +1445,13 @@ msgstr "일반 문자 장치"
 msgid "Client software"
 msgstr "클라이언트 소프트웨어"
 
-#: pkg/shell/credentials.jsx:84 pkg/shell/superuser.jsx:173
-#: pkg/shell/superuser.jsx:181 pkg/shell/shell-modals.jsx:168
-#: pkg/shell/hosts_dialog.jsx:81 pkg/users/dialog-utils.js:58
-#: pkg/networkmanager/interfaces.js:43 pkg/storaged/dialog.jsx:438
+#: pkg/storaged/dialog.jsx:438 pkg/lib/cockpit-components-modifications.jsx:78
 #: pkg/lib/cockpit-components-terminal.jsx:208
-#: pkg/lib/cockpit-components-modifications.jsx:78
-#: pkg/systemd/overview-cards/realmd.jsx:263
-#: pkg/systemd/overview-cards/configurationCard.jsx:194 pkg/apps/utils.jsx:84
+#: pkg/networkmanager/interfaces.js:43 pkg/users/dialog-utils.js:58
+#: pkg/apps/utils.jsx:84 pkg/systemd/overview-cards/configurationCard.jsx:194
+#: pkg/systemd/overview-cards/realmd.jsx:263 pkg/shell/hosts_dialog.jsx:81
+#: pkg/shell/shell-modals.jsx:168 pkg/shell/credentials.jsx:84
+#: pkg/shell/superuser.jsx:184 pkg/shell/superuser.jsx:192
 msgid "Close"
 msgstr "닫기"
 
@@ -1466,7 +1467,7 @@ msgstr "Cockpit"
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "Cockpit 인증이 잘못 설정되어 있습니다."
 
-#: pkg/lib/cockpit.js:3975
+#: pkg/lib/cockpit.js:3978
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit을 지정된 호스트에 연결 할 수 없습니다."
 
@@ -1491,7 +1492,7 @@ msgstr ""
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit은 대화형 리눅스 서버 관리 연결장치입니다."
 
-#: pkg/lib/cockpit.js:3973
+#: pkg/lib/cockpit.js:3976
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit은 시스템의 소프트웨어와 호환성이 없습니다."
 
@@ -1499,7 +1500,7 @@ msgstr "Cockpit은 시스템의 소프트웨어와 호환성이 없습니다."
 msgid "Cockpit is not installed"
 msgstr "Cockpit이 설치되어 있지 않습니다"
 
-#: pkg/lib/cockpit.js:3967
+#: pkg/lib/cockpit.js:3970
 msgid "Cockpit is not installed on the system."
 msgstr "시스템에 Cockpit이 설치되어 있지 않습니다."
 
@@ -1561,8 +1562,8 @@ msgstr "최신 시스템과 2TB 이상의 하드 디스크와 호환됩니다 (G
 msgid "Compress crash dumps to save space"
 msgstr "충돌 덤프를 압축하여 공간 절약하기"
 
-#: pkg/kdump/kdump-view.jsx:168 pkg/storaged/lvol-tabs.jsx:563
-#: pkg/storaged/content-views.jsx:955 pkg/storaged/vdo-details.jsx:325
+#: pkg/storaged/lvol-tabs.jsx:563 pkg/storaged/vdo-details.jsx:325
+#: pkg/storaged/content-views.jsx:955 pkg/kdump/kdump-view.jsx:168
 msgid "Compression"
 msgstr "압축"
 
@@ -1594,8 +1595,8 @@ msgstr "kdump 설정"
 msgid "Configuring system settings"
 msgstr "시스템 설정 구성"
 
-#: pkg/users/account-create-dialog.js:59 pkg/storaged/stratis-panel.jsx:140
-#: pkg/storaged/format-dialog.jsx:273
+#: pkg/storaged/stratis-panel.jsx:140 pkg/storaged/format-dialog.jsx:273
+#: pkg/users/account-create-dialog.js:59
 msgid "Confirm"
 msgstr "확인"
 
@@ -1672,7 +1673,7 @@ msgstr "연결 오류"
 msgid "Connection failed"
 msgstr "연결 실패"
 
-#: pkg/lib/cockpit.js:3965
+#: pkg/lib/cockpit.js:3968
 msgid "Connection has timed out."
 msgstr "연결 시간 초과."
 
@@ -1731,8 +1732,8 @@ msgstr "변환 가능"
 msgid "Copied"
 msgstr "복사됨"
 
-#: pkg/shell/credentials.jsx:215 pkg/shell/failures.jsx:41
 #: pkg/lib/cockpit-components-context-menu.jsx:103
+#: pkg/shell/credentials.jsx:215 pkg/shell/failures.jsx:41
 msgid "Copy"
 msgstr "복사"
 
@@ -1761,11 +1762,12 @@ msgstr "크래시 보고"
 msgid "Crash system"
 msgstr "충돌 시스템"
 
-#: pkg/users/account-create-dialog.js:286 pkg/storaged/vgroups-panel.jsx:85
-#: pkg/storaged/content-views.jsx:196 pkg/storaged/content-views.jsx:311
-#: pkg/storaged/content-views.jsx:970 pkg/storaged/stratis-details.jsx:388
-#: pkg/storaged/mdraids-panel.jsx:134 pkg/storaged/stratis-panel.jsx:161
+#: pkg/storaged/vgroups-panel.jsx:85 pkg/storaged/content-views.jsx:196
+#: pkg/storaged/content-views.jsx:311 pkg/storaged/content-views.jsx:970
+#: pkg/storaged/stratis-details.jsx:388 pkg/storaged/stratis-panel.jsx:161
+#: pkg/storaged/mdraids-panel.jsx:134
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:185
+#: pkg/users/account-create-dialog.js:286
 msgid "Create"
 msgstr "생성"
 
@@ -1942,9 +1944,9 @@ msgstr "현재 사용 중"
 msgid "Custom crypto policy"
 msgstr "사용자 정의 암호화 정책"
 
-#: pkg/storaged/nfs-details.jsx:171 pkg/storaged/stratis-details.jsx:383
-#: pkg/storaged/stratis-details.jsx:513 pkg/storaged/format-dialog.jsx:256
-#: pkg/storaged/fsys-tab.jsx:339
+#: pkg/storaged/fsys-tab.jsx:339 pkg/storaged/nfs-details.jsx:171
+#: pkg/storaged/stratis-details.jsx:383 pkg/storaged/stratis-details.jsx:513
+#: pkg/storaged/format-dialog.jsx:256
 msgid "Custom mount options"
 msgstr "사용자 정의 마운트 옵션"
 
@@ -2024,8 +2026,8 @@ msgstr "디버그 이상의 수준"
 msgid "Decrease by one"
 msgstr "1 씩 감소"
 
-#: pkg/storaged/lvol-tabs.jsx:570 pkg/storaged/content-views.jsx:959
-#: pkg/storaged/vdo-details.jsx:334
+#: pkg/storaged/lvol-tabs.jsx:570 pkg/storaged/vdo-details.jsx:334
+#: pkg/storaged/content-views.jsx:959
 msgid "Deduplication"
 msgstr "중복"
 
@@ -2039,24 +2041,24 @@ msgstr "지연"
 msgid "Delay must be a number"
 msgstr "지연은 숫자여야 합니다"
 
-#: pkg/users/delete-account-dialog.js:60 pkg/users/account-details.js:278
-#: pkg/networkmanager/network-interface.jsx:720
+#: pkg/storaged/vdo-details.jsx:205 pkg/storaged/vdo-details.jsx:271
+#: pkg/storaged/content-views.jsx:382 pkg/storaged/content-views.jsx:408
+#: pkg/storaged/vgroup-details.jsx:200 pkg/storaged/vgroup-details.jsx:225
+#: pkg/storaged/stratis-details.jsx:253 pkg/storaged/stratis-details.jsx:417
+#: pkg/storaged/stratis-details.jsx:552 pkg/storaged/stratis-details.jsx:600
+#: pkg/storaged/mdraid-details.jsx:297 pkg/storaged/mdraid-details.jsx:323
+#: pkg/sosreport/index.jsx:367 pkg/sosreport/index.jsx:479
 #: pkg/networkmanager/firewall.jsx:117 pkg/networkmanager/firewall.jsx:178
-#: pkg/networkmanager/firewall.jsx:899 pkg/storaged/content-views.jsx:382
-#: pkg/storaged/content-views.jsx:408 pkg/storaged/stratis-details.jsx:253
-#: pkg/storaged/stratis-details.jsx:417 pkg/storaged/stratis-details.jsx:552
-#: pkg/storaged/stratis-details.jsx:600 pkg/storaged/vgroup-details.jsx:200
-#: pkg/storaged/vgroup-details.jsx:225 pkg/storaged/vdo-details.jsx:205
-#: pkg/storaged/vdo-details.jsx:271 pkg/storaged/mdraid-details.jsx:297
-#: pkg/storaged/mdraid-details.jsx:323 pkg/systemd/abrtLog.jsx:291
+#: pkg/networkmanager/firewall.jsx:899
+#: pkg/networkmanager/network-interface.jsx:720
+#: pkg/users/delete-account-dialog.js:60 pkg/users/account-details.js:278
 #: pkg/systemd/services/service-details.jsx:145
-#: pkg/systemd/services/service-details.jsx:699 pkg/sosreport/index.jsx:367
-#: pkg/sosreport/index.jsx:479
+#: pkg/systemd/services/service-details.jsx:699 pkg/systemd/abrtLog.jsx:291
 msgid "Delete"
 msgstr "삭제"
 
-#: pkg/users/delete-account-dialog.js:53
 #: pkg/networkmanager/network-interface.jsx:118
+#: pkg/users/delete-account-dialog.js:53
 msgid "Delete $0"
 msgstr "$0 삭제"
 
@@ -2115,8 +2117,9 @@ msgstr "삭제하면 볼륨 그룹에서 모든 자료가 제거됩니다."
 msgid "Deletion will remove the following files:"
 msgstr "삭제시 다음 파일을 제거합니다:"
 
-#: pkg/networkmanager/firewall.jsx:695 pkg/networkmanager/firewall.jsx:839
-#: pkg/storaged/dialog.jsx:1222 pkg/systemd/services/timer-dialog.jsx:166
+#: pkg/storaged/dialog.jsx:1222 pkg/networkmanager/firewall.jsx:695
+#: pkg/networkmanager/firewall.jsx:839
+#: pkg/systemd/services/timer-dialog.jsx:166
 msgid "Description"
 msgstr "설명"
 
@@ -2130,8 +2133,8 @@ msgstr "분리 가능"
 
 # translation auto-copied from project libreport, version master, document
 # libreport
-#: pkg/shell/credentials.jsx:112 pkg/systemd/overview-cards/realmd.jsx:401
-#: pkg/packagekit/updates.jsx:419
+#: pkg/packagekit/updates.jsx:419 pkg/systemd/overview-cards/realmd.jsx:401
+#: pkg/shell/credentials.jsx:112
 msgid "Details"
 msgstr "상세 정보"
 
@@ -2139,8 +2142,8 @@ msgstr "상세 정보"
 msgid "Development"
 msgstr "개발"
 
-#: pkg/storaged/dialog.jsx:1049 pkg/storaged/dialog.jsx:1127
-#: pkg/storaged/crypto-panel.jsx:85
+#: pkg/storaged/crypto-panel.jsx:85 pkg/storaged/dialog.jsx:1049
+#: pkg/storaged/dialog.jsx:1127
 msgid "Device"
 msgstr "장치"
 
@@ -2191,11 +2194,11 @@ msgstr "방화벽 비활성화"
 msgid "Disable tuned"
 msgstr "tuned 비활성화"
 
-#: pkg/networkmanager/ip-settings.jsx:47 pkg/networkmanager/ip-settings.jsx:58
 #: pkg/networkmanager/firewall-switch.jsx:78
+#: pkg/networkmanager/ip-settings.jsx:47 pkg/networkmanager/ip-settings.jsx:58
+#: pkg/packagekit/kpatch.jsx:249 pkg/packagekit/autoupdates.jsx:344
 #: pkg/systemd/services/services.jsx:209 pkg/systemd/services/services.jsx:789
 #: pkg/systemd/services/service-details.jsx:436
-#: pkg/packagekit/autoupdates.jsx:344 pkg/packagekit/kpatch.jsx:249
 msgid "Disabled"
 msgstr "사용 안함"
 
@@ -2239,9 +2242,9 @@ msgstr "디스크에 오류가 났습니다"
 msgid "Disk passphrase"
 msgstr "디스크 비밀번호"
 
-#: pkg/metrics/metrics.jsx:736 pkg/storaged/vgroups-panel.jsx:74
-#: pkg/storaged/vgroup-details.jsx:67 pkg/storaged/mdraids-panel.jsx:121
+#: pkg/storaged/vgroups-panel.jsx:74 pkg/storaged/vgroup-details.jsx:67
 #: pkg/storaged/mdraid-details.jsx:65 pkg/storaged/mdraid-details.jsx:163
+#: pkg/storaged/mdraids-panel.jsx:121 pkg/metrics/metrics.jsx:736
 msgid "Disks"
 msgstr "디스크"
 
@@ -2254,7 +2257,7 @@ msgstr[0] "$0 경고 해제"
 msgid "Dismiss selected alerts"
 msgstr "선택한 경고 해제"
 
-#: pkg/shell/shell-modals.jsx:111 pkg/shell/topnav.jsx:153
+#: pkg/shell/topnav.jsx:153 pkg/shell/shell-modals.jsx:111
 msgid "Display language"
 msgstr "표시 언어"
 
@@ -2270,8 +2273,8 @@ msgstr "도킹 스테이션"
 msgid "Does not automatically start"
 msgstr "자동으로 시작되지 않습니다"
 
-#: pkg/systemd/overview-cards/realmd.jsx:269
 #: pkg/systemd/overview-cards/configurationCard.jsx:76
+#: pkg/systemd/overview-cards/realmd.jsx:269
 msgid "Domain"
 msgstr "도메인"
 
@@ -2338,10 +2341,10 @@ msgstr "드라이브"
 msgid "Dual rank"
 msgstr "듀얼 랭크(Dual Rank)"
 
+#: pkg/storaged/iscsi-panel.jsx:251 pkg/storaged/nfs-details.jsx:305
+#: pkg/storaged/crypto-keyslots.jsx:577 pkg/networkmanager/firewall.jsx:115
+#: pkg/packagekit/kpatch.jsx:230 pkg/packagekit/autoupdates.jsx:407
 #: pkg/shell/hosts.jsx:167 pkg/shell/indexes.jsx:339
-#: pkg/networkmanager/firewall.jsx:115 pkg/storaged/nfs-details.jsx:305
-#: pkg/storaged/iscsi-panel.jsx:251 pkg/storaged/crypto-keyslots.jsx:577
-#: pkg/packagekit/autoupdates.jsx:407 pkg/packagekit/kpatch.jsx:230
 msgid "Edit"
 msgstr "편집"
 
@@ -2407,7 +2410,7 @@ msgstr "비었음"
 msgid "Emptying $target"
 msgstr "$target 비우는 중"
 
-#: pkg/packagekit/autoupdates.jsx:407 pkg/packagekit/kpatch.jsx:250
+#: pkg/packagekit/kpatch.jsx:250 pkg/packagekit/autoupdates.jsx:407
 msgid "Enable"
 msgstr "활성화"
 
@@ -2423,9 +2426,9 @@ msgstr "서비스 활성화"
 msgid "Enable the firewall"
 msgstr "방화벽 활성화"
 
-#: pkg/networkmanager/firewall-switch.jsx:78
+#: pkg/networkmanager/firewall-switch.jsx:78 pkg/packagekit/kpatch.jsx:252
 #: pkg/systemd/services/services.jsx:207 pkg/systemd/services/services.jsx:208
-#: pkg/systemd/services/services.jsx:788 pkg/packagekit/kpatch.jsx:252
+#: pkg/systemd/services/services.jsx:788
 msgid "Enabled"
 msgstr "사용"
 
@@ -2509,11 +2512,11 @@ msgstr "$target 제거 중"
 msgid "Errata"
 msgstr "에라타"
 
-#: pkg/storaged/multipath.jsx:61 pkg/storaged/stratis-details.jsx:675
-#: pkg/storaged/things-panel.jsx:57 pkg/storaged/storage-controls.jsx:91
-#: pkg/storaged/storage-controls.jsx:168 pkg/systemd/services/services.jsx:187
-#: pkg/systemd/services/service-details.jsx:272 pkg/apps/utils.jsx:78
-#: pkg/sosreport/index.jsx:390
+#: pkg/storaged/multipath.jsx:61 pkg/storaged/storage-controls.jsx:91
+#: pkg/storaged/storage-controls.jsx:168 pkg/storaged/stratis-details.jsx:675
+#: pkg/storaged/things-panel.jsx:57 pkg/sosreport/index.jsx:390
+#: pkg/apps/utils.jsx:78 pkg/systemd/services/services.jsx:187
+#: pkg/systemd/services/service-details.jsx:272
 msgid "Error"
 msgstr "오류"
 
@@ -2610,7 +2613,7 @@ msgstr "확장 파티션"
 msgid "FIPS is not properly enabled"
 msgstr "FIPS는 적절하게 활성화되지 않았습니다"
 
-#: pkg/networkmanager/interfaces.js:757 pkg/storaged/mdraid-details.jsx:111
+#: pkg/storaged/mdraid-details.jsx:111 pkg/networkmanager/interfaces.js:757
 msgid "Failed"
 msgstr "실패하였습니다"
 
@@ -2630,8 +2633,8 @@ msgstr "서비스 추가 실패"
 msgid "Failed to add zone"
 msgstr "영역 추가 실패"
 
-#: pkg/users/password-dialogs.js:101 pkg/users/password-dialogs.js:123
-#: pkg/lib/credentials.js:232
+#: pkg/lib/credentials.js:232 pkg/users/password-dialogs.js:101
+#: pkg/users/password-dialogs.js:123
 msgid "Failed to change password"
 msgstr "비밀번호 변경 실패"
 
@@ -2754,8 +2757,8 @@ msgstr "필터"
 msgid "Fingerprint"
 msgstr "지문"
 
-#: pkg/networkmanager/firewall.html:22 pkg/networkmanager/network-main.jsx:151
-#: pkg/networkmanager/firewall.jsx:1044 pkg/networkmanager/firewall.jsx:1051
+#: pkg/networkmanager/firewall.html:22 pkg/networkmanager/firewall.jsx:1044
+#: pkg/networkmanager/firewall.jsx:1051 pkg/networkmanager/network-main.jsx:151
 msgid "Firewall"
 msgstr "방화벽"
 
@@ -2826,7 +2829,7 @@ msgstr ""
 msgid "Free-form search"
 msgstr "자유-형식 검색"
 
-#: pkg/systemd/services/timer-dialog.jsx:304 pkg/packagekit/autoupdates.jsx:313
+#: pkg/packagekit/autoupdates.jsx:313 pkg/systemd/services/timer-dialog.jsx:304
 msgid "Fridays"
 msgstr "금요일"
 
@@ -2834,7 +2837,7 @@ msgstr "금요일"
 msgid "From"
 msgstr "에서"
 
-#: pkg/users/account-create-dialog.js:40 pkg/users/account-details.js:285
+#: pkg/users/account-details.js:285 pkg/users/account-create-dialog.js:40
 msgid "Full name"
 msgstr "성명"
 
@@ -2915,8 +2918,8 @@ msgstr "상태"
 msgid "Hello time $hello_time"
 msgstr "Hello 타임 $hello_time"
 
-#: pkg/tuned/dialog.jsx:292 pkg/shell/topnav.jsx:203
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:154
+#: pkg/tuned/dialog.jsx:292 pkg/systemd/overview-cards/cryptoPolicies.jsx:154
+#: pkg/shell/topnav.jsx:203
 msgid "Help"
 msgstr "도움말"
 
@@ -2932,11 +2935,11 @@ msgstr "증가된 공격 표면을 희생하는 더 높은 상호 운용성."
 msgid "History package count"
 msgstr "기록 꾸러미 수"
 
-#: pkg/shell/hosts.jsx:190 pkg/shell/hosts_dialog.jsx:247
+#: pkg/shell/hosts_dialog.jsx:247 pkg/shell/hosts.jsx:190
 msgid "Host"
 msgstr "호스트"
 
-#: pkg/lib/cockpit.js:3961
+#: pkg/lib/cockpit.js:3964
 msgid "Host key is incorrect"
 msgstr "호스트 키가 잘못되었습니다"
 
@@ -3058,9 +3061,9 @@ msgstr ""
 msgid "In sync"
 msgstr "동기화"
 
+#: pkg/networkmanager/network-interface.jsx:255
 #: pkg/networkmanager/interfaces.js:739 pkg/networkmanager/interfaces.js:1298
 #: pkg/networkmanager/interfaces.js:1305
-#: pkg/networkmanager/network-interface.jsx:255
 msgid "Inactive"
 msgstr "비활성"
 
@@ -3182,7 +3185,7 @@ msgstr "$0을 설치하면 $1이 제거됩니다."
 msgid "Installing packages"
 msgstr "꾸러미 설치"
 
-#: pkg/metrics/metrics.jsx:788 pkg/networkmanager/firewall.jsx:195
+#: pkg/networkmanager/firewall.jsx:195 pkg/metrics/metrics.jsx:788
 msgid "Interface"
 msgid_plural "Interfaces"
 msgstr[0] "연결장치"
@@ -3192,13 +3195,13 @@ msgstr[0] "연결장치"
 msgid "Interface members"
 msgstr "연결장치 구성원"
 
-#: pkg/networkmanager/network-main.jsx:173 pkg/networkmanager/bond.jsx:166
+#: pkg/networkmanager/firewall.jsx:852 pkg/networkmanager/network-main.jsx:173
+#: pkg/networkmanager/bond.jsx:166
 #: pkg/networkmanager/network-interface-members.jsx:215
-#: pkg/networkmanager/firewall.jsx:852
 msgid "Interfaces"
 msgstr "연결장치"
 
-#: pkg/lib/cockpit.js:3963
+#: pkg/lib/cockpit.js:3966
 msgid "Internal error"
 msgstr "내부 오류"
 
@@ -3214,7 +3217,7 @@ msgstr "유효하지 않음"
 msgid "Invalid address $0"
 msgstr "잘못된 주소 $0"
 
-#: pkg/lib/serverTime.js:614 pkg/lib/cockpit-components-shutdown.jsx:112
+#: pkg/lib/cockpit-components-shutdown.jsx:112 pkg/lib/serverTime.js:614
 msgid "Invalid date format"
 msgstr "잘못된 날짜 형식"
 
@@ -3258,7 +3261,7 @@ msgstr "잘못된 접두어 또는 넷마스크 $0"
 msgid "Invalid range"
 msgstr "잘못된 범위"
 
-#: pkg/lib/serverTime.js:617 pkg/lib/cockpit-components-shutdown.jsx:109
+#: pkg/lib/cockpit-components-shutdown.jsx:109 pkg/lib/serverTime.js:617
 #: pkg/packagekit/autoupdates.jsx:323
 msgid "Invalid time format"
 msgstr "잘못된 시간 형식"
@@ -3438,10 +3441,9 @@ msgstr "마지막 수정 날짜: $0"
 msgid "Last successful login:"
 msgstr "마지막으로 성공한 로그인:"
 
-#: pkg/tuned/dialog.jsx:288 pkg/networkmanager/bond.jsx:154
 #: pkg/lib/cockpit-components-dialog.jsx:228
-#: pkg/lib/cockpit-components-dialog.jsx:235
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:47
+#: pkg/lib/cockpit-components-dialog.jsx:235 pkg/networkmanager/bond.jsx:154
+#: pkg/tuned/dialog.jsx:288 pkg/systemd/overview-cards/cryptoPolicies.jsx:47
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:150
 msgid "Learn more"
 msgstr "더 알아보기"
@@ -3468,15 +3470,15 @@ msgstr "GNU LGPL 버전 2.1 하에서 인가됨"
 msgid "Light"
 msgstr "경량"
 
-#: pkg/shell/superuser.jsx:225
+#: pkg/shell/superuser.jsx:257
 msgid "Limit access"
 msgstr "접근 제한"
 
-#: pkg/shell/superuser.jsx:286
+#: pkg/shell/superuser.jsx:318
 msgid "Limited access"
 msgstr "제한된 접근"
 
-#: pkg/shell/superuser.jsx:240
+#: pkg/shell/superuser.jsx:272
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -3595,9 +3597,9 @@ msgstr "단위 로드에 실패했습니다. $0"
 
 # translation auto-copied from project oVirt, version ovirt-3.5, document
 # frontend/webadmin/modules/webadmin/src/main/resources/org/ovirt/engine/ui/frontend/org.ovirt.engine.ui.webadmin.ApplicationConstants
+#: pkg/storaged/devices.jsx:69 pkg/kdump/kdump-view.jsx:339
 #: pkg/metrics/metrics.jsx:960 pkg/metrics/metrics.jsx:1654
-#: pkg/kdump/kdump-view.jsx:339 pkg/storaged/devices.jsx:69
-#: pkg/systemd/logDetails.jsx:154 pkg/systemd/logsJournal.jsx:268
+#: pkg/systemd/logsJournal.jsx:268 pkg/systemd/logDetails.jsx:154
 #: pkg/systemd/services/services.jsx:753
 msgid "Loading..."
 msgstr "로딩 중..."
@@ -3614,8 +3616,8 @@ msgstr "로컬 파일 시스템"
 msgid "Local mount point"
 msgstr "로컬 적재 지점"
 
-#: pkg/kdump/kdump-view.jsx:153 pkg/storaged/dialog.jsx:1050
-#: pkg/storaged/dialog.jsx:1128
+#: pkg/storaged/dialog.jsx:1050 pkg/storaged/dialog.jsx:1128
+#: pkg/kdump/kdump-view.jsx:153
 msgid "Location"
 msgstr "위치"
 
@@ -3641,8 +3643,8 @@ msgstr "암호화된 자료 잠김"
 msgid "Locking $target"
 msgstr "$target 잠금 중"
 
-#: pkg/static/login.html:115 pkg/shell/failures.jsx:72
-#: pkg/shell/hosts_dialog.jsx:741 pkg/static/login.js:621
+#: pkg/static/login.html:115 pkg/static/login.js:621
+#: pkg/shell/hosts_dialog.jsx:741 pkg/shell/failures.jsx:72
 msgid "Log in"
 msgstr "로그인"
 
@@ -3670,7 +3672,7 @@ msgstr "로그인 상태"
 msgid "Logical"
 msgstr "논리"
 
-#: pkg/storaged/content-views.jsx:940 pkg/storaged/vdo-details.jsx:228
+#: pkg/storaged/vdo-details.jsx:228 pkg/storaged/content-views.jsx:940
 msgid "Logical size"
 msgstr "논리 크기"
 
@@ -3698,7 +3700,7 @@ msgstr "로그인"
 msgid "Login again"
 msgstr "다시 로그인"
 
-#: pkg/lib/cockpit.js:3953
+#: pkg/lib/cockpit.js:3956
 msgid "Login failed"
 msgstr "로그인 실패"
 
@@ -3869,9 +3871,8 @@ msgid "Maximum message age $max_age"
 msgstr "최대 메세지 수명 $max_age"
 
 #: pkg/metrics/metrics.jsx:703 pkg/metrics/metrics.jsx:1637
-#: pkg/systemd/hwinfo.jsx:309 pkg/systemd/hwinfo.jsx:358
-#: pkg/systemd/overview-cards/usageCard.jsx:146
-#: pkg/systemd/services/service-details.jsx:645
+#: pkg/systemd/services/service-details.jsx:645 pkg/systemd/hwinfo.jsx:309
+#: pkg/systemd/hwinfo.jsx:358 pkg/systemd/overview-cards/usageCard.jsx:146
 msgid "Memory"
 msgstr "메모리"
 
@@ -3902,6 +3903,10 @@ msgstr "실행 실패와 관련된 메시지는 저널에서 찾을 수 있습�
 #: pkg/storaged/lvol-tabs.jsx:505 pkg/storaged/lvol-tabs.jsx:558
 msgid "Metadata used"
 msgstr "사용된 메타데이터"
+
+#: pkg/shell/superuser.jsx:199
+msgid "Method"
+msgstr "방식"
 
 #: pkg/networkmanager/ip-settings.jsx:362
 msgid "Metric"
@@ -3958,7 +3963,7 @@ msgstr "모델"
 msgid "Modifying $target"
 msgstr "$target 수정 중"
 
-#: pkg/systemd/services/timer-dialog.jsx:300 pkg/packagekit/autoupdates.jsx:309
+#: pkg/packagekit/autoupdates.jsx:309 pkg/systemd/services/timer-dialog.jsx:300
 msgid "Mondays"
 msgstr "월요일"
 
@@ -3978,10 +3983,10 @@ msgstr "월 별"
 msgid "More info..."
 msgstr "자세한 정보..."
 
-#: pkg/storaged/nfs-details.jsx:300 pkg/storaged/content-views.jsx:289
-#: pkg/storaged/content-views.jsx:415 pkg/storaged/stratis-details.jsx:592
-#: pkg/storaged/stratis-details.jsx:593 pkg/storaged/fsys-panel.jsx:176
-#: pkg/storaged/fsys-tab.jsx:372
+#: pkg/storaged/fsys-tab.jsx:372 pkg/storaged/content-views.jsx:289
+#: pkg/storaged/content-views.jsx:415 pkg/storaged/nfs-details.jsx:300
+#: pkg/storaged/stratis-details.jsx:592 pkg/storaged/stratis-details.jsx:593
+#: pkg/storaged/fsys-panel.jsx:176
 msgid "Mount"
 msgstr "적재"
 
@@ -4005,8 +4010,8 @@ msgstr "구성 마운트"
 msgid "Mount filesystem"
 msgstr "파일 시스템 마운트"
 
-#: pkg/storaged/stratis-details.jsx:377 pkg/storaged/stratis-details.jsx:507
-#: pkg/storaged/format-dialog.jsx:250 pkg/storaged/fsys-tab.jsx:651
+#: pkg/storaged/fsys-tab.jsx:651 pkg/storaged/stratis-details.jsx:377
+#: pkg/storaged/stratis-details.jsx:507 pkg/storaged/format-dialog.jsx:250
 msgid "Mount now"
 msgstr "지금 마운트"
 
@@ -4014,16 +4019,16 @@ msgstr "지금 마운트"
 msgid "Mount on $0 now"
 msgstr "지금 $0에 마운트"
 
-#: pkg/storaged/nfs-details.jsx:166 pkg/storaged/stratis-details.jsx:368
-#: pkg/storaged/stratis-details.jsx:498 pkg/storaged/format-dialog.jsx:240
-#: pkg/storaged/fsys-tab.jsx:326
+#: pkg/storaged/fsys-tab.jsx:326 pkg/storaged/nfs-details.jsx:166
+#: pkg/storaged/stratis-details.jsx:368 pkg/storaged/stratis-details.jsx:498
+#: pkg/storaged/format-dialog.jsx:240
 msgid "Mount options"
 msgstr "마운트 옵션"
 
-#: pkg/storaged/nfs-details.jsx:322 pkg/storaged/nfs-panel.jsx:103
+#: pkg/storaged/fsys-tab.jsx:321 pkg/storaged/fsys-tab.jsx:700
+#: pkg/storaged/nfs-panel.jsx:103 pkg/storaged/nfs-details.jsx:322
 #: pkg/storaged/stratis-details.jsx:364 pkg/storaged/stratis-details.jsx:494
-#: pkg/storaged/format-dialog.jsx:234 pkg/storaged/fsys-tab.jsx:321
-#: pkg/storaged/fsys-tab.jsx:700
+#: pkg/storaged/format-dialog.jsx:234
 msgid "Mount point"
 msgstr "적재 지점"
 
@@ -4043,9 +4048,9 @@ msgstr "적재 지점은 $0로 이미 사용되고 있습니다"
 msgid "Mount point must start with \"/\"."
 msgstr "적재 지점은 \"/\"로 시작해야 합니다."
 
-#: pkg/storaged/nfs-details.jsx:170 pkg/storaged/stratis-details.jsx:378
-#: pkg/storaged/stratis-details.jsx:508 pkg/storaged/format-dialog.jsx:251
-#: pkg/storaged/fsys-tab.jsx:334
+#: pkg/storaged/fsys-tab.jsx:334 pkg/storaged/nfs-details.jsx:170
+#: pkg/storaged/stratis-details.jsx:378 pkg/storaged/stratis-details.jsx:508
+#: pkg/storaged/format-dialog.jsx:251
 msgid "Mount read only"
 msgstr "읽기 전용으로 적재"
 
@@ -4082,23 +4087,24 @@ msgstr "NSNA 핑"
 msgid "NTP server"
 msgstr "NTP 서버"
 
-#: pkg/shell/credentials.jsx:104 pkg/networkmanager/network-main.jsx:184
-#: pkg/networkmanager/network-main.jsx:199
-#: pkg/networkmanager/dialogs-common.jsx:134 pkg/storaged/lvol-tabs.jsx:48
+#: pkg/storaged/crypto-panel.jsx:84 pkg/storaged/fsys-tab.jsx:483
+#: pkg/storaged/fsys-tab.jsx:686 pkg/storaged/lvol-tabs.jsx:48
 #: pkg/storaged/lvol-tabs.jsx:419 pkg/storaged/lvol-tabs.jsx:480
-#: pkg/storaged/lvol-tabs.jsx:538 pkg/storaged/iscsi-panel.jsx:131
-#: pkg/storaged/iscsi-panel.jsx:188 pkg/storaged/vgroups-panel.jsx:69
-#: pkg/storaged/content-views.jsx:182 pkg/storaged/content-views.jsx:307
-#: pkg/storaged/content-views.jsx:750 pkg/storaged/content-views.jsx:882
-#: pkg/storaged/content-views.jsx:1013 pkg/storaged/stratis-details.jsx:272
+#: pkg/storaged/lvol-tabs.jsx:538 pkg/storaged/part-tab.jsx:40
+#: pkg/storaged/vgroups-panel.jsx:69 pkg/storaged/iscsi-panel.jsx:131
+#: pkg/storaged/iscsi-panel.jsx:188 pkg/storaged/content-views.jsx:182
+#: pkg/storaged/content-views.jsx:307 pkg/storaged/content-views.jsx:750
+#: pkg/storaged/content-views.jsx:882 pkg/storaged/content-views.jsx:1013
+#: pkg/storaged/vgroup-details.jsx:164 pkg/storaged/stratis-details.jsx:272
 #: pkg/storaged/stratis-details.jsx:360 pkg/storaged/stratis-details.jsx:466
 #: pkg/storaged/stratis-details.jsx:489 pkg/storaged/stratis-details.jsx:652
-#: pkg/storaged/stratis-details.jsx:785 pkg/storaged/vgroup-details.jsx:164
-#: pkg/storaged/mdraids-panel.jsx:69 pkg/storaged/crypto-panel.jsx:84
-#: pkg/storaged/stratis-panel.jsx:121 pkg/storaged/format-dialog.jsx:213
-#: pkg/storaged/part-tab.jsx:40 pkg/storaged/fsys-tab.jsx:483
-#: pkg/storaged/fsys-tab.jsx:686 pkg/systemd/hwinfo.jsx:90
-#: pkg/systemd/services/timer-dialog.jsx:157 pkg/packagekit/updates.jsx:416
+#: pkg/storaged/stratis-details.jsx:785 pkg/storaged/stratis-panel.jsx:121
+#: pkg/storaged/format-dialog.jsx:213 pkg/storaged/mdraids-panel.jsx:69
+#: pkg/networkmanager/dialogs-common.jsx:134
+#: pkg/networkmanager/network-main.jsx:184
+#: pkg/networkmanager/network-main.jsx:199 pkg/packagekit/updates.jsx:416
+#: pkg/systemd/services/timer-dialog.jsx:157 pkg/systemd/hwinfo.jsx:90
+#: pkg/shell/credentials.jsx:104
 msgid "Name"
 msgstr "이름"
 
@@ -4170,9 +4176,9 @@ msgstr "NetworkManager가 설치되어 있지 않습니다"
 msgid "NetworkManager is not running"
 msgstr "NetworkManager가 동작하지 않음"
 
-#: pkg/networkmanager/index.html:23
+#: pkg/networkmanager/index.html:23 pkg/networkmanager/firewall.jsx:1043
 #: pkg/networkmanager/network-interface.jsx:697
-#: pkg/networkmanager/firewall.jsx:1043 pkg/networkmanager/manifest.json:0
+#: pkg/networkmanager/manifest.json:0
 msgid "Networking"
 msgstr "네트워킹"
 
@@ -4188,8 +4194,8 @@ msgstr "계정 잠금을 하지 않습니다"
 msgid "Never expire password"
 msgstr "비밀번호가 만료되어서는 안됩니다"
 
-#: pkg/storaged/stratis-details.jsx:380 pkg/storaged/stratis-details.jsx:510
-#: pkg/storaged/format-dialog.jsx:253 pkg/storaged/fsys-tab.jsx:336
+#: pkg/storaged/fsys-tab.jsx:336 pkg/storaged/stratis-details.jsx:380
+#: pkg/storaged/stratis-details.jsx:510 pkg/storaged/format-dialog.jsx:253
 msgid "Never mount at boot"
 msgstr "부팅시 적재되지 않음"
 
@@ -4197,7 +4203,7 @@ msgstr "부팅시 적재되지 않음"
 msgid "New NFS mount"
 msgstr "신규 NFS 적재"
 
-#: pkg/shell/hosts_dialog.jsx:450 pkg/static/login.js:715
+#: pkg/static/login.js:715 pkg/shell/hosts_dialog.jsx:450
 msgid "New host"
 msgstr "새 호스트"
 
@@ -4209,11 +4215,11 @@ msgstr "신규 키 비밀번호"
 msgid "New passphrase"
 msgstr "새 비밀번호"
 
-#: pkg/shell/credentials.jsx:268 pkg/users/password-dialogs.js:146
+#: pkg/users/password-dialogs.js:146 pkg/shell/credentials.jsx:268
 msgid "New password"
 msgstr "신규 비밀번호"
 
-#: pkg/users/password-dialogs.js:84 pkg/lib/credentials.js:241
+#: pkg/lib/credentials.js:241 pkg/users/password-dialogs.js:84
 msgid "New password was not accepted"
 msgstr "새 비밀번호가 허용되지 않습니다"
 
@@ -4277,9 +4283,9 @@ msgstr "설명이 없습니다."
 msgid "No devices"
 msgstr "장치 없음"
 
-#: pkg/storaged/vgroups-panel.jsx:76 pkg/storaged/stratis-details.jsx:139
-#: pkg/storaged/vgroup-details.jsx:69 pkg/storaged/mdraids-panel.jsx:123
-#: pkg/storaged/mdraid-details.jsx:67
+#: pkg/storaged/vgroups-panel.jsx:76 pkg/storaged/vgroup-details.jsx:69
+#: pkg/storaged/stratis-details.jsx:139 pkg/storaged/mdraid-details.jsx:67
+#: pkg/storaged/mdraids-panel.jsx:123
 msgid "No disks are available."
 msgstr "사용 가능한 디스크가 없습니다."
 
@@ -4361,7 +4367,7 @@ msgstr "파티션 설정하지 않음"
 msgid "No real name specified"
 msgstr "실제 이름이 지정되지 않았습니다"
 
-#: pkg/shell/nav.jsx:139 pkg/systemd/logs.jsx:314
+#: pkg/systemd/logs.jsx:314 pkg/shell/nav.jsx:139
 msgid "No results found"
 msgstr "결과를 찾을 수 없습니다"
 
@@ -4397,8 +4403,8 @@ msgstr "업데이트 없음"
 msgid "No user name specified"
 msgstr "지정된 사용자 이름이 없습니다"
 
-#: pkg/tuned/dialog.jsx:229 pkg/kdump/kdump-view.jsx:388
-#: pkg/networkmanager/firewall.jsx:847
+#: pkg/kdump/kdump-view.jsx:388 pkg/networkmanager/firewall.jsx:847
+#: pkg/tuned/dialog.jsx:229
 msgid "None"
 msgstr "없음"
 
@@ -4452,7 +4458,7 @@ msgstr "적재 되어 있지 않습니다"
 msgid "Not permitted to configure realms"
 msgstr "영역 구성을 허용하지 않습니다"
 
-#: pkg/lib/cockpit.js:3951
+#: pkg/lib/cockpit.js:3954
 msgid "Not permitted to perform this action."
 msgstr "이 작업을 실행할 수 있는 권한이 없습니다."
 
@@ -4522,7 +4528,7 @@ msgstr "이전 비밀번호"
 msgid "Old password"
 msgstr "이전 비밀번호"
 
-#: pkg/users/password-dialogs.js:53 pkg/lib/credentials.js:221
+#: pkg/lib/credentials.js:221 pkg/users/password-dialogs.js:53
 msgid "Old password not accepted"
 msgstr "이전 비밀번호가 허용되지 않습니다"
 
@@ -4575,9 +4581,9 @@ msgctxt "storage"
 msgid "Optical drive"
 msgstr "광학 드라이브"
 
-#: pkg/users/account-details.js:315 pkg/networkmanager/bridge.jsx:105
 #: pkg/storaged/crypto-tab.jsx:253 pkg/storaged/content-views.jsx:950
-#: pkg/sosreport/index.jsx:328
+#: pkg/sosreport/index.jsx:328 pkg/networkmanager/bridge.jsx:105
+#: pkg/users/account-details.js:315
 msgid "Options"
 msgstr "옵션"
 
@@ -4589,7 +4595,7 @@ msgstr "번들된 브라우저 사용"
 msgid "Other"
 msgstr "기타"
 
-#: pkg/users/account-create-dialog.js:84 pkg/users/account-details.js:325
+#: pkg/users/account-details.js:325 pkg/users/account-create-dialog.js:84
 msgid ""
 "Other authentication methods are still available even when interactive "
 "password authentication is not allowed."
@@ -4709,11 +4715,11 @@ msgstr "수동"
 
 # translation auto-copied from project Anaconda, version master, document
 # anaconda
-#: pkg/storaged/content-views.jsx:269 pkg/storaged/stratis-details.jsx:132
-#: pkg/storaged/stratis-details.jsx:701 pkg/storaged/stratis-panel.jsx:132
-#: pkg/storaged/format-dialog.jsx:265 pkg/storaged/format-dialog.jsx:291
+#: pkg/storaged/fsys-tab.jsx:346 pkg/storaged/content-views.jsx:269
+#: pkg/storaged/stratis-details.jsx:132 pkg/storaged/stratis-details.jsx:701
 #: pkg/storaged/crypto-keyslots.jsx:288 pkg/storaged/crypto-keyslots.jsx:600
-#: pkg/storaged/fsys-tab.jsx:346
+#: pkg/storaged/stratis-panel.jsx:132 pkg/storaged/format-dialog.jsx:265
+#: pkg/storaged/format-dialog.jsx:291
 msgid "Passphrase"
 msgstr "암호문"
 
@@ -4721,11 +4727,11 @@ msgstr "암호문"
 msgid "Passphrase can not be empty"
 msgstr "암호문은 비워 둘 수 없습니다"
 
-#: pkg/storaged/stratis-details.jsx:135 pkg/storaged/stratis-panel.jsx:136
-#: pkg/storaged/format-dialog.jsx:269 pkg/storaged/format-dialog.jsx:295
+#: pkg/storaged/fsys-tab.jsx:349 pkg/storaged/stratis-details.jsx:135
 #: pkg/storaged/crypto-keyslots.jsx:200 pkg/storaged/crypto-keyslots.jsx:296
 #: pkg/storaged/crypto-keyslots.jsx:338 pkg/storaged/crypto-keyslots.jsx:341
-#: pkg/storaged/fsys-tab.jsx:349
+#: pkg/storaged/stratis-panel.jsx:136 pkg/storaged/format-dialog.jsx:269
+#: pkg/storaged/format-dialog.jsx:295
 msgid "Passphrase cannot be empty"
 msgstr "암호는 비워 둘 수 없습니다"
 
@@ -4737,17 +4743,17 @@ msgstr "다른 키 슬롯에서 암호문"
 msgid "Passphrase removal may prevent unlocking $0."
 msgstr "암호 제거에서 $0 잠금 해제가 되지 않을 수 있습니다."
 
-#: pkg/storaged/stratis-panel.jsx:144 pkg/storaged/format-dialog.jsx:277
 #: pkg/storaged/crypto-keyslots.jsx:304 pkg/storaged/crypto-keyslots.jsx:343
+#: pkg/storaged/stratis-panel.jsx:144 pkg/storaged/format-dialog.jsx:277
 msgid "Passphrases do not match"
 msgstr "암호가 일치하지 않습니다"
 
-#: pkg/static/login.html:81 pkg/shell/credentials.jsx:122
+#: pkg/static/login.html:81 pkg/storaged/iscsi-panel.jsx:50
+#: pkg/storaged/iscsi-panel.jsx:160 pkg/users/account-details.js:346
+#: pkg/users/account-create-dialog.js:58 pkg/shell/hosts_dialog.jsx:817
+#: pkg/shell/hosts_dialog.jsx:826 pkg/shell/credentials.jsx:122
 #: pkg/shell/credentials.jsx:265 pkg/shell/credentials.jsx:322
-#: pkg/shell/superuser.jsx:125 pkg/shell/hosts_dialog.jsx:817
-#: pkg/shell/hosts_dialog.jsx:826 pkg/users/account-create-dialog.js:58
-#: pkg/users/account-details.js:346 pkg/storaged/iscsi-panel.jsx:50
-#: pkg/storaged/iscsi-panel.jsx:160
+#: pkg/shell/superuser.jsx:136
 msgid "Password"
 msgstr "비밀번호"
 
@@ -4759,7 +4765,7 @@ msgstr "비밀번호가 성공적으로 변경되었습니다"
 msgid "Password expiration"
 msgstr "비밀번호 만료"
 
-#: pkg/users/account-create-dialog.js:213 pkg/users/password-dialogs.js:193
+#: pkg/users/password-dialogs.js:193 pkg/users/account-create-dialog.js:213
 msgid "Password is longer than 256 characters"
 msgstr "비밀번호는 256자보다 길 수 있습니다"
 
@@ -4795,7 +4801,7 @@ msgstr "붙임 오류"
 msgid "Paste the contents of your public SSH key file here"
 msgstr "SSH 공개키 파일 내용을 여기에 붙여넣기합니다"
 
-#: pkg/systemd/abrtLog.jsx:128 pkg/systemd/services/service-details.jsx:640
+#: pkg/systemd/services/service-details.jsx:640 pkg/systemd/abrtLog.jsx:128
 msgid "Path"
 msgstr "경로"
 
@@ -4819,8 +4825,8 @@ msgstr "서버상의 경로는 비워둘 수 없습니다."
 msgid "Path on server must start with \"/\"."
 msgstr "서버상의 경로는 \"/\"로 시작해야 합니다."
 
-#: pkg/shell/credentials.jsx:175
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:161
+#: pkg/shell/credentials.jsx:175
 msgid "Path to file"
 msgstr "파일의 경로"
 
@@ -4851,8 +4857,8 @@ msgstr "주변 장치 섀시"
 msgid "Permanent"
 msgstr "영구적"
 
-#: pkg/storaged/content-views.jsx:378 pkg/storaged/stratis-details.jsx:249
-#: pkg/storaged/vgroup-details.jsx:196 pkg/storaged/vdo-details.jsx:202
+#: pkg/storaged/vdo-details.jsx:202 pkg/storaged/content-views.jsx:378
+#: pkg/storaged/vgroup-details.jsx:196 pkg/storaged/stratis-details.jsx:249
 #: pkg/storaged/mdraid-details.jsx:294
 msgid "Permanently delete $0?"
 msgstr "영구적으로 $0를 삭제 할까요?"
@@ -4879,9 +4885,8 @@ msgstr "물리 볼륨"
 msgid "Physical volumes can not be resized here."
 msgstr "여기에서는 물리적 볼륨 크기를 변경할 수 없습니다."
 
-#: pkg/users/expiration-dialogs.js:43 pkg/lib/serverTime.js:525
-#: pkg/lib/cockpit-components-shutdown.jsx:207
-#: pkg/systemd/services/timer-dialog.jsx:330
+#: pkg/lib/cockpit-components-shutdown.jsx:207 pkg/lib/serverTime.js:525
+#: pkg/users/expiration-dialogs.js:43 pkg/systemd/services/timer-dialog.jsx:330
 msgid "Pick date"
 msgstr "날짜 선택"
 
@@ -4906,7 +4911,7 @@ msgstr "고정된 단위"
 msgid "Pizza box"
 msgstr "피자 박스"
 
-#: pkg/shell/superuser.jsx:124
+#: pkg/shell/superuser.jsx:135
 msgid "Please authenticate to gain administrative access"
 msgstr "관리 액세스 권한을 얻으려면 인증하십시오"
 
@@ -4946,7 +4951,7 @@ msgstr "씬 볼륨을 위한 풀"
 msgid "Pool for thinly provisioned volumes"
 msgstr "씬 프로비저닝된 볼륨을 위한 풀"
 
-#: pkg/shell/hosts_dialog.jsx:354 pkg/storaged/iscsi-panel.jsx:131
+#: pkg/storaged/iscsi-panel.jsx:131 pkg/shell/hosts_dialog.jsx:354
 msgid "Port"
 msgstr "포트"
 
@@ -4958,8 +4963,9 @@ msgstr "포트 번호 및 유형이 일치하지 않습니다"
 msgid "Portable"
 msgstr "이동식"
 
-#: pkg/networkmanager/bridge.jsx:102 pkg/networkmanager/team.jsx:160
+#: pkg/networkmanager/team.jsx:160
 #: pkg/networkmanager/network-interface-members.jsx:215
+#: pkg/networkmanager/bridge.jsx:102
 msgid "Ports"
 msgstr "포트"
 
@@ -4996,7 +5002,7 @@ msgstr "이전 재시작"
 msgid "Primary"
 msgstr "주"
 
-#: pkg/networkmanager/bridgeport.jsx:82 pkg/networkmanager/teamport.jsx:86
+#: pkg/networkmanager/teamport.jsx:86 pkg/networkmanager/bridgeport.jsx:82
 #: pkg/systemd/logs.jsx:207
 msgid "Priority"
 msgstr "우선순위"
@@ -5006,7 +5012,7 @@ msgstr "우선순위"
 msgid "Priority $priority"
 msgstr "우선순위 $priority"
 
-#: pkg/shell/superuser.jsx:177
+#: pkg/shell/superuser.jsx:188
 msgid "Problem becoming administrator"
 msgstr "관리자에게서 발생한 문제"
 
@@ -5126,7 +5132,7 @@ msgstr "RAID 섀시"
 msgid "RAID device"
 msgstr "RAID 장치"
 
-#: pkg/storaged/mdraid-details.jsx:316 pkg/storaged/utils.js:249
+#: pkg/storaged/utils.js:249 pkg/storaged/mdraid-details.jsx:316
 msgid "RAID device $0"
 msgstr "RAID 장치 $0"
 
@@ -5216,9 +5222,9 @@ msgstr "실제 호스트 이름은 64자 보다 적은 문자로 구성되어야
 msgid "Reapply and reboot"
 msgstr "다시 적용하고 재시작"
 
+#: pkg/lib/cockpit-components-logs-panel.jsx:112
 #: pkg/lib/cockpit-components-shutdown.jsx:184
-#: pkg/lib/cockpit-components-shutdown.jsx:186
-#: pkg/lib/cockpit-components-logs-panel.jsx:112 pkg/systemd/overview.jsx:108
+#: pkg/lib/cockpit-components-shutdown.jsx:186 pkg/systemd/overview.jsx:108
 #: pkg/systemd/overview.jsx:127
 msgid "Reboot"
 msgstr "재시작"
@@ -5327,11 +5333,11 @@ msgstr "삭제 가능한 드라이브"
 msgid "Removals:"
 msgstr "삭제:"
 
-#: pkg/shell/hosts.jsx:170 pkg/users/authorized-keys-panel.js:137
 #: pkg/storaged/nfs-details.jsx:307 pkg/storaged/vgroup-details.jsx:119
-#: pkg/storaged/mdraid-details.jsx:145 pkg/storaged/crypto-keyslots.jsx:469
-#: pkg/storaged/crypto-keyslots.jsx:504 pkg/storaged/crypto-keyslots.jsx:585
-#: pkg/systemd/services/timer-dialog.jsx:343 pkg/apps/application.jsx:51
+#: pkg/storaged/crypto-keyslots.jsx:469 pkg/storaged/crypto-keyslots.jsx:504
+#: pkg/storaged/crypto-keyslots.jsx:585 pkg/storaged/mdraid-details.jsx:145
+#: pkg/users/authorized-keys-panel.js:137 pkg/apps/application.jsx:51
+#: pkg/systemd/services/timer-dialog.jsx:343 pkg/shell/hosts.jsx:170
 msgid "Remove"
 msgstr "제거"
 
@@ -5424,10 +5430,10 @@ msgstr ""
 msgid "Removing the zone will remove all services within it."
 msgstr "영역을 제거하면 영역 내의 모든 서비스가 제거됩니다."
 
-#: pkg/storaged/lvol-tabs.jsx:52 pkg/storaged/stratis-details.jsx:279
+#: pkg/storaged/lvol-tabs.jsx:52 pkg/storaged/vgroup-details.jsx:171
+#: pkg/storaged/vgroup-details.jsx:223 pkg/storaged/stratis-details.jsx:279
 #: pkg/storaged/stratis-details.jsx:416 pkg/storaged/stratis-details.jsx:473
-#: pkg/storaged/stratis-details.jsx:598 pkg/storaged/vgroup-details.jsx:171
-#: pkg/storaged/vgroup-details.jsx:223
+#: pkg/storaged/stratis-details.jsx:598
 msgid "Rename"
 msgstr "이름변경"
 
@@ -5473,7 +5479,7 @@ msgstr "비밀번호 반복"
 msgid "Repeat weekly"
 msgstr "매주 반복"
 
-#: pkg/systemd/reporting.jsx:431 pkg/sosreport/index.jsx:513
+#: pkg/sosreport/index.jsx:513 pkg/systemd/reporting.jsx:431
 msgid "Report"
 msgstr "보고"
 
@@ -5547,7 +5553,7 @@ msgstr "필수 사항"
 msgid "Reserved memory"
 msgstr "예약된 메모리"
 
-#: pkg/systemd/logs.jsx:404 pkg/systemd/terminal.jsx:163
+#: pkg/systemd/terminal.jsx:163 pkg/systemd/logs.jsx:404
 msgid "Reset"
 msgstr "초기화"
 
@@ -5704,8 +5710,8 @@ msgstr "SOS 보고는 문제 진단과 함께 도움이 되는 시스템 정보�
 msgid "SSH key"
 msgstr "SSH 키"
 
-#: pkg/shell/credentials.jsx:82 pkg/shell/credentials.jsx:98
-#: pkg/shell/topnav.jsx:166
+#: pkg/shell/topnav.jsx:166 pkg/shell/credentials.jsx:82
+#: pkg/shell/credentials.jsx:98
 msgid "SSH keys"
 msgstr "SSH 키"
 
@@ -5731,16 +5737,16 @@ msgid ""
 msgstr ""
 "Safari 사용자는 자체 서명 CA 인증서를 가져와서 인증서를 신뢰해야 합니다:"
 
-#: pkg/systemd/services/timer-dialog.jsx:305 pkg/packagekit/autoupdates.jsx:314
+#: pkg/packagekit/autoupdates.jsx:314 pkg/systemd/services/timer-dialog.jsx:305
 msgid "Saturdays"
 msgstr "토요일"
 
-#: pkg/metrics/metrics.jsx:1230 pkg/kdump/kdump-view.jsx:324
-#: pkg/networkmanager/dialogs-common.jsx:152 pkg/storaged/nfs-details.jsx:186
-#: pkg/storaged/crypto-tab.jsx:158 pkg/storaged/crypto-tab.jsx:202
-#: pkg/storaged/crypto-keyslots.jsx:346 pkg/storaged/crypto-keyslots.jsx:365
 #: pkg/storaged/fsys-tab.jsx:374 pkg/storaged/fsys-tab.jsx:490
-#: pkg/systemd/services/timer-dialog.jsx:149 pkg/packagekit/kpatch.jsx:306
+#: pkg/storaged/crypto-tab.jsx:158 pkg/storaged/crypto-tab.jsx:202
+#: pkg/storaged/nfs-details.jsx:186 pkg/storaged/crypto-keyslots.jsx:346
+#: pkg/storaged/crypto-keyslots.jsx:365 pkg/kdump/kdump-view.jsx:324
+#: pkg/networkmanager/dialogs-common.jsx:152 pkg/metrics/metrics.jsx:1230
+#: pkg/packagekit/kpatch.jsx:306 pkg/systemd/services/timer-dialog.jsx:149
 msgid "Save"
 msgstr "저장"
 
@@ -5748,8 +5754,8 @@ msgstr "저장"
 msgid "Save and reboot"
 msgstr "저장 및 재시작"
 
-#: pkg/systemd/overview-cards/motdCard.jsx:60
 #: pkg/packagekit/autoupdates.jsx:269
+#: pkg/systemd/overview-cards/motdCard.jsx:60
 msgid "Save changes"
 msgstr "변경 사항 저장"
 
@@ -5782,7 +5788,7 @@ msgstr "$0에서 예정된 재시작"
 msgid "Sealed-case PC"
 msgstr "쉴드 케이스 PC"
 
-#: pkg/shell/nav.jsx:121 pkg/systemd/logs.jsx:405
+#: pkg/systemd/logs.jsx:405 pkg/shell/nav.jsx:121
 msgid "Search"
 msgstr "검색"
 
@@ -5843,13 +5849,13 @@ msgstr "일련 번호"
 
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
-#: pkg/static/login.html:155 pkg/kdump/kdump-view.jsx:96
+#: pkg/static/login.html:155 pkg/storaged/nfs-panel.jsx:102
+#: pkg/storaged/nfs-details.jsx:317 pkg/kdump/kdump-view.jsx:96
 #: pkg/kdump/kdump-view.jsx:122 pkg/networkmanager/ip-settings.jsx:248
-#: pkg/storaged/nfs-details.jsx:317 pkg/storaged/nfs-panel.jsx:102
 msgid "Server"
 msgstr "서버"
 
-#: pkg/storaged/nfs-details.jsx:134 pkg/storaged/iscsi-panel.jsx:47
+#: pkg/storaged/iscsi-panel.jsx:47 pkg/storaged/nfs-details.jsx:134
 msgid "Server address"
 msgstr "서버 주소"
 
@@ -5865,7 +5871,7 @@ msgstr "서버 관리자"
 msgid "Server cannot be empty."
 msgstr "서버는 비워둘 수 없습니다."
 
-#: pkg/lib/cockpit.js:3971
+#: pkg/lib/cockpit.js:3974
 msgid "Server has closed the connection."
 msgstr "서버 연결이 종료되었습니다."
 
@@ -5873,8 +5879,8 @@ msgstr "서버 연결이 종료되었습니다."
 msgid "Server software"
 msgstr "서버 소프트웨어"
 
+#: pkg/storaged/dialog.jsx:1220 pkg/networkmanager/firewall.jsx:208
 #: pkg/metrics/metrics.jsx:694 pkg/metrics/metrics.jsx:727
-#: pkg/networkmanager/firewall.jsx:208 pkg/storaged/dialog.jsx:1220
 msgid "Service"
 msgstr "서비스"
 
@@ -5929,8 +5935,8 @@ msgstr "설정"
 msgid "Set hostname"
 msgstr "호스트 이름 설정"
 
-#: pkg/users/account-details.js:352 pkg/users/password-dialogs.js:225
-#: pkg/users/password-dialogs.js:232
+#: pkg/users/password-dialogs.js:225 pkg/users/password-dialogs.js:232
+#: pkg/users/account-details.js:352
 msgid "Set password"
 msgstr "비밀번호 설정"
 
@@ -6058,15 +6064,15 @@ msgstr "이후"
 msgid "Single rank"
 msgstr "단일 등급"
 
-#: pkg/storaged/lvol-tabs.jsx:242 pkg/storaged/lvol-tabs.jsx:309
-#: pkg/storaged/lvol-tabs.jsx:429 pkg/storaged/lvol-tabs.jsx:490
-#: pkg/storaged/lvol-tabs.jsx:543 pkg/storaged/nfs-details.jsx:327
-#: pkg/storaged/nfs-panel.jsx:104 pkg/storaged/content-views.jsx:187
+#: pkg/storaged/nfs-panel.jsx:104 pkg/storaged/lvol-tabs.jsx:242
+#: pkg/storaged/lvol-tabs.jsx:309 pkg/storaged/lvol-tabs.jsx:429
+#: pkg/storaged/lvol-tabs.jsx:490 pkg/storaged/lvol-tabs.jsx:543
+#: pkg/storaged/part-tab.jsx:45 pkg/storaged/content-views.jsx:187
 #: pkg/storaged/content-views.jsx:750 pkg/storaged/content-views.jsx:925
 #: pkg/storaged/content-views.jsx:933 pkg/storaged/content-views.jsx:1013
-#: pkg/storaged/stratis-details.jsx:652 pkg/storaged/stratis-details.jsx:785
-#: pkg/storaged/format-dialog.jsx:220 pkg/storaged/part-tab.jsx:45
-#: pkg/storaged/fsys-panel.jsx:177 pkg/systemd/hwinfo.jsx:310
+#: pkg/storaged/nfs-details.jsx:327 pkg/storaged/stratis-details.jsx:652
+#: pkg/storaged/stratis-details.jsx:785 pkg/storaged/fsys-panel.jsx:177
+#: pkg/storaged/format-dialog.jsx:220 pkg/systemd/hwinfo.jsx:310
 msgid "Size"
 msgstr "크기"
 
@@ -6102,7 +6108,7 @@ msgstr "내용으로 건너뛰기"
 msgid "Slot"
 msgstr "슬롯"
 
-#: pkg/storaged/mdraid-details.jsx:123 pkg/storaged/crypto-keyslots.jsx:573
+#: pkg/storaged/crypto-keyslots.jsx:573 pkg/storaged/mdraid-details.jsx:123
 msgid "Slot $0"
 msgstr "슬롯 $0"
 
@@ -6188,7 +6194,7 @@ msgstr "속도"
 msgid "Stable"
 msgstr "안정적"
 
-#: pkg/storaged/content-views.jsx:344 pkg/storaged/vdo-details.jsx:268
+#: pkg/storaged/vdo-details.jsx:268 pkg/storaged/content-views.jsx:344
 #: pkg/storaged/mdraid-details.jsx:320
 #: pkg/systemd/services/service-details.jsx:138
 msgid "Start"
@@ -6226,8 +6232,8 @@ msgstr "RAID 장치 $target 시작 중"
 msgid "Starting swapspace $target"
 msgstr "스왑공간 $target 시작 중"
 
-#: pkg/systemd/hwinfo.jsx:310 pkg/systemd/services/services-list.jsx:39
-#: pkg/systemd/services/services-list.jsx:45
+#: pkg/systemd/services/services-list.jsx:39
+#: pkg/systemd/services/services-list.jsx:45 pkg/systemd/hwinfo.jsx:310
 msgid "State"
 msgstr "상태"
 
@@ -6242,7 +6248,7 @@ msgid "Static"
 msgstr "정적"
 
 #: pkg/kdump/kdump-view.jsx:488 pkg/networkmanager/network-interface.jsx:264
-#: pkg/systemd/services/service-details.jsx:634 pkg/packagekit/updates.jsx:894
+#: pkg/packagekit/updates.jsx:894 pkg/systemd/services/service-details.jsx:634
 msgid "Status"
 msgstr "상태"
 
@@ -6254,8 +6260,8 @@ msgstr "스틱 PC"
 msgid "Sticky"
 msgstr "끈적"
 
-#: pkg/storaged/content-views.jsx:342 pkg/storaged/vdo-details.jsx:145
-#: pkg/storaged/vdo-details.jsx:267 pkg/storaged/mdraid-details.jsx:319
+#: pkg/storaged/vdo-details.jsx:145 pkg/storaged/vdo-details.jsx:267
+#: pkg/storaged/content-views.jsx:342 pkg/storaged/mdraid-details.jsx:319
 #: pkg/systemd/services/service-details.jsx:134
 msgid "Stop"
 msgstr "중지"
@@ -6351,7 +6357,7 @@ msgstr "성공적으로 클립보드로 복사됨!"
 msgid "Successfully copied to keyboard"
 msgstr "키보드에 성공적으로 복사되었습니다"
 
-#: pkg/systemd/services/timer-dialog.jsx:306 pkg/packagekit/autoupdates.jsx:315
+#: pkg/packagekit/autoupdates.jsx:315 pkg/systemd/services/timer-dialog.jsx:306
 msgid "Sundays"
 msgstr "일요일"
 
@@ -6359,8 +6365,8 @@ msgstr "일요일"
 msgid "Support is installed."
 msgstr "지원이 설치되어 있습니다."
 
-#: pkg/metrics/metrics.jsx:125 pkg/metrics/metrics.jsx:596
-#: pkg/metrics/metrics.jsx:1637 pkg/storaged/content-views.jsx:228
+#: pkg/storaged/content-views.jsx:228 pkg/metrics/metrics.jsx:125
+#: pkg/metrics/metrics.jsx:596 pkg/metrics/metrics.jsx:1637
 msgid "Swap"
 msgstr "스왑"
 
@@ -6387,11 +6393,11 @@ msgstr "$0 끄기"
 msgid "Switch on $0"
 msgstr "$0 켜기"
 
-#: pkg/shell/superuser.jsx:134
+#: pkg/shell/superuser.jsx:145 pkg/shell/superuser.jsx:195
 msgid "Switch to administrative access"
 msgstr "관리자 접근으로 전환"
 
-#: pkg/shell/superuser.jsx:238 pkg/shell/superuser.jsx:302
+#: pkg/shell/superuser.jsx:270 pkg/shell/superuser.jsx:334
 msgid "Switch to limited access"
 msgstr "제한된 액세스로 전환"
 
@@ -6427,8 +6433,8 @@ msgstr "RAID 장치 $target 동기화 중"
 
 # translation auto-copied from project virt-manager, version 0.10.0, document
 # virt-manager
-#: pkg/shell/nav.jsx:28 pkg/shell/indexes.jsx:330
-#: pkg/systemd/services/services.jsx:1041
+#: pkg/systemd/services/services.jsx:1041 pkg/shell/indexes.jsx:330
+#: pkg/shell/nav.jsx:28
 msgid "System"
 msgstr "시스템"
 
@@ -6725,7 +6731,7 @@ msgstr "신규 키 비밀번호는 비워둘 수 없습니다"
 msgid "The password can not be empty"
 msgstr "비밀번호를 비워둘 수 없습니다"
 
-#: pkg/users/account-create-dialog.js:210 pkg/users/password-dialogs.js:190
+#: pkg/users/password-dialogs.js:190 pkg/users/account-create-dialog.js:210
 msgid "The passwords do not match"
 msgstr "암호가 일치하지 않습니다"
 
@@ -6748,7 +6754,7 @@ msgstr ""
 "서버가 비밀번호 인증을 사용하여 '$0' 인증을 거부했습니다. 지원되는 다른 인증 "
 "방법을 사용 할 수 없습니다."
 
-#: pkg/lib/cockpit.js:3955
+#: pkg/lib/cockpit.js:3958
 msgid "The server refused to authenticate using any supported methods."
 msgstr "서버가 지원되는 방법을 사용하여 인증을 거부했습니다."
 
@@ -6951,7 +6957,7 @@ msgstr ""
 "이 영역에는 Cockpit 서비스가 포함되어 있습니다. 이 영역이 현재 웹 콘솔 연결"
 "에 적용되지 않는지 확인하십시오."
 
-#: pkg/systemd/services/timer-dialog.jsx:303 pkg/packagekit/autoupdates.jsx:312
+#: pkg/packagekit/autoupdates.jsx:312 pkg/systemd/services/timer-dialog.jsx:303
 msgid "Thursdays"
 msgstr "목요일"
 
@@ -6959,7 +6965,7 @@ msgstr "목요일"
 msgid "Tier"
 msgstr "계층"
 
-#: pkg/systemd/logs.jsx:200 pkg/packagekit/history.jsx:107
+#: pkg/packagekit/history.jsx:107 pkg/systemd/logs.jsx:200
 msgid "Time"
 msgstr "시간"
 
@@ -7005,8 +7011,8 @@ msgstr ""
 "소프트웨어 최신화 하려면, 이 시스템은 Red Hat 고객 포털이나 로컬 서브스크립"
 "션 서버를 사용하여 Red Hat에 등록되어 있어야 합니다."
 
-#: pkg/shell/hosts_dialog.jsx:462 pkg/shell/hosts_dialog.jsx:473
-#: pkg/static/login.js:720
+#: pkg/static/login.js:720 pkg/shell/hosts_dialog.jsx:462
+#: pkg/shell/hosts_dialog.jsx:473
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
 "the machine or through a trusted network:"
@@ -7018,7 +7024,7 @@ msgstr ""
 msgid "Today"
 msgstr "오늘"
 
-#: pkg/shell/credentials.jsx:105 pkg/storaged/iscsi-panel.jsx:246
+#: pkg/storaged/iscsi-panel.jsx:246 pkg/shell/credentials.jsx:105
 msgid "Toggle"
 msgstr "전환"
 
@@ -7026,9 +7032,8 @@ msgstr "전환"
 msgid "Toggle bitmap"
 msgstr "비트맵 전환"
 
-#: pkg/users/expiration-dialogs.js:44 pkg/lib/serverTime.js:526
-#: pkg/lib/cockpit-components-shutdown.jsx:208
-#: pkg/systemd/services/timer-dialog.jsx:331
+#: pkg/lib/cockpit-components-shutdown.jsx:208 pkg/lib/serverTime.js:526
+#: pkg/users/expiration-dialogs.js:44 pkg/systemd/services/timer-dialog.jsx:331
 msgid "Toggle date picker"
 msgstr "날짜 선택기 전환"
 
@@ -7036,7 +7041,7 @@ msgstr "날짜 선택기 전환"
 msgid "Toggle filters"
 msgstr "필터 전환"
 
-#: pkg/lib/cockpit.js:3977
+#: pkg/lib/cockpit.js:3980
 msgid "Too much data"
 msgstr "데이터가 너무 많습니다"
 
@@ -7068,8 +7073,8 @@ msgstr "과도현상"
 msgid "Transmitting"
 msgstr "전송 중"
 
-#: pkg/systemd/services/timer-dialog.jsx:184
 #: pkg/systemd/services/services-list.jsx:44
+#: pkg/systemd/services/timer-dialog.jsx:184
 msgid "Trigger"
 msgstr "트리거"
 
@@ -7105,7 +7110,7 @@ msgstr "다시 시도"
 msgid "Trying to synchronize with $0"
 msgstr "$0와 동기화를 시도 중입니다"
 
-#: pkg/systemd/services/timer-dialog.jsx:301 pkg/packagekit/autoupdates.jsx:310
+#: pkg/packagekit/autoupdates.jsx:310 pkg/systemd/services/timer-dialog.jsx:301
 msgid "Tuesdays"
 msgstr "화요일"
 
@@ -7134,15 +7139,15 @@ msgstr "Tuned가 동작되지 않음"
 msgid "Tuned is off"
 msgstr "Tuned이 종료되어 있습니다"
 
-#: pkg/shell/superuser.jsx:302
+#: pkg/shell/superuser.jsx:334
 msgid "Turn on administrative access"
 msgstr "관리자 액세스 설정"
 
-#: pkg/shell/credentials.jsx:202 pkg/storaged/content-views.jsx:750
-#: pkg/storaged/content-views.jsx:1013 pkg/storaged/format-dialog.jsx:218
-#: pkg/storaged/unrecognized-tab.jsx:41 pkg/storaged/part-tab.jsx:55
-#: pkg/storaged/fsys-panel.jsx:175 pkg/systemd/hwinfo.jsx:85
-#: pkg/systemd/hwinfo.jsx:310 pkg/packagekit/autoupdates.jsx:279
+#: pkg/storaged/part-tab.jsx:55 pkg/storaged/content-views.jsx:750
+#: pkg/storaged/content-views.jsx:1013 pkg/storaged/unrecognized-tab.jsx:41
+#: pkg/storaged/fsys-panel.jsx:175 pkg/storaged/format-dialog.jsx:218
+#: pkg/packagekit/autoupdates.jsx:279 pkg/systemd/hwinfo.jsx:85
+#: pkg/systemd/hwinfo.jsx:310 pkg/shell/credentials.jsx:202
 msgid "Type"
 msgstr "유형"
 
@@ -7162,8 +7167,8 @@ msgstr "UUID"
 
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
-#: pkg/storaged/stratis-details.jsx:423 pkg/storaged/stratis-details.jsx:769
-#: pkg/storaged/vgroup-details.jsx:231 pkg/storaged/mdraid-details.jsx:334
+#: pkg/storaged/vgroup-details.jsx:231 pkg/storaged/stratis-details.jsx:423
+#: pkg/storaged/stratis-details.jsx:769 pkg/storaged/mdraid-details.jsx:334
 msgctxt "storage"
 msgid "UUID"
 msgstr "UUID"
@@ -7249,8 +7254,8 @@ msgstr "사용 불가능"
 msgid "Unavailable packages"
 msgstr "사용 할 수 없는 꾸러미"
 
-#: pkg/shell/shell-modals.jsx:167 pkg/users/dialog-utils.js:65
-#: pkg/networkmanager/interfaces.js:50
+#: pkg/networkmanager/interfaces.js:50 pkg/users/dialog-utils.js:65
+#: pkg/shell/shell-modals.jsx:167
 msgid "Unexpected error"
 msgstr "예상치 못한 오류"
 
@@ -7267,16 +7272,16 @@ msgstr "찾을 수 없음"
 msgid "Unix group: $0"
 msgstr "Unix 그룹: $0"
 
-#: pkg/networkmanager/interfaces.js:506 pkg/networkmanager/interfaces.js:981
+#: pkg/storaged/swap-tab.jsx:62 pkg/lib/machine-info.js:61
+#: pkg/lib/machine-info.js:247 pkg/lib/machine-info.js:255
+#: pkg/lib/machine-info.js:257 pkg/lib/machine-info.js:264
+#: pkg/lib/machine-info.js:266 pkg/lib/machine-info.js:270
 #: pkg/networkmanager/network-interface.jsx:198
-#: pkg/networkmanager/network-interface.jsx:200 pkg/storaged/swap-tab.jsx:62
-#: pkg/lib/machine-info.js:61 pkg/lib/machine-info.js:247
-#: pkg/lib/machine-info.js:255 pkg/lib/machine-info.js:257
-#: pkg/lib/machine-info.js:264 pkg/lib/machine-info.js:266
-#: pkg/lib/machine-info.js:270 pkg/systemd/hw-detect.js:85
-#: pkg/systemd/hw-detect.js:94 pkg/systemd/hw-detect.js:101
-#: pkg/systemd/hw-detect.js:104 pkg/systemd/hw-detect.js:111
-#: pkg/systemd/hw-detect.js:112
+#: pkg/networkmanager/network-interface.jsx:200
+#: pkg/networkmanager/interfaces.js:506 pkg/networkmanager/interfaces.js:981
+#: pkg/systemd/hw-detect.js:85 pkg/systemd/hw-detect.js:94
+#: pkg/systemd/hw-detect.js:101 pkg/systemd/hw-detect.js:104
+#: pkg/systemd/hw-detect.js:111 pkg/systemd/hw-detect.js:112
 msgid "Unknown"
 msgstr "알 수 없음"
 
@@ -7309,9 +7314,9 @@ msgstr "알 수 없는 서비스 이름"
 msgid "Unknown type"
 msgstr "알 수 없는 유형"
 
-#: pkg/shell/credentials.jsx:315 pkg/storaged/content-views.jsx:267
-#: pkg/storaged/content-views.jsx:272 pkg/storaged/content-views.jsx:291
-#: pkg/storaged/stratis-details.jsx:704 pkg/storaged/stratis-details.jsx:763
+#: pkg/storaged/content-views.jsx:267 pkg/storaged/content-views.jsx:272
+#: pkg/storaged/content-views.jsx:291 pkg/storaged/stratis-details.jsx:704
+#: pkg/storaged/stratis-details.jsx:763 pkg/shell/credentials.jsx:315
 msgid "Unlock"
 msgstr "잠금 해제"
 
@@ -7344,8 +7349,8 @@ msgstr "디스크 잠금 해제 중"
 msgid "Unmanaged interfaces"
 msgstr "관리하지 않는 연결장치"
 
-#: pkg/storaged/nfs-details.jsx:299 pkg/storaged/content-views.jsx:413
-#: pkg/storaged/stratis-details.jsx:597 pkg/storaged/fsys-tab.jsx:373
+#: pkg/storaged/fsys-tab.jsx:373 pkg/storaged/content-views.jsx:413
+#: pkg/storaged/nfs-details.jsx:299 pkg/storaged/stratis-details.jsx:597
 msgid "Unmount"
 msgstr "마운트 해제"
 
@@ -7390,7 +7395,7 @@ msgstr "지원되지 않는 볼륨"
 msgid "Until"
 msgstr "까지"
 
-#: pkg/lib/cockpit.js:3957 pkg/lib/cockpit.js:3959
+#: pkg/lib/cockpit.js:3960 pkg/lib/cockpit.js:3962
 msgid "Untrusted host"
 msgstr "지원되지 않는 호스트"
 
@@ -7450,10 +7455,9 @@ msgstr "가동 시간"
 
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
-#: pkg/metrics/metrics.jsx:1636 pkg/metrics/metrics.jsx:1637
-#: pkg/metrics/metrics.jsx:1638 pkg/metrics/metrics.jsx:1639
-#: pkg/storaged/unrecognized-tab.jsx:37
-#: pkg/systemd/overview-cards/usageCard.jsx:129
+#: pkg/storaged/unrecognized-tab.jsx:37 pkg/metrics/metrics.jsx:1636
+#: pkg/metrics/metrics.jsx:1637 pkg/metrics/metrics.jsx:1638
+#: pkg/metrics/metrics.jsx:1639 pkg/systemd/overview-cards/usageCard.jsx:129
 msgid "Usage"
 msgstr "사용량"
 
@@ -7468,8 +7472,8 @@ msgstr "사용량"
 msgid "Usage of $0"
 msgstr "$0 사용량"
 
-#: pkg/networkmanager/dialogs-common.jsx:95 pkg/storaged/dialog.jsx:568
-#: pkg/storaged/dialog.jsx:1051
+#: pkg/storaged/dialog.jsx:568 pkg/storaged/dialog.jsx:1051
+#: pkg/networkmanager/dialogs-common.jsx:95
 msgid "Use"
 msgstr "사용"
 
@@ -7497,7 +7501,7 @@ msgstr "다른 시스템에 대해 인증하려면 다음 키를 사용합니다
 msgid "Use verbose logging"
 msgstr "상세한 로그인 사용"
 
-#: pkg/metrics/metrics.jsx:727 pkg/storaged/swap-tab.jsx:70
+#: pkg/storaged/swap-tab.jsx:70 pkg/metrics/metrics.jsx:727
 msgid "Used"
 msgstr "사용됨"
 
@@ -7510,8 +7514,8 @@ msgstr "사용 대상"
 msgid "User"
 msgstr "사용자"
 
-#: pkg/static/login.html:76 pkg/shell/hosts_dialog.jsx:256
-#: pkg/users/account-create-dialog.js:49 pkg/users/account-details.js:299
+#: pkg/static/login.html:76 pkg/users/account-details.js:299
+#: pkg/users/account-create-dialog.js:49 pkg/shell/hosts_dialog.jsx:256
 msgid "User name"
 msgstr "사용자 이름"
 
@@ -7600,7 +7604,7 @@ msgstr "키 확인"
 msgid "Verifying"
 msgstr "확인 중"
 
-#: pkg/systemd/hwinfo.jsx:95 pkg/packagekit/updates.jsx:417
+#: pkg/packagekit/updates.jsx:417 pkg/systemd/hwinfo.jsx:95
 msgid "Version"
 msgstr "버전"
 
@@ -7712,7 +7716,7 @@ msgstr "필요"
 msgid "Warning and above"
 msgstr "경고 이상의 수준"
 
-#: pkg/shell/shell-modals.jsx:65 pkg/shell/topnav.jsx:123
+#: pkg/shell/topnav.jsx:123 pkg/shell/shell-modals.jsx:65
 msgid "Web Console"
 msgstr "웹 콘솔"
 
@@ -7732,7 +7736,7 @@ msgstr "웹 콘솔이 제한된 액세스 모드로 실행 중입니다."
 msgid "Web console logo"
 msgstr "웹 콘솔 로고"
 
-#: pkg/systemd/services/timer-dialog.jsx:302 pkg/packagekit/autoupdates.jsx:311
+#: pkg/packagekit/autoupdates.jsx:311 pkg/systemd/services/timer-dialog.jsx:302
 msgid "Wednesdays"
 msgstr "수요일"
 
@@ -7795,7 +7799,7 @@ msgstr "매년"
 msgid "Yes"
 msgstr "네"
 
-#: pkg/shell/hosts_dialog.jsx:469 pkg/static/login.js:717
+#: pkg/static/login.js:717 pkg/shell/hosts_dialog.jsx:469
 msgid "You are connecting to $0 for the first time."
 msgstr "처음으로 $0에 연결됩니다."
 
@@ -7829,7 +7833,7 @@ msgstr "비밀번호 변경을 위해 조금 더 기다려 주십시오"
 msgid "You need to relogin to be able to see metrics history"
 msgstr "메트릭을 기록을 보려면 다시 로그인해야 합니다"
 
-#: pkg/shell/superuser.jsx:92
+#: pkg/shell/superuser.jsx:94
 msgid "You now have administrative access."
 msgstr "이제 관리자 액세스 권한이 있습니다."
 
@@ -7849,7 +7853,7 @@ msgstr ""
 "당신의 검색기는 내용 메뉴에서 붙여넣기를 허용하지 않습니다. Shift+Insert를 사"
 "용 할 수 있습니다."
 
-#: pkg/shell/superuser.jsx:241
+#: pkg/shell/superuser.jsx:273
 msgid "Your browser will remember your access level across sessions."
 msgstr "브라우저는 서로 다른 세션 간의 액세스 수준을 기억합니다."
 
@@ -7859,11 +7863,11 @@ msgid ""
 "restarted."
 msgstr "서버 연결이 종료됩니다. 다시 시작하여 연결을 재개할 수 있습니다."
 
-#: pkg/lib/cockpit.js:3947
+#: pkg/lib/cockpit.js:3950
 msgid "Your session has been terminated."
 msgstr "세션이 종료되었습니다."
 
-#: pkg/lib/cockpit.js:3949
+#: pkg/lib/cockpit.js:3952
 msgid "Your session has expired. Please log in again."
 msgstr "세션이 만료되었습니다. 다시 로그인하십시오."
 
@@ -7892,8 +7896,8 @@ msgstr "abrt"
 msgid "access"
 msgstr "액세스"
 
-#: pkg/shell/active-pages-modal.jsx:76
 #: pkg/systemd/overview-cards/profiles-menu-dialog-body.jsx:60
+#: pkg/shell/active-pages-modal.jsx:76
 msgid "active"
 msgstr "활성"
 
@@ -8005,10 +8009,10 @@ msgstr "날짜"
 msgid "debug"
 msgstr "디버그"
 
-#: pkg/storaged/content-views.jsx:367 pkg/storaged/content-views.jsx:672
+#: pkg/storaged/vdo-details.jsx:163 pkg/storaged/content-views.jsx:367
+#: pkg/storaged/content-views.jsx:672 pkg/storaged/vgroup-details.jsx:184
 #: pkg/storaged/stratis-details.jsx:237 pkg/storaged/stratis-details.jsx:536
-#: pkg/storaged/vgroup-details.jsx:184 pkg/storaged/vdo-details.jsx:163
-#: pkg/storaged/mdraid-details.jsx:283 pkg/storaged/format-dialog.jsx:172
+#: pkg/storaged/format-dialog.jsx:172 pkg/storaged/mdraid-details.jsx:283
 msgid "delete"
 msgstr "삭제"
 
@@ -8040,12 +8044,12 @@ msgstr "도메인"
 msgid "drive"
 msgstr "드라이브"
 
-#: pkg/users/account-details.js:340 pkg/users/account-details.js:372
+#: pkg/storaged/fsys-tab.jsx:693 pkg/storaged/fsys-tab.jsx:708
+#: pkg/storaged/lvol-tabs.jsx:423 pkg/storaged/lvol-tabs.jsx:484
+#: pkg/storaged/crypto-tab.jsx:248 pkg/storaged/crypto-tab.jsx:257
+#: pkg/networkmanager/dialogs-common.jsx:252
 #: pkg/networkmanager/network-interface.jsx:359
-#: pkg/networkmanager/dialogs-common.jsx:252 pkg/storaged/lvol-tabs.jsx:423
-#: pkg/storaged/lvol-tabs.jsx:484 pkg/storaged/crypto-tab.jsx:248
-#: pkg/storaged/crypto-tab.jsx:257 pkg/storaged/fsys-tab.jsx:693
-#: pkg/storaged/fsys-tab.jsx:708
+#: pkg/users/account-details.js:340 pkg/users/account-details.js:372
 #: pkg/systemd/overview-cards/configurationCard.jsx:51
 msgid "edit"
 msgstr "편집"
@@ -8322,8 +8326,8 @@ msgstr "nfs 서버는 유효한 IPv6가 아닙니다"
 msgid "nice"
 msgstr "nice"
 
-#: pkg/tuned/dialog.jsx:86 pkg/storaged/crypto-tab.jsx:247
-#: pkg/storaged/crypto-tab.jsx:256
+#: pkg/storaged/crypto-tab.jsx:247 pkg/storaged/crypto-tab.jsx:256
+#: pkg/tuned/dialog.jsx:86
 msgid "none"
 msgstr "없음"
 
@@ -9135,9 +9139,6 @@ msgstr "영역"
 
 #~ msgid "key slot $0"
 #~ msgstr "키 슬롯 $0"
-
-#~ msgid "Method"
-#~ msgstr "방식"
 
 #~ msgid "Something went wrong"
 #~ msgstr "문제가 발생했습니다"

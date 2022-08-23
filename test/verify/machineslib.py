@@ -171,7 +171,7 @@ reboot"""
 
 # If this test fails to run, the host machine needs:
 # echo "options kvm-intel nested=1" > /etc/modprobe.d/kvm-intel.conf
-# rmmod kvm-intel && modprobe kvm-intel || true
+# rmmod kvm-intel; modprobe kvm-intel || true
 
 
 @skipImage("Atomic cannot run virtual machines", "fedora-atomic", "rhel-atomic", "continuous-atomic")
@@ -239,14 +239,14 @@ class TestMachines(NetworkCase):
 
         if not self.created_pool:
             xml = POOL_XML.format(path="/var/lib/libvirt/images")
-            m.execute("echo \"{0}\" > /tmp/xml && virsh pool-define /tmp/xml && virsh pool-start images".format(xml))
+            m.execute("echo \"{0}\" > /tmp/xml; virsh pool-define /tmp/xml; virsh pool-start images".format(xml))
             self.created_pool = True
 
         xml = VOLUME_XML.format(name=os.path.basename(img), image=img)
-        m.execute("echo \"{0}\" > /tmp/xml && virsh vol-create images /tmp/xml".format(xml))
+        m.execute("echo \"{0}\" > /tmp/xml; virsh vol-create images /tmp/xml".format(xml))
 
         xml = DOMAIN_XML.format(**args)
-        m.execute("echo \"{0}\" > /tmp/xml && virsh define /tmp/xml && virsh start {1}".format(xml, name))
+        m.execute("echo \"{0}\" > /tmp/xml; virsh define /tmp/xml; virsh start {1}".format(xml, name))
 
         m.execute('[ "$(virsh domstate {0})" = running ] || '
                   '{{ virsh dominfo {0} >&2; cat /var/log/libvirt/qemu/{0}.log >&2; exit 1; }}'.format(name))
@@ -313,7 +313,7 @@ class TestMachines(NetworkCase):
         m.execute("virsh suspend subVmTest1")
         b.wait_in_text("#vm-subVmTest1-state", "paused")
         # resume sometimes fails with "unable to execute QEMU command 'cont': Resetting the Virtual Machine is required"
-        m.execute('virsh resume subVmTest1 || { virsh destroy subVmTest1 && virsh start subVmTest1; }')
+        m.execute('virsh resume subVmTest1 || { virsh destroy subVmTest1; virsh start subVmTest1; }')
         b.wait_in_text("#vm-subVmTest1-state", "running")
 
         if args["logfile"] is not None:
@@ -400,7 +400,7 @@ class TestMachines(NetworkCase):
         # Check correctness of the toast notifications list
         # We 'll create errors by starting to start domains when the default network in inactive
         self.startVm("subVmTest3")
-        m.execute("virsh destroy subVmTest2 && virsh destroy subVmTest3 && virsh net-destroy default")
+        m.execute("virsh destroy subVmTest2; virsh destroy subVmTest3; virsh net-destroy default")
 
         def tryRunDomain(index, name):
             b.wait_in_text("#virtual-machines-listing .listing-ct tbody:nth-of-type({0}) th".format(index), name)
@@ -683,9 +683,9 @@ class TestMachines(NetworkCase):
 
         # prepare libvirt storage pools
         m.execute("mkdir /mnt/vm_one ; mkdir /mnt/vm_two ; mkdir /mnt/default_tmp ; chmod a+rwx /mnt/vm_one /mnt/vm_two /mnt/default_tmp")
-        m.execute("virsh pool-define-as default_tmp --type dir --target /mnt/default_tmp && virsh pool-start default_tmp")
-        m.execute("virsh pool-define-as myPoolOne --type dir --target /mnt/vm_one && virsh pool-start myPoolOne")
-        m.execute("virsh pool-define-as myPoolTwo --type dir --target /mnt/vm_two && virsh pool-start myPoolTwo")
+        m.execute("virsh pool-define-as default_tmp --type dir --target /mnt/default_tmp; virsh pool-start default_tmp")
+        m.execute("virsh pool-define-as myPoolOne --type dir --target /mnt/vm_one; virsh pool-start myPoolOne")
+        m.execute("virsh pool-define-as myPoolTwo --type dir --target /mnt/vm_two; virsh pool-start myPoolTwo")
 
         m.execute("virsh vol-create-as default_tmp defaultVol --capacity 1G --format qcow2")
         m.execute("virsh vol-create-as myPoolTwo mydiskofpooltwo_temporary --capacity 1G --format qcow2")
@@ -693,9 +693,9 @@ class TestMachines(NetworkCase):
         wait(lambda: "mydiskofpooltwo_permanent" in m.execute("virsh vol-list myPoolTwo"))
 
         # Prepare a local NFS pool
-        m.execute("mkdir /mnt/nfs-pool && mkdir /mnt/exports && echo '/mnt/exports 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check,fsid=0)' > /etc/exports")
+        m.execute("mkdir /mnt/nfs-pool; mkdir /mnt/exports; echo '/mnt/exports 127.0.0.1/24(rw,sync,no_root_squash,no_subtree_check,fsid=0)' > /etc/exports")
         m.execute("systemctl restart nfs-server")
-        m.execute("virsh pool-define-as nfs-pool --type netfs --target /mnt/nfs-pool --source-host 127.0.0.1 --source-path /mnt/exports && virsh pool-start nfs-pool")
+        m.execute("virsh pool-define-as nfs-pool --type netfs --target /mnt/nfs-pool --source-host 127.0.0.1 --source-path /mnt/exports; virsh pool-start nfs-pool")
         # And create a volume on it in order to test use existing volume dialog
         m.execute("virsh vol-create-as --pool nfs-pool --name nfs-volume-0 --capacity 1M --format qcow2")
 
@@ -719,8 +719,8 @@ class TestMachines(NetworkCase):
                       targetcli /iscsi/%(tgt)s/tpg1/acls create %(ini)s
                       """ % {"tgt": target_iqn, "ini": orig_iqn})
 
-            m.execute("virsh pool-define-as iscsi-pool --type iscsi --target /dev/disk/by-path --source-host 127.0.0.1 --source-dev {0} && virsh pool-start iscsi-pool".format(target_iqn))
-            wait(lambda: "unit:0:0:0" in self.machine.execute("virsh pool-refresh iscsi-pool && virsh vol-list iscsi-pool"), delay=3)
+            m.execute("virsh pool-define-as iscsi-pool --type iscsi --target /dev/disk/by-path --source-host 127.0.0.1 --source-dev {0}; virsh pool-start iscsi-pool".format(target_iqn))
+            wait(lambda: "unit:0:0:0" in self.machine.execute("virsh pool-refresh iscsi-pool; virsh vol-list iscsi-pool"), delay=3)
 
         self.startVm("subVmTest1")
 
@@ -850,7 +850,7 @@ class TestMachines(NetworkCase):
             "virsh pool-build pool-disk --overwrite",
             "virsh pool-start pool-disk",
         ]
-        self.machine.execute(" && ".join(cmds))
+        self.machine.execute("; ".join(cmds))
 
         partition = str(self.machine.execute("readlink -f /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1 | cut -d '/' -f 3").strip()) + "1"
 
@@ -1047,7 +1047,7 @@ class TestMachines(NetworkCase):
         self.startVm("subVmTest1", graphics='vnc')
 
         if urlroot != "":
-            self.machine.execute('mkdir -p /etc/cockpit/ && echo "[WebService]\nUrlRoot=%s" > /etc/cockpit/cockpit.conf' % urlroot)
+            self.machine.execute('mkdir -p /etc/cockpit/; echo "[WebService]\nUrlRoot=%s" > /etc/cockpit/cockpit.conf' % urlroot)
 
         self.login_and_go("/machines", urlroot=urlroot)
         b.wait_in_text("body", "Virtual Machines")
@@ -1394,7 +1394,7 @@ class TestMachines(NetworkCase):
             "qemu-img create -f qcow2 /mnt/tmpPool/vmTmpDestination.qcow2 128M",
             "virsh pool-refresh tmpPool"
         ]
-        self.machine.execute(" && ".join(cmds))
+        self.machine.execute("; ".join(cmds))
 
         self.browser.reload()
         self.browser.enter_page('/machines')
@@ -1421,7 +1421,7 @@ class TestMachines(NetworkCase):
 
         if self.provider == "libvirt-dbus":
             # test PXE Source
-            self.machine.execute("virsh net-destroy default && virsh net-undefine default")
+            self.machine.execute("virsh net-destroy default; virsh net-undefine default")
 
             # Disable selinux because it makes TFTP directory inaccesible and we don't want sophisticated configuration for tests
             self.machine.execute("if type selinuxenabled >/dev/null 2>&1 && selinuxenabled; then setenforce 0; fi")
@@ -1432,7 +1432,7 @@ class TestMachines(NetworkCase):
                 "echo \"{0}\" > /var/lib/libvirt/pxe-config/pxe.cfg".format(PXE_SERVER_CFG),
                 "chmod 666 /var/lib/libvirt/pxe-config/pxe.cfg"
             ]
-            self.machine.execute(" && ".join(cmds))
+            self.machine.execute("; ".join(cmds))
 
             # Define and start a NAT network with tftp server configuration
             cmds = [
@@ -1440,7 +1440,7 @@ class TestMachines(NetworkCase):
                 "virsh net-define /tmp/pxe-nat.xml",
                 "virsh net-start pxe-nat"
             ]
-            self.machine.execute(" && ".join(cmds))
+            self.machine.execute("; ".join(cmds))
 
             # Add an extra network interface that should appear in the PXE source dropdown
             iface = self.add_iface(activate=False)
@@ -1505,14 +1505,14 @@ class TestMachines(NetworkCase):
             # Redefine the domain with the new XML
             xmlstr = ET.tostring(root, encoding='unicode', method='xml')
 
-            self.machine.execute("echo \'{0}\' > /tmp/domain.xml && virsh define --file /tmp/domain.xml".format(xmlstr))
+            self.machine.execute("echo \'{0}\' > /tmp/domain.xml; virsh define --file /tmp/domain.xml".format(xmlstr))
 
             self.machine.execute("virsh start pxe-guest")
 
             # The file is full of ANSI control characters in between every letter, filter them out
             wait(lambda: self.machine.execute(r"sed 's,\x1B\[[0-9;]*[a-zA-Z],,g' /tmp/serial.txt | grep 'Rebooting in 60'"), delay=3)
 
-            self.machine.execute("virsh destroy pxe-guest && virsh undefine pxe-guest")
+            self.machine.execute("virsh destroy pxe-guest; virsh undefine pxe-guest")
 
             # Check that host network devices are appearing in the options for PXE boot sources
             createTest(TestMachines.VmDialog(self, sourceType='pxe',

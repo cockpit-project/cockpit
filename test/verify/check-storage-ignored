@@ -33,16 +33,17 @@ class TestStorageIgnored(StorageCase):
         disk = self.add_ram_disk()
         b.wait_in_text("#drives", disk)
 
-        m.execute(f"yes | mke2fs -q -L TEST {disk}")
+        m.execute(f"yes | mke2fs -q -L TESTLABEL {disk}")
         with b.wait_timeout(30):
-            b.wait_in_text("#mounts", disk)
+            b.wait_in_text("#mounts", disk + " (TESTLABEL)")
 
         # Hide it via a udev rule
         m.execute("mkdir -p /run/udev/rules.d")
         m.write("/run/udev/rules.d/99-ignore.rules",
-                'SUBSYSTEM=="block", ENV{ID_FS_LABEL}=="TEST", ENV{UDISKS_IGNORE}="1"\n')
+                'SUBSYSTEM=="block", ENV{ID_FS_LABEL}=="TESTLABEL", ENV{UDISKS_IGNORE}="1"\n')
         self.addCleanup(m.execute, "rm /run/udev/rules.d/99-ignore.rules; udevadm control --reload; udevadm trigger")
         m.execute("udevadm control --reload; udevadm trigger")
+        b.wait_not_in_text("#mounts", "TESTLABEL")
         b.wait_not_in_text("#mounts", disk)
 
 

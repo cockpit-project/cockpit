@@ -86,6 +86,9 @@ export class FilesystemsPanel extends React.Component {
             if (!name)
                 name = block_name(backing_block || block);
 
+            if (block.IdLabel)
+                name = name + " (" + block.IdLabel + ")";
+
             return {
                 props: { path, client, key: path },
                 columns: [

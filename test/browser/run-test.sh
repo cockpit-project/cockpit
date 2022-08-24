@@ -32,6 +32,11 @@ if [ "$TEST_OS" = "fedora-38" ]; then
     export TEST_OS=fedora-36
 fi
 
+# HACK: 37 is beta
+if [ "$TEST_OS" = "fedora-37" ]; then
+    export TEST_OS=fedora-36
+fi
+
 if [ "${TEST_OS#centos-}" != "$TEST_OS" ]; then
     TEST_OS="${TEST_OS}-stream"
 fi

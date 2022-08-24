@@ -152,3 +152,13 @@ class TestSamples(unittest.TestCase):
             expected = ['hwmon4/temp4_input', 'hwmon4/temp3_input', 'hwmon4/temp2_input', 'hwmon4/temp1_input', 'hwmon3/temp3_input', 'hwmon2/temp1_input']
             sensors = [os.path.join(os.path.basename(os.path.dirname(p)), os.path.basename(p)) for p in samples['cpu.temperature']]
             assert sorted(sensors) == sorted(expected)
+
+    def test_cgroup_disk_io(self):
+        samples = collections.defaultdict(dict)
+        cockpit.samples.CGroupDiskIO().sample(samples)
+        samples = self.get_checked_samples(cockpit.samples.CGroupDiskIO())
+
+        assert len(samples['disk.cgroup.read']) == len(samples['disk.cgroup.written'])
+        for cgroup in samples['disk.cgroup.read']:
+            assert samples['disk.cgroup.read'][cgroup] >= 0
+            assert samples['disk.cgroup.written'][cgroup] >= 0

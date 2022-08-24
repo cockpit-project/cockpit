@@ -26,6 +26,7 @@ G_BEGIN_DECLS
 
 void            cockpit_disk_samples         (CockpitSamples *samples);
 
+void            cockpit_cgroup_disk_usage    (CockpitSamples *samples);
 
 G_END_DECLS
 

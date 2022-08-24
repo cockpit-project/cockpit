@@ -16,9 +16,10 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
+import re
 from ._vendor.systemd_ctypes import Handle
 
-from typing import Any, DefaultDict, Iterable, List, NamedTuple, Optional
+from typing import Any, DefaultDict, Iterable, List, NamedTuple, Optional, Tuple
 
 
 USER_HZ = os.sysconf(os.sysconf_names['SC_CLK_TCK'])
@@ -301,6 +302,56 @@ class CGroupSampler(Sampler):
                     samples['cgroup.cpu.usage'][cgroup] = usage_nsec / 1000000
 
 
+class CGroupDiskIO(Sampler):
+    IO_RE = re.compile(rb'\bread_bytes: (?P<read>\d+).*\nwrite_bytes: (?P<write>\d+)', flags=re.S)
+    descriptions = [
+        SampleDescription('disk.cgroup.read', 'bytes', 'counter', True),
+        SampleDescription('disk.cgroup.written', 'bytes', 'counter', True),
+    ]
+
+    @staticmethod
+    def get_cgroup_name(fd: int) -> str:
+        with Handle.open('cgroup', os.O_RDONLY, dir_fd=fd) as cgroup_fd:
+            cgroup_name = os.read(cgroup_fd, 2048).decode().strip()
+
+            # Skip leadin ::0/
+            return cgroup_name[4:]
+
+    @staticmethod
+    def get_proc_io(fd: int) -> Tuple[int, int]:
+        with Handle.open('io', os.O_RDONLY, dir_fd=fd) as io_fd:
+            data = os.read(io_fd, 4096)
+
+            match = re.search(CGroupDiskIO.IO_RE, data)
+            if match:
+                proc_read = int(match.group('read'))
+                proc_write = int(match.group('write'))
+
+                return proc_read, proc_write
+
+            return 0, 0
+
+    def sample(self, samples: Samples):
+        with Handle.open('/proc', os.O_RDONLY | os.O_DIRECTORY) as proc_fd:
+            reads = samples['disk.cgroup.read']
+            writes = samples['disk.cgroup.written']
+
+            for path in os.listdir(proc_fd):
+                # non-pid entries in proc are guaranteed to start with a character a-z
+                if path[0] < '0' or path[0] > '9':
+                    continue
+
+                try:
+                    with Handle.open(path, os.O_PATH, dir_fd=proc_fd) as pid_fd:
+                        cgroup_name = self.get_cgroup_name(pid_fd)
+                        proc_read, proc_write = self.get_proc_io(pid_fd)
+                except (FileNotFoundError, PermissionError):
+                    continue
+
+                reads[cgroup_name] = reads.get(cgroup_name, 0) + proc_read
+                writes[cgroup_name] = writes.get(cgroup_name, 0) + proc_write
+
+
 class NetworkSampler(Sampler):
     descriptions = [
         SampleDescription('network.interface.tx', 'bytes', 'counter', True),
@@ -362,6 +413,7 @@ class BlockSampler(Sampler):
 SAMPLERS = [
     BlockSampler,
     CGroupSampler,
+    CGroupDiskIO,
     CPUSampler,
     CPUTemperatureSampler,
     DiskSampler,

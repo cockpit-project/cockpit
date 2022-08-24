@@ -902,6 +902,65 @@ test_cpu_temperature (void)
     }
 }
 
+static void
+test_cgroup_disk_io (void)
+{
+  MockTransport *transport = mock_transport_new ();
+
+  g_signal_connect (transport, "closed", G_CALLBACK (on_transport_closed), NULL);
+
+  g_autoptr(JsonObject) options = json_obj ("{ 'metrics': [ { 'name': 'disk.cgroup.read' }, { 'name': 'disk.cgroup.written' } ],"
+                                  "  'interval': 1000"
+                                  "}");
+
+  CockpitChannel *channel = g_object_new (cockpit_internal_metrics_get_type (),
+                          "transport", transport,
+                          "id", "1234",
+                          "options", options,
+                          NULL);
+
+  cockpit_channel_prepare (channel);
+
+  g_autoptr(GBytes) msg = NULL;
+  /* receive meta information */
+  while ((msg = mock_transport_pop_channel (transport, "1234")) == NULL)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_autoptr(GError) error = NULL;
+  g_autoptr(JsonObject) res = cockpit_json_parse_bytes (msg, &error);
+  g_assert_no_error (error);
+  g_assert (res != NULL);
+  g_assert (json_object_has_member (res, "metrics"));
+
+  JsonArray *metrics = json_object_get_array_member (res, "metrics");
+  g_assert_cmpint (json_array_get_length (metrics), ==, 2);
+
+  JsonObject *description = json_array_get_object_element (metrics, 0);
+  g_assert (description);
+  g_assert_cmpstr (json_object_get_string_member (description, "name"), ==, "disk.cgroup.read");
+  g_assert_cmpstr (json_object_get_string_member (description, "units"), ==, "bytes");
+
+  description = json_array_get_object_element (metrics, 1);
+  g_assert (description);
+  g_assert_cmpstr (json_object_get_string_member (description, "name"), ==, "disk.cgroup.written");
+  g_assert_cmpstr (json_object_get_string_member (description, "units"), ==, "bytes");
+
+  g_autoptr(JsonArray) samples = recv_array (transport);
+  g_assert_cmpint (json_array_get_length (samples), ==, 1);
+  JsonArray *core = json_array_get_array_element (samples, 0);
+  g_assert_cmpint (json_array_get_length (core), ==, 2);
+  JsonArray *read = json_array_get_array_element (core, 0);
+  JsonArray *write = json_array_get_array_element (core, 1);
+  guint length = json_array_get_length (read);
+  g_assert_cmpint (length, ==, json_array_get_length (write));
+  g_assert_cmpint (length, >, 0);
+  for (guint i = 0; i < length; i++)
+    {
+      g_assert_cmpint (json_array_get_int_element (read, i), >=, 0);
+      g_assert_cmpint (json_array_get_int_element (write, i), >=, 0);
+    }
+}
+
 int
 main (int argc,
       char *argv[])
@@ -932,6 +991,8 @@ main (int argc,
 
   g_test_add_func ("/metrics/cpu-cores", test_cpu_cores);
   g_test_add_func ("/metrics/cpu-temperature", test_cpu_temperature);
+
+  g_test_add_func ("/metrics/cgroup-disk-io", test_cgroup_disk_io);
 
   return g_test_run ();
 }

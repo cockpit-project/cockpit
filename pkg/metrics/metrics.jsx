@@ -171,6 +171,11 @@ const CPU_TEMPERATURE_METRICS = [
     { name: "cpu.temperature" },
 ];
 
+const PRIVILEGED_METRICS = [
+    { name: "disk.cgroup.read", units: "bytes", derive: "rate" },
+    { name: "disk.cgroup.written", units: "bytes", derive: "rate" },
+];
+
 const HISTORY_METRICS = [
     // CPU utilization
     { name: "kernel.all.cpu.nice", derive: "rate" },
@@ -243,11 +248,14 @@ class CurrentMetrics extends React.Component {
 
         this.metrics_channel = null;
         this.temperature_channel = null;
+        this.privileged_channel = null;
         this.samples = [];
         this.temperatureSamples = [];
+        this.privilegedSamples = [];
         this.netInterfacesNames = [];
         this.cgroupCPUNames = [];
         this.cgroupMemoryNames = [];
+        this.cgroupDiskNames = [];
         this.disksNames = [];
         this.cpuTemperatureColors = {
             textColor: "",
@@ -269,12 +277,14 @@ class CurrentMetrics extends React.Component {
             netInterfacesTx: [],
             topServicesCPU: [], // [ { name, percent } ]
             topServicesMemory: [], // [ { name, bytes } ]
+            topServicesDiskIO: [], // [ [ name, read, write ] ]
             podNameMapping: {}, // { uid -> containerid -> name }
         };
 
         this.onVisibilityChange = this.onVisibilityChange.bind(this);
         this.onMetricsUpdate = this.onMetricsUpdate.bind(this);
         this.onTemperatureUpdate = this.onTemperatureUpdate.bind(this);
+        this.onPrivilegedMetricsUpdate = this.onPrivilegedMetricsUpdate.bind(this);
         this.updateMounts = this.updateMounts.bind(this);
         this.updateLoad = this.updateLoad.bind(this);
 
@@ -300,6 +310,12 @@ class CurrentMetrics extends React.Component {
             this.temperature_channel = null;
         }
 
+        if (cockpit.hidden && this.privileged_channel !== null) {
+            this.privileged_channel.removeEventListener("message", this.onPrivilegedMetricsUpdate);
+            this.privileged_channel.close();
+            this.privileged_channel = null;
+        }
+
         if (cockpit.hidden && this.metrics_channel !== null) {
             this.metrics_channel.removeEventListener("message", this.onMetricsUpdate);
             this.metrics_channel.close();
@@ -311,6 +327,13 @@ class CurrentMetrics extends React.Component {
             this.temperature_channel = cockpit.channel({ payload: "metrics1", source: "internal", interval: INTERVAL, metrics: CPU_TEMPERATURE_METRICS });
             this.temperature_channel.addEventListener("close", (ev, error) => console.error("CPU temperature metric closed:", error));
             this.temperature_channel.addEventListener("message", this.onTemperatureUpdate);
+        }
+
+        // requires sudo access in order to sample every cgroup
+        // limited access only allows sampling of current user's cgroups
+        if (!cockpit.hidden && (this.privileged_channel === null)) {
+            this.privileged_channel = cockpit.channel({ superuser: "try", payload: "metrics1", source: "internal", interval: INTERVAL, metrics: PRIVILEGED_METRICS });
+            this.privileged_channel.addEventListener("message", this.onPrivilegedMetricsUpdate);
         }
 
         if (!cockpit.hidden && this.metrics_channel === null) {
@@ -507,61 +530,139 @@ class CurrentMetrics extends React.Component {
             return merged.slice(0, n);
         };
 
-        const getCachedPodName = (uid, containerid) => this.state.podNameMapping[uid] && this.state.podNameMapping[uid][containerid];
-
-        function cgroupClickHandler(name, is_user, is_container, uid) {
-            if (is_container) {
-                const container_name = getCachedPodName(uid, name);
-                if (container_name) {
-                    cockpit.jump("/podman#/?name=" + container_name);
-                } else {
-                    cockpit.jump("/podman");
-                }
-            } else {
-                cockpit.jump("/system/services#/" + name + ".service" + (is_user ? "?owner=user" : ""));
-            }
-        }
-
-        function cgroupRow(name, value, is_user, is_container, uid) {
-            const podman_installed = cockpit.manifests && cockpit.manifests.podman;
-            let name_text = (
-                <Button variant="link" isInline component="a" key={name}
-                        onClick={() => cgroupClickHandler(name, is_user, is_container, uid)}
-                        isDisabled={is_container && !podman_installed}>
-                    <TableText wrapModifier="truncate">
-                        {is_container ? _("pod") + " " + (getCachedPodName(uid, name) || name.substr(0, 12)) : name}
-                    </TableText>
-                </Button>
-            );
-            if (is_container && !podman_installed) {
-                name_text = (
-                    <Tooltip content={_("cockpit-podman is not installed")} key={name + "_tooltip"}>
-                        <div>
-                            {name_text}
-                        </div>
-                    </Tooltip>);
-            }
-            const value_text = <TableText wrapModifier="nowrap">{value}</TableText>;
-            return [name_text, value_text];
-        }
-
         // top 5 CPU and memory consuming systemd units
         const topServicesCPU = n_biggest(this.cgroupCPUNames, this.samples[9], 5);
         newState.topServicesCPU = topServicesCPU.map(
-            ([key, value, is_user, is_container, userid]) => cgroupRow(key, Number(value / 10 / numCpu).toFixed(1), is_user, is_container, userid) // usec/s → percent
+            ([key, value, is_user, is_container, userid]) => this.cgroupRow(key, is_user, is_container, userid, Number(value / 10 / numCpu).toFixed(1)) // usec/s → percent
         );
 
         const topServicesMemory = n_biggest(this.cgroupMemoryNames, this.samples[10], 5);
         newState.topServicesMemory = topServicesMemory.map(
-            ([key, value, is_user, is_container, userid]) => cgroupRow(key, cockpit.format_bytes(value), is_user, is_container, userid)
+            ([key, value, is_user, is_container, userid]) => this.cgroupRow(key, is_user, is_container, userid, cockpit.format_bytes(value))
         );
 
-        const notMappedContainers = topServicesMemory.concat(topServicesCPU).filter(([key, value, is_user, is_container, userid]) => is_container && getCachedPodName(userid, key) === undefined);
+        const notMappedContainers = topServicesMemory.concat(topServicesCPU).filter(([key, value, is_user, is_container, userid]) => is_container && this.getCachedPodName(userid, key) === undefined);
         if (notMappedContainers.length !== 0) {
             this.update_podman_name_mapping(notMappedContainers);
         }
         this.setState(newState);
     }
+
+    onPrivilegedMetricsUpdate(event, message) {
+        debug("process metrics message", message);
+        const data = JSON.parse(message);
+
+        if (!Array.isArray(data)) {
+            this.cgroupDiskNames = data.metrics[0].instances.slice();
+            return;
+        }
+
+        data.forEach(privilegedSamples => decompress_samples(privilegedSamples, this.privilegedSamples));
+
+        // return [ name, read, write, isUser, isContainer, uid | cgroup ]
+        const n_biggest = (n, names, valuesA, valuesB) => {
+            const merged = [];
+            const userSlices = {};
+            names.forEach((name, i) => {
+                // filter out invalid values, the empty (root) cgroup, non-services
+                if (name.endsWith('.service')) {
+                    // only keep cgroup basenames, and drop redundant .service suffix
+                    const label = name.replace(/.*\//, '').replace(/\.service$/, '');
+                    const isUser = name.match(useridCgroupRe);
+                    merged.push([label, valuesA[i], valuesB[i], isUser, false, name]);
+                    return;
+                }
+
+                // filter out podman containers, but only for the logged in
+                // user or root user if the user is privileged. Other users
+                // containers will show up under the user@uid cgroup
+                const matches = name.match(/libpod-(?<containerid>[a-z|0-9]{64})\.scope/);
+                if (matches && valuesA[i] !== undefined && valuesB[i] !== undefined) {
+                    const containerid = matches.groups.containerid;
+                    const umatches = name.match(useridCgroupRe);
+                    const isUser = !!umatches;
+                    const uid = parseInt(umatches?.groups.userid) || 0;
+
+                    if (uid === 0 || this.state.userid == uid) {
+                        merged.push([containerid, valuesA[i], valuesB[i], isUser, true, uid]);
+                        return;
+                    }
+                }
+
+                // combine user slices into user@ID
+                // { name: [ read, write ] }
+                const umatches = name.match(useridCgroupRe);
+                if (umatches) {
+                    if (userSlices[umatches.groups.userid] === undefined) {
+                        userSlices[umatches.groups.userid] = [valuesA[i], valuesB[i]];
+                    } else {
+                        userSlices[umatches.groups.userid][0] += valuesA[i];
+                        userSlices[umatches.groups.userid][1] += valuesB[i];
+                    }
+                }
+            });
+
+            Object.keys(userSlices).forEach((key) => {
+                merged.push(["user@" + key, userSlices[key][0], userSlices[key][1], false, false]);
+            });
+
+            // sort by overall (read + write) disk usage
+            merged.sort((a, b) => (b[1] + b[2]) - (a[1] + a[2]));
+            return merged.slice(0, n);
+        };
+
+        const newState = {};
+
+        const topServicesDiskIO = n_biggest(5, this.cgroupDiskNames, this.privilegedSamples[0], this.privilegedSamples[1]);
+        newState.topServicesDiskIO = topServicesDiskIO.filter(([_, read, write, ..._rest]) => read !== 0 || write !== 0).map(([name, read, write, isUser, isContainer, uid]) => {
+            return this.cgroupRow(name, isUser, isContainer, uid, read > 1 ? cockpit.format_bytes_per_sec(read) : 0, write > 1 ? cockpit.format_bytes_per_sec(write) : 0);
+        });
+
+        this.setState(newState);
+    }
+
+    getCachedPodName = (uid, containerid) => this.state.podNameMapping[uid] && this.state.podNameMapping[uid][containerid];
+
+    cgroupRow = (name, is_user, is_container, uid, ...values) => {
+        const podman_installed = cockpit.manifests && cockpit.manifests.podman;
+
+        const cgroupClickHandler = (name, isUser, isContainer, uid) => {
+            if (isContainer) {
+                const containerName = this.getCachedPodName(uid, name);
+                if (containerName) {
+                    cockpit.jump("/podman#/?name=" + containerName);
+                } else {
+                    cockpit.jump("/podman");
+                }
+            } else {
+                cockpit.jump("/system/services#/" + name + ".service" + (isUser ? "?owner=user" : ""));
+            }
+        };
+
+        let name_text = (
+            <Button variant="link" isInline component="a" key={name}
+                    onClick={() => cgroupClickHandler(name, is_user, is_container, uid)}
+                    isDisabled={is_container && !podman_installed}>
+                <TableText wrapModifier="truncate">
+                    {is_container ? _("pod") + " " + (this.getCachedPodName(uid, name) || name.substr(0, 12)) : name}
+                </TableText>
+            </Button>
+        );
+        if (is_container && !podman_installed) {
+            name_text = (
+                <Tooltip content={_("cockpit-podman is not installed")} key={name + "_tooltip"}>
+                    <div>
+                        {name_text}
+                    </div>
+                </Tooltip>);
+        }
+
+        const values_text = values.map((value, idx) => {
+            return <TableText key={idx} wrapModifier="nowrap">{value}</TableText>;
+        });
+
+        return [name_text, ...values_text];
+    };
 
     /**
      * Look up the container names using podman ps for the given cgroups.
@@ -706,6 +807,7 @@ class CurrentMetrics extends React.Component {
         }
 
         const rowWrapperIface = row => ({ 'data-interface': row[0] });
+        const rowWrapperDiskIO = row => ({ 'cgroup-name': row[0] });
         const topServicesCPUColumns = [_("Service"), "%"];
         const topServicesMemoryColumns = [_("Service"), _("Used")];
         const ifaceColumns = [_("Interface"), _("In"), _("Out")];
@@ -852,6 +954,23 @@ class CurrentMetrics extends React.Component {
                             })
                         }
                         </div>
+                        { this.state.topServicesDiskIO.length > 0 &&
+                            <Table
+                                variant={TableVariant.compact}
+                                gridBreakPoint={TableGridBreakpoint.none}
+                                borders={false}
+                                aria-label={ _("Top 5 disk usage services") }>
+                                <Thead>
+                                    <Tr>
+                                        <Th width={50}>{_("Service")}</Th>
+                                        <Th>{_("Read")}</Th>
+                                        <Th>{_("Write")}</Th>
+                                    </Tr>
+                                </Thead>
+                                <Tbody className="pf-m-tabular-nums">
+                                    {make_rows(this.state.topServicesDiskIO, rowWrapperDiskIO, [_("Service"), _("Read"), _("Write")])}
+                                </Tbody>
+                            </Table> }
                     </CardBody>
                 </Card>
 

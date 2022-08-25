@@ -47,7 +47,7 @@ class TestStorageResize(StorageCase):
         b.wait_in_text("#drives", "DISK1")
 
         m.execute("vgcreate TEST /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_DISK1")
-        m.execute("lvcreate TEST -n vol -L 200m")
+        m.execute("lvcreate TEST -n vol -L 320m")  # minimum xfs size is ~300MB
         b.wait_in_text("#devices", "TEST")
         b.click('#devices .sidepanel-row:contains("TEST")')
         b.wait_visible("#storage-detail")

@@ -1139,10 +1139,7 @@ export function init_active_usage_processes(client, usage) {
         func: dlg => {
             return for_each_async(usage, u => {
                 if (u.usage == "mounted") {
-                    return client.nfs.entry_users({
-                        fields: [null, decode_filename(u.fsys.MountPoints[0])],
-                        mounted: true
-                    })
+                    return client.find_mount_users(decode_filename(u.fsys.MountPoints[0]))
                             .then(users => {
                                 u.users = users;
                             });

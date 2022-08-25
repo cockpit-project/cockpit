@@ -430,7 +430,7 @@ export function mounting_dialog(client, block, mode, forced_options) {
             {
                 title: _("Checking related processes"),
                 func: dlg => {
-                    return client.nfs.entry_users({ fields: [null, old_dir], mounted: is_filesystem_mounted })
+                    return client.find_mount_users(old_dir, is_filesystem_mounted)
                             .then(users => {
                                 mount_point_users = users;
                                 if (users.length > 0) {

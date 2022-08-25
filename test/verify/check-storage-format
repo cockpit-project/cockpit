@@ -52,7 +52,7 @@ class TestStorageFormat(StorageCase):
 
         self.login_and_go("/storage")
 
-        m.add_disk("50M", serial="DISK1")
+        m.add_disk("320M", serial="DISK1")  # xfs minimum size is ~300MB.
         b.wait_in_text("#drives", "DISK1")
         b.click('#drives .sidepanel-row:contains("DISK1")')
         b.wait_visible('#storage-detail')

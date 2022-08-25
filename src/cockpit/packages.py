@@ -124,7 +124,7 @@ class Package:
 
         for variant in self.filename_variants(filename, locale):
             logger.debug('consider variant %s', variant)
-            if f'{dirname}{sep}{variant}' in self.files:
+            if Path(f'{dirname}{sep}{variant}') in self.files:
                 return f'{dirname}{sep}{variant}'
 
         return None
@@ -190,7 +190,7 @@ class ZipPathPolyfill(zipfile.Path):
         x = str(self)
         y = str(path)
         assert x.startswith(y)
-        return x[len(y):]
+        return Path(x[len(y):])
 
 
 class Packages:

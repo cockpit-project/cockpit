@@ -333,7 +333,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
                                                     .then(reload_systemd)
                                                     .then(() => {
                                                         if (vals.mount_options.auto)
-                                                            return fsys.Mount({ });
+                                                            return client.mount_at(block, mount_point);
                                                         else
                                                             return Promise.resolve();
                                                     });

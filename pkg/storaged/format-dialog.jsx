@@ -353,6 +353,8 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                     }
                 }
 
+                let mount_point;
+
                 if (is_filesystem(vals)) {
                     const mount_options = [];
                     if (!vals.mount_options.auto || vals.mount_options.never_auto) {
@@ -365,7 +367,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                     if (vals.mount_options.extra)
                         mount_options.push(vals.mount_options.extra);
 
-                    let mount_point = vals.mount_point;
+                    mount_point = vals.mount_point;
                     if (mount_point[0] != "/")
                         mount_point = "/" + mount_point;
 
@@ -438,7 +440,8 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                     const path = new_path || block.path;
                     if (is_filesystem(vals) && vals.mount_options.auto)
                         return (client.wait_for(() => block_fsys_for_block(path))
-                                .then(block_fsys => block_fsys.Mount({ })));
+                                .then(block_fsys => client.mount_at(client.blocks[block_fsys.path],
+                                                                    mount_point)));
                     if (is_encrypted(vals) && vals.mount_options && !vals.mount_options.auto)
                         return (client.wait_for(() => block_crypto_for_block(path))
                                 .then(block_crypto => block_crypto.Lock({ })));

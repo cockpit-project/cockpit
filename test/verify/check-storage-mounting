@@ -407,6 +407,36 @@ ExecStart=/usr/bin/sleep infinity
         b.click(fsys_tab + " button:contains(Do not mount automatically)")
         b.wait_not_present(fsys_tab + " button:contains(Do not mount automatically)")
 
+    def testBadOption(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#drives", "MYDISK")
+        b.click('.sidepanel-row:contains("MYDISK")')
+        b.wait_visible("#storage-detail")
+
+        self.content_row_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "mount_options.auto": False,
+                     "mount_point": "/run/foo"})
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
+        self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
+        self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /run/foo"))
+
+        self.content_row_action(1, "Mount")
+        self.dialog_wait_open()
+        self.dialog_set_val("mount_options.extra", "hurr")
+        self.dialog_apply()
+        self.dialog_wait_alert("bad option")
+        self.dialog_cancel()
+
+        # No changes should have been done to fstab
+        self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /run/foo"))
+        self.assertNotIn("hurr", m.execute("findmnt --fstab -n -o OPTIONS /run/foo"))
+
 
 if __name__ == '__main__':
     test_main()

@@ -25,12 +25,13 @@ import * as utils from './utils';
 
 import * as python from "python.js";
 import { read_os_release } from "os-release.js";
-import inotify_py from "raw-loader!inotify.py";
-import nfs_mounts_py from "raw-loader!./nfs-mounts.py";
-import vdo_monitor_py from "raw-loader!./vdo-monitor.py";
 
 import { find_warnings } from "./warnings.jsx";
 
+import inotify_py from "raw-loader!inotify.py";
+import mount_users_py from "raw-loader!./mount-users.py";
+import nfs_mounts_py from "raw-loader!./nfs-mounts.py";
+import vdo_monitor_py from "raw-loader!./vdo-monitor.py";
 import stratis2_set_key_py from "raw-loader!./stratis2-set-key.py";
 import stratis3_set_key_py from "raw-loader!./stratis3-set-key.py";
 
@@ -602,6 +603,24 @@ client.older_than = function older_than(version) {
     return utils.compare_versions(this.manager.Version, version) < 0;
 };
 
+/* Mount users
+ */
+
+client.find_mount_users = (target, is_mounted) => {
+    if (is_mounted === undefined || is_mounted)
+        return python.spawn(mount_users_py, ["users", target], { superuser: "try", err: "message" }).then(JSON.parse);
+    else
+        return Promise.resolve([]);
+};
+
+client.stop_mount_users = (users) => {
+    if (users && users.length > 0) {
+        return python.spawn(mount_users_py, ["stop", JSON.stringify(users)],
+                            { superuser: "try", err: "message" });
+    } else
+        return Promise.resolve();
+};
+
 /* NFS mounts
  */
 
@@ -694,29 +713,16 @@ function nfs_mounts() {
         return spawn_nfs_mounts(["unmount", JSON.stringify(entry)]);
     }
 
-    function pids_and_units(users) {
-        return [
-            users.filter(u => u.pid).map(u => u.pid),
-            users.filter(u => u.unit).map(u => u.unit)
-        ];
-    }
-
     function stop_and_unmount_entry(users, entry) {
-        const [pids, units] = pids_and_units(users);
-        return spawn_nfs_mounts(["stop-and-unmount",
-            JSON.stringify(units), JSON.stringify(pids),
-            JSON.stringify(entry)]);
+        return client.stop_mount_users(users).then(() => unmount_entry(entry));
     }
 
     function stop_and_remove_entry(users, entry) {
-        const [pids, units] = pids_and_units(users);
-        return spawn_nfs_mounts(["stop-and-remove",
-            JSON.stringify(units), JSON.stringify(pids),
-            JSON.stringify(entry)]);
+        return client.stop_mount_users(users).then(() => remove_entry(entry));
     }
 
     function entry_users(entry) {
-        return spawn_nfs_mounts(["users", JSON.stringify(entry)]).then(JSON.parse);
+        return client.find_mount_users(entry.fields[1], entry.mounted);
     }
 
     function find_entry(remote, local) {

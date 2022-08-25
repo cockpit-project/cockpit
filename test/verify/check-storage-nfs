@@ -275,8 +275,22 @@ class TestStorageNfs(StorageCase):
         b.wait_in_text("#dialog", "The listed processes will be forcefully stopped.")
         b.wait_in_text("#dialog", "Stop and unmount")
         self.dialog_apply()
+        self.dialog_wait_close()
 
-        b.wait_visible("#detail-header button:contains(Mount)")
+        b.click("#detail-header button:contains(Mount)")
+        b.wait_visible("#detail-header button:contains(Unmount)")
+
+        sleep_pid = m.spawn("cd /mounts/foo; sleep infinity", "busy")
+        b.click("#detail-header button:contains(Remove)")
+        b.wait_in_text("#dialog", str(sleep_pid))
+        b.wait_in_text("#dialog", "sleep infinity")
+        b.wait_in_text("#dialog", "The listed processes will be forcefully stopped.")
+        b.wait_in_text("#dialog", "Stop and remove")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        # We are back on the Overview with nothing there
+        b.wait_visible("#nfs-mounts .pf-c-empty-state")
 
 
 # Re-use allowed journal messages from StorageCase

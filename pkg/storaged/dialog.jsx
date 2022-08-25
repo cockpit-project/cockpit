@@ -239,7 +239,7 @@ import { ExclamationTriangleIcon, InfoIcon, HelpIcon } from "@patternfly/react-i
 import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
 
-import { fmt_size, block_name, format_size_and_text, format_delay, for_each_async, decode_filename } from "./utils.js";
+import { fmt_size, block_name, format_size_and_text, format_delay, for_each_async } from "./utils.js";
 import { fmt_to_fragments } from "utils.jsx";
 import client from "./client.js";
 
@@ -1139,7 +1139,7 @@ export function init_active_usage_processes(client, usage) {
         func: dlg => {
             return for_each_async(usage, u => {
                 if (u.usage == "mounted") {
-                    return client.find_mount_users(decode_filename(u.fsys.MountPoints[0]))
+                    return client.find_mount_users(u.location)
                             .then(users => {
                                 u.users = users;
                             });

@@ -223,10 +223,8 @@ export function mounting_dialog(client, block, mode, forced_options) {
         }
 
         function maybe_unmount() {
-            if (mount_point_users.length > 0)
-                return client.nfs.stop_and_unmount_entry(mount_point_users, { fields: [null, old_dir] });
-            else if (block_fsys && block_fsys.MountPoints.length > 0)
-                return block_fsys.Unmount({ });
+            if (block_fsys && block_fsys.MountPoints.indexOf(utils.encode_filename(old_dir)) >= 0)
+                return client.unmount_at(old_dir, mount_point_users);
             else
                 return Promise.resolve();
         }
@@ -243,18 +241,19 @@ export function mounting_dialog(client, block, mode, forced_options) {
             if (mode == "mount" || (mode == "update" && is_filesystem_mounted)) {
                 return (get_block_fsys()
                         .then(block_fsys => {
-                            return (block_fsys.Mount({ })
+                            const block = client.blocks[block_fsys.path];
+                            return (client.mount_at(block, new_dir)
                                     .catch(error => {
                                         // systemd might have mounted the filesystem for us after
                                         // unlocking, because fstab told it to.  Ignore any error
                                         // from mounting in that case.  This only happens when this
                                         // code runs to fix a inconsistent mount.
-                                        return (utils.is_mounted_synch(client.blocks[block_fsys.path])
+                                        return (utils.is_mounted_synch(block)
                                                 .then(mounted_at => {
                                                     if (mounted_at == new_dir)
                                                         return;
                                                     return (undo()
-                                                            .then(() => block_fsys.Mount({ }))
+                                                            .then(() => client.mount_at(block, old_dir))
                                                             .then(() => Promise.reject(error))
                                                             .catch(ignored_error => {
                                                                 console.warn("Error during undo:", ignored_error);
@@ -601,7 +600,7 @@ export class FilesystemTab extends React.Component {
         }
 
         function fix_mount() {
-            const { type } = mismounted_fsys_warning;
+            const { type, other } = mismounted_fsys_warning;
             const crypto_backing = (block.IdUsage == "crypto") ? block : client.blocks[block.CryptoBackingDevice];
             const crypto_backing_crypto = crypto_backing && client.blocks_crypto[crypto_backing.path];
 
@@ -609,19 +608,19 @@ export class FilesystemTab extends React.Component {
                 if (crypto_backing == block)
                     mounting_dialog(client, block, "mount", forced_options);
                 else
-                    return block_fsys.Mount({});
+                    return client.mount_at(block, old_dir);
             }
 
             function do_unmount() {
-                return (block_fsys.Unmount({})
+                return client.unmount_at(old_dir)
                         .then(() => {
                             if (crypto_backing)
                                 return crypto_backing_crypto.Lock({});
-                        }));
+                        });
             }
 
             if (type == "change-mount-on-boot")
-                return block_fsys.Unmount({}).then(() => block_fsys.Mount({}));
+                return client.unmount_at(other).then(() => client.mount_at(block, old_dir));
             else if (type == "mount-on-boot")
                 return do_mount();
             else if (type == "no-mount-on-boot")

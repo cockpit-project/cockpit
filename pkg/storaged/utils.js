@@ -638,14 +638,15 @@ export function get_active_usage(client, path, top_action, child_action) {
         }
 
         if (fsys && fsys.MountPoints.length > 0) {
-            usage.push({
-                level: level,
-                usage: 'mounted',
-                block: block,
-                fsys: fsys,
-                location: decode_filename(fsys.MountPoints[0]),
-                actions: get_actions(_("unmount")),
-                blocking: false,
+            fsys.MountPoints.forEach(mp => {
+                usage.push({
+                    level: level,
+                    usage: 'mounted',
+                    block: block,
+                    location: decode_filename(mp),
+                    actions: get_actions(_("unmount")),
+                    blocking: false,
+                });
             });
         } else if (mdraid) {
             const active_state = array_find(mdraid.ActiveDevices, function (as) {
@@ -725,16 +726,7 @@ export function teardown_active_usage(client, usage) {
 
     function unmount(mounteds) {
         return Promise.all(mounteds.map(m => {
-            if (m.users && m.users.length > 0)
-                return client.nfs.stop_and_unmount_entry(m.users,
-                                                         {
-                                                             fields: [null,
-                                                                 decode_filename(m.fsys.MountPoints[0])]
-                                                         });
-            else if (m.fsys.MountPoints.length > 0)
-                return m.fsys.Unmount({});
-            else
-                return Promise.resolve();
+            return client.unmount_at(m.location, m.users);
         }));
     }
 

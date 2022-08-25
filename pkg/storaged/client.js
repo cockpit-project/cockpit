@@ -621,6 +621,34 @@ client.stop_mount_users = (users) => {
         return Promise.resolve();
 };
 
+/* Direct mounting and unmounting
+ *
+ * We don't use UDisks2 for most of our mounting and unmounting in
+ * order to get better control over which entry from fstab is
+ * selected.  Once UDisks2 allows that control, we can switch back to
+ * it.
+ *
+ * But note that these functions still require an fstab entry.
+ */
+
+client.mount_at = (block, target) => {
+    const entry = utils.array_find(block.Configuration,
+                                   c => c[0] == "fstab" && utils.decode_filename(c[1].dir.v) == target);
+    if (entry)
+        return cockpit.script('set -e; mkdir -p "$2"; mount "$1" "$2" -o "$3"',
+                              [utils.decode_filename(block.Device), target, utils.decode_filename(entry[1].opts.v)],
+                              { superuser: true, err: "message" });
+    else
+        return Promise.reject(cockpit.format("Internal error: No fstab entry for $0 and $1",
+                                             utils.decode_filename(block.Device),
+                                             target));
+};
+
+client.unmount_at = (target, users) => {
+    return client.stop_mount_users(users).then(() => cockpit.spawn(["umount", target],
+                                                                   { superuser: true, err: "message" }));
+};
+
 /* NFS mounts
  */
 

@@ -173,7 +173,7 @@ class DBusChannel(Channel):
 
         def handler(message):
             notify = message.get_body()
-            logger.debug('NOTIFY', notify)
+            logger.debug('NOTIFY: %s', notify)
             self.send_message(notify={path: notify})
 
         self.matches.append(self.bus.add_match(f"type='signal',sender='{self.name}',path='{path}',interface='org.freedesktop.DBus.Properties'", handler))

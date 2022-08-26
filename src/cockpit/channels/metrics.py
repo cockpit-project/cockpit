@@ -15,23 +15,169 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import asyncio
+import json
+import sys
+import time
 import logging
+from typing import Any, Dict, List, Set, NamedTuple, Optional, Tuple
+from collections import defaultdict
 
-from ..channel import Channel
+from ..channel import AsyncChannel, ChannelError
+from ..samples import SAMPLERS, Sampler, SampleDescription
 
 logger = logging.getLogger(__name__)
 
 
-class MetricsChannel(Channel):
-    payload = 'metrics1'
+class MetricInfo(NamedTuple):
+    derive: Optional[str]
+    desc: SampleDescription
 
-    def do_open(self, options):
-        assert options['source'] == 'internal'
-        assert options['interval'] == 3000
-        assert 'omit-instances' not in options
-        assert options['metrics'] == [
-            {"name": "cpu.basic.user", "derive": "rate"},
-            {"name": "cpu.basic.system", "derive": "rate"},
-            {"name": "cpu.basic.nice", "derive": "rate"},
-            {"name": "memory.used"},
-        ]
+
+class InternalMetricsChannel(AsyncChannel):
+    payload = 'metrics1'
+    restrictions = {'source': 'internal'}
+
+    metrics: List[MetricInfo]
+    samplers: Set
+    samplers_cache: Optional[Dict[str, Tuple[Sampler, SampleDescription]]] = None
+
+    interval: int = 1000
+    need_meta: bool = True
+    last_timestamp: float = 0
+    next_timestamp: float = 0
+
+    @classmethod
+    def ensure_samplers(cls):
+        if cls.samplers_cache is None:
+            cls.samplers_cache = {desc.name: (sampler, desc) for sampler in SAMPLERS for desc in sampler.descriptions}
+
+    def parse_options(self, options):
+        logger.debug('metrics internal open: %s, channel: %s', options, self.channel)
+
+        interval = options.get('interval', self.interval)
+        if not isinstance(interval, int) or interval <= 0 or interval > sys.maxsize:
+            raise ChannelError('protocol-error', message='invalid interval option')
+
+        self.interval = interval
+
+        metrics = options.get('metrics')
+        if not isinstance(metrics, list) or len(metrics) == 0:
+            logger.error('invalid "metrics" value: %s', metrics)
+            raise ChannelError('protocol-error', message='metrics is not an list')
+
+        sampler_classes = set()
+        for metric in metrics:
+            # validate it's an object
+            name = metric.get('name')
+            units = metric.get('units')
+            derive = metric.get('derive')
+
+            try:
+                sampler, desc = self.samplers_cache[name]
+            except KeyError:
+                logger.error('unsupported metric: %s', name)
+                raise ChannelError('protocol-error', message=f'unsupported metric: {name}')
+
+            if units and units != desc.units:
+                raise ChannelError('protocol-error', message=f'{name} has units {desc.units}, not {units}')
+
+            sampler_classes.add(sampler)
+            self.metrics.append(MetricInfo(derive=derive, desc=desc))
+
+        self.samplers = {cls() for cls in sampler_classes}
+
+    def send_meta(self, samples: Dict[str, Any], timestamp: float):
+        metrics = []
+        for metricinfo in self.metrics:
+            if metricinfo.desc.instanced:
+                metrics.append({
+                    'name': metricinfo.desc.name,
+                    'units': metricinfo.desc.units,
+                    'instances': list(samples[metricinfo.desc.name].keys()),
+                    'semantics': metricinfo.desc.semantics
+                })
+            else:
+                metrics.append({
+                    'name': metricinfo.desc.name,
+                    'derive': metricinfo.derive,
+                    'units': metricinfo.desc.units,
+                    'semantics': metricinfo.desc.semantics
+                })
+
+        meta = {
+            'timestamp': timestamp * 1000,
+            'interval': self.interval,
+            'source': 'internal',
+            'metrics': metrics
+        }
+        self.send_message(**meta)
+        self.need_meta = False
+
+    def sample(self):
+        samples = defaultdict(dict)
+        for sampler in self.samplers:
+            sampler.sample(samples)
+        return samples
+
+    def calculate_sample_rate(self, value: Any, old_value: Optional[Any]):
+        if old_value and self.last_timestamp:
+            return (value - old_value) / (self.next_timestamp - self.last_timestamp)
+        else:
+            return False
+
+    def send_updates(self, samples: Dict[str, Any], last_samples: Dict[str, Any]):
+        data = []
+        timestamp = time.time()
+        self.next_timestamp = timestamp
+
+        for metricinfo in self.metrics:
+            value = samples[metricinfo.desc.name]
+            old_value = last_samples[metricinfo.desc.name]
+
+            if metricinfo.desc.instanced:
+                # If we have less or more keys the data changed, send a meta message.
+                if value.keys() != old_value.keys():
+                    self.need_meta = True
+
+                if metricinfo.derive == 'rate':
+                    instances = []
+                    for key, val in value.items():
+                        instances.append(self.calculate_sample_rate(val, old_value.get(key)))
+
+                    data.append(instances)
+                else:
+                    data.append([val for val in value.values()])
+            else:
+                if metricinfo.derive == 'rate':
+                    data.append(self.calculate_sample_rate(value, old_value))
+                else:
+                    data.append(value)
+
+        if self.need_meta:
+            self.send_meta(samples, timestamp)
+
+        self.last_timestamp = self.next_timestamp
+        self.send_data(json.dumps([data]).encode())
+
+    async def run(self, options):
+        self.metrics = []
+        self.samplers = set()
+
+        InternalMetricsChannel.ensure_samplers()
+
+        self.parse_options(options)
+        self.ready()
+
+        last_samples = defaultdict(dict)
+        while True:
+            samples = self.sample()
+            self.send_updates(samples, last_samples)
+            last_samples = samples
+
+            try:
+                await asyncio.wait_for(self.read(), self.interval / 1000)
+                return
+            except asyncio.TimeoutError:
+                # Continue the while loop, we use wait_for as an interval timer.
+                continue

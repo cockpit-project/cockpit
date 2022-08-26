@@ -674,7 +674,7 @@ arguments. These types are encoded as follows:
 Payload: http-stream2
 ---------------------
 
-This channel replesents a single HTTP request and response. The request
+This channel represents a single HTTP request and response. The request
 HTTP headers are sent in the "open" message, and response headers are
 returned in a "response" control message.
 

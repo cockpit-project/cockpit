@@ -163,6 +163,7 @@ class DBusChannel(Channel):
             meta = await self.cache.introspect_path(self.bus, self.name, path)
         except BusError as error:
             self.send_message(error=[error.code, [error.description]], id=cookie)
+            return
 
         if interface_name is not None:
             interface = meta.get(interface_name)

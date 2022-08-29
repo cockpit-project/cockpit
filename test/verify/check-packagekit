@@ -683,7 +683,7 @@ class TestUpdatesSubscriptions(PackageCase):
         m.execute("sed -i -e 's/insecure = 0/insecure = 1/g' /etc/rhsm/rhsm.conf")
 
         # Wait for the web service to be accessible
-        m.execute(WAIT_SCRIPT % {"addr": "10.111.112.100"})
+        m.execute(WAIT_SCRIPT % {"addr": "10.111.112.100"}, timeout=360)
 
     def testNoUpdates(self):
         m = self.machine

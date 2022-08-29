@@ -738,7 +738,8 @@ OnCalendar=daily
 
         b.enter_page("/users")
         b.click('a[href="#/root"]')
-        b.wait_text("#account-title", "root")
+        b.wait_visible("#account-title")
+        self.assertIn(b.text("#account-title"), ["root", "Super User"])
         b.switch_to_top()
         assert_location("/users#/root")
 
@@ -750,7 +751,8 @@ OnCalendar=daily
 
         b.eval_js("window.history.back()")
         b.enter_page("/users")
-        b.wait_text("#account-title", "root")
+        b.wait_visible("#account-title")
+        self.assertIn(b.text("#account-title"), ["root", "Super User"])
         b.switch_to_top()
         assert_location("/users#/root")
 
@@ -762,7 +764,8 @@ OnCalendar=daily
 
         b.eval_js("window.history.back()")
         b.enter_page("/users")
-        b.wait_text("#account-title", "root")
+        b.wait_visible("#account-title")
+        self.assertIn(b.text("#account-title"), ["root", "Super User"])
         b.switch_to_top()
         assert_location("/users#/root")
 

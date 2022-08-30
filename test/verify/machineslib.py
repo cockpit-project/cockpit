@@ -1879,6 +1879,7 @@ class TestMachines(NetworkCase):
         def __init__(self, test_obj):
             self.browser = test_obj.browser
             self.machine = test_obj.machine
+            self.test_obj = test_obj
             self.assertTrue = test_obj.assertTrue
 
             self.machine.execute("touch {0}".format(TestMachines.TestCreateConfig.NOVELL_MOCKUP_ISO_PATH))
@@ -2006,15 +2007,24 @@ class TestMachines(NetworkCase):
             return self
 
         def assertDomainDefined(self, name, connection):
-            listCmd = ""
-            if connection == "session":
-                listCmd = "runuser -l admin -c 'virsh -c qemu:///session list --persistent --all'"
+            for retry in range(5):
+                if connection == "session":
+                    dumpxml = self.machine.execute(f"runuser -l admin -c 'virsh -c qemu:///session dumpxml --inactive {name}'")
+                else:
+                    dumpxml = self.machine.execute(f"virsh -c qemu:///system dumpxml --inactive {name}")
+                try:
+                    # has cockpit-machines specific metadata
+                    self.test_obj.assertIn("<cockpit_machines:has_install_phase>", dumpxml)
+                    self.test_obj.assertIn("<cockpit_machines:install_source>", dumpxml)
+                    # The running XML has always substituted port
+                    # This checks that the defined domain is using the proper inactive XML
+                    self.test_obj.assertIn("type='vnc' port='-1'", dumpxml)
+                    break
+                except AssertionError as e:
+                    fail = e
+                    time.sleep(2)
             else:
-                # When creating VMs from the UI default connection is the system
-                # In this case don't use runuser -l admin because we get errors 'authentication unavailable'
-                listCmd = "virsh -c qemu:///system list --persistent --all"
-
-            wait(lambda: name in self.machine.execute(listCmd))
+                raise fail
 
             return self
 

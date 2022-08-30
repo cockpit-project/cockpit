@@ -259,6 +259,7 @@ units, cockpit-tls, etc.) use that:
     $ sudo mount -o bind cockpit-ws /usr/libexec/cockpit-ws
 
 On Debian based OSes, the path will be `/usr/lib/cockpit/cockpit-ws` instead.
+
 You need to disable SELinux with
 
     $ sudo setenforce 0

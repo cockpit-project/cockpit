@@ -1,9 +1,8 @@
 name: weblate-sync-pot
 on:
   schedule:
-    # Run this on Tuesday evening (UTC), so that it's ready for release on
-    # Wednesday, with some spare time
-    - cron: '0 18 * * 2'
+    # Run this every morning
+    - cron: '45 2 * * *'
   # can be run manually on https://github.com/cockpit-project/cockpit/actions
   workflow_dispatch:
 

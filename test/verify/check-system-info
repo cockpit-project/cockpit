@@ -219,6 +219,8 @@ class TestSystemInfo(MachineCase):
             "org.freedesktop.systemd1: couldn't get property org.freedesktop.systemd1.Service ExecMain "
             "at /org/freedesktop/systemd1/unit/systemd_2dtimedated_2eservice: "
             "GDBus.Error:org.freedesktop.DBus.Error.UnknownProperty.*")
+        # journal gets confused with time jumps
+        self.allow_journal_messages(r"Journal file .*\.journal corrupted, ignoring file.*")
 
         self.login_and_go("/system", superuser=False)
         b.wait_text_not("#system_information_systime_button", "")

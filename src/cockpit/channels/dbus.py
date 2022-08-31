@@ -118,15 +118,16 @@ class DBusChannel(Channel):
             signature = 's' * len(args)
 
         # ... or we need to introspect
-        try:
-            logger.debug('Doing introspection request for %s %s', iface, method)
-            signature = await self.cache.get_signature(iface, method, self.bus, self.name, path)
-        except BusError as error:
-            self.send_message(error=[error.code, [f'Introspection: {error.description}']], id=cookie)
-            return
-        except Exception as exc:
-            self.send_message(error=['python.error', [f'Introspection: {str(exc)}']], id=cookie)
-            return
+        if signature is None:
+            try:
+                logger.debug('Doing introspection request for %s %s', iface, method)
+                signature = await self.cache.get_signature(iface, method, self.bus, self.name, path)
+            except BusError as error:
+                self.send_message(error=[error.code, [f'Introspection: {error.description}']], id=cookie)
+                return
+            except Exception as exc:
+                self.send_message(error=['python.error', [f'Introspection: {str(exc)}']], id=cookie)
+                return
 
         try:
             reply = await self.bus.call_method_async(self.name, path, iface, method, signature, *args, timeout=timeout)

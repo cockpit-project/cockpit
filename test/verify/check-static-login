@@ -489,8 +489,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # This should work, but it will not because of
         # https://bugzilla.redhat.com/show_bug.cgi?id=1814569
-        working_images = ["fedora-35", "fedora-36", "fedora-testing"]
-        if m.image in working_images:
+        if m.image.startswith("fedora"):
             self.assertIn('result: uid=0', b.text(".super-channel span"))
         else:
             self.assertIn('result: access-denied', b.text(".super-channel span"))
@@ -764,7 +763,7 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         # we don't want to completely pinpoint the OS list to avoid lockstep image refreshes+cockpit PRs
         # and spontaneous packit test failures as sssd 2.6.1 goes into more distros; but make sure we hit
         # this code path on some known-good ones
-        if m.image in ["fedora-35", "fedora-36", "debian-testing"]:
+        if m.image.startswith("fedora") or m.image in ["debian-testing"]:
             self.assertTrue(has_validate_api)
 
         if has_validate_api:

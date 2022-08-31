@@ -97,8 +97,8 @@ You can set these environment variables to configure the test suite:
                   "centos-8-stream"
                   "debian-stable"
                   "debian-testing"
-                  "fedora-35"
                   "fedora-36"
+                  "fedora-37"
                   "fedora-coreos"
                   "fedora-testing"
                   "rhel-8-7"
@@ -151,7 +151,7 @@ the target machine -- so only do this with the ones marked with
 In particular, you can use our standard test VMs with this mode:
 
     $ test/image-prepare
-    $ bots/vm-run fedora-35
+    $ bots/vm-run fedora-37
 
 Note the SSH and cockpit ports. If this is the only running VM, it will have
 the addresses in the example below, otherwise the port will be different.

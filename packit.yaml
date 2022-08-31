@@ -24,8 +24,8 @@ jobs:
   - job: tests
     trigger: pull_request
     targets:
-      - fedora-35
       - fedora-36
+      - fedora-37
       - fedora-development
       - centos-stream-8-x86_64
       - centos-stream-9-x86_64
@@ -48,9 +48,8 @@ jobs:
     # should just use the existing config for permanent COPRs;
     # https://github.com/packit/packit-service/issues/1499
     targets:
-      - fedora-35
       - fedora-36
-      - fedora-development
+      - fedora-37
       - centos-stream-8-x86_64
       - centos-stream-9-x86_64
     actions:
@@ -69,19 +68,19 @@ jobs:
     trigger: release
     dist_git_branches:
       - fedora-development
-      - fedora-35
       - fedora-36
+      - fedora-37
 
   - job: koji_build
     trigger: commit
     dist_git_branches:
       - fedora-development
-      - fedora-35
       - fedora-36
+      - fedora-37
 
   - job: bodhi_update
     trigger: commit
     dist_git_branches:
       # rawhide updates are created automatically
-      - fedora-35
       - fedora-36
+      - fedora-37

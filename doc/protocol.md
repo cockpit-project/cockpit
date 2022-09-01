@@ -717,12 +717,12 @@ payload type:
    host name. To use this option you must also specify a port.
    This option should be used to communicate with external
    apis and not as a synonym for the host parameter.
+ * "method": "GET", "POST", or other valid HTTP method
 
 You may also specify these options:
 
  * "connection": A stable identifier for connection sharing, i.e.
    sending multiple requests to a single open connection.
- * "method": "GET" (default if not specified), "POST", or other valid HTTP method
  * "headers": JSON object with additional request headers
  * "tls": Set to a object to use an https connection.
 

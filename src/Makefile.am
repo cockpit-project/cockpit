@@ -86,7 +86,7 @@ $(SYSTEMD_CTYPES_STAMP):
 	$(AM_V_GEN) git -C '$(srcdir)' archive $(SYSTEMD_CTYPES_REPO_TREE) -- systemd_ctypes | tar --extract -C src
 
 CLEANFILES += cockpit-bridge.pyz
-cockpit-bridge.pyz: $(MANIFESTS) $(PYTHON_BRIDGE_FILES) $(SYSTEMD_CTYPES_STAMP)
+cockpit-bridge.pyz: $(PYTHON_BRIDGE_FILES) $(SYSTEMD_CTYPES_STAMP)
 	@rm -rf tmp/pyz
 	@mkdir -p tmp/pyz
 	@cp -r $(srcdir)/dist $(srcdir)/src/cockpit src/systemd_ctypes/ tmp/pyz

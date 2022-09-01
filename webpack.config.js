@@ -143,6 +143,7 @@ const info = {
         "base1/test-dbus-address",
         "base1/test-dbus-framed",
         "base1/test-dbus",
+        "base1/test-dbus-minimal",
         "base1/test-echo",
         "base1/test-events",
         "base1/test-external",

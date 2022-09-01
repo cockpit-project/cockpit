@@ -1,0 +1,708 @@
+import cockpit from "cockpit";
+import QUnit from "qunit-tests";
+
+/* with a name */
+const channel_options = {
+    bus: "session"
+};
+
+const bus_name = "com.redhat.Cockpit.DBusTests.Test";
+
+/*
+ * This file is part of Cockpit.
+ *
+ * Copyright (C) 2015 Red Hat, Inc.
+ *
+ * Cockpit is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * Cockpit is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
+ */
+
+function deep_update(target, data) {
+    for (const prop in data) {
+        if (Object.prototype.toString.call(data[prop]) === '[object Object]') {
+            if (!target[prop])
+                target[prop] = {};
+            deep_update(target[prop], data[prop]);
+        } else {
+            target[prop] = data[prop];
+        }
+    }
+}
+
+QUnit.test("call method", function (assert) {
+    const done = assert.async();
+    assert.expect(3);
+
+    const dbus = cockpit.dbus(bus_name, channel_options);
+    assert.equal(typeof dbus.call, "function", "is a function");
+    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+              "HelloWorld", ["Browser-side JS"])
+            .done(function(reply) {
+                assert.deepEqual(reply, ["Word! You said `Browser-side JS'. I'm Skeleton, btw!"], "reply");
+            })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "finished successfully");
+                done();
+            });
+});
+
+QUnit.test("close immediately", function (assert) {
+    const done = assert.async();
+    assert.expect(1);
+    const dbus = cockpit.dbus(bus_name, channel_options);
+    dbus.addEventListener("close", function(event, options) {
+        assert.equal(options.problem, "test-code", "got right code");
+        done();
+    });
+
+    window.setTimeout(function() {
+        dbus.close("test-code");
+    }, 100);
+});
+
+QUnit.test("call close", function (assert) {
+    const done = assert.async();
+    assert.expect(2);
+
+    const dbus = cockpit.dbus(bus_name, channel_options);
+    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+              "HelloWorld", ["Browser-side JS"])
+            .fail(function(ex) {
+                assert.equal(ex.problem, "disconnected", "got right close code");
+            })
+            .always(function() {
+                assert.equal(this.state(), "rejected", "call rejected");
+                done();
+            });
+
+    dbus.close();
+});
+
+QUnit.test("call closed", function (assert) {
+    const done = assert.async();
+    assert.expect(2);
+
+    const dbus = cockpit.dbus(bus_name, channel_options);
+    dbus.close("blah-blah");
+
+    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+              "HelloWorld", ["Browser-side JS"])
+            .fail(function(ex) {
+                assert.equal(ex.problem, "blah-blah", "got right close code");
+            })
+            .always(function() {
+                assert.equal(this.state(), "rejected", "call rejected");
+                done();
+            });
+});
+
+QUnit.test("primitive types", function (assert) {
+    const done = assert.async();
+    assert.expect(2);
+
+    const dbus = cockpit.dbus(bus_name, channel_options);
+    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+              "TestPrimitiveTypes", [
+                  10, true, 11, 12, 13, 14, 15, 16, 17,
+                  "a string", "/a/path", "asig",
+                  "ZWZnAA=="])
+            .done(function(reply) {
+                assert.deepEqual(reply, [
+                    20, false, 111, 1012, 10013, 100014, 1000015, 10000016, 17.0 / Math.PI,
+                    "Word! You said `a string'. Rock'n'roll!", "/modified/a/path", "assgitasig",
+                    "Ynl0ZXN0cmluZyH/AA=="
+                ], "round trip");
+            })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "finished successfully");
+                done();
+            });
+});
+
+QUnit.test("get all", function (assert) {
+    const done = assert.async();
+    assert.expect(2);
+
+    const dbus = cockpit.dbus(bus_name, channel_options);
+    dbus.call("/otree/frobber", "org.freedesktop.DBus.Properties",
+              "GetAll", ["com.redhat.Cockpit.DBusTests.Frobber"])
+            .done(function(reply) {
+                assert.deepEqual(reply, [{
+                    FinallyNormalName: { t: "s", v: "There aint no place like home" },
+                    ReadonlyProperty: { t: "s", v: "blah" },
+                    aay: { t: "aay", v: [] },
+                    ag: { t: "ag", v: [] },
+                    ao: { t: "ao", v: [] },
+                    as: { t: "as", v: [] },
+                    ay: { t: "ay", v: "QUJDYWJjAA==" },
+                    b: { t: "b", v: false },
+                    d: { t: "d", v: 43 },
+                    g: { t: "g", v: "" },
+                    i: { t: "i", v: 0 },
+                    n: { t: "n", v: 0 },
+                    o: { t: "o", v: "/" },
+                    q: { t: "q", v: 0 },
+                    s: { t: "s", v: "" },
+                    t: { t: "t", v: 0 },
+                    u: { t: "u", v: 0 },
+                    x: { t: "x", v: 0 },
+                    y: { t: "y", v: 42 }
+                }], "reply");
+            })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "finished successfully");
+                done();
+            });
+});
+
+QUnit.test("call unimplemented", function (assert) {
+    const done = assert.async();
+    assert.expect(3);
+
+    const dbus = cockpit.dbus(bus_name, channel_options);
+    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+              "UnimplementedMethod", [])
+            .fail(function(ex) {
+                assert.equal(ex.name, "org.freedesktop.DBus.Error.UnknownMethod", "error name");
+                assert.equal(ex.message, "Method UnimplementedMethod is not implemented on interface com.redhat.Cockpit.DBusTests.Frobber", "error message");
+            })
+            .always(function() {
+                assert.equal(this.state(), "rejected", "should fail");
+                done();
+            });
+});
+
+QUnit.test("signals", function (assert) {
+    const done = assert.async();
+    assert.expect(6);
+
+    let received = false;
+    const dbus = cockpit.dbus(bus_name, channel_options);
+    dbus.subscribe({
+        interface: "com.redhat.Cockpit.DBusTests.Frobber",
+        path: "/otree/frobber"
+    }, function(path, iface, signal, args) {
+        if (received)
+            return;
+        assert.equal(path, "/otree/frobber", "got right path");
+        assert.equal(iface, "com.redhat.Cockpit.DBusTests.Frobber", "got right path");
+        assert.equal(signal, "TestSignal", "signals: got right path");
+        assert.deepEqual(args, [
+            43, ["foo", "frobber"], ["/foo", "/foo/bar"],
+            { first: [42, 42], second: [43, 43] }], "got right arguments");
+        received = true;
+    });
+
+    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [0])
+            .always(function() {
+                assert.equal(this.state(), "resolved", "emission requested");
+                assert.equal(received, true, "signal received");
+                done();
+            });
+});
+
+QUnit.test("signal unsubscribe", function (assert) {
+    const done = assert.async();
+    assert.expect(4);
+
+    let received = true;
+    const dbus = cockpit.dbus(bus_name, channel_options);
+
+    function on_signal() {
+        received = true;
+    }
+
+    const subscription = dbus.subscribe({
+        interface: "com.redhat.Cockpit.DBusTests.Frobber",
+        path: "/otree/frobber"
+    }, on_signal);
+
+    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [0])
+            .always(function() {
+                assert.equal(this.state(), "resolved", "emission requested");
+                assert.equal(received, true, "signal received");
+            })
+            .then(function() {
+                subscription.remove();
+                received = false;
+
+                dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RequestSignalEmission", [0])
+                        .always(function() {
+                            assert.equal(this.state(), "resolved", "second emission requested");
+                            assert.equal(received, false, "signal not received");
+                            done();
+                        });
+            });
+});
+
+QUnit.test("flags", function (assert) {
+    const done = assert.async();
+    assert.expect(3);
+
+    const dbus = cockpit.dbus(bus_name, channel_options);
+    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+              "HelloWorld", ["test"], { flags: "" })
+            .done(function(reply, options) {
+                assert.equal(typeof options.flags, "string", "is string");
+                assert.ok(options.flags.indexOf(">") !== -1 || options.flags.indexOf("<") !== -1, "has byte order");
+            })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "finished successfully");
+                done();
+            });
+});
+
+QUnit.test("without introspection", function (assert) {
+    const done = assert.async();
+    assert.expect(2);
+
+    const dbus = cockpit.dbus(bus_name, channel_options);
+    dbus.call("/bork", "borkety.Bork", "Echo")
+            .done(function(reply) {
+                assert.deepEqual(reply, [], "round trip");
+            })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "finished successfully");
+                done();
+            });
+});
+
+QUnit.test("watch path", function (assert) {
+    const done = assert.async();
+    assert.expect(2);
+
+    const cache = { };
+
+    const dbus = cockpit.dbus(bus_name, channel_options);
+    const onnotify = (event, data) => deep_update(cache, data);
+    dbus.addEventListener("notify", onnotify);
+
+    dbus.watch("/otree/frobber")
+            .done(function() {
+                assert.equal(typeof cache["/otree/frobber"], "object", "has path");
+                assert.deepEqual(cache["/otree/frobber"]["com.redhat.Cockpit.DBusTests.Frobber"],
+                                 {
+                                     FinallyNormalName: "There aint no place like home",
+                                     ReadonlyProperty: "blah",
+                                     aay: [], ag: [], ao: [], as: [],
+                                     ay: "QUJDYWJjAA==",
+                                     b: false, d: 43, g: "", i: 0, n: 0,
+                                     o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
+                                     y: 42
+                                 }, "correct data");
+                dbus.removeEventListener("notify", onnotify);
+                done();
+            });
+});
+
+QUnit.test("watch object manager", function (assert) {
+    const done = assert.async();
+    assert.expect(1);
+
+    const cache = { };
+
+    const dbus = cockpit.dbus(bus_name, channel_options);
+    const onnotify = (event, data) => deep_update(cache, data);
+    dbus.addEventListener("notify", onnotify);
+
+    dbus.watch({ path_namespace: "/otree" })
+            .done(function() {
+                assert.deepEqual(cache, {
+                    "/otree/frobber": {
+                        "com.redhat.Cockpit.DBusTests.Frobber":
+                    {
+                        FinallyNormalName: "There aint no place like home",
+                        ReadonlyProperty: "blah",
+                        aay: [], ag: [], ao: [], as: [],
+                        ay: "QUJDYWJjAA==",
+                        b: false, d: 43, g: "", i: 0, n: 0,
+                        o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
+                        y: 42
+                    }
+                    }
+                }, "correct data");
+                dbus.removeEventListener("notify", onnotify);
+                done();
+            });
+});
+
+QUnit.test("watch change", assert => {
+    const done = assert.async();
+    assert.expect(2);
+
+    const cache = { };
+
+    const dbus = cockpit.dbus(bus_name, channel_options);
+    const onnotify_cache = (event, data) => deep_update(cache, data);
+    dbus.addEventListener("notify", onnotify_cache);
+
+    const onnotify_test = (event, data) => {
+        assert.equal(typeof cache["/otree/frobber"], "object", "has path");
+        assert.deepEqual(cache, {
+            "/otree/frobber": {
+                "com.redhat.Cockpit.DBusTests.Frobber": {
+                    FinallyNormalName: "There aint no place like home",
+                    ReadonlyProperty: "blah",
+                    aay: [], ag: [], ao: [], as: [],
+                    ay: "QUJDYWJjAA==",
+                    b: false, d: 43, g: "", i: 0, n: 0,
+                    o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
+                    y: 42
+                }
+            }
+        }, "correct data");
+        dbus.removeEventListener("notify", onnotify_cache);
+        dbus.removeEventListener("notify", onnotify_test);
+    };
+    dbus.addEventListener("notify", onnotify_test);
+
+    dbus.watch("/otree/frobber")
+            .then(() => done());
+});
+
+QUnit.test("watch barrier", function (assert) {
+    const done = assert.async();
+    assert.expect(2);
+
+    const cache = { };
+
+    const dbus = cockpit.dbus(bus_name, channel_options);
+    const onnotify = (event, data) => deep_update(cache, data);
+    dbus.addEventListener("notify", onnotify);
+
+    dbus.watch({ path_namespace: "/otree" });
+
+    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+              "HelloWorld", ["Browser-side JS"])
+            .done(function(reply) {
+                assert.deepEqual(cache["/otree/frobber"] && cache["/otree/frobber"]["com.redhat.Cockpit.DBusTests.Frobber"],
+                                 {
+                                     FinallyNormalName: "There aint no place like home",
+                                     ReadonlyProperty: "blah",
+                                     aay: [], ag: [], ao: [], as: [],
+                                     ay: "QUJDYWJjAA==",
+                                     b: false, d: 43, g: "", i: 0, n: 0,
+                                     o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
+                                     y: 42
+                                 }, "correct data");
+            })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "finished successfully");
+                dbus.removeEventListener("notify", onnotify);
+                done();
+            });
+});
+
+QUnit.test("watch interfaces", function (assert) {
+    const done = assert.async();
+    assert.expect(3);
+
+    const cache = { };
+
+    const dbus = cockpit.dbus(bus_name, channel_options);
+    const onnotify = (event, data) => deep_update(cache, data);
+    dbus.addEventListener("notify", onnotify);
+
+    dbus.watch({ path_namespace: "/otree" })
+            .done(function() {
+                assert.deepEqual(cache, {
+                    "/otree/frobber": {
+                        "com.redhat.Cockpit.DBusTests.Frobber":
+                    {
+                        FinallyNormalName: "There aint no place like home",
+                        ReadonlyProperty: "blah",
+                        aay: [], ag: [], ao: [], as: [],
+                        ay: "QUJDYWJjAA==",
+                        b: false, d: 43, g: "", i: 0, n: 0,
+                        o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
+                        y: 42
+                    }
+                    }
+                }, "correct data");
+                dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "AddAlpha", [])
+                        .done(function () {
+                            assert.deepEqual(cache, {
+                                "/otree/frobber": {
+                                    "com.redhat.Cockpit.DBusTests.Frobber":
+                            {
+                                FinallyNormalName: "There aint no place like home",
+                                ReadonlyProperty: "blah",
+                                aay: [], ag: [], ao: [], as: [],
+                                ay: "QUJDYWJjAA==",
+                                b: false, d: 43, g: "", i: 0, n: 0,
+                                o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
+                                y: 42
+                            },
+                                    "com.redhat.Cockpit.DBusTests.Alpha": {}
+                                }
+                            }, "correct data");
+                            dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "RemoveAlpha", [])
+                                    .done(function () {
+                                        assert.deepEqual(cache, {
+                                            "/otree/frobber": {
+                                                "com.redhat.Cockpit.DBusTests.Frobber":
+                                    {
+                                        FinallyNormalName: "There aint no place like home",
+                                        ReadonlyProperty: "blah",
+                                        aay: [], ag: [], ao: [], as: [],
+                                        ay: "QUJDYWJjAA==",
+                                        b: false, d: 43, g: "", i: 0, n: 0,
+                                        o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
+                                        y: 42
+                                    },
+                                                "com.redhat.Cockpit.DBusTests.Alpha": null
+                                            }
+                                        }, "correct data");
+                                        dbus.removeEventListener("notify", onnotify);
+                                        done();
+                                    });
+                        });
+            });
+});
+
+QUnit.test("path loop", function (assert) {
+    const done = assert.async();
+    assert.expect(2);
+
+    const name = "yo" + new Date().getTime();
+    const cache = { };
+
+    const dbus = cockpit.dbus(bus_name, channel_options);
+    const onnotify = (event, data) => Object.assign(cache, data);
+    dbus.addEventListener("notify", onnotify);
+
+    dbus.watch({ path_namespace: "/cliques/" + name })
+            .done(function() {
+                dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+                          "CreateClique", [name])
+                        .done(function(path) {
+                            const expect = { };
+                            /* The same way mock-service.c calculates the paths */
+                            for (let i = 0; i < 3; i++) {
+                                expect["/cliques/" + name + "/" + i] = {
+                                    "com.redhat.Cockpit.DBusTests.Clique": {
+                                        Friend: "/cliques/" + name + "/" + (i + 1) % 3
+                                    }
+                                };
+                            }
+                            assert.deepEqual(cache, expect, "got all data before method reply");
+                        })
+                        .always(function() {
+                            assert.equal(this.state(), "resolved", "method called");
+                            dbus.removeEventListener("notify", onnotify);
+                            done();
+                        });
+            })
+        .fail(done);
+});
+
+QUnit.test("path signal", function (assert) {
+    const done = assert.async();
+    assert.expect(4);
+
+    const name = "yo" + new Date().getTime();
+    const cache = { };
+
+    const dbus = cockpit.dbus(bus_name, channel_options);
+    const onnotify = (event, data) => Object.assign(cache, data);
+    dbus.addEventListener("notify", onnotify);
+
+    dbus.watch({ path: "/hidden/" + name })
+            .done(function() {
+                assert.deepEqual(cache, { }, "no data yet");
+
+                dbus.subscribe({ path: "/hidden/" + name }, function(path, iface, args) {
+                    assert.equal(typeof cache[path], "object", "have object");
+                    assert.deepEqual(cache[path], {
+                        "com.redhat.Cockpit.DBusTests.Hidden": { Name: name }
+                    }, "got data before signal");
+                    dbus.removeEventListener("notify", onnotify);
+                });
+                dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+                          "EmitHidden", [name])
+                        .always(function() {
+                            assert.equal(this.state(), "resolved", "method called");
+                            done();
+                        });
+            });
+});
+
+QUnit.test("proxy", function (assert) {
+    const done = assert.async();
+    assert.expect(7);
+
+    const dbus = cockpit.dbus(bus_name, channel_options);
+    const proxy = dbus.proxy("com.redhat.Cockpit.DBusTests.Frobber", "/otree/frobber");
+    proxy.wait(function() {
+        assert.strictEqual(proxy.valid, true, "proxy: is valid");
+        assert.deepEqual(proxy.data, {
+            FinallyNormalName: "There aint no place like home",
+            ReadonlyProperty: "blah",
+            aay: [], ag: [], ao: [], as: [],
+            ay: "QUJDYWJjAA==",
+            b: false, d: 43, g: "", i: 0, n: 0,
+            o: "/", q: 0, s: "", t: 0, u: 0, x: 0,
+            y: 42
+        }, "correct data");
+
+        assert.strictEqual(proxy.FinallyNormalName, "There aint no place like home", "property value");
+        assert.strictEqual(proxy.ReadonlyProperty, "blah", "another property value");
+
+        assert.equal(typeof proxy.HelloWorld, "function", "has function defined");
+        proxy.HelloWorld("From a proxy")
+                .done(function(message) {
+                    assert.equal(message, "Word! You said `From a proxy'. I'm Skeleton, btw!", "method args");
+                })
+                .always(function() {
+                    assert.equal(this.state(), "resolved", "method called");
+                    done();
+                });
+    });
+});
+
+QUnit.test("proxy call", function (assert) {
+    const done = assert.async();
+    assert.expect(2);
+
+    const dbus = cockpit.dbus(bus_name, channel_options);
+    const proxy = dbus.proxy("com.redhat.Cockpit.DBusTests.Frobber", "/otree/frobber");
+
+    /* No wait */
+    proxy.call("HelloWorld", ["From a proxy"])
+            .done(function(args) {
+                assert.equal(args[0], "Word! You said `From a proxy'. I'm Skeleton, btw!", "method args");
+            })
+            .always(function() {
+                assert.equal(this.state(), "resolved", "method called");
+                done();
+            });
+});
+
+QUnit.test("proxy signal", function (assert) {
+    const done = assert.async();
+    assert.expect(4);
+
+    let received = false;
+
+    const dbus = cockpit.dbus(bus_name, channel_options);
+    const proxy = dbus.proxy("com.redhat.Cockpit.DBusTests.Frobber", "/otree/frobber");
+
+    const onsignal = (event, name, args) => {
+        assert.equal(name, "TestSignal", "signals: got right name");
+        assert.deepEqual(args, [
+            43, ["foo", "frobber"], ["/foo", "/foo/bar"],
+            { first: [42, 42], second: [43, 43] }], "got right arguments");
+        received = true;
+    };
+    proxy.addEventListener("signal", onsignal);
+
+    proxy.call("RequestSignalEmission", [0])
+            .always(function() {
+                assert.equal(this.state(), "resolved", "emission requested");
+                assert.equal(received, true, "signal received");
+                proxy.removeEventListener("signal", onsignal);
+                done();
+            });
+});
+
+QUnit.test("proxy explicit notify", function (assert) {
+    const done = assert.async();
+    assert.expect(1);
+
+    const dbus = cockpit.dbus(bus_name, channel_options);
+    const proxy = dbus.proxy("com.redhat.Cockpit.DBusTests.Frobber", "/otree/frobber");
+
+    proxy.wait().done(function() {
+        const onchanged = () => {
+            assert.equal(proxy.FinallyNormalName, "externally injected");
+            proxy.removeEventListener("changed", onchanged);
+            done();
+        };
+        proxy.addEventListener("changed", onchanged);
+
+        dbus.notify({
+            "/otree/frobber": {
+                "com.redhat.Cockpit.DBusTests.Frobber": {
+                    FinallyNormalName: "externally injected"
+                }
+            }
+        });
+    });
+});
+
+QUnit.test("proxies", function (assert) {
+    const done = assert.async();
+    assert.expect(13);
+
+    const dbus = cockpit.dbus(bus_name, channel_options);
+
+    /* Just some cleanup */
+    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber", "DeleteAllObjects", [])
+            .always(function() {
+                assert.equal(this.state(), "resolved", "deleted stray objects");
+
+                const proxies = dbus.proxies("com.redhat.Cockpit.DBusTests.Frobber");
+                proxies.wait().always(function() {
+                    let added;
+                    proxies.addEventListener("added", function(event, proxy) {
+                        added = proxy;
+                        assert.strictEqual(added.valid, true, "added objects valid");
+                    });
+
+                    let changed;
+                    proxies.addEventListener("changed", function(event, proxy) {
+                        changed = proxy;
+                    });
+
+                    let removed;
+                    proxies.addEventListener("removed", function(event, proxy) {
+                        removed = proxy;
+                    });
+
+                    dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+                              "CreateObject", ["/otree/other"])
+                            .always(function() {
+                                assert.equal(this.state(), "resolved", "create objects done");
+
+                                assert.equal(typeof added, "object", "got added object");
+                                assert.equal(typeof changed, "object", "no changed object yet");
+                                assert.equal(typeof removed, "undefined", "no removed object yet");
+                                assert.equal(added && added.path, "/otree/other", "added object correct");
+                                assert.strictEqual(added, changed, "added fires changed");
+
+                                changed = null;
+
+                                if (!added)
+                                    done();
+                                else
+                                    dbus.call(added.path, added.iface, "RequestPropertyMods", [])
+                                            .always(function() {
+                                                assert.equal(this.state(), "resolved", "changed object");
+                                                assert.strictEqual(changed, added, "change fired");
+
+                                                dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
+                                                          "DeleteObject", ["/otree/other"])
+                                                        .always(function() {
+                                                            assert.equal(this.state(), "resolved", "removed object");
+                                                            assert.strictEqual(removed, added, "removed fired");
+                                                            assert.strictEqual(removed.valid, false, "removed is invalid");
+                                                            dbus.close();
+                                                            done();
+                                                        });
+                                            });
+                            });
+                });
+            });
+});
+
+QUnit.start();

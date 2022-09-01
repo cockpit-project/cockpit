@@ -33,7 +33,7 @@ export class ConfigFileSUSE extends ConfigFile {
      *      index: 0,
      *      value: "foo",
      *      quoted: true,
-     *      origLine: "someKey=\"foo\" # comment",
+     *      origLine: 'someKey="foo" # comment',
      *      suffix: "# comment"
      * }
      * skipNotify: Don't notify about changes, e.g.to avoid multiple updates when writing a file
@@ -71,25 +71,27 @@ export class ConfigFileSUSE extends ConfigFile {
                 return;
 
             // parse KEY=value or KEY="value" line
-            let parts = trimmed.match(/^([A-Z_]+)=(.*)$/);
-            if (parts === null)
+            let parts = trimmed.match(/^([A-Z_]+)\s*=\s*(.*)$/);
+            if (parts === null) {
+                console.warn("Malformed kdump config line:", trimmed, "in", this.filename);
                 return;
+            }
             const key = parts[1];
             let value = parts[2];
 
             // value might be quoted
             let quoted = false;
-            if (value.startsWith("\"")) {
+            if (value.startsWith('"')) {
                 quoted = true;
                 parts = value.match(/^"([^"]*)"\s*(.*)$/);
                 // malformed line, no ending quote?
                 if (parts === null) {
-                    console.error("Malformed kdump config line:", line, "in", this.filename);
+                    console.warn("Incorrectly quoted value in kdump config line:", line, "in", this.filename);
                     return;
                 }
             } else {
-                // not quoted should be simple value
-                parts = value.match(/^(\S+)\s*(.*)$/);
+                // not quoted should be simple value but grab everything and quote on write
+                parts = value.match(/^([^#]+?)\s*(#.*)?$/);
                 if (parts === null)
                     parts = ["", ""];
             }
@@ -130,7 +132,7 @@ export class ConfigFileSUSE extends ConfigFile {
             const parts = savedir.match(/^(.*):\/\/([^/]*)(\/.*)$/);
             // malformed KDUMP_SAVEDIR
             if (parts === null) {
-                console.error("Malformed KDUMP_SAVEDIR entry:", savedir, "in", this.filename);
+                console.warn("Malformed KDUMP_SAVEDIR entry:", savedir, "in", this.filename);
                 return;
             }
             const [, scheme, server, path] = parts;
@@ -193,7 +195,8 @@ export class ConfigFileSUSE extends ConfigFile {
         if (Object.keys(settings.targets).length > 0) {
             const target = Object.values(settings.targets)[0];
 
-            this._updateSetting(settings, "KDUMP_SSH_IDENTITY", target.sshkey);
+            if ("sshkey" in target)
+                this._updateSetting(settings, "KDUMP_SSH_IDENTITY", target.sshkey);
 
             let savedir;
             // default for empty path (except nfs, see below)
@@ -240,7 +243,7 @@ export class ConfigFileSUSE extends ConfigFile {
             let value = entry.value !== undefined ? entry.value : "";
             // quote what was quoted before + empty values + multi-word values
             if (entry.quoted || value === "" || value.includes(" "))
-                value = "\"" + value + "\"";
+                value = '"' + value + '"';
             let line = key + "=" + value;
             if (entry.suffix)
                 line = line + " " + entry.suffix;
@@ -254,7 +257,7 @@ export class ConfigFileSUSE extends ConfigFile {
             lines[origEntry.index] = line;
         });
 
-        // make sure file ends with EOL
+        // make sure file ends with a newline
         if (lines[lines.length - 1] !== "")
             lines.push("");
         return lines.join("\n");

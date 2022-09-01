@@ -934,7 +934,6 @@ maprule = LDAP:(userCertificate={cert!base64})
 # maprule = (|(userPrincipalName={subject_principal})(sAMAccountName={subject_principal.short_name}))
 """, perm="0600")
         # tell sssd about our CA for validating certs
-        m.execute("mkdir -p /etc/sssd/pki")
         with open("src/tls/ca/ca.pem") as f:
             m.write("/etc/sssd/pki/sssd_auth_ca_db.pem", f.read())
 

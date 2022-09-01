@@ -494,9 +494,8 @@ class TestHistoryMetrics(MachineCase):
         b = self.browser
         m = self.machine
 
+        m.write("/run/systemd/system/pmlogger.service.d/break.conf", "[Service]\nExecStart=\nExecStart=/bin/false")
         m.execute(r"""mount -t tmpfs tmpfs /var/log/pcp/pmlogger
-                      mkdir -p /run/systemd/system/pmlogger.service.d/
-                      printf '[Service]\nExecStart=\nExecStart=/bin/false\n' > /run/systemd/system/pmlogger.service.d/break.conf
                       systemctl daemon-reload
                       systemctl start pmlogger || true""")
         self.addCleanup(m.execute,
@@ -839,7 +838,6 @@ podman save quay.io/libpod/busybox | sudo -i -u admin podman load
         b.wait_not_present("#current-metrics-card-cpu .temperature")
 
         # No matching type
-        m.execute("mkdir -p /tmp/sensor-sys-class/hwmon/hwmon0")
         self.addCleanup(m.execute, "rm -rf /tmp/sensor-sys-class")
         m.write("/tmp/sensor-sys-class/hwmon/hwmon0/name", "BAT0")
         m.write("/tmp/sensor-sys-class/hwmon/hwmon0/temp1_input", "40000")
@@ -852,7 +850,6 @@ podman save quay.io/libpod/busybox | sudo -i -u admin podman load
 
         # create files that contain CPU temperature
         # ARM
-        m.execute("mkdir -p /tmp/sensor-sys-class/hwmon/hwmon1")
         m.write("/tmp/sensor-sys-class/hwmon/hwmon1/name", "cpu_thermal")
         m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp1_input", "30000")
 
@@ -929,7 +926,6 @@ podman save quay.io/libpod/busybox | sudo -i -u admin podman load
         b.wait_in_text("#current-metrics-card-cpu", "70 °C")
 
         # add second CPU
-        m.execute("mkdir -p /tmp/sensor-sys-class/hwmon/hwmon2")
         m.write("/tmp/sensor-sys-class/hwmon/hwmon2/name", "coretemp")
         m.write("/tmp/sensor-sys-class/hwmon/hwmon2/temp1_label", "Package id 0")
         m.write("/tmp/sensor-sys-class/hwmon/hwmon2/temp1_input", "60000")

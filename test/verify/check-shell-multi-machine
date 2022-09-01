@@ -390,7 +390,6 @@ class TestMultiMachine(MachineCase):
 
         hostname_selector = "#system_information_hostname_text"
 
-        m.execute("mkdir -p /etc/cockpit/")
         m.write("/etc/cockpit/cockpit.conf", "[WebService]\nUrlRoot = cockpit-new")
         m.start_cockpit()
 
@@ -435,7 +434,6 @@ class TestMultiMachine(MachineCase):
         b = self.browser
         m = self.machine
 
-        m.execute("mkdir -p /etc/cockpit/")
         m.write("/etc/cockpit/cockpit.conf", "[WebService]\nUrlRoot = cockpit-new")
         m.start_cockpit()
 

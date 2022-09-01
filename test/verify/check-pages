@@ -97,9 +97,11 @@ OnCalendar=daily
 
         # On Debian and Ubuntu we have to generate the other locales
         if "debian" in m.image:
-            m.execute("echo 'de_DE.UTF-8 UTF-8' >> /etc/locale.gen; locale-gen; update-locale")
+            m.write("/etc/locale.gen", "de_DE.UTF-8 UTF-8\n", append=True)
+            m.execute("locale-gen; update-locale")
         elif "arch" == m.image:
-            m.execute("echo 'de_DE.UTF-8 UTF-8' >> /etc/locale.gen; locale-gen")
+            m.write("/etc/locale.gen", "de_DE.UTF-8 UTF-8\n", append=True)
+            m.execute("locale-gen")
         elif "ubuntu" in m.image:
             m.execute("locale-gen de_DE; locale-gen de_DE.UTF-8; update-locale")
 
@@ -406,7 +408,6 @@ OnCalendar=daily
 
         self.check_system_menu("Overview", True)
         self.restore_dir("/home/admin")
-        m.execute("mkdir -p /home/admin/.local/share/cockpit/foo")
         m.write("/home/admin/.local/share/cockpit/foo/manifest.json",
                 '{ "menu": { "index": { "label": "FOO!" } } }')
         b.reload()
@@ -563,7 +564,8 @@ OnCalendar=daily
 
         stuff = os.path.join(self.vm_tmpdir, "stuff")
         # prepare a directory for testing file autocomplete widget
-        m.execute("mkdir -p {0}/dir1; touch {0}/file1.txt".format(stuff))
+        m.execute(f"mkdir -p {stuff}/dir1")
+        m.write(f"{stuff}/file1.txt", "")
 
         self.login_and_go("/playground/react-patterns")
 

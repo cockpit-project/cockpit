@@ -61,7 +61,7 @@ class TestXHRProxy(MachineCase):
 
         # set up served directory
         httpdir = self.vm_tmpdir + "/root"
-        m.execute("mkdir {0}; echo world > {0}/hello.txt".format(httpdir))
+        m.write(f"{httpdir}/hello.txt", "world\n")
         # start webserver
         pid = m.spawn(f"cd {httpdir}; exec python3 -m http.server 12345", "httpserver")
         self.addCleanup(m.execute, "kill %i" % pid)

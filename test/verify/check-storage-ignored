@@ -38,7 +38,6 @@ class TestStorageIgnored(StorageCase):
             b.wait_in_text("#mounts", disk + " (TESTLABEL)")
 
         # Hide it via a udev rule
-        m.execute("mkdir -p /run/udev/rules.d")
         m.write("/run/udev/rules.d/99-ignore.rules",
                 'SUBSYSTEM=="block", ENV{ID_FS_LABEL}=="TESTLABEL", ENV{UDISKS_IGNORE}="1"\n')
         self.addCleanup(m.execute, "rm /run/udev/rules.d/99-ignore.rules; udevadm control --reload; udevadm trigger")

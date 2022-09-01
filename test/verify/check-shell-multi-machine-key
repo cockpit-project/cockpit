@@ -239,15 +239,14 @@ class TestMultiMachineKeyAuth(MachineCase):
         m2 = self.machine2
 
         # upload id_ed25519 (password: locked)
-        m1.execute("mkdir -p /home/admin/.ssh")
-        m1.upload(["verify/files/ssh/id_ed25519", "verify/files/ssh/id_ed25519.pub",
-                   "verify/files/ssh/id_rsa", "verify/files/ssh/id_rsa.pub"],
-                  "/home/admin/.ssh/")
         m1.write("/home/admin/.ssh/config", """
 Host 10.111.113.2
     User user
     IdentityFile /home/admin/.ssh/id_ed25519
 """)
+        m1.upload(["verify/files/ssh/id_ed25519", "verify/files/ssh/id_ed25519.pub",
+                   "verify/files/ssh/id_rsa", "verify/files/ssh/id_rsa.pub"],
+                  "/home/admin/.ssh/")
         m1.execute("chmod 400 /home/admin/.ssh/*")
         m1.execute("chown -R admin:admin /home/admin/.ssh")
         authorize_user(m2, "user", ["verify/files/ssh/id_ed25519.pub"])

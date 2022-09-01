@@ -774,7 +774,6 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
             # until 2.6.2 is available everywhere. https://github.com/SSSD/sssd/issues/5911
             self.assertRegex(err, "Invalid certificate provided|Certificate authority file not found")
 
-            m.execute("mkdir -p /etc/sssd/pki")
             # install our CA, so that sssd can validate
             with open("src/tls/ca/ca.pem") as f:
                 m.write("/etc/sssd/pki/sssd_auth_ca_db.pem", f.read())

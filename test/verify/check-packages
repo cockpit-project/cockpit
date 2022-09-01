@@ -74,7 +74,6 @@ class TestPackages(MachineCase):
 
         check_nav_entry("Terminal", True)
 
-        m.execute("mkdir -p /usr/local/share/cockpit/test")
         m.write("/usr/local/share/cockpit/test/manifest.json", test_manifest)
         m.write("/usr/local/share/cockpit/test/test.html", test_html)
         reload_packages()
@@ -101,7 +100,6 @@ class TestPackages(MachineCase):
 
         # user override on top which renames the services label
         self.restore_dir("/home/admin")
-        m.execute("mkdir -p /home/admin/.config/cockpit")
         m.write("/home/admin/.config/cockpit/systemd.override.json", """{
     "menu": {
         "services": { "label": "Hackices" }

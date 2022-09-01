@@ -229,7 +229,6 @@ class TestSelinux(MachineCase):
 
         ansible_m = self.machines["ansible_machine"]
         ansible_m.execute("semanage module -D")
-        ansible_m.execute("mkdir -p roles/selinux/tasks/")
         ansible_m.write("roles/selinux/tasks/main.yml", b.text(ansible_script_sel))
         se_before = normalize(ansible_m.execute("semanage export"))
         ansible_m.execute("ansible -m include_role -a name=selinux localhost")

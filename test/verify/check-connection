@@ -163,11 +163,11 @@ class TestConnection(MachineCase):
             b.wait_text('#login-fatal-message', "The cockpit package is not installed")
             m.execute("mv /usr/bin/cockpit-bridge.disabled /usr/bin/cockpit-bridge")
 
-        # Lets crash a systemd-crontrolled process and see if we get a proper backtrace in the logs
+        # Lets crash a systemd-controlled process and see if we get a proper backtrace in the logs
         # This helps with debugging failures in the tests elsewhere
-        m.execute("""mkdir -p /run/systemd/system/systemd-hostnamed.service.d
-                     printf '[Service]\nLimitCORE=infinity\n' > /run/systemd/system/systemd-hostnamed.service.d/core.conf
-                     systemctl daemon-reload
+        m.write("/run/systemd/system/systemd-hostnamed.service.d/core.conf",
+                "[Service]\nLimitCORE=infinity\n")
+        m.execute("""systemctl daemon-reload
                      systemctl restart systemd-hostnamed
                      pkill -e -SEGV systemd-hostnam""")
         wait(lambda: m.execute("journalctl -b | grep 'Process.*systemd-hostnam.*of user.*dumped core.'"))
@@ -458,7 +458,6 @@ class TestConnection(MachineCase):
         self.assertIn("HTTP/1.1 301 Moved Permanently", output)
         self.assertIn("Location: https://172.27.0.15:9090/", output)
         # enable AllowUnencrypted, this disables redirect
-        m.execute("mkdir -p /etc/cockpit")
         m.write("/etc/cockpit/cockpit.conf", "[WebService]\nAllowUnencrypted=true")
         m.restart_cockpit()
         # now it should not redirect
@@ -468,7 +467,6 @@ class TestConnection(MachineCase):
     @nondestructive
     def testConfigOrigins(self):
         m = self.machine
-        m.execute("mkdir -p /etc/cockpit")
         m.write("/etc/cockpit/cockpit.conf", "[WebService]\nOrigins = http://other-origin:9090 http://localhost:9090")
         m.start_cockpit()
         headers = {

@@ -161,7 +161,7 @@ Server = file://{empty_repo_dir}
                     m.execute(f"cp '{data['path']}' '{dest}'")
                 else:
                     m.write(dest, data)
-        m.execute(f"mkdir -p /tmp/b/DEBIAN {self.repo_dir}")
+        m.execute(f"mkdir -p {self.repo_dir}")
         m.write("/tmp/b/DEBIAN/control", textwrap.dedent(f"""
             Package: {name}
             Version: {version}

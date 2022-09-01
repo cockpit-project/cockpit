@@ -94,7 +94,6 @@ class TestApps(PackageCase):
                 '{ "config": { "appstream_data_packages": [ "appstream-data-test" ] } }')
 
         if urlroot != "":
-            m.execute("mkdir -p /etc/cockpit")
             m.write("/etc/cockpit/cockpit.conf", f"[WebService]\nUrlRoot={urlroot}")
 
         m.start_cockpit()
@@ -144,7 +143,6 @@ class TestApps(PackageCase):
         b.login_and_go("/apps")
         b.wait_visible(".pf-c-empty-state")
 
-        m.execute("mkdir -p /usr/share/app-info/xmls")
         m.write("/usr/share/app-info/xmls/test.xml", """
 <components origin="test">
   <component type="addon">
@@ -202,8 +200,6 @@ class TestApps(PackageCase):
         m.start_cockpit()
         b.login_and_go("/apps")
         b.wait_visible(".pf-c-empty-state")
-
-        m.execute("mkdir -p /usr/share/app-info/xmls")
 
         self.allow_journal_messages(".*/usr/share/app-info/xmls/test.xml.*",
                                     ".*xml.etree.ElementTree.ParseError.*")

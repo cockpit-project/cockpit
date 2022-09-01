@@ -48,10 +48,11 @@ export function password_quality(password, force) {
 export const PasswordFormFields = ({
     password_label, password_confirm_label,
     password_label_info,
+    initial_password,
     error_password, error_password_confirm,
     idPrefix, change
 }) => {
-    const [password, setPassword] = useState(undefined);
+    const [password, setPassword] = useState(initial_password);
     const [passwordConfirm, setConfirmPassword] = useState(undefined);
     const [passwordStrength, setPasswordStrength] = useState("");
     const [passwordMessage, setPasswordMessage] = useState("");

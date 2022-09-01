@@ -187,6 +187,10 @@ class AsyncChannel(Channel):
     def do_done(self):
         self.receive_queue.put_nowait(b'')
 
+    def do_close(self):
+        # we might have already sent EOF for done, but two EOFs won't hurt anyone
+        self.receive_queue.put_nowait(b'')
+
     def do_ping(self, message):
         self.receive_queue.put_nowait(message)
 

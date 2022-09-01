@@ -62,7 +62,7 @@ export const PasswordFormFields = ({
 
         if (value) {
             password_quality(value)
-                    .catch(ex => {
+                    .catch(() => {
                         return { value: 0 };
                     })
                     .then(strength => {

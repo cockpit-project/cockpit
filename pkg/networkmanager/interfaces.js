@@ -158,10 +158,6 @@ export function NetworkManagerModel() {
      * resources for maintaining the unused proxies, avoids some code
      * complexity, and allows to do the right thing with the
      * peculiarities of the NetworkManager API.
-     *
-     * However, we do use a fake object manager since that allows us
-     * to avoid a lot of 'GetAll' round trips during initialization
-     * and helps with removing obsolete objects.
      */
 
     const self = this;
@@ -404,8 +400,8 @@ export function NetworkManagerModel() {
 
     self.preinit.then(() => {
         subscription = client.subscribe({ }, signal_emitted);
-        watch = client.watch({ });
         client.addEventListener("notify", onNotifyEventHandler);
+        watch = client.watch({ path_namespace: "/org/freedesktop" });
     });
 
     self.close = function close() {

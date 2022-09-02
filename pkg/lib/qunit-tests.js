@@ -30,4 +30,9 @@ require("./qunit-config.js");
 
 require("qunit/qunit/qunit.css");
 
+QUnit.mock_info = async key => {
+    const response = await fetch(`http://${window.location.hostname}:${window.location.port}/mock/info`);
+    return (await response.json())[key];
+};
+
 export default QUnit;

@@ -347,10 +347,8 @@ QUnit.test("wrong options", assert => {
 });
 
 QUnit.test("parallel stress test", async assert => {
-    const response = await fetch(`http://${window.location.hostname}:${window.location.port}/mock/info`);
-    const info = await response.json();
     // This is way too slow under valgrind
-    if (info.skip_slow_tests) {
+    if (await QUnit.mock_info("skip_slow_tests")) {
         assert.ok(true, "skipping on python bridge, not implemented");
         return;
     }

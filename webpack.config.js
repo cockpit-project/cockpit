@@ -444,7 +444,7 @@ module.exports = {
                 test: /\.(js|jsx)$/,
                 // exclude external dependencies; it's too slow, and they are already plain JS except the above
                 // also exclude unit tests, we don't need it for them, just a waste and makes failures harder to read
-                exclude: /\/node_modules|\/test-/,
+                exclude: /\/node_modules|\/test-[^/]*\.js/,
                 use: "babel-loader"
             },
             {

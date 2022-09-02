@@ -91,6 +91,7 @@ cockpit-bridge.pyz: $(MANIFESTS) $(PYTHON_BRIDGE_FILES) $(SYSTEMD_CTYPES_STAMP)
 	@mkdir -p tmp/pyz
 	@cp -r $(srcdir)/dist $(srcdir)/src/cockpit src/systemd_ctypes/ tmp/pyz
 	$(AM_V_GEN) python3 -m zipapp --python /usr/bin/python3 --output $@ --main cockpit.bridge:main tmp/pyz
+	@chmod a+x $@
 
 # -----------------------------------------------------------------------------
 #  C

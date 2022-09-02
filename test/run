@@ -24,6 +24,12 @@ case $TEST_SCENARIO in
         test/image-prepare --verbose --overlay $TEST_OS
         test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify --track-naughties
         ;;
+    pybridge)
+        test/image-prepare --verbose $TEST_OS
+        make -C tmp/build-dist/ cockpit-bridge.pyz
+        bots/image-customize -v --upload tmp/build-dist/cockpit-bridge.pyz:/usr/bin/cockpit-bridge $TEST_OS
+        test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify --track-naughties
+        ;;
     *)
         echo "Unknown test scenario: $TEST_SCENARIO"
         exit 1

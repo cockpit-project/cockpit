@@ -125,17 +125,17 @@ function generateDeps(makefile, stats) {
         const output = path.join(dir, asset);
         fs.utimesSync(output, now, now);
 
-        if (!output.endsWith("/manifest.json") && !output.endsWith(".map"))
+        if (!asset.endsWith("/manifest.json") && !asset.endsWith(".map"))
             outputs.add(output);
 
-        if (output.includes("/test-")) {
-            if (output.endsWith(".html")) {
+        if (asset.includes("/test-")) {
+            if (asset.endsWith(".html")) {
                 tests.add(output);
             }
             continue;
         }
 
-        if (output.endsWith(".map") || output.endsWith(".LICENSE.txt"))
+        if (asset.endsWith(".map") || asset.endsWith(".LICENSE.txt"))
             continue;
 
         installs.add(output);

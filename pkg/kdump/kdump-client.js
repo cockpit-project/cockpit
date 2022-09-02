@@ -20,6 +20,7 @@
 import cockpit from 'cockpit';
 import { proxy as serviceProxy } from 'service';
 import { ConfigFile } from './config-client.js';
+import { ConfigFileSUSE } from './config-client-suse.js';
 
 import crashKernelScript from 'raw-loader!./crashkernel.sh';
 import testWritableScript from 'raw-loader!./testwritable.sh';
@@ -61,6 +62,19 @@ export class KdumpClient {
 
         // watch the config file
         this.configClient = new ConfigFile("/etc/kdump.conf", true);
+        this._watchConfigChanges();
+
+        this.configClient.wait().then(() => {
+            // if no configuration found, try SUSE version
+            if (this.configClient.settings === null) {
+                this.configClient.close();
+                this.configClient = new ConfigFileSUSE("/etc/sysconfig/kdump", true);
+                this._watchConfigChanges();
+            }
+        });
+    }
+
+    _watchConfigChanges() {
         // catch config changes
         this.configClient.addEventListener('kdumpConfigChanged', () => {
             this.state.config = this.configClient.settings;

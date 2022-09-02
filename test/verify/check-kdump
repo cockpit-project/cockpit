@@ -248,6 +248,133 @@ class TestKdump(KdumpHelpers):
         conf = m.execute("cat /etc/kdump.conf")
         self.assertIn(current + " -c", conf)
 
+    @nondestructive
+    def testConfigurationSUSE(self):
+        b = self.browser
+        m = self.machine
+
+        testConfig = [
+            "# some comment",
+            "KDUMP_DUMPFORMAT=compressed # suffix",
+            "KDUMP_SSH_IDENTITY=\"\"",
+            "skip this line",
+            "BAD_QUOTES=unquoted value # suffix",
+            "BAD_SPACES = 42 # comment",
+            "MORE_BAD_SPACES = 4 2 # long comment",
+            "KDUMP_SAVEDIR=ssh//missing/colon",
+        ]
+
+        # clean default config to trigger SUSE config mode
+        self.write_file("/etc/kdump.conf", "")
+        # write initial SUSE config (append to keep original contents as well)
+        self.write_file("/etc/sysconfig/kdump", "\n".join(testConfig), append=True)
+
+        m.execute("systemctl disable --now kdump")
+
+        self.login_and_go("/kdump")
+        b.wait_visible("#app")
+
+        # Check malformed lines
+        b.wait_text("#kdump-target-info", "No configuration found")
+        b.wait(lambda: "warning: Malformed kdump config line: skip this line in /etc/sysconfig/kdump" in list(self.browser.get_js_log()))
+        b.wait(lambda: "warning: Malformed KDUMP_SAVEDIR entry: ssh//missing/colon in /etc/sysconfig/kdump" in list(self.browser.get_js_log()))
+
+        # Remove malformed KDUMP_SAVEDIR to check default if nothing specified
+        m.execute("sed -i '/KDUMP_SAVEDIR=.*/d' /etc/sysconfig/kdump")
+        b.wait_text("#kdump-change-target", "locally in /var/crash")
+
+        # Check fixing of (some) malformed lines and local target without file://
+        m.execute("echo KDUMP_SAVEDIR=/tmp >> /etc/sysconfig/kdump")
+        b.wait_text("#kdump-change-target", "locally in /tmp")
+        b.click("#kdump-change-target")
+        b.wait_visible("#kdump-settings-dialog")
+        b.click("button:contains('Save')")
+        b.wait_not_present("#kdump-settings-dialog")
+        conf = m.execute("cat /etc/sysconfig/kdump")
+        self.assertIn('KDUMP_SAVEDIR=file:///tmp', conf)
+        self.assertIn('BAD_QUOTES="unquoted value" # suffix', conf)
+        self.assertIn('BAD_SPACES=42 # comment', conf)
+        self.assertIn('MORE_BAD_SPACES="4 2" # long comment', conf)
+
+        # Check remote ssh location
+        b.click("#kdump-change-target")
+        b.wait_visible("#kdump-settings-dialog")
+        b.set_val("#kdump-settings-location", "ssh")
+        b.set_input_text("#kdump-settings-ssh-server", "admin@localhost")
+        b.set_input_text("#kdump-settings-ssh-key", "/home/admin/.ssh/id_rsa")
+        b.set_input_text("#kdump-settings-ssh-directory", "/var/tmp/crash")
+        b.click("button:contains('Save')")
+        b.wait_not_present("#kdump-settings-dialog")
+        b.wait_text("#kdump-change-target", "Remote over SSH")
+        conf = m.execute("cat /etc/sysconfig/kdump")
+        self.assertIn('KDUMP_SAVEDIR=ssh://admin@localhost/var/tmp/crash', conf)
+        self.assertIn('KDUMP_SSH_IDENTITY="/home/admin/.ssh/id_rsa"', conf)
+
+        # Check remote NFS location
+        b.click("#kdump-change-target")
+        b.wait_visible("#kdump-settings-dialog")
+        b.set_val("#kdump-settings-location", "nfs")
+        b.set_input_text("#kdump-settings-nfs-server", "someserver")
+        b.set_input_text("#kdump-settings-nfs-export", "/srv")
+        b.click("button:contains('Save')")
+        b.wait_not_present("#kdump-settings-dialog")
+        b.wait_text("#kdump-change-target", "Remote over NFS")
+        conf = m.execute("cat /etc/sysconfig/kdump")
+        self.assertIn('KDUMP_SAVEDIR=nfs://someserver/srv', conf)
+        self.assertNotIn("ssh://", conf)
+
+        # NFS with custom path
+        b.click("#kdump-change-target")
+        b.wait_visible("#kdump-settings-dialog")
+        b.set_input_text("#kdump-settings-nfs-directory", "dumps")
+        b.click("button:contains('Save')")
+        b.wait_not_present("#kdump-settings-dialog")
+        b.wait_text("#kdump-change-target", "Remote over NFS")
+        conf = m.execute("cat /etc/sysconfig/kdump")
+        self.assertIn('KDUMP_SAVEDIR=nfs://someserver/srv/dumps', conf)
+
+        # Check local location
+        b.click("#kdump-change-target")
+        b.wait_visible("#kdump-settings-dialog")
+        b.set_val("#kdump-settings-location", "local")
+        b.set_input_text("#kdump-settings-local-directory", "/var/tmp")
+        b.click("button:contains('Save')")
+        b.wait_not_present("#kdump-settings-dialog")
+        b.wait_text("#kdump-change-target", "locally in /var/tmp")
+        conf = m.execute("cat /etc/sysconfig/kdump")
+        self.assertIn('KDUMP_SAVEDIR=file:///var/tmp', conf)
+        self.assertNotIn("nfs://", conf)
+
+        # Check compression
+        conf = m.execute("cat /etc/sysconfig/kdump")
+        self.assertIn('KDUMP_DUMPFORMAT=compressed', conf)
+        b.click("#kdump-change-target")
+        b.wait_visible("#kdump-settings-dialog")
+        b.set_checked("#kdump-settings-compression", False)
+        b.click("button:contains('Save')")
+        b.wait_not_present("#kdump-settings-dialog")
+        conf = m.execute("cat /etc/sysconfig/kdump")
+        self.assertIn('KDUMP_DUMPFORMAT=ELF', conf)
+        b.click("#kdump-change-target")
+        b.wait_visible("#kdump-settings-dialog")
+        b.set_checked("#kdump-settings-compression", True)
+        b.click("button:contains('Save')")
+        b.wait_not_present("#kdump-settings-dialog")
+        conf = m.execute("cat /etc/sysconfig/kdump")
+        self.assertIn('KDUMP_DUMPFORMAT=compressed', conf)
+
+        # Check remote FTP location (no config dialog)
+        m.execute("sed -i 's/KDUMP_SAVEDIR=.*/KDUMP_SAVEDIR=ftp:\\/\\/user@ftpserver\\/dumps1/g' /etc/sysconfig/kdump")
+        b.wait_text("#kdump-target-info", "Remote over FTP")
+
+        # Check remote SFTP location (no config dialog)
+        m.execute("sed -i 's/KDUMP_SAVEDIR=.*/KDUMP_SAVEDIR=sftp:\\/\\/sftpserver\\/dumps2/g' /etc/sysconfig/kdump")
+        b.wait_text("#kdump-target-info", "Remote over SFTP")
+
+        # Check remote CIFS location (no config dialog)
+        m.execute("sed -i 's/KDUMP_SAVEDIR=.*/KDUMP_SAVEDIR=cifs:\\/\\/user:pass@smbserver\\/dumps3/g' /etc/sysconfig/kdump")
+        b.wait_text("#kdump-target-info", "Remote over CIFS/SMB")
+
 
 @skipImage("kexec-tools not installed", "fedora-coreos", "debian-stable",
            "debian-testing", "ubuntu-2204", "ubuntu-stable", "arch")

@@ -1159,6 +1159,13 @@ class TestMetricsPackages(packagelib.PackageCase):
             self.login_and_go("/metrics")
             b.wait_in_text(".pf-c-empty-state", "cockpit-pcp is missing")
             b.wait_not_present(".pf-c-empty-state button.pf-m-primary")
+
+            b.click("#metrics-header-section button.pf-m-secondary")
+            b.wait_visible("#pcp-settings-modal")
+            b.wait_visible("#switch-pmlogger:not(:checked)")
+            # no packagekit, can't enable
+            b.wait_visible("#switch-pmlogger:disabled")
+            b.wait_visible("#switch-pmproxy:disabled")
             return
 
         if m.image.startswith("debian") or m.image.startswith("ubuntu"):

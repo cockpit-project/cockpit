@@ -205,9 +205,9 @@ session    optional     pam_ssh_add.so
         m.execute("mkdir -p /home/admin/.ssh")
         m.upload([
             "verify/files/ssh/id_rsa",
-            "verify/files/ssh/id_dsa",
             "verify/files/ssh/id_rsa.pub",
-            "verify/files/ssh/id_dsa.pub"
+            "verify/files/ssh/id_ed25519",
+            "verify/files/ssh/id_ed25519.pub"
         ], "/home/admin/.ssh/")
         m.execute("chmod 600 /home/admin/.ssh/*")
         m.execute("chown -R admin:admin /home/admin/.ssh")
@@ -222,12 +222,12 @@ session    optional     pam_ssh_add.so
         self.login_and_go()
 
         id_rsa = "2048 SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw"
-        id_dsa = "1024 SHA256:x6S6fxMuEyqhpwNRAIK7ms6bZDY6xK9wzdDr2kCaWVY"
+        id_ed25519 = "256 SHA256:Wd028KYmG3OVLp7dBmdx0gMR7VcarJVIfaTtKqYCmak"
 
         keys = list_keys()
         if auto_load:
             self.assertIn(id_rsa, keys)
-        self.assertNotIn(id_dsa, keys)
+        self.assertNotIn(id_ed25519, keys)
 
         b.open_session_menu()
         b.click("#sshkeys")
@@ -253,18 +253,18 @@ session    optional     pam_ssh_add.so
         toggleExpandedStateKey('id_rsa')
         waitKeyRowExpanded('id_rsa', False)
 
-        # Load the id_dsa key
-        waitKeyLoaded('id_dsa', False)
-        toggleKeyState('id_dsa')
-        b.set_input_text("#id_dsa-password", "badbad")
-        b.click("#id_dsa-unlock")
-        waitKeyLoaded('id_dsa', True)
+        # Load the id_ed25519 key
+        waitKeyLoaded('id_ed25519', False)
+        toggleKeyState('id_ed25519')
+        b.set_input_text("#id_ed25519-password", "locked")
+        b.click("#id_ed25519-unlock")
+        waitKeyLoaded('id_ed25519', True)
 
         # Both keys are now loaded
         keys = list_keys()
         if auto_load:
             self.assertIn(id_rsa, keys)
-        self.assertIn(id_dsa, keys)
+        self.assertIn(id_ed25519, keys)
 
         # Unload the RSA key
         if auto_load:
@@ -273,18 +273,18 @@ session    optional     pam_ssh_add.so
 
         # Only DSA keys now loaded
         keys = list_keys()
-        self.assertIn(id_dsa, keys)
+        self.assertIn(id_ed25519, keys)
         self.assertNotIn(id_rsa, keys)
 
         # Change password of DSA key
-        toggleExpandedStateKey('id_dsa')
-        selectTab('id_dsa', 'Password')
-        b.set_input_text("#id_dsa-old-password", "badbad")
-        b.set_input_text("#id_dsa-new-password", "foobar")
-        b.set_input_text("#id_dsa-confirm-password", "foobar")
+        toggleExpandedStateKey('id_ed25519')
+        selectTab('id_ed25519', 'Password')
+        b.set_input_text("#id_ed25519-old-password", "locked")
+        b.set_input_text("#id_ed25519-new-password", "foobar")
+        b.set_input_text("#id_ed25519-confirm-password", "foobar")
         b.assert_pixels("#credentials-modal", "ssh-keys-dialog", ignore=[".ct-icon-info-circle", "tbody:nth-child(1) .pf-c-table__toggle-icon"])
 
-        b.click("#id_dsa-change-password")
+        b.click("#id_ed25519-change-password")
         b.wait_visible('#credentials-modal .pf-c-helper-text__item.pf-m-success')
 
         # Log off and log back in, and we should have both loaded automatically
@@ -293,7 +293,7 @@ session    optional     pam_ssh_add.so
             b.login_and_go()
             keys = list_keys()
             self.assertIn(id_rsa, keys)
-            self.assertIn(id_dsa, keys)
+            self.assertIn(id_ed25519, keys)
 
             b.open_session_menu()
             b.click("#sshkeys")
@@ -323,8 +323,8 @@ session    optional     pam_ssh_add.so
         keys = list_keys()
         keys_length = 3 if auto_load else 2
         if openssh_version >= [7, 8]:
-            # Keys are like: 1024 SHA256:x6S6fxMuEyqhpwNRAIK7ms6bZDY6xK9wzdDr2kCaWVY id_dsa (DSA)
-            # We need the id_dsa part, (name or comment)
+            # Keys are like: 256 SHA256:x6S6fxMuEyqhpwNRAIK7ms6bZDY6xK9wzdDr2kCaWVY id_ed25519 (ED25519)
+            # We need the id_ed25519 part, (name or comment)
             new_key = keys.splitlines()[keys_length - 1].split(' ')[2]
         else:
             new_key = "new.rsa"

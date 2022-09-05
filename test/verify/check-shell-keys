@@ -21,7 +21,6 @@ import parent  # noqa: F401
 from testlib import MachineCase, nondestructive, skipBrowser, skipDistroPackage, test_main
 
 
-FP_MD5 = "d7:ed:a4:cb:72:17:28:8c:a7:99:59:56:e3:ec:73:1f"
 FP_SHA256 = "SHA256:iyVAl4Z8riL9Jg4fV9Wv/6cbqebdDtsBEMkojNLLYX8"
 KEY = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEAkRTvQCSEZNPXpA5bP82ilQn3TMeQ6z2NO3O0UwY9z test-name"
 
@@ -52,7 +51,7 @@ class TestKeys(MachineCase):
             b.enter_page("/users")
             b.wait_text("#account-user-name", user)
 
-        def add_key(key, fp_md5, fp_sh256, comment):
+        def add_key(key, fp_sh256, comment):
             b.click('#authorized-key-add')
             b.wait_visible("#add-authorized-key-dialog")
             b.wait_val("#authorized-keys-text", "")
@@ -64,10 +63,7 @@ class TestKeys(MachineCase):
 
             b.wait_not_in_text("#account-authorized-keys-list", "no authorized public keys")
             text = b.text("#account-authorized-keys-list")
-            if ("SHA256" in text):
-                self.assertIn(fp_sh256, text)
-            else:
-                self.assertIn(fp_md5, text)
+            self.assertIn(fp_sh256, text)
 
         # no keys
         login("user", "foobar")
@@ -84,7 +80,7 @@ class TestKeys(MachineCase):
         b.click("#add-authorized-key-dialog button.cancel")
 
         # add good
-        add_key(KEY, FP_MD5, FP_SHA256, "test-name")
+        add_key(KEY, FP_SHA256, "test-name")
 
         # Try see admin
         b.go("#/admin")
@@ -118,7 +114,7 @@ class TestKeys(MachineCase):
 
         # Adding keys sets permissions properly
         b.wait_text("#account-user-name", "user")
-        add_key(KEY, FP_MD5, FP_SHA256, "test-name")
+        add_key(KEY, FP_SHA256, "test-name")
         perms = m.execute("getfacl -a /home/user/.ssh")
         self.assertIn("owner: user", perms)
 
@@ -226,18 +222,12 @@ session    optional     pam_ssh_add.so
         self.login_and_go()
 
         id_rsa = "2048 SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw"
-        old_rsa = "2048 93:40:9e:67:82:78:a8:99:89:39:d5:ba:e0:50:70:e1"
         id_dsa = "1024 SHA256:x6S6fxMuEyqhpwNRAIK7ms6bZDY6xK9wzdDr2kCaWVY"
-        old_dsa = "1024 d4:55:41:20:f1:0a:e0:52:15:fc:fc:f0:63:22:1f:76"
 
         keys = list_keys()
         if auto_load:
-            if "SHA256" in keys:
-                self.assertIn(id_rsa, keys)
-            else:
-                self.assertIn(old_rsa, keys)
+            self.assertIn(id_rsa, keys)
         self.assertNotIn(id_dsa, keys)
-        self.assertNotIn(old_dsa, keys)
 
         b.open_session_menu()
         b.click("#sshkeys")
@@ -250,10 +240,7 @@ session    optional     pam_ssh_add.so
         waitKeyDetail('id_rsa', 'Comment', "test@test")
         waitKeyDetail('id_rsa', 'Type', "RSA")
         text = b.text("tr[data-name=id_rsa] + tr dt:contains(Fingerprint) + dd > div")
-        if "SHA256" in text:
-            self.assertEqual(text, id_rsa[5:])
-        else:
-            self.assertEqual(text, old_rsa[5:])
+        self.assertEqual(text, id_rsa[5:])
 
         selectTab('id_rsa', 'Public key')
         b.wait_val("tr[data-name=id_rsa] + tr .pf-c-clipboard-copy input",
@@ -275,14 +262,9 @@ session    optional     pam_ssh_add.so
 
         # Both keys are now loaded
         keys = list_keys()
-        if "SHA256" in keys:
-            if auto_load:
-                self.assertIn(id_rsa, keys)
-            self.assertIn(id_dsa, keys)
-        else:
-            if auto_load:
-                self.assertIn(old_rsa, keys)
-            self.assertIn(old_dsa, keys)
+        if auto_load:
+            self.assertIn(id_rsa, keys)
+        self.assertIn(id_dsa, keys)
 
         # Unload the RSA key
         if auto_load:
@@ -291,12 +273,8 @@ session    optional     pam_ssh_add.so
 
         # Only DSA keys now loaded
         keys = list_keys()
-        if "SHA256" in keys:
-            self.assertIn(id_dsa, keys)
-        else:
-            self.assertIn(old_dsa, keys)
+        self.assertIn(id_dsa, keys)
         self.assertNotIn(id_rsa, keys)
-        self.assertNotIn(old_rsa, keys)
 
         # Change password of DSA key
         toggleExpandedStateKey('id_dsa')
@@ -314,12 +292,8 @@ session    optional     pam_ssh_add.so
             b.logout()
             b.login_and_go()
             keys = list_keys()
-            if "SHA256" in keys:
-                self.assertIn(id_rsa, keys)
-                self.assertIn(id_dsa, keys)
-            else:
-                self.assertIn(old_rsa, keys)
-                self.assertIn(old_dsa, keys)
+            self.assertIn(id_rsa, keys)
+            self.assertIn(id_dsa, keys)
 
             b.open_session_menu()
             b.click("#sshkeys")

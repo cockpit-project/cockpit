@@ -574,7 +574,6 @@ mock_ssh_server (const gchar *server_addr,
   ssh_bind_options_set (sshbind, SSH_BIND_OPTIONS_BINDADDR, server_addr);
   ssh_bind_options_set (sshbind, SSH_BIND_OPTIONS_BINDPORT, &server_port);
   ssh_bind_options_set (sshbind, SSH_BIND_OPTIONS_RSAKEY, SRCDIR "/src/ssh/mock_rsa_key");
-  ssh_bind_options_set (sshbind, SSH_BIND_OPTIONS_DSAKEY, SRCDIR "/src/ssh/mock_dsa_key");
 
   /* Known issue with recent libssh versions on 32bits: avoid using
    * curve25519-sha256.  See https://bugs.libssh.org/T151

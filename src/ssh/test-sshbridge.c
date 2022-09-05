@@ -699,7 +699,7 @@ test_echo_large (TestCase *tc,
 static const gchar MOCK_RSA_FP[] = "SHA256:XQ8a7zGxMFstDrGecBRUP9OMnOUXd/T3vkNGtYShs2w";
 #define SSH_PUBLICKEY_HASH_NAME "SHA256"
 
-#define MOCK_DSA_PUB_KEY "ssh-dss AAAAB3NzaC1kc3MAAACBAIK3RTEWBw+rAPcYUM2Qq4kEw59gXpUQ/WvkdeY7QDO64MHaaorySj8xsraNudmQFh4xb/i5Q1EMnNchOFxtilfU5bUJgdTvetyZEWFL+2HxqBs8GaWRyB1vtSFAw3GO8VUEnjF844N3dNyLoc0NX8IvzwNIaQho6KTsueQlG1X9AAAAFQCXUl4a5UvElL4thi/8QlxR5PtEewAAAIBqNpl5MTBxKQu5jT0+WASa7pAqwT53ofv7ZTDIEokYRb57/nwzDgkcs1fsBRrI6eczJ/VlXWwKbsgkx2Nh3ZiWYwC+HY5uqRpDaj3HERC6LMn4dzdcl29fYeziEibCbRjJX5lZF2vIaA1Ewv8yT0UlunyHZRiyw4WlEglkf/NITAAAAIBxLsdBBXn+8qEYwWK9KT+arRqNXC/lrl0Fp5YyxGNGCv82JcnuOShGGTzhYf8AtTCY1u5oixiW9kea6KXGAKgTjfJShr7n47SZVfOPOrBT3VLhRdGGO3GblDUppzfL8wsEdoqXjzrJuxSdrGnkFu8S9QjkPn9dCtScvWEcluHqMw=="
+#define MOCK_ECDSA_PUB_KEY "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBK4PZL/iBp7/hQhRvsBh6Mg/UsLXGIRFWTekFq1nJXm3CkBkysa3Jxi9MUkNo0hIDHly2bOMKCKNSpN2U6iGCjw="
 
 static void
 do_auth_conversation (CockpitTransport *transport,
@@ -827,7 +827,7 @@ static const TestFixture fixture_knownhost_sssd_known = {
 };
 
 static const TestFixture fixture_knownhost_sssd_known_multi_key = {
-  .knownhosts_sssd = MOCK_DSA_PUB_KEY "\n" MOCK_RSA_KEY,
+  .knownhosts_sssd = MOCK_ECDSA_PUB_KEY "\n" MOCK_RSA_KEY,
   .knownhosts_sssd_host = "127.0.0.1",
   .knownhosts_file = "/dev/null",
   .ssh_command = BUILDDIR "/mock-echo"
@@ -1182,7 +1182,7 @@ test_key_fail (TestCase *tc,
                gconstpointer data)
 {
   g_autofree gchar *privkey = NULL;
-  g_assert (g_file_get_contents (SRCDIR "/src/ssh/mock_dsa_key", &privkey, NULL, NULL));
+  g_assert (g_file_get_contents (SRCDIR "/src/ssh/mock_ecdsa_key", &privkey, NULL, NULL));
 
   g_autofree gchar *msg = g_strdup_printf ("private-key %s", privkey);
 

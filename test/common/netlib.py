@@ -43,7 +43,7 @@ class NetworkHelpers:
             # up the remote end, give it an IP, and start DHCP server
             self.machine.execute("ip a add {0} dev v_{1}; ip link set v_{1} up".format(dhcp_cidr, name))
             server = self.machine.spawn("dnsmasq --keep-in-foreground --log-queries --log-facility=- "
-                                        "--conf-file=/dev/null --dhcp-leasefile=/tmp/leases.{0} "
+                                        "--conf-file=/dev/null --dhcp-leasefile=/tmp/leases.{0} --no-resolv "
                                         "--bind-interfaces --except-interface=lo --interface=v_{0} --dhcp-range={1},{2},4h".format(name, dhcp_range[0], dhcp_range[1]),
                                         f"dhcp-{name}.log")
             self.addCleanup(self.machine.execute, "kill %i" % server)

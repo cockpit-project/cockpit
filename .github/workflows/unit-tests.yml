@@ -39,5 +39,6 @@ jobs:
               --verbose \
               ${{ matrix.startarg.network }} \
               --env=CC='${{ matrix.startarg.cc }}' \
+              --env=CFLAGS='-O2 -gdwarf-4' \
               --image-tag='${{ matrix.startarg.tag }}' \
               --make '${{ matrix.startarg.make }}'

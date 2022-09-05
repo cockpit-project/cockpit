@@ -12,9 +12,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-30 06:17+0000\n"
-"PO-Revision-Date: 2022-04-13 18:17+0000\n"
-"Last-Translator: Ludek Janda <ljanda@redhat.com>\n"
+"POT-Creation-Date: 2022-09-05 03:39+0000\n"
+"PO-Revision-Date: 2022-09-05 11:45+0000\n"
+"Last-Translator: Transtats <suanand@redhat.com>\n"
 "Language-Team: Japanese <https://translate.fedoraproject.org/projects/"
 "cockpit/main/ja/>\n"
 "Language: ja\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
-"X-Generator: Weblate 4.11.2\n"
+"X-Generator: Weblate 4.14\n"
 
 #: pkg/storaged/content-views.jsx:501
 msgid "$0 (encrypted)"
@@ -47,10 +47,8 @@ msgid_plural "$0 active zones"
 msgstr[0] "$0 アクティブゾーン"
 
 #: pkg/metrics/metrics.jsx:601 pkg/metrics/metrics.jsx:716
-#, fuzzy
-#| msgid "$0 GiB available"
 msgid "$0 available"
-msgstr "$0 GiB が利用可能"
+msgstr "$0 利用可能"
 
 #: pkg/storaged/others-panel.jsx:39
 msgid "$0 block device"
@@ -521,16 +519,16 @@ msgid ""
 "A network bond combines multiple network interfaces into one logical "
 "interface with higher throughput or redundancy."
 msgstr ""
-"ネットワークボンドは複数のネットワークインタフェースを高いスループットまたは"
-"冗長性の単一論理インタフェースにまとめます。"
+"ネットワークボンディングは複数のネットワークインタフェースを高いスループット"
+"または冗長性の単一論理インタフェースにまとめます。"
 
 #: pkg/shell/hosts_dialog.jsx:772
 msgid ""
 "A new SSH key at $0 will be created for $1 on $2 and it will be added to the "
 "$3 file of $4 on $5."
 msgstr ""
-"$0 で新しい SSH キーが $2 の $1 用に作成され、$5 の $4 の $3 ファイルに追加さ"
-"れました。"
+"$0 で新しい SSH キーが $2 の $1 用に作成され、$5 上の $3 の $3 ファイルに追加"
+"されました。"
 
 #: pkg/packagekit/updates.jsx:1501
 msgid "A package needs a system reboot for the updates to take effect:"
@@ -654,61 +652,59 @@ msgstr "追加する"
 #: pkg/lib/cockpit-components-firewalld-request.jsx:148
 #: pkg/networkmanager/network-interface-members.jsx:176
 msgid "Add $0"
-msgstr "$0 の追加"
+msgstr "$0 を追加する"
 
 #: pkg/networkmanager/network-main.jsx:178
 msgid "Add VLAN"
-msgstr "VLAN の追加"
+msgstr "VLAN を追加する"
 
 #: pkg/networkmanager/firewall.jsx:1027
 msgid "Add a new zone"
-msgstr "新しいゾーンの追加"
+msgstr "新しいゾーンを追加する"
 
 #: pkg/storaged/stratis-details.jsx:123
 msgid "Add block devices"
-msgstr "ブロックデバイスの追加"
+msgstr "ブロックデバイスを追加する"
 
 #: pkg/networkmanager/network-main.jsx:175
 msgid "Add bond"
-msgstr "ボンドの追加"
+msgstr "ボンディングを追加する"
 
 #: pkg/networkmanager/network-main.jsx:177
 msgid "Add bridge"
-msgstr "ブリッジの追加"
+msgstr "ブリッジを追加する"
 
 #: pkg/storaged/vgroup-details.jsx:65 pkg/storaged/mdraid-details.jsx:63
 msgid "Add disks"
-msgstr "ディスクの追加"
+msgstr "ディスクを追加する"
 
 #: pkg/storaged/iscsi-panel.jsx:45
 msgid "Add iSCSI portal"
-msgstr "iSCSI ポータルの追加"
+msgstr "iSCSI ポータルを追加する"
 
 #: pkg/networkmanager/ip-settings.jsx:175
 #: pkg/networkmanager/ip-settings.jsx:238
 #: pkg/networkmanager/ip-settings.jsx:283
 #: pkg/networkmanager/ip-settings.jsx:328
 msgid "Add item"
-msgstr "アイテムの追加"
+msgstr "アイテムを追加する"
 
 #: pkg/storaged/crypto-keyslots.jsx:280 pkg/users/authorized-keys-panel.js:153
 #: pkg/shell/credentials.jsx:93
 msgid "Add key"
-msgstr "鍵の追加"
+msgstr "キーを追加する"
 
 #: pkg/networkmanager/network-interface-members.jsx:196
 msgid "Add member"
-msgstr "メンバーの追加"
+msgstr "メンバーを追加する"
 
 #: pkg/shell/hosts_dialog.jsx:243 pkg/shell/hosts.jsx:204
 msgid "Add new host"
-msgstr "新しいホストの追加"
+msgstr "新しいホストを追加する"
 
 #: pkg/networkmanager/firewall.jsx:1028
-#, fuzzy
-#| msgid "Add a new zone"
 msgid "Add new zone"
-msgstr "新しいゾーンの追加"
+msgstr "新しいゾーンを追加する"
 
 #: pkg/networkmanager/firewall.jsx:584
 msgid "Add ports"
@@ -759,7 +755,7 @@ msgstr ""
 
 #: pkg/users/authorized-keys.js:112
 msgid "Adding key"
-msgstr "鍵の追加"
+msgstr "キーの追加"
 
 #: pkg/storaged/jobs-panel.jsx:80
 msgid "Adding physical volume to $target"
@@ -819,18 +815,12 @@ msgid "Administrative access"
 msgstr "管理アクセス"
 
 #: pkg/sosreport/index.jsx:435
-#, fuzzy
-#| msgid ""
-#| "You need to switch to \"Administrative access\" in order to create "
-#| "reports."
 msgid "Administrative access is required to create and access reports."
-msgstr "レポートを作成するには「管理アクセス」に切り替える必要があります。"
+msgstr "レポートの作成およびアクセスには、管理アクセスが必要です。"
 
 #: pkg/sosreport/index.jsx:434
-#, fuzzy
-#| msgid "Administrative access"
 msgid "Administrative access required"
-msgstr "管理アクセス"
+msgstr "管理アクセスが必要"
 
 #: pkg/lib/machine-info.js:86
 msgid "Advanced TCA"
@@ -921,10 +911,8 @@ msgid "Applications list"
 msgstr "アプリケーションリスト"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:177
-#, fuzzy
-#| msgid "Save and reboot"
 msgid "Apply and reboot"
-msgstr "保存および再起動"
+msgstr "適用して再起動する"
 
 #: pkg/packagekit/kpatch.jsx:260
 msgid "Apply kernel live patches"
@@ -936,7 +924,7 @@ msgstr "このソリューションの適用"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:172
 msgid "Applying new policy... This may take a few minutes."
-msgstr ""
+msgstr "新しいポリシーを適用しています... これには数分かかる場合があります。"
 
 #: pkg/selinux/setroubleshoot-view.jsx:81
 msgid "Applying solution..."
@@ -975,7 +963,7 @@ msgstr "1 つ以上のブロックデバイスが必要です。"
 #: pkg/storaged/vgroups-panel.jsx:79 pkg/storaged/vgroup-details.jsx:72
 #: pkg/storaged/stratis-details.jsx:142 pkg/storaged/mdraid-details.jsx:70
 msgid "At least one disk is needed."
-msgstr "少なくとも 1 つのディスクが必要です。"
+msgstr "1 つ以上のディスクが必要です。"
 
 #: pkg/systemd/services/timer-dialog.jsx:259
 msgid "At minute"
@@ -986,10 +974,8 @@ msgid "At specific time"
 msgstr "特定の時間"
 
 #: pkg/sosreport/index.jsx:515
-#, fuzzy
-#| msgid "Edit $0 attributes"
 msgid "Attributes"
-msgstr "$0 属性の編集"
+msgstr "属性"
 
 #: pkg/selinux/setroubleshoot-view.jsx:355
 msgid "Audit log"
@@ -997,11 +983,11 @@ msgstr "監査ログ"
 
 #: pkg/shell/superuser.jsx:173 pkg/shell/superuser.jsx:210
 msgid "Authenticate"
-msgstr "認証"
+msgstr "認証する"
 
 #: pkg/networkmanager/interfaces.js:745
 msgid "Authenticating"
-msgstr "認証"
+msgstr "認証中"
 
 #: pkg/users/account-create-dialog.js:65 pkg/shell/hosts_dialog.jsx:812
 msgid "Authentication"
@@ -1159,11 +1145,11 @@ msgstr "ブロック済み"
 #: pkg/networkmanager/network-interface.jsx:188
 #: pkg/networkmanager/network-interface.jsx:438
 msgid "Bond"
-msgstr "Bond"
+msgstr "ボンディング"
 
 #: pkg/networkmanager/bond.jsx:137
 msgid "Bond settings"
-msgstr "ボンド設定"
+msgstr "ボンディング設定"
 
 #: pkg/systemd/logs.jsx:355
 msgid "Boot"
@@ -1333,7 +1319,7 @@ msgstr "変更"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:166
 msgid "Change crypto policy"
-msgstr ""
+msgstr "暗号化ポリシーの変更"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:277
 msgid "Change host name"
@@ -1551,16 +1537,14 @@ msgstr "色"
 msgid "Comma-separated ports, ranges, and services are accepted"
 msgstr "コンマで区切られたポート、範囲、およびサービスを指定できます"
 
-#: pkg/storaged/dialog.jsx:1202 pkg/storaged/dialog.jsx:1221
+#: pkg/storaged/dialog.jsx:1199 pkg/storaged/dialog.jsx:1218
 #: pkg/systemd/services/timer-dialog.jsx:175
 msgid "Command"
 msgstr "コマンド"
 
 #: pkg/systemd/services/timer-dialog.jsx:178
-#, fuzzy
-#| msgid "Unit not found"
 msgid "Command not found"
-msgstr "単位が見つかりません"
+msgstr "コマンドが見つかりません"
 
 #: pkg/shell/credentials.jsx:198
 msgid "Comment"
@@ -1627,10 +1611,8 @@ msgstr "確定します"
 
 #: pkg/storaged/stratis-details.jsx:548
 #: pkg/systemd/services/service-details.jsx:693
-#, fuzzy
-#| msgid "Please confirm deletion of $0"
 msgid "Confirm deletion of $0"
-msgstr "$0 の削除を確定してください"
+msgstr "$0 の削除を確定する"
 
 #: pkg/shell/hosts_dialog.jsx:777
 msgid "Confirm key password"
@@ -1657,10 +1639,8 @@ msgid "Confirm removal with an alternate passphrase"
 msgstr "代替のパスフレーズで削除を確認"
 
 #: pkg/storaged/vdo-details.jsx:141 pkg/storaged/mdraid-details.jsx:240
-#, fuzzy
-#| msgid "Please confirm stopping of $0"
 msgid "Confirm stopping of $0"
-msgstr "$0 の停止を確認してください"
+msgstr "$0 の停止を確定する"
 
 #: pkg/systemd/services/service-details.jsx:549
 msgid "Conflicted by"
@@ -1777,7 +1757,7 @@ msgstr "コア $0"
 msgid "Could not contact $0"
 msgstr "$0 に問い合わせられませんでした"
 
-#: pkg/kdump/kdump-view.jsx:307 pkg/kdump/kdump-view.jsx:505
+#: pkg/kdump/kdump-view.jsx:307 pkg/kdump/kdump-view.jsx:511
 msgid "Crash dump location"
 msgstr "クラッシュダンプの場所"
 
@@ -1934,18 +1914,16 @@ msgid ""
 "Crypto Policies is a system component that configures the core cryptographic "
 "subsystems, covering the TLS, IPSec, SSH, DNSSec, and Kerberos protocols."
 msgstr ""
+"暗号化ポリシーは、TLS、IPSec、SSH、DNSSec、および Kerberos プロトコルに対応す"
+"るコア暗号化サブシステムを設定するシステムコンポーネントです。"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:73
-#, fuzzy
-#| msgid "Restart policy"
 msgid "Crypto policy"
-msgstr "再起動ポリシー"
+msgstr "暗号化ポリシー"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:215
-#, fuzzy
-#| msgid "Restart policy"
 msgid "Crypto policy is inconsistent"
-msgstr "再起動ポリシー"
+msgstr "暗号化ポリシーに一貫性がありません"
 
 #: pkg/lib/cockpit-components-context-menu.jsx:104
 msgid "Ctrl+Insert"
@@ -1960,20 +1938,16 @@ msgid "Current boot"
 msgstr "現在の起動"
 
 #: pkg/metrics/metrics.jsx:628
-#, fuzzy
-#| msgid "Currently in use"
 msgid "Current top CPU usage"
-msgstr "現在使用されています"
+msgstr "現在の CPU 使用率のトップ"
 
 #: pkg/storaged/dialog.jsx:1093
 msgid "Currently in use"
 msgstr "現在使用されています"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:128
-#, fuzzy
-#| msgid "Custom encryption options"
 msgid "Custom crypto policy"
-msgstr "カスタムの暗号化オプション"
+msgstr "カスタム暗号化ポリシー"
 
 #: pkg/storaged/fsys-tab.jsx:339 pkg/storaged/nfs-details.jsx:171
 #: pkg/storaged/stratis-details.jsx:383 pkg/storaged/stratis-details.jsx:513
@@ -2055,7 +2029,7 @@ msgstr "デバッグ以上のレベル"
 
 #: pkg/systemd/terminal.jsx:139
 msgid "Decrease by one"
-msgstr "1 ずつ減少"
+msgstr "1 つ減らす"
 
 #: pkg/storaged/lvol-tabs.jsx:570 pkg/storaged/vdo-details.jsx:334
 #: pkg/storaged/content-views.jsx:959
@@ -2098,10 +2072,8 @@ msgid "Delete files"
 msgstr "ファイルの削除"
 
 #: pkg/sosreport/index.jsx:359
-#, fuzzy
-#| msgid "Delete content"
 msgid "Delete report permanently?"
-msgstr "コンテンツの削除"
+msgstr "レポートを完全に削除しますか?"
 
 #: pkg/networkmanager/network-interface.jsx:117
 msgid ""
@@ -2154,9 +2126,9 @@ msgstr "削除すると、ボリュームグループのデータがすべて消
 
 #: pkg/systemd/services/service-details.jsx:592
 msgid "Deletion will remove the following files:"
-msgstr ""
+msgstr "削除すると、以下のファイルが削除されます:"
 
-#: pkg/storaged/dialog.jsx:1222 pkg/networkmanager/firewall.jsx:695
+#: pkg/storaged/dialog.jsx:1219 pkg/networkmanager/firewall.jsx:695
 #: pkg/networkmanager/firewall.jsx:839
 #: pkg/systemd/services/timer-dialog.jsx:166
 msgid "Description"
@@ -2215,7 +2187,7 @@ msgstr "診断レポート"
 msgid "Directory"
 msgstr "フォルダー"
 
-#: pkg/kdump/kdump-client.js:107
+#: pkg/kdump/kdump-client.js:121
 msgid "Directory $0 isn't writable or doesn't exist."
 msgstr "ディレクトリー $0 は書込み可能でないか、存在しません。"
 
@@ -2241,11 +2213,11 @@ msgstr "無効"
 
 #: pkg/users/account-details.js:323
 msgid "Disallow interactive password"
-msgstr "対話式パスワードを禁止"
+msgstr "対話式パスワードを禁止する"
 
 #: pkg/users/account-create-dialog.js:80
 msgid "Disallow password authentication"
-msgstr ""
+msgstr "パスワード認証を禁止する"
 
 #: pkg/systemd/services/service-details.jsx:174
 msgid "Disallow running (mask)"
@@ -2381,45 +2353,39 @@ msgstr "編集"
 
 #: pkg/systemd/overview-cards/motdCard.jsx:46
 msgid "Edit /etc/motd"
-msgstr "/etc/motd の編集"
+msgstr "/etc/motd を編集する"
 
 #: pkg/storaged/crypto-keyslots.jsx:356
 msgid "Edit Tang keyserver"
-msgstr "Tang キーサーバーの編集"
+msgstr "Tang キーサーバーを編集する"
 
 #: pkg/networkmanager/firewall.jsx:582
-#, fuzzy
-#| msgid "Add services to $0 zone"
 msgid "Edit custom service in $0 zone"
-msgstr "$0 ゾーンにサービスを追加"
+msgstr "$0 ゾーンでカスタムサービスを編集する"
 
 #: pkg/shell/hosts_dialog.jsx:243
 msgid "Edit host"
-msgstr "ホストの編集"
+msgstr "ホストを編集する"
 
 #: pkg/shell/hosts.jsx:203
 msgid "Edit hosts"
-msgstr "ホストの編集"
+msgstr "ホストを編集する"
 
 #: pkg/systemd/overview-cards/motdCard.jsx:106
 msgid "Edit motd"
-msgstr "motd を編集"
+msgstr "motd を編集する"
 
 #: pkg/networkmanager/network-main.jsx:158
 msgid "Edit rules and zones"
-msgstr "ルールとゾーンの編集"
+msgstr "ルールとゾーンを編集する"
 
 #: pkg/networkmanager/firewall.jsx:581
-#, fuzzy
-#| msgid "Edit server"
 msgid "Edit service"
-msgstr "サーバーの編集"
+msgstr "サービスを編集する"
 
 #: pkg/networkmanager/firewall.jsx:115
-#, fuzzy
-#| msgid "Edit server"
 msgid "Edit service $0"
-msgstr "サーバーの編集"
+msgstr "サービス $0 を編集する"
 
 #: pkg/storaged/crypto-keyslots.jsx:579
 msgid "Editing a key requires a free slot"
@@ -2474,10 +2440,8 @@ msgid "Encrypt data"
 msgstr "暗号化データ"
 
 #: pkg/sosreport/index.jsx:459
-#, fuzzy
-#| msgid "Encrypted $0"
 msgid "Encrypted"
-msgstr "暗号化された $0"
+msgstr "暗号化"
 
 #: pkg/storaged/utils.js:281
 msgid "Encrypted $0"
@@ -2513,10 +2477,8 @@ msgid "Encryption options"
 msgstr "暗号化オプション"
 
 #: pkg/sosreport/index.jsx:318
-#, fuzzy
-#| msgid "Encryption type"
 msgid "Encryption passphrase"
-msgstr "暗号化タイプ"
+msgstr "暗号化パスフレーズ"
 
 #: pkg/storaged/crypto-tab.jsx:232
 msgid "Encryption type"
@@ -2629,17 +2591,15 @@ msgstr "拡張シャーシ"
 
 #: pkg/users/expiration-dialogs.js:67
 msgid "Expire account on"
-msgstr "アカウントの有効期限"
+msgstr "アカウントの有効期限:"
 
 #: pkg/users/account-details.js:112
 msgid "Expire account on $0"
 msgstr "アカウントの有効期限: $0"
 
 #: pkg/kdump/kdump-view.jsx:101
-#, fuzzy
-#| msgid "port"
 msgid "Export"
-msgstr "ポート"
+msgstr "エクスポート"
 
 #: pkg/metrics/metrics.jsx:1259
 msgid "Export to network"
@@ -2655,7 +2615,7 @@ msgstr "拡張パーティション"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:215
 msgid "FIPS is not properly enabled"
-msgstr ""
+msgstr "FIPS が適切に有効化されていません"
 
 #: pkg/storaged/mdraid-details.jsx:111 pkg/networkmanager/interfaces.js:757
 msgid "Failed"
@@ -2703,10 +2663,8 @@ msgid "Failed to edit machine: $0"
 msgstr "マシンの編集に失敗しました: $0"
 
 #: pkg/networkmanager/firewall.jsx:359
-#, fuzzy
-#| msgid "Failed to add service"
 msgid "Failed to edit service"
-msgstr "サービスの追加に失敗しました"
+msgstr "サービスの編集に失敗しました"
 
 #: pkg/lib/cockpit-components-firewalld-request.jsx:115
 msgid "Failed to enable $0 in firewalld"
@@ -2742,10 +2700,8 @@ msgid "Failed to save changes in /etc/motd"
 msgstr "変更を /etc/motd に保存できませんでした"
 
 #: pkg/networkmanager/dialogs-common.jsx:161
-#, fuzzy
-#| msgid "Failed to apply settings"
 msgid "Failed to save settings"
-msgstr "設定の適用に失敗しました"
+msgstr "設定の保存に失敗しました"
 
 #: pkg/systemd/services/services.jsx:198
 #: pkg/systemd/services/service-details.jsx:445
@@ -2781,7 +2737,7 @@ msgstr "ファイルシステム名"
 
 #: pkg/storaged/stratis-details.jsx:644 pkg/storaged/stratis-details.jsx:651
 #: pkg/storaged/stratis-details.jsx:780 pkg/storaged/stratis-details.jsx:784
-#: pkg/storaged/fsys-panel.jsx:167 pkg/storaged/fsys-panel.jsx:170
+#: pkg/storaged/fsys-panel.jsx:170 pkg/storaged/fsys-panel.jsx:173
 msgid "Filesystems"
 msgstr "ファイルシステム"
 
@@ -2975,7 +2931,7 @@ msgstr "階層 ID"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:38
 msgid "Higher interoperability at the cost of an increased attack surface."
-msgstr ""
+msgstr "攻撃対象が増えるという代償を払ってでも、相互運用性を高めます。"
 
 #: pkg/packagekit/history.jsx:107
 msgid "History package count"
@@ -3101,9 +3057,9 @@ msgid ""
 "login password of $2 on $3 as the key password, or leave the key password "
 "blank."
 msgstr ""
-"今後、$0 にパスワードなしで $1 としてログインできるようにするには、$3 の$2 の"
-"ログインパスワードをキーパスワードとして使用するか、キーパスワードを空欄のま"
-"まにしてください。"
+"今後、$0 にパスワードなしで $1 としてログインできるようにするには、$3 上の "
+"$2 のログインパスワードをキーパスワードとして使用するか、キーパスワードを空欄"
+"のままにしてください。"
 
 #: pkg/storaged/mdraid-details.jsx:112
 msgid "In sync"
@@ -3127,6 +3083,8 @@ msgstr "含まれているサービス"
 msgid ""
 "Incoming requests are blocked by default. Outgoing requests are not blocked."
 msgstr ""
+"受信リクエストはデフォルトでブロックされます。発信リクエストはブロックされま"
+"せん。"
 
 #: pkg/storaged/fsys-tab.jsx:671
 msgid "Inconsistent filesystem mount"
@@ -3134,7 +3092,7 @@ msgstr "一貫性のないシステムマウント"
 
 #: pkg/systemd/terminal.jsx:140
 msgid "Increase by one"
-msgstr "1 ずつ増加"
+msgstr "1 つ増やす"
 
 #: pkg/storaged/vdo-details.jsx:320
 msgid "Index memory"
@@ -3179,29 +3137,27 @@ msgstr "インストール"
 
 #: pkg/storaged/nfs-panel.jsx:94
 msgid "Install NFS support"
-msgstr "NFS サポートをインストール"
+msgstr "NFS サポートをインストールする"
 
 #: pkg/storaged/stratis-panel.jsx:44
 msgid "Install Stratis support"
-msgstr "Stratis サポートのインストール"
+msgstr "Stratis サポートをインストールする"
 
 #: pkg/packagekit/updates.jsx:1390
 msgid "Install all updates"
-msgstr "すべてのアップデートをインストール"
+msgstr "すべてのアップデートをインストールする"
 
 #: pkg/metrics/metrics.jsx:1549
 msgid "Install cockpit-pcp"
-msgstr "cockpit-pcp をインストール"
+msgstr "cockpit-pcp をインストールする"
 
 #: pkg/packagekit/updates.jsx:1403
-#, fuzzy
-#| msgid "Install all updates"
 msgid "Install kpatch updates"
-msgstr "すべてのアップデートをインストール"
+msgstr "kpatch の更新をインストールする"
 
 #: pkg/packagekit/updates.jsx:1389 pkg/packagekit/updates.jsx:1396
 msgid "Install security updates"
-msgstr "セキュリティーアップデートのインストール"
+msgstr "セキュリティーアップデートをインストールする"
 
 #: pkg/selinux/setroubleshoot-view.jsx:332
 msgid "Install setroubleshoot-server to troubleshoot SELinux events."
@@ -3234,8 +3190,6 @@ msgid "Installing packages"
 msgstr "パッケージのインストール"
 
 #: pkg/networkmanager/firewall.jsx:195 pkg/metrics/metrics.jsx:788
-#, fuzzy
-#| msgid "Interface"
 msgid "Interface"
 msgid_plural "Interfaces"
 msgstr[0] "インターフェース"
@@ -3382,7 +3336,7 @@ msgstr "ジャーナルエントリーが見つかりません"
 msgid "Jump to"
 msgstr "次にジャンプ"
 
-#: pkg/kdump/kdump-view.jsx:432
+#: pkg/kdump/kdump-view.jsx:438
 msgid ""
 "Kdump service not installed. Please ensure package kexec-tools is installed."
 msgstr ""
@@ -3393,7 +3347,7 @@ msgstr ""
 msgid "Keep connection"
 msgstr "接続の保持"
 
-#: pkg/kdump/kdump-view.jsx:478
+#: pkg/kdump/kdump-view.jsx:484
 msgid "Kernel crash dump"
 msgstr "カーネルクラッシュダンプ"
 
@@ -3507,10 +3461,8 @@ msgid "Leave domain"
 msgstr "ドメインの脱退"
 
 #: pkg/sosreport/index.jsx:319
-#, fuzzy
-#| msgid "Reuse existing encryption"
 msgid "Leave empty to skip encryption"
-msgstr "既存の暗号化を再利用"
+msgstr "空白のままにして暗号化をスキップする"
 
 #: pkg/shell/shell-modals.jsx:64
 msgid "Licensed under GNU LGPL version 2.1"
@@ -3883,7 +3835,7 @@ msgstr "手動"
 
 #: pkg/storaged/crypto-keyslots.jsx:398
 msgid "Manually check with SSH: "
-msgstr "手動で SSH を確認します。 "
+msgstr "手動で SSH を確認します: "
 
 #: pkg/storaged/jobs-panel.jsx:67
 msgid "Marking $target as faulty"
@@ -3956,14 +3908,12 @@ msgid "Metric"
 msgstr "メトリック"
 
 #: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1674
-#, fuzzy
-#| msgid "View details and history"
 msgid "Metrics and history"
-msgstr "詳細と履歴の表示"
+msgstr "メトリックスおよび履歴"
 
 #: pkg/metrics/metrics.jsx:1572
 msgid "Metrics history could not be loaded"
-msgstr "メトリクス履歴をロードできませんでした"
+msgstr "メトリックス履歴をロードできませんでした"
 
 #: pkg/metrics/metrics.jsx:1213 pkg/metrics/metrics.jsx:1303
 msgid "Metrics settings"
@@ -4031,7 +3981,7 @@ msgstr "詳細..."
 #: pkg/storaged/fsys-tab.jsx:372 pkg/storaged/content-views.jsx:289
 #: pkg/storaged/content-views.jsx:415 pkg/storaged/nfs-details.jsx:300
 #: pkg/storaged/stratis-details.jsx:592 pkg/storaged/stratis-details.jsx:593
-#: pkg/storaged/fsys-panel.jsx:176
+#: pkg/storaged/fsys-panel.jsx:179
 msgid "Mount"
 msgstr "マウント"
 
@@ -4199,7 +4149,7 @@ msgstr "ネットワーク I/O スパイク"
 
 #: pkg/networkmanager/bond.jsx:140
 msgid "Network bond"
-msgstr "ネットワークボンド"
+msgstr "ネットワークボンディング"
 
 #: pkg/networkmanager/app.jsx:100
 msgid "Network devices and graphs require NetworkManager"
@@ -4300,7 +4250,7 @@ msgstr "ブロックデバイスは利用できません。"
 msgid "No carrier"
 msgstr "キャリアなし"
 
-#: pkg/kdump/kdump-view.jsx:368
+#: pkg/kdump/kdump-view.jsx:374
 msgid "No configuration found"
 msgstr "設定が見つかりません"
 
@@ -4395,7 +4345,7 @@ msgstr "一致する結果はありません"
 msgid "No media inserted"
 msgstr "メディアが挿入されていません"
 
-#: pkg/kdump/kdump-view.jsx:417
+#: pkg/kdump/kdump-view.jsx:423
 msgid ""
 "No memory reserved. Append a crashkernel option to the kernel command line "
 "(e.g. in /etc/default/grub) to reserve memory at boot time. Example: "
@@ -4438,10 +4388,8 @@ msgid "No system modifications"
 msgstr "システム変更がありません"
 
 #: pkg/sosreport/index.jsx:511
-#, fuzzy
-#| msgid "No system modifications"
 msgid "No system reports."
-msgstr "システム変更がありません"
+msgstr "システムレポートがありません。"
 
 #: pkg/packagekit/autoupdates.jsx:283
 msgid "No updates"
@@ -4451,7 +4399,7 @@ msgstr "更新なし"
 msgid "No user name specified"
 msgstr "ユーザー名が指定されていません"
 
-#: pkg/kdump/kdump-view.jsx:388 pkg/networkmanager/firewall.jsx:847
+#: pkg/kdump/kdump-view.jsx:394 pkg/networkmanager/firewall.jsx:847
 #: pkg/tuned/dialog.jsx:229
 msgid "None"
 msgstr "なし"
@@ -4544,11 +4492,11 @@ msgstr "注意以上のレベル"
 
 #: pkg/sosreport/index.jsx:329
 msgid "Obfuscate network addresses, hostnames, and usernames"
-msgstr ""
+msgstr "ネットワークアドレス、ホスト名、およびユーザー名の難読化"
 
 #: pkg/sosreport/index.jsx:463
 msgid "Obfuscated"
-msgstr ""
+msgstr "難読化"
 
 #: pkg/selinux/setroubleshoot-view.jsx:345
 msgid "Occurred $0"
@@ -4609,6 +4557,8 @@ msgstr "緊急のみ"
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:40
 msgid "Only use approved and allowed algorithms when booting in FIPS mode."
 msgstr ""
+"FIPS モードで起動する場合は、承認および許可されたアルゴリズムのみを使用してく"
+"ださい。"
 
 #: pkg/shell/topnav.jsx:192
 msgid "Ooops!"
@@ -4682,13 +4632,13 @@ msgstr "既存のデータをゼロで上書き (低速)"
 msgid "PCI"
 msgstr "PCI"
 
-#: pkg/storaged/dialog.jsx:1201
+#: pkg/storaged/dialog.jsx:1198
 msgid "PID"
 msgstr "PID"
 
 #: pkg/metrics/metrics.jsx:1548
 msgid "Package cockpit-pcp is missing for metrics history"
-msgstr "メトリクス履歴に、パッケージ cockpit-pcp が欠如しています"
+msgstr "メトリックス履歴に、パッケージ cockpit-pcp がありません"
 
 #: pkg/packagekit/updates.jsx:676 pkg/packagekit/updates.jsx:755
 msgid "Package information"
@@ -4929,10 +4879,8 @@ msgid "Pick date"
 msgstr "日付けの選択"
 
 #: pkg/systemd/services/service-details.jsx:179
-#, fuzzy
-#| msgid "Listing units"
 msgid "Pin unit"
-msgstr "ユニットの一覧表示"
+msgstr "ユニットを固定する"
 
 #: pkg/networkmanager/team.jsx:201
 msgid "Ping interval"
@@ -4945,7 +4893,7 @@ msgstr "Ping ターゲット"
 #: pkg/systemd/services/services-list.jsx:97
 #: pkg/systemd/services/service-details.jsx:608
 msgid "Pinned unit"
-msgstr ""
+msgstr "固定されたユニット"
 
 #: pkg/lib/machine-info.js:64
 msgid "Pizza box"
@@ -5070,7 +5018,7 @@ msgstr "ロケーションを使用するプロセス"
 
 #: pkg/sosreport/index.jsx:299
 msgid "Progress: $0"
-msgstr ""
+msgstr "進行状況: $0"
 
 #: pkg/shell/shell-modals.jsx:71
 msgid "Project website"
@@ -5096,11 +5044,11 @@ msgstr "再ロード先を伝搬"
 msgid ""
 "Protects from anticipated near-term future attacks at the expense of "
 "interoperability."
-msgstr ""
+msgstr "相互運用性を犠牲にして、近い将来に予想される攻撃から保護します。"
 
 #: pkg/storaged/stratis-details.jsx:696
 msgid "Provide the passphrase for the pool on these block devices:"
-msgstr "このブロックデバイス上のプールのパスフレーズを指定します。"
+msgstr "このブロックデバイス上のプールのパスフレーズを指定します:"
 
 #: pkg/shell/credentials.jsx:117
 msgid "Public key"
@@ -5227,7 +5175,7 @@ msgstr "さらに読む..."
 msgid "Read-only"
 msgstr "読み取り専用"
 
-#: pkg/kdump/kdump-view.jsx:382
+#: pkg/kdump/kdump-view.jsx:388
 msgid "Reading..."
 msgstr "読み取り中 ..."
 
@@ -5257,10 +5205,8 @@ msgid "Real host name must be 64 characters or less"
 msgstr "実際のホスト名は 64 文字以下である必要があります"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:177
-#, fuzzy
-#| msgid "Save and reboot"
 msgid "Reapply and reboot"
-msgstr "保存および再起動"
+msgstr "再適用して再起動する"
 
 #: pkg/lib/cockpit-components-logs-panel.jsx:112
 #: pkg/lib/cockpit-components-shutdown.jsx:184
@@ -5270,10 +5216,8 @@ msgid "Reboot"
 msgstr "再起動"
 
 #: pkg/packagekit/updates.jsx:600
-#, fuzzy
-#| msgid "Reboot recommended"
 msgid "Reboot after completion"
-msgstr "再起動を推奨します"
+msgstr "完了後に再起動する"
 
 #: pkg/packagekit/updates.jsx:1498
 msgid "Reboot recommended"
@@ -5296,7 +5240,7 @@ msgstr "直近のホスト"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:36
 msgid "Recommended, secure settings for current threat models."
-msgstr ""
+msgstr "現在の脅威モデルに推奨される安全な設定。"
 
 #: pkg/shell/failures.jsx:71
 msgid "Reconnect"
@@ -5330,15 +5274,15 @@ msgstr "接続を拒否しています。ホストキーが不明です"
 msgid "Register…"
 msgstr "登録中…"
 
-#: pkg/storaged/dialog.jsx:1157
+#: pkg/storaged/dialog.jsx:1154
 msgid "Related processes and services will be forcefully stopped."
 msgstr "関連するプロセスとサービスは強制的に停止されます。"
 
-#: pkg/storaged/dialog.jsx:1159
+#: pkg/storaged/dialog.jsx:1156
 msgid "Related processes will be forcefully stopped."
 msgstr "関連するプロセスは強制的に停止されます。"
 
-#: pkg/storaged/dialog.jsx:1161
+#: pkg/storaged/dialog.jsx:1158
 msgid "Related services will be forcefully stopped."
 msgstr "関連するサービスは強制的に停止されます。"
 
@@ -5358,9 +5302,21 @@ msgstr "リロード中"
 msgid "Reloading the state of remaining services"
 msgstr "残りのサービス状態の再読み込み"
 
+#: pkg/kdump/kdump-view.jsx:372
+msgid "Remote over CIFS/SMB"
+msgstr "CIFS/SMB 経由のリモート"
+
+#: pkg/kdump/kdump-view.jsx:368
+msgid "Remote over FTP"
+msgstr "FTP 経由のリモート"
+
 #: pkg/kdump/kdump-view.jsx:146 pkg/kdump/kdump-view.jsx:359
 msgid "Remote over NFS"
 msgstr "NFS 経由のリモート"
+
+#: pkg/kdump/kdump-view.jsx:370
+msgid "Remote over SFTP"
+msgstr "SFTP 経由のリモート"
 
 #: pkg/kdump/kdump-view.jsx:147 pkg/kdump/kdump-view.jsx:356
 msgid "Remote over SSH"
@@ -5385,11 +5341,11 @@ msgstr "削除"
 
 #: pkg/networkmanager/network-interface-members.jsx:122
 msgid "Remove $0"
-msgstr "$0 の削除"
+msgstr "$0 を削除する"
 
 #: pkg/networkmanager/firewall.jsx:961
 msgid "Remove $0 service from $1 zone"
-msgstr "$1 ゾーンからの $0 サービスの削除"
+msgstr "$1 ゾーンから $0 サービスを削除する"
 
 #: pkg/storaged/crypto-keyslots.jsx:488
 msgid "Remove $0?"
@@ -5525,10 +5481,8 @@ msgid "Report"
 msgstr "レポート"
 
 #: pkg/sosreport/index.jsx:315
-#, fuzzy
-#| msgid "Report"
 msgid "Report label"
-msgstr "レポート"
+msgstr "レポートラベル"
 
 #: pkg/systemd/reporting.jsx:155
 msgid "Report to ABRT Analytics"
@@ -5547,10 +5501,8 @@ msgid "Reporting was canceled"
 msgstr "報告はキャンセルされました"
 
 #: pkg/sosreport/index.jsx:502
-#, fuzzy
-#| msgid "Reports:"
 msgid "Reports"
-msgstr "レポート:"
+msgstr "レポート"
 
 #: pkg/systemd/reporting.jsx:410
 msgid "Reports:"
@@ -5565,10 +5517,8 @@ msgid "Require password change on $0"
 msgstr "$0 でパスワードの変更が必要"
 
 #: pkg/users/account-create-dialog.js:72
-#, fuzzy
-#| msgid "Require password change on $0"
 msgid "Require password change on first login"
-msgstr "$0 でパスワードの変更が必要"
+msgstr "初回ログイン時にパスワードの変更が必要"
 
 #: pkg/systemd/services/service-details.jsx:543
 msgid "Required by"
@@ -5594,7 +5544,7 @@ msgstr "必須"
 msgid "Requisite of"
 msgstr "必須の"
 
-#: pkg/kdump/kdump-view.jsx:498
+#: pkg/kdump/kdump-view.jsx:504
 msgid "Reserved memory"
 msgstr "予約済みメモリー"
 
@@ -5652,10 +5602,8 @@ msgid "Reuse existing encryption ($0)"
 msgstr "既存の暗号化を再利用 ($0)"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:221
-#, fuzzy
-#| msgid "Restart policy"
 msgid "Review crypto policy"
-msgstr "再起動ポリシー"
+msgstr "暗号化ポリシーを確認する"
 
 #: pkg/systemd/manifest.json:0
 msgid "Reviewing logs"
@@ -5679,20 +5627,16 @@ msgid "Run at"
 msgstr "以下で実行"
 
 #: pkg/sosreport/index.jsx:302
-#, fuzzy
-#| msgid "View report"
 msgid "Run new report"
-msgstr "レポートの表示"
+msgstr "新規レポートを実行する"
 
 #: pkg/systemd/services/timer-dialog.jsx:263
 msgid "Run on"
 msgstr "以下で実行"
 
 #: pkg/sosreport/index.jsx:280 pkg/sosreport/index.jsx:506
-#, fuzzy
-#| msgid "Report"
 msgid "Run report"
-msgstr "レポート"
+msgstr "レポートを実行する"
 
 #: pkg/networkmanager/team.jsx:163
 msgid "Runner"
@@ -5704,7 +5648,7 @@ msgstr "ランナー"
 msgid "Running"
 msgstr "実行中"
 
-#: pkg/storaged/dialog.jsx:1204 pkg/storaged/dialog.jsx:1223
+#: pkg/storaged/dialog.jsx:1201 pkg/storaged/dialog.jsx:1220
 msgid "Runtime"
 msgstr "ランタイム"
 
@@ -5751,7 +5695,7 @@ msgstr "$target の SMART 自己テスト"
 #: pkg/sosreport/index.jsx:311
 msgid ""
 "SOS reporting collects system information to help with diagnosing problems."
-msgstr ""
+msgstr "SOS レポートは、問題の診断に役立つシステム情報を収集します。"
 
 #: pkg/shell/hosts_dialog.jsx:822
 msgid "SSH key"
@@ -5887,7 +5831,7 @@ msgstr "送信"
 #: pkg/networkmanager/network-main.jsx:201
 #: pkg/networkmanager/network-interface-members.jsx:216
 msgid "Sending"
-msgstr "送信"
+msgstr "送信中"
 
 #: pkg/storaged/drive-details.jsx:85
 msgctxt "storage"
@@ -5924,28 +5868,28 @@ msgstr "サーバーの接続が終了しました。"
 msgid "Server software"
 msgstr "サーバーソフトウェア"
 
-#: pkg/storaged/dialog.jsx:1220 pkg/networkmanager/firewall.jsx:208
+#: pkg/storaged/dialog.jsx:1217 pkg/networkmanager/firewall.jsx:208
 #: pkg/metrics/metrics.jsx:694 pkg/metrics/metrics.jsx:727
 msgid "Service"
 msgstr "サービス"
 
-#: pkg/kdump/kdump-view.jsx:411
+#: pkg/kdump/kdump-view.jsx:417
 msgid "Service has an error"
 msgstr "サービスでエラーが発生しました"
 
-#: pkg/kdump/kdump-view.jsx:407
+#: pkg/kdump/kdump-view.jsx:413
 msgid "Service is running"
 msgstr "サービスが実行中です"
 
-#: pkg/kdump/kdump-view.jsx:413
+#: pkg/kdump/kdump-view.jsx:419
 msgid "Service is starting"
 msgstr "サービスが起動中です"
 
-#: pkg/kdump/kdump-view.jsx:409
+#: pkg/kdump/kdump-view.jsx:415
 msgid "Service is stopped"
 msgstr "サービスが停止されています"
 
-#: pkg/kdump/kdump-view.jsx:415
+#: pkg/kdump/kdump-view.jsx:421
 msgid "Service is stopping"
 msgstr "サービスが停止中です"
 
@@ -6111,7 +6055,7 @@ msgstr "シングルランク"
 #: pkg/storaged/content-views.jsx:750 pkg/storaged/content-views.jsx:925
 #: pkg/storaged/content-views.jsx:933 pkg/storaged/content-views.jsx:1013
 #: pkg/storaged/nfs-details.jsx:327 pkg/storaged/stratis-details.jsx:652
-#: pkg/storaged/stratis-details.jsx:785 pkg/storaged/fsys-panel.jsx:177
+#: pkg/storaged/stratis-details.jsx:785 pkg/storaged/fsys-panel.jsx:180
 #: pkg/storaged/format-dialog.jsx:220 pkg/systemd/hwinfo.jsx:310
 msgid "Size"
 msgstr "サイズ"
@@ -6201,7 +6145,7 @@ msgstr "一部のソフトウェアを手動で再起動する必要がありま
 msgid "Sorted from least to most trusted"
 msgstr "信頼性が最も低い順から最も高い順"
 
-#: pkg/storaged/fsys-panel.jsx:174
+#: pkg/storaged/fsys-panel.jsx:177
 msgid "Source"
 msgstr "ソース"
 
@@ -6286,10 +6230,10 @@ msgstr "状態"
 msgid "Static"
 msgstr "静的"
 
-#: pkg/kdump/kdump-view.jsx:488 pkg/networkmanager/network-interface.jsx:264
+#: pkg/kdump/kdump-view.jsx:494 pkg/networkmanager/network-interface.jsx:264
 #: pkg/packagekit/updates.jsx:894 pkg/systemd/services/service-details.jsx:634
 msgid "Status"
-msgstr "状態"
+msgstr "ステータス"
 
 #: pkg/lib/machine-info.js:95
 msgid "Stick PC"
@@ -6326,10 +6270,8 @@ msgid "Stop editing hosts"
 msgstr "ホストの編集を停止"
 
 #: pkg/sosreport/index.jsx:284
-#, fuzzy
-#| msgid "Create report"
 msgid "Stop report"
-msgstr "レポートの作成"
+msgstr "レポートを停止する"
 
 #: pkg/storaged/jobs-panel.jsx:65
 msgid "Stopping RAID device $target"
@@ -6482,10 +6424,8 @@ msgid "System"
 msgstr "システム"
 
 #: pkg/sosreport/index.jsx:532
-#, fuzzy
-#| msgid "System modifications"
 msgid "System diagnostics"
-msgstr "システム変更"
+msgstr "システムの診断"
 
 #: pkg/systemd/hwinfo.jsx:335
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:112
@@ -6550,11 +6490,11 @@ msgstr "端末"
 msgid "Terminate session"
 msgstr "セッションの終了"
 
-#: pkg/kdump/kdump-view.jsx:448 pkg/kdump/kdump-view.jsx:456
+#: pkg/kdump/kdump-view.jsx:454 pkg/kdump/kdump-view.jsx:462
 msgid "Test configuration"
 msgstr "設定のテスト"
 
-#: pkg/kdump/kdump-view.jsx:452
+#: pkg/kdump/kdump-view.jsx:458
 msgid "Test is only available while the kdump service is running."
 msgstr "テストは kdump サービスが実行中の間だけ利用可能です。"
 
@@ -6654,10 +6594,8 @@ msgstr ""
 "レーズを指定してください。"
 
 #: pkg/sosreport/index.jsx:377
-#, fuzzy
-#| msgid "The $0 could not be deleted"
 msgid "The file $0 will be deleted."
-msgstr "$0 は削除できませんでした"
+msgstr "ファイル $0 が削除されます。"
 
 #: pkg/storaged/fsys-tab.jsx:529
 msgid "The filesystem has no permanent mount point."
@@ -6749,15 +6687,15 @@ msgstr "最後のキースロットは削除できません"
 msgid "The last physical volume of a volume group cannot be removed."
 msgstr "ボリュームグループの最後の物理ボリュームは削除できません。"
 
-#: pkg/storaged/dialog.jsx:1238
+#: pkg/storaged/dialog.jsx:1235
 msgid "The listed processes and services will be forcefully stopped."
 msgstr "一覧表示されたプロセスとサービスは強制的に停止されます。"
 
-#: pkg/storaged/dialog.jsx:1240
+#: pkg/storaged/dialog.jsx:1237
 msgid "The listed processes will be forcefully stopped."
 msgstr "一覧表示されたプロセスは強制的に停止されます。"
 
-#: pkg/storaged/dialog.jsx:1242
+#: pkg/storaged/dialog.jsx:1239
 msgid "The listed services will be forcefully stopped."
 msgstr "一覧表示されたサービスは強制的に停止されます。"
 
@@ -6769,13 +6707,13 @@ msgstr "ログインしているユーザーには、システム変更を表示
 msgid "The machine is rebooting"
 msgstr "マシンが再起動中です"
 
-#: pkg/storaged/dialog.jsx:1197
+#: pkg/storaged/dialog.jsx:1194
 msgid "The mount point $0 is in use by these processes:"
-msgstr "マウントポイント $0 は、以下のプロセスにより使用されています。"
+msgstr "マウントポイント $0 は、以下のプロセスにより使用されています:"
 
-#: pkg/storaged/dialog.jsx:1216
+#: pkg/storaged/dialog.jsx:1213
 msgid "The mount point $0 is in use by these services:"
-msgstr "マウントポイント $0 は、以下のサービスにより使用されています。"
+msgstr "マウントポイント $0 は、以下のサービスにより使用されています:"
 
 #: pkg/shell/hosts_dialog.jsx:678
 msgid "The new key password can not be empty"
@@ -6819,10 +6757,8 @@ msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr "ユーザー $0 は、cpu セキュリティー緩和の変更を許可されていません"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:76
-#, fuzzy
-#| msgid "The user $0 is not permitted to change the system time"
 msgid "The user $0 is not permitted to change crypto policies"
-msgstr "ユーザー $0 は、システムの時間の変更を許可されていません"
+msgstr "ユーザー $0 は、暗号化ポリシーの変更を許可されていません"
 
 #: pkg/users/account-roles.js:89
 msgid "The user must log out and log back in to fully change roles."
@@ -6878,7 +6814,7 @@ msgstr "マシンへの接続中に予期しないエラーが発生しました
 
 #: pkg/storaged/dialog.jsx:1124
 msgid "These changes will be made:"
-msgstr "以下の変更が行われます。"
+msgstr "以下の変更が行われます:"
 
 #: pkg/storaged/utils.js:201
 msgid "Thin logical volume"
@@ -6915,10 +6851,8 @@ msgid "This host will reboot after updates are installed."
 msgstr "このホストは、更新後に再起動します。"
 
 #: pkg/sosreport/index.jsx:312
-#, fuzzy
-#| msgid "The collected information will be stored locally on the system."
 msgid "This information is stored only on the system."
-msgstr "収集された情報はシステムにローカルで保存されます。"
+msgstr "この情報は、システムにのみ保存されます。"
 
 #: pkg/storaged/lvol-tabs.jsx:445
 msgid "This logical volume is not completely used by its content."
@@ -7011,7 +6945,7 @@ msgstr ""
 "りテストされます。設定に応じて、再起動が自動的に行われず、処理にしばらく時間"
 "がかかることがあります。"
 
-#: pkg/kdump/kdump-view.jsx:461
+#: pkg/kdump/kdump-view.jsx:467
 msgid "This will test the kdump configuration by crashing the kernel."
 msgstr ""
 "このため、kdump 設定はカーネルをクラッシュすることによりテストされます。"
@@ -7045,10 +6979,8 @@ msgid "Timer creation failed"
 msgstr "タイマーの作成に失敗しました"
 
 #: pkg/systemd/services/service-details.jsx:704
-#, fuzzy
-#| msgid "Timer creation failed"
 msgid "Timer deletion failed"
-msgstr "タイマーの作成に失敗しました"
+msgstr "タイマーの削除に失敗しました"
 
 #: pkg/systemd/services/service-tabs.jsx:42
 msgid "Timers"
@@ -7140,7 +7072,7 @@ msgstr "一時的"
 
 #: pkg/networkmanager/plots.js:38
 msgid "Transmitting"
-msgstr "送信"
+msgstr "送信中"
 
 #: pkg/systemd/services/services-list.jsx:44
 #: pkg/systemd/services/timer-dialog.jsx:184
@@ -7215,7 +7147,7 @@ msgstr "管理者アクセスをオンにする"
 
 #: pkg/storaged/part-tab.jsx:55 pkg/storaged/content-views.jsx:750
 #: pkg/storaged/content-views.jsx:1013 pkg/storaged/unrecognized-tab.jsx:41
-#: pkg/storaged/fsys-panel.jsx:175 pkg/storaged/format-dialog.jsx:218
+#: pkg/storaged/fsys-panel.jsx:178 pkg/storaged/format-dialog.jsx:218
 #: pkg/packagekit/autoupdates.jsx:279 pkg/systemd/hwinfo.jsx:85
 #: pkg/systemd/hwinfo.jsx:310 pkg/shell/credentials.jsx:202
 msgid "Type"
@@ -7297,16 +7229,12 @@ msgid "Unable to run fix: %0"
 msgstr "修正を実行できません: %0"
 
 #: pkg/kdump/kdump-view.jsx:244
-#, fuzzy
-#| msgid "Unable to apply settings: $0"
 msgid "Unable to save settings"
-msgstr "設定を適用できません: $0"
+msgstr "設定を保存できません"
 
 #: pkg/kdump/kdump-view.jsx:248
-#, fuzzy
-#| msgid "Unable to apply settings: $0"
 msgid "Unable to save settings: $0"
-msgstr "設定を適用できません: $0"
+msgstr "設定を保存できません: $0"
 
 #: pkg/selinux/setroubleshoot-client.js:49
 msgid "Unable to start setroubleshootd"
@@ -7441,10 +7369,8 @@ msgid "Unnamed"
 msgstr "名前なし"
 
 #: pkg/systemd/services/service-details.jsx:179
-#, fuzzy
-#| msgid "Listing units"
 msgid "Unpin unit"
-msgstr "ユニットの一覧表示"
+msgstr "ユニットの固定を解除する"
 
 #: pkg/storaged/content-views.jsx:231
 msgid "Unrecognized data"
@@ -7556,8 +7482,6 @@ msgid "Use key"
 msgstr "キーの使用"
 
 #: pkg/users/account-create-dialog.js:67
-#, fuzzy
-#| msgid "User password"
 msgid "Use password"
 msgstr "ユーザーパスワード"
 
@@ -7566,10 +7490,8 @@ msgid "Use the following keys to authenticate against other systems"
 msgstr "他のシステムに対して認証する場合は次の鍵を使用します"
 
 #: pkg/sosreport/index.jsx:331
-#, fuzzy
-#| msgid "Last login"
 msgid "Use verbose logging"
-msgstr "最終ログイン"
+msgstr "詳細なログを使用する"
 
 #: pkg/storaged/swap-tab.jsx:70 pkg/metrics/metrics.jsx:727
 msgid "Used"
@@ -7580,7 +7502,7 @@ msgstr "使用済み"
 msgid "Used for"
 msgstr "用途"
 
-#: pkg/storaged/dialog.jsx:1203 pkg/systemd/services/services.jsx:1045
+#: pkg/storaged/dialog.jsx:1200 pkg/systemd/services/services.jsx:1045
 msgid "User"
 msgstr "ユーザー"
 
@@ -7681,10 +7603,8 @@ msgid "Very securely erasing $target"
 msgstr "$target を非常に安全に削除"
 
 #: pkg/metrics/metrics.jsx:637 pkg/metrics/metrics.jsx:638
-#, fuzzy
-#| msgid "View all logs"
 msgid "View all CPUs"
-msgstr "すべてのログの表示"
+msgstr "すべての CPU を表示する"
 
 #: pkg/lib/cockpit-components-logs-panel.jsx:171
 msgid "View all logs"
@@ -7699,10 +7619,8 @@ msgid "View automation script"
 msgstr "オートメーションスクリプトの表示"
 
 #: pkg/metrics/metrics.jsx:951
-#, fuzzy
-#| msgid "View all logs"
 msgid "View detailed logs"
-msgstr "すべてのログの表示"
+msgstr "詳細なログを表示する"
 
 #: pkg/systemd/overview-cards/systemInformationCard.jsx:145
 msgid "View hardware details"
@@ -7713,10 +7631,8 @@ msgid "View login history"
 msgstr "ログイン履歴の表示"
 
 #: pkg/systemd/overview-cards/usageCard.jsx:162
-#, fuzzy
-#| msgid "View details and history"
 msgid "View metrics and history"
-msgstr "詳細と履歴の表示"
+msgstr "メトリックスおよび履歴の表示"
 
 #: pkg/apps/application.jsx:72
 msgid "View project website"
@@ -7727,16 +7643,12 @@ msgid "View report"
 msgstr "レポートの表示"
 
 #: pkg/packagekit/updates.jsx:605
-#, fuzzy
-#| msgid "View all logs"
 msgid "View update log"
-msgstr "すべてのログの表示"
+msgstr "更新ログを表示する"
 
 #: pkg/systemd/hwinfo.jsx:318
-#, fuzzy
-#| msgid "You now have administrative access."
 msgid "Viewing memory information requires administrative access."
-msgstr "これで管理者アクセスが可能になりました。"
+msgstr "メモリー情報を表示するには、管理アクセスが必要です。"
 
 #: pkg/lib/cockpit-components-firewalld-request.jsx:119
 #: pkg/lib/cockpit-components-firewalld-request.jsx:156
@@ -7909,7 +7821,7 @@ msgstr "パスワードを変更するにはより長い時間の経過が必要
 
 #: pkg/metrics/metrics.jsx:1541
 msgid "You need to relogin to be able to see metrics history"
-msgstr "メトリクス履歴を表示するには、ログインし直す必要があります"
+msgstr "メトリックス履歴を表示するには、ログインし直す必要があります"
 
 #: pkg/shell/superuser.jsx:94
 msgid "You now have administrative access."
@@ -8009,7 +7921,7 @@ msgstr "avc"
 
 #: pkg/metrics/metrics.jsx:623
 msgid "average: $0%"
-msgstr ""
+msgstr "平均: $0%"
 
 #: pkg/storaged/dialog.jsx:1027
 msgid "backing device for VDO device"
@@ -8025,7 +7937,7 @@ msgstr "BIOS"
 
 #: pkg/networkmanager/manifest.json:0
 msgid "bond"
-msgstr "Bond"
+msgstr "ボンディング"
 
 #: pkg/systemd/manifest.json:0
 msgid "boot"
@@ -8049,10 +7961,8 @@ msgid "cgroups"
 msgstr "cgroups"
 
 #: pkg/metrics/metrics.jsx:508
-#, fuzzy
-#| msgid "Cockpit is not installed"
 msgid "cockpit-podman is not installed"
-msgstr "Cockpit はインストールされていません"
+msgstr "cockpit-podman がインストールされていません"
 
 #: pkg/systemd/manifest.json:0
 msgid "command"
@@ -8074,9 +7984,9 @@ msgstr "CPU"
 msgid "crash"
 msgstr "クラッシュ"
 
-#: pkg/kdump/kdump-view.jsx:469
+#: pkg/kdump/kdump-view.jsx:475
 msgid "crashkernel not configured in the kernel command line"
-msgstr ""
+msgstr "カーネルコマンドラインで crashkernel が設定されていません"
 
 #: pkg/systemd/manifest.json:0
 msgid "date"
@@ -8254,10 +8164,8 @@ msgid "in most browsers"
 msgstr "多くのブラウザー"
 
 #: pkg/systemd/overview-cards/profiles-menu-dialog-body.jsx:61
-#, fuzzy
-#| msgid "Content"
 msgid "inconsistent"
-msgstr "コンテンツ"
+msgstr "一貫性がない"
 
 #: pkg/storaged/content-views.jsx:672
 msgid "initialize"
@@ -8299,7 +8207,7 @@ msgstr "journalctl man ページ"
 msgid "kdump"
 msgstr "kdump"
 
-#: pkg/kdump/kdump-view.jsx:465
+#: pkg/kdump/kdump-view.jsx:471
 msgid "kdump status"
 msgstr "kdump ステータス"
 
@@ -8337,7 +8245,7 @@ msgstr "マスク"
 
 #: pkg/metrics/metrics.jsx:624
 msgid "max: $0%"
-msgstr ""
+msgstr "最大: $0%"
 
 #: pkg/storaged/dialog.jsx:1026
 msgid "member of RAID device"
@@ -8353,7 +8261,7 @@ msgstr "メモリー"
 
 #: pkg/systemd/manifest.json:0
 msgid "metrics"
-msgstr "メトリクス"
+msgstr "メトリックス"
 
 #: pkg/systemd/manifest.json:0
 msgid "mitigation"
@@ -8363,7 +8271,7 @@ msgstr "軽減"
 msgid "mkfs"
 msgstr "mkfs"
 
-#: pkg/kdump/kdump-view.jsx:428
+#: pkg/kdump/kdump-view.jsx:434
 msgid "more details"
 msgstr "詳細"
 
@@ -8387,21 +8295,17 @@ msgstr "起動時のマウントなし"
 msgid "nfs"
 msgstr "nfs"
 
-#: pkg/kdump/kdump-client.js:116
-#, fuzzy
-#| msgid "ssh server is empty"
+#: pkg/kdump/kdump-client.js:130
 msgid "nfs export is empty"
-msgstr "ssh サーバーが空です"
+msgstr "NFS エクスポートが空です"
 
-#: pkg/kdump/kdump-client.js:111
-#, fuzzy
-#| msgid "ssh server is empty"
+#: pkg/kdump/kdump-client.js:125
 msgid "nfs server is empty"
-msgstr "ssh サーバーが空です"
+msgstr "NFS サーバーが空です"
 
-#: pkg/kdump/kdump-client.js:114
+#: pkg/kdump/kdump-client.js:128
 msgid "nfs server is not valid IPv6"
-msgstr ""
+msgstr "NFS サーバーは有効な IPv6 ではありません"
 
 #: pkg/metrics/metrics.jsx:107
 msgid "nice"
@@ -8450,7 +8354,7 @@ msgstr "passwd"
 msgid "password"
 msgstr "パスワード"
 
-#: pkg/lib/cockpit-components-password.jsx:108
+#: pkg/lib/cockpit-components-password.jsx:109
 msgid "password quality"
 msgstr "パスワードの強度"
 
@@ -8496,7 +8400,7 @@ msgstr "pmlogger.service サービスが実行されていません"
 
 #: pkg/metrics/metrics.jsx:502
 msgid "pod"
-msgstr ""
+msgstr "Pod"
 
 #: pkg/networkmanager/manifest.json:0
 msgid "port"
@@ -8608,11 +8512,11 @@ msgstr "ssh"
 msgid "ssh key"
 msgstr "ssh 鍵"
 
-#: pkg/kdump/kdump-client.js:121
+#: pkg/kdump/kdump-client.js:135
 msgid "ssh key isn't a path"
 msgstr "ssh 鍵 はパスではありません"
 
-#: pkg/kdump/kdump-client.js:119
+#: pkg/kdump/kdump-client.js:133
 msgid "ssh server is empty"
 msgstr "ssh サーバーが空です"
 

@@ -16,7 +16,6 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from .dbus import DBusChannel
-from .dbus_internal import DBusInternalChannel
 from .filesystem import FsListChannel, FsReadChannel, FsReplaceChannel, FsWatchChannel
 from .http import HttpChannel
 from .metrics import MetricsChannel
@@ -27,7 +26,6 @@ from .trivial import EchoChannel, NullChannel
 
 CHANNEL_TYPES = [
     DBusChannel,
-    DBusInternalChannel,
     EchoChannel,
     FsListChannel,
     FsReadChannel,

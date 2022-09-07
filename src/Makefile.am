@@ -60,13 +60,13 @@ PYTHON_BRIDGE_FILES = \
 	src/cockpit/channel.py \
 	src/cockpit/channels/__init__.py \
 	src/cockpit/channels/dbus.py \
-	src/cockpit/channels/dbus_internal.py \
 	src/cockpit/channels/filesystem.py \
 	src/cockpit/channels/http.py \
 	src/cockpit/channels/metrics.py \
 	src/cockpit/channels/packages.py \
 	src/cockpit/channels/stream.py \
 	src/cockpit/channels/trivial.py \
+	src/cockpit/internal_endpoints.py \
 	src/cockpit/packages.py \
 	src/cockpit/peer.py \
 	src/cockpit/protocol.py \
@@ -75,7 +75,7 @@ PYTHON_BRIDGE_FILES = \
 
 SYSTEMD_CTYPES_STAMP = src/systemd_ctypes/__init__.py
 SYSTEMD_CTYPES_REPO_URL = https://github.com/allisonkarlitskaya/systemd_ctypes
-SYSTEMD_CTYPES_REPO_COMMIT = ee3fe59df2e32a94e207fa2be09bb3170c07b359
+SYSTEMD_CTYPES_REPO_COMMIT = 20272db884914917b7cf98b4f7af3691b5da477a
 
 SYSTEMD_CTYPES_REPO_TREE = '$(strip $(SYSTEMD_CTYPES_REPO_COMMIT))^{tree}'
 $(SYSTEMD_CTYPES_STAMP):

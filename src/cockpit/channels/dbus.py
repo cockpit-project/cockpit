@@ -24,6 +24,7 @@ import xml.etree.ElementTree as ET
 from systemd_ctypes import Bus, BusError, introspection
 
 from ..channel import Channel
+from ..internal_endpoints import InternalEndpoints
 
 logger = logging.getLogger(__name__)
 
@@ -76,11 +77,15 @@ class DBusChannel(Channel):
 
     def do_open(self, options):
         self.cache = InterfaceCache()
-        self.name = options['name']
+        self.name = options.get('name')
         self.matches = []
         self.tasks = set()
 
-        if options.get('bus') == 'session':
+        bus = options.get('bus')
+
+        if bus == 'internal':
+            self.bus = InternalEndpoints.get_client()
+        elif bus == 'session':
             logger.debug('get session bus for %s', self.name)
             self.bus = Bus.default_user()
         else:

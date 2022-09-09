@@ -107,15 +107,20 @@ def change_ssh_port(machine, address, port=None, timeout_sec=120):
         machine.execute("setenforce 0")
     else:
         machine.execute(f"! selinuxenabled || semanage port -a -t ssh_port_t -p tcp {port}")
-    machine.execute("sed -i 's/.*Port .*/#\\0/' /etc/ssh/sshd_config")
-    machine.execute(
-        f"printf 'ListenAddress 127.27.0.15:22\nListenAddress {address}:{port}\n' >> /etc/ssh/sshd_config")
-
-    # We stop the sshd.socket unit and just go with a regular
-    # daemon.  This is more portable and reloading/restarting the
-    # socket doesn't seem to work well.
-    #
-    machine.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
+    if machine.image in ["ubuntu-stable"]:  # always socket activated
+        machine.write("/etc/systemd/system/ssh.socket.d/override.conf",
+                      f"[Socket]\nListenStream=\nListenStream=127.27.0.15:22\nListenStream={address}:{port}")
+        machine.execute("systemctl daemon-reload")
+        machine.execute("systemctl restart ssh.socket")
+    else:
+        machine.execute("sed -i 's/.*Port .*/#\\0/' /etc/ssh/sshd_config")
+        machine.execute(
+            f"printf 'ListenAddress 127.27.0.15:22\nListenAddress {address}:{port}\n' >> /etc/ssh/sshd_config")
+        # We stop the sshd.socket unit and just go with a regular
+        # daemon.  This is more portable and reloading/restarting the
+        # socket doesn't seem to work well.
+        #
+        machine.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
 
     start_time = time.time()
     error = None

@@ -225,7 +225,7 @@
                css("display", "flex") &&
                css("display", "grid") &&
                css("selector(test)") &&
-               css("selector(:is():where())");
+               css("selector(:is(*):where(*))");
     }
 
     function trim(s) {

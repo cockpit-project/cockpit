@@ -530,7 +530,7 @@ test_resource_failure (TestResourceCase *tc,
   g_assert_cmpint (pid, >, 0);
   g_assert_cmpint (kill (pid, SIGTERM), ==, 0);
   /* Wait until it's gone */
-#if GLIB_CHECK_VERSION(2,73,2)
+#if GLIB_CHECK_VERSION(2,73,2) && !defined(__MIPSEL)
   /* https://gitlab.gnome.org/GNOME/glib/-/commit/f615eef4bafaa2f dropped global GChildWatch, we need to wait ourselves */
   g_assert_cmpint (waitpid (pid, NULL, 0), ==, pid);
 #else

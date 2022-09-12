@@ -706,25 +706,7 @@ class TestMultiMachine(MachineCase):
         b.logout()
         b.wait_visible("#login")
 
-        if m1.image in ["fedora-coreos"]:  # no semanage
-            m1.execute("setenforce 0")
-        else:
-            m1.execute("! selinuxenabled || semanage port -a -t ssh_port_t -p tcp 2222")
-
-        # Keep in mind that not all operating systems have firewalld
-        m2.execute("firewall-cmd --permanent --zone=public --add-port=2222/tcp || true")
-        m2.execute("firewall-cmd --reload || true")
-        if m2.image in ["fedora-coreos"]:  # no semanage
-            m2.execute("setenforce 0")
-        else:
-            m2.execute("! selinuxenabled || semanage port -a -t ssh_port_t -p tcp 2222")
-        m2.execute("sed -i 's/.*Port .*/#\\0/' /etc/ssh/sshd_config")
-        m2.execute("printf 'ListenAddress 127.27.0.15:22\nListenAddress 10.111.113.2:2222\n' >> /etc/ssh/sshd_config")
-
-        # We stop the sshd.socket unit and just go with a regular
-        # daemon.  This is more portable and reloading/restarting the
-        # socket doesn't seem to work well.
-        m2.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
+        change_ssh_port(m2, "10.111.113.2", 2222)
         m2.disconnect()
         m2 = None  # No more access to m2
 

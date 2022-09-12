@@ -50,12 +50,6 @@
     <div id="login" class="login-area" hidden>
       <form onsubmit="return false">
 
-        <div id="conversation-group" class="form-group" hidden>
-          <div id="conversation-message"></div>
-          <label id="conversation-prompt" for="conversation-input"></label>
-          <input type="password" class="form-control" id="conversation-input">
-        </div>
-
         <div id="hostkey-group" class="form-group" hidden>
           <h1 id="hostkey-title"></h1>
           <div id="hostkey-warning-group" class="pf-c-alert pf-m-warning pf-m-inline dialog-error" aria-label="inline warning alert" hidden>
@@ -88,6 +82,12 @@
               </svg>
             </button>
           </div>
+        </div>
+
+        <div id="conversation-group" class="form-group" hidden>
+          <div id="conversation-message"></div>
+          <label id="conversation-prompt" for="conversation-input"></label>
+          <input type="password" class="form-control" id="conversation-input">
         </div>
 
         <div id="option-group">

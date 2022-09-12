@@ -43,7 +43,7 @@ git_cache() {
 # reads the named gitlink from the current state of the index
 # returns (ie: prints) a 40-character commit ID
 get_index_gitlink() {
-    if ! git ls-files -s "$1" | egrep -o '\<[[:xdigit:]]{40}\>'; then
+    if ! git ls-files -s "$1" | grep -E -o '\<[[:xdigit:]]{40}\>'; then
         echo "*** couldn't read gitlink for file $1 from the index" >&2
         exit 1
     fi

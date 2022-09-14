@@ -55,6 +55,7 @@ class TestStoragePartitions(StorageCase):
                      "mount_point": "/foo",
                      "mount_options.auto": True})
         self.content_row_wait_in_col(1, 2, "ext4 filesystem")
+        self.wait_mounted(1, 2)
 
         self.content_dropdown_action(1, "Delete")
         self.confirm()

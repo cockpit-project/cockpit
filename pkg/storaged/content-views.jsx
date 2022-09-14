@@ -387,7 +387,8 @@ function create_tabs(client, target, is_partition, is_extended) {
                                         return lvol.Delete({ 'tear-down': { t: 'b', v: true } });
                                     else if (block_part)
                                         return block_part.Delete({ 'tear-down': { t: 'b', v: true } });
-                                });
+                                })
+                                .then(utils.reload_systemd);
                     }
                 },
                 Inits: [
@@ -715,7 +716,8 @@ const BlockContent = ({ client, block, allow_partitions }) => {
                     return utils.teardown_active_usage(client, usage)
                             .then(function () {
                                 return block.Format(vals.type, options);
-                            });
+                            })
+                            .then(utils.reload_systemd);
                 }
             },
             Inits: [

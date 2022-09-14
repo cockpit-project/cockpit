@@ -264,7 +264,7 @@ export class MDRaidDetails extends React.Component {
 
             function delete_() {
                 if (mdraid.Delete)
-                    return mdraid.Delete({ 'tear-down': { t: 'b', v: true } });
+                    return mdraid.Delete({ 'tear-down': { t: 'b', v: true } }).then(utils.reload_systemd);
 
                 // If we don't have a Delete method, we simulate
                 // it by stopping the array and wiping all

@@ -27,7 +27,7 @@ import {
     DescriptionListGroup,
     DescriptionListDescription
 } from "@patternfly/react-core";
-import { get_active_usage, teardown_active_usage, fmt_size, decode_filename } from "./utils.js";
+import { get_active_usage, teardown_active_usage, fmt_size, decode_filename, reload_systemd } from "./utils.js";
 import {
     dialog_open, SizeSlider, BlockingMessage, TeardownMessage, init_active_usage_processes
 } from "./dialog.jsx";
@@ -171,7 +171,7 @@ export class VDODetails extends React.Component {
             }
 
             function wipe_with_teardown(block) {
-                return block.Format("empty", { 'tear-down': { t: 'b', v: true } });
+                return block.Format("empty", { 'tear-down': { t: 'b', v: true } }).then(reload_systemd);
             }
 
             function teardown_configs() {

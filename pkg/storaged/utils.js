@@ -749,7 +749,7 @@ export function teardown_active_usage(client, usage) {
             // If we would remove all physical volumes of a volume
             // group, remove the whole volume group instead.
             if (pvs.length == client.vgroups_pvols[p].length) {
-                return vg.Delete({ 'tear-down': { t: 'b', v: true } });
+                return vg.Delete({ 'tear-down': { t: 'b', v: true } }).then(reload_systemd);
             } else {
                 return Promise.all(pvs.map(pv => vg.RemoveDevice(pv.path, true, {})));
             }

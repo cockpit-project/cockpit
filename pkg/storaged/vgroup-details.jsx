@@ -203,6 +203,7 @@ export class VGroupDetails extends React.Component {
                                 .then(function () {
                                     return vgroup.Delete(true,
                                                          { 'tear-down': { t: 'b', v: true } })
+                                            .then(utils.reload_systemd)
                                             .then(function () {
                                                 location.go('/');
                                             });

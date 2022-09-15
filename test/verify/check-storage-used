@@ -93,6 +93,44 @@ ExecStart=/usr/bin/sleep infinity
 
         self.content_row_wait_in_col(1, 0, "Free space")
 
+    def testUsedAsPV(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        dev_1 = self.add_ram_disk()
+        dev_2 = self.add_loopback_disk()
+        b.wait_in_text("#drives", dev_1)
+        b.wait_in_text("#others", dev_2)
+
+        # Create a volume group out of two disks
+        m.execute(f"vgcreate TEST1 {dev_1} {dev_2}")
+        self.addCleanup(m.execute, "vgremove --force TEST1 2>/dev/null || true")
+        b.wait_in_text("#devices", "TEST1")
+
+        # Formatting dev_1 should cleanly remove it from the volume
+        # group.
+
+        b.click(f'.sidepanel-row:contains("{dev_1}")')
+        b.click('button:contains("Create partition table")')
+        b.wait_in_text('#dialog', "remove from LVM2, initialize")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.assertEqual(int(m.execute("vgs TEST1 -o pv_count --noheadings")), 1)
+
+        # Formatting dev_2 should now cleanly remove the whole volume
+        # group.
+
+        b.go("#/")
+        b.click(f'.sidepanel-row:contains("{dev_2}")')
+        b.click('button:contains("Create partition table")')
+        b.wait_in_text('#dialog', "remove from LVM2, initialize")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        self.assertEqual(m.execute("vgs TEST1 || echo GONE").strip(), "GONE")
+
 
 if __name__ == '__main__':
     test_main()

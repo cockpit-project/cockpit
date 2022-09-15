@@ -736,7 +736,6 @@ export function teardown_active_usage(client, usage) {
 
     function pvol_remove(pvols) {
         const by_vgroup = { };
-        let p;
         pvols.forEach(function (p) {
             if (!by_vgroup[p.vgroup.path])
                 by_vgroup[p.vgroup.path] = [];
@@ -749,14 +748,13 @@ export function teardown_active_usage(client, usage) {
             // If we would remove all physical volumes of a volume
             // group, remove the whole volume group instead.
             if (pvs.length == client.vgroups_pvols[p].length) {
-                return vg.Delete({ 'tear-down': { t: 'b', v: true } }).then(reload_systemd);
+                return vg.Delete(true, { 'tear-down': { t: 'b', v: true } }).then(reload_systemd);
             } else {
                 return Promise.all(pvs.map(pv => vg.RemoveDevice(pv.path, true, {})));
             }
         }
 
-        for (p in by_vgroup)
-            handle_vg(p);
+        return Promise.all(Object.keys(by_vgroup).map(handle_vg));
     }
 
     return Promise.all(Array.prototype.concat(

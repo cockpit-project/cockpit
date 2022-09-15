@@ -249,6 +249,23 @@ class TestStorageMdRaid(StorageCase):
         b.wait_in_text('#detail-sidebar', "DISK1")
         wait_degraded_state(False)
 
+        # Add DISK2 again, as a spare
+        self.raid_add_disk("DISK2")
+        self.wait_states({"QEMU QEMU HARDDISK (DISK2)": "Spare"})
+
+        # Remove it by formatting DISK2
+        b.go("#/")
+        b.click('.sidepanel-row:contains("DISK2")')
+        b.click('button:contains("Create partition table")')
+        b.wait_in_text('#dialog', "remove from RAID, initialize")
+        self.dialog_apply()
+        self.dialog_wait_close()
+
+        b.go("#/")
+        b.click('#devices .sidepanel-row:contains("raid0")')
+        b.wait_visible('#storage-detail')
+        b.wait_not_in_text('#detail-sidebar', "DISK2")
+
         # Delete the array.  We are back on the storage page.
         self.raid_action("Delete")
         self.confirm()

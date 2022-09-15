@@ -109,7 +109,7 @@ class SubscriptionsCase(MachineCase):
 
         # Wait for the web service to be accessible
         args = {"addr": "services.cockpit.lan"}
-        m.execute(WAIT_SCRIPT % args)
+        m.execute(WAIT_SCRIPT % args, timeout=360)
 
         if m.image != "rhel-atomic":  # insights-client not installed there
             m.write("/etc/insights-client/insights-client.conf",

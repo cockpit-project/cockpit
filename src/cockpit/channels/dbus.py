@@ -32,6 +32,7 @@ logger = logging.getLogger(__name__)
 class InterfaceCache:
     def __init__(self):
         self.cache = {}
+        self.old = set()  # Interfaces already returned by get_interface_if_new
 
     async def introspect_path(self, bus, destination, object_path):
         xml, = await bus.call_method_async(destination, object_path, 'org.freedesktop.DBus.Introspectable', 'Introspect')
@@ -59,6 +60,12 @@ class InterfaceCache:
 
         return self.cache.get(interface_name)
 
+    async def get_interface_if_new(self, interface_name, bus, destination, object_path):
+        if interface_name in self.old:
+            return None
+        self.old.add(interface_name)
+        return await self.get_interface(interface_name, bus, destination, object_path)
+
     async def get_signature(self, interface_name, method, bus=None, destination=None, object_path=None):
         interface = await self.get_interface(interface_name, bus, destination, object_path)
         if interface is None:
@@ -74,6 +81,10 @@ class DBusChannel(Channel):
     matches = None
     name = None
     bus = None
+
+    # This needs to be a fair mutex so that outgoing messages don't
+    # get re-ordered.  asyncio.Lock is fair.
+    watch_processing_lock = asyncio.Lock()
 
     def do_open(self, options):
         self.cache = InterfaceCache()
@@ -102,12 +113,19 @@ class DBusChannel(Channel):
 
     def match_hit(self, message):
         logger.debug('got match')
-        self.send_message(signal=[
-            message.get_path(),
-            message.get_interface(),
-            message.get_member(),
-            list(message.get_body())
-        ])
+
+        async def handler_async(message):
+            async with self.watch_processing_lock:
+                self.send_message(signal=[
+                    message.get_path(),
+                    message.get_interface(),
+                    message.get_member(),
+                    list(message.get_body())
+                ])
+
+        task = asyncio.create_task(handler_async(message))
+        self.tasks.add(task)
+        task.add_done_callback(self.tasks.discard)
 
     async def do_call(self, call, message):
         path, iface, method, args = call
@@ -135,9 +153,13 @@ class DBusChannel(Channel):
                 return
 
         try:
-            reply = await self.bus.call_method_async(self.name, path, iface, method, signature, *args, timeout=timeout)
-            # TODO: stop hard-coding the endian flag here.
-            self.send_message(reply=[reply], id=cookie, flags="<" if flags is not None else None)
+            reply = await self.bus.call_method_async(self.name, path, iface, method, signature, *args,
+                                                     timeout=timeout)
+            # If the method call has kicked off any signals related to
+            # watch processing, wait for that to be done.
+            async with self.watch_processing_lock:
+                # TODO: stop hard-coding the endian flag here.
+                self.send_message(reply=[reply], id=cookie, flags="<" if flags is not None else None)
         except BusError as error:
             # actually, should send the fields from the message body
             self.send_message(error=[error.code, [error.description]], id=cookie)
@@ -150,6 +172,79 @@ class DBusChannel(Channel):
         self.matches.append(self.bus.add_match("type='signal'," + rule, self.match_hit))
         self.send_message(reply=[], id=message.get('id'))
 
+    async def setup_objectmanager_watch(self, path, interface_name, meta, notify):
+        # Watch the objects managed by the ObjectManager at "path".
+        # Properties are not watched, that is done by setup_path_watch
+        # below.
+
+        async def om_interfaces_added(path, interface_props):
+            meta = {}
+            notify = {}
+            async with self.watch_processing_lock:
+                for name, props in interface_props.items():
+                    if interface_name is None or name == interface_name:
+                        mm = await self.cache.get_interface_if_new(name, self.bus, self.name, path)
+                        if mm:
+                            meta.update({ name: mm })
+                        notify.update({ path: { name: {k: v['v'] for k, v in props.items()} }})
+                self.send_message(meta=meta)
+                self.send_message(notify=notify)
+
+        def om_handler(message):
+            member = message.get_member()
+            if member == "InterfacesAdded":
+                (path, interface_props) = message.get_body()
+                logger.debug('interfaces added %s %s', path, interface_props)
+                task = asyncio.create_task(om_interfaces_added(path, interface_props))
+                self.tasks.add(task)
+                task.add_done_callback(self.tasks.discard)
+            elif member == "InterfacesRemoved":
+                (path, interfaces) = message.get_body()
+                logger.debug('interfaces removed %s %s', path, interfaces)
+                notify = { path: { name: None for name in interfaces } }
+                self.send_message(notify=notify)
+
+        self.matches.append(self.bus.add_match(f"type='signal',sender='{self.name}',path='{path}',interface='org.freedesktop.DBus.ObjectManager'", om_handler))
+        objects, = await self.bus.call_method_async(self.name, path, 'org.freedesktop.DBus.ObjectManager', 'GetManagedObjects')
+        for p, ifaces in objects.items():
+            for iface, props in ifaces.items():
+                if interface_name is None or iface == interface_name:
+                    mm = await self.cache.get_interface_if_new(iface, self.bus, self.name, p)
+                    if mm:
+                        meta.update({ iface: mm })
+                        notify.update({ p: { iface: {k: v['v'] for k, v in props.items()} }})
+
+    async def setup_path_watch(self, path, interface_name, recursive_props, meta, notify):
+        # Watch a single object at "path"
+
+        async def handler_async(message):
+            async with self.watch_processing_lock:
+                path = message.get_path()
+                notify = message.get_body()
+                logger.debug('NOTIFY: %s', notify)
+                self.send_message(notify={path: notify})
+
+        def handler(message):
+            task = asyncio.create_task(handler_async(message))
+            self.tasks.add(task)
+            task.add_done_callback(self.tasks.discard)
+
+        this_meta = await self.cache.introspect_path(self.bus, self.name, path)
+        if interface_name is not None:
+            interface = this_meta.get(interface_name)
+            this_meta = {interface_name: interface}
+        meta.update(this_meta)
+        path_keyword = "path_namespace" if recursive_props else "path"
+        self.matches.append(self.bus.add_match(f"type='signal',sender='{self.name}',{path_keyword}='{path}',interface='org.freedesktop.DBus.Properties'", handler))
+        for name, interface in meta.items():
+            if name.startswith("org.freedesktop.DBus."):
+                continue
+            try:
+                props, = await self.bus.call_method_async(self.name, path, 'org.freedesktop.DBus.Properties', 'GetAll', 's', name)
+                notify.update({ path: { name: {k: v['v'] for k, v in props.items()} }})
+            except BusError as error:
+                pass
+
     async def do_watch(self, watch, message):
         path = watch.get('path')
         path_namespace = watch.get('path_namespace')
@@ -157,6 +252,7 @@ class DBusChannel(Channel):
         interface_name = message.get('interface')
 
         path = path or path_namespace
+        recursive = path == path_namespace
 
         if path is None or cookie is None:
             logger.debug('ignored incomplete watch request %s', message)
@@ -165,34 +261,17 @@ class DBusChannel(Channel):
             return
 
         try:
-            meta = await self.cache.introspect_path(self.bus, self.name, path)
+            async with self.watch_processing_lock:
+                meta = {}
+                notify = {}
+                await self.setup_path_watch(path, interface_name, recursive, meta, notify)
+                if recursive:
+                    await self.setup_objectmanager_watch(path, interface_name, meta, notify)
+                self.send_message(meta=meta)
+                self.send_message(notify=notify)
+                self.send_message(reply=[], id=message['id'])
         except BusError as error:
             self.send_message(error=[error.code, [error.description]], id=cookie)
-            return
-
-        if interface_name is not None:
-            interface = meta.get(interface_name)
-            meta = {interface_name: interface}
-
-        self.send_message(meta=meta)
-
-        def handler(message):
-            notify = message.get_body()
-            logger.debug('NOTIFY: %s', notify)
-            self.send_message(notify={path: notify})
-
-        self.matches.append(self.bus.add_match(f"type='signal',sender='{self.name}',path='{path}',interface='org.freedesktop.DBus.Properties'", handler))
-
-        notify = {}
-        for name, interface in meta.items():
-            try:
-                props, = await self.bus.call_method_async(self.name, path, 'org.freedesktop.DBus.Properties', 'GetAll', 's', name)
-                notify[name] = {k: v['v'] for k, v in props.items()}
-            except BusError:
-                pass
-
-        self.send_message(notify={path: notify})
-        self.send_message(reply=[], id=message['id'])
 
     def do_data(self, data):
         message = json.loads(data)

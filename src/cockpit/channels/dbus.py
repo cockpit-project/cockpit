@@ -122,9 +122,9 @@ class DBusChannel(Channel):
         # We have to figure out the signature of the call.  Either we got told it:
         signature = message.get('type')
 
-        # ... or all of our arguments are string (and we can guess):
-        if signature is None and all(isinstance(arg, str) for arg in args):
-            signature = 's' * len(args)
+        # ... or there aren't any arguments
+        if signature is None and len(args) == 0:
+            signature = ''
 
         # ... or we need to introspect
         if signature is None:

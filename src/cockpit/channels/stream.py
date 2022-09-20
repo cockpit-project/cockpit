@@ -19,7 +19,7 @@ import asyncio
 import logging
 import os
 
-from ..channel import AsyncChannel
+from ..channel import AsyncChannel, ChannelError
 
 logger = logging.getLogger(__name__)
 
@@ -94,13 +94,21 @@ class StreamChannel(AsyncChannel):
         env.update(options.get('env') or [])
 
         logger.debug('Spawning process args=%s', args)
-        process = await asyncio.create_subprocess_exec(
-            *args,
-            cwd=cwd,
-            env=env,
-            stdin=asyncio.subprocess.PIPE,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=stderr)
+        try:
+            process = await asyncio.create_subprocess_exec(
+                *args,
+                cwd=cwd,
+                env=env,
+                stdin=asyncio.subprocess.PIPE,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=stderr)
+        except FileNotFoundError as error:
+            raise ChannelError('not-found') from error
+        except PermissionError as error:
+            raise ChannelError('access-denied') from error
+        except OSError as error:
+            logger.info("Failed to spawn %s: %s", args, str(error))
+            raise ChannelError('internal-error') from error
 
         logger.debug('starting forwarding')
         await asyncio.gather(self.receive_writer(process.stdin),

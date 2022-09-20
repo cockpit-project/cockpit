@@ -91,6 +91,16 @@ QUnit.test("error message fail", function (assert) {
             });
 });
 
+QUnit.test("nonexisting executable", assert => {
+    assert.rejects(cockpit.spawn(["/bin/nonexistent"]),
+                   ex => ex.problem == "not-found");
+});
+
+QUnit.test("permission denied", assert => {
+    assert.rejects(cockpit.spawn(["/etc/hostname"]),
+                   ex => ex.problem == "access-denied");
+});
+
 QUnit.test("write eof read", function (assert) {
     const done = assert.async();
     assert.expect(2);

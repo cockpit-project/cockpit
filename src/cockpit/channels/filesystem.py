@@ -21,7 +21,7 @@ import tempfile
 
 from systemd_ctypes import PathWatch
 
-from ..channel import Channel
+from ..channel import Channel, ChannelError
 
 logger = logging.getLogger(__name__)
 
@@ -86,19 +86,16 @@ class FsReadChannel(Channel):
                     tag = tag_from_stat(buf)
                     if max_read_size := options.get('max_read_size'):
                         if buf.st_size > max_read_size:
-                            self.close(problem='too-large')
-                            return
+                            raise ChannelError('too-large')
 
                     data = filep.read()
             except FileNotFoundError:
                 self.close(tag='-')
                 return
             except PermissionError:
-                self.close(problem='access-denied')
-                return
+                raise ChannelError('access-denied')
             except OSError:
-                self.close(problem='internal-error')
-                return
+                raise ChannelError('internal-error')
 
             if 'binary' not in options:
                 data = data.replace(b'\0', b'').decode('utf-8', errors='ignore').encode('utf-8')
@@ -138,8 +135,7 @@ class FsReplaceChannel(Channel):
             self._tempfile.flush()
 
             if self._tag and self._tag != tag_from_path(self._path):
-                self.close(problem="change-conflict")
-                return
+                raise ChannelError('change-conflict')
 
             os.rename(self._tempfile.name, self._path)
             self._tempfile.close()

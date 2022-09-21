@@ -23,7 +23,8 @@ class MockTransport(asyncio.Transport):
     queue: asyncio.Queue[Tuple[str, bytes]]
 
     def send_json(self, _channel: str, **kwargs) -> None:
-        self.send_data(_channel, json.dumps(kwargs).encode('ascii'))
+        msg = {k.replace('_', '-'): v for k, v in kwargs.items()}
+        self.send_data(_channel, json.dumps(msg).encode('ascii'))
 
     def send_data(self, channel: str, data: bytes) -> None:
         msg = channel.encode('ascii') + b'\n' + data
@@ -141,3 +142,34 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
         assert msg['id'] == 'x'
         assert 'reply' in msg
         assert msg['reply'] == [[{'Prop': {'t': 's', 'v': 'none'}}]]
+
+    async def test_dbus_watch(self):
+        bridge, transport = await self.start()
+
+        my_object = test_iface()
+        server = InternalEndpoints.get_server()
+        self.slot = server.add_object('/foo', my_object)
+        assert my_object._dbus_bus == server
+        assert my_object._dbus_path == '/foo'
+
+        transport.send_open('internal', 'dbus-json3', bus='internal')
+        await transport.assert_msg('', command='ready', channel='internal')
+
+        # Add a watch
+        transport.send_json('internal', watch={'path': '/foo', 'interface': 'test.iface'}, id='4')
+        meta = await transport.next_msg('internal')
+        assert meta['meta']['test.iface'] == {
+            'methods': {},
+            'properties': {'Prop': {'flags': 'r', 'type': 's'}},
+            'signals': {'Sig': {'in': ['s']}}
+        }
+        notify = await transport.next_msg('internal')
+        assert notify['notify']['/foo'] == {'test.iface': {'Prop': 'none'}}
+        reply = await transport.next_msg('internal')
+        assert reply == {'id': '4', 'reply': []}
+
+        # Change a property
+        my_object.prop = 'xyz'
+        notify = await transport.next_msg('internal')
+        assert 'notify' in notify
+        assert notify['notify']['/foo'] == {'test.iface': {'Prop': 'xyz'}}

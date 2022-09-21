@@ -29,6 +29,12 @@ class Endpoint:
         raise NotImplementedError
 
 
+class ChannelError(Exception):
+    def __init__(self, problem, **kwargs):
+        super().__init__(f'ChannelError {problem}')
+        self.kwargs = dict(kwargs, problem=problem)
+
+
 class Channel(Endpoint):
     payload = None
     restrictions = ()
@@ -47,7 +53,7 @@ class Channel(Endpoint):
     channel = None
 
     # input
-    def do_channel_control(self, command, message):
+    def do_control(self, command, message):
         # Break the various different kinds of control messages out into the
         # things that our subclass may be interested in handling.  We drop the
         # 'message' field for handlers that don't need it.
@@ -64,6 +70,13 @@ class Channel(Endpoint):
             self.do_ping(message)
         elif command == 'pong':
             self.do_pong(message)
+
+    def do_channel_control(self, command, message):
+        # Catch errors and turn them into close messages
+        try:
+            self.do_control(command, message)
+        except ChannelError as exc:
+            self.close(**exc.kwargs)
 
     # At least this one really ought to be implemented...
     def do_open(self, options):
@@ -87,12 +100,11 @@ class Channel(Endpoint):
         self.send_pong(message)
 
     def do_channel_data(self, channel, data):
-        # This one is a bit silly: Endpoint takes the channel parameter on
-        # do_channel_data() because Peer needs it, but our subclasses aren't
-        # interested in it at all.  Use another virtual method and drop the
-        # useless parameter.
-
-        self.do_data(data)
+        # Catch errors and turn them into close messages
+        try:
+            self.do_data(data)
+        except ChannelError as exc:
+            self.close(**exc.kwargs)
 
     def do_data(self, _data):
         # By default, channels can't receive data.

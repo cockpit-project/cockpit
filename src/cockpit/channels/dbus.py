@@ -128,7 +128,7 @@ class DBusChannel(Channel):
                 logger.debug('Doing introspection request for %s %s', iface, method)
                 signature = await self.cache.get_signature(iface, method, self.bus, self.name, path)
             except BusError as error:
-                self.send_message(error=[error.code, [f'Introspection: {error.description}']], id=cookie)
+                self.send_message(error=[error.name, [f'Introspection: {error.message}']], id=cookie)
                 return
             except Exception as exc:
                 self.send_message(error=['python.error', [f'Introspection: {str(exc)}']], id=cookie)
@@ -140,7 +140,7 @@ class DBusChannel(Channel):
             self.send_message(reply=[reply], id=cookie, flags="<" if flags is not None else None)
         except BusError as error:
             # actually, should send the fields from the message body
-            self.send_message(error=[error.code, [error.description]], id=cookie)
+            self.send_message(error=[error.name, [error.message]], id=cookie)
         except Exception as exc:
             self.send_message(error=['python.error', [str(exc)]], id=cookie)
 
@@ -167,7 +167,7 @@ class DBusChannel(Channel):
         try:
             meta = await self.cache.introspect_path(self.bus, self.name, path)
         except BusError as error:
-            self.send_message(error=[error.code, [error.description]], id=cookie)
+            self.send_message(error=[error.name, [error.message]], id=cookie)
             return
 
         if interface_name is not None:

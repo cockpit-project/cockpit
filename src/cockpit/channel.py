@@ -165,7 +165,11 @@ class AsyncChannel(Channel):
     async def write(self, data):
         if self.flow_control:
             assert len(data) <= AsyncChannel.CHANNEL_FLOW_WINDOW
-            self.out_sequence += len(data)
+
+            out_sequence = self.out_sequence + len(data)
+            if self.out_sequence // AsyncChannel.CHANNEL_FLOW_PING != out_sequence // AsyncChannel.CHANNEL_FLOW_PING:
+                self.send_control(command='ping', sequence=out_sequence)
+            self.out_sequence = out_sequence
 
             while self.out_window < self.out_sequence:
                 self.write_waiter = asyncio.get_running_loop().create_future()

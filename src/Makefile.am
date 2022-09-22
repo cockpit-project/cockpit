@@ -31,6 +31,7 @@ pyTESTS_PASSING = \
 	dist/base1/test-protocol.html \
 	dist/base1/test-series.html \
 	dist/base1/test-spawn.html \
+	dist/base1/test-spawn-proc.html \
 	dist/base1/test-user.html \
 	dist/base1/test-utf8.html \
 	dist/kdump/test-config-client.html \
@@ -45,7 +46,6 @@ pyTESTS_FAILING = \
 pyTESTS_HANGING = \
 	dist/base1/test-dbus-address.html \
 	dist/base1/test-dbus.html \
-	dist/base1/test-spawn-proc.html \
 	$(NULL)
 
 pyTESTS = $(pyTESTS_PASSING) $(pyTESTS_FAILING)

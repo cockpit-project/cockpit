@@ -169,6 +169,13 @@ class AsyncChannel(Channel):
     async def run(self, options):
         raise NotImplementedError
 
+    async def run_wrapper(self, options):
+        try:
+            await self.run(options)
+            self.close()
+        except ChannelError as exc:
+            self.close(**exc.kwargs)
+
     async def read(self):
         while not isinstance(item := await self.receive_queue.get(), bytes):
             self.send_pong(item)
@@ -194,7 +201,7 @@ class AsyncChannel(Channel):
     def do_open(self, options):
         self.receive_queue = asyncio.Queue()
         self.flow_control = options.get('flow-control') is True
-        asyncio.create_task(self.run(options), name='f{self.__class__.__name__}.run({options})')
+        asyncio.create_task(self.run_wrapper(options), name='f{self.__class__.__name__}.run_wrapper({options})')
 
     def do_done(self):
         self.receive_queue.put_nowait(b'')

@@ -307,6 +307,9 @@ class CurrentMetrics extends React.Component {
                      * which are always at 100% capacity, but are uninteresting for disk usage alerts */
                     if ((fields[0].indexOf("/loop") >= 0 && options.indexOf('ro') >= 0))
                         result.add(fields[1]);
+                    /* hide flatpaks */
+                    if ((fields[0].indexOf('revokefs-fuse') >= 0 && fields[1].indexOf('flatpak') >= 0))
+                        result.add(fields[1]);
                 });
         return result;
     }

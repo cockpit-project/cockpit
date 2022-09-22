@@ -39,10 +39,17 @@
 #include <string.h>
 #include <errno.h>
 #include <stdio.h>
+#include <unistd.h>
 
+#include <sys/syscall.h>
+#include <sys/poll.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
+
+#ifndef SYS_pidfd_open
+#define SYS_pidfd_open 434  // same on every arch
+#endif
 
 /*
  * To recalculate the checksums found in this file, do something like:
@@ -509,7 +516,6 @@ test_resource_no_path (TestResourceCase *tc,
   g_object_unref (response);
 }
 
-
 static void
 test_resource_failure (TestResourceCase *tc,
                        gconstpointer data)
@@ -522,22 +528,33 @@ test_resource_failure (TestResourceCase *tc,
   const gchar *expected = "HTTP/1.1 500 terminated\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\n" STATIC_HEADERS "\r\n13\r\n<html><head><title>\r\na\r\nterminated\r\n15\r\n</title></head><body>\r\na\r\nterminated\r\nf\r\n</body></html>\n\r\n0\r\n\r\n";
   const gchar *expected_alt = "HTTP/1.1 502 disconnected\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\n" STATIC_HEADERS "\r\n13\r\n<html><head><title>\r\nc\r\ndisconnected\r\n15\r\n</title></head><body>\r\nc\r\ndisconnected\r\nf\r\n</body></html>\n\r\n0\r\n\r\n";
 
+  /* We need to skip this test under Valgrind because Valgrind doesn't
+   * know about pidfd_open() yet.
+   */
+  if (cockpit_test_skip_slow ())
+    return;
+
   cockpit_expect_possible_log ("cockpit-protocol", G_LOG_LEVEL_WARNING, "*: bridge program failed:*");
   cockpit_expect_possible_log ("cockpit-ws", G_LOG_LEVEL_MESSAGE, "*: external channel failed: *");
 
-  /* Now kill the bridge */
+  /* Make a pidfd for the bridge */
   g_assert (cockpit_pipe_get_pid (tc->pipe, &pid));
   g_assert_cmpint (pid, >, 0);
+  int pid_fd = syscall(SYS_pidfd_open, pid, 0);
+
+  /* Now kill the bridge */
   g_assert_cmpint (kill (pid, SIGTERM), ==, 0);
-  /* Wait until it's gone */
-#if GLIB_CHECK_VERSION(2,73,2) && !defined(__MIPSEL)
-  /* https://gitlab.gnome.org/GNOME/glib/-/commit/f615eef4bafaa2f dropped global GChildWatch, we need to wait ourselves */
-  g_assert_cmpint (waitpid (pid, NULL, 0), ==, pid);
-#else
-  /* on older glib versions, waitpid interferes with GChildWatch */
-  while (kill (pid, 0) >= 0)
-    g_usleep (1000);
-#endif
+
+  /* The SIGTERM gets delivered to the bridge via a glib unix signal
+   * handler, and it is theoretically possible that the request that we
+   * send below could get delivered before the SIGTERM.  For that
+   * reason, we need to make sure that the process actually properly
+   * exited before sending the request.
+   */
+  struct pollfd pid_pfd = { .fd = pid_fd, .events = POLLIN };
+  while (poll (&pid_pfd, 1, -1) != 1)
+    ;
+  close (pid_fd);
 
   response = cockpit_web_response_new (tc->io, "/unused", "/unused", NULL, NULL);
   cockpit_channel_response_serve (tc->service, tc->headers, response, "@localhost", "/another/test.html");

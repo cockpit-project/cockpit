@@ -22,7 +22,7 @@ distdir: $(DISTFILES)
 		git -C '$(srcdir)' ls-files -x test/reference .fmf plans test tools > .extra_dist.tmp && \
 		mv .extra_dist.tmp '$(srcdir)/.extra_dist'; fi
 	$(MAKE) $(AM_MAKEFLAGS) distdir-am EXTRA_FILES="$$(tr '\n' ' ' < $(srcdir)/.extra_dist) .extra_dist"
-	test ! -x $(srcdir)/src/client/add-metainfo-releases || $(srcdir)/src/client/add-metainfo-releases --version '$(VERSION)' '$(distdir)'/src/client/*.metainfo.xml
+	sed -i "s/[@]VERSION@/$(VERSION)/" "$(distdir)/src/client/org.cockpit_project.CockpitClient.metainfo.xml"
 	sed -i "/^Version:/ s/0/$(VERSION)/" "$(distdir)/tools/cockpit.spec"
 	sed -i "/^pkgver=/ s/0/$(VERSION)/" "$(distdir)/tools/arch/PKGBUILD"
 	sed -i "1 s/0/$(VERSION)/" "$(distdir)/tools/debian/changelog"

@@ -22,6 +22,10 @@ timestamp() {
     stamp="$((stamp + 1))"
 }
 
+# we add the date of the release to the Cockpit Client metainfo
+sed -i "s/@DATE@/$(date -d@${stamp} +'%Y-%m-%d')/" \
+    "${distdir}/src/client/org.cockpit_project.CockpitClient.metainfo.xml"
+
 # all files get the same timestamp as the commit date
 timestamp "${distdir}"
 

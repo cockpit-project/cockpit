@@ -17,7 +17,6 @@
 
 import os
 import os.path
-import sys
 from typing import Any, Dict, List, NamedTuple, Optional
 
 
@@ -192,30 +191,35 @@ class CGroupSampler(Sampler):
     cgroups_v2: Optional[bool] = None
     cgroups_v2_path = '/sys/fs/cgroup/'
 
-    def read_cgroup_keyed_stat(self, samples, path, cgroup, name, key):
-        with open(path) as stat:
-            for line in stat:
-                if not line.startswith(key):
-                    continue
-
-                value = int(line.split()[-1])
-                if sys.maxsize > value > 0:
-                    samples[name][cgroup] = value / 1000
-
-    def read_cgroup_integer_stat(self, samples, path, cgroup, name):
+    @staticmethod
+    def read_cgroup_integer_stat(rootfd, statfile, include_zero=False, key=b''):
         # Not every stat is available, such as cpu.weight
         try:
-            with open(path) as stat:
-                # Some samples such as "memory.max" contains "max" when there is a no limit
-                try:
-                    value = int(stat.read().strip())
-                except ValueError:
-                    return
-
-                if sys.maxsize > value > 0:
-                    samples[name][cgroup] = value
+            fd = os.open(statfile, os.O_RDONLY, dir_fd=rootfd)
         except FileNotFoundError:
-            pass
+            return None
+
+        try:
+            data = os.read(fd, 1024)
+        finally:
+            os.close(fd)
+
+        if key:
+            start = data.index(key) + len(key)
+            end = data.index(b'\n', start)
+            # cpu.stat are in usecs
+            value = int(data[start:end])
+        else:
+            # Some samples such as "memory.max" contains "max" when there is a no limit
+            try:
+                value = int(data)
+            except ValueError:
+                return None
+
+        if value > 0 or include_zero:
+            return value
+
+        return None
 
     def sample(self, samples):
         # TODO: Cgroups v1 support
@@ -223,18 +227,20 @@ class CGroupSampler(Sampler):
             self.cgroups_v2 = os.path.exists('/sys/fs/cgroup/cgroup.controllers')
 
         if self.cgroups_v2_path:
-            for path, _, _ in os.walk(self.cgroups_v2_path):
-                cgroup = path.replace(self.cgroups_v2_path, '')  # TODO: Pathlib?
+            for path, _, _, rootfd in os.fwalk(self.cgroups_v2_path):
+                cgroup = path.replace(self.cgroups_v2_path, '')
 
                 if not cgroup:
                     continue
 
-                self.read_cgroup_integer_stat(samples, os.path.join(path, 'memory.current'), cgroup, 'cgroup.memory.usage')
-                self.read_cgroup_integer_stat(samples, os.path.join(path, 'memory.max'), cgroup, 'cgroup.memory.limit')
-                self.read_cgroup_integer_stat(samples, os.path.join(path, 'memory.swap.current'), cgroup, 'cgroup.memory.sw-usage')
-                self.read_cgroup_integer_stat(samples, os.path.join(path, 'memory.swap.max'), cgroup, 'cgroup.memory.sw-limit')
-                self.read_cgroup_integer_stat(samples, os.path.join(path, 'cpu.weight'), cgroup, 'cgroup.cpu.shares')
-                self.read_cgroup_keyed_stat(samples, os.path.join(path, 'cpu.stat'), cgroup, 'cgroup.cpu.usage', 'usage_usec')
+                samples['cgroup.memory.usage'][cgroup] = self.read_cgroup_integer_stat(rootfd, 'memory.current', True)
+                samples['cgroup.memory.limit'][cgroup] = self.read_cgroup_integer_stat(rootfd, 'memory.max')
+                samples['cgroup.memory.sw-usage'][cgroup] = self.read_cgroup_integer_stat(rootfd, 'memory.swap.current', True)
+                samples['cgroup.memory.sw-limit'][cgroup] = self.read_cgroup_integer_stat(rootfd, 'memory.swap.max')
+                samples['cgroup.cpu.shares'][cgroup] = self.read_cgroup_integer_stat(rootfd, 'cpu.weight')
+                usage_usec = self.read_cgroup_integer_stat(rootfd, 'cpu.stat', True, key=b'usage_usec')
+                if usage_usec:
+                    samples['cgroup.cpu.usage'][cgroup] = usage_usec / 1000
 
 
 class NetworkSampler(Sampler):

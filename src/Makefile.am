@@ -94,6 +94,12 @@ cockpit-bridge.pyz: $(MANIFESTS) $(PYTHON_BRIDGE_FILES) $(SYSTEMD_CTYPES_STAMP)
 	$(AM_V_GEN) python3 -m zipapp --python /usr/bin/python3 --output $@ --main cockpit.bridge:main tmp/pyz
 	@chmod a+x $@
 
+.PHONY: pcc
+# Python Cockpit Client testing target
+pcc: cockpit-bridge.pyz
+	ln -vsf "$(realpath $<)" ~/.local/bin/cockpit-bridge
+	gapplication action org.cockpit_project.CockpitClient open-path '"=localhost"'
+
 # -----------------------------------------------------------------------------
 #  C
 

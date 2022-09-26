@@ -36,7 +36,7 @@ import {
     Text, TextContent, TextVariants,
     Tooltip,
 } from '@patternfly/react-core';
-import { Table, TableHeader, TableBody, TableGridBreakpoint, TableVariant, TableText, RowWrapper, cellWidth } from '@patternfly/react-table';
+import { Table, TableHeader, TableBody, TableGridBreakpoint, TableVariant, TableText, RowWrapper, cellWidth, fitContent } from '@patternfly/react-table';
 import { ExclamationTriangleIcon, ExclamationCircleIcon, CogIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
 
 import cockpit from 'cockpit';
@@ -159,6 +159,8 @@ const CURRENT_METRICS = [
     { name: "cpu.core.user", derive: "rate" },
     { name: "cpu.core.system", derive: "rate" },
     { name: "cpu.core.nice", derive: "rate" },
+    { name: "disk.dev.read", units: "bytes", derive: "rate" },
+    { name: "disk.dev.written", units: "bytes", derive: "rate" },
 ];
 
 const CPU_TEMPERATURE_METRICS = [
@@ -223,6 +225,7 @@ class CurrentMetrics extends React.Component {
         this.netInterfacesNames = [];
         this.cgroupCPUNames = [];
         this.cgroupMemoryNames = [];
+        this.disksNames = [];
         this.cpuTemperatureColors = {
             textColor: "",
             iconColor: "",
@@ -412,6 +415,8 @@ class CurrentMetrics extends React.Component {
             console.assert(data.metrics[9].name === 'cgroup.cpu.usage');
             this.cgroupCPUNames = data.metrics[9].instances.slice();
             this.cgroupMemoryNames = data.metrics[10].instances.slice();
+            console.assert(data.metrics[14].name === 'disk.dev.read');
+            this.disksNames = data.metrics[14].instances.slice();
             debug("metrics message was meta, new net instance names", JSON.stringify(this.netInterfacesNames));
             return;
         }
@@ -644,6 +649,39 @@ class CurrentMetrics extends React.Component {
             cpu_label = this.state.cpuUsed + '%';
         }
 
+        const disksUsage = (this.disksNames.length > 0 && this.samples[14] && this.samples[15])
+            ? (
+                this.disksNames.map((name, i) => [
+                    name,
+                    this.samples[14][i] >= 1 ? cockpit.format_bytes_per_sec(this.samples[14][i]) : "0",
+                    this.samples[15][i] >= 1 ? cockpit.format_bytes_per_sec(this.samples[15][i]) : "0",
+                ])
+            )
+            : [];
+
+        let allDisks = null;
+        if (disksUsage.length > 1) {
+            const disksTableContent = (
+                <Table
+                    variant={TableVariant.compact}
+                    gridBreakPoint={TableGridBreakpoint.gridLg}
+                    borders={false}
+                    aria-label={ _("Disks usage") }
+                    cells={ [{ title: _("Device"), transforms: [fitContent] }, _("Read"), _("Write")] }
+                    rows={disksUsage}
+                    rowWrapper={ props => <RowWrapper device-name={ props.row[0] } {...props} /> }>
+                    <TableHeader />
+                    <TableBody className="pf-m-tabular-nums disks-nowrap" />
+                </Table>
+            );
+
+            allDisks = (
+                <Popover minWidth={0} aria-label={ _("View all disks") } bodyContent={disksTableContent}>
+                    <Button variant="link" className='pf-u-font-size-sm'>{ _("View per-disk throughput") }</Button>
+                </Popover>
+            );
+        }
+
         return (
             <Gallery className="current-metrics" hasGutter>
                 <Card id="current-metrics-card-cpu">
@@ -735,7 +773,7 @@ class CurrentMetrics extends React.Component {
                     </CardBody>
                 </Card>
 
-                <Card>
+                <Card id="current-metrics-card-disks">
                     <CardTitle>{ _("Disks") }</CardTitle>
                     <CardBody>
                         <DescriptionList isHorizontal columnModifier={{ default: '2Col' }}>
@@ -748,7 +786,9 @@ class CurrentMetrics extends React.Component {
                                 <DescriptionListDescription id="current-disks-write">{ this.state.disksWritten >= 1 ? cockpit.format_bytes_per_sec(this.state.disksWritten) : "0" }</DescriptionListDescription>
                             </DescriptionListGroup>
                         </DescriptionList>
-
+                        <div className="all-disks-no-gap">
+                            {allDisks}
+                        </div>
                         <div id="current-disks-usage" className="progress-stack"> {
                             this.state.mounts.map(info => {
                                 let progress = (

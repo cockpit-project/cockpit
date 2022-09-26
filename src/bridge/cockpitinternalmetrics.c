@@ -85,6 +85,8 @@ static MetricDescription metric_descriptions[] = {
 
   { "disk.all.read",    "bytes", "counter", FALSE, DISK_SAMPLER },
   { "disk.all.written", "bytes", "counter", FALSE, DISK_SAMPLER },
+  { "disk.dev.read",    "bytes", "counter", TRUE, DISK_SAMPLER },
+  { "disk.dev.written", "bytes", "counter", TRUE, DISK_SAMPLER },
 
   { "network.all.rx",       "bytes", "counter", FALSE, NETWORK_SAMPLER }, /* deprecated */
   { "network.all.tx",       "bytes", "counter", FALSE, NETWORK_SAMPLER }, /* deprecated */

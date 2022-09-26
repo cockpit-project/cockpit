@@ -142,6 +142,8 @@ cockpit_disk_samples (CockpitSamples *samples)
       bytes_read += num_sectors_read * 512;
       bytes_written += num_sectors_written * 512;
       num_ops += num_reads_merged + num_writes_merged;
+      cockpit_samples_sample (samples, "disk.dev.read", dev_name, num_sectors_read * 512);
+      cockpit_samples_sample (samples, "disk.dev.written", dev_name, num_sectors_written * 512);
     }
 
   cockpit_samples_sample (samples, "disk.all.read", NULL, bytes_read);

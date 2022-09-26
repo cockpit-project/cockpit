@@ -27,6 +27,7 @@ from machine_core.constants import TEST_OS_DEFAULT
 
 @nondestructive
 @skipDistroPackage()
+@timeout(1200)
 class TestPages(MachineCase):
     def checkDocs(self, items):
         m = self.machine

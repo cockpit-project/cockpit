@@ -57,14 +57,14 @@ class InternalMetricsChannel(AsyncChannel):
 
         interval = options.get('interval', self.interval)
         if not isinstance(interval, int) or interval <= 0 or interval > sys.maxsize:
-            raise ChannelError('protocol-error', message='invalid interval option')
+            raise ChannelError('protocol-error', message=f'invalid "interval" value: {interval}')
 
         self.interval = interval
 
         metrics = options.get('metrics')
         if not isinstance(metrics, list) or len(metrics) == 0:
             logger.error('invalid "metrics" value: %s', metrics)
-            raise ChannelError('protocol-error', message='metrics is not an list')
+            raise ChannelError('protocol-error', message='invalid "metrics" option was specified (not an array)')
 
         sampler_classes = set()
         for metric in metrics:
@@ -77,10 +77,10 @@ class InternalMetricsChannel(AsyncChannel):
                 sampler, desc = self.samplers_cache[name]
             except KeyError:
                 logger.error('unsupported metric: %s', name)
-                raise ChannelError('protocol-error', message=f'unsupported metric: {name}')
+                raise ChannelError('not-supported', message=f'unsupported metric: {name}')
 
             if units and units != desc.units:
-                raise ChannelError('protocol-error', message=f'{name} has units {desc.units}, not {units}')
+                raise ChannelError('not-supported', message=f'{name} has units {desc.units}, not {units}')
 
             sampler_classes.add(sampler)
             self.metrics.append(MetricInfo(derive=derive, desc=desc))

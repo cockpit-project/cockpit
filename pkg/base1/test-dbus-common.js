@@ -262,29 +262,6 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test("bad variants", function (assert) {
-        const done = assert.async();
-        assert.expect(3);
-
-        const dbus = cockpit.dbus(bus_name, channel_options);
-        dbus.call("/otree/frobber", "com.redhat.Cockpit.DBusTests.Frobber",
-                  "TestAsv", [{
-                      one: "foo",
-                      two: "/bar",
-                      three: "assgit",
-                      four: 42,
-                      five: 1000.0
-                  }])
-                .fail(function(ex) {
-                    assert.equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "error name");
-                    assert.equal(ex.message, "Unexpected type 'string' in argument", "error message");
-                })
-                .always(function() {
-                    assert.equal(this.state(), "rejected", "should fail");
-                    done();
-                });
-    });
-
     QUnit.test("get all", function (assert) {
         const done = assert.async();
         assert.expect(2);

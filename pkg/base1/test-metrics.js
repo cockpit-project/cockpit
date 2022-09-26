@@ -104,7 +104,17 @@ function MockSink(expected, callback) {
     return self;
 }
 
-QUnit.test("non-instanced decompression", function (assert) {
+let old_channel;
+QUnit.module("Mock tests", {
+    beforeEach: () => {
+        old_channel = cockpit.channel;
+    },
+    afterEach: () => {
+        cockpit.channel = old_channel;
+    }
+});
+
+QUnit.test("non-instanced decompression", assert => {
     assert.expect(1);
 
     const peer = new MockPeer();
@@ -125,6 +135,59 @@ QUnit.test("non-instanced decompression", function (assert) {
     peer.send_json([[]]);
 
     assert.deepEqual(sink.samples, [[10], [10]], "got correct samples");
+});
+
+QUnit.test("interval validation", assert => {
+    assert.expect(2);
+    const done = assert.async();
+    const metrics_channel = cockpit.channel({
+        payload: "metrics1",
+        source: "internal",
+        interval: -1,
+    });
+
+    metrics_channel.addEventListener("close", (_, error) => {
+        assert.equal(error.problem, "protocol-error");
+        assert.equal(error.message, 'invalid "interval" value: -1');
+        done();
+    });
+});
+
+QUnit.test("metrics validation", assert => {
+    assert.expect(2);
+    const done = assert.async();
+    const metrics_channel = cockpit.channel({
+        payload: "metrics1",
+        source: "internal",
+        interval: 1000,
+        metrics: {
+            foo: 1
+        }
+    });
+
+    metrics_channel.addEventListener("close", (_, error) => {
+        assert.equal(error.problem, "protocol-error");
+        assert.equal(error.message, 'invalid "metrics" option was specified (not an array)');
+        done();
+    });
+});
+
+QUnit.test("metrics object validation", assert => {
+    assert.expect(1);
+    const done = assert.async();
+    const metrics_channel = cockpit.channel({
+        payload: "metrics1",
+        source: "internal",
+        interval: 1000,
+        metrics: [
+            { name: "nonexistant", derive: "rate" },
+        ]
+    });
+
+    metrics_channel.addEventListener("close", (_, error) => {
+        assert.equal(error.problem, "not-supported");
+        done();
+    });
 });
 
 QUnit.start();

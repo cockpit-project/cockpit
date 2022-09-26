@@ -229,6 +229,30 @@
       }
     }
   }
+
+  .all-disks-no-gap {
+    // don't center the "View all disks" button
+    button {
+      padding-left: 0;
+      width: fit-content;
+    }
+  }
+}
+
+.pf-c-popover {
+  thead th:not(:first-child) {
+    text-align: right;
+  }
+
+  .disks-nowrap {
+    td {
+      white-space: nowrap;
+    }
+
+    td:not(:first-child) {
+      text-align: right;
+    }
+  }
 }
 
 @media (min-width: 641px) and (max-width: 1200px) {

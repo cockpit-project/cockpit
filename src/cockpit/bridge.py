@@ -25,7 +25,7 @@ import sys
 
 from systemd_ctypes import EventLoopPolicy
 
-from .asyncstdio import AsyncStdio
+from .transports import StdioTransport
 from .packages import Packages
 from .router import Router
 
@@ -41,14 +41,12 @@ async def run():
     os.environ['SHELL'] = me.pw_shell
     os.environ['USER'] = me.pw_name
 
-    loop = asyncio.get_event_loop()
-    stdio = AsyncStdio(loop)
-
     logger.debug('Starting the router.')
-    await loop.connect_accepted_socket(Router, stdio.protocol_sock)
+    router = Router()
+    StdioTransport(asyncio.get_running_loop(), router)
 
     logger.debug('Startup done.  Looping until connection closes.')
-    await stdio.forward()
+    await router.communicate()
 
 
 def main():

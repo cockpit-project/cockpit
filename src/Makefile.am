@@ -55,7 +55,6 @@ pycheck: cockpit-bridge.pyz
 
 PYTHON_BRIDGE_FILES = \
 	src/cockpit/__init__.py \
-	src/cockpit/asyncstdio.py \
 	src/cockpit/bridge.py \
 	src/cockpit/channel.py \
 	src/cockpit/channels/__init__.py \
@@ -72,6 +71,7 @@ PYTHON_BRIDGE_FILES = \
 	src/cockpit/protocol.py \
 	src/cockpit/router.py \
 	src/cockpit/samples.py \
+	src/cockpit/transports.py \
 	$(NULL)
 
 SYSTEMD_CTYPES_STAMP = src/systemd_ctypes/__init__.py

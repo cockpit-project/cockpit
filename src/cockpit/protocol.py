@@ -19,6 +19,9 @@ import asyncio
 import json
 import logging
 
+from typing import Optional
+
+
 logger = logging.getLogger('cockpit.protocol')
 
 
@@ -36,6 +39,7 @@ class CockpitProtocol(asyncio.Protocol):
     '''
     transport = None
     buffer = b''
+    _communication_done: Optional[asyncio.Future] = None
 
     def do_ready(self):
         raise NotImplementedError
@@ -115,6 +119,12 @@ class CockpitProtocol(asyncio.Protocol):
         logger.debug('connection_lost')
         self.transport = None
 
+        if self._communication_done is not None:
+            if exc is None:
+                self._communication_done.set_result(None)
+            else:
+                self._communication_done.set_error(exc)
+
     def send_frame(self, frame):
         frame_length = len(frame)
         header = f'{frame_length}\n'.encode('ascii')
@@ -155,6 +165,13 @@ class CockpitProtocol(asyncio.Protocol):
 
     def eof_received(self):
         self.send_control(command='close')
+
+    async def communicate(self) -> None:
+        """Wait until communication is complete on this protocol."""
+        assert self._communication_done is None
+        self._communication_done = asyncio.get_running_loop().create_future()
+        await self._communication_done
+        self._communication_done = None
 
 
 # All CockpitProtocol subclasses should derive from either

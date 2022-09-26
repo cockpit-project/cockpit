@@ -791,7 +791,7 @@ class CurrentMetrics extends React.Component {
                             cells={ [_("Interface"), _("In"), _("Out")] } rows={netIO}
                             rowWrapper={ props => <RowWrapper data-interface={ props.row[0] } {...props} /> }>
                             <TableHeader />
-                            <TableBody />
+                            <TableBody className="network-nowrap-shrink" />
                         </Table>
                     </CardBody>
                 </Card>

@@ -19,7 +19,9 @@ if [ "$ID" = "fedora" ]; then
 fi
 
 # tests need cockpit's bots/ libraries
-git clone --depth=1 https://github.com/cockpit-project/bots
+# clone a version of bots that does not yet have the Machine.execute() `set -e` change, as our tests are not compatible with that
+git clone https://github.com/cockpit-project/bots
+git -C bots checkout 733b4c64c0f92b542d50863c336d486b50c17102
 
 # support running from clean git tree
 if [ ! -d node_modules/chrome-remote-interface ]; then

@@ -184,18 +184,14 @@
   }
 
   // Don't wrap network in / out data
-  td[data-label="In"],
-  td[data-label="Out"] {
-    white-space: nowrap;
-  }
-
   // Shrink network cards and data a little more
   // (as space is costly and they use a lot)
   // FIXME: Let's fix the content (split off units) and drop this when we can
-  td[data-label="In"],
-  td[data-label="Out"],
-  td[data-label="Interface"] {
-    font-size: var(--pf-global--FontSize--xs);
+  .network-nowrap-shrink {
+    td {
+      white-space: nowrap;
+      font-size: var(--pf-global--FontSize--xs);
+    }
   }
 
   // Shrink percentage column to allow for more service text

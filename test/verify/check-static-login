@@ -538,6 +538,25 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_not_visible("#login")
         b.wait_not_visible("#login-details")
 
+    def testBypassSoftRequirements(self):
+        m = self.machine
+        b = self.browser
+
+        m.start_cockpit()
+        b.cdp.invoke("Page.addScriptToEvaluateOnNewDocument", source="""
+          window.CSS.supports = function() { return false; };
+        """)
+        b.open("/system")
+        b.wait_visible("#unsupported-browser")
+        b.wait_in_text("#show-other-login-options-text", "Bypass browser check")
+        b.click(".pf-c-expandable-section")
+
+        b.set_val('#login-user-input', "admin")
+        b.set_val('#login-password-input', "foobar")
+        b.click("#login-button")
+
+        self.check_shell()
+
     @skipImage("Starting on OSTree is weird", "fedora-coreos")
     def testFailingWebsocket(self, safari=False, cacert=False):
         m = self.machine

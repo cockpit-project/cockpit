@@ -95,7 +95,7 @@ function instance_sampler(metrics, source) {
             for (let m = 0; m < metrics.length; m++) {
                 const inst = metrics[m];
                 for (let i = 0; i < inst.length; i++) {
-                    if (inst[i] !== null) {
+                    if (inst[i] !== null && inst[i] != self.data[instances[m][i]][m]) {
                         changed = true;
                         self.data[instances[m][i]][m] = inst[i];
                     }

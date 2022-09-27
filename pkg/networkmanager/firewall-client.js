@@ -335,6 +335,19 @@ cockpit.spawn(['sh', '-c', 'pkcheck --action-id org.fedoraproject.FirewallD1.all
             firewall.readonly = false;
             firewall.debouncedEvent('changed');
             firewall.debouncedGetZones();
+        })
+        .catch(error => {
+            console.log("pkcheck failed", error);
+
+            // Fall back to cockpit.permissions, "pkcheck" might not be available,
+            // always allow edits by admins
+            const permission = cockpit.permission({ admin: true });
+            const update_permissions = () => {
+                firewall.readonly = !permission.allowed;
+                firewall.debouncedEvent('changed');
+                firewall.debouncedGetZones();
+            };
+            permission.addEventListener("changed", update_permissions);
         });
 
 firewall.enable = () => firewalld_service.enable().then(() => firewalld_service.start());

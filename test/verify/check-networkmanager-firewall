@@ -122,6 +122,27 @@ class TestFirewall(NetworkCase):
             ".*The name org.fedoraproject.FirewallD1 was not provided by any .service files.*",
             ".*org.fedoraproject.FirewallD1: .*: GDBus.Error:org.freedesktop.DBus.Error.NoReply.*")
 
+    # test missing "pkcheck" binary, in that case fallback to the admin check
+    def testPkcheckMissing(self):
+        b = self.browser
+        m = self.machine
+
+        # Path to the "pkcheck" PolicyKit utility
+        pkcheck = m.execute("which pkcheck").strip()
+        # "Hide" pkcheck
+        m.execute(f"mount --bind /dev/null '{pkcheck}'")
+
+        try:
+            # Regular user is not allowed to change the firewall switch
+            self.login_and_go("/network", superuser=False)
+            b.wait_visible("#networking-firewall-switch:disabled")
+
+            # Super user is allowed to change the firewall switch
+            b.relogin("/network", superuser=True)
+            b.wait_visible("#networking-firewall-switch:not([disabled])")
+        finally:
+            m.execute(f"umount '{pkcheck}'")
+
     def testFirewallPage(self):
         b = self.browser
         m = self.machine

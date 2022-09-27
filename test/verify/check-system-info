@@ -229,7 +229,7 @@ class TestSystemInfo(MachineCase):
         # Gain admin access
         b.click(".pf-c-alert:contains('Web console is running in limited access mode.') button:contains('Turn on')")
         b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Password for admin")
-        b.set_input_text(".pf-c-modal-box:contains('Switch to administrative access') input", "foobar")
+        b.set_input_text(".pf-c-modal-box:contains('Switch to administrative access') input[type=password]", "foobar")
         b.click(".pf-c-modal-box button:contains('Authenticate')")
         b.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
         b.wait_not_present(".pf-c-alert:contains('Web console is running in limited access mode.')")

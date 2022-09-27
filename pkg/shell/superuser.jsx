@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React, { useState } from "react";
 import { useObject, useInit, useEvent } from "hooks";
 import { useDialogs } from "dialogs.jsx";
-import { Alert, Button, Form, FormGroup, Modal, TextInput, FormSelect, FormSelectOption } from '@patternfly/react-core';
+import { Alert, Button, Form, FormGroup, Modal, TextInput, Checkbox, FormSelect, FormSelectOption } from '@patternfly/react-core';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { host_superuser_storage_key } from './machines/machines';
 import { LockIcon } from '@patternfly/react-icons';
@@ -52,6 +52,7 @@ const UnlockDialog = ({ proxy, host }) => {
     const [error, setError] = useState(null);
     const [errorVariant, setErrorVariant] = useState(null);
     const [value, setValue] = useState("");
+    const [rememberAccessLevelOnUnlock, setRememberAccessLevelOnUnlock] = useState(false);
 
     function start(method) {
         setBusy(true);
@@ -60,6 +61,7 @@ const UnlockDialog = ({ proxy, host }) => {
             D.close();
         });
 
+        const key = host_superuser_storage_key(host);
         let did_prompt = false;
 
         const onprompt = (event, message, prompt, def, echo, error) => {
@@ -79,21 +81,28 @@ const UnlockDialog = ({ proxy, host }) => {
             did_prompt = true;
         };
 
+        const maybe_remember = () => {
+            if (rememberAccessLevelOnUnlock) {
+                if (key)
+                    window.localStorage.setItem(key, method);
+            }
+        };
+
         proxy.addEventListener("Prompt", onprompt);
         proxy.Start(method)
                 .then(() => {
                     proxy.removeEventListener("Prompt", onprompt);
-
-                    const key = host_superuser_storage_key(host);
-                    if (key)
-                        window.localStorage.setItem(key, method);
                     if (did_prompt) {
+                        maybe_remember();
                         D.close();
                     } else {
                         setBusy(false);
                         setPrompt(null);
                         setMessage(_("You now have administrative access."));
-                        setCancel(() => D.close);
+                        setCancel(() => () => {
+                            maybe_remember();
+                            D.close();
+                        });
                     }
                 })
                 .catch(err => {
@@ -131,6 +140,13 @@ const UnlockDialog = ({ proxy, host }) => {
     let body = null;
     let footer = null;
 
+    const auto_checkbox = (
+        <Checkbox id="switch-to-admin-access-checkbox"
+                  onChange={setRememberAccessLevelOnUnlock}
+                  isChecked={rememberAccessLevelOnUnlock}
+                  label={_("Use administrative mode when logging in")}
+                  description={_("Using your login password to automatically switch to administrative mode may not work as expected, especially with SSH keys or 2FA.")} />);
+
     if (prompt) {
         if (!prompt.message && !prompt.prompt) {
             prompt.message = _("Please authenticate to gain administrative access");
@@ -149,6 +165,7 @@ const UnlockDialog = ({ proxy, host }) => {
                 { error && <><Alert variant={errorVariant || 'danger'} isInline title={error} /><br /></> }
                 <Form isHorizontal onSubmit={event => { apply(); event.preventDefault(); return false }}>
                     { prompt.message && <span>{prompt.message}</span> }
+                    <input type="submit" hidden /> {/* enables implicit submission with the text input */}
                     <FormGroup
                         fieldId="switch-to-admin-access-password"
                         label={prompt.prompt}
@@ -163,6 +180,9 @@ const UnlockDialog = ({ proxy, host }) => {
                             validated={!error ? "default" : validated || "error"}
                             value={value}
                         />
+                    </FormGroup>
+                    <FormGroup>
+                        {auto_checkbox}
                     </FormGroup>
                 </Form>
             </>
@@ -179,7 +199,12 @@ const UnlockDialog = ({ proxy, host }) => {
             </>);
     } else if (message) {
         title = _("Administrative access");
-        body = <p>{message}</p>;
+        body = (
+            <>
+                <p>{message}</p>
+                <br />
+                {auto_checkbox}
+            </>);
         footer = (
             <Button variant="secondary" className='btn-cancel' onClick={cancel}>
                 {_("Close")}

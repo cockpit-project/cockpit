@@ -39,7 +39,7 @@ body {
 }
 
 h1, h2, h3, h4 {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 400;
   margin: 0;
 }
@@ -51,7 +51,7 @@ h1 {
 }
 
 h2 {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
 }
 
 pre {
@@ -80,7 +80,8 @@ button {
   opacity: 0.7;
 }
 
-a {
+a,
+summary {
   color: #06c;
   text-decoration: none;
 }
@@ -321,6 +322,19 @@ label.checkbox {
   outline: none;
 }
 
+.pf-c-button.pf-m-warning {
+  background-color: #f0ab00;
+  border-color: #f0ab00;
+  color: black;
+}
+
+.pf-c-button.pf-m-warning:hover,
+.pf-c-button.pf-m-warning:focus {
+  background-color: #c58c00;
+  border-color: #c58c00;
+  color: black;
+}
+
 .login-pf {
   height: 100%;
 }
@@ -331,7 +345,7 @@ label.checkbox {
   max-width: 100%;
 }
 
-.brand-unsupported-browser #brand {
+.unsupported-browser #brand {
   display: none;
 }
 
@@ -496,7 +510,6 @@ label.checkbox {
 
 .unsupported-browser a {
   font-weight: 700;
-  text-decoration: underline;
 }
 
 .input-clear,
@@ -563,8 +576,8 @@ label.checkbox {
   transition: all 300ms;
 }
 
-.caret-down {
-  transform: rotate(90deg);
+[data-state="true"] svg.caret {
+  transform: rotate(90deg) translateX(-3px);
   transform-origin: 0.5rem;
 }
 
@@ -639,6 +652,7 @@ label.checkbox {
 
   .login-pf .container {
     width: 100%;
+    padding: 2rem;
   }
 
   .login-pf #badge {
@@ -659,12 +673,7 @@ label.checkbox {
 /* Large phones and desktops */
 @media (min-width: 481px) {
   .unsupported-browser-heading {
-    margin: 2rem 0;
-  }
-
-  .browser-recommendations h3 {
-    font-weight: 400;
-    margin-top: 0;
+    margin: 2rem 0 1rem;
   }
 
   .login-pf #brand {
@@ -740,6 +749,20 @@ body.login-pf {
 .login-pf .container .login-area {
   border: none;
   width: auto;
+}
+
+details > summary {
+  display: block;
+  padding: 0.5rem 0;
+  cursor: pointer;
+}
+
+details > summary:hover {
+  text-decoration: underline;
+}
+
+details[open] > summary > .caret {
+  transform: rotate(90deg) translateX(-3px);
 }
 
 .login-pf #brand {
@@ -850,14 +873,16 @@ a:hover {
 
 .unsupported-browser ul {
   color: #555;
-  margin: 0 0 2rem;
+  margin: 0 0 1rem;
 }
 
 .browser-recommendations {
-  display: grid;
-  justify-content: space-around;
-  grid-template-columns: repeat(auto-fit, minmax(18rem, max-content));
-  grid-gap: 0 1rem;
+  margin: 1rem 0 0;
+}
+
+.browser-recommendations h3 {
+  font: inherit;
+  margin-top: 0;
 }
 
 .dialog-error {
@@ -891,6 +916,14 @@ input[type="password"] + .login-password-toggle .password-hide {
   display: none;
 }
 
+.pf-c-helper-text {
+  margin-top: 1rem;
+}
+
+.pf-c-helper-text.pf-m-warning {
+  color: #795600;
+}
+
 /* Dark */
 @media (prefers-color-scheme: dark) {
   .login-pf .container,
@@ -920,31 +953,9 @@ input[type="password"] + .login-password-toggle .password-hide {
   a,
   a:active,
   a:focus,
-  a:hover {
+  a:hover,
+  summary {
     color: #8ac0f6;
-  }
-
-  .pf-m-primary {
-    background-color: #06c;
-  }
-
-  .pf-m-primary:hover {
-    background-color: #004080;
-  }
-
-  .pf-m-tertiary {
-    background-color: transparent;
-    border-color: #8ac0f6;
-    color: #8ac0f6;
-  }
-
-  .pf-m-tertiary:active,
-  .pf-m-tertiary:focus,
-  .pf-m-tertiary:hover {
-    background-color: transparent;
-    border-color: #c5e0fb;
-    outline-color: #c5e0fb;
-    color: #c5e0fb;
   }
 
   .input-clear,
@@ -1000,6 +1011,10 @@ input[type="password"] + .login-password-toggle .password-hide {
     bottom: 0;
     left: 0;
     z-index: 1;
+  }
+
+  .pf-c-helper-text.pf-m-warning {
+    color: #f0ab00;
   }
 }
 

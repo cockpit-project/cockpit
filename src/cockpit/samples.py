@@ -189,7 +189,6 @@ class CGroupSampler(Sampler):
     ]
 
     cgroups_v2: Optional[bool] = None
-    cgroups_v2_path = '/sys/fs/cgroup/'
 
     @staticmethod
     def read_cgroup_integer_stat(rootfd, statfile, include_zero=False, key=b''):
@@ -222,13 +221,13 @@ class CGroupSampler(Sampler):
         return None
 
     def sample(self, samples):
-        # TODO: Cgroups v1 support
         if self.cgroups_v2 is None:
             self.cgroups_v2 = os.path.exists('/sys/fs/cgroup/cgroup.controllers')
 
-        if self.cgroups_v2_path:
-            for path, _, _, rootfd in os.fwalk(self.cgroups_v2_path):
-                cgroup = path.replace(self.cgroups_v2_path, '')
+        if self.cgroups_v2:
+            cgroups_v2_path = '/sys/fs/cgroup/'
+            for path, _, _, rootfd in os.fwalk(cgroups_v2_path):
+                cgroup = path.replace(cgroups_v2_path, '')
 
                 if not cgroup:
                     continue
@@ -241,6 +240,30 @@ class CGroupSampler(Sampler):
                 usage_usec = self.read_cgroup_integer_stat(rootfd, 'cpu.stat', True, key=b'usage_usec')
                 if usage_usec:
                     samples['cgroup.cpu.usage'][cgroup] = usage_usec / 1000
+        else:
+            memory_path = '/sys/fs/cgroup/memory/'
+            for path, _, _, rootfd in os.fwalk(memory_path):
+                cgroup = path.replace(memory_path, '')
+
+                if not cgroup:
+                    continue
+
+                samples['cgroup.memory.usage'][cgroup] = self.read_cgroup_integer_stat(rootfd, 'memory.usage_in_bytes', True)
+                samples['cgroup.memory.limit'][cgroup] = self.read_cgroup_integer_stat(rootfd, 'memory.limit_in_bytes')
+                samples['cgroup.memory.sw-usage'][cgroup] = self.read_cgroup_integer_stat(rootfd, 'memory.memsw.usage_in_bytes', True)
+                samples['cgroup.memory.sw-limit'][cgroup] = self.read_cgroup_integer_stat(rootfd, 'memory.memsw.limit_in_bytes')
+
+            cpu_path = '/sys/fs/cgroup/cpu/'
+            for path, _, _, rootfd in os.fwalk(cpu_path):
+                cgroup = path.replace(cpu_path, '')
+
+                if not cgroup:
+                    continue
+
+                samples['cgroup.cpu.shares'][cgroup] = self.read_cgroup_integer_stat(rootfd, 'cpu.shares')
+                usage_nsec = self.read_cgroup_integer_stat(rootfd, 'cpuacct.usage')
+                if usage_nsec:
+                    samples['cgroup.cpu.usage'][cgroup] = usage_nsec / 1000000
 
 
 class NetworkSampler(Sampler):

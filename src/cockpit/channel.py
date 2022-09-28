@@ -70,6 +70,8 @@ class Channel(Endpoint):
             self.do_ping(message)
         elif command == 'pong':
             self.do_pong(message)
+        elif command == 'options':
+            self.do_options(message)
 
     def do_channel_control(self, command, message):
         # Catch errors and turn them into close messages
@@ -94,6 +96,9 @@ class Channel(Endpoint):
 
     def do_pong(self, message):
         pass
+
+    def do_options(self, message):
+        raise ChannelError('not-supported', message='This channel does not implement "options"')
 
     # 'reasonable' default, overridden in AsyncChannel for flow control
     def do_ping(self, message):

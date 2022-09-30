@@ -30,40 +30,39 @@ Tests in that container get started with the `start` script.  By default, this
 script runs the unit tests on amd64.  The script accepts a number of arguments
 to modify its behaviour:
 
- - `CC=othercc` to set the `CC` environment variable inside the container (ie:
+ - `--env CC=othercc` to set the `CC` environment variable inside the container (ie:
    to build with a different compiler)
- - `:tag` to specify a different tag to use for the `cockpit/unit-tests` image
-   (eg: `i386`)
+ - `--image-tag` to specify a different tag to use for the `cockpit/unit-tests` image
+   (eg: `--image-tag=i386`)
 
-Additionally, a testing scenario must be provided.  Supported options are:
+Additionally, a testing scenario can be provided with specifying a `make` target.
+Supported scenarios are:
 
  - `check-memory`: runs 'make check-memory' (ie: run the unit tests under valgrind)
  - `distcheck`: runs 'make distcheck' and some related checks
- - `shell`: specify that an interactive shell should be launched instead of
-   building and testing
+ - `pycheck`: runs browser unit tests against the Python bridge
 
 Some examples:
 
-    $ ./start check-memory             # run the valgrind tests on amd64
+    $ ./start --make check-memory                 # run the valgrind tests on amd64
 
-    $ ./start CC=clang check-memory    # run the valgrind tests, compiled with clang
+    $ ./start --env=CC=clang --make check-memory  # run the valgrind tests, compiled with clang
 
-    $ ./start :i386 distcheck          # run the distcheck tests on i386
+    $ ./start --image-tag=i386 distcheck          # run the distcheck tests on i386
 
 ## Debugging tests
 
 For interactive debugging, run a shell in the container:
 
-    $ ./start shell     # start an interactive shell in default container
+    $ ./start
 
 You will find the cockpit source tree (from the host) mounted at `/source` in
-the container.
+the container. Run
 
-`/source/containers/unit-tests/run.sh` will start the builds and test run, then
-you can investigate in the build tree at `/tmp/source/`.
+    $ /source/autogen.sh
 
-`/source/containers/unit-tests/run.sh` also includes a `build` mode which
-will checkout and build the source, but not run any tests.
+to create a build tree, then you can run any make or other debugging command
+interactively.
 
 You can also attach to another container using the provided `exec` script.  For example:
 

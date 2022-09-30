@@ -34,6 +34,7 @@ jobs:
 
       - name: Run unit-tests container
         timeout-minutes: 30
+        # HACK: -gdwarf-4 is for clang: https://bugs.kde.org/show_bug.cgi?id=452758
         run: |
           containers/unit-tests/start \
               --verbose \

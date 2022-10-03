@@ -424,8 +424,7 @@ class TestMultiMachine(MachineCase):
         # Test subnav
         b.click_system_menu("/@10.111.113.2/users", enter=False)
         b.enter_page("/users", host="10.111.113.2")
-        b.wait_visible("#accounts-list")
-        b.click("#accounts-list .pf-c-card:first-child")
+        b.click('#accounts-list td[data-label="Username"] a[href="#/admin"]')
         b.wait_text("#account-user-name", "admin")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "/cockpit-new/@10.111.113.2/users"')

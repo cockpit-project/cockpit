@@ -40,11 +40,11 @@ class TestAccounts(MachineCase):
             b.wait_in_text('#accounts-list', "anton")
 
         # There is only one badge and it is for admin
-        b.wait_text('.cockpit-account-badge', 'Your account')
-        b.wait_js_cond('document.querySelector(".cockpit-account-badge").previousSibling.getAttribute("href") === "#/admin"')
+        b.wait_text('#current-account-badge', 'Your account')
+        b.wait_js_cond('document.querySelector("#current-account-badge").previousSibling.getAttribute("href") === "#/admin"')
 
         # The current account is the first in the list
-        b.wait_visible(".pf-c-card:first-child .cockpit-account-badge")
+        b.wait_visible("#accounts-list > tbody :first-child #current-account-badge")
 
         # Set a real name
         b.go("#/anton")
@@ -65,7 +65,7 @@ class TestAccounts(MachineCase):
         b.wait_text("#account-title", "Anton Arbitrary")
         # On the overview page it also shows only real name
         b.go("/users")
-        b.wait_text('.cockpit-account-real-name:contains("Anton")', "Anton Arbitrary")
+        b.wait_text('#accounts-list td[data-label="Full name"]:contains("Anton")', "Anton Arbitrary")
         b.go("/users/#anton")
 
         good_password = "tqymuVh.ZfZnP§9Wr=LM3JyG5yx"
@@ -219,11 +219,11 @@ class TestAccounts(MachineCase):
         b.login_and_go("/users", user="jussi", password="bar")
 
         # There is only one badge and it is for jussi
-        b.wait_text('.cockpit-account-badge', 'Your account')
-        b.wait_js_cond('document.querySelector(".cockpit-account-badge").previousSibling.getAttribute("href") === "#/jussi"')
+        b.wait_text('#current-account-badge', 'Your account')
+        b.wait_js_cond('document.querySelector("#current-account-badge").previousSibling.getAttribute("href") === "#/jussi"')
 
         # The current account is the first in the list
-        b.wait_visible(".pf-c-card:first-child .cockpit-account-badge")
+        b.wait_visible("#accounts-list > tbody :first-child #current-account-badge")
 
         b.go("#/jussi")
         b.wait_text("#account-user-name", "jussi")
@@ -292,7 +292,7 @@ class TestAccounts(MachineCase):
         b.go("/users")
         b.enter_page("/users")
         b.wait_in_text('#accounts-list', "damaged")
-        b.click('.cockpit-account-user-name a[href="#/damaged"]')
+        b.click('#accounts-list td[data-label="Username"] a[href="#/damaged"]')
         b.wait_in_text("#account-title", "Damaged")
 
         if m.image != "fedora-coreos":  # User is not shown as logged in when logged in through Cockpit
@@ -335,9 +335,13 @@ class TestAccounts(MachineCase):
 
         b.wait_not_present('#accounts-create-dialog')
         b.wait_in_text('#accounts-list', "Robert Robertson")
-
         # Login as robert and check if password change is required
         b.logout()
+
+        # login in second window to check if last login is updated in accounts list
+        if m.image != "fedora-coreos":  # User is not shown as logged in when logged in through Cockpit
+            b2.login_and_go("/users")
+            b2.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Last active']", "Never logged in")
 
         # On OSTree this happens over ssh
         if m.ostree_image:
@@ -363,10 +367,114 @@ class TestAccounts(MachineCase):
         b.click('#login-button')
         b.wait_visible('#content')
 
+        def performUserAction(browser, user, action):
+            browser.click(f"#accounts-list tbody tr:contains({user}) .pf-c-dropdown button")
+            browser.click(f"#accounts-list tbody tr:contains({user}) .pf-c-dropdown__menu li:contains({action})")
+
+        if m.image != "fedora-coreos":
+            b2.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Last active']", "Logged in")
+            performUserAction(b2, 'robert', 'Log user out')
+            b2.click("#account-confirm-logout-dialog footer .pf-c-button.apply")
+
+            (year, month) = m.execute("date +'%Y %b'").strip().split()
+            b2.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Last active']", year)
+            b2.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Last active']", month)
+
+        b.logout()
+        b.login_and_go("/users")
+        # Test actions in kebab menu
+        # disable password
+        performUserAction(b, 'robert', 'Lock account')
+        b.click("#account-confirm-lock-dialog footer .pf-m-danger.apply")
+        # lock option is now disabled
+        b.click("#accounts-list tbody tr:contains(robert) .pf-c-dropdown button")
+        b.wait_in_text("#accounts-list tbody tr:contains(robert) .pf-c-dropdown__menu li:contains('Lock account') .pf-m-disabled", 'Lock account')
+        b.click("#accounts-list tbody tr:contains(robert) .pf-c-dropdown button")
+        # change is visible on details page
+        performUserAction(b, 'robert', 'Edit user')
+        b.wait_in_text('#account-title', 'Robert Robertson')
+        b.wait_visible('#account-locked:checked')
+        b.click("#account-locked")
+        b.go('/users')
+
+        # Check Robert's groups
+        b.wait_not_present("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-c-label")
+        if m.image != "fedora-coreos":  # Users group does not exist in coreos image
+            m.execute("/usr/sbin/usermod -aG users robert")
+            b.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-c-label.pf-m-cyan", "users")
+        m.execute("/usr/sbin/usermod -aG wheel robert")
+        b.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-c-label.pf-m-gold", "wheel")
+        m.execute("/usr/bin/gpasswd -d robert wheel")
+        b.wait_not_present("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-c-label.pf-m-gold")
+
+        # test filters
+        b.set_input_text("#accounts-filter input", "rOBeRt")
+        b.wait_in_text("#accounts-list tbody tr:first-child td[data-label='Username']", "robert")
+        b.set_input_text("#accounts-filter input", "root")
+        b.wait_in_text("#accounts-list tbody tr:first-child td[data-label='Username']", "root")
+
+        uid = "1000"
+        if "debian" in m.image or "ubuntu" in m.image:
+            uid = "1001"
+        b.set_input_text("#accounts-filter input", uid)
+        b.wait_in_text("#accounts-list tbody tr:first-child td[data-label='ID']", uid)
+        b.set_input_text("#accounts-filter input", "spooky")
+        b.wait_visible("#accounts div.pf-c-empty-state")
+
+        b.inject_js("""
+                    function getTextColumn(query_selector) {
+                        const values = [];
+                        document.querySelectorAll(query_selector).forEach(node => values.push(node.innerText));
+                        return values;
+                    }""")
+
+        def check_column_sort(query_selector, invert=False):
+            # current account is always in the first row
+            b.wait_in_text("#accounts-list tbody tr:first-child td[data-label='Username']", "admin")
+            values = b.eval_js(f"getTextColumn(\"{query_selector}\")")
+            for i in range(2, len(values)):
+                if (invert):
+                    b.wait(lambda: values[i - 1].lower() > values[i].lower())
+                else:
+                    b.wait(lambda: values[i - 1].lower() < values[i].lower())
+
+        # robert should be in users group
+        if m.image != "fedora-coreos":  # Users group does not exist in coreos image
+            b.set_input_text("#accounts-filter input", "users")
+            names = b.eval_js("getTextColumn(\"[data-label='Username'] a\")")
+            b.wait(lambda: "robert" in names)
+
+        # clear text filters
+        b.click("#accounts-filter button[aria-label='Reset']")
+
+        # check alphabetical order of Username
+        check_column_sort("[data-label='Username'] a")
+        b.click("#accounts-list > thead > tr > th:nth-child(1) > button")
+        check_column_sort("[data-label='Username'] a", invert=True)
+
+        # sort by full name
+        b.click("#accounts-list > thead > tr > th:nth-child(2) > button")
+        check_column_sort("[data-label='Full name']")
+        b.click("#accounts-list > thead > tr > th:nth-child(2) > button")
+        check_column_sort("[data-label='Full name']", invert=True)
+
+        # sort by ID
+        b.click("#accounts-list > thead > tr > th:nth-child(3) > button")
+        check_column_sort("[data-label='ID']")
+        b.click("#accounts-list > thead > tr > th:nth-child(3) > button")
+        check_column_sort("[data-label='ID']", invert=True)
+
+        # In fedora-core userdel for this user consistently fails
+        # userdel: user robert is currently used by process *
+        if m.image != "fedora-coreos":
+            performUserAction(b, 'robert', 'Delete account')
+            b.click("#account-confirm-delete-dialog footer button.pf-m-danger.apply")
+            b.wait_not_in_text('#accounts-list', "Robert Robertson")
+
         self.allow_journal_messages("Password quality check failed:")
         self.allow_journal_messages("The password is a palindrome")
         self.allow_journal_messages("passwd: user.*does not exist")
-        self.allow_journal_messages("passwd: Unknown user name 'anton'.")
+        self.allow_journal_messages("passwd: Unknown user name '.*'.")
         self.allow_journal_messages("lastlog: Unknown user or range: anton")
         self.allow_journal_messages(".*required to change your password immediately.*")
         self.allow_journal_messages(".*user account or password has expired.*")

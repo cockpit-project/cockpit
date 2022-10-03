@@ -5,6 +5,7 @@
 @import "@patternfly/patternfly/utilities/Spacing/spacing.css";
 @import "global-variables.scss";
 @import "@patternfly/patternfly/components/DataList/data-list.scss";
+@import "@patternfly/patternfly/components/Toolbar/toolbar.scss";
 
 #account .pf-c-card {
   @extend .ct-card;
@@ -73,6 +74,10 @@
   > a {
     margin-right: 0.5rem;
   }
+}
+
+.delete-account-red {
+  color: var(--pf-global--danger-color--200);
 }
 
 #account-details div.checkbox:first-child {
@@ -218,4 +223,8 @@
 
 .outline-question-circle-icon {
   margin-left: var(--pf-global--spacer--sm);
+}
+
+.accounts-toolbar-header > .pf-c-toolbar__content-section {
+  row-gap: var(--pf-global--spacer--sm);
 }

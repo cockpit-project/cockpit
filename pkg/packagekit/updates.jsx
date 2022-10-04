@@ -240,8 +240,29 @@ function getSeverityURL(urls) {
     return highestURL;
 }
 
-function updateItem(info, pkgNames, key) {
+// Overrides the link_open function to apply our required HTML attributes
+function customRemarkable() {
     const remarkable = new Remarkable();
+
+    const orig_link_open = remarkable.renderer.rules.link_open;
+    remarkable.renderer.rules.link_open = function() {
+        let result = orig_link_open.apply(null, arguments);
+
+        const parser = new DOMParser();
+        const htmlDocument = parser.parseFromString(result, "text/html");
+        const links = htmlDocument.getElementsByTagName("a");
+        if (links.length === 1) {
+            const href = links[0].getAttribute("href");
+            result = `<a rel="noopener noreferrer" target="_blank" href="${href}">`;
+        }
+        return result;
+    };
+    return remarkable;
+}
+
+function updateItem(info, pkgNames, key) {
+    const remarkable = customRemarkable();
+
     let bugs = null;
     if (info.bug_urls && info.bug_urls.length) {
         // we assume a bug URL ends with a number; if not, show the complete URL

@@ -766,9 +766,11 @@ ExecStart=/usr/local/bin/{packageName}
         # verify Markdown formatting in table cell
         self.assertEqual(b.text(sel + " td.changelog em"), "more")  # *more*
         self.assertEqual(b.attr(sel + " td.changelog a", "href"), "http://unicorn.example.com")
+        self.assertEqual(b.attr(sel + " td.changelog a", "target"), "_blank")
         # verify Markdown formatting in details
         self.assertEqual(b.text(sel + " .pf-m-expanded em"), "more")  # *more*
         self.assertEqual(b.attr(sel + " .pf-m-expanded a:first-of-type", "href"), "http://unicorn.example.com")
+        self.assertEqual(b.attr(sel + " .pf-m-expanded a:first-of-type", "target"), "_blank")
 
         # verify that changelog is absent in mobile
         b.set_layout("mobile")

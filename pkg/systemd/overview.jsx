@@ -118,20 +118,21 @@ class OverviewPage extends React.Component {
         if (this.state.privileged)
             headerActions = (
                 <Dropdown onSelect={() => this.setState({ actionIsOpen: true })}
-                          toggle={
-                              <DropdownToggle
+                    toggle={
+                        <DropdownToggle
                             splitButtonItems={[
-                                <DropdownToggleAction id='reboot-button' variant="secondary"
-                                                      key='reboot-button'
-                                                      onClick={() => Dialogs.show(<ShutdownModal />)}>
+                                <DropdownToggleAction id='reboot-button'
+                                    key='reboot-button'
+                                    onClick={() => Dialogs.show(<ShutdownModal />)}>
                                     {_("Reboot")}
                                 </DropdownToggleAction>
                             ]}
+                            toggleVariant="secondary"
                             splitButtonVariant="action"
                             onToggle={isOpen => this.setState({ actionIsOpen: isOpen })}
                             id="shutdown-group"
-                              />
-                          }
+                        />
+                    }
                     isOpen={actionIsOpen}
                     position={DropdownPosition.right}
                     dropdownItems={dropdownItems}

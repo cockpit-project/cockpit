@@ -260,9 +260,7 @@ function customRemarkable() {
     return remarkable;
 }
 
-function updateItem(info, pkgNames, key) {
-    const remarkable = customRemarkable();
-
+function updateItem(remarkable, info, pkgNames, key) {
     let bugs = null;
     if (info.bug_urls && info.bug_urls.length) {
         // we assume a bug URL ends with a number; if not, show the complete URL
@@ -400,6 +398,7 @@ function updateItem(info, pkgNames, key) {
 }
 
 const UpdatesList = ({ updates }) => {
+    const remarkable = customRemarkable();
     const update_ids = [];
 
     // PackageKit doesn"t expose source package names, so group packages with the same version and changelog
@@ -439,7 +438,7 @@ const UpdatesList = ({ updates }) => {
                     { title: _("Severity"), transforms: [cellWidth(15)] },
                     { title: _("Details"), transforms: [cellWidth(30)] },
                 ]}
-                rows={update_ids.map(id => updateItem(updates[id], packageNames[id].sort((a, b) => a.name > b.name), id))} />
+                rows={update_ids.map(id => updateItem(remarkable, updates[id], packageNames[id].sort((a, b) => a.name > b.name), id))} />
     );
 };
 

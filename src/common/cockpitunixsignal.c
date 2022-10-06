@@ -73,7 +73,9 @@ struct signv {
   { "STKFLT",   SIGSTKFLT },    /* 16 (arm,i386,m68k,ppc) */
 #endif
   { "CHLD",     SIGCHLD },      /* 17 (arm,i386,m68k,ppc), 20 (alpha,sparc*), 18 (mips) */
-  { "CLD",      SIGCLD },       /* same as SIGCHLD (mips) */
+#ifdef SIGCLD
+  { "CLD",      SIGCLD },       /* same as SIGCHLD (mips, musl libc) */
+#endif
   { "CONT",     SIGCONT },      /* 18 (arm,i386,m68k,ppc), 19 (alpha,sparc*), 25 (mips) */
   { "STOP",     SIGSTOP },      /* 19 (arm,i386,m68k,ppc), 17 (alpha,sparc*), 23 (mips) */
   { "TSTP",     SIGTSTP },      /* 20 (arm,i386,m68k,ppc), 18 (alpha,sparc*), 24 (mips) */

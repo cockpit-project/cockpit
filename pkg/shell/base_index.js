@@ -205,6 +205,12 @@ function Frames(index, setupIdleResetTimers) {
         if (new_frame) {
             list[component] = frame;
             document.getElementById("content").appendChild(frame);
+            // Set background to dark mode
+            if (cockpit.dark_mode && frame.contentDocument && frame.contentDocument.documentElement) {
+                // --pf-global--BackgroundColor--light-200
+                const dark_mode_background = '#0f1214';
+                frame.contentDocument.documentElement.style.background = dark_mode_background;
+            }
         }
         frame_ready(frame);
         return frame;

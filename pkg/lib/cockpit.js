@@ -2715,6 +2715,25 @@ function factory() {
     }());
 
     /* ---------------------------------------------------------------------
+     * Dark mode
+     */
+    (function() {
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            cockpit.dark_mode = true;
+        } else {
+            cockpit.dark_mode = false;
+        }
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                cockpit.dark_mode = true;
+            } else {
+                cockpit.dark_mode = false;
+            }
+        });
+    }());
+
+    /* ---------------------------------------------------------------------
      * Spawning
      */
 

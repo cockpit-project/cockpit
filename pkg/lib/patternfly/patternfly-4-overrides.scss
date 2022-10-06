@@ -251,3 +251,50 @@ svg {
   z-index: var(--pf-c-page--section--m-shadow-bottom--ZIndex);
   box-shadow: var(--pf-c-page--section--m-shadow-bottom--BoxShadow);
 }
+
+// Dark mode fixes for several PF components
+@media (prefers-color-scheme: dark) {
+  // Fix PF disabled colors
+  :disabled, .pf-m-disabled, .pf-m-aria-disabled {
+    // Darken background; otherwise it matches active dropdowns and inputs
+    --pf-c-button--disabled--BackgroundColor: var(--pf-global--BackgroundColor--dark-300);
+    // Bump up text to AA contrast, from PF color 400
+    --pf-c-button--disabled--Color: #8d9093;
+  }
+
+  // Change background color behind cards
+  // (matches PF surge website; PF doesn't specify otherwise)
+  .pf-c-page__main-section {
+    --pf-c-page__main-section--BackgroundColor: var(--pf-global--BackgroundColor--dark-300);
+  }
+
+  // Adapt breadcrumb bar to be similar color as PF website
+  // (We use header bars in slightly different ways from PF)
+  .pf-c-page__main-breadcrumb,
+  .pf-c-page__main-breadcrumb + .pf-c-page__main-section {
+    --pf-c-page__main-breadcrumb--BackgroundColor: var(--pf-global--BackgroundColor--dark-100);
+    background-color: var(--pf-global--BackgroundColor--dark-100);
+  }
+
+  // Fix input group background and borders
+  // (Looks fixed in PF5, but not in PF4)
+  .pf-c-text-input-group {
+    background-color: var(--pf-global--BackgroundColor--400);
+
+    .pf-c-text-input-group__text {
+      &::before {
+        border-top-color: transparent;
+        border-right-color: transparent;
+        border-left-color: transparent;
+      }
+
+      &:is(:focus,:hover)::after {
+        border-bottom-color: var(--pf-global--active-color--100);
+      }
+
+      &:not(:focus):not(:hover)::after {
+        border-bottom-color: var(--pf-global--BorderColor--400);
+      }
+    }
+  }
+}

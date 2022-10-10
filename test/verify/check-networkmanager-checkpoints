@@ -23,7 +23,6 @@ from testlib import skipDistroPackage, skipImage, test_main, wait
 
 
 @skipImage("No network checkpoint support", "ubuntu-2204", "ubuntu-stable")
-@skipImage("TODO: testBasic fails on Arch Linux", "arch")
 @skipDistroPackage()
 class TestNetworkingCheckpoints(NetworkCase):
     def testCheckpoint(self):
@@ -37,6 +36,10 @@ class TestNetworkingCheckpoints(NetworkCase):
                           "systemctl restart NetworkManager")
             # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1400525
             wait(lambda: m.execute(f"nmcli dev con {iface}"))
+
+        if m.image == "arch":
+            self.sed_file("s/unmanaged-devices=interface-name:eth0//", "/etc/NetworkManager/conf.d/noauto.conf",
+                          "systemctl restart NetworkManager")
 
         self.login_and_go("/network")
         self.nm_checkpoints_enable()
@@ -66,7 +69,7 @@ class TestNetworkingCheckpoints(NetworkCase):
             b.wait_not_present("#confirm-breaking-change-popup")
 
     @skipImage("Main interface settings are read-only", "debian-stable", "debian-testing")
-    @skipImage("not using dhclient", "fedora-coreos")
+    @skipImage("not using dhclient", "fedora-coreos", "arch")
     def testCheckpointSlowRollback(self):
         b = self.browser
         m = self.machine

@@ -271,14 +271,13 @@ class TestStorageLuks(StorageCase):
         self.confirm()
         b.wait_not_present(panel + "ul li:nth-child(2)")
 
-    @skipImage("TODO: luksmeta/clevis missing from Arch Image", "arch")
     def testLuks1Slots(self):
         self.allow_journal_messages("Device is not initialized.*", ".*could not be opened.")
         m = self.machine
         b = self.browser
 
         # This should work without any of the Clevis stuff.
-        m.execute("rm /usr/bin/luksmeta /usr/bin/clevis*")
+        m.execute("rm -f /usr/bin/luksmeta /usr/bin/clevis*")
 
         mount_point_secret = "/run/secret"
 

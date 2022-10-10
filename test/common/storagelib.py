@@ -78,6 +78,11 @@ class StorageHelpers:
         dev = self.machine.execute("set -e; F=$(mktemp /var/tmp/loop.XXXX); "
                                    "dd if=/dev/zero of=$F bs=1000000 count=%s; "
                                    "losetup --show %s $F" % (size, name if name else "--find")).strip()
+        # If this device had partions in its last incarnation on this
+        # machine, they might come back for unknown reasons, in a
+        # non-functional state. Running partprobe will get rid of
+        # them.
+        self.machine.execute("partprobe '%s'" % dev)
         # right after unmounting the device is often still busy, so retry a few times
         self.addCleanup(self.machine.execute, "umount {0} || true; rm $(losetup -n -O BACK-FILE -l {0}); until losetup -d {0}; do sleep 1; done".format(dev), timeout=10)
         return dev

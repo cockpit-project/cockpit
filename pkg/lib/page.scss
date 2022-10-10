@@ -159,6 +159,14 @@ a.disabled:hover {
   --ct-color-list-critical-alert-text: var(--pf-global--palette--red-200);
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ct-color-list-critical-bg        : #261213; // red-100 mixed with black-850 @ 20%
+    --ct-color-list-critical-border    : var(--pf-global--danger-color--200);
+    --ct-color-list-critical-alert-text: var(--pf-global--palette--red-8888);
+  }
+}
+
 [hidden] { display: none !important; }
 
 // Let PF4 handle the scrolling through page component otherwise we might get double scrollbar

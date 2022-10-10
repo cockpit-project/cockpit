@@ -19,11 +19,10 @@
 
 import parent  # noqa: F401
 from netlib import NetworkCase
-from testlib import nondestructive, skipDistroPackage, skipImage, test_main, wait
+from testlib import nondestructive, skipDistroPackage, test_main, wait
 
 
 @skipDistroPackage()
-@skipImage("TODO: networkmanager fails on Arch Linux", "arch")
 @nondestructive
 class TestNetworkingOther(NetworkCase):
     def testOther(self):

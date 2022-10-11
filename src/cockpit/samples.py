@@ -145,12 +145,14 @@ class DiskSampler(Sampler):
     descriptions = [
         SampleDescription('disk.all.read', 'bytes', 'counter', False),
         SampleDescription('disk.all.written', 'bytes', 'counter', False),
+        SampleDescription('disk.dev.read', 'bytes', 'counter', True),
+        SampleDescription('disk.dev.written', 'bytes', 'counter', True),
     ]
 
     def sample(self, samples: Dict[str, Any]):
         with open('/proc/diskstats') as diskstats:
-            bytes_read = 0
-            bytes_written = 0
+            all_read_bytes = 0
+            all_written_bytes = 0
             num_ops = 0
 
             for line in diskstats:
@@ -169,12 +171,18 @@ class DiskSampler(Sampler):
                 if dev_name.startswith('nvme') and 'p' in dev_name:
                     continue
 
-                bytes_read += int(num_sectors_read) * 512
-                bytes_written += int(num_sectors_written) * 512
+                read_bytes = int(num_sectors_read) * 512
+                written_bytes = int(num_sectors_written) * 512
+
+                all_read_bytes += read_bytes
+                all_written_bytes += written_bytes
                 num_ops += int(num_reads_merged) + int(num_writes_merged)
 
-            samples['disk.all.read'] = bytes_read
-            samples['disk.all.written'] = bytes_written
+                samples['disk.dev.read'][dev_name] = read_bytes
+                samples['disk.dev.written'][dev_name] = written_bytes
+
+            samples['disk.all.read'] = all_read_bytes
+            samples['disk.all.written'] = all_written_bytes
             samples['disk.all.ops'] = num_ops
 
 

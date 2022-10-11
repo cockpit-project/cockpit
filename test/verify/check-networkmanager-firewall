@@ -46,7 +46,6 @@ def get_active_rules(machine):
     return active_rules
 
 
-@skipImage("TODO: Arch Linux shows no firewalld page", "arch")
 @skipImage("no firewalld", "fedora-coreos")
 @nondestructive
 @skipDistroPackage()
@@ -59,6 +58,10 @@ class TestFirewall(NetworkCase):
         self.btn_danger = "pf-m-danger"
         self.btn_primary = "pf-m-primary"
         self.default_zone = "Public zone"
+
+        # Arch Linux image has no active zones by default
+        if m.image == "arch":
+            m.execute("firewall-cmd --zone 'public' --change-interface='eth0'; firewall-cmd --runtime-to-permanent")
 
     def testNetworkingPage(self):
         b = self.browser

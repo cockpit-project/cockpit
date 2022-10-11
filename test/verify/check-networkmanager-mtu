@@ -19,13 +19,12 @@
 
 import parent  # noqa: F401
 from netlib import NetworkCase
-from testlib import skipDistroPackage, skipImage, test_main, wait
+from testlib import skipDistroPackage, test_main, wait
 
 from lib.constants import TEST_OS_DEFAULT
 
 
 @skipDistroPackage()
-@skipImage("TODO: networkmanager fails on Arch Linux", "arch")
 class TestNetworkingMTU(NetworkCase):
     provision = {
         "machine1": {"memory_mb": 512},

@@ -26,7 +26,6 @@ from lib.constants import TEST_OS_DEFAULT
 
 @nondestructive
 @skipDistroPackage()
-@skipImage("TODO: testBasic fails on Arch Linux", "arch")
 class TestBonding(NetworkCase):
     def testBasic(self):
         b = self.browser

@@ -60,14 +60,6 @@ class TestFirewall(NetworkCase):
         self.btn_primary = "pf-m-primary"
         self.default_zone = "Public zone"
 
-        # Temporary remove the test Dbus port 8765, this workaround can be
-        # removed once the pixel tests are merged and the image updated to not
-        # open port 8765
-        if m.image.startswith("fedora"):
-            m.execute("firewall-cmd --permanent --remove-port=8765/tcp")
-            m.execute("firewall-cmd --remove-port=8765/tcp")
-            m.execute("firewall-cmd --reload")
-
     def testNetworkingPage(self):
         b = self.browser
         m = self.machine

@@ -19,12 +19,11 @@
 
 import parent  # noqa: F401
 from netlib import NetworkCase
-from testlib import nondestructive, skipDistroPackage, skipImage, test_main, wait
+from testlib import nondestructive, skipDistroPackage, test_main, wait
 
 
 @nondestructive
 @skipDistroPackage()
-@skipImage("TODO: testBasic fails on Arch Linux", "arch")
 class TestNetworkingBasic(NetworkCase):
     def testBasic(self):
         b = self.browser

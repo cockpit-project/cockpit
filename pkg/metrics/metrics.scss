@@ -340,6 +340,10 @@
     font-size: var(--pf-global--FontSize--xs);
     color: rgb(0 0 0 / 70%);
     display: flex;
+
+    @media (prefers-color-scheme: dark) {
+      color: var(--pf-global--Color--200);
+    }
   }
 
   &-label-graph {
@@ -364,6 +368,10 @@
 
   &-events {
     width: 100%;
+
+    @media (prefers-color-scheme: dark) {
+      --pf-c-table--BorderColor: #000;
+    }
 
     // Remove left padding from the table toggle
     .pf-c-table__toggle {
@@ -411,9 +419,12 @@
 
   &-time {
     background: #eee;
-
     padding: 0.5rem 1rem;
     margin-left: var(--pf-global--spacer--md);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: var(--pf-global--BackgroundColor--300);
+    }
   }
 
   &-heading {
@@ -425,6 +436,10 @@
       position: sticky;
       top: 0;
       z-index: 99;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      background: var(--pf-global--BackgroundColor--dark-100);
     }
   }
 

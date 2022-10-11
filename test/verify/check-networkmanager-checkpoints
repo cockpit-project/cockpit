@@ -34,8 +34,6 @@ class TestNetworkingCheckpoints(NetworkCase):
         if "debian" in m.image:
             self.sed_file("s/managed=false/managed=true/", "/etc/NetworkManager/NetworkManager.conf",
                           "systemctl restart NetworkManager")
-            # HACK - https://bugzilla.redhat.com/show_bug.cgi?id=1400525
-            wait(lambda: m.execute(f"nmcli dev con {iface}"))
 
         if m.image == "arch":
             self.sed_file("s/unmanaged-devices=interface-name:eth0//", "/etc/NetworkManager/conf.d/noauto.conf",

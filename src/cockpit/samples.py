@@ -183,7 +183,6 @@ class DiskSampler(Sampler):
 
             samples['disk.all.read'] = all_read_bytes
             samples['disk.all.written'] = all_written_bytes
-            samples['disk.all.ops'] = num_ops
 
 
 class CGroupSampler(Sampler):

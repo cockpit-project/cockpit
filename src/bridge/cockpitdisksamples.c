@@ -148,7 +148,6 @@ cockpit_disk_samples (CockpitSamples *samples)
 
   cockpit_samples_sample (samples, "disk.all.read", NULL, bytes_read);
   cockpit_samples_sample (samples, "disk.all.written", NULL, bytes_written);
-  cockpit_samples_sample (samples, "disk.all.ops", NULL, num_ops);
 
 out:
   g_strfreev (lines);

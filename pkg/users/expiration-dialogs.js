@@ -48,6 +48,7 @@ function AccountExpirationDialogBody({ state, errors, change }) {
                                            invalidFormatText=""
                                            id="account-expiration-input"
                                            value={date}
+                                           appendTo={() => document.body}
                                            isDisabled={mode !== "expires"} />
                            </Flex>
                        }

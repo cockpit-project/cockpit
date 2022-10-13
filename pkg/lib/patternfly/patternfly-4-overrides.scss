@@ -242,3 +242,12 @@ svg {
 .pf-c-breadcrumb__link {
   cursor: pointer;
 }
+
+//Page headers are inconsistent with shadows and borders
+// https://github.com/patternfly/patternfly/issues/5184
+.pf-c-page__main-group,
+.pf-c-page__main-nav,
+.pf-c-page__main-section.pf-m-light:not(:last-child) {
+  z-index: var(--pf-c-page--section--m-shadow-bottom--ZIndex);
+  box-shadow: var(--pf-c-page--section--m-shadow-bottom--BoxShadow);
+}

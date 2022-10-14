@@ -17,7 +17,7 @@ case $TEST_SCENARIO in
         [ "${TEST_SCENARIO}" = "${TEST_SCENARIO%%devel}" ] || OPTS="$OPTS --coverage"
         [ "${TEST_SCENARIO}" = "${TEST_SCENARIO##firefox}" ] || export TEST_BROWSER=firefox
         test/image-prepare --verbose $TEST_OS
-        test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify ${OPTS}
+        test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify ${OPTS} TestStorageFormat.testFormatTypes
         ;;
     dnf-copr*)
         bots/image-customize -v --run-command 'dnf -y copr enable rpmsoftwaremanagement/dnf-nightly && dnf -y --setopt=install_weak_deps=False update' $TEST_OS

@@ -39,7 +39,7 @@ done
 
 OSesWithoutTracer = ["debian-stable", "debian-testing", "ubuntu-2204", "ubuntu-stable", "fedora-coreos"]
 OSesWithoutKpatch = ["debian-stable", "debian-testing", "ubuntu-2204", "ubuntu-stable",
-                     "fedora-coreos", "fedora-35", "fedora-36", "fedora-37", "fedora-testing", "centos-8-stream", "arch"]
+                     "fedora-coreos", "fedora-36", "fedora-37", "fedora-testing", "centos-8-stream", "arch"]
 
 
 class NoSubManCase(PackageCase):
@@ -1255,7 +1255,7 @@ class TestKpatchInstall(NoSubManCase):
 
 @skipImage("Image uses OSTree", "fedora-coreos")
 @skipImage("No subscriptions", "debian-stable", "debian-testing", "centos-8-stream",
-           "fedora-35", "fedora-36", "fedora-37", "fedora-testing", "ubuntu-2204", "ubuntu-stable", "arch")
+           "fedora-36", "fedora-37", "fedora-testing", "ubuntu-2204", "ubuntu-stable", "arch")
 class TestUpdatesSubscriptions(PackageCase):
     provision = {
         "0": {"address": "10.111.112.1/20", "dns": "10.111.112.1", "memory_mb": 512},

@@ -88,6 +88,7 @@ class Test:
         affected = any([self.command[0].endswith(t) for t in affected_tests])
         retry_reason = ""
         skip_reason = ""
+        known_reason = ""
 
         # Try affected tests 3 times
         if self.returncode == 0 and affected and self.retry_when_affected and self.retries < 2:
@@ -110,6 +111,12 @@ class Test:
             cmd = ["test-failure-policy"]
             if not track_naughties:
                 cmd.append("--offline")
+            bots_ref = os.getenv('COCKPIT_BOTS_REF', '')
+            # HACK: find better way to detect image refreshes
+            if bots_ref != 'main':
+                cmd.append("--all")
+            # DEBUG: test this change
+            cmd.append("--all")
             cmd.append(testvm.DEFAULT_IMAGE)
             try:
                 proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -118,6 +125,9 @@ class Test:
                 if proc.returncode == 77:
                     self._print_test(skip_reason="# SKIP {0}".format(reason.decode("utf-8")))
                     return None, 0
+                if proc.returncode == 78:
+                    known_reason = b"\n# KNOWN ISSUE " + reason
+                    self.output += known_reason
 
                 if proc.returncode == 1:
                     retry_reason = reason.decode("utf-8")
@@ -149,7 +159,7 @@ class Test:
         nd = f" [ND@{self.machine_id}]" if self.nondestructive else ""
         return f"{self.test_id} {self.command[0]} {self.command[-1]}{cost}{nd}"
 
-    def _print_test(self, print_tap=True, retry_reason="", skip_reason=""):
+    def _print_test(self, print_tap=True, retry_reason="", skip_reason="", known_issue=""):
         def write_line(line):
             while line:
                 try:
@@ -182,6 +192,8 @@ class Test:
             print(f"ok {self}{retry_reason}")
         elif skip_reason:
             print(f"ok {self}{skip_reason}")
+        elif known_issue:
+            print(known_issue)
         else:
             print(f"not ok {self}{retry_reason}")
         flush_stdout()

@@ -217,7 +217,8 @@ export class ShutdownModal extends React.Component {
                                                 onChange={(d, ds) => this.updateDate(d, ds)}
                                                 placeholder={timeformat.dateShortFormat()}
                                                 validators={[this.dateRangeValidator]}
-                                                value={this.state.date} />
+                                                value={this.state.date}
+                                                appendTo={() => document.body} />
                                     <TimePicker time={this.state.time} is24Hour
                                                 className='shutdown-time-picker'
                                                 id="shutdown-time"

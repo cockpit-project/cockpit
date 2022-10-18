@@ -335,7 +335,8 @@ const CreateTimerDialogBody = ({ owner }) => {
                                                             const arr = [...repeatPatterns];
                                                             arr[idx].date = str;
                                                             setRepeatPatterns(arr);
-                                                        }} />
+                                                        }}
+                                                        appendTo={() => document.body} />
                                             {timePicker(idx)}
                                         </>}
                                         {repeat !== "no" && <FlexItem align={{ default: 'alignRight' }}>

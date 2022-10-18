@@ -42,8 +42,10 @@ class TestStorageUsed(StorageCase):
         m.execute("mke2fs -q -L TEST /dev/mapper/dm-test")
         m.execute("mount /dev/mapper/dm-test /mnt")
 
-        # Keep the mount point busy
-        sleep_pid = m.spawn("cd /mnt; sleep infinity", "sleep")
+        # Keep the mount point busy.  The extra "true" is here to
+        # prevent bash from applying tail call optimization to the
+        # "sleep" invocation.
+        sleep_pid = m.spawn("cd /mnt; sleep infinity; true", "sleep")
         self.write_file("/etc/systemd/system/keep-mnt-busy.service",
                         """
 [Unit]

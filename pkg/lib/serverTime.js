@@ -531,7 +531,8 @@ function ChangeSystimeBody({ state, errors, change }) {
                                         weekStart={timeformat.firstDayOfWeek()}
                                         placeholder={timeformat.dateShortFormat()}
                                         onChange={d => change("manual_date", d)}
-                                        value={manual_date} />
+                                        value={manual_date}
+                                        appendTo={() => document.body} />
                         </ValidatedInput>
                         <ValidatedInput errors={errors} error_key="manual_time">
                             <TimePicker id="systime-time-input"

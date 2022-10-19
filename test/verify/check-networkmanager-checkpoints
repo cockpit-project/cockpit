@@ -161,7 +161,7 @@ class TestNetworkingCheckpoints(NetworkCase):
         # back.
 
         def checkpoint_was_destroyed():
-            lines = m.execute("journalctl -n 1000 -u NetworkManager | grep op=").split("\n")
+            lines = m.execute("journalctl -u NetworkManager | grep op=").split("\n")
             last_checkpoint = None
             for line in lines:
                 match = re.search('op="checkpoint-create" arg="([^"]*)"', line)

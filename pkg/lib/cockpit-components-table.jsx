@@ -53,6 +53,7 @@ import './cockpit-components-table.scss';
  * - variant: For compact tables pass 'compact'
  * - gridBreakPoint: Specifies the grid breakpoints ('', 'grid' | 'grid-md' | 'grid-lg' | 'grid-xl' | 'grid-2xl')
  * - sortBy: { index: Number, direction: SortByDirection }
+ * - sortMethod: callback function used for sorting rows. Called with 3 parameters: sortMethod(rows, activeSortDirection, activeSortIndex)
  * - style: object of additional css rules
  * - afterToggle: function to be called when content is toggled
  */
@@ -70,6 +71,7 @@ export const ListingTable = ({
     rows: tableRows = [],
     showHeader = true,
     sortBy,
+    sortMethod,
     ...extraProps
 }) => {
     let rows = tableRows;
@@ -169,7 +171,7 @@ export const ListingTable = ({
         setActiveSortDirection(direction);
     };
 
-    const rowsComponents = (isSortable ? sortRows() : rows).map((row, rowIndex) => {
+    const rowsComponents = (isSortable ? (sortMethod ? sortMethod(rows, activeSortDirection, activeSortIndex) : sortRows()) : rows).map((row, rowIndex) => {
         const rowProps = row.props || {};
         if (onRowClick) {
             rowProps.isHoverable = true;

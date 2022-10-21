@@ -23,7 +23,7 @@ import xml.etree.ElementTree as ET
 
 from systemd_ctypes import Bus, BusError, introspection
 
-from ..channel import Channel
+from ..channel import Channel, ChannelError
 from ..internal_endpoints import InternalEndpoints
 
 logger = logging.getLogger(__name__)
@@ -85,12 +85,16 @@ class DBusChannel(Channel):
 
         if bus == 'internal':
             self.bus = InternalEndpoints.get_client()
-        elif bus == 'session':
-            logger.debug('get session bus for %s', self.name)
-            self.bus = Bus.default_user()
         else:
-            logger.debug('get system bus for %s', self.name)
-            self.bus = Bus.default_system()
+            try:
+                if bus == 'session':
+                    logger.debug('get session bus for %s', self.name)
+                    self.bus = Bus.default_user()
+                else:
+                    logger.debug('get system bus for %s', self.name)
+                    self.bus = Bus.default_system()
+            except OSError as exc:
+                raise ChannelError('protocol-error', message=f'failed to connect to {bus} bus: {exc}') from exc
 
         try:
             self.bus.attach_event(None, 0)

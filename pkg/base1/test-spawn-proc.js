@@ -306,6 +306,18 @@ QUnit.test("script without args", function (assert) {
     proc.input("3\n1\n");
 });
 
+QUnit.test("pty", async function (assert) {
+    const proc = cockpit.spawn(['sh', '-c', "tty; test -t 0"], { pty: true });
+    const output = await proc.done();
+    assert.equal(output.indexOf('/dev/pts'), 0, 'TTY is a pty: ' + output);
+});
+
+QUnit.test("pty window size", async function (assert) {
+    const proc = cockpit.spawn(['tput', 'lines', 'cols'], { pty: true, window: { rows: 77, cols: 88 } });
+    const output = await proc.done();
+    assert.equal(output, '77\r\n88\r\n', 'Correct rows and columns');
+});
+
 QUnit.test("stream large output", function (assert) {
     const done = assert.async();
     assert.expect(4);

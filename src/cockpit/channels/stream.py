@@ -56,10 +56,16 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
             args['message'] = stderr.decode('utf-8')
         return args
 
+    def do_options(self, options):
+        if window := options.get('window'):
+            self._transport.set_window_size(**window)
+
     def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, Any]) -> SubprocessTransport:
         args: list[str] = options['spawn']
         err: Optional[str] = options.get('err')
         cwd: Optional[str] = options.get('directory')
+        pty: bool = options.get('pty', False)
+        window: Dict[str, int] = options.get('window')
 
         if err == 'out':
             stderr = subprocess.STDOUT
@@ -73,7 +79,7 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
 
         try:
             logger.debug('Spawning process args=%s', args)
-            return SubprocessTransport(loop, self, args, env=env, cwd=cwd, stderr=stderr)
+            return SubprocessTransport(loop, self, args, pty, window, env=env, cwd=cwd, stderr=stderr)
         except FileNotFoundError as error:
             raise ChannelError('not-found') from error
         except PermissionError as error:

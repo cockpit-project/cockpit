@@ -19,13 +19,16 @@
 
 import asyncio
 import collections
+import fcntl
 import logging
 import os
 import select
 import socket
+import struct
 import subprocess
+import termios
 
-from typing import Any, BinaryIO, ClassVar, Dict, Optional, Tuple
+from typing import Any, ClassVar, Dict, Optional, Tuple
 
 
 logger = logging.getLogger(__name__)
@@ -44,6 +47,7 @@ class _Transport(asyncio.Transport):
     _closing: bool
     _is_reading: bool
     _eof: bool
+    _eio_is_eof: bool = False
 
     def __init__(self,
                  loop: asyncio.AbstractEventLoop,
@@ -70,7 +74,14 @@ class _Transport(asyncio.Transport):
 
     def _read_ready(self):
         logger.debug('Read ready on %s %s %d', self, self._protocol, self._in_fd)
-        data = os.read(self._in_fd, _Transport.BLOCK_SIZE)
+        try:
+            data = os.read(self._in_fd, _Transport.BLOCK_SIZE)
+        except IOError:
+            # PTY devices return EIO to mean "EOF"
+            if not self._eio_is_eof:
+                raise
+            data = b''
+
         if data != b'':
             logger.debug('  read %d bytes', len(data))
             self._protocol.data_received(data)
@@ -222,9 +233,8 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
     _watcher: ClassVar[Optional[asyncio.AbstractChildWatcher]] = None
     _returncode: Optional[int] = None
 
+    _pty_fd: Optional[int] = None
     _process: subprocess.Popen
-    _stdin: BinaryIO
-    _stdout: BinaryIO
     _stderr: Optional['Spooler']
 
     @classmethod
@@ -262,26 +272,48 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
         logger.debug('Process exited with status %d', self._returncode)
         self._protocol.process_exited()
 
-    def __init__(self, loop: asyncio.AbstractEventLoop, protocol: asyncio.BaseProtocol, args, **kwargs) -> None:
-        self._process = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, **kwargs)
-        self._stdin = self._process.stdin  # type: ignore
-        self._stdout = self._process.stdout  # type: ignore
+    def __init__(self, loop: asyncio.AbstractEventLoop, protocol: asyncio.BaseProtocol, args, pty, window, **kwargs) -> None:
+        if pty:
+            self._pty_fd, session_fd = os.openpty()
 
-        if self._process.stderr:
+            if window is not None:
+                self.set_window_size(**window)
+
+            kwargs['stderr'] = session_fd
+            self._process = subprocess.Popen(args,
+                                             stdin=session_fd, stdout=session_fd,
+                                             start_new_session=True, **kwargs)
+            os.close(session_fd)
+
+            in_fd, out_fd = self._pty_fd, self._pty_fd
+            self._eio_is_eof = True
+
+        else:
+            self._process = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, **kwargs)
+            assert self._process.stdin and self._process.stdout
+            in_fd = self._process.stdout.fileno()
+            out_fd = self._process.stdin.fileno()
+
+        if self._process.stderr is not None:
             self._stderr = Spooler(loop, self._process.stderr.fileno())
         else:
             self._stderr = None
 
         self._get_watcher().add_child_handler(self._process.pid, self._exited)
 
-        super().__init__(loop, protocol, self._stdout.fileno(), self._stdin.fileno())
+        super().__init__(loop, protocol, in_fd, out_fd)
+
+    def set_window_size(self, rows: int, cols: int) -> None:
+        assert self._pty_fd is not None
+        fcntl.ioctl(self._pty_fd, termios.TIOCSWINSZ, struct.pack('2H4x', rows, cols))
 
     def can_write_eof(self) -> bool:
-        return True
+        return self._process.stdin is not None
 
     def _write_eof_now(self) -> None:
-        self._stdin.close()
-        self._out_fd = -1
+        if self._process.stdin is not None:
+            self._process.stdin.close()
+            self._out_fd = -1
 
     def get_pid(self) -> int:
         return self._process.pid

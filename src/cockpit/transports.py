@@ -219,7 +219,8 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
     data from it, making it available via the .get_stderr() method.
     """
 
-    _watcher: ClassVar[asyncio.AbstractChildWatcher] = None
+    _watcher: ClassVar[Optional[asyncio.AbstractChildWatcher]] = None
+    _returncode: Optional[int] = None
 
     _process: subprocess.Popen
     _stdin: BinaryIO
@@ -251,10 +252,14 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
         # but we only ever use non-threaded child watcher implementations, so
         # we can assume we'll always be called in the main thread.
 
+        # NB: the subprocess is going to want to waitpid() itself as well, but
+        # will get ECHILD since we already reaped it.  Fortunately, since
+        # Python 3.2 this is supported, and process gets a return status of
+        # zero.  For that reason, we need to store our own copy of the return
+        # status.  See https://github.com/python/cpython/issues/59960
         assert self._process.pid == pid
-        self._process.returncode = code  # ...yikes...
-        assert self._process.wait() == code, (self._process.wait(), code)
-        logger.debug('Process exited with status %d', self._process.returncode)
+        self._returncode = code
+        logger.debug('Process exited with status %d', self._returncode)
         self._protocol.process_exited()
 
     def __init__(self, loop: asyncio.AbstractEventLoop, protocol: asyncio.BaseProtocol, args, **kwargs) -> None:
@@ -281,8 +286,8 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
     def get_pid(self) -> int:
         return self._process.pid
 
-    def get_returncode(self) -> int:
-        return self._process.returncode
+    def get_returncode(self) -> Optional[int]:
+        return self._returncode
 
     def get_pipe_transport(self, fd: int) -> asyncio.Transport:
         raise NotImplementedError

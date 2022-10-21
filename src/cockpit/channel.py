@@ -18,6 +18,8 @@
 
 import asyncio
 
+from typing import Any, Dict, Iterable, Optional, Tuple
+
 
 class Endpoint:
     router = None
@@ -36,8 +38,12 @@ class ChannelError(Exception):
 
 
 class Channel(Endpoint):
-    payload = None
-    restrictions = ()
+    # Values borrowed from C implementation
+    CHANNEL_FLOW_PING = 16 * 1024
+    CHANNEL_FLOW_WINDOW = 2 * 1024 * 1024
+
+    payload: Optional[str] = None
+    restrictions: Iterable[Tuple[str, Optional[object]]] = ()
 
     @staticmethod
     def create_match_rule(channel):
@@ -139,6 +145,126 @@ class Channel(Endpoint):
         self.router.send_message('', **message)
 
 
+class ProtocolChannel(Channel, asyncio.Protocol):
+    '''A channel subclass that implements the asyncio Protocol interface.
+
+    In effect, data sent to this channel will be written to the connected
+    transport, and vice-versa.  Flow control is supported.
+
+    The default implementation of the .do_open() method calls the
+    .create_transport() abstract method.  This method should return a transport
+    which will be used for communication on the channel.
+
+    Otherwise, if the subclass implements .do_open() itself, it is responsible
+    for setting up the connection and ensuring that .connection_made() is called.
+    '''
+    _transport: Optional[asyncio.Transport]
+    _loop: Optional[asyncio.AbstractEventLoop]
+    _send_pongs: bool = True
+    _last_ping: Optional[Dict[str, Any]]
+
+    _send_pings: bool = False
+    _out_sequence: int = 0
+    _out_window: int = Channel.CHANNEL_FLOW_WINDOW
+
+    # read-side EOF handling
+    _close_on_eof: bool = False
+    _eof: bool = False
+
+    def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, Any]) -> asyncio.Transport:
+        """Creates the transport for this channel, according to options.
+
+        The event loop for the transport is passed to the function.  The
+        protocol for the transport is the channel object, itself (self).
+
+        This needs to be implemented by the subclass.
+        """
+        raise NotImplementedError
+
+    def do_open(self, options):
+        loop = asyncio.get_running_loop()
+        transport = self.create_transport(loop, options)
+        self.connection_made(transport)
+
+    def connection_made(self, transport: asyncio.BaseTransport):
+        assert isinstance(transport, asyncio.Transport)
+        self._transport = transport
+
+    def _close_args(self) -> Dict[str, Any]:
+        return {}
+
+    def connection_lost(self, exc: Optional[Exception]) -> None:
+        self.close(**self._close_args())
+
+    def do_data(self, data: bytes) -> None:
+        assert self._transport is not None
+        self._transport.write(data)
+
+    def do_done(self) -> None:
+        assert self._transport is not None
+        if self._transport.can_write_eof():
+            self._transport.write_eof()
+
+    def data_received(self, data: bytes) -> None:
+        self.send_data(data)
+        self._write_flow_control(len(data))
+
+    def close_on_eof(self) -> None:
+        """Mark the channel to be closed on EOF.
+
+        Normally, ProtocolChannel tries to keep the channel half-open after
+        receiving EOF from the transport.  This instructs that the channel
+        should be closed on EOF.
+
+        If EOF was already received, then calling this function will close the
+        channel immediately.
+
+        If you don't call this function, you are responsible for closing the
+        channel yourself.
+        """
+        self._close_on_eof = True
+        if self._eof:
+            self._transport.close()
+
+    def eof_received(self) -> bool:
+        self._eof = True
+        self.done()
+        return not self._close_on_eof
+
+    # Channel send-side flow control
+    def _write_flow_control(self, n_bytes):
+        out_sequence = self._out_sequence + n_bytes
+        if self._out_sequence // Channel.CHANNEL_FLOW_PING != out_sequence // Channel.CHANNEL_FLOW_PING:
+            self.send_control(command='ping', sequence=out_sequence)
+        self._out_sequence = out_sequence
+
+        if self._out_window <= self._out_sequence:
+            self._transport.pause_reading()
+
+    def do_pong(self, message):
+        self._out_window = message['sequence'] + Channel.CHANNEL_FLOW_WINDOW
+        if self._out_sequence < self._out_window:
+            self._transport.resume_reading()
+
+    # Channel receive-side flow control
+    def do_ping(self, message):
+        if self._send_pongs:
+            self.send_pong(message)
+        else:
+            # we'll have to pong later
+            self._last_ping = message
+
+    def pause_writing(self) -> None:
+        # We can't actually stop writing, but we can stop replying to pings
+        self._send_pongs = False
+
+    def resume_writing(self) -> None:
+        self._send_pongs = True
+        if self._last_ping is not None:
+            self.send_pong(self._last_ping)
+            self._last_ping = None
+
+
 class AsyncChannel(Channel):
     '''A subclass for async/await-style implementation of channels, with flow control
 
@@ -155,10 +281,6 @@ class AsyncChannel(Channel):
     On the sending side, write() will block if the channel backs up.
     '''
 
-    # Values borrowed from C implementation
-    CHANNEL_FLOW_PING = 16 * 1024
-    CHANNEL_FLOW_WINDOW = 2 * 1024 * 1024
-
     loop = None
 
     # Receive-side flow control: intermix pings and data in the queue and reply
@@ -168,7 +290,7 @@ class AsyncChannel(Channel):
 
     # Send-side flow control: no buffers here, just bookkeeping.
     out_sequence = 0
-    out_window = CHANNEL_FLOW_WINDOW
+    out_window = Channel.CHANNEL_FLOW_WINDOW
     write_waiter = None
 
     async def run(self, options):
@@ -191,7 +313,7 @@ class AsyncChannel(Channel):
             assert len(data) <= AsyncChannel.CHANNEL_FLOW_WINDOW
 
             out_sequence = self.out_sequence + len(data)
-            if self.out_sequence // AsyncChannel.CHANNEL_FLOW_PING != out_sequence // AsyncChannel.CHANNEL_FLOW_PING:
+            if self.out_sequence // Channel.CHANNEL_FLOW_PING != out_sequence // Channel.CHANNEL_FLOW_PING:
                 self.send_control(command='ping', sequence=out_sequence)
             self.out_sequence = out_sequence
 

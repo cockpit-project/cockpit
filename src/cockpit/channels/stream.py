@@ -18,90 +18,62 @@
 import asyncio
 import logging
 import os
+import socket
+import subprocess
 
-from ..channel import AsyncChannel, ChannelError
+from typing import Any, Dict, Optional
+
+
+from ..channel import ProtocolChannel, ChannelError
+from ..transports import SocketTransport, SubprocessTransport, SubprocessProtocol
 
 logger = logging.getLogger(__name__)
 
 
-class StreamChannel(AsyncChannel):
+class UnixStreamChannel(ProtocolChannel):
     payload = 'stream'
+    restrictions = (('unix', None),)
 
-    async def send_reader(self, reader):
-        while True:
-            logger.debug('waiting to read from process')
-            data = await reader.read(AsyncChannel.CHANNEL_FLOW_WINDOW)
-            logger.debug('read data from process (%d byteS)', len(data))
-            if not data:
-                break
-            logger.debug('waiting to write to channel')
-            await self.write(data)
-            logger.debug('write to channel complete')
+    def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, Any]) -> SocketTransport:
+        path: str = options['unix']
+        connection = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        connection.connect(path)
+        return SocketTransport(loop, self, connection)
 
-        logger.debug('EOF from process.  closing channel.')
-        self.done()
 
-    async def receive_writer(self, writer):
-        while True:
-            logger.debug('waiting to read from channel')
-            data = await self.read()
-            logger.debug('read data from channel: %s', data)
-            if not data:
-                break
-            logger.debug('waiting to write to stdin')
-            writer.write(data)
-            await writer.drain()
-            logger.debug('write to stdin complete')
+class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
+    payload = 'stream'
+    restrictions = (('spawn', None),)
 
-        logger.debug('EOF from channel.  closing stdin.')
-        writer.close()
-        await writer.wait_closed()
+    def process_exited(self) -> None:
+        self.close_on_eof()
 
-    async def stream_socket(self, path):
-        reader, writer = await asyncio.open_unix_connection(path)
-        await asyncio.gather(self.send_reader(reader), self.receive_writer(writer))
+    def _close_args(self) -> Dict[str, Any]:
+        assert isinstance(self._transport, SubprocessTransport)
+        args: Dict[str, object] = {'exit-status': self._transport.get_returncode()}
+        stderr = self._transport.get_stderr()
+        if stderr:
+            args['message'] = stderr.decode('utf-8')
+        return args
 
-    async def wait_for_exit(self, process):
-        await self.send_reader(process.stdout)
+    def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, Any]) -> SubprocessTransport:
+        args: list[str] = options['spawn']
+        err: Optional[str] = options.get('err')
+        cwd: Optional[str] = options.get('directory')
 
-        # read concurrently?
-        if process.stderr is not None:
-            message = await process.stderr.read()
-            message = message.decode()
-        else:
-            message = None
-
-        exit_status = await process.wait()
-
-        logger.debug('Process exited.')
-        self.close(exit_status=exit_status, message=message)
-        logger.debug('Close message sent.')
-
-    async def stream_process(self, args, options):
-        err = options.get('err')
-        cwd = options.get('directory')
-        stderr = None
         if err == 'out':
-            stderr = asyncio.subprocess.STDOUT
+            stderr = subprocess.STDOUT
         elif err == 'ignore':
-            stderr = asyncio.subprocess.DEVNULL
-        elif err == 'message' or err is None:
-            stderr = asyncio.subprocess.PIPE
+            stderr = subprocess.DEVNULL
         else:
-            stderr = None
+            stderr = subprocess.PIPE
 
-        env = dict(os.environ)
+        env: Dict[str, str] = dict(os.environ)
         env.update(options.get('env') or [])
 
-        logger.debug('Spawning process args=%s', args)
         try:
-            process = await asyncio.create_subprocess_exec(
-                *args,
-                cwd=cwd,
-                env=env,
-                stdin=asyncio.subprocess.PIPE,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=stderr)
+            logger.debug('Spawning process args=%s', args)
+            return SubprocessTransport(loop, self, args, env=env, cwd=cwd, stderr=stderr)
         except FileNotFoundError as error:
             raise ChannelError('not-found') from error
         except PermissionError as error:
@@ -109,18 +81,3 @@ class StreamChannel(AsyncChannel):
         except OSError as error:
             logger.info("Failed to spawn %s: %s", args, str(error))
             raise ChannelError('internal-error') from error
-
-        logger.debug('starting forwarding')
-        await asyncio.gather(self.receive_writer(process.stdin),
-                             self.wait_for_exit(process))
-
-    async def run(self, options):
-        # ignored: 'batch', 'latency'
-        if unix := options.get('unix'):
-            await self.stream_socket(unix)
-
-        elif spawn := options.get('spawn'):
-            await self.stream_process(spawn, options)
-
-        else:
-            logger.error('stream channel created without "unix" or "spawn": %s', options)

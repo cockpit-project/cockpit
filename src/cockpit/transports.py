@@ -21,8 +21,11 @@ import asyncio
 import collections
 import logging
 import os
+import select
+import socket
+import subprocess
 
-from typing import Any, ClassVar, Dict, Optional, Tuple
+from typing import Any, BinaryIO, ClassVar, Dict, Optional, Tuple
 
 
 logger = logging.getLogger(__name__)
@@ -193,6 +196,125 @@ class _Transport(asyncio.Transport):
         self._protocol = protocol
 
 
+class SubprocessProtocol(asyncio.Protocol):
+    """An extension to asyncio.Protocol for use with SubprocessTransport."""
+    def process_exited(self):
+        """Called when subprocess has exited."""
+        raise NotImplementedError
+
+
+class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
+    """A bi-directional transport speaking with stdin/out of a subprocess.
+
+    Note: this is not really a normal SubprocessTransport.  Although it
+    implements the entire API of asyncio.SubprocessTransport, it is not
+    designed to be used with asyncio.SubprocessProtocol objects.  Instead, it
+    pair with normal Protocol objects which also implement the
+    SubprocessProtocol defined in this module (which only has a
+    process_exited() method).  Whatever the protocol writes is sent to stdin,
+    and whatever comes from stdout is given to the Protocol via the
+    .data_received() function.
+
+    If stderr is configured as a pipe, the transport will separately collect
+    data from it, making it available via the .get_stderr() method.
+    """
+
+    _watcher: ClassVar[asyncio.AbstractChildWatcher] = None
+
+    _process: subprocess.Popen
+    _stdin: BinaryIO
+    _stdout: BinaryIO
+    _stderr: Optional['Spooler']
+
+    @classmethod
+    def _get_watcher(cls) -> asyncio.AbstractChildWatcher:
+        if cls._watcher is None:
+            if hasattr(asyncio, 'PidfdChildWatcher'):
+                try:
+                    os.close(os.pidfd_open(os.getpid(), 0))  # check for kernel support
+                    cls._watcher = asyncio.PidfdChildWatcher()
+                except OSError:
+                    pass
+            if cls._watcher is None:
+                cls._watcher = asyncio.SafeChildWatcher()
+            cls._watcher.attach_loop(asyncio.get_running_loop())
+        return cls._watcher
+
+    def get_stderr(self) -> bytes:
+        if self._stderr is not None:
+            return self._stderr.get()
+        else:
+            return b''
+
+    def _exited(self, pid, code):
+        # NB: per AbstractChildWatcher API, this handler should be thread-safe,
+        # but we only ever use non-threaded child watcher implementations, so
+        # we can assume we'll always be called in the main thread.
+
+        assert self._process.pid == pid
+        self._process.returncode = code  # ...yikes...
+        assert self._process.wait() == code, (self._process.wait(), code)
+        logger.debug('Process exited with status %d', self._process.returncode)
+        self._protocol.process_exited()
+
+    def __init__(self, loop: asyncio.AbstractEventLoop, protocol: asyncio.BaseProtocol, args, **kwargs) -> None:
+        self._process = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, **kwargs)
+        self._stdin = self._process.stdin  # type: ignore
+        self._stdout = self._process.stdout  # type: ignore
+
+        if self._process.stderr:
+            self._stderr = Spooler(loop, self._process.stderr.fileno())
+        else:
+            self._stderr = None
+
+        self._get_watcher().add_child_handler(self._process.pid, self._exited)
+
+        super().__init__(loop, protocol, self._stdout.fileno(), self._stdin.fileno())
+
+    def can_write_eof(self) -> bool:
+        return True
+
+    def _write_eof_now(self) -> None:
+        self._stdin.close()
+        self._out_fd = -1
+
+    def get_pid(self) -> int:
+        return self._process.pid
+
+    def get_returncode(self) -> int:
+        return self._process.returncode
+
+    def get_pipe_transport(self, fd: int) -> asyncio.Transport:
+        raise NotImplementedError
+
+    def send_signal(self, signal: int) -> None:  # type: ignore # https://github.com/python/mypy/issues/13885
+        self._process.send_signal(signal)
+
+    def terminate(self) -> None:
+        self._process.terminate()
+
+    def kill(self) -> None:
+        self._process.kill()
+
+
+class SocketTransport(_Transport):
+    """A Transport subclass that can wrap any socket"""
+    _socket: socket.socket
+
+    def __init__(self,
+                 loop: asyncio.AbstractEventLoop,
+                 protocol: asyncio.BaseProtocol,
+                 sock: socket.socket):
+        super().__init__(loop, protocol, sock.fileno(), sock.fileno(), {'socket': sock})
+        self._socket = sock
+
+    def can_write_eof(self) -> bool:
+        return True
+
+    def _write_eof_now(self) -> None:
+        self._socket.shutdown(socket.SHUT_WR)
+
+
 class StdioTransport(_Transport):
     """A bi-directional transport that corresponds to stdin/out.
 
@@ -210,3 +332,49 @@ class StdioTransport(_Transport):
 
     def _write_eof_now(self) -> None:
         raise RuntimeError("Can't write EOF to stdout")
+
+
+class Spooler:
+    """Consumes data from an fd, storing it in a buffer.
+
+    This makes a copy of the fd, so you don't have to worry about holding it
+    open.
+    """
+
+    _loop: asyncio.AbstractEventLoop
+    _fd: int
+    _contents: list[bytes]
+
+    def __init__(self, loop: asyncio.AbstractEventLoop, fd: int) -> None:
+        self._loop = loop
+        self._fd = os.dup(fd)
+        self._contents = []
+
+        loop.add_reader(self._fd, self._read_ready)
+
+    def _read_ready(self) -> None:
+        data = os.read(self._fd, 8192)
+        if data != b'':
+            self._contents.append(data)
+        else:
+            self.close()
+
+    def _is_ready(self) -> bool:
+        if self._fd == -1:
+            return False
+        return select.select([self._fd], [], [], 0) != ([], [], [])
+
+    def get(self) -> bytes:
+        while self._is_ready():
+            self._read_ready()
+
+        return b''.join(self._contents)
+
+    def close(self):
+        if self._fd != -1:
+            self._loop.remove_reader(self._fd)
+            os.close(self._fd)
+            self._fd = -1
+
+    def __del__(self):
+        self.close()

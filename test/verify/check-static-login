@@ -356,9 +356,9 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # On Arch Linux the ordering matters due to an auth include for system-remote-login
         if self.machine.image == "arch":
-            self.sed_file('1 a auth       required    /usr/lib/cockpit-test-assets/mock-pam-conv-mod.so', conf)
+            self.sed_file('1 a auth       required    mock-pam-conv-mod.so', conf)
         else:
-            self.sed_file('5 a auth       required    /usr/lib/cockpit-test-assets/mock-pam-conv-mod.so', conf)
+            self.sed_file('5 a auth       required    mock-pam-conv-mod.so', conf)
 
         m.start_cockpit()
         b.open("/system")

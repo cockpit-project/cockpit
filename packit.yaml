@@ -39,49 +39,18 @@ jobs:
       # big-endian
       - fedora-development-s390x
 
-  - job: copr_build
-    trigger: release
-    owner: "@cockpit"
-    project: "cockpit-preview"
-    preserve_project: True
-    # HACK: hardcoding this list is redundant and hard to change; packit
-    # should just use the existing config for permanent COPRs;
-    # https://github.com/packit/packit-service/issues/1499
-    targets:
-      - fedora-35
-      - fedora-36
-      - fedora-development
-      - centos-stream-8-x86_64
-      - centos-stream-9-x86_64
-    actions:
-      post-upstream-clone:
-        # HACK: spec must be next to the generated tarball; https://github.com/packit/packit/issues/1621
-        - cp tools/cockpit.spec .
-        # HACK: https://github.com/packit/packit/issues/1560
-        - tools/node-modules checkout
-      # HACK: tarball for releases (copr_build, koji, etc.), copying spec's Source0; this
-      # really should be the default, see https://github.com/packit/packit-service/issues/1505
-      create-archive:
-        - sh -exc "curl -L -O https://github.com/cockpit-project/cockpit/releases/download/${PACKIT_PROJECT_VERSION}/${PACKIT_PROJECT_NAME_VERSION}.tar.xz"
-        - sh -exc "ls ${PACKIT_PROJECT_NAME_VERSION}.tar.xz"
-
   - job: propose_downstream
     trigger: release
     dist_git_branches:
-      - fedora-development
       - fedora-35
-      - fedora-36
 
   - job: koji_build
     trigger: commit
     dist_git_branches:
-      - fedora-development
       - fedora-35
-      - fedora-36
 
   - job: bodhi_update
     trigger: commit
     dist_git_branches:
       # rawhide updates are created automatically
       - fedora-35
-      - fedora-36

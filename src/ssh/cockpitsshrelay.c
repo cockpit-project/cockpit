@@ -491,8 +491,21 @@ session_has_known_host_in_file (const gchar *file,
                                 const gchar *host,
                                 const guint port)
 {
+  /* HACK - https://gitlab.com/libssh/libssh-mirror/-/issues/156
+
+     Calling ssh_session_has_known_hosts_entry will call
+     ssh_options_apply, after which the ssh_session structure can no
+     longer be used with ssh_session_connect. So we make a copy and
+     call ssh_session_has_known_hosts_entry on that.
+  */
+
+  ssh_session tmp_session;
+  gboolean result;
   g_warn_if_fail (ssh_options_set (data->session, SSH_OPTIONS_KNOWNHOSTS, file) == 0);
-  return ssh_session_has_known_hosts_entry (data->session) == SSH_KNOWN_HOSTS_OK;
+  ssh_options_copy (data->session, &tmp_session);
+  result = ssh_session_has_known_hosts_entry (tmp_session) == SSH_KNOWN_HOSTS_OK;
+  ssh_free (tmp_session);
+  return result;
 }
 
 static gboolean

@@ -626,7 +626,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         self.login_and_go("/system/logs#/?since=@" + self.test_start_time)
         b.click(sleep_crash_list_sel)
         b.click("#abrt-reporting .pf-l-split:first-child button:contains('Report')")
-        b.wait_visible("#abrt-reporting .pf-l-split:first-child a[href$='/reports/bthash/123deadbeef'")
+        b.wait_visible("#abrt-reporting .pf-l-split:first-child a[href$='/reports/bthash/123deadbeef']")
 
         # "Unreport" the problem to test reporting unknown problem
         m.execute('find /var/spool/abrt -name "reported_to" -or -name "ureports_counter" | xargs rm')
@@ -715,7 +715,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         self.login_and_go("/system/logs#/?since=@" + self.test_start_time)
         b.click(sleep_crash_list_sel)
         b.click("#abrt-reporting .pf-l-split:first-child button:contains('Report')")
-        b.wait_visible("#abrt-reporting .pf-l-split:first-child a[href$='/reports/bthash/123deadbeef'")
+        b.wait_visible("#abrt-reporting .pf-l-split:first-child a[href$='/reports/bthash/123deadbeef']")
 
 
 if __name__ == '__main__':

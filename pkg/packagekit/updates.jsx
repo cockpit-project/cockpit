@@ -301,16 +301,20 @@ function updateItem(remarkable, info, pkgNames, key) {
         type = (
             <>
                 <Tooltip id="tip-severity" content={ secSeverity || _("security") }>
-                    {icon}
-                    { (info.cve_urls && info.cve_urls.length > 0) ? info.cve_urls.length : "" }
+                    <span>
+                        {icon}
+                        { (info.cve_urls && info.cve_urls.length > 0) ? info.cve_urls.length : "" }
+                    </span>
                 </Tooltip>
             </>);
     } else {
         const tip = (info.severity >= PK.Enum.INFO_NORMAL) ? _("bug fix") : _("enhancement");
         type = (
             <Tooltip id="tip-severity" content={tip}>
-                {icon}
-                { bugs ? info.bug_urls.length : "" }
+                <span>
+                    {icon}
+                    { bugs ? info.bug_urls.length : "" }
+                </span>
             </Tooltip>
         );
     }

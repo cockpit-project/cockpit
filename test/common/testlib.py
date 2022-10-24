@@ -1375,7 +1375,7 @@ class MachineCase(unittest.TestCase):
         return int(v[0]) < version
 
     def setUp(self, restrict=True):
-        self.allowed_messages = self.default_allowed_messages
+        self.allowed_messages = []
         self.allowed_console_errors = self.default_allowed_console_errors
         self.allow_core_dumps = False
 
@@ -1888,6 +1888,24 @@ class MachineCase(unittest.TestCase):
                     m.execute("journalctl|gzip", stdout=fp)
                     print("Journal extracted to %s" % (log))
                     attach(log, move=True)
+
+
+                # packit tests are on the same machine, so hack away
+                print(os.listdir('/var/log/journal'))
+                for root, dirs, files in os.walk('/var/log/journal'):
+                    print("root: {}, dirs: {}, files: {}".format(root, dirs, files))
+                    for file in files:
+                        attach(os.path.join(root, file), move=True)
+
+                # HACK: Copy journal files
+                # print("before files ", os.listdir('.'))
+                # directory = "%s-%s-%s" % (label or self.label(), m.label, title)
+                # # dest = os.path.abspath(directory)
+                # print("copy journal entries to: %s" % (directory))
+                # if os.path.exists(directory):
+                #     shutil.rmtree(directory)
+                # m.download_dir("/var/log/journal", directory, relative_dir='.')
+                # print("files", os.listdir(directory))
 
     def copy_cores(self, title: str, label: Optional[str] = None):
         if self.allow_core_dumps:

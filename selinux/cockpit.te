@@ -134,7 +134,7 @@ optional_policy(`
 
 # cockpit-session changes to the actual logged in user
 # pam_faillock chowns the state file to the target user
-allow cockpit_session_t self:capability { chown dac_override dac_read_search setgid setuid sys_admin sys_resource };
+allow cockpit_session_t self:capability { chown fowner dac_override dac_read_search setgid setuid sys_admin sys_resource };
 allow cockpit_session_t self:process { setexec setrlimit setsched signal_perms };
 
 read_files_pattern(cockpit_session_t, cockpit_var_lib_t, cockpit_var_lib_t)

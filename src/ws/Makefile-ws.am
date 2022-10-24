@@ -162,12 +162,11 @@ mock_pam_conv_mod_so_CFLAGS = -fPIC $(AM_CFLAGS)
 mock_pam_conv_mod_so_LDFLAGS = -shared
 mock_pam_conv_mod_so_LDADD = $(PAM_LIBS)
 
-testassetsdir = $(prefix)/lib/cockpit-test-assets
 testserviceddir = $(systemdunitdir)/cockpit.service.d
 
 install-tests::
-	mkdir -p $(DESTDIR)$(testassetsdir) $(DESTDIR)$(testserviceddir) $(DESTDIR)/etc/cockpit
-	$(INSTALL_DATA) mock-pam-conv-mod.so $(DESTDIR)$(testassetsdir)
+	mkdir -p $(DESTDIR)$(pamdir) $(DESTDIR)$(testserviceddir) $(DESTDIR)/etc/cockpit
+	$(INSTALL_DATA) mock-pam-conv-mod.so $(DESTDIR)$(pamdir)/
 
 install-exec-hook::
 	mkdir -p $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d $(DESTDIR)$(sysconfdir)/cockpit/machines.d

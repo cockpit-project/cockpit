@@ -256,7 +256,8 @@ done
 for libexec in cockpit-askpass cockpit-session cockpit-ws cockpit-tls cockpit-wsinstance-factory cockpit-client cockpit-client.ui cockpit-desktop cockpit-certificate-helper cockpit-certificate-ensure; do
     rm %{buildroot}/%{_libexecdir}/$libexec
 done
-rm -r %{buildroot}/%{_libdir}/security %{buildroot}/%{_sysconfdir}/pam.d %{buildroot}/%{_sysconfdir}/motd.d %{buildroot}/%{_sysconfdir}/issue.d
+rm -r %{buildroot}/%{_sysconfdir}/pam.d %{buildroot}/%{_sysconfdir}/motd.d %{buildroot}/%{_sysconfdir}/issue.d
+rm -f %{buildroot}/%{_libdir}/security/pam_*
 rm %{buildroot}/usr/bin/cockpit-bridge
 rm -f %{buildroot}%{_libexecdir}/cockpit-ssh
 rm -f %{buildroot}%{_datadir}/metainfo/cockpit.appdata.xml
@@ -268,7 +269,7 @@ for pkg in apps packagekit pcp playground storaged; do
     rm -rf %{buildroot}/%{_datadir}/cockpit/$pkg
 done
 # files from -tests
-rm -r %{buildroot}/%{_prefix}/%{__lib}/cockpit-test-assets
+rm -f %{buildroot}/%{pamdir}/mock-pam-conv-mod.so
 # files from -pcp
 rm -r %{buildroot}/%{_libexecdir}/cockpit-pcp %{buildroot}/%{_localstatedir}/lib/pcp/
 # files from -storaged
@@ -622,7 +623,7 @@ This package contains tests and files used while testing Cockpit.
 These files are not required for running Cockpit.
 
 %files -n cockpit-tests -f tests.list
-%{_prefix}/%{__lib}/cockpit-test-assets
+%{pamdir}/mock-pam-conv-mod.so
 
 %package -n cockpit-pcp
 Summary: Cockpit PCP integration

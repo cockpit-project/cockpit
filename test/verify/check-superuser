@@ -107,14 +107,14 @@ class TestSuperuser(MachineCase):
         if "debian" in m.image or "ubuntu" in m.image:
             self.write_file("/etc/pam.d/sudo", """
 auth required pam_unix.so
-auth required /usr/lib/cockpit-test-assets/mock-pam-conv-mod.so
+auth required mock-pam-conv-mod.so
 @include common-account
 @include common-session-noninteractive
 """)
         else:
             self.write_file("/etc/pam.d/sudo", """
 auth required pam_unix.so
-auth required /usr/lib/cockpit-test-assets/mock-pam-conv-mod.so
+auth required mock-pam-conv-mod.so
 account include system-auth
 password include system-auth
 session include system-auth

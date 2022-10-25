@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+
+import argparse
+import re
+import sys
+import xml.etree.ElementTree as ET
+
+
+# Pretend like this is a little bit functional
+def element(tag, text=None, children=(), **kwargs):
+    tag = ET.Element(tag, kwargs)
+    tag.text = text
+    tag.extend(children)
+    return tag
+
+
+def points_from_body(body):
+    for text in re.split('^ *-', body, flags=re.MULTILINE):
+        if point := ' '.join(text.split()).strip():
+            yield element('li', point)
+
+
+def format_release(version, date, body):
+    return element('release', version=version, date=date, children=[
+        element('url', f'https://cockpit-project.org/blog/cockpit-{version}.html', type='details'),
+        element('description', children=[
+            element('p', f'Changes in Cockpit {version}:'),
+            element('ul', children=points_from_body(body))
+        ])
+    ])
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('releases', help='Release history XML file, eg. releases.xml')
+    parser.add_argument('version', help='The version number of the release')
+    parser.add_argument('date', help='The date of the release')
+    args = parser.parse_args()
+
+    tree = ET.parse(args.releases)
+    releases = tree.find('releases')
+    releases.insert(0, format_release(args.version, args.date, sys.stdin.read()))
+    ET.indent(releases, space="  ", level=1)
+    tree.write(args.releases, encoding='utf-8', xml_declaration=True)
+
+
+if __name__ == '__main__':
+    main()

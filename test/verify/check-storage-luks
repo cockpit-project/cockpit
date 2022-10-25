@@ -19,7 +19,7 @@
 
 import parent  # noqa: F401
 from storagelib import StorageCase
-from testlib import skipImage, test_main, wait
+from testlib import test_main, wait
 
 
 class TestStorageLuks(StorageCase):
@@ -189,7 +189,6 @@ class TestStorageLuks(StorageCase):
         b.logout()
         wait(lambda: m.execute("(loginctl list-users | grep admin) || true") == "")
 
-    @skipImage("TODO: clevis missing on Arch image", "arch")
     def testClevisTang(self):
         m = self.machine
         b = self.browser

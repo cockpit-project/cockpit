@@ -1,0 +1,35 @@
+#!/usr/bin/python3
+
+# Merges a downstream releases.xml file with the upstream metainfo.xml.
+#
+# Opens the metainfo file, finds the <releases> tag, and replaces its contents
+# with the contents of the <releases> tag found in the releases file.
+#
+# This facilitates keeping a downstream changelog, not shipped in tarballs.
+#
+# This substitution is meant to be done at `make install` time.  Set the
+# `DOWNSTREAM_RELEASES_XML` environment variable while calling `make install`.
+
+import argparse
+import xml.etree.ElementTree as ET
+
+parser = argparse.ArgumentParser()
+parser.add_argument('metainfo')
+parser.add_argument('releases')
+args = parser.parse_args()
+
+releases = ET.parse(args.releases)
+releases_releases = releases.find('releases')
+assert releases_releases is not None
+
+metainfo = ET.parse(args.metainfo)
+metainfo_releases = metainfo.find('releases')
+assert metainfo_releases is not None
+
+stub_release = metainfo_releases.find('release')
+if stub_release is not None:
+    metainfo_releases.remove(stub_release)
+
+metainfo_releases.extend(releases_releases)
+
+metainfo.write(args.metainfo)

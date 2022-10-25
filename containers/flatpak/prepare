@@ -63,4 +63,5 @@ sed \
     -e "s|@ARCHIVE_SHA256@|${ARCHIVE_SHA256}|" \
     "${0%/*}/cockpit-client.yml.in" > "${FLATPAK_ID}.yml.tmp"
 mv "${FLATPAK_ID}.yml.tmp" "${FLATPAK_ID}.yml"
+touch "${FLATPAK_ID}.releases.xml"
 echo "${FLATPAK_ID}.yml"

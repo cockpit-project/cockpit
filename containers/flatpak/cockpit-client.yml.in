@@ -25,9 +25,13 @@ modules:
       - --disable-doc
     make-args:
       - build-for-flatpak
+    make-install-args:
+      - DOWNSTREAM_RELEASES_XML=@FLATPAK_ID@.releases.xml
     install-rule: install-for-flatpak
 
     sources:
       - type: archive
         @ARCHIVE_TYPE@: @ARCHIVE_LOCATION@
         sha256: @ARCHIVE_SHA256@
+      - type: file
+        path: @FLATPAK_ID@.releases.xml

@@ -281,7 +281,7 @@ function add_dialog(client, block) {
         Fields: [
             SelectOneRadio("type", _("Key source"),
                            {
-                               value: "tang",
+                               value: "luks-passphrase",
                                visible: vals => client.features.clevis,
                                widest_title: _("Repeat passphrase"),
                                choices: [

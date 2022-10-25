@@ -32,7 +32,7 @@ jobs:
           docker container rm -f "${id}"
 
       - name: Create artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: webpack-jumpstart
           path: webpack-jumpstart.tar
@@ -62,7 +62,7 @@ jobs:
             git remote add cache "ssh://git@github.com/${GITHUB_REPOSITORY%/*}/cockpit-dist"
 
       - name: Download artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: webpack-jumpstart
           path: artifact

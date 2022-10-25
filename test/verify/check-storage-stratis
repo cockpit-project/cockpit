@@ -23,9 +23,15 @@ from storagelib import StorageCase
 from testlib import skipImage, test_main
 
 
-# TODO: Arch Linux has Stratis packages, tests need adjustments
-@skipImage("No Stratis", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2204", "arch")
+@skipImage("No Stratis", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2204")
 class TestStorageStratis(StorageCase):
+    def setUp(self):
+        super().setUp()
+
+        if self.image == "arch":
+            # Arch Linux does not enable systemd units by default
+            self.machine.execute("systemctl enable --now stratisd")
+            self.addCleanup(self.machine.execute, "systemctl disable --now stratisd")
 
     def testBasic(self):
         m = self.machine

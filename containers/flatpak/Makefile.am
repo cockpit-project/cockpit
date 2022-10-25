@@ -11,6 +11,11 @@ install-for-flatpak: \
 		install-dist_scalableiconDATA \
 		install-dist_symboliciconDATA \
 		$(NULL)
+	if test -s "${DOWNSTREAM_RELEASES_XML}"; then \
+	    $(top_srcdir)/tools/patch-metainfo \
+	        '$(DESTDIR)$(datadir)/metainfo/org.cockpit_project.CockpitClient.metainfo.xml' \
+	        "${DOWNSTREAM_RELEASES_XML}"; \
+	fi
 	appstream-util validate --nonet src/client/org.cockpit_project.CockpitClient.metainfo.xml
 	mkdir -p $(DESTDIR)/$(bindir)
 	ln -sfTv $(cockpitclientdir)/cockpit-client $(DESTDIR)/$(bindir)/cockpit-client

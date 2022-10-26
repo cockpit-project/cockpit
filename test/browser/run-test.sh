@@ -56,6 +56,11 @@ if [ "${TEST_OS#centos-8}" != "$TEST_OS" ]; then
     TEST_ALLOW_JOURNAL_MESSAGES="${TEST_ALLOW_JOURNAL_MESSAGES},couldn't create runtime dir: /run/user/1001: Permission denied"
 fi
 
+# HACK: https://github.com/systemd/systemd/issues/24150
+if [ "$ID" = "fedora" ]; then
+       TEST_ALLOW_JOURNAL_MESSAGES="${TEST_ALLOW_JOURNAL_MESSAGES},Journal file /var/log/journal/*/user-1000@*.journal corrupted, ignoring file .*"
+fi
+
 export TEST_ALLOW_JOURNAL_MESSAGES
 
 # We only have one VM and tests should take at most one hour. So run those tests which exercise external API

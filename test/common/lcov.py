@@ -143,12 +143,15 @@ class DistFile:
         return res
 
 
-def get_dist_map():
+def get_dist_map(package):
     dmap = {}
     for f in glob.glob(f"{BASE_DIR}/dist/*/manifest.json") + glob.glob(f"{BASE_DIR}/dist/manifest.json"):
         m = json.load(open(f))
         if "name" in m:
             dmap[m["name"]] = os.path.dirname(f)
+        elif f == f"{BASE_DIR}/dist/manifest.json":
+            if "name" in package:
+                dmap[package["name"]] = os.path.dirname(f)
     return dmap
 
 
@@ -282,7 +285,7 @@ def print_diff_coverage(path, file_hits, out):
 def write_lcov(covdata, outlabel):
 
     package = json.load(open(f"{BASE_DIR}/package.json"))
-    dist_map = get_dist_map()
+    dist_map = get_dist_map(package)
     file_hits = {}
 
     def covranges(functions):

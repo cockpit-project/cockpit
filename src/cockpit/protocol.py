@@ -37,7 +37,7 @@ class CockpitProtocol(asyncio.Protocol):
     We need to use this because Python's SelectorEventLoop doesn't supported
     buffered protocols.
     '''
-    transport = None
+    transport: Optional[asyncio.Transport] = None
     buffer = b''
     _communication_done: Optional[asyncio.Future] = None
 

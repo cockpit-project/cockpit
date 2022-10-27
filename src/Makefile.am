@@ -53,9 +53,14 @@ pyTESTS = $(pyTESTS_PASSING) $(pyTESTS_FAILING)
 pycheck: cockpit-bridge.pyz
 	$(MAKE) check XFAIL_TESTS='$(pyTESTS_FAILING)' TESTS='$(pyTESTS)' COCKPIT_BRIDGE=./cockpit-bridge.pyz
 
+injcheck: injector.pyz
+	$(MAKE) check XFAIL_TESTS='$(pyTESTS_FAILING)' TESTS='$(pyTESTS)' COCKPIT_BRIDGE=./injector.pyz
+
 PYTHON_BRIDGE_FILES = \
 	src/cockpit/__init__.py \
 	src/cockpit/bridge.py \
+	src/cockpit/bootloader.py \
+	src/cockpit/injector.py \
 	src/cockpit/channel.py \
 	src/cockpit/channels/__init__.py \
 	src/cockpit/channels/dbus.py \
@@ -92,6 +97,23 @@ cockpit-bridge.pyz: $(MANIFESTS) $(PYTHON_BRIDGE_FILES) $(SYSTEMD_CTYPES_STAMP)
 	@mkdir -p tmp/pyz
 	@cp -r $(srcdir)/dist $(srcdir)/src/cockpit src/systemd_ctypes/ tmp/pyz
 	$(AM_V_GEN) python3 -m zipapp --python /usr/bin/python3 --output $@ --main cockpit.bridge:main tmp/pyz
+	@chmod a+x $@
+
+CLEANFILES += injector.pyz
+injector.pyz: $(MANIFESTS) $(PYTHON_BRIDGE_FILES) $(SYSTEMD_CTYPES_STAMP)
+	@rm -rf tmp/bundle-pyz
+	@mkdir -p tmp/bundle-pyz tmp/bundle-pyz/dist/ssh tmp/bundle-pyz/dist/shell
+	@cp -r $(srcdir)/src/cockpit src/systemd_ctypes/ tmp/bundle-pyz
+	@cp -r $(srcdir)/pkg/ssh/manifest.json tmp/bundle-pyz/dist/ssh
+	@cp -r $(srcdir)/pkg/shell/manifest.json tmp/bundle-pyz/dist/shell
+	@rm -rf tmp/injector-pyz
+	@mkdir -p tmp/injector-pyz
+	@cp -r $(srcdir)/dist $(srcdir)/src/cockpit src/systemd_ctypes/ tmp/injector-pyz
+	@mkdir -p tmp/injector-pyz/cockpit/data
+	@python3 -m zipapp --output tmp/injector-pyz/cockpit/data/bundle.pyz --main cockpit.bridge:main tmp/bundle-pyz
+	@$(srcdir)/src/cockpit/mkbootloader.py $(srcdir)/src/cockpit/bootloader.py Cockpit '$(VERSION)' tmp/injector-pyz/cockpit/data/bundle.pyz >> tmp/injector-pyz/cockpit/data/bootloader.py
+	ls --color=auto -lR tmp/injector-pyz/cockpit/data
+	$(AM_V_GEN) python3 -m zipapp --python /usr/bin/python3 --output $@ --main cockpit.injector:main tmp/injector-pyz
 	@chmod a+x $@
 
 .PHONY: pcc

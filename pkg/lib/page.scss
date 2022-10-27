@@ -84,6 +84,12 @@ a.disabled:hover {
   --ct-animation-new-background: #fdf4dd;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ct-animation-new-background: #353428;
+  }
+}
+
 /* Animation background is instantly yellow and fades out halfway through */
 @keyframes ctNewRow {
   0% {

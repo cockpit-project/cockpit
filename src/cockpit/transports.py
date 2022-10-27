@@ -113,6 +113,7 @@ class _Transport(asyncio.Transport):
             self._is_reading = True
 
     def abort(self) -> None:
+        self._closing = True
         self._close_reader()
         self._remove_write_queue()
         self._protocol.connection_lost(None)
@@ -143,7 +144,12 @@ class _Transport(asyncio.Transport):
 
     def _write_ready(self):
         assert self._queue is not None
-        n_bytes = os.writev(self._queue)
+
+        try:
+            n_bytes = os.writev(self._queue)
+        except BrokenPipeError:
+            self.abort()
+            return
 
         while n_bytes:
             block = self._queue.popleft()
@@ -180,7 +186,12 @@ class _Transport(asyncio.Transport):
             self._queue.append(data)
             return
 
-        n_bytes = os.write(self._out_fd, data)
+        try:
+            n_bytes = os.write(self._out_fd, data)
+        except BrokenPipeError:
+            self.abort()
+            return
+
         if n_bytes != len(data):
             self._create_write_queue(data[n_bytes:])
 

@@ -20,9 +20,14 @@ import asyncio
 
 from typing import Any, Dict, Iterable, Optional, Tuple
 
+from .protocol import CockpitProtocol
+
 
 class Endpoint:
-    router = None
+    router: CockpitProtocol
+
+    def __init__(self, router):
+        self.router = router
 
     def do_channel_control(self, command, message):
         raise NotImplementedError

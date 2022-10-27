@@ -93,14 +93,13 @@ class Router(CockpitProtocolServer):
             try:
                 endpoint = self.peers[peer_opts]
             except KeyError:
-                endpoint = result()
+                endpoint = result(self)
                 endpoint.start(**dict(zip(peer_keys, peer_opts)))
                 self.peers[peer_opts] = endpoint
         else:
             assert issubclass(result, Channel)
-            endpoint = result()
+            endpoint = result(self)
 
-        endpoint.router = self
         return endpoint
 
     def do_init(self, message):

@@ -1,8 +1,11 @@
 # COCKPIT BOOTLOADER
 
 from hashlib import sha256
+from pathlib import Path
 import os
 import sys
+import tempfile
+import runpy
 
 
 class Bootloader:
@@ -14,16 +17,19 @@ class Bootloader:
         self.version = version
         self.checksum = checksum
 
-        cachedir = os.environ.get("XDG_CACHE_HOME") or os.path.expanduser("~/.cache")
-        filename = f"{cachedir}/{name}/{version}-{checksum}.py"
+        xdg_cache_home = os.environ.get("XDG_CACHE_HOME") or os.path.expanduser("~/.cache")
+        cache_file = Path(f"{xdg_cache_home}/{name}/{version}-{checksum}.zip")
 
-        # step one: try to find a cached local copy
+        # step one: try to find a cached local copy (best effort)
         if self.source is None:
             try:
-                with open(filename, "rb") as file:
-                    data = file.read()
-                    if sha256(data).hexdigest() == checksum:
-                        self.source = data
+                data = cache_file.read_bytes()
+                if sha256(data).hexdigest() == checksum:
+                    # we don't trust atime, so use mtime to track last-used.
+                    # this will fail if the filesystem is read only, but it's
+                    # irrelevant because pruning will fail in that case, anyway.
+                    self.source = data
+                    cache_file.touch()
             except OSError:
                 pass
 
@@ -31,9 +37,7 @@ class Bootloader:
         if self.source is None:
             message = f"""\n{{"command":"need-script","sha256":"{checksum}","size":{size}}}\n"""
             os.write(1, f"{len(message)}\n{message}".encode("ascii"))
-            data = b""
-            while len(data) < size:
-                data += os.read(0, size - len(data))
+            data = sys.stdin.buffer.read(size)
             if sha256(data).hexdigest() == checksum:
                 self.source = data
             else:
@@ -41,16 +45,14 @@ class Bootloader:
 
         # step three: cache it locally (best effort)
         try:
-            os.makedirs(f"{cachedir}/{name}", exist_ok=True)
-            with open(filename, "w+b") as file:
-                file.write(self.source)
+            cache_file.parent.mkdir(parents=True, exist_ok=True)
+            cache_file.write_bytes(self.source)
         except OSError:
             pass
 
-        exec(self.source)
+        # step four: run the .pyz as a temporary file
+        with tempfile.NamedTemporaryFile(prefix='cockpit-', suffix='.zip', buffering=0) as file:
+            file.write(self.source)
+            runpy.run_path(file.name)
+
         sys.exit(0)
-
-
-BOOTLOADER = Bootloader()
-BOOTLOADER.start("hello", "300", "a0c22dc5d16db10ca0e3d99859ffccb2b4d536b21d6788cfbe2d2cfac60e8117", 22)
-# echo 'print("Hello world!")' | python3 bootloader.py

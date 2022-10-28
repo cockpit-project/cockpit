@@ -69,6 +69,10 @@ class _Transport(asyncio.Transport):
         self._in_fd = in_fd
         self._out_fd = out_fd
 
+        os.set_blocking(in_fd, False)
+        if out_fd != in_fd:
+            os.set_blocking(out_fd, False)
+
         self._protocol.connection_made(self)
         self.resume_reading()
 
@@ -81,6 +85,8 @@ class _Transport(asyncio.Transport):
             if not self._eio_is_eof:
                 raise
             data = b''
+        except BlockingIOError:
+            return
 
         if data != b'':
             logger.debug('  read %d bytes', len(data))
@@ -151,6 +157,8 @@ class _Transport(asyncio.Transport):
 
         try:
             n_bytes = os.writev(self._out_fd, self._queue)
+        except BlockingIOError:
+            n_bytes = 0
         except BrokenPipeError:
             self.abort()
             return
@@ -191,6 +199,8 @@ class _Transport(asyncio.Transport):
 
         try:
             n_bytes = os.write(self._out_fd, data)
+        except BlockingIOError:
+            n_bytes = 0
         except BrokenPipeError:
             self.abort()
             return
@@ -394,6 +404,7 @@ class StdioTransport(_Transport):
         - character devices (including terminals)
         - sockets
     """
+
     def __init__(self, loop: asyncio.AbstractEventLoop, protocol: asyncio.Protocol):
         super().__init__(loop, protocol, 0, 1)
 
@@ -420,10 +431,15 @@ class Spooler:
         self._fd = os.dup(fd)
         self._contents = []
 
+        os.set_blocking(self._fd, False)
         loop.add_reader(self._fd, self._read_ready)
 
     def _read_ready(self) -> None:
-        data = os.read(self._fd, 8192)
+        try:
+            data = os.read(self._fd, 8192)
+        except BlockingIOError:
+            return
+
         if data != b'':
             self._contents.append(data)
         else:

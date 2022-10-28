@@ -124,19 +124,28 @@ opts.coverage = False
 default_layouts = [
     {
         "name": "desktop",
+        "theme": "light",
         "shell_size": [1920, 1200],
         "content_size": [1680, 1130]
     },
     {
         "name": "medium",
+        "theme": "light",
         "is_mobile": False,
         "shell_size": [1280, 768],
         "content_size": [1040, 698]
     },
     {
         "name": "mobile",
+        "theme": "light",
         "shell_size": [414, 1920],
         "content_size": [414, 1856]
+    },
+    {
+        "name": "dark",
+        "theme": "dark",
+        "shell_size": [1920, 1200],
+        "content_size": [1680, 1130]
     }
 ]
 
@@ -187,7 +196,12 @@ class Browser:
             with open(f'{TEST_DIR}/browser-layouts.json') as fp:
                 self.layouts = json.load(fp)
         except FileNotFoundError:
-            self.layouts = default_layouts
+            # Firefox CDP does not support setting EmulatedMedia
+            # https://bugzilla.mozilla.org/show_bug.cgi?id=1549434
+            if self.cdp.browser.name == "chromium":
+                self.layouts = default_layouts
+            else:
+                self.layouts = [layout for layout in default_layouts if layout["name"] != "dark"]
         self.current_layout = None
 
     def title(self):
@@ -948,6 +962,11 @@ class Browser:
                         width=width, height=height,
                         deviceScaleFactor=0, mobile=False)
 
+    def _set_emulated_media_theme(self, name: str):
+        # https://bugzilla.mozilla.org/show_bug.cgi?id=1549434
+        if self.cdp.browser.name == "chromium":
+            self.cdp.invoke("Emulation.setEmulatedMedia", features=[{'name': 'prefers-color-scheme', 'value': name}])
+
     def set_layout(self, name: str):
         layout = [lo for lo in self.layouts if lo["name"] == name][0]
         if layout != self.current_layout:
@@ -955,6 +974,7 @@ class Browser:
             size = layout["shell_size"]
             self._set_window_size(size[0], size[1])
             self._adjust_window_for_fixed_content_size()
+            self._set_emulated_media_theme(layout["theme"])
 
     def _adjust_window_for_fixed_content_size(self):
         if self.eval_js("window.name").startswith("cockpit1:"):

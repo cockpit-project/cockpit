@@ -112,11 +112,15 @@ class _Transport(asyncio.Transport):
             self._loop.add_reader(self._in_fd, self._read_ready)
             self._is_reading = True
 
+    def _close(self) -> None:
+        pass
+
     def abort(self) -> None:
         self._closing = True
         self._close_reader()
         self._remove_write_queue()
         self._protocol.connection_lost(None)
+        self._close()
 
     def can_write_eof(self) -> bool:
         raise NotImplementedError
@@ -354,6 +358,11 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
     def kill(self) -> None:
         self._process.kill()
 
+    def _close(self) -> None:
+        if self._pty_fd is not None:
+            os.close(self._pty_fd)
+            self._pty_fd = None
+
 
 class SocketTransport(_Transport):
     """A Transport subclass that can wrap any socket"""
@@ -365,6 +374,9 @@ class SocketTransport(_Transport):
                  sock: socket.socket):
         super().__init__(loop, protocol, sock.fileno(), sock.fileno(), {'socket': sock})
         self._socket = sock
+
+    def _close(self) -> None:
+        self._socket.close()
 
     def can_write_eof(self) -> bool:
         return True

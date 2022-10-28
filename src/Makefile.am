@@ -50,8 +50,17 @@ pyTESTS_HANGING = \
 
 pyTESTS = $(pyTESTS_PASSING) $(pyTESTS_FAILING)
 
+.PHONY: pycheck
 pycheck: cockpit-bridge.pyz
 	$(MAKE) check XFAIL_TESTS='$(pyTESTS_FAILING)' TESTS='$(pyTESTS)' COCKPIT_BRIDGE=./cockpit-bridge.pyz
+
+.PHONY: pytest
+pytest: $(SYSTEMD_CTYPES_STAMP)
+	cd '$(srcdir)' && pytest
+
+.PHONY: pytest-cov
+pytest-cov: $(SYSTEMD_CTYPES_STAMP)
+	cd '$(srcdir)' && pytest --cov
 
 PYTHON_BRIDGE_FILES = \
 	src/cockpit/__init__.py \

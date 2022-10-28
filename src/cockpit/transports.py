@@ -146,7 +146,7 @@ class _Transport(asyncio.Transport):
         assert self._queue is not None
 
         try:
-            n_bytes = os.writev(self._queue)
+            n_bytes = os.writev(self._out_fd, self._queue)
         except BrokenPipeError:
             self.abort()
             return
@@ -162,7 +162,6 @@ class _Transport(asyncio.Transport):
             self._remove_write_queue()
             if self._eof:
                 self._write_eof_now()
-                self._consider_closing()
             if self._closing:
                 self.abort()
 

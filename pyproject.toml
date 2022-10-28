@@ -1,0 +1,46 @@
+[tool.mypy]
+mypy_path = 'src'
+
+[tool.pylint]
+max-line-length = 118
+disable = [
+  "C0114",  # Missing module docstring
+  "C0115",  # Missing class docstring
+  "R0902",  # Too many instance attributes
+  "R0903",  # Too few public methods
+  "R0913",  # Too many arguments
+  "R1705",  # Unnecessary "else" after "return"
+  "W1113",  # Keyword argument before variable positional arguments  (PEP-570 is Python 3.8)
+]
+
+[tool.pytest.ini_options]
+log_cli = true
+
+[tool.coverage.paths]
+source = ["src", "*/site-packages"]
+
+[tool.coverage.run]
+source_pkgs = ["cockpit"]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+  "raise NotImplementedError",
+]
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+isolated_build = True
+envlist = site
+
+[testenv]
+deps=
+  pytest-cov
+commands =
+  python3 -m pytest --cov {posargs}
+
+[testenv:site]
+sitepackages = true
+deps=
+"""

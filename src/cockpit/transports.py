@@ -39,7 +39,7 @@ class _Transport(asyncio.Transport):
 
     # A transport always has a loop and a protocol
     _loop: asyncio.AbstractEventLoop
-    _protocol: asyncio.BaseProtocol
+    _protocol: asyncio.Protocol
 
     _queue: Optional[collections.deque[bytes]]
     _in_fd: int
@@ -51,9 +51,9 @@ class _Transport(asyncio.Transport):
 
     def __init__(self,
                  loop: asyncio.AbstractEventLoop,
-                 protocol: asyncio.BaseProtocol,
+                 protocol: asyncio.Protocol,
                  in_fd: int = -1, out_fd: int = -1,
-                 extra: Dict[str, Any] = None):
+                 extra: Optional[Dict[str, object]] = None):
         super().__init__(extra)
 
         self._loop = loop
@@ -72,7 +72,7 @@ class _Transport(asyncio.Transport):
         self._protocol.connection_made(self)
         self.resume_reading()
 
-    def _read_ready(self):
+    def _read_ready(self) -> None:
         logger.debug('Read ready on %s %s %d', self, self._protocol, self._in_fd)
         try:
             data = os.read(self._in_fd, _Transport.BLOCK_SIZE)
@@ -142,7 +142,7 @@ class _Transport(asyncio.Transport):
     def _write_eof_now(self) -> None:
         raise NotImplementedError
 
-    def _write_ready(self):
+    def _write_ready(self) -> None:
         assert self._queue is not None
 
         try:
@@ -215,12 +215,16 @@ class _Transport(asyncio.Transport):
         return self._closing
 
     def set_protocol(self, protocol: asyncio.BaseProtocol) -> None:
+        assert isinstance(protocol, asyncio.Protocol)
         self._protocol = protocol
+
+    def __del__(self) -> None:
+        self._close()
 
 
 class SubprocessProtocol(asyncio.Protocol):
     """An extension to asyncio.Protocol for use with SubprocessTransport."""
-    def process_exited(self):
+    def process_exited(self) -> None:
         """Called when subprocess has exited."""
         raise NotImplementedError
 
@@ -245,7 +249,7 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
     _returncode: Optional[int] = None
 
     _pty_fd: Optional[int] = None
-    _process: subprocess.Popen
+    _process: subprocess.Popen[bytes]
     _stderr: Optional['Spooler']
 
     @classmethod
@@ -268,7 +272,7 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
         else:
             return b''
 
-    def _exited(self, pid, code):
+    def _exited(self, pid: int, code: int) -> None:
         # NB: per AbstractChildWatcher API, this handler should be thread-safe,
         # but we only ever use non-threaded child watcher implementations, so
         # we can assume we'll always be called in the main thread.
@@ -278,12 +282,19 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
         # Python 3.2 this is supported, and process gets a return status of
         # zero.  For that reason, we need to store our own copy of the return
         # status.  See https://github.com/python/cpython/issues/59960
+        assert isinstance(self._protocol, SubprocessProtocol)
         assert self._process.pid == pid
         self._returncode = code
         logger.debug('Process exited with status %d', self._returncode)
         self._protocol.process_exited()
 
-    def __init__(self, loop: asyncio.AbstractEventLoop, protocol: asyncio.BaseProtocol, args, pty, window, **kwargs) -> None:
+    def __init__(self,
+                 loop: asyncio.AbstractEventLoop,
+                 protocol: SubprocessProtocol,
+                 args: list[str],
+                 pty: bool = False,
+                 window: Optional[Dict[str, int]] = None,
+                 **kwargs: Any) -> None:
         if pty:
             self._pty_fd, session_fd = os.openpty()
 
@@ -351,7 +362,7 @@ class SocketTransport(_Transport):
 
     def __init__(self,
                  loop: asyncio.AbstractEventLoop,
-                 protocol: asyncio.BaseProtocol,
+                 protocol: asyncio.Protocol,
                  sock: socket.socket):
         super().__init__(loop, protocol, sock.fileno(), sock.fileno(), {'socket': sock})
         self._socket = sock
@@ -372,7 +383,7 @@ class StdioTransport(_Transport):
         - character devices (including terminals)
         - sockets
     """
-    def __init__(self, loop: asyncio.AbstractEventLoop, protocol: asyncio.BaseProtocol):
+    def __init__(self, loop: asyncio.AbstractEventLoop, protocol: asyncio.Protocol):
         super().__init__(loop, protocol, 0, 1)
 
     def can_write_eof(self) -> bool:
@@ -418,11 +429,11 @@ class Spooler:
 
         return b''.join(self._contents)
 
-    def close(self):
+    def close(self) -> None:
         if self._fd != -1:
             self._loop.remove_reader(self._fd)
             os.close(self._fd)
             self._fd = -1
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.close()

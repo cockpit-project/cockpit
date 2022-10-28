@@ -134,6 +134,12 @@ You can run a subset of the unit tests against this experimental code by typing
 `make pycheck`.  Note that this needs to be done against a git checkout, as the
 Python files are not currently included in tarball releases.
 
+There are also a growing number of Python unittest tests being written to test
+various bits of the new bridge code.  You can run those with `make pytest` or
+`make pytest-cov`.  Those are both just rules to make sure that the
+`systemd_ctypes` submodule is checked out before running `pytest` from the
+source directory.
+
 It's also possible to manually build the bridge with `make cockpit-bridge.pyz`.
 You can copy the created file into the `$PATH` as `cockpit-bridge`.  It should
 then be possible to get a limited Cockpit session running (for example, by

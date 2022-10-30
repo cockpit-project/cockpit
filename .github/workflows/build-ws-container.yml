@@ -9,28 +9,15 @@ jobs:
     environment: quay.io
     permissions: {}
     timeout-minutes: 20
+    env:
+      RUNC: docker
 
     steps:
       - name: Clone repository
         uses: actions/checkout@v3
 
       - name: Log into container registry
-        run: docker login -u ${{ secrets.QUAY_BOTUSER }} -p ${{ secrets.QUAY_TOKEN }} quay.io
+        run: $RUNC login -u ${{ secrets.QUAY_BOTUSER }} -p ${{ secrets.QUAY_TOKEN }} quay.io
 
       - name: Build and push ws container
-        run: |
-          TAG=$(date +%Y-%m-%d)
-          docker build -t quay.io/cockpit/ws:$TAG containers/ws
-
-          # smoke test
-          docker run --name ws -p 9090:9090 -d quay.io/cockpit/ws:$TAG
-          until curl --fail --show-error -k --head https://localhost:9090; do
-              sleep 1
-          done
-          docker rm -f ws
-
-          docker tag quay.io/cockpit/ws:$TAG quay.io/cockpit/ws:latest
-
-          # push both tags
-          docker push quay.io/cockpit/ws:$TAG
-          docker push quay.io/cockpit/ws:latest
+        run: containers/ws/release.sh

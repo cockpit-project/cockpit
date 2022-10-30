@@ -12,11 +12,12 @@ TAG=$(date +%Y-%m-%d)
 $RUNC build -t quay.io/cockpit/ws:$TAG containers/ws
 
 # smoke test
-$RUNC run --name ws -p 9090:9090 -d quay.io/cockpit/ws:$TAG
-until curl --fail --show-error -k --head https://localhost:9090; do
+name=ws-release
+$RUNC run --name $name -p 19999:9090 -d quay.io/cockpit/ws:$TAG
+until curl --fail --show-error -k --head https://localhost:19999; do
     sleep 1
 done
-$RUNC rm -f ws
+$RUNC rm -f $name
 
 $RUNC tag quay.io/cockpit/ws:$TAG quay.io/cockpit/ws:latest
 

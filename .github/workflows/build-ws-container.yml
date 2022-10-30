@@ -1,5 +1,8 @@
 name: build-ws-container
 on:
+  # auto-refresh every Monday morning
+  schedule:
+    - cron: '0 2 * * 1'
   # can be run manually on https://github.com/cockpit-project/cockpit/actions
   workflow_dispatch:
 

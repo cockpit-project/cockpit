@@ -30,8 +30,5 @@ else
     $INSTALL "$ws" "$bridge"
 fi
 
-# HACK: fix for older cockpit-certificate-helper
-sed -i '/^COCKPIT_GROUP=/ s/=.*$/=/; s_/etc/machine-id_/dev/null_' /build/usr/libexec/cockpit-certificate-helper
-
 rm -rf /build/var/cache/dnf /build/var/lib/dnf /build/var/lib/rpm* /build/var/log/*
 rm -rf /container/rpms || true

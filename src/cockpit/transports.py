@@ -428,8 +428,10 @@ class Spooler:
 
     def __init__(self, loop: asyncio.AbstractEventLoop, fd: int) -> None:
         self._loop = loop
-        self._fd = os.dup(fd)
+        self._fd = -1  # in case dup() raises an exception
         self._contents = []
+
+        self._fd = os.dup(fd)
 
         os.set_blocking(self._fd, False)
         loop.add_reader(self._fd, self._read_ready)
@@ -455,6 +457,9 @@ class Spooler:
             self._read_ready()
 
         return b''.join(self._contents)
+
+    def is_closed(self) -> bool:
+        return self._fd == -1
 
     def close(self) -> None:
         if self._fd != -1:

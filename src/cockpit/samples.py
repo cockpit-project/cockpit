@@ -15,13 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import collections
 import os
-import os.path
-from typing import Any, Dict, List, NamedTuple, Optional
+
+from typing import Dict, List, NamedTuple, Optional, Union
 
 
 USER_HZ = os.sysconf(os.sysconf_names['SC_CLK_TCK'])
 MS_PER_JIFFY = 1000 / (USER_HZ if (USER_HZ > 0) else 100)
+
+Samples = collections.defaultdict[str, Union[float, Dict[str, Union[float, None]]]]
 
 
 class SampleDescription(NamedTuple):
@@ -34,7 +37,7 @@ class SampleDescription(NamedTuple):
 class Sampler:
     descriptions: List[SampleDescription]
 
-    def sample(self, samples):
+    def sample(self, samples: Samples) -> None:
         raise NotImplementedError
 
 
@@ -51,7 +54,7 @@ class CPUSampler(Sampler):
         SampleDescription('cpu.core.iowait', 'millisec', 'counter', True),
     ]
 
-    def sample(self, samples: Dict[str, Any]):
+    def sample(self, samples: Samples) -> None:
         with open('/proc/stat') as stat:
             for line in stat:
                 if not line.startswith('cpu'):
@@ -80,7 +83,7 @@ class MemorySampler(Sampler):
         SampleDescription('memory.swap-used', 'bytes', 'instant', False),
     ]
 
-    def sample(self, samples: Dict[str, Any]):
+    def sample(self, samples: Samples) -> None:
         with open('/proc/meminfo') as meminfo:
             items = {k: int(v.strip(' kB\n')) for line in meminfo for k, v in [line.split(':', 1)]}
 
@@ -98,7 +101,7 @@ class CPUTemperatureSampler(Sampler):
         SampleDescription('cpu.temperature', 'celsius', 'instant', True),
     ]
 
-    def detect_cpu_sensors(self, hwmonid: int, name: str):
+    def detect_cpu_sensors(self, hwmonid: int, name: str) -> None:
         for index in range(1, 2 ** 32):
             sensor_path = f'/sys/class/hwmon/hwmon{hwmonid}/temp{index}_input'
             if not os.path.exists(sensor_path):
@@ -119,7 +122,7 @@ class CPUTemperatureSampler(Sampler):
 
             self.sensors.append(sensor_path)
 
-    def sample(self, samples: Dict[str, Any]):
+    def sample(self, samples: Samples) -> None:
         cpu_names = ['coretemp', 'cpu_thermal', 'k8temp', 'k10temp', 'atk0110']
 
         if not self.sensors:
@@ -149,7 +152,7 @@ class DiskSampler(Sampler):
         SampleDescription('disk.dev.written', 'bytes', 'counter', True),
     ]
 
-    def sample(self, samples: Dict[str, Any]):
+    def sample(self, samples: Samples) -> None:
         with open('/proc/diskstats') as diskstats:
             all_read_bytes = 0
             all_written_bytes = 0
@@ -198,7 +201,7 @@ class CGroupSampler(Sampler):
     cgroups_v2: Optional[bool] = None
 
     @staticmethod
-    def read_cgroup_integer_stat(rootfd, statfile, include_zero=False, key=b''):
+    def read_cgroup_integer_stat(rootfd: int, statfile: str, include_zero: bool = False, key: bytes = b'') -> Optional[int]:
         # Not every stat is available, such as cpu.weight
         try:
             fd = os.open(statfile, os.O_RDONLY, dir_fd=rootfd)
@@ -227,7 +230,7 @@ class CGroupSampler(Sampler):
 
         return None
 
-    def sample(self, samples):
+    def sample(self, samples: Samples) -> None:
         if self.cgroups_v2 is None:
             self.cgroups_v2 = os.path.exists('/sys/fs/cgroup/cgroup.controllers')
 
@@ -279,7 +282,7 @@ class NetworkSampler(Sampler):
         SampleDescription('network.interface.rx', 'bytes', 'counter', True),
     ]
 
-    def sample(self, samples):
+    def sample(self, samples: Samples) -> None:
         with open("/proc/net/dev") as network_samples:
             for line in network_samples:
                 fields = line.split()
@@ -299,7 +302,7 @@ class MountSampler(Sampler):
         SampleDescription('mount.used', 'bytes', 'instant', True),
     ]
 
-    def sample(self, samples):
+    def sample(self, samples: Samples) -> None:
         with open('/proc/mounts') as mounts:
             for line in mounts:
                 # Only look at real devices
@@ -321,7 +324,7 @@ class BlockSampler(Sampler):
         SampleDescription('block.device.written', 'bytes', 'counter', True),
     ]
 
-    def sample(self, samples):
+    def sample(self, samples: Samples) -> None:
         with open('/proc/diskstats') as diskstats:
             for line in diskstats:
                 # https://www.kernel.org/doc/Documentation/ABI/testing/procfs-diskstats

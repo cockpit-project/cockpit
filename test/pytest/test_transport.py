@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import asyncio
+import contextlib
 import errno
 import os
 import signal
@@ -24,7 +25,7 @@ import subprocess
 import unittest
 import unittest.mock
 
-from typing import Optional
+from typing import Any, Optional, Tuple
 
 import cockpit.transports
 
@@ -37,6 +38,8 @@ class Protocol(cockpit.transports.SubprocessProtocol):
     exited: bool = False
     close_on_eof: bool = True
     eof: bool = False
+    exc: Optional[Exception] = None
+    output: Optional[list[bytes]] = None
 
     def connection_made(self, transport: asyncio.BaseTransport) -> None:
         assert isinstance(transport, asyncio.Transport)
@@ -44,8 +47,11 @@ class Protocol(cockpit.transports.SubprocessProtocol):
 
     def connection_lost(self, exc: Optional[Exception] = None) -> None:
         self.transport = None
+        self.exc = exc
 
     def data_received(self, data: bytes) -> None:
+        if self.output is not None:
+            self.output.append(data)
         self.received += len(data)
 
     def eof_received(self) -> bool:
@@ -74,6 +80,17 @@ class Protocol(cockpit.transports.SubprocessProtocol):
 
     def process_exited(self) -> None:
         self.exited = True
+
+    def get_output(self) -> bytes:
+        assert self.output is not None
+        return b''.join(self.output)
+
+    async def eof_and_exited_with_code(self, returncode) -> None:
+        transport = self.transport
+        assert isinstance(transport, cockpit.transports.SubprocessTransport)
+        while not self.exited or not self.eof:
+            await asyncio.sleep(0.1)
+        assert transport.get_returncode() == returncode
 
 
 class TestSocketTransport(unittest.IsolatedAsyncioTestCase):
@@ -105,6 +122,25 @@ class TestSocketTransport(unittest.IsolatedAsyncioTestCase):
         assert self.reader.transport.is_reading()
         while self.reader.transport is not None:
             await asyncio.sleep(0.1)
+
+    async def test_flow_control(self) -> None:
+        self.writer.write(b'abcd')
+        assert self.reader.transport is not None
+        self.reader.transport.pause_reading()
+        await asyncio.sleep(0.1)
+        self.reader.transport.resume_reading()
+        while self.reader.received < 4:
+            await asyncio.sleep(0.1)
+        assert self.writer.transport is not None
+        self.writer.transport.write_eof()
+        self.reader.close_on_eof = False
+        while not self.reader.eof:
+            await asyncio.sleep(0.1)
+        assert not self.reader.transport.is_reading()
+        self.reader.transport.pause_reading()  # no-op
+        assert not self.reader.transport.is_reading()
+        self.reader.transport.resume_reading()  # no-op
+        assert not self.reader.transport.is_reading()
 
     async def test_simple_eof(self) -> None:
         self.writer.write(b'abcd')
@@ -256,6 +292,35 @@ class TestEpollLimitations(unittest.IsolatedAsyncioTestCase):
         await self.spool_file('/dev/null')
 
 
+class TestStdio(unittest.IsolatedAsyncioTestCase):
+    @contextlib.contextmanager
+    def create_terminal(self):
+        ours, theirs = os.openpty()
+        stdin = os.dup(theirs)
+        stdout = os.dup(theirs)
+        os.close(theirs)
+        loop = asyncio.get_running_loop()
+        protocol = Protocol()
+        yield ours, protocol, cockpit.transports.StdioTransport(loop, protocol, stdin=stdin, stdout=stdout)
+        os.close(stdin)
+        os.close(stdout)
+
+    async def test_terminal_write_eof(self):
+        # Make sure write_eof() fails
+        with self.create_terminal() as (ours, protocol, transport):
+            assert not transport.can_write_eof()
+            with self.assertRaises(RuntimeError):
+                transport.write_eof()
+            os.close(ours)
+
+    async def test_terminal_disconnect(self):
+        # Make sure disconnecting the session shows up as an EOF
+        with self.create_terminal() as (ours, protocol, transport):
+            os.close(ours)
+            while not protocol.eof:
+                await asyncio.sleep(0.1)
+
+
 class TestSubprocessTransport(unittest.IsolatedAsyncioTestCase):
     def tearDown(self) -> None:
         # SubprocessTransport caches the child watcher, assuming that the
@@ -263,69 +328,131 @@ class TestSubprocessTransport(unittest.IsolatedAsyncioTestCase):
         # test-case, leading to trouble.  Clear the cache between runs.
         cockpit.transports.SubprocessTransport._watcher = None
 
-    async def test_true(self) -> None:
+    def subprocess(self, args, **kwargs: Any) -> Tuple[Protocol, cockpit.transports.SubprocessTransport]:
         loop = asyncio.get_running_loop()
         protocol = Protocol()
-        transport = cockpit.transports.SubprocessTransport(loop, protocol, ['true'])
+        transport = cockpit.transports.SubprocessTransport(loop, protocol, args, **kwargs)
         assert transport._protocol == protocol
         assert protocol.transport == transport
-        while protocol.transport or not protocol.exited:
-            await asyncio.sleep(0.1)
-        assert transport.get_returncode() == 0
+        return protocol, transport
+
+    async def test_true(self) -> None:
+        protocol, transport = self.subprocess(['true'])
+        await protocol.eof_and_exited_with_code(0)
+        assert transport.get_stderr() is None
 
     async def test_cat(self) -> None:
-        loop = asyncio.get_running_loop()
-        protocol = Protocol()
+        protocol, transport = self.subprocess(['cat'])
         protocol.close_on_eof = False
-        transport = cockpit.transports.SubprocessTransport(loop, protocol, ['cat'])
-        assert transport._protocol == protocol
-        assert protocol.transport == transport
         protocol.write_a_lot()
+        assert transport.can_write_eof()
         transport.write_eof()
-        while protocol.eof is False or protocol.exited is False:
-            await asyncio.sleep(0.1)
-        assert protocol.exited
+        await protocol.eof_and_exited_with_code(0)
         assert protocol.transport is not None  # should not have automatically closed
         assert transport.get_returncode() == 0
         assert protocol.sent == protocol.received
         transport.close()
         assert protocol.transport is None
 
-    async def test_signals(self) -> None:
-        loop = asyncio.get_running_loop()
-        protocol = Protocol()
-        transport = cockpit.transports.SubprocessTransport(loop, protocol, ['cat'])
-        transport.kill()
-        while protocol.eof is False or protocol.exited is False:
-            await asyncio.sleep(0.1)
-        assert transport.get_returncode() == -signal.SIGKILL
+    async def test_send_signal(self) -> None:
+        protocol, transport = self.subprocess(['cat'])
+        transport.send_signal(signal.SIGINT)
+        await protocol.eof_and_exited_with_code(-signal.SIGINT)
 
-        protocol = Protocol()
-        transport = cockpit.transports.SubprocessTransport(loop, protocol, ['cat'])
-        transport.send_signal(signal.SIGTERM)
-        while protocol.eof is False or protocol.exited is False:
-            await asyncio.sleep(0.1)
-        assert transport.get_returncode() == -signal.SIGTERM
+    async def test_pid(self) -> None:
+        protocol, transport = self.subprocess(['sh', '-c', 'echo $$'])
+        protocol.output = []
+        await protocol.eof_and_exited_with_code(0)
+        assert int(protocol.get_output()) == transport.get_pid()
+
+    async def test_terminate(self) -> None:
+        protocol, transport = self.subprocess(['cat'])
+        transport.kill()
+        await protocol.eof_and_exited_with_code(-signal.SIGKILL)
+
+        protocol, transport = self.subprocess(['cat'])
+        transport.terminate()
+        await protocol.eof_and_exited_with_code(-signal.SIGTERM)
 
     async def test_stderr(self) -> None:
         loop = asyncio.get_running_loop()
         protocol = Protocol()
         transport = cockpit.transports.SubprocessTransport(loop, protocol, ['cat', '/nonexistent'],
                                                            stderr=subprocess.PIPE)
-        while protocol.eof is False or protocol.exited is False:
-            await asyncio.sleep(0.1)
-        assert transport.get_returncode() != 0
+        await protocol.eof_and_exited_with_code(1)
         assert protocol.received == protocol.sent == 0
         assert b'/nonexistent' in transport.get_stderr()
 
-    async def test_safe_watcher(self) -> None:
+    async def test_safe_watcher_ENOSYS(self) -> None:
+        with unittest.mock.patch('asyncio.PidfdChildWatcher', unittest.mock.Mock(side_effect=OSError)):
+            protocol, transport = self.subprocess(['true'])
+            assert isinstance(transport._watcher, asyncio.SafeChildWatcher)
+            await protocol.eof_and_exited_with_code(0)
+        assert isinstance(asyncio.PidfdChildWatcher, type)
+
+    async def test_safe_watcher_oldpy(self) -> None:
         with unittest.mock.patch('asyncio.PidfdChildWatcher'):
             del asyncio.PidfdChildWatcher
-            assert not hasattr(asyncio, 'PidfdChildWatcher')
-            loop = asyncio.get_running_loop()
-            protocol = Protocol()
-            transport = cockpit.transports.SubprocessTransport(loop, protocol, ['true'])
-            while protocol.transport or not protocol.exited:
-                await asyncio.sleep(0.1)
-            assert transport.get_returncode() == 0
-        assert hasattr(asyncio, 'PidfdChildWatcher')
+            protocol, transport = self.subprocess(['true'])
+            assert isinstance(transport._watcher, asyncio.SafeChildWatcher)
+            await protocol.eof_and_exited_with_code(0)
+        assert isinstance(asyncio.PidfdChildWatcher, type)
+
+    async def test_true_pty(self) -> None:
+        loop = asyncio.get_running_loop()
+        protocol = Protocol()
+        transport = cockpit.transports.SubprocessTransport(loop, protocol, ['true'], pty=True)
+        assert not transport.can_write_eof()
+        while protocol.eof is False or protocol.exited is False:
+            await asyncio.sleep(0.1)
+        assert transport.get_returncode() == 0
+        assert protocol.received == protocol.sent == 0
+
+    async def test_broken_pipe(self) -> None:
+        loop = asyncio.get_running_loop()
+        protocol = Protocol()
+        transport = cockpit.transports.SubprocessTransport(loop, protocol, ['true'])
+        protocol.close_on_eof = False
+        while not protocol.exited:
+            await asyncio.sleep(0.1)
+
+        assert protocol.transport is transport  # should not close on EOF
+
+        # Now let's write to the stdin with the other side closed.
+        # This should be enough to immediately disconnect us (EPIPE)
+        protocol.write(b'abc')
+        assert protocol.transport is None
+        assert isinstance(protocol.exc, BrokenPipeError)
+
+    async def test_broken_pipe_backlog(self) -> None:
+        loop = asyncio.get_running_loop()
+        protocol = Protocol()
+        transport = cockpit.transports.SubprocessTransport(loop, protocol, ['cat'])
+        protocol.close_on_eof = False
+
+        # Since we're not reading, cat's stdout will back up and it will be
+        # forced to stop reading at some point.  We'll still have a rather full
+        # write buffer.
+        protocol.write_a_lot()
+
+        # This will result in the stdin closing.  Our next attempt to write to
+        # the buffer should end badly (EPIPE).
+        transport.kill()
+
+        while protocol.transport:
+            await asyncio.sleep(0.1)
+
+        assert protocol.transport is None
+        assert isinstance(protocol.exc, BrokenPipeError)
+
+    async def test_window_size(self) -> None:
+        protocol, transport = self.subprocess(['bash', '-ic', 'while true; do sleep 0.1; echo ${LINES}x${COLUMNS}; done'],
+                                              pty=True,
+                                              window={"rows": 22, "cols": 33})
+        protocol.output = []
+        while b'22x33\r\n' not in protocol.get_output():
+            await asyncio.sleep(0.1)
+
+        transport.set_window_size(44, 55)
+        while b'44x55\r\n' not in protocol.get_output():
+            await asyncio.sleep(0.1)

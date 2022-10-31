@@ -404,8 +404,8 @@ class StdioTransport(_Transport):
         - sockets
     """
 
-    def __init__(self, loop: asyncio.AbstractEventLoop, protocol: asyncio.Protocol):
-        super().__init__(loop, protocol, 0, 1)
+    def __init__(self, loop: asyncio.AbstractEventLoop, protocol: asyncio.Protocol, stdin: int = 0, stdout: int = 1):
+        super().__init__(loop, protocol, stdin, stdout)
 
     def can_write_eof(self) -> bool:
         return False

@@ -83,9 +83,9 @@ class _Transport(asyncio.Transport):
         except IOError:
             # PTY devices return EIO to mean "EOF"
             if not self._eio_is_eof:
-                raise
+                raise  # pragma: no cover
             data = b''
-        except BlockingIOError:
+        except BlockingIOError:  # pragma: no cover
             return
 
         if data != b'':
@@ -157,7 +157,7 @@ class _Transport(asyncio.Transport):
 
         try:
             n_bytes = os.writev(self._out_fd, self._queue)
-        except BlockingIOError:
+        except BlockingIOError:  # pragma: no cover
             n_bytes = 0
         except BrokenPipeError:
             self.abort()
@@ -228,8 +228,7 @@ class _Transport(asyncio.Transport):
         return self._closing
 
     def set_protocol(self, protocol: asyncio.BaseProtocol) -> None:
-        assert isinstance(protocol, asyncio.Protocol)
-        self._protocol = protocol
+        raise NotImplementedError
 
     def __del__(self) -> None:
         self._close()
@@ -346,9 +345,9 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
         return self._process.stdin is not None
 
     def _write_eof_now(self) -> None:
-        if self._process.stdin is not None:
-            self._process.stdin.close()
-            self._out_fd = -1
+        assert self._process.stdin is not None
+        self._process.stdin.close()
+        self._out_fd = -1
 
     def get_pid(self) -> int:
         return self._process.pid
@@ -439,7 +438,7 @@ class Spooler:
     def _read_ready(self) -> None:
         try:
             data = os.read(self._fd, 8192)
-        except BlockingIOError:
+        except BlockingIOError:  # pragma: no cover
             return
 
         if data != b'':

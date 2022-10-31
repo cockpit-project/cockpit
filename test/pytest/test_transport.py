@@ -16,7 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import asyncio
+import signal
 import socket
+import subprocess
 import unittest
 
 from typing import Optional
@@ -24,11 +26,14 @@ from typing import Optional
 import cockpit.transports
 
 
-class Protocol(asyncio.Protocol):
+class Protocol(cockpit.transports.SubprocessProtocol):
     transport: Optional[asyncio.Transport] = None
     paused: bool = False
     sent: int = 0
     received: int = 0
+    exited: bool = False
+    close_on_eof: bool = True
+    eof: bool = False
 
     def connection_made(self, transport: asyncio.BaseTransport) -> None:
         assert isinstance(transport, asyncio.Transport)
@@ -41,7 +46,8 @@ class Protocol(asyncio.Protocol):
         self.received += len(data)
 
     def eof_received(self) -> bool:
-        return False
+        self.eof = True
+        return not self.close_on_eof
 
     def pause_writing(self) -> None:
         self.paused = True
@@ -62,6 +68,9 @@ class Protocol(asyncio.Protocol):
         for _ in range(20):
             self.write(b'b' * 1024 * 1024)
         assert self.transport.get_write_buffer_size() > 20 * 1024 * 1024
+
+    def process_exited(self) -> None:
+        self.exited = True
 
 
 class TestSocketTransport(unittest.IsolatedAsyncioTestCase):
@@ -146,3 +155,66 @@ class TestSocketTransport(unittest.IsolatedAsyncioTestCase):
         assert self.writer.transport.is_closing()
         await self.read_to_end()
         assert self.reader.transport is None
+
+
+class TestSubprocessTransport(unittest.IsolatedAsyncioTestCase):
+    def tearDown(self) -> None:
+        # SubprocessTransport caches the child watcher, assuming that the
+        # mainloop will change, but pytest produces a separate mainloop per
+        # test-case, leading to trouble.  Clear the cache between runs.
+        cockpit.transports.SubprocessTransport._watcher = None
+
+    async def test_true(self) -> None:
+        loop = asyncio.get_running_loop()
+        protocol = Protocol()
+        transport = cockpit.transports.SubprocessTransport(loop, protocol, ['true'])
+        assert transport._protocol == protocol
+        assert protocol.transport == transport
+        while protocol.transport or not protocol.exited:
+            await asyncio.sleep(0.1)
+        assert transport.get_returncode() == 0
+
+    async def test_cat(self) -> None:
+        loop = asyncio.get_running_loop()
+        protocol = Protocol()
+        protocol.close_on_eof = False
+        transport = cockpit.transports.SubprocessTransport(loop, protocol, ['cat'])
+        assert transport._protocol == protocol
+        assert protocol.transport == transport
+        protocol.write_a_lot()
+        transport.write_eof()
+        while protocol.eof is False or protocol.exited is False:
+            await asyncio.sleep(0.1)
+        assert protocol.exited
+        assert protocol.transport is not None  # should not have automatically closed
+        assert transport.get_returncode() == 0
+        assert protocol.sent == protocol.received
+        transport.close()
+        assert protocol.transport is None
+
+    async def test_signals(self) -> None:
+        loop = asyncio.get_running_loop()
+        protocol = Protocol()
+        transport = cockpit.transports.SubprocessTransport(loop, protocol, ['cat'])
+        transport.kill()
+        while protocol.eof is False or protocol.exited is False:
+            await asyncio.sleep(0.1)
+        assert transport.get_returncode() == -signal.SIGKILL
+
+        protocol = Protocol()
+        transport = cockpit.transports.SubprocessTransport(loop, protocol, ['cat'])
+        transport.send_signal(signal.SIGTERM)
+        while protocol.eof is False or protocol.exited is False:
+            await asyncio.sleep(0.1)
+        assert transport.get_returncode() == -signal.SIGTERM
+
+    async def test_stderr(self) -> None:
+        loop = asyncio.get_running_loop()
+        protocol = Protocol()
+        transport = cockpit.transports.SubprocessTransport(loop, protocol, ['cat', '/nonexistent'],
+                                                           stderr=subprocess.PIPE)
+        while protocol.eof is False or protocol.exited is False:
+            await asyncio.sleep(0.1)
+        assert transport.get_returncode() != 0
+        assert protocol.received == protocol.sent == 0
+        assert b'/nonexistent' in transport.get_stderr()

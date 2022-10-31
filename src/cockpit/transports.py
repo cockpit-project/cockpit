@@ -334,9 +334,9 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
         else:
             self._stderr = None
 
-        self._get_watcher().add_child_handler(self._process.pid, self._exited)
-
         super().__init__(loop, protocol, in_fd, out_fd)
+
+        self._get_watcher().add_child_handler(self._process.pid, self._exited)
 
     def set_window_size(self, rows: int, cols: int) -> None:
         assert self._pty_fd is not None

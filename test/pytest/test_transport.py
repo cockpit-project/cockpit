@@ -20,6 +20,7 @@ import signal
 import socket
 import subprocess
 import unittest
+import unittest.mock
 
 from typing import Optional
 
@@ -218,3 +219,15 @@ class TestSubprocessTransport(unittest.IsolatedAsyncioTestCase):
         assert transport.get_returncode() != 0
         assert protocol.received == protocol.sent == 0
         assert b'/nonexistent' in transport.get_stderr()
+
+    async def test_safe_watcher(self) -> None:
+        with unittest.mock.patch('asyncio.PidfdChildWatcher'):
+            del asyncio.PidfdChildWatcher
+            assert not hasattr(asyncio, 'PidfdChildWatcher')
+            loop = asyncio.get_running_loop()
+            protocol = Protocol()
+            transport = cockpit.transports.SubprocessTransport(loop, protocol, ['true'])
+            while protocol.transport or not protocol.exited:
+                await asyncio.sleep(0.1)
+            assert transport.get_returncode() == 0
+        assert hasattr(asyncio, 'PidfdChildWatcher')

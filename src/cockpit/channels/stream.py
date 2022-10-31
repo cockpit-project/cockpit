@@ -52,7 +52,7 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
         assert isinstance(self._transport, SubprocessTransport)
         args: Dict[str, object] = {'exit-status': self._transport.get_returncode()}
         stderr = self._transport.get_stderr()
-        if stderr:
+        if stderr is not None:
             args['message'] = stderr.decode('utf-8')
         return args
 

@@ -278,11 +278,11 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
             cls._watcher.attach_loop(asyncio.get_running_loop())
         return cls._watcher
 
-    def get_stderr(self) -> bytes:
+    def get_stderr(self) -> Optional[bytes]:
         if self._stderr is not None:
             return self._stderr.get()
         else:
-            return b''
+            return None
 
     def _exited(self, pid: int, code: int) -> None:
         # NB: per AbstractChildWatcher API, this handler should be thread-safe,

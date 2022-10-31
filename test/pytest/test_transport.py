@@ -16,6 +16,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import asyncio
+import errno
+import os
 import signal
 import socket
 import subprocess
@@ -156,6 +158,102 @@ class TestSocketTransport(unittest.IsolatedAsyncioTestCase):
         assert self.writer.transport.is_closing()
         await self.read_to_end()
         assert self.reader.transport is None
+
+
+class TestSpooler(unittest.IsolatedAsyncioTestCase):
+    async def bad_fd(self) -> None:
+        # Make sure failing to construct succeeds without further failures
+        loop = asyncio.get_running_loop()
+        try:
+            cockpit.transports.Spooler(loop, -1)
+        except OSError as exc:
+            assert exc.errno == errno.EBADF
+
+    def create_spooler(self, to_write: bytes = b'') -> cockpit.transports.Spooler:
+        loop = asyncio.get_running_loop()
+        reader, writer = os.pipe()
+        try:
+            spooler = cockpit.transports.Spooler(loop, reader)
+        finally:
+            os.close(reader)
+        try:
+            os.write(writer, to_write)
+        finally:
+            os.close(writer)
+        return spooler
+
+    async def test_poll_eof(self) -> None:
+        spooler = self.create_spooler()
+        while not spooler.is_closed():
+            await asyncio.sleep(0.1)
+        assert spooler.get() == b''
+
+    async def test_nopoll_eof(self) -> None:
+        spooler = self.create_spooler()
+        assert spooler.get() == b''
+        assert spooler.is_closed()
+
+    async def test_poll_small(self) -> None:
+        spooler = self.create_spooler(b'abcd')
+        while not spooler.is_closed():
+            await asyncio.sleep(0.1)
+        assert spooler.get() == b'abcd'
+
+    async def test_nopoll_small(self) -> None:
+        spooler = self.create_spooler(b'abcd')
+        assert spooler.get() == b'abcd'
+        assert spooler.is_closed()
+
+    async def test_big(self) -> None:
+        loop = asyncio.get_running_loop()
+        reader, writer = os.pipe()
+        try:
+            spooler = cockpit.transports.Spooler(loop, reader)
+        finally:
+            os.close(reader)
+
+        try:
+            os.set_blocking(writer, False)
+            written = 0
+            blob = b'a' * 64 * 1024  # NB: pipe buffer is 64k
+            while written < 1024 * 1024:
+                # Note: we should never get BlockingIOError here since we always
+                # give the reader a chance to drain the pipe.
+                written += os.write(writer, blob)
+                while len(spooler.get()) < written:
+                    await asyncio.sleep(0.01)
+
+            assert not spooler.is_closed()
+        finally:
+            os.close(writer)
+
+        await asyncio.sleep(0.1)
+        assert spooler.is_closed()
+
+        assert len(spooler.get()) == written
+
+
+class TestEpollLimitations(unittest.IsolatedAsyncioTestCase):
+    # https://github.com/python/cpython/issues/73903
+    #
+    # There are some types of files that epoll doesn't work with, returning
+    # EPERM.  We might be in a situation where we receive one of those on
+    # stdin/stdout for AsyncioTransport, so we'd theoretically like to support
+    # them.
+    async def spool_file(self, filename: str) -> None:
+        loop = asyncio.get_running_loop()
+        with open(filename) as fp:
+            spooler = cockpit.transports.Spooler(loop, fp.fileno())
+        while not spooler.is_closed():
+            await asyncio.sleep(0.1)
+
+    @unittest.expectedFailure
+    async def test_read_file(self) -> None:
+        await self.spool_file(__file__)
+
+    @unittest.expectedFailure
+    async def test_dev_null(self) -> None:
+        await self.spool_file('/dev/null')
 
 
 class TestSubprocessTransport(unittest.IsolatedAsyncioTestCase):

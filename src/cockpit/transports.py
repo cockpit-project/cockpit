@@ -121,11 +121,11 @@ class _Transport(asyncio.Transport):
     def _close(self) -> None:
         pass
 
-    def abort(self) -> None:
+    def abort(self, exc: Optional[Exception] = None) -> None:
         self._closing = True
         self._close_reader()
         self._remove_write_queue()
-        self._protocol.connection_lost(None)
+        self._protocol.connection_lost(exc)
         self._close()
 
     def can_write_eof(self) -> bool:
@@ -159,8 +159,8 @@ class _Transport(asyncio.Transport):
             n_bytes = os.writev(self._out_fd, self._queue)
         except BlockingIOError:  # pragma: no cover
             n_bytes = 0
-        except BrokenPipeError:
-            self.abort()
+        except BrokenPipeError as exc:
+            self.abort(exc)
             return
 
         while n_bytes:
@@ -201,8 +201,8 @@ class _Transport(asyncio.Transport):
             n_bytes = os.write(self._out_fd, data)
         except BlockingIOError:
             n_bytes = 0
-        except BrokenPipeError:
-            self.abort()
+        except BrokenPipeError as exc:
+            self.abort(exc)
             return
 
         if n_bytes != len(data):

@@ -306,7 +306,7 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
                  args: list[str],
                  pty: bool = False,
                  window: Optional[Dict[str, int]] = None,
-                 **kwargs: Any) -> None:
+                 **kwargs: Any):
         if pty:
             self._pty_fd, session_fd = os.openpty()
 
@@ -425,7 +425,7 @@ class Spooler:
     _fd: int
     _contents: list[bytes]
 
-    def __init__(self, loop: asyncio.AbstractEventLoop, fd: int) -> None:
+    def __init__(self, loop: asyncio.AbstractEventLoop, fd: int):
         self._loop = loop
         self._fd = -1  # in case dup() raises an exception
         self._contents = []

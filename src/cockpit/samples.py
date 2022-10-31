@@ -163,7 +163,7 @@ class DiskSampler(Sampler):
                 [dev_major, _, dev_name, _, num_reads_merged, num_sectors_read, _, _, num_writes_merged, num_sectors_written, *_] = line.strip().split()
 
                 # ignore device-mapper and md
-                if (dev_major == 253 or dev_major == 9):
+                if dev_major in ['9', '253']:
                     continue
 
                 # Skip partitions

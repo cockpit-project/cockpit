@@ -14,6 +14,8 @@ disable = [
 ]
 
 [tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["test/pytest"]
 log_cli = true
 
 [tool.coverage.paths]
@@ -38,7 +40,7 @@ envlist = site
 deps=
   pytest-cov
 commands =
-  python3 -m pytest --cov {posargs}
+  python3 -m pytest -opythonpath= --cov {posargs}
 
 [testenv:site]
 sitepackages = true

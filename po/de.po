@@ -22,7 +22,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-25 03:40+0000\n"
+"POT-Creation-Date: 2022-10-30 03:28+0000\n"
 "PO-Revision-Date: 2022-09-04 02:19+0000\n"
 "Last-Translator: Robert Klein <nutzername@irgendein.host>\n"
 "Language-Team: German <https://translate.fedoraproject.org/projects/cockpit/"
@@ -33,6 +33,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1\n"
 "X-Generator: Weblate 4.14\n"
+
+#: pkg/static/login.html:66
+msgid "            Bypass browser check          "
+msgstr ""
 
 #: pkg/storaged/content-views.jsx:502
 msgid "$0 (encrypted)"
@@ -116,7 +120,7 @@ msgstr "$0 Datenträger"
 msgid "$0 documentation"
 msgstr "$0 Dokumentation"
 
-#: pkg/static/login.js:385 pkg/static/login.js:890
+#: pkg/static/login.js:409 pkg/static/login.js:914
 msgid "$0 error"
 msgstr "$0 Error"
 
@@ -181,7 +185,7 @@ msgstr "$0 verwendet"
 msgid "$0 is not available from any repository."
 msgstr "$0 ist in keinem Repository verfügbar."
 
-#: pkg/static/login.js:712 pkg/shell/hosts_dialog.jsx:450
+#: pkg/static/login.js:736 pkg/shell/hosts_dialog.jsx:450
 msgid "$0 key changed"
 msgstr "$0 Schlüssel geändert"
 
@@ -223,7 +227,7 @@ msgid_plural "$0 packages"
 msgstr[0] "$0 Paket"
 msgstr[1] "$0 Pakete"
 
-#: pkg/packagekit/updates.jsx:709 pkg/packagekit/updates.jsx:824
+#: pkg/packagekit/updates.jsx:713 pkg/packagekit/updates.jsx:828
 msgid "$0 package needs a system reboot"
 msgid_plural "$0 packages need a system reboot"
 msgstr[0] "$0 Paket benötigt einen Systemneustart"
@@ -235,7 +239,7 @@ msgid_plural "$0 pages"
 msgstr[0] "$0 Seite"
 msgstr[1] "$0 Seiten"
 
-#: pkg/packagekit/updates.jsx:796
+#: pkg/packagekit/updates.jsx:800
 msgid "$0 security fix available"
 msgid_plural "$0 security fixes available"
 msgstr[0] "$0 Sicherheitsupdate verfügbar"
@@ -247,7 +251,7 @@ msgid_plural "$0 services have failed"
 msgstr[0] "$0 Dienst ist fehlerhaft"
 msgstr[1] "$0 Dienste sind fehlerhaft"
 
-#: pkg/packagekit/updates.jsx:726 pkg/packagekit/updates.jsx:836
+#: pkg/packagekit/updates.jsx:730 pkg/packagekit/updates.jsx:840
 msgid "$0 service needs to be restarted"
 msgid_plural "$0 services need to be restarted"
 msgstr[0] "$0 Dienst muss neu gestartet werden"
@@ -264,7 +268,7 @@ msgstr[1] "$0 Slots verbleibend"
 msgid "$0 total"
 msgstr "$0 gesamt"
 
-#: pkg/packagekit/updates.jsx:804
+#: pkg/packagekit/updates.jsx:808
 msgid "$0 update available"
 msgid_plural "$0 updates available"
 msgstr[0] "$0 Aktualisierung verfügbar"
@@ -310,7 +314,7 @@ msgstr "$name (von $host)"
 msgid "(recommended)"
 msgstr "(empfohlen)"
 
-#: pkg/packagekit/updates.jsx:806
+#: pkg/packagekit/updates.jsx:810
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
 msgstr[0] ", einschließlich $1 Sicherheitsupdate"
@@ -541,7 +545,7 @@ msgstr "Eine kompatible Version von Cockpit ist auf $0 nicht installiert."
 msgid "A filesystem with this name exists already in this pool."
 msgstr "Ein Dateisystem mit diesem Namen existiert bereits in diesem Pool."
 
-#: pkg/static/login.html:133
+#: pkg/static/login.html:44
 msgid ""
 "A modern browser is required for security, reliability, and performance."
 msgstr ""
@@ -564,7 +568,7 @@ msgstr ""
 "Ein neuer SSH-Schlüssel unter $0 wird für $1 auf $2 erstellt und zur Datei "
 "$3 von $4 auf $5 hinzugefügt."
 
-#: pkg/packagekit/updates.jsx:1521
+#: pkg/packagekit/updates.jsx:1525
 msgid "A package needs a system reboot for the updates to take effect:"
 msgid_plural ""
 "Some packages need a system reboot for the updates to take effect:"
@@ -579,7 +583,7 @@ msgstr[1] ""
 msgid "A pool with this name exists already."
 msgstr "Ein Pool mit diesem Namen existiert bereits."
 
-#: pkg/packagekit/updates.jsx:1525
+#: pkg/packagekit/updates.jsx:1529
 msgid "A service needs to be restarted for the updates to take effect:"
 msgid_plural ""
 "Some services need to be restarted for the updates to take effect:"
@@ -620,7 +624,7 @@ msgstr "Abwesend"
 msgid "Accept key and connect"
 msgstr "Schlüssel akzeptieren und verbinden"
 
-#: pkg/static/login.js:621
+#: pkg/static/login.js:645
 msgid "Accept key and log in"
 msgstr "Schlüssel akzeptieren und anmelden"
 
@@ -1048,11 +1052,11 @@ msgstr "Authentifiziere"
 msgid "Authentication"
 msgstr "Authentifizierung"
 
-#: pkg/static/login.js:880
+#: pkg/static/login.js:904
 msgid "Authentication failed"
 msgstr "Authentifizierung fehlgeschlagen"
 
-#: pkg/static/login.js:870
+#: pkg/static/login.js:894
 msgid "Authentication failed: Server closed connection"
 msgstr "Authentifizierung fehlgeschlagen: Server geschlossene Verbindung"
 
@@ -1118,7 +1122,7 @@ msgstr "Automatisierungs-Skript"
 msgid "Available targets on $0"
 msgstr "Verfügbare Ziele am $0"
 
-#: pkg/packagekit/updates.jsx:433 pkg/packagekit/updates.jsx:933
+#: pkg/packagekit/updates.jsx:437 pkg/packagekit/updates.jsx:937
 msgid "Available updates"
 msgstr "Verfügbare Updates"
 
@@ -1245,12 +1249,12 @@ msgstr "Broadcast"
 msgid "Broken configuration"
 msgstr "Fehlerhafte Konfiguration"
 
-#: pkg/packagekit/updates.jsx:1431
+#: pkg/packagekit/updates.jsx:1435
 msgid "Bug fix updates available"
 msgstr "Bug Fix Updates verfügbar"
 
 # ctx::sourcefile::/rhn/errata/manage/Create.do
-#: pkg/packagekit/updates.jsx:375
+#: pkg/packagekit/updates.jsx:379
 msgid "Bugs"
 msgstr "Fehlermeldungen"
 
@@ -1289,7 +1293,7 @@ msgstr "CPU-Lastspitze"
 msgid "CPU usage"
 msgstr "Prozessor-Auslastung"
 
-#: pkg/packagekit/updates.jsx:357
+#: pkg/packagekit/updates.jsx:361
 msgid "CVE"
 msgstr "CVE"
 
@@ -1308,7 +1312,7 @@ msgstr ""
 "Es konnten keine Logeinträge für die aktuellen Filtereinstellungen gefunden "
 "werden"
 
-#: pkg/static/login.html:117 pkg/playground/translate.html:39
+#: pkg/static/login.html:148 pkg/playground/translate.html:39
 #: pkg/systemd/hwinfo.jsx:242 pkg/systemd/overview-cards/realmd.jsx:419
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:180
 #: pkg/systemd/overview-cards/configurationCard.jsx:280
@@ -1328,8 +1332,8 @@ msgstr ""
 #: pkg/shell/shell-modals.jsx:114 pkg/shell/superuser.jsx:176
 #: pkg/shell/superuser.jsx:214 pkg/shell/superuser.jsx:260
 #: pkg/shell/credentials.jsx:316 pkg/packagekit/kpatch.jsx:311
-#: pkg/packagekit/autoupdates.jsx:274 pkg/packagekit/updates.jsx:529
-#: pkg/packagekit/updates.jsx:587 pkg/tuned/dialog.jsx:311
+#: pkg/packagekit/autoupdates.jsx:274 pkg/packagekit/updates.jsx:533
+#: pkg/packagekit/updates.jsx:591 pkg/tuned/dialog.jsx:311
 msgid "Cancel"
 msgstr "Abbrechen"
 
@@ -1420,7 +1424,7 @@ msgstr "Passwort von $0 ändern"
 msgid "Change the settings"
 msgstr "Bridge Port-Einstellungen"
 
-#: pkg/static/login.html:57 pkg/shell/hosts_dialog.jsx:458
+#: pkg/static/login.html:88 pkg/shell/hosts_dialog.jsx:458
 msgid ""
 "Changed keys are often the result of an operating system reinstallation. "
 "However, an unexpected change may indicate a third-party attempt to "
@@ -1438,7 +1442,7 @@ msgstr ""
 "Das Ändern der Einstellungen wird die Verbindung zum Server unterbrechen und "
 "damit den Zugriff auf die Benutzeroberfläche unmöglich machen."
 
-#: pkg/packagekit/updates.jsx:915
+#: pkg/packagekit/updates.jsx:919
 msgid "Check for updates"
 msgstr "Auf Aktualisierungen prüfen"
 
@@ -1462,7 +1466,7 @@ msgstr "RAID-Gerät $target wird überprüft und repariert"
 msgid "Checking for new applications"
 msgstr "Auf neue Anwendungen wird geprüft"
 
-#: pkg/packagekit/updates.jsx:1383
+#: pkg/packagekit/updates.jsx:1387
 msgid "Checking for package updates..."
 msgstr "Auf Paketaktualisierungen wird geprüft..."
 
@@ -1475,7 +1479,7 @@ msgstr "Installierte Software wird überprüft"
 msgid "Checking related processes"
 msgstr "Überprüfen abhängiger Prozesse"
 
-#: pkg/packagekit/updates.jsx:1393
+#: pkg/packagekit/updates.jsx:1397
 msgid "Checking software status"
 msgstr "Software-Status wird überprüft"
 
@@ -1534,7 +1538,7 @@ msgstr "Ausgewählte Seiten schließen"
 msgid "Cockpit"
 msgstr "Cockpit"
 
-#: pkg/static/login.js:405
+#: pkg/static/login.js:429
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "Die Cockpit-Authentifizierung ist falsch konfiguriert."
 
@@ -1590,6 +1594,10 @@ msgstr ""
 "Analyse oder das Starten und Stoppen von Diensten durchzuführen. Sie können "
 "gleichzeitig mehrere Server überwachen und verwalten. Fügen Sie weitere "
 "Maschinen mit einem Klick hinzu und Ihre Maschinen schauen zu ihren Kumpels."
+
+#: pkg/static/login.js:183
+msgid "Cockpit might not render correctly in your browser"
+msgstr ""
 
 #: pkg/metrics/metrics.jsx:1289
 msgid "Collect metrics"
@@ -1719,11 +1727,11 @@ msgstr "Konflikte"
 msgid "Connect automatically"
 msgstr "Verbindung automatisch herstellen"
 
-#: pkg/static/login.html:103
+#: pkg/static/login.html:134
 msgid "Connect to"
 msgstr "Verbinden zu"
 
-#: pkg/static/login.js:613
+#: pkg/static/login.js:637
 msgid "Connect to:"
 msgstr "Verbinden mit:"
 
@@ -1775,7 +1783,7 @@ msgstr "Enthält:"
 msgid "Content"
 msgstr "Inhalt"
 
-#: pkg/packagekit/updates.jsx:770
+#: pkg/packagekit/updates.jsx:774
 msgid "Continue"
 msgstr "Weiter"
 
@@ -2048,7 +2056,7 @@ msgstr "DNS-Suchdomänen $val"
 msgid "Daily"
 msgstr "Täglich"
 
-#: pkg/packagekit/updates.jsx:940
+#: pkg/packagekit/updates.jsx:944
 msgid "Danger alert:"
 msgstr "Gefahrenalarm:"
 
@@ -2208,7 +2216,7 @@ msgid "Detachable"
 msgstr "Abnehmbar"
 
 #: pkg/systemd/overview-cards/realmd.jsx:401 pkg/shell/credentials.jsx:112
-#: pkg/packagekit/updates.jsx:439
+#: pkg/packagekit/updates.jsx:443
 msgid "Details"
 msgstr "Details"
 
@@ -2390,7 +2398,7 @@ msgstr "Nicht wiederholen"
 msgid "Download"
 msgstr "Herunterladen"
 
-#: pkg/static/login.html:136
+#: pkg/static/login.html:47
 msgid "Download a new browser for free"
 msgstr "Laden Sie kostenlos einen neuen Browser herunter"
 
@@ -2571,7 +2579,7 @@ msgstr "Beendet"
 msgid "Enforcing"
 msgstr "Wird erzwungen"
 
-#: pkg/packagekit/updates.jsx:1433
+#: pkg/packagekit/updates.jsx:1437
 msgid "Enhancement updates available"
 msgstr "Verbesserungsaktualisierungen verfügbar"
 
@@ -2591,7 +2599,7 @@ msgstr "Eintrag bei $0"
 msgid "Erasing $target"
 msgstr "$target wird gelöscht"
 
-#: pkg/packagekit/updates.jsx:369
+#: pkg/packagekit/updates.jsx:373
 msgid "Errata"
 msgstr "Errata"
 
@@ -2772,7 +2780,7 @@ msgstr ""
 "install.timer ist fehlgeschlagen. Bitte eigene Überschreibungen in der "
 "Konfigurationsautomatisierung entfernen."
 
-#: pkg/packagekit/updates.jsx:486
+#: pkg/packagekit/updates.jsx:490
 msgid "Failed to restart service"
 msgstr "Dienst konnte nicht neu gestartet werden"
 
@@ -3094,7 +3102,7 @@ msgstr ""
 "Wenn leer, wird die Kennung auf Basis der zugehörigen Port-Dienste und Port-"
 "Nummern generiert"
 
-#: pkg/static/login.html:66
+#: pkg/static/login.html:97
 #, fuzzy
 msgid ""
 "If the fingerprint matches, click \"Accept key and log in\". Otherwise, do "
@@ -3126,8 +3134,8 @@ msgstr ""
 "Passphrase erforderlich ist, um das Dateisystem zu entsperren, das Booten "
 "aber unbeaufsichtigt ist."
 
-#: pkg/networkmanager/ip-settings.jsx:56 pkg/packagekit/updates.jsx:692
-#: pkg/packagekit/updates.jsx:769
+#: pkg/networkmanager/ip-settings.jsx:56 pkg/packagekit/updates.jsx:696
+#: pkg/packagekit/updates.jsx:773
 msgid "Ignore"
 msgstr "Ignorieren"
 
@@ -3190,7 +3198,7 @@ msgstr "Indexspeicher"
 msgid "Indirect"
 msgstr "Indirekt"
 
-#: pkg/packagekit/updates.jsx:761
+#: pkg/packagekit/updates.jsx:765
 msgid "Info"
 msgstr "Info"
 
@@ -3210,7 +3218,7 @@ msgstr "Festplatte $0 initialisieren"
 msgid "Initializing erases all data on a disk."
 msgstr "Beim Initialisieren werden alle Daten auf einem Datenträger gelöscht."
 
-#: pkg/packagekit/updates.jsx:591
+#: pkg/packagekit/updates.jsx:595
 msgid "Initializing..."
 msgstr "Initialisierung ..."
 
@@ -3231,7 +3239,7 @@ msgstr "NFS-Unterstützung installieren"
 msgid "Install Stratis support"
 msgstr "Stratis-Unterstützung installieren"
 
-#: pkg/packagekit/updates.jsx:1410
+#: pkg/packagekit/updates.jsx:1414
 msgid "Install all updates"
 msgstr "Alle Aktualisierungen installieren"
 
@@ -3239,11 +3247,11 @@ msgstr "Alle Aktualisierungen installieren"
 msgid "Install cockpit-pcp"
 msgstr "cockpit-pcp installieren"
 
-#: pkg/packagekit/updates.jsx:1423
+#: pkg/packagekit/updates.jsx:1427
 msgid "Install kpatch updates"
 msgstr "kpatch-Aktualisierungen installieren"
 
-#: pkg/packagekit/updates.jsx:1409 pkg/packagekit/updates.jsx:1416
+#: pkg/packagekit/updates.jsx:1413 pkg/packagekit/updates.jsx:1420
 msgid "Install security updates"
 msgstr "Sicherheitsaktualisierungen installieren"
 
@@ -3299,7 +3307,7 @@ msgstr "Schnittstellen"
 msgid "Internal error"
 msgstr "Interner Fehler"
 
-#: pkg/static/login.js:860
+#: pkg/static/login.js:884
 msgid "Internal error: Invalid challenge header"
 msgstr "Interner Fehler: Ungültiger Challenge-Header"
 
@@ -3521,7 +3529,7 @@ msgstr "Letzte 24 Stunden"
 msgid "Last 7 days"
 msgstr "Letzte 7 Tage"
 
-#: pkg/packagekit/updates.jsx:791
+#: pkg/packagekit/updates.jsx:795
 msgid "Last checked: $0"
 msgstr "Zuletzt geprüft: $0"
 
@@ -3733,7 +3741,7 @@ msgstr "Gesperrte verschlüsselte Daten"
 msgid "Locking $target"
 msgstr "Sperren $target"
 
-#: pkg/static/login.html:115 pkg/static/login.js:621
+#: pkg/static/login.html:146 pkg/static/login.js:645
 #: pkg/shell/hosts_dialog.jsx:741 pkg/shell/failures.jsx:72
 msgid "Log in"
 msgstr "Anmelden"
@@ -3742,7 +3750,7 @@ msgstr "Anmelden"
 msgid "Log in to $0"
 msgstr "Bei $0 anmelden"
 
-#: pkg/static/login.js:657
+#: pkg/static/login.js:681
 msgid "Log in with your server user account."
 msgstr "Melden Sie sich mit dem Server-Benutzerkonto an."
 
@@ -3782,11 +3790,11 @@ msgstr "Logisches Volumen von $0"
 msgid "Logical volumes"
 msgstr "Logische Volumen"
 
-#: pkg/static/login.js:316
+#: pkg/static/login.js:340
 msgid "Login"
 msgstr "Anmeldung"
 
-#: pkg/static/login.js:357
+#: pkg/static/login.js:381
 msgid "Login again"
 msgstr "Nochmal anmelden"
 
@@ -3806,7 +3814,7 @@ msgstr "Anmeldeverlauf"
 msgid "Login history list"
 msgstr "Liste des Anmeldeverlaufs"
 
-#: pkg/static/login.js:358
+#: pkg/static/login.js:382
 msgid "Logout successful"
 msgstr "Abmeldung erfolgreich"
 
@@ -4068,7 +4076,7 @@ msgstr "Überwachungsziele"
 msgid "Monthly"
 msgstr "Monatlich"
 
-#: pkg/packagekit/updates.jsx:947
+#: pkg/packagekit/updates.jsx:951
 msgid "More info..."
 msgstr "Weitere Informationen..."
 
@@ -4193,7 +4201,7 @@ msgstr "NTP-Server"
 #: pkg/storaged/stratis-details.jsx:360 pkg/storaged/stratis-details.jsx:466
 #: pkg/storaged/stratis-details.jsx:489 pkg/storaged/stratis-details.jsx:652
 #: pkg/storaged/stratis-details.jsx:785 pkg/shell/credentials.jsx:104
-#: pkg/packagekit/updates.jsx:436
+#: pkg/packagekit/updates.jsx:440
 msgid "Name"
 msgstr "Name"
 
@@ -4292,7 +4300,7 @@ msgstr "Niemals beim Start einhängen"
 msgid "New NFS mount"
 msgstr "Neuer NFS-Mount"
 
-#: pkg/static/login.js:716 pkg/shell/hosts_dialog.jsx:450
+#: pkg/static/login.js:740 pkg/shell/hosts_dialog.jsx:450
 msgid "New host"
 msgstr "Neuer Host"
 
@@ -4556,7 +4564,7 @@ msgstr "Diese Aktion darf nicht ausgeführt werden."
 msgid "Not ready"
 msgstr "Nicht bereit"
 
-#: pkg/packagekit/updates.jsx:1360
+#: pkg/packagekit/updates.jsx:1364
 msgid "Not registered"
 msgstr "Nicht registriert"
 
@@ -4679,7 +4687,7 @@ msgstr "Optisches Speichergerät"
 msgid "Options"
 msgstr "Einstellungen"
 
-#: pkg/static/login.html:143
+#: pkg/static/login.html:54
 msgid "Or use a bundled browser"
 msgstr "Oder verwenden Sie einen gebündelten Browser"
 
@@ -4704,7 +4712,7 @@ msgstr "Andere Daten"
 msgid "Other devices"
 msgstr "Andere Geräte"
 
-#: pkg/static/login.html:97
+#: pkg/static/login.html:128
 msgid "Other options"
 msgstr "Andere Einstellungen"
 
@@ -4737,7 +4745,7 @@ msgstr "PID"
 msgid "Package cockpit-pcp is missing for metrics history"
 msgstr "Paket cockpit-pcp fehlt für den Kennzahlenverlauf"
 
-#: pkg/packagekit/updates.jsx:696 pkg/packagekit/updates.jsx:775
+#: pkg/packagekit/updates.jsx:700 pkg/packagekit/updates.jsx:779
 msgid "Package information"
 msgstr "Paket-Informationen"
 
@@ -4745,15 +4753,15 @@ msgstr "Paket-Informationen"
 msgid "PackageKit crashed"
 msgstr "PackageKit ist abgestürzt"
 
-#: pkg/packagekit/updates.jsx:1099
+#: pkg/packagekit/updates.jsx:1103
 msgid "PackageKit is not installed"
 msgstr "PackageKit ist nicht installiert"
 
-#: pkg/packagekit/updates.jsx:1303
+#: pkg/packagekit/updates.jsx:1307
 msgid "PackageKit reported error code $0"
 msgstr "PackageKit hat Fehlercode gemeldet $0"
 
-#: pkg/packagekit/updates.jsx:352
+#: pkg/packagekit/updates.jsx:356
 msgid "Packages"
 msgstr "Pakete"
 
@@ -4835,7 +4843,7 @@ msgstr ""
 msgid "Passphrases do not match"
 msgstr "Passphrasen stimmen nicht überein."
 
-#: pkg/static/login.html:75 pkg/storaged/iscsi-panel.jsx:50
+#: pkg/static/login.html:106 pkg/storaged/iscsi-panel.jsx:50
 #: pkg/storaged/iscsi-panel.jsx:160 pkg/users/account-create-dialog.js:58
 #: pkg/users/account-details.js:346 pkg/shell/hosts_dialog.jsx:817
 #: pkg/shell/hosts_dialog.jsx:826 pkg/shell/superuser.jsx:136
@@ -4951,7 +4959,7 @@ msgstr "Permanent"
 msgid "Permanently delete $0?"
 msgstr "$0 dauerhaft löschen?"
 
-#: pkg/static/login.js:886
+#: pkg/static/login.js:910
 msgid "Permission denied"
 msgstr "Erlaubnis verweigert"
 
@@ -5014,7 +5022,7 @@ msgstr ""
 msgid "Please install the $0 package"
 msgstr "Bitte installieren Sie die $0 Paket"
 
-#: pkg/packagekit/updates.jsx:1492
+#: pkg/packagekit/updates.jsx:1496
 msgid "Please reload the page after resolving the issue."
 msgstr "Bitte laden Sie die Seite neu, nachdem Sie das Problem behoben haben."
 
@@ -5022,7 +5030,7 @@ msgstr "Bitte laden Sie die Seite neu, nachdem Sie das Problem behoben haben."
 msgid "Please specify an expiration date"
 msgstr "Bitte geben Sie ein Ablaufdatum an"
 
-#: pkg/static/login.js:529
+#: pkg/static/login.js:553
 msgid "Please specify the host to connect to"
 msgstr ""
 "Bitte geben Sie den Host an, zu dem eine Verbindung hergestellt werden soll"
@@ -5321,18 +5329,18 @@ msgstr "Erneut anwenden und neu starten"
 msgid "Reboot"
 msgstr "Neustart"
 
-#: pkg/packagekit/updates.jsx:620
+#: pkg/packagekit/updates.jsx:624
 #, fuzzy
 #| msgid "Reboot recommended"
 msgid "Reboot after completion"
 msgstr "Neustart empfohlen"
 
-#: pkg/packagekit/updates.jsx:1518
+#: pkg/packagekit/updates.jsx:1522
 msgid "Reboot recommended"
 msgstr "Neustart empfohlen"
 
-#: pkg/packagekit/updates.jsx:691 pkg/packagekit/updates.jsx:766
-#: pkg/packagekit/updates.jsx:830
+#: pkg/packagekit/updates.jsx:695 pkg/packagekit/updates.jsx:770
+#: pkg/packagekit/updates.jsx:834
 msgid "Reboot system..."
 msgstr "System neu starten ..."
 
@@ -5342,7 +5350,7 @@ msgstr "System neu starten ..."
 msgid "Receiving"
 msgstr "Empfangen"
 
-#: pkg/static/login.html:161
+#: pkg/static/login.html:172
 msgid "Recent hosts"
 msgstr ""
 
@@ -5366,19 +5374,19 @@ msgstr "RAID-Gerät $target wird wiederhergestellt"
 msgid "Refreshing package information"
 msgstr "Paketinformationen aktualisieren"
 
-#: pkg/static/login.js:876
+#: pkg/static/login.js:900
 msgid "Refusing to connect. Host is unknown"
 msgstr "Verbindung ablehnen Host ist unbekannt"
 
-#: pkg/static/login.js:878
+#: pkg/static/login.js:902
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "Verbindung ablehnen Hostkey stimmt nicht überein"
 
-#: pkg/static/login.js:874
+#: pkg/static/login.js:898
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "Verbindung ablehnen Hostkey ist unbekannt"
 
-#: pkg/packagekit/updates.jsx:1372
+#: pkg/packagekit/updates.jsx:1376
 msgid "Register…"
 msgstr "Registrieren…"
 
@@ -5406,7 +5414,7 @@ msgstr "Propagiert von neu laden"
 msgid "Reloading"
 msgstr "Wird neu geladen"
 
-#: pkg/packagekit/updates.jsx:497
+#: pkg/packagekit/updates.jsx:501
 msgid "Reloading the state of remaining services"
 msgstr "Der Zustand der verbleibenden Dienste wird neu geladen"
 
@@ -5473,7 +5481,7 @@ msgstr "Tang-Schlüsselserver entfernen?"
 msgid "Remove device"
 msgstr "Gerät entfernen"
 
-#: pkg/static/login.js:587
+#: pkg/static/login.js:611
 msgid "Remove host"
 msgstr "Host entfernen"
 
@@ -5692,15 +5700,15 @@ msgstr ""
 msgid "Restart"
 msgstr "Neustarten"
 
-#: pkg/packagekit/updates.jsx:511 pkg/packagekit/updates.jsx:526
+#: pkg/packagekit/updates.jsx:515 pkg/packagekit/updates.jsx:530
 msgid "Restart services"
 msgstr "Dienste neu starten"
 
-#: pkg/packagekit/updates.jsx:767 pkg/packagekit/updates.jsx:842
+#: pkg/packagekit/updates.jsx:771 pkg/packagekit/updates.jsx:846
 msgid "Restart services..."
 msgstr "Dienste werden neu gestartet ..."
 
-#: pkg/packagekit/updates.jsx:1566
+#: pkg/packagekit/updates.jsx:1570
 msgid "Restarting"
 msgstr "Wird neu gestartet"
 
@@ -5921,7 +5929,7 @@ msgstr "SSH-Schlüssel"
 msgid "Securely erasing $target"
 msgstr "$target wird sicher gelöscht"
 
-#: pkg/packagekit/updates.jsx:1429
+#: pkg/packagekit/updates.jsx:1433
 msgid "Security updates available"
 msgstr "Sicherheitsupdates verfügbar"
 
@@ -5960,7 +5968,7 @@ msgctxt "storage"
 msgid "Serial number"
 msgstr "Seriennummer"
 
-#: pkg/static/login.html:155 pkg/networkmanager/ip-settings.jsx:248
+#: pkg/static/login.html:166 pkg/networkmanager/ip-settings.jsx:248
 #: pkg/kdump/kdump-view.jsx:96 pkg/kdump/kdump-view.jsx:122
 #: pkg/storaged/nfs-details.jsx:317 pkg/storaged/nfs-panel.jsx:102
 msgid "Server"
@@ -6085,11 +6093,11 @@ msgstr "Einrichten"
 msgid "Setting up loop device $target"
 msgstr "Richte Loop Device $target ein"
 
-#: pkg/packagekit/updates.jsx:925
+#: pkg/packagekit/updates.jsx:929
 msgid "Settings"
 msgstr "Einstellungen"
 
-#: pkg/packagekit/updates.jsx:363 pkg/packagekit/updates.jsx:438
+#: pkg/packagekit/updates.jsx:367 pkg/packagekit/updates.jsx:442
 msgid "Severity"
 msgstr "Schweregrad"
 
@@ -6268,8 +6276,8 @@ msgid ""
 msgstr ""
 "Ein anderes Programm verwendet derzeit den Paketmanager, bitte warten Sie ..."
 
-#: pkg/packagekit/updates.jsx:743 pkg/packagekit/updates.jsx:850
-#: pkg/packagekit/updates.jsx:1529
+#: pkg/packagekit/updates.jsx:747 pkg/packagekit/updates.jsx:854
+#: pkg/packagekit/updates.jsx:1533
 msgid "Some software needs to be restarted manually"
 msgstr "Manche Software muss manuell neu gestartet werden"
 
@@ -6368,7 +6376,7 @@ msgstr "Statisch"
 
 #: pkg/systemd/services/service-details.jsx:634
 #: pkg/networkmanager/network-interface.jsx:268 pkg/kdump/kdump-view.jsx:494
-#: pkg/packagekit/updates.jsx:914
+#: pkg/packagekit/updates.jsx:918
 msgid "Status"
 msgstr "Status"
 
@@ -6808,7 +6816,7 @@ msgstr ""
 "Das Dateisystem wird beim nächsten Booten entsperrt und eingehängt. Dies "
 "kann die Eingabe einer Passphrase erfordern."
 
-#: pkg/packagekit/updates.jsx:501
+#: pkg/packagekit/updates.jsx:505
 msgid "The following service will be restarted:"
 msgid_plural "The following services will be restarted:"
 msgstr[0] "Der folgende Dienst wird neu gestartet:"
@@ -6885,7 +6893,7 @@ msgstr "Die Passwörter stimmen nicht überein"
 msgid "The passwords do not match."
 msgstr "Die Passwörter stimmen nicht überein."
 
-#: pkg/static/login.html:65 pkg/shell/hosts_dialog.jsx:464
+#: pkg/static/login.html:96 pkg/shell/hosts_dialog.jsx:464
 #: pkg/shell/hosts_dialog.jsx:475
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
@@ -6894,7 +6902,7 @@ msgstr ""
 "Der entstandene Fingerabdruck kann über öffentliche Methoden, einschließlich "
 "E-Mail, weitergegeben werden."
 
-#: pkg/static/login.js:868
+#: pkg/static/login.js:892
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -6932,7 +6940,7 @@ msgstr ""
 "Der Benutzername darf nur aus Buchstaben, Zahlen, Punkten, Binde- und "
 "Unterstrichen bestehen."
 
-#: pkg/static/login.js:185
+#: pkg/static/login.js:210
 msgid ""
 "The web browser configuration prevents Cockpit from running (inaccessible $0)"
 msgstr ""
@@ -7038,7 +7046,7 @@ msgid ""
 "expected format."
 msgstr ""
 
-#: pkg/packagekit/updates.jsx:1367
+#: pkg/packagekit/updates.jsx:1371
 msgid "This system is not registered"
 msgstr "Dieses System ist nicht registriert"
 
@@ -7063,7 +7071,7 @@ msgid "This volume needs to be activated before it can be resized."
 msgstr ""
 "Dieses Volume muss aktiviert werden, bevor die Größe geändert werden kann."
 
-#: pkg/static/login.js:170
+#: pkg/static/login.js:194
 msgid "This web browser is too old to run the Web Console (missing $0)"
 msgstr ""
 "Dieser Webbrowser ist zu alt, um die Web-Konsole auszuführen (fehlende $0)"
@@ -7149,7 +7157,7 @@ msgstr ""
 "Tipp: Wenn Ihr Schlüsselpasswort mit Ihrem Login-Passwort übereinstimmt, "
 "können Sie sich an anderen Systemen automatisiert anmelden."
 
-#: pkg/static/login.html:60 pkg/shell/hosts_dialog.jsx:459
+#: pkg/static/login.html:91 pkg/shell/hosts_dialog.jsx:459
 #: pkg/shell/hosts_dialog.jsx:470
 msgid ""
 "To ensure that your connection is not intercepted by a malicious third-"
@@ -7159,7 +7167,7 @@ msgstr ""
 "sicherzustellen, dass Ihre Verbindung nicht von einem böswilligen Dritten "
 "ausgespäht wird:"
 
-#: pkg/packagekit/updates.jsx:1370
+#: pkg/packagekit/updates.jsx:1374
 msgid ""
 "To get software updates, this system needs to be registered with Red Hat, "
 "either using the Red Hat Customer Portal or a local subscription server."
@@ -7168,7 +7176,7 @@ msgstr ""
 "sein; entweder im Red Hat Customer Portal oder einem lokalen Subscription-"
 "Dienst."
 
-#: pkg/static/login.js:721 pkg/shell/hosts_dialog.jsx:462
+#: pkg/static/login.js:745 pkg/shell/hosts_dialog.jsx:462
 #: pkg/shell/hosts_dialog.jsx:473
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
@@ -7261,7 +7269,7 @@ msgstr "Schlüssel vertrauen"
 msgid "Trust level"
 msgstr "Vertrauensstufe"
 
-#: pkg/static/login.html:129
+#: pkg/static/login.html:160
 msgid "Try again"
 msgstr "Versuchen Sie es nochmal"
 
@@ -7333,7 +7341,7 @@ msgstr "UUID"
 msgid "Unable to apply this solution automatically"
 msgstr "Kann diese Lösung nicht automatisiert anwenden"
 
-#: pkg/static/login.js:872
+#: pkg/static/login.js:896
 msgid "Unable to connect to that address"
 msgstr "Es kann keine Verbindung zu dieser Adresse hergestellt werden"
 
@@ -7561,11 +7569,11 @@ msgstr "Nicht vertrauenswürdiger Host"
 msgid "Update"
 msgstr "Update"
 
-#: pkg/packagekit/updates.jsx:760
+#: pkg/packagekit/updates.jsx:764
 msgid "Update Success Table"
 msgstr "Aktualisierungserfolgstabelle"
 
-#: pkg/packagekit/updates.jsx:963
+#: pkg/packagekit/updates.jsx:967
 msgid "Update history"
 msgstr "Update-Verlauf"
 
@@ -7573,7 +7581,7 @@ msgstr "Update-Verlauf"
 msgid "Update package information"
 msgstr "Paket Informationen updaten"
 
-#: pkg/packagekit/updates.jsx:685 pkg/packagekit/updates.jsx:755
+#: pkg/packagekit/updates.jsx:689 pkg/packagekit/updates.jsx:759
 msgid "Update was successful"
 msgstr "Aktualisierung war erfolgreich"
 
@@ -7581,13 +7589,13 @@ msgstr "Aktualisierung war erfolgreich"
 msgid "Updated"
 msgstr "Aktualisiert"
 
-#: pkg/packagekit/updates.jsx:688
+#: pkg/packagekit/updates.jsx:692
 msgid "Updated packages may require a reboot to take effect."
 msgstr ""
 "Aktualisierte Pakete erfordern möglicherweise einen Neustart, um wirksam zu "
 "werden."
 
-#: pkg/packagekit/updates.jsx:1435
+#: pkg/packagekit/updates.jsx:1439
 msgid "Updates available"
 msgstr "Updates verfügbar"
 
@@ -7674,12 +7682,12 @@ msgstr "Verwendet für"
 msgid "User"
 msgstr "Benutzer"
 
-#: pkg/static/login.html:70 pkg/users/account-create-dialog.js:49
+#: pkg/static/login.html:101 pkg/users/account-create-dialog.js:49
 #: pkg/users/account-details.js:299 pkg/shell/hosts_dialog.jsx:256
 msgid "User name"
 msgstr "Benutzername"
 
-#: pkg/static/login.js:527
+#: pkg/static/login.js:551
 msgid "User name cannot be empty"
 msgstr "Der Benutzername darf nicht leer sein"
 
@@ -7738,7 +7746,7 @@ msgstr "VLAN Einstellungen"
 msgid "Validating address"
 msgstr "Validiere Adresse"
 
-#: pkg/static/login.html:123
+#: pkg/static/login.html:154
 msgid "Validating authentication token"
 msgstr "Authentifizierungstoken überprüfen"
 
@@ -7764,7 +7772,7 @@ msgstr "Schlüssel überprüfen"
 msgid "Verifying"
 msgstr "Überprüfung läuft"
 
-#: pkg/systemd/hwinfo.jsx:95 pkg/packagekit/updates.jsx:437
+#: pkg/systemd/hwinfo.jsx:95 pkg/packagekit/updates.jsx:441
 msgid "Version"
 msgstr "Version"
 
@@ -7822,7 +7830,7 @@ msgstr "Projekt-Webseite ansehen"
 msgid "View report"
 msgstr "Bericht anzeigen"
 
-#: pkg/packagekit/updates.jsx:625
+#: pkg/packagekit/updates.jsx:629
 #, fuzzy
 #| msgid "View detailed logs"
 msgid "View update log"
@@ -7897,7 +7905,7 @@ msgstr "Web Konsole"
 msgid "Web Console for Linux servers"
 msgstr "Webkonsole für Linux-Server"
 
-#: pkg/packagekit/updates.jsx:517 pkg/packagekit/updates.jsx:941
+#: pkg/packagekit/updates.jsx:521 pkg/packagekit/updates.jsx:945
 msgid "Web Console will restart"
 msgstr "Web-Konsole wird neu gestartet"
 
@@ -7929,7 +7937,7 @@ msgstr "Wenn"
 msgid "When empty, connect with the current user"
 msgstr "Wenn leer, mit dem aktuellen Benutzer verbinden"
 
-#: pkg/packagekit/updates.jsx:520 pkg/packagekit/updates.jsx:946
+#: pkg/packagekit/updates.jsx:524 pkg/packagekit/updates.jsx:950
 msgid ""
 "When the Web Console is restarted, you will no longer see progress "
 "information. However, the update process will continue in the background. "
@@ -7957,7 +7965,7 @@ msgstr "Schreiben"
 msgid "Write-mostly"
 msgstr "Hauptsächlich Schreiben"
 
-#: pkg/static/login.js:882
+#: pkg/static/login.js:906
 msgid "Wrong user name or password"
 msgstr "Benutzername oder Passwort falsch"
 
@@ -7973,7 +7981,7 @@ msgstr "Jährlich"
 msgid "Yes"
 msgstr "Ja"
 
-#: pkg/static/login.js:718 pkg/shell/hosts_dialog.jsx:469
+#: pkg/static/login.js:742 pkg/shell/hosts_dialog.jsx:469
 msgid "You are connecting to $0 for the first time."
 msgstr "Sie stellen zum ersten Mal eine Verbindung zu $0 her."
 
@@ -8037,7 +8045,7 @@ msgid "Your browser will remember your access level across sessions."
 msgstr ""
 "Ihr Browser speichert Ihre Zugriffsstufe über mehrere Sitzungen hinweg."
 
-#: pkg/packagekit/updates.jsx:1569
+#: pkg/packagekit/updates.jsx:1573
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
@@ -8142,7 +8150,7 @@ msgstr "Starten"
 msgid "bridge"
 msgstr "Brücke"
 
-#: pkg/packagekit/updates.jsx:207 pkg/packagekit/updates.jsx:309
+#: pkg/packagekit/updates.jsx:207 pkg/packagekit/updates.jsx:311
 msgid "bug fix"
 msgstr "Bug-Fix"
 
@@ -8244,7 +8252,7 @@ msgstr "aktivieren"
 msgid "encryption"
 msgstr "Verschlüsselung"
 
-#: pkg/packagekit/updates.jsx:209 pkg/packagekit/updates.jsx:309
+#: pkg/packagekit/updates.jsx:209 pkg/packagekit/updates.jsx:311
 msgid "enhancement"
 msgstr "Verbesserung"
 
@@ -8558,7 +8566,7 @@ msgstr "Passwort"
 msgid "password quality"
 msgstr "Passwortqualität"
 
-#: pkg/packagekit/updates.jsx:332
+#: pkg/packagekit/updates.jsx:336
 msgid "patches"
 msgstr "Patches"
 
@@ -8642,7 +8650,7 @@ msgstr "Neustart"
 msgid "roles"
 msgstr "Rollen"
 
-#: pkg/systemd/overview.jsx:157
+#: pkg/systemd/overview.jsx:158
 msgid "running $0"
 msgstr "$0 wird ausgeführt"
 

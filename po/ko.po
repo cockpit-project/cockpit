@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-25 03:40+0000\n"
-"PO-Revision-Date: 2022-10-07 17:04+0000\n"
+"POT-Creation-Date: 2022-10-30 03:28+0000\n"
+"PO-Revision-Date: 2022-10-29 16:19+0000\n"
 "Last-Translator: 김인수 <simmon@nplob.com>\n"
 "Language-Team: Korean <https://translate.fedoraproject.org/projects/cockpit/"
 "main/ko/>\n"
@@ -22,6 +22,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
 "X-Generator: Weblate 4.14.1\n"
+
+#: pkg/static/login.html:66
+msgid "            Bypass browser check          "
+msgstr "            웹 탐색기 점검을 우회합니다          "
 
 #: pkg/storaged/content-views.jsx:502
 msgid "$0 (encrypted)"
@@ -99,7 +103,7 @@ msgstr "$0 디스크"
 msgid "$0 documentation"
 msgstr "$0 문서"
 
-#: pkg/static/login.js:385 pkg/static/login.js:890
+#: pkg/static/login.js:409 pkg/static/login.js:914
 msgid "$0 error"
 msgstr "$0 오류"
 
@@ -161,7 +165,7 @@ msgstr "$0 사용 중"
 msgid "$0 is not available from any repository."
 msgstr "$0는 저장소에서 사용 할 수 없습니다."
 
-#: pkg/static/login.js:712 pkg/shell/hosts_dialog.jsx:450
+#: pkg/static/login.js:736 pkg/shell/hosts_dialog.jsx:450
 msgid "$0 key changed"
 msgstr "$0 키 변경됩니다"
 
@@ -198,7 +202,7 @@ msgid "$0 package"
 msgid_plural "$0 packages"
 msgstr[0] "$0 꾸러미"
 
-#: pkg/packagekit/updates.jsx:709 pkg/packagekit/updates.jsx:824
+#: pkg/packagekit/updates.jsx:713 pkg/packagekit/updates.jsx:828
 msgid "$0 package needs a system reboot"
 msgid_plural "$0 packages need a system reboot"
 msgstr[0] "$0 꾸러미의 경우 시스템을 재시작해야 합니다"
@@ -208,7 +212,7 @@ msgid "$0 page"
 msgid_plural "$0 pages"
 msgstr[0] "$0 페이지"
 
-#: pkg/packagekit/updates.jsx:796
+#: pkg/packagekit/updates.jsx:800
 msgid "$0 security fix available"
 msgid_plural "$0 security fixes available"
 msgstr[0] "사용 가능한 $0 보안 수정"
@@ -218,7 +222,7 @@ msgid "$0 service has failed"
 msgid_plural "$0 services have failed"
 msgstr[0] "$0 서비스 실패"
 
-#: pkg/packagekit/updates.jsx:726 pkg/packagekit/updates.jsx:836
+#: pkg/packagekit/updates.jsx:730 pkg/packagekit/updates.jsx:840
 msgid "$0 service needs to be restarted"
 msgid_plural "$0 services need to be restarted"
 msgstr[0] "$0 서비스를 재시작해야 합니다"
@@ -233,7 +237,7 @@ msgstr[0] "$0 슬롯이 남아 있습니다"
 msgid "$0 total"
 msgstr "총 $0"
 
-#: pkg/packagekit/updates.jsx:804
+#: pkg/packagekit/updates.jsx:808
 msgid "$0 update available"
 msgid_plural "$0 updates available"
 msgstr[0] "$0 사용 가능한 최신화"
@@ -276,7 +280,7 @@ msgstr "$name ($host에서)"
 msgid "(recommended)"
 msgstr "(권장 사항)"
 
-#: pkg/packagekit/updates.jsx:806
+#: pkg/packagekit/updates.jsx:810
 msgid ", including $1 security fix"
 msgid_plural ", including $1 security fixes"
 msgstr[0] "$1 보안 수정 포함"
@@ -506,7 +510,7 @@ msgstr "호환 가능한 Cockpit 버전이 {{#strong}}에 설치되어 있지 �
 msgid "A filesystem with this name exists already in this pool."
 msgstr "이 이름을 가진 파일 시스템이 이미 이 풀에 있습니다."
 
-#: pkg/static/login.html:133
+#: pkg/static/login.html:44
 msgid ""
 "A modern browser is required for security, reliability, and performance."
 msgstr "보안, 안정성, 성능을 위해 최신 브라우저가 필요합니다."
@@ -527,7 +531,7 @@ msgstr ""
 "$0에서 신규 SSH 키는 $1에서($2에 대해) 생성되고 $3에서 $4에서($5에 대해) 파일"
 "에 추가됩니다."
 
-#: pkg/packagekit/updates.jsx:1521
+#: pkg/packagekit/updates.jsx:1525
 msgid "A package needs a system reboot for the updates to take effect:"
 msgid_plural ""
 "Some packages need a system reboot for the updates to take effect:"
@@ -537,7 +541,7 @@ msgstr[0] "최신화를 적용하려면 꾸러미의 시스템을 재시작해�
 msgid "A pool with this name exists already."
 msgstr "이와 같은 이름을 갖는 풀은 이미 존재합니다."
 
-#: pkg/packagekit/updates.jsx:1525
+#: pkg/packagekit/updates.jsx:1529
 msgid "A service needs to be restarted for the updates to take effect:"
 msgid_plural ""
 "Some services need to be restarted for the updates to take effect:"
@@ -571,7 +575,7 @@ msgstr "부재"
 msgid "Accept key and connect"
 msgstr "키 수락 및 연결"
 
-#: pkg/static/login.js:621
+#: pkg/static/login.js:645
 msgid "Accept key and log in"
 msgstr "키 수락 및 로그인"
 
@@ -988,11 +992,11 @@ msgstr "인증 중입니다"
 msgid "Authentication"
 msgstr "인증"
 
-#: pkg/static/login.js:880
+#: pkg/static/login.js:904
 msgid "Authentication failed"
 msgstr "인증 실패"
 
-#: pkg/static/login.js:870
+#: pkg/static/login.js:894
 msgid "Authentication failed: Server closed connection"
 msgstr "인증 실패: 서버 연결 끊김"
 
@@ -1058,7 +1062,7 @@ msgstr "자동 스크립트"
 msgid "Available targets on $0"
 msgstr "$0에서 사용 가능한 대상"
 
-#: pkg/packagekit/updates.jsx:433 pkg/packagekit/updates.jsx:933
+#: pkg/packagekit/updates.jsx:437 pkg/packagekit/updates.jsx:937
 msgid "Available updates"
 msgstr "사용 가능한 최신화"
 
@@ -1181,12 +1185,12 @@ msgstr "브로트캐스트"
 msgid "Broken configuration"
 msgstr "손상된 설정"
 
-#: pkg/packagekit/updates.jsx:1431
+#: pkg/packagekit/updates.jsx:1435
 msgid "Bug fix updates available"
 msgstr "사용 가능한 결점 수정 최신화"
 
 # ctx::sourcefile::/rhn/errata/manage/Create.do
-#: pkg/packagekit/updates.jsx:375
+#: pkg/packagekit/updates.jsx:379
 msgid "Bugs"
 msgstr "결점"
 
@@ -1224,7 +1228,7 @@ msgstr "중앙처리장치 순간 사용량"
 msgid "CPU usage"
 msgstr "중앙처리장치 사용량"
 
-#: pkg/packagekit/updates.jsx:357
+#: pkg/packagekit/updates.jsx:361
 msgid "CVE"
 msgstr "CVE"
 
@@ -1240,7 +1244,7 @@ msgstr "호스트 이름, IP 주소, 별칭 이름 또는 ssh:// URI일 수 있�
 msgid "Can not find any logs using the current combination of filters."
 msgstr "현재 필터 조합을 사용하여 기록을 찾을 수 없습니다."
 
-#: pkg/static/login.html:117 pkg/playground/translate.html:39
+#: pkg/static/login.html:148 pkg/playground/translate.html:39
 #: pkg/systemd/hwinfo.jsx:242 pkg/systemd/overview-cards/realmd.jsx:419
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:180
 #: pkg/systemd/overview-cards/configurationCard.jsx:280
@@ -1260,8 +1264,8 @@ msgstr "현재 필터 조합을 사용하여 기록을 찾을 수 없습니다."
 #: pkg/shell/shell-modals.jsx:114 pkg/shell/superuser.jsx:176
 #: pkg/shell/superuser.jsx:214 pkg/shell/superuser.jsx:260
 #: pkg/shell/credentials.jsx:316 pkg/packagekit/kpatch.jsx:311
-#: pkg/packagekit/autoupdates.jsx:274 pkg/packagekit/updates.jsx:529
-#: pkg/packagekit/updates.jsx:587 pkg/tuned/dialog.jsx:311
+#: pkg/packagekit/autoupdates.jsx:274 pkg/packagekit/updates.jsx:533
+#: pkg/packagekit/updates.jsx:591 pkg/tuned/dialog.jsx:311
 msgid "Cancel"
 msgstr "취소"
 
@@ -1350,7 +1354,7 @@ msgstr "$0의 비밀번호 변경"
 msgid "Change the settings"
 msgstr "설정 변경"
 
-#: pkg/static/login.html:57 pkg/shell/hosts_dialog.jsx:458
+#: pkg/static/login.html:88 pkg/shell/hosts_dialog.jsx:458
 msgid ""
 "Changed keys are often the result of an operating system reinstallation. "
 "However, an unexpected change may indicate a third-party attempt to "
@@ -1366,7 +1370,7 @@ msgid ""
 msgstr ""
 "설정을 변경하면 서버와의 연결이 끊어지고, 관리 UI를 사용 할 수 없게 됩니다."
 
-#: pkg/packagekit/updates.jsx:915
+#: pkg/packagekit/updates.jsx:919
 msgid "Check for updates"
 msgstr "최신화를 확인"
 
@@ -1390,7 +1394,7 @@ msgstr "레이드 장치 $target 확인과 복구 중"
 msgid "Checking for new applications"
 msgstr "신규 응용프로그램 확인 중"
 
-#: pkg/packagekit/updates.jsx:1383
+#: pkg/packagekit/updates.jsx:1387
 msgid "Checking for package updates..."
 msgstr "꾸러미 최신화 점검 중 ..."
 
@@ -1403,7 +1407,7 @@ msgstr "설치된 소프트웨어 확인 중"
 msgid "Checking related processes"
 msgstr "연관된 프로세서 확인 중"
 
-#: pkg/packagekit/updates.jsx:1393
+#: pkg/packagekit/updates.jsx:1397
 msgid "Checking software status"
 msgstr "소프트웨어 상태 확인 중"
 
@@ -1462,7 +1466,7 @@ msgstr "선택한 페이지 닫기"
 msgid "Cockpit"
 msgstr "Cockpit"
 
-#: pkg/static/login.js:405
+#: pkg/static/login.js:429
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "Cockpit 인증이 잘못 설정되어 있습니다."
 
@@ -1515,6 +1519,10 @@ msgstr ""
 "관리, 저널 검사, 서비스 시작 및 중지 등의 간단한 작업을 쉽게 수행할 수 있으"
 "며 여러 서버를 동시에 모니터링 및 관리 할 수 있습니다. 간단하게 장비를 추가하"
 "여 서버를 추가할 수 있으며 추가 후 다른 기기를 관리할 수 있습니다."
+
+#: pkg/static/login.js:183
+msgid "Cockpit might not render correctly in your browser"
+msgstr "Cockpit은 자신의 웹 탐색기에서 정확하게 렌더링 되지 않을 수 있습니다"
 
 #: pkg/metrics/metrics.jsx:1289
 msgid "Collect metrics"
@@ -1644,11 +1652,11 @@ msgstr "충돌"
 msgid "Connect automatically"
 msgstr "자동으로 연결"
 
-#: pkg/static/login.html:103
+#: pkg/static/login.html:134
 msgid "Connect to"
 msgstr "연결 대상"
 
-#: pkg/static/login.js:613
+#: pkg/static/login.js:637
 msgid "Connect to:"
 msgstr "연결 대상:"
 
@@ -1702,7 +1710,7 @@ msgstr "포함:"
 msgid "Content"
 msgstr "컨텐츠"
 
-#: pkg/packagekit/updates.jsx:770
+#: pkg/packagekit/updates.jsx:774
 msgid "Continue"
 msgstr "진행"
 
@@ -1976,7 +1984,7 @@ msgstr "DNS 검색 도메인 $val"
 msgid "Daily"
 msgstr "매일"
 
-#: pkg/packagekit/updates.jsx:940
+#: pkg/packagekit/updates.jsx:944
 msgid "Danger alert:"
 msgstr "위험 경고:"
 
@@ -2132,7 +2140,7 @@ msgstr "분리 가능"
 # translation auto-copied from project libreport, version master, document
 # libreport
 #: pkg/systemd/overview-cards/realmd.jsx:401 pkg/shell/credentials.jsx:112
-#: pkg/packagekit/updates.jsx:439
+#: pkg/packagekit/updates.jsx:443
 msgid "Details"
 msgstr "상세 정보"
 
@@ -2315,7 +2323,7 @@ msgstr "반복 실행하지 않습니다"
 msgid "Download"
 msgstr "내려받기"
 
-#: pkg/static/login.html:136
+#: pkg/static/login.html:47
 msgid "Download a new browser for free"
 msgstr "신규 브라우저 내려받기 (무료)"
 
@@ -2490,7 +2498,7 @@ msgstr "종료됨"
 msgid "Enforcing"
 msgstr "강제"
 
-#: pkg/packagekit/updates.jsx:1433
+#: pkg/packagekit/updates.jsx:1437
 msgid "Enhancement updates available"
 msgstr "기능 업데이트를 사용할 수 있습니다"
 
@@ -2510,7 +2518,7 @@ msgstr "$0에서 항목"
 msgid "Erasing $target"
 msgstr "$target 제거 중"
 
-#: pkg/packagekit/updates.jsx:369
+#: pkg/packagekit/updates.jsx:373
 msgid "Errata"
 msgstr "에라타"
 
@@ -2689,7 +2697,7 @@ msgstr ""
 "분석하는데 실패했습니다. 자동 최신화를 구성하려면 사용자 지정 재정의를 제거하"
 "세요."
 
-#: pkg/packagekit/updates.jsx:486
+#: pkg/packagekit/updates.jsx:490
 msgid "Failed to restart service"
 msgstr "서비스를 재시작하지 못했습니다"
 
@@ -3009,7 +3017,7 @@ msgid ""
 msgstr ""
 "만약 비워져 있으면, ID는 연관된 포트 서비스와 포트 번호를 기반으로 발생합니다"
 
-#: pkg/static/login.html:66
+#: pkg/static/login.html:97
 msgid ""
 "If the fingerprint matches, click \"Accept key and log in\". Otherwise, do "
 "not log in and contact your administrator."
@@ -3037,8 +3045,8 @@ msgstr ""
 "유용 하고, 예를 들어 암호가 파일 시스템을 잠금 해제 할 때에 필요하지만 부팅"
 "은 사용되지 않습니다."
 
-#: pkg/networkmanager/ip-settings.jsx:56 pkg/packagekit/updates.jsx:692
-#: pkg/packagekit/updates.jsx:769
+#: pkg/networkmanager/ip-settings.jsx:56 pkg/packagekit/updates.jsx:696
+#: pkg/packagekit/updates.jsx:773
 msgid "Ignore"
 msgstr "무시"
 
@@ -3100,7 +3108,7 @@ msgstr "인덱스 메모리"
 msgid "Indirect"
 msgstr "간접"
 
-#: pkg/packagekit/updates.jsx:761
+#: pkg/packagekit/updates.jsx:765
 msgid "Info"
 msgstr "정보"
 
@@ -3120,7 +3128,7 @@ msgstr "디스크 $0를 초기화합니다"
 msgid "Initializing erases all data on a disk."
 msgstr "초기화는 디스크에서 모든 자료를 제거합니다."
 
-#: pkg/packagekit/updates.jsx:591
+#: pkg/packagekit/updates.jsx:595
 msgid "Initializing..."
 msgstr "초기화 중..."
 
@@ -3141,7 +3149,7 @@ msgstr "NFS 지원 설치"
 msgid "Install Stratis support"
 msgstr "스트라티스 지원 설치"
 
-#: pkg/packagekit/updates.jsx:1410
+#: pkg/packagekit/updates.jsx:1414
 msgid "Install all updates"
 msgstr "모든 업데이트 설치"
 
@@ -3149,11 +3157,11 @@ msgstr "모든 업데이트 설치"
 msgid "Install cockpit-pcp"
 msgstr "cockpit-pcp 설치"
 
-#: pkg/packagekit/updates.jsx:1423
+#: pkg/packagekit/updates.jsx:1427
 msgid "Install kpatch updates"
 msgstr "k패치 최신화를 설치합니다"
 
-#: pkg/packagekit/updates.jsx:1409 pkg/packagekit/updates.jsx:1416
+#: pkg/packagekit/updates.jsx:1413 pkg/packagekit/updates.jsx:1420
 msgid "Install security updates"
 msgstr "보안 최신화 설치"
 
@@ -3207,7 +3215,7 @@ msgstr "연결장치"
 msgid "Internal error"
 msgstr "내부 오류"
 
-#: pkg/static/login.js:860
+#: pkg/static/login.js:884
 msgid "Internal error: Invalid challenge header"
 msgstr "내부 오류: 잘못된 챌린지 헤더"
 
@@ -3427,7 +3435,7 @@ msgstr "지난 24 시간"
 msgid "Last 7 days"
 msgstr "지난 7일"
 
-#: pkg/packagekit/updates.jsx:791
+#: pkg/packagekit/updates.jsx:795
 msgid "Last checked: $0"
 msgstr "마지막 접속 날짜: $0"
 
@@ -3646,7 +3654,7 @@ msgstr "암호화된 자료 잠김"
 msgid "Locking $target"
 msgstr "$target 잠금 중"
 
-#: pkg/static/login.html:115 pkg/static/login.js:621
+#: pkg/static/login.html:146 pkg/static/login.js:645
 #: pkg/shell/hosts_dialog.jsx:741 pkg/shell/failures.jsx:72
 msgid "Log in"
 msgstr "로그인"
@@ -3655,7 +3663,7 @@ msgstr "로그인"
 msgid "Log in to $0"
 msgstr "$0에 로그인"
 
-#: pkg/static/login.js:657
+#: pkg/static/login.js:681
 msgid "Log in with your server user account."
 msgstr "서버 사용자 계정으로 로그인합니다."
 
@@ -3695,11 +3703,11 @@ msgstr "$0 논리 볼륨"
 msgid "Logical volumes"
 msgstr "논리 볼륨"
 
-#: pkg/static/login.js:316
+#: pkg/static/login.js:340
 msgid "Login"
 msgstr "로그인"
 
-#: pkg/static/login.js:357
+#: pkg/static/login.js:381
 msgid "Login again"
 msgstr "다시 로그인"
 
@@ -3719,7 +3727,7 @@ msgstr "로그인 기록"
 msgid "Login history list"
 msgstr "로그인 기록 목록"
 
-#: pkg/static/login.js:358
+#: pkg/static/login.js:382
 msgid "Logout successful"
 msgstr "성공적으로 로그아웃되었습니다"
 
@@ -3983,7 +3991,7 @@ msgstr "관리 대상"
 msgid "Monthly"
 msgstr "월간"
 
-#: pkg/packagekit/updates.jsx:947
+#: pkg/packagekit/updates.jsx:951
 msgid "More info..."
 msgstr "자세한 정보..."
 
@@ -4108,7 +4116,7 @@ msgstr "NTP 서버"
 #: pkg/storaged/stratis-details.jsx:360 pkg/storaged/stratis-details.jsx:466
 #: pkg/storaged/stratis-details.jsx:489 pkg/storaged/stratis-details.jsx:652
 #: pkg/storaged/stratis-details.jsx:785 pkg/shell/credentials.jsx:104
-#: pkg/packagekit/updates.jsx:436
+#: pkg/packagekit/updates.jsx:440
 msgid "Name"
 msgstr "이름"
 
@@ -4207,7 +4215,7 @@ msgstr "부팅시 적재되지 않음"
 msgid "New NFS mount"
 msgstr "신규 NFS 적재"
 
-#: pkg/static/login.js:716 pkg/shell/hosts_dialog.jsx:450
+#: pkg/static/login.js:740 pkg/shell/hosts_dialog.jsx:450
 msgid "New host"
 msgstr "신규 호스트"
 
@@ -4470,7 +4478,7 @@ msgstr "이 작업을 실행할 수 있는 권한이 없습니다."
 msgid "Not ready"
 msgstr "준비되지 않음"
 
-#: pkg/packagekit/updates.jsx:1360
+#: pkg/packagekit/updates.jsx:1364
 msgid "Not registered"
 msgstr "등록되지 않음"
 
@@ -4591,7 +4599,7 @@ msgstr "광학 드라이브"
 msgid "Options"
 msgstr "옵션"
 
-#: pkg/static/login.html:143
+#: pkg/static/login.html:54
 msgid "Or use a bundled browser"
 msgstr "번들된 브라우저 사용"
 
@@ -4616,7 +4624,7 @@ msgstr "기타 데이터"
 msgid "Other devices"
 msgstr "기타 장치"
 
-#: pkg/static/login.html:97
+#: pkg/static/login.html:128
 msgid "Other options"
 msgstr "기타 옵션"
 
@@ -4653,7 +4661,7 @@ msgstr "PID"
 msgid "Package cockpit-pcp is missing for metrics history"
 msgstr "메트릭 내역에 꾸러미 cockpit-pcp가 누락되어 있습니다"
 
-#: pkg/packagekit/updates.jsx:696 pkg/packagekit/updates.jsx:775
+#: pkg/packagekit/updates.jsx:700 pkg/packagekit/updates.jsx:779
 msgid "Package information"
 msgstr "꾸러미 정보"
 
@@ -4661,15 +4669,15 @@ msgstr "꾸러미 정보"
 msgid "PackageKit crashed"
 msgstr "PackageKit가 충돌했습니다"
 
-#: pkg/packagekit/updates.jsx:1099
+#: pkg/packagekit/updates.jsx:1103
 msgid "PackageKit is not installed"
 msgstr "PackageKit이 설치되어 있지 않습니다"
 
-#: pkg/packagekit/updates.jsx:1303
+#: pkg/packagekit/updates.jsx:1307
 msgid "PackageKit reported error code $0"
 msgstr "PackageKit가 오류 코드 $0를 보고했습니다"
 
-#: pkg/packagekit/updates.jsx:352
+#: pkg/packagekit/updates.jsx:356
 msgid "Packages"
 msgstr "꾸러미"
 
@@ -4752,7 +4760,7 @@ msgstr "암호문 제거에서 $0 잠금 해제가 되지 않을 수 있습니�
 msgid "Passphrases do not match"
 msgstr "암호문이 일치하지 않습니다"
 
-#: pkg/static/login.html:75 pkg/storaged/iscsi-panel.jsx:50
+#: pkg/static/login.html:106 pkg/storaged/iscsi-panel.jsx:50
 #: pkg/storaged/iscsi-panel.jsx:160 pkg/users/account-create-dialog.js:58
 #: pkg/users/account-details.js:346 pkg/shell/hosts_dialog.jsx:817
 #: pkg/shell/hosts_dialog.jsx:826 pkg/shell/superuser.jsx:136
@@ -4867,7 +4875,7 @@ msgstr "영구적"
 msgid "Permanently delete $0?"
 msgstr "영구적으로 $0를 삭제 할까요?"
 
-#: pkg/static/login.js:886
+#: pkg/static/login.js:910
 msgid "Permission denied"
 msgstr "권한이 거부되었습니다"
 
@@ -4928,7 +4936,7 @@ msgstr "웹 콘솔을 사용하려면 JavaScript를 활성화하십시오."
 msgid "Please install the $0 package"
 msgstr "$0 꾸러미를 설치해 주십시오"
 
-#: pkg/packagekit/updates.jsx:1492
+#: pkg/packagekit/updates.jsx:1496
 msgid "Please reload the page after resolving the issue."
 msgstr "문제를 해결한 후 페이지를 다시 로드하십시오."
 
@@ -4936,7 +4944,7 @@ msgstr "문제를 해결한 후 페이지를 다시 로드하십시오."
 msgid "Please specify an expiration date"
 msgstr "만료 날짜를 지정해 주십시오"
 
-#: pkg/static/login.js:529
+#: pkg/static/login.js:553
 msgid "Please specify the host to connect to"
 msgstr "연결할 호스트를 지정해 주십시오"
 
@@ -5233,16 +5241,16 @@ msgstr "다시 적용하고 재시작"
 msgid "Reboot"
 msgstr "재시작"
 
-#: pkg/packagekit/updates.jsx:620
+#: pkg/packagekit/updates.jsx:624
 msgid "Reboot after completion"
 msgstr "완료 후 재시작"
 
-#: pkg/packagekit/updates.jsx:1518
+#: pkg/packagekit/updates.jsx:1522
 msgid "Reboot recommended"
 msgstr "재시작 권장"
 
-#: pkg/packagekit/updates.jsx:691 pkg/packagekit/updates.jsx:766
-#: pkg/packagekit/updates.jsx:830
+#: pkg/packagekit/updates.jsx:695 pkg/packagekit/updates.jsx:770
+#: pkg/packagekit/updates.jsx:834
 msgid "Reboot system..."
 msgstr "시스템 재시작..."
 
@@ -5252,7 +5260,7 @@ msgstr "시스템 재시작..."
 msgid "Receiving"
 msgstr "수신중"
 
-#: pkg/static/login.html:161
+#: pkg/static/login.html:172
 msgid "Recent hosts"
 msgstr "최근 호스트"
 
@@ -5276,19 +5284,19 @@ msgstr "레이드 장치 $target 복구중"
 msgid "Refreshing package information"
 msgstr "꾸러미 정보 새로고침 중"
 
-#: pkg/static/login.js:876
+#: pkg/static/login.js:900
 msgid "Refusing to connect. Host is unknown"
 msgstr "연결을 거부하고 있습니다. 알 수 없는 호스트입니다"
 
-#: pkg/static/login.js:878
+#: pkg/static/login.js:902
 msgid "Refusing to connect. Hostkey does not match"
 msgstr "연결을 거부하고 있습니다. 호스트 키가 일치하지 않습니다"
 
-#: pkg/static/login.js:874
+#: pkg/static/login.js:898
 msgid "Refusing to connect. Hostkey is unknown"
 msgstr "연결을 거부하고 있습니다. 알 수 없는 호스트 키입니다"
 
-#: pkg/packagekit/updates.jsx:1372
+#: pkg/packagekit/updates.jsx:1376
 msgid "Register…"
 msgstr "등록 중…"
 
@@ -5316,7 +5324,7 @@ msgstr "전달 소스를 다시 로드"
 msgid "Reloading"
 msgstr "다시 적재 중"
 
-#: pkg/packagekit/updates.jsx:497
+#: pkg/packagekit/updates.jsx:501
 msgid "Reloading the state of remaining services"
 msgstr "나머지 서비스의 상태 재로딩 중"
 
@@ -5377,7 +5385,7 @@ msgstr "Tang 키 서버 삭제?"
 msgid "Remove device"
 msgstr "장치 삭제"
 
-#: pkg/static/login.js:587
+#: pkg/static/login.js:611
 msgid "Remove host"
 msgstr "호스트 제거"
 
@@ -5595,15 +5603,15 @@ msgstr ""
 msgid "Restart"
 msgstr "재시작"
 
-#: pkg/packagekit/updates.jsx:511 pkg/packagekit/updates.jsx:526
+#: pkg/packagekit/updates.jsx:515 pkg/packagekit/updates.jsx:530
 msgid "Restart services"
 msgstr "서비스 재시작"
 
-#: pkg/packagekit/updates.jsx:767 pkg/packagekit/updates.jsx:842
+#: pkg/packagekit/updates.jsx:771 pkg/packagekit/updates.jsx:846
 msgid "Restart services..."
 msgstr "서비스 재시작..."
 
-#: pkg/packagekit/updates.jsx:1566
+#: pkg/packagekit/updates.jsx:1570
 msgid "Restarting"
 msgstr "재시작 중"
 
@@ -5825,7 +5833,7 @@ msgstr "보안 쉘 키"
 msgid "Securely erasing $target"
 msgstr "$target을 안전하게 삭제"
 
-#: pkg/packagekit/updates.jsx:1429
+#: pkg/packagekit/updates.jsx:1433
 msgid "Security updates available"
 msgstr "사용 가능한 보안 최신화"
 
@@ -5866,7 +5874,7 @@ msgstr "일련 번호"
 
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
-#: pkg/static/login.html:155 pkg/networkmanager/ip-settings.jsx:248
+#: pkg/static/login.html:166 pkg/networkmanager/ip-settings.jsx:248
 #: pkg/kdump/kdump-view.jsx:96 pkg/kdump/kdump-view.jsx:122
 #: pkg/storaged/nfs-details.jsx:317 pkg/storaged/nfs-panel.jsx:102
 msgid "Server"
@@ -5986,13 +5994,13 @@ msgstr "설정 중"
 msgid "Setting up loop device $target"
 msgstr "루프 장치 $target 설정 중"
 
-#: pkg/packagekit/updates.jsx:925
+#: pkg/packagekit/updates.jsx:929
 msgid "Settings"
 msgstr "설정"
 
 # translation auto-copied from project Customer Portal Translations, version
 # PCM_template, document template, author eukim
-#: pkg/packagekit/updates.jsx:363 pkg/packagekit/updates.jsx:438
+#: pkg/packagekit/updates.jsx:367 pkg/packagekit/updates.jsx:442
 msgid "Severity"
 msgstr "심각도"
 
@@ -6170,8 +6178,8 @@ msgid ""
 "Some other program is currently using the package manager, please wait..."
 msgstr "다른 프로그램이 꾸러미 관리자를 사용 중입니다. 잠시 기다려주세요..."
 
-#: pkg/packagekit/updates.jsx:743 pkg/packagekit/updates.jsx:850
-#: pkg/packagekit/updates.jsx:1529
+#: pkg/packagekit/updates.jsx:747 pkg/packagekit/updates.jsx:854
+#: pkg/packagekit/updates.jsx:1533
 msgid "Some software needs to be restarted manually"
 msgstr "일부 소프트웨어는 수동으로 다시 시작해야 합니다"
 
@@ -6266,7 +6274,7 @@ msgstr "정적"
 
 #: pkg/systemd/services/service-details.jsx:634
 #: pkg/networkmanager/network-interface.jsx:268 pkg/kdump/kdump-view.jsx:494
-#: pkg/packagekit/updates.jsx:914
+#: pkg/packagekit/updates.jsx:918
 msgid "Status"
 msgstr "상태"
 
@@ -6682,7 +6690,7 @@ msgstr ""
 "파일 시스템은 잠금 해제되어 있어야 하고 다음 부팅시에는 적재됩니다. 이는 암호"
 "를 입력해야 할 수 있습니다."
 
-#: pkg/packagekit/updates.jsx:501
+#: pkg/packagekit/updates.jsx:505
 msgid "The following service will be restarted:"
 msgid_plural "The following services will be restarted:"
 msgstr[0] "다음 서비스가 다시 시작됩니다:"
@@ -6755,7 +6763,7 @@ msgstr "비밀번호가 일치하지 않습니다"
 msgid "The passwords do not match."
 msgstr "비밀번호가 일치하지 않습니다."
 
-#: pkg/static/login.html:65 pkg/shell/hosts_dialog.jsx:464
+#: pkg/static/login.html:96 pkg/shell/hosts_dialog.jsx:464
 #: pkg/shell/hosts_dialog.jsx:475
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
@@ -6763,7 +6771,7 @@ msgid ""
 msgstr ""
 "최종 지문을 전자우편을 포함한 공개적인 방법을 통해 공유 할 수 있습니다."
 
-#: pkg/static/login.js:868
+#: pkg/static/login.js:892
 msgid ""
 "The server refused to authenticate '$0' using password authentication, and "
 "no other supported authentication methods are available."
@@ -6794,7 +6802,7 @@ msgid ""
 "underscores."
 msgstr "사용자 이름에는 a~z 문자, 숫자, 점, 대시, 밑줄만 사용할 수 있습니다."
 
-#: pkg/static/login.js:185
+#: pkg/static/login.js:210
 msgid ""
 "The web browser configuration prevents Cockpit from running (inaccessible $0)"
 msgstr ""
@@ -6894,7 +6902,7 @@ msgstr ""
 "이 풀은 키 설명이 예상 형식이 아니기 때문에 여기에서 잠금 해제 할 수 없습니"
 "다."
 
-#: pkg/packagekit/updates.jsx:1367
+#: pkg/packagekit/updates.jsx:1371
 msgid "This system is not registered"
 msgstr "이 시스템은 등록되어 있지 않습니다"
 
@@ -6918,7 +6926,7 @@ msgstr "이 사용자 이름이 이미 존재합니다"
 msgid "This volume needs to be activated before it can be resized."
 msgstr "볼륨 크기를 변경하기 전에 활성화해야 합니다."
 
-#: pkg/static/login.js:170
+#: pkg/static/login.js:194
 msgid "This web browser is too old to run the Web Console (missing $0)"
 msgstr "이 웹 브라우저는 오래되어 웹 콘솔을 실행할 수 없습니다($0 누락)"
 
@@ -7011,7 +7019,7 @@ msgstr ""
 "도움말: 다른 시스템에 자동으로 인증하려면 키 비밀번호가 로그인 비밀번호와 일"
 "치해야 합니다."
 
-#: pkg/static/login.html:60 pkg/shell/hosts_dialog.jsx:459
+#: pkg/static/login.html:91 pkg/shell/hosts_dialog.jsx:459
 #: pkg/shell/hosts_dialog.jsx:470
 msgid ""
 "To ensure that your connection is not intercepted by a malicious third-"
@@ -7020,7 +7028,7 @@ msgstr ""
 "악성의 제3자가 귀하의 연결을 가로채지 않도록 하려면 호스트 키 지문을 확인하십"
 "시오:"
 
-#: pkg/packagekit/updates.jsx:1370
+#: pkg/packagekit/updates.jsx:1374
 msgid ""
 "To get software updates, this system needs to be registered with Red Hat, "
 "either using the Red Hat Customer Portal or a local subscription server."
@@ -7028,7 +7036,7 @@ msgstr ""
 "소프트웨어 최신화 하려면, 이 시스템은 Red Hat 고객 포털이나 로컬 서브스크립"
 "션 서버를 사용하여 Red Hat에 등록되어 있어야 합니다."
 
-#: pkg/static/login.js:721 pkg/shell/hosts_dialog.jsx:462
+#: pkg/static/login.js:745 pkg/shell/hosts_dialog.jsx:462
 #: pkg/shell/hosts_dialog.jsx:473
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
@@ -7120,7 +7128,7 @@ msgstr "신뢰 키"
 msgid "Trust level"
 msgstr "신뢰 단계"
 
-#: pkg/static/login.html:129
+#: pkg/static/login.html:160
 msgid "Try again"
 msgstr "다시 시도"
 
@@ -7195,7 +7203,7 @@ msgstr "UUID"
 msgid "Unable to apply this solution automatically"
 msgstr "이와 같은 해결책을 자동으로 적용 할 수 없습니다"
 
-#: pkg/static/login.js:872
+#: pkg/static/login.js:896
 msgid "Unable to connect to that address"
 msgstr "해당 주소에 연결 할 수 없음"
 
@@ -7423,11 +7431,11 @@ msgstr "지원되지 않는 호스트"
 msgid "Update"
 msgstr "최신화"
 
-#: pkg/packagekit/updates.jsx:760
+#: pkg/packagekit/updates.jsx:764
 msgid "Update Success Table"
 msgstr "최신화 성공 테이블"
 
-#: pkg/packagekit/updates.jsx:963
+#: pkg/packagekit/updates.jsx:967
 msgid "Update history"
 msgstr "최신화 내역"
 
@@ -7435,7 +7443,7 @@ msgstr "최신화 내역"
 msgid "Update package information"
 msgstr "꾸러미 정보 최신화"
 
-#: pkg/packagekit/updates.jsx:685 pkg/packagekit/updates.jsx:755
+#: pkg/packagekit/updates.jsx:689 pkg/packagekit/updates.jsx:759
 msgid "Update was successful"
 msgstr "최신화에 성공했습니다"
 
@@ -7443,11 +7451,11 @@ msgstr "최신화에 성공했습니다"
 msgid "Updated"
 msgstr "최신화됨"
 
-#: pkg/packagekit/updates.jsx:688
+#: pkg/packagekit/updates.jsx:692
 msgid "Updated packages may require a reboot to take effect."
 msgstr "최신화된 꾸러미를 적용하려면 시스템을 재시작해야 합니다."
 
-#: pkg/packagekit/updates.jsx:1435
+#: pkg/packagekit/updates.jsx:1439
 msgid "Updates available"
 msgstr "사용 가능한 업데이트"
 
@@ -7533,12 +7541,12 @@ msgstr "사용 대상"
 msgid "User"
 msgstr "사용자"
 
-#: pkg/static/login.html:70 pkg/users/account-create-dialog.js:49
+#: pkg/static/login.html:101 pkg/users/account-create-dialog.js:49
 #: pkg/users/account-details.js:299 pkg/shell/hosts_dialog.jsx:256
 msgid "User name"
 msgstr "사용자 이름"
 
-#: pkg/static/login.js:527
+#: pkg/static/login.js:551
 msgid "User name cannot be empty"
 msgstr "사용자 이름을 입력하셔야 합니다"
 
@@ -7597,7 +7605,7 @@ msgstr "VLAN 설정"
 msgid "Validating address"
 msgstr "주소 확인"
 
-#: pkg/static/login.html:123
+#: pkg/static/login.html:154
 msgid "Validating authentication token"
 msgstr "인증 토큰 확인"
 
@@ -7623,7 +7631,7 @@ msgstr "키 확인"
 msgid "Verifying"
 msgstr "확인 중"
 
-#: pkg/systemd/hwinfo.jsx:95 pkg/packagekit/updates.jsx:437
+#: pkg/systemd/hwinfo.jsx:95 pkg/packagekit/updates.jsx:441
 msgid "Version"
 msgstr "버전"
 
@@ -7679,7 +7687,7 @@ msgstr "프로젝트 웹사이트 보기"
 msgid "View report"
 msgstr "보고서 보기"
 
-#: pkg/packagekit/updates.jsx:625
+#: pkg/packagekit/updates.jsx:629
 msgid "View update log"
 msgstr "최신화 기록 보기"
 
@@ -7751,7 +7759,7 @@ msgstr "웹 콘솔"
 msgid "Web Console for Linux servers"
 msgstr "리눅스 서버를 위한 웹콘솔"
 
-#: pkg/packagekit/updates.jsx:517 pkg/packagekit/updates.jsx:941
+#: pkg/packagekit/updates.jsx:521 pkg/packagekit/updates.jsx:945
 msgid "Web Console will restart"
 msgstr "웹 콘솔이 재시작됩니다"
 
@@ -7783,7 +7791,7 @@ msgstr "날짜"
 msgid "When empty, connect with the current user"
 msgstr "비어 있는 경우 현재 사용자와 연결합니다"
 
-#: pkg/packagekit/updates.jsx:520 pkg/packagekit/updates.jsx:946
+#: pkg/packagekit/updates.jsx:524 pkg/packagekit/updates.jsx:950
 msgid ""
 "When the Web Console is restarted, you will no longer see progress "
 "information. However, the update process will continue in the background. "
@@ -7810,7 +7818,7 @@ msgstr "쓰기"
 msgid "Write-mostly"
 msgstr "대부분 쓰기"
 
-#: pkg/static/login.js:882
+#: pkg/static/login.js:906
 msgid "Wrong user name or password"
 msgstr "잘못된 사용자 이름 또는 비밀번호"
 
@@ -7826,7 +7834,7 @@ msgstr "매년"
 msgid "Yes"
 msgstr "네"
 
-#: pkg/static/login.js:718 pkg/shell/hosts_dialog.jsx:469
+#: pkg/static/login.js:742 pkg/shell/hosts_dialog.jsx:469
 msgid "You are connecting to $0 for the first time."
 msgstr "처음으로 $0에 연결됩니다."
 
@@ -7884,7 +7892,7 @@ msgstr ""
 msgid "Your browser will remember your access level across sessions."
 msgstr "브라우저는 서로 다른 세션 간의 액세스 수준을 기억합니다."
 
-#: pkg/packagekit/updates.jsx:1569
+#: pkg/packagekit/updates.jsx:1573
 msgid ""
 "Your server will close the connection soon. You can reconnect after it has "
 "restarted."
@@ -7987,7 +7995,7 @@ msgstr "부팅"
 msgid "bridge"
 msgstr "브릿지"
 
-#: pkg/packagekit/updates.jsx:207 pkg/packagekit/updates.jsx:309
+#: pkg/packagekit/updates.jsx:207 pkg/packagekit/updates.jsx:311
 msgid "bug fix"
 msgstr "버그 수정"
 
@@ -8089,7 +8097,7 @@ msgstr "활성화"
 msgid "encryption"
 msgstr "암호화"
 
-#: pkg/packagekit/updates.jsx:209 pkg/packagekit/updates.jsx:309
+#: pkg/packagekit/updates.jsx:209 pkg/packagekit/updates.jsx:311
 msgid "enhancement"
 msgstr "기능 개선"
 
@@ -8400,7 +8408,7 @@ msgstr "비밀번호"
 msgid "password quality"
 msgstr "비밀번호 수준"
 
-#: pkg/packagekit/updates.jsx:332
+#: pkg/packagekit/updates.jsx:336
 msgid "patches"
 msgstr "패치"
 
@@ -8484,7 +8492,7 @@ msgstr "재시작"
 msgid "roles"
 msgstr "역할"
 
-#: pkg/systemd/overview.jsx:157
+#: pkg/systemd/overview.jsx:158
 msgid "running $0"
 msgstr "$0 실행 중"
 
@@ -10524,11 +10532,6 @@ msgstr "영역"
 #~| msgid "IP settings"
 #~ msgid "IP settings          "
 #~ msgstr "IP 설정"
-
-#, fuzzy
-#~| msgid "Go to                                                now"
-#~ msgid "                Entry              "
-#~ msgstr "지금 바로 가기"
 
 #~ msgid "${size} ${desc}"
 #~ msgstr "${size} ${desc}"

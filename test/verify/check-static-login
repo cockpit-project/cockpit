@@ -639,6 +639,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             expect_fail_count(0, user=user)
             b.logout()
 
+        self.enable_root_login()
+
         # ensure we have no module in our pam config already
         # arch has faillock enabled by default
         if m.image != "arch":
@@ -720,13 +722,17 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
     @skipImage("root logins disabled by default with ssh", "fedora-coreos")
     def testPamAccess(self):
         b = self.browser
+        m = self.machine
 
-        # root login works by default
-        self.login_and_go("/system", user="root")
-        b.wait_visible('.system-information')
-        b.logout()
+        # root login is disabled by default via /etc/cockpit/disallowed-users
+        m.start_cockpit()
+
+        b.open("/system")
+        b.try_login("root", "foobar")
+        b.wait_in_text("#login-error-message", "Wrong user name or password")
 
         # disable root login with pam_access
+        self.enable_root_login()
         self.write_file("/etc/security/access.conf", "- : root : ALL\n", append=True)
         self.sed_file("1 aaccount required pam_access.so", "/etc/pam.d/cockpit")
         b.try_login(user="root")

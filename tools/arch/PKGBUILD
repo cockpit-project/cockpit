@@ -11,6 +11,7 @@ pkgdesc='A systemd web based user interface for Linux servers'
 arch=('x86_64')
 url='https://cockpit-project.org/'
 license=(LGPL)
+install=cockpit.install
 makedepends=(krb5 libssh accountsservice perl-json perl-locale-po json-glib glib-networking
              git intltool gtk-doc gobject-introspection networkmanager libgsystem xmlto npm pcp)
 source=("cockpit-${pkgver}.tar.xz"
@@ -18,7 +19,7 @@ source=("cockpit-${pkgver}.tar.xz"
         "cockpit-ws.sysuser.conf"
         "cockpit-wsinstance.sysuser.conf")
 sha256sums=('SKIP'
-            'a979e236681c6a06906937cf0f012e976347af5d6d7e7ae04a11acb01cc2689d'
+            'b95cdb0a336b7c1af9af9da1eed8520dfb8eae51869609416d380fee0357c523'
             '1ad9dad75858264778bd94799b60c651f7cc1c7f7fa1c54622174303e639287a'
             '46ee8ecad7bc97ba588ab9471dde76e41c00daf40658902425626c3a1938b438')
 

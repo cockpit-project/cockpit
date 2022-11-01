@@ -78,7 +78,7 @@ class TestReauthorize(MachineCase):
 
         # When root, the 'Limited access' etc indicators should not be visible
         b.logout()
-        self.login_and_go("/playground/test", user="root")
+        self.login_and_go("/playground/test", user="root", enable_root_login=True)
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'result: uid=0')
         b.leave_page()

@@ -418,6 +418,7 @@ class TestAccounts(MachineCase):
         self.disable_preload("packagekit", "playground", "systemd")
 
         m.execute("useradd anton; echo anton:foobar | chpasswd")
+        self.enable_root_login()
         self.login_and_go("/users", user="root", superuser=False)
 
         # test this on root and a normal user account

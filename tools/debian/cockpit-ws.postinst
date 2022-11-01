@@ -26,6 +26,8 @@ if [ "$1" = "configure" ] && [ -z "$2" ]; then
     mkdir -p /etc/motd.d /etc/issue.d
     ln -s ../../run/cockpit/motd /etc/motd.d/cockpit
     ln -s ../../run/cockpit/motd /etc/issue.d/cockpit.issue
+    printf "# List of users which are not allowed to login to Cockpit\nroot\n" > /etc/cockpit/disallowed-users
+    chmod 644 /etc/cockpit/disallowed-users
 fi
 
 # check for deprecated PAM config

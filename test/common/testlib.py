@@ -1587,7 +1587,9 @@ class MachineCase(unittest.TestCase):
                 self.check_pixel_tests()
         shutil.rmtree(self.tmpdir, ignore_errors=True)
 
-    def login_and_go(self, path=None, user=None, host=None, superuser=True, urlroot=None, tls=False):
+    def login_and_go(self, path=None, user=None, host=None, superuser=True, urlroot=None, tls=False, enable_root_login=False):
+        if enable_root_login:
+            self.enable_root_login()
         self.machine.start_cockpit(tls=tls)
         self.browser.login_and_go(path, user=user, host=host, superuser=superuser, urlroot=urlroot, tls=tls)
 
@@ -2029,6 +2031,16 @@ class MachineCase(unittest.TestCase):
         m = self.machine
         self.restore_file(path, post_restore_action=post_restore_action)
         m.write(path, content, append=append, owner=owner, perm=perm)
+
+    def enable_root_login(self):
+        """Enable root login
+
+        By default root login is disabled in cockpit, removing the root entry of /etc/cockpit/disallowed-users allows root to login.
+        """
+
+        # fedora-coreos runs cockpit-ws in a containter so does not install cockpit-ws on the host
+        if not self.machine.ostree_image:
+            self.sed_file('/root/d', '/etc/cockpit/disallowed-users')
 
 
 def jsquote(js: str) -> str:

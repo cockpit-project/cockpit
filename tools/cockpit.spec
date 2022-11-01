@@ -429,6 +429,7 @@ authentication via sssd/FreeIPA.
 # created in %post, so that users can rm the files
 %ghost %{_sysconfdir}/issue.d/cockpit.issue
 %ghost %{_sysconfdir}/motd.d/cockpit
+%ghost %attr(0644, root, root) %{_sysconfdir}/cockpit/disallowed-users
 %dir %{_datadir}/cockpit/motd
 %{_datadir}/cockpit/motd/update-motd
 %{_datadir}/cockpit/motd/inactive.motd
@@ -477,10 +478,13 @@ if [ -x %{_sbindir}/selinuxenabled ]; then
 fi
 
 # set up dynamic motd/issue symlinks on first-time install; don't bring them back on upgrades if admin removed them
+# disable root login on first-time install; so existing installations aren't changed
 if [ "$1" = 1 ]; then
     mkdir -p /etc/motd.d /etc/issue.d
     ln -s ../../run/cockpit/motd /etc/motd.d/cockpit
     ln -s ../../run/cockpit/motd /etc/issue.d/cockpit.issue
+    printf "# List of users which are not allowed to login to Cockpit\nroot\n" > /etc/cockpit/disallowed-users
+    chmod 644 /etc/cockpit/disallowed-users
 fi
 
 %tmpfiles_create cockpit-tempfiles.conf

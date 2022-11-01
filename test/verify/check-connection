@@ -631,14 +631,20 @@ class TestConnection(MachineCase):
             else:
                 m.execute("rpm --erase cockpit cockpit-ws")
 
-        # upgrade from distro version (our images have cockpit-ws preinstalled) sets up dynamic motd/issue symlink
+        # clean install sets up dynamic motd/issue symlink and pam disallowed users.
         self.assertIn('Activate the web console', m.execute("cat /etc/motd.d/cockpit"))
         self.assertIn('Activate the web console', m.execute("cat /etc/issue.d/cockpit.issue"))
+        self.assertIn('root', m.execute("cat /etc/cockpit/disallowed-users"))
+        # remove disallowed-users to simulate an upgrade where we did not have this file yet.
+        m.execute("rm /etc/cockpit/disallowed-users")
 
         # package upgrade keeps them
         install()
         self.assertIn('Activate the web console', m.execute("cat /etc/motd.d/cockpit"))
         self.assertIn('Activate the web console', m.execute("cat /etc/issue.d/cockpit.issue"))
+        # disallowed-users should not exists now as this is an upgrade
+        m.execute("test ! -e /etc/cockpit/disallowed-users")
+        m.execute("echo 'root' > /etc/cockpit/disallowed-users")
 
         # HACK: On Arch Linux the symlink is overwritten, bug?
         if m.image != "arch":
@@ -652,12 +658,14 @@ class TestConnection(MachineCase):
         remove()
         m.execute("test ! -e /etc/motd.d/cockpit")
         m.execute("test ! -e /etc/issue.d/cockpit.issue")
+        m.execute("test ! -e /etc/cockpit/disallowed-users")
 
         # fresh install (most of our test images have cockpit-ws preinstalled, so the first test above does not cover that)
         install()
         # verify that we installed relative links in the new package
         self.assertEqual(m.execute("readlink /etc/motd.d/cockpit").strip(), "../../run/cockpit/motd")
         self.assertEqual(m.execute("readlink /etc/issue.d/cockpit.issue").strip(), "../../run/cockpit/motd")
+        self.assertIn('root', m.execute("cat /etc/cockpit/disallowed-users"))
 
     @skipImage("OSTree doesn't have cockpit-ws", "fedora-coreos")
     @nondestructive
@@ -737,7 +745,7 @@ class TestConnection(MachineCase):
         m = self.machine
         b = self.browser
 
-        self.login_and_go("/playground/speed", user="root")
+        self.login_and_go("/playground/speed", user="root", enable_root_login=True)
 
         # Check the speed playground page
         b.switch_to_top()

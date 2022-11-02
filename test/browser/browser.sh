@@ -19,9 +19,12 @@ nproc
 free -h
 rpm -q cockpit-system
 
-# install firefox (available everywhere in Fedora and RHEL)
+# install firefox dependencies (available everywhere in Fedora and RHEL)
 # we don't need the H.264 codec, and it is sometimes not available (rhbz#2005760)
 dnf install --disablerepo=fedora-cisco-openh264 -y --setopt=install_weak_deps=False firefox
+# actually use nightly
+curl --location 'https://download.mozilla.org/?product=firefox-nightly-latest-ssl&os=linux64&lang=en-US' | tar -C /usr/local/lib/ -xj
+ln -s /usr/local/lib/firefox/firefox /usr/local/bin/
 
 # HACK: setroubleshoot-server crashes/times out randomly (breaking TestServices),
 # and is hard to disable as it does not use systemd

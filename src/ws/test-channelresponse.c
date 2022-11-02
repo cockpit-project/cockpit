@@ -541,6 +541,15 @@ test_resource_failure (TestResourceCase *tc,
   g_assert (cockpit_pipe_get_pid (tc->pipe, &pid));
   g_assert_cmpint (pid, >, 0);
   int pid_fd = syscall(SYS_pidfd_open, pid, 0);
+  if (pid_fd < 0)
+    {
+      if (errno == ENOSYS)
+	g_test_skip ("no pidfd_open support, skipping");
+      else
+        g_error ("pidfd_open call failed: %m");
+
+      return;
+    }
 
   /* Now kill the bridge */
   g_assert_cmpint (kill (pid, SIGTERM), ==, 0);

@@ -105,7 +105,7 @@ def build_install_coreos(dist_tar, image, verbose, quick):
     return args
 
 
-def build_install_rhel8(dist_tar, image, verbose):
+def build_install_rhel8(dist_tar, image, verbose, quick):
     '''Special treatment of build/install on RHEL/CentOS 8
 
     Here, cockpit is delivered as two mostly identical source packages: "cockpit" with
@@ -131,7 +131,7 @@ def build_install_rhel8(dist_tar, image, verbose):
             # build rpms in mock
             "--run-command",
             """su builder -c 'mock --no-clean --no-cleanup-after --disablerepo=* --offline --resultdir /var/tmp/build """
-            f"""--nocheck {"--verbose" if verbose else ""} --rebuild /var/tmp/build/SRPMS/*.src.rpm' """,
+            f"""{"--nocheck" if quick else ""} {"--verbose" if verbose else ""} --rebuild /var/tmp/build/SRPMS/*.src.rpm' """,
 
             # install rpms
             "--run-command",
@@ -200,7 +200,7 @@ def main():
     if args.image == "fedora-coreos":
         customize += build_install_coreos(dist_tar, args.image, args.verbose, args.quick)
     elif args.image.startswith("rhel-8") or args.image.startswith("centos-8"):
-        customize += build_install_rhel8(dist_tar, args.image, args.verbose)
+        customize += build_install_rhel8(dist_tar, args.image, args.verbose, args.quick)
     else:
         customize += build_install_package(dist_tar, args.image)
 

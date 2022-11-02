@@ -42,6 +42,7 @@ dependencies="\
     nodejs \
     pkg-config \
     python3 \
+    python3-pytest-cov \
     sassc \
     ssh \
     strace \

@@ -11,8 +11,8 @@ cd "$SOURCE"
 # on RHEL/CentOS 8 we have a split package, only test basic bits for "cockpit" and optional bits for "c-appstream"
 if [ "$PLATFORM_ID" = "platform:el8" ]; then
     if ls ../cockpit-appstream* 1> /dev/null 2>&1; then
-        if [ "$PLAN" = "basic" ]; then
-            echo "SKIP: not running basic tests for cockpit-appstream"
+        if [ "$PLAN" = "basic" ] || [ "$PLAN" = "network" ]; then
+            echo "SKIP: not running basic/network tests for cockpit-appstream"
             echo 0 > "$LOGS/exitcode"
             exit 0
         fi
@@ -97,17 +97,12 @@ if [ "$PLAN" = "basic" ]; then
     # Don't run TestPages, TestPackages, and TestTerminal at all -- not testing external APIs
     TESTS="$TESTS
         TestAccounts
-        TestBonding
-        TestBridge
-        TestFirewall
         TestKdump
         TestJournal
         TestLogin
-        TestNetworking
         TestServices
         TestSOS
         TestSystemInfo
-        TestTeam
         TestTuned
         "
 
@@ -129,16 +124,6 @@ if [ "$PLAN" = "basic" ]; then
               TestAccounts.testExpire
               TestAccounts.testRootLogin
               TestAccounts.testUnprivileged
-
-              TestBonding.testActive
-              TestBonding.testAmbiguousMember
-              TestBonding.testNonDefaultSettings
-
-              TestFirewall.testAddCustomServices
-              TestFirewall.testNetworkingPage
-
-              TestNetworkingBasic.testIpHelper
-              TestNetworkingBasic.testNoService
 
               TestLogin.testConversation
               TestLogin.testExpired
@@ -176,6 +161,30 @@ if [ "$PLAN" = "basic" ]; then
               TestServices.testTransientUnits
               "
 fi
+
+if [ "$PLAN" = "network" ]; then
+    TESTS="$TESTS
+        TestBonding
+        TestBridge
+        TestFirewall
+        TestNetworking
+        TestTeam
+        "
+
+    # These don't test more external APIs
+    EXCLUDES="$EXCLUDES
+              TestBonding.testActive
+              TestBonding.testAmbiguousMember
+              TestBonding.testNonDefaultSettings
+
+              TestFirewall.testAddCustomServices
+              TestFirewall.testNetworkingPage
+
+              TestNetworkingBasic.testIpHelper
+              TestNetworkingBasic.testNoService
+              "
+fi
+
 
 exclude_options=""
 for t in $EXCLUDES; do

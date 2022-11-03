@@ -83,6 +83,14 @@ AM_CONDITIONAL(WITH_OLD_BRIDGE, test "$enable_old_bridge" = "yes")
 AC_MSG_RESULT(${enable_old_bridge:=no})
 
 
+AC_SEARCH_LIBS([fts_close], [fts])
+case "$ac_cv_search_fts_close" in
+    no) AC_MSG_FAILURE([failed to find fts_close]) ;;
+    -l*) fts_LIBS="$ac_cv_search_fts_close" ;;
+    *) fts_LIBS= ;;
+esac
+AC_SUBST([fts_LIBS])
+
 # pkg-config
 GLIB_API_VERSION="GLIB_VERSION_2_56"
 PKG_CHECK_MODULES(glib, [gio-2.0 >= 2.56 gio-unix-2.0])

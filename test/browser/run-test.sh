@@ -1,21 +1,28 @@
 #!/bin/sh
 set -eux
 
+PLAN="$1"
+
 cd "$SOURCE"
 
 . /etc/os-release
-test_optional=
-test_basic=
 
-if ls ../cockpit-appstream* 1> /dev/null 2>&1; then
-    test_optional=1
-else
-    test_basic=1
-fi
-
-if [ "$ID" = "fedora" ]; then
-    test_basic=1
-    test_optional=1
+# on Fedora we always test all packages;
+# on RHEL/CentOS 8 we have a split package, only test basic bits for "cockpit" and optional bits for "c-appstream"
+if [ "$PLATFORM_ID" = "platform:el8" ]; then
+    if ls ../cockpit-appstream* 1> /dev/null 2>&1; then
+        if [ "$PLAN" = "basic" ]; then
+            echo "SKIP: not running basic tests for cockpit-appstream"
+            echo 0 > "$LOGS/exitcode"
+            exit 0
+        fi
+    else
+        if [ "$PLAN" = "optional" ]; then
+            echo "SKIP: not running optional tests for split RHEL 8 cockpit"
+            echo 0 > "$LOGS/exitcode"
+            exit 0
+        fi
+    fi
 fi
 
 # tests need cockpit's bots/ libraries
@@ -64,7 +71,7 @@ export TEST_ALLOW_JOURNAL_MESSAGES
 TESTS=""
 EXCLUDES=""
 RC=0
-if [ -n "$test_optional" ]; then
+if [ "$PLAN" = "optional" ]; then
     TESTS="$TESTS
            TestAutoUpdates
            TestUpdates
@@ -86,7 +93,7 @@ if [ -n "$test_optional" ]; then
               "
 fi
 
-if [ -n "$test_basic" ]; then
+if [ "$PLAN" = "basic" ]; then
     # Don't run TestPages, TestPackages, and TestTerminal at all -- not testing external APIs
     TESTS="$TESTS
         TestAccounts

@@ -8,16 +8,30 @@
     - python3
     - libvirt-python3
     # required by tests
-    - NetworkManager-team
     - glibc-all-langpacks
     - firewalld
-    - libvirt-daemon-config-network
     - sssd-dbus
     - subscription-manager
     - targetcli
     - tlog
     - tuned
   test: ./browser.sh basic
+  duration: 1h
+
+/network:
+  summary: Run browser integration tests for cockpit-networkmanager
+  require:
+    # build/test infra dependencies
+    - git
+    - make
+    - nodejs
+    - python3
+    - libvirt-python3
+    # required by tests
+    - NetworkManager-team
+    - firewalld
+    - libvirt-daemon-config-network
+  test: ./browser.sh network
   duration: 1h
 
 /optional:

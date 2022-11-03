@@ -173,11 +173,6 @@ if [ -n "$test_basic" ]; then
               TestServices.testResetFailed
               TestServices.testTransientUnits
               "
-
-    # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=2058142
-    if [ "$TEST_OS" = "fedora-36" ]; then
-        EXCLUDES="$EXCLUDES TestSOS.testBasic"
-    fi
 fi
 
 exclude_options=""

@@ -34,9 +34,6 @@ if grep -q 'ID=.*fedora' /etc/os-release; then
     dnf install -y tcsh
 fi
 
-# HACK: sosreport needs magic - https://bugzilla.redhat.com/show_bug.cgi?id=2120953
-dnf install -y python3-magic
-
 #HACK: unbreak RHEL 9's default choice of 999999999 rounds, see https://bugzilla.redhat.com/show_bug.cgi?id=1993919
 sed -ie 's/#SHA_CRYPT_MAX_ROUNDS 5000/SHA_CRYPT_MAX_ROUNDS 5000/' /etc/login.defs
 

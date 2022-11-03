@@ -31,7 +31,7 @@ libcockpit_tls_a_SOURCES = \
 # cockpit-tls
 
 libexec_PROGRAMS += cockpit-tls
-cockpit_tls_LDADD = $(libcockpit_tls_a_LIBS)
+cockpit_tls_LDADD = $(libcockpit_tls_a_LIBS) $(argp_LIBS)
 cockpit_tls_SOURCES = src/tls/main.c
 
 # -----------------------------------------------------------------------------

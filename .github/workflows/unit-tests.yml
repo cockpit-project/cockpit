@@ -10,7 +10,7 @@ jobs:
           - { make: 'check-memory', cc: 'gcc', tag: 'latest' }
           - { make: 'distcheck', cc: 'clang', tag: 'latest' }
           - { make: 'distcheck', cc: 'gcc', tag: 'i386' }
-          - { make: 'pycheck', cc: 'gcc', tag: 'latest', network: '--network' }
+          - { make: 'pycheck', cc: 'gcc', tag: 'latest' }
           - { make: 'check', cc: 'gcc', tag: 'latest' }
       fail-fast: false
     timeout-minutes: 60
@@ -38,7 +38,7 @@ jobs:
         run: |
           containers/unit-tests/start \
               --verbose \
-              ${{ matrix.startarg.network }} \
+              --submodule=modules/systemd_ctypes \
               --env=CC='${{ matrix.startarg.cc }}' \
               --env=CFLAGS='-O2 -gdwarf-4' \
               --image-tag='${{ matrix.startarg.tag }}' \

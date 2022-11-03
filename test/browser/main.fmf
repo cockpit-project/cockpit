@@ -6,20 +6,12 @@
     - make
     - nodejs
     - python3
+    - libvirt-python3
     # required by tests
     - NetworkManager-team
-    - createrepo_c
-    - cryptsetup
-    - dnf-automatic
     - glibc-all-langpacks
     - firewalld
     - libvirt-daemon-config-network
-    - libvirt-python3
-    - lvm2
-    - udisks2-lvm2
-    - nfs-utils
-    - python3-tracer
-    - rpm-build
     - sssd-dbus
     - subscription-manager
     - targetcli
@@ -36,24 +28,18 @@
     - make
     - nodejs
     - python3
+    - libvirt-python3
     # required by tests
-    - NetworkManager-team
     - createrepo_c
     - cryptsetup
     - dnf-automatic
-    - glibc-all-langpacks
     - firewalld
-    - libvirt-daemon-config-network
-    - libvirt-python3
     - lvm2
     - udisks2-lvm2
     - nfs-utils
     - python3-tracer
     - rpm-build
-    - sssd-dbus
     - subscription-manager
     - targetcli
-    - tlog
-    - tuned
   test: ./browser.sh optional
   duration: 1h

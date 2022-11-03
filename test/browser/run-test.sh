@@ -178,13 +178,6 @@ if [ -n "$test_basic" ]; then
     if [ "$TEST_OS" = "fedora-36" ]; then
         EXCLUDES="$EXCLUDES TestSOS.testBasic"
     fi
-
-    # Firefox 91 (currently in centos-8-stream and centos-9-stream)
-    # can't download files ending in ".gpg".
-    if rpmquery firefox | grep -q ^firefox-91; then
-        EXCLUDES="$EXCLUDES TestSOS.testBasic"
-    fi
-
 fi
 
 exclude_options=""

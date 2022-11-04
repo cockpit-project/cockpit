@@ -18,7 +18,10 @@
 import collections
 import multiprocessing
 import numbers
+import os
 import unittest
+
+import pytest
 
 import cockpit.samples
 
@@ -44,13 +47,36 @@ class TestSamples(unittest.TestCase):
 
     def test_descriptions(self):
         for cls in cockpit.samples.SAMPLERS:
+            # currently broken in containers with no cgroups or temperatures present
+            if cls in [cockpit.samples.CGroupSampler, cockpit.samples.CPUTemperatureSampler]:
+                continue
+
             self.get_checked_samples(cls())
+
+    def test_cgroup_descriptions(self):
+        if not os.path.exists('/sys/fs/cgroup/system.slice'):
+            pytest.xfail('No cgroups present')
+
+        self.get_checked_samples(cockpit.samples.CGroupSampler())
+
+    def test_temperature_descriptions(self):
+        samples = collections.defaultdict(dict)
+        cockpit.samples.CPUTemperatureSampler().sample(samples)
+        if not samples:
+            pytest.xfail('No CPU temperature present')
+
+        self.get_checked_samples(cockpit.samples.CPUTemperatureSampler())
 
     def test_cpu(self):
         samples = self.get_checked_samples(cockpit.samples.CPUSampler())
         self.assertEqual(len(samples['cpu.core.user']), multiprocessing.cpu_count())
 
     def test_cpu_temperature(self):
+        samples = collections.defaultdict(dict)
+        cockpit.samples.CPUTemperatureSampler().sample(samples)
+        if not samples:
+            pytest.xfail('No CPU temperature present')
+
         samples = self.get_checked_samples(cockpit.samples.CPUTemperatureSampler())
         for name, temperature in samples['cpu.temperature'].items():
             assert name.startswith('/sys/')

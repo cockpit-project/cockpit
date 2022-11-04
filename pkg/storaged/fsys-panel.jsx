@@ -177,7 +177,7 @@ export class FilesystemsPanel extends React.Component {
                         { title: _("Source"), sortable: true },
                         { title: _("Type"), sortable: true },
                         { title: _("Mount"), sortable: true },
-                        { title:  _("Size") }
+                        { title: _("Size") }
                     ]}
                     rows={mounts.concat(flatten(pools))} />
             </OptionalPanel>

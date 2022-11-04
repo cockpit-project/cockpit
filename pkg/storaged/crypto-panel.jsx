@@ -52,8 +52,8 @@ export class LockedCryptoPanel extends React.Component {
             return {
                 props: { path, client, key: path },
                 columns: [
-                    { title:  name },
-                    { title:  block_name(block) },
+                    { title: name },
+                    { title: block_name(block) },
                 ]
             };
         }

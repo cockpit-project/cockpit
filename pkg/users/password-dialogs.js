@@ -278,7 +278,7 @@ export function reset_password_dialog(account) {
                 style: "primary",
                 clicked: () => {
                     return cockpit.spawn(["/usr/bin/passwd", "-e", account.name],
-                                         { superuser : true, err: "message" });
+                                         { superuser: true, err: "message" });
                 }
             }
         ]

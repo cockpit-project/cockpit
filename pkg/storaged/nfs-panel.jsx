@@ -101,7 +101,7 @@ export class NFSPanel extends React.Component {
                     columns={[
                         { title: _("Server"), sortable: true },
                         { title: _("Mount point"), sortable: true },
-                        { title:  _("Size") }
+                        { title: _("Size") }
                     ]}
                     rows={mounts} />
             </OptionalPanel>

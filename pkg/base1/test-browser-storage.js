@@ -5,7 +5,7 @@ function test_storage (assert, storage, cockpitStorage) {
     assert.expect(29);
     storage.clear();
     window.mock = {
-        pathname : "/cockpit+test/test"
+        pathname: "/cockpit+test/test"
     };
 
     assert.equal(cockpitStorage.prefixedKey("key1"), "cockpit+test:key1", "prefixed key has application");

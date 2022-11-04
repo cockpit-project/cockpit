@@ -54,10 +54,10 @@ export function AccountRoles({ account, groups, currently_logged_in }) {
     }
 
     const role_groups = {
-        wheel:   _("Server administrator"),
-        sudo:    _("Server administrator"),
-        docker:  _("Container administrator"),
-        weldr:   _("Image builder")
+        wheel: _("Server administrator"),
+        sudo: _("Server administrator"),
+        docker: _("Container administrator"),
+        weldr: _("Image builder")
     };
 
     const roles = [];

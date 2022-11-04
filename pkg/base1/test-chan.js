@@ -467,7 +467,7 @@ QUnit.test("close peer", function (assert) {
         const cmd = {
             command: "close",
             channel: channel.id,
-            problem : "marmalade",
+            problem: "marmalade",
             extra: 5
         };
         mock_peer.send("", JSON.stringify(cmd));

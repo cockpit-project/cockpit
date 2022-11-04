@@ -56,12 +56,17 @@ AM_CPPFLAGS = \
 	$(NULL)
 
 AM_CFLAGS = \
+	-std=gnu18 \
 	-pthread \
 	-Wall \
 	-Werror=strict-prototypes \
 	-Werror=missing-prototypes \
 	-Werror=implicit-function-declaration \
-	-Werror=pointer-arith -Werror=init-self \
+	-Werror=implicit-int \
+	-Werror=int-conversion \
+	-Werror=old-style-definition \
+	-Werror=pointer-arith \
+	-Werror=init-self \
 	-Werror=format=2 \
 	-Werror=return-type \
 	-Werror=missing-include-dirs \

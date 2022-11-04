@@ -204,7 +204,7 @@ const StratisPoolSidebar = ({ client, pool }) => {
             desc = cockpit.format(_("$0 of unknown tier"),
                                   fmt_size(Number(blockdev.TotalPhysicalSize)));
 
-        return { client, block, detail: desc, key:blockdev.path };
+        return { client, block, detail: desc, key: blockdev.path };
     }
 
     const actions = (

@@ -483,28 +483,28 @@ export function NetworkManagerModel() {
 
         function get_ip(first, addr_from_nm, route_from_nm, ip_to_text) {
             return {
-                method:             get(first, "method", "auto"),
-                ignore_auto_dns:    get(first, "ignore-auto-dns", false),
+                method: get(first, "method", "auto"),
+                ignore_auto_dns: get(first, "ignore-auto-dns", false),
                 ignore_auto_routes: get(first, "ignore-auto-routes", false),
-                addresses:          get(first, "addresses", []).map(addr_from_nm),
-                dns:                get(first, "dns", []).map(ip_to_text),
-                dns_search:         get(first, "dns-search", []),
-                routes:             get(first, "routes", []).map(route_from_nm)
+                addresses: get(first, "addresses", []).map(addr_from_nm),
+                dns: get(first, "dns", []).map(ip_to_text),
+                dns_search: get(first, "dns-search", []),
+                routes: get(first, "routes", []).map(route_from_nm)
             };
         }
 
         const result = {
             connection: {
-                type:           get("connection", "type"),
-                uuid:           get("connection", "uuid"),
+                type: get("connection", "type"),
+                uuid: get("connection", "uuid"),
                 interface_name: get("connection", "interface-name"),
-                timestamp:      get("connection", "timestamp", 0),
-                id:             get("connection", "id", _("Unknown")),
-                autoconnect:    get("connection", "autoconnect", true),
+                timestamp: get("connection", "timestamp", 0),
+                id: get("connection", "id", _("Unknown")),
+                autoconnect: get("connection", "autoconnect", true),
                 autoconnect_members:
                                 get("connection", "autoconnect-slaves", -1),
-                member_type:    get("connection", "slave-type"),
-                group:          get("connection", "master")
+                member_type: get("connection", "slave-type"),
+                group: get("connection", "master")
             }
         };
 
@@ -525,7 +525,7 @@ export function NetworkManagerModel() {
                https://www.kernel.org/doc/Documentation/networking/bonding.txt
             */
             result.bond = {
-                options:        { ...get("bond", "options", { }) },
+                options: { ...get("bond", "options", { }) },
                 interface_name: get("bond", "interface-name")
             };
         }
@@ -540,39 +540,39 @@ export function NetworkManagerModel() {
 
         if (settings.team) {
             result.team = {
-                config:         JSON_parse_carefully(get("team", "config", "{}")),
+                config: JSON_parse_carefully(get("team", "config", "{}")),
                 interface_name: get("team", "interface-name")
             };
         }
 
         if (settings["team-port"] || result.connection.member_type == "team") {
-            result.team_port = { config:       JSON_parse_carefully(get("team-port", "config", "{}")), };
+            result.team_port = { config: JSON_parse_carefully(get("team-port", "config", "{}")), };
         }
 
         if (settings.bridge) {
             result.bridge = {
                 interface_name: get("bridge", "interface-name"),
-                stp:            get("bridge", "stp", true),
-                priority:       get("bridge", "priority", 32768),
-                forward_delay:  get("bridge", "forward-delay", 15),
-                hello_time:     get("bridge", "hello-time", 2),
-                max_age:        get("bridge", "max-age", 20),
-                ageing_time:    get("bridge", "ageing-time", 300)
+                stp: get("bridge", "stp", true),
+                priority: get("bridge", "priority", 32768),
+                forward_delay: get("bridge", "forward-delay", 15),
+                hello_time: get("bridge", "hello-time", 2),
+                max_age: get("bridge", "max-age", 20),
+                ageing_time: get("bridge", "ageing-time", 300)
             };
         }
 
         if (settings["bridge-port"] || result.connection.member_type == "bridge") {
             result.bridge_port = {
-                priority:       get("bridge-port", "priority", 32),
-                path_cost:      get("bridge-port", "path-cost", 100),
-                hairpin_mode:   get("bridge-port", "hairpin-mode", false)
+                priority: get("bridge-port", "priority", 32),
+                path_cost: get("bridge-port", "path-cost", 100),
+                hairpin_mode: get("bridge-port", "hairpin-mode", false)
             };
         }
 
         if (settings.vlan) {
             result.vlan = {
-                parent:         get("vlan", "parent"),
-                id:             get("vlan", "id"),
+                parent: get("vlan", "parent"),
+                id: get("vlan", "id"),
                 interface_name: get("vlan", "interface-name")
             };
         }
@@ -823,7 +823,7 @@ export function NetworkManagerModel() {
         ],
 
         props: {
-            Addresses:            { conv: conv_Array(ip4_address_from_nm), def: [] }
+            Addresses: { conv: conv_Array(ip4_address_from_nm), def: [] }
         }
     };
 
@@ -833,7 +833,7 @@ export function NetworkManagerModel() {
         ],
 
         props: {
-            Addresses:            { conv: conv_Array(ip6_address_from_nm), def: [] }
+            Addresses: { conv: conv_Array(ip6_address_from_nm), def: [] }
         }
     };
 
@@ -843,7 +843,7 @@ export function NetworkManagerModel() {
         ],
 
         props: {
-            Unsaved:              { }
+            Unsaved: { }
         },
 
         signals: {
@@ -945,9 +945,9 @@ export function NetworkManagerModel() {
         ],
 
         props: {
-            Connection:           { conv: conv_Object(type_Connection) },
-            Ip4Config:            { conv: conv_Object(type_Ipv4Config) },
-            Ip6Config:            { conv: conv_Object(type_Ipv6Config) }
+            Connection: { conv: conv_Object(type_Connection) },
+            Ip4Config: { conv: conv_Object(type_Ipv4Config) },
+            Ip6Config: { conv: conv_Object(type_Ipv6Config) }
             // See below for "Group"
         },
 
@@ -972,22 +972,22 @@ export function NetworkManagerModel() {
         ],
 
         props: {
-            DeviceType:           { conv: device_type_to_symbol },
-            Interface:            { },
-            StateText:            { prop: "State", conv: device_state_to_text, def: _("Unknown") },
-            State:                { },
-            HwAddress:            { },
+            DeviceType: { conv: device_type_to_symbol },
+            Interface: { },
+            StateText: { prop: "State", conv: device_state_to_text, def: _("Unknown") },
+            State: { },
+            HwAddress: { },
             AvailableConnections: { conv: conv_Array(conv_Object(type_Connection)), def: [] },
-            ActiveConnection:     { conv: conv_Object(type_ActiveConnection) },
-            Ip4Config:            { conv: conv_Object(type_Ipv4Config) },
-            Ip6Config:            { conv: conv_Object(type_Ipv6Config) },
-            Udi:                  { trigger: refresh_udev },
-            IdVendor:             { def: "" },
-            IdModel:              { def: "" },
-            Driver:               { def: "" },
-            Carrier:              { def: true },
-            Speed:                { },
-            Managed:              { def: false },
+            ActiveConnection: { conv: conv_Object(type_ActiveConnection) },
+            Ip4Config: { conv: conv_Object(type_Ipv4Config) },
+            Ip6Config: { conv: conv_Object(type_Ipv6Config) },
+            Udi: { trigger: refresh_udev },
+            IdVendor: { def: "" },
+            IdModel: { def: "" },
+            Driver: { def: "" },
+            Carrier: { def: true },
+            Speed: { },
+            Managed: { def: false },
             // See below for "Members"
         },
 
@@ -1102,7 +1102,7 @@ export function NetworkManagerModel() {
         ],
 
         props: {
-            Connections:            { conv: conv_Array(conv_Object(type_Connection)), def: [] }
+            Connections: { conv: conv_Array(conv_Object(type_Connection)), def: [] }
         },
 
         prototype: {
@@ -1155,12 +1155,12 @@ export function NetworkManagerModel() {
         ],
 
         props: {
-            Version:  { },
+            Version: { },
             Devices: {
                 conv: conv_Array(conv_Object(type_Device)),
                 def: []
             },
-            ActiveConnections:  { conv: conv_Array(conv_Object(type_ActiveConnection)), def: [] }
+            ActiveConnections: { conv: conv_Array(conv_Object(type_ActiveConnection)), def: [] }
         },
 
         prototype: {

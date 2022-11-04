@@ -119,22 +119,22 @@ function validate_username(username, accounts) {
 function suggest_username(realname) {
     function remove_diacritics(str) {
         const translate_table = {
-            a :  '[àáâãäå]',
-            ae:  'æ',
-            c :  '[čç]',
-            d :  'ď',
-            e :  '[èéêë]',
-            i :  '[íìïî]',
-            l :  '[ĺľ]',
-            n :  '[ňñ]',
-            o :  '[òóôõö]',
-            oe:  'œ',
-            r :  '[ŕř]',
-            s :  'š',
-            t :  'ť',
-            u :  '[ùúůûűü]',
-            y :  '[ýÿ]',
-            z :  'ž',
+            a: '[àáâãäå]',
+            ae: 'æ',
+            c: '[čç]',
+            d: 'ď',
+            e: '[èéêë]',
+            i: '[íìïî]',
+            l: '[ĺľ]',
+            n: '[ňñ]',
+            o: '[òóôõö]',
+            oe: 'œ',
+            r: '[ŕř]',
+            s: 'š',
+            t: 'ť',
+            u: '[ùúůûűü]',
+            y: '[ýÿ]',
+            z: 'ž',
         };
         for (const i in translate_table)
             str = str.replace(new RegExp(translate_table[i], 'g'), i);

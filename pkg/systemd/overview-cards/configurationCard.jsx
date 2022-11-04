@@ -210,7 +210,7 @@ const PageSystemInformationChangeHostname = () => {
     const [error, set_error] = useState([]);
 
     useInit(() => {
-        const client = cockpit.dbus('org.freedesktop.hostname1', { superuser : "try" });
+        const client = cockpit.dbus('org.freedesktop.hostname1', { superuser: "try" });
         const hostname_proxy = client.proxy();
 
         hostname_proxy.wait()

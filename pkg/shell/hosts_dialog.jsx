@@ -698,7 +698,7 @@ class ChangeAuth extends React.Component {
                     return this.props.try2Connect(this.props.full_address, options)
                             .then(() => {
                                 if (machine)
-                                    return this.props.machines_ins.change(machine.address, { user : user });
+                                    return this.props.machines_ins.change(machine.address, { user: user });
                                 else
                                     return Promise.resolve();
                             })

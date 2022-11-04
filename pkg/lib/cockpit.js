@@ -948,7 +948,7 @@ function Channel(options) {
         if (!options)
             options = { };
         else if (typeof options == "string")
-            options = { problem : options };
+            options = { problem: options };
         options.command = "close";
         options.channel = id;
 

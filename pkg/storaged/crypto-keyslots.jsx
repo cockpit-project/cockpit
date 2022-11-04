@@ -70,7 +70,7 @@ function jwk_b64_encode(bytes) {
 function compute_thp(jwk) {
     const REQUIRED_ATTRS = {
         RSA: ['kty', 'p', 'd', 'q', 'dp', 'dq', 'qi', 'oth'],
-        EC:  ['kty', 'crv', 'x', 'y'],
+        EC: ['kty', 'crv', 'x', 'y'],
         oct: ['kty', 'k'],
     };
 

@@ -280,10 +280,10 @@ function MachinesIndex(index_options, machines, loader) {
             }
 
             const new_item = Object.assign({}, item);
-            new_item.keyword = { score:-1 };
+            new_item.keyword = { score: -1 };
             if (!term)
                 return new_item;
-            const best_keyword = new_item.keywords.reduce(keyword_relevance, { score:-1 });
+            const best_keyword = new_item.keywords.reduce(keyword_relevance, { score: -1 });
             if (best_keyword.score > -1) {
                 new_item.keyword = best_keyword;
                 return new_item;
@@ -327,7 +327,7 @@ function MachinesIndex(index_options, machines, loader) {
                 name: _("Apps"),
                 items: compiled.ordered("dashboard"),
             }, {
-                name:  _("System"),
+                name: _("System"),
                 items: compiled.ordered("menu"),
             }, {
                 name: _("Tools"),

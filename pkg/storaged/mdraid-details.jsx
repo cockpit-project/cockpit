@@ -108,11 +108,11 @@ class MDRaidSidebar extends React.Component {
 
             function state_text(state) {
                 return {
-                    faulty:       _("Failed"),
-                    in_sync:      _("In sync"),
-                    spare:        active_state[1] < 0 ? _("Spare") : _("Recovering"),
+                    faulty: _("Failed"),
+                    in_sync: _("In sync"),
+                    spare: active_state[1] < 0 ? _("Spare") : _("Recovering"),
                     write_mostly: _("Write-mostly"),
-                    blocked:      _("Blocked")
+                    blocked: _("Blocked")
                 }[state] || cockpit.format(_("Unknown ($0)"), state);
             }
 

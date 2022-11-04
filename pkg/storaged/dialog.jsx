@@ -1022,9 +1022,9 @@ export const SizeSlider = (tag, title, options) => {
 
 export const BlockingMessage = (usage) => {
     const usage_desc = {
-        pvol:                  _("physical volume of LVM2 volume group"),
-        mdraid:                _("member of RAID device"),
-        vdo:                   _("backing device for VDO device"),
+        pvol: _("physical volume of LVM2 volume group"),
+        mdraid: _("member of RAID device"),
+        vdo: _("backing device for VDO device"),
         "stratis-pool-member": _("member of Stratis pool")
     };
 
@@ -1048,7 +1048,7 @@ export const BlockingMessage = (usage) => {
                           columns={[
                               { title: _("Device") },
                               { title: _("Location") },
-                              { title:  _("Use") }
+                              { title: _("Use") }
                           ]}
                           rows={rows} />
         </div>);
@@ -1126,8 +1126,8 @@ export const TeardownMessage = (usage) => {
                           columns={[
                               { title: _("Device") },
                               { title: _("Location") },
-                              { title:  _("Action") },
-                              { title:  "" }
+                              { title: _("Action") },
+                              { title: "" }
                           ]}
                           rows={rows} />
         </div>);

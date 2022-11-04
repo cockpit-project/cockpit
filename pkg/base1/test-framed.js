@@ -51,7 +51,7 @@ function child_frame() {
     let spawn_done = false;
     let binary_done = false;
 
-    const promise = cockpit.spawn(["/bin/sh", "-c", "echo hi"], { host : "localhost" })
+    const promise = cockpit.spawn(["/bin/sh", "-c", "echo hi"], { host: "localhost" })
             .then(resp => {
                 assert.equal(resp, "hi\n", "framed channel got output");
             })
@@ -67,7 +67,7 @@ function child_frame() {
     const channel = cockpit.channel({
         payload: "echo",
         binary: true,
-        host : "localhost"
+        host: "localhost"
     });
     channel.addEventListener("message", function(ev, payload) {
         assert.equal(typeof payload[0], "number", "binary channel got a byte array");

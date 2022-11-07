@@ -38,6 +38,8 @@ import { SearchIcon } from '@patternfly/react-icons';
 import { SortByDirection } from "@patternfly/react-table";
 import { account_create_dialog } from "./account-create-dialog.js";
 import { delete_account_dialog } from "./delete-account-dialog.js";
+import { lockAccountDialog } from "./lock-account-dialog.js";
+import { logoutAccountDialog } from "./logout-account-dialog.js";
 
 const _ = cockpit.gettext;
 
@@ -49,22 +51,28 @@ const UserActions = ({ account }) => {
                       onClick={ev => { ev.preventDefault(); cockpit.location.go(account.name) }}>
             {_("Edit user")}
         </DropdownItem>,
+    ];
+
+    superuser.allowed && actions.push(
         <DropdownSeparator key="separator-0" />,
         <DropdownItem key="log-user-out"
-                      isDisabled={account.uid === 0 || !account.loggedIn}>
+                      isDisabled={account.uid === 0 || !account.loggedIn}
+                      onClick={() => { setKebabOpen(false); logoutAccountDialog(account) }}>
             {_("Log user out")}
         </DropdownItem>,
         <DropdownSeparator key="separator-1" />,
-        <DropdownItem key="lock-account">
+        <DropdownItem key="lock-account"
+                      isDisabled={account.isLocked}
+                      onClick={() => { setKebabOpen(false); lockAccountDialog(account) }}>
             {_("Lock account")}
         </DropdownItem>,
         <DropdownItem key="delete-account"
                       isDisabled={account.uid === 0}
                       className={account.uid === 0 ? "" : "delete-account-red"}
-                      onClick={() => delete_account_dialog(account)}>
+                      onClick={() => { setKebabOpen(false); delete_account_dialog(account) }}>
             {_("Delete account")}
         </DropdownItem>,
-    ];
+    );
 
     const kebab = (
         <Dropdown toggle={<KebabToggle onToggle={setKebabOpen} />}

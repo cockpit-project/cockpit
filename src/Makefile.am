@@ -54,6 +54,9 @@ pyTESTS = $(pyTESTS_PASSING) $(pyTESTS_FAILING)
 pycheck: cockpit-bridge.pyz
 	$(MAKE) check XFAIL_TESTS='$(pyTESTS_FAILING)' TESTS='$(pyTESTS)' COCKPIT_BRIDGE=./cockpit-bridge.pyz
 
+# Will only be honoured if pytest-timeout plugin is installed
+export PYTEST_TIMEOUT = 120
+
 .PHONY: pytest
 pytest: $(SYSTEMD_CTYPES_STAMP)
 	cd '$(srcdir)' && pytest

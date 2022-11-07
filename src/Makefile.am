@@ -7,63 +7,18 @@ sbin_PROGRAMS =
 # -----------------------------------------------------------------------------
 #  Python
 
-pyTESTS_PASSING = \
-	dist/base1/test-base64.html \
-	dist/base1/test-browser-storage.html \
-	dist/base1/test-cache.html \
-	dist/base1/test-chan.html \
-	dist/base1/test-dbus-framed.html \
-	dist/base1/test-echo.html \
-	dist/base1/test-events.html \
-	dist/base1/test-external.html \
-	dist/base1/test-file.html \
-	dist/base1/test-format.html \
-	dist/base1/test-framed-cache.html \
-	dist/base1/test-framed.html \
-	dist/base1/test-http.html \
-	dist/base1/test-journal-renderer.html \
-	dist/base1/test-locale.html \
-	dist/base1/test-location.html \
-	dist/base1/test-metrics.html \
-	dist/base1/test-no-jquery.html \
-	dist/base1/test-permissions.html \
-	dist/base1/test-promise.html \
-	dist/base1/test-protocol.html \
-	dist/base1/test-series.html \
-	dist/base1/test-spawn.html \
-	dist/base1/test-spawn-proc.html \
-	dist/base1/test-user.html \
-	dist/base1/test-utf8.html \
-	dist/kdump/test-config-client.html \
-	dist/networkmanager/test-utils.html \
-	dist/storaged/test-util.html \
-	$(NULL)
-
-pyTESTS_FAILING = \
-	dist/base1/test-websocket.html \
-	$(NULL)
-
-pyTESTS_HANGING = \
-	dist/base1/test-dbus-address.html \
-	dist/base1/test-dbus.html \
-	$(NULL)
-
-pyTESTS = $(pyTESTS_PASSING) $(pyTESTS_FAILING)
-
-.PHONY: pycheck
-pycheck: $(SYSTEMD_CTYPES_STAMP)
-	$(MAKE) check XFAIL_TESTS='$(pyTESTS_FAILING)' TESTS='$(pyTESTS)' COCKPIT_BRIDGE='python3 -m cockpit.bridge'
-
 # Will only be honoured if pytest-timeout plugin is installed
 export PYTEST_TIMEOUT = 120
 
 .PHONY: pytest
-pytest: $(SYSTEMD_CTYPES_STAMP)
-	cd '$(srcdir)' && pytest
+pytest: $(BUILT_SOURCES) $(MANIFESTS) $(SYSTEMD_CTYPES_STAMP)
+	$(MAKE) test-server
+	cd '$(srcdir)' && abs_builddir='$(abs_builddir)' pytest
 
 .PHONY: pytest-cov
-pytest-cov: $(SYSTEMD_CTYPES_STAMP)
-	cd '$(srcdir)' && pytest --cov
+pytest-cov: $(BUILT_SOURCES) $(MANIFESTS) $(SYSTEMD_CTYPES_STAMP)
+	$(MAKE) test-server
+	cd '$(srcdir)' && abs_builddir='$(abs_builddir)' pytest --cov
 
 PYTHON_BRIDGE_FILES = \
 	src/cockpit/__init__.py \

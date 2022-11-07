@@ -22,6 +22,7 @@ log_cli = true
 source = ["src", "*/site-packages"]
 
 [tool.coverage.run]
+concurrency = ["multiprocessing"]
 source_pkgs = ["cockpit"]
 branch = true
 

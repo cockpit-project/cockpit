@@ -114,7 +114,9 @@ class VGroupSidebar extends React.Component {
             }
 
             return {
-                client, block: client.blocks[pvol.path], key: pvol.path,
+                client,
+                block: client.blocks[pvol.path],
+                key: pvol.path,
                 detail: cockpit.format(_("$0, $1 free"), utils.fmt_size(pvol.Size), utils.fmt_size(pvol.FreeSize)),
                 actions: <StorageButton aria-label={_("Remove")} onClick={remove_action} excuse={remove_excuse}>
                     <MinusIcon />

@@ -3,7 +3,8 @@ import QUnit from "qunit-tests";
 
 const pig_latin = {
     "": {
-        language: "pig", "plural-forms": function(n) {
+        language: "pig",
+        "plural-forms": function(n) {
             const plural = (n != 1);
             return plural;
         }
@@ -26,7 +27,8 @@ const pig_latin = {
 
 const ru = {
     "": {
-        language: "ru", "plural-forms":
+        language: "ru",
+        "plural-forms":
         function(n) {
             const plural = (n % 10 == 1 && n % 100 != 11 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2);
             return plural;

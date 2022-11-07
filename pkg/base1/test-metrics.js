@@ -128,7 +128,9 @@ QUnit.test("non-instanced decompression", assert => {
 
     metrics.follow();
     peer.send_json({
-        timestamp: 0, now: 0, interval: 1000,
+        timestamp: 0,
+        now: 0,
+        interval: 1000,
         metrics: [{ name: "m1" }]
     });
     peer.send_json([[10]]);

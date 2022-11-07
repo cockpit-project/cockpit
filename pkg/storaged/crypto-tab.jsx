@@ -86,7 +86,10 @@ export class CryptoTab extends React.Component {
     constructor() {
         super();
         this.state = {
-            luks_version: null, slots: null, slot_error: null, max_slots: null,
+            luks_version: null,
+            slots: null,
+            slot_error: null,
+            max_slots: null,
             stored_passphrase_mtime: 0,
         };
     }

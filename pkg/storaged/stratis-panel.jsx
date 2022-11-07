@@ -51,9 +51,13 @@ function stratis_pool_row(client, path) {
     const pool = client.stratis_pools[path];
 
     return {
-        client, name: pool.Name, key: path, devname: "/dev/stratis/" + pool.Name + "/",
+        client,
+        name: pool.Name,
+        key: path,
+        devname: "/dev/stratis/" + pool.Name + "/",
         detail: cockpit.format(_("$0 Stratis pool"), fmt_size(pool.TotalPhysicalSize)),
-        go: () => cockpit.location.go(["pool", pool.Uuid]), job_path: path
+        go: () => cockpit.location.go(["pool", pool.Uuid]),
+        job_path: path
     };
 }
 
@@ -61,8 +65,13 @@ function stratis_locked_pool_row(client, uuid) {
     const action = <StorageButton onClick={() => unlock_pool(client, uuid, true)}><UnlockIcon /></StorageButton>;
 
     return {
-        client, actions: action, name: uuid, key: uuid, truncate_name: false,
-        detail: _("Locked encrypted Stratis pool"), go: () => cockpit.location.go(["pool", uuid])
+        client,
+        actions: action,
+        name: uuid,
+        key: uuid,
+        truncate_name: false,
+        detail: _("Locked encrypted Stratis pool"),
+        go: () => cockpit.location.go(["pool", uuid])
     };
 }
 

@@ -28,7 +28,11 @@ const _ = cockpit.gettext;
 function vdo_row(client, vdo) {
     const block = client.slashdevs_block[vdo.dev];
     return {
-        client, key: vdo.name, kind: "array", name: vdo.name, devname: vdo.dev,
+        client,
+        key: vdo.name,
+        kind: "array",
+        name: vdo.name,
+        devname: vdo.dev,
         detail: fmt_size(vdo.logical_size) + " " + _("VDO device"),
         go: () => cockpit.location.go(["vdo", vdo.name]),
         job_path: block && block.path

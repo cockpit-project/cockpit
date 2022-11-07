@@ -82,8 +82,13 @@ export class DrivesPanel extends React.Component {
             }
 
             return {
-                client, name, devname: block_name(block), detail: desc,
-                go: () => cockpit.location.go([dev]), job_path: path, key: path
+                client,
+                name,
+                devname: block_name(block),
+                detail: desc,
+                go: () => cockpit.location.go([dev]),
+                job_path: path,
+                key: path
             };
         }
 

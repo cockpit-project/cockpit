@@ -67,6 +67,16 @@ function AccountsPage() {
         );
 }
 
+function get_locked(name) {
+    return cockpit.spawn(["/usr/bin/passwd", "-S", name], { environ: ["LC_ALL=C"], superuser: "require" })
+            .catch(() => "")
+            .then(content => {
+                const status = content.split(" ")[1];
+                // libuser uses "LK", shadow-utils use "L".
+                return status && (status == "LK" || status == "L");
+            });
+}
+
 async function getLogins() {
     const lastlog = await cockpit.spawn(["/usr/bin/lastlog"], { environ: ["LC_ALL=C"] })
             .catch(err => console.warn("Unexpected error when getting last login information", err));
@@ -78,13 +88,14 @@ async function getLogins() {
     });
 
     // drop header and last empty line with slice
-    const promises = lastlog.split('\n').slice(1, -1).map(line => {
+    const promises = lastlog.split('\n').slice(1, -1).map(async line => {
         const splitLine = line.split(/ +/);
         const name = splitLine[0];
+        const isLocked = await get_locked(name);
 
         if (line.indexOf('**Never logged in**') > -1) {
             return new Promise(resolve => {
-                resolve({ name: name, loggedIn: false, lastLogin: null });
+                resolve({ name: name, loggedIn: false, lastLogin: null, isLocked: isLocked });
             });
         }
 
@@ -92,7 +103,7 @@ async function getLogins() {
         // this is impossible to parse with Date() (e.g. Firefox does not work with all time zones), so call `date` to parse it
         return cockpit.spawn(["date", "+%s", "-d", date_fields.join(' ')], { environ: ["LC_ALL=C"], err: "out" })
                 .then(out => {
-                    return { name: name, loggedIn: currentLogins.includes(name), lastLogin: parseInt(out) * 1000 };
+                    return { name: name, loggedIn: currentLogins.includes(name), lastLogin: parseInt(out) * 1000, isLocked: isLocked };
                 })
                 .catch(e => console.warn(`Failed to parse date from lastlog line '${line}': ${e.toString()}`));
     });

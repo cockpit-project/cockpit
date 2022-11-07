@@ -39,8 +39,11 @@ to wrap around when there isn't enough space.
   flex-wrap: wrap;
 }
 
+/* Fix select menu rendering */
 ul.pf-c-select__menu {
-  max-height: 20rem;
+  /* Don't get too tall */
+  max-height: min(20rem, 50vh);
+  /* Don't have a horizontal scrollbar */
   overflow-y: auto;
 }
 

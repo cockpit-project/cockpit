@@ -430,7 +430,9 @@ function Router(index) {
                 if (source) {
                     const reply = {
                         ...cockpit.transport.options,
-                        command: "init", host: source.default_host, "channel-seed": source.channel_seed,
+                        command: "init",
+                        host: source.default_host,
+                        "channel-seed": source.channel_seed,
                     };
                     child.postMessage("\n" + JSON.stringify(reply), origin);
                     source.inited = true;

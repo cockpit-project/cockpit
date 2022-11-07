@@ -32,8 +32,13 @@ function mdraid_row(client, path) {
     const block = client.mdraids_block[path];
 
     return {
-        client, kind: "array", name: mdraid_name(mdraid), devname: block && block_name(block),
-        detail: fmt_size(mdraid.Size) + " " + _("RAID device"), job_path: path, key: path,
+        client,
+        kind: "array",
+        name: mdraid_name(mdraid),
+        devname: block && block_name(block),
+        detail: fmt_size(mdraid.Size) + " " + _("RAID device"),
+        job_path: path,
+        key: path,
         go: () => cockpit.location.go(["mdraid", mdraid.UUID])
     };
 }

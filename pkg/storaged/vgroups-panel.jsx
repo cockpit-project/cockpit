@@ -31,7 +31,11 @@ function vgroup_row(client, path) {
     const vgroup = client.vgroups[path];
 
     return {
-        client, kind: "array", key: path, name: vgroup.Name, job_path: path,
+        client,
+        kind: "array",
+        key: path,
+        name: vgroup.Name,
+        job_path: path,
         devname: "/dev/" + vgroup.Name + "/",
         detail: fmt_size(vgroup.Size) + " " + _("LVM2 volume group"),
         go: () => cockpit.location.go(["vg", vgroup.Name])

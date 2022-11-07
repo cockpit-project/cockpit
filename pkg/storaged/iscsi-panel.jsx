@@ -226,7 +226,11 @@ export class IscsiPanel extends React.Component {
                 );
 
             return {
-                client, actions, kind: "array", name: session.data.target_name || "", key: path,
+                client,
+                actions,
+                kind: "array",
+                name: session.data.target_name || "",
+                key: path,
                 detail: session.data.persistent_address + ":" + session.data.persistent_port
             };
         }

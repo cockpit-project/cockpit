@@ -65,7 +65,8 @@ function child_frame() {
             });
 
     const channel = cockpit.channel({
-        payload: "echo", binary: true,
+        payload: "echo",
+        binary: true,
         host : "localhost"
     });
     channel.addEventListener("message", function(ev, payload) {

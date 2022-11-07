@@ -954,11 +954,13 @@ export class VGroup extends React.Component {
                                    visible: vals => vals.purpose === 'vdo',
                                    fields: [
                                        {
-                                           tag: "compression", title: _("Compression"),
+                                           tag: "compression",
+                                           title: _("Compression"),
                                            tooltip: _("Save space by compressing individual blocks with LZ4")
                                        },
                                        {
-                                           tag: "deduplication", title: _("Deduplication"),
+                                           tag: "deduplication",
+                                           title: _("Deduplication"),
                                            tooltip: _("Save space by storing identical data blocks just once")
                                        },
                                    ],

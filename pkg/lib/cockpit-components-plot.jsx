@@ -404,8 +404,10 @@ export const SvgPlot = ({ title, config, plot_state, plot_id, className }) => {
             if (x < m_left) x = m_left;
             if (x > w - m_right) x = w - m_right;
             setSelection({
-                start: selection.start, stop: x,
-                left: Math.min(selection.start, x), right: Math.max(selection.start, x)
+                start: selection.start,
+                stop: x,
+                left: Math.min(selection.start, x),
+                right: Math.max(selection.start, x)
             });
         }
 

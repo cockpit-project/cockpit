@@ -2963,7 +2963,8 @@ function factory() {
             iface: { value: iface, enumerable: false, writable: false },
             valid: { get: function() { return valid }, enumerable: false },
             wait: {
- enumerable: false, writable: false,
+                enumerable: false,
+                writable: false,
                 value: function(func) {
                     if (func)
                         waits.promise.always(func);
@@ -2971,9 +2972,10 @@ function factory() {
                 }
             },
             call: {
- value: function(name, args, options) { return client.call(path, iface, name, args, options) },
-                      enumerable: false, writable: false
-},
+                value: function(name, args, options) { return client.call(path, iface, name, args, options) },
+                enumerable: false,
+                writable: false
+            },
             data: { value: { }, enumerable: false }
         });
 
@@ -3088,7 +3090,8 @@ function factory() {
             iface: { value: iface, enumerable: false, writable: false },
             path_namespace: { value: path_namespace, enumerable: false, writable: false },
             wait: {
- enumerable: false, writable: false,
+                enumerable: false,
+                writable: false,
                 value: function(func) {
                     if (func)
                         waits.always(func);

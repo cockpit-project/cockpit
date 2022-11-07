@@ -352,7 +352,9 @@ export function get_partitions(client, block) {
             append_free_space(last_end, start - last_end);
             if (is_container) {
                 result.push({
-                    type: 'container', block: block, size: size,
+                    type: 'container',
+                    block: block,
+                    size: size,
                     partitions: process_level(level + 1, start, size)
                 });
             } else {
@@ -434,7 +436,10 @@ export function get_available_spaces(client) {
                 link_parts = get_block_link_parts(client, block.path);
                 text = cockpit.format(link_parts.format, link_parts.link);
                 spaces.push({
-                    type: 'free', block: block, start: p.start, size: p.size,
+                    type: 'free',
+                    block: block,
+                    start: p.start,
+                    size: p.size,
                     desc: cockpit.format(_("unpartitioned space on $0"), text)
                 });
             }

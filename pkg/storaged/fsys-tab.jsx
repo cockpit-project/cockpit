@@ -332,7 +332,8 @@ export function mounting_dialog(client, block, mode, forced_options) {
                            fields: [
                                { title: _("Mount read only"), tag: "ro" },
                                {
-                                   title: _("Never mount at boot"), tag: "never_auto",
+                                   title: _("Never mount at boot"),
+                                   tag: "never_auto",
                                    tooltip: never_auto_explanation
                                },
                                { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },

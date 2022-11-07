@@ -43,6 +43,7 @@ dependencies="\
     pkg-config \
     python3 \
     python3-pytest-cov \
+    python3-pytest-timeout \
     sassc \
     ssh \
     strace \

@@ -16,6 +16,9 @@ function MockPeer() {
     const self = this;
     const echos = { };
     const nulls = { };
+    const queue = [];
+    let pending = false;
+
     cockpit.event_target(this);
 
     /* These are events */
@@ -23,40 +26,46 @@ function MockPeer() {
     self.onrecv = function(event, channel, payload) {
         /* A rudimentary echo channel implementation */
         if (channel) {
-            if (channel in echos)
-                self.send(channel, payload);
-            else if (channel in nulls)
-                self.send(channel, payload);
-            return;
+            if (channel in echos || channel in nulls)
+                queue.push([channel, payload]);
+        } else {
+            const command = JSON.parse(payload);
+            if (command.command == "open") {
+                let reply;
+                if (command.payload == "echo") {
+                    echos[command.channel] = true;
+                    reply = {
+                        command: "ready",
+                        channel: command.channel
+                    };
+                } else if (command.payload == "null") {
+                    nulls[command.channel] = true;
+                    reply = {
+                        command: "ready",
+                        channel: command.channel
+                    };
+                } else {
+                    reply = {
+                        command: "close",
+                        channel: command.channel,
+                        problem: "not-supported",
+                    };
+                }
+                queue.push([null, JSON.stringify(reply)]);
+            } else if (command.command == "close") {
+                delete echos[command.channel];
+                delete nulls[command.channel];
+            }
         }
 
-        const command = JSON.parse(payload);
-        if (command.command == "open") {
-            let reply;
-            if (command.payload == "echo") {
-                echos[command.channel] = true;
-                reply = {
-                    command: "ready",
-                    channel: command.channel
-                };
-            } else if (command.payload == "null") {
-                nulls[command.channel] = true;
-                reply = {
-                    command: "ready",
-                    channel: command.channel
-                };
-            } else {
-                reply = {
-                    command: "close",
-                    channel: command.channel,
-                    problem: "not-supported",
-                };
-            }
-            // HACK: send the reply asynchronously, so that mock_peer addEventListener() gets to see it before our own onrecv()
-            window.setTimeout(() => self.send(null, JSON.stringify(reply), 0));
-        } else if (command.command == "close") {
-            delete echos[command.channel];
-            delete nulls[command.channel];
+        if (queue.length && !pending) {
+            pending = true;
+            window.setTimeout(function() {
+                while (queue.length) {
+                    self.send.apply(self, queue.shift());
+                }
+                pending = false;
+            }, 0);
         }
     };
 
@@ -671,7 +680,7 @@ QUnit.test("ignore other commands", function (assert) {
 
 QUnit.test("filter message in", function (assert) {
     const done = assert.async();
-    assert.expect(11);
+    assert.expect(14);
 
     let filtered = 0;
     let filtering = true;

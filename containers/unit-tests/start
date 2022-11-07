@@ -124,7 +124,7 @@ def main():
                        help='Build the HEAD commit, plus changes on the filesystem (default)')
 
     group = parser.add_argument_group(title='Preparation').add_mutually_exclusive_group()
-    group.add_argument('--submodule', action='append', help='Check out this submodule')
+    group.add_argument('--submodule', action='append', default=[], help='Check out this submodule')
     group.add_argument('--no-node-modules', action='store_true',
                        help='Disable checking out node_modules/ during preparation')
     group.add_argument('--no-jumpstart', action='store_true',

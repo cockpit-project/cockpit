@@ -44,10 +44,6 @@ import * as timeformat from "timeformat.js";
 
 const _ = cockpit.gettext;
 
-function log_unexpected_error(error) {
-    console.warn("Unexpected error", error);
-}
-
 function get_locked(name) {
     return cockpit.spawn(["/usr/bin/passwd", "-S", name], { environ: ["LC_ALL=C"], superuser: "require" })
             .catch(() => "")
@@ -56,34 +52,6 @@ function get_locked(name) {
                 // libuser uses "LK", shadow-utils use "L".
                 return status && (status == "LK" || status == "L");
             });
-}
-
-function get_logged(name) {
-    return cockpit.spawn(["/usr/bin/w", "-sh", name])
-            .then(content => content.length > 0 ? { currently: true } : get_last_login(name))
-            .catch(log_unexpected_error);
-}
-
-function get_last_login(name) {
-    function parse_last_login(data) {
-        const line = data.split('\n')[1]; // throw away header
-        if (!line || line.length === 0 || line.indexOf('**Never logged in**') > -1)
-            return null;
-
-        // line looks like this: admin            web cons ::ffff:172.27.0. Tue Mar 23 14:49:04 +0000 2021
-        // or like this:         admin            web cons ::ffff:172.27.0. Thu Apr  1 08:58:51 +0000 2021
-        // this is impossible to parse with Date() (e.g. Firefox does not work with all time zones), so call `date` to parse it
-        const date_fields = line.split(/ +/).slice(-5);
-
-        return cockpit.spawn(["date", "+%s", "-d", date_fields.join(' ')], { environ: ["LC_ALL=C"], err: "out" })
-                .then(out => parseInt(out) * 1000)
-                .catch(e => console.warn(`Failed to parse date from lastlog line '${line}': ${e.toString()}`));
-    }
-
-    return cockpit.spawn(["/usr/bin/lastlog", "-u", name], { environ: ["LC_ALL=C"] })
-            .then(data => parse_last_login(data))
-            .then(timestamp => ({ currently: false, last: timestamp }))
-            .catch(() => ({ currently: false, last: null }));
 }
 
 function get_expire(name) {
@@ -130,25 +98,15 @@ function get_expire(name) {
             .then(parse_expire);
 }
 
-function get_details(name) {
-    return Promise.all([get_logged(name), get_locked(name), get_expire(name)]).then(values => {
-        return {
-            logged: values[0],
-            locked: values[1],
-            expiration: values[2]
-        };
-    });
-}
-
 export function AccountDetails({ accounts, groups, shadow, current_user, user }) {
-    const [details, setDetails] = useState(null);
+    const [expiration, setExpiration] = useState(null);
     useEffect(() => {
-        get_details(user).then(setDetails);
+        get_expire(user).then(setExpiration);
 
         // Watch `/var/run/utmp` to register when user logs in or out
         const handle = cockpit.file("/var/run/utmp", { superuser: "try", binary: true });
         handle.watch(() => {
-            get_details(user).then(setDetails);
+            get_expire(user).then(setExpiration);
         });
         return handle.close;
     }, [user, accounts, shadow]);
@@ -210,7 +168,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
         cockpit.spawn(["/usr/bin/loginctl", "terminate-user", user],
                       { superuser: "try", err: "message" })
                 .then(() => {
-                    get_details(user).then(setDetails);
+                    get_expire(user).then(setExpiration);
                 })
                 .catch(show_unexpected_error);
     }
@@ -233,7 +191,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
         );
     }
 
-    if (!details)
+    if (!expiration)
         return null;
 
     const self_mod_allowed = (user == current_user || !!superuser.allowed);
@@ -245,12 +203,12 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
         title_name = account.name;
 
     let last_login;
-    if (details.logged.currently)
+    if (account.loggedIn)
         last_login = _("Logged in");
-    else if (!details.logged.last)
+    else if (!account.lastLogin)
         last_login = _("Never");
     else
-        last_login = timeformat.dateTime(new Date(details.logged.last));
+        last_login = timeformat.dateTime(new Date(account.lastLogin));
 
     return (
         <Page groupProps={{ sticky: 'top' }}
@@ -269,7 +227,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                             { superuser.allowed &&
                             <CardActions>
                                 <Button variant="secondary" onClick={() => logout_account()} id="account-logout"
-                                  isDisabled={!details.logged.currently || account.uid == 0}>
+                                  isDisabled={!account.loggedIn || account.uid == 0}>
                                     {_("Terminate session")}
                                 </Button>
                                 { "\n" }
@@ -304,7 +262,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                                     <div id="account-roles">
                                         <div id="account-change-roles-roles">
                                             <AccountRoles account={account} groups={groups}
-                                                currently_logged_in={details.logged.currently} />
+                                                currently_logged_in={account.loggedIn} />
                                         </div>
                                     </div>
                                 </FormGroup>
@@ -318,7 +276,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                                             <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
                                                 <Checkbox id="account-locked"
                                                           isDisabled={!superuser.allowed || edited_locked != null || user == current_user}
-                                                          isChecked={edited_locked != null ? edited_locked : details.locked}
+                                                          isChecked={edited_locked != null ? edited_locked : account.isLocked}
                                                           onChange={checked => change_locked(checked)}
                                                           label={_("Disallow interactive password")} />
 
@@ -330,9 +288,9 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                                         </div>
                                         <Flex flex={{ default: 'inlineFlex' }}>
                                             <span id="account-expiration-text">
-                                                {details.expiration.account_text}
+                                                {expiration.account_text}
                                             </span>
-                                            <Button onClick={() => account_expiration_dialog(account, details.expiration.account_date)}
+                                            <Button onClick={() => account_expiration_dialog(account, expiration.account_date)}
                                                     isDisabled={!superuser.allowed}
                                                     variant="link"
                                                     isInline
@@ -362,9 +320,9 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                                         </div>
                                         <Flex flex={{ default: 'inlineFlex' }}>
                                             <span id="password-expiration-text">
-                                                {details.expiration.password_text}
+                                                {expiration.password_text}
                                             </span>
-                                            <Button onClick={() => password_expiration_dialog(account, details.expiration.password_days)}
+                                            <Button onClick={() => password_expiration_dialog(account, expiration.password_days)}
                                                     isDisabled={!superuser.allowed}
                                                     variant="link"
                                                     isInline

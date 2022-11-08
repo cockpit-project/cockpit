@@ -62,7 +62,7 @@ function AccountsPage() {
         return <AccountsMain accountsInfo={accountsInfo} current_user={current_user_info.name} groups={groups} />;
     } else
         return (
-            <AccountDetails accounts={accounts} groups={groups} shadow={shadow}
+            <AccountDetails accounts={accountsInfo} groups={groups} shadow={shadow}
                             current_user={current_user_info.name} user={path[0]} />
         );
 }

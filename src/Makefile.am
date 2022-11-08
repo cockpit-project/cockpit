@@ -51,8 +51,8 @@ pyTESTS_HANGING = \
 pyTESTS = $(pyTESTS_PASSING) $(pyTESTS_FAILING)
 
 .PHONY: pycheck
-pycheck: cockpit-bridge.pyz
-	$(MAKE) check XFAIL_TESTS='$(pyTESTS_FAILING)' TESTS='$(pyTESTS)' COCKPIT_BRIDGE=./cockpit-bridge.pyz
+pycheck: $(SYSTEMD_CTYPES_STAMP)
+	$(MAKE) check XFAIL_TESTS='$(pyTESTS_FAILING)' TESTS='$(pyTESTS)' COCKPIT_BRIDGE='python3 -m cockpit.bridge'
 
 # Will only be honoured if pytest-timeout plugin is installed
 export PYTEST_TIMEOUT = 120

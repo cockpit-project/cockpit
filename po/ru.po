@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-30 03:28+0000\n"
-"PO-Revision-Date: 2022-09-10 19:19+0000\n"
+"POT-Creation-Date: 2022-11-06 03:16+0000\n"
+"PO-Revision-Date: 2022-11-06 03:20+0000\n"
 "Last-Translator: Igor Gorbounov <igor.gorbounov@gmail.com>\n"
 "Language-Team: Russian <https://translate.fedoraproject.org/projects/cockpit/"
 "main/ru/>\n"
@@ -20,13 +20,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.14\n"
+"X-Generator: Weblate 4.14.2\n"
 
 #: pkg/static/login.html:66
-#, fuzzy
-#| msgid "Go to                                                now"
 msgid "            Bypass browser check          "
-msgstr "Переход к                                                сейчас"
+msgstr "            Обойти проверку браузера          "
 
 #: pkg/storaged/content-views.jsx:502
 msgid "$0 (encrypted)"
@@ -120,11 +118,11 @@ msgstr "Документация $0"
 msgid "$0 error"
 msgstr "Ошибка $0"
 
-#: pkg/lib/cockpit.js:2722
+#: pkg/lib/cockpit.js:2756
 msgid "$0 exited with code $1"
 msgstr "Процесс $0 завершил работу с кодом $1"
 
-#: pkg/lib/cockpit.js:2724
+#: pkg/lib/cockpit.js:2758
 msgid "$0 failed"
 msgstr "Сбой процесса $0"
 
@@ -188,7 +186,7 @@ msgstr "Компонент $0 недоступен в репозиториях."
 msgid "$0 key changed"
 msgstr "Изменен $0 ключ"
 
-#: pkg/lib/cockpit.js:2720
+#: pkg/lib/cockpit.js:2754
 msgid "$0 killed with signal $1"
 msgstr "Процесс $0 прерван с сигналом $1"
 
@@ -1360,7 +1358,7 @@ msgstr "Не может быть активирован"
 msgid "Cannot connect to an unknown host"
 msgstr "Не удаётся подключиться к неизвестному компьютеру"
 
-#: pkg/lib/cockpit.js:3972
+#: pkg/lib/cockpit.js:4006
 msgid "Cannot forward login credentials"
 msgstr "Не удаётся передать учётные данные для входа"
 
@@ -1392,7 +1390,7 @@ msgstr "Изменить"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:166
 msgid "Change crypto policy"
-msgstr ""
+msgstr "Изменить правила шифрования"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:277
 msgid "Change host name"
@@ -1423,9 +1421,8 @@ msgid "Change system time"
 msgstr "Изменить системное время"
 
 #: pkg/shell/hosts_dialog.jsx:784
-#, fuzzy
 msgid "Change the password of $0"
-msgstr "Изменить пароль"
+msgstr "Изменить пароль для $0"
 
 #: pkg/networkmanager/interfaces.js:1596
 msgid "Change the settings"
@@ -1437,6 +1434,9 @@ msgid ""
 "However, an unexpected change may indicate a third-party attempt to "
 "intercept your connection."
 msgstr ""
+"Изменение ключей часто происходит в результате переустановки операционной "
+"системы. Однако неожиданное изменение может указывать на попытку третьей "
+"стороны перехватить ваше соединение."
 
 #: pkg/networkmanager/interfaces.js:1595
 msgid ""
@@ -1480,16 +1480,12 @@ msgid "Checking installed software"
 msgstr "Проверка установленного программного обеспечения"
 
 #: pkg/storaged/fsys-tab.jsx:430 pkg/storaged/dialog.jsx:1138
-#, fuzzy
-#| msgid "Checking for public keys"
 msgid "Checking related processes"
-msgstr "Проверка открытых ключей"
+msgstr "Проверка связанных процессов"
 
 #: pkg/packagekit/updates.jsx:1397
-#, fuzzy
-#| msgid "Checking $target"
 msgid "Checking software status"
-msgstr "Проверка $target"
+msgstr "Проверка состояния программного обеспечения"
 
 #: pkg/shell/shell-modals.jsx:118
 msgid "Choose the language to be used in the application"
@@ -1521,10 +1517,8 @@ msgid "Clear search"
 msgstr "Сбросить поиск"
 
 #: pkg/storaged/crypto-tab.jsx:238
-#, fuzzy
-#| msgid "Create devices"
 msgid "Cleartext device"
-msgstr "Создать устройства"
+msgstr "Устройство с открытым текстом"
 
 #: pkg/systemd/overview-cards/realmd.jsx:289
 msgid "Client software"
@@ -1553,13 +1547,13 @@ msgstr "Cockpit"
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "Проверка подлинности Cockpit настроена неправильно."
 
-#: pkg/lib/cockpit.js:3978
+#: pkg/lib/cockpit.js:4012
 msgid "Cockpit could not contact the given host."
 msgstr "Не удалось установить связь между Cockpit и заданным узлом."
 
 #: pkg/shell/shell-modals.jsx:170
 msgid "Cockpit had an unexpected internal error."
-msgstr ""
+msgstr "У Cockpit произошла неожиданная внутренняя ошибка."
 
 #: src/ws/cockpit.appdata.xml.in:10
 msgid ""
@@ -1579,7 +1573,7 @@ msgstr ""
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit — это интерактивный интерфейс администратора серверов Linux."
 
-#: pkg/lib/cockpit.js:3976
+#: pkg/lib/cockpit.js:4010
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit не совместим с программным обеспечением в системе."
 
@@ -1587,7 +1581,7 @@ msgstr "Cockpit не совместим с программным обеспеч
 msgid "Cockpit is not installed"
 msgstr "Cockpit не установлен"
 
-#: pkg/lib/cockpit.js:3970
+#: pkg/lib/cockpit.js:4004
 msgid "Cockpit is not installed on the system."
 msgstr "Cockpit не установлен в системе."
 
@@ -1608,23 +1602,19 @@ msgstr ""
 
 #: pkg/static/login.js:183
 msgid "Cockpit might not render correctly in your browser"
-msgstr ""
+msgstr "Cockpit может отображаться некорректно в вашем браузере"
 
 #: pkg/metrics/metrics.jsx:1289
-#, fuzzy
-#| msgid "Store metrics"
 msgid "Collect metrics"
-msgstr "Хранить метрики"
+msgstr "Собрать метрики"
 
 #: pkg/shell/hosts_dialog.jsx:260
 msgid "Color"
 msgstr "Цвет"
 
 #: pkg/networkmanager/firewall.jsx:670 pkg/networkmanager/firewall.jsx:681
-#, fuzzy
-#| msgid "Comma-separated ports, ranges, and aliases are accepted"
 msgid "Comma-separated ports, ranges, and services are accepted"
-msgstr "Допустимы порты, диапазоны и псевдонимы с разделителями-запятыми"
+msgstr "Допустимы порты, диапазоны и службы с запятыми в качестве разделителей"
 
 #: pkg/systemd/services/timer-dialog.jsx:175 pkg/storaged/dialog.jsx:1199
 #: pkg/storaged/dialog.jsx:1218
@@ -1632,10 +1622,8 @@ msgid "Command"
 msgstr "Команда"
 
 #: pkg/systemd/services/timer-dialog.jsx:178
-#, fuzzy
-#| msgid "Not found"
 msgid "Command not found"
-msgstr "Не найдено"
+msgstr "Команда не найдена"
 
 #: pkg/shell/credentials.jsx:198
 msgid "Comment"
@@ -1705,44 +1693,34 @@ msgstr "Подтверждение"
 
 #: pkg/systemd/services/service-details.jsx:693
 #: pkg/storaged/stratis-details.jsx:548
-#, fuzzy
-#| msgid "Please confirm deletion of $0"
 msgid "Confirm deletion of $0"
 msgstr "Подтвердите удаление $0"
 
 #: pkg/shell/hosts_dialog.jsx:777
-#, fuzzy
 msgid "Confirm key password"
-msgstr "Подтвердите новый пароль"
+msgstr "Подтвердите ключевой пароль"
 
 #: pkg/shell/hosts_dialog.jsx:791
-#, fuzzy
 msgid "Confirm new key password"
-msgstr "Подтвердите новый пароль"
+msgstr "Подтвердите новый ключевой пароль"
 
 #: pkg/users/password-dialogs.js:147
-#, fuzzy
 msgid "Confirm new password"
 msgstr "Подтвердите новый пароль"
 
 #: pkg/shell/credentials.jsx:271
-#, fuzzy
 msgid "Confirm password"
-msgstr "Подтвердите новый пароль"
+msgstr "Подтвердите пароль"
 
 #: pkg/networkmanager/firewall.jsx:898
 msgid "Confirm removal of $0"
 msgstr "Подтвердите удаление $0"
 
 #: pkg/storaged/crypto-keyslots.jsx:442
-#, fuzzy
-#| msgid "Confirm removal with passphrase"
 msgid "Confirm removal with an alternate passphrase"
-msgstr "Подтвердить удаление с помощью парольной фразы"
+msgstr "Подтвердите удаление с помощью альтернативной кодовой фразы"
 
 #: pkg/storaged/mdraid-details.jsx:240 pkg/storaged/vdo-details.jsx:141
-#, fuzzy
-#| msgid "Please confirm stopping of $0"
 msgid "Confirm stopping of $0"
 msgstr "Подтвердите остановку $0"
 
@@ -1763,20 +1741,16 @@ msgid "Connect to"
 msgstr "Подключиться к"
 
 #: pkg/static/login.js:637
-#, fuzzy
-#| msgid "Connect to"
 msgid "Connect to:"
-msgstr "Подключиться к"
+msgstr "Подключиться к:"
 
 #: pkg/selinux/setroubleshoot-view.jsx:328
 msgid "Connecting to SETroubleshoot daemon..."
 msgstr "Подключение к демону SETroubleshoot..."
 
 #: pkg/systemd/services/services.jsx:251
-#, fuzzy
-#| msgid "Connection failed"
 msgid "Connecting to dbus failed: $0"
-msgstr "Ошибка подключения"
+msgstr "Не удалось подключиться к dbus: $0"
 
 #: pkg/shell/indexes.jsx:445
 msgid "Connecting to the machine"
@@ -1790,7 +1764,7 @@ msgstr "Ошибка подключения"
 msgid "Connection failed"
 msgstr "Ошибка подключения"
 
-#: pkg/lib/cockpit.js:3968
+#: pkg/lib/cockpit.js:4002
 msgid "Connection has timed out."
 msgstr "Превышено время ожидания подключения."
 
@@ -1811,9 +1785,8 @@ msgid "Container administrator"
 msgstr "Администратор контейнера"
 
 #: pkg/shell/nav.jsx:213
-#, fuzzy
 msgid "Contains:"
-msgstr "Содержит"
+msgstr "Содержит:"
 
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
@@ -1822,10 +1795,8 @@ msgid "Content"
 msgstr "Содержимое"
 
 #: pkg/packagekit/updates.jsx:774
-#, fuzzy
-#| msgid "Container"
 msgid "Continue"
-msgstr "Контейнер"
+msgstr "Дальше"
 
 #: pkg/shell/shell-modals.jsx:155
 msgid "Continue session"
@@ -1841,10 +1812,8 @@ msgid "Control"
 msgstr "Управление"
 
 #: pkg/systemd/abrtLog.jsx:128
-#, fuzzy
-#| msgid "Control"
 msgid "Controller"
-msgstr "Управление"
+msgstr "Контроллер"
 
 #: pkg/lib/machine-info.js:90
 msgid "Convertible"
@@ -1852,7 +1821,7 @@ msgstr "Компьютер-трансформер"
 
 #: pkg/shell/failures.jsx:41 pkg/shell/credentials.jsx:215
 msgid "Copied"
-msgstr ""
+msgstr "Скопировано"
 
 #: pkg/lib/cockpit-components-context-menu.jsx:103 pkg/shell/failures.jsx:41
 #: pkg/shell/credentials.jsx:215
@@ -3214,7 +3183,7 @@ msgstr "Заблокировать учётную запись"
 msgid "Host"
 msgstr "Узел"
 
-#: pkg/lib/cockpit.js:3964
+#: pkg/lib/cockpit.js:3998
 msgid "Host key is incorrect"
 msgstr "Неверный ключ узла"
 
@@ -3489,7 +3458,7 @@ msgstr "Интерфейсы"
 msgid "Interfaces"
 msgstr "Интерфейсы"
 
-#: pkg/lib/cockpit.js:3966
+#: pkg/lib/cockpit.js:4000
 msgid "Internal error"
 msgstr "Внутренняя ошибка"
 
@@ -4054,7 +4023,7 @@ msgstr "вход"
 msgid "Login again"
 msgstr "Войти снова"
 
-#: pkg/lib/cockpit.js:3956
+#: pkg/lib/cockpit.js:3990
 msgid "Login failed"
 msgstr "Ошибка входа"
 
@@ -4902,7 +4871,7 @@ msgstr "Не подключено"
 msgid "Not permitted to configure realms"
 msgstr "Пользователю $0 запрещено изменять области"
 
-#: pkg/lib/cockpit.js:3954
+#: pkg/lib/cockpit.js:3988
 msgid "Not permitted to perform this action."
 msgstr "Нет прав на выполнение этого действия."
 
@@ -6444,7 +6413,7 @@ msgstr "Администратор сервера"
 msgid "Server cannot be empty."
 msgstr "Сервер не может быть пустым."
 
-#: pkg/lib/cockpit.js:3974
+#: pkg/lib/cockpit.js:4008
 msgid "Server has closed the connection."
 msgstr "Сервер закрыл соединение."
 
@@ -7408,7 +7377,7 @@ msgstr ""
 "Сервер отклонил проверку подлинности «$0» с помощью пароля, а другие "
 "доступные методы проверки подлинности отсутствуют."
 
-#: pkg/lib/cockpit.js:3958
+#: pkg/lib/cockpit.js:3992
 msgid "The server refused to authenticate using any supported methods."
 msgstr ""
 "Сервер отклонил проверку подлинности с использованием любых поддерживаемых "
@@ -7711,7 +7680,7 @@ msgstr ""
 msgid "Toggle filters"
 msgstr "Сбросить все фильтры"
 
-#: pkg/lib/cockpit.js:3980
+#: pkg/lib/cockpit.js:4014
 msgid "Too much data"
 msgstr "Слишком много данных"
 
@@ -8102,7 +8071,7 @@ msgstr "Неподдерживаемый том"
 msgid "Until"
 msgstr ""
 
-#: pkg/lib/cockpit.js:3960 pkg/lib/cockpit.js:3962
+#: pkg/lib/cockpit.js:3994 pkg/lib/cockpit.js:3996
 msgid "Untrusted host"
 msgstr "Недоверенный узел"
 
@@ -8589,7 +8558,7 @@ msgstr ""
 "Отсутствует разрешение на просмотр авторизованных открытых ключей для этой "
 "учётной записи."
 
-#: pkg/shell/base_index.js:554
+#: pkg/shell/base_index.js:560
 msgid "You have been logged out due to inactivity."
 msgstr "Вы вышли из системы из-за неактивности."
 
@@ -8614,7 +8583,7 @@ msgstr ""
 msgid "You now have administrative access."
 msgstr "Для изменения необходимы права администратора"
 
-#: pkg/shell/base_index.js:532
+#: pkg/shell/base_index.js:538
 msgid "You will be logged out in $0 seconds."
 msgstr "Вы выйдете из системы через $0 секунд."
 
@@ -8641,11 +8610,11 @@ msgstr ""
 "Ваш сервер скоро закроет соединение. После его перезапуска вы сможете "
 "подключиться повторно."
 
-#: pkg/lib/cockpit.js:3950
+#: pkg/lib/cockpit.js:3984
 msgid "Your session has been terminated."
 msgstr "Сеанс завершён."
 
-#: pkg/lib/cockpit.js:3952
+#: pkg/lib/cockpit.js:3986
 msgid "Your session has expired. Please log in again."
 msgstr "Срок действия сеанса истёк. Войдите в систему снова."
 

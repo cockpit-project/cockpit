@@ -818,7 +818,8 @@ password=foobar
         wait(lambda: progressValue(1) > 75)
         m.execute("pkill -e -f [c]at.*urandom")
         # should go back to idle usage
-        wait(lambda: progressValue(1) < 20)
+        # HACK: work around pmie CPU usage https://bugzilla.redhat.com/show_bug.cgi?id=2140572
+        wait(lambda: progressValue(1) < 20, tries=200)
 
         # memory: our test machines should use a reasonable chunk of available memory; MiB or GiB
         b.wait_in_text(".system-usage tr:nth-child(2)", "iB")

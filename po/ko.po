@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-30 03:28+0000\n"
-"PO-Revision-Date: 2022-10-29 16:19+0000\n"
+"POT-Creation-Date: 2022-11-06 03:16+0000\n"
+"PO-Revision-Date: 2022-11-04 12:19+0000\n"
 "Last-Translator: 김인수 <simmon@nplob.com>\n"
 "Language-Team: Korean <https://translate.fedoraproject.org/projects/cockpit/"
 "main/ko/>\n"
@@ -42,7 +42,7 @@ msgstr "$0 GiB"
 
 #: pkg/storaged/stratis-panel.jsx:55
 msgid "$0 Stratis pool"
-msgstr "$0 Stratis 풀"
+msgstr "$0 스트라티스 풀"
 
 #: pkg/networkmanager/network-main.jsx:167
 msgid "$0 active zone"
@@ -107,11 +107,11 @@ msgstr "$0 문서"
 msgid "$0 error"
 msgstr "$0 오류"
 
-#: pkg/lib/cockpit.js:2722
+#: pkg/lib/cockpit.js:2756
 msgid "$0 exited with code $1"
 msgstr "$0가 코드 $1로 종료됨"
 
-#: pkg/lib/cockpit.js:2724
+#: pkg/lib/cockpit.js:2758
 msgid "$0 failed"
 msgstr "$0가 실패"
 
@@ -169,7 +169,7 @@ msgstr "$0는 저장소에서 사용 할 수 없습니다."
 msgid "$0 key changed"
 msgstr "$0 키 변경됩니다"
 
-#: pkg/lib/cockpit.js:2720
+#: pkg/lib/cockpit.js:2754
 msgid "$0 killed with signal $1"
 msgstr "$1 시그널에 의해 $0가 종료되었습니다"
 
@@ -295,19 +295,19 @@ msgstr "1 일"
 
 #: pkg/lib/cockpit-components-plot.jsx:273
 msgid "1 hour"
-msgstr "1 시간"
+msgstr "1시간"
 
 #: pkg/metrics/metrics.jsx:721
 msgid "1 min"
-msgstr "1분"
+msgstr "1 분"
 
 #: pkg/lib/cockpit-components-shutdown.jsx:171
 msgid "1 minute"
-msgstr "1분"
+msgstr "1 분"
 
 #: pkg/lib/cockpit-components-plot.jsx:276
 msgid "1 week"
-msgstr "1주"
+msgstr "1 주"
 
 #: pkg/systemd/services/timer-dialog.jsx:320
 msgid "10th"
@@ -1285,7 +1285,7 @@ msgstr "활성화할 수 없습니다"
 msgid "Cannot connect to an unknown host"
 msgstr "알 수 없는 호스트에 연결 할 수 없습니다"
 
-#: pkg/lib/cockpit.js:3972
+#: pkg/lib/cockpit.js:4006
 msgid "Cannot forward login credentials"
 msgstr "로그인 정보를 전송할 수 없습니다"
 
@@ -1470,7 +1470,7 @@ msgstr "Cockpit"
 msgid "Cockpit authentication is configured incorrectly."
 msgstr "Cockpit 인증이 잘못 설정되어 있습니다."
 
-#: pkg/lib/cockpit.js:3978
+#: pkg/lib/cockpit.js:4012
 msgid "Cockpit could not contact the given host."
 msgstr "Cockpit을 지정된 호스트에 연결 할 수 없습니다."
 
@@ -1495,7 +1495,7 @@ msgstr ""
 msgid "Cockpit is an interactive Linux server admin interface."
 msgstr "Cockpit은 대화형 리눅스 서버 관리 연결장치입니다."
 
-#: pkg/lib/cockpit.js:3976
+#: pkg/lib/cockpit.js:4010
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit은 시스템의 소프트웨어와 호환성이 없습니다."
 
@@ -1503,7 +1503,7 @@ msgstr "Cockpit은 시스템의 소프트웨어와 호환성이 없습니다."
 msgid "Cockpit is not installed"
 msgstr "Cockpit이 설치되어 있지 않습니다"
 
-#: pkg/lib/cockpit.js:3970
+#: pkg/lib/cockpit.js:4004
 msgid "Cockpit is not installed on the system."
 msgstr "시스템에 Cockpit이 설치되어 있지 않습니다."
 
@@ -1680,7 +1680,7 @@ msgstr "연결 오류"
 msgid "Connection failed"
 msgstr "연결 실패"
 
-#: pkg/lib/cockpit.js:3968
+#: pkg/lib/cockpit.js:4002
 msgid "Connection has timed out."
 msgstr "연결 시간 초과."
 
@@ -1868,7 +1868,7 @@ msgstr "볼륨 그룹 만들기"
 # document keys
 #: pkg/sosreport/index.jsx:514
 msgid "Created"
-msgstr "생성 일시"
+msgstr "생성일"
 
 #: pkg/storaged/jobs-panel.jsx:78
 msgid "Creating LVM2 volume group $target"
@@ -2142,7 +2142,7 @@ msgstr "분리 가능"
 #: pkg/systemd/overview-cards/realmd.jsx:401 pkg/shell/credentials.jsx:112
 #: pkg/packagekit/updates.jsx:443
 msgid "Details"
-msgstr "상세 정보"
+msgstr "상세정보"
 
 #: pkg/playground/manifest.json:0
 msgid "Development"
@@ -2625,7 +2625,7 @@ msgstr "FIPS는 적절하게 활성화되지 않았습니다"
 
 #: pkg/networkmanager/interfaces.js:753 pkg/storaged/mdraid-details.jsx:111
 msgid "Failed"
-msgstr "실패하였습니다"
+msgstr "실패함"
 
 #: pkg/shell/hosts_dialog.jsx:211
 msgid "Failed to add machine: $0"
@@ -2949,7 +2949,7 @@ msgstr "기록 꾸러미 수"
 msgid "Host"
 msgstr "호스트"
 
-#: pkg/lib/cockpit.js:3964
+#: pkg/lib/cockpit.js:3998
 msgid "Host key is incorrect"
 msgstr "호스트 키가 잘못되었습니다"
 
@@ -3211,7 +3211,7 @@ msgstr "연결장치 구성원"
 msgid "Interfaces"
 msgstr "연결장치"
 
-#: pkg/lib/cockpit.js:3966
+#: pkg/lib/cockpit.js:4000
 msgid "Internal error"
 msgstr "내부 오류"
 
@@ -3531,7 +3531,7 @@ msgstr "경청하다"
 
 #: pkg/systemd/services/services.jsx:428
 msgid "Listing unit files"
-msgstr "유닛 파일 나열"
+msgstr "단위 파일 나열하기"
 
 #: pkg/systemd/services/services.jsx:490
 msgid "Listing unit files failed: $0"
@@ -3582,7 +3582,7 @@ msgstr "이전 항목 적재하기"
 # frontend/webadmin/modules/webadmin/src/main/resources/org/ovirt/engine/ui/frontend/org.ovirt.engine.ui.webadmin.ApplicationConstants
 #: pkg/systemd/overview-cards/configurationCard.jsx:175
 msgid "Loading keys..."
-msgstr "키 로딩 중..."
+msgstr "키 적재 중..."
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:171
 msgid "Loading of SSH keys failed"
@@ -3613,7 +3613,7 @@ msgstr "단위 로드에 실패했습니다. $0"
 #: pkg/storaged/devices.jsx:69 pkg/metrics/metrics.jsx:1003
 #: pkg/metrics/metrics.jsx:1701
 msgid "Loading..."
-msgstr "로딩 중..."
+msgstr "적재 중..."
 
 #: pkg/users/index.html:23
 msgid "Local accounts"
@@ -3711,7 +3711,7 @@ msgstr "로그인"
 msgid "Login again"
 msgstr "다시 로그인"
 
-#: pkg/lib/cockpit.js:3956
+#: pkg/lib/cockpit.js:3990
 msgid "Login failed"
 msgstr "로그인 실패"
 
@@ -4470,7 +4470,7 @@ msgstr "적재 되어 있지 않습니다"
 msgid "Not permitted to configure realms"
 msgstr "영역 구성을 허용하지 않습니다"
 
-#: pkg/lib/cockpit.js:3954
+#: pkg/lib/cockpit.js:3988
 msgid "Not permitted to perform this action."
 msgstr "이 작업을 실행할 수 있는 권한이 없습니다."
 
@@ -5207,12 +5207,12 @@ msgstr "읽는 중..."
 
 #: pkg/playground/translate.html:19
 msgid "Ready"
-msgstr "준비되었습니다"
+msgstr "준비"
 
 #: pkg/playground/translate.html:24
 msgctxt "verb"
 msgid "Ready"
-msgstr "준비되었습니다"
+msgstr "준비"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:287
 msgid "Real host name"
@@ -5326,7 +5326,7 @@ msgstr "다시 적재 중"
 
 #: pkg/packagekit/updates.jsx:501
 msgid "Reloading the state of remaining services"
-msgstr "나머지 서비스의 상태 재로딩 중"
+msgstr "나머지 서비스의 상태 재적재 중"
 
 #: pkg/kdump/kdump-view.jsx:372
 msgid "Remote over CIFS/SMB"
@@ -5896,7 +5896,7 @@ msgstr "서버 관리자"
 msgid "Server cannot be empty."
 msgstr "서버는 비워둘 수 없습니다."
 
-#: pkg/lib/cockpit.js:3974
+#: pkg/lib/cockpit.js:4008
 msgid "Server has closed the connection."
 msgstr "서버 연결이 종료되었습니다."
 
@@ -6779,7 +6779,7 @@ msgstr ""
 "서버가 비밀번호 인증을 사용하여 '$0' 인증을 거부했습니다. 지원되는 다른 인증 "
 "방법을 사용 할 수 없습니다."
 
-#: pkg/lib/cockpit.js:3958
+#: pkg/lib/cockpit.js:3992
 msgid "The server refused to authenticate using any supported methods."
 msgstr "서버가 지원되는 방법을 사용하여 인증을 거부했습니다."
 
@@ -7067,7 +7067,7 @@ msgstr "날짜 선택기 전환"
 msgid "Toggle filters"
 msgstr "필터 전환"
 
-#: pkg/lib/cockpit.js:3980
+#: pkg/lib/cockpit.js:4014
 msgid "Too much data"
 msgstr "데이터가 너무 많습니다"
 
@@ -7421,7 +7421,7 @@ msgstr "지원되지 않는 볼륨"
 msgid "Until"
 msgstr "까지"
 
-#: pkg/lib/cockpit.js:3960 pkg/lib/cockpit.js:3962
+#: pkg/lib/cockpit.js:3994 pkg/lib/cockpit.js:3996
 msgid "Untrusted host"
 msgstr "지원되지 않는 호스트"
 
@@ -7848,7 +7848,7 @@ msgid ""
 "account."
 msgstr "이 계정에 승인된 공개 키를 표시할 수 있는 권한이 없습니다."
 
-#: pkg/shell/base_index.js:554
+#: pkg/shell/base_index.js:560
 msgid "You have been logged out due to inactivity."
 msgstr "비활성 상태로 인해 로그 아웃되었습니다."
 
@@ -7872,7 +7872,7 @@ msgstr "메트릭을 기록을 보려면 다시 로그인해야 합니다"
 msgid "You now have administrative access."
 msgstr "이제 관리자 액세스 권한이 있습니다."
 
-#: pkg/shell/base_index.js:532
+#: pkg/shell/base_index.js:538
 msgid "You will be logged out in $0 seconds."
 msgstr "$0 초 후에 로그 아웃됩니다."
 
@@ -7898,11 +7898,11 @@ msgid ""
 "restarted."
 msgstr "서버 연결이 종료됩니다. 다시 시작하여 연결을 재개할 수 있습니다."
 
-#: pkg/lib/cockpit.js:3950
+#: pkg/lib/cockpit.js:3984
 msgid "Your session has been terminated."
 msgstr "세션이 종료되었습니다."
 
-#: pkg/lib/cockpit.js:3952
+#: pkg/lib/cockpit.js:3986
 msgid "Your session has expired. Please log in again."
 msgstr "세션이 만료되었습니다. 다시 로그인하십시오."
 

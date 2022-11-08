@@ -83,7 +83,7 @@ QUnit.test("fence", async assert => {
     const done = assert.async();
 
     // This is implemented in the C bridge, but not in Python.
-    if (await QUnit.mock_info("bridge") == "cockpit-bridge.pyz") {
+    if (await QUnit.mock_info("pybridge")) {
         assert.ok(true, "skipping on python bridge, not implemented");
         done();
         return;

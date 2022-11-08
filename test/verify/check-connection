@@ -595,8 +595,8 @@ class TestConnection(MachineCase):
         output = m.execute('curl -k --unix /run/cockpit/sock https://dummy 2>&1 || true')
         self.assertIn('Loading...', output)
 
-        output = m.execute('curl -k https://localhost:9090 2>&1 || true')
-        self.assertIn('Connection refused', output)
+        output = m.execute('curl -k https://localhost:9090 2>/dev/null || echo $?')
+        self.assertIn('7', output.strip())
 
         self.allow_journal_messages(".*Peer failed to perform TLS handshake")
 
@@ -685,8 +685,8 @@ class TestConnection(MachineCase):
         # The port may not be available immediately, so wait for it
         wait(lambda: 'A Custom Title' in m.curl('-k', 'https://localhost:9000/'))
 
-        output = m.execute('curl -s -S -k https://172.27.0.15:9000/ 2>&1 || true')
-        self.assertIn('Connection refused', output)
+        output = m.execute('curl -s -S -k https://172.27.0.15:9000/ 2>&1 || echo $?')
+        self.assertIn('7', output.strip())
 
         # Large requests are processed correctly with plain HTTP
         self.assertIn('A Custom Title', m.curl('http://localhost:9000/', headers=large_headers))

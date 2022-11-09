@@ -37,6 +37,11 @@ if grep -q 'ID=.*fedora' /etc/os-release; then
     dnf install -y tcsh
 fi
 
+if grep -q 'ID=.*rhel' /etc/os-release; then
+    # required by TestUpdates.testKpatch, but kpatch is only in RHEL
+    dnf install -y kpatch kpatch-dnf
+fi
+
 #HACK: unbreak RHEL 9's default choice of 999999999 rounds, see https://bugzilla.redhat.com/show_bug.cgi?id=1993919
 sed -ie 's/#SHA_CRYPT_MAX_ROUNDS 5000/SHA_CRYPT_MAX_ROUNDS 5000/' /etc/login.defs
 

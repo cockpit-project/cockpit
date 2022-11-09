@@ -86,6 +86,10 @@ if [ "$PLAN" = "optional" ]; then
               TestAutoUpdates.testBasic
               TestAutoUpdates.testPrivilegeChange
 
+              TestStoragePackagesNFS.testNfsMissingPackages
+              TestStoragePartitions.testSizeSlider
+              TestStorageIgnored.testIgnored
+
               TestUpdates.testUnprivileged
               TestUpdates.testPackageKitCrash
               TestUpdates.testNoPackageKit
@@ -134,10 +138,6 @@ if [ "$PLAN" = "basic" ]; then
               TestLogin.testRaw
               TestLogin.testServer
               TestLogin.testUnsupportedBrowser
-
-              TestStoragePackagesNFS.testNfsMissingPackages
-              TestStoragePartitions.testSizeSlider
-              TestStorageIgnored.testIgnored
 
               TestSOS.testWithUrlRoot
               TestSOS.testCancel

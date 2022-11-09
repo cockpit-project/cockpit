@@ -95,6 +95,15 @@ if [ "$PLAN" = "optional" ]; then
               TestUpdates.testNoPackageKit
               TestUpdates.testInfoTruncation
               "
+
+    # RHEL test machines have a lot of junk mounted on /mnt
+    if [ "${TEST_OS#rhel-}" != "$TEST_OS" ]; then
+        EXCLUDES="$EXCLUDES
+            TestStorageNfs.testNfsBusy
+            TestStorageNfs.testNfsClient
+            TestStorageNfs.testNfsMountWithoutDiscovery
+            "
+    fi
 fi
 
 if [ "$PLAN" = "basic" ]; then

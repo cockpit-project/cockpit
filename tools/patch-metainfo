@@ -32,4 +32,4 @@ if stub_release is not None:
 
 metainfo_releases.extend(releases_releases)
 
-metainfo.write(args.metainfo)
+metainfo.write(args.metainfo, encoding='utf-8', xml_declaration=True)

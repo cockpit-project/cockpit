@@ -136,7 +136,7 @@ jobs:
           printf '%s\n' "${TAG_BODY}" | ../src/containers/flatpak/add-release \
              org.cockpit_project.CockpitClient.releases.xml \
              "${{ github.ref_name }}" \
-             "$(date +%Y-%m%d)"
+             "$(date +%Y-%m-%d)"
           git add "$(../src/containers/flatpak/prepare "${DOWNLOAD}" "${CHECKSUM}")"
           git add org.cockpit_project.CockpitClient.releases.xml
           git commit -m "Update to version ${{ github.ref_name }}"

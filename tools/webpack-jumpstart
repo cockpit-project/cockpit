@@ -170,9 +170,9 @@ unpack_from_cache "${tag}"
 
 # "${changed_files}" is empty unless --partial was given
 for file in ${changed_files}; do
-    # don't touch files that have nothing to do with webpack
-    if grep -q -F ${file} dist/*/Makefile.deps; then
-        message TOUCH "${file}"
-        touch "${file}"
-    fi
+    # remove any webpacks that mention this file.  `grep -s` in case there aren't any left.
+    grep -sl "${file}" dist/*/Makefile.deps | cut -f2 -d/ | while read -r webpack; do
+        message REMOVE "dist/${webpack}"
+        rm -rf "dist/${webpack}"
+    done
 done

@@ -119,6 +119,10 @@ def build_install_rhel8(dist_tar, image, verbose, quick):
     # in distropkg, keep basic OS packages, otherwise build/install cockpit
     if 'distropkg' not in image:
         args += [
+            # remove already installed packages
+            "--run-command",
+            "if rpm -q cockpit-ws >/dev/null 2>&1; then rpm --erase --nodeps --verbose cockpit cockpit-ws cockpit-bridge cockpit-system; fi",
+
             # create cockpit.spec
             "--run-command",
             f"tar xf '{vm_dist_tar}' -O '*/tools/cockpit.spec' | sed '/%define build_all/d' > /var/tmp/cockpit.spec",

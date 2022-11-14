@@ -84,10 +84,8 @@ a.disabled:hover {
   --ct-animation-new-background: #fdf4dd;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --ct-animation-new-background: #353428;
-  }
+.pf-theme-dark {
+  --ct-animation-new-background: #353428;
 }
 
 /* Animation background is instantly yellow and fades out halfway through */
@@ -165,12 +163,10 @@ a.disabled:hover {
   --ct-color-list-critical-alert-text: var(--pf-global--palette--red-200);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --ct-color-list-critical-bg        : #261213; // red-100 mixed with black-850 @ 20%
-    --ct-color-list-critical-border    : var(--pf-global--danger-color--200);
-    --ct-color-list-critical-alert-text: var(--pf-global--palette--red-8888);
-  }
+.pf-theme-dark {
+  --ct-color-list-critical-bg        : #261213; // red-100 mixed with black-850 @ 20%
+  --ct-color-list-critical-border    : var(--pf-global--danger-color--200);
+  --ct-color-list-critical-alert-text: var(--pf-global--palette--red-8888);
 }
 
 [hidden] { display: none !important; }

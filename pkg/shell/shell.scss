@@ -25,6 +25,11 @@
 
 :root {
   --ct-color-host-accent: var(--pf-global--active-color--100);
+  --ct-topnav-background: var(--pf-global--BackgroundColor--dark-100);
+}
+
+.pf-theme-dark {
+  --ct-topnav-background: var(--pf-global--BackgroundColor--dark-200);
 }
 
 /* Hacks on top for now */
@@ -154,7 +159,7 @@ $desktop: $phone + 1px;
         linear-gradient(
         to top,
         var(--ct-color-host-accent) -1.5rem,
-        var(--pf-global--BackgroundColor--dark-100) 0.75rem
+        var(--ct-topnav-background) 0.75rem
       );
     }
 
@@ -186,7 +191,7 @@ $desktop: $phone + 1px;
       // Shadow to the left, Line on top, Base color (with subtle glow)
       background: linear-gradient(
         to right,
-        var(--pf-global--BackgroundColor--dark-100) -1rem,
+        var(--ct-topnav-background) -1rem,
         transparent 1rem
       ),
         linear-gradient(
@@ -198,12 +203,8 @@ $desktop: $phone + 1px;
         linear-gradient(
         to bottom,
         var(--ct-color-host-accent) -1.5rem,
-        var(--pf-global--BackgroundColor--dark-100) 0.75rem
+        var(--ct-topnav-background) 0.75rem
       );
-
-      @media (prefers-color-scheme: dark) {
-        --pf-global--BackgroundColor--dark-100: var(--pf-global--BackgroundColor--dark-200);
-      }
     }
   }
 
@@ -259,4 +260,11 @@ $desktop: $phone + 1px;
 // Header menu buttons don't need a background color (especially in dark mode)
 .pf-c-toolbar .pf-c-dropdown__toggle {
   --pf-c-dropdown__toggle--BackgroundColor: transparent;
+}
+
+// PF hardcodes header colors to dark, which does funky things
+// ...so swap them back properly for dropdown menus
+.pf-c-masthead .pf-c-dropdown__menu {
+  --pf-global--BackgroundColor--100: var(--pf-global--BackgroundColor--light-100);
+  --pf-global--Color--100: var(--pf-global--Color--dark-100);
 }

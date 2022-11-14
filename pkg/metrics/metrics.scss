@@ -12,6 +12,17 @@
   }
 }
 
+html {
+  --metrics-heading-color: #fff;
+  --metrics-heading-time-color: #eee;
+}
+
+.pf-theme-dark {
+  --metrics-heading-color: var(--pf-global--BackgroundColor-dark-100);
+  --metrics-heading-time-color: var(--pf-global--BackgroundColor--300);
+  --metrics-events-border-color: #000;
+}
+
 // Remove doubled-up padding on "main" sections, when two+ sections are used.
 .pf-c-page__main-section + .pf-c-page__main-section {
   padding-top: 0;
@@ -338,12 +349,8 @@
 
   &-sublabels {
     font-size: var(--pf-global--FontSize--xs);
-    color: rgb(0 0 0 / 70%);
+    color: var(--dark-mode-sublabels-color, rgb(0 0 0 / 70%));
     display: flex;
-
-    @media (prefers-color-scheme: dark) {
-      color: var(--pf-global--Color--200);
-    }
   }
 
   &-label-graph {
@@ -369,9 +376,7 @@
   &-events {
     width: 100%;
 
-    @media (prefers-color-scheme: dark) {
-      --pf-c-table--BorderColor: #000;
-    }
+    --pf-c-table--BorderColor: var(--metrics-events-border-color, default);
 
     // Remove left padding from the table toggle
     .pf-c-table__toggle {
@@ -418,17 +423,13 @@
   }
 
   &-time {
-    background: #eee;
+    background: var(--metrics-heading-time-color);
     padding: 0.5rem 1rem;
     margin-left: var(--pf-global--spacer--md);
-
-    @media (prefers-color-scheme: dark) {
-      background-color: var(--pf-global--BackgroundColor--300);
-    }
   }
 
   &-heading {
-    background: #fff;
+    background: var(--metrics-heading-color);
     margin-bottom: 0.25rem;
     box-shadow: var(--pf-global--BoxShadow--sm);
 
@@ -436,10 +437,6 @@
       position: sticky;
       top: 0;
       z-index: 99;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      background: var(--pf-global--BackgroundColor--dark-100);
     }
   }
 

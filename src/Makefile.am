@@ -45,20 +45,6 @@ SYSTEMD_CTYPES_STAMP = src/systemd_ctypes/__init__.py
 $(SYSTEMD_CTYPES_STAMP):
 	$(srcdir)/tools/systemd_ctypes
 
-CLEANFILES += cockpit-bridge.pyz
-cockpit-bridge.pyz: $(MANIFESTS) $(PYTHON_BRIDGE_FILES) $(SYSTEMD_CTYPES_STAMP)
-	@rm -rf tmp/pyz
-	@mkdir -p tmp/pyz
-	@cp -r $(srcdir)/dist $(srcdir)/src/cockpit $(srcdir)/src/systemd_ctypes/ tmp/pyz
-	$(AM_V_GEN) python3 -m zipapp --python /usr/bin/python3 --output $@ --main cockpit.bridge:main tmp/pyz
-	@chmod a+x $@
-
-.PHONY: pcc
-# Python Cockpit Client testing target
-pcc: cockpit-bridge.pyz
-	ln -vsf "$(realpath $<)" ~/.local/bin/cockpit-bridge
-	gapplication action org.cockpit_project.CockpitClient open-path '"=localhost"'
-
 # -----------------------------------------------------------------------------
 #  C
 

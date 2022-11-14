@@ -93,7 +93,7 @@ function process_result(err, stats) {
 }
 
 function generateDeps(makefile, stats) {
-    const stampfile = path.dirname(makefile) + '/manifest.json';
+    const stampfile = '$(srcdir)/' + path.dirname(makefile) + '/manifest.json';
     const dir = path.relative('', stats.compilation.outputOptions.path);
     const now = Math.floor(Date.now() / 1000);
 

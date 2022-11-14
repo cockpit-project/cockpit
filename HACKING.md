@@ -136,11 +136,6 @@ various bits of the new bridge code.  You can run those with `make pytest` or
 `systemd_ctypes` submodule is checked out before running `pytest` from the
 source directory.
 
-It's also possible to manually build the bridge with `make cockpit-bridge.pyz`.
-You can copy the created file into the `$PATH` as `cockpit-bridge`.  It should
-then be possible to get a limited Cockpit session running (for example, by
-specifying `localhost` to Cockpit Client).
-
 ## Running eslint
 
 Cockpit uses [ESLint](https://eslint.org/) to automatically check JavaScript

@@ -11,6 +11,22 @@
         console.warn(String(ex));
     }
 
+    /* Dark mode */
+    const theme = localStorage.getItem('shell:style');
+    if ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && theme === "auto") || theme === "dark") {
+        document.documentElement.classList.add('pf-theme-dark');
+    } else {
+        document.documentElement.classList.remove('pf-theme-dark');
+    }
+
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+        if ((event.matches && theme === "auto") || theme === "dark") {
+            document.documentElement.classList.add('pf-theme-dark');
+        } else {
+            document.documentElement.classList.remove('pf-theme-dark');
+        }
+    });
+
     let url_root;
     const environment = window.environment || { };
     const oauth = environment.OAuth || null;

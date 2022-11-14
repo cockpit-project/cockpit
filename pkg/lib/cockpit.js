@@ -19,21 +19,6 @@
 
 /* eslint-disable indent,no-empty */
 
-// Dark mode handling
-if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    document.documentElement.classList.add('pf-theme-dark');
-} else {
-    document.documentElement.classList.remove('pf-theme-dark');
-}
-
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-    if (event.matches) {
-        document.documentElement.classList.add('pf-theme-dark');
-    } else {
-        document.documentElement.classList.remove('pf-theme-dark');
-    }
-});
-
 let url_root;
 
 const meta_url_root = document.head.querySelector("meta[name='url-root']");
@@ -2716,25 +2701,6 @@ function factory() {
 
         /* The first time */
         visibility_change();
-    }());
-
-    /* ---------------------------------------------------------------------
-     * Dark mode
-     */
-    (function() {
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            cockpit.dark_mode = true;
-        } else {
-            cockpit.dark_mode = false;
-        }
-
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-            if (event.matches) {
-                cockpit.dark_mode = true;
-            } else {
-                cockpit.dark_mode = false;
-            }
-        });
     }());
 
     /* ---------------------------------------------------------------------

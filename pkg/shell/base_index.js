@@ -205,12 +205,16 @@ function Frames(index, setupIdleResetTimers) {
         if (new_frame) {
             list[component] = frame;
             document.getElementById("content").appendChild(frame);
-            // Set background to dark mode
-            if (cockpit.dark_mode && frame.contentDocument && frame.contentDocument.documentElement) {
-                // --pf-global--BackgroundColor--light-200
-                const dark_mode_background = '#0f1214';
-                frame.contentDocument.documentElement.style.background = dark_mode_background;
-            }
+
+            frame.contentWindow.addEventListener("readystatechange", function(event) {
+                if (!event.target.documentElement)
+                    return;
+                if (index.dark_mode) {
+                    event.target.documentElement.classList.add('pf-theme-dark');
+                } else {
+                    event.target.documentElement.classList.remove('pf-theme-dark');
+                }
+            }, true);
         }
         frame_ready(frame);
         return frame;
@@ -527,6 +531,16 @@ function Index() {
 
     self.has_oops = false;
 
+    /* dark mode */
+    const style = localStorage.getItem('shell:style') || 'auto';
+    if ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && style === "auto") || style === "dark") {
+        document.documentElement.classList.add('pf-theme-dark');
+        self.dark_mode = true;
+    } else {
+        document.documentElement.classList.remove('pf-theme-dark');
+        self.dark_mode = false;
+    }
+
     function sessionTimeout() {
         current_idle_time += 5000;
         if (!session_final_timer && current_idle_time >= session_timeout - final_countdown) {
@@ -613,6 +627,51 @@ function Index() {
         return false;
     };
 
+    function setDarkMode(documentElement, dark_mode) {
+        if (dark_mode) {
+            documentElement.classList.add('pf-theme-dark');
+        } else {
+            documentElement.classList.remove('pf-theme-dark');
+        }
+    }
+
+    function updateFrames(dark_mode) {
+        setDarkMode(document.documentElement, dark_mode);
+        Object.values(self.frames.iframes).forEach(machine => {
+            Object.values(machine).forEach(frame => {
+                setDarkMode(frame.contentDocument.documentElement, dark_mode);
+            });
+        });
+    }
+
+    /* dark mode */
+    window.addEventListener("cockpit-style", event => {
+        const style = event.detail.style;
+        localStorage.setItem("shell:style", style);
+
+        if ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && style === "auto") || style === "dark") {
+            self.dark_mode = true;
+            updateFrames(true);
+        } else {
+            self.dark_mode = false;
+            updateFrames(false);
+        }
+    });
+
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+        const style = localStorage.getItem('shell:style') || 'auto';
+        // If a user set's an explicit theme, ignore system changes.
+        if (style !== "auto")
+            return;
+
+        if (event.matches) {
+            self.dark_mode = true;
+            updateFrames(true);
+        } else {
+            self.dark_mode = false;
+            updateFrames(false);
+        }
+    });
     /*
      * Navigation is driven by state objects, which are used with pushState()
      * and friends. The state is the canonical navigation location, and not

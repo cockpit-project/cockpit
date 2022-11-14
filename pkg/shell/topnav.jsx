@@ -20,9 +20,10 @@
 import cockpit from "cockpit";
 import React from "react";
 import {
-    Button, Dropdown, DropdownItem, DropdownPosition, DropdownSeparator, DropdownToggle,
+    Button, Dropdown, DropdownGroup, DropdownItem, DropdownPosition, DropdownSeparator, DropdownToggle,
     Masthead, MastheadContent,
     Spinner,
+    ToggleGroup, ToggleGroupItem,
     Toolbar, ToolbarItem, ToolbarContent,
 } from '@patternfly/react-core';
 import { CogIcon, ExternalLinkAltIcon, HelpIcon } from '@patternfly/react-icons';
@@ -58,6 +59,7 @@ export class TopNav extends React.Component {
             menuOpened: false,
             showActivePages: false,
             osRelease: {},
+            theme: localStorage.getItem('shell:style') || 'auto',
         };
 
         this.superuser_connection = null;
@@ -98,6 +100,17 @@ export class TopNav extends React.Component {
         }
 
         return null;
+    }
+
+    handleModeClick = (isSelected, event) => {
+        const theme = event.currentTarget.id;
+        this.setState({ theme: theme });
+        const styleEvent = new CustomEvent("cockpit-style", {
+            detail: {
+                style: theme,
+            }
+        });
+        window.dispatchEvent(styleEvent);
     }
 
     render() {
@@ -159,6 +172,22 @@ export class TopNav extends React.Component {
                 <SuperuserIndicator proxy={this.superuser} host={this.props.machine.connection_string} />
             </div>,
             <DropdownSeparator key="separator2" className="mobile_v" />,
+            <DropdownGroup label={_("Style")} key="dark-switcher">
+                <DropdownItem key="dark-switcher-menu" component="div" isPlainText>
+                    <ToggleGroup key="dark-switcher-togglegroup">
+                        <ToggleGroupItem key="dark-switcher-auto" buttonId="auto" text={_("Default")}
+                                isSelected={this.state.theme === "auto"}
+                                onChange={this.handleModeClick} />
+                        <ToggleGroupItem key="dark-switcher-light" buttonId="light" text={_("Light")}
+                                isSelected={this.state.theme === "light"}
+                                onChange={this.handleModeClick} />
+                        <ToggleGroupItem key="dark-switcher-dark" buttonId="dark" text={_("Dark")}
+                                isSelected={this.state.theme === "dark"}
+                                onChange={this.handleModeClick} />
+                    </ToggleGroup>
+                </DropdownItem>
+            </DropdownGroup>,
+            <DropdownSeparator key="separatorDark" />,
         ];
 
         if (manifest.locales)

@@ -229,7 +229,7 @@ $desktop: $phone + 1px;
     }
   }
 
-  .pf-m-dark {
+  .pf-theme-dark {
     > .pf-c-select__toggle {
       background-color: var(--pf-global--BackgroundColor--dark-300);
     }
@@ -381,7 +381,7 @@ $desktop: $phone + 1px;
   }
 }
 
-.pf-m-dark {
+.pf-theme-dark {
   .pf-c-select__toggle {
     //mobile
     height: 100%;
@@ -581,7 +581,7 @@ $desktop: $phone + 1px;
   }
 
   // Use the "current" background for actions color when item is selected
-  .pf-m-current + .nav-item-actions {
+  :where(.pf-m-current + .nav-item-actions) {
     --pf-c-nav__link--BackgroundColor: var(--pf-c-nav--m-dark__item--m-current--BackgroundColor);
   }
 }
@@ -741,18 +741,19 @@ $desktop: $phone + 1px;
 
 /* Dark mode adjustments */
 
-@media (prefers-color-scheme: dark) {
+.pf-theme-dark {
   // Change sidebar background color when dark
   nav,
   .ct-switcher > .pf-c-select {
     --ct-color-nav-menu: var(--pf-global--BackgroundColor--dark-100);
     --pf-global--BackgroundColor--300: var(--pf-global--BackgroundColor--dark-200);
-    background: var(--pf-global--BackgroundColor--dark-100);
   }
 
   // Redefine the background color for current links
-  .pf-theme-dark .area-ct-subnav .pf-c-nav__link {
-    --pf-c-nav__link--m-current--BackgroundColor: var(--pf-global--BackgroundColor--dark-200);
+  .area-ct-subnav .pf-c-nav__item {
+    > :is(.pf-m-current, .pf-m-current + .nav-item-actions) {
+      --pf-c-nav__link--m-current--BackgroundColor: var(--pf-global--BackgroundColor--dark-200);
+    }
   }
 
   // Add a border to the right of the sidebar (without affecting flow)

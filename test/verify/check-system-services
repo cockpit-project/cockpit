@@ -126,8 +126,7 @@ class TestServices(MachineCase):
         self.wait_service_state(service, title)
 
     def wait_service_present(self, service):
-        if service.endswith(".service"):
-            service_name = service[:-8]
+        service_name = service[:-8] if service.endswith(".service") else service
         self.browser.wait_text(f'tr[data-goto-unit="{service}"] .service-unit-id', service_name)
 
     def wait_service_not_present(self, service):

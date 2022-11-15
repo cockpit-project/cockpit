@@ -7,7 +7,7 @@ srcdir="${0%/*}"
 (
     cd "${srcdir}"
     echo "m4_define(VERSION_NUMBER, [$(git describe --tags --abbrev=0)+git])" > version.m4
-    autoreconf -is --warnings obsolete
+    autoreconf -i --warnings obsolete
 )
 
 [ -n "${NOCONFIGURE:-}" ] && exit

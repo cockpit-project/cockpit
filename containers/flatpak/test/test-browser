@@ -15,20 +15,20 @@ JS_TIMEOUT = 15
 
 class BrowserTest(unittest.TestCase):
     @classmethod
-    def setUpClass(klass):
+    def setUpClass(cls):
         # Hide localstorage to start browser from clean state
-        klass.datadir = os.path.expanduser("~/.var/app/org.cockpit_project.CockpitClient")
-        if os.path.exists(klass.datadir):
-            klass.data_backup = klass.datadir + ".cockpittest"
-            os.rename(klass.datadir, klass.data_backup)
+        cls.datadir = os.path.expanduser("~/.var/app/org.cockpit_project.CockpitClient")
+        if os.path.exists(cls.datadir):
+            cls.data_backup = cls.datadir + ".cockpittest"
+            os.rename(cls.datadir, cls.data_backup)
         else:
-            klass.data_backup = None
+            cls.data_backup = None
 
     @classmethod
-    def tearDownClass(klass):
-        shutil.rmtree(klass.datadir)
-        if klass.data_backup:
-            os.rename(klass.data_backup, klass.datadir)
+    def tearDownClass(cls):
+        shutil.rmtree(cls.datadir)
+        if cls.data_backup:
+            os.rename(cls.data_backup, cls.datadir)
 
     def setUp(self):
         with open(TESTLIB) as f:

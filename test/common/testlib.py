@@ -1279,19 +1279,19 @@ class MachineCase(unittest.TestCase):
     global_machine = None
 
     @classmethod
-    def get_global_machine(klass):
-        if klass.global_machine:
-            return klass.global_machine
-        klass.global_machine = klass.new_machine(klass, restrict=True, cleanup=False)
+    def get_global_machine(cls):
+        if cls.global_machine:
+            return cls.global_machine
+        cls.global_machine = cls.new_machine(cls, restrict=True, cleanup=False)
         if opts.trace:
-            print("Starting global machine {0}".format(klass.global_machine.label))
-        klass.global_machine.start()
-        return klass.global_machine
+            print("Starting global machine {0}".format(cls.global_machine.label))
+        cls.global_machine.start()
+        return cls.global_machine
 
     @classmethod
-    def kill_global_machine(klass):
-        if klass.global_machine:
-            klass.global_machine.kill()
+    def kill_global_machine(cls):
+        if cls.global_machine:
+            cls.global_machine.kill()
 
     def label(self):
         (unused, sep, label) = self.id().partition(".")

@@ -98,7 +98,7 @@ QUnit.test("ip4_to/from_text be", function (assert) {
 
     utils.set_byteorder("be");
     checks.forEach(function(c) {
-        assert.strictEqual(utils.ip4_to_text(c[1]), c[0].replace(/ /g, ""));
+        assert.strictEqual(utils.ip4_to_text(c[1]), c[0].replaceAll(" ", ""));
         assert.strictEqual(utils.ip4_from_text(c[0]), c[1]);
     });
 });
@@ -116,7 +116,7 @@ QUnit.test("ip4_to/from_text le", function (assert) {
 
     utils.set_byteorder("le");
     checks.forEach(function(c) {
-        assert.strictEqual(utils.ip4_to_text(c[1]), c[0].replace(/ /g, ""));
+        assert.strictEqual(utils.ip4_to_text(c[1]), c[0].replaceAll(" ", ""));
         assert.strictEqual(utils.ip4_from_text(c[0]), c[1]);
     });
 });
@@ -242,7 +242,7 @@ QUnit.test("ip6_to/from_text", function (assert) {
     assert.expect(2 * checks.length);
 
     checks.forEach(function(c) {
-        assert.strictEqual(utils.ip6_to_text(cockpit.base64_encode(c[0])), c[1].replace(/ /g, ""));
+        assert.strictEqual(utils.ip6_to_text(cockpit.base64_encode(c[0])), c[1].replaceAll(" ", ""));
         assert.deepEqual(cockpit.base64_decode(utils.ip6_from_text(c[1])), c[0]);
     });
 });

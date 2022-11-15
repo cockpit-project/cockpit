@@ -2520,9 +2520,9 @@ function factory() {
                 href = "/" + self.url_root + href;
 
             /* Undo unnecessary encoding of these */
-            href = href.replace("%40", "@");
-            href = href.replace("%3D", "=");
-            href = href.replace(/%2B/g, "+");
+            href = href.replaceAll("%40", "@");
+            href = href.replaceAll("%3D", "=");
+            href = href.replaceAll("%2B", "+");
 
             let opt;
             const query = [];
@@ -2648,9 +2648,9 @@ function factory() {
     cockpit.jump = function jump(path, host) {
         if (Array.isArray(path))
             path = "/" + path.map(encodeURIComponent).join("/")
-.replace("%40", "@")
-.replace("%3D", "=")
-.replace(/%2B/g, "+");
+.replaceAll("%40", "@")
+.replaceAll("%3D", "=")
+.replaceAll("%2B", "+");
         else
             path = "" + path;
 
@@ -3515,7 +3515,7 @@ function factory() {
                 iface = name;
             iface = String(iface);
             if (!path)
-                path = "/" + iface.replace(/\./g, "/");
+                path = "/" + iface.replaceAll(".", "/");
             let Constructor = self.constructors[iface];
             if (!Constructor)
                 Constructor = self.constructors["*"];

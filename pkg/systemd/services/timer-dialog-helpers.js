@@ -51,7 +51,7 @@ export function create_timer({ name, description, command, delay, delayUnit, del
         timer_unit.OnCalendar = repeat_array.map(item => `OnCalendar=*-${month_day_str(new Date(item.date))} ${item.time}:00`);
     }
     if (repeat != "hourly" && delay == "specific-time")
-        timer_unit.OnCalendar = timer_unit.OnCalendar.toString().replace(/,/g, "\n");
+        timer_unit.OnCalendar = timer_unit.OnCalendar.toString().replaceAll(",", "\n");
     return create_timer_file({ timer_unit, delay, owner });
 }
 

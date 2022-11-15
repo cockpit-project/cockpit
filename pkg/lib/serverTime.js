@@ -505,7 +505,7 @@ function ChangeSystimeBody({ state, errors, change }) {
                             selections={time_zone}
                             onSelect={(event, value) => { setZonesOpen(false); change("time_zone", value) }}
                             menuAppendTo="parent">
-                        { time_zones.map(tz => <SelectOption key={tz} value={tz}>{tz.replace(/_/g, " ")}</SelectOption>) }
+                        { time_zones.map(tz => <SelectOption key={tz} value={tz}>{tz.replaceAll("_", " ")}</SelectOption>) }
                     </Select>
                 </Validated>
             </FormGroup>

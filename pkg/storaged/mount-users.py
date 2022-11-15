@@ -21,10 +21,12 @@ def fuser(mount_point):
     results = {}
 
     def get_cmdline(pid):
-        return " ".join(open("/proc/%s/cmdline" % pid).read().split("\0"))
+        with open(f"/proc/{pid}/cmdline") as f:
+            return " ".join(f.read().split("\0"))
 
     def get_stat(pid):
-        stat = open("/proc/%s/stat" % pid).read()
+        with open(f"/proc/{pid}/stat") as f:
+            stat = f.read()
         # Field two is everything between the first "(" and the last ")", the rest is space separated.
         comm_start = stat.index("(") + 1
         comm_end = stat.rindex(")")

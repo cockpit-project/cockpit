@@ -107,7 +107,8 @@ class CPUTemperatureSampler(Sampler):
             if not os.path.exists(sensor_path):
                 break
 
-            label = open(f'/sys/class/hwmon/hwmon{hwmonid}/temp{index}_label').read().strip()
+            with open(f'/sys/class/hwmon/hwmon{hwmonid}/temp{index}_label') as f:
+                label = f.read().strip()
             if label:
                 # only sample CPU Temperature in atk0110
                 if label != 'CPU Temperature' and name == 'atk0110':
@@ -129,7 +130,8 @@ class CPUTemperatureSampler(Sampler):
             # TODO: 2 ** 32?
             for index in range(0, 2 ** 32):
                 try:
-                    name = open(f'/sys/class/hwmon/hwmon{index}/name').read().strip()
+                    with open(f'/sys/class/hwmon/hwmon{index}/name') as f:
+                        name = f.read().strip()
                     if name in cpu_names:
                         self.detect_cpu_sensors(index, name)
                 except FileNotFoundError:

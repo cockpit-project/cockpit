@@ -32,11 +32,6 @@ VERIFY_DIR = os.path.join(TEST_DIR, "verify")
 ROOT_DIR = os.path.dirname(TEST_DIR)
 
 
-def writeFile(file, content):
-    with open(file, 'w') as f:
-        f.write(content)
-
-
 @skipDistroPackage()
 class TestRunTestListing(unittest.TestCase):
 
@@ -134,8 +129,18 @@ class TestRunTest(MachineCase):
         with open(test_file, 'r') as f:
             original_test = f.read()
 
-        self.addCleanup(writeFile, test_file, original_test)
-        writeFile(test_file, original_test.replace("class NoTest", "class Test"))
+        def write_file(file, content, mode=0o666):
+            # test files need to be executable, respect umask
+            content_bin = content.encode()
+            fd = os.open(file, os.O_CREAT | os.O_TRUNC | os.O_WRONLY, mode=mode)
+            try:
+                written = os.write(fd, content_bin)
+                assert written == len(content_bin)
+            finally:
+                os.close(fd)
+
+        self.addCleanup(write_file, test_file, original_test)
+        write_file(test_file, original_test.replace("class NoTest", "class Test"))
 
         process = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "TestRetryExample.testFail", "TestRetryExample.testBasic",
                                   "TestRetryExample.testNoRetry"], env=env, capture_output=True)
@@ -162,16 +167,15 @@ class TestRunTest(MachineCase):
         with open(shell, 'r') as f:
             original_source = f.read()
 
-        self.addCleanup(writeFile, shell, original_source)
-        writeFile(shell, original_source + "\n")
+        self.addCleanup(write_file, shell, original_source)
+        write_file(shell, original_source + "\n")
 
         # create affected test for shell changes
         with open(__file__) as f:
             original_test = f.read()
         affected_testfile = os.path.join(VERIFY_DIR, "check-shell-testlib")
         new_content = original_test.replace("class Test", "class NeinTest")
-        writeFile(affected_testfile, new_content.replace("class NeinTestRetryExample", "class TestShell"))
-        os.chmod(affected_testfile, 0o555)
+        write_file(affected_testfile, new_content.replace("class NeinTestRetryExample", "class TestShell"), mode=0o777)
         self.addCleanup(os.unlink, affected_testfile)
 
         process = subprocess.run([run_tests, "--test-dir", VERIFY_DIR,
@@ -192,18 +196,17 @@ class TestRunTest(MachineCase):
         with open(systemd, 'r') as f:
             original_source = f.read()
 
-        self.addCleanup(writeFile, systemd, original_source)
-        writeFile(systemd, original_source + "\n")
+        self.addCleanup(write_file, systemd, original_source)
+        write_file(systemd, original_source + "\n")
 
         # create affected test for systemd changes
         affected_testfile = os.path.join(VERIFY_DIR, "check-system-testlib")
-        writeFile(affected_testfile, """#!/usr/bin/env python3
+        write_file(affected_testfile, """#!/usr/bin/env python3
 import unittest
 class TestSystemd(unittest.TestCase):
     def testBasic(self):
         self.assertTrue(True)
-        """)
-        os.chmod(affected_testfile, 0o555)
+        """, mode=0o777)
         self.addCleanup(os.unlink, affected_testfile)
 
         process = subprocess.run([run_tests, "--test-dir", VERIFY_DIR, "TestSystemd.testBasic"],

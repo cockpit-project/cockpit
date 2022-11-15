@@ -216,7 +216,7 @@ export function account_create_dialog(accounts) {
 
         return password_quality(password, force)
                 .catch(ex => {
-                    errs.password = (ex.message || ex.toString()).replace("\n", " ");
+                    errs.password = (ex.message || ex.toString()).replaceAll("\n", " ");
                 })
                 .then(() => {
                     errors = errs;

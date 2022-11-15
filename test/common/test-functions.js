@@ -60,7 +60,7 @@ function ph_collected_text_is (sel, val) {
     const rest = els.map(el => {
         if (el.textContent === undefined)
             throw new Error(sel + " can not have text");
-        return el.textContent.replace(/\xa0/g, " ");
+        return el.textContent.replaceAll("\xa0", " ");
     }).join("");
     return rest === val;
 }
@@ -71,7 +71,7 @@ function ph_text (sel) {
         throw new Error(sel + " can not have text");
     // 0xa0 is a non-breakable space, which is a rendering detail of Chromium
     // and awkward to handle in tests; turn it into normal spaces
-    return el.textContent.replace(/\xa0/g, " ");
+    return el.textContent.replaceAll("\xa0", " ");
 }
 
 function ph_attr (sel, attr) {

@@ -44,7 +44,7 @@ for line in output.splitlines():
     if not match:
         continue
 
-    cc = match.group(1)
+    # match group 1 is the compiler name (e.g. "cc"), discard it
     flags = shlex.split(match.group(2))
     output = match.group(3)
     # match group 4 is the `test ...` VPATH stuff (discard it)

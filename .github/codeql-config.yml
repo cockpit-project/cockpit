@@ -1,0 +1,10 @@
+query-filters:
+  - exclude:
+      # complains about `import parent` in tests; unused imports already handled by flake8
+      id: py/unused-import
+  - exclude:
+      # complains about `...` method bodies and `await`, i.e. mostly false positives
+      id: py/ineffectual-statement
+  - exclude:
+      # TODO: these are nice to fix, but not that important
+      id: py/empty-except

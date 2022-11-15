@@ -708,7 +708,7 @@ class TestMultiMachine(MachineCase):
 
         change_ssh_port(m2, "10.111.113.2", 2222)
         m2.disconnect()
-        m2 = None  # No more access to m2
+        del m2  # No more access to m2
 
         self.login_and_go(None)
         b.go(machine_path)

@@ -45,13 +45,14 @@ def field_unescape(str):
 
 def parse_tab(name):
     entries = []
-    for line in open(name, "r").read().split("\n"):
-        sline = line.strip()
-        if sline == "" or sline[0] == "#":
-            continue
-        fields = list(map(field_unescape, re.split("[ \t]+", sline)))
-        if len(fields) > 2 and ":" in fields[0] and fields[2].startswith("nfs"):
-            entries.append(fields)
+    with open(name, "r") as f:
+        for line in f:
+            sline = line.strip()
+            if sline == "" or sline[0] == "#":
+                continue
+            fields = list(map(field_unescape, re.split("[ \t]+", sline)))
+            if len(fields) > 2 and ":" in fields[0] and fields[2].startswith("nfs"):
+                entries.append(fields)
     return entries
 
 
@@ -65,9 +66,10 @@ def index_tab(tab):
 
 
 def modify_tab(name, modify):
-    lines = open(name, "r").read().split("\n")
-    if len(lines) > 0 and lines[len(lines) - 1] == "":
-        del lines[len(lines) - 1]
+    with open(name, "r") as f:
+        lines = f.readlines()
+    if len(lines) > 0 and lines[-1] == "":
+        del lines[-1]
 
     new_lines = []
     for line in lines:
@@ -89,11 +91,10 @@ def modify_tab(name, modify):
     if new_fields:
         new_lines.append(" ".join(map(field_escape, new_fields)))
 
-    f = open(name + ".tmp", "w")
-    f.write("\n".join(new_lines) + "\n")
-    f.flush()
-    os.fsync(f.fileno())
-    f.close()
+    with open(name + ".tmp", "w") as f:
+        f.write("\n".join(new_lines) + "\n")
+        f.flush()
+        os.fsync(f.fileno())
     os.rename(name + ".tmp", name)
 
 

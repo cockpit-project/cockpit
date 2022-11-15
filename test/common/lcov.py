@@ -121,9 +121,11 @@ def parse_sourcemap(f, line_starts, webpack_name):
 class DistFile:
     def __init__(self, path, webpack_name):
         line_starts = [0]
-        for line in open(path, newline='').readlines():
-            line_starts.append(line_starts[-1] + len(line))
-        self.smap = parse_sourcemap(open(path + ".map"), line_starts, webpack_name)
+        with open(path, newline='') as f:
+            for line in f.readlines():
+                line_starts.append(line_starts[-1] + len(line))
+        with open(path + ".map") as f:
+            self.smap = parse_sourcemap(f, line_starts, webpack_name)
 
     def find_sources_slow(self, start, end):
         res = []
@@ -145,13 +147,14 @@ class DistFile:
 
 def get_dist_map(package):
     dmap = {}
-    for f in glob.glob(f"{BASE_DIR}/dist/*/manifest.json") + glob.glob(f"{BASE_DIR}/dist/manifest.json"):
-        m = json.load(open(f))
+    for manifest_json in glob.glob(f"{BASE_DIR}/dist/*/manifest.json") + glob.glob(f"{BASE_DIR}/dist/manifest.json"):
+        with open(manifest_json) as f:
+            m = json.load(f)
         if "name" in m:
-            dmap[m["name"]] = os.path.dirname(f)
-        elif f == f"{BASE_DIR}/dist/manifest.json":
+            dmap[m["name"]] = os.path.dirname(manifest_json)
+        elif manifest_json == f"{BASE_DIR}/dist/manifest.json":
             if "name" in package:
-                dmap[package["name"]] = os.path.dirname(f)
+                dmap[package["name"]] = os.path.dirname(manifest_json)
     return dmap
 
 
@@ -287,7 +290,8 @@ def print_diff_coverage(path, file_hits, out):
 
 def write_lcov(covdata, outlabel):
 
-    package = json.load(open(f"{BASE_DIR}/package.json"))
+    with open(f"{BASE_DIR}/package.json") as f:
+        package = json.load(f)
     dist_map = get_dist_map(package)
     file_hits = {}
 

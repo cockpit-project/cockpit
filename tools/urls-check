@@ -23,6 +23,7 @@ import subprocess
 import sys
 import time
 import urllib
+import urllib.parse
 from urllib.request import urlopen, Request
 
 from parent import BASE_DIR
@@ -99,7 +100,7 @@ def check_urls(verbose):
         if not url:
             continue
 
-        if "example.com" in url:  # Some tests use demo urls
+        if urllib.parse.urlparse(url).hostname.endswith(".example.com"):  # Some tests use demo urls
             continue
 
         if verbose:

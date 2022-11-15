@@ -1,0 +1,49 @@
+name: CodeQL
+on: [pull_request]
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-22.04
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+          - python
+          # Let's enable these one by one
+          #- javascript
+          #- cpp
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+          queries: +security-and-quality
+          config-file: ./.github/codeql-config.yml
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends gettext libssh-dev zlib1g-dev libkrb5-dev libxslt1-dev libglib2.0-dev libgnutls28-dev libsystemd-dev libpolkit-agent-1-dev libpcp3-dev libjson-glib-dev libpam0g-dev libpcp-import1-dev libpcp-pmda3-dev systemd xsltproc xmlto docbook-xsl
+        if: ${{ matrix.language == 'cpp' }}
+
+      - name: Build
+        run: |
+          # disable documentation building as this indirectly triggers a build of pkg/static
+          ./autogen.sh --disable-doc
+          make -j$(nproc) WEBPACK_PACKAGES=
+        if: ${{ matrix.language == 'cpp' }}
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:${{ matrix.language }}"

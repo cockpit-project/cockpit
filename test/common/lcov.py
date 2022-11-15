@@ -157,19 +157,22 @@ def get_dist_map(package):
 
 def get_distfile(url, dist_map, webpack_name):
     parts = url.split("/")
-    if len(parts) > 2 and "cockpit" in parts:
-        base = parts[-2]
-        file = parts[-1]
-        if file == "manifests.js":
-            return None
-        if base in dist_map:
-            path = dist_map[base] + "/" + file
-        else:
-            path = f"{BASE_DIR}/dist/" + base + "/" + file
-        if os.path.exists(path) and os.path.exists(path + ".map"):
-            return DistFile(path, webpack_name)
-        else:
-            sys.stderr.write(f"SKIP {url} -> {path}\n")
+    if len(parts) < 3 or "cockpit" not in parts:
+        return None
+
+    base = parts[-2]
+    file = parts[-1]
+    if file == "manifests.js":
+        return None
+    if base in dist_map:
+        path = dist_map[base] + "/" + file
+    else:
+        path = f"{BASE_DIR}/dist/" + base + "/" + file
+    if os.path.exists(path) and os.path.exists(path + ".map"):
+        return DistFile(path, webpack_name)
+    else:
+        sys.stderr.write(f"SKIP {url} -> {path}\n")
+        return None
 
 
 def grow_array(arr, size, val):

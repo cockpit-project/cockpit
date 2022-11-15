@@ -100,7 +100,7 @@ class TestSelinux(MachineCase):
             b.click('tbody:first-of-type input[type=checkbox]')
             b.click(dismiss_sel)
             # wait for the dismissed alert to go away
-            num_alerts = b.wait_js_func("ph_count_check", "#selinux-alerts tbody", num_alerts - 1)
+            b.wait_js_func("ph_count_check", "#selinux-alerts tbody", num_alerts - 1)
 
         # wait for Modifications table to initialize
         b.wait_text_matches(".modifications-table", "Allow zebra.*write.*config")

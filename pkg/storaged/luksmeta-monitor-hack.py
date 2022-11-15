@@ -24,23 +24,25 @@ def get_clevis_config_from_protected_header(protected_header):
     header = b64_decode(protected_header).decode("utf-8")
     header_object = json.loads(header)
     clevis = header_object.get("clevis", None)
-    if clevis:
-        pin = clevis.get("pin", None)
-        if pin == "tang":
-            return clevis
-        elif pin == "sss":
-            subpins = {}
-            jwes = clevis["sss"]["jwe"]
-            for jwe in jwes:
-                subconf = get_clevis_config_from_jwe(jwe)
-                subpin = subconf["pin"]
-                if subpin not in subpins:
-                    subpins[subpin] = [subconf[subpin]]
-                else:
-                    subpins[subpin].append(subconf[subpin])
-            return {"pin": "sss", "sss": {"t": clevis["sss"]["t"], "pins": subpins}}
-        else:
-            return {"pin": pin, pin: {}}
+    if clevis is None:
+        return None
+
+    pin = clevis.get("pin", None)
+    if pin == "tang":
+        return clevis
+    elif pin == "sss":
+        subpins = {}
+        jwes = clevis["sss"]["jwe"]
+        for jwe in jwes:
+            subconf = get_clevis_config_from_jwe(jwe)
+            subpin = subconf["pin"]
+            if subpin not in subpins:
+                subpins[subpin] = [subconf[subpin]]
+            else:
+                subpins[subpin].append(subconf[subpin])
+        return {"pin": "sss", "sss": {"t": clevis["sss"]["t"], "pins": subpins}}
+    else:
+        return {"pin": pin, pin: {}}
 
 
 def get_clevis_config_from_jwe(jwe):

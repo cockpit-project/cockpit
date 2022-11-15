@@ -507,7 +507,7 @@ class TestConnection(MachineCase):
         # annoying due to the date format OpenSSL uses (which Python can't
         # trivially parse) and the question of locales
         expires = m.execute(f'date -d "$(openssl x509 -enddate -noout < {selfsign} | cut -f2 -d=)" +%s')
-        self.assertTrue(int(expires) > time.time() + 99 * 365 * 24 * 60 * 60)
+        self.assertGreater(int(expires), time.time() + 99 * 365 * 24 * 60 * 60)
 
         # Put things back: avoid problematic multiple invocations of .sed_file()
         m.execute(f'sed -i s/DAYS=36500/DAYS=395/ {helper}')
@@ -522,7 +522,7 @@ class TestConnection(MachineCase):
         # Check that the expiry is less than 420 days
         # See https://github.com/sgallagher/sscg/pull/28 for why 420
         expires = m.execute(f'date -d "$(openssl x509 -enddate -noout < {selfsign} | cut -f2 -d=)" +%s')
-        self.assertTrue(int(expires) < time.time() + 420 * 24 * 60 * 60)
+        self.assertLess(int(expires), time.time() + 420 * 24 * 60 * 60)
 
         # Run ensure again and make sure we *don't* get a new certificate
         m.execute('touch /tmp/timestamp')

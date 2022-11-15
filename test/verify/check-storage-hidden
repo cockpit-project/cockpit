@@ -140,7 +140,7 @@ class TestStorageHidden(StorageCase):
         for d in devices["blockdevices"]:
             if d["type"] == "loop" and d["mountpoint"].startswith("/snap/"):
                 snap_loops.append(d["name"])
-        self.assertTrue(len(snap_loops) > 0)
+        self.assertGreater(len(snap_loops), 0)
 
         # Make one more loopback device that we expect to see in the UI.
         dev = self.add_loopback_disk()

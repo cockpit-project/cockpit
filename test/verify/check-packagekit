@@ -114,10 +114,10 @@ class TestUpdates(NoSubManCase):
                          num_issues is not None and str(num_issues) or "")
 
         # should not be expanded by default
-        self.assertFalse("pf-m-expanded" in b.attr(row, "class"))
+        self.assertNotIn("pf-m-expanded", b.attr(row, "class"))
         # expand
         b.click(row + "td.pf-c-table__toggle button")
-        self.assertTrue("pf-m-expanded" in b.attr(row, "class"))
+        self.assertIn("pf-m-expanded", b.attr(row, "class"))
         b.wait_in_text(row + "> tr.pf-m-expanded", "Packages")
         desc = b.text(row + "> tr.pf-m-expanded")
 

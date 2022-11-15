@@ -252,8 +252,8 @@ class CDP:
             port = random.randint(9223, 10222)
             if self.claim_port(port):
                 return port
-        else:
-            raise RuntimeError("unable to find free port")
+
+        raise RuntimeError("unable to find free port")
 
     def start(self):
         environ = os.environ.copy()

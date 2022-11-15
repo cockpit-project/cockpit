@@ -140,8 +140,8 @@ class TestUpdates(NoSubManCase):
                 if good_count >= 3:
                     return
             time.sleep(1)
-        else:
-            self.fail("Timed out waiting for updates spinner to go away")
+
+        self.fail("Timed out waiting for updates spinner to go away")
 
     @nondestructive
     @skipImage("kpatch is not available", *OSesWithoutKpatch)

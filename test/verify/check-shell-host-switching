@@ -375,14 +375,12 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
 
         def tab(n):
             for _ in range(n):
-                args = {"type": "keyDown", "key": "Tab", "code": "Tab", "nativeVirtualKeyCode": 9, "windowsVirtualKeyCode": 9}
                 args = {"type": "keyDown", "key": "Tab"}
                 b.cdp.invoke("Input.dispatchKeyEvent", **args)
                 args["type"] = "keyUp"
                 b.cdp.invoke("Input.dispatchKeyEvent", **args)
 
         def enter():
-            args = {"type": "keyDown", "key": "Enter", "code": "Enter", "nativeVirtualKeyCode": 13, "windowsVirtualKeyCode": 13}
             args = {"type": "keyDown", "key": "Enter"}
             b.cdp.invoke("Input.dispatchKeyEvent", **args)
             args["type"] = "keyUp"

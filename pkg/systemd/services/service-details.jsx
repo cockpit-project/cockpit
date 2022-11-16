@@ -187,7 +187,6 @@ const ServiceActions = ({ masked, active, failed, canReload, actionCallback, del
                   isOpen={isActionOpen}
                   isPlain
                   onSelect={() => setIsActionOpen(!isActionOpen)}
-                  position='right'
                   dropdownItems={actions} />
     );
 };

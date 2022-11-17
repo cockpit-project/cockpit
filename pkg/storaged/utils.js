@@ -407,11 +407,16 @@ export function get_available_spaces(client) {
             return !!client.legacy_vdo_overlay.find_by_backing_block(block);
         }
 
+        function is_swap() {
+            return !!block && client.blocks_swap[path];
+        }
+
         return (!block.HintIgnore &&
                 block.Size > 0 &&
                 !has_fs_label() &&
                 !is_mpath_member() &&
                 !is_vdo_backing_dev() &&
+                !is_swap() &&
                 !block_ptable &&
                 !(block_part && block_part.IsContainer));
     }

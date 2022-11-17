@@ -224,7 +224,7 @@ function create_tabs(client, target, is_partition, is_extended) {
     } else if (content_block && (content_block.IdUsage == "raid" ||
                                  client.legacy_vdo_overlay.find_by_backing_block(content_block))) {
         // no tab for these
-    } else if (content_block && content_block.IdUsage == "other" && content_block.IdType == "swap") {
+    } else if (block_swap || (content_block && content_block.IdUsage == "other" && content_block.IdType == "swap")) {
         add_tab(_("Swap"), SwapTab, true);
     } else if (content_block) {
         is_unrecognized = true;
@@ -494,6 +494,8 @@ function block_description(client, block) {
         type = C_("storage-id-desc", "VDO backing");
         used_for = vdo.name;
         link = ["vdo", vdo.name];
+    } else if (client.blocks_swap[block.path]) {
+        type = C_("storage-id-desc", "Swap space");
     } else {
         type = C_("storage-id-desc", "Unrecognized data");
     }

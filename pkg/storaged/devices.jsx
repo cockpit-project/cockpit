@@ -21,7 +21,7 @@ import 'polyfills'; // once per application
 
 import cockpit from "cockpit";
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from 'react-dom/client';
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
 
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
@@ -96,7 +96,8 @@ class StoragePage extends React.Component {
 }
 
 function init() {
-    ReactDOM.render(<StoragePage client={client} />, document.getElementById("storage"));
+    const root = createRoot(document.getElementById('storage'));
+    root.render(<StoragePage client={client} />);
     document.body.removeAttribute("hidden");
 
     window.addEventListener('beforeunload', event => {

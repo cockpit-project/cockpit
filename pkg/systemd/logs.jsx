@@ -21,7 +21,7 @@ import '../lib/patternfly/patternfly-4-cockpit.scss';
 
 import cockpit from "cockpit";
 import React, { useState, useEffect } from 'react';
-import ReactDOM from "react-dom";
+import { createRoot } from 'react-dom/client';
 
 import {
     Button,
@@ -423,7 +423,8 @@ const TextFilter = ({ textFilter, onTextFilterChange, filteredQuery }) => {
 };
 
 function init() {
-    ReactDOM.render(<LogsPage />, document.getElementById("logs"));
+    const root = createRoot(document.getElementById('logs'));
+    root.render(<LogsPage />);
 }
 
 document.addEventListener("DOMContentLoaded", init);

@@ -18,10 +18,11 @@
  */
 
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from 'react-dom/client';
 
 import { FileAutoComplete } from "cockpit-components-file-autocomplete.jsx";
 
 export function showFileAcDemo(rootElement) {
-    ReactDOM.render(<FileAutoComplete id='file-autocomplete-widget' />, rootElement);
+    const root = createRoot(rootElement);
+    root.render(<FileAutoComplete id='file-autocomplete-widget' />);
 }

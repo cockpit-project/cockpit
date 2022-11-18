@@ -20,7 +20,7 @@ import '../lib/patternfly/patternfly-4-cockpit.scss';
 import 'polyfills'; // once per application
 
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { superuser } from "superuser";
 
 import { usePageLocation, useLoggedInUser, useFile } from "hooks.js";
@@ -50,7 +50,8 @@ function AccountsPage() {
 }
 
 function init() {
-    ReactDOM.render(<AccountsPage />, document.getElementById("page"));
+    const root = createRoot(document.getElementById("page"));
+    root.render(<AccountsPage />);
     document.body.removeAttribute("hidden");
 }
 

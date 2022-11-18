@@ -22,7 +22,7 @@ import 'polyfills'; // once per application
 
 import cockpit from "cockpit";
 import React from "react";
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 import * as timeformat from 'timeformat';
 
@@ -372,6 +372,7 @@ class HardwareInfo extends React.Component {
 document.addEventListener("DOMContentLoaded", () => {
     document.title = cockpit.gettext(document.title);
     detect().then(info => {
-        ReactDOM.render(<WithDialogs><HardwareInfo info={info} /></WithDialogs>, document.getElementById("hwinfo"));
+        const root = createRoot(document.getElementById('hwinfo'));
+        root.render(<WithDialogs><HardwareInfo info={info} /></WithDialogs>);
     });
 });

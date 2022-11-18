@@ -18,7 +18,7 @@
  */
 
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from 'react-dom/client';
 
 import {
     Button, Card, CardHeader, CardBody, CardFooter,
@@ -66,5 +66,6 @@ const CardsDemo = () => {
 };
 
 export function showCardsDemo(rootElement) {
-    ReactDOM.render(<CardsDemo />, rootElement);
+    const root = createRoot(rootElement);
+    root.render(<CardsDemo />);
 }

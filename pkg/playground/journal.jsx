@@ -18,7 +18,7 @@
  */
 
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from 'react-dom/client';
 
 import '../lib/patternfly/patternfly-4-cockpit.scss';
 import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
@@ -33,5 +33,6 @@ document.addEventListener("DOMContentLoaded", function() {
         "COREDUMP_UNIT=" + cur_unit_id, "+",
         "UNIT=" + cur_unit_id
     ];
-    ReactDOM.render(<LogsPanel title="Logs!" match={match} max={10} />, document.getElementById('journal-box'));
+    const root = createRoot(document.getElementById('journal-box'));
+    root.render(<LogsPanel title="Logs!" match={match} max={10} />);
 });

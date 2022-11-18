@@ -1048,7 +1048,6 @@ class MetricsHour extends React.Component {
 
         this.state = {
             minuteGraphs: [],
-            minutes: 0,
             dataItems: 0,
         };
 
@@ -1127,7 +1126,7 @@ class MetricsHour extends React.Component {
             minuteGraphs.push(<MetricsMinute key={minute} minute={minute} data={dataSlice} rawData={rawSlice} events={minute_events[minute]} startTime={this.props.startTime} />);
         }
 
-        this.setState({ minuteGraphs: minuteGraphs, minutes: minutes, dataItems: this.props.data.length });
+        this.setState({ minuteGraphs: minuteGraphs, dataItems: this.props.data.length });
     }
 
     render() {

@@ -59,7 +59,7 @@ function child_frame() {
                 assert.equal(promise.state(), "resolved", "framed channel closed");
                 assert.equal(cockpit.transport.host, "frame_host", "framed cockpit.transport.host");
                 spawn_done = true;
-                if (spawn_done && binary_done) {
+                if (binary_done) {
                     cockpit.transport.close();
                 }
             });
@@ -83,7 +83,7 @@ function child_frame() {
     channel.addEventListener("close", (ev, options) => {
         assert.notOk(options.reason, "binary channel close cleanly");
         binary_done = true;
-        if (spawn_done && binary_done)
+        if (spawn_done)
             cockpit.transport.close();
     });
 

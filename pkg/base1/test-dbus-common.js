@@ -1221,7 +1221,7 @@ export function dbus_track_tests(channel_options, bus_name) { // eslint-disable-
                     other.addEventListener("close", function(event, data) {
                         assert.strictEqual(data.problem, undefined, "no problem");
                         gone = true;
-                        if (released && gone)
+                        if (released)
                             done();
                     });
 
@@ -1235,7 +1235,7 @@ export function dbus_track_tests(channel_options, bus_name) { // eslint-disable-
                                         .always(function() {
                                             assert.equal(this.state(), "resolved", "name released");
                                             released = true;
-                                            if (released && gone)
+                                            if (gone)
                                                 done();
                                         });
                             });

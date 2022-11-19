@@ -10,17 +10,21 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     environment: quay.io
-    permissions: {}
-    timeout-minutes: 20
+    permissions: { }
+    timeout-minutes: 60
     env:
       RUNC: docker
+      ARCHS: amd64 arm64
 
     steps:
       - name: Clone repository
         uses: actions/checkout@v3
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
       - name: Log into container registry
-        run: $RUNC login -u ${{ secrets.QUAY_BOTUSER }} -p ${{ secrets.QUAY_TOKEN }} quay.io
+        run: echo "${{ secrets.QUAY_TOKEN }}" | $RUNC login -u ${{ secrets.QUAY_BOTUSER }} --password-stdin quay.io
 
       - name: Build and push ws container
         run: containers/ws/release.sh

@@ -1,5 +1,4 @@
 #!/bin/sh
-
 set -ex
 
 OSVER=$(. /etc/os-release && echo "$VERSION_ID")

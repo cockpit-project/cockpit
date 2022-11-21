@@ -298,4 +298,22 @@ QUnit.test("test", function (assert) {
     window.location.hash = "#/other";
 });
 
+/* Set url_root in beforeEach so the test does not flake */
+QUnit.module("url_root tests", {
+    beforeEach: () => {
+        window.mock = { url_root: "cockpit" };
+    },
+    afterEach: () => {
+        window.mock = null;
+    }
+});
+
+QUnit.test("encode", assert => {
+    let path = cockpit.location.encode("path", "", true);
+    assert.equal(path, "/cockpit/path", "path is correct");
+    /* an existing url_root should not be prepended */
+    path = cockpit.location.encode("/cockpit/path", "", true);
+    assert.equal(path, "/cockpit/path", "path is correct");
+});
+
 QUnit.start();

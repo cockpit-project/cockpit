@@ -251,7 +251,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                                                          }
                                                      }}
                                                      onChange={value => set_edited_real_name(value)}
-                                                     onBlur={event => change_real_name(event)} />
+                                                     onBlur={() => change_real_name()} />
                                         : <output id="account-real-name">{account.gecos}</output>}
                                 </FormGroup>
                                 <FormGroup fieldId="account-user-name" hasNoPaddingTop label={_("User name")}>

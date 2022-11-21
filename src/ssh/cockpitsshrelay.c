@@ -2040,6 +2040,8 @@ on_pipe_close (CockpitPipe *pipe,
 
   if (!self->received_eof)
     dispatch_eof (self);
+
+  cockpit_relay_disconnect (self, NULL);
 }
 
 typedef struct {

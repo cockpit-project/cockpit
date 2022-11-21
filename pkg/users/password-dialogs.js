@@ -203,7 +203,7 @@ export function set_password_dialog(account, current_user) {
     }
 
     function passwd_check(force, password, password_confirm, password_old) {
-        return validate(force, password, password_confirm, password_old).then(valid => {
+        return validate(force, password, password_confirm).then(valid => {
             if (valid) {
                 if (change_self)
                     return passwd_self(password_old, password);

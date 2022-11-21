@@ -4,7 +4,7 @@ async function test() {
     try {
         await ph_wait_present("#server-field");
         await ph_wait_present("#recent-hosts");
-        await ph_wait_present(".host-line", 1);
+        await ph_wait_present(".host-line");
 
         ph_mouse(".host-remove", "click");
         await ph_wait_not_visible("#recent-hosts");

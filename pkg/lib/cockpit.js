@@ -2474,6 +2474,10 @@ function factory() {
         const self = this;
         const application = cockpit.transport.application();
         self.url_root = url_root || "";
+
+        if (window.mock && window.mock.url_root)
+            self.url_root = window.mock.url_root;
+
         if (application.indexOf("cockpit+=") === 0) {
             if (self.url_root)
                 self.url_root += '/';
@@ -2516,7 +2520,7 @@ function factory() {
                 path = decode_path(path);
 
             let href = "/" + path.map(encodeURIComponent).join("/");
-            if (with_root && self.url_root && href.indexOf("/" + self.url_root + "/" !== 0))
+            if (with_root && self.url_root && href.indexOf("/" + self.url_root + "/") !== 0)
                 href = "/" + self.url_root + href;
 
             /* Undo unnecessary encoding of these */

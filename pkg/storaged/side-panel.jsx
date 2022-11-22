@@ -70,7 +70,7 @@ export class SidePanel extends React.Component {
                 row.className = (row.className || "") + " ct-new-item";
         });
 
-        const children = rows.map(row => row.block ? <SidePanelBlockRow {...row} /> : <SidePanelRow {...row} />);
+        const children = rows.map(row => row.block ? <SidePanelBlockRow key={row.key} {...row} /> : <SidePanelRow key={row.key} {...row} />);
 
         return (
             <OptionalPanel id={this.props.id}

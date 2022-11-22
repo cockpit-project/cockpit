@@ -34,10 +34,6 @@ QUnit.test("simple request", assert => {
     cockpit.http(test_server).get("/pkg/playground/manifest.json")
             .then(data => {
                 assert.deepEqual(JSON.parse(data), {
-                    requires: {
-                        cockpit: "122"
-                    },
-
                     tools: {
                         index: {
                             label: "Development"

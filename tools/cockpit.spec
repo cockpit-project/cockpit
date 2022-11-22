@@ -322,8 +322,6 @@ troubleshooting, interactive command-line sessions, and more.
 Summary: Cockpit bridge server-side component
 Requires: glib-networking
 Provides: cockpit-ssh = %{version}-%{release}
-# PR #10430 dropped workaround for ws' inability to understand x-host-key challenge
-Conflicts: cockpit-ws < 181.x
 # 233 dropped jquery.js, pages started to bundle it (commit 049e8b8dce)
 Conflicts: cockpit-dashboard < 233
 Conflicts: cockpit-networkmanager < 233
@@ -617,8 +615,8 @@ The Cockpit component for managing storage.  This package uses udisks.
 
 %package -n cockpit-tests
 Summary: Tests for Cockpit
-Requires: cockpit-bridge >= 138
-Requires: cockpit-system >= 138
+Requires: cockpit-bridge >= %{required_base}
+Requires: cockpit-system >= %{required_base}
 Requires: openssh-clients
 Provides: cockpit-test-assets = %{version}-%{release}
 

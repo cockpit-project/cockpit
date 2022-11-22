@@ -1370,7 +1370,7 @@ class MachineCase(unittest.TestCase):
     def disable_preload(self, *packages):
         for pkg in packages:
             path = "/usr/share/cockpit/%s" % pkg
-            if self.machine.execute("if test -e %s; then echo yes; fi" % path):
+            if self.file_exists(path):
                 if self.machine.ostree_image:
                     # get a writable directory
                     self.restore_dir(path)
@@ -1378,7 +1378,7 @@ class MachineCase(unittest.TestCase):
 
     def enable_preload(self, package, *pages):
         path = "/usr/share/cockpit/%s" % package
-        if self.machine.execute("if test -e %s; then echo yes; fi" % path):
+        if self.file_exists(path):
             self.write_file(path + '/override.json', '{ "preload": [%s]}' % ', '.join('"{0}"'.format(page) for page in pages))
 
     def system_before(self, version):
@@ -1959,6 +1959,11 @@ class MachineCase(unittest.TestCase):
                 self.addCleanup(m.execute, apply_change_action)
             self.addCleanup(m.execute, "mv {0}.cockpittest {0}".format(path))
 
+    def file_exists(self, path: str) -> bool:
+        """Check if file exists on test machine"""
+
+        return self.machine.execute(f"if test -e {path}; then echo yes; fi").strip() != ""
+
     def restore_dir(self, path: str, post_restore_action: Optional[str] = None, reboot_safe: bool = False):
         """Backup/restore a directory for a nondestructive test
 
@@ -1974,8 +1979,7 @@ class MachineCase(unittest.TestCase):
         if not self.is_nondestructive() and not self.machine.ostree_image:
             return  # skip for efficiency reasons
 
-        exists = self.machine.execute("if test -e %s; then echo yes; fi" % path).strip() != ""
-        if not exists:
+        if not self.file_exists(path):
             self.addCleanup(self.machine.execute, "rm -rf {0}".format(path))
             return
 
@@ -2005,8 +2009,7 @@ class MachineCase(unittest.TestCase):
         if not self.is_nondestructive():
             return  # skip for efficiency reasons
 
-        exists = self.machine.execute("if test -e %s; then echo yes; fi" % path).strip() != ""
-        if exists:
+        if self.file_exists(path):
             backup = os.path.join(self.vm_tmpdir, path.replace('/', '_'))
             self.machine.execute("mkdir -p %(vm_tmpdir)s; cp -a %(path)s %(backup)s" % {
                 "vm_tmpdir": self.vm_tmpdir, "path": path, "backup": backup})

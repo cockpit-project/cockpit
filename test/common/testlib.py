@@ -2040,8 +2040,9 @@ class MachineCase(unittest.TestCase):
         """
 
         # fedora-coreos runs cockpit-ws in a containter so does not install cockpit-ws on the host
-        if not self.machine.ostree_image:
-            self.sed_file('/root/d', '/etc/cockpit/disallowed-users')
+        disallowed_conf = '/etc/cockpit/disallowed-users'
+        if not self.machine.ostree_image and self.file_exists(disallowed_conf):
+            self.sed_file('/root/d', disallowed_conf)
 
 
 def jsquote(js: str) -> str:

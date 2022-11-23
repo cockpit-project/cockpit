@@ -94,7 +94,7 @@ class ModificationsExportDialog extends React.Component {
                         <div className="ansible-docs-link">
                             <OutlinedQuestionCircleIcon />
                             { _("Create new task file with this content.") }
-                            <Button variant="link" component="a" href="https://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse_roles.html"
+                            <Button variant="link" component="a" href="https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_reuse_roles.html"
                                     target="_blank" rel="noopener noreferrer"
                                     icon={<ExternalLinkAltIcon />}>
                                 { _("Ansible roles documentation") }

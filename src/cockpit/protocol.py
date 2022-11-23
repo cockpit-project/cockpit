@@ -123,7 +123,7 @@ class CockpitProtocol(asyncio.Protocol):
             if exc is None:
                 self._communication_done.set_result(None)
             else:
-                self._communication_done.set_error(exc)
+                self._communication_done.set_exception(exc)
 
     def send_frame(self, frame):
         frame_length = len(frame)

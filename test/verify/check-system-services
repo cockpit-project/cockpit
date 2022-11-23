@@ -396,10 +396,10 @@ WantedBy=default.target
         self.toggle_onoff()
         self.check_service_details(["Failed to start", "Automatically starts"], ["Start", "Clear 'Failed to start'", "Disallow running (mask)", "Pin unit"], True)
         if not user:
-            b.assert_pixels("#service-details", "details-test-fail",
+            b.assert_pixels("#service-details-unit", "details-test-fail",
                             # in medium layout we sometimes get a scrollbar depending on how many test-fail logs exist
                             skip_layouts=["medium"],
-                            ignore=["#service-details-logs", ".pf-c-switch__toggle"])
+                            ignore=[".pf-c-switch__toggle"])
         b.click(".action-button:contains('Start service')")
         b.go(f'/system/services#/{suffix}')
         self.wait_service_present("test-fail.service")

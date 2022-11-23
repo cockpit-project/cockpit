@@ -46,7 +46,12 @@ async def run():
     StdioTransport(asyncio.get_running_loop(), router)
 
     logger.debug('Startup done.  Looping until connection closes.')
-    await router.communicate()
+
+    try:
+        await router.communicate()
+    except BrokenPipeError:
+        # not unexpected if the peer doesn't hang up cleanly
+        pass
 
 
 def main():

@@ -19,93 +19,71 @@ import grp
 import logging
 import os
 import pwd
+import socket
 
 from systemd_ctypes import bus
 
 logger = logging.getLogger(__name__)
 
 
-class ConfigEndpoint(bus.Object):
+class cockpit_Config(bus.Object):
     def __init__(self):
         ...
 
-    @bus.Object.method(out_types='u', in_types='suuu')
+    @bus.Interface.Method(out_types='u', in_types='suuu')
     def get_u_int(self, name, _minimum, default, _maximum):
         return default
 
 
-@bus.Object.interface('cockpit.LoginMessages')
-class LoginMessagesEndpoint(bus.Object):
+class cockpit_LoginMessages(bus.Object):
     ...
 
 
-@bus.Object.interface('cockpit.Machines')
-class MachinesEndpoint(bus.Object):
-    @bus.Object.method(in_types=['s', 's', 'a{sv}'])
+class cockpit_Machines(bus.Object):
+    machines = bus.Interface.Property('a{sa{sv}}', value={})
+
+    @bus.Interface.Method(in_types=['s', 's', 'a{sv}'])
     def update(self, *args):
         ...
 
-    @bus.Object.property('a{sa{sv}}')
-    def machines(self):
-        return {}
 
-
-@bus.Object.interface('cockpit.Packages')
-class PackagesEndpoint(bus.Object):
+class cockpit_Packages(bus.Object):
     ...
 
 
-@bus.Object.interface('cockpit.Superuser')
-class SuperuserEndpoint(bus.Object):
-    @bus.Object.method(in_types=['s'])
+class cockpit_Superuser(bus.Object):
+    bridges = bus.Interface.Property('as', value=['sudo', 'pkexec'])
+    current = bus.Interface.Property('s', value='none')
+
+    @bus.Interface.Method(in_types=['s'])
     def start(self, _bridge):
         ...
 
-    @bus.Object.method()
+    @bus.Interface.Method()
     def stop(self):
         ...
 
-    @bus.Object.method(in_types=['s'])
+    @bus.Interface.Method(in_types=['s'])
     def answer(self, reply):
         ...
 
-    @bus.Object.property('as')
-    def bridges(self):
-        return ['sudo', 'pkexec']
 
-    @bus.Object.property('s')
-    def current(self):
-        return 'root'
+class cockpit_User(bus.Object):
+    name = bus.Interface.Property('s', value='')
+    full = bus.Interface.Property('s', value='')
+    id = bus.Interface.Property('i', value=0)
+    home = bus.Interface.Property('s', value='')
+    shell = bus.Interface.Property('s', value='')
+    groups = bus.Interface.Property('as', value=[])
 
-
-@bus.Object.interface('cockpit.User')
-class UserEndpoint(bus.Object):
     def __init__(self):
-        self.pwd = pwd.getpwuid(os.getuid())
-
-    @bus.Object.property('s', 'Name')
-    def name(self):
-        return self.pwd.pw_name
-
-    @bus.Object.property('s', 'Full')
-    def full(self):
-        return self.pwd.pw_gecos
-
-    @bus.Object.property('i', 'Id')
-    def id(self):
-        return self.pwd.pw_uid
-
-    @bus.Object.property('s', 'Home')
-    def home(self):
-        return self.pwd.pw_dir
-
-    @bus.Object.property('s', 'Shell')
-    def shell(self):
-        return self.pwd.pw_shell
-
-    @bus.Object.property('as', 'Groups')
-    def groups(self):
-        return [gr.gr_name for gr in grp.getgrall() if self.pwd.pw_name in gr.gr_mem]
+        user = pwd.getpwuid(os.getuid())
+        self.name = user.pw_name
+        self.full = user.pw_gecos
+        self.id = user.pw_uid
+        self.home = user.pw_dir
+        self.shell = user.pw_shell
+        self.groups = [gr.gr_name for gr in grp.getgrall() if user.pw_name in gr.gr_mem]
 
 
 class InternalEndpoints:
@@ -115,14 +93,17 @@ class InternalEndpoints:
 
     @classmethod
     def create(cls):
-        cls.client, cls.server = bus.Bus.socketpair(attach_event=True)
+        client_socket, server_socket = socket.socketpair()
+        cls.client = bus.Bus.new(fd=client_socket.detach())
+        cls.server = bus.Bus.new(fd=server_socket.detach(), server=True)
+
         cls.slots = [
-            cls.server.add_object('/LoginMessages', LoginMessagesEndpoint()),
-            cls.server.add_object('/config', ConfigEndpoint()),
-            cls.server.add_object('/machines', MachinesEndpoint()),
-            cls.server.add_object('/packages', PackagesEndpoint()),
-            cls.server.add_object('/superuser', SuperuserEndpoint()),
-            cls.server.add_object('/user', UserEndpoint()),
+            cls.server.add_object('/LoginMessages', cockpit_LoginMessages()),
+            cls.server.add_object('/config', cockpit_Config()),
+            cls.server.add_object('/machines', cockpit_Machines()),
+            cls.server.add_object('/packages', cockpit_Packages()),
+            cls.server.add_object('/superuser', cockpit_Superuser()),
+            cls.server.add_object('/user', cockpit_User()),
         ]
 
     @classmethod

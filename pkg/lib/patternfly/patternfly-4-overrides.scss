@@ -270,6 +270,12 @@ svg {
     --pf-c-button--disabled--Color: #8d9093;
   }
 
+  // Fix PF disabled colors again, for modals
+  .pf-c-modal-box :is(:disabled, .pf-m-disabled, .pf-m-aria-disabled) {
+    // Alter background again, otherwise it matches modal background
+    --pf-c-button--disabled--BackgroundColor: var(--pf-global--BackgroundColor--dark-400);
+  }
+
   // Change background color behind cards
   // (matches PF surge website; PF doesn't specify otherwise)
   .pf-c-page__main-section {

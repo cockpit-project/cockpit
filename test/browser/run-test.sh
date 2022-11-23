@@ -79,7 +79,7 @@ if [ "$PLAN" = "optional" ]; then
            "
 
     # Testing Farm machines often have pending restarts/reboot
-    EXCLUDES="$EXCLUDES TestUpdates.testBasic TestUpdates.testFailServiceRestart"
+    EXCLUDES="$EXCLUDES TestUpdates.testBasic TestUpdates.testFailServiceRestart TestUpdates.testKpatch"
 
     # These don't test more external APIs
     EXCLUDES="$EXCLUDES

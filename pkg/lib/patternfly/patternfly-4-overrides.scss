@@ -99,7 +99,7 @@ svg {
   // https://github.com/patternfly/patternfly/issues/3959
   --pf-c-card__header-toggle--MarginTop: 0;
 
-  .pf-c-card__header {
+  .pf-c-card__header:not(.ct-card-expandable-header){
     // upstream fix (pending): https://github.com/patternfly/patternfly/pull/3714
     flex-wrap: wrap;
     row-gap: var(--pf-global--spacer--sm);

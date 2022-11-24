@@ -116,21 +116,13 @@ function validate_username(username, accounts) {
     return null;
 }
 
-function is_valid_char_real_name(c) {
-    return (c >= 'a' && c <= 'z') ||
-        (c >= 'A' && c <= 'Z') ||
-        (c >= '0' && c <= '9') ||
-        c == '.' || c == '_' || c == '-' || c == ' ';
-}
-
 function validate_real_name(real_name) {
     if (!real_name)
         return _("No real name specified");
 
-    for (let i = 0; i < real_name.length; i++) {
-        if (!is_valid_char_real_name(real_name[i]))
-            return _("The full name can only consist of letters from a-z, digits, dots, dashes, underscores and spaces.");
-    }
+    const real_name_chars = Array.from(real_name);
+    if (!real_name_chars.every(character => character != ':'))
+        return _("The full name must not contain colons.");
 }
 
 function suggest_username(realname) {
@@ -220,7 +212,7 @@ export function account_create_dialog(accounts) {
     function validate(force, real_name, user_name, password, password_confirm) {
         const errs = { };
 
-        errs.real_name = validate_real_name(real_name)
+        errs.real_name = validate_real_name(real_name);
 
         if (password != password_confirm)
             errs.password_confirm = _("The passwords do not match");

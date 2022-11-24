@@ -23,12 +23,13 @@ import { superuser } from "superuser";
 
 import {
     Button, Badge,
-    Card, CardHeader, CardTitle,
+    Card, CardBody, CardExpandableContent, CardHeader, CardTitle,
     Dropdown, DropdownItem, DropdownSeparator,
-    Flex, KebabToggle, Label,
+    Flex,
+    KebabToggle, Label,
     Page, PageSection,
-    SearchInput,
-    Text, TextVariants,
+    SearchInput, Stack,
+    Text, TextContent, TextVariants,
     Toolbar, ToolbarContent, ToolbarItem
 } from '@patternfly/react-core';
 import * as timeformat from "timeformat.js";
@@ -42,6 +43,21 @@ import { lockAccountDialog } from "./lock-account-dialog.js";
 import { logoutAccountDialog } from "./logout-account-dialog.js";
 
 const _ = cockpit.gettext;
+
+const admins = ['sudo', 'root', 'wheel'];
+
+const sortGroups = groups => {
+    return groups.sort((a, b) => {
+        if (a.isAdmin)
+            return -1;
+        if (b.isAdmin)
+            return 1;
+        if (a.members === b.members)
+            return a.name.localeCompare(b.name);
+        else
+            return b.members - a.members;
+    });
+};
 
 const UserActions = ({ account }) => {
     const [isKebabOpen, setKebabOpen] = useState(false);
@@ -84,29 +100,43 @@ const UserActions = ({ account }) => {
     return kebab;
 };
 
+const getGroupRow = (group, accounts) => {
+    const columns = [
+        {
+            title: group.name,
+            sortKey: group.name,
+            props: { width: 20, },
+        },
+        {
+            title: group.gid,
+            props: { width: 10, },
+        },
+        {
+            title: group.members,
+            props: { width: 10, },
+        },
+        {
+            title: (
+                <TextContent>
+                    {(group.userlistPrimary.concat(group.userlist)).map((account, idx) => {
+                        const comma = idx !== group.userlistPrimary.length + group.userlist.length - 1 ? ', ' : '';
+
+                        if (accounts.map(account => account.name).includes(account))
+                            return <Text key={account} component={TextVariants.a} href={"#" + account}>{account}{comma}</Text>;
+                        else
+                            return <Text key={account}>{account + comma}</Text>;
+                    })}
+                </TextContent>
+            ),
+            props: { width: 60, },
+        },
+    ];
+
+    return { columns };
+};
+
 const getAccountRow = (account, current, groups) => {
-    const adminGroups = ['sudo', 'root', 'wheel'];
-
-    const userGroups = groups.reduce((pV, group) => {
-        if (group.userlist.find(accountName => accountName === account.name)) {
-            const isAdmin = !!adminGroups.find(adm => adm === group.name);
-            return pV.concat({ name: group.name, members: group.userlist.length, isAdmin: isAdmin });
-        } else {
-            return pV;
-        }
-    }, []);
-
-    userGroups.sort((a, b) => {
-        if (a.isAdmin)
-            return -1;
-        if (b.isAdmin)
-            return 1;
-        if (a.members === b.members)
-            return a.name.localeCompare(b.name);
-        else
-            return b.members - a.members;
-    });
-
+    const userGroups = groups.filter(group => group.gid === account.gid || group.userlist.find(accountName => accountName === account.name));
     const userGroupLabels = userGroups.map(group => {
         const color = group.isAdmin ? "gold" : "cyan";
         return (
@@ -183,17 +213,82 @@ const mapGroupsToAccount = (accounts, groups) => {
     });
 };
 
-const AccountsList = ({ accountsInfo, current_user, groups }) => {
+const GroupsList = ({ groups, accounts }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+    const columns = [
+        { title: _("Group name"), sortable: true },
+        { title: _("ID"), sortable: true },
+        { title: _("# of users"), sortable: true },
+        { title: _("Accounts") },
+    ];
+
+    const sortRows = (rows, direction, idx) => {
+        // GID and members columns are numeric
+        const isNumeric = idx == 1 || idx == 2;
+        const sortedRows = rows.sort((a, b) => {
+            const aitem = a.columns[idx].sortKey || a.columns[idx].title;
+            const bitem = b.columns[idx].sortKey || b.columns[idx].title;
+            const aname = a.columns[0].sortKey;
+            const bname = b.columns[0].sortKey;
+
+            // administrator groups are always first
+            if (admins.includes(aname))
+                return direction === SortByDirection.asc ? -1 : 1;
+            if (admins.includes(bname))
+                return direction === SortByDirection.asc ? 1 : -1;
+
+            if (isNumeric)
+                return bitem - aitem;
+            else
+                return aitem.localeCompare(bitem);
+        });
+        return direction === SortByDirection.asc ? sortedRows : sortedRows.reverse();
+    };
+
+    return (
+        <Card className="ct-card" isExpanded={isExpanded}>
+            <CardHeader
+                className="ct-card-expandable-header"
+                onExpand={() => setIsExpanded(!isExpanded)}
+                toggleButtonProps={{
+                    id: 'groups-view-toggle',
+                    'aria-label': _("Groups"),
+                    'aria-expanded': isExpanded
+                }}>
+                <CardTitle className="pf-l-flex pf-m-space-items-sm pf-m-align-items-center">
+                    <Text component={TextVariants.h2}>{_("Groups")}</Text>
+                    {!isExpanded && <>
+                        {groups.slice(0, 3)
+                                .map(group => {
+                                    const color = group.isAdmin ? "gold" : "cyan";
+                                    return (
+                                        <Label key={group.name} variant="filled" color={color}>
+                                            {group.name + ": " + (group.userlistPrimary.length + group.userlist.length)}
+                                        </Label>
+                                    );
+                                })}
+                        <Button key="more" className="group-more-btn" isInline variant='link' onClick={() => setIsExpanded(!isExpanded)}>
+                            {cockpit.format(_("$0 more..."), groups.length - 3)}
+                        </Button>
+                    </>}
+                </CardTitle>
+            </CardHeader>
+            <CardExpandableContent>
+                <CardBody>
+                    <ListingTable columns={columns}
+                        id="groups-list"
+                        rows={ groups.map(a => getGroupRow(a, accounts)) }
+                        sortMethod={sortRows}
+                        variant="compact" sortBy={{ index: 0, direction: SortByDirection.asc }} />
+                </CardBody>
+            </CardExpandableContent>
+        </Card>
+    );
+};
+
+const AccountsList = ({ accounts, current_user, groups }) => {
     const [currentTextFilter, setCurrentTextFilter] = useState("");
-
-    const accounts = mapGroupsToAccount(accountsInfo, groups);
-
     const filtered_accounts = accounts.filter(account => {
-        if ((account.uid < 1000 && account.uid !== 0) ||
-                 account.shell.match(/^(\/usr)?\/sbin\/nologin/) ||
-                 account.shell === '/bin/false')
-            return false;
-
         if (currentTextFilter !== "" &&
             (account.name.toLowerCase().indexOf(currentTextFilter.toLowerCase()) === -1) &&
             (account.gecos.toLowerCase().indexOf(currentTextFilter.toLowerCase()) === -1) &&
@@ -288,10 +383,28 @@ const AccountsList = ({ accountsInfo, current_user, groups }) => {
 };
 
 export const AccountsMain = ({ accountsInfo, current_user, groups }) => {
+    const accounts = mapGroupsToAccount(accountsInfo, groups).filter(account => {
+        if ((account.uid < 1000 && account.uid !== 0) ||
+                 account.shell.match(/^(\/usr)?\/sbin\/nologin/) ||
+                 account.shell === '/bin/false')
+            return false;
+        return true;
+    });
+    const groupsExtraInfo = sortGroups(
+        groups.map(group => {
+            const userlistPrimary = accounts.filter(account => account.gid === group.gid).map(account => account.name);
+            const userlist = group.userlist.filter(el => el !== "");
+            return ({ ...group, userlistPrimary, userlist, members: userlist.length + userlistPrimary.length, isAdmin: admins.includes(group.name) });
+        })
+    );
+
     return (
         <Page id="accounts">
             <PageSection>
-                <AccountsList accountsInfo={accountsInfo} current_user={current_user} groups={groups} />
+                <Stack hasGutter>
+                    <GroupsList accounts={accounts} groups={groupsExtraInfo} />
+                    <AccountsList accounts={accounts} current_user={current_user} groups={groupsExtraInfo} />
+                </Stack>
             </PageSection>
         </Page>
     );

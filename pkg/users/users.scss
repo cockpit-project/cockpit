@@ -6,6 +6,7 @@
 @import "global-variables.scss";
 @import "@patternfly/patternfly/components/DataList/data-list.scss";
 @import "@patternfly/patternfly/components/Toolbar/toolbar.scss";
+@import "@patternfly/patternfly/layouts/Flex/flex.scss";
 
 #account .pf-c-card {
   @extend .ct-card;
@@ -227,4 +228,8 @@
 
 .accounts-toolbar-header > .pf-c-toolbar__content-section {
   row-gap: var(--pf-global--spacer--sm);
+}
+
+.group-more-btn {
+  font-size: var(--pf-global--FontSize--sm);
 }

@@ -398,10 +398,10 @@ class TestAccounts(MachineCase):
         b.go('/users')
 
         # Check Robert's groups
-        b.wait_not_present("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-c-label")
+        b.wait_not_present("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-c-label:contains(users)")
         if m.image != "fedora-coreos":  # Users group does not exist in coreos image
             m.execute("/usr/sbin/usermod -aG users robert")
-            b.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-c-label.pf-m-cyan", "users")
+            b.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-c-label.pf-m-cyan:contains(users)", "users")
         m.execute("/usr/sbin/usermod -aG wheel robert")
         b.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-c-label.pf-m-gold", "wheel")
         m.execute("/usr/bin/gpasswd -d robert wheel")
@@ -682,6 +682,17 @@ class TestAccounts(MachineCase):
         b.wait_visible("#account-logs")
         # Header + one line of logins
         b.wait_js_func("ph_count_check", "#account-logs tr", 2)
+
+    def testGroups(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute("groupadd testgroup0")
+
+        self.login_and_go("/users")
+
+        b.click("#groups-view-toggle")
+        b.wait_visible('#groups-list td[data-label="Group name"]:contains("testgroup0")')
 
 
 if __name__ == '__main__':

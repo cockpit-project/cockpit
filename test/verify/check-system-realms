@@ -111,7 +111,7 @@ class CommonTests:
 
         def set_address():
             # old realmd/IPA don't support realmd auto-detection yet
-            if m.image.startswith("rhel-8") or m.image in ["centos-8-stream"]:
+            if m.image == "rhel-8-7":
                 b.wait_attr("#realms-op-address", "data-discover", "done")
                 b.wait_val(self.op_address, "")
                 b.wait_not_present("#realms-op-address-helper")

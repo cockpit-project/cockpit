@@ -18,10 +18,9 @@
 import logging
 import shlex
 
-from .channels import CHANNEL_TYPES
 from .channel import Channel
+from .channels import CHANNEL_TYPES
 from .packages import Packages
-from .peer import Peer
 from .protocol import CockpitProtocolServer, CockpitProtocolError
 
 logger = logging.getLogger('cockpit.bridge')
@@ -75,31 +74,11 @@ class Router(CockpitProtocolServer):
 
         return True
 
-    def route(self, options):
-        rule, result = None, None  # hush hush, pylint
+    def check_rules(self, options):
         for rule, result in self.match_rules:
             if self.rule_matches(rule, options):
-                break
-        else:
-            return None
-
-        if issubclass(result, Peer):
-            # Take the (sorted-by-name) list of all of the keys that the peer
-            # matched on.  This should uniquely identify a particular peer
-            # configuration, and can be used to cache the peer.
-            peer_keys = sorted(rule)
-            peer_opts = tuple(options[key] for key in peer_keys)
-            try:
-                endpoint = self.peers[peer_opts]
-            except KeyError:
-                endpoint = result(self)
-                endpoint.start(**dict(zip(peer_keys, peer_opts)))
-                self.peers[peer_opts] = endpoint
-        else:
-            assert issubclass(result, Channel)
-            endpoint = result(self)
-
-        return endpoint
+                return result(self)
+        return None
 
     def do_channel_control(self, channel, command, message):
         logger.debug('Received control message %s for channel %s: %s', command, channel, message)
@@ -108,7 +87,7 @@ class Router(CockpitProtocolServer):
         # figure out the correct endpoint to connect.  If it's not an open
         # message, then we expect the endpoint to already exist.
         if command == 'open':
-            endpoint = self.route(message)
+            endpoint = self.check_rules(message)
 
             if endpoint is None:
                 self.send_control(command='close', channel=channel, problem='not-supported')

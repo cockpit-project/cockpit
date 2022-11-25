@@ -19,7 +19,7 @@ import asyncio
 import socket
 import subprocess
 
-from .channel import Endpoint
+from .router import Endpoint
 from .protocol import CockpitProtocolClient
 
 

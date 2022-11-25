@@ -1,3 +1,4 @@
+import argparse
 import asyncio
 import json
 import unittest
@@ -5,7 +6,7 @@ import unittest
 from typing import Any, Dict, Tuple
 
 import systemd_ctypes
-from cockpit.router import Router
+from cockpit.bridge import Bridge
 
 MOCK_HOSTNAME = 'mockbox'
 
@@ -71,8 +72,8 @@ class MockTransport(asyncio.Transport):
 
 
 class TestBridge(unittest.IsolatedAsyncioTestCase):
-    async def start(self) -> Tuple[Router, MockTransport]:
-        bridge = Router()
+    async def start(self) -> Tuple[Bridge, MockTransport]:
+        bridge = Bridge(argparse.Namespace(privileged=False))
         transport = MockTransport(bridge)
 
         await transport.assert_msg('', command='init')

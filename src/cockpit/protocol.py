@@ -205,14 +205,28 @@ class CockpitProtocolClient(CockpitProtocol):
 
 
 class CockpitProtocolServer(CockpitProtocol):
+    init_host: Optional[str] = None
+
     def do_send_init(self):
         raise NotImplementedError
 
     def do_init(self, message):
-        raise NotImplementedError
+        pass
 
     def do_transport_control(self, command, message):
         if command == 'init':
+            try:
+                if int(message['version']) != 1:
+                    raise CockpitProtocolError('incorrect version number', 'protocol-error')
+            except KeyError as exc:
+                raise CockpitProtocolError('version field is missing', 'protocol-error') from exc
+            except ValueError as exc:
+                raise CockpitProtocolError('version field is not an int', 'protocol-error') from exc
+
+            try:
+                self.init_host = message['host']
+            except KeyError as exc:
+                raise CockpitProtocolError('missing host field', 'protocol-error') from exc
             self.do_init(message)
         else:
             raise CockpitProtocolError(f'unexpected control message {command} received')

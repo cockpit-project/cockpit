@@ -218,7 +218,7 @@ QUnit.test("translate attributes", function (assert) {
     assert.equal(syntax.hasAttribute("translate"), false, "translate removed");
 });
 
-document.addEventListener("DOMContentLoaded", event => {
+function init() {
     /* Area for translate tests to play in */
     const div = document.createElement('div');
     div.setAttribute('id', 'translations');
@@ -227,4 +227,9 @@ document.addEventListener("DOMContentLoaded", event => {
 
     /* Ready to go */
     QUnit.start();
-});
+}
+
+if (document.readyState == "loading")
+    document.addEventListener("DOMContentLoaded", init);
+else
+    init();

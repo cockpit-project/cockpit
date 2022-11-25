@@ -73,7 +73,7 @@ QUnit.test("watch promise recursive", function (assert) {
     assert.equal(typeof promise3.remove, "function", "promise3.remove()");
 });
 
-QUnit.test("owned messages", function (assert) {
+QUnit.test.skipWithPybridge("owned messages", function (assert) {
     const done = assert.async();
     assert.expect(9);
 
@@ -131,7 +131,7 @@ QUnit.test("owned messages", function (assert) {
     acquire_name();
 });
 
-QUnit.test("bad dbus address", function (assert) {
+QUnit.test.skipWithPybridge("bad dbus address", function (assert) {
     const done = assert.async();
     assert.expect(1);
 
@@ -142,7 +142,7 @@ QUnit.test("bad dbus address", function (assert) {
     });
 });
 
-QUnit.test("bad dbus bus", function (assert) {
+QUnit.test.skipWithPybridge("bad dbus bus", function (assert) {
     const done = assert.async();
     assert.expect(1);
 
@@ -153,7 +153,7 @@ QUnit.test("bad dbus bus", function (assert) {
     });
 });
 
-QUnit.test("wait ready", function (assert) {
+QUnit.test.skipWithPybridge("wait ready", function (assert) {
     const done = assert.async();
     assert.expect(1);
 
@@ -168,7 +168,7 @@ QUnit.test("wait ready", function (assert) {
             });
 });
 
-QUnit.test("wait fail", function (assert) {
+QUnit.test.skipWithPybridge("wait fail", function (assert) {
     const done = assert.async();
     assert.expect(1);
 
@@ -183,7 +183,7 @@ QUnit.test("wait fail", function (assert) {
             });
 });
 
-QUnit.test("no default name", function (assert) {
+QUnit.test.skipWithPybridge("no default name", function (assert) {
     const done = assert.async();
     assert.expect(1);
 
@@ -200,7 +200,7 @@ QUnit.test("no default name", function (assert) {
             });
 });
 
-QUnit.test("no default name bad", function (assert) {
+QUnit.test.skipWithPybridge("no default name bad", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
@@ -218,7 +218,7 @@ QUnit.test("no default name bad", function (assert) {
             });
 });
 
-QUnit.test("no default name invalid", function (assert) {
+QUnit.test.skipWithPybridge("no default name invalid", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
@@ -236,7 +236,7 @@ QUnit.test("no default name invalid", function (assert) {
             });
 });
 
-QUnit.test("no default name missing", function (assert) {
+QUnit.test.skipWithPybridge("no default name missing", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
@@ -254,7 +254,7 @@ QUnit.test("no default name missing", function (assert) {
             });
 });
 
-QUnit.test("no default name second", function (assert) {
+QUnit.test.skipWithPybridge("no default name second", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
@@ -279,7 +279,7 @@ QUnit.test("no default name second", function (assert) {
             });
 });
 
-QUnit.test("override default name", function (assert) {
+QUnit.test.skipWithPybridge("override default name", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
@@ -303,7 +303,7 @@ QUnit.test("override default name", function (assert) {
             });
 });
 
-QUnit.test("watch no default name", function (assert) {
+QUnit.test.skipWithPybridge("watch no default name", function (assert) {
     const done = assert.async();
     assert.expect(1);
 
@@ -326,7 +326,7 @@ QUnit.test("watch no default name", function (assert) {
             });
 });
 
-QUnit.test("watch missing name", function (assert) {
+QUnit.test.skipWithPybridge("watch missing name", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
@@ -344,7 +344,7 @@ QUnit.test("watch missing name", function (assert) {
             });
 });
 
-QUnit.test("shared client", function (assert) {
+QUnit.test.skipWithPybridge("shared client", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
@@ -384,7 +384,7 @@ QUnit.test("not shared option", function (assert) {
     dbus2.close();
 });
 
-QUnit.test("emit signal meta", function (assert) {
+QUnit.test.skipWithPybridge("emit signal meta", function (assert) {
     const done = assert.async();
     assert.expect(4);
 
@@ -425,7 +425,7 @@ QUnit.test("emit signal meta", function (assert) {
     });
 });
 
-QUnit.test("emit signal type", function (assert) {
+QUnit.test.skipWithPybridge("emit signal type", function (assert) {
     const done = assert.async();
     assert.expect(4);
 
@@ -455,7 +455,7 @@ QUnit.test("emit signal type", function (assert) {
     });
 });
 
-QUnit.test("emit signal no meta", function (assert) {
+QUnit.test.skipWithPybridge("emit signal no meta", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
@@ -473,7 +473,7 @@ QUnit.test("emit signal no meta", function (assert) {
     dbus.signal("/bork", "borkety.Bork", "Bork", [1, 2, 3, 4, "Bork"]);
 });
 
-QUnit.test("publish object", function (assert) {
+QUnit.test.skipWithPybridge("publish object", function (assert) {
     const done = assert.async();
     assert.expect(4);
 
@@ -525,7 +525,7 @@ QUnit.test("publish object", function (assert) {
     });
 });
 
-QUnit.test("publish object promise", function (assert) {
+QUnit.test.skipWithPybridge("publish object promise", function (assert) {
     const done = assert.async();
     assert.expect(1);
 
@@ -566,7 +566,7 @@ QUnit.test("publish object promise", function (assert) {
     });
 });
 
-QUnit.test("publish object failure", function (assert) {
+QUnit.test.skipWithPybridge("publish object failure", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
@@ -610,7 +610,7 @@ QUnit.test("publish object failure", function (assert) {
     });
 });
 
-QUnit.test("publish object replaces", function (assert) {
+QUnit.test.skipWithPybridge("publish object replaces", function (assert) {
     const done = assert.async();
     assert.expect(2);
 
@@ -660,7 +660,7 @@ QUnit.test("publish object replaces", function (assert) {
     });
 });
 
-QUnit.test("publish object unpublish", function (assert) {
+QUnit.test.skipWithPybridge("publish object unpublish", function (assert) {
     const done = assert.async();
     assert.expect(4);
 
@@ -728,15 +728,15 @@ QUnit.test("internal dbus", function (assert) {
     internal_test(assert, { bus: "internal" });
 });
 
-QUnit.test("internal dbus bus none", function (assert) {
+QUnit.test.skipWithPybridge("internal dbus bus none", function (assert) {
     internal_test(assert, { bus: "none" });
 });
 
-QUnit.test("internal dbus bus none with address", function (assert) {
+QUnit.test.skipWithPybridge("internal dbus bus none with address", function (assert) {
     internal_test(assert, { bus: "none", address: "internal" });
 });
 
-QUnit.test("separate dbus connections for channel groups", function (assert) {
+QUnit.test.skipWithPybridge("separate dbus connections for channel groups", function (assert) {
     const done = assert.async();
     assert.expect(4);
 
@@ -756,7 +756,7 @@ QUnit.test("separate dbus connections for channel groups", function (assert) {
     });
 });
 
-QUnit.test("cockpit.Config internal D-Bus API", function (assert) {
+QUnit.test.skipWithPybridge("cockpit.Config internal D-Bus API", function (assert) {
     const done = assert.async();
     assert.expect(6);
 

@@ -9,7 +9,6 @@ SRCDIR = os.path.realpath(f'{__file__}/../../..')
 BUILDDIR = os.environ.get('abs_builddir', SRCDIR)
 
 SKIP = {
-    'base1/test-dbus.html',
     'base1/test-dbus-address.html',
 }
 

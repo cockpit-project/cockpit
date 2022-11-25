@@ -61,7 +61,7 @@ class Channel(Endpoint):
         rules.sort(key=lambda rule: len(rule[0]), reverse=True)  # more restrictive rules match first
         return rules
 
-    channel = None
+    channel = ''
 
     # input
     def do_control(self, command, message):

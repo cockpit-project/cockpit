@@ -37,7 +37,7 @@ else
     fi
 
     # config can be customized, but provide a default suitable for a bastion host
-    mountpoint --quiet /etc/cockpit/cockpit.conf || ln -s /container/default-bastion.conf /etc/cockpit/cockpit.conf
+    mountpoint --quiet /etc/cockpit || mountpoint --quiet /etc/cockpit/cockpit.conf || ln -s /container/default-bastion.conf /etc/cockpit/cockpit.conf
 
     /usr/libexec/cockpit-certificate-ensure
 

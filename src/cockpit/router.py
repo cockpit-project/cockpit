@@ -15,38 +15,56 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import logging
-import shlex
+from __future__ import annotations
 
-from .channel import Channel
-from .channels import CHANNEL_TYPES
-from .packages import Packages
+import logging
+
+from typing import Dict, List, Optional, Tuple, Type
+
 from .protocol import CockpitProtocolServer, CockpitProtocolError
 
-logger = logging.getLogger('cockpit.bridge')
+logger = logging.getLogger(__name__)
 
 
-def parse_os_release():
-    with open('/usr/lib/os-release', encoding='utf-8') as os_release:
-        lexer = shlex.shlex(os_release, posix=True, punctuation_chars=True)
-        return dict(token.split('=', 1) for token in lexer)
+class Endpoint:
+    router: Router
+
+    def __init__(self, router: Router):
+        self.router = router
+
+    # interface for receiving messages
+    def do_channel_control(self, command: str, message: Dict[str, object]) -> None:
+        raise NotImplementedError
+
+    def do_channel_data(self, channel: str, data: bytes) -> None:
+        raise NotImplementedError
+
+    # interface for sending messages
+    def send_channel_data(self, channel: str, data: bytes) -> None:
+        self.router.send_data(channel, data)
+
+    def send_channel_message(self, channel: str, **kwargs) -> None:
+        self.router.send_message(channel, **kwargs)
+
+    def send_channel_control(self, channel, command, **kwargs) -> None:
+        self.router.send_control(command=command, channel=channel, **kwargs)
+        if command == 'close':
+            self.router.close_channel(channel)
+
+
+MatchRule = Dict[str, object]
+RoutingRule = Tuple[MatchRule, Type[Endpoint]]
 
 
 class Router(CockpitProtocolServer):
-    def __init__(self):
-        self.match_rules = Channel.create_match_rules(CHANNEL_TYPES)
-        self.os_release = parse_os_release()
-        self.packages = Packages()
-        self.endpoints = {}
-        self.peers = {}
+    routing_rules: List[RoutingRule]
+    open_channels: Dict[str, Endpoint]
 
-    def do_send_init(self):
-        self.send_control(command='init', version=1,
-                          checksum=self.packages.checksum,
-                          packages={p: None for p in self.packages.packages},
-                          os_release=parse_os_release())
+    def __init__(self, routing_rules: List[RoutingRule]):
+        self.routing_rules = routing_rules
+        self.open_channels = {}
 
-    def rule_matches(self, rule, options):
+    def rule_matches(self, rule: MatchRule, options: Dict[str, object]) -> bool:
         for key, expected_value in rule.items():
             our_value = options.get(key)
 
@@ -74,20 +92,23 @@ class Router(CockpitProtocolServer):
 
         return True
 
-    def check_rules(self, options):
-        for rule, result in self.match_rules:
+    def check_rules(self, options) -> Optional[Endpoint]:
+        for rule, result in self.routing_rules:
             if self.rule_matches(rule, options):
                 return result(self)
         return None
 
-    def do_channel_control(self, channel, command, message):
+    def close_channel(self, channel: str) -> None:
+        self.open_channels.pop(channel, None)
+
+    def do_channel_control(self, channel: str, command: str, message: Dict[str, object]) -> None:
         logger.debug('Received control message %s for channel %s: %s', command, channel, message)
 
         # If this is an open message then we need to apply the routing rules to
         # figure out the correct endpoint to connect.  If it's not an open
         # message, then we expect the endpoint to already exist.
         if command == 'open':
-            if channel in self.endpoints:
+            if channel in self.open_channels:
                 raise CockpitProtocolError('channel is already open')
 
             endpoint = self.check_rules(message)
@@ -96,10 +117,10 @@ class Router(CockpitProtocolServer):
                 self.send_control(command='close', channel=channel, problem='not-supported')
                 return
 
-            self.endpoints[channel] = endpoint
+            self.open_channels[channel] = endpoint
         else:
             try:
-                endpoint = self.endpoints[channel]
+                endpoint = self.open_channels[channel]
             except KeyError:
                 # sending to a non-existent channel can happen due to races and is not an error
                 return
@@ -109,12 +130,12 @@ class Router(CockpitProtocolServer):
 
         # If that was a close message, we can remove the endpoint now.
         if command == 'close':
-            del self.endpoints[channel]
+            self.close_channel(channel)
 
-    def do_channel_data(self, channel, data):
+    def do_channel_data(self, channel: str, data: bytes) -> None:
         logger.debug('Received %d bytes of data for channel %s', len(data), channel)
         try:
-            endpoint = self.endpoints[channel]
+            endpoint = self.open_channels[channel]
         except KeyError:
             return
 

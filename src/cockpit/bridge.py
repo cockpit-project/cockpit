@@ -21,18 +21,46 @@ import json
 import logging
 import pwd
 import os
+import shlex
 import sys
 
 from systemd_ctypes import EventLoopPolicy
 
+from .channel import Channel
+from .channels import CHANNEL_TYPES
 from .transports import StdioTransport
 from .packages import Packages
 from .router import Router
 
-logger = logging.getLogger('cockpit.bridge')
+logger = logging.getLogger(__name__)
 
 
-async def run():
+class Bridge(Router):
+    def __init__(self, args: argparse.Namespace):
+        self.packages = Packages()
+        self.args = args
+
+        super().__init__(Channel.create_routing_rules(CHANNEL_TYPES))
+
+    @staticmethod
+    def get_os_release():
+        try:
+            file = open('/etc/os-release', encoding='utf-8')
+        except FileNotFoundError:
+            file = open('/usr/lib/os-release', encoding='utf-8')
+
+        with file:
+            lexer = shlex.shlex(file, posix=True, punctuation_chars=True)
+            return dict(token.split('=', 1) for token in lexer)
+
+    def do_send_init(self) -> None:
+        self.send_control(command='init', version=1,
+                          checksum=self.packages.checksum,
+                          packages={p: None for p in self.packages.packages},
+                          os_release=self.get_os_release())
+
+
+async def run(args) -> None:
     logger.debug("Hi. How are you today?")
 
     # Unit tests require this
@@ -42,7 +70,7 @@ async def run():
     os.environ['USER'] = me.pw_name
 
     logger.debug('Starting the router.')
-    router = Router()
+    router = Bridge(args)
     StdioTransport(asyncio.get_running_loop(), router)
 
     logger.debug('Startup done.  Looping until connection closes.')
@@ -54,7 +82,7 @@ async def run():
         pass
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description='cockpit-bridge is run automatically inside of a Cockpit session.')
     parser.add_argument('--privileged', action='store_true', help='Privileged copy of the bridge')
     parser.add_argument('--packages', action='store_true', help='Show Cockpit package information')
@@ -72,7 +100,7 @@ def main():
         print(json.dumps(Packages().get_bridges(), indent=2))
     else:
         asyncio.set_event_loop_policy(EventLoopPolicy())
-        asyncio.run(run(), debug=True)
+        asyncio.run(run(args), debug=True)
 
 
 if __name__ == '__main__':

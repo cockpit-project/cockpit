@@ -20,20 +20,7 @@ import asyncio
 
 from typing import Any, Dict, Iterable, Optional, Tuple
 
-from .protocol import CockpitProtocol
-
-
-class Endpoint:
-    router: CockpitProtocol
-
-    def __init__(self, router):
-        self.router = router
-
-    def do_channel_control(self, command, message):
-        raise NotImplementedError
-
-    def do_channel_data(self, channel, data):
-        raise NotImplementedError
+from .router import Endpoint
 
 
 class ChannelError(Exception):
@@ -56,7 +43,7 @@ class Channel(Endpoint):
         return dict(cls.restrictions, payload=cls.payload)
 
     @staticmethod
-    def create_match_rules(channels):
+    def create_routing_rules(channels):
         rules = [(cls.create_match_rule(), cls) for cls in channels]
         rules.sort(key=lambda rule: len(rule[0]), reverse=True)  # more restrictive rules match first
         return rules
@@ -134,20 +121,19 @@ class Channel(Endpoint):
         self.send_control(command='done')
 
     def close(self, **kwargs):
-        self.send_control(command='close', **kwargs)
+        self.send_control('close', **kwargs)
 
-    def send_data(self, message):
-        self.router.send_data(self.channel, message)
+    def send_data(self, data: bytes) -> None:
+        self.send_channel_data(self.channel, data)
 
     def send_message(self, **kwargs):
-        self.router.send_message(self.channel, **kwargs)
+        self.send_channel_message(self.channel, **kwargs)
 
     def send_control(self, command, **kwargs):
-        self.router.send_control(channel=self.channel, command=command, **kwargs)
+        self.send_channel_control(self.channel, command=command, **kwargs)
 
     def send_pong(self, message):
-        message['command'] = 'pong'
-        self.router.send_message('', **message)
+        self.send_channel_control(**dict(message, command='pong'))
 
 
 class ProtocolChannel(Channel, asyncio.Protocol):

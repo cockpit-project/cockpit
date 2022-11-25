@@ -121,7 +121,7 @@ function validate_real_name(real_name) {
         return _("No real name specified");
 
     const real_name_chars = Array.from(real_name);
-    if (!real_name_chars.every(character => character != ':'))
+    if (real_name_chars.includes(':'))
         return _("The full name must not contain colons.");
 }
 

@@ -87,15 +87,16 @@ class Router(CockpitProtocolServer):
         # figure out the correct endpoint to connect.  If it's not an open
         # message, then we expect the endpoint to already exist.
         if command == 'open':
+            if channel in self.endpoints:
+                raise CockpitProtocolError('channel is already open')
+
             endpoint = self.check_rules(message)
 
             if endpoint is None:
                 self.send_control(command='close', channel=channel, problem='not-supported')
                 return
 
-            # can't find a more pythonic way to do this without two lookups...
-            if self.endpoints.setdefault(channel, endpoint) != endpoint:
-                raise CockpitProtocolError('channel is already open')
+            self.endpoints[channel] = endpoint
         else:
             try:
                 endpoint = self.endpoints[channel]

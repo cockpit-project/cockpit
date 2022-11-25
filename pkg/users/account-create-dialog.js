@@ -116,6 +116,15 @@ function validate_username(username, accounts) {
     return null;
 }
 
+function validate_real_name(real_name) {
+    if (!real_name)
+        return _("No real name specified");
+
+    const real_name_chars = Array.from(real_name);
+    if (real_name_chars.includes(':'))
+        return _("The full name must not contain colons.");
+}
+
 function suggest_username(realname) {
     function remove_diacritics(str) {
         const translate_table = {
@@ -203,8 +212,7 @@ export function account_create_dialog(accounts) {
     function validate(force, real_name, user_name, password, password_confirm) {
         const errs = { };
 
-        if (!real_name)
-            errors.real_name = _("No real name specified");
+        errs.real_name = validate_real_name(real_name);
 
         if (password != password_confirm)
             errs.password_confirm = _("The passwords do not match");

@@ -77,6 +77,17 @@ class TestAccounts(MachineCase):
         b.wait_visible("#accounts")
         b.wait_not_in_text('#accounts-list', "Anton Arbitrary")
 
+        # Attempt a real name with a colon
+        b.click('#accounts-create')
+        b.wait_visible('#accounts-create-dialog')
+        b.set_input_text('#accounts-create-real-name', "Col:n Colon")  # This should fail
+        b.set_input_text('#accounts-create-password-pw1', good_password)
+        b.set_input_text('#accounts-create-password-pw2', good_password)
+        b.click('#accounts-create-dialog button.apply')
+        b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error", "The full name must not contain colons.")
+        b.click('#accounts-create-dialog button.cancel')
+        b.wait_visible("#accounts")
+
         # Check root user
         b.go("#/root")
         b.wait_text("#account-user-name", "root")

@@ -40,7 +40,6 @@ class Router(CockpitProtocolServer):
         self.packages = Packages()
         self.endpoints = {}
         self.peers = {}
-        self.init_host = None
 
     def do_send_init(self):
         self.send_control(command='init', version=1,
@@ -101,20 +100,6 @@ class Router(CockpitProtocolServer):
             endpoint = result(self)
 
         return endpoint
-
-    def do_init(self, message):
-        try:
-            if int(message['version']) != 1:
-                raise CockpitProtocolError('incorrect version number', 'protocol-error')
-        except KeyError as exc:
-            raise CockpitProtocolError('version field is missing', 'protocol-error') from exc
-        except ValueError as exc:
-            raise CockpitProtocolError('version field is not an int', 'protocol-error') from exc
-
-        try:
-            self.init_host = message['host']
-        except KeyError as exc:
-            raise CockpitProtocolError('missing host field', 'protocol-error') from exc
 
     def do_channel_control(self, channel, command, message):
         logger.debug('Received control message %s for channel %s: %s', command, channel, message)

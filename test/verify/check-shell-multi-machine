@@ -323,7 +323,7 @@ class TestMultiMachine(MachineCase):
         b.wait_js_cond(f'window.location.pathname == "{root}=10.111.113.2/system"')
 
         b.click("#hosts-sel button")
-        b.wait_in_text("a[href='/@localhost']", "machine2")
+        b.wait_in_text(f"a[href='{root}=10.111.113.2/@localhost']", "machine2")
         b.wait_not_present("a[href='/@10.111.113.2']")
         b.logout()
 
@@ -424,7 +424,7 @@ class TestMultiMachine(MachineCase):
         b.wait_js_cond('window.location.pathname == "/cockpit-new/@10.111.113.2/system"')
 
         # Test subnav
-        b.click_system_menu("/@10.111.113.2/users", enter=False)
+        b.click_system_menu("/cockpit-new/@10.111.113.2/users", enter=False)
         b.enter_page("/users", host="10.111.113.2")
         b.click('#accounts-list td[data-label="Username"] a[href="#/admin"]')
         b.wait_text("#account-user-name", "admin")

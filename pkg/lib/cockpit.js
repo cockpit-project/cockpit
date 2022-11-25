@@ -2512,6 +2512,7 @@ function factory() {
             href = href.replaceAll("%40", "@");
             href = href.replaceAll("%3D", "=");
             href = href.replaceAll("%2B", "+");
+            href = href.replaceAll("%23", "#");
 
             let opt;
             const query = [];

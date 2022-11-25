@@ -1098,6 +1098,9 @@ ProtocolHeader = X-Forwarded-Proto
             b.set_val("#login-password-input", "foobar")
             b.click('#login-button')
         b.wait_visible('#content')
+        # Verify that the urlRoot is applied to links in the navbar.
+        b.wait_visible(f'#host-apps a[href="{urlroot}/system"]')
+
         if login:
             # check that we show up in the system logs from the browser's IP, not the proxy's
             self.assertIn('(172.27.0.2)', self.machine.execute('who'))

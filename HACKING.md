@@ -136,6 +136,8 @@ various bits of the new bridge code.  You can run those with `make pytest` or
 `systemd_ctypes` submodule is checked out before running `pytest` from the
 source directory.
 
+The tests require at least `pytest` 7.0.0 or higher to run.
+
 ## Running eslint
 
 Cockpit uses [ESLint](https://eslint.org/) to automatically check JavaScript

@@ -50,14 +50,14 @@ class Channel(Endpoint):
     payload: Optional[str] = None
     restrictions: Iterable[Tuple[str, Optional[object]]] = ()
 
-    @staticmethod
-    def create_match_rule(channel):
-        assert channel.payload is not None, f'{channel} declares no payload'
-        return dict(channel.restrictions, payload=channel.payload)
+    @classmethod
+    def create_match_rule(cls):
+        assert cls.payload is not None, f'{cls} declares no payload'
+        return dict(cls.restrictions, payload=cls.payload)
 
     @staticmethod
     def create_match_rules(channels):
-        rules = [(Channel.create_match_rule(cls), cls) for cls in channels]
+        rules = [(cls.create_match_rule(), cls) for cls in channels]
         rules.sort(key=lambda rule: len(rule[0]), reverse=True)  # more restrictive rules match first
         return rules
 

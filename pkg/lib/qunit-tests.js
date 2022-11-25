@@ -35,4 +35,12 @@ QUnit.mock_info = async key => {
     return (await response.json())[key];
 };
 
+// Convenience for skipping tests that the python bridge can't yet
+// handle.
+
+if (await QUnit.mock_info("pybridge"))
+    QUnit.test.skipWithPybridge = QUnit.test.skip;
+else
+    QUnit.test.skipWithPybridge = QUnit.test;
+
 export default QUnit;

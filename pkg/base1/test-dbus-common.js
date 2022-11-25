@@ -50,7 +50,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test("call method with timeout", function (assert) {
+    QUnit.test.skipWithPybridge("call method with timeout", function (assert) {
         const done = assert.async();
         assert.expect(2);
 
@@ -142,7 +142,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test("integer bounds", function (assert) {
+    QUnit.test.skipWithPybridge("integer bounds", function (assert) {
         assert.expect(35);
 
         const dbus = cockpit.dbus(bus_name, channel_options);
@@ -215,7 +215,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test("variants", function (assert) {
+    QUnit.test.skipWithPybridge("variants", function (assert) {
         const done = assert.async();
         assert.expect(2);
 
@@ -239,7 +239,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test("bad variants", function (assert) {
+    QUnit.test.skipWithPybridge("bad variants", function (assert) {
         const done = assert.async();
         assert.expect(3);
 
@@ -315,7 +315,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test("call bad base64", function (assert) {
+    QUnit.test.skipWithPybridge("call bad base64", function (assert) {
         const done = assert.async();
         assert.expect(3);
 
@@ -333,7 +333,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test("call unknown", function (assert) {
+    QUnit.test.skipWithPybridge("call unknown", function (assert) {
         const done = assert.async();
         assert.expect(3);
 
@@ -413,7 +413,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test("with types", function (assert) {
+    QUnit.test.skipWithPybridge("with types", function (assert) {
         const done = assert.async();
         assert.expect(3);
 
@@ -431,7 +431,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test("with meta", function (assert) {
+    QUnit.test.skipWithPybridge("with meta", function (assert) {
         const done = assert.async();
         assert.expect(2);
 
@@ -466,7 +466,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test("empty base64", function (assert) {
+    QUnit.test.skipWithPybridge("empty base64", function (assert) {
         const done = assert.async();
         assert.expect(3);
 
@@ -484,7 +484,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test("bad object path", function (assert) {
+    QUnit.test.skipWithPybridge("bad object path", function (assert) {
         const done = assert.async();
         assert.expect(2);
 
@@ -499,7 +499,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test("bad interface name", function (assert) {
+    QUnit.test.skipWithPybridge("bad interface name", function (assert) {
         const done = assert.async();
         assert.expect(2);
 
@@ -514,7 +514,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test("bad method name", function (assert) {
+    QUnit.test.skipWithPybridge("bad method name", function (assert) {
         const done = assert.async();
         assert.expect(2);
 
@@ -529,7 +529,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test("bad flags", function (assert) {
+    QUnit.test.skipWithPybridge("bad flags", function (assert) {
         const done = assert.async();
         assert.expect(2);
 
@@ -544,7 +544,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test("bad types", function (assert) {
+    QUnit.test.skipWithPybridge("bad types", function (assert) {
         const done = assert.async();
         assert.expect(3);
 
@@ -561,7 +561,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test("bad type invalid", function (assert) {
+    QUnit.test.skipWithPybridge("bad type invalid", function (assert) {
         const done = assert.async();
         assert.expect(3);
 
@@ -577,7 +577,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test("bad dict type", function (assert) {
+    QUnit.test.skipWithPybridge("bad dict type", function (assert) {
         const done = assert.async();
         assert.expect(3);
 
@@ -594,7 +594,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test("bad object path", function (assert) {
+    QUnit.test.skipWithPybridge("bad object path", function (assert) {
         const done = assert.async();
         assert.expect(3);
 
@@ -611,7 +611,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test("bad signature", function (assert) {
+    QUnit.test.skipWithPybridge("bad signature", function (assert) {
         const done = assert.async();
         assert.expect(3);
 
@@ -937,7 +937,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test("path loop", function (assert) {
+    QUnit.test.skipWithPybridge("path loop", function (assert) {
         const done = assert.async();
         assert.expect(2);
 
@@ -972,7 +972,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test("path signal", function (assert) {
+    QUnit.test.skipWithPybridge("path signal", function (assert) {
         const done = assert.async();
         assert.expect(4);
 
@@ -1066,7 +1066,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test("proxy call with timeout", function (assert) {
+    QUnit.test.skipWithPybridge("proxy call with timeout", function (assert) {
         const done = assert.async();
         assert.expect(2);
 
@@ -1199,7 +1199,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
 }
 
 export function dbus_track_tests(channel_options, bus_name) { // eslint-disable-line no-unused-vars
-    QUnit.test("track name", function (assert) {
+    QUnit.test.skipWithPybridge("track name", function (assert) {
         const done = assert.async();
         assert.expect(4);
 
@@ -1282,7 +1282,7 @@ export function dbus_track_tests(channel_options, bus_name) { // eslint-disable-
                 });
     });
 
-    QUnit.test("receive readable fd", function (assert) {
+    QUnit.test.skipWithPybridge("receive readable fd", function (assert) {
         const done = assert.async();
         assert.expect(4);
 
@@ -1308,7 +1308,7 @@ export function dbus_track_tests(channel_options, bus_name) { // eslint-disable-
                 });
     });
 
-    QUnit.test("receive readable fd and ensure opening more than once fails", function (assert) {
+    QUnit.test.skipWithPybridge("receive readable fd and ensure opening more than once fails", function (assert) {
         const done = assert.async();
         assert.expect(7);
 
@@ -1337,7 +1337,7 @@ export function dbus_track_tests(channel_options, bus_name) { // eslint-disable-
                 });
     });
 
-    QUnit.test("receive readable fd and ensure writing fails", function (assert) {
+    QUnit.test.skipWithPybridge("receive readable fd and ensure writing fails", function (assert) {
         const done = assert.async();
         assert.expect(6);
 
@@ -1365,7 +1365,7 @@ export function dbus_track_tests(channel_options, bus_name) { // eslint-disable-
                 });
     });
 
-    QUnit.test("receive writable fd", function (assert) {
+    QUnit.test.skipWithPybridge("receive writable fd", function (assert) {
         const done = assert.async();
         assert.expect(3);
 

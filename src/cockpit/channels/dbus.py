@@ -118,6 +118,9 @@ class InterfaceCache:
         self.cache = {}
         self.old = set()  # Interfaces already returned by get_interface_if_new
 
+    def inject(self, interfaces):
+        self.cache.update(interfaces)
+
     async def introspect_path(self, bus, destination, object_path):
         xml, = await bus.call_method_async(destination, object_path, 'org.freedesktop.DBus.Introspectable', 'Introspect')
 
@@ -126,7 +129,7 @@ class InterfaceCache:
         interfaces = {tag.attrib['name']: introspection.parse_interface(tag) for tag in et.findall('interface')}
 
         # Add all interfaces we found: we might use them later
-        self.cache.update(interfaces)
+        self.inject(interfaces)
 
         return interfaces
 
@@ -381,6 +384,9 @@ class DBusChannel(Channel):
         except BusError as error:
             self.send_message(error=[error.name, [error.message]], id=cookie)
 
+    async def do_meta(self, meta, message):
+        self.cache.inject(meta)
+
     def do_data(self, data):
         message = json.loads(data)
         logger.debug('receive dbus request %s %s', self.name, message)
@@ -391,6 +397,8 @@ class DBusChannel(Channel):
             task = asyncio.create_task(self.do_add_match(add_match, message))
         elif watch := message.get('watch'):
             task = asyncio.create_task(self.do_watch(watch, message))
+        elif meta := message.get('meta'):
+            task = asyncio.create_task(self.do_meta(meta, message))
         else:
             logger.debug('ignored dbus request %s', message)
             return

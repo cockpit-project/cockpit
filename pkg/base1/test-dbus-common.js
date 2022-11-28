@@ -334,7 +334,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test.skipWithPybridge("call unknown", function (assert) {
+    QUnit.test("call unknown", function (assert) {
         const done = assert.async();
         assert.expect(3);
 

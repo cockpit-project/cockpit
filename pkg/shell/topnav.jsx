@@ -64,6 +64,20 @@ export class TopNav extends React.Component {
         this.superuser = null;
 
         read_os_release().then(os => this.setState({ osRelease: os || {} }));
+
+        this.handleClickOutside = () => this.setState({ menuOpened: false, docsOpened: false });
+    }
+
+    componentDidMount() {
+        /* This is a HACK for catching lost clicks on the pages which live in iframes so as to close dropdown menus on the shell.
+         * Note: Clicks on an <iframe> element won't trigger document.documentElement listeners, because it's literally different page with different security domain.
+         * However, when clicking on an iframe moves focus to its content's window that triggers the main window.blur event.
+         */
+        window.addEventListener("blur", this.handleClickOutside);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("blur", this.handleClickOutside);
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
@@ -217,7 +231,7 @@ export class TopNav extends React.Component {
                                         document.getElementById("toggle-menu").focus();
                                     }}
                                     toggle={
-                                        <DropdownToggle id="toggle-menu" icon={<CogIcon size="md" />} onToggle={(isOpen, ev) => { if (ev.target.id !== "toggle-menu") return; this.setState({ menuOpened: isOpen, showActivePages: ev.altKey }) }}>
+                                        <DropdownToggle id="toggle-menu" icon={<CogIcon size="md" />} onToggle={(isOpen, ev) => this.setState({ menuOpened: isOpen, showActivePages: ev.altKey }) }>
                                             {_("Session")}
                                         </DropdownToggle>
                                     }

@@ -50,6 +50,14 @@ class TestMenu(MachineCase):
         b.click('.pf-c-about-modal-box__close button')
         b.wait_not_present('#about-cockpit-modal')
 
+        # Clicking inside the iframed pages should close the docs menu
+        b.click("#toggle-docs")
+        b.wait_visible("#toggle-docs + ul")
+        b.enter_page("/system")
+        b.focus("#overview main")
+        b.switch_to_top()
+        b.wait_not_present("#toggle-docs + ul")
+
         self.check_axe("Test-navigation")
 
         # Check that we can use a link with a hash in it

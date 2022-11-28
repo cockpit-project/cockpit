@@ -19,7 +19,7 @@ import asyncio
 import json
 import logging
 
-from typing import Optional
+from typing import Dict, Optional
 
 
 logger = logging.getLogger('cockpit.protocol')
@@ -44,21 +44,21 @@ class CockpitProtocol(asyncio.Protocol):
     def do_ready(self):
         raise NotImplementedError
 
-    def do_transport_control(self, command, message):
+    def transport_control_received(self, command: str, message: Dict[str, object]) -> None:
         raise NotImplementedError
 
-    def do_channel_control(self, channel, command, message):
+    def channel_control_received(self, channel: str, command: str, message: Dict[str, object]) -> None:
         raise NotImplementedError
 
-    def do_channel_data(self, channel, data):
+    def channel_data_received(self, channel: str, data: bytes) -> None:
         raise NotImplementedError
 
-    def do_frame(self, frame):
+    def frame_received(self, frame):
         channel, _, data = frame.partition(b'\n')
         channel = channel.decode('ascii')
 
         if channel != '':
-            self.do_channel_data(channel, data)
+            self.channel_data_received(channel, data)
         else:
             message = json.loads(data)
             try:
@@ -67,9 +67,9 @@ class CockpitProtocol(asyncio.Protocol):
                 raise CockpitProtocolError('control message is missing command field') from exc
 
             if channel := message.get('channel'):
-                self.do_channel_control(channel, command, message)
+                self.channel_control_received(channel, command, message)
             else:
-                self.do_transport_control(command, message)
+                self.transport_control_received(command, message)
 
     def consume_one_frame(self, view):
         '''Consumes a single frame from view.
@@ -107,7 +107,7 @@ class CockpitProtocol(asyncio.Protocol):
             return len(view) - end
 
         # We can consume a full frame
-        self.do_frame(view[start:end])
+        self.frame_received(view[start:end])
         return end
 
     def connection_made(self, transport):
@@ -125,12 +125,12 @@ class CockpitProtocol(asyncio.Protocol):
             else:
                 self._communication_done.set_exception(exc)
 
-    def send_frame(self, frame):
+    def write_frame(self, frame):
         frame_length = len(frame)
         header = f'{frame_length}\n'.encode('ascii')
         self.transport.write(header + frame)
 
-    def send_data(self, channel, payload):
+    def write_channel_data(self, channel, payload):
         '''Send a given payload (bytes) on channel (string)'''
         # Channel is certainly ascii (as enforced by .encode() below)
         frame_length = len(channel + '\n') + len(payload)
@@ -138,7 +138,7 @@ class CockpitProtocol(asyncio.Protocol):
         logger.debug('writing to transport %s', self.transport)
         self.transport.write(header + payload)
 
-    def send_message(self, _channel, **kwargs):
+    def write_message(self, _channel, **kwargs):
         '''Format kwargs as a JSON blob and send as a message
            Any kwargs with '_' in their names will be converted to '-'
         '''
@@ -149,10 +149,10 @@ class CockpitProtocol(asyncio.Protocol):
 
         logger.debug('sending message %s %s', _channel, kwargs)
         pretty = json.dumps(kwargs, indent=2) + '\n'
-        self.send_data(_channel, pretty.encode('utf-8'))
+        self.write_channel_data(_channel, pretty.encode('utf-8'))
 
-    def send_control(self, **kwargs):
-        self.send_message('', **kwargs)
+    def write_control(self, **kwargs):
+        self.write_message('', **kwargs)
 
     def data_received(self, data):
         try:
@@ -160,11 +160,11 @@ class CockpitProtocol(asyncio.Protocol):
             while (result := self.consume_one_frame(self.buffer)) > 0:
                 self.buffer = self.buffer[result:]
         except CockpitProtocolError as exc:
-            self.send_control(command="close", problem=exc.problem, exception=str(exc))
+            self.write_control(command="close", problem=exc.problem, exception=str(exc))
             self.transport.close()
 
     def eof_received(self):
-        self.send_control(command='close')
+        self.write_control(command='close')
 
     async def communicate(self) -> None:
         """Wait until communication is complete on this protocol."""
@@ -192,7 +192,7 @@ class CockpitProtocolClient(CockpitProtocol):
     def do_authorize(self, message):
         raise NotImplementedError
 
-    def do_transport_control(self, command, message):
+    def transport_control_received(self, command, message):
         if command == 'init':
             self.do_init(message)
         elif command == 'authorize':
@@ -213,7 +213,7 @@ class CockpitProtocolServer(CockpitProtocol):
     def do_init(self, message):
         pass
 
-    def do_transport_control(self, command, message):
+    def transport_control_received(self, command, message):
         if command == 'init':
             try:
                 if int(message['version']) != 1:

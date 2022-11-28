@@ -41,13 +41,13 @@ class Endpoint:
 
     # interface for sending messages
     def send_channel_data(self, channel: str, data: bytes) -> None:
-        self.router.send_data(channel, data)
+        self.router.write_channel_data(channel, data)
 
     def send_channel_message(self, channel: str, **kwargs) -> None:
-        self.router.send_message(channel, **kwargs)
+        self.router.write_message(channel, **kwargs)
 
     def send_channel_control(self, channel, command, **kwargs) -> None:
-        self.router.send_control(command=command, channel=channel, **kwargs)
+        self.router.write_control(channel=channel, command=command, **kwargs)
         if command == 'close':
             self.router.close_channel(channel)
 
@@ -101,7 +101,7 @@ class Router(CockpitProtocolServer):
     def close_channel(self, channel: str) -> None:
         self.open_channels.pop(channel, None)
 
-    def do_channel_control(self, channel: str, command: str, message: Dict[str, object]) -> None:
+    def channel_control_received(self, channel: str, command: str, message: Dict[str, object]) -> None:
         logger.debug('Received control message %s for channel %s: %s', command, channel, message)
 
         # If this is an open message then we need to apply the routing rules to
@@ -114,7 +114,7 @@ class Router(CockpitProtocolServer):
             endpoint = self.check_rules(message)
 
             if endpoint is None:
-                self.send_control(command='close', channel=channel, problem='not-supported')
+                self.write_control(command='close', channel=channel, problem='not-supported')
                 return
 
             self.open_channels[channel] = endpoint
@@ -132,7 +132,7 @@ class Router(CockpitProtocolServer):
         if command == 'close':
             self.close_channel(channel)
 
-    def do_channel_data(self, channel: str, data: bytes) -> None:
+    def channel_data_received(self, channel: str, data: bytes) -> None:
         logger.debug('Received %d bytes of data for channel %s', len(data), channel)
         try:
             endpoint = self.open_channels[channel]

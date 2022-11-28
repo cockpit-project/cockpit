@@ -882,9 +882,6 @@ const ServicesPageFilters = ({
         fileState: [],
     });
 
-    /* Functions for controlling the toolbar's components
-     * FIXME: https://github.com/patternfly/patternfly-react/issues/5836
-     */
     const onSelect = (type, event, selection) => {
         const checked = event.target.checked;
 
@@ -993,7 +990,8 @@ const ServicesPageFilters = ({
         <Toolbar data-loading={loadingUnits}
                  clearAllFilters={onClearAllFilters}
                  className="pf-m-sticky-top ct-compact services-toolbar"
-                 id="services-toolbar">
+                 id="services-toolbar"
+                 numberOfFiltersText={n => cockpit.format("$0 filters applied")}>
             <ToolbarContent>{toolbarItems}</ToolbarContent>
         </Toolbar>
     );

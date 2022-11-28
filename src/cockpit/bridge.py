@@ -54,10 +54,10 @@ class Bridge(Router):
             return dict(token.split('=', 1) for token in lexer)
 
     def do_send_init(self) -> None:
-        self.send_control(command='init', version=1,
-                          checksum=self.packages.checksum,
-                          packages={p: None for p in self.packages.packages},
-                          os_release=self.get_os_release())
+        self.write_control(command='init', version=1,
+                           checksum=self.packages.checksum,
+                           packages={p: None for p in self.packages.packages},
+                           os_release=self.get_os_release())
 
 
 async def run(args) -> None:

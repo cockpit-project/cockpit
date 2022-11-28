@@ -554,7 +554,6 @@ class TestHistoryMetrics(MachineCase):
 
     @nondestructive
     @skipImage("no PCP support", "fedora-coreos")
-    @todoPybridge()
     def testPmProxySettings(self):
         b = self.browser
         m = self.machine

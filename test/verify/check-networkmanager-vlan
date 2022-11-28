@@ -19,12 +19,11 @@
 
 import parent  # noqa: F401
 from netlib import NetworkCase
-from testlib import nondestructive, skipDistroPackage, todoPybridge, test_main
+from testlib import nondestructive, skipDistroPackage, test_main
 
 
 @nondestructive
 @skipDistroPackage()
-@todoPybridge()
 class TestNetworkingVLAN(NetworkCase):
     def testVlan(self):
         b = self.browser

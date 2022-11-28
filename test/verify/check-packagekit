@@ -1084,7 +1084,6 @@ ExecStart=/usr/local/bin/{packageName}
         b.wait_in_text("#app .pf-c-page .pf-c-empty-state__body", "PackageKit crashed")
 
     @nondestructive
-    @todoPybridge()
     def testNoPackageKit(self):
         b = self.browser
         m = self.machine

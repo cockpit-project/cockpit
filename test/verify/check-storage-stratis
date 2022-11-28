@@ -24,7 +24,6 @@ from testlib import skipImage, todoPybridge, test_main
 
 
 @skipImage("No Stratis", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2204")
-@todoPybridge()
 class TestStorageStratis(StorageCase):
     def setUp(self):
         super().setUp()
@@ -34,6 +33,7 @@ class TestStorageStratis(StorageCase):
             self.machine.execute("systemctl enable --now stratisd")
             self.addCleanup(self.machine.execute, "systemctl disable --now stratisd")
 
+    @todoPybridge()
     def testBasic(self):
         m = self.machine
         b = self.browser

@@ -17,7 +17,6 @@
 
 # Missing stuff compared to the C bridge that we should probably add:
 #
-# - name tracking
 # - connecting to given address instead of bus
 # - some more ways to connect to the internal bus (like { bus: "none", address: "internal" })
 # - removing matches
@@ -172,10 +171,46 @@ class DBusChannel(Channel):
     matches = None
     name = None
     bus = None
+    owner = None
 
     # This needs to be a fair mutex so that outgoing messages don't
     # get re-ordered.  asyncio.Lock is fair.
     watch_processing_lock = asyncio.Lock()
+
+    async def setup_name_owner_tracking(self):
+        def send_owner(owner):
+            # We must be careful not to send duplicate owner
+            # notifications. cockpit.js relies on that.
+            if self.owner != owner:
+                self.owner = owner
+                self.send_message(owner=owner)
+
+        def handler(message):
+            name, old, new = message.get_body()
+            send_owner(owner=new if new != "" else None)
+        rule = f"type='signal',sender='org.freedesktop.DBus',path='/org/freedesktop/DBus',interface='org.freedesktop.DBus',member='NameOwnerChanged',arg0='{self.name}'"
+        self.matches.append(self.bus.add_match(rule, handler))
+        try:
+            unique_name, = await self.bus.call_method_async("org.freedesktop.DBus",
+                                                            "/org/freedesktop/DBus",
+                                                            "org.freedesktop.DBus",
+                                                            "GetNameOwner", "s", self.name)
+        except BusError as error:
+            if error.name == "org.freedesktop.DBus.Error.NameHasNoOwner":
+                # Try to start it.  If it starts successfully, we will
+                # get a NameOwnerChanged signal (which will set
+                # self.owner) before StartServiceByName returns.
+                try:
+                    await self.bus.call_method_async("org.freedesktop.DBus",
+                                                     "/org/freedesktop/DBus",
+                                                     "org.freedesktop.DBus",
+                                                     "StartServiceByName", "su", self.name, 0)
+                except BusError as error:
+                    logger.debug("Failed to start service '%s': %s", self.name, error.message)
+            else:
+                logger.debug("Failed to get owner of service '%s': %s", self.name, error.message)
+        else:
+            send_owner(unique_name)
 
     def do_open(self, options):
         self.cache = InterfaceCache()
@@ -205,7 +240,19 @@ class DBusChannel(Channel):
             if err.errno != errno.EBUSY:
                 raise
 
-        self.ready()
+        if self.name is not None:
+            async def get_ready():
+                async with self.watch_processing_lock:
+                    await self.setup_name_owner_tracking()
+                    if self.owner:
+                        self.ready(unique_name=self.owner)
+                    else:
+                        self.close(problem="not-found")
+            task = asyncio.create_task(get_ready())
+            self.tasks.add(task)
+            task.add_done_callback(self.tasks.discard)
+        else:
+            self.ready()
 
     def add_match(self, rule, handler):
         def sync_handler(message):

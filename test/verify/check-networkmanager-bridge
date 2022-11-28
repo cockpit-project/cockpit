@@ -24,7 +24,6 @@ from testlib import nondestructive, skipDistroPackage, todoPybridge, test_main
 
 @nondestructive
 @skipDistroPackage()
-@todoPybridge()
 class TestBridge(NetworkCase):
     def testBasic(self):
         b = self.browser
@@ -79,6 +78,7 @@ class TestBridge(NetworkCase):
         self.wait_for_iface(iface1)
         self.wait_for_iface(iface2)
 
+    @todoPybridge()
     def testActive(self):
         b = self.browser
         m = self.machine

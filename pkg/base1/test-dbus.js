@@ -153,7 +153,7 @@ QUnit.test.skipWithPybridge("bad dbus bus", function (assert) {
     });
 });
 
-QUnit.test.skipWithPybridge("wait ready", function (assert) {
+QUnit.test("wait ready", function (assert) {
     const done = assert.async();
     assert.expect(1);
 
@@ -168,11 +168,11 @@ QUnit.test.skipWithPybridge("wait ready", function (assert) {
             });
 });
 
-QUnit.test.skipWithPybridge("wait fail", function (assert) {
+QUnit.test("wait fail", function (assert) {
     const done = assert.async();
     assert.expect(1);
 
-    const dbus = cockpit.dbus(null, { bus: "none", address: "bad" });
+    const dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.NotExisting", { bus: "session" });
     dbus.wait().then(function(options) {
         assert.ok(false, "shouldn't succeed");
     }, function() {

@@ -24,8 +24,8 @@ from testlib import nondestructive, skipDistroPackage, todoPybridge, test_main, 
 
 @nondestructive
 @skipDistroPackage()
-@todoPybridge()
 class TestNetworkingBasic(NetworkCase):
+    @todoPybridge()
     def testBasic(self):
         b = self.browser
         m = self.machine

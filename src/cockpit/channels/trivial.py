@@ -40,4 +40,4 @@ class NullChannel(Channel):
     payload = 'null'
 
     def do_open(self, options):
-        pass
+        self.ready()

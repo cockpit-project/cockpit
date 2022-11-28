@@ -21,7 +21,7 @@ import '../../lib/patternfly/patternfly-4-cockpit.scss';
 import 'polyfills'; // once per application
 
 import React, { useState, useEffect, useCallback } from "react";
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import {
     Button,
     Bullseye,
@@ -1063,10 +1063,8 @@ const ServicesPage = () => {
 };
 
 function init() {
-    ReactDOM.render(
-        <ServicesPage />,
-        document.getElementById('services')
-    );
+    const root = createRoot(document.getElementById('services'));
+    root.render(<ServicesPage />);
 }
 
 document.addEventListener("DOMContentLoaded", init);

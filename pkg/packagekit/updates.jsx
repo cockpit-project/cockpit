@@ -21,7 +21,7 @@ import 'polyfills'; // once per application
 
 import cockpit from "cockpit";
 import React, { useState, useEffect } from "react";
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 import {
     Alert, Badge, Button, Gallery, Modal, Popover, Tooltip,
@@ -1642,5 +1642,6 @@ class OsUpdates extends React.Component {
 document.addEventListener("DOMContentLoaded", () => {
     document.title = cockpit.gettext(document.title);
     init();
-    ReactDOM.render(<OsUpdates />, document.getElementById("app"));
+    const root = createRoot(document.getElementById('app'));
+    root.render(<OsUpdates />);
 });

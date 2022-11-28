@@ -1,7 +1,7 @@
 import './plot.css';
 
 import React from 'react';
-import ReactDOM from "react-dom";
+import { createRoot } from 'react-dom/client';
 
 import { PlotState } from "plot.js";
 import { SvgPlot, bytes_config } from "cockpit-components-plot.jsx";
@@ -24,13 +24,15 @@ document.addEventListener("DOMContentLoaded", function() {
     // For the tests
     window.plot_state = plot_state;
 
-    ReactDOM.render(<SvgPlot className="mem-graph"
-                             title="Direct" config={bytes_config}
-                             plot_state={plot_state} plot_id="direct" />,
-                    document.getElementById('plot-direct'));
+    createRoot(document.getElementById('plot-direct')).render(
+        <SvgPlot className="mem-graph"
+                 title="Direct" config={bytes_config}
+                 plot_state={plot_state} plot_id="direct" />
+    );
 
-    ReactDOM.render(<SvgPlot className="mem-graph"
-                             title="PMCD" config={bytes_config}
-                             plot_state={plot_state} plot_id="pmcd" />,
-                    document.getElementById('plot-pmcd'));
+    createRoot(document.getElementById('plot-pmcd')).render(
+        <SvgPlot className="mem-graph"
+                 title="PMCD" config={bytes_config}
+                 plot_state={plot_state} plot_id="pmcd" />
+    );
 });

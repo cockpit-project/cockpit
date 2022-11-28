@@ -26,11 +26,12 @@ import sys
 
 from systemd_ctypes import EventLoopPolicy
 
-from .channel import Channel
+from .channel import ChannelRoutingRule
 from .channels import CHANNEL_TYPES
-from .transports import StdioTransport
 from .packages import Packages
+from .remote import HostRoutingRule
 from .router import Router
+from .transports import StdioTransport
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +41,10 @@ class Bridge(Router):
         self.packages = Packages()
         self.args = args
 
-        super().__init__(Channel.create_routing_rules(CHANNEL_TYPES))
+        super().__init__([
+            HostRoutingRule(self),
+            ChannelRoutingRule(self, CHANNEL_TYPES),
+        ])
 
     @staticmethod
     def get_os_release():

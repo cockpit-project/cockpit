@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 class PackagesChannel(Channel):
     payload = 'http-stream1'
-    restrictions = {"internal": "packages"}
+    restrictions = [("internal", "packages")]
 
     headers = None
     protocol = None

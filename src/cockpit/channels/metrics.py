@@ -36,7 +36,7 @@ class MetricInfo(NamedTuple):
 
 class InternalMetricsChannel(AsyncChannel):
     payload = 'metrics1'
-    restrictions = {'source': 'internal'}
+    restrictions = [('source', 'internal')]
 
     metrics: List[MetricInfo]
     samplers: Set

@@ -15,12 +15,61 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from __future__ import annotations
 
 import asyncio
 
-from typing import Any, Dict, Iterable, Optional, Tuple
+from typing import Any, ClassVar, Dict, List, Optional, Sequence, Tuple, Type
 
-from .router import Endpoint
+from .router import Endpoint, Router, RoutingRule
+
+
+class ChannelRoutingRule(RoutingRule):
+    table: Dict[str, List[Type[Channel]]]
+
+    def __init__(self, router: Router, channel_types: List[Type[Channel]]):
+        super().__init__(router)
+        self.table = {}
+
+        # Sort the channels into buckets by payload type
+        for cls in channel_types:
+            entry = self.table.setdefault(cls.payload, [])
+            entry.append(cls)
+
+        # Within each bucket, sort the channels so those with more
+        # restrictions are considered first.
+        for entry in self.table.values():
+            entry.sort(key=lambda cls: len(cls.restrictions), reverse=True)
+
+    def check_restrictions(self, restrictions: Sequence[Tuple[str, object]], options: Dict[str, object]) -> bool:
+        for key, expected_value in restrictions:
+            our_value = options.get(key)
+
+            # If the match rule specifies that a value must be present and
+            # we don't have it, then fail.
+            if our_value is None:
+                return False
+
+            # If the match rule specified a specific expected value, and
+            # our value doesn't match it, then fail.
+            if expected_value is not None and our_value != expected_value:
+                return False
+
+        # Everything checked out
+        return True
+
+    def apply_rule(self, options: Dict[str, object]) -> Optional[Channel]:
+        assert self.router is not None
+
+        payload = options.get('payload')
+        if not isinstance(payload, str):
+            return None
+
+        for cls in self.table.get(payload, []):
+            if self.check_restrictions(cls.restrictions, options):
+                return cls(self.router)
+        else:
+            return None
 
 
 class ChannelError(Exception):
@@ -34,19 +83,8 @@ class Channel(Endpoint):
     CHANNEL_FLOW_PING = 16 * 1024
     CHANNEL_FLOW_WINDOW = 2 * 1024 * 1024
 
-    payload: Optional[str] = None
-    restrictions: Iterable[Tuple[str, Optional[object]]] = ()
-
-    @classmethod
-    def create_match_rule(cls):
-        assert cls.payload is not None, f'{cls} declares no payload'
-        return dict(cls.restrictions, payload=cls.payload)
-
-    @staticmethod
-    def create_routing_rules(channels):
-        rules = [(cls.create_match_rule(), cls) for cls in channels]
-        rules.sort(key=lambda rule: len(rule[0]), reverse=True)  # more restrictive rules match first
-        return rules
+    payload: ClassVar[str]
+    restrictions: ClassVar[Sequence[Tuple[str, object]]] = ()
 
     channel = ''
 

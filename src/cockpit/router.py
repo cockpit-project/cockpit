@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import logging
 
-from typing import Dict, List, Optional, Tuple, Type
+from typing import Dict, List, Optional
 
 from .protocol import CockpitProtocolServer, CockpitProtocolError
 
@@ -52,8 +52,27 @@ class Endpoint:
             self.router.close_channel(channel)
 
 
-MatchRule = Dict[str, object]
-RoutingRule = Tuple[MatchRule, Type[Endpoint]]
+class RoutingError(Exception):
+    def __init__(self, problem):
+        self.problem = problem
+
+
+class RoutingRule:
+    router: Router
+
+    def __init__(self, router: Router):
+        self.router = router
+
+    def apply_rule(self, options: Dict[str, object]) -> Optional[Endpoint]:
+        """Check if a routing rule applies to a given 'open' message.
+
+        This should inspect the options dictionary and do one of the following three things:
+
+            - return an Endpoint to handle this channel
+            - raise a RoutingError to indicate that the open should be rejected
+            - return None to let the next rule run
+        """
+        raise NotImplementedError
 
 
 class Router(CockpitProtocolServer):
@@ -61,42 +80,18 @@ class Router(CockpitProtocolServer):
     open_channels: Dict[str, Endpoint]
 
     def __init__(self, routing_rules: List[RoutingRule]):
+        for rule in routing_rules:
+            rule.router = self
         self.routing_rules = routing_rules
         self.open_channels = {}
 
-    def rule_matches(self, rule: MatchRule, options: Dict[str, object]) -> bool:
-        for key, expected_value in rule.items():
-            our_value = options.get(key)
-
-            # Special treatment: we only consider the host field to be
-            # present if it varies from the 'host' field we received with
-            # our init message (ie: specifies a different host).
-            if key == 'host':
-                if our_value == self.init_host:
-                    our_value = None
-
-            # If the match rule specifies that a value must be present and
-            # we don't have it, then fail.
-            if our_value is None:
-                return False
-
-            # If the match rule specified a specific expected value, and
-            # our value doesn't match it, then fail.
-            if expected_value is not None and our_value != expected_value:
-                return False
-
-        # More special treatment: if 'host' was given in the options field, and
-        # it's not the init_host, then the rule must specifically match it.
-        if 'host' in options and options['host'] != self.init_host and 'host' not in rule:
-            return False
-
-        return True
-
-    def check_rules(self, options) -> Optional[Endpoint]:
-        for rule, result in self.routing_rules:
-            if self.rule_matches(rule, options):
-                return result(self)
-        return None
+    def check_rules(self, options: Dict[str, object]) -> Endpoint:
+        for rule in self.routing_rules:
+            endpoint = rule.apply_rule(options)
+            if endpoint is not None:
+                return endpoint
+        else:
+            raise RoutingError('not-supported')
 
     def close_channel(self, channel: str) -> None:
         self.open_channels.pop(channel, None)
@@ -111,10 +106,10 @@ class Router(CockpitProtocolServer):
             if channel in self.open_channels:
                 raise CockpitProtocolError('channel is already open')
 
-            endpoint = self.check_rules(message)
-
-            if endpoint is None:
-                self.write_control(command='close', channel=channel, problem='not-supported')
+            try:
+                endpoint = self.check_rules(message)
+            except RoutingError as exc:
+                self.write_control(command='close', channel=channel, problem=exc.problem)
                 return
 
             self.open_channels[channel] = endpoint

@@ -414,7 +414,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test.skipWithPybridge("with types", function (assert) {
+    QUnit.test("with types", function (assert) {
         const done = assert.async();
         assert.expect(3);
 

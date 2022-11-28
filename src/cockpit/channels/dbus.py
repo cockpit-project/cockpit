@@ -216,9 +216,10 @@ class DBusChannel(Channel):
         timeout = message.get('timeout')
         cookie = message.get('id')
         flags = message.get('flags')
+        type = message.get('type')
 
         # We have to figure out the signature of the call.  Either we got told it:
-        signature = message.get('type')
+        signature = type
 
         # ... or there aren't any arguments
         if signature is None and len(args) == 0:
@@ -243,7 +244,9 @@ class DBusChannel(Channel):
             # watch processing, wait for that to be done.
             async with self.watch_processing_lock:
                 # TODO: stop hard-coding the endian flag here.
-                self.send_message(reply=[reply], id=cookie, flags="<" if flags is not None else None)
+                self.send_message(reply=[reply], id=cookie,
+                                  flags="<" if flags is not None else None,
+                                  type=type)
         except BusError as error:
             # actually, should send the fields from the message body
             self.send_message(error=[error.name, [error.message]], id=cookie)

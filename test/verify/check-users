@@ -83,11 +83,7 @@ class TestAccounts(MachineCase):
         # some operations are not allowed for root user
         b.wait_visible("#account-delete[disabled]")
         b.wait_visible("#account-real-name[disabled]")
-        # when running against existing machines there might be an ssh root session
-        if "root" in m.execute("who"):
-            b.wait_visible("#account-logout:not([disabled])")
-        else:
-            b.wait_visible("#account-logout[disabled]")
+        b.wait_visible("#account-logout[disabled]")
         b.wait_visible("#account-locked:not(:checked)")
         # root account should not be locked by default on our images
         self.assertIn(m.execute("passwd -S root").split()[1], ["P", "PS"])

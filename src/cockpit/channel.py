@@ -71,7 +71,7 @@ class Channel(Endpoint):
         elif command == 'options':
             self.do_options(message)
 
-    def do_channel_control(self, command, message):
+    def do_channel_control(self, channel, command, message):
         # Catch errors and turn them into close messages
         try:
             self.do_control(command, message)

@@ -48,7 +48,7 @@ class Peer(Endpoint):
         loop = asyncio.get_event_loop()
         await loop.connect_accepted_socket(PeerProtocol, protocol_sock)
 
-    def do_channel_control(self, command, message):
+    def do_channel_control(self, channel, command, message):
         raise NotImplementedError
 
     def do_channel_data(self, channel, data):

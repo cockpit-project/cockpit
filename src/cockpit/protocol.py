@@ -41,8 +41,11 @@ class CockpitProtocol(asyncio.Protocol):
     buffer = b''
     _communication_done: Optional[asyncio.Future] = None
 
-    def do_ready(self):
+    def do_ready(self) -> None:
         raise NotImplementedError
+
+    def do_closed(self, exc: Optional[Exception]) -> None:
+        pass
 
     def transport_control_received(self, command: str, message: Dict[str, object]) -> None:
         raise NotImplementedError

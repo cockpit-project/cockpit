@@ -233,6 +233,10 @@ class DBusChannel(Channel):
             except BusError as error:
                 self.send_message(error=[error.name, [f'Introspection: {error.message}']], id=cookie)
                 return
+            except KeyError:
+                self.send_message(error=["org.freedesktop.DBus.Error.UnknownMethod",
+                                         [f"Introspection data for method {iface} {method} not available"]], id=cookie)
+                return
             except Exception as exc:
                 self.send_message(error=['python.error', [f'Introspection: {str(exc)}']], id=cookie)
                 return

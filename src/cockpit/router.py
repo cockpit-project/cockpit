@@ -33,7 +33,7 @@ class Endpoint:
         self.router = router
 
     # interface for receiving messages
-    def do_channel_control(self, command: str, message: Dict[str, object]) -> None:
+    def do_channel_control(self, channel: str, command: str, message: Dict[str, object]) -> None:
         raise NotImplementedError
 
     def do_channel_data(self, channel: str, data: bytes) -> None:
@@ -126,7 +126,7 @@ class Router(CockpitProtocolServer):
                 return
 
         # At this point, we have the endpoint.  Route the message.
-        endpoint.do_channel_control(command, message)
+        endpoint.do_channel_control(channel, command, message)
 
         # If that was a close message, we can remove the endpoint now.
         if command == 'close':

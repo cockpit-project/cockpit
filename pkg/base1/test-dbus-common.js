@@ -50,7 +50,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test.skipWithPybridge("call method with timeout", function (assert) {
+    QUnit.test("call method with timeout", function (assert) {
         const done = assert.async();
         assert.expect(2);
 
@@ -61,7 +61,8 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                     assert.ok(false, "should not be reached");
                 })
                 .fail(function(ex) {
-                    assert.equal(ex.name, "org.freedesktop.DBus.Error.Timeout");
+                    assert.ok(["org.freedesktop.DBus.Error.Timeout",
+                        "org.freedesktop.DBus.Error.NoReply"].indexOf(ex.name) >= 0);
                 })
                 .always(function() {
                     assert.equal(this.state(), "rejected", "call timed out");
@@ -1066,7 +1067,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test.skipWithPybridge("proxy call with timeout", function (assert) {
+    QUnit.test("proxy call with timeout", function (assert) {
         const done = assert.async();
         assert.expect(2);
 
@@ -1075,7 +1076,8 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
 
         proxy.call('NeverReturn', [], { timeout: 10 })
                 .fail(function (ex) {
-                    assert.equal(ex.name, "org.freedesktop.DBus.Error.Timeout");
+                    assert.ok(["org.freedesktop.DBus.Error.Timeout",
+                        "org.freedesktop.DBus.Error.NoReply"].indexOf(ex.name) >= 0);
                 })
                 .always(function() {
                     assert.equal(this.state(), "rejected", "call timed out");

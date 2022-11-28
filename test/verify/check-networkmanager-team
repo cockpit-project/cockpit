@@ -27,7 +27,6 @@ from testlib import nondestructive, skipDistroPackage, skipImage, todoPybridge, 
 @skipImage("TODO: networkmanager fails on Arch Linux", "arch")
 @skipDistroPackage()
 @nondestructive
-@todoPybridge()
 class TestTeam(NetworkCase):
     def testBasic(self):
         b = self.browser
@@ -91,6 +90,7 @@ class TestTeam(NetworkCase):
         self.wait_for_iface(iface1)
         self.wait_for_iface(iface2)
 
+    @todoPybridge()
     def testActive(self):
         b = self.browser
         m = self.machine

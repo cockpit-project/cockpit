@@ -26,7 +26,6 @@ from lib.constants import TEST_OS_DEFAULT
 
 @nondestructive
 @skipDistroPackage()
-@todoPybridge()
 class TestBonding(NetworkCase):
     def testBasic(self):
         b = self.browser
@@ -116,6 +115,7 @@ class TestBonding(NetworkCase):
         self.wait_for_iface(iface1)
         self.wait_for_iface(iface2)
 
+    @todoPybridge()
     def testNonDefaultSettings(self):
         b = self.browser
         m = self.machine
@@ -262,7 +262,6 @@ class TestBonding(NetworkCase):
 
 
 @skipDistroPackage()
-@todoPybridge()
 class TestBondingVirt(NetworkCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "memory_mb": 512},

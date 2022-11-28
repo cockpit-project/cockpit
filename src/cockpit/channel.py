@@ -152,8 +152,8 @@ class Channel(Endpoint):
         self.close()
 
     # output
-    def ready(self):
-        self.send_control(command='ready')
+    def ready(self, **kwargs):
+        self.send_control(command='ready', **kwargs)
 
     def done(self):
         self.send_control(command='done')

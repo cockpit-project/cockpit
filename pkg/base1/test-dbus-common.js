@@ -1201,7 +1201,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
 }
 
 export function dbus_track_tests(channel_options, bus_name) { // eslint-disable-line no-unused-vars
-    QUnit.test.skipWithPybridge("track name", function (assert) {
+    QUnit.test("track name", function (assert) {
         const done = assert.async();
         assert.expect(4);
 

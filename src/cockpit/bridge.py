@@ -22,11 +22,15 @@ import logging
 import pwd
 import os
 import shlex
+import socket
 
-from systemd_ctypes import EventLoopPolicy
+from typing import Iterable, Tuple, Type
+
+from systemd_ctypes import EventLoopPolicy, bus
 
 from .channel import ChannelRoutingRule
 from .channels import CHANNEL_TYPES
+from .internal_endpoints import EXPORTS
 from .packages import Packages
 from .remote import HostRoutingRule
 from .router import Router
@@ -35,8 +39,22 @@ from .transports import StdioTransport
 logger = logging.getLogger(__name__)
 
 
+class InternalBus:
+    exportees: list[bus.Slot]
+
+    def __init__(self, exports: Iterable[Tuple[str, Type[bus.BaseObject]]]):
+        client_socket, server_socket = socket.socketpair()
+        self.client = bus.Bus.new(fd=client_socket.detach())
+        self.server = bus.Bus.new(fd=server_socket.detach(), server=True)
+        self.exportees = [self.server.add_object(path, cls()) for path, cls in exports]
+
+    def export(self, path: str, obj: bus.BaseObject) -> None:
+        self.exportees.append(self.server.add_object(path, obj))
+
+
 class Bridge(Router):
     def __init__(self, args: argparse.Namespace):
+        self.internal_bus = InternalBus(EXPORTS)
         self.packages = Packages()
         self.args = args
 

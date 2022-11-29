@@ -32,11 +32,11 @@ class CockpitProtocolError(Exception):
 
 
 class CockpitProtocol(asyncio.Protocol):
-    '''A naive implementation of the Cockpit frame protocol
+    """A naive implementation of the Cockpit frame protocol
 
     We need to use this because Python's SelectorEventLoop doesn't supported
     buffered protocols.
-    '''
+    """
     transport: Optional[asyncio.Transport] = None
     buffer = b''
     _communication_done: Optional[asyncio.Future] = None
@@ -72,11 +72,11 @@ class CockpitProtocol(asyncio.Protocol):
                 self.transport_control_received(command, message)
 
     def consume_one_frame(self, view):
-        '''Consumes a single frame from view.
+        """Consumes a single frame from view.
 
         Returns positive if a number of bytes were consumed, or negative if no
         work can be done because of a given number of bytes missing.
-        '''
+        """
 
         # Nothing to look at?  Save ourselves the trouble...
         if not view:
@@ -131,7 +131,7 @@ class CockpitProtocol(asyncio.Protocol):
         self.transport.write(header + frame)
 
     def write_channel_data(self, channel, payload):
-        '''Send a given payload (bytes) on channel (string)'''
+        """Send a given payload (bytes) on channel (string)"""
         # Channel is certainly ascii (as enforced by .encode() below)
         frame_length = len(channel + '\n') + len(payload)
         header = f'{frame_length}\n{channel}\n'.encode('ascii')
@@ -139,9 +139,9 @@ class CockpitProtocol(asyncio.Protocol):
         self.transport.write(header + payload)
 
     def write_message(self, _channel, **kwargs):
-        '''Format kwargs as a JSON blob and send as a message
+        """Format kwargs as a JSON blob and send as a message
            Any kwargs with '_' in their names will be converted to '-'
-        '''
+        """
         for name in list(kwargs):
             if '_' in name:
                 kwargs[name.replace('_', '-')] = kwargs[name]

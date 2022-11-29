@@ -22,7 +22,6 @@ import logging
 import pwd
 import os
 import shlex
-import sys
 
 from systemd_ctypes import EventLoopPolicy
 
@@ -92,11 +91,12 @@ def main() -> None:
     parser.add_argument('--packages', action='store_true', help='Show Cockpit package information')
     parser.add_argument('--bridges', action='store_true', help='Show Cockpit bridges information')
     parser.add_argument('--rules', action='store_true', help='Show Cockpit bridge rules')
+    parser.add_argument('--debug', action='store_true', help='Enable debug output (very verbose)')
     parser.add_argument('--version', action='store_true', help='Show Cockpit version information')
     args = parser.parse_args()
 
-    output = os.environ.get('COCKPIT_BRIDGE_LOG') if not sys.stdout.isatty() else None
-    logging.basicConfig(filename=output, level=logging.DEBUG)
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG)
 
     if args.packages:
         Packages().show()

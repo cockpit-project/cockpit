@@ -19,7 +19,6 @@ import grp
 import logging
 import os
 import pwd
-import socket
 
 from systemd_ctypes import bus
 
@@ -86,34 +85,11 @@ class cockpit_User(bus.Object):
         self.groups = [gr.gr_name for gr in grp.getgrall() if user.pw_name in gr.gr_mem]
 
 
-class InternalEndpoints:
-    server = None
-    client = None
-    slots = None
-
-    @classmethod
-    def create(cls):
-        client_socket, server_socket = socket.socketpair()
-        cls.client = bus.Bus.new(fd=client_socket.detach())
-        cls.server = bus.Bus.new(fd=server_socket.detach(), server=True)
-
-        cls.slots = [
-            cls.server.add_object('/LoginMessages', cockpit_LoginMessages()),
-            cls.server.add_object('/config', cockpit_Config()),
-            cls.server.add_object('/machines', cockpit_Machines()),
-            cls.server.add_object('/packages', cockpit_Packages()),
-            cls.server.add_object('/superuser', cockpit_Superuser()),
-            cls.server.add_object('/user', cockpit_User()),
-        ]
-
-    @classmethod
-    def get_client(cls):
-        if cls.client is None:
-            cls.create()
-        return cls.client
-
-    @classmethod
-    def get_server(cls):
-        if cls.server is None:
-            cls.create()
-        return cls.server
+EXPORTS = [
+    ('/LoginMessages', cockpit_LoginMessages),
+    ('/config', cockpit_Config),
+    ('/machines', cockpit_Machines),
+    ('/packages', cockpit_Packages),
+    ('/superuser', cockpit_Superuser),
+    ('/user', cockpit_User),
+]

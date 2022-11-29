@@ -7,7 +7,6 @@ from typing import Any, Dict, Tuple
 
 import systemd_ctypes
 from cockpit.bridge import Bridge
-from cockpit.internal_endpoints import InternalEndpoints
 
 MOCK_HOSTNAME = 'mockbox'
 
@@ -125,9 +124,8 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
         bridge, transport = await self.start()
 
         my_object = test_iface()
-        server = InternalEndpoints.get_server()
-        self.slot = server.add_object('/foo', my_object)
-        assert my_object._dbus_bus == server
+        bridge.internal_bus.export('/foo', my_object)
+        assert my_object._dbus_bus == bridge.internal_bus.server
         assert my_object._dbus_path == '/foo'
 
         transport.send_open('internal', 'dbus-json3', bus='internal')
@@ -147,9 +145,8 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
         bridge, transport = await self.start()
 
         my_object = test_iface()
-        server = InternalEndpoints.get_server()
-        self.slot = server.add_object('/foo', my_object)
-        assert my_object._dbus_bus == server
+        bridge.internal_bus.export('/foo', my_object)
+        assert my_object._dbus_bus == bridge.internal_bus.server
         assert my_object._dbus_path == '/foo'
 
         transport.send_open('internal', 'dbus-json3', bus='internal')

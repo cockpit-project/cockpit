@@ -46,7 +46,6 @@ import xml.etree.ElementTree as ET
 from systemd_ctypes import Bus, BusError, introspection
 
 from ..channel import Channel, ChannelError
-from ..internal_endpoints import InternalEndpoints
 
 logger = logging.getLogger(__name__)
 
@@ -184,7 +183,7 @@ class DBusChannel(Channel):
         bus = options.get('bus')
 
         if bus == 'internal':
-            self.bus = InternalEndpoints.get_client()
+            self.bus = self.router.internal_bus.client
         else:
             try:
                 if bus == 'session':

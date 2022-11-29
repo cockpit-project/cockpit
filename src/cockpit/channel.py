@@ -175,7 +175,7 @@ class Channel(Endpoint):
 
 
 class ProtocolChannel(Channel, asyncio.Protocol):
-    '''A channel subclass that implements the asyncio Protocol interface.
+    """A channel subclass that implements the asyncio Protocol interface.
 
     In effect, data sent to this channel will be written to the connected
     transport, and vice-versa.  Flow control is supported.
@@ -186,7 +186,7 @@ class ProtocolChannel(Channel, asyncio.Protocol):
 
     Otherwise, if the subclass implements .do_open() itself, it is responsible
     for setting up the connection and ensuring that .connection_made() is called.
-    '''
+    """
     _transport: Optional[asyncio.Transport]
     _loop: Optional[asyncio.AbstractEventLoop]
     _send_pongs: bool = True
@@ -295,7 +295,7 @@ class ProtocolChannel(Channel, asyncio.Protocol):
 
 
 class AsyncChannel(Channel):
-    '''A subclass for async/await-style implementation of channels, with flow control
+    """A subclass for async/await-style implementation of channels, with flow control
 
     This subclass provides asynchronous `read()` and `write()` calls for
     subclasses, with familiar semantics.  `write()` doesn't buffer, so the
@@ -308,7 +308,7 @@ class AsyncChannel(Channel):
     by `read()`.
 
     On the sending side, write() will block if the channel backs up.
-    '''
+    """
 
     loop = None
 

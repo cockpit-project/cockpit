@@ -71,7 +71,7 @@ class HttpChannel(Channel):
         return connection
 
     def read_send_response(self, response):
-        '''Completely read the response and send it to the channel'''
+        """Completely read the response and send it to the channel"""
 
         while True:
             # we want to stream data blocks as soon as they come in

@@ -1,6 +1,6 @@
 
 class CockpitBufferedProtocol(CockpitBaseProtocol, asyncio.BufferedProtocol):
-    '''A hopefully-reasonably-efficient implementation of the Cockpit frame protocol
+    """A hopefully-reasonably-efficient implementation of the Cockpit frame protocol
 
     We try to operate on a principle of finding a good balance between not
     making too many small reads, and not making too many large copies.
@@ -22,7 +22,7 @@ class CockpitBufferedProtocol(CockpitBaseProtocol, asyncio.BufferedProtocol):
 
     We handle large frame sizes by adjusting the buffer size for the next read,
     so that we don't have to copy (most of) the content of large frames.
-    '''
+    """
     min_buffer_size = None
     max_buffer_size = None
     buffer = None

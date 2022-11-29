@@ -581,8 +581,8 @@ $desktop: $phone + 1px;
   }
 
   // Use the "current" background for actions color when item is selected
-  :where(.pf-m-current + .nav-item-actions) {
-    --pf-c-nav__link--BackgroundColor: var(--pf-c-nav--m-dark__item--m-current--BackgroundColor);
+  .pf-m-current + .nav-item-actions {
+    background-color: var(--pf-c-nav__link--m-current--BackgroundColor);
   }
 }
 
@@ -751,7 +751,7 @@ $desktop: $phone + 1px;
 
   // Redefine the background color for current links
   .area-ct-subnav .pf-c-nav__item {
-    > :is(.pf-m-current, .pf-m-current + .nav-item-actions) {
+    > .pf-m-current, .pf-m-current + .nav-item-actions {
       --pf-c-nav__link--m-current--BackgroundColor: var(--pf-global--BackgroundColor--dark-200);
     }
   }

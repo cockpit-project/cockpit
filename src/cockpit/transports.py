@@ -265,26 +265,33 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
     data from it, making it available via the .get_stderr() method.
     """
 
-    _watcher: ClassVar[Optional[asyncio.AbstractChildWatcher]] = None
     _returncode: Optional[int] = None
 
     _pty_fd: Optional[int] = None
     _process: subprocess.Popen[bytes]
     _stderr: Optional['Spooler']
 
-    @classmethod
-    def _get_watcher(cls) -> asyncio.AbstractChildWatcher:
-        if cls._watcher is None:
-            if hasattr(asyncio, 'PidfdChildWatcher'):
-                try:
-                    os.close(os.pidfd_open(os.getpid(), 0))  # check for kernel support
-                    cls._watcher = asyncio.PidfdChildWatcher()
-                except OSError:
-                    pass
-            if cls._watcher is None:
-                cls._watcher = asyncio.SafeChildWatcher()
-            cls._watcher.attach_loop(asyncio.get_running_loop())
-        return cls._watcher
+    @staticmethod
+    def _create_watcher() -> asyncio.AbstractChildWatcher:
+        try:
+            os.close(os.pidfd_open(os.getpid(), 0))  # check for kernel support
+            return asyncio.PidfdChildWatcher()
+        except (AttributeError, OSError):
+            pass
+
+        return asyncio.SafeChildWatcher()
+
+    @staticmethod
+    def _get_watcher(loop: asyncio.AbstractEventLoop) -> asyncio.AbstractChildWatcher:
+        quark = '_cockpit_transports_child_watcher'
+        watcher = getattr(loop, quark, None)
+
+        if watcher is None:
+            watcher = SubprocessTransport._create_watcher()
+            watcher.attach_loop(loop)
+            setattr(loop, quark, watcher)
+
+        return watcher
 
     def get_stderr(self) -> Optional[bytes]:
         if self._stderr is not None:
@@ -343,7 +350,7 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
 
         super().__init__(loop, protocol, in_fd, out_fd)
 
-        self._get_watcher().add_child_handler(self._process.pid, self._exited)
+        self._get_watcher(loop).add_child_handler(self._process.pid, self._exited)
 
     def set_window_size(self, rows: int, cols: int) -> None:
         assert self._pty_fd is not None

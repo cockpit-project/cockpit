@@ -32,6 +32,7 @@ from typing import Any, ClassVar, Dict, Optional, Tuple
 
 
 logger = logging.getLogger(__name__)
+IOV_MAX = 1024  # man 2 writev
 
 
 class _Transport(asyncio.Transport):
@@ -195,6 +196,13 @@ class _Transport(asyncio.Transport):
 
         if self._queue is not None:
             self._queue.append(data)
+
+            # writev() will complain if the queue is too long.  Consolidate it.
+            if len(self._queue) > IOV_MAX:
+                all_data = b''.join(self._queue)
+                self._queue.clear()
+                self._queue.append(all_data)
+
             return
 
         try:

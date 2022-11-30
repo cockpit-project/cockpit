@@ -322,12 +322,6 @@ class TestStdio(unittest.IsolatedAsyncioTestCase):
 
 
 class TestSubprocessTransport(unittest.IsolatedAsyncioTestCase):
-    def tearDown(self) -> None:
-        # SubprocessTransport caches the child watcher, assuming that the
-        # mainloop will change, but pytest produces a separate mainloop per
-        # test-case, leading to trouble.  Clear the cache between runs.
-        cockpit.transports.SubprocessTransport._watcher = None
-
     def subprocess(self, args, **kwargs: Any) -> Tuple[Protocol, cockpit.transports.SubprocessTransport]:
         loop = asyncio.get_running_loop()
         protocol = Protocol()
@@ -386,7 +380,8 @@ class TestSubprocessTransport(unittest.IsolatedAsyncioTestCase):
     async def test_safe_watcher_ENOSYS(self) -> None:
         with unittest.mock.patch('asyncio.PidfdChildWatcher', unittest.mock.Mock(side_effect=OSError)):
             protocol, transport = self.subprocess(['true'])
-            assert isinstance(transport._watcher, asyncio.SafeChildWatcher)
+            watcher = transport._get_watcher(asyncio.get_running_loop())
+            assert isinstance(watcher, asyncio.SafeChildWatcher)
             await protocol.eof_and_exited_with_code(0)
         assert isinstance(asyncio.PidfdChildWatcher, type)
 
@@ -394,7 +389,8 @@ class TestSubprocessTransport(unittest.IsolatedAsyncioTestCase):
         with unittest.mock.patch('asyncio.PidfdChildWatcher'):
             del asyncio.PidfdChildWatcher
             protocol, transport = self.subprocess(['true'])
-            assert isinstance(transport._watcher, asyncio.SafeChildWatcher)
+            watcher = transport._get_watcher(asyncio.get_running_loop())
+            assert isinstance(watcher, asyncio.SafeChildWatcher)
             await protocol.eof_and_exited_with_code(0)
         assert isinstance(asyncio.PidfdChildWatcher, type)
 

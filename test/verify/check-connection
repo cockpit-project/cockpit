@@ -604,6 +604,10 @@ class TestConnection(MachineCase):
     def testWsPackage(self):
         m = self.machine
 
+        # On RHEL-8 SSH allows password root login by default, so Cockpit does too.
+        ROOT_LOGIN_ENABLED = ['rhel-8', 'centos-8']
+        root_login_disallowed = not any(m.image.startswith(img) for img in ROOT_LOGIN_ENABLED)
+
         if m.image.startswith("debian") or m.image.startswith("ubuntu"):
             # clean up debug symbols, they get in the way of upgrading
             m.execute("dpkg --purge cockpit-ws-dbgsym")
@@ -634,7 +638,8 @@ class TestConnection(MachineCase):
         # clean install sets up dynamic motd/issue symlink and pam disallowed users.
         self.assertIn('Activate the web console', m.execute("cat /etc/motd.d/cockpit"))
         self.assertIn('Activate the web console', m.execute("cat /etc/issue.d/cockpit.issue"))
-        self.assertIn('root', m.execute("cat /etc/cockpit/disallowed-users"))
+        if root_login_disallowed:
+            self.assertIn('root', m.execute("cat /etc/cockpit/disallowed-users"))
         # remove disallowed-users to simulate an upgrade where we did not have this file yet.
         m.execute("rm /etc/cockpit/disallowed-users")
 
@@ -665,7 +670,8 @@ class TestConnection(MachineCase):
         # verify that we installed relative links in the new package
         self.assertEqual(m.execute("readlink /etc/motd.d/cockpit").strip(), "../../run/cockpit/motd")
         self.assertEqual(m.execute("readlink /etc/issue.d/cockpit.issue").strip(), "../../run/cockpit/motd")
-        self.assertIn('root', m.execute("cat /etc/cockpit/disallowed-users"))
+        if root_login_disallowed:
+            self.assertIn('root', m.execute("cat /etc/cockpit/disallowed-users"))
 
     @skipImage("OSTree doesn't have cockpit-ws", "fedora-coreos")
     @nondestructive

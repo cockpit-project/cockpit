@@ -361,7 +361,7 @@ class AsyncChannel(Channel):
     def do_open(self, options):
         self.receive_queue = asyncio.Queue()
         self.flow_control = options.get('flow-control') is True
-        asyncio.create_task(self.run_wrapper(options), name='f{self.__class__.__name__}.run_wrapper({options})')
+        asyncio.create_task(self.run_wrapper(options), name=f'{self.__class__.__name__}.run_wrapper({options})')
 
     def do_done(self):
         self.receive_queue.put_nowait(b'')

@@ -313,7 +313,8 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
         assert self._process.pid == pid
         self._returncode = code
         logger.debug('Process exited with status %d', self._returncode)
-        self._protocol.process_exited()
+        if not self._closing:
+            self._protocol.process_exited()
 
     def __init__(self,
                  loop: asyncio.AbstractEventLoop,

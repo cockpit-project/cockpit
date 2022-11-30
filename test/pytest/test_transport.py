@@ -86,6 +86,7 @@ class Protocol(cockpit.transports.SubprocessProtocol):
         return b''.join(self.output)
 
     async def eof_and_exited_with_code(self, returncode) -> None:
+        self.close_on_eof = False  # otherwise we won't get process_exited()
         transport = self.transport
         assert isinstance(transport, cockpit.transports.SubprocessTransport)
         while not self.exited or not self.eof:
@@ -399,9 +400,7 @@ class TestSubprocessTransport(unittest.IsolatedAsyncioTestCase):
         protocol = Protocol()
         transport = cockpit.transports.SubprocessTransport(loop, protocol, ['true'], pty=True)
         assert not transport.can_write_eof()
-        while protocol.eof is False or protocol.exited is False:
-            await asyncio.sleep(0.1)
-        assert transport.get_returncode() == 0
+        await protocol.eof_and_exited_with_code(0)
         assert protocol.received == protocol.sent == 0
 
     async def test_broken_pipe(self) -> None:

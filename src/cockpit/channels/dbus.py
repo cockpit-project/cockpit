@@ -43,7 +43,7 @@ import json
 import logging
 import xml.etree.ElementTree as ET
 
-from systemd_ctypes import Bus, BusError, introspection
+from systemd_ctypes import Bus, BusError, MessageType, introspection
 
 from ..channel import Channel, ChannelError
 from ..internal_endpoints import InternalEndpoints
@@ -162,14 +162,29 @@ class InterfaceCache:
 def notify_update(notify, path, interface_name, props):
     notify.setdefault(path, {})[interface_name] = {k: v['v'] for k, v in props.items()}
 
+def has_path_prefix(path, prefix):
+    return path == prefix or path.startswith(prefix + ("/" if not prefix.endswith("/") else ""))
+
+def message_matches_rule(m, r):
+    if 'path_namespace' in r and not has_path_prefix(m.get_path(), r['path_namespace']):
+        return False
+    if 'path' in r and m.get_path() != r['path']:
+        return False
+    if 'interface' in r and m.get_interface() != r['interface']:
+        return False
+    if 'member' in r and m.get_member() != r['member']:
+        return False
+    # TODO - arg0
+    return True
 
 class DBusChannel(Channel):
     payload = 'dbus-json3'
 
     tasks = None
-    matches = None
+    slots = None
     name = None
     bus = None
+    match_rules = None
 
     # This needs to be a fair mutex so that outgoing messages don't
     # get re-ordered.  asyncio.Lock is fair.
@@ -178,8 +193,9 @@ class DBusChannel(Channel):
     def do_open(self, options):
         self.cache = InterfaceCache()
         self.name = options.get('name')
-        self.matches = []
+        self.slots = []
         self.tasks = set()
+        self.match_rules = []
 
         bus = options.get('bus')
 
@@ -202,14 +218,31 @@ class DBusChannel(Channel):
             if err.errno != errno.EBUSY:
                 raise
 
+        async def signal_filter(message):
+            async with self.watch_processing_lock:
+                self.send_message(signal=[
+                    message.get_path(),
+                    message.get_interface(),
+                    message.get_member(),
+                    list(message.get_body())
+                ])
+
+        def sync_filter(message):
+            if (message.get_type() == MessageType.SIGNAL and
+                any(message_matches_rule(message, r) for r in self.match_rules)):
+                task = asyncio.create_task(signal_filter(message))
+                self.tasks.add(task)
+                task.add_done_callback(self.tasks.discard)
+
+        self.slots.append(self.bus.add_filter(sync_filter))
         self.ready()
 
-    def add_match(self, rule, handler):
+    def add_signal_handler(self, rule, handler):
         def sync_handler(message):
             task = asyncio.create_task(handler(message))
             self.tasks.add(task)
             task.add_done_callback(self.tasks.discard)
-        self.matches.append(self.bus.add_match(rule, sync_handler))
+        self.slots.append(self.bus.add_match(rule, sync_handler))
 
     async def do_call(self, call, message):
         path, iface, method, args = call
@@ -253,19 +286,25 @@ class DBusChannel(Channel):
     async def do_add_match(self, add_match, message):
         logger.debug('adding match %s', add_match)
 
-        async def match_hit(message):
-            logger.debug('got match')
-            async with self.watch_processing_lock:
-                self.send_message(signal=[
-                    message.get_path(),
-                    message.get_interface(),
-                    message.get_member(),
-                    list(message.get_body())
-                ])
-
-        rule = ','.join(f"{key}='{value}'" for key, value in add_match.items())
-        self.add_match("type='signal'," + rule, match_hit)
-        self.send_message(reply=[], id=message.get('id'))
+        self.match_rules.append(add_match)
+        if self.name:
+            rule = add_match.copy()
+            rule['type'] = "signal"
+            if 'name' in rule:
+                rule['sender'] = rule['name']
+                del rule['name']
+            if not 'sender' in rule:
+                rule['sender'] = self.name
+            rule = ','.join(f"{key}='{value}'" for key, value in rule.items())
+            logger.debug('adding match rule on the bus %s', rule)
+            try:
+                reply = await self.bus.call_method_async("org.freedesktop.DBus",
+                                                         "/org/freedesktop/DBus",
+                                                         "org.freedesktop.DBus",
+                                                         "AddMatch", "s", rule)
+            except BusError as error:
+                # TODO - add/log the concrete error message
+                self.close(problem="internal-error")
 
     async def setup_objectmanager_watch(self, path, interface_name, meta, notify):
         # Watch the objects managed by the ObjectManager at "path".
@@ -299,7 +338,7 @@ class DBusChannel(Channel):
         if self.name:
             rule += f",sender='{self.name}'"
         rule += f",path='{path}',interface='org.freedesktop.DBus.ObjectManager'"
-        self.add_match(rule, handler)
+        self.add_signal_handler(rule, handler)
         objects, = await self.bus.call_method_async(self.name, path, 'org.freedesktop.DBus.ObjectManager', 'GetManagedObjects')
         for p, ifaces in objects.items():
             for iface, props in ifaces.items():
@@ -336,7 +375,7 @@ class DBusChannel(Channel):
         else:
             rule += f",path='{path}'"
         rule += ",interface='org.freedesktop.DBus.Properties'"
-        self.add_match(rule, handler)
+        self.add_signal_handler(rule, handler)
         for name, interface in meta.items():
             if name.startswith("org.freedesktop.DBus."):
                 continue

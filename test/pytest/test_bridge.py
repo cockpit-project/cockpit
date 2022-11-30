@@ -173,3 +173,83 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
         notify = await transport.next_msg('internal')
         assert 'notify' in notify
         assert notify['notify']['/foo'] == {'test.iface': {'Prop': 'xyz'}}
+
+    async def test_dbus_add_match(self):
+        bridge, transport = await self.start()
+
+        my_object = test_iface()
+        server = InternalEndpoints.get_server()
+        self.slot = server.add_object('/foo', my_object)
+        assert my_object._dbus_bus == server
+        assert my_object._dbus_path == '/foo'
+
+        transport.send_open('internal', 'dbus-json3', bus='internal')
+        await transport.assert_msg('', command='ready', channel='internal')
+
+        # Add a match
+        transport.send_json('internal', add_match={'path': '/foo', 'interface': 'test.iface'})
+
+        # Add a overlapping match, the signal should be emitted only once
+        transport.send_json('internal', add_match={'path_namespace': '/'})
+
+        # HACK - https://github.com/systemd/systemd/pull/24875
+        #
+        # Without this initial pointless method call, the signal
+        # below will not be received.
+        #
+        transport.send_json('internal', call=['/foo', 'test.iface', 'notfound', []], id='7')
+        reply = await transport.next_msg('internal')
+        assert reply['id'] == '7'
+        assert 'error' in reply
+
+        # Send a signal
+        my_object.sig('hihi')
+        sig = await transport.next_msg('internal')
+        assert 'signal' in sig
+        assert sig == {'signal': ['/foo', 'test.iface', 'Sig', ['hihi']]}
+
+        # Send a different signal
+        my_object.sig('hoho')
+        sig = await transport.next_msg('internal')
+        assert 'signal' in sig
+        assert sig == {'signal': ['/foo', 'test.iface', 'Sig', ['hoho']]}
+
+    async def test_dbus_match_and_watch(self):
+        bridge, transport = await self.start()
+
+        my_object = test_iface()
+        server = InternalEndpoints.get_server()
+        self.slot = server.add_object('/foo', my_object)
+        assert my_object._dbus_bus == server
+        assert my_object._dbus_path == '/foo'
+
+        transport.send_open('internal', 'dbus-json3', bus='internal')
+        await transport.assert_msg('', command='ready', channel='internal')
+
+        # Add a wide match. This will also catch the signals used
+        # internally by the "watch" below, but shouldn't interfere
+        # with it.
+        transport.send_json('internal', add_match={'path': '/foo'})
+
+        # Add a watch
+        transport.send_json('internal', watch={'path': '/foo', 'interface': 'test.iface'}, id='4')
+        meta = await transport.next_msg('internal')
+        assert meta['meta']['test.iface'] == {
+            'methods': {},
+            'properties': {'Prop': {'flags': 'r', 'type': 's'}},
+            'signals': {'Sig': {'in': ['s']}}
+        }
+        notify = await transport.next_msg('internal')
+        assert notify['notify']['/foo'] == {'test.iface': {'Prop': 'none'}}
+        reply = await transport.next_msg('internal')
+        assert reply == {'id': '4', 'reply': []}
+
+        # Change a property
+        my_object.prop = 'xyz'
+
+        signal = await transport.next_msg('internal')
+        assert signal == {'signal': ['/foo', 'org.freedesktop.DBus.Properties', 'PropertiesChanged', ['test.iface', {'Prop': {'t': 's', 'v': 'xyz'}}, []]]}
+
+        notify = await transport.next_msg('internal')
+        assert 'notify' in notify
+        assert notify['notify']['/foo'] == {'test.iface': {'Prop': 'xyz'}}

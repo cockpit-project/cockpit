@@ -572,7 +572,7 @@ function message_queue(event) {
 }
 
 /* When we're being loaded into the index window we have additional duties */
-if (document.documentElement.getAttribute("class") === "index-page") {
+if (document.documentElement.classList.contains("index-page")) {
     /* Indicates to child frames that we are a cockpit1 router frame */
     window.name = "cockpit1";
 

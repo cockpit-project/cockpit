@@ -17,12 +17,16 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import cockpit from "cockpit";
+
 import React from "react";
 
 import { Split, SplitItem, Grid, GridItem } from '@patternfly/react-core';
 import { ZoomControls, SvgPlot, bytes_per_sec_config } from "cockpit-components-plot.jsx";
 
 import { decode_filename, get_other_devices } from "./utils.js";
+
+const _ = cockpit.gettext;
 
 const single_read_metric = {
     direct: ["disk.all.read_bytes"],
@@ -88,12 +92,12 @@ export const StoragePlots = ({ plot_state }) => {
             <Grid sm={12} md={6} lg={6} hasGutter>
                 <GridItem>
                     <SvgPlot className="storage-graph"
-                             title="Reading" config={bytes_per_sec_config}
+                             title={_("Reading")} config={bytes_per_sec_config}
                              plot_state={plot_state} plot_id='read' />
                 </GridItem>
                 <GridItem>
                     <SvgPlot className="storage-graph"
-                             title="Writing" config={bytes_per_sec_config}
+                             title={_("Writing")} config={bytes_per_sec_config}
                              plot_state={plot_state} plot_id='write' />
                 </GridItem>
             </Grid>

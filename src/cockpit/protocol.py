@@ -220,6 +220,9 @@ class CockpitProtocolServer(CockpitProtocol):
     def do_init(self, message):
         pass
 
+    def do_kill(self, host: Optional[str], group: Optional[str]) -> None:
+        raise NotImplementedError
+
     def transport_control_received(self, command, message):
         if command == 'init':
             try:
@@ -235,6 +238,8 @@ class CockpitProtocolServer(CockpitProtocol):
             except KeyError as exc:
                 raise CockpitProtocolError('missing host field', 'protocol-error') from exc
             self.do_init(message)
+        elif command == 'kill':
+            self.do_kill(message.get('host'), message.get('group'))
         else:
             raise CockpitProtocolError(f'unexpected control message {command} received')
 

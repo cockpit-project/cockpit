@@ -489,7 +489,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         # This should work, but it will not because of
         # https://bugzilla.redhat.com/show_bug.cgi?id=1814569
-        if m.image.startswith("fedora"):
+        if m.image.startswith("fedora") or m.image == "centos-9-stream":
             self.assertIn('result: uid=0', b.text(".super-channel span"))
         else:
             self.assertIn('result: access-denied', b.text(".super-channel span"))

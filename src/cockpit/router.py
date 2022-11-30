@@ -78,12 +78,14 @@ class RoutingRule:
 class Router(CockpitProtocolServer):
     routing_rules: List[RoutingRule]
     open_channels: Dict[str, Endpoint]
+    groups: Dict[str, str]
 
     def __init__(self, routing_rules: List[RoutingRule]):
         for rule in routing_rules:
             rule.router = self
         self.routing_rules = routing_rules
         self.open_channels = {}
+        self.groups = {}
 
     def check_rules(self, options: Dict[str, object]) -> Endpoint:
         for rule in self.routing_rules:
@@ -95,6 +97,14 @@ class Router(CockpitProtocolServer):
 
     def close_channel(self, channel: str) -> None:
         self.open_channels.pop(channel, None)
+        if channel in self.groups:
+            del self.groups[channel]
+
+    def do_kill(self, host: Optional[str], group: Optional[str]) -> None:
+        if group:
+            to_close = set(ch for ch, gr in self.groups.items() if gr == group)
+            for channel in to_close:
+                self.close_channel(channel)
 
     def channel_control_received(self, channel: str, command: str, message: Dict[str, object]) -> None:
         # If this is an open message then we need to apply the routing rules to
@@ -111,6 +121,10 @@ class Router(CockpitProtocolServer):
                 return
 
             self.open_channels[channel] = endpoint
+
+            group = message.get('group')
+            if isinstance(group, str):
+                self.groups[channel] = group
         else:
             try:
                 endpoint = self.open_channels[channel]

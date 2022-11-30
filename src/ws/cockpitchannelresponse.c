@@ -617,7 +617,6 @@ cockpit_channel_response_serve (CockpitWebService *service,
                                          "payload", "http-stream1",
                                          "internal", "packages",
                                          "method", "GET",
-                                         "host", host,
                                          "path", path,
                                          "binary", "raw",
                                          NULL);

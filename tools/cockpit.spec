@@ -74,6 +74,13 @@ Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{v
 %define build_optional 1
 %endif
 
+# Allow root login in Cockpit on RHEL 8 and lower as it also allows password login over SSH.
+%if 0%{?rhel} && 0%{?rhel} <= 8
+%define disallow_root 0
+%else
+%define disallow_root 1
+%endif
+
 # Ship custom SELinux policy (but not for cockpit-appstream)
 %if "%{name}" == "cockpit"
 %define selinuxtype targeted
@@ -481,7 +488,10 @@ if [ "$1" = 1 ]; then
     mkdir -p /etc/motd.d /etc/issue.d
     ln -s ../../run/cockpit/motd /etc/motd.d/cockpit
     ln -s ../../run/cockpit/motd /etc/issue.d/cockpit.issue
-    printf "# List of users which are not allowed to login to Cockpit\nroot\n" > /etc/cockpit/disallowed-users
+    printf "# List of users which are not allowed to login to Cockpit\n" > /etc/cockpit/disallowed-users
+%if 0%{?disallow_root}
+    printf "root\n" >> /etc/cockpit/disallowed-users
+%endif
     chmod 644 /etc/cockpit/disallowed-users
 fi
 

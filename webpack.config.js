@@ -313,14 +313,19 @@ info.files = files;
 
 // main font for all our pages
 const redhat_fonts = [
-    "Text-Bold", "Text-BoldItalic", "Text-Italic", "Text-Medium", "Text-MediumItalic", "Text-Regular",
-    "Display-Black", "Display-BlackItalic", "Display-Bold", "Display-BoldItalic",
-    "Display-Italic", "Display-Medium", "Display-MediumItalic", "Display-Regular"
+    "Text-updated-Bold", "Text-updated-BoldItalic", "Text-updated-Italic", "Text-updated-Medium", "Text-updated-MediumItalic", "Text-updated-Regular",
+    "Display-updated-Black", "Display-updated-BlackItalic", "Display-updated-Bold", "Display-updated-BoldItalic",
+    "Display-updated-Italic", "Display-updated-Medium", "Display-updated-MediumItalic", "Display-updated-Regular",
+    "Mono-updated-Bold", "Mono-updated-BoldItalic", "Mono-updated-Italic", "Mono-updated-Medium", "Mono-updated-MediumItalic", "Mono-updated-Regular",
 ].map(name => {
     const subdir = 'RedHat' + name.split('-')[0];
+    let fontsdir = '@patternfly/patternfly/assets/fonts/RedHatFont-updated';
+
     return {
-        from: path.resolve(nodedir, '@patternfly/patternfly/assets/fonts', subdir, 'RedHat' + name + '.woff2'),
-        to: 'static/fonts/'
+        // Rename the RedHat*-updated files to not contain the 'updated' string so as to keep compatibility with external plugins
+        // which expect the non-updated font file names in `static` folder
+        from: path.resolve(nodedir, fontsdir, subdir , 'RedHat' + name + '.woff2'),
+        to: 'static/fonts/RedHat' + name.replace("-updated", "") + ".woff2"
     };
 });
 

@@ -1,16 +1,25 @@
 import argparse
 import asyncio
 import json
+import os
 import unittest
+import sys
 
 from typing import Any, Dict, Iterable, Optional, Tuple
 
 import systemd_ctypes
 from cockpit.bridge import Bridge
+import cockpit.superuser
 
 MOCK_HOSTNAME = 'mockbox'
+PSEUDO = os.path.abspath(f'{__file__}/../pseudo.py')
 
 asyncio.set_event_loop_policy(systemd_ctypes.EventLoopPolicy())
+
+cockpit.superuser.SUPERUSER_BRIDGES['pseudo'] = (
+    [sys.executable, PSEUDO, sys.executable, '-m', 'cockpit.bridge', '--privileged'],
+    {'PYTHONPATH': ':'.join(sys.path)}
+)
 
 
 class test_iface(systemd_ctypes.bus.Object):
@@ -208,6 +217,15 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
         # try to open a null channel, a different host (not yet supported)
         await self.transport.check_open('null', host='other', problem='not-supported')
 
+        # make sure host check happens before superuser
+        # ie: requesting superuser=True on another host should fail because we
+        # can't contact the other host ('not-supported'), rather than trying to
+        # first go to our superuser self.bridge ('access-denied')
+        await self.transport.check_open('null', host='other', superuser=True, problem='not-supported')
+
+        # but make sure superuser is indeed failing as we expect, on our host
+        await self.transport.check_open('null', host=MOCK_HOSTNAME, superuser=True, problem='access-denied')
+
     async def test_dbus_call_internal(self):
         await self.start()
 
@@ -247,3 +265,103 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
         notify = await self.transport.next_msg(internal)
         assert 'notify' in notify
         assert notify['notify']['/foo'] == {'test.iface': {'Prop': 'xyz'}}
+
+    async def verify_root_bridge_not_running(self):
+        assert self.bridge.superuser_rule.peer is None
+        await self.transport.assert_bus_props('/superuser', 'cockpit.Superuser',
+                                              {'Bridges': ['sudo', 'pseudo'], 'Current': 'none'})
+        null = await self.transport.check_open('null', superuser=True, problem='access-denied')
+        assert null not in self.bridge.open_channels
+
+    async def verify_root_bridge_running(self):
+        await self.transport.assert_bus_props('/superuser', 'cockpit.Superuser',
+                                              {'Bridges': ['sudo', 'pseudo'], 'Current': 'pseudo'})
+        assert self.bridge.superuser_rule.peer is not None
+
+        # try to open dbus on the root bridge
+        root_dbus = await self.transport.check_open('dbus-json3', bus='internal', superuser=True)
+        assert self.bridge.open_channels[root_dbus].name == 'pseudo'
+        assert self.bridge.open_channels[root_dbus].channels == {root_dbus}
+
+        # verify that the bridge thinks that it's the root bridge
+        await self.transport.assert_bus_props('/superuser', 'cockpit.Superuser',
+                                              {'Bridges': ['sudo'], 'Current': 'root'}, bus=root_dbus)
+
+        # close up
+        self.transport.send_close(channel=root_dbus)
+
+    async def test_superuser_dbus(self):
+        await self.start()
+
+        await self.verify_root_bridge_not_running()
+
+        # start the superuser bridge -- no password, so it should work straight away
+        () = await self.transport.check_bus_call('/superuser', 'cockpit.Superuser', 'Start', ['pseudo'])
+
+        await self.verify_root_bridge_running()
+
+        # open a channel on the root bridge
+        root_null = await self.transport.check_open('null', superuser=True)
+
+        # stop the bridge
+        stop = self.transport.send_bus_call(self.transport.internal_bus, '/superuser', 'cockpit.Superuser', 'Stop', [])
+
+        # that should have implicitly closed the open channel
+        await self.transport.assert_msg('', command='close', channel=root_null)
+        assert root_null not in self.bridge.open_channels
+
+        # The Stop method call is done now
+        await self.transport.assert_msg(self.transport.internal_bus, reply=[[]], id=stop)
+
+    async def test_superuser_dbus_pw(self):
+        await self.start()
+        await self.verify_root_bridge_not_running()
+
+        # watch for signals
+        await self.transport.add_bus_match('/superuser', 'cockpit.Superuser')
+        await self.transport.watch_bus('/superuser', 'cockpit.Superuser',
+                                       {'Bridges': ['sudo', 'pseudo'], 'Current': 'none'})
+
+        # start the bridge.  with a password this is more complicated
+        with unittest.mock.patch.dict(os.environ, {"PSEUDO_PASSWORD": "p4ssw0rd"}):
+            start = self.transport.send_bus_call(self.transport.internal_bus, '/superuser', 'cockpit.Superuser', 'Start', ['pseudo'])
+            # first, init state
+            await self.transport.assert_bus_notify('/superuser', 'cockpit.Superuser', {'Current': 'init'})
+            # then, we'll be asked for a password
+            await self.transport.assert_bus_signal('/superuser', 'cockpit.Superuser', 'Prompt', ['', 'can haz pw?', '', False, ''])
+            # give it
+            await self.transport.check_bus_call('/superuser', 'cockpit.Superuser', 'Answer', ['p4ssw0rd'])
+            # and now the bridge should be running
+            await self.transport.assert_bus_notify('/superuser', 'cockpit.Superuser', {'Current': 'pseudo'})
+
+            # Start call is now done
+            await self.transport.assert_bus_reply(start, [])
+
+        # double-check
+        await self.verify_root_bridge_running()
+
+    async def test_superuser_init(self):
+        await self.start(send_init=False)
+
+        await self.transport.assert_msg('', command='init')
+        self.transport.send_init(superuser={"id": "pseudo"})
+
+        # this should work right away without auth
+        await self.transport.assert_msg('', command='superuser-init-done')
+
+        await self.verify_root_bridge_running()
+
+    async def test_superuser_init_pw(self):
+        await self.start(send_init=False)
+
+        with unittest.mock.patch.dict(os.environ, {"PSEUDO_PASSWORD": "p4ssw0rd"}):
+            await self.transport.assert_msg('', command='init')
+            self.transport.send_init(superuser={"id": "pseudo"})
+
+            await self.transport.assert_msg('', command='authorize', cookie='supermarius')
+            self.transport.send_json('', command='authorize', cookie='supermarius', response='p4ssw0rd')
+
+            # that should have worked
+            await self.transport.assert_msg('', command='superuser-init-done')
+
+        await self.verify_root_bridge_running()

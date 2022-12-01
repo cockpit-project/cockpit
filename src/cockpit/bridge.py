@@ -24,7 +24,7 @@ import os
 import shlex
 import socket
 
-from typing import Iterable, Tuple, Type
+from typing import Dict, Iterable, Tuple, Type
 
 from systemd_ctypes import EventLoopPolicy, bus
 
@@ -34,6 +34,7 @@ from .internal_endpoints import EXPORTS
 from .packages import Packages
 from .remote import HostRoutingRule
 from .router import Router
+from .superuser import SUPERUSER_AUTH_COOKIE, SuperuserRoutingRule
 from .transports import StdioTransport
 
 logger = logging.getLogger(__name__)
@@ -58,8 +59,12 @@ class Bridge(Router):
         self.packages = Packages()
         self.args = args
 
+        self.superuser_rule = SuperuserRoutingRule(self, args.privileged)
+        self.internal_bus.export('/superuser', self.superuser_rule)
+
         super().__init__([
             HostRoutingRule(self),
+            self.superuser_rule,
             ChannelRoutingRule(self, CHANNEL_TYPES),
         ])
 
@@ -74,11 +79,22 @@ class Bridge(Router):
             lexer = shlex.shlex(file, posix=True, punctuation_chars=True)
             return dict(token.split('=', 1) for token in lexer)
 
+    def do_init(self, message: Dict[str, object]) -> None:
+        superuser = message.get('superuser')
+        if isinstance(superuser, dict):
+            self.superuser_rule.init(superuser)
+
+    def do_authorize(self, message: Dict[str, object]) -> None:
+        if message.get('cookie') == SUPERUSER_AUTH_COOKIE:
+            response = message.get('response')
+            if isinstance(response, str):
+                self.superuser_rule.answer(response)
+
     def do_send_init(self) -> None:
         self.write_control(command='init', version=1,
                            checksum=self.packages.checksum,
                            packages={p: None for p in self.packages.packages},
-                           os_release=self.get_os_release())
+                           os_release=self.get_os_release(), capabilities={'explicit-superuser': True})
 
 
 async def run(args) -> None:

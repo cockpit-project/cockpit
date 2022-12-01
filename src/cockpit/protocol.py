@@ -124,6 +124,7 @@ class CockpitProtocol(asyncio.Protocol):
     def connection_lost(self, exc):
         logger.debug('connection_lost')
         self.transport = None
+        self.do_closed(exc)
 
         if self._communication_done is not None:
             if exc is None:
@@ -188,10 +189,7 @@ class CockpitProtocol(asyncio.Protocol):
 # CockpitProtocolClient or CockpitProtocolServer.  The main difference here is
 # that the server should send its init message immediately upon the connection
 # being established, whereas the client shouldn't do anything until it sees the
-# init message from the server.  Additionally, the client needs to be able to
-# respond to authorize challenges (via `do_authorize()`), whereas on the server
-# side, we will never send those ourselves (and therefore not need to handle
-# the responses).
+# init message from the server.
 #
 # Both clients and servers need to implement `do_channel_control()` and
 # `do_channel_data()` as well as `do_init()`.
@@ -226,6 +224,9 @@ class CockpitProtocolServer(CockpitProtocol):
     def do_kill(self, host: Optional[str], group: Optional[str]) -> None:
         raise NotImplementedError
 
+    def do_authorize(self, message: Dict[str, object]) -> None:
+        raise NotImplementedError
+
     def transport_control_received(self, command, message):
         if command == 'init':
             try:
@@ -243,6 +244,8 @@ class CockpitProtocolServer(CockpitProtocol):
             self.do_init(message)
         elif command == 'kill':
             self.do_kill(message.get('host'), message.get('group'))
+        elif command == 'authorize':
+            self.do_authorize(message)
         else:
             raise CockpitProtocolError(f'unexpected control message {command} received')
 

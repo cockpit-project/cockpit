@@ -50,23 +50,6 @@ class cockpit_Packages(bus.Object):
     ...
 
 
-class cockpit_Superuser(bus.Object):
-    bridges = bus.Interface.Property('as', value=['sudo', 'pkexec'])
-    current = bus.Interface.Property('s', value='none')
-
-    @bus.Interface.Method(in_types=['s'])
-    def start(self, _bridge):
-        ...
-
-    @bus.Interface.Method()
-    def stop(self):
-        ...
-
-    @bus.Interface.Method(in_types=['s'])
-    def answer(self, reply):
-        ...
-
-
 class cockpit_User(bus.Object):
     name = bus.Interface.Property('s', value='')
     full = bus.Interface.Property('s', value='')
@@ -90,6 +73,5 @@ EXPORTS = [
     ('/config', cockpit_Config),
     ('/machines', cockpit_Machines),
     ('/packages', cockpit_Packages),
-    ('/superuser', cockpit_Superuser),
     ('/user', cockpit_User),
 ]

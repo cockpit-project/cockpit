@@ -131,15 +131,19 @@ class CockpitProtocol(asyncio.Protocol):
     def write_frame(self, frame):
         frame_length = len(frame)
         header = f'{frame_length}\n'.encode('ascii')
-        self.transport.write(header + frame)
+        if self.transport is not None:
+            self.transport.write(header + frame)
 
     def write_channel_data(self, channel, payload):
         """Send a given payload (bytes) on channel (string)"""
         # Channel is certainly ascii (as enforced by .encode() below)
         frame_length = len(channel + '\n') + len(payload)
         header = f'{frame_length}\n{channel}\n'.encode('ascii')
-        logger.debug('writing to transport %s', self.transport)
-        self.transport.write(header + payload)
+        if self.transport is not None:
+            logger.debug('writing to transport %s', self.transport)
+            self.transport.write(header + payload)
+        else:
+            logger.debug('cannot write to closed transport')
 
     def write_message(self, _channel, **kwargs):
         """Format kwargs as a JSON blob and send as a message

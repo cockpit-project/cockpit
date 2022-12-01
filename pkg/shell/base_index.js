@@ -37,7 +37,7 @@ function Frames(index, setupIdleResetTimers) {
     const self = this;
     let language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1");
     if (!language)
-        language = "en-us";
+        language = navigator.language.toLowerCase(); // Default to Accept-Language header
 
     /* Lists of frames, by host */
     self.iframes = { };

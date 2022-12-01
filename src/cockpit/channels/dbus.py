@@ -51,7 +51,7 @@ class InterfaceCache:
         except KeyError:
             pass
 
-        if bus and destination and object_path:
+        if bus and object_path:
             try:
                 await self.introspect_path(bus, destination, object_path)
             except BusError:

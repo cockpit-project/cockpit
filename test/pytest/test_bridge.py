@@ -7,10 +7,16 @@ from typing import Any, Dict, Tuple
 
 import systemd_ctypes
 from cockpit.bridge import Bridge
+from cockpit.internal_endpoints import InternalEndpoints
 
 MOCK_HOSTNAME = 'mockbox'
 
 asyncio.set_event_loop_policy(systemd_ctypes.EventLoopPolicy())
+
+
+class test_iface(systemd_ctypes.bus.Object):
+    sig = systemd_ctypes.bus.Interface.Signal('s')
+    prop = systemd_ctypes.bus.Interface.Property('s', value='none')
 
 
 class MockTransport(asyncio.Transport):
@@ -113,3 +119,25 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
         # try to open an null channel, a different host (not yet supported)
         transport.send_open('3', 'null', host='other')
         await transport.assert_msg('', command='close', channel='3', problem='not-supported')
+
+    async def test_dbus_call_internal(self):
+        bridge, transport = await self.start()
+
+        my_object = test_iface()
+        server = InternalEndpoints.get_server()
+        self.slot = server.add_object('/foo', my_object)
+        assert my_object._dbus_bus == server
+        assert my_object._dbus_path == '/foo'
+
+        transport.send_open('internal', 'dbus-json3', bus='internal')
+        await transport.assert_msg('', command='ready', channel='internal')
+
+        # Call a method on a channel without a service name.  "GetAll"
+        # is a convenient one to use.
+        transport.send_json('internal',
+                            call=["/foo", 'org.freedesktop.DBus.Properties', 'GetAll', ["test.iface"]],
+                            id='x')
+        msg = await transport.next_msg('internal')
+        assert msg['id'] == 'x'
+        assert 'reply' in msg
+        assert msg['reply'] == [[{'Prop': {'t': 's', 'v': 'none'}}]]

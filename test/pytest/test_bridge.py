@@ -3,7 +3,7 @@ import asyncio
 import json
 import unittest
 
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Iterable, Optional, Tuple
 
 import systemd_ctypes
 from cockpit.bridge import Bridge
@@ -20,6 +20,7 @@ class test_iface(systemd_ctypes.bus.Object):
 
 class MockTransport(asyncio.Transport):
     queue: asyncio.Queue[Tuple[str, bytes]]
+    next_id: int = 0
 
     def send_json(self, _channel: str, **kwargs) -> None:
         msg = {k.replace('_', '-'): v for k, v in kwargs.items()}
@@ -33,8 +34,25 @@ class MockTransport(asyncio.Transport):
     def send_init(self, version=1, host=MOCK_HOSTNAME, **kwargs):
         self.send_json('', command='init', version=version, host=host, **kwargs)
 
-    def send_open(self, channel, payload, **kwargs):
+    def get_id(self, prefix: str) -> str:
+        self.next_id += 1
+        return f'{prefix}.{self.next_id}'
+
+    def send_open(self, payload, channel=None, **kwargs):
+        if channel is None:
+            channel = self.get_id('channel')
         self.send_json('', command='open', channel=channel, payload=payload, **kwargs)
+        return channel
+
+    async def check_open(self, payload, channel=None, problem=None, **kwargs):
+        ch = self.send_open(payload, channel, **kwargs)
+        if problem is None:
+            await self.assert_msg('', command='ready', channel=ch)
+            assert ch in self.protocol.open_channels
+        else:
+            await self.assert_msg('', command='close', channel=ch, problem=problem)
+            assert ch not in self.protocol.open_channels
+        return ch
 
     def send_done(self, channel, **kwargs):
         self.send_json('', command='done', channel=channel, **kwargs)
@@ -64,7 +82,7 @@ class MockTransport(asyncio.Transport):
 
     async def next_msg(self, expected_channel) -> Dict[str, Any]:
         channel, data = await self.next_frame()
-        assert channel == expected_channel
+        assert channel == expected_channel, data
         return json.loads(data)
 
     async def assert_data(self, expected_channel: str, expected_data: bytes) -> None:
@@ -76,97 +94,156 @@ class MockTransport(asyncio.Transport):
         msg = await self.next_msg(expected_channel)
         assert msg == msg | {k.replace('_', '-'): v for k, v in kwargs.items()}
 
+    # D-Bus helpers
+    internal_bus: str = ''
+
+    async def ensure_internal_bus(self):
+        if not self.internal_bus:
+            self.internal_bus = await self.check_open('dbus-json3', bus='internal')
+        assert self.protocol.open_channels[self.internal_bus].bus == self.protocol.internal_bus.client
+        return self.internal_bus
+
+    def send_bus_call(self, bus: str, path: str, iface: str, name: str, args: list) -> str:
+        tag = self.get_id('call')
+        self.send_json(bus, call=[path, iface, name, args], id=tag)
+        return tag
+
+    async def assert_bus_reply(self, tag: str, expected_reply: Optional[list] = None, bus: Optional[str] = None) -> list:
+        if bus is None:
+            bus = await self.ensure_internal_bus()
+        reply = await self.next_msg(bus)
+        assert 'id' in reply, reply
+        assert reply['id'] == tag, reply
+        assert 'reply' in reply, reply
+        if expected_reply is not None:
+            assert reply['reply'] == [expected_reply]
+        return reply['reply'][0]
+
+    async def check_bus_call(self, path: str, iface: str, name: str, args: list, expected_reply: Optional[list] = None, bus: Optional[str] = None) -> list:
+        if bus is None:
+            bus = await self.ensure_internal_bus()
+        tag = self.send_bus_call(bus, path, iface, name, args)
+        return await self.assert_bus_reply(tag, expected_reply, bus=bus)
+
+    async def assert_bus_props(self, path: str, iface: str, expected_values: Dict[str, object], bus: Optional[str] = None) -> None:
+        values, = await self.check_bus_call(path, 'org.freedesktop.DBus.Properties', 'GetAll', [iface], bus=bus)
+        for key, value in expected_values.items():
+            assert values[key]['v'] == value
+
+    async def assert_bus_meta(self, path: str, iface: str, expected: Iterable[str], bus: Optional[str] = None) -> None:
+        if bus is None:
+            bus = await self.ensure_internal_bus()
+        meta = await self.next_msg(bus)
+        assert 'meta' in meta, meta
+        assert set(meta['meta'][iface]['properties']) == set(expected)
+
+    async def assert_bus_notify(self, path: str, iface: str, expected: Dict[str, object], bus: Optional[str] = None) -> None:
+        if bus is None:
+            bus = await self.ensure_internal_bus()
+        notify = await self.next_msg(bus)
+        assert notify['notify'][path][iface] == expected
+
+    async def watch_bus(self, path: str, iface: str, expected: Dict[str, object], bus: Optional[str] = None) -> None:
+        if bus is None:
+            bus = await self.ensure_internal_bus()
+        tag = self.get_id('watch')
+        self.send_json(bus, watch={'path': path, 'interface': iface}, id=tag)
+        await self.assert_bus_meta(path, iface, expected, bus)
+        await self.assert_bus_notify(path, iface, expected, bus)
+        await self.assert_msg(bus, id=tag, reply=[])
+
+    async def assert_bus_signal(self, path: str, iface: str, name: str, args: list, bus: Optional[str] = None) -> None:
+        if bus is None:
+            bus = await self.ensure_internal_bus()
+        signal = await self.next_msg(bus)
+        assert 'signal' in signal, signal
+        assert signal['signal'] == [path, iface, name, args]
+
+    async def add_bus_match(self, path: str, iface: str, bus: Optional[str] = None) -> None:
+        if bus is None:
+            bus = await self.ensure_internal_bus()
+        tag = self.get_id('match.')
+        self.send_json(bus, add_match={'path': path, 'interface': iface}, id=tag)
+        await self.assert_msg(bus, id=tag, reply=[])
+
 
 class TestBridge(unittest.IsolatedAsyncioTestCase):
-    async def start(self) -> Tuple[Bridge, MockTransport]:
-        bridge = Bridge(argparse.Namespace(privileged=False))
-        transport = MockTransport(bridge)
+    transport: MockTransport
+    bridge: Bridge
 
-        await transport.assert_msg('', command='init')
-        transport.send_init()
+    async def start(self, args=None, send_init=True) -> None:
+        if args is None:
+            args = argparse.Namespace(privileged=False)
+        self.bridge = Bridge(args)
+        self.transport = MockTransport(self.bridge)
 
-        return bridge, transport
+        if send_init:
+            await self.transport.assert_msg('', command='init')
+            self.transport.send_init()
 
     async def test_echo(self):
-        bridge, transport = await self.start()
+        await self.start()
 
-        transport.send_open('1', 'echo')
-        await transport.assert_msg('', command='ready', channel='1')
+        echo = await self.transport.check_open('echo')
 
-        transport.send_data('1', b'foo')
-        await transport.assert_data('1', b'foo')
+        self.transport.send_data(echo, b'foo')
+        await self.transport.assert_data(echo, b'foo')
 
-        transport.send_ping(channel='1')
-        await transport.assert_msg('', command='pong', channel='1')
+        self.transport.send_ping(channel=echo)
+        await self.transport.assert_msg('', command='pong', channel=echo)
 
-        transport.send_done('1')
-        await transport.assert_msg('', command='done', channel='1')
-
-        transport.send_close('1')
-        await transport.assert_msg('', command='close', channel='1')
+        self.transport.send_done(echo)
+        await self.transport.assert_msg('', command='done', channel=echo)
+        await self.transport.assert_msg('', command='close', channel=echo)
 
     async def test_host(self):
-        bridge, transport = await self.start()
+        await self.start()
 
-        # try to open an null channel, explicitly naming our host
-        transport.send_open('1', 'null', host=MOCK_HOSTNAME)
-        await transport.assert_msg('', command='ready', channel='1')
+        # try to open a null channel, explicitly naming our host
+        await self.transport.check_open('null', host=MOCK_HOSTNAME)
 
-        # try to open an null channel, no host
-        transport.send_open('2', 'null')
-        await transport.assert_msg('', command='ready', channel='2')
+        # try to open a null channel, no host
+        await self.transport.check_open('null')
 
-        # try to open an null channel, a different host (not yet supported)
-        transport.send_open('3', 'null', host='other')
-        await transport.assert_msg('', command='close', channel='3', problem='not-supported')
+        # try to open a null channel, a different host (not yet supported)
+        await self.transport.check_open('null', host='other', problem='not-supported')
 
     async def test_dbus_call_internal(self):
-        bridge, transport = await self.start()
+        await self.start()
 
         my_object = test_iface()
-        bridge.internal_bus.export('/foo', my_object)
-        assert my_object._dbus_bus == bridge.internal_bus.server
+        self.bridge.internal_bus.export('/foo', my_object)
+        assert my_object._dbus_bus == self.bridge.internal_bus.server
         assert my_object._dbus_path == '/foo'
 
-        transport.send_open('internal', 'dbus-json3', bus='internal')
-        await transport.assert_msg('', command='ready', channel='internal')
-
-        # Call a method on a channel without a service name.  "GetAll"
-        # is a convenient one to use.
-        transport.send_json('internal',
-                            call=["/foo", 'org.freedesktop.DBus.Properties', 'GetAll', ["test.iface"]],
-                            id='x')
-        msg = await transport.next_msg('internal')
-        assert msg['id'] == 'x'
-        assert 'reply' in msg
-        assert msg['reply'] == [[{'Prop': {'t': 's', 'v': 'none'}}]]
+        values, = await self.transport.check_bus_call('/foo', 'org.freedesktop.DBus.Properties', 'GetAll', ["test.iface"])
+        assert values == {'Prop': {'t': 's', 'v': 'none'}}
 
     async def test_dbus_watch(self):
-        bridge, transport = await self.start()
+        await self.start()
 
         my_object = test_iface()
-        bridge.internal_bus.export('/foo', my_object)
-        assert my_object._dbus_bus == bridge.internal_bus.server
+        self.bridge.internal_bus.export('/foo', my_object)
+        assert my_object._dbus_bus == self.bridge.internal_bus.server
         assert my_object._dbus_path == '/foo'
 
-        transport.send_open('internal', 'dbus-json3', bus='internal')
-        await transport.assert_msg('', command='ready', channel='internal')
-
         # Add a watch
-        transport.send_json('internal', watch={'path': '/foo', 'interface': 'test.iface'}, id='4')
-        meta = await transport.next_msg('internal')
+        internal = await self.transport.ensure_internal_bus()
+
+        self.transport.send_json(internal, watch={'path': '/foo', 'interface': 'test.iface'}, id='4')
+        meta = await self.transport.next_msg(internal)
         assert meta['meta']['test.iface'] == {
             'methods': {},
             'properties': {'Prop': {'flags': 'r', 'type': 's'}},
             'signals': {'Sig': {'in': ['s']}}
         }
-        notify = await transport.next_msg('internal')
+        notify = await self.transport.next_msg(internal)
         assert notify['notify']['/foo'] == {'test.iface': {'Prop': 'none'}}
-        reply = await transport.next_msg('internal')
+        reply = await self.transport.next_msg(internal)
         assert reply == {'id': '4', 'reply': []}
 
         # Change a property
         my_object.prop = 'xyz'
-        notify = await transport.next_msg('internal')
+        notify = await self.transport.next_msg(internal)
         assert 'notify' in notify
         assert notify['notify']['/foo'] == {'test.iface': {'Prop': 'xyz'}}

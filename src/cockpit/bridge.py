@@ -104,7 +104,7 @@ def main() -> None:
         print(json.dumps(Packages().get_bridges(), indent=2))
     else:
         asyncio.set_event_loop_policy(EventLoopPolicy())
-        asyncio.run(run(args), debug=True)
+        asyncio.run(run(args), debug=args.debug)
 
 
 if __name__ == '__main__':

@@ -594,7 +594,7 @@ if (document.documentElement.classList.contains("index-page")) {
 
     let language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1");
     if (!language)
-        language = "en-us";
+        language = navigator.language.toLowerCase(); // Default to Accept-Language header
     document.documentElement.lang = language;
 
     window.addEventListener("message", message_queue, false);

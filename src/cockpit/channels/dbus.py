@@ -183,6 +183,7 @@ class DBusChannel(Channel):
         bus = options.get('bus')
 
         if bus == 'internal':
+            logger.debug('get internal bus for %s', self.name)
             self.bus = self.router.internal_bus.client
         else:
             try:

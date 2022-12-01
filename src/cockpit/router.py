@@ -97,8 +97,6 @@ class Router(CockpitProtocolServer):
         self.open_channels.pop(channel, None)
 
     def channel_control_received(self, channel: str, command: str, message: Dict[str, object]) -> None:
-        logger.debug('Received control message %s for channel %s: %s', command, channel, message)
-
         # If this is an open message then we need to apply the routing rules to
         # figure out the correct endpoint to connect.  If it's not an open
         # message, then we expect the endpoint to already exist.
@@ -128,7 +126,6 @@ class Router(CockpitProtocolServer):
             self.close_channel(channel)
 
     def channel_data_received(self, channel: str, data: bytes) -> None:
-        logger.debug('Received %d bytes of data for channel %s', len(data), channel)
         try:
             endpoint = self.open_channels[channel]
         except KeyError:

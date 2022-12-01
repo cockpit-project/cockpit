@@ -58,6 +58,7 @@ class CockpitProtocol(asyncio.Protocol):
         channel = channel.decode('ascii')
 
         if channel != '':
+            logger.debug('data received: %d bytes of data for channel %s', len(data), channel)
             self.channel_data_received(channel, data)
         else:
             message = json.loads(data)
@@ -67,8 +68,10 @@ class CockpitProtocol(asyncio.Protocol):
                 raise CockpitProtocolError('control message is missing command field') from exc
 
             if channel := message.get('channel'):
+                logger.debug('channel control received %s', message)
                 self.channel_control_received(channel, command, message)
             else:
+                logging.debug('transport control received %s', message)
                 self.transport_control_received(command, message)
 
     def consume_one_frame(self, view):

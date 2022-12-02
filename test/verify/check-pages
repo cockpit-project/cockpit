@@ -420,6 +420,9 @@ OnCalendar=daily
         # On Ubuntu and Debian we would need to generate locales - just ignore it
         self.allow_journal_messages("invalid or unusable locale: de_DE.UTF-8")
 
+        # Clean up failed services for screenshots
+        m.execute("systemctl reset-failed")
+
         self.login_and_go()
 
         filter_sel = ".pf-c-text-input-group__text-input"
@@ -450,8 +453,6 @@ OnCalendar=daily
         b.wait_text("#host-apps li a:contains('Services')", "ServicesContains: systemd")
         b.wait_text("#host-apps li a:contains('Services') mark", "systemd")
 
-        # Clean up failed services for screenshots
-        m.execute("systemctl reset-failed")
         b.wait_not_present("#services-error")
         b.assert_pixels("#nav-system", "menu-search", skip_layouts=["mobile"])
         b.set_layout("mobile")

@@ -39,6 +39,7 @@ import { SearchIcon } from '@patternfly/react-icons';
 import { SortByDirection } from "@patternfly/react-table";
 import { account_create_dialog } from "./account-create-dialog.js";
 import { delete_account_dialog } from "./delete-account-dialog.js";
+import { delete_group_dialog } from "./delete-group-dialog.js";
 import { lockAccountDialog } from "./lock-account-dialog.js";
 import { logoutAccountDialog } from "./logout-account-dialog.js";
 
@@ -57,6 +58,30 @@ const sortGroups = groups => {
         else
             return b.members - a.members;
     });
+};
+
+const GroupActions = ({ group, accounts }) => {
+    const [isKebabOpen, setKebabOpen] = useState(false);
+
+    if (!superuser.allowed)
+        return null;
+
+    const actions = [
+        <DropdownItem key="delete-group"
+                      className={group.uid === 0 ? "" : "delete-resource-red"}
+                      onClick={() => { setKebabOpen(false); delete_group_dialog(group, accounts) }}>
+            {_("Delete group")}
+        </DropdownItem>,
+    ];
+
+    const kebab = (
+        <Dropdown toggle={<KebabToggle onToggle={setKebabOpen} />}
+                isPlain
+                isOpen={isKebabOpen}
+                position="right"
+                dropdownItems={actions} />
+    );
+    return kebab;
 };
 
 const UserActions = ({ account }) => {
@@ -84,7 +109,7 @@ const UserActions = ({ account }) => {
         </DropdownItem>,
         <DropdownItem key="delete-account"
                       isDisabled={account.uid === 0}
-                      className={account.uid === 0 ? "" : "delete-account-red"}
+                      className={account.uid === 0 ? "" : "delete-resource-red"}
                       onClick={() => { setKebabOpen(false); delete_account_dialog(account) }}>
             {_("Delete account")}
         </DropdownItem>,
@@ -128,7 +153,11 @@ const getGroupRow = (group, accounts) => {
                     })}
                 </TextContent>
             ),
-            props: { width: 60, },
+            props: { width: 50, },
+        },
+        {
+            title: <GroupActions group={group} accounts={accounts} />,
+            props: { width: 10, className: "pf-c-table__action" }
         },
     ];
 

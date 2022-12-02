@@ -311,4 +311,14 @@ svg {
       }
     }
   }
+
+    // PatternFly doesn't define gold color in dark mode
+  .pf-c-label {
+    --pf-c-label--m-gold--BackgroundColor: var(--pf-global--BackgroundColor--300);
+    --pf-c-label--m-gold__content--Color: var(--pf-global--palette--gold-100);
+
+    &.pf-m-gold {
+      --pf-c-label__content--Color: var(--pf-c-label--m-gold__content--Color);
+    }
+  }
 }

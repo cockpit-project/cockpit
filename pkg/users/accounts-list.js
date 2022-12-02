@@ -25,7 +25,7 @@ import {
     Button, Badge,
     Card, CardBody, CardExpandableContent, CardHeader, CardTitle,
     Dropdown, DropdownItem, DropdownSeparator,
-    Flex,
+    Flex, FlexItem,
     KebabToggle, Label,
     Page, PageSection,
     SearchInput, Stack,
@@ -126,10 +126,18 @@ const UserActions = ({ account }) => {
 };
 
 const getGroupRow = (group, accounts) => {
+    let groupColorClass;
+    if (group.isAdmin)
+        groupColorClass = "group-gold";
+    else if (group.members > 0)
+        groupColorClass = "group-cyan";
+    else
+        groupColorClass = "group-grey";
+
     const columns = [
         {
-            title: group.name,
             sortKey: group.name,
+            title: <Flex alignItems={{ default: 'alignItemsCenter' }}><div className={"dot " + groupColorClass} /><FlexItem>{group.name}</FlexItem></Flex>,
             props: { width: 20, },
         },
         {

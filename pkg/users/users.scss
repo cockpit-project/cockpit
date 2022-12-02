@@ -230,6 +230,28 @@
   row-gap: var(--pf-global--spacer--sm);
 }
 
+.dot {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+// Iterate through supported PF color names for light and dark modes
+@each $color in cyan gold {
+  .group-#{$color} {
+    background-color: var(--pf-global--palette--#{$color}-100);
+
+    .pf-theme-dark & {
+      background-color: var(--pf-global--palette--#{$color}-300);
+    }
+  }
+}
+// PF adapts this color properly across light and dark
+.group-grey {
+  background-color: var(--pf-global--BorderColor--100);
+}
+
 .group-more-btn {
   font-size: var(--pf-global--FontSize--sm);
 }

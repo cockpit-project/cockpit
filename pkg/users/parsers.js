@@ -49,6 +49,7 @@ export const etc_passwd_syntax = {
 };
 
 function parse_group_content(content) {
+    // /etc/group file is used to set only secondary groups of users. The primary group is saved in /etc/passwd-
     content = (content || "").trim();
     if (!content) {
         console.warn("Couldn't read /etc/group");

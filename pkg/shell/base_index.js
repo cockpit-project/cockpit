@@ -33,6 +33,14 @@ function component_checksum(machine, component) {
         return "$" + machine.manifests[pkg][".checksum"];
 }
 
+function setDarkMode(documentElement, dark_mode) {
+    if (dark_mode) {
+        documentElement.classList.add('pf-theme-dark');
+    } else {
+        documentElement.classList.remove('pf-theme-dark');
+    }
+}
+
 function Frames(index, setupIdleResetTimers) {
     const self = this;
     let language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1");
@@ -220,11 +228,7 @@ function Frames(index, setupIdleResetTimers) {
             frame.contentWindow.addEventListener("readystatechange", function(event) {
                 if (!event.target.documentElement)
                     return;
-                if (index.dark_mode) {
-                    event.target.documentElement.classList.add('pf-theme-dark');
-                } else {
-                    event.target.documentElement.classList.remove('pf-theme-dark');
-                }
+                setDarkMode(event.target.documentElement, index.dark_mode);
             }, true);
         }
         frame_ready(frame);
@@ -545,12 +549,11 @@ function Index() {
     /* dark mode */
     const style = localStorage.getItem('shell:style') || 'auto';
     if ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && style === "auto") || style === "dark") {
-        document.documentElement.classList.add('pf-theme-dark');
         self.dark_mode = true;
     } else {
-        document.documentElement.classList.remove('pf-theme-dark');
         self.dark_mode = false;
     }
+    setDarkMode(document.documentElement, self.dark_mode);
 
     function sessionTimeout() {
         current_idle_time += 5000;
@@ -637,14 +640,6 @@ function Index() {
             return old_onerror(msg, url, line);
         return false;
     };
-
-    function setDarkMode(documentElement, dark_mode) {
-        if (dark_mode) {
-            documentElement.classList.add('pf-theme-dark');
-        } else {
-            documentElement.classList.remove('pf-theme-dark');
-        }
-    }
 
     function updateFrames(dark_mode) {
         setDarkMode(document.documentElement, dark_mode);

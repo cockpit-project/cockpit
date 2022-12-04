@@ -1084,6 +1084,20 @@ Where=/fail
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "/system/services"')
 
+    def testServicesThemeConsistency(self):
+        b = self.browser
+
+        self.login_and_go("/system/services")
+        self.wait_page_load()
+
+        b.wait_not_present("html.pf-theme-dark")
+        b.switch_to_top()
+        b.open_superuser_dialog()
+        b.click(".pf-c-modal-box:contains('Switch to limited access') button:contains('Limit access')")
+        b.check_superuser_indicator("Limited access")
+        b.enter_page("/system/services")
+        b.wait_not_present("html.pf-theme-dark")
+
 
 @skipDistroPackage()
 class TestTimers(MachineCase):

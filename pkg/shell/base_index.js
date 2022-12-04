@@ -230,6 +230,8 @@ function Frames(index, setupIdleResetTimers) {
                     return;
                 setDarkMode(event.target.documentElement, index.dark_mode);
             }, true);
+        } else if (frame.contentDocument.documentElement) {
+            setDarkMode(frame.contentDocument.documentElement, index.dark_mode);
         }
         frame_ready(frame);
         return frame;

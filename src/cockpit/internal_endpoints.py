@@ -20,6 +20,8 @@ import logging
 import os
 import pwd
 
+from typing import Optional
+
 from systemd_ctypes import bus
 
 logger = logging.getLogger(__name__)
@@ -35,7 +37,35 @@ class cockpit_Config(bus.Object):
 
 
 class cockpit_LoginMessages(bus.Object):
-    ...
+    messages: Optional[str] = None
+
+    def __init__(self):
+        fdstr = os.environ.pop('COCKPIT_LOGIN_MESSAGES_MEMFD', None)
+        if fdstr is None:
+            logger.debug("COCKPIT_LOGIN_MESSAGES_MEMFD wasn't set.  No login messages today.")
+            return
+
+        logger.debug("Trying to read login messages from fd %s", fdstr)
+        try:
+            with open(int(fdstr), 'r') as login_messages:
+                login_messages.seek(0)
+                self.messages = login_messages.read()
+        except (ValueError, OSError, UnicodeDecodeError) as exc:
+            # ValueError - the envvar wasn't an int
+            # OSError - the fd wasn't open, or other read failure
+            # UnicodeDecodeError - didn't contain utf-8
+            # For all of these, we simply failed to get the message.
+            logger.debug("Reading login messages failed: %s", exc)
+        else:
+            logger.debug("Successfully read login messages: %s", self.messages)
+
+    @bus.Interface.Method(out_types=['s'])
+    def get(self):
+        return self.messages or '{}'
+
+    @bus.Interface.Method(out_types=[])
+    def dismiss(self):
+        self.messages = None
 
 
 class cockpit_Machines(bus.Object):

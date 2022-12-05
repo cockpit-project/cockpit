@@ -18,7 +18,7 @@ import functools
 import importlib.machinery
 import importlib.util
 
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 import parent
 parent.ensure_bots()  # NOQA: testvm lives in bots/
@@ -80,7 +80,7 @@ class Test:
 
         return poll_result
 
-    def finish(self, affected_tests: list[str], opts: argparse.Namespace) -> Tuple[Optional[str], int]:
+    def finish(self, affected_tests: List[str], opts: argparse.Namespace) -> Tuple[Optional[str], int]:
         """Returns if a test should retry or not
 
         Call test-failure-policy on the test's output, print if needed.

@@ -164,8 +164,9 @@ auth_write_login_records(cockpit_session_t)
 corenet_tcp_bind_ssh_port(cockpit_session_t)
 corenet_tcp_connect_ssh_port(cockpit_session_t)
 
-# cockpit-session can execute cockpit-agent as the user
+# cockpit-session can execute cockpit-bridge as the user, without setting AT_SECURE
 userdom_spec_domtrans_all_users(cockpit_session_t)
+userdom_noatsecure_login_userdomain(cockpit_session_t)
 usermanage_read_crack_db(cockpit_session_t)
 
 optional_policy(`

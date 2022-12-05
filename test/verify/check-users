@@ -433,10 +433,17 @@ class TestAccounts(MachineCase):
             b.wait_in_text("#accounts-list tbody tr:first-child td[data-label='Username']", "admin")
             values = b.eval_js(f"getTextColumn(\"{query_selector}\")")
             for i in range(2, len(values)):
-                if (invert):
-                    b.wait(lambda: values[i - 1].lower() > values[i].lower())
+                if values[i].isnumeric():
+                    value_current = int(values[i])
+                    value_prev = int(values[i - 1])
                 else:
-                    b.wait(lambda: values[i - 1].lower() < values[i].lower())
+                    value_current = values[i].lower()
+                    value_prev = values[i - 1].lower()
+
+                if (invert):
+                    b.wait(lambda: value_prev > value_current)
+                else:
+                    b.wait(lambda: value_prev < value_current)
 
         # robert should be in users group
         if m.image != "fedora-coreos":  # Users group does not exist in coreos image
@@ -460,9 +467,9 @@ class TestAccounts(MachineCase):
 
         # sort by ID
         b.click("#accounts-list > thead > tr > th:nth-child(3) > button")
-        check_column_sort("[data-label='ID']")
-        b.click("#accounts-list > thead > tr > th:nth-child(3) > button")
         check_column_sort("[data-label='ID']", invert=True)
+        b.click("#accounts-list > thead > tr > th:nth-child(3) > button")
+        check_column_sort("[data-label='ID']")
 
         # In fedora-core userdel for this user consistently fails
         # userdel: user robert is currently used by process *

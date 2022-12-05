@@ -365,3 +365,24 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
             await self.transport.assert_msg('', command='superuser-init-done')
 
         await self.verify_root_bridge_running()
+
+    async def test_no_login_messages(self):
+        await self.start()
+        await self.transport.check_bus_call('/LoginMessages', 'cockpit.LoginMessages', 'Get', [], ["{}"])
+        await self.transport.check_bus_call('/LoginMessages', 'cockpit.LoginMessages', 'Dismiss', [], [])
+        await self.transport.check_bus_call('/LoginMessages', 'cockpit.LoginMessages', 'Get', [], ["{}"])
+
+    async def test_login_messages(self):
+        fd = os.memfd_create('login messages')
+        os.write(fd, b"msg")
+        with unittest.mock.patch.dict(os.environ, {"COCKPIT_LOGIN_MESSAGES_MEMFD": str(fd)}):
+            await self.start()
+            await self.transport.check_bus_call('/LoginMessages', 'cockpit.LoginMessages', 'Get', [], ["msg"])
+            # repeated read should get the messages again
+            await self.transport.check_bus_call('/LoginMessages', 'cockpit.LoginMessages', 'Get', [], ["msg"])
+            # ...but not after they were dismissed
+            await self.transport.check_bus_call('/LoginMessages', 'cockpit.LoginMessages', 'Dismiss', [], [])
+            await self.transport.check_bus_call('/LoginMessages', 'cockpit.LoginMessages', 'Get', [], ["{}"])
+            # idempotency
+            await self.transport.check_bus_call('/LoginMessages', 'cockpit.LoginMessages', 'Dismiss', [], [])
+            await self.transport.check_bus_call('/LoginMessages', 'cockpit.LoginMessages', 'Get', [], ["{}"])

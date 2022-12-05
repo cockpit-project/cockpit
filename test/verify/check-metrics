@@ -1101,13 +1101,20 @@ BEGIN {{
 
         b.wait_timeout(60)
 
+        # Testing if IO cgroup controller is enabled in our VMs
+        b.wait_visible("#current-metrics-card-disks > div.pf-c-card__body > table[aria-label='Top 5 services disk IO']")
+
         # test env should be quiet enough to not transmit MB/s
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("#current-disks-read")))
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("#current-disks-write")))
         # reading lots of data
-        m.execute("systemd-run --collect --slice cockpittest --unit disk-read-hog sh -ec 'while true; do echo 3 > /proc/sys/vm/drop_caches; grep -r . /usr >/dev/null; done'")
+        m.execute("systemd-run --collect --slice cockpittest --slice-inherit --unit disk-read-hog sh -ec 'while true; do echo 3 > /proc/sys/vm/drop_caches; grep -r . /usr >/dev/null; done'")
         b.wait(lambda: re.match(r'^[0-9.]+ (MB|GB)/s$', b.text("#current-disks-read")))
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("#current-disks-write")))  # this should stay calm
+        # read-hog unit is on the top
+        b.wait_in_text("#current-metrics-card-disks table tbody tr:nth-child(1) td[data-label='Service'] span", "disk-read-hog")
+        b.wait(lambda: re.match(r'^[0-9.]+ (MB|GB)/s$', b.text("#current-metrics-card-disks table tbody tr:nth-child(1) td[data-label='Read'] span"))) # read is active
+        b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("#current-metrics-card-disks table tbody tr:nth-child(1) td[data-label='Write'] span"))) # write is calm
         # read in popover
         b.click("#current-metrics-card-disks .all-disks-no-gap button")
         b.wait_visible(".pf-c-popover .disks-nowrap")
@@ -1123,6 +1130,10 @@ BEGIN {{
         self.addCleanup(m.execute, "rm -f /var/tmp/blob")
         b.wait(lambda: re.match(r'^[0-9.]+ (MB|GB)/s$', b.text("#current-disks-write")))
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("#current-disks-read")))  # this should stay calm
+        # write-hog unit is on the top
+        b.wait_in_text("#current-metrics-card-disks table tbody tr:nth-child(1) td[data-label='Service'] span", "disk-write-hog")
+        b.wait(lambda: re.match(r'^[0-9.]+ (MB|GB)/s$', b.text("#current-metrics-card-disks table tbody tr:nth-child(1) td[data-label='Write'] span"))) # write is active
+        b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("#current-metrics-card-disks table tbody tr:nth-child(1) td[data-label='Read'] span"))) # read is calm
         # write in popover
         b.wait(lambda: re.match(r'^[0-9.]+ (MB|GB)/s$', b.text("[aria-label='Disks usage'] [device-name='vda'] [data-label='Write']")))
         b.wait(lambda: re.match(r'^(0|[0-9.]+ (kB|B)/s)$', b.text("[aria-label='Disks usage'] [device-name='vda'] [data-label='Read']")))  # read should stay calm

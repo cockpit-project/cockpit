@@ -47,6 +47,8 @@ read_file (int dirfd,
     {
       if (errno == ENOENT || errno == ENODEV)
         g_debug ("samples file not found: %s/%s", cgroup, fname);
+      else if (errno == EACCES)
+        g_debug ("could not open file: %s/%s", cgroup, fname);
       else
         g_message ("error opening file: %s/%s: %m", cgroup, fname);
       goto out;
@@ -176,6 +178,47 @@ collect_cpu_v1 (CockpitSamples *samples,
 }
 
 static void
+sample_disk_io (CockpitSamples *samples,
+                int dirfd,
+                const char *cgroup)
+{
+  gchar *contents = NULL;
+  g_autofree gchar *cgroup_procs_path = g_strdup_printf ("/sys/fs/cgroup/%s/cgroup.procs", cgroup);
+  if (!g_file_get_contents (cgroup_procs_path, &contents, NULL, NULL))
+    {
+      g_message ("error opening cgroup.procs in: %s", cgroup);
+      return;
+    }
+
+  gint64 read = 0, write = 0;
+  gchar **lines = g_strsplit (contents, "\n", -1);
+  for (guint n = 0; lines != NULL && lines[n] != NULL; n++)
+    {
+      const gchar *line = lines[n];
+      if (strlen (line) == 0)
+        continue;
+
+      g_autofree gchar *proc_path = g_strdup_printf ("/proc/%s", line);
+      int dfd = open (proc_path, O_PATH | O_DIRECTORY);
+      if (dfd < 0 && errno != ENOENT)
+        {
+          g_message ("error opening /proc directory: %m");
+          continue;
+        }
+
+      read += read_keyed_int64 (dfd, line, "io", "read_bytes:");
+      write += read_keyed_int64 (dfd, line, "io", "write_bytes:");
+      close (dfd);
+    }
+
+  if (read >= 0 && write >= 0)
+  {
+    cockpit_samples_sample (samples, "cgroup.io.read", cgroup, read);
+    cockpit_samples_sample (samples, "cgroup.io.write", cgroup, write);
+  }
+}
+
+static void
 collect_v2 (CockpitSamples *samples,
             int dirfd,
             const char *cgroup)
@@ -215,6 +258,8 @@ collect_v2 (CockpitSamples *samples,
   val = read_keyed_int64 (dirfd, cgroup, "cpu.stat", "usage_usec ");
   if (val >= 0 && val < G_MAXINT64)
     cockpit_samples_sample (samples, "cgroup.cpu.usage", cgroup, val/1000);
+
+  sample_disk_io (samples, dirfd, cgroup);
 }
 
 static void

@@ -731,7 +731,9 @@ test_cgroup (void)
                                   "               { 'name': 'cgroup.memory.sw-usage' }, "
                                   "               { 'name': 'cgroup.memory.sw-limit' }, "
                                   "               { 'name': 'cgroup.cpu.usage' }, "
-                                  "               { 'name': 'cgroup.cpu.shares' } ], "
+                                  "               { 'name': 'cgroup.cpu.shares' }, "
+                                  "               { 'name': 'cgroup.io.read' }, "
+                                  "               { 'name': 'cgroup.io.write' } ], "
                                   "  'interval': 1000"
                                   "}");
   GBytes *msg;
@@ -760,7 +762,7 @@ test_cgroup (void)
 
   /* metrics should have the form [{"name":"...","instances":["name1", ...]}] */
   metrics = json_object_get_array_member (res, "metrics");
-  g_assert_cmpint (json_array_get_length (metrics), ==, 6);
+  g_assert_cmpint (json_array_get_length (metrics), ==, 8);
   description = json_array_get_object_element (metrics, 0);
   g_assert (description);
   g_assert_cmpstr (json_object_get_string_member (description, "name"), ==, "cgroup.memory.usage");
@@ -774,7 +776,7 @@ test_cgroup (void)
   /* next message should have some actual values; looks like [[...],[...],...]]] */
   samples = recv_array (transport);
   g_assert_cmpint (json_array_get_length (samples), ==, 1);
-  g_assert_cmpint (json_array_get_length (json_array_get_array_element (samples, 0)), ==, 6);
+  g_assert_cmpint (json_array_get_length (json_array_get_array_element (samples, 0)), ==, 8);
 
   json_array_unref (samples);
 

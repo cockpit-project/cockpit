@@ -162,6 +162,8 @@ const CURRENT_METRICS = [
     { name: "cpu.core.nice", derive: "rate" },
     { name: "disk.dev.read", units: "bytes", derive: "rate" },
     { name: "disk.dev.written", units: "bytes", derive: "rate" },
+    { name: "cgroup.io.read", units: "bytes", derive: "rate" },
+    { name: "cgroup.io.write", units: "bytes", derive: "rate" },
 ];
 
 const CPU_TEMPERATURE_METRICS = [
@@ -226,6 +228,7 @@ class CurrentMetrics extends React.Component {
         this.netInterfacesNames = [];
         this.cgroupCPUNames = [];
         this.cgroupMemoryNames = [];
+        this.cgroupDiskNames = [];
         this.disksNames = [];
         this.cpuTemperatureColors = {
             textColor: "",
@@ -248,6 +251,7 @@ class CurrentMetrics extends React.Component {
             netInterfacesTx: [],
             topServicesCPU: [], // [ { name, percent } ]
             topServicesMemory: [], // [ { name, bytes } ]
+            topServicesDiskIO: [], // [ { name, rbytes, wbytes } ]
             podNameMapping: {}, // { uid -> containerid -> name }
         };
 
@@ -293,7 +297,7 @@ class CurrentMetrics extends React.Component {
         }
 
         if (!cockpit.hidden && this.metrics_channel === null) {
-            this.metrics_channel = cockpit.channel({ payload: "metrics1", source: "internal", interval: 3000, metrics: CURRENT_METRICS });
+            this.metrics_channel = cockpit.channel({ superuser: "try", payload: "metrics1", source: "internal", interval: 3000, metrics: CURRENT_METRICS });
             this.metrics_channel.addEventListener("message", this.onMetricsUpdate);
         }
     }
@@ -418,6 +422,7 @@ class CurrentMetrics extends React.Component {
             this.cgroupMemoryNames = data.metrics[10].instances.slice();
             console.assert(data.metrics[14].name === 'disk.dev.read');
             this.disksNames = data.metrics[14].instances.slice();
+            this.cgroupDiskNames = data.metrics[16].instances.slice();
             debug("metrics message was meta, new net instance names", JSON.stringify(this.netInterfacesNames));
             return;
         }
@@ -457,7 +462,7 @@ class CurrentMetrics extends React.Component {
             names.forEach((k, i) => {
                 const v = values[i];
                 // filter out invalid values, the empty (root) cgroup, non-services
-                if (k.endsWith('.service') && typeof v === 'number' && v != 0) {
+                if (k.endsWith('.service') && typeof v === 'number') { // TEMPORARY EDIT?
                     const is_user = k.match(/^user.*user@\d+\.service.+/);
                     const label = k.replace(/.*\//, '').replace(/\.service$/, '');
                     // only keep cgroup basenames, and drop redundant .service suffix
@@ -501,7 +506,7 @@ class CurrentMetrics extends React.Component {
             }
         }
 
-        function cgroupRow(name, value, is_user, is_container, uid) {
+        function cgroupRow(name, is_user, is_container, uid, ...values) {
             const podman_installed = cockpit.manifests && cockpit.manifests.podman;
             let name_text = (
                 <Button variant="link" isInline component="a" key={name}
@@ -520,21 +525,66 @@ class CurrentMetrics extends React.Component {
                         </div>
                     </Tooltip>);
             }
-            const value_text = <TableText wrapModifier="nowrap">{value}</TableText>;
+            const values_text = values.map(value => {
+                return ({ title: <TableText wrapModifier="nowrap">{value}</TableText> });
+            });
             return {
-                cells: [{ title: name_text }, { title: value_text }]
+                cells: [{ title: name_text }, ...values_text]
             };
         }
 
         // top 5 CPU and memory consuming systemd units
         const topServicesCPU = n_biggest(this.cgroupCPUNames, this.samples[9], 5);
         newState.topServicesCPU = topServicesCPU.map(
-            ([key, value, is_user, is_container, userid]) => cgroupRow(key, Number(value / 10 / numCpu).toFixed(1), is_user, is_container, userid) // usec/s → percent
+            ([key, value, is_user, is_container, userid]) => cgroupRow(key, is_user, is_container, userid, Number(value / 10 / numCpu).toFixed(1)) // usec/s → percent
         );
 
         const topServicesMemory = n_biggest(this.cgroupMemoryNames, this.samples[10], 5);
         newState.topServicesMemory = topServicesMemory.map(
-            ([key, value, is_user, is_container, userid]) => cgroupRow(key, cockpit.format_bytes(value), is_user, is_container, userid)
+            ([key, value, is_user, is_container, userid]) => cgroupRow(key, is_user, is_container, userid, cockpit.format_bytes(value))
+        );
+
+        const sumUserScopes = {};
+        this.cgroupDiskNames.forEach((elm, i) => {
+            const match = elm.match(/user-(?<userid>\d+).slice\/.*\.scope/);
+            if (match) {
+                if (!sumUserScopes[match.groups.userid]) {
+                    sumUserScopes[match.groups.userid] = [this.samples[16][i], this.samples[17][i]];
+                } else {
+                    sumUserScopes[match.groups.userid][0] += this.samples[16][i];
+                    sumUserScopes[match.groups.userid][1] += this.samples[17][i];
+                }
+            }
+        });
+        Object.keys(sumUserScopes).forEach(key => {
+            const idx = this.cgroupDiskNames.findIndex(elm => elm === `user.slice/user-${key}.slice/user@${key}.service`);
+            this.samples[16][idx] = sumUserScopes[key][0];
+            this.samples[17][idx] = sumUserScopes[key][1];
+        });
+
+        const cgroupsIOsum = this.samples[16].map((elm, i) => elm + this.samples[17][i]);
+        // get top 5 services based od cumulative IO
+        const top5IO = n_biggest(this.cgroupDiskNames, cgroupsIOsum, 5);
+        // replace sum value in top5IO with separete read, write values
+        const topServicesDiskIO = this.cgroupDiskNames.map((cgroupName, i) => [cgroupName, this.samples[16][i], this.samples[17][i]])
+                .reduce((pV, cgroup) => {
+                    for (let i = 0; i < top5IO.length; i++) {
+                        // is container || cgroup name match
+                        if ((cgroup[0].match(podmanCgroupRe) && cgroup[0].includes(top5IO[i][0])) ||
+                            (top5IO[i][4] === cgroup[0])) {
+                            // push [key, is_user, is_container, userid, read, write]
+                            pV[i] = [top5IO[i][0], top5IO[i][2], top5IO[i][3], top5IO[i][4], cgroup[1], cgroup[2]];
+                            return pV;
+                        }
+                    }
+
+                    return pV;
+                }, []);
+
+        newState.topServicesDiskIO = topServicesDiskIO.map(
+            ([key, is_user, is_container, userid, read, write]) => {
+                return cgroupRow(key, is_user, is_container, userid, read >= 1 ? cockpit.format_bytes_per_sec(read) : "0", write >= 1 ? cockpit.format_bytes_per_sec(write) : "0");
+            }
         );
 
         const notMappedContainers = topServicesMemory.concat(topServicesCPU).filter(([key, value, is_user, is_container, userid]) => is_container && getCachedPodName(userid, key) === undefined);
@@ -815,6 +865,18 @@ class CurrentMetrics extends React.Component {
                             })
                         }
                         </div>
+
+                        { this.state.topServicesDiskIO.length > 0 &&
+                            <Table
+                                variant={TableVariant.compact}
+                                gridBreakPoint={TableGridBreakpoint.none}
+                                borders={false}
+                                aria-label={ _("Top 5 services disk IO") }
+                                cells={ [{ title: _("Service"), transforms: [cellWidth(60)] }, _("Read"), _("Write")] }
+                                rows={this.state.topServicesDiskIO}>
+                                <TableHeader />
+                                <TableBody />
+                            </Table> }
                     </CardBody>
                 </Card>
 

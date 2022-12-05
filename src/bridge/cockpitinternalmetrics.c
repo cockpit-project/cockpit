@@ -102,6 +102,8 @@ static MetricDescription metric_descriptions[] = {
   { "cgroup.memory.sw-limit", "bytes",    "instant", TRUE, CGROUP_SAMPLER },
   { "cgroup.cpu.usage",       "millisec", "counter", TRUE, CGROUP_SAMPLER },
   { "cgroup.cpu.shares",      "count",    "instant", TRUE, CGROUP_SAMPLER },
+  { "cgroup.io.read",         "bytes",    "instant", TRUE, CGROUP_SAMPLER },
+  { "cgroup.io.write",        "bytes",    "instant", TRUE, CGROUP_SAMPLER },
 
   { "cpu.temperature",        "celsius",  "instant", TRUE, THERMAL_SAMPLER },
 

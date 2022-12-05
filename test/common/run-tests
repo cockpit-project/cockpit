@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import argparse
 import glob
 import os
 import string
@@ -16,6 +17,8 @@ import functools
 
 import importlib.machinery
 import importlib.util
+
+from typing import Optional, Tuple
 
 import parent
 parent.ensure_bots()  # NOQA: testvm lives in bots/
@@ -77,7 +80,7 @@ class Test:
 
         return poll_result
 
-    def finish(self, affected_tests, print_tap=True, thorough=False, track_naughties=False):
+    def finish(self, affected_tests: list[str], opts: argparse.Namespace) -> Tuple[Optional[str], int]:
         """Returns if a test should retry or not
 
         Call test-failure-policy on the test's output, print if needed.
@@ -85,6 +88,7 @@ class Test:
         Return (retry_reason, exit_code). retry_reason can be None or a string.
         """
 
+        print_tap = not opts.list
         affected = any([self.command[0].endswith(t) for t in affected_tests])
         retry_reason = ""
         skip_reason = ""
@@ -106,9 +110,9 @@ class Test:
             self._print_test(print_tap, skip_reason=skip_reason)
             return None, 0
 
-        if not thorough:
+        if not opts.thorough:
             cmd = ["test-failure-policy"]
-            if not track_naughties:
+            if not opts.track_naughties:
                 cmd.append("--offline")
             cmd.append(testvm.DEFAULT_IMAGE)
             try:
@@ -390,7 +394,7 @@ def run(opts, image):
                 made_progress = True
                 running_tests.remove(test)
                 test_machine = test.machine_id  # test_finish() resets it
-                retry_reason, test_result = test.finish(changed_tests, print_tap=not opts.list, thorough=opts.thorough, track_naughties=opts.track_naughties)
+                retry_reason, test_result = test.finish(changed_tests, opts)
                 fail_count += test_result
                 logging.debug(f"test {test} finished; result {test_result} retry reason {retry_reason}")
 

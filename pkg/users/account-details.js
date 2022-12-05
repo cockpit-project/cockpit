@@ -18,7 +18,7 @@
  */
 
 import cockpit from 'cockpit';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { superuser } from "superuser";
 import { apply_modal_dialog } from "cockpit-components-dialog.jsx";
 
@@ -27,8 +27,9 @@ import {
     Card, CardBody, CardHeader, CardTitle, CardActions,
     EmptyState, EmptyStateVariant, EmptyStateIcon, EmptyStateSecondaryActions,
     Flex,
+    Label, LabelGroup,
     Page, PageSection,
-    Gallery, Text, TextVariants, Breadcrumb, BreadcrumbItem,
+    Gallery, Select, SelectOption, SelectVariant, Text, TextVariants, Breadcrumb, BreadcrumbItem,
     Form, FormGroup, TextInput,
     Spinner,
     Title, Popover
@@ -38,7 +39,6 @@ import { show_unexpected_error } from "./dialog-utils.js";
 import { delete_account_dialog } from "./delete-account-dialog.js";
 import { account_expiration_dialog, password_expiration_dialog } from "./expiration-dialogs.js";
 import { set_password_dialog, reset_password_dialog } from "./password-dialogs.js";
-import { AccountRoles } from "./account-roles.js";
 import { AccountLogs } from "./account-logs-panel.jsx";
 import { AuthorizedKeys } from "./authorized-keys-panel.js";
 import * as timeformat from "timeformat.js";
@@ -269,16 +269,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                                 <FormGroup fieldId="account-user-name" hasNoPaddingTop label={_("User name")}>
                                     <output id="account-user-name">{account.name}</output>
                                 </FormGroup>
-                                { account.uid !== 0 &&
-                                <FormGroup fieldId="account-roles" isInline label={_("Roles")}>
-                                    <div id="account-roles">
-                                        <div id="account-change-roles-roles">
-                                            <AccountRoles account={account} groups={groups}
-                                                currently_logged_in={account.loggedIn} />
-                                        </div>
-                                    </div>
-                                </FormGroup>
-                                }
+                                <AccountGroupsSelect key={account.name} name={account.name} groups={groups} />
                                 <FormGroup fieldId="account-last-login" hasNoPaddingTop label={_("Last login")}>
                                     <output id="account-last-login">{last_login}</output>
                                 </FormGroup>
@@ -355,3 +346,110 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
         </Page>
     );
 }
+
+export const AccountGroupsSelect = ({ name, groups, setError }) => {
+    const [isOpenGroup, setIsOpenGroup] = useState(false);
+    const [selected, setSelected] = useState();
+    const [validated, setValidated] = useState('default');
+    const [primaryGroupName, setPrimaryGroupName] = useState();
+    const previousValue = useRef(null);
+
+    useEffect(() => {
+        const usedGroups = groups.filter(group => group.userlist.includes(name));
+        const primaryGroup = groups.find(group => group.userlistPrimary.includes(name));
+        const _primaryGroupName = primaryGroup ? primaryGroup.name : undefined;
+        const _selected = usedGroups.map(group => group.name);
+        if (primaryGroup)
+            _selected.push(_primaryGroupName);
+
+        const items_diff = previousValue.current
+            ? _selected
+                    .filter(x => !previousValue.current.includes(x))
+                    .concat(previousValue.current.filter(x => !_selected.includes(x)))
+            : [];
+        const validated = items_diff.length ? 'warning' : 'default';
+        previousValue.current = _selected;
+
+        setValidated(validated);
+        setSelected(_selected);
+        setPrimaryGroupName(_primaryGroupName);
+    }, [groups, setSelected, name, previousValue, setValidated]);
+
+    const removeGroup = group => {
+        return cockpit.spawn(["/usr/bin/gpasswd", "-d", name, group], { superuser: "require", err: "message" })
+                .then(() => {
+                    setSelected(selected.filter(item => item !== group));
+                    setIsOpenGroup(false);
+                }, error => {
+                    show_unexpected_error(error);
+                });
+    };
+
+    const addGroup = group => {
+        return cockpit.spawn(["/usr/sbin/usermod", "-a", "-G", group, name], { superuser: "require", err: "message" })
+                .then(() => {
+                    setSelected([...selected, group]);
+                    setIsOpenGroup(false);
+                }, error => {
+                    show_unexpected_error(error);
+                });
+    };
+
+    const onSelectGroup = (event, selection) => {
+        if (selected.includes(selection)) {
+            removeGroup(selection);
+        } else {
+            addGroup(selection);
+        }
+    };
+
+    const chipGroupComponent = () => {
+        return (
+            <LabelGroup numLabels={10}>
+                {(selected || []).map((currentLabel, index) => {
+                    const optional = currentLabel !== primaryGroupName && superuser.allowed ? { onClose: () => removeGroup(currentLabel) } : {};
+
+                    return (
+                        <Label key={currentLabel}
+                               color={groups.find(group => group.name === currentLabel).isAdmin ? "gold" : "cyan"}
+                               {...optional}
+                        >
+                            {currentLabel}
+                        </Label>
+                    );
+                })}
+            </LabelGroup>
+        );
+    };
+
+    return (
+        <FormGroup
+            fieldId="account-groups"
+            helperText={validated == 'warning' ? _("The user must log out and log back in for the new configuration to take effect.") : ''}
+            id="account-groups-form-group"
+            label={_("Groups")}
+            validated={validated}
+        >
+            {superuser.allowed
+                ? <Select
+                   chipGroupComponent={chipGroupComponent()}
+                   isDisabled={!superuser.allowed}
+                   isOpen={isOpenGroup}
+                   onSelect={onSelectGroup}
+                   onToggle={setIsOpenGroup}
+                   selections={selected}
+                   toggleId="account-groups"
+                   variant={SelectVariant.typeaheadMulti}
+                >
+                    {groups.map((option, index) => (
+                        <SelectOption
+                            isDisabled={option.name == primaryGroupName}
+                            key={index}
+                            value={option.name}
+                        />
+                    ))}
+                </Select>
+                : chipGroupComponent()}
+        </FormGroup>
+    );
+};

@@ -21,6 +21,7 @@ import cockpit from 'cockpit';
 import React, { useState } from 'react';
 import { superuser } from "superuser";
 
+import { admins } from './local.js';
 import {
     Button, Badge,
     Card, CardExpandableContent, CardHeader, CardTitle,
@@ -45,21 +46,6 @@ import { lockAccountDialog } from "./lock-account-dialog.js";
 import { logoutAccountDialog } from "./logout-account-dialog.js";
 
 const _ = cockpit.gettext;
-
-const admins = ['sudo', 'root', 'wheel'];
-
-const sortGroups = groups => {
-    return groups.sort((a, b) => {
-        if (a.isAdmin)
-            return -1;
-        if (b.isAdmin)
-            return 1;
-        if (a.members === b.members)
-            return a.name.localeCompare(b.name);
-        else
-            return b.members - a.members;
-    });
-};
 
 const GroupActions = ({ group, accounts }) => {
     const [isKebabOpen, setKebabOpen] = useState(false);
@@ -432,20 +418,13 @@ export const AccountsMain = ({ accountsInfo, current_user, groups }) => {
             return false;
         return true;
     });
-    const groupsExtraInfo = sortGroups(
-        groups.map(group => {
-            const userlistPrimary = accounts.filter(account => account.gid === group.gid).map(account => account.name);
-            const userlist = group.userlist.filter(el => el !== "");
-            return ({ ...group, userlistPrimary, userlist, members: userlist.length + userlistPrimary.length, isAdmin: admins.includes(group.name) });
-        })
-    );
 
     return (
         <Page id="accounts">
             <PageSection>
                 <Stack hasGutter>
-                    <GroupsList accounts={accounts} groups={groupsExtraInfo} />
-                    <AccountsList accounts={accounts} current_user={current_user} groups={groupsExtraInfo} />
+                    <GroupsList accounts={accounts} groups={groups} />
+                    <AccountsList accounts={accounts} current_user={current_user} groups={groups} />
                 </Stack>
             </PageSection>
         </Page>

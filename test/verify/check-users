@@ -194,7 +194,7 @@ class TestAccounts(MachineCase):
         def is_admin():
             return "jussi" in m.execute(f"getent group {m.get_admin_group()}")
 
-        admin_role_sel = f'input[data-name="{m.get_admin_group()}"]'
+        admin_role_sel = '#account-groups-form-group'
         b.wait(lambda: "jussi" in m.execute("grep jussi /etc/passwd"))
         b.wait(lambda: not is_admin())
         b.wait(is_locked)
@@ -209,11 +209,11 @@ class TestAccounts(MachineCase):
         b.wait_visible("#account-locked:checked")
         b.set_checked('#account-locked', False)
         b.wait(lambda: not is_locked())
-        b.wait_visible(admin_role_sel + ":not(:checked)")
-        b.set_checked(admin_role_sel, True)
+        b.wait_not_present(admin_role_sel + f" .pf-c-label:contains(:{m.get_admin_group()})")
+        b.click("#account-groups")
+        b.click(admin_role_sel + f" li:contains({m.get_admin_group()}) > button")
         b.wait(is_admin)
-        b.wait_visible(admin_role_sel + ":checked")
-        b.wait_not_present("#account-roles .pf-c-alert.pf-m-info")
+        b.wait_not_present("#account-groups-helper")
 
         # Login as jussi and change role admin for itself
         b.logout()
@@ -228,21 +228,22 @@ class TestAccounts(MachineCase):
 
         b.go("#/jussi")
         b.wait_text("#account-user-name", "jussi")
-        b.wait_visible(admin_role_sel + ":checked")
-        b.set_checked(admin_role_sel, False)
+        b.wait_visible(admin_role_sel + f" .pf-c-label:contains({m.get_admin_group()})")
+        b.wait_not_present("#account-groups-helper")
+        b.click(f".pf-c-label-group__list .pf-c-label__content:contains({m.get_admin_group()}) + button[aria-label='Close {m.get_admin_group()}']")
         b.wait(lambda: not is_admin())
         if m.image != "fedora-coreos":  # User is not shown as logged in when logged in through Cockpit
-            b.wait_visible("#account-roles .pf-c-alert.pf-m-info")
+            b.wait_visible("#account-groups-helper")
         m.execute(f"/usr/sbin/usermod jussi -G {m.get_admin_group()} -a")
-        b.wait_visible(admin_role_sel + ":checked:not([disabled])")
+        b.wait_visible(admin_role_sel + f" .pf-c-label:contains({m.get_admin_group()})")
 
         # Cannot lock the current account
         b.wait_visible("#account-locked[disabled]")
 
         b.go("#/admin")
         b.wait_text("#account-user-name", "admin")
-        b.wait_visible(admin_role_sel + ":checked")
-        b.wait_not_present("#account-roles .pf-c-alert.pf-m-info")
+        b.wait_visible(admin_role_sel + f" .pf-c-label:contains({m.get_admin_group()})")
+        b.wait_not_present("#account-groups-helper")
         b.logout()
         b.login_and_go("/users")
 
@@ -403,9 +404,9 @@ class TestAccounts(MachineCase):
         if m.image != "fedora-coreos":  # Users group does not exist in coreos image
             m.execute("/usr/sbin/usermod -aG users robert")
             b.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-c-label.pf-m-cyan:contains(users)", "users")
-        m.execute("/usr/sbin/usermod -aG wheel robert")
-        b.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-c-label.pf-m-gold", "wheel")
-        m.execute("/usr/bin/gpasswd -d robert wheel")
+        m.execute(f"/usr/sbin/usermod -aG {m.get_admin_group()} robert")
+        b.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-c-label.pf-m-gold", m.get_admin_group())
+        m.execute(f"/usr/bin/gpasswd -d robert {m.get_admin_group()}")
         b.wait_not_present("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-c-label.pf-m-gold")
 
         # test filters
@@ -715,6 +716,9 @@ class TestAccounts(MachineCase):
         b.wait_visible("#groups-list")
         b.wait_not_in_text('#groups-list', "testgroup0")
 
+        # Add testgroup0 back
+        m.execute("groupadd testgroup0")
+
         # Groups used as primary need force deletion
         performGroupAction(b, 'anton', 'Delete group')
         b.wait_text("#group-confirm-delete-dialog footer .pf-c-button.apply", "Force delete")
@@ -722,6 +726,37 @@ class TestAccounts(MachineCase):
         b.wait_not_present('#account-confirm-delete-dialog')
         b.wait_visible("#groups-list")
         b.wait_not_in_text('#groups-list', "anton")
+
+        b.go("#/admin")
+
+        # Existing groups appear in labels
+        b.wait_in_text(".pf-c-label-group__list", "admin")
+        b.wait_in_text(".pf-c-label-group__list", m.get_admin_group())
+
+        # Primary group cannot be remove but others have a remove button
+        b.wait_visible(".pf-c-label-group__list .pf-c-label__content:contains(admin)")
+        b.wait_not_present(".pf-c-label-group__list .pf-c-label__content:contains(admin) + button")
+        b.wait_visible(f".pf-c-label-group__list .pf-c-label__content:contains({m.get_admin_group()}) + button[aria-label='Close {m.get_admin_group()}']")
+
+        # Clicking on the close button removes the group
+        b.click(f".pf-c-label-group__list .pf-c-label__content:contains({m.get_admin_group()}) + button[aria-label='Close {m.get_admin_group()}']")
+        b.wait_not_present(f".pf-c-label-group__list .pf-c-label__content:contains({m.get_admin_group()})")
+        b.wait_not_present(".pf-c-select__menu")
+
+        # Add admin to the testgroup0 group
+        b.click("#account-groups")
+        b.click(".pf-c-select__menu li:contains(testgroup0) button")
+        b.wait_in_text(".pf-c-label-group__list", "testgroup0")
+
+        # Check that changes ar persistent after reload
+        b.reload()
+        b.enter_page("/users")
+        b.wait_in_text(".pf-c-label-group__list", "testgroup0")
+
+        # Clicking on a used groups in the menu will remove it
+        b.click("#account-groups")
+        b.click(".pf-c-select__menu li:contains(testgroup0) button")
+        b.wait_not_in_text(".pf-c-label-group__list", "testgroup0")
 
 
 if __name__ == '__main__':

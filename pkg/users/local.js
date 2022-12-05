@@ -31,6 +31,20 @@ import { AccountDetails } from "./account-details.js";
 
 superuser.reload_page_on_change();
 
+export const admins = ['sudo', 'root', 'wheel'];
+const sortGroups = groups => {
+    return groups.sort((a, b) => {
+        if (a.isAdmin)
+            return -1;
+        if (b.isAdmin)
+            return 1;
+        if (a.members === b.members)
+            return a.name.localeCompare(b.name);
+        else
+            return b.members - a.members;
+    });
+};
+
 function AccountsPage() {
     const { path } = usePageLocation();
     const accounts = useFile("/etc/passwd", { syntax: etc_passwd_syntax });
@@ -57,13 +71,22 @@ function AccountsPage() {
             return Object.assign({}, account, details[i]);
         });
 
+    const groupsExtraInfo = sortGroups(
+        (groups || []).map(group => {
+            const userlistPrimary = accountsInfo.filter(account => account.gid === group.gid).map(account => account.name);
+            const userlist = group.userlist.filter(el => el !== "");
+            return ({ ...group, userlistPrimary, userlist, members: userlist.length + userlistPrimary.length, isAdmin: admins.includes(group.name) });
+        })
+    );
+
     if (path.length === 0) {
-        return <AccountsMain accountsInfo={accountsInfo} current_user={current_user_info && current_user_info.name} groups={groups || []} />;
-    } else
+        return <AccountsMain accountsInfo={accountsInfo} current_user={current_user_info && current_user_info.name} groups={groupsExtraInfo || []} />;
+    } else {
         return (
-            <AccountDetails accounts={accountsInfo} groups={groups || []} shadow={shadow || []}
+            <AccountDetails accounts={accountsInfo} groups={groupsExtraInfo || []} shadow={shadow || []}
                             current_user={current_user_info && current_user_info.name} user={path[0]} />
         );
+    }
 }
 
 function get_locked(name) {

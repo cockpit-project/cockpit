@@ -206,6 +206,14 @@ function Frames(index, setupIdleResetTimers) {
             list[component] = frame;
             document.getElementById("content").appendChild(frame);
 
+            // The new iframe is shown before any HTML/CSS is ready and loaded,
+            // explicitly set a dark background so we don't see any white flashes
+            if (index.dark_mode && frame.contentDocument && frame.contentDocument.documentElement) {
+                // --pf-global--BackgroundColor--dark-300
+                const dark_mode_background = '#1b1d21';
+                frame.contentDocument.documentElement.style.background = dark_mode_background;
+            }
+
             frame.contentWindow.addEventListener("readystatechange", function(event) {
                 if (!event.target.documentElement)
                     return;

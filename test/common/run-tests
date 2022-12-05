@@ -131,7 +131,7 @@ class Test:
                     sys.stderr.write("\nCouldn't run test-failure-policy: {0}\n".format(str(ex)))
 
         # HACK: many tests are unstable, always retry them 3 times unless affected
-        if not affected and not retry_reason:
+        if not affected and not retry_reason and not opts.no_retry_fail:
             retry_reason = "be robust against unstable tests"
 
         has_unexpected_message = testlib.UNEXPECTED_MESSAGE.encode() in self.output
@@ -513,6 +513,8 @@ def main():
                         help="Retry affected tests compared to given base branch; default: %(default)s")
     parser.add_argument('--track-naughties', action='store_true',
                         help='Update the occurrence of naughties on cockpit-project/bots')
+    parser.add_argument('--no-retry-fail', action='store_true',
+                        help="Don't retry failed tests")
     opts = parser.parse_args()
 
     if opts.machine:

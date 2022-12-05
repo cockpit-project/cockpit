@@ -212,7 +212,7 @@ const getAccountRow = (account, current, groups) => {
             props: { width: 20, },
         },
         {
-            title: account.uid.toString(),
+            title: account.uid,
             props: { width: 10, },
         },
         {
@@ -370,6 +370,8 @@ const AccountsList = ({ accounts, current_user, groups }) => {
                 return bitem.sortKey - aitem.sortKey;
             }
 
+            if (idx == 2)
+                return bitem.title - aitem.title;
             return ((typeof aitem == 'string' ? aitem : (aitem.sortKey || aitem.title)).localeCompare(typeof bitem == 'string' ? bitem : (bitem.sortKey || bitem.title)));
         });
         return direction === SortByDirection.asc ? sortedRows : sortedRows.reverse();

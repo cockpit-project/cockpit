@@ -2,6 +2,7 @@
 
 # Prepare bots by creating ./bots directory
 # Specify $COCKPIT_BOTS_REF to checkout non-main branch
+COCKPIT_BOTS_REF="24f4712b2fed665977b30e6f8ac09d8ce543acb6"
 
 GITHUB_REPO='bots'
 SUBDIR='bots'
@@ -20,7 +21,7 @@ if [ ! -e bots ]; then
     else
         # it's small, so keep everything cached
         fetch_to_cache ${COCKPIT_BOTS_REF+"${COCKPIT_BOTS_REF}"}
-        clone_from_cache "${COCKPIT_BOTS_REF-main}"
+        clone_from_cache "${COCKPIT_BOTS_REF-24f4712b2fed665977b30e6f8ac09d8ce543acb6}"
     fi
 else
     echo "bots/ already exists, skipping"

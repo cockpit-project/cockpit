@@ -20,6 +20,7 @@ cockpit.superuser.SUPERUSER_BRIDGES['pseudo'] = (
     [sys.executable, PSEUDO, sys.executable, '-m', 'cockpit.bridge', '--privileged'],
     {'PYTHONPATH': ':'.join(sys.path)}
 )
+SUPERUSER_BRIDGES = list(cockpit.superuser.SUPERUSER_BRIDGES)
 
 
 class test_iface(systemd_ctypes.bus.Object):
@@ -269,13 +270,13 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
     async def verify_root_bridge_not_running(self):
         assert self.bridge.superuser_rule.peer is None
         await self.transport.assert_bus_props('/superuser', 'cockpit.Superuser',
-                                              {'Bridges': ['sudo', 'pseudo'], 'Current': 'none'})
+                                              {'Bridges': SUPERUSER_BRIDGES, 'Current': 'none'})
         null = await self.transport.check_open('null', superuser=True, problem='access-denied')
         assert null not in self.bridge.open_channels
 
     async def verify_root_bridge_running(self):
         await self.transport.assert_bus_props('/superuser', 'cockpit.Superuser',
-                                              {'Bridges': ['sudo', 'pseudo'], 'Current': 'pseudo'})
+                                              {'Bridges': SUPERUSER_BRIDGES, 'Current': 'pseudo'})
         assert self.bridge.superuser_rule.peer is not None
 
         # try to open dbus on the root bridge
@@ -285,7 +286,7 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
 
         # verify that the bridge thinks that it's the root bridge
         await self.transport.assert_bus_props('/superuser', 'cockpit.Superuser',
-                                              {'Bridges': ['sudo'], 'Current': 'root'}, bus=root_dbus)
+                                              {'Bridges': ['sudo', 'pkexec'], 'Current': 'root'}, bus=root_dbus)
 
         # close up
         self.transport.send_close(channel=root_dbus)
@@ -320,7 +321,7 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
         # watch for signals
         await self.transport.add_bus_match('/superuser', 'cockpit.Superuser')
         await self.transport.watch_bus('/superuser', 'cockpit.Superuser',
-                                       {'Bridges': ['sudo', 'pseudo'], 'Current': 'none'})
+                                       {'Bridges': SUPERUSER_BRIDGES, 'Current': 'none'})
 
         # start the bridge.  with a password this is more complicated
         with unittest.mock.patch.dict(os.environ, {"PSEUDO_PASSWORD": "p4ssw0rd"}):

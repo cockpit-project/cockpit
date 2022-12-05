@@ -24,7 +24,7 @@ import pwd
 
 from systemd_ctypes import bus
 
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
 from .router import Router, RoutingError, RoutingRule
 from .peer import Peer, PeerStateListener
@@ -34,11 +34,14 @@ logger = logging.getLogger(__name__)
 SUPERUSER_AUTH_COOKIE = 'supermarius'
 
 # Keep a static list, for the time being.
-SUPERUSER_BRIDGES = {
+SUPERUSER_BRIDGES: Dict[str, Tuple[list[str], Dict[str, str]]] = {
     'sudo': (
         ['sudo', '--askpass', 'cockpit-bridge', '--privileged'], {
             'SUDO_ASKPASS': '/usr/libexec/cockpit-askpass'
         }
+    ),
+    'pkexec': (
+        ['pkexec', '--disable-internal-agent', 'cockpit-bridge', '--privileged'], {}
     ),
 }
 

@@ -153,13 +153,23 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
             self.current = 'root'
 
     def go(self, startup: SuperuserStartup, name: str) -> None:
-        assert self.current == 'none'
+        if self.current != 'none':
+            raise bus.BusError('cockpit.Superuser.Error', 'Superuser bridge already running')
+
         assert self.peer is None
         assert self.startup is None
 
-        args, env = SUPERUSER_BRIDGES[name]
+        try:
+            args, env = SUPERUSER_BRIDGES[name]
+        except KeyError as exc:
+            raise bus.BusError('cockpit.Superuser.Error', 'Unknown superuser bridge type') from exc
+
         startup.peer = Peer(self.router, name, self)
-        startup.peer.spawn(args, env)
+
+        try:
+            startup.peer.spawn(args, env)
+        except OSError as exc:
+            raise bus.BusError('cockpit.Superuser.Error', f'Failed to start peer bridge: {exc}') from exc
 
         # We do this step last, only after everything above was successful.  If
         # anything above raises an error, it will all go away neatly, without
@@ -170,22 +180,19 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
         name = params.get('id')
         if not isinstance(name, str) or name == 'any':
             name = 'sudo'
-        self.go(ControlMessageStartup(), name)
+
+        startup = ControlMessageStartup()
+        try:
+            self.go(startup, name)
+        except bus.BusError as exc:
+            startup.failed(self, exc)
 
     # D-Bus methods
     @bus.Interface.Method(in_types=['s'])
     async def start(self, name: str) -> None:
-        if self.current != 'none':
-            raise bus.BusError('cockpit.Superuser.Error', 'Superuser bridge already running')
-
-        try:
-            startup = DBusStartup()
-            self.go(startup, name)
-            await startup.wait()
-        except KeyError as exc:
-            raise bus.BusError('cockpit.Superuser.Error', 'Unknown superuser bridge type') from exc
-        except OSError as exc:
-            raise bus.BusError('cockpit.Superuser.Error', f'Failed to start peer bridge: {exc}') from exc
+        startup = DBusStartup()
+        self.go(startup, name)
+        await startup.wait()
 
     @bus.Interface.Method()
     def stop(self) -> None:

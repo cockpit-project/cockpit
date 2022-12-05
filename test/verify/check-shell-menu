@@ -27,6 +27,36 @@ from testlib import MachineCase, enableAxe, nondestructive, skipDistroPackage, t
 @skipDistroPackage()
 class TestMenu(MachineCase):
 
+    def testDarkThemeSwitcher(self):
+        b = self.browser
+
+        def switch_style(style_class):
+            b.click("#toggle-menu")
+            b.click(f"#topnav {style_class}")
+
+        self.login_and_go("/system")
+        b.switch_to_top()
+        switch_style("#dark")
+        b._wait_present("html.pf-theme-dark")
+
+        switch_style("#light")
+        b.wait_not_present("html.pf-theme-dark")
+
+        # Test overriding, switching only works on Chromium
+        if b.cdp.browser.name == "chromium":
+            # Light theme overrides browser defaults
+            b._set_emulated_media_theme("dark")
+            b.wait_not_present("html.pf-theme-dark")
+
+            switch_style("#auto")
+            b._wait_present("html.pf-theme-dark")
+
+            b._set_emulated_media_theme("light")
+            b.wait_not_present("html.pf-theme-dark")
+
+            switch_style("#dark")
+            b._wait_present("html.pf-theme-dark")
+
     @enableAxe
     def testBasic(self):
         b = self.browser

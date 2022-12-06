@@ -101,8 +101,10 @@ export const ListingTable = ({
         // Don't highlight all when the list gets loaded
         if (currentRowsKeys.length !== 0) {
             const new_keys = current_keys.filter(key => currentRowsKeys.indexOf(key) === -1);
-            if (new_keys.length)
+            if (new_keys.length) {
+                setTimeout(() => setNewItems(items => items.filter(item => new_keys.indexOf(item) < 0)), 4000);
                 setNewItems([...newItems, ...new_keys]);
+            }
         }
 
         setCurrentRowsKeys([...new Set([...currentRowsKeys, ...current_keys])]);

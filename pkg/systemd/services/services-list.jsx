@@ -25,13 +25,15 @@ import {
     Tooltip, TooltipPosition, Badge,
 } from '@patternfly/react-core';
 import { ListingTable } from 'cockpit-components-table.jsx';
-import { ExclamationCircleIcon, ThumbtackIcon } from '@patternfly/react-icons';
+import { ExclamationCircleIcon, SearchIcon, ThumbtackIcon } from '@patternfly/react-icons';
+
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
 import cockpit from "cockpit";
 
 const _ = cockpit.gettext;
 
-export const ServicesList = ({ units, isTimer }) => {
+export const ServicesList = ({ units, isTimer, filtersRef }) => {
     let columns;
     if (!isTimer) {
         columns = [
@@ -51,6 +53,10 @@ export const ServicesList = ({ units, isTimer }) => {
                       showHeader={false}
                       id="services-list"
                       rows={ units.map(unit => getServicesRow({ key: unit[0], isTimer, shortId: unit[0], ...unit[1] })) }
+                      emptyComponent={<EmptyStatePanel icon={SearchIcon}
+                                                       paragraph={_("No results match the filter criteria. Clear all filters to show results.")}
+                                                       action={<Button id="clear-all-filters" onClick={() => { filtersRef.current() }} isInline variant='link'>{_("Clear all filters")}</Button>}
+                                                       title={_("No matching results")} /> }
                       className="services-list" />
     );
 };

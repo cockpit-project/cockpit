@@ -49,6 +49,7 @@ import './cockpit-components-table.scss';
  *   }[]
  * - emptyCaption: header caption to show if list is empty
  * - emptyCaptionDetail: extra details to show after emptyCaption if list is empty
+ * - emptyComponent: Whole empty state component to show if the list is empty
  * - isEmptyStateInTable: if empty state is result of a filter function this should be set, otherwise false
  * - variant: For compact tables pass 'compact'
  * - gridBreakPoint: Specifies the grid breakpoints ('', 'grid' | 'grid-md' | 'grid-lg' | 'grid-xl' | 'grid-2xl')
@@ -65,6 +66,7 @@ export const ListingTable = ({
     columns: cells = [],
     emptyCaption = '',
     emptyCaptionDetail,
+    emptyComponent,
     isEmptyStateInTable = false,
     onRowClick,
     onSelect,
@@ -132,19 +134,23 @@ export const ListingTable = ({
     );
 
     if (rows == 0) {
-        const emptyState = (
-            <EmptyState>
-                <EmptyStateBody>
-                    <div>{emptyCaption}</div>
-                    <TextContent>
-                        <Text component={TextVariants.small}>
-                            {emptyCaptionDetail}
-                        </Text>
-                    </TextContent>
-                </EmptyStateBody>
-                {actions.length > 0 ? <EmptyStateSecondaryActions>{actions}</EmptyStateSecondaryActions> : null}
-            </EmptyState>
-        );
+        let emptyState = null;
+        if (emptyComponent)
+            emptyState = emptyComponent;
+        else
+            emptyState = (
+                <EmptyState>
+                    <EmptyStateBody>
+                        <div>{emptyCaption}</div>
+                        <TextContent>
+                            <Text component={TextVariants.small}>
+                                {emptyCaptionDetail}
+                            </Text>
+                        </TextContent>
+                    </EmptyStateBody>
+                    {actions.length > 0 ? <EmptyStateSecondaryActions>{actions}</EmptyStateSecondaryActions> : null}
+                </EmptyState>
+            );
         if (!isEmptyStateInTable)
             return emptyState;
 

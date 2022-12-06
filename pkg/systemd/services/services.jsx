@@ -24,7 +24,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import { createRoot } from 'react-dom/client';
 import {
     Button,
-    Bullseye,
     Flex, FlexItem,
     Select, SelectVariant, SelectOption,
     Page, PageSection, PageSectionVariants,
@@ -37,7 +36,7 @@ import {
     ToolbarFilter,
     ToolbarToggleGroup,
 } from '@patternfly/react-core';
-import { SearchIcon, ExclamationCircleIcon, FilterIcon } from '@patternfly/react-icons';
+import { ExclamationCircleIcon, FilterIcon } from '@patternfly/react-icons';
 
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { Service } from "./service.jsx";
@@ -847,19 +846,10 @@ class ServicesPageBody extends React.Component {
                                          onCurrentTextFilterChanged={this.onCurrentTextFilterChanged}
                                          onFiltersChanged={this.onFiltersChanged}
                     />
-                    {units.length
-                        ? <ServicesList key={cockpit.format("$0-list", activeTab)}
-                                     isTimer={activeTab == 'timer'}
-                                     units={units} />
-                        : null}
-                    {units.length == 0
-                        ? <Bullseye>
-                            <EmptyStatePanel icon={SearchIcon}
-                                            paragraph={_("No results match the filter criteria. Clear all filters to show results.")}
-                                            action={<Button id="clear-all-filters" onClick={() => { this.filtersRef.current() }} isInline variant='link'>{_("Clear all filters")}</Button>}
-                                            title={_("No matching results")} />
-                        </Bullseye>
-                        : null}
+                    <ServicesList key={cockpit.format("$0-list", activeTab)}
+                                  isTimer={activeTab == 'timer'}
+                                  filtersRef={this.filtersRef}
+                                  units={units} />
                 </Card>
             </PageSection>
         );

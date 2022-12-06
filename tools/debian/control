@@ -125,7 +125,8 @@ Depends: ${misc:Depends},
          cockpit-bridge (>= ${source:Version}),
          libpwquality-tools,
          openssl,
-Recommends: sudo | policykit-1
+# policykit-1 was split into multiple packages; keep old name for Debian 11 and Ubuntu
+Recommends: sudo | pkexec | policykit-1
 Provides: cockpit-shell,
           cockpit-systemd,
           cockpit-tuned,

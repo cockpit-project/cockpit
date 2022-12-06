@@ -105,7 +105,7 @@ export const ListingTable = ({
                 setNewItems([...newItems, ...new_keys]);
         }
 
-        setCurrentRowsKeys(current_keys);
+        setCurrentRowsKeys([...new Set([...currentRowsKeys, ...current_keys])]);
     }, [rows, currentRowsKeys, newItems]);
 
     const isSortable = cells.some(col => col.sortable);

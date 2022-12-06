@@ -291,15 +291,21 @@ export class ServiceDetails extends React.Component {
 
     onOnOffSwitch() {
         if (this.props.unit.UnitFileState === "enabled") {
-            this.unitFileAction("DisableUnitFiles", undefined);
+            let promise;
             if (this.props.unit.ActiveState === "active" || this.props.unit.ActiveState === "activating")
-                this.unitAction("StopUnit");
-            if (this.props.unit.ActiveState === "failed")
-                this.unitAction("ResetFailedUnit", []);
+                promise = this.unitAction("StopUnit");
+            else if (this.props.unit.ActiveState === "failed")
+                promise = this.unitAction("ResetFailedUnit", []);
+            else
+                promise = Promise.resolve();
+
+            promise.then(() => this.unitFileAction("DisableUnitFiles", undefined));
         } else {
-            this.unitFileAction("EnableUnitFiles", false);
-            if (this.props.unit.ActiveState !== "active" && this.props.unit.ActiveState !== "activating")
-                this.unitAction("StartUnit");
+            this.unitFileAction("EnableUnitFiles", false)
+                    .then(() => {
+                        if (this.props.unit.ActiveState !== "active" && this.props.unit.ActiveState !== "activating")
+                            this.unitAction("StartUnit");
+                    });
         }
     }
 
@@ -348,7 +354,7 @@ export class ServiceDetails extends React.Component {
                     /* Executing daemon reload after file operations is necessary -
                      * see https://github.com/systemd/systemd/blob/main/src/systemctl/systemctl.c [enable_unit function]
                      */
-                    systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "Reload", null);
+                    return systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "Reload", null);
                 });
         if (catchExc) {
             return promise.catch(error => {

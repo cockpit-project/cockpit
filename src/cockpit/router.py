@@ -17,6 +17,7 @@
 
 from __future__ import annotations
 
+import collections
 import logging
 
 from typing import Dict, List, Optional
@@ -26,11 +27,57 @@ from .protocol import CockpitProtocolServer, CockpitProtocolError
 logger = logging.getLogger(__name__)
 
 
+class ExecutionQueue:
+    """Temporarily delay calls to a given set of class methods.
+
+    Functions by replacing the named function at the instance __dict__
+    level, effectively providing an override for exactly one instance
+    of `method`'s object.
+    Queues the invocations.  Run them later with .run(), which also reverses
+    the redirection by deleting the named methods from the instance.
+    """
+    def __init__(self, methods):
+        self.queue = collections.deque()
+        self.methods = methods
+
+        for method in self.methods:
+            self._wrap(method)
+
+    def _wrap(self, method):
+        # NB: this function is stored in the instance dict and therefore
+        # doesn't function as a descriptor, isn't a method, doesn't get bound,
+        # and therefore doesn't receive a self parameter
+        setattr(method.__self__, method.__func__.__name__, lambda *args: self.queue.append((method, args)))
+
+    def run(self):
+        logger.debug('ExecutionQueue: Running %d queued method calls', len(self.queue))
+        for method, args in self.queue:
+            method(*args)
+
+        for method in self.methods:
+            delattr(method.__self__, method.__func__.__name__)
+
+
 class Endpoint:
     router: Router
+    __endpoint_frozen_queue: Optional[ExecutionQueue] = None
 
     def __init__(self, router: Router):
         self.router = router
+
+    def endpoint_is_frozen(self) -> bool:
+        return self.__endpoint_frozen_queue is not None
+
+    def freeze_endpoint(self):
+        assert self.__endpoint_frozen_queue is None
+        logger.debug('Freezing endpoint %s', self)
+        self.__endpoint_frozen_queue = ExecutionQueue({self.do_channel_control, self.do_channel_data})
+
+    def thaw_endpoint(self):
+        assert self.__endpoint_frozen_queue is not None
+        logger.debug('Thawing endpoint %s', self)
+        self.__endpoint_frozen_queue.run()
+        self.__endpoint_frozen_queue = None
 
     # interface for receiving messages
     def do_channel_control(self, channel: str, command: str, message: Dict[str, object]) -> None:

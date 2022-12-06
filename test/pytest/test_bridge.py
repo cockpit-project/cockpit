@@ -422,3 +422,35 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
             # idempotency
             await self.transport.check_bus_call('/LoginMessages', 'cockpit.LoginMessages', 'Dismiss', [], [])
             await self.transport.check_bus_call('/LoginMessages', 'cockpit.LoginMessages', 'Get', [], ["{}"])
+
+    async def test_freeze(self):
+        await self.start()
+
+        koelle = await self.transport.check_open('echo')
+        malle = await self.transport.check_open('echo')
+
+        # send a bunch of data to frozen koelle
+        self.bridge.open_channels[koelle].freeze_endpoint()
+        self.transport.send_data(koelle, b'x1')
+        self.transport.send_data(koelle, b'x2')
+        self.transport.send_data(koelle, b'x3')
+        self.transport.send_done(koelle)
+
+        # malle never freezes
+        self.transport.send_data(malle, b'yy')
+        self.transport.send_done(malle)
+
+        # unfreeze koelle
+        self.bridge.open_channels[koelle].thaw_endpoint()
+
+        # malle should have sent its messages first
+        await self.transport.assert_data(malle, b'yy')
+        await self.transport.assert_msg('', command='done', channel=malle)
+        await self.transport.assert_msg('', command='close', channel=malle)
+
+        # the data from koelle should still be in the right order, though
+        await self.transport.assert_data(koelle, b'x1')
+        await self.transport.assert_data(koelle, b'x2')
+        await self.transport.assert_data(koelle, b'x3')
+        await self.transport.assert_msg('', command='done', channel=koelle)
+        await self.transport.assert_msg('', command='close', channel=koelle)

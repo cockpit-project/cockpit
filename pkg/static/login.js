@@ -340,8 +340,11 @@
         window.onload = null;
 
         translate();
-        if (window.cockpit_po && window.cockpit_po[""])
-            document.documentElement.lang = window.cockpit_po[""].language || "en-us";
+        if (window.cockpit_po && window.cockpit_po[""]) {
+            document.documentElement.lang = window.cockpit_po[""].language;
+            if (window.cockpit_po[""]["language-direction"])
+                document.documentElement.dir = window.cockpit_po[""]["language-direction"];
+        }
 
         setup_path_globals(window.location.pathname);
 

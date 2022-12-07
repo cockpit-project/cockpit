@@ -100,12 +100,16 @@ module.exports = class {
             const parsed = gettext_parser.po.parse(fs.readFileSync(po_file), 'utf8');
             delete parsed.translations[""][""]; // second header copy
 
+            const rtl_langs = ["ar", "fa", "he", "ur"];
+            const dir = rtl_langs.includes(parsed.headers.language) ? "rtl" : "ltr";
+
             // cockpit.js only looks at "plural-forms" and "language"
             const chunks = [
                 '{\n',
                 ' "": {\n',
                 `  "plural-forms": ${this.get_plural_expr(parsed.headers['plural-forms'])},\n`,
-                `  "language": "${parsed.headers.language}"\n`,
+                `  "language": "${parsed.headers.language}",\n`,
+                `  "language-direction": "${dir}"\n`,
                 ' }'
             ];
             for (const [msgctxt, context] of Object.entries(parsed.translations)) {

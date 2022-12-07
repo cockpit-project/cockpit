@@ -3822,9 +3822,11 @@ function factory() {
     let po_plural;
 
     cockpit.language = "en";
+    cockpit.language_direction = "ltr";
 
     cockpit.locale = function locale(po) {
         let lang = cockpit.language;
+        let lang_dir = cockpit.language_direction;
         let header;
 
         if (po) {
@@ -3839,9 +3841,12 @@ function factory() {
                 po_plural = header["plural-forms"];
             if (header.language)
                 lang = header.language;
+            if (header["language-direction"])
+                lang_dir = header["language-direction"];
         }
 
         cockpit.language = lang;
+        cockpit.language_direction = lang_dir;
     };
 
     cockpit.translate = function translate(/* ... */) {

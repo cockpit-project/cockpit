@@ -93,8 +93,11 @@ function Frames(index, setupIdleResetTimers) {
             if (frame.contentWindow && setupIdleResetTimers)
                 setupIdleResetTimers(frame.contentWindow);
 
-            if (frame.contentDocument && frame.contentDocument.documentElement)
+            if (frame.contentDocument && frame.contentDocument.documentElement) {
                 frame.contentDocument.documentElement.lang = language;
+                if (cockpit.language_direction)
+                    frame.contentDocument.documentElement.dir = cockpit.language_direction;
+            }
         } else {
             frame.timer = window.setTimeout(function() {
                 frame_ready(frame, count + 1);

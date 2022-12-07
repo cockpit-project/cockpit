@@ -595,7 +595,10 @@ if (document.documentElement.classList.contains("index-page")) {
     let language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1");
     if (!language)
         language = navigator.language.toLowerCase(); // Default to Accept-Language header
+
     document.documentElement.lang = language;
+    if (cockpit.language_direction)
+        document.documentElement.dir = cockpit.language_direction;
 
     window.addEventListener("message", message_queue, false);
 }

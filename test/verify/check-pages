@@ -298,8 +298,12 @@ OnCalendar=daily
 
             b.wait_js_func("""(function (lang) {
                 let correct = true;
+                const rtl_langs = ["ar-eg", "fa-ir", "he-il", "ur-in"];
+                const dir = rtl_langs.includes(lang) ? "rtl" : "ltr";
                 document.querySelectorAll('#content iframe').forEach(el => {
                     if (el.contentDocument.documentElement.lang !== lang)
+                        correct = false;
+                    if (el.contentDocument.documentElement.dir !== dir)
                         correct = false;
                 });
                 return correct;

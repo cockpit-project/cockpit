@@ -487,12 +487,11 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'result: ')
 
-        # This should work, but it will not because of
-        # https://bugzilla.redhat.com/show_bug.cgi?id=1814569
-        if m.image.startswith("fedora") or m.image == "centos-9-stream":
-            self.assertIn('result: uid=0', b.text(".super-channel span"))
-        else:
+        if m.image.startswith("rhel-8") or m.image in ["centos-8-stream", "rhel-9-1"]:
+            # https://bugzilla.redhat.com/show_bug.cgi?id=1814569
             self.assertIn('result: access-denied', b.text(".super-channel span"))
+        else:
+            self.assertIn('result: uid=0', b.text(".super-channel span"))
 
     def testNoAdminGroup(self):
         m = self.machine

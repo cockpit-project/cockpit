@@ -44,12 +44,13 @@ import "./timers.scss";
 
 const _ = cockpit.gettext;
 
-export const CreateTimerDialog = ({ owner }) => {
+export const CreateTimerDialog = ({ owner, isLoading }) => {
     const Dialogs = useDialogs();
     return (
         <Button key='create-timer-action'
                 variant="secondary"
                 id="create-timer"
+                isDisabled={isLoading}
                 onClick={() => {
                     updateTime();
                     Dialogs.show(<CreateTimerDialogBody owner={owner} />);

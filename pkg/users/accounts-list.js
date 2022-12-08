@@ -315,7 +315,7 @@ const GroupsList = ({ groups, accounts }) => {
                     id="groups-list"
                     rows={ groups.map(a => getGroupRow(a, accounts)) }
                     sortMethod={sortRows}
-                    variant="compact" sortBy={{ index: 0, direction: SortByDirection.asc }} />
+                    variant="compact" sortBy={{ index: 2, direction: SortByDirection.asc }} />
             </CardExpandableContent>
         </Card>
     );

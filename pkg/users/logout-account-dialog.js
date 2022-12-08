@@ -24,8 +24,6 @@ import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 const _ = cockpit.gettext;
 
 export const logoutAccountDialog = (account) => {
-    let dlg = null;
-
     const props = {
         id: "account-confirm-logout-dialog",
         title: cockpit.format(_("Logout $0"), account.name),
@@ -44,10 +42,5 @@ export const logoutAccountDialog = (account) => {
         ]
     };
 
-    if (!dlg)
-        dlg = show_modal_dialog(props, footer);
-    else {
-        dlg.setProps(props);
-        dlg.setFooterProps(footer);
-    }
+    show_modal_dialog(props, footer);
 };

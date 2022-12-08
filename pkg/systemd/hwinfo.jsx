@@ -169,11 +169,10 @@ class CPUSecurityMitigationsDialog extends React.Component {
         this.state = {
             nosmt: undefined,
             alert: undefined,
-            mitigationsAvailable: false,
             rebooting: false,
         };
         availableMitigations().then(({ available, nosmt_enabled }) => {
-            this.setState({ mitigationsAvailable: available, nosmt: nosmt_enabled });
+            this.setState({ nosmt: nosmt_enabled });
         });
     }
 

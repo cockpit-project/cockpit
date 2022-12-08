@@ -161,11 +161,11 @@ const getGroupRow = (group, accounts) => {
                     })}
                 </TextContent>
             ),
-            props: { width: 50, },
+            props: { width: 60, },
         },
         {
             title: <GroupActions group={group} accounts={accounts} />,
-            props: { width: 10, className: "pf-c-table__action" }
+            props: { className: "pf-c-table__action" }
         },
     ];
 

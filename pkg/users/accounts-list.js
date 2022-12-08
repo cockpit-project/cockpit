@@ -23,7 +23,7 @@ import { superuser } from "superuser";
 
 import {
     Button, Badge,
-    Card, CardBody, CardExpandableContent, CardHeader, CardTitle,
+    Card, CardExpandableContent, CardHeader, CardTitle,
     Dropdown, DropdownItem, DropdownSeparator,
     Flex, FlexItem,
     KebabToggle, Label,
@@ -311,13 +311,11 @@ const GroupsList = ({ groups, accounts }) => {
                 </CardTitle>
             </CardHeader>
             <CardExpandableContent>
-                <CardBody>
-                    <ListingTable columns={columns}
-                        id="groups-list"
-                        rows={ groups.map(a => getGroupRow(a, accounts)) }
-                        sortMethod={sortRows}
-                        variant="compact" sortBy={{ index: 0, direction: SortByDirection.asc }} />
-                </CardBody>
+                <ListingTable columns={columns}
+                    id="groups-list"
+                    rows={ groups.map(a => getGroupRow(a, accounts)) }
+                    sortMethod={sortRows}
+                    variant="compact" sortBy={{ index: 0, direction: SortByDirection.asc }} />
             </CardExpandableContent>
         </Card>
     );

@@ -26,50 +26,39 @@ import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 const _ = cockpit.gettext;
 
 export function delete_group_dialog(group) {
-    let dlg = null;
+    const props = {
+        id: "group-confirm-delete-dialog",
+        title: cockpit.format(_("Delete $0 group"), group.name),
+        body: group.userlistPrimary.length > 0
+            ? <Stack hasGutter>
+                <TextContent>
+                    <Text>
+                        {_("This group is the primary group for the following users:")}
+                    </Text>
+                </TextContent>
+                <List>
+                    {group.userlistPrimary.map(account => <ListItem key={account}>{account}</ListItem>)}
+                </List>
+            </Stack>
+            : null
+    };
 
-    function update() {
-        const props = {
-            id: "group-confirm-delete-dialog",
-            title: cockpit.format(_("Delete $0 group"), group.name),
-            body: group.userlistPrimary.length > 0
-                ? <Stack hasGutter>
-                    <TextContent>
-                        <Text>
-                            {_("This group is the primary group for the following users:")}
-                        </Text>
-                    </TextContent>
-                    <List>
-                        {group.userlistPrimary.map(account => <ListItem key={account}>{account}</ListItem>)}
-                    </List>
-                </Stack>
-                : null
-        };
+    const footer = {
+        actions: [
+            {
+                caption: group.userlistPrimary.length > 0 ? _("Force delete") : _("Delete"),
+                style: "danger",
+                clicked: () => {
+                    const prog = ["/usr/sbin/groupdel"];
+                    if (group.userlistPrimary.length > 0)
+                        prog.push("-f");
+                    prog.push(group.name);
 
-        const footer = {
-            actions: [
-                {
-                    caption: group.userlistPrimary.length > 0 ? _("Force delete") : _("Delete"),
-                    style: "danger",
-                    clicked: () => {
-                        const prog = ["/usr/sbin/groupdel"];
-                        if (group.userlistPrimary.length > 0)
-                            prog.push("-f");
-                        prog.push(group.name);
-
-                        return cockpit.spawn(prog, { superuser: "require", err: "message" });
-                    }
+                    return cockpit.spawn(prog, { superuser: "require", err: "message" });
                 }
-            ]
-        };
+            }
+        ]
+    };
 
-        if (!dlg)
-            dlg = show_modal_dialog(props, footer);
-        else {
-            dlg.setProps(props);
-            dlg.setFooterProps(footer);
-        }
-    }
-
-    update();
+    show_modal_dialog(props, footer);
 }

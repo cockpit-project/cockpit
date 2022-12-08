@@ -234,7 +234,7 @@ const getAccountRow = (account, current, groups) => {
         },
     ];
 
-    return { columns };
+    return { columns, props: { key: account.uid } };
 };
 
 const mapGroupsToAccount = (accounts, groups) => {

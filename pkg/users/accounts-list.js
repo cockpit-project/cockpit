@@ -170,7 +170,7 @@ const getGroupRow = (group, accounts) => {
         },
     ];
 
-    return { columns };
+    return { columns, props: { key: group.gid } };
 };
 
 const getAccountRow = (account, current, groups) => {

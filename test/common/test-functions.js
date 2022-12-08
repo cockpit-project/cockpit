@@ -313,5 +313,5 @@ function ph_element_clip(sel) {
 }
 
 function ph_count_animations(sel) {
-    return ph_find(sel).getAnimations({ subtree:true }).length;
+    return ph_find(sel).getAnimations({ subtree: true }).length;
 }

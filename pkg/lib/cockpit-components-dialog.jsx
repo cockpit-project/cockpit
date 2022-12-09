@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import PropTypes from "prop-types";
 import { Alert, Button, Modal, Popover, Spinner, Stack, StackItem } from "@patternfly/react-core";
 import { HelpIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
@@ -268,12 +268,15 @@ export function show_modal_dialog(props, footerProps) {
     const dialogName = 'cockpit_modal_dialog';
     // don't allow nested dialogs, just close whatever is open
     const curElement = document.getElementById(dialogName);
+    let root;
     if (curElement) {
-        ReactDOM.unmountComponentAtNode(curElement);
+        root = createRoot(curElement);
+        root.unmount();
         curElement.remove();
     }
     // create an element to render into
     const rootElement = document.createElement("div");
+    root = createRoot(rootElement);
     rootElement.id = dialogName;
     document.body.appendChild(rootElement);
 
@@ -282,7 +285,7 @@ export function show_modal_dialog(props, footerProps) {
     const closeCallback = function() {
         if (origCallback)
             origCallback.apply(this, arguments);
-        ReactDOM.unmountComponentAtNode(rootElement);
+        root.unmount();
         rootElement.remove();
     };
 
@@ -297,7 +300,7 @@ export function show_modal_dialog(props, footerProps) {
         // the input focus from whatever element has it, which is
         // unpleasant and also disrupts the tests.
         if (rootElement.offsetParent)
-            ReactDOM.render(<Dialog {...dialogObj.props} error={error} />, rootElement);
+            root.render(<Dialog {...dialogObj.props} error={error} />);
     };
     function updateFooterAndRender() {
         if (dialogObj.props === null || dialogObj.props === undefined)

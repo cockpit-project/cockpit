@@ -20,7 +20,7 @@
 import '../lib/patternfly/patternfly-4-cockpit.scss';
 import cockpit from "cockpit";
 import React, { useState } from 'react';
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import {
     Alert, Button,
     Breadcrumb, BreadcrumbItem,
@@ -1077,6 +1077,6 @@ export class Firewall extends React.Component {
 
 document.addEventListener("DOMContentLoaded", () => {
     document.title = cockpit.gettext(document.title);
-
-    ReactDOM.render(<WithDialogs><Firewall /></WithDialogs>, document.getElementById("firewall"));
+    const root = createRoot(document.getElementById("firewall"));
+    root.render(<WithDialogs><Firewall /></WithDialogs>);
 });

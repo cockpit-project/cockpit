@@ -30,6 +30,7 @@ import {
     Page, PageSection,
     Gallery, Text, TextVariants, Breadcrumb, BreadcrumbItem,
     Form, FormGroup, TextInput,
+    Spinner,
     Title, Popover
 } from '@patternfly/react-core';
 import { ExclamationCircleIcon, HelpIcon } from '@patternfly/react-icons';
@@ -171,6 +172,17 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                     get_expire(user).then(setExpiration);
                 })
                 .catch(show_unexpected_error);
+    }
+
+    if (!accounts.length) {
+        return (
+            <EmptyState variant={EmptyStateVariant.small}>
+                <Spinner isSVG size="xl" />
+                <Title headingLevel="h1" size="lg">
+                    {_("Loading...")}
+                </Title>
+            </EmptyState>
+        );
     }
 
     const account = accounts.find(acc => acc.name == user);

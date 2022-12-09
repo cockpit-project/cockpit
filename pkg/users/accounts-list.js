@@ -26,6 +26,7 @@ import {
     Card, CardExpandableContent, CardHeader, CardTitle,
     Dropdown, DropdownItem, DropdownSeparator,
     Flex, FlexItem,
+    HelperText, HelperTextItem,
     KebabToggle, Label,
     Page, PageSection,
     SearchInput, Stack,
@@ -294,7 +295,8 @@ const GroupsList = ({ groups, accounts }) => {
                 }}>
                 <CardTitle className="pf-l-flex pf-m-space-items-sm pf-m-align-items-center">
                     <Text component={TextVariants.h2}>{_("Groups")}</Text>
-                    {!isExpanded && <>
+                    {(!isExpanded && !groups.length) && <HelperText> <HelperTextItem variant="indeterminate">{_("Loading...")}</HelperTextItem></HelperText>}
+                    {(!isExpanded && groups.length > 0) && <>
                         {groups.slice(0, 3)
                                 .map(group => {
                                     const color = group.isAdmin ? "gold" : "cyan";
@@ -314,6 +316,7 @@ const GroupsList = ({ groups, accounts }) => {
                 <ListingTable columns={columns}
                     id="groups-list"
                     rows={ groups.map(a => getGroupRow(a, accounts)) }
+                    loading={ groups.length && accounts.length ? '' : _("Loading...") }
                     sortMethod={sortRows}
                     variant="compact" sortBy={{ index: 2, direction: SortByDirection.asc }} />
             </CardExpandableContent>
@@ -410,6 +413,7 @@ const AccountsList = ({ accounts, current_user, groups }) => {
             <ListingTable columns={columns}
                           id="accounts-list"
                           rows={ filtered_accounts.map(a => getAccountRow(a, current_user === a.name, groups)) }
+                          loading={ filtered_accounts.length ? '' : _("Loading...") }
                           sortMethod={sortRows}
                           emptyComponent={<EmptyStatePanel title={_("No matching results")} icon={SearchIcon} />}
                           variant="compact" sortBy={{ index: 0, direction: SortByDirection.asc }} />

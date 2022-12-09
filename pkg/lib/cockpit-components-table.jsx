@@ -51,6 +51,7 @@ import './cockpit-components-table.scss';
  * - emptyCaptionDetail: extra details to show after emptyCaption if list is empty
  * - emptyComponent: Whole empty state component to show if the list is empty
  * - isEmptyStateInTable: if empty state is result of a filter function this should be set, otherwise false
+ * - loading: Set to string when the content is still loading. This string is shown.
  * - variant: For compact tables pass 'compact'
  * - gridBreakPoint: Specifies the grid breakpoints ('', 'grid' | 'grid-md' | 'grid-lg' | 'grid-xl' | 'grid-2xl')
  * - sortBy: { index: Number, direction: SortByDirection }
@@ -68,6 +69,7 @@ export const ListingTable = ({
     emptyCaptionDetail,
     emptyComponent,
     isEmptyStateInTable = false,
+    loading = '',
     onRowClick,
     onSelect,
     rows: tableRows = [],
@@ -132,6 +134,13 @@ export const ListingTable = ({
             </header>
             : null
     );
+
+    if (loading)
+        return <EmptyState>
+            <EmptyStateBody>
+                {loading}
+            </EmptyStateBody>
+        </EmptyState>;
 
     if (rows == 0) {
         let emptyState = null;

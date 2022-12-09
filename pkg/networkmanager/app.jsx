@@ -18,8 +18,8 @@
  */
 import '../lib/patternfly/patternfly-4-cockpit.scss';
 import cockpit from "cockpit";
-import ReactDOM from "react-dom";
 import React, { useRef } from 'react';
+import { createRoot } from "react-dom/client";
 
 import { Button } from "@patternfly/react-core";
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
@@ -148,7 +148,8 @@ const App = () => {
 
 function init() {
     initDialogs();
-    ReactDOM.render(<App />, document.getElementById("network-page"));
+    const root = createRoot(document.getElementById("network-page"));
+    root.render(<App />);
 }
 
 document.addEventListener("DOMContentLoaded", init);

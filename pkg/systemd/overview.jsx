@@ -22,7 +22,7 @@ import 'polyfills';
 import cockpit from "cockpit";
 
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from "react-dom/client";
 import {
     Page, PageSection, PageSectionVariants,
     Gallery,
@@ -179,7 +179,8 @@ class OverviewPage extends React.Component {
 
 function init() {
     cockpit.translate();
-    ReactDOM.render(<WithDialogs><OverviewPage /></WithDialogs>, document.getElementById("overview"));
+    const root = createRoot(document.getElementById("overview"));
+    root.render(<WithDialogs><OverviewPage /></WithDialogs>);
 }
 
 document.addEventListener("DOMContentLoaded", init);

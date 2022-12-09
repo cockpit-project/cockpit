@@ -859,7 +859,7 @@ class Browser:
             self.click("#toggle-menu")
 
     def layout_is_mobile(self):
-        return self.current_layout["shell_size"][0] < 420
+        return self.current_layout and self.current_layout["shell_size"][0] < 420
 
     def open_superuser_dialog(self):
         if self.layout_is_mobile():

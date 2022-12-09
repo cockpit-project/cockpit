@@ -102,7 +102,7 @@ export const PasswordFormFields = ({
                        id={idPrefix + "-pw1-group"}
                        fieldId={idPrefix + "-pw1"}>
                 <TextInput className="check-passwords" type="password" id={idPrefix + "-pw1"}
-                           autocomplete="new-password" value={password} onChange={onPasswordChanged} />
+                           autoComplete="new-password" value={password} onChange={onPasswordChanged} />
                 <div>
                     <Progress id={idPrefix + "-meter"}
                               className={"ct-password-strength-meter " + variant}
@@ -120,7 +120,7 @@ export const PasswordFormFields = ({
                        validated={error_password_confirm ? "error" : "default"}
                        id={idPrefix + "-pw2-group"}
                        fieldId={idPrefix + "-pw2"}>
-                <TextInput type="password" id={idPrefix + "-pw2"} autocomplete="new-password"
+                <TextInput type="password" id={idPrefix + "-pw2"} autoComplete="new-password"
                            value={passwordConfirm} onChange={value => { setConfirmPassword(value); change("password_confirm", value) }} />
             </FormGroup>}
         </>

@@ -67,8 +67,7 @@ class TestKeys(MachineCase):
 
         # no keys
         login("user", "foobar")
-        b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child", "no authorized public keys")
-        b.wait_js_func("ph_count_check", "#account-authorized-keys-list li.pf-c-data-list__item", 1)
+        b.wait_in_text("#account-authorized-keys", "no authorized public keys")
 
         # add bad
         b.click('#authorized-key-add')
@@ -88,9 +87,7 @@ class TestKeys(MachineCase):
 
         # Not allowed, except on Ubuntu, where we can find out that ~/.ssh doesn't exist, which is shown as "no keys".
         if "ubuntu" not in m.image and "debian" not in m.image:
-            b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child",
-                           "You do not have permission")
-            b.wait_js_func("ph_count_check", "#account-authorized-keys-list li.pf-c-data-list__item", 1)
+            b.wait_in_text("#account-authorized-keys", "You do not have permission")
 
         b.logout()
 
@@ -103,14 +100,12 @@ class TestKeys(MachineCase):
         b.go("#/user")
 
         if "ubuntu" not in m.image and "debian" not in m.image:
-            b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child",
+            b.wait_in_text("#account-authorized-keys",
                            "You do not have permission to view the authorized public keys for this account.")
 
         b.become_superuser()
 
-        b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child",
-                       "no authorized public keys")
-        b.wait_js_func("ph_count_check", "#account-authorized-keys-list li.pf-c-data-list__item", 1)
+        b.wait_in_text("#account-authorized-keys", "no authorized public keys")
 
         # Adding keys sets permissions properly
         b.wait_text("#account-user-name", "user")
@@ -124,26 +119,27 @@ class TestKeys(MachineCase):
         self.assertIn("group::---", perms)
         self.assertIn("other::---", perms)
 
+        b.wait_js_func("ph_count_check", "#account-authorized-keys-list tr", 1)
+
         # Add invalid key directly
         m.write("/home/user/.ssh/authorized_keys", "\nbad\n", append=True)
-        b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:last-child", "Invalid key")
-        b.wait_js_func("ph_count_check", "#account-authorized-keys-list li.pf-c-data-list__item", 2)
+        b.wait_in_text("#account-authorized-keys-list tr:last-child", "Invalid key")
+        b.wait_js_func("ph_count_check", "#account-authorized-keys-list tr", 2)
 
         # Removing the key
-        b.click("#account-authorized-keys-list li.pf-c-data-list__item:last-child button")
-        b.wait_not_in_text("#account-authorized-keys-list li.pf-c-data-list__item:last-child", "Invalid key")
-        b.wait_js_func("ph_count_check", "#account-authorized-keys-list li.pf-c-data-list__item", 1)
+        b.click("#account-authorized-keys-list tr:last-child button")
+        b.wait_not_in_text("#account-authorized-keys", "Invalid key")
+        b.wait_js_func("ph_count_check", "#account-authorized-keys-list tr", 1)
         data = m.execute("cat /home/user/.ssh/authorized_keys")
         self.assertEqual(data, KEY + '\n')
         b.logout()
 
         # User can still see their keys
         login("user", "foobar")
-        b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child", "test-name")
+        b.wait_in_text("#account-authorized-keys-list tr:first-child", "test-name")
 
-        b.click("#account-authorized-keys-list li.pf-c-data-list__item:first-child button")
-        b.wait_in_text("#account-authorized-keys-list li.pf-c-data-list__item:first-child", "no authorized public keys")
-        b.wait_js_func("ph_count_check", "#account-authorized-keys-list li.pf-c-data-list__item", 1)
+        b.click("#account-authorized-keys-list tr:first-child button")
+        b.wait_in_text("#account-authorized-keys", "no authorized public keys")
 
         self.allow_journal_messages('authorized_keys is not a public key file.')
         self.allow_journal_messages('Missing callback called fullpath = /home/user/.ssh/authorized_keys')

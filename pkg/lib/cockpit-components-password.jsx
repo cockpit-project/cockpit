@@ -52,8 +52,8 @@ export const PasswordFormFields = ({
     error_password, error_password_confirm,
     idPrefix, change
 }) => {
-    const [password, setPassword] = useState(initial_password);
-    const [passwordConfirm, setConfirmPassword] = useState(undefined);
+    const [password, setPassword] = useState(initial_password || "");
+    const [passwordConfirm, setConfirmPassword] = useState("");
     const [passwordStrength, setPasswordStrength] = useState("");
     const [passwordMessage, setPasswordMessage] = useState("");
 

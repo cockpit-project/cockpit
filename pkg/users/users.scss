@@ -29,54 +29,6 @@
   padding: var(--pf-global--gutter);
 }
 
-#accounts-list {
-  --ct-account-pic-size: 3rem;
-}
-
-@media (max-width: 640px) {
-  #accounts-list {
-    --ct-account-pic-size: 0;
-  }
-}
-
-.cockpit-account {
-  display: grid;
-  grid-template-areas: "pic name"
-    "pic account";
-  grid-template-columns: var(--ct-account-pic-size) 1fr;
-  grid-gap: 0 0.25rem;
-  min-height: 4rem;
-  padding: 0.5rem;
-}
-
-.cockpit-account > .cockpit-account-pic {
-  font-size: var(--ct-account-pic-size);
-  color: #bebebe;
-  grid-area: pic;
-}
-
-.cockpit-account > .cockpit-account-real-name {
-  font-weight: bold;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  grid-area: name;
-}
-
-.cockpit-account > .cockpit-account-user-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  grid-area: account;
-  outline: none;
-  align-self: end;
-  display: flex;
-  justify-content: space-between;
-
-  > a {
-    margin-right: 0.5rem;
-  }
-}
-
 .delete-resource-red {
   color: var(--pf-global--danger-color--200);
 }
@@ -87,16 +39,6 @@
 
 #account-details div.checkbox:last-child {
   margin-bottom: 0;
-}
-
-#account-pic {
-  background: #d3d7cf;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.align-top {
-  vertical-align: top;
 }
 
 .size-text-ct {

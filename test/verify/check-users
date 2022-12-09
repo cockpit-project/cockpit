@@ -206,6 +206,7 @@ class TestAccounts(MachineCase):
         # Unlock it and make it an admin
         b.go("#/jussi")
         b.wait_text("#account-user-name", "jussi")
+        b.wait_visible("#account-locked:checked")
         b.set_checked('#account-locked', False)
         b.wait(lambda: not is_locked())
         b.wait_visible(admin_role_sel + ":not(:checked)")

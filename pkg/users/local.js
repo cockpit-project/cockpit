@@ -50,20 +50,19 @@ function AccountsPage() {
         return handle.close;
     }, [path, accounts, shadow]);
 
-    if (!accounts || !groups || !current_user_info || !details)
-        return null;
-
     // lastlog uses same sorting as /etc/passwd therefore arrays can be combined based on index
-    const accountsInfo = accounts.map((account, i) => {
-        return Object.assign({}, account, details[i]);
-    });
+    let accountsInfo = [];
+    if (accounts && details)
+        accountsInfo = accounts.map((account, i) => {
+            return Object.assign({}, account, details[i]);
+        });
 
     if (path.length === 0) {
-        return <AccountsMain accountsInfo={accountsInfo} current_user={current_user_info.name} groups={groups} />;
+        return <AccountsMain accountsInfo={accountsInfo} current_user={current_user_info && current_user_info.name} groups={groups || []} />;
     } else
         return (
-            <AccountDetails accounts={accountsInfo} groups={groups} shadow={shadow}
-                            current_user={current_user_info.name} user={path[0]} />
+            <AccountDetails accounts={accountsInfo} groups={groups || []} shadow={shadow || []}
+                            current_user={current_user_info && current_user_info.name} user={path[0]} />
         );
 }
 

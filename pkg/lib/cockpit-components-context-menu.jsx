@@ -33,37 +33,48 @@ const _ = cockpit.gettext;
  *  - setText, method which is called when paste is clicked
  *  - parentId, area in which it listens to left button clicks
  */
-export class ContextMenu extends React.Component {
-    constructor() {
-        super();
-        this.state = { visible: false };
-        this._handleContextMenu = this._handleContextMenu.bind(this);
-        this._handleClick = this._handleClick.bind(this);
-    }
+export const ContextMenu = ({ parentId, getText, setText }) => {
+    const [visible, setVisible] = React.useState(false);
+    const [event, setEvent] = React.useState(null);
+    const root = React.useRef(null);
 
-    componentDidMount() {
-        const parent = document.getElementById(this.props.parentId);
-        parent.addEventListener('contextmenu', this._handleContextMenu);
-        document.addEventListener('click', this._handleClick);
-    }
+    React.useEffect(() => {
+        const _handleContextMenu = (event) => {
+            event.preventDefault();
 
-    componentWillUnmount() {
-        const parent = document.getElementById(this.props.parentId);
-        parent.removeEventListener('contextmenu', this._handleContextMenu);
-        document.removeEventListener('click', this._handleClick);
-    }
+            setVisible(true);
+            setEvent(event);
+        };
 
-    _handleContextMenu(event) {
-        event.preventDefault();
+        const _handleClick = (event) => {
+            if (event && event.button === 0) {
+                const wasOutside = !(event.target.contains === root.current);
 
-        this.setState({ visible: true });
+                if (wasOutside)
+                    setVisible(false);
+            }
+        };
+
+        const parent = document.getElementById(parentId);
+        parent.addEventListener('contextmenu', _handleContextMenu);
+        document.addEventListener('click', _handleClick);
+
+        return () => {
+            parent.removeEventListener('contextmenu', _handleContextMenu);
+            document.removeEventListener('click', _handleClick);
+        };
+    }, [parentId]);
+
+    React.useEffect(() => {
+        if (!event)
+            return;
 
         const clickX = event.clientX;
         const clickY = event.clientY;
         const screenW = window.innerWidth;
         const screenH = window.innerHeight;
-        const rootW = this.root.offsetWidth;
-        const rootH = this.root.offsetHeight;
+        const rootW = root.current.offsetWidth;
+        const rootH = root.current.offsetHeight;
 
         const right = (screenW - clickX) > rootW;
         const left = !right;
@@ -71,45 +82,34 @@ export class ContextMenu extends React.Component {
         const bottom = !top;
 
         if (right) {
-            this.root.style.left = `${clickX + 5}px`;
+            root.current.style.left = `${clickX + 5}px`;
         }
 
         if (left) {
-            this.root.style.left = `${clickX - rootW - 5}px`;
+            root.current.style.left = `${clickX - rootW - 5}px`;
         }
 
         if (top) {
-            this.root.style.top = `${clickY + 5}px`;
+            root.current.style.top = `${clickY + 5}px`;
         }
 
         if (bottom) {
-            this.root.style.top = `${clickY - rootH - 5}px`;
+            root.current.style.top = `${clickY - rootH - 5}px`;
         }
-    }
+    }, [event]);
 
-    _handleClick(event) {
-        if (event && event.button === 0) {
-            const wasOutside = !(event.target.contains === this.root);
-
-            if (wasOutside && this.state.visible)
-                this.setState({ visible: false });
-        }
-    }
-
-    render() {
-        return this.state.visible &&
-            <div ref={ ref => { this.root = ref } } className="contextMenu">
-                <button className="contextMenuOption" onClick={this.props.getText}>
-                    <div className="contextMenuName"> { _("Copy") } </div>
-                    <div className="contextMenuShortcut">{ _("Ctrl+Insert") }</div>
-                </button>
-                <button className="contextMenuOption" onClick={this.props.setText}>
-                    <div className="contextMenuName"> { _("Paste") } </div>
-                    <div className="contextMenuShortcut">{ _("Shift+Insert") }</div>
-                </button>
-            </div>;
-    }
-}
+    return visible &&
+        <div ref={root} className="contextMenu">
+            <button className="contextMenuOption" onClick={getText}>
+                <div className="contextMenuName"> { _("Copy") } </div>
+                <div className="contextMenuShortcut">{ _("Ctrl+Insert") }</div>
+            </button>
+            <button className="contextMenuOption" onClick={setText}>
+                <div className="contextMenuName"> { _("Paste") } </div>
+                <div className="contextMenuShortcut">{ _("Shift+Insert") }</div>
+            </button>
+        </div>;
+};
 
 ContextMenu.propTypes = {
     getText: PropTypes.func.isRequired,

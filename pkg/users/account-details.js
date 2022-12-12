@@ -27,6 +27,7 @@ import {
     Card, CardBody, CardHeader, CardTitle, CardActions,
     EmptyState, EmptyStateVariant, EmptyStateIcon, EmptyStateSecondaryActions,
     Flex,
+    HelperText, HelperTextItem,
     Label, LabelGroup,
     Page, PageSection,
     Gallery, Select, SelectOption, SelectVariant, Text, TextVariants, Breadcrumb, BreadcrumbItem,
@@ -34,7 +35,7 @@ import {
     Spinner,
     Title, Popover
 } from '@patternfly/react-core';
-import { ExclamationCircleIcon, HelpIcon } from '@patternfly/react-icons';
+import { ExclamationCircleIcon, HelpIcon, UndoIcon } from '@patternfly/react-icons';
 import { show_unexpected_error } from "./dialog-utils.js";
 import { delete_account_dialog } from "./delete-account-dialog.js";
 import { account_expiration_dialog, password_expiration_dialog } from "./expiration-dialogs.js";
@@ -269,7 +270,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                                 <FormGroup fieldId="account-user-name" hasNoPaddingTop label={_("User name")}>
                                     <output id="account-user-name">{account.name}</output>
                                 </FormGroup>
-                                <AccountGroupsSelect key={account.name} name={account.name} groups={groups} />
+                                <AccountGroupsSelect key={account.name} loggedIn={account.loggedIn} name={account.name} groups={groups} />
                                 <FormGroup fieldId="account-last-login" hasNoPaddingTop label={_("Last login")}>
                                     <output id="account-last-login">{last_login}</output>
                                 </FormGroup>
@@ -347,11 +348,11 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
     );
 }
 
-export const AccountGroupsSelect = ({ name, groups, setError }) => {
+export const AccountGroupsSelect = ({ name, loggedIn, groups, setError }) => {
     const [isOpenGroup, setIsOpenGroup] = useState(false);
     const [selected, setSelected] = useState();
-    const [validated, setValidated] = useState('default');
     const [primaryGroupName, setPrimaryGroupName] = useState();
+    const [history, setHistory] = useState([]);
     const previousValue = useRef(null);
 
     useEffect(() => {
@@ -362,20 +363,24 @@ export const AccountGroupsSelect = ({ name, groups, setError }) => {
         if (primaryGroup)
             _selected.push(_primaryGroupName);
 
-        const items_diff = previousValue.current
-            ? _selected
-                    .filter(x => !previousValue.current.includes(x))
-                    .concat(previousValue.current.filter(x => !_selected.includes(x)))
-            : [];
-        const validated = items_diff.length ? 'warning' : 'default';
         previousValue.current = _selected;
-
-        setValidated(validated);
         setSelected(_selected);
         setPrimaryGroupName(_primaryGroupName);
-    }, [groups, setSelected, name, previousValue, setValidated]);
+    }, [groups, setSelected, name, previousValue]);
 
-    const removeGroup = group => {
+    const undoGroupChanges = () => {
+        const undoItem = history[history.length - 1];
+        if (undoItem.type === 'added') {
+            removeGroup(undoItem.name, true).then(() => setHistory(history.slice(0, -1)));
+        } else if (undoItem.type === 'removed') {
+            addGroup(undoItem.name, true).then(() => setHistory(history.slice(0, -1)));
+        }
+    };
+
+    const removeGroup = (group, isUndo) => {
+        if (!isUndo)
+            setHistory([...history, { type: 'removed', name: group }]);
+
         return cockpit.spawn(["/usr/bin/gpasswd", "-d", name, group], { superuser: "require", err: "message" })
                 .then(() => {
                     setSelected(selected.filter(item => item !== group));
@@ -385,7 +390,10 @@ export const AccountGroupsSelect = ({ name, groups, setError }) => {
                 });
     };
 
-    const addGroup = group => {
+    const addGroup = (group, isUndo) => {
+        if (!isUndo)
+            setHistory([...history, { type: 'added', name: group }]);
+
         return cockpit.spawn(["/usr/sbin/usermod", "-a", "-G", group, name], { superuser: "require", err: "message" })
                 .then(() => {
                     setSelected([...selected, group]);
@@ -425,10 +433,19 @@ export const AccountGroupsSelect = ({ name, groups, setError }) => {
     return (
         <FormGroup
             fieldId="account-groups"
-            helperText={validated == 'warning' ? _("The user must log out and log back in for the new configuration to take effect.") : ''}
+            helperText={
+                (history.length > 0)
+                    ? <HelperText className="pf-c-form__helper-text">
+                        <Flex>
+                            {loggedIn && <HelperTextItem id="account-groups-helper" variant="warning">{_("The user must log out and log back in for the new configuration to take effect.")}</HelperTextItem>}
+                            {history.length > 0 && <Button variant="link" id="group-undo-btn" isInline icon={<UndoIcon />} onClick={undoGroupChanges}>{_("Undo")}</Button>}
+                        </Flex>
+                    </HelperText>
+                    : ''
+            }
             id="account-groups-form-group"
             label={_("Groups")}
-            validated={validated}
+            validated={history.length > 0 ? "warning" : "default"}
         >
             {superuser.allowed
                 ? <Select

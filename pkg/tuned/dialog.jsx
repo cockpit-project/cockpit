@@ -177,7 +177,7 @@ const TunedDialog = ({
                     /* Yup this is how tuned returns failures */
                         if (!results[0]) {
                             console.warn("Failed to disable tuned profile:", results);
-                            return Promise.reject(_("Failed to disabled tuned profile"));
+                            return Promise.reject(_("Failed to disable tuned profile"));
                         }
 
                         updateButton();

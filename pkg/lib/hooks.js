@@ -18,7 +18,7 @@
  */
 
 import cockpit from 'cockpit';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useReducer } from 'react';
 import deep_equal from "deep-equal";
 
 /* HOOKS
@@ -286,15 +286,16 @@ export function useObject(create, destroy, deps, comps) {
  */
 
 export function useEvent(obj, event, handler) {
-    // We toggle a (otherwise unused) state boolean whenever the event
+    // We increase a (otherwise unused) state variable whenever the event
     // happens.  That reliably triggers a re-render.
 
-    const [, setToggler] = useState(false);
+    const [, forceUpdate] = useReducer(x => x + 1, 0);
+
     useEffect(() => {
         function update() {
             if (handler)
                 handler.apply(null, arguments);
-            setToggler(toggle => !toggle);
+            forceUpdate();
         }
 
         obj && obj.addEventListener(event, update);

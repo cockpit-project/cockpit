@@ -410,7 +410,7 @@ const TextFilter = ({ textFilter, onTextFilterChange, filteredQuery }) => {
                                      target="blank" rel="noopener noreferrer">
                              {_("journalctl manpage")}
                          </Button>
-                         <ClipboardCopy clickTip={_("Successfully copied to keyboard")}
+                         <ClipboardCopy clickTip={_("Successfully copied to clipboard")}
                                             isReadOnly
                                             hoverTip={_("Copy to clipboard")}
                                             id="journal-cmd-copy"

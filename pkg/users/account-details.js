@@ -394,7 +394,7 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups, setError }) => {
         if (!isUndo)
             setHistory([...history, { type: 'added', name: group }]);
 
-        return cockpit.spawn(["/usr/sbin/usermod", "-a", "-G", group, name], { superuser: "require", err: "message" })
+        return cockpit.spawn(["/usr/bin/gpasswd", "-a", name, group], { superuser: "require", err: "message" })
                 .then(() => {
                     setSelected([...selected, group]);
                     setIsOpenGroup(false);

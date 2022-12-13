@@ -534,7 +534,7 @@ class CurrentMetrics extends React.Component {
 
         const topServicesMemory = n_biggest(this.cgroupMemoryNames, this.samples[10], 5);
         newState.topServicesMemory = topServicesMemory.map(
-            ([key, value, is_user, is_container, userid]) => cgroupRow(key, cockpit.format_bytes(value), is_user, is_container)
+            ([key, value, is_user, is_container, userid]) => cgroupRow(key, cockpit.format_bytes(value), is_user, is_container, userid)
         );
 
         const notMappedContainers = topServicesMemory.concat(topServicesCPU).filter(([key, value, is_user, is_container, userid]) => is_container && getCachedPodName(userid, key) === undefined);

@@ -804,9 +804,7 @@ class TestCurrentMetrics(MachineCase):
         # libpod-$containerid but as podman-3679.scope.
         if m.image != "centos-8-stream" and not m.image.startswith("rhel-8"):
             # copy images for user podman tests; podman insists on user session
-            m.execute("""
-podman save quay.io/libpod/busybox | sudo -i -u admin podman load
-            """)
+            m.execute("podman save quay.io/libpod/busybox | sudo -i -u admin podman load")
 
             # Test user containers
             admin_s = ssh_connection.SSHConnection(user="admin",
@@ -1025,6 +1023,42 @@ BEGIN {{
             m.execute("systemctl stop mem-hog")
 
         m.execute("rm /tmp/hogged")
+
+        # Test Podman containers
+        container_name = "pod-mem-hog"
+        # pipe to tail to keep the data in memory
+        m.execute(f"""
+            podman run --rm -d --name {container_name} quay.io/libpod/busybox /bin/sh -c '
+            head -c 300m /dev/zero | tail | sleep infinity'""")
+
+        # It takes one re-render for the name lookup
+        with b.wait_timeout(30):
+            b.wait_text("table[aria-label='Top 5 memory services'] tbody tr:nth-of-type(1) td[data-label='Service']", f"pod {container_name}")
+
+        m.execute(f"podman stop -t 0 {container_name}")
+
+        # RHEL-8 / CentOS-8's podman user containers do not show up as
+        # libpod-$containerid but as podman-3679.scope.
+        if m.image != "centos-8-stream" and not m.image.startswith("rhel-8"):
+            # copy images for user podman tests; podman insists on user session
+            m.execute("podman save quay.io/libpod/busybox | sudo -i -u admin podman load")
+
+            # Test user containers
+            admin_s = ssh_connection.SSHConnection(user="admin",
+                                                   address=m.ssh_address,
+                                                   ssh_port=m.ssh_port,
+                                                   identity_file=m.identity_file)
+            user_container_name = "user-mem-hog"
+            admin_s.execute(f"""
+                podman run --rm -d --name {user_container_name} quay.io/libpod/busybox /bin/sh -c '
+                head -c 300m /dev/zero | tail | sleep infinity'
+            """)
+
+            # It takes one re-render for the name lookup
+            with b.wait_timeout(30):
+                b.wait_text("table[aria-label='Top 5 memory services'] tbody tr:nth-of-type(2) td[data-label='Service']", f"pod {user_container_name}")
+
+            admin_s.execute(f"podman stop -t 0 {user_container_name}")
 
         # Test link to user services
         # older releases don't have memory accounting enabled for user services

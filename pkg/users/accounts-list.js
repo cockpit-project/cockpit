@@ -152,14 +152,16 @@ const getGroupRow = (group, accounts) => {
         {
             title: (
                 <TextContent>
-                    {(group.userlistPrimary.concat(group.userlist)).map((account, idx) => {
-                        const comma = idx !== group.userlistPrimary.length + group.userlist.length - 1 ? ', ' : '';
+                    <Text component={TextVariants.p}>
+                        {(group.userlistPrimary.concat(group.userlist)).map((account, idx) => {
+                            const comma = idx !== group.userlistPrimary.length + group.userlist.length - 1 ? ', ' : '';
 
-                        if (accounts.map(account => account.name).includes(account))
-                            return <Text key={account} component={TextVariants.a} href={"#" + account}>{account}{comma}</Text>;
-                        else
-                            return <Text key={account}>{account + comma}</Text>;
-                    })}
+                            if (accounts.map(account => account.name).includes(account))
+                                return <Text key={account} component={TextVariants.a} href={"#" + account}>{account}{comma}</Text>;
+                            else
+                                return account + comma;
+                        })}
+                    </Text>
                 </TextContent>
             ),
             props: { width: 60, },

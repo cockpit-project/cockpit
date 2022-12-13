@@ -33,8 +33,6 @@ import client from "./client.js";
 import { dialog_open } from "./dialog.jsx";
 import { fmt_to_fragments } from "utils.jsx";
 
-import '@patternfly/react-styles/css/components/Progress/progress.css';
-
 const _ = cockpit.gettext;
 
 /* StorageControl - a button or similar that triggers

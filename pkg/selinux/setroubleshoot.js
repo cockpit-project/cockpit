@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
 import '../lib/patternfly/patternfly-4-cockpit.scss';
 
@@ -150,8 +150,10 @@ const initStore = function(rootElement) {
     };
 
     const render = function() {
+        if (!dataStore.reactRoot)
+            dataStore.reactRoot = createRoot(rootElement);
         const enableDeleteAlert = ('capabilities' in dataStore.client && 'deleteAlert' in dataStore.client.capabilities);
-        ReactDOM.render(React.createElement(SETroubleshootPage, {
+        dataStore.reactRoot.render(React.createElement(SETroubleshootPage, {
             connected: dataStore.connected,
             connecting: dataStore.connecting,
             error: dataStore.error,
@@ -163,7 +165,7 @@ const initStore = function(rootElement) {
             selinuxStatusError: dataStore.selinuxStatusError,
             changeSelinuxMode: selinuxChangeMode,
             dismissStatusError: selinuxStatusDismissError,
-        }), rootElement);
+        }));
     };
     dataStore.render = render;
 

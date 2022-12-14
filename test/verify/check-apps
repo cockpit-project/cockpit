@@ -19,7 +19,7 @@
 
 import parent  # noqa: F401
 from packagelib import PackageCase
-from testlib import skipImage, skipPackage, test_main
+from testlib import skipImage, skipPackage, todoPybridge, test_main
 
 
 @skipImage("TODO: bug in refreshing removed/installed state on Arch Linux", "arch")
@@ -78,6 +78,7 @@ class TestApps(PackageCase):
         # ignore the corresponding journal entry
         self.allow_journal_messages("org.freedesktop.PackageKit.*org.freedesktop.DBus.Error.NoReply.*")
 
+    @todoPybridge()
     def testBasic(self, urlroot=""):
         b = self.browser
         m = self.machine
@@ -125,9 +126,11 @@ class TestApps(PackageCase):
         b.wait_visible(f".app-list .pf-c-data-list__item-row:contains('app-1') img[src^='{urlroot}/cockpit/channel/']")
         m.execute("! test -f /stamp-app-1-1.0-1")
 
+    @todoPybridge()
     def testWithUrlRoot(self):
         self.testBasic(urlroot="/webcon")
 
+    @todoPybridge()
     def testL10N(self):
         b = self.browser
         m = self.machine

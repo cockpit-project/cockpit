@@ -20,13 +20,14 @@
 import parent  # noqa: F401
 import json
 from netlib import NetworkCase
-from testlib import nondestructive, skipDistroPackage, skipImage, test_main
+from testlib import nondestructive, skipDistroPackage, skipImage, todoPybridge, test_main
 
 
 @skipImage("NetworkManager-team not installed", "fedora-coreos")
 @skipImage("TODO: networkmanager fails on Arch Linux", "arch")
 @skipDistroPackage()
 @nondestructive
+@todoPybridge()
 class TestTeam(NetworkCase):
     def testBasic(self):
         b = self.browser

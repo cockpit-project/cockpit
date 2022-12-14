@@ -19,12 +19,13 @@
 
 import parent  # noqa: F401
 from netlib import NetworkCase
-from testlib import skipDistroPackage, test_main
+from testlib import skipDistroPackage, todoPybridge, test_main
 
 from lib.constants import TEST_OS_DEFAULT
 
 
 @skipDistroPackage()
+@todoPybridge()
 class TestNetworkingMAC(NetworkCase):
     provision = {
         "machine1": {"memory_mb": 512},

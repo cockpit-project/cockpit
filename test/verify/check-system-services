@@ -17,10 +17,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import time
+import unittest
+
 import parent  # noqa: F401
 import testvm
-from testlib import MachineCase, nondestructive, skipDistroPackage, test_main, wait
+from testlib import MachineCase, nondestructive, skipDistroPackage, todoPybridge, test_main, wait
 
 
 @nondestructive
@@ -171,9 +174,11 @@ done
             "su - admin -c 'export XDG_RUNTIME_DIR=/run/user/$(id -u admin); "
             "for op in stop reset-failed disable; do systemctl --user $op test test-fail || true; done'")
 
+    @todoPybridge()
     def testBasic(self):
         self._testBasic()
 
+    @todoPybridge()
     def testBasicSession(self):
         self._testBasic(True)
 
@@ -1107,6 +1112,8 @@ class TestTimers(MachineCase):
     def wait_page_load(self):
         self.browser.wait_not_present(".pf-c-empty-state .pf-c-spinner[aria-valuetext='Loading...']")
 
+    @unittest.skipIf(os.getenv("TEST_SCENARIO") == "pybridge",
+                     "pybridge logs are too messy to catch with expected message filters")
     def testCreate(self):
         m = self.machine
         b = self.browser

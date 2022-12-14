@@ -18,7 +18,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent  # noqa: F401
-from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, test_main
+from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, todoPybridge, test_main
 import time
 
 sleep_crash_list_sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('(sleep) crashed in')"
@@ -525,6 +525,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
                "ubuntu-2204", "fedora-coreos", "rhel-8-7", "rhel-8-8", "rhel-9-1", "rhel-9-2", "centos-8-stream",
                "arch")
     @nondestructive
+    @todoPybridge()
     def testAbrtSegv(self):
         b = self.browser
         m = self.machine
@@ -559,6 +560,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
                "ubuntu-2204", "fedora-coreos", "rhel-8-7", "rhel-8-8", "rhel-9-1", "rhel-9-2", "centos-8-stream",
                "arch")
     @nondestructive
+    @todoPybridge()
     def testAbrtDelete(self):
         b = self.browser
         m = self.machine
@@ -591,6 +593,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
                "ubuntu-2204", "fedora-coreos", "rhel-8-7", "rhel-8-8", "rhel-9-1", "rhel-9-2", "centos-8-stream",
                "arch")
     @nondestructive
+    @todoPybridge()
     def testAbrtReport(self):
         # The testing server is located at verify/files/mock-faf-server.py
         # Adjust Handler.known for for the expected succession of known/unknown problems
@@ -656,6 +659,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
                "ubuntu-2204", "fedora-coreos", "rhel-8-7", "rhel-8-8", "rhel-9-1", "rhel-9-2", "centos-8-stream",
                "arch")
     @nondestructive
+    @todoPybridge()
     def testAbrtReportCancel(self):
         b = self.browser
         m = self.machine
@@ -692,6 +696,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
                "ubuntu-2204", "fedora-coreos", "rhel-8-7", "rhel-8-8", "rhel-9-1", "rhel-9-2", "centos-8-stream",
                "arch")
     @nondestructive
+    @todoPybridge()
     def testAbrtReportNoReportd(self):
         b = self.browser
         m = self.machine

@@ -10,7 +10,7 @@ import time
 import parent  # noqa: F401
 import packagelib
 from testlib import (Browser, Error, MachineCase, nondestructive, skipDistroPackage, skipImage,
-                     skipMobile, test_main, wait)
+                     skipMobile, todoPybridge, test_main, wait)
 
 from machine_core import ssh_connection
 from lib.constants import TEST_OS_DEFAULT
@@ -157,6 +157,7 @@ class TestHistoryMetrics(MachineCase):
         self.assertLessEqual(leading_empty, 4)
 
     @skipImage("no PCP support", "fedora-coreos")
+    @todoPybridge()
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -205,6 +206,7 @@ class TestHistoryMetrics(MachineCase):
         b.wait_visible('.system-information')
 
     @skipImage("no PCP support", "fedora-coreos")
+    @todoPybridge()
     def testEvents(self):
         b = self.browser
         m = self.machine
@@ -455,6 +457,7 @@ class TestHistoryMetrics(MachineCase):
 
     @nondestructive
     @skipImage("no PCP support", "fedora-coreos")
+    @todoPybridge()
     def testNoDataEnable(self):
         b = self.browser
         m = self.machine
@@ -552,6 +555,7 @@ class TestHistoryMetrics(MachineCase):
     @nondestructive
     @skipImage("TODO: pm proxy alert doesn't show on Arch Linux", "arch")
     @skipImage("no PCP support", "fedora-coreos")
+    @todoPybridge()
     def testPmProxySettings(self):
         b = self.browser
         m = self.machine
@@ -731,6 +735,7 @@ class TestCurrentMetrics(MachineCase):
                                               "systemctl --user stop cockpittest.slice 2>/dev/null || true'")
         login(self)
 
+    @todoPybridge()
     def testCPU(self):
         b = self.browser
         m = self.machine
@@ -1071,6 +1076,7 @@ BEGIN {{
             b.enter_page("/system/services")
             b.wait_in_text(".service-name", "memhog.sh")
 
+    @todoPybridge()
     def testDiskIO(self):
         b = self.browser
         m = self.machine
@@ -1197,6 +1203,7 @@ BEGIN {{
 @skipImage("TODO: Arch Linux packagekit support", "arch")
 @skipDistroPackage()
 class TestMetricsPackages(packagelib.PackageCase):
+    @todoPybridge()
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -1315,6 +1322,7 @@ class TestMultiCPU(MachineCase):
     }
 
     @skipImage("no PCP support", "fedora-coreos")
+    @todoPybridge()
     def testCPUUsage(self):
         b = self.browser
         m = self.machine

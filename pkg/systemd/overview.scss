@@ -140,11 +140,23 @@
   .pf-m-compact {
     th, td {
       &:first-child {
-        padding-left: 0;
+        :not([dir="rtl"]) & {
+          padding-left: 0;
+        }
+
+        [dir="rtl"] & {
+          padding-right: 0;
+        }
       }
 
       &:last-child {
-        padding-right: 0;
+        :not([dir="rtl"]) & {
+          padding-right: 0;
+        }
+
+        [dir="rtl"] & {
+          padding-left: 0;
+        }
       }
     }
   }

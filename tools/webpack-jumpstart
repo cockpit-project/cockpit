@@ -104,6 +104,10 @@ if test -n "${partial}"; then
             tag="sha-${commit}"
             break
         fi
+        if git show --oneline --name-only "$commit" | grep -q '^node_modules'; then
+            echo "commit $commit changes node_modules" >&2
+            break
+        fi
     done
     if [ -z "${tag}" ]; then
         echo "Unable to find any suitable commit" >&2

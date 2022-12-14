@@ -40,7 +40,9 @@ const LogDetails = ({ entry }) => {
     general.sort();
 
     const id = entry.PROBLEM_BINARY || entry.UNIT || entry.SYSLOG_IDENTIFIER || "";
-    let service = entry.UNIT || entry.COREDUMP_UNIT || entry._SYSTEMD_UNIT || "";
+    let service = entry.USER_UNIT || entry.COREDUMP_USER_UNIT || entry._SYSTEMD_USER_UNIT || "";
+    const is_user = !!service;
+    service = service || entry.UNIT || entry.COREDUMP_UNIT || entry._SYSTEMD_UNIT || "";
 
     // Only show redirect for unit types we show
     if (["service", "target", "socket", "timer", "path"].indexOf(service.split(".").slice(-1)[0]) === -1)
@@ -55,7 +57,7 @@ const LogDetails = ({ entry }) => {
                     </CardHeaderMain>
                     { service &&
                         <CardActions>
-                            <Button variant="link" onClick={() => cockpit.jump("/system/services#/" + service) }>
+                            <Button variant="link" onClick={() => cockpit.jump("/system/services#/" + service + (is_user ? "?owner=user" : "")) }>
                                 {cockpit.format(_("Go to $0"), service)}
                             </Button>
                         </CardActions>

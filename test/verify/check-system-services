@@ -45,6 +45,7 @@ class TestServices(MachineCase):
         user_post_restore = "su - admin -c 'export XDG_RUNTIME_DIR=/run/user/$(id -u admin); systemctl --user daemon-reload; systemctl --user reset-failed'"
         self.restore_dir("/etc/systemd/user", user_post_restore, True)
         self.restore_dir("/etc/xdg/systemd/user", user_post_restore, True)
+        self.restore_dir("/home/admin/.config", user_post_restore, True)
 
         # FIXME: this page is too slow
         self.browser.wait_timeout(60)
@@ -153,7 +154,12 @@ WantedBy=default.target
 set -eu
 trap "echo STOP" 0
 
-journalctl --sync
+if [ $(id -u) -eq 0 ]; then
+    journalctl --sync
+else
+    # increase the chance for journal to catch up
+    sleep 5
+fi
 echo START
 while true; do
   sleep 5
@@ -165,7 +171,7 @@ done
         self.run_systemctl(True, "daemon-reload || true")
 
         # When the test fails while `test.service` is active, the process keeps running and
-        # `systemct status test.service` still shows it as active until this process dies
+        # `systemctl status test.service` still shows it as active until this process dies
         self.addCleanup(
             self.machine.execute,
             "for op in stop reset-failed disable; do systemctl $op test test-fail || true; done")
@@ -587,10 +593,7 @@ WantedBy=default.target
 
         # Check that journalbox shows empty state
         self.goto_service("systemd-exit.service")
-        if not user:
-            b.wait_text('.cockpit-log-panel .pf-c-card__body', "No log entries")
-        else:
-            b.wait_not_present('.cockpit-log-panel')
+        b.wait_text('.cockpit-log-panel .pf-c-card__body', "No log entries")
         b.wait_not_present("button:contains('View all logs')")
 
         b.go(f'/system/services#/{suffix}')
@@ -639,16 +642,29 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
             b.wait_js_cond(f"window.location.hash === '#/{suffix}'")
 
     def testLogs(self):
+        self._testLogs(False)
+
+    def testLogsUser(self):
+        self._testLogs(True)
+
+    def _testLogs(self, user=False):
         b = self.browser
+        service_type = "user-service" if user else "service"
 
-        self.make_test_service()
+        def append_user(url):
+            if user:
+                return url + ("" if "#/" in url else "#/") + "?owner=user"
+            return url
 
-        self.login_and_go("/system/services")
+        self.make_test_service("/etc/systemd/user" if user else "/etc/systemd/system")
+
+        self.login_and_go(append_user("/system/services"))
         self.wait_page_load()
 
         # Check test.service and then start it
         self.goto_service("test.service")
         self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Pin unit"], False)
+        b.wait_text('.cockpit-log-panel .pf-c-card__body', "No log entries")
         self.toggle_onoff()
         self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)", "Pin unit"], True)
         b.wait_in_text('.cockpit-log-panel .pf-c-card__body', "START")
@@ -659,8 +675,8 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
         b.wait_in_text("#journal-box .cockpit-log-panel > div:nth-child(2)", "WORKING")
         t = b.text("#journal-box .cockpit-log-panel > div:nth-child(3)") + b.text("#journal-box .cockpit-log-panel > div:nth-child(4)")
         self.assertIn("START", t)
-        b.wait_val("#journal-grep input", "priority:debug service:test.service ")
-        b.go("/system/services#test.service")
+        b.wait_val("#journal-grep input", f"priority:debug {service_type}:test.service ")
+        b.go(append_user("/system/services#/test.service"))
         b.enter_page("/system/services")
 
         b.wait_in_text(".cockpit-logline:nth-child(2)", "WORKING")
@@ -668,8 +684,8 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
         b.enter_page("/system/logs")
         b.wait_text(".pf-c-card__title", "WORKING")
         b.click(".pf-c-breadcrumb li:contains('Logs')")
-        b.wait_val("#journal-grep input", "priority:debug service:test.service ")
-        b.go("/system/services#test.service")
+        b.wait_val("#journal-grep input", f"priority:debug {service_type}:test.service ")
+        b.go(append_user("/system/services#/test.service"))
         b.enter_page("/system/services")
 
         b.wait_in_text(".cockpit-logline:nth-child(2)", "WORKING")
@@ -677,7 +693,7 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
         b.enter_page("/system/logs")
         b.click("button:contains('Go to test.service')")
         b.enter_page("/system/services")
-        b.wait_js_cond('window.location.hash === "#/test.service"')
+        b.wait_js_cond('window.location.hash === "' + append_user("#/test.service") + '"')
 
     def testApi(self):
         b = self.browser

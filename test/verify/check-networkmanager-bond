@@ -19,13 +19,14 @@
 
 import parent  # noqa: F401
 from netlib import NetworkCase
-from testlib import nondestructive, skipDistroPackage, skipImage, test_main, wait
+from testlib import nondestructive, skipDistroPackage, skipImage, todoPybridge, test_main, wait
 
 from lib.constants import TEST_OS_DEFAULT
 
 
 @nondestructive
 @skipDistroPackage()
+@todoPybridge()
 class TestBonding(NetworkCase):
     def testBasic(self):
         b = self.browser
@@ -261,6 +262,7 @@ class TestBonding(NetworkCase):
 
 
 @skipDistroPackage()
+@todoPybridge()
 class TestBondingVirt(NetworkCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "memory_mb": 512},

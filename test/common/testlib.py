@@ -76,6 +76,7 @@ __all__ = (
     'skipBrowser',
     'skipPackage',
     'todo',
+    'todoPybridge',
     'enableAxe',
     'timeout',
     'Error',
@@ -1346,6 +1347,9 @@ class MachineCase(unittest.TestCase):
             else:
                 if machine.image == reference_image:
                     pixels_label = self.label()
+        # HACK: until @todoPybridge disappears from all pixel tests
+        if os.environ.get("TEST_SCENARIO") == "pybridge":
+            pixels_label = None
         browser = Browser(machine.web_address,
                           label=label, pixels_label=pixels_label, coverage_label=self.label() if coverage else None,
                           port=machine.web_port, machine=self)
@@ -1759,6 +1763,78 @@ class MachineCase(unittest.TestCase):
             self.allowed_messages.append("Failed to connect to coredump service: No such file or directory")
             self.allowed_messages.append("Failed to connect to coredump service: Connection refused")
 
+        # HACK: pybridge bugs
+        if os.environ.get("TEST_SCENARIO") == "pybridge":
+            self.allowed_messages += [
+                "ERROR:asyncio:Task was destroyed but it is pending!",
+                "task:.*Task pending.*cockpit/channels/dbus.py.*"]
+
+            self.allowed_messages += [
+                r"Exception ignored on calling ctypes callback function: <function Slot.__init__.<locals>.handler.*",
+                r"asyncio.exceptions.InvalidStateError: invalid state",
+                r"ERROR:asyncio:Exception in callback _Transport._read_ready.*",
+                r"handle: <Handle _Transport._read_ready\(\)>",
+                r"Traceback \(most recent call last\):",
+                r"File .*asyncio/events.py.*",
+                r"self._context.run\(self._callback, \*self._args\)",
+                r"File .*cockpit/transports.py.* _read_ready",
+                r"data = os.read\(self._in_fd, _Transport.BLOCK_SIZE\)"]
+
+            self.allowed_messages += [
+                r"File .*/systemd_ctypes/bus.py.* in handler",
+                r"return 1 if callback.*BusMessage.ref.* else 0",
+                r"File .*/systemd_ctypes/bus.py.* in done",
+                r"future.set_result\(message\)"]
+
+            self.allowed_messages += [
+                r"ERROR:asyncio:Exception in callback BusMessage._coroutine_task_complete.*",
+                r"handle: .*Handle BusMessage._coroutine_task_complete.*",
+                r"File .*/systemd_ctypes/bus.py.* in _coroutine_task_complete",
+                r"self.reply_method_function_return_value.*",
+                r"File .*/cockpit/superuser.py.*",
+                r"await startup.wait.*",
+                r"await self.future",
+                r"File .*/cockpit/transports.py.*",
+                r"n_bytes = os.write\(self._out_fd, data\)",
+                r"BrokenPipeError: \[Errno 32\] Broken pipe"]
+
+            self.allowed_messages += [
+                r"while .*result := self.consume_one_frame.*",
+                r"self._protocol.data_received\(data\)",
+                r"File .*/cockpit/protocol.py.*",
+                r"self.frame_received.*",
+                r"File .*/cockpit/channel.py.*",
+                r"self.channel_control_received.*",
+                r"endpoint.do_channel_control.*",
+                r"File .*/cockpit/router.py.*",
+                r"self.do_control.*",
+                r"self.do_done.*",
+                r"File .*/cockpit/channels/packages.py.*",
+                r"self.router.packages.serve_file.*",
+                r"File .*/cockpit/packages.py.*",
+                r"self.serve_package_file.*",
+                r"self.packages.*.serve_file.*",
+                r"KeyError: 'manifests.json'"]
+
+            self.allowed_messages.append(".* is not in the sudoers file.  This incident will be reported.")
+            self.allowed_messages.append("sudo: no valid sudoers sources found, quitting")
+
+            # TestSuperuser.testWrongPasswd, message should go to the caller, not the journal
+            self.allowed_messages.append("Sorry, try again.")
+            # likewise for TestAccounts.testBasic; should not go to journal
+            self.allowed_messages.append("sudo: no password was provided")
+            self.allowed_messages.append("sudo: .* incorrect password attempt")
+
+            # TestSuperuserOldWebserver.test{,NotAuth}
+            self.allowed_messages.append("session timed out")
+            self.allowed_messages.append("cockpit-ssh.*: refusing to connect to unknown host:.*")
+
+            # TestJournal.testAbrtSegv
+            self.allowed_messages.append("invalid non-UTF8 @data passed as text to web_socket_connection_send.*")
+
+            # TestLogin.testSessionRecordingShell
+            self.allowed_messages.append(r"future.set_exception\(error\)")
+
         messages = machine.journal_messages(matches, 6, cursor=cursor)
 
         if "TEST_AUDIT_NO_SELINUX" not in os.environ:
@@ -2134,6 +2210,13 @@ def todo(reason='', flaky=False):
         testEntity._testlib_todo = (reason, flaky)
         return testEntity
     return wrapper
+
+
+def todoPybridge(reason=None, flaky=False):
+    if os.getenv('TEST_SCENARIO') == 'pybridge':
+        return todo(reason or 'still fails with python bridge', flaky)
+    else:
+        return lambda testEntity: testEntity
 
 
 def checkRunAxe():

@@ -18,7 +18,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent  # noqa: F401
-from testlib import MachineCase, nondestructive, test_main
+from testlib import MachineCase, nondestructive, todoPybridge, test_main
 
 
 test_manifest = """
@@ -52,6 +52,7 @@ test_html = """
 @nondestructive
 class TestPackages(MachineCase):
 
+    @todoPybridge()
     def testBasic(self):
         m = self.machine
         b = self.browser

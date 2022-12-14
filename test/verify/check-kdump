@@ -18,7 +18,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent  # noqa: F401
-from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, test_main, timeout
+from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, test_main, todoPybridge, timeout
 from lib.constants import TEST_OS_DEFAULT
 
 
@@ -60,6 +60,7 @@ class TestKdump(KdumpHelpers):
         self.machine.execute("cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys")
         self.machine.execute("ssh-keyscan -H localhost >> /root/.ssh/known_hosts")
 
+    @todoPybridge()
     def testBasic(self):
         b = self.browser
         m = self.machine

@@ -24,7 +24,7 @@ import tarfile
 import subprocess
 
 import parent  # noqa: F401
-from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, test_main, wait
+from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, todoPybridge, test_main, wait
 
 
 @skipImage("No sosreport", "fedora-coreos", "arch")
@@ -32,6 +32,7 @@ from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, t
 @skipDistroPackage()
 class TestSOS(MachineCase):
 
+    @todoPybridge()
     def testBasic(self, urlroot=""):
         b = self.browser
         m = self.machine
@@ -116,6 +117,7 @@ only-plugins=release,date,host,cgroups,networking
 
         self.allow_journal_messages('.*comm="sosreport".*')
 
+    @todoPybridge()
     def testWithUrlRoot(self):
         self.testBasic(urlroot="/webcon")
 
@@ -150,6 +152,7 @@ only-plugins=release,date,host,cgroups,networking
         self.assertEqual(m.execute("ls -l /var/tmp/sosreport*mylabel*.tar.xz | wc -l").strip(), "1")
         self.assertGreater(int(m.execute("tar --wildcards -xaOf /var/tmp/sosreport*mylabel*.tar.xz '*/sos_logs/sos.log' | grep -c 'DEBUG: \\[plugin:release\\]'")), 5)
 
+    @todoPybridge()
     def testCancel(self):
         m = self.machine
         b = self.browser

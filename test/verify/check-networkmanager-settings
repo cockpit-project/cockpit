@@ -19,12 +19,13 @@
 
 import parent  # noqa: F401
 from netlib import NetworkCase
-from testlib import skipDistroPackage, test_main, wait
+from testlib import skipDistroPackage, test_main, todoPybridge, wait
 
 from lib.constants import TEST_OS_DEFAULT
 
 
 @skipDistroPackage()
+@todoPybridge()
 class TestNetworkingSettings(NetworkCase):
     provision = {
         "machine1": {"memory_mb": 512},

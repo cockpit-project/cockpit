@@ -20,7 +20,7 @@
 import time
 
 import parent  # noqa: F401
-from testlib import MachineCase, no_retry_when_changed, skipDistroPackage, test_main
+from testlib import MachineCase, no_retry_when_changed, skipDistroPackage, todoPybridge, test_main
 
 
 @skipDistroPackage()
@@ -102,6 +102,7 @@ class HostSwitcherHelpers:
 
 
 @skipDistroPackage()
+@todoPybridge()
 class TestHostSwitching(MachineCase, HostSwitcherHelpers):
     provision = {
         'machine1': {"address": "10.111.113.1/20", "memory_mb": 512},

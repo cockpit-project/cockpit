@@ -19,7 +19,7 @@
 
 import parent  # noqa: F401
 from storagelib import StorageCase
-from testlib import test_main, wait
+from testlib import test_main, todoPybridge, wait
 
 
 class TestStorageLuks(StorageCase):
@@ -29,6 +29,7 @@ class TestStorageLuks(StorageCase):
         "0": {"memory_mb": 1536}
     }
 
+    @todoPybridge()
     def testLuks(self):
         self.allow_journal_messages("Device is not initialized.*", ".*could not be opened.")
         m = self.machine

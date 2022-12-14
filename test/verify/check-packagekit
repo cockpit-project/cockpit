@@ -23,7 +23,7 @@ import time
 
 import parent  # noqa: F401
 from packagelib import PackageCase
-from testlib import nondestructive, skipDistroPackage, skipImage, test_main
+from testlib import nondestructive, skipDistroPackage, skipImage, todoPybridge, test_main
 
 
 WAIT_SCRIPT = """
@@ -282,6 +282,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
         m.execute("rpm -q kpatch-patch-" + sanitized_kernel_ver)
 
     @nondestructive
+    @todoPybridge()
     def testBasic(self):
         # no security updates, no changelogs
         b = self.browser
@@ -435,6 +436,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
 
     @skipImage("TODO: Packagekit on Arch does not detect the pear update", "arch")
     @skipImage("tracer not available", *OSesWithoutTracer)
+    @todoPybridge(".updates-success-table randomly appears or not with pybridge", flaky=True)
     def testTracer(self):
         b = self.browser
         m = self.machine
@@ -980,6 +982,7 @@ ExecStart=/usr/local/bin/{packageName}
 
         # seems we can't verify that the description has a scrollbar
 
+    @todoPybridge("sometimes locks up packagekit hard, warning: python.error in the JS log", flaky=True)
     def testRebootAfterSuccess(self):
         b = self.browser
         m = self.machine
@@ -1043,6 +1046,7 @@ ExecStart=/usr/local/bin/{packageName}
         self.assertFalse(b.is_present("#app button"))
 
     @nondestructive
+    @todoPybridge()
     def testPackageKitCrash(self):
         b = self.browser
         m = self.machine
@@ -1080,6 +1084,7 @@ ExecStart=/usr/local/bin/{packageName}
         b.wait_in_text("#app .pf-c-page .pf-c-empty-state__body", "PackageKit crashed")
 
     @nondestructive
+    @todoPybridge()
     def testNoPackageKit(self):
         b = self.browser
         m = self.machine
@@ -1148,6 +1153,7 @@ ExecStart=/usr/local/bin/{packageName}
 @skipImage("TODO: Arch Linux has no cockpit-ws package, it's in cockpit", "arch")
 @skipImage("Image uses OSTree", "fedora-coreos")
 class TestWsUpdate(NoSubManCase):
+    @todoPybridge()
     def testBasic(self):
         # The main case for this is that cockpit-ws itself gets upgraded, which
         # restarts the service and terminates the connection. As we can't

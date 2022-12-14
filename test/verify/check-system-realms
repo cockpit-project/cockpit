@@ -28,7 +28,7 @@ import parent  # noqa: F401
 
 import packagelib
 from testlib import (Error, MachineCase, no_retry_when_changed, nondestructive, skipBrowser, skipDistroPackage, skipImage,
-                     test_main, wait, timeout)
+                     todoPybridge, test_main, wait, timeout)
 
 
 WAIT_KRB_SCRIPT = """
@@ -88,6 +88,7 @@ ExecStart=/bin/true
 @skipDistroPackage()
 class CommonTests:
     @timeout(900)
+    @todoPybridge()
     def testQualifiedUsers(self):
         m = self.machine
         b = self.browser
@@ -620,6 +621,7 @@ class TestIPA(TestRealms, CommonTests):
         # should have stopped cert tracking
         wait(lambda: "status:" not in m.execute("ipa-getcert list"))
 
+    @todoPybridge()
     def testUnqualifiedUsers(self):
         '''Extend the common test with 2FA login'''
 
@@ -701,6 +703,7 @@ class TestIPA(TestRealms, CommonTests):
                                     "sudo: unable to resolve host x0.cockpit.lan: Name or service not known")
 
     @timeout(900)
+    @todoPybridge()
     def testClientCertAuthentication(self):
         m = self.machine
         b = self.browser
@@ -886,6 +889,7 @@ class TestAD(TestRealms, CommonTests):
 
         pass
 
+    @todoPybridge()
     def testUnqualifiedUsers(self):
         '''Extend the test to check a new AD user'''
 
@@ -1028,6 +1032,7 @@ class TestKerberos(MachineCase):
         self.machine.execute(WAIT_KRB_SCRIPT.format("admin"), timeout=300)
 
     @skipBrowser("Firefox cannot work with cookies", "firefox")
+    @todoPybridge()
     def testNegotiate(self):
         self.allow_hostkey_messages()
         b = self.browser
@@ -1157,6 +1162,7 @@ class TestPackageInstall(packagelib.PackageCase):
                     return False
             b.wait(check)
 
+    @todoPybridge()
     def testInstall(self):
         m = self.machine
         b = self.browser
@@ -1206,6 +1212,7 @@ class TestPackageInstall(packagelib.PackageCase):
         m.execute("test -e /realmd-stub")
 
     @nondestructive
+    @todoPybridge()
     def testDialogTransition(self):
         m = self.machine
         b = self.browser

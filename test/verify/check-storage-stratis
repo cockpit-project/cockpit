@@ -20,10 +20,11 @@
 import parent  # noqa: F401
 from packagelib import PackageCase
 from storagelib import StorageCase
-from testlib import skipImage, test_main
+from testlib import skipImage, todoPybridge, test_main
 
 
 @skipImage("No Stratis", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2204")
+@todoPybridge()
 class TestStorageStratis(StorageCase):
     def setUp(self):
         super().setUp()
@@ -378,6 +379,7 @@ class TestStorageStratis(StorageCase):
 
 @skipImage("No Stratis", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2204", "arch")
 @skipImage("No Stratis on demand", "rhel-9-1", "rhel-8-7", "rhel-8-8")
+@todoPybridge()
 class TestStoragePackagesStratis(PackageCase, StorageCase):
 
     def testStratisOndemandInstallation(self):

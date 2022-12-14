@@ -21,7 +21,7 @@ import re
 import subprocess
 
 import parent  # noqa: F401
-from testlib import MachineCase, skipBrowser, skipDistroPackage, skipImage, test_main, wait
+from testlib import MachineCase, skipBrowser, skipDistroPackage, skipImage, todoPybridge, test_main, wait
 
 
 def kill_user_admin(machine):
@@ -59,6 +59,7 @@ KEY_IDS_MD5 = [
 
 @skipImage("TODO: ssh key check fails on Arch Linux", "arch")
 @skipDistroPackage()
+@todoPybridge()
 class TestMultiMachineKeyAuth(MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "memory_mb": 512},

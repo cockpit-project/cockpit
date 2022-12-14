@@ -18,7 +18,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent  # noqa: F401
-from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, test_main
+from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, todoPybridge, test_main
 
 
 def allow_old_cockpit_ws_messages(test):
@@ -32,6 +32,7 @@ def allow_old_cockpit_ws_messages(test):
 @nondestructive
 @skipDistroPackage()
 class TestSuperuser(MachineCase):
+    @todoPybridge()
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -130,6 +131,7 @@ session include system-auth
         b.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
         b.check_superuser_indicator("Administrative access")
 
+    @todoPybridge()
     def testWrongPasswd(self):
         b = self.browser
 
@@ -154,6 +156,7 @@ session include system-auth
         b.wait_not_present(".pf-c-modal-box:contains('Problem becoming administrator')")
         b.check_superuser_indicator("Limited access")
 
+    @todoPybridge()
     def testNotAdmin(self):
         b = self.browser
         m = self.machine
@@ -177,6 +180,7 @@ session include system-auth
         b.click(".pf-c-modal-box:contains('Problem becoming administrator') button:contains('Close')")
         b.wait_not_present(".pf-c-modal-box:contains('Problem becoming administrator')")
 
+    @todoPybridge()
     def testBrokenBridgeConfig(self):
         b = self.browser
         m = self.machine
@@ -211,6 +215,7 @@ session include system-auth
         b.wait_not_present(".pf-c-modal-box:contains('Problem becoming administrator')")
         b.check_superuser_indicator("Limited access")
 
+    @todoPybridge()
     def testRemoveBridgeConfig(self):
         b = self.browser
 
@@ -229,6 +234,7 @@ session include system-auth
         b.leave_page()
         b.check_superuser_indicator("Limited access")
 
+    @todoPybridge()
     def testSingleLabelBridgeConfig(self):
         b = self.browser
 
@@ -256,6 +262,7 @@ session include system-auth
         b.click(".pf-c-modal-box button:contains('Close')")
         b.check_superuser_indicator("Limited access")
 
+    @todoPybridge()
     def testMultipleBridgeConfig(self):
         b = self.browser
 
@@ -373,6 +380,7 @@ class TestSuperuserOldShell(MachineCase):
 
 @skipImage("TODO: broken on Arch Linux", "arch")
 @skipDistroPackage()
+@todoPybridge()
 class TestSuperuserOldWebserver(MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "image": "centos-7", "memory_mb": 512},
@@ -469,6 +477,7 @@ class TestSuperuserDashboard(MachineCase):
         "machine2": {"address": "10.111.113.2/20", "memory_mb": 512},
     }
 
+    @todoPybridge()
     def test(self):
         b = self.browser
 
@@ -528,6 +537,7 @@ class TestSuperuserOldDashboard(MachineCase):
         "machine2": {"address": "10.111.113.2/20", "memory_mb": 512},
     }
 
+    @todoPybridge()
     def test(self):
         b = self.browser
         m = self.machines["machine1"]
@@ -590,6 +600,7 @@ class TestSuperuserDashboardOldMachine(MachineCase):
         "machine2": {"address": "10.111.113.2/20", "image": "centos-7"},
     }
 
+    @todoPybridge()
     def test(self):
         b = self.browser
 

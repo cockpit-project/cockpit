@@ -19,11 +19,12 @@
 
 import parent  # noqa: F401
 from netlib import NetworkCase, re
-from testlib import skipDistroPackage, skipImage, test_main, wait
+from testlib import skipDistroPackage, skipImage, todoPybridge, test_main, wait
 
 
 @skipImage("No network checkpoint support", "ubuntu-2204", "ubuntu-stable")
 @skipDistroPackage()
+@todoPybridge()
 class TestNetworkingCheckpoints(NetworkCase):
     def testCheckpoint(self):
         b = self.browser

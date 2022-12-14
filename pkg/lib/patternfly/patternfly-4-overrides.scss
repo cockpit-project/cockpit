@@ -322,3 +322,81 @@ svg {
     }
   }
 }
+
+// Override PF to fix Right to Left languages
+[dir="rtl"] {
+  // Flip outlines for buttons
+  .pf-m-split-button {
+    button::before {
+      transform: scaleX(-100%);
+    }
+  }
+
+  // Swap image padding in buttons
+  .pf-c-dropdown__toggle-image {
+    margin-right: unset;
+    gap: var(--pf-c-dropdown__toggle-image--MarginRight);
+  }
+
+  // PatternFly and us are setting text-align to the left.
+  // It needs to be to the start.
+  // We should change it to start where we can.
+  // Meanwhile, here's an override just for RTL.
+  body, td, th {
+    text-align: start;
+  }
+
+  // Swap side of selected nav's blue line
+  .pf-c-nav__link.pf-m-current {
+    &, &:hover, &:not(.pf-m-expanded) .pf-c-nav__link {
+      &::after {
+        width: 100%;
+        transform: scaleX(-100%);
+      }
+    }
+  }
+
+  // Toolbar content (as seen in the shell) should be left aligned in RTL
+  // See: https://github.com/patternfly/patternfly/issues/3812
+  .pf-c-toolbar__content {
+    margin-right: auto;
+    margin-left: 0;
+  }
+
+  // Dropdown toggles: Swap image margins to be on left instead
+  .pf-c-dropdown__toggle {
+    &-image {
+      margin-right: 0;
+      margin-left: var(--pf-c-dropdown__toggle-image--MarginRight);
+    }
+
+    &-icon {
+      margin-right: var(--pf-c-dropdown__toggle-icon--MarginLeft);
+      margin-left: var(--pf-c-dropdown__toggle-icon--MarginRight);
+    }
+  }
+
+  // Flip popup directions, part 1 of 2
+  .pf-c-dropdown .pf-c-menu.pf-m-align-right,
+  .pf-c-dropdown__menu.pf-m-align-right {
+    right: unset;
+    left: 0;
+  }
+
+  // Flip popup directions, part 2 of 2
+  .pf-c-dropdown .pf-c-menu.pf-m-align-left,
+  .pf-c-dropdown__menu.pf-m-align-left {
+    right: 0;
+    left: unset;
+  }
+
+  // Another case of aligning to the left instead of start
+  .pf-c-dropdown__menu-item {
+    text-align: start;
+  }
+
+  // Flip breadcrum divider
+  .pf-c-breadcrumb__item-divider {
+    transform: scaleX(-100%);
+  }
+}

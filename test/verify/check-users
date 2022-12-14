@@ -234,7 +234,7 @@ class TestAccounts(MachineCase):
         b.wait(lambda: not is_admin())
         if m.image != "fedora-coreos":  # User is not shown as logged in when logged in through Cockpit
             b.wait_visible("#account-groups-helper")
-        m.execute(f"/usr/sbin/usermod jussi -G {m.get_admin_group()} -a")
+        m.execute(f"/usr/bin/gpasswd -a jussi {m.get_admin_group()}")
         b.wait_visible(admin_role_sel + f" .pf-c-label:contains({m.get_admin_group()})")
 
         # Cannot lock the current account
@@ -402,9 +402,9 @@ class TestAccounts(MachineCase):
         # Check Robert's groups
         b.wait_not_present("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-c-label:contains(users)")
         if m.image != "fedora-coreos":  # Users group does not exist in coreos image
-            m.execute("/usr/sbin/usermod -aG users robert")
+            m.execute("/usr/bin/gpasswd -a robert users")
             b.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-c-label.pf-m-cyan:contains(users)", "users")
-        m.execute(f"/usr/sbin/usermod -aG {m.get_admin_group()} robert")
+        m.execute(f"/usr/bin/gpasswd -a robert {m.get_admin_group()}")
         b.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-c-label.pf-m-gold", m.get_admin_group())
         m.execute(f"/usr/bin/gpasswd -d robert {m.get_admin_group()}")
         b.wait_not_present("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-c-label.pf-m-gold")

@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
 import { TimeoutModal } from "./shell-modals.jsx";
 
@@ -565,22 +565,26 @@ function Index() {
         }
     }
 
+    let session_timeout_dialog_root = null;
+
     function updateFinalCountdown() {
         const remaining_secs = Math.floor(final_countdown / 1000);
         const timeout_text = cockpit.format(_("You will be logged out in $0 seconds."), remaining_secs);
         document.title = "(" + remaining_secs + ") " + title;
-        ReactDOM.render(React.createElement(TimeoutModal, {
+        if (!session_timeout_dialog_root)
+            session_timeout_dialog_root = createRoot(document.getElementById('session-timeout-dialog'));
+        session_timeout_dialog_root.render(React.createElement(TimeoutModal, {
             onClose: () => {
                 window.clearTimeout(session_final_timer);
                 session_final_timer = null;
                 document.title = title;
                 resetTimer();
-                ReactDOM.unmountComponentAtNode(document.getElementById('session-timeout-dialog'));
+                session_timeout_dialog_root.unmount();
+                session_timeout_dialog_root = null;
                 final_countdown = 30000;
             },
             text: timeout_text,
-        }),
-                        document.getElementById('session-timeout-dialog'));
+        }));
     }
 
     function sessionFinalTimeout() {

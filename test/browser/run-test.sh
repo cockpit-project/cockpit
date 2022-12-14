@@ -163,6 +163,7 @@ if [ "$PLAN" = "basic" ]; then
               TestServices.testConditions
               TestServices.testHiddenFailure
               TestServices.testLogs
+              TestServices.testLogsUser
               TestServices.testNotFound
               TestServices.testNotifyFailed
               TestServices.testRelationships

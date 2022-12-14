@@ -65,13 +65,15 @@ export class Service extends React.Component {
                                 isPinned={this.props.isPinned}
         />;
 
+        const unit_type = this.props.owner == "system" ? "UNIT" : "USER_UNIT";
         const cur_unit_id = this.props.unit.Id;
         const match = [
-            "_SYSTEMD_UNIT=" + cur_unit_id, "+",
-            "COREDUMP_UNIT=" + cur_unit_id, "+",
-            "UNIT=" + cur_unit_id,
+            "_SYSTEMD_" + unit_type + "=" + cur_unit_id, "+",
+            "COREDUMP_" + unit_type + "=" + cur_unit_id, "+",
+            unit_type + "=" + cur_unit_id,
         ];
-        const url = "/system/logs/#/?prio=debug&service=" + cur_unit_id;
+        const service_type = this.props.owner == "system" ? "service" : "user-service";
+        const url = "/system/logs/#/?prio=debug&" + service_type + "=" + cur_unit_id;
 
         return (
             <WithDialogs>
@@ -88,9 +90,9 @@ export class Service extends React.Component {
                     <PageSection>
                         <Gallery hasGutter>
                             <GalleryItem id="service-details-unit">{serviceDetails}</GalleryItem>
-                            {((this.props.unit.LoadState === "loaded" || this.props.unit.LoadState === "masked") && this.props.owner == "system") &&
+                            {(this.props.unit.LoadState === "loaded" || this.props.unit.LoadState === "masked") &&
                             <GalleryItem id="service-details-logs">
-                                <LogsPanel title={_("Service logs")} match={match} emptyMessage={_("No log entries")} max={10} goto_url={url} search_options={{ prio: "debug", service: cur_unit_id }} />
+                                <LogsPanel title={_("Service logs")} match={match} emptyMessage={_("No log entries")} max={10} goto_url={url} search_options={{ prio: "debug", [service_type]: cur_unit_id }} />
                             </GalleryItem>}
                         </Gallery>
                     </PageSection>

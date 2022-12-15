@@ -98,26 +98,23 @@ export class LogEntry extends React.Component {
         const problems = problems_client.proxies('org.freedesktop.Problems2.Entry', '/org/freedesktop/Problems2/Entry');
 
         problems.wait(() => {
-            try {
-                service.GetProblems(0, {})
-                        .then(problem_paths => {
-                            const fields = [entry.PROBLEM_DIR, entry.PROBLEM_DUPHASH, entry.PROBLEM_UUID];
-                            let path = null;
-                            problem_paths.some(pth => {
-                                const p = problems[pth];
-                                if (fields.indexOf(p.ID) > 0 || fields.indexOf(p.UUID) || fields.indexOf(p.Duphash)) {
-                                    path = p;
-                                    return true;
-                                } else {
-                                    return false;
-                                }
-                            });
-
-                            this.setState({ entry: entry, loading: false, error: "", problemPath: path, abrtService: service });
+            service.GetProblems(0, {})
+                    .then(problem_paths => {
+                        const fields = [entry.PROBLEM_DIR, entry.PROBLEM_DUPHASH, entry.PROBLEM_UUID];
+                        let path = null;
+                        problem_paths.some(pth => {
+                            const p = problems[pth];
+                            if (fields.indexOf(p.ID) > 0 || fields.indexOf(p.UUID) || fields.indexOf(p.Duphash)) {
+                                path = p;
+                                return true;
+                            } else {
+                                return false;
+                            }
                         });
-            } catch (err) {
-                this.setState({ entry: entry, loading: false, error: "" });
-            }
+
+                        this.setState({ entry: entry, loading: false, error: "", problemPath: path, abrtService: service });
+                    })
+                    .catch(err => this.setState({ entry: entry, loading: false, error: err.toString() }));
         });
     }
 

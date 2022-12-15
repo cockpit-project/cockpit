@@ -1074,13 +1074,12 @@ ExecStart=/usr/local/bin/{packageName}
         # let updates start and zap PackageKit
         b.wait_visible("#app div.pf-c-progress__bar")
         m.execute("systemctl kill --signal=SEGV packagekit.service")
-
-        # error message visible
-        b.wait_in_text("#app .pf-c-page .pf-c-empty-state__body", "PackageKit crashed")
-
         # this crash creates so many messages from systemd-coredump, debug metadata etc. that
         # trying to keep up with specific patterns is too brittle
         self.allow_journal_messages(".*")
+
+        # error message visible
+        b.wait_in_text("#app .pf-c-page .pf-c-empty-state__body", "PackageKit crashed")
 
     @nondestructive
     def testNoPackageKit(self):

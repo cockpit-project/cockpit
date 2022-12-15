@@ -1194,7 +1194,7 @@ class TestMetricsPackages(packagelib.PackageCase):
         dummy_service = "[Service]\nExecStart=/bin/sleep infinity\n[Install]\nWantedBy=multi-user.target\n"
 
         cpcp_content = {
-            "/usr/share/cockpit/pcp/manifest.json": '{"requires": {"cockpit": "134.x"}, "bridges": [{"match": { "payload": "metrics1"},"spawn": [ "/usr/libexec/cockpit-pcp" ]}]}',
+            "/usr/share/cockpit/pcp/manifest.json": '{"requires": {"cockpit": "135"}, "bridges": [{"match": { "payload": "metrics1"},"spawn": [ "/usr/libexec/cockpit-pcp" ]}]}',
             "/usr/libexec/cockpit-pcp": "true",
         }
         pcp_content = {

@@ -104,7 +104,7 @@ export class LogEntry extends React.Component {
                         let path = null;
                         problem_paths.some(pth => {
                             const p = problems[pth];
-                            if (fields.indexOf(p.ID) > 0 || fields.indexOf(p.UUID) || fields.indexOf(p.Duphash)) {
+                            if (p && (fields.indexOf(p.ID) > 0 || fields.indexOf(p.UUID) || fields.indexOf(p.Duphash))) {
                                 path = p;
                                 return true;
                             } else {

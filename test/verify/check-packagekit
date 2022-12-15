@@ -368,26 +368,29 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
             mkfifo $f
             mount -o bind $f $p
             echo $p""").strip()
+        try:
+            b.click("#available-updates button#install-all")
 
-        b.click("#available-updates button#install-all")
+            # applying updates panel present
+            b.wait_visible("#app div.pf-c-progress__bar")
 
-        # applying updates panel present
-        b.wait_visible("#app div.pf-c-progress__bar")
+            # cancel the installation
+            b.wait_in_text(".progress-main-view button.pf-m-secondary", "Cancel")
+            b.click(".progress-main-view button.pf-m-secondary")
+            # abort the current download, so that read calls don't hang indefinitely
+            m.spawn(f"echo > {self.vm_tmpdir}/fifo", "fifo")
 
-        # cancel the installation
-        b.wait_in_text(".progress-main-view button.pf-m-secondary", "Cancel")
-        b.click(".progress-main-view button.pf-m-secondary")
-        # abort the current download, so that read calls don't hang indefinitely
-        m.spawn(f"echo > {self.vm_tmpdir}/fifo", "fifo")
-
-        # going back to overview, nothing happened just yet
-        b.wait_not_present(".progress-main-view")
-        self.assertEqual(b.text("#available-updates button#install-all"), "Install all updates")
-        self.assertFalse(b.is_present("table.updates-history"))
-        m.execute("test -f /stamp-vanilla-1.0-1; test -f /stamp-chocolate-2.0-1")
+            # going back to overview, nothing happened just yet
+            b.wait_not_present(".progress-main-view")
+            self.assertEqual(b.text("#available-updates button#install-all"), "Install all updates")
+            self.assertFalse(b.is_present("table.updates-history"))
+            m.execute("test -f /stamp-vanilla-1.0-1; test -f /stamp-chocolate-2.0-1")
+        finally:
+            # avoid keeping the rpm file busy
+            m.execute("systemctl stop packagekit")
+            m.execute(f"umount {chocolate}")
 
         # update again; Cancel button should eventually disappear
-        m.execute(f"umount {chocolate}")
         b.click("#available-updates button#install-all")
         b.wait_visible(".progress-main-view")
         b.wait_not_present(".progress-main-view button.pf-m-secondary")

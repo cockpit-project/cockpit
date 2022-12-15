@@ -68,6 +68,8 @@ export let clock_monotonic_now;
 export const SD_MANAGER = "org.freedesktop.systemd1.Manager";
 export const SD_OBJ = "/org/freedesktop/systemd1";
 
+const MAX_UINT64 = 2 ** 64 - 1;
+
 export function updateTime() {
     cockpit.spawn(["cat", "/proc/uptime"])
             .then(function(contents) {
@@ -555,27 +557,24 @@ class ServicesPageBody extends React.Component {
             }
         }
         let next_run_time = 0;
-        if (timer_unit.NextElapseUSecRealtime === 0)
-            next_run_time = timer_unit.NextElapseUSecMonotonic + system_boot_time;
-        else if (timer_unit.NextElapseUSecMonotonic === 0)
+
+        // systemd puts -1 into an unsigned int type for the various *USec* properties
+        // JS rounds these to a float which is > MAX_UINT64, but the comparison works
+        if (timer_unit.NextElapseUSecRealtime > 0 && timer_unit.NextElapseUSecRealtime < MAX_UINT64) {
             next_run_time = timer_unit.NextElapseUSecRealtime;
-        else {
-            if (timer_unit.NextElapseUSecMonotonic + system_boot_time < timer_unit.NextElapseUSecRealtime)
-                next_run_time = timer_unit.NextElapseUSecMonotonic + system_boot_time;
-            else
-                next_run_time = timer_unit.NextElapseUSecRealtime;
+        } else if (timer_unit.NextElapseUSecMonotonic > 0 && timer_unit.NextElapseUSecMonotonic < MAX_UINT64) {
+            next_run_time = timer_unit.NextElapseUSecMonotonic + system_boot_time;
         }
+
         const nextRunTime = timeformat.dateTime(next_run_time / 1000);
         if (nextRunTime !== unit.NextRunTime) {
             unit.NextRunTime = nextRunTime;
             needsUpdate = true;
         }
 
-        if (timer_unit.NextElapseUSecMonotonic <= 0 && timer_unit.NextElapseUSecRealtime <= 0) {
-            if (unit.NextRunTime !== _("unknown")) {
-                unit.NextRunTime = _("unknown");
-                needsUpdate = true;
-            }
+        if (next_run_time === 0 && unit.NextRunTime !== _("unknown")) {
+            unit.NextRunTime = _("unknown");
+            needsUpdate = true;
         }
 
         if (needsUpdate) {

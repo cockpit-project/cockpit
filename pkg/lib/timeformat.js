@@ -1,5 +1,7 @@
 /* Wrappers around Intl.DateTimeFormat and date-fns which use Cockpit's current locale, and define a few standard formats.
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat
+ *
+ * Time stamps are given in milliseconds since the epoch.
  */
 import cockpit from "cockpit";
 import { parse, formatDistanceToNow } from 'date-fns';

@@ -21,7 +21,7 @@ import parent  # noqa: F401
 from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, test_main
 
 
-def allow_old_cockpit_ws_messsages(test):
+def allow_old_cockpit_ws_messages(test):
     # noisy debug message from old cockpit-ws/polkit
     test.allow_journal_messages("logged in user session",
                                 "New connection to session from.*",
@@ -383,6 +383,8 @@ class TestSuperuserOldWebserver(MachineCase):
         b = self.browser
         m = self.machine
 
+        allow_old_cockpit_ws_messages(self)
+
         m.execute("firewall-cmd --add-service cockpit")
         m.start_cockpit()
 
@@ -411,11 +413,11 @@ class TestSuperuserOldWebserver(MachineCase):
         b.wait_in_text(".super-channel span", 'result: ')
         self.assertIn('result: uid=0', b.text(".super-channel span"))
 
-        allow_old_cockpit_ws_messsages(self)
-
     def testNotAuth(self):
         b = self.browser
         m = self.machine
+
+        allow_old_cockpit_ws_messages(self)
 
         m.execute("firewall-cmd --add-service cockpit")
         m.start_cockpit()
@@ -458,8 +460,6 @@ class TestSuperuserOldWebserver(MachineCase):
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'result: ')
         self.assertIn('result: uid=0', b.text(".super-channel span"))
-
-        allow_old_cockpit_ws_messsages(self)
 
 
 @skipDistroPackage()
@@ -532,6 +532,9 @@ class TestSuperuserOldDashboard(MachineCase):
         b = self.browser
         m = self.machines["machine1"]
 
+        allow_old_cockpit_ws_messages(self)
+        self.allow_hostkey_messages()
+
         m.execute("firewall-cmd --add-service cockpit")
         m.start_cockpit()
 
@@ -578,9 +581,6 @@ class TestSuperuserOldDashboard(MachineCase):
         b.click(".super-channel button")
         b.wait_in_text(".super-channel span", 'result: ')
         self.assertIn('result: uid=0', b.text(".super-channel span"))
-
-        allow_old_cockpit_ws_messsages(self)
-        self.allow_hostkey_messages()
 
 
 @skipDistroPackage()

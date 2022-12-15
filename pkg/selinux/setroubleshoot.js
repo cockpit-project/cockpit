@@ -18,6 +18,7 @@
  */
 
 import cockpit from "cockpit";
+import 'cockpit-dark-theme'; // once per page
 
 import React from "react";
 import { createRoot } from "react-dom/client";

@@ -20,6 +20,7 @@
 import '../lib/patternfly/patternfly-4-cockpit.scss';
 import './sosreport.scss';
 import "polyfills";
+import 'cockpit-dark-theme'; // once per page
 
 import React, { useState } from "react";
 import { createRoot } from 'react-dom/client';

@@ -33,14 +33,6 @@ function component_checksum(machine, component) {
         return "$" + machine.manifests[pkg][".checksum"];
 }
 
-function setDarkMode(documentElement, dark_mode) {
-    if (dark_mode) {
-        documentElement.classList.add('pf-theme-dark');
-    } else {
-        documentElement.classList.remove('pf-theme-dark');
-    }
-}
-
 function Frames(index, setupIdleResetTimers) {
     const self = this;
     let language = document.cookie.replace(/(?:(?:^|.*;\s*)CockpitLang\s*=\s*([^;]*).*$)|^.*$/, "$1");
@@ -217,21 +209,24 @@ function Frames(index, setupIdleResetTimers) {
             list[component] = frame;
             document.getElementById("content").appendChild(frame);
 
+            const style = localStorage.getItem('shell:style') || 'auto';
+            let dark_mode;
+            // If a user set's an explicit theme, ignore system changes.
+            if ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && style === "auto") || style === "dark") {
+                dark_mode = true;
+            } else {
+                dark_mode = false;
+            }
+
             // The new iframe is shown before any HTML/CSS is ready and loaded,
             // explicitly set a dark background so we don't see any white flashes
-            if (index.dark_mode && frame.contentDocument && frame.contentDocument.documentElement) {
+            if (dark_mode && frame.contentDocument && frame.contentDocument.documentElement) {
                 // --pf-global--BackgroundColor--dark-300
                 const dark_mode_background = '#1b1d21';
                 frame.contentDocument.documentElement.style.background = dark_mode_background;
+            } else {
+                frame.contentDocument.documentElement.style.background = 'white';
             }
-
-            frame.contentWindow.addEventListener("readystatechange", function(event) {
-                if (!event.target.documentElement)
-                    return;
-                setDarkMode(event.target.documentElement, index.dark_mode);
-            }, true);
-        } else if (frame.contentDocument.documentElement) {
-            setDarkMode(frame.contentDocument.documentElement, index.dark_mode);
         }
         frame_ready(frame);
         return frame;
@@ -548,15 +543,6 @@ function Index() {
 
     self.has_oops = false;
 
-    /* dark mode */
-    const style = localStorage.getItem('shell:style') || 'auto';
-    if ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && style === "auto") || style === "dark") {
-        self.dark_mode = true;
-    } else {
-        self.dark_mode = false;
-    }
-    setDarkMode(document.documentElement, self.dark_mode);
-
     function sessionTimeout() {
         current_idle_time += 5000;
         if (!session_final_timer && current_idle_time >= session_timeout - final_countdown) {
@@ -647,43 +633,6 @@ function Index() {
         return false;
     };
 
-    function updateFrames(dark_mode) {
-        setDarkMode(document.documentElement, dark_mode);
-        Object.values(self.frames.iframes).forEach(machine => {
-            Object.values(machine).forEach(frame => {
-                setDarkMode(frame.contentDocument.documentElement, dark_mode);
-            });
-        });
-    }
-
-    /* dark mode */
-    window.addEventListener("cockpit-style", event => {
-        const style = event.detail.style;
-        localStorage.setItem("shell:style", style);
-
-        if ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && style === "auto") || style === "dark") {
-            self.dark_mode = true;
-            updateFrames(true);
-        } else {
-            self.dark_mode = false;
-            updateFrames(false);
-        }
-    });
-
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-        const style = localStorage.getItem('shell:style') || 'auto';
-        // If a user set's an explicit theme, ignore system changes.
-        if (style !== "auto")
-            return;
-
-        if (event.matches) {
-            self.dark_mode = true;
-            updateFrames(true);
-        } else {
-            self.dark_mode = false;
-            updateFrames(false);
-        }
-    });
     /*
      * Navigation is driven by state objects, which are used with pushState()
      * and friends. The state is the canonical navigation location, and not

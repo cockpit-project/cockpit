@@ -1,4 +1,5 @@
 import cockpit from "cockpit";
+import 'cockpit-dark-theme'; // once per page
 import '../lib/patternfly/patternfly-4-cockpit.scss';
 
 import React from "react";

@@ -18,6 +18,7 @@
  */
 
 import '../lib/patternfly/patternfly-4-cockpit.scss';
+import 'cockpit-dark-theme'; // once per page
 
 import cockpit from "cockpit";
 import React, { useState, useEffect } from 'react';

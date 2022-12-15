@@ -105,12 +105,15 @@ export class TopNav extends React.Component {
     handleModeClick = (isSelected, event) => {
         const theme = event.currentTarget.id;
         this.setState({ theme: theme });
+
         const styleEvent = new CustomEvent("cockpit-style", {
             detail: {
                 style: theme,
             }
         });
         window.dispatchEvent(styleEvent);
+
+        localStorage.setItem("shell:style", theme);
     }
 
     render() {

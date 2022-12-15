@@ -30,12 +30,13 @@ class TestMenu(MachineCase):
     def testDarkThemeSwitcher(self):
         b = self.browser
 
-        def switch_style(style_class):
+        def switch_style(style_class, prevPage="system"):
+            b.switch_to_top()
             b.click("#toggle-menu")
             b.click(f"#topnav {style_class}")
+            b.enter_page(f"/{prevPage}")
 
         self.login_and_go("/system")
-        b.switch_to_top()
         switch_style("#dark")
         b._wait_present("html.pf-theme-dark")
 

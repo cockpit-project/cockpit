@@ -88,6 +88,10 @@ class _Transport(asyncio.Transport):
             data = b''
         except BlockingIOError:  # pragma: no cover
             return
+        except OSError as exc:
+            # Other errors: terminate the connection
+            self.abort(exc)
+            return
 
         if data != b'':
             logger.debug('  read %d bytes', len(data))
@@ -160,7 +164,7 @@ class _Transport(asyncio.Transport):
             n_bytes = os.writev(self._out_fd, self._queue)
         except BlockingIOError:  # pragma: no cover
             n_bytes = 0
-        except BrokenPipeError as exc:
+        except OSError as exc:
             self.abort(exc)
             return
 
@@ -209,7 +213,7 @@ class _Transport(asyncio.Transport):
             n_bytes = os.write(self._out_fd, data)
         except BlockingIOError:
             n_bytes = 0
-        except BrokenPipeError as exc:
+        except OSError as exc:
             self.abort(exc)
             return
 
@@ -458,6 +462,9 @@ class Spooler:
             data = os.read(self._fd, 8192)
         except BlockingIOError:  # pragma: no cover
             return
+        except OSError:
+            # all other errors -> EOF
+            data = b''
 
         if data != b'':
             self._contents.append(data)

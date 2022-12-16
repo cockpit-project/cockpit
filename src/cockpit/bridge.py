@@ -73,7 +73,11 @@ class Bridge(Router):
         try:
             file = open('/etc/os-release', encoding='utf-8')
         except FileNotFoundError:
-            file = open('/usr/lib/os-release', encoding='utf-8')
+            try:
+                file = open('/usr/lib/os-release', encoding='utf-8')
+            except FileNotFoundError:
+                logger.warn("Neither /etc/os-release nor /usr/lib/os-release exists")
+                return {}
 
         with file:
             lexer = shlex.shlex(file, posix=True, punctuation_chars=True)

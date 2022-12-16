@@ -191,7 +191,8 @@ class TestSystemInfo(MachineCase):
         with b.wait_timeout(70):
             b.wait_text("#system_uptime", "4 months")
 
-        self.allow_journal_messages("error loading contents of os-release: .*",
+        self.allow_journal_messages("error loading contents of os-release: .*",  # C bridge
+                                    "Neither /etc/os-release nor /usr/lib/os-release exists",  # py bridge
                                     "sudo: unable to resolve host host1.cockpit.lan: .*")
 
     def set_change_time_dialog_mode(self, mode):

@@ -131,6 +131,11 @@ if [ "$PLAN" = "basic" ]; then
               TestJournal.testAbrtSegv
               "
 
+    # no cockpit-tests package in RHEL 8
+    if [ "${TEST_OS#rhel-8}" != "$TEST_OS" ]; then
+        EXCLUDES="$EXCLUDES TestLogin.testSELinuxRestrictedUser"
+    fi
+
     # These don't test more external APIs
     EXCLUDES="$EXCLUDES
               TestAccounts.testAccountLogs

@@ -567,15 +567,21 @@ class Browser:
 
     def wait_js_cond(self, cond: str, error_description: str = "null"):
         count = 0
+        timeout = self.cdp.timeout * self.timeout_factor
+        start = time.time()
         while True:
             count += 1
             try:
                 result = self.cdp.invoke("Runtime.evaluate",
-                                         expression="ph_wait_cond(() => %s, %i, %s)" % (cond, self.cdp.timeout * self.timeout_factor * 1000, error_description),
+                                         expression="ph_wait_cond(() => %s, %i, %s)" % (cond, timeout * 1000, error_description),
                                          silent=False, awaitPromise=True, trace="wait: " + cond)
                 if "exceptionDetails" in result:
                     trailer = "\n".join(self.cdp.get_js_log())
                     self.raise_cdp_exception("timeout\nwait_js_cond", cond, result["exceptionDetails"], trailer)
+                duration = time.time() - start
+                percent = int(duration / timeout * 100)
+                if percent >= 50:
+                    print(f"WARNING: Waiting for {cond} took {duration:.1f} seconds, which is {percent}% of the timeout.")
                 return
             except RuntimeError as e:
                 data = e.args[0]

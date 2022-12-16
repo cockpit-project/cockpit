@@ -33,8 +33,9 @@ class TestNetworkingBasic(NetworkCase):
             # screenshot assumes running firewalld and absent virbr0 (in particular, *3* interfaces)
             m.execute("systemctl start firewalld")
 
-            # ensure PCP is on, so that we get the zoom/range selectors
-            m.execute("systemctl start pmlogger")
+            # ensure PCP is on for pixel tests, so that we get the zoom/range selectors
+            if b.pixels_label:
+                m.execute("systemctl start pmlogger")
 
         self.login_and_go("/network")
         b.wait_visible("#networking")

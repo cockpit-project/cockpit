@@ -830,9 +830,6 @@ ExecStart=/usr/local/bin/{packageName}
         self.assertEqual(b.text("#available-updates button#install-all"), "Install all updates")
         b.click("#available-updates button#install-all")
 
-        # applying updates panel present
-        b.wait_visible("#app div.pf-c-progress__bar")
-
         # should have succeeded and show restart
         with b.wait_timeout(60):
             b.wait_visible(".pf-c-empty-state .pf-c-title:contains('Update was successful')")

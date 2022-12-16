@@ -216,7 +216,8 @@ class Packages:
             if item.is_dir():
                 try:
                     package = Package(item)
-                except FileNotFoundError:
+                except (FileNotFoundError, json.JSONDecodeError):
+                    # ignore packages with broken/empty manifests
                     continue
 
                 if package.name in self.packages:

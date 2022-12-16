@@ -77,6 +77,23 @@ const LogDetails = ({ entry }) => {
     );
 };
 
+function get_problems(service) {
+    return service.wait()
+            .then(() => {
+                return service.GetProblems(0, {})
+                        .then(paths => {
+                            const proxies = paths.map(p => service.client.proxy("org.freedesktop.Problems2.Entry", p));
+                            return Promise.all(proxies.map(p => p.wait()))
+                                    .then(() => {
+                                        const result = { };
+                                        for (let i = 0; i < paths.length; i++)
+                                            result[paths[i]] = proxies[i];
+                                        return result;
+                                    });
+                        });
+            });
+}
+
 export class LogEntry extends React.Component {
     constructor(props) {
         super(props);
@@ -90,32 +107,32 @@ export class LogEntry extends React.Component {
 
         this.loadProblem = this.loadProblem.bind(this);
         this.goHome = this.goHome.bind(this);
+        this.problems_client = null;
     }
 
     loadProblem(entry) {
-        const problems_client = cockpit.dbus('org.freedesktop.problems', { superuser: "try" });
-        const service = problems_client.proxy('org.freedesktop.Problems2', '/org/freedesktop/Problems2');
-        const problems = problems_client.proxies('org.freedesktop.Problems2.Entry', '/org/freedesktop/Problems2/Entry');
+        if (this.problems_client)
+            this.problems_client.close();
+        this.problems_client = cockpit.dbus('org.freedesktop.problems', { superuser: "try" });
 
-        problems.wait(() => {
-            service.GetProblems(0, {})
-                    .then(problem_paths => {
-                        const fields = [entry.PROBLEM_DIR, entry.PROBLEM_DUPHASH, entry.PROBLEM_UUID];
-                        let path = null;
-                        problem_paths.some(pth => {
-                            const p = problems[pth];
-                            if (p && (fields.indexOf(p.ID) > 0 || fields.indexOf(p.UUID) || fields.indexOf(p.Duphash))) {
-                                path = p;
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        });
+        const service = this.problems_client.proxy('org.freedesktop.Problems2', '/org/freedesktop/Problems2');
+        get_problems(service)
+                .then(problems => {
+                    const fields = [entry.PROBLEM_DIR, entry.PROBLEM_DUPHASH, entry.PROBLEM_UUID];
+                    let path = null;
+                    Object.keys(problems).some(pth => {
+                        const p = problems[pth];
+                        if (p && (fields.indexOf(p.ID) > 0 || fields.indexOf(p.UUID) || fields.indexOf(p.Duphash))) {
+                            path = p;
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    });
 
-                        this.setState({ entry: entry, loading: false, error: "", problemPath: path, abrtService: service });
-                    })
-                    .catch(err => this.setState({ entry: entry, loading: false, error: err.toString() }));
-        });
+                    this.setState({ entry: entry, loading: false, error: "", problemPath: path, abrtService: service });
+                })
+                .catch(err => this.setState({ entry: entry, loading: false, error: err.toString() }));
     }
 
     componentDidMount() {
@@ -131,6 +148,13 @@ export class LogEntry extends React.Component {
                         this.setState({ entry: null, loading: false, error: _("Journal entry not found") });
                 })
                 .catch(error => this.setState({ entry: null, loading: false, error: error }));
+    }
+
+    componentWillUnmount() {
+        if (this.problems_client) {
+            this.problems_client.close();
+            this.problems_client = null;
+        }
     }
 
     goHome(ev) {

@@ -27,7 +27,8 @@ import base64
 import parent  # noqa: F401
 
 import packagelib
-from testlib import Error, MachineCase, no_retry_when_changed, nondestructive, skipBrowser, skipDistroPackage, skipImage, test_main, wait
+from testlib import (Error, MachineCase, no_retry_when_changed, nondestructive, skipBrowser, skipDistroPackage, skipImage,
+                     test_main, wait, timeout)
 
 
 WAIT_KRB_SCRIPT = """
@@ -86,6 +87,7 @@ ExecStart=/bin/true
 @skipImage("No realmd available", "arch")
 @skipDistroPackage()
 class CommonTests:
+    @timeout(900)
     def testQualifiedUsers(self):
         m = self.machine
         b = self.browser
@@ -698,6 +700,7 @@ class TestIPA(TestRealms, CommonTests):
         self.allow_journal_messages(".*couldn't introspect /org/freedesktop/realmd.*",
                                     "sudo: unable to resolve host x0.cockpit.lan: Name or service not known")
 
+    @timeout(900)
     def testClientCertAuthentication(self):
         m = self.machine
         b = self.browser

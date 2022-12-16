@@ -91,7 +91,6 @@ class Test:
         print_tap = not opts.list
         affected = any([self.command[0].endswith(t) for t in affected_tests])
         retry_reason = ""
-        skip_reason = ""
 
         # Try affected tests 3 times
         if self.returncode == 0 and affected and self.retry_when_affected and self.retries < 2:
@@ -105,9 +104,11 @@ class Test:
             lines = self.output.splitlines()
             skip_reason = lines[-1].strip().decode("utf-8")
             self.output = b"\n".join(lines[:-1])
-
-        if self.returncode in [0, 77]:
             self._print_test(print_tap, skip_reason=skip_reason)
+            return None, 0
+
+        if self.returncode == 0:
+            self._print_test(print_tap)
             return None, 0
 
         if not opts.thorough:

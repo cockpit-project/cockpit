@@ -347,9 +347,10 @@ html {
     margin: 0.5rem;
   }
 
-  &-sublabels {
-    font-size: var(--pf-global--FontSize--xs);
-    color: var(--dark-mode-sublabels-color, rgb(0 0 0 / 70%));
+  &-sublabels.pf-c-content {
+    small {
+      font-size: var(--pf-global--FontSize--xs);
+    }
     display: flex;
   }
 

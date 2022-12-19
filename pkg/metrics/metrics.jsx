@@ -1660,9 +1660,9 @@ class MetricsHistory extends React.Component {
             return (
                 <div className={"metrics-label metrics-label-graph" + (props.items.length > 1 ? " have-saturation" : "")}>
                     <span>{props.label}</span>
-                    <span className="metrics-sublabels">
-                        { props.items.map(i => <span key={i}>{i}</span>) }
-                    </span>
+                    <TextContent className="metrics-sublabels">
+                        { props.items.map(i => <Text component={TextVariants.small} key={i}>{i}</Text>) }
+                    </TextContent>
                 </div>
             );
         }

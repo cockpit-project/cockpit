@@ -91,7 +91,7 @@ export const ListingTable = ({
             const keys = [];
 
             rows.forEach(row => {
-                if (row.props && row.props.key)
+                if (row.props && row.props.key !== undefined)
                     keys.push(row.props.key);
             });
 

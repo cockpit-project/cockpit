@@ -400,6 +400,7 @@ const AccountsList = ({ accounts, current_user, groups }) => {
             </CardHeader>
             <ListingTable columns={columns}
                           id="accounts-list"
+                          isEmptyStateInTable={currentTextFilter !== "" && filtered_accounts.length !== accounts.length}
                           rows={ filtered_accounts.map(a => getAccountRow(a, current_user === a.name, groups)) }
                           loading={ accounts.length ? '' : _("Loading...") }
                           sortMethod={sortRows}

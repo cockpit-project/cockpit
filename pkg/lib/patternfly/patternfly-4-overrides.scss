@@ -321,6 +321,11 @@ svg {
       --pf-c-label__content--Color: var(--pf-c-label--m-gold__content--Color);
     }
   }
+
+  // FIXME: https://github.com/patternfly/patternfly/issues/5278
+  .pf-c-modal-box .pf-c-table {
+    background-color: inherit;
+  }
 }
 
 // Override PF to fix Right to Left languages

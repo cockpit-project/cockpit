@@ -401,7 +401,7 @@ const AccountsList = ({ accounts, current_user, groups }) => {
             <ListingTable columns={columns}
                           id="accounts-list"
                           rows={ filtered_accounts.map(a => getAccountRow(a, current_user === a.name, groups)) }
-                          loading={ filtered_accounts.length ? '' : _("Loading...") }
+                          loading={ accounts.length ? '' : _("Loading...") }
                           sortMethod={sortRows}
                           emptyComponent={<EmptyStatePanel title={_("No matching results")} icon={SearchIcon} />}
                           variant="compact" sortBy={{ index: 0, direction: SortByDirection.asc }} />

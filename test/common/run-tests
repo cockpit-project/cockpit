@@ -121,6 +121,7 @@ class Test:
                 reason = proc.communicate(self.output + ("not ok " + str(self)).encode())[0].strip()
 
                 if proc.returncode == 77:
+                    self.returncode = proc.returncode
                     self._print_test(skip_reason="# SKIP {0}".format(reason.decode("utf-8")))
                     return None, 0
 
@@ -183,12 +184,8 @@ class Test:
             return
 
         print()  # Tap needs to start on a separate line
-        if self.returncode == 0:
-            print(f"ok {self}{retry_reason}")
-        elif skip_reason:
-            print(f"ok {self}{skip_reason}")
-        else:
-            print(f"not ok {self}{retry_reason}")
+        status = 'ok' if self.returncode in [0, 77] else 'not ok'
+        print(f"{status} {self}{retry_reason}{skip_reason}")
         flush_stdout()
 
 

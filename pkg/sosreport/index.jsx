@@ -527,7 +527,7 @@ const SOSPage = () => {
     return (
         <WithDialogs>
             <Page>
-                <PageSection variant={PageSectionVariants.light}>
+                <PageSection padding={{ default: "padding" }} variant={PageSectionVariants.light}>
                     <Flex alignItems={{ default: 'alignItemsCenter' }}>
                         <h2 className="pf-u-font-size-3xl">{_("System diagnostics")}</h2>
                     </Flex>

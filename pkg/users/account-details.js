@@ -232,7 +232,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                       <BreadcrumbItem to="#/">{_("Accounts")}</BreadcrumbItem>
                       <BreadcrumbItem isActive>{title_name}</BreadcrumbItem>
                   </Breadcrumb>}>
-            <PageSection className="ct-pagesection-mobile">
+            <PageSection>
                 <Gallery hasGutter>
                     <Card className="account-details" id="account-details">
                         <CardHeader>

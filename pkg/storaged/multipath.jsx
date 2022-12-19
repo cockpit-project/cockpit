@@ -67,7 +67,7 @@ export class MultipathAlert extends React.Component {
         if (multipath_broken && !multipathd_running)
             return (
                 <Page>
-                    <PageSection className="ct-pagesection-mobile">
+                    <PageSection>
                         <Alert isInline variant='danger'
                             actionClose={<AlertActionLink variant='secondary' onClick={activate}>{_("Start multipath")}</AlertActionLink>}
                             title={_("There are devices with multiple paths on the system, but the multipath service is not running.")}

@@ -486,7 +486,7 @@ export class KdumpPage extends React.Component {
                         {kdumpSwitch}
                     </Flex>
                 </PageSection>
-                <PageSection className="ct-pagesection-mobile">
+                <PageSection>
                     <Card>
                         <CardBody>
                             <DescriptionList className="pf-m-horizontal-on-sm">

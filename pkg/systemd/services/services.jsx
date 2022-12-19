@@ -845,7 +845,7 @@ class ServicesPageBody extends React.Component {
                 .sort(this.compareUnits);
 
         return (
-            <PageSection className="ct-pagesection-mobile">
+            <PageSection>
                 <Card isCompact>
                     <ServicesPageFilters activeStateDropdownOptions={activeStateDropdownOptions}
                                          fileStateDropdownOptions={fileStateDropdownOptions}
@@ -1024,7 +1024,7 @@ const ServicesPage = () => {
         <WithDialogs>
             <Page>
                 {path.length == 0 &&
-                <PageSection variant={PageSectionVariants.light} type="nav" className="services-header ct-pagesection-mobile">
+                <PageSection variant={PageSectionVariants.light} type="nav" className="services-header">
                     <Flex>
                         <ServiceTabs activeTab={activeTab}
                                       tabErrors={tabErrors}

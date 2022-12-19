@@ -350,7 +350,7 @@ function updateItem(remarkable, info, pkgNames, key) {
     }
 
     const expandedContent = (
-        <>
+        <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
             <DescriptionList>
                 <DescriptionListGroup>
                     <DescriptionListTerm>{_("Packages")}</DescriptionListTerm>
@@ -381,8 +381,8 @@ function updateItem(remarkable, info, pkgNames, key) {
                     </DescriptionListGroup>
                     : null }
             </DescriptionList>
-            {description}
-        </>
+            <TextContent>{description}</TextContent>
+        </Flex>
     );
 
     return {

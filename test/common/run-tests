@@ -41,7 +41,7 @@ def flush_stdout():
 
 
 class Test:
-    def __init__(self, test_id, command, timeout, nondestructive, retry_when_affected, cost=1):
+    def __init__(self, test_id, command, timeout, nondestructive, retry_when_affected, todo, cost=1):
         self.process = None
         self.retries = 0
         self.test_id = test_id
@@ -50,6 +50,7 @@ class Test:
         self.nondestructive = nondestructive
         self.machine_id = None
         self.retry_when_affected = retry_when_affected
+        self.todo = todo
         self.cost = cost
         self.returncode = None
 
@@ -107,6 +108,21 @@ class Test:
             self._print_test(print_tap, skip_reason=skip_reason)
             return None, 0
 
+        # If the test was marked with @todo then...
+        if self.todo is not None:
+            todo_reason, flaky = self.todo
+            if self.returncode == 0 and not flaky:
+                # The test passed, but it shouldn't have.
+                self.returncode = 1  # that's a fail
+                self._print_test(print_tap, todo_reason=f'# expected failure: {todo_reason}')
+                return None, 1
+            else:
+                # The test either failed (always OK) or passed (and flaky=True)
+                # Outputs  'not ok 1 test # TODO ...'
+                #      or  'ok 1 test # TODO ...'
+                self._print_test(print_tap, todo_reason=f'# TODO {todo_reason}')
+                return None, 0
+
         if self.returncode == 0:
             self._print_test(print_tap)
             return None, 0
@@ -155,7 +171,7 @@ class Test:
         nd = f" [ND@{self.machine_id}]" if self.nondestructive else ""
         return f"{self.test_id} {self.command[0]} {self.command[-1]}{cost}{nd}"
 
-    def _print_test(self, print_tap=True, retry_reason="", skip_reason=""):
+    def _print_test(self, print_tap=True, retry_reason="", skip_reason="", todo_reason=""):
         def write_line(line):
             while line:
                 try:
@@ -177,15 +193,17 @@ class Test:
             retry_reason = " " + retry_reason
         if skip_reason:
             skip_reason = " " + skip_reason
+        if todo_reason:
+            todo_reason = " " + todo_reason
 
         if not print_tap:
-            print(retry_reason + skip_reason)
+            print(retry_reason + skip_reason + todo_reason)
             flush_stdout()
             return
 
         print()  # Tap needs to start on a separate line
         status = 'ok' if self.returncode in [0, 77] else 'not ok'
-        print(f"{status} {self}{retry_reason}{skip_reason}")
+        print(f"{status} {self}{retry_reason}{skip_reason}{todo_reason}")
         flush_stdout()
 
 
@@ -319,12 +337,14 @@ def detect_tests(test_files, image, opts):
                     continue
                 nd = getattr(test_method, "_testlib__non_destructive", False)
                 rwa = getattr(test_method, "_testlib__retry_when_affected", True)
+                todo = getattr(test_method, "_testlib_todo",
+                               getattr(test.__class__, "_testlib_todo", None))
                 if getattr(test.__class__, "provision", None):
                     # each additionally provisioned VM costs parallel test capacity
                     cost = len(test.__class__.provision)
                 else:
                     cost = 1
-                test = Test(test_id, build_command(filename, test_str, opts), test_timeout, nd, rwa, cost=cost)
+                test = Test(test_id, build_command(filename, test_str, opts), test_timeout, nd, rwa, todo, cost=cost)
                 if nd:
                     serial_tests.append(test)
                 else:

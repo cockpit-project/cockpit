@@ -75,6 +75,7 @@ __all__ = (
     'skipMobile',
     'skipBrowser',
     'skipPackage',
+    'todo',
     'enableAxe',
     'timeout',
     'Error',
@@ -2117,6 +2118,22 @@ def no_retry_when_changed(testEntity):
     else:
         raise Error("The no_retry_when_changed decorator can only be used on test classes and test methods")
     return testEntity
+
+
+def todo(reason='', flaky=False):
+    """Tests decorated with @todo are expected to fail.
+
+    An optional reason can be given, and will appear in the TAP output if run
+    via run-tests.
+
+    If flaky=False (the default) then the test is expected to always fail.  An
+    unexpected pass is considered to be an error in that case.  If flaky=True
+    then a pass is not considered to be an error.
+    """
+    def wrapper(testEntity):
+        testEntity._testlib_todo = (reason, flaky)
+        return testEntity
+    return wrapper
 
 
 def checkRunAxe():

@@ -30,7 +30,7 @@ case $TEST_SCENARIO in
         test/image-prepare --verbose $TEST_OS
         python3 -m build --no-isolation --wheel --outdir tmp/wheel
         bots/image-customize --verbose --no-network --install tmp/wheel/*.whl "${TEST_OS}"
-        test/common/run-tests --jobs ${TEST_JOBS:-1} --no-retry-fail --test-dir test/verify --track-naughties
+        test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify --track-naughties
         ;;
     *)
         echo "Unknown test scenario: $TEST_SCENARIO"

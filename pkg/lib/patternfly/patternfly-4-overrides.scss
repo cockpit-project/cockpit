@@ -400,3 +400,14 @@ svg {
     transform: scaleX(-100%);
   }
 }
+
+// Drop side padding in mobile mode,
+// intended mainly for PF PageSection elements (pf-c-page__main-section).
+// It's similar to adding padding={{ default: 'noPadding', sm: 'padding' }},
+// except this only affects the sides, not the top and bottom.
+@media screen and (max-width: $pf-global--breakpoint--sm) {
+  .pf-c-page__main > section.pf-c-page__main-section:not(.pf-m-padding) {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}

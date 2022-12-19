@@ -176,7 +176,7 @@ export class LogEntry extends React.Component {
                               {breadcrumb}
                           </BreadcrumbItem>
                       </Breadcrumb>}>
-                <PageSection className="ct-pagesection-mobile">
+                <PageSection>
                     <Gallery hasGutter>
                         {content}
                     </Gallery>

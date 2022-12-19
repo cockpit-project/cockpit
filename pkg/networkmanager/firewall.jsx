@@ -1056,7 +1056,7 @@ export class Firewall extends React.Component {
                               { enabled && !firewall.readonly && <span className="btn-group">{addZoneAction}</span> }
                           </Flex>
                       </PageSection>}>
-                <PageSection id="zones-listing" className="ct-pagesection-mobile">
+                <PageSection id="zones-listing">
                     { enabled && <Stack hasGutter>
                         {
                             zones.map(z => <ZoneSection key={z.id}

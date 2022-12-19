@@ -326,7 +326,7 @@ class HardwareInfo extends React.Component {
                           <BreadcrumbItem onClick={ () => cockpit.jump("/system", cockpit.transport.host)} className="pf-c-breadcrumb__link">{ _("Overview") }</BreadcrumbItem>
                           <BreadcrumbItem isActive>{ _("Hardware information") }</BreadcrumbItem>
                       </Breadcrumb>}>
-                <PageSection className="ct-pagesection-mobile">
+                <PageSection>
                     <Gallery hasGutter>
                         <Card>
                             <CardHeader>

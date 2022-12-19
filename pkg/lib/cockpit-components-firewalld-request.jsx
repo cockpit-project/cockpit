@@ -45,7 +45,7 @@ function debug() {
  * Properties:
  *   - service (string, required): firewalld service name
  *   - title (string, required): Human readable/translated alert title
- *   - pageSection (bool, optional, default false): Render the alert inside a <PageSection className="ct-pagesection-mobile">
+ *   - pageSection (bool, optional, default false): Render the alert inside a <PageSection>
  */
 export const FirewalldRequest = ({ service, title, pageSection }) => {
     const [zones, setZones] = useState(null);
@@ -163,7 +163,7 @@ export const FirewalldRequest = ({ service, title, pageSection }) => {
     }
 
     if (pageSection)
-        return <PageSection className="ct-no-bottom-padding ct-pagesection-mobile">{alert}</PageSection>;
+        return <PageSection className="ct-no-bottom-padding">{alert}</PageSection>;
     else
         return alert;
 };

@@ -145,10 +145,10 @@ class OverviewPage extends React.Component {
 
         return (
             <Page>
-                <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }} className="ct-pagesection-mobile">
+                <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }}>
                     <SuperuserAlert />
                 </PageSection>
-                <PageSection variant={PageSectionVariants.light} className='ct-overview-header'>
+                <PageSection variant={PageSectionVariants.light} className='ct-overview-header' padding={{ default: 'padding' }}>
                     <div className='ct-overview-header-hostname'>
                         <h1>
                             {this.hostname_text()}
@@ -163,7 +163,7 @@ class OverviewPage extends React.Component {
                         { headerActions }
                     </div>
                 </PageSection>
-                <PageSection variant={PageSectionVariants.default} className="ct-pagesection-mobile">
+                <PageSection variant={PageSectionVariants.default}>
                     <Gallery className='ct-system-overview' hasGutter>
                         <MotdCard />
                         <HealthCard />

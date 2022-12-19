@@ -445,7 +445,7 @@ export class SETroubleshootPage extends React.Component {
             <>
                 {errorMessage}
                 <Page>
-                    <PageSection variant={PageSectionVariants.light}>
+                    <PageSection padding={{ default: "padding" }} variant={PageSectionVariants.light}>
                         <SELinuxStatus
                             selinuxStatus={this.props.selinuxStatus}
                             selinuxStatusError={this.props.selinuxStatusError}
@@ -453,7 +453,7 @@ export class SETroubleshootPage extends React.Component {
                             dismissError={this.props.dismissStatusError}
                         />
                     </PageSection>
-                    <PageSection className="ct-pagesection-mobile">
+                    <PageSection>
                         <Stack hasGutter>
                             <StackItem>{modifications}</StackItem>
                             <StackItem>{troubleshooting}</StackItem>

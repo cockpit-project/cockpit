@@ -37,7 +37,7 @@ import { StorageLogsPanel } from "./logs-panel.jsx";
 export const Overview = ({ client, plot_state }) => {
     return (
         <Page id="main-storage">
-            <PageSection className="ct-pagesection-mobile">
+            <PageSection>
                 <Grid hasGutter>
                     <GridItem md={8} lg={9}>
                         <Gallery hasGutter>

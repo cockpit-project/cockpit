@@ -138,6 +138,7 @@ const CreateTimerDialogBody = ({ owner }) => {
     return (
         <Modal id="timer-dialog"
            className="timer-dialog" position="top" variant="medium" isOpen onClose={Dialogs.close}
+           aria-label={_("Create timer dialog")}
            title={cockpit.format(_("Create timer"), name)}
            footer={
                <>
@@ -210,6 +211,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                                helperTextInvalid={_("Delay must be a number")}>
                         <Flex>
                             <TextInput className="delay-number"
+                                       aria-label={_("Delay in seconds")}
                                        isRequired
                                        value={delayNumber}
                                        validated={submitted && validationFailed.delayNumber ? "error" : "default"}

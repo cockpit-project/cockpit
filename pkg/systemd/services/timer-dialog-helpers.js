@@ -38,6 +38,9 @@ export function create_timer({ name, description, command, delay, delayUnit, del
     if (delay == "specific-time" && repeat == "no") {
         const today = new Date(clock_realtime_now);
         timer_unit.OnCalendar = `OnCalendar=${today.getFullYear()}-${month_day_str(today)} ${specificTime}:00`;
+    } else if (repeat == "minutely") {
+        timer_unit.repeat_second = repeat_array.map(item => Number(item.second));
+        timer_unit.OnCalendar = "OnCalendar=*-*-* *:*:" + timer_unit.repeat_second.join(",");
     } else if (repeat == "hourly") {
         timer_unit.repeat_minute = repeat_array.map(item => Number(item.minute));
         timer_unit.OnCalendar = "OnCalendar=*-*-* *:" + timer_unit.repeat_minute.join(",");
@@ -50,7 +53,7 @@ export function create_timer({ name, description, command, delay, delayUnit, del
     } else if (repeat == "yearly") {
         timer_unit.OnCalendar = repeat_array.map(item => `OnCalendar=*-${month_day_str(new Date(item.date))} ${item.time}:00`);
     }
-    if (repeat != "hourly" && delay == "specific-time")
+    if (repeat != "hourly" && repeat != "minutely" && delay == "specific-time")
         timer_unit.OnCalendar = timer_unit.OnCalendar.toString().replaceAll(",", "\n");
     return create_timer_file({ timer_unit, delay, owner });
 }

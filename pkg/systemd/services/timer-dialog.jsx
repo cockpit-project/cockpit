@@ -228,7 +228,9 @@ const CreateTimerDialogBody = ({ owner }) => {
                                                 return;
 
                                             setRepeat(value);
-                                            if (value == "hourly")
+                                            if (value == "minutely")
+                                                setRepeatPatterns([{ key: 0, second: "0" }]);
+                                            else if (value == "hourly")
                                                 setRepeatPatterns([{ key: 0, minute: "0" }]);
                                             else if (value == "daily")
                                                 setRepeatPatterns([{ key: 0, time: "00:00" }]);
@@ -241,6 +243,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                                         }}
                                         aria-label={_("Repeat")}>
                                 <FormSelectOption value="no" label={_("Don't repeat")} />
+                                <FormSelectOption value="minutely" label={_("Minutely")} />
                                 <FormSelectOption value="hourly" label={_("Hourly")} />
                                 <FormSelectOption value="daily" label={_("Daily")} />
                                 <FormSelectOption value="weekly" label={_("Weekly")} />
@@ -256,7 +259,9 @@ const CreateTimerDialogBody = ({ owner }) => {
                         </FormGroup>}
                         {repeatPatterns.map((item, idx) => {
                             let label;
-                            if (repeat == "hourly")
+                            if (repeat == "minutely")
+                                label = _("At second");
+                            else if (repeat == "hourly")
                                 label = _("At minute");
                             else if (repeat == "daily")
                                 label = _("Run at");
@@ -273,11 +278,30 @@ const CreateTimerDialogBody = ({ owner }) => {
                                 helperTextInvalid = _("Minute needs to be a number between 0-59");
                             }
 
+                            const sec = repeatPatterns[idx].second;
+                            const validationFailedSecond = !(/^[0-9]+$/.test(sec) && sec <= 59 && sec >= 0);
+
+                            if (submitted && repeat == 'minutely' && validationFailedSecond) {
+                                validated = "error";
+                                helperTextInvalid = _("Second needs to be a number between 0-59");
+                            }
+
                             return (
                                 <FormGroup label={label} key={item.key}
                                            validated={validated}
                                            helperTextInvalid={helperTextInvalid}>
                                     <Flex className="specific-repeat-group" data-index={idx}>
+                                        {repeat == "minutely" &&
+                                            <TextInput className='delay-number'
+                                                       id={repeat}
+                                                       value={repeatPatterns[idx].second}
+                                                       onChange={second => {
+                                                           const arr = [...repeatPatterns];
+                                                           arr[idx].second = second;
+                                                           setRepeatPatterns(arr);
+                                                       }}
+                                                       validated={submitted && validationFailedSecond ? "error" : "default"} />
+                                        }
                                         {repeat == "hourly" && <>
                                             <TextInput className='delay-number'
                                                        value={repeatPatterns[idx].minute}
@@ -351,7 +375,9 @@ const CreateTimerDialogBody = ({ owner }) => {
                                                 <Button aria-label={_("Add")}
                                                         variant="secondary"
                                                         onClick={() => {
-                                                            if (repeat == "hourly")
+                                                            if (repeat == "minutely")
+                                                                setRepeatPatterns([...repeatPatterns, { key: repeatPatterns.length, second: "0" }]);
+                                                            else if (repeat == "hourly")
                                                                 setRepeatPatterns([...repeatPatterns, { key: repeatPatterns.length, minute: "0" }]);
                                                             else if (repeat == "daily")
                                                                 setRepeatPatterns([...repeatPatterns, { key: repeatPatterns.length, time: "00:00" }]);

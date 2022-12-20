@@ -1816,6 +1816,17 @@ class MachineCase(unittest.TestCase):
                 r"self.packages.*.serve_file.*",
                 r"KeyError: 'manifests.json'"]
 
+            # https://cockpit-logs.us-east-1.linodeobjects.com/pull-18052-20221219-220331-9aa9eeeb-fedora-36-pybridge/log.html#150
+            self.allowed_messages += [
+                r"self.channel_data_received\(channel, data\)",
+                r"File .*/cockpit/peer.py.*, in channel_data_received",
+                r"self.send_channel_data\(channel, data\)",
+                r"self.router.write_channel_data\(channel, data\)",
+                r"self.transport.write\(header . payload\)",
+                r"assert not self._closing",
+                r"AssertionError",
+            ]
+
             self.allowed_messages.append(".* is not in the sudoers file.  This incident will be reported.")
             self.allowed_messages.append("sudo: no valid sudoers sources found, quitting")
 

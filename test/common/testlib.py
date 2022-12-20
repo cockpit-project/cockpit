@@ -2140,9 +2140,47 @@ class MachineCase(unittest.TestCase):
             self.sed_file('/root/d', disallowed_conf)
 
 
+###########################
+# Global helper functions
+#
+
+
 def jsquote(js: str) -> str:
     return json.dumps(js)
 
+
+def checkRunAxe():
+    # only run this on the default OS test, that's enough
+    if os.getenv("TEST_OS") not in [None, testvm.TEST_OS_DEFAULT]:
+        return False
+
+    # when running from release tarballs, module is not available
+    if not os.path.exists(f'{BASE_DIR}/node_modules/axe-core/axe.js'):
+        sys.stderr.write('# enableAxe: axe is not installed, skipping\n')
+        return False
+
+    return True
+
+
+def enableAxe(method):
+    """Enable aXe accessibility test code injection for this test case"""
+
+    if not checkRunAxe():
+        return method
+
+    def wrapper(*args):
+        with open(f'{BASE_DIR}/node_modules/axe-core/axe.js') as f:
+            script = f.read()
+        # first method argument is "self", a MachineCase instance
+        args[0].browser.cdp.invoke("Page.addScriptToEvaluateOnNewDocument", source=script, no_trace=True)
+        return method(*args)
+
+    return wrapper
+
+
+###########################
+# Test decorators
+#
 
 def skipBrowser(reason: str, *args: str):
     browser = os.environ.get("TEST_BROWSER", "chromium")
@@ -2229,35 +2267,6 @@ def todoPybridge(reason=None, flaky=False):
         return todo(reason or 'still fails with python bridge', flaky)
     else:
         return lambda testEntity: testEntity
-
-
-def checkRunAxe():
-    # only run this on the default OS test, that's enough
-    if os.getenv("TEST_OS") not in [None, testvm.TEST_OS_DEFAULT]:
-        return False
-
-    # when running from release tarballs, module is not available
-    if not os.path.exists(f'{BASE_DIR}/node_modules/axe-core/axe.js'):
-        sys.stderr.write('# enableAxe: axe is not installed, skipping\n')
-        return False
-
-    return True
-
-
-def enableAxe(method):
-    """Enable aXe accessibility test code injection for this test case"""
-
-    if not checkRunAxe():
-        return method
-
-    def wrapper(*args):
-        with open(f'{BASE_DIR}/node_modules/axe-core/axe.js') as f:
-            script = f.read()
-        # first method argument is "self", a MachineCase instance
-        args[0].browser.cdp.invoke("Page.addScriptToEvaluateOnNewDocument", source=script, no_trace=True)
-        return method(*args)
-
-    return wrapper
 
 
 def timeout(seconds):

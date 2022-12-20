@@ -26,6 +26,7 @@ import os
 import zipfile
 
 from pathlib import Path
+from systemd_ctypes import bus
 
 from . import config
 
@@ -234,10 +235,25 @@ class ZipPathPolyfill(zipfile.Path):
         return Path(x[len(y):])
 
 
-class Packages:
+# TODO: This doesn't yet implement the slighty complicated checksum
+# scheme of the C bridge (see cockpitpackages.c) to support caching
+# and reloading.
+
+class Packages(bus.Object, interface='cockpit.Packages'):
+    manifests = bus.Interface.Property('s', value="{}")
+
     def __init__(self):
+        super().__init__()
         self.packages = {}
         self.load_packages()
+
+        # Reloading the Shell in the browser should reload the
+        # packages.  This is implemented by having the Shell call
+        # reload_hint whenever it starts.  The first call of this
+        # method in each session is ignored so that packages are not
+        # loaded twice right after logging in.
+        #
+        self.saw_first_reload_hint = False
 
     def show(self):
         for name in sorted(self.packages):
@@ -293,9 +309,10 @@ class Packages:
         else:
             self.checksum = None
 
+        self.manifests = json.dumps({name: package.manifest for name, package in self.packages.items()})
+
     def serve_manifests_js(self, channel):
         channel.http_ok('text/javascript')
-        manifests = {name: package.manifest for name, package in self.packages.items()}
         channel.send_data(("""
             (function (root, data) {
                 if (typeof define === 'function' && define.amd) {
@@ -307,7 +324,7 @@ class Packages:
                 } else {
                     root.manifests = data;
                 }
-            }(this, """ + json.dumps(manifests) + """))""").encode('ascii'))
+            }(this, """ + self.manifests + """))""").encode('ascii'))
 
     def serve_package_file(self, path, channel):
         package, _, package_path = path[1:].partition('/')
@@ -339,3 +356,14 @@ class Packages:
         for package in sorted(self.packages.values(), key=lambda package: -package.priority):
             bridges.extend(package.bridges)
         return bridges
+
+    @bus.Interface.Method()
+    def reload(self):
+        self.packages = {}
+        self.load_packages()
+
+    @bus.Interface.Method()
+    def reload_hint(self):
+        if self.saw_first_reload_hint:
+            self.reload()
+        self.saw_first_reload_hint = True

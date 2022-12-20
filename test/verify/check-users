@@ -27,7 +27,7 @@ from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, t
 @skipDistroPackage()
 class TestAccounts(MachineCase):
 
-    @todoPybridge()
+    @todoPybridge(flaky=True)
     def testBasic(self):
         b = self.browser
         m = self.machine

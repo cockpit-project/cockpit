@@ -76,10 +76,6 @@ class cockpit_Machines(bus.Object):
         ...
 
 
-class cockpit_Packages(bus.Object):
-    ...
-
-
 class cockpit_User(bus.Object):
     name = bus.Interface.Property('s', value='')
     full = bus.Interface.Property('s', value='')
@@ -102,6 +98,5 @@ EXPORTS = [
     ('/LoginMessages', cockpit_LoginMessages),
     ('/config', cockpit_Config),
     ('/machines', cockpit_Machines),
-    ('/packages', cockpit_Packages),
     ('/user', cockpit_User),
 ]

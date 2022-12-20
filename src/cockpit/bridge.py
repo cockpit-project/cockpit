@@ -61,6 +61,7 @@ class Bridge(Router):
 
         self.superuser_rule = SuperuserRoutingRule(self, args.privileged)
         self.internal_bus.export('/superuser', self.superuser_rule)
+        self.internal_bus.export('/packages', self.packages)
 
         super().__init__([
             HostRoutingRule(self),

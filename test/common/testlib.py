@@ -34,7 +34,6 @@ import tempfile
 import time
 import unittest
 import gzip
-import inspect
 import itertools
 import glob
 
@@ -42,7 +41,6 @@ from typing import Any, Callable, Dict, List, Optional, Union
 
 import testvm
 import cdp
-from fmf_metadata.base import set_obj_attribute, is_test_function, generic_metadata_setter
 
 from lcov import write_lcov
 
@@ -1373,7 +1371,7 @@ class MachineCase(unittest.TestCase):
 
     def is_nondestructive(self):
         test_method = getattr(self.__class__, self._testMethodName)
-        return getattr(test_method, "_testlib__non_destructive", False)
+        return get_decorator(test_method, self.__class__, "nondestructive")
 
     def is_devel_build(self):
         return os.environ.get('NODE_ENV') == 'development'
@@ -2178,6 +2176,15 @@ def enableAxe(method):
     return wrapper
 
 
+def get_decorator(method, _class, name, default=None):
+    """Get decorator value of a test method or its class
+
+    Return None if the decorator was not set.
+    """
+    attr = "_testlib__" + name
+    return getattr(method, attr, getattr(_class, attr, default))
+
+
 ###########################
 # Test decorators
 #
@@ -2186,19 +2193,19 @@ def skipBrowser(reason: str, *args: str):
     browser = os.environ.get("TEST_BROWSER", "chromium")
     if browser in args:
         return unittest.skip("{0}: {1}".format(browser, reason))
-    return generic_metadata_setter("_testlib__skipBrowser", args)
+    return lambda testEntity: testEntity
 
 
 def skipImage(reason: str, *args: str):
     if testvm.DEFAULT_IMAGE in args:
         return unittest.skip("{0}: {1}".format(testvm.DEFAULT_IMAGE, reason))
-    return generic_metadata_setter("_testlib__skipImage", args)
+    return lambda testEntity: testEntity
 
 
 def skipMobile():
     if bool(os.environ.get("TEST_MOBILE", "")):
         return unittest.skip("mobile: This test breaks on small screen sizes")
-    return generic_metadata_setter("_testlib__skipMobile", None)
+    return lambda testEntity: testEntity
 
 
 def skipDistroPackage():
@@ -2209,7 +2216,7 @@ def skipDistroPackage():
     """
     if 'distropkg' in testvm.DEFAULT_IMAGE:
         return unittest.skip(f"{testvm.DEFAULT_IMAGE}: Do not test BaseOS packages")
-    return lambda testEntity: set_obj_attribute(testEntity, "_testlib__skipImage", (testvm.DEFAULT_IMAGE, ))
+    return lambda testEntity: testEntity
 
 
 def skipPackage(*args):
@@ -2217,7 +2224,7 @@ def skipPackage(*args):
     for package in args:
         if package in packages_env:
             return unittest.skip("{0} is excluded in $TEST_SKIP_PACKAGES".format(package))
-    return generic_metadata_setter("_testlib__skipPackage", args)
+    return lambda testEntity: testEntity
 
 
 def nondestructive(testEntity):
@@ -2225,7 +2232,8 @@ def nondestructive(testEntity):
 
     Can be used on test classes and individual test methods.
     """
-    return set_obj_attribute(testEntity, "_testlib__non_destructive", True, raise_text="The nondestructive decorator can only be used on test classes and test methods", base_class=MachineCase)
+    testEntity._testlib__nondestructive = True
+    return testEntity
 
 
 def no_retry_when_changed(testEntity):
@@ -2235,14 +2243,7 @@ def no_retry_when_changed(testEntity):
     takes a long time, this prevents timeouts. Can be used on test classes and
     individual methods.
     """
-
-    if inspect.isclass(testEntity) and issubclass(testEntity, unittest.TestCase):
-        for test_function in inspect.getmembers(testEntity, is_test_function):
-            test_function[1]._testlib__retry_when_affected = False
-    elif is_test_function(testEntity):
-        testEntity._testlib__retry_when_affected = False
-    else:
-        raise Error("The no_retry_when_changed decorator can only be used on test classes and test methods")
+    testEntity._testlib__no_retry_when_changed = True
     return testEntity
 
 
@@ -2257,7 +2258,7 @@ def todo(reason='', flaky=False):
     then a pass is not considered to be an error.
     """
     def wrapper(testEntity):
-        testEntity._testlib_todo = (reason, flaky)
+        testEntity._testlib__todo = (reason, flaky)
         return testEntity
     return wrapper
 
@@ -2265,8 +2266,7 @@ def todo(reason='', flaky=False):
 def todoPybridge(reason=None, flaky=False):
     if os.getenv('TEST_SCENARIO') == 'pybridge':
         return todo(reason or 'still fails with python bridge', flaky)
-    else:
-        return lambda testEntity: testEntity
+    return lambda testEntity: testEntity
 
 
 def timeout(seconds):
@@ -2276,9 +2276,8 @@ def timeout(seconds):
     applies to test/common/run-tests, not to calling check-* directly.
     """
     def wrapper(testEntity):
-        testEntity.__timeout = seconds
+        testEntity._testlib__timeout = seconds
         return testEntity
-
     return wrapper
 
 

@@ -333,15 +333,14 @@ def detect_tests(test_files, image, opts):
                 # most tests should take much less than 10mins, so default to that;
                 # longer tests can be annotated with @timeout(seconds)
                 # check the test function first, fall back to the class'es timeout
-                test_timeout = getattr(test_method, "__timeout", getattr(test, "__timeout", 600))
                 if opts.tests and not any([t in test_str for t in opts.tests]):
                     continue
                 if test_str in opts.exclude:
                     continue
-                nd = getattr(test_method, "_testlib__non_destructive", False)
-                rwa = getattr(test_method, "_testlib__retry_when_affected", True)
-                todo = getattr(test_method, "_testlib_todo",
-                               getattr(test.__class__, "_testlib_todo", None))
+                test_timeout = testlib.get_decorator(test_method, test, "timeout", 600)
+                nd = testlib.get_decorator(test_method, test, "nondestructive")
+                rwa = not testlib.get_decorator(test_method, test, "no_retry_when_changed")
+                todo = testlib.get_decorator(test_method, test, "todo")
                 if getattr(test.__class__, "provision", None):
                     # each additionally provisioned VM costs parallel test capacity
                     cost = len(test.__class__.provision)

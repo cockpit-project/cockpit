@@ -156,28 +156,34 @@ const CreateTimerDialogBody = ({ owner }) => {
             {dialogError && <ModalError dialogError={_("Timer creation failed")} dialogErrorDetail={dialogError} />}
             <Form isHorizontal onSubmit={onSubmit}>
                 <FormGroup label={_("Name")}
+                           isRequired
                            fieldId="servicename"
                            validated={submitted && validationFailed.name ? "error" : "default"}
                            helperTextInvalid={!name.trim().length ? _("This field cannot be empty") : _("Only alphabets, numbers, : , _ , . , @ , - are allowed")}>
                     <TextInput id='servicename'
+                               isRequired
                                value={name}
                                validated={submitted && validationFailed.name ? "error" : "default"}
                                onChange={setName} />
                 </FormGroup>
                 <FormGroup label={_("Description")}
+                           isRequired
                            fieldId="description"
                            validated={submitted && validationFailed.description ? "error" : "default"}
                            helperTextInvalid={_("This field cannot be empty")}>
                     <TextInput id='description'
+                               isRequired
                                value={description}
                                validated={submitted && validationFailed.description ? "error" : "default"}
                                onChange={setDescription} />
                 </FormGroup>
                 <FormGroup label={_("Command")}
+                           isRequired
                            fieldId="command"
                            validated={submitted && validationFailed.command ? "error" : "default"}
                            helperTextInvalid={commandNotFound ? _("Command not found") : _("This field cannot be empty")}>
                     <TextInput id='command'
+                               isRequired
                                value={command}
                                validated={submitted && validationFailed.command ? "error" : "default"}
                                onChange={str => { setCommandNotFound(false); setCommand(str) }} />
@@ -204,6 +210,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                                helperTextInvalid={_("Delay must be a number")}>
                         <Flex>
                             <TextInput className="delay-number"
+                                       isRequired
                                        value={delayNumber}
                                        validated={submitted && validationFailed.delayNumber ? "error" : "default"}
                                        onChange={setDelayNumber} />
@@ -294,6 +301,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                                         {repeat == "minutely" &&
                                             <TextInput className='delay-number'
                                                        id={repeat}
+                                                       isRequired
                                                        value={repeatPatterns[idx].second}
                                                        onChange={second => {
                                                            const arr = [...repeatPatterns];
@@ -304,6 +312,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                                         }
                                         {repeat == "hourly" && <>
                                             <TextInput className='delay-number'
+                                                       isRequired
                                                        value={repeatPatterns[idx].minute}
                                                        onChange={minute => {
                                                            const arr = [...repeatPatterns];

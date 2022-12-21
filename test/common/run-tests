@@ -184,6 +184,9 @@ class Test:
         # be quiet in TAP mode for successful tests
         lines = self.output.strip().splitlines(keepends=True)
         if print_tap and self.returncode == 0 and len(lines) > 0:
+            for line in lines[:-1]:
+                if line.startswith(b"WARNING:"):
+                    write_line(line)
             write_line(lines[-1])
         else:
             for line in lines:

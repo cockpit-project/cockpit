@@ -329,7 +329,7 @@ class StorageHelpers:
 
     def dialog_wait_close(self):
         # file system operations often take longer than 10s
-        with self.browser.wait_timeout(60):
+        with self.browser.wait_timeout(max(self.browser.cdp.timeout, 60)):
             self.browser.wait_not_present('#dialog')
 
     def dialog_check(self, expect):
@@ -496,13 +496,13 @@ class StorageHelpers:
 
         self.write_file("/usr/local/bin/test-password-agent",
                         f"""#!/bin/sh
+# Sleep a bit to avoid starting this agent too quickly over and over,
+# and so that other agents get a chance as well.
+sleep 30
+
 for s in $(grep -h ^Socket= /run/systemd/ask-password/ask.* | sed 's/^Socket=//'); do
   printf '%s' '{password}' | /usr/lib/systemd/systemd-reply-password 1 $s
 done
-
-# Sleep a bit to avoid starting this agent too quickly over and over,
-# which would be wasteful and also cause systemd to block us.
-sleep 2
 """, perm="0755")
 
         self.write_file("/etc/systemd/system/test-password-agent.service",
@@ -528,6 +528,83 @@ DirectoryNotEmpty=/run/systemd/ask-password
 MakeDirectory=yes
 """)
         self.machine.execute("ln -s ../test-password-agent.path /etc/systemd/system/sysinit.target.wants/")
+
+    def encrypt_root(self, passphrase):
+        m = self.machine
+
+        # Set up a password agent in the old root and then arrange for
+        # it to be included in the initrd.  This will unlock the new
+        # encrypted root during boot.
+        #
+        # The password agent and its initrd configuration will be
+        # copied to the new root, so it will stay in place also when
+        # the initrd is regenerated again from within the new root.
+
+        self.setup_systemd_password_agent(passphrase)
+        m.write("/etc/dracut.conf.d/01-askpass.conf",
+                'install_items+=" /usr/local/bin/test-password-agent ' +
+                '/etc/systemd/system/test-password-agent.service ' +
+                '/etc/systemd/system/test-password-agent.path ' +
+                '/etc/systemd/system/sysinit.target.wants/test-password-agent.path "')
+
+        # The first step is to move /boot to a new unencrypted
+        # partition on the new disk but keep it mounted at /boot.
+        # This helps when running grub2-install and grub2-mkconfig,
+        # which will look at /boot and do the right thing.
+        #
+        # Then we copy (most of) the old root to the new disk, into a
+        # LUKS container.
+        #
+        # The kernel command line is changed to use the new root
+        # filesystem, and grub is installed on the new disk. The boot
+        # configuration of the VM has been changed to boot from the
+        # new disk.
+        #
+        # At that point the new root can be booted by the existing
+        # initrd, but the initrd will prompt for the passphrase (as
+        # expected).  Thus, the initrd is regenerated to include the
+        # password agent from above.
+        #
+        # Before the reboot, we destroy the original disk to make
+        # really sure that it wont be used anymore.
+
+        info = m.add_disk("4G", serial="NEWROOT", boot_disk=True)
+        dev = "/dev/" + info["dev"]
+        wait(lambda: m.execute(f"test -b {dev} && echo present").strip() == "present")
+        m.execute(f"""
+parted -s {dev} mktable msdos
+parted -s {dev} mkpart primary ext4 1M 300M
+parted -s {dev} mkpart primary ext4 300M 100%
+echo {passphrase} | cryptsetup luksFormat {dev}2
+echo {passphrase} | cryptsetup luksOpen {dev}2 dm-test
+luks_uuid=$(blkid -p {dev}2 -s UUID -o value)
+mkfs.ext4 /dev/mapper/dm-test
+mkdir /new-root
+mount /dev/mapper/dm-test /new-root
+mkfs.ext4 {dev}1
+mkdir /new-root/boot
+mount {dev}1 /new-root/boot
+tar --one-file-system -cf - --exclude /boot --exclude='/var/tmp/*' --exclude='/var/cache/*' --exclude='/var/lib/mock/*' --exclude='/var/lib/containers/*' / | tar -C /new-root -xf -
+touch /new-root/.autorelabel
+tar --one-file-system -C /boot -cf - . | tar -C /new-root/boot -xf -
+umount /new-root/boot
+mount {dev}1 /boot
+echo "(hd0) {dev}" >/boot/grub2/device.map
+sed -i -e 's,/boot/,/,' /boot/loader/entries/*
+uuid=$(blkid -p /dev/mapper/dm-test -s UUID -o value)
+buuid=$(blkid -p {dev}1 -s UUID -o value)
+echo "UUID=$uuid / auto defaults 0 0" >/new-root/etc/fstab
+echo "UUID=$buuid /boot auto defaults 0 0" >>/new-root/etc/fstab
+dracut --regenerate-all --force
+grub2-install {dev}
+grub2-mkconfig -o /boot/grub2/grub.cfg
+grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uuid=$luks_uuid"
+! test -f /etc/kernel/cmdline || cp /etc/kernel/cmdline /new-root/etc/kernel/cmdline
+""", timeout=300)
+        luks_uuid = m.execute(f"blkid -p {dev}2 -s UUID -o value").strip()
+        m.spawn("dd if=/dev/zero of=/dev/vda bs=1M count=100; reboot", "reboot", check=False)
+        m.wait_reboot(300)
+        self.assertEqual(m.execute("findmnt -n -o SOURCE /").strip(), f"/dev/mapper/luks-{luks_uuid}")
 
 
 class StorageCase(MachineCase, StorageHelpers):

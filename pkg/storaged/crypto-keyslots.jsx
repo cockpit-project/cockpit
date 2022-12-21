@@ -25,21 +25,24 @@ import {
     Checkbox, ClipboardCopy,
     Form, FormGroup,
     DataListItem, DataListItemRow, DataListItemCells, DataListCell, DataList,
-    Text, TextVariants, TextInput as TextInputPF, Stack,
+    TextContent, Text, TextVariants, TextList, TextListItem, TextInput as TextInputPF, Stack,
 } from "@patternfly/react-core";
 import { EditIcon, MinusIcon, PlusIcon } from "@patternfly/react-icons";
 
 import sha1 from "js-sha1";
 import sha256 from "js-sha256";
 import stable_stringify from "json-stable-stringify-without-jsonify";
+import { check_missing_packages, install_missing_packages, Enum as PkEnum } from "packagekit";
 
 import {
     dialog_open,
     SelectOneRadio, TextInput, PassInput, Skip
 } from "./dialog.jsx";
-import { array_find, decode_filename, block_name } from "./utils.js";
+import { array_find, decode_filename, encode_filename, block_name, for_each_async } from "./utils.js";
 import { fmt_to_fragments } from "utils.jsx";
 import { StorageButton } from "./storage-controls.jsx";
+import { parse_options, unparse_options } from "./format-dialog.jsx";
+import { edit_config } from "./crypto-tab.jsx";
 
 import clevis_luks_passphrase_sh from "raw-loader!./clevis-luks-passphrase.sh";
 
@@ -253,6 +256,197 @@ export function init_existing_passphrase(block, just_type, callback) {
     };
 }
 
+/* Getting the system ready for NBDE on the root filesystem.
+
+   We need the clevis module in the initrd.  If it is not there, the
+   clevis-dracut package should be installed and the initrd needs to
+   be regenerated.  We do this only after the user has agreed to it.
+
+   The kernel command line needs to have rd.neednet=1 in it.  We just
+   do this unconditionally because it's so fast.
+*/
+
+function ensure_package_installed(steps, progress, package_name) {
+    function status_callback(progress) {
+        return p => {
+            let text = null;
+            if (p.waiting) {
+                text = _("Waiting for other software management operations to finish");
+            } else if (p.package) {
+                let fmt;
+                if (p.info == PkEnum.INFO_DOWNLOADING)
+                    fmt = _("Downloading $0");
+                else if (p.info == PkEnum.INFO_REMOVING)
+                    fmt = _("Removing $0");
+                else
+                    fmt = _("Installing $0");
+                text = cockpit.format(fmt, p.package);
+            }
+            progress(text, p.cancel);
+        };
+    }
+
+    progress(cockpit.format(_("Checking for $0 package"), package_name), null);
+    return check_missing_packages([package_name], null)
+            .then(data => {
+                progress(null, null);
+                if (data.missing_names.length + data.unavailable_names.length > 0)
+                    steps.push({
+                        title: cockpit.format(_("The $0 package must be installed."), package_name),
+                        func: progress => {
+                            if (data.remove_names.length > 0)
+                                return Promise.reject(cockpit.format(_("Installing $0 would remove $1."), name, data.remove_names[0]));
+                            else if (data.unavailable_names.length > 0)
+                                return Promise.reject(cockpit.format(_("The $0 package is not available from any repository."), name));
+                            else
+                                return install_missing_packages(data, status_callback(progress));
+                        }
+                    });
+            });
+}
+
+function ensure_initrd_clevis_support(steps, progress, package_name) {
+    const task = cockpit.spawn(["lsinitrd", "-m"], { superuser: true, err: "message" });
+    progress(_("Checking for NBDE support in the initrd"), () => task.close());
+    return task.then(data => {
+        progress(null, null);
+        if (data.indexOf("clevis") < 0) {
+            return ensure_package_installed(steps, progress, package_name)
+                    .then(() => {
+                        steps.push({
+                            title: _("The initrd must be regenerated."),
+                            func: progress => {
+                                // dracut doesn't react to SIGINT, so let's not enable our Cancel button
+                                progress(_("Regenerating initrd"), null);
+                                return cockpit.spawn(["dracut", "--force", "--regenerate-all"],
+                                                     { superuser: true, err: "message" });
+                            }
+                        });
+                    });
+        }
+    });
+}
+
+function ensure_root_nbde_support(steps, progress) {
+    progress(_("Adding rd.neednet=1 to kernel command line"), null);
+    return cockpit.spawn(["grubby", "--update-kernel=ALL", "--args=rd.neednet=1"],
+                         { superuser: true, err: "message" })
+            .then(() => ensure_initrd_clevis_support(steps, progress, "clevis-dracut"));
+}
+
+function ensure_fstab_option(steps, progress, client, block, option) {
+    const cleartext = client.blocks_cleartext[block.path];
+    const crypto = client.blocks_crypto[block.path];
+    const fsys_config = (cleartext
+        ? array_find(cleartext.Configuration, function (c) { return c[0] == "fstab" })
+        : array_find(crypto.ChildConfiguration, function (c) { return c[0] == "fstab" }));
+    const fsys_options = fsys_config && parse_options(decode_filename(fsys_config[1].opts.v));
+
+    if (!fsys_options || fsys_options.indexOf(option) >= 0)
+        return Promise.resolve();
+
+    const new_fsys_options = fsys_options.concat([option]);
+    const new_fsys_config = [
+        "fstab",
+        Object.assign({ }, fsys_config[1],
+                      {
+                          opts: {
+                              t: 'ay',
+                              v: encode_filename(unparse_options(new_fsys_options))
+                          }
+                      })
+    ];
+    progress(cockpit.format(_("Adding \"$0\" to filesystem options"), option), null);
+    return block.UpdateConfigurationItem(fsys_config, new_fsys_config, { });
+}
+
+function ensure_crypto_option(steps, progress, client, block, option) {
+    const crypto_config = array_find(block.Configuration, function (c) { return c[0] == "crypttab" });
+    const crypto_options = crypto_config && parse_options(decode_filename(crypto_config[1].options.v));
+    if (!crypto_options || crypto_options.indexOf(option) >= 0)
+        return Promise.resolve();
+
+    const new_crypto_options = crypto_options.concat([option]);
+    progress(cockpit.format(_("Adding \"$0\" to encryption options"), option), null);
+    return edit_config(block, (config, commit) => {
+        config.options = { t: 'ay', v: encode_filename(unparse_options(new_crypto_options)) };
+        return commit();
+    });
+}
+
+function ensure_systemd_unit_enabled(steps, progress, name, package_name) {
+    progress(cockpit.format(_("Enabling $0"), name));
+    return cockpit.spawn(["systemctl", "is-enabled", name], { err: "message" })
+            .catch((err, output) => {
+                if (err && output == "" && package_name) {
+                // We assume that installing the package will enable the unit.
+                    return ensure_package_installed(steps, progress, package_name);
+                } else
+                    return cockpit.spawn(["systemctl", "enable", name],
+                                         { superuser: true, err: "message" });
+            });
+}
+
+function ensure_non_root_nbde_support(steps, progress, client, block) {
+    return ensure_systemd_unit_enabled(steps, progress, "remote-cryptsetup.target")
+            .then(() => ensure_systemd_unit_enabled(steps, progress, "clevis-luks-askpass.path", "clevis-systemd"))
+            .then(() => ensure_fstab_option(steps, progress, client, block, "_netdev"))
+            .then(() => ensure_crypto_option(steps, progress, client, block, "_netdev"));
+}
+
+function ensure_nbde_support(steps, progress, client, block) {
+    const cleartext = client.blocks_cleartext[block.path];
+    const crypto = client.blocks_crypto[block.path];
+    const fsys_config = (cleartext
+        ? array_find(cleartext.Configuration, function (c) { return c[0] == "fstab" })
+        : array_find(crypto.ChildConfiguration, function (c) { return c[0] == "fstab" }));
+    const dir = decode_filename(fsys_config[1].dir.v);
+
+    if (dir == "/") {
+        if (client.get_config("nbde_root_help", false)) {
+            steps.is_root = true;
+            return ensure_root_nbde_support(steps, progress);
+        } else
+            return Promise.resolve();
+    } else
+        return ensure_non_root_nbde_support(steps, progress, client, block);
+}
+
+function ensure_nbde_support_dialog(steps, client, block, url, adv, old_key, existing_passphrase) {
+    const dlg = dialog_open({
+        Title: _("Add Network Bound Disk Encryption"),
+        Body: (
+            <TextContent>
+                <Text compmonent={TextVariants.p}>
+                    { steps.is_root
+                        ? _("The system does not currently support unlocking the root filesystem with a Tang keyserver.")
+                        : _("The system does not currently support unlocking a filesystem with a Tang keyserver during boot.")
+                    }
+                </Text>
+                <Text compmonent={TextVariants.p}>
+                    {_("These additional steps are necessary:")}
+                </Text>
+                <TextList>
+                    { steps.map((s, i) => <TextListItem key={i}>{s.title}</TextListItem>) }
+                </TextList>
+            </TextContent>),
+        Fields: existing_passphrase_fields(_("Saving a new passphrase requires unlocking the disk. Please provide a current disk passphrase.")),
+        Action: {
+            Title: _("Fix NBDE support"),
+            action: (vals, progress) => {
+                return for_each_async(steps, s => s.func(progress))
+                        .then(() => {
+                            steps = [];
+                            progress(_("Adding key"), null);
+                            return add_or_update_tang(dlg, vals, block,
+                                                      url, adv, old_key,
+                                                      vals.passphrase || existing_passphrase);
+                        });
+            }
+        }
+    });
+}
+
 function parse_url(url) {
     // clevis-encrypt-tang defaults to "http://" (via curl), so we do the same here.
     if (!/^[a-zA-Z]+:\/\//.test(url))
@@ -312,15 +506,16 @@ function add_dialog(client, block) {
         ].concat(existing_passphrase_fields(_("Saving a new passphrase requires unlocking the disk. Please provide a current disk passphrase."))),
         Action: {
             Title: _("Add"),
-            action: function (vals) {
+            action: function (vals, progress) {
                 const existing_passphrase = vals.passphrase || recovered_passphrase;
                 if (!client.features.clevis || vals.type == "luks-passphrase") {
                     return passphrase_add(block, vals.new_passphrase, existing_passphrase);
                 } else {
-                    return get_tang_adv(vals.tang_url).then(function (adv) {
-                        edit_tang_adv(client, block, null,
-                                      vals.tang_url, adv, existing_passphrase);
-                    });
+                    return get_tang_adv(vals.tang_url)
+                            .then(adv => {
+                                edit_tang_adv(client, block, null,
+                                              vals.tang_url, adv, existing_passphrase);
+                            });
                 }
             }
         },
@@ -376,6 +571,14 @@ function edit_clevis_dialog(client, block, key) {
     });
 }
 
+function add_or_update_tang(dlg, vals, block, url, adv, old_key, passphrase) {
+    return clevis_add(block, "tang", { url: url, adv: adv }, vals.passphrase || passphrase).then(() => {
+        if (old_key)
+            return clevis_remove(block, old_key);
+    })
+            .catch(request_passphrase_on_error_handler(dlg, vals, passphrase, block));
+}
+
 function edit_tang_adv(client, block, key, url, adv, passphrase) {
     const parsed = parse_url(url);
     const cmd = cockpit.format("ssh $0 tang-show-keys $1", parsed.hostname, parsed.port);
@@ -408,12 +611,26 @@ function edit_tang_adv(client, block, key, url, adv, passphrase) {
         Fields: existing_passphrase_fields(_("Saving a new passphrase requires unlocking the disk. Please provide a current disk passphrase.")),
         Action: {
             Title: _("Trust key"),
-            action: function (vals) {
-                return clevis_add(block, "tang", { url: url, adv: adv }, vals.passphrase || passphrase).then(() => {
-                    if (key)
-                        return clevis_remove(block, key);
-                })
-                        .catch(request_passphrase_on_error_handler(dlg, vals, passphrase, block));
+            action: function (vals, progress) {
+                if (key) {
+                    return add_or_update_tang(dlg, vals, block,
+                                              url, adv, key,
+                                              passphrase);
+                } else {
+                    const steps = [];
+                    return ensure_nbde_support(steps, progress, client, block)
+                            .then(() => {
+                                if (steps.length > 0)
+                                    ensure_nbde_support_dialog(steps, client, block, url,
+                                                               adv, key, passphrase);
+                                else {
+                                    progress(null, null);
+                                    return add_or_update_tang(dlg, vals, block,
+                                                              url, adv, key,
+                                                              passphrase);
+                                }
+                            });
+                }
             }
         }
     });

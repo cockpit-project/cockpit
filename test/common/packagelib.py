@@ -383,6 +383,9 @@ post_upgrade() {{
         xml += '</updates>\n'
         return xml
 
+    def addPackageSet(self, name):
+        self.machine.execute(f"mkdir -p {self.repo_dir}; cp /var/lib/package-sets/{name}/* {self.repo_dir}")
+
     def enableRepo(self):
         if self.backend == "apt":
             self.createAptChangelogs()

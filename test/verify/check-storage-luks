@@ -19,7 +19,16 @@
 
 import parent  # noqa: F401
 from storagelib import StorageCase
-from testlib import test_main, todoPybridge, wait
+from packagelib import PackageCase
+from testlib import skipImage, test_main, todoPybridge, wait, timeout, attach
+import subprocess
+
+
+def console_screenshot(machine, name):
+    subprocess.run("virsh -c qemu:///session screenshot %s '%s'" % (str(machine._domain.ID()), name),
+                   shell=True)
+    attach(name, move=True)
+    print("Wrote screenshot to " + name)
 
 
 class TestStorageLuks(StorageCase):
@@ -189,87 +198,6 @@ class TestStorageLuks(StorageCase):
 
         b.logout()
         wait(lambda: m.execute("(loginctl list-users | grep admin) || true") == "")
-
-    def testClevisTang(self):
-        m = self.machine
-        b = self.browser
-
-        mount_point_secret = "/run/secret"
-
-        m.execute("systemctl start tangd.socket")
-
-        self.login_and_go("/storage")
-
-        # Add a disk and format it with luks
-        m.add_disk("50M", serial="MYDISK")
-        b.wait_in_text("#drives", "MYDISK")
-        b.click('.sidepanel-row:contains("MYDISK")')
-        b.wait_visible("#storage-detail")
-
-        self.content_row_action(1, "Format")
-        self.dialog({"type": "ext4",
-                     "crypto": self.default_crypto_type,
-                     "name": "ENCRYPTED",
-                     "mount_point": mount_point_secret,
-                     "mount_options.auto": False,
-                     "passphrase": "vainu-reku-toma-rolle-kaja",
-                     "passphrase2": "vainu-reku-toma-rolle-kaja"})
-        self.content_row_wait_in_col(1, 2, "Filesystem (encrypted)")
-        self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
-
-        self.content_tab_wait_in_info(1, 2, "Options", "none")
-        tab = self.content_tab_expand(1, 2)
-        panel = tab + " .pf-c-card:contains(Keys) "
-        b.wait_visible(panel)
-        b.wait_in_text(panel + "ul li:nth-child(1)", "Passphrase")
-
-        # Add a key
-        #
-        b.click(panel + "[aria-label=Add]")
-        self.dialog_wait_open()
-        self.dialog_wait_apply_enabled()
-        self.dialog_set_val("type", "tang")
-        self.dialog_set_val("tang_url", "127.0.0.1")
-        self.dialog_set_val("passphrase", "wrong-passphrase")
-        self.dialog_apply()
-        b.wait_in_text("#dialog", "Make sure the key hash from the Tang server matches")
-        b.wait_in_text("#dialog", m.execute("tang-show-keys").strip())
-        self.dialog_apply()
-        b.wait_in_text("#dialog", "No key available with this passphrase.")
-        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
-        self.dialog_apply()
-        self.dialog_wait_close()
-        b.wait_visible(panel + "ul li:nth-child(2)")
-        b.wait_in_text(panel + "ul li:nth-child(2)", "127.0.0.1")
-
-        # Mount it.  This should succeed without passphrase.
-        #
-        self.content_row_action(1, "Mount")
-        self.dialog_wait_open()
-        self.dialog_wait_val("mount_point", mount_point_secret)
-        self.dialog_apply()
-        self.dialog_wait_close()
-        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
-
-        # Edit the key, without providing an existing passphrase
-        #
-        b.click(panel + "ul li:nth-child(2) [aria-label=Edit]")
-        self.dialog_wait_open()
-        self.dialog_wait_apply_enabled()
-        self.dialog_wait_val("tang_url", "127.0.0.1")
-        self.dialog_set_val("tang_url", "http://127.0.0.1/")
-        self.dialog_apply()
-        b.wait_in_text("#dialog", "Make sure the key hash from the Tang server matches")
-        b.wait_in_text("#dialog", m.execute("tang-show-keys").strip())
-        self.dialog_apply()
-        self.dialog_wait_close()
-        b.wait_in_text(panel + "ul li:nth-child(2)", "http://127.0.0.1/")
-
-        # Remove key on client
-        #
-        b.click(panel + "ul li:nth-child(2) button[aria-label=Remove]")
-        self.confirm()
-        b.wait_not_present(panel + "ul li:nth-child(2)")
 
     def testLuks1Slots(self):
         self.allow_journal_messages("Device is not initialized.*", ".*could not be opened.")
@@ -540,6 +468,239 @@ class TestStorageLuks(StorageCase):
         b.wait_visible("#storage-detail")
 
         self.wait_mounted(1, 1)
+
+
+class TestStorageNBDE(StorageCase, PackageCase):
+    provision = {
+        "0": {"address": "10.111.112.1/20", "memory_mb": 2048},
+        "tang": {"address": "10.111.112.5/20"}
+    }
+
+    def testBasic(self):
+        m = self.machine
+        b = self.browser
+
+        # Only Arch gets it right...
+        need_fixing = (m.image != "arch")
+
+        mount_point_secret = "/run/secret"
+
+        tang_m = self.machines["tang"]
+        tang_m.execute("systemctl start tangd.socket")
+        tang_m.execute("firewall-cmd --add-port 80/tcp")
+
+        if need_fixing:
+            self.addPackageSet("clevis")
+            self.enableRepo()
+
+        self.login_and_go("/storage")
+
+        # Add a disk and format it with luks
+        m.add_disk("50M", serial="MYDISK")
+        b.wait_in_text("#drives", "MYDISK")
+        b.click('.sidepanel-row:contains("MYDISK")')
+        b.wait_visible("#storage-detail")
+
+        self.content_row_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "crypto": self.default_crypto_type,
+                     "name": "ENCRYPTED",
+                     "mount_point": mount_point_secret,
+                     "mount_options.auto": False,
+                     "passphrase": "vainu-reku-toma-rolle-kaja",
+                     "passphrase2": "vainu-reku-toma-rolle-kaja"})
+        self.content_row_wait_in_col(1, 2, "Filesystem (encrypted)")
+        self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
+
+        self.content_tab_wait_in_info(1, 2, "Options", "none")
+        tab = self.content_tab_expand(1, 2)
+        panel = tab + " .pf-c-card:contains(Keys) "
+        b.wait_visible(panel)
+        b.wait_in_text(panel + "ul li:nth-child(1)", "Passphrase")
+
+        # Add a key
+        #
+        b.click(panel + "[aria-label=Add]")
+        self.dialog_wait_open()
+        self.dialog_wait_apply_enabled()
+        self.dialog_set_val("type", "tang")
+        self.dialog_set_val("tang_url", "10.111.112.5")
+        self.dialog_set_val("passphrase", "wrong-passphrase")
+        self.dialog_apply()
+        b.wait_in_text("#dialog", "Make sure the key hash from the Tang server matches")
+        b.wait_in_text("#dialog", tang_m.execute("tang-show-keys").strip())
+        self.dialog_apply()
+        if need_fixing:
+            b.wait_in_text("#dialog", "Add Network Bound Disk Encryption")
+            with b.wait_timeout(60):
+                self.dialog_apply()
+        b.wait_in_text("#dialog", "No key available with this passphrase.")
+        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+        self.dialog_apply()
+        self.dialog_wait_close()
+        b.wait_visible(panel + "ul li:nth-child(2)")
+        b.wait_in_text(panel + "ul li:nth-child(2)", "10.111.112.5")
+
+        # Adding the key should add "_netdev" options
+        #
+        self.content_tab_wait_in_info(1, 1, "Mount point", "_netdev")
+        self.content_tab_wait_in_info(1, 2, "Options", "_netdev")
+
+        # Mount it.  This should succeed without passphrase.
+        #
+        self.content_row_action(1, "Mount")
+        self.dialog_wait_open()
+        self.dialog_wait_val("mount_point", mount_point_secret)
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.content_row_wait_in_col(1, 2, "ext4 filesystem")
+
+        # Edit the key, without providing an existing passphrase
+        #
+        b.click(panel + "ul li:nth-child(2) [aria-label=Edit]")
+        self.dialog_wait_open()
+        self.dialog_wait_apply_enabled()
+        self.dialog_wait_val("tang_url", "10.111.112.5")
+        self.dialog_set_val("tang_url", "http://10.111.112.5/")
+        self.dialog_apply()
+        b.wait_in_text("#dialog", "Make sure the key hash from the Tang server matches")
+        b.wait_in_text("#dialog", tang_m.execute("tang-show-keys").strip())
+        self.dialog_apply()
+        self.dialog_wait_close()
+        b.wait_in_text(panel + "ul li:nth-child(2)", "http://10.111.112.5/")
+
+        # Reset the options so that we can check that they get added
+        # also when the filesystem is mounted.
+        #
+        self.content_tab_info_action(1, 1, "Mount point")
+        self.dialog({"mount_options.extra": False})
+        self.content_tab_info_action(1, 2, "Options")
+        self.dialog({"options": ""}, expect={"options": "_netdev"})
+        self.content_tab_wait_in_info(1, 2, "Options", "none")
+
+        # Add a second key, this should not show the fixing dialog.
+        #
+        b.click(panel + "[aria-label=Add]")
+        self.dialog_wait_open()
+        self.dialog_wait_apply_enabled()
+        self.dialog_set_val("type", "tang")
+        self.dialog_set_val("tang_url", "http://10.111.112.5")
+        self.dialog_apply()
+        b.wait_in_text("#dialog", "Make sure the key hash from the Tang server matches")
+        b.wait_in_text("#dialog", tang_m.execute("tang-show-keys").strip())
+        self.dialog_apply()
+        self.dialog_wait_close()
+        self.dialog_wait_close()
+        b.wait_visible(panel + "ul li:nth-child(3)")
+        b.wait_in_text(panel + "ul li:nth-child(3)", "http://10.111.112.5")
+
+        # This should bring the options back.
+        #
+        self.content_tab_wait_in_info(1, 1, "Mount point", "_netdev")
+        self.content_tab_wait_in_info(1, 2, "Options", "_netdev")
+
+        # Reboot
+        #
+        m.reboot()
+        m.start_cockpit()
+        b.relogin()
+        b.enter_page("/storage")
+        b.wait_visible("#storage-detail")
+
+        self.wait_mounted(1, 1)
+
+        # Remove one key on client
+        #
+        tab = self.content_tab_expand(1, 2)
+        panel = tab + " .pf-c-card:contains(Keys) "
+        b.click(panel + 'ul li:contains("Slot 1") button[aria-label=Remove]')
+        self.confirm()
+        b.wait_not_present(panel + 'ul li:contains("Slot 1")')
+
+    @skipImage("TODO: don't know how to encrypt the rootfs",
+               "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2204", "arch")
+    @timeout(1200)
+    def testRootReboot(self):
+        m = self.machine
+        b = self.browser
+
+        tang_m = self.machines["tang"]
+        tang_m.execute("systemctl start tangd.socket")
+        tang_m.execute("firewall-cmd --add-port 80/tcp")
+
+        try:
+            self.encrypt_root("einszweidrei")
+        except Exception:
+            console_screenshot(m, "failed-encrypt.ppm")
+            raise
+
+        self.assertIn("crypt", m.execute("lsblk -snlo TYPE $(findmnt -no SOURCE /)"))
+
+        self.addPackageSet("clevis")
+        self.enableRepo()
+
+        self.login_and_go("/storage")
+
+        # Add a clevis key to the root filesystem and then reboot.
+        #
+        # We also remove the original passphrase in order to be sure
+        # that it was in fact clevis that has unlocked the rootfs, and
+        # not the magic provided by "encrypt_root"
+
+        b.wait_visible("#mounts")
+        for i in range(1, 100):
+            if b.text(f"#mounts tbody tr:nth-child({i}) td[data-label=Mount]") == "/":
+                b.click(f"#mounts tbody tr:nth-child({i})")
+                break
+
+        b.wait_visible("#detail-content")
+        for i in range(1, 100):
+            col = self.content_row_tbody(i) + ' tr:first-child td[data-label="Used for"]'
+            if b.text(col) == "/":
+                root_row = i
+                break
+
+        tab = self.content_tab_expand(root_row, 3)
+        panel = tab + " .pf-c-card:contains(Keys) "
+        b.wait_visible(panel)
+        b.wait_in_text(panel + "ul li:nth-child(1)", "Passphrase")
+
+        with b.wait_timeout(360):
+            b.click(panel + "[aria-label=Add]")
+            self.dialog_wait_open()
+            self.dialog_wait_apply_enabled()
+            self.dialog_set_val("type", "tang")
+            self.dialog_set_val("tang_url", "10.111.112.5")
+            self.dialog_set_val("passphrase", "einszweidrei")
+            self.dialog_apply()
+            b.wait_in_text("#dialog", "Make sure the key hash from the Tang server matches")
+            b.wait_in_text("#dialog", tang_m.execute("tang-show-keys").strip())
+            self.dialog_apply()
+            b.wait_in_text("#dialog", "Add Network Bound Disk Encryption")
+            self.dialog_apply()
+            self.dialog_wait_close()
+
+        b.click(panel + "ul li:nth-child(1) button[aria-label=Remove]")
+        b.click("#force-remove-passphrase")
+        b.click("button:contains('Remove')")
+        b.wait_in_text(panel + "ul li:nth-child(1)", "Keyserver")
+
+        # Tell the initrd to configure our special inter-machine
+        # network that has the "tang" machine.
+        #
+        m.execute("grubby --update-kernel=ALL --args='ip=10.111.112.1::10.111.112.1:255.255.255.0::eth1:off'")
+
+        try:
+            m.reboot(timeout_sec=300)
+        except Exception:
+            console_screenshot(m, "failed-reboot.ppm")
+            raise
+
+        m.start_cockpit()
+        b.relogin()
+        b.enter_page("/storage")
+
+        self.assertIn("crypt", m.execute("lsblk -snlo TYPE $(findmnt -no SOURCE /)"))
 
 
 if __name__ == '__main__':

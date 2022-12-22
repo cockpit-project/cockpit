@@ -261,8 +261,8 @@ class DBusChannel(Channel):
             task.add_done_callback(self.tasks.discard)
         self.matches.append(self.bus.add_match(rule, sync_handler))
 
-    async def do_call(self, call, message):
-        path, iface, method, args = call
+    async def do_call(self, message):
+        path, iface, method, args = message['call']
         timeout = message.get('timeout')
         cookie = message.get('id')
         flags = message.get('flags')
@@ -307,7 +307,8 @@ class DBusChannel(Channel):
         except Exception as exc:
             self.send_message(error=['python.error', [str(exc)]], id=cookie)
 
-    async def do_add_match(self, add_match, message):
+    async def do_add_match(self, message):
+        add_match = message['add-match']
         logger.debug('adding match %s', add_match)
 
         async def match_hit(message):
@@ -403,7 +404,8 @@ class DBusChannel(Channel):
             except BusError:
                 pass
 
-    async def do_watch(self, watch, message):
+    async def do_watch(self, message):
+        watch = message['watch']
         path = watch.get('path')
         path_namespace = watch.get('path_namespace')
         interface_name = watch.get('interface')
@@ -431,21 +433,21 @@ class DBusChannel(Channel):
         except BusError as error:
             self.send_message(error=[error.name, [error.message]], id=cookie)
 
-    async def do_meta(self, meta, message):
-        self.cache.inject(meta)
+    async def do_meta(self, message):
+        self.cache.inject(message['meta'])
 
     def do_data(self, data):
         message = json.loads(data)
         logger.debug('receive dbus request %s %s', self.name, message)
 
-        if call := message.get('call'):
-            task = asyncio.create_task(self.do_call(call, message))
-        elif add_match := message.get('add-match'):
-            task = asyncio.create_task(self.do_add_match(add_match, message))
-        elif watch := message.get('watch'):
-            task = asyncio.create_task(self.do_watch(watch, message))
-        elif meta := message.get('meta'):
-            task = asyncio.create_task(self.do_meta(meta, message))
+        if 'call' in message:
+            task = asyncio.create_task(self.do_call(message))
+        elif 'add-match' in message:
+            task = asyncio.create_task(self.do_add_match(message))
+        elif 'watch' in message:
+            task = asyncio.create_task(self.do_watch(message))
+        elif 'meta' in message:
+            task = asyncio.create_task(self.do_meta(message))
         else:
             logger.debug('ignored dbus request %s', message)
             return

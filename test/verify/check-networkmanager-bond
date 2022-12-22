@@ -19,7 +19,7 @@
 
 import parent  # noqa: F401
 from netlib import NetworkCase
-from testlib import nondestructive, skipDistroPackage, skipImage, todoPybridge, test_main, wait
+from testlib import nondestructive, skipDistroPackage, skipImage, test_main, wait
 
 from lib.constants import TEST_OS_DEFAULT
 
@@ -115,7 +115,6 @@ class TestBonding(NetworkCase):
         self.wait_for_iface(iface1)
         self.wait_for_iface(iface2)
 
-    @todoPybridge()
     def testNonDefaultSettings(self):
         b = self.browser
         m = self.machine

@@ -78,41 +78,32 @@ export const ListingTable = ({
     sortMethod,
     ...extraProps
 }) => {
-    let rows = tableRows;
-
+    let rows = [...tableRows];
     const [expanded, setExpanded] = useState({});
     const [newItems, setNewItems] = useState([]);
     const [currentRowsKeys, setCurrentRowsKeys] = useState([]);
     const [activeSortIndex, setActiveSortIndex] = useState(sortBy ? sortBy.index : 0);
     const [activeSortDirection, setActiveSortDirection] = useState(sortBy ? sortBy.direction : SortByDirection.asc);
+    const rowKeys = rows.map(row => row.props ? row.props.key : undefined)
+            .filter(key => key !== undefined);
+    const rowKeysStr = JSON.stringify(rowKeys);
+    const currentRowsKeysStr = JSON.stringify(currentRowsKeys);
 
     useEffect(() => {
-        const getRowKeys = rows => {
-            const keys = [];
-
-            rows.forEach(row => {
-                if (row.props && row.props.key !== undefined)
-                    keys.push(row.props.key);
-            });
-
-            return keys;
-        };
-
-        const current_keys = getRowKeys(rows);
-        if (JSON.stringify(current_keys) === JSON.stringify(currentRowsKeys))
-            return;
-
         // Don't highlight all when the list gets loaded
-        if (currentRowsKeys.length !== 0) {
-            const new_keys = current_keys.filter(key => currentRowsKeys.indexOf(key) === -1);
+        const _currentRowsKeys = JSON.parse(currentRowsKeysStr);
+        const _rowKeys = JSON.parse(rowKeysStr);
+
+        if (_currentRowsKeys.length !== 0) {
+            const new_keys = _rowKeys.filter(key => _currentRowsKeys.indexOf(key) === -1);
             if (new_keys.length) {
                 setTimeout(() => setNewItems(items => items.filter(item => new_keys.indexOf(item) < 0)), 4000);
-                setNewItems([...newItems, ...new_keys]);
+                setNewItems(ni => [...ni, ...new_keys]);
             }
         }
 
-        setCurrentRowsKeys([...new Set([...currentRowsKeys, ...current_keys])]);
-    }, [rows, currentRowsKeys, newItems]);
+        setCurrentRowsKeys(crk => [...new Set([...crk, ..._rowKeys])]);
+    }, [currentRowsKeysStr, rowKeysStr]);
 
     const isSortable = cells.some(col => col.sortable);
     const isExpandable = rows.some(row => row.expandedContent);

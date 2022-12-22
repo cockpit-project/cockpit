@@ -19,12 +19,11 @@
 
 import parent  # noqa: F401
 from netlib import NetworkCase
-from testlib import nondestructive, skipDistroPackage, todoPybridge, test_main, wait
+from testlib import nondestructive, skipDistroPackage, test_main, wait
 
 
 @skipDistroPackage()
 @nondestructive
-@todoPybridge()
 class TestNetworkingOther(NetworkCase):
     def testOther(self):
         b = self.browser

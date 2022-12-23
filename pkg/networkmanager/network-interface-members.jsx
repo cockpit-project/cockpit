@@ -105,7 +105,7 @@ export const NetworkInterfaceMembers = ({
                     // Will add traffic info right after
                     {
                         title: (
-                            <>
+                            <div className="btn-group">
                                 {onoff}
                                 {privileged && <Button variant="secondary"
                                     isSmall
@@ -126,9 +126,10 @@ export const NetworkInterfaceMembers = ({
                                     })}>
                                     <MinusIcon />
                                 </Button>}
-                            </>
-                        )
-                    }
+                            </div>
+                        ),
+                        props: { className: "pf-c-table__action" }
+                    },
                 ],
                 props: {
                     key: iface.Name,
@@ -143,7 +144,8 @@ export const NetworkInterfaceMembers = ({
                 row.columns.splice(1, 0, { title: samples ? cockpit.format_bits_per_sec(samples[1][0] * 8) : "" });
                 row.columns.splice(2, 0, { title: samples ? cockpit.format_bits_per_sec(samples[0][0] * 8) : "" });
             } else {
-                row.columns.splice(1, 0, { title: device_state_text(), props: { colSpan: 2 } });
+                row.columns.splice(1, 0, { title: device_state_text() });
+                row.columns.splice(1, 0, { title: "" });
             }
 
             rows.push(row);
@@ -210,12 +212,13 @@ export const NetworkInterfaceMembers = ({
                 </CardActions>
             </CardHeader>
             <ListingTable aria-label={_("Interface members")}
+                          className="networking-interface-members"
                           variant='compact'
                           columns={[
                               { title: (cs && cs.type == "bond") ? _("Interfaces") : _("Ports"), props: { width: 25 } },
                               { title: _("Sending"), props: { width: 25 } },
                               { title: _("Receiving"), props: { width: 25 } },
-                              { title: "", props: { width: 25 } },
+                              { title: "" },
                           ]}
                           rows={renderMemberRows()} />
         </Card>

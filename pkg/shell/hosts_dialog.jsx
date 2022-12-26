@@ -148,7 +148,8 @@ class AddMachine extends React.Component {
             error = _("The IP address or hostname cannot contain whitespace.");
         else {
             const machine = this.props.machines_ins.lookup(this.state.address);
-            if (machine && machine.on_disk && machine.address != this.props.old_address) {
+            const machine_address = machine ? full_address(this.props.machines_ins, machine.address) : undefined;
+            if (machine && machine.on_disk && machine_address != this.props.old_address) {
                 if (machine.visible)
                     error = _("This machine has already been added.");
                 else if (!this.state.userChanged)
@@ -243,8 +244,8 @@ class AddMachine extends React.Component {
         });
 
         const callback = this.onAddHost;
-        const title = this.state.old_machine && !this.state.old_machine.visible ? _("Edit host") : _("Add new host");
-        const submitText = this.state.old_machine && !this.state.old_machine.visible ? _("Set") : _("Add");
+        const title = this.state.old_machine ? _("Edit host") : _("Add new host");
+        const submitText = this.state.old_machine ? _("Set") : _("Add");
 
         const body = <Form isHorizontal>
             <FormGroup label={_("Host")} helperText={_("Can be a hostname, IP address, alias name, or ssh:// URI")}

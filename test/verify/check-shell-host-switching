@@ -353,12 +353,13 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         m2.execute("hostnamectl set-hostname machine2")
         m3.execute("hostnamectl set-hostname machine3")
 
-        self.allow_journal_messages("Could not chdir to home directory /home/franz: No such file or directory")
-        m1.execute("useradd franz")
-        m1.execute("echo franz:foobar | chpasswd")
-        m3.execute("useradd franz")
-        m3.execute("echo franz:foobar | chpasswd")
-        self.authorize_pubkey(m3, "franz", self.get_pubkey(m1, "admin"))
+        for user in ["franz", "hera"]:
+            self.allow_journal_messages(f"Could not chdir to home directory /home/{user}: No such file or directory")
+            m1.execute(f"useradd {user}")
+            m1.execute(f"echo {user}:foobar | chpasswd")
+            m3.execute(f"useradd {user}")
+            m3.execute(f"echo {user}:foobar | chpasswd")
+            self.authorize_pubkey(m3, user, self.get_pubkey(m1, "admin"))
 
         # This should all work without being admin on m1
         self.login_and_go(superuser=False)
@@ -371,7 +372,16 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         b.click("button:contains('Edit hosts')")
         b.click("#nav-hosts .nav-item a[href='/@10.111.113.3'] + span button.nav-action.pf-m-secondary")
 
-        b.wait_visible('#hosts_setup_server_dialog')
+        b.wait_visible('#hosts_setup_server_dialog .pf-c-modal-box__title:contains("Edit host")')
+        b.set_input_text('#add-machine-user', 'hera')
+        b.click('#hosts_setup_server_dialog .pf-m-primary')
+        with b.wait_timeout(30):
+            b.wait_not_present('#hosts_setup_server_dialog')
+
+        b.wait_text(".nav-item a[href='/@10.111.113.3']", "hera @machine3")
+
+        # Editing the username of an existing host is possible
+        b.click("#nav-hosts .nav-item a[href='/@10.111.113.3'] + span button.nav-action.pf-m-secondary")
         b.set_input_text('#add-machine-user', 'franz')
 
         def tab(n):

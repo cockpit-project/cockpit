@@ -46,7 +46,7 @@
 Name:           cockpit
 Summary:        Web Console for Linux servers
 
-License:        LGPLv2+
+License:        LGPL-2.1-or-later
 URL:            https://cockpit-project.org/
 
 Version:        0

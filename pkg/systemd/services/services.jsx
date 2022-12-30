@@ -21,7 +21,7 @@ import '../../lib/patternfly/patternfly-4-cockpit.scss';
 import 'polyfills'; // once per application
 import 'cockpit-dark-theme'; // once per page
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { createRoot } from 'react-dom/client';
 import {
     Button,
@@ -40,10 +40,8 @@ import {
 import { ExclamationCircleIcon, FilterIcon } from '@patternfly/react-icons';
 
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
-import { Service } from "./service.jsx";
 import { ServiceTabs, service_tabs_suffixes } from "./service-tabs.jsx";
 import { ServicesList } from "./services-list.jsx";
-import { CreateTimerDialog } from "./timer-dialog.jsx";
 import { page_status } from "notifications";
 import * as timeformat from "timeformat";
 import cockpit from "cockpit";
@@ -51,6 +49,8 @@ import { superuser } from 'superuser';
 import { useEvent, usePageLocation } from "hooks";
 import { WithDialogs } from "dialogs.jsx";
 
+const CreateTimerDialog = lazy(() => import("./timer-dialog.jsx"));
+const Service = lazy(() => import("./service.jsx"));
 const _ = cockpit.gettext;
 
 // As long as we have long-running superuser channels, we need to
@@ -782,14 +782,18 @@ class ServicesPageBody extends React.Component {
                 />;
             }
 
-            return <Service unitIsValid={unitId => { const path = get_unit_path(unitId); return path !== undefined && this.state.unit_by_path[path].LoadState != 'not-found' }}
-                            owner={this.props.owner}
-                            key={unit_id}
-                            loadingUnits={this.props.isLoading}
-                            getUnitByPath={this.getUnitByPath}
-                            unit={unit}
-                            isPinned={this.state.pinnedUnits.includes(unit.path)}
-            />;
+            return (
+                <Suspense>
+                    <Service unitIsValid={unitId => { const path = get_unit_path(unitId); return path !== undefined && this.state.unit_by_path[path].LoadState != 'not-found' }}
+                        owner={this.props.owner}
+                        key={unit_id}
+                        loadingUnits={this.props.isLoading}
+                        getUnitByPath={this.getUnitByPath}
+                        unit={unit}
+                        isPinned={this.state.pinnedUnits.includes(unit.path)}
+                    />
+                </Suspense>
+            );
         }
 
         const fileStateDropdownOptions = [
@@ -1044,7 +1048,7 @@ const ServicesPage = () => {
                                                                                           onChange={() => setOwner("user")} />
                             </ToggleGroup>}
                         </FlexItem>
-                        {activeTab == "timer" && owner == "system" && superuser.allowed && <CreateTimerDialog isLoading={isLoading} owner={owner} />}
+                        {activeTab == "timer" && owner == "system" && superuser.allowed && <Suspense><CreateTimerDialog isLoading={isLoading} owner={owner} /></Suspense>}
                     </Flex>
                 </PageSection>}
                 <ServicesPageBody

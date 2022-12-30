@@ -237,3 +237,5 @@ export class ShutdownModal extends React.Component {
         );
     }
 }
+
+export default ShutdownModal;

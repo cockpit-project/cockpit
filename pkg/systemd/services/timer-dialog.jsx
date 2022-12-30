@@ -376,3 +376,5 @@ const CreateTimerDialogBody = ({ owner }) => {
         </Modal>
     );
 };
+
+export default CreateTimerDialog;

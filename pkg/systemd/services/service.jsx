@@ -99,3 +99,5 @@ export class Service extends React.Component {
         );
     }
 }
+
+export default Service;

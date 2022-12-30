@@ -22,7 +22,7 @@ import 'polyfills';
 import 'cockpit-dark-theme'; // once per page
 import cockpit from "cockpit";
 
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { createRoot } from "react-dom/client";
 import {
     Page, PageSection, PageSectionVariants,
@@ -39,9 +39,9 @@ import { MotdCard } from './overview-cards/motdCard.jsx';
 import { UsageCard } from './overview-cards/usageCard.jsx';
 import { SuperuserAlert } from './superuser-alert.jsx';
 import { SuperuserIndicator } from "../shell/superuser.jsx";
-import { ShutdownModal } from 'cockpit-components-shutdown.jsx';
 import { WithDialogs, DialogsContext } from "dialogs.jsx";
 
+const ShutdownModal = lazy(() => import('cockpit-components-shutdown.jsx'));
 const _ = cockpit.gettext;
 
 class OverviewPage extends React.Component {
@@ -104,12 +104,12 @@ class OverviewPage extends React.Component {
         const { actionIsOpen } = this.state;
         const dropdownItems = [
             <DropdownItem key="reboot" id="reboot"
-                          onClick={() => Dialogs.show(<ShutdownModal />)}
+                          onClick={() => Dialogs.show(<Suspense><ShutdownModal /></Suspense>)}
                           component="button">
                 {_("Reboot")}
             </DropdownItem>,
             <DropdownItem key="shutdown" id="shutdown"
-                          onClick={() => Dialogs.show(<ShutdownModal shutdown />)}
+                          onClick={() => Dialogs.show(<Suspense><ShutdownModal /></Suspense>)}
                           component="button">
                 {_("Shutdown")}
             </DropdownItem>,
@@ -124,7 +124,7 @@ class OverviewPage extends React.Component {
                             splitButtonItems={[
                                 <DropdownToggleAction id='reboot-button'
                                     key='reboot-button'
-                                    onClick={() => Dialogs.show(<ShutdownModal />)}>
+                                    onClick={() => Dialogs.show(<Suspense><ShutdownModal /></Suspense>)}>
                                     {_("Reboot")}
                                 </DropdownToggleAction>
                             ]}

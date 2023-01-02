@@ -168,14 +168,6 @@ class ServicesPageBody extends React.Component {
             this.state.pinnedUnits = [];
         }
 
-        this.onCurrentTextFilterChanged = (currentTextFilter) => {
-            this.setState({ currentTextFilter });
-        };
-
-        this.onFiltersChanged = (filters) => {
-            this.setState({ filters });
-        };
-
         this.filtersRef = React.createRef();
 
         // Possible LoadState values: stub, loaded, not-found, bad-setting, error, merged, masked
@@ -232,11 +224,27 @@ class ServicesPageBody extends React.Component {
         this.addTimerProperties = this.addTimerProperties.bind(this);
         this.addSocketProperties = this.addSocketProperties.bind(this);
         this.updateComputedProperties = this.updateComputedProperties.bind(this);
+        this.onOptionsChanged = this.onOptionsChanged.bind(this);
         this.compareUnits = this.compareUnits.bind(this);
 
         this.seenPaths = new Set();
         this.path_by_id = {};
         this.operationInProgress = {};
+    }
+
+    onOptionsChanged(options) {
+        const currentOptions = { ...cockpit.location.options, ...options };
+
+        if (!currentOptions.activestate || options.activestate == "[]")
+            delete currentOptions.activestate;
+
+        if (!currentOptions.filestate || options.filestate == "[]")
+            delete currentOptions.filestate;
+
+        if (!currentOptions.name)
+            delete currentOptions.name;
+
+        cockpit.location.go([], currentOptions);
     }
 
     componentDidMount() {
@@ -262,6 +270,14 @@ class ServicesPageBody extends React.Component {
                 else
                     this.setState({});
             }
+        });
+
+        cockpit.addEventListener("locationchanged", () => {
+            const options = cockpit.location.options;
+            this.setState({
+                filters: { activeState: JSON.parse(options.activestate || '[]'), fileState: JSON.parse(options.filestate || '[]') },
+                currentTextFilter: decodeURIComponent(options.name || ''),
+            });
         });
 
         /* Start listening to signals for updates - when in the middle of reload mute all signals
@@ -852,8 +868,7 @@ class ServicesPageBody extends React.Component {
                                          fileStateDropdownOptions={fileStateDropdownOptions}
                                          filtersRef={this.filtersRef}
                                          loadingUnits={this.props.isLoading}
-                                         onCurrentTextFilterChanged={this.onCurrentTextFilterChanged}
-                                         onFiltersChanged={this.onFiltersChanged}
+                                         onOptionsChanged={this.onOptionsChanged}
                     />
                     <ServicesList key={cockpit.format("$0-list", activeTab)}
                                   isTimer={activeTab == 'timer'}
@@ -870,16 +885,34 @@ const ServicesPageFilters = ({
     fileStateDropdownOptions,
     filtersRef,
     loadingUnits,
-    onCurrentTextFilterChanged,
-    onFiltersChanged,
+    onOptionsChanged,
 }) => {
+    const { options } = usePageLocation();
+    const { activestate, filestate, name } = options;
     const [activeStateFilterIsOpen, setActiveStateFilterIsOpen] = useState(false);
-    const [currentTextFilter, setCurrentTextFilter] = useState('');
+    const [currentTextFilter, setCurrentTextFilter] = useState(decodeURIComponent(name || ""));
     const [fileStateFilterIsOpen, setFileStateFilterIsOpen] = useState(false);
     const [filters, setFilters] = useState({
-        activeState: [],
-        fileState: [],
+        activeState: JSON.parse(activestate || '[]'),
+        fileState: JSON.parse(filestate || '[]'),
     });
+
+    useEffect(() => {
+        const _filters = { activeState: JSON.parse(options.activestate || '[]'), fileState: JSON.parse(options.filestate || '[]') };
+
+        setCurrentTextFilter(decodeURIComponent(options.name || ""));
+        setFilters(_filters);
+    }, [options, setCurrentTextFilter, setFilters]);
+
+    useEffect(() => {
+        const _options = {};
+
+        _options.activestate = JSON.stringify(filters.activeState);
+        _options.filestate = JSON.stringify(filters.fileState);
+        _options.name = encodeURIComponent(currentTextFilter);
+
+        onOptionsChanged(_options);
+    }, [filters, currentTextFilter, onOptionsChanged]);
 
     const onSelect = (type, event, selection) => {
         const checked = event.target.checked;
@@ -926,18 +959,14 @@ const ServicesPageFilters = ({
         onDeleteChip();
     }, [setCurrentTextFilter, onDeleteChip]);
 
+    const onTextFilterChanged = textFilter => {
+        setCurrentTextFilter(textFilter);
+    };
+
     /* Make onClearAllFilters global so at to let it be used by the parent component */
     useEffect(() => {
         filtersRef.current = onClearAllFilters;
     }, [filtersRef, onClearAllFilters]);
-
-    useEffect(() => {
-        onFiltersChanged(filters);
-    }, [filters, onFiltersChanged]);
-
-    useEffect(() => {
-        onCurrentTextFilterChanged(currentTextFilter);
-    }, [currentTextFilter, onCurrentTextFilterChanged]);
 
     const toolbarItems = <>
         <ToolbarToggleGroup toggleIcon={<><span className="pf-c-button__icon pf-m-start"><FilterIcon /></span>{_("Toggle filters")}</>} breakpoint="sm"
@@ -947,8 +976,8 @@ const ServicesPageFilters = ({
                              className="services-text-filter"
                              placeholder={_("Filter by name or description")}
                              value={currentTextFilter}
-                             onChange={setCurrentTextFilter}
-                             onClear={() => setCurrentTextFilter('')} />
+                             onChange={onTextFilterChanged}
+                             onClear={() => onTextFilterChanged('')} />
             </ToolbarItem>
             <ToolbarFilter chips={filters.activeState}
                            deleteChip={onDeleteChip}

@@ -1103,6 +1103,31 @@ Where=/fail
         b.enter_page("/system/services")
         b.wait_not_present("html.pf-theme-dark")
 
+    def testServicesFiltersURLConsistency(self):
+        b = self.browser
+
+        self.login_and_go("/system/services#/?activestate=[\"Running\"]&filestate=[\"Disabled\"%2C\"Enabled\"]&name=test&type=service&owner=user")
+        self.wait_page_load()
+
+        b.wait_visible(".pf-c-chip-group:contains(Active state) li:contains(Running)")
+        b.wait_visible(".pf-c-chip-group:contains(File state) li:contains(Disabled)")
+        b.wait_visible(".pf-c-chip-group:contains(File state) li:contains(Enabled)")
+        b.wait_visible(".services-text-filter input[value=test]")
+        b.wait_visible(".pf-c-nav__list a.pf-m-current:contains(Services)")
+        b.wait_visible("#user.pf-m-selected")
+
+        # Changing the UI filters should also affect the URL
+        b.click("#system")
+        url = b.eval_js("window.location.hash")
+        self.assertIn("owner=system", url)
+
+        # Mass remove active state filters and check the URL
+        b.click(".pf-c-chip-group:contains(Active state) .pf-c-chip-group__close button")
+        b.wait_js_cond('window.location.hash == "#/?filestate=%5B%22Disabled%22%2C%22Enabled%22%5D&name=test&type=service&owner=system"')
+
+        b.click(".pf-c-toolbar__content > .pf-c-toolbar__item > button:contains('Clear all filters')")
+        b.wait_js_cond('window.location.hash == "#/?type=service&owner=system"')
+
 
 @skipDistroPackage()
 class TestTimers(MachineCase):

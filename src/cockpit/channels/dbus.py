@@ -188,8 +188,12 @@ class DBusChannel(Channel):
         def handler(message):
             name, old, new = message.get_body()
             send_owner(owner=new if new != "" else None)
-        rule = f"type='signal',sender='org.freedesktop.DBus',path='/org/freedesktop/DBus',interface='org.freedesktop.DBus',member='NameOwnerChanged',arg0='{self.name}'"
-        self.matches.append(self.bus.add_match(rule, handler))
+        self.add_signal_handler(handler,
+                                sender='org.freedesktop.DBus',
+                                path='/org/freedesktop/DBus',
+                                interface='org.freedesktop.DBus',
+                                member='NameOwnerChanged',
+                                arg0=self.name)
         try:
             unique_name, = await self.bus.call_method_async("org.freedesktop.DBus",
                                                             "/org/freedesktop/DBus",
@@ -254,12 +258,33 @@ class DBusChannel(Channel):
         else:
             self.ready()
 
-    def add_match(self, rule, handler):
+    def add_signal_handler(self, handler, **kwargs):
+        r = dict(**kwargs)
+        r['type'] = 'signal'
+        if 'sender' not in r and self.name is not None:
+            r['sender'] = self.name
+        # HACK - https://github.com/bus1/dbus-broker/issues/309
+        # path_namespace='/' in a rule does not work.
+        if r.get('path_namespace') == "/":
+            del r['path_namespace']
+
+        def filter_owner(message):
+            if self.owner is not None and self.owner == message.get_sender():
+                handler(message)
+
+        if self.name is not None and 'sender' in r and r['sender'] == self.name:
+            func = filter_owner
+        else:
+            func = handler
+        r_string = ','.join(f"{key}='{value}'" for key, value in r.items())
+        self.matches.append(self.bus.add_match(r_string, func))
+
+    def add_async_signal_handler(self, handler, **kwargs):
         def sync_handler(message):
             task = asyncio.create_task(handler(message))
             self.tasks.add(task)
             task.add_done_callback(self.tasks.discard)
-        self.matches.append(self.bus.add_match(rule, sync_handler))
+        self.add_signal_handler(sync_handler, **kwargs)
 
     async def do_call(self, message):
         path, iface, method, args = message['call']
@@ -321,9 +346,7 @@ class DBusChannel(Channel):
                     list(message.get_body())
                 ])
 
-        rule = ','.join(f"{key}='{value}'" for key, value in add_match.items())
-        self.add_match("type='signal'," + rule, match_hit)
-        self.send_message(reply=[], id=message.get('id'))
+        self.add_async_signal_handler(match_hit, **add_match)
 
     async def setup_objectmanager_watch(self, path, interface_name, meta, notify):
         # Watch the objects managed by the ObjectManager at "path".
@@ -353,11 +376,9 @@ class DBusChannel(Channel):
                     notify = {path: {name: None for name in interfaces}}
                     self.send_message(notify=notify)
 
-        rule = "type='signal'"
-        if self.name:
-            rule += f",sender='{self.name}'"
-        rule += f",path='{path}',interface='org.freedesktop.DBus.ObjectManager'"
-        self.add_match(rule, handler)
+        self.add_async_signal_handler(handler,
+                                      path=path,
+                                      interface="org.freedesktop.DBus.ObjectManager")
         objects, = await self.bus.call_method_async(self.name, path, 'org.freedesktop.DBus.ObjectManager', 'GetManagedObjects')
         for p, ifaces in objects.items():
             for iface, props in ifaces.items():
@@ -386,15 +407,15 @@ class DBusChannel(Channel):
             interface = this_meta.get(interface_name)
             this_meta = {interface_name: interface}
         meta.update(this_meta)
-        rule = "type='signal'"
-        if self.name:
-            rule += f",sender='{self.name}'"
         if recursive_props:
-            rule += f",path_namespace='{path}'"
+            self.add_async_signal_handler(handler,
+                                          interface="org.freedesktop.DBus.Properties",
+                                          path_namespace=path)
         else:
-            rule += f",path='{path}'"
-        rule += ",interface='org.freedesktop.DBus.Properties'"
-        self.add_match(rule, handler)
+            self.add_async_signal_handler(handler,
+                                          interface="org.freedesktop.DBus.Properties",
+                                          path=path)
+
         for name, interface in meta.items():
             if name.startswith("org.freedesktop.DBus."):
                 continue

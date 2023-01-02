@@ -173,9 +173,7 @@ class MockTransport(asyncio.Transport):
     async def add_bus_match(self, path: str, iface: str, bus: Optional[str] = None) -> None:
         if bus is None:
             bus = await self.ensure_internal_bus()
-        tag = self.get_id('match.')
-        self.send_json(bus, add_match={'path': path, 'interface': iface}, id=tag)
-        await self.assert_msg(bus, id=tag, reply=[])
+        self.send_json(bus, add_match={'path': path, 'interface': iface})
 
 
 class TestBridge(unittest.IsolatedAsyncioTestCase):

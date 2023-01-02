@@ -849,7 +849,7 @@ const SvgGraph = ({ data, resource, have_sat }) => {
     );
 
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox={ "0 0 2 " + SVG_YMAX } preserveAspectRatio="none">
+        <svg xmlns="https://www.w3.org/2000/svg" viewBox={ "0 0 2 " + SVG_YMAX } preserveAspectRatio="none">
             <polygon
                  transform={ have_sat ? "matrix(-1,0,0,-1,1," + SVG_YMAX + ")" : "matrix(-2,0,0,-1,2," + SVG_YMAX + ")" }
                  points={ dataPoints("use_" + resource) }

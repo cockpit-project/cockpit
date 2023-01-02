@@ -719,7 +719,7 @@ cockpit_handler_ping (CockpitWebServer *server,
    * websites could do this in another way (such as loading an image from Cockpit)
    * but this does it in the correct manner.
    *
-   * See: http://www.w3.org/TR/cors/
+   * See: https://www.w3.org/TR/cors/
    */
   g_hash_table_insert (out_headers, g_strdup ("Access-Control-Allow-Origin"), g_strdup ("*"));
 

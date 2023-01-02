@@ -88,7 +88,7 @@ lang = os.environ.get('LANGUAGE')
 
 
 def attr_lang(elt):
-    return elt.attrib.get('{http://www.w3.org/XML/1998/namespace}lang')
+    return elt.attrib.get('{https://www.w3.org/XML/1998/namespace}lang')
 
 
 def element(xml, tag):

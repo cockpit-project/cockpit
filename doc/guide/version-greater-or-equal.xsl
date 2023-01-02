@@ -1,7 +1,7 @@
 <?xml version='1.0'?> <!--*- mode: xml -*-->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+<xsl:stylesheet xmlns:xsl="https://www.w3.org/1999/XSL/Transform"
                 version="1.0"
-                xmlns="http://www.w3.org/TR/xhtml1/transitional"
+                xmlns="https://www.w3.org/TR/xhtml1/transitional"
                 exclude-result-prefixes="#default">
  <xsl:template name="version-greater-or-equal">
   <xsl:param name="ver1"></xsl:param>

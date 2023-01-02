@@ -1,5 +1,5 @@
 <?xml version='1.0'?> <!--*- mode: xml -*-->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+<xsl:stylesheet xmlns:xsl="https://www.w3.org/1999/XSL/Transform"
                 xmlns:l="http://docbook.sourceforge.net/xmlns/l10n/1.0"
                 exclude-result-prefixes="l"
                 version="1.0">

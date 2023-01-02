@@ -276,7 +276,11 @@ class TestSelinux(MachineCase):
         b.reload()
         b.enter_page("/selinux/setroubleshoot")
         with b.wait_timeout(30):
-            b.wait_text("ul[aria-label='System modifications']", "No system modifications")
+            if m.image.startswith("rhel"):
+                # insights-client sets itself as permissive on RHEL, and `semanage permissive -D` gets OOM-killed
+                b.wait_text_matches("ul[aria-label='System modifications']", "No system modifications|permissive -a insights_client_t")
+            else:
+                b.wait_text("ul[aria-label='System modifications']", "No system modifications")
         b.relogin("/selinux/setroubleshoot", "admin", superuser=False)
         b.wait_text("ul[aria-label='System modifications']", "The logged in user is not permitted to view system modifications")
 

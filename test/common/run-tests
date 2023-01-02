@@ -131,7 +131,7 @@ class Test:
             cmd = ["test-failure-policy"]
             if not opts.track_naughties:
                 cmd.append("--offline")
-            cmd.append(testvm.DEFAULT_IMAGE)
+            cmd.append("fedora-38" if testvm.DEFAULT_IMAGE == "fedora-rawhide" else testvm.DEFAULT_IMAGE)
             try:
                 proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
                 reason = proc.communicate(self.output + ("not ok " + str(self)).encode())[0].strip()

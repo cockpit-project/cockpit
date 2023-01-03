@@ -43,5 +43,9 @@ override_dh_install:
 	rm -r debian/tmp/usr/share/cockpit/selinux
 	rm debian/tmp/usr/share/metainfo/org.cockpit-project.cockpit-selinux.metainfo.xml
 
-	dh_install --fail-missing -Xusr/src/debug
+	dh_install -Xusr/src/debug
 	make install-tests DESTDIR=debian/cockpit-tests
+
+# will be the default in compat 13
+override_dh_missing:
+	dh_missing --fail-missing

@@ -2065,7 +2065,7 @@ cockpit_ssh_source_prepare (GSource *source,
   CockpitSshRelay *self = cs->relay;
   gint status;
 
-  *timeout = 1;
+  *timeout = 100;
 
   status = ssh_get_status (self->session);
 

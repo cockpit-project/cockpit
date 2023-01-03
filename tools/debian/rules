@@ -46,6 +46,8 @@ override_dh_install:
 	dh_install -Xusr/src/debug
 	make install-tests DESTDIR=debian/cockpit-tests
 
+	dh_installsysusers
+
 # will be the default in compat 13
 override_dh_missing:
 	dh_missing --fail-missing

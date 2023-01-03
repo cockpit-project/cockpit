@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# all systemd units, tmpfiles, and related helpers
+# all systemd units, users, tmpfiles, and related helpers
 
 nodist_systemdunit_DATA = \
 	src/systemd/cockpit-motd.service \
@@ -31,6 +31,9 @@ install-exec-hook::
 tempconfdir = $(prefix)/lib/tmpfiles.d
 nodist_tempconf_DATA = src/systemd/cockpit-tempfiles.conf
 
+sysusersdir = $(prefix)/lib/sysusers.d
+nodist_sysusers_DATA = src/systemd/sysusers/cockpit.conf
+
 # we can't generate these with config.status because,
 # eg. it does "@libexecdir@" -> "${exec_prefix}/libexec"
 src/systemd/%: src/systemd/%.in
@@ -48,6 +51,7 @@ src/systemd/%: src/systemd/%.in
 systemdgenerated = \
 	$(nodist_systemdunit_DATA) \
 	$(nodist_tempconf_DATA) \
+	$(nodist_sysusers_DATA) \
 	$(NULL)
 systemdgenerated_in = $(patsubst %,%.in,$(systemdgenerated))
 

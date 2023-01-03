@@ -257,7 +257,7 @@ done
 for data in doc man pixmaps polkit-1; do
     rm -r %{buildroot}/%{_datadir}/$data
 done
-for lib in systemd tmpfiles.d; do
+for lib in systemd tmpfiles.d sysusers.d; do
     rm -r %{buildroot}/%{_prefix}/%{__lib}/$lib
 done
 for libexec in cockpit-askpass cockpit-session cockpit-ws cockpit-tls cockpit-wsinstance-factory cockpit-client cockpit-client.ui cockpit-desktop cockpit-certificate-helper cockpit-certificate-ensure; do
@@ -448,6 +448,7 @@ authentication via sssd/FreeIPA.
 %{_unitdir}/cockpit-wsinstance-https@.socket
 %{_unitdir}/cockpit-wsinstance-https@.service
 %{_unitdir}/system-cockpithttps.slice
+%{_prefix}/%{__lib}/sysusers.d/cockpit.conf
 %{_prefix}/%{__lib}/tmpfiles.d/cockpit-tempfiles.conf
 %{pamdir}/pam_ssh_add.so
 %{pamdir}/pam_cockpit_cert.so
@@ -467,10 +468,14 @@ authentication via sssd/FreeIPA.
 %ghost %{_sharedstatedir}/selinux/%{selinuxtype}/active/modules/200/%{name}
 
 %pre ws
-getent group cockpit-ws >/dev/null || groupadd -r cockpit-ws
-getent passwd cockpit-ws >/dev/null || useradd -r -g cockpit-ws -d /nonexisting -s /sbin/nologin -c "User for cockpit web service" cockpit-ws
-getent group cockpit-wsinstance >/dev/null || groupadd -r cockpit-wsinstance
-getent passwd cockpit-wsinstance >/dev/null || useradd -r -g cockpit-wsinstance -d /nonexisting -s /sbin/nologin -c "User for cockpit-ws instances" cockpit-wsinstance
+# HACK: cockpit.conf does not yet exist in %pre, but in %post it is too late as
+# the above %attr cannot find the group during unpack. So we have to duplicate
+# src/systemd/sysusers/cockpit.conf here until Fedora works this out.
+# See https://bugzilla.redhat.com/show_bug.cgi?id=1740545 for some discussion around this
+systemd-sysusers - <<EOF || :
+u cockpit-ws - "User for cockpit web service"
+u cockpit-wsinstance - "User for cockpit-ws instances"
+EOF
 
 if %{_sbindir}/selinuxenabled 2>/dev/null; then
     %selinux_relabel_pre -s %{selinuxtype}

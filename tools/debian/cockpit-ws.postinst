@@ -1,20 +1,17 @@
 #!/bin/sh
 set -e
 
-adduser --system --group --home /nonexistent --no-create-home --quiet cockpit-ws
-adduser --system --group --home /nonexistent --no-create-home --quiet cockpit-wsinstance
-
 # change group of cockpit-session on upgrades (changed in version 203)
 if OUT=$(dpkg-statoverride --list /usr/lib/cockpit/cockpit-session) && [ "$OUT#root cockpit-ws 4750}" != "$OUT" ]; then
     echo "Adjusting /usr/lib/cockpit/cockpit-session permissions..."
     dpkg-statoverride --remove /usr/lib/cockpit/cockpit-session
 fi
 
+#DEBHELPER#
+
 if ! dpkg-statoverride --list /usr/lib/cockpit/cockpit-session >/dev/null; then
     dpkg-statoverride --update --add root cockpit-wsinstance 4750 /usr/lib/cockpit/cockpit-session
 fi
-
-#DEBHELPER#
 
 # restart cockpit.service on package upgrades, if it's already running
 if [ -d /run/systemd/system ] && [ -n "$2" ]; then
@@ -37,4 +34,3 @@ if grep --color=auto pam_cockpit_cert /etc/pam.d/cockpit; then
     echo '**** WARNING: future release; remove it from your /etc/pam.d/cockpit.'
     echo '**** WARNING:'
 fi
-

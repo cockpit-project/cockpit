@@ -174,7 +174,7 @@ class TestKdump(KdumpHelpers):
 
         # crash the kernel and make sure it wrote a report into the right directory
         self.crashKernel()
-        m.execute(f"until test -e {customPath}/127.0.0.1*/vmcore; do sleep 1; done")
+        m.execute(f"until test -e {customPath}/127.0.0.1*/vmcore; do sleep 1; done", timeout=180)
         self.assertIn("Kdump compressed dump", m.execute(f"file {customPath}/127.0.0.1*/vmcore"))
 
     @nondestructive

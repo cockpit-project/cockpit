@@ -379,7 +379,6 @@ class TestStorageStratis(StorageCase):
 
 @skipImage("No Stratis", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2204", "arch")
 @skipImage("No Stratis on demand", "rhel-9-1", "rhel-8-7", "rhel-8-8")
-@todoPybridge()
 class TestStoragePackagesStratis(PackageCase, StorageCase):
 
     def testStratisOndemandInstallation(self):

@@ -27,6 +27,8 @@ import zipfile
 
 from pathlib import Path
 
+from . import config
+
 VERSION = '300'
 logger = logging.getLogger('cockpit.packages')
 
@@ -49,6 +51,10 @@ class Package:
         with (self.path / 'manifest.json').open(encoding='utf-8') as manifest_file:
             self.manifest = json.load(manifest_file)
 
+        self.try_override(self.path / 'override.json')
+        self.try_override(config.ETC_COCKPIT / f'{path.name}.override.json')
+        self.try_override(config.DOT_CONFIG_COCKPIT / f'{path.name}.override.json')
+
         if 'name' in self.manifest:
             self.name = self.manifest['name']
         else:
@@ -63,6 +69,34 @@ class Package:
             self.files.add(file.relative_to(self.path))
 
         self.version = Package.sortify_version(VERSION)
+
+    def try_override(self, path: Path) -> None:
+        try:
+            with path.open(encoding='utf-8') as override_file:
+                override = json.load(override_file)
+            self.manifest = self.merge_patch(self.manifest, override)
+        except FileNotFoundError:
+            # This is the expected usual case
+            pass
+        except json.JSONDecodeError as exc:
+            # User input error: report a warning
+            logger.warning('%s: %s', path, exc)
+
+    # https://www.rfc-editor.org/rfc/rfc7386
+    @staticmethod
+    def merge_patch(target: object, patch: object) -> object:
+        # Loosely based on example code from the RFC
+        if not isinstance(patch, dict):
+            return patch
+
+        # Always take a copy ('result') — we never modify the input ('target')
+        result = dict(target if isinstance(target, dict) else {})
+        for name, value in patch.items():
+            if value is not None:
+                result[name] = Package.merge_patch(result[name], value)
+            else:
+                result.pop(name)
+        return result
 
     @staticmethod
     def sortify_version(version: str) -> str:

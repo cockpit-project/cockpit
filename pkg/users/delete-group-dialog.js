@@ -28,7 +28,7 @@ const _ = cockpit.gettext;
 export function delete_group_dialog(group) {
     const props = {
         id: "group-confirm-delete-dialog",
-        title: cockpit.format(_("Delete $0 group"), group.name),
+        title: cockpit.format(_("Permanently delete $0 group?"), group.name),
         body: group.userlistPrimary.length > 0
             ? <Stack hasGutter>
                 <TextContent>

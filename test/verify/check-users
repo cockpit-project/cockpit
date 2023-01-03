@@ -40,6 +40,8 @@ class TestAccounts(MachineCase):
         with b.wait_timeout(30):
             b.wait_in_text('#accounts-list', "anton")
 
+        b.assert_pixels("#users-page", "users-page", ignore=["td[data-label='Last active']", "button:contains('more...')"])
+
         # There is only one badge and it is for admin
         b.wait_text('#current-account-badge', 'Your account')
         b.wait_js_cond('document.querySelector("#current-account-badge").previousSibling.getAttribute("href") === "#/admin"')
@@ -49,6 +51,7 @@ class TestAccounts(MachineCase):
 
         # Set a real name
         b.go("#/anton")
+        b.assert_pixels("#users-page", "user-detail-page")
         b.wait_text("#account-user-name", "anton")
         b.wait_text("#account-title", "anton")
         b.wait_not_attr("#account-delete", "disabled", "disabled")
@@ -726,6 +729,8 @@ class TestAccounts(MachineCase):
         b.click("#groups-view-toggle")
         b.wait_visible('#groups-list td[data-label="Group name"]:contains("testgroup0")')
 
+        b.assert_pixels("#groups-list tr:contains(testgroup0)", "group-row")
+
         # Delete it
         performGroupAction(b, 'testgroup0', 'Delete group')
         b.wait_text("#group-confirm-delete-dialog footer .pf-c-button.apply", "Delete")
@@ -740,6 +745,7 @@ class TestAccounts(MachineCase):
         # Groups used as primary need force deletion
         performGroupAction(b, 'anton', 'Delete group')
         b.wait_text("#group-confirm-delete-dialog footer .pf-c-button.apply", "Force delete")
+        b.assert_pixels("#group-confirm-delete-dialog", "group-delete-dialog")
         b.click("#group-confirm-delete-dialog footer .pf-c-button.apply")
         b.wait_not_present('#account-confirm-delete-dialog')
         b.wait_visible("#groups-list")

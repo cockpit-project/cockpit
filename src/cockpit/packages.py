@@ -23,12 +23,11 @@ import fnmatch
 import logging
 import mimetypes
 import os
-import pkg_resources
 import zipfile
 
 from pathlib import Path
 
-VERSION = pkg_resources.parse_version('300')
+VERSION = '300'
 logger = logging.getLogger('cockpit.packages')
 
 
@@ -63,6 +62,14 @@ class Package:
         for file in self.path.rglob('*'):
             self.files.add(file.relative_to(self.path))
 
+        self.version = Package.sortify_version(VERSION)
+
+    @staticmethod
+    def sortify_version(version: str) -> str:
+        '''Convert a version string to a form that can be compared'''
+        # 0-pad each numeric component.  Only supports numeric versions like 1.2.3.
+        return '.'.join(part.zfill(8) for part in version.split('.'))
+
     def walk(self, checksums, path=None):
         if not path:
             path = self.path
@@ -84,7 +91,7 @@ class Package:
             if any(package != 'cockpit' for package in requires):
                 return False
 
-            if 'cockpit' in requires and VERSION < pkg_resources.parse_version(requires['cockpit']):
+            if 'cockpit' in requires and self.version < Package.sortify_version(requires['cockpit']):
                 return False
 
         if at_least_prio is not None:

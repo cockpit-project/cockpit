@@ -88,7 +88,7 @@ test_include_config_h() {
 ### end of tests.  start of machinery.
 
 skip() {
-    printf "%s" "$*"
+    printf "%s\n" "$*"
     exit 77
 }
 
@@ -124,6 +124,9 @@ main() {
         output="$(${test_function} 2>&1)" && test_status=0 || test_status=$?
 
         if [ "${test_status}" = 77 ]; then
+            if [ -z "${tap}" ]; then
+                printf >&2 "WARNING: skipping %s: %s\n" "${path}" "${output}"
+            fi
             skip=" # SKIP ${output}"
             output=''
         elif [ "${test_status}" != 0 -o -n "${output}" ]; then

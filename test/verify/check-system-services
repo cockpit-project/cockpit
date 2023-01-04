@@ -1113,7 +1113,7 @@ class TestTimers(MachineCase):
         self.browser.wait_not_present(".pf-c-empty-state .pf-c-spinner[aria-valuetext='Loading...']")
 
     @unittest.skipIf(os.getenv("TEST_SCENARIO") == "pybridge",
-                     "pybridge logs are too messy to catch with expected message filters")
+                     "python bridge logs are too messy to catch with expected message filters")
     def testCreate(self):
         m = self.machine
         b = self.browser

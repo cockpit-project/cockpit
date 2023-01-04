@@ -436,7 +436,7 @@ echo -e "Loaded patch modules:\nkpatch_3_10_0_1062_1_1 [enabled]\n\nInstalled pa
 
     @skipImage("TODO: Packagekit on Arch does not detect the pear update", "arch")
     @skipImage("tracer not available", *OSesWithoutTracer)
-    @todoPybridge(".updates-success-table randomly appears or not with pybridge", flaky=True)
+    @todoPybridge(".updates-success-table randomly appears or not with python bridge", flaky=True)
     def testTracer(self):
         b = self.browser
         m = self.machine

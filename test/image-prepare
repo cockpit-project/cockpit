@@ -86,6 +86,22 @@ def build_install_package(dist_tar, image):
         args.append("if rpm -q cockpit-ws >/dev/null 2>&1; then rpm --erase --nodeps --verbose cockpit cockpit-ws cockpit-bridge cockpit-system; fi")
 
     args += ["--build", dist_tar]
+
+    if 'debian' in image or 'ubuntu' in image:
+        args.append("--run-command")
+        extra_suppress = ""
+        # older lintian not yet complain about pkg/static/login.html and src/common/fail.html
+        if image in ["debian-stable", "ubuntu-2204"]:
+            extra_suppress += ",mismatched-override"
+        # Ubuntu 22.04 raises elf-error on *-dbgsym: "In program headers: Unable to find program interpreter name"
+        if image == "ubuntu-2204":
+            extra_suppress += ",elf-error"
+
+        args.append(
+            "cd /var/tmp/build; runuser -u admin --" +
+            " lintian --fail-on warning,error --tag-display-limit 0 --display-info" +
+            " --suppress-tags initial-upload-closes-no-bugs,newer-standards-version" + extra_suppress +
+            " cockpit*.changes >&2")
     return args
 
 

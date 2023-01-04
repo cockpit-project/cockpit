@@ -19,11 +19,9 @@ override_dh_auto_configure:
 		--with-pamdir=/lib/$(DEB_HOST_MULTIARCH)/security \
 		--libexecdir=/usr/lib/cockpit $(CONFIG_OPTIONS)
 
-override_dh_systemd_enable:
-	dh_systemd_enable -p cockpit-ws --name=cockpit cockpit.socket
-
-override_dh_systemd_start:
-	dh_systemd_start -p cockpit-ws cockpit.socket
+# avoid trying to start cockpit-motd.service and cockpit-wsinstance-*.socket etc.
+override_dh_installsystemd:
+	dh_installsystemd -p cockpit-ws cockpit.socket
 
 override_dh_install:
 	# Debian/Ubuntu PAM config
@@ -45,7 +43,3 @@ override_dh_install:
 
 	dh_install -Xusr/src/debug
 	make install-tests DESTDIR=debian/cockpit-tests
-
-# will be the default in compat 13
-override_dh_missing:
-	dh_missing --fail-missing

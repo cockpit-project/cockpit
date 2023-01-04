@@ -378,6 +378,8 @@ authentication via sssd/FreeIPA.
 %{_unitdir}/cockpit-motd.service
 %{_unitdir}/cockpit.socket
 %{_unitdir}/cockpit-ws-user.service
+%{_unitdir}/cockpit-session.socket
+%{_unitdir}/cockpit-session@.service
 %{_unitdir}/cockpit-wsinstance-http.socket
 %{_unitdir}/cockpit-wsinstance-http.service
 %{_unitdir}/cockpit-wsinstance-https-factory.socket
@@ -560,8 +562,6 @@ These files are not required for running Cockpit.
 
 %files -n cockpit-tests -f tests.list
 %{pamdir}/mock-pam-conv-mod.so
-%{_unitdir}/cockpit-session.socket
-%{_unitdir}/cockpit-session@.service
 
 %package -n cockpit-packagekit
 Summary: Cockpit user interface for packages

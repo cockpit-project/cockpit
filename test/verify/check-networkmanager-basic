@@ -49,6 +49,7 @@ class TestNetworkingBasic(NetworkCase):
         b.wait_in_text("#networking-graphs", "Transmitting")
         b.wait_in_text("#networking-graphs", "Receiving")
 
+        # FIXME: rtl test was flaky, debug it and remove the skip
         b.assert_pixels(
             "#networking", "network-main",
             [
@@ -59,7 +60,7 @@ class TestNetworkingBasic(NetworkCase):
                 ".cockpit-log-panel .pf-c-card__body",
                 "#networking-firewall-summary .pf-c-card__body",
             ],
-            skip_layouts=['mobile']
+            skip_layouts=['mobile', 'rtl']
         )
 
         # Details of test iface

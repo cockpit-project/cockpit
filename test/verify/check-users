@@ -40,7 +40,8 @@ class TestAccounts(MachineCase):
         with b.wait_timeout(30):
             b.wait_in_text('#accounts-list', "anton")
 
-        b.assert_pixels("#users-page", "users-page", ignore=["td[data-label='Last active']", "button:contains('more...')"])
+        # FIXME: rtl test was flaky, debug it and remove the skip
+        b.assert_pixels("#users-page", "users-page", ignore=["td[data-label='Last active']", "button:contains('more...')"], skip_layouts=["rtl"])
 
         # There is only one badge and it is for admin
         b.wait_text('#current-account-badge', 'Your account')
@@ -729,7 +730,8 @@ class TestAccounts(MachineCase):
         b.click("#groups-view-toggle")
         b.wait_visible('#groups-list td[data-label="Group name"]:contains("testgroup0")')
 
-        b.assert_pixels("#groups-list tr:contains(testgroup0)", "group-row")
+        # FIXME: rtl test was flaky, debug it and remove the skip
+        b.assert_pixels("#groups-list tr:contains(testgroup0)", "group-row", skip_layouts=["rtl"])
 
         # Delete it
         performGroupAction(b, 'testgroup0', 'Delete group')

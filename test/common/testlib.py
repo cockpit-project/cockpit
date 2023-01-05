@@ -146,7 +146,13 @@ default_layouts = [
         "theme": "dark",
         "shell_size": [1920, 1200],
         "content_size": [1680, 1130]
-    }
+    },
+    {
+        "name": "rtl",
+        "theme": "light",
+        "shell_size": [1920, 1200],
+        "content_size": [1680, 1130]
+    },
 ]
 
 
@@ -227,6 +233,7 @@ class Browser:
             self._set_window_size(size[0], size[1])
         if cookie:
             self.cdp.invoke("Network.setCookie", **cookie)
+
         self.switch_to_top()
         self.cdp.invoke("Page.navigate", url=href)
 
@@ -971,6 +978,14 @@ class Browser:
         if self.cdp.browser.name == "chromium":
             self.cdp.invoke("Emulation.setEmulatedMedia", features=[{'name': 'prefers-color-scheme', 'value': name}])
 
+    def _set_direction(self, direction: str):
+        cur_frame = self.cdp.cur_frame
+        if self.is_present("#shell-page"):
+            self.switch_to_top()
+            self.set_attr("#shell-page", "dir", direction)
+        self.switch_to_frame(cur_frame)
+        self.set_attr("html", "dir", direction)
+
     def set_layout(self, name: str):
         layout = [lo for lo in self.layouts if lo["name"] == name][0]
         if layout != self.current_layout:
@@ -1155,10 +1170,15 @@ class Browser:
         for layout in self.layouts:
             if layout["name"] not in skip_layouts:
                 self.set_layout(layout["name"])
+                if "rtl" in self.current_layout["name"]:
+                    self._set_direction("rtl")
                 self.assert_pixels_in_current_layout(selector, key, ignore=ignore,
                                                      scroll_into_view=scroll_into_view,
                                                      wait_animations=wait_animations,
                                                      wait_delay=wait_delay)
+
+                if "rtl" in self.current_layout["name"]:
+                    self._set_direction("ltr")
         self.set_layout(previous_layout)
 
     def assert_no_unused_pixel_test_references(self):

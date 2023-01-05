@@ -166,6 +166,13 @@ $desktop: $phone + 1px;
   }
 }
 
+[dir="rtl"] {
+  // Not setting this breaks pixel tests
+  .screenreader-text {
+    right: -999px;
+  }
+}
+
 /* Desktop navigation */
 @media (min-width: $desktop) {
   // Adapt PF4's new header select for 2-up

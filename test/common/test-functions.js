@@ -51,6 +51,14 @@ function ph_set_val (sel, val) {
     el.dispatchEvent(ev);
 }
 
+function ph_set_text_direction(sel, direction) {
+    const el = ph_find(sel)
+
+    if (el.value === undefined)
+        throw new Error(sel + " does not have a value");
+    el.dir = direction;
+}
+
 function ph_has_val (sel, val) {
     return ph_val(sel) == val;
 }

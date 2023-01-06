@@ -1046,7 +1046,7 @@ ExecStart=/usr/local/bin/{packageName}
         self.assertFalse(b.is_present("#app button"))
 
     @nondestructive
-    @todoPybridge()
+    @todoPybridge(flaky=True)
     def testPackageKitCrash(self):
         b = self.browser
         m = self.machine

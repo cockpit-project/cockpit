@@ -130,6 +130,15 @@ class MockTransport(asyncio.Transport):
             assert reply['reply'] == [expected_reply]
         return reply['reply'][0]
 
+    async def assert_bus_error(self, tag: str, code: str, message: str, bus: Optional[str] = None) -> None:
+        if bus is None:
+            bus = await self.ensure_internal_bus()
+        reply = await self.next_msg(bus)
+        assert 'id' in reply, reply
+        assert reply['id'] == tag, reply
+        assert 'error' in reply, reply
+        assert reply['error'] == [code, [message]]
+
     async def check_bus_call(self, path: str, iface: str, name: str, args: list, expected_reply: Optional[list] = None, bus: Optional[str] = None) -> list:
         if bus is None:
             bus = await self.ensure_internal_bus()
@@ -339,6 +348,33 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
 
         # double-check
         await self.verify_root_bridge_running()
+
+    async def test_superuser_dbus_wrong_pw(self):
+        await self.start()
+        await self.verify_root_bridge_not_running()
+
+        # watch for signals
+        await self.transport.add_bus_match('/superuser', 'cockpit.Superuser')
+        await self.transport.watch_bus('/superuser', 'cockpit.Superuser',
+                                       {'Bridges': SUPERUSER_BRIDGES, 'Current': 'none'})
+
+        # start the bridge.  with a password this is more complicated
+        with unittest.mock.patch.dict(os.environ, {"PSEUDO_PASSWORD": "p4ssw0rd"}):
+            start = self.transport.send_bus_call(self.transport.internal_bus, '/superuser', 'cockpit.Superuser', 'Start', ['pseudo'])
+            # first, init state
+            await self.transport.assert_bus_notify('/superuser', 'cockpit.Superuser', {'Current': 'init'})
+            # then, we'll be asked for a password
+            await self.transport.assert_bus_signal('/superuser', 'cockpit.Superuser', 'Prompt', ['', 'can haz pw?', '', False, ''])
+            # give it
+            await self.transport.check_bus_call('/superuser', 'cockpit.Superuser', 'Answer', ['p5ssw0rd'])  # wrong password
+            # pseudo fails after the first wrong attempt
+            await self.transport.assert_bus_notify('/superuser', 'cockpit.Superuser', {'Current': 'none'})
+
+            # Start call is now done and returned failure
+            await self.transport.assert_bus_error(start, 'cockpit.Superuser.Error', 'pseudo says: Bad password\n')
+
+        # double-check
+        await self.verify_root_bridge_not_running()
 
     async def test_superuser_init(self):
         await self.start(send_init=False)

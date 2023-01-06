@@ -32,7 +32,6 @@ def allow_old_cockpit_ws_messages(test):
 @nondestructive
 @skipDistroPackage()
 class TestSuperuser(MachineCase):
-    @todoPybridge()
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -131,7 +130,6 @@ session include system-auth
         b.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
         b.check_superuser_indicator("Administrative access")
 
-    @todoPybridge()
     def testWrongPasswd(self):
         b = self.browser
 
@@ -156,7 +154,6 @@ session include system-auth
         b.wait_not_present(".pf-c-modal-box:contains('Problem becoming administrator')")
         b.check_superuser_indicator("Limited access")
 
-    @todoPybridge()
     def testNotAdmin(self):
         b = self.browser
         m = self.machine

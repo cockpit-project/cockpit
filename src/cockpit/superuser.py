@@ -21,6 +21,7 @@ import asyncio
 import logging
 import os
 import pwd
+import subprocess
 
 from systemd_ctypes import bus
 
@@ -55,7 +56,7 @@ class SuperuserStartup:
     def failed(self, rule: SuperuserRoutingRule, exc: Exception) -> None:
         raise NotImplementedError
 
-    def auth(self, rule: SuperuserRoutingRule, prompt: str, echo: bool) -> None:
+    def auth(self, rule: SuperuserRoutingRule, message: Optional[str], prompt: str, echo: bool) -> None:
         raise NotImplementedError
 
 
@@ -66,7 +67,7 @@ class ControlMessageStartup(SuperuserStartup):
     def failed(self, rule: SuperuserRoutingRule, exc: Exception) -> None:
         rule.router.write_control(command='superuser-init-done')
 
-    def auth(self, rule: SuperuserRoutingRule, prompt: str, echo: bool) -> None:
+    def auth(self, rule: SuperuserRoutingRule, message: Optional[str], prompt: str, echo: bool) -> None:
         username = pwd.getpwuid(os.getuid()).pw_name
         hexuser = ''.join(f'{c:02x}' for c in username.encode('ascii'))
         rule.router.write_control(command='authorize', cookie=SUPERUSER_AUTH_COOKIE, challenge=f'plain1:{hexuser}')
@@ -84,8 +85,8 @@ class DBusStartup(SuperuserStartup):
     def failed(self, rule: SuperuserRoutingRule, exc: Exception) -> None:
         self.future.set_exception(bus.BusError('cockpit.Superuser.Error', str(exc)))
 
-    def auth(self, rule: SuperuserRoutingRule, prompt: str, echo: bool) -> None:
-        rule.prompt('', prompt, '', echo, '')
+    def auth(self, rule: SuperuserRoutingRule, message: Optional[str], prompt: str, echo: bool) -> None:
+        rule.prompt(message or '', prompt, '', echo, '')
 
     async def wait(self) -> None:
         await self.future
@@ -138,9 +139,9 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
                 self.startup.failed(self, exc or ConnectionResetError('connection lost'))
                 self.startup = None
 
-    def peer_authorization_request(self, peer: Peer, prompt: str, echo: bool) -> None:
+    def peer_authorization_request(self, peer: Peer, message: Optional[str], prompt: str, echo: bool) -> None:
         if self.startup:
-            self.startup.auth(self, prompt, echo)
+            self.startup.auth(self, message, prompt, echo)
 
     def __init__(self, router: Router, privileged: bool = False):
         super().__init__(router)
@@ -167,7 +168,8 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
         startup.peer = Peer(self.router, name, self)
 
         try:
-            startup.peer.spawn(args, env)
+            # We want to capture the error messages to send to the user
+            startup.peer.spawn(args, env, stderr=subprocess.PIPE)
         except OSError as exc:
             raise bus.BusError('cockpit.Superuser.Error', f'Failed to start peer bridge: {exc}') from exc
 

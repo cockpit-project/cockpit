@@ -40,7 +40,7 @@ class PeerStateListener:
             - connection lost (event='closed', exc possibly set)
         """
 
-    def peer_authorization_request(self, peer: Peer, prompt: str, echo: bool) -> None:
+    def peer_authorization_request(self, peer: Peer, message: Optional[str], prompt: str, echo: bool) -> None:
         """Request authentication for connecting to the peer.
 
         The state listener should respond by calling .authorize_response() on the Peer.
@@ -72,9 +72,9 @@ class Peer(CockpitProtocolClient, SubprocessProtocol, Endpoint):
         self.channels = set()
         self.authorize_pending = None
 
-    def spawn(self, argv: list[str], env: Dict[str, str]) -> asyncio.Transport:
+    def spawn(self, argv: list[str], env: Dict[str, str], **kwargs) -> asyncio.Transport:
         loop = asyncio.get_running_loop()
-        return SubprocessTransport(loop, self, argv, env=dict(os.environ, **env))
+        return SubprocessTransport(loop, self, argv, env=dict(os.environ, **env), **kwargs)
 
     # Handling of interesting events
     def do_ready(self) -> None:
@@ -96,15 +96,31 @@ class Peer(CockpitProtocolClient, SubprocessProtocol, Endpoint):
             self.send_channel_control(self.channels.pop(), 'close', problem='disconnected')
 
         if self.state_listener is not None:
+            # If we don't otherwise has an exception set, but we have stderr output, we can use it.
+            if isinstance(transport_was, SubprocessTransport):
+                # BrokenPipeError just means that we tried to write after the process was gone
+                if exc is None or isinstance(exc, BrokenPipeError):
+                    stderr = transport_was.get_stderr()
+                    if stderr:
+                        exc = RuntimeError(stderr)
+
             self.state_listener.peer_state_changed(self, 'closed', exc)
 
     def do_authorize(self, message: Dict[str, object]) -> None:
         cookie = message.get('cookie')
         prompt = message.get('prompt')
+
+        # If we have stderr output, send it along as the message part of the prompt
+        # This allows forwarding messages like "the usual lecture" from sudo, etc.
+        if isinstance(self.transport, SubprocessTransport):
+            msg = self.transport.get_stderr(reset=True)
+        else:
+            msg = None
+
         logger.debug('Peer %s request, cookie=%s, prompt=%s', self.name, cookie, prompt)
         if self.state_listener is not None and isinstance(cookie, str) and isinstance(prompt, str):
             self.authorize_pending = cookie
-            self.state_listener.peer_authorization_request(self, prompt, False)
+            self.state_listener.peer_authorization_request(self, msg, prompt, False)
 
     def authorize_response(self, response: str) -> None:
         logger.debug('Peer %s response, cookie=%s, response=%s', self.name, self.authorize_pending, response)

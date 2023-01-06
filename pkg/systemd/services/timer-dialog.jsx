@@ -206,6 +206,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                     </Flex>
                     { delay == "system-boot" &&
                     <FormGroup className="delay-group"
+                               isRequired
                                label={_("Delay")}
                                validated={submitted && validationFailed.delayNumber ? "error" : "default"}
                                helperTextInvalid={_("Delay must be a number")}>

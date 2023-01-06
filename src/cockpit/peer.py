@@ -88,7 +88,7 @@ class Peer(CockpitProtocolClient, SubprocessProtocol, Endpoint):
             self.state_listener.peer_state_changed(self, 'init')
         self.write_control(command='init', version='1', host=self.init_host)
 
-    def do_closed(self, exc: Optional[Exception]) -> None:
+    def do_closed(self, transport_was: asyncio.Transport, exc: Optional[Exception]) -> None:
         logger.debug('Peer %s connection lost %s', self.name, exc)
 
         # We need to synthesize close messages for all open channels

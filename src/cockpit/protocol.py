@@ -44,7 +44,7 @@ class CockpitProtocol(asyncio.Protocol):
     def do_ready(self) -> None:
         raise NotImplementedError
 
-    def do_closed(self, exc: Optional[Exception]) -> None:
+    def do_closed(self, transport_was: asyncio.Transport, exc: Optional[Exception]) -> None:
         pass
 
     def transport_control_received(self, command: str, message: Dict[str, object]) -> None:
@@ -123,8 +123,10 @@ class CockpitProtocol(asyncio.Protocol):
 
     def connection_lost(self, exc):
         logger.debug('connection_lost')
+        assert self.transport is not None
+        transport_was = self.transport
         self.transport = None
-        self.do_closed(exc)
+        self.do_closed(transport_was, exc)
 
         if self._communication_done is not None:
             if exc is None:

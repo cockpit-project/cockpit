@@ -376,7 +376,13 @@ class TestSubprocessTransport(unittest.IsolatedAsyncioTestCase):
                                                            stderr=subprocess.PIPE)
         await protocol.eof_and_exited_with_code(1)
         assert protocol.received == protocol.sent == 0
+        # Unless we reset it, we should get the same result repeatedly
         assert '/nonexistent' in transport.get_stderr()
+        assert '/nonexistent' in transport.get_stderr()
+        assert '/nonexistent' in transport.get_stderr(reset=True)
+        # After we reset, it should be the empty string
+        assert transport.get_stderr() == ''
+        assert transport.get_stderr(reset=True) == ''
 
     async def test_safe_watcher_ENOSYS(self) -> None:
         with unittest.mock.patch('asyncio.PidfdChildWatcher', unittest.mock.Mock(side_effect=OSError)):

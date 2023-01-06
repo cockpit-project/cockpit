@@ -298,9 +298,9 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
 
         return watcher
 
-    def get_stderr(self) -> Optional[bytes]:
+    def get_stderr(self) -> Optional[str]:
         if self._stderr is not None:
-            return self._stderr.get()
+            return self._stderr.get().decode(errors='replace')
         else:
             return None
 

@@ -53,7 +53,7 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
         args: Dict[str, object] = {'exit-status': self._transport.get_returncode()}
         stderr = self._transport.get_stderr()
         if stderr is not None:
-            args['message'] = stderr.decode('utf-8')
+            args['message'] = stderr
         return args
 
     def do_options(self, options):

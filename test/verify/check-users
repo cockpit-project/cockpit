@@ -793,6 +793,57 @@ class TestAccounts(MachineCase):
         b.wait_not_in_text(".pf-c-label-group__list", "testgroup0")
         wait(lambda: "testgroup0" not in m.execute("groups admin"))
 
+    def testGroupCreate(self):
+        b = self.browser
+        m = self.machine
+        self.addCleanup(m.execute, "groupdel saturn || true")
+        self.addCleanup(m.execute, "groupdel titan || true")
+
+        self.login_and_go("/users")
+
+        # Create new group
+        b.click("#groups-create")
+        b.set_input_text("#groups-create-name", "titan")
+        b.wait_not_val("#groups-create-id", "")
+        b.click("#groups-create-dialog button.pf-m-primary")
+        b.wait_not_present("#groups-create-dialog")
+        b.wait_visible('#groups-list td[data-label="Group name"]:contains("titan")')
+
+        # Validation check for duplicate group name and id
+        b.click("#groups-create")
+        b.set_input_text("#groups-create-name", "titan")
+        b.set_input_text("#groups-create-id", "0")
+        b.click("#groups-create-dialog button.pf-m-primary")
+        b.wait_in_text("#groups-create-name-helper", "A group with this name already exists")
+        b.set_input_text("#groups-create-name", "titans")
+        b.click("#groups-create-dialog button.pf-m-primary")
+        b.wait_in_text("#groups-create-dialog .pf-c-alert", "GID '0' already exists")
+
+        # Validation check for chars used in group name and valid group ID
+        b.set_input_text("#groups-create-name", "titan@1000")
+        b.set_input_text("#groups-create-id", "12f")
+        b.click("#groups-create-dialog button.pf-m-primary")
+        b.wait_in_text("#groups-create-name-helper", "The group name can only consist of letters")
+        b.wait_in_text("#groups-create-id-helper", "The group ID must be positive integer")
+        b.set_input_text("#groups-create-id", "-12")
+        b.wait_not_present("#groups-create-id-helper")
+        b.click("#groups-create-dialog button.pf-m-primary")
+        b.wait_in_text("#groups-create-id-helper", "The group ID must be positive integer")
+
+        # Validate no name and no group
+        b.set_input_text("#groups-create-name", "")
+        b.set_input_text("#groups-create-id", "")
+        b.click("#groups-create-dialog button.pf-m-primary")
+        b.wait_in_text("#groups-create-name-helper", "No group name specified")
+        b.wait_in_text("#groups-create-id-helper", "No ID specified")
+
+        # Create new group with custom ID
+        b.set_input_text("#groups-create-name", "saturn")
+        b.set_input_text("#groups-create-id", "1234")
+        b.click("#groups-create-dialog button.pf-m-primary")
+        b.wait_not_present("#groups-create-dialog")
+        b.wait_visible('#groups-list td[data-label="Group name"]:contains("saturn")')
+
 
 if __name__ == '__main__':
     test_main()

@@ -64,3 +64,10 @@ function show_error_dialog(title, message) {
 export function show_unexpected_error(error) {
     show_error_dialog(_("Unexpected error"), error.message || error);
 }
+
+export function is_valid_char_name(c) {
+    return (c >= 'a' && c <= 'z') ||
+        (c >= 'A' && c <= 'Z') ||
+        (c >= '0' && c <= '9') ||
+        c == '.' || c == '_' || c == '-';
+}

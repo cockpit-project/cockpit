@@ -21,7 +21,7 @@ import cockpit from 'cockpit';
 import React from 'react';
 
 import { Checkbox, Form, FormGroup, TextInput, Popover, Flex, FlexItem, Radio } from '@patternfly/react-core';
-import { has_errors } from "./dialog-utils.js";
+import { has_errors, is_valid_char_name } from "./dialog-utils.js";
 import { passwd_change } from "./password-dialogs.js";
 import { password_quality, PasswordFormFields } from "cockpit-components-password.jsx";
 import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";
@@ -92,19 +92,12 @@ function AccountCreateBody({ state, errors, change }) {
     );
 }
 
-function is_valid_char_username(c) {
-    return (c >= 'a' && c <= 'z') ||
-        (c >= 'A' && c <= 'Z') ||
-        (c >= '0' && c <= '9') ||
-        c == '.' || c == '_' || c == '-';
-}
-
 function validate_username(username, accounts) {
     if (!username)
         return _("No user name specified");
 
     for (let i = 0; i < username.length; i++) {
-        if (!is_valid_char_username(username[i]))
+        if (!is_valid_char_name(username[i]))
             return _("The user name can only consist of letters from a-z, digits, dots, dashes and underscores.");
     }
 
@@ -149,7 +142,7 @@ function suggest_username(realname) {
             str = str.replace(new RegExp(translate_table[i], 'g'), i);
 
         for (let k = 0; k < str.length;) {
-            if (!is_valid_char_username(str[k]))
+            if (!is_valid_char_name(str[k]))
                 str = str.substr(0, k) + str.substr(k + 1);
             else
                 k++;

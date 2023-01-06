@@ -24,7 +24,7 @@ import { superuser } from "superuser";
 import { admins } from './local.js';
 import {
     Button, Badge,
-    Card, CardExpandableContent, CardHeader, CardTitle,
+    Card, CardActions, CardExpandableContent, CardHeader, CardTitle,
     Dropdown, DropdownItem, DropdownSeparator,
     Flex, FlexItem,
     HelperText, HelperTextItem,
@@ -42,6 +42,7 @@ import { SortByDirection } from "@patternfly/react-table";
 import { account_create_dialog } from "./account-create-dialog.js";
 import { delete_account_dialog } from "./delete-account-dialog.js";
 import { delete_group_dialog } from "./delete-group-dialog.js";
+import { group_create_dialog } from "./group-create-dialog.js";
 import { lockAccountDialog } from "./lock-account-dialog.js";
 import { logoutAccountDialog } from "./logout-account-dialog.js";
 
@@ -299,6 +300,11 @@ const GroupsList = ({ groups, accounts }) => {
                         </Button>
                     </>}
                 </CardTitle>
+                <CardActions>
+                    <Button variant="secondary" id="groups-create" onClick={() => group_create_dialog(groups, setIsExpanded)}>
+                        {_("Create new group")}
+                    </Button>
+                </CardActions>
             </CardHeader>
             <CardExpandableContent>
                 <ListingTable columns={columns}

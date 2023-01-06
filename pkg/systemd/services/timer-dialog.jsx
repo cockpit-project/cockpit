@@ -74,18 +74,76 @@ const CreateTimerDialogBody = ({ owner }) => {
     const [repeatPatterns, setRepeatPatterns] = useState([]);
     const [specificTime, setSpecificTime] = useState("00:00");
     const [isSpecificTimeOpen, setSpecificTimeOpen] = useState(false);
-    const [submitted, setSubmitted] = useState(false);
     const [commandNotFound, setCommandNotFound] = useState(false);
-    const validationFailed = {};
+    const [validationFailed, setValidationFailed] = useState({});
+    const [validForm, setValidForm] = useState(false);
 
-    if (!name.trim().length || !/^[a-zA-Z0-9:_.@-]+$/.test(name))
-        validationFailed.name = true;
-    if (!description.trim().length)
-        validationFailed.description = true;
-    if (!command.trim().length || commandNotFound)
-        validationFailed.command = true;
-    if (!/^[0-9]+$/.test(delayNumber))
-        validationFailed.delayNumber = true;
+    const validate = async (event) => {
+        if (!event)
+            return;
+
+        const { id, value } = event.target;
+        let notValid = true;
+        setDialogError("");
+
+        switch (id) {
+        case 'servicename': {
+            if (value.trim().length && /^[a-zA-Z0-9:_.@-]+$/.test(value))
+                notValid = false;
+            break;
+        }
+        case 'description': {
+            if (value.trim().length)
+                notValid = false;
+            break;
+        }
+        case 'command': {
+            if (!command.trim().length)
+                break;
+            const command_parts = command.split(" ");
+            setInProgress(true);
+            try {
+                await cockpit.spawn(["test", "-f", command_parts[0]], { err: "ignore" });
+                notValid = false;
+            } catch {
+                setCommandNotFound(true);
+            }
+            setInProgress(false);
+            break;
+        }
+        case 'delay-number': {
+            if (/^[0-9]+$/.test(value))
+                notValid = false;
+            break;
+        }
+        case 'custom': {
+            if (!value.trim().length)
+                break;
+            setInProgress(true);
+            try {
+                await cockpit.spawn(["systemd-analyze", "calendar", value.trim()]);
+                notValid = false;
+            } catch {}
+            setInProgress(false);
+            break;
+        }
+        // invalidate base form items.
+        default: {
+            setValidationFailed(validationFailed => ({
+                servicename: true,
+                description: true,
+                command: true
+            }));
+            return;
+        }
+        }
+        setValidationFailed(validationFailed => ({
+            ...validationFailed,
+            [id]: notValid
+        }));
+        if (notValid)
+            setValidForm(false);
+    };
 
     const timePicker = (idx) => (
         <TimePicker className="create-timer-time-picker"
@@ -106,34 +164,85 @@ const CreateTimerDialogBody = ({ owner }) => {
         />
     );
 
-    function onSubmit(event) {
-        setSubmitted(true);
-
-        if (event)
-            event.preventDefault();
-
-        if (Object.keys(validationFailed).length)
+    const onSubmit = (event) => {
+        if (!event)
             return false;
+
+        let failed = false;
+        let failMessage = _("Please complete the form");
+
+        event.preventDefault();
+
+        while (!failed) {
+            // Check if the form has ever been validated if not immediate form failure.
+            if (!Object.keys(validationFailed).length) {
+                validate(event);
+                failed = true;
+            }
+            // If the form base checkValidity isnt valid then check the inputs again.  this wont fail the submission unless there is an issue.  Failure will happen in the next check.
+            if (!event.target.checkValidity()) {
+                // Loop the form data keys and do some checks.  Note this ignores the repeating values.  those are captured with validation
+                const formData = new FormData(event.target);
+                for (const key of formData.keys()) {
+                    if (key == "boot-or-specific-time")
+                        continue;
+                    const input = document.querySelector('#' + key);
+                    if (input === 'undefined') {
+                        validate(event);
+                        failMessage = _("Unknown form input issue");
+                        failed = true;
+                    }
+                    if (validationFailed[key] !== 0) {
+                        input.dispatchEvent(new Event('blur'));
+                    }
+                }
+            }
+            // Confirm if any inputs are invalid
+            if (Object.values(validationFailed).includes(true))
+                failed = true;
+            // Check trigger specific validation
+            switch (delay) {
+            case 'specific-time': {
+                // Need yearly check as it doesnt have a default
+                switch (repeat) {
+                case 'yearly': {
+                    const check = repeatPatterns.find(pattern => {
+                        return !pattern.date;
+                    });
+                    if (check)
+                        failed = true;
+                    break;
+                }
+                }
+                break;
+            }
+            // Nothing to validate at this time.
+            case 'system-boot': {
+                break;
+            }
+            }
+        }
+        if (failed) {
+            setDialogError(failMessage);
+            setValidForm(false);
+            return false;
+        }
 
         setInProgress(true);
 
-        // Verify if the command exists
-        const command_parts = command.split(" ");
-        cockpit.spawn(["test", "-f", command_parts[0]], { err: "ignore" })
-                .then(() => {
-                    create_timer({ name, description, command, delay, delayUnit, delayNumber, repeat, specificTime, repeatPatterns, owner })
-                            .then(Dialogs.close, exc => {
-                                setDialogError(exc.message);
-                                setInProgress(false);
-                            });
-                })
-                .catch(() => {
-                    setCommandNotFound(true);
+        create_timer({ name, description, command, delay, delayUnit, delayNumber, repeat, specificTime, repeatPatterns, owner })
+                .then(Dialogs.close, exc => {
+                    setDialogError(exc.message);
                     setInProgress(false);
                 });
 
         return false;
-    }
+    };
+
+    const formCheck = (event) => {
+        const F = document.getElementById('timerForm');
+        setValidForm(F.checkValidity());
+    };
 
     return (
         <Modal id="timer-dialog"
@@ -145,7 +254,8 @@ const CreateTimerDialogBody = ({ owner }) => {
                    <Button variant='primary'
                            id="timer-save-button"
                            isLoading={inProgress}
-                           isDisabled={inProgress || commandNotFound}
+                           isDisabled={inProgress || commandNotFound || !validForm}
+                           form="timerForm"
                            onClick={onSubmit}>
                        {_("Save")}
                    </Button>
@@ -155,38 +265,41 @@ const CreateTimerDialogBody = ({ owner }) => {
                </>
            }>
             {dialogError && <ModalError dialogError={_("Timer creation failed")} dialogErrorDetail={dialogError} />}
-            <Form isHorizontal onSubmit={onSubmit}>
+            <Form isHorizontal id='timerForm' onSubmit={onSubmit} onChange={formCheck}>
                 <FormGroup label={_("Name")}
                            isRequired
                            fieldId="servicename"
-                           validated={submitted && validationFailed.name ? "error" : "default"}
+                           validated={validationFailed.servicename ? "error" : "default"}
                            helperTextInvalid={!name.trim().length ? _("This field cannot be empty") : _("Only alphabets, numbers, : , _ , . , @ , - are allowed")}>
                     <TextInput id='servicename'
                                isRequired
                                value={name}
-                               validated={submitted && validationFailed.name ? "error" : "default"}
+                               validated={validationFailed.servicename ? "error" : "default"}
+                               onBlur={validate}
                                onChange={setName} />
                 </FormGroup>
                 <FormGroup label={_("Description")}
                            isRequired
                            fieldId="description"
-                           validated={submitted && validationFailed.description ? "error" : "default"}
+                           validated={validationFailed.description ? "error" : "default"}
                            helperTextInvalid={_("This field cannot be empty")}>
                     <TextInput id='description'
                                isRequired
                                value={description}
-                               validated={submitted && validationFailed.description ? "error" : "default"}
+                               validated={validationFailed.description ? "error" : "default"}
+                               onBlur={validate}
                                onChange={setDescription} />
                 </FormGroup>
                 <FormGroup label={_("Command")}
                            isRequired
                            fieldId="command"
-                           validated={submitted && validationFailed.command ? "error" : "default"}
+                           validated={validationFailed.command ? "error" : "default"}
                            helperTextInvalid={commandNotFound ? _("Command not found") : _("This field cannot be empty")}>
                     <TextInput id='command'
                                isRequired
                                value={command}
-                               validated={submitted && validationFailed.command ? "error" : "default"}
+                               validated={validationFailed.command ? "error" : "default"}
+                               onBlur={validate}
                                onChange={str => { setCommandNotFound(false); setCommand(str) }} />
                 </FormGroup>
                 <FormGroup label={_("Trigger")} hasNoPaddingTop>
@@ -194,13 +307,19 @@ const CreateTimerDialogBody = ({ owner }) => {
                         <Radio value="specific-time"
                                id="specific-time"
                                name="boot-or-specific-time"
-                               onChange={() => setDelay("specific-time")}
+                               onChange={() => {
+                                   setDelay("specific-time");
+                                   formCheck();
+                               }}
                                isChecked={delay == "specific-time"}
                                label={_("At specific time")} />
                         <Radio value="system-boot"
                                id="system-boot"
                                name="boot-or-specific-time"
-                               onChange={() => setDelay("system-boot")}
+                               onChange={() => {
+                                   setDelay("system-boot");
+                                   formCheck();
+                               }}
                                isChecked={delay == "system-boot"}
                                label={_("After system boot")} />
                     </Flex>
@@ -208,14 +327,15 @@ const CreateTimerDialogBody = ({ owner }) => {
                     <FormGroup className="delay-group"
                                isRequired
                                label={_("Delay")}
-                               validated={submitted && validationFailed.delayNumber ? "error" : "default"}
+                               validated={validationFailed['delay-number'] ? "error" : "default"}
                                helperTextInvalid={_("Delay must be a number")}>
                         <Flex>
                             <TextInput className="delay-number"
                                        aria-label={_("Delay in seconds")}
                                        isRequired
                                        value={delayNumber}
-                                       validated={submitted && validationFailed.delayNumber ? "error" : "default"}
+                                       validated={validationFailed['delay-number'] ? "error" : "default"}
+                                       onBlur={validate}
                                        onChange={setDelayNumber} />
                             <FormSelect className="delay-unit"
                                         value={delayUnit}
@@ -278,51 +398,72 @@ const CreateTimerDialogBody = ({ owner }) => {
                             else if (repeat == "weekly" || repeat == "monthly" || repeat == "yearly")
                                 label = _("Run on");
 
-                            let helperTextInvalid;
-                            let validated = "default";
-                            const min = repeatPatterns[idx].minute;
-                            const validationFailedMinute = !(/^[0-9]+$/.test(min) && min <= 59 && min >= 0);
-
-                            if (submitted && repeat == 'hourly' && validationFailedMinute) {
-                                validated = "error";
-                                helperTextInvalid = _("Minute needs to be a number between 0-59");
-                            }
-
-                            const sec = repeatPatterns[idx].second;
-                            const validationFailedSecond = !(/^[0-9]+$/.test(sec) && sec <= 59 && sec >= 0);
-
-                            if (submitted && repeat == 'minutely' && validationFailedSecond) {
-                                validated = "error";
-                                helperTextInvalid = _("Second needs to be a number between 0-59");
-                            }
+                            const repeatValidate = (event) => {
+                                if (!event) return;
+                                let helperTextInvalid;
+                                switch (event.target.id) {
+                                case 'hourly': {
+                                    helperTextInvalid = _("Minute needs to be a number between 0-59");
+                                    break;
+                                }
+                                case 'minutely': {
+                                    helperTextInvalid = _("Second needs to be a number between 0-59");
+                                    break;
+                                }
+                                case 'yearly': {
+                                    helperTextInvalid = _("Please enter valid date.  Example YYYY-MM-DD");
+                                    break;
+                                }
+                                }
+                                const validated = !event.target.checkValidity() ? "error" : "default";
+                                const arr = [...repeatPatterns];
+                                arr[idx].helperTextInvalid = helperTextInvalid;
+                                arr[idx].validated = validated;
+                                setRepeatPatterns(arr);
+                                if (validated == 'default') {
+                                    setDialogError();
+                                    formCheck();
+                                }
+                            };
 
                             return (
                                 <FormGroup label={label} key={item.key}
-                                           validated={validated}
-                                           helperTextInvalid={helperTextInvalid}>
+                                           validated={repeatPatterns[idx].validated}
+                                           helperTextInvalid={repeatPatterns[idx].helperTextInvalid}>
                                     <Flex className="specific-repeat-group" data-index={idx}>
                                         {repeat == "minutely" &&
                                             <TextInput className='delay-number'
                                                        id={repeat}
                                                        isRequired
                                                        value={repeatPatterns[idx].second}
+                                                       onBlur={repeatValidate}
                                                        onChange={second => {
                                                            const arr = [...repeatPatterns];
                                                            arr[idx].second = second;
                                                            setRepeatPatterns(arr);
                                                        }}
-                                                       validated={submitted && validationFailedSecond ? "error" : "default"} />
+                                                       pattern='^[0-9]+$'
+                                                       type='number'
+                                                       min='0'
+                                                       max='59'
+                                                       validated={repeatPatterns[idx].validated} />
                                         }
                                         {repeat == "hourly" && <>
                                             <TextInput className='delay-number'
+                                                       id={repeat}
                                                        isRequired
                                                        value={repeatPatterns[idx].minute}
+                                                       onBlur={repeatValidate}
                                                        onChange={minute => {
                                                            const arr = [...repeatPatterns];
                                                            arr[idx].minute = minute;
                                                            setRepeatPatterns(arr);
                                                        }}
-                                                       validated={submitted && validationFailedMinute ? "error" : "default"} />
+                                                       pattern='^[0-9]+$'
+                                                       type='number'
+                                                       min='0'
+                                                       max='59'
+                                                       validated={repeatPatterns[idx].validated} />
                                         </>}
                                         {repeat == "daily" && timePicker(idx)}
                                         {repeat == "weekly" && <>
@@ -365,15 +506,26 @@ const CreateTimerDialogBody = ({ owner }) => {
                                         </>}
                                         {repeat == "yearly" && <>
                                             <DatePicker aria-label={_("Pick date")}
-                                                        buttonAriaLabel={_("Toggle date picker")}
-                                                        locale={timeformat.dateFormatLang()}
-                                                        weekStart={timeformat.firstDayOfWeek()}
-                                                        onChange={(str, data) => {
-                                                            const arr = [...repeatPatterns];
-                                                            arr[idx].date = str;
-                                                            setRepeatPatterns(arr);
-                                                        }}
-                                                        appendTo={() => document.body} />
+                                                inputProps={{
+                                                    id: repeat,
+                                                    pattern: '^[0-9]{4}[-](0[1-9]|1[0-2])[-](0[1-9]|[12][0-9]|3[0-1])',
+                                                    isRequired: true,
+                                                    validated: repeatPatterns[idx].validated,
+                                                    onBlur: event => {
+                                                        repeatValidate(event);
+                                                    },
+                                                    onChange: str => {
+                                                        const arr = [...repeatPatterns];
+                                                        arr[idx].date = str;
+                                                        setRepeatPatterns(arr);
+                                                    }
+                                                }}
+                                                appendTo={() => document.body}
+                                                buttonAriaLabel={_("Toggle date picker")}
+                                                locale={timeformat.dateFormatLang()}
+                                                weekStart={timeformat.firstDayOfWeek()}
+                                                // isRequired // No Required flag for DatePicker
+                                            />
                                             {timePicker(idx)}
                                         </>}
                                         {repeat !== "no" && <FlexItem align={{ default: 'alignRight' }}>

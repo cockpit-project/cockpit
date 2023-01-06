@@ -298,9 +298,9 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
 
         return watcher
 
-    def get_stderr(self) -> Optional[str]:
+    def get_stderr(self, reset: bool = False) -> Optional[str]:
         if self._stderr is not None:
-            return self._stderr.get().decode(errors='replace')
+            return self._stderr.get(reset).decode(errors='replace')
         else:
             return None
 
@@ -476,11 +476,14 @@ class Spooler:
             return False
         return select.select([self._fd], [], [], 0) != ([], [], [])
 
-    def get(self) -> bytes:
+    def get(self, reset: bool = False) -> bytes:
         while self._is_ready():
             self._read_ready()
 
-        return b''.join(self._contents)
+        result = b''.join(self._contents)
+        if reset:
+            self._contents = []
+        return result
 
     def is_closed(self) -> bool:
         return self._fd == -1

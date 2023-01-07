@@ -799,7 +799,7 @@ class TestAccounts(MachineCase):
         performGroupAction(b, 'testgroup0', 'Delete group')
         b.wait_text("#group-confirm-delete-dialog footer .pf-c-button.apply", "Delete")
         b.click("#group-confirm-delete-dialog footer .pf-c-button.apply")
-        b.wait_not_present('#account-confirm-delete-dialog')
+        b.wait_not_present('#group-confirm-delete-dialog')
         b.wait_visible("#groups-list")
         b.wait_not_in_text('#groups-list', "testgroup0")
 
@@ -835,7 +835,7 @@ class TestAccounts(MachineCase):
         # Add admin to the testgroup0 group
         selectGroupFromMenu("testgroup0", True)
 
-        # Check that changes ar persistent after reload
+        # Check that changes are persistent after reload
         b.reload()
         b.enter_page("/users")
         b.wait_in_text(".pf-c-label-group__list", "testgroup0")
@@ -903,6 +903,77 @@ class TestAccounts(MachineCase):
         b.click("#groups-create-dialog button.pf-m-primary")
         b.wait_not_present("#groups-create-dialog")
         b.wait_visible('#groups-list td[data-label="Group name"]:contains("saturn")')
+
+        # Deleting group will go back to overview
+        b.go("/users#/group/saturn")
+        b.wait_val("#group-name", "saturn")
+        b.click("#group-details .pf-c-dropdown button")
+        b.click("#group-details .pf-c-dropdown__menu li:contains('Delete')")
+        b.click("#group-confirm-delete-dialog footer .pf-c-button.apply")
+        b.wait_visible("#groups-list")
+        b.wait_not_in_text('#groups-list', "saturn")
+
+    def testGroupEdit(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute("groupadd titan; useradd uranus")
+
+        self.login_and_go("/users")
+        b.click("button:contains('more...')")
+        b.wait_visible('#groups-list td[data-label="Group name"]:contains("titan")')
+        b.click("#groups-list tbody tr:contains(titan) .pf-c-dropdown button")
+        b.click("#groups-list tbody tr:contains(titan) .pf-c-dropdown__menu li:contains('Edit group')")
+
+        b.wait_val("#group-name", "titan")
+
+        # Change group name
+        b.click("#group-details .pf-c-dropdown__toggle")
+        b.click("li:contains(Rename)")
+        b.set_input_text("#group-confirm-rename-dialog #group-name", "phoebe")
+        b.click("#group-confirm-rename-dialog .apply")
+        b.wait_js_cond('window.location.hash === "#/group/phoebe"')
+        self.assertIn("phoebe", m.execute("getent group"))
+        self.assertNotIn("titan", m.execute("getent group"))
+
+        def selectAccount(account, group, enabled):
+            if enabled:
+                wait(lambda: group not in m.execute(f"groups {account}"))
+            else:
+                wait(lambda: group in m.execute(f"groups {account}"))
+
+            b.click("#group-accounts")
+            b.click(f".pf-c-select__menu li:contains({account}) button")
+            if enabled:
+                b.wait_in_text(".pf-c-label-group__list", account)
+                b.wait_not_present(f".pf-c-select__menu li:contains({account}) button")
+                wait(lambda: group in m.execute(f"groups {account}"))
+            else:
+                b.wait_not_in_text(".pf-c-select", account)
+                wait(lambda: group not in m.execute(f"groups {account}"))
+
+        # Add user to group
+        selectAccount("uranus", "phoebe", True)
+        b.wait_not_present("#group-accounts-helper")
+
+        # Remove user from group
+        selectAccount("uranus", "phoebe", False)
+        b.wait_not_present("#group-accounts-helper")
+
+        # Undo account removal from group
+        b.click("#group-undo-btn")
+        b.wait_in_text(".pf-c-label-group__list", "uranus")
+        wait(lambda: "phoebe" in m.execute("groups uranus"))
+
+        # Add logged in user to group and expect warning
+        selectAccount("admin", "phoebe", True)
+        if not m.ostree_image:  # User is not shown as logged in when logged in through Cockpit
+            b.wait_visible("#group-accounts-helper")
+
+        # Rename and delete actions are available only for user created groups
+        b.go(f"/users#/group/{m.get_admin_group()}")
+        b.wait_visible("#group-details")
+        b.wait_not_present("#group-details .pf-c-dropdown__toggle")
 
 
 if __name__ == '__main__':

@@ -41,38 +41,14 @@ import { SearchIcon } from '@patternfly/react-icons';
 import { SortByDirection } from "@patternfly/react-table";
 import { account_create_dialog } from "./account-create-dialog.js";
 import { delete_account_dialog } from "./delete-account-dialog.js";
-import { delete_group_dialog } from "./delete-group-dialog.js";
 import { group_create_dialog } from "./group-create-dialog.js";
 import { lockAccountDialog } from "./lock-account-dialog.js";
 import { logoutAccountDialog } from "./logout-account-dialog.js";
+import { GroupActions } from "./group-actions.jsx";
 
 import { usePageLocation } from "hooks";
 
 const _ = cockpit.gettext;
-
-const GroupActions = ({ group, accounts }) => {
-    const [isKebabOpen, setKebabOpen] = useState(false);
-
-    if (!superuser.allowed)
-        return null;
-
-    const actions = [
-        <DropdownItem key="delete-group"
-                      className="delete-resource-red"
-                      onClick={() => { setKebabOpen(false); delete_group_dialog(group) }}>
-            {_("Delete group")}
-        </DropdownItem>,
-    ];
-
-    const kebab = (
-        <Dropdown toggle={<KebabToggle onToggle={setKebabOpen} />}
-                isPlain
-                isOpen={isKebabOpen}
-                position="right"
-                dropdownItems={actions} />
-    );
-    return kebab;
-};
 
 const UserActions = ({ account }) => {
     const [isKebabOpen, setKebabOpen] = useState(false);
@@ -117,7 +93,7 @@ const UserActions = ({ account }) => {
     return kebab;
 };
 
-const getGroupRow = (group, accounts) => {
+const getGroupRow = (group, accounts, isUserCreatedGroup) => {
     let groupColorClass;
     if (group.isAdmin)
         groupColorClass = "group-gold";
@@ -129,7 +105,12 @@ const getGroupRow = (group, accounts) => {
     const columns = [
         {
             sortKey: group.name,
-            title: <Flex alignItems={{ default: 'alignItemsCenter' }}><div className={"dot " + groupColorClass} /><FlexItem>{group.name}</FlexItem></Flex>,
+            title: (
+                <Flex alignItems={{ default: 'alignItemsCenter' }}>
+                    <div className={"dot " + groupColorClass} />
+                    <FlexItem>{group.name}</FlexItem>
+                </Flex>
+            ),
             props: { width: 20, },
         },
         {
@@ -163,7 +144,7 @@ const getGroupRow = (group, accounts) => {
     if (superuser.allowed) {
         columns.push(
             {
-                title: <GroupActions group={group} accounts={accounts} />,
+                title: <GroupActions group={group} accounts={accounts} isUserCreatedGroup={isUserCreatedGroup} />,
                 props: { className: "pf-c-table__action" }
             }
         );
@@ -250,7 +231,7 @@ const mapGroupsToAccount = (accounts, groups) => {
     });
 };
 
-const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded }) => {
+const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_gid }) => {
     const { options } = usePageLocation();
     const [currentTextFilter, setCurrentTextFilter] = useState(options.group || '');
     const columns = [
@@ -321,7 +302,7 @@ const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded }) => {
                     <>
                         {isExpanded && <ToolbarItem variant="separator" />}
                         <ToolbarItem alignment={{ md: 'alignRight' }}>
-                            <Button variant="secondary" id="groups-create" onClick={() => group_create_dialog(groups, setIsExpanded)}>
+                            <Button variant="secondary" id="groups-create" onClick={() => group_create_dialog(groups, setIsExpanded, min_gid, max_gid)}>
                                 {_("Create new group")}
                             </Button>
                         </ToolbarItem>
@@ -492,7 +473,7 @@ const AccountsList = ({ accounts, current_user, groups }) => {
     );
 };
 
-export const AccountsMain = ({ accountsInfo, current_user, groups, isGroupsExpanded, setIsGroupsExpanded }) => {
+export const AccountsMain = ({ accountsInfo, current_user, groups, isGroupsExpanded, setIsGroupsExpanded, min_gid, max_gid }) => {
     const accounts = mapGroupsToAccount(accountsInfo, groups).filter(account => {
         if ((account.uid < 1000 && account.uid !== 0) ||
                  account.shell.match(/^(\/usr)?\/sbin\/nologin/) ||
@@ -505,7 +486,7 @@ export const AccountsMain = ({ accountsInfo, current_user, groups, isGroupsExpan
         <Page id="accounts">
             <PageSection>
                 <Stack hasGutter>
-                    <GroupsList accounts={accounts} groups={groups} isExpanded={isGroupsExpanded} setIsExpanded={setIsGroupsExpanded} />
+                    <GroupsList accounts={accounts} groups={groups} isExpanded={isGroupsExpanded} setIsExpanded={setIsGroupsExpanded} min_gid={min_gid} max_gid={max_gid} />
                     <AccountsList accounts={accounts} current_user={current_user} groups={groups} />
                 </Stack>
             </PageSection>

@@ -904,6 +904,27 @@ class TestAccounts(MachineCase):
         b.wait_not_present("#groups-create-dialog")
         b.wait_visible('#groups-list td[data-label="Group name"]:contains("saturn")')
 
+    def testGroupRename(self):
+        b = self.browser
+        m = self.machine
+
+        m.execute("groupadd titan; useradd uranus")
+
+        self.login_and_go("/users")
+        b.click("button:contains('more...')")
+        b.wait_visible('#groups-list td[data-label="Group name"]:contains("titan")')
+        b.click("#groups-list tbody tr:contains(titan) .pf-c-dropdown button")
+        b.click("#groups-list tbody tr:contains(titan) .pf-c-dropdown__menu li:contains('Rename group')")
+
+        b.set_input_text("#group-confirm-rename-dialog #group-name", "phoebe")
+        b.click("#group-confirm-rename-dialog .apply")
+        b.wait_not_present("#group-confirm-rename-dialog")
+        self.assertIn("phoebe", m.execute("getent group"))
+        self.assertNotIn("titan", m.execute("getent group"))
+
+        # Rename and delete actions are available only for user created groups
+        b.wait_not_present(f"#groups-list tbody tr:contains({m.get_admin_group()}) .pf-c-dropdown button")
+
 
 if __name__ == '__main__':
     test_main()

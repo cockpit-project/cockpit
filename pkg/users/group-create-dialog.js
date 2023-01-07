@@ -86,26 +86,19 @@ function validate_group(id, groups) {
     return null;
 }
 
-export function group_create_dialog(groups, setGroupsCardExpanded) {
-    //  Handle also the case where logindef == null, i.e. the file does not exist.
-    //  While that's unusual, "empty /etc" is a goal, and it shouldn't crash the page.
-    cockpit.file("/etc/login.defs").read()
-            .then(logindef => {
-                const gids = groups
-                        .filter(g => g.name !== 'nobody')
-                        .map(group => group.gid);
-                const min_gid = parseInt(logindef.match(/^GID_MIN\s+(\d+)/m)[1] || 500);
-                const max_gid = parseInt(logindef.match(/^GID_MAX\s+(\d+)/m)[1] || 60000);
-
-                change("id", (Math.max(min_gid, Math.max(...gids.filter(id => id < max_gid)) + 1) + 1).toString());
-            }, () => Promise.resolve());
-
+export function group_create_dialog(groups, setGroupsCardExpanded, min_gid, max_gid) {
     let dlg = null;
     const state = {
         name: "",
         id: "",
     };
     let errors = { };
+
+    const gids = groups
+            .filter(g => g.name !== 'nobody')
+            .map(group => group.gid);
+
+    change("id", (Math.max(min_gid, Math.max(...gids.filter(id => id < max_gid)) + 1) + 1).toString());
 
     function change(field, value) {
         state[field] = value;

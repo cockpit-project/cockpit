@@ -21,7 +21,7 @@ import 'polyfills'; // once per application
 import 'cockpit-dark-theme'; // once per page
 
 import cockpit from 'cockpit';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { superuser } from "superuser";
 
@@ -57,6 +57,24 @@ function AccountsPage() {
     const groups = useFile("/etc/group", { syntax: etc_group_syntax });
     const current_user_info = useLoggedInUser();
 
+    const logindef = useFile("/etc/login.defs", { superuser: true });
+    //  Handle also the case where logindef == null, i.e. the file does not exist.
+    //  While that's unusual, "empty /etc" is a goal, and it shouldn't crash the page.
+    const [min_gid, setMinGid] = useState(500);
+    const [max_gid, setMaxGid] = useState(60000);
+    useEffect(() => {
+        if (!logindef)
+            return;
+
+        const minGid = parseInt(logindef.match(/^GID_MIN\s+(\d+)/m)[1]);
+        const maxGid = parseInt(logindef.match(/^GID_MAX\s+(\d+)/m)[1]);
+
+        if (minGid)
+            setMinGid(minGid);
+        if (maxGid)
+            setMaxGid(maxGid);
+    }, [logindef]);
+
     const [details, setDetails] = useState(null);
     useInit(() => {
         getLogins(shadow).then(setDetails);
@@ -83,9 +101,16 @@ function AccountsPage() {
         (groups || []).map(group => {
             const userlistPrimary = accountsInfo.filter(account => account.gid === group.gid).map(account => account.name);
             const userlist = group.userlist.filter(el => el !== "");
-            return ({ ...group, userlistPrimary, userlist, members: userlist.length + userlistPrimary.length, isAdmin: admins.includes(group.name) });
+            return ({
+                ...group,
+                userlistPrimary,
+                userlist,
+                members: userlist.length + userlistPrimary.length,
+                isAdmin: admins.includes(group.name),
+                isUserCreatedGroup: group.gid >= min_gid && group.gid <= max_gid
+            });
         })
-    ), [groups, accountsInfo]);
+    ), [groups, accountsInfo, min_gid, max_gid]);
 
     if (groupsExtraInfo.length == 0 || accountsInfo.length == 0) {
         return <EmptyStatePanel loading />;
@@ -97,6 +122,8 @@ function AccountsPage() {
                 groups={groupsExtraInfo || []}
                 isGroupsExpanded={isGroupsExpanded}
                 setIsGroupsExpanded={setIsGroupsExpanded}
+                min_gid={min_gid}
+                max_gid={max_gid}
             />
         );
     } else if (path.length === 1) {
@@ -104,7 +131,7 @@ function AccountsPage() {
             <AccountDetails accounts={accountsInfo} groups={groupsExtraInfo} shadow={shadow || []}
                             current_user={current_user_info?.name} user={path[0]} />
         );
-    }
+    } else return null;
 }
 
 function get_locked(name, shadow) {

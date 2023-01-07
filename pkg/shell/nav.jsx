@@ -227,11 +227,11 @@ export function CockpitNavItem(props) {
 CockpitNavItem.propTypes = {
     name: PropTypes.string.isRequired,
     to: PropTypes.string.isRequired,
-    jump: PropTypes.func.isRequired,
+    jump: PropTypes.func,
     status: PropTypes.object,
     active: PropTypes.bool,
     keyword: PropTypes.string,
     term: PropTypes.string,
     header: PropTypes.string,
-    actions: PropTypes.array,
+    actions: PropTypes.node,
 };

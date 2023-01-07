@@ -1767,6 +1767,9 @@ class MachineCase(unittest.TestCase):
                 "ERROR:asyncio:Task was destroyed but it is pending!",
                 "task:.*Task pending.*cockpit/channels/dbus.py.*"]
 
+            # Python 3.11 traceback annotation
+            self.allowed_messages.append(r"\s*\^+\s*")
+
             self.allowed_messages += [
                 r"Exception ignored on calling ctypes callback function: <function Slot.__init__.<locals>.handler.*",
                 r"asyncio.exceptions.InvalidStateError: invalid state",
@@ -1826,7 +1829,7 @@ class MachineCase(unittest.TestCase):
                 r"AssertionError",
             ]
 
-            self.allowed_messages.append(".* is not in the sudoers file.  This incident will be reported.")
+            self.allowed_messages.append(".* is not in the sudoers file.*")
             self.allowed_messages.append("sudo: no valid sudoers sources found, quitting")
 
             # TestSuperuser.testWrongPasswd, message should go to the caller, not the journal

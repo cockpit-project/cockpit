@@ -34,10 +34,12 @@ $(distdir)/version.m4: FORCE
 	@rm -f $(distdir)/version.m4
 	$(AM_V_GEN) echo 'm4_define(VERSION_NUMBER, [$(VERSION)])' > $@
 
+# be careful not to include autotools cache into dist tarballs
 dist-hook: $(distdir)/configure
 $(distdir)/configure: $(distdir)/version.m4
 	@rm -f $(distdir)/configure
 	$(AM_V_GEN) autoreconf $(distdir)
+	@rm -r $(distdir)/autom4te.cache
 
 # Various downstream packaging assets
 dist-hook: $(distdir)/tools/debian/copyright

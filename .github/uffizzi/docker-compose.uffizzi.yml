@@ -1,0 +1,14 @@
+version: "3.7"
+
+x-uffizzi:
+  ingress:
+    service: cockpit
+    port: 9090
+    
+services:
+  cockpit:
+    image: "${COCKPIT_IMAGE}"
+    deploy:
+      resources:
+        limits:
+          memory: 500M 

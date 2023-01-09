@@ -1515,6 +1515,7 @@ class MachineCase(unittest.TestCase):
         self.restore_file("/etc/gshadow")
         self.restore_file("/etc/subuid")
         self.restore_file("/etc/subgid")
+        self.restore_file("/var/log/wtmp")
         home_dirs = m.execute("ls /home").strip().split()
 
         def cleanup_home_dirs():

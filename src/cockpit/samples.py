@@ -17,12 +17,14 @@
 
 import collections
 import os
+from systemd_ctypes import Handle
 
-from typing import Dict, List, NamedTuple, Optional, Union
+from typing import Dict, Iterable, List, NamedTuple, Optional, Union
 
 
 USER_HZ = os.sysconf(os.sysconf_names['SC_CLK_TCK'])
 MS_PER_JIFFY = 1000 / (USER_HZ if (USER_HZ > 0) else 100)
+HWMON_PATH = '/sys/class/hwmon'
 
 Samples = collections.defaultdict[str, Union[float, Dict[str, Union[float, None]]]]
 
@@ -95,47 +97,67 @@ class MemorySampler(Sampler):
 
 class CPUTemperatureSampler(Sampler):
     # Cache found sensors, as they can't be hotplugged.
-    sensors: List[str] = []
+    sensors: Optional[List[str]] = None
 
     descriptions = [
         SampleDescription('cpu.temperature', 'celsius', 'instant', True),
     ]
 
-    def detect_cpu_sensors(self, hwmonid: int, name: str) -> None:
-        for index in range(1, 2 ** 32):
-            sensor_path = f'/sys/class/hwmon/hwmon{hwmonid}/temp{index}_input'
-            if not os.path.exists(sensor_path):
-                break
+    @staticmethod
+    def detect_cpu_sensors(dir_fd: int) -> Iterable[str]:
+        # Read the name file to decide what to do with this directory
+        try:
+            with Handle.open('name', os.O_RDONLY, dir_fd=dir_fd) as fd:
+                name = os.read(fd, 1024).decode().strip()
+        except FileNotFoundError:
+            return
 
-            with open(f'/sys/class/hwmon/hwmon{hwmonid}/temp{index}_label') as f:
-                label = f.read().strip()
-            if label:
-                # only sample CPU Temperature in atk0110
-                if label != 'CPU Temperature' and name == 'atk0110':
-                    continue
-                # ignore Tctl on AMD devices
-                if label == 'Tctl':
-                    continue
-            else:
-                # labels are not used on ARM
-                if name != 'cpu_thermal':
+        if name == 'atk0110':
+            # only sample 'CPU Temperature' in atk0110
+            predicate = (lambda label: label == 'CPU Temperature')
+        elif name == 'cpu_thermal':
+            # labels are not used on ARM
+            predicate = None
+        elif name == 'coretemp':
+            # accept all labels on Intel
+            predicate = None
+        elif name in ['k8temp', 'k10temp']:
+            # ignore Tctl on AMD devices
+            predicate = (lambda label: label != 'Tctl')
+        else:
+            # Not a CPU sensor
+            return
+
+        # Now scan the directory for inputs
+        for input_filename in os.listdir(dir_fd):
+            if not input_filename.endswith('_input'):
+                continue
+
+            if predicate:
+                # We need to check the label
+                try:
+                    label_filename = input_filename.replace('_input', '_label')
+                    with Handle.open(label_filename, os.O_RDONLY, dir_fd=dir_fd) as fd:
+                        label = os.read(fd, 1024).decode().strip()
+                except FileNotFoundError:
                     continue
 
-            self.sensors.append(sensor_path)
+                if not predicate(label):
+                    continue
+
+            yield input_filename
+
+    @staticmethod
+    def scan_sensors() -> Iterable[str]:
+        with Handle.open(HWMON_PATH, os.O_RDONLY | os.O_DIRECTORY) as top_fd:
+            for hwmon_name in os.listdir(top_fd):
+                with Handle.open(hwmon_name, os.O_RDONLY | os.O_DIRECTORY, dir_fd=top_fd) as subdir_fd:
+                    for sensor in CPUTemperatureSampler.detect_cpu_sensors(subdir_fd):
+                        yield f'{HWMON_PATH}/{hwmon_name}/{sensor}'
 
     def sample(self, samples: Samples) -> None:
-        cpu_names = ['coretemp', 'cpu_thermal', 'k8temp', 'k10temp', 'atk0110']
-
-        if not self.sensors:
-            # TODO: 2 ** 32?
-            for index in range(0, 2 ** 32):
-                try:
-                    with open(f'/sys/class/hwmon/hwmon{index}/name') as f:
-                        name = f.read().strip()
-                    if name in cpu_names:
-                        self.detect_cpu_sensors(index, name)
-                except FileNotFoundError:
-                    break
+        if self.sensors is None:
+            self.sensors = list(CPUTemperatureSampler.scan_sensors())
 
         for sensor_path in self.sensors:
             with open(sensor_path) as sensor:

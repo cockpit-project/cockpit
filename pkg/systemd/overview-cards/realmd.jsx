@@ -107,7 +107,7 @@ export class RealmdClient {
         this.dbus_realmd.watch(MANAGER);
         this.dbus_realmd.addEventListener("close", this.onClose);
 
-        this.realms = this.dbus_realmd.proxies(REALM);
+        this.realms = this.dbus_realmd.proxies(REALM, MANAGER);
         this.realms.addEventListener("changed", this.onRealmsChanged);
     }
 

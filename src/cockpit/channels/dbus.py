@@ -452,6 +452,7 @@ class DBusChannel(Channel):
                 self.send_message(notify=notify)
                 self.send_message(reply=[], id=message['id'])
         except BusError as error:
+            logger.debug("do_watch(%s) caught D-Bus error: %s", message, error.message)
             self.send_message(error=[error.name, [error.message]], id=cookie)
 
     async def do_meta(self, message):

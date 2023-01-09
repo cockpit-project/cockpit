@@ -12,24 +12,20 @@ tools/webpack-jumpstart --partial || true
 TEST_SCENARIO=${TEST_SCENARIO:-verify}
 
 case $TEST_SCENARIO in
-    verify|devel|firefox|firefox-devel)
-        OPTS="--track-naughties"
+    verify|devel|firefox|firefox-devel|pybridge)
+        RUN_OPTS="--track-naughties"
+        PREPARE_OPTS=""
         [ "${TEST_SCENARIO}" = "${TEST_SCENARIO%%devel}" ] || export NODE_ENV=development
-        [ "${TEST_SCENARIO}" = "${TEST_SCENARIO%%devel}" ] || OPTS="$OPTS --coverage"
+        [ "${TEST_SCENARIO}" = "${TEST_SCENARIO%%devel}" ] || RUN_OPTS="$RUN_OPTS --coverage"
+        [ "${TEST_SCENARIO}" = "${TEST_SCENARIO%%pybridge}" ] || PREPARE_OPTS="$PREPARE_OPTS --python"
         [ "${TEST_SCENARIO}" = "${TEST_SCENARIO##firefox}" ] || export TEST_BROWSER=firefox
-        test/image-prepare --verbose $TEST_OS
-        test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify ${OPTS}
+
+        test/image-prepare --verbose ${PREPARE_OPTS} "${TEST_OS}"
+        test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify ${RUN_OPTS}
         ;;
     dnf-copr*)
         bots/image-customize -v --run-command 'dnf -y copr enable rpmsoftwaremanagement/dnf-nightly && dnf -y --setopt=install_weak_deps=False update' $TEST_OS
         test/image-prepare --verbose --overlay $TEST_OS
-        test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify --track-naughties
-        ;;
-    pybridge)
-        tools/systemd_ctypes
-        test/image-prepare --verbose $TEST_OS
-        python3 -m build --no-isolation --wheel --outdir tmp/wheel
-        bots/image-customize --verbose --no-network --install tmp/wheel/*.whl "${TEST_OS}"
         test/common/run-tests --jobs ${TEST_JOBS:-1} --test-dir test/verify --track-naughties
         ;;
     *)

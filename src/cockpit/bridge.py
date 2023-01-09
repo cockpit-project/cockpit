@@ -122,7 +122,7 @@ async def run(args) -> None:
 
     try:
         await router.communicate()
-    except BrokenPipeError:
+    except (BrokenPipeError, ConnectionResetError):
         # not unexpected if the peer doesn't hang up cleanly
         pass
 

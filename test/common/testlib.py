@@ -409,7 +409,7 @@ class Browser:
         :param val: the value of the attribute
         """
         self._wait_present(selector + ':not([disabled]):not([aria-disabled=true])')
-        self.call_js_func('ph_set_attr', selector, attr, val and 'true' or 'false')
+        self.call_js_func('ph_set_attr', selector, attr, val)
 
     def get_checked(self, selector: str):
         """Get checked state of a given selector.

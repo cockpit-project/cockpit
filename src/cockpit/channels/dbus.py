@@ -40,6 +40,7 @@ import asyncio
 import errno
 import json
 import logging
+import traceback
 import xml.etree.ElementTree as ET
 
 from systemd_ctypes import Bus, BusError, introspection
@@ -330,7 +331,9 @@ class DBusChannel(Channel):
             # actually, should send the fields from the message body
             self.send_message(error=[error.name, [error.message]], id=cookie)
         except Exception as exc:
-            self.send_message(error=['python.error', [str(exc)]], id=cookie)
+            logger.exception("do_call(%s): generic exception", message)
+            printable = '\n'.join(traceback.format_exception(exc))
+            self.send_message(error=['python.error', [printable]], id=cookie)
 
     async def do_add_match(self, message):
         add_match = message['add-match']

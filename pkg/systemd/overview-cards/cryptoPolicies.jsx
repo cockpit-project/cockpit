@@ -199,7 +199,7 @@ export const CryptoPolicyStatus = () => {
     useEffect(() => {
         if (currentCryptoPolicy === null) {
             cockpit.file("/etc/crypto-policies/state/current")
-                    .watch(content => setCurrentCryptoPolicy(content ? content.trim() : undefined));
+                    .watch(content => setCurrentCryptoPolicy(content ? content.trim().split(':', 1)[0] : undefined));
         }
 
         cockpit.file("/proc/sys/crypto/fips_enabled").read()

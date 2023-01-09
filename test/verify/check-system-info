@@ -947,6 +947,12 @@ password=foobar
         b.wait_text("#crypto-policy-button", "FIPS")
         self.assertEqual(m.execute("cat /proc/sys/crypto/fips_enabled").strip(), "1")
 
+        m.execute(cmd + " --set DEFAULT")
+        b.wait_text("#inconsistent_crypto_policy", "Crypto policy is inconsistent")
+        m.execute(cmd + " --set FIPS:OSPP")
+        b.wait_text("#crypto-policy-button", "Fips:ospp")
+        b.wait_not_present("#inconsistent_crypto_policy")
+
         # Setting via dialog
         m.execute(cmd + " --set DEFAULT")
         b.wait_text("#inconsistent_crypto_policy", "Crypto policy is inconsistent")

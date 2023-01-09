@@ -19,6 +19,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import glob
 import os
 import shlex
 import shutil
@@ -197,6 +198,17 @@ def validate_packages():
             """]
 
 
+def install_python_bridge():
+    subprocess.run([f'{BASE_DIR}/tools/systemd_ctypes'], check=True)
+
+    shutil.rmtree('tmp/wheel', ignore_errors=True)
+    subprocess.run([sys.executable, '-m', 'build', '--no-isolation', '--wheel', '--outdir', 'tmp/wheel'], check=True)
+    wheels = glob.glob('tmp/wheel/*.whl')
+    assert len(wheels) == 1
+
+    return ['--install', *wheels]
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='Prepare testing environment, download images and build and install cockpit',
@@ -204,6 +216,7 @@ def main():
     parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
     parser.add_argument('-q', '--quick', action='store_true', help='Skip unit tests to build faster')
     parser.add_argument('-o', '--overlay', action='store_true', help='Install into existing test/image/ overlay instead of from pristine base image')
+    parser.add_argument('-p', '--python', action='store_true', help='Install the python bridge into the image (experimental)')
     parser.add_argument('image', nargs='?', default=DEFAULT_IMAGE, help='The image to use')
     args = parser.parse_args()
 
@@ -226,6 +239,9 @@ def main():
 
     if not args.quick:
         customize += validate_packages()
+
+    if args.python:
+        customize += install_python_bridge()
 
     # post build/install test preparation
     customize += ["--script", os.path.join(TEST_DIR, "vm.install"), args.image]

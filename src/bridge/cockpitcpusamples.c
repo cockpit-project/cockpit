@@ -153,24 +153,31 @@ sample_cpu_sensors (gchar *sensor_path,
 
 static void
 detect_cpu_sensors (GList **devices,
-                    const gchar *name,
+                    const gchar *hwmon_name,
                     int hwmonID)
 {
-  for (int i = 1; TRUE; i++)
-    {
-      g_assert (devices != NULL);
-      // break loop if input file does not exist
-      g_autofree gchar *sensor_path = g_strdup_printf ("/sys/class/hwmon/hwmon%d/temp%d_input", hwmonID, i);
-      if (!g_file_test (sensor_path, G_FILE_TEST_EXISTS))
-          break;
+  g_autofree gchar *path = g_strdup_printf ("/sys/class/hwmon/hwmon%d", hwmonID);
+  g_autoptr(GDir) dir = g_dir_open (path, 0, NULL);
+  if (dir == NULL)
+      return;
 
+
+  const char *name;
+  while ((name = g_dir_read_name (dir)))
+    {
+      uint i;
+      if (!g_str_has_suffix(name, "_input"))
+          continue;
+
+      g_autofree char *sensor_path = g_build_filename (path, name, NULL);
+      sscanf(name, "temp%d_input", &i);
       g_autofree gchar *label = g_strdup_printf ("/sys/class/hwmon/hwmon%d/temp%d_label", hwmonID, i);
       g_autofree gchar *label_content = read_file (label);
 
       if (label_content == NULL)
         {
           // labels aren't used on ARM
-          if (!g_str_equal (name, "cpu_thermal"))
+          if (!g_str_equal (hwmon_name, "cpu_thermal"))
               continue;
         }
       else
@@ -178,7 +185,7 @@ detect_cpu_sensors (GList **devices,
           g_strchomp (label_content);
 
           // only sample CPU Temperature in atk0110
-          if (!g_str_equal (label_content, "CPU Temperature") && g_str_equal (name, "atk0110"))
+          if (!g_str_equal (label_content, "CPU Temperature") && g_str_equal (hwmon_name, "atk0110"))
               continue;
           // ignore Tctl on AMD devices
           if (g_str_equal (label_content, "Tctl"))

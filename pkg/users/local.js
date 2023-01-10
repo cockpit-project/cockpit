@@ -48,6 +48,7 @@ const sortGroups = groups => {
 };
 
 function AccountsPage() {
+    const [isGroupsExpanded, setIsGroupsExpanded] = useState(false);
     const { path } = usePageLocation();
     const accounts = useFile("/etc/passwd", { syntax: etc_passwd_syntax });
     const shadow = useFile("/etc/shadow", { superuser: true });
@@ -87,8 +88,16 @@ function AccountsPage() {
     if (groupsExtraInfo.length == 0 || accountsInfo.length == 0) {
         return <EmptyStatePanel loading />;
     } else if (path.length === 0) {
-        return <AccountsMain accountsInfo={accountsInfo} current_user={current_user_info && current_user_info.name} groups={groupsExtraInfo || []} />;
-    } else {
+        return (
+            <AccountsMain
+                accountsInfo={accountsInfo}
+                current_user={current_user_info && current_user_info.name}
+                groups={groupsExtraInfo || []}
+                isGroupsExpanded={isGroupsExpanded}
+                setIsGroupsExpanded={setIsGroupsExpanded}
+            />
+        );
+    } else if (path.length === 1) {
         return (
             <AccountDetails accounts={accountsInfo} groups={groupsExtraInfo} shadow={shadow || []}
                             current_user={current_user_info && current_user_info.name} user={path[0]} />

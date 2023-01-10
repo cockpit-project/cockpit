@@ -30,6 +30,7 @@ from systemd_ctypes import EventLoopPolicy, bus
 
 from .channel import ChannelRoutingRule
 from .channels import CHANNEL_TYPES
+from .config import Config, Environment
 from .internal_endpoints import EXPORTS
 from .packages import Packages
 from .remote import HostRoutingRule
@@ -62,6 +63,8 @@ class Bridge(Router):
         self.superuser_rule = SuperuserRoutingRule(self, args.privileged)
         self.internal_bus.export('/superuser', self.superuser_rule)
         self.internal_bus.export('/packages', self.packages)
+        self.internal_bus.export('/config', Config())
+        self.internal_bus.export('/environment', Environment())
 
         super().__init__([
             HostRoutingRule(self),

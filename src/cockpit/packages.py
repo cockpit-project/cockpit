@@ -29,7 +29,7 @@ from systemd_ctypes import bus
 from . import config
 
 VERSION = '300'
-logger = logging.getLogger('cockpit.packages')
+logger = logging.getLogger(__name__)
 
 
 # Sorting is important because the checksums are dependent on the order we

@@ -22,7 +22,7 @@ import logging
 from typing import Dict, Optional
 
 
-logger = logging.getLogger('cockpit.protocol')
+logger = logging.getLogger(__name__)
 
 
 class CockpitProtocolError(Exception):

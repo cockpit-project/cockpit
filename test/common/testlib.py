@@ -1830,15 +1830,6 @@ class MachineCase(unittest.TestCase):
                 r"AssertionError",
             ]
 
-            self.allowed_messages.append(".* is not in the sudoers file.*")
-            self.allowed_messages.append("sudo: no valid sudoers sources found, quitting")
-
-            # TestSuperuser.testWrongPasswd, message should go to the caller, not the journal
-            self.allowed_messages.append("Sorry, try again.")
-            # likewise for TestAccounts.testBasic; should not go to journal
-            self.allowed_messages.append("sudo: no password was provided")
-            self.allowed_messages.append("sudo: .* incorrect password attempt")
-
             # TestSuperuserOldWebserver.test{,NotAuth}
             self.allowed_messages.append("session timed out")
             self.allowed_messages.append("cockpit-ssh.*: refusing to connect to unknown host:.*")

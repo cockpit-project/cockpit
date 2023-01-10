@@ -207,6 +207,8 @@ class CockpitProtocolClient(CockpitProtocol):
             self.do_init(message)
         elif command == 'authorize':
             self.do_authorize(message)
+        elif command == 'send-stderr':
+            self.do_send_stderr(self.transport)
         else:
             raise CockpitProtocolError(f'unexpected control message {command} received')
 
@@ -227,6 +229,9 @@ class CockpitProtocolServer(CockpitProtocol):
         raise NotImplementedError
 
     def do_authorize(self, message: Dict[str, object]) -> None:
+        raise NotImplementedError
+
+    def do_send_stderr(self, transport: asyncio.Transport) -> None:
         raise NotImplementedError
 
     def transport_control_received(self, command, message):

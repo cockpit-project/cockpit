@@ -82,7 +82,7 @@ class DBusStartup(SuperuserStartup):
         self.future.set_result(None)
 
     def failed(self, rule: SuperuserRoutingRule, exc: Exception) -> None:
-        self.future.set_exception(exc)
+        self.future.set_exception(bus.BusError('cockpit.Superuser.Error', str(exc)))
 
     def auth(self, rule: SuperuserRoutingRule, prompt: str, echo: bool) -> None:
         rule.prompt('', prompt, '', echo, '')

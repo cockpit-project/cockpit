@@ -729,7 +729,17 @@ class TestAccounts(MachineCase):
 
         self.login_and_go("/users")
 
+        # Groups filter is only visible in the expanded view
+        b.wait_not_present("#groups-filter")
+
         b.click("#groups-view-toggle")
+        b.wait_visible('#groups-list td[data-label="Group name"]:contains("testgroup0")')
+
+        # Check group filter in expanded mode and the filter clear button
+        b.set_input_text("#groups-filter input", "casablanca")
+        b.wait_not_present('#groups-list td[data-label="Group name"]:contains("testgroup0")')
+        b.click("#groups-filter button")
+        b.wait_val("#groups-filter input", "")
         b.wait_visible('#groups-list td[data-label="Group name"]:contains("testgroup0")')
 
         # FIXME: rtl test was flaky, debug it and remove the skip

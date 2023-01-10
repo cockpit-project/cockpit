@@ -18,7 +18,7 @@
  */
 
 import cockpit from 'cockpit';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { superuser } from "superuser";
 
 import { admins } from './local.js';
@@ -45,6 +45,8 @@ import { delete_group_dialog } from "./delete-group-dialog.js";
 import { group_create_dialog } from "./group-create-dialog.js";
 import { lockAccountDialog } from "./lock-account-dialog.js";
 import { logoutAccountDialog } from "./logout-account-dialog.js";
+
+import { usePageLocation } from "hooks";
 
 const _ = cockpit.gettext;
 
@@ -240,14 +242,39 @@ const mapGroupsToAccount = (accounts, groups) => {
     });
 };
 
-const GroupsList = ({ groups, accounts }) => {
-    const [isExpanded, setIsExpanded] = useState(false);
+const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded }) => {
+    const { options } = usePageLocation();
+    const [currentTextFilter, setCurrentTextFilter] = useState(options.group || '');
     const columns = [
         { title: _("Group name"), sortable: true },
         { title: _("ID"), sortable: true },
         { title: _("# of users"), sortable: true },
         { title: _("Accounts") },
     ];
+    const filtered_groups = groups.filter(group => {
+        if (currentTextFilter !== "" &&
+            (group.name.toLowerCase().indexOf(currentTextFilter.toLowerCase()) === -1) &&
+            (group.gid.toString().indexOf(currentTextFilter.toLowerCase()) === -1))
+            return false;
+
+        return true;
+    });
+    const ref = useRef();
+
+    useEffect(() => {
+        if (ref.current != currentTextFilter) {
+            ref.current = currentTextFilter;
+            const newOptions = { ...options };
+            if (currentTextFilter) {
+                newOptions.group = currentTextFilter;
+            } else {
+                delete newOptions.group;
+            }
+            cockpit.location.go([], newOptions);
+        } else {
+            setCurrentTextFilter(options.group || "");
+        }
+    }, [currentTextFilter, options]);
 
     const sortRows = (rows, direction, idx) => {
         // GID and members columns are numeric
@@ -272,6 +299,30 @@ const GroupsList = ({ groups, accounts }) => {
         return direction === SortByDirection.asc ? sortedRows : sortedRows.reverse();
     };
 
+    const tableToolbar = (
+        <Toolbar>
+            <ToolbarContent className="groups-toolbar-header">
+                {isExpanded && <ToolbarItem>
+                    <SearchInput id="groups-filter"
+                                 placeholder={_("Search for name or ID")}
+                                 value={currentTextFilter}
+                                 onChange={(_, val) => setCurrentTextFilter(val)}
+                                 onClear={() => setCurrentTextFilter('')} />
+                </ToolbarItem>}
+                { superuser.allowed &&
+                    <>
+                        {isExpanded && <ToolbarItem variant="separator" />}
+                        <ToolbarItem alignment={{ md: 'alignRight' }}>
+                            <Button variant="secondary" id="groups-create" onClick={() => group_create_dialog(groups, setIsExpanded)}>
+                                {_("Create new group")}
+                            </Button>
+                        </ToolbarItem>
+                    </>
+                }
+            </ToolbarContent>
+        </Toolbar>
+    );
+
     return (
         <Card className="ct-card" isExpanded={isExpanded}>
             <CardHeader
@@ -285,8 +336,8 @@ const GroupsList = ({ groups, accounts }) => {
                 <CardTitle className="pf-l-flex pf-m-space-items-sm pf-m-align-items-center">
                     <Text component={TextVariants.h2}>{_("Groups")}</Text>
                     {(!isExpanded && !groups.length) && <HelperText> <HelperTextItem variant="indeterminate">{_("Loading...")}</HelperTextItem></HelperText>}
-                    {(!isExpanded && groups.length > 0) && <>
-                        {groups.slice(0, 3)
+                    {(!isExpanded && filtered_groups.length > 0) && <>
+                        {filtered_groups.slice(0, 3)
                                 .map(group => {
                                     const color = group.isAdmin ? "gold" : "cyan";
                                     return (
@@ -295,23 +346,22 @@ const GroupsList = ({ groups, accounts }) => {
                                         </Label>
                                     );
                                 })}
-                        <Button key="more" className="group-more-btn" isInline variant='link' onClick={() => setIsExpanded(!isExpanded)}>
-                            {cockpit.format(_("$0 more..."), groups.length - 3)}
-                        </Button>
+                        {filtered_groups.length > 3 && <Button key="more" className="group-more-btn" isInline variant='link' onClick={() => setIsExpanded(!isExpanded)}>
+                            {cockpit.format(_("$0 more..."), filtered_groups.length - 3)}
+                        </Button>}
                     </>}
                 </CardTitle>
                 <CardActions>
-                    <Button variant="secondary" id="groups-create" onClick={() => group_create_dialog(groups, setIsExpanded)}>
-                        {_("Create new group")}
-                    </Button>
+                    {tableToolbar}
                 </CardActions>
             </CardHeader>
             <CardExpandableContent>
                 <ListingTable columns={columns}
                     id="groups-list"
-                    rows={ groups.map(a => getGroupRow(a, accounts)) }
+                    rows={ filtered_groups.map(a => getGroupRow(a, accounts)) }
                     loading={ groups.length && accounts.length ? '' : _("Loading...") }
                     sortMethod={sortRows}
+                    emptyComponent={<EmptyStatePanel title={_("No matching results")} icon={SearchIcon} />}
                     variant="compact" sortBy={{ index: 2, direction: SortByDirection.asc }} />
             </CardExpandableContent>
         </Card>
@@ -319,7 +369,8 @@ const GroupsList = ({ groups, accounts }) => {
 };
 
 const AccountsList = ({ accounts, current_user, groups }) => {
-    const [currentTextFilter, setCurrentTextFilter] = useState("");
+    const { options } = usePageLocation();
+    const [currentTextFilter, setCurrentTextFilter] = useState(options.user || '');
     const filtered_accounts = accounts.filter(account => {
         if (currentTextFilter !== "" &&
             (account.name.toLowerCase().indexOf(currentTextFilter.toLowerCase()) === -1) &&
@@ -330,6 +381,22 @@ const AccountsList = ({ accounts, current_user, groups }) => {
 
         return true;
     });
+    const ref = useRef();
+
+    useEffect(() => {
+        if (ref.current != currentTextFilter) {
+            ref.current = currentTextFilter;
+            const newOptions = { ...options };
+            if (currentTextFilter) {
+                newOptions.user = currentTextFilter;
+            } else {
+                delete newOptions.user;
+            }
+            cockpit.location.go([], newOptions);
+        } else {
+            setCurrentTextFilter(options.user || "");
+        }
+    }, [currentTextFilter, options]);
 
     const columns = [
         { title: _("Username"), sortable: true },
@@ -417,7 +484,7 @@ const AccountsList = ({ accounts, current_user, groups }) => {
     );
 };
 
-export const AccountsMain = ({ accountsInfo, current_user, groups }) => {
+export const AccountsMain = ({ accountsInfo, current_user, groups, isGroupsExpanded, setIsGroupsExpanded }) => {
     const accounts = mapGroupsToAccount(accountsInfo, groups).filter(account => {
         if ((account.uid < 1000 && account.uid !== 0) ||
                  account.shell.match(/^(\/usr)?\/sbin\/nologin/) ||
@@ -430,7 +497,7 @@ export const AccountsMain = ({ accountsInfo, current_user, groups }) => {
         <Page id="accounts">
             <PageSection>
                 <Stack hasGutter>
-                    <GroupsList accounts={accounts} groups={groups} />
+                    <GroupsList accounts={accounts} groups={groups} isExpanded={isGroupsExpanded} setIsExpanded={setIsGroupsExpanded} />
                     <AccountsList accounts={accounts} current_user={current_user} groups={groups} />
                 </Stack>
             </PageSection>

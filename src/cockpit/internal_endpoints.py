@@ -31,8 +31,8 @@ class cockpit_Config(bus.Object):
     def __init__(self):
         ...
 
-    @bus.Interface.Method(out_types='u', in_types='suuu')
-    def get_u_int(self, name, _minimum, default, _maximum):
+    @bus.Interface.Method(out_types='u', in_types='ssuuu')
+    def get_u_int(self, _section, _key, default, _minimum, _maximum):
         return default
 
 

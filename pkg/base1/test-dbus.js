@@ -767,6 +767,7 @@ QUnit.test.skipWithPybridge("cockpit.Config internal D-Bus API", async assert =>
 [SomeSection]
 SomeA = one
 SomethingElse = 2
+LargeNum = 12345
 
 [Other]
 Flavor=chocolate
@@ -788,8 +789,17 @@ Empty=
     assert.equal(await proxy.GetUInt("SomeSection", "NotExisting", 10, 100, 0), 10);
     // out of bounds, clamp to minimum
     assert.equal(await proxy.GetUInt("SomeSection", "SomethingElse", 42, 50, 5), 5);
+    // out of bounds, clamp to maximum
+    assert.equal(await proxy.GetUInt("SomeSection", "LargeNum", 42, 50, 5), 50);
+    // not an integer value, returns default
+    assert.equal(await proxy.GetUInt("SomeSection", "SomeA", 10, 100, 0), 10);
 
-    // test GetString with non-existing section/key
+    // test GetString with non-existing section
+    assert.rejects(proxy.GetString("UnknownSection", "SomeKey"),
+                   /key.*UnknownSection.*not exist/,
+                   "unknown section raises an error");
+
+    // test GetString with non-existing key in existing section
     assert.rejects(proxy.GetString("SomeSection", "UnknownKey"),
                    /key.*UnknownKey.*not exist/,
                    "unknown key raises an error");

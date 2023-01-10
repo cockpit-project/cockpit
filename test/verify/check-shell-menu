@@ -20,7 +20,7 @@
 import time
 
 import parent  # noqa: F401
-from testlib import MachineCase, enableAxe, nondestructive, skipDistroPackage, todoPybridge, test_main
+from testlib import MachineCase, enableAxe, nondestructive, skipDistroPackage, test_main
 
 
 @nondestructive
@@ -121,7 +121,6 @@ class TestMenu(MachineCase):
         # don't actually fail this test
         b.allow_oops = True
 
-    @todoPybridge()
     def testSessionTimeout(self):
         b = self.browser
         m = self.machine

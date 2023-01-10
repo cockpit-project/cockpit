@@ -756,7 +756,7 @@ QUnit.test.skipWithPybridge("separate dbus connections for channel groups", func
     });
 });
 
-QUnit.test.skipWithPybridge("cockpit.Config internal D-Bus API", async assert => {
+QUnit.test("cockpit.Config internal D-Bus API", async assert => {
     const dbus = cockpit.dbus(null, { bus: "internal" });
 
     // Get temp config dir to see where to place our test config

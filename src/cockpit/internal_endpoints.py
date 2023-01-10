@@ -27,15 +27,6 @@ from systemd_ctypes import bus
 logger = logging.getLogger(__name__)
 
 
-class cockpit_Config(bus.Object):
-    def __init__(self):
-        ...
-
-    @bus.Interface.Method(out_types='u', in_types='ssuuu')
-    def get_u_int(self, _section, _key, default, _minimum, _maximum):
-        return default
-
-
 class cockpit_LoginMessages(bus.Object):
     messages: Optional[str] = None
 
@@ -96,7 +87,6 @@ class cockpit_User(bus.Object):
 
 EXPORTS = [
     ('/LoginMessages', cockpit_LoginMessages),
-    ('/config', cockpit_Config),
     ('/machines', cockpit_Machines),
     ('/user', cockpit_User),
 ]

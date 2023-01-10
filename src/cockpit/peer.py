@@ -82,6 +82,10 @@ class Peer(CockpitProtocolClient, SubprocessProtocol, Endpoint):
         if self.state_listener is not None:
             self.state_listener.peer_state_changed(self, 'connected')
 
+    def do_send_stderr(self, transport: asyncio.Transport) -> None:
+        if isinstance(transport, SubprocessTransport):
+            transport.send_stderr_fd()
+
     def do_init(self, message: Dict[str, Any]) -> None:
         logger.debug('Peer %s connection got init message', self.name)
         if self.state_listener is not None:

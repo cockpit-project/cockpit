@@ -33,5 +33,5 @@ def test_browser(html):
 
     # Merge 2>&1 so that pytest displays an interleaved log
     subprocess.run(['test/common/tap-cdp', f'{BUILDDIR}/test-server',
-                    sys.executable, '-m', *coverage, 'cockpit.bridge',
+                    sys.executable, '-m', *coverage, 'cockpit.bridge', '--debug',
                     f'./dist/{html}'], check=True, stderr=subprocess.STDOUT)

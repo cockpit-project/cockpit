@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import time
+
 import parent  # noqa: F401
 from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, todoPybridge, test_main
 
@@ -122,6 +124,8 @@ session include system-auth
 
         b.open_superuser_dialog()
         b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "Password for admin:")
+        # Let the dialog sit there for 45 seconds, to test that this doesn't trigger a D-Bus timeout.
+        time.sleep(45)
         b.set_input_text(".pf-c-modal-box:contains('Switch to administrative access') input", "foobar")
         b.click(".pf-c-modal-box button:contains('Authenticate')")
         b.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", "universe and everything")

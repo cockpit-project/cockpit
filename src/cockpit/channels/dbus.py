@@ -289,7 +289,7 @@ class DBusChannel(Channel):
 
     async def do_call(self, message):
         path, iface, method, args = message['call']
-        timeout = message.get('timeout')
+        timeout = message.get('timeout', 2**64 - 1)
         cookie = message.get('id')
         flags = message.get('flags')
         type = message.get('type')

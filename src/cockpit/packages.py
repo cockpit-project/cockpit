@@ -184,7 +184,6 @@ class Package:
 
             yield f'{base}.{ext}'
             yield f'{base}.min.{ext}'
-            yield f'{base}.{ext}'
             yield f'{base}.{ext}.gz'
             yield f'{base}.min.{ext}.gz'
 

@@ -186,30 +186,21 @@ export function watchTransaction(transactionPath, signalHandlers, notifyHandler)
  *        .catch(ex => { handle exception });
  */
 export function transaction(method, arglist, signalHandlers, notifyHandler) {
-    return new Promise((resolve, reject) => {
-        call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "CreateTransaction", [])
-                .done(result => {
-                    const transactionPath = result[0];
-                    let watchPromise;
-                    if (signalHandlers || notifyHandler)
-                        watchPromise = watchTransaction(transactionPath, signalHandlers, notifyHandler);
-                    if (!watchPromise)
-                        watchPromise = cockpit.resolve();
+    return call("/org/freedesktop/PackageKit", "org.freedesktop.PackageKit", "CreateTransaction", [])
+            .then(([transactionPath]) => {
+                if (!signalHandlers && !notifyHandler)
+                    return transactionPath;
 
-                    watchPromise
-                            .done(() => {
-                                if (method) {
-                                    call(transactionPath, transactionInterface, method, arglist)
-                                            .done(() => resolve(transactionPath))
-                                            .fail(reject);
-                                } else {
-                                    resolve(transactionPath);
-                                }
-                            })
-                            .fail(reject);
-                })
-                .fail(reject);
-    });
+                const watchPromise = watchTransaction(transactionPath, signalHandlers, notifyHandler) || Promise.resolve();
+                return watchPromise.then(() => {
+                    if (method) {
+                        return call(transactionPath, transactionInterface, method, arglist)
+                                .then(() => transactionPath);
+                    } else {
+                        return transactionPath;
+                    }
+                });
+            });
 }
 
 export class TransactionError extends Error {

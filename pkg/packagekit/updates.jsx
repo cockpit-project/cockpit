@@ -21,7 +21,7 @@ import 'polyfills'; // once per application
 import 'cockpit-dark-theme'; // once per page
 
 import cockpit from "cockpit";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { createRoot } from 'react-dom/client';
 
 import {
@@ -543,58 +543,35 @@ class RestartServices extends React.Component {
     }
 }
 
-const ApplyUpdates = ({ transaction, onCancel, allowCancel, rebootAfter, setRebootAfter }) => {
-    const [percentage, setPercentage] = useState(0);
-    const [timeRemaining, setTimeRemaining] = useState(null);
-    // chronological list of { status: PK_STATUS_*, package: "name version" } events that happen during applying updates
-    const [actions, setActions] = useState([]);
+const formatPackageId = packageId => {
+    const pfields = packageId.split(";");
+    return pfields[0] + " " + pfields[1] + " (" + pfields[2] + ")";
+};
 
-    const updateForProperties = (status, packageId) => {
-        // small timeout to avoid excessive overlaps from the next PackageKit progress signal
-        PK.call(transaction, "org.freedesktop.DBus.Properties", "GetAll", [PK.transactionInterface], { timeout: 500 })
-                .then(([props]) => {
-                    const percent = props.Percentage.v;
-                    let remain = -1;
-                    if ("RemainingTime" in props)
-                        remain = props.RemainingTime.v;
+// actions is a chronological list of { status, packageId } events that happen during applying updates
+// status: see PK_STATUS_* at https://github.com/PackageKit/PackageKit/blob/main/lib/packagekit-glib2/pk-enum.h
+const ApplyUpdates = ({ transactionProps, actions, onCancel, rebootAfter, setRebootAfter }) => {
+    const remain = transactionProps.RemainingTime
+        ? timeformat.distanceToNow(new Date().valueOf() + transactionProps.RemainingTime * 1000)
+        : null;
 
-                    const pfields = (packageId || props.LastPackage.v).split(";");
-                    // status: see PK_STATUS_* at https://github.com/PackageKit/PackageKit/blob/main/lib/packagekit-glib2/pk-enum.h
-                    setActions(prevActions => [...prevActions, {
-                        status: status || props.Status.v,
-                        package: pfields[0] + " " + pfields[1] + " (" + pfields[2] + ")"
-                    }]);
+    let percentage = transactionProps.Percentage || 0;
+    // PackageKit sets this to 101 initially
+    if (percentage > 100)
+        percentage = 0;
 
-                    const log = document.getElementById("update-log");
-                    let atBottom = false;
-                    if (log) {
-                        if (log.scrollHeight - log.clientHeight <= log.scrollTop + 2)
-                            atBottom = true;
-                    }
+    // scroll update log to the bottom, if it already is (almost) at the bottom
+    const log = document.getElementById("update-log");
+    if (log) {
+        if (log.scrollHeight - log.clientHeight <= log.scrollTop + 2)
+            log.scrollTop = log.scrollHeight;
+    }
 
-                    setPercentage(percent <= 100 ? percent : 0);
-                    setTimeRemaining(remain > 0 ? remain : null);
-
-                    // scroll update log to the bottom, if it already is (almost) at the bottom
-                    if (log && atBottom)
-                        log.scrollTop = log.scrollHeight;
-                });
-    };
-
-    useEffect(() => {
-        // read the current package from the transaction
-        updateForProperties(null, null);
-        // keep updating it when new Package signals come in
-        PK.watchTransaction(transaction, {
-            Package: (status, packageId) => updateForProperties(status, packageId),
-        });
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-    const cancelButton = allowCancel
+    const cancelButton = transactionProps.AllowCancel
         ? <Button variant="secondary" onClick={onCancel} isSmall>{_("Cancel")}</Button>
         : null;
 
-    if (actions.length === 0) {
+    if (actions.length === 0 && percentage === 0) {
         return <EmptyStatePanel title={ _("Initializing...") }
                                 headingLevel="h5"
                                 titleSize="4xl"
@@ -604,17 +581,18 @@ const ApplyUpdates = ({ transaction, onCancel, allowCancel, rebootAfter, setRebo
     }
 
     const lastAction = actions[actions.length - 1];
-    const formatTimeRemaining = timeRemaining && timeformat.distanceToNow(new Date().valueOf() + timeRemaining * 1000);
+    // when resuming an upgrade, we did not get any Package signal yet; fall back to LastPackage
+    const curPackage = formatPackageId(lastAction?.packageId || transactionProps.LastPackage || "");
     return (
         <div className="progress-main-view">
             <Grid hasGutter>
                 <GridItem span="9">
                     <div className="progress-description">
                         <Spinner isSVG size="md" />
-                        <strong>{ PK_STATUS_STRINGS[lastAction.status] || PK_STATUS_STRINGS[PK.Enum.STATUS_UPDATE] }</strong>
-                        &nbsp;{lastAction.package}
+                        <strong>{ PK_STATUS_STRINGS[lastAction?.status] || PK_STATUS_STRINGS[PK.Enum.STATUS_UPDATE] }</strong>
+                        &nbsp;{formatPackageId(curPackage)}
                     </div>
-                    <Progress title={formatTimeRemaining}
+                    <Progress title={remain}
                               value={percentage}
                               size={ProgressSize.sm}
                               className="pf-u-mb-xs" />
@@ -638,9 +616,9 @@ const ApplyUpdates = ({ transaction, onCancel, allowCancel, rebootAfter, setRebo
                             <table>
                                 <tbody>
                                     { actions.slice(0, -1).map((action, i) => (
-                                        <tr key={action.package + i}>
+                                        <tr key={action.packageId + i}>
                                             <th>{PK_STATUS_LOG_STRINGS[action.status] || PK_STATUS_LOG_STRINGS[PK.Enum.STATUS_UPDATE]}</th>
-                                            <td>{action.package}</td>
+                                            <td>{formatPackageId(action.packageId)}</td>
                                         </tr>)) }
                                 </tbody>
                             </table>
@@ -1000,7 +978,9 @@ class OsUpdates extends React.Component {
             loadPercent: null,
             cockpitUpdate: false,
             haveOsRepo: null,
-            allowCancel: null,
+            applyTransaction: null,
+            applyTransactionProps: {},
+            applyActions: [],
             history: [],
             unregistered: false,
             privileged: false,
@@ -1278,17 +1258,14 @@ class OsUpdates extends React.Component {
     }
 
     watchUpdates(transactionPath) {
-        this.setState({ state: "applying", applyTransaction: transactionPath, allowCancel: false });
-
-        PK.call(transactionPath, "DBus.Properties", "Get", [PK.transactionInterface, "AllowCancel"])
-                .then(([prop]) => this.setState({ allowCancel: prop.v }));
+        this.setState({ state: "applying", applyTransaction: transactionPath, applyTransactionProps: {}, applyActions: [] });
 
         return PK.watchTransaction(transactionPath,
                                    {
                                        ErrorCode: (code, details) => this.state.errorMessages.push(details),
 
                                        Finished: exit => {
-                                           this.setState({ applyTransaction: null, allowCancel: null });
+                                           this.setState({ applyTransaction: null, applyTransactionProps: {}, applyActions: [] });
 
                                            if (exit === PK.Enum.EXIT_SUCCESS) {
                                                if (this.state.tracerAvailable) {
@@ -1314,12 +1291,16 @@ class OsUpdates extends React.Component {
 
                                        // not working/being used in at least Fedora
                                        RequireRestart: (type, packageId) => console.log("update RequireRestart", type, packageId),
+
+                                       Package: (status, packageId) => this.setState(old =>
+                                           ({ applyActions: [...old.applyActions, { status, packageId }] })
+                                       ),
                                    },
 
-                                   notify => {
-                                       if ("AllowCancel" in notify)
-                                           this.setState({ allowCancel: notify.AllowCancel });
-                                   })
+                                   notify => this.setState(old =>
+                                       ({ applyTransactionProps: { ...old.applyTransactionProps, ...notify } })
+                                   )
+        )
                 .catch(ex => {
                     this.state.errorMessages.push(ex);
                     this.setState({ state: "updateError" });
@@ -1506,9 +1487,9 @@ class OsUpdates extends React.Component {
 
         case "applying":
             page_status.set_own(null);
-            return <ApplyUpdates transaction={this.state.applyTransaction}
+            return <ApplyUpdates transactionProps={this.state.applyTransactionProps}
+                                 actions={this.state.applyActions}
                                  onCancel={ () => PK.call(this.state.applyTransaction, PK.transactionInterface, "Cancel", []) }
-                                 allowCancel={this.state.allowCancel}
                                  rebootAfter={this.state.rebootAfterSuccess}
                                  setRebootAfter={ enabled => this.setState({ rebootAfterSuccess: enabled }) }
             />;

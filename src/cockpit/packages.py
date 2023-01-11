@@ -24,6 +24,7 @@ import mimetypes
 import os
 
 from pathlib import Path
+from typing import List
 from systemd_ctypes import bus
 
 from . import config
@@ -68,6 +69,30 @@ def get_libexecdir() -> str:
             LIBEXECDIR = '/nonexistent/libexec'
 
     return LIBEXECDIR
+
+
+def parse_accept_language(accept_language: str) -> List[str]:
+    """Parse the Accept-Language header
+
+    Returns an ordered list of languages.
+
+    https://tools.ietf.org/html/rfc7231#section-5.3.5
+    """
+
+    accept_languages = accept_language.split(',')
+    locales = []
+    for language in accept_languages:
+        language = language.strip()
+        locale, _, weight = language.partition(';q=')
+        weight = float(weight or 1)
+
+        # Skip possible empty locales
+        if not locale:
+            continue
+
+        locales.append((locale, weight))
+
+    return [locale for locale, _ in sorted(locales, key=lambda k: k[1], reverse=True)]
 
 
 class Package:
@@ -169,18 +194,15 @@ class Package:
         return True
 
     @staticmethod
-    def filename_variants(filename, locale):
+    def filename_variants(filename, locales):
         base, _, ext = filename.rpartition('.')
 
         while base:
-            if locale:
+            for locale in locales:
+                # po files are generated as language_Variant
+                locale = locale.replace('-', '_')
                 yield f'{base}.{locale}.{ext}'
                 yield f'{base}.{locale}.{ext}.gz'
-
-                if '_' in locale:
-                    language, _, _ = locale.partition(' ')
-                    yield f'{base}.{language}.{ext}'
-                    yield f'{base}.{language}.{ext}.gz'
 
             yield f'{base}.{ext}'
             yield f'{base}.min.{ext}'
@@ -191,10 +213,20 @@ class Package:
 
     def negotiate_file(self, path, headers):
         dirname, sep, filename = path.rpartition('/')
-        locale = headers.get('Accept-Language', '').split(',')[0].strip()  # obviously fix this
+        locales = []
+        accept_language = headers.get('Accept-Language')
+        if accept_language is not None:
+            locales = parse_accept_language(accept_language)
+            # Stripped variants come after non-stripped variants
+            for locale in list(locales):
+                if '-' in locale:
+                    language = locale.split('-')[0]
+                    # Don't append the same language
+                    if language not in locales:
+                        locales.append(language)
 
-        for variant in self.filename_variants(filename, locale):
-            logger.debug('consider variant %s', variant)
+        for variant in self.filename_variants(filename, locales):
+            logger.debug('consider variant %s for filename %s', variant, filename)
             if Path(f'{dirname}{sep}{variant}') in self.files:
                 return f'{dirname}{sep}{variant}'
 
@@ -227,22 +259,31 @@ class Package:
     def serve_file(self, path, channel):
         filename = self.negotiate_file(path, channel.headers)
 
-        if filename is None:
+        if filename:
+            with (self.path / filename).open('rb') as file:
+                data = file.read()
+        # HACK: if a translation file is missing, just return empty
+        # content. This saves a whole lot of 404s in the developer
+        # console when trying to fetch po.js for English, for example.
+        elif path.endswith('po.js'):
+            data = b''
+            filename = 'po.js'
+        else:
+            logging.error("filename=%s, path=%s", filename, path)
             logger.debug('path %s not in %s', path, self.files)
             channel.http_error(404, 'Not found')
             return
 
         content_type, encoding = mimetypes.guess_type(filename)
 
-        with (self.path / filename).open('rb') as file:
-            headers = {
-                "Access-Control-Allow-Origin": channel.origin,
-                "Content-Encoding": encoding,
-            }
-            if content_type is not None and content_type.startswith('text/html'):
-                headers['Content-Security-Policy'] = self.get_content_security_policy(channel.origin)
-            channel.http_ok(content_type, headers)
-            channel.send_data(file.read())
+        headers = {
+            "Access-Control-Allow-Origin": channel.origin,
+            "Content-Encoding": encoding,
+        }
+        if content_type is not None and content_type.startswith('text/html'):
+            headers['Content-Security-Policy'] = self.get_content_security_policy(channel.origin)
+        channel.http_ok(content_type, headers)
+        channel.send_data(data)
 
 
 # TODO: This doesn't yet implement the slighty complicated checksum
@@ -343,7 +384,10 @@ class Packages(bus.Object, interface='cockpit.Packages'):
     def serve_file(self, path, channel):
         assert path[0] == '/'
 
-        if self.checksum is not None:
+        # HACK: If the response is language specific, don't cache the file. Caching "po.js" breaks
+        # changing the language in Chromium, as that does not respect `Vary: Cookie` properly.
+        # See https://github.com/cockpit-project/cockpit/issues/8160
+        if self.checksum is not None and not path.endswith('po.js'):
             channel.push_header('X-Cockpit-Pkg-Checksum', self.checksum)
         else:
             channel.push_header('Cache-Control', 'no-cache, no-store')

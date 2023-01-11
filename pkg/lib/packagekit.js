@@ -144,8 +144,9 @@ export function watchTransaction(transactionPath, signalHandlers, notifyHandler)
         notifyReturn = client.watch(transactionPath);
         subscriptions.push(notifyReturn);
         client.addEventListener("notify", reply => {
-            if (transactionPath in reply.detail && transactionInterface in reply.detail[transactionPath])
-                notifyHandler(reply.detail[transactionPath][transactionInterface], transactionPath);
+            const iface = reply?.detail?.[transactionPath]?.[transactionInterface];
+            if (iface)
+                notifyHandler(iface, transactionPath);
         });
     }
 

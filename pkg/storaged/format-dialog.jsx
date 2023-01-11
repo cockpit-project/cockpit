@@ -290,6 +290,12 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                           validate: (name, vals) => utils.validate_fsys_label(name, vals.type),
                           visible: is_filesystem
                       }),
+            TextInput("mount_point", _("Mount point"),
+                      {
+                          visible: is_filesystem,
+                          value: old_dir || "",
+                          validate: val => is_valid_mount_point(client, block, val)
+                      }),
             SelectOne("type", _("Type"),
                       { choices: filesystem_options }),
             SizeSlider("size", _("Size"),
@@ -306,48 +312,6 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                                { tag: "on", title: _("Overwrite existing data with zeros (slower)") }
                            ],
                        }),
-            TextInput("mount_point", _("Mount point"),
-                      {
-                          visible: is_filesystem,
-                          value: old_dir || "",
-                          validate: val => is_valid_mount_point(client, block, val)
-                      }),
-            CheckBoxes("mount_options", _("Mount options"),
-                       {
-                           visible: is_filesystem,
-                           value: {
-                               ro: opt_ro,
-                               extra: extra_options || false
-                           },
-                           fields: [
-                               { title: _("Mount read only"), tag: "ro" },
-                               { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
-                           ]
-                       }),
-            SelectOne("at_boot", _("At boot"),
-                      {
-                          visible: is_filesystem,
-                          value: at_boot,
-                          explanation: mount_explanation[at_boot],
-                          choices: [
-                              {
-                                  value: "local",
-                                  title: _("Mount before services start"),
-                              },
-                              {
-                                  value: "nofail",
-                                  title: _("Mount without waiting, ignore failure"),
-                              },
-                              {
-                                  value: "netdev",
-                                  title: _("Mount after network becomes available, ignore failure"),
-                              },
-                              {
-                                  value: "never",
-                                  title: _("Do not mount"),
-                              },
-                          ]
-                      }),
             SelectOne("crypto", _("Encryption"),
                       {
                           choices: crypto_types,
@@ -395,7 +359,43 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                                             value: crypto_extra_options
                                         })
                           ]
-                      })
+                      }),
+            SelectOne("at_boot", _("At boot"),
+                      {
+                          visible: is_filesystem,
+                          value: at_boot,
+                          explanation: mount_explanation[at_boot],
+                          choices: [
+                              {
+                                  value: "local",
+                                  title: _("Mount before services start"),
+                              },
+                              {
+                                  value: "nofail",
+                                  title: _("Mount without waiting, ignore failure"),
+                              },
+                              {
+                                  value: "netdev",
+                                  title: _("Mount after network becomes available, ignore failure"),
+                              },
+                              {
+                                  value: "never",
+                                  title: _("Do not mount"),
+                              },
+                          ]
+                      }),
+            CheckBoxes("mount_options", _("Mount options"),
+                       {
+                           visible: is_filesystem,
+                           value: {
+                               ro: opt_ro,
+                               extra: extra_options || false
+                           },
+                           fields: [
+                               { title: _("Mount read only"), tag: "ro" },
+                               { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
+                           ]
+                       }),
         ],
         update: function (dlg, vals, trigger) {
             if (trigger == "at_boot")

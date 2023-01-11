@@ -138,7 +138,7 @@ const getGroupRow = (group, accounts) => {
         },
         {
             title: group.members,
-            props: { width: 10, },
+            props: { width: 20, },
         },
         {
             title: (
@@ -156,7 +156,7 @@ const getGroupRow = (group, accounts) => {
                     </Text>
                 </TextContent>
             ),
-            props: { width: 60, },
+            props: { width: 50, },
         },
     ];
 

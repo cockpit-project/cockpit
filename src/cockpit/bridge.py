@@ -154,6 +154,23 @@ def try_to_receive_stderr():
             os.close(stderr_fd)
 
 
+def setup_logging(debug: bool):
+    """Setup our logger with optional filtering of modules if COCKPIT_DEBUG env is set"""
+
+    modules = os.getenv('COCKPIT_DEBUG', '')
+    logging.basicConfig(format='%(name)s-%(levelname)s: %(message)s')
+
+    if debug or modules == 'all':
+        logging.getLogger().setLevel(level=logging.DEBUG)
+    elif modules:
+        for module in modules.split(','):
+            module = module.strip()
+            if not module:
+                continue
+
+            logging.getLogger(module).setLevel(logging.DEBUG)
+
+
 def main() -> None:
     # The --privileged bridge gets spawned with its stderr being consumed by a
     # pipe used for reading authentication-related message from sudo.  The
@@ -171,8 +188,7 @@ def main() -> None:
     parser.add_argument('--version', action='store_true', help='Show Cockpit version information')
     args = parser.parse_args()
 
-    if args.debug:
-        logging.basicConfig(level=logging.DEBUG)
+    setup_logging(args.debug)
 
     if args.packages:
         Packages().show()

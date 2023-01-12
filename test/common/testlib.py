@@ -1785,7 +1785,7 @@ class MachineCase(unittest.TestCase):
         # HACK: pybridge bugs
         if os.environ.get("TEST_SCENARIO") == "pybridge":
             self.allowed_messages += [
-                "ERROR:asyncio:Task was destroyed but it is pending!",
+                "asyncio-ERROR: Task was destroyed but it is pending!",
                 "task:.*Task pending.*cockpit/channels/dbus.py.*"]
 
             # Python 3.11 traceback annotation
@@ -1794,7 +1794,7 @@ class MachineCase(unittest.TestCase):
             self.allowed_messages += [
                 r"Exception ignored on calling ctypes callback function: <function Slot.__init__.<locals>.handler.*",
                 r"asyncio.exceptions.InvalidStateError: invalid state",
-                r"ERROR:asyncio:Exception in callback _Transport._read_ready.*",
+                r"asyncio-ERROR: Exception in callback _Transport._read_ready.*",
                 r"handle: <Handle _Transport._read_ready\(\)>",
                 r"Traceback \(most recent call last\):",
                 r"File .*asyncio/events.py.*",
@@ -1810,7 +1810,7 @@ class MachineCase(unittest.TestCase):
                 r"future.set_result\(message\)"]
 
             self.allowed_messages += [
-                r"ERROR:asyncio:Exception in callback BusMessage._coroutine_task_complete.*",
+                r"asyncio-ERROR: Exception in callback BusMessage._coroutine_task_complete.*",
                 r"handle: .*Handle BusMessage._coroutine_task_complete.*",
                 r"File .*/systemd_ctypes/bus.py.* in _coroutine_task_complete",
                 r"self.reply_method_function_return_value.*",

@@ -253,7 +253,7 @@ class DiffMap:
                     plus_line += 1
                 elif line.startswith("+"):
                     self.map[plus_name][plus_line] = diff_line
-                    self.source_map[diff_line] = (plus_name, plus_line)
+                    self.source_map[diff_line] = (plus_name, plus_line, line[1:])
                     plus_line += 1
 
     def find_line(self, file, line):
@@ -392,6 +392,17 @@ def get_review_comments(diff_info_file):
     start_line = None
     cur_line = None
 
+    def is_interesting_line(text):
+        # Don't complain when being told to shut up
+        if "// not-covered: " in text:
+            return False
+        # Don't complain about lines that contain only punctuation, or
+        # nothing but "else".  We don't seem to get reliable
+        # information for them.
+        if not re.search('[a-zA-Z0-9]', text.replace("else", "")):
+            return False
+        return True
+
     def flush_cur_comment():
         nonlocal comments
         if cur_src:
@@ -415,7 +426,9 @@ def get_review_comments(diff_info_file):
             if line.startswith("DA:"):
                 parts = line[3:].split(",")
                 if int(parts[1]) == 0:
-                    (src, line) = dm.find_source(int(parts[0]))
+                    (src, line, text) = dm.find_source(int(parts[0]))
+                    if not is_interesting_line(text):
+                        continue
                     if src == cur_src and line == cur_line + 1:
                         cur_line = line
                     else:

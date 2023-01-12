@@ -86,7 +86,7 @@ class SourceDirectory(PodmanTemporaryDirectory):
             if args.wait:
                 run([f'{self.name}/tools/webpack-jumpstart', '--wait'], check=True)
             elif not args.no_jumpstart:
-                run([f'{self.name}/tools/webpack-jumpstart', '--partial'], check=True)
+                run([f'{self.name}/tools/webpack-jumpstart', '--partial'], check=False)
 
 
 class ResultsDirectory(PodmanTemporaryDirectory):

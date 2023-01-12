@@ -289,10 +289,17 @@ class DBusChannel(Channel):
 
     async def do_call(self, message):
         path, iface, method, args = message['call']
-        timeout = message.get('timeout', 2**64 - 1)
         cookie = message.get('id')
         flags = message.get('flags')
         type = message.get('type')
+
+        timeout = message.get('timeout')
+        if timeout is not None:
+            # sd_bus timeout is µs, cockpit API timeout is ms
+            timeout *= 1000
+        else:
+            # sd_bus has no "indefinite" timeout, so use MAX_UINT64
+            timeout = 2 ** 64 - 1
 
         # We have to figure out the signature of the call.  Either we got told it:
         signature = type

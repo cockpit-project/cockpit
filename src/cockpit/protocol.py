@@ -74,7 +74,7 @@ class CockpitProtocol(asyncio.Protocol):
                 logger.debug('channel control received %s', message)
                 self.channel_control_received(channel, command, message)
             else:
-                logging.debug('transport control received %s', message)
+                logger.debug('transport control received %s', message)
                 self.transport_control_received(command, message)
 
     def consume_one_frame(self, view):

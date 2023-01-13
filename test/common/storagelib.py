@@ -343,14 +343,14 @@ class StorageHelpers:
 
     def dialog_set_vals(self, values):
         # Sometimes a certain field needs to be set before other
-        # fields come into existence and thus the order matter that we
-        # set the fields in.  The tests however just give us a
+        # fields come into existence and thus the order matters that
+        # we set the fields in.  The tests however just give us a
         # unordered 'dict'.  Instead of changing the tests, we figure
         # out the right order dynamically here by just setting what we
         # can and then starting over.  As long as we make progress in
         # each iteration, everything is good.
         failed = {}
-        last_error = None
+        last_error = Exception
         for f in values:
             try:
                 self.dialog_set_val(f, values[f])

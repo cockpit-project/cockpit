@@ -44,6 +44,8 @@ class TestStorageNfs(StorageCase):
         # Nothing there in the beginnging
         b.wait_visible("#nfs-mounts .pf-c-empty-state")
 
+        orig_fstab = m.execute("cat /etc/fstab")
+
         # Add /home/foo
         b.click("#nfs-mounts button[aria-label=Add]")
         self.dialog_wait_open()
@@ -58,8 +60,8 @@ class TestStorageNfs(StorageCase):
         b.wait_text_not("#nfs-mounts tr:contains(/mnt/test) .pf-c-progress__status", "")
 
         # Should be saved to fstab
-        self.assertEqual(m.execute("grep -w nfs /etc/fstab").strip(),
-                         "127.0.0.1:/home/foo /mnt/test nfs defaults")
+        self.assertEqual(m.execute("cat /etc/fstab"), orig_fstab +
+                         "127.0.0.1:/home/foo /mnt/test nfs defaults\n")
 
         # Try to add some non-exported directory
         b.click("#nfs-mounts button[aria-label=Add]")
@@ -127,8 +129,9 @@ class TestStorageNfs(StorageCase):
         self.assertEqual(m.execute("findmnt -s -n -o OPTIONS /mounts/barbar").strip(), "noauto,ro,ac")
 
         # Should be saved to fstab
-        self.assertEqual(m.execute("grep /barbar /etc/fstab").strip(),
-                         "127.0.0.1:/home/bar /mounts/barbar nfs noauto,ro,ac")
+        self.assertEqual(m.execute("cat /etc/fstab"), orig_fstab +
+                         "127.0.0.1:/home/foo /mnt/test nfs defaults\n" +
+                         "127.0.0.1:/home/bar /mounts/barbar nfs noauto,ro,ac\n")
 
         # Go to details of /home/foo
         b.go("#/")
@@ -150,7 +153,8 @@ class TestStorageNfs(StorageCase):
         b.wait_not_present("#nfs-mounts td:contains(/home/foo)")
         m.execute("! test -e /mnt/test")
         # Should be removed from fstab, too
-        self.assertNotIn("/home/foo", m.execute("cat /etc/fstab"))
+        self.assertEqual(m.execute("cat /etc/fstab"), orig_fstab +
+                         "127.0.0.1:/home/bar /mounts/barbar nfs noauto,ro,ac\n")
 
         # Picks up mounts in fstab
         m.execute("echo '1.2.3.4:/something /somewhere nfs defaults 0 0' >> /etc/fstab")

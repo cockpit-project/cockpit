@@ -177,6 +177,7 @@ export class RealmdClient {
                     const proc = cockpit.spawn([helper, "ipa", "request", kerberos.RealmName, user],
                                                { superuser: "require", err: "message" });
                     proc.input(password);
+                    proc.catch(ex => console.warn("Failed to run", helper, "ipa request:", ex.toString()));
                     return proc;
                 })
                 .catch(() => true); // no Kerberos domain? nevermind then

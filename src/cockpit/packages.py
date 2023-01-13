@@ -43,12 +43,44 @@ def directory_items(path):
     return sorted(path.iterdir(), key=lambda item: item.name)
 
 
+# HACK: We eventually want to get rid of all ${libexecdir} in manifests:
+# - rewrite cockpit-{ssh,pcp} in Python and import them as module instead of exec'ing
+# - rewrite cockpit-askpass in Python and write it into a temporary file
+# - bundle helper shell scripts into their webpacks
+# Until then, we need this libexecdir detection hack.
+LIBEXECDIR = None
+
+
+def get_libexecdir() -> str:
+    '''Detect libexecdir on current machine
+
+    This only works for systems which have cockpit-ws installed.
+    '''
+    global LIBEXECDIR
+    if LIBEXECDIR is None:
+        for candidate in ['/usr/local/libexec', '/usr/libexec', '/usr/local/lib/cockpit', '/usr/lib/cockpit']:
+            if os.path.exists(os.path.join(candidate, 'cockpit-certificate-helper')):
+                LIBEXECDIR = candidate
+                break
+        else:
+            logger.warning('Could not detect libexecdir')
+            # give readable error messages
+            LIBEXECDIR = '/nonexistent/libexec'
+
+    return LIBEXECDIR
+
+
 class Package:
     def __init__(self, path):
         self.path = path
 
         with (self.path / 'manifest.json').open(encoding='utf-8') as manifest_file:
-            self.manifest = json.load(manifest_file)
+            manifest = manifest_file.read()
+
+        # HACK: drop this after getting rid of ${libexecdir}, see above
+        manifest = manifest.replace('${libexecdir}', get_libexecdir())
+
+        self.manifest = json.loads(manifest)
 
         self.try_override(self.path / 'override.json')
         self.try_override(config.ETC_COCKPIT / f'{path.name}.override.json')

@@ -28,6 +28,7 @@
  * frame/execution context debugging.
  */
 
+const readline = require('node:readline/promises');
 const CDP = require('chrome-remote-interface');
 
 let enable_debug = false;
@@ -40,11 +41,6 @@ function debug(msg) {
 /**
  * Format response to the client
  */
-
-function fatal() {
-    console.error.apply(console.error, arguments);
-    process.exit(1);
-}
 
 function fail(err) {
     if (typeof err === 'undefined')
@@ -265,60 +261,47 @@ function setupSSLCertHandling(client) {
  *    fail <JSON formatted error>
  * EOF shuts down the client.
  */
-process.stdin.setEncoding('utf8');
+async function main() {
+    process.stdin.setEncoding('utf8');
 
-if (process.env.TEST_CDP_DEBUG)
-    enable_debug = true;
+    if (process.env.TEST_CDP_DEBUG)
+        enable_debug = true;
 
-const options = { };
-if (process.argv.length >= 3) {
-    options.port = parseInt(process.argv[2]);
-    if (!options.port) {
-        process.stderr.write("Usage: chromium-cdp-driver.js [port]\n");
-        process.exit(1);
+    const options = { };
+    if (process.argv.length >= 3) {
+        options.port = parseInt(process.argv[2]);
+        if (!options.port) {
+            process.stderr.write("Usage: chromium-cdp-driver.js [port]\n");
+            process.exit(1);
+        }
     }
+
+    const target = await CDP.New(options);
+    target.port = options.port;
+    const client = await CDP({ target });
+    setupLogging(client);
+    setupFrameTracking(client);
+    setupSSLCertHandling(client);
+    setupLocalFunctions(client);
+
+    for await (const command of readline.createInterface(process.stdin)) {
+        try {
+            const reply = await eval(command); // eslint-disable-line no-eval
+            if (unhandledExceptions.length === 0) {
+                success(reply);
+            } else {
+                const message = unhandledExceptions[0];
+                fail(message.split("\n")[0]);
+                clearExceptions();
+            }
+        } catch (err) {
+            fail(err);
+        }
+    }
+    await CDP.Close(target);
 }
 
-CDP.New(options)
-        .then(target => {
-            target.port = options.port;
-            CDP({ target: target })
-                    .then(client => {
-                        setupLogging(client);
-                        setupFrameTracking(client);
-                        setupSSLCertHandling(client);
-                        setupLocalFunctions(client);
-
-                        let input_buf = '';
-                        process.stdin
-                                .on('data', chunk => {
-                                    input_buf += chunk;
-                                    while (true) {
-                                        const i = input_buf.indexOf('\n');
-                                        if (i < 0)
-                                            break;
-                                        const command = input_buf.slice(0, i);
-
-                                        // run the command
-                                        eval(command).then(reply => { // eslint-disable-line no-eval
-                                            if (unhandledExceptions.length === 0) {
-                                                success(reply);
-                                            } else {
-                                                const message = unhandledExceptions[0];
-                                                fail(message.split("\n")[0]);
-                                                clearExceptions();
-                                            }
-                                        }, fail);
-
-                                        input_buf = input_buf.slice(i + 1);
-                                    }
-                                })
-                                .on('end', () => {
-                                    CDP.Close(target)
-                                            .then(() => process.exit(0))
-                                            .catch(fatal);
-                                });
-                    })
-                    .catch(fatal);
-        })
-        .catch(fatal);
+main().catch(err => {
+    console.error(err);
+    process.exit(1);
+});

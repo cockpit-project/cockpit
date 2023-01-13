@@ -172,6 +172,9 @@ userdom_spec_domtrans_all_users(cockpit_session_t)
 userdom_noatsecure_login_userdomain(cockpit_session_t)
 usermanage_read_crack_db(cockpit_session_t)
 
+# pam_google_authenticator needs to create and rename files in home dir
+userdom_manage_user_home_content(cockpit_session_t)
+
 optional_policy(`
     ssh_agent_signal(cockpit_session_t)
 ')

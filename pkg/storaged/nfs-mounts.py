@@ -66,10 +66,8 @@ def index_tab(tab):
 
 
 def modify_tab(name, modify):
-    with open(name, "r") as f:
-        lines = f.readlines()
-    if len(lines) > 0 and lines[-1] == "":
-        del lines[-1]
+    with open(name) as f:
+        lines = f.read().splitlines()
 
     new_lines = []
     for line in lines:

@@ -2950,12 +2950,6 @@ function factory() {
             data: { value: { }, enumerable: false }
         });
 
-        if (typeof window.$ === "function") {
-            Object.defineProperty(self, window.$.expando, {
-                value: { }, writable: true, enumerable: false
-            });
-        }
-
         if (!options)
             options = { };
 
@@ -3070,12 +3064,6 @@ function factory() {
                 }
             }
         });
-
-        if (typeof window.$ === "function") {
-            Object.defineProperty(self, window.$.expando, {
-                value: { }, writable: true, enumerable: false
-            });
-        }
 
         /* Subscribe to signals once for all proxies */
         const match = { interface: iface, path_namespace: path_namespace };

@@ -123,9 +123,9 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
         logger.debug('Peer %s state changed -> %s', peer.name, event)
         if event == 'connected':
             self.current = 'init'
+            self.peer = peer
 
         elif event == 'init':
-            self.peer = peer
             self.current = peer.name
             if self.startup is not None:
                 self.startup.success(self)

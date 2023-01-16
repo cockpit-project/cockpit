@@ -308,7 +308,7 @@ export function mounting_dialog(client, block, mode, forced_options) {
                                 .then(maybe_mount));
                     else if (old_config && !new_config)
                         return block.RemoveConfigurationItem(old_config, {});
-                    else if (old_config && new_config && (new_dir != old_dir || new_opts != old_opts))
+                    else if (old_config && new_config)
                         return (block.UpdateConfigurationItem(old_config, new_config, {})
                                 .then(maybe_mount));
                     else if (new_config && !is_mounted(client, block))

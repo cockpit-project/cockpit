@@ -440,6 +440,31 @@ ExecStart=/usr/bin/sleep infinity
         self.assertNotIn("hurr", m.execute("findmnt --fstab -n -o OPTIONS /run/foo"))
         self.wait_not_mounted(1, 1)
 
+        # Mount
+        self.content_row_action(1, "Mount")
+        self.dialog({})
+
+        # Apply the dialog without changes and verify that the
+        # filesystem is still mounted afterwards.  Cockpit used to
+        # have a bug where this would accidentally unmount the
+        # filesystem.
+
+        self.content_tab_info_action(1, 1, "Mount point")
+        self.dialog({})
+        self.wait_mounted(1, 1)
+
+        # Try to set a bad option while the filesystem is mounted.
+        self.content_tab_info_action(1, 1, "Mount point")
+        self.dialog_wait_open()
+        self.dialog_set_val("mount_options.extra", "hurr")
+        self.dialog_apply()
+        self.dialog_wait_alert("bad option")
+        self.dialog_cancel()
+        self.dialog_wait_close()
+
+        self.assertNotIn("hurr", m.execute("findmnt --fstab -n -o OPTIONS /run/foo"))
+        self.wait_mounted(1, 1)
+
 
 if __name__ == '__main__':
     test_main()

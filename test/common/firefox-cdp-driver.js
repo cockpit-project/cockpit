@@ -82,7 +82,6 @@ const messages = [];
 let logPromiseResolver;
 let nReportedLogMessages = 0;
 const unhandledExceptions = [];
-const shownMessages = []; // Show every message just once, keep here seen messages
 
 function clearExceptions() {
     unhandledExceptions.length = 0;
@@ -95,11 +94,7 @@ function setupLogging(client) {
     client.Runtime.consoleAPICalled(info => {
         const msg = info.args.map(v => (v.value || "").toString()).join(" ");
         messages.push([info.type, msg]);
-        if (shownMessages.indexOf(msg) == -1) {
-            if (!enable_debug) // disable message de-duplication in --trace mode
-                shownMessages.push(msg);
-            process.stderr.write("> " + info.type + ": " + msg + "\n");
-        }
+        process.stderr.write("> " + info.type + ": " + msg + "\n");
 
         resolveLogPromise();
     });
@@ -160,15 +155,7 @@ function setupLogging(client) {
             messages.push(["cdp", msg]);
             /* Ignore authentication failure log lines that don't denote failures */
             if (!(msg.url || "").endsWith("/login") || (text || "").indexOf("401") === -1) {
-                const orig = { ...msg };
-                delete msg.timestamp;
-                delete msg.args;
-                const msgstr = JSON.stringify(msg);
-                if (shownMessages.indexOf(msgstr) == -1) {
-                    if (!enable_debug) // disable message de-duplication in --trace mode
-                        shownMessages.push(msgstr);
-                    process.stderr.write("CDP: " + JSON.stringify(orig) + "\n");
-                }
+                process.stderr.write("CDP: " + JSON.stringify(msg) + "\n");
             }
             resolveLogPromise();
         }

@@ -356,7 +356,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                                                         buttonAriaLabel={_("Toggle date picker")}
                                                         locale={timeformat.dateFormatLang()}
                                                         weekStart={timeformat.firstDayOfWeek()}
-                                                        onChange={(str, data) => {
+                                                        onChange={(_, str, data) => {
                                                             const arr = [...repeatPatterns];
                                                             arr[idx].date = str;
                                                             setRepeatPatterns(arr);

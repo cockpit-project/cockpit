@@ -530,7 +530,7 @@ function ChangeSystimeBody({ state, errors, change }) {
                                         locale={timeformat.dateFormatLang()}
                                         weekStart={timeformat.firstDayOfWeek()}
                                         placeholder={timeformat.dateShortFormat()}
-                                        onChange={d => change("manual_date", d)}
+                                        onChange={(e, s) => change("manual_date", s)}
                                         value={manual_date}
                                         appendTo={() => document.body} />
                         </ValidatedInput>

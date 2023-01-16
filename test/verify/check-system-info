@@ -202,7 +202,6 @@ class TestSystemInfo(MachineCase):
         b.wait_in_text("#system_information_change_systime .pf-c-form__group-label:contains('Set time') + div > .pf-c-select > button", mode)
 
     @skipImage("TODO: systemd-timesyncd responds too slow on Arch Linux", "arch")
-    @todoPybridge()
     def testTime(self):
         m = self.machine
         b = self.browser

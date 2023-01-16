@@ -3,7 +3,7 @@
 import os
 
 import parent  # noqa: F401
-from testlib import MachineCase, TEST_DIR, nondestructive, skipDistroPackage, skipImage, todoPybridge, test_main
+from testlib import MachineCase, TEST_DIR, nondestructive, skipDistroPackage, skipImage, test_main
 from fmf_metadata import FMF
 
 
@@ -104,7 +104,6 @@ class TestLongRunning(MachineCase):
         self.addCleanup(m.execute, "systemctl stop cockpit-longrunning.service 2>/dev/null && systemctl reset-failed cockpit-longrunning.service || true")
 
     # sometimes fails with: unexpected failure of GetUnit(cockpit-longrunning.service): Not permitted to perform this action
-    @todoPybridge("fails unpredictably with python bridge", flaky=True)
     def testBasic(self):
         b = self.browser
         m = self.machine

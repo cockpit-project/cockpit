@@ -63,6 +63,9 @@ class Peer(CockpitProtocolClient, SubprocessProtocol, Endpoint):
                  init_host: Optional[str] = None):
         super().__init__(router)
 
+        # All Peers start out frozen — we only unfreeze after we see the first 'init' message
+        self.freeze_endpoint()
+
         self.name = name
         self.state_listener = state_listener
 
@@ -87,10 +90,14 @@ class Peer(CockpitProtocolClient, SubprocessProtocol, Endpoint):
             transport.send_stderr_fd()
 
     def do_init(self, message: Dict[str, Any]) -> None:
-        logger.debug('Peer %s connection got init message', self.name)
-        if self.state_listener is not None:
-            self.state_listener.peer_state_changed(self, 'init')
-        self.write_control(command='init', version='1', host=self.init_host)
+        if self.endpoint_is_frozen():
+            logger.debug('Peer %s connection got init message', self.name)
+            if self.state_listener is not None:
+                self.state_listener.peer_state_changed(self, 'init')
+            self.write_control(command='init', version='1', host=self.init_host)
+            self.thaw_endpoint()
+        else:
+            logger.warning('Peer %s connection got duplicate init message', self.name)
 
     def do_closed(self, transport_was: asyncio.Transport, exc: Optional[Exception]) -> None:
         logger.debug('Peer %s connection lost %s', self.name, exc)

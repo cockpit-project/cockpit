@@ -738,7 +738,6 @@ class TestCurrentMetrics(MachineCase):
                                               "systemctl --user stop cockpittest.slice 2>/dev/null || true'")
         login(self)
 
-    @todoPybridge()
     def testCPU(self):
         b = self.browser
         m = self.machine

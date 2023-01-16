@@ -524,14 +524,14 @@ class TestStorageNBDE(StorageCase, PackageCase):
         b.wait_in_text("#dialog", "Make sure the key hash from the Tang server matches")
         b.wait_in_text("#dialog", tang_m.execute("tang-show-keys").strip())
         self.dialog_apply()
-        if need_fixing:
-            b.wait_in_text("#dialog", "Add Network Bound Disk Encryption")
-            with b.wait_timeout(60):
+        with b.wait_timeout(60):
+            if need_fixing:
+                b.wait_in_text("#dialog", "Add Network Bound Disk Encryption")
                 self.dialog_apply()
-        b.wait_in_text("#dialog", "No key available with this passphrase.")
-        self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
-        self.dialog_apply()
-        self.dialog_wait_close()
+            b.wait_in_text("#dialog", "No key available with this passphrase.")
+            self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
+            self.dialog_apply()
+            self.dialog_wait_close()
         b.wait_visible(panel + "ul li:nth-child(2)")
         b.wait_in_text(panel + "ul li:nth-child(2)", "10.111.112.5")
 

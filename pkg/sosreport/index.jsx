@@ -137,7 +137,7 @@ function sosLister() {
         self.problem = null;
         watch = null;
 
-        watch = cockpit.channel({ payload: "fslist1", path: "/var/tmp", superuser: true });
+        watch = cockpit.channel({ payload: "fswatch1", path: "/var/tmp", superuser: true });
         watch.addEventListener("message", (event, payload) => {
             const msg = JSON.parse(payload);
             if (msg.event != "present" && parse_report_name(msg.path))

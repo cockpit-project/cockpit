@@ -67,7 +67,7 @@ function Keys() {
         }
 
         if (watch === null) {
-            watch = cockpit.channel({ payload: "fslist1", path: self.path });
+            watch = cockpit.channel({ payload: "fswatch1", path: self.path });
             watch.addEventListener("close", on_close);
             watch.addEventListener("message", on_message);
         }

@@ -83,6 +83,7 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
         cwd: Optional[str] = options.get('directory')
         pty: bool = options.get('pty', False)
         window: Dict[str, int] = options.get('window')
+        environ = options.get('environ')
 
         if err == 'out':
             stderr = subprocess.STDOUT
@@ -92,7 +93,11 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
             stderr = subprocess.PIPE
 
         env: Dict[str, str] = dict(os.environ)
-        env.update(options.get('env') or [])
+        if environ is not None:
+            if not isinstance(environ, list) or not all(isinstance(e, str) and '=' in e for e in environ):
+                raise ChannelError('protocol-error', message='invalid "environ" option for stream channel')
+
+            env.update(dict(e.split('=', 1) for e in environ))
 
         try:
             logger.debug('Spawning process args=%s', args)

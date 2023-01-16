@@ -457,3 +457,11 @@ class TestSubprocessTransport(unittest.IsolatedAsyncioTestCase):
         transport.set_window_size(44, 55)
         while b'44x55\r\n' not in protocol.get_output():
             await asyncio.sleep(0.1)
+
+    async def test_env(self) -> None:
+        protocol, transport = self.subprocess(['bash', '-ic', 'echo $HOME'],
+                                              pty=True,
+                                              env={'HOME': '/test'})
+        protocol.output = []
+        while b'/test\r\n' not in protocol.get_output():
+            await asyncio.sleep(0.1)

@@ -18,7 +18,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent  # noqa: F401
-from testlib import MachineCase, nondestructive, skipBrowser, skipDistroPackage, todoPybridge, test_main
+from testlib import MachineCase, nondestructive, skipBrowser, skipDistroPackage, test_main
 
 
 def line_sel(i):
@@ -42,7 +42,6 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         self.machine.execute("systemctl reset-failed")
 
     @skipBrowser("Firefox needs http to access clipboard", "firefox")
-    @todoPybridge()
     @nondestructive
     def testBasic(self):
         b = self.browser

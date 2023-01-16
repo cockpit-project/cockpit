@@ -65,6 +65,9 @@ class FsListChannel(Channel):
         path = options.get('path')
         watch = options.get('watch', True)
 
+        if watch:
+            raise ChannelError('not-supported', message='watching is not implemented, use fswatch1')
+
         for entry in os.scandir(path):
             self.send_entry("present", entry)
 

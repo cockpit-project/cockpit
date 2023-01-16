@@ -94,7 +94,8 @@ export class FileAutoComplete extends React.Component {
         const channel = cockpit.channel({
             payload: "fslist1",
             path,
-            superuser: this.props.superuser
+            superuser: this.props.superuser,
+            watch: false,
         });
         const results = [];
 

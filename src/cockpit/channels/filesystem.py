@@ -63,7 +63,7 @@ class FsListChannel(Channel):
 
     def do_open(self, options):
         path = options.get('path')
-        watch = options.get('watch')
+        watch = options.get('watch', True)
 
         for entry in os.scandir(path):
             self.send_entry("present", entry)

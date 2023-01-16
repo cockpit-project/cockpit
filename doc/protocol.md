@@ -867,7 +867,7 @@ The following options can be specified in the "open" control message:
  * "path": The path name of the directory to watch.  This should be an
    absolute path.
  * "watch": Boolean, when true the directory will be watched and signal
-    on changes.
+    on changes. Defaults to "true"
 
 The channel will send a number of JSON messages that list the current
 content of the directory.  These messages have a "event" field with

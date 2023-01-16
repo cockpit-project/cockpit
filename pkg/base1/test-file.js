@@ -483,6 +483,58 @@ QUnit.test("watching without reading", function (assert) {
     }
 });
 
+QUnit.test.skipWithPybridge("watching directory", assert => {
+    const done = assert.async();
+    assert.expect(20);
+
+    let n = 0;
+    const watch = cockpit.channel({ payload: "fswatch1", path: dir });
+    watch.addEventListener("message", (event, payload) => {
+        const msg = JSON.parse(payload);
+        n += 1;
+
+        if (n == 1) {
+            assert.equal(msg.event, "created", "world.txt created");
+            assert.equal(msg.path, dir + "/world.txt");
+            assert.equal(msg.type, "file");
+            assert.notEqual(msg.tag, "-");
+        } else if (n == 2) {
+            assert.equal(msg.event, "changed", "world.txt changed");
+            assert.equal(msg.path, dir + "/world.txt");
+            assert.notEqual(msg.tag, "-");
+        } else if (n == 3) {
+            assert.equal(msg.event, "done-hint", "world.txt done-hint");
+            assert.equal(msg.path, dir + "/world.txt");
+            assert.notEqual(msg.tag, "-");
+
+            cockpit.spawn(["chmod", "001", `${dir}/world.txt`]);
+        } else if (n == 4) {
+            assert.equal(msg.event, "attribute-changed", "world.txt attribute-changed");
+            assert.equal(msg.path, dir + "/world.txt");
+            assert.notEqual(msg.tag, "-");
+
+            cockpit.spawn(["rm", `${dir}/world.txt`]);
+        } else if (n == 5) {
+            assert.equal(msg.event, "deleted", "world.txt deleted");
+            assert.equal(msg.path, dir + "/world.txt");
+            assert.equal(msg.tag, "-");
+
+            cockpit.spawn(["mkdir", `${dir}/somedir`]);
+        } else if (n == 6) {
+            assert.equal(msg.event, "created", "somedir created");
+            assert.equal(msg.path, dir + "/somedir");
+            assert.equal(msg.type, "directory");
+            assert.notEqual(msg.tag, "-");
+
+            watch.close();
+            done();
+        }
+    });
+
+    // trigger the first event
+    cockpit.spawn(["sh", "-c", `echo hello > ${dir}/world.txt`]);
+});
+
 QUnit.test("closing", function (assert) {
     const done = assert.async();
     assert.expect(2);

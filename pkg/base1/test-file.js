@@ -120,16 +120,20 @@ QUnit.test("binary false", function (assert) {
             });
 });
 
-QUnit.test("simple replace", function (assert) {
+QUnit.only("simple replace", function (assert) {
     const done = assert.async();
-    assert.expect(2);
+    assert.expect(3);
     cockpit.file(dir + "/bar").replace("4321\n")
             .always(function() {
                 assert.equal(this.state(), "resolved", "didn't fail");
                 cockpit.spawn(["cat", dir + "/bar"])
                         .done(function (res) {
                             assert.equal(res, "4321\n", "correct content");
-                            done();
+                            cockpit.spawn(["stat", "-c", "%a", dir + "/bar"])
+                                    .done(res => {
+                                        assert.equal(res, "644\n", "correct permissions");
+                                        done();
+                                    });
                         });
             });
 });

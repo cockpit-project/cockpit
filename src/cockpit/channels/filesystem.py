@@ -17,7 +17,7 @@
 
 import logging
 import os
-import tempfile
+import random
 
 from systemd_ctypes import PathWatch
 from systemd_ctypes.inotify import Event as InotifyEvent
@@ -118,6 +118,13 @@ class FsReplaceChannel(Channel):
     _path = None
     _tag = None
     _tempfile = None
+    _temppath = None
+
+    def unlink_temppath(self):
+        try:
+            os.unlink(self._temppath)
+        except OSError:
+            pass  # might have been removed from outside
 
     def do_open(self, options):
         self._path = options.get('path')
@@ -125,14 +132,37 @@ class FsReplaceChannel(Channel):
 
     def do_data(self, data):
         if self._tempfile is None:
-            dirname, basename = os.path.split(self._path)
-            self._tempfile = tempfile.NamedTemporaryFile(dir=dirname, prefix=f'.{basename}-', delete=False)
+            # keep this bounded, in case anything unexpected goes wrong
+            for i in range(10):
+                suffix = ''.join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789_", k=6))
+                self._temppath = f'{self._path}.cockpit-tmp.{suffix}'
+                try:
+                    fd = os.open(self._temppath, os.O_CREAT | os.O_WRONLY | os.O_EXCL, 0o666)
+                    break
+                except FileExistsError:
+                    continue
+                except PermissionError:
+                    raise ChannelError('access-denied')
+                except OSError as ex:
+                    raise ChannelError('internal-error', message=str(ex))
+            else:
+                raise ChannelError('internal-error', message=f"Could not find unique file name for replacing {self._path}")
+
+            try:
+                self._tempfile = os.fdopen(fd, 'wb')
+            except OSError:
+                # Should Not Happen™, but let's be safe and avoid fd leak
+                os.close(fd)
+                self.unlink_temppath()
+                raise
+
         self._tempfile.write(data)
 
     def do_done(self):
         if self._tempfile is None:
             try:
                 os.unlink(self._path)
+            # crash on other errors, as they are unexpected
             except FileNotFoundError:
                 pass
         else:
@@ -141,7 +171,12 @@ class FsReplaceChannel(Channel):
             if self._tag and self._tag != tag_from_path(self._path):
                 raise ChannelError('change-conflict')
 
-            os.rename(self._tempfile.name, self._path)
+            try:
+                os.rename(self._temppath, self._path)
+            except OSError:
+                # ensure to not leave the temp file behind
+                self.unlink_temppath()
+                raise
             self._tempfile.close()
             self._tempfile = None
 
@@ -151,7 +186,7 @@ class FsReplaceChannel(Channel):
     def do_close(self):
         if self._tempfile is not None:
             self._tempfile.close()
-            os.unlink(self._tempfile.name)
+            self.unlink_temppath()
             self._tempfile = None
 
 

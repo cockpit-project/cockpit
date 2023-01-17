@@ -154,11 +154,7 @@ class Package:
         self.try_override(config.ETC_COCKPIT / f'{path.name}.override.json')
         self.try_override(config.DOT_CONFIG_COCKPIT / f'{path.name}.override.json')
 
-        if 'name' in self.manifest:
-            self.name = self.manifest['name']
-        else:
-            self.name = path.name
-
+        self.name = self.manifest.get('name', path.name)
         self.content_security_policy = None
         self.priority = self.manifest.get('priority', 1)
         self.bridges = self.manifest.get('bridges', [])

@@ -483,7 +483,7 @@ QUnit.test("watching without reading", function (assert) {
     }
 });
 
-QUnit.test.skipWithPybridge("watching directory", assert => {
+QUnit.test("watching directory", assert => {
     const done = assert.async();
     assert.expect(20);
 

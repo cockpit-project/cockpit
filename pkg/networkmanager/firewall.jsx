@@ -204,7 +204,7 @@ function ZoneSection(props) {
             </CardTitle>
             { !firewall.readonly && <CardActions className="zone-section-buttons">{addServiceAction}{deleteButton}</CardActions> }
         </CardHeader>
-        {props.zone.services.length > 0 &&
+        {(props.zone.services.length > 0 || props.zone.ports.length > 0) &&
         <CardBody className="contains-list">
             <ListingTable columns={[{ title: _("Service"), props: { width: 40 } }, { title: _("TCP"), props: { width: 30 } }, { title: _("UDP"), props: { width: 30 } }, { title: "", props: { width: 10 } }]}
                           id={props.zone.id}

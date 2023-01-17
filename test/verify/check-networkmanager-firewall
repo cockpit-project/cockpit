@@ -314,9 +314,14 @@ class TestFirewall(NetworkCase):
             b.wait_not_present(f".zone-section[data-id='public'] tr[data-row-id='{service}']")
         self.assertEqual(m.execute("firewall-cmd --list-services").strip(), "")
 
+        # Test that we show 'Additional ports' even when no service is present
+        m.execute("firewall-cmd --add-port=9998/tcp --zone public")
+        b.wait_visible(".zone-section[data-id='public'] td:contains('Additional ports') + td:contains('9998')")
+
         # test error handling
         m.execute("firewall-cmd --add-service=pop3")
         b.wait_visible(".zone-section[data-id='public'] tr[data-row-id='pop3']")
+        b.wait_visible(".zone-section[data-id='public'] td:contains('Additional ports') + td:contains('9998')")
         # remove service via cli and cockpit
         m.execute("firewall-cmd --remove-service=pop3")
         b.click(".zone-section[data-id='public'] tr[data-row-id='pop3'] button.pf-c-dropdown__toggle")

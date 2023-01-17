@@ -250,4 +250,17 @@ QUnit.test("stream large output", function (assert) {
             });
 });
 
+QUnit.test.skipWithPybridge("cancel process", async assert => {
+    const proc = cockpit.spawn(["sleep", "418"]);
+    await cockpit.script("until pgrep -af [s]leep.*418; do sleep 0.1; done");
+    proc.close("cancelled");
+    await cockpit.script("timeout 5 sh -ec 'while pgrep -af [s]leep.*418; do sleep 0.1; done'");
+    try {
+        await proc;
+        assert.ok(false, "proc should have failed");
+    } catch (ex) {
+        assert.equal(ex.problem, "cancelled", "proc failed with correct problem");
+    }
+});
+
 QUnit.start();

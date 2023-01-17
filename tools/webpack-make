@@ -97,7 +97,15 @@ function generateDeps(makefile, stats) {
     const dir = path.relative('', stats.compilation.outputOptions.path);
     const now = Math.floor(Date.now() / 1000);
 
-    const inputs = new Set();
+    /* If any of these changes, then everything definitely needs to be
+     * rebuilt.  These aren't mentioned in fileDependencies, though.
+     */
+    const inputs = new Set([
+        'package-lock.json',
+        'tools/webpack-make',
+        'webpack.config.js',
+    ]);
+
     for (const file of stats.compilation.fileDependencies) {
         // node modules  are handled by the dependency on package-lock.json
         if (file.includes('/node_modules/'))

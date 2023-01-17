@@ -121,7 +121,7 @@ class InternalMetricsChannel(AsyncChannel):
         return samples
 
     def calculate_sample_rate(self, value: Any, old_value: Optional[Any]):
-        if old_value and self.last_timestamp:
+        if old_value is not None and self.last_timestamp:
             return (value - old_value) / (self.next_timestamp - self.last_timestamp)
         else:
             return False

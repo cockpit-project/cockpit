@@ -32,7 +32,6 @@ from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, t
 @skipDistroPackage()
 class TestSOS(MachineCase):
 
-    @todoPybridge()
     def testBasic(self, urlroot=""):
         b = self.browser
         m = self.machine
@@ -117,7 +116,6 @@ only-plugins=release,date,host,cgroups,networking
 
         self.allow_journal_messages('.*comm="sosreport".*')
 
-    @todoPybridge()
     def testWithUrlRoot(self):
         self.testBasic(urlroot="/webcon")
 

@@ -20,6 +20,7 @@ import os
 import tempfile
 
 from systemd_ctypes import PathWatch
+from systemd_ctypes.inotify import Event as InotifyEvent
 
 from ..channel import Channel, ChannelError
 
@@ -166,18 +167,40 @@ class FsWatchChannel(Channel):
     # Ideally we'll sort that out at some point, but for now, suppress it.
     _active = False
 
-    def set_tag(self, tag):
-        if tag == self._tag:
-            return
-        self._tag = tag
+    @staticmethod
+    def mask_to_event_and_type(mask):
+        if (InotifyEvent.CREATE or InotifyEvent.MOVED_TO) in mask:
+            return 'created', 'directory' if InotifyEvent.ISDIR in mask else 'file'
+        elif InotifyEvent.MOVED_FROM in mask or InotifyEvent.DELETE in mask or InotifyEvent.DELETE_SELF in mask:
+            return 'deleted', None
+        elif InotifyEvent.ATTRIB in mask:
+            return 'attribute-changed', None
+        elif InotifyEvent.CLOSE_WRITE in mask:
+            return 'done-hint', None
+        else:
+            return 'changed', None
+
+    def do_inotify_event(self, mask, _cookie, name):
+        logger.debug("do_inotify_event(%s): mask %X name %s", self._path, mask, name)
+        event, type_ = self.mask_to_event_and_type(mask)
+        if name:
+            # file inside watched directory changed
+            path = os.path.join(self._path, name.decode())
+            tag = tag_from_path(path)
+            self.send_message(event=event, path=path, tag=tag, type=type_)
+        else:
+            # the watched path itself changed; filter out duplicate events
+            tag = tag_from_path(self._path)
+            if tag == self._tag:
+                return
+            self._tag = tag
+            self.send_message(event=event, path=self._path, tag=self._tag, type=type_)
+
+    def do_identity_changed(self, fd, err):
+        logger.debug("do_identity_changed(%s): fd %i, err %s", self._path, fd, err)
+        self._tag = tag_from_fd(fd) if fd else '-'
         if self._active:
-            self.send_message(path=self._path, tag=self._tag)
-
-    def do_inotify_event(self, _mask, _cookie, _name):
-        self.set_tag(tag_from_path(self._path))
-
-    def do_identity_changed(self, fd, _err):
-        self.set_tag(tag_from_fd(fd) if fd else '-')
+            self.send_message(event='created' if fd else 'deleted', path=self._path, tag=self._tag)
 
     def do_open(self, options):
         self._path = options['path']

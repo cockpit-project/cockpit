@@ -490,6 +490,11 @@ class StorageHelpers:
             self.content_tab_wait_in_info(row, col, "Mount point",
                                           cond=lambda cell: "The filesystem is not mounted" not in self.browser.text(cell))
 
+    def wait_not_mounted(self, row, col):
+        with self.browser.wait_timeout(30):
+            self.content_tab_wait_in_info(row, col, "Mount point",
+                                          cond=lambda cell: "The filesystem is not mounted" in self.browser.text(cell))
+
     def setup_systemd_password_agent(self, password):
         # This sets up a systemd password agent that replies to all
         # queries with the given password.

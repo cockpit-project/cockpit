@@ -128,6 +128,11 @@ def find_translation(translations: Entities, locales: List[str]) -> Entity:
     return translations['en']
 
 
+class PackagesListener:
+    def packages_loaded(self):
+        """Called when the packages have been reloaded"""
+
+
 class Package:
     # For po.js files, the interesting part is the locale name
     PO_JS_RE: ClassVar[Pattern] = re.compile(r'po\.([^.]+)\.js(\.gz)?')
@@ -305,8 +310,14 @@ class Package:
 class Packages(bus.Object, interface='cockpit.Packages'):
     manifests = bus.Interface.Property('s', value="{}")
 
-    def __init__(self):
+    listener: Optional[PackagesListener]
+    packages: Dict[str, Package]
+    checksum: str = ''
+
+    def __init__(self, listener: Optional[PackagesListener] = None):
         super().__init__()
+
+        self.listener = listener
         self.packages = {}
         self.load_packages()
 
@@ -436,6 +447,8 @@ class Packages(bus.Object, interface='cockpit.Packages'):
     def reload(self):
         self.packages = {}
         self.load_packages()
+        if self.listener is not None:
+            self.listener.packages_loaded()
 
     @bus.Interface.Method()
     def reload_hint(self):

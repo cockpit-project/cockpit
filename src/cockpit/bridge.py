@@ -25,7 +25,7 @@ import shlex
 import socket
 import sys
 
-from typing import Dict, Iterable, Tuple, Type
+from typing import Dict, Iterable, List, Tuple, Type
 
 from systemd_ctypes import EventLoopPolicy, bus
 
@@ -33,7 +33,7 @@ from .channel import ChannelRoutingRule
 from .channels import CHANNEL_TYPES
 from .config import Config, Environment
 from .internal_endpoints import EXPORTS
-from .packages import Packages
+from .packages import Packages, PackagesListener
 from .remote import HostRoutingRule
 from .router import Router
 from .superuser import SUPERUSER_AUTH_COOKIE, SuperuserRoutingRule
@@ -55,10 +55,16 @@ class InternalBus:
         self.exportees.append(self.server.add_object(path, obj))
 
 
-class Bridge(Router):
+class Bridge(Router, PackagesListener):
+    internal_bus: InternalBus
+    packages: Packages
+    bridge_rules: List[Dict[str, object]]
+    args: argparse.Namespace
+
     def __init__(self, args: argparse.Namespace):
         self.internal_bus = InternalBus(EXPORTS)
-        self.packages = Packages()
+        self.packages = Packages(self)
+        self.bridge_rules = []
         self.args = args
 
         self.superuser_rule = SuperuserRoutingRule(self, args.privileged)
@@ -66,6 +72,8 @@ class Bridge(Router):
         self.internal_bus.export('/packages', self.packages)
         self.internal_bus.export('/config', Config())
         self.internal_bus.export('/environment', Environment())
+
+        self.packages_loaded()
 
         super().__init__([
             HostRoutingRule(self),
@@ -104,6 +112,13 @@ class Bridge(Router):
                            checksum=self.packages.checksum,
                            packages={p: None for p in self.packages.packages},
                            os_release=self.get_os_release(), capabilities={'explicit-superuser': True})
+
+    # PackagesListener interface
+    def packages_loaded(self):
+        bridge_rules = self.packages.get_bridges()
+        if self.bridge_rules != bridge_rules:
+            self.superuser_rule.set_bridge_rules(bridge_rules)
+            self.bridge_rules = bridge_rules
 
 
 async def run(args) -> None:

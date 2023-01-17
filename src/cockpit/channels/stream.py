@@ -60,6 +60,11 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
         if window := options.get('window'):
             self._transport.set_window_size(**window)
 
+    def do_close(self):
+        assert isinstance(self._transport, SubprocessTransport)
+        logger.debug('Received close signal from peer, terminating process %i', self._transport.get_pid())
+        self._transport.terminate()
+
     def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, Any]) -> SubprocessTransport:
         args: list[str] = options['spawn']
         err: Optional[str] = options.get('err')

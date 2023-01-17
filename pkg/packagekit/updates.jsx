@@ -1082,7 +1082,7 @@ class OsUpdates extends React.Component {
         if (!this._mounted)
             return;
 
-        if (ex.problem === "not-found")
+        if (ex.problem === "not-found" || ex.name?.includes("DBus.Error.ServiceUnknown"))
             ex = _("PackageKit is not installed");
         this.state.errorMessages.push(ex.detail || ex.message || ex);
         this.setState({ state: "loadError" });

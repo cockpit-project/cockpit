@@ -24,6 +24,7 @@ from pathlib import Path
 from systemd_ctypes import bus
 
 logger = logging.getLogger(__name__)
+_umask = None
 
 ETC_COCKPIT = Path('/etc/cockpit')
 XDG_CONFIG_HOME = Path(os.getenv('XDG_CONFIG_HOME') or os.path.expanduser('~/.config'))
@@ -77,3 +78,15 @@ class Environment(bus.Object, interface='cockpit.Environment'):
     @variables.getter
     def get_variables(self):
         return os.environ.copy()
+
+
+def init_umask():
+    global _umask
+    assert _umask is None
+    _umask = os.umask(0o077)
+    os.umask(_umask)  # restore umask
+
+
+def get_umask():
+    assert _umask is not None
+    return _umask

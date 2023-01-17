@@ -31,7 +31,7 @@ from systemd_ctypes import EventLoopPolicy, bus
 
 from .channel import ChannelRoutingRule
 from .channels import CHANNEL_TYPES
-from .config import Config, Environment
+from .config import Config, Environment, init_umask
 from .internal_endpoints import EXPORTS
 from .packages import Packages
 from .remote import HostRoutingRule
@@ -189,6 +189,9 @@ def main() -> None:
     args = parser.parse_args()
 
     setup_logging(args.debug)
+
+    # do this before any threading
+    init_umask()
 
     if args.packages:
         Packages().show()

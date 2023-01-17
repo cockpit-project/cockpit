@@ -23,6 +23,7 @@ from systemd_ctypes import PathWatch
 from systemd_ctypes.inotify import Event as InotifyEvent
 
 from ..channel import Channel, ChannelError
+from ..config import get_umask
 
 logger = logging.getLogger(__name__)
 
@@ -141,6 +142,7 @@ class FsReplaceChannel(Channel):
             if self._tag and self._tag != tag_from_path(self._path):
                 raise ChannelError('change-conflict')
 
+            os.chmod(self._tempfile.name, 0o666 & ~get_umask())
             os.rename(self._tempfile.name, self._path)
             self._tempfile.close()
             self._tempfile = None

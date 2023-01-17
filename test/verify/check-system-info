@@ -21,7 +21,7 @@ import re
 import time
 
 import parent  # noqa: F401
-from testlib import MachineCase, enableAxe, nondestructive, skipDistroPackage, skipImage, todoPybridge, test_main, wait
+from testlib import MachineCase, enableAxe, nondestructive, skipDistroPackage, skipImage, test_main, wait
 
 
 os_release = """
@@ -344,7 +344,6 @@ class TestSystemInfo(MachineCase):
         wait(lambda: get_timesyncd_start() > prev_timesyncd_start, delay=0.2)
 
     @nondestructive
-    @todoPybridge()
     def testMotd(self):
         m = self.machine
         b = self.browser

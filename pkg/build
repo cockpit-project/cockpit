@@ -55,7 +55,7 @@ EXTRA_DIST += $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS)
 $(srcdir)/dist/%/Makefile.deps:
 	@true
 
-$(srcdir)/dist/%/manifest.json: $(srcdir)/tools/webpack-make $(srcdir)/package-lock.json $(srcdir)/webpack.config.js
+$(srcdir)/dist/%/manifest.json: $(srcdir)/package-lock.json
 	$(V_WEBPACK) cd $(srcdir) && NODE_ENV='$(NODE_ENV)' tools/termschutz tools/webpack-make $*
 
 -include $(WEBPACK_DEPS)

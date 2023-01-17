@@ -67,7 +67,7 @@ export function get_fstab_config(block, also_child_config) {
 
     if (config && utils.decode_filename(config[1].type.v) != "swap") {
         let dir = utils.decode_filename(config[1].dir.v);
-        const opts = (utils.decode_filename(config[1].opts.v)
+        let opts = (utils.decode_filename(config[1].opts.v)
                 .split(",")
                 .filter(function (s) { return s.indexOf("x-parent") !== 0 })
                 .join(","));
@@ -77,6 +77,8 @@ export function get_fstab_config(block, also_child_config) {
                 .join(","));
         if (dir[0] != "/")
             dir = "/" + dir;
+        if (opts == "defaults")
+            opts = "";
         return [config, dir, opts, parents];
     } else
         return [];
@@ -174,7 +176,7 @@ export function mounting_dialog(client, block, mode, forced_options) {
     const [old_config, old_dir, old_opts, old_parents] = get_fstab_config(block, true);
     const options = old_config ? old_opts : initial_tab_options(client, block, true);
 
-    const split_options = parse_options(options == "defaults" ? "" : options);
+    const split_options = parse_options(options);
     extract_option(split_options, "noauto");
     const opt_never_auto = extract_option(split_options, "x-cockpit-never-auto");
     const opt_ro = extract_option(split_options, "ro");
@@ -499,7 +501,7 @@ export class FilesystemTab extends React.Component {
 
         const is_filesystem_mounted = is_mounted(self.props.client, block);
         const [old_config, old_dir, old_opts, old_parents] = get_fstab_config(block, true);
-        const split_options = parse_options(old_opts == "defaults" ? "" : old_opts);
+        const split_options = parse_options(old_opts);
         extract_option(split_options, "noauto");
         const opt_ro = extract_option(split_options, "ro");
         const opt_never_auto = extract_option(split_options, "x-cockpit-never-auto");
@@ -510,7 +512,7 @@ export class FilesystemTab extends React.Component {
 
         let mount_point_text = null;
         if (old_dir) {
-            if (old_opts && old_opts != "defaults") {
+            if (old_opts) {
                 let opt_texts = [];
                 if (opt_ro)
                     opt_texts.push(_("read only"));

@@ -657,7 +657,6 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
                "ubuntu-2204", "fedora-coreos", "rhel-8-7", "rhel-8-8", "rhel-9-1", "rhel-9-2", "centos-8-stream",
                "arch")
     @nondestructive
-    @todoPybridge(flaky=True)
     def testAbrtReportCancel(self):
         b = self.browser
         m = self.machine

@@ -25,7 +25,7 @@ import subprocess
 
 from systemd_ctypes import bus
 
-from typing import Dict, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from .router import Router, RoutingError, RoutingRule
 from .peer import Peer, PeerStateListener
@@ -33,18 +33,6 @@ from .peer import Peer, PeerStateListener
 logger = logging.getLogger(__name__)
 
 SUPERUSER_AUTH_COOKIE = 'supermarius'
-
-# Keep a static list, for the time being.
-SUPERUSER_BRIDGES: Dict[str, Tuple[list[str], Dict[str, str]]] = {
-    'sudo': (
-        ['sudo', '--askpass', 'cockpit-bridge', '--privileged'], {
-            'SUDO_ASKPASS': '/usr/libexec/cockpit-askpass'
-        }
-    ),
-    'pkexec': (
-        ['pkexec', '--disable-internal-agent', 'cockpit-bridge', '--privileged'], {}
-    ),
-}
 
 
 class SuperuserStartup:
@@ -102,6 +90,7 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
     # D-Bus properties
     bridges = bus.Interface.Property('as', value=[])
     current = bus.Interface.Property('s', value='none')
+    methods = bus.Interface.Property('a{sv}')
 
     # RoutingRule
     def apply_rule(self, options: Dict[str, object]) -> Optional[Peer]:
@@ -146,7 +135,9 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
     def __init__(self, router: Router, privileged: bool = False):
         super().__init__(router)
 
-        self.bridges = list(SUPERUSER_BRIDGES)
+        # name → (label, spawn, env)
+        self.superuser_rules: Dict[Optional[str], Tuple[str, List[str], Dict[str, str]]] = {}
+        self.bridges = []
         self.peer = None
         self.startup = None
 
@@ -161,9 +152,9 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
         assert self.startup is None
 
         try:
-            args, env = SUPERUSER_BRIDGES[name]
+            _label, args, env = self.superuser_rules[name]
         except KeyError as exc:
-            raise bus.BusError('cockpit.Superuser.Error', 'Unknown superuser bridge type') from exc
+            raise bus.BusError('cockpit.Superuser.Error', f'Unknown superuser bridge type "{name}"') from exc
 
         startup.peer = Peer(self.router, name, self)
 
@@ -181,13 +172,37 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
     def init(self, params: Dict[str, object]) -> None:
         name = params.get('id')
         if not isinstance(name, str) or name == 'any':
-            name = 'sudo'
+            if len(self.bridges) == 0:
+                return
+            name = self.bridges[0]
 
         startup = ControlMessageStartup()
         try:
             self.go(startup, name)
         except bus.BusError as exc:
             startup.failed(self, exc)
+
+    def set_bridge_rules(self, rules: List[Dict[str, object]]):
+        self.superuser_rules = {}
+        for rule in rules:
+            if rule.get('privileged', False):
+                spawn = rule['spawn']
+                assert isinstance(spawn, list)
+                assert isinstance(spawn[0], str)
+                label = rule.get('label')
+                if label is not None:
+                    assert isinstance(label, str)
+                    name = label
+                else:
+                    name = os.path.basename(spawn[0])
+                environ = rule.get('environ', [])
+                assert isinstance(environ, list)
+                self.superuser_rules[name] = (label, spawn, dict(item.split('=', 1) for item in environ))
+        self.bridges = list(self.superuser_rules)
+
+        # If the currently-active bridge got removed...
+        if self.peer is not None and self.current not in self.superuser_rules:
+            self.stop()
 
     # D-Bus methods
     @bus.Interface.Method(in_types=['s'])
@@ -208,3 +223,11 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
     def answer(self, reply: str) -> None:
         if self.startup is not None:
             self.startup.peer.authorize_response(reply)
+
+    @methods.getter
+    def get_methods(self):
+        methods = {}
+        for name, (label, _, _) in self.superuser_rules.items():
+            if label:
+                methods[name] = {'t': 'a{sv}', 'v': {'label': {'t': 's', 'v': label}}}
+        return methods

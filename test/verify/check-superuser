@@ -181,7 +181,6 @@ session include system-auth
         b.click(".pf-c-modal-box:contains('Problem becoming administrator') button:contains('Close')")
         b.wait_not_present(".pf-c-modal-box:contains('Problem becoming administrator')")
 
-    @todoPybridge()
     def testBrokenBridgeConfig(self):
         b = self.browser
         m = self.machine
@@ -235,7 +234,6 @@ session include system-auth
         b.leave_page()
         b.check_superuser_indicator("Limited access")
 
-    @todoPybridge()
     def testSingleLabelBridgeConfig(self):
         b = self.browser
 

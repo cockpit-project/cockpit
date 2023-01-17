@@ -10,18 +10,10 @@ from typing import Any, Dict, Iterable, Optional, Tuple
 
 import systemd_ctypes
 from cockpit.bridge import Bridge
-import cockpit.superuser
 
 MOCK_HOSTNAME = 'mockbox'
-PSEUDO = os.path.abspath(f'{__file__}/../pseudo.py')
 
 asyncio.set_event_loop_policy(systemd_ctypes.EventLoopPolicy())
-
-cockpit.superuser.SUPERUSER_BRIDGES['pseudo'] = (
-    [sys.executable, PSEUDO, sys.executable, '-m', 'cockpit.bridge', '--privileged'],
-    {'PYTHONPATH': ':'.join(sys.path)}
-)
-SUPERUSER_BRIDGES = list(cockpit.superuser.SUPERUSER_BRIDGES)
 
 
 class test_iface(systemd_ctypes.bus.Object):
@@ -199,6 +191,27 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
             await self.transport.assert_msg('', command='init')
             self.transport.send_init()
 
+        # We use this for assertions
+        self.superuser_bridges = list(self.bridge.superuser_rule.bridges)
+
+    def add_pseudo(self) -> None:
+        self.more_superuser_bridges = [*self.superuser_bridges, 'pseudo']
+
+        # Add pseudo to the existing set of superuser rules
+        rules = self.bridge.packages.get_bridges()
+        rules.append({
+            'label': 'pseudo',
+            'spawn': [
+                sys.executable, os.path.abspath(f'{__file__}/../pseudo.py'),
+                sys.executable, '-m', 'cockpit.bridge', '--privileged'
+            ],
+            'environ': [
+                f'PYTHONPATH={":".join(sys.path)}'
+            ],
+            'privileged': True
+        })
+        self.bridge.superuser_rule.set_bridge_rules(rules)
+
     async def test_echo(self):
         await self.start()
 
@@ -278,13 +291,13 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
     async def verify_root_bridge_not_running(self):
         assert self.bridge.superuser_rule.peer is None
         await self.transport.assert_bus_props('/superuser', 'cockpit.Superuser',
-                                              {'Bridges': SUPERUSER_BRIDGES, 'Current': 'none'})
+                                              {'Bridges': self.more_superuser_bridges, 'Current': 'none'})
         null = await self.transport.check_open('null', superuser=True, problem='access-denied')
         assert null not in self.bridge.open_channels
 
     async def verify_root_bridge_running(self):
         await self.transport.assert_bus_props('/superuser', 'cockpit.Superuser',
-                                              {'Bridges': SUPERUSER_BRIDGES, 'Current': 'pseudo'})
+                                              {'Bridges': self.more_superuser_bridges, 'Current': 'pseudo'})
         assert self.bridge.superuser_rule.peer is not None
 
         # try to open dbus on the root bridge
@@ -294,14 +307,14 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
 
         # verify that the bridge thinks that it's the root bridge
         await self.transport.assert_bus_props('/superuser', 'cockpit.Superuser',
-                                              {'Bridges': ['sudo', 'pkexec'], 'Current': 'root'}, bus=root_dbus)
+                                              {'Bridges': self.superuser_bridges, 'Current': 'root'}, bus=root_dbus)
 
         # close up
         self.transport.send_close(channel=root_dbus)
 
     async def test_superuser_dbus(self):
         await self.start()
-
+        self.add_pseudo()
         await self.verify_root_bridge_not_running()
 
         # start the superuser bridge -- no password, so it should work straight away
@@ -322,14 +335,23 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
         # The Stop method call is done now
         await self.transport.assert_msg(self.transport.internal_bus, reply=[[]], id=stop)
 
+    @staticmethod
+    def format_methods(methods: Dict[str, str]):
+        return {name: {'t': 'a{sv}', 'v': {'label': {'t': 's', 'v': label}}} for name, label in methods.items()}
+
     async def test_superuser_dbus_pw(self):
         await self.start()
+        self.add_pseudo()
         await self.verify_root_bridge_not_running()
 
         # watch for signals
         await self.transport.add_bus_match('/superuser', 'cockpit.Superuser')
         await self.transport.watch_bus('/superuser', 'cockpit.Superuser',
-                                       {'Bridges': SUPERUSER_BRIDGES, 'Current': 'none'})
+                                       {
+                                           'Bridges': self.more_superuser_bridges,
+                                           'Current': 'none',
+                                           'Methods': self.format_methods({'pseudo': 'pseudo'}),
+                                       })
 
         # start the bridge.  with a password this is more complicated
         with unittest.mock.patch.dict(os.environ, {"PSEUDO_PASSWORD": "p4ssw0rd"}):
@@ -351,12 +373,17 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
 
     async def test_superuser_dbus_wrong_pw(self):
         await self.start()
+        self.add_pseudo()
         await self.verify_root_bridge_not_running()
 
         # watch for signals
         await self.transport.add_bus_match('/superuser', 'cockpit.Superuser')
         await self.transport.watch_bus('/superuser', 'cockpit.Superuser',
-                                       {'Bridges': SUPERUSER_BRIDGES, 'Current': 'none'})
+                                       {
+                                           'Bridges': self.more_superuser_bridges,
+                                           'Current': 'none',
+                                           'Methods': self.format_methods({'pseudo': 'pseudo'}),
+                                       })
 
         # start the bridge.  with a password this is more complicated
         with unittest.mock.patch.dict(os.environ, {"PSEUDO_PASSWORD": "p4ssw0rd"}):
@@ -378,7 +405,7 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
 
     async def test_superuser_init(self):
         await self.start(send_init=False)
-
+        self.add_pseudo()
         await self.transport.assert_msg('', command='init')
         self.transport.send_init(superuser={"id": "pseudo"})
 
@@ -389,7 +416,7 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
 
     async def test_superuser_init_pw(self):
         await self.start(send_init=False)
-
+        self.add_pseudo()
         with unittest.mock.patch.dict(os.environ, {"PSEUDO_PASSWORD": "p4ssw0rd"}):
             await self.transport.assert_msg('', command='init')
             self.transport.send_init(superuser={"id": "pseudo"})

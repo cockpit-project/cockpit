@@ -1,69 +1,32 @@
 import cockpit from "cockpit";
 import QUnit from "qunit-tests";
 
-QUnit.test("simple process", function (assert) {
-    const done = assert.async();
-    assert.expect(2);
-    cockpit.spawn(["/bin/sh", "-c", "echo hi"])
-            .done(function(resp) {
-                assert.equal(resp, "hi\n", "returned output");
-            })
-            .always(function() {
-                assert.equal(this.state(), "resolved", "didn't fail");
-                done();
-            });
+QUnit.test("simple process", async assert => {
+    const resp = await cockpit.spawn(["/bin/sh", "-c", "echo hi"]);
+    assert.equal(resp, "hi\n", "returned output");
 });
 
-QUnit.test("path", function (assert) {
-    const done = assert.async();
-    assert.expect(1);
-    cockpit.spawn(["true"])
-            .always(function() {
-                assert.equal(this.state(), "resolved", "found executable");
-                done();
-            });
+QUnit.test("path", async assert => {
+    const resp = await cockpit.spawn(["true"]);
+    assert.equal(resp, "", "found executable");
 });
 
-QUnit.test("directory", function (assert) {
-    const done = assert.async();
-    assert.expect(2);
-    cockpit.spawn(["pwd"], { directory: "/tmp" })
-            .done(function(resp) {
-                assert.equal(resp, "/tmp\n", "was right");
-            })
-            .always(function() {
-                assert.equal(this.state(), "resolved", "didn't fail");
-                done();
-            });
+QUnit.test("directory", async assert => {
+    const resp = await cockpit.spawn(["pwd"], { directory: "/tmp" });
+    assert.equal(resp, "/tmp\n", "was right");
 });
 
-QUnit.test("error log", function (assert) {
-    const done = assert.async();
-    assert.expect(2);
-    cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2"])
-            .done(function(resp) {
-                assert.equal(resp, "hi\n", "produced no output");
-            })
-            .always(function() {
-                assert.equal(this.state(), "resolved", "didn't fail");
-                done();
-            });
+QUnit.test("error log", async assert => {
+    const resp = await cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2"]);
+    assert.equal(resp, "hi\n", "produced no output");
 });
 
-QUnit.test("error output", function (assert) {
-    const done = assert.async();
-    assert.expect(2);
-    cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2"], { err: "out" })
-            .done(function(resp) {
-                assert.equal(resp, "hi\nyo\n", "showed up");
-            })
-            .always(function() {
-                assert.equal(this.state(), "resolved", "didn't fail");
-                done();
-            });
+QUnit.test("error output", async assert => {
+    const resp = await cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2"], { err: "out" });
+    assert.equal(resp, "hi\nyo\n", "showed up");
 });
 
-QUnit.test("error message", function (assert) {
+QUnit.test("error message", assert => {
     const done = assert.async();
     assert.expect(3);
     cockpit.spawn(["/bin/sh", "-c", "echo hi; echo yo >&2"], { err: "message" })
@@ -101,23 +64,11 @@ QUnit.test("permission denied", assert => {
                    ex => ex.problem == "access-denied");
 });
 
-QUnit.test("write eof read", function (assert) {
-    const done = assert.async();
-    assert.expect(2);
-
+QUnit.test("write eof read", async assert => {
     const proc = cockpit.spawn(["/usr/bin/sort"]);
-
-    proc.done(function(resp) {
-        assert.equal(resp, "1\n2\n3\n", "output");
-    });
-
-    proc.always(function() {
-        assert.equal(this.state(), "resolved", "didn't fail");
-        done();
-    });
-
     proc.input("2\n", true);
     proc.input("3\n1\n");
+    assert.equal(await proc, "1\n2\n3\n", "output");
 });
 
 QUnit.test("stream", function (assert) {
@@ -243,79 +194,39 @@ QUnit.test("stream partial binary", function (assert) {
     proc.input("1234");
 });
 
-QUnit.test("script with input", function (assert) {
-    const done = assert.async();
-    assert.expect(2);
-
+QUnit.test("script with input", async assert => {
     const script = "#!/bin/sh\n\n# Test\n/usr/bin/sort\necho $2\necho $1";
-
     const proc = cockpit.script(script, ["5", "4"]);
-
-    proc.done(function(resp) {
-        assert.equal(resp, "1\n2\n3\n4\n5\n", "output matched");
-    });
-
-    proc.always(function() {
-        assert.equal(this.state(), "resolved", "didn't fail");
-        done();
-    });
-
     proc.input("2\n", true);
     proc.input("3\n1\n");
+    assert.equal(await proc, "1\n2\n3\n4\n5\n", "output matched");
 });
 
-QUnit.test("script with options", function (assert) {
-    const done = assert.async();
-    assert.expect(2);
-
+QUnit.test("script with options", async assert => {
     const script = "#!/bin/sh\n\n# Test\n/usr/bin/sort\necho $2\necho $1 >&2";
-
     const proc = cockpit.script(script, ["5", "4"], { err: "out" });
-
-    proc.done(function(resp) {
-        assert.equal(resp, "1\n2\n3\n4\n5\n", "output matched");
-    });
-
-    proc.always(function() {
-        assert.equal(this.state(), "resolved", "didn't fail");
-        done();
-    });
-
     proc.input("2\n", true);
     proc.input("3\n1\n");
+    assert.equal(await proc, "1\n2\n3\n4\n5\n", "output matched");
 });
 
-QUnit.test("script without args", function (assert) {
-    const done = assert.async();
-    assert.expect(2);
-
+QUnit.test("script without args", async assert => {
     const script = "#!/bin/sh\n\n# Test\n/usr/bin/sort >&2";
-
     const proc = cockpit.script(script, { err: "out" });
-
-    proc.done(function(resp) {
-        assert.equal(resp, "1\n2\n3\n", "output matched");
-    });
-
-    proc.always(function() {
-        assert.equal(this.state(), "resolved", "didn't fail");
-        done();
-    });
-
     proc.input("2\n", true);
     proc.input("3\n1\n");
+    assert.equal(await proc, "1\n2\n3\n", "output matched");
 });
 
-QUnit.test("pty", async function (assert) {
+QUnit.test("pty", async assert => {
     const proc = cockpit.spawn(['sh', '-c', "tty; test -t 0"], { pty: true });
-    const output = await proc.done();
+    const output = await proc;
     assert.equal(output.indexOf('/dev/pts'), 0, 'TTY is a pty: ' + output);
 });
 
-QUnit.test("pty window size", async function (assert) {
+QUnit.test("pty window size", async assert => {
     const proc = cockpit.spawn(['tput', 'lines', 'cols'], { pty: true, window: { rows: 77, cols: 88 } });
-    const output = await proc.done();
-    assert.equal(output, '77\r\n88\r\n', 'Correct rows and columns');
+    assert.equal(await proc, '77\r\n88\r\n', 'Correct rows and columns');
 });
 
 QUnit.test("stream large output", function (assert) {

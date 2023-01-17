@@ -253,7 +253,10 @@ export function mounting_dialog(client, block, mode, forced_options) {
                                                     if (mounted_at == new_dir)
                                                         return;
                                                     return (undo()
-                                                            .then(() => client.mount_at(block, old_dir))
+                                                            .then(() => {
+                                                                if (is_filesystem_mounted)
+                                                                    return client.mount_at(block, old_dir);
+                                                            })
                                                             .catch(ignored_error => {
                                                                 console.warn("Error during undo:", ignored_error);
                                                             })

@@ -432,10 +432,13 @@ ExecStart=/usr/bin/sleep infinity
         self.dialog_apply()
         self.dialog_wait_alert("bad option")
         self.dialog_cancel()
+        self.dialog_wait_close()
 
-        # No changes should have been done to fstab
+        # No changes should have been done to fstab, and the
+        # filesystem should not be mounted.
         self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /run/foo"))
         self.assertNotIn("hurr", m.execute("findmnt --fstab -n -o OPTIONS /run/foo"))
+        self.wait_not_mounted(1, 1)
 
 
 if __name__ == '__main__':

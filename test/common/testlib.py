@@ -1166,20 +1166,21 @@ class Browser:
         if not (Image and self.pixels_label):
             return
 
-        previous_layout = self.current_layout["name"]
-        for layout in self.layouts:
-            if layout["name"] not in skip_layouts:
-                self.set_layout(layout["name"])
-                if "rtl" in self.current_layout["name"]:
-                    self._set_direction("rtl")
-                self.assert_pixels_in_current_layout(selector, key, ignore=ignore,
-                                                     scroll_into_view=scroll_into_view,
-                                                     wait_animations=wait_animations,
-                                                     wait_delay=wait_delay)
+        if self.current_layout:
+            previous_layout = self.current_layout["name"]
+            for layout in self.layouts:
+                if layout["name"] not in skip_layouts:
+                    self.set_layout(layout["name"])
+                    if "rtl" in self.current_layout["name"]:
+                        self._set_direction("rtl")
+                    self.assert_pixels_in_current_layout(selector, key, ignore=ignore,
+                                                         scroll_into_view=scroll_into_view,
+                                                         wait_animations=wait_animations,
+                                                         wait_delay=wait_delay)
 
-                if "rtl" in self.current_layout["name"]:
-                    self._set_direction("ltr")
-        self.set_layout(previous_layout)
+                    if "rtl" in self.current_layout["name"]:
+                        self._set_direction("ltr")
+            self.set_layout(previous_layout)
 
     def assert_no_unused_pixel_test_references(self):
         """Check whether all reference images in test/reference have been used."""

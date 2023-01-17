@@ -79,6 +79,17 @@ def get_libexecdir() -> str:
     return LIBEXECDIR
 
 
+def patch_libexecdir(obj):
+    if isinstance(obj, str):
+        return obj.replace('${libexecdir}', get_libexecdir())
+    elif isinstance(obj, dict):
+        return {key: patch_libexecdir(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [patch_libexecdir(item) for item in obj]
+    else:
+        return obj
+
+
 def parse_accept_language(headers: Dict[str, object]) -> List[str]:
     """Parse the Accept-Language header, if it exists.
 
@@ -148,16 +159,14 @@ class Package:
         self.path = path
 
         with (self.path / 'manifest.json').open(encoding='utf-8') as manifest_file:
-            manifest = manifest_file.read()
-
-        # HACK: drop this after getting rid of ${libexecdir}, see above
-        manifest = manifest.replace('${libexecdir}', get_libexecdir())
-
-        self.manifest = json.loads(manifest)
+            self.manifest = json.load(manifest_file)
 
         self.try_override(self.path / 'override.json')
         self.try_override(config.ETC_COCKPIT / f'{path.name}.override.json')
         self.try_override(config.DOT_CONFIG_COCKPIT / f'{path.name}.override.json')
+
+        # HACK: drop this after getting rid of ${libexecdir}, see above
+        self.manifest = patch_libexecdir(self.manifest)
 
         self.name = self.manifest.get('name', path.name)
         self.content_security_policy = None

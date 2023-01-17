@@ -195,10 +195,10 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     const crypto_extra_options = unparse_options(crypto_split_options);
 
     let [, old_dir, old_opts] = get_fstab_config(block, true);
-    if (!old_opts || old_opts == "defaults")
+    if (!old_opts)
         old_opts = initial_mount_options(client, block);
 
-    const split_options = parse_options(old_opts == "defaults" ? "" : old_opts);
+    const split_options = parse_options(old_opts);
     extract_option(split_options, "noauto");
     const opt_ro = extract_option(split_options, "ro");
     const opt_never_auto = extract_option(split_options, "x-cockpit-never-auto");

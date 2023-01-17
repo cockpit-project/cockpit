@@ -26,7 +26,6 @@ def line_sel(i):
 
 
 @skipDistroPackage()
-@todoPybridge()
 class TestTerminal(MachineCase):
     def setUp(self):
         super().setUp()
@@ -43,6 +42,7 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
         self.machine.execute("systemctl reset-failed")
 
     @skipBrowser("Firefox needs http to access clipboard", "firefox")
+    @todoPybridge()
     @nondestructive
     def testBasic(self):
         b = self.browser

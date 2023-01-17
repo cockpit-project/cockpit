@@ -356,7 +356,7 @@ if (production) {
         exclude: [
             '/test-[^/]+.$', // don't compress test cases
             '^static/[^/]+$', // cockpit-ws cannot currently serve compressed login page
-            '^shell/index.html$', // COMPAT: Support older cockpit-ws binaries. See #14673
+            '\\.html$', // HTML pages get patched by cockpit-ws, can't be compressed
         ].map(r => new RegExp(r)),
     }));
 }

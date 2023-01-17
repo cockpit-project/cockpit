@@ -254,11 +254,10 @@ export function mounting_dialog(client, block, mode, forced_options) {
                                                         return;
                                                     return (undo()
                                                             .then(() => client.mount_at(block, old_dir))
-                                                            .then(() => Promise.reject(error))
                                                             .catch(ignored_error => {
                                                                 console.warn("Error during undo:", ignored_error);
-                                                                return Promise.reject(error);
-                                                            }));
+                                                            })
+                                                            .then(() => Promise.reject(error)));
                                                 }));
                                     }));
                         }));

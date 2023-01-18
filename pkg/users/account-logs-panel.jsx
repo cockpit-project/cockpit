@@ -18,58 +18,57 @@
  */
 
 import cockpit from 'cockpit';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 import { Card, CardTitle, CardBody, Text } from '@patternfly/react-core';
 import { ListingTable } from 'cockpit-components-table.jsx';
 
 import * as timeformat from "timeformat.js";
+import { useInit } from "hooks";
 
 const _ = cockpit.gettext;
 
 export function AccountLogs({ name }) {
     const [logins, setLogins] = useState([]);
-    useEffect(() => {
-        if (logins.length === 0) {
-            cockpit.spawn(["/usr/bin/last", "--time-format", "iso", "-n", 25, name], { environ: ["LC_ALL=C"] })
-                    .then(data => {
-                        let logins = [];
-                        data.split('\n').forEach(line => {
-                            // Exclude still logged in and non user lines
-                            if (!line.includes(name) || line.includes('still')) {
-                                return;
-                            }
-                            // Exclude tmux/screen lines
-                            if (line.includes('tmux') || line.includes('screen')) {
-                                return;
-                            }
+    useInit(() => {
+        cockpit.spawn(["/usr/bin/last", "--time-format", "iso", "-n", 25, name], { environ: ["LC_ALL=C"] })
+                .then(data => {
+                    let logins = [];
+                    data.split('\n').forEach(line => {
+                        // Exclude still logged in and non user lines
+                        if (!line.includes(name) || line.includes('still')) {
+                            return;
+                        }
+                        // Exclude tmux/screen lines
+                        if (line.includes('tmux') || line.includes('screen')) {
+                            return;
+                        }
 
-                            // format:
-                            // admin    web console  ::ffff:172.27.0. 2021-09-24T09:02:13+00:00 - 2021-09-24T09:04:20+00:00  (00:02)
-                            const lines = line.split(/ +/);
-                            const ended = new Date(lines[lines.length - 2]);
-                            const started = new Date(lines[lines.length - 4]);
-                            const from = lines[lines.length - 5];
-                            if (isNaN(started.getTime()) || isNaN(ended.getTime())) {
-                                return;
-                            }
+                        // format:
+                        // admin    web console  ::ffff:172.27.0. 2021-09-24T09:02:13+00:00 - 2021-09-24T09:04:20+00:00  (00:02)
+                        const lines = line.split(/ +/);
+                        const ended = new Date(lines[lines.length - 2]);
+                        const started = new Date(lines[lines.length - 4]);
+                        const from = lines[lines.length - 5];
+                        if (isNaN(started.getTime()) || isNaN(ended.getTime())) {
+                            return;
+                        }
 
-                            logins.push({
-                                started,
-                                ended,
-                                from
-                            });
+                        logins.push({
+                            started,
+                            ended,
+                            from
                         });
-
-                        // Only show 15 login lines
-                        logins = logins.slice(0, 15);
-                        setLogins(logins);
-                    })
-                    .catch((ex) => {
-                        console.error(ex);
                     });
-        }
-    }, [logins, name]);
+
+                    // Only show 15 login lines
+                    logins = logins.slice(0, 15);
+                    setLogins(logins);
+                })
+                .catch((ex) => {
+                    console.error(ex);
+                });
+    }, [name]);
 
     return (
         <Card id="account-logs">

@@ -23,7 +23,7 @@ import unittest
 
 import parent  # noqa: F401
 import testvm
-from testlib import MachineCase, nondestructive, skipDistroPackage, todoPybridge, test_main, wait
+from testlib import MachineCase, nondestructive, skipDistroPackage, test_main, wait
 
 
 @nondestructive
@@ -174,11 +174,9 @@ done
             "su - admin -c 'export XDG_RUNTIME_DIR=/run/user/$(id -u admin); "
             "for op in stop reset-failed disable; do systemctl --user $op test test-fail || true; done'")
 
-    @todoPybridge()
     def testBasic(self):
         self._testBasic()
 
-    @todoPybridge()
     def testBasicSession(self):
         self._testBasic(True)
 

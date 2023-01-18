@@ -36,7 +36,7 @@ import {
 } from "@patternfly/react-icons";
 
 import cockpit from "cockpit";
-import { systemd_client, SD_MANAGER, SD_OBJ } from "./services.jsx";
+import { systemd_client, SD_MANAGER, SD_OBJ, MAX_UINT64 } from "./services.jsx";
 import * as timeformat from "timeformat";
 import { useDialogs, DialogsContext } from "dialogs.jsx";
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
@@ -279,7 +279,7 @@ export class ServiceDetails extends React.Component {
                 .then(result => {
                     this.addUnitProperties(
                         "MemoryCurrent",
-                        result[0] && result[0].v > 0 ? result[0].v : null,
+                        result[0] && result[0].v > 0 && result[0].v < MAX_UINT64 ? result[0].v : null,
                     );
                 }, ex => console.log(ex.message));
     }

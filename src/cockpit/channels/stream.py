@@ -100,9 +100,10 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
             env.update(dict(e.split('=', 1) for e in environ))
 
         try:
-            logger.debug('Spawning process args=%s', args)
-            return SubprocessTransport(loop, self, args, pty, window, env=env, cwd=cwd, stderr=stderr,
-                                       preexec_fn=lambda: prctl(SET_PDEATHSIG, signal.SIGHUP))
+            transport = SubprocessTransport(loop, self, args, pty, window, env=env, cwd=cwd, stderr=stderr,
+                                            preexec_fn=lambda: prctl(SET_PDEATHSIG, signal.SIGHUP))
+            logger.debug('Spawned process args=%s pid=%i', args, transport.get_pid())
+            return transport
         except FileNotFoundError as error:
             raise ChannelError('not-found') from error
         except PermissionError as error:

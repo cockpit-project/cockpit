@@ -69,7 +69,7 @@ export let clock_monotonic_now;
 export const SD_MANAGER = "org.freedesktop.systemd1.Manager";
 export const SD_OBJ = "/org/freedesktop/systemd1";
 
-const MAX_UINT64 = 2 ** 64 - 1;
+export const MAX_UINT64 = 2 ** 64 - 1;
 
 export function updateTime() {
     cockpit.spawn(["cat", "/proc/uptime"])

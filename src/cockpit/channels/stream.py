@@ -74,8 +74,16 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
 
     def do_close(self):
         assert isinstance(self._transport, SubprocessTransport)
-        logger.debug('Received close signal from peer, terminating process %i', self._transport.get_pid())
-        self._transport.terminate()
+        pid = self._transport.get_pid()
+        # avoid calling .terminate(), as that will try to read the process' exit code and race with
+        # asyncio's ChildWatcher (which also wants to wait() the process); the cockpit.spawn() API
+        # already ensures that the process is valid before even calling do_close.
+        try:
+            os.kill(pid, signal.SIGTERM)
+            logger.debug('Received close signal from peer, SIGTERMed process %i', pid)
+        except ProcessLookupError:
+            # already gone? fine!
+            logger.debug('Received close signal from peer, but process %i is already gone', pid)
 
     def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, Any]) -> SubprocessTransport:
         args: list[str] = options['spawn']

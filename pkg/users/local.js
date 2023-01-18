@@ -101,14 +101,20 @@ function get_locked(name) {
 }
 
 async function getLogins() {
-    const lastlog = await cockpit.spawn(["/usr/bin/lastlog"], { environ: ["LC_ALL=C"] })
-            .catch(err => console.warn("Unexpected error when getting last login information", err));
-    const w = await cockpit.spawn(["/usr/bin/w", "-sh"], { environ: ["LC_ALL=C"] })
-            .catch(err => console.warn("Unexpected error when getting logged in accounts", err));
+    let lastlog = [];
+    try {
+        lastlog = await cockpit.spawn(["/usr/bin/lastlog"], { environ: ["LC_ALL=C"] });
+    } catch (err) {
+        console.warn("Unexpected error when getting last login information", err);
+    }
 
-    const currentLogins = w.split('\n').slice(0, -1).map(line => {
-        return line.split(/ +/)[0];
-    });
+    let currentLogins = [];
+    try {
+        const w = await cockpit.spawn(["/usr/bin/w", "-sh"], { environ: ["LC_ALL=C"] });
+        currentLogins = w.split('\n').slice(0, -1).map(line => line.split(/ +/)[0]);
+    } catch (err) {
+        console.warn("Unexpected error when getting logged in accounts", err);
+    }
 
     // drop header and last empty line with slice
     const promises = lastlog.split('\n').slice(1, -1).map(async line => {
@@ -117,9 +123,7 @@ async function getLogins() {
         const isLocked = await get_locked(name);
 
         if (line.indexOf('**Never logged in**') > -1) {
-            return new Promise(resolve => {
-                resolve({ name: name, loggedIn: false, lastLogin: null, isLocked: isLocked });
-            });
+            return Promise.resolve({ name: name, loggedIn: false, lastLogin: null, isLocked: isLocked });
         }
 
         const date_fields = splitLine.slice(-5);

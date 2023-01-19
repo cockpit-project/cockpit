@@ -218,16 +218,16 @@ export const ListingTable = ({
                     {row.columns.map((cell, cellIndex) => {
                         const { key, ...cellProps } = cell.props || {};
                         const dataLabel = typeof cells[cellIndex] == 'object' ? cells[cellIndex].title : cells[cellIndex];
-
+                        const colKey = dataLabel || cellIndex;
                         if (cells[cellIndex] && cells[cellIndex].header)
                             return (
-                                <Th key={key || `row_${rowKey}_cell_${dataLabel}`} dataLabel={dataLabel} {...cellProps}>
+                                <Th key={key || `row_${rowKey}_cell_${colKey}`} dataLabel={dataLabel} {...cellProps}>
                                     {typeof cell == 'object' ? cell.title : cell}
                                 </Th>
                             );
 
                         return (
-                            <Td key={key || `row_${rowKey}_cell_${dataLabel}`} dataLabel={dataLabel} {...cellProps}>
+                            <Td key={key || `row_${rowKey}_cell_${colKey}`} dataLabel={dataLabel} {...cellProps}>
                                 {typeof cell == 'object' ? cell.title : cell}
                             </Td>
                         );

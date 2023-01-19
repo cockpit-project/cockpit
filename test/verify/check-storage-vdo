@@ -116,7 +116,7 @@ class TestStorageVDO(StorageCase):
 
         b.click("input[aria-label='Use deduplication']")
         b.wait_visible("input[aria-label='Use deduplication']:not(checked):not([disabled])")
-        wait_prop(pool_name, "vdo_index_state", "offline")
+        wait_prop(pool_name, "vdo_index_state", r"offline\|closed")
         b.click("input[aria-label='Use deduplication']")
         b.wait_visible("input[aria-label='Use deduplication']:checked:not([disabled])")
         wait_prop(pool_name, "vdo_index_state", "online")

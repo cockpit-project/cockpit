@@ -19,10 +19,9 @@
 
 import parent  # noqa: F401
 import unittest
-import time
 
 from storagelib import StorageCase
-from testlib import Error, skipImage, test_main
+from testlib import skipImage, test_main
 from testvm import DEFAULT_IMAGE
 
 
@@ -79,8 +78,6 @@ class TestStorageResize(StorageCase):
                 self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
             self.dialog_apply()
             self.dialog_wait_close()
-            # HACK - https://github.com/storaged-project/udisks/pull/631
-            m.execute("udevadm trigger")
             self.content_tab_wait_in_info(1, 1, "Size", "398 MB")
             if grow_needs_unmount:
                 self.content_row_action(fsys_row, "Mount")
@@ -103,8 +100,6 @@ class TestStorageResize(StorageCase):
                 self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
             self.dialog_apply()
             self.dialog_wait_close()
-            # HACK - https://github.com/storaged-project/udisks/pull/631
-            m.execute("udevadm trigger")
             self.content_tab_wait_in_info(1, 1, "Size", "201 MB")
             if shrink_needs_unmount:
                 self.content_row_action(fsys_row, "Mount")
@@ -136,22 +131,6 @@ class TestStorageResize(StorageCase):
         self.checkResize("ext4", True,
                          can_shrink=True, shrink_needs_unmount=True,
                          can_grow=True, grow_needs_unmount=False)
-
-    def wait_not_present_with_udev_trigger(self, selector):
-        # This is fundamentally the same as Browser.wait, but uses a
-        # longer delay between checks to avoid spamming the machine
-        # with udev triggers, which would bring it to its knees.  (And
-        # a waiting loop is simple eough to repeat the code here.)
-        #
-        m = self.machine
-        b = self.browser
-        for _ in range(int(b.cdp.timeout / 2)):
-            if not b.is_present(selector):
-                return
-            # HACK - https://github.com/storaged-project/udisks/pull/631
-            m.execute("udevadm trigger --subsystem-match=block")
-            time.sleep(5)
-        raise Error('element did not disappear')
 
     def shrink_extfs(self, fs_dev, size):
         # fsadm can automatically unmount and check the fs when doing
@@ -201,7 +180,7 @@ class TestStorageResize(StorageCase):
         m.execute("lvresize TEST/vol -L+100M")
         b.wait_visible(vol_tab + " button:contains(Grow content)")
         self.content_tab_action(1, 1, "Grow content")
-        self.wait_not_present_with_udev_trigger(vol_tab + " button:contains(Grow content)")
+        b.wait_not_present(vol_tab + " button:contains(Grow content)")
         size = int(m.execute(f"df -k --output=size {mountpoint} | tail -1").strip())
         self.assertGreater(size, 250000)
 
@@ -214,7 +193,7 @@ class TestStorageResize(StorageCase):
         self.confirm()
         self.wait_mounted(1, 2)
         self.content_tab_action(1, 1, "Shrink volume")
-        self.wait_not_present_with_udev_trigger(vol_tab + " button:contains(Shrink volume)")
+        b.wait_not_present(vol_tab + " button:contains(Shrink volume)")
         size = int(m.execute("lvs TEST/vol -o lv_size --noheading --units b --nosuffix"))
         self.assertLess(size, 250000000)
 
@@ -269,7 +248,7 @@ class TestStorageResize(StorageCase):
         b.wait_visible(vol_tab + " button:contains(Grow content)")
         self.content_tab_action(1, 1, "Grow content")
         confirm_with_passphrase()
-        self.wait_not_present_with_udev_trigger(vol_tab + " button:contains(Grow content)")
+        b.wait_not_present(vol_tab + " button:contains(Grow content)")
         size = int(m.execute(f"df -k --output=size {mountpoint} | tail -1").strip())
         self.assertGreater(size, 250000)
 
@@ -285,7 +264,7 @@ class TestStorageResize(StorageCase):
         b.wait_visible(vol_tab + " button:contains(Shrink volume)")
         self.content_tab_action(1, 1, "Shrink volume")
         confirm_with_passphrase()
-        self.wait_not_present_with_udev_trigger(vol_tab + " button:contains(Shrink volume)")
+        b.wait_not_present(vol_tab + " button:contains(Shrink volume)")
         size = int(m.execute("lvs TEST/vol -o lv_size --noheading --units b --nosuffix"))
         self.assertLess(size, 250000000)
 
@@ -297,7 +276,7 @@ class TestStorageResize(StorageCase):
         b.wait_visible(vol_tab + " button:contains(Grow content)")
         self.content_tab_action(1, 1, "Grow content")
         confirm_with_passphrase()
-        self.wait_not_present_with_udev_trigger(vol_tab + " button:contains(Grow content)")
+        b.wait_not_present(vol_tab + " button:contains(Grow content)")
         size = int(m.execute(f"df -k --output=size {mountpoint} | tail -1").strip())
         self.assertGreater(size, 250000)
 
@@ -313,7 +292,7 @@ class TestStorageResize(StorageCase):
         b.wait_visible(vol_tab + " button:contains(Shrink volume)")
         self.content_tab_action(1, 1, "Shrink volume")
         confirm_with_passphrase()
-        self.wait_not_present_with_udev_trigger(vol_tab + " button:contains(Shrink volume)")
+        b.wait_not_present(vol_tab + " button:contains(Shrink volume)")
         size = int(m.execute("lvs TEST/vol -o lv_size --noheading --units b --nosuffix"))
         self.assertLess(size, 250000000)
 

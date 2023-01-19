@@ -558,6 +558,8 @@ class TestHistoryMetrics(MachineCase):
         b = self.browser
         m = self.machine
 
+        m.execute("systemctl start firewalld")
+
         # Arch Linux has no active zone by default which the firewalld port alert test requires.
         if m.image == "arch":
             m.execute("firewall-cmd --zone=public --change-interface eth0 --permanent")
@@ -606,7 +608,6 @@ class TestHistoryMetrics(MachineCase):
         # start in a defined state; all test images have pcp and redis pre-installed
         m.execute(f"systemctl disable --now pmlogger pmie pmproxy {redis}")
         m.execute("systemctl reset-failed")
-        m.execute("systemctl start firewalld")
         # ensure pmproxy is not already opened in firewall
         m.execute("firewall-cmd --remove-service pmproxy; firewall-cmd --permanent --remove-service pmproxy")
         self.login_and_go("/metrics")

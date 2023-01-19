@@ -22,7 +22,6 @@ import React from "react";
 import { Button, Card, CardBody, CardTitle, Split, SplitItem, Spinner } from "@patternfly/react-core";
 import { ExternalLinkAltIcon } from "@patternfly/react-icons";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
-import { superuser } from "superuser";
 
 import './reporting.scss';
 
@@ -445,6 +444,8 @@ function WorkflowRow(props) {
     );
 }
 
+const reportd_client = cockpit.dbus("org.freedesktop.reportd", { superuser: "try" });
+
 export class ReportingTable extends React.Component {
     constructor(props) {
         super(props);
@@ -453,21 +454,15 @@ export class ReportingTable extends React.Component {
             workflows: [],
         };
 
-        this.getWorkflows = this.getWorkflows.bind(this);
-
-        this.reportd_client = cockpit.dbus("org.freedesktop.reportd", {
-            bus: superuser.allowed ? "system" : "session",
-            track: true
-        });
-        this.reportd_client
+        reportd_client
                 .wait()
-                .then(() => this.getWorkflows(this.reportd_client),
+                .then(() => this.getWorkflows(reportd_client),
                       exception => console.error(cockpit.format("Channel for reportd D-Bus client closed: $0", exception.problem || exception.message)));
     }
 
     getWorkflows(client) {
         client.call("/org/freedesktop/reportd/Service", "org.freedesktop.reportd.Service", "GetWorkflows", [this.props.problem.path])
-                .then((args, options) => this.setState({ workflows: args[0], }),
+                .then((args, options) => this.setState({ workflows: args[0] }),
                       exception => console.error(cockpit.format("Failed to get workflows for problem $0: $1", this.props.problem.path, (exception.problem || exception.message))));
     }
 
@@ -481,7 +476,7 @@ export class ReportingTable extends React.Component {
                         this.state.workflows.map((workflow, index) => [
                             <BusWorkflowRow key={index.toString()}
                                             problem={this.props.problem}
-                                            client={this.reportd_client}
+                                            client={reportd_client}
                                             workflow={workflow} />
                         ])
                     }

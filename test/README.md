@@ -21,7 +21,7 @@ You first need to build cockpit, and install it into a VM:
 
     $ test/image-prepare
 
-This uses the default OS image, which is currently Fedora 36. See `$TEST_OS`
+This uses the default OS image, which is currently Fedora 37. See `$TEST_OS`
 below how to select a different one.
 
 In most cases you want to run an individual test in a suite, for example:
@@ -106,7 +106,7 @@ You can set these environment variables to configure the test suite:
                   "rhel-9-1"
                   "ubuntu-2204"
                   "ubuntu-stable"
-               "fedora-36" is the default (TEST_OS_DEFAULT in bots/lib/constants.py)
+               "fedora-37" is the default (TEST_OS_DEFAULT in bots/lib/constants.py)
 
     TEST_JOBS  How many tests to run in parallel.  The default is 1.
 

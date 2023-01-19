@@ -284,11 +284,6 @@ class TestStorageLvm2(StorageCase):
 
         m.execute(f"vgcreate TEST {disk}")
 
-        # HACK - Sometimes the vgcreate call above doesn't update
-        #        udev.  Make sure it happens.
-        #
-        m.execute("udevadm trigger")
-
         self.addCleanup(m.execute, "vgremove --force TEST")
         b.wait_in_text("#devices", "TEST")
         b.click('.sidepanel-row:contains("TEST")')

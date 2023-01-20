@@ -34,8 +34,10 @@ const _ = cockpit.gettext;
 // Found in /usr/share/crypto-policies/policies/
 const cryptopolicies = {
     DEFAULT: _("Recommended, secure settings for current threat models."),
+    "DEFAULT:SHA1": _("DEFAULT with SHA-1 signature verification allowed."),
     FUTURE: _("Protects from anticipated near-term future attacks at the expense of interoperability."),
     LEGACY: _("Higher interoperability at the cost of an increased attack surface."),
+    "LEGACY:AD-SUPPORT": _("LEGACY with Active Directory interoperability."),
     FIPS: (<Flex alignItems={{ default: 'alignItemsCenter' }}>
         {_("Only use approved and allowed algorithms when booting in FIPS mode.")}
         <Button component='a'
@@ -47,6 +49,7 @@ const cryptopolicies = {
             {_("Learn more")}
         </Button>
     </Flex>),
+    "FIPS:OSPP": _("FIPS with further Common Criteria restrictions."),
 };
 
 const displayProfileText = profile => profile === "FIPS" ? profile : profile.charAt(0) + profile.slice(1, profile.length).toLowerCase();
@@ -56,12 +59,16 @@ export const CryptoPolicyRow = () => {
     const Dialogs = useDialogs();
     const [currentCryptoPolicy, setCurrentCryptoPolicy] = useState(null);
     const [fipsEnabled, setFipsEnabled] = useState(null);
+    const [shaSubPolicyAvailable, setShaSubPolicyAvailable] = useState(null);
 
     useEffect(() => {
         cockpit.file("/proc/sys/crypto/fips_enabled").read()
                 .then(content => setFipsEnabled(content ? content.trim() === "1" : false));
         cockpit.file("/etc/crypto-policies/state/current")
                 .watch(content => setCurrentCryptoPolicy(content ? content.trim() : null));
+        // RHEL-8-8 has no SHA1 subpolicy
+        cockpit.file("/usr/share/crypto-policies/policies/modules/SHA1.pmod").read()
+                .then(content => setShaSubPolicyAvailable(content ? content.trim() : false));
     }, []);
 
     if (!currentCryptoPolicy) {
@@ -77,7 +84,8 @@ export const CryptoPolicyRow = () => {
                                   onClick={() => Dialogs.show(<CryptoPolicyDialog
                                                                   currentCryptoPolicy={currentCryptoPolicy}
                                                                   setCurrentCryptoPolicy={setCurrentCryptoPolicy}
-                                                                  fipsEnabled={fipsEnabled} />)}>
+                                                                  fipsEnabled={fipsEnabled}
+                                                                  shaSubPolicyAvailable={shaSubPolicyAvailable} />)}>
                     {displayProfileText(currentCryptoPolicy)}
                 </PrivilegedButton>
             </td>
@@ -105,20 +113,23 @@ const CryptoPolicyDialog = ({
     currentCryptoPolicy,
     fipsEnabled,
     reApply,
+    shaSubPolicyAvailable,
 }) => {
     const Dialogs = useDialogs();
     const [error, setError] = useState();
     const [inProgress, setInProgress] = useState(false);
     const [selected, setSelected] = useState(currentCryptoPolicy);
 
-    const policies = Object.keys(cryptopolicies).map(policy => ({
-        name: policy,
-        title: displayProfileText(policy),
-        description: cryptopolicies[policy],
-        active: !isInconsistentPolicy(policy, fipsEnabled) && policy === currentCryptoPolicy,
-        inconsistent: isInconsistentPolicy(policy, fipsEnabled) && policy === currentCryptoPolicy,
-        recommended: false,
-    }));
+    const policies = Object.keys(cryptopolicies)
+            .filter(pol => pol.endsWith(':SHA1') ? shaSubPolicyAvailable : true)
+            .map(policy => ({
+                name: policy,
+                title: displayProfileText(policy),
+                description: cryptopolicies[policy],
+                active: !isInconsistentPolicy(policy, fipsEnabled) && policy === currentCryptoPolicy,
+                inconsistent: isInconsistentPolicy(policy, fipsEnabled) && policy === currentCryptoPolicy,
+                recommended: false,
+            }));
 
     // Custom profile
     if (!(currentCryptoPolicy in cryptopolicies)) {

@@ -19,9 +19,12 @@
 
 import re
 import time
+import unittest
 
 import parent  # noqa: F401
-from testlib import MachineCase, enableAxe, nondestructive, skipDistroPackage, skipImage, test_main, wait
+from testlib import enableAxe, nondestructive, skipDistroPackage, skipImage, test_main, wait
+from testvm import DEFAULT_IMAGE
+from packagelib import PackageCase
 
 
 os_release = """
@@ -56,7 +59,7 @@ def ssh_reconnect(machine, timeout_sec=120):
 
 
 @skipDistroPackage()
-class TestSystemInfo(MachineCase):
+class TestSystemInfo(PackageCase):
     def setUp(self):
         super().setUp()
 
@@ -274,22 +277,185 @@ class TestSystemInfo(MachineCase):
         b.set_input_text("#systime-date-input input", "2018-06-04")
         b.set_input_text("#systime-time-input-input", "06:34")
         b.click("#system_information_change_systime .apply")
-        with b.wait_timeout(120): # Changing time on Arch can be slow
+        with b.wait_timeout(120):  # Changing time on Arch can be slow
             b.wait_not_present("#system_information_change_systime")
 
         self.assertFalse(ntp_enabled())
         self.assertIn("Mon Jun  4 06:34:", m.execute("date"))
         self.assertIn("EEST 2018\n", m.execute("date"))
 
-    @skipImage("TODO: systemd-timesyncd responds too slow on Arch Linux", "arch")
-    def testTimeServers(self):
+    @skipImage("timesyncd not available", "rhel-9-2", "rhel-8-8", "centos-8-stream")
+    @skipImage("Need a mutable OS", "fedora-coreos")
+    def testTimeServersTimesyncd(self):
         m = self.machine
         b = self.browser
 
-        # Fedora/RHEL/CentOS use chrony
-        uses_timesyncd = m.image.startswith("debian") or m.image.startswith("ubuntu") or m.image == "arch"
+        if m.image.startswith("debian") or m.image.startswith("ubuntu") or m.image == "arch":
+            # timesyncd is default
+            pass
+        else:
+            # remove chronyd and ntpd
+            m.execute("dnf remove -y chrony ntpsec; timedatectl set-ntp off; timedatectl set-ntp on")
 
-        conf = "/etc/systemd/timesyncd.conf.d/50-cockpit.conf"
+        self.login_and_go("/system")
+
+        def assert_in_enabled(str):
+            self.assertIn(str, m.execute("grep '^NTP=' /etc/systemd/timesyncd.conf.d/50-cockpit.conf"))
+
+        def assert_in_disabled(str):
+            self.assertIn(str, m.execute("grep '^#NTP=' /etc/systemd/timesyncd.conf.d/50-cockpit.conf"))
+
+        def set_conf(server):
+            m.write("/etc/systemd/timesyncd.conf.d/50-cockpit.conf", f"[Time]\nNTP={server}\n")
+
+        # Wait until everything is ready to go...
+        b.wait_attr("#system_information_systime_button", "data-timedated-initialized", "true")
+
+        b.click("#system_information_systime_button")
+        b.wait_visible("#system_information_change_systime")
+
+        def get_daemon_start():
+            return int(m.execute("systemctl show -p ExecMainStartTimestampMonotonic --value systemd-timesyncd").strip())
+
+        prev_daemon_start = get_daemon_start()
+
+        # Add two NTP servers.  We can't expect the servers to be used, so
+        # we only test that they get added.
+        self.set_change_time_dialog_mode("Automatically using NTP")
+        b.set_checked("#cb-specific", True)
+        b.set_input_text("#systime-ntp-servers tr:nth-child(1) input", "0.pool.ntp.org")
+        b.click('#systime-ntp-servers tr:nth-child(1) button.add-server')
+        b.set_input_text("#systime-ntp-servers tr:nth-child(2) input", "1.pool.ntp.org")
+        b.click("#system_information_change_systime .apply")
+        b.wait_not_present("#system_information_change_systime")
+
+        assert_in_enabled("0.pool.ntp.org")
+        assert_in_enabled("1.pool.ntp.org")
+
+        # restarts timesyncd to pick up the new config
+        wait(lambda: get_daemon_start() > prev_daemon_start, delay=0.2)
+        prev_daemon_start = get_daemon_start()
+
+        # Set conf from the outside, check that we pick that up, and
+        # switch to default servers.
+        set_conf("2.pool.ntp.org")
+        b.wait_attr("#system_information_systime_button", "data-timedated-initialized", "true")
+        b.click("#system_information_systime_button")
+        b.wait_visible("#system_information_change_systime")
+        b.wait_val("#systime-ntp-servers tr:nth-child(1) input", "2.pool.ntp.org")
+        b.set_checked("#cb-specific", False)
+        b.wait_not_present("#systime-ntp-servers")
+        b.click("#system_information_change_systime .apply")
+        with b.wait_timeout(120):  # Changing time on Arch can be slow
+            b.wait_not_present("#system_information_change_systime")
+
+        assert_in_disabled("2.pool.ntp.org")
+
+        # restarts timesyncd to pick up the new config
+        wait(lambda: get_daemon_start() > prev_daemon_start, delay=0.2)
+
+    @skipImage("chronyd not available", "arch")
+    def testTimeServersChronyd(self):
+        m = self.machine
+        b = self.browser
+
+        if m.image.startswith("debian") or m.image.startswith("ubuntu"):
+            # install chronyd
+            self.addPackageSet("chronyd")
+            self.enableRepo()
+            m.execute("apt-get update && apt-get install -y chrony")
+            m.execute("systemctl restart systemd-timedated; timedatectl set-ntp off && timedatectl set-ntp on")
+            conf = "/etc/chrony/chrony.conf"
+        else:
+            # chronyd is default
+            conf = "/etc/chrony.conf"
+
+        self.login_and_go("/system")
+
+        # Wait until everything is ready to go...
+        b.wait_attr("#system_information_systime_button", "data-timedated-initialized", "true")
+
+        # Add a new standard server to make sure that "server" lines
+        # are parsed correctly.
+        m.execute(f"echo 'server test-server.com' >>{conf}")
+
+        # Switch off standard server, DHCP servers and add two additional ones.
+
+        old_conf = m.execute("chronyd -p")
+        std_servers = []
+        sources = []
+        for line in old_conf.splitlines():
+            fields = line.split(" ")
+            if fields[0] == "server" or fields[0] == "pool":
+                std_servers.append(fields[1])
+            if fields[0] == "sourcedir":
+                sources.append(fields[1])
+
+        self.assertIn("test-server.com", std_servers)
+
+        source_map = {"/run/chrony-dhcp": "NTP servers received via DHCP"}
+
+        b.click("#system_information_systime_button")
+        b.wait_visible("#system_information_change_systime")
+        self.set_change_time_dialog_mode("Automatically using NTP")
+        for s in std_servers:
+            b.set_checked(f"#system_information_change_systime :contains('Standard servers') ~ :contains('{s}') input", False)
+        for s in sources:
+            ms = source_map.get(s) or s
+            b.set_checked(f"#system_information_change_systime :contains('Additional sources of servers') ~ :contains('{ms}') input", False)
+        b.set_input_text("#systime-ntp-servers tr:nth-child(1) input", "2.pool.ntp.org")
+
+        # Add a new standard server while the dialog is open, to make
+        # sure that those lines are kept unchanged.  Omit the final
+        # newline, to test that as well.
+        m.execute(f"echo -n 'pool test-pool.com' >>{conf}")
+
+        b.click("#system_information_change_systime .apply")
+        b.wait_not_present("#system_information_change_systime")
+
+        new_conf = m.execute("chronyd -p")
+        for s in std_servers:
+            self.assertNotIn(s, new_conf)
+        for s in sources:
+            self.assertNotIn(s, new_conf)
+        self.assertIn("server 2.pool.ntp.org", new_conf)
+        self.assertIn("pool test-pool.com", new_conf)
+
+        # Switch them all on again
+
+        b.click("#system_information_systime_button")
+        b.wait_visible("#system_information_change_systime")
+        b.wait_visible(f"#system_information_change_systime :contains('Standard servers') ~ :contains('test-pool.com') input:checked")
+        for s in std_servers:
+            b.set_checked(f"#system_information_change_systime :contains('Standard servers') ~ :contains('{s}') input", True)
+        for s in sources:
+            ms = source_map.get(s) or s
+            b.set_checked(f"#system_information_change_systime :contains('Additional sources of servers') ~ :contains('{ms}') input", True)
+        b.click("#system_information_change_systime .apply")
+        b.wait_not_present("#system_information_change_systime")
+
+        new_conf = m.execute("chronyd -p")
+        for s in std_servers:
+            self.assertIn(s, new_conf)
+        for s in sources:
+            self.assertIn(s, new_conf)
+        self.assertIn("server 2.pool.ntp.org", new_conf)
+        self.assertIn("pool test-pool.com", new_conf)
+
+    @unittest.skipIf(not DEFAULT_IMAGE.startswith("fedora"), "ntpd not installed")
+    @skipImage("Need a mutable OS", "fedora-coreos")
+    def testTimeServersUnsupported(self):
+        m = self.machine
+        b = self.browser
+
+        # Make chronyd and timesyncd disappear. On our Fedora images,
+        # this still leaves ntpd.  Cockpit can switch that on and off,
+        # but can't configure it any further.
+
+        m.execute("! systemctl is-active chronyd || systemctl stop chronyd")
+        m.execute("! systemctl is-active systemd-timesyncd || systemctl stop systemd-timesyncd")
+        m.execute("rm -f /usr/lib/systemd/system/chronyd.service /usr/lib/systemd/system/systemd-timesyncd.service")
+        m.execute("systemctl daemon-reload")
 
         self.login_and_go("/system")
 
@@ -298,50 +464,47 @@ class TestSystemInfo(MachineCase):
 
         b.click("#system_information_systime_button")
         b.wait_visible("#system_information_change_systime")
-
-        # when not using timesyncd, the "specific NTP servers" option should be disabled
-        if not uses_timesyncd:
-            b.click("#system_information_change_systime .pf-c-form__group-label:contains('Set time') + div > .pf-c-select > button")
-            b.wait_visible("#change_systime button:contains('Automatically using specific NTP servers').pf-m-disabled")
-            return
-
-        def get_timesyncd_start():
-            return int(m.execute("systemctl show -p ExecMainStartTimestampMonotonic --value systemd-timesyncd").strip())
-
-        prev_timesyncd_start = get_timesyncd_start()
-
-        # Add two NTP servers.  We can't expect the servers to be used, so
-        # we only test that they get added.
-        self.set_change_time_dialog_mode("Automatically using specific NTP servers")
-        b.set_input_text("#systime-ntp-servers tr:nth-child(1) input", "0.pool.ntp.org")
-        b.click('#systime-ntp-servers tr:nth-child(1) button:first-child')
-        b.set_input_text("#systime-ntp-servers tr:nth-child(2) input", "1.pool.ntp.org")
+        self.set_change_time_dialog_mode("Automatically using NTP")
+        b.wait_not_present("#cb-specific")
         b.click("#system_information_change_systime .apply")
         b.wait_not_present("#system_information_change_systime")
 
-        self.assertIn("0.pool.ntp.org", m.execute(f"grep '^NTP=' {conf}"))
-        self.assertIn("1.pool.ntp.org", m.execute(f"grep '^NTP=' {conf}"))
+        def ntp_property():
+            return m.execute('busctl get-property org.freedesktop.timedate1 /org/freedesktop/timedate1 org.freedesktop.timedate1 NTP')
 
-        # restarts timesyncd to pick up the new config
-        wait(lambda: get_timesyncd_start() > prev_timesyncd_start, delay=0.2)
-        prev_timesyncd_start = get_timesyncd_start()
+        wait(lambda: 'true' in ntp_property())
 
-        # Set conf from the outside, check that we pick that up, and
-        # switch to default servers.
-        m.write(conf, "[Time]\nNTP=2.pool.ntp.org\n")
-        b.wait_attr("#system_information_systime_button", "data-timedated-initialized", "true")
         b.click("#system_information_systime_button")
         b.wait_visible("#system_information_change_systime")
-        b.wait_val("#systime-ntp-servers tr:nth-child(1) input", "2.pool.ntp.org")
-        self.set_change_time_dialog_mode("Automatically using NTP")
-        b.wait_not_present("#systime-ntp-servers")
+        self.set_change_time_dialog_mode("Manually")
         b.click("#system_information_change_systime .apply")
         b.wait_not_present("#system_information_change_systime")
 
-        self.assertIn("2.pool.ntp.org", m.execute(f"grep '^#NTP=' {conf}"))
+        wait(lambda: 'false' in ntp_property())
 
-        # restarts timesyncd to pick up the new config
-        wait(lambda: get_timesyncd_start() > prev_timesyncd_start, delay=0.2)
+    @unittest.skipIf(not DEFAULT_IMAGE.startswith("fedora"), "chronyd not installed by default")
+    def testTimeServersUnexpected(self):
+        m = self.machine
+        b = self.browser
+
+        # Give preference to timesyncd, Cockpit can not detect this.
+
+        m.execute("mkdir -p /etc/systemd/ntp-units.d")
+        m.write("/etc/systemd/ntp-units.d/10-cockpit-test.list", "systemd-timesyncd.service\n")
+        m.execute("timedatectl set-ntp off; timedatectl set-ntp on")
+
+        self.login_and_go("/system")
+
+        # Wait until everything is ready to go...
+        b.wait_attr("#system_information_systime_button", "data-timedated-initialized", "true")
+
+        b.click("#system_information_systime_button")
+        b.wait_visible("#system_information_change_systime")
+        self.set_change_time_dialog_mode("Automatically using NTP")
+        b.set_input_text("#systime-ntp-servers tr:nth-child(1) input", "0.pool.ntp.org")
+        b.click("#system_information_change_systime .apply")
+        with b.wait_timeout(60):
+            b.wait_in_text("#system_information_change_systime", "Unexpected OS configuration.")
 
     @nondestructive
     def testMotd(self):

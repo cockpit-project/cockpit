@@ -114,7 +114,7 @@ class TestAccounts(MachineCase):
         self.sed_file('s@^SHELL=.*$@SHELL=/bin/true@', '/etc/default/useradd')
         b.click('#accounts-create')
         b.wait_visible('#accounts-create-dialog')
-        b.set_input_text('#accounts-create-user-name', "berta")
+        b.set_input_text('#accounts-create-user-name', "Berta")
         b.set_input_text('#accounts-create-real-name', "Berta Bestimmt")
         b.set_input_text('#accounts-create-password-pw1', "foo")
         b.wait_visible("#accounts-create-password-meter.danger")
@@ -148,16 +148,16 @@ class TestAccounts(MachineCase):
         b.wait_in_text('#accounts-list', "Berta Bestimmt")
 
         # Check home directory
-        home_dir = m.execute("getent passwd berta | cut -f6 -d:").strip()
-        self.assertTrue(home_dir.endswith("/berta"))
-        self.assertEqual(m.execute(f"stat -c '%U' {home_dir}").strip(), "berta")
+        home_dir = m.execute("getent passwd Berta | cut -f6 -d:").strip()
+        self.assertTrue(home_dir.endswith("/Berta"))
+        self.assertEqual(m.execute(f"stat -c '%U' {home_dir}").strip(), "Berta")
 
         # Check that we set up shell configured in /etc/default/useradd
-        shell = m.execute("getent passwd berta | cut -f7 -d:").strip()
+        shell = m.execute("getent passwd Berta | cut -f7 -d:").strip()
         self.assertEqual(shell, '/bin/true')
 
         # Delete it externally
-        m.execute("userdel berta")
+        m.execute("userdel Berta")
         b.wait_not_in_text('#accounts-list', "Berta Bestimmt")
 
         # Create a locked user with weak password

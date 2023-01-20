@@ -895,11 +895,8 @@ password=foobar
             profile_button_name = shown_profile_text(new_profile)
             b.click(f".pf-c-menu__item-main .pf-c-menu__item-text:contains('{profile_button_name}')")
             b.click("#crypto-policy-save-reboot")
-            if new_profile == "FIPS":
-                # Initramfs re-generation takes a while
-                m.wait_reboot(timeout_sec=600)
-            else:
-                m.wait_reboot()
+            # Initramfs re-generation takes a while
+            m.wait_reboot(timeout_sec=600)
             m.start_cockpit()
             self.login_and_go("/system")
             b.wait_text("#crypto-policy-button", shown_profile_text(new_profile))
@@ -911,6 +908,18 @@ password=foobar
         profile = m.execute(cmd + " --show").strip()
         b.wait_text("#crypto-policy-button", shown_profile_text(profile))
 
+        # RHEL 8 has no SHA1 policy, so do not show it.
+        b.click("#crypto-policy-button")
+        func = b.wait_not_present if m.image.startswith('rhel-8') or m.image.startswith('centos-8') else b.wait_visible
+        func(".pf-c-menu__item-main .pf-c-menu__item-text:contains('Default:sha1')")
+
+        # Test if a new subpolicy can be set
+        new_profile = "LEGACY:AD-SUPPORT"
+        change_profile(profile, new_profile)
+
+        profile = m.execute(cmd + " --show").strip()
+        self.assertEquals(profile, new_profile)
+        b.wait_text("#crypto-policy-button", shown_profile_text(profile))
         new_profile = "FIPS"
         change_profile(profile, new_profile)
 

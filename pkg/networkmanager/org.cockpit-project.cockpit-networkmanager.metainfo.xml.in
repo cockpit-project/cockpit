@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="addon">
+  <id>org.cockpit_project.cockpit_networkmanager</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <name>Networking</name>
+  <summary>Cockpit configuration of NetworkManager and Firewalld</summary>
+  <description>
+    <p>
+    	This tool manages networking such as bonds, bridges, teams, VLANs
+    	and firewalls using NetworkManager and Firewalld.
+        NetworkManager is incompatible with Ubuntu's default systemd-networkd and
+	Debian's ifupdown scripts. 
+    </p>
+  </description>
+  <extends>org.cockpit_project.cockpit</extends>
+  <launchable type="cockpit-manifest">networkmanager</launchable>
+  <url type="homepage">https://cockpit-project.org/</url>
+  <update_contact>cockpit-devel_AT_lists.fedorahosted.org</update_contact>
+</component>

@@ -13,6 +13,7 @@ nodist_metainfo_DATA = \
 	pkg/kdump/org.cockpit-project.cockpit-kdump.metainfo.xml \
 	pkg/selinux/org.cockpit-project.cockpit-selinux.metainfo.xml \
 	pkg/storaged/org.cockpit-project.cockpit-storaged.metainfo.xml \
+	pkg/networkmanager/org.cockpit-project.cockpit-networkmanager.metainfo.xml \
 	$(NULL)
 
 metainfo_in = $(patsubst %,%.in,$(nodist_metainfo_DATA))

@@ -114,7 +114,7 @@ const initStore = function(rootElement) {
                     dataStore.entries[idx].details.pluginAnalysis[fixId].fix = {
                         plugin: analysisId,
                         running: false,
-                        result: error,
+                        result: error.toString(),
                         success: false,
                     };
                     dataStore.render();
@@ -140,7 +140,7 @@ const initStore = function(rootElement) {
                     dataStore.render();
                 })
                 .catch(error => {
-                    dataStore.error = error;
+                    dataStore.error = error.toString();
                     dataStore.render();
                 });
     };

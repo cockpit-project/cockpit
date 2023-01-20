@@ -140,6 +140,25 @@ class TestSelinux(MachineCase):
         sebool_selector1 = panel_selector + " .selinux-details:contains('httpd_enable_homedirs')"
         b.wait_in_text(sebool_selector1, "by enabling the 'httpd_enable_homedirs' boolean.")
 
+        # sabotage the solution command to test failure alerts
+        sebool_path = m.execute("command -v setsebool").strip()
+        m.execute(f"chmod a-x {sebool_path}")
+        b.click(f"{sebool_selector1} button{self.default_btn_class}")
+        b.wait_in_text(f"{sebool_selector1} .pf-c-alert", "Solution failed")
+        b.wait_in_text(f"{sebool_selector1} .pf-c-alert", "setsebool: Permission denied")
+
+        # we can't re-attempt the solution, dismiss it
+        b.click(row_selector + " input[type=checkbox]")
+        b.click(dismiss_sel)
+        b.wait_not_present(row_selector)
+        # unbreak sebool, and trigger the error again
+        m.execute(f"chmod a+x {sebool_path}; rm -r ~admin/public_html")
+        self.machine.execute(SELINUX_SEBOOL_ALERT_SCRIPT)
+        with b.wait_timeout(60):
+            b.wait_visible(row_selector)
+        b.click(toggle_selector)
+
+        # applying solution works now
         b.click(sebool_selector1 + " button" + self.default_btn_class)
         b.wait_in_text(sebool_selector1 + " .pf-c-alert__title", "Solution applied successfully")
         self.assertIn("-> on", m.execute("getsebool httpd_enable_homedirs"))

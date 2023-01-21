@@ -372,6 +372,7 @@ CDP(options)
                                 currentExecId = null;
                                 // HACK: Runtime.evaluate() fails with "Debugger: expected Debugger.Object, got Proxy"
                                 // translate that into a proper timeout exception
+                                // https://bugzilla.mozilla.org/show_bug.cgi?id=1702860
                                 if (err.response && err.response.data && err.response.data.indexOf("setTimeout handler*ph_wait_cond") > 0) {
                                     success(seq, {
                                         exceptionDetails: {

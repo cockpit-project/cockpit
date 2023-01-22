@@ -28,6 +28,7 @@
  * frame/execution context debugging.
  */
 
+const readline = require('readline');
 const CDP = require('chrome-remote-interface');
 
 let enable_debug = false;
@@ -343,52 +344,41 @@ CDP(options)
             setupLocalFunctions(client);
             // TODO: Security handling not yet supported in Firefox
 
-            let input_buf = '';
-            process.stdin
-                    .on('data', chunk => {
-                        input_buf += chunk;
-                        while (true) {
-                            const i = input_buf.indexOf('\n');
-                            if (i < 0)
-                                break;
-                            let command = input_buf.slice(0, i);
+            readline.createInterface(process.stdin)
+                    .on('line', command => {
+                        // HACKS: See description of related functions
+                        if (command.startsWith("client.Page.addScriptToEvaluateOnNewDocument"))
+                            command = command.substring(12);
 
-                            // HACKS: See description of related functions
-                            if (command.startsWith("client.Page.addScriptToEvaluateOnNewDocument"))
-                                command = command.substring(12);
-
-                            // run the command
-                            const seq = ++cur_cmd_seq;
-                            eval(command).then(reply => { // eslint-disable-line no-eval
-                                currentExecId = null;
-                                if (unhandledExceptions.length === 0) {
-                                    success(seq, reply);
-                                } else {
-                                    const message = unhandledExceptions[0];
-                                    fail(seq, message.split("\n")[0]);
-                                    clearExceptions();
-                                }
-                            }, err => {
-                                currentExecId = null;
-                                // HACK: Runtime.evaluate() fails with "Debugger: expected Debugger.Object, got Proxy"
-                                // translate that into a proper timeout exception
-                                // https://bugzilla.mozilla.org/show_bug.cgi?id=1702860
-                                if (err.response && err.response.data && err.response.data.indexOf("setTimeout handler*ph_wait_cond") > 0) {
-                                    success(seq, {
-                                        exceptionDetails: {
-                                            exception: {
-                                                type: "string",
-                                                value: "timeout",
-                                            }
+                        // run the command
+                        const seq = ++cur_cmd_seq;
+                        eval(command).then(reply => { // eslint-disable-line no-eval
+                            currentExecId = null;
+                            if (unhandledExceptions.length === 0) {
+                                success(seq, reply);
+                            } else {
+                                const message = unhandledExceptions[0];
+                                fail(seq, message.split("\n")[0]);
+                                clearExceptions();
+                            }
+                        }, err => {
+                            currentExecId = null;
+                            // HACK: Runtime.evaluate() fails with "Debugger: expected Debugger.Object, got Proxy"
+                            // translate that into a proper timeout exception
+                            // https://bugzilla.mozilla.org/show_bug.cgi?id=1702860
+                            if (err.response && err.response.data && err.response.data.indexOf("setTimeout handler*ph_wait_cond") > 0) {
+                                success(seq, {
+                                    exceptionDetails: {
+                                        exception: {
+                                            type: "string",
+                                            value: "timeout",
                                         }
-                                    });
-                                } else
-                                    fail(seq, err);
-                            });
-
-                            input_buf = input_buf.slice(i + 1);
-                        }
+                                    }
+                                });
+                            } else
+                                fail(seq, err);
+                        });
                     })
-                    .on('end', () => { process.exit(0) });
+                    .on('close', () => process.exit(0));
         })
         .catch(fatal);

@@ -138,7 +138,7 @@ export class CockpitNav extends React.Component {
 
         return (
             <>
-                <SearchInput placeholder={_("Search")} value={this.state.search} onChange={search => this.setState({ search })} onClear={() => this.setState({ search: "" })} className="search" />
+                <SearchInput placeholder={_("Search")} value={this.state.search} onChange={(_, search) => this.setState({ search })} onClear={() => this.setState({ search: "" })} className="search" />
                 <Nav onSelect={this.onSelect} theme="dark">
                     { groups.map(g =>
                         <section className="pf-c-nav__section" aria-labelledby={"section-title-" + g.name} key={g.name}>

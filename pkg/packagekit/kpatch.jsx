@@ -73,7 +73,7 @@ export class KpatchSettings extends React.Component {
         this.handleInstall = this.handleInstall.bind(this);
 
         // only show a spinner during loading on RHEL (the only place where we expect this to work)
-        read_os_release().then(os_release => this.setState({ showLoading: os_release.ID == 'rhel' }));
+        read_os_release().then(os_release => this.setState({ showLoading: os_release && os_release.ID == 'rhel' }));
     }
 
     // Only current patches or also future ones

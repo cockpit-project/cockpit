@@ -165,7 +165,7 @@ class Package:
             if item.is_dir():
                 self.walk(checksums, item)
             elif item.is_file():
-                rel = item.relative_to(path)
+                rel = item.relative_to(self.path)
                 with item.open('rb') as file:
                     data = file.read()
                 sha = hashlib.sha256(data).hexdigest()

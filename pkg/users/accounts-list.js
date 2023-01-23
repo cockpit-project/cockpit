@@ -373,7 +373,7 @@ const AccountsList = ({ accounts, current_user, groups }) => {
                     <SearchInput id="accounts-filter"
                                  placeholder={_("Search for name, group or ID")}
                                  value={currentTextFilter}
-                                 onChange={setCurrentTextFilter}
+                                 onChange={(_, val) => setCurrentTextFilter(val)}
                                  onClear={() => setCurrentTextFilter('')} />
                 </ToolbarItem>
                 { superuser.allowed &&

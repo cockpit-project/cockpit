@@ -976,7 +976,7 @@ const ServicesPageFilters = ({
                              className="services-text-filter"
                              placeholder={_("Filter by name or description")}
                              value={currentTextFilter}
-                             onChange={onTextFilterChanged}
+                             onChange={(_, val) => onTextFilterChanged(val)}
                              onClear={() => onTextFilterChanged('')} />
             </ToolbarItem>
             <ToolbarFilter chips={filters.activeState}

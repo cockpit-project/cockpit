@@ -401,7 +401,7 @@ const TextFilter = ({ textFilter, onTextFilterChange, filteredQuery }) => {
                      onClear={() => { onTextFilterChange(""); setUnsubmittedTextFilter("") }}
                      placeholder={_("Type to filter")}
                      value={unsubmittedTextFilter}
-                     onChange={setUnsubmittedTextFilter}
+                     onChange={(_, val) => setUnsubmittedTextFilter(val)}
                      resetButtonLabel={_("Reset")}
                      submitSearchButtonLabel={_("Search")}
                      formAdditionalItems={<Stack hasGutter>

@@ -128,7 +128,7 @@ const CryptoPolicyDialog = ({
                 description: cryptopolicies[policy],
                 active: !isInconsistentPolicy(policy, fipsEnabled) && policy === currentCryptoPolicy,
                 inconsistent: isInconsistentPolicy(policy, fipsEnabled) && policy === currentCryptoPolicy,
-                recommended: false,
+                recommended: policy === 'DEFAULT',
             }));
 
     // Custom profile

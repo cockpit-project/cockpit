@@ -17,9 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import time
-import unittest
 
 import parent  # noqa: F401
 import testvm
@@ -1157,8 +1155,6 @@ class TestTimers(MachineCase):
     def wait_page_load(self):
         self.browser.wait_not_present(".pf-c-empty-state .pf-c-spinner[aria-valuetext='Loading...']")
 
-    @unittest.skipIf(os.getenv("TEST_SCENARIO") == "pybridge",
-                     "python bridge logs are too messy to catch with expected message filters")
     def testCreate(self):
         m = self.machine
         b = self.browser

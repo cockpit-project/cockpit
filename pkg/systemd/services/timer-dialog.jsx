@@ -98,7 +98,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                         setRepeatPatterns(arr);
                     }}
                     menuAppendTo={() => document.body}
-                    onChange={time => {
+                    onChange={(_, time) => {
                         const arr = JSON.parse(JSON.stringify(repeatPatterns));
                         arr[idx].time = time;
                         setRepeatPatterns(arr);
@@ -255,7 +255,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                         <FormGroup label={_("Run at")}>
                             <TimePicker className="create-timer-time-picker specific-no-repeat"
                                         isOpen={isSpecificTimeOpen} setIsOpen={setSpecificTimeOpen}
-                                        menuAppendTo={() => document.body} time={specificTime} is24Hour onChange={setSpecificTime} />
+                                        menuAppendTo={() => document.body} time={specificTime} is24Hour onChange={(_, val) => setSpecificTime(val)} />
                         </FormGroup>}
                         {repeatPatterns.map((item, idx) => {
                             let label;
@@ -356,7 +356,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                                                         buttonAriaLabel={_("Toggle date picker")}
                                                         locale={timeformat.dateFormatLang()}
                                                         weekStart={timeformat.firstDayOfWeek()}
-                                                        onChange={(str, data) => {
+                                                        onChange={(_, str, data) => {
                                                             const arr = [...repeatPatterns];
                                                             arr[idx].date = str;
                                                             setRepeatPatterns(arr);

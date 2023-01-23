@@ -44,7 +44,7 @@ function AccountExpirationDialogBody({ state, errors, change }) {
                                            buttonAriaLabel={_("Toggle date picker")}
                                            locale={timeformat.dateFormatLang()}
                                            weekStart={timeformat.firstDayOfWeek()}
-                                           onChange={str => change("date", str)}
+                                           onChange={(_, str) => change("date", str)}
                                            invalidFormatText=""
                                            id="account-expiration-input"
                                            value={date}

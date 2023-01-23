@@ -214,7 +214,7 @@ export class ShutdownModal extends React.Component {
                                                 locale={timeformat.dateFormatLang()}
                                                 weekStart={timeformat.firstDayOfWeek()}
                                                 onBlur={this.calculate}
-                                                onChange={(d, ds) => this.updateDate(d, ds)}
+                                                onChange={(_, d, ds) => this.updateDate(d, ds)}
                                                 placeholder={timeformat.dateShortFormat()}
                                                 validators={[this.dateRangeValidator]}
                                                 value={this.state.date}
@@ -226,7 +226,7 @@ export class ShutdownModal extends React.Component {
                                                 invalidFormatErrorMessage=""
                                                 menuAppendTo={() => document.body}
                                                 onBlur={this.calculate}
-                                                onChange={(time, h, m) => this.updateTime(time, h, m) } />
+                                                onChange={(_, time, h, m) => this.updateTime(time, h, m) } />
                                 </>}
                             </Flex>
                         </FormGroup>

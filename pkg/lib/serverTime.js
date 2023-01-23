@@ -530,7 +530,7 @@ function ChangeSystimeBody({ state, errors, change }) {
                                         locale={timeformat.dateFormatLang()}
                                         weekStart={timeformat.firstDayOfWeek()}
                                         placeholder={timeformat.dateShortFormat()}
-                                        onChange={d => change("manual_date", d)}
+                                        onChange={(_, d) => change("manual_date", d)}
                                         value={manual_date}
                                         appendTo={() => document.body} />
                         </ValidatedInput>
@@ -541,7 +541,7 @@ function ChangeSystimeBody({ state, errors, change }) {
                                         is24Hour
                                         menuAppendTo={() => document.body}
                                         invalidFormatErrorMessage=""
-                                        onChange={(time, h, m, s, valid) => change("manual_time", time, valid) } />
+                                        onChange={(e, time, h, m, s, valid) => change("manual_time", time, valid) } />
                         </ValidatedInput>
                         <Validated errors={errors} error_key="manual_date" />
                         <Validated errors={errors} error_key="manual_time" />

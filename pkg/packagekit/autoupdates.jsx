@@ -321,7 +321,7 @@ const AutoUpdatesDialog = ({ backend }) => {
                                          menuAppendTo={() => document.body}
                                          id="auto-update-time" isDisabled={pending}
                                          invalidFormatErrorMessage={_("Invalid time format")}
-                                         onChange={time => setTime(time)} />
+                                         onChange={(_, time) => setTime(time)} />
                         </Flex>
                     </FormGroup>
 

@@ -121,8 +121,6 @@ class Package:
         self.bridges = self.manifest.get('bridges', [])
 
         self.files = set()
-        for file in self.path.rglob('*'):
-            self.files.add(file.relative_to(self.path))
 
         self.version = Package.sortify_version(VERSION)
 
@@ -162,6 +160,7 @@ class Package:
 
     def add_file(self, item: Path, checksums: List['hashlib._Hash']) -> None:
         rel = item.relative_to(self.path)
+        self.files.add(rel)
 
         with item.open('rb') as file:
             data = file.read()

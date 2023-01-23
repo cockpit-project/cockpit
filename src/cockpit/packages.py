@@ -160,17 +160,22 @@ class Package:
         # 0-pad each numeric component.  Only supports numeric versions like 1.2.3.
         return '.'.join(part.zfill(8) for part in version.split('.'))
 
+    def add_file(self, item: Path, checksums: List['hashlib._Hash']) -> None:
+        rel = item.relative_to(self.path)
+
+        with item.open('rb') as file:
+            data = file.read()
+
+        sha = hashlib.sha256(data).hexdigest()
+        for context in checksums:
+            context.update(f'{rel}\0{sha}\0'.encode('ascii'))
+
     def walk(self, checksums, path):
         for item in directory_items(path):
             if item.is_dir():
                 self.walk(checksums, item)
             elif item.is_file():
-                rel = item.relative_to(self.path)
-                with item.open('rb') as file:
-                    data = file.read()
-                sha = hashlib.sha256(data).hexdigest()
-                for context in checksums:
-                    context.update(f'{rel}\0{sha}\0'.encode('ascii'))
+                self.add_file(item, checksums)
 
     def check(self, at_least_prio):
         if 'requires' in self.manifest:

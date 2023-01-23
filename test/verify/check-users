@@ -764,6 +764,7 @@ class TestAccounts(MachineCase):
         b.assert_pixels("#group-confirm-delete-dialog", "group-delete-dialog")
         b.click("#group-confirm-delete-dialog footer .pf-c-button.apply")
         b.wait_not_present('#account-confirm-delete-dialog')
+        b.wait(lambda: "#/" == b.eval_js('window.location.hash'))
         b.wait_visible("#groups-list")
         b.wait_not_in_text('#groups-list', "anton")
 

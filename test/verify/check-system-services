@@ -142,24 +142,24 @@ class TestServices(MachineCase):
 Description=Test Service
 
 [Service]
-ExecStart=/bin/sh /usr/local/bin/test-service
-ExecReload=/bin/sh true
+ExecStart=/usr/local/bin/test-service
+ExecReload=/bin/true
 
 [Install]
 WantedBy=default.target
 """)
         self.write_file("/usr/local/bin/test-service",
-                        """
-#! /bin/sh
-
+                        """#!/bin/sh
+set -eu
 trap "echo STOP" 0
 
+journalctl --sync
 echo START
 while true; do
   sleep 5
   echo WORKING
 done
-""")
+""", perm="755")
         # After writing files out tell systemd about them
         self.run_systemctl(False, "daemon-reload")
         self.run_systemctl(True, "daemon-reload || true")

@@ -206,9 +206,7 @@ class Package:
                 yield f'{base}.{locale}.{ext}.gz'
 
             yield f'{base}.{ext}'
-            yield f'{base}.min.{ext}'
             yield f'{base}.{ext}.gz'
-            yield f'{base}.min.{ext}.gz'
 
             base, _, _stripped_ext = base.rpartition('.')
 

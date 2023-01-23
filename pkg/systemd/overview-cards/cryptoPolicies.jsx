@@ -35,7 +35,6 @@ const _ = cockpit.gettext;
 const cryptopolicies = {
     DEFAULT: _("Recommended, secure settings for current threat models."),
     "DEFAULT:SHA1": _("DEFAULT with SHA-1 signature verification allowed."),
-    FUTURE: _("Protects from anticipated near-term future attacks at the expense of interoperability."),
     LEGACY: _("Higher interoperability at the cost of an increased attack surface."),
     "LEGACY:AD-SUPPORT": _("LEGACY with Active Directory interoperability."),
     FIPS: (<Flex alignItems={{ default: 'alignItemsCenter' }}>
@@ -50,6 +49,7 @@ const cryptopolicies = {
         </Button>
     </Flex>),
     "FIPS:OSPP": _("FIPS with further Common Criteria restrictions."),
+    FUTURE: _("Protects from anticipated near-term future attacks at the expense of interoperability."),
 };
 
 const displayProfileText = profile => profile === "FIPS" ? profile : profile.charAt(0) + profile.slice(1, profile.length).toLowerCase();

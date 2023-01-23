@@ -333,8 +333,6 @@ function get_translation_reference_patterns () {
     // shell needs all manifest translations for search
     if (section === 'shell/')
         return ['pkg/.*/manifest.json'];
-    if (section === 'static/')
-        return ['src/ws/.*'];
     return undefined;
 }
 

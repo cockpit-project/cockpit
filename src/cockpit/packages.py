@@ -22,15 +22,22 @@ import json
 import logging
 import mimetypes
 import os
+import re
 
 from pathlib import Path
-from typing import List
+from typing import ClassVar, Dict, List, Optional, Pattern, Tuple
+
 from systemd_ctypes import bus
 
 from . import config
 
 VERSION = '300'
 logger = logging.getLogger(__name__)
+
+
+# An entity to serve is a set of bytes plus a content-type/content-encoding pair
+Entity = Tuple[bytes, Tuple[Optional[str], Optional[str]]]
+Entities = Dict[str, Entity]
 
 
 # Sorting is important because the checksums are dependent on the order we
@@ -71,31 +78,66 @@ def get_libexecdir() -> str:
     return LIBEXECDIR
 
 
-def parse_accept_language(accept_language: str) -> List[str]:
-    """Parse the Accept-Language header
+def parse_accept_language(headers: Dict[str, object]) -> List[str]:
+    """Parse the Accept-Language header, if it exists.
 
     Returns an ordered list of languages.
 
     https://tools.ietf.org/html/rfc7231#section-5.3.5
     """
 
+    accept_language = headers.get('Accept-Language')
+    if not isinstance(accept_language, str):
+        return []
+
     accept_languages = accept_language.split(',')
     locales = []
     for language in accept_languages:
         language = language.strip()
-        locale, _, weight = language.partition(';q=')
-        weight = float(weight or 1)
+        locale, _, weightstr = language.partition(';q=')
+        weight = float(weightstr or 1)
 
         # Skip possible empty locales
         if not locale:
             continue
 
-        locales.append((locale, weight))
+        # Locales are case-insensitive and we store our list in lowercase
+        locales.append((locale.lower(), weight))
 
     return [locale for locale, _ in sorted(locales, key=lambda k: k[1], reverse=True)]
 
 
+def find_translation(translations: Entities, locales: List[str]) -> Entity:
+    # First check the locales that the user sent
+    for locale in locales:
+        translation = translations.get(locale)
+        if translation is not None:
+            return translation
+
+    # Next, check the language-only versions of variant-specified locales
+    for locale in locales:
+        language, _, region = locale.partition('-')
+        if not region:
+            continue
+        translation = translations.get(language)
+        if translation:
+            return translation
+
+    # If nothing else worked, we always have English
+    return translations['en']
+
+
 class Package:
+    # For po.js files, the interesting part is the locale name
+    PO_JS_RE: ClassVar[Pattern] = re.compile(r'po\.([^.]+)\.js(\.gz)?')
+
+    # A built in base set of "English" translations
+    PO_EN_JS: ClassVar[Entity] = b'', mimetypes.guess_type('po.js')
+    BASE_TRANSLATIONS: ClassVar[Entities] = {'en': PO_EN_JS, 'en-us': PO_EN_JS}
+
+    files: Entities
+    translations: Entities
+
     def __init__(self, path):
         self.path = path
 
@@ -120,7 +162,8 @@ class Package:
         self.priority = self.manifest.get('priority', 1)
         self.bridges = self.manifest.get('bridges', [])
 
-        self.files = set()
+        self.files = {}
+        self.translations = dict(Package.BASE_TRANSLATIONS)
 
         self.version = Package.sortify_version(VERSION)
 
@@ -159,12 +202,25 @@ class Package:
         return '.'.join(part.zfill(8) for part in version.split('.'))
 
     def add_file(self, item: Path, checksums: List['hashlib._Hash']) -> None:
-        rel = item.relative_to(self.path)
-        self.files.add(rel)
+        rel = str(item.relative_to(self.path))
+        guessed_type = mimetypes.guess_type(rel)
 
         with item.open('rb') as file:
             data = file.read()
 
+        # Keep the file in memory to serve it later: if this is a 'po.*.js'
+        # file then add it to the list of translations, by locale name.
+        # Otherwise, add it to the normal files list (after stripping '.gz').
+        po_match = Package.PO_JS_RE.fullmatch(rel)
+        if po_match:
+            locale = po_match.group(1)
+            # Accept-Language is case-insensitive and uses '-' to separate variants
+            lower_locale = locale.lower().replace('_', '-')
+            self.translations[lower_locale] = data, guessed_type
+        else:
+            self.files[rel.removesuffix('.gz')] = data, guessed_type
+
+        # Perform checksum calculation
         sha = hashlib.sha256(data).hexdigest()
         for context in checksums:
             context.update(f'{rel}\0{sha}\0'.encode('ascii'))
@@ -194,43 +250,6 @@ class Package:
 
         return True
 
-    @staticmethod
-    def filename_variants(filename, locales):
-        base, _, ext = filename.rpartition('.')
-
-        while base:
-            for locale in locales:
-                # po files are generated as language_Variant
-                locale = locale.replace('-', '_')
-                yield f'{base}.{locale}.{ext}'
-                yield f'{base}.{locale}.{ext}.gz'
-
-            yield f'{base}.{ext}'
-            yield f'{base}.{ext}.gz'
-
-            base, _, _stripped_ext = base.rpartition('.')
-
-    def negotiate_file(self, path, headers):
-        dirname, sep, filename = path.rpartition('/')
-        locales = []
-        accept_language = headers.get('Accept-Language')
-        if accept_language is not None:
-            locales = parse_accept_language(accept_language)
-            # Stripped variants come after non-stripped variants
-            for locale in list(locales):
-                if '-' in locale:
-                    language = locale.split('-')[0]
-                    # Don't append the same language
-                    if language not in locales:
-                        locales.append(language)
-
-        for variant in self.filename_variants(filename, locales):
-            logger.debug('consider variant %s for filename %s', variant, filename)
-            if Path(f'{dirname}{sep}{variant}') in self.files:
-                return f'{dirname}{sep}{variant}'
-
-        return None
-
     def get_content_security_policy(self, origin):
         assert origin.startswith('http')
         origin_ws = origin.replace('http', 'ws', 1)
@@ -255,26 +274,23 @@ class Package:
 
         return ' '.join(f'{k} {v};' for k, v in policy.items()) + ' block-all-mixed-content'
 
-    def serve_file(self, path, channel):
-        filename = self.negotiate_file(path, channel.headers)
-
-        if filename:
-            with (self.path / filename).open('rb') as file:
-                data = file.read()
-        # HACK: if a translation file is missing, just return empty
-        # content. This saves a whole lot of 404s in the developer
-        # console when trying to fetch po.js for English, for example.
-        elif path.endswith('po.js'):
-            data = b''
-            filename = 'po.js'
+    def find_file(self, path, channel):
+        if path == 'po.js':
+            # We do locale-dependent lookup only for /po.js
+            locales = parse_accept_language(channel.headers)
+            return find_translation(self.translations, locales)
         else:
-            logging.error("filename=%s, path=%s", filename, path)
+            # Otherwise, just look up the file based on its path
+            return self.files.get(path)
+
+    def serve_file(self, path, channel):
+        found = self.find_file(path, channel)
+        if found is None:
             logger.debug('path %s not in %s', path, self.files)
             channel.http_error(404, 'Not found')
             return
 
-        content_type, encoding = mimetypes.guess_type(filename)
-
+        data, (content_type, encoding) = found
         headers = {
             "Access-Control-Allow-Origin": channel.origin,
             "Content-Encoding": encoding,

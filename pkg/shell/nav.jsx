@@ -19,10 +19,16 @@ export const SidebarToggle = () => {
     useEffect(() => {
         const handleClickOutside = () => setActive(false);
 
-        document.getElementById("nav-system").classList.toggle("interact");
         window.addEventListener("blur", handleClickOutside);
 
         return () => window.removeEventListener("blur", handleClickOutside);
+    }, []);
+
+    useEffect(() => {
+        if (active)
+            document.getElementById("nav-system").classList.add("interact");
+        else
+            document.getElementById("nav-system").classList.remove("interact");
     }, [active]);
 
     return (

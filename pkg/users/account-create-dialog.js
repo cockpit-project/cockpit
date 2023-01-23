@@ -36,10 +36,16 @@ import { HelpIcon } from '@patternfly/react-icons';
 
 const _ = cockpit.gettext;
 
+function get_default_home_dir(base_home_dir, user_name) {
+    return base_home_dir && user_name
+        ? base_home_dir + '/' + user_name
+        : "";
+}
+
 function AccountCreateBody({ state, errors, change }) {
     const {
         real_name, user_name,
-        locked, change_passw_force
+        locked, change_passw_force,
     } = state;
 
     return (
@@ -60,6 +66,16 @@ function AccountCreateBody({ state, errors, change }) {
                 <TextInput id="accounts-create-user-name"
                            validated={(errors?.user_name) ? "error" : "default"}
                            value={user_name} onChange={value => change("user_name", value)} />
+            </FormGroup>
+
+            <FormGroup label={_("Home directory")}
+                       helperTextInvalid={errors && errors.home_dir}
+                       validated={(errors && errors.home_dir) ? "error" : "default"}
+                       fieldId="accounts-create-user-home-dir">
+                <TextInput id="accounts-create-user-home-dir"
+                    onChange={value => change("home_dir", value)}
+                    placeholder={_("Path to directory")}
+                    value={state.home_dir} />
             </FormGroup>
 
             <FormGroup label={_("User ID")}
@@ -154,6 +170,10 @@ function validate_uid(uid, accounts, min_uid, max_uid, change) {
     }
 }
 
+function validate_home_dir(dir, directoryExpected) {
+    return cockpit.spawn(["test", "!", directoryExpected ? "-d" : "-f", dir], { superuser: "require" });
+}
+
 function suggest_username(realname) {
     function remove_diacritics(str) {
         const translate_table = {
@@ -219,6 +239,8 @@ export function account_create_dialog(accounts, min_uid, max_uid) {
         uid_exists: false,
         min_uid,
         max_uid,
+        home_dir: null,
+        home_dir_dirty: false,
     };
     let errors = { };
 
@@ -248,11 +270,18 @@ export function account_create_dialog(accounts, min_uid, max_uid) {
         state[field] = value;
         errors = { };
 
-        if (field == "user_name")
+        if (field == "user_name") {
             user_name_dirty = true;
+            if (!state.home_dir_dirty)
+                state.home_dir = get_default_home_dir(state.base_home_dir, value);
+        }
 
-        if (!user_name_dirty && field == "real_name")
-            state.user_name = suggest_username(state.real_name);
+        if (!user_name_dirty && field == "real_name") {
+            const suggested_username = suggest_username(state.real_name);
+            state.user_name = suggested_username;
+            if (!state.home_dir_dirty)
+                state.home_dir = get_default_home_dir(state.base_home_dir, suggested_username);
+        }
 
         if (state.password != old_password) {
             state.confirm_weak = false;
@@ -268,10 +297,16 @@ export function account_create_dialog(accounts, min_uid, max_uid) {
         if (field == "uid")
             state.uid_exists = false;
 
+        if (field == "home_dir") {
+            state.home_dir_dirty = true;
+            state.home_dir_exists = false;
+            state.home_dir_is_file = false;
+        }
+
         update();
     }
 
-    function validate(force_weak, force_uid, real_name, user_name, password, password_confirm, uid, accounts, min_uid, max_uid, change) {
+    function validate(force_weak, force_home, force_uid, real_name, user_name, password, password_confirm, uid, accounts, min_uid, max_uid, change) {
         const errs = { };
 
         errs.real_name = validate_real_name(real_name);
@@ -284,20 +319,41 @@ export function account_create_dialog(accounts, min_uid, max_uid) {
 
         errs.user_name = validate_username(user_name, accounts);
 
+        const promises = [
+            password_quality(password, force_weak)
+                    .catch(ex => {
+                        errs.password = (ex.message || ex.toString()).replaceAll("\n", " "); // not-covered: OS error
+                    })
+        ];
         if (!force_uid)
             errs.uid = validate_uid(uid, accounts, min_uid, max_uid, change);
 
-        return password_quality(password, force_weak)
-                .catch(ex => {
-                    errs.password = (ex.message || ex.toString()).replaceAll("\n", " ");
-                })
+        promises.push(
+            validate_home_dir(state.home_dir, false)
+                    .catch(() => {
+                        errs.home_dir = cockpit.format(_("$0 is an existing file"), state.home_dir);
+                        state.home_dir_is_file = true;
+                    })
+        );
+
+        if (!force_home) {
+            promises.push(
+                validate_home_dir(state.home_dir, true)
+                        .catch(() => {
+                            errs.home_dir = cockpit.format(_("The home directory $0 already exists. Its ownership will be changed to the new user."), state.home_dir);
+                            state.home_dir_exists = true;
+                        })
+            );
+        }
+
+        return Promise.all(promises)
                 .then(() => {
                     errors = errs;
                     return !has_errors(errs);
                 });
     }
 
-    function create(real_name, user_name, password, locked, uid, force_change, force_uid) {
+    function create(real_name, user_name, password, locked, uid, force_change, home_dir, force_home, force_uid) {
         const prog = ["useradd", "--create-home", "-s", state.shell];
         if (real_name) {
             prog.push('-c');
@@ -311,6 +367,11 @@ export function account_create_dialog(accounts, min_uid, max_uid) {
 
         if (force_uid)
             prog.push('-o'); // Create user with non-unique user-specified UID, useful at certain use cases
+
+        if (home_dir) {
+            prog.push('-d');
+            prog.push(home_dir);
+        }
 
         prog.push(user_name);
         return cockpit.spawn(prog, { superuser: "require", err: "message" })
@@ -328,15 +389,21 @@ export function account_create_dialog(accounts, min_uid, max_uid) {
                             "-e",
                             user_name
                         ], { superuser: "require", err: "message" });
+                })
+                .then(() => {
+                    if (force_home) {
+                        return cockpit.spawn(["id", user_name, "--group"], { superuser: "require", err: "message" })
+                                .then(gid => cockpit.spawn(["chown", "-hR", `${user_name}:${gid.trim()}`, home_dir], { superuser: "require", err: "message" }));
+                    }
                 });
     }
 
-    function passwd_check(force_weak, force_uid, real_name, user_name, password, password_confirm, locked, force_change, uid, accounts, min_uid, max_uid, change) {
-        return validate(force_weak, force_uid, real_name, user_name, password, password_confirm, uid, accounts, min_uid, max_uid, change).then(valid => {
+    function passwd_check(force_weak, force_home, force_uid, real_name, user_name, password, password_confirm, locked, home_dir, force_passwd_change, uid, accounts, min_uid, max_uid, change) {
+        return validate(force_weak, force_home, force_uid, real_name, user_name, password, password_confirm, uid, accounts, min_uid, max_uid, change).then(valid => {
             if (valid)
-                return create(real_name, user_name, password, locked, uid, force_change, force_uid);
+                return create(real_name, user_name, password, locked, uid, force_passwd_change, home_dir, force_home, force_uid);
             else {
-                if (!errors.real_name && !errors.user_name && !errors.uid && !errors.password_confirm && state.password.length <= 256)
+                if (!errors.real_name && !errors.user_name && !errors.home_dir && !errors.uid && !errors.password_confirm && state.password.length <= 256)
                     state.confirm_weak = true;
                 update();
                 return Promise.reject();
@@ -364,49 +431,74 @@ export function account_create_dialog(accounts, min_uid, max_uid) {
                 {
                     caption: _("Create"),
                     style: "primary",
-                    clicked: () => {
-                        return passwd_check(
-                            false, // force weak password was NOT clicked
-                            false, // force user with non-unique UID was NOT clicked
-                            state.real_name,
-                            state.user_name,
-                            state.password,
-                            state.password_confirm,
-                            state.locked,
-                            state.change_passw_force,
-                            state.uid,
-                            accounts,
-                            state.min_uid,
-                            state.max_uid,
-                            change
-                        );
-                    },
-                    disabled: state.confirm_weak || state.uid_exists
+                    clicked: () => passwd_check(
+                        false, // force weak password was NOT clicked
+                        false, // force user with existing home directory was NOT clicked
+                        false, // force user with non-unique UID was NOT clicked
+                        state.real_name,
+                        state.user_name,
+                        state.password,
+                        state.password_confirm,
+                        state.locked,
+                        state.home_dir,
+                        state.change_passw_force,
+                        state.uid,
+                        accounts,
+                        state.min_uid,
+                        state.max_uid,
+                        change
+                    ),
+                    disabled: state.confirm_weak || state.uid_exists || state.home_dir_exists || state.home_dir_is_file
                 }
             ]
         };
+        if (state.home_dir_exists) {
+            footer.actions.push(
+                {
+                    caption: _("Create and change ownership of home directory"),
+                    style: "warning",
+                    clicked: () => passwd_check(
+                        false, // force weak password was NOT clicked
+                        true, // force user with existing home directory was WAS clicked
+                        false, // force user with non-unique UID was NOT clicked
+                        state.real_name,
+                        state.user_name,
+                        state.password,
+                        state.password_confirm,
+                        state.locked,
+                        state.home_dir,
+                        state.change_passw_force,
+                        state.uid,
+                        accounts,
+                        state.min_uid,
+                        state.max_uid,
+                        change
+                    ),
+                }
+            );
+        }
         if (state.confirm_weak) {
             footer.actions.push(
                 {
                     caption: _("Create account with weak password"),
                     style: "warning",
-                    clicked: () => {
-                        return passwd_check(
-                            true, // force weak password WAS clicked
-                            false, // force user with non-unique UID was NOT clicked
-                            state.real_name,
-                            state.user_name,
-                            state.password,
-                            state.password_confirm,
-                            state.locked,
-                            state.change_passw_force,
-                            state.uid,
-                            accounts,
-                            state.min_uid,
-                            state.max_uid,
-                            change
-                        );
-                    }
+                    clicked: () => passwd_check(
+                        true, // force weak password was WAS clicked
+                        false, // force user with existing home directory was NOT clicked
+                        false, // force user with non-unique UID was NOT clicked
+                        state.real_name,
+                        state.user_name,
+                        state.password,
+                        state.password_confirm,
+                        state.locked,
+                        state.home_dir,
+                        state.change_passw_force,
+                        state.uid,
+                        accounts,
+                        state.min_uid,
+                        state.max_uid,
+                        change
+                    ),
                 }
             );
         }
@@ -415,21 +507,23 @@ export function account_create_dialog(accounts, min_uid, max_uid) {
                 {
                     caption: _("Create account with non-unique UID"),
                     style: "warning",
-                    clicked: () => {
-                        return passwd_check(
-                            false, // force weak password was NOT clicked
-                            true, // force user with non-unique UID WAS clicked
-                            state.real_name,
-                            state.user_name,
-                            state.password,
-                            state.password_confirm,
-                            state.locked,
-                            state.change_passw_force,
-                            state.uid,
-                            accounts,
-                            change
-                        );
-                    }
+                    clicked: () => passwd_check(
+                        false, // force weak password was NOT clicked
+                        false, // force user with existing home directory was NOT clicked
+                        true, // force user with non-unique UID was WAS clicked
+                        state.real_name,
+                        state.user_name,
+                        state.password,
+                        state.password_confirm,
+                        state.locked,
+                        state.home_dir,
+                        state.change_passw_force,
+                        state.uid,
+                        accounts,
+                        state.min_uid,
+                        state.max_uid,
+                        change
+                    ),
                 }
             );
         }

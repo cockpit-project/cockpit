@@ -52,7 +52,7 @@ def performUserAction(browser, user, action):
     browser.click(f".pf-c-dropdown__menu-item:contains({action})")
 
 
-def createUser(browser, user_name, real_name, password, locked, force_password_change, uid=None, expected_uid=None, verify_created=True):
+def createUser(browser, user_name, real_name, password, locked, force_password_change, custom_home_dir=None, uid=None, expected_uid=None, verify_created=True):
     browser.wait_visible('#accounts-create')
     browser.click('#accounts-create')
     browser.wait_visible('#accounts-create-dialog')
@@ -74,6 +74,13 @@ def createUser(browser, user_name, real_name, password, locked, force_password_c
         browser.wait_visible(f'#accounts-create-user-uid[value="{expected_uid}"]')
     if uid is not None:
         browser.set_input_text('#accounts-create-user-uid', uid)
+    if custom_home_dir is not None:
+        browser.set_input_text('#accounts-create-user-home-dir', custom_home_dir)
+    else:
+        default_home_dir = getUserAddDetails(machine)["HOME"]
+        expected_home_dir = default_home_dir + "/" + user_name
+        browser.wait_visible(f"#accounts-create-user-home-dir[value='{expected_home_dir}']")
+
 
     browser.click('#accounts-create-dialog button.apply')
 
@@ -685,6 +692,73 @@ class TestAccounts(MachineCase):
         b.wait_in_text("#accounts-create-user-uid-helper", "positive integer")
         b.click("#accounts-create-dialog button.cancel")
         b.wait_not_present("#accounts-create-dialog")
+
+    def testCustomUserProperties(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/users")
+
+        # Test custom home directory
+        custom_dir_path = "/home/mycustomdir"
+        createUser(
+            browser=b,
+            user_name="jussi",
+            real_name="Jussi Junior",
+            password=good_password,
+            locked=False,
+            custom_home_dir=custom_dir_path,
+            force_password_change=False,
+            verify_created=True,
+        )
+
+        b.go("#/jussi")
+        b.wait_text("#account-home-dir", custom_dir_path)
+        m.execute(f"test -d {custom_dir_path}")
+        m.execute("! test -d /home/jussi")
+
+        b.go("/users")
+        # Check assigning a file as home directory fails
+        m.execute("touch /home/isfile")
+        createUser(
+            browser=b,
+            machine=m,
+            user_name="file",
+            real_name="File Filerson",
+            password=good_password,
+            locked=False,
+            custom_home_dir="/home/isfile",
+            force_password_change=False,
+            verify_created=False,
+        )
+        b.wait_visible("#accounts-create-dialog")
+        b.wait_in_text("#accounts-create-user-home-dir-helper", "existing file")
+        b.wait_visible("button.apply:disabled")
+        b.click("button.cancel")
+        b.wait_not_present("#accounts-create-dialog")
+
+        b.go("/users")
+        # Check assigning existing home directory to a new user
+        m.execute("mkdir /home/existingdir")
+        createUser(
+            browser=b,
+            user_name="stealer",
+            real_name="Stealer OfHomeDirectison",
+            password=good_password,
+            locked=False,
+            custom_home_dir="/home/existingdir",
+            force_password_change=False,
+            verify_created=False,
+        )
+        b.wait_visible("#accounts-create-dialog")
+        b.wait_in_text("#accounts-create-user-home-dir-helper", "already exists")
+        b.wait_visible("button.apply:disabled")
+        self.assertEqual(m.execute("stat -c '%U %G' /home/existingdir").rstrip(), "root root")
+        b.click("button:contains('Create and change ownership of home directory')")
+        b.wait_not_present("#accounts-create-dialog")
+        b.wait_in_text("#accounts-list", "Stealer OfHomeDirectison")
+        # Verify that ownership of home directory was changed to the new user
+        self.assertEqual(m.execute("stat -c '%U %G' /home/existingdir").rstrip(), "stealer stealer")
 
     def testUnprivileged(self):
         m = self.machine

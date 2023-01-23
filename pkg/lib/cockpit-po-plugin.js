@@ -12,7 +12,6 @@ module.exports = class {
         if (!options)
             options = {};
         this.subdir = options.subdir || '';
-        this.reference_patterns = options.reference_patterns;
         this.wrapper = options.wrapper || 'cockpit.locale(PO_DATA);';
     }
 
@@ -64,39 +63,10 @@ module.exports = class {
         return expr;
     }
 
-    build_patterns(compilation, extras) {
-        const patterns = [
-            // all translations for that page, including manifest.json and *.html
-            `pkg/${this.subdir}.*`,
-        ];
-
-        // add translations from libraries outside of page directory
-        compilation.getStats().compilation.fileDependencies.forEach(path => {
-            if (path.startsWith(srcdir) && path.indexOf('node_modules/') < 0)
-                patterns.push(path.slice(srcdir.length + 1));
-        });
-
-        Array.prototype.push.apply(patterns, extras);
-
-        return patterns.map((p) => new RegExp(`^${p}:[0-9]+$`));
-    }
-
-    check_reference_patterns(patterns, references) {
-        for (const reference of references) {
-            for (const pattern of patterns) {
-                if (reference.match(pattern)) {
-                    return true;
-                }
-            }
-        }
-    }
-
     buildFile(po_file, compilation) {
         compilation.fileDependencies.add(po_file);
 
         return new Promise((resolve, reject) => {
-            const patterns = this.build_patterns(compilation, this.reference_patterns);
-
             const parsed = gettext_parser.po.parse(fs.readFileSync(po_file), 'utf8');
             delete parsed.translations[""][""]; // second header copy
 
@@ -116,8 +86,9 @@ module.exports = class {
                 const context_prefix = msgctxt ? msgctxt + '\u0004' : ''; /* for cockpit.ngettext */
 
                 for (const [msgid, translation] of Object.entries(context)) {
+                    /* Only include msgids which appear in this source directory */
                     const references = translation.comments.reference.split(/\s/);
-                    if (!this.check_reference_patterns(patterns, references))
+                    if (!references.some(str => str.startsWith(`pkg/${this.subdir}`)))
                         continue;
 
                     if (translation.comments.flag && translation.comments.flag.match(/\bfuzzy\b/))

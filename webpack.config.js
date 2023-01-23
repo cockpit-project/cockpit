@@ -330,9 +330,6 @@ const redhat_fonts = [
 });
 
 function get_translation_reference_patterns () {
-    // shell needs all manifest translations for search
-    if (section === 'shell/')
-        return ['pkg/.*/manifest.json'];
     return undefined;
 }
 

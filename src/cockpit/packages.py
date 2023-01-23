@@ -160,10 +160,7 @@ class Package:
         # 0-pad each numeric component.  Only supports numeric versions like 1.2.3.
         return '.'.join(part.zfill(8) for part in version.split('.'))
 
-    def walk(self, checksums, path=None):
-        if not path:
-            path = self.path
-
+    def walk(self, checksums, path):
         for item in directory_items(path):
             if item.is_dir():
                 self.walk(checksums, item)
@@ -335,7 +332,7 @@ class Packages(bus.Object, interface='cockpit.Packages'):
 
                 if package.check(at_least_prio):
                     self.packages[package.name] = package
-                    package.walk(checksums)
+                    package.walk(checksums, package.path)
 
     def load_packages(self):
         checksums = []

@@ -17,6 +17,7 @@
 
 
 import collections
+import gzip
 import hashlib
 import json
 import logging
@@ -375,6 +376,18 @@ class Packages(bus.Object, interface='cockpit.Packages'):
 
     def serve_manifests_js(self, channel):
         channel.http_ok('text/javascript')
+
+        # Send the translations required for the manifest files, from each package
+        locales = parse_accept_language(channel.headers)
+        for name, package in self.packages.items():
+            if name in ['static', 'base1']:
+                continue
+            # find_translation will always find at least 'en'
+            data, (content_type, encoding) = find_translation(package.translations, locales)
+            if encoding == 'gzip':
+                data = gzip.decompress(data)
+            channel.send_data(data)
+
         channel.send_data(("""
             (function (root, data) {
                 if (typeof define === 'function' && define.amd) {

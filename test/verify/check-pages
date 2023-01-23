@@ -64,7 +64,6 @@ class TestPages(MachineCase):
         self.browser.click(".display-language-menu")
         self.browser.wait_visible('#display-language-modal')
 
-    @todoPybridge()
     def testBasic(self):
         m = self.machine
         b = self.browser
@@ -311,7 +310,6 @@ OnCalendar=daily
             })""", language)
             b.wait_attr(".index-page", "lang", language)
 
-    @todoPybridge()
     def testPtBRLocale(self):
         m = self.machine
         b = self.browser
@@ -419,7 +417,6 @@ OnCalendar=daily
         b.reload()
         self.check_system_menu("FOO!", True)
 
-    @todoPybridge()
     def testMenuSearch(self):
         b = self.browser
         m = self.machine

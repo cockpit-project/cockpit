@@ -19,7 +19,7 @@
 
 import parent  # noqa: F401
 from packagelib import PackageCase
-from testlib import skipImage, skipPackage, todoPybridge, test_main
+from testlib import skipImage, skipPackage, test_main
 
 
 @skipImage("TODO: bug in refreshing removed/installed state on Arch Linux", "arch")
@@ -128,7 +128,6 @@ class TestApps(PackageCase):
     def testWithUrlRoot(self):
         self.testBasic(urlroot="/webcon")
 
-    @todoPybridge()
     def testL10N(self):
         b = self.browser
         m = self.machine

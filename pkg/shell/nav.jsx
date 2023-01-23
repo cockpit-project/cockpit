@@ -25,10 +25,7 @@ export const SidebarToggle = () => {
     }, []);
 
     useEffect(() => {
-        if (active)
-            document.getElementById("nav-system").classList.add("interact");
-        else
-            document.getElementById("nav-system").classList.remove("interact");
+        document.getElementById("nav-system").classList.toggle("interact", active);
     }, [active]);
 
     return (

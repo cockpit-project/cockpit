@@ -1079,7 +1079,6 @@ BEGIN {{
             b.enter_page("/system/services")
             b.wait_in_text(".service-name", "memhog.sh")
 
-    @todoPybridge()
     def testDiskIO(self):
         b = self.browser
         m = self.machine
@@ -1206,7 +1205,6 @@ BEGIN {{
 @skipImage("TODO: Arch Linux packagekit support", "arch")
 @skipDistroPackage()
 class TestMetricsPackages(packagelib.PackageCase):
-    @todoPybridge()
     def testBasic(self):
         b = self.browser
         m = self.machine

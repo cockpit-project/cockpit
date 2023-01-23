@@ -402,7 +402,8 @@ class Packages(bus.Object, interface='cockpit.Packages'):
         # HACK: If the response is language specific, don't cache the file. Caching "po.js" breaks
         # changing the language in Chromium, as that does not respect `Vary: Cookie` properly.
         # See https://github.com/cockpit-project/cockpit/issues/8160
-        if self.checksum is not None and not path.endswith('po.js'):
+        # We also can't cache /manifests.js because it changes if packages are installed/removed.
+        if self.checksum is not None and not path.endswith('po.js') and path != '/manifests.js':
             channel.push_header('X-Cockpit-Pkg-Checksum', self.checksum)
         else:
             channel.push_header('Cache-Control', 'no-cache, no-store')

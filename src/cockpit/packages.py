@@ -31,6 +31,7 @@ from typing import ClassVar, Dict, List, Optional, Pattern, Tuple
 from systemd_ctypes import bus
 
 from . import config
+from . import safely
 
 VERSION = '300'
 logger = logging.getLogger(__name__)
@@ -158,7 +159,9 @@ class Package:
     def __init__(self, path):
         self.path = path
 
-        with (self.path / 'manifest.json').open(encoding='utf-8') as manifest_file:
+        manifest_path = self.path / 'manifest.json'
+
+        with manifest_path.open(encoding='utf-8') as manifest_file:
             self.manifest = json.load(manifest_file)
 
         self.try_override(self.path / 'override.json')
@@ -168,10 +171,11 @@ class Package:
         # HACK: drop this after getting rid of ${libexecdir}, see above
         self.manifest = patch_libexecdir(self.manifest)
 
-        self.name = self.manifest.get('name', path.name)
-        self.content_security_policy = None
-        self.priority = self.manifest.get('priority', 1)
-        self.bridges = self.manifest.get('bridges', [])
+        with safely.catch(str(manifest_path), logger.warning):
+            self.content_security_policy = safely.get(self.manifest, 'content-security-policy', str, '')
+            self.name = safely.get(self.manifest, 'name', str, path.name)
+            self.priority = safely.get(self.manifest, 'priority', int, 1)
+            self.bridges = safely.get_list(self.manifest, 'bridges', dict, [])
 
         self.files = {}
         self.translations = dict(Package.BASE_TRANSLATIONS)
@@ -276,7 +280,7 @@ class Package:
             "img-src": f"'self' {origin} data:",
         })
 
-        manifest_policy = self.manifest.get('content-security-policy', '')
+        manifest_policy = self.content_security_policy
         for item in manifest_policy.split(';'):
             item = item.strip()
             if item:

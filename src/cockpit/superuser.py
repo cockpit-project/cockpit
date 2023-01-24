@@ -25,7 +25,7 @@ import subprocess
 
 from systemd_ctypes import bus
 
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 from .router import Router, RoutingError, RoutingRule
 from .peer import Peer, PeerStateListener
@@ -136,7 +136,7 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
         super().__init__(router)
 
         # name → (label, spawn, env)
-        self.superuser_rules: Dict[Optional[str], Tuple[str, List[str], Dict[str, str]]] = {}
+        self.superuser_rules: Dict[Optional[str], Tuple[str, Sequence[str], Sequence[str]]] = {}
         self.bridges = []
         self.peer = None
         self.startup = None
@@ -197,7 +197,7 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
                     name = os.path.basename(spawn[0])
                 environ = rule.get('environ', [])
                 assert isinstance(environ, list)
-                self.superuser_rules[name] = (label, spawn, dict(item.split('=', 1) for item in environ))
+                self.superuser_rules[name] = label, spawn, environ
         self.bridges = list(self.superuser_rules)
 
         # If the currently-active bridge got removed...

@@ -237,6 +237,7 @@ class TestAccounts(MachineCase):
         b.wait_not_present("#account-groups-helper")
         b.click(f".pf-c-label-group__list .pf-c-label__content:contains({m.get_admin_group()}) + button[aria-label='Close {m.get_admin_group()}']")
         b.wait(lambda: not is_admin())
+        b.wait_not_present(admin_role_sel + f" .pf-c-label:contains({m.get_admin_group()})")
         if m.image != "fedora-coreos":  # User is not shown as logged in when logged in through Cockpit
             b.wait_visible("#account-groups-helper")
         m.execute(f"/usr/bin/gpasswd -a jussi {m.get_admin_group()}")

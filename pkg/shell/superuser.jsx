@@ -112,7 +112,9 @@ const UnlockDialog = ({ proxy, host }) => {
         return proxy.Stop().always(() => {
             if (proxy.Methods) {
                 const ids = Object.keys(proxy.Methods);
-                if (ids.length == 1)
+                if (ids.length == 0)
+                    start("sudo");
+                else if (ids.length == 1)
                     start(ids[0]);
                 else {
                     setMethods(ids);

@@ -1799,26 +1799,13 @@ class MachineCase(unittest.TestCase):
                 r"File .*asyncio/events.py.*",
                 r"self._context.run\(self._callback, \*self._args\)",
                 r"File .*cockpit/transports.py.* _read_ready",
-                r"data = os.read\(self._in_fd, _Transport.BLOCK_SIZE\)",
-                r"ConnectionResetError: \[Errno 104\] Connection reset by peer"]
+                r"data = os.read\(self._in_fd, _Transport.BLOCK_SIZE\)"]
 
             self.allowed_messages += [
                 r"File .*/systemd_ctypes/bus.py.* in handler",
                 r"return 1 if callback.*BusMessage.ref.* else 0",
                 r"File .*/systemd_ctypes/bus.py.* in done",
                 r"future.set_result\(message\)"]
-
-            self.allowed_messages += [
-                r"asyncio-ERROR: Exception in callback BusMessage._coroutine_task_complete.*",
-                r"handle: .*Handle BusMessage._coroutine_task_complete.*",
-                r"File .*/systemd_ctypes/bus.py.* in _coroutine_task_complete",
-                r"self.reply_method_function_return_value.*",
-                r"File .*/cockpit/superuser.py.*",
-                r"await startup.wait.*",
-                r"await self.future",
-                r"File .*/cockpit/transports.py.*",
-                r"n_bytes = os.write\(self._out_fd, data\)",
-                r"BrokenPipeError: \[Errno 32\] Broken pipe"]
 
             self.allowed_messages += [
                 r"while .*result := self.consume_one_frame.*",
@@ -1837,27 +1824,6 @@ class MachineCase(unittest.TestCase):
                 r"self.serve_package_file.*",
                 r"self.packages.*.serve_file.*",
                 r"KeyError: 'manifests.json'"]
-
-            # https://cockpit-logs.us-east-1.linodeobjects.com/pull-18052-20221219-220331-9aa9eeeb-fedora-36-pybridge/log.html#150
-            self.allowed_messages += [
-                r"self.channel_data_received\(channel, data\)",
-                r"File .*/cockpit/peer.py.*, in channel_data_received",
-                r"self.send_channel_data\(channel, data\)",
-                r"self.router.write_channel_data\(channel, data\)",
-                r"self.transport.write\(header . payload\)",
-                r"assert not self._closing",
-                r"AssertionError",
-            ]
-
-            # TestSuperuserOldWebserver.test{,NotAuth}
-            self.allowed_messages.append("session timed out")
-            self.allowed_messages.append("cockpit-ssh.*: refusing to connect to unknown host:.*")
-
-            # TestJournal.testAbrtSegv
-            self.allowed_messages.append("invalid non-UTF8 @data passed as text to web_socket_connection_send.*")
-
-            # TestLogin.testSessionRecordingShell
-            self.allowed_messages.append(r"future.set_exception\(error\)")
 
         messages = machine.journal_messages(matches, 6, cursor=cursor)
 

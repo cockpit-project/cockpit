@@ -342,6 +342,12 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                                     </div>
                                 </FormGroup>
                                 }
+                                { account.home && <FormGroup fieldId="account-home-dir" hasNoPaddingTop label={_("Home directory")}>
+                                    <output id="account-home-dir">{account.home}</output>
+                                </FormGroup> }
+                                { account.shell && <FormGroup fieldId="account-shell" hasNoPaddingTop label={_("Shell")}>
+                                    <output id="account-shell">{account.shell}</output>
+                                </FormGroup> }
                             </Form>
                         </CardBody>
                     </Card>

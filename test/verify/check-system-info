@@ -201,7 +201,6 @@ class TestSystemInfo(MachineCase):
         b.click(f"#change_systime button:contains('{mode}')")
         b.wait_in_text("#system_information_change_systime .pf-c-form__group-label:contains('Set time') + div > .pf-c-select > button", mode)
 
-    @skipImage("TODO: systemd-timesyncd responds too slow on Arch Linux", "arch")
     def testTime(self):
         m = self.machine
         b = self.browser
@@ -275,13 +274,13 @@ class TestSystemInfo(MachineCase):
         b.set_input_text("#systime-date-input input", "2018-06-04")
         b.set_input_text("#systime-time-input-input", "06:34")
         b.click("#system_information_change_systime .apply")
-        b.wait_not_present("#system_information_change_systime")
+        with b.wait_timeout(120):  # Changing time on Arch can be slow
+            b.wait_not_present("#system_information_change_systime")
 
         self.assertFalse(ntp_enabled())
         self.assertIn("Mon Jun  4 06:34:", m.execute("date"))
         self.assertIn("EEST 2018\n", m.execute("date"))
 
-    @skipImage("TODO: systemd-timesyncd responds too slow on Arch Linux", "arch")
     def testTimeServers(self):
         m = self.machine
         b = self.browser

@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import time
 
 import parent  # noqa: F401
@@ -215,13 +216,15 @@ session include system-auth
         b.wait_not_present(".pf-c-modal-box:contains('Problem becoming administrator')")
         b.check_superuser_indicator("Limited access")
 
-    @todoPybridge()
     def testRemoveBridgeConfig(self):
+        m = self.machine
         b = self.browser
 
         self.login_and_go("/playground/pkgs", superuser=True)
         b.leave_page()
         b.check_superuser_indicator("Administrative access")
+        # superuser bridge is running
+        m.execute("pgrep -u root -a cockpit-bridge")
 
         self.write_file("/etc/cockpit/shell.override.json", """
 {
@@ -232,7 +235,13 @@ session include system-auth
         b.enter_page("/playground/pkgs")
         b.click("#reload")
         b.leave_page()
-        b.check_superuser_indicator("Limited access")
+        if os.environ.get("TEST_SCENARIO") == "pybridge":
+            b.check_superuser_indicator("")
+        else:
+            # C bridge gets that wrong: Its .Bridges property remains at [sudo, pkexec], showing a broken indicator
+            b.check_superuser_indicator("Limited access")
+        # superuser bridge goes away
+        m.execute("while pgrep -u root -a cockpit-bridge; do sleep 1; done", timeout=5)
 
     def testSingleLabelBridgeConfig(self):
         b = self.browser

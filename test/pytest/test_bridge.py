@@ -10,6 +10,7 @@ from typing import Any, Dict, Iterable, Optional, Tuple
 
 import systemd_ctypes
 from cockpit.bridge import Bridge
+from cockpit.packages import BridgeRule
 
 MOCK_HOSTNAME = 'mockbox'
 
@@ -199,17 +200,17 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
 
         # Add pseudo to the existing set of superuser rules
         rules = self.bridge.packages.get_bridges()
-        rules.append({
-            'label': 'pseudo',
-            'spawn': [
+        rules.append(BridgeRule(
+            name='pseudo',
+            label='pseudo',
+            spawn=(
                 sys.executable, os.path.abspath(f'{__file__}/../pseudo.py'),
                 sys.executable, '-m', 'cockpit.bridge', '--privileged'
-            ],
-            'environ': [
-                f'PYTHONPATH={":".join(sys.path)}'
-            ],
-            'privileged': True
-        })
+            ),
+            environ=(
+                ('PYTHONPATH', ":".join(sys.path)),
+            ),
+            privileged=True))
         self.bridge.superuser_rule.set_bridge_rules(rules)
 
     async def test_echo(self):

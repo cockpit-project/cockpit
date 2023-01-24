@@ -25,8 +25,9 @@ import subprocess
 
 from systemd_ctypes import bus
 
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
+from .packages import BridgeRule
 from .router import Router, RoutingError, RoutingRule
 from .peer import Peer, PeerStateListener
 
@@ -135,8 +136,7 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
     def __init__(self, router: Router, privileged: bool = False):
         super().__init__(router)
 
-        # name → (label, spawn, env)
-        self.superuser_rules: Dict[Optional[str], Tuple[str, List[str], Dict[str, str]]] = {}
+        self.superuser_rules: Dict[str, BridgeRule] = {}
         self.bridges = []
         self.peer = None
         self.startup = None
@@ -152,7 +152,7 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
         assert self.startup is None
 
         try:
-            _label, args, env = self.superuser_rules[name]
+            rule = self.superuser_rules[name]
         except KeyError as exc:
             raise bus.BusError('cockpit.Superuser.Error', f'Unknown superuser bridge type "{name}"') from exc
 
@@ -160,7 +160,7 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
 
         try:
             # We want to capture the error messages to send to the user
-            startup.peer.spawn(args, env, stderr=subprocess.PIPE)
+            startup.peer.spawn(rule.spawn, dict(rule.environ), stderr=subprocess.PIPE)
         except OSError as exc:
             raise bus.BusError('cockpit.Superuser.Error', f'Failed to start peer bridge: {exc}') from exc
 
@@ -182,22 +182,8 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
         except bus.BusError as exc:
             startup.failed(self, exc)
 
-    def set_bridge_rules(self, rules: List[Dict[str, object]]):
-        self.superuser_rules = {}
-        for rule in rules:
-            if rule.get('privileged', False):
-                spawn = rule['spawn']
-                assert isinstance(spawn, list)
-                assert isinstance(spawn[0], str)
-                label = rule.get('label')
-                if label is not None:
-                    assert isinstance(label, str)
-                    name = label
-                else:
-                    name = os.path.basename(spawn[0])
-                environ = rule.get('environ', [])
-                assert isinstance(environ, list)
-                self.superuser_rules[name] = (label, spawn, dict(item.split('=', 1) for item in environ))
+    def set_bridge_rules(self, rules: List[BridgeRule]):
+        self.superuser_rules = {rule.name: rule for rule in rules if rule.privileged}
         self.bridges = list(self.superuser_rules)
 
         # If the currently-active bridge got removed...
@@ -227,7 +213,7 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
     @methods.getter
     def get_methods(self):
         methods = {}
-        for name, (label, _, _) in self.superuser_rules.items():
-            if label:
-                methods[name] = {'t': 'a{sv}', 'v': {'label': {'t': 's', 'v': label}}}
+        for name, rule in self.superuser_rules.items():
+            if rule.label:
+                methods[name] = {'t': 'a{sv}', 'v': {'label': {'t': 's', 'v': rule.label}}}
         return methods

@@ -17,7 +17,6 @@
 
 import argparse
 import asyncio
-import json
 import logging
 import pwd
 import os
@@ -208,7 +207,7 @@ def main() -> None:
     if args.packages:
         Packages().show()
     elif args.bridges:
-        print(json.dumps(Packages().get_bridges(), indent=2))
+        print(*Packages().get_bridges(), sep='\n')
     else:
         asyncio.set_event_loop_policy(EventLoopPolicy())
         asyncio.run(run(args), debug=args.debug)

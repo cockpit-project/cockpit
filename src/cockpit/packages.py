@@ -26,7 +26,7 @@ import os
 import re
 
 from pathlib import Path
-from typing import ClassVar, Dict, List, Optional, Pattern, Tuple
+from typing import ClassVar, Dict, List, Optional, NamedTuple, Pattern, Sequence, Tuple
 
 from systemd_ctypes import bus
 
@@ -145,6 +145,48 @@ class PackagesListener:
         """Called when the packages have been reloaded"""
 
 
+class BridgeRule(NamedTuple):
+    name: str
+    spawn: Sequence[str]
+    environ: Sequence[Tuple[str, str]] = ()
+    label: Optional[str] = None
+    match: Sequence[Tuple[str, Optional[str]]] = ()
+    privileged: bool = False
+    timeout: Optional[int] = None
+    problem: Optional[str] = None
+
+    @staticmethod
+    def from_manifest_rule(rule: Dict[str, object]) -> 'BridgeRule':
+        label = safely.get(rule, 'label', str, None)
+        match: Dict[str, Optional[str]] = safely.get_dict(rule, 'match', Optional[str], {})
+        privileged = safely.get(rule, 'privileged', bool, False)
+        spawn = safely.get_list(rule, 'spawn', str)
+        environ_list: List[str] = safely.get_list(rule, 'environ', str, [])
+        timeout = safely.get(rule, 'timeout', int, None)
+        problem = safely.get(rule, 'problem', str, None)
+
+        try:
+            environ = dict(item.split('=', 1) for item in environ_list)
+        except TypeError:
+            raise TypeError("each string in 'environ' must contain an equals sign ('=')")
+
+        return BridgeRule(name=label or os.path.basename(spawn[0]),
+                          spawn=tuple(spawn),
+                          environ=tuple(sorted(environ.items())),
+                          label=label,
+                          match=tuple(sorted(match.items())),
+                          privileged=privileged,
+                          timeout=timeout,
+                          problem=problem)
+
+    def __str__(self) -> str:
+        lines = [f'{self.name}:\n']
+        for key, value in self._asdict().items():
+            if key != 'name' and value:
+                lines.append(f'  {key}: {value}\n')
+        return ''.join(lines)
+
+
 class Package:
     # For po.js files, the interesting part is the locale name
     PO_JS_RE: ClassVar[Pattern] = re.compile(r'po\.([^.]+)\.js(\.gz)?')
@@ -175,7 +217,9 @@ class Package:
             self.content_security_policy = safely.get(self.manifest, 'content-security-policy', str, '')
             self.name = safely.get(self.manifest, 'name', str, path.name)
             self.priority = safely.get(self.manifest, 'priority', int, 1)
-            self.bridges = safely.get_list(self.manifest, 'bridges', dict, [])
+
+            bridges = safely.get_list(self.manifest, 'bridges', dict, [])
+            self.bridges = [BridgeRule.from_manifest_rule(rule) for rule in bridges]
 
         self.files = {}
         self.translations = dict(Package.BASE_TRANSLATIONS)

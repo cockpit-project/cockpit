@@ -20,12 +20,14 @@
 import cockpit from 'cockpit';
 import React from 'react';
 
+import { Bullseye } from "@patternfly/react-core/dist/esm/layouts/Bullseye/index.js";
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
+import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { has_errors, is_valid_char_name } from "./dialog-utils.js";
 import { passwd_change } from "./password-dialogs.js";
 import { password_quality, PasswordFormFields } from "cockpit-components-password.jsx";
@@ -170,6 +172,7 @@ function suggest_username(realname) {
 export function account_create_dialog(accounts) {
     let dlg = null;
     const state = {
+        dialogLoading: true,
         real_name: "",
         user_name: "",
         password: "",
@@ -177,11 +180,32 @@ export function account_create_dialog(accounts) {
         locked: false,
         confirm_weak: false,
         change_passw_force: false,
+        base_home_dir: null,
+        shell: null,
     };
     let errors = { };
 
     let old_password = null;
     let user_name_dirty = false;
+
+    function get_defaults() {
+        return cockpit.spawn(["useradd", "-D"], { superuser: "require", err: "message" })
+                .catch(e => console.warn("Could not get useradd defaults: ", e.message))
+                .then(defaults => {
+                    let shell = null;
+                    let base_home_dir = null;
+                    defaults.split("\n").forEach(item => {
+                        if (item.indexOf("SHELL=") === 0) {
+                            shell = item.split("=")[1] || "/bin/bash";
+                        } else if (item.indexOf("HOME=") === 0) {
+                            base_home_dir = item.split("=")[1] || "";
+                        }
+                    });
+                    change("shell", shell);
+                    change("base_home_dir", base_home_dir);
+                })
+                .finally(() => change("dialogLoading", false));
+    }
 
     function change(field, value) {
         state[field] = value;
@@ -231,37 +255,27 @@ export function account_create_dialog(accounts) {
     }
 
     function create(real_name, user_name, password, locked, force_change) {
-        return cockpit.spawn(["useradd", "-D"], { superuser: "require" })
-                .catch(() => "")
-                .then(defaults => {
-                    let shell = null;
-                    defaults.split("\n").forEach(item => {
-                        if (item.indexOf("SHELL=") === 0) {
-                            shell = item.split("=")[1] || "";
-                        }
-                    });
-                    const prog = ["useradd", "--create-home", "-s", shell || "/bin/bash"];
-                    if (real_name) {
-                        prog.push('-c');
-                        prog.push(real_name);
-                    }
-                    prog.push(user_name);
-                    return cockpit.spawn(prog, { superuser: "require", err: "message" })
-                            .then(() => passwd_change(user_name, password))
-                            .then(() => {
-                                if (locked)
-                                    return cockpit.spawn([
-                                        "usermod",
-                                        user_name,
-                                        "--lock"
-                                    ], { superuser: "require", err: "message" });
-                                if (force_change)
-                                    return cockpit.spawn([
-                                        "passwd",
-                                        "-e",
-                                        user_name
-                                    ], { superuser: "require", err: "message" });
-                            });
+        const prog = ["useradd", "--create-home", "-s", state.shell];
+        if (real_name) {
+            prog.push('-c');
+            prog.push(real_name);
+        }
+        prog.push(user_name);
+        return cockpit.spawn(prog, { superuser: "require", err: "message" })
+                .then(() => passwd_change(user_name, password))
+                .then(() => {
+                    if (locked)
+                        return cockpit.spawn([
+                            "usermod",
+                            user_name,
+                            "--lock"
+                        ], { superuser: "require", err: "message" });
+                    if (force_change)
+                        return cockpit.spawn([
+                            "passwd",
+                            "-e",
+                            user_name
+                        ], { superuser: "require", err: "message" });
                 });
     }
 
@@ -283,8 +297,16 @@ export function account_create_dialog(accounts) {
         const props = {
             id: "accounts-create-dialog",
             title: _("Create new account"),
-            body: <AccountCreateBody state={state} errors={errors} change={change} />
         };
+        if (state.dialogLoading) {
+            props.body = (
+                <Bullseye>
+                    <Spinner isSVG />
+                </Bullseye>
+            );
+        } else {
+            props.body = <AccountCreateBody state={state} errors={errors} change={change} />;
+        }
 
         const footer = {
             actions: [
@@ -319,4 +341,5 @@ export function account_create_dialog(accounts) {
     }
 
     update();
+    get_defaults();
 }

@@ -323,6 +323,6 @@ export function useEvent(obj, event, handler) {
  * "useInit" and default to "[]".
  */
 
-export function useInit(func, deps, comps) {
-    return useObject(func, null, deps || [], comps);
+export function useInit(func, deps, comps, destroy = null) {
+    return useObject(func, destroy, deps || [], comps);
 }

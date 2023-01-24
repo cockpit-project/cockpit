@@ -21,11 +21,11 @@ import 'polyfills'; // once per application
 import 'cockpit-dark-theme'; // once per page
 
 import cockpit from 'cockpit';
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { superuser } from "superuser";
 
-import { usePageLocation, useLoggedInUser, useFile } from "hooks.js";
+import { usePageLocation, useLoggedInUser, useFile, useInit } from "hooks.js";
 import { etc_passwd_syntax, etc_group_syntax } from "./parsers.js";
 import { AccountsMain } from "./accounts-list.js";
 import { AccountDetails } from "./account-details.js";
@@ -56,16 +56,16 @@ function AccountsPage() {
     const current_user_info = useLoggedInUser();
 
     const [details, setDetails] = useState(null);
-    useEffect(() => {
-        getLogins().then(setDetails);
+    useInit(() => {
+        getLogins(shadow).then(setDetails);
 
         // Watch `/var/run/utmp` to register when user logs in or out
         const handle = cockpit.file("/var/run/utmp", { superuser: "try", binary: true });
         handle.watch(() => {
-            getLogins().then(setDetails);
+            getLogins(shadow).then(setDetails);
         });
-        return handle.close;
-    }, [path, accounts, shadow]);
+        return handle;
+    }, [shadow], null, handle => handle.close());
 
     // lastlog uses same sorting as /etc/passwd therefore arrays can be combined based on index
     const accountsInfo = useMemo(() => {
@@ -105,17 +105,14 @@ function AccountsPage() {
     }
 }
 
-function get_locked(name) {
-    return cockpit.spawn(["/usr/bin/passwd", "-S", name], { environ: ["LC_ALL=C"], superuser: "require" })
-            .catch(() => "")
-            .then(content => {
-                const status = content.split(" ")[1];
-                // libuser uses "LK", shadow-utils use "L".
-                return status && (status == "LK" || status == "L");
-            });
+function get_locked(name, shadow) {
+    if (!shadow)
+        return;
+    const match = shadow.match(new RegExp(`${name}:!`));
+    return match !== null;
 }
 
-async function getLogins() {
+async function getLogins(shadow) {
     let lastlog = [];
     try {
         lastlog = await cockpit.spawn(["/usr/bin/lastlog"], { environ: ["LC_ALL=C"] });
@@ -132,10 +129,10 @@ async function getLogins() {
     }
 
     // drop header and last empty line with slice
-    const promises = lastlog.split('\n').slice(1, -1).map(async line => {
+    const promises = lastlog.split('\n').slice(1, -1).map(line => {
         const splitLine = line.split(/ +/);
         const name = splitLine[0];
-        const isLocked = await get_locked(name);
+        const isLocked = get_locked(name, shadow);
 
         if (line.indexOf('**Never logged in**') > -1) {
             return Promise.resolve({ name: name, loggedIn: false, lastLogin: null, isLocked: isLocked });

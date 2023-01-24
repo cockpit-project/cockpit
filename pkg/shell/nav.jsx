@@ -33,7 +33,7 @@ export const SidebarToggle = () => {
 
         return () => {
             ["blur", "click"].map(ev_type => window.removeEventListener(ev_type, handleClickOutside));
-        }
+        };
     }, []);
 
     useEffect(() => {

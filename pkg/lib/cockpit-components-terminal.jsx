@@ -21,6 +21,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Modal, Button } from "@patternfly/react-core";
 import { Terminal as Term } from "xterm";
+import { CanvasAddon } from 'xterm-addon-canvas';
 
 import { ContextMenu } from "cockpit-components-context-menu.jsx";
 import cockpit from "cockpit";
@@ -136,11 +137,17 @@ export class Terminal extends React.Component {
         if (props.onTitleChanged)
             term.onTitleChange(props.onTitleChanged);
 
-        this.state = { terminal: term };
+        this.terminal = term;
+        this.state = {
+            showPastingModal: false,
+            cols: props.cols || 80,
+            rows: props.rows || 25
+        };
     }
 
     componentDidMount() {
-        this.state.terminal.open(this.terminalRef.current);
+        this.terminal.open(this.terminalRef.current);
+        this.terminal.loadAddon(new CanvasAddon());
         this.connectChannel();
 
         if (!this.props.rows) {
@@ -148,11 +155,11 @@ export class Terminal extends React.Component {
             this.onWindowResize();
         }
         this.setTerminalTheme(this.props.theme || 'black-theme');
-        this.state.terminal.focus();
+        this.terminal.focus();
     }
 
     resizeTerminal(cols, rows) {
-        this.state.terminal.resize(cols, rows);
+        this.terminal.resize(cols, rows);
         this.props.channel.control({
             window: {
                 rows: rows,
@@ -163,7 +170,7 @@ export class Terminal extends React.Component {
 
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.fontSize !== this.props.fontSize) {
-            this.state.terminal.setOption("fontSize", this.props.fontSize);
+            this.terminal.options.fontSize = this.props.fontSize;
 
             // After font size is changed, resize needs to be triggered
             const dimensions = this.calculateDimensions();
@@ -182,7 +189,7 @@ export class Terminal extends React.Component {
             this.setTerminalTheme(this.props.theme);
 
         if (prevProps.channel !== this.props.channel) {
-            this.state.terminal.reset();
+            this.terminal.reset();
             this.disconnectChannel(prevProps.channel);
             this.connectChannel();
             this.props.channel.control({
@@ -192,7 +199,7 @@ export class Terminal extends React.Component {
                 }
             });
         }
-        this.state.terminal.focus();
+        this.terminal.focus();
     }
 
     render() {
@@ -211,7 +218,7 @@ export class Terminal extends React.Component {
                     {_("Your browser does not allow paste from the context menu. You can use Shift+Insert.")}
                 </Modal>
                 <div ref={this.terminalRef}
-                     key={this.state.terminal}
+                     key={this.terminal}
                      className="console-ct"
                      onFocus={this.onFocusIn}
                      onContextMenu={this.contextMenu}
@@ -223,7 +230,7 @@ export class Terminal extends React.Component {
 
     componentWillUnmount() {
         this.disconnectChannel();
-        this.state.terminal.dispose();
+        this.terminal.dispose();
         window.removeEventListener('resize', this.onWindowResize);
         this.onFocusOut();
     }
@@ -233,7 +240,7 @@ export class Terminal extends React.Component {
             navigator.clipboard.readText()
                     .then(text => this.props.channel.send(text))
                     .catch(e => this.setState({ showPastingModal: true }))
-                    .finally(() => this.state.terminal.focus());
+                    .finally(() => this.terminal.focus());
         } catch (error) {
             this.setState({ showPastingModal: true });
         }
@@ -241,20 +248,20 @@ export class Terminal extends React.Component {
 
     getText() {
         try {
-            navigator.clipboard.writeText(this.state.terminal.getSelection())
+            navigator.clipboard.writeText(this.terminal.getSelection())
                     .catch(e => console.error('Text could not be copied, use Ctrl+Insert ', e ? e.toString() : ""))
-                    .finally(() => this.state.terminal.focus());
+                    .finally(() => this.terminal.focus());
         } catch (error) {
             console.error('Text could not be copied, use Ctrl+Insert:', error.toString());
         }
     }
 
     onChannelMessage(event, data) {
-        this.state.terminal.write(data);
+        this.terminal.write(data);
     }
 
     onChannelClose(event, options) {
-        const term = this.state.terminal;
+        const term = this.terminal;
         term.write('\x1b[31m' + (options.problem || 'disconnected') + '\x1b[m\r\n');
         term.cursorHidden = true;
         term.refresh(term.rows, term.rows);
@@ -279,19 +286,19 @@ export class Terminal extends React.Component {
     }
 
     reset() {
-        this.state.terminal.reset();
+        this.terminal.reset();
         this.props.channel.send(String.fromCharCode(12)); // Send SIGWINCH to show prompt on attaching
     }
 
     focus() {
-        if (this.state.terminal)
-            this.state.terminal.focus();
+        if (this.terminal)
+            this.terminal.focus();
     }
 
     calculateDimensions() {
         const padding = 10; // Leave a bit of space around terminal
-        const realHeight = this.state.terminal._core._renderService.dimensions.actualCellHeight;
-        const realWidth = this.state.terminal._core._renderService.dimensions.actualCellWidth;
+        const realHeight = this.terminal._core._renderService.dimensions.css.cell.height;
+        const realWidth = this.terminal._core._renderService.dimensions.css.cell.width;
         if (realHeight && realWidth && realWidth !== 0 && realHeight !== 0)
             return {
                 rows: Math.floor((this.terminalRef.current.parentElement.clientHeight - padding) / realHeight),
@@ -306,7 +313,7 @@ export class Terminal extends React.Component {
     }
 
     setTerminalTheme(theme) {
-        this.state.terminal.setOption("theme", themes[theme]);
+        this.terminal.options.theme = themes[theme];
     }
 
     onBeforeUnload(event) {

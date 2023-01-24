@@ -21,7 +21,7 @@ import asyncio
 import logging
 import os
 
-from typing import Any, Dict, Optional, Set
+from typing import Any, Dict, Optional, Sequence, Set
 
 from .router import Endpoint, Router
 from .protocol import CockpitProtocolClient
@@ -75,7 +75,7 @@ class Peer(CockpitProtocolClient, SubprocessProtocol, Endpoint):
         self.channels = set()
         self.authorize_pending = None
 
-    def spawn(self, argv: list[str], env: Dict[str, str], **kwargs) -> asyncio.Transport:
+    def spawn(self, argv: Sequence[str], env: Dict[str, str], **kwargs) -> asyncio.Transport:
         loop = asyncio.get_running_loop()
         return SubprocessTransport(loop, self, argv, env=dict(os.environ, **env), **kwargs)
 

@@ -28,7 +28,7 @@ import struct
 import subprocess
 import termios
 
-from typing import Any, ClassVar, Dict, Optional, Tuple
+from typing import Any, ClassVar, Dict, Optional, Sequence, Tuple
 
 
 logger = logging.getLogger(__name__)
@@ -328,7 +328,7 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
     def __init__(self,
                  loop: asyncio.AbstractEventLoop,
                  protocol: SubprocessProtocol,
-                 args: list[str],
+                 args: Sequence[str],
                  pty: bool = False,
                  window: Optional[Dict[str, int]] = None,
                  **kwargs: Any):

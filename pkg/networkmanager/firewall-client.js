@@ -331,7 +331,7 @@ function fetchZoneInfos(zones) {
 initFirewalldDbus();
 
 cockpit.spawn(['sh', '-c', 'pkcheck --action-id org.fedoraproject.FirewallD1.all --process $$ --allow-user-interaction 2>&1'], { superuser: "try" })
-        .done(() => {
+        .then(() => {
             firewall.readonly = false;
             firewall.debouncedEvent('changed');
             firewall.debouncedGetZones();

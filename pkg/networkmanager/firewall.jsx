@@ -548,7 +548,7 @@ class AddEditServicesModal extends React.Component {
         firewall.getAvailableServices()
                 .then(services => this.setState({ services }));
         cockpit.file('/etc/services').read()
-                .done(content => this.setState({
+                .then(content => this.setState({
                     avail_services: this.parseServices(content)
                 }));
     }

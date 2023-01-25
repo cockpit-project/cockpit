@@ -169,7 +169,7 @@ function suggest_username(realname) {
     return remove_diacritics(result);
 }
 
-export function account_create_dialog(accounts) {
+export function account_create_dialog(accounts, shells) {
     let dlg = null;
     const state = {
         dialogLoading: true,

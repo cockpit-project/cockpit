@@ -1799,7 +1799,8 @@ class MachineCase(unittest.TestCase):
                 r"File .*asyncio/events.py.*",
                 r"self._context.run\(self._callback, \*self._args\)",
                 r"File .*cockpit/transports.py.* _read_ready",
-                r"data = os.read\(self._in_fd, _Transport.BLOCK_SIZE\)"]
+                r"data = os.read\(self._in_fd, _Transport.BLOCK_SIZE\)",
+                r"ConnectionResetError: \[Errno 104\] Connection reset by peer"]
 
             self.allowed_messages += [
                 r"File .*/systemd_ctypes/bus.py.* in handler",

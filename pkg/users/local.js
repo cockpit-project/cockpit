@@ -29,6 +29,7 @@ import { usePageLocation, useLoggedInUser, useFile } from "hooks.js";
 import { etc_passwd_syntax, etc_group_syntax } from "./parsers.js";
 import { AccountsMain } from "./accounts-list.js";
 import { AccountDetails } from "./account-details.js";
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
 superuser.reload_page_on_change();
 
@@ -80,7 +81,9 @@ function AccountsPage() {
         })
     );
 
-    if (path.length === 0) {
+    if (groupsExtraInfo.length == 0 || accountsInfo.length == 0) {
+        return <EmptyStatePanel loading />;
+    } else if (path.length === 0) {
         return <AccountsMain accountsInfo={accountsInfo} current_user={current_user_info && current_user_info.name} groups={groupsExtraInfo || []} />;
     } else {
         return (

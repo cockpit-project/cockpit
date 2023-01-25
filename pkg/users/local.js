@@ -21,7 +21,7 @@ import 'polyfills'; // once per application
 import 'cockpit-dark-theme'; // once per page
 
 import cockpit from 'cockpit';
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { superuser } from "superuser";
 
@@ -67,19 +67,22 @@ function AccountsPage() {
     }, [path, accounts, shadow]);
 
     // lastlog uses same sorting as /etc/passwd therefore arrays can be combined based on index
-    let accountsInfo = [];
-    if (accounts && details)
-        accountsInfo = accounts.map((account, i) => {
-            return Object.assign({}, account, details[i]);
-        });
+    const accountsInfo = useMemo(() => {
+        if (accounts && details)
+            return accounts.map((account, i) => {
+                return Object.assign({}, account, details[i]);
+            });
+        else
+            return [];
+    }, [accounts, details]);
 
-    const groupsExtraInfo = sortGroups(
+    const groupsExtraInfo = useMemo(() => sortGroups(
         (groups || []).map(group => {
             const userlistPrimary = accountsInfo.filter(account => account.gid === group.gid).map(account => account.name);
             const userlist = group.userlist.filter(el => el !== "");
             return ({ ...group, userlistPrimary, userlist, members: userlist.length + userlistPrimary.length, isAdmin: admins.includes(group.name) });
         })
-    );
+    ), [groups, accountsInfo]);
 
     if (groupsExtraInfo.length == 0 || accountsInfo.length == 0) {
         return <EmptyStatePanel loading />;
@@ -87,7 +90,7 @@ function AccountsPage() {
         return <AccountsMain accountsInfo={accountsInfo} current_user={current_user_info && current_user_info.name} groups={groupsExtraInfo || []} />;
     } else {
         return (
-            <AccountDetails accounts={accountsInfo} groups={groupsExtraInfo || []} shadow={shadow || []}
+            <AccountDetails accounts={accountsInfo} groups={groupsExtraInfo} shadow={shadow || []}
                             current_user={current_user_info && current_user_info.name} user={path[0]} />
         );
     }

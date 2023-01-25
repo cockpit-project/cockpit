@@ -419,7 +419,10 @@ class Packages(bus.Object, interface='cockpit.Packages'):
 
     def serve_package_file(self, path, channel):
         package, _, package_path = path[1:].partition('/')
-        self.packages[package].serve_file(package_path, channel)
+        try:
+            self.packages[package].serve_file(package_path, channel)
+        except KeyError:
+            channel.http_error(404, "Not Found")
 
     def serve_checksum(self, channel):
         channel.http_ok('text/plain')

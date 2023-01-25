@@ -77,3 +77,19 @@ function parse_group_content(content) {
 export const etc_group_syntax = {
     parse: parse_group_content
 };
+
+function parse_shells_content(content) {
+    content = (content || "").trim();
+    if (!content) {
+        console.warn("Couldn't read /etc/shells");
+        return [];
+    }
+
+    const lines = content.split('\n');
+
+    return lines.filter(line => !line.includes("#") && line.trim());
+}
+
+export const etc_shells_syntax = {
+    parse: parse_shells_content
+};

@@ -26,7 +26,7 @@ import { createRoot } from 'react-dom/client';
 import { superuser } from "superuser";
 
 import { usePageLocation, useLoggedInUser, useFile, useInit } from "hooks.js";
-import { etc_passwd_syntax, etc_group_syntax } from "./parsers.js";
+import { etc_passwd_syntax, etc_group_syntax, etc_shells_syntax } from "./parsers.js";
 import { AccountsMain } from "./accounts-list.js";
 import { AccountDetails } from "./account-details.js";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
@@ -55,6 +55,7 @@ function AccountsPage() {
     const accounts = useFile("/etc/passwd", { syntax: etc_passwd_syntax });
     const shadow = useFile("/etc/shadow", { superuser: true });
     const groups = useFile("/etc/group", { syntax: etc_group_syntax });
+    const shells = useFile("/etc/shells", { syntax: etc_shells_syntax });
     const current_user_info = useLoggedInUser();
 
     const logindef = useFile("/etc/login.defs", { superuser: true });
@@ -124,6 +125,7 @@ function AccountsPage() {
                 setIsGroupsExpanded={setIsGroupsExpanded}
                 min_gid={min_gid}
                 max_gid={max_gid}
+                shells={shells}
             />
         );
     } else if (path.length === 1) {

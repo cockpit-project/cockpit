@@ -131,6 +131,17 @@ QUnit.test("owned messages", function (assert) {
     acquire_name();
 });
 
+QUnit.test("owned message for absent service", assert => {
+    const done = assert.async();
+    assert.expect(1);
+
+    const dbus = cockpit.dbus("com.redhat.Cockpit.DBusTests.NotExisting", { bus: "session" });
+    dbus.addEventListener("owner", (_event, owner) => {
+        assert.strictEqual(owner, null, "no owner");
+        done();
+    });
+});
+
 QUnit.test.skipWithPybridge("bad dbus address", function (assert) {
     const done = assert.async();
     assert.expect(1);

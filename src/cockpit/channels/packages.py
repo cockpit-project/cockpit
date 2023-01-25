@@ -18,6 +18,7 @@
 import logging
 
 from ..channel import Channel
+from ..responses import format_error_response
 
 logger = logging.getLogger(__name__)
 
@@ -48,8 +49,8 @@ class PackagesChannel(Channel):
         self.send_message(status=200, reason='OK', headers={k: v for k, v in headers.items() if v is not None})
 
     def http_error(self, status, message):
-        self.send_message(status=status, reason='ERROR')
-        self.send_data(message.encode('utf-8'))
+        self.send_message(status=status, reason='ERROR', headers={'Content-Type': 'text/html charset=utf8'})
+        self.send_data(format_error_response(status, message))
 
     def do_done(self):
         assert not self.post

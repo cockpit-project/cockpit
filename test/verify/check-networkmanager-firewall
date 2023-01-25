@@ -19,7 +19,7 @@
 
 import parent  # noqa: F401
 import time
-from testlib import Error, nondestructive, skipDistroPackage, skipImage, todoPybridge, test_main, wait
+from testlib import Error, nondestructive, skipDistroPackage, skipImage, test_main, wait
 from netlib import NetworkCase
 
 
@@ -63,7 +63,6 @@ class TestFirewall(NetworkCase):
         if m.image == "arch":
             m.execute("firewall-cmd --zone 'public' --change-interface='eth0'; firewall-cmd --runtime-to-permanent")
 
-    @todoPybridge()
     def testNetworkingPage(self):
         b = self.browser
         m = self.machine
@@ -144,7 +143,6 @@ class TestFirewall(NetworkCase):
         finally:
             m.execute(f"umount '{pkcheck}'")
 
-    @todoPybridge()
     def testFirewallPage(self):
         b = self.browser
         m = self.machine

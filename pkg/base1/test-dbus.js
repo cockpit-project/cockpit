@@ -73,7 +73,7 @@ QUnit.test("watch promise recursive", function (assert) {
     assert.equal(typeof promise3.remove, "function", "promise3.remove()");
 });
 
-QUnit.test.skipWithPybridge("owned messages", function (assert) {
+QUnit.test("owned messages", function (assert) {
     const done = assert.async();
     assert.expect(9);
 

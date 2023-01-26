@@ -137,10 +137,13 @@ class Router(CockpitProtocolServer):
 
     def check_rules(self, options: Dict[str, object]) -> Endpoint:
         for rule in self.routing_rules:
+            logger.debug('  applying rule %s', rule)
             endpoint = rule.apply_rule(options)
             if endpoint is not None:
+                logger.debug('    resulting endpoint is %s', endpoint)
                 return endpoint
         else:
+            logger.debug('  No rules matched')
             raise RoutingError('not-supported')
 
     def close_channel(self, channel: str) -> None:
@@ -163,6 +166,7 @@ class Router(CockpitProtocolServer):
                 raise CockpitProtocolError('channel is already open')
 
             try:
+                logger.debug('Trying to find endpoint for new channel %s payload=%s', channel, message.get('payload'))
                 endpoint = self.check_rules(message)
             except RoutingError as exc:
                 self.write_control(command='close', channel=channel, problem=exc.problem, **exc.kwargs)

@@ -100,8 +100,9 @@ class Endpoint:
 
 
 class RoutingError(Exception):
-    def __init__(self, problem):
+    def __init__(self, problem, **kwargs):
         self.problem = problem
+        self.kwargs = kwargs
 
 
 class RoutingRule:
@@ -164,7 +165,7 @@ class Router(CockpitProtocolServer):
             try:
                 endpoint = self.check_rules(message)
             except RoutingError as exc:
-                self.write_control(command='close', channel=channel, problem=exc.problem)
+                self.write_control(command='close', channel=channel, problem=exc.problem, **exc.kwargs)
                 return
 
             self.open_channels[channel] = endpoint

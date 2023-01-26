@@ -1806,6 +1806,7 @@ class MachineCase(unittest.TestCase):
                 r"File .*/systemd_ctypes/bus.py.* in handler",
                 r"return 1 if callback.*BusMessage.ref.* else 0",
                 r"File .*/systemd_ctypes/bus.py.* in done",
+                r".*future.set_exception\(error\)",
                 r"future.set_result\(message\)"]
 
             self.allowed_messages += [

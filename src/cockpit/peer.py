@@ -21,9 +21,9 @@ import asyncio
 import logging
 import os
 
-from typing import Dict, Optional, Sequence, Set
+from typing import Dict, List, Optional, Sequence, Set
 
-from .router import Endpoint, Router
+from .router import Endpoint, Router, RoutingError, RoutingRule
 from .protocol import CockpitProtocolClient
 from .transports import SubprocessTransport, SubprocessProtocol
 
@@ -170,3 +170,88 @@ class Peer(CockpitProtocolClient, SubprocessProtocol, Endpoint):
 
     def do_channel_data(self, channel: str, data: bytes) -> None:
         self.write_channel_data(channel, data)
+
+
+class PeerRoutingRule(RoutingRule, PeerStateListener):
+    config: Dict[str, object]
+    peer: Optional[Peer]
+
+    def __init__(self, router: Router, config: Dict[str, object]):
+        super().__init__(router)
+        self.config = config
+        self.peer = None
+
+    def apply_rule(self, options: Dict[str, object]) -> Optional[Peer]:
+        # Check that we match
+        for key, value in self.config['match'].items():
+            if key not in options:
+                logger.debug('        rejecting because key %s is missing', key)
+                return None
+            if value is not None and options[key] != value:
+                logger.debug('        rejecting because key %s has wrong value %s (vs %s)', key, options[key], value)
+                return None
+
+        # Start the peer if it's not running already
+        if self.peer is None:
+            try:
+                args = self.config['spawn']
+                env = self.config.get('environ', [])
+                name = self.config.get('label', args[0])
+
+                peer = Peer(self.router, name, self)
+                peer.spawn(args, env)
+                self.peer = peer
+            except OSError as error:
+                raise RoutingError('spawn-error', message=str(error))
+
+        return self.peer
+
+    def peer_state_changed(self, peer: Peer, event: str, exc: Optional[Exception] = None):
+        logger.debug('%s got peer state event %s %s %s', self, peer, event, exc)
+        if event == 'init':
+            pass
+        elif event == 'closed':
+            self.peer = None
+
+    def rule_removed(self):
+        if self.peer is not None:
+            self.peer.close()
+
+
+class PeersRoutingRule(RoutingRule):
+    rules: List[PeerRoutingRule] = []
+
+    def apply_rule(self, options: Dict[str, object]) -> Optional[Endpoint]:
+        logger.debug('    considering %d rules', len(self.rules))
+        for rule in self.rules:
+            logger.debug('      considering %s', rule.config.get('spawn'))
+            endpoint = rule.apply_rule(options)
+            if endpoint is not None:
+                logger.debug('        selected')
+                return endpoint
+        logger.debug('      no peer rules matched')
+        return None
+
+    def set_configs(self, bridge_configs: List[Dict[str, object]]) -> None:
+        old_rules = self.rules
+        self.rules = []
+
+        for config in bridge_configs:
+            # Those are handled elsewhere...
+            if config.get('privileged') or 'host' in config['match']:
+                continue
+
+            # Try to reuse an existing rule, if one exists...
+            for rule in old_rules:
+                if rule.config == config:
+                    old_rules.remove(rule)
+                    break
+            else:
+                # ... otherwise, create a new one.
+                rule = PeerRoutingRule(self.router, config)
+
+            self.rules.append(rule)
+
+        # close down the old rules that didn't get reclaimed
+        for rule in old_rules:
+            rule.rule_removed()

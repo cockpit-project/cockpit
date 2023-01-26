@@ -1808,24 +1808,6 @@ class MachineCase(unittest.TestCase):
                 r".*future.set_exception\(error\)",
                 r"future.set_result\(message\)"]
 
-            self.allowed_messages += [
-                r"while .*result := self.consume_one_frame.*",
-                r"self._protocol.data_received\(data\)",
-                r"File .*/cockpit/protocol.py.*",
-                r"self.frame_received.*",
-                r"File .*/cockpit/channel.py.*",
-                r"self.channel_control_received.*",
-                r"endpoint.do_channel_control.*",
-                r"File .*/cockpit/router.py.*",
-                r"self.do_control.*",
-                r"self.do_done.*",
-                r"File .*/cockpit/channels/packages.py.*",
-                r"self.router.packages.serve_file.*",
-                r"File .*/cockpit/packages.py.*",
-                r"self.serve_package_file.*",
-                r"self.packages.*.serve_file.*",
-                r"KeyError: 'manifests.json'"]
-
         messages = machine.journal_messages(matches, 6, cursor=cursor)
 
         if "TEST_AUDIT_NO_SELINUX" not in os.environ:

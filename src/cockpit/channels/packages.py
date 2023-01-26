@@ -64,11 +64,7 @@ class PackagesChannel(Channel):
         self.host = self.headers['X-Forwarded-Host']
         self.origin = f'{self.protocol}://{self.host}'
 
-        try:
-            self.router.packages.serve_file(path, self)
-        except FileNotFoundError:
-            self.http_error(404, 'Not Found')
-
+        self.router.packages.serve_file(path, self)
         self.done()
 
     def do_data(self, data):

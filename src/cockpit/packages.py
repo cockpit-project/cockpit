@@ -285,29 +285,22 @@ class Package:
 
         return ' '.join(f'{k} {v};' for k, v in policy.items()) + ' block-all-mixed-content'
 
-    def find_file(self, path, channel):
-        if path == 'po.js':
-            # We do locale-dependent lookup only for /po.js
-            locales = parse_accept_language(channel.headers)
-            return find_translation(self.translations, locales)
-        else:
-            # Otherwise, just look up the file based on its path
-            return self.files.get(path)
-
     def serve_file(self, path, channel):
-        found = self.find_file(path, channel)
-        if found is None:
-            logger.debug('path %s not in %s', path, self.files)
-            channel.http_error(404, 'Not found')
-            return
+        if path == 'po.js':
+            # We do locale-dependent lookup only for /po.js.  This always succeeds.
+            locales = parse_accept_language(channel.headers)
+            data, (content_type, encoding) = find_translation(self.translations, locales)
+        else:
+            # Otherwise, just look up the file based on its path.  May raise KeyError.
+            data, (content_type, encoding) = self.files[path]
 
-        data, (content_type, encoding) = found
         headers = {
             "Access-Control-Allow-Origin": channel.origin,
             "Content-Encoding": encoding,
         }
         if content_type is not None and content_type.startswith('text/html'):
             headers['Content-Security-Policy'] = self.get_content_security_policy(channel.origin)
+
         channel.http_ok(content_type, headers)
         channel.send_data(data)
 
@@ -419,7 +412,10 @@ class Packages(bus.Object, interface='cockpit.Packages'):
 
     def serve_package_file(self, path, channel):
         package, _, package_path = path[1:].partition('/')
-        self.packages[package].serve_file(package_path, channel)
+        try:
+            self.packages[package].serve_file(package_path, channel)
+        except KeyError:
+            channel.http_error(404, "Not Found")
 
     def serve_checksum(self, channel):
         channel.http_ok('text/plain')
@@ -441,8 +437,6 @@ class Packages(bus.Object, interface='cockpit.Packages'):
             self.serve_manifests_js(channel)
         elif path == '/checksum':
             self.serve_checksum(channel)
-        elif '*' in path:
-            channel.http_error(404, "Not Found")
         else:
             self.serve_package_file(path, channel)
 

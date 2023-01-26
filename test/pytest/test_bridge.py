@@ -198,8 +198,8 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
         self.more_superuser_bridges = [*self.superuser_bridges, 'pseudo']
 
         # Add pseudo to the existing set of superuser rules
-        rules = self.bridge.packages.get_bridges()
-        rules.append({
+        configs = self.bridge.packages.get_bridge_configs()
+        configs.append({
             'label': 'pseudo',
             'spawn': [
                 sys.executable, os.path.abspath(f'{__file__}/../pseudo.py'),
@@ -210,7 +210,7 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
             ],
             'privileged': True
         })
-        self.bridge.superuser_rule.set_bridge_rules(rules)
+        self.bridge.superuser_rule.set_configs(configs)
 
     async def test_echo(self):
         await self.start()

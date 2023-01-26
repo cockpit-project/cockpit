@@ -182,20 +182,20 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
         except bus.BusError as exc:
             startup.failed(self, exc)
 
-    def set_bridge_rules(self, rules: List[Dict[str, object]]):
+    def set_configs(self, configs: List[Dict[str, object]]):
         self.superuser_rules = {}
-        for rule in rules:
-            if rule.get('privileged', False):
-                spawn = rule['spawn']
+        for config in configs:
+            if config.get('privileged', False):
+                spawn = config['spawn']
                 assert isinstance(spawn, list)
                 assert isinstance(spawn[0], str)
-                label = rule.get('label')
+                label = config.get('label')
                 if label is not None:
                     assert isinstance(label, str)
                     name = label
                 else:
                     name = os.path.basename(spawn[0])
-                environ = rule.get('environ', [])
+                environ = config.get('environ', [])
                 assert isinstance(environ, list)
                 self.superuser_rules[name] = label, spawn, environ
         self.bridges = list(self.superuser_rules)

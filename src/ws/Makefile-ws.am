@@ -166,7 +166,7 @@ testserviceddir = $(systemdunitdir)/cockpit.service.d
 
 install-tests::
 	mkdir -p $(DESTDIR)$(pamdir) $(DESTDIR)$(testserviceddir) $(DESTDIR)/etc/cockpit
-	$(INSTALL_DATA) mock-pam-conv-mod.so $(DESTDIR)$(pamdir)/
+	$(INSTALL_PROGRAM) mock-pam-conv-mod.so $(DESTDIR)$(pamdir)/
 
 install-exec-hook::
 	mkdir -p $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d $(DESTDIR)$(sysconfdir)/cockpit/machines.d

@@ -21,7 +21,7 @@ import asyncio
 import logging
 import os
 
-from typing import Any, Dict, Optional, Set
+from typing import Dict, Optional, Set
 
 from .router import Endpoint, Router
 from .protocol import CockpitProtocolClient
@@ -89,7 +89,7 @@ class Peer(CockpitProtocolClient, SubprocessProtocol, Endpoint):
         if isinstance(transport, SubprocessTransport):
             transport.send_stderr_fd()
 
-    def do_init(self, message: Dict[str, Any]) -> None:
+    def do_init(self, message: Dict[str, object]) -> None:
         if self.endpoint_is_frozen():
             logger.debug('Peer %s connection got init message', self.name)
             if self.state_listener is not None:

@@ -20,11 +20,11 @@ import json
 import sys
 import time
 import logging
-from typing import Any, Dict, List, Set, NamedTuple, Optional, Tuple
+from typing import Dict, List, NamedTuple, Optional, Set, Tuple, Union
 from collections import defaultdict
 
 from ..channel import AsyncChannel, ChannelError
-from ..samples import SAMPLERS, Sampler, SampleDescription
+from ..samples import SAMPLERS, Sampler, Samples, SampleDescription
 
 logger = logging.getLogger(__name__)
 
@@ -87,7 +87,7 @@ class InternalMetricsChannel(AsyncChannel):
 
         self.samplers = {cls() for cls in sampler_classes}
 
-    def send_meta(self, samples: Dict[str, Any], timestamp: float):
+    def send_meta(self, samples: Samples, timestamp: float):
         metrics = []
         for metricinfo in self.metrics:
             if metricinfo.desc.instanced:
@@ -120,28 +120,31 @@ class InternalMetricsChannel(AsyncChannel):
             sampler.sample(samples)
         return samples
 
-    def calculate_sample_rate(self, value: Any, old_value: Optional[Any]):
+    def calculate_sample_rate(self, value: float, old_value: Optional[float]) -> Union[float, bool]:
         if old_value is not None and self.last_timestamp:
             return (value - old_value) / (self.next_timestamp - self.last_timestamp)
         else:
             return False
 
-    def send_updates(self, samples: Dict[str, Any], last_samples: Dict[str, Any]):
-        data = []
+    def send_updates(self, samples: Samples, last_samples: Samples):
+        data: List[Union[float, List[Optional[Union[float, bool]]]]] = []
         timestamp = time.time()
         self.next_timestamp = timestamp
 
         for metricinfo in self.metrics:
             value = samples[metricinfo.desc.name]
-            old_value = last_samples[metricinfo.desc.name]
 
             if metricinfo.desc.instanced:
+                old_value = last_samples[metricinfo.desc.name]
+                assert isinstance(value, dict)
+                assert isinstance(old_value, dict)
+
                 # If we have less or more keys the data changed, send a meta message.
                 if value.keys() != old_value.keys():
                     self.need_meta = True
 
                 if metricinfo.derive == 'rate':
-                    instances = []
+                    instances: List[Optional[Union[float, bool]]] = []
                     for key, val in value.items():
                         instances.append(self.calculate_sample_rate(val, old_value.get(key)))
 
@@ -149,6 +152,10 @@ class InternalMetricsChannel(AsyncChannel):
                 else:
                     data.append([val for val in value.values()])
             else:
+                old_value = last_samples.get(metricinfo.desc.name)
+                assert not isinstance(value, dict)
+                assert not isinstance(old_value, dict)
+
                 if metricinfo.derive == 'rate':
                     data.append(self.calculate_sample_rate(value, old_value))
                 else:

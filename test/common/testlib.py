@@ -1587,6 +1587,9 @@ class MachineCase(unittest.TestCase):
                                         rm -rf /run/user/$u
                                     done""")
 
+            # Restart logind to mop up empty "closing" sessions
+            self.machine.execute("systemctl restart systemd-logind")
+
             # Terminate all other Cockpit sessions
             sessions = self.machine.execute("loginctl --no-legend list-sessions | awk '/web console/ { print $1 }'").strip().split()
             for s in sessions:

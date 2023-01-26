@@ -388,13 +388,13 @@ class TestSuperuserOldShell(MachineCase):
 
 @skipImage("TODO: broken on Arch Linux", "arch")
 @skipDistroPackage()
-@todoPybridge()
 class TestSuperuserOldWebserver(MachineCase):
     provision = {
         "machine1": {"address": "10.111.113.1/20", "image": "centos-7", "memory_mb": 512},
         "machine2": {"address": "10.111.113.2/20", "memory_mb": 512},
     }
 
+    @todoPybridge()
     def test(self):
         b = self.browser
         m = self.machine

@@ -202,12 +202,11 @@ class Browser:
             with open(f'{TEST_DIR}/browser-layouts.json') as fp:
                 self.layouts = json.load(fp)
         except FileNotFoundError:
-            # Firefox CDP does not support setting EmulatedMedia
-            # https://bugzilla.mozilla.org/show_bug.cgi?id=1549434
-            if self.cdp.browser.name == "chromium":
-                self.layouts = default_layouts
-            else:
-                self.layouts = [layout for layout in default_layouts if layout["name"] != "dark"]
+            self.layouts = default_layouts
+        # Firefox CDP does not support setting EmulatedMedia
+        # https://bugzilla.mozilla.org/show_bug.cgi?id=1549434
+        if self.cdp.browser.name != "chromium":
+            self.layouts = [layout for layout in self.layouts if layout["theme"] != "dark"]
         self.current_layout = None
 
     def title(self):

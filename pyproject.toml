@@ -14,8 +14,12 @@ where = ["src"]
 include = [
   "cockpit",
   "cockpit.channels",
+  "cockpit.data",
   "systemd_ctypes",
 ]
+
+[tool.setuptools.package-data]
+"cockpit.data" = ["*.html"]
 
 [tool.mypy]
 mypy_path = 'src'

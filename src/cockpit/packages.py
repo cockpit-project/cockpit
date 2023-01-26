@@ -446,7 +446,7 @@ class Packages(bus.Object, interface='cockpit.Packages'):
         else:
             self.serve_package_file(path, channel)
 
-    def get_bridges(self):
+    def get_bridge_configs(self):
         bridges = []
         for package in sorted(self.packages.values(), key=lambda package: -package.priority):
             bridges.extend(package.bridges)

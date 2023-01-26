@@ -115,10 +115,10 @@ class Bridge(Router, PackagesListener):
 
     # PackagesListener interface
     def packages_loaded(self):
-        bridge_rules = self.packages.get_bridges()
-        if self.bridge_rules != bridge_rules:
-            self.superuser_rule.set_bridge_rules(bridge_rules)
-            self.bridge_rules = bridge_rules
+        bridge_configs = self.packages.get_bridge_configs()
+        if self.bridge_rules != bridge_configs:
+            self.superuser_rule.set_configs(bridge_configs)
+            self.bridge_configs = bridge_configs
 
 
 async def run(args) -> None:
@@ -208,7 +208,7 @@ def main() -> None:
     if args.packages:
         Packages().show()
     elif args.bridges:
-        print(json.dumps(Packages().get_bridges(), indent=2))
+        print(json.dumps(Packages().get_bridge_configs(), indent=2))
     else:
         asyncio.set_event_loop_policy(EventLoopPolicy())
         asyncio.run(run(args), debug=args.debug)

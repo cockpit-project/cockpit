@@ -48,8 +48,11 @@ class PackagesChannel(Channel):
         self.send_message(status=200, reason='OK', headers={k: v for k, v in headers.items() if v is not None})
 
     def http_error(self, status, message):
-        self.send_message(status=status, reason='ERROR')
-        self.send_data(message.encode('utf-8'))
+        # with (importlib.resources.file('cockpit.data') / 'data' / 'fail.html').open() ...  (from py3.7)
+        fail_path = __file__.removesuffix('/channels/packages.py') + '/data/fail.html'
+        template = __loader__.get_data(fail_path)
+        self.send_message(status=status, reason='ERROR', headers={'Content-Type': 'text/html; charset=utf-8'})
+        self.send_data(template.replace(b'@@message@@', message.encode('utf-8')))
 
     def do_done(self):
         assert not self.post

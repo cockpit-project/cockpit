@@ -166,11 +166,10 @@ detect_cpu_sensors (GList **devices,
   while ((name = g_dir_read_name (dir)))
     {
       uint i;
-      if (!g_str_has_suffix(name, "_input"))
+      if (sscanf(name, "temp%d_input", &i) != 1)
           continue;
 
       g_autofree char *sensor_path = g_build_filename (path, name, NULL);
-      sscanf(name, "temp%d_input", &i);
       g_autofree gchar *label = g_strdup_printf ("/sys/class/hwmon/hwmon%d/temp%d_label", hwmonID, i);
       g_autofree gchar *label_content = read_file (label);
 

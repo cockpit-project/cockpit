@@ -23,7 +23,7 @@ import signal
 import socket
 import subprocess
 
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
 
 
 from ..channel import ProtocolChannel, ChannelError
@@ -46,7 +46,7 @@ class UnixStreamChannel(ProtocolChannel):
     payload = 'stream'
     restrictions = (('unix', None),)
 
-    def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, Any]) -> SocketTransport:
+    def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, object]) -> SocketTransport:
         path: str = options['unix']
         connection = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         connection.connect(path)
@@ -60,7 +60,7 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
     def process_exited(self) -> None:
         self.close_on_eof()
 
-    def _close_args(self) -> Dict[str, Any]:
+    def _close_args(self) -> Dict[str, object]:
         assert isinstance(self._transport, SubprocessTransport)
         args: Dict[str, object] = {'exit-status': self._transport.get_returncode()}
         stderr = self._transport.get_stderr()
@@ -85,7 +85,7 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
             # already gone? fine!
             logger.debug('Received close signal from peer, but process %i is already gone', pid)
 
-    def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, Any]) -> SubprocessTransport:
+    def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, object]) -> SubprocessTransport:
         args: list[str] = options['spawn']
         err: Optional[str] = options.get('err')
         cwd: Optional[str] = options.get('directory')

@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import asyncio
 
-from typing import Any, ClassVar, Dict, List, Optional, Sequence, Tuple, Type
+from typing import ClassVar, Dict, List, Optional, Sequence, Tuple, Type
 
 from .router import Endpoint, Router, RoutingRule
 
@@ -190,7 +190,7 @@ class ProtocolChannel(Channel, asyncio.Protocol):
     _transport: Optional[asyncio.Transport]
     _loop: Optional[asyncio.AbstractEventLoop]
     _send_pongs: bool = True
-    _last_ping: Optional[Dict[str, Any]]
+    _last_ping: Optional[Dict[str, object]]
 
     _send_pings: bool = False
     _out_sequence: int = 0
@@ -200,7 +200,7 @@ class ProtocolChannel(Channel, asyncio.Protocol):
     _close_on_eof: bool = False
     _eof: bool = False
 
-    def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, Any]) -> asyncio.Transport:
+    def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, object]) -> asyncio.Transport:
         """Creates the transport for this channel, according to options.
 
         The event loop for the transport is passed to the function.  The
@@ -219,7 +219,7 @@ class ProtocolChannel(Channel, asyncio.Protocol):
         assert isinstance(transport, asyncio.Transport)
         self._transport = transport
 
-    def _close_args(self) -> Dict[str, Any]:
+    def _close_args(self) -> Dict[str, object]:
         return {}
 
     def connection_lost(self, exc: Optional[Exception]) -> None:

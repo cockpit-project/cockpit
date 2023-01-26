@@ -410,6 +410,10 @@ class Packages(bus.Object, interface='cockpit.Packages'):
                 }
             }(this, """ + self.manifests + """))""").encode('ascii'))
 
+    def serve_manifests_json(self, channel):
+        channel.http_ok('application/json')
+        channel.send_data(self.manifests.encode('ascii'))
+
     def serve_package_file(self, path, channel):
         package, _, package_path = path[1:].partition('/')
         try:
@@ -428,13 +432,15 @@ class Packages(bus.Object, interface='cockpit.Packages'):
         # changing the language in Chromium, as that does not respect `Vary: Cookie` properly.
         # See https://github.com/cockpit-project/cockpit/issues/8160
         # We also can't cache /manifests.js because it changes if packages are installed/removed.
-        if self.checksum is not None and not path.endswith('po.js') and path != '/manifests.js':
+        if self.checksum is not None and not path.endswith('po.js') and path not in ['/manifests.js', '/manifests.json']:
             channel.push_header('X-Cockpit-Pkg-Checksum', self.checksum)
         else:
             channel.push_header('Cache-Control', 'no-cache, no-store')
 
         if path == '/manifests.js':
             self.serve_manifests_js(channel)
+        elif path == '/manifests.json':
+            self.serve_manifests_json(channel)
         elif path == '/checksum':
             self.serve_checksum(channel)
         else:

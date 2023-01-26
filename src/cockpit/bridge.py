@@ -34,6 +34,7 @@ from .channels import CHANNEL_TYPES
 from .config import Config, Environment
 from .internal_endpoints import EXPORTS
 from .packages import Packages, PackagesListener
+from .peer import PeersRoutingRule
 from .remote import HostRoutingRule
 from .router import Router
 from .superuser import SUPERUSER_AUTH_COOKIE, SuperuserRoutingRule
@@ -73,12 +74,15 @@ class Bridge(Router, PackagesListener):
         self.internal_bus.export('/config', Config())
         self.internal_bus.export('/environment', Environment())
 
+        self.peers_rule = PeersRoutingRule(self)
+
         self.packages_loaded()
 
         super().__init__([
             HostRoutingRule(self),
             self.superuser_rule,
             ChannelRoutingRule(self, CHANNEL_TYPES),
+            self.peers_rule,
         ])
 
     @staticmethod
@@ -118,6 +122,7 @@ class Bridge(Router, PackagesListener):
         bridge_configs = self.packages.get_bridge_configs()
         if self.bridge_rules != bridge_configs:
             self.superuser_rule.set_configs(bridge_configs)
+            self.peers_rule.set_configs(bridge_configs)
             self.bridge_configs = bridge_configs
 
 

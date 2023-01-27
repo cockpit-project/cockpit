@@ -15,9 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import asyncio
 import logging
 import os
 import random
+import threading
 
 from systemd_ctypes import PathWatch
 from systemd_ctypes.inotify import Event as InotifyEvent
@@ -81,35 +83,45 @@ class FsReadChannel(Channel):
     payload = 'fsread1'
 
     def do_open(self, options):
+        self.loop = asyncio.get_event_loop()
+        self.options = options
+        threading.Thread(target=self.read_thread, daemon=True).start()
         self.ready()
+
+    def read_thread(self):
         try:
-            logger.debug('Opening file "%s" for reading', options['path'])
+            logger.debug('Opening file "%s" for reading', self.options['path'])
             try:
-                with open(options['path'], 'rb') as filep:
+                with open(self.options['path'], 'rb') as filep:
                     buf = os.stat(filep.fileno())
                     tag = tag_from_stat(buf)
-                    if max_read_size := options.get('max_read_size'):
+                    if max_read_size := self.options.get('max_read_size'):
                         if buf.st_size > max_read_size:
-                            raise ChannelError('too-large')
+                            self.close(problem='too-large')
 
-                    data = filep.read()
+                    while True:
+                        data = filep.read1(1024 * 1024)
+                        if data:
+                            logger.debug('Read chunk of %i bytes from %s', len(data), self.options['path'])
+                            if 'binary' not in self.options:
+                                data = data.replace(b'\0', b'').decode('utf-8', errors='ignore').encode('utf-8')
+                            self.loop.call_soon_threadsafe(self.send_data, data)
+                        else:
+                            logger.debug('Reading %s EOF', self.options['path'])
+                            # these don't block, but have to queue after the send_data above
+                            self.loop.call_soon_threadsafe(self.done)
+                            self.loop.call_soon_threadsafe(lambda: self.close(tag=tag))
+                            break
+
             except FileNotFoundError:
                 self.close(tag='-')
                 return
             except PermissionError:
-                raise ChannelError('access-denied')
-            except OSError:
-                raise ChannelError('internal-error')
-
-            if 'binary' not in options:
-                data = data.replace(b'\0', b'').decode('utf-8', errors='ignore').encode('utf-8')
-
-            logger.debug('  ...sending %d bytes', len(data))
-            self.send_data(data)
+                self.close(problem='access-denied')
+            except OSError as e:
+                self.close(problem='internal-error', message=str(e))
         except FileNotFoundError:
             logger.debug('  ...file not found!')
-        self.done()
-        self.close(tag=tag)
 
 
 class FsReplaceChannel(Channel):

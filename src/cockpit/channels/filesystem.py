@@ -19,10 +19,12 @@ import logging
 import os
 import random
 
+from typing import Dict
+
 from systemd_ctypes import PathWatch
 from systemd_ctypes.inotify import Event as InotifyEvent
 
-from ..channel import Channel, ChannelError
+from ..channel import Channel, ChannelError, GeneratorChannel
 
 logger = logging.getLogger(__name__)
 
@@ -77,39 +79,38 @@ class FsListChannel(Channel):
             self.close()
 
 
-class FsReadChannel(Channel):
+class FsReadChannel(GeneratorChannel):
     payload = 'fsread1'
 
-    def do_open(self, options):
-        self.ready()
+    def do_yield_data(self, options: Dict[str, object]) -> GeneratorChannel.DataGenerator:
+        binary = options.get('binary', False)
+        max_read_size = options.get('max_read_size')
+
+        logger.debug('Opening file "%s" for reading', options['path'])
+
         try:
-            logger.debug('Opening file "%s" for reading', options['path'])
-            try:
-                with open(options['path'], 'rb') as filep:
-                    buf = os.stat(filep.fileno())
-                    tag = tag_from_stat(buf)
-                    if max_read_size := options.get('max_read_size'):
-                        if buf.st_size > max_read_size:
-                            raise ChannelError('too-large')
+            with open(options['path'], 'rb') as filep:
+                buf = os.stat(filep.fileno())
+                if max_read_size is not None and buf.st_size > max_read_size:
+                    raise ChannelError('too-large')
 
-                    data = filep.read()
-            except FileNotFoundError:
-                self.close(tag='-')
-                return
-            except PermissionError:
-                raise ChannelError('access-denied')
-            except OSError:
-                raise ChannelError('internal-error')
+                while True:
+                    data = filep.read1(Channel.BLOCK_SIZE)
+                    if data == b'':
+                        break
+                    logger.debug('  ...sending %d bytes', len(data))
+                    if not binary:
+                        data = data.replace(b'\0', b'').decode('utf-8', errors='ignore').encode('utf-8')
+                    yield data
 
-            if 'binary' not in options:
-                data = data.replace(b'\0', b'').decode('utf-8', errors='ignore').encode('utf-8')
+            return {'tag': tag_from_stat(buf)}
 
-            logger.debug('  ...sending %d bytes', len(data))
-            self.send_data(data)
         except FileNotFoundError:
-            logger.debug('  ...file not found!')
-        self.done()
-        self.close(tag=tag)
+            return {'tag': '-'}
+        except PermissionError:
+            raise ChannelError('access-denied')
+        except OSError:
+            raise ChannelError('internal-error')
 
 
 class FsReplaceChannel(Channel):

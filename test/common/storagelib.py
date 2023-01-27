@@ -577,11 +577,12 @@ MakeDirectory=yes
         dev = "/dev/" + info["dev"]
         wait(lambda: m.execute(f"test -b {dev} && echo present").strip() == "present")
         m.execute(f"""
+set -x
 parted -s {dev} mktable msdos
-parted -s {dev} mkpart primary ext4 1M 300M
-parted -s {dev} mkpart primary ext4 300M 100%
-echo {passphrase} | cryptsetup luksFormat {dev}2
-echo {passphrase} | cryptsetup luksOpen {dev}2 dm-test
+parted -s {dev} mkpart primary ext4 1M 500M
+parted -s {dev} mkpart primary ext4 500M 100%
+echo {passphrase} | cryptsetup luksFormat --pbkdf-memory=300 {dev}2
+echo {passphrase} | cryptsetup luksOpen --pbkdf-memory=300 {dev}2 dm-test
 luks_uuid=$(blkid -p {dev}2 -s UUID -o value)
 mkfs.ext4 /dev/mapper/dm-test
 mkdir /new-root
@@ -589,7 +590,9 @@ mount /dev/mapper/dm-test /new-root
 mkfs.ext4 {dev}1
 mkdir /new-root/boot
 mount {dev}1 /new-root/boot
-tar --one-file-system -cf - --exclude /boot --exclude='/var/tmp/*' --exclude='/var/cache/*' --exclude='/var/lib/mock/*' --exclude='/var/lib/containers/*' / | tar -C /new-root -xf -
+tar --one-file-system -cf - --exclude /boot --exclude='/var/tmp/*' --exclude='/var/cache/*' \
+    --exclude='/var/lib/mock/*' --exclude='/var/lib/containers/*' --exclude='/new-root/*' \
+    / | tar -C /new-root -xf -
 touch /new-root/.autorelabel
 tar --one-file-system -C /boot -cf - . | tar -C /new-root/boot -xf -
 umount /new-root/boot

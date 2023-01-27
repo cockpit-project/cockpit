@@ -319,10 +319,13 @@ class StorageHelpers:
         self.browser.wait_not_present(self.dialog_field(field))
 
     def dialog_wait_apply_enabled(self):
-        self.browser.wait_attr('#dialog button.apply', "disabled", None)
+        self.browser.wait_attr('#dialog button.apply:nth-of-type(1)', "disabled", None)
 
     def dialog_apply(self):
-        self.browser.click('#dialog button.apply')
+        self.browser.click('#dialog button.apply:nth-of-type(1)')
+
+    def dialog_apply_secondary(self):
+        self.browser.click('#dialog button.apply:nth-of-type(2)')
 
     def dialog_cancel(self):
         self.browser.click('#dialog button.cancel')
@@ -360,12 +363,15 @@ class StorageHelpers:
             else:
                 raise last_error
 
-    def dialog(self, values, expect={}):
+    def dialog(self, values, expect={}, secondary=False):
         self.dialog_wait_open()
         for f in expect:
             self.dialog_wait_val(f, expect[f])
         self.dialog_set_vals(values)
-        self.dialog_apply()
+        if secondary:
+            self.dialog_apply_secondary()
+        else:
+            self.dialog_apply()
         self.dialog_wait_close()
 
     def confirm(self):

@@ -377,44 +377,58 @@ export const dialog_open = (def) => {
         dlg.setFooterProps(footer_props(running_title, running_promise));
     };
 
+    function run_action(progress_callback, variant) {
+        const func = () => {
+            return validate()
+                    .then(() => {
+                        const visible_values = { variant };
+                        fields.forEach(f => {
+                            if (is_visible(f, values))
+                                visible_values[f.tag] = values[f.tag];
+                        });
+                        if (def.Action.wrapper)
+                            return def.Action.wrapper(visible_values, progress_callback,
+                                                      def.Action.action);
+                        else
+                            return def.Action.action(visible_values, progress_callback);
+                    })
+                    .catch(errs => {
+                        if (errs && errs.toString() != "[object Object]") {
+                        // Log errors from failed actions, for debugging and
+                        // to allow the test suite to catch known issues.
+                            console.warn(errs.toString());
+                        }
+                        errors = errs;
+                        update();
+                        return Promise.reject();
+                    });
+        };
+        return client.run(func);
+    }
+
     const footer_props = (running_title, running_promise) => {
         let actions = [];
         if (def.Action) {
             actions = [
                 {
                     caption: def.Action.Title,
-                    style: (def.Action.Danger || def.Action.DangerButton) ? "danger" : "primary",
+                    style: "primary",
+                    danger: def.Action.Danger || def.Action.DangerButton,
                     disabled: running_promise != null,
-                    clicked: function (progress_callback) {
-                        const func = () => {
-                            return validate()
-                                    .then(() => {
-                                        const visible_values = { };
-                                        fields.forEach(f => {
-                                            if (is_visible(f, values))
-                                                visible_values[f.tag] = values[f.tag];
-                                        });
-                                        if (def.Action.wrapper)
-                                            return def.Action.wrapper(visible_values, progress_callback,
-                                                                      def.Action.action);
-                                        else
-                                            return def.Action.action(visible_values, progress_callback);
-                                    })
-                                    .catch(errs => {
-                                        if (errs && errs.toString() != "[object Object]") {
-                                            // Log errors from failed actions, for debugging and
-                                            // to allow the test suite to catch known issues.
-                                            console.warn(errs.toString());
-                                        }
-                                        errors = errs;
-                                        update();
-                                        return Promise.reject();
-                                    });
-                        };
-                        return client.run(func);
-                    }
+                    clicked: progress_callback => run_action(progress_callback, null),
                 }
             ];
+
+            if (def.Action.Variants)
+                for (const v of def.Action.Variants) {
+                    actions.push({
+                        caption: v.Title,
+                        style: "secondary",
+                        danger: def.Action.Danger || def.Action.DangerButton,
+                        disabled: running_promise != null,
+                        clicked: progress_callback => run_action(progress_callback, v.tag),
+                    });
+                }
         }
 
         const extra = (

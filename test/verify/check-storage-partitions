@@ -52,8 +52,7 @@ class TestStoragePartitions(StorageCase):
 
         self.content_row_action(1, "Create partition")
         self.dialog({"type": "ext4",
-                     "mount_point": "/foo",
-                     "mount_options.auto": True})
+                     "mount_point": "/foo"})
         self.content_row_wait_in_col(1, 2, "ext4 filesystem")
         self.wait_mounted(1, 2)
 

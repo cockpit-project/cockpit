@@ -159,10 +159,15 @@ class DialogFooter extends React.Component {
             else
                 caption = _("Ok");
 
+            let variant = action.style || "secondary";
+            if (variant == "primary" && action.danger)
+                variant = "danger";
+
             return (<Button
                 key={ caption }
                 className="apply"
-                variant={ action.style || "secondary" }
+                variant={ variant }
+                isDanger={ action.danger }
                 onClick={ this.action_click.bind(this, action.clicked) }
                 isDisabled={ actions_disabled || action?.disabled }
             >{ caption }</Button>

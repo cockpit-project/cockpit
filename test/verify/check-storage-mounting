@@ -98,7 +98,7 @@ ExecStart=/usr/bin/sleep infinity
 
         # Set the "Never unlock at boot option"
         self.content_tab_info_action(1, 1, "Mount point")
-        self.dialog({"mount_options.never_auto": True})
+        self.dialog({"at_boot": "never"})
         self.assertIn("noauto", m.execute(f"findmnt -s -n -o OPTIONS {mount_point_bar}"))
         self.assertIn("x-cockpit-never-auto", m.execute(f"findmnt -s -n -o OPTIONS {mount_point_bar}"))
 
@@ -198,7 +198,7 @@ ExecStart=/usr/bin/sleep infinity
         b.wait_not_present(fsys_tab + " button:contains(Mount automatically on /run/bar on boot)")
 
         # Using noauto,x-systemd.automount should not show a warning
-        m.execute("sed -i -e 's/auto defaults/auto noauto/' /etc/fstab")
+        m.execute("sed -i -e 's/auto nofail/auto nofail,noauto/' /etc/fstab")
         b.wait_visible(fsys_tab + " button:contains(Mount also automatically on boot)")
         m.execute("sed -i -e 's/noauto/noauto,x-systemd.automount/' /etc/fstab")
         b.wait_not_present(fsys_tab + " button:contains(Mount also automatically on boot)")
@@ -228,6 +228,7 @@ ExecStart=/usr/bin/sleep infinity
         self.dialog_set_val("passphrase", "vainu-reku-toma-rolle-kaja")
         self.dialog_set_val("passphrase2", "vainu-reku-toma-rolle-kaja")
         self.dialog_set_val("mount_point", "/run/foo")
+        self.dialog_set_val("at_boot", "netdev")
         self.dialog_apply()
         self.dialog_wait_close()
         self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
@@ -363,11 +364,10 @@ ExecStart=/usr/bin/sleep infinity
                      "crypto": self.default_crypto_type,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja",
-                     "mount_options.auto": True,
-                     "mount_options.never_auto": True,
+                     "at_boot": "never",
                      "mount_point": "/run/foo"})
         self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
-        self.content_tab_wait_in_info(1, 1, "Mount point", "never mounted at boot")
+        self.content_tab_wait_in_info(1, 1, "Mount point", "never mount at boot")
 
         # The filesystem should be mounted but have the "noauto"
         # option in both fstab and crypttab
@@ -420,8 +420,8 @@ ExecStart=/usr/bin/sleep infinity
 
         self.content_row_action(1, "Format")
         self.dialog({"type": "ext4",
-                     "mount_options.auto": False,
-                     "mount_point": "/run/foo"})
+                     "mount_point": "/run/foo"},
+                    secondary=True)
         self.content_row_wait_in_col(1, 2, "ext4 filesystem")
         self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
         self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /run/foo"))
@@ -464,6 +464,65 @@ ExecStart=/usr/bin/sleep infinity
 
         self.assertNotIn("hurr", m.execute("findmnt --fstab -n -o OPTIONS /run/foo"))
         self.wait_mounted(1, 1)
+
+    def testAtBoot(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        info = m.add_disk("50M", serial="MYDISK")
+        dev = "/dev/" + info['dev']
+        b.wait_in_text("#drives", "MYDISK")
+        b.click('.sidepanel-row:contains("MYDISK")')
+        b.wait_visible("#storage-detail")
+
+        self.content_row_action(1, "Format")
+        self.dialog({"type": "ext4",
+                     "mount_point": "/foo",
+                     "at_boot": "local",
+                     "crypto": "luks1",
+                     "passphrase": "foobarfoo",
+                     "passphrase2": "foobarfoo"},
+                    secondary=True)
+        self.content_row_wait_in_col(1, 2, "Filesystem (encrypted)")
+        self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
+        self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
+        self.assert_in_configuration(dev, "crypttab", "options", "noauto")
+
+        def mount(expected_at_boot, at_boot):
+            self.content_row_action(1, "Mount")
+            self.dialog_wait_open()
+            self.dialog_wait_val("at_boot", expected_at_boot)
+            self.dialog_set_val("at_boot", at_boot)
+            self.dialog_set_val("passphrase", "foobarfoo")
+            self.dialog_apply()
+            self.dialog_wait_close()
+
+        def unmount():
+            self.content_dropdown_action(1, "Unmount")
+            self.dialog_wait_open()
+            self.dialog_apply()
+            self.dialog_wait_close()
+            self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
+
+        mount("local", "nofail")
+        self.content_tab_wait_in_info(1, 1, "Mount point", "ignore failure")
+        self.assertIn("nofail", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
+        self.assert_in_configuration(dev, "crypttab", "options", "nofail")
+        unmount()
+
+        mount("nofail", "netdev")
+        self.content_tab_wait_in_info(1, 1, "Mount point", "after network")
+        self.assertIn("_netdev", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
+        self.assert_in_configuration(dev, "crypttab", "options", "_netdev")
+        unmount()
+
+        mount("netdev", "never")
+        self.content_tab_wait_in_info(1, 1, "Mount point", "never mount")
+        self.assertIn("x-cockpit-never-auto", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
+        self.assert_in_configuration(dev, "crypttab", "options", "noauto")
+        unmount()
 
 
 if __name__ == '__main__':

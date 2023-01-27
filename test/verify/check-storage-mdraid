@@ -202,8 +202,8 @@ class TestStorageMdRaid(StorageCase):
         self.dialog({"size": 20,
                      "type": "ext4",
                      "mount_point": "/foo1",
-                     "mount_options.auto": False,
-                     "name": "One"})
+                     "name": "One"},
+                    secondary=True)
         self.content_row_wait_in_col(1, 2, "ext4 filesystem")
         self.content_row_wait_in_col(1, 1, part_prefix + "1")
 
@@ -211,7 +211,6 @@ class TestStorageMdRaid(StorageCase):
         self.content_row_action(2, "Create partition", False)
         self.dialog({"type": "ext4",
                      "mount_point": "/foo2",
-                     "mount_options.auto": True,
                      "name": "Two"})
 
         self.content_row_wait_in_col(2, 2, "ext4 filesystem")

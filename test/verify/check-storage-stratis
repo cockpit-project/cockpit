@@ -139,6 +139,7 @@ class TestStorageStratis(StorageCase):
         self.dialog_wait_open()
         self.dialog_set_val('name', 'fsys2-copy')
         self.dialog_set_val('mount_point', '/run/fsys2-copy')
+        self.dialog_set_val('at_boot', 'never')
         b.assert_pixels("#dialog", "copy-fsys")
         self.dialog_apply()
         self.dialog_wait_close()
@@ -237,8 +238,9 @@ class TestStorageStratis(StorageCase):
         b.wait_in_text('#detail-header', "Encrypted Stratis pool pool0")
         b.click("button:contains(Create new filesystem)")
         self.dialog({'name': 'fsys1',
-                     'mount_options.auto': False,
-                     'mount_point': '/run/fsys1'})
+                     'mount_point': '/run/fsys1',
+                     'at_boot': 'local'},
+                    secondary=True)
         b.wait_in_text("#detail-content", "fsys1")
 
         # Check that it has an entry in fstab and that it is "noauto"
@@ -382,6 +384,56 @@ class TestStorageStratis(StorageCase):
 
         # Filesystem should be mounted now
         self.wait_mounted(1, 1)
+
+    def testAtBoot(self):
+        m = self.machine
+        b = self.browser
+
+        self.login_and_go("/storage")
+
+        dev_1 = "/dev/sda"
+        m.add_disk("4G", serial="DISK1")
+        b.wait_in_text("#drives", dev_1)
+
+        # Create a pool
+        self.dialog_with_retry(trigger=lambda: self.devices_dropdown("Create Stratis pool"),
+                               expect=lambda: (self.dialog_is_present('disks', dev_1) and
+                                               self.dialog_check({"name": "pool0"})),
+                               values={"disks": {dev_1: True}})
+        b.wait_in_text("#devices", "pool0")
+
+        b.click('.sidepanel-row:contains("pool0")')
+        b.wait_visible('#storage-detail')
+
+        def create(at_boot):
+            b.click("button:contains(Create new filesystem)")
+            self.dialog({'name': 'fsys1',
+                         'mount_point': '/foo',
+                         'at_boot': at_boot})
+            b.wait_in_text("#detail-content", "fsys1")
+
+        def destroy():
+            self.content_dropdown_action(1, "Delete")
+            self.dialog_wait_open()
+            self.dialog_apply_with_retry("Device or resource busy")
+            b.wait_not_in_text("#detail-content", "fsys1")
+
+        create("local")
+        self.assertNotIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
+        destroy()
+
+        create("nofail")
+        self.assertIn("nofail", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
+        destroy()
+
+        create("netdev")
+        self.assertIn("_netdev", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
+        destroy()
+
+        create("never")
+        self.assertIn("x-cockpit-never-auto", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
+        self.assertIn("noauto", m.execute("findmnt --fstab -n -o OPTIONS /foo"))
+        destroy()
 
 
 @skipImage("No Stratis", "debian-*", "ubuntu-*", "arch")

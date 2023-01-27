@@ -171,7 +171,7 @@ def main():
             left, _, right = param.rpartition('=')
 
             # Does that look like a kwarg?
-            if left.isidentifier():
+            if left.replace('-', '_').isidentifier():
                 key = left
                 param = right
             else:

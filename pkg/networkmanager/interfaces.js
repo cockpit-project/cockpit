@@ -1155,6 +1155,7 @@ export function NetworkManagerModel() {
         ],
 
         props: {
+            Capabilities: { def: [] },
             Version: { },
             Devices: {
                 conv: conv_Array(conv_Object(type_Device)),

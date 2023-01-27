@@ -49,6 +49,8 @@ import {
 } from './interfaces.js';
 
 const _ = cockpit.gettext;
+// nm-dbus-interface.h
+const NM_CAPABILITY_TEAM = 1;
 
 export const MacMenu = ({ idPrefix, model, mac, setMAC }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -167,28 +169,9 @@ export const NetworkModal = ({ dialogError, help, idPrefix, title, onSubmit, chi
 
 export const NetworkAction = ({ buttonText, iface, connectionSettings, type }) => {
     const Dialogs = useDialogs();
-    const [showAddTeam, setShowAddTeam] = useState(undefined);
     const model = useContext(ModelContext);
 
-    useEffect(() => {
-        if (type != "team")
-            return;
-
-        /* HACK - hide "Add team" if it doesn't work due to missing bits
-         * https://bugzilla.redhat.com/show_bug.cgi?id=1375967
-         * We need both the plugin and teamd
-         */
-        cockpit.script("test -f /usr/bin/teamd && " +
-                       "( test -f /usr/lib*/NetworkManager/libnm-device-plugin-team.so || " +
-                       "  test -f /usr/lib*/NetworkManager/*/libnm-device-plugin-team.so || " +
-                       "  test -f /usr/lib/*-linux-gnu/NetworkManager/libnm-device-plugin-team.so || " +
-                       "  test -f /usr/lib/*-linux-gnu/NetworkManager/*/libnm-device-plugin-team.so)",
-                       { err: "ignore" })
-                .then(() => setShowAddTeam(true))
-                .fail(() => setShowAddTeam(false));
-    }, [type]);
-
-    if (type == "team" && !showAddTeam)
+    if (type == "team" && !model.get_manager().Capabilities.includes(NM_CAPABILITY_TEAM))
         return null;
 
     const con = iface && iface.MainConnection;

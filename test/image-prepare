@@ -213,8 +213,6 @@ def main():
     parser.add_argument('image', nargs='?', default=DEFAULT_IMAGE, help='The image to use')
     args = parser.parse_args()
 
-    dist_tar = subprocess.check_output([f'{BASE_DIR}/tools/make-dist'], text=True).strip()
-
     customize = [os.path.join(BOTS_DIR, "image-customize"), "--no-network"]
     if not args.overlay:
         customize.append("--fresh")
@@ -222,6 +220,8 @@ def main():
         customize.append("--verbose")
     if args.quick:
         customize.append("--quick")
+
+    dist_tar = subprocess.check_output([f'{BASE_DIR}/tools/make-dist'], text=True).strip()
 
     if args.image == "fedora-coreos":
         customize += build_install_coreos(dist_tar, args.image, args.verbose, args.quick)
@@ -233,11 +233,13 @@ def main():
     if not args.quick:
         customize += validate_packages()
 
+    # post build/install test preparation
+    customize += ["--script", os.path.join(TEST_DIR, "vm.install")]
+
     if args.python:
         customize += install_python_bridge()
 
-    # post build/install test preparation
-    customize += ["--script", os.path.join(TEST_DIR, "vm.install"), args.image]
+    customize.append(args.image)
 
     # show final command for easy copy&paste reproduction/debugging
     if args.verbose:

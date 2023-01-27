@@ -21,7 +21,6 @@ import base64
 import time
 import os
 import subprocess
-import unittest
 
 import parent  # noqa: F401
 from testlib import MachineCase, TEST_DIR, nondestructive, skipBrowser, skipDistroPackage, skipImage, test_main, wait
@@ -747,7 +746,6 @@ class TestConnection(MachineCase):
         self.assertIn("HTTP/1.1 404 Not Found\r\n", headers)
 
     @skipImage("ssh root login not allowed", "fedora-coreos")
-    @unittest.skipIf(os.getenv("TEST_SCENARIO") == "pybridge", "python bridge wedges up VM too hard, and crashes hard")
     @nondestructive
     def testFlowControl(self):
         m = self.machine

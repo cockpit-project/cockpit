@@ -171,16 +171,20 @@ def main():
             left, _, right = param.rpartition('=')
 
             # Does that look like a kwarg?
-            key = left if left.isidentifier() else None
+            if left.isidentifier():
+                key = left
+                param = right
+            else:
+                key = None
 
             # Parse the value, else take it as a literal if it's simple enough
             try:
-                value = ast.literal_eval(right)
+                value = ast.literal_eval(param)
             except (SyntaxError, ValueError):
-                if any(c in right for c in '\'":;<>,|\\(){}[]`~!@#$%^&*='):
+                if any(c in param for c in '\'":;<>,|\\(){}[]`~!@#$%^&*='):
                     raise
                 else:
-                    value = right
+                    value = param
 
             if key is not None:
                 kwargs[key] = value

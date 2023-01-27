@@ -66,8 +66,8 @@ class TestStorageHidden(StorageCase):
                      "passphrase": "einszweidrei",
                      "passphrase2": "einszweidrei",
                      "mount_point": mount_point_1,
-                     "mount_options.auto": False,
-                     "crypto_options": "my-crypto-tag"})
+                     "crypto_options": "my-crypto-tag"},
+                    secondary=True)
         self.assert_in_configuration("/dev/TEST/lvol", "crypttab", "options", "my-crypto-tag")
         self.assert_in_child_configuration("/dev/TEST/lvol", "fstab", "dir", mount_point_1)
         self.assert_in_lvol_child_configuration("lvol", "crypttab", "options", "my-crypto-tag")

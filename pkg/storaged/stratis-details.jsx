@@ -48,7 +48,7 @@ import {
     reload_systemd, for_each_async
 } from "./utils.js";
 import { fmt_to_fragments } from "utils.jsx";
-import { never_auto_explanation } from "./format-dialog.jsx";
+import { mount_explanation } from "./format-dialog.jsx";
 
 const _ = cockpit.gettext;
 
@@ -290,12 +290,16 @@ export const StratisPoolDetails = ({ client, pool }) => {
     function set_mount_options(path, vals) {
         let mount_options = [];
 
-        if (!vals.mount_options.auto || vals.mount_options.never_auto)
+        if (vals.variant == "nomount" || vals.at_boot == "never")
             mount_options.push("noauto");
         if (vals.mount_options.ro)
             mount_options.push("ro");
-        if (vals.mount_options.never_auto)
+        if (vals.at_boot == "never")
             mount_options.push("x-cockpit-never-auto");
+        if (vals.at_boot == "nofail")
+            mount_options.push("nofail");
+        if (vals.at_boot == "netdev")
+            mount_options.push("_netdev");
         if (vals.mount_options.extra)
             mount_options.push(vals.mount_options.extra);
 
@@ -331,7 +335,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
                                             return block.AddConfigurationItem(config, {})
                                                     .then(reload_systemd)
                                                     .then(() => {
-                                                        if (vals.mount_options.auto)
+                                                        if (vals.variant != "nomount")
                                                             return client.mount_at(block, mount_point);
                                                         else
                                                             return Promise.resolve();
@@ -367,25 +371,45 @@ export const StratisPoolDetails = ({ client, pool }) => {
                 CheckBoxes("mount_options", _("Mount options"),
                            {
                                value: {
-                                   auto: true,
                                    ro: false,
-                                   never_auto: false,
                                    extra: false
                                },
                                fields: [
-                                   { title: _("Mount now"), tag: "auto" },
                                    { title: _("Mount read only"), tag: "ro" },
-                                   {
-                                       title: _("Never mount at boot"),
-                                       tag: "never_auto",
-                                       tooltip: never_auto_explanation,
-                                   },
                                    { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
                                ]
                            }),
+                SelectOne("at_boot", _("At boot"),
+                          {
+                              value: "nofail",
+                              explanation: mount_explanation.nofail,
+                              choices: [
+                                  {
+                                      value: "local",
+                                      title: _("Mount before services start"),
+                                  },
+                                  {
+                                      value: "nofail",
+                                      title: _("Mount without waiting, ignore failure"),
+                                  },
+                                  {
+                                      value: "netdev",
+                                      title: _("Mount after network becomes available, ignore failure"),
+                                  },
+                                  {
+                                      value: "never",
+                                      title: _("Do not mount"),
+                                  },
+                              ]
+                          }),
             ],
+            update: function (dlg, vals, trigger) {
+                if (trigger == "at_boot")
+                    dlg.set_options("at_boot", { explanation: mount_explanation[vals.at_boot] });
+            },
             Action: {
-                Title: _("Create"),
+                Title: _("Create and mount"),
+                Variants: [{ tag: "nomount", Title: _("Create only") }],
                 action: function (vals) {
                     return client.stratis_create_filesystem(pool, vals.name)
                             .then((result, code, message) => {
@@ -498,25 +522,45 @@ export const StratisPoolDetails = ({ client, pool }) => {
                     CheckBoxes("mount_options", _("Mount options"),
                                {
                                    value: {
-                                       auto: true,
                                        ro: false,
-                                       never_auto: false,
                                        extra: false
                                    },
                                    fields: [
-                                       { title: _("Mount now"), tag: "auto" },
                                        { title: _("Mount read only"), tag: "ro" },
-                                       {
-                                           title: _("Never mount at boot"),
-                                           tag: "never_auto",
-                                           tooltip: never_auto_explanation,
-                                       },
                                        { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
                                    ]
-                               })
+                               }),
+                    SelectOne("at_boot", _("At boot"),
+                              {
+                                  value: "nofail",
+                                  explanation: mount_explanation.nofail,
+                                  choices: [
+                                      {
+                                          value: "local",
+                                          title: _("Mount before services start"),
+                                      },
+                                      {
+                                          value: "nofail",
+                                          title: _("Mount without waiting, ignore failure"),
+                                      },
+                                      {
+                                          value: "netdev",
+                                          title: _("Mount after network becomes available, ignore failure"),
+                                      },
+                                      {
+                                          value: "never",
+                                          title: _("Do not mount"),
+                                      },
+                                  ]
+                              }),
                 ],
+                update: function (dlg, vals, trigger) {
+                    if (trigger == "at_boot")
+                        dlg.set_options("at_boot", { explanation: mount_explanation[vals.at_boot] });
+                },
                 Action: {
-                    Title: _("Create snapshot"),
+                    Title: _("Create snapshot and mount"),
+                    Variants: [{ tag: "nomount", Title: _("Create snapshot only") }],
                     action: function (vals) {
                         return pool.SnapshotFilesystem(fsys.path, vals.name)
                                 .then((result, code, message) => {

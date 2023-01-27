@@ -46,8 +46,8 @@ class TestStorageMsDOS(StorageCase):
         self.dialog({"size": 10,
                      "type": "ext4",
                      "mount_point": "/foo",
-                     "mount_options.auto": False,
-                     "name": "FIRST"})
+                     "name": "FIRST"},
+                    secondary=True)
         self.content_row_wait_in_col(1, 2, "ext4 filesystem")
         self.content_tab_wait_in_info(1, 2, "Name", "FIRST")
 

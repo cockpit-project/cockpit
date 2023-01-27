@@ -26,13 +26,13 @@ import cockpit from "cockpit";
 import * as utils from "./utils.js";
 
 import {
-    dialog_open, TextInput, PassInput, CheckBoxes,
+    dialog_open, TextInput, PassInput, CheckBoxes, SelectOne,
     StopProcessesMessage, stop_processes_danger_message
 } from "./dialog.jsx";
 import { StorageButton, StorageLink } from "./storage-controls.jsx";
 import {
     initial_tab_options, parse_options, unparse_options, extract_option,
-    never_auto_explanation
+    mount_explanation
 } from "./format-dialog.jsx";
 import { set_crypto_options, set_crypto_auto_option } from "./content-views.jsx";
 import { init_existing_passphrase, unlock_with_type } from "./crypto-keyslots.jsx";
@@ -175,6 +175,8 @@ export function mounting_dialog(client, block, mode, forced_options) {
     extract_option(split_options, "noauto");
     const opt_never_auto = extract_option(split_options, "x-cockpit-never-auto");
     const opt_ro = extract_option(split_options, "ro");
+    const opt_nofail = extract_option(split_options, "nofail");
+    const opt_netdev = extract_option(split_options, "_netdev");
     if (forced_options)
         for (const opt of forced_options)
             extract_option(split_options, opt);
@@ -313,6 +315,16 @@ export function mounting_dialog(client, block, mode, forced_options) {
                 .then(utils.reload_systemd));
     }
 
+    let at_boot;
+    if (opt_never_auto)
+        at_boot = "never";
+    else if (opt_netdev)
+        at_boot = "netdev";
+    else if (opt_nofail)
+        at_boot = "nofail";
+    else
+        at_boot = "local";
+
     let fields = null;
     if (mode == "mount" || mode == "update") {
         fields = [
@@ -325,19 +337,36 @@ export function mounting_dialog(client, block, mode, forced_options) {
                        {
                            value: {
                                ro: opt_ro,
-                               never_auto: opt_never_auto,
-                               extra: extra_options === "" ? false : extra_options
+                               extra: extra_options || false
                            },
                            fields: [
                                { title: _("Mount read only"), tag: "ro" },
-                               {
-                                   title: _("Never mount at boot"),
-                                   tag: "never_auto",
-                                   tooltip: never_auto_explanation
-                               },
                                { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
                            ]
-                       })
+                       }),
+            SelectOne("at_boot", _("At boot"),
+                      {
+                          value: at_boot,
+                          explanation: mount_explanation[at_boot],
+                          choices: [
+                              {
+                                  value: "local",
+                                  title: _("Mount before services start"),
+                              },
+                              {
+                                  value: "nofail",
+                                  title: _("Mount without waiting, ignore failure"),
+                              },
+                              {
+                                  value: "netdev",
+                                  title: _("Mount after network becomes available, ignore failure"),
+                              },
+                              {
+                                  value: "never",
+                                  title: _("Do not mount"),
+                              },
+                          ]
+                      }),
         ];
 
         if (block.IdUsage == "crypto" && mode == "mount")
@@ -380,21 +409,26 @@ export function mounting_dialog(client, block, mode, forced_options) {
             opts.push("ro");
         if (opt_never_auto)
             opts.push("x-cockpit-never-auto");
+        if (opt_nofail)
+            opts.push("nofail");
+        if (opt_netdev)
+            opts.push("_netdev");
         if (forced_options)
             opts = opts.concat(forced_options);
         if (extra_options)
             opts = opts.concat(extra_options);
-        return maybe_set_crypto_options(null, false).then(() => maybe_update_config(old_dir, unparse_options(opts)));
+        return (maybe_set_crypto_options(null, false, null, null)
+                .then(() => maybe_update_config(old_dir, unparse_options(opts))));
     }
 
     let passphrase_type;
 
-    function maybe_set_crypto_options(readonly, auto) {
-        if (client.blocks_crypto[block.path])
-            return set_crypto_options(block, readonly, auto);
-        else if (client.blocks_crypto[block.CryptoBackingDevice])
-            return set_crypto_options(client.blocks[block.CryptoBackingDevice], readonly, auto);
-        else
+    function maybe_set_crypto_options(readonly, auto, nofail, netdev) {
+        if (client.blocks_crypto[block.path]) {
+            return set_crypto_options(block, readonly, auto, nofail, netdev);
+        } else if (client.blocks_crypto[block.CryptoBackingDevice]) {
+            return set_crypto_options(client.blocks[block.CryptoBackingDevice], readonly, auto, nofail, netdev);
+        } else
             return Promise.resolve();
     }
 
@@ -402,6 +436,10 @@ export function mounting_dialog(client, block, mode, forced_options) {
         Title: cockpit.format(mode_title[mode], old_dir),
         Fields: fields,
         Teardown: teardown,
+        update: function (dlg, vals, trigger) {
+            if (trigger == "at_boot")
+                dlg.set_options("at_boot", { explanation: mount_explanation[vals.at_boot] });
+        },
         Action: {
             Title: mode_action[mode],
             action: function (vals) {
@@ -409,19 +447,26 @@ export function mounting_dialog(client, block, mode, forced_options) {
                     return do_unmount();
                 } else if (mode == "mount" || mode == "update") {
                     let opts = [];
-                    if ((mode == "update" && !is_filesystem_mounted) || vals.mount_options.never_auto)
+                    if ((mode == "update" && !is_filesystem_mounted) || vals.at_boot == "never")
                         opts.push("noauto");
                     if (vals.mount_options.ro)
                         opts.push("ro");
-                    if (vals.mount_options.never_auto)
+                    if (vals.at_boot == "never")
                         opts.push("x-cockpit-never-auto");
+                    if (vals.at_boot == "nofail")
+                        opts.push("nofail");
+                    if (vals.at_boot == "netdev")
+                        opts.push("_netdev");
                     if (forced_options)
                         opts = opts.concat(forced_options);
                     if (vals.mount_options.extra !== false)
                         opts = opts.concat(parse_options(vals.mount_options.extra));
                     return (maybe_update_config(vals.mount_point, unparse_options(opts),
                                                 vals.passphrase, passphrase_type)
-                            .then(() => maybe_set_crypto_options(vals.mount_options.ro, opts.indexOf("noauto") == -1)));
+                            .then(() => maybe_set_crypto_options(vals.mount_options.ro,
+                                                                 opts.indexOf("noauto") == -1,
+                                                                 vals.at_boot == "nofail",
+                                                                 vals.at_boot == "netdev")));
                 }
             }
         },
@@ -500,6 +545,8 @@ export class FilesystemTab extends React.Component {
         extract_option(split_options, "noauto");
         const opt_ro = extract_option(split_options, "ro");
         const opt_never_auto = extract_option(split_options, "x-cockpit-never-auto");
+        const opt_nofail = extract_option(split_options, "nofail");
+        const opt_netdev = extract_option(split_options, "_netdev");
         const split_options_for_fix_config = split_options.slice();
         if (forced_options)
             for (const opt of forced_options)
@@ -507,19 +554,23 @@ export class FilesystemTab extends React.Component {
 
         let mount_point_text = null;
         if (old_dir) {
-            if (old_opts) {
-                let opt_texts = [];
-                if (opt_ro)
-                    opt_texts.push(_("read only"));
-                if (opt_never_auto)
-                    opt_texts.push(_("never mounted at boot"));
-                opt_texts = opt_texts.concat(split_options);
-                if (opt_texts.length)
-                    mount_point_text = cockpit.format("$0 ($1)", old_dir, opt_texts.join(", "));
-                else
-                    mount_point_text = old_dir;
-            } else
+            let opt_texts = [];
+            if (opt_ro)
+                opt_texts.push(_("read only"));
+            if (opt_never_auto)
+                opt_texts.push(_("never mount at boot"));
+            else if (opt_netdev)
+                opt_texts.push(_("after network"));
+            else if (opt_nofail)
+                opt_texts.push(_("ignore failure"));
+            else
+                opt_texts.push(_("stop boot on failure"));
+            opt_texts = opt_texts.concat(split_options);
+            if (opt_texts.length) {
+                mount_point_text = cockpit.format("$0 ($1)", old_dir, opt_texts.join(", "));
+            } else {
                 mount_point_text = old_dir;
+            }
         }
 
         let extra_text = null;
@@ -548,6 +599,10 @@ export class FilesystemTab extends React.Component {
             }
             if (opt_ro)
                 opts.push("ro");
+            if (opt_nofail)
+                opts.push("nofail");
+            if (opt_netdev)
+                opts.push("_netdev");
 
             // Add the forced options, but only to new entries.  We
             // don't want to modify existing entries beyond what we

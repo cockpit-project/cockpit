@@ -73,7 +73,7 @@ function next_default_logical_volume_name(client, vgroup, prefix) {
     return name;
 }
 
-export function set_crypto_options(block, readonly, auto) {
+export function set_crypto_options(block, readonly, auto, nofail, netdev) {
     return edit_config(block, (config, commit) => {
         const opts = config.options ? parse_options(utils.decode_filename(config.options.v)) : [];
         if (readonly !== null) {
@@ -86,13 +86,23 @@ export function set_crypto_options(block, readonly, auto) {
             if (!auto)
                 opts.push("noauto");
         }
+        if (nofail !== null) {
+            extract_option(opts, "nofail");
+            if (nofail)
+                opts.push("nofail");
+        }
+        if (netdev !== null) {
+            extract_option(opts, "_netdev");
+            if (netdev)
+                opts.push("_netdev");
+        }
         config.options = { t: 'ay', v: utils.encode_filename(unparse_options(opts)) };
         return commit();
     });
 }
 
 export function set_crypto_auto_option(block, flag) {
-    return set_crypto_options(block, null, flag);
+    return set_crypto_options(block, null, flag, null, null);
 }
 
 function create_tabs(client, target, is_partition, is_extended) {

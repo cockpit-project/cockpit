@@ -105,7 +105,7 @@ class TestStorageISCSI(StorageCase):
                      "mount_point": "/data"})
         self.content_row_wait_in_col(1, 2, "ext4 filesystem")
         # _netdev should have been prefilled
-        self.content_tab_wait_in_info(1, 1, "Mount point", "_netdev")
+        self.content_tab_wait_in_info(1, 1, "Mount point", "after network")
 
         # Add the target a second time, just to check that the sorting function works
         b.click('#storage-detail a.pf-c-breadcrumb__link')

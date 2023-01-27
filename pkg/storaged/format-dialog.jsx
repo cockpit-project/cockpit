@@ -20,6 +20,12 @@
 import cockpit from "cockpit";
 import * as utils from "./utils.js";
 
+import React from "react";
+import {
+    HelperText, HelperTextItem, FormHelperText,
+} from "@patternfly/react-core";
+import { ExclamationTriangleIcon, InfoCircleIcon } from "@patternfly/react-icons";
+
 import {
     dialog_open,
     TextInput, PassInput, CheckBoxes, SelectOne, SizeSlider,
@@ -61,6 +67,13 @@ export function initial_tab_options(client, block, for_fstab) {
     const options = { };
 
     utils.get_parent_blocks(client, block.path).forEach(p => {
+        // "nofail" is the default for new filesystems with Cockpit so
+        // that a failure to mount one of them will not prevent
+        // Cockpit from starting.  This allows people to debug and fix
+        // these failures with Cockpit itself.
+        //
+        options.nofail = true;
+
         if (utils.is_netdev(client, p)) {
             options._netdev = true;
         }
@@ -84,7 +97,55 @@ export function initial_mount_options(client, block) {
     return initial_tab_options(client, block, true);
 }
 
-export const never_auto_explanation = _("If this option is checked, the filesystem will not be mounted during the next boot even if it was mounted before it.  This is useful if mounting during boot is not possible, such as when a passphrase is required to unlock the filesystem but booting is unattended.");
+export const mount_explanation = {
+    local:
+    <FormHelperText isHidden={false} component="div">
+        <HelperText>
+            <HelperTextItem hasIcon>
+                {_("Mounts before services start")}
+            </HelperTextItem>
+            <HelperTextItem hasIcon>
+                {_("Appropriate for critical mounts, such as /var")}
+            </HelperTextItem>
+            <HelperTextItem hasIcon icon={<ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />}>
+                {_("Boot fails if filesystem does not mount, preventing remote access")}
+            </HelperTextItem>
+        </HelperText>
+    </FormHelperText>,
+    nofail:
+    <FormHelperText isHidden={false} component="div">
+        <HelperText>
+            <HelperTextItem hasIcon>
+                {_("Mounts in parallel with services")}
+            </HelperTextItem>
+            <HelperTextItem hasIcon icon={<InfoCircleIcon className="ct-icon-info-circle" />}>
+                {_("Boot still succeeds when filesystem does not mount")}
+            </HelperTextItem>
+        </HelperText>
+    </FormHelperText>,
+    netdev:
+    <FormHelperText isHidden={false} component="div">
+        <HelperText>
+            <HelperTextItem hasIcon>
+                {_("Mounts in parallel with services, but after network is available")}
+            </HelperTextItem>
+            <HelperTextItem hasIcon icon={<InfoCircleIcon className="ct-icon-info-circle" />}>
+                {_("Boot still succeeds when filesystem does not mount")}
+            </HelperTextItem>
+        </HelperText>
+    </FormHelperText>,
+    never:
+    <FormHelperText isHidden={false} component="div">
+        <HelperText>
+            <HelperTextItem hasIcon>
+                {_("Does not mount during boot")}
+            </HelperTextItem>
+            <HelperTextItem hasIcon>
+                {_("Useful for mounts that are optional or need interaction (such as passphrases)")}
+            </HelperTextItem>
+        </HelperText>
+    </FormHelperText>,
+};
 
 export function format_dialog(client, path, start, size, enable_dos_extended) {
     const block = client.blocks[path];
@@ -192,19 +253,33 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
 
     const crypto_split_options = parse_options(crypto_options);
     extract_option(crypto_split_options, "noauto");
+    extract_option(crypto_split_options, "nofail");
+    extract_option(crypto_split_options, "_netdev");
     const crypto_extra_options = unparse_options(crypto_split_options);
 
     let [, old_dir, old_opts] = get_fstab_config(block, true);
-    if (!old_opts)
+    if (old_opts == undefined)
         old_opts = initial_mount_options(client, block);
 
     const split_options = parse_options(old_opts);
     extract_option(split_options, "noauto");
     const opt_ro = extract_option(split_options, "ro");
     const opt_never_auto = extract_option(split_options, "x-cockpit-never-auto");
+    const opt_nofail = extract_option(split_options, "nofail");
+    const opt_netdev = extract_option(split_options, "_netdev");
     const extra_options = unparse_options(split_options);
 
     let existing_passphrase_type = null;
+
+    let at_boot;
+    if (opt_never_auto)
+        at_boot = "never";
+    else if (opt_netdev)
+        at_boot = "netdev";
+    else if (opt_nofail)
+        at_boot = "nofail";
+    else
+        at_boot = "local";
 
     const dlg = dialog_open({
         Title: title,
@@ -241,22 +316,38 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                        {
                            visible: is_filesystem,
                            value: {
-                               auto: true,
                                ro: opt_ro,
-                               never_auto: opt_never_auto,
                                extra: extra_options || false
                            },
                            fields: [
-                               { title: _("Mount now"), tag: "auto" },
                                { title: _("Mount read only"), tag: "ro" },
-                               {
-                                   title: _("Never mount at boot"),
-                                   tag: "never_auto",
-                                   tooltip: never_auto_explanation,
-                               },
                                { title: _("Custom mount options"), tag: "extra", type: "checkboxWithInput" },
                            ]
                        }),
+            SelectOne("at_boot", _("At boot"),
+                      {
+                          visible: is_filesystem,
+                          value: at_boot,
+                          explanation: mount_explanation[at_boot],
+                          choices: [
+                              {
+                                  value: "local",
+                                  title: _("Mount before services start"),
+                              },
+                              {
+                                  value: "nofail",
+                                  title: _("Mount without waiting, ignore failure"),
+                              },
+                              {
+                                  value: "netdev",
+                                  title: _("Mount after network becomes available, ignore failure"),
+                              },
+                              {
+                                  value: "never",
+                                  title: _("Do not mount"),
+                              },
+                          ]
+                      }),
             SelectOne("crypto", _("Encryption"),
                       {
                           choices: crypto_types,
@@ -306,11 +397,18 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                           ]
                       })
         ],
+        update: function (dlg, vals, trigger) {
+            if (trigger == "at_boot")
+                dlg.set_options("at_boot", { explanation: mount_explanation[vals.at_boot] });
+        },
         Action: {
-            Title: create_partition ? _("Create partition") : _("Format"),
+            Title: create_partition ? _("Create and mount") : _("Format and mount"),
             Danger: (create_partition ? null : _("Formatting erases all data on a storage device.")),
+            Variants: [{ tag: "nomount", Title: create_partition ? _("Create only") : _("Format only") }],
             wrapper: job_progress_wrapper(client, block.path, client.blocks_cleartext[block.path]?.path),
             action: function (vals) {
+                const mount_now = vals.variant != "nomount";
+
                 const options = {
                     'tear-down': { t: 'b', v: true }
                 };
@@ -330,9 +428,13 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
                 let new_crypto_options;
                 if (is_encrypted(vals)) {
                     let opts = [];
-                    if (vals.mount_options &&
-                        (!vals.mount_options.auto || vals.mount_options.never_auto)) {
-                        opts.push("noauto");
+                    if (is_filesystem(vals)) {
+                        if (!mount_now || vals.at_boot == "never")
+                            opts.push("noauto");
+                        if (vals.at_boot == "nofail")
+                            opts.push("nofail");
+                        if (vals.at_boot == "netdev")
+                            opts.push("_netdev");
                     }
 
                     opts = opts.concat(parse_options(vals.crypto_options));
@@ -358,13 +460,17 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
 
                 if (is_filesystem(vals)) {
                     const mount_options = [];
-                    if (!vals.mount_options.auto || vals.mount_options.never_auto) {
+                    if (!mount_now || vals.at_boot == "never") {
                         mount_options.push("noauto");
                     }
                     if (vals.mount_options.ro)
                         mount_options.push("ro");
-                    if (vals.mount_options.never_auto)
+                    if (vals.at_boot == "never")
                         mount_options.push("x-cockpit-never-auto");
+                    if (vals.at_boot == "nofail")
+                        mount_options.push("nofail");
+                    if (vals.at_boot == "netdev")
+                        mount_options.push("_netdev");
                     if (vals.mount_options.extra)
                         mount_options.push(vals.mount_options.extra);
 
@@ -439,11 +545,11 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
 
                 function maybe_mount(new_path) {
                     const path = new_path || block.path;
-                    if (is_filesystem(vals) && vals.mount_options.auto)
+                    if (is_filesystem(vals) && mount_now)
                         return (client.wait_for(() => block_fsys_for_block(path))
                                 .then(block_fsys => client.mount_at(client.blocks[block_fsys.path],
                                                                     mount_point)));
-                    if (is_encrypted(vals) && vals.mount_options && !vals.mount_options.auto)
+                    if (is_encrypted(vals) && is_filesystem(vals) && !mount_now)
                         return (client.wait_for(() => block_crypto_for_block(path))
                                 .then(block_crypto => block_crypto.Lock({ })));
                 }

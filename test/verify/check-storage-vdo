@@ -219,7 +219,7 @@ class TestStorageLegacyVDO(StorageCase):
                      "mount_point": "/run/data"})
         self.content_row_wait_in_col(1, 2, "xfs filesystem")
         # _netdev etc should have been prefilled
-        self.content_tab_wait_in_info(1, 1, "Mount point", "_netdev")
+        self.content_tab_wait_in_info(1, 1, "Mount point", "after network")
         self.content_tab_wait_in_info(1, 1, "Mount point", "x-systemd.device-timeout=0")
         self.content_tab_wait_in_info(1, 1, "Mount point", "x-systemd.requires=vdo.service")
         self.content_row_wait_in_col(1, 4, "/ 5.4 GB")

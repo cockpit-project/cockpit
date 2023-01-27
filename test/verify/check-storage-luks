@@ -70,7 +70,6 @@ class TestStorageLuks(StorageCase):
         self.dialog_set_val("store_passphrase.on", True)
         self.dialog_set_val("crypto_options", "crypto,options")
         self.dialog_set_val("mount_point", mount_point_secret)
-        self.dialog_set_val("mount_options.auto", True)
         b.assert_pixels("#dialog", "format")
         self.dialog_apply()
         self.dialog_wait_close()
@@ -224,13 +223,13 @@ class TestStorageLuks(StorageCase):
                      "crypto": "luks1",
                      "name": "ENCRYPTED",
                      "mount_point": mount_point_secret,
-                     "mount_options.auto": False,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
-                     "passphrase2": "vainu-reku-toma-rolle-kaja"})
+                     "passphrase2": "vainu-reku-toma-rolle-kaja"},
+                    secondary=True)
         self.content_row_wait_in_col(1, 2, "Filesystem (encrypted)")
         self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
         self.content_tab_wait_in_info(1, 2, "Encryption type", "LUKS1")
-        self.content_tab_wait_in_info(1, 2, "Options", "none")
+        self.content_tab_wait_in_info(1, 2, "Options", "nofail")
 
         dev = "/dev/sda"
         uuid = m.execute(f"cryptsetup luksUUID {dev}").strip()
@@ -406,7 +405,6 @@ class TestStorageLuks(StorageCase):
                      "crypto": self.default_crypto_type,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja",
-                     "mount_options.auto": True,
                      "mount_point": "/run/foo"})
         self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
 
@@ -415,7 +413,6 @@ class TestStorageLuks(StorageCase):
         self.content_dropdown_action(1, "Format")
         self.dialog({"type": "ext4",
                      "crypto": " keep",
-                     "mount_options.auto": True,
                      "mount_point": "/run/foo"})
         self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
 
@@ -432,7 +429,6 @@ class TestStorageLuks(StorageCase):
         self.dialog({"type": "ext4",
                      "crypto": " keep",
                      "old_passphrase": "vainu-reku-toma-rolle-kaja",
-                     "mount_options.auto": True,
                      "mount_point": "/run/foo"})
         self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
 
@@ -455,7 +451,6 @@ class TestStorageLuks(StorageCase):
                      "crypto": self.default_crypto_type,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
                      "passphrase2": "vainu-reku-toma-rolle-kaja",
-                     "mount_options.auto": True,
                      "mount_point": "/run/foo"})
         self.content_row_wait_in_col(1, 2, "ext4 filesystem (encrypted)")
 
@@ -505,13 +500,13 @@ class TestStorageNBDE(StorageCase, PackageCase):
                      "crypto": self.default_crypto_type,
                      "name": "ENCRYPTED",
                      "mount_point": mount_point_secret,
-                     "mount_options.auto": False,
                      "passphrase": "vainu-reku-toma-rolle-kaja",
-                     "passphrase2": "vainu-reku-toma-rolle-kaja"})
+                     "passphrase2": "vainu-reku-toma-rolle-kaja"},
+                    secondary=True)
         self.content_row_wait_in_col(1, 2, "Filesystem (encrypted)")
         self.content_tab_wait_in_info(1, 1, "Mount point", "The filesystem is not mounted")
 
-        self.content_tab_wait_in_info(1, 2, "Options", "none")
+        self.content_tab_wait_in_info(1, 2, "Options", "nofail")
         tab = self.content_tab_expand(1, 2)
         panel = tab + " .pf-c-card:contains(Keys) "
         b.wait_visible(panel)
@@ -542,7 +537,7 @@ class TestStorageNBDE(StorageCase, PackageCase):
 
         # Adding the key should add "_netdev" options
         #
-        self.content_tab_wait_in_info(1, 1, "Mount point", "_netdev")
+        self.content_tab_wait_in_info(1, 1, "Mount point", "after network")
         self.content_tab_wait_in_info(1, 2, "Options", "_netdev")
 
         # Mount it.  This should succeed without passphrase.
@@ -569,13 +564,11 @@ class TestStorageNBDE(StorageCase, PackageCase):
         b.wait_in_text(panel + "ul li:nth-child(2)", "http://10.111.112.5/")
 
         # Reset the options so that we can check that they get added
-        # also when the filesystem is mounted.
+        # also when a second key is added.
         #
         self.content_tab_info_action(1, 1, "Mount point")
-        self.dialog({"mount_options.extra": False})
-        self.content_tab_info_action(1, 2, "Options")
-        self.dialog({"options": ""}, expect={"options": "_netdev"})
-        self.content_tab_wait_in_info(1, 2, "Options", "none")
+        self.dialog({"at_boot": "nofail"})
+        self.content_tab_wait_in_info(1, 2, "Options", "nofail")
 
         # Add a second key, this should not show the fixing dialog.
         #
@@ -595,7 +588,7 @@ class TestStorageNBDE(StorageCase, PackageCase):
 
         # This should bring the options back.
         #
-        self.content_tab_wait_in_info(1, 1, "Mount point", "_netdev")
+        self.content_tab_wait_in_info(1, 1, "Mount point", "after network")
         self.content_tab_wait_in_info(1, 2, "Options", "_netdev")
 
         # Reboot

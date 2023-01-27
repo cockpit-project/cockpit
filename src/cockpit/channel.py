@@ -20,7 +20,7 @@ from __future__ import annotations
 import asyncio
 import logging
 
-from typing import ClassVar, Dict, List, Optional, Sequence, Tuple, Type
+from typing import ClassVar, Dict, Generator, List, Optional, Sequence, Tuple, Type
 
 from .router import Endpoint, Router, RoutingRule
 
@@ -392,3 +392,29 @@ class AsyncChannel(Channel):
             data = bytes(data)
 
         self.receive_queue.put_nowait(data)
+
+
+class GeneratorChannel(Channel):
+    """A trivial Channel subclass for sending data from a generator with flow control.
+
+    Calls the .do_yield_data() generator with the options from the open message
+    and sends the data which it yields.  If the generator returns a value it
+    will be used for the close message.
+    """
+    DataGenerator = Generator[bytes, None, Optional[Dict[str, object]]]
+    __generator: DataGenerator
+
+    def do_yield_data(self, options: dict[str, object]) -> DataGenerator:
+        raise NotImplementedError
+
+    def do_open(self, options: Dict[str, object]) -> None:
+        self.__generator = self.do_yield_data(options)
+        self.do_resume_send()
+
+    def do_resume_send(self) -> None:
+        try:
+            while self.send_data(next(self.__generator)):
+                pass
+        except StopIteration as stop:
+            self.done()
+            self.close(**stop.value or {})

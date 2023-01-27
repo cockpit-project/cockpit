@@ -147,7 +147,7 @@ client.init = function(capabilitiesChangedCallback) {
         return new Promise((resolve, reject) => {
             client.proxyFixit.call("run_fix", [alertId, analysisId])
                     .then(result => resolve(result[0]))
-                    .catch(ex => reject(new Error(cockpit.format(_("Unable to run fix: %0"), ex))));
+                    .catch(ex => reject(new Error(cockpit.format(_("Unable to run fix: $0"), ex))));
         });
     };
 

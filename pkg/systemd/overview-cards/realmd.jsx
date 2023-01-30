@@ -112,6 +112,8 @@ export class RealmdClient {
     }
 
     checkRealm(name) {
+        if (!this.dbus_realmd)
+            return Promise.reject();
         return this.dbus_realmd.call(MANAGER, PROVIDER, "Discover", [name, {}])
                 .then(([relevance, realms]) => {
                     if (realms.length == 0)

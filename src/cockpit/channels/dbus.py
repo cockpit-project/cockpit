@@ -408,7 +408,11 @@ class DBusChannel(Channel):
                 path = message.get_path()
                 name, props, invalids = message.get_body()
                 logger.debug('NOTIFY: %s %s %s %s', path, name, props, invalids)
-                # TODO - call Get for all invalids
+                for inv in invalids:
+                    reply, = await self.bus.call_method_async(self.name, path,
+                                                              'org.freedesktop.DBus.Properties', 'Get',
+                                                              'ss', name, inv)
+                    props[inv] = reply
                 notify = {}
                 notify_update(notify, path, name, props)
                 self.send_message(notify=notify)

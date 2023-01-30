@@ -157,7 +157,8 @@ class Manifest(JsonObject):
 
 
 class Package:
-    PO_JS_RE: ClassVar[Pattern] = re.compile(r'po\.([^.]+)\.js(\.gz)?')
+    # For po{,.manifest}.js files, the interesting part is the locale name
+    PO_JS_RE: ClassVar[Pattern] = re.compile(r'(po|po\.manifest)\.([^.]+)\.js(\.gz)?')
 
     # immutable after __init__
     manifest: Manifest
@@ -166,7 +167,7 @@ class Package:
     priority: int
 
     # computed later
-    translations: Optional[Dict[str, str]] = None
+    translations: Optional[Dict[str, Dict[str, str]]] = None
     files: Optional[Dict[str, str]] = None
 
     def __init__(self, manifest: Manifest):
@@ -186,7 +187,7 @@ class Package:
             return
 
         self.files = {}
-        self.translations = {}
+        self.translations = {'po.js': {}, 'po.manifest.js': {}}
 
         for file in self.path.rglob('*'):
             name = str(file.relative_to(self.path))
@@ -195,13 +196,19 @@ class Package:
 
             po_match = Package.PO_JS_RE.fullmatch(name)
             if po_match:
-                locale = po_match.group(1)
+                basename = po_match.group(1)
+                locale = po_match.group(2)
                 # Accept-Language is case-insensitive and uses '-' to separate variants
                 lower_locale = locale.lower().replace('_', '-')
-                self.translations[lower_locale] = name
+
+                self.translations[f'{basename}.js'][lower_locale] = name
             else:
                 basename = name[:-3] if name.endswith('.gz') else name
                 self.files[basename] = name
+
+        # support old cockpit-po-plugin which didn't write po.manifest.??.js
+        if not self.translations['po.manifest.js']:
+            self.translations['po.manifest.js'] = self.translations['po.js']
 
     def get_content_security_policy(self) -> str:
         policy = {
@@ -236,21 +243,21 @@ class Package:
 
         return Document(path.open('rb'), content_type, content_encoding, content_security_policy)
 
-    def load_translation(self, locales: List[str]) -> Document:
+    def load_translation(self, path: str, locales: List[str]) -> Document:
         self.ensure_scanned()
         assert self.translations is not None
 
         # First check the locales that the user sent
         for locale in locales:
             with contextlib.suppress(KeyError):
-                return self.load_file(self.translations[locale])
+                return self.load_file(self.translations[path][locale])
 
         # Next, check the language-only versions of variant-specified locales
         for locale in locales:
             language, _, region = locale.partition('-')
             if region:
                 with contextlib.suppress(KeyError):
-                    return self.load_file(self.translations[language])
+                    return self.load_file(self.translations[path][language])
 
         # We prefer to return an empty document than 404 in order to avoid
         # errors in the console when a translation can't be found
@@ -261,9 +268,9 @@ class Package:
         assert self.files is not None
         assert self.translations is not None
 
-        if path == 'po.js':
+        if path in self.translations:
             locales = parse_accept_language(headers)
-            return self.load_translation(locales)
+            return self.load_translation(path, locales)
         else:
             return self.load_file(self.files[path])
 
@@ -496,13 +503,15 @@ class Packages(bus.Object, interface='cockpit.Packages'):
         for name, package in self.packages.items():
             if name in ['static', 'base1']:
                 continue
+
             # find_translation will always find at least 'en'
-            translation = package.load_translation(locales)
+            translation = package.load_translation('po.manifest.js', locales)
             with translation.data:
                 if translation.content_encoding == 'gzip':
                     data = gzip.decompress(translation.data.read())
                 else:
                     data = translation.data.read()
+
             chunks.append(data)
 
         chunks.append(b"""

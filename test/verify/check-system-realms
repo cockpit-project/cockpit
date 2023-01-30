@@ -803,11 +803,8 @@ ipa-advise enable-admins-sudo | sh -ex
         """
         ipa_machine.execute(f"podman exec freeipa bash -euc '{script}'")
 
-        b.open_superuser_dialog()
-        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "You now have administrative access")
+        b.become_superuser(passwordless=True)
         self.assertEqual("root\n", m.execute(f"su -c '{ccache_env} sudo -A whoami' alice"))
-        b.click(".pf-c-modal-box:contains('Administrative access') .btn-cancel")
-        b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
 
         b.go("/system")
         b.enter_page("/system")

@@ -19,7 +19,6 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import glob
 import os
 import shlex
 import shutil
@@ -199,14 +198,8 @@ def validate_packages():
 
 
 def install_python_bridge():
-    subprocess.run([f'{BASE_DIR}/tools/systemd_ctypes'], check=True)
-
-    shutil.rmtree('tmp/wheel', ignore_errors=True)
-    subprocess.run([sys.executable, '-m', 'build', '--no-isolation', '--wheel', '--outdir', 'tmp/wheel'], check=True)
-    wheels = glob.glob('tmp/wheel/*.whl')
-    assert len(wheels) == 1
-
-    return ['--install', *wheels]
+    wheel = subprocess.check_output([f'{BASE_DIR}/tools/make-wheel'], universal_newlines=True)
+    return ['--install', wheel.strip()]
 
 
 def main():

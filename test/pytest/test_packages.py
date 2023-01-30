@@ -158,3 +158,33 @@ def test_condition_hides_priority(pkgdir):
     assert packages.packages['basic'].manifest['description'] == 'standard package'
     assert packages.packages['basic'].manifest['requires'] == {'cockpit': "42"}
     assert packages.packages['basic'].priority == 1
+
+
+def test_translation(pkgdir):
+    # old style: make sure po.de.js is served as fallback for manifest translations
+    make_package(pkgdir, 'one')
+    (pkgdir / 'one' / 'po.de.js').write_text('eins')
+
+    # new style: separated translations
+    make_package(pkgdir, 'two')
+    (pkgdir / 'two' / 'po.de.js').write_text('zwei')
+    (pkgdir / 'two' / 'po.manifest.de.js').write_text('zwo')
+
+    packages = Packages()
+
+    # make sure we can read a po.js file with language fallback
+    document = packages.load_path('/one/po.js', {'Accept-Language': 'es, de'})
+    assert '/javascript' in document.content_type
+    assert document.data.read() == b'eins'
+
+    # make sure we fall back cleanly to an empty file with correct mime
+    document = packages.load_path('/one/po.js', {'Accept-Language': 'es'})
+    assert '/javascript' in document.content_type
+    assert document.data.read() == b''
+
+    # make sure the manifest translations get sent along with manifests.js
+    document = packages.load_path('/manifests.js', {'Accept-Language': 'de'})
+    contents = document.data.read()
+    assert b'eins\n' in contents
+    assert b'zwo\n' in contents
+    assert b'zwei\n' not in contents

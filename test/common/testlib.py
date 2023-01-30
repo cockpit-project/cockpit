@@ -888,17 +888,23 @@ class Browser:
         else:
             self.wait_text("#super-user-indicator", expected)
 
-    def become_superuser(self, user: Optional[str] = None, password: Optional[str] = None):
+    def become_superuser(self, user: Optional[str] = None, password: Optional[str] = None, passwordless: Optional[bool] = False):
         cur_frame = self.cdp.cur_frame
         self.switch_to_top()
 
         self.open_superuser_dialog()
-        self.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", f"Password for {user or 'admin'}:")
-        self.set_input_text(".pf-c-modal-box:contains('Switch to administrative access') input", password or "foobar")
-        self.click(".pf-c-modal-box button:contains('Authenticate')")
-        self.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
-        self.check_superuser_indicator("Administrative access")
 
+        if passwordless:
+            self.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "You now have administrative access.")
+            self.click(".pf-c-modal-box button:contains('Close')")
+            self.wait_not_present(".pf-c-modal-box:contains('You now have administrative access.')")
+        else:
+            self.wait_in_text(".pf-c-modal-box:contains('Switch to administrative access')", f"Password for {user or 'admin'}:")
+            self.set_input_text(".pf-c-modal-box:contains('Switch to administrative access') input", password or "foobar")
+            self.click(".pf-c-modal-box button:contains('Authenticate')")
+            self.wait_not_present(".pf-c-modal-box:contains('Switch to administrative access')")
+
+        self.check_superuser_indicator("Administrative access")
         self.switch_to_frame(cur_frame)
 
     def drop_superuser(self):

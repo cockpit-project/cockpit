@@ -92,11 +92,7 @@ class TestSuperuser(MachineCase):
 
         # Give us password-less sudo and use it
         self.write_file("/etc/sudoers.d/admin", "admin ALL=(ALL) NOPASSWD:ALL")
-        b.open_superuser_dialog()
-        b.wait_in_text(".pf-c-modal-box:contains('Administrative access')", "You now have administrative access")
-        b.click(".pf-c-modal-box:contains('Administrative access') button:contains('Close')")
-        b.wait_not_present(".pf-c-modal-box:contains('Administrative access')")
-        b.check_superuser_indicator("Administrative access")
+        b.become_superuser(passwordless=True)
 
     def testTwoPasswds(self):
         b = self.browser

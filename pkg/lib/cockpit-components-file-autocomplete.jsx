@@ -44,8 +44,10 @@ export class FileAutoComplete extends React.Component {
         this.onCreateOption = this.onCreateOption.bind(this);
 
         this.debouncedChange = debounce(300, (value) => {
-            if (!value)
+            if (!value) {
+                this.clearSelection();
                 return;
+            }
 
             this.typeaheadInputValue = value;
 

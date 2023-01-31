@@ -1789,16 +1789,6 @@ class MachineCase(unittest.TestCase):
                 "asyncio-ERROR: Task was destroyed but it is pending!",
                 "task:.*Task pending.*cockpit/channels/dbus.py.*"]
 
-            # Python 3.11 traceback annotation
-            self.allowed_messages.append(r"\s*\^+\s*")
-
-            self.allowed_messages += [
-                r"File .*/systemd_ctypes/bus.py.* in handler",
-                r"return 1 if callback.*BusMessage.ref.* else 0",
-                r"File .*/systemd_ctypes/bus.py.* in done",
-                r".*future.set_exception\(error\)",
-                r"future.set_result\(message\)"]
-
         messages = machine.journal_messages(matches, 6, cursor=cursor)
 
         if "TEST_AUDIT_NO_SELINUX" not in os.environ:

@@ -1798,25 +1798,6 @@ class MachineCase(unittest.TestCase):
             # Python 3.11 traceback annotation
             self.allowed_messages.append(r"\s*\^+\s*")
 
-            self.allowed_messages += [
-                r"Exception ignored on calling ctypes callback function: <function Slot.__init__.<locals>.handler.*",
-                r"asyncio.exceptions.InvalidStateError: invalid state",
-                r"asyncio-ERROR: Exception in callback _Transport._read_ready.*",
-                r"handle: <Handle _Transport._read_ready\(\)>",
-                r"Traceback \(most recent call last\):",
-                r"File .*asyncio/events.py.*",
-                r"self._context.run\(self._callback, \*self._args\)",
-                r"File .*cockpit/transports.py.* _read_ready",
-                r"data = os.read\(self._in_fd, _Transport.BLOCK_SIZE\)",
-                r"ConnectionResetError: \[Errno 104\] Connection reset by peer"]
-
-            self.allowed_messages += [
-                r"File .*/systemd_ctypes/bus.py.* in handler",
-                r"return 1 if callback.*BusMessage.ref.* else 0",
-                r"File .*/systemd_ctypes/bus.py.* in done",
-                r".*future.set_exception\(error\)",
-                r"future.set_result\(message\)"]
-
         messages = machine.journal_messages(matches, 6, cursor=cursor)
 
         if "TEST_AUDIT_NO_SELINUX" not in os.environ:

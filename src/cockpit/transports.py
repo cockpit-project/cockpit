@@ -19,6 +19,7 @@
 
 import asyncio
 import collections
+import errno
 import fcntl
 import logging
 import os
@@ -81,17 +82,16 @@ class _Transport(asyncio.Transport):
         logger.debug('Read ready on %s %s %d', self, self._protocol, self._in_fd)
         try:
             data = os.read(self._in_fd, _Transport.BLOCK_SIZE)
-        except IOError:
-            # PTY devices return EIO to mean "EOF"
-            if not self._eio_is_eof:
-                raise  # pragma: no cover
-            data = b''
         except BlockingIOError:  # pragma: no cover
             return
         except OSError as exc:
-            # Other errors: terminate the connection
-            self.abort(exc)
-            return
+            if self._eio_is_eof and exc.errno == errno.EIO:
+                # PTY devices return EIO to mean "EOF"
+                data = b''
+            else:
+                # Other errors: terminate the connection
+                self.abort(exc)
+                return
 
         if data != b'':
             logger.debug('  read %d bytes', len(data))

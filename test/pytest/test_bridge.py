@@ -481,3 +481,32 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
         await self.transport.assert_data(koelle, b'x3')
         await self.transport.assert_msg('', command='done', channel=koelle)
         await self.transport.assert_msg('', command='close', channel=koelle)
+
+    async def test_internal_metrics(self):
+        await self.start()
+        metrics = [
+            {"name": "cpu.core.user", "derive": "rate"},
+            {"name": "memory.used"},
+        ]
+        interval = 100
+        source = 'internal'
+
+        await self.transport.check_open('metrics1', source=source, interval=interval, metrics=metrics)
+        _, data = await self.transport.next_frame()
+        # first message is always the meta message
+        meta = json.loads(data)
+        assert isinstance(meta['timestamp'], float)
+        assert meta['interval'] == interval
+        assert meta['source'] == source
+        assert isinstance(meta['metrics'], list)
+        instances = len([m['instances'] for m in meta['metrics'] if m['name'] == 'cpu.core.user'][0])
+
+        # actual data
+        _, data = await self.transport.next_frame()
+        data = json.loads(data)
+        # cpu.core.user instances should be the same as meta sent instances
+        assert instances == len(data[0][0])
+        # all instances should be False, as this is a rate
+        assert not all(d for d in data[0][0])
+        # memory.used should be an integer
+        assert isinstance(data[0][1], int)

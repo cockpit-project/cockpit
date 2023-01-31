@@ -168,10 +168,10 @@ def main():
         func = getattr(printer, command[0])
 
         for param in command[1:]:
-            left, _, right = param.rpartition('=')
+            left, eq, right = param.partition('=')
 
             # Does that look like a kwarg?
-            if left.replace('-', '_').isidentifier():
+            if eq and left.replace('-', '_').isidentifier():
                 key = left
                 param = right
             else:

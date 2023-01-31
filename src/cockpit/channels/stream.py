@@ -50,6 +50,7 @@ class UnixStreamChannel(ProtocolChannel):
         path: str = options['unix']
         connection = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         connection.connect(path)
+        self.close_on_eof()
         return SocketTransport(loop, self, connection)
 
 

@@ -89,8 +89,40 @@
 }
 
 .ct-system-overview {
-  --card-width: 22rem;
-  --pf-l-gallery--GridTemplateColumns: repeat(auto-fill, minmax(var(--card-width), 1fr));
+  --cards: 2;
+  --pf-l-gallery--GridTemplateColumns: repeat(var(--cards), 1fr);
+
+  // Small mobile: Reduce spacing
+  @media (max-width: 320px) {
+    // --pf-l-gallery--m-gutter--GridGap: 0.25rem;
+  }
+
+  // Mobile: reduce to 1 card wide and minimize spacing
+  @media (max-width: 680px) {
+    --pf-l-gallery--m-gutter--GridGap: var(--pf-global--spacer--sm);
+    --cards: 1;
+  }
+
+  // Large desktop: Jump up to 4 cards wide
+  @media (min-width: 1400px) {
+    --cards: 4;
+  }
+
+  // Extra large desktop: Let cards align to the left at an optimal size
+  @media (min-width: 110rem) {
+    --pf-l-gallery--GridTemplateColumns: repeat(auto-fill, minmax(min-content, 26rem));
+  }
+
+  // VMs @ 1024x768; add a little leeway For titlebars, start bar, etc.
+  @media (orientation: landscape) and (min-width: 684px) and (max-width: 832px) and (max-height: 703px) {
+    --pf-l-gallery--m-gutter--GridGap: var(--pf-global--spacer--sm);
+
+    // Also skim off some vertical space for the cards
+    .pf-c-card {
+      --pf-c-card--first-child--PaddingTop: var(--pf-global--spacer--md);
+      --pf-c-card--child--PaddingRight: var(--pf-global--spacer--md);
+    }
+  }
 
   .motd-box {
     grid-column: 1 / -1;
@@ -162,45 +194,6 @@
   }
 }
 
-@media (orientation: landscape) and (min-width: 684px) and (max-width: 832px) and (max-height: 703px) {
-  /* Optimize for VMs  */
-  /*
-    Full offset:  Sidebar: 240, switcher: 100
-    Small offset: Sidebar: 192, switcher: 84
-
-    Max sidebar (with switcher): 240 + 100 = 340
-    Min sidebar (without switcher): 192
-
-    Min iframe width (with switcher): 1024 - 340 = 684
-    Max iframe width (without switcher): 1024 - 192 = 832
-
-    Height offset: 65px (for the heading)
-    Max iframe: 768 - 65 = 703
-
-    NOTE: For cross-browser reasons, the above media breakpoints need to be px
-    NOTE 2: This should be updated when the navigation is updated
-  */
-
-  .ct-system-overview {
-    /* Adjust card width to be approx. 2×2 */
-    --card-width: 16rem;
-  }
-}
-
-@media (max-width: 320px) {
-  .ct-system-overview {
-    /* Reduce spacing between items */
-    --pf-l-gallery--m-gutter--GridGap: 0.25rem;
-  }
-}
-
-@media (max-device-width: 780px) and (orientation: portrait) {
-  /* Allow cards to be stretch to edges on mobile devices */
-  .ct-system-overview {
-    --card-width: 100%;
-  }
-}
-
 @media (max-width: 779px) {
   /* Reduce gutter & padding on smaller widths, for desktop & mobile */
 
@@ -226,15 +219,6 @@
 
   .ct-overview-header-subheading {
     font-size: var(--pf-global--FontSize--lg);
-  }
-}
-
-@media (min-width: 1000px) and (max-width: 1400px) {
-  /* optimize for approx 1600×1200 on desktops */
-  /* (numbers are fudgy due to our nav & possibility of desktop's panels) */
-
-  .ct-system-overview {
-    --card-width: 25rem;
   }
 }
 

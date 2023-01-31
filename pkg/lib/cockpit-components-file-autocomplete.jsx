@@ -106,7 +106,7 @@ export class FileAutoComplete extends React.Component {
         });
 
         channel.addEventListener("close", (ev, data) => {
-            this.finishUpdate(results, cockpit.format(cockpit.message(data)), path);
+            this.finishUpdate(results, data.message, path);
         });
 
         channel.addEventListener("message", (ev, data) => {
@@ -139,9 +139,8 @@ export class FileAutoComplete extends React.Component {
             this.props.onChange('');
 
         if (!error)
-            this.setState({ directory: directory });
+            this.setState({ displayFiles: listItems, directory });
         this.setState({
-            displayFiles: listItems,
             error: error,
         });
     }

@@ -19,10 +19,11 @@ import argparse
 import ast
 import json
 import pydoc
+import shlex
 import sys
 import time
 
-from typing import Optional
+from typing import Iterable, Optional
 
 
 class Printer:
@@ -36,6 +37,7 @@ class Printer:
         message = channel.encode('ascii') + b'\n' + data
         frame = str(len(message)).encode('ascii') + b'\n' + message
         sys.stdout.buffer.write(frame)
+        self.stdout.flush()
 
     def json(self, channel: str, /, **kwargs: object) -> None:
         """Send a json message (built from **kwargs) on a channel"""
@@ -122,13 +124,31 @@ Supported methods are as follows:
 
     def wait(self) -> None:
         """Wait for [Enter] on stdin"""
-        sys.stdout.flush()
         sys.stdin.readline()
 
     def sleep(self, seconds: float) -> None:
         """Sleep for a number of seconds"""
-        sys.stdout.flush()
         time.sleep(seconds)
+
+
+def split_commands(args: list[str]) -> Iterable[list[str]]:
+    """split args on ':' items, yielding sub-lists"""
+    while ':' in args:
+        colon = args.index(':')
+        yield args[:colon]
+        args = args[colon + 1:]
+    yield args
+
+
+def get_commands(args: list[str]) -> Iterable[list[str]]:
+    """splits args on ':', yielding sub-lists and replacing '-' with input from stdin"""
+    for command in split_commands(args):
+        if command == ['-']:
+            # read commands from stdin
+            for line in sys.stdin:
+                yield shlex.split(line)
+        else:
+            yield command
 
 
 def main():
@@ -141,32 +161,16 @@ def main():
                         help="The command to invoke: try 'help'")
     args = parser.parse_args()
 
-    # Split into multiple commands on ':' or ';'
-    this_command = []
-    commands = []
-    # Treat 'cmd;' or 'cmd:' the same as 'cmd', ';'
-    for arg in args.command:
-        if arg == ';' or arg == ':':
-            if this_command:
-                commands.append(this_command)
-            this_command = []
-        elif arg.endswith(':') or arg.endswith(';'):
-            this_command.append(arg[:-1])
-            commands.append(this_command)
-            this_command = []
-        else:
-            this_command.append(arg)
-    if this_command:  # command not terminated with ';'
-        commands.append(this_command)
-
     printer = Printer()
 
-    # Implicit 'init' unless --no-init or first command is 'help' or 'init'
-    if not args.no_init and commands and commands[0] and commands[0][0] not in ['help', 'init']:
-        printer.init()
+    need_init = not args.no_init
 
     # Invoke the commands
-    for command in commands:
+    for command in get_commands(args.command):
+        if need_init and command[0] not in ['help', 'init']:
+            printer.init()
+        need_init = False
+
         args: list[object] = []
         kwargs: dict[str, object] = {}
         func = getattr(printer, command[0])

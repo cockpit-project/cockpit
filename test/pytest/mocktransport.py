@@ -155,6 +155,7 @@ class MockTransport(asyncio.Transport):
         if bus is None:
             bus = await self.ensure_internal_bus()
         notify = await self.next_msg(bus)
+        assert 'notify' in notify
         assert notify['notify'][path][iface] == expected
 
     async def watch_bus(self, path: str, iface: str, expected: Dict[str, object], bus: Optional[str] = None) -> None:

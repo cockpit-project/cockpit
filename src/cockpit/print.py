@@ -77,6 +77,10 @@ class Printer:
             our_headers.update(headers)
         self.http(path, internal='packages', headers=our_headers, **kwargs)
 
+    def spawn(self, *args: str, **kwargs: object) -> None:
+        """Open a stream channel with a spawned command"""
+        self.open('stream', spawn=args, **kwargs)
+
     def help(self) -> None:
         """Show help"""
         sys.stderr.write("""

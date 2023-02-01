@@ -502,10 +502,10 @@ class TestAccounts(MachineCase):
         new_password = "tqymuVh.Zf5"
         new_password_2 = "cEwghLYX"
 
-        m.execute("useradd anton; echo anton:foobar | chpasswd")
-        self.login_and_go("/users", user="anton", superuser=False)
-        b.go("#/anton")
-        b.wait_text("#account-user-name", "anton")
+        m.execute("useradd antoine; echo antoine:foobar | chpasswd")
+        self.login_and_go("/users", user="antoine", superuser=False)
+        b.go("#/antoine")
+        b.wait_text("#account-user-name", "antoine")
         b.wait_visible('#account-set-password:enabled')
         b.click('#account-set-password')
         b.wait_visible('#account-set-password-dialog')
@@ -519,16 +519,16 @@ class TestAccounts(MachineCase):
         b.logout()
         b.open("/users")
         b.wait_visible("#login")
-        b.set_val("#login-user-input", "anton")
+        b.set_val("#login-user-input", "antoine")
         b.set_val("#login-password-input", new_password)
         b.click('#login-button')
         b.wait_visible('#content')
 
         # Set minimum age to disallow changing it immediately again
-        m.execute("chage --mindays 7 anton")
+        m.execute("chage --mindays 7 antoine")
         b.enter_page("/users")
-        b.go("#/anton")
-        b.wait_text("#account-user-name", "anton")
+        b.go("#/antoine")
+        b.wait_text("#account-user-name", "antoine")
         b.wait_visible('#account-set-password:enabled')
         b.click('#account-set-password')
         b.wait_visible('#account-set-password-dialog')

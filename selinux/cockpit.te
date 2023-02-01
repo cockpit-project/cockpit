@@ -198,3 +198,7 @@ optional_policy(`
     ')
     cockpit_read_pid_files(local_login_t)
 ')
+
+optional_policy(`
+    gnome_exec_keyringd(cockpit_session_t)
+')

@@ -53,14 +53,14 @@ class Printer:
         """Opens a channel for the named payload.  A channel name is generated if not provided."""
         if channel is None:
             self.last_channel += 1
-            channel = str(self.last_channel)
+            channel = f'ch{self.last_channel}'
 
         self.control('open', channel=channel, payload=payload, **kwargs)
 
     def done(self, channel: Optional[str] = None, **kwargs: object) -> None:
         """Sends a done command on the named channel, or the last opened channel."""
         if channel is None:
-            channel = str(self.last_channel)
+            channel = f'ch{self.last_channel}'
         self.control('done', channel=channel, **kwargs)
 
     def http(self, path: str, method: str = 'GET', done: bool = True, **kwargs: object) -> None:

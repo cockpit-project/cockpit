@@ -18,26 +18,30 @@
 import argparse
 import ast
 import json
+import os
 import pydoc
+import readline  # noqa side-effecting import
 import shlex
 import sys
 import time
 
-from typing import Iterable, Optional
+from typing import BinaryIO, Iterable, Optional
 
 
 class Printer:
+    output: BinaryIO
     last_channel: int
 
-    def __init__(self):
+    def __init__(self, output=None):
         self.last_channel = 0
+        self.output = output or sys.stdout.buffer
 
     def data(self, channel: str, /, data: bytes) -> None:
         """Send raw data (byte string) on a channel"""
         message = channel.encode('ascii') + b'\n' + data
         frame = str(len(message)).encode('ascii') + b'\n' + message
-        sys.stdout.buffer.write(frame)
-        self.stdout.flush()
+        self.output.write(frame)
+        self.output.flush()
 
     def json(self, channel: str, /, **kwargs: object) -> None:
         """Send a json message (built from **kwargs) on a channel"""
@@ -145,8 +149,13 @@ def get_commands(args: list[str]) -> Iterable[list[str]]:
     for command in split_commands(args):
         if command == ['-']:
             # read commands from stdin
-            for line in sys.stdin:
-                yield shlex.split(line)
+            try:
+                while True:
+                    # try to print the prompt after output from the bridge
+                    time.sleep(0.2)
+                    yield shlex.split(input('cockpit.print> '))
+            except EOFError:
+                pass
         else:
             yield command
 
@@ -157,11 +166,18 @@ def main():
                         help="Don't for [Enter] after printing, before exit")
     parser.add_argument('--no-init', action='store_true',
                         help="Don't send an init message")
-    parser.add_argument('command', nargs='+',
+    parser.add_argument('command', nargs='*', default=['-'],
                         help="The command to invoke: try 'help'")
     args = parser.parse_args()
 
-    printer = Printer()
+    # "The Usual Tricks"
+    # Our original stdout is where we need to send our messages, but in case we
+    # use readline, we need stdout to be attached to the user's terminal.  We
+    # do this by duping the pipe and reopening stdout from /dev/tty.
+    output = open(os.dup(1), 'wb')
+    os.dup2(os.open('/dev/tty', os.O_WRONLY), 1)
+
+    printer = Printer(output)
 
     need_init = not args.no_init
 

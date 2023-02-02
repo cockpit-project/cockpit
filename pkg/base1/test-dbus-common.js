@@ -143,8 +143,8 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test.skipWithPybridge("integer bounds", function (assert) {
-        assert.expect(35);
+    QUnit.test("integer bounds", function (assert) {
+        assert.expect(46);
 
         const dbus = cockpit.dbus(bus_name, channel_options);
 
@@ -155,6 +155,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                       "TestVariant", [{ t: type, v: value }])
                     .fail(function(ex) {
                         assert.equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs");
+                        assert.equal(ex.message, "Value out of range for signature '" + type + "': " + value);
                     })
                     .always(function() {
                         if (valid)
@@ -216,7 +217,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test.skipWithPybridge("variants", function (assert) {
+    QUnit.test("variants", function (assert) {
         const done = assert.async();
         assert.expect(2);
 
@@ -240,7 +241,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test.skipWithPybridge("bad variants", function (assert) {
+    QUnit.test("bad variants", function (assert) {
         const done = assert.async();
         assert.expect(3);
 
@@ -255,7 +256,10 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                   }])
                 .fail(function(ex) {
                     assert.equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "error name");
-                    assert.equal(ex.message, "Unexpected type 'string' in argument", "error message");
+                    if (QUnit.withPybridge)
+                        assert.equal(ex.message, "Invalid value for variant: 'foo'", "error message");
+                    else
+                        assert.equal(ex.message, "Unexpected type 'string' in argument", "error message");
                 })
                 .always(function() {
                     assert.equal(this.state(), "rejected", "should fail");
@@ -316,7 +320,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test.skipWithPybridge("call bad base64", function (assert) {
+    QUnit.test("call bad base64", function (assert) {
         const done = assert.async();
         assert.expect(3);
 
@@ -467,7 +471,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test.skipWithPybridge("empty base64", function (assert) {
+    QUnit.test("empty base64", function (assert) {
         const done = assert.async();
         assert.expect(3);
 
@@ -485,7 +489,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test.skipWithPybridge("bad object path", function (assert) {
+    QUnit.test("call to bad object path", function (assert) {
         const done = assert.async();
         assert.expect(2);
 
@@ -493,14 +497,17 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         dbus.call("invalid/path", "borkety.Bork", "Echo", [1])
                 .fail(function(ex) {
                     assert.equal(ex.problem, "protocol-error", "error name");
-                    assert.equal(ex.message, "object path is invalid in dbus \"call\": invalid/path", "error message");
+                    if (QUnit.withPybridge)
+                        assert.equal(ex.message, "invalid object path: invalid/path", "error message");
+                    else
+                        assert.equal(ex.message, "object path is invalid in dbus \"call\": invalid/path", "error message");
                 })
                 .always(function() {
                     done();
                 });
     });
 
-    QUnit.test.skipWithPybridge("bad interface name", function (assert) {
+    QUnit.test("call to bad interface name", function (assert) {
         const done = assert.async();
         assert.expect(2);
 
@@ -508,14 +515,17 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         dbus.call("/path", "!invalid!interface!", "Echo", [1])
                 .fail(function(ex) {
                     assert.equal(ex.problem, "protocol-error", "error name");
-                    assert.equal(ex.message, "interface name is invalid in dbus \"call\": !invalid!interface!", "error message");
+                    if (QUnit.withPybridge)
+                        assert.equal(ex.message, "invalid interface name: !invalid!interface!", "error message");
+                    else
+                        assert.equal(ex.message, "interface name is invalid in dbus \"call\": !invalid!interface!", "error message");
                 })
                 .always(function() {
                     done();
                 });
     });
 
-    QUnit.test.skipWithPybridge("bad method name", function (assert) {
+    QUnit.test("call to bad method name", function (assert) {
         const done = assert.async();
         assert.expect(2);
 
@@ -523,14 +533,17 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         dbus.call("/path", "borkety.Bork", "!Invalid!Method!", [1])
                 .fail(function(ex) {
                     assert.equal(ex.problem, "protocol-error", "error name");
-                    assert.equal(ex.message, "member name is invalid in dbus \"call\": !Invalid!Method!", "error message");
+                    if (QUnit.withPybridge)
+                        assert.equal(ex.message, "invalid method name: !Invalid!Method!", "error message");
+                    else
+                        assert.equal(ex.message, "member name is invalid in dbus \"call\": !Invalid!Method!", "error message");
                 })
                 .always(function() {
                     done();
                 });
     });
 
-    QUnit.test.skipWithPybridge("bad flags", function (assert) {
+    QUnit.test("bad flags", function (assert) {
         const done = assert.async();
         assert.expect(2);
 
@@ -538,14 +551,17 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         dbus.call("/path", "borkety.Bork", "Method", [1], { flags: 5 })
                 .fail(function(ex) {
                     assert.equal(ex.problem, "protocol-error", "error name");
-                    assert.equal(ex.message, "the \"flags\" field is invalid in dbus call", "error message");
+                    if (QUnit.withPybridge)
+                        assert.equal(ex.message, "invalid flags: 5", "error message");
+                    else
+                        assert.equal(ex.message, "the \"flags\" field is invalid in dbus call", "error message");
                 })
                 .always(function() {
                     done();
                 });
     });
 
-    QUnit.test.skipWithPybridge("bad types", function (assert) {
+    QUnit.test("bad types", function (assert) {
         const done = assert.async();
         assert.expect(3);
 
@@ -554,7 +570,10 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                   { type: "!!%%" })
                 .fail(function(ex) {
                     assert.equal(ex.problem, "protocol-error", "error name");
-                    assert.equal(ex.message, "the \"type\" signature is not valid in dbus call: !!%%", "error message");
+                    if (QUnit.withPybridge)
+                        assert.equal(ex.message, "invalid type: !!%%", "error message");
+                    else
+                        assert.equal(ex.message, "the \"type\" signature is not valid in dbus call: !!%%", "error message");
                 })
                 .always(function() {
                     assert.equal(this.state(), "rejected", "should fail");
@@ -562,7 +581,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test.skipWithPybridge("bad type invalid", function (assert) {
+    QUnit.test("bad type invalid", function (assert) {
         const done = assert.async();
         assert.expect(3);
 
@@ -570,7 +589,10 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
         dbus.call("/bork", "borkety.Bork", "Echo", [1], { type: 5 }) // invalid
                 .fail(function(ex) {
                     assert.equal(ex.problem, "protocol-error", "error name");
-                    assert.equal(ex.message, "the \"type\" field is invalid in call", "error message");
+                    if (QUnit.withPybridge)
+                        assert.equal(ex.message, "invalid type: 5", "error message");
+                    else
+                        assert.equal(ex.message, "the \"type\" field is invalid in call", "error message");
                 })
                 .always(function() {
                     assert.equal(this.state(), "rejected", "should fail");
@@ -578,7 +600,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test.skipWithPybridge("bad dict type", function (assert) {
+    QUnit.test("bad dict type", function (assert) {
         const done = assert.async();
         assert.expect(3);
 
@@ -587,7 +609,10 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                   "Nobody", [{ "!!!": "value" }], { type: "a{is}" })
                 .fail(function(ex) {
                     assert.equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "error name");
-                    assert.equal(ex.message, "Unexpected key '!!!' in dict entry", "error message");
+                    if (QUnit.withPybridge)
+                        assert.equal(ex.message, "Invalid value for signature 'i': '!!!'", "error message");
+                    else
+                        assert.equal(ex.message, "Unexpected key '!!!' in dict entry", "error message");
                 })
                 .always(function() {
                     assert.equal(this.state(), "rejected", "should fail");
@@ -595,7 +620,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test.skipWithPybridge("bad object path", function (assert) {
+    QUnit.test("bad object path", function (assert) {
         const done = assert.async();
         assert.expect(3);
 
@@ -604,7 +629,10 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                   "Nobody", ["not/a/path"], { type: "o" })
                 .fail(function(ex) {
                     assert.equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "error name");
-                    assert.equal(ex.message, "Invalid object path 'not/a/path'", "error message");
+                    if (QUnit.withPybridge)
+                        assert.equal(ex.message, "Invalid value for signature 'o': 'not/a/path'", "error message");
+                    else
+                        assert.equal(ex.message, "Invalid object path 'not/a/path'", "error message");
                 })
                 .always(function() {
                     assert.equal(this.state(), "rejected", "should fail");
@@ -612,7 +640,7 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                 });
     });
 
-    QUnit.test.skipWithPybridge("bad signature", function (assert) {
+    QUnit.test("bad signature", function (assert) {
         const done = assert.async();
         assert.expect(3);
 
@@ -621,7 +649,10 @@ export function common_dbus_tests(channel_options, bus_name) { // eslint-disable
                   "Nobody", ["bad signature"], { type: "g" })
                 .fail(function(ex) {
                     assert.equal(ex.name, "org.freedesktop.DBus.Error.InvalidArgs", "error name");
-                    assert.equal(ex.message, "Invalid signature 'bad signature'", "error message");
+                    if (QUnit.withPybridge)
+                        assert.equal(ex.message, "Invalid value for signature 'g': 'bad signature'", "error message");
+                    else
+                        assert.equal(ex.message, "Invalid signature 'bad signature'", "error message");
                 })
                 .always(function() {
                     assert.equal(this.state(), "rejected", "should fail");

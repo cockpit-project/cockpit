@@ -294,6 +294,26 @@ class DBusChannel(Channel):
         flags = message.get('flags')
         type = message.get('type')
 
+        if not Bus.object_path_is_valid(path):
+            self.close(problem="protocol-error",
+                       message=f"invalid object path: {path}")
+
+        if not Bus.interface_name_is_valid(iface):
+            self.close(problem="protocol-error",
+                       message=f"invalid interface name: {iface}")
+
+        if not Bus.member_name_is_valid(method):
+            self.close(problem="protocol-error",
+                       message=f"invalid method name: {method}")
+
+        if flags and not isinstance(flags, str):
+            self.close(problem="protocol-error",
+                       message=f"invalid flags: {flags}")
+
+        if type and not Bus.signature_is_valid(type):
+            self.close(problem="protocol-error",
+                       message=f"invalid type: {type}")
+
         timeout = message.get('timeout')
         if timeout is not None:
             # sd_bus timeout is µs, cockpit API timeout is ms
@@ -335,6 +355,8 @@ class DBusChannel(Channel):
                 self.send_message(reply=[reply], id=cookie,
                                   flags="<" if flags is not None else None,
                                   type=type)
+        except TypeError as error:
+            self.send_message(error=['org.freedesktop.DBus.Error.InvalidArgs', [str(error)]], id=cookie)
         except BusError as error:
             # actually, should send the fields from the message body
             self.send_message(error=[error.name, [error.message]], id=cookie)

@@ -260,6 +260,14 @@ class DBusChannel(Channel):
         else:
             self.ready()
 
+    def do_cleanup(self):
+        for t in self.tasks:
+            self.router.cancel_task(t)
+        for m in self.matches:
+            m.cancel()
+        self.tasks = None
+        self.matches = None
+
     def add_signal_handler(self, handler, **kwargs):
         r = dict(**kwargs)
         r['type'] = 'signal'

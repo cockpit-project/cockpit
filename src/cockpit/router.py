@@ -98,6 +98,9 @@ class Endpoint:
         if command == 'close':
             self.router.close_channel(channel)
 
+    def do_cleanup(self):
+        pass
+
 
 class RoutingError(Exception):
     def __init__(self, problem, **kwargs):
@@ -147,7 +150,9 @@ class Router(CockpitProtocolServer):
             raise RoutingError('not-supported')
 
     def close_channel(self, channel: str) -> None:
-        self.open_channels.pop(channel, None)
+        endpoint = self.open_channels.pop(channel, None)
+        if endpoint:
+            endpoint.do_cleanup()
         if channel in self.groups:
             del self.groups[channel]
 
@@ -198,3 +203,7 @@ class Router(CockpitProtocolServer):
             return
 
         endpoint.do_channel_data(channel, data)
+
+    def do_closed(self, transport_was, exc):
+        for channel in list(self.open_channels):
+            self.close_channel(channel)

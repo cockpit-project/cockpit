@@ -27,7 +27,7 @@ import parent  # noqa: F401
 from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, test_main, wait
 
 
-@skipImage("No sosreport", "fedora-coreos", "arch")
+@skipImage("No sosreport", "fedora-coreos", "rhel4edge", "arch")
 @nondestructive
 @skipDistroPackage()
 class TestSOS(MachineCase):

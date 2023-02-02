@@ -478,7 +478,7 @@ class CommonTests:
         m.execute("mv /etc/sssd/pki/sssd_auth_ca_db.pem.valid /etc/sssd/pki/sssd_auth_ca_db.pem")
 
 
-@skipImage("No realmd available", "fedora-coreos", "arch")
+@skipImage("No realmd available", "fedora-coreos", "rhel4edge", "arch")
 @skipDistroPackage()
 @no_retry_when_changed
 class TestRealms(MachineCase):
@@ -1002,7 +1002,7 @@ sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
 # This is here because our test framework can't run ipa VM's twice
 
 
-@skipImage("No realmd available", "fedora-coreos", "arch")
+@skipImage("No realmd available", "fedora-coreos", "rhel4edge", "arch")
 @skipImage("freeipa not currently available", "debian-stable", "debian-testing", "arch")
 @skipDistroPackage()
 @no_retry_when_changed
@@ -1135,7 +1135,7 @@ class TestKerberos(MachineCase):
 
 
 @skipImage("No realmd available", "arch")
-@skipImage("Package (un)install does not work on OSTree", "fedora-coreos")
+@skipImage("Package (un)install does not work on OSTree", "fedora-coreos", "rhel4edge")
 @skipDistroPackage()
 class TestPackageInstall(packagelib.PackageCase):
 

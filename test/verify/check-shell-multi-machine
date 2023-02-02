@@ -103,7 +103,7 @@ def change_ssh_port(machine, address, port=None, timeout_sec=120):
     # Keep in mind that not all operating systems have firewalld
     machine.execute(f"firewall-cmd --permanent --zone=public --add-port={port}/tcp || true")
     machine.execute("firewall-cmd --reload || true")
-    if machine.image in ["fedora-coreos"]:  # no semanage
+    if machine.image in ["fedora-coreos", "rhel4edge"]:  # no semanage
         machine.execute("setenforce 0")
     else:
         machine.execute(f"! selinuxenabled || semanage port -a -t ssh_port_t -p tcp {port}")
@@ -830,10 +830,8 @@ class TestMultiMachine(MachineCase):
         b.wait_not_present('#hosts_setup_server_dialog')
         b.enter_page("/system", host="fred@10.111.113.2")
 
-        # Relogin.  This should now work seamlessly (except on
-        # fedora-coreos, which doesn't have pam-ssh-add in its PAM
-        # stack.)
-        #
+        # Relogin.  This should now work seamlessly (except on fedora-coreos and rhel4edge
+        # which don't have pam-ssh-add in its PAM stack.)
         if not m1.ostree_image:
             b.relogin(None, wait_remote_session_machine=m1)
             b.enter_page("/system", host="fred@10.111.113.2")

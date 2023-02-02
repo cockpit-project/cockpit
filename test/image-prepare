@@ -105,11 +105,11 @@ def build_install_package(dist_tar, image):
     return args
 
 
-def build_install_coreos(dist_tar, image, verbose, quick):
+def build_install_ostree(dist_tar, image, verbose, quick):
     '''Special treatment of build/install on CoreOS
 
-    OSTree image can't build packages, build them on corresponding Fedora and invoke
-    test/fedora-coreos.install to install them into the OSTree and the cockpit/ws container.
+    OSTree image can't build packages, build them on corresponding OSes and invoke
+    test/ostree.install to install them into the OSTree and the cockpit/ws container.
     '''
     rpms = build_rpms(dist_tar, testmap.get_build_image(image), verbose, quick)
     args = []
@@ -117,7 +117,7 @@ def build_install_coreos(dist_tar, image, verbose, quick):
         args += ["--upload", f"{rpm}:/var/tmp/"]
     args += [
         "--upload", os.path.join(BASE_DIR, "containers") + ":/var/tmp/",
-        "--script", os.path.join(TEST_DIR, "fedora-coreos.install")]
+        "--script", os.path.join(TEST_DIR, "ostree.install")]
     return args
 
 
@@ -223,8 +223,8 @@ def main():
 
     dist_tar = subprocess.check_output([f'{BASE_DIR}/tools/make-dist'], text=True).strip()
 
-    if args.image == "fedora-coreos":
-        customize += build_install_coreos(dist_tar, args.image, args.verbose, args.quick)
+    if args.image in ["fedora-coreos", "rhel4edge"]:
+        customize += build_install_ostree(dist_tar, args.image, args.verbose, args.quick)
     elif args.image.startswith("rhel-8") or args.image.startswith("centos-8"):
         customize += build_install_rhel8(dist_tar, args.image, args.verbose, args.quick)
     else:

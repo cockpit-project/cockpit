@@ -23,7 +23,7 @@ from netlib import NetworkCase
 from testlib import nondestructive, skipDistroPackage, skipImage, test_main
 
 
-@skipImage("NetworkManager-team not installed", "fedora-coreos")
+@skipImage("NetworkManager-team not installed", "fedora-coreos", "rhel4edge")
 @skipImage("TODO: networkmanager fails on Arch Linux", "arch")
 @skipDistroPackage()
 @nondestructive

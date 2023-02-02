@@ -22,7 +22,7 @@ from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, t
 
 
 @nondestructive
-@skipImage("No tuned packaged", "fedora-coreos", "arch")
+@skipImage("No tuned packaged", "fedora-coreos", "rhel4edge", "arch")
 @skipDistroPackage()
 class TestTuned(MachineCase):
 

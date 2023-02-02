@@ -108,12 +108,19 @@ class HttpChannel(Channel):
                            self.options.get('path'),
                            headers=self.options.get('headers') or {},
                            body=self.body)
-        response = connection.getresponse()
-        self.loop.call_soon_threadsafe(lambda: self.send_control(
-            command='response', status=response.status, reason=response.reason,
-            headers=self.parse_headers(response.headers)))
-        self.read_send_response(response)
-        connection.close()
+        try:
+            response = connection.getresponse()
+            self.loop.call_soon_threadsafe(lambda: self.send_control(
+                command='response', status=response.status, reason=response.reason,
+                headers=self.parse_headers(response.headers)))
+            self.read_send_response(response)
+        except http.client.HTTPException as error:
+            msg = str(error)
+            logger.debug('HTTP reading response failed: %s', msg)
+            self.loop.call_soon_threadsafe(lambda: self.close(problem='terminated', message=msg))
+            return
+        finally:
+            connection.close()
 
         self.loop.call_soon_threadsafe(self.done)
         self.loop.call_soon_threadsafe(self.close)

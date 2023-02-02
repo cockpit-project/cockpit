@@ -1585,6 +1585,7 @@ class MachineCase(unittest.TestCase):
             # on OSTree we don't get "web console" sessions with the cockpit/ws container; just SSH; but also, some tests start
             # admin sessions without Cockpit
             self.machine.execute("""for u in $(loginctl --no-legend list-users  | awk '{ if ($2 != "root") print $1 }'); do
+                                        systemctl stop user@$u.service 2>/dev/null || true
                                         loginctl terminate-user $u 2>/dev/null || true
                                         loginctl kill-user $u 2>/dev/null || true
                                         pkill -9 -u $u || true

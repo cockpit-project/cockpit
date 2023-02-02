@@ -510,3 +510,9 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
         assert not all(d for d in data[0][0])
         # memory.used should be an integer
         assert isinstance(data[0][1], int)
+
+    async def test_fsread1_errors(self):
+        await self.start()
+        await self.transport.check_open('fsread1', path='/etc/shadow', problem='access-denied')
+        await self.transport.check_open('fsread1', path='/', problem='internal-error',
+                                        reply_keys={'message': "[Errno 21] Is a directory: '/'"})

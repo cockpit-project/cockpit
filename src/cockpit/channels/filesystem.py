@@ -109,8 +109,8 @@ class FsReadChannel(GeneratorChannel):
             return {'tag': '-'}
         except PermissionError:
             raise ChannelError('access-denied')
-        except OSError:
-            raise ChannelError('internal-error')
+        except OSError as error:
+            raise ChannelError('internal-error', message=str(error)) from error
 
 
 class FsReplaceChannel(Channel):

@@ -10,7 +10,7 @@ fi
 . /usr/lib/os-release
 
 # our tests expect cockpit.socket to not be running after boot, only after start_cockpit()
-if [ "${VARIANT_ID:-}" != "coreos" ]; then
+if ! type rpm-ostree >/dev/null 2>&1; then
     systemctl disable cockpit.socket
 fi
 

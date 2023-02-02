@@ -27,7 +27,7 @@ from testvm import DEFAULT_IMAGE
 HOST = "host.containers.internal"
 
 
-@unittest.skipUnless(DEFAULT_IMAGE == "fedora-coreos", "no cockpit/ws container on this image")
+@unittest.skipUnless(DEFAULT_IMAGE in ["fedora-coreos", "rhel4edge"], "no cockpit/ws container on this image")
 @nondestructive
 class TestWsBastionContainer(MachineCase):
     def setUp(self):
@@ -135,7 +135,7 @@ class TestWsBastionContainer(MachineCase):
         m = self.machine
         b = self.browser
 
-        # custom cockpit.conf and pretend we are Fedora CoreOS
+        # custom cockpit.conf and pretend we are Fedora CoreOS/RHEL
         self.write_file("/root/cockpit.conf", """[WebService]
             LoginTitle = My Walden
 """)
@@ -154,7 +154,7 @@ class TestWsBastionContainer(MachineCase):
         # custom conf does not have RequireHost
         b.wait_visible("#option-group")
         # Shows os-release branding
-        b.wait_in_text("#brand", "Fedora")
+        b.wait_in_text("#brand", "Fedora" if m.image == "fedora-coreos" else "Red Hat Enterprise Linux")
 
         # pre-fill target host
         b.open(f"/={HOST}/", tls=True)
@@ -203,6 +203,7 @@ class TestWsBastionContainer(MachineCase):
 
         # authorize key
         p = "/home/admin/.ssh/authorized_keys.d/bastion"
+        m.execute(f"mkdir --mode 700 -p {os.path.dirname(p)}; chown admin:admin {os.path.dirname(p)}")
         self.restore_dir(os.path.dirname(p))
         m.execute(f"cp /root/id_bastion.pub {p}; chown admin:admin {p}; chmod 600 {p}")
 
@@ -227,7 +228,7 @@ class TestWsBastionContainer(MachineCase):
         b.wait_visible('#content')
 
 
-@unittest.skipUnless(DEFAULT_IMAGE == "fedora-coreos", "no cockpit/ws container on this image")
+@unittest.skipUnless(DEFAULT_IMAGE in ["fedora-coreos", "rhel4edge"], "no cockpit/ws container on this image")
 @nondestructive
 class TestWsPrivileged(MachineCase):
     def testService(self):

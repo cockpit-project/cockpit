@@ -400,7 +400,7 @@ config: !Configuration
         b.wait_in_text("#devices", "vdo1")
 
 
-@unittest.skipUnless(testvm.DEFAULT_IMAGE.startswith("rhel") or testvm.DEFAULT_IMAGE.startswith("centos"),
+@unittest.skipUnless(testvm.DEFAULT_IMAGE.startswith("rhel-") or testvm.DEFAULT_IMAGE.startswith("centos"),
                      "VDO API only supported on RHEL")
 class TestStoragePackagesVDO(PackageCase, StorageHelpers):
 

@@ -522,7 +522,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_visible(journal_line_selector.format("INFO_MESSAGE"))
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-2204", "fedora-coreos", "rhel-8-7", "rhel-8-8", "rhel-9-1", "rhel-9-2", "centos-8-stream",
+               "ubuntu-2204", "fedora-coreos", "rhel4edge", "rhel-8-7", "rhel-8-8", "rhel-9-1", "rhel-9-2", "centos-8-stream",
                "arch")
     @nondestructive
     def testAbrtSegv(self):
@@ -556,7 +556,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_visible("#abrt-details .pf-c-accordion__expanded-content-body dt:contains('signal') + dd:contains('11')")
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-2204", "fedora-coreos", "rhel-8-7", "rhel-8-8", "rhel-9-1", "rhel-9-2", "centos-8-stream",
+               "ubuntu-2204", "fedora-coreos", "rhel4edge", "rhel-8-7", "rhel-8-8", "rhel-9-1", "rhel-9-2", "centos-8-stream",
                "arch")
     @nondestructive
     def testAbrtDelete(self):
@@ -588,7 +588,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_not_present("button.pf-m-danger:contains('Delete')")
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-2204", "fedora-coreos", "rhel-8-7", "rhel-8-8", "rhel-9-1", "rhel-9-2", "centos-8-stream",
+               "ubuntu-2204", "fedora-coreos", "rhel4edge", "rhel-8-7", "rhel-8-8", "rhel-9-1", "rhel-9-2", "centos-8-stream",
                "arch")
     @nondestructive
     def testAbrtReport(self):
@@ -653,7 +653,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_visible("#abrt-reporting .pf-l-split:contains('Report to Cockpit') a[href='https://bugzilla.example.com/show_bug.cgi?id=123456']")
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-2204", "fedora-coreos", "rhel-8-7", "rhel-8-8", "rhel-9-1", "rhel-9-2", "centos-8-stream",
+               "ubuntu-2204", "fedora-coreos", "rhel4edge", "rhel-8-7", "rhel-8-8", "rhel-9-1", "rhel-9-2", "centos-8-stream",
                "arch")
     @nondestructive
     def testAbrtReportCancel(self):
@@ -689,7 +689,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_visible("#abrt-reporting .pf-l-split:contains('Report to Cockpit') .pf-l-split__item:contains('Reporting was canceled')")
 
     @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-2204", "fedora-coreos", "rhel-8-7", "rhel-8-8", "rhel-9-1", "rhel-9-2", "centos-8-stream",
+               "ubuntu-2204", "fedora-coreos", "rhel4edge", "rhel-8-7", "rhel-8-8", "rhel-9-1", "rhel-9-2", "centos-8-stream",
                "arch")
     @nondestructive
     def testAbrtReportNoReportd(self):

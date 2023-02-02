@@ -49,7 +49,7 @@ class KdumpHelpers(MachineCase):
         self.machine.wait_boot(timeout_sec=300)
 
 
-@skipImage("kexec-tools not installed", "fedora-coreos", "debian-stable",
+@skipImage("kexec-tools not installed", "fedora-coreos", "rhel4edge", "debian-stable",
            "debian-testing", "ubuntu-2204", "ubuntu-stable", "arch")
 @timeout(900)
 @skipDistroPackage()
@@ -376,7 +376,7 @@ class TestKdump(KdumpHelpers):
         b.wait_text("#kdump-target-info", "Remote over CIFS/SMB")
 
 
-@skipImage("kexec-tools not installed", "fedora-coreos", "debian-stable",
+@skipImage("kexec-tools not installed", "fedora-coreos", "rhel4edge", "debian-stable",
            "debian-testing", "ubuntu-2204", "ubuntu-stable", "arch")
 @timeout(900)
 @skipDistroPackage()

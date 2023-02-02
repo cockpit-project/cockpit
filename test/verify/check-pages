@@ -41,7 +41,7 @@ class TestPages(MachineCase):
         # DOCUMENTATION_URL is only in Fedora, RHEL and Arch
         if "fedora" in m.image:
             expected = "Fedora Linux documentation" + expected
-        elif m.image.startswith("rhel-"):
+        elif m.image.startswith("rhel"):
             expected = "Red Hat Enterprise Linux documentation" + expected
         elif m.image == "arch":
             expected = "Arch Linux documentation" + expected
@@ -504,7 +504,7 @@ OnCalendar=daily
         b.key_press(chr(40), use_ord=True)  # arrow down
         b.key_press(chr(40), use_ord=True)  # arrow down
         b.key_press("\r")
-        if m.image in ["fedora-coreos"]:
+        if m.image in ["fedora-coreos", "rhel4edge"]:
             b.enter_page("/users")
         else:
             b.enter_page("/storage")
@@ -616,7 +616,7 @@ OnCalendar=daily
         b.key_press("stuff/")
         b.wait_in_text("#file-autocomplete-widget li:nth-of-type(4) button", "other")
 
-    @skipImage("No PCP available", "fedora-coreos")
+    @skipImage("No PCP available", "fedora-coreos", "rhel4edge")
     def testPlots(self):
         b = self.browser
         m = self.machine
@@ -799,7 +799,7 @@ OnCalendar=daily
         assert_location("/system")
 
         # CoreOS does not keep login history
-        if self.machine.image not in ["fedora-coreos"]:
+        if self.machine.image not in ["fedora-coreos", "rhel4edge"]:
 
             b.enter_page("/system")
             b.click("button:contains(View login history)")

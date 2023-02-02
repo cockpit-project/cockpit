@@ -254,7 +254,7 @@ class TestNetworkingBasic(NetworkCase):
         wait(lambda: m.execute("systemctl is-enabled NetworkManager"))
 
         # /usr in coreos is readonly
-        if m.image not in ["fedora-coreos"]:
+        if m.image not in ["fedora-coreos", "rhel4edge"]:
             # remove the NM service file, test 'no-found' notification
             # This works for ND tests since there is a self.addCleanup(m.execute, "systemctl enable --now NetworkManager") in the start of the test
             self.restore_file('/usr/lib/systemd/system/NetworkManager.service')

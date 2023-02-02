@@ -21,7 +21,7 @@ import parent  # noqa: F401
 from testlib import MachineCase, skipDistroPackage, skipImage, test_main
 
 
-@skipImage("OSTree always uses loopback", "fedora-coreos")
+@skipImage("OSTree always uses loopback", "fedora-coreos", "rhel4edge")
 @skipDistroPackage()
 class TestLoopback(MachineCase):
 

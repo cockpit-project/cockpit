@@ -299,7 +299,7 @@ class TestBondingVirt(NetworkCase):
 
     @skipImage("TODO: no dhclient on Arch image", "arch")
     @skipImage("Main interface can't be managed", "debian-stable", "debian-testing", "ubuntu-2204", "ubuntu-stable")
-    @skipImage("not using dhclient", "fedora-coreos")
+    @skipImage("not using dhclient", "fedora-coreos", "rhel4edge")
     def testSlowly(self):
         b = self.browser
         m = self.machine

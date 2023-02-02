@@ -54,7 +54,7 @@ class TestXHRProxy(MachineCase):
         self.machine.upload([os.path.join(EXAMPLES_DIR, "xhr-proxy")], "/home/admin/.local/share/cockpit/")
 
     @FMF.tag("example2")
-    @skipImage("No Python installed", "fedora-coreos")
+    @skipImage("No Python installed", "fedora-coreos", "rhel4edge")
     def testBasic(self):
         m = self.machine
         b = self.browser

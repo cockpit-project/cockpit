@@ -619,7 +619,7 @@ class StorageCase(MachineCase, StorageHelpers):
 
     def setUp(self):
 
-        if self.image in ["fedora-coreos"]:
+        if self.image in ["fedora-coreos", "rhel4edge"]:
             self.skipTest("No udisks/cockpit-storaged on OSTree images")
 
         super().setUp()

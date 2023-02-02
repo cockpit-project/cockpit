@@ -33,6 +33,9 @@ class TestRoles(MachineCase):
         m.execute("useradd user -s /bin/bash -c User")
         m.execute("echo user:foobar | chpasswd")
 
+        # Give name to admin account
+        m.execute("usermod -c Administrator admin")
+
         m.start_cockpit()
 
         def login(user, password):

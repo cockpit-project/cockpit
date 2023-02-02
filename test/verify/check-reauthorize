@@ -62,7 +62,7 @@ class TestReauthorize(MachineCase):
         b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
         self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: access-denied')
 
-    @skipImage("ssh root login not allowed", "fedora-coreos")
+    @skipImage("ssh root login not allowed", "fedora-coreos", "rhel4edge")
     def testSuper(self):
         b = self.browser
 

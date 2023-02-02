@@ -104,6 +104,7 @@ You can set these environment variables to configure the test suite:
                   "rhel-8-7"
                   "rhel-8-7-distropkg"
                   "rhel-9-1"
+                  "rhel4edge",
                   "ubuntu-2204"
                   "ubuntu-stable"
                "fedora-37" is the default (TEST_OS_DEFAULT in bots/lib/constants.py)

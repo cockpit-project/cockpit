@@ -37,9 +37,9 @@ for x in $(seq 1 200); do
 done
 """
 
-OSesWithoutTracer = ["debian-stable", "debian-testing", "ubuntu-2204", "ubuntu-stable", "fedora-coreos"]
+OSesWithoutTracer = ["debian-stable", "debian-testing", "ubuntu-2204", "ubuntu-stable", "fedora-coreos", "rhel4edge"]
 OSesWithoutKpatch = ["debian-stable", "debian-testing", "ubuntu-2204", "ubuntu-stable", "arch",
-                     "fedora-coreos", "fedora-36", "fedora-37", "fedora-38", "fedora-testing",
+                     "fedora-coreos", "rhel4edge", "fedora-36", "fedora-37", "fedora-38", "fedora-testing",
                      "centos-8-stream", "centos-9-stream"]
 
 
@@ -59,7 +59,7 @@ class NoSubManCase(PackageCase):
 
 
 @skipImage("TODO: Fails with 401 on our test runners", "arch")
-@skipImage("Image uses OSTree", "fedora-coreos")
+@skipImage("Image uses OSTree", "fedora-coreos", "rhel4edge")
 class TestUpdates(NoSubManCase):
 
     def setUp(self):
@@ -1148,7 +1148,7 @@ ExecStart=/usr/local/bin/{packageName}
 
 
 @skipImage("TODO: Arch Linux has no cockpit-ws package, it's in cockpit", "arch")
-@skipImage("Image uses OSTree", "fedora-coreos")
+@skipImage("Image uses OSTree", "fedora-coreos", "rhel4edge")
 class TestWsUpdate(NoSubManCase):
     def testBasic(self):
         # The main case for this is that cockpit-ws itself gets upgraded, which
@@ -1255,7 +1255,7 @@ class TestKpatchInstall(NoSubManCase):
         m.execute("rpm -q kpatch kpatch-dnf")
 
 
-@skipImage("Image uses OSTree", "fedora-coreos")
+@skipImage("Image uses OSTree", "fedora-coreos", "rhel4edge")
 @skipImage("No subscriptions", "debian-stable", "debian-testing", "centos-8-stream",
            "fedora-36", "fedora-37", "fedora-38", "fedora-testing", "ubuntu-2204", "ubuntu-stable", "arch")
 class TestUpdatesSubscriptions(PackageCase):
@@ -1404,7 +1404,7 @@ class TestUpdatesSubscriptions(PackageCase):
         b.wait_in_text("#status", "System is up to date")
 
 
-@skipImage("Image uses OSTree", "fedora-coreos")
+@skipImage("Image uses OSTree", "fedora-coreos", "rhel4edge")
 @nondestructive
 class TestAutoUpdates(NoSubManCase):
 
@@ -1683,7 +1683,7 @@ class TestAutoUpdates(NoSubManCase):
         self.assertNotIn("Shutdown", out)
 
 
-@skipImage("Image uses OSTree", "fedora-coreos")
+@skipImage("Image uses OSTree", "fedora-coreos", "rhel4edge")
 class TestAutoUpdatesInstall(NoSubManCase):
     def testUnsupported(self):
         b = self.browser

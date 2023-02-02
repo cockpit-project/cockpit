@@ -23,7 +23,7 @@ from testlib import skipImage, skipPackage, test_main
 
 
 @skipImage("TODO: bug in refreshing removed/installed state on Arch Linux", "arch")
-@skipImage("Not supported", "fedora-coreos")
+@skipImage("Not supported", "fedora-coreos", "rhel4edge")
 @skipPackage("cockpit-apps")
 class TestApps(PackageCase):
 

@@ -67,7 +67,7 @@ class TestNetworkingCheckpoints(NetworkCase):
             b.wait_not_present("#confirm-breaking-change-popup")
 
     @skipImage("Main interface settings are read-only", "debian-stable", "debian-testing")
-    @skipImage("not using dhclient", "fedora-coreos", "arch")
+    @skipImage("not using dhclient", "fedora-coreos", "rhel4edge", "arch")
     def testCheckpointSlowRollback(self):
         b = self.browser
         m = self.machine

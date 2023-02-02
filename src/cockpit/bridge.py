@@ -146,6 +146,7 @@ async def run(args) -> None:
     except (BrokenPipeError, ConnectionResetError):
         # not unexpected if the peer doesn't hang up cleanly
         pass
+    await router.stop_watching_tasks()
 
 
 def try_to_receive_stderr():

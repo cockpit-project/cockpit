@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import collections
 import logging
+import asyncio
 
 from typing import Dict, List, Optional
 
@@ -131,12 +132,35 @@ class Router(CockpitProtocolServer):
     open_channels: Dict[str, Endpoint]
     groups: Dict[str, str]
 
+    task_watching_queue = None
+    task_watching_task = None
+
     def __init__(self, routing_rules: List[RoutingRule]):
         for rule in routing_rules:
             rule.router = self
         self.routing_rules = routing_rules
         self.open_channels = {}
         self.groups = {}
+        self._start_watching_tasks()
+
+    def _start_watching_tasks(self):
+        async def watch_tasks(queue):
+            while task := await queue.get():
+                try:
+                    await task
+                except BaseException:
+                    pass
+        self.task_watching_queue = asyncio.Queue()
+        self.task_watching_task = asyncio.create_task(watch_tasks(self.task_watching_queue))
+
+    async def stop_watching_tasks(self):
+        await self.task_watching_queue.put(False)
+        self.task_watching_queue = None
+        await self.task_watching_task
+
+    def cancel_task(self, task):
+        task.cancel()
+        self.task_watching_queue.put_nowait(task)
 
     def check_rules(self, options: Dict[str, object]) -> Endpoint:
         for rule in self.routing_rules:

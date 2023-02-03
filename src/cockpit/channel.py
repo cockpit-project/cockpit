@@ -98,7 +98,9 @@ class Channel(Endpoint):
     payload: ClassVar[str]
     restrictions: ClassVar[Sequence[Tuple[str, object]]] = ()
 
+    # These get filled in from .do_open()
     channel = ''
+    group = ''
 
     # input
     def do_control(self, command, message):
@@ -110,6 +112,7 @@ class Channel(Endpoint):
             self.channel = message['channel']
             if message.get('flow-control'):
                 self._send_pings = True
+            self.group = message.get('group', 'default')
             self.freeze_endpoint()
             self.do_open(message)
         elif command == 'ready':
@@ -135,6 +138,13 @@ class Channel(Endpoint):
             self.do_control(command, message)
         except ChannelError as exc:
             self.close(**exc.kwargs)
+
+    def do_kill(self, host: Optional[str], group: Optional[str]) -> None:
+        if host is not None:
+            return
+        if group is not None and self.group != group:
+            return
+        self.do_close()
 
     # At least this one really ought to be implemented...
     def do_open(self, options):

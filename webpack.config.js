@@ -162,6 +162,7 @@ const info = {
         "base1/test-series",
         "base1/test-spawn-proc",
         "base1/test-spawn",
+        "base1/test-stream",
         "base1/test-user",
         "base1/test-utf8",
         "base1/test-websocket",

@@ -20,14 +20,13 @@ import ctypes
 import logging
 import os
 import signal
-import socket
 import subprocess
 
 from typing import Dict, Optional
 
 
 from ..channel import ProtocolChannel, ChannelError
-from ..transports import SocketTransport, SubprocessTransport, SubprocessProtocol
+from ..transports import SubprocessTransport, SubprocessProtocol
 
 logger = logging.getLogger(__name__)
 
@@ -42,16 +41,43 @@ def prctl(*args):
 SET_PDEATHSIG = 1
 
 
-class UnixStreamChannel(ProtocolChannel):
+class SocketStreamChannel(ProtocolChannel):
     payload = 'stream'
-    restrictions = (('unix', None),)
 
-    async def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, object]) -> SocketTransport:
-        path: str = options['unix']
-        connection = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        connection.connect(path)
+    async def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, object]) -> asyncio.Transport:
+        if 'unix' in options and 'port' in options:
+            raise ChannelError('protocol-error', message='cannot specify both "port" and "unix" options')
+
+        try:
+            # Unix
+            if 'unix' in options:
+                path = options['unix']
+                label = f'Unix socket {path}'
+                transport, _ = await loop.create_unix_connection(lambda: self, path)
+
+            # TCP
+            elif 'port' in options:
+                try:
+                    port: int = int(options['port'])
+                except ValueError:
+                    raise ChannelError('protocol-error', message='invalid "port" option for stream channel')
+                host = options.get('address', 'localhost')
+                label = f'TCP socket {host}:{port}'
+
+                transport, _ = await loop.create_connection(lambda: self, host, port)
+            else:
+                raise ChannelError('protocol-error', message='no "port" or "unix" or other address option for channel')
+
+            logger.debug('SocketStreamChannel: connected to %s', label)
+        except OSError as error:
+            logger.info('SocketStreamChannel: connecting to %s failed: %s', label, error)
+            if isinstance(error, ConnectionRefusedError):
+                problem = 'not-found'
+            else:
+                problem = 'terminated'
+            raise ChannelError(problem, message=str(error)) from error
         self.close_on_eof()
-        return SocketTransport(loop, self, connection)
+        return transport
 
 
 class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):

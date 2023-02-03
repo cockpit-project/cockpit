@@ -18,14 +18,12 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent  # noqa: F401
-from testlib import MachineCase, nondestructive, skipDistroPackage, todoPybridge, test_main
+from testlib import MachineCase, nondestructive, skipDistroPackage, test_main
 
 
 @skipDistroPackage()
 @nondestructive
 class TestActivePages(MachineCase):
-
-    @todoPybridge()
     def testBasic(self):
         b = self.browser
         m = self.machine

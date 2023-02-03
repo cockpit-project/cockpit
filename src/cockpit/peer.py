@@ -161,6 +161,9 @@ class Peer(CockpitProtocolClient, SubprocessProtocol, Endpoint):
     def do_channel_data(self, channel: str, data: bytes) -> None:
         self.write_channel_data(channel, data)
 
+    def do_kill(self, host: Optional[str], group: Optional[str]) -> None:
+        self.write_control(command='kill', host=host, group=group)
+
 
 class PeerRoutingRule(RoutingRule, PeerStateListener):
     config: Dict[str, object]

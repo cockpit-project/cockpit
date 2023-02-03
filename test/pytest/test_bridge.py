@@ -47,13 +47,13 @@ class MockTransport(asyncio.Transport):
         self.send_json('', command='open', channel=channel, payload=payload, **kwargs)
         return channel
 
-    async def check_open(self, payload, channel=None, problem=None, **kwargs):
+    async def check_open(self, payload, channel=None, problem=None, reply_keys: Optional[Dict[str, object]] = None, **kwargs):
         ch = self.send_open(payload, channel, **kwargs)
         if problem is None:
-            await self.assert_msg('', command='ready', channel=ch)
+            await self.assert_msg('', command='ready', channel=ch, **(reply_keys or {}))
             assert ch in self.protocol.open_channels
         else:
-            await self.assert_msg('', command='close', channel=ch, problem=problem)
+            await self.assert_msg('', command='close', channel=ch, problem=problem, **(reply_keys or {}))
             assert ch not in self.protocol.open_channels
         return ch
 

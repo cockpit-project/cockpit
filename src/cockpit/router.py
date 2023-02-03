@@ -94,7 +94,10 @@ class Endpoint:
     def send_channel_control(self, channel, command, **kwargs) -> None:
         self.router.write_control(channel=channel, command=command, **kwargs)
         if command == 'close':
-            self.router.close_channel(channel)
+            self.router.drop_channel(channel)
+
+    def shutdown_endpoint(self, **kwargs) -> None:
+        self.router.shutdown_endpoint(self, **kwargs)
 
 
 class RoutingError(Exception):
@@ -144,16 +147,28 @@ class Router(CockpitProtocolServer):
             logger.debug('  No rules matched')
             raise RoutingError('not-supported')
 
-    def close_channel(self, channel: str) -> None:
-        self.open_channels.pop(channel, None)
+    def drop_channel(self, channel: str) -> None:
+        assert channel in self.open_channels, (self.open_channels, channel)
+        try:
+            self.open_channels.pop(channel)
+            logger.debug('router dropped channel %s', channel)
+        except KeyError:
+            logger.error('trying to drop non-existent channel %s', channel)
         if channel in self.groups:
             del self.groups[channel]
+
+    def shutdown_endpoint(self, endpoint: Endpoint, **kwargs) -> None:
+        channels = set(key for key, value in self.open_channels.items() if value == endpoint)
+        logger.debug('shutdown_endpoint(%s, %s) will close %s', endpoint, kwargs, channels)
+        for channel in channels:
+            self.write_control(command='close', channel=channel, **kwargs)
+            self.drop_channel(channel)
 
     def do_kill(self, host: Optional[str], group: Optional[str]) -> None:
         if group:
             to_close = set(ch for ch, gr in self.groups.items() if gr == group)
             for channel in to_close:
-                self.close_channel(channel)
+                self.drop_channel(channel)
 
     def channel_control_received(self, channel: str, command: str, message: Dict[str, object]) -> None:
         # If this is an open message then we need to apply the routing rules to
@@ -184,10 +199,6 @@ class Router(CockpitProtocolServer):
 
         # At this point, we have the endpoint.  Route the message.
         endpoint.do_channel_control(channel, command, message)
-
-        # If that was a close message, we can remove the endpoint now.
-        if command == 'close':
-            self.close_channel(channel)
 
     def channel_data_received(self, channel: str, data: bytes) -> None:
         try:

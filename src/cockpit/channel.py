@@ -139,7 +139,7 @@ class Channel(Endpoint):
         pass
 
     def do_close(self):
-        pass
+        self.close()
 
     def do_options(self, message):
         raise ChannelError('not-supported', message='This channel does not implement "options"')

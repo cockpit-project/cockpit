@@ -18,7 +18,7 @@
 import asyncio
 import logging
 
-from typing import ClassVar, Dict, Generator, List, Optional, Sequence, Tuple, Type
+from typing import ClassVar, Dict, Generator, List, Optional, Sequence, Set, Tuple, Type
 
 from .router import Endpoint, Router, RoutingRule
 
@@ -90,6 +90,10 @@ class Channel(Endpoint):
     _out_sequence: int = 0
     _out_window: int = SEND_WINDOW
 
+    # Task management
+    _tasks: Set[asyncio.Task]
+    _close_args: Optional[Dict[str, object]] = None
+
     # Must be filled in by the channel implementation
     payload: ClassVar[str]
     restrictions: ClassVar[Sequence[Tuple[str, object]]] = ()
@@ -102,6 +106,7 @@ class Channel(Endpoint):
         # things that our subclass may be interested in handling.  We drop the
         # 'message' field for handlers that don't need it.
         if command == 'open':
+            self._tasks = set()
             self.channel = message['channel']
             if message.get('flow-control'):
                 self._send_pings = True
@@ -121,6 +126,10 @@ class Channel(Endpoint):
             self.do_options(message)
 
     def do_channel_control(self, channel, command, message):
+        # Already closing?  Ignore.
+        if self._close_args is not None:
+            return
+
         # Catch errors and turn them into close messages
         try:
             self.do_control(command, message)
@@ -149,6 +158,10 @@ class Channel(Endpoint):
         self.send_pong(message)
 
     def do_channel_data(self, channel, data):
+        # Already closing?  Ignore.
+        if self._close_args is not None:
+            return
+
         # Catch errors and turn them into close messages
         try:
             self.do_data(data)
@@ -167,8 +180,48 @@ class Channel(Endpoint):
     def done(self):
         self.send_control(command='done')
 
+    # tasks and close management
+    def is_closing(self) -> bool:
+        return self._close_args is not None
+
+    def _close_now(self):
+        self.send_control('close', **self._close_args)
+
+    def _task_done(self, task):
+        # Strictly speaking, we should read the result and check for exceptions but:
+        #   - exceptions bubbling out of the task are programming errors
+        #   - the only thing we'd do with it anyway, is to show it
+        #   - Python already does that with its "Task exception was never retrieved" messages
+        self._tasks.remove(task)
+        if self._close_args is not None and not self._tasks:
+            self._close_now()
+
+    def create_task(self, coroutine, name=None):
+        """Create a task associated with the channel.
+
+        All tasks must exit before the channel can close.  You may not create
+        new tasks after calling .close().
+        """
+        assert self._close_args is None
+        task = asyncio.create_task(coroutine)
+        self._tasks.add(task)
+        task.add_done_callback(self._task_done)
+        return task
+
     def close(self, **kwargs):
-        self.send_control('close', **kwargs)
+        """Requests the channel to be closed.
+
+        After you call this method, you won't get anymore `.do_*()` calls.
+
+        This will wait for any running tasks to complete before sending the
+        close message.
+        """
+        if self._close_args is not None:
+            # close already requested
+            return
+        self._close_args = kwargs
+        if not self._tasks:
+            self._close_now()
 
     def send_data(self, data: bytes) -> bool:
         """Send data and handle book-keeping for flow control.
@@ -268,11 +321,11 @@ class ProtocolChannel(Channel, asyncio.Protocol):
         assert isinstance(transport, asyncio.Transport)
         self._transport = transport
 
-    def _close_args(self) -> Dict[str, object]:
+    def _get_close_args(self) -> Dict[str, object]:
         return {}
 
     def connection_lost(self, exc: Optional[Exception]) -> None:
-        self.close(**self._close_args())
+        self.close(**self._get_close_args())
 
     def do_data(self, data: bytes) -> None:
         assert self._transport is not None
@@ -389,7 +442,7 @@ class AsyncChannel(Channel):
 
     def do_open(self, options):
         self.receive_queue = asyncio.Queue()
-        asyncio.create_task(self.run_wrapper(options), name=f'{self.__class__.__name__}.run_wrapper({options})')
+        self.create_task(self.run_wrapper(options), name=f'{self.__class__.__name__}.run_wrapper({options})')
 
     def do_done(self):
         self.receive_queue.put_nowait(b'')

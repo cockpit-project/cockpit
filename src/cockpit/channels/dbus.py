@@ -166,7 +166,6 @@ def notify_update(notify, path, interface_name, props):
 class DBusChannel(Channel):
     payload = 'dbus-json3'
 
-    tasks = None
     matches = None
     name = None
     bus = None
@@ -216,7 +215,6 @@ class DBusChannel(Channel):
         self.cache = InterfaceCache()
         self.name = options.get('name')
         self.matches = []
-        self.tasks = set()
 
         bus = options.get('bus')
         address = options.get('address')
@@ -260,9 +258,7 @@ class DBusChannel(Channel):
                         self.ready(unique_name=self.owner)
                     else:
                         self.close(problem="not-found")
-            task = asyncio.create_task(get_ready())
-            self.tasks.add(task)
-            task.add_done_callback(self.tasks.discard)
+            self.create_task(get_ready())
         else:
             self.ready()
 
@@ -285,13 +281,12 @@ class DBusChannel(Channel):
         else:
             func = handler
         r_string = ','.join(f"{key}='{value}'" for key, value in r.items())
-        self.matches.append(self.bus.add_match(r_string, func))
+        if not self.is_closing():
+            self.matches.append(self.bus.add_match(r_string, func))
 
     def add_async_signal_handler(self, handler, **kwargs):
         def sync_handler(message):
-            task = asyncio.create_task(handler(message))
-            self.tasks.add(task)
-            task.add_done_callback(self.tasks.discard)
+            self.create_task(handler(message))
         self.add_signal_handler(sync_handler, **kwargs)
 
     async def do_call(self, message):
@@ -483,19 +478,19 @@ class DBusChannel(Channel):
         logger.debug('receive dbus request %s %s', self.name, message)
 
         if 'call' in message:
-            task = asyncio.create_task(self.do_call(message))
+            self.create_task(self.do_call(message))
         elif 'add-match' in message:
-            task = asyncio.create_task(self.do_add_match(message))
+            self.create_task(self.do_add_match(message))
         elif 'watch' in message:
-            task = asyncio.create_task(self.do_watch(message))
+            self.create_task(self.do_watch(message))
         elif 'meta' in message:
-            task = asyncio.create_task(self.do_meta(message))
+            self.create_task(self.do_meta(message))
         else:
             logger.debug('ignored dbus request %s', message)
             return
 
-        self.tasks.add(task)
-        task.add_done_callback(self.tasks.discard)
-
     def do_close(self):
+        for slot in self.matches:
+            slot.cancel()
+        self.matches = None  # error out
         self.close()

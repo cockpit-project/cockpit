@@ -67,6 +67,10 @@ class MockTransport(asyncio.Transport):
     def send_close(self, channel, **kwargs):
         self.send_json('', command='close', channel=channel, **kwargs)
 
+    async def check_close(self, channel, **kwargs):
+        self.send_close(channel, **kwargs)
+        await self.assert_msg('', command='close', channel=channel)
+
     def send_ping(self, **kwargs):
         self.send_json('', command='ping', **kwargs)
 
@@ -313,8 +317,7 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
                                               {'Bridges': self.superuser_bridges, 'Current': 'root'}, bus=root_dbus)
 
         # close up
-        self.transport.send_close(channel=root_dbus)
-        await self.transport.assert_msg('', command='close', channel=root_dbus)
+        await self.transport.check_close(channel=root_dbus)
 
     async def test_superuser_dbus(self):
         await self.start()
@@ -529,8 +532,7 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
         # empty
         ch = self.transport.send_open('fslist1', path=str(dir_path), watch=False)
         await self.transport.assert_msg('', command='done', channel=ch)
-        self.transport.send_close(channel=ch)
-        await self.transport.assert_msg('', command='close', channel=ch)
+        await self.transport.check_close(channel=ch)
 
         # create a file and a directory in some_dir
         Path(dir_path, 'somefile').touch()
@@ -546,8 +548,7 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
         assert msg2 == {'event': 'present', 'path': 'somefile', 'type': 'file'}
 
         await self.transport.assert_msg('', command='done', channel=ch)
-        self.transport.send_close(channel=ch)
-        await self.transport.assert_msg('', command='close', channel=ch)
+        await self.transport.check_close(channel=ch)
 
     async def test_fslist1_notexist(self):
         await self.start()

@@ -767,6 +767,10 @@ Additional "open" command options should be specified with a channel of
 this payload type:
 
  * "unix": Open a channel with the given unix socket.
+ * "port": Open a channel with the given TCP port on localhost.
+ * "address": Open a channel that communicates with the given
+    address instead of localhost. This can be an IP address or a valid
+    host name. To use this option you must also specify a port.
  * "batch": Batches data coming from the stream in blocks of at least this
    size. This is not a guarantee. After a short timeout the data will be
    sent even if the data doesn't match the batch size. Defaults to zero.

@@ -94,7 +94,7 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
     def process_exited(self) -> None:
         self.close_on_eof()
 
-    def _close_args(self) -> Dict[str, object]:
+    def _get_close_args(self) -> Dict[str, object]:
         assert isinstance(self._transport, SubprocessTransport)
         args: Dict[str, object] = {'exit-status': self._transport.get_returncode()}
         stderr = self._transport.get_stderr()

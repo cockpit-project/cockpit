@@ -307,7 +307,6 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
         # try to open dbus on the root bridge
         root_dbus = await self.transport.check_open('dbus-json3', bus='internal', superuser=True)
         assert self.bridge.open_channels[root_dbus].name == 'pseudo'
-        assert self.bridge.open_channels[root_dbus].channels == {root_dbus}
 
         # verify that the bridge thinks that it's the root bridge
         await self.transport.assert_bus_props('/superuser', 'cockpit.Superuser',

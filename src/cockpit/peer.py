@@ -19,7 +19,7 @@ import asyncio
 import logging
 import os
 
-from typing import Dict, List, Optional, Sequence, Set
+from typing import Dict, List, Optional, Sequence
 
 from .router import Endpoint, Router, RoutingError, RoutingRule
 from .protocol import CockpitProtocolClient
@@ -50,8 +50,6 @@ class Peer(CockpitProtocolClient, SubprocessProtocol, Endpoint):
     init_host: str
     state_listener: Optional[PeerStateListener]
 
-    channels: Set[str]
-
     authorize_pending: Optional[str] = None  # the cookie of the pending request
 
     def __init__(self,
@@ -70,7 +68,6 @@ class Peer(CockpitProtocolClient, SubprocessProtocol, Endpoint):
         assert router.init_host is not None
         self.init_host = init_host or router.init_host
 
-        self.channels = set()
         self.authorize_pending = None
 
     def spawn(self, argv: Sequence[str], env: Sequence[str], **kwargs) -> asyncio.Transport:
@@ -98,12 +95,15 @@ class Peer(CockpitProtocolClient, SubprocessProtocol, Endpoint):
         else:
             logger.warning('Peer %s connection got duplicate init message', self.name)
 
+    def shutdown(self, problem: str, **kwargs: object) -> None:
+        self.shutdown_endpoint(problem=problem, **kwargs)
+        if self.transport is not None:
+            self.transport.close()
+
     def do_closed(self, transport_was: asyncio.Transport, exc: Optional[Exception]) -> None:
         logger.debug('Peer %s connection lost %s', self.name, exc)
 
-        # We need to synthesize close messages for all open channels
-        while self.channels:
-            self.send_channel_control(self.channels.pop(), 'close', problem='disconnected')
+        self.shutdown('disconnected')
 
         if self.state_listener is not None:
             # If we don't otherwise has an exception set, but we have stderr output, we can use it.
@@ -149,9 +149,6 @@ class Peer(CockpitProtocolClient, SubprocessProtocol, Endpoint):
 
     # Forwarding data: from the peer to the router
     def channel_control_received(self, channel: str, command: str, message: Dict[str, object]) -> None:
-        if command == 'close':
-            self.channels.discard(channel)
-
         self.send_channel_control(**message)
 
     def channel_data_received(self, channel: str, data: bytes) -> None:
@@ -159,11 +156,6 @@ class Peer(CockpitProtocolClient, SubprocessProtocol, Endpoint):
 
     # Forwarding data: from the router to the peer
     def do_channel_control(self, channel: str, command: str, message: Dict[str, object]) -> None:
-        if command == 'open':
-            self.channels.add(channel)
-        elif command == 'close':
-            self.channels.discard(channel)
-
         self.write_control(**message)
 
     def do_channel_data(self, channel: str, data: bytes) -> None:

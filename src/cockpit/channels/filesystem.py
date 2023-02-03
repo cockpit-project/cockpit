@@ -71,7 +71,17 @@ class FsListChannel(Channel):
         if watch:
             raise ChannelError('not-supported', message='watching is not implemented, use fswatch1')
 
-        for entry in os.scandir(path):
+        try:
+            scan_dir = os.scandir(path)
+        except OSError as error:
+            if isinstance(error, FileNotFoundError):
+                problem = 'not-found'
+            elif isinstance(error, PermissionError):
+                problem = 'access-denied'
+            else:
+                problem = 'internal-error'
+            raise ChannelError(problem, message=str(error)) from error
+        for entry in scan_dir:
             self.send_entry("present", entry)
 
         if not watch:

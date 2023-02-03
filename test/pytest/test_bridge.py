@@ -5,7 +5,9 @@ import os
 import unittest
 import unittest.mock
 import sys
+import tempfile
 
+from pathlib import Path
 from typing import Any, Dict, Iterable, Optional, Tuple
 
 import systemd_ctypes
@@ -516,3 +518,38 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
         await self.transport.check_open('fsread1', path='/etc/shadow', problem='access-denied')
         await self.transport.check_open('fsread1', path='/', problem='internal-error',
                                         reply_keys={'message': "[Errno 21] Is a directory: '/'"})
+
+    async def test_fslist1_no_watch(self):
+        await self.start()
+        tempdir = tempfile.TemporaryDirectory()
+        dir_path = Path(tempdir.name)
+
+        # empty
+        ch = self.transport.send_open('fslist1', path=str(dir_path), watch=False)
+        await self.transport.assert_msg('', command='done', channel=ch)
+        self.transport.send_close(channel=ch)
+        await self.transport.assert_msg('', command='close', channel=ch)
+
+        # create a file and a directory in some_dir
+        Path(dir_path, 'somefile').touch()
+        Path(dir_path, 'somedir').mkdir()
+
+        ch = self.transport.send_open('fslist1', path=str(dir_path), watch=False)
+        # don't assume any ordering
+        msg1 = await self.transport.next_msg(ch)
+        msg2 = await self.transport.next_msg(ch)
+        if msg1['type'] == 'file':
+            msg1, msg2 = msg2, msg1
+        assert msg1 == {'event': 'present', 'path': 'somedir', 'type': 'directory'}
+        assert msg2 == {'event': 'present', 'path': 'somefile', 'type': 'file'}
+
+        await self.transport.assert_msg('', command='done', channel=ch)
+        self.transport.send_close(channel=ch)
+        await self.transport.assert_msg('', command='close', channel=ch)
+
+    async def test_fslist1_notexist(self):
+        await self.start()
+        await self.transport.check_open(
+            'fslist1', path='/nonexisting', watch=False,
+            problem='not-found',
+            reply_keys={'message': "[Errno 2] No such file or directory: '/nonexisting'"})

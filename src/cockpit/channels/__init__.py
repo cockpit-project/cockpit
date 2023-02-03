@@ -20,7 +20,7 @@ from .filesystem import FsListChannel, FsReadChannel, FsReplaceChannel, FsWatchC
 from .http import HttpChannel
 from .metrics import InternalMetricsChannel
 from .packages import PackagesChannel
-from .stream import SubprocessStreamChannel, UnixStreamChannel
+from .stream import SubprocessStreamChannel, SocketStreamChannel
 from .trivial import EchoChannel, NullChannel
 
 
@@ -36,5 +36,5 @@ CHANNEL_TYPES = [
     NullChannel,
     PackagesChannel,
     SubprocessStreamChannel,
-    UnixStreamChannel,
+    SocketStreamChannel,
 ]

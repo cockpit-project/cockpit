@@ -8,19 +8,27 @@ const test_server = {
     port: parseInt(window.location.port, 10)
 };
 
-QUnit.test.skipWithPybridge("TCP stream port without a service", assert => {
+QUnit.test("TCP stream port without a service", async assert => {
     const done = assert.async();
-    assert.expect(1);
+    assert.expect(2);
+
+    const is_pybridge = await QUnit.mock_info("pybridge");
 
     const channel = cockpit.channel({ payload: "stream", address: "127.0.0.99", port: 2222 });
 
     channel.addEventListener("close", (ev, options) => {
         assert.equal(options.problem, "not-found", "channel should have failed");
+        if (is_pybridge)
+            assert.equal(options.message,
+                         "[Errno 111] Connect call failed ('127.0.0.99', 2222)",
+                         "detailed error message");
+        else
+            assert.equal(options.message, undefined, "C bridge does not give detailed error message");
         done();
     });
 });
 
-QUnit.test.skipWithPybridge("TCP stream address without a port", assert => {
+QUnit.test("TCP stream address without a port", assert => {
     const done = assert.async();
     assert.expect(2);
 
@@ -33,7 +41,7 @@ QUnit.test.skipWithPybridge("TCP stream address without a port", assert => {
     });
 });
 
-QUnit.test.skipWithPybridge("TCP text stream", async assert => {
+QUnit.test("TCP text stream", async assert => {
     const done = assert.async();
     assert.expect(2);
 
@@ -57,7 +65,7 @@ QUnit.test.skipWithPybridge("TCP text stream", async assert => {
     channel.control({ command: "done" });
 });
 
-QUnit.test.skipWithPybridge("TCP binary stream", async assert => {
+QUnit.test("TCP binary stream", async assert => {
     const done = assert.async();
     assert.expect(2);
 

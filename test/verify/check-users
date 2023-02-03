@@ -293,11 +293,12 @@ class TestAccounts(MachineCase):
         b.click('#account-set-password-dialog button.apply')
         b.wait_not_present('#account-set-password-dialog')
 
+        # incomplete passwd entry; fixed in PR #13384
+        m.execute('echo "damaged:x:1234:1234:Damaged" >> /etc/passwd')
+
         # Logout and login with the new password
         b.relogin(path="/users", user="jussi", password=good_password_2)
 
-        # incomplete passwd entry; fixed in PR #13384
-        m.execute('echo "damaged:x:1234:1234:Damaged" >> /etc/passwd')
         b.go("/users")
         b.enter_page("/users")
         b.wait_in_text('#accounts-list', "damaged")

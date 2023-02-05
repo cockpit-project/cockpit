@@ -4,6 +4,11 @@
 
 const info = {
     entries: {
+        "alarms/alarms":[
+            "alarms/alarms.js",
+            "alarms/alarms.scss"
+        ],
+
         "base1/cockpit": [
             "base1/cockpit.js",
         ],
@@ -176,6 +181,8 @@ const info = {
     ],
 
     files: [
+        "alarms/alarms.html",
+
         "apps/index.html",
         "apps/default.png",
 
@@ -400,7 +407,7 @@ module.exports = {
     },
     entry: info.entries,
     // cockpit.js gets included via <script>, everything else should be bundled
-    externals: (section === 'kdump/' || section === 'base1/') ? {} : { cockpit: "cockpit" },
+    externals: (section === 'alarms/' || section === 'kdump/' || section === 'base1/') ? {} : { cockpit: "cockpit" },
     plugins: plugins,
 
     devtool: production ? false : "source-map",

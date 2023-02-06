@@ -20,14 +20,13 @@
 import datetime
 
 import parent  # noqa: F401
-from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, todoPybridge, test_main, wait
+from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, test_main, wait
 
 
 @nondestructive
 @skipDistroPackage()
 class TestAccounts(MachineCase):
 
-    @todoPybridge(flaky=True)
     def testBasic(self):
         b = self.browser
         m = self.machine

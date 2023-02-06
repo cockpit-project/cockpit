@@ -68,7 +68,10 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_visible("#login-user-input")
         b.wait_not_visible("#banner")
 
-        m.execute("printf '[Session]\nBanner = /etc/issue\n' > /etc/cockpit/cockpit.conf")
+        if m.ostree_image:
+            m.execute("podman exec ws printf '[Session]\nBanner = /host/etc/issue\n' > /etc/cockpit/cockpit.conf")
+        else:
+            m.execute("printf '[Session]\nBanner = /etc/issue\n' > /etc/cockpit/cockpit.conf")
         m.restart_cockpit()
         b.reload()
         b.wait_visible("#login-user-input")

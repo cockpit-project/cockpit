@@ -201,7 +201,7 @@ class Package:
         result = dict(target if isinstance(target, dict) else {})
         for name, value in patch.items():
             if value is not None:
-                result[name] = Package.merge_patch(result[name], value)
+                result[name] = Package.merge_patch(result.get(name), value)
             else:
                 result.pop(name)
         return result

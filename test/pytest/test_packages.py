@@ -66,18 +66,24 @@ class TestPackages(unittest.TestCase):
             cockpit.config.ETC_COCKPIT = orig_etc_config
         self.addCleanup(cleanUp)
 
-        (config_dir / 'basic.override.json').write_text('{"description": "overridden package"}')
+        (config_dir / 'basic.override.json').write_text('{"description": "overridden package", "priority": 5}')
 
         packages = Packages()
         assert len(packages.packages) == 1
         # original attributes
         assert packages.packages['basic'].name == 'basic'
         assert packages.packages['basic'].manifest['requires'] == {'cockpit': '42'}
-        assert packages.packages['basic'].priority == 1
         # overridden attributes
         assert packages.packages['basic'].manifest['description'] == 'overridden package'
+        assert packages.packages['basic'].priority == 5
 
-        assert packages.manifests == '{"basic": {"description": "overridden package", "requires": {"cockpit": "42"}}}'
+        assert json.loads(packages.manifests) == {
+            'basic': {
+                'description': 'overridden package',
+                'requires': {'cockpit': '42'},
+                'priority': 5,
+            }
+        }
 
     def test_priority(self):
         (self.package_dir / 'vip').mkdir()

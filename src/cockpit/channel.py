@@ -308,6 +308,7 @@ class ProtocolChannel(Channel, asyncio.Protocol):
         """
         self._close_on_eof = True
         if self._eof:
+            assert self._transport is not None
             self._transport.close()
 
     def eof_received(self) -> bool:

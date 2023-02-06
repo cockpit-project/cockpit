@@ -266,6 +266,30 @@ class Package:
             if self.manifest['priority'] <= at_least_prio:
                 return False
 
+        CONDITIONS = {
+            'path-exists': os.path.exists,
+            'path-not-exists': lambda p: not os.path.exists(p),
+        }
+
+        for condition in self.manifest.get('conditions', []):
+            try:
+                (predicate, value), = condition.items()
+            except (AttributeError, ValueError):
+                # ignore manifests with broken syntax
+                logger.warning('invalid condition in %s: %s', self.path, condition)
+                return False
+
+            try:
+                test_fn = CONDITIONS[predicate]
+            except KeyError:
+                # do *not* ignore manifests with unknown predicates, for forward compatibility
+                logger.warning('ignoring unknown predicate in %s: %s', self.path, predicate)
+                continue
+
+            if not test_fn(value):
+                logger.info('Hiding package %s as its %s condition is not met', self.path, condition)
+                return False
+
         return True
 
     def get_content_security_policy(self, origin):

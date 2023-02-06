@@ -231,12 +231,13 @@ class ProtocolChannel(Channel, asyncio.Protocol):
     _loop: Optional[asyncio.AbstractEventLoop]
     _send_pongs: bool = True
     _last_ping: Optional[Dict[str, object]]
+    _create_transport_task = None
 
     # read-side EOF handling
     _close_on_eof: bool = False
     _eof: bool = False
 
-    def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, object]) -> asyncio.Transport:
+    async def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, object]) -> asyncio.Transport:
         """Creates the transport for this channel, according to options.
 
         The event loop for the transport is passed to the function.  The
@@ -247,9 +248,22 @@ class ProtocolChannel(Channel, asyncio.Protocol):
         raise NotImplementedError
 
     def do_open(self, options):
+        self.freeze_endpoint()
         loop = asyncio.get_running_loop()
-        transport = self.create_transport(loop, options)
+        self._create_transport_task = asyncio.create_task(self.create_transport(loop, options))
+        self._create_transport_task.add_done_callback(self.create_transport_done)
+
+    def create_transport_done(self, task):
+        assert task is self._create_transport_task
+        self._create_transport_task = None
+        try:
+            transport = task.result()
+        except ChannelError as exc:
+            self.close(**exc.kwargs)
+            return
+
         self.connection_made(transport)
+        self.thaw_endpoint()
 
     def connection_made(self, transport: asyncio.BaseTransport):
         assert isinstance(transport, asyncio.Transport)

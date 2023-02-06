@@ -399,27 +399,6 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
             self._sock = None
 
 
-class SocketTransport(_Transport):
-    """A Transport subclass that can wrap any socket"""
-    _socket: socket.socket
-
-    def __init__(self,
-                 loop: asyncio.AbstractEventLoop,
-                 protocol: asyncio.Protocol,
-                 sock: socket.socket):
-        super().__init__(loop, protocol, sock.fileno(), sock.fileno(), {'socket': sock})
-        self._socket = sock
-
-    def _close(self) -> None:
-        self._socket.close()
-
-    def can_write_eof(self) -> bool:
-        return True
-
-    def _write_eof_now(self) -> None:
-        self._socket.shutdown(socket.SHUT_WR)
-
-
 class StdioTransport(_Transport):
     """A bi-directional transport that corresponds to stdin/out.
 

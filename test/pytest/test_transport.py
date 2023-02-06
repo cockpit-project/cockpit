@@ -20,7 +20,6 @@ import contextlib
 import errno
 import os
 import signal
-import socket
 import subprocess
 import unittest
 import unittest.mock
@@ -92,109 +91,6 @@ class Protocol(cockpit.transports.SubprocessProtocol):
         while not self.exited or not self.eof:
             await asyncio.sleep(0.1)
         assert transport.get_returncode() == returncode
-
-
-class TestSocketTransport(unittest.IsolatedAsyncioTestCase):
-    async def asyncSetUp(self) -> None:
-        one, two = socket.socketpair()
-
-        self.writer = Protocol()
-        self.reader = Protocol()
-
-        loop = asyncio.get_running_loop()
-
-        cockpit.transports.SocketTransport(loop, self.writer, one)
-        assert isinstance(self.writer.transport, cockpit.transports.SocketTransport)
-        assert self.writer.transport.get_protocol() == self.writer
-
-        cockpit.transports.SocketTransport(loop, self.reader, two)
-        assert isinstance(self.reader.transport, cockpit.transports.SocketTransport)
-        assert self.reader.transport.get_protocol() == self.reader
-
-        assert self.writer.transport.get_write_buffer_limits() == (0, 0)
-        self.writer.transport.set_write_buffer_limits(0, 0)
-        assert self.writer.transport.get_write_buffer_limits() == (0, 0)
-
-    def tearDown(self) -> None:
-        assert self.writer.sent == self.reader.received
-
-    async def read_to_end(self) -> None:
-        assert self.reader.transport
-        assert self.reader.transport.is_reading()
-        while self.reader.transport is not None:
-            await asyncio.sleep(0.1)
-
-    async def test_flow_control(self) -> None:
-        self.writer.write(b'abcd')
-        assert self.reader.transport is not None
-        self.reader.transport.pause_reading()
-        await asyncio.sleep(0.1)
-        self.reader.transport.resume_reading()
-        while self.reader.received < 4:
-            await asyncio.sleep(0.1)
-        assert self.writer.transport is not None
-        self.writer.transport.write_eof()
-        self.reader.close_on_eof = False
-        while not self.reader.eof:
-            await asyncio.sleep(0.1)
-        assert not self.reader.transport.is_reading()
-        self.reader.transport.pause_reading()  # no-op
-        assert not self.reader.transport.is_reading()
-        self.reader.transport.resume_reading()  # no-op
-        assert not self.reader.transport.is_reading()
-
-    async def test_simple_eof(self) -> None:
-        self.writer.write(b'abcd')
-        assert self.writer.transport
-        assert self.writer.transport.get_write_buffer_size() == 0
-        assert self.writer.transport.can_write_eof()
-        self.writer.transport.write_eof()
-        assert not self.writer.transport.is_closing()
-        await self.read_to_end()
-        assert self.reader.transport is None
-
-    async def test_simple_close(self) -> None:
-        self.writer.write(b'abcd')
-        assert self.writer.transport
-        assert self.writer.transport.get_write_buffer_size() == 0
-        # hold a ref on the transport to make sure close() closes the socket
-        writer_transport = self.writer.transport
-        self.writer.transport.close()
-        assert self.writer.transport is None  # make sure it closed immediately
-        writer_transport.close()  # should be idempotent
-        await self.read_to_end()
-        del writer_transport
-        assert self.reader.transport is None
-
-    async def test_write_backlog_eof(self) -> None:
-        self.writer.write_a_lot()
-        assert self.writer.transport
-        assert self.writer.transport.can_write_eof()
-        self.writer.transport.write_eof()
-        assert not self.writer.transport.is_closing()
-        await self.read_to_end()
-        assert self.reader.transport is None
-        assert self.writer.transport is None
-
-    async def test_write_backlog_close(self) -> None:
-        self.writer.write_a_lot()
-        assert self.writer.transport
-        self.writer.transport.close()
-        assert self.writer.transport
-        assert self.writer.transport.is_closing()
-        await self.read_to_end()
-        assert self.writer.transport is None
-        assert self.reader.transport is None
-
-    async def test_write_backlog_eof_and_close(self) -> None:
-        self.writer.write_a_lot()
-        assert self.writer.transport
-        self.writer.transport.write_eof()
-        self.writer.transport.close()
-        assert self.writer.transport
-        assert self.writer.transport.is_closing()
-        await self.read_to_end()
-        assert self.reader.transport is None
 
 
 class TestSpooler(unittest.IsolatedAsyncioTestCase):

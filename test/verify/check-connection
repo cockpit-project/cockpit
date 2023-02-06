@@ -372,9 +372,8 @@ class TestConnection(MachineCase):
             self.assertIn("HTTP/1.1 200 OK", m.execute("curl -k --head https://127.0.0.1:9090"))
             m.execute("umount /etc/cockpit")
 
-        # Install a certificate chain, and make it accessible for cockpit
+        # Install a certificate chain
         m.upload(["verify/files/cert-chain.cert", "verify/files/cert-chain.key"], "/etc/cockpit/ws-certs.d")
-        m.execute("cd /etc/cockpit/ws-certs.d; chgrp cockpit-ws cert-chain.key; ! selinuxenabled || chcon --type etc_t cert-chain.cert cert-chain.key")
 
         def check_cert_chain():
             # This should also reset the file context

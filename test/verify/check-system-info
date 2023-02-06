@@ -764,6 +764,7 @@ fi
         # TLS mock insights server certificate
         m.upload(["verify/files/mock-insights", "../src/tls/ca/alice.key", "../src/tls/ca/alice.pem"], "/var/tmp")
         m.spawn("/var/tmp/mock-insights", "mock-insights")
+        m.execute("while ! ss -tulpn | grep 8443; do sleep 1; done")
 
         hostname = m.execute("hostname").rstrip()
         m.write("/etc/insights-client/insights-client.conf",

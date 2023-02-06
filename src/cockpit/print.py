@@ -69,23 +69,32 @@ class Printer:
             channel = f'ch{self.last_channel}'
         self.control('done', channel=channel, **kwargs)
 
-    def http(self, path: str, method: str = 'GET', done: bool = True, **kwargs: object) -> None:
+    def http(self,
+             path: str,
+             method: str = 'GET',
+             done: bool = True,
+             channel: Optional[str] = None,
+             **kwargs: object) -> None:
         """Open a http1-stream channel.  Sends a 'done' as well, unless done=False."""
-        self.open('http-stream1', path=path, method=method, **kwargs)
+        self.open('http-stream1', path=path, method=method, channel=channel, **kwargs)
         if done:
             self.done()
 
-    def packages(self, path: str, headers: Optional[dict[str, str]] = None, **kwargs: object) -> None:
+    def packages(self, path: str,
+                 headers: Optional[dict[str, str]] = None,
+                 channel: Optional[str] = None,
+                 **kwargs: object) -> None:
         """Request a file from the internal packages webserver"""
         # The packages webserver requires these for computing the content security policy
         our_headers = {'X-Forwarded-Proto': 'https', 'X-Forwarded-Host': 'localhost'}
         if headers is not None:
             our_headers.update(headers)
-        self.http(path, internal='packages', headers=our_headers, **kwargs)
+        # mypy is right: kwargs could include  `done` or `method`, but codifying that is really awkward
+        self.http(path, internal='packages', channel=channel, headers=our_headers, **kwargs)  # type: ignore
 
-    def spawn(self, *args: str, **kwargs: object) -> None:
+    def spawn(self, *args: str, channel: Optional[str] = None, **kwargs: object) -> None:
         """Open a stream channel with a spawned command"""
-        self.open('stream', spawn=args, **kwargs)
+        self.open('stream', spawn=args, channel=channel, **kwargs)
 
     def help(self) -> None:
         """Show help"""

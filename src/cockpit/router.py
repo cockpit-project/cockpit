@@ -128,6 +128,7 @@ class Router(CockpitProtocolServer):
     routing_rules: List[RoutingRule]
     open_channels: Dict[str, Endpoint]
     groups: Dict[str, str]
+    _eof: bool = False
 
     def __init__(self, routing_rules: List[RoutingRule]):
         for rule in routing_rules:
@@ -156,6 +157,10 @@ class Router(CockpitProtocolServer):
             logger.error('trying to drop non-existent channel %s', channel)
         if channel in self.groups:
             del self.groups[channel]
+
+        # were we waiting to exit?
+        if not self.open_channels and self._eof and self.transport:
+            self.transport.close()
 
     def shutdown_endpoint(self, endpoint: Endpoint, **kwargs) -> None:
         channels = set(key for key, value in self.open_channels.items() if value == endpoint)
@@ -207,3 +212,11 @@ class Router(CockpitProtocolServer):
             return
 
         endpoint.do_channel_data(channel, data)
+
+    def eof_received(self) -> bool:
+        self._eof = True
+
+        for channel, endpoint in list(self.open_channels.items()):
+            endpoint.do_channel_control(channel, 'close', {'command': 'close', 'channel': channel})
+
+        return bool(self.open_channels)

@@ -95,6 +95,11 @@ class FsReadChannel(GeneratorChannel):
     def do_yield_data(self, options: Dict[str, object]) -> GeneratorChannel.DataGenerator:
         binary = options.get('binary', False)
         max_read_size = options.get('max_read_size')
+        # TODO: generic JSON validation
+        if max_read_size is not None and not isinstance(max_read_size, int):
+            raise ChannelError('protocol-error', message='max_read_size must be an integer')
+        if not isinstance(options['path'], str):
+            raise ChannelError('protocol-error', message='path is not a string')
 
         logger.debug('Opening file "%s" for reading', options['path'])
 

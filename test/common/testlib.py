@@ -1795,15 +1795,6 @@ class MachineCase(unittest.TestCase):
             self.allowed_messages.append("Failed to connect to coredump service: No such file or directory")
             self.allowed_messages.append("Failed to connect to coredump service: Connection refused")
 
-        # HACK: pybridge bugs
-        if os.environ.get("TEST_SCENARIO") == "pybridge":
-            self.allowed_messages += [
-                "asyncio-ERROR: Task was destroyed but it is pending!",
-                "task:.*Task pending.*cockpit/channels/dbus.py.*"]
-
-            # Python 3.11 traceback annotation
-            self.allowed_messages.append(r"\s*\^+\s*")
-
         messages = machine.journal_messages(matches, 6, cursor=cursor)
 
         if "TEST_AUDIT_NO_SELINUX" not in os.environ:

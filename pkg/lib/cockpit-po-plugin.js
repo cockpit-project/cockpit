@@ -88,7 +88,7 @@ module.exports = class {
                 for (const [msgid, translation] of Object.entries(context)) {
                     /* Only include msgids which appear in this source directory */
                     const references = translation.comments.reference.split(/\s/);
-                    if (!references.some(str => str.startsWith(`pkg/${this.subdir}`)))
+                    if (!references.some(str => str.startsWith(`pkg/${this.subdir}`) || str.startsWith('src')))
                         continue;
 
                     if (translation.comments.flag && translation.comments.flag.match(/\bfuzzy\b/))

@@ -169,19 +169,12 @@ class CockpitProtocol(asyncio.Protocol):
         self.write_message('', **kwargs)
 
     def data_received(self, data):
-        try:
-            self.buffer += data
-            while True:
-                result = self.consume_one_frame(self.buffer)
-                if result <= 0:
-                    return
-                self.buffer = self.buffer[result:]
-        except CockpitProtocolError as exc:
-            self.write_control(command="close", problem=exc.problem, exception=str(exc))
-            self.transport.close()
-
-    def eof_received(self):
-        self.write_control(command='close')
+        self.buffer += data
+        while True:
+            result = self.consume_one_frame(self.buffer)
+            if result <= 0:
+                return
+            self.buffer = self.buffer[result:]
 
     async def communicate(self) -> None:
         """Wait until communication is complete on this protocol."""

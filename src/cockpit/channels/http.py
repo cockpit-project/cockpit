@@ -128,6 +128,7 @@ class HttpChannel(Channel):
 
     def do_open(self, options):
         logger.debug('open %s', options)
+        # TODO: generic JSON validation
         if not options.get('method'):
             self.close(problem='protocol-error', message='missing or empty "method" field in HTTP stream request')
             return

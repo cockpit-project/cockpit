@@ -22,7 +22,7 @@ import os
 import signal
 import subprocess
 
-from typing import Dict, Optional
+from typing import Dict
 
 
 from ..channel import ProtocolChannel, ChannelError
@@ -52,16 +52,22 @@ class SocketStreamChannel(ProtocolChannel):
             # Unix
             if 'unix' in options:
                 path = options['unix']
+                # TODO: generic JSON validation
+                if not isinstance(path, str):
+                    raise ChannelError('protocol-error', message='unix option must be a string')
                 label = f'Unix socket {path}'
                 transport, _ = await loop.create_unix_connection(lambda: self, path)
 
             # TCP
             elif 'port' in options:
                 try:
-                    port: int = int(options['port'])
+                    port: int = int(options['port'])  # type: ignore
                 except ValueError:
                     raise ChannelError('protocol-error', message='invalid "port" option for stream channel')
                 host = options.get('address', 'localhost')
+                # TODO: generic JSON validation
+                if not isinstance(host, str):
+                    raise ChannelError('protocol-error', message='"address" option for stream channel must be a string')
                 label = f'TCP socket {host}:{port}'
 
                 transport, _ = await loop.create_connection(lambda: self, host, port)
@@ -77,6 +83,7 @@ class SocketStreamChannel(ProtocolChannel):
                 problem = 'terminated'
             raise ChannelError(problem, message=str(error)) from error
         self.close_on_eof()
+        assert isinstance(transport, asyncio.Transport)
         return transport
 
 
@@ -113,11 +120,30 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
             logger.debug('Received close signal from peer, but process %i is already gone', pid)
 
     async def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, object]) -> SubprocessTransport:
-        args: list[str] = options['spawn']
-        err: Optional[str] = options.get('err')
-        cwd: Optional[str] = options.get('directory')
-        pty: bool = options.get('pty', False)
-        window: Dict[str, int] = options.get('window')
+        args = options['spawn']
+
+        # TODO: generic JSON validation
+        if not isinstance(args, list) or not all(isinstance(a, str) for a in args):
+            raise ChannelError('protocol-error', message='invalid "args" option for stream channel')
+
+        err = options.get('err')
+        if err is not None and not isinstance(err, str):
+            raise ChannelError('protocol-error', message='invalid "err" option for stream channel')
+
+        cwd = options.get('directory')
+        if cwd is not None and not isinstance(cwd, str):
+            raise ChannelError('protocol-error', message='invalid "cwd" option for stream channel')
+
+        pty = options.get('pty', False)
+        if not isinstance(pty, bool):
+            raise ChannelError('protocol-error', message='invalid "pty" option for stream channel')
+
+        window = options.get('window')
+        if window is not None and (
+                not isinstance(window, dict) or
+                not all(isinstance(k, str) and isinstance(v, int) for k, v in window.items())):
+            raise ChannelError('protocol-error', message='invalid "window" option for stream channel')
+
         environ = options.get('environ')
 
         if err == 'out':

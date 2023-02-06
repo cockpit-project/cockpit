@@ -1097,16 +1097,32 @@ ExecStart=/usr/local/bin/{packageName}
                            systemctl daemon-reload'''.format(system_service))
 
         m.start_cockpit()
-        b.login_and_go("/updates")
+        if os.environ.get("TEST_SCENARIO") != "pybridge":
+            # TODO: conditions not implemented on C bridge; once we drop it, drop this special case and
+            # enable the manifest documentation for conditions in doc/guide/packages.xml
+            self.assertIn("\nupdates", m.execute("cockpit-bridge --packages"))
+            b.login_and_go("/updates")
 
-        # error message present
-        b.wait_in_text(".pf-c-page__main-section .pf-c-empty-state__body", "PackageKit is not installed")
+            # error message present
+            b.wait_in_text(".pf-c-page__main-section .pf-c-empty-state__body", "PackageKit is not installed")
 
-        # update status on front page should be invisible
-        b.go("/system")
-        b.enter_page("/system")
-        b.wait_text(self.update_text, "Loading available updates failed")
-        self.assertIn("exclamation", b.attr(self.update_icon, "class"))
+            # update status on front page should show error
+            b.go("/system")
+            b.enter_page("/system")
+            b.wait_text(self.update_text, "Loading available updates failed")
+            self.assertIn("exclamation", b.attr(self.update_icon, "class"))
+        else:
+            self.assertNotIn("\nupdates", m.execute("cockpit-bridge --packages"))
+            # should not appear in the menu at all
+            self.login_and_go(None)
+            b.wait_in_text("#host-apps .pf-m-current", "Overview")
+            self.assertNotIn("Updates", b.text("#host-apps .pf-m-current"))
+
+            # update status on front page should be invisible
+            b.go("/system")
+            b.enter_page("/system")
+            b.wait_visible(".system-health")
+            self.assertFalse(b.is_present(self.update_text))
 
     @skipDistroPackage()
     @nondestructive

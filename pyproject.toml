@@ -22,7 +22,10 @@ include = [
 "cockpit.data" = ["*.html"]
 
 [tool.mypy]
-mypy_path = 'src'
+mypy_path = 'src/cockpit'
+[[tool.mypy.overrides]]
+module = ["systemd_ctypes.*"]
+follow_imports = 'silent'
 
 [tool.pylint]
 max-line-length = 118

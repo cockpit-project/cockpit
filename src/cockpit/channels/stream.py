@@ -46,7 +46,7 @@ class UnixStreamChannel(ProtocolChannel):
     payload = 'stream'
     restrictions = (('unix', None),)
 
-    def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, object]) -> SocketTransport:
+    async def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, object]) -> SocketTransport:
         path: str = options['unix']
         connection = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         connection.connect(path)
@@ -86,7 +86,7 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
             # already gone? fine!
             logger.debug('Received close signal from peer, but process %i is already gone', pid)
 
-    def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, object]) -> SubprocessTransport:
+    async def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, object]) -> SubprocessTransport:
         args: list[str] = options['spawn']
         err: Optional[str] = options.get('err')
         cwd: Optional[str] = options.get('directory')

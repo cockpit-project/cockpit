@@ -64,3 +64,22 @@ exclude_lines = [
   "pragma: no cover",  # default
   "raise NotImplementedError",
 ]
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+isolated_build = True
+envlist = site
+
+[testenv]
+deps=
+  pytest-asyncio
+  pytest-cov
+  pytest-timeout
+commands=
+  python3 -m pytest -opythonpath= --cov {posargs}
+
+[testenv:site]
+sitepackages = True
+deps=
+"""

@@ -25,7 +25,7 @@ import subprocess
 
 from systemd_ctypes import bus
 
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 from .router import Router, RoutingError, RoutingRule
 from .peer import Peer, PeerStateListener
@@ -136,7 +136,7 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
         super().__init__(router)
 
         # name → (label, spawn, env)
-        self.superuser_rules: Dict[Optional[str], Tuple[str, Sequence[str], Sequence[str]]] = {}
+        self.superuser_rules: Dict[str, Tuple[Optional[str], Sequence[str], Sequence[str]]] = {}
         self.bridges = []
         self.peer = None
         self.startup = None
@@ -169,12 +169,13 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
         # side-effects.
         self.startup = startup
 
-    def init(self, params: Dict[str, object]) -> None:
+    def init(self, params: Dict[str, Union[bool, str, Sequence[str]]]) -> None:
         name = params.get('id')
         if not isinstance(name, str) or name == 'any':
             if len(self.bridges) == 0:
                 return
             name = self.bridges[0]
+        assert isinstance(name, str)
 
         startup = ControlMessageStartup()
         try:

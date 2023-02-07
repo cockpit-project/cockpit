@@ -103,7 +103,8 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
         return args
 
     def do_options(self, options):
-        if window := options.get('window'):
+        window = options.get('window')
+        if window is not None:
             self._transport.set_window_size(**window)
 
     def do_close(self):

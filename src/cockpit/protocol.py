@@ -70,7 +70,8 @@ class CockpitProtocol(asyncio.Protocol):
             except KeyError as exc:
                 raise CockpitProtocolError('control message is missing command field') from exc
 
-            if channel := message.get('channel'):
+            channel = message.get('channel')
+            if channel is not None:
                 logger.debug('channel control received %s', message)
                 self.channel_control_received(channel, command, message)
             else:
@@ -170,7 +171,10 @@ class CockpitProtocol(asyncio.Protocol):
     def data_received(self, data):
         try:
             self.buffer += data
-            while (result := self.consume_one_frame(self.buffer)) > 0:
+            while True:
+                result = self.consume_one_frame(self.buffer)
+                if result <= 0:
+                    return
                 self.buffer = self.buffer[result:]
         except CockpitProtocolError as exc:
             self.write_control(command="close", problem=exc.problem, exception=str(exc))

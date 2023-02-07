@@ -372,9 +372,11 @@ class AsyncChannel(Channel):
             self.close(**exc.kwargs)
 
     async def read(self):
-        while not isinstance(item := await self.receive_queue.get(), bytes):
+        while True:
+            item = await self.receive_queue.get()
+            if isinstance(item, bytes):
+                return item
             self.send_pong(item)
-        return item
 
     async def write(self, data):
         if not self.send_data(data):

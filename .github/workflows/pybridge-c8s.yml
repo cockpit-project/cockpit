@@ -1,0 +1,64 @@
+# This is a temporary hack until we manage to get the integration tests going on C8S
+name: pybridge
+on: pull_request
+jobs:
+  c8s:
+    runs-on: ubuntu-22.04
+    permissions: {}
+    container: quay.io/centos/centos:stream8
+
+    timeout-minutes: 15
+    steps:
+      - name: Install dependencies
+        run: dnf install -y git-core python3-pytest python3
+
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      # https://github.blog/2022-04-12-git-security-vulnerability-announced/
+      - name: Pacify git's permission check
+        run: git config --global --add safe.directory /__w/cockpit/cockpit
+
+      - name: Install systemd-ctypes
+        run: tools/systemd_ctypes
+
+      - name: Check --help
+        run: PYTHONPATH=src python3 -m cockpit.bridge --help
+
+      - name: Check --packages
+        # we can totally fake this, we only need a bunch of manifest.json
+        run: |
+          ln -s pkg cockpit
+          out=$(XDG_DATA_DIRS=. PYTHONPATH=src python3 -m cockpit.bridge --packages)
+          echo "$out"
+          echo "$out" | grep -q "^metrics"
+
+      - name: Check a channel
+        # TODO: cockpit.print still broken with Python 3.6
+        # PYTHONPATH=src python3 -m cockpit.print open fslist1 path=/etc watch=False
+        run: |
+          set -eux
+          (cat <<EOF; sleep 2) | COCKPIT_DEBUG=all PYTHONPATH=src python3 -m cockpit.bridge > /tmp/out
+          64
+
+          {
+            "command": "init",
+            "host": "localhost",
+            "version": 1
+          }
+          105
+
+          {
+            "command": "open",
+            "channel": "ch1",
+            "payload": "fslist1",
+            "path": "/etc",
+            "watch": false
+          }
+          EOF
+          cat /tmp/out
+          grep -q '"event": "present"' /tmp/out
+          grep -q '"path": "os-release"' /tmp/out
+
+
+      # TODO: get pytests working, but that is seriously hard

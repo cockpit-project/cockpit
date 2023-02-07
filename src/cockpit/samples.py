@@ -19,14 +19,16 @@ import collections
 import os
 from systemd_ctypes import Handle
 
-from typing import Dict, Iterable, List, NamedTuple, Optional, Union
+from typing import Any, Iterable, List, NamedTuple, Optional
 
 
 USER_HZ = os.sysconf(os.sysconf_names['SC_CLK_TCK'])
 MS_PER_JIFFY = 1000 / (USER_HZ if (USER_HZ > 0) else 100)
 HWMON_PATH = '/sys/class/hwmon'
 
-Samples = collections.defaultdict[str, Union[float, Dict[str, Union[float, None]]]]
+# we would like to do this, but mypy complains; https://github.com/python/mypy/issues/2900
+# Samples = collections.defaultdict[str, Union[float, Dict[str, Union[float, None]]]]
+Samples = collections.defaultdict[str, Any]
 
 
 class SampleDescription(NamedTuple):

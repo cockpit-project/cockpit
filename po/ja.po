@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-22 02:54+0000\n"
+"POT-Creation-Date: 2023-02-07 02:55+0000\n"
 "PO-Revision-Date: 2022-10-27 13:19+0000\n"
 "Last-Translator: Ludek Janda <ljanda@redhat.com>\n"
 "Language-Team: Japanese <https://translate.fedoraproject.org/projects/"
@@ -30,7 +30,7 @@ msgstr ""
 msgid "            Bypass browser check          "
 msgstr "今すぐ                                               移動"
 
-#: pkg/users/accounts-list.js:247
+#: pkg/users/accounts-list.js:251
 msgid "# of users"
 msgstr ""
 
@@ -200,7 +200,7 @@ msgid "$0 month"
 msgid_plural "$0 months"
 msgstr[0] "$0 カ月"
 
-#: pkg/users/accounts-list.js:298
+#: pkg/users/accounts-list.js:350
 #, fuzzy
 #| msgid "Read more..."
 msgid "$0 more..."
@@ -281,7 +281,7 @@ msgstr "$0 ゾーン"
 msgid "$0, $1 free"
 msgstr "$0, $1 空き"
 
-#: pkg/systemd/logDetails.jsx:181
+#: pkg/systemd/logDetails.jsx:183
 msgid "$0: crash at $1"
 msgstr "$0: $1 でクラッシュ"
 
@@ -523,6 +523,12 @@ msgstr "Cockpit の互換バージョンが $0 にインストールされてい
 msgid "A filesystem with this name exists already in this pool."
 msgstr "この名前のファイルシステムは、すでにこのプールに存在します。"
 
+#: pkg/users/group-create-dialog.js:71
+#, fuzzy
+#| msgid "A pool with this name exists already."
+msgid "A group with this name already exists"
+msgstr "この名前を持つプールはすでに存在します。"
+
 #: pkg/static/login.html:44
 msgid ""
 "A modern browser is required for security, reliability, and performance."
@@ -603,8 +609,8 @@ msgstr "アカウントの有効期限"
 msgid "Account not available or cannot be edited."
 msgstr "アカウントが利用可能でないか、アカウントを編集できません。"
 
-#: pkg/users/account-details.js:232 pkg/users/accounts-list.js:248
-#: pkg/users/accounts-list.js:397 pkg/users/manifest.json:0
+#: pkg/users/account-details.js:232 pkg/users/accounts-list.js:252
+#: pkg/users/accounts-list.js:470 pkg/users/manifest.json:0
 msgid "Accounts"
 msgstr "アカウント"
 
@@ -845,7 +851,7 @@ msgstr "アドレス"
 msgid "Administration with Cockpit Web Console"
 msgstr "Cockpit Web コンソールでの管理"
 
-#: pkg/shell/superuser.jsx:178 pkg/shell/superuser.jsx:318
+#: pkg/shell/superuser.jsx:180 pkg/shell/superuser.jsx:320
 msgid "Administrative access"
 msgstr "管理アクセス"
 
@@ -945,7 +951,7 @@ msgstr "アプリケーション"
 msgid "Applications list"
 msgstr "アプリケーションリスト"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:177
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:188
 msgid "Apply and reboot"
 msgstr "適用して再起動する"
 
@@ -957,7 +963,7 @@ msgstr "カーネルライブパッチの適用"
 msgid "Apply this solution"
 msgstr "このソリューションの適用"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:172
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:183
 msgid "Applying new policy... This may take a few minutes."
 msgstr "新しいポリシーを適用しています... これには数分かかる場合があります。"
 
@@ -1022,7 +1028,7 @@ msgstr "属性"
 msgid "Audit log"
 msgstr "監査ログ"
 
-#: pkg/shell/superuser.jsx:171 pkg/shell/superuser.jsx:208
+#: pkg/shell/superuser.jsx:173 pkg/shell/superuser.jsx:210
 msgid "Authenticate"
 msgstr "認証する"
 
@@ -1298,15 +1304,15 @@ msgstr ""
 #: pkg/systemd/overview-cards/motdCard.jsx:67
 #: pkg/systemd/overview-cards/configurationCard.jsx:280
 #: pkg/systemd/overview-cards/realmd.jsx:420
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:180
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:191
 #: pkg/systemd/reporting.jsx:421 pkg/systemd/services/timer-dialog.jsx:152
 #: pkg/systemd/services/service-details.jsx:79
 #: pkg/systemd/services/service-details.jsx:707
 #: pkg/lib/cockpit-components-dialog.jsx:126
 #: pkg/lib/cockpit-components-shutdown.jsx:187 pkg/tuned/dialog.jsx:311
 #: pkg/apps/utils.jsx:66 pkg/storaged/jobs-panel.jsx:139
-#: pkg/shell/superuser.jsx:174 pkg/shell/superuser.jsx:212
-#: pkg/shell/superuser.jsx:257 pkg/shell/credentials.jsx:316
+#: pkg/shell/superuser.jsx:176 pkg/shell/superuser.jsx:214
+#: pkg/shell/superuser.jsx:259 pkg/shell/credentials.jsx:316
 #: pkg/shell/active-pages-modal.jsx:97 pkg/shell/hosts_dialog.jsx:280
 #: pkg/shell/hosts_dialog.jsx:377 pkg/shell/hosts_dialog.jsx:501
 #: pkg/shell/hosts_dialog.jsx:869 pkg/shell/shell-modals.jsx:114
@@ -1359,7 +1365,7 @@ msgstr "キャリア"
 msgid "Change"
 msgstr "変更"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:167
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:178
 msgid "Change crypto policy"
 msgstr "暗号化ポリシーの変更"
 
@@ -1492,7 +1498,7 @@ msgstr "'起動に失敗' を消去"
 msgid "Clear all filters"
 msgstr "すべてのフィルターの消去"
 
-#: pkg/shell/nav.jsx:145
+#: pkg/shell/nav.jsx:160
 msgid "Clear search"
 msgstr "検索の消去"
 
@@ -1508,9 +1514,9 @@ msgstr "クライアントソフトウェア"
 #: pkg/systemd/overview-cards/configurationCard.jsx:194
 #: pkg/systemd/overview-cards/realmd.jsx:264
 #: pkg/lib/cockpit-components-modifications.jsx:78
-#: pkg/lib/cockpit-components-terminal.jsx:208 pkg/users/dialog-utils.js:58
+#: pkg/lib/cockpit-components-terminal.jsx:215 pkg/users/dialog-utils.js:58
 #: pkg/apps/utils.jsx:84 pkg/storaged/dialog.jsx:438
-#: pkg/shell/superuser.jsx:182 pkg/shell/superuser.jsx:190
+#: pkg/shell/superuser.jsx:184 pkg/shell/superuser.jsx:192
 #: pkg/shell/credentials.jsx:84 pkg/shell/hosts_dialog.jsx:81
 #: pkg/shell/shell-modals.jsx:170
 msgid "Close"
@@ -1756,7 +1762,7 @@ msgstr "構成するもの"
 msgid "Contacted domain"
 msgstr "接続されたドメイン"
 
-#: pkg/shell/nav.jsx:218
+#: pkg/shell/nav.jsx:233
 msgid "Contains:"
 msgstr "含む:"
 
@@ -1823,11 +1829,12 @@ msgstr "クラッシュの報告"
 msgid "Crash system"
 msgstr "システムのクラッシュ"
 
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:186
-#: pkg/users/account-create-dialog.js:294 pkg/storaged/stratis-panel.jsx:170
-#: pkg/storaged/mdraids-panel.jsx:139 pkg/storaged/content-views.jsx:196
-#: pkg/storaged/content-views.jsx:311 pkg/storaged/content-views.jsx:976
-#: pkg/storaged/vgroups-panel.jsx:89 pkg/storaged/stratis-details.jsx:389
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:187
+#: pkg/users/account-create-dialog.js:287 pkg/users/group-create-dialog.js:148
+#: pkg/storaged/stratis-panel.jsx:170 pkg/storaged/mdraids-panel.jsx:139
+#: pkg/storaged/content-views.jsx:196 pkg/storaged/content-views.jsx:311
+#: pkg/storaged/content-views.jsx:976 pkg/storaged/vgroups-panel.jsx:89
+#: pkg/storaged/stratis-details.jsx:389
 msgid "Create"
 msgstr "作成"
 
@@ -1851,7 +1858,7 @@ msgstr "新しい SSH キーを作成し、その鍵を承認"
 msgid "Create a snapshot of filesystem $0"
 msgstr "ファイルシステム $0 のスナップショットの作成"
 
-#: pkg/users/account-create-dialog.js:306
+#: pkg/users/account-create-dialog.js:299
 msgid "Create account with weak password"
 msgstr "脆弱なパスワードを使用したアカウントの作成"
 
@@ -1871,13 +1878,19 @@ msgstr "作成"
 msgid "Create logical volume"
 msgstr "論理ボリュームの作成"
 
-#: pkg/users/account-create-dialog.js:287 pkg/users/accounts-list.js:384
+#: pkg/users/account-create-dialog.js:280 pkg/users/accounts-list.js:457
 msgid "Create new account"
 msgstr "アカウントの新規作成"
 
 #: pkg/storaged/stratis-details.jsx:648
 msgid "Create new filesystem"
 msgstr "新規ファイルシステムの作成"
+
+#: pkg/users/group-create-dialog.js:141 pkg/users/accounts-list.js:317
+#, fuzzy
+#| msgid "Create volume group"
+msgid "Create new group"
+msgstr "ボリュームグループの作成"
 
 #: pkg/storaged/content-views.jsx:1006
 msgid "Create new logical volume"
@@ -1962,7 +1975,7 @@ msgstr ""
 msgid "Critical and above"
 msgstr "重大以上のレベル"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:140
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:151
 msgid ""
 "Crypto Policies is a system component that configures the core cryptographic "
 "subsystems, covering the TLS, IPSec, SSH, DNSSec, and Kerberos protocols."
@@ -1970,11 +1983,11 @@ msgstr ""
 "暗号化ポリシーは、TLS、IPSec、SSH、DNSSec、および Kerberos プロトコルに対応す"
 "るコア暗号化サブシステムを設定するシステムコンポーネントです。"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:73
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:80
 msgid "Crypto policy"
 msgstr "暗号化ポリシー"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:216
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:227
 msgid "Crypto policy is inconsistent"
 msgstr "暗号化ポリシーに一貫性がありません"
 
@@ -1998,7 +2011,7 @@ msgstr "現在の CPU 使用率のトップ"
 msgid "Currently in use"
 msgstr "現在使用されています"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:128
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:139
 msgid "Custom crypto policy"
 msgstr "カスタム暗号化ポリシー"
 
@@ -2015,6 +2028,10 @@ msgstr "カスタムポート"
 #: pkg/networkmanager/firewall.jsx:829
 msgid "Custom zones"
 msgstr "カスタムゾーン"
+
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:37
+msgid "DEFAULT with SHA-1 signature verification allowed."
+msgstr ""
 
 #: pkg/networkmanager/ip-settings.jsx:226
 msgid "DNS"
@@ -2125,7 +2142,7 @@ msgstr "削除"
 msgid "Delete $0"
 msgstr "$0 の削除"
 
-#: pkg/users/accounts-list.js:101
+#: pkg/users/accounts-list.js:104
 #, fuzzy
 #| msgid "Create new account"
 msgid "Delete account"
@@ -2135,7 +2152,7 @@ msgstr "アカウントの新規作成"
 msgid "Delete files"
 msgstr "ファイルの削除"
 
-#: pkg/users/accounts-list.js:60
+#: pkg/users/accounts-list.js:63
 #, fuzzy
 #| msgid "Create new account"
 msgid "Delete group"
@@ -2463,7 +2480,7 @@ msgstr "サービスを編集する"
 msgid "Edit service $0"
 msgstr "サービス $0 を編集する"
 
-#: pkg/users/accounts-list.js:80
+#: pkg/users/accounts-list.js:83
 #, fuzzy
 #| msgid "Edit service"
 msgid "Edit user"
@@ -2592,7 +2609,7 @@ msgstr "有効な MAC アドレスを入力します"
 msgid "Entire subnet"
 msgstr "サブネット全体"
 
-#: pkg/systemd/logDetails.jsx:187
+#: pkg/systemd/logDetails.jsx:189
 msgid "Entry at $0"
 msgstr "$0 でのエントリー"
 
@@ -2701,9 +2718,13 @@ msgstr "拡張情報"
 msgid "Extended partition"
 msgstr "拡張パーティション"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:216
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:227
 msgid "FIPS is not properly enabled"
 msgstr "FIPS が適切に有効化されていません"
+
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:51
+msgid "FIPS with further Common Criteria restrictions."
+msgstr ""
 
 #: pkg/networkmanager/interfaces.js:753 pkg/storaged/mdraid-details.jsx:111
 msgid "Failed"
@@ -2941,7 +2962,7 @@ msgid "From"
 msgstr "以下から"
 
 #: pkg/users/account-details.js:256 pkg/users/account-create-dialog.js:40
-#: pkg/users/accounts-list.js:330
+#: pkg/users/accounts-list.js:403
 msgid "Full name"
 msgstr "フルネーム"
 
@@ -2958,7 +2979,7 @@ msgstr "全般"
 msgid "Generated"
 msgstr "生成しました"
 
-#: pkg/systemd/logDetails.jsx:59
+#: pkg/systemd/logDetails.jsx:61
 msgid "Go to $0"
 msgstr "$0 に移動"
 
@@ -2970,18 +2991,18 @@ msgstr "アプリケーションへ移動"
 msgid "Go to now"
 msgstr "今すぐ移動"
 
-#: pkg/networkmanager/network-interface.jsx:415 pkg/users/accounts-list.js:333
+#: pkg/networkmanager/network-interface.jsx:415 pkg/users/accounts-list.js:406
 msgid "Group"
 msgstr "グループ"
 
-#: pkg/users/accounts-list.js:245
+#: pkg/users/accounts-list.js:249
 #, fuzzy
 #| msgid "Volume group name"
 msgid "Group name"
 msgstr "ボリュームグループ名"
 
-#: pkg/users/account-details.js:447 pkg/users/accounts-list.js:281
-#: pkg/users/accounts-list.js:285
+#: pkg/users/account-details.js:447 pkg/users/accounts-list.js:333
+#: pkg/users/accounts-list.js:337
 #, fuzzy
 #| msgid "Group"
 msgid "Groups"
@@ -3033,7 +3054,7 @@ msgstr "ヘルス"
 msgid "Hello time $hello_time"
 msgstr "Hello タイム $hello_time"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:154 pkg/tuned/dialog.jsx:292
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:165 pkg/tuned/dialog.jsx:292
 #: pkg/shell/topnav.jsx:249
 msgid "Help"
 msgstr "ヘルプ"
@@ -3075,7 +3096,8 @@ msgid "Hours"
 msgstr "時"
 
 #: pkg/networkmanager/firewall.jsx:691 pkg/systemd/hwinfo.jsx:310
-#: pkg/users/accounts-list.js:246 pkg/users/accounts-list.js:331
+#: pkg/users/group-create-dialog.js:46 pkg/users/accounts-list.js:250
+#: pkg/users/accounts-list.js:404
 msgid "ID"
 msgstr "ID"
 
@@ -3436,11 +3458,11 @@ msgstr "名前空間に参加"
 msgid "Journal"
 msgstr "ジャーナル"
 
-#: pkg/systemd/logDetails.jsx:169
+#: pkg/systemd/logDetails.jsx:171
 msgid "Journal entry"
 msgstr "ジャーナルエントリー"
 
-#: pkg/systemd/logDetails.jsx:148
+#: pkg/systemd/logDetails.jsx:150
 msgid "Journal entry not found"
 msgstr "ジャーナルエントリーが見つかりません"
 
@@ -3515,6 +3537,10 @@ msgstr "キーサーバーの削除により、$0 のロック解除ができな
 msgid "LACP key"
 msgstr "LACP キー"
 
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:39
+msgid "LEGACY with Active Directory interoperability."
+msgstr ""
+
 #: pkg/storaged/content-views.jsx:463 pkg/storaged/content-views.jsx:480
 msgid "LVM2 member"
 msgstr "LVM2 メンバー"
@@ -3539,7 +3565,7 @@ msgstr "過去 24 時間"
 msgid "Last 7 days"
 msgstr "過去 7 日間"
 
-#: pkg/users/accounts-list.js:332
+#: pkg/users/accounts-list.js:405
 #, fuzzy
 #| msgid "active"
 msgid "Last active"
@@ -3562,8 +3588,8 @@ msgid "Last successful login:"
 msgstr "最後の正常ログイン:"
 
 #: pkg/networkmanager/bond.jsx:154
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:47
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:150
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:48
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:161
 #: pkg/lib/cockpit-components-dialog.jsx:214
 #: pkg/lib/cockpit-components-dialog.jsx:221 pkg/tuned/dialog.jsx:288
 msgid "Learn more"
@@ -3591,15 +3617,15 @@ msgstr "GNU LGPL バージョン 2.1 でのライセンス"
 msgid "Light"
 msgstr "ライト"
 
-#: pkg/shell/superuser.jsx:254
+#: pkg/shell/superuser.jsx:256
 msgid "Limit access"
 msgstr "アクセスの制限"
 
-#: pkg/shell/superuser.jsx:318
+#: pkg/shell/superuser.jsx:320
 msgid "Limited access"
 msgstr "制限付きアクセス"
 
-#: pkg/shell/superuser.jsx:271
+#: pkg/shell/superuser.jsx:273
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -3712,10 +3738,10 @@ msgstr "システム変更をロード中..."
 msgid "Loading unit failed: $0"
 msgstr "ユニットの読み込みに失敗しました: $0"
 
-#: pkg/systemd/logDetails.jsx:175 pkg/systemd/services/services.jsx:777
+#: pkg/systemd/logDetails.jsx:177 pkg/systemd/services/services.jsx:777
 #: pkg/systemd/logsJournal.jsx:268 pkg/kdump/kdump-view.jsx:339
-#: pkg/users/account-details.js:183 pkg/users/accounts-list.js:286
-#: pkg/users/accounts-list.js:307 pkg/users/accounts-list.js:405
+#: pkg/users/account-details.js:183 pkg/users/accounts-list.js:338
+#: pkg/users/accounts-list.js:362 pkg/users/accounts-list.js:478
 #: pkg/storaged/devices.jsx:68 pkg/metrics/metrics.jsx:1004
 #: pkg/metrics/metrics.jsx:1704
 msgid "Loading..."
@@ -3748,7 +3774,7 @@ msgstr "ロック"
 msgid "Lock $0"
 msgstr "ロック"
 
-#: pkg/users/accounts-list.js:95
+#: pkg/users/accounts-list.js:98
 msgid "Lock account"
 msgstr "アカウントのロック"
 
@@ -3791,13 +3817,13 @@ msgstr "ログメッセージ"
 msgid "Log out"
 msgstr "ログアウト"
 
-#: pkg/users/accounts-list.js:89
+#: pkg/users/accounts-list.js:92
 #, fuzzy
 #| msgid "Log out"
 msgid "Log user out"
 msgstr "ログアウト"
 
-#: pkg/users/account-details.js:220 pkg/users/accounts-list.js:178
+#: pkg/users/account-details.js:220 pkg/users/accounts-list.js:181
 msgid "Logged in"
 msgstr "すでにログインしています"
 
@@ -3859,7 +3885,7 @@ msgstr "スロット $0"
 msgid "Logout successful"
 msgstr "ログアウトが正常に行われました"
 
-#: pkg/systemd/logDetails.jsx:198 pkg/systemd/manifest.json:0
+#: pkg/systemd/logDetails.jsx:200 pkg/systemd/manifest.json:0
 msgid "Logs"
 msgstr "ログ"
 
@@ -4044,7 +4070,7 @@ msgstr "障害に関連するメッセージは、ジャーナルで見つかる
 msgid "Metadata used"
 msgstr "使用済みメタデータ"
 
-#: pkg/shell/superuser.jsx:197
+#: pkg/shell/superuser.jsx:199
 msgid "Method"
 msgstr "メソッド"
 
@@ -4237,20 +4263,21 @@ msgstr "NTP サーバー"
 #: pkg/networkmanager/network-main.jsx:199
 #: pkg/networkmanager/dialogs-common.jsx:134 pkg/systemd/hwinfo.jsx:91
 #: pkg/systemd/services/timer-dialog.jsx:158
-#: pkg/users/authorized-keys-panel.js:131 pkg/storaged/lvol-tabs.jsx:48
-#: pkg/storaged/lvol-tabs.jsx:419 pkg/storaged/lvol-tabs.jsx:480
-#: pkg/storaged/lvol-tabs.jsx:538 pkg/storaged/iscsi-panel.jsx:131
-#: pkg/storaged/iscsi-panel.jsx:188 pkg/storaged/vgroup-details.jsx:166
-#: pkg/storaged/stratis-panel.jsx:130 pkg/storaged/part-tab.jsx:40
-#: pkg/storaged/mdraids-panel.jsx:74 pkg/storaged/format-dialog.jsx:213
-#: pkg/storaged/content-views.jsx:182 pkg/storaged/content-views.jsx:307
-#: pkg/storaged/content-views.jsx:754 pkg/storaged/content-views.jsx:886
-#: pkg/storaged/content-views.jsx:1019 pkg/storaged/vgroups-panel.jsx:73
-#: pkg/storaged/fsys-tab.jsx:487 pkg/storaged/fsys-tab.jsx:690
-#: pkg/storaged/crypto-panel.jsx:84 pkg/storaged/stratis-details.jsx:272
-#: pkg/storaged/stratis-details.jsx:360 pkg/storaged/stratis-details.jsx:467
-#: pkg/storaged/stratis-details.jsx:490 pkg/storaged/stratis-details.jsx:654
-#: pkg/storaged/stratis-details.jsx:787 pkg/shell/credentials.jsx:104
+#: pkg/users/authorized-keys-panel.js:131 pkg/users/group-create-dialog.js:37
+#: pkg/storaged/lvol-tabs.jsx:48 pkg/storaged/lvol-tabs.jsx:419
+#: pkg/storaged/lvol-tabs.jsx:480 pkg/storaged/lvol-tabs.jsx:538
+#: pkg/storaged/iscsi-panel.jsx:131 pkg/storaged/iscsi-panel.jsx:188
+#: pkg/storaged/vgroup-details.jsx:166 pkg/storaged/stratis-panel.jsx:130
+#: pkg/storaged/part-tab.jsx:40 pkg/storaged/mdraids-panel.jsx:74
+#: pkg/storaged/format-dialog.jsx:213 pkg/storaged/content-views.jsx:182
+#: pkg/storaged/content-views.jsx:307 pkg/storaged/content-views.jsx:754
+#: pkg/storaged/content-views.jsx:886 pkg/storaged/content-views.jsx:1019
+#: pkg/storaged/vgroups-panel.jsx:73 pkg/storaged/fsys-tab.jsx:487
+#: pkg/storaged/fsys-tab.jsx:690 pkg/storaged/crypto-panel.jsx:84
+#: pkg/storaged/stratis-details.jsx:272 pkg/storaged/stratis-details.jsx:360
+#: pkg/storaged/stratis-details.jsx:467 pkg/storaged/stratis-details.jsx:490
+#: pkg/storaged/stratis-details.jsx:654 pkg/storaged/stratis-details.jsx:787
+#: pkg/shell/credentials.jsx:104
 msgid "Name"
 msgstr "名前"
 
@@ -4340,7 +4367,7 @@ msgstr "アカウントを失効しない"
 msgid "Never expire password"
 msgstr "パスワードを失効しない"
 
-#: pkg/users/accounts-list.js:181
+#: pkg/users/accounts-list.js:184
 #, fuzzy
 #| msgid "Logged in"
 msgid "Never logged in"
@@ -4382,6 +4409,12 @@ msgstr "次へ"
 #: pkg/networkmanager/network-interface.jsx:244 pkg/systemd/reporting.jsx:273
 msgid "No"
 msgstr "いいえ"
+
+#: pkg/users/group-create-dialog.js:79
+#, fuzzy
+#| msgid "No alias specified"
+msgid "No ID specified"
+msgstr "エイリアスが指定されていません"
 
 #: pkg/storaged/nfs-panel.jsx:100
 msgid "No NFS mounts set up"
@@ -4465,6 +4498,12 @@ msgstr "フリーのキースロットはありません"
 msgid "No free space"
 msgstr "空き領域なし"
 
+#: pkg/users/group-create-dialog.js:62
+#, fuzzy
+#| msgid "No real name specified"
+msgid "No group name specified"
+msgstr "実際の名前が指定されていません"
+
 #: pkg/systemd/overview-cards/configurationCard.jsx:177
 msgid "No host keys found."
 msgstr "ホストキーが見つかりません。"
@@ -4481,7 +4520,7 @@ msgstr "このアプリケーションのインストールパッケージが見
 msgid "No keys added"
 msgstr "追加されたキーはありません"
 
-#: pkg/systemd/services/service.jsx:93
+#: pkg/systemd/services/service.jsx:95
 msgid "No log entries"
 msgstr "ログエントリーなし"
 
@@ -4494,7 +4533,8 @@ msgstr "論理ボリュームなし"
 msgid "No logs found"
 msgstr "ログが見つかりません"
 
-#: pkg/systemd/services/services-list.jsx:59 pkg/users/accounts-list.js:407
+#: pkg/systemd/services/services-list.jsx:59 pkg/users/accounts-list.js:364
+#: pkg/users/accounts-list.js:480
 msgid "No matching results"
 msgstr "一致する結果はありません"
 
@@ -4516,11 +4556,11 @@ msgstr ""
 msgid "No partitioning"
 msgstr "パーティションなし"
 
-#: pkg/users/account-create-dialog.js:121
+#: pkg/users/account-create-dialog.js:114
 msgid "No real name specified"
 msgstr "実際の名前が指定されていません"
 
-#: pkg/systemd/logs.jsx:315 pkg/shell/nav.jsx:144
+#: pkg/systemd/logs.jsx:315 pkg/shell/nav.jsx:159
 msgid "No results found"
 msgstr "結果が見つかりません"
 
@@ -4535,7 +4575,7 @@ msgstr ""
 msgid "No rule hits"
 msgstr "ルールヒットなし"
 
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:175
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:176
 #: pkg/lib/credentials.js:191
 msgid "No such file or directory"
 msgstr "このようなファイルまたはディレクトリーがありません"
@@ -4552,7 +4592,7 @@ msgstr "システムレポートがありません。"
 msgid "No updates"
 msgstr "更新なし"
 
-#: pkg/users/account-create-dialog.js:104
+#: pkg/users/account-create-dialog.js:97
 msgid "No user name specified"
 msgstr "ユーザー名が指定されていません"
 
@@ -4712,7 +4752,7 @@ msgstr "アルファベット、数字、:、 _ 、.、@、- のみを使用で�
 msgid "Only emergency"
 msgstr "緊急のみ"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:40
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:41
 msgid "Only use approved and allowed algorithms when booting in FIPS mode."
 msgstr ""
 "FIPS モードで起動する場合は、承認および許可されたアルゴリズムのみを使用してく"
@@ -4897,7 +4937,7 @@ msgstr "パスフレーズが一致しません"
 
 #: pkg/static/login.html:106 pkg/users/account-details.js:308
 #: pkg/users/account-create-dialog.js:58 pkg/storaged/iscsi-panel.jsx:50
-#: pkg/storaged/iscsi-panel.jsx:160 pkg/shell/superuser.jsx:136
+#: pkg/storaged/iscsi-panel.jsx:160 pkg/shell/superuser.jsx:138
 #: pkg/shell/credentials.jsx:122 pkg/shell/credentials.jsx:265
 #: pkg/shell/credentials.jsx:321 pkg/shell/hosts_dialog.jsx:827
 #: pkg/shell/hosts_dialog.jsx:836
@@ -4912,7 +4952,7 @@ msgstr "パスワードが正しく変更されました"
 msgid "Password expiration"
 msgstr "パスワードの有効期限"
 
-#: pkg/users/account-create-dialog.js:221 pkg/users/password-dialogs.js:193
+#: pkg/users/account-create-dialog.js:214 pkg/users/password-dialogs.js:193
 msgid "Password is longer than 256 characters"
 msgstr "パスワードは 256 文字以内で設定する必要があります"
 
@@ -4940,7 +4980,7 @@ msgstr "パスワードヒント"
 msgid "Paste"
 msgstr "貼り付け"
 
-#: pkg/lib/cockpit-components-terminal.jsx:201
+#: pkg/lib/cockpit-components-terminal.jsx:208
 msgid "Paste error"
 msgstr "貼り付けエラー"
 
@@ -4972,7 +5012,7 @@ msgstr "サーバーのパスは空欄にはできません。"
 msgid "Path on server must start with \"/\"."
 msgstr "サーバーのパスは \"/\" で開始してください。"
 
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:162
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:163
 #: pkg/shell/credentials.jsx:175
 msgid "Path to file"
 msgstr "ファイルのパス"
@@ -5064,7 +5104,7 @@ msgstr "固定されたユニット"
 msgid "Pizza box"
 msgstr "Pizza box"
 
-#: pkg/shell/superuser.jsx:135
+#: pkg/shell/superuser.jsx:137
 msgid "Please authenticate to gain administrative access"
 msgstr "管理者アクセスを得るために認証を行ってください"
 
@@ -5164,7 +5204,7 @@ msgstr "優先度"
 msgid "Priority $priority"
 msgstr "優先度 $priority"
 
-#: pkg/shell/superuser.jsx:186
+#: pkg/shell/superuser.jsx:188
 msgid "Problem becoming administrator"
 msgstr "管理者への切り替えに問題が発生しました"
 
@@ -5204,7 +5244,7 @@ msgstr "ssh-keygen によるプロンプトがタイムアウトしました"
 msgid "Propagates reload to"
 msgstr "再ロード先を伝搬"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:37
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:52
 msgid ""
 "Protects from anticipated near-term future attacks at the expense of "
 "interoperability."
@@ -5374,7 +5414,7 @@ msgstr ""
 msgid "Real host name must be 64 characters or less"
 msgstr "実際のホスト名は 64 文字以下である必要があります"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:177
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:188
 msgid "Reapply and reboot"
 msgstr "再適用して再起動する"
 
@@ -5781,7 +5821,7 @@ msgstr "既存の暗号化を再利用"
 msgid "Reuse existing encryption ($0)"
 msgstr "既存の暗号化を再利用 ($0)"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:222
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:233
 msgid "Review crypto policy"
 msgstr "暗号化ポリシーを確認する"
 
@@ -5956,7 +5996,7 @@ msgstr "再起動が $0 に予定されています"
 msgid "Sealed-case PC"
 msgstr "シールドケース PC"
 
-#: pkg/systemd/logs.jsx:406 pkg/shell/nav.jsx:126
+#: pkg/systemd/logs.jsx:406 pkg/shell/nav.jsx:141
 msgid "Search"
 msgstr "検索"
 
@@ -5964,7 +6004,11 @@ msgstr "検索"
 msgid "Search domain"
 msgstr "検索ドメイン"
 
-#: pkg/users/accounts-list.js:374
+#: pkg/users/accounts-list.js:307
+msgid "Search for name or ID"
+msgstr ""
+
+#: pkg/users/accounts-list.js:447
 msgid "Search for name, group or ID"
 msgstr ""
 
@@ -6076,12 +6120,12 @@ msgstr "サービスが停止されています"
 msgid "Service is stopping"
 msgstr "サービスが停止中です"
 
-#: pkg/systemd/services/service.jsx:93
+#: pkg/systemd/services/service.jsx:95
 msgid "Service logs"
 msgstr "サービスログ"
 
 #: pkg/systemd/services.html:4 pkg/networkmanager/firewall.jsx:619
-#: pkg/systemd/services/service.jsx:83 pkg/systemd/services/service-tabs.jsx:39
+#: pkg/systemd/services/service.jsx:85 pkg/systemd/services/service-tabs.jsx:39
 #: pkg/systemd/manifest.json:0
 msgid "Services"
 msgstr "サービス"
@@ -6565,11 +6609,11 @@ msgstr "$0 をオフにする"
 msgid "Switch on $0"
 msgstr "$0 をオンにする"
 
-#: pkg/shell/superuser.jsx:145 pkg/shell/superuser.jsx:193
+#: pkg/shell/superuser.jsx:147 pkg/shell/superuser.jsx:195
 msgid "Switch to administrative access"
 msgstr "管理者アクセスへの切り替え"
 
-#: pkg/shell/superuser.jsx:267 pkg/shell/superuser.jsx:334
+#: pkg/shell/superuser.jsx:269 pkg/shell/superuser.jsx:336
 msgid "Switch to limited access"
 msgstr "アクセス制限への切り替え"
 
@@ -6608,7 +6652,7 @@ msgid "Synchronizing RAID device $target"
 msgstr "RAID デバイス $target の同期"
 
 #: pkg/systemd/services/services.jsx:1068 pkg/shell/indexes.jsx:343
-#: pkg/shell/nav.jsx:33
+#: pkg/shell/nav.jsx:48
 msgid "System"
 msgstr "システム"
 
@@ -6866,9 +6910,27 @@ msgid "The following service will be restarted:"
 msgid_plural "The following services will be restarted:"
 msgstr[0] "以下のサービスが再起動します:"
 
-#: pkg/users/account-create-dialog.js:125
+#: pkg/users/account-create-dialog.js:118
 msgid "The full name must not contain colons."
 msgstr ""
+
+#: pkg/users/group-create-dialog.js:83
+#, fuzzy
+#| msgid "MTU must be a positive number"
+msgid "The group ID must be positive integer"
+msgstr "MTU は正の数値である必要があります"
+
+#: pkg/users/group-create-dialog.js:66
+#, fuzzy
+#| msgid ""
+#| "The user name can only consist of letters from a-z, digits, dots, dashes "
+#| "and underscores."
+msgid ""
+"The group name can only consist of letters from a-z, digits, dots, dashes "
+"and underscores"
+msgstr ""
+"ユーザー名は a〜z の文字、数字、ドット、ダッシュ、およびアンダースコアだけで"
+"構成されます。"
 
 #: pkg/storaged/crypto-keyslots.jsx:317
 msgid "The initrd must be regenerated."
@@ -6934,7 +6996,7 @@ msgstr "新しいキーのパスワードは空にすることはできません
 msgid "The password can not be empty"
 msgstr "パスワードは空にできません"
 
-#: pkg/users/account-create-dialog.js:218 pkg/users/password-dialogs.js:190
+#: pkg/users/account-create-dialog.js:211 pkg/users/password-dialogs.js:190
 msgid "The passwords do not match"
 msgstr "パスワードが一致しません"
 
@@ -6979,7 +7041,7 @@ msgstr ""
 msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr "ユーザー $0 は、cpu セキュリティー緩和の変更を許可されていません"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:76
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:83
 msgid "The user $0 is not permitted to change crypto policies"
 msgstr "ユーザー $0 は、暗号化ポリシーの変更を許可されていません"
 
@@ -6993,7 +7055,7 @@ msgstr ""
 "ロールを完全に変更するには、ユーザーはログアウトしてからログインし直す必要が"
 "あります。"
 
-#: pkg/users/account-create-dialog.js:108
+#: pkg/users/account-create-dialog.js:101
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
@@ -7125,7 +7187,7 @@ msgstr "このシステムは推奨プロファイルを使用しています"
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "このユニットは明示的に有効にするよう設計されていません。"
 
-#: pkg/users/account-create-dialog.js:113
+#: pkg/users/account-create-dialog.js:106
 msgid "This user name already exists"
 msgstr "このユーザー名はすでに存在します"
 
@@ -7376,7 +7438,7 @@ msgstr "Tuned が実行中ではありません"
 msgid "Tuned is off"
 msgstr "Tuned がオフです"
 
-#: pkg/shell/superuser.jsx:334
+#: pkg/shell/superuser.jsx:336
 msgid "Turn on administrative access"
 msgstr "管理者アクセスをオンにする"
 
@@ -7460,7 +7522,9 @@ msgid "Unable to remove mount"
 msgstr "マウントを削除できません"
 
 #: pkg/selinux/setroubleshoot-client.js:150
-msgid "Unable to run fix: %0"
+#, fuzzy
+#| msgid "Unable to run fix: %0"
+msgid "Unable to run fix: $0"
 msgstr "修正を実行できません: %0"
 
 #: pkg/kdump/kdump-view.jsx:244
@@ -7751,7 +7815,7 @@ msgstr "ユーザー名"
 msgid "User name cannot be empty"
 msgstr "ユーザー名は空にできません"
 
-#: pkg/users/accounts-list.js:329 pkg/storaged/iscsi-panel.jsx:49
+#: pkg/users/accounts-list.js:402 pkg/storaged/iscsi-panel.jsx:49
 #: pkg/storaged/iscsi-panel.jsx:158
 msgid "Username"
 msgstr "ユーザー名"
@@ -8083,11 +8147,11 @@ msgstr "これで管理者アクセスが可能になりました。"
 msgid "You will be logged out in $0 seconds."
 msgstr "$0 秒後にログアウトされます。"
 
-#: pkg/users/accounts-list.js:193
+#: pkg/users/accounts-list.js:196
 msgid "Your account"
 msgstr "お使いのアカウント"
 
-#: pkg/lib/cockpit-components-terminal.jsx:211
+#: pkg/lib/cockpit-components-terminal.jsx:218
 msgid ""
 "Your browser does not allow paste from the context menu. You can use Shift"
 "+Insert."
@@ -8095,7 +8159,7 @@ msgstr ""
 "お使いのブラウザーでは、コンテキストメニューからの貼り付けが許可されていませ"
 "ん。Shift+Insert を使用できます。"
 
-#: pkg/shell/superuser.jsx:272
+#: pkg/shell/superuser.jsx:274
 msgid "Your browser will remember your access level across sessions."
 msgstr "ブラウザーはセッション間のアクセスレベルを記憶します。"
 
@@ -11164,9 +11228,6 @@ msgstr "ゾーン"
 
 #~ msgid "Mount container volumes"
 #~ msgstr "マウントコンテナーボリューム"
-
-#~ msgid "No alias specified"
-#~ msgstr "エイリアスが指定されていません"
 
 #~ msgid "No container specified"
 #~ msgstr "コンテナーが指定されていません"

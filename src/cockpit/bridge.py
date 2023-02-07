@@ -27,7 +27,7 @@ import sys
 
 from typing import Dict, Iterable, List, Tuple, Type
 
-from systemd_ctypes import EventLoopPolicy, bus
+from systemd_ctypes import EventLoopPolicy, bus, run_async
 
 from .channel import ChannelRoutingRule
 from .channels import CHANNEL_TYPES
@@ -137,7 +137,9 @@ async def run(args) -> None:
 
     logger.debug('Starting the router.')
     router = Bridge(args)
-    StdioTransport(asyncio.get_running_loop(), router)
+    loop = asyncio.get_running_loop()
+    loop.set_debug(args.debug)
+    StdioTransport(loop, router)
 
     logger.debug('Startup done.  Looping until connection closes.')
 
@@ -216,7 +218,8 @@ def main() -> None:
         print(json.dumps(Packages().get_bridge_configs(), indent=2))
     else:
         asyncio.set_event_loop_policy(EventLoopPolicy())
-        asyncio.run(run(args), debug=args.debug)
+        # asyncio.run() shim for Python 3.6 support
+        run_async(run(args))
 
 
 if __name__ == '__main__':

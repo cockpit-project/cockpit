@@ -229,7 +229,8 @@ class Package:
             lower_locale = locale.lower().replace('_', '-')
             self.translations[lower_locale] = data, guessed_type
         else:
-            self.files[rel.removesuffix('.gz')] = data, guessed_type
+            basename = rel[:-3] if rel.endswith('.gz') else rel
+            self.files[basename] = data, guessed_type
 
         # Perform checksum calculation
         sha = hashlib.sha256(data).hexdigest()

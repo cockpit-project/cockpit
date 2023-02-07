@@ -15,7 +15,7 @@ BuildArch: noarch
 BuildRequires: pyproject-rpm-macros
 
 %generate_buildrequires
-%pyproject_buildrequires
+%pyproject_buildrequires -t
 
 %description
 Cockpit experimental python package.
@@ -25,6 +25,9 @@ Cockpit experimental python package.
 
 %build
 %pyproject_wheel
+
+%check
+%tox
 
 %install
 %pyproject_install .

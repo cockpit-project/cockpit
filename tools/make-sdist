@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -eu
+cd "$(realpath -m "$0"/../..)"
+
+tools/systemd_ctypes
+rm -rf tmp/sdist build
+python3 -m build --no-isolation --sdist --outdir tmp/sdist . >&2
+realpath tmp/sdist/*.tar.gz

@@ -68,7 +68,7 @@ def get_libexecdir() -> str:
     global LIBEXECDIR
     if LIBEXECDIR is None:
         for candidate in ['/usr/local/libexec', '/usr/libexec', '/usr/local/lib/cockpit', '/usr/lib/cockpit']:
-            if os.path.exists(os.path.join(candidate, 'cockpit-certificate-helper')):
+            if os.path.exists(os.path.join(candidate, 'cockpit-askpass')):
                 LIBEXECDIR = candidate
                 break
         else:

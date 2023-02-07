@@ -321,22 +321,13 @@ html {
 
   &-heading,
   &-minute {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
   }
 
   &-graphs {
-    display: inherit;
-
-    .metrics-data,
-    .metrics-label {
-      width: var(--half-column-size);
-    }
-
-    .metrics-data.have-saturation,
-    .metrics-label.have-saturation {
-      width: var(--column-size);
-    }
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(var(--column-size), 1fr));
 
     .metrics-data {
       min-height: var(--data-min-height);

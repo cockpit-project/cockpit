@@ -24,7 +24,7 @@ import subprocess
 import unittest
 import unittest.mock
 
-from typing import Any, Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
 import cockpit.transports
 
@@ -38,7 +38,7 @@ class Protocol(cockpit.transports.SubprocessProtocol):
     close_on_eof: bool = True
     eof: bool = False
     exc: Optional[Exception] = None
-    output: Optional[list[bytes]] = None
+    output: Optional[List[bytes]] = None
 
     def connection_made(self, transport: asyncio.BaseTransport) -> None:
         assert isinstance(transport, asyncio.Transport)

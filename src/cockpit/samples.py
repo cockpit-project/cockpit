@@ -15,11 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import collections
 import os
 from systemd_ctypes import Handle
 
-from typing import Any, Iterable, List, NamedTuple, Optional
+from typing import Any, DefaultDict, Iterable, List, NamedTuple, Optional
 
 
 USER_HZ = os.sysconf(os.sysconf_names['SC_CLK_TCK'])
@@ -28,7 +27,7 @@ HWMON_PATH = '/sys/class/hwmon'
 
 # we would like to do this, but mypy complains; https://github.com/python/mypy/issues/2900
 # Samples = collections.defaultdict[str, Union[float, Dict[str, Union[float, None]]]]
-Samples = collections.defaultdict[str, Any]
+Samples = DefaultDict[str, Any]
 
 
 class SampleDescription(NamedTuple):

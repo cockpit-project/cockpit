@@ -149,7 +149,7 @@ class Package:
     PO_JS_RE: ClassVar[Pattern] = re.compile(r'po\.([^.]+)\.js(\.gz)?')
 
     # A built in base set of "English" translations
-    PO_EN_JS: ClassVar[Entity] = b'', mimetypes.guess_type('po.js')
+    PO_EN_JS: ClassVar[Entity] = (b'', mimetypes.guess_type('po.js'))
     BASE_TRANSLATIONS: ClassVar[Entities] = {'en': PO_EN_JS, 'en-us': PO_EN_JS}
 
     files: Entities

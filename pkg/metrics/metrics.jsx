@@ -31,7 +31,7 @@ import {
     Page, PageSection, PageSectionVariants,
     Popover,
     Progress, ProgressVariant,
-    Select, SelectOption,
+    Select, SelectVariant, SelectOption,
     Stack, StackItem,
     Switch,
     Text, TextContent, TextVariants,
@@ -951,7 +951,7 @@ class MetricsMinute extends React.Component {
     render() {
         const first = this.props.data.find(i => i !== null);
 
-        const graphs = ['cpu', 'memory', 'disks', 'network'].map(resource => {
+        const graphs = Object.keys(this.props.selectedVisibility).filter(itm => this.props.selectedVisibility[itm]).map(resource => {
             // not all resources have a saturation metric
             let have_sat = !!RESOURCES["sat_" + resource];
 
@@ -1055,12 +1055,14 @@ class MetricsHour extends React.Component {
     }
 
     componentDidMount() {
-        this.updateGraphs(this.props.data, this.props.startTime);
+        this.updateGraphs(this.props.data, this.props.startTime, this.props.selectedVisibility);
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        if (this.state.dataItems !== nextProps.data.length || this.props.startTime !== nextProps.startTime) {
-            this.updateGraphs(nextProps.data, nextProps.startTime);
+        if (this.state.dataItems !== nextProps.data.length ||
+            this.props.startTime !== nextProps.startTime ||
+            Object.keys(this.props.selectedVisibility).some(itm => this.props.selectedVisibility[itm] != nextProps.selectedVisibility[itm])) {
+            this.updateGraphs(nextProps.data, nextProps.startTime, nextProps.selectedVisibility);
             return false;
         }
 
@@ -1068,9 +1070,12 @@ class MetricsHour extends React.Component {
     }
 
     // data: type → SAMPLES_PER_H objects from startTime
-    updateGraphs(data, startTime) {
+    updateGraphs(data, startTime, selectedVisibility) {
+        const filteredData = data.map(sample => Object.keys(sample)
+                .filter(key => selectedVisibility[key.split("_")[1]])
+                .reduce((cur, key) => Object.assign(cur, { [key]: sample[key] }), {}));
         // Normalize data
-        const normData = data.map(sample => {
+        const normData = filteredData.map(sample => {
             if (sample === null)
                 return null;
             const n = {};
@@ -1123,7 +1128,7 @@ class MetricsHour extends React.Component {
             const dataOffset = minute * SAMPLES_PER_MIN;
             const dataSlice = normData.slice(dataOffset, dataOffset + SAMPLES_PER_MIN);
             const rawSlice = this.props.data.slice(dataOffset, dataOffset + SAMPLES_PER_MIN);
-            minuteGraphs.push(<MetricsMinute key={minute} minute={minute} data={dataSlice} rawData={rawSlice} events={minute_events[minute]} startTime={this.props.startTime} />);
+            minuteGraphs.push(<MetricsMinute key={minute} minute={minute} data={dataSlice} rawData={rawSlice} events={minute_events[minute]} startTime={this.props.startTime} selectedVisibility={selectedVisibility} />);
         }
 
         this.setState({ minuteGraphs: minuteGraphs, dataItems: this.props.data.length });
@@ -1365,6 +1370,7 @@ class MetricsHistory extends React.Component {
         this.oldest_timestamp = 0;
         // Timestamp representing today midnight to calculate other days for date select
         this.today_midnight = null;
+        this.columns = [["cpu", _("CPU")], ["memory", _("Memory")], ["disks", _("Disk I/O")], ["network", _("Network")]];
 
         this.state = {
             hours: [], // available hours for rendering in descending order
@@ -1375,6 +1381,7 @@ class MetricsHistory extends React.Component {
             isDatepickerOpened: false,
             selectedDate: null,
             packagekitExists: false,
+            selectedVisibility: this.columns.reduce((a, v) => ({ ...a, [v[0]]: true }), {})
         };
 
         this.handleMoreData = this.handleMoreData.bind(this);
@@ -1667,26 +1674,57 @@ class MetricsHistory extends React.Component {
             );
         }
 
+        const columnVisibilityMenuItems = this.columns.map(itm => {
+            return (
+                <SelectOption
+                    key={itm[0]}
+                    value={itm[1]}
+                    inputId={'column-visibility-option-' + itm[0]} />
+            );
+        });
+        const selections = (
+            this.columns
+                    .filter(itm => this.state.selectedVisibility[itm[0]])
+                    .map(itm => itm[1])
+        );
+
         return (
             <div className="metrics">
                 <div className="metrics-heading-sticky">
                     <section className="metrics-heading" style={{ "--has-swap": swapTotal ? "var(--column-size)" : "var(--half-column-size)" }}>
-                        <Select
-                            className="select-min metrics-label"
-                            aria-label={_("Jump to")}
-                            onToggle={this.handleToggle}
-                            onSelect={this.handleSelect}
-                            isOpen={this.state.isDatepickerOpened}
-                            selections={this.state.selectedDate}
-                            toggleId="date-picker-select-toggle"
-                        >
-                            {options}
-                        </Select>
+                        <Flex spaceItems={{ default: 'spaceItemsSm' }}>
+                            <Select
+                                className="select-min metrics-label"
+                                aria-label={_("Jump to")}
+                                onToggle={this.handleToggle}
+                                onSelect={this.handleSelect}
+                                isOpen={this.state.isDatepickerOpened}
+                                selections={this.state.selectedDate}
+                                toggleId="date-picker-select-toggle"
+                            >
+                                {options}
+                            </Select>
+                            <Select
+                                toggleAriaLabel={_("Graph visibility options menu")}
+                                className="metrics-label"
+                                variant={SelectVariant.checkbox}
+                                isCheckboxSelectionBadgeHidden
+                                isOpen={!!this.state.isOpenColumnVisibility}
+                                onSelect={(_, selection) => {
+                                    const s = this.columns.find(itm => itm[1] == selection);
+                                    this.setState({ selectedVisibility: { ...this.state.selectedVisibility, [s[0]]: !this.state.selectedVisibility[s[0]] } });
+                                }}
+                                onToggle={() => this.setState({ isOpenColumnVisibility: !this.state.isOpenColumnVisibility })}
+                                placeholderText={_("Graph visibility")}
+                                selections={selections}>
+                                {columnVisibilityMenuItems}
+                            </Select>
+                        </Flex>
                         <div className="metrics-graphs">
-                            <Label label={_("CPU")} items={[_("Usage"), _("Load")]} />
-                            <Label label={_("Memory")} items={[_("Usage"), ...swapTotal ? [_("Swap")] : []]} />
-                            <Label label={_("Disk I/O")} items={[_("Usage")]} />
-                            <Label label={_("Network")} items={[_("Usage")]} />
+                            {this.state.selectedVisibility.cpu && <Label label={_("CPU")} items={[_("Usage"), _("Load")]} />}
+                            {this.state.selectedVisibility.memory && <Label label={_("Memory")} items={[_("Usage"), ...swapTotal ? [_("Swap")] : []]} />}
+                            {this.state.selectedVisibility.disks && <Label label={_("Disk I/O")} items={[_("Usage")]} />}
+                            {this.state.selectedVisibility.network && <Label label={_("Network")} items={[_("Usage")]} />}
                         </div>
                     </section>
                 </div>
@@ -1694,6 +1732,7 @@ class MetricsHistory extends React.Component {
                     <Card>
                         <CardBody className="metrics-history">
                             { this.state.hours.map((time, i) => <MetricsHour key={time} startTime={parseInt(time)}
+                                                                             selectedVisibility={this.state.selectedVisibility}
                                                                              data={this.data[time]} clipLeading={i === 0}
                             />) }
                         </CardBody>

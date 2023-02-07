@@ -194,8 +194,26 @@ class TestHistoryMetrics(MachineCase):
 
         self.waitStream(3)
 
+        # Graphs are by default all visible
+        b.click("button[aria-label='Graph visibility options menu']")
+        b.wait_visible("#column-visibility-option-cpu:checked")
+        b.wait_visible(".metrics-label-graph:contains(CPU)")
+        b.wait_visible("#column-visibility-option-memory:checked")
+        b.wait_visible(".metrics-label-graph:contains(Memory)")
+        b.wait_visible("#column-visibility-option-disks:checked")
+        b.wait_visible(".metrics-label-graph:contains(Disk I/O)")
+        b.wait_visible("#column-visibility-option-network:checked")
+        b.wait_visible(".metrics-label-graph:contains(Network)")
+
+        # Change graph visibility
+        b.wait_visible(".metrics-events:contains('Network I/O spike')")
+        b.set_checked("#column-visibility-option-network", False)
+        b.wait_not_present(".metrics-events:contains('Network I/O spike')")
+        b.wait_not_present(".metrics-label-graph:contains(Network)")
+        b.set_checked("#column-visibility-option-network", True)
+
         # Change date to yesterday, should be empty
-        b.click(".pf-c-select__toggle-arrow")
+        b.click("#date-picker-select-toggle .pf-c-select__toggle-arrow")
         b.click(".pf-c-select__menu-wrapper:nth-child(2) button")
         b.wait_text(".pf-c-empty-state", "No data available")
 
@@ -363,7 +381,7 @@ class TestHistoryMetrics(MachineCase):
         m.execute("timedatectl set-time @1600550674")
         login(self)
         # self.waitStream(3) # FIXME: wait for new data - pcp does not handle time change greatly
-        b.wait_text(".pf-c-select__toggle-text", "Today")
+        b.wait_text("#date-picker-select-toggle .pf-c-select__toggle-text", "Today")
 
         b.select_PF4("#date-picker-select-toggle", "Wednesday, September 16, 2020")
         self.assertGreater(getMaximumSpike(self, "memory", False, 1600236000000, 51), 0.5)
@@ -374,9 +392,9 @@ class TestHistoryMetrics(MachineCase):
         b.enter_page("/metrics")
         b.wait_text("#date-picker-select-toggle .pf-c-select__toggle-text", "Wednesday, September 16, 2020")
 
-        b.click(".pf-c-select__toggle")
+        b.click("#date-picker-select-toggle")
         b.click(".pf-c-select__menu-item:contains('Today')")
-        b.wait_text(".pf-c-select__toggle-text", "Today")
+        b.wait_text("#date-picker-select-toggle .pf-c-select__toggle-text", "Today")
         # self.waitStream(4) # FIXME: wait for new data - pcp does not handle time change greatly
 
         b.logout()

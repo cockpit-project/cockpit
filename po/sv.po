@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-22 02:54+0000\n"
-"PO-Revision-Date: 2023-01-17 00:20+0000\n"
-"Last-Translator: Luna Jernberg <bittin@reimu.nl>\n"
+"POT-Creation-Date: 2023-02-07 02:55+0000\n"
+"PO-Revision-Date: 2023-02-07 12:34+0000\n"
+"Last-Translator: Göran Uddeborg <goeran@uddeborg.se>\n"
 "Language-Team: Swedish <https://translate.fedoraproject.org/projects/cockpit/"
 "main/sv/>\n"
 "Language: sv\n"
@@ -17,13 +17,13 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1\n"
-"X-Generator: Weblate 4.15\n"
+"X-Generator: Weblate 4.15.2\n"
 
 #: pkg/static/login.html:66
 msgid "            Bypass browser check          "
 msgstr "            Förbigå webbläsarkontrollen          "
 
-#: pkg/users/accounts-list.js:247
+#: pkg/users/accounts-list.js:251
 msgid "# of users"
 msgstr "# av användare"
 
@@ -206,7 +206,7 @@ msgid_plural "$0 months"
 msgstr[0] "$0 månad"
 msgstr[1] "$0 månader"
 
-#: pkg/users/accounts-list.js:298
+#: pkg/users/accounts-list.js:350
 msgid "$0 more..."
 msgstr "$0 mer..."
 
@@ -295,7 +295,7 @@ msgstr "zon $0"
 msgid "$0, $1 free"
 msgstr "$0, $1 fritt"
 
-#: pkg/systemd/logDetails.jsx:181
+#: pkg/systemd/logDetails.jsx:183
 msgid "$0: crash at $1"
 msgstr "$0: krasch vid $1"
 
@@ -538,6 +538,10 @@ msgstr "Ingen kompatibel version av Cockpit är installerad på $0."
 msgid "A filesystem with this name exists already in this pool."
 msgstr "Ett filsystem med detta namn existerar redan i denna pool."
 
+#: pkg/users/group-create-dialog.js:71
+msgid "A group with this name already exists"
+msgstr "En grupp med detta namn finns redan"
+
 #: pkg/static/login.html:44
 msgid ""
 "A modern browser is required for security, reliability, and performance."
@@ -621,8 +625,8 @@ msgstr "Utgång av konto"
 msgid "Account not available or cannot be edited."
 msgstr "Kontot är inte tillgängligt eller kan inte redigeras."
 
-#: pkg/users/account-details.js:232 pkg/users/accounts-list.js:248
-#: pkg/users/accounts-list.js:397 pkg/users/manifest.json:0
+#: pkg/users/account-details.js:232 pkg/users/accounts-list.js:252
+#: pkg/users/accounts-list.js:470 pkg/users/manifest.json:0
 msgid "Accounts"
 msgstr "Konton"
 
@@ -691,7 +695,7 @@ msgstr "Lägg till $0"
 
 #: pkg/storaged/crypto-keyslots.jsx:417
 msgid "Add Network Bound Disk Encryption"
-msgstr ""
+msgstr "Lägg till nätverksbunden diskkryptering"
 
 #: pkg/networkmanager/network-main.jsx:178
 msgid "Add VLAN"
@@ -778,14 +782,12 @@ msgid "Add zone"
 msgstr "Lägg till zon"
 
 #: pkg/storaged/crypto-keyslots.jsx:370
-#, fuzzy
-#| msgid "Encryption options"
 msgid "Adding \"$0\" to encryption options"
-msgstr "Krypteringsalternativ"
+msgstr "Lägger till \"$0\" till krypteringsalternativ"
 
 #: pkg/storaged/crypto-keyslots.jsx:359
 msgid "Adding \"$0\" to filesystem options"
-msgstr ""
+msgstr "Lägger till \"$0\" till filsystemsalternativ"
 
 #: pkg/networkmanager/network-interface-members.jsx:177
 msgid ""
@@ -813,7 +815,7 @@ msgstr "Lägger till fysisk volym till $target"
 
 #: pkg/storaged/crypto-keyslots.jsx:331
 msgid "Adding rd.neednet=1 to kernel command line"
-msgstr ""
+msgstr "Lägger till rd.neednet=1 till kärnans kommandorad"
 
 #: pkg/networkmanager/network-interface.jsx:317
 msgid "Additional DNS $val"
@@ -864,7 +866,7 @@ msgstr "Adresser"
 msgid "Administration with Cockpit Web Console"
 msgstr "Administration med Cockpits webbkonsol"
 
-#: pkg/shell/superuser.jsx:178 pkg/shell/superuser.jsx:318
+#: pkg/shell/superuser.jsx:180 pkg/shell/superuser.jsx:320
 msgid "Administrative access"
 msgstr "Administrativ tillgång"
 
@@ -964,7 +966,7 @@ msgstr "Program"
 msgid "Applications list"
 msgstr "Programlista"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:177
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:188
 msgid "Apply and reboot"
 msgstr "Verkställ och starta om"
 
@@ -976,7 +978,7 @@ msgstr "Lägg på driftsuppdateringar av kärnan"
 msgid "Apply this solution"
 msgstr "Lägg på denna lösning"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:172
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:183
 msgid "Applying new policy... This may take a few minutes."
 msgstr "Tar ny policy i drift … Detta kan ta några minuter."
 
@@ -1025,10 +1027,8 @@ msgid "At minute"
 msgstr "På minut"
 
 #: pkg/systemd/services/timer-dialog.jsx:263
-#, fuzzy
-#| msgid "Seconds"
 msgid "At second"
-msgstr "Sekunder"
+msgstr "På sekund"
 
 #: pkg/systemd/services/timer-dialog.jsx:192
 msgid "At specific time"
@@ -1042,7 +1042,7 @@ msgstr "Attribut"
 msgid "Audit log"
 msgstr "Granskningslogg"
 
-#: pkg/shell/superuser.jsx:171 pkg/shell/superuser.jsx:208
+#: pkg/shell/superuser.jsx:173 pkg/shell/superuser.jsx:210
 msgid "Authenticate"
 msgstr "Autentisera"
 
@@ -1319,15 +1319,15 @@ msgstr "Hittade inga loggar med dessa filter aktiva."
 #: pkg/systemd/overview-cards/motdCard.jsx:67
 #: pkg/systemd/overview-cards/configurationCard.jsx:280
 #: pkg/systemd/overview-cards/realmd.jsx:420
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:180
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:191
 #: pkg/systemd/reporting.jsx:421 pkg/systemd/services/timer-dialog.jsx:152
 #: pkg/systemd/services/service-details.jsx:79
 #: pkg/systemd/services/service-details.jsx:707
 #: pkg/lib/cockpit-components-dialog.jsx:126
 #: pkg/lib/cockpit-components-shutdown.jsx:187 pkg/tuned/dialog.jsx:311
 #: pkg/apps/utils.jsx:66 pkg/storaged/jobs-panel.jsx:139
-#: pkg/shell/superuser.jsx:174 pkg/shell/superuser.jsx:212
-#: pkg/shell/superuser.jsx:257 pkg/shell/credentials.jsx:316
+#: pkg/shell/superuser.jsx:176 pkg/shell/superuser.jsx:214
+#: pkg/shell/superuser.jsx:259 pkg/shell/credentials.jsx:316
 #: pkg/shell/active-pages-modal.jsx:97 pkg/shell/hosts_dialog.jsx:280
 #: pkg/shell/hosts_dialog.jsx:377 pkg/shell/hosts_dialog.jsx:501
 #: pkg/shell/hosts_dialog.jsx:869 pkg/shell/shell-modals.jsx:114
@@ -1381,7 +1381,7 @@ msgstr "Transport"
 msgid "Change"
 msgstr "Ändra"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:167
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:178
 msgid "Change crypto policy"
 msgstr "Ändra kryptopolicy"
 
@@ -1460,14 +1460,12 @@ msgid "Checking and repairing RAID device $target"
 msgstr "Kontrollerar och reparerar RAID-enhet $target"
 
 #: pkg/storaged/crypto-keyslots.jsx:289
-#, fuzzy
-#| msgid "Checking for package updates..."
 msgid "Checking for $0 package"
-msgstr "Söker efter programuppdateringar..."
+msgstr "Söker efter $0 paket"
 
 #: pkg/storaged/crypto-keyslots.jsx:310
 msgid "Checking for NBDE support in the initrd"
-msgstr ""
+msgstr "Söker efter NBDE-stöd i initrd"
 
 #: pkg/apps/application-list.jsx:123
 msgid "Checking for new applications"
@@ -1514,7 +1512,7 @@ msgstr "Nollställ \"Misslyckad start\""
 msgid "Clear all filters"
 msgstr "Nollställ alla filter"
 
-#: pkg/shell/nav.jsx:145
+#: pkg/shell/nav.jsx:160
 msgid "Clear search"
 msgstr "Nollställ sökning"
 
@@ -1530,9 +1528,9 @@ msgstr "Klientprogramvara"
 #: pkg/systemd/overview-cards/configurationCard.jsx:194
 #: pkg/systemd/overview-cards/realmd.jsx:264
 #: pkg/lib/cockpit-components-modifications.jsx:78
-#: pkg/lib/cockpit-components-terminal.jsx:208 pkg/users/dialog-utils.js:58
+#: pkg/lib/cockpit-components-terminal.jsx:215 pkg/users/dialog-utils.js:58
 #: pkg/apps/utils.jsx:84 pkg/storaged/dialog.jsx:438
-#: pkg/shell/superuser.jsx:182 pkg/shell/superuser.jsx:190
+#: pkg/shell/superuser.jsx:184 pkg/shell/superuser.jsx:192
 #: pkg/shell/credentials.jsx:84 pkg/shell/hosts_dialog.jsx:81
 #: pkg/shell/shell-modals.jsx:170
 msgid "Close"
@@ -1778,7 +1776,7 @@ msgstr "Består av"
 msgid "Contacted domain"
 msgstr "Kontaktade domänen"
 
-#: pkg/shell/nav.jsx:218
+#: pkg/shell/nav.jsx:233
 msgid "Contains:"
 msgstr "Innehåller:"
 
@@ -1845,11 +1843,12 @@ msgstr "Rapportera krascher"
 msgid "Crash system"
 msgstr "Kraschsystem"
 
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:186
-#: pkg/users/account-create-dialog.js:294 pkg/storaged/stratis-panel.jsx:170
-#: pkg/storaged/mdraids-panel.jsx:139 pkg/storaged/content-views.jsx:196
-#: pkg/storaged/content-views.jsx:311 pkg/storaged/content-views.jsx:976
-#: pkg/storaged/vgroups-panel.jsx:89 pkg/storaged/stratis-details.jsx:389
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:187
+#: pkg/users/account-create-dialog.js:287 pkg/users/group-create-dialog.js:148
+#: pkg/storaged/stratis-panel.jsx:170 pkg/storaged/mdraids-panel.jsx:139
+#: pkg/storaged/content-views.jsx:196 pkg/storaged/content-views.jsx:311
+#: pkg/storaged/content-views.jsx:976 pkg/storaged/vgroups-panel.jsx:89
+#: pkg/storaged/stratis-details.jsx:389
 msgid "Create"
 msgstr "Skapa"
 
@@ -1873,7 +1872,7 @@ msgstr "Skapa en ny SSH-nyckel och auktorisera den"
 msgid "Create a snapshot of filesystem $0"
 msgstr "Skapa en ögonblicksbild av filsystem $0"
 
-#: pkg/users/account-create-dialog.js:306
+#: pkg/users/account-create-dialog.js:299
 msgid "Create account with weak password"
 msgstr "Skapa konto med svagt lösenord"
 
@@ -1893,13 +1892,17 @@ msgstr "Skapa den"
 msgid "Create logical volume"
 msgstr "Skapa en logisk volym"
 
-#: pkg/users/account-create-dialog.js:287 pkg/users/accounts-list.js:384
+#: pkg/users/account-create-dialog.js:280 pkg/users/accounts-list.js:457
 msgid "Create new account"
 msgstr "Skapa ett nytt konto"
 
 #: pkg/storaged/stratis-details.jsx:648
 msgid "Create new filesystem"
 msgstr "Skapa nytt filsystem"
+
+#: pkg/users/group-create-dialog.js:141 pkg/users/accounts-list.js:317
+msgid "Create new group"
+msgstr "Skapa en ny grupp"
 
 #: pkg/storaged/content-views.jsx:1006
 msgid "Create new logical volume"
@@ -1984,7 +1987,7 @@ msgstr ""
 msgid "Critical and above"
 msgstr "Kritisk och högre"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:140
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:151
 msgid ""
 "Crypto Policies is a system component that configures the core cryptographic "
 "subsystems, covering the TLS, IPSec, SSH, DNSSec, and Kerberos protocols."
@@ -1993,11 +1996,11 @@ msgstr ""
 "kryptografiska undersystemen, innefattande protokollen TLS, IPSec, SSH, "
 "DNSSec och Kerberos."
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:73
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:80
 msgid "Crypto policy"
 msgstr "Kryptopolicy"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:216
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:227
 msgid "Crypto policy is inconsistent"
 msgstr "Kryptopolicyn är inkonsekvent"
 
@@ -2021,7 +2024,7 @@ msgstr "Aktuell högsta CPU-användning"
 msgid "Currently in use"
 msgstr "Används just nu"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:128
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:139
 msgid "Custom crypto policy"
 msgstr "Anpassad kryptopolicy"
 
@@ -2038,6 +2041,10 @@ msgstr "Egna portar"
 #: pkg/networkmanager/firewall.jsx:829
 msgid "Custom zones"
 msgstr "Egna zoner"
+
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:37
+msgid "DEFAULT with SHA-1 signature verification allowed."
+msgstr "DEFAULT med verifiering av SHA-1-signatur tillåten."
 
 #: pkg/networkmanager/ip-settings.jsx:226
 msgid "DNS"
@@ -2148,7 +2155,7 @@ msgstr "Ta bort"
 msgid "Delete $0"
 msgstr "Ta bort $0"
 
-#: pkg/users/accounts-list.js:101
+#: pkg/users/accounts-list.js:104
 msgid "Delete account"
 msgstr "Ta bort konto"
 
@@ -2156,7 +2163,7 @@ msgstr "Ta bort konto"
 msgid "Delete files"
 msgstr "Ta bort filer"
 
-#: pkg/users/accounts-list.js:60
+#: pkg/users/accounts-list.js:63
 msgid "Delete group"
 msgstr "Ta bort grupp"
 
@@ -2476,7 +2483,7 @@ msgstr "Redigera tjänst"
 msgid "Edit service $0"
 msgstr "Redigera tjänst $0"
 
-#: pkg/users/accounts-list.js:80
+#: pkg/users/accounts-list.js:83
 msgid "Edit user"
 msgstr "Redigera användare"
 
@@ -2529,10 +2536,8 @@ msgid "Enabled"
 msgstr "Aktiverad"
 
 #: pkg/storaged/crypto-keyslots.jsx:378
-#, fuzzy
-#| msgid "Installing $0"
 msgid "Enabling $0"
-msgstr "Installerar $0"
+msgstr "Aktiverar $0"
 
 #: pkg/storaged/stratis-panel.jsx:138
 msgid "Encrypt data"
@@ -2602,7 +2607,7 @@ msgstr "Ange en giltig MAC-adress"
 msgid "Entire subnet"
 msgstr "Hela subnätet"
 
-#: pkg/systemd/logDetails.jsx:187
+#: pkg/systemd/logDetails.jsx:189
 msgid "Entry at $0"
 msgstr "Ingång vid $0"
 
@@ -2711,9 +2716,13 @@ msgstr "Utökad information"
 msgid "Extended partition"
 msgstr "Utökad partition"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:216
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:227
 msgid "FIPS is not properly enabled"
 msgstr "FIPS är inte korrekt aktiverat"
+
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:51
+msgid "FIPS with further Common Criteria restrictions."
+msgstr "FIPS med ytterligare begränsningar av allmänna kriterier."
 
 #: pkg/networkmanager/interfaces.js:753 pkg/storaged/mdraid-details.jsx:111
 msgid "Failed"
@@ -2753,10 +2762,8 @@ msgid "Failed to disable tuned"
 msgstr "Misslyckades att avaktivera tuned"
 
 #: pkg/tuned/dialog.jsx:180
-#, fuzzy
-#| msgid "Failed to disabled tuned profile"
 msgid "Failed to disable tuned profile"
-msgstr "Misslyckades avaktivera en tuned-profil"
+msgstr "Misslyckades med att avaktivera en tuned-profil"
 
 #: pkg/shell/hosts_dialog.jsx:332
 msgid "Failed to edit machine: $0"
@@ -2878,7 +2885,7 @@ msgstr "Version på hårdvaruprogrammet"
 
 #: pkg/storaged/crypto-keyslots.jsx:435
 msgid "Fix NBDE support"
-msgstr ""
+msgstr "Fixa NBDE-stöd"
 
 #: pkg/systemd/terminal.jsx:129 pkg/systemd/terminal.jsx:139
 msgid "Font size"
@@ -2951,7 +2958,7 @@ msgid "From"
 msgstr "Från"
 
 #: pkg/users/account-details.js:256 pkg/users/account-create-dialog.js:40
-#: pkg/users/accounts-list.js:330
+#: pkg/users/accounts-list.js:403
 msgid "Full name"
 msgstr "Fullständigt namn"
 
@@ -2968,7 +2975,7 @@ msgstr "Allmänt"
 msgid "Generated"
 msgstr "Genererad"
 
-#: pkg/systemd/logDetails.jsx:59
+#: pkg/systemd/logDetails.jsx:61
 msgid "Go to $0"
 msgstr "Gå till $0"
 
@@ -2980,16 +2987,16 @@ msgstr "Gå till programmet"
 msgid "Go to now"
 msgstr "Gå till nu"
 
-#: pkg/networkmanager/network-interface.jsx:415 pkg/users/accounts-list.js:333
+#: pkg/networkmanager/network-interface.jsx:415 pkg/users/accounts-list.js:406
 msgid "Group"
 msgstr "Grupp"
 
-#: pkg/users/accounts-list.js:245
+#: pkg/users/accounts-list.js:249
 msgid "Group name"
 msgstr "Gruppnamn"
 
-#: pkg/users/account-details.js:447 pkg/users/accounts-list.js:281
-#: pkg/users/accounts-list.js:285
+#: pkg/users/account-details.js:447 pkg/users/accounts-list.js:333
+#: pkg/users/accounts-list.js:337
 msgid "Groups"
 msgstr "Grupper"
 
@@ -3039,7 +3046,7 @@ msgstr "Hälsa"
 msgid "Hello time $hello_time"
 msgstr "Hälsningstid $hello_time"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:154 pkg/tuned/dialog.jsx:292
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:165 pkg/tuned/dialog.jsx:292
 #: pkg/shell/topnav.jsx:249
 msgid "Help"
 msgstr "Hjälp"
@@ -3081,7 +3088,8 @@ msgid "Hours"
 msgstr "Timmar"
 
 #: pkg/networkmanager/firewall.jsx:691 pkg/systemd/hwinfo.jsx:310
-#: pkg/users/accounts-list.js:246 pkg/users/accounts-list.js:331
+#: pkg/users/group-create-dialog.js:46 pkg/users/accounts-list.js:250
+#: pkg/users/accounts-list.js:404
 msgid "ID"
 msgstr "ID"
 
@@ -3441,11 +3449,11 @@ msgstr "Går med i namnrymden för"
 msgid "Journal"
 msgstr "Journal"
 
-#: pkg/systemd/logDetails.jsx:169
+#: pkg/systemd/logDetails.jsx:171
 msgid "Journal entry"
 msgstr "Journalpost"
 
-#: pkg/systemd/logDetails.jsx:148
+#: pkg/systemd/logDetails.jsx:150
 msgid "Journal entry not found"
 msgstr "Journalposten hittades inte"
 
@@ -3520,6 +3528,10 @@ msgstr "Att ta bort nyckelservern kan förhindra upplåsning av $0."
 msgid "LACP key"
 msgstr "LACP-nyckel"
 
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:39
+msgid "LEGACY with Active Directory interoperability."
+msgstr "LEGACY med Active Directory-interoperabilitet."
+
 #: pkg/storaged/content-views.jsx:463 pkg/storaged/content-views.jsx:480
 msgid "LVM2 member"
 msgstr "LVM2-medlem"
@@ -3544,7 +3556,7 @@ msgstr "Senaste 24 timmarna"
 msgid "Last 7 days"
 msgstr "Senaste 7 dagarna"
 
-#: pkg/users/accounts-list.js:332
+#: pkg/users/accounts-list.js:405
 msgid "Last active"
 msgstr "Senast aktiv"
 
@@ -3565,8 +3577,8 @@ msgid "Last successful login:"
 msgstr "Senaste lyckade inloggning:"
 
 #: pkg/networkmanager/bond.jsx:154
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:47
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:150
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:48
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:161
 #: pkg/lib/cockpit-components-dialog.jsx:214
 #: pkg/lib/cockpit-components-dialog.jsx:221 pkg/tuned/dialog.jsx:288
 msgid "Learn more"
@@ -3594,15 +3606,15 @@ msgstr "Licensierad under GNU LGPL version 2.1"
 msgid "Light"
 msgstr "Ljust"
 
-#: pkg/shell/superuser.jsx:254
+#: pkg/shell/superuser.jsx:256
 msgid "Limit access"
 msgstr "Begränsa tillgång"
 
-#: pkg/shell/superuser.jsx:318
+#: pkg/shell/superuser.jsx:320
 msgid "Limited access"
 msgstr "Begränsad tillgång"
 
-#: pkg/shell/superuser.jsx:271
+#: pkg/shell/superuser.jsx:273
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -3715,10 +3727,10 @@ msgstr "Läser in anpassningar till systemet..."
 msgid "Loading unit failed: $0"
 msgstr "Att läsa in enheter misslyckades: $0"
 
-#: pkg/systemd/logDetails.jsx:175 pkg/systemd/services/services.jsx:777
+#: pkg/systemd/logDetails.jsx:177 pkg/systemd/services/services.jsx:777
 #: pkg/systemd/logsJournal.jsx:268 pkg/kdump/kdump-view.jsx:339
-#: pkg/users/account-details.js:183 pkg/users/accounts-list.js:286
-#: pkg/users/accounts-list.js:307 pkg/users/accounts-list.js:405
+#: pkg/users/account-details.js:183 pkg/users/accounts-list.js:338
+#: pkg/users/accounts-list.js:362 pkg/users/accounts-list.js:478
 #: pkg/storaged/devices.jsx:68 pkg/metrics/metrics.jsx:1004
 #: pkg/metrics/metrics.jsx:1704
 msgid "Loading..."
@@ -3749,7 +3761,7 @@ msgstr "Lås"
 msgid "Lock $0"
 msgstr "Lås $0"
 
-#: pkg/users/accounts-list.js:95
+#: pkg/users/accounts-list.js:98
 msgid "Lock account"
 msgstr "Lås kontot"
 
@@ -3792,11 +3804,11 @@ msgstr "Loggmeddelanden"
 msgid "Log out"
 msgstr "Logga ut"
 
-#: pkg/users/accounts-list.js:89
+#: pkg/users/accounts-list.js:92
 msgid "Log user out"
 msgstr "Logga ut användare"
 
-#: pkg/users/account-details.js:220 pkg/users/accounts-list.js:178
+#: pkg/users/account-details.js:220 pkg/users/accounts-list.js:181
 msgid "Logged in"
 msgstr "Inloggad"
 
@@ -3856,7 +3868,7 @@ msgstr "Logga ut $0"
 msgid "Logout successful"
 msgstr "Utloggningen lyckades"
 
-#: pkg/systemd/logDetails.jsx:198 pkg/systemd/manifest.json:0
+#: pkg/systemd/logDetails.jsx:200 pkg/systemd/manifest.json:0
 msgid "Logs"
 msgstr "Loggar"
 
@@ -4042,7 +4054,7 @@ msgstr "Meddelanden angående detta fel kan finnas i journalen:"
 msgid "Metadata used"
 msgstr "Metadata använt"
 
-#: pkg/shell/superuser.jsx:197
+#: pkg/shell/superuser.jsx:199
 msgid "Method"
 msgstr "Metod"
 
@@ -4075,10 +4087,8 @@ msgid "Minute needs to be a number between 0-59"
 msgstr "Minuterna måste vara ett tal mellan 0-59"
 
 #: pkg/systemd/services/timer-dialog.jsx:246
-#, fuzzy
-#| msgid "Minutes"
 msgid "Minutely"
-msgstr "Minuter"
+msgstr "Minutvis"
 
 #: pkg/systemd/services/timer-dialog.jsx:215
 msgid "Minutes"
@@ -4235,20 +4245,21 @@ msgstr "NTP-server"
 #: pkg/networkmanager/network-main.jsx:199
 #: pkg/networkmanager/dialogs-common.jsx:134 pkg/systemd/hwinfo.jsx:91
 #: pkg/systemd/services/timer-dialog.jsx:158
-#: pkg/users/authorized-keys-panel.js:131 pkg/storaged/lvol-tabs.jsx:48
-#: pkg/storaged/lvol-tabs.jsx:419 pkg/storaged/lvol-tabs.jsx:480
-#: pkg/storaged/lvol-tabs.jsx:538 pkg/storaged/iscsi-panel.jsx:131
-#: pkg/storaged/iscsi-panel.jsx:188 pkg/storaged/vgroup-details.jsx:166
-#: pkg/storaged/stratis-panel.jsx:130 pkg/storaged/part-tab.jsx:40
-#: pkg/storaged/mdraids-panel.jsx:74 pkg/storaged/format-dialog.jsx:213
-#: pkg/storaged/content-views.jsx:182 pkg/storaged/content-views.jsx:307
-#: pkg/storaged/content-views.jsx:754 pkg/storaged/content-views.jsx:886
-#: pkg/storaged/content-views.jsx:1019 pkg/storaged/vgroups-panel.jsx:73
-#: pkg/storaged/fsys-tab.jsx:487 pkg/storaged/fsys-tab.jsx:690
-#: pkg/storaged/crypto-panel.jsx:84 pkg/storaged/stratis-details.jsx:272
-#: pkg/storaged/stratis-details.jsx:360 pkg/storaged/stratis-details.jsx:467
-#: pkg/storaged/stratis-details.jsx:490 pkg/storaged/stratis-details.jsx:654
-#: pkg/storaged/stratis-details.jsx:787 pkg/shell/credentials.jsx:104
+#: pkg/users/authorized-keys-panel.js:131 pkg/users/group-create-dialog.js:37
+#: pkg/storaged/lvol-tabs.jsx:48 pkg/storaged/lvol-tabs.jsx:419
+#: pkg/storaged/lvol-tabs.jsx:480 pkg/storaged/lvol-tabs.jsx:538
+#: pkg/storaged/iscsi-panel.jsx:131 pkg/storaged/iscsi-panel.jsx:188
+#: pkg/storaged/vgroup-details.jsx:166 pkg/storaged/stratis-panel.jsx:130
+#: pkg/storaged/part-tab.jsx:40 pkg/storaged/mdraids-panel.jsx:74
+#: pkg/storaged/format-dialog.jsx:213 pkg/storaged/content-views.jsx:182
+#: pkg/storaged/content-views.jsx:307 pkg/storaged/content-views.jsx:754
+#: pkg/storaged/content-views.jsx:886 pkg/storaged/content-views.jsx:1019
+#: pkg/storaged/vgroups-panel.jsx:73 pkg/storaged/fsys-tab.jsx:487
+#: pkg/storaged/fsys-tab.jsx:690 pkg/storaged/crypto-panel.jsx:84
+#: pkg/storaged/stratis-details.jsx:272 pkg/storaged/stratis-details.jsx:360
+#: pkg/storaged/stratis-details.jsx:467 pkg/storaged/stratis-details.jsx:490
+#: pkg/storaged/stratis-details.jsx:654 pkg/storaged/stratis-details.jsx:787
+#: pkg/shell/credentials.jsx:104
 msgid "Name"
 msgstr "Namn"
 
@@ -4338,7 +4349,7 @@ msgstr "Upphör aldrig konto"
 msgid "Never expire password"
 msgstr "Låt aldrig lösenord gå ut"
 
-#: pkg/users/accounts-list.js:181
+#: pkg/users/accounts-list.js:184
 msgid "Never logged in"
 msgstr "Aldrig inloggad"
 
@@ -4378,6 +4389,10 @@ msgstr "Nästa"
 #: pkg/networkmanager/network-interface.jsx:244 pkg/systemd/reporting.jsx:273
 msgid "No"
 msgstr "Nej"
+
+#: pkg/users/group-create-dialog.js:79
+msgid "No ID specified"
+msgstr "Inget ID angivet"
 
 #: pkg/storaged/nfs-panel.jsx:100
 msgid "No NFS mounts set up"
@@ -4461,6 +4476,10 @@ msgstr "Inga fria nyckelfack"
 msgid "No free space"
 msgstr "Inget ledigt utrymme"
 
+#: pkg/users/group-create-dialog.js:62
+msgid "No group name specified"
+msgstr "Inget gruppnamn angivet"
+
 #: pkg/systemd/overview-cards/configurationCard.jsx:177
 msgid "No host keys found."
 msgstr "Inga värdnycklar hittade."
@@ -4477,7 +4496,7 @@ msgstr "Inget installationspaket hittat för detta program."
 msgid "No keys added"
 msgstr "Inga nycklar tillagda"
 
-#: pkg/systemd/services/service.jsx:93
+#: pkg/systemd/services/service.jsx:95
 msgid "No log entries"
 msgstr "Inga loggposter"
 
@@ -4490,7 +4509,8 @@ msgstr "Inga logiska volymer"
 msgid "No logs found"
 msgstr "Inga loggar hittades"
 
-#: pkg/systemd/services/services-list.jsx:59 pkg/users/accounts-list.js:407
+#: pkg/systemd/services/services-list.jsx:59 pkg/users/accounts-list.js:364
+#: pkg/users/accounts-list.js:480
 msgid "No matching results"
 msgstr "Inga matchande resultat"
 
@@ -4512,11 +4532,11 @@ msgstr ""
 msgid "No partitioning"
 msgstr "Ingen partitionering"
 
-#: pkg/users/account-create-dialog.js:121
+#: pkg/users/account-create-dialog.js:114
 msgid "No real name specified"
 msgstr "Inget verkligt namn angivet"
 
-#: pkg/systemd/logs.jsx:315 pkg/shell/nav.jsx:144
+#: pkg/systemd/logs.jsx:315 pkg/shell/nav.jsx:159
 msgid "No results found"
 msgstr "Inga resultat funna"
 
@@ -4531,7 +4551,7 @@ msgstr ""
 msgid "No rule hits"
 msgstr "Inga regelträffar"
 
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:175
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:176
 #: pkg/lib/credentials.js:191
 msgid "No such file or directory"
 msgstr "Filen eller katalogen finns inte"
@@ -4548,7 +4568,7 @@ msgstr "Inga systemrapporter."
 msgid "No updates"
 msgstr "Inga uppdateringar"
 
-#: pkg/users/account-create-dialog.js:104
+#: pkg/users/account-create-dialog.js:97
 msgid "No user name specified"
 msgstr "Inget användarnamn angivet"
 
@@ -4708,7 +4728,7 @@ msgstr "Endast alfabetet, siffror, :, _, ., @, - är tillåtna"
 msgid "Only emergency"
 msgstr "Endast nödläge"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:40
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:41
 msgid "Only use approved and allowed algorithms when booting in FIPS mode."
 msgstr ""
 "Använd endast godkända och tillåtna algoritmer vid uppstart i FIPS-läge."
@@ -4893,7 +4913,7 @@ msgstr "Lösenfraserna stämmer inte överens"
 
 #: pkg/static/login.html:106 pkg/users/account-details.js:308
 #: pkg/users/account-create-dialog.js:58 pkg/storaged/iscsi-panel.jsx:50
-#: pkg/storaged/iscsi-panel.jsx:160 pkg/shell/superuser.jsx:136
+#: pkg/storaged/iscsi-panel.jsx:160 pkg/shell/superuser.jsx:138
 #: pkg/shell/credentials.jsx:122 pkg/shell/credentials.jsx:265
 #: pkg/shell/credentials.jsx:321 pkg/shell/hosts_dialog.jsx:827
 #: pkg/shell/hosts_dialog.jsx:836
@@ -4908,7 +4928,7 @@ msgstr "Lösenordet har ändrats"
 msgid "Password expiration"
 msgstr "Utgång av lösenord"
 
-#: pkg/users/account-create-dialog.js:221 pkg/users/password-dialogs.js:193
+#: pkg/users/account-create-dialog.js:214 pkg/users/password-dialogs.js:193
 msgid "Password is longer than 256 characters"
 msgstr "Lösenord får inte vara längre än 256 tecken"
 
@@ -4936,7 +4956,7 @@ msgstr "Lösenordstips"
 msgid "Paste"
 msgstr "Klistra in"
 
-#: pkg/lib/cockpit-components-terminal.jsx:201
+#: pkg/lib/cockpit-components-terminal.jsx:208
 msgid "Paste error"
 msgstr "Klistra in fel"
 
@@ -4968,7 +4988,7 @@ msgstr "Sökvägen på servern får inte vara tom."
 msgid "Path on server must start with \"/\"."
 msgstr "Sökvägen på servern måste börja med ”/”."
 
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:162
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:163
 #: pkg/shell/credentials.jsx:175
 msgid "Path to file"
 msgstr "Sökväg till filen"
@@ -5057,7 +5077,7 @@ msgstr "Fästa enheter"
 msgid "Pizza box"
 msgstr "Pizzalåda"
 
-#: pkg/shell/superuser.jsx:135
+#: pkg/shell/superuser.jsx:137
 msgid "Please authenticate to gain administrative access"
 msgstr "Autentisera för att få administrativ åtkomst"
 
@@ -5157,7 +5177,7 @@ msgstr "Prioritet"
 msgid "Priority $priority"
 msgstr "Prioritet $priority"
 
-#: pkg/shell/superuser.jsx:186
+#: pkg/shell/superuser.jsx:188
 msgid "Problem becoming administrator"
 msgstr "Problem med att bli administratör"
 
@@ -5197,7 +5217,7 @@ msgstr "Tidsgränsen överskreds vid fråga via ssh-keygen"
 msgid "Propagates reload to"
 msgstr "Vidarebefordrar omladdning till"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:37
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:52
 msgid ""
 "Protects from anticipated near-term future attacks at the expense of "
 "interoperability."
@@ -5367,7 +5387,7 @@ msgstr ""
 msgid "Real host name must be 64 characters or less"
 msgstr "Det verkliga värdnamnet får bara vara 64 tecken eller mindre"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:177
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:188
 msgid "Reapply and reboot"
 msgstr "Återverkställ och starta om"
 
@@ -5435,10 +5455,8 @@ msgid "Refusing to connect. Hostkey is unknown"
 msgstr "Vägrar att ansluta. Värdnyckeln är okänd"
 
 #: pkg/storaged/crypto-keyslots.jsx:320
-#, fuzzy
-#| msgid "Generating report"
 msgid "Regenerating initrd"
-msgstr "Genererar en rapport"
+msgstr "Regenererar initrd"
 
 #: pkg/packagekit/updates.jsx:1360
 msgid "Register…"
@@ -5775,7 +5793,7 @@ msgstr "Återanvänd befintlig kryptering"
 msgid "Reuse existing encryption ($0)"
 msgstr "Återanvänd befintlig kryptering ($0)"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:222
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:233
 msgid "Review crypto policy"
 msgstr "Granska kryptopolicy"
 
@@ -5953,7 +5971,7 @@ msgstr "Schemalagd omstart till $0"
 msgid "Sealed-case PC"
 msgstr "PC med slutet hölje"
 
-#: pkg/systemd/logs.jsx:406 pkg/shell/nav.jsx:126
+#: pkg/systemd/logs.jsx:406 pkg/shell/nav.jsx:141
 msgid "Search"
 msgstr "Sök"
 
@@ -5961,7 +5979,13 @@ msgstr "Sök"
 msgid "Search domain"
 msgstr "Sökdomäner"
 
-#: pkg/users/accounts-list.js:374
+#: pkg/users/accounts-list.js:307
+#, fuzzy
+#| msgid "Search for name, group or ID"
+msgid "Search for name or ID"
+msgstr "Sök efter namn, grupp eller ID"
+
+#: pkg/users/accounts-list.js:447
 msgid "Search for name, group or ID"
 msgstr "Sök efter namn, grupp eller ID"
 
@@ -6071,12 +6095,12 @@ msgstr "Tjänsten är stoppad"
 msgid "Service is stopping"
 msgstr "Tjänsten stoppas"
 
-#: pkg/systemd/services/service.jsx:93
+#: pkg/systemd/services/service.jsx:95
 msgid "Service logs"
 msgstr "Tjänsteloggar"
 
 #: pkg/systemd/services.html:4 pkg/networkmanager/firewall.jsx:619
-#: pkg/systemd/services/service.jsx:83 pkg/systemd/services/service-tabs.jsx:39
+#: pkg/systemd/services/service.jsx:85 pkg/systemd/services/service-tabs.jsx:39
 #: pkg/systemd/manifest.json:0
 msgid "Services"
 msgstr "Tjänster"
@@ -6561,11 +6585,11 @@ msgstr "Stäng av $0"
 msgid "Switch on $0"
 msgstr "Sätt på $0"
 
-#: pkg/shell/superuser.jsx:145 pkg/shell/superuser.jsx:193
+#: pkg/shell/superuser.jsx:147 pkg/shell/superuser.jsx:195
 msgid "Switch to administrative access"
 msgstr "Byt till administrativ åtkomst"
 
-#: pkg/shell/superuser.jsx:267 pkg/shell/superuser.jsx:334
+#: pkg/shell/superuser.jsx:269 pkg/shell/superuser.jsx:336
 msgid "Switch to limited access"
 msgstr "Byt till begränsad åtkomst"
 
@@ -6604,7 +6628,7 @@ msgid "Synchronizing RAID device $target"
 msgstr "Synkroniserar RAID-enheten $target"
 
 #: pkg/systemd/services/services.jsx:1068 pkg/shell/indexes.jsx:343
-#: pkg/shell/nav.jsx:33
+#: pkg/shell/nav.jsx:48
 msgid "System"
 msgstr "System"
 
@@ -6692,20 +6716,16 @@ msgid "Testing connection"
 msgstr "Testar anslutningen"
 
 #: pkg/storaged/crypto-keyslots.jsx:300
-#, fuzzy
-#| msgid "$0 is not available from any repository."
 msgid "The $0 package is not available from any repository."
-msgstr "$0 är inte tillgängligt från något förråd."
+msgstr "$0 paket är inte tillgängligt från något förråd."
 
 #: pkg/storaged/stratis-panel.jsx:45
 msgid "The $0 package must be installed to create Stratis pools."
 msgstr "Paketet $0 måste installeras för att skapa Stratis-pooler."
 
 #: pkg/storaged/crypto-keyslots.jsx:295
-#, fuzzy
-#| msgid "The $0 package must be installed to create Stratis pools."
 msgid "The $0 package must be installed."
-msgstr "Paketet $0 måste installeras för att skapa Stratis-pooler."
+msgstr "Paketet $0 måste vara installerat."
 
 #: pkg/storaged/content-views.jsx:896
 msgid "The $0 package will be installed to create VDO devices."
@@ -6860,13 +6880,25 @@ msgid_plural "The following services will be restarted:"
 msgstr[0] "Följande tjänst kommer att startas om:"
 msgstr[1] "Följande tjänster kommer att startas om:"
 
-#: pkg/users/account-create-dialog.js:125
+#: pkg/users/account-create-dialog.js:118
 msgid "The full name must not contain colons."
 msgstr "Det fullständiga namnet får inte innehålla kolon."
 
+#: pkg/users/group-create-dialog.js:83
+msgid "The group ID must be positive integer"
+msgstr "Grupp-ID:t måste vara ett positivt heltal"
+
+#: pkg/users/group-create-dialog.js:66
+msgid ""
+"The group name can only consist of letters from a-z, digits, dots, dashes "
+"and underscores"
+msgstr ""
+"Gruppnamnet får endast bestå av bokstäver från a-z, siffror, punkter, "
+"bindestreck och understreck"
+
 #: pkg/storaged/crypto-keyslots.jsx:317
 msgid "The initrd must be regenerated."
-msgstr ""
+msgstr "Initrd måste återskapas."
 
 #: pkg/shell/hosts_dialog.jsx:682
 msgid "The key password can not be empty"
@@ -6928,7 +6960,7 @@ msgstr "Det nya nyckellösenordet får inte vara tomt"
 msgid "The password can not be empty"
 msgstr "Lösenordet får inte vara tomt"
 
-#: pkg/users/account-create-dialog.js:218 pkg/users/password-dialogs.js:190
+#: pkg/users/account-create-dialog.js:211 pkg/users/password-dialogs.js:190
 msgid "The passwords do not match"
 msgstr "Lösenorden stämmer inte överens"
 
@@ -6962,18 +6994,22 @@ msgid ""
 "The system does not currently support unlocking a filesystem with a Tang "
 "keyserver during boot."
 msgstr ""
+"Systemet stöder för närvarande inte upplåsning av ett filsystem med en Tang-"
+"nyckelserver under uppstart."
 
 #: pkg/storaged/crypto-keyslots.jsx:422
 msgid ""
 "The system does not currently support unlocking the root filesystem with a "
 "Tang keyserver."
 msgstr ""
+"Systemet stöder för närvarande inte upplåsning av rotfilsystemet med en Tang-"
+"nyckelserver."
 
 #: pkg/systemd/hwinfo.jsx:72
 msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr "Användaren $0 tillåts inte ändra CPU-säkerhetsbegränsningar"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:76
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:83
 msgid "The user $0 is not permitted to change crypto policies"
 msgstr "Användaren $0 har inte rättighet att ändra kryptopolicyer"
 
@@ -6985,7 +7021,7 @@ msgstr ""
 "Användaren måste logga ut och logga in igen för att den nya konfigurationen "
 "ska träda i kraft."
 
-#: pkg/users/account-create-dialog.js:108
+#: pkg/users/account-create-dialog.js:101
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
@@ -7033,7 +7069,7 @@ msgstr "Det uppstod ett oväntat fel vid anslutning till maskinen."
 
 #: pkg/storaged/crypto-keyslots.jsx:427
 msgid "These additional steps are necessary:"
-msgstr ""
+msgstr "Dessa ytterligare steg är nödvändiga:"
 
 #: pkg/storaged/dialog.jsx:1124
 msgid "These changes will be made:"
@@ -7118,7 +7154,7 @@ msgstr "Detta system använder den rekommenderade profilen"
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "Denna enhet är inte gjord för att aktiveras explicit."
 
-#: pkg/users/account-create-dialog.js:113
+#: pkg/users/account-create-dialog.js:106
 msgid "This user name already exists"
 msgstr "Detta användarnamn finns redan"
 
@@ -7369,7 +7405,7 @@ msgstr "Tuned kör inte"
 msgid "Tuned is off"
 msgstr "Tuned är avslagen"
 
-#: pkg/shell/superuser.jsx:334
+#: pkg/shell/superuser.jsx:336
 msgid "Turn on administrative access"
 msgstr "Aktivera administrativ åtkomst"
 
@@ -7454,8 +7490,8 @@ msgid "Unable to remove mount"
 msgstr "Kan inte ta bort monteringen"
 
 #: pkg/selinux/setroubleshoot-client.js:150
-msgid "Unable to run fix: %0"
-msgstr "Kan inte köra fixen: %0"
+msgid "Unable to run fix: $0"
+msgstr "Kan inte köra fixen: $0"
 
 #: pkg/kdump/kdump-view.jsx:244
 msgid "Unable to save settings"
@@ -7745,7 +7781,7 @@ msgstr "Användarnamn"
 msgid "User name cannot be empty"
 msgstr "Användarnamnet får inte vara tomt"
 
-#: pkg/users/accounts-list.js:329 pkg/storaged/iscsi-panel.jsx:49
+#: pkg/users/accounts-list.js:402 pkg/storaged/iscsi-panel.jsx:49
 #: pkg/storaged/iscsi-panel.jsx:158
 msgid "Username"
 msgstr "Användarnamn"
@@ -8076,11 +8112,11 @@ msgstr "Du har nu administrativ åtkomst."
 msgid "You will be logged out in $0 seconds."
 msgstr "Du kommer att loggas ut om $0 sekunder."
 
-#: pkg/users/accounts-list.js:193
+#: pkg/users/accounts-list.js:196
 msgid "Your account"
 msgstr "Ditt konto"
 
-#: pkg/lib/cockpit-components-terminal.jsx:211
+#: pkg/lib/cockpit-components-terminal.jsx:218
 msgid ""
 "Your browser does not allow paste from the context menu. You can use Shift"
 "+Insert."
@@ -8088,7 +8124,7 @@ msgstr ""
 "Din webbläsare tillåter inte att klistra in från sammanhangsmenyn. Du kan "
 "använda Skift+Insert."
 
-#: pkg/shell/superuser.jsx:272
+#: pkg/shell/superuser.jsx:274
 msgid "Your browser will remember your access level across sessions."
 msgstr "Din webbläsare kommer ihåg din åtkomstnivå över sessioner."
 
@@ -10865,9 +10901,6 @@ msgstr "zon"
 
 #~ msgid "Mount container volumes"
 #~ msgstr "Montera behållarvolymer"
-
-#~ msgid "No alias specified"
-#~ msgstr "Inget alias angivet"
 
 #~ msgid "No container specified"
 #~ msgstr "Ingen behållare angiven"

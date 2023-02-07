@@ -24,7 +24,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-22 02:54+0000\n"
+"POT-Creation-Date: 2023-02-07 02:55+0000\n"
 "PO-Revision-Date: 2022-12-28 12:20+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language-Team: Hebrew <https://translate.fedoraproject.org/projects/cockpit/"
@@ -41,7 +41,7 @@ msgstr ""
 msgid "            Bypass browser check          "
 msgstr "            עקיפת בדיקת דפדפן          "
 
-#: pkg/users/accounts-list.js:247
+#: pkg/users/accounts-list.js:251
 msgid "# of users"
 msgstr "מס׳ משתמשים"
 
@@ -250,7 +250,7 @@ msgstr[1] "חודשיים"
 msgstr[2] "$0 חודשים"
 msgstr[3] "$0 חודשים"
 
-#: pkg/users/accounts-list.js:298
+#: pkg/users/accounts-list.js:350
 msgid "$0 more..."
 msgstr "$0 נוספים…"
 
@@ -359,7 +359,7 @@ msgstr "אזור $0"
 msgid "$0, $1 free"
 msgstr "$0,‏ $1 פנויים"
 
-#: pkg/systemd/logDetails.jsx:181
+#: pkg/systemd/logDetails.jsx:183
 msgid "$0: crash at $1"
 msgstr "$0: קריסה ב־$1"
 
@@ -604,6 +604,12 @@ msgstr "לא מותקנת גרסה תואמת של Cockpit ב־$0."
 msgid "A filesystem with this name exists already in this pool."
 msgstr "כבר קיימת מערכת קבצים בשם הזה במאגר הזה."
 
+#: pkg/users/group-create-dialog.js:71
+#, fuzzy
+#| msgid "A pool with this name exists already."
+msgid "A group with this name already exists"
+msgstr "כבר קיים מאגר בשם הזה."
+
 #: pkg/static/login.html:44
 msgid ""
 "A modern browser is required for security, reliability, and performance."
@@ -686,8 +692,8 @@ msgstr "תפוגת תוקף חשבון"
 msgid "Account not available or cannot be edited."
 msgstr "החשבון לא זמין או שאין אפשרות לערוך אותו."
 
-#: pkg/users/account-details.js:232 pkg/users/accounts-list.js:248
-#: pkg/users/accounts-list.js:397 pkg/users/manifest.json:0
+#: pkg/users/account-details.js:232 pkg/users/accounts-list.js:252
+#: pkg/users/accounts-list.js:470 pkg/users/manifest.json:0
 msgid "Accounts"
 msgstr "חשבונות"
 
@@ -927,7 +933,7 @@ msgstr "כתובות"
 msgid "Administration with Cockpit Web Console"
 msgstr "ניהול עם המסוף המקוון Cockpit"
 
-#: pkg/shell/superuser.jsx:178 pkg/shell/superuser.jsx:318
+#: pkg/shell/superuser.jsx:180 pkg/shell/superuser.jsx:320
 msgid "Administrative access"
 msgstr "גישה ניהולית"
 
@@ -1027,7 +1033,7 @@ msgstr "יישומים"
 msgid "Applications list"
 msgstr "רשימת יישומים"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:177
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:188
 msgid "Apply and reboot"
 msgstr "החלה והפעלה מחדש"
 
@@ -1039,7 +1045,7 @@ msgstr "החלת טלאי ליבה באופן חי"
 msgid "Apply this solution"
 msgstr "החלת הפתרון הזה"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:172
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:183
 msgid "Applying new policy... This may take a few minutes."
 msgstr "המדיניות החדשה חלה… עשוי לארוך מספר דקות."
 
@@ -1107,7 +1113,7 @@ msgstr "מאפיינים"
 msgid "Audit log"
 msgstr "יומן פיקוח"
 
-#: pkg/shell/superuser.jsx:171 pkg/shell/superuser.jsx:208
+#: pkg/shell/superuser.jsx:173 pkg/shell/superuser.jsx:210
 msgid "Authenticate"
 msgstr "אימות"
 
@@ -1381,15 +1387,15 @@ msgstr "לא ניתן למצוא יומנים עם שילוב המסננים ה�
 #: pkg/systemd/overview-cards/motdCard.jsx:67
 #: pkg/systemd/overview-cards/configurationCard.jsx:280
 #: pkg/systemd/overview-cards/realmd.jsx:420
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:180
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:191
 #: pkg/systemd/reporting.jsx:421 pkg/systemd/services/timer-dialog.jsx:152
 #: pkg/systemd/services/service-details.jsx:79
 #: pkg/systemd/services/service-details.jsx:707
 #: pkg/lib/cockpit-components-dialog.jsx:126
 #: pkg/lib/cockpit-components-shutdown.jsx:187 pkg/tuned/dialog.jsx:311
 #: pkg/apps/utils.jsx:66 pkg/storaged/jobs-panel.jsx:139
-#: pkg/shell/superuser.jsx:174 pkg/shell/superuser.jsx:212
-#: pkg/shell/superuser.jsx:257 pkg/shell/credentials.jsx:316
+#: pkg/shell/superuser.jsx:176 pkg/shell/superuser.jsx:214
+#: pkg/shell/superuser.jsx:259 pkg/shell/credentials.jsx:316
 #: pkg/shell/active-pages-modal.jsx:97 pkg/shell/hosts_dialog.jsx:280
 #: pkg/shell/hosts_dialog.jsx:377 pkg/shell/hosts_dialog.jsx:501
 #: pkg/shell/hosts_dialog.jsx:869 pkg/shell/shell-modals.jsx:114
@@ -1442,7 +1448,7 @@ msgstr "ספקית"
 msgid "Change"
 msgstr "החלפה"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:167
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:178
 msgid "Change crypto policy"
 msgstr "החלפת מדיניות קריפטוגרפית"
 
@@ -1572,7 +1578,7 @@ msgstr "לנקות ‚התחלה נכשלה’"
 msgid "Clear all filters"
 msgstr "ניקוי כל המסננים"
 
-#: pkg/shell/nav.jsx:145
+#: pkg/shell/nav.jsx:160
 msgid "Clear search"
 msgstr "ניקוי החיפוש"
 
@@ -1588,9 +1594,9 @@ msgstr "תכנה מצד לקוח"
 #: pkg/systemd/overview-cards/configurationCard.jsx:194
 #: pkg/systemd/overview-cards/realmd.jsx:264
 #: pkg/lib/cockpit-components-modifications.jsx:78
-#: pkg/lib/cockpit-components-terminal.jsx:208 pkg/users/dialog-utils.js:58
+#: pkg/lib/cockpit-components-terminal.jsx:215 pkg/users/dialog-utils.js:58
 #: pkg/apps/utils.jsx:84 pkg/storaged/dialog.jsx:438
-#: pkg/shell/superuser.jsx:182 pkg/shell/superuser.jsx:190
+#: pkg/shell/superuser.jsx:184 pkg/shell/superuser.jsx:192
 #: pkg/shell/credentials.jsx:84 pkg/shell/hosts_dialog.jsx:81
 #: pkg/shell/shell-modals.jsx:170
 msgid "Close"
@@ -1834,7 +1840,7 @@ msgstr "מורכב מ־"
 msgid "Contacted domain"
 msgstr "שם תחום שנוצר אתו קשר"
 
-#: pkg/shell/nav.jsx:218
+#: pkg/shell/nav.jsx:233
 msgid "Contains:"
 msgstr "מכיל:"
 
@@ -1901,11 +1907,12 @@ msgstr "דיווח על קריסות"
 msgid "Crash system"
 msgstr "הקרסת המערכת"
 
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:186
-#: pkg/users/account-create-dialog.js:294 pkg/storaged/stratis-panel.jsx:170
-#: pkg/storaged/mdraids-panel.jsx:139 pkg/storaged/content-views.jsx:196
-#: pkg/storaged/content-views.jsx:311 pkg/storaged/content-views.jsx:976
-#: pkg/storaged/vgroups-panel.jsx:89 pkg/storaged/stratis-details.jsx:389
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:187
+#: pkg/users/account-create-dialog.js:287 pkg/users/group-create-dialog.js:148
+#: pkg/storaged/stratis-panel.jsx:170 pkg/storaged/mdraids-panel.jsx:139
+#: pkg/storaged/content-views.jsx:196 pkg/storaged/content-views.jsx:311
+#: pkg/storaged/content-views.jsx:976 pkg/storaged/vgroups-panel.jsx:89
+#: pkg/storaged/stratis-details.jsx:389
 msgid "Create"
 msgstr "יצירה"
 
@@ -1929,7 +1936,7 @@ msgstr "ליצור מפתח SSH חדש ולאשר אותו"
 msgid "Create a snapshot of filesystem $0"
 msgstr "יצירת תמונת מצב של מערכת הקבצים $0"
 
-#: pkg/users/account-create-dialog.js:306
+#: pkg/users/account-create-dialog.js:299
 msgid "Create account with weak password"
 msgstr "יצירת חשבון עם סיסמה חלשה"
 
@@ -1949,13 +1956,19 @@ msgstr "ליצור אותו"
 msgid "Create logical volume"
 msgstr "יצירת כרך לוגי"
 
-#: pkg/users/account-create-dialog.js:287 pkg/users/accounts-list.js:384
+#: pkg/users/account-create-dialog.js:280 pkg/users/accounts-list.js:457
 msgid "Create new account"
 msgstr "יצירת חשבון חדש"
 
 #: pkg/storaged/stratis-details.jsx:648
 msgid "Create new filesystem"
 msgstr "יצירת מערכת קבצים חדשה"
+
+#: pkg/users/group-create-dialog.js:141 pkg/users/accounts-list.js:317
+#, fuzzy
+#| msgid "Create volume group"
+msgid "Create new group"
+msgstr "יצירת קבוצת כרכים"
 
 #: pkg/storaged/content-views.jsx:1006
 msgid "Create new logical volume"
@@ -2038,7 +2051,7 @@ msgstr "יצירת ה־$0 הזה תקטע את החיבור לשרת ותמנע 
 msgid "Critical and above"
 msgstr "חמור ומעלה"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:140
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:151
 msgid ""
 "Crypto Policies is a system component that configures the core cryptographic "
 "subsystems, covering the TLS, IPSec, SSH, DNSSec, and Kerberos protocols."
@@ -2046,11 +2059,11 @@ msgstr ""
 "ערכות מדיניות קריפטוגרפיות הוא רכיב מערכת שמגדיר את המערכות הקריפטוגרפיות של "
 "הליבה וחולש על פני פרוטוקולי TLS,‏ IPSec,‏ SSH,‏ DNSSec ו־Kerberos."
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:73
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:80
 msgid "Crypto policy"
 msgstr "מדיניות קריפטוגרפית"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:216
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:227
 msgid "Crypto policy is inconsistent"
 msgstr "המדיניות הקרפיטוגרפית אינה אחידה"
 
@@ -2074,7 +2087,7 @@ msgstr "ניצולת מעבד מרבית נוכחית"
 msgid "Currently in use"
 msgstr "בשימוש כרגע"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:128
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:139
 msgid "Custom crypto policy"
 msgstr "מדיניות קריפטוגרפית משלך"
 
@@ -2091,6 +2104,10 @@ msgstr "פתחות מותאמות אישית"
 #: pkg/networkmanager/firewall.jsx:829
 msgid "Custom zones"
 msgstr "אזורים מותאמים אישית"
+
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:37
+msgid "DEFAULT with SHA-1 signature verification allowed."
+msgstr ""
 
 #: pkg/networkmanager/ip-settings.jsx:226
 msgid "DNS"
@@ -2201,7 +2218,7 @@ msgstr "מחיקה"
 msgid "Delete $0"
 msgstr "מחיקת $0"
 
-#: pkg/users/accounts-list.js:101
+#: pkg/users/accounts-list.js:104
 msgid "Delete account"
 msgstr "מחיקת חשבון"
 
@@ -2209,7 +2226,7 @@ msgstr "מחיקת חשבון"
 msgid "Delete files"
 msgstr "מחיקת קבצים"
 
-#: pkg/users/accounts-list.js:60
+#: pkg/users/accounts-list.js:63
 msgid "Delete group"
 msgstr "מחיקת קבוצה"
 
@@ -2529,7 +2546,7 @@ msgstr "עריכת שירות"
 msgid "Edit service $0"
 msgstr "עריכת השירות $0"
 
-#: pkg/users/accounts-list.js:80
+#: pkg/users/accounts-list.js:83
 msgid "Edit user"
 msgstr "עריכת משתמש"
 
@@ -2655,7 +2672,7 @@ msgstr "נא למלא כתובת MAC תקנית"
 msgid "Entire subnet"
 msgstr "כל תת־הרשת"
 
-#: pkg/systemd/logDetails.jsx:187
+#: pkg/systemd/logDetails.jsx:189
 msgid "Entry at $0"
 msgstr "רשומה ב־$0"
 
@@ -2764,9 +2781,13 @@ msgstr "פירוט מורחב"
 msgid "Extended partition"
 msgstr "מחיצה מורחבת"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:216
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:227
 msgid "FIPS is not properly enabled"
 msgstr "FIPS לא מופעל כראוי"
+
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:51
+msgid "FIPS with further Common Criteria restrictions."
+msgstr ""
 
 #: pkg/networkmanager/interfaces.js:753 pkg/storaged/mdraid-details.jsx:111
 msgid "Failed"
@@ -3001,7 +3022,7 @@ msgid "From"
 msgstr "התחלה"
 
 #: pkg/users/account-details.js:256 pkg/users/account-create-dialog.js:40
-#: pkg/users/accounts-list.js:330
+#: pkg/users/accounts-list.js:403
 msgid "Full name"
 msgstr "שם מלא"
 
@@ -3018,7 +3039,7 @@ msgstr "כללי"
 msgid "Generated"
 msgstr "נוצר"
 
-#: pkg/systemd/logDetails.jsx:59
+#: pkg/systemd/logDetails.jsx:61
 msgid "Go to $0"
 msgstr "לעבור אל $0"
 
@@ -3030,16 +3051,16 @@ msgstr "לעבור ליישום"
 msgid "Go to now"
 msgstr "לעבור כעת"
 
-#: pkg/networkmanager/network-interface.jsx:415 pkg/users/accounts-list.js:333
+#: pkg/networkmanager/network-interface.jsx:415 pkg/users/accounts-list.js:406
 msgid "Group"
 msgstr "קבוצה"
 
-#: pkg/users/accounts-list.js:245
+#: pkg/users/accounts-list.js:249
 msgid "Group name"
 msgstr "שם הקבוצה"
 
-#: pkg/users/account-details.js:447 pkg/users/accounts-list.js:281
-#: pkg/users/accounts-list.js:285
+#: pkg/users/account-details.js:447 pkg/users/accounts-list.js:333
+#: pkg/users/accounts-list.js:337
 msgid "Groups"
 msgstr "קבוצות"
 
@@ -3089,7 +3110,7 @@ msgstr "בריאות"
 msgid "Hello time $hello_time"
 msgstr "זמן Hello‏ $hello_time"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:154 pkg/tuned/dialog.jsx:292
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:165 pkg/tuned/dialog.jsx:292
 #: pkg/shell/topnav.jsx:249
 msgid "Help"
 msgstr "עזרה"
@@ -3131,7 +3152,8 @@ msgid "Hours"
 msgstr "שעות"
 
 #: pkg/networkmanager/firewall.jsx:691 pkg/systemd/hwinfo.jsx:310
-#: pkg/users/accounts-list.js:246 pkg/users/accounts-list.js:331
+#: pkg/users/group-create-dialog.js:46 pkg/users/accounts-list.js:250
+#: pkg/users/accounts-list.js:404
 msgid "ID"
 msgstr "מזהה"
 
@@ -3489,11 +3511,11 @@ msgstr "מצטרף למרחב השם של"
 msgid "Journal"
 msgstr "ז׳ורנל"
 
-#: pkg/systemd/logDetails.jsx:169
+#: pkg/systemd/logDetails.jsx:171
 msgid "Journal entry"
 msgstr "רשומת ז׳ורנל"
 
-#: pkg/systemd/logDetails.jsx:148
+#: pkg/systemd/logDetails.jsx:150
 msgid "Journal entry not found"
 msgstr "רשומת הז׳ורנל לא נמצאה"
 
@@ -3566,6 +3588,10 @@ msgstr "הסרת שרת מפתחות עלולה למנוע את שחרור $0."
 msgid "LACP key"
 msgstr "מפתח LACP"
 
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:39
+msgid "LEGACY with Active Directory interoperability."
+msgstr ""
+
 #: pkg/storaged/content-views.jsx:463 pkg/storaged/content-views.jsx:480
 msgid "LVM2 member"
 msgstr "חבר ב־LVM2"
@@ -3590,7 +3616,7 @@ msgstr "24 השעות האחרונות"
 msgid "Last 7 days"
 msgstr "7 הימים האחרונים"
 
-#: pkg/users/accounts-list.js:332
+#: pkg/users/accounts-list.js:405
 msgid "Last active"
 msgstr "פעילות אחרונה"
 
@@ -3611,8 +3637,8 @@ msgid "Last successful login:"
 msgstr "כניסה אחרונה שהצליחה:"
 
 #: pkg/networkmanager/bond.jsx:154
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:47
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:150
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:48
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:161
 #: pkg/lib/cockpit-components-dialog.jsx:214
 #: pkg/lib/cockpit-components-dialog.jsx:221 pkg/tuned/dialog.jsx:288
 msgid "Learn more"
@@ -3640,15 +3666,15 @@ msgstr "בכפוף לרישיון LGPL מבית GNU בגרסה 2.1"
 msgid "Light"
 msgstr "בהירה"
 
-#: pkg/shell/superuser.jsx:254
+#: pkg/shell/superuser.jsx:256
 msgid "Limit access"
 msgstr "הגבלת גישה"
 
-#: pkg/shell/superuser.jsx:318
+#: pkg/shell/superuser.jsx:320
 msgid "Limited access"
 msgstr "גישה מוגבלת"
 
-#: pkg/shell/superuser.jsx:271
+#: pkg/shell/superuser.jsx:273
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -3761,10 +3787,10 @@ msgstr "השינויים למערכת נטענים…"
 msgid "Loading unit failed: $0"
 msgstr "טעינת יחידה נכשלה: $0"
 
-#: pkg/systemd/logDetails.jsx:175 pkg/systemd/services/services.jsx:777
+#: pkg/systemd/logDetails.jsx:177 pkg/systemd/services/services.jsx:777
 #: pkg/systemd/logsJournal.jsx:268 pkg/kdump/kdump-view.jsx:339
-#: pkg/users/account-details.js:183 pkg/users/accounts-list.js:286
-#: pkg/users/accounts-list.js:307 pkg/users/accounts-list.js:405
+#: pkg/users/account-details.js:183 pkg/users/accounts-list.js:338
+#: pkg/users/accounts-list.js:362 pkg/users/accounts-list.js:478
 #: pkg/storaged/devices.jsx:68 pkg/metrics/metrics.jsx:1004
 #: pkg/metrics/metrics.jsx:1704
 msgid "Loading..."
@@ -3795,7 +3821,7 @@ msgstr "נעילה"
 msgid "Lock $0"
 msgstr "נעילת $0"
 
-#: pkg/users/accounts-list.js:95
+#: pkg/users/accounts-list.js:98
 msgid "Lock account"
 msgstr "נעילת חשבון"
 
@@ -3838,11 +3864,11 @@ msgstr "הודעות יומן"
 msgid "Log out"
 msgstr "יציאה"
 
-#: pkg/users/accounts-list.js:89
+#: pkg/users/accounts-list.js:92
 msgid "Log user out"
 msgstr "הוצאת משתמש"
 
-#: pkg/users/account-details.js:220 pkg/users/accounts-list.js:178
+#: pkg/users/account-details.js:220 pkg/users/accounts-list.js:181
 msgid "Logged in"
 msgstr "נכנסת"
 
@@ -3902,7 +3928,7 @@ msgstr "הוצאת $0 מהמערכת"
 msgid "Logout successful"
 msgstr "היציאה הצליחה"
 
-#: pkg/systemd/logDetails.jsx:198 pkg/systemd/manifest.json:0
+#: pkg/systemd/logDetails.jsx:200 pkg/systemd/manifest.json:0
 msgid "Logs"
 msgstr "יומנים"
 
@@ -4085,7 +4111,7 @@ msgstr "ניתן למצוא הודעות שקשורות בכשל בז׳ורנל:
 msgid "Metadata used"
 msgstr "נתוני על בשימוש"
 
-#: pkg/shell/superuser.jsx:197
+#: pkg/shell/superuser.jsx:199
 msgid "Method"
 msgstr "שיטה"
 
@@ -4278,20 +4304,21 @@ msgstr "שרת NTP"
 #: pkg/networkmanager/network-main.jsx:199
 #: pkg/networkmanager/dialogs-common.jsx:134 pkg/systemd/hwinfo.jsx:91
 #: pkg/systemd/services/timer-dialog.jsx:158
-#: pkg/users/authorized-keys-panel.js:131 pkg/storaged/lvol-tabs.jsx:48
-#: pkg/storaged/lvol-tabs.jsx:419 pkg/storaged/lvol-tabs.jsx:480
-#: pkg/storaged/lvol-tabs.jsx:538 pkg/storaged/iscsi-panel.jsx:131
-#: pkg/storaged/iscsi-panel.jsx:188 pkg/storaged/vgroup-details.jsx:166
-#: pkg/storaged/stratis-panel.jsx:130 pkg/storaged/part-tab.jsx:40
-#: pkg/storaged/mdraids-panel.jsx:74 pkg/storaged/format-dialog.jsx:213
-#: pkg/storaged/content-views.jsx:182 pkg/storaged/content-views.jsx:307
-#: pkg/storaged/content-views.jsx:754 pkg/storaged/content-views.jsx:886
-#: pkg/storaged/content-views.jsx:1019 pkg/storaged/vgroups-panel.jsx:73
-#: pkg/storaged/fsys-tab.jsx:487 pkg/storaged/fsys-tab.jsx:690
-#: pkg/storaged/crypto-panel.jsx:84 pkg/storaged/stratis-details.jsx:272
-#: pkg/storaged/stratis-details.jsx:360 pkg/storaged/stratis-details.jsx:467
-#: pkg/storaged/stratis-details.jsx:490 pkg/storaged/stratis-details.jsx:654
-#: pkg/storaged/stratis-details.jsx:787 pkg/shell/credentials.jsx:104
+#: pkg/users/authorized-keys-panel.js:131 pkg/users/group-create-dialog.js:37
+#: pkg/storaged/lvol-tabs.jsx:48 pkg/storaged/lvol-tabs.jsx:419
+#: pkg/storaged/lvol-tabs.jsx:480 pkg/storaged/lvol-tabs.jsx:538
+#: pkg/storaged/iscsi-panel.jsx:131 pkg/storaged/iscsi-panel.jsx:188
+#: pkg/storaged/vgroup-details.jsx:166 pkg/storaged/stratis-panel.jsx:130
+#: pkg/storaged/part-tab.jsx:40 pkg/storaged/mdraids-panel.jsx:74
+#: pkg/storaged/format-dialog.jsx:213 pkg/storaged/content-views.jsx:182
+#: pkg/storaged/content-views.jsx:307 pkg/storaged/content-views.jsx:754
+#: pkg/storaged/content-views.jsx:886 pkg/storaged/content-views.jsx:1019
+#: pkg/storaged/vgroups-panel.jsx:73 pkg/storaged/fsys-tab.jsx:487
+#: pkg/storaged/fsys-tab.jsx:690 pkg/storaged/crypto-panel.jsx:84
+#: pkg/storaged/stratis-details.jsx:272 pkg/storaged/stratis-details.jsx:360
+#: pkg/storaged/stratis-details.jsx:467 pkg/storaged/stratis-details.jsx:490
+#: pkg/storaged/stratis-details.jsx:654 pkg/storaged/stratis-details.jsx:787
+#: pkg/shell/credentials.jsx:104
 msgid "Name"
 msgstr "שם"
 
@@ -4381,7 +4408,7 @@ msgstr "חשבון שתוקפו לא פג"
 msgid "Never expire password"
 msgstr "הסיסמה לא תפוג לעולם"
 
-#: pkg/users/accounts-list.js:181
+#: pkg/users/accounts-list.js:184
 msgid "Never logged in"
 msgstr "מעולם לא נכנס"
 
@@ -4421,6 +4448,12 @@ msgstr "הבא"
 #: pkg/networkmanager/network-interface.jsx:244 pkg/systemd/reporting.jsx:273
 msgid "No"
 msgstr "לא"
+
+#: pkg/users/group-create-dialog.js:79
+#, fuzzy
+#| msgid "No alias specified"
+msgid "No ID specified"
+msgstr "לא מוגדר כינוי"
 
 #: pkg/storaged/nfs-panel.jsx:100
 msgid "No NFS mounts set up"
@@ -4504,6 +4537,12 @@ msgstr "אין משבצות מפתח פנויות"
 msgid "No free space"
 msgstr "אין מקום פנוי"
 
+#: pkg/users/group-create-dialog.js:62
+#, fuzzy
+#| msgid "No real name specified"
+msgid "No group name specified"
+msgstr "לא צוין שם אמתי"
+
 #: pkg/systemd/overview-cards/configurationCard.jsx:177
 msgid "No host keys found."
 msgstr "לא נמצאו מפתחות מארחים."
@@ -4520,7 +4559,7 @@ msgstr "לא נמצאה חבילת התקנה ליישום הזה."
 msgid "No keys added"
 msgstr "לא נוספו מפתחות"
 
-#: pkg/systemd/services/service.jsx:93
+#: pkg/systemd/services/service.jsx:95
 msgid "No log entries"
 msgstr "אין רשומות ביומן"
 
@@ -4533,7 +4572,8 @@ msgstr "אין כרכים לוגיים"
 msgid "No logs found"
 msgstr "לא נמצאו יומנים"
 
-#: pkg/systemd/services/services-list.jsx:59 pkg/users/accounts-list.js:407
+#: pkg/systemd/services/services-list.jsx:59 pkg/users/accounts-list.js:364
+#: pkg/users/accounts-list.js:480
 msgid "No matching results"
 msgstr "אין כללים תואמים"
 
@@ -4555,11 +4595,11 @@ msgstr ""
 msgid "No partitioning"
 msgstr "אין חלוקה למחיצות"
 
-#: pkg/users/account-create-dialog.js:121
+#: pkg/users/account-create-dialog.js:114
 msgid "No real name specified"
 msgstr "לא צוין שם אמתי"
 
-#: pkg/systemd/logs.jsx:315 pkg/shell/nav.jsx:144
+#: pkg/systemd/logs.jsx:315 pkg/shell/nav.jsx:159
 msgid "No results found"
 msgstr "לא נמצאו תוצאות"
 
@@ -4572,7 +4612,7 @@ msgstr "לא נמצאו תוצאות לתנאי המסנן. יש לנקות את
 msgid "No rule hits"
 msgstr "אין פגיעות בכללים"
 
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:175
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:176
 #: pkg/lib/credentials.js:191
 msgid "No such file or directory"
 msgstr "אין קובץ או תיקייה בשם הזה"
@@ -4589,7 +4629,7 @@ msgstr "אין דוחות מערכת."
 msgid "No updates"
 msgstr "אין עדכונים"
 
-#: pkg/users/account-create-dialog.js:104
+#: pkg/users/account-create-dialog.js:97
 msgid "No user name specified"
 msgstr "לא צוין שם משתמש"
 
@@ -4749,7 +4789,7 @@ msgstr "מותר רק אותיות באנגלית, מספרים, : , _ , . , @ ,
 msgid "Only emergency"
 msgstr "חירום בלבד"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:40
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:41
 msgid "Only use approved and allowed algorithms when booting in FIPS mode."
 msgstr "להשתמש רק באלגוריתמים מאושרים ומורשים בעת טעינה במצב FIPS."
 
@@ -4933,7 +4973,7 @@ msgstr "מילות הצופן אינן תואמות"
 
 #: pkg/static/login.html:106 pkg/users/account-details.js:308
 #: pkg/users/account-create-dialog.js:58 pkg/storaged/iscsi-panel.jsx:50
-#: pkg/storaged/iscsi-panel.jsx:160 pkg/shell/superuser.jsx:136
+#: pkg/storaged/iscsi-panel.jsx:160 pkg/shell/superuser.jsx:138
 #: pkg/shell/credentials.jsx:122 pkg/shell/credentials.jsx:265
 #: pkg/shell/credentials.jsx:321 pkg/shell/hosts_dialog.jsx:827
 #: pkg/shell/hosts_dialog.jsx:836
@@ -4948,7 +4988,7 @@ msgstr "הסיסמה הוחלפה בהצלחה"
 msgid "Password expiration"
 msgstr "תפוגת סיסמה"
 
-#: pkg/users/account-create-dialog.js:221 pkg/users/password-dialogs.js:193
+#: pkg/users/account-create-dialog.js:214 pkg/users/password-dialogs.js:193
 msgid "Password is longer than 256 characters"
 msgstr "הסיסמה ארוכה מ־256 תווים"
 
@@ -4976,7 +5016,7 @@ msgstr "רמז לסיסמה"
 msgid "Paste"
 msgstr "הדבקה"
 
-#: pkg/lib/cockpit-components-terminal.jsx:201
+#: pkg/lib/cockpit-components-terminal.jsx:208
 msgid "Paste error"
 msgstr "שגיאת הדבקה"
 
@@ -5008,7 +5048,7 @@ msgstr "הנתיב בשרת לא יכול להיות ריק."
 msgid "Path on server must start with \"/\"."
 msgstr "הנתיב בשרת חייב להתחיל ב־„/”."
 
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:162
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:163
 #: pkg/shell/credentials.jsx:175
 msgid "Path to file"
 msgstr "הנתיב לקובץ"
@@ -5098,7 +5138,7 @@ msgstr "יחידה נעוצה"
 msgid "Pizza box"
 msgstr "קופסת פיצה"
 
-#: pkg/shell/superuser.jsx:135
+#: pkg/shell/superuser.jsx:137
 msgid "Please authenticate to gain administrative access"
 msgstr "נא לעבור אימות כדי לקבל גישת ניהול"
 
@@ -5198,7 +5238,7 @@ msgstr "עדיפות"
 msgid "Priority $priority"
 msgstr "עדיפות $priority"
 
-#: pkg/shell/superuser.jsx:186
+#: pkg/shell/superuser.jsx:188
 msgid "Problem becoming administrator"
 msgstr "תקלה בהעברה לניהול"
 
@@ -5238,7 +5278,7 @@ msgstr "משך הצגת הבקשה דרך ssh-keygen תם"
 msgid "Propagates reload to"
 msgstr "מפיץ רענון אל"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:37
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:52
 msgid ""
 "Protects from anticipated near-term future attacks at the expense of "
 "interoperability."
@@ -5406,7 +5446,7 @@ msgstr ""
 msgid "Real host name must be 64 characters or less"
 msgstr "אורך שם התחום האמתי חייב להיות קצר מ־64 תווים"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:177
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:188
 msgid "Reapply and reboot"
 msgstr "החלה חוזרת והפעלה מחדש"
 
@@ -5811,7 +5851,7 @@ msgstr "שימוש מחדש בהצפנה קיימת"
 msgid "Reuse existing encryption ($0)"
 msgstr "שימוש מחדש בהצפנה קיימת ($0)"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:222
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:233
 msgid "Review crypto policy"
 msgstr "סקירת המדיניות הקריפטוגרפית"
 
@@ -5986,7 +6026,7 @@ msgstr "תוזמנה הפעלה מחדש ל־$0"
 msgid "Sealed-case PC"
 msgstr "מחשב במארז אטום"
 
-#: pkg/systemd/logs.jsx:406 pkg/shell/nav.jsx:126
+#: pkg/systemd/logs.jsx:406 pkg/shell/nav.jsx:141
 msgid "Search"
 msgstr "חיפוש"
 
@@ -5994,7 +6034,13 @@ msgstr "חיפוש"
 msgid "Search domain"
 msgstr "שם תחום לחיפוש"
 
-#: pkg/users/accounts-list.js:374
+#: pkg/users/accounts-list.js:307
+#, fuzzy
+#| msgid "Search for name, group or ID"
+msgid "Search for name or ID"
+msgstr "חיפוש אחר שם, קבוצה או מזהה"
+
+#: pkg/users/accounts-list.js:447
 msgid "Search for name, group or ID"
 msgstr "חיפוש אחר שם, קבוצה או מזהה"
 
@@ -6106,12 +6152,12 @@ msgstr "השירות נעצר"
 msgid "Service is stopping"
 msgstr "השירות בהליכי עצירה"
 
-#: pkg/systemd/services/service.jsx:93
+#: pkg/systemd/services/service.jsx:95
 msgid "Service logs"
 msgstr "יומני שירות"
 
 #: pkg/systemd/services.html:4 pkg/networkmanager/firewall.jsx:619
-#: pkg/systemd/services/service.jsx:83 pkg/systemd/services/service-tabs.jsx:39
+#: pkg/systemd/services/service.jsx:85 pkg/systemd/services/service-tabs.jsx:39
 #: pkg/systemd/manifest.json:0
 msgid "Services"
 msgstr "שירותים"
@@ -6597,11 +6643,11 @@ msgstr "כיבוי $0"
 msgid "Switch on $0"
 msgstr "הדלקת $0"
 
-#: pkg/shell/superuser.jsx:145 pkg/shell/superuser.jsx:193
+#: pkg/shell/superuser.jsx:147 pkg/shell/superuser.jsx:195
 msgid "Switch to administrative access"
 msgstr "מעבר לגישה ניהולית"
 
-#: pkg/shell/superuser.jsx:267 pkg/shell/superuser.jsx:334
+#: pkg/shell/superuser.jsx:269 pkg/shell/superuser.jsx:336
 msgid "Switch to limited access"
 msgstr "העברה לגישה מוגבלת"
 
@@ -6636,7 +6682,7 @@ msgid "Synchronizing RAID device $target"
 msgstr "התקן ה־RAID‏ $target מסונכרן"
 
 #: pkg/systemd/services/services.jsx:1068 pkg/shell/indexes.jsx:343
-#: pkg/shell/nav.jsx:33
+#: pkg/shell/nav.jsx:48
 msgid "System"
 msgstr "מערכת"
 
@@ -6879,9 +6925,27 @@ msgstr[1] "השירותים הבאים יופעלו מחדש:"
 msgstr[2] "השירותים הבאים יופעלו מחדש:"
 msgstr[3] "השירותים הבאים יופעלו מחדש:"
 
-#: pkg/users/account-create-dialog.js:125
+#: pkg/users/account-create-dialog.js:118
 msgid "The full name must not contain colons."
 msgstr "השם המלא לא יכול להכיל נקודתיים."
+
+#: pkg/users/group-create-dialog.js:83
+#, fuzzy
+#| msgid "MTU must be a positive number"
+msgid "The group ID must be positive integer"
+msgstr "MTU חייב להיות מספר חיובי"
+
+#: pkg/users/group-create-dialog.js:66
+#, fuzzy
+#| msgid ""
+#| "The user name can only consist of letters from a-z, digits, dots, dashes "
+#| "and underscores."
+msgid ""
+"The group name can only consist of letters from a-z, digits, dots, dashes "
+"and underscores"
+msgstr ""
+"שם המשתמש יכול להיות מורכב מהתווים a-z, ספרות, נקודות, מינוסים וקווים "
+"תחתונים."
 
 #: pkg/storaged/crypto-keyslots.jsx:317
 msgid "The initrd must be regenerated."
@@ -6947,7 +7011,7 @@ msgstr "סיסמת המפתח החדשה לא יכולה להישאר ריקה"
 msgid "The password can not be empty"
 msgstr "סיסמת המפתח לא יכולה להישאר ריקה"
 
-#: pkg/users/account-create-dialog.js:218 pkg/users/password-dialogs.js:190
+#: pkg/users/account-create-dialog.js:211 pkg/users/password-dialogs.js:190
 msgid "The passwords do not match"
 msgstr "הסיסמאות אינן תואמות"
 
@@ -6988,7 +7052,7 @@ msgstr ""
 msgid "The user $0 is not permitted to change cpu security mitigations"
 msgstr "המשתמש $0 אינו מורשה לשנות את אפחותי אבטחת המעבד"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:76
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:83
 msgid "The user $0 is not permitted to change crypto policies"
 msgstr "המשתמש $0 אינו מורשה להחליף בין ערכות מדיניות קריפטוגרפיות"
 
@@ -6998,7 +7062,7 @@ msgid ""
 "effect."
 msgstr "על המשתמש לצאת ולהיכנס בחזרה למערכת כדי שההגדרות החדשות תיכנסנה לתוקף."
 
-#: pkg/users/account-create-dialog.js:108
+#: pkg/users/account-create-dialog.js:101
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
@@ -7126,7 +7190,7 @@ msgstr "מערכת זו משתמשת בפרופיל המומלץ"
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "יחידה זו לא תוכננה להפעלה באופן מפורש."
 
-#: pkg/users/account-create-dialog.js:113
+#: pkg/users/account-create-dialog.js:106
 msgid "This user name already exists"
 msgstr "שם משתמש זה כבר קיים"
 
@@ -7371,7 +7435,7 @@ msgstr "Tuned אינו מופעל"
 msgid "Tuned is off"
 msgstr "Tuned כבוי"
 
-#: pkg/shell/superuser.jsx:334
+#: pkg/shell/superuser.jsx:336
 msgid "Turn on administrative access"
 msgstr "הפעלת גישה ניהולית"
 
@@ -7455,7 +7519,9 @@ msgid "Unable to remove mount"
 msgstr "לא ניתן להסיר עיגון"
 
 #: pkg/selinux/setroubleshoot-client.js:150
-msgid "Unable to run fix: %0"
+#, fuzzy
+#| msgid "Unable to run fix: %0"
+msgid "Unable to run fix: $0"
 msgstr "לא ניתן להפעיל תיקון: %0"
 
 #: pkg/kdump/kdump-view.jsx:244
@@ -7746,7 +7812,7 @@ msgstr "שם משתמש"
 msgid "User name cannot be empty"
 msgstr "שם המשתמש לא יכול להיות ריק"
 
-#: pkg/users/accounts-list.js:329 pkg/storaged/iscsi-panel.jsx:49
+#: pkg/users/accounts-list.js:402 pkg/storaged/iscsi-panel.jsx:49
 #: pkg/storaged/iscsi-panel.jsx:158
 msgid "Username"
 msgstr "שם משתמש"
@@ -8074,17 +8140,17 @@ msgstr "מעתה יש לך גישה ניהולית."
 msgid "You will be logged out in $0 seconds."
 msgstr "המערכת תוציא אותך בעוד $0 שניות."
 
-#: pkg/users/accounts-list.js:193
+#: pkg/users/accounts-list.js:196
 msgid "Your account"
 msgstr "החשבון שלך"
 
-#: pkg/lib/cockpit-components-terminal.jsx:211
+#: pkg/lib/cockpit-components-terminal.jsx:218
 msgid ""
 "Your browser does not allow paste from the context menu. You can use Shift"
 "+Insert."
 msgstr "הדפדפן שלך לא מרשה להדביק מתפריט ההקשר. אפשר להשתמש ב־Shift+Insert."
 
-#: pkg/shell/superuser.jsx:272
+#: pkg/shell/superuser.jsx:274
 msgid "Your browser will remember your access level across sessions."
 msgstr "הדפדפן שלך יזכור את רמת הגישה שלך בין הפעלות."
 
@@ -11154,9 +11220,6 @@ msgstr "אזור"
 
 #~ msgid "Mount container volumes"
 #~ msgstr "עיגון כרכים של מכולות"
-
-#~ msgid "No alias specified"
-#~ msgstr "לא מוגדר כינוי"
 
 #~ msgid "No container specified"
 #~ msgstr "לא מוגדרת מכולה"

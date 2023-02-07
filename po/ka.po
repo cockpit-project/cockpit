@@ -26,8 +26,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-22 02:54+0000\n"
-"PO-Revision-Date: 2023-01-22 16:20+0000\n"
+"POT-Creation-Date: 2023-02-07 02:55+0000\n"
+"PO-Revision-Date: 2023-02-07 16:24+0000\n"
 "Last-Translator: Temuri Doghonadze <temuri.doghonadze@gmail.com>\n"
 "Language-Team: Georgian <https://translate.fedoraproject.org/projects/"
 "cockpit/main/ka/>\n"
@@ -36,13 +36,13 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1\n"
-"X-Generator: Weblate 4.15.1\n"
+"X-Generator: Weblate 4.15.2\n"
 
 #: pkg/static/login.html:66
 msgid "            Bypass browser check          "
 msgstr "            ბრაუზერის შემოწმების გამოტოვება          "
 
-#: pkg/users/accounts-list.js:247
+#: pkg/users/accounts-list.js:251
 msgid "# of users"
 msgstr "მომხმარებლების #"
 
@@ -225,7 +225,7 @@ msgid_plural "$0 months"
 msgstr[0] "$0 თვე"
 msgstr[1] "თვე: $0"
 
-#: pkg/users/accounts-list.js:298
+#: pkg/users/accounts-list.js:350
 msgid "$0 more..."
 msgstr "კიდევ $0..."
 
@@ -314,7 +314,7 @@ msgstr "$0 ზონა"
 msgid "$0, $1 free"
 msgstr "$0, $1 თავისუფალი"
 
-#: pkg/systemd/logDetails.jsx:181
+#: pkg/systemd/logDetails.jsx:183
 msgid "$0: crash at $1"
 msgstr "$0: ავარია $1-თან"
 
@@ -557,6 +557,10 @@ msgstr "$0-ზე არ აყენია Cockpit-ის თავსება
 msgid "A filesystem with this name exists already in this pool."
 msgstr "ფაილური სისტემა ამ სახელით მითითებულ პულში უკვე არსებობს."
 
+#: pkg/users/group-create-dialog.js:71
+msgid "A group with this name already exists"
+msgstr "ჯგუფი ამ სახელით უკვე არსებობს"
+
 #: pkg/static/login.html:44
 msgid ""
 "A modern browser is required for security, reliability, and performance."
@@ -637,8 +641,8 @@ msgstr "ანგარიშის ვადა"
 msgid "Account not available or cannot be edited."
 msgstr "ანგარიში ხელმიუწვდომელია ან ჩასწორებას არ ექვემდებარება."
 
-#: pkg/users/account-details.js:232 pkg/users/accounts-list.js:248
-#: pkg/users/accounts-list.js:397 pkg/users/manifest.json:0
+#: pkg/users/account-details.js:232 pkg/users/accounts-list.js:252
+#: pkg/users/accounts-list.js:470 pkg/users/manifest.json:0
 msgid "Accounts"
 msgstr "ანგარიშები"
 
@@ -878,7 +882,7 @@ msgstr "მისამართები"
 msgid "Administration with Cockpit Web Console"
 msgstr "Cockput ვებ კონსოლით ადმინისტრირება"
 
-#: pkg/shell/superuser.jsx:178 pkg/shell/superuser.jsx:318
+#: pkg/shell/superuser.jsx:180 pkg/shell/superuser.jsx:320
 msgid "Administrative access"
 msgstr "ადმინისტრატიული წვდომა"
 
@@ -980,7 +984,7 @@ msgstr "აპლიკაციები"
 msgid "Applications list"
 msgstr "აპების სია"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:177
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:188
 msgid "Apply and reboot"
 msgstr "გადატარება და გადატვირთვა"
 
@@ -992,7 +996,7 @@ msgstr "გაშვებული ბირთვის პაჩების 
 msgid "Apply this solution"
 msgstr "ამ გადაწყვეტის გადატარება"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:172
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:183
 msgid "Applying new policy... This may take a few minutes."
 msgstr "ახალი წესების გადატარება... შეიძლება რამდენიმე წუთი დასჭირდეს."
 
@@ -1056,7 +1060,7 @@ msgstr "ატრიბუტები"
 msgid "Audit log"
 msgstr "აუდიტის ჟურნალი"
 
-#: pkg/shell/superuser.jsx:171 pkg/shell/superuser.jsx:208
+#: pkg/shell/superuser.jsx:173 pkg/shell/superuser.jsx:210
 msgid "Authenticate"
 msgstr "ავთენტიკაცია"
 
@@ -1334,15 +1338,15 @@ msgstr ""
 #: pkg/systemd/overview-cards/motdCard.jsx:67
 #: pkg/systemd/overview-cards/configurationCard.jsx:280
 #: pkg/systemd/overview-cards/realmd.jsx:420
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:180
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:191
 #: pkg/systemd/reporting.jsx:421 pkg/systemd/services/timer-dialog.jsx:152
 #: pkg/systemd/services/service-details.jsx:79
 #: pkg/systemd/services/service-details.jsx:707
 #: pkg/lib/cockpit-components-dialog.jsx:126
 #: pkg/lib/cockpit-components-shutdown.jsx:187 pkg/tuned/dialog.jsx:311
 #: pkg/apps/utils.jsx:66 pkg/storaged/jobs-panel.jsx:139
-#: pkg/shell/superuser.jsx:174 pkg/shell/superuser.jsx:212
-#: pkg/shell/superuser.jsx:257 pkg/shell/credentials.jsx:316
+#: pkg/shell/superuser.jsx:176 pkg/shell/superuser.jsx:214
+#: pkg/shell/superuser.jsx:259 pkg/shell/credentials.jsx:316
 #: pkg/shell/active-pages-modal.jsx:97 pkg/shell/hosts_dialog.jsx:280
 #: pkg/shell/hosts_dialog.jsx:377 pkg/shell/hosts_dialog.jsx:501
 #: pkg/shell/hosts_dialog.jsx:869 pkg/shell/shell-modals.jsx:114
@@ -1395,7 +1399,7 @@ msgstr "გადამზიდი"
 msgid "Change"
 msgstr "შეცვლა"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:167
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:178
 msgid "Change crypto policy"
 msgstr "შიფრაციის წესების შეცვლა"
 
@@ -1526,7 +1530,7 @@ msgstr "'გაშვების შეცდომა'-ის გასუფ�
 msgid "Clear all filters"
 msgstr "ყველა ფილტრის გასუფთავება"
 
-#: pkg/shell/nav.jsx:145
+#: pkg/shell/nav.jsx:160
 msgid "Clear search"
 msgstr "ძებნის გასუფთავება"
 
@@ -1542,9 +1546,9 @@ msgstr "კლიენტი პროგრამა"
 #: pkg/systemd/overview-cards/configurationCard.jsx:194
 #: pkg/systemd/overview-cards/realmd.jsx:264
 #: pkg/lib/cockpit-components-modifications.jsx:78
-#: pkg/lib/cockpit-components-terminal.jsx:208 pkg/users/dialog-utils.js:58
+#: pkg/lib/cockpit-components-terminal.jsx:215 pkg/users/dialog-utils.js:58
 #: pkg/apps/utils.jsx:84 pkg/storaged/dialog.jsx:438
-#: pkg/shell/superuser.jsx:182 pkg/shell/superuser.jsx:190
+#: pkg/shell/superuser.jsx:184 pkg/shell/superuser.jsx:192
 #: pkg/shell/credentials.jsx:84 pkg/shell/hosts_dialog.jsx:81
 #: pkg/shell/shell-modals.jsx:170
 msgid "Close"
@@ -1795,7 +1799,7 @@ msgstr "შედგება"
 msgid "Contacted domain"
 msgstr "დომენთან კავშირი წარმატებულია"
 
-#: pkg/shell/nav.jsx:218
+#: pkg/shell/nav.jsx:233
 msgid "Contains:"
 msgstr "შეიცავს:"
 
@@ -1862,11 +1866,12 @@ msgstr "ავარიის ანგარიში"
 msgid "Crash system"
 msgstr "ავარიული სისტემა"
 
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:186
-#: pkg/users/account-create-dialog.js:294 pkg/storaged/stratis-panel.jsx:170
-#: pkg/storaged/mdraids-panel.jsx:139 pkg/storaged/content-views.jsx:196
-#: pkg/storaged/content-views.jsx:311 pkg/storaged/content-views.jsx:976
-#: pkg/storaged/vgroups-panel.jsx:89 pkg/storaged/stratis-details.jsx:389
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:187
+#: pkg/users/account-create-dialog.js:287 pkg/users/group-create-dialog.js:148
+#: pkg/storaged/stratis-panel.jsx:170 pkg/storaged/mdraids-panel.jsx:139
+#: pkg/storaged/content-views.jsx:196 pkg/storaged/content-views.jsx:311
+#: pkg/storaged/content-views.jsx:976 pkg/storaged/vgroups-panel.jsx:89
+#: pkg/storaged/stratis-details.jsx:389
 msgid "Create"
 msgstr "შექმნა"
 
@@ -1890,7 +1895,7 @@ msgstr "შექმენით SSH-ის ახალი გასაღე�
 msgid "Create a snapshot of filesystem $0"
 msgstr "ფაილური სისტემა $0-ის მყისიერი ასლის გადაღება"
 
-#: pkg/users/account-create-dialog.js:306
+#: pkg/users/account-create-dialog.js:299
 msgid "Create account with weak password"
 msgstr "შექმენით ანგარიში სუსტი პაროლით"
 
@@ -1910,13 +1915,17 @@ msgstr "შექმნა"
 msgid "Create logical volume"
 msgstr "ლოგიკური ტომის შექმნა"
 
-#: pkg/users/account-create-dialog.js:287 pkg/users/accounts-list.js:384
+#: pkg/users/account-create-dialog.js:280 pkg/users/accounts-list.js:457
 msgid "Create new account"
 msgstr "ახალი ანგარიშის შექმნა"
 
 #: pkg/storaged/stratis-details.jsx:648
 msgid "Create new filesystem"
 msgstr "ახალი ფაილური სისტემის შექმნა"
+
+#: pkg/users/group-create-dialog.js:141 pkg/users/accounts-list.js:317
+msgid "Create new group"
+msgstr "ახალი ჯგუფის შექმნა"
 
 #: pkg/storaged/content-views.jsx:1006
 msgid "Create new logical volume"
@@ -2001,7 +2010,7 @@ msgstr ""
 msgid "Critical and above"
 msgstr "კრიტიკული და ზემოთ"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:140
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:151
 msgid ""
 "Crypto Policies is a system component that configures the core cryptographic "
 "subsystems, covering the TLS, IPSec, SSH, DNSSec, and Kerberos protocols."
@@ -2010,11 +2019,11 @@ msgstr ""
 "კრიპტოგრაფიული ქვესისტემების, TLS/IPSec/SSH/DNNSEC და kerberos-ის "
 "კონფიგურაციას უზრუნველყოფს."
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:73
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:80
 msgid "Crypto policy"
 msgstr "შიფრაციის წესები"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:216
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:227
 msgid "Crypto policy is inconsistent"
 msgstr "შიფრაციის წესები არამდგრადია"
 
@@ -2038,7 +2047,7 @@ msgstr "CPU-ის მიმდინარე დატვირთვა"
 msgid "Currently in use"
 msgstr "ამჟამად გამოიყენება"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:128
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:139
 msgid "Custom crypto policy"
 msgstr "სიფრაციის წესების მორგება"
 
@@ -2055,6 +2064,10 @@ msgstr "ხელით მითითებული პორტები"
 #: pkg/networkmanager/firewall.jsx:829
 msgid "Custom zones"
 msgstr "ხელით მითითებული ზონები"
+
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:37
+msgid "DEFAULT with SHA-1 signature verification allowed."
+msgstr "DEFAULT-ი SHA-1 ხელმოწერის გადამოწმებით დაშვებულია."
 
 #: pkg/networkmanager/ip-settings.jsx:226
 msgid "DNS"
@@ -2165,7 +2178,7 @@ msgstr "წაშლა"
 msgid "Delete $0"
 msgstr "$0-ის წაშლა"
 
-#: pkg/users/accounts-list.js:101
+#: pkg/users/accounts-list.js:104
 msgid "Delete account"
 msgstr "ანგარიშის წაშლა"
 
@@ -2173,7 +2186,7 @@ msgstr "ანგარიშის წაშლა"
 msgid "Delete files"
 msgstr "ფაილების წაშლა"
 
-#: pkg/users/accounts-list.js:60
+#: pkg/users/accounts-list.js:63
 msgid "Delete group"
 msgstr "ჯგუფის წაშლა"
 
@@ -2496,7 +2509,7 @@ msgstr "სერვისის ჩასწორება"
 msgid "Edit service $0"
 msgstr "სერვისის ჩასწორება: $0"
 
-#: pkg/users/accounts-list.js:80
+#: pkg/users/accounts-list.js:83
 msgid "Edit user"
 msgstr "მომხმარებლის ჩასწორება"
 
@@ -2620,7 +2633,7 @@ msgstr "შეიყვანეთ სწორი MAC მისამართ
 msgid "Entire subnet"
 msgstr "მთელი ქვექსელი"
 
-#: pkg/systemd/logDetails.jsx:187
+#: pkg/systemd/logDetails.jsx:189
 msgid "Entry at $0"
 msgstr "$0-ში ჩაწერა"
 
@@ -2729,9 +2742,13 @@ msgstr "გაფართოებული ინფორმაცია"
 msgid "Extended partition"
 msgstr "გაფართოებული განაყოფი"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:216
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:227
 msgid "FIPS is not properly enabled"
 msgstr "FIPS-ი სწორად არაა ჩართული"
+
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:51
+msgid "FIPS with further Common Criteria restrictions."
+msgstr "FIPS დამატებითი საერთო პირობის შეზღუდვებით."
 
 #: pkg/networkmanager/interfaces.js:753 pkg/storaged/mdraid-details.jsx:111
 msgid "Failed"
@@ -2967,7 +2984,7 @@ msgid "From"
 msgstr "დასაწყისი"
 
 #: pkg/users/account-details.js:256 pkg/users/account-create-dialog.js:40
-#: pkg/users/accounts-list.js:330
+#: pkg/users/accounts-list.js:403
 msgid "Full name"
 msgstr "სრული სახელი"
 
@@ -2984,7 +3001,7 @@ msgstr "საერთო"
 msgid "Generated"
 msgstr "გენერირებული"
 
-#: pkg/systemd/logDetails.jsx:59
+#: pkg/systemd/logDetails.jsx:61
 msgid "Go to $0"
 msgstr "$0-ზე გადასვლა"
 
@@ -2996,16 +3013,16 @@ msgstr "აპლიკაციაზე გადასვლა"
 msgid "Go to now"
 msgstr "ახლავე გადასვლა"
 
-#: pkg/networkmanager/network-interface.jsx:415 pkg/users/accounts-list.js:333
+#: pkg/networkmanager/network-interface.jsx:415 pkg/users/accounts-list.js:406
 msgid "Group"
 msgstr "ჯგუფი"
 
-#: pkg/users/accounts-list.js:245
+#: pkg/users/accounts-list.js:249
 msgid "Group name"
 msgstr "ჯგუფის სახელი"
 
-#: pkg/users/account-details.js:447 pkg/users/accounts-list.js:281
-#: pkg/users/accounts-list.js:285
+#: pkg/users/account-details.js:447 pkg/users/accounts-list.js:333
+#: pkg/users/accounts-list.js:337
 msgid "Groups"
 msgstr "ჯგუფები"
 
@@ -3055,7 +3072,7 @@ msgstr "ჯანმრთელობა"
 msgid "Hello time $hello_time"
 msgstr "მისალმების დრო $hello_time"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:154 pkg/tuned/dialog.jsx:292
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:165 pkg/tuned/dialog.jsx:292
 #: pkg/shell/topnav.jsx:249
 msgid "Help"
 msgstr "დახმარება"
@@ -3097,7 +3114,8 @@ msgid "Hours"
 msgstr "საათი"
 
 #: pkg/networkmanager/firewall.jsx:691 pkg/systemd/hwinfo.jsx:310
-#: pkg/users/accounts-list.js:246 pkg/users/accounts-list.js:331
+#: pkg/users/group-create-dialog.js:46 pkg/users/accounts-list.js:250
+#: pkg/users/accounts-list.js:404
 msgid "ID"
 msgstr "ID"
 
@@ -3455,11 +3473,11 @@ msgstr "ზონაში შეერთება"
 msgid "Journal"
 msgstr "ჟურნალი"
 
-#: pkg/systemd/logDetails.jsx:169
+#: pkg/systemd/logDetails.jsx:171
 msgid "Journal entry"
 msgstr "ჟურნალის ელემენტი"
 
-#: pkg/systemd/logDetails.jsx:148
+#: pkg/systemd/logDetails.jsx:150
 msgid "Journal entry not found"
 msgstr "ჟურნალის ერთეული ნაპოვნი არაა"
 
@@ -3536,6 +3554,10 @@ msgstr ""
 msgid "LACP key"
 msgstr "LACP გასაღები"
 
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:39
+msgid "LEGACY with Active Directory interoperability."
+msgstr "LEGACY-ი Active Directory-სთან სამუშაოდ."
+
 #: pkg/storaged/content-views.jsx:463 pkg/storaged/content-views.jsx:480
 msgid "LVM2 member"
 msgstr "LVM2-ის წევრი"
@@ -3560,7 +3582,7 @@ msgstr "ბოლო 24 საათი"
 msgid "Last 7 days"
 msgstr "ბოლო 7 დღე"
 
-#: pkg/users/accounts-list.js:332
+#: pkg/users/accounts-list.js:405
 msgid "Last active"
 msgstr "ბოლოს აქტიური"
 
@@ -3581,8 +3603,8 @@ msgid "Last successful login:"
 msgstr "ბოლო წარმატებული შესვლა:"
 
 #: pkg/networkmanager/bond.jsx:154
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:47
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:150
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:48
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:161
 #: pkg/lib/cockpit-components-dialog.jsx:214
 #: pkg/lib/cockpit-components-dialog.jsx:221 pkg/tuned/dialog.jsx:288
 msgid "Learn more"
@@ -3610,15 +3632,15 @@ msgstr "ლიცენზირებულია GNU LGPL -ის ვერს
 msgid "Light"
 msgstr "ღია"
 
-#: pkg/shell/superuser.jsx:254
+#: pkg/shell/superuser.jsx:256
 msgid "Limit access"
 msgstr "წვდომის შეზღუდვა"
 
-#: pkg/shell/superuser.jsx:318
+#: pkg/shell/superuser.jsx:320
 msgid "Limited access"
 msgstr "შეზღუდული წვდომა"
 
-#: pkg/shell/superuser.jsx:271
+#: pkg/shell/superuser.jsx:273
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -3731,10 +3753,10 @@ msgstr "სისტემის ცვლილებების ჩატვ�
 msgid "Loading unit failed: $0"
 msgstr "სერვისების ჩატვირთვის შეცდომა: $0"
 
-#: pkg/systemd/logDetails.jsx:175 pkg/systemd/services/services.jsx:777
+#: pkg/systemd/logDetails.jsx:177 pkg/systemd/services/services.jsx:777
 #: pkg/systemd/logsJournal.jsx:268 pkg/kdump/kdump-view.jsx:339
-#: pkg/users/account-details.js:183 pkg/users/accounts-list.js:286
-#: pkg/users/accounts-list.js:307 pkg/users/accounts-list.js:405
+#: pkg/users/account-details.js:183 pkg/users/accounts-list.js:338
+#: pkg/users/accounts-list.js:362 pkg/users/accounts-list.js:478
 #: pkg/storaged/devices.jsx:68 pkg/metrics/metrics.jsx:1004
 #: pkg/metrics/metrics.jsx:1704
 msgid "Loading..."
@@ -3765,7 +3787,7 @@ msgstr "დაკეტვა"
 msgid "Lock $0"
 msgstr "$0-ის დაბლოკვა"
 
-#: pkg/users/accounts-list.js:95
+#: pkg/users/accounts-list.js:98
 msgid "Lock account"
 msgstr "ანგარიშის დაბლოკვა"
 
@@ -3808,11 +3830,11 @@ msgstr "ჟურნალის შეტყობინებები"
 msgid "Log out"
 msgstr "გასვლა"
 
-#: pkg/users/accounts-list.js:89
+#: pkg/users/accounts-list.js:92
 msgid "Log user out"
 msgstr "მომხმარებლის გაგდება"
 
-#: pkg/users/account-details.js:220 pkg/users/accounts-list.js:178
+#: pkg/users/account-details.js:220 pkg/users/accounts-list.js:181
 msgid "Logged in"
 msgstr "შესვლა წარმატებულია"
 
@@ -3872,7 +3894,7 @@ msgstr "$0-ის გაგდება"
 msgid "Logout successful"
 msgstr "გასვლა წარმატებულია"
 
-#: pkg/systemd/logDetails.jsx:198 pkg/systemd/manifest.json:0
+#: pkg/systemd/logDetails.jsx:200 pkg/systemd/manifest.json:0
 msgid "Logs"
 msgstr "ჟურნალი"
 
@@ -4057,7 +4079,7 @@ msgstr "შეტყობინებები ამ შეცდომის 
 msgid "Metadata used"
 msgstr "გამოყენებული მეტამონაცემები"
 
-#: pkg/shell/superuser.jsx:197
+#: pkg/shell/superuser.jsx:199
 msgid "Method"
 msgstr "მეთოდი"
 
@@ -4248,20 +4270,21 @@ msgstr "NTP სერვერი"
 #: pkg/networkmanager/network-main.jsx:199
 #: pkg/networkmanager/dialogs-common.jsx:134 pkg/systemd/hwinfo.jsx:91
 #: pkg/systemd/services/timer-dialog.jsx:158
-#: pkg/users/authorized-keys-panel.js:131 pkg/storaged/lvol-tabs.jsx:48
-#: pkg/storaged/lvol-tabs.jsx:419 pkg/storaged/lvol-tabs.jsx:480
-#: pkg/storaged/lvol-tabs.jsx:538 pkg/storaged/iscsi-panel.jsx:131
-#: pkg/storaged/iscsi-panel.jsx:188 pkg/storaged/vgroup-details.jsx:166
-#: pkg/storaged/stratis-panel.jsx:130 pkg/storaged/part-tab.jsx:40
-#: pkg/storaged/mdraids-panel.jsx:74 pkg/storaged/format-dialog.jsx:213
-#: pkg/storaged/content-views.jsx:182 pkg/storaged/content-views.jsx:307
-#: pkg/storaged/content-views.jsx:754 pkg/storaged/content-views.jsx:886
-#: pkg/storaged/content-views.jsx:1019 pkg/storaged/vgroups-panel.jsx:73
-#: pkg/storaged/fsys-tab.jsx:487 pkg/storaged/fsys-tab.jsx:690
-#: pkg/storaged/crypto-panel.jsx:84 pkg/storaged/stratis-details.jsx:272
-#: pkg/storaged/stratis-details.jsx:360 pkg/storaged/stratis-details.jsx:467
-#: pkg/storaged/stratis-details.jsx:490 pkg/storaged/stratis-details.jsx:654
-#: pkg/storaged/stratis-details.jsx:787 pkg/shell/credentials.jsx:104
+#: pkg/users/authorized-keys-panel.js:131 pkg/users/group-create-dialog.js:37
+#: pkg/storaged/lvol-tabs.jsx:48 pkg/storaged/lvol-tabs.jsx:419
+#: pkg/storaged/lvol-tabs.jsx:480 pkg/storaged/lvol-tabs.jsx:538
+#: pkg/storaged/iscsi-panel.jsx:131 pkg/storaged/iscsi-panel.jsx:188
+#: pkg/storaged/vgroup-details.jsx:166 pkg/storaged/stratis-panel.jsx:130
+#: pkg/storaged/part-tab.jsx:40 pkg/storaged/mdraids-panel.jsx:74
+#: pkg/storaged/format-dialog.jsx:213 pkg/storaged/content-views.jsx:182
+#: pkg/storaged/content-views.jsx:307 pkg/storaged/content-views.jsx:754
+#: pkg/storaged/content-views.jsx:886 pkg/storaged/content-views.jsx:1019
+#: pkg/storaged/vgroups-panel.jsx:73 pkg/storaged/fsys-tab.jsx:487
+#: pkg/storaged/fsys-tab.jsx:690 pkg/storaged/crypto-panel.jsx:84
+#: pkg/storaged/stratis-details.jsx:272 pkg/storaged/stratis-details.jsx:360
+#: pkg/storaged/stratis-details.jsx:467 pkg/storaged/stratis-details.jsx:490
+#: pkg/storaged/stratis-details.jsx:654 pkg/storaged/stratis-details.jsx:787
+#: pkg/shell/credentials.jsx:104
 msgid "Name"
 msgstr "სახელი"
 
@@ -4351,7 +4374,7 @@ msgstr "უვადო ანგარიში"
 msgid "Never expire password"
 msgstr "უვადო პაროლი"
 
-#: pkg/users/accounts-list.js:181
+#: pkg/users/accounts-list.js:184
 msgid "Never logged in"
 msgstr "არასდროს შემოსულა"
 
@@ -4391,6 +4414,10 @@ msgstr "შემდეგი"
 #: pkg/networkmanager/network-interface.jsx:244 pkg/systemd/reporting.jsx:273
 msgid "No"
 msgstr "არა"
+
+#: pkg/users/group-create-dialog.js:79
+msgid "No ID specified"
+msgstr "ID მითითებული არაა"
 
 #: pkg/storaged/nfs-panel.jsx:100
 msgid "No NFS mounts set up"
@@ -4474,6 +4501,10 @@ msgstr "გასაღების თავისუფალი სლოტ�
 msgid "No free space"
 msgstr "თავისუფალი ადგილის გარეშე"
 
+#: pkg/users/group-create-dialog.js:62
+msgid "No group name specified"
+msgstr "ჯგუფის სახელი მითითებული არაა"
+
 #: pkg/systemd/overview-cards/configurationCard.jsx:177
 msgid "No host keys found."
 msgstr "ჰოსტის გასაღებები ნაპოვნი არაა."
@@ -4490,7 +4521,7 @@ msgstr "აპლიკაციის შესაბამისი პაკ�
 msgid "No keys added"
 msgstr "გასაღებები არ დამატებულა"
 
-#: pkg/systemd/services/service.jsx:93
+#: pkg/systemd/services/service.jsx:95
 msgid "No log entries"
 msgstr "ჟურნალის ცარიელია"
 
@@ -4503,7 +4534,8 @@ msgstr "ლოგიკური ტომების გარეშე"
 msgid "No logs found"
 msgstr "ჟურნალი ცარიელია"
 
-#: pkg/systemd/services/services-list.jsx:59 pkg/users/accounts-list.js:407
+#: pkg/systemd/services/services-list.jsx:59 pkg/users/accounts-list.js:364
+#: pkg/users/accounts-list.js:480
 msgid "No matching results"
 msgstr "პასუხები არაა"
 
@@ -4525,11 +4557,11 @@ msgstr ""
 msgid "No partitioning"
 msgstr "დანაყოფების გარეშე"
 
-#: pkg/users/account-create-dialog.js:121
+#: pkg/users/account-create-dialog.js:114
 msgid "No real name specified"
 msgstr "რეალური სახელი მითითებული არაა"
 
-#: pkg/systemd/logs.jsx:315 pkg/shell/nav.jsx:144
+#: pkg/systemd/logs.jsx:315 pkg/shell/nav.jsx:159
 msgid "No results found"
 msgstr "შედეგები ნაპოვნი არაა"
 
@@ -4543,7 +4575,7 @@ msgstr ""
 msgid "No rule hits"
 msgstr "არ მოხვდა წესებში"
 
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:175
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:176
 #: pkg/lib/credentials.js:191
 msgid "No such file or directory"
 msgstr "ფაილი ან საქაღალდე არ არსებობს"
@@ -4560,7 +4592,7 @@ msgstr "სისტემის ანგარიშების გარე�
 msgid "No updates"
 msgstr "განახლებების გარეშე"
 
-#: pkg/users/account-create-dialog.js:104
+#: pkg/users/account-create-dialog.js:97
 msgid "No user name specified"
 msgstr "მომხმარებელი მითითებული არაა"
 
@@ -4720,7 +4752,7 @@ msgstr "დაშვებულია მხოლოდ ლათინურ�
 msgid "Only emergency"
 msgstr "მხოლოდ გადაუდებელ შემთხვევაში"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:40
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:41
 msgid "Only use approved and allowed algorithms when booting in FIPS mode."
 msgstr ""
 "FIPS რეჟიმში ჩატვირთვისას მხოლოდ დადასტურებული ალგორითმების გამოყენება."
@@ -4905,7 +4937,7 @@ msgstr "საკვანძო ფრაზები ერთმანეთ�
 
 #: pkg/static/login.html:106 pkg/users/account-details.js:308
 #: pkg/users/account-create-dialog.js:58 pkg/storaged/iscsi-panel.jsx:50
-#: pkg/storaged/iscsi-panel.jsx:160 pkg/shell/superuser.jsx:136
+#: pkg/storaged/iscsi-panel.jsx:160 pkg/shell/superuser.jsx:138
 #: pkg/shell/credentials.jsx:122 pkg/shell/credentials.jsx:265
 #: pkg/shell/credentials.jsx:321 pkg/shell/hosts_dialog.jsx:827
 #: pkg/shell/hosts_dialog.jsx:836
@@ -4920,7 +4952,7 @@ msgstr "პაროლი წარმატებით შეიცვალ�
 msgid "Password expiration"
 msgstr "პაროლის ვადა"
 
-#: pkg/users/account-create-dialog.js:221 pkg/users/password-dialogs.js:193
+#: pkg/users/account-create-dialog.js:214 pkg/users/password-dialogs.js:193
 msgid "Password is longer than 256 characters"
 msgstr "პაროლი 256 სიმბოლოზე გრძელია"
 
@@ -4948,7 +4980,7 @@ msgstr "პაროლის მინიშნება"
 msgid "Paste"
 msgstr "ჩასმა"
 
-#: pkg/lib/cockpit-components-terminal.jsx:201
+#: pkg/lib/cockpit-components-terminal.jsx:208
 msgid "Paste error"
 msgstr "ჩასმის შეცდომა"
 
@@ -4980,7 +5012,7 @@ msgstr "სერვერზე ბილიკის ველი არ შ�
 msgid "Path on server must start with \"/\"."
 msgstr "ბილიკი სერვერზე უნდა იწყებოდეს სიმბოლოთი \"/\"."
 
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:162
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:163
 #: pkg/shell/credentials.jsx:175
 msgid "Path to file"
 msgstr "ბილიკი ფაილამდე"
@@ -5070,7 +5102,7 @@ msgstr "მიჭიკარტებული"
 msgid "Pizza box"
 msgstr "პიცისყუთი"
 
-#: pkg/shell/superuser.jsx:135
+#: pkg/shell/superuser.jsx:137
 msgid "Please authenticate to gain administrative access"
 msgstr "ადმინისტრატორი წვდომის მისაღებად გთხოვთ გაიაროთ ავთენტიკაცია"
 
@@ -5170,7 +5202,7 @@ msgstr "პრიორიტეტი"
 msgid "Priority $priority"
 msgstr "$priority პრიორიტეტი"
 
-#: pkg/shell/superuser.jsx:186
+#: pkg/shell/superuser.jsx:188
 msgid "Problem becoming administrator"
 msgstr "ადმინისტრატორად გახდომის შეცდომა"
 
@@ -5210,7 +5242,7 @@ msgstr "მოთხოვნას ssh-keygen-ის გავლით დრ�
 msgid "Propagates reload to"
 msgstr "გადატვირთვა გავრცელდება"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:37
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:52
 msgid ""
 "Protects from anticipated near-term future attacks at the expense of "
 "interoperability."
@@ -5379,7 +5411,7 @@ msgstr ""
 msgid "Real host name must be 64 characters or less"
 msgstr "ჯოსტის რეალური სახელი 64 სიმბოლოზე დიდი არ უნდა იყოს"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:177
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:188
 msgid "Reapply and reboot"
 msgstr "თავიდან გადატარება და გადატვირთვა"
 
@@ -5785,7 +5817,7 @@ msgstr "არსებული დაშიფვრის გამოყე�
 msgid "Reuse existing encryption ($0)"
 msgstr "არსებული დაშიფვრის ($0) გამოყენება"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:222
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:233
 msgid "Review crypto policy"
 msgstr "შიფრაციის წესების გადახედვა"
 
@@ -5965,7 +5997,7 @@ msgstr "გადატვირთვის დროა $0"
 msgid "Sealed-case PC"
 msgstr "დალუქული PC"
 
-#: pkg/systemd/logs.jsx:406 pkg/shell/nav.jsx:126
+#: pkg/systemd/logs.jsx:406 pkg/shell/nav.jsx:141
 msgid "Search"
 msgstr "ძებნა"
 
@@ -5973,7 +6005,11 @@ msgstr "ძებნა"
 msgid "Search domain"
 msgstr "ძებნის დომენი"
 
-#: pkg/users/accounts-list.js:374
+#: pkg/users/accounts-list.js:307
+msgid "Search for name or ID"
+msgstr "სახელით ან ID-ით ძებნა"
+
+#: pkg/users/accounts-list.js:447
 msgid "Search for name, group or ID"
 msgstr "სახელით, ჯგუფით ან ID-ით ძებნა"
 
@@ -6083,12 +6119,12 @@ msgstr "სერვისი გაჩერებულია"
 msgid "Service is stopping"
 msgstr "სერვისი ჩერდება"
 
-#: pkg/systemd/services/service.jsx:93
+#: pkg/systemd/services/service.jsx:95
 msgid "Service logs"
 msgstr "სერვერის ჟურნალი"
 
 #: pkg/systemd/services.html:4 pkg/networkmanager/firewall.jsx:619
-#: pkg/systemd/services/service.jsx:83 pkg/systemd/services/service-tabs.jsx:39
+#: pkg/systemd/services/service.jsx:85 pkg/systemd/services/service-tabs.jsx:39
 #: pkg/systemd/manifest.json:0
 msgid "Services"
 msgstr "სერვისები"
@@ -6574,11 +6610,11 @@ msgstr "$0-ის გამორთვა"
 msgid "Switch on $0"
 msgstr "$0-ის ჩართვა"
 
-#: pkg/shell/superuser.jsx:145 pkg/shell/superuser.jsx:193
+#: pkg/shell/superuser.jsx:147 pkg/shell/superuser.jsx:195
 msgid "Switch to administrative access"
 msgstr "ადმინისტრატორის წვდომაზე გადართვა"
 
-#: pkg/shell/superuser.jsx:267 pkg/shell/superuser.jsx:334
+#: pkg/shell/superuser.jsx:269 pkg/shell/superuser.jsx:336
 msgid "Switch to limited access"
 msgstr "შეზღუდულ წვდომებზე გადართვა"
 
@@ -6617,7 +6653,7 @@ msgid "Synchronizing RAID device $target"
 msgstr "RAID მოწყობილობა $target-ის სინქრონიზაცია"
 
 #: pkg/systemd/services/services.jsx:1068 pkg/shell/indexes.jsx:343
-#: pkg/shell/nav.jsx:33
+#: pkg/shell/nav.jsx:48
 msgid "System"
 msgstr "სისტემა"
 
@@ -6866,9 +6902,21 @@ msgid_plural "The following services will be restarted:"
 msgstr[0] "დარესტარტდება შემდეგი სერვისი:"
 msgstr[1] "დარესტარტდება შემდეგი სერვისები:"
 
-#: pkg/users/account-create-dialog.js:125
+#: pkg/users/account-create-dialog.js:118
 msgid "The full name must not contain colons."
 msgstr "სრული სახელი ორწერტილებს არ უნდა შეიცავდეს."
+
+#: pkg/users/group-create-dialog.js:83
+msgid "The group ID must be positive integer"
+msgstr "ჯგუფის ID დადებითი რიცხვი უნდა იყოს"
+
+#: pkg/users/group-create-dialog.js:66
+msgid ""
+"The group name can only consist of letters from a-z, digits, dots, dashes "
+"and underscores"
+msgstr ""
+"ჯგუფის სახელი შეიძლება მხოლოდ შეიცავდეს a-z სიმბოლოებს, ციფრებს, წერტილებს, "
+"ტირეებს და ქვედა ტირეებს"
 
 #: pkg/storaged/crypto-keyslots.jsx:317
 msgid "The initrd must be regenerated."
@@ -6934,7 +6982,7 @@ msgstr "გასაღების ახალი საკვანძო ს
 msgid "The password can not be empty"
 msgstr "პაროლი არ შეიძლება ცარიელი იყოს"
 
-#: pkg/users/account-create-dialog.js:218 pkg/users/password-dialogs.js:190
+#: pkg/users/account-create-dialog.js:211 pkg/users/password-dialogs.js:190
 msgid "The passwords do not match"
 msgstr "პაროლები არ ემთხვევა"
 
@@ -6983,7 +7031,7 @@ msgstr ""
 "მომხმარებელს '$0' არ აქვს უფლება შეცვალოს პროცესორის უსაფრთხოების პროგრამული "
 "გადაწყვეტილების პარამეტრები"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:76
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:83
 msgid "The user $0 is not permitted to change crypto policies"
 msgstr "მომხმარებელს '$0' შიფრაციის წესების შეცვლის უფლება არ აქვს"
 
@@ -6995,7 +7043,7 @@ msgstr ""
 "ახალი კონფიგურაციის სრულად გამოსაყენებლად მომხმარებელი სისტემაში თავიდან "
 "უნდა შევიდეს."
 
-#: pkg/users/account-create-dialog.js:108
+#: pkg/users/account-create-dialog.js:101
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
@@ -7127,7 +7175,7 @@ msgstr "ეს სისტემა რეკომენდებულ პრ
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "ერთეული პირდაპირი ჩართვისთვის განკუთვნილი არაა."
 
-#: pkg/users/account-create-dialog.js:113
+#: pkg/users/account-create-dialog.js:106
 msgid "This user name already exists"
 msgstr "მომხმარებლის სახელი უკვე არსებობს"
 
@@ -7374,7 +7422,7 @@ msgstr "Tuned-ი გაშვებული არაა"
 msgid "Tuned is off"
 msgstr "Tuned გამორთულია"
 
-#: pkg/shell/superuser.jsx:334
+#: pkg/shell/superuser.jsx:336
 msgid "Turn on administrative access"
 msgstr "ადმინისტრატორის წვდომების ჩართვა"
 
@@ -7458,8 +7506,8 @@ msgid "Unable to remove mount"
 msgstr "მიმაგრების მოხსნის შეცდომა"
 
 #: pkg/selinux/setroubleshoot-client.js:150
-msgid "Unable to run fix: %0"
-msgstr "პაჩის გაშვების შეცდომა: %0"
+msgid "Unable to run fix: $0"
+msgstr "პაჩის გაშვების შეცდომა: $0"
 
 #: pkg/kdump/kdump-view.jsx:244
 msgid "Unable to save settings"
@@ -7750,7 +7798,7 @@ msgstr "მომხმარებლის სახელი"
 msgid "User name cannot be empty"
 msgstr "მომხმარებლის სახელი ცარიელი არ შეიძლება იყოს"
 
-#: pkg/users/accounts-list.js:329 pkg/storaged/iscsi-panel.jsx:49
+#: pkg/users/accounts-list.js:402 pkg/storaged/iscsi-panel.jsx:49
 #: pkg/storaged/iscsi-panel.jsx:158
 msgid "Username"
 msgstr "მომხმარებლის სახელი"
@@ -8080,11 +8128,11 @@ msgstr "ახლა გაქვთ ადმინისტრატორი�
 msgid "You will be logged out in $0 seconds."
 msgstr "გახვალთ $0 წამში."
 
-#: pkg/users/accounts-list.js:193
+#: pkg/users/accounts-list.js:196
 msgid "Your account"
 msgstr "თქვენი ანგარიში"
 
-#: pkg/lib/cockpit-components-terminal.jsx:211
+#: pkg/lib/cockpit-components-terminal.jsx:218
 msgid ""
 "Your browser does not allow paste from the context menu. You can use Shift"
 "+Insert."
@@ -8092,7 +8140,7 @@ msgstr ""
 "თქვენს ბრაუზერს არ გააჩნია კონტექსტური მენიუდან ჩასმის მხარდაჭერა. სცადეთ "
 "დააჭიროთ Shift+Insert-ს."
 
-#: pkg/shell/superuser.jsx:272
+#: pkg/shell/superuser.jsx:274
 msgid "Your browser will remember your access level across sessions."
 msgstr "თქვენი ბრაუზერი თქვენი წვდომის დონეებს სესიებს შორისაც დაიმახსოვრებს."
 

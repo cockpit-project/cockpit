@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-22 02:54+0000\n"
-"PO-Revision-Date: 2023-01-18 17:20+0000\n"
+"POT-Creation-Date: 2023-02-07 02:55+0000\n"
+"PO-Revision-Date: 2023-02-04 10:19+0000\n"
 "Last-Translator: Burak Yavuz <hitowerdigit@hotmail.com>\n"
 "Language-Team: Turkish <https://translate.fedoraproject.org/projects/cockpit/"
 "main/tr/>\n"
@@ -20,13 +20,13 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n>1)\n"
-"X-Generator: Weblate 4.15\n"
+"X-Generator: Weblate 4.15.2\n"
 
 #: pkg/static/login.html:66
 msgid "            Bypass browser check          "
 msgstr "            Tarayıcı denetimini atla          "
 
-#: pkg/users/accounts-list.js:247
+#: pkg/users/accounts-list.js:251
 msgid "# of users"
 msgstr "Kullanıcı sayısı"
 
@@ -209,7 +209,7 @@ msgid_plural "$0 months"
 msgstr[0] "$0 ay"
 msgstr[1] "$0 ay"
 
-#: pkg/users/accounts-list.js:298
+#: pkg/users/accounts-list.js:350
 msgid "$0 more..."
 msgstr "$0 daha..."
 
@@ -298,7 +298,7 @@ msgstr "$0 bölgesi"
 msgid "$0, $1 free"
 msgstr "$0, $1 boş"
 
-#: pkg/systemd/logDetails.jsx:181
+#: pkg/systemd/logDetails.jsx:183
 msgid "$0: crash at $1"
 msgstr "$0: $1 tarihinde çökme"
 
@@ -541,6 +541,10 @@ msgstr "$0 üzerinde uyumlu bir Cockpit sürümü yüklü değil."
 msgid "A filesystem with this name exists already in this pool."
 msgstr "Bu havuzda bu adda bir dosya sistemi zaten var."
 
+#: pkg/users/group-create-dialog.js:71
+msgid "A group with this name already exists"
+msgstr "Bu ada sahip bir grup zaten var"
+
 #: pkg/static/login.html:44
 msgid ""
 "A modern browser is required for security, reliability, and performance."
@@ -630,8 +634,8 @@ msgstr "Hesap süresinin dolması"
 msgid "Account not available or cannot be edited."
 msgstr "Hesap kullanılabilir değil ya da düzenlenemez."
 
-#: pkg/users/account-details.js:232 pkg/users/accounts-list.js:248
-#: pkg/users/accounts-list.js:397 pkg/users/manifest.json:0
+#: pkg/users/account-details.js:232 pkg/users/accounts-list.js:252
+#: pkg/users/accounts-list.js:470 pkg/users/manifest.json:0
 msgid "Accounts"
 msgstr "Hesaplar"
 
@@ -872,7 +876,7 @@ msgstr "Adresler"
 msgid "Administration with Cockpit Web Console"
 msgstr "Cockpit Web Konsolu ile Yönetim"
 
-#: pkg/shell/superuser.jsx:178 pkg/shell/superuser.jsx:318
+#: pkg/shell/superuser.jsx:180 pkg/shell/superuser.jsx:320
 msgid "Administrative access"
 msgstr "Yönetimsel erişim"
 
@@ -974,7 +978,7 @@ msgstr "Uygulamalar"
 msgid "Applications list"
 msgstr "Uygulamalar listesi"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:177
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:188
 msgid "Apply and reboot"
 msgstr "Uygula ve yeniden başlat"
 
@@ -986,7 +990,7 @@ msgstr "Çekirdek canlı yamalarını uygula"
 msgid "Apply this solution"
 msgstr "Bu çözümü uygula"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:172
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:183
 msgid "Applying new policy... This may take a few minutes."
 msgstr "Yeni ilke uygulanıyor... Bu işlem birkaç dakika sürebilir."
 
@@ -1050,7 +1054,7 @@ msgstr "Öznitelikler"
 msgid "Audit log"
 msgstr "Denetim günlüğü"
 
-#: pkg/shell/superuser.jsx:171 pkg/shell/superuser.jsx:208
+#: pkg/shell/superuser.jsx:173 pkg/shell/superuser.jsx:210
 msgid "Authenticate"
 msgstr "Kimlik doğrula"
 
@@ -1328,15 +1332,15 @@ msgstr ""
 #: pkg/systemd/overview-cards/motdCard.jsx:67
 #: pkg/systemd/overview-cards/configurationCard.jsx:280
 #: pkg/systemd/overview-cards/realmd.jsx:420
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:180
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:191
 #: pkg/systemd/reporting.jsx:421 pkg/systemd/services/timer-dialog.jsx:152
 #: pkg/systemd/services/service-details.jsx:79
 #: pkg/systemd/services/service-details.jsx:707
 #: pkg/lib/cockpit-components-dialog.jsx:126
 #: pkg/lib/cockpit-components-shutdown.jsx:187 pkg/tuned/dialog.jsx:311
 #: pkg/apps/utils.jsx:66 pkg/storaged/jobs-panel.jsx:139
-#: pkg/shell/superuser.jsx:174 pkg/shell/superuser.jsx:212
-#: pkg/shell/superuser.jsx:257 pkg/shell/credentials.jsx:316
+#: pkg/shell/superuser.jsx:176 pkg/shell/superuser.jsx:214
+#: pkg/shell/superuser.jsx:259 pkg/shell/credentials.jsx:316
 #: pkg/shell/active-pages-modal.jsx:97 pkg/shell/hosts_dialog.jsx:280
 #: pkg/shell/hosts_dialog.jsx:377 pkg/shell/hosts_dialog.jsx:501
 #: pkg/shell/hosts_dialog.jsx:869 pkg/shell/shell-modals.jsx:114
@@ -1389,7 +1393,7 @@ msgstr "Taşıyıcı"
 msgid "Change"
 msgstr "Değiştir"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:167
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:178
 msgid "Change crypto policy"
 msgstr "Şifreleme ilkesini değiştir"
 
@@ -1520,7 +1524,7 @@ msgstr "'Başlatılamadı' hatasını temizle"
 msgid "Clear all filters"
 msgstr "Tüm süzgeçleri temizle"
 
-#: pkg/shell/nav.jsx:145
+#: pkg/shell/nav.jsx:160
 msgid "Clear search"
 msgstr "Aramayı temizle"
 
@@ -1536,9 +1540,9 @@ msgstr "İstemci yazılımı"
 #: pkg/systemd/overview-cards/configurationCard.jsx:194
 #: pkg/systemd/overview-cards/realmd.jsx:264
 #: pkg/lib/cockpit-components-modifications.jsx:78
-#: pkg/lib/cockpit-components-terminal.jsx:208 pkg/users/dialog-utils.js:58
+#: pkg/lib/cockpit-components-terminal.jsx:215 pkg/users/dialog-utils.js:58
 #: pkg/apps/utils.jsx:84 pkg/storaged/dialog.jsx:438
-#: pkg/shell/superuser.jsx:182 pkg/shell/superuser.jsx:190
+#: pkg/shell/superuser.jsx:184 pkg/shell/superuser.jsx:192
 #: pkg/shell/credentials.jsx:84 pkg/shell/hosts_dialog.jsx:81
 #: pkg/shell/shell-modals.jsx:170
 msgid "Close"
@@ -1785,7 +1789,7 @@ msgstr "İçerir"
 msgid "Contacted domain"
 msgstr "İletişim kurulan etki alanı"
 
-#: pkg/shell/nav.jsx:218
+#: pkg/shell/nav.jsx:233
 msgid "Contains:"
 msgstr "İçerdikleri:"
 
@@ -1852,11 +1856,12 @@ msgstr "Çökme bildirimi"
 msgid "Crash system"
 msgstr "Sistemi çöktür"
 
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:186
-#: pkg/users/account-create-dialog.js:294 pkg/storaged/stratis-panel.jsx:170
-#: pkg/storaged/mdraids-panel.jsx:139 pkg/storaged/content-views.jsx:196
-#: pkg/storaged/content-views.jsx:311 pkg/storaged/content-views.jsx:976
-#: pkg/storaged/vgroups-panel.jsx:89 pkg/storaged/stratis-details.jsx:389
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:187
+#: pkg/users/account-create-dialog.js:287 pkg/users/group-create-dialog.js:148
+#: pkg/storaged/stratis-panel.jsx:170 pkg/storaged/mdraids-panel.jsx:139
+#: pkg/storaged/content-views.jsx:196 pkg/storaged/content-views.jsx:311
+#: pkg/storaged/content-views.jsx:976 pkg/storaged/vgroups-panel.jsx:89
+#: pkg/storaged/stratis-details.jsx:389
 msgid "Create"
 msgstr "Oluştur"
 
@@ -1880,7 +1885,7 @@ msgstr "Yeni bir SSH anahtarı oluştur ve yetkilendir"
 msgid "Create a snapshot of filesystem $0"
 msgstr "$0 dosya sistemi için anlık görüntü oluştur"
 
-#: pkg/users/account-create-dialog.js:306
+#: pkg/users/account-create-dialog.js:299
 msgid "Create account with weak password"
 msgstr "Zayıf parola ile hesap oluştur"
 
@@ -1900,13 +1905,17 @@ msgstr "Oluştur"
 msgid "Create logical volume"
 msgstr "Mantıksal birim oluştur"
 
-#: pkg/users/account-create-dialog.js:287 pkg/users/accounts-list.js:384
+#: pkg/users/account-create-dialog.js:280 pkg/users/accounts-list.js:457
 msgid "Create new account"
 msgstr "Yeni hesap oluştur"
 
 #: pkg/storaged/stratis-details.jsx:648
 msgid "Create new filesystem"
 msgstr "Yeni dosya sistemi oluştur"
+
+#: pkg/users/group-create-dialog.js:141 pkg/users/accounts-list.js:317
+msgid "Create new group"
+msgstr "Yeni grup oluştur"
 
 #: pkg/storaged/content-views.jsx:1006
 msgid "Create new logical volume"
@@ -1991,7 +2000,7 @@ msgstr ""
 msgid "Critical and above"
 msgstr "Kritik ve üstü"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:140
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:151
 msgid ""
 "Crypto Policies is a system component that configures the core cryptographic "
 "subsystems, covering the TLS, IPSec, SSH, DNSSec, and Kerberos protocols."
@@ -2000,11 +2009,11 @@ msgstr ""
 "kapsayan temel şifreleme alt sistemlerini yapılandıran bir sistem "
 "bileşenidir."
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:73
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:80
 msgid "Crypto policy"
 msgstr "Şifreleme ilkesi"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:216
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:227
 msgid "Crypto policy is inconsistent"
 msgstr "Şifreleme ilkesi tutarsız"
 
@@ -2028,7 +2037,7 @@ msgstr "Şu anki en yüksek CPU kullanımı"
 msgid "Currently in use"
 msgstr "Şu an kullanımda"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:128
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:139
 msgid "Custom crypto policy"
 msgstr "Özel şifreleme ilkesi"
 
@@ -2045,6 +2054,10 @@ msgstr "Özel bağlantı noktaları"
 #: pkg/networkmanager/firewall.jsx:829
 msgid "Custom zones"
 msgstr "Özel bölgeler"
+
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:37
+msgid "DEFAULT with SHA-1 signature verification allowed."
+msgstr "SHA-1 imza doğrulamasına sahip VARSAYILAN'a izin verildi."
 
 #: pkg/networkmanager/ip-settings.jsx:226
 msgid "DNS"
@@ -2155,7 +2168,7 @@ msgstr "Sil"
 msgid "Delete $0"
 msgstr "$0 sil"
 
-#: pkg/users/accounts-list.js:101
+#: pkg/users/accounts-list.js:104
 msgid "Delete account"
 msgstr "Hesabı sil"
 
@@ -2163,7 +2176,7 @@ msgstr "Hesabı sil"
 msgid "Delete files"
 msgstr "Dosyaları sil"
 
-#: pkg/users/accounts-list.js:60
+#: pkg/users/accounts-list.js:63
 msgid "Delete group"
 msgstr "Grubu sil"
 
@@ -2483,7 +2496,7 @@ msgstr "Hizmeti düzenle"
 msgid "Edit service $0"
 msgstr "$0 hizmetini düzenle"
 
-#: pkg/users/accounts-list.js:80
+#: pkg/users/accounts-list.js:83
 msgid "Edit user"
 msgstr "Kullanıcı düzenle"
 
@@ -2609,7 +2622,7 @@ msgstr "Geçerli bir MAC adresi girin"
 msgid "Entire subnet"
 msgstr "Tüm alt ağ"
 
-#: pkg/systemd/logDetails.jsx:187
+#: pkg/systemd/logDetails.jsx:189
 msgid "Entry at $0"
 msgstr "$0 tarihindeki giriş"
 
@@ -2719,9 +2732,13 @@ msgstr "Genişletilmiş bilgiler"
 msgid "Extended partition"
 msgstr "Genişletilmiş bölüm"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:216
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:227
 msgid "FIPS is not properly enabled"
 msgstr "FIPS düzgün şekilde etkinleştirilmedi"
+
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:51
+msgid "FIPS with further Common Criteria restrictions."
+msgstr "Daha fazla Ortak Ölçüt kısıtlamasına sahip FIPS."
 
 #: pkg/networkmanager/interfaces.js:753 pkg/storaged/mdraid-details.jsx:111
 msgid "Failed"
@@ -2957,7 +2974,7 @@ msgid "From"
 msgstr "Nereden"
 
 #: pkg/users/account-details.js:256 pkg/users/account-create-dialog.js:40
-#: pkg/users/accounts-list.js:330
+#: pkg/users/accounts-list.js:403
 msgid "Full name"
 msgstr "Ad soyad"
 
@@ -2974,7 +2991,7 @@ msgstr "Genel"
 msgid "Generated"
 msgstr "Oluşturuldu"
 
-#: pkg/systemd/logDetails.jsx:59
+#: pkg/systemd/logDetails.jsx:61
 msgid "Go to $0"
 msgstr "$0 hizmetine git"
 
@@ -2986,16 +3003,16 @@ msgstr "Uygulamaya git"
 msgid "Go to now"
 msgstr "Şimdiye git"
 
-#: pkg/networkmanager/network-interface.jsx:415 pkg/users/accounts-list.js:333
+#: pkg/networkmanager/network-interface.jsx:415 pkg/users/accounts-list.js:406
 msgid "Group"
 msgstr "Grup"
 
-#: pkg/users/accounts-list.js:245
+#: pkg/users/accounts-list.js:249
 msgid "Group name"
 msgstr "Grup adı"
 
-#: pkg/users/account-details.js:447 pkg/users/accounts-list.js:281
-#: pkg/users/accounts-list.js:285
+#: pkg/users/account-details.js:447 pkg/users/accounts-list.js:333
+#: pkg/users/accounts-list.js:337
 msgid "Groups"
 msgstr "Gruplar"
 
@@ -3045,7 +3062,7 @@ msgstr "Sağlık"
 msgid "Hello time $hello_time"
 msgstr "Merhaba süresi $hello_time"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:154 pkg/tuned/dialog.jsx:292
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:165 pkg/tuned/dialog.jsx:292
 #: pkg/shell/topnav.jsx:249
 msgid "Help"
 msgstr "Yardım"
@@ -3087,7 +3104,8 @@ msgid "Hours"
 msgstr "Saat"
 
 #: pkg/networkmanager/firewall.jsx:691 pkg/systemd/hwinfo.jsx:310
-#: pkg/users/accounts-list.js:246 pkg/users/accounts-list.js:331
+#: pkg/users/group-create-dialog.js:46 pkg/users/accounts-list.js:250
+#: pkg/users/accounts-list.js:404
 msgid "ID"
 msgstr "Kimlik"
 
@@ -3449,11 +3467,11 @@ msgstr "Katıldığı ait olduğu ad alanı"
 msgid "Journal"
 msgstr "Günlük"
 
-#: pkg/systemd/logDetails.jsx:169
+#: pkg/systemd/logDetails.jsx:171
 msgid "Journal entry"
 msgstr "Günlük girişi"
 
-#: pkg/systemd/logDetails.jsx:148
+#: pkg/systemd/logDetails.jsx:150
 msgid "Journal entry not found"
 msgstr "Günlük girişi bulunamadı"
 
@@ -3528,6 +3546,10 @@ msgstr "Anahtar sunucusu kaldırma, $0 kilidini açmayı engelleyebilir."
 msgid "LACP key"
 msgstr "LACP anahtarı"
 
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:39
+msgid "LEGACY with Active Directory interoperability."
+msgstr "Active Directory birlikte çalışabilirliğine sahip ESKİ."
+
 #: pkg/storaged/content-views.jsx:463 pkg/storaged/content-views.jsx:480
 msgid "LVM2 member"
 msgstr "LVM2 üyesi"
@@ -3552,7 +3574,7 @@ msgstr "Son 24 saat"
 msgid "Last 7 days"
 msgstr "Son 7 gün"
 
-#: pkg/users/accounts-list.js:332
+#: pkg/users/accounts-list.js:405
 msgid "Last active"
 msgstr "Son etkin olma"
 
@@ -3573,8 +3595,8 @@ msgid "Last successful login:"
 msgstr "Son başarılı oturum açma:"
 
 #: pkg/networkmanager/bond.jsx:154
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:47
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:150
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:48
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:161
 #: pkg/lib/cockpit-components-dialog.jsx:214
 #: pkg/lib/cockpit-components-dialog.jsx:221 pkg/tuned/dialog.jsx:288
 msgid "Learn more"
@@ -3602,15 +3624,15 @@ msgstr "GNU LGPL sürüm 2.1 altında lisanslıdır"
 msgid "Light"
 msgstr "Açık"
 
-#: pkg/shell/superuser.jsx:254
+#: pkg/shell/superuser.jsx:256
 msgid "Limit access"
 msgstr "Erişimi sınırla"
 
-#: pkg/shell/superuser.jsx:318
+#: pkg/shell/superuser.jsx:320
 msgid "Limited access"
 msgstr "Sınırlı erişim"
 
-#: pkg/shell/superuser.jsx:271
+#: pkg/shell/superuser.jsx:273
 msgid ""
 "Limited access mode restricts administrative privileges. Some parts of the "
 "web console will have reduced functionality."
@@ -3723,10 +3745,10 @@ msgstr "Sistem değişiklikleri yükleniyor..."
 msgid "Loading unit failed: $0"
 msgstr "Birimin yüklenmesi başarısız oldu: $0"
 
-#: pkg/systemd/logDetails.jsx:175 pkg/systemd/services/services.jsx:777
+#: pkg/systemd/logDetails.jsx:177 pkg/systemd/services/services.jsx:777
 #: pkg/systemd/logsJournal.jsx:268 pkg/kdump/kdump-view.jsx:339
-#: pkg/users/account-details.js:183 pkg/users/accounts-list.js:286
-#: pkg/users/accounts-list.js:307 pkg/users/accounts-list.js:405
+#: pkg/users/account-details.js:183 pkg/users/accounts-list.js:338
+#: pkg/users/accounts-list.js:362 pkg/users/accounts-list.js:478
 #: pkg/storaged/devices.jsx:68 pkg/metrics/metrics.jsx:1004
 #: pkg/metrics/metrics.jsx:1704
 msgid "Loading..."
@@ -3757,7 +3779,7 @@ msgstr "Kilitle"
 msgid "Lock $0"
 msgstr "$0 kilitle"
 
-#: pkg/users/accounts-list.js:95
+#: pkg/users/accounts-list.js:98
 msgid "Lock account"
 msgstr "Hesabı kilitle"
 
@@ -3800,11 +3822,11 @@ msgstr "Günlük iletileri"
 msgid "Log out"
 msgstr "Oturumu kapat"
 
-#: pkg/users/accounts-list.js:89
+#: pkg/users/accounts-list.js:92
 msgid "Log user out"
 msgstr "Kullanıcı oturumunu kapat"
 
-#: pkg/users/account-details.js:220 pkg/users/accounts-list.js:178
+#: pkg/users/account-details.js:220 pkg/users/accounts-list.js:181
 msgid "Logged in"
 msgstr "Oturum açıldı"
 
@@ -3864,7 +3886,7 @@ msgstr "$0 oturumunu kapat"
 msgid "Logout successful"
 msgstr "Oturumu kapatma başarılı oldu"
 
-#: pkg/systemd/logDetails.jsx:198 pkg/systemd/manifest.json:0
+#: pkg/systemd/logDetails.jsx:200 pkg/systemd/manifest.json:0
 msgid "Logs"
 msgstr "Günlükler"
 
@@ -4050,7 +4072,7 @@ msgstr "Hatayla ilgili iletiler günlükte bulunabilir:"
 msgid "Metadata used"
 msgstr "Kullanılan üst veri"
 
-#: pkg/shell/superuser.jsx:197
+#: pkg/shell/superuser.jsx:199
 msgid "Method"
 msgstr "Yöntem"
 
@@ -4241,20 +4263,21 @@ msgstr "NTP sunucusu"
 #: pkg/networkmanager/network-main.jsx:199
 #: pkg/networkmanager/dialogs-common.jsx:134 pkg/systemd/hwinfo.jsx:91
 #: pkg/systemd/services/timer-dialog.jsx:158
-#: pkg/users/authorized-keys-panel.js:131 pkg/storaged/lvol-tabs.jsx:48
-#: pkg/storaged/lvol-tabs.jsx:419 pkg/storaged/lvol-tabs.jsx:480
-#: pkg/storaged/lvol-tabs.jsx:538 pkg/storaged/iscsi-panel.jsx:131
-#: pkg/storaged/iscsi-panel.jsx:188 pkg/storaged/vgroup-details.jsx:166
-#: pkg/storaged/stratis-panel.jsx:130 pkg/storaged/part-tab.jsx:40
-#: pkg/storaged/mdraids-panel.jsx:74 pkg/storaged/format-dialog.jsx:213
-#: pkg/storaged/content-views.jsx:182 pkg/storaged/content-views.jsx:307
-#: pkg/storaged/content-views.jsx:754 pkg/storaged/content-views.jsx:886
-#: pkg/storaged/content-views.jsx:1019 pkg/storaged/vgroups-panel.jsx:73
-#: pkg/storaged/fsys-tab.jsx:487 pkg/storaged/fsys-tab.jsx:690
-#: pkg/storaged/crypto-panel.jsx:84 pkg/storaged/stratis-details.jsx:272
-#: pkg/storaged/stratis-details.jsx:360 pkg/storaged/stratis-details.jsx:467
-#: pkg/storaged/stratis-details.jsx:490 pkg/storaged/stratis-details.jsx:654
-#: pkg/storaged/stratis-details.jsx:787 pkg/shell/credentials.jsx:104
+#: pkg/users/authorized-keys-panel.js:131 pkg/users/group-create-dialog.js:37
+#: pkg/storaged/lvol-tabs.jsx:48 pkg/storaged/lvol-tabs.jsx:419
+#: pkg/storaged/lvol-tabs.jsx:480 pkg/storaged/lvol-tabs.jsx:538
+#: pkg/storaged/iscsi-panel.jsx:131 pkg/storaged/iscsi-panel.jsx:188
+#: pkg/storaged/vgroup-details.jsx:166 pkg/storaged/stratis-panel.jsx:130
+#: pkg/storaged/part-tab.jsx:40 pkg/storaged/mdraids-panel.jsx:74
+#: pkg/storaged/format-dialog.jsx:213 pkg/storaged/content-views.jsx:182
+#: pkg/storaged/content-views.jsx:307 pkg/storaged/content-views.jsx:754
+#: pkg/storaged/content-views.jsx:886 pkg/storaged/content-views.jsx:1019
+#: pkg/storaged/vgroups-panel.jsx:73 pkg/storaged/fsys-tab.jsx:487
+#: pkg/storaged/fsys-tab.jsx:690 pkg/storaged/crypto-panel.jsx:84
+#: pkg/storaged/stratis-details.jsx:272 pkg/storaged/stratis-details.jsx:360
+#: pkg/storaged/stratis-details.jsx:467 pkg/storaged/stratis-details.jsx:490
+#: pkg/storaged/stratis-details.jsx:654 pkg/storaged/stratis-details.jsx:787
+#: pkg/shell/credentials.jsx:104
 msgid "Name"
 msgstr "Ad"
 
@@ -4344,7 +4367,7 @@ msgstr "Hesabın süresi asla dolmasın"
 msgid "Never expire password"
 msgstr "Parolanın süresi asla dolmasın"
 
-#: pkg/users/accounts-list.js:181
+#: pkg/users/accounts-list.js:184
 msgid "Never logged in"
 msgstr "Hiç oturum açılmadı"
 
@@ -4384,6 +4407,10 @@ msgstr "Sonraki"
 #: pkg/networkmanager/network-interface.jsx:244 pkg/systemd/reporting.jsx:273
 msgid "No"
 msgstr "Hayır"
+
+#: pkg/users/group-create-dialog.js:79
+msgid "No ID specified"
+msgstr "Belirtilen kimlik yok"
 
 #: pkg/storaged/nfs-panel.jsx:100
 msgid "No NFS mounts set up"
@@ -4467,6 +4494,10 @@ msgstr "Boş anahtar yuvaları yok"
 msgid "No free space"
 msgstr "Boş alan yok"
 
+#: pkg/users/group-create-dialog.js:62
+msgid "No group name specified"
+msgstr "Belirtilen grup adı yok"
+
 #: pkg/systemd/overview-cards/configurationCard.jsx:177
 msgid "No host keys found."
 msgstr "Bulunan anamakine anahtarları yok."
@@ -4483,7 +4514,7 @@ msgstr "Bu uygulama için kurulum paketi bulunamadı."
 msgid "No keys added"
 msgstr "Eklenen anahtarlar yok"
 
-#: pkg/systemd/services/service.jsx:93
+#: pkg/systemd/services/service.jsx:95
 msgid "No log entries"
 msgstr "Günlük girişleri yok"
 
@@ -4496,7 +4527,8 @@ msgstr "Mantıksal birimler yok"
 msgid "No logs found"
 msgstr "Bulunan günlükler yok"
 
-#: pkg/systemd/services/services-list.jsx:59 pkg/users/accounts-list.js:407
+#: pkg/systemd/services/services-list.jsx:59 pkg/users/accounts-list.js:364
+#: pkg/users/accounts-list.js:480
 msgid "No matching results"
 msgstr "Eşleşen sonuçlar yok"
 
@@ -4518,11 +4550,11 @@ msgstr ""
 msgid "No partitioning"
 msgstr "Bölümlendirme yok"
 
-#: pkg/users/account-create-dialog.js:121
+#: pkg/users/account-create-dialog.js:114
 msgid "No real name specified"
 msgstr "Belirtilen gerçek ad yok"
 
-#: pkg/systemd/logs.jsx:315 pkg/shell/nav.jsx:144
+#: pkg/systemd/logs.jsx:315 pkg/shell/nav.jsx:159
 msgid "No results found"
 msgstr "Bulunan sonuçlar yok"
 
@@ -4537,7 +4569,7 @@ msgstr ""
 msgid "No rule hits"
 msgstr "Kural sonuçları yok"
 
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:175
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:176
 #: pkg/lib/credentials.js:191
 msgid "No such file or directory"
 msgstr "Böyle bir dosya ya da dizin yok"
@@ -4554,7 +4586,7 @@ msgstr "Sistem raporları yok."
 msgid "No updates"
 msgstr "Güncellemeler yok"
 
-#: pkg/users/account-create-dialog.js:104
+#: pkg/users/account-create-dialog.js:97
 msgid "No user name specified"
 msgstr "Belirtilen kullanıcı adı yok"
 
@@ -4714,7 +4746,7 @@ msgstr "Sadece harfler, sayılar, : , _ , . , @ , - karakterlerine izin verilir"
 msgid "Only emergency"
 msgstr "Sadece acil durumlar"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:40
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:41
 msgid "Only use approved and allowed algorithms when booting in FIPS mode."
 msgstr ""
 "FIPS modunda önyükleme yaparken yalnızca onaylanmış ve izin verilen "
@@ -4900,7 +4932,7 @@ msgstr "Parolalar eşleşmiyor"
 
 #: pkg/static/login.html:106 pkg/users/account-details.js:308
 #: pkg/users/account-create-dialog.js:58 pkg/storaged/iscsi-panel.jsx:50
-#: pkg/storaged/iscsi-panel.jsx:160 pkg/shell/superuser.jsx:136
+#: pkg/storaged/iscsi-panel.jsx:160 pkg/shell/superuser.jsx:138
 #: pkg/shell/credentials.jsx:122 pkg/shell/credentials.jsx:265
 #: pkg/shell/credentials.jsx:321 pkg/shell/hosts_dialog.jsx:827
 #: pkg/shell/hosts_dialog.jsx:836
@@ -4915,7 +4947,7 @@ msgstr "Parola başarılı olarak değiştirildi"
 msgid "Password expiration"
 msgstr "Parolanın süresinin dolması"
 
-#: pkg/users/account-create-dialog.js:221 pkg/users/password-dialogs.js:193
+#: pkg/users/account-create-dialog.js:214 pkg/users/password-dialogs.js:193
 msgid "Password is longer than 256 characters"
 msgstr "Parola 256 karakterden uzun"
 
@@ -4943,7 +4975,7 @@ msgstr "Parola ipucu"
 msgid "Paste"
 msgstr "Yapıştır"
 
-#: pkg/lib/cockpit-components-terminal.jsx:201
+#: pkg/lib/cockpit-components-terminal.jsx:208
 msgid "Paste error"
 msgstr "Yapıştırma hatası"
 
@@ -4975,7 +5007,7 @@ msgstr "Sunucu üzerindeki yol boş olamaz."
 msgid "Path on server must start with \"/\"."
 msgstr "Sunucu üzerindeki yol \"/\" ile başlamak zorundadır."
 
-#: pkg/lib/cockpit-components-file-autocomplete.jsx:162
+#: pkg/lib/cockpit-components-file-autocomplete.jsx:163
 #: pkg/shell/credentials.jsx:175
 msgid "Path to file"
 msgstr "Dosyanın yolu"
@@ -5065,7 +5097,7 @@ msgstr "Sabitlenmiş birim"
 msgid "Pizza box"
 msgstr "Pizza box"
 
-#: pkg/shell/superuser.jsx:135
+#: pkg/shell/superuser.jsx:137
 msgid "Please authenticate to gain administrative access"
 msgstr "Lütfen yönetimsel erişim elde etmek için kimlik doğrulayın"
 
@@ -5165,7 +5197,7 @@ msgstr "Öncelik"
 msgid "Priority $priority"
 msgstr "Öncelik $priority"
 
-#: pkg/shell/superuser.jsx:186
+#: pkg/shell/superuser.jsx:188
 msgid "Problem becoming administrator"
 msgstr "Yönetici olma sorunu"
 
@@ -5205,7 +5237,7 @@ msgstr "ssh-keygen aracılığıyla sorma zaman aşımına uğradı"
 msgid "Propagates reload to"
 msgstr "Yeniden yüklemeyi şuna yayar"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:37
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:52
 msgid ""
 "Protects from anticipated near-term future attacks at the expense of "
 "interoperability."
@@ -5375,7 +5407,7 @@ msgstr ""
 msgid "Real host name must be 64 characters or less"
 msgstr "Gerçek anamakine adı 64 karakter veya daha kısa olmak zorundadır"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:177
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:188
 msgid "Reapply and reboot"
 msgstr "Yeniden uygula ve yeniden başlat"
 
@@ -5780,7 +5812,7 @@ msgstr "Varolan şifrelemeyi yeniden kullan"
 msgid "Reuse existing encryption ($0)"
 msgstr "Varolan şifrelemeyi yeniden kullan ($0)"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:222
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:233
 msgid "Review crypto policy"
 msgstr "Şifreleme ilkesini gözden geçir"
 
@@ -5958,7 +5990,7 @@ msgstr "$0 için yeniden başlatma zamanlandı"
 msgid "Sealed-case PC"
 msgstr "Mühürlü Kasa PC"
 
-#: pkg/systemd/logs.jsx:406 pkg/shell/nav.jsx:126
+#: pkg/systemd/logs.jsx:406 pkg/shell/nav.jsx:141
 msgid "Search"
 msgstr "Ara"
 
@@ -5966,7 +5998,13 @@ msgstr "Ara"
 msgid "Search domain"
 msgstr "Etki alanını ara"
 
-#: pkg/users/accounts-list.js:374
+#: pkg/users/accounts-list.js:307
+#, fuzzy
+#| msgid "Search for name, group or ID"
+msgid "Search for name or ID"
+msgstr "Ad, grup veya kimlik ara"
+
+#: pkg/users/accounts-list.js:447
 msgid "Search for name, group or ID"
 msgstr "Ad, grup veya kimlik ara"
 
@@ -6076,12 +6114,12 @@ msgstr "Hizmet durduruldu"
 msgid "Service is stopping"
 msgstr "Hizmet durduruluyor"
 
-#: pkg/systemd/services/service.jsx:93
+#: pkg/systemd/services/service.jsx:95
 msgid "Service logs"
 msgstr "Hizmet günlükleri"
 
 #: pkg/systemd/services.html:4 pkg/networkmanager/firewall.jsx:619
-#: pkg/systemd/services/service.jsx:83 pkg/systemd/services/service-tabs.jsx:39
+#: pkg/systemd/services/service.jsx:85 pkg/systemd/services/service-tabs.jsx:39
 #: pkg/systemd/manifest.json:0
 msgid "Services"
 msgstr "Hizmetler"
@@ -6569,11 +6607,11 @@ msgstr "$0 arayüzünü kapat"
 msgid "Switch on $0"
 msgstr "$0 arayüzünü aç"
 
-#: pkg/shell/superuser.jsx:145 pkg/shell/superuser.jsx:193
+#: pkg/shell/superuser.jsx:147 pkg/shell/superuser.jsx:195
 msgid "Switch to administrative access"
 msgstr "Yönetimsel erişime geç"
 
-#: pkg/shell/superuser.jsx:267 pkg/shell/superuser.jsx:334
+#: pkg/shell/superuser.jsx:269 pkg/shell/superuser.jsx:336
 msgid "Switch to limited access"
 msgstr "Sınırlı erişime geç"
 
@@ -6612,7 +6650,7 @@ msgid "Synchronizing RAID device $target"
 msgstr "RAID aygıtı $target eşitleniyor"
 
 #: pkg/systemd/services/services.jsx:1068 pkg/shell/indexes.jsx:343
-#: pkg/shell/nav.jsx:33
+#: pkg/shell/nav.jsx:48
 msgid "System"
 msgstr "Sistem"
 
@@ -6869,9 +6907,21 @@ msgid_plural "The following services will be restarted:"
 msgstr[0] "Aşağıdaki hizmet yeniden başlatılacaktır:"
 msgstr[1] "Aşağıdaki hizmetler yeniden başlatılacaktır:"
 
-#: pkg/users/account-create-dialog.js:125
+#: pkg/users/account-create-dialog.js:118
 msgid "The full name must not contain colons."
 msgstr "Ad soyad iki nokta üst üste içermemek zorundadır."
+
+#: pkg/users/group-create-dialog.js:83
+msgid "The group ID must be positive integer"
+msgstr "Grup kimliği pozitif tamsayı olmak zorundadır"
+
+#: pkg/users/group-create-dialog.js:66
+msgid ""
+"The group name can only consist of letters from a-z, digits, dots, dashes "
+"and underscores"
+msgstr ""
+"Grup adı sadece a-z arasındaki harf, rakam, nokta, tire ve alt çizgi "
+"karakterlerinden oluşabilir"
 
 #: pkg/storaged/crypto-keyslots.jsx:317
 msgid "The initrd must be regenerated."
@@ -6939,7 +6989,7 @@ msgstr "Yeni anahtar parolası boş olamaz"
 msgid "The password can not be empty"
 msgstr "Parola boş olamaz"
 
-#: pkg/users/account-create-dialog.js:218 pkg/users/password-dialogs.js:190
+#: pkg/users/account-create-dialog.js:211 pkg/users/password-dialogs.js:190
 msgid "The passwords do not match"
 msgstr "Parolalar eşleşmiyor"
 
@@ -6992,7 +7042,7 @@ msgstr ""
 "$0 kullanıcısının CPU güvenlik riski azaltmalarını değiştirmesine izin "
 "verilmiyor"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:76
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:83
 msgid "The user $0 is not permitted to change crypto policies"
 msgstr "$0 kullanıcısının şifreleme ilkelerini değiştirmesine izin verilmiyor"
 
@@ -7004,7 +7054,7 @@ msgstr ""
 "Yeni yapılandırmanın etkili olması için kullanıcı oturumu kapatmak ve tekrar "
 "oturum açmak zorundadır."
 
-#: pkg/users/account-create-dialog.js:108
+#: pkg/users/account-create-dialog.js:101
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
@@ -7138,7 +7188,7 @@ msgstr "Bu sistem önerilen profili kullanıyor"
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "Bu birim açıkça etkinleştirilecek şekilde tasarlanmadı."
 
-#: pkg/users/account-create-dialog.js:113
+#: pkg/users/account-create-dialog.js:106
 msgid "This user name already exists"
 msgstr "Bu kullanıcı adı zaten var"
 
@@ -7388,7 +7438,7 @@ msgstr "Tuned çalışmıyor"
 msgid "Tuned is off"
 msgstr "Tuned kapalı"
 
-#: pkg/shell/superuser.jsx:334
+#: pkg/shell/superuser.jsx:336
 msgid "Turn on administrative access"
 msgstr "Yönetimsel erişimi aç"
 
@@ -7474,8 +7524,8 @@ msgid "Unable to remove mount"
 msgstr "Bağlama noktası kaldırılamıyor"
 
 #: pkg/selinux/setroubleshoot-client.js:150
-msgid "Unable to run fix: %0"
-msgstr "Düzeltme çalıştırılamıyor: %0"
+msgid "Unable to run fix: $0"
+msgstr "Düzeltme çalıştırılamıyor: $0"
 
 #: pkg/kdump/kdump-view.jsx:244
 msgid "Unable to save settings"
@@ -7766,7 +7816,7 @@ msgstr "Kullanıcı adı"
 msgid "User name cannot be empty"
 msgstr "Kullanıcı adı boş olamaz"
 
-#: pkg/users/accounts-list.js:329 pkg/storaged/iscsi-panel.jsx:49
+#: pkg/users/accounts-list.js:402 pkg/storaged/iscsi-panel.jsx:49
 #: pkg/storaged/iscsi-panel.jsx:158
 msgid "Username"
 msgstr "Kullanıcı adı"
@@ -8098,11 +8148,11 @@ msgstr "Artık yönetimsel erişiminiz var."
 msgid "You will be logged out in $0 seconds."
 msgstr "$0 saniye içinde oturumunuz kapatılacak."
 
-#: pkg/users/accounts-list.js:193
+#: pkg/users/accounts-list.js:196
 msgid "Your account"
 msgstr "Hesabınız"
 
-#: pkg/lib/cockpit-components-terminal.jsx:211
+#: pkg/lib/cockpit-components-terminal.jsx:218
 msgid ""
 "Your browser does not allow paste from the context menu. You can use Shift"
 "+Insert."
@@ -8110,7 +8160,7 @@ msgstr ""
 "Tarayıcınız, bağlam menüsünden yapıştırmaya izin vermiyor. Shift+Insert "
 "kullanabilirsiniz."
 
-#: pkg/shell/superuser.jsx:272
+#: pkg/shell/superuser.jsx:274
 msgid "Your browser will remember your access level across sessions."
 msgstr "Tarayıcınız, oturumlar arasında erişim seviyenizi hatırlayacaktır."
 

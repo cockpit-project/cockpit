@@ -24,7 +24,7 @@ class test_iface(systemd_ctypes.bus.Object):
 
 
 class MockTransport(asyncio.Transport):
-    queue: asyncio.Queue[Tuple[str, bytes]]
+    queue: 'asyncio.Queue[Tuple[str, bytes]]'
     next_id: int = 0
 
     def send_json(self, _channel: str, **kwargs) -> None:

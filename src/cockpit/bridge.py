@@ -44,7 +44,7 @@ logger = logging.getLogger(__name__)
 
 
 class InternalBus:
-    exportees: list[bus.Slot]
+    exportees: List[bus.Slot]
 
     def __init__(self, exports: Iterable[Tuple[str, Type[bus.BaseObject]]]):
         client_socket, server_socket = socket.socketpair()

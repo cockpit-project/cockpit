@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from __future__ import annotations
-
 import asyncio
 import logging
 
@@ -29,9 +27,9 @@ logger = logging.getLogger(__name__)
 
 
 class ChannelRoutingRule(RoutingRule):
-    table: Dict[str, List[Type[Channel]]]
+    table: Dict[str, List[Type['Channel']]]
 
-    def __init__(self, router: Router, channel_types: List[Type[Channel]]):
+    def __init__(self, router: Router, channel_types: List[Type['Channel']]):
         super().__init__(router)
         self.table = {}
 
@@ -62,7 +60,7 @@ class ChannelRoutingRule(RoutingRule):
         # Everything checked out
         return True
 
-    def apply_rule(self, options: Dict[str, object]) -> Optional[Channel]:
+    def apply_rule(self, options: Dict[str, object]) -> Optional['Channel']:
         assert self.router is not None
 
         payload = options.get('payload')
@@ -421,7 +419,7 @@ class GeneratorChannel(Channel):
     DataGenerator = Generator[bytes, None, Optional[Dict[str, object]]]
     __generator: DataGenerator
 
-    def do_yield_data(self, options: dict[str, object]) -> DataGenerator:
+    def do_yield_data(self, options: Dict[str, object]) -> 'DataGenerator':
         raise NotImplementedError
 
     def do_open(self, options: Dict[str, object]) -> None:

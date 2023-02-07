@@ -29,7 +29,7 @@ import struct
 import subprocess
 import termios
 
-from typing import Any, ClassVar, Dict, Optional, Sequence, Tuple
+from typing import Any, ClassVar, Deque, Dict, List, Optional, Sequence, Tuple
 
 
 logger = logging.getLogger(__name__)
@@ -43,7 +43,7 @@ class _Transport(asyncio.Transport):
     _loop: asyncio.AbstractEventLoop
     _protocol: asyncio.Protocol
 
-    _queue: Optional[collections.deque[bytes]]
+    _queue: Optional[Deque[bytes]]
     _in_fd: int
     _out_fd: int
     _closing: bool
@@ -273,7 +273,7 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
 
     _sock: Optional[socket.socket] = None
     _pty_fd: Optional[int] = None
-    _process: subprocess.Popen[bytes]
+    _process: 'subprocess.Popen[bytes]'
     _stderr: Optional['Spooler']
 
     @staticmethod
@@ -428,7 +428,7 @@ class Spooler:
 
     _loop: asyncio.AbstractEventLoop
     _fd: int
-    _contents: list[bytes]
+    _contents: List[bytes]
 
     def __init__(self, loop: asyncio.AbstractEventLoop, fd: int):
         self._loop = loop

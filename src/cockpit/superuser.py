@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from __future__ import annotations
-
 import asyncio
 import logging
 import os
@@ -38,24 +36,24 @@ SUPERUSER_AUTH_COOKIE = 'supermarius'
 class SuperuserStartup:
     peer: Peer  # the peer that's being started
 
-    def success(self, rule: SuperuserRoutingRule) -> None:
+    def success(self, rule: 'SuperuserRoutingRule') -> None:
         raise NotImplementedError
 
-    def failed(self, rule: SuperuserRoutingRule, exc: Exception) -> None:
+    def failed(self, rule: 'SuperuserRoutingRule', exc: Exception) -> None:
         raise NotImplementedError
 
-    def auth(self, rule: SuperuserRoutingRule, message: Optional[str], prompt: str, echo: bool) -> None:
+    def auth(self, rule: 'SuperuserRoutingRule', message: Optional[str], prompt: str, echo: bool) -> None:
         raise NotImplementedError
 
 
 class ControlMessageStartup(SuperuserStartup):
-    def success(self, rule: SuperuserRoutingRule) -> None:
+    def success(self, rule: 'SuperuserRoutingRule') -> None:
         rule.router.write_control(command='superuser-init-done')
 
-    def failed(self, rule: SuperuserRoutingRule, exc: Exception) -> None:
+    def failed(self, rule: 'SuperuserRoutingRule', exc: Exception) -> None:
         rule.router.write_control(command='superuser-init-done')
 
-    def auth(self, rule: SuperuserRoutingRule, message: Optional[str], prompt: str, echo: bool) -> None:
+    def auth(self, rule: 'SuperuserRoutingRule', message: Optional[str], prompt: str, echo: bool) -> None:
         username = pwd.getpwuid(os.getuid()).pw_name
         hexuser = ''.join(f'{c:02x}' for c in username.encode('ascii'))
         rule.router.write_control(command='authorize', cookie=SUPERUSER_AUTH_COOKIE, challenge=f'plain1:{hexuser}')
@@ -67,13 +65,13 @@ class DBusStartup(SuperuserStartup):
     def __init__(self):
         self.future = asyncio.get_running_loop().create_future()
 
-    def success(self, rule: SuperuserRoutingRule) -> None:
+    def success(self, rule: 'SuperuserRoutingRule') -> None:
         self.future.set_result(None)
 
-    def failed(self, rule: SuperuserRoutingRule, exc: Exception) -> None:
+    def failed(self, rule: 'SuperuserRoutingRule', exc: Exception) -> None:
         self.future.set_exception(bus.BusError('cockpit.Superuser.Error', str(exc)))
 
-    def auth(self, rule: SuperuserRoutingRule, message: Optional[str], prompt: str, echo: bool) -> None:
+    def auth(self, rule: 'SuperuserRoutingRule', message: Optional[str], prompt: str, echo: bool) -> None:
         rule.prompt(message or '', prompt, '', echo, '')
 
     async def wait(self) -> None:

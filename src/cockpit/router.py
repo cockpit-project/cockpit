@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from __future__ import annotations
-
 import collections
 import logging
 
@@ -59,10 +57,10 @@ class ExecutionQueue:
 
 
 class Endpoint:
-    router: Router
+    router: 'Router'
     __endpoint_frozen_queue: Optional[ExecutionQueue] = None
 
-    def __init__(self, router: Router):
+    def __init__(self, router: 'Router'):
         self.router = router
 
     def endpoint_is_frozen(self) -> bool:
@@ -106,9 +104,9 @@ class RoutingError(Exception):
 
 
 class RoutingRule:
-    router: Router
+    router: 'Router'
 
-    def __init__(self, router: Router):
+    def __init__(self, router: 'Router'):
         self.router = router
 
     def apply_rule(self, options: Dict[str, object]) -> Optional[Endpoint]:

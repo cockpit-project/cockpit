@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from __future__ import annotations
-
 import asyncio
 import logging
 import os
@@ -31,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 
 class PeerStateListener:
-    def peer_state_changed(self, peer: Peer, event: str, exc: Optional[Exception] = None) -> None:
+    def peer_state_changed(self, peer: 'Peer', event: str, exc: Optional[Exception] = None) -> None:
         """Signal a state change in the Peer.
 
         This is called on:
@@ -40,7 +38,7 @@ class PeerStateListener:
             - connection lost (event='closed', exc possibly set)
         """
 
-    def peer_authorization_request(self, peer: Peer, message: Optional[str], prompt: str, echo: bool) -> None:
+    def peer_authorization_request(self, peer: 'Peer', message: Optional[str], prompt: str, echo: bool) -> None:
         """Request authentication for connecting to the peer.
 
         The state listener should respond by calling .authorize_response() on the Peer.
@@ -206,7 +204,7 @@ class PeerRoutingRule(RoutingRule, PeerStateListener):
 
         return self.peer
 
-    def peer_state_changed(self, peer: Peer, event: str, exc: Optional[Exception] = None):
+    def peer_state_changed(self, peer: 'Peer', event: str, exc: Optional[Exception] = None):
         logger.debug('%s got peer state event %s %s %s', self, peer, event, exc)
         if event == 'init':
             pass

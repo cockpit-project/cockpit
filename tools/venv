@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -eux
+
+cd "${0%/*}/.."
+tools/systemd_ctypes
+rm -rf .venv
+python3 -m venv --system-site-packages --without-pip .venv
+touch setup.cfg
+.venv/bin/python3 -m pip install --no-index --no-build-isolation -e .

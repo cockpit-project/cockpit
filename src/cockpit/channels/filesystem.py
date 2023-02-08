@@ -145,6 +145,7 @@ class FsReplaceChannel(Channel):
     def do_open(self, options):
         self._path = options.get('path')
         self._tag = options.get('tag')
+        self.ready()
 
     def do_data(self, data):
         if self._tempfile is None:

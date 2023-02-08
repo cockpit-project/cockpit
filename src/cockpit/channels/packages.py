@@ -66,6 +66,7 @@ class PackagesChannel(Channel):
 
         self.router.packages.serve_file(path, self)
         self.done()
+        self.close()
 
     def do_data(self, data):
         self.post += data

@@ -262,6 +262,7 @@ class ProtocolChannel(Channel, asyncio.Protocol):
 
         self.connection_made(transport)
         self.thaw_endpoint()
+        self.ready()
 
     def connection_made(self, transport: asyncio.BaseTransport):
         assert isinstance(transport, asyncio.Transport)

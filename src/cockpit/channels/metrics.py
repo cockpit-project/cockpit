@@ -100,7 +100,7 @@ class InternalMetricsChannel(AsyncChannel):
             else:
                 metrics.append({
                     'name': metricinfo.desc.name,
-                    'derive': metricinfo.derive,
+                    'derive': metricinfo.derive,  # type: ignore
                     'units': metricinfo.desc.units,
                     'semantics': metricinfo.desc.semantics
                 })

@@ -183,7 +183,7 @@ class PeerRoutingRule(RoutingRule, PeerStateListener):
 
     def apply_rule(self, options: Dict[str, object]) -> Optional[Peer]:
         # Check that we match
-        for key, value in self.config['match'].items():
+        for key, value in self.config['match'].items():  # type: ignore
             if key not in options:
                 logger.debug('        rejecting because key %s is missing', key)
                 return None
@@ -196,10 +196,10 @@ class PeerRoutingRule(RoutingRule, PeerStateListener):
             try:
                 args = self.config['spawn']
                 env = self.config.get('environ', [])
-                name = self.config.get('label', args[0])
+                name = self.config.get('label', args[0])  # type: ignore
 
-                peer = Peer(self.router, name, self)
-                peer.spawn(args, env)
+                peer = Peer(self.router, name, self)  # type: ignore
+                peer.spawn(args, env)  # type: ignore
                 self.peer = peer
             except OSError as error:
                 raise RoutingError('spawn-error', message=str(error))
@@ -238,7 +238,7 @@ class PeersRoutingRule(RoutingRule):
 
         for config in bridge_configs:
             # Those are handled elsewhere...
-            if config.get('privileged') or 'host' in config['match']:
+            if config.get('privileged') or 'host' in config['match']:  # type: ignore
                 continue
 
             # Try to reuse an existing rule, if one exists...

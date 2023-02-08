@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import unittest
 
 import parent  # noqa: F401
@@ -202,10 +201,10 @@ class TestWsBastionContainer(MachineCase):
         b.wait_text_not("#login-error-message", "")
 
         # authorize key
-        p = "/home/admin/.ssh/authorized_keys.d/bastion"
-        m.execute(f"mkdir --mode 700 -p {os.path.dirname(p)}; chown admin:admin {os.path.dirname(p)}")
-        self.restore_dir(os.path.dirname(p))
-        m.execute(f"cp /root/id_bastion.pub {p}; chown admin:admin {p}; chmod 600 {p}")
+        self.restore_file("/home/admin/.ssh/authorized_keys")
+        # Do not use authorized_keys.d as that does not work on rhel4edge
+        # Do not append but overwrite so we are sure the right key is used
+        m.execute("cat /root/id_bastion.pub > /home/admin/.ssh/authorized_keys")
 
         # fails with wrong key password
         b.set_val("#login-password-input", "notthispassword")
@@ -220,7 +219,7 @@ class TestWsBastionContainer(MachineCase):
 
         # now test with current OpenSSH format
         m.execute(f"yes | ssh-keygen -q -f /root/id_bastion -t rsa -N {KEY_PASSWORD}")
-        m.execute(f"cp /root/id_bastion.pub {p}; chown admin:admin {p}; chmod 600 {p}")
+        m.execute("cat /root/id_bastion.pub > /home/admin/.ssh/authorized_keys")
         b.set_val("#login-user-input", "admin")
         b.set_val("#server-field", HOST)
         b.set_val("#login-password-input", KEY_PASSWORD)

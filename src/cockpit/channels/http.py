@@ -154,6 +154,8 @@ class HttpChannel(Channel):
         self.options = options
         self.body = b''
 
+        self.ready()
+
     def do_data(self, data):
         self.body += data
 

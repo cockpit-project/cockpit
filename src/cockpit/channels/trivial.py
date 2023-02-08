@@ -41,3 +41,6 @@ class NullChannel(Channel):
 
     def do_open(self, options):
         self.ready()
+
+    def do_close(self):
+        self.close()

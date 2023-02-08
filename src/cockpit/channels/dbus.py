@@ -491,3 +491,6 @@ class DBusChannel(Channel):
 
         self.tasks.add(task)
         task.add_done_callback(self.tasks.discard)
+
+    def do_close(self):
+        self.close()

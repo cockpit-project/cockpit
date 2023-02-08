@@ -105,6 +105,7 @@ class Channel(Endpoint):
             self.channel = message['channel']
             if message.get('flow-control'):
                 self._send_pings = True
+            self.freeze_endpoint()
             self.do_open(message)
         elif command == 'ready':
             self.do_ready()
@@ -160,6 +161,7 @@ class Channel(Endpoint):
 
     # output
     def ready(self, **kwargs):
+        self.thaw_endpoint()
         self.send_control(command='ready', **kwargs)
 
     def done(self):
@@ -246,7 +248,6 @@ class ProtocolChannel(Channel, asyncio.Protocol):
         raise NotImplementedError
 
     def do_open(self, options):
-        self.freeze_endpoint()
         loop = asyncio.get_running_loop()
         self._create_transport_task = asyncio.create_task(self.create_transport(loop, options))
         self._create_transport_task.add_done_callback(self.create_transport_done)
@@ -261,7 +262,6 @@ class ProtocolChannel(Channel, asyncio.Protocol):
             return
 
         self.connection_made(transport)
-        self.thaw_endpoint()
         self.ready()
 
     def connection_made(self, transport: asyncio.BaseTransport):

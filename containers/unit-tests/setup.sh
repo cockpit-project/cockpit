@@ -42,6 +42,7 @@ dependencies="\
     nodejs \
     pkg-config \
     python3 \
+    python3-mypy \
     python3-pytest-cov \
     python3-pytest-timeout \
     sassc \

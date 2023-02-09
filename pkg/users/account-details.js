@@ -352,6 +352,7 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups, setError }) => {
     const [isOpenGroup, setIsOpenGroup] = useState(false);
     const [selected, setSelected] = useState();
     const [primaryGroupName, setPrimaryGroupName] = useState();
+    const [loading, setLoading] = useState(true);
     const [history, setHistory] = useState([]);
     const previousValue = useRef(null);
 
@@ -365,6 +366,7 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups, setError }) => {
 
         previousValue.current = _selected;
         setSelected(_selected);
+        setLoading(false);
         setPrimaryGroupName(_primaryGroupName);
     }, [groups, setSelected, name, previousValue]);
 
@@ -381,26 +383,22 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups, setError }) => {
         if (!isUndo)
             setHistory([...history, { type: 'removed', name: group }]);
 
+        setLoading(true);
         return cockpit.spawn(["/usr/bin/gpasswd", "-d", name, group], { superuser: "require", err: "message" })
                 .then(() => {
-                    setSelected(selected.filter(item => item !== group));
                     setIsOpenGroup(false);
-                }, error => {
-                    show_unexpected_error(error);
-                });
+                }, show_unexpected_error);
     };
 
     const addGroup = (group, isUndo) => {
         if (!isUndo)
             setHistory([...history, { type: 'added', name: group }]);
 
+        setLoading(true);
         return cockpit.spawn(["/usr/bin/gpasswd", "-a", name, group], { superuser: "require", err: "message" })
                 .then(() => {
-                    setSelected([...selected, group]);
                     setIsOpenGroup(false);
-                }, error => {
-                    show_unexpected_error(error);
-                });
+                }, show_unexpected_error);
     };
 
     const onSelectGroup = (event, selection) => {
@@ -450,7 +448,7 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups, setError }) => {
             {superuser.allowed
                 ? <Select
                    chipGroupComponent={chipGroupComponent()}
-                   isDisabled={!superuser.allowed}
+                   isDisabled={!superuser.allowed || loading}
                    isOpen={isOpenGroup}
                    onSelect={onSelectGroup}
                    onToggle={setIsOpenGroup}

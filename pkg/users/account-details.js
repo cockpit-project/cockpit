@@ -413,7 +413,14 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups, setError }) => {
         return (
             <LabelGroup numLabels={10}>
                 {(selected || []).map((currentLabel, index) => {
-                    const optional = currentLabel !== primaryGroupName && superuser.allowed ? { onClose: () => removeGroup(currentLabel) } : {};
+                    const optional = currentLabel !== primaryGroupName && superuser.allowed
+                        ? {
+                            onClose: ev => {
+                                ev.stopPropagation();
+                                removeGroup(currentLabel);
+                            }
+                        }
+                        : {};
 
                     return (
                         <Label key={currentLabel}

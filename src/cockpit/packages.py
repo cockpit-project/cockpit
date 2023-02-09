@@ -24,6 +24,7 @@ import logging
 import mimetypes
 import os
 import re
+import shutil
 
 from pathlib import Path
 from typing import ClassVar, Dict, List, Optional, Pattern, Tuple
@@ -81,6 +82,11 @@ def get_libexecdir() -> str:
 
 def patch_libexecdir(obj):
     if isinstance(obj, str):
+        if '${libexecdir}/cockpit-askpass' in obj:
+            # extra-special case: we handle this internally
+            abs_askpass = shutil.which('cockpit-askpass')
+            if abs_askpass is not None:
+                return obj.replace('${libexecdir}/cockpit-askpass', abs_askpass)
         return obj.replace('${libexecdir}', get_libexecdir())
     elif isinstance(obj, dict):
         return {key: patch_libexecdir(value) for key, value in obj.items()}

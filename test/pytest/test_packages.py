@@ -41,6 +41,7 @@ class TestPackages(unittest.TestCase):
         self.package_dir = self.workdir / 'cockpit'
         self.package_dir.mkdir()
         os.environ['XDG_DATA_DIRS'] = str(self.workdir)
+        os.environ['XDG_DATA_HOME'] = '/nonexisting'
 
         (self.package_dir / 'basic').mkdir()
         (self.package_dir / 'basic' / 'manifest.json').write_text(

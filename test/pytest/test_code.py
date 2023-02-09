@@ -27,4 +27,5 @@ ROOT_DIR = os.path.realpath(f'{__file__}/../../..')
 @pytest.mark.skipif(not shutil.which('mypy'), reason='mypy is not installed')
 def test_bridge_mypy():
     # only test src/cockpit; src/systemd_ctypes does not have type annotations yet
-    subprocess.check_call(['mypy', 'src/cockpit'], cwd=ROOT_DIR)
+    # disable caching, as it otherwise often crashes with "Cannot find component 'inotify' for 'systemd_ctypes...."
+    subprocess.check_call(['mypy', '--no-incremental', 'src/cockpit'], cwd=ROOT_DIR)

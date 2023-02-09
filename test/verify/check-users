@@ -714,6 +714,7 @@ class TestAccounts(MachineCase):
             else:
                 wait(lambda: "testgroup0" in m.execute("groups admin"))
 
+            b.wait_not_present(".pf-c-select__menu")
             b.click("#account-groups")
             b.click(f".pf-c-select__menu li:contains({group}) button")
             if enabled:

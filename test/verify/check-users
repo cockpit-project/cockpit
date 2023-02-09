@@ -230,6 +230,7 @@ class TestAccounts(MachineCase):
         # The current account is the first in the list
         b.wait_visible("#accounts-list > tbody :first-child #current-account-badge")
 
+        # Use [x] button on the group label to remove the account from group
         b.go("#/jussi")
         b.wait_text("#account-user-name", "jussi")
         b.wait_visible(admin_role_sel + f" .pf-c-label:contains({m.get_admin_group()})")

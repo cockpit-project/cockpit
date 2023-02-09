@@ -17,8 +17,6 @@
 
 # Missing stuff compared to the C bridge that we should probably add:
 #
-# - connecting to given address instead of bus
-# - some more ways to connect to the internal bus (like { bus: "none", address: "internal" })
 # - removing matches
 # - removing watches
 # - emitting of signals
@@ -221,8 +219,14 @@ class DBusChannel(Channel):
         self.tasks = set()
 
         bus = options.get('bus')
+        address = options.get('address')
 
-        if bus == 'internal':
+        if address is not None:
+            if bus is not None and bus != 'none':
+                raise ChannelError('protocol-error', message='only one of "bus" and "address" can be specified')
+            logger.debug('get bus with address %s for %s', address, self.name)
+            self.bus = Bus.new(address=address, bus_client=self.name is not None)
+        elif bus == 'internal':
             logger.debug('get internal bus for %s', self.name)
             self.bus = self.router.internal_bus.client
         else:
@@ -230,9 +234,11 @@ class DBusChannel(Channel):
                 if bus == 'session':
                     logger.debug('get session bus for %s', self.name)
                     self.bus = Bus.default_user()
-                else:
+                elif bus == 'system' or bus is None:
                     logger.debug('get system bus for %s', self.name)
                     self.bus = Bus.default_system()
+                else:
+                    raise ChannelError('protocol-error', message=f'invalid bus "{bus}"')
             except OSError as exc:
                 raise ChannelError('protocol-error', message=f'failed to connect to {bus} bus: {exc}') from exc
 

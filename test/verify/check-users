@@ -768,7 +768,7 @@ class TestAccounts(MachineCase):
         b.wait_visible("#groups-list")
         b.wait_not_in_text('#groups-list', "anton")
 
-        b.go("#/admin")
+        b.click('#accounts-list td[data-label="Username"] a[href="#/admin"]')
 
         # Existing groups appear in labels
         b.wait_in_text(".pf-c-label-group__list", "admin")

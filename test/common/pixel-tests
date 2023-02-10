@@ -128,10 +128,16 @@ cmd_fetch() {
     url=${url/log.html/}
     cmd_update
     echo "Fetching new pixel test references from $url"
-    for f in $(curl -s "$url/index.html" | grep '[^=><"]*-pixels.png' -o | uniq); do
-        echo "$f"
-        curl -s --output-dir test/reference/ -O "$url/$f"
-    done
+    pixels=$(curl -s "$url/index.html" | grep '[^=><"]*-pixels.png' -o | uniq)
+    if [[ -n "$pixels" ]]; then
+        for f in ${pixels}; do
+            echo "$f"
+            curl -s --output-dir test/reference/ -O "$url/$f"
+        done
+    else
+        echo "No new pixels found"
+        exit 1
+    fi 	
 }
 
 cmd_help() {

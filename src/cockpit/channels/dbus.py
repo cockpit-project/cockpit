@@ -338,10 +338,9 @@ class DBusChannel(Channel):
         except BusError as error:
             # actually, should send the fields from the message body
             self.send_message(error=[error.name, [error.message]], id=cookie)
-        except Exception as exc:
+        except Exception:
             logger.exception("do_call(%s): generic exception", message)
-            printable = '\n'.join(traceback.format_exception(exc))
-            self.send_message(error=['python.error', [printable]], id=cookie)
+            self.send_message(error=['python.error', [traceback.format_exc()]], id=cookie)
 
     async def do_add_match(self, message):
         add_match = message['add-match']

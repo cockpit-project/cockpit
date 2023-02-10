@@ -160,5 +160,5 @@ class HttpChannel(Channel):
         self.body += data
 
     def do_done(self):
-        self.loop = asyncio.get_event_loop()
+        self.loop = asyncio.get_running_loop()
         threading.Thread(target=self.request, daemon=True).start()

@@ -27,7 +27,7 @@ import sys
 
 from typing import Dict, Iterable, List, Tuple, Type
 
-from systemd_ctypes import EventLoopPolicy, bus, run_async
+from systemd_ctypes import bus, run_async
 
 from .channel import ChannelRoutingRule
 from .channels import CHANNEL_TYPES
@@ -217,7 +217,6 @@ def main() -> None:
     elif args.bridges:
         print(json.dumps(Packages().get_bridge_configs(), indent=2))
     else:
-        asyncio.set_event_loop_policy(EventLoopPolicy())
         # asyncio.run() shim for Python 3.6 support
         run_async(run(args))
 

@@ -66,7 +66,13 @@ def main() -> None:
         sys.exit('This command must be run with stdin connected to a socket.')
 
     interaction = AuthorizeInteraction(args.prompt)
-    asyncio.run(interaction.run(connection))
+    loop = asyncio.get_event_loop()
+
+    # shim for Python < 3.7
+    if not hasattr(asyncio, 'get_running_loop'):
+        asyncio.get_running_loop = lambda: loop
+
+    loop.run_until_complete(interaction.run(connection))
 
 
 if __name__ == '__main__':

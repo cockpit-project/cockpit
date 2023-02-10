@@ -174,10 +174,6 @@ class DBusChannel(Channel):
     bus = None
     owner = None
 
-    # This needs to be a fair mutex so that outgoing messages don't
-    # get re-ordered.  asyncio.Lock is fair.
-    watch_processing_lock = asyncio.Lock()
-
     async def setup_name_owner_tracking(self):
         def send_owner(owner):
             # We must be careful not to send duplicate owner
@@ -245,6 +241,10 @@ class DBusChannel(Channel):
         except OSError as err:
             if err.errno != errno.EBUSY:
                 raise
+
+        # This needs to be a fair mutex so that outgoing messages don't
+        # get re-ordered.  asyncio.Lock is fair.
+        self.watch_processing_lock = asyncio.Lock()
 
         if self.name is not None:
             async def get_ready():

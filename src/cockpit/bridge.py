@@ -193,7 +193,33 @@ def setup_logging(debug: bool):
             logging.getLogger(module).setLevel(logging.DEBUG)
 
 
+def polyfills():
+    '''Add shims for older Python versions'''
+
+    # introduced in 3.9
+    if not hasattr(socket, 'recv_fds'):
+        import array
+        import _socket
+
+        def recv_fds(sock, bufsize, maxfds, flags=0):
+            fds = array.array("i")
+            msg, ancdata, flags, addr = sock.recvmsg(bufsize, _socket.CMSG_LEN(maxfds * fds.itemsize))
+            for cmsg_level, cmsg_type, cmsg_data in ancdata:
+                if (cmsg_level == _socket.SOL_SOCKET and cmsg_type == _socket.SCM_RIGHTS):
+                    fds.frombytes(cmsg_data[:len(cmsg_data) - (len(cmsg_data) % fds.itemsize)])
+            return msg, list(fds), flags, addr
+
+        socket.recv_fds = recv_fds
+
+        def send_fds(sock, buffers, fds, flags=0, address=None):
+            return sock.sendmsg(buffers, [(_socket.SOL_SOCKET, _socket.SCM_RIGHTS, array.array("i", fds))])
+
+        socket.send_fds = send_fds
+
+
 def main() -> None:
+    polyfills()
+
     # The --privileged bridge gets spawned with its stderr being consumed by a
     # pipe used for reading authentication-related message from sudo.  The
     # absolute first thing we want to do is to recover the original stderr that

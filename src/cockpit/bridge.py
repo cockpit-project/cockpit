@@ -29,6 +29,8 @@ from typing import Dict, Iterable, List, Tuple, Type
 
 from systemd_ctypes import bus, run_async
 
+from . import polyfills
+
 from .channel import ChannelRoutingRule
 from .channels import CHANNEL_TYPES
 from .config import Config, Environment
@@ -192,6 +194,8 @@ def setup_logging(debug: bool):
 
 
 def main() -> None:
+    polyfills.install()
+
     # The --privileged bridge gets spawned with its stderr being consumed by a
     # pipe used for reading authentication-related message from sudo.  The
     # absolute first thing we want to do is to recover the original stderr that

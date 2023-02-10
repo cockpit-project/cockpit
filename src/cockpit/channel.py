@@ -17,6 +17,7 @@
 
 import asyncio
 import logging
+import sys
 
 from typing import ClassVar, Dict, Generator, List, Optional, Sequence, Tuple, Type
 
@@ -389,7 +390,10 @@ class AsyncChannel(Channel):
 
     def do_open(self, options):
         self.receive_queue = asyncio.Queue()
-        asyncio.create_task(self.run_wrapper(options), name=f'{self.__class__.__name__}.run_wrapper({options})')
+        if sys.version_info >= (3, 8):
+            asyncio.create_task(self.run_wrapper(options), name=f'{self.__class__.__name__}.run_wrapper({options})')
+        else:
+            asyncio.create_task(self.run_wrapper(options))
 
     def do_done(self):
         self.receive_queue.put_nowait(b'')

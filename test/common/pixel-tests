@@ -125,6 +125,7 @@ cmd_fetch() {
         echo >&2 "Can't find test results for $(cat test/reference-image), sorry."
         exit 1
     fi
+    url=${url/log.html/}
     cmd_update
     echo "Fetching new pixel test references from $url"
     for f in $(curl -s "$url/index.html" | grep '[^=><"]*-pixels.png' -o | uniq); do

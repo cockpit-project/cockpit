@@ -99,13 +99,13 @@
 
         <div id="user-group" class="form-group">
           <label for="login-user-input" class="control-label" translate>User name</label>
-          <input type="text" class="form-control" id="login-user-input" autocorrect="off" autocapitalize="none" autofocus>
+          <input type="text" class="form-control" id="login-user-input" autocorrect="off" autocapitalize="none" autofocus autocomplete="username">
         </div>
 
         <div id="password-group" class="form-group">
           <label for="login-password-input" class="control-label" translate>Password</label>
           <div class="password-with-toggle">
-            <input type="password" class="form-control" id="login-password-input">
+            <input type="password" class="form-control" id="login-password-input" autocomplete="current-password">
             <button type="button" id="login-password-toggle" class="pf-c-button pf-m-control login-password-toggle" aria-label="Show password">
               <svg fill="currentColor" aria-hidden="true" viewBox="0 0 640 512">
                 <path class="password-show" d="M572.52 241.4C518.29 135.59 410.93 64 288 64S57.68 135.64 3.48 241.41a32.35 32.35 0 0 0 0 29.19C57.71 376.41 165.07 448 288 448s230.32-71.64 284.52-177.41a32.35 32.35 0 0 0 0-29.19zM288 400a144 144 0 1 1 144-144 143.93 143.93 0 0 1-144 144zm0-240a95.31 95.31 0 0 0-25.31 3.79 47.85 47.85 0 0 1-66.9 66.9A95.78 95.78 0 1 0 288 160z"/>
@@ -118,7 +118,7 @@
         <div id="conversation-group" class="form-group" hidden>
           <div id="conversation-message"></div>
           <label id="conversation-prompt" for="conversation-input"></label>
-          <input type="password" class="form-control" id="conversation-input">
+          <input type="password" class="form-control" id="conversation-input" autocomplete="one-time-code">
         </div>
 
         <div id="option-group">

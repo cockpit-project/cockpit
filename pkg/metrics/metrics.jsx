@@ -287,13 +287,13 @@ class CurrentMetrics extends React.Component {
         }
 
         if (!cockpit.hidden && (this.temperature_channel === null)) {
-            this.temperature_channel = cockpit.channel({ payload: "metrics1", source: "internal", interval: 3000, metrics: CPU_TEMPERATURE_METRICS });
+            this.temperature_channel = cockpit.channel({ payload: "metrics1", source: "internal", interval: INTERVAL, metrics: CPU_TEMPERATURE_METRICS });
             this.temperature_channel.addEventListener("close", (ev, error) => console.error("CPU temperature metric closed:", error));
             this.temperature_channel.addEventListener("message", this.onTemperatureUpdate);
         }
 
         if (!cockpit.hidden && this.metrics_channel === null) {
-            this.metrics_channel = cockpit.channel({ payload: "metrics1", source: "internal", interval: 3000, metrics: CURRENT_METRICS });
+            this.metrics_channel = cockpit.channel({ payload: "metrics1", source: "internal", interval: INTERVAL, metrics: CURRENT_METRICS });
             this.metrics_channel.addEventListener("message", this.onMetricsUpdate);
         }
     }

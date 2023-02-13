@@ -875,7 +875,7 @@ ResultActive=yes""")
         m.write(r"/tmp/browser.sh", """#!/bin/sh -e
 curl --silent --compressed -o /tmp/out.html "$@"
 # wait until privileged bridge starts
-until pgrep -f '/usr/bin/cockpit-bridge.*--privileged'; do sleep 1; done
+until pgrep -f '[c]ockpit-bridge.*--privileged'; do sleep 1; done
 """)
         m.execute("chmod 755 /tmp/browser.sh")
         m.execute(f"su - -c 'BROWSER=/tmp/browser.sh {self.libexecdir}/cockpit-desktop system' admin")
@@ -886,7 +886,7 @@ until pgrep -f '/usr/bin/cockpit-bridge.*--privileged'; do sleep 1; done
         self.allow_journal_messages(".*No authentication agent found.*")
         self.allow_journal_messages(".*Peer failed to perform TLS handshake.*")
         self.allow_journal_messages(r".*cannot reauthorize identity\(s\): unix-user:.*")
-        self.allow_journal_messages("admin: Executing command .*COMMAND=/usr/bin/cockpit-bridge --privileged.*")
+        self.allow_journal_messages("admin: Executing command .*COMMAND=.*cockpit-bridge --privileged.*")
 
     @skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testReverseProxy(self):

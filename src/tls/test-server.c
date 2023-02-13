@@ -181,6 +181,8 @@ recv_reply (int fd, char *buf, size_t buflen)
 
   len = recv (fd, buf, buflen - 1, MSG_DONTWAIT);
   close (fd);
+  if (len < 0)
+    g_error ("recv_reply: unexpected error: %m");
   g_assert_cmpint (len, >=, 100);
   buf[len] = '\0'; /* so that we can use string functions on it */
 
@@ -192,13 +194,19 @@ do_request (TestCase *tc, const char *request)
 {
   static char buf[4096];
   int fd = do_connect (tc);
+  int res;
 
   send_request (fd, request);
   /* wait until data is available */
-  for (int timeout = 0; timeout < 100 && recv (fd, buf, 100, MSG_PEEK | MSG_DONTWAIT) < 100; ++timeout)
-    server_poll_event (100);
+  for (int timeout = 0; timeout < 100; ++timeout) {
+    res = recv (fd, buf, 100, MSG_PEEK | MSG_DONTWAIT);
+    if (res >= 100)
+      return recv_reply (fd, buf, sizeof (buf));
 
-  return recv_reply (fd, buf, sizeof (buf));
+    server_poll_event (100);
+  }
+
+  g_error ("timed out waiting for enough data to become available: res=%d, error: %m", res);
 }
 
 static void

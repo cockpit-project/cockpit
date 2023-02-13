@@ -153,7 +153,7 @@ class TestConnection(MachineCase):
             self.allow_journal_messages(".*cockpit-session: bridge program failed.*")
 
             # pretend cockpit-bridge is not installed, expect specific error message
-            m.execute("mv /usr/bin/cockpit-bridge /usr/bin/cockpit-bridge.disabled")
+            m.execute("while B=$(command -v cockpit-bridge); do mv $B ${B}.disabled; done")
             b.open("/system")
             b.wait_visible("#login")
             b.set_val("#login-user-input", "admin")
@@ -161,7 +161,7 @@ class TestConnection(MachineCase):
             b.click('#login-button')
             b.wait_visible('#login-fatal-message')
             b.wait_text('#login-fatal-message', "The cockpit package is not installed")
-            m.execute("mv /usr/bin/cockpit-bridge.disabled /usr/bin/cockpit-bridge")
+            m.execute("while B=$(command -v cockpit-bridge.disabled); do mv $B ${B%.disabled}; done")
 
         # Lets crash a systemd-controlled process and see if we get a proper backtrace in the logs
         # This helps with debugging failures in the tests elsewhere

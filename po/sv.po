@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-07 02:55+0000\n"
-"PO-Revision-Date: 2023-02-07 12:34+0000\n"
-"Last-Translator: Göran Uddeborg <goeran@uddeborg.se>\n"
+"POT-Creation-Date: 2023-02-12 02:57+0000\n"
+"PO-Revision-Date: 2023-02-11 16:13+0000\n"
+"Last-Translator: Luna Jernberg <bittin@reimu.nl>\n"
 "Language-Team: Swedish <https://translate.fedoraproject.org/projects/cockpit/"
 "main/sv/>\n"
 "Language: sv\n"
@@ -1273,7 +1273,8 @@ msgstr ""
 "på $3 utan lösenord i framtiden."
 
 #: pkg/systemd/hwinfo.jsx:119 pkg/systemd/overview-cards/usageCard.jsx:134
-#: pkg/metrics/metrics.jsx:690 pkg/metrics/metrics.jsx:1686
+#: pkg/metrics/metrics.jsx:690 pkg/metrics/metrics.jsx:1373
+#: pkg/metrics/metrics.jsx:1724
 msgid "CPU"
 msgstr "CPU"
 
@@ -1313,7 +1314,7 @@ msgstr "Hittade inga loggar med dessa filter aktiva."
 #: pkg/sosreport/index.jsx:289 pkg/sosreport/index.jsx:374
 #: pkg/packagekit/updates.jsx:533 pkg/packagekit/updates.jsx:571
 #: pkg/packagekit/kpatch.jsx:311 pkg/packagekit/autoupdates.jsx:274
-#: pkg/networkmanager/dialogs-common.jsx:155
+#: pkg/networkmanager/dialogs-common.jsx:157
 #: pkg/networkmanager/firewall.jsx:604 pkg/networkmanager/firewall.jsx:808
 #: pkg/networkmanager/firewall.jsx:903 pkg/systemd/hwinfo.jsx:242
 #: pkg/systemd/overview-cards/motdCard.jsx:67
@@ -1331,7 +1332,7 @@ msgstr "Hittade inga loggar med dessa filter aktiva."
 #: pkg/shell/active-pages-modal.jsx:97 pkg/shell/hosts_dialog.jsx:280
 #: pkg/shell/hosts_dialog.jsx:377 pkg/shell/hosts_dialog.jsx:501
 #: pkg/shell/hosts_dialog.jsx:869 pkg/shell/shell-modals.jsx:114
-#: pkg/metrics/metrics.jsx:1277
+#: pkg/metrics/metrics.jsx:1282
 msgid "Cancel"
 msgstr "Avbryt"
 
@@ -1417,7 +1418,7 @@ msgstr "Ändra systemtid"
 msgid "Change the password of $0"
 msgstr "Ändra lösenord av $0"
 
-#: pkg/networkmanager/interfaces.js:1596
+#: pkg/networkmanager/interfaces.js:1597
 msgid "Change the settings"
 msgstr "Ändra inställningarna"
 
@@ -1431,7 +1432,7 @@ msgstr ""
 "En oväntad förändring kan dock indikera ett försök från tredje part att "
 "avlyssna din anslutning."
 
-#: pkg/networkmanager/interfaces.js:1595
+#: pkg/networkmanager/interfaces.js:1596
 msgid ""
 "Changing the settings will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -1604,7 +1605,7 @@ msgstr ""
 msgid "Cockpit might not render correctly in your browser"
 msgstr "Cockpit kanske inte återges korrekt i din webbläsare"
 
-#: pkg/metrics/metrics.jsx:1290
+#: pkg/metrics/metrics.jsx:1295
 msgid "Collect metrics"
 msgstr "Samla in mätvärden"
 
@@ -1884,7 +1885,7 @@ msgstr "Skapa enheter"
 msgid "Create filesystem"
 msgstr "Skapa filsystem"
 
-#: pkg/networkmanager/dialogs-common.jsx:311
+#: pkg/networkmanager/dialogs-common.jsx:294
 msgid "Create it"
 msgstr "Skapa den"
 
@@ -1975,7 +1976,7 @@ msgstr "Skapar en partition på $target"
 msgid "Creating snapshot of $target"
 msgstr "Skapar en ögonblicksbild av $target"
 
-#: pkg/networkmanager/dialogs-common.jsx:310
+#: pkg/networkmanager/dialogs-common.jsx:293
 msgid ""
 "Creating this $0 will break the connection to the server, and will make the "
 "administration UI unavailable."
@@ -2317,7 +2318,8 @@ msgstr "Hindra körning (göm)"
 msgid "Disconnected"
 msgstr "Frånkopplad"
 
-#: pkg/metrics/metrics.jsx:133 pkg/metrics/metrics.jsx:1688
+#: pkg/metrics/metrics.jsx:133 pkg/metrics/metrics.jsx:1373
+#: pkg/metrics/metrics.jsx:1726
 msgid "Disk I/O"
 msgstr "Disk-I/O"
 
@@ -2631,7 +2633,7 @@ msgstr "Fel"
 msgid "Error and above"
 msgstr "Fel och högre"
 
-#: pkg/metrics/metrics.jsx:1631
+#: pkg/metrics/metrics.jsx:1638
 msgid "Error has occurred"
 msgstr "Fel har uppstått"
 
@@ -2704,7 +2706,7 @@ msgstr "Upphör konto på $0"
 msgid "Export"
 msgstr "Exportera"
 
-#: pkg/metrics/metrics.jsx:1307
+#: pkg/metrics/metrics.jsx:1312
 msgid "Export to network"
 msgstr "Exportera till nätverk"
 
@@ -2749,7 +2751,7 @@ msgstr "Kunde inte lägga till zon"
 msgid "Failed to change password"
 msgstr "Misslyckades att ändra lösenord"
 
-#: pkg/metrics/metrics.jsx:1283
+#: pkg/metrics/metrics.jsx:1288
 msgid "Failed to configure PCP"
 msgstr "Misslyckades att konfigurera PCP"
 
@@ -2806,7 +2808,7 @@ msgstr "Misslyckades med att starta om tjänst"
 msgid "Failed to save changes in /etc/motd"
 msgstr "Misslyckades med att spara ändringar i /etc/motd"
 
-#: pkg/networkmanager/dialogs-common.jsx:161
+#: pkg/networkmanager/dialogs-common.jsx:163
 msgid "Failed to save settings"
 msgstr "Misslyckades att spara inställningarna"
 
@@ -2987,6 +2989,14 @@ msgstr "Gå till programmet"
 msgid "Go to now"
 msgstr "Gå till nu"
 
+#: pkg/metrics/metrics.jsx:1718
+msgid "Graph visibility"
+msgstr "Grafens synlighet"
+
+#: pkg/metrics/metrics.jsx:1708
+msgid "Graph visibility options menu"
+msgstr ""
+
 #: pkg/networkmanager/network-interface.jsx:415 pkg/users/accounts-list.js:406
 msgid "Group"
 msgstr "Grupp"
@@ -2995,7 +3005,7 @@ msgstr "Grupp"
 msgid "Group name"
 msgstr "Gruppnamn"
 
-#: pkg/users/account-details.js:447 pkg/users/accounts-list.js:333
+#: pkg/users/account-details.js:452 pkg/users/accounts-list.js:333
 #: pkg/users/accounts-list.js:337
 msgid "Groups"
 msgstr "Grupper"
@@ -3190,8 +3200,8 @@ msgid "In sync"
 msgstr "I synk"
 
 #: pkg/networkmanager/network-interface.jsx:259
-#: pkg/networkmanager/interfaces.js:735 pkg/networkmanager/interfaces.js:1294
-#: pkg/networkmanager/interfaces.js:1301
+#: pkg/networkmanager/interfaces.js:735 pkg/networkmanager/interfaces.js:1295
+#: pkg/networkmanager/interfaces.js:1302
 msgid "Inactive"
 msgstr "Inaktiv"
 
@@ -3272,7 +3282,7 @@ msgstr "Installera Stratis stöd"
 msgid "Install all updates"
 msgstr "Installera alla uppdateringar"
 
-#: pkg/metrics/metrics.jsx:1599
+#: pkg/metrics/metrics.jsx:1606
 msgid "Install cockpit-pcp"
 msgstr "Installera cockpit-pcp"
 
@@ -3457,7 +3467,7 @@ msgstr "Journalpost"
 msgid "Journal entry not found"
 msgstr "Journalposten hittades inte"
 
-#: pkg/metrics/metrics.jsx:1676
+#: pkg/metrics/metrics.jsx:1698
 msgid "Jump to"
 msgstr "Hoppa till"
 
@@ -3671,15 +3681,15 @@ msgid "Listing units failed: $0"
 msgstr "Misslyckades att lista enheter: $0"
 
 #: pkg/metrics/metrics.jsx:111 pkg/metrics/metrics.jsx:719
-#: pkg/metrics/metrics.jsx:1686
+#: pkg/metrics/metrics.jsx:1724
 msgid "Load"
-msgstr "Ladda"
+msgstr "Belastning"
 
 #: pkg/networkmanager/team.jsx:45
 msgid "Load balancing"
 msgstr "Lastbalansering"
 
-#: pkg/metrics/metrics.jsx:1705
+#: pkg/metrics/metrics.jsx:1744
 msgid "Load earlier data"
 msgstr "Läs in tidigare data"
 
@@ -3732,7 +3742,7 @@ msgstr "Att läsa in enheter misslyckades: $0"
 #: pkg/users/account-details.js:183 pkg/users/accounts-list.js:338
 #: pkg/users/accounts-list.js:362 pkg/users/accounts-list.js:478
 #: pkg/storaged/devices.jsx:68 pkg/metrics/metrics.jsx:1004
-#: pkg/metrics/metrics.jsx:1704
+#: pkg/metrics/metrics.jsx:1743
 msgid "Loading..."
 msgstr "Läser in …"
 
@@ -3800,7 +3810,7 @@ msgid "Log messages"
 msgstr "Loggmeddelanden"
 
 #: pkg/users/logout-account-dialog.js:36 pkg/shell/topnav.jsx:216
-#: pkg/metrics/metrics.jsx:1592
+#: pkg/metrics/metrics.jsx:1599
 msgid "Log out"
 msgstr "Logga ut"
 
@@ -4022,7 +4032,7 @@ msgstr "Maximal meddelandeålder $max_age"
 #: pkg/systemd/hwinfo.jsx:309 pkg/systemd/hwinfo.jsx:358
 #: pkg/systemd/overview-cards/usageCard.jsx:146
 #: pkg/systemd/services/service-details.jsx:651 pkg/metrics/metrics.jsx:745
-#: pkg/metrics/metrics.jsx:1687
+#: pkg/metrics/metrics.jsx:1373 pkg/metrics/metrics.jsx:1725
 msgid "Memory"
 msgstr "Minne"
 
@@ -4062,15 +4072,15 @@ msgstr "Metod"
 msgid "Metric"
 msgstr "Mått"
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1724
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1763
 msgid "Metrics and history"
 msgstr "Mått och historik"
 
-#: pkg/metrics/metrics.jsx:1622
+#: pkg/metrics/metrics.jsx:1629
 msgid "Metrics history could not be loaded"
 msgstr "Metrikhistoriken kunde inte läsas in"
 
-#: pkg/metrics/metrics.jsx:1259 pkg/metrics/metrics.jsx:1353
+#: pkg/metrics/metrics.jsx:1264 pkg/metrics/metrics.jsx:1358
 msgid "Metrics settings"
 msgstr "Måttinställningar"
 
@@ -4243,7 +4253,7 @@ msgstr "NTP-server"
 
 #: pkg/packagekit/updates.jsx:441 pkg/networkmanager/network-main.jsx:184
 #: pkg/networkmanager/network-main.jsx:199
-#: pkg/networkmanager/dialogs-common.jsx:134 pkg/systemd/hwinfo.jsx:91
+#: pkg/networkmanager/dialogs-common.jsx:136 pkg/systemd/hwinfo.jsx:91
 #: pkg/systemd/services/timer-dialog.jsx:158
 #: pkg/users/authorized-keys-panel.js:131 pkg/users/group-create-dialog.js:37
 #: pkg/storaged/lvol-tabs.jsx:48 pkg/storaged/lvol-tabs.jsx:419
@@ -4295,7 +4305,8 @@ msgstr "Namnet får inte innehålla blanktecken."
 msgid "Need at least one NTP server"
 msgstr "Behöver åtminstone en NTP-server"
 
-#: pkg/metrics/metrics.jsx:822 pkg/metrics/metrics.jsx:1689
+#: pkg/metrics/metrics.jsx:822 pkg/metrics/metrics.jsx:1373
+#: pkg/metrics/metrics.jsx:1727
 msgid "Network"
 msgstr "Nätverk"
 
@@ -4414,7 +4425,7 @@ msgstr "Inga tillgängliga fack"
 msgid "No block devices are available."
 msgstr "Inga block enheter är tillgängliga."
 
-#: pkg/networkmanager/interfaces.js:1296
+#: pkg/networkmanager/interfaces.js:1297
 msgid "No carrier"
 msgstr "Ingen bärvåg"
 
@@ -4422,11 +4433,11 @@ msgstr "Ingen bärvåg"
 msgid "No configuration found"
 msgstr "Ingen konfiguration hittad"
 
-#: pkg/metrics/metrics.jsx:1649
+#: pkg/metrics/metrics.jsx:1656
 msgid "No data available"
 msgstr "Ingen data tillgänglig"
 
-#: pkg/metrics/metrics.jsx:1645
+#: pkg/metrics/metrics.jsx:1652
 msgid "No data available between $0 and $1"
 msgstr "Ingen data tillgänglig mellan $0 och $1"
 
@@ -4737,7 +4748,7 @@ msgstr ""
 msgid "Ooops!"
 msgstr "Hoppsan!"
 
-#: pkg/metrics/metrics.jsx:1246
+#: pkg/metrics/metrics.jsx:1251
 msgid "Open the pmproxy service in the firewall to share metrics."
 msgstr "Öppna pmproxy-tjänsten i brandväggen för att dela mätvärden."
 
@@ -4789,7 +4800,7 @@ msgstr "Andra alternativ"
 msgid "Out"
 msgstr "Ut"
 
-#: pkg/systemd/hwinfo.jsx:327 pkg/metrics/metrics.jsx:1723
+#: pkg/systemd/hwinfo.jsx:327 pkg/metrics/metrics.jsx:1762
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "Översikt"
@@ -4810,7 +4821,7 @@ msgstr "PCI"
 msgid "PID"
 msgstr "PID"
 
-#: pkg/metrics/metrics.jsx:1598
+#: pkg/metrics/metrics.jsx:1605
 msgid "Package cockpit-pcp is missing for metrics history"
 msgstr "Paketet cockpit-pcp saknas för statistikhistorik"
 
@@ -4850,7 +4861,7 @@ msgstr "Förälder $parent"
 msgid "Part of"
 msgstr "Del av"
 
-#: pkg/networkmanager/interfaces.js:1325
+#: pkg/networkmanager/interfaces.js:1326
 msgid "Part of $0"
 msgstr "Del av $0"
 
@@ -5001,7 +5012,7 @@ msgstr "Sökvägar"
 msgid "Pause"
 msgstr "Pausa"
 
-#: pkg/metrics/metrics.jsx:1262
+#: pkg/metrics/metrics.jsx:1267
 msgid ""
 "Performance Co-Pilot collects and analyzes performance metrics from your "
 "system."
@@ -5016,7 +5027,7 @@ msgstr "Prestandaprofil"
 msgid "Peripheral chassis"
 msgstr "Periferichassi"
 
-#: pkg/networkmanager/dialogs-common.jsx:69
+#: pkg/networkmanager/dialogs-common.jsx:71
 msgid "Permanent"
 msgstr "Permanent"
 
@@ -5151,7 +5162,7 @@ msgstr "Förbereder"
 msgid "Present"
 msgstr "Närvarande"
 
-#: pkg/networkmanager/dialogs-common.jsx:70
+#: pkg/networkmanager/dialogs-common.jsx:72
 msgid "Preserve"
 msgstr "Bevara"
 
@@ -5322,7 +5333,7 @@ msgstr "RAM"
 msgid "Rack mount chassis"
 msgstr "Rackmonteringschassi"
 
-#: pkg/networkmanager/dialogs-common.jsx:71
+#: pkg/networkmanager/dialogs-common.jsx:73
 msgid "Random"
 msgstr "Slumpvis"
 
@@ -5346,7 +5357,7 @@ msgstr "Rå till en enhet"
 msgid "Read"
 msgstr "Läs"
 
-#: pkg/systemd/hwinfo.jsx:218 pkg/metrics/metrics.jsx:1268
+#: pkg/systemd/hwinfo.jsx:218 pkg/metrics/metrics.jsx:1273
 msgid "Read more..."
 msgstr "Läs mer..."
 
@@ -5924,12 +5935,12 @@ msgstr ""
 msgid "Saturdays"
 msgstr "Lördagar"
 
-#: pkg/packagekit/kpatch.jsx:306 pkg/networkmanager/dialogs-common.jsx:152
+#: pkg/packagekit/kpatch.jsx:306 pkg/networkmanager/dialogs-common.jsx:154
 #: pkg/systemd/services/timer-dialog.jsx:149 pkg/kdump/kdump-view.jsx:324
 #: pkg/storaged/crypto-keyslots.jsx:541 pkg/storaged/crypto-keyslots.jsx:560
 #: pkg/storaged/nfs-details.jsx:186 pkg/storaged/fsys-tab.jsx:378
 #: pkg/storaged/fsys-tab.jsx:494 pkg/storaged/crypto-tab.jsx:161
-#: pkg/storaged/crypto-tab.jsx:205 pkg/metrics/metrics.jsx:1274
+#: pkg/storaged/crypto-tab.jsx:205 pkg/metrics/metrics.jsx:1279
 msgid "Save"
 msgstr "Spara"
 
@@ -5980,10 +5991,8 @@ msgid "Search domain"
 msgstr "Sökdomäner"
 
 #: pkg/users/accounts-list.js:307
-#, fuzzy
-#| msgid "Search for name, group or ID"
 msgid "Search for name or ID"
-msgstr "Sök efter namn, grupp eller ID"
+msgstr "Sök efter namn eller ID"
 
 #: pkg/users/accounts-list.js:447
 msgid "Search for name, group or ID"
@@ -6378,7 +6387,7 @@ msgstr "Specifik tid"
 msgid "Speed"
 msgstr "Hastighet"
 
-#: pkg/networkmanager/dialogs-common.jsx:72
+#: pkg/networkmanager/dialogs-common.jsx:74
 msgid "Stable"
 msgstr "Stabilt"
 
@@ -6558,7 +6567,7 @@ msgid "Support is installed."
 msgstr "Stöd är installerat."
 
 #: pkg/storaged/content-views.jsx:228 pkg/metrics/metrics.jsx:126
-#: pkg/metrics/metrics.jsx:605 pkg/metrics/metrics.jsx:1687
+#: pkg/metrics/metrics.jsx:605 pkg/metrics/metrics.jsx:1725
 msgid "Swap"
 msgstr "Växlingsutrymme"
 
@@ -7013,7 +7022,7 @@ msgstr "Användaren $0 tillåts inte ändra CPU-säkerhetsbegränsningar"
 msgid "The user $0 is not permitted to change crypto policies"
 msgstr "Användaren $0 har inte rättighet att ändra kryptopolicyer"
 
-#: pkg/users/account-details.js:440
+#: pkg/users/account-details.js:445
 msgid ""
 "The user must log out and log back in for the new configuration to take "
 "effect."
@@ -7284,7 +7293,7 @@ msgstr ""
 "För att verifiera ett fingeravtryck, kör följande på $0 medan du fysiskt "
 "sitter vid maskinen eller genom ett pålitligt nätverk:"
 
-#: pkg/metrics/metrics.jsx:1655
+#: pkg/metrics/metrics.jsx:1662
 msgid "Today"
 msgstr "Idag"
 
@@ -7351,7 +7360,7 @@ msgstr "Utlöst av"
 msgid "Triggers"
 msgstr "Utlösare"
 
-#: pkg/metrics/metrics.jsx:1617
+#: pkg/metrics/metrics.jsx:1624
 msgid "Troubleshoot"
 msgstr "Felsök"
 
@@ -7517,7 +7526,7 @@ msgstr "Otillgänglig"
 msgid "Unavailable packages"
 msgstr "Otillgängliga paket"
 
-#: pkg/users/account-details.js:441
+#: pkg/users/account-details.js:446
 msgid "Undo"
 msgstr "Ångra"
 
@@ -7715,9 +7724,9 @@ msgid "Uptime"
 msgstr "Upptid"
 
 #: pkg/systemd/overview-cards/usageCard.jsx:129
-#: pkg/storaged/unrecognized-tab.jsx:37 pkg/metrics/metrics.jsx:1686
-#: pkg/metrics/metrics.jsx:1687 pkg/metrics/metrics.jsx:1688
-#: pkg/metrics/metrics.jsx:1689
+#: pkg/storaged/unrecognized-tab.jsx:37 pkg/metrics/metrics.jsx:1724
+#: pkg/metrics/metrics.jsx:1725 pkg/metrics/metrics.jsx:1726
+#: pkg/metrics/metrics.jsx:1727
 msgid "Usage"
 msgstr "Användning"
 
@@ -7730,7 +7739,7 @@ msgstr "Användning"
 msgid "Usage of $0"
 msgstr "Användning av $0"
 
-#: pkg/networkmanager/dialogs-common.jsx:95 pkg/storaged/dialog.jsx:568
+#: pkg/networkmanager/dialogs-common.jsx:97 pkg/storaged/dialog.jsx:568
 #: pkg/storaged/dialog.jsx:1051
 msgid "Use"
 msgstr "Använd"
@@ -8100,7 +8109,7 @@ msgstr "Du kanske vill ändra lösenordet för nyckeln för automatisk inloggnin
 msgid "You must wait longer to change your password"
 msgstr "Du måste vänta längre på att ändra ditt lösenord"
 
-#: pkg/metrics/metrics.jsx:1591
+#: pkg/metrics/metrics.jsx:1598
 msgid "You need to relogin to be able to see metrics history"
 msgstr "Man behöver logga in igen för att kunna se mätvärdeshistoriken"
 
@@ -8315,7 +8324,7 @@ msgid "drive"
 msgstr "disk"
 
 #: pkg/networkmanager/network-interface.jsx:363
-#: pkg/networkmanager/dialogs-common.jsx:252
+#: pkg/networkmanager/dialogs-common.jsx:235
 #: pkg/systemd/overview-cards/configurationCard.jsx:51
 #: pkg/users/account-details.js:302 pkg/users/account-details.js:334
 #: pkg/storaged/lvol-tabs.jsx:423 pkg/storaged/lvol-tabs.jsx:484
@@ -8670,15 +8679,15 @@ msgstr "fysisk volym på LVM2 volymgrupp"
 msgid "plugin"
 msgstr "insticksmodul"
 
-#: pkg/metrics/metrics.jsx:1614
+#: pkg/metrics/metrics.jsx:1621
 msgid "pmlogger.service has failed"
 msgstr "pmlogger.service har misslyckats"
 
-#: pkg/metrics/metrics.jsx:1616
+#: pkg/metrics/metrics.jsx:1623
 msgid "pmlogger.service is failing to collect data"
 msgstr "pmlogger.service misslyckas att samla in data"
 
-#: pkg/metrics/metrics.jsx:1607
+#: pkg/metrics/metrics.jsx:1614
 msgid "pmlogger.service is not running"
 msgstr "pmlogger.service körs inte"
 

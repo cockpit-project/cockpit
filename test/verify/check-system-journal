@@ -23,6 +23,8 @@ import time
 
 sleep_crash_list_sel = "#journal-box .cockpit-logline .cockpit-log-message:contains('(sleep) crashed in')"
 
+NO_ABRT = ["debian-*", "ubuntu-*", "fedora-coreos", "rhel*", "centos-8-*", "arch"]
+
 
 @skipDistroPackage()
 class TestJournal(MachineCase):
@@ -521,9 +523,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_visible(journal_line_selector.format("WARNING_MESSAGE"))
         b.wait_visible(journal_line_selector.format("INFO_MESSAGE"))
 
-    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-2204", "fedora-coreos", "rhel4edge", "rhel-8-7", "rhel-8-8", "rhel-9-1", "rhel-9-2", "centos-8-stream",
-               "arch")
+    @skipImage("ABRT not available", *NO_ABRT)
     @nondestructive
     def testAbrtSegv(self):
         b = self.browser
@@ -555,9 +555,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.click("#abrt-details .pf-c-accordion__toggle:contains('core_backtrace')")
         b.wait_visible("#abrt-details .pf-c-accordion__expanded-content-body dt:contains('signal') + dd:contains('11')")
 
-    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-2204", "fedora-coreos", "rhel4edge", "rhel-8-7", "rhel-8-8", "rhel-9-1", "rhel-9-2", "centos-8-stream",
-               "arch")
+    @skipImage("ABRT not available", *NO_ABRT)
     @nondestructive
     def testAbrtDelete(self):
         b = self.browser
@@ -587,9 +585,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.wait_visible(".pf-c-card__title:contains('(sleep) crashed in')")
         b.wait_not_present("button.pf-m-danger:contains('Delete')")
 
-    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-2204", "fedora-coreos", "rhel4edge", "rhel-8-7", "rhel-8-8", "rhel-9-1", "rhel-9-2", "centos-8-stream",
-               "arch")
+    @skipImage("ABRT not available", *NO_ABRT)
     @nondestructive
     def testAbrtReport(self):
         # The testing server is located at verify/files/mock-faf-server.py
@@ -652,9 +648,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.click(".pf-c-modal-box__footer button:contains('No')")
         b.wait_visible("#abrt-reporting .pf-l-split:contains('Report to Cockpit') a[href='https://bugzilla.example.com/show_bug.cgi?id=123456']")
 
-    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-2204", "fedora-coreos", "rhel4edge", "rhel-8-7", "rhel-8-8", "rhel-9-1", "rhel-9-2", "centos-8-stream",
-               "arch")
+    @skipImage("ABRT not available", *NO_ABRT)
     @nondestructive
     def testAbrtReportCancel(self):
         b = self.browser
@@ -688,9 +682,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b.click("#abrt-reporting .pf-l-split:contains('Report to Cockpit') button:contains('Cancel')")
         b.wait_visible("#abrt-reporting .pf-l-split:contains('Report to Cockpit') .pf-l-split__item:contains('Reporting was canceled')")
 
-    @skipImage("ABRT not available", "debian-stable", "debian-testing", "ubuntu-stable",
-               "ubuntu-2204", "fedora-coreos", "rhel4edge", "rhel-8-7", "rhel-8-8", "rhel-9-1", "rhel-9-2", "centos-8-stream",
-               "arch")
+    @skipImage("ABRT not available", *NO_ABRT)
     @nondestructive
     def testAbrtReportNoReportd(self):
         b = self.browser

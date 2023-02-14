@@ -20,7 +20,7 @@
 import datetime
 
 import parent  # noqa: F401
-from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, test_main, wait
+from testlib import MachineCase, nondestructive, skipDistroPackage, skipOstree, test_main, wait
 
 
 @nondestructive
@@ -540,7 +540,7 @@ class TestAccounts(MachineCase):
         b.click('#account-set-password-dialog button.apply')
         b.wait_in_text("#account-set-password-dialog .pf-c-modal-box__body", "must wait longer")
 
-    @skipImage("ssh root login not allowed", "fedora-coreos", "rhel4edge")
+    @skipOstree("ssh root login not allowed")
     def testRootLogin(self):
         m = self.machine
         b = self.browser
@@ -682,7 +682,7 @@ class TestAccounts(MachineCase):
         b.wait_in_text("#password-expiration-text", "Password must be changed")
         self.assertEqual(self.accountExpiryInfo("scruffy", "Password expires"), "password must be changed")
 
-    @skipImage("User is not shown as logged in when logged in through Cockpit", "fedora-coreos", "rhel4edge")
+    @skipOstree("User is not shown as logged in when logged in through Cockpit")
     def testAccountLogs(self):
         b = self.browser
         m = self.machine

@@ -22,6 +22,7 @@ from time import sleep
 import argparse
 import base64
 import errno
+import fnmatch
 import os
 import shutil
 import socket
@@ -41,6 +42,8 @@ from typing import Any, Callable, Dict, List, Optional, Union
 
 import testvm
 import cdp
+
+from lib.constants import OSTREE_IMAGES
 
 from lcov import write_lcov
 
@@ -71,6 +74,7 @@ __all__ = (
     'skipImage',
     'skipDistroPackage',
     'skipMobile',
+    'skipOstree',
     'skipBrowser',
     'skipPackage',
     'todo',
@@ -2151,7 +2155,13 @@ def skipBrowser(reason: str, *args: str):
 
 
 def skipImage(reason: str, *args: str):
-    if testvm.DEFAULT_IMAGE in args:
+    if any(fnmatch.fnmatch(testvm.DEFAULT_IMAGE, arg) for arg in args):
+        return unittest.skip("{0}: {1}".format(testvm.DEFAULT_IMAGE, reason))
+    return lambda testEntity: testEntity
+
+
+def skipOstree(reason: str):
+    if testvm.DEFAULT_IMAGE in OSTREE_IMAGES:
         return unittest.skip("{0}: {1}".format(testvm.DEFAULT_IMAGE, reason))
     return lambda testEntity: testEntity
 

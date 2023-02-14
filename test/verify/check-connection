@@ -23,7 +23,7 @@ import os
 import subprocess
 
 import parent  # noqa: F401
-from testlib import MachineCase, TEST_DIR, nondestructive, skipBrowser, skipDistroPackage, skipImage, test_main, wait
+from testlib import MachineCase, TEST_DIR, nondestructive, skipBrowser, skipDistroPackage, skipImage, skipOstree, test_main, wait
 
 
 @skipDistroPackage()
@@ -179,7 +179,7 @@ class TestConnection(MachineCase):
         self.allow_core_dumps = True
         self.allow_journal_messages(".*org.freedesktop.hostname1.*DBus.Error.NoReply.*")
 
-    @skipImage("OSTree doesn't use systemd units", "fedora-coreos", "rhel4edge")
+    @skipOstree("OSTree doesn't use systemd units")
     def testUnitLifecycle(self):
         m = self.machine
 
@@ -280,7 +280,7 @@ class TestConnection(MachineCase):
             out = m.execute(f"su -c '! nc -U /run/cockpit/wsinstance/{s} 2>&1 || exit 1' admin")
             self.assertIn("Permission denied", out)
 
-    @skipImage("OSTree doesn't use systemd units", "fedora-coreos", "rhel4edge")
+    @skipOstree("OSTree doesn't use systemd units")
     def testHttpsInstanceDoS(self):
         m = self.machine
         # prevent generating core dump artifacts
@@ -485,7 +485,7 @@ class TestConnection(MachineCase):
 
         self.allow_journal_messages('peer did not close io when expected')
 
-    @skipImage("OSTree doesn't have cockpit-ws", "fedora-coreos", "rhel4edge")
+    @skipOstree("OSTree doesn't have cockpit-ws")
     def test100YearsCert(self):
         m = self.machine
 
@@ -529,7 +529,7 @@ class TestConnection(MachineCase):
         m.execute(f'test ! {selfsign} -nt /tmp/timestamp')
         m.execute('rm /tmp/timestamp')
 
-    @skipImage("OSTree doesn't use systemd units", "fedora-coreos", "rhel4edge")
+    @skipOstree("OSTree doesn't use systemd units")
     def testSocket(self):
         m = self.machine
 
@@ -599,7 +599,7 @@ class TestConnection(MachineCase):
 
         self.allow_journal_messages(".*Peer failed to perform TLS handshake")
 
-    @skipImage("Can't remove/upgrade packages on OSTree", "fedora-coreos", "rhel4edge")
+    @skipOstree("Can't remove/upgrade packages on OSTree")
     def testWsPackage(self):
         m = self.machine
 
@@ -672,7 +672,7 @@ class TestConnection(MachineCase):
         if root_login_disallowed:
             self.assertIn('root', m.execute("cat /etc/cockpit/disallowed-users"))
 
-    @skipImage("OSTree doesn't have cockpit-ws", "fedora-coreos", "rhel4edge")
+    @skipOstree("OSTree doesn't have cockpit-ws")
     @nondestructive
     def testCommandline(self):
         m = self.machine
@@ -744,7 +744,7 @@ class TestConnection(MachineCase):
         headers = m.execute("curl -s --head http://172.27.0.15:9090/cockpit+123/channel/foo")
         self.assertIn("HTTP/1.1 404 Not Found\r\n", headers)
 
-    @skipImage("ssh root login not allowed", "fedora-coreos", "rhel4edge")
+    @skipOstree("ssh root login not allowed")
     @nondestructive
     def testFlowControl(self):
         m = self.machine
@@ -771,7 +771,7 @@ class TestConnection(MachineCase):
         # This fails when flow control is not present
         self.assertLess(rss, 250000)
 
-    @skipImage("OSTree doesn't have cockpit-ws", "fedora-coreos", "rhel4edge")
+    @skipOstree("OSTree doesn't have cockpit-ws")
     @nondestructive
     def testLocalSession(self):
         m = self.machine
@@ -808,8 +808,8 @@ export XDG_CONFIG_DIRS=/usr/local
 
         self.allow_journal_messages("couldn't register polkit authentication agent.*")
 
-    @skipImage("OSTree doesn't have cockpit-ws", "fedora-coreos", "rhel4edge")
-    @skipImage("Kernel does not allow user namespaces", "debian-stable", "debian-testing")
+    @skipOstree("OSTree doesn't have cockpit-ws")
+    @skipImage("Kernel does not allow user namespaces", "debian-*")
     def testCockpitDesktop(self):
         m = self.machine
 
@@ -1041,7 +1041,7 @@ until pgrep -f '[c]ockpit-bridge.*--privileged'; do sleep 1; done
         b.wait_visible("#login")
         b.assert_pixels("body", "login-screen")
 
-    @skipImage("no cockpit-ws package", "fedora-coreos", "rhel4edge")
+    @skipOstree("no cockpit-ws package")
     def testAuthUnixPath(self):
         '''test UnixPath for auth method in cockpit.conf'''
         m = self.machine
@@ -1123,8 +1123,8 @@ ProtocolHeader = X-Forwarded-Proto
         b.logout()
         b.cdp.invoke("Browser.close")
 
-    @skipImage("nginx not installed", "centos-8-stream", "debian-stable", "debian-testing", "fedora-coreos", "rhel4edge",
-               "rhel-8-7", "rhel-8-8", "rhel-9-1", "rhel-9-2", "ubuntu-stable", "ubuntu-2204", "arch")
+    @skipImage("nginx not installed", "centos-8-stream", "rhel-*", "debian-*", "ubuntu-*", "arch")
+    @skipOstree("nginx not installed")
     @skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testNginxTLS(self):
         '''test proxying to Cockpit with TLS
@@ -1202,8 +1202,8 @@ server {
         b.click('#login-button')
         b.wait_visible('article.system-health')
 
-    @skipImage("nginx not installed", "centos-8-stream", "debian-stable", "debian-testing", "fedora-coreos", "rhel4edge",
-               "rhel-8-7", "rhel-8-8", "rhel-9-1", "rhel-9-2", "ubuntu-stable", "ubuntu-2204", "arch")
+    @skipImage("nginx not installed", "centos-8-stream", "rhel-*", "debian-*", "ubuntu-*", "arch")
+    @skipOstree("nginx not installed")
     @skipBrowser("Firefox needs proper cert and CA", "firefox")
     def testNginxNoTLS(self):
         '''test proxying to Cockpit with plain HTTP

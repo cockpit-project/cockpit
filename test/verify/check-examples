@@ -3,7 +3,7 @@
 import os
 
 import parent  # noqa: F401
-from testlib import MachineCase, TEST_DIR, nondestructive, skipDistroPackage, skipImage, test_main
+from testlib import MachineCase, TEST_DIR, nondestructive, skipDistroPackage, skipOstree, test_main
 from fmf_metadata import FMF
 
 
@@ -54,7 +54,7 @@ class TestXHRProxy(MachineCase):
         self.machine.upload([os.path.join(EXAMPLES_DIR, "xhr-proxy")], "/home/admin/.local/share/cockpit/")
 
     @FMF.tag("example2")
-    @skipImage("No Python installed", "fedora-coreos", "rhel4edge")
+    @skipOstree("No Python installed")
     def testBasic(self):
         m = self.machine
         b = self.browser

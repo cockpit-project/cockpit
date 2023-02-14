@@ -18,7 +18,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent  # noqa: F401
-from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, test_main
+from testlib import MachineCase, nondestructive, skipDistroPackage, skipOstree, test_main
 
 
 @skipDistroPackage()
@@ -62,7 +62,7 @@ class TestReauthorize(MachineCase):
         b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
         self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: access-denied')
 
-    @skipImage("ssh root login not allowed", "fedora-coreos", "rhel4edge")
+    @skipOstree("ssh root login not allowed")
     def testSuper(self):
         b = self.browser
 

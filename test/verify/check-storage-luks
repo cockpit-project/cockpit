@@ -616,8 +616,7 @@ class TestStorageNBDE(StorageCase, PackageCase):
         self.confirm()
         b.wait_not_present(panel + 'ul li:contains("Slot 1")')
 
-    @skipImage("TODO: don't know how to encrypt the rootfs",
-               "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2204", "arch")
+    @skipImage("TODO: don't know how to encrypt the rootfs", "debian-*", "ubuntu-*", "arch")
     @timeout(1200)
     def testRootReboot(self):
         m = self.machine

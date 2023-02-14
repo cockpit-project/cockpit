@@ -19,7 +19,7 @@
 
 import parent  # noqa: F401
 from netlib import NetworkCase
-from testlib import nondestructive, skipDistroPackage, skipImage, test_main, wait
+from testlib import nondestructive, skipDistroPackage, skipImage, skipOstree, test_main, wait
 
 from lib.constants import TEST_OS_DEFAULT
 
@@ -267,7 +267,7 @@ class TestBondingVirt(NetworkCase):
         "machine2": {"image": TEST_OS_DEFAULT, "address": "10.111.113.2/20", "dhcp": True, "memory_mb": 256}
     }
 
-    @skipImage("Main interface can't be managed", "debian-stable", "debian-testing", "ubuntu-2204", "ubuntu-stable")
+    @skipImage("Main interface can't be managed", "debian-*", "ubuntu-*")
     def testMain(self):
         b = self.browser
         m = self.machine
@@ -298,8 +298,8 @@ class TestBondingVirt(NetworkCase):
         b.wait_visible(f"#networking-interfaces tr[data-interface='{iface}']")
 
     @skipImage("TODO: no dhclient on Arch image", "arch")
-    @skipImage("Main interface can't be managed", "debian-stable", "debian-testing", "ubuntu-2204", "ubuntu-stable")
-    @skipImage("not using dhclient", "fedora-coreos", "rhel4edge")
+    @skipImage("Main interface can't be managed", "debian-*", "ubuntu-*")
+    @skipOstree("not using dhclient")
     def testSlowly(self):
         b = self.browser
         m = self.machine

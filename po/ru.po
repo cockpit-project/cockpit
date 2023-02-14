@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-07 02:55+0000\n"
+"POT-Creation-Date: 2023-02-12 02:57+0000\n"
 "PO-Revision-Date: 2022-12-21 09:17+0000\n"
 "Last-Translator: Sergey Kazorin <kazorin@basealt.ru>\n"
 "Language-Team: Russian <https://translate.fedoraproject.org/projects/cockpit/"
@@ -1322,7 +1322,8 @@ msgstr ""
 "автоматически доступен, и вы в будущем сможете входить в $3 без пароля."
 
 #: pkg/systemd/hwinfo.jsx:119 pkg/systemd/overview-cards/usageCard.jsx:134
-#: pkg/metrics/metrics.jsx:690 pkg/metrics/metrics.jsx:1686
+#: pkg/metrics/metrics.jsx:690 pkg/metrics/metrics.jsx:1373
+#: pkg/metrics/metrics.jsx:1724
 msgid "CPU"
 msgstr "ЦП"
 
@@ -1362,7 +1363,7 @@ msgstr "Не удается найти журналы на основе теку
 #: pkg/sosreport/index.jsx:289 pkg/sosreport/index.jsx:374
 #: pkg/packagekit/updates.jsx:533 pkg/packagekit/updates.jsx:571
 #: pkg/packagekit/kpatch.jsx:311 pkg/packagekit/autoupdates.jsx:274
-#: pkg/networkmanager/dialogs-common.jsx:155
+#: pkg/networkmanager/dialogs-common.jsx:157
 #: pkg/networkmanager/firewall.jsx:604 pkg/networkmanager/firewall.jsx:808
 #: pkg/networkmanager/firewall.jsx:903 pkg/systemd/hwinfo.jsx:242
 #: pkg/systemd/overview-cards/motdCard.jsx:67
@@ -1380,7 +1381,7 @@ msgstr "Не удается найти журналы на основе теку
 #: pkg/shell/active-pages-modal.jsx:97 pkg/shell/hosts_dialog.jsx:280
 #: pkg/shell/hosts_dialog.jsx:377 pkg/shell/hosts_dialog.jsx:501
 #: pkg/shell/hosts_dialog.jsx:869 pkg/shell/shell-modals.jsx:114
-#: pkg/metrics/metrics.jsx:1277
+#: pkg/metrics/metrics.jsx:1282
 msgid "Cancel"
 msgstr "Отмена"
 
@@ -1466,7 +1467,7 @@ msgstr "Изменить системное время"
 msgid "Change the password of $0"
 msgstr "Изменить пароль для $0"
 
-#: pkg/networkmanager/interfaces.js:1596
+#: pkg/networkmanager/interfaces.js:1597
 msgid "Change the settings"
 msgstr "Изменить параметры"
 
@@ -1480,7 +1481,7 @@ msgstr ""
 "системы. Однако неожиданное изменение может указывать на попытку третьей "
 "стороны перехватить ваше соединение."
 
-#: pkg/networkmanager/interfaces.js:1595
+#: pkg/networkmanager/interfaces.js:1596
 msgid ""
 "Changing the settings will break the connection to the server, and will make "
 "the administration UI unavailable."
@@ -1656,7 +1657,7 @@ msgstr ""
 msgid "Cockpit might not render correctly in your browser"
 msgstr "Cockpit может отображаться некорректно в вашем браузере"
 
-#: pkg/metrics/metrics.jsx:1290
+#: pkg/metrics/metrics.jsx:1295
 msgid "Collect metrics"
 msgstr "Собрать метрики"
 
@@ -1942,7 +1943,7 @@ msgstr "Создать устройства"
 msgid "Create filesystem"
 msgstr "Создать файловую систему"
 
-#: pkg/networkmanager/dialogs-common.jsx:311
+#: pkg/networkmanager/dialogs-common.jsx:294
 msgid "Create it"
 msgstr "Создать"
 
@@ -2037,7 +2038,7 @@ msgstr "Создание раздела $target"
 msgid "Creating snapshot of $target"
 msgstr "Создание моментального снимка $target"
 
-#: pkg/networkmanager/dialogs-common.jsx:310
+#: pkg/networkmanager/dialogs-common.jsx:293
 msgid ""
 "Creating this $0 will break the connection to the server, and will make the "
 "administration UI unavailable."
@@ -2387,7 +2388,8 @@ msgstr "Отключено"
 
 # translation auto-copied from project virt-manager, version 0.10.0, document
 # virt-manager, author ypoyarko
-#: pkg/metrics/metrics.jsx:133 pkg/metrics/metrics.jsx:1688
+#: pkg/metrics/metrics.jsx:133 pkg/metrics/metrics.jsx:1373
+#: pkg/metrics/metrics.jsx:1726
 msgid "Disk I/O"
 msgstr "Дисковый ввод-вывод"
 
@@ -2708,7 +2710,7 @@ msgstr "Ошибка"
 msgid "Error and above"
 msgstr "Сообщения об ошибках и выше"
 
-#: pkg/metrics/metrics.jsx:1631
+#: pkg/metrics/metrics.jsx:1638
 msgid "Error has occurred"
 msgstr "Произошла ошибка"
 
@@ -2781,7 +2783,7 @@ msgstr "Дата завершения срока действия учётной
 msgid "Export"
 msgstr "Экспорт"
 
-#: pkg/metrics/metrics.jsx:1307
+#: pkg/metrics/metrics.jsx:1312
 msgid "Export to network"
 msgstr "Экспортировать в сеть"
 
@@ -2826,7 +2828,7 @@ msgstr "Не удалось добавить зону"
 msgid "Failed to change password"
 msgstr "Не удалось изменить пароль"
 
-#: pkg/metrics/metrics.jsx:1283
+#: pkg/metrics/metrics.jsx:1288
 msgid "Failed to configure PCP"
 msgstr "Не удалось настроить конфигурацию PCP"
 
@@ -2883,7 +2885,7 @@ msgstr "Не удалось перезапустить службу"
 msgid "Failed to save changes in /etc/motd"
 msgstr "Не удалось сохранить изменения в /etc/motd"
 
-#: pkg/networkmanager/dialogs-common.jsx:161
+#: pkg/networkmanager/dialogs-common.jsx:163
 msgid "Failed to save settings"
 msgstr "Не удалось сохранить параметры"
 
@@ -3068,6 +3070,14 @@ msgstr "Перейти к приложению"
 msgid "Go to now"
 msgstr "Текущий момент"
 
+#: pkg/metrics/metrics.jsx:1718
+msgid "Graph visibility"
+msgstr ""
+
+#: pkg/metrics/metrics.jsx:1708
+msgid "Graph visibility options menu"
+msgstr ""
+
 #: pkg/networkmanager/network-interface.jsx:415 pkg/users/accounts-list.js:406
 msgid "Group"
 msgstr "Группа"
@@ -3076,7 +3086,7 @@ msgstr "Группа"
 msgid "Group name"
 msgstr "Имя группы"
 
-#: pkg/users/account-details.js:447 pkg/users/accounts-list.js:333
+#: pkg/users/account-details.js:452 pkg/users/accounts-list.js:333
 #: pkg/users/accounts-list.js:337
 msgid "Groups"
 msgstr "Группы"
@@ -3275,8 +3285,8 @@ msgid "In sync"
 msgstr "Синхронизировано"
 
 #: pkg/networkmanager/network-interface.jsx:259
-#: pkg/networkmanager/interfaces.js:735 pkg/networkmanager/interfaces.js:1294
-#: pkg/networkmanager/interfaces.js:1301
+#: pkg/networkmanager/interfaces.js:735 pkg/networkmanager/interfaces.js:1295
+#: pkg/networkmanager/interfaces.js:1302
 msgid "Inactive"
 msgstr "Неактивно"
 
@@ -3357,7 +3367,7 @@ msgstr "Установка поддержки Stratis"
 msgid "Install all updates"
 msgstr "Установить все обновления"
 
-#: pkg/metrics/metrics.jsx:1599
+#: pkg/metrics/metrics.jsx:1606
 msgid "Install cockpit-pcp"
 msgstr "Установить cockpit-pcp"
 
@@ -3547,7 +3557,7 @@ msgstr "Запись в журнале"
 msgid "Journal entry not found"
 msgstr "Запись в журнале не найдена"
 
-#: pkg/metrics/metrics.jsx:1676
+#: pkg/metrics/metrics.jsx:1698
 msgid "Jump to"
 msgstr "Перейти к"
 
@@ -3761,7 +3771,7 @@ msgid "Listing units failed: $0"
 msgstr "Не удалось вывести список юнитов: $0"
 
 #: pkg/metrics/metrics.jsx:111 pkg/metrics/metrics.jsx:719
-#: pkg/metrics/metrics.jsx:1686
+#: pkg/metrics/metrics.jsx:1724
 msgid "Load"
 msgstr "Нагрузка"
 
@@ -3769,7 +3779,7 @@ msgstr "Нагрузка"
 msgid "Load balancing"
 msgstr "Балансировка нагрузки"
 
-#: pkg/metrics/metrics.jsx:1705
+#: pkg/metrics/metrics.jsx:1744
 msgid "Load earlier data"
 msgstr "Загрузить более ранние данные"
 
@@ -3828,7 +3838,7 @@ msgstr "Не удалось загрузить юнит: $0"
 #: pkg/users/account-details.js:183 pkg/users/accounts-list.js:338
 #: pkg/users/accounts-list.js:362 pkg/users/accounts-list.js:478
 #: pkg/storaged/devices.jsx:68 pkg/metrics/metrics.jsx:1004
-#: pkg/metrics/metrics.jsx:1704
+#: pkg/metrics/metrics.jsx:1743
 msgid "Loading..."
 msgstr "Загрузка…"
 
@@ -3896,7 +3906,7 @@ msgid "Log messages"
 msgstr "Сообщения журнала"
 
 #: pkg/users/logout-account-dialog.js:36 pkg/shell/topnav.jsx:216
-#: pkg/metrics/metrics.jsx:1592
+#: pkg/metrics/metrics.jsx:1599
 msgid "Log out"
 msgstr "Выход"
 
@@ -4120,7 +4130,7 @@ msgstr "Максимальное время жизни сообщения $max_a
 #: pkg/systemd/hwinfo.jsx:309 pkg/systemd/hwinfo.jsx:358
 #: pkg/systemd/overview-cards/usageCard.jsx:146
 #: pkg/systemd/services/service-details.jsx:651 pkg/metrics/metrics.jsx:745
-#: pkg/metrics/metrics.jsx:1687
+#: pkg/metrics/metrics.jsx:1373 pkg/metrics/metrics.jsx:1725
 msgid "Memory"
 msgstr "Память"
 
@@ -4160,15 +4170,15 @@ msgstr "Метод"
 msgid "Metric"
 msgstr "Метрика"
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1724
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1763
 msgid "Metrics and history"
 msgstr "Метрики и история"
 
-#: pkg/metrics/metrics.jsx:1622
+#: pkg/metrics/metrics.jsx:1629
 msgid "Metrics history could not be loaded"
 msgstr "Не удалось загрузить историю метрик"
 
-#: pkg/metrics/metrics.jsx:1259 pkg/metrics/metrics.jsx:1353
+#: pkg/metrics/metrics.jsx:1264 pkg/metrics/metrics.jsx:1358
 msgid "Metrics settings"
 msgstr "Параметры метрик"
 
@@ -4343,7 +4353,7 @@ msgstr "Сервер NTP"
 
 #: pkg/packagekit/updates.jsx:441 pkg/networkmanager/network-main.jsx:184
 #: pkg/networkmanager/network-main.jsx:199
-#: pkg/networkmanager/dialogs-common.jsx:134 pkg/systemd/hwinfo.jsx:91
+#: pkg/networkmanager/dialogs-common.jsx:136 pkg/systemd/hwinfo.jsx:91
 #: pkg/systemd/services/timer-dialog.jsx:158
 #: pkg/users/authorized-keys-panel.js:131 pkg/users/group-create-dialog.js:37
 #: pkg/storaged/lvol-tabs.jsx:48 pkg/storaged/lvol-tabs.jsx:419
@@ -4395,7 +4405,8 @@ msgstr "Имя не должно содержать пробелы."
 msgid "Need at least one NTP server"
 msgstr "Требуется по крайней мере один сервер NTP"
 
-#: pkg/metrics/metrics.jsx:822 pkg/metrics/metrics.jsx:1689
+#: pkg/metrics/metrics.jsx:822 pkg/metrics/metrics.jsx:1373
+#: pkg/metrics/metrics.jsx:1727
 msgid "Network"
 msgstr "Сеть"
 
@@ -4516,7 +4527,7 @@ msgstr "Нет доступных слотов"
 msgid "No block devices are available."
 msgstr "Нет доступных блочных устройств."
 
-#: pkg/networkmanager/interfaces.js:1296
+#: pkg/networkmanager/interfaces.js:1297
 msgid "No carrier"
 msgstr "Нет несущей частоты"
 
@@ -4524,11 +4535,11 @@ msgstr "Нет несущей частоты"
 msgid "No configuration found"
 msgstr "Конфигурация не найдена"
 
-#: pkg/metrics/metrics.jsx:1649
+#: pkg/metrics/metrics.jsx:1656
 msgid "No data available"
 msgstr "Данные недоступны"
 
-#: pkg/metrics/metrics.jsx:1645
+#: pkg/metrics/metrics.jsx:1652
 msgid "No data available between $0 and $1"
 msgstr "Данные с $0 по $1 недоступны"
 
@@ -4844,7 +4855,7 @@ msgstr ""
 msgid "Ooops!"
 msgstr "Упс!"
 
-#: pkg/metrics/metrics.jsx:1246
+#: pkg/metrics/metrics.jsx:1251
 msgid "Open the pmproxy service in the firewall to share metrics."
 msgstr ""
 "Включите службу pmproxy в межсетевом экране для совместного использования "
@@ -4904,7 +4915,7 @@ msgstr "Выход"
 
 # translation auto-copied from project virt-manager, version 0.10.0, document
 # virt-manager
-#: pkg/systemd/hwinfo.jsx:327 pkg/metrics/metrics.jsx:1723
+#: pkg/systemd/hwinfo.jsx:327 pkg/metrics/metrics.jsx:1762
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "Обзор"
@@ -4927,7 +4938,7 @@ msgstr "PCI"
 msgid "PID"
 msgstr "PID"
 
-#: pkg/metrics/metrics.jsx:1598
+#: pkg/metrics/metrics.jsx:1605
 msgid "Package cockpit-pcp is missing for metrics history"
 msgstr "Пакет cockpit-pcp для истории метрик отсутствует"
 
@@ -4967,7 +4978,7 @@ msgstr "Родительский элемент $parent"
 msgid "Part of"
 msgstr "PartOf="
 
-#: pkg/networkmanager/interfaces.js:1325
+#: pkg/networkmanager/interfaces.js:1326
 msgid "Part of $0"
 msgstr "Часть $0"
 
@@ -5120,7 +5131,7 @@ msgstr "Пути"
 msgid "Pause"
 msgstr "Приостановить"
 
-#: pkg/metrics/metrics.jsx:1262
+#: pkg/metrics/metrics.jsx:1267
 msgid ""
 "Performance Co-Pilot collects and analyzes performance metrics from your "
 "system."
@@ -5136,7 +5147,7 @@ msgstr "Профиль производительности"
 msgid "Peripheral chassis"
 msgstr "Корпус для периферийных устройств"
 
-#: pkg/networkmanager/dialogs-common.jsx:69
+#: pkg/networkmanager/dialogs-common.jsx:71
 msgid "Permanent"
 msgstr "Постоянный"
 
@@ -5275,7 +5286,7 @@ msgstr "Подготовка"
 msgid "Present"
 msgstr "Присутствует"
 
-#: pkg/networkmanager/dialogs-common.jsx:70
+#: pkg/networkmanager/dialogs-common.jsx:72
 msgid "Preserve"
 msgstr "Сохранять"
 
@@ -5447,7 +5458,7 @@ msgstr "ОЗУ"
 msgid "Rack mount chassis"
 msgstr "Монтируемый в стойку корпус"
 
-#: pkg/networkmanager/dialogs-common.jsx:71
+#: pkg/networkmanager/dialogs-common.jsx:73
 msgid "Random"
 msgstr "Случайный"
 
@@ -5471,7 +5482,7 @@ msgstr "Непосредственный доступ к устройству"
 msgid "Read"
 msgstr "Чтение"
 
-#: pkg/systemd/hwinfo.jsx:218 pkg/metrics/metrics.jsx:1268
+#: pkg/systemd/hwinfo.jsx:218 pkg/metrics/metrics.jsx:1273
 msgid "Read more..."
 msgstr "Подробнее…"
 
@@ -6059,12 +6070,12 @@ msgstr ""
 msgid "Saturdays"
 msgstr "По субботам"
 
-#: pkg/packagekit/kpatch.jsx:306 pkg/networkmanager/dialogs-common.jsx:152
+#: pkg/packagekit/kpatch.jsx:306 pkg/networkmanager/dialogs-common.jsx:154
 #: pkg/systemd/services/timer-dialog.jsx:149 pkg/kdump/kdump-view.jsx:324
 #: pkg/storaged/crypto-keyslots.jsx:541 pkg/storaged/crypto-keyslots.jsx:560
 #: pkg/storaged/nfs-details.jsx:186 pkg/storaged/fsys-tab.jsx:378
 #: pkg/storaged/fsys-tab.jsx:494 pkg/storaged/crypto-tab.jsx:161
-#: pkg/storaged/crypto-tab.jsx:205 pkg/metrics/metrics.jsx:1274
+#: pkg/storaged/crypto-tab.jsx:205 pkg/metrics/metrics.jsx:1279
 msgid "Save"
 msgstr "Сохранить"
 
@@ -6527,7 +6538,7 @@ msgstr "Определённое время"
 msgid "Speed"
 msgstr "Скорость"
 
-#: pkg/networkmanager/dialogs-common.jsx:72
+#: pkg/networkmanager/dialogs-common.jsx:74
 msgid "Stable"
 msgstr "Стабильный"
 
@@ -6709,7 +6720,7 @@ msgid "Support is installed."
 msgstr "Поддержка установлена."
 
 #: pkg/storaged/content-views.jsx:228 pkg/metrics/metrics.jsx:126
-#: pkg/metrics/metrics.jsx:605 pkg/metrics/metrics.jsx:1687
+#: pkg/metrics/metrics.jsx:605 pkg/metrics/metrics.jsx:1725
 msgid "Swap"
 msgstr "Подкачка"
 
@@ -7180,7 +7191,7 @@ msgstr ""
 msgid "The user $0 is not permitted to change crypto policies"
 msgstr "Пользователю $0 запрещено изменять правила шифрования"
 
-#: pkg/users/account-details.js:440
+#: pkg/users/account-details.js:445
 msgid ""
 "The user must log out and log back in for the new configuration to take "
 "effect."
@@ -7456,7 +7467,7 @@ msgstr ""
 "Для проверки отпечатка запустите следующую команду на $0, физически работая "
 "на этом компьютере или по доверенной сети:"
 
-#: pkg/metrics/metrics.jsx:1655
+#: pkg/metrics/metrics.jsx:1662
 msgid "Today"
 msgstr "Сегодня"
 
@@ -7523,7 +7534,7 @@ msgstr "TriggeredBy="
 msgid "Triggers"
 msgstr "Triggers="
 
-#: pkg/metrics/metrics.jsx:1617
+#: pkg/metrics/metrics.jsx:1624
 msgid "Troubleshoot"
 msgstr "Устранить неполадки"
 
@@ -7694,7 +7705,7 @@ msgstr "Недоступно"
 msgid "Unavailable packages"
 msgstr "Недоступные пакеты"
 
-#: pkg/users/account-details.js:441
+#: pkg/users/account-details.js:446
 msgid "Undo"
 msgstr "Отменить изменения"
 
@@ -7896,9 +7907,9 @@ msgstr "Время работы"
 # translation auto-copied from project subscription-manager, version 1.11.X,
 # document keys
 #: pkg/systemd/overview-cards/usageCard.jsx:129
-#: pkg/storaged/unrecognized-tab.jsx:37 pkg/metrics/metrics.jsx:1686
-#: pkg/metrics/metrics.jsx:1687 pkg/metrics/metrics.jsx:1688
-#: pkg/metrics/metrics.jsx:1689
+#: pkg/storaged/unrecognized-tab.jsx:37 pkg/metrics/metrics.jsx:1724
+#: pkg/metrics/metrics.jsx:1725 pkg/metrics/metrics.jsx:1726
+#: pkg/metrics/metrics.jsx:1727
 msgid "Usage"
 msgstr "Использование"
 
@@ -7913,7 +7924,7 @@ msgstr "Использование"
 msgid "Usage of $0"
 msgstr "Использование $0"
 
-#: pkg/networkmanager/dialogs-common.jsx:95 pkg/storaged/dialog.jsx:568
+#: pkg/networkmanager/dialogs-common.jsx:97 pkg/storaged/dialog.jsx:568
 #: pkg/storaged/dialog.jsx:1051
 msgid "Use"
 msgstr "Использование"
@@ -8295,7 +8306,7 @@ msgstr "Может потребоваться смена пароля ключа
 msgid "You must wait longer to change your password"
 msgstr "Для изменения пароля необходимо подождать"
 
-#: pkg/metrics/metrics.jsx:1591
+#: pkg/metrics/metrics.jsx:1598
 msgid "You need to relogin to be able to see metrics history"
 msgstr "Для просмотра истории метрик необходимо повторно войти в систему"
 
@@ -8513,7 +8524,7 @@ msgid "drive"
 msgstr "привод"
 
 #: pkg/networkmanager/network-interface.jsx:363
-#: pkg/networkmanager/dialogs-common.jsx:252
+#: pkg/networkmanager/dialogs-common.jsx:235
 #: pkg/systemd/overview-cards/configurationCard.jsx:51
 #: pkg/users/account-details.js:302 pkg/users/account-details.js:334
 #: pkg/storaged/lvol-tabs.jsx:423 pkg/storaged/lvol-tabs.jsx:484
@@ -8871,15 +8882,15 @@ msgstr "физический том группы томов LVM2"
 msgid "plugin"
 msgstr "подключаемый модуль"
 
-#: pkg/metrics/metrics.jsx:1614
+#: pkg/metrics/metrics.jsx:1621
 msgid "pmlogger.service has failed"
 msgstr "сбой службы pmlogger.service"
 
-#: pkg/metrics/metrics.jsx:1616
+#: pkg/metrics/metrics.jsx:1623
 msgid "pmlogger.service is failing to collect data"
 msgstr "pmlogger.service не может собрать данные"
 
-#: pkg/metrics/metrics.jsx:1607
+#: pkg/metrics/metrics.jsx:1614
 msgid "pmlogger.service is not running"
 msgstr "pmlogger.service не работает"
 

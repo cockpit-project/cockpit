@@ -1640,14 +1640,15 @@ class MetricsHistory extends React.Component {
             />;
 
         let nodata_alert = null;
-        if (!this.state.loading && this.state.hours.length > 0 && this.oldest_timestamp < this.state.hours[this.state.hours.length - 1]) {
+        const lastHourIndex = this.state.hours.length - 1;
+        if (!this.state.loading && this.state.hours.length > 0 && this.oldest_timestamp < this.state.hours[lastHourIndex]) {
             let t1, t2;
-            if (this.state.hours[0] - this.oldest_timestamp < 24 * MSEC_PER_H) {
+            if (this.state.hours[lastHourIndex] - this.oldest_timestamp < 24 * MSEC_PER_H) {
                 t1 = timeformat.time(this.oldest_timestamp);
-                t2 = timeformat.time(this.state.hours[0]);
+                t2 = timeformat.time(this.state.hours[lastHourIndex]);
             } else {
                 t1 = timeformat.dateTime(this.oldest_timestamp);
-                t2 = timeformat.dateTime(this.state.hours[0]);
+                t2 = timeformat.dateTime(this.state.hours[lastHourIndex]);
             }
             nodata_alert = <Alert className="nodata" variant="info" isInline title={ cockpit.format(_("No data available between $0 and $1"), t1, t2) } />;
         }

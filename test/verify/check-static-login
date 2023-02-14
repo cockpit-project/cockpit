@@ -23,7 +23,7 @@ import time
 import re
 
 import parent  # noqa: F401
-from testlib import MachineCase, nondestructive, skipBrowser, skipDistroPackage, skipImage, test_main, wait
+from testlib import MachineCase, nondestructive, skipBrowser, skipDistroPackage, skipImage, skipOstree, test_main, wait
 
 
 @nondestructive
@@ -189,7 +189,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     r"pam_succeed_if\(cockpit:auth\): requirement .* not met by user .*",
                                     "noise-rc-.*")
 
-    @skipImage("logs in via ssh, not cockpit-session", "fedora-coreos", "rhel4edge")
+    @skipOstree("logs in via ssh, not cockpit-session")
     def testLogging(self):
         m = self.machine
         b = self.browser
@@ -389,8 +389,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         self.allow_restart_journal_messages()
 
-    @skipImage("No tlog", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2204",
-               "rhel-8-7", "rhel-9-1", "centos-8-stream", "fedora-coreos", "rhel4edge", "arch")
+    @skipImage("No tlog", "debian-*", "ubuntu-*", "arch", "centos-8-stream")
+    @skipOstree("No tlog")
     def testSessionRecordingShell(self):
         m = self.machine
         b = self.browser
@@ -444,8 +444,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
                                     "couldn't parse login input: Malformed input",
                                     "couldn't parse login input: Authentication failed")
 
-    @skipImage("No SELinux", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2204", "arch")
-    @skipImage("No semanage", "fedora-coreos", "rhel4edge")
+    @skipImage("No SELinux", "debian-*", "ubuntu-*", "arch")
+    @skipOstree("No semanage")
     def testSELinuxRestrictedUser(self):
         m = self.machine
         b = self.browser
@@ -561,7 +561,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         self.check_shell()
 
-    @skipImage("Starting on OSTree is weird", "fedora-coreos", "rhel4edge")
+    @skipOstree("Starting on OSTree is weird")
     def testFailingWebsocket(self, safari=False, cacert=False):
         m = self.machine
         b = self.browser
@@ -599,12 +599,12 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
             b.wait_not_present("#safari-cert-help")
 
     @skipBrowser("Enough when only chromium pretends to be a different browser", "firefox")
-    @skipImage("Starting on OSTree is weird", "fedora-coreos", "rhel4edge")
+    @skipOstree("Starting on OSTree is weird")
     def testFailingWebsocketSafari(self):
         self.testFailingWebsocket(safari=True, cacert=True)
 
     @skipBrowser("Enough when only chromium pretends to be a different browser", "firefox")
-    @skipImage("Starting on OSTree is weird", "fedora-coreos", "rhel4edge")
+    @skipOstree("Starting on OSTree is weird")
     def testFailingWebsocketSafariNoCA(self):
         self.testFailingWebsocket(safari=True, cacert=False)
 
@@ -723,7 +723,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         self.allow_journal_messages(".*[aA]ccount .*locked due to .* failed logins.*")
         self.allow_journal_messages(".*minutes left to unlock.*")
 
-    @skipImage("root logins disabled by default with ssh", "fedora-coreos", "rhel4edge")
+    @skipOstree("root logins disabled by default with ssh")
     def testPamAccess(self):
         b = self.browser
         m = self.machine
@@ -745,7 +745,7 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
 
         self.allow_journal_messages(r"cockpit-session: user account access failed.*root.*")
 
-    @skipImage("sssd not available", "fedora-coreos", "rhel4edge")
+    @skipOstree("sssd not available")
     def testClientCertAuthentication(self):
         m = self.machine
 

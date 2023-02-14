@@ -19,10 +19,10 @@
 
 import parent  # noqa: F401
 from netlib import NetworkCase, re
-from testlib import skipDistroPackage, skipImage, test_main, wait
+from testlib import skipDistroPackage, skipImage, skipOstree, test_main, wait
 
 
-@skipImage("No network checkpoint support", "ubuntu-2204", "ubuntu-stable")
+@skipImage("No network checkpoint support", "ubuntu-*")
 @skipDistroPackage()
 class TestNetworkingCheckpoints(NetworkCase):
     def testCheckpoint(self):
@@ -66,8 +66,9 @@ class TestNetworkingCheckpoints(NetworkCase):
                 b.click("#confirm-breaking-change-popup button:contains('Keep connection')")
             b.wait_not_present("#confirm-breaking-change-popup")
 
-    @skipImage("Main interface settings are read-only", "debian-stable", "debian-testing")
-    @skipImage("not using dhclient", "fedora-coreos", "rhel4edge", "arch")
+    @skipImage("Main interface settings are read-only", "debian-*")
+    @skipImage("not using dhclient", "arch")
+    @skipOstree("not using dhclient")
     def testCheckpointSlowRollback(self):
         b = self.browser
         m = self.machine

@@ -21,7 +21,7 @@ import re
 import time
 
 import parent  # noqa: F401
-from testlib import MachineCase, enableAxe, nondestructive, skipDistroPackage, skipImage, test_main, wait
+from testlib import MachineCase, enableAxe, nondestructive, skipDistroPackage, skipImage, skipOstree, test_main, wait
 
 
 os_release = """
@@ -881,7 +881,8 @@ password=foobar
         dbus_call = 'busctl get-property org.freedesktop.login1 /org/freedesktop/login1  org.freedesktop.login1.Manager ScheduledShutdown'
         self.assertIn('(st) "" ', m.execute(dbus_call).strip())
 
-    @skipImage("crypto-policies not available", "fedora-coreos", "rhel4edge", "debian-stable", "debian-testing", "ubuntu-2204", "ubuntu-stable", "arch")
+    @skipImage("crypto-policies not available", "debian-*", "ubuntu-*", "arch")
+    @skipOstree("crypto-policies not available")
     def testCryptoPolicies(self):
         m = self.machine
         b = self.browser
@@ -934,7 +935,8 @@ password=foobar
         b.wait_in_text(".pf-c-menu__item.pf-m-selected", "Custom crypto policy")
         b.click("#crypto-policy-dialog button.pf-c-button.pf-m-link")
 
-    @skipImage("crypto-policies not available", "fedora-coreos", "rhel4edge", "debian-stable", "debian-testing", "ubuntu-2204", "ubuntu-stable", "arch")
+    @skipImage("crypto-policies not available", "debian-*", "ubuntu-*", "arch")
+    @skipOstree("crypto-policies not available")
     def testInconsistentCryptoPolicy(self):
         m = self.machine
         b = self.browser

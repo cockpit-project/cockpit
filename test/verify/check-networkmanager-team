@@ -20,10 +20,10 @@
 import parent  # noqa: F401
 import json
 from netlib import NetworkCase
-from testlib import nondestructive, skipDistroPackage, skipImage, test_main
+from testlib import nondestructive, skipDistroPackage, skipImage, skipOstree, test_main
 
 
-@skipImage("NetworkManager-team not installed", "fedora-coreos", "rhel4edge")
+@skipOstree("NetworkManager-team not installed")
 @skipImage("TODO: networkmanager fails on Arch Linux", "arch")
 @skipDistroPackage()
 @nondestructive

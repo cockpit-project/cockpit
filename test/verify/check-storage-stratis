@@ -23,7 +23,7 @@ from storagelib import StorageCase
 from testlib import skipImage, test_main
 
 
-@skipImage("No Stratis", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2204")
+@skipImage("No Stratis", "debian-*", "ubuntu-*")
 class TestStorageStratis(StorageCase):
     def setUp(self):
         super().setUp()
@@ -376,8 +376,8 @@ class TestStorageStratis(StorageCase):
         self.wait_mounted(1, 1)
 
 
-@skipImage("No Stratis", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2204", "arch")
-@skipImage("No Stratis on demand", "rhel-9-1", "rhel-8-7", "rhel-8-8")
+@skipImage("No Stratis", "debian-*", "ubuntu-*", "arch")
+@skipImage("No Stratis on demand", "rhel-8-*")
 class TestStoragePackagesStratis(PackageCase, StorageCase):
 
     def testStratisOndemandInstallation(self):

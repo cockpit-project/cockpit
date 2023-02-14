@@ -20,7 +20,7 @@
 import parent  # noqa: F401
 from packagelib import PackageCase
 from storagelib import StorageCase, StorageHelpers
-from testlib import nondestructive, skipImage, test_main
+from testlib import nondestructive, skipOstree, test_main
 
 
 @nondestructive
@@ -298,7 +298,7 @@ class TestStorageNfs(StorageCase):
 
 
 # Re-use allowed journal messages from StorageCase
-@skipImage("No udisks/cockpit-storaged on OSTree images", "fedora-coreos", "rhel4edge")
+@skipOstree("No udisks/cockpit-storaged on OSTree images")
 @nondestructive
 class TestStoragePackagesNFS(PackageCase, StorageCase, StorageHelpers):
 

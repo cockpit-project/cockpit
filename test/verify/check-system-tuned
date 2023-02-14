@@ -18,11 +18,12 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent  # noqa: F401
-from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, test_main
+from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, skipOstree, test_main
 
 
 @nondestructive
-@skipImage("No tuned packaged", "fedora-coreos", "rhel4edge", "arch")
+@skipOstree("No tuned packaged")
+@skipImage("No tuned packaged", "arch")
 @skipDistroPackage()
 class TestTuned(MachineCase):
 

@@ -9,7 +9,7 @@ import time
 # import Cockpit's machinery for test VMs and its browser test API
 import parent  # noqa: F401
 import packagelib
-from testlib import (Browser, Error, MachineCase, nondestructive, skipDistroPackage, skipImage,
+from testlib import (Browser, Error, MachineCase, nondestructive, skipDistroPackage, skipImage, skipOstree,
                      skipMobile, test_main, wait)
 
 from machine_core import ssh_connection
@@ -156,7 +156,7 @@ class TestHistoryMetrics(MachineCase):
         })""")
         self.assertLessEqual(leading_empty, 4)
 
-    @skipImage("no PCP support", "fedora-coreos", "rhel4edge")
+    @skipOstree("no PCP support")
     def testBasic(self):
         b = self.browser
         m = self.machine
@@ -222,7 +222,7 @@ class TestHistoryMetrics(MachineCase):
         b.enter_page("/system")
         b.wait_visible('.system-information')
 
-    @skipImage("no PCP support", "fedora-coreos", "rhel4edge")
+    @skipOstree("no PCP support")
     def testEvents(self):
         b = self.browser
         m = self.machine
@@ -472,7 +472,7 @@ class TestHistoryMetrics(MachineCase):
         self.assertIn("until=2021-3-8%2010%3A39%3A45", url)
 
     @nondestructive
-    @skipImage("no PCP support", "fedora-coreos", "rhel4edge")
+    @skipOstree("no PCP support")
     def testNoDataEnable(self):
         b = self.browser
         m = self.machine
@@ -507,7 +507,7 @@ class TestHistoryMetrics(MachineCase):
         b.logout()
 
     @nondestructive
-    @skipImage("no PCP support", "fedora-coreos", "rhel4edge")
+    @skipOstree("no PCP support")
     def testNoDataFailed(self):
         b = self.browser
         m = self.machine
@@ -534,7 +534,7 @@ class TestHistoryMetrics(MachineCase):
             b.wait_in_text("#service-details", "pmlogger.service")
 
     @nondestructive
-    @skipImage("no PCP support", "fedora-coreos", "rhel4edge")
+    @skipOstree("no PCP support")
     def testLoggerSettings(self):
         b = self.browser
         m = self.machine
@@ -568,7 +568,7 @@ class TestHistoryMetrics(MachineCase):
         self.assertEqual(m.execute("systemctl is-enabled pmlogger").strip(), "enabled")
 
     @nondestructive
-    @skipImage("no PCP support", "fedora-coreos", "rhel4edge")
+    @skipOstree("no PCP support")
     def testPmProxySettings(self):
         b = self.browser
         m = self.machine
@@ -1185,7 +1185,7 @@ BEGIN {{
         b.wait_visible(progress_sel)
         self.assertFalse(b.is_present("#current-disks-usage button"))
 
-    @skipImage("no netcat on CoreOS", "fedora-coreos", "rhel4edge")
+    @skipOstree("no netcat on CoreOS")
     def testNetwork(self):
         b = self.browser
         m = self.machine
@@ -1337,7 +1337,7 @@ class TestMultiCPU(MachineCase):
         "0": {"cpus": 2}
     }
 
-    @skipImage("no PCP support", "fedora-coreos", "rhel4edge")
+    @skipOstree("no PCP support")
     def testCPUUsage(self):
         b = self.browser
         m = self.machine
@@ -1375,7 +1375,7 @@ class TestMultiCPU(MachineCase):
         b.wait(lambda: int(b.text("#current-cpu-usage .pf-c-progress__status").split()[-1].rstrip('%')) <= 70)
 
 
-@skipImage("no PCP support", "fedora-coreos", "rhel4edge")
+@skipOstree("no PCP support")
 @skipDistroPackage()
 @skipMobile()
 class TestGrafanaClient(MachineCase):

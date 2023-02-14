@@ -19,7 +19,7 @@
 
 import parent  # noqa: F401
 import time
-from testlib import Error, nondestructive, skipDistroPackage, skipImage, test_main, wait
+from testlib import Error, nondestructive, skipDistroPackage, skipOstree, test_main, wait
 from netlib import NetworkCase
 
 
@@ -46,7 +46,7 @@ def get_active_rules(machine):
     return active_rules
 
 
-@skipImage("no firewalld", "fedora-coreos", "rhel4edge")
+@skipOstree("no firewalld")
 @nondestructive
 @skipDistroPackage()
 class TestFirewall(NetworkCase):

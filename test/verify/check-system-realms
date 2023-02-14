@@ -27,8 +27,8 @@ import base64
 import parent  # noqa: F401
 
 import packagelib
-from testlib import (Error, MachineCase, no_retry_when_changed, nondestructive, skipBrowser, skipDistroPackage, skipImage,
-                     todoPybridge, test_main, wait, timeout)
+from testlib import (Error, MachineCase, no_retry_when_changed, nondestructive, skipBrowser, skipDistroPackage,
+                     skipImage, skipOstree, todoPybridge, test_main, wait, timeout)
 
 
 WAIT_KRB_SCRIPT = """
@@ -84,7 +84,6 @@ ExecStart=/bin/true
     machine.execute("systemctl unmask chrony")
 
 
-@skipImage("No realmd available", "arch")
 @skipDistroPackage()
 class CommonTests:
     @timeout(900)
@@ -478,7 +477,8 @@ class CommonTests:
         m.execute("mv /etc/sssd/pki/sssd_auth_ca_db.pem.valid /etc/sssd/pki/sssd_auth_ca_db.pem")
 
 
-@skipImage("No realmd available", "fedora-coreos", "rhel4edge", "arch")
+@skipOstree("No realmd available")
+@skipImage("No realmd available", "arch")
 @skipDistroPackage()
 @no_retry_when_changed
 class TestRealms(MachineCase):
@@ -501,7 +501,7 @@ class TestRealms(MachineCase):
         self.allow_journal_messages("couldn't get all properties of org.freedesktop.realmd.Service.*org.freedesktop.DBus.Error.NoReply: Remote peer disconnected")
 
 
-@skipImage("freeipa not currently available", "debian-stable", "debian-testing", "arch")
+@skipImage("freeipa not currently available", "debian-*")
 @skipDistroPackage()
 @no_retry_when_changed
 class TestIPA(TestRealms, CommonTests):
@@ -843,7 +843,7 @@ ipa-advise enable-admins-sudo | sh -ex
         m.execute(f"! su -c '{ccache_env} klist' alice")
 
 
-@skipImage("adcli not on test images", "debian-stable", "debian-testing", "ubuntu-stable", "ubuntu-2204", "arch")
+@skipImage("adcli not on test images", "debian-*", "ubuntu-*")
 @skipDistroPackage()
 @no_retry_when_changed
 class TestAD(TestRealms, CommonTests):
@@ -1002,8 +1002,9 @@ sed -i '/^sudoers:/ s/files sss/sss files/' /etc/nsswitch.conf
 # This is here because our test framework can't run ipa VM's twice
 
 
-@skipImage("No realmd available", "fedora-coreos", "rhel4edge", "arch")
-@skipImage("freeipa not currently available", "debian-stable", "debian-testing", "arch")
+@skipOstree("No realmd available")
+@skipImage("No realmd available", "arch")
+@skipImage("freeipa not currently available", "debian-*")
 @skipDistroPackage()
 @no_retry_when_changed
 class TestKerberos(MachineCase):
@@ -1135,7 +1136,7 @@ class TestKerberos(MachineCase):
 
 
 @skipImage("No realmd available", "arch")
-@skipImage("Package (un)install does not work on OSTree", "fedora-coreos", "rhel4edge")
+@skipOstree("Package (un)install does not work on OSTree")
 @skipDistroPackage()
 class TestPackageInstall(packagelib.PackageCase):
 

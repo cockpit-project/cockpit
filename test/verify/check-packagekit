@@ -23,7 +23,7 @@ import time
 
 import parent  # noqa: F401
 from packagelib import PackageCase
-from testlib import nondestructive, skipDistroPackage, skipImage, test_main
+from testlib import nondestructive, skipDistroPackage, skipImage, skipOstree, test_main
 
 
 WAIT_SCRIPT = """
@@ -38,9 +38,7 @@ done
 """
 
 OSesWithoutTracer = ["debian-stable", "debian-testing", "ubuntu-2204", "ubuntu-stable", "fedora-coreos", "rhel4edge"]
-OSesWithoutKpatch = ["debian-stable", "debian-testing", "ubuntu-2204", "ubuntu-stable", "arch",
-                     "fedora-coreos", "rhel4edge", "fedora-36", "fedora-37", "fedora-38", "fedora-testing",
-                     "centos-8-stream", "centos-9-stream"]
+OSesWithoutKpatch = ["debian-*", "ubuntu-*", "arch", "fedora-*", "rhel4edge", "centos-*"]
 
 
 class NoSubManCase(PackageCase):
@@ -59,7 +57,7 @@ class NoSubManCase(PackageCase):
 
 
 @skipImage("TODO: Fails with 401 on our test runners", "arch")
-@skipImage("Image uses OSTree", "fedora-coreos", "rhel4edge")
+@skipOstree("Image uses OSTree")
 class TestUpdates(NoSubManCase):
 
     def setUp(self):
@@ -1164,7 +1162,7 @@ ExecStart=/usr/local/bin/{packageName}
 
 
 @skipImage("TODO: Arch Linux has no cockpit-ws package, it's in cockpit", "arch")
-@skipImage("Image uses OSTree", "fedora-coreos", "rhel4edge")
+@skipOstree("Image uses OSTree")
 class TestWsUpdate(NoSubManCase):
     def testBasic(self):
         # The main case for this is that cockpit-ws itself gets upgraded, which

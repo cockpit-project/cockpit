@@ -91,24 +91,31 @@ export function call(objectPath, iface, method, args, opts) {
 }
 
 /**
- * Figure out whether PackageKit is available and usable
+ * Figure out whether PackageKit is available and usable, and return
+ * details of why not.
  */
-export function detect() {
+export function detect_with_details() {
     function dbus_detect() {
         return call("/org/freedesktop/PackageKit", "org.freedesktop.DBus.Properties",
                     "Get", ["org.freedesktop.PackageKit", "VersionMajor"])
-                .then(() => true,
-                      () => false);
+                .then(() => ({ available: true }),
+                      (error) => ({ available: false, reason: "not-found", error: error.toString() }));
     }
 
     return cockpit.spawn(["findmnt", "-T", "/usr", "-n", "-o", "VFS-OPTIONS"])
             .then(options => {
                 if (options.split(",").indexOf("ro") >= 0)
-                    return false;
+                    return { available: false, reason: "immutable-os" };
                 else
                     return dbus_detect();
             })
             .catch(dbus_detect);
+}
+
+/* Non-detailed versions of detect_with_details.
+ */
+export function detect() {
+    return detect_with_details().then(details => details.available);
 }
 
 /**

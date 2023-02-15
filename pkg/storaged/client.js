@@ -510,7 +510,7 @@ function init_model(callback) {
     }
 
     function enable_pk_features() {
-        return PK.detect().then(function (available) { client.features.packagekit = available });
+        return PK.detect_with_details().then(function (details) { client.features.packagekit_details = details });
     }
 
     function enable_stratis_feature() {

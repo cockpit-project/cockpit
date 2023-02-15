@@ -67,9 +67,12 @@ export class RealmdClient {
     onClose(ev, options) {
         if (options.problem === "not-found") {
             // see if we can install it
-            packagekit.detect().then(exists => {
-                if (exists) {
+            packagekit.detect_with_details().then(details => {
+                if (details.available) {
                     this.error = _("Joining a domain requires installation of realmd");
+                    this.install_realmd = true;
+                } else if (details.reason == "immutable-os") {
+                    this.error = _("Joining a domain requires adding of realmd to the OS image");
                     this.install_realmd = true;
                 } else {
                     this.error = _("Cannot join a domain because realmd is not available on this system");
@@ -210,7 +213,11 @@ export class RealmdClient {
 
     installPackage() {
         if (this.install_realmd) {
-            return install_dialog("realmd")
+            return install_dialog("realmd",
+                                  {
+                                      immutable_title: _("Add support for joining a domain"),
+                                      immutable_text: _("The $0 package needs to be added to the OS image in order to join a domain.")
+                                  })
                     .then(() => {
                         this.install_realmd = false;
                         this.initProxy();

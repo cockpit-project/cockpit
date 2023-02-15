@@ -39,30 +39,41 @@ function format_to_fragments(fmt, arg) {
 }
 
 /* Calling install_dialog will open a dialog that lets the user
- * install the given package.
+ * install the given package on a OS that allows on-demand
+ * installation of packages. On an immutable OS, the dialog will
+ * instruct the user what to do.
  *
- * The install_dialog function returns a promise that is fulfilled when the dialog closes after
- * a successful installation.  The promise is rejected when the user cancels the dialog.
+ * The install_dialog function returns a promise that is fulfilled
+ * when the dialog closes after a successful installation.  The
+ * promise is rejected when the user cancels the dialog.
  *
- * If the package is already installed before the dialog opens, we still go
- * through all the motions and the dialog closes successfully without doing
- * anything when the use hits "Install".
- *
- * You shouldn't call install_dialog unless you know that PackageKit is available.
- * (If you do anyway, the resulting D-Bus errors will be shown to the user.)
+ * If the package is already installed before the dialog opens, we
+ * still go through all the motions and the dialog closes successfully
+ * without doing anything when the use hits "Install".
  */
 
 export function install_dialog(pkg, options) {
+    options = options || { };
+
+    if (!Array.isArray(pkg))
+        pkg = [pkg];
+
+    return PK.detect_with_details().then(details => {
+        if (details.available)
+            return install_dialog_mutable(pkg, options);
+        else if (details.reason == "immutable-os")
+            return install_dialog_immutable(pkg, options);
+        else
+            return install_dialog_error(pkg, details);
+    });
+}
+
+function install_dialog_mutable(pkg, options) {
     let data = null;
     let error_message = null;
     let progress_message = null;
     let cancel = null;
     let done = null;
-
-    if (!Array.isArray(pkg))
-        pkg = [pkg];
-
-    options = options || { };
 
     const prom = new Promise((resolve, reject) => { done = f => { if (f) resolve(); else reject(); } });
 
@@ -206,4 +217,57 @@ export function install_dialog(pkg, options) {
     update();
     check_missing();
     return prom;
+}
+
+function install_dialog_immutable(pkg, options) {
+    return new Promise((resolve, reject) => {
+        const missing_name = <strong>{pkg.join(", ")}</strong>;
+
+        const body = {
+            id: "dialog",
+            title: options.immutable_title || _("Add software"),
+            body: (
+                <div className="scroll">
+                    <p>{ format_to_fragments(options.immutable_text || _("$0 needs to be added to the OS image."),
+                                             missing_name) }</p>
+                </div>
+            ),
+        };
+
+        const footer = {
+            actions: [],
+            cancel_button: { text: _("Close"), variant: "secondary" },
+            dialog_done: reject
+        };
+
+        show_modal_dialog(body, footer);
+    });
+}
+
+function install_dialog_error(pkg, details) {
+    return new Promise((resolve, reject) => {
+        const missing_name = <strong>{pkg.join(", ")}</strong>;
+
+        const body = {
+            id: "dialog",
+            title: _("Installation error"),
+            titleIconVariant: "danger",
+            body: (
+                <div className="scroll">
+                    <p>{ format_to_fragments(_("The $0 package is missing but can not be installed."),
+                                             missing_name) }</p>
+                    <p>{ format_to_fragments(_("Contacting the PackageKit service returned an error: $0"),
+                                             details.error) }</p>
+                </div>
+            ),
+        };
+
+        const footer = {
+            actions: [],
+            cancel_button: { text: _("Close"), variant: "secondary" },
+            dialog_done: reject
+        };
+
+        show_modal_dialog(body, footer);
+    });
 }

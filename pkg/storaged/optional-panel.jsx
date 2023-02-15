@@ -81,7 +81,7 @@ export class OptionalPanel extends React.Component {
         const feature_enabled = !feature || feature.is_enabled();
         const required_package = feature && feature.package;
 
-        if (!feature_enabled && !(required_package && this.props.client.features.packagekit))
+        if (!feature_enabled && !required_package)
             return null;
 
         function install() {

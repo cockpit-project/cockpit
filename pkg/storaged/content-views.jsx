@@ -891,11 +891,15 @@ export class VGroup extends React.Component {
                     SelectOne("purpose", _("Purpose"),
                               {
                                   value: "block",
-                                  choices: purposes
+                                  choices: purposes,
+                                  validate: val => {
+                                      if (val == "vdo" && need_vdo_install && client.features.packagekit_details.reason == "immutable-os")
+                                          return cockpit.format(_("The $0 package needs to be added to the OS image."), vdo_package);
+                                  }
                               }),
                     Message(cockpit.format(_("The $0 package will be installed to create VDO devices."), vdo_package),
                             {
-                                visible: vals => vals.purpose === 'vdo' && need_vdo_install,
+                                visible: vals => vals.purpose === 'vdo' && need_vdo_install && client.features.packagekit_details.available,
                             }),
 
                     /* Not Implemented

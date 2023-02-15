@@ -47,7 +47,7 @@ import * as service from "service";
 import * as timeformat from "timeformat";
 import { superuser } from "superuser";
 import { journal } from "journal";
-import { useObject, useEvent, useInit } from "hooks.js";
+import { useObject, useEvent } from "hooks.js";
 import { WithDialogs, useDialogs } from "dialogs.jsx";
 
 import { EmptyStatePanel } from "../lib/cockpit-components-empty-state.jsx";
@@ -1172,9 +1172,6 @@ const PCPConfigDialog = ({
     const [dialogLoggerValue, setDialogLoggerValue] = useState(runningService(s_pmlogger));
     const [dialogProxyValue, setDialogProxyValue] = useState(dialogInitialProxyValue);
     const [pending, setPending] = useState(false);
-    const [packagekitExists, setPackagekitExists] = useState(null);
-
-    useInit(() => packagekit.detect().then(setPackagekitExists));
 
     const handleInstall = () => {
     // when enabling services, install missing packages on demand
@@ -1289,7 +1286,6 @@ const PCPConfigDialog = ({
                 <StackItem>
                     <Switch id="switch-pmlogger"
                                 isChecked={dialogLoggerValue}
-                                isDisabled={!s_pmlogger.exists && !packagekitExists}
                                 label={
                                     <Flex spaceItems={{ modifier: 'spaceItemsXl' }}>
                                         <FlexItem>{ _("Collect metrics") }</FlexItem>
@@ -1380,7 +1376,7 @@ class MetricsHistory extends React.Component {
             error: null,
             isDatepickerOpened: false,
             selectedDate: null,
-            packagekitExists: false,
+            showInstallButton: false,
             selectedVisibility: this.columns.reduce((a, v) => ({ ...a, [v[0]]: true }), {})
         };
 
@@ -1435,8 +1431,8 @@ class MetricsHistory extends React.Component {
     }
 
     componentDidMount() {
-        packagekit.detect().then(exists => {
-            this.setState({ packagekitExists: exists });
+        packagekit.detect_with_details().then(details => {
+            this.setState({ showInstallButton: details.available || details.reason == "immutable-os" });
         });
     }
 
@@ -1603,7 +1599,7 @@ class MetricsHistory extends React.Component {
             return <EmptyStatePanel
                         icon={ExclamationCircleIcon}
                         title={_("Package cockpit-pcp is missing for metrics history")}
-                        action={this.state.packagekitExists ? <Button onClick={() => this.handleInstall()}>{_("Install cockpit-pcp")}</Button> : null}
+                        action={this.state.showInstallButton ? <Button onClick={() => this.handleInstall()}>{_("Install cockpit-pcp")}</Button> : null}
             />;
 
         if (!this.state.metricsAvailable) {

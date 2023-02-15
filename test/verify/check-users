@@ -858,9 +858,6 @@ class TestAccounts(MachineCase):
 
     def testGroupCreate(self):
         b = self.browser
-        m = self.machine
-        self.addCleanup(m.execute, "groupdel saturn || true")
-        self.addCleanup(m.execute, "groupdel titan || true")
 
         self.login_and_go("/users")
 

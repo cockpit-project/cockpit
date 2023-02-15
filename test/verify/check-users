@@ -238,7 +238,7 @@ class TestAccounts(MachineCase):
         b.click(f".pf-c-label-group__list .pf-c-label__content:contains({m.get_admin_group()}) + button[aria-label='Close {m.get_admin_group()}']")
         b.wait(lambda: not is_admin())
         b.wait_not_present(admin_role_sel + f" .pf-c-label:contains({m.get_admin_group()})")
-        if m.image not in ["fedora-coreos", "rhel4edge"]:  # User is not shown as logged in when logged in through Cockpit
+        if not m.ostree_image:  # User is not shown as logged in when logged in through Cockpit
             b.wait_visible("#account-groups-helper")
         m.execute(f"/usr/bin/gpasswd -a jussi {m.get_admin_group()}")
         with b.wait_timeout(20):
@@ -305,7 +305,7 @@ class TestAccounts(MachineCase):
         b.click('#accounts-list td[data-label="Username"] a[href="#/damaged"]')
         b.wait_in_text("#account-title", "Damaged")
 
-        if m.image not in ["fedora-coreos", "rhel4edge"]:  # User is not shown as logged in when logged in through Cockpit
+        if not m.ostree_image:  # User is not shown as logged in when logged in through Cockpit
             b.go("#/admin")
             b.wait_visible("#account-logout[disabled]")
 
@@ -349,7 +349,7 @@ class TestAccounts(MachineCase):
         b.logout()
 
         # login in second window to check if last login is updated in accounts list
-        if m.image not in ["fedora-coreos", "rhel4edge"]:  # User is not shown as logged in when logged in through Cockpit
+        if not m.ostree_image:  # User is not shown as logged in when logged in through Cockpit
             b2.login_and_go("/users")
             b2.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Last active']", "Never logged in")
 
@@ -381,7 +381,7 @@ class TestAccounts(MachineCase):
             browser.click(f"#accounts-list tbody tr:contains({user}) .pf-c-dropdown button")
             browser.click(f"#accounts-list tbody tr:contains({user}) .pf-c-dropdown__menu li:contains({action})")
 
-        if m.image not in ["fedora-coreos", "rhel4edge"]:
+        if not m.ostree_image:  # User is not shown as logged in when logged in through Cockpit
             b2.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Last active']", "Logged in")
             performUserAction(b2, 'robert', 'Log user out')
             b2.click("#account-confirm-logout-dialog footer .pf-c-button.apply")
@@ -409,7 +409,7 @@ class TestAccounts(MachineCase):
 
         # Check Robert's groups
         b.wait_not_present("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-c-label:contains(users)")
-        if m.image not in ["fedora-coreos", "rhel4edge"]:  # Users group does not exist in coreos image
+        if not m.ostree_image:  # Users group does not exist in coreos image
             m.execute("/usr/bin/gpasswd -a robert users")
             b.wait_in_text("#accounts-list tbody tr:contains(robert) td[data-label='Group'] .pf-c-label.pf-m-cyan:contains(users)", "users")
         m.execute(f"/usr/bin/gpasswd -a robert {m.get_admin_group()}")
@@ -456,7 +456,7 @@ class TestAccounts(MachineCase):
                     b.wait(lambda: value_prev < value_current)
 
         # robert should be in users group
-        if m.image not in ["fedora-coreos", "rhel4edge"]:  # Users group does not exist in coreos image
+        if not m.ostree_image:  # Users group does not exist in coreos image
             b.set_input_text("#accounts-filter input", "users")
             names = b.eval_js("getTextColumn(\"[data-label='Username'] a\")")
             b.wait(lambda: "robert" in names)
@@ -483,7 +483,7 @@ class TestAccounts(MachineCase):
 
         # In fedora-core userdel for this user consistently fails
         # userdel: user robert is currently used by process *
-        if m.image not in ["fedora-coreos", "rhel4edge"]:
+        if not m.ostree_image:
             performUserAction(b, 'robert', 'Delete account')
             b.click("#account-confirm-delete-dialog footer button.pf-m-danger.apply")
             b.wait_not_in_text('#accounts-list', "Robert Robertson")

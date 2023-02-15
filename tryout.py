@@ -14,3 +14,5 @@ print(manifest.name)
 valid = manifest.validate()
 if not valid:
     print('invalid')
+
+

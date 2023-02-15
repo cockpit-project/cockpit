@@ -25,9 +25,10 @@ import mimetypes
 import os
 import re
 import shutil
+import typing
 
 from pathlib import Path
-from typing import ClassVar, Dict, List, Optional, Pattern, Tuple
+from typing import ClassVar, Dict, List, Optional, Pattern, Tuple, Union
 
 from systemd_ctypes import bus
 
@@ -148,6 +149,80 @@ def find_translation(translations: Entities, locales: List[str]) -> Entity:
 class PackagesListener:
     def packages_loaded(self):
         """Called when the packages have been reloaded"""
+
+
+def validate_type(value, type_):
+    if type_ in [str, int, float, bool]:
+        if not isinstance(value, type_):
+            return False
+    else:  # complex type
+        origin = typing.get_origin(type_)
+        # TODO: Python < 3.8
+        if origin is typing.List or origin is list:
+            if not isinstance(value, list):
+                return False
+            # __args__ for Python >= 3.6
+            inner_type = type_.__args__[0]
+            return all(validate_type(val, inner_type) for val in value)
+        elif origin is typing.Dict or origin is dict:
+            if not isinstance(value, dict):
+                return False
+            # __args__ for Python >= 3.6
+            [key_type, val_type] = type_.__args__
+            return all(isinstance(key, key_type) and isinstance(val, val_type) for key, val in value.items())
+        elif origin is typing.Union:  # Optional is a Union too
+            return any(validate_type(value, t) for t in type_.__args__)
+        elif origin is None:
+            # If it's an <class 'NoneType'> we can just skip
+            pass
+        else:
+            print('undetected type', value, type_)
+
+    return True
+
+
+class Manifest:
+    content_security_policy: Optional[str]
+    name: Optional[str]
+    priority: Optional[int] = 1
+    requires: Optional[Dict[str, str]]
+    version: Union[str, int] = '300'  # Should really become int
+    preload: Optional[List[str]]
+    conditions: Optional[List[Dict[str, str]]]
+    libexecdir: Optional[str]
+    # parent: Optional[Dict[str, Any]]  # TODO: should be separate class
+    # menu: new class
+
+    @classmethod
+    def from_json(cls, /, **kwargs):
+        supported_fields = cls.__annotations__.keys()
+        for key, value in kwargs.items():
+            # HACK: maybe this gives no benefit at all
+            key = key.replace('-', '_')
+            if key in supported_fields:
+                setattr(cls, key, value)
+            else:
+                logger.debug('Unsupported key: %s', key)
+
+        return cls()
+
+    def validate(self) -> bool:
+        for attr, type_ in self.__annotations__.items():
+            value = getattr(self, attr, None)
+            if not validate_type(value, type_):
+                logger.debug('Wrong type for key "%s"', attr.replace('_', '-'))
+                return False
+
+        return True
+
+    def patch_libexecdir(self) -> None:
+        ...
+
+    def try_override(self, path) -> None:
+        ...
+
+    def __repr__(self: 'Manifest'):
+        return f'Manifest({self.name})'
 
 
 class Package:

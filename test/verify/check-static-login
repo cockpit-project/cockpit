@@ -817,11 +817,6 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         # it into the browser.
 
         def do_test(authopts, expected, not_expected=[], session_leader=None):
-            if m.image in ["debian-testing", "ubuntu-stable"]:
-                # HACK: works around https://bugs.debian.org/1001377
-                #       and https://bugs.launchpad.net/ubuntu/+source/sssd/+bug/1989356
-                m.execute("rm -f /var/log/sssd/*")
-
             m.start_cockpit(tls=True)
             output = m.execute(['curl', '-ksS', '-D-'] + authopts + ['https://localhost:9090/cockpit/login'])
             for s in expected:

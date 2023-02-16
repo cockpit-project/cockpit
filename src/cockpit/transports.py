@@ -24,6 +24,7 @@ import fcntl
 import logging
 import os
 import select
+import signal
 import socket
 import struct
 import subprocess
@@ -381,14 +382,33 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
     def get_pipe_transport(self, fd: int) -> asyncio.Transport:
         raise NotImplementedError
 
-    def send_signal(self, signal: int) -> None:  # type: ignore # https://github.com/python/mypy/issues/13885
-        self._process.send_signal(signal)
+    def send_signal(self, sig: signal.Signals) -> None:  # type: ignore # https://github.com/python/mypy/issues/13885
+        # We try to avoid using subprocess.send_signal().  It contains a call
+        # to waitpid() internally to avoid signalling the wrong process (if a
+        # PID gets reused), but:
+        #
+        #  - we already detect the process exiting via our PidfdChildWatcher
+        #
+        #  - the check is actually harmful since collecting the process via
+        #    waitpid() prevents the PidfdChildWatcher from doing the same,
+        #    resulting in an error.
+        #
+        # It's on us now to check it, but that's easy:
+        if self._returncode is not None:
+            logger.debug("won't attempt %s to process %i.  It exited already.", sig, self._process.pid)
+
+        try:
+            os.kill(self._process.pid, sig)
+            logger.debug('sent %s to process %i', sig, self._process.pid)
+        except ProcessLookupError:
+            # already gone? fine
+            logger.debug("can't send %s to process %i.  It's exited just now.", sig, self._process.pid)
 
     def terminate(self) -> None:
-        self._process.terminate()
+        self.send_signal(signal.SIGTERM)
 
     def kill(self) -> None:
-        self._process.kill()
+        self.send_signal(signal.SIGKILL)
 
     def _close(self) -> None:
         if self._pty_fd is not None:

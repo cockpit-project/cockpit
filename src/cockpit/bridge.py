@@ -137,9 +137,7 @@ async def run(args) -> None:
 
     logger.debug('Starting the router.')
     router = Bridge(args)
-    loop = asyncio.get_running_loop()
-    loop.set_debug(args.debug)
-    StdioTransport(loop, router)
+    StdioTransport(asyncio.get_running_loop(), router)
 
     logger.debug('Startup done.  Looping until connection closes.')
 
@@ -218,7 +216,7 @@ def main() -> None:
         print(json.dumps(Packages().get_bridge_configs(), indent=2))
     else:
         # asyncio.run() shim for Python 3.6 support
-        run_async(run(args))
+        run_async(run(args), debug=args.debug)
 
 
 if __name__ == '__main__':

@@ -118,8 +118,7 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
         # In these tests we actually switch between machines in quick succession which can make things even worse
         if self.is_devel_build():
             for machine in ["machine2", "machine3"]:
-                for pkg in ["packagekit", "systemd", "playground"]:
-                    self.machines[machine].write(f"/etc/cockpit/{pkg}.override.json", '{ "preload": [ ] }')
+                self.disable_preload("packagekit", "playground", "systemd", machine=self.machines[machine])
         # Also, quick logouts cause async preloads to run into "ReferenceError: cockpit is not defined"
         self.disable_preload("packagekit", "playground", "systemd")
 

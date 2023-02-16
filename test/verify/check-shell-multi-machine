@@ -168,8 +168,7 @@ class TestMultiMachineAdd(MachineCase):
             # Preloading on machines with debug build can overload the browser and cause slowness and browser crashes
             # In these tests we actually switch between machines in quick succession which can make things even worse
             if self.is_devel_build():
-                m.write("/etc/cockpit/packagekit.override.json", '{ "preload": [ ] }')
-                m.write("/etc/cockpit/systemd.override.json", '{ "preload": [ ] }')
+                self.disable_preload("packagekit", "playground", "systemd")
 
         self.setup_ssh_auth()
 
@@ -277,8 +276,7 @@ class TestMultiMachine(MachineCase):
             # Preloading on machines with debug build can overload the browser and cause slowness and browser crashes
             # In these tests we actually switch between machines in quick succession which can make things even worse
             if self.is_devel_build():
-                m.write("/etc/cockpit/packagekit.override.json", '{ "preload": [ ] }')
-                m.write("/etc/cockpit/systemd.override.json", '{ "preload": [ ] }')
+                self.disable_preload("packagekit", "playground", "systemd")
 
     def checkDirectLogin(self, root='/', known_host=False):
         b = self.browser

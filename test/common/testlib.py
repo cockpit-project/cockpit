@@ -1404,19 +1404,15 @@ class MachineCase(unittest.TestCase):
     def is_devel_build(self):
         return os.environ.get('NODE_ENV') == 'development'
 
-    def disable_preload(self, *packages):
+    def disable_preload(self, *packages, machine=None):
+        if machine is None:
+            machine = self.machine
         for pkg in packages:
-            path = "/usr/share/cockpit/%s" % pkg
-            if self.file_exists(path):
-                if self.machine.ostree_image:
-                    # get a writable directory
-                    self.restore_dir(path)
-                self.write_file("%s/override.json" % path, '{ "preload": [ ] }')
+            machine.write(f"/etc/cockpit/{pkg}.override.json", '{ "preload": [ ] }')
 
     def enable_preload(self, package, *pages):
-        path = "/usr/share/cockpit/%s" % package
-        if self.file_exists(path):
-            self.write_file(path + '/override.json', '{ "preload": [%s]}' % ', '.join('"{0}"'.format(page) for page in pages))
+        pages_str = ', '.join(f'"{page}"' for page in pages)
+        self.machine.write(f"/etc/cockpit/{package}.override.json", f'{{ "preload": [ {pages_str} ] }}')
 
     def system_before(self, version):
         try:

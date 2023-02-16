@@ -39,6 +39,13 @@ if [ "$ID" = "debian" ]; then
     echo '* soft core unlimited' >> /etc/security/limits.conf
 fi
 
+PLATFORM_ID="${PLATFORM_ID:-}"
+if [ "${PLATFORM_ID#platform:el}" != "$PLATFORM_ID" ]; then
+    # allow /usr/local/bin/ in sudo shells, to use our installed tools like the Python bridge
+    # Fedora, Debian etc. do that
+    echo 'Defaults secure_path = /sbin:/usr/sbin:/usr/local/bin:/bin:/usr/bin' > /etc/sudoers.d/usr-local
+fi
+
 # clean out the journal
 journalctl --flush
 journalctl --sync || killall systemd-journald

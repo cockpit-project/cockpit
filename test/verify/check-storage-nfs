@@ -309,9 +309,8 @@ class TestStoragePackagesNFS(PackageCase, StorageCase, StorageHelpers):
         # Override configuration so that we don't have to remove the
         # real package.
 
-        self.machine.write("/usr/share/cockpit/storaged/override.json",
+        self.machine.write("/etc/cockpit/storaged.override.json",
                            """{ "config": { "nfs_client_package": "fake-nfs-utils" } }""")
-        self.addCleanup(self.machine.execute, "rm /usr/share/cockpit/storaged/override.json")
 
         if m.execute("if test -e /sbin/mount.nfs; then echo yes; fi").strip():
             m.execute("mv /sbin/mount.nfs /sbin/mount.nfs.off")

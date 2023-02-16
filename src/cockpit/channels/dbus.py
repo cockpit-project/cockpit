@@ -282,7 +282,15 @@ class DBusChannel(Channel):
             func = handler
         r_string = ','.join(f"{key}='{value}'" for key, value in r.items())
         if not self.is_closing():
-            self.matches.append(self.bus.add_match(r_string, func))
+            # this gets an EINTR very often especially on RHEL 8
+            while True:
+                try:
+                    match = self.bus.add_match(r_string, func)
+                    break
+                except InterruptedError:
+                    pass
+
+            self.matches.append(match)
 
     def add_async_signal_handler(self, handler, **kwargs):
         def sync_handler(message):

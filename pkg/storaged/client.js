@@ -1069,11 +1069,17 @@ function stratis2_start() {
                                                                                    "/org/storage/stratis2",
                                                                                    { watch: false });
 
+                stratis.subscribe(
+                    {
+                        path_namespace: "/org/storage/stratis2",
+                        interface: "org.freedesktop.DBus.Properties",
+                        member: "PropertiesChanged",
+                        arg0: "org.storage.stratis2.filesystem"
+                    },
+                    (path, _iface, _signal, args) => stratis2_fixup_pool_notifications(path, args[1]));
+
                 return stratis.watch({ path_namespace: "/org/storage/stratis2" }).then(() => {
-                    client.stratis_manager.client.addEventListener('notify', (event, data) => {
-                        client.update();
-                        stratis2_fixup_pool_notifications(data);
-                    });
+                    client.stratis_manager.client.addEventListener('notify', () => client.update());
 
                     // We need to explicitly retrieve the values of
                     // the "FetchProperties".  We do this whenever a
@@ -1211,35 +1217,27 @@ function stratis2_start_polling() {
     window.setInterval(stratis2_poll, 30000);
 }
 
-function stratis2_fixup_pool_notifications(data) {
+// When renaming a pool, stratisd 2.4.2 sends out notifications
+// with wrong interface names and forgets about notifications for
+// Devnode properties.
+//
+// https://github.com/stratis-storage/stratisd/issues/2731
+function stratis2_fixup_pool_notifications(path, props) {
     const fixup_data = { };
     let have_fixup = false;
 
-    // When renaming a pool, stratisd 2.4.2 sends out notifications
-    // with wrong interface names and forgets about notifications for
-    // Devnode properties.
-    //
-    // https://github.com/stratis-storage/stratisd/issues/2731
-
-    for (const path in data) {
-        if (client.stratis_pools[path]) {
-            for (const iface in data[path]) {
-                if (iface == "org.storage.stratis2.filesystem") {
-                    const props = data[path][iface];
-                    if (props && props.Name) {
-                        // The pool at 'path' got renamed.
-                        fixup_data[path] = { "org.storage.stratis2.pool.r1": { Name: props.Name } };
-                        for (const fsys of client.stratis_pool_filesystems[path]) {
-                            fixup_data[fsys.path] = {
-                                "org.storage.stratis2.filesystem": {
-                                    Devnode: "/dev/stratis/" + props.Name + "/" + fsys.Name
-                                }
-                            };
-                        }
-                        have_fixup = true;
+    if (client.stratis_pools[path]) {
+        if (props && props.Name) {
+            // The pool at 'path' got renamed.
+            fixup_data[path] = { "org.storage.stratis2.pool.r1": { Name: props.Name.v } };
+            for (const fsys of client.stratis_pool_filesystems[path]) {
+                fixup_data[fsys.path] = {
+                    "org.storage.stratis2.filesystem": {
+                        Devnode: "/dev/stratis/" + props.Name.v + "/" + fsys.Name
                     }
-                }
+                };
             }
+            have_fixup = true;
         }
     }
 

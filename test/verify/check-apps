@@ -90,7 +90,7 @@ class TestApps(PackageCase):
         m.execute("rm -rf /usr/share/metainfo /usr/share/app-info /var/cache/app-info")
 
         # instead of the actual distro packages, use our own fake repo data package
-        m.write("/usr/share/cockpit/apps/override.json",
+        m.write("/etc/cockpit/apps.override.json",
                 '{ "config": { "appstream_data_packages": [ "appstream-data-test" ] } }')
 
         if urlroot != "":

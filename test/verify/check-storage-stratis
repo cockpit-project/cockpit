@@ -385,7 +385,7 @@ class TestStoragePackagesStratis(PackageCase, StorageCase):
         b = self.browser
 
         m.execute("systemctl stop stratisd")
-        self.write_file("/usr/share/cockpit/storaged/override.json",
+        self.write_file("/etc/cockpit/storaged.override.json",
                         """{ "config": { "stratis_package": "fake-stratisd" } }""")
         self.createPackage("fake-stratisd", "999", "1")
         self.enableRepo()

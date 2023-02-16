@@ -274,7 +274,7 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
 
     _sock: Optional[socket.socket] = None
     _pty_fd: Optional[int] = None
-    _process: 'subprocess.Popen[bytes]'
+    _process: Optional['subprocess.Popen[bytes]'] = None
     _stderr: Optional['Spooler']
 
     @staticmethod
@@ -320,7 +320,7 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
         # zero.  For that reason, we need to store our own copy of the return
         # status.  See https://github.com/python/cpython/issues/59960
         assert isinstance(self._protocol, SubprocessProtocol)
-        assert self._process.pid == pid
+        assert self._process is not None and self._process.pid == pid
         self._returncode = code
         logger.debug('Process exited with status %d', self._returncode)
         if not self._closing:
@@ -374,6 +374,7 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
         self._sock.shutdown(socket.SHUT_WR)
 
     def get_pid(self) -> int:
+        assert self._process is not None
         return self._process.pid
 
     def get_returncode(self) -> Optional[int]:
@@ -383,6 +384,7 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
         raise NotImplementedError
 
     def send_signal(self, sig: signal.Signals) -> None:  # type: ignore # https://github.com/python/mypy/issues/13885
+        assert self._process is not None
         # We try to avoid using subprocess.send_signal().  It contains a call
         # to waitpid() internally to avoid signalling the wrong process (if a
         # PID gets reused), but:
@@ -411,6 +413,11 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
         self.send_signal(signal.SIGKILL)
 
     def _close(self) -> None:
+        if self._process is not None:
+            try:
+                self.terminate()  # best effort...
+            except PermissionError:
+                logger.debug("can't kill %i due to EPERM", self._process.pid)
         if self._pty_fd is not None:
             os.close(self._pty_fd)
             self._pty_fd = None

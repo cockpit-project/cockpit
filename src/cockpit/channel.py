@@ -336,6 +336,10 @@ class ProtocolChannel(Channel, asyncio.Protocol):
         if self._transport.can_write_eof():
             self._transport.write_eof()
 
+    def do_close(self) -> None:
+        if self._transport is not None:
+            self._transport.close()
+
     def data_received(self, data: bytes) -> None:
         assert self._transport is not None
         if not self.send_data(data):

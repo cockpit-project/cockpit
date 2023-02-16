@@ -107,19 +107,6 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
         if window is not None:
             self._transport.set_window_size(**window)
 
-    def do_close(self):
-        assert isinstance(self._transport, SubprocessTransport)
-        pid = self._transport.get_pid()
-        # avoid calling .terminate(), as that will try to read the process' exit code and race with
-        # asyncio's ChildWatcher (which also wants to wait() the process); the cockpit.spawn() API
-        # already ensures that the process is valid before even calling do_close.
-        try:
-            os.kill(pid, signal.SIGTERM)
-            logger.debug('Received close signal from peer, SIGTERMed process %i', pid)
-        except ProcessLookupError:
-            # already gone? fine!
-            logger.debug('Received close signal from peer, but process %i is already gone', pid)
-
     async def create_transport(self, loop: asyncio.AbstractEventLoop, options: Dict[str, object]) -> SubprocessTransport:
         args = options['spawn']
 

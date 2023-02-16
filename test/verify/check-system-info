@@ -828,14 +828,14 @@ password=foobar
         initial_usage = progressValue(2)
         self.assertGreater(initial_usage, 10)
         self.assertLess(initial_usage, 80)
-        # allocate an extra 300 MB; this may cause other stuff to get unmapped,
+        # allocate an extra 200 MB; this may cause other stuff to get unmapped,
         # thus not exact addition, but usage should go up
         #
         # The "true" after "sleep" is there to prevent bash from
         # replacing it's own process with the sleep (as a "tail call
         # optimization") and thereby dropping the memory blob too early.
         #
-        mem_hog = m.spawn("MEMBLOB=$(yes | dd bs=1M count=300 iflag=fullblock); touch /tmp/hogged; sleep infinity; true", "mem_hog.log")
+        mem_hog = m.spawn("MEMBLOB=$(yes | dd bs=1M count=200 iflag=fullblock); touch /tmp/hogged; sleep infinity; true", "mem_hog.log")
         m.execute("while [ ! -e /tmp/hogged ]; do sleep 1; done")
         # bars update every 5s
         time.sleep(8)

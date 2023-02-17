@@ -219,13 +219,13 @@ with `-e`/`--no-eslint`.
 
 Then reload cockpit in your browser after building the page.
 
-Often you need to test your code in a VM. `webpack-make` has an `-r`/`--rsync`
+Often you need to test your code in a VM. `webpack-make.js` has an `-r`/`--rsync`
 option for copying the built webpack into the given SSH target's
 /usr/share/cockpit/ directory. If you use cockpit's own test VMs and set up the
 SSH `c` alias as described in [test/README.md](./test/README.md), you can use
 one of these commands:
 
-    tools/webpack-make kdump -r c
+    tools/webpack-make.js kdump -r c
     tools/webpack-watch kdump -r c
 
 To make Cockpit again use the installed code, rather than that from your git

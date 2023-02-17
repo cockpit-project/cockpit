@@ -102,7 +102,7 @@ function generateDeps(makefile, stats) {
      */
     const inputs = new Set([
         'package-lock.json',
-        'tools/webpack-make',
+        'tools/webpack-make.js',
         'webpack.config.js',
     ]);
 

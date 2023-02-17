@@ -409,9 +409,14 @@ class DBusChannel(Channel):
                 name, props, invalids = message.get_body()
                 logger.debug('NOTIFY: %s %s %s %s', path, name, props, invalids)
                 for inv in invalids:
-                    reply, = await self.bus.call_method_async(self.name, path,
-                                                              'org.freedesktop.DBus.Properties', 'Get',
-                                                              'ss', name, inv)
+                    try:
+                        reply, = await self.bus.call_method_async(self.name, path,
+                                                                  'org.freedesktop.DBus.Properties', 'Get',
+                                                                  'ss', name, inv)
+                    except BusError as exc:
+                        logger.debug('failed to fetch property %s.%s on %s %s: %s',
+                                     name, inv, self.name, path, str(exc))
+                        continue
                     props[inv] = reply
                 notify = {}
                 notify_update(notify, path, name, props)

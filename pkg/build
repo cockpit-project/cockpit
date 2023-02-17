@@ -56,7 +56,7 @@ $(srcdir)/dist/%/Makefile.deps:
 	@true
 
 $(srcdir)/dist/%/manifest.json: $(srcdir)/package-lock.json
-	$(V_WEBPACK) cd $(srcdir) && NODE_ENV='$(NODE_ENV)' tools/termschutz tools/webpack-make $*
+	$(V_WEBPACK) cd $(srcdir) && NODE_ENV='$(NODE_ENV)' tools/termschutz tools/webpack-make.js $*
 
 -include $(WEBPACK_DEPS)
 

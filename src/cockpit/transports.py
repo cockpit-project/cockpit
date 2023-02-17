@@ -398,6 +398,7 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
         # It's on us now to check it, but that's easy:
         if self._returncode is not None:
             logger.debug("won't attempt %s to process %i.  It exited already.", sig, self._process.pid)
+            return
 
         try:
             os.kill(self._process.pid, sig)

@@ -20,7 +20,7 @@
 import cockpit from 'cockpit';
 import * as service from 'service';
 import { debounce } from 'throttle-debounce';
-import * as utils from './utils';
+import * as utils from './utils.js';
 
 const firewall = {
     owner: undefined,

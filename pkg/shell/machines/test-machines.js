@@ -1,6 +1,6 @@
 import cockpit from "cockpit";
 import QUnit from "qunit-tests";
-import { machines } from "./machines";
+import { machines } from "./machines.js";
 
 const dbus = cockpit.dbus(null, { bus: "internal" });
 let configDir;

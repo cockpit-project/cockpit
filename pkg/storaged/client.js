@@ -21,7 +21,7 @@ import cockpit from 'cockpit';
 import * as PK from 'packagekit.js';
 import { superuser } from 'superuser';
 
-import * as utils from './utils';
+import * as utils from './utils.js';
 
 import * as python from "python.js";
 import { read_os_release } from "os-release.js";

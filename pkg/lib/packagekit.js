@@ -18,7 +18,7 @@
  */
 
 import cockpit from "cockpit";
-import { superuser } from './superuser';
+import { superuser } from 'superuser';
 
 const _ = cockpit.gettext;
 

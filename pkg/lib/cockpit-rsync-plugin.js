@@ -1,6 +1,6 @@
-const child_process = require("child_process");
+import child_process from 'child_process';
 
-module.exports = class {
+export default class {
     constructor(options) {
         if (!options)
             options = {};
@@ -32,4 +32,4 @@ module.exports = class {
             }
         });
     }
-};
+}

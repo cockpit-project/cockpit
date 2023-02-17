@@ -1,13 +1,13 @@
-const path = require("path");
-const glob = require("glob");
-const fs = require("fs");
-const gettext_parser = require('gettext-parser');
-const Jed = require('jed');
-const webpack = require('webpack');
+import path from 'path';
+import glob from 'glob';
+import fs from 'fs';
+import gettext_parser from 'gettext-parser';
+import Jed from 'jed';
+import webpack from 'webpack';
 
 const srcdir = process.env.SRCDIR || '.';
 
-module.exports = class {
+export default class {
     constructor(options) {
         if (!options)
             options = {};
@@ -112,4 +112,4 @@ module.exports = class {
             resolve();
         });
     }
-};
+}

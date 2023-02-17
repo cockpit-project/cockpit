@@ -2,6 +2,19 @@
  * Fill in module info here.
  */
 
+import path from 'path';
+import fs from 'fs';
+
+import Copy from 'copy-webpack-plugin';
+import Html from 'html-webpack-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import CompressionPlugin from 'compression-webpack-plugin';
+import TerserJSPlugin from 'terser-webpack-plugin';
+import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
+import ESLintPlugin from 'eslint-webpack-plugin';
+import StylelintPlugin from 'stylelint-webpack-plugin';
+import CockpitPoPlugin from './pkg/lib/cockpit-po-plugin.js';
+
 const info = {
     entries: {
         "base1/cockpit": [
@@ -239,19 +252,6 @@ const info = {
 
 process.traceDeprecation = true;
 
-const path = require("path");
-const fs = require("fs");
-
-const Copy = require("copy-webpack-plugin");
-const Html = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const CompressionPlugin = require("compression-webpack-plugin");
-const TerserJSPlugin = require('terser-webpack-plugin');
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
-const ESLintPlugin = require('eslint-webpack-plugin');
-const StylelintPlugin = require('stylelint-webpack-plugin');
-const CockpitPoPlugin = require("./pkg/lib/cockpit-po-plugin");
-
 /* These can be overridden, typically from the Makefile.am */
 const srcdir = process.env.SRCDIR || '.';
 const builddir = process.env.BUILDDIR || '.';
@@ -389,7 +389,7 @@ const aliases = {
     "font-awesome": path.resolve(nodedir, 'font-awesome-sass/assets/stylesheets'),
 };
 
-module.exports = {
+export default {
     mode: production ? 'production' : 'development',
     resolve: {
         alias: aliases,

@@ -5,11 +5,12 @@
  * lists all dependencies, inputs, outputs, and installable files
  */
 
-const webpack = require("webpack");
-const path = require("path");
-const argparse = require("argparse");
-const fs = require("fs");
-const CockpitRsyncPlugin = require("../pkg/lib/cockpit-rsync-plugin");
+import webpack from 'webpack';
+import path from 'path';
+import argparse from 'argparse';
+import fs from 'fs';
+import process from 'process';
+import CockpitRsyncPlugin from '../pkg/lib/cockpit-rsync-plugin.js';
 
 // argv0 is node
 const webpack_watch = process.argv[1].includes('webpack-watch');
@@ -46,24 +47,26 @@ process.env.ONLYDIR = prefix + "/";
 const srcdir = (process.env.SRCDIR || ".").replace(/\/$/, '');
 const cwd = process.cwd();
 const config_path = path.resolve(cwd, args.config);
-const config = require(config_path);
 
-if (args.rsync) {
-    process.env.RSYNC = args.rsync;
-    config.plugins.push(new CockpitRsyncPlugin({ source: path.dirname(makefile) }));
-}
+import(config_path).then(module => {
+    const config = module.default;
+    if (args.rsync) {
+        process.env.RSYNC = args.rsync;
+        config.plugins.push(new CockpitRsyncPlugin({ source: path.dirname(makefile) }));
+    }
 
-const compiler = webpack(config);
+    const compiler = webpack(config);
 
-if (args.watch) {
-    compiler.hooks.watchRun.tap("WebpackInfo", compilation => {
-        const time = new Date().toTimeString().split(' ')[0];
-        process.stdout.write(`${time} Build started\n`);
-    });
-    compiler.watch(config.watchOptions, process_result);
-} else {
-    compiler.run(process_result);
-}
+    if (args.watch) {
+        compiler.hooks.watchRun.tap("WebpackInfo", compilation => {
+            const time = new Date().toTimeString().split(' ')[0];
+            process.stdout.write(`${time} Build started\n`);
+        });
+        compiler.watch(config.watchOptions, process_result);
+    } else {
+        compiler.run(process_result);
+    }
+});
 
 function process_result(err, stats) {
     // process.stdout.write(stats.toString({colors: true}) + "\n");

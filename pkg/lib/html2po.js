@@ -17,15 +17,15 @@
  * depending on the code actually using these strings to translate the HTML.
  */
 
+import fs from 'fs';
+import path from 'path';
+import htmlparser from 'htmlparser';
+import { ArgumentParser } from 'argparse';
+
 function fatal(message, code) {
     console.log((filename || "html2po") + ": " + message);
     process.exit(code || 1);
 }
-
-const fs = require('fs');
-const path = require('path');
-const htmlparser = require('htmlparser');
-const { ArgumentParser } = require('argparse');
 
 const parser = new ArgumentParser();
 parser.add_argument('-d', '--directory', { help: "Base directory for input files" });

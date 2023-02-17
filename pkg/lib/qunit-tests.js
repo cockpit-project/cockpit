@@ -21,14 +21,13 @@
 
 import QUnit from "qunit/qunit/qunit.js";
 import qunitTap from "qunit-tap/lib/qunit-tap.js";
+import "qunit/qunit/qunit.css";
 
 /* QUnit needs to have 'window' as 'this' in order to load */
 window.QUnit = QUnit;
 window.qunitTap = qunitTap;
 
 require("./qunit-config.js");
-
-require("qunit/qunit/qunit.css");
 
 QUnit.mock_info = async key => {
     const response = await fetch(`http://${window.location.hostname}:${window.location.port}/mock/info`);

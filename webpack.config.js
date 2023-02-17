@@ -320,12 +320,12 @@ const redhat_fonts = [
     "Mono-updated-Bold", "Mono-updated-BoldItalic", "Mono-updated-Italic", "Mono-updated-Medium", "Mono-updated-MediumItalic", "Mono-updated-Regular",
 ].map(name => {
     const subdir = 'RedHat' + name.split('-')[0];
-    let fontsdir = '@patternfly/patternfly/assets/fonts/RedHatFont-updated';
+    const fontsdir = '@patternfly/patternfly/assets/fonts/RedHatFont-updated';
 
     return {
         // Rename the RedHat*-updated files to not contain the 'updated' string so as to keep compatibility with external plugins
         // which expect the non-updated font file names in `static` folder
-        from: path.resolve(nodedir, fontsdir, subdir , 'RedHat' + name + '.woff2'),
+        from: path.resolve(nodedir, fontsdir, subdir, 'RedHat' + name + '.woff2'),
         to: 'static/fonts/RedHat' + name.replace("-updated", "") + ".woff2"
     };
 });

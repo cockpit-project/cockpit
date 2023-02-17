@@ -5,7 +5,7 @@ const gettext_parser = require('gettext-parser');
 const Jed = require('jed');
 const webpack = require('webpack');
 
-const srcdir = process.env.SRCDIR || path.resolve(__dirname, '..', '..');
+const srcdir = process.env.SRCDIR || '.';
 
 module.exports = class {
     constructor(options) {

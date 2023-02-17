@@ -25,7 +25,7 @@ import { createRoot } from "react-dom/client";
 
 import '../lib/patternfly/patternfly-4-cockpit.scss';
 
-import * as troubleshootClient from "./setroubleshoot-client";
+import * as troubleshootClient from "./setroubleshoot-client.js";
 import * as selinuxClient from "./selinux-client.js";
 import { SETroubleshootPage } from "./setroubleshoot-view.jsx";
 import { superuser } from 'superuser';

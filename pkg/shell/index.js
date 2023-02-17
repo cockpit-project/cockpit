@@ -19,7 +19,7 @@
 
 import '../lib/patternfly/patternfly-4-cockpit.scss';
 
-import { machines } from "./machines/machines";
+import { machines } from "./machines/machines.js";
 import * as indexes from "./indexes.jsx";
 
 const machines_inst = machines.instance();

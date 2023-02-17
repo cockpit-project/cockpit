@@ -22,7 +22,7 @@ import cockpit from 'cockpit';
 import { Button } from '@patternfly/react-core';
 
 import { fmt_to_fragments } from 'utils.jsx';
-import * as utils from './utils';
+import * as utils from './utils.js';
 import { v4 as uuidv4 } from 'uuid';
 
 import "./networking.scss";

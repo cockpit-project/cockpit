@@ -41,21 +41,23 @@ QUnit.config.autostart = false;
 
 let qunit_started = false;
 
-QUnit.moduleStart(function() {
+QUnit.moduleStart(() => {
     qunit_started = true;
 });
 
-QUnit.done(function() {
-    /*
-     * QUnit-Tap writes the summary line right after this function returns.
-     * Delay printing the end marker until after that summary is out.
-     */
-    window.setTimeout(function () {
-        console.log("cockpittest-tap-done");
-    }, 0);
-});
-/*
- * Now initialize qunit-tap
+window.setTimeout(() => {
+    if (!qunit_started) {
+        console.log("QUnit not started by test");
+        console.log("cockpittest-tap-error");
+    }
+}, 20000);
+
+/* QUnit-Tap writes the summary line right after this function returns.
+* Delay printing the end marker until after that summary is out.
+*/
+QUnit.done(() => window.setTimeout(() => console.log("cockpittest-tap-done"), 0));
+
+/* Now initialize qunit-tap
  *
  * When not running under a tap driver this stuff will just show up in
  * the console. We print out a special canary at the end of the tests
@@ -77,12 +79,5 @@ qunitTap(QUnit, function() {
     }
     console.log.apply(console, arguments);
 });
-
-window.setTimeout(function() {
-    if (!qunit_started) {
-        console.log("QUnit not started by test");
-        console.log("cockpittest-tap-error");
-    }
-}, 20000);
 
 export default QUnit;

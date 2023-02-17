@@ -5,14 +5,14 @@
  *
  */
 
+import fs from 'fs';
+import path from 'path';
+import { ArgumentParser } from 'argparse';
+
 function fatal(message, code) {
     console.log((filename || "manifest2po") + ": " + message);
     process.exit(code || 1);
 }
-
-const fs = require('fs');
-const path = require('path');
-const { ArgumentParser } = require('argparse');
 
 const parser = new ArgumentParser();
 parser.add_argument('-d', '--directory', { help: "Base directory for input files" });

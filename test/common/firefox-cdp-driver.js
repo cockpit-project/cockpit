@@ -28,8 +28,8 @@
  * frame/execution context debugging.
  */
 
-const readline = require('readline');
-const CDP = require('chrome-remote-interface');
+import * as readline from 'readline';
+import CDP from 'chrome-remote-interface';
 
 let enable_debug = false;
 

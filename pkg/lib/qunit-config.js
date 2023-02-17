@@ -5,34 +5,6 @@ let qunit_started = false;
 /* Always use explicit start */
 QUnit.config.autostart = false;
 
-/*
- * HACK: phantomjs doesn't handle uncaught exceptions as it should if
- * window.onerror is non-null, even when that handler returns false
- * (expecting that the browser default behavior will occur).
- *
- * So remove the qunit window.onerror handler until the tests actually
- * start, and any errors become part of the test suite results.
- */
-const qunit_onerror = window.onerror;
-window.onerror = null;
-QUnit.begin(function() {
-    window.onerror = function(error, file, line) {
-        let ret = false;
-        if (qunit_onerror)
-            ret = qunit_onerror(error, file, line);
-
-        /*
-         * If a global exception happens during an async test
-         * then that test won't be able to call the start() function
-         * to move to the next test, so call it here.
-         */
-        if (QUnit.config.current && QUnit.config.current.async)
-            QUnit.start();
-
-        return ret;
-    };
-});
-
 QUnit.moduleStart(function() {
     qunit_started = true;
 });
@@ -45,8 +17,6 @@ QUnit.done(function() {
     window.setTimeout(function () {
         console.log("cockpittest-tap-done");
     }, 0);
-
-    window.onerror = null;
 });
 /*
  * Now initialize qunit-tap
@@ -78,5 +48,3 @@ window.setTimeout(function() {
         console.log("cockpittest-tap-error");
     }
 }, 20000);
-
-window.tests_included = true;

@@ -253,8 +253,8 @@ const StylelintPlugin = require('stylelint-webpack-plugin');
 const CockpitPoPlugin = require("./pkg/lib/cockpit-po-plugin");
 
 /* These can be overridden, typically from the Makefile.am */
-const srcdir = process.env.SRCDIR || __dirname;
-const builddir = process.env.BUILDDIR || __dirname;
+const srcdir = process.env.SRCDIR || '.';
+const builddir = process.env.BUILDDIR || '.';
 const libdir = path.resolve(srcdir, "pkg" + path.sep + "lib");
 const nodedir = path.relative(process.cwd(), path.resolve(srcdir, "node_modules"));
 const section = process.env.ONLYDIR || null;
@@ -397,7 +397,7 @@ module.exports = {
         extensions: ["*", ".js", ".json"]
     },
     resolveLoader: {
-        modules: [nodedir, path.resolve(__dirname, 'pkg/lib')],
+        modules: [nodedir, './pkg/lib'],
     },
     entry: info.entries,
     // cockpit.js gets included via <script>, everything else should be bundled

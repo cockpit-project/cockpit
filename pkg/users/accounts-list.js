@@ -110,6 +110,8 @@ const UserActions = ({ account }) => {
                 isPlain
                 isOpen={isKebabOpen}
                 position="right"
+                id="accounts-actions"
+                menuAppendTo={document.body}
                 dropdownItems={actions} />
     );
     return kebab;

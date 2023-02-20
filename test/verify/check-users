@@ -30,7 +30,7 @@ def performUserAction(browser, user, action):
     browser.wait_visible(f"#accounts-list tbody tr:contains({user}) .pf-c-dropdown button")
     browser.click(f"#accounts-list tbody tr:contains({user}) .pf-c-dropdown button")
     browser.wait_visible(f"#accounts-list tbody tr:contains({user}) .pf-c-dropdown button[aria-expanded=true]")
-    browser.click(f"#accounts-list tbody tr:contains({user}) .pf-c-dropdown__menu li:contains({action})")
+    browser.click(f".pf-c-dropdown__menu-item:contains({action})")
 
 
 def createUser(browser, user_name, real_name, password, locked, force_password_change, verify_created=True):
@@ -211,7 +211,7 @@ class TestAccounts(MachineCase):
         b.click("#account-confirm-lock-dialog footer .pf-m-danger.apply")
         # lock option is now disabled
         b.click("#accounts-list tbody tr:contains(robert) .pf-c-dropdown button")
-        b.wait_in_text("#accounts-list tbody tr:contains(robert) .pf-c-dropdown__menu li:contains('Lock account') .pf-m-disabled", 'Lock account')
+        b.wait_in_text(".pf-c-dropdown__menu li:contains('Lock account') .pf-m-disabled", 'Lock account')
         b.click("#accounts-list tbody tr:contains(robert) .pf-c-dropdown button")
         # change is visible on details page
         performUserAction(b, 'robert', 'Edit user')

@@ -63,17 +63,25 @@ function AccountsPage() {
     //  While that's unusual, "empty /etc" is a goal, and it shouldn't crash the page.
     const [min_gid, setMinGid] = useState(500);
     const [max_gid, setMaxGid] = useState(60000);
+    const [min_uid, setMinUid] = useState(500);
+    const [max_uid, setMaxUid] = useState(60000);
     useEffect(() => {
         if (!logindef)
             return;
 
         const minGid = parseInt(logindef.match(/^GID_MIN\s+(\d+)/m)[1]);
         const maxGid = parseInt(logindef.match(/^GID_MAX\s+(\d+)/m)[1]);
+        const minUid = parseInt(logindef.match(/^UID_MIN\s+(\d+)/m)[1]);
+        const maxUid = parseInt(logindef.match(/^UID_MAX\s+(\d+)/m)[1]);
 
         if (minGid)
             setMinGid(minGid);
         if (maxGid)
             setMaxGid(maxGid);
+        if (minUid)
+            setMinUid(minUid);
+        if (maxUid)
+            setMaxUid(maxUid);
     }, [logindef]);
 
     const [details, setDetails] = useState(null);
@@ -125,6 +133,8 @@ function AccountsPage() {
                 setIsGroupsExpanded={setIsGroupsExpanded}
                 min_gid={min_gid}
                 max_gid={max_gid}
+                min_uid={min_uid}
+                max_uid={max_uid}
                 shells={shells}
             />
         );

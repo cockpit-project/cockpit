@@ -52,7 +52,7 @@ def performUserAction(browser, user, action):
     browser.click(f".pf-c-dropdown__menu-item:contains({action})")
 
 
-def createUser(browser, user_name, real_name, password, locked, force_password_change, verify_created=True):
+def createUser(browser, user_name, real_name, password, locked, force_password_change, uid=None, expected_uid=None, verify_created=True):
     browser.wait_visible('#accounts-create')
     browser.click('#accounts-create')
     browser.wait_visible('#accounts-create-dialog')
@@ -69,6 +69,11 @@ def createUser(browser, user_name, real_name, password, locked, force_password_c
         browser.wait_visible('#account-use-password:checked')
         browser.set_checked('#accounts-create-force-password-change', force_password_change)
         browser.wait_visible('#accounts-create-locked:not(:checked)')
+
+    if expected_uid is not None:
+        browser.wait_visible(f'#accounts-create-user-uid[value="{expected_uid}"]')
+    if uid is not None:
+        browser.set_input_text('#accounts-create-user-uid', uid)
 
     browser.click('#accounts-create-dialog button.apply')
 
@@ -569,6 +574,117 @@ class TestAccounts(MachineCase):
 
         self.allow_journal_messages(".*required to change your password immediately.*")
         self.allow_journal_messages(".*user account or password has expired.*")
+
+    def testCustomUID(self):
+        b = self.browser
+
+        self.login_and_go("/users")
+
+        # Test custom UID
+        createUser(
+            browser=b,
+            user_name="bob",
+            real_name="Bob Bobson",
+            password=good_password,
+            locked=False,
+            force_password_change=False,
+            uid="1500",
+            verify_created=True,
+        )
+        b.wait_visible("#accounts-list td[data-label='Username']:contains('bob') + td + td:contains('1500')")
+
+        # Test dialog predicts corrent next available UID
+        createUser(
+            browser=b,
+            user_name="john",
+            real_name="John Johnson",
+            password=good_password,
+            locked=False,
+            force_password_change=False,
+            expected_uid="1501",
+            verify_created=True,
+        )
+        b.wait_visible("#accounts-list td[data-label='Username']:contains(john) + td + td:contains(1501)")
+
+        # Test creation of users with the same UID
+        createUser(
+            browser=b,
+            user_name="jack",
+            real_name="Jack Jackson",
+            password=good_password,
+            locked=False,
+            force_password_change=False,
+            uid="1501",
+            verify_created=False,
+        )
+        b.wait_visible("#accounts-create-dialog")
+        b.wait_in_text("#accounts-create-user-uid-helper", "already used")
+        b.wait_visible("button.apply:disabled")
+        b.click("button:contains('Create account with non-unique UID')")
+        b.wait_not_present("#accounts-create-dialog")
+        b.wait_in_text("#accounts-list", "Jack Jackson")
+        b.wait_visible("#accounts-list td[data-label='Username']:contains(jack) + td + td:contains(1501)")
+        b.wait_visible("#accounts-list td[data-label='Username']:contains(john) + td + td:contains(1501)")
+
+        # No UID specified -> useradd chooses UID for us
+        createUser(
+            browser=b,
+            user_name="nouidspecified",
+            real_name="NoUID Specified",
+            password=good_password,
+            locked=False,
+            force_password_change=False,
+            uid="",
+            verify_created=True,
+        )
+
+        # UID cannot be lower than UID_MIN
+        createUser(
+            browser=b,
+            user_name="failedfailson",
+            real_name="Failed Failson",
+            password=good_password,
+            locked=False,
+            force_password_change=False,
+            uid="1",
+            verify_created=False,
+        )
+        b.wait_visible("#accounts-create-dialog")
+        b.wait_in_text("#accounts-create-user-uid-helper", "lower than")
+        b.click("#accounts-create-dialog button.cancel")
+        b.wait_not_present("#accounts-create-dialog")
+
+        # UID cannot be higher than UID_MAX
+        createUser(
+            browser=b,
+            user_name="failedfailson",
+            real_name="Failed Failson",
+            password=good_password,
+            locked=False,
+            force_password_change=False,
+            uid="9999999",
+            verify_created=False,
+        )
+        b.wait_visible("#accounts-create-dialog")
+        b.wait_in_text("#accounts-create-user-uid-helper", "higher than")
+        b.click("#accounts-create-dialog button.cancel")
+        b.wait_not_present("#accounts-create-dialog")
+
+        # UID must be a positive integer
+        createUser(
+            browser=b,
+            user_name="failedfailson",
+            real_name="Failed Failson",
+            password=good_password,
+            locked=False,
+            force_password_change=False,
+            uid="abc",
+            verify_created=False,
+        )
+        b.wait_visible("#accounts-create-dialog")
+        b.wait_in_text("#accounts-create-user-uid-helper", "positive integer")
+        b.click("#accounts-create-dialog button.cancel")
+        b.wait_not_present("#accounts-create-dialog")
 
     def testUnprivileged(self):
         m = self.machine

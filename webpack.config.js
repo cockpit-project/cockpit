@@ -330,16 +330,11 @@ const redhat_fonts = [
     };
 });
 
-function get_translation_reference_patterns () {
-    return undefined;
-}
-
 const plugins = [
     new Copy({ patterns: info.files }),
     new MiniCssExtractPlugin({ filename: "[name].css" }),
     new CockpitPoPlugin({
         subdir: section,
-        reference_patterns: get_translation_reference_patterns(),
         // login page does not have cockpit.js, but reads window.cockpit_po
         wrapper: (section === 'static/') ? 'window.cockpit_po = PO_DATA;' : undefined,
     }),

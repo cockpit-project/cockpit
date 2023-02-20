@@ -357,7 +357,7 @@ const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_
     );
 };
 
-const AccountsList = ({ accounts, current_user, groups, shells }) => {
+const AccountsList = ({ accounts, current_user, groups, min_uid, max_uid, shells }) => {
     const { options } = usePageLocation();
     const [currentTextFilter, setCurrentTextFilter] = useState(options.user || '');
     const filtered_accounts = accounts.filter(account => {
@@ -442,7 +442,7 @@ const AccountsList = ({ accounts, current_user, groups, shells }) => {
                     <>
                         <ToolbarItem variant="separator" />
                         <ToolbarItem alignment={{ md: 'alignRight' }}>
-                            <Button id="accounts-create" onClick={() => account_create_dialog(accounts, shells)}>
+                            <Button id="accounts-create" onClick={() => account_create_dialog(accounts, min_uid, max_uid, shells)}>
                                 {_("Create new account")}
                             </Button>
                         </ToolbarItem>
@@ -473,7 +473,7 @@ const AccountsList = ({ accounts, current_user, groups, shells }) => {
     );
 };
 
-export const AccountsMain = ({ accountsInfo, current_user, groups, isGroupsExpanded, setIsGroupsExpanded, min_gid, max_gid, shells }) => {
+export const AccountsMain = ({ accountsInfo, current_user, groups, isGroupsExpanded, setIsGroupsExpanded, min_gid, max_gid, min_uid, max_uid, shells }) => {
     const accounts = mapGroupsToAccount(accountsInfo, groups).filter(account => {
         if ((account.uid < 1000 && account.uid !== 0) ||
                  account.shell.match(/^(\/usr)?\/sbin\/nologin/) ||
@@ -487,7 +487,7 @@ export const AccountsMain = ({ accountsInfo, current_user, groups, isGroupsExpan
             <PageSection>
                 <Stack hasGutter>
                     <GroupsList accounts={accounts} groups={groups} isExpanded={isGroupsExpanded} setIsExpanded={setIsGroupsExpanded} min_gid={min_gid} max_gid={max_gid} />
-                    <AccountsList accounts={accounts} current_user={current_user} groups={groups} shells={shells} />
+                    <AccountsList accounts={accounts} current_user={current_user} groups={groups} shells={shells} min_uid={min_uid} max_uid={max_uid} />
                 </Stack>
             </PageSection>
         </Page>

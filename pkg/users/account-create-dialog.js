@@ -62,6 +62,15 @@ function AccountCreateBody({ state, errors, change }) {
                            value={user_name} onChange={value => change("user_name", value)} />
             </FormGroup>
 
+            <FormGroup label={_("User ID")}
+                       helperTextInvalid={errors && errors.uid}
+                       validated={errors?.uid ? "error" : "default"}
+                       fieldId="accounts-create-user-uid">
+                <TextInput id="accounts-create-user-uid"
+                    onChange={value => change("uid", value)}
+                    value={state.uid} />
+            </FormGroup>
+
             <FormGroup label={_("Authentication")} fieldId="accounts-create-locked" hasNoPaddingTop>
                 <Radio id="account-use-password"
                        label={_("Use password")}
@@ -125,6 +134,26 @@ function validate_real_name(real_name) {
         return _("The full name must not contain colons.");
 }
 
+function validate_uid(uid, accounts, min_uid, max_uid, change) {
+    if (!uid)
+        return undefined;
+
+    const uid_number = Number(uid);
+    if (!Number.isInteger(uid_number) || uid_number < 0)
+        return _("User ID must be a positive integer");
+
+    if (min_uid && uid_number < min_uid)
+        return cockpit.format(_("User ID must not be lower than $0"), min_uid);
+
+    if (max_uid && uid_number > max_uid)
+        return cockpit.format(_("User ID must not be higher than $0"), max_uid);
+
+    if (accounts.some(account => account.uid === uid_number)) {
+        change("uid_exists", true);
+        return _("User ID is already used by another user");
+    }
+}
+
 function suggest_username(realname) {
     function remove_diacritics(str) {
         const translate_table = {
@@ -169,8 +198,12 @@ function suggest_username(realname) {
     return remove_diacritics(result);
 }
 
-export function account_create_dialog(accounts, shells) {
+export function account_create_dialog(accounts, min_uid, max_uid) {
     let dlg = null;
+
+    const used_ids = accounts.map(a => a.uid);
+    const uid = Math.max(min_uid, Math.max(...used_ids.filter(id => id < max_uid)) + 1);
+
     const state = {
         dialogLoading: true,
         real_name: "",
@@ -182,6 +215,10 @@ export function account_create_dialog(accounts, shells) {
         change_passw_force: false,
         base_home_dir: null,
         shell: null,
+        uid,
+        uid_exists: false,
+        min_uid,
+        max_uid,
     };
     let errors = { };
 
@@ -228,10 +265,13 @@ export function account_create_dialog(accounts, shells) {
         if (field == "locked")
             state.change_passw_force = false;
 
+        if (field == "uid")
+            state.uid_exists = false;
+
         update();
     }
 
-    function validate(force, real_name, user_name, password, password_confirm) {
+    function validate(force_weak, force_uid, real_name, user_name, password, password_confirm, uid, accounts, min_uid, max_uid, change) {
         const errs = { };
 
         errs.real_name = validate_real_name(real_name);
@@ -244,7 +284,10 @@ export function account_create_dialog(accounts, shells) {
 
         errs.user_name = validate_username(user_name, accounts);
 
-        return password_quality(password, force)
+        if (!force_uid)
+            errs.uid = validate_uid(uid, accounts, min_uid, max_uid, change);
+
+        return password_quality(password, force_weak)
                 .catch(ex => {
                     errs.password = (ex.message || ex.toString()).replaceAll("\n", " ");
                 })
@@ -254,12 +297,21 @@ export function account_create_dialog(accounts, shells) {
                 });
     }
 
-    function create(real_name, user_name, password, locked, force_change) {
+    function create(real_name, user_name, password, locked, uid, force_change, force_uid) {
         const prog = ["useradd", "--create-home", "-s", state.shell];
         if (real_name) {
             prog.push('-c');
             prog.push(real_name);
         }
+
+        if (uid) {
+            prog.push('-u');
+            prog.push(uid);
+        }
+
+        if (force_uid)
+            prog.push('-o'); // Create user with non-unique user-specified UID, useful at certain use cases
+
         prog.push(user_name);
         return cockpit.spawn(prog, { superuser: "require", err: "message" })
                 .then(() => passwd_change(user_name, password))
@@ -279,14 +331,13 @@ export function account_create_dialog(accounts, shells) {
                 });
     }
 
-    function passwd_check(force_weak, real_name, user_name, password, password_confirm, locked, force_change) {
-        return validate(force_weak, real_name, user_name, password, password_confirm).then(valid => {
+    function passwd_check(force_weak, force_uid, real_name, user_name, password, password_confirm, locked, force_change, uid, accounts, min_uid, max_uid, change) {
+        return validate(force_weak, force_uid, real_name, user_name, password, password_confirm, uid, accounts, min_uid, max_uid, change).then(valid => {
             if (valid)
-                return create(real_name, user_name, password, locked, force_change);
+                return create(real_name, user_name, password, locked, uid, force_change, force_uid);
             else {
-                if (!errors.real_name && !errors.user_name && !errors.password_confirm && state.password.length <= 256) {
+                if (!errors.real_name && !errors.user_name && !errors.uid && !errors.password_confirm && state.password.length <= 256)
                     state.confirm_weak = true;
-                }
                 update();
                 return Promise.reject();
             }
@@ -314,9 +365,23 @@ export function account_create_dialog(accounts, shells) {
                     caption: _("Create"),
                     style: "primary",
                     clicked: () => {
-                        return passwd_check(false, state.real_name, state.user_name, state.password, state.password_confirm, state.locked, state.change_passw_force);
+                        return passwd_check(
+                            false, // force weak password was NOT clicked
+                            false, // force user with non-unique UID was NOT clicked
+                            state.real_name,
+                            state.user_name,
+                            state.password,
+                            state.password_confirm,
+                            state.locked,
+                            state.change_passw_force,
+                            state.uid,
+                            accounts,
+                            state.min_uid,
+                            state.max_uid,
+                            change
+                        );
                     },
-                    disabled: state.confirm_weak
+                    disabled: state.confirm_weak || state.uid_exists
                 }
             ]
         };
@@ -326,7 +391,44 @@ export function account_create_dialog(accounts, shells) {
                     caption: _("Create account with weak password"),
                     style: "warning",
                     clicked: () => {
-                        return passwd_check(true, state.real_name, state.user_name, state.password, state.password_confirm, state.locked);
+                        return passwd_check(
+                            true, // force weak password WAS clicked
+                            false, // force user with non-unique UID was NOT clicked
+                            state.real_name,
+                            state.user_name,
+                            state.password,
+                            state.password_confirm,
+                            state.locked,
+                            state.change_passw_force,
+                            state.uid,
+                            accounts,
+                            state.min_uid,
+                            state.max_uid,
+                            change
+                        );
+                    }
+                }
+            );
+        }
+        if (state.uid_exists) {
+            footer.actions.push(
+                {
+                    caption: _("Create account with non-unique UID"),
+                    style: "warning",
+                    clicked: () => {
+                        return passwd_check(
+                            false, // force weak password was NOT clicked
+                            true, // force user with non-unique UID WAS clicked
+                            state.real_name,
+                            state.user_name,
+                            state.password,
+                            state.password_confirm,
+                            state.locked,
+                            state.change_passw_force,
+                            state.uid,
+                            accounts,
+                            change
+                        );
                     }
                 }
             );

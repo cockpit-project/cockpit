@@ -13,7 +13,7 @@ import TerserJSPlugin from 'terser-webpack-plugin';
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import ESLintPlugin from 'eslint-webpack-plugin';
 import StylelintPlugin from 'stylelint-webpack-plugin';
-import CockpitPoPlugin from './pkg/lib/cockpit-po-plugin.js';
+import { CockpitPoWebpackPlugin } from './pkg/lib/cockpit-po-plugin.js';
 
 const info = {
     entries: {
@@ -333,7 +333,7 @@ const redhat_fonts = [
 const plugins = [
     new Copy({ patterns: info.files }),
     new MiniCssExtractPlugin({ filename: "[name].css" }),
-    new CockpitPoPlugin({
+    new CockpitPoWebpackPlugin({
         subdir: section,
         // login page does not have cockpit.js, but reads window.cockpit_po
         wrapper: (section === 'static/') ? 'window.cockpit_po = PO_DATA;' : undefined,

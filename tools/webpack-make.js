@@ -10,7 +10,7 @@ import path from 'path';
 import argparse from 'argparse';
 import fs from 'fs';
 import process from 'process';
-import CockpitRsyncPlugin from '../pkg/lib/cockpit-rsync-plugin.js';
+import { CockpitRsyncWebpackPlugin } from '../pkg/lib/cockpit-rsync-plugin.js';
 
 // argv0 is node
 const webpack_watch = process.argv[1].includes('webpack-watch');
@@ -52,7 +52,7 @@ import(config_path).then(module => {
     const config = module.default;
     if (args.rsync) {
         process.env.RSYNC = args.rsync;
-        config.plugins.push(new CockpitRsyncPlugin({ source: path.dirname(makefile) }));
+        config.plugins.push(new CockpitRsyncWebpackPlugin({ source: path.dirname(makefile) }));
     }
 
     const compiler = webpack(config);

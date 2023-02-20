@@ -40,3 +40,11 @@ podman rmi quay.io/cockpit/ws:latest
 
 # run cockpit/ws once to generate certificate; avoids slow down on every start
 podman container runlabel INSTALL cockpit/ws
+
+# Something in the above rpm-ostree invocations triggers something
+# that will change the mtime of all of /etc on the next boot.  This in
+# turn will trigger a regeneration of the kdump initrd.  This would
+# happen in each test run, which is wasteful and also might interfere
+# with the test itself.  Let's switch the automatic regeneration off.
+
+! test -e /etc/kdump.conf || echo "force_no_rebuild 1" >>/etc/kdump.conf

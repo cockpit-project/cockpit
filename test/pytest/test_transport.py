@@ -361,3 +361,17 @@ class TestSubprocessTransport(unittest.IsolatedAsyncioTestCase):
         protocol.output = []
         while b'/test\r\n' not in protocol.get_output():
             await asyncio.sleep(0.1)
+
+    async def test_pipes(self) -> None:
+        # by default, pipes are used and thus fd 0 is not writable
+        protocol, transport = self.subprocess(['sh', '-ec', 'echo fdone; echo fdzero >&0'])
+        protocol.output = []
+        await protocol.eof_and_exited_with_code(1)
+        assert protocol.get_output() == b'fdone\n'
+
+    async def test_socket(self) -> None:
+        # fd 0 is r/w with a socket
+        protocol, transport = self.subprocess(['sh', '-ec', 'echo fdone; echo fdzero >&0'], use_socket=True)
+        protocol.output = []
+        await protocol.eof_and_exited_with_code(0)
+        assert protocol.get_output() == b'fdone\nfdzero\n'

@@ -149,7 +149,8 @@ class SubprocessStreamChannel(ProtocolChannel, SubprocessProtocol):
             env.update(dict(e.split('=', 1) for e in environ))
 
         try:
-            transport = SubprocessTransport(loop, self, args, pty, window, env=env, cwd=cwd, stderr=stderr,
+            transport = SubprocessTransport(loop, self, args, pty, window=window,
+                                            env=env, cwd=cwd, stderr=stderr,
                                             preexec_fn=lambda: prctl(SET_PDEATHSIG, signal.SIGHUP))
             logger.debug('Spawned process args=%s pid=%i', args, transport.get_pid())
             return transport

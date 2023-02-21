@@ -73,7 +73,8 @@ class Peer(CockpitProtocolClient, SubprocessProtocol, Endpoint):
     def spawn(self, argv: Sequence[str], env: Sequence[str], **kwargs) -> asyncio.Transport:
         loop = asyncio.get_running_loop()
         user_env = dict(e.split('=', 1) for e in env)
-        return SubprocessTransport(loop, self, argv, env=dict(os.environ, **user_env), **kwargs)
+        # cockpit-askpass needs to talk the Cockpit protocol r/w on fd 0, thus use a socket
+        return SubprocessTransport(loop, self, argv, use_socket=True, env=dict(os.environ, **user_env), **kwargs)
 
     # Handling of interesting events
     def do_ready(self) -> None:

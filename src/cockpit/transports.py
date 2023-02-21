@@ -331,34 +331,46 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
                  protocol: SubprocessProtocol,
                  args: Sequence[str],
                  pty: bool = False,
+                 use_socket: bool = False,
                  window: Optional[Dict[str, int]] = None,
                  **kwargs: Any):
         if pty:
-            our_fd, session_fd = os.openpty()
+            self._pty_fd, session_fd = os.openpty()
             kwargs['stderr'] = session_fd
             self._eio_is_eof = True
-            self._pty_fd = our_fd
+            in_fd = self._pty_fd
+            out_fd = in_fd
 
             if window is not None:
                 self.set_window_size(**window)
-        else:
+        elif use_socket:
             self._sock, sock = socket.socketpair()
-            our_fd = self._sock.fileno()
+            in_fd = self._sock.fileno()
+            out_fd = in_fd
             session_fd = sock.detach()
+        else:
+            # normal pipes
+            session_fd = None
 
-        try:
-            self._process = subprocess.Popen(args,
-                                             stdin=session_fd, stdout=session_fd,
-                                             start_new_session=True, **kwargs)
-        finally:
-            os.close(session_fd)
+        if session_fd:
+            try:
+                self._process = subprocess.Popen(args,
+                                                 stdin=session_fd, stdout=session_fd,
+                                                 start_new_session=True, **kwargs)
+            finally:
+                os.close(session_fd)
+        else:
+            self._process = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, **kwargs)
+            assert self._process.stdin and self._process.stdout
+            in_fd = self._process.stdout.fileno()
+            out_fd = self._process.stdin.fileno()
 
         if self._process.stderr is not None:
             self._stderr = Spooler(loop, self._process.stderr.fileno())
         else:
             self._stderr = None
 
-        super().__init__(loop, protocol, our_fd, our_fd)
+        super().__init__(loop, protocol, in_fd, out_fd)
 
         self._get_watcher(loop).add_child_handler(self._process.pid, self._exited)
 
@@ -367,11 +379,15 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
         fcntl.ioctl(self._pty_fd, termios.TIOCSWINSZ, struct.pack('2H4x', rows, cols))
 
     def can_write_eof(self) -> bool:
-        return self._sock is not None
+        return self._sock is not None or (self._process is not None and self._process.stdin is not None)
 
     def _write_eof_now(self) -> None:
-        assert self._sock is not None
-        self._sock.shutdown(socket.SHUT_WR)
+        if self._sock is not None:
+            self._sock.shutdown(socket.SHUT_WR)
+        else:
+            assert self._process is not None and self._process.stdin is not None
+            self._process.stdin.close()
+            self._out_fd = -1
 
     def get_pid(self) -> int:
         assert self._process is not None

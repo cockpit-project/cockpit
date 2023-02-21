@@ -331,7 +331,7 @@ class TestAccounts(MachineCase):
 
         self.login_and_go("/users")
         # Create a locked user with weak password
-        m.execute("sed -i 's/^SHELL=.*$/SHELL=/' /etc/default/useradd")
+        self.sed_file('s/^SHELL=.*$/SHELL=/', '/etc/default/useradd')
 
         createUser(
             browser=b,

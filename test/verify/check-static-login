@@ -119,14 +119,14 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.login_and_go()
         self.check_shell()
 
-        if m.image not in ["fedora-coreos", "rhel4edge"]:  # logs in via ssh, not cockpit-session
+        if not m.ostree_image:  # logs in via ssh, not cockpit-session
             self.assertRegex(m.execute("who"), r"(^|\n)admin *web.*(\d+\.\d+|::)")
 
         # reload, which should log us in with the cookie
         b.reload()
         self.check_shell()
 
-        if m.image not in ["fedora-coreos", "rhel4edge"]:  # logs in via ssh, not cockpit-session
+        if not m.ostree_image:  # logs in via ssh, not cockpit-session
             self.assertRegex(m.execute("who"), r"(^|\n)admin *web.*(\d+\.\d+|::)")
 
         b.go("/users#/admin")
@@ -713,8 +713,8 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         # and login again
         expect_successful_login("admin", "foobar")
 
-        # fedora-coreos and rhel4edge log in via sshd, which forbids root logging in with a password
-        if m.image not in ["fedora-coreos", "rhel4edge"]:
+        # ostree images log in via sshd, which forbids root logging in with a password
+        if not m.ostree_image:
             # make sure root never gets locked out
             for n in range(1, 10):
                 expect_failed_login("root", "bad", n)

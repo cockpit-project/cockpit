@@ -206,9 +206,9 @@ class TestHistoryMetrics(MachineCase):
         b.wait_visible(".metrics-label-graph:contains(Network)")
 
         # Change graph visibility
-        b.wait_visible(".metrics-events:contains('Network I/O spike')")
+        b.wait_visible(".metrics-events:contains('Network I/O')")
         b.set_checked("#column-visibility-option-network", False)
-        b.wait_not_present(".metrics-events:contains('Network I/O spike')")
+        b.wait_not_present(".metrics-events:contains('Network I/O')")
         b.wait_not_present(".metrics-label-graph:contains(Network)")
         b.set_checked("#column-visibility-option-network", True)
 
@@ -230,7 +230,12 @@ class TestHistoryMetrics(MachineCase):
         b.wait_timeout(60)
 
         def events_at(hour, minute):
-            return b.text(f"#metrics-hour-{hour} div.metrics-minute[data-minute={minute}] .metrics-events")
+            b.wait_visible(f"#metrics-hour-{hour}.metrics-hour-compressed")
+            b.click(f"#metrics-hour-{hour} button.metrics-events-expander")
+            events = b.text(f"#metrics-hour-{hour} div.metrics-minute[data-minute={minute}] .metrics-events")
+            b.click(f"#metrics-hour-{hour} button.metrics-events-expander")
+
+            return events
 
         #
         # Disks
@@ -258,7 +263,8 @@ class TestHistoryMetrics(MachineCase):
         self.assertLessEqual(getMaximumSpike(self, "disks", False, 1597662000000, 28), 0.6)
         self.assertGreaterEqual(getCompressedMinuteValue(self, "disks", False, 1597662000000, 29), 0.4)
         # recognized as event
-        self.assertIn("Disk I/O spike", events_at(1597662000000, 28))
+
+        self.assertIn("Disk I/O", events_at(1597662000000, 28))
 
         # No visible activity after that
         self.assertLessEqual(getCompressedMinuteValue(self, "disks", False, 1597662000000, 30), 0.01)
@@ -269,6 +275,22 @@ class TestHistoryMetrics(MachineCase):
 
         # Check that we don't show too much empty minutes in the first hour
         self.assertLessEqual(b.call_js_func("ph_count", ".metrics-data-cpu"), 35)
+
+        # Check metrics hour header in compressed and expanded mode
+        b.click("#metrics-hour-1597662000000 button.metrics-events-expander")
+        b.wait_in_text("#metrics-hour-1597662000000:not(.metrics-hour-compressed) .metrics-events-hour-header-expanded time", "1:00")
+        b.wait_in_text("#metrics-hour-1597662000000:not(.metrics-hour-compressed) .metrics-events-hour-header-expanded .spikes_count", "3 spikes")
+        b.wait_in_text("#metrics-hour-1597662000000:not(.metrics-hour-compressed) .metrics-events-hour-header-expanded .spikes_info", "1 Memory, 1 Disk I/O, 1 Network I/O")
+
+        b.click("#metrics-hour-1597662000000 button.metrics-events-expander")
+        b.wait_in_text("#metrics-hour-1597662000000.metrics-hour-compressed", "1:00")
+        b.wait_in_text("#metrics-hour-1597662000000.metrics-hour-compressed .spikes_count", "3 spikes")
+        b.wait_in_text("#metrics-hour-1597662000000.metrics-hour-compressed .spikes_info", "1 Memory, 1 Disk I/O, 1 Network I/O")
+
+        # Check that events are not visible for compressed hours
+        b.wait_not_present("#metrics-hour-1597662000000 div.metrics-minute[data-minute=28] .metrics-events")
+        b.click("#metrics-hour-1597662000000 button.metrics-events-expander")
+        b.wait_visible("#metrics-hour-1597662000000 div.metrics-minute[data-minute=28] .metrics-events")
 
         b.logout()
 
@@ -286,15 +308,15 @@ class TestHistoryMetrics(MachineCase):
         self.assertGreaterEqual(getMaximumSpike(self, "network", False, 1598950800000, 3), 0.5)
         self.assertGreaterEqual(getMaximumSpike(self, "network", False, 1598950800000, 4), 0.5)
         # recognized as event
-        self.assertIn("Network I/O spike", events_at(1598950800000, 3))
+        self.assertIn("Network I/O", events_at(1598950800000, 3))
         # but it's not a new event in minute 4
-        self.assertNotIn("Network I/O spike", events_at(1598950800000, 4))
+        self.assertNotIn("Network I/O", events_at(1598950800000, 4))
 
         # Followed by smaller spike
         self.assertGreaterEqual(getMaximumSpike(self, "network", False, 1598950800000, 5), 0.35)
         self.assertLessEqual(getMaximumSpike(self, "network", False, 1598950800000, 5), 0.5)
         # still not a new spike
-        self.assertNotIn("Network I/O spike", events_at(1598950800000, 5))
+        self.assertNotIn("Network I/O", events_at(1598950800000, 5))
 
         # Followed by virtually no data
         self.assertLessEqual(getCompressedMinuteValue(self, "network", False, 1598950800000, 6), 0.01)
@@ -304,8 +326,8 @@ class TestHistoryMetrics(MachineCase):
         self.assertGreaterEqual(getMaximumSpike(self, "cpu", False, 1598950800000, 4), 0.5)
         self.assertLessEqual(getMaximumSpike(self, "cpu", False, 1598950800000, 4), 0.55)
         self.assertGreaterEqual(getMaximumSpike(self, "cpu", False, 1598950800000, 5), 0.9)
-        self.assertIn("CPU spike", events_at(1598950800000, 2))
-        self.assertIn("CPU spike", events_at(1598950800000, 5))
+        self.assertIn("CPU", events_at(1598950800000, 2))
+        self.assertIn("CPU", events_at(1598950800000, 5))
 
         # Test CPU saturation - 3 spikes, each 2 minutes (medium, big, small)
         self.assertGreaterEqual(getMaximumSpike(self, "cpu", True, 1598950800000, 3), 0.5)
@@ -321,10 +343,10 @@ class TestHistoryMetrics(MachineCase):
         self.assertGreaterEqual(getCompressedMinuteValue(self, "cpu", True, 1598950800000, 8), 0.3)
         self.assertLessEqual(getCompressedMinuteValue(self, "cpu", True, 1598950800000, 8), 0.4)
 
-        self.assertNotIn("Load spike", events_at(1598950800000, 2))
-        self.assertIn("Load spike", events_at(1598950800000, 3))
-        self.assertNotIn("Load spike", events_at(1598950800000, 4))
-        self.assertIn("Load spike", events_at(1598950800000, 5))
+        self.assertNotIn("Load", events_at(1598950800000, 2))
+        self.assertIn("Load", events_at(1598950800000, 3))
+        self.assertNotIn("Load", events_at(1598950800000, 4))
+        self.assertIn("Load", events_at(1598950800000, 5))
 
         b.logout()
 
@@ -340,7 +362,7 @@ class TestHistoryMetrics(MachineCase):
 
         # basic RAM consumption after boot; it's still a network spike, thus event+SVG
         self.assertLessEqual(getMaximumSpike(self, "memory", False, 1600236000000, 44), 0.3)
-        self.assertNotIn("Memory spike", events_at(1600236000000, 44))
+        self.assertNotIn("Memory", events_at(1600236000000, 44))
         if have_swap:
             self.assertAlmostEqual(getMaximumSpike(self, "memory", True, 1600236000000, 44), 0)
             self.assertNotIn("Swap", events_at(1600236000000, 44))
@@ -359,11 +381,11 @@ class TestHistoryMetrics(MachineCase):
 
         # memory spike in :47
         self.assertGreater(getMaximumSpike(self, "memory", False, 1600236000000, 47), 0.6)
-        self.assertIn("Memory spike", events_at(1600236000000, 47))
+        self.assertIn("Memory", events_at(1600236000000, 47))
 
         # at :54 the machine is loaded to ~80% so no event even if elevated
         self.assertGreater(getCompressedMinuteValue(self, "memory", False, 1600236000000, 54), 0.8)
-        b.wait_text("#metrics-hour-1600236000000 div.metrics-minute[data-minute=54] .metrics-events", "")
+        b.wait_not_present("#metrics-hour-1600236000000 div.metrics-minute[data-minute=54] .metrics-events")
         if have_swap:
             self.assertAlmostEqual(getCompressedMinuteValue(self, "memory", True, 1600236000000, 54), 0.0)
 
@@ -385,7 +407,7 @@ class TestHistoryMetrics(MachineCase):
 
         b.select_PF4("#date-picker-select-toggle", "Wednesday, September 16, 2020")
         self.assertGreater(getMaximumSpike(self, "memory", False, 1600236000000, 51), 0.5)
-        self.assertIn("Memory spike", events_at(1600236000000, 51))
+        self.assertIn("Memory", events_at(1600236000000, 51))
 
         # Reload should keep the filters intact
         b.reload()
@@ -407,7 +429,7 @@ class TestHistoryMetrics(MachineCase):
             prepareArchive(m, "double_events.zip", 1602345600, "m1.cockpit.lan")
             login(self)
             b.wait_in_text(".metrics-heading", "CPU")
-            b.wait_in_text("#metrics-hour-1602334800000", "CPU spike")
+            b.wait_in_text("#metrics-hour-1602334800000", "CPU")
             self.assertTrue(self.browser.call_js_func("""(function () {
                 const min_events = document.getElementsByClassName("metrics-events");
                 return Array.from(min_events).every(l => {
@@ -426,16 +448,8 @@ class TestHistoryMetrics(MachineCase):
         # first check the "no logs found" case
         login(self)
         b.wait_in_text(".metrics-heading", "CPU")
-        b.click("#metrics-hour-1615197600000 div.metrics-minute[data-minute=39] .metrics-events button")
-        b.wait_in_text("#metrics-hour-1615197600000 div.metrics-minute[data-minute=39] .cockpit-log-panel", "No logs found")
-        b.click("button:contains('View detailed logs')")
-        b.enter_page("/system/logs")
-        # jumps to the right time with larger window and debug level
-        url = b.eval_js('window.location.hash')
-        self.assertIn("priority=debug", url)
-        self.assertIn("since=2021-3-8%2010%3A24%3A0", url)
-        self.assertIn("until=2021-3-8%2010%3A40%3A0", url)
-        b.go("/metrics")
+        b.click("#metrics-hour-1615197600000 button.metrics-events-expander")
+        b.wait_in_text("#metrics-hour-1615197600000 div.metrics-minute[data-minute=39] .metrics-events span.spikes_info", "Load")
 
         # Now add the journal
         # Journal was recorded on Fedora 33 and when trying to use it with older systemd it fails with:
@@ -451,7 +465,8 @@ class TestHistoryMetrics(MachineCase):
         b.enter_page("/metrics")
 
         b.wait_in_text(".metrics-heading", "CPU")
-        b.click("#metrics-hour-1615197600000 div.metrics-minute[data-minute=39] .metrics-events button")
+        b.click("#metrics-hour-1615197600000 button.metrics-events-expander")
+        b.click("#metrics-hour-1615197600000 div.metrics-minute[data-minute=39] .metrics-events button.spikes_info")
         b.wait_visible(".cockpit-log-message:contains('Created slice cockpittest.slice.')")
         b.wait_in_text(".cockpit-logline:first-child .cockpit-log-message", "cpu-piglet")
         b.click(".cockpit-logline:first-child .cockpit-log-message")

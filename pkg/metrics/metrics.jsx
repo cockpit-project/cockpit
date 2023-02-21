@@ -37,7 +37,10 @@ import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.
 import { Text, TextContent, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { Table, TableHeader, TableBody, TableGridBreakpoint, TableVariant, TableText, RowWrapper, cellWidth, fitContent } from '@patternfly/react-table';
-import { ExclamationTriangleIcon, ExclamationCircleIcon, CogIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
+import {
+    AngleRightIcon, AngleDownIcon, ExclamationTriangleIcon, ExclamationCircleIcon, CogIcon, ExternalLinkAltIcon,
+    ResourcesFullIcon, ResourcesAlmostFullIcon, ResourcesAlmostEmptyIcon
+} from '@patternfly/react-icons';
 
 import cockpit from 'cockpit';
 import * as machine_info from "../lib/machine-info.js";
@@ -50,7 +53,6 @@ import { useObject, useEvent, useInit } from "hooks.js";
 import { WithDialogs, useDialogs } from "dialogs.jsx";
 
 import { EmptyStatePanel } from "../lib/cockpit-components-empty-state.jsx";
-import { ListingTable } from "cockpit-components-table.jsx";
 import { JournalOutput } from "cockpit-components-logs-panel.jsx";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
@@ -103,21 +105,21 @@ const scaleForValue = x => {
 const RESOURCES = {
     use_cpu: {
         name: _("CPU usage"),
-        event_description: _("CPU spike"),
+        event_description: _("CPU"),
         // all in msec/s
         normalize: ([nice, user, sys]) => (nice + user + sys) / 1000 / numCpu,
         format: ([nice, user, sys]) => `${_("nice")}: ${Math.round(nice / 10)}%, ${_("user")}: ${Math.round(user / 10)}%, ${_("sys")}: ${Math.round(sys / 10)}%`,
     },
     sat_cpu: {
         name: _("Load"),
-        event_description: _("Load spike"),
+        event_description: _("Load"),
         // unitless, unbounded, dynamic scaling for normalization
         normalize: load => Math.min(load, scaleSatCPU) / scaleSatCPU,
         format: load => cockpit.format_number(load),
     },
     use_memory: {
         name: _("Memory usage"),
-        event_description: _("Memory spike"),
+        event_description: _("Memory"),
         // assume used == total - available
         normalize: ([totalKiB, availKiB]) => 1 - (availKiB / totalKiB),
         format: ([totalKiB, availKiB]) => `${cockpit.format_bytes((totalKiB - availKiB) * 1024)} / ${cockpit.format_bytes(totalKiB * 1024)}`,
@@ -132,14 +134,14 @@ const RESOURCES = {
     },
     use_disks: {
         name: _("Disk I/O"),
-        event_description: _("Disk I/O spike"),
+        event_description: _("Disk I/O"),
         // KiB/s, unbounded, dynamic scaling for normalization
         normalize: KiBps => KiBps / scaleUseDisks,
         format: KiBps => cockpit.format_bytes_per_sec(KiBps * 1024),
     },
     use_network: {
         name: _("Network I/O"),
-        event_description: _("Network I/O spike"),
+        event_description: _("Network I/O"),
         // B/s, unbounded, dynamic scaling for normalization
         normalize: bps => bps / scaleUseNetwork,
         format: bps => cockpit.format_bytes_per_sec(bps),
@@ -886,6 +888,8 @@ class MetricsMinute extends React.Component {
 
     expand(isOpenCurrent) {
         this.setState({ expanded: isOpenCurrent });
+        if (!isOpenCurrent)
+            this.setState({ logs: null, logsUrl: null });
     }
 
     onHover(ev) {
@@ -975,66 +979,47 @@ class MetricsMinute extends React.Component {
             return (
                 <div
                     key={ resource + this.props.startTime + this.props.minute }
-                    className={ ("metrics-data metrics-data-" + resource) + (first ? " valid-data" : " empty-data") + (have_sat ? " have-saturation" : "") }
+                    className={ ("metrics-data metrics-data-" + resource) + (first ? " valid-data" : " empty-data") + (have_sat ? " have-saturation" : "") + (this.props.minute == 0 ? "" : " metrics-data-compressed")}
                     aria-hidden="true"
-                    onMouseMove={this.onHover}
+                    { ...(this.props.isExpanded && { onMouseMove: this.onHover }) }
                 >
                     {graph}
                 </div>
             );
         });
 
-        let events = <div className="metrics-events" />;
-        if (this.props.events) {
+        let desc;
+        if (this.props.isExpanded && this.props.events) {
             const timestamp = this.props.startTime + (this.props.minute * 60000);
-            const desc = <div className="description">
-                { this.props.events.events.map(t => <span className="type" key={ t }>{ RESOURCES[t].event_description }</span>) }
-                <div className="details">
-                    <time>{ timeformat.time(timestamp) }</time>
-                    {this.state.expanded && this.state.logsUrl &&
-                        <Button variant="link" isInline onClick={e => cockpit.jump(this.state.logsUrl)}>
-                            { _("View detailed logs") }
-                        </Button>}
-                </div>
-            </div>;
 
-            let body = " "; // Cannot be false-y, otherwise table does not show '>'
-            if (this.state.expanded) {
-                body = <div className="cockpit-log-panel">
-                    {this.state.logs === null
-                        ? _("Loading...")
-                        : this.state.logs.length === 0
-                            ? <span className="pf-u-py-sm">{ _("No logs found") }</span>
-                            : this.state.logs
-                    }
-                </div>;
-            }
+            const logsPanel = (
+                <>
+                    {(this.state.logs?.length && this.state.logsUrl) && <Button variant="secondary" onClick={e => cockpit.jump(this.state.logsUrl)}>{_("View detailed logs")}</Button>}
+                    <div className="cockpit-log-panel">
+                        {this.state.logs?.length ? this.state.logs : _("No log entries")}
+                    </div>
+                </>
+            );
 
-            const entry = [{
-                props: { key: timestamp, 'data-row-id': timestamp },
-                columns: [{ title: desc }],
-                hasPadding: false,
-                expandedContent: body,
-            }];
-
-            events = <div className="metrics-events-wrapper">
-                <ListingTable aria-label={ _("Event logs") }
-                                      className="metrics-events"
-                                      style={{ "--pf-c-table--BorderColor": "#fff" }}
-                                      showHeader={false}
-                                      variant="compact"
-                                      afterToggle={this.expand}
-                                      gridBreakPoint=''
-                                      columns={[
-                                          { title: _("Event") },
-                                      ]}
-                                      rows={entry} />
+            desc = <div className="metrics-events">
+                <time>{ timeformat.time(timestamp) }</time>
+                <span className="spikes_count" />
+                <Popover position="right" hasAutoWidth className="metrics-events-popover" bodyContent={logsPanel}>
+                    <Button
+                        variant="link" isInline
+                        className="spikes_info"
+                        onClick={() => this.expand(!this.state.expanded)}>
+                        <span className="type">
+                            { this.props.events.events.map(t => RESOURCES[t].event_description).join(", ") }
+                        </span>
+                    </Button>
+                </Popover>
             </div>;
         }
 
         return (
             <div className="metrics-minute" data-minute={this.props.minute}>
-                { events }
+                { this.props.isExpanded && desc }
                 <div className="metrics-graphs">
                     { graphs }
                 </div>
@@ -1049,6 +1034,8 @@ class MetricsHour extends React.Component {
 
         this.state = {
             minuteGraphs: [],
+            minute_events: {},
+            isHourExpanded: false,
             dataItems: 0,
         };
 
@@ -1061,9 +1048,10 @@ class MetricsHour extends React.Component {
 
     shouldComponentUpdate(nextProps, nextState) {
         if (this.state.dataItems !== nextProps.data.length ||
+            this.state.isHourExpanded !== nextState.isHourExpanded ||
             this.props.startTime !== nextProps.startTime ||
             Object.keys(this.props.selectedVisibility).some(itm => this.props.selectedVisibility[itm] != nextProps.selectedVisibility[itm])) {
-            this.updateGraphs(nextProps.data, nextProps.startTime, nextProps.selectedVisibility);
+            this.updateGraphs(nextProps.data, nextProps.startTime, nextProps.selectedVisibility, nextState.isHourExpanded);
             return false;
         }
 
@@ -1071,7 +1059,7 @@ class MetricsHour extends React.Component {
     }
 
     // data: type → SAMPLES_PER_H objects from startTime
-    updateGraphs(data, startTime, selectedVisibility) {
+    updateGraphs(data, startTime, selectedVisibility, isHourExpanded) {
         const filteredData = data.map(sample => Object.keys(sample)
                 .filter(key => selectedVisibility[key.split("_")[1]])
                 .reduce((cur, key) => Object.assign(cur, { [key]: sample[key] }), {}));
@@ -1129,21 +1117,73 @@ class MetricsHour extends React.Component {
             const dataOffset = minute * SAMPLES_PER_MIN;
             const dataSlice = normData.slice(dataOffset, dataOffset + SAMPLES_PER_MIN);
             const rawSlice = this.props.data.slice(dataOffset, dataOffset + SAMPLES_PER_MIN);
-            minuteGraphs.push(<MetricsMinute key={minute} minute={minute} data={dataSlice} rawData={rawSlice} events={minute_events[minute]} startTime={this.props.startTime} selectedVisibility={selectedVisibility} />);
+            minuteGraphs.push(
+                <MetricsMinute
+                    isExpanded={isHourExpanded}
+                    key={minute}
+                    minute={minute}
+                    data={dataSlice}
+                    rawData={rawSlice}
+                    events={minute_events[minute]}
+                    startTime={this.props.startTime}
+                    selectedVisibility={selectedVisibility} />
+            );
         }
 
-        this.setState((_, prevProps) => ({ minuteGraphs, dataItems: prevProps.data.length }));
+        this.setState((_, prevProps) => ({
+            isHourExpanded,
+            minute_events,
+            minuteGraphs,
+            dataItems: prevProps.data.length
+        }));
     }
 
     render() {
+        const hourDesc = (
+            <HourDescription
+               minute_events={this.state.minute_events}
+               onToggleHourExpanded={isHourExpanded => this.setState({ isHourExpanded })}
+               startTime={this.props.startTime}
+               isHourExpanded={this.state.isHourExpanded} />
+        );
+
         return (
-            <div id={ "metrics-hour-" + this.props.startTime.toString() } style={{ "--has-swap": swapTotal ? "var(--column-size)" : "var(--half-column-size)" }} className="metrics-hour">
-                { this.state.minuteGraphs }
-                <h3 className="metrics-time"><time>{ timeformat.dateTime(this.props.startTime) }</time></h3>
+            <div id={ "metrics-hour-" + this.props.startTime.toString() }
+                 className={"metrics-hour" + (!this.state.isHourExpanded ? " metrics-hour-compressed" : "")}>
+                {hourDesc}
+                {!this.state.isHourExpanded ? <div className="metrics-minutes">{this.state.minuteGraphs}</div> : this.state.minuteGraphs}
             </div>
         );
     }
 }
+
+const HourDescription = ({ minute_events, isHourExpanded, onToggleHourExpanded, startTime }) => {
+    const event_types = {};
+    Object.keys(RESOURCES).forEach(t => { event_types[t] = 0 });
+    Object.values(minute_events).forEach(event => { event.events.forEach(t => { event_types[t] += 1 }) });
+    const spikes = Object.values(event_types).reduce((acc, event_type_count) => acc + event_type_count, 0);
+    return (
+        <span className={"metrics-events" + (isHourExpanded ? " metrics-events-hour-header-expanded" : "")}>
+            {spikes > 0 &&
+                <Button variant="plain" className="metrics-events-expander" onClick={() => onToggleHourExpanded(!isHourExpanded)} icon={isHourExpanded ? <AngleDownIcon /> : <AngleRightIcon />} />}
+            <time>{ timeformat.time(startTime) }</time>
+            <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsBaseline' }} className="spikes_count">
+                {spikes >= 10 && <ResourcesFullIcon color="var(--resource-icon-color-full)" />}
+                {spikes >= 5 && spikes < 10 && <ResourcesAlmostFullIcon color="var(--resource-icon-color-middle)" />}
+                {spikes < 5 && spikes > 0 && <ResourcesAlmostEmptyIcon color="var(--resource-icon-color-empty)" />}
+                <FlexItem>
+                    {spikes ? cockpit.format(cockpit.ngettext("$0 spike", "$0 spikes", spikes), spikes) : _("No events")}
+                </FlexItem>
+            </Flex>
+            <span className="spikes_info">
+                {spikes > 0 && Object.entries(event_types)
+                        .filter(([_, count]) => count > 0)
+                        .map(([event_type, count]) => cockpit.format("$0 $1", count, RESOURCES[event_type].event_description))
+                        .join(", ")}
+            </span>
+        </span>
+    );
+};
 
 // null means "not initialized yet"
 const invalidService = proxy => proxy.state === null;
@@ -1693,8 +1733,8 @@ class MetricsHistory extends React.Component {
         return (
             <div className="metrics">
                 <div className="metrics-heading-sticky">
-                    <section className="metrics-heading" style={{ "--has-swap": swapTotal ? "var(--column-size)" : "var(--half-column-size)" }}>
-                        <Flex spaceItems={{ default: 'spaceItemsSm' }}>
+                    <section className="metrics-heading">
+                        <Flex className="metrics-selectors" spaceItems={{ default: 'spaceItemsSm' }}>
                             <Select
                                 className="select-min metrics-label"
                                 aria-label={_("Jump to")}
@@ -1735,10 +1775,18 @@ class MetricsHistory extends React.Component {
                 { this.state.hours.length > 0 &&
                     <Card>
                         <CardBody className="metrics-history">
-                            { this.state.hours.map((time, i) => <MetricsHour key={time} startTime={parseInt(time)}
-                                                                             selectedVisibility={this.state.selectedVisibility}
-                                                                             data={this.data[time]} clipLeading={i === 0}
-                            />) }
+                            { this.state.hours.map((time, i) => {
+                                const showHeader = i == 0 || timeformat.date(time) != timeformat.date(this.state.hours[i - 1]);
+
+                                return (
+                                    <React.Fragment key={timeformat.dateTime(time)}>
+                                        {showHeader && <TextContent><Text component={TextVariants.h3} className="metrics-time"><time>{ timeformat.date(time) }</time></Text></TextContent>}
+                                        <MetricsHour key={time} startTime={parseInt(time)}
+                                                     selectedVisibility={this.state.selectedVisibility}
+                                                     data={this.data[time]} clipLeading={i == 0} />
+                                    </React.Fragment>
+                                );
+                            })}
                         </CardBody>
                     </Card> }
                 {nodata_alert}
@@ -1781,7 +1829,7 @@ export const Application = () => {
                 <PageSection>
                     <CurrentMetrics />
                 </PageSection>
-                <PageSection>
+                <PageSection variant={PageSectionVariants.light}>
                     <MetricsHistory firewalldRequest={setFirewalldRequest}
                                     needsLogout={needsLogout}
                                     setNeedsLogout={setNeedsLogout} />

@@ -166,7 +166,7 @@ detect_cpu_sensors (GList **devices,
   while ((name = g_dir_read_name (dir)))
     {
       uint i;
-      if (sscanf(name, "temp%d_input", &i) != 1)
+      if (!g_str_has_suffix (name, "_input") || (sscanf(name, "temp%d_input", &i) != 1))
           continue;
 
       g_autofree char *sensor_path = g_build_filename (path, name, NULL);

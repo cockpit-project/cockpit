@@ -887,10 +887,13 @@ class TestCurrentMetrics(MachineCase):
         # Tctl (temp1_input) will be ignored
         m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp1_label", "Tctl")
         m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp1_input", "40000")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp1_max", "100000")
         m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp2_label", "Tccd1")
         m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp2_input", "35000")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp2_max", "100000")
         m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp3_label", "Tccd3")
         m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp3_input", "30000")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp3_max", "100000")
 
         b.logout()
         self.login_and_go("/metrics")
@@ -931,8 +934,10 @@ class TestCurrentMetrics(MachineCase):
         m.write("/tmp/sensor-sys-class/hwmon/hwmon1/name", "coretemp")
         m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp1_label", "Package id 0")
         m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp1_input", "60000")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp1_crit", "100000")
         m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp2_label", "Core 0")
         m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp2_input", "50000")
+        m.write("/tmp/sensor-sys-class/hwmon/hwmon1/temp2_crit", "100000")
 
         b.logout()
         self.login_and_go("/metrics")

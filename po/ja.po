@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-12 02:57+0000\n"
+"POT-Creation-Date: 2023-02-20 02:58+0000\n"
 "PO-Revision-Date: 2022-10-27 13:19+0000\n"
 "Last-Translator: Ludek Janda <ljanda@redhat.com>\n"
 "Language-Team: Japanese <https://translate.fedoraproject.org/projects/"
@@ -90,8 +90,8 @@ msgid "$0 day"
 msgid_plural "$0 days"
 msgstr[0] "$0 日"
 
-#: pkg/playground/translate.js:26 pkg/playground/translate.js:29
-#: pkg/storaged/mdraid-details.jsx:210
+#: pkg/storaged/mdraid-details.jsx:210 pkg/playground/translate.js:26
+#: pkg/playground/translate.js:29
 msgid "$0 disk is missing"
 msgid_plural "$0 disks are missing"
 msgstr[0] "$0 本のディスクがありません"
@@ -158,12 +158,12 @@ msgid "$0 important hit"
 msgid_plural "$0 hits, including important"
 msgstr[0] "「重要な影響」を含む $0 件が該当"
 
-#: pkg/storaged/lvol-tabs.jsx:232 pkg/storaged/lvol-tabs.jsx:299
-#: pkg/storaged/vgroup-details.jsx:190 pkg/storaged/format-dialog.jsx:176
 #: pkg/storaged/content-views.jsx:371 pkg/storaged/content-views.jsx:679
-#: pkg/storaged/mdraid-details.jsx:232 pkg/storaged/mdraid-details.jsx:287
-#: pkg/storaged/vdo-details.jsx:133 pkg/storaged/vdo-details.jsx:167
-#: pkg/storaged/stratis-details.jsx:241 pkg/storaged/stratis-details.jsx:542
+#: pkg/storaged/lvol-tabs.jsx:232 pkg/storaged/lvol-tabs.jsx:299
+#: pkg/storaged/vgroup-details.jsx:190 pkg/storaged/stratis-details.jsx:241
+#: pkg/storaged/stratis-details.jsx:542 pkg/storaged/mdraid-details.jsx:232
+#: pkg/storaged/mdraid-details.jsx:287 pkg/storaged/vdo-details.jsx:133
+#: pkg/storaged/vdo-details.jsx:167 pkg/storaged/format-dialog.jsx:176
 msgid "$0 is in use"
 msgstr "$0 は使用されています"
 
@@ -462,8 +462,8 @@ msgstr "4 日"
 msgid "5 min"
 msgstr "5 分"
 
-#: pkg/lib/cockpit-components-plot.jsx:272
 #: pkg/lib/cockpit-components-shutdown.jsx:172
+#: pkg/lib/cockpit-components-plot.jsx:272
 msgid "5 minutes"
 msgstr "5 分"
 
@@ -589,7 +589,7 @@ msgstr "ARP ping"
 msgid "About Web Console"
 msgstr "Webコンソールについて"
 
-#: pkg/systemd/hw-detect.js:114 pkg/lib/machine-info.js:268
+#: pkg/lib/machine-info.js:268 pkg/systemd/hw-detect.js:114
 msgid "Absent"
 msgstr "不在"
 
@@ -609,8 +609,8 @@ msgstr "アカウントの有効期限"
 msgid "Account not available or cannot be edited."
 msgstr "アカウントが利用可能でないか、アカウントを編集できません。"
 
-#: pkg/users/account-details.js:232 pkg/users/accounts-list.js:252
-#: pkg/users/accounts-list.js:470 pkg/users/manifest.json:0
+#: pkg/users/accounts-list.js:252 pkg/users/accounts-list.js:470
+#: pkg/users/account-details.js:232 pkg/users/manifest.json:0
 msgid "Accounts"
 msgstr "アカウント"
 
@@ -638,8 +638,8 @@ msgstr "動作中"
 msgid "Active backup"
 msgstr "アクティブなバックアップ"
 
-#: pkg/shell/topnav.jsx:206 pkg/shell/active-pages-modal.jsx:94
-#: pkg/shell/active-pages-modal.jsx:102
+#: pkg/shell/active-pages-modal.jsx:94 pkg/shell/active-pages-modal.jsx:102
+#: pkg/shell/topnav.jsx:206
 msgid "Active pages"
 msgstr "アクティブページ"
 
@@ -660,20 +660,19 @@ msgstr "適応ロードバランス"
 msgid "Adaptive transmit load balancing"
 msgstr "適応送信のロードバランス"
 
-#: pkg/systemd/services/timer-dialog.jsx:375
-#: pkg/users/authorized-keys-panel.js:70 pkg/storaged/iscsi-panel.jsx:140
+#: pkg/storaged/nfs-panel.jsx:65 pkg/storaged/crypto-keyslots.jsx:508
+#: pkg/storaged/crypto-keyslots.jsx:844 pkg/storaged/vgroup-details.jsx:78
+#: pkg/storaged/vgroup-details.jsx:129 pkg/storaged/nfs-details.jsx:186
+#: pkg/storaged/stratis-details.jsx:148 pkg/storaged/iscsi-panel.jsx:140
 #: pkg/storaged/iscsi-panel.jsx:164 pkg/storaged/iscsi-panel.jsx:259
-#: pkg/storaged/vgroup-details.jsx:78 pkg/storaged/vgroup-details.jsx:129
-#: pkg/storaged/nfs-panel.jsx:65 pkg/storaged/mdraid-details.jsx:76
-#: pkg/storaged/mdraid-details.jsx:159 pkg/storaged/crypto-keyslots.jsx:508
-#: pkg/storaged/crypto-keyslots.jsx:844 pkg/storaged/nfs-details.jsx:186
-#: pkg/storaged/stratis-details.jsx:148 pkg/shell/credentials.jsx:187
-#: pkg/shell/hosts_dialog.jsx:248
+#: pkg/storaged/mdraid-details.jsx:76 pkg/storaged/mdraid-details.jsx:159
+#: pkg/users/authorized-keys-panel.js:70 pkg/shell/hosts_dialog.jsx:248
+#: pkg/shell/credentials.jsx:187 pkg/systemd/services/timer-dialog.jsx:375
 msgid "Add"
 msgstr "追加する"
 
-#: pkg/networkmanager/network-interface-members.jsx:178
 #: pkg/lib/cockpit-components-firewalld-request.jsx:148
+#: pkg/networkmanager/network-interface-members.jsx:178
 msgid "Add $0"
 msgstr "$0 を追加する"
 
@@ -716,7 +715,7 @@ msgstr "iSCSI ポータルを追加する"
 msgid "Add item"
 msgstr "アイテムを追加する"
 
-#: pkg/users/authorized-keys-panel.js:120 pkg/storaged/crypto-keyslots.jsx:474
+#: pkg/storaged/crypto-keyslots.jsx:474 pkg/users/authorized-keys-panel.js:120
 #: pkg/shell/credentials.jsx:93
 msgid "Add key"
 msgstr "キーを追加する"
@@ -790,7 +789,7 @@ msgstr ""
 "カスタムポートを追加すると、firewalld がリロードされます。リロードにより、ラ"
 "ンタイムのみの設定が失われます!"
 
-#: pkg/users/authorized-keys.js:112 pkg/storaged/crypto-keyslots.jsx:440
+#: pkg/storaged/crypto-keyslots.jsx:440 pkg/users/authorized-keys.js:112
 msgid "Adding key"
 msgstr "キーの追加"
 
@@ -826,8 +825,8 @@ msgstr "追加のパッケージ:"
 msgid "Additional ports"
 msgstr "追加ポート"
 
-#: pkg/networkmanager/ip-settings.jsx:187
-#: pkg/networkmanager/ip-settings.jsx:338 pkg/storaged/iscsi-panel.jsx:131
+#: pkg/storaged/iscsi-panel.jsx:131 pkg/networkmanager/ip-settings.jsx:187
+#: pkg/networkmanager/ip-settings.jsx:338
 msgid "Address"
 msgstr "アドレス"
 
@@ -1001,8 +1000,8 @@ msgstr[0] "少なくとも $0 ディスクが必要です。"
 msgid "At least one block device is needed."
 msgstr "1 つ以上のブロックデバイスが必要です。"
 
-#: pkg/storaged/vgroup-details.jsx:72 pkg/storaged/mdraid-details.jsx:70
-#: pkg/storaged/vgroups-panel.jsx:83 pkg/storaged/stratis-details.jsx:142
+#: pkg/storaged/vgroup-details.jsx:72 pkg/storaged/stratis-details.jsx:142
+#: pkg/storaged/mdraid-details.jsx:70 pkg/storaged/vgroups-panel.jsx:83
 msgid "At least one disk is needed."
 msgstr "1 つ以上のディスクが必要です。"
 
@@ -1067,10 +1066,11 @@ msgstr "SSH キーの認証"
 msgid "Authorized public SSH keys"
 msgstr "承認された公開 SSH 鍵"
 
-#: pkg/networkmanager/network-interface.jsx:392 pkg/networkmanager/mtu.jsx:81
-#: pkg/networkmanager/ip-settings.jsx:52 pkg/networkmanager/ip-settings.jsx:233
+#: pkg/networkmanager/mtu.jsx:81 pkg/networkmanager/ip-settings.jsx:52
+#: pkg/networkmanager/ip-settings.jsx:233
 #: pkg/networkmanager/ip-settings.jsx:278
 #: pkg/networkmanager/ip-settings.jsx:323
+#: pkg/networkmanager/network-interface.jsx:392
 msgid "Automatic"
 msgstr "自動"
 
@@ -1090,8 +1090,8 @@ msgstr "自動ログイン"
 msgid "Automatic updates"
 msgstr "自動アップデート"
 
-#: pkg/systemd/services/services-list.jsx:82
 #: pkg/systemd/services/service-details.jsx:509
+#: pkg/systemd/services/services-list.jsx:82
 msgid "Automatically starts"
 msgstr "自動起動"
 
@@ -1180,8 +1180,8 @@ msgstr "ブロック"
 msgid "Block device for filesystems"
 msgstr "ファイルシステム用ブロックデバイス"
 
-#: pkg/storaged/stratis-panel.jsx:159 pkg/storaged/stratis-details.jsx:137
-#: pkg/storaged/stratis-details.jsx:216 pkg/storaged/stratis-details.jsx:749
+#: pkg/storaged/stratis-details.jsx:137 pkg/storaged/stratis-details.jsx:216
+#: pkg/storaged/stratis-details.jsx:749 pkg/storaged/stratis-panel.jsx:159
 msgid "Block devices"
 msgstr "ブロックデバイス"
 
@@ -1256,9 +1256,9 @@ msgstr ""
 "動的にキーが使えるようになります。これで、パスワードなしで $3 にログインでき"
 "るようになります。"
 
-#: pkg/systemd/hwinfo.jsx:119 pkg/systemd/overview-cards/usageCard.jsx:134
 #: pkg/metrics/metrics.jsx:690 pkg/metrics/metrics.jsx:1373
-#: pkg/metrics/metrics.jsx:1724
+#: pkg/metrics/metrics.jsx:1725 pkg/systemd/hwinfo.jsx:119
+#: pkg/systemd/overview-cards/usageCard.jsx:134
 msgid "CPU"
 msgstr "CPU"
 
@@ -1295,29 +1295,28 @@ msgid "Can not find any logs using the current combination of filters."
 msgstr ""
 "現在のフィルターの組み合わせを使用して、ログを見つけることができません。"
 
-#: pkg/playground/translate.html:39 pkg/static/login.html:148
-#: pkg/sosreport/index.jsx:289 pkg/sosreport/index.jsx:374
+#: pkg/static/login.html:148 pkg/playground/translate.html:39
+#: pkg/apps/utils.jsx:66 pkg/lib/cockpit-components-shutdown.jsx:187
+#: pkg/lib/cockpit-components-dialog.jsx:126 pkg/packagekit/kpatch.jsx:311
 #: pkg/packagekit/updates.jsx:533 pkg/packagekit/updates.jsx:571
-#: pkg/packagekit/kpatch.jsx:311 pkg/packagekit/autoupdates.jsx:274
-#: pkg/networkmanager/dialogs-common.jsx:157
-#: pkg/networkmanager/firewall.jsx:604 pkg/networkmanager/firewall.jsx:808
-#: pkg/networkmanager/firewall.jsx:903 pkg/systemd/hwinfo.jsx:242
-#: pkg/systemd/overview-cards/motdCard.jsx:67
-#: pkg/systemd/overview-cards/configurationCard.jsx:280
-#: pkg/systemd/overview-cards/realmd.jsx:420
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:191
-#: pkg/systemd/reporting.jsx:421 pkg/systemd/services/timer-dialog.jsx:152
-#: pkg/systemd/services/service-details.jsx:79
-#: pkg/systemd/services/service-details.jsx:707
-#: pkg/lib/cockpit-components-dialog.jsx:126
-#: pkg/lib/cockpit-components-shutdown.jsx:187 pkg/tuned/dialog.jsx:311
-#: pkg/apps/utils.jsx:66 pkg/storaged/jobs-panel.jsx:139
-#: pkg/shell/superuser.jsx:176 pkg/shell/superuser.jsx:214
-#: pkg/shell/superuser.jsx:259 pkg/shell/credentials.jsx:316
-#: pkg/shell/active-pages-modal.jsx:97 pkg/shell/hosts_dialog.jsx:280
+#: pkg/packagekit/autoupdates.jsx:274 pkg/sosreport/index.jsx:289
+#: pkg/sosreport/index.jsx:374 pkg/tuned/dialog.jsx:311
+#: pkg/storaged/jobs-panel.jsx:139 pkg/shell/hosts_dialog.jsx:280
 #: pkg/shell/hosts_dialog.jsx:377 pkg/shell/hosts_dialog.jsx:501
 #: pkg/shell/hosts_dialog.jsx:869 pkg/shell/shell-modals.jsx:114
-#: pkg/metrics/metrics.jsx:1282
+#: pkg/shell/active-pages-modal.jsx:97 pkg/shell/credentials.jsx:316
+#: pkg/shell/superuser.jsx:176 pkg/shell/superuser.jsx:214
+#: pkg/shell/superuser.jsx:259 pkg/metrics/metrics.jsx:1282
+#: pkg/systemd/reporting.jsx:421 pkg/systemd/services/service-details.jsx:79
+#: pkg/systemd/services/service-details.jsx:707
+#: pkg/systemd/services/timer-dialog.jsx:152 pkg/systemd/hwinfo.jsx:242
+#: pkg/systemd/overview-cards/motdCard.jsx:67
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:191
+#: pkg/systemd/overview-cards/configurationCard.jsx:280
+#: pkg/systemd/overview-cards/realmd.jsx:420
+#: pkg/networkmanager/dialogs-common.jsx:157
+#: pkg/networkmanager/firewall.jsx:604 pkg/networkmanager/firewall.jsx:808
+#: pkg/networkmanager/firewall.jsx:903
 msgid "Cancel"
 msgstr "取り消し"
 
@@ -1350,8 +1349,8 @@ msgstr "realmd がこのシステムで利用できないため、ドメイン�
 msgid "Cannot schedule event in the past"
 msgstr "過去のイベントはスケジュールできません"
 
-#: pkg/storaged/block-details.jsx:48 pkg/storaged/vgroup-details.jsx:239
-#: pkg/storaged/mdraid-details.jsx:339 pkg/storaged/drive-details.jsx:87
+#: pkg/storaged/vgroup-details.jsx:239 pkg/storaged/drive-details.jsx:87
+#: pkg/storaged/mdraid-details.jsx:339 pkg/storaged/block-details.jsx:48
 msgctxt "storage"
 msgid "Capacity"
 msgstr "容量"
@@ -1360,9 +1359,9 @@ msgstr "容量"
 msgid "Carrier"
 msgstr "キャリア"
 
+#: pkg/lib/serverTime.js:661 pkg/storaged/iscsi-panel.jsx:191
+#: pkg/users/expiration-dialogs.js:111 pkg/users/expiration-dialogs.js:216
 #: pkg/systemd/overview-cards/configurationCard.jsx:279
-#: pkg/lib/serverTime.js:661 pkg/users/expiration-dialogs.js:111
-#: pkg/users/expiration-dialogs.js:216 pkg/storaged/iscsi-panel.jsx:191
 msgid "Change"
 msgstr "変更"
 
@@ -1495,7 +1494,7 @@ msgstr "$target のクリーンアップ中"
 msgid "Clear 'Failed to start'"
 msgstr "'起動に失敗' を消去"
 
-#: pkg/systemd/services/services-list.jsx:58 pkg/systemd/logsJournal.jsx:277
+#: pkg/systemd/logsJournal.jsx:277 pkg/systemd/services/services-list.jsx:58
 msgid "Clear all filters"
 msgstr "すべてのフィルターの消去"
 
@@ -1511,15 +1510,14 @@ msgstr "cleartext デバイス"
 msgid "Client software"
 msgstr "クライアントソフトウェア"
 
-#: pkg/networkmanager/interfaces.js:43
+#: pkg/apps/utils.jsx:84 pkg/lib/cockpit-components-terminal.jsx:215
+#: pkg/lib/cockpit-components-modifications.jsx:78 pkg/storaged/dialog.jsx:438
+#: pkg/users/dialog-utils.js:58 pkg/shell/hosts_dialog.jsx:81
+#: pkg/shell/shell-modals.jsx:170 pkg/shell/credentials.jsx:84
+#: pkg/shell/superuser.jsx:184 pkg/shell/superuser.jsx:192
 #: pkg/systemd/overview-cards/configurationCard.jsx:194
 #: pkg/systemd/overview-cards/realmd.jsx:264
-#: pkg/lib/cockpit-components-modifications.jsx:78
-#: pkg/lib/cockpit-components-terminal.jsx:215 pkg/users/dialog-utils.js:58
-#: pkg/apps/utils.jsx:84 pkg/storaged/dialog.jsx:438
-#: pkg/shell/superuser.jsx:184 pkg/shell/superuser.jsx:192
-#: pkg/shell/credentials.jsx:84 pkg/shell/hosts_dialog.jsx:81
-#: pkg/shell/shell-modals.jsx:170
+#: pkg/networkmanager/interfaces.js:43
 msgid "Close"
 msgstr "閉じる"
 
@@ -1602,8 +1600,8 @@ msgstr "色"
 msgid "Comma-separated ports, ranges, and services are accepted"
 msgstr "コンマで区切られたポート、範囲、およびサービスを指定できます"
 
-#: pkg/systemd/services/timer-dialog.jsx:176 pkg/storaged/dialog.jsx:1199
-#: pkg/storaged/dialog.jsx:1218
+#: pkg/storaged/dialog.jsx:1199 pkg/storaged/dialog.jsx:1218
+#: pkg/systemd/services/timer-dialog.jsx:176
 msgid "Command"
 msgstr "コマンド"
 
@@ -1636,8 +1634,8 @@ msgstr ""
 msgid "Compress crash dumps to save space"
 msgstr "クラッシュダンプを圧縮し容量を節約する"
 
-#: pkg/kdump/kdump-view.jsx:168 pkg/storaged/lvol-tabs.jsx:563
-#: pkg/storaged/content-views.jsx:960 pkg/storaged/vdo-details.jsx:325
+#: pkg/storaged/content-views.jsx:960 pkg/storaged/lvol-tabs.jsx:563
+#: pkg/storaged/vdo-details.jsx:325 pkg/kdump/kdump-view.jsx:168
 msgid "Compression"
 msgstr "圧縮"
 
@@ -1669,13 +1667,13 @@ msgstr "kdumpを設定中"
 msgid "Configuring system settings"
 msgstr "システム設定の変更"
 
-#: pkg/users/account-create-dialog.js:59 pkg/storaged/stratis-panel.jsx:149
-#: pkg/storaged/format-dialog.jsx:274
+#: pkg/storaged/stratis-panel.jsx:149 pkg/storaged/format-dialog.jsx:274
+#: pkg/users/account-create-dialog.js:59
 msgid "Confirm"
 msgstr "確定します"
 
-#: pkg/systemd/services/service-details.jsx:699
 #: pkg/storaged/stratis-details.jsx:550
+#: pkg/systemd/services/service-details.jsx:699
 msgid "Confirm deletion of $0"
 msgstr "$0 の削除を確定する"
 
@@ -1805,8 +1803,8 @@ msgstr "コピー済み"
 msgid "Copy"
 msgstr "コピー"
 
-#: pkg/systemd/logs.jsx:416 pkg/lib/cockpit-components-modifications.jsx:75
-#: pkg/storaged/crypto-keyslots.jsx:602
+#: pkg/lib/cockpit-components-modifications.jsx:75
+#: pkg/storaged/crypto-keyslots.jsx:602 pkg/systemd/logs.jsx:416
 msgid "Copy to clipboard"
 msgstr "クリップボードにコピー"
 
@@ -1831,11 +1829,11 @@ msgid "Crash system"
 msgstr "システムのクラッシュ"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:187
-#: pkg/users/account-create-dialog.js:287 pkg/users/group-create-dialog.js:148
-#: pkg/storaged/stratis-panel.jsx:170 pkg/storaged/mdraids-panel.jsx:139
 #: pkg/storaged/content-views.jsx:196 pkg/storaged/content-views.jsx:311
-#: pkg/storaged/content-views.jsx:976 pkg/storaged/vgroups-panel.jsx:89
-#: pkg/storaged/stratis-details.jsx:389
+#: pkg/storaged/content-views.jsx:976 pkg/storaged/mdraids-panel.jsx:139
+#: pkg/storaged/stratis-details.jsx:389 pkg/storaged/vgroups-panel.jsx:89
+#: pkg/storaged/stratis-panel.jsx:170 pkg/users/account-create-dialog.js:287
+#: pkg/users/group-create-dialog.js:148
 msgid "Create"
 msgstr "作成"
 
@@ -1847,7 +1845,7 @@ msgstr "LVM2 ボリュームグループの作成"
 msgid "Create RAID device"
 msgstr "RAID デバイスの作成"
 
-#: pkg/storaged/stratis-panel.jsx:128 pkg/storaged/things-panel.jsx:80
+#: pkg/storaged/things-panel.jsx:80 pkg/storaged/stratis-panel.jsx:128
 msgid "Create Stratis pool"
 msgstr "Stratis プールの作成"
 
@@ -1887,7 +1885,7 @@ msgstr "アカウントの新規作成"
 msgid "Create new filesystem"
 msgstr "新規ファイルシステムの作成"
 
-#: pkg/users/group-create-dialog.js:141 pkg/users/accounts-list.js:317
+#: pkg/users/accounts-list.js:317 pkg/users/group-create-dialog.js:141
 #, fuzzy
 #| msgid "Create volume group"
 msgid "Create new group"
@@ -1901,8 +1899,8 @@ msgstr "新規論理ボリュームの作成"
 msgid "Create new task file with this content."
 msgstr "このコンテンツで新しいタスクファイルを作成します。"
 
-#: pkg/storaged/format-dialog.jsx:310 pkg/storaged/content-views.jsx:597
-#: pkg/storaged/content-views.jsx:605
+#: pkg/storaged/content-views.jsx:597 pkg/storaged/content-views.jsx:605
+#: pkg/storaged/format-dialog.jsx:310
 msgid "Create partition"
 msgstr "パーティションの作成"
 
@@ -2016,9 +2014,9 @@ msgstr "現在使用されています"
 msgid "Custom crypto policy"
 msgstr "カスタム暗号化ポリシー"
 
-#: pkg/storaged/format-dialog.jsx:257 pkg/storaged/nfs-details.jsx:171
-#: pkg/storaged/fsys-tab.jsx:343 pkg/storaged/stratis-details.jsx:384
-#: pkg/storaged/stratis-details.jsx:515
+#: pkg/storaged/nfs-details.jsx:171 pkg/storaged/stratis-details.jsx:384
+#: pkg/storaged/stratis-details.jsx:515 pkg/storaged/fsys-tab.jsx:343
+#: pkg/storaged/format-dialog.jsx:257
 msgid "Custom mount options"
 msgstr "カスタムのマウントオプション"
 
@@ -2058,7 +2056,7 @@ msgstr "毎日"
 msgid "Danger alert:"
 msgstr "Danger アラート:"
 
-#: pkg/systemd/terminal.jsx:155 pkg/shell/topnav.jsx:187
+#: pkg/shell/topnav.jsx:187 pkg/systemd/terminal.jsx:155
 msgid "Dark"
 msgstr "ダーク"
 
@@ -2102,7 +2100,7 @@ msgstr "デバッグ以上のレベル"
 msgid "Decrease by one"
 msgstr "1 つ減らす"
 
-#: pkg/storaged/lvol-tabs.jsx:570 pkg/storaged/content-views.jsx:965
+#: pkg/storaged/content-views.jsx:965 pkg/storaged/lvol-tabs.jsx:570
 #: pkg/storaged/vdo-details.jsx:334
 msgid "Deduplication"
 msgstr "重複"
@@ -2111,9 +2109,9 @@ msgstr "重複"
 msgid "Default"
 msgstr "デフォルト"
 
+#: pkg/lib/cockpit-components-shutdown.jsx:195
 #: pkg/systemd/services/timer-dialog.jsx:202
 #: pkg/systemd/services/timer-dialog.jsx:213
-#: pkg/lib/cockpit-components-shutdown.jsx:195
 msgid "Delay"
 msgstr "遅延"
 
@@ -2122,24 +2120,24 @@ msgid "Delay must be a number"
 msgstr "遅延は数字である必要があります"
 
 #: pkg/sosreport/index.jsx:368 pkg/sosreport/index.jsx:480
-#: pkg/networkmanager/network-interface.jsx:724
-#: pkg/networkmanager/firewall.jsx:118 pkg/networkmanager/firewall.jsx:179
-#: pkg/networkmanager/firewall.jsx:900 pkg/systemd/abrtLog.jsx:291
+#: pkg/storaged/content-views.jsx:382 pkg/storaged/content-views.jsx:409
+#: pkg/storaged/vgroup-details.jsx:202 pkg/storaged/vgroup-details.jsx:228
+#: pkg/storaged/stratis-details.jsx:253 pkg/storaged/stratis-details.jsx:418
+#: pkg/storaged/stratis-details.jsx:554 pkg/storaged/stratis-details.jsx:602
+#: pkg/storaged/mdraid-details.jsx:297 pkg/storaged/mdraid-details.jsx:323
+#: pkg/storaged/vdo-details.jsx:205 pkg/storaged/vdo-details.jsx:271
+#: pkg/users/delete-group-dialog.js:49 pkg/users/delete-account-dialog.js:60
+#: pkg/users/account-details.js:249 pkg/systemd/abrtLog.jsx:291
 #: pkg/systemd/services/service-details.jsx:145
 #: pkg/systemd/services/service-details.jsx:705
-#: pkg/users/account-details.js:249 pkg/users/delete-account-dialog.js:60
-#: pkg/users/delete-group-dialog.js:49 pkg/storaged/vgroup-details.jsx:202
-#: pkg/storaged/vgroup-details.jsx:228 pkg/storaged/content-views.jsx:382
-#: pkg/storaged/content-views.jsx:409 pkg/storaged/mdraid-details.jsx:297
-#: pkg/storaged/mdraid-details.jsx:323 pkg/storaged/vdo-details.jsx:205
-#: pkg/storaged/vdo-details.jsx:271 pkg/storaged/stratis-details.jsx:253
-#: pkg/storaged/stratis-details.jsx:418 pkg/storaged/stratis-details.jsx:554
-#: pkg/storaged/stratis-details.jsx:602
+#: pkg/networkmanager/firewall.jsx:118 pkg/networkmanager/firewall.jsx:179
+#: pkg/networkmanager/firewall.jsx:900
+#: pkg/networkmanager/network-interface.jsx:724
 msgid "Delete"
 msgstr "削除"
 
-#: pkg/networkmanager/network-interface.jsx:118
 #: pkg/users/delete-account-dialog.js:53
+#: pkg/networkmanager/network-interface.jsx:118
 msgid "Delete $0"
 msgstr "$0 の削除"
 
@@ -2216,8 +2214,8 @@ msgstr "削除すると、ボリュームグループのデータがすべて消
 msgid "Deletion will remove the following files:"
 msgstr "削除すると、以下のファイルが削除されます:"
 
+#: pkg/storaged/dialog.jsx:1219 pkg/systemd/services/timer-dialog.jsx:167
 #: pkg/networkmanager/firewall.jsx:696 pkg/networkmanager/firewall.jsx:840
-#: pkg/systemd/services/timer-dialog.jsx:167 pkg/storaged/dialog.jsx:1219
 msgid "Description"
 msgstr "説明"
 
@@ -2229,8 +2227,8 @@ msgstr "デスクトップ"
 msgid "Detachable"
 msgstr "割り当て解除可能"
 
-#: pkg/packagekit/updates.jsx:444 pkg/systemd/overview-cards/realmd.jsx:402
-#: pkg/shell/credentials.jsx:112
+#: pkg/packagekit/updates.jsx:444 pkg/shell/credentials.jsx:112
+#: pkg/systemd/overview-cards/realmd.jsx:402
 msgid "Details"
 msgstr "詳細"
 
@@ -2238,8 +2236,8 @@ msgstr "詳細"
 msgid "Development"
 msgstr "開発"
 
-#: pkg/storaged/dialog.jsx:1049 pkg/storaged/dialog.jsx:1127
-#: pkg/storaged/crypto-panel.jsx:85 pkg/metrics/metrics.jsx:671
+#: pkg/storaged/crypto-panel.jsx:85 pkg/storaged/dialog.jsx:1049
+#: pkg/storaged/dialog.jsx:1127 pkg/metrics/metrics.jsx:671
 msgid "Device"
 msgstr "デバイス"
 
@@ -2252,7 +2250,7 @@ msgstr "デバイス"
 msgid "Device file"
 msgstr "デバイスファイル"
 
-#: pkg/storaged/block-details.jsx:52 pkg/storaged/drive-details.jsx:89
+#: pkg/storaged/drive-details.jsx:89 pkg/storaged/block-details.jsx:52
 msgctxt "storage"
 msgid "Device file"
 msgstr "デバイスファイル"
@@ -2291,10 +2289,10 @@ msgid "Disable tuned"
 msgstr "tuned の無効化"
 
 #: pkg/packagekit/kpatch.jsx:249 pkg/packagekit/autoupdates.jsx:344
-#: pkg/networkmanager/ip-settings.jsx:47 pkg/networkmanager/ip-settings.jsx:58
-#: pkg/networkmanager/firewall-switch.jsx:78
 #: pkg/systemd/services/services.jsx:202 pkg/systemd/services/services.jsx:813
 #: pkg/systemd/services/service-details.jsx:442
+#: pkg/networkmanager/ip-settings.jsx:47 pkg/networkmanager/ip-settings.jsx:58
+#: pkg/networkmanager/firewall-switch.jsx:78
 msgid "Disabled"
 msgstr "無効"
 
@@ -2315,7 +2313,7 @@ msgid "Disconnected"
 msgstr "切断されています"
 
 #: pkg/metrics/metrics.jsx:133 pkg/metrics/metrics.jsx:1373
-#: pkg/metrics/metrics.jsx:1726
+#: pkg/metrics/metrics.jsx:1727
 msgid "Disk I/O"
 msgstr "ディスク I/O"
 
@@ -2335,7 +2333,7 @@ msgstr "ディスクで障害が発生中"
 msgid "Disk passphrase"
 msgstr "ディスクのパスフレーズ"
 
-#: pkg/storaged/vgroup-details.jsx:67 pkg/storaged/mdraids-panel.jsx:126
+#: pkg/storaged/mdraids-panel.jsx:126 pkg/storaged/vgroup-details.jsx:67
 #: pkg/storaged/mdraid-details.jsx:65 pkg/storaged/mdraid-details.jsx:163
 #: pkg/storaged/vgroups-panel.jsx:78 pkg/metrics/metrics.jsx:778
 msgid "Disks"
@@ -2356,7 +2354,7 @@ msgstr[0] "$0 アラートの解除"
 msgid "Dismiss selected alerts"
 msgstr "選択したアラートの解除"
 
-#: pkg/shell/topnav.jsx:199 pkg/shell/shell-modals.jsx:111
+#: pkg/shell/shell-modals.jsx:111 pkg/shell/topnav.jsx:199
 msgid "Display language"
 msgstr "表示言語"
 
@@ -2435,14 +2433,14 @@ msgstr "ドライブ"
 msgid "Drives"
 msgstr "ドライブ"
 
-#: pkg/systemd/hw-detect.js:92 pkg/lib/machine-info.js:261
+#: pkg/lib/machine-info.js:261 pkg/systemd/hw-detect.js:92
 msgid "Dual rank"
 msgstr "デュアルランク"
 
 #: pkg/packagekit/kpatch.jsx:230 pkg/packagekit/autoupdates.jsx:407
-#: pkg/networkmanager/firewall.jsx:116 pkg/storaged/iscsi-panel.jsx:255
 #: pkg/storaged/crypto-keyslots.jsx:794 pkg/storaged/nfs-details.jsx:305
-#: pkg/shell/hosts.jsx:165 pkg/shell/indexes.jsx:352
+#: pkg/storaged/iscsi-panel.jsx:255 pkg/shell/hosts.jsx:165
+#: pkg/shell/indexes.jsx:352 pkg/networkmanager/firewall.jsx:116
 msgid "Edit"
 msgstr "編集"
 
@@ -2530,9 +2528,9 @@ msgstr "サービスを有効にします"
 msgid "Enable the firewall"
 msgstr "ファイアウォールを有効にします"
 
-#: pkg/packagekit/kpatch.jsx:252 pkg/networkmanager/firewall-switch.jsx:78
-#: pkg/systemd/services/services.jsx:200 pkg/systemd/services/services.jsx:201
-#: pkg/systemd/services/services.jsx:812
+#: pkg/packagekit/kpatch.jsx:252 pkg/systemd/services/services.jsx:200
+#: pkg/systemd/services/services.jsx:201 pkg/systemd/services/services.jsx:812
+#: pkg/networkmanager/firewall-switch.jsx:78
 msgid "Enabled"
 msgstr "有効"
 
@@ -2575,11 +2573,11 @@ msgid "Encrypted volumes need to be unlocked before they can be resized."
 msgstr ""
 "暗号化したボリュームは、サイズを変更する前にロックを解除する必要があります。"
 
-#: pkg/storaged/format-dialog.jsx:260 pkg/storaged/content-views.jsx:238
+#: pkg/storaged/content-views.jsx:238 pkg/storaged/format-dialog.jsx:260
 msgid "Encryption"
 msgstr "暗号化"
 
-#: pkg/storaged/format-dialog.jsx:301 pkg/storaged/crypto-tab.jsx:199
+#: pkg/storaged/crypto-tab.jsx:199 pkg/storaged/format-dialog.jsx:301
 msgid "Encryption options"
 msgstr "暗号化オプション"
 
@@ -2623,11 +2621,11 @@ msgstr "$target の削除中"
 msgid "Errata"
 msgstr "エラータ"
 
-#: pkg/sosreport/index.jsx:391 pkg/systemd/services/services.jsx:180
-#: pkg/systemd/services/service-details.jsx:272 pkg/apps/utils.jsx:78
+#: pkg/apps/utils.jsx:78 pkg/sosreport/index.jsx:391
 #: pkg/storaged/storage-controls.jsx:89 pkg/storaged/storage-controls.jsx:166
-#: pkg/storaged/things-panel.jsx:57 pkg/storaged/multipath.jsx:61
-#: pkg/storaged/stratis-details.jsx:677
+#: pkg/storaged/stratis-details.jsx:677 pkg/storaged/things-panel.jsx:57
+#: pkg/storaged/multipath.jsx:61 pkg/systemd/services/services.jsx:180
+#: pkg/systemd/services/service-details.jsx:272
 msgid "Error"
 msgstr "エラー"
 
@@ -2639,8 +2637,8 @@ msgstr "エラー以上のレベル"
 msgid "Error has occurred"
 msgstr "エラーが発生しました"
 
-#: pkg/systemd/overview-cards/configurationCard.jsx:172
 #: pkg/selinux/setroubleshoot-view.jsx:412
+#: pkg/systemd/overview-cards/configurationCard.jsx:172
 msgid "Error message"
 msgstr "エラーメッセージ"
 
@@ -2716,7 +2714,7 @@ msgstr "ネットワークへエクスポート"
 msgid "Extended information"
 msgstr "拡張情報"
 
-#: pkg/storaged/format-dialog.jsx:143 pkg/storaged/content-views.jsx:627
+#: pkg/storaged/content-views.jsx:627 pkg/storaged/format-dialog.jsx:143
 msgid "Extended partition"
 msgstr "拡張パーティション"
 
@@ -2728,7 +2726,7 @@ msgstr "FIPS が適切に有効化されていません"
 msgid "FIPS with further Common Criteria restrictions."
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:753 pkg/storaged/mdraid-details.jsx:111
+#: pkg/storaged/mdraid-details.jsx:111 pkg/networkmanager/interfaces.js:753
 msgid "Failed"
 msgstr "失敗"
 
@@ -2849,9 +2847,9 @@ msgstr "ファイルシステムがロックされています"
 msgid "Filesystem name"
 msgstr "ファイルシステム名"
 
-#: pkg/storaged/fsys-panel.jsx:170 pkg/storaged/fsys-panel.jsx:173
 #: pkg/storaged/stratis-details.jsx:646 pkg/storaged/stratis-details.jsx:653
 #: pkg/storaged/stratis-details.jsx:782 pkg/storaged/stratis-details.jsx:786
+#: pkg/storaged/fsys-panel.jsx:170 pkg/storaged/fsys-panel.jsx:173
 msgid "Filesystems"
 msgstr "ファイルシステム"
 
@@ -2875,8 +2873,8 @@ msgstr "フィルター"
 msgid "Fingerprint"
 msgstr "フィンガープリント"
 
-#: pkg/networkmanager/firewall.html:22 pkg/networkmanager/network-main.jsx:151
-#: pkg/networkmanager/firewall.jsx:1045 pkg/networkmanager/firewall.jsx:1052
+#: pkg/networkmanager/firewall.html:22 pkg/networkmanager/firewall.jsx:1045
+#: pkg/networkmanager/firewall.jsx:1052 pkg/networkmanager/network-main.jsx:151
 msgid "Firewall"
 msgstr "ファイアウォール"
 
@@ -2897,8 +2895,8 @@ msgstr ""
 msgid "Font size"
 msgstr "フォントのサイズ"
 
-#: pkg/systemd/services/services-list.jsx:86
 #: pkg/systemd/services/service-details.jsx:433
+#: pkg/systemd/services/services-list.jsx:86
 msgid "Forbidden from running"
 msgstr "実行が禁止されています"
 
@@ -2914,8 +2912,8 @@ msgstr "削除の強制"
 msgid "Force password change"
 msgstr "パスワード変更の強制"
 
-#: pkg/storaged/format-dialog.jsx:310 pkg/storaged/content-views.jsx:403
-#: pkg/storaged/content-views.jsx:405
+#: pkg/storaged/content-views.jsx:403 pkg/storaged/content-views.jsx:405
+#: pkg/storaged/format-dialog.jsx:310
 msgid "Format"
 msgstr "フォーマット"
 
@@ -2963,8 +2961,8 @@ msgstr "毎週金曜日"
 msgid "From"
 msgstr "以下から"
 
-#: pkg/users/account-details.js:256 pkg/users/account-create-dialog.js:40
-#: pkg/users/accounts-list.js:403
+#: pkg/users/account-create-dialog.js:40 pkg/users/accounts-list.js:403
+#: pkg/users/account-details.js:256
 msgid "Full name"
 msgstr "フルネーム"
 
@@ -2973,7 +2971,7 @@ msgstr "フルネーム"
 msgid "Gateway"
 msgstr "ゲートウェイ"
 
-#: pkg/networkmanager/network-interface.jsx:330 pkg/systemd/abrtLog.jsx:297
+#: pkg/systemd/abrtLog.jsx:297 pkg/networkmanager/network-interface.jsx:330
 msgid "General"
 msgstr "全般"
 
@@ -2993,15 +2991,15 @@ msgstr "アプリケーションへ移動"
 msgid "Go to now"
 msgstr "今すぐ移動"
 
-#: pkg/metrics/metrics.jsx:1718
+#: pkg/metrics/metrics.jsx:1719
 msgid "Graph visibility"
 msgstr ""
 
-#: pkg/metrics/metrics.jsx:1708
+#: pkg/metrics/metrics.jsx:1709
 msgid "Graph visibility options menu"
 msgstr ""
 
-#: pkg/networkmanager/network-interface.jsx:415 pkg/users/accounts-list.js:406
+#: pkg/users/accounts-list.js:406 pkg/networkmanager/network-interface.jsx:415
 msgid "Group"
 msgstr "グループ"
 
@@ -3011,8 +3009,8 @@ msgstr "グループ"
 msgid "Group name"
 msgstr "ボリュームグループ名"
 
-#: pkg/users/account-details.js:452 pkg/users/accounts-list.js:333
-#: pkg/users/accounts-list.js:337
+#: pkg/users/accounts-list.js:333 pkg/users/accounts-list.js:337
+#: pkg/users/account-details.js:452
 #, fuzzy
 #| msgid "Group"
 msgid "Groups"
@@ -3064,8 +3062,8 @@ msgstr "ヘルス"
 msgid "Hello time $hello_time"
 msgstr "Hello タイム $hello_time"
 
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:165 pkg/tuned/dialog.jsx:292
-#: pkg/shell/topnav.jsx:249
+#: pkg/tuned/dialog.jsx:292 pkg/shell/topnav.jsx:249
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:165
 msgid "Help"
 msgstr "ヘルプ"
 
@@ -3105,9 +3103,9 @@ msgstr "1 時間ごと"
 msgid "Hours"
 msgstr "時"
 
-#: pkg/networkmanager/firewall.jsx:691 pkg/systemd/hwinfo.jsx:310
-#: pkg/users/group-create-dialog.js:46 pkg/users/accounts-list.js:250
-#: pkg/users/accounts-list.js:404
+#: pkg/users/accounts-list.js:250 pkg/users/accounts-list.js:404
+#: pkg/users/group-create-dialog.js:46 pkg/systemd/hwinfo.jsx:310
+#: pkg/networkmanager/firewall.jsx:691
 msgid "ID"
 msgstr "ID"
 
@@ -3272,9 +3270,9 @@ msgstr "初期化中..."
 msgid "Insights: "
 msgstr "Insights: "
 
-#: pkg/packagekit/kpatch.jsx:246
-#: pkg/lib/cockpit-components-install-dialog.jsx:124
 #: pkg/apps/application.jsx:53
+#: pkg/lib/cockpit-components-install-dialog.jsx:124
+#: pkg/packagekit/kpatch.jsx:246
 msgid "Install"
 msgstr "インストール"
 
@@ -3316,7 +3314,7 @@ msgstr "ソフトウェアをインストール"
 msgid "Installed"
 msgstr "インストール済み"
 
-#: pkg/packagekit/updates.jsx:98 pkg/apps/application.jsx:41
+#: pkg/apps/application.jsx:41 pkg/packagekit/updates.jsx:98
 msgid "Installing"
 msgstr "インストール中"
 
@@ -3333,7 +3331,7 @@ msgstr "$0 をインストールすると、$1 が削除されます。"
 msgid "Installing packages"
 msgstr "パッケージのインストール"
 
-#: pkg/networkmanager/firewall.jsx:196 pkg/metrics/metrics.jsx:832
+#: pkg/metrics/metrics.jsx:832 pkg/networkmanager/firewall.jsx:196
 msgid "Interface"
 msgid_plural "Interfaces"
 msgstr[0] "インターフェース"
@@ -3343,9 +3341,9 @@ msgstr[0] "インターフェース"
 msgid "Interface members"
 msgstr "インターフェースメンバー"
 
-#: pkg/networkmanager/network-main.jsx:173
+#: pkg/networkmanager/firewall.jsx:853 pkg/networkmanager/network-main.jsx:173
 #: pkg/networkmanager/network-interface-members.jsx:218
-#: pkg/networkmanager/bond.jsx:166 pkg/networkmanager/firewall.jsx:853
+#: pkg/networkmanager/bond.jsx:166
 msgid "Interfaces"
 msgstr "インターフェース"
 
@@ -3365,7 +3363,7 @@ msgstr "無効"
 msgid "Invalid address $0"
 msgstr "無効なアドレス $0"
 
-#: pkg/lib/serverTime.js:615 pkg/lib/cockpit-components-shutdown.jsx:112
+#: pkg/lib/cockpit-components-shutdown.jsx:112 pkg/lib/serverTime.js:615
 msgid "Invalid date format"
 msgstr "無効な日付形式"
 
@@ -3409,8 +3407,8 @@ msgstr "無効なプレフィックスまたはネットマスク $0"
 msgid "Invalid range"
 msgstr "無効な範囲"
 
-#: pkg/packagekit/autoupdates.jsx:323 pkg/lib/serverTime.js:618
-#: pkg/lib/cockpit-components-shutdown.jsx:109
+#: pkg/lib/cockpit-components-shutdown.jsx:109 pkg/lib/serverTime.js:618
+#: pkg/packagekit/autoupdates.jsx:323
 msgid "Invalid time format"
 msgstr "無効な時間形式"
 
@@ -3476,7 +3474,7 @@ msgstr "ジャーナルエントリー"
 msgid "Journal entry not found"
 msgstr "ジャーナルエントリーが見つかりません"
 
-#: pkg/metrics/metrics.jsx:1698
+#: pkg/metrics/metrics.jsx:1699
 msgid "Jump to"
 msgstr "次にジャンプ"
 
@@ -3597,11 +3595,11 @@ msgstr "最終更新日: $0"
 msgid "Last successful login:"
 msgstr "最後の正常ログイン:"
 
-#: pkg/networkmanager/bond.jsx:154
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:48
-#: pkg/systemd/overview-cards/cryptoPolicies.jsx:161
 #: pkg/lib/cockpit-components-dialog.jsx:214
 #: pkg/lib/cockpit-components-dialog.jsx:221 pkg/tuned/dialog.jsx:288
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:48
+#: pkg/systemd/overview-cards/cryptoPolicies.jsx:161
+#: pkg/networkmanager/bond.jsx:154
 msgid "Learn more"
 msgstr "もっと詳しく"
 
@@ -3623,7 +3621,7 @@ msgstr "空白のままにして暗号化をスキップする"
 msgid "Licensed under GNU LGPL version 2.1"
 msgstr "GNU LGPL バージョン 2.1 でのライセンス"
 
-#: pkg/systemd/terminal.jsx:156 pkg/shell/topnav.jsx:184
+#: pkg/shell/topnav.jsx:184 pkg/systemd/terminal.jsx:156
 msgid "Light"
 msgstr "ライト"
 
@@ -3692,7 +3690,7 @@ msgid "Listing units failed: $0"
 msgstr "ユニットの一覧表示に失敗しました: $0"
 
 #: pkg/metrics/metrics.jsx:111 pkg/metrics/metrics.jsx:719
-#: pkg/metrics/metrics.jsx:1724
+#: pkg/metrics/metrics.jsx:1725
 msgid "Load"
 msgstr "ロード"
 
@@ -3700,7 +3698,7 @@ msgstr "ロード"
 msgid "Load balancing"
 msgstr "ロードバランシング"
 
-#: pkg/metrics/metrics.jsx:1744
+#: pkg/metrics/metrics.jsx:1745
 msgid "Load earlier data"
 msgstr "以前のデータのロード"
 
@@ -3748,12 +3746,12 @@ msgstr "システム変更をロード中..."
 msgid "Loading unit failed: $0"
 msgstr "ユニットの読み込みに失敗しました: $0"
 
-#: pkg/systemd/logDetails.jsx:177 pkg/systemd/services/services.jsx:777
-#: pkg/systemd/logsJournal.jsx:268 pkg/kdump/kdump-view.jsx:339
-#: pkg/users/account-details.js:183 pkg/users/accounts-list.js:338
+#: pkg/storaged/devices.jsx:68 pkg/users/accounts-list.js:338
 #: pkg/users/accounts-list.js:362 pkg/users/accounts-list.js:478
-#: pkg/storaged/devices.jsx:68 pkg/metrics/metrics.jsx:1004
-#: pkg/metrics/metrics.jsx:1743
+#: pkg/users/account-details.js:183 pkg/metrics/metrics.jsx:1004
+#: pkg/metrics/metrics.jsx:1744 pkg/systemd/logsJournal.jsx:268
+#: pkg/systemd/logDetails.jsx:177 pkg/systemd/services/services.jsx:777
+#: pkg/kdump/kdump-view.jsx:339
 msgid "Loading..."
 msgstr "ロード中..."
 
@@ -3769,12 +3767,12 @@ msgstr "ローカルファイルシステム"
 msgid "Local mount point"
 msgstr "ローカルマウントポイント"
 
-#: pkg/kdump/kdump-view.jsx:153 pkg/storaged/dialog.jsx:1050
-#: pkg/storaged/dialog.jsx:1128
+#: pkg/storaged/dialog.jsx:1050 pkg/storaged/dialog.jsx:1128
+#: pkg/kdump/kdump-view.jsx:153
 msgid "Location"
 msgstr "場所"
 
-#: pkg/users/lock-account-dialog.js:36 pkg/storaged/content-views.jsx:284
+#: pkg/storaged/content-views.jsx:284 pkg/users/lock-account-dialog.js:36
 msgid "Lock"
 msgstr "ロック"
 
@@ -3792,7 +3790,7 @@ msgstr "アカウントのロック"
 msgid "Locked devices"
 msgstr "ロックされたデバイス"
 
-#: pkg/storaged/stratis-panel.jsx:73 pkg/storaged/stratis-details.jsx:763
+#: pkg/storaged/stratis-details.jsx:763 pkg/storaged/stratis-panel.jsx:73
 msgid "Locked encrypted Stratis pool"
 msgstr "ロックされている暗号化 Stratis プール"
 
@@ -3833,7 +3831,7 @@ msgstr "ログアウト"
 msgid "Log user out"
 msgstr "ログアウト"
 
-#: pkg/users/account-details.js:220 pkg/users/accounts-list.js:181
+#: pkg/users/accounts-list.js:181 pkg/users/account-details.js:220
 msgid "Logged in"
 msgstr "すでにログインしています"
 
@@ -3907,7 +3905,7 @@ msgstr "低プロファイルデスクトップ"
 msgid "Lunch box"
 msgstr "Lunch box"
 
-#: pkg/networkmanager/bond.jsx:169 pkg/networkmanager/mac.jsx:75
+#: pkg/networkmanager/mac.jsx:75 pkg/networkmanager/bond.jsx:169
 msgid "MAC"
 msgstr "MAC"
 
@@ -4045,10 +4043,10 @@ msgstr ""
 msgid "Maximum message age $max_age"
 msgstr "メッセージ最大期間 $max_age"
 
+#: pkg/metrics/metrics.jsx:745 pkg/metrics/metrics.jsx:1373
+#: pkg/metrics/metrics.jsx:1726 pkg/systemd/services/service-details.jsx:651
 #: pkg/systemd/hwinfo.jsx:309 pkg/systemd/hwinfo.jsx:358
 #: pkg/systemd/overview-cards/usageCard.jsx:146
-#: pkg/systemd/services/service-details.jsx:651 pkg/metrics/metrics.jsx:745
-#: pkg/metrics/metrics.jsx:1373 pkg/metrics/metrics.jsx:1725
 msgid "Memory"
 msgstr "メモリ"
 
@@ -4088,7 +4086,7 @@ msgstr "メソッド"
 msgid "Metric"
 msgstr "メトリック"
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1763
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1764
 msgid "Metrics and history"
 msgstr "メトリックスおよび履歴"
 
@@ -4165,10 +4163,10 @@ msgstr "毎月"
 msgid "More info..."
 msgstr "詳細..."
 
-#: pkg/storaged/fsys-panel.jsx:179 pkg/storaged/content-views.jsx:289
-#: pkg/storaged/content-views.jsx:416 pkg/storaged/nfs-details.jsx:300
-#: pkg/storaged/fsys-tab.jsx:376 pkg/storaged/stratis-details.jsx:594
-#: pkg/storaged/stratis-details.jsx:595
+#: pkg/storaged/content-views.jsx:289 pkg/storaged/content-views.jsx:416
+#: pkg/storaged/nfs-details.jsx:300 pkg/storaged/stratis-details.jsx:594
+#: pkg/storaged/stratis-details.jsx:595 pkg/storaged/fsys-tab.jsx:376
+#: pkg/storaged/fsys-panel.jsx:179
 msgid "Mount"
 msgstr "マウント"
 
@@ -4192,8 +4190,8 @@ msgstr "マウント設定"
 msgid "Mount filesystem"
 msgstr "ファイルシステムをマウントします"
 
-#: pkg/storaged/format-dialog.jsx:250 pkg/storaged/fsys-tab.jsx:655
 #: pkg/storaged/stratis-details.jsx:377 pkg/storaged/stratis-details.jsx:508
+#: pkg/storaged/fsys-tab.jsx:655 pkg/storaged/format-dialog.jsx:250
 msgid "Mount now"
 msgstr "今すぐマウントします"
 
@@ -4201,16 +4199,16 @@ msgstr "今すぐマウントします"
 msgid "Mount on $0 now"
 msgstr "$0 に今すぐマウントします"
 
-#: pkg/storaged/format-dialog.jsx:240 pkg/storaged/nfs-details.jsx:166
-#: pkg/storaged/fsys-tab.jsx:329 pkg/storaged/stratis-details.jsx:368
-#: pkg/storaged/stratis-details.jsx:499
+#: pkg/storaged/nfs-details.jsx:166 pkg/storaged/stratis-details.jsx:368
+#: pkg/storaged/stratis-details.jsx:499 pkg/storaged/fsys-tab.jsx:329
+#: pkg/storaged/format-dialog.jsx:240
 msgid "Mount options"
 msgstr "マウントオプション"
 
-#: pkg/storaged/nfs-panel.jsx:103 pkg/storaged/format-dialog.jsx:234
-#: pkg/storaged/nfs-details.jsx:322 pkg/storaged/fsys-tab.jsx:324
-#: pkg/storaged/fsys-tab.jsx:704 pkg/storaged/stratis-details.jsx:364
-#: pkg/storaged/stratis-details.jsx:495
+#: pkg/storaged/nfs-panel.jsx:103 pkg/storaged/nfs-details.jsx:322
+#: pkg/storaged/stratis-details.jsx:364 pkg/storaged/stratis-details.jsx:495
+#: pkg/storaged/fsys-tab.jsx:324 pkg/storaged/fsys-tab.jsx:704
+#: pkg/storaged/format-dialog.jsx:234
 msgid "Mount point"
 msgstr "マウントポイント"
 
@@ -4230,9 +4228,9 @@ msgstr "マウントポイントはすでに $0 で使用しています"
 msgid "Mount point must start with \"/\"."
 msgstr "マウントポイントは \"/\" で開始してください。"
 
-#: pkg/storaged/format-dialog.jsx:251 pkg/storaged/nfs-details.jsx:170
-#: pkg/storaged/fsys-tab.jsx:337 pkg/storaged/stratis-details.jsx:378
-#: pkg/storaged/stratis-details.jsx:509
+#: pkg/storaged/nfs-details.jsx:170 pkg/storaged/stratis-details.jsx:378
+#: pkg/storaged/stratis-details.jsx:509 pkg/storaged/fsys-tab.jsx:337
+#: pkg/storaged/format-dialog.jsx:251
 msgid "Mount read only"
 msgstr "読み取り専用でマウント"
 
@@ -4269,25 +4267,25 @@ msgstr "NSNA ping"
 msgid "NTP server"
 msgstr "NTP サーバー"
 
-#: pkg/packagekit/updates.jsx:441 pkg/networkmanager/network-main.jsx:184
-#: pkg/networkmanager/network-main.jsx:199
-#: pkg/networkmanager/dialogs-common.jsx:136 pkg/systemd/hwinfo.jsx:91
-#: pkg/systemd/services/timer-dialog.jsx:158
-#: pkg/users/authorized-keys-panel.js:131 pkg/users/group-create-dialog.js:37
+#: pkg/packagekit/updates.jsx:441 pkg/storaged/crypto-panel.jsx:84
+#: pkg/storaged/content-views.jsx:182 pkg/storaged/content-views.jsx:307
+#: pkg/storaged/content-views.jsx:754 pkg/storaged/content-views.jsx:886
+#: pkg/storaged/content-views.jsx:1019 pkg/storaged/mdraids-panel.jsx:74
 #: pkg/storaged/lvol-tabs.jsx:48 pkg/storaged/lvol-tabs.jsx:419
 #: pkg/storaged/lvol-tabs.jsx:480 pkg/storaged/lvol-tabs.jsx:538
-#: pkg/storaged/iscsi-panel.jsx:131 pkg/storaged/iscsi-panel.jsx:188
-#: pkg/storaged/vgroup-details.jsx:166 pkg/storaged/stratis-panel.jsx:130
-#: pkg/storaged/part-tab.jsx:40 pkg/storaged/mdraids-panel.jsx:74
-#: pkg/storaged/format-dialog.jsx:213 pkg/storaged/content-views.jsx:182
-#: pkg/storaged/content-views.jsx:307 pkg/storaged/content-views.jsx:754
-#: pkg/storaged/content-views.jsx:886 pkg/storaged/content-views.jsx:1019
-#: pkg/storaged/vgroups-panel.jsx:73 pkg/storaged/fsys-tab.jsx:487
-#: pkg/storaged/fsys-tab.jsx:690 pkg/storaged/crypto-panel.jsx:84
+#: pkg/storaged/vgroup-details.jsx:166 pkg/storaged/part-tab.jsx:40
 #: pkg/storaged/stratis-details.jsx:272 pkg/storaged/stratis-details.jsx:360
 #: pkg/storaged/stratis-details.jsx:467 pkg/storaged/stratis-details.jsx:490
 #: pkg/storaged/stratis-details.jsx:654 pkg/storaged/stratis-details.jsx:787
-#: pkg/shell/credentials.jsx:104
+#: pkg/storaged/fsys-tab.jsx:487 pkg/storaged/fsys-tab.jsx:690
+#: pkg/storaged/iscsi-panel.jsx:131 pkg/storaged/iscsi-panel.jsx:188
+#: pkg/storaged/vgroups-panel.jsx:73 pkg/storaged/stratis-panel.jsx:130
+#: pkg/storaged/format-dialog.jsx:213 pkg/users/group-create-dialog.js:37
+#: pkg/users/authorized-keys-panel.js:131 pkg/shell/credentials.jsx:104
+#: pkg/systemd/services/timer-dialog.jsx:158 pkg/systemd/hwinfo.jsx:91
+#: pkg/networkmanager/dialogs-common.jsx:136
+#: pkg/networkmanager/network-main.jsx:184
+#: pkg/networkmanager/network-main.jsx:199
 msgid "Name"
 msgstr "名前"
 
@@ -4324,7 +4322,7 @@ msgid "Need at least one NTP server"
 msgstr "少なくとも 1 つの NTP サーバーが必要です"
 
 #: pkg/metrics/metrics.jsx:822 pkg/metrics/metrics.jsx:1373
-#: pkg/metrics/metrics.jsx:1727
+#: pkg/metrics/metrics.jsx:1728
 msgid "Network"
 msgstr "ネットワーク"
 
@@ -4360,9 +4358,9 @@ msgstr "NetworkManager はインストールされていません"
 msgid "NetworkManager is not running"
 msgstr "NetworkManager は実行していません"
 
-#: pkg/networkmanager/index.html:23
+#: pkg/networkmanager/index.html:23 pkg/networkmanager/firewall.jsx:1044
 #: pkg/networkmanager/network-interface.jsx:701
-#: pkg/networkmanager/firewall.jsx:1044 pkg/networkmanager/manifest.json:0
+#: pkg/networkmanager/manifest.json:0
 msgid "Networking"
 msgstr "ネットワーキング"
 
@@ -4370,11 +4368,11 @@ msgstr "ネットワーキング"
 msgid "Never"
 msgstr "しない"
 
-#: pkg/users/account-details.js:79 pkg/users/expiration-dialogs.js:37
+#: pkg/users/expiration-dialogs.js:37 pkg/users/account-details.js:79
 msgid "Never expire account"
 msgstr "アカウントを失効しない"
 
-#: pkg/users/account-details.js:71 pkg/users/expiration-dialogs.js:150
+#: pkg/users/expiration-dialogs.js:150 pkg/users/account-details.js:71
 msgid "Never expire password"
 msgstr "パスワードを失効しない"
 
@@ -4384,8 +4382,8 @@ msgstr "パスワードを失効しない"
 msgid "Never logged in"
 msgstr "すでにログインしています"
 
-#: pkg/storaged/format-dialog.jsx:253 pkg/storaged/fsys-tab.jsx:339
 #: pkg/storaged/stratis-details.jsx:380 pkg/storaged/stratis-details.jsx:511
+#: pkg/storaged/fsys-tab.jsx:339 pkg/storaged/format-dialog.jsx:253
 msgid "Never mount at boot"
 msgstr "起動時のマウントなし"
 
@@ -4417,7 +4415,7 @@ msgstr "新規パスワードは受け入れられませんでした"
 msgid "Next"
 msgstr "次へ"
 
-#: pkg/networkmanager/network-interface.jsx:244 pkg/systemd/reporting.jsx:273
+#: pkg/systemd/reporting.jsx:273 pkg/networkmanager/network-interface.jsx:244
 msgid "No"
 msgstr "いいえ"
 
@@ -4455,11 +4453,11 @@ msgstr "キャリアなし"
 msgid "No configuration found"
 msgstr "設定が見つかりません"
 
-#: pkg/metrics/metrics.jsx:1656
+#: pkg/metrics/metrics.jsx:1657
 msgid "No data available"
 msgstr "利用可能なデータなし"
 
-#: pkg/metrics/metrics.jsx:1652
+#: pkg/metrics/metrics.jsx:1653
 msgid "No data available between $0 and $1"
 msgstr "$0 と $1 間で利用できるデータなし"
 
@@ -4479,9 +4477,9 @@ msgstr "説明が入力されていません。"
 msgid "No devices"
 msgstr "デバイスがありません"
 
-#: pkg/storaged/vgroup-details.jsx:69 pkg/storaged/mdraids-panel.jsx:128
-#: pkg/storaged/mdraid-details.jsx:67 pkg/storaged/vgroups-panel.jsx:80
-#: pkg/storaged/stratis-details.jsx:139
+#: pkg/storaged/mdraids-panel.jsx:128 pkg/storaged/vgroup-details.jsx:69
+#: pkg/storaged/stratis-details.jsx:139 pkg/storaged/mdraid-details.jsx:67
+#: pkg/storaged/vgroups-panel.jsx:80
 msgid "No disks are available."
 msgstr "ディスクが利用できません。"
 
@@ -4539,13 +4537,13 @@ msgstr "ログエントリーなし"
 msgid "No logical volumes"
 msgstr "論理ボリュームなし"
 
-#: pkg/systemd/logsJournal.jsx:281 pkg/systemd/logsJournal.jsx:324
-#: pkg/metrics/metrics.jsx:1006
+#: pkg/metrics/metrics.jsx:1006 pkg/systemd/logsJournal.jsx:281
+#: pkg/systemd/logsJournal.jsx:324
 msgid "No logs found"
 msgstr "ログが見つかりません"
 
-#: pkg/systemd/services/services-list.jsx:59 pkg/users/accounts-list.js:364
-#: pkg/users/accounts-list.js:480
+#: pkg/users/accounts-list.js:364 pkg/users/accounts-list.js:480
+#: pkg/systemd/services/services-list.jsx:59
 msgid "No matching results"
 msgstr "一致する結果はありません"
 
@@ -4571,7 +4569,7 @@ msgstr "パーティションなし"
 msgid "No real name specified"
 msgstr "実際の名前が指定されていません"
 
-#: pkg/systemd/logs.jsx:315 pkg/shell/nav.jsx:159
+#: pkg/shell/nav.jsx:159 pkg/systemd/logs.jsx:315
 msgid "No results found"
 msgstr "結果が見つかりません"
 
@@ -4607,8 +4605,8 @@ msgstr "更新なし"
 msgid "No user name specified"
 msgstr "ユーザー名が指定されていません"
 
-#: pkg/networkmanager/firewall.jsx:848 pkg/tuned/dialog.jsx:229
-#: pkg/kdump/kdump-view.jsx:394
+#: pkg/tuned/dialog.jsx:229 pkg/kdump/kdump-view.jsx:394
+#: pkg/networkmanager/firewall.jsx:848
 msgid "None"
 msgstr "なし"
 
@@ -4644,7 +4642,7 @@ msgstr "ホストに接続されていません"
 msgid "Not enough space to grow."
 msgstr "スペースが不足しています。"
 
-#: pkg/systemd/services/services.jsx:178 pkg/storaged/details.jsx:132
+#: pkg/storaged/details.jsx:132 pkg/systemd/services/services.jsx:178
 msgid "Not found"
 msgstr "見つかりません"
 
@@ -4672,10 +4670,9 @@ msgstr "準備ができていません"
 msgid "Not registered"
 msgstr "登録されていません"
 
-#: pkg/systemd/services/services.jsx:190 pkg/systemd/services/services.jsx:193
-#: pkg/systemd/services/services.jsx:823
+#: pkg/storaged/mdraid-details.jsx:352 pkg/systemd/services/services.jsx:190
+#: pkg/systemd/services/services.jsx:193 pkg/systemd/services/services.jsx:823
 #: pkg/systemd/services/service-details.jsx:472
-#: pkg/storaged/mdraid-details.jsx:352
 msgid "Not running"
 msgstr "実行中ではありません"
 
@@ -4786,9 +4783,9 @@ msgctxt "storage"
 msgid "Optical drive"
 msgstr "光学ドライブ"
 
-#: pkg/sosreport/index.jsx:329 pkg/networkmanager/bridge.jsx:105
-#: pkg/users/account-details.js:277 pkg/storaged/content-views.jsx:954
-#: pkg/storaged/crypto-tab.jsx:256
+#: pkg/sosreport/index.jsx:329 pkg/storaged/content-views.jsx:954
+#: pkg/storaged/crypto-tab.jsx:256 pkg/users/account-details.js:277
+#: pkg/networkmanager/bridge.jsx:105
 msgid "Options"
 msgstr "オプション"
 
@@ -4800,7 +4797,7 @@ msgstr "あるいは、バンドルされたブラウザーを使用します"
 msgid "Other"
 msgstr "その他"
 
-#: pkg/users/account-details.js:287 pkg/users/account-create-dialog.js:84
+#: pkg/users/account-create-dialog.js:84 pkg/users/account-details.js:287
 msgid ""
 "Other authentication methods are still available even when interactive "
 "password authentication is not allowed."
@@ -4824,16 +4821,16 @@ msgstr "他のオプション"
 msgid "Out"
 msgstr "外"
 
-#: pkg/systemd/hwinfo.jsx:327 pkg/metrics/metrics.jsx:1762
+#: pkg/metrics/metrics.jsx:1763 pkg/systemd/hwinfo.jsx:327
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "概要"
 
-#: pkg/storaged/format-dialog.jsx:228 pkg/storaged/content-views.jsx:701
+#: pkg/storaged/content-views.jsx:701 pkg/storaged/format-dialog.jsx:228
 msgid "Overwrite"
 msgstr "上書き"
 
-#: pkg/storaged/format-dialog.jsx:231 pkg/storaged/content-views.jsx:704
+#: pkg/storaged/content-views.jsx:704 pkg/storaged/format-dialog.jsx:231
 msgid "Overwrite existing data with zeros (slower)"
 msgstr "既存のデータをゼロで上書き (低速)"
 
@@ -4913,11 +4910,11 @@ msgstr "パーティション"
 msgid "Passive"
 msgstr "パッシブ"
 
+#: pkg/storaged/content-views.jsx:269 pkg/storaged/crypto-keyslots.jsx:482
+#: pkg/storaged/crypto-keyslots.jsx:817 pkg/storaged/stratis-details.jsx:132
+#: pkg/storaged/stratis-details.jsx:703 pkg/storaged/fsys-tab.jsx:350
 #: pkg/storaged/stratis-panel.jsx:141 pkg/storaged/format-dialog.jsx:266
-#: pkg/storaged/format-dialog.jsx:292 pkg/storaged/content-views.jsx:269
-#: pkg/storaged/crypto-keyslots.jsx:482 pkg/storaged/crypto-keyslots.jsx:817
-#: pkg/storaged/fsys-tab.jsx:350 pkg/storaged/stratis-details.jsx:132
-#: pkg/storaged/stratis-details.jsx:703
+#: pkg/storaged/format-dialog.jsx:292
 msgid "Passphrase"
 msgstr "パスフレーズ"
 
@@ -4925,11 +4922,11 @@ msgstr "パスフレーズ"
 msgid "Passphrase can not be empty"
 msgstr "パスフレーズは空欄にすることはできません"
 
+#: pkg/storaged/crypto-keyslots.jsx:203 pkg/storaged/crypto-keyslots.jsx:490
+#: pkg/storaged/crypto-keyslots.jsx:533 pkg/storaged/crypto-keyslots.jsx:536
+#: pkg/storaged/stratis-details.jsx:135 pkg/storaged/fsys-tab.jsx:353
 #: pkg/storaged/stratis-panel.jsx:145 pkg/storaged/format-dialog.jsx:270
-#: pkg/storaged/format-dialog.jsx:296 pkg/storaged/crypto-keyslots.jsx:203
-#: pkg/storaged/crypto-keyslots.jsx:490 pkg/storaged/crypto-keyslots.jsx:533
-#: pkg/storaged/crypto-keyslots.jsx:536 pkg/storaged/fsys-tab.jsx:353
-#: pkg/storaged/stratis-details.jsx:135
+#: pkg/storaged/format-dialog.jsx:296
 msgid "Passphrase cannot be empty"
 msgstr "パスフレーズは空欄にすることができません"
 
@@ -4941,17 +4938,17 @@ msgstr "その他のキースロットのパスフレーズ"
 msgid "Passphrase removal may prevent unlocking $0."
 msgstr "パスフレーズの削除で、$0 のロック解除ができない可能性があります。"
 
-#: pkg/storaged/stratis-panel.jsx:153 pkg/storaged/format-dialog.jsx:278
 #: pkg/storaged/crypto-keyslots.jsx:498 pkg/storaged/crypto-keyslots.jsx:538
+#: pkg/storaged/stratis-panel.jsx:153 pkg/storaged/format-dialog.jsx:278
 msgid "Passphrases do not match"
 msgstr "パスフレーズが一致しません"
 
-#: pkg/static/login.html:106 pkg/users/account-details.js:308
-#: pkg/users/account-create-dialog.js:58 pkg/storaged/iscsi-panel.jsx:50
-#: pkg/storaged/iscsi-panel.jsx:160 pkg/shell/superuser.jsx:138
-#: pkg/shell/credentials.jsx:122 pkg/shell/credentials.jsx:265
-#: pkg/shell/credentials.jsx:321 pkg/shell/hosts_dialog.jsx:827
-#: pkg/shell/hosts_dialog.jsx:836
+#: pkg/static/login.html:106 pkg/storaged/iscsi-panel.jsx:50
+#: pkg/storaged/iscsi-panel.jsx:160 pkg/users/account-create-dialog.js:58
+#: pkg/users/account-details.js:308 pkg/shell/hosts_dialog.jsx:827
+#: pkg/shell/hosts_dialog.jsx:836 pkg/shell/credentials.jsx:122
+#: pkg/shell/credentials.jsx:265 pkg/shell/credentials.jsx:321
+#: pkg/shell/superuser.jsx:138
 msgid "Password"
 msgstr "パスワード"
 
@@ -5062,9 +5059,9 @@ msgstr "永続"
 msgid "Permanently delete $0 group?"
 msgstr "$0 を永続的に削除しますか？"
 
-#: pkg/storaged/vgroup-details.jsx:198 pkg/storaged/content-views.jsx:378
-#: pkg/storaged/mdraid-details.jsx:294 pkg/storaged/vdo-details.jsx:202
-#: pkg/storaged/stratis-details.jsx:249
+#: pkg/storaged/content-views.jsx:378 pkg/storaged/vgroup-details.jsx:198
+#: pkg/storaged/stratis-details.jsx:249 pkg/storaged/mdraid-details.jsx:294
+#: pkg/storaged/vdo-details.jsx:202
 msgid "Permanently delete $0?"
 msgstr "$0 を永続的に削除しますか？"
 
@@ -5088,9 +5085,8 @@ msgstr "物理ボリューム"
 msgid "Physical volumes can not be resized here."
 msgstr "ここでは、物理ボリュームのサイズを変更することができません。"
 
-#: pkg/systemd/services/timer-dialog.jsx:355 pkg/lib/serverTime.js:525
-#: pkg/lib/cockpit-components-shutdown.jsx:207
-#: pkg/users/expiration-dialogs.js:43
+#: pkg/lib/cockpit-components-shutdown.jsx:207 pkg/lib/serverTime.js:525
+#: pkg/users/expiration-dialogs.js:43 pkg/systemd/services/timer-dialog.jsx:355
 msgid "Pick date"
 msgstr "日付けの選択"
 
@@ -5106,8 +5102,8 @@ msgstr "Ping 間隔"
 msgid "Ping target"
 msgstr "Ping ターゲット"
 
-#: pkg/systemd/services/services-list.jsx:103
 #: pkg/systemd/services/service-details.jsx:614
+#: pkg/systemd/services/services-list.jsx:103
 msgid "Pinned unit"
 msgstr "固定されたユニット"
 
@@ -5167,8 +5163,9 @@ msgstr "ポート番号とタイプが一致しません"
 msgid "Portable"
 msgstr "ポータブル"
 
+#: pkg/networkmanager/team.jsx:160
 #: pkg/networkmanager/network-interface-members.jsx:218
-#: pkg/networkmanager/team.jsx:160 pkg/networkmanager/bridge.jsx:102
+#: pkg/networkmanager/bridge.jsx:102
 msgid "Ports"
 msgstr "ポート"
 
@@ -5185,7 +5182,7 @@ msgstr "プレフィックス長 / ネットマスク"
 msgid "Preparing"
 msgstr "準備中"
 
-#: pkg/systemd/hw-detect.js:114 pkg/lib/machine-info.js:268
+#: pkg/lib/machine-info.js:268 pkg/systemd/hw-detect.js:114
 msgid "Present"
 msgstr "存在"
 
@@ -5205,8 +5202,8 @@ msgstr "以前のブート"
 msgid "Primary"
 msgstr "プライマリ"
 
-#: pkg/networkmanager/teamport.jsx:86 pkg/networkmanager/bridgeport.jsx:82
-#: pkg/systemd/logs.jsx:208
+#: pkg/systemd/logs.jsx:208 pkg/networkmanager/teamport.jsx:86
+#: pkg/networkmanager/bridgeport.jsx:82
 msgid "Priority"
 msgstr "優先度"
 
@@ -5333,7 +5330,7 @@ msgstr "RAID シャーシ"
 msgid "RAID device"
 msgstr "RAID デバイス"
 
-#: pkg/storaged/mdraid-details.jsx:316 pkg/storaged/utils.js:249
+#: pkg/storaged/utils.js:249 pkg/storaged/mdraid-details.jsx:316
 msgid "RAID device $0"
 msgstr "RAID デバイス $0"
 
@@ -5382,7 +5379,7 @@ msgstr "デバイスに対する Raw"
 msgid "Read"
 msgstr "読み取り"
 
-#: pkg/systemd/hwinfo.jsx:218 pkg/metrics/metrics.jsx:1273
+#: pkg/metrics/metrics.jsx:1273 pkg/systemd/hwinfo.jsx:218
 msgid "Read more..."
 msgstr "さらに読む..."
 
@@ -5429,10 +5426,10 @@ msgstr "実際のホスト名は 64 文字以下である必要があります"
 msgid "Reapply and reboot"
 msgstr "再適用して再起動する"
 
-#: pkg/systemd/overview.jsx:109 pkg/systemd/overview.jsx:128
 #: pkg/lib/cockpit-components-logs-panel.jsx:112
 #: pkg/lib/cockpit-components-shutdown.jsx:184
-#: pkg/lib/cockpit-components-shutdown.jsx:186
+#: pkg/lib/cockpit-components-shutdown.jsx:186 pkg/systemd/overview.jsx:109
+#: pkg/systemd/overview.jsx:128
 msgid "Reboot"
 msgstr "再起動"
 
@@ -5559,13 +5556,12 @@ msgstr "リムーバブルドライブ"
 msgid "Removals:"
 msgstr "削除:"
 
+#: pkg/apps/application.jsx:51 pkg/storaged/crypto-keyslots.jsx:686
+#: pkg/storaged/crypto-keyslots.jsx:721 pkg/storaged/crypto-keyslots.jsx:802
+#: pkg/storaged/vgroup-details.jsx:121 pkg/storaged/nfs-details.jsx:307
+#: pkg/storaged/mdraid-details.jsx:145 pkg/users/authorized-keys-panel.js:146
+#: pkg/users/authorized-keys-panel.js:172 pkg/shell/hosts.jsx:168
 #: pkg/systemd/services/timer-dialog.jsx:369
-#: pkg/users/authorized-keys-panel.js:146
-#: pkg/users/authorized-keys-panel.js:172 pkg/apps/application.jsx:51
-#: pkg/storaged/vgroup-details.jsx:121 pkg/storaged/mdraid-details.jsx:145
-#: pkg/storaged/crypto-keyslots.jsx:686 pkg/storaged/crypto-keyslots.jsx:721
-#: pkg/storaged/crypto-keyslots.jsx:802 pkg/storaged/nfs-details.jsx:307
-#: pkg/shell/hosts.jsx:168
 msgid "Remove"
 msgstr "削除"
 
@@ -5779,7 +5775,7 @@ msgstr "必須の"
 msgid "Reserved memory"
 msgstr "予約済みメモリー"
 
-#: pkg/systemd/terminal.jsx:164 pkg/systemd/logs.jsx:405
+#: pkg/systemd/logs.jsx:405 pkg/systemd/terminal.jsx:164
 msgid "Reset"
 msgstr "リセット"
 
@@ -5869,10 +5865,9 @@ msgstr "レポートを実行する"
 msgid "Runner"
 msgstr "ランナー"
 
-#: pkg/systemd/services/services.jsx:188 pkg/systemd/services/services.jsx:192
-#: pkg/systemd/services/services.jsx:822
+#: pkg/storaged/mdraid-details.jsx:352 pkg/systemd/services/services.jsx:188
+#: pkg/systemd/services/services.jsx:192 pkg/systemd/services/services.jsx:822
 #: pkg/systemd/services/service-details.jsx:464
-#: pkg/storaged/mdraid-details.jsx:352
 msgid "Running"
 msgstr "実行中"
 
@@ -5960,12 +5955,12 @@ msgstr ""
 msgid "Saturdays"
 msgstr "毎週土曜日"
 
-#: pkg/packagekit/kpatch.jsx:306 pkg/networkmanager/dialogs-common.jsx:154
-#: pkg/systemd/services/timer-dialog.jsx:149 pkg/kdump/kdump-view.jsx:324
-#: pkg/storaged/crypto-keyslots.jsx:541 pkg/storaged/crypto-keyslots.jsx:560
-#: pkg/storaged/nfs-details.jsx:186 pkg/storaged/fsys-tab.jsx:378
-#: pkg/storaged/fsys-tab.jsx:494 pkg/storaged/crypto-tab.jsx:161
-#: pkg/storaged/crypto-tab.jsx:205 pkg/metrics/metrics.jsx:1279
+#: pkg/packagekit/kpatch.jsx:306 pkg/storaged/crypto-tab.jsx:161
+#: pkg/storaged/crypto-tab.jsx:205 pkg/storaged/crypto-keyslots.jsx:541
+#: pkg/storaged/crypto-keyslots.jsx:560 pkg/storaged/nfs-details.jsx:186
+#: pkg/storaged/fsys-tab.jsx:378 pkg/storaged/fsys-tab.jsx:494
+#: pkg/metrics/metrics.jsx:1279 pkg/systemd/services/timer-dialog.jsx:149
+#: pkg/kdump/kdump-view.jsx:324 pkg/networkmanager/dialogs-common.jsx:154
 msgid "Save"
 msgstr "保存"
 
@@ -6007,7 +6002,7 @@ msgstr "再起動が $0 に予定されています"
 msgid "Sealed-case PC"
 msgstr "シールドケース PC"
 
-#: pkg/systemd/logs.jsx:406 pkg/shell/nav.jsx:141
+#: pkg/shell/nav.jsx:141 pkg/systemd/logs.jsx:406
 msgid "Search"
 msgstr "検索"
 
@@ -6080,13 +6075,13 @@ msgctxt "storage"
 msgid "Serial number"
 msgstr "シリアルナンバー"
 
-#: pkg/static/login.html:166 pkg/networkmanager/ip-settings.jsx:248
-#: pkg/kdump/kdump-view.jsx:96 pkg/kdump/kdump-view.jsx:122
-#: pkg/storaged/nfs-panel.jsx:102 pkg/storaged/nfs-details.jsx:317
+#: pkg/static/login.html:166 pkg/storaged/nfs-panel.jsx:102
+#: pkg/storaged/nfs-details.jsx:317 pkg/kdump/kdump-view.jsx:96
+#: pkg/kdump/kdump-view.jsx:122 pkg/networkmanager/ip-settings.jsx:248
 msgid "Server"
 msgstr "サーバー"
 
-#: pkg/storaged/iscsi-panel.jsx:47 pkg/storaged/nfs-details.jsx:134
+#: pkg/storaged/nfs-details.jsx:134 pkg/storaged/iscsi-panel.jsx:47
 msgid "Server address"
 msgstr "サーバーアドレス"
 
@@ -6106,8 +6101,8 @@ msgstr "サーバーの接続が終了しました。"
 msgid "Server software"
 msgstr "サーバーソフトウェア"
 
-#: pkg/networkmanager/firewall.jsx:209 pkg/storaged/dialog.jsx:1217
-#: pkg/metrics/metrics.jsx:736 pkg/metrics/metrics.jsx:769
+#: pkg/storaged/dialog.jsx:1217 pkg/metrics/metrics.jsx:736
+#: pkg/metrics/metrics.jsx:769 pkg/networkmanager/firewall.jsx:209
 msgid "Service"
 msgstr "サービス"
 
@@ -6135,8 +6130,8 @@ msgstr "サービスが停止中です"
 msgid "Service logs"
 msgstr "サービスログ"
 
-#: pkg/systemd/services.html:4 pkg/networkmanager/firewall.jsx:619
-#: pkg/systemd/services/service.jsx:85 pkg/systemd/services/service-tabs.jsx:39
+#: pkg/systemd/services.html:4 pkg/systemd/services/service-tabs.jsx:39
+#: pkg/systemd/services/service.jsx:85 pkg/networkmanager/firewall.jsx:619
 #: pkg/systemd/manifest.json:0
 msgid "Services"
 msgstr "サービス"
@@ -6161,8 +6156,8 @@ msgstr "セット"
 msgid "Set hostname"
 msgstr "ホスト名を設定します"
 
-#: pkg/users/account-details.js:314 pkg/users/password-dialogs.js:225
-#: pkg/users/password-dialogs.js:232
+#: pkg/users/password-dialogs.js:225 pkg/users/password-dialogs.js:232
+#: pkg/users/account-details.js:314
 msgid "Set password"
 msgstr "パスワードの設定"
 
@@ -6282,19 +6277,19 @@ msgstr "シャットダウン"
 msgid "Since"
 msgstr "フィルター開始時刻"
 
-#: pkg/systemd/hw-detect.js:90 pkg/lib/machine-info.js:259
+#: pkg/lib/machine-info.js:259 pkg/systemd/hw-detect.js:90
 msgid "Single rank"
 msgstr "シングルランク"
 
-#: pkg/systemd/hwinfo.jsx:310 pkg/storaged/lvol-tabs.jsx:242
-#: pkg/storaged/lvol-tabs.jsx:309 pkg/storaged/lvol-tabs.jsx:429
-#: pkg/storaged/lvol-tabs.jsx:490 pkg/storaged/lvol-tabs.jsx:543
-#: pkg/storaged/fsys-panel.jsx:180 pkg/storaged/nfs-panel.jsx:104
-#: pkg/storaged/part-tab.jsx:45 pkg/storaged/format-dialog.jsx:220
 #: pkg/storaged/content-views.jsx:187 pkg/storaged/content-views.jsx:754
 #: pkg/storaged/content-views.jsx:929 pkg/storaged/content-views.jsx:937
-#: pkg/storaged/content-views.jsx:1019 pkg/storaged/nfs-details.jsx:327
-#: pkg/storaged/stratis-details.jsx:654 pkg/storaged/stratis-details.jsx:787
+#: pkg/storaged/content-views.jsx:1019 pkg/storaged/nfs-panel.jsx:104
+#: pkg/storaged/lvol-tabs.jsx:242 pkg/storaged/lvol-tabs.jsx:309
+#: pkg/storaged/lvol-tabs.jsx:429 pkg/storaged/lvol-tabs.jsx:490
+#: pkg/storaged/lvol-tabs.jsx:543 pkg/storaged/part-tab.jsx:45
+#: pkg/storaged/nfs-details.jsx:327 pkg/storaged/stratis-details.jsx:654
+#: pkg/storaged/stratis-details.jsx:787 pkg/storaged/fsys-panel.jsx:180
+#: pkg/storaged/format-dialog.jsx:220 pkg/systemd/hwinfo.jsx:310
 msgid "Size"
 msgstr "サイズ"
 
@@ -6330,7 +6325,7 @@ msgstr "コンテンツへスキップ"
 msgid "Slot"
 msgstr "スロット"
 
-#: pkg/storaged/mdraid-details.jsx:123 pkg/storaged/crypto-keyslots.jsx:790
+#: pkg/storaged/crypto-keyslots.jsx:790 pkg/storaged/mdraid-details.jsx:123
 msgid "Slot $0"
 msgstr "スロット $0"
 
@@ -6415,9 +6410,9 @@ msgstr "速度"
 msgid "Stable"
 msgstr "安定"
 
-#: pkg/systemd/services/service-details.jsx:138
 #: pkg/storaged/content-views.jsx:344 pkg/storaged/mdraid-details.jsx:320
 #: pkg/storaged/vdo-details.jsx:268
+#: pkg/systemd/services/service-details.jsx:138
 msgid "Start"
 msgstr "起動"
 
@@ -6429,7 +6424,7 @@ msgstr "起動と有効化"
 msgid "Start multipath"
 msgstr "マルチパスの開始"
 
-#: pkg/networkmanager/app.jsx:78 pkg/systemd/services/service-details.jsx:453
+#: pkg/systemd/services/service-details.jsx:453 pkg/networkmanager/app.jsx:78
 msgid "Start service"
 msgstr "サービスの開始"
 
@@ -6453,8 +6448,8 @@ msgstr "RAID デバイス $target の起動"
 msgid "Starting swapspace $target"
 msgstr "スワップ領域 $target の起動"
 
-#: pkg/systemd/hwinfo.jsx:310 pkg/systemd/services/services-list.jsx:41
-#: pkg/systemd/services/services-list.jsx:47
+#: pkg/systemd/services/services-list.jsx:41
+#: pkg/systemd/services/services-list.jsx:47 pkg/systemd/hwinfo.jsx:310
 msgid "State"
 msgstr "状態"
 
@@ -6468,8 +6463,8 @@ msgstr "状態"
 msgid "Static"
 msgstr "静的"
 
-#: pkg/packagekit/updates.jsx:899 pkg/networkmanager/network-interface.jsx:268
-#: pkg/systemd/services/service-details.jsx:640 pkg/kdump/kdump-view.jsx:494
+#: pkg/packagekit/updates.jsx:899 pkg/systemd/services/service-details.jsx:640
+#: pkg/kdump/kdump-view.jsx:494 pkg/networkmanager/network-interface.jsx:268
 msgid "Status"
 msgstr "ステータス"
 
@@ -6481,9 +6476,9 @@ msgstr "スティッキー PC"
 msgid "Sticky"
 msgstr "スティッキー"
 
-#: pkg/systemd/services/service-details.jsx:134
 #: pkg/storaged/content-views.jsx:342 pkg/storaged/mdraid-details.jsx:319
 #: pkg/storaged/vdo-details.jsx:145 pkg/storaged/vdo-details.jsx:267
+#: pkg/systemd/services/service-details.jsx:134
 msgid "Stop"
 msgstr "停止"
 
@@ -6593,7 +6588,7 @@ msgid "Support is installed."
 msgstr "サポートはインストールされました。"
 
 #: pkg/storaged/content-views.jsx:228 pkg/metrics/metrics.jsx:126
-#: pkg/metrics/metrics.jsx:605 pkg/metrics/metrics.jsx:1725
+#: pkg/metrics/metrics.jsx:605 pkg/metrics/metrics.jsx:1726
 msgid "Swap"
 msgstr "スワップ"
 
@@ -6662,8 +6657,8 @@ msgstr "同期中"
 msgid "Synchronizing RAID device $target"
 msgstr "RAID デバイス $target の同期"
 
-#: pkg/systemd/services/services.jsx:1068 pkg/shell/indexes.jsx:343
-#: pkg/shell/nav.jsx:48
+#: pkg/shell/nav.jsx:48 pkg/shell/indexes.jsx:343
+#: pkg/systemd/services/services.jsx:1068
 msgid "System"
 msgstr "システム"
 
@@ -7328,7 +7323,7 @@ msgstr ""
 "フィンガープリントを確認するには、マシン上に物理的に置かれるか、信頼できる"
 "ネットワークを介して $0 で次のコマンドを実行します:"
 
-#: pkg/metrics/metrics.jsx:1662
+#: pkg/metrics/metrics.jsx:1663
 msgid "Today"
 msgstr "今日"
 
@@ -7340,9 +7335,8 @@ msgstr "切り替え"
 msgid "Toggle bitmap"
 msgstr "ビットマップを切り替える"
 
-#: pkg/systemd/services/timer-dialog.jsx:356 pkg/lib/serverTime.js:526
-#: pkg/lib/cockpit-components-shutdown.jsx:208
-#: pkg/users/expiration-dialogs.js:44
+#: pkg/lib/cockpit-components-shutdown.jsx:208 pkg/lib/serverTime.js:526
+#: pkg/users/expiration-dialogs.js:44 pkg/systemd/services/timer-dialog.jsx:356
 msgid "Toggle date picker"
 msgstr "日付選択の切り替え"
 
@@ -7382,8 +7376,8 @@ msgstr "一時的"
 msgid "Transmitting"
 msgstr "送信中"
 
-#: pkg/systemd/services/timer-dialog.jsx:185
 #: pkg/systemd/services/services-list.jsx:46
+#: pkg/systemd/services/timer-dialog.jsx:185
 msgid "Trigger"
 msgstr "トリガー"
 
@@ -7453,11 +7447,11 @@ msgstr "Tuned がオフです"
 msgid "Turn on administrative access"
 msgstr "管理者アクセスをオンにする"
 
-#: pkg/packagekit/autoupdates.jsx:279 pkg/systemd/hwinfo.jsx:86
-#: pkg/systemd/hwinfo.jsx:310 pkg/storaged/unrecognized-tab.jsx:41
-#: pkg/storaged/fsys-panel.jsx:178 pkg/storaged/part-tab.jsx:55
-#: pkg/storaged/format-dialog.jsx:218 pkg/storaged/content-views.jsx:754
-#: pkg/storaged/content-views.jsx:1019 pkg/shell/credentials.jsx:202
+#: pkg/packagekit/autoupdates.jsx:279 pkg/storaged/content-views.jsx:754
+#: pkg/storaged/content-views.jsx:1019 pkg/storaged/part-tab.jsx:55
+#: pkg/storaged/unrecognized-tab.jsx:41 pkg/storaged/fsys-panel.jsx:178
+#: pkg/storaged/format-dialog.jsx:218 pkg/shell/credentials.jsx:202
+#: pkg/systemd/hwinfo.jsx:86 pkg/systemd/hwinfo.jsx:310
 msgid "Type"
 msgstr "タイプ"
 
@@ -7473,8 +7467,8 @@ msgstr "UDP"
 msgid "UUID"
 msgstr "UUID"
 
-#: pkg/storaged/vgroup-details.jsx:234 pkg/storaged/mdraid-details.jsx:334
-#: pkg/storaged/stratis-details.jsx:424 pkg/storaged/stratis-details.jsx:771
+#: pkg/storaged/vgroup-details.jsx:234 pkg/storaged/stratis-details.jsx:424
+#: pkg/storaged/stratis-details.jsx:771 pkg/storaged/mdraid-details.jsx:334
 msgctxt "storage"
 msgid "UUID"
 msgstr "UUID"
@@ -7566,8 +7560,8 @@ msgstr "利用できないパッケージ"
 msgid "Undo"
 msgstr ""
 
-#: pkg/networkmanager/interfaces.js:50 pkg/users/dialog-utils.js:65
-#: pkg/shell/shell-modals.jsx:169
+#: pkg/users/dialog-utils.js:65 pkg/shell/shell-modals.jsx:169
+#: pkg/networkmanager/interfaces.js:50
 msgid "Unexpected error"
 msgstr "予期しないエラー"
 
@@ -7580,16 +7574,16 @@ msgstr "ユニット"
 msgid "Unit not found"
 msgstr "単位が見つかりません"
 
-#: pkg/networkmanager/network-interface.jsx:202
-#: pkg/networkmanager/network-interface.jsx:204
-#: pkg/networkmanager/interfaces.js:502 pkg/networkmanager/interfaces.js:977
-#: pkg/systemd/hw-detect.js:85 pkg/systemd/hw-detect.js:94
-#: pkg/systemd/hw-detect.js:101 pkg/systemd/hw-detect.js:104
-#: pkg/systemd/hw-detect.js:111 pkg/systemd/hw-detect.js:112
 #: pkg/lib/machine-info.js:61 pkg/lib/machine-info.js:247
 #: pkg/lib/machine-info.js:255 pkg/lib/machine-info.js:257
 #: pkg/lib/machine-info.js:264 pkg/lib/machine-info.js:266
 #: pkg/lib/machine-info.js:270 pkg/storaged/swap-tab.jsx:62
+#: pkg/systemd/hw-detect.js:85 pkg/systemd/hw-detect.js:94
+#: pkg/systemd/hw-detect.js:101 pkg/systemd/hw-detect.js:104
+#: pkg/systemd/hw-detect.js:111 pkg/systemd/hw-detect.js:112
+#: pkg/networkmanager/network-interface.jsx:202
+#: pkg/networkmanager/network-interface.jsx:204
+#: pkg/networkmanager/interfaces.js:502 pkg/networkmanager/interfaces.js:977
 msgid "Unknown"
 msgstr "不明"
 
@@ -7658,7 +7652,7 @@ msgid "Unmanaged interfaces"
 msgstr "未管理のインターフェース"
 
 #: pkg/storaged/content-views.jsx:414 pkg/storaged/nfs-details.jsx:299
-#: pkg/storaged/fsys-tab.jsx:377 pkg/storaged/stratis-details.jsx:599
+#: pkg/storaged/stratis-details.jsx:599 pkg/storaged/fsys-tab.jsx:377
 msgid "Unmount"
 msgstr "アンマウント"
 
@@ -7759,10 +7753,9 @@ msgstr "ステータスを更新中..."
 msgid "Uptime"
 msgstr "稼働時間"
 
-#: pkg/systemd/overview-cards/usageCard.jsx:129
-#: pkg/storaged/unrecognized-tab.jsx:37 pkg/metrics/metrics.jsx:1724
-#: pkg/metrics/metrics.jsx:1725 pkg/metrics/metrics.jsx:1726
-#: pkg/metrics/metrics.jsx:1727
+#: pkg/storaged/unrecognized-tab.jsx:37 pkg/metrics/metrics.jsx:1725
+#: pkg/metrics/metrics.jsx:1726 pkg/metrics/metrics.jsx:1727
+#: pkg/metrics/metrics.jsx:1728 pkg/systemd/overview-cards/usageCard.jsx:129
 msgid "Usage"
 msgstr "使用率"
 
@@ -7775,8 +7768,8 @@ msgstr "使用率"
 msgid "Usage of $0"
 msgstr "$0 の使用率"
 
-#: pkg/networkmanager/dialogs-common.jsx:97 pkg/storaged/dialog.jsx:568
-#: pkg/storaged/dialog.jsx:1051
+#: pkg/storaged/dialog.jsx:568 pkg/storaged/dialog.jsx:1051
+#: pkg/networkmanager/dialogs-common.jsx:97
 msgid "Use"
 msgstr "使用"
 
@@ -7813,12 +7806,12 @@ msgstr "使用済み"
 msgid "Used for"
 msgstr "用途"
 
-#: pkg/systemd/services/services.jsx:1072 pkg/storaged/dialog.jsx:1200
+#: pkg/storaged/dialog.jsx:1200 pkg/systemd/services/services.jsx:1072
 msgid "User"
 msgstr "ユーザー"
 
-#: pkg/static/login.html:101 pkg/users/account-details.js:270
-#: pkg/users/account-create-dialog.js:49 pkg/shell/hosts_dialog.jsx:260
+#: pkg/static/login.html:101 pkg/users/account-create-dialog.js:49
+#: pkg/users/account-details.js:270 pkg/shell/hosts_dialog.jsx:260
 msgid "User name"
 msgstr "ユーザー名"
 
@@ -7826,8 +7819,8 @@ msgstr "ユーザー名"
 msgid "User name cannot be empty"
 msgstr "ユーザー名は空にできません"
 
-#: pkg/users/accounts-list.js:402 pkg/storaged/iscsi-panel.jsx:49
-#: pkg/storaged/iscsi-panel.jsx:158
+#: pkg/storaged/iscsi-panel.jsx:49 pkg/storaged/iscsi-panel.jsx:158
+#: pkg/users/accounts-list.js:402
 msgid "Username"
 msgstr "ユーザー名"
 
@@ -8029,7 +8022,7 @@ msgstr "望む"
 msgid "Warning and above"
 msgstr "警告以上のレベル"
 
-#: pkg/shell/topnav.jsx:153 pkg/shell/shell-modals.jsx:65
+#: pkg/shell/shell-modals.jsx:65 pkg/shell/topnav.jsx:153
 msgid "Web Console"
 msgstr "Webコンソール"
 
@@ -8112,7 +8105,7 @@ msgstr "XOR"
 msgid "Yearly"
 msgstr "毎年"
 
-#: pkg/networkmanager/network-interface.jsx:244 pkg/systemd/reporting.jsx:264
+#: pkg/systemd/reporting.jsx:264 pkg/networkmanager/network-interface.jsx:244
 msgid "Yes"
 msgstr "はい"
 
@@ -8213,8 +8206,8 @@ msgstr "abrt"
 msgid "access"
 msgstr "アクセス"
 
-#: pkg/systemd/overview-cards/profiles-menu-dialog-body.jsx:60
 #: pkg/shell/active-pages-modal.jsx:76
+#: pkg/systemd/overview-cards/profiles-menu-dialog-body.jsx:60
 msgid "active"
 msgstr "アクティブ"
 
@@ -8323,10 +8316,10 @@ msgstr "日付"
 msgid "debug"
 msgstr "デバッグ"
 
-#: pkg/storaged/vgroup-details.jsx:186 pkg/storaged/format-dialog.jsx:172
 #: pkg/storaged/content-views.jsx:367 pkg/storaged/content-views.jsx:675
-#: pkg/storaged/mdraid-details.jsx:283 pkg/storaged/vdo-details.jsx:163
-#: pkg/storaged/stratis-details.jsx:237 pkg/storaged/stratis-details.jsx:538
+#: pkg/storaged/vgroup-details.jsx:186 pkg/storaged/stratis-details.jsx:237
+#: pkg/storaged/stratis-details.jsx:538 pkg/storaged/mdraid-details.jsx:283
+#: pkg/storaged/vdo-details.jsx:163 pkg/storaged/format-dialog.jsx:172
 msgid "delete"
 msgstr "削除"
 
@@ -8358,13 +8351,13 @@ msgstr "ドメイン"
 msgid "drive"
 msgstr "ドライブ"
 
-#: pkg/networkmanager/network-interface.jsx:363
-#: pkg/networkmanager/dialogs-common.jsx:235
-#: pkg/systemd/overview-cards/configurationCard.jsx:51
-#: pkg/users/account-details.js:302 pkg/users/account-details.js:334
+#: pkg/storaged/crypto-tab.jsx:251 pkg/storaged/crypto-tab.jsx:260
 #: pkg/storaged/lvol-tabs.jsx:423 pkg/storaged/lvol-tabs.jsx:484
 #: pkg/storaged/fsys-tab.jsx:697 pkg/storaged/fsys-tab.jsx:712
-#: pkg/storaged/crypto-tab.jsx:251 pkg/storaged/crypto-tab.jsx:260
+#: pkg/users/account-details.js:302 pkg/users/account-details.js:334
+#: pkg/systemd/overview-cards/configurationCard.jsx:51
+#: pkg/networkmanager/dialogs-common.jsx:235
+#: pkg/networkmanager/network-interface.jsx:363
 msgid "edit"
 msgstr "編集"
 
@@ -8610,7 +8603,7 @@ msgstr "マウント"
 msgid "nbde"
 msgstr "nbde"
 
-#: pkg/networkmanager/manifest.json:0 pkg/systemd/manifest.json:0
+#: pkg/systemd/manifest.json:0 pkg/networkmanager/manifest.json:0
 msgid "network"
 msgstr "ネットワーク"
 
@@ -8831,7 +8824,7 @@ msgstr "ソリューションの詳細"
 msgid "sos"
 msgstr "sos"
 
-#: pkg/systemd/manifest.json:0 pkg/users/manifest.json:0
+#: pkg/users/manifest.json:0 pkg/systemd/manifest.json:0
 msgid "ssh"
 msgstr "ssh"
 
@@ -8899,9 +8892,9 @@ msgstr "udp"
 msgid "unit"
 msgstr "単位"
 
-#: pkg/systemd/services/services.jsx:571 pkg/systemd/services/services.jsx:572
-#: pkg/systemd/services/services.jsx:592 pkg/systemd/services/services.jsx:593
-#: pkg/systemd/hw-detect.js:129
+#: pkg/systemd/hw-detect.js:129 pkg/systemd/services/services.jsx:571
+#: pkg/systemd/services/services.jsx:572 pkg/systemd/services/services.jsx:592
+#: pkg/systemd/services/services.jsx:593
 msgid "unknown"
 msgstr "不明"
 

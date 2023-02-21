@@ -605,7 +605,13 @@ echo "UUID=$uuid / auto defaults 0 0" >/new-root/etc/fstab
 echo "UUID=$buuid /boot auto defaults 0 0" >>/new-root/etc/fstab
 dracut --regenerate-all --force
 grub2-install {dev}
-grub2-mkconfig -o /boot/grub2/grub.cfg
+( # HACK - grub2-mkconfig messes with /boot/loader/entries/ and /etc/kernel/cmdline
+  mv /boot/loader/entries /boot/loader/entries.stowed
+  ! test -f /etc/kernel/cmdline || mv /etc/kernel/cmdline /etc/kernel/cmdline.stowed
+  grub2-mkconfig -o /boot/grub2/grub.cfg
+  mv /boot/loader/entries.stowed /boot/loader/entries
+  ! test -f /etc/kernel/cmdline.stowed || mv /etc/kernel/cmdline.stowed /etc/kernel/cmdline
+)
 grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uuid=$luks_uuid"
 ! test -f /etc/kernel/cmdline || cp /etc/kernel/cmdline /new-root/etc/kernel/cmdline
 """, timeout=300)

@@ -107,6 +107,7 @@ function generateDeps(makefile, stats) {
         'package-lock.json',
         'tools/webpack-make.js',
         'webpack.config.js',
+        'pkg/lib/cockpit-po-plugin.js',
     ]);
 
     for (const file of stats.compilation.fileDependencies) {

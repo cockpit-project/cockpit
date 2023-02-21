@@ -13,14 +13,20 @@
 }
 
 html {
-  --metrics-heading-color: #fff;
-  --metrics-heading-time-color: #eee;
+  --metrics-heading-color: #eee;
+  --metrics-heading-time-color: var(--pf-global--BackgroundColor--light-100);
+  --resource-icon-color-empty: var(--pf-global--palette--black-400);
+  --resource-icon-color-middle: var(--pf-global--palette--orange-200);
+  --resource-icon-color-full: var(--pf-global--palette--orange-400);
 }
 
 .pf-theme-dark {
-  --metrics-heading-color: var(--pf-global--BackgroundColor-dark-100);
+  --metrics-heading-color: var(--pf-global--BackgroundColor--dark-100);
   --metrics-heading-time-color: var(--pf-global--BackgroundColor--300);
   --metrics-events-border-color: #000;
+  --resource-icon-color-empty: var(--pf-global--palette--black-400);
+  --resource-icon-color-middle: var(--pf-global--palette--orange-500);
+  --resource-icon-color-full: var(--pf-global--palette--orange-200);
 }
 
 // Remove doubled-up padding on "main" sections, when two+ sections are used.
@@ -216,8 +222,6 @@ html {
     min-width: 0;
   }
 
-  // Adjust responsive versions of lg grid tables
-  // (mainly for the network table, as it is more information dense)
   .pf-m-grid-lg.pf-c-table {
     tbody:first-of-type {
       border-top: none;
@@ -319,13 +323,21 @@ html {
   --half-column-size: 8vw;
   --data-min-height: 5px;
 
+  &-hour-compressed {
+    --data-min-height: 1px;
+    display: flex;
+    background-color: var(--pf-global--BackgroundColor--light-300);
+  }
+
   &-heading,
-  &-minute {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
+  &-hour:not(.metrics-hour-compressed) .metrics-minute {
+    background-color: var(--pf-global--BackgroundColor--light-300);
+    display: flex;
   }
 
   &-graphs {
+    flex-basis: 60%;
+    margin-left: auto;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(var(--column-size), 1fr));
 
@@ -362,42 +374,61 @@ html {
     }
   }
 
+  &-minutes {
+    flex-basis: 60%;
+  }
+
+  &-events-hour-header-expanded {
+    width: 40%;
+  }
+
+  &-selectors,
   &-events-wrapper {
+    flex-basis: 40%;
     width: 100%;
   }
 
   &-events {
-    width: 100%;
+    display: flex;
+    column-gap: var(--pf-global--spacer--sm);
+    width: 40%;
+    align-items: baseline;
+    font-size: var(--pf-global--FontSize--sm);
 
-    --pf-c-table--BorderColor: var(--metrics-events-border-color, default);
-
-    // Remove left padding from the table toggle
-    .pf-c-table__toggle {
-      padding-left: 0;
+    &-expander {
+      min-width: 3rem;
     }
 
-    .description {
-      display: grid;
-      grid-template-columns: [info] 1fr [time] 1fr;
+    .spikes_count {
+      flex-basis: 20%;
 
-      .details {
-        grid-column: time;
-        grid-row: 1;
-        display: flex;
-        justify-content: space-between;
-        width: 100%;
+      > div {
+        white-space: nowrap;
       }
+    }
 
-      .type {
-        grid-column: info;
-      }
+    .spikes_info {
+      flex-basis: 50%;
+    }
+
+    time {
+      flex-basis: 20%;
+    }
+
+    time:first-child {
+      margin-left: calc(3rem + var(--pf-global--spacer--sm));
+    }
+
+    // Just embolden the top level time events
+    button + time {
+      font-weight: var(--pf-global--FontWeight--bold);
     }
 
     // Make messages such as `Loading...` or `No logs found` centered
     .cockpit-log-panel {
       display: flex;
       flex-wrap: wrap;
-      justify-content: center;
+      // justify-content: center;
 
       .cockpit-logline {
         flex: 0 0 100%;
@@ -417,8 +448,6 @@ html {
 
   &-time {
     background: var(--metrics-heading-time-color);
-    padding: 0.5rem 1rem;
-    margin-left: var(--pf-global--spacer--md);
   }
 
   &-heading {
@@ -434,6 +463,7 @@ html {
   }
 
   &-history {
+    background-color: var(--pf-global--BackgroundColor--light-300);
     padding: 0;
   }
 
@@ -454,6 +484,10 @@ html {
       top: 0;
       bottom: 0;
       border-right: 1px solid rgb(0 0 0 / 30%);
+    }
+
+    &.valid-data:not(.metrics-data-compressed).have-saturation::after,
+    &.valid-data:not(.metrics-data-compressed)::before {
       border-top: 1px solid rgb(0 0 0 / 30%);
     }
 
@@ -468,7 +502,6 @@ html {
       z-index: 1;
       width: 50%;
       left: 50%;
-      border-top: 1px solid rgb(0 0 0 / 30%);
     }
 
     > svg {
@@ -480,6 +513,10 @@ html {
       position: absolute;
       top: 0;
       left: 0;
+    }
+
+    .graph-red {
+      fill: red;
     }
 
     &-cpu {
@@ -515,6 +552,16 @@ html {
         grid-area: utilization;
       }
 
+      > .utilization-red {
+        grid-area: utilization-red;
+        background-color: red;
+      }
+
+      .saturation-red {
+        grid-area: saturation-red;
+        background-color: red;
+      }
+
       > .saturation {
         grid-area: saturation;
         opacity: 0.7;
@@ -548,6 +595,12 @@ html {
     border-left: 1px dotted rgb(0 0 0 / 30%);
     border-right: none;
     left: 50%;
+  }
+
+  // when hour is expanded remove the border from the bottom of the last minute
+  &-hour > .metrics-minute:last-of-type .valid-data::before,
+  &-hour > .metrics-minute:last-of-type .valid-data::after {
+    border-top: unset;
   }
 
   .pf-c-card__body:first-child {
@@ -617,4 +670,17 @@ html {
     // makes  it easier to see high percentages
     text-align: right;
   }
+}
+
+// FIXME: We probably want to adapt some of these for the general log message widget
+.cockpit-log-message {
+  text-align: start;
+  overflow-wrap: anywhere;
+  white-space: break-spaces;
+  // Clamping is supported in all browsers,
+  // but it needs special webkit prefix (yes, in all browsers)
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  display: webkit-box; /* stylelint-disable-line */
+  color: var(--pf-global--active-color--100);
 }

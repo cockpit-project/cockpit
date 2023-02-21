@@ -504,7 +504,7 @@ OnCalendar=daily
         b.key_press(chr(40), use_ord=True)  # arrow down
         b.key_press(chr(40), use_ord=True)  # arrow down
         b.key_press("\r")
-        if m.image in ["fedora-coreos", "rhel4edge"]:
+        if m.ostree_image:
             b.enter_page("/users")
         else:
             b.enter_page("/storage")
@@ -799,7 +799,7 @@ OnCalendar=daily
         assert_location("/system")
 
         # CoreOS does not keep login history
-        if self.machine.image not in ["fedora-coreos", "rhel4edge"]:
+        if not self.machine.ostree_image:
 
             b.enter_page("/system")
             b.click("button:contains(View login history)")

@@ -103,7 +103,7 @@ def change_ssh_port(machine, address, port=None, timeout_sec=120):
     # Keep in mind that not all operating systems have firewalld
     machine.execute(f"firewall-cmd --permanent --zone=public --add-port={port}/tcp || true")
     machine.execute("firewall-cmd --reload || true")
-    if machine.image in ["fedora-coreos", "rhel4edge"]:  # no semanage
+    if machine.ostree_image:  # no semanage
         machine.execute("setenforce 0")
     else:
         machine.execute(f"! selinuxenabled || semanage port -a -t ssh_port_t -p tcp {port}")

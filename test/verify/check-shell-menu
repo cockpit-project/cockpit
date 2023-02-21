@@ -75,7 +75,7 @@ class TestMenu(MachineCase):
         b.click('#toggle-docs')
         b.click('button:contains("About Web Console")')
         b.wait_visible('#about-cockpit-modal:contains("Cockpit is an interactive Linux server admin interface")')
-        if m.image not in ["fedora-coreos", "rhel4edge"]:
+        if not m.ostree_image:
             pkgname = "cockpit" if m.image == "arch" else "cockpit-bridge"
             b.wait_visible(f'#about-cockpit-modal:contains("{pkgname}")')
         b.click('.pf-c-about-modal-box__close button')

@@ -1269,9 +1269,8 @@ class TestKpatchInstall(NoSubManCase):
         m.execute("rpm -q kpatch kpatch-dnf")
 
 
-@skipImage("Image uses OSTree", "fedora-coreos", "rhel4edge")
-@skipImage("No subscriptions", "debian-stable", "debian-testing", "centos-8-stream",
-           "fedora-36", "fedora-37", "fedora-38", "fedora-testing", "ubuntu-2204", "ubuntu-stable", "arch")
+@skipOstree("Image uses OSTree")
+@skipImage("No subscriptions", "arch", "centos-*", "fedora-*", "debian-*", "ubuntu-*")
 class TestUpdatesSubscriptions(PackageCase):
     provision = {
         "0": {"address": "10.111.112.1/20", "dns": "10.111.112.1", "memory_mb": 512},
@@ -1730,7 +1729,7 @@ class TestAutoUpdatesInstall(NoSubManCase):
             b.wait_not_present("#settings")
             b.wait_not_present("#autoupdates-settings")
 
-    @skipImage("No supported auto update backend", "debian-stable", "debian-testing", "ubuntu-2204", "ubuntu-stable", "arch")
+    @skipImage("No supported auto update backend", "debian-*", "ubuntu-*", "arch")
     def testInstall(self):
         b = self.browser
         m = self.machine

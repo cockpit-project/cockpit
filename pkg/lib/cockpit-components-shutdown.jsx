@@ -19,11 +19,16 @@
 
 import cockpit from "cockpit";
 import React from 'react';
-import {
-    Button, Select, SelectOption, Modal, Alert, Flex, Form,
-    Divider, FormGroup, TextArea, DatePicker,
-    TimePicker,
-} from '@patternfly/react-core';
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Select, SelectOption } from "@patternfly/react-core/dist/esm/components/Select/index.js";
+import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
+import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { Divider } from "@patternfly/react-core/dist/esm/components/Divider/index.js";
+import { TextArea } from "@patternfly/react-core/dist/esm/components/TextArea/index.js";
+import { DatePicker } from "@patternfly/react-core/dist/esm/components/DatePicker/index.js";
+import { TimePicker } from "@patternfly/react-core/dist/esm/components/TimePicker/index.js";
 
 import { ServerTime } from 'serverTime.js';
 import * as timeformat from "timeformat.js";

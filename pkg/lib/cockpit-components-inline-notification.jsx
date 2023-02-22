@@ -20,7 +20,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cockpit from 'cockpit';
 
-import { Alert, AlertActionCloseButton, Button } from '@patternfly/react-core';
+import { Alert, AlertActionCloseButton } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import './cockpit-components-inline-notification.css';
 
 const _ = cockpit.gettext;

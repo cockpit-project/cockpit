@@ -19,7 +19,7 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Tabs, Tab, TabTitleText } from '@patternfly/react-core';
+import { Tab, TabTitleText, Tabs } from "@patternfly/react-core/dist/esm/components/Tabs/index.js";
 import './cockpit-components-listing-panel.scss';
 
 /* tabRenderers optional: list of tab renderers for inline expansion, array of objects with

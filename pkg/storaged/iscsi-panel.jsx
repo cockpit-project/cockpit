@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { Button } from "@patternfly/react-core";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { CheckIcon, EditIcon, PlusIcon, TrashIcon } from "@patternfly/react-icons";
 
 import { SidePanel } from "./side-panel.jsx";

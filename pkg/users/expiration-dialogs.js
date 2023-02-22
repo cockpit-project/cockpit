@@ -19,7 +19,11 @@
 
 import cockpit from 'cockpit';
 import React from 'react';
-import { Flex, Form, FormGroup, FormHelperText, Radio, TextInput, DatePicker } from '@patternfly/react-core';
+import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { Form, FormGroup, FormHelperText } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
+import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
+import { DatePicker } from "@patternfly/react-core/dist/esm/components/DatePicker/index.js";
 
 import { has_errors } from "./dialog-utils.js";
 import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";

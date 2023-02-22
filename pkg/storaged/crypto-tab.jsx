@@ -17,13 +17,8 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import {
-    DescriptionList,
-    DescriptionListTerm,
-    DescriptionListGroup,
-    DescriptionListDescription,
-    Flex, FlexItem,
-} from "@patternfly/react-core";
+import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
+import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import cockpit from "cockpit";
 import { dialog_open, TextInput, PassInput } from "./dialog.jsx";
 import { array_find, encode_filename, decode_filename, block_name } from "./utils.js";

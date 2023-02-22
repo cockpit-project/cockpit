@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { Select, SelectVariant, SelectOption } from "@patternfly/react-core";
+import { Select, SelectOption, SelectVariant } from "@patternfly/react-core/dist/esm/components/Select/index.js";
 import PropTypes from "prop-types";
 import { debounce } from 'throttle-debounce';
 

@@ -20,7 +20,10 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { Page, PageSection, Grid, GridItem, Breadcrumb, BreadcrumbItem, Flex, FlexItem } from "@patternfly/react-core";
+import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Grid, GridItem } from "@patternfly/react-core/dist/esm/layouts/Grid/index.js";
+import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
+import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 
 import * as utils from "./utils.js";
 import { BlockDetails } from "./block-details.jsx";

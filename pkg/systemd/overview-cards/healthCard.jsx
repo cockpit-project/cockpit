@@ -18,7 +18,7 @@
  */
 
 import React from 'react';
-import { Card, CardBody, CardFooter, CardTitle } from '@patternfly/react-core';
+import { Card, CardBody, CardFooter, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 
 import cockpit from "cockpit";
 import { PageStatusNotifications } from "../page-status.jsx";

@@ -21,14 +21,9 @@ import cockpit from "cockpit";
 import * as utils from "./utils.js";
 
 import React from "react";
-import {
-    Alert,
-    DescriptionList,
-    DescriptionListTerm,
-    DescriptionListGroup,
-    DescriptionListDescription,
-    Flex, FlexItem,
-} from "@patternfly/react-core";
+import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
+import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
+import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { StorageButton, StorageLink, StorageOnOff } from "./storage-controls.jsx";
 import {
     existing_passphrase_fields, init_existing_passphrase,

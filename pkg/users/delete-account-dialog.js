@@ -19,7 +19,7 @@
 
 import cockpit from 'cockpit';
 import React from 'react';
-import { Checkbox } from '@patternfly/react-core';
+import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 

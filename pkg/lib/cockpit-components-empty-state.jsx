@@ -19,16 +19,10 @@
 
 import React from "react";
 import PropTypes from 'prop-types';
-import {
-    Title,
-    Button,
-    EmptyState,
-    EmptyStateVariant,
-    EmptyStateIcon,
-    EmptyStateBody,
-    EmptyStateSecondaryActions,
-    Spinner,
-} from '@patternfly/react-core';
+import { Title } from "@patternfly/react-core/dist/esm/components/Title/index.js";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { EmptyState, EmptyStateBody, EmptyStateIcon, EmptyStateSecondaryActions, EmptyStateVariant } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
+import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import "./cockpit-components-empty-state.css";
 
 export const EmptyStatePanel = ({ title, paragraph, loading, icon, action, isActionInProgress, onAction, secondary, headingLevel, titleSize }) => {

@@ -217,23 +217,22 @@
 import cockpit from "cockpit";
 
 import React, { useState } from "react";
-import {
-    Alert,
-    FormSelect, FormSelectOption,
-    Button,
-    Checkbox,
-    DataList, DataListItem, DataListCheck, DataListItemRow, DataListItemCells, DataListCell,
-    Form, FormGroup,
-    Grid, GridItem,
-    Radio,
-    Select as TypeAheadSelect, SelectOption, SelectVariant,
-    Slider,
-    Spinner, Split,
-    TextInput as TextInputPF4,
-    Popover,
-    HelperText, HelperTextItem,
-    List, ListItem
-} from "@patternfly/react-core";
+import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
+import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/components/FormSelect/index.js";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
+import { DataList, DataListCell, DataListCheck, DataListItem, DataListItemCells, DataListItemRow } from "@patternfly/react-core/dist/esm/components/DataList/index.js";
+import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { Grid, GridItem } from "@patternfly/react-core/dist/esm/layouts/Grid/index.js";
+import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
+import { Select as TypeAheadSelect, SelectOption, SelectVariant } from "@patternfly/react-core/dist/esm/components/Select/index.js";
+import { Slider } from "@patternfly/react-core/dist/esm/components/Slider/index.js";
+import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
+import { Split } from "@patternfly/react-core/dist/esm/layouts/Split/index.js";
+import { TextInput as TextInputPF4 } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
+import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
+import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
+import { List, ListItem } from "@patternfly/react-core/dist/esm/components/List/index.js";
 import { ExclamationTriangleIcon, InfoIcon, HelpIcon } from "@patternfly/react-icons";
 
 import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";

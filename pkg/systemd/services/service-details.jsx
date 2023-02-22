@@ -19,16 +19,20 @@
 
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import {
-    Alert, Button,
-    DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
-    Dropdown, DropdownItem, DropdownSeparator, KebabToggle,
-    Flex, ExpandableSection,
-    Tooltip, TooltipPosition,
-    Card, CardBody, CardTitle, Text, TextVariants,
-    List, ListItem,
-    Modal, Spinner, Stack, Switch
-} from "@patternfly/react-core";
+import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
+import { Dropdown, DropdownItem, DropdownSeparator, KebabToggle } from "@patternfly/react-core/dist/esm/components/Dropdown/index.js";
+import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/ExpandableSection/index.js";
+import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
+import { Card, CardBody, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { List, ListItem } from "@patternfly/react-core/dist/esm/components/List/index.js";
+import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
+import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
+import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 import {
     AsleepIcon,
     BanIcon, ErrorCircleOIcon, OnRunningIcon, OffIcon,

@@ -22,18 +22,18 @@ import React, { useState, useEffect, useRef } from 'react';
 import { superuser } from "superuser";
 
 import { admins } from './local.js';
-import {
-    Button, Badge,
-    Card, CardActions, CardExpandableContent, CardHeader, CardTitle,
-    Dropdown, DropdownItem, DropdownSeparator,
-    Flex, FlexItem,
-    HelperText, HelperTextItem,
-    KebabToggle, Label,
-    Page, PageSection,
-    SearchInput, Stack,
-    Text, TextContent, TextVariants,
-    Toolbar, ToolbarContent, ToolbarItem
-} from '@patternfly/react-core';
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Badge } from "@patternfly/react-core/dist/esm/components/Badge/index.js";
+import { Card, CardActions, CardExpandableContent, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Dropdown, DropdownItem, DropdownSeparator, KebabToggle } from "@patternfly/react-core/dist/esm/components/Dropdown/index.js";
+import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
+import { Label } from "@patternfly/react-core/dist/esm/components/Label/index.js";
+import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { SearchInput } from "@patternfly/react-core/dist/esm/components/SearchInput/index.js";
+import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
+import { Text, TextContent, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core/dist/esm/components/Toolbar/index.js";
 import * as timeformat from "timeformat.js";
 import { EmptyStatePanel } from 'cockpit-components-empty-state.jsx';
 import { ListingTable } from 'cockpit-components-table.jsx';

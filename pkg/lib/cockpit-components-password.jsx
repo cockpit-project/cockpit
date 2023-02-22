@@ -18,7 +18,10 @@
  */
 import cockpit from 'cockpit';
 import React, { useState } from 'react';
-import { FormGroup, Popover, Progress, ProgressSize, ProgressMeasureLocation, TextInput } from '@patternfly/react-core';
+import { FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
+import { Progress, ProgressMeasureLocation, ProgressSize } from "@patternfly/react-core/dist/esm/components/Progress/index.js";
+import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { HelpIcon } from '@patternfly/react-icons';
 
 import './cockpit-components-password.scss';

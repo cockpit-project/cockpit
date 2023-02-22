@@ -20,13 +20,9 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import {
-    Card, CardBody, CardTitle, CardHeader, CardActions, Text, TextVariants,
-    DescriptionList,
-    DescriptionListTerm,
-    DescriptionListGroup,
-    DescriptionListDescription
-} from "@patternfly/react-core";
+import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { PlusIcon, MinusIcon } from "@patternfly/react-icons";
 
 import * as utils from "./utils.js";

@@ -18,11 +18,9 @@
  */
 
 import React from "react";
-import {
-    Breadcrumb, BreadcrumbItem,
-    Page, PageSection,
-    Gallery, GalleryItem,
-} from '@patternfly/react-core';
+import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
+import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Gallery, GalleryItem } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 
 import { ServiceDetails } from "./service-details.jsx";
 import { LogsPanel } from "cockpit-components-logs-panel.jsx";

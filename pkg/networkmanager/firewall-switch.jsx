@@ -18,7 +18,9 @@
  */
 import cockpit from "cockpit";
 import React from "react";
-import { HelperText, HelperTextItem, Switch, Tooltip } from "@patternfly/react-core";
+import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
+import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
+import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 
 const _ = cockpit.gettext;
 

@@ -20,11 +20,10 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import {
-    Card, CardBody, CardTitle, CardHeader, CardActions, Text, TextVariants,
-    DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
-    List, ListItem
-} from "@patternfly/react-core";
+import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
+import { List, ListItem } from "@patternfly/react-core/dist/esm/components/List/index.js";
 import { PlusIcon, ExclamationTriangleIcon } from "@patternfly/react-icons";
 
 import { FilesystemTab, mounting_dialog, is_mounted, is_valid_mount_point, get_fstab_config } from "./fsys-tab.jsx";

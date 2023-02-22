@@ -20,13 +20,14 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import {
-    Card, CardBody, CardTitle, CardHeader, CardActions,
-    Checkbox, ClipboardCopy,
-    Form, FormGroup,
-    DataListItem, DataListItemRow, DataListItemCells, DataListCell, DataList,
-    TextContent, Text, TextVariants, TextList, TextListItem, TextInput as TextInputPF, Stack,
-} from "@patternfly/react-core";
+import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
+import { ClipboardCopy } from "@patternfly/react-core/dist/esm/components/ClipboardCopy/index.js";
+import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { DataList, DataListCell, DataListItem, DataListItemCells, DataListItemRow } from "@patternfly/react-core/dist/esm/components/DataList/index.js";
+import { Text, TextContent, TextList, TextListItem, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { TextInput as TextInputPF } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
+import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { EditIcon, MinusIcon, PlusIcon } from "@patternfly/react-icons";
 
 import sha1 from "js-sha1";

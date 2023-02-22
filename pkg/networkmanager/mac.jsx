@@ -19,9 +19,7 @@
 
 import React, { useState, useContext } from 'react';
 import cockpit from 'cockpit';
-import {
-    FormGroup,
-} from '@patternfly/react-core';
+import { FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 
 import { MacMenu, NetworkModal, dialogSave } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';

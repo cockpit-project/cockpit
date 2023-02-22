@@ -20,7 +20,9 @@
 import cockpit from "cockpit";
 
 import React from "react";
-import { Button, Flex, Spinner } from "@patternfly/react-core";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import {
     BugIcon,
     CheckIcon,

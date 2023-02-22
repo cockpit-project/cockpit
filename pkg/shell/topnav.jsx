@@ -19,13 +19,12 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import {
-    Button, Dropdown, DropdownGroup, DropdownItem, DropdownPosition, DropdownSeparator, DropdownToggle,
-    Masthead, MastheadContent,
-    Spinner,
-    ToggleGroup, ToggleGroupItem,
-    Toolbar, ToolbarItem, ToolbarContent,
-} from '@patternfly/react-core';
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Dropdown, DropdownGroup, DropdownItem, DropdownPosition, DropdownSeparator, DropdownToggle } from "@patternfly/react-core/dist/esm/components/Dropdown/index.js";
+import { Masthead, MastheadContent } from "@patternfly/react-core/dist/esm/components/Masthead/index.js";
+import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
+import { ToggleGroup, ToggleGroupItem } from "@patternfly/react-core/dist/esm/components/ToggleGroup/index.js";
+import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core/dist/esm/components/Toolbar/index.js";
 import { CogIcon, ExternalLinkAltIcon, HelpIcon } from '@patternfly/react-icons';
 
 import { ActivePagesDialog } from "./active-pages-modal.jsx";

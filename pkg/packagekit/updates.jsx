@@ -24,21 +24,25 @@ import cockpit from "cockpit";
 import React from "react";
 import { createRoot } from 'react-dom/client';
 
-import {
-    Alert, Badge, Button, Gallery, Modal, Popover, Tooltip,
-    Card, CardTitle, CardActions, CardHeader, CardBody,
-    DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
-    ExpandableSection,
-    Flex, FlexItem,
-    Grid, GridItem,
-    LabelGroup,
-    Page, PageSection, PageSectionVariants,
-    Progress, ProgressSize,
-    Spinner,
-    Stack, StackItem,
-    Switch,
-    Text, TextContent, TextListItem, TextList, TextVariants,
-} from '@patternfly/react-core';
+import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
+import { Badge } from "@patternfly/react-core/dist/esm/components/Badge/index.js";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
+import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
+import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
+import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
+import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/ExpandableSection/index.js";
+import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { Grid, GridItem } from "@patternfly/react-core/dist/esm/layouts/Grid/index.js";
+import { LabelGroup } from "@patternfly/react-core/dist/esm/components/LabelGroup/index.js";
+import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Progress, ProgressSize } from "@patternfly/react-core/dist/esm/components/Progress/index.js";
+import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
+import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
+import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
+import { Text, TextContent, TextList, TextListItem, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 
 import {
     BugIcon,

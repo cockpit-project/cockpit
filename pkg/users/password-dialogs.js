@@ -20,7 +20,8 @@
 import cockpit from 'cockpit';
 import React from 'react';
 import { superuser } from "superuser";
-import { Form, FormGroup, TextInput } from '@patternfly/react-core';
+import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 
 import { has_errors } from "./dialog-utils.js";
 import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";

@@ -19,11 +19,13 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import {
-    Button, Card, CardHeader, CardTitle, CardBody,
-    DataList, DataListItem, DataListItemRow, DataListCell, DataListItemCells,
-    Modal, Tabs, Tab, Text, TextArea, TextVariants
-} from '@patternfly/react-core';
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Card, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { DataList, DataListCell, DataListItem, DataListItemCells, DataListItemRow } from "@patternfly/react-core/dist/esm/components/DataList/index.js";
+import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import { Tab, Tabs } from "@patternfly/react-core/dist/esm/components/Tabs/index.js";
+import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { TextArea } from "@patternfly/react-core/dist/esm/components/TextArea/index.js";
 import { CheckIcon, CopyIcon, ExternalLinkAltIcon, OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 
 import cockpit from "cockpit";

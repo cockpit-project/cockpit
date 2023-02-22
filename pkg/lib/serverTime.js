@@ -18,14 +18,14 @@
  */
 import cockpit from "cockpit";
 import React, { useState } from "react";
-import {
-    Button, DatePicker,
-    Flex,
-    Form, FormGroup,
-    Popover,
-    Select, SelectOption, SelectVariant,
-    Spinner, TimePicker
-} from '@patternfly/react-core';
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { DatePicker } from "@patternfly/react-core/dist/esm/components/DatePicker/index.js";
+import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
+import { Select, SelectOption, SelectVariant } from "@patternfly/react-core/dist/esm/components/Select/index.js";
+import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
+import { TimePicker } from "@patternfly/react-core/dist/esm/components/TimePicker/index.js";
 import { CloseIcon, ExclamationCircleIcon, InfoCircleIcon, PlusIcon } from "@patternfly/react-icons";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { useObject, useEvent } from "hooks.js";

@@ -19,11 +19,10 @@
 
 import React from "react";
 
-import {
-    Button,
-    Flex, FlexItem,
-    Tooltip, TooltipPosition, Badge,
-} from '@patternfly/react-core';
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
+import { Badge } from "@patternfly/react-core/dist/esm/components/Badge/index.js";
 import { ListingTable } from 'cockpit-components-table.jsx';
 import { ExclamationCircleIcon, SearchIcon, ThumbtackIcon } from '@patternfly/react-icons';
 

@@ -19,7 +19,9 @@
 
 import cockpit from 'cockpit';
 import React from 'react';
-import { List, ListItem, Stack, Text, TextContent } from '@patternfly/react-core';
+import { List, ListItem } from "@patternfly/react-core/dist/esm/components/List/index.js";
+import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
+import { Text, TextContent } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 

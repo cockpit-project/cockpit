@@ -21,7 +21,12 @@ import cockpit from "cockpit";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import PropTypes from "prop-types";
-import { Alert, Button, Modal, Popover, Spinner, Stack, StackItem } from "@patternfly/react-core";
+import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
+import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
+import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { HelpIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
 
 import "cockpit-components-dialog.scss";

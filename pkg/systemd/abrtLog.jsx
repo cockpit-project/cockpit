@@ -20,13 +20,13 @@
 import cockpit from "cockpit";
 
 import React from 'react';
-import {
-    Accordion, AccordionItem, AccordionContent, AccordionToggle,
-    Card, CardActions, CardBody, CardHeader, CardTitle,
-    DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
-    Stack, StackItem,
-    Button, Tabs, Tab, GalleryItem
-} from '@patternfly/react-core';
+import { Accordion, AccordionContent, AccordionItem, AccordionToggle } from "@patternfly/react-core/dist/esm/components/Accordion/index.js";
+import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
+import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Tab, Tabs } from "@patternfly/react-core/dist/esm/components/Tabs/index.js";
+import { GalleryItem } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 
 import { ListingTable } from 'cockpit-components-table.jsx';
 import { ReportingTable } from "./reporting.jsx";

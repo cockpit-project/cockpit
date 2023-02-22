@@ -18,13 +18,11 @@
  */
 import cockpit from "cockpit";
 import React, { useState, useContext } from "react";
-import {
-    Button,
-    Card, CardActions, CardTitle, CardHeader,
-    Dropdown, DropdownItem, DropdownToggle,
-    Switch,
-    Text, TextVariants,
-} from '@patternfly/react-core';
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Card, CardActions, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Dropdown, DropdownItem, DropdownToggle } from "@patternfly/react-core/dist/esm/components/Dropdown/index.js";
+import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
+import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { MinusIcon } from '@patternfly/react-icons';
 
 import { ListingTable } from "cockpit-components-table.jsx";

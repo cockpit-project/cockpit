@@ -18,7 +18,8 @@
  */
 
 import React from 'react';
-import { Button, Flex } from '@patternfly/react-core';
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { CheckIcon, ExclamationTriangleIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
 
 import cockpit from "cockpit";

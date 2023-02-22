@@ -20,11 +20,13 @@
 import React, { useContext, useEffect, useState } from 'react';
 import cockpit from 'cockpit';
 
-import {
-    Button, Checkbox, Form, FormGroup, Modal,
-    Select, SelectOption, SelectVariant,
-    Stack, TextInput
-} from '@patternfly/react-core';
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
+import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import { Select, SelectOption, SelectVariant } from "@patternfly/react-core/dist/esm/components/Select/index.js";
+import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
+import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 
 import { BondDialog, getGhostSettings as getBondGhostSettings } from './bond.jsx';
 import { BridgeDialog, getGhostSettings as getBridgeGhostSettings } from './bridge.jsx';

@@ -19,7 +19,10 @@
 
 import React from "react";
 
-import { Page, PageSection, Grid, GridItem, Card, CardBody, Gallery } from "@patternfly/react-core";
+import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Grid, GridItem } from "@patternfly/react-core/dist/esm/layouts/Grid/index.js";
+import { Card, CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 
 import { StoragePlots } from "./plot.jsx";
 

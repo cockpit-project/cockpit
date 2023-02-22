@@ -19,16 +19,14 @@
 
 import React, { useState, useEffect } from 'react';
 
-import {
-    Alert, AlertActionLink,
-    Button,
-    CodeBlockCode,
-    DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm,
-    ExpandableSection,
-    Form, FormGroup,
-    Modal,
-    TextInput,
-} from '@patternfly/react-core';
+import { Alert, AlertActionLink } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { CodeBlockCode } from "@patternfly/react-core/dist/esm/components/CodeBlock/index.js";
+import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
+import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/ExpandableSection/index.js";
+import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { CheckIcon, ExclamationCircleIcon, InProgressIcon } from "@patternfly/react-icons";
 
 import cockpit from "cockpit";

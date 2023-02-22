@@ -1127,7 +1127,7 @@ class OsUpdates extends React.Component {
                 u.vendor_urls = vendor_urls || [];
                 // u.restart = restart; // broken (always "1") at least in Fedora
 
-                this.setState({ updates: this.state.updates });
+                this.setState(prevState => ({ updates: prevState.updates }));
             },
         })
                 .then(() => {

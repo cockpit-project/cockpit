@@ -385,7 +385,7 @@ export class SETroubleshootPage extends React.Component {
         const onDeleteClick = () => {
             for (const k in this.state.selected)
                 if (this.state.selected[k])
-                    this.props.deleteAlert(k).then(() => this.setState({ selected: { ...this.state.selected, [k]: false } }));
+                    this.props.deleteAlert(k).then(() => this.setState(prevState => ({ selected: { ...prevState.selected, [k]: false } })));
         };
         const troubleshooting = (
             <Card>

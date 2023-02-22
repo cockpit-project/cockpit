@@ -578,7 +578,7 @@ class CurrentMetrics extends React.Component {
             }
         })
                 .catch(err => console.error("could not obtain podman names:", err))
-                .finally(() => this.setState({ podNameMapping: { ...this.state.podNameMapping, ...podNameMapping } }));
+                .finally(() => this.setState(prevState => ({ podNameMapping: { ...prevState.podNameMapping, ...podNameMapping } })));
     }
 
     render() {
@@ -1131,7 +1131,7 @@ class MetricsHour extends React.Component {
             minuteGraphs.push(<MetricsMinute key={minute} minute={minute} data={dataSlice} rawData={rawSlice} events={minute_events[minute]} startTime={this.props.startTime} selectedVisibility={selectedVisibility} />);
         }
 
-        this.setState({ minuteGraphs: minuteGraphs, dataItems: this.props.data.length });
+        this.setState((_, prevProps) => ({ minuteGraphs: minuteGraphs, dataItems: prevProps.data.length }));
     }
 
     render() {
@@ -1713,7 +1713,9 @@ class MetricsHistory extends React.Component {
                                 isOpen={!!this.state.isOpenColumnVisibility}
                                 onSelect={(_, selection) => {
                                     const s = this.columns.find(itm => itm[1] == selection);
-                                    this.setState({ selectedVisibility: { ...this.state.selectedVisibility, [s[0]]: !this.state.selectedVisibility[s[0]] } });
+                                    this.setState(prevState => ({
+                                        selectedVisibility: { ...prevState.selectedVisibility, [s[0]]: !prevState.selectedVisibility[s[0]] }
+                                    }));
                                 }}
                                 onToggle={() => this.setState({ isOpenColumnVisibility: !this.state.isOpenColumnVisibility })}
                                 placeholderText={_("Graph visibility")}

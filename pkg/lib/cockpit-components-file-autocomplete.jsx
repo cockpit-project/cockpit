@@ -84,9 +84,9 @@ export class FileAutoComplete extends React.Component {
     }
 
     onCreateOption(newValue) {
-        this.setState({
-            displayFiles: [...this.state.displayFiles, { type: "file", path: newValue }]
-        });
+        this.setState(prevState => ({
+            displayFiles: [...prevState.displayFiles, { type: "file", path: newValue }]
+        }));
     }
 
     updateFiles(path) {

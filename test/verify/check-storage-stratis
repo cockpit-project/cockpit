@@ -17,10 +17,14 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import os
+import unittest
+
 import parent  # noqa: F401
 from packagelib import PackageCase
 from storagelib import StorageCase
 from testlib import skipImage, test_main
+from testvm import DEFAULT_IMAGE
 
 
 @skipImage("No Stratis", "debian-*", "ubuntu-*")
@@ -197,6 +201,10 @@ class TestStorageStratis(StorageCase):
         m.execute("! findmnt /run/fsys2-copy")
         m.execute("! findmnt /run/fsys3")
 
+    @unittest.skipIf(
+        os.environ.get("TEST_SCENARIO") == "pybridge" and
+        (DEFAULT_IMAGE.startswith("centos-8") or DEFAULT_IMAGE.startswith("rhel-8")),
+        "requires https://github.com/cockpit-project/cockpit/pull/18380")
     def testEncrypted(self):
         m = self.machine
         b = self.browser

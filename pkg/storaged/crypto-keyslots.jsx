@@ -379,8 +379,8 @@ function ensure_systemd_unit_enabled(steps, progress, name, package_name) {
     progress(cockpit.format(_("Enabling $0"), name));
     return cockpit.spawn(["systemctl", "is-enabled", name], { err: "message" })
             .catch((err, output) => {
-                if (err && output == "" && package_name) {
-                // We assume that installing the package will enable the unit.
+                if (err && (output == "" || output.trim() == "not-found") && package_name) {
+                    // We assume that installing the package will enable the unit.
                     return ensure_package_installed(steps, progress, package_name);
                 } else
                     return cockpit.spawn(["systemctl", "enable", name],

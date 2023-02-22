@@ -378,10 +378,10 @@ class AddEditServicesModal extends React.Component {
         }
         p.then(() => Dialogs.close())
                 .catch(error => {
-                    this.setState({
-                        dialogError: this.state.custom ? _("Failed to add port") : _("Failed to add service"),
+                    this.setState(prevState => ({
+                        dialogError: prevState.custom ? _("Failed to add port") : _("Failed to add service"),
                         dialogErrorDetail: error.name + ": " + error.message,
-                    });
+                    }));
                 });
 
         if (event)

@@ -238,7 +238,7 @@ export class IscsiPanel extends React.Component {
         const toggle_armed = (event) => {
             if (!event || event.button !== 0)
                 return;
-            this.setState({ armed: !this.state.armed });
+            this.setState(prevState => ({ armed: !prevState.armed }));
         };
 
         const sessions = Object.keys(client.iscsi_sessions).sort(cmp_session)

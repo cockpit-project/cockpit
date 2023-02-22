@@ -99,7 +99,7 @@ const _ = cockpit.gettext;
                 return;
 
             if (!this.state.channel.valid && this.state.user)
-                this.setState({ channel: this.createChannel(this.state.user) });
+                this.setState(prevState => ({ channel: this.createChannel(prevState.user) }));
             else
                 this.terminalRef.current.reset();
 

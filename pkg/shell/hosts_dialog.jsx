@@ -155,7 +155,7 @@ class AddMachine extends React.Component {
                 else if (!this.state.userChanged)
                     this.setState({ user: machine.user, color: this.rgb2Hex(machine.color) });
             } else if (this.state.old_machine && !machine && !this.state.userChanged) { // When editing host by changing its address generate new color
-                this.setState({ color: this.props.machines_ins.unused_color(), userChanged: true });
+                this.setState((_, prevProps) => ({ color: prevProps.machines_ins.unused_color(), userChanged: true }));
             }
         }
 

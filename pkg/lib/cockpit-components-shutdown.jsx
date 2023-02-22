@@ -91,11 +91,11 @@ export class ShutdownModal extends React.Component {
             this.date_spawn.close("cancelled");
 
         if (this.state.selected != "x") {
-            this.setState({
-                when: "+" + this.state.selected,
+            this.setState(prevState => ({
+                when: "+" + prevState.selected,
                 error: "",
                 dateError: "",
-            });
+            }));
             return;
         }
 

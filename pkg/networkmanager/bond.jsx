@@ -19,13 +19,11 @@
 
 import React, { useState, useContext } from 'react';
 import cockpit from 'cockpit';
-import {
-    Button,
-    FormGroup,
-    FormSelect, FormSelectOption,
-    Popover,
-    TextInput,
-} from '@patternfly/react-core';
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/components/FormSelect/index.js";
+import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
+import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { ExternalLinkSquareAltIcon, HelpIcon } from '@patternfly/react-icons';
 
 import { MacMenu, MemberInterfaceChoices, NetworkModal, Name, dialogSave } from './dialogs-common.jsx';

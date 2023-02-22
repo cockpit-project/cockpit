@@ -22,7 +22,7 @@ import 'cockpit-dark-theme'; // once per page
 import React, { useRef } from 'react';
 import { createRoot } from "react-dom/client";
 
-import { Button } from "@patternfly/react-core";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
 
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";

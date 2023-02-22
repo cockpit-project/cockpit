@@ -19,16 +19,13 @@
 
 import React, { useState, useContext, useEffect } from 'react';
 import cockpit from 'cockpit';
-import {
-    Button,
-    Flex,
-    FormFieldGroup, FormFieldGroupHeader,
-    FormGroup,
-    FormSelect, FormSelectOption,
-    Grid,
-    Switch,
-    TextInput,
-} from '@patternfly/react-core';
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { FormFieldGroup, FormFieldGroupHeader, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/components/FormSelect/index.js";
+import { Grid } from "@patternfly/react-core/dist/esm/layouts/Grid/index.js";
+import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
+import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 
 import { MinusIcon, PlusIcon } from '@patternfly/react-icons';
 

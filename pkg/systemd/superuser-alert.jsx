@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from 'react';
 
-import { Alert } from '@patternfly/react-core';
+import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 
 import { LockIcon } from '@patternfly/react-icons';
 

@@ -20,11 +20,9 @@
 
 import React, { useState, useContext } from 'react';
 import cockpit from 'cockpit';
-import {
-    Checkbox,
-    FormGroup,
-    TextInput,
-} from '@patternfly/react-core';
+import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
+import { FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 
 import { MemberInterfaceChoices, NetworkModal, Name, dialogSave } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';

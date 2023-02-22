@@ -20,7 +20,8 @@
 import cockpit from 'cockpit';
 import React, { useState } from 'react';
 
-import { Card, CardTitle, CardBody, Text } from '@patternfly/react-core';
+import { Card, CardBody, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Text } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { ListingTable } from 'cockpit-components-table.jsx';
 
 import * as timeformat from "timeformat.js";

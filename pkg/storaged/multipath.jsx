@@ -19,10 +19,8 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import {
-    Alert, AlertActionLink,
-    Page, PageSection
-} from "@patternfly/react-core";
+import { Alert, AlertActionLink } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
+import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 
 import { get_multipathd_service } from "./utils.js";
 import { dialog_open } from "./dialog.jsx";

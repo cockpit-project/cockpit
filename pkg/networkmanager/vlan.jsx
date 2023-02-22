@@ -20,11 +20,9 @@
 
 import React, { useState, useContext } from 'react';
 import cockpit from 'cockpit';
-import {
-    FormGroup,
-    FormSelect, FormSelectOption,
-    TextInput,
-} from '@patternfly/react-core';
+import { FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/components/FormSelect/index.js";
+import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 
 import { Name, NetworkModal, dialogSave } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';

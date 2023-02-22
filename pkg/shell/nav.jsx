@@ -3,12 +3,10 @@ import cockpit from "cockpit";
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
-import {
-    Button,
-    Nav,
-    SearchInput,
-    Tooltip, TooltipPosition,
-} from '@patternfly/react-core';
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Nav } from "@patternfly/react-core/dist/esm/components/Nav/index.js";
+import { SearchInput } from "@patternfly/react-core/dist/esm/components/SearchInput/index.js";
+import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { ContainerNodeIcon, ExclamationCircleIcon, ExclamationTriangleIcon, InfoCircleIcon } from '@patternfly/react-icons';
 
 const _ = cockpit.gettext;

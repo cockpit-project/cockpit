@@ -18,7 +18,8 @@
  */
 
 import React from "react";
-import { Form, FormGroup, TextInput } from "@patternfly/react-core";
+import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 
 /* Sample dialog body
  */

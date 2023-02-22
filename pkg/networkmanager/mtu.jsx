@@ -19,10 +19,8 @@
 
 import React, { useState, useContext } from 'react';
 import cockpit from 'cockpit';
-import {
-    Radio,
-    TextInput,
-} from '@patternfly/react-core';
+import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
+import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 
 import { NetworkModal, dialogSave } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';

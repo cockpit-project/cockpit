@@ -22,20 +22,22 @@ import 'cockpit-dark-theme'; // once per page
 import cockpit from "cockpit";
 import React, { useState } from 'react';
 import { createRoot } from "react-dom/client";
-import {
-    Alert, Button,
-    Breadcrumb, BreadcrumbItem,
-    Checkbox,
-    Card, CardTitle, CardHeader, CardActions, CardBody,
-    DataList, DataListItem, DataListCell, DataListItemRow, DataListCheck, DataListItemCells,
-    Dropdown, DropdownItem,
-    Flex, FlexItem,
-    Form, FormGroup, FormHelperText,
-    KebabToggle,
-    Radio, Stack,
-    TextInput, Title, Toolbar, ToolbarContent, ToolbarItem,
-    Page, PageSection, PageSectionVariants, Modal,
-} from '@patternfly/react-core';
+import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
+import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
+import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { DataList, DataListCell, DataListCheck, DataListItem, DataListItemCells, DataListItemRow } from "@patternfly/react-core/dist/esm/components/DataList/index.js";
+import { Dropdown, DropdownItem, KebabToggle } from "@patternfly/react-core/dist/esm/components/Dropdown/index.js";
+import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { Form, FormGroup, FormHelperText } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
+import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
+import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
+import { Title } from "@patternfly/react-core/dist/esm/components/Title/index.js";
+import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core/dist/esm/components/Toolbar/index.js";
+import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 import firewall from "./firewall-client.js";

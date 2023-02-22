@@ -25,13 +25,12 @@ import React from 'react';
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { AbrtLogDetails } from "./abrtLog.jsx";
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
-import {
-    Breadcrumb, BreadcrumbItem, Button,
-    Card, CardBody, CardHeader, CardHeaderMain, CardTitle, CardActions,
-    DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
-    Page, PageSection,
-    Gallery, GalleryItem
-} from '@patternfly/react-core';
+import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Card, CardActions, CardBody, CardHeader, CardHeaderMain, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
+import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Gallery, GalleryItem } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 
 const _ = cockpit.gettext;
 

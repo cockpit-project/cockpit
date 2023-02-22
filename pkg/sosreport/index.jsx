@@ -24,33 +24,21 @@ import 'cockpit-dark-theme'; // once per page
 
 import React, { useState } from "react";
 import { createRoot } from 'react-dom/client';
-import {
-    Alert,
-    Button,
-    CodeBlockCode,
-    Modal,
-    Card,
-    CardBody,
-    Page,
-    PageSection,
-    PageSectionVariants,
-    Flex,
-    Label,
-    LabelGroup,
-    Dropdown,
-    DropdownItem,
-    KebabToggle,
-    Form,
-    FormGroup,
-    InputGroup,
-    TextInput,
-    Checkbox,
-    CardHeader,
-    CardTitle,
-    CardActions,
-    Text,
-    TextVariants
-} from "@patternfly/react-core";
+import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { CodeBlockCode } from "@patternfly/react-core/dist/esm/components/CodeBlock/index.js";
+import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { Label } from "@patternfly/react-core/dist/esm/components/Label/index.js";
+import { LabelGroup } from "@patternfly/react-core/dist/esm/components/LabelGroup/index.js";
+import { Dropdown, DropdownItem, KebabToggle } from "@patternfly/react-core/dist/esm/components/Dropdown/index.js";
+import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { InputGroup } from "@patternfly/react-core/dist/esm/components/InputGroup/index.js";
+import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
+import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
+import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { EyeIcon, EyeSlashIcon } from '@patternfly/react-icons';
 
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";

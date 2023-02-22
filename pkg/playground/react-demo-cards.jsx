@@ -20,10 +20,9 @@
 import React from "react";
 import { createRoot } from 'react-dom/client';
 
-import {
-    Button, Card, CardHeader, CardBody, CardFooter,
-    CardTitle, CardActions, Gallery, GalleryItem
-} from '@patternfly/react-core';
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Card, CardActions, CardBody, CardFooter, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Gallery, GalleryItem } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 
 const CardsDemo = () => {
     const cards = [

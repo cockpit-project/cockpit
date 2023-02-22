@@ -21,18 +21,20 @@ import '../lib/patternfly/patternfly-4-cockpit.scss';
 import cockpit from "cockpit";
 
 import React from "react";
-import {
-    Button, Checkbox,
-    Card, CardBody,
-    CodeBlockCode,
-    Flex,
-    Form, FormGroup, FormSection,
-    FormSelect, FormSelectOption,
-    Page, PageSection, PageSectionVariants,
-    DescriptionList, DescriptionListGroup, DescriptionListTerm, DescriptionListDescription,
-    Spinner, Switch,
-    TextInput, Title, Tooltip, TooltipPosition,
-} from "@patternfly/react-core";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
+import { Card, CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { CodeBlockCode } from "@patternfly/react-core/dist/esm/components/CodeBlock/index.js";
+import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { Form, FormGroup, FormSection } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/components/FormSelect/index.js";
+import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
+import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
+import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
+import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
+import { Title } from "@patternfly/react-core/dist/esm/components/Title/index.js";
+import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { OutlinedQuestionCircleIcon } from "@patternfly/react-icons";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";

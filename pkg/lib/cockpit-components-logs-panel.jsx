@@ -20,7 +20,9 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { Badge, Button, Card, CardHeader, CardActions, CardTitle, CardBody } from '@patternfly/react-core';
+import { Badge } from "@patternfly/react-core/dist/esm/components/Badge/index.js";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { ExclamationTriangleIcon, TimesCircleIcon } from '@patternfly/react-icons';
 
 import { journal } from "journal";

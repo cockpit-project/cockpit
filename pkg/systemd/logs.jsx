@@ -24,18 +24,16 @@ import cockpit from "cockpit";
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 
-import {
-    Button,
-    ClipboardCopy,
-    Divider,
-    Flex, FlexItem,
-    Page, PageSection, PageSectionVariants,
-    Popover,
-    SearchInput,
-    Select, SelectOption, SelectVariant,
-    Stack,
-    Toolbar, ToolbarContent, ToolbarItem, ToolbarGroup, ToolbarToggleGroup,
-} from "@patternfly/react-core";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { ClipboardCopy } from "@patternfly/react-core/dist/esm/components/ClipboardCopy/index.js";
+import { Divider } from "@patternfly/react-core/dist/esm/components/Divider/index.js";
+import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
+import { SearchInput } from "@patternfly/react-core/dist/esm/components/SearchInput/index.js";
+import { Select, SelectOption, SelectVariant } from "@patternfly/react-core/dist/esm/components/Select/index.js";
+import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
+import { Toolbar, ToolbarContent, ToolbarGroup, ToolbarItem, ToolbarToggleGroup } from "@patternfly/react-core/dist/esm/components/Toolbar/index.js";
 import {
     ExternalLinkSquareAltIcon,
     FilterIcon,

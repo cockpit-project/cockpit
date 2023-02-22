@@ -20,11 +20,9 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import {
-    Card, CardHeader, CardTitle, CardActions, CardBody,
-    EmptyState, EmptyStateVariant, EmptyStateBody,
-    Text, TextVariants
-} from "@patternfly/react-core";
+import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { EmptyState, EmptyStateBody, EmptyStateVariant } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
+import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import { StorageButton } from "./storage-controls.jsx";

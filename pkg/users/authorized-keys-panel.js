@@ -21,13 +21,12 @@ import cockpit from 'cockpit';
 import React, { useState } from 'react';
 import { useObject, useEvent } from 'hooks.js';
 
-import {
-    Button,
-    Card, CardHeader, CardTitle, CardActions,
-    Dropdown, KebabToggle,
-    OverflowMenu, OverflowMenuContent, OverflowMenuGroup, OverflowMenuItem, OverflowMenuControl, OverflowMenuDropdownItem,
-    Text, TextArea, TextVariants
-} from '@patternfly/react-core';
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Card, CardActions, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Dropdown, KebabToggle } from "@patternfly/react-core/dist/esm/components/Dropdown/index.js";
+import { OverflowMenu, OverflowMenuContent, OverflowMenuControl, OverflowMenuDropdownItem, OverflowMenuGroup, OverflowMenuItem } from "@patternfly/react-core/dist/esm/components/OverflowMenu/index.js";
+import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { TextArea } from "@patternfly/react-core/dist/esm/components/TextArea/index.js";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { ListingTable } from 'cockpit-components-table.jsx';
 import { show_unexpected_error } from "./dialog-utils.js";

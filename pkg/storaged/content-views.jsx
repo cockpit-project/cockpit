@@ -26,10 +26,10 @@ import {
 import * as utils from "./utils.js";
 
 import React from "react";
-import {
-    Card, CardHeader, CardTitle, CardBody, CardActions, Spinner, Text, TextVariants,
-    DropdownSeparator
-} from "@patternfly/react-core";
+import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
+import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { DropdownSeparator } from "@patternfly/react-core/dist/esm/components/Dropdown/index.js";
 import { ExclamationTriangleIcon } from "@patternfly/react-icons";
 
 import { ListingTable } from "cockpit-components-table.jsx";

@@ -17,13 +17,11 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import React, { useState } from 'react';
-import {
-    Alert, AlertActionCloseButton, AlertActionLink,
-    Button,
-    Select, SelectOption,
-    Toolbar, ToolbarItem, ToolbarContent, ToolbarGroup,
-    PageSection
-} from '@patternfly/react-core';
+import { Alert, AlertActionCloseButton, AlertActionLink } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Select, SelectOption } from "@patternfly/react-core/dist/esm/components/Select/index.js";
+import { Toolbar, ToolbarContent, ToolbarGroup, ToolbarItem } from "@patternfly/react-core/dist/esm/components/Toolbar/index.js";
+import { PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 
 import cockpit from 'cockpit';
 import './cockpit-components-firewalld-request.scss';

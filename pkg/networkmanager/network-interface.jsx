@@ -18,16 +18,14 @@
  */
 import cockpit from "cockpit";
 import React, { useContext } from "react";
-import {
-    Breadcrumb, BreadcrumbItem,
-    Button,
-    Card, CardActions, CardBody, CardTitle, CardHeader,
-    Checkbox,
-    DescriptionList, DescriptionListTerm, DescriptionListGroup, DescriptionListDescription,
-    Gallery,
-    Page, PageSection, PageSectionVariants,
-    Switch,
-} from "@patternfly/react-core";
+import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
+import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
+import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
+import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 
 import { ModelContext } from './model-context.jsx';
 import { NetworkInterfaceMembers } from "./network-interface-members.jsx";

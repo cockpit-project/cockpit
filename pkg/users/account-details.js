@@ -22,19 +22,24 @@ import React, { useState, useEffect, useRef } from 'react';
 import { superuser } from "superuser";
 import { apply_modal_dialog } from "cockpit-components-dialog.jsx";
 
-import {
-    Button, Checkbox,
-    Card, CardBody, CardHeader, CardTitle, CardActions,
-    EmptyState, EmptyStateVariant, EmptyStateIcon, EmptyStateSecondaryActions,
-    Flex,
-    HelperText, HelperTextItem,
-    Label, LabelGroup,
-    Page, PageSection,
-    Gallery, Select, SelectOption, SelectVariant, Text, TextVariants, Breadcrumb, BreadcrumbItem,
-    Form, FormGroup, TextInput,
-    Spinner,
-    Title, Popover
-} from '@patternfly/react-core';
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
+import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { EmptyState, EmptyStateIcon, EmptyStateSecondaryActions, EmptyStateVariant } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
+import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
+import { Label } from "@patternfly/react-core/dist/esm/components/Label/index.js";
+import { LabelGroup } from "@patternfly/react-core/dist/esm/components/LabelGroup/index.js";
+import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
+import { Select, SelectOption, SelectVariant } from "@patternfly/react-core/dist/esm/components/Select/index.js";
+import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
+import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
+import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
+import { Title } from "@patternfly/react-core/dist/esm/components/Title/index.js";
+import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { ExclamationCircleIcon, HelpIcon, UndoIcon } from '@patternfly/react-icons';
 import { show_unexpected_error } from "./dialog-utils.js";
 import { delete_account_dialog } from "./delete-account-dialog.js";

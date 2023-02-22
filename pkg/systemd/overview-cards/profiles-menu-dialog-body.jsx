@@ -21,7 +21,10 @@ import cockpit from "cockpit";
 import React from "react";
 import PropTypes from "prop-types";
 
-import { Label, LabelGroup, Menu, MenuItem, MenuContent, MenuList, Flex, FlexItem } from '@patternfly/react-core';
+import { Label } from "@patternfly/react-core/dist/esm/components/Label/index.js";
+import { LabelGroup } from "@patternfly/react-core/dist/esm/components/LabelGroup/index.js";
+import { Menu, MenuContent, MenuItem, MenuList } from "@patternfly/react-core/dist/esm/components/Menu/index.js";
+import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 
 import "menu-select-widget.scss";
 

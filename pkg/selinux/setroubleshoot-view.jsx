@@ -20,15 +20,19 @@
 import cockpit from "cockpit";
 
 import React from "react";
-import {
-    Alert, AlertGroup, AlertActionCloseButton, Badge, Button,
-    Divider,
-    Card, CardActions, CardHeader, CardTitle, CardBody,
-    ExpandableSection,
-    Flex, FlexItem,
-    Page, PageSection, PageSectionVariants,
-    Switch, Stack, StackItem, Text, TextArea, TextVariants,
-} from "@patternfly/react-core";
+import { Alert, AlertActionCloseButton } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
+import { AlertGroup } from "@patternfly/react-core/dist/esm/components/AlertGroup/index.js";
+import { Badge } from "@patternfly/react-core/dist/esm/components/Badge/index.js";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Divider } from "@patternfly/react-core/dist/esm/components/Divider/index.js";
+import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { ExpandableSection } from "@patternfly/react-core/dist/esm/components/ExpandableSection/index.js";
+import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
+import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
+import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { TextArea } from "@patternfly/react-core/dist/esm/components/TextArea/index.js";
 import { ExclamationCircleIcon, ExclamationTriangleIcon, InfoCircleIcon } from "@patternfly/react-icons";
 
 import { Modifications } from "cockpit-components-modifications.jsx";

@@ -23,7 +23,10 @@ import React from "react";
 import { OptionalPanel } from "./optional-panel.jsx";
 import { get_block_link_parts, block_name } from "./utils.js";
 
-import { Button, Spinner, EmptyState, EmptyStateVariant, EmptyStateBody, Flex, FlexItem } from '@patternfly/react-core';
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
+import { EmptyState, EmptyStateBody, EmptyStateVariant } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
+import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 
 const _ = cockpit.gettext;

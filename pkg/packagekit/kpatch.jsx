@@ -19,17 +19,18 @@
 
 import React from "react";
 import PropTypes from "prop-types";
-import {
-    Alert, Button, Checkbox,
-    Form,
-    Flex, FlexItem,
-    Modal, Radio,
-    Popover,
-    Spinner,
-    Split, SplitItem,
-    Stack,
-    Text, TextVariants
-} from "@patternfly/react-core";
+import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
+import { Form } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
+import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
+import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
+import { Split, SplitItem } from "@patternfly/react-core/dist/esm/layouts/Split/index.js";
+import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
+import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { InfoIcon, InfoCircleIcon } from "@patternfly/react-icons";
 
 import cockpit from "cockpit";

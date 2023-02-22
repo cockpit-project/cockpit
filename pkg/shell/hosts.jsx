@@ -3,7 +3,9 @@ import cockpit from "cockpit";
 import React from 'react';
 import ReactDOM from "react-dom";
 import PropTypes from 'prop-types';
-import { PageSidebar, Button, Tooltip } from '@patternfly/react-core';
+import { PageSidebar } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { EditIcon, MinusIcon, CaretUpIcon, CaretDownIcon } from '@patternfly/react-icons';
 
 import 'polyfills';

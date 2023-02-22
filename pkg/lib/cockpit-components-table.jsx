@@ -23,10 +23,8 @@ import {
     TableComposable, Thead, Tbody, Tr, Th, Td,
     SortByDirection,
 } from '@patternfly/react-table';
-import {
-    EmptyState, EmptyStateBody, EmptyStateSecondaryActions,
-    Text, TextContent, TextVariants,
-} from '@patternfly/react-core';
+import { EmptyState, EmptyStateBody, EmptyStateSecondaryActions } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
+import { Text, TextContent, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 
 import './cockpit-components-table.scss';
 

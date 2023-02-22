@@ -28,16 +28,14 @@ import ssh_add_key_sh from "raw-loader!./machines/ssh-add-key.sh";
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import {
-    Alert,
-    Button,
-    Checkbox,
-    Form, FormGroup,
-    Modal,
-    Radio,
-    Stack,
-    TextInput,
-} from '@patternfly/react-core';
+import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
+import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
+import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
+import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 
 import { ModalError } from "cockpit-components-inline-notification.jsx";
 

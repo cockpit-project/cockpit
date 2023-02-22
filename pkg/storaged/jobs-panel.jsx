@@ -20,11 +20,9 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import {
-    Card, CardBody, CardTitle,
-    DataListItem, DataListItemRow, DataListItemCells, DataListCell, DataList,
-    Text, TextVariants
-} from "@patternfly/react-core";
+import { Card, CardBody, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { DataList, DataListCell, DataListItem, DataListItemCells, DataListItemRow } from "@patternfly/react-core/dist/esm/components/DataList/index.js";
+import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 
 import { StorageButton } from "./storage-controls.jsx";
 import { block_name, mdraid_name, lvol_name, format_delay } from "./utils.js";

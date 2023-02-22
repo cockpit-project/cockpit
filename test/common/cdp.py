@@ -295,7 +295,7 @@ class CDP:
         # wait for CDP to be up and have at least one target
         for retry in range(120):
             try:
-                res = urllib.request.urlopen(f"http://127.0.0.1:{cdp_port}/json/list", timeout=5)
+                res = urllib.request.urlopen(f"http://127.0.0.1:{cdp_port}/json/list", timeout=30)
                 if res.getcode() == 200 and json.loads(res.read()):
                     break
             except URLError:

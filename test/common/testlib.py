@@ -1594,17 +1594,18 @@ class MachineCase(unittest.TestCase):
                                         rm -rf /run/user/$u
                                     done""")
 
-            # Restart logind to mop up empty "closing" sessions
-            self.machine.execute("systemctl restart systemd-logind")
-            self.machine.execute("systemctl restart systemd-user-sessions.service")
-
             # Terminate all other Cockpit sessions
             sessions = self.machine.execute("loginctl --no-legend list-sessions | awk '/web console/ { print $1 }'").strip().split()
             for s in sessions:
                 # Don't insist that terminating works, the session might be gone by now.
                 self.machine.execute(f"loginctl kill-session {s} || true; loginctl terminate-session {s} || true")
 
-                # Wait for it to be gone
+            # Restart logind to mop up empty "closing" sessions
+            self.machine.execute("systemctl restart systemd-logind")
+
+            # Wait for sessions to be gone
+            sessions = self.machine.execute("loginctl --no-legend list-sessions | awk '/web console/ { print $1 }'").strip().split()
+            for s in sessions:
                 try:
                     m.execute(f"while loginctl show-session {s}; do sleep 1; done", timeout=30)
                 except RuntimeError:

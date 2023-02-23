@@ -19,9 +19,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-20 02:58+0000\n"
-"PO-Revision-Date: 2023-01-01 09:20+0000\n"
-"Last-Translator: Mingcong Bai <jeffbai@aosc.io>\n"
+"POT-Creation-Date: 2023-02-23 02:55+0000\n"
+"PO-Revision-Date: 2023-02-23 07:10+0000\n"
+"Last-Translator: Transtats <suanand@redhat.com>\n"
 "Language-Team: Chinese (Simplified) <https://translate.fedoraproject.org/"
 "projects/cockpit/main/zh_CN/>\n"
 "Language: zh_CN\n"
@@ -29,13 +29,13 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
-"X-Generator: Weblate 4.15\n"
+"X-Generator: Weblate 4.15.2\n"
 
 #: pkg/static/login.html:66
 msgid "            Bypass browser check          "
 msgstr "            禁用浏览器检查          "
 
-#: pkg/users/accounts-list.js:251
+#: pkg/users/accounts-list.js:253
 msgid "# of users"
 msgstr "用户数"
 
@@ -205,7 +205,7 @@ msgid "$0 month"
 msgid_plural "$0 months"
 msgstr[0] "$0 月"
 
-#: pkg/users/accounts-list.js:350
+#: pkg/users/accounts-list.js:352
 msgid "$0 more..."
 msgstr "其余 $0 用户…"
 
@@ -527,10 +527,8 @@ msgid "A filesystem with this name exists already in this pool."
 msgstr "存储池中存在重名文件系统。"
 
 #: pkg/users/group-create-dialog.js:71
-#, fuzzy
-#| msgid "A pool with this name exists already."
 msgid "A group with this name already exists"
-msgstr "已有重名存储池。"
+msgstr "具有此名称的组已存在"
 
 #: pkg/static/login.html:44
 msgid ""
@@ -550,8 +548,8 @@ msgid ""
 "A new SSH key at $0 will be created for $1 on $2 and it will be added to the "
 "$3 file of $4 on $5."
 msgstr ""
-"将为本地主机 $2 上的用户 $1 创建密钥文件 ($0) ，该密钥文件将被添加至远程主机 "
-"$5 上用户 $4 的密钥记录文件 $3 中。"
+"将在 $0 处为 $2 上的 $1 创建一个新的 SSH 密钥，该密钥将被添加到 $5 上 $4 的"
+"$3 文件中。"
 
 #: pkg/packagekit/updates.jsx:1509
 msgid "A package needs a system reboot for the updates to take effect:"
@@ -609,7 +607,7 @@ msgstr "账号使用期限设置"
 msgid "Account not available or cannot be edited."
 msgstr "此帐户不可用或不可编辑。"
 
-#: pkg/users/accounts-list.js:252 pkg/users/accounts-list.js:470
+#: pkg/users/accounts-list.js:254 pkg/users/accounts-list.js:472
 #: pkg/users/account-details.js:232 pkg/users/manifest.json:0
 msgid "Accounts"
 msgstr "用户账户"
@@ -678,7 +676,7 @@ msgstr "添加 $0"
 
 #: pkg/storaged/crypto-keyslots.jsx:417
 msgid "Add Network Bound Disk Encryption"
-msgstr ""
+msgstr "添加网络绑定磁盘加密"
 
 #: pkg/networkmanager/network-main.jsx:178
 msgid "Add VLAN"
@@ -765,14 +763,12 @@ msgid "Add zone"
 msgstr "添加安全区域"
 
 #: pkg/storaged/crypto-keyslots.jsx:370
-#, fuzzy
-#| msgid "Encryption options"
 msgid "Adding \"$0\" to encryption options"
-msgstr "加密选项"
+msgstr "将 \"$0\" 添加到加密选项"
 
 #: pkg/storaged/crypto-keyslots.jsx:359
 msgid "Adding \"$0\" to filesystem options"
-msgstr ""
+msgstr "将 \"$0\" 添加到文件系统选项"
 
 #: pkg/networkmanager/network-interface-members.jsx:177
 msgid ""
@@ -796,7 +792,7 @@ msgstr "添加物理卷至 $target"
 
 #: pkg/storaged/crypto-keyslots.jsx:331
 msgid "Adding rd.neednet=1 to kernel command line"
-msgstr ""
+msgstr "在内核命令行中添加 rd.neednet=1"
 
 #: pkg/networkmanager/network-interface.jsx:317
 msgid "Additional DNS $val"
@@ -1002,17 +998,15 @@ msgstr "至少需要 1 块磁盘。"
 
 #: pkg/systemd/services/timer-dialog.jsx:265
 msgid "At minute"
-msgstr "于此分钟"
+msgstr "在分钟"
 
 #: pkg/systemd/services/timer-dialog.jsx:263
-#, fuzzy
-#| msgid "Seconds"
 msgid "At second"
-msgstr "秒"
+msgstr "在秒"
 
 #: pkg/systemd/services/timer-dialog.jsx:192
 msgid "At specific time"
-msgstr "于指定时间"
+msgstr "在指定时间"
 
 #: pkg/sosreport/index.jsx:516
 msgid "Attributes"
@@ -1247,11 +1241,11 @@ msgid ""
 "$2, the key will be automatically made available and you can log in to $3 "
 "without password in the future."
 msgstr ""
-"通过将 SSH 密钥 $0 的密码改为 $2 上 $1 的登录密码，密钥就会自动可用，以后在登"
-"陆到 $3 时就不再需要密码 。"
+"通过将 SSH 密钥 $0 的密码改为 $2 上 $1 的登录密码，密钥就会自动可用，您可以以"
+"后不需要密码就可以登陆到 $3 。"
 
 #: pkg/metrics/metrics.jsx:690 pkg/metrics/metrics.jsx:1373
-#: pkg/metrics/metrics.jsx:1725 pkg/systemd/hwinfo.jsx:119
+#: pkg/metrics/metrics.jsx:1727 pkg/systemd/hwinfo.jsx:119
 #: pkg/systemd/overview-cards/usageCard.jsx:134
 msgid "CPU"
 msgstr "CPU"
@@ -1434,14 +1428,12 @@ msgid "Checking and repairing RAID device $target"
 msgstr "检查并修复 RAID 设备 $target"
 
 #: pkg/storaged/crypto-keyslots.jsx:289
-#, fuzzy
-#| msgid "Checking for package updates..."
 msgid "Checking for $0 package"
-msgstr "正在检查软件包更新..."
+msgstr "检查 $0 软件包"
 
 #: pkg/storaged/crypto-keyslots.jsx:310
 msgid "Checking for NBDE support in the initrd"
-msgstr ""
+msgstr "在 initrd 中检查 NBDE 支持"
 
 #: pkg/apps/application-list.jsx:123
 msgid "Checking for new applications"
@@ -1863,7 +1855,7 @@ msgstr "创建它"
 msgid "Create logical volume"
 msgstr "创建逻辑卷"
 
-#: pkg/users/account-create-dialog.js:280 pkg/users/accounts-list.js:457
+#: pkg/users/account-create-dialog.js:280 pkg/users/accounts-list.js:459
 msgid "Create new account"
 msgstr "创建新账户"
 
@@ -1871,11 +1863,9 @@ msgstr "创建新账户"
 msgid "Create new filesystem"
 msgstr "创建新文件系统"
 
-#: pkg/users/accounts-list.js:317 pkg/users/group-create-dialog.js:141
-#, fuzzy
-#| msgid "Create volume group"
+#: pkg/users/accounts-list.js:319 pkg/users/group-create-dialog.js:141
 msgid "Create new group"
-msgstr "创建卷组"
+msgstr "创建新组"
 
 #: pkg/storaged/content-views.jsx:1006
 msgid "Create new logical volume"
@@ -2014,7 +2004,7 @@ msgstr "自定义区域"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:37
 msgid "DEFAULT with SHA-1 signature verification allowed."
-msgstr ""
+msgstr "允许带有 SHA-1 签名验证的 DEFAULT。"
 
 #: pkg/networkmanager/ip-settings.jsx:226
 msgid "DNS"
@@ -2285,7 +2275,7 @@ msgid "Disconnected"
 msgstr "已断开连接"
 
 #: pkg/metrics/metrics.jsx:133 pkg/metrics/metrics.jsx:1373
-#: pkg/metrics/metrics.jsx:1727
+#: pkg/metrics/metrics.jsx:1729
 msgid "Disk I/O"
 msgstr "磁盘 I/O"
 
@@ -2503,10 +2493,8 @@ msgid "Enabled"
 msgstr "启用"
 
 #: pkg/storaged/crypto-keyslots.jsx:378
-#, fuzzy
-#| msgid "Installing $0"
 msgid "Enabling $0"
-msgstr "正在安装 $0"
+msgstr "启用 $0"
 
 #: pkg/storaged/stratis-panel.jsx:138
 msgid "Encrypt data"
@@ -2691,7 +2679,7 @@ msgstr "FIPS 没有被正确启用"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:51
 msgid "FIPS with further Common Criteria restrictions."
-msgstr ""
+msgstr "具有进一步通用标准限制的 FIPS。"
 
 #: pkg/storaged/mdraid-details.jsx:111 pkg/networkmanager/interfaces.js:753
 msgid "Failed"
@@ -2853,7 +2841,7 @@ msgstr "固件版本"
 
 #: pkg/storaged/crypto-keyslots.jsx:435
 msgid "Fix NBDE support"
-msgstr ""
+msgstr "修复 NBDE 支持"
 
 #: pkg/systemd/terminal.jsx:129 pkg/systemd/terminal.jsx:139
 msgid "Font size"
@@ -2923,7 +2911,7 @@ msgstr "周五"
 msgid "From"
 msgstr "自"
 
-#: pkg/users/account-create-dialog.js:40 pkg/users/accounts-list.js:403
+#: pkg/users/account-create-dialog.js:40 pkg/users/accounts-list.js:405
 #: pkg/users/account-details.js:256
 msgid "Full name"
 msgstr "全名"
@@ -2953,23 +2941,23 @@ msgstr "转到应用"
 msgid "Go to now"
 msgstr "转到现在"
 
-#: pkg/metrics/metrics.jsx:1719
+#: pkg/metrics/metrics.jsx:1721
 msgid "Graph visibility"
-msgstr ""
+msgstr "图形可见性"
 
 #: pkg/metrics/metrics.jsx:1709
 msgid "Graph visibility options menu"
-msgstr ""
+msgstr "图形可见性选项菜单"
 
-#: pkg/users/accounts-list.js:406 pkg/networkmanager/network-interface.jsx:415
+#: pkg/users/accounts-list.js:408 pkg/networkmanager/network-interface.jsx:415
 msgid "Group"
 msgstr "组"
 
-#: pkg/users/accounts-list.js:249
+#: pkg/users/accounts-list.js:251
 msgid "Group name"
 msgstr "用户组名称"
 
-#: pkg/users/accounts-list.js:333 pkg/users/accounts-list.js:337
+#: pkg/users/accounts-list.js:335 pkg/users/accounts-list.js:339
 #: pkg/users/account-details.js:452
 msgid "Groups"
 msgstr "用户组"
@@ -3061,7 +3049,7 @@ msgstr "每小时"
 msgid "Hours"
 msgstr "小时"
 
-#: pkg/users/accounts-list.js:250 pkg/users/accounts-list.js:404
+#: pkg/users/accounts-list.js:252 pkg/users/accounts-list.js:406
 #: pkg/users/group-create-dialog.js:46 pkg/systemd/hwinfo.jsx:310
 #: pkg/networkmanager/firewall.jsx:691
 msgid "ID"
@@ -3493,7 +3481,7 @@ msgstr "LACP 密钥"
 
 #: pkg/systemd/overview-cards/cryptoPolicies.jsx:39
 msgid "LEGACY with Active Directory interoperability."
-msgstr ""
+msgstr "具有活动目录互操作性的 LEGACY。"
 
 #: pkg/storaged/content-views.jsx:463 pkg/storaged/content-views.jsx:480
 msgid "LVM2 member"
@@ -3519,7 +3507,7 @@ msgstr "最近 24 小时"
 msgid "Last 7 days"
 msgstr "最近 7 天"
 
-#: pkg/users/accounts-list.js:405
+#: pkg/users/accounts-list.js:407
 msgid "Last active"
 msgstr "最近活动"
 
@@ -3632,7 +3620,7 @@ msgid "Listing units failed: $0"
 msgstr "列出单元失败：$0"
 
 #: pkg/metrics/metrics.jsx:111 pkg/metrics/metrics.jsx:719
-#: pkg/metrics/metrics.jsx:1725
+#: pkg/metrics/metrics.jsx:1727
 msgid "Load"
 msgstr "负载"
 
@@ -3640,7 +3628,7 @@ msgstr "负载"
 msgid "Load balancing"
 msgstr "负载均衡"
 
-#: pkg/metrics/metrics.jsx:1745
+#: pkg/metrics/metrics.jsx:1747
 msgid "Load earlier data"
 msgstr "载入较早的数据"
 
@@ -3688,10 +3676,10 @@ msgstr "加载系统改变..."
 msgid "Loading unit failed: $0"
 msgstr "登录单元失败：$0"
 
-#: pkg/storaged/devices.jsx:68 pkg/users/accounts-list.js:338
-#: pkg/users/accounts-list.js:362 pkg/users/accounts-list.js:478
+#: pkg/storaged/devices.jsx:68 pkg/users/accounts-list.js:340
+#: pkg/users/accounts-list.js:364 pkg/users/accounts-list.js:480
 #: pkg/users/account-details.js:183 pkg/metrics/metrics.jsx:1004
-#: pkg/metrics/metrics.jsx:1744 pkg/systemd/logsJournal.jsx:268
+#: pkg/metrics/metrics.jsx:1746 pkg/systemd/logsJournal.jsx:268
 #: pkg/systemd/logDetails.jsx:177 pkg/systemd/services/services.jsx:777
 #: pkg/kdump/kdump-view.jsx:339
 msgid "Loading..."
@@ -3769,7 +3757,7 @@ msgstr "注销"
 msgid "Log user out"
 msgstr "注销用户"
 
-#: pkg/users/accounts-list.js:181 pkg/users/account-details.js:220
+#: pkg/users/accounts-list.js:183 pkg/users/account-details.js:220
 msgid "Logged in"
 msgstr "登录"
 
@@ -3978,7 +3966,7 @@ msgid "Maximum message age $max_age"
 msgstr "最大消息有效期 $max_age"
 
 #: pkg/metrics/metrics.jsx:745 pkg/metrics/metrics.jsx:1373
-#: pkg/metrics/metrics.jsx:1726 pkg/systemd/services/service-details.jsx:651
+#: pkg/metrics/metrics.jsx:1728 pkg/systemd/services/service-details.jsx:651
 #: pkg/systemd/hwinfo.jsx:309 pkg/systemd/hwinfo.jsx:358
 #: pkg/systemd/overview-cards/usageCard.jsx:146
 msgid "Memory"
@@ -4020,7 +4008,7 @@ msgstr "模式"
 msgid "Metric"
 msgstr "指标"
 
-#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1764
+#: pkg/metrics/index.html:20 pkg/metrics/metrics.jsx:1766
 msgid "Metrics and history"
 msgstr "指标和历史数据"
 
@@ -4045,10 +4033,8 @@ msgid "Minute needs to be a number between 0-59"
 msgstr "分钟需要是 0-59 间的数字"
 
 #: pkg/systemd/services/timer-dialog.jsx:246
-#, fuzzy
-#| msgid "Minutes"
 msgid "Minutely"
-msgstr "分钟"
+msgstr "每分钟"
 
 #: pkg/systemd/services/timer-dialog.jsx:215
 msgid "Minutes"
@@ -4256,7 +4242,7 @@ msgid "Need at least one NTP server"
 msgstr "至少需要一个 NTP 服务器"
 
 #: pkg/metrics/metrics.jsx:822 pkg/metrics/metrics.jsx:1373
-#: pkg/metrics/metrics.jsx:1728
+#: pkg/metrics/metrics.jsx:1730
 msgid "Network"
 msgstr "网络"
 
@@ -4310,7 +4296,7 @@ msgstr "账号从不过期"
 msgid "Never expire password"
 msgstr "密码从不过期"
 
-#: pkg/users/accounts-list.js:184
+#: pkg/users/accounts-list.js:186
 msgid "Never logged in"
 msgstr "从未登录"
 
@@ -4352,10 +4338,8 @@ msgid "No"
 msgstr "否"
 
 #: pkg/users/group-create-dialog.js:79
-#, fuzzy
-#| msgid "No alias specified"
 msgid "No ID specified"
-msgstr "未指定别名"
+msgstr "没有指定 ID"
 
 #: pkg/storaged/nfs-panel.jsx:100
 msgid "No NFS mounts set up"
@@ -4440,10 +4424,8 @@ msgid "No free space"
 msgstr "没有剩余空间"
 
 #: pkg/users/group-create-dialog.js:62
-#, fuzzy
-#| msgid "No real name specified"
 msgid "No group name specified"
-msgstr "未指定真实姓名"
+msgstr "没有指定组名称"
 
 #: pkg/systemd/overview-cards/configurationCard.jsx:177
 msgid "No host keys found."
@@ -4474,7 +4456,7 @@ msgstr "没有逻辑卷"
 msgid "No logs found"
 msgstr "没有找到日志"
 
-#: pkg/users/accounts-list.js:364 pkg/users/accounts-list.js:480
+#: pkg/users/accounts-list.js:366 pkg/users/accounts-list.js:482
 #: pkg/systemd/services/services-list.jsx:59
 msgid "No matching results"
 msgstr "没有找到匹配的结果"
@@ -4678,7 +4660,7 @@ msgstr ""
 
 #: pkg/storaged/vdo-details.jsx:122
 msgid "Only $0 of $1 are used."
-msgstr "仅使用 $1 中的 $0。"
+msgstr "仅使用 $1 的 $0。"
 
 #: pkg/systemd/services/timer-dialog.jsx:161
 msgid "Only alphabets, numbers, : , _ , . , @ , - are allowed"
@@ -4702,7 +4684,7 @@ msgstr "在防火墙中打开 pmproxy 服务以共享指标。"
 
 #: pkg/storaged/jobs-panel.jsx:91
 msgid "Operation '$operation' on $target"
-msgstr "在 $target 上操作 '$operation'"
+msgstr "$target 上的操作 '$operation'"
 
 #: pkg/storaged/drives-panel.jsx:76
 msgctxt "storage"
@@ -4746,7 +4728,7 @@ msgstr "其他选项"
 msgid "Out"
 msgstr "出"
 
-#: pkg/metrics/metrics.jsx:1763 pkg/systemd/hwinfo.jsx:327
+#: pkg/metrics/metrics.jsx:1765 pkg/systemd/hwinfo.jsx:327
 #: pkg/systemd/manifest.json:0
 msgid "Overview"
 msgstr "概览"
@@ -4977,10 +4959,8 @@ msgid "Permanent"
 msgstr "永久的"
 
 #: pkg/users/delete-group-dialog.js:31
-#, fuzzy
-#| msgid "Permanently delete $0?"
 msgid "Permanently delete $0 group?"
-msgstr "永久删除 $0？"
+msgstr "永久删除 $0 组？"
 
 #: pkg/storaged/content-views.jsx:378 pkg/storaged/vgroup-details.jsx:198
 #: pkg/storaged/stratis-details.jsx:249 pkg/storaged/mdraid-details.jsx:294
@@ -5409,10 +5389,8 @@ msgid "Refusing to connect. Hostkey is unknown"
 msgstr "拒绝连接。未知主机密钥"
 
 #: pkg/storaged/crypto-keyslots.jsx:320
-#, fuzzy
-#| msgid "Generating report"
 msgid "Regenerating initrd"
-msgstr "正在生成报告"
+msgstr "重新生成 initrd"
 
 #: pkg/packagekit/updates.jsx:1360
 msgid "Register…"
@@ -5922,21 +5900,17 @@ msgstr "搜索"
 msgid "Search domain"
 msgstr "搜索域"
 
-#: pkg/users/accounts-list.js:307
-#, fuzzy
-#| msgid "Search for name, group or ID"
+#: pkg/users/accounts-list.js:309
 msgid "Search for name or ID"
-msgstr "搜索用户名、组名或ID"
+msgstr "搜索名称或 ID"
 
-#: pkg/users/accounts-list.js:447
+#: pkg/users/accounts-list.js:449
 msgid "Search for name, group or ID"
 msgstr "搜索用户名、组名或ID"
 
 #: pkg/systemd/services/timer-dialog.jsx:286
-#, fuzzy
-#| msgid "Minute needs to be a number between 0-59"
 msgid "Second needs to be a number between 0-59"
-msgstr "分钟需要是 0-59 间的数字"
+msgstr "秒需要是 0-59 之间的数字"
 
 #: pkg/systemd/services/timer-dialog.jsx:214
 msgid "Seconds"
@@ -5960,7 +5934,7 @@ msgstr "只包括安全更新"
 
 #: pkg/packagekit/autoupdates.jsx:365
 msgid "Security updates will be applied $0 at $1"
-msgstr "安全更新将在 $1 应用 $0"
+msgstr "安全更新将在 $1 处应用 $0"
 
 #: pkg/shell/shell-modals.jsx:113
 msgid "Select"
@@ -6498,7 +6472,7 @@ msgid "Support is installed."
 msgstr "已安装支持。"
 
 #: pkg/storaged/content-views.jsx:228 pkg/metrics/metrics.jsx:126
-#: pkg/metrics/metrics.jsx:605 pkg/metrics/metrics.jsx:1726
+#: pkg/metrics/metrics.jsx:605 pkg/metrics/metrics.jsx:1728
 msgid "Swap"
 msgstr "交换空间"
 
@@ -6652,20 +6626,16 @@ msgid "Testing connection"
 msgstr "测试连接"
 
 #: pkg/storaged/crypto-keyslots.jsx:300
-#, fuzzy
-#| msgid "$0 is not available from any repository."
 msgid "The $0 package is not available from any repository."
-msgstr "没有提供 $0 组件的仓库。"
+msgstr "所有仓库都不提供 $0。"
 
 #: pkg/storaged/stratis-panel.jsx:45
 msgid "The $0 package must be installed to create Stratis pools."
 msgstr "$0 软件包必须安装才能创建 Stratis 池。"
 
 #: pkg/storaged/crypto-keyslots.jsx:295
-#, fuzzy
-#| msgid "The $0 package must be installed to create Stratis pools."
 msgid "The $0 package must be installed."
-msgstr "$0 软件包必须安装才能创建 Stratis 池。"
+msgstr "必须安装 $0 软件包。"
 
 #: pkg/storaged/content-views.jsx:896
 msgid "The $0 package will be installed to create VDO devices."
@@ -6803,24 +6773,18 @@ msgid "The full name must not contain colons."
 msgstr "全名不能含有冒号。"
 
 #: pkg/users/group-create-dialog.js:83
-#, fuzzy
-#| msgid "MTU must be a positive number"
 msgid "The group ID must be positive integer"
-msgstr "MTU 必须是正整数"
+msgstr "组 ID 必须是正整数"
 
 #: pkg/users/group-create-dialog.js:66
-#, fuzzy
-#| msgid ""
-#| "The user name can only consist of letters from a-z, digits, dots, dashes "
-#| "and underscores."
 msgid ""
 "The group name can only consist of letters from a-z, digits, dots, dashes "
 "and underscores"
-msgstr "用户名仅能包含 a-z、数字、点、破折号和下划线的字母。"
+msgstr "组名称只能由字母 a-z、数字、点、破折号和下划线组成"
 
 #: pkg/storaged/crypto-keyslots.jsx:317
 msgid "The initrd must be regenerated."
-msgstr ""
+msgstr "必须重新生成 initrd。"
 
 #: pkg/shell/hosts_dialog.jsx:682
 msgid "The key password can not be empty"
@@ -6912,13 +6876,13 @@ msgstr "服务器拒绝使用任何支持的方式来验证。"
 msgid ""
 "The system does not currently support unlocking a filesystem with a Tang "
 "keyserver during boot."
-msgstr ""
+msgstr "系统目前不支持在引导过程中解锁具有 Tang keyserver 的文件系统。"
 
 #: pkg/storaged/crypto-keyslots.jsx:422
 msgid ""
 "The system does not currently support unlocking the root filesystem with a "
 "Tang keyserver."
-msgstr ""
+msgstr "系统目前不支持解锁具有 Tang keyserver 的根文件系统。"
 
 #: pkg/systemd/hwinfo.jsx:72
 msgid "The user $0 is not permitted to change cpu security mitigations"
@@ -6929,12 +6893,10 @@ msgid "The user $0 is not permitted to change crypto policies"
 msgstr "用户 $0 不允许修改加密策略"
 
 #: pkg/users/account-details.js:445
-#, fuzzy
-#| msgid "The user must log out and log back in to fully change roles."
 msgid ""
 "The user must log out and log back in for the new configuration to take "
 "effect."
-msgstr "用户必须先注销，然后再重新登录才能完全更改角色。"
+msgstr "用户必须退出登录并重新登录才能使新配置生效。"
 
 #: pkg/users/account-create-dialog.js:101
 msgid ""
@@ -6978,7 +6940,7 @@ msgstr "连接到机器时发生意外错误。"
 
 #: pkg/storaged/crypto-keyslots.jsx:427
 msgid "These additional steps are necessary:"
-msgstr ""
+msgstr "这些额外步骤是必需的："
 
 #: pkg/storaged/dialog.jsx:1124
 msgid "These changes will be made:"
@@ -7016,7 +6978,7 @@ msgstr "该字段不能为空"
 
 #: pkg/users/delete-group-dialog.js:36
 msgid "This group is the primary group for the following users:"
-msgstr ""
+msgstr "这个组是以下用户的主组："
 
 #: pkg/packagekit/autoupdates.jsx:328
 msgid "This host will reboot after updates are installed."
@@ -7378,10 +7340,8 @@ msgid "Unable to remove mount"
 msgstr "无法删除挂载"
 
 #: pkg/selinux/setroubleshoot-client.js:150
-#, fuzzy
-#| msgid "Unable to run fix: %0"
 msgid "Unable to run fix: $0"
-msgstr "无法运行修复： %0"
+msgstr "无法运行修复：$0"
 
 #: pkg/kdump/kdump-view.jsx:244
 msgid "Unable to save settings"
@@ -7409,7 +7369,7 @@ msgstr "不可用的软件包"
 
 #: pkg/users/account-details.js:446
 msgid "Undo"
-msgstr ""
+msgstr "撤消"
 
 #: pkg/users/dialog-utils.js:65 pkg/shell/shell-modals.jsx:169
 #: pkg/networkmanager/interfaces.js:50
@@ -7590,7 +7550,7 @@ msgstr "更新历史"
 
 #: pkg/packagekit/autoupdates.jsx:366
 msgid "Updates will be applied $0 at $1"
-msgstr "更新将在$1 应用 $0"
+msgstr "更新将在 $1 处应用 $0"
 
 #: pkg/packagekit/updates.jsx:99
 msgid "Updating"
@@ -7604,9 +7564,9 @@ msgstr "更新状态 ..."
 msgid "Uptime"
 msgstr "运行时间"
 
-#: pkg/storaged/unrecognized-tab.jsx:37 pkg/metrics/metrics.jsx:1725
-#: pkg/metrics/metrics.jsx:1726 pkg/metrics/metrics.jsx:1727
-#: pkg/metrics/metrics.jsx:1728 pkg/systemd/overview-cards/usageCard.jsx:129
+#: pkg/storaged/unrecognized-tab.jsx:37 pkg/metrics/metrics.jsx:1727
+#: pkg/metrics/metrics.jsx:1728 pkg/metrics/metrics.jsx:1729
+#: pkg/metrics/metrics.jsx:1730 pkg/systemd/overview-cards/usageCard.jsx:129
 msgid "Usage"
 msgstr "用法"
 
@@ -7671,7 +7631,7 @@ msgid "User name cannot be empty"
 msgstr "用户名不能为空"
 
 #: pkg/storaged/iscsi-panel.jsx:49 pkg/storaged/iscsi-panel.jsx:158
-#: pkg/users/accounts-list.js:402
+#: pkg/users/accounts-list.js:404
 msgid "Username"
 msgstr "用户名"
 
@@ -7998,7 +7958,7 @@ msgstr "您已经获取了管理员权限。"
 msgid "You will be logged out in $0 seconds."
 msgstr "您将在$0秒钟后登出。"
 
-#: pkg/users/accounts-list.js:196
+#: pkg/users/accounts-list.js:198
 msgid "Your account"
 msgstr "您的账户"
 

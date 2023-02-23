@@ -127,9 +127,13 @@ if [ "$PLAN" = "basic" ]; then
               TestJournal.testAbrtSegv
               "
 
-    # no cockpit-tests package in RHEL 8
     if [ "${TEST_OS#rhel-8}" != "$TEST_OS" ]; then
+        # no cockpit-tests package in RHEL 8
         EXCLUDES="$EXCLUDES TestLogin.testSELinuxRestrictedUser"
+
+        # fails to start second browser, timing out on http://127.0.0.1:{cdp_port}/json/list
+        # impossible to debug without access to the infra
+        EXCLUDES="$EXCLUDES TestAccounts.testUserPasswords"
     fi
 
     # These don't test more external APIs

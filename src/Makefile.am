@@ -41,7 +41,7 @@ PYTHON_BRIDGE_FILES = \
 	src/cockpit/transports.py \
 	$(NULL)
 
-SYSTEMD_CTYPES_STAMP = src/systemd_ctypes/__init__.py
+SYSTEMD_CTYPES_STAMP = src/cockpit/_vendor/systemd_ctypes/__init__.py
 $(SYSTEMD_CTYPES_STAMP):
 	$(srcdir)/tools/systemd_ctypes
 

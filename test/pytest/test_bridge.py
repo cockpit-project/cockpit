@@ -11,7 +11,7 @@ import tempfile
 from pathlib import Path
 from typing import Dict
 
-import systemd_ctypes
+from cockpit._vendor import systemd_ctypes
 from cockpit.bridge import Bridge
 from cockpit.channels import CHANNEL_TYPES
 

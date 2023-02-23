@@ -21,7 +21,7 @@ import os
 import pwd
 import subprocess
 
-from systemd_ctypes import bus
+from ._vendor.systemd_ctypes import bus
 
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 

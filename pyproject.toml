@@ -16,7 +16,8 @@ include = [
   "cockpit",
   "cockpit.channels",
   "cockpit.data",
-  "systemd_ctypes",
+  "cockpit._vendor",
+  "cockpit._vendor.systemd_ctypes",
 ]
 
 [tool.setuptools.package-data]
@@ -24,8 +25,9 @@ include = [
 
 [tool.mypy]
 mypy_path = 'src/cockpit'
+exclude = '_vendor'
 [[tool.mypy.overrides]]
-module = ["systemd_ctypes.*"]
+module = ["cockpit._vendor.*"]
 follow_imports = 'silent'
 
 [tool.pylint]

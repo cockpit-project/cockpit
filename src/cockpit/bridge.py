@@ -27,7 +27,7 @@ import sys
 
 from typing import Dict, Iterable, List, Tuple, Type
 
-from systemd_ctypes import bus, run_async
+from cockpit._vendor.systemd_ctypes import bus, run_async
 
 from . import polyfills
 

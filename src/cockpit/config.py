@@ -21,7 +21,7 @@ import os
 
 from pathlib import Path
 
-from systemd_ctypes import bus
+from ._vendor.systemd_ctypes import bus
 
 logger = logging.getLogger(__name__)
 

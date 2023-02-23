@@ -22,7 +22,7 @@ import pwd
 
 from typing import Optional
 
-from systemd_ctypes import bus
+from ._vendor.systemd_ctypes import bus
 
 logger = logging.getLogger(__name__)
 

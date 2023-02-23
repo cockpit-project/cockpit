@@ -41,8 +41,7 @@ import logging
 import traceback
 import xml.etree.ElementTree as ET
 
-from systemd_ctypes import Bus, BusError, introspection
-
+from .._vendor.systemd_ctypes import Bus, BusError, introspection
 from ..channel import Channel, ChannelError
 
 logger = logging.getLogger(__name__)

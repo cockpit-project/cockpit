@@ -29,7 +29,7 @@ import shutil
 from pathlib import Path
 from typing import ClassVar, Dict, List, Optional, Pattern, Tuple
 
-from systemd_ctypes import bus
+from ._vendor.systemd_ctypes import bus
 
 from . import config
 

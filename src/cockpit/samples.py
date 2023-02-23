@@ -16,7 +16,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
-from systemd_ctypes import Handle
+from ._vendor.systemd_ctypes import Handle
 
 from typing import Any, DefaultDict, Iterable, List, NamedTuple, Optional
 

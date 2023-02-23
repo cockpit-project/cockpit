@@ -21,8 +21,8 @@ import random
 
 from typing import Dict
 
-from systemd_ctypes import PathWatch
-from systemd_ctypes.inotify import Event as InotifyEvent
+from .._vendor.systemd_ctypes import PathWatch
+from .._vendor.systemd_ctypes.inotify import Event as InotifyEvent
 
 from ..channel import Channel, ChannelError, GeneratorChannel
 

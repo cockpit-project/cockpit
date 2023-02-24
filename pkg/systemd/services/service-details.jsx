@@ -203,7 +203,9 @@ const ServiceActions = ({ masked, active, failed, canReload, actionCallback, del
  * Enables user to control this unit like starting, enabling, etc. the service.
  * Required props:
  *  -  unit
- *      Unit as returned from systemd dbus API
+ *      as returned from systemd org.freedesktop.systemd1.{Unit,Socket}
+ *      D-Bus interface, but with unwrapped variants, and with additional "path"
+ *      property and addTimerProperties()
  *  -  permitted
  *      True if user can control this unit
  *  -  systemdManager

@@ -206,10 +206,10 @@ class ServicesPageBody extends React.Component {
         /* Function for manipulating with the API results and store the units in the React state */
         this.processFailedUnits = this.processFailedUnits.bind(this);
         this.listUnits = this.listUnits.bind(this);
-        this.getUnitByPath = this.getUnitByPath.bind(this);
         this.loadPinnedUnits = this.loadPinnedUnits.bind(this);
         this.onOptionsChanged = this.onOptionsChanged.bind(this);
         this.compareUnits = this.compareUnits.bind(this);
+        this.addTimerProperties = this.addTimerProperties.bind(this);
 
         this.seenPaths = new Set();
         this.path_by_id = {};
@@ -783,9 +783,9 @@ class ServicesPageBody extends React.Component {
             return <Service unitIsValid={unitId => { const path = get_unit_path(unitId); return path !== undefined && this.state.unit_by_path[path].LoadState != 'not-found' }}
                             owner={this.props.owner}
                             key={unit_id}
-                            loadingUnits={this.props.isLoading}
-                            getUnitByPath={this.getUnitByPath}
-                            unit={unit}
+                            unitId={unit_id}
+                            dbusClient={systemd_client[this.props.owner]}
+                            addTimerProperties={this.addTimerProperties}
                             pinnedUnits={this.state.pinnedUnits}
             />;
         }

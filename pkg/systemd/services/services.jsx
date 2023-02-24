@@ -415,6 +415,8 @@ class ServicesPageBody extends React.Component {
                     results.forEach(result => {
                         const path = result[6];
                         const unit_id = result[0];
+                        const load_state = result[2];
+                        const active_state = result[3];
 
                         if (!this.isUnitHandled(unit_id))
                             return;
@@ -422,12 +424,16 @@ class ServicesPageBody extends React.Component {
                         if (!this.seenPaths.has(path))
                             this.seenPaths.add(path);
 
+                        // We should ignore 'not-found' units when setting the seenActiveStates
+                        if (load_state !== 'not-found')
+                            this.seenActiveStates.add(active_state);
+
                         this.updateProperties(
                             {
                                 Id: cockpit.variant("s", unit_id),
                                 Description: cockpit.variant("s", result[1]),
-                                LoadState: cockpit.variant("s", result[2]),
-                                ActiveState: cockpit.variant("s", result[3]),
+                                LoadState: cockpit.variant("s", load_state),
+                                ActiveState: cockpit.variant("s", active_state),
                                 SubState: cockpit.variant("s", result[4]),
                             }, path
                         );
@@ -446,6 +452,8 @@ class ServicesPageBody extends React.Component {
 
                                     if (this.isTemplate(unit_id))
                                         return;
+
+                                    this.seenUnitFileStates.add(unitFileState);
 
                                     if (this.seenPaths.has(this.path_by_id[unit_id])) {
                                         this.updateProperties(
@@ -596,14 +604,6 @@ class ServicesPageBody extends React.Component {
 
     /* Add some computed properties into a unit object - does not call setState */
     updateComputedProperties(unit) {
-        // We should ignore 'not-found' units when setting the seenActiveStates and seenUnitFileStates
-        if (unit.LoadState != 'not-found') {
-            if (unit.ActiveState)
-                this.seenActiveStates.add(unit.ActiveState);
-            if (unit.UnitFileState)
-                this.seenUnitFileStates.add(unit.UnitFileState);
-        }
-
         unit.HasFailed = (unit.ActiveState == "failed" || (unit.LoadState !== "loaded" && unit.LoadState != "masked"));
 
         unit.CombinedState = this.activeState[unit.ActiveState] || unit.ActiveState;

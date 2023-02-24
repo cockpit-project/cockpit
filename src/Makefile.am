@@ -11,12 +11,12 @@ sbin_PROGRAMS =
 export PYTEST_TIMEOUT = 120
 
 .PHONY: pytest
-pytest: $(BUILT_SOURCES) $(MANIFESTS) $(SYSTEMD_CTYPES_STAMP)
+pytest: $(BUILT_SOURCES) $(MANIFESTS) $(SYSTEMD_CTYPES_STAMP) $(FERNY_STAMP)
 	$(MAKE) test-server
 	cd '$(srcdir)' && abs_builddir='$(abs_builddir)' pytest
 
 .PHONY: pytest-cov
-pytest-cov: $(BUILT_SOURCES) $(MANIFESTS) $(SYSTEMD_CTYPES_STAMP)
+pytest-cov: $(BUILT_SOURCES) $(MANIFESTS) $(SYSTEMD_CTYPES_STAMP) $(FERNY_STAMP)
 	$(MAKE) test-server
 	cd '$(srcdir)' && abs_builddir='$(abs_builddir)' pytest --cov
 
@@ -44,6 +44,10 @@ PYTHON_BRIDGE_FILES = \
 SYSTEMD_CTYPES_STAMP = src/cockpit/_vendor/systemd_ctypes/__init__.py
 $(SYSTEMD_CTYPES_STAMP):
 	$(srcdir)/tools/systemd_ctypes
+
+FERNY_STAMP = src/cockpit/_vendor/ferny/__init__.py
+$(FERNY_STAMP):
+	$(srcdir)/tools/ferny
 
 # -----------------------------------------------------------------------------
 #  C

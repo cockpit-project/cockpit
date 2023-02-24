@@ -22,6 +22,9 @@ jobs:
       - name: Install systemd-ctypes
         run: tools/systemd_ctypes
 
+      - name: Install ferny
+        run: tools/ferny
+
       - name: Check --help
         run: PYTHONPATH=src python3 -m cockpit.bridge --help
 

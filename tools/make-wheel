@@ -3,6 +3,7 @@
 set -eu
 cd "$(realpath -m "$0"/../..)"
 
+tools/ferny
 tools/systemd_ctypes
 rm -rf tmp/wheel build
 python3 -m build --no-isolation --wheel --outdir tmp/wheel . >&2

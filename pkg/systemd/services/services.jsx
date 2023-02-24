@@ -64,6 +64,11 @@ export let clock_monotonic_now;
 
 export const MAX_UINT64 = 2 ** 64 - 1;
 
+function debug() {
+    if (window.debugging == "all" || window.debugging?.includes("services"))
+        console.debug.apply(console, arguments);
+}
+
 export function updateTime() {
     cockpit.spawn(["cat", "/proc/uptime"])
             .then(function(contents) {
@@ -79,63 +84,69 @@ export function updateTime() {
 
 /* Notes about the systemd D-Bus API
  *
- * - One can use an object path for a unit that isn't currently
- *   loaded.  Doing so will load the unit (and emit UnitNew).
+ * - Loading all units, fetching their properties, and listening to JobNew/JobRemoved is
+ *   expensive, so the services list does not do that. For 90% of what the list shows we
+ *   only need two calls: ListUnits() for enough information about all units which are in
+ *   systemd's brain; and ListUnitFiles() to add the inert ones (disabled, stopped, not a
+ *   dependency of anything). The only exception are timers, where we have to get the
+ *   properties of the Timers interface to show their last and next run. This information
+ *   is collected in listUnits().
  *
- * - Calling o.fd.DBus.GetAll might thus trigger a UnitNew signal,
- *   so calling GetAll as a reaction to UnitNew might lead to
- *   infinite loops.
+ * - To keep up with changes, we listen to two signals: PropertiesChanged (which also gets
+ *   fired when a unit gets loaded) for run state chanes, and Reloading for file state
+ *   changes (like enabling/disabling).
  *
- * - To avoid this cycle, we only call GetAll when there is some
- *   job activity for a unit, or when the whole daemon is
- *   reloaded.  The idea is that without jobs or a full reload,
- *   the state of a unit will not change in an interesting way.
+ * - When loading an unloaded unit, PropertiesChanged will be fired, but unfortunately in a
+ *   rather useless way: it does not contain all properties (thus it needs a GetAll),
+ *   and it usually happens for the Timer interface first (when we don't yet have an ID) and
+ *   for the Unit interface later; due to that, we track them in two separate dicts.
  *
- * - We hope that the cache machinery in cockpit-bridge does not
- *   trigger such a cycle when watching a unit.
+ * - The unit details view does its own independent API communication and state
+ *   management. It needs to fetch/interpret a lot of unit properties which are not part
+ *   of ListUnits(), but it only needs to do that for a single unit.
  *
- * - JobNew and JobRemoved signals don't include the object path
- *   of the affected units, but we can get those by listening to
- *   UnitNew.
+ * - ListUnitFiles will return unit files that are aliases for other unit files, but
+ *   ListUnits will not return aliases.
  *
- * - There might be UnitNew signals for units that are never
- *   returned by ListUnits or ListUnitFiles.  These are units that
- *   are mentioned in Requires, After, etc or that people try to
- *   load via LoadUnit but that don't actually exist.
+ * - Methods like EnableUnitFiles only change the state of files on disk.  A Reload is
+ *   necessary to update the state of loaded units.
  *
- * - ListUnitFiles will return unit files that are aliases for
- *   other unit files, but ListUnits will not return aliases.
+ * - The unit file state as returned by ListUnitFiles is not necessarily the same as the
+ *   UnitFileState property of a loaded unit. ListUnitFiles reflects the state of the
+ *   files on disk, while a loaded unit is only updated to that state via an explicit
+ *   Reload. Thus, be careful to only use the UnitFileState as returned by ListUnitFiles
+ *   for unloaded units. Loaded units should use the PropertiesChanged value to reflect
+ *   runtime reality.
  *
- * - The "Names" property of a unit only includes those aliases
- *   that are currently loaded, not all.  To get all possible
- *   aliases, one needs to call ListUnitFiles and match units via
- *   their object path.
+ * A few historical notes which don't apply to the current code, but could be useful in
+ * the future:
  *
- * - The unit file state of a alias as returned by ListUnitFiles
- *   is always the same as the unit file state of the primary unit
- *   file.
  *
- * - However, the unit file state as returned by ListUnitFiles is
- *   not necessarily the same as the UnitFileState property of a
- *   loaded unit.  ListUnitFiles reflects the state of the files
- *   on disk, while a loaded unit is only updated to that state
- *   via an explicit Reload.
+ * - A unit that isn't currently loaded has no object path. If you need one, do
+ *   LoadUnit(); doing so will emit UnitNew.
  *
- * - Thus, we are careful to only use the UnitFileState as
- *   returned by ListUnitFiles or GetUnitFileState.  The
- *   alternative would be to only use the UnitFileState property,
- *   but we need one method call per unit to get them all for the
- *   overview, which seems excessive.
+ * - One can use an object path for a unit that isn't currently loaded. Doing so will load
+ *   the unit (and emit UnitNew).
  *
- * - Methods like EnableUnitFiles only change the state of files
- *   on disk.  A Reload is necessary to update the state
- *   of loaded units.
+ * - JobNew and JobRemoved signals don't include the object path of the affected units,
+ *   but we can get those by listening to UnitNew.
  *
- * - A Reload will emit UnitRemoved/UnitNew signals for all units,
- *   and no PropertiesChanges signal for the properties that have
- *   changed because of the reload, such as UnitFileState.
+ * - There might be UnitNew signals for units that are never returned by ListUnits or
+ *   ListUnitFiles.  These are units that are mentioned in Requires, After, etc or that
+ *   people try to load via LoadUnit but that don't actually exist.
  *
+ * - The "Names" property of a unit only includes those aliases that are currently loaded,
+ *   not all.  To get all possible aliases, one needs to call ListUnitFiles and match
+ *   units via their object path.
+ *
+ * - The unit file state of a alias as returned by ListUnitFiles is always the same as the
+ *   unit file state of the primary unit file.
+ *
+ * - A Reload will emit UnitRemoved/UnitNew signals for all units, and no
+ *   PropertiesChanges signal for the properties that have changed because of the reload,
+ *   such as UnitFileState.
  */
+
 class ServicesPageBody extends React.Component {
     constructor(props) {
         super(props);
@@ -146,13 +157,36 @@ class ServicesPageBody extends React.Component {
                 fileState: []
             },
             currentTextFilter: '',
-
-            unit_by_path: {},
             isFullyLoaded: false,
-
             error: null,
-            currentStatus: null,
         };
+
+        /* data storage
+         *
+         * do not keep as state, as that requires too much copying, and it's easy to miss updates due to setState()
+         * coalescing; whenever these change, you need to force a state update to re-render
+         */
+
+        /* loaded units: ListUnits()/PropertiesChanged for Unit interface; object path → {
+               Id,
+               Description, LoadState, ActiveState,
+               UnitFileState, // if unit has a file and got a PropertiesChanged
+           } */
+        this.units = {};
+        // for <Service unitIsValid >
+        this.knownIds = new Set();
+
+        // active timers: object path → { LastTriggerTime, NextRunTime } (formatted strings)
+        this.timers = {};
+
+        /* ListUnitFiles() result; updated with daemon reload
+           name/id (e.g. foo.service) → { Id, UnitFileState, ActiveState ("inactive" or empty for aliases) } */
+        this.unit_files = {};
+
+        // other state which should not cause re-renders
+        this.seenActiveStates = new Set();
+        this.seenUnitFileStates = new Set();
+        this.reloading = false;
 
         this.filtersRef = React.createRef();
 
@@ -199,20 +233,10 @@ class ServicesPageBody extends React.Component {
             bad: _("Bad"),
         };
 
-        this.seenActiveStates = new Set();
-        this.seenUnitFileStates = new Set();
-
-        /* Function for manipulating with the API results and store the units in the React state */
-        this.processFailedUnits = this.processFailedUnits.bind(this);
         this.listUnits = this.listUnits.bind(this);
         this.loadPinnedUnits = this.loadPinnedUnits.bind(this);
         this.onOptionsChanged = this.onOptionsChanged.bind(this);
         this.compareUnits = this.compareUnits.bind(this);
-        this.addTimerProperties = this.addTimerProperties.bind(this);
-
-        this.seenPaths = new Set();
-        this.path_by_id = {};
-        this.operationInProgress = {};
     }
 
     onOptionsChanged(options) {
@@ -244,6 +268,7 @@ class ServicesPageBody extends React.Component {
 
         cockpit.addEventListener("visibilitychange", () => {
             if (!cockpit.hidden) {
+                debug("visibilitychange to visible; fully loaded", this.state.isFullyLoaded);
                 /* If the page had only been fetched in the background we need to properly initialize the state now
                  * else just trigger an re-render since we are receiving signals while running in the background and
                  * we update the state but don't re-render
@@ -252,65 +277,85 @@ class ServicesPageBody extends React.Component {
                     this.listUnits();
                 else
                     this.setState({});
+            } else {
+                debug("visibilitychange to hidden");
             }
         });
 
-        const onLocationChanged = () => {
-            const options = cockpit.location.options;
-            this.setState({
-                filters: { activeState: JSON.parse(options.activestate || '[]'), fileState: JSON.parse(options.filestate || '[]') },
-                currentTextFilter: decodeURIComponent(options.name || ''),
-            });
-        };
-
-        cockpit.addEventListener("locationchanged", onLocationChanged);
-        onLocationChanged(); // initialize
-
-        /* Start listening to signals for updates - when in the middle of reload mute all signals
+        /* Start listening to signals for updates
+         * - when in the middle of reload mute all signals
          * - We don't need to listen to 'UnitFilesChanged' signal since every time we
-         *   perform some file operation we do call Reload which issues 'Reload' signal
-         * - JobNew is also useless, JobRemoved is enough since it comes in pair with JobNew
-         *   but we are interested to update the state when the operation finished
+         *   perform some file operation we do call Reload which issues 'Reloading' signal
          */
         systemd_client[this.props.owner].subscribe({
-            interface: "org.freedesktop.DBus.Properties",
+            interface: s_bus.I_PROPS,
             member: "PropertiesChanged"
-        }, (path, iface, signal, args) => {
-            if (this.props.isLoading)
+        }, async (path, _iface, _signal, [iface, props]) => {
+            if (this.props.isLoading || this.reloading)
                 return;
 
-            if (this.state.unit_by_path[path] &&
-                this.state.unit_by_path[path].Transient &&
-                args[1].ActiveState &&
-                ((args[1].ActiveState.v == 'failed' && this.state.unit_by_path[path].CollectMode == 'inactive-or-failed') ||
-                  args[1].ActiveState.v == 'inactive')) {
-                this.seenPaths.delete(path);
-                const copy_unit_by_path = { ...this.state.unit_by_path };
-                delete copy_unit_by_path[path];
-                this.setState({
-                    unit_by_path: copy_unit_by_path,
-                });
-            } else {
-                this.updateProperties(args[1], path);
+            // ignore uninteresting unit types
+            if (!path.endsWith("service") && !path.endsWith("timer") && !path.endsWith("socket") &&
+                !path.endsWith("target") && !path.endsWith("path"))
+                return;
+
+            if (iface === s_bus.I_TIMER) {
+                if (!this.timers[path])
+                    this.timers[path] = {};
+                this.addTimerProperties(props, this.timers[path]);
+                debug("timer PropertiesChanged on", path, JSON.stringify(this.timers[path]));
+                return;
             }
+
+            // ignore uninteresting interfaces
+            if (iface !== s_bus.I_UNIT)
+                return;
+
+            let unit = this.units[path];
+
+            if (!unit) {
+                // this happens when starting an unloaded unit; unfortunately Units props is very incomplete, so we need a GetAll
+                debug("unit PropertiesChanged on previously unloaded unit", path);
+                try {
+                    [props] = await systemd_client[this.props.owner].call(path, s_bus.I_PROPS, "GetAll", [s_bus.I_UNIT]);
+                } catch (ex) { // not-covered: OS error
+                    console.warn("GetAll Unit for unknown unit", path, "failed:", ex.toString()); // not-covered: OS error
+                    return; // not-covered: OS error
+                }
+                unit = {};
+                this.units[path] = unit;
+            }
+
+            // unwrap variants
+            for (const prop of ["ActiveState", "LoadState", "Description", "Id", "UnitFileState"]) {
+                if (props[prop])
+                    unit[prop] = props[prop].v;
+            }
+            this.knownIds.add(unit.Id);
+            debug("unit PropertiesChanged on", path, "complete:", JSON.stringify(unit));
+
             this.processFailedUnits();
+            this.setState({ });
         });
 
-        ["JobNew", "JobRemoved"].forEach(signalName => {
-            systemd_client[this.props.owner].subscribe({ interface: s_bus.I_MANAGER, member: signalName }, (path, iface, signal, args) => {
-                const unit_id = args[2];
-                systemd_client[this.props.owner].call(s_bus.O_MANAGER, s_bus.I_MANAGER, "LoadUnit", [unit_id])
-                        .then(([path]) => {
-                            if (!this.seenPaths.has(path))
-                                this.seenPaths.add(path);
+        // handle transient units
+        systemd_client[this.props.owner].subscribe({ interface: s_bus.I_MANAGER, member: "UnitRemoved" }, (_path, _iface, _signal, [_id, objpath]) => {
+            // during daemon reload we get tons of these, ignore
+            if (this.reloading)
+                return;
 
-                            this.getUnitByPath(path).then(this.processFailedUnits);
-                        });
-            });
+            if (this.units[objpath]?.UnitFileState === 'transient') {
+                debug("UnitRemoved of transient", objpath);
+                delete this.knownIds.delete(this.units[objpath]?.Id);
+                delete this.units[objpath];
+                this.processFailedUnits();
+                this.setState({ });
+            }
         });
 
-        systemd_client[this.props.owner].subscribe({ interface: s_bus.I_MANAGER, member: "Reloading" }, (path, iface, signal, args) => {
-            const reloading = args[0];
+        systemd_client[this.props.owner].subscribe({ interface: s_bus.I_MANAGER, member: "Reloading" }, (_path, _iface, _signal, [reloading]) => {
+            this.reloading = reloading;
+            debug("Reloading", reloading);
             if (!reloading && !this.props.isLoading)
                 this.listUnits();
         });
@@ -320,7 +365,7 @@ class ServicesPageBody extends React.Component {
 
         this.timedated_subscription = timedate_client.subscribe({
             path_namespace: "/org/freedesktop/timedate1",
-            interface: "org.freedesktop.DBus.Properties",
+            interface: s_bus.I_PROPS,
             member: "PropertiesChanged"
         }, updateTime);
         updateTime();
@@ -350,42 +395,26 @@ class ServicesPageBody extends React.Component {
         return service_tabs_suffixes.includes(suffix);
     }
 
-    /* When the page is running in the background fetch only information about failed units
-     * in order to update the 'Page Status'. The whole listUnits is very expensive.
-     * We still need to maintain the 'unit_by_path' state object so that if we receive
-     * some signal we can normally parse it and update only the affected unit state
-     * instead of calling ListUnitsFiltered API call for every received signal which
-     * might have changed the failed units array
-     */
+    /* When the page is running in the background, fetch only information about failed units
+     * in order to update the 'Page Status'. */
     listFailedUnits() {
         return systemd_client[this.props.owner].call(s_bus.O_MANAGER, s_bus.I_MANAGER, "ListUnitsFiltered", [["failed"]])
                 .then(([failed]) => {
-                    failed.forEach(result => {
-                        const path = result[6];
-                        const unit_id = result[0];
-
-                        if (!this.isUnitHandled(unit_id))
+                    const units = {};
+                    failed.forEach(([
+                        Id, Description, LoadState, ActiveState, _substate, _followUnit, ObjectPath,
+                        _is_job_queued, _job_type, _job_path
+                    ]) => {
+                        if (!this.isUnitHandled(Id))
                             return;
 
-                        // Ignore units which 'not-found' LoadState
-                        if (result[2] == 'not-found')
-                            return;
-
-                        if (!this.seenPaths.has(path))
-                            this.seenPaths.add(path);
-
-                        this.updateProperties(
-                            {
-                                Id: cockpit.variant("s", unit_id),
-                                Description: cockpit.variant("s", result[1]),
-                                LoadState: cockpit.variant("s", result[2]),
-                                ActiveState: cockpit.variant("s", result[3]),
-                                SubState: cockpit.variant("s", result[4]),
-                            }, path
-                        );
+                        units[ObjectPath] = { Id, Description, LoadState, ActiveState };
                     });
+
+                    this.units = units;
                     this.processFailedUnits();
-                }, ex => console.warn('ListUnitsFiltered failed: ', ex.toString()));
+                })
+                .catch(ex => console.warn('ListUnitsFiltered failed: ', ex.toString())); // not-covered: OS error
     }
 
     isTemplate(id) {
@@ -399,120 +428,75 @@ class ServicesPageBody extends React.Component {
             return this.listFailedUnits();
 
         // Reinitialize the state variables for the units
-        this.setState({ currentStatus: _("Listing units") });
         this.props.setIsLoading(true);
 
-        this.seenPaths = new Set();
+        const dbus = systemd_client[this.props.owner];
+        const units = {};
+        const timerPaths = [];
+        const timerPromises = [];
 
-        const promisesLoad = [];
+        Promise.all([
+            dbus.call(s_bus.O_MANAGER, s_bus.I_MANAGER, "ListUnits", null),
+            dbus.call(s_bus.O_MANAGER, s_bus.I_MANAGER, "ListUnitFiles", null)
+        ])
+                .then(([[unitsResults], [unitFilesResults]]) => {
+                    this.knownIds = new Set();
 
-        // Run ListUnits before LIstUnitFiles so that we avoid the extra LoadUnit calls
-        // Now we call LoadUnit only for those that ListUnits didn't tell us about
-
-        systemd_client[this.props.owner].call(s_bus.O_MANAGER, s_bus.I_MANAGER, "ListUnits", null)
-                .then(([results]) => {
-                    results.forEach(result => {
-                        const path = result[6];
-                        const unit_id = result[0];
-                        const load_state = result[2];
-                        const active_state = result[3];
-
-                        if (!this.isUnitHandled(unit_id))
+                    // ListUnits is the primary source of information
+                    unitsResults.forEach(([
+                        Id, Description, LoadState, ActiveState, _substate, _followUnit, ObjectPath,
+                        _is_job_queued, _job_type, _job_path
+                    ]) => {
+                        if (!this.isUnitHandled(Id))
                             return;
 
-                        if (!this.seenPaths.has(path))
-                            this.seenPaths.add(path);
-
                         // We should ignore 'not-found' units when setting the seenActiveStates
-                        if (load_state !== 'not-found')
-                            this.seenActiveStates.add(active_state);
+                        if (LoadState !== 'not-found')
+                            this.seenActiveStates.add(ActiveState);
 
-                        this.updateProperties(
-                            {
-                                Id: cockpit.variant("s", unit_id),
-                                Description: cockpit.variant("s", result[1]),
-                                LoadState: cockpit.variant("s", load_state),
-                                ActiveState: cockpit.variant("s", active_state),
-                                SubState: cockpit.variant("s", result[4]),
-                            }, path
-                        );
+                        units[ObjectPath] = { Id, Description, LoadState, ActiveState };
+                        this.knownIds.add(Id);
+                        if (Id.endsWith(".timer")) {
+                            timerPromises.push(dbus.call(ObjectPath, s_bus.I_PROPS, "GetAll",
+                                                         [s_bus.I_TIMER]));
+                            timerPaths.push(Id);
+                        }
                     });
 
-                    this.setState({ currentStatus: _("Listing unit files") });
-                    systemd_client[this.props.owner].call(s_bus.O_MANAGER, s_bus.I_MANAGER, "ListUnitFiles", null)
-                            .then(([results]) => {
-                                results.forEach(result => {
-                                    const unit_path = result[0];
-                                    const unit_id = unit_path.split('/').pop();
-                                    const unitFileState = result[1];
+                    // unloaded, but available unit files
+                    const unit_files = {};
+                    unitFilesResults.forEach(([UnitFilePath, UnitFileState]) => {
+                        const Id = UnitFilePath.split('/').pop();
+                        if (!this.isUnitHandled(Id) | this.isTemplate(Id))
+                            return;
 
-                                    if (!this.isUnitHandled(unit_id))
-                                        return;
+                        this.seenUnitFileStates.add(UnitFileState);
+                        // there is not enough information to link this to the primary unit which declared the alias
+                        // name; that requires a LoadUnit() + Get("Names") + reverse lookup; the details page has the
+                        // correct information, so skip the status for aliases
+                        // for other units, we default to "inactive"; loaded units will override that
+                        const ActiveState = (UnitFileState === "alias") ? undefined : "inactive";
+                        unit_files[Id] = { Id, UnitFileState, ActiveState };
+                    });
 
-                                    if (this.isTemplate(unit_id))
-                                        return;
+                    this.units = units;
+                    this.unit_files = unit_files;
+                    this.processFailedUnits();
 
-                                    this.seenUnitFileStates.add(unitFileState);
+                    return Promise.all(timerPromises);
+                })
+                .then((timerResults) => {
+                    for (let i = 0; i < timerResults.length; i++) {
+                        const [timer_props] = timerResults[i];
+                        const unit = {};
+                        this.addTimerProperties(timer_props, unit);
+                        this.timers[timerPaths[i]] = unit;
+                    }
 
-                                    if (this.seenPaths.has(this.path_by_id[unit_id])) {
-                                        this.updateProperties(
-                                            {
-                                                Id: cockpit.variant("s", unit_id),
-                                                UnitFileState: cockpit.variant("s", unitFileState)
-                                            }, this.path_by_id[unit_id], true);
-                                        return;
-                                    }
-
-                                    promisesLoad.push(systemd_client[this.props.owner].call(s_bus.O_MANAGER, s_bus.I_MANAGER, "LoadUnit", [unit_id]).then(([unit_path]) => {
-                                        this.updateProperties(
-                                            {
-                                                Id: cockpit.variant("s", unit_id),
-                                                UnitFileState: cockpit.variant("s", unitFileState)
-                                            }, unit_path, true);
-
-                                        this.seenPaths.add(unit_path);
-
-                                        return this.getUnitByPath(unit_path);
-                                    }, ex => {
-                                        this.props.setIsLoading(false);
-                                        this.setState({ error: cockpit.format(_("Loading unit failed: $0"), ex.toString()) });
-                                    }));
-                                });
-
-                                Promise.all(promisesLoad)
-                                        .finally(() => {
-                                            // Remove units from state that are not listed from the API in this iteration
-                                            const unit_by_path = Object.assign({}, this.state.unit_by_path);
-                                            let hasExtraEntries = false;
-                                            const newState = {};
-
-                                            for (const unitPath in this.state.unit_by_path) {
-                                                if (!this.seenPaths.has(unitPath)) {
-                                                    hasExtraEntries = true;
-                                                    delete unit_by_path[unitPath];
-                                                    Object.keys(this.path_by_id).forEach(id => {
-                                                        if (this.path_by_id[id] == unitPath)
-                                                            delete this.path_by_id[id];
-                                                    });
-                                                }
-                                            }
-                                            if (hasExtraEntries)
-                                                newState.unit_by_path = unit_by_path;
-
-                                            newState.isFullyLoaded = true;
-                                            this.props.setIsLoading(false);
-
-                                            this.setState(newState);
-                                            this.processFailedUnits();
-                                        });
-                            }, ex => {
-                                this.props.SetIsLoading(false);
-                                this.setState({ error: cockpit.format(_("Listing unit files failed: $0"), ex.toString()) });
-                            });
-                }, ex => {
-                    this.props.setIsLoading(false);
-                    this.setState({ error: cockpit.format(_("Listing units failed: $0"), ex.toString()) });
-                });
+                    this.setState({ isFullyLoaded: true });
+                })
+                .catch(ex => this.setState({ error: cockpit.format(_("Listing units failed: $0"), ex.toString()) })) // not-covered: OS error
+                .finally(() => this.props.setIsLoading(false));
     }
 
     /**
@@ -537,194 +521,46 @@ class ServicesPageBody extends React.Component {
             return unit_a_t[0].localeCompare(unit_b_t[0]);
     }
 
-    addSocketProperties(socket_unit, path, unit) {
-        let needsUpdate = false;
-
-        if (JSON.stringify(socket_unit.Listen) !== JSON.stringify(unit.Listen)) {
-            unit.Listen = socket_unit.Listen;
-            needsUpdate = true;
-        }
-
-        if (needsUpdate) {
-            this.setState(prevState => ({
-                unit_by_path: {
-                    ...prevState.unit_by_path,
-                    [unit.path]: unit,
-                }
-            }));
-        }
-    }
-
-    addTimerProperties(timer_unit, unit) {
-        let needsUpdate = false;
-
-        const lastTriggerTime = timeformat.dateTime(timer_unit.LastTriggerUSec / 1000);
-        if (lastTriggerTime !== unit.LastTriggerTime) {
-            unit.LastTriggerTime = lastTriggerTime;
-            needsUpdate = true;
-        }
-        const system_boot_time = clock_realtime_now * 1000 - clock_monotonic_now;
-        if (timer_unit.LastTriggerUSec === -1 || timer_unit.LastTriggerUSec === 0) {
-            if (unit.LastTriggerTime !== _("unknown")) {
-                unit.LastTriggerTime = _("unknown");
-                needsUpdate = true;
-            }
-        }
-        let next_run_time = 0;
-
+    addTimerProperties(timer_props, unit) {
+        const last_trigger_usec = timer_props.LastTriggerUSec.v;
         // systemd puts -1 into an unsigned int type for the various *USec* properties
         // JS rounds these to a float which is > MAX_UINT64, but the comparison works
-        if (timer_unit.NextElapseUSecRealtime > 0 && timer_unit.NextElapseUSecRealtime < MAX_UINT64) {
-            next_run_time = timer_unit.NextElapseUSecRealtime;
-        } else if (timer_unit.NextElapseUSecMonotonic > 0 && timer_unit.NextElapseUSecMonotonic < MAX_UINT64) {
-            next_run_time = timer_unit.NextElapseUSecMonotonic + system_boot_time;
-        }
+        if (last_trigger_usec > 0 && last_trigger_usec < MAX_UINT64)
+            unit.LastTriggerTime = timeformat.dateTime(last_trigger_usec / 1000);
+        else
+            unit.LastTriggerTime = _("unknown");
 
-        const nextRunTime = timeformat.dateTime(next_run_time / 1000);
-        if (nextRunTime !== unit.NextRunTime) {
-            unit.NextRunTime = nextRunTime;
-            needsUpdate = true;
-        }
+        const system_boot_time = clock_realtime_now * 1000 - clock_monotonic_now;
+        const next_realtime = timer_props.NextElapseUSecRealtime?.v;
+        const next_monotonic = timer_props.NextElapseUSecMonotonic?.v;
+        let next_run_time = null;
+        if (next_realtime > 0 && next_realtime < MAX_UINT64)
+            next_run_time = next_realtime;
+        else if (next_monotonic > 0 && next_monotonic < MAX_UINT64)
+            next_run_time = next_monotonic + system_boot_time;
 
-        if (next_run_time === 0 && unit.NextRunTime !== _("unknown")) {
-            unit.NextRunTime = _("unknown");
-            needsUpdate = true;
-        }
-
-        return needsUpdate;
+        unit.NextRunTime = next_run_time ? timeformat.dateTime(next_run_time / 1000) : _("unknown");
     }
 
     /* Add some computed properties into a unit object - does not call setState */
     updateComputedProperties(unit) {
-        unit.HasFailed = (unit.ActiveState == "failed" || (unit.LoadState !== "loaded" && unit.LoadState != "masked"));
+        unit.HasFailed = unit.ActiveState == "failed" || (
+            unit.LoadState && unit.LoadState !== "loaded" && unit.LoadState !== "masked");
 
         unit.CombinedState = this.activeState[unit.ActiveState] || unit.ActiveState;
-        if (unit.LoadState !== "loaded" && unit.LoadState != "masked")
+        if (unit.LoadState && unit.LoadState !== "loaded" && unit.LoadState !== "masked")
             unit.CombinedState = cockpit.format("$0 ($1)", unit.CombinedState, this.loadState[unit.LoadState]);
 
         unit.AutomaticStartup = this.unitFileState[unit.UnitFileState] || unit.UnitFileState;
-    }
 
-    updateProperties(props, path, updateFileState = false) {
-        // We received a request to update properties on a unit we are not yet aware off
-        if (!this.state.unit_by_path[path] && !props.Id)
-            return;
-
-        if (props.Id && props.Id.v)
-            this.path_by_id[props.Id.v] = path;
-
-        let shouldUpdate = false;
-        const unitNew = Object.assign({}, this.state.unit_by_path[path]);
-        const prop = p => {
-            if (props[p]) {
-                if (Array.isArray(props[p].v) && Array.isArray(unitNew[p]) && JSON.stringify(props[p].v.sort()) == JSON.stringify(unitNew[p].sort()))
-                    return;
-                else if (!Array.isArray(props[p].v) && props[p].v == unitNew[p])
-                    return;
-                else if (p == "UnitFileState" && !updateFileState)
-                    return;
-                shouldUpdate = true;
-                unitNew[p] = props[p].v;
-            }
-        };
-
-        prop("Id");
-        prop("Description");
-        prop("Names");
-        prop("LoadState");
-        prop("LoadError");
-        prop("Transient");
-        prop("CollectMode");
-        prop("ActiveState");
-        prop("SubState");
-        if (updateFileState)
-            prop("UnitFileState");
-        prop("FragmentPath");
-        unitNew.path = path;
-
-        prop("Requires");
-        prop("Requisite");
-        prop("Wants");
-        prop("BindsTo");
-        prop("PartOf");
-        prop("RequiredBy");
-        prop("RequisiteOf");
-        prop("WantedBy");
-        prop("BoundBy");
-        prop("ConsistsOf");
-        prop("Conflicts");
-        prop("ConflictedBy");
-        prop("Before");
-        prop("After");
-        prop("OnFailure");
-        prop("Triggers");
-        prop("TriggeredBy");
-        prop("PropagatesReloadTo");
-        prop("PropagatesReloadFrom");
-        prop("JoinsNamespaceOf");
-        prop("Conditions");
-        prop("CanReload");
-
-        prop("ActiveEnterTimestamp");
-
-        this.updateComputedProperties(unitNew);
-
-        if (unitNew.Id.endsWith("socket")) {
-            unitNew.is_socket = true;
-            if (unitNew.ActiveState == "active") {
-                const socket_unit = systemd_client[this.props.owner].proxy(s_bus.I_SOCKET, unitNew.path);
-                socket_unit.wait(() => {
-                    if (socket_unit.valid)
-                        this.addSocketProperties(socket_unit, path, unitNew);
-                });
-            }
-        }
-
-        if (unitNew.Id.endsWith("timer")) {
-            if (unitNew.ActiveState == "active") {
-                const timer_unit = systemd_client[this.props.owner].proxy(s_bus.I_TIMER, unitNew.path);
-                timer_unit.wait(() => {
-                    if (timer_unit.valid)
-                        if (this.addTimerProperties(timer_unit, unitNew)) {
-                            this.setState(prevState => ({
-                                unit_by_path: {
-                                    ...prevState.unit_by_path,
-                                    [path]: unitNew,
-                                }
-                            }));
-                        }
-                });
-            }
-        }
-
-        if (!shouldUpdate)
-            return;
-
-        this.setState(prevState => ({
-            unit_by_path: {
-                ...prevState.unit_by_path,
-                [path]: unitNew,
-            }
-        }));
-    }
-
-    /**
-      * Fetches all Properties for the unit specified by path @param and add the unit to the state
-      */
-    getUnitByPath(path) {
-        return systemd_client[this.props.owner].call(path,
-                                                     "org.freedesktop.DBus.Properties", "GetAll",
-                                                     ["org.freedesktop.systemd1.Unit"])
-                .then(result => this.updateProperties(result[0], path))
-                .catch(error => console.warn('GetAll failed for', path, error.toString()));
+        unit.IsPinned = this.state.pinnedUnits.includes(unit.Id);
     }
 
     processFailedUnits() {
         const failed = new Set();
         const tabErrors = { };
 
-        for (const p in this.state.unit_by_path) {
-            const u = this.state.unit_by_path[p];
+        Object.values(this.units).forEach(u => {
             if (u.ActiveState == "failed" && u.LoadState != "not-found") {
                 const suffix = u.Id.substr(u.Id.lastIndexOf('.') + 1);
                 if (service_tabs_suffixes.includes(suffix)) {
@@ -732,7 +568,7 @@ class ServicesPageBody extends React.Component {
                     failed.add(u.Id);
                 }
             }
-        }
+        });
         this.props.setTabErrors(tabErrors);
 
         if (failed.size > 0) {
@@ -748,21 +584,63 @@ class ServicesPageBody extends React.Component {
         }
     }
 
-    render() {
-        const { unit_by_path } = this.state;
-        const path = this.props.path;
+    // compute filtered and sorted list of [Id, unit]
+    computeSelectedUnits() {
+        const unitType = '.' + this.props.activeTab;
+        const currentTextFilter = decodeURIComponent(this.props.options.name || '').toLowerCase();
+        const filters = {
+            activeState: JSON.parse(this.props.options.activestate || '[]'),
+            fileState: JSON.parse(this.props.options.filestate || '[]')
+        };
+        const selectedUnits = [];
+        const ids = new Set();
 
+        [...Object.entries(this.units), ...Object.entries(this.unit_files)].forEach(([idx, unit]) => {
+            if (!unit.Id?.endsWith(unitType))
+                return;
+
+            if (unit.LoadState === "not-found")
+                return;
+
+            // avoid showing unloaded units when there is a loaded one
+            if (ids.has(unit.Id))
+                return;
+            ids.add(unit.Id);
+
+            const UnitFileState = unit.UnitFileState ?? this.unit_files[unit.Id]?.UnitFileState;
+
+            if (currentTextFilter && !((unit.Description && unit.Description.toLowerCase().includes(currentTextFilter)) ||
+                unit.Id.toLowerCase().includes(currentTextFilter)))
+                return;
+
+            if (filters.fileState.length && this.unitFileState[UnitFileState] &&
+                !filters.fileState.includes(this.unitFileState[UnitFileState]))
+                return;
+
+            if (filters.activeState.length && this.activeState[unit.ActiveState] &&
+                !filters.activeState.includes(this.activeState[unit.ActiveState]))
+                return;
+
+            const augmentedUnit = { ...unit, UnitFileState, ...this.timers[idx] };
+            this.updateComputedProperties(augmentedUnit);
+            selectedUnits.push([unit.Id, augmentedUnit]);
+        });
+
+        selectedUnits.sort(this.compareUnits);
+        return selectedUnits;
+    }
+
+    render() {
         if (this.state.error)
             return <EmptyStatePanel title={_("Loading of units failed")} icon={ExclamationCircleIcon} paragraph={this.state.error} />;
-        if (!this.state.isFullyLoaded)
-            return <EmptyStatePanel loading title={_("Loading...")} paragraph={this.state.currentStatus} />;
 
-        /* Perform navigation */
+        /* Navigation: unit details page with a path, service list without;
+         * the details page does its own loading, we don't need to wait for isFullyLoaded */
+        const path = this.props.path;
         if (path.length == 1) {
             const unit_id = path[0];
-            const get_unit_path = (unit_id) => this.path_by_id[unit_id];
 
-            return <Service unitIsValid={unitId => { const path = get_unit_path(unitId); return path !== undefined && this.state.unit_by_path[path].LoadState != 'not-found' }}
+            return <Service unitIsValid={unitId => this.unit_files[unitId] || this.knownIds.has(unitId) }
                             owner={this.props.owner}
                             key={unit_id}
                             unitId={unit_id}
@@ -771,6 +649,9 @@ class ServicesPageBody extends React.Component {
                             pinnedUnits={this.state.pinnedUnits}
             />;
         }
+
+        if (!this.state.isFullyLoaded)
+            return <EmptyStatePanel loading title={_("Loading...")} paragraph={_("Listing units")} />;
 
         const fileStateDropdownOptions = [
             { value: 'enabled', label: _("Enabled") },
@@ -791,39 +672,7 @@ class ServicesPageBody extends React.Component {
                 activeStateDropdownOptions.push({ value: activeState, label: this.activeState[activeState] });
             }
         });
-        const { currentTextFilter, filters } = this.state;
         const activeTab = this.props.activeTab;
-
-        const units = Object.keys(this.path_by_id)
-                .filter(unit_id => {
-                    const unit = this.path_by_id[unit_id] ? unit_by_path[this.path_by_id[unit_id]] : undefined;
-
-                    if (!unit)
-                        return false;
-
-                    if (!(unit.Id && activeTab && unit.Id.match(cockpit.format(".$0$", activeTab))))
-                        return false;
-
-                    if (unit.LoadState == "not-found")
-                        return false;
-
-                    if (currentTextFilter && !((unit.Description && unit.Description.toLowerCase().indexOf(currentTextFilter.toLowerCase()) != -1) ||
-                        unit_id.toLowerCase().indexOf(currentTextFilter.toLowerCase()) != -1))
-                        return false;
-
-                    if (filters.fileState.length && this.unitFileState[unit.UnitFileState] &&
-                        !filters.fileState.includes(this.unitFileState[unit.UnitFileState]))
-                        return false;
-
-                    if (filters.activeState.length && this.activeState[unit.ActiveState] &&
-                        !filters.activeState.includes(this.activeState[unit.ActiveState]))
-                        return false;
-
-                    unit.IsPinned = this.state.pinnedUnits.includes(unit.Id);
-                    return true;
-                })
-                .map(unit_id => [unit_id, unit_by_path[this.path_by_id[unit_id]]])
-                .sort(this.compareUnits);
 
         return (
             <PageSection>
@@ -838,7 +687,7 @@ class ServicesPageBody extends React.Component {
                     <ServicesList key={cockpit.format("$0-list", activeTab)}
                                   isTimer={activeTab == 'timer'}
                                   filtersRef={this.filtersRef}
-                                  units={units} />
+                                  units={this.computeSelectedUnits()} />
                 </Card>
             </PageSection>
         );

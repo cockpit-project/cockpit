@@ -45,9 +45,6 @@ class TestServices(MachineCase):
         self.restore_dir("/etc/xdg/systemd/user", user_post_restore, True)
         self.restore_dir("/home/admin/.config", user_post_restore, True)
 
-        # FIXME: this page is too slow
-        self.browser.wait_timeout(60)
-
     def run_systemctl(self, user, cmd):
         if user:
             self.machine.execute(f"su - admin -c 'export XDG_RUNTIME_DIR=/run/user/$(id -u admin); systemctl --user {cmd}'")
@@ -301,7 +298,7 @@ WantedBy=default.target
         if not user:
             # Make sure that symlinked services also appear in the list
             self.wait_service_state("reboot.target", "inactive")
-            self.wait_service_state("ctrl-alt-del.target", "inactive")
+            self.wait_service_present("ctrl-alt-del.target")
             self.goto_service("ctrl-alt-del.target")
             b.wait_in_text(".service-name", "Reboot")
             b.click("#services-page .pf-c-breadcrumb__link")
@@ -500,7 +497,7 @@ WantedBy=default.target
         # Filter by description capital letters included
         init_filter_state()
         b.set_input_text("#services-text-filter input", "Test Service")
-        self.wait_service_present("test.service")
+        # test.service is not loaded, thus description search does not find it
         self.wait_service_present("test-fail.service")
         if not user:
             b.assert_pixels("#services-page", "text-filter-test", skip_layouts=["mobile"])
@@ -1204,8 +1201,7 @@ WantedBy=multi-user.target
 
         # overview: primary unit
         self.wait_service_present("flower-rose.service")
-        # FIXME: This ought to be "Enabled", but is "Alias" right now
-        # self.wait_service_in_panel("flower-rose.service", "Enabled")
+        self.wait_service_in_panel("flower-rose.service", "Enabled")
         self.wait_service_state("flower-rose.service", "inactive")
 
         # overview: alias
@@ -1215,18 +1211,18 @@ WantedBy=multi-user.target
             self.wait_service_in_panel("flower-byanyothername.service", "Enabled")
         else:
             self.wait_service_in_panel("flower-byanyothername.service", "Alias")
-        self.wait_service_state("flower-byanyothername.service", "inactive")
+        # runtime status of aliases is unknown in list view
+        self.wait_service_state("flower-byanyothername.service", "")
 
         # both react to state changes
         m.execute("systemctl start flower-byanyothername.service")
         self.wait_service_state("flower-rose.service", "active")
-        self.wait_service_state("flower-byanyothername.service", "active")
+        self.wait_service_state("flower-byanyothername.service", "")
 
         # details: primary unit
         self.goto_service("flower-rose.service")
         b.wait_in_text("#statuses", "Running")
-        # FIXME: This is broken right now and shows "Static"
-        # b.wait_in_text("#statuses", "Automatically starts")
+        b.wait_in_text("#statuses", "Automatically starts")
         b.wait_in_text("#service-details-unit", "/etc/systemd/system/flower-rose.service")
         b.wait_in_text('.cockpit-log-panel .pf-c-card__body', "Perfume")
 
@@ -1234,8 +1230,7 @@ WantedBy=multi-user.target
         b.click(".pf-c-breadcrumb a:contains('Services')")
         self.goto_service("flower-byanyothername.service")
         b.wait_in_text("#statuses", "Running")
-        # FIXME: This ought to be "Alias" or "Automatically starts"; shows "Static" right now
-        # b.wait_in_text("#statuses", "Alias")
+        b.wait_in_text("#statuses", "Automatically starts")
         b.wait_in_text("#service-details-unit", "/etc/systemd/system/flower-rose.service")
         b.wait_in_text('.cockpit-log-panel .pf-c-card__body', "Perfume")
 
@@ -1270,9 +1265,6 @@ class TestTimers(MachineCase):
             "busctl get-property org.freedesktop.timedate1 /org/freedesktop/timedate1 org.freedesktop.timedate1 NTP"))
         m.execute("timedatectl set-time '2036-01-01 12:00:00'")
         m.reboot()
-
-        # FIXME: this page is too slow
-        b.wait_timeout(30)
 
         m.execute("timedatectl set-time '2036-01-01 15:30:00'")
         self.login_and_go("/system/services")

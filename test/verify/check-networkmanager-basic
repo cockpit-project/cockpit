@@ -234,9 +234,7 @@ class TestNetworkingBasic(NetworkCase):
         assert_stopped(True)
         b.click("#networking-nm-crashed a")
         b.enter_page("/system/services")
-        # FIXME: Services page is too slow
-        with b.wait_timeout(30):
-            b.wait_text(".service-name", "Network Manager")
+        b.wait_text(".service-name", "Network Manager")
         b.click(".service-top-panel .pf-c-dropdown button")
         b.click(".service-top-panel .pf-c-dropdown__menu a:contains('Start')")
         b.wait_in_text("#statuses", "Running")

@@ -21,7 +21,9 @@ import React from "react";
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
 import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Gallery, GalleryItem } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
+import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { ServiceDetails } from "./service-details.jsx";
 import { LogsPanel } from "cockpit-components-logs-panel.jsx";
 import { superuser } from 'superuser';
@@ -31,40 +33,102 @@ import cockpit from "cockpit";
 
 const _ = cockpit.gettext;
 
+const SD_MANAGER = "org.freedesktop.systemd1.Manager";
+const SD_OBJ = "/org/freedesktop/systemd1";
+const I_PROPS = "org.freedesktop.DBus.Properties";
+const I_UNIT = "org.freedesktop.systemd1.Unit";
+const I_TIMER = "org.freedesktop.systemd1.Timer";
+const I_SOCKET = "org.freedesktop.systemd1.Socket";
+
 export class Service extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            /* The initial load of the Services page will not call GetAll for units Properties
-             * since ListUnits API call already has provided us with a subset of the Properties.
-             * As a result, properties like the 'Requires' are not present in the state at this point.
-             * If it's the first time to open this service's details page we need to fetch
-             * the unit properties by calling getUnitByPath.
-             */
-            shouldFetchProps: props.unit.Names === undefined,
+            unit_id: null,
+            unit_props: null,
+            error: null,
         };
+
+        this.updateProperties = this.updateProperties.bind(this);
+        this.path = null;
+        this.props_subscription = null;
+        this.reload_subscription = null;
     }
 
-    componentDidMount() {
-        if (this.state.shouldFetchProps)
-            this.props.getUnitByPath(this.props.unit.path).finally(() => this.setState({ shouldFetchProps: false }));
+    async componentDidMount() {
+        const dbus = this.props.dbusClient;
+        const [path] = await dbus.call(SD_OBJ, SD_MANAGER, "LoadUnit", [this.props.unitId]);
+        this.path = path;
+
+        this.reload_subscription = dbus.subscribe(
+            { interface: SD_MANAGER, member: "Reloading" },
+            (_path, _iface, _signal, [reloading]) => {
+                if (!reloading)
+                    this.updateProperties();
+            }
+        );
+
+        this.props_subscription = dbus.subscribe(
+            { path, interface: I_PROPS, member: "PropertiesChanged" },
+            this.updateProperties);
+
+        this.updateProperties();
+    }
+
+    componentWillUnmount() {
+        this.props_subscription.remove();
+        this.reload_subscription.remove();
+    }
+
+    async updateProperties() {
+        const dbus = this.props.dbusClient;
+        const unit_id = this.props.unitId;
+
+        try {
+            const [unit_props] = await dbus.call(this.path, I_PROPS, "GetAll", [I_UNIT]);
+            // resolve variants
+            for (const key in unit_props)
+                unit_props[key] = unit_props[key].v;
+
+            if (unit_id.endsWith(".timer")) {
+                const [timer_props] = await dbus.call(this.path, I_PROPS, "GetAll", [I_TIMER]);
+                // resolve variants
+                for (const key in timer_props)
+                    timer_props[key] = timer_props[key].v;
+                this.props.addTimerProperties(timer_props, unit_props);
+            }
+
+            if (unit_id.endsWith(".socket")) {
+                const [socket_props] = await dbus.call(this.path, I_PROPS, "GetAll", [I_SOCKET]);
+                unit_props.Listen = socket_props.Listen.v;
+            }
+
+            unit_props.path = this.path;
+
+            this.setState({ unit_id, unit_props, error: null });
+        } catch (ex) {
+            this.setState({ error: ex.toString() });
+        }
     }
 
     render() {
-        if (this.state.shouldFetchProps || this.props.unit.Names === undefined)
-            return null;
+        if (this.state.error)
+            return <EmptyStatePanel title={_("Loading unit failed")} icon={ExclamationCircleIcon} paragraph={this.state.error} />;
 
-        const serviceDetails = <ServiceDetails unit={this.props.unit}
+        const cur_unit_id = this.props.unitId;
+
+        if (this.state.unit_props === null)
+            return <EmptyStatePanel loading title={_("Loading...")} paragraph={cur_unit_id} />;
+
+        const serviceDetails = <ServiceDetails unit={this.state.unit_props}
                                 owner={this.props.owner}
                                 permitted={superuser.allowed}
-                                loadingUnits={this.props.loadingUnits}
                                 isValid={this.props.unitIsValid}
                                 isPinned={this.props.isPinned}
         />;
 
         const unit_type = this.props.owner == "system" ? "UNIT" : "USER_UNIT";
-        const cur_unit_id = this.props.unit.Id;
         const match = [
             "_SYSTEMD_" + unit_type + "=" + cur_unit_id, "+",
             "COREDUMP_" + unit_type + "=" + cur_unit_id, "+",
@@ -72,6 +136,8 @@ export class Service extends React.Component {
         ];
         const service_type = this.props.owner == "system" ? "service" : "user-service";
         const url = "/system/logs/#/?prio=debug&" + service_type + "=" + cur_unit_id;
+
+        const load_state = this.state.unit_props.LoadState;
 
         return (
             <WithDialogs>
@@ -82,13 +148,13 @@ export class Service extends React.Component {
                           <Breadcrumb>
                               <BreadcrumbItem to={"#" + cockpit.location.href.replace(/\/[^?]*/, '')}>{_("Services")}</BreadcrumbItem>
                               <BreadcrumbItem isActive>
-                                  {this.props.unit.Id}
+                                  {cur_unit_id}
                               </BreadcrumbItem>
                           </Breadcrumb>}>
                     <PageSection>
                         <Gallery hasGutter>
                             <GalleryItem id="service-details-unit">{serviceDetails}</GalleryItem>
-                            {(this.props.unit.LoadState === "loaded" || this.props.unit.LoadState === "masked") &&
+                            {(load_state === "loaded" || load_state === "masked") &&
                             <GalleryItem id="service-details-logs">
                                 <LogsPanel title={_("Service logs")} match={match} emptyMessage={_("No log entries")} max={10} goto_url={url} search_options={{ prio: "debug", [service_type]: cur_unit_id }} />
                             </GalleryItem>}

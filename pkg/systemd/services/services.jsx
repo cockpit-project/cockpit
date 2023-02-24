@@ -214,10 +214,6 @@ class ServicesPageBody extends React.Component {
         this.processFailedUnits = this.processFailedUnits.bind(this);
         this.listUnits = this.listUnits.bind(this);
         this.getUnitByPath = this.getUnitByPath.bind(this);
-        this.updateProperties = this.updateProperties.bind(this);
-        this.addTimerProperties = this.addTimerProperties.bind(this);
-        this.addSocketProperties = this.addSocketProperties.bind(this);
-        this.updateComputedProperties = this.updateComputedProperties.bind(this);
         this.onOptionsChanged = this.onOptionsChanged.bind(this);
         this.compareUnits = this.compareUnits.bind(this);
 

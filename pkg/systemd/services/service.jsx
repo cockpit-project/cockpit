@@ -112,9 +112,6 @@ export class Service extends React.Component {
 
             if (unit_id.endsWith(".timer")) {
                 const [timer_props] = await dbus.call(this.path, s_bus.I_PROPS, "GetAll", [s_bus.I_TIMER]);
-                // unwrap variants
-                for (const key in timer_props)
-                    timer_props[key] = timer_props[key].v;
                 this.props.addTimerProperties(timer_props, unit_props);
             }
 
@@ -136,10 +133,8 @@ export class Service extends React.Component {
         if (this.state.error)
             return <EmptyStatePanel title={_("Loading unit failed")} icon={ExclamationCircleIcon} paragraph={this.state.error} />;
 
-        const cur_unit_id = this.props.unitId;
-
         if (this.state.unit_props === null)
-            return <EmptyStatePanel loading title={_("Loading...")} paragraph={cur_unit_id} />;
+            return <EmptyStatePanel loading title={_("Loading...")} paragraph={this.props.unitId} />;
 
         const serviceDetails = <ServiceDetails unit={this.state.unit_props}
                                 owner={this.props.owner}
@@ -148,6 +143,9 @@ export class Service extends React.Component {
                                 isValid={this.props.unitIsValid}
                                 pinnedUnits={this.props.pinnedUnits}
         />;
+
+        // resolve Alias name to primary ID
+        const cur_unit_id = this.state.unit_props.Id;
 
         const unit_type = this.props.owner == "system" ? "UNIT" : "USER_UNIT";
         const match = [

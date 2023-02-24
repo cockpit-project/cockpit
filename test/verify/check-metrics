@@ -528,10 +528,8 @@ class TestHistoryMetrics(MachineCase):
 
         # Troubleshoot
         b.click(".pf-c-empty-state button.pf-m-link")
-        # FIXME: Services page is too slow
-        with b.wait_timeout(30):
-            b.enter_page("/system/services")
-            b.wait_in_text("#service-details", "pmlogger.service")
+        b.enter_page("/system/services")
+        b.wait_in_text("#service-details", "pmlogger.service")
 
     @nondestructive
     @skipOstree("no PCP support")
@@ -1019,9 +1017,7 @@ BEGIN {{
         # table entries are links to Services page
         b.click("table[aria-label='Top 5 memory services'] tbody tr:nth-of-type(1) td[data-label='Service'] a span")
         b.enter_page("/system/services")
-        # FIXME: Services page is too slow
-        with b.wait_timeout(30):
-            b.wait_in_text("#path", "/mem-hog.service")
+        b.wait_in_text("#path", "/mem-hog.service")
         b.wait_in_text(".service-name", "memhog.sh")
 
         b.go("/metrics")

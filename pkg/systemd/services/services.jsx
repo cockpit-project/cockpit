@@ -606,18 +606,11 @@ class ServicesPageBody extends React.Component {
 
         unit.HasFailed = (unit.ActiveState == "failed" || (unit.LoadState !== "loaded" && unit.LoadState != "masked"));
 
-        if (this.activeState[unit.ActiveState])
-            unit.CombinedState = this.activeState[unit.ActiveState];
-
-        if (this.unitFileState[unit.UnitFileState]) {
-            unit.AutomaticStartup = this.unitFileState[unit.UnitFileState];
-            unit.AutomaticStartupKey = unit.UnitFileState;
-        } else {
-            unit.AutomaticStartup = unit.UnitFileState;
-        }
-
+        unit.CombinedState = this.activeState[unit.ActiveState] || unit.ActiveState;
         if (unit.LoadState !== "loaded" && unit.LoadState != "masked")
             unit.CombinedState = cockpit.format("$0 ($1)", unit.CombinedState, this.loadState[unit.LoadState]);
+
+        unit.AutomaticStartup = this.unitFileState[unit.UnitFileState] || unit.UnitFileState;
     }
 
     updateProperties(props, path, updateFileState = false) {

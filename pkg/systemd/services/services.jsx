@@ -471,7 +471,7 @@ class ServicesPageBody extends React.Component {
 
                                         return this.getUnitByPath(unit_path);
                                     }, ex => {
-                                        this.props.isLoading(false);
+                                        this.props.setIsLoading(false);
                                         this.setState({ error: cockpit.format(_("Loading unit failed: $0"), ex.toString()) });
                                     }));
                                 });
@@ -503,11 +503,11 @@ class ServicesPageBody extends React.Component {
                                             this.processFailedUnits();
                                         });
                             }, ex => {
-                                this.props.isLoading(false);
+                                this.props.SetIsLoading(false);
                                 this.setState({ error: cockpit.format(_("Listing unit files failed: $0"), ex.toString()) });
                             });
                 }, ex => {
-                    this.props.isLoading(false);
+                    this.props.setIsLoading(false);
                     this.setState({ error: cockpit.format(_("Listing units failed: $0"), ex.toString()) });
                 });
     }

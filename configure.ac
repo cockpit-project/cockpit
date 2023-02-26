@@ -178,9 +178,9 @@ else
 fi
 AC_SUBST([systemdunitdir], [$systemdunitdir])
 
-# We need msgcat, msgfmt, msggrep, msgmerge, but they're all in the same
+# We need msgcat, msgfmt, and xgettext, but they're all in the same
 # package as xgettext, and we find them by PATH, so just check for the one.
-AC_PATH_PROG([XGETTEXT], [xsltproc], [no])
+AC_PATH_PROG([XGETTEXT], [xgettext], [no])
 if test "$XGETTEXT" = "no"; then
         AC_MSG_ERROR([Please install gettext tools])
 fi

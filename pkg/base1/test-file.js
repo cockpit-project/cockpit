@@ -1,6 +1,8 @@
 import cockpit from "cockpit";
 import QUnit from "qunit-tests";
 
+let dir;
+
 QUnit.test("simple read", async assert => {
     const file = cockpit.file(dir + "/foo");
     assert.equal(file.path, dir + "/foo", "file has path");
@@ -423,6 +425,8 @@ QUnit.test("remove testdir", async assert => {
     assert.ok(true, "did not crash");
 });
 
-const resp = await cockpit.spawn(["bash", "-c", "d=$(mktemp -d); echo '1234' >$d/foo; echo '{ \"foo\": 12 }' >$d/foo.json; echo -en '\\x00\\x01\\x02\\x03' >$d/foo.bin; dd if=/dev/zero of=$d/large.bin bs=1k count=512; echo $d"]);
-const dir = resp.replace(/\n$/, "");
-QUnit.start();
+(async () => {
+    const resp = await cockpit.spawn(["bash", "-c", "d=$(mktemp -d); echo '1234' >$d/foo; echo '{ \"foo\": 12 }' >$d/foo.json; echo -en '\\x00\\x01\\x02\\x03' >$d/foo.bin; dd if=/dev/zero of=$d/large.bin bs=1k count=512; echo $d"]);
+    dir = resp.replace(/\n$/, "");
+    QUnit.start();
+})();

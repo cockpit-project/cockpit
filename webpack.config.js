@@ -424,10 +424,6 @@ export default {
         ],
     },
 
-    experiments: {
-        topLevelAwait: true,
-    },
-
     module: {
         rules: [
             {

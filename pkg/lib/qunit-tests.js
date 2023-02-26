@@ -31,10 +31,17 @@ QUnit.mock_info = async key => {
 // Convenience for skipping tests that the python bridge can't yet
 // handle.
 
-if (await QUnit.mock_info("pybridge"))
-    QUnit.test.skipWithPybridge = QUnit.test.skip;
-else
-    QUnit.test.skipWithPybridge = QUnit.test;
+let is_pybridge = null;
+
+QUnit.test.skipWithPybridge = async (name, callback) => {
+    if (is_pybridge === null)
+        is_pybridge = await QUnit.mock_info("pybridge");
+
+    if (is_pybridge)
+        QUnit.test.skip(name, callback);
+    else
+        QUnit.test(name, callback);
+};
 
 /* Always use explicit start */
 QUnit.config.autostart = false;

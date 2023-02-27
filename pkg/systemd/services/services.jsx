@@ -556,7 +556,7 @@ class ServicesPageBody extends React.Component {
         }
     }
 
-    addTimerProperties(timer_unit, path, unit) {
+    addTimerProperties(timer_unit, unit) {
         let needsUpdate = false;
 
         const lastTriggerTime = timeformat.dateTime(timer_unit.LastTriggerUSec / 1000);
@@ -592,14 +592,7 @@ class ServicesPageBody extends React.Component {
             needsUpdate = true;
         }
 
-        if (needsUpdate) {
-            this.setState(prevState => ({
-                unit_by_path: {
-                    ...prevState.unit_by_path,
-                    [unit.path]: unit,
-                }
-            }));
-        }
+        return needsUpdate;
     }
 
     /* Add some computed properties into a unit object - does not call setState */
@@ -693,7 +686,14 @@ class ServicesPageBody extends React.Component {
                 const timer_unit = systemd_client[this.props.owner].proxy('org.freedesktop.systemd1.Timer', unitNew.path);
                 timer_unit.wait(() => {
                     if (timer_unit.valid)
-                        this.addTimerProperties(timer_unit, path, unitNew);
+                        if (this.addTimerProperties(timer_unit, unitNew)) {
+                            this.setState(prevState => ({
+                                unit_by_path: {
+                                    ...prevState.unit_by_path,
+                                    [path]: unitNew,
+                                }
+                            }));
+                        }
                 });
             }
         }

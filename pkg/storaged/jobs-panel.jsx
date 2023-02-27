@@ -101,7 +101,7 @@ function make_description(client, job) {
             return _("unknown target");
     }).join(", ");
 
-    return cockpit.format(fmt, { operation: job.Operation, target: target });
+    return cockpit.format(fmt, { operation: job.Operation, target });
 }
 
 class JobRow extends React.Component {

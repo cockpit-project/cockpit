@@ -200,7 +200,7 @@ class Metrics_stacked_instances_series extends Metrics_series {
         if (this.instances[name])
             return;
 
-        const instance_data = Object.assign({ selector: selector }, this.options);
+        const instance_data = Object.assign({ selector }, this.options);
         const factor = this.desc.factor || 1;
         const threshold = this.desc.threshold || 0;
         const last = this.last_instance;

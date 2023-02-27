@@ -163,7 +163,7 @@ export function check_mismounted_fsys(client, path, enter_warning) {
     }
 
     if (type)
-        enter_warning(path, { warning: "mismounted-fsys", type: type, other: other_mounts[0] });
+        enter_warning(path, { warning: "mismounted-fsys", type, other: other_mounts[0] });
 }
 
 export function mounting_dialog(client, block, mode, forced_options) {

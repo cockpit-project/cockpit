@@ -116,10 +116,10 @@ class AddMachine extends React.Component {
         this.state = {
             user: host_user || "",
             address: host_address || "",
-            color: color,
+            color,
             addressError: "",
             inProgress: false,
-            old_machine: old_machine,
+            old_machine,
             userChanged: false,
         };
 
@@ -248,7 +248,7 @@ class AddMachine extends React.Component {
         const body = <Form isHorizontal>
             <FormGroup label={_("Host")} helperText={_("Can be a hostname, IP address, alias name, or ssh:// URI")}
                 validated={this.state.addressError ? "error" : "default"} helperTextInvalid={this.state.addressError}>
-                <TextInput id="add-machine-address" onChange={address => this.setState({ address: address })}
+                <TextInput id="add-machine-address" onChange={address => this.setState({ address })}
                         validated={this.state.addressError ? "error" : "default"} onBlur={this.onAddressChange}
                         isDisabled={this.props.old_address === "localhost"} list="options" value={this.state.address} />
                 <datalist id="options">
@@ -551,7 +551,7 @@ class ChangeAuth extends React.Component {
         if (default_ssh_key && default_ssh_key.encrypted)
             default_ssh_key.unaligned_passphrase = identity_path && identity_path === default_ssh_key.name;
 
-        this.setState({ identity_path: identity_path, default_ssh_key: default_ssh_key });
+        this.setState({ identity_path, default_ssh_key });
     }
 
     componentDidMount() {
@@ -566,7 +566,7 @@ class ChangeAuth extends React.Component {
                                 else
                                     default_ssh_key = { name: user.home + "/.ssh/id_rsa", type: "rsa", exists: false };
 
-                                return this.setState({ inProgress: false, default_ssh_key: default_ssh_key, user: user }, this.updateIdentity);
+                                return this.setState({ inProgress: false, default_ssh_key, user }, this.updateIdentity);
                             })
                 )
                 .catch(ex => { this.setState({ inProgress: false }); this.props.setError(ex) });
@@ -619,8 +619,8 @@ class ChangeAuth extends React.Component {
         }
 
         return {
-            offer_login_password: offer_login_password,
-            offer_key_password: offer_key_password,
+            offer_login_password,
+            offer_key_password,
         };
     }
 
@@ -633,7 +633,7 @@ class ChangeAuth extends React.Component {
 
     authorize_key(host) {
         return this.keys.get_pubkey(this.state.default_ssh_key.name)
-                .then(data => cockpit.script(ssh_add_key_sh, [data.trim()], { host: host, err: "message" }));
+                .then(data => cockpit.script(ssh_add_key_sh, [data.trim()], { host, err: "message" }));
     }
 
     maybe_unlock_key() {
@@ -690,10 +690,10 @@ class ChangeAuth extends React.Component {
 
         if (custom_password_error || locked_identity_password_error || login_setup_new_key_password_error || login_setup_new_key_password2_error) {
             this.setState({
-                custom_password_error: custom_password_error,
-                locked_identity_password_error: locked_identity_password_error,
-                login_setup_new_key_password_error: login_setup_new_key_password_error,
-                login_setup_new_key_password2_error: login_setup_new_key_password2_error,
+                custom_password_error,
+                locked_identity_password_error,
+                login_setup_new_key_password_error,
+                login_setup_new_key_password2_error,
             });
             return;
         }
@@ -706,7 +706,7 @@ class ChangeAuth extends React.Component {
                     return this.props.try2Connect(this.props.full_address, options)
                             .then(() => {
                                 if (machine)
-                                    return this.props.machines_ins.change(machine.address, { user: user });
+                                    return this.props.machines_ins.change(machine.address, { user });
                                 else
                                     return Promise.resolve();
                             })
@@ -911,7 +911,7 @@ export class HostModal extends React.Component {
 
     changeContent(template, error_options) {
         if (this.state.current_template !== template)
-            this.setState({ current_template: template, error_options: error_options });
+            this.setState({ current_template: template, error_options });
     }
 
     try2Connect(address, options) {
@@ -965,7 +965,7 @@ export class HostModal extends React.Component {
     }
 
     setAddress(address) {
-        this.setState({ address: address });
+        this.setState({ address });
     }
 
     run(promise, failure_callback) {
@@ -1008,7 +1008,7 @@ export class HostModal extends React.Component {
         const template = this.state.current_template;
 
         const props = {
-            template: template,
+            template,
             host: this.addressOrLabel(),
             full_address: this.state.address,
             old_address: this.state.old_address,

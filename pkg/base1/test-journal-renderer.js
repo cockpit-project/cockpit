@@ -61,8 +61,8 @@ let renderer;
 let expected_day;
 
 const funcs = {
-    render_line: (ident, prio, message, count, time, cursor) => ({ message: message, count: count }),
-    render_day_header: day => ({ day: day }),
+    render_line: (ident, prio, message, count, time, cursor) => ({ message, count }),
+    render_day_header: day => ({ day }),
     render_reboot_separator: () => ({ reboot: true }),
 
     append: elt => {

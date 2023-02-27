@@ -578,7 +578,7 @@ class CurrentMetrics extends React.Component {
         })
                 .catch(err => console.error("could not obtain podman names:", err))
                 .finally(() => this.setState(prevState => ({ podNameMapping: { ...prevState.podNameMapping, ...podNameMapping } })));
-    }
+    };
 
     render() {
         const memUsedFraction = memTotal ? this.state.memUsed / memTotal : 0;
@@ -920,7 +920,7 @@ class MetricsMinute extends React.Component {
         time.setUTCSeconds(end_second);
         const until = formatUTC_ISO(time);
 
-        const match = { priority: "info", since: since, until: until, follow: false, count: 10 };
+        const match = { priority: "info", since, until, follow: false, count: 10 };
         const journalctl = journal.journalctl(match);
 
         const out = new JournalOutput(match);
@@ -1130,7 +1130,7 @@ class MetricsHour extends React.Component {
             minuteGraphs.push(<MetricsMinute key={minute} minute={minute} data={dataSlice} rawData={rawSlice} events={minute_events[minute]} startTime={this.props.startTime} selectedVisibility={selectedVisibility} />);
         }
 
-        this.setState((_, prevProps) => ({ minuteGraphs: minuteGraphs, dataItems: prevProps.data.length }));
+        this.setState((_, prevProps) => ({ minuteGraphs, dataItems: prevProps.data.length }));
     }
 
     render() {
@@ -1486,7 +1486,7 @@ class MetricsHistory extends React.Component {
             interval: INTERVAL,
             source: "pcp-archive",
             timestamp: load_timestamp,
-            limit: limit,
+            limit,
             metrics: HISTORY_METRICS,
         });
 

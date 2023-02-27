@@ -81,7 +81,7 @@ function Superuser() {
 
     const self = {
         allowed: compute_allowed(),
-        reload_page_on_change: reload_page_on_change
+        reload_page_on_change
     };
 
     cockpit.event_target(self);

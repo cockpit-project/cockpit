@@ -39,7 +39,7 @@ export class ConfigFile {
 
         cockpit.event_target(this);
 
-        this._fileHandle = cockpit.file(filename, { superuser: superuser });
+        this._fileHandle = cockpit.file(filename, { superuser });
         this._fileHandle.watch((rawContent) => {
             this._parseText(rawContent);
         });
@@ -115,10 +115,10 @@ export class ConfigFile {
                 value = value.substring(0, commentIndex).trim();
             }
             this.settings._internal[key] = {
-                index: index,
-                value: value,
+                index,
+                value,
                 origLine: line,
-                comment: comment
+                comment
             };
         });
 
@@ -214,7 +214,7 @@ export class ConfigFile {
                 delete settings._internal[key];
         } else {
             if (value)
-                settings._internal[key] = { value: value };
+                settings._internal[key] = { value };
         }
     }
 

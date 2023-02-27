@@ -60,12 +60,12 @@ const _ = cockpit.gettext;
 
         componentDidMount() {
             cockpit.user().done(function (user) {
-                this.setState({ user: user, channel: this.createChannel(user) });
+                this.setState({ user, channel: this.createChannel(user) });
             }.bind(this));
         }
 
         onTitleChanged(title) {
-            this.setState({ title: title });
+            this.setState({ title });
         }
 
         setCookie(key, value) {

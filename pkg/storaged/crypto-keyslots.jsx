@@ -202,7 +202,7 @@ export function existing_passphrase_fields(explanation) {
                   {
                       visible: vals => vals.needs_explicit_passphrase,
                       validate: val => !val.length && _("Passphrase cannot be empty"),
-                      explanation: explanation
+                      explanation
                   })
     ];
 }
@@ -573,7 +573,7 @@ function edit_clevis_dialog(client, block, key) {
 }
 
 function add_or_update_tang(dlg, vals, block, url, adv, old_key, passphrase) {
-    return clevis_add(block, "tang", { url: url, adv: adv }, vals.passphrase || passphrase).then(() => {
+    return clevis_add(block, "tang", { url, adv }, vals.passphrase || passphrase).then(() => {
         if (old_key)
             return clevis_remove(block, old_key);
     })
@@ -644,9 +644,9 @@ const RemovePassphraseField = (tag, key, dev) => {
     }
 
     return {
-        tag: tag,
+        tag,
         title: null,
-        options: { validate: validate },
+        options: { validate },
         initial_value: "",
         bare: true,
 
@@ -694,7 +694,7 @@ function remove_passphrase_dialog(block, key) {
 
 const RemoveClevisField = (tag, key, dev) => {
     return {
-        tag: tag,
+        tag,
         title: null,
         options: { },
         initial_value: "",

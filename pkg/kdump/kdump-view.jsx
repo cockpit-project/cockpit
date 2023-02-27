@@ -280,7 +280,7 @@ export class KdumpPage extends React.Component {
             dialog_done: self.dialogClosed,
         };
         const dialogObj = show_modal_dialog(dialogProps, footerProps);
-        this.setState({ dialogObj: dialogObj });
+        this.setState({ dialogObj });
     }
 
     handleServiceDetailsClick(e) {

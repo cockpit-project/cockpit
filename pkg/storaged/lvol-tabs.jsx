@@ -212,7 +212,7 @@ function get_resize_info(client, block, to_fit) {
         shrink_excuse = grow_excuse = _("This volume needs to be activated before it can be resized.");
     }
 
-    return { info: info, shrink_excuse: shrink_excuse, grow_excuse: grow_excuse };
+    return { info, shrink_excuse, grow_excuse };
 }
 
 function lvol_grow(client, lvol, info, to_fit) {

@@ -126,7 +126,7 @@ QUnit.test("decode", function (assert) {
     for (let i = 0; i < checks.length; i++) {
         const options = { };
         const path = cockpit.location.decode(checks[i][0], options);
-        assert.deepEqual({ path: path, options: options }, checks[i][1], "decode(\"" + checks[i][0] + "\")");
+        assert.deepEqual({ path, options }, checks[i][1], "decode(\"" + checks[i][0] + "\")");
     }
 });
 

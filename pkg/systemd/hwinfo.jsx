@@ -149,7 +149,7 @@ function availableMitigations() {
 
         availableMitigations.cachedMitigations = {
             available: nosmt_available,
-            nosmt_enabled: nosmt_enabled,
+            nosmt_enabled,
             mitigations_arg: mitigations_match ? mitigations_match[1] : undefined,
         };
         return availableMitigations.cachedMitigations;

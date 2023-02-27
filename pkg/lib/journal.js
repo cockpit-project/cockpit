@@ -444,9 +444,9 @@ journal.renderer = function renderer(output_funcs) {
     }
 
     return {
-        prepend: prepend,
-        prepend_flush: prepend_flush,
-        append: append,
-        append_flush: append_flush
+        prepend,
+        prepend_flush,
+        append,
+        append_flush
     };
 };

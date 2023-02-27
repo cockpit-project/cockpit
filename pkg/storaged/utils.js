@@ -283,9 +283,9 @@ export function get_block_link_parts(client, path) {
         format = "$0";
 
     return {
-        location: location,
-        format: format,
-        link: link
+        location,
+        format,
+        link
     };
 }
 
@@ -326,7 +326,7 @@ export function get_partitions(client, block) {
             // MiB gap.)
 
             if (size >= 3 * 1024 * 1024) {
-                result.push({ type: 'free', start: start, size: size });
+                result.push({ type: 'free', start, size });
             }
         }
 
@@ -353,12 +353,12 @@ export function get_partitions(client, block) {
             if (is_container) {
                 result.push({
                     type: 'container',
-                    block: block,
-                    size: size,
+                    block,
+                    size,
                     partitions: process_level(level + 1, start, size)
                 });
             } else {
-                result.push({ type: 'block', block: block });
+                result.push({ type: 'block', block });
             }
             last_end = start + size;
         }
@@ -425,7 +425,7 @@ export function get_available_spaces(client) {
         const block = client.blocks[path];
         const parts = get_block_link_parts(client, path);
         const text = cockpit.format(parts.format, parts.link);
-        return { type: 'block', block: block, size: block.Size, desc: text };
+        return { type: 'block', block, size: block.Size, desc: text };
     }
 
     const spaces = Object.keys(client.blocks).filter(is_free)
@@ -442,7 +442,7 @@ export function get_available_spaces(client) {
                 text = cockpit.format(link_parts.format, link_parts.link);
                 spaces.push({
                     type: 'free',
-                    block: block,
+                    block,
                     start: p.start,
                     size: p.size,
                     desc: cockpit.format(_("unpartitioned space on $0"), text)
@@ -650,9 +650,9 @@ export function get_active_usage(client, path, top_action, child_action) {
         if (fsys && fsys.MountPoints.length > 0) {
             fsys.MountPoints.forEach(mp => {
                 usage.push({
-                    level: level,
+                    level,
                     usage: 'mounted',
-                    block: block,
+                    block,
                     location: decode_filename(mp),
                     actions: get_actions(_("unmount")),
                     blocking: false,
@@ -663,48 +663,48 @@ export function get_active_usage(client, path, top_action, child_action) {
                 return as[0] == block.path;
             });
             usage.push({
-                level: level,
+                level,
                 usage: 'mdraid-member',
-                block: block,
-                mdraid: mdraid,
+                block,
+                mdraid,
                 location: mdraid_name(mdraid.Name),
                 actions: get_actions(_("remove from RAID")),
                 blocking: !(active_state && active_state[1] < 0)
             });
         } else if (vgroup) {
             usage.push({
-                level: level,
+                level,
                 usage: 'pvol',
-                block: block,
-                vgroup: vgroup,
-                pvol: pvol,
+                block,
+                vgroup,
+                pvol,
                 location: vgroup.Name,
                 actions: get_actions(_("remove from LVM2")),
                 blocking: pvol.FreeSize != pvol.Size
             });
         } else if (vdo) {
             usage.push({
-                level: level,
+                level,
                 usage: 'vdo-backing',
-                block: block,
-                vdo: vdo,
+                block,
+                vdo,
                 location: vdo.name,
                 blocking: true
             });
         } else if (stratis_pool) {
             usage.push({
-                level: level,
+                level,
                 usage: 'stratis-pool-member',
-                block: block,
-                stratis_pool: stratis_pool,
+                block,
+                stratis_pool,
                 location: stratis_pool.Name,
                 blocking: true
             });
         } else if (block && !client.blocks_cleartext[block.path]) {
             usage.push({
-                level: level,
+                level,
                 usage: 'none',
-                block: block,
+                block,
                 actions: get_actions(null),
                 blocking: false
             });

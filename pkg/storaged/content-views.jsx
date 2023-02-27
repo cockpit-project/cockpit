@@ -134,20 +134,20 @@ function create_tabs(client, target, is_partition, is_extended) {
 
     function add_action(title, func) {
         tab_actions.push(<StorageButton onlyWide key={title} onClick={func}>{title}</StorageButton>);
-        tab_menu_actions.push({ title: title, func: func, only_narrow: true });
+        tab_menu_actions.push({ title, func, only_narrow: true });
     }
 
     function add_danger_action(title, func) {
         tab_actions.push(<StorageButton onlyWide key={title} onClick={func}>{title}</StorageButton>);
-        tab_menu_danger_actions.push({ title: title, func: func, only_narrow: true });
+        tab_menu_danger_actions.push({ title, func, only_narrow: true });
     }
 
     function add_menu_action(title, func) {
-        tab_menu_actions.push({ title: title, func: func });
+        tab_menu_actions.push({ title, func });
     }
 
     function add_menu_danger_action(title, func) {
-        tab_menu_danger_actions.push({ title: title, func: func });
+        tab_menu_danger_actions.push({ title, func });
     }
 
     const tabs = [];
@@ -160,12 +160,12 @@ function create_tabs(client, target, is_partition, is_extended) {
             name = <div className="content-nav-item-warning"><ExclamationTriangleIcon className="ct-icon-exclamation-triangle" /> {name}</div>;
         tabs.push(
             {
-                name: name,
-                renderer: renderer,
+                name,
+                renderer,
                 data: {
-                    client: client,
+                    client,
                     block: for_content ? content_block : block,
-                    lvol: lvol,
+                    lvol,
                     warnings: tab_warnings,
                 }
             });
@@ -504,11 +504,11 @@ function block_description(client, block) {
         type = cockpit.format(_("$0 (encrypted)"), type);
 
     return {
-        type: type,
-        used_for: used_for,
-        link: link,
-        size: size,
-        critical_size: critical_size
+        type,
+        used_for,
+        link,
+        size,
+        critical_size
     };
 }
 

@@ -64,7 +64,7 @@ export function injectMockUpdates(updates) {
     for (let i = 1; i < 50; ++i) {
         const name = `manypkgs${i}`;
         updates[name + ";1-1"] = {
-            name: name,
+            name,
             version: "1-1",
             bug_urls: [],
             cve_urls: [],

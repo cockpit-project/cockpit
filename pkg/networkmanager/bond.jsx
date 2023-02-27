@@ -105,7 +105,7 @@ export const BondDialog = ({ connection, dev, settings }) => {
                         arp_interval: linkMonitoringInterval,
                         arp_ip_target: monitoringTargets,
                     }),
-                    ...(mode == "active-backup" && { primary: primary })
+                    ...(mode == "active-backup" && { primary })
                 }
             }
         });

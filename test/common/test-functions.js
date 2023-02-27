@@ -132,7 +132,7 @@ function ph_mouse(sel, type, x, y, btn, ctrlKey, shiftKey, altKey, metaKey) {
         bubbles: true,
         cancelable: true,
         view: window,
-        detail: detail,
+        detail,
         screenX: left + x,
         screenY: top + y,
         clientX: left + x,

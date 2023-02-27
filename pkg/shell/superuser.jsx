@@ -72,7 +72,7 @@ const UnlockDialog = ({ proxy, host }) => {
             setPrompt({
                 message: sudo_polish(message),
                 prompt: sudo_polish(prompt),
-                echo: echo
+                echo
             });
             setValue(def);
 

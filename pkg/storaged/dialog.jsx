@@ -357,7 +357,7 @@ export const dialog_open = (def) => {
             : def.Title);
         return {
             id: "dialog",
-            title: title,
+            title,
             body: <Body body={def.Body}
                         teardown={def.Teardown}
                         fields={nested_fields}
@@ -433,7 +433,7 @@ export const dialog_open = (def) => {
                 </>
                 : null),
             extra_element: extra,
-            actions: actions,
+            actions,
             cancel_button: def.Action ? {} : { text: _("Close"), variant: "secondary" }
         };
     };
@@ -524,9 +524,9 @@ export const dialog_open = (def) => {
 
 export const TextInput = (tag, title, options) => {
     return {
-        tag: tag,
-        title: title,
-        options: options,
+        tag,
+        title,
+        options,
         initial_value: options.value || "",
 
         render: (val, change, validated) =>
@@ -541,9 +541,9 @@ export const TextInput = (tag, title, options) => {
 
 export const PassInput = (tag, title, options) => {
     return {
-        tag: tag,
-        title: title,
-        options: options,
+        tag,
+        title,
+        options,
         initial_value: options.value || "",
 
         render: (val, change, validated) =>
@@ -579,9 +579,9 @@ const TypeAheadSelectElement = ({ options, change }) => {
 
 export const ComboBox = (tag, title, options) => {
     return {
-        tag: tag,
-        title: title,
-        options: options,
+        tag,
+        title,
+        options,
         initial_value: options.value || "",
 
         render: (val, change, validated) => {
@@ -594,9 +594,9 @@ export const ComboBox = (tag, title, options) => {
 
 export const SelectOne = (tag, title, options) => {
     return {
-        tag: tag,
-        title: title,
-        options: options,
+        tag,
+        title,
+        options,
         initial_value: options.value || options.choices[0].value,
 
         render: (val, change, validated) => {
@@ -616,9 +616,9 @@ export const SelectOne = (tag, title, options) => {
 
 export const SelectOneRadio = (tag, title, options) => {
     return {
-        tag: tag,
-        title: title,
-        options: options,
+        tag,
+        title,
+        options,
         initial_value: options.value || options.choices[0].value,
         hasNoPaddingTop: true,
 
@@ -638,9 +638,9 @@ export const SelectOneRadio = (tag, title, options) => {
 
 export const SelectRow = (tag, headers, options) => {
     return {
-        tag: tag,
+        tag,
         title: null,
-        options: options,
+        options,
         initial_value: options.value || options.choices[0].value,
 
         render: (val, change) => {
@@ -673,9 +673,9 @@ function nice_block_name(block) {
 
 export const SelectSpaces = (tag, title, options) => {
     return {
-        tag: tag,
-        title: title,
-        options: options,
+        tag,
+        title,
+        options,
         initial_value: [],
 
         render: (val, change) => {
@@ -728,9 +728,9 @@ export const SelectSpaces = (tag, title, options) => {
 
 export const SelectSpace = (tag, title, options) => {
     return {
-        tag: tag,
-        title: title,
-        options: options,
+        tag,
+        title,
+        options,
         initial_value: null,
 
         render: (val, change) => {
@@ -799,9 +799,9 @@ const CheckBoxComponent = ({ tag, val, title, tooltip, update_function }) => {
 
 export const CheckBoxes = (tag, title, options) => {
     return {
-        tag: tag,
-        title: title,
-        options: options,
+        tag,
+        title,
+        options,
         initial_value: options.value || { },
         hasNoPaddingTop: true,
 
@@ -856,7 +856,7 @@ export const Skip = (className, options) => {
     return {
         tag: false,
         title: null,
-        options: options,
+        options,
         initial_value: false,
 
         render: () => {
@@ -867,7 +867,7 @@ export const Skip = (className, options) => {
 
 export const Message = (text, options) => {
     return {
-        options: options,
+        options,
 
         render: () => <HelperText><HelperTextItem icon={<InfoIcon />}>{text}</HelperTextItem></HelperText>,
     };
@@ -909,7 +909,7 @@ class SizeSliderElement extends React.Component {
              * the text input without getting the text changed all the
              * time by rounding, etc.
              */
-            onChange({ text: value, unit: unit });
+            onChange({ text: value, unit });
         };
 
         let slider_val, text_val;
@@ -996,11 +996,11 @@ export const SizeSlider = (tag, title, options) => {
        have to use it below for the 'max' option in order to pick up
        changes to it.
      */
-    const all_options = Object.assign({ }, options, { validate: validate });
+    const all_options = Object.assign({ }, options, { validate });
 
     return {
-        tag: tag,
-        title: title,
+        tag,
+        title,
         options: all_options,
         initial_value: options.value || options.max || 0,
 

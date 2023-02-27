@@ -34,7 +34,7 @@ const _ = cockpit.gettext;
 function show_error_dialog(title, message) {
     const props = {
         id: "error-popup",
-        title: title,
+        title,
         body: <p>{message}</p>
     };
 
@@ -1701,7 +1701,7 @@ export function set_member(model, group_connection, group_settings, member_type,
                                {
                                    autoconnect: true,
                                    interface_name: iface.Name,
-                                   member_type: member_type,
+                                   member_type,
                                    group: group_iface
                                }
             };

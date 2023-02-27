@@ -100,7 +100,7 @@ function MockSink(expected, callback) {
             self.samples[beg + i] = items[i];
     }
 
-    self.series = { input: input };
+    self.series = { input };
     return self;
 }
 

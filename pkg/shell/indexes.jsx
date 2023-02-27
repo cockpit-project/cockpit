@@ -283,7 +283,7 @@ function MachinesIndex(index_options, machines, loader) {
                             score = 1 + weight;
                     }
                     if (score > best.score) {
-                        best = { keyword: m, score: score };
+                        best = { keyword: m, score };
                     }
                 });
                 if (best.score > current_best.score) {
@@ -326,11 +326,11 @@ function MachinesIndex(index_options, machines, loader) {
             return React.createElement(CockpitNavItem, {
                 key: component.label,
                 name: component.label,
-                active: active,
-                status: status,
+                active,
+                status,
                 keyword: component.keyword.keyword,
-                term: term,
-                to: index.href({ host: machine.address, component: path, hash: hash }),
+                term,
+                to: index.href({ host: machine.address, component: path, hash }),
                 jump: index.jump,
             });
         }
@@ -355,7 +355,7 @@ function MachinesIndex(index_options, machines, loader) {
             host_apps_root = root('host-apps');
         host_apps_root.render(
             React.createElement(CockpitNav, {
-                groups: groups,
+                groups,
                 selector: "host-apps",
                 item_render: nav_item,
                 filtering: keyword_filter,
@@ -377,7 +377,7 @@ function MachinesIndex(index_options, machines, loader) {
         hosts_sel_root.render(
             React.createElement(CockpitHosts, {
                 machine: machine || {},
-                machines: machines,
+                machines,
                 selector: "nav-hosts",
                 hostAddr: index.href,
                 jump: index.jump,
@@ -433,7 +433,7 @@ function MachinesIndex(index_options, machines, loader) {
             if (!troubleshoot_dialog_root)
                 troubleshoot_dialog_root = root('troubleshoot-dialog');
             troubleshoot_dialog_root.render(React.createElement(HostModal, {
-                template: template,
+                template,
                 address: machine.address,
                 machines_ins: machines,
                 onClose: () => {

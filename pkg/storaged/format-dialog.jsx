@@ -150,7 +150,7 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
         if ((client.manager.SupportedEncryptionTypes && client.manager.SupportedEncryptionTypes.indexOf(value) != -1) ||
             value == "luks1") {
             crypto_types.push({
-                value: value,
+                value,
                 title: title + (recommended ? " " + _("(recommended)") : "")
             });
         }

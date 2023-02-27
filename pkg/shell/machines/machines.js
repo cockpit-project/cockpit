@@ -317,7 +317,7 @@ function Machines() {
         }
 
         refresh({
-            content: content,
+            content,
             overlay: { ...last.overlay, ...changes },
         }, true);
     };
@@ -456,7 +456,7 @@ function Loader(machines, session_only) {
     window.addEventListener("storage", process_session_machines);
 
     function state(host, value, problem) {
-        const values = { state: value, problem: problem };
+        const values = { state: value, problem };
         if (value == "connected") {
             values.restarting = false;
         } else if (problem) {
@@ -608,7 +608,7 @@ function Loader(machines, session_only) {
                                if (args[0] == "cockpit.Packages") {
                                    if (args[1].Manifests) {
                                        const manifests = JSON.parse(args[1].Manifests.v);
-                                       machines.overlay(host, { manifests: manifests });
+                                       machines.overlay(host, { manifests });
                                    }
                                }
                            });

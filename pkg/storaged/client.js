@@ -69,7 +69,7 @@ function instance_sampler(metrics, source) {
     let instances;
     const self = {
         data: { },
-        close: close
+        close
     };
 
     cockpit.event_target(self);
@@ -109,7 +109,7 @@ function instance_sampler(metrics, source) {
     const channel = cockpit.channel({
         payload: "metrics1",
         source: source || "internal",
-        metrics: metrics
+        metrics
     });
     channel.addEventListener("closed", function (event, error) {
         console.log("closed", error);
@@ -657,21 +657,21 @@ function nfs_mounts() {
         entries: [],
         fsys_sizes: { },
 
-        start: start,
+        start,
 
-        get_fsys_size: get_fsys_size,
-        entry_users: entry_users,
+        get_fsys_size,
+        entry_users,
 
-        update_entry: update_entry,
-        add_entry: add_entry,
-        remove_entry: remove_entry,
+        update_entry,
+        add_entry,
+        remove_entry,
 
-        mount_entry: mount_entry,
-        unmount_entry: unmount_entry,
-        stop_and_unmount_entry: stop_and_unmount_entry,
-        stop_and_remove_entry: stop_and_remove_entry,
+        mount_entry,
+        unmount_entry,
+        stop_and_unmount_entry,
+        stop_and_remove_entry,
 
-        find_entry: find_entry
+        find_entry
     };
 
     function spawn_nfs_mounts(args) {
@@ -769,7 +769,7 @@ client.nfs = nfs_mounts();
 
 function legacy_vdo_overlay() {
     const self = {
-        start: start,
+        start,
 
         volumes: [],
 
@@ -777,10 +777,10 @@ function legacy_vdo_overlay() {
         by_dev: { },
         by_backing_dev: { },
 
-        find_by_block: find_by_block,
-        find_by_backing_block: find_by_backing_block,
+        find_by_block,
+        find_by_backing_block,
 
-        create: create
+        create
     };
 
     function cmd(args) {
@@ -804,7 +804,7 @@ function legacy_vdo_overlay() {
             }
 
             const v = {
-                name: name,
+                name,
                 broken: vol.broken,
                 dev: "/dev/mapper/" + name,
                 backing_dev: vol.device,

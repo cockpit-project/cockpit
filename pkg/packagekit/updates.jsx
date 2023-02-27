@@ -1064,7 +1064,7 @@ class OsUpdates extends React.Component {
                     tracerPackages.reboot = [...new Set(shortenCockpitWsInstance(tracerPackages.reboot))];
                     tracerPackages.daemons = [...new Set(shortenCockpitWsInstance(tracerPackages.daemons))];
                     tracerPackages.manual = [...new Set(shortenCockpitWsInstance(tracerPackages.manual))];
-                    const nextState = { tracerAvailable: true, tracerRunning: false, tracerPackages: tracerPackages };
+                    const nextState = { tracerAvailable: true, tracerRunning: false, tracerPackages };
                     if (state)
                         nextState.state = state;
 
@@ -1187,7 +1187,7 @@ class OsUpdates extends React.Component {
                     // get the details for all packages
                     const pkg_ids = Object.keys(updates);
                     if (pkg_ids.length) {
-                        this.setState({ updates, cockpitUpdate: cockpitUpdate }, () => {
+                        this.setState({ updates, cockpitUpdate }, () => {
                             this.loadUpdateDetails(pkg_ids);
                         });
                     } else {
@@ -1226,7 +1226,7 @@ class OsUpdates extends React.Component {
             // only update the state once to avoid flicker
             Finished: () => {
                 if (history.length > 0)
-                    this.setState({ history: history });
+                    this.setState({ history });
             }
         })
                 .catch(ex => console.warn("Failed to load old transactions:", ex));

@@ -302,7 +302,7 @@ function Router(index) {
                the history, so let's just replace it with our custom
                state object.
             */
-            const state = Object.assign({}, index.retrieve_state(), { hash: hash });
+            const state = Object.assign({}, index.retrieve_state(), { hash });
             index.navigate(state, true);
         }
     }
@@ -360,11 +360,11 @@ function Router(index) {
         unique_id += 1;
         const seed = (cockpit.transport.options["channel-seed"] || "undefined:") + unique_id + "!";
         const source = {
-            name: name,
+            name,
             window: child,
             channel_seed: seed,
             default_host: host,
-            page: page,
+            page,
             inited: false,
         };
         source_by_seed[seed] = source;
@@ -834,7 +834,7 @@ function CompiledComponents() {
         Object.entries(manifests || { }).forEach(([name, manifest]) => {
             Object.entries(manifest[section] || { }).forEach(([prop, info]) => {
                 const item = {
-                    section: section,
+                    section,
                     label: cockpit.gettext(info.label) || prop,
                     order: info.order === undefined ? 1000 : info.order,
                     docs: info.docs,

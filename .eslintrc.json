@@ -2,7 +2,7 @@
     "root": true,
     "env": {
         "browser": true,
-        "es6": true
+        "es2022": true
     },
     "extends": [
         "eslint:recommended", "standard", "standard-jsx", "standard-react",
@@ -11,11 +11,7 @@
     ],
     "parser": "@babel/eslint-parser",
     "parserOptions": {
-        "ecmaVersion": "7",
-        "ecmaFeatures": {
-            "jsx": true
-        },
-        "sourceType": "module"
+        "ecmaVersion": "2022"
     },
     "plugins": ["react", "react-hooks"],
     "rules": {

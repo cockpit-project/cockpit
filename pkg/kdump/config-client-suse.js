@@ -99,11 +99,11 @@ export class ConfigFileSUSE extends ConfigFile {
             const suffix = (parts[2] || "").trim();
 
             this.settings._internal[key] = {
-                index: index,
-                value: value,
+                index,
+                value,
                 origLine: line,
-                quoted: quoted,
-                suffix: suffix
+                quoted,
+                suffix
             };
         });
 
@@ -139,20 +139,20 @@ export class ConfigFileSUSE extends ConfigFile {
             if (scheme === "file") {
                 this.settings.targets.local = {
                     type: "local",
-                    path: path,
+                    path,
                 };
             } else if (scheme === "nfs") {
                 this.settings.targets.nfs = {
                     type: scheme,
                     // on read full path is used as export
                     export: path,
-                    server: server,
+                    server,
                 };
             } else {
                 this.settings.targets[scheme] = {
                     type: scheme,
-                    path: path,
-                    server: server,
+                    path,
+                    server,
                 };
                 // sshkey is used by ssh and sftp/scp
                 if ("KDUMP_SSH_IDENTITY" in this.settings._internal) {
@@ -182,7 +182,7 @@ export class ConfigFileSUSE extends ConfigFile {
             settings._internal[key].value = value;
         } else {
             if (value)
-                settings._internal[key] = { value: value };
+                settings._internal[key] = { value };
         }
     }
 

@@ -117,7 +117,7 @@ export function nfs_fstab_dialog(client, entry) {
                 dlg.set_options("remote", { choices: [] });
                 get_exported_directories(server).then(choices => {
                     if (server == server_to_check)
-                        dlg.set_options("remote", { choices: choices });
+                        dlg.set_options("remote", { choices });
                 });
             }, delay);
         }

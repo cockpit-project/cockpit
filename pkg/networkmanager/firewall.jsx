@@ -404,7 +404,7 @@ class AddEditServicesModal extends React.Component {
                 selected.delete(service);
 
             return {
-                selected: selected
+                selected
             };
         });
     }
@@ -748,7 +748,7 @@ class ActivateZoneModal extends React.Component {
                 interfaces.add(int);
             else
                 interfaces.delete(int);
-            return { interfaces: interfaces };
+            return { interfaces };
         });
     }
 

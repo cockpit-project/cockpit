@@ -51,7 +51,7 @@ function fail(err) {
 function success(result) {
     if (typeof result === 'undefined')
         result = null;
-    process.stdout.write(JSON.stringify({ result: result }) + '\n');
+    process.stdout.write(JSON.stringify({ result }) + '\n');
 }
 
 /**

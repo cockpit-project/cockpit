@@ -135,14 +135,14 @@ async function getLogins(shadow) {
         const isLocked = get_locked(name, shadow);
 
         if (line.indexOf('**Never logged in**') > -1) {
-            return Promise.resolve({ name: name, loggedIn: false, lastLogin: null, isLocked: isLocked });
+            return Promise.resolve({ name, loggedIn: false, lastLogin: null, isLocked });
         }
 
         const date_fields = splitLine.slice(-5);
         // this is impossible to parse with Date() (e.g. Firefox does not work with all time zones), so call `date` to parse it
         return cockpit.spawn(["date", "+%s", "-d", date_fields.join(' ')], { environ: ["LC_ALL=C"], err: "out" })
                 .then(out => {
-                    return { name: name, loggedIn: currentLogins.includes(name), lastLogin: parseInt(out) * 1000, isLocked: isLocked };
+                    return { name, loggedIn: currentLogins.includes(name), lastLogin: parseInt(out) * 1000, isLocked };
                 })
                 .catch(e => console.warn(`Failed to parse date from lastlog line '${line}': ${e.toString()}`));
     });

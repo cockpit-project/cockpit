@@ -169,7 +169,7 @@ export class StorageOnOff extends React.Component {
                         .finally(() => { self.setState({ promise: null }) });
             }
 
-            self.setState({ promise: promise, promise_goal_state: val });
+            self.setState({ promise, promise_goal_state: val });
         }
 
         return (

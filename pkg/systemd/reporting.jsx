@@ -118,7 +118,7 @@ class FAFWorkflowRow extends React.Component {
                     if (reported) {
                         this.setState({
                             problemState: ProblemState.REPORTED,
-                            reportLinks: reportLinks,
+                            reportLinks,
                         });
                     }
                 });
@@ -149,7 +149,7 @@ class FAFWorkflowRow extends React.Component {
 
         this.setState({
             problemState: ProblemState.REPORTING,
-            process: process,
+            process,
         });
     }
 
@@ -289,7 +289,7 @@ class BusWorkflowRow extends React.Component {
                     task_proxy.addEventListener("Progress", (event, message) => {
                         if (/^\.+$/.exec(message) === null) {
                             // abrt-retrace-client starts printing dots if the last message it receives is repeated
-                            this.setState({ message: message, });
+                            this.setState({ message, });
                         }
                     });
 
@@ -330,7 +330,7 @@ class BusWorkflowRow extends React.Component {
                     const message = cockpit.format("reportd task could not be created: $0", (exception.problem || exception.message));
 
                     this.setState({
-                        message: message,
+                        message,
                         problemState: ProblemState.REPORTABLE,
                     });
                     console.error(message);
@@ -378,7 +378,7 @@ class BusWorkflowRow extends React.Component {
             if (reported) {
                 this.setState({
                     problemState: ProblemState.REPORTED,
-                    reportLinks: reportLinks,
+                    reportLinks,
                 });
             }
         };

@@ -158,9 +158,9 @@ const initStore = function(rootElement) {
             connected: dataStore.connected,
             connecting: dataStore.connecting,
             error: dataStore.error,
-            dismissError: dismissError,
+            dismissError,
             entries: dataStore.entries,
-            runFix: runFix,
+            runFix,
             deleteAlert: enableDeleteAlert ? deleteAlert : undefined,
             selinuxStatus: dataStore.selinuxStatus,
             selinuxStatusError: dataStore.selinuxStatusError,
@@ -203,7 +203,7 @@ const initStore = function(rootElement) {
             }
         }
         // nothing found, so we create a new entry
-        dataStore.entries.push({ key: localId, description: description, count: count, details: details, fix: null });
+        dataStore.entries.push({ key: localId, description, count, details, fix: null });
     };
 
     /* Add a list of messages and triggers getting details for each of them

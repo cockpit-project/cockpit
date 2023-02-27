@@ -121,17 +121,17 @@ export function proxy(name, kind) {
         state: null,
         enabled: null,
 
-        wait: wait,
+        wait,
 
-        start: start,
-        stop: stop,
-        restart: restart,
-        tryRestart: tryRestart,
+        start,
+        stop,
+        restart,
+        tryRestart,
 
-        enable: enable,
-        disable: disable,
+        enable,
+        disable,
 
-        getRunJournal: getRunJournal,
+        getRunJournal,
     };
 
     cockpit.event_target(self);

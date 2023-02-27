@@ -122,7 +122,7 @@ function MockWebSocket(url, protocol) {
         if (this.readyState > 1)
             throw Error("WebSocket.close() called on a closed WebSocket" + this.readyState + " " + code + reason);
         this.readyState = 3;
-        this.onclose({ name: "close", code: code || 1000, reason: reason, wasClean: true });
+        this.onclose({ name: "close", code: code || 1000, reason, wasClean: true });
     };
 
     /* Instantiate the global mock peer */

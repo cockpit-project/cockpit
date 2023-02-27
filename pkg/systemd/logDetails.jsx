@@ -131,14 +131,14 @@ export class LogEntry extends React.Component {
                         }
                     });
 
-                    this.setState({ entry: entry, loading: false, error: "", problemPath: path, abrtService: service });
+                    this.setState({ entry, loading: false, error: "", problemPath: path, abrtService: service });
                 })
-                .catch(err => this.setState({ entry: entry, loading: false, error: err.toString() }));
+                .catch(err => this.setState({ entry, loading: false, error: err.toString() }));
     }
 
     componentDidMount() {
         const cursor = cockpit.location.path[0];
-        journal.journalctl({ cursor: cursor, count: 1, follow: false })
+        journal.journalctl({ cursor, count: 1, follow: false })
                 .then(entries => {
                     if (entries.length >= 1 && entries[0].__CURSOR == cursor) {
                         if (entries[0].SYSLOG_IDENTIFIER === "abrt-notification" || entries[0]._SYSTEMD_UNIT === "abrt-notification")
@@ -148,7 +148,7 @@ export class LogEntry extends React.Component {
                     } else
                         this.setState({ entry: null, loading: false, error: _("Journal entry not found") });
                 })
-                .catch(error => this.setState({ entry: null, loading: false, error: error }));
+                .catch(error => this.setState({ entry: null, loading: false, error }));
     }
 
     componentWillUnmount() {

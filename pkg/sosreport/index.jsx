@@ -83,8 +83,8 @@ function sosLister() {
 
             return {
                 encrypted: !!m[1],
-                obfuscated: obfuscated,
-                name: name
+                obfuscated,
+                name
             };
         }
     }
@@ -190,7 +190,7 @@ function sosDownload(path) {
     const query = window.btoa(JSON.stringify({
         payload: "fsread1",
         binary: "raw",
-        path: path,
+        path,
         superuser: true,
         max_read_size: 150 * 1024 * 1024,
         external: {

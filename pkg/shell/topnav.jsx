@@ -52,8 +52,8 @@ export class TopNav extends React.Component {
         const frame = component ? props.index.frames.lookup(props.machine, component, hash) : undefined;
 
         this.state = {
-            component: component,
-            frame: frame,
+            component,
+            frame,
             docsOpened: false,
             menuOpened: false,
             showActivePages: false,
@@ -93,8 +93,8 @@ export class TopNav extends React.Component {
         if (component !== prevState.component) {
             const frame = component ? nextProps.index.frames.lookup(nextProps.machine, component, hash) : undefined;
             return {
-                frame: frame,
-                component: component,
+                frame,
+                component,
             };
         }
 
@@ -103,7 +103,7 @@ export class TopNav extends React.Component {
 
     handleModeClick = (isSelected, event) => {
         const theme = event.currentTarget.id;
-        this.setState({ theme: theme });
+        this.setState({ theme });
 
         const styleEvent = new CustomEvent("cockpit-style", {
             detail: {
@@ -113,7 +113,7 @@ export class TopNav extends React.Component {
         window.dispatchEvent(styleEvent);
 
         localStorage.setItem("shell:style", theme);
-    }
+    };
 
     render() {
         const Dialogs = this.context;

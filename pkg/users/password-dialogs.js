@@ -161,7 +161,7 @@ export function set_password_dialog(account, current_user) {
 
     const state = {
         need_old: change_self,
-        current_user: current_user,
+        current_user,
         password_old: "",
         password: "",
         password_confirm: "",

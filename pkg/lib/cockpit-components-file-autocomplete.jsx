@@ -141,7 +141,7 @@ export class FileAutoComplete extends React.Component {
         if (!error)
             this.setState({ displayFiles: listItems, directory });
         this.setState({
-            error: error,
+            error,
         });
     }
 

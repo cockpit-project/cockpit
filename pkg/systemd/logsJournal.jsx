@@ -198,9 +198,9 @@ export class JournalBox extends React.Component {
             count: 0,
             cursor: cursor || null,
             follow: true,
-            grep: grep,
-            priority: priority,
-            until: until,
+            grep,
+            priority,
+            until,
         };
         this.followingProcs.push(journal.journalctl(this.match, journalctlOptions)
                 .fail(this.queryError)
@@ -297,8 +297,8 @@ export class JournalBox extends React.Component {
                                  const journalctlOptions = {
                                      cursor: this.state.cursor,
                                      follow: false,
-                                     grep: grep,
-                                     priority: priority,
+                                     grep,
+                                     priority,
                                      reverse: true,
                                  };
                                  this.setState({ didntReachStart: false });

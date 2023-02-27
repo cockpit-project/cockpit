@@ -38,8 +38,8 @@ export const ActivePagesDialog = ({ frames }) => {
                 const iframe = frames.iframes[address][component];
                 result.push({
                     frame: iframe,
-                    component: component,
-                    address: address,
+                    component,
+                    address,
                     name: iframe.getAttribute("name"),
                     active: iframe.getAttribute("data-active") === 'true',
                     selected: iframe.getAttribute("data-active") === 'true',

@@ -49,7 +49,7 @@ export function has_errors(errors) {
 function show_error_dialog(title, message) {
     const props = {
         id: "error-popup",
-        title: title,
+        title,
         body: <p>{message}</p>
     };
 

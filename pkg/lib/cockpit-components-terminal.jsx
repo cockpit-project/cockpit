@@ -163,8 +163,8 @@ export class Terminal extends React.Component {
         this.terminal.resize(cols, rows);
         this.props.channel.control({
             window: {
-                rows: rows,
-                cols: cols
+                rows,
+                cols
             }
         });
     }

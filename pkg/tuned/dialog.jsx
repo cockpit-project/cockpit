@@ -218,7 +218,7 @@ const TunedDialog = ({
                 }
                 if (name != "none") {
                     model.push({
-                        name: name,
+                        name,
                         title: name,
                         description: desc,
                         active: name == active,

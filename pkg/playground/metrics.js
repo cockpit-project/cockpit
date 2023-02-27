@@ -7,7 +7,7 @@ const metrics = [{ name: "block.device.read" }];
 const channel = cockpit.channel({
     payload: "metrics1",
     source: "internal",
-    metrics: metrics,
+    metrics,
     interval: 1000
 });
 

@@ -114,7 +114,7 @@ function time_ticks(data) {
     }
 
     return {
-        ticks: ticks,
+        ticks,
         formatter: format_tick,
         start: start_ms,
         end: end_ms
@@ -195,14 +195,14 @@ function value_ticks(data, config) {
         const unit_str = config.formatter(unit, config.base_unit, true)[1];
 
         return {
-            ticks: ticks,
+            ticks,
             formatter: (val) => config.formatter(val, unit_str, true)[0],
             unit: unit_str,
             max: ticks[ticks.length - 1]
         };
     } else {
         return {
-            ticks: ticks,
+            ticks,
             formatter: config.formatter,
             max: ticks[ticks.length - 1]
         };

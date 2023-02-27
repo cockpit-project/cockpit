@@ -217,7 +217,7 @@ export class AbrtLogDetails extends React.Component {
     }
 
     componentDidMount() {
-        this.props.service.GetProblemData(this.props.problem.path).done(details => this.setState({ details: details }));
+        this.props.service.GetProblemData(this.props.problem.path).done(details => this.setState({ details }));
     }
 
     handleSelect(event, active_tab) {

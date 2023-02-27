@@ -93,9 +93,9 @@ function get_expire(name) {
 
         return {
             account_text: account_expiration,
-            account_date: account_date,
+            account_date,
             password_text: password_expiration,
-            password_days: password_days
+            password_days
         };
     }
 

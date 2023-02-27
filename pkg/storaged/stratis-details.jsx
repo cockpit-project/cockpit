@@ -575,13 +575,13 @@ export const StratisPoolDetails = ({ client, pool }) => {
 
         const tabs = [
             {
-                name: name,
+                name,
                 renderer: FilesystemTab,
                 data: {
-                    client: client,
-                    block: block,
+                    client,
+                    block,
                     warnings: tab_warnings,
-                    forced_options: forced_options
+                    forced_options
                 }
             }
         ];

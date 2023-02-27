@@ -128,7 +128,7 @@ export const IpSettingsDialog = ({ topic, connection, dev, settings }) => {
         return false;
     };
     const addressIpv4Helper = (address) => {
-        const config = { address: address, netmask: null, gateway: null };
+        const config = { address, netmask: null, gateway: null };
         const split = address.split('.');
 
         if (split.length !== 4)

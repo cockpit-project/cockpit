@@ -275,7 +275,7 @@ function event_mixin(obj, handlers) {
                     event = new CustomEvent(type, {
                         bubbles: false,
                         cancelable: false,
-                        detail: detail
+                        detail
                     });
 
                     args.unshift(event);
@@ -1167,7 +1167,7 @@ function factory() {
         },
         close: function close(problem) {
             if (default_transport)
-                default_transport.close(problem ? { problem: problem } : undefined);
+                default_transport.close(problem ? { problem } : undefined);
             default_transport = null;
             this.options = { };
         },
@@ -1993,7 +1993,7 @@ function factory() {
             }
 
             /* Insert our item into the array */
-            const entry = { beg: beg, items: items, mapping: mapping };
+            const entry = { beg, items, mapping };
             if (!head)
                 head = entry;
             if (tail)
@@ -2043,7 +2043,7 @@ function factory() {
                 throw Error("mismatched metric interval between grid and sink");
             let gdata = registered[id];
             if (!gdata) {
-                gdata = registered[id] = { grid: grid, links: [] };
+                gdata = registered[id] = { grid, links: [] };
                 gdata.links.remove = function remove() {
                     delete registered[id];
                 };
@@ -2189,7 +2189,7 @@ function factory() {
 
                 const links = sink._register(self, id);
                 if (!links.length)
-                    sinks.push({ sink: sink, links: links });
+                    sinks.push({ sink, links });
                 links.push([path, row]);
 
             /* Called as add(callback) */
@@ -2627,7 +2627,7 @@ function factory() {
         let hash = window.location.hash;
         if (hash.indexOf("#") === 0)
             hash = hash.substring(1);
-        cockpit.hint("location", { hash: hash });
+        cockpit.hint("location", { hash });
         cockpit.dispatchEvent("locationchanged");
     });
 
@@ -2650,7 +2650,7 @@ function factory() {
         if (host === undefined)
             host = cockpit.transport.host;
 
-        const options = { command: "jump", location: path, host: host };
+        const options = { command: "jump", location: path, host };
         cockpit.transport.inject("\n" + JSON.stringify(options));
     };
 
@@ -3028,7 +3028,7 @@ function factory() {
             }
         }
 
-        client.subscribe({ path: path, interface: iface }, signal, options.subscribe !== false);
+        client.subscribe({ path, interface: iface }, signal, options.subscribe !== false);
 
         function waited(ex) {
             if (valid)
@@ -3039,7 +3039,7 @@ function factory() {
 
         /* If watching then do a proper watch, otherwise object is done */
         if (options.watch !== false)
-            client.watch({ path: path, interface: iface }).always(waited);
+            client.watch({ path, interface: iface }).always(waited);
         else
             waited();
     }
@@ -3066,7 +3066,7 @@ function factory() {
         });
 
         /* Subscribe to signals once for all proxies */
-        const match = { interface: iface, path_namespace: path_namespace };
+        const match = { interface: iface, path_namespace };
 
         /* Callbacks added by proxies */
         client.subscribe(match);
@@ -3339,7 +3339,7 @@ function factory() {
         this.subscribe = function subscribe(match, callback, rule) {
             const subscription = {
                 match: { ...match },
-                callback: callback
+                callback
             };
 
             if (rule !== false)
@@ -3373,7 +3373,7 @@ function factory() {
             last_cookie++;
             const dfd = cockpit.defer();
 
-            const msg = JSON.stringify({ watch: match, id: id });
+            const msg = JSON.stringify({ watch: match, id });
             if (send(msg))
                 calls[id] = dfd;
             else
@@ -3433,7 +3433,7 @@ function factory() {
                 const error = [];
                 error[0] = ex.name || " org.freedesktop.DBus.Error.Failed";
                 error[1] = [cockpit.message(ex) || error[0]];
-                send(JSON.stringify({ error: error, id: cookie }));
+                send(JSON.stringify({ error, id: cookie }));
             });
         }
 
@@ -3560,14 +3560,14 @@ function factory() {
         const binary = options.binary;
 
         const self = {
-            path: path,
-            read: read,
-            replace: replace,
-            modify: modify,
+            path,
+            read,
+            replace,
+            modify,
 
-            watch: watch,
+            watch,
 
-            close: close
+            close
         };
 
         const base_channel_options = { ...options };
@@ -3598,7 +3598,7 @@ function factory() {
             const opts = {
                 ...base_channel_options,
                 payload: "fsread1",
-                path: path
+                path
             };
 
             function try_read() {
@@ -3667,7 +3667,7 @@ function factory() {
             const opts = {
                 ...base_channel_options,
                 payload: "fsreplace1",
-                path: path,
+                path,
                 tag: expected_tag
             };
             replace_channel = cockpit.channel(opts);
@@ -3738,7 +3738,7 @@ function factory() {
 
                 const opts = {
                     payload: "fswatch1",
-                    path: path,
+                    path,
                     superuser: base_channel_options.superuser,
                 };
                 watch_channel = cockpit.channel(opts);
@@ -4190,10 +4190,10 @@ function factory() {
         self.get = function get(path, params, headers) {
             return self.request({
                 method: "GET",
-                params: params,
-                path: path,
+                params,
+                path,
                 body: "",
-                headers: headers
+                headers
             });
         };
 
@@ -4212,9 +4212,9 @@ function factory() {
 
             return self.request({
                 method: "POST",
-                path: path,
-                body: body,
-                headers: headers
+                path,
+                body,
+                headers
             });
         };
 
@@ -4354,7 +4354,7 @@ function factory() {
 
             const options = {
                 payload: "metrics1",
-                interval: interval,
+                interval,
                 source: "internal",
                 ...options_list[0]
             };
@@ -4481,8 +4481,8 @@ function factory() {
                     archive_options_list.push({
                                                    ...options_list[i],
                                                    source: options_list[i].archive_source,
-                                                   timestamp: timestamp,
-                                                   limit: limit
+                                                   timestamp,
+                                                   limit
                                               });
                 }
             }

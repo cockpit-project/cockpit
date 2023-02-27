@@ -19,7 +19,6 @@
 
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { Dropdown, DropdownItem, DropdownSeparator, KebabToggle } from "@patternfly/react-core/dist/esm/components/Dropdown/index.js";
@@ -36,6 +35,7 @@ import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.
 import {
     AsleepIcon,
     BanIcon, ErrorCircleOIcon, OnRunningIcon, OffIcon,
+    ExclamationCircleIcon,
     OkIcon, UserIcon, ThumbtackIcon,
 } from "@patternfly/react-icons";
 
@@ -43,6 +43,7 @@ import cockpit from "cockpit";
 import s_bus from "./busnames.js";
 import { systemd_client, MAX_UINT64 } from "./services.jsx";
 import * as timeformat from "timeformat";
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { useDialogs, DialogsContext } from "dialogs.jsx";
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 
@@ -532,7 +533,25 @@ export class ServiceDetails extends React.Component {
 
         const tooltipMessage = enabled ? _("Stop and disable") : _("Start and enable");
         const hasLoadError = this.props.unit.LoadState !== "loaded" && this.props.unit.LoadState !== "masked";
-        const loadError = this.props.unit.LoadError ? this.props.unit.LoadError[1] : null;
+
+        if (hasLoadError) {
+            const path = "/system/services" + (this.props.owner === "user" ? "#/?owner=user" : ""); // not-covered: OS error
+            const loadError = this.props.unit.LoadError ? this.props.unit.LoadError[1] : null; // not-covered: OS error
+            const title = loadError || _("Failed to load unit"); // not-covered: OS error
+
+            return <EmptyStatePanel
+                icon={ExclamationCircleIcon}
+                title={title}
+                paragraph={this.props.unitId}
+                action={
+                    <Button variant="link"
+                            component="a"
+                            onClick={() => cockpit.jump(path, cockpit.transport.host)}>
+                        {_("View all services")}
+                    </Button>
+                }
+            />;
+        }
 
         // These are relevant for socket and timer activated services
         const triggerRelationships = [
@@ -603,81 +622,74 @@ export class ServiceDetails extends React.Component {
                     }
                 />
                 }
-                { (hasLoadError && this.props.unit.LoadState)
-                    ? <Alert variant="danger" isInline title={this.props.unit.LoadState}>
-                        {loadError}
-                    </Alert>
-                    : <>
-                        <CardTitle className="service-top-panel">
-                            <Text component={TextVariants.h2} className="service-name">{this.props.unit.Description}</Text>
-                            {this.state.isPinned &&
-                                <Tooltip content={_("Pinned unit")}>
-                                    <ThumbtackIcon className='service-thumbtack-icon' />
-                                </Tooltip>}
-                            { showAction &&
-                                <>
-                                    { !masked && !isStatic &&
-                                        <Tooltip id="switch-unit-state" content={tooltipMessage} position={TooltipPosition.right}>
-                                            <span>
-                                                <Switch isChecked={enabled}
-                                                        aria-label={tooltipMessage}
-                                                        isDisabled={this.state.waitsAction || this.state.waitsFileAction}
-                                                        onChange={this.onOnOffSwitch} />
-                                            </span>
-                                        </Tooltip>
-                                    }
-                                    <ServiceActions { ...{ active, failed, enabled, masked } } canReload={this.props.unit.CanReload}
-                                                    actionCallback={this.unitAction} fileActionCallback={this.unitFileAction}
-                                                    deleteActionCallback={isCustom && isTimer ? this.deleteAction : null}
-                                                    disabled={this.state.waitsAction || this.state.waitsFileAction}
-                                                    isPinned={this.state.isPinned} pinUnitCallback={this.pinUnit} />
-                                </>
+                <CardTitle className="service-top-panel">
+                    <Text component={TextVariants.h2} className="service-name">{this.props.unit.Description}</Text>
+                    {this.state.isPinned &&
+                        <Tooltip content={_("Pinned unit")}>
+                            <ThumbtackIcon className='service-thumbtack-icon' />
+                        </Tooltip>}
+                    { showAction &&
+                        <>
+                            { !masked && !isStatic &&
+                                <Tooltip id="switch-unit-state" content={tooltipMessage} position={TooltipPosition.right}>
+                                    <span>
+                                        <Switch isChecked={enabled}
+                                                aria-label={tooltipMessage}
+                                                isDisabled={this.state.waitsAction || this.state.waitsFileAction}
+                                                onChange={this.onOnOffSwitch} />
+                                    </span>
+                                </Tooltip>
                             }
-                        </CardTitle>
-                        <CardBody>
+                            <ServiceActions { ...{ active, failed, enabled, masked } } canReload={this.props.unit.CanReload}
+                                            actionCallback={this.unitAction} fileActionCallback={this.unitFileAction}
+                                            deleteActionCallback={isCustom && isTimer ? this.deleteAction : null}
+                                            disabled={this.state.waitsAction || this.state.waitsFileAction}
+                                            isPinned={this.state.isPinned} pinUnitCallback={this.pinUnit} />
+                        </>
+                    }
+                </CardTitle>
+                <CardBody>
+                    <DescriptionList isHorizontal>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{ _("Status") }</DescriptionListTerm>
+                            <DescriptionListDescription id="statuses">
+                                { status }
+                            </DescriptionListDescription>
+                        </DescriptionListGroup>
+                        <DescriptionListGroup>
+                            <DescriptionListTerm>{ _("Path") }</DescriptionListTerm>
+                            <DescriptionListDescription id="path">{this.props.unit.FragmentPath}</DescriptionListDescription>
+                        </DescriptionListGroup>
+                        {unit.MemoryCurrent
+                            ? <DescriptionListGroup>
+                                <DescriptionListTerm>{ _("Memory") }</DescriptionListTerm>
+                                <DescriptionListDescription id="memory">{cockpit.format_bytes(unit.MemoryCurrent)}</DescriptionListDescription>
+                            </DescriptionListGroup>
+                            : null}
+                        {this.props.unit.Listen && this.props.unit.Listen.length && <DescriptionListGroup>
+                            <DescriptionListTerm>{ _("Listen") }</DescriptionListTerm>
+                            <DescriptionListDescription id="listen">
+                                {cockpit.format("$0 ($1)", this.props.unit.Listen[0][1], this.props.unit.Listen[0][0])}
+                            </DescriptionListDescription>
+                        </DescriptionListGroup>}
+                        { notMetConditions.length > 0 &&
+                            <DescriptionListGroup>
+                                <DescriptionListTerm className="failed">{ _("Condition failed") }</DescriptionListTerm>
+                                <DescriptionListDescription id="condition">
+                                    {notMetConditions.map(cond => <div key={cond}>{cond}</div>)}
+                                </DescriptionListDescription>
+                            </DescriptionListGroup>
+                        }
+                        {triggerRelationshipsList}
+                    </DescriptionList>
+                    {extraRelationshipsList.length
+                        ? <ExpandableSection id="service-details-show-relationships" toggleText={triggerRelationshipsList.length ? _("Show more relationships") : _("Show relationships")}>
                             <DescriptionList isHorizontal>
-                                <DescriptionListGroup>
-                                    <DescriptionListTerm>{ _("Status") }</DescriptionListTerm>
-                                    <DescriptionListDescription id="statuses">
-                                        { status }
-                                    </DescriptionListDescription>
-                                </DescriptionListGroup>
-                                <DescriptionListGroup>
-                                    <DescriptionListTerm>{ _("Path") }</DescriptionListTerm>
-                                    <DescriptionListDescription id="path">{this.props.unit.FragmentPath}</DescriptionListDescription>
-                                </DescriptionListGroup>
-                                {unit.MemoryCurrent
-                                    ? <DescriptionListGroup>
-                                        <DescriptionListTerm>{ _("Memory") }</DescriptionListTerm>
-                                        <DescriptionListDescription id="memory">{cockpit.format_bytes(unit.MemoryCurrent)}</DescriptionListDescription>
-                                    </DescriptionListGroup>
-                                    : null}
-                                {this.props.unit.Listen && this.props.unit.Listen.length && <DescriptionListGroup>
-                                    <DescriptionListTerm>{ _("Listen") }</DescriptionListTerm>
-                                    <DescriptionListDescription id="listen">
-                                        {cockpit.format("$0 ($1)", this.props.unit.Listen[0][1], this.props.unit.Listen[0][0])}
-                                    </DescriptionListDescription>
-                                </DescriptionListGroup>}
-                                { notMetConditions.length > 0 &&
-                                    <DescriptionListGroup>
-                                        <DescriptionListTerm className="failed">{ _("Condition failed") }</DescriptionListTerm>
-                                        <DescriptionListDescription id="condition">
-                                            {notMetConditions.map(cond => <div key={cond}>{cond}</div>)}
-                                        </DescriptionListDescription>
-                                    </DescriptionListGroup>
-                                }
-                                {triggerRelationshipsList}
+                                {extraRelationshipsList}
                             </DescriptionList>
-                            {extraRelationshipsList.length
-                                ? <ExpandableSection id="service-details-show-relationships" toggleText={triggerRelationshipsList.length ? _("Show more relationships") : _("Show relationships")}>
-                                    <DescriptionList isHorizontal>
-                                        {extraRelationshipsList}
-                                    </DescriptionList>
-                                </ExpandableSection>
-                                : null}
-                        </CardBody>
-                    </>
-                }
+                        </ExpandableSection>
+                        : null}
+                </CardBody>
             </Card>
         );
     }

@@ -521,8 +521,8 @@ class ServicesPageBody extends React.Component {
         const unit_b = unit_b_t[1];
         const failed_a = unit_a.HasFailed ? 1 : 0;
         const failed_b = unit_b.HasFailed ? 1 : 0;
-        const pinned_a = this.state.pinnedUnits.includes(unit_a.path) ? 1 : 0;
-        const pinned_b = this.state.pinnedUnits.includes(unit_b.path) ? 1 : 0;
+        const pinned_a = this.state.pinnedUnits.includes(unit_a.Id) ? 1 : 0;
+        const pinned_b = this.state.pinnedUnits.includes(unit_b.Id) ? 1 : 0;
 
         if (!unit_a || !unit_b)
             return false;
@@ -834,7 +834,7 @@ class ServicesPageBody extends React.Component {
                         !filters.activeState.includes(this.activeState[unit.ActiveState]))
                         return false;
 
-                    unit.IsPinned = this.state.pinnedUnits.includes(unit.path);
+                    unit.IsPinned = this.state.pinnedUnits.includes(unit.Id);
                     return true;
                 })
                 .map(unit_id => [unit_id, unit_by_path[this.path_by_id[unit_id]]])

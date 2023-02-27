@@ -614,11 +614,15 @@ grub2-install {dev}
 )
 grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uuid=$luks_uuid"
 ! test -f /etc/kernel/cmdline || cp /etc/kernel/cmdline /new-root/etc/kernel/cmdline
+sed -i -e 's/enforcing/permissive/' /new-root/etc/selinux/config
 """, timeout=300)
         luks_uuid = m.execute(f"blkid -p {dev}2 -s UUID -o value").strip()
         m.spawn("dd if=/dev/zero of=/dev/vda bs=1M count=100; reboot", "reboot", check=False)
         m.wait_reboot(300)
         self.assertEqual(m.execute("findmnt -n -o SOURCE /").strip(), f"/dev/mapper/luks-{luks_uuid}")
+        m.execute("sed -i -e 's/permissive/enforcing/' /etc/selinux/config; setenforce 1")
+        self.allow_journal_messages('audit.*avc:  denied .* comm="systemd" .*')
+        self.allow_journal_messages('audit.*avc:  denied .* comm="setfiles" .*')
 
 
 class StorageCase(MachineCase, StorageHelpers):

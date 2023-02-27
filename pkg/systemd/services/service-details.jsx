@@ -222,7 +222,7 @@ export class ServiceDetails extends React.Component {
             unit_properties: {},
             showDeleteDialog: false,
             unitPaths: [],
-            isPinned: this.props.pinnedUnits.includes(this.props.unit.path),
+            isPinned: this.props.pinnedUnits.includes(this.props.unit.Id),
         };
 
         this.onOnOffSwitch = this.onOnOffSwitch.bind(this);
@@ -331,8 +331,8 @@ export class ServiceDetails extends React.Component {
 
     pinUnit() {
         const newPinned = this.state.isPinned
-            ? this.props.pinnedUnits.filter(unitId => unitId != this.props.unit.path)
-            : [...this.props.pinnedUnits, this.props.unit.path];
+            ? this.props.pinnedUnits.filter(unitId => unitId != this.props.unit.Id)
+            : [...this.props.pinnedUnits, this.props.unit.Id];
 
         localStorage.setItem('systemd:pinnedUnits', JSON.stringify(newPinned));
         this.setState(prevState => ({ isPinned: !prevState.isPinned }));

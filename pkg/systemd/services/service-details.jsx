@@ -425,7 +425,7 @@ export class ServiceDetails extends React.Component {
         const unit = this.state.unit_properties;
         const showAction = this.props.permitted || this.props.owner == "user";
         const isCustom = this.props.unit.FragmentPath.startsWith("/etc/systemd/system") && !masked;
-        const isTimer = this.props.unit.is_timer;
+        const isTimer = (this.unitType === "timer");
 
         let status = [];
 

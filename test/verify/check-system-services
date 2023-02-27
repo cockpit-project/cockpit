@@ -631,14 +631,20 @@ ExecStart=/bin/awk -f /tmp/mem-hog{params}.awk
         # Check that listen is not shown for .service units
         b.wait_not_present("#listen")
 
-        # Check 'Unit not found' pattern
-        b.go(f'/system/services#/nonexistent{suffix}')
-        b.wait_in_text(".pf-c-empty-state", "Unit not found")
+        # Check empty state error for nonexisent unit with valid name
+        b.go(f'/system/services#/nonexistent.service{suffix}')
+        b.wait_in_text(".pf-c-empty-state", "Unit nonexistent.service not found")
         b.click("a:contains('View all services')")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "/system/services"')
         if user:
             b.wait_js_cond(f"window.location.hash === '#/{suffix}'")
+
+        # Check empty state error for invalid unit name
+        b.go(f'/system/services#/nonexistent{suffix}')
+        b.enter_page("/system/services")
+        b.wait_in_text(".pf-c-empty-state", "Loading unit failed")
+        b.wait_in_text(".pf-c-empty-state", "Unit name nonexistent is not valid")
 
     def testLogs(self):
         self._testLogs(False)
@@ -1097,7 +1103,7 @@ Where=/fail
 
         self.do_action("Stop")
 
-        b.wait_in_text(".pf-c-empty-state", "Unit not found")
+        b.wait_in_text(".pf-c-empty-state", "Unit test-transient.service not found")
         b.click("a:contains('View all services')")
         b.switch_to_top()
         b.wait_js_cond('window.location.pathname == "/system/services"')

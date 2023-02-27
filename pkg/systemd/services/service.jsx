@@ -57,8 +57,13 @@ export class Service extends React.Component {
 
     async componentDidMount() {
         const dbus = this.props.dbusClient;
-        const [path] = await dbus.call(s_bus.O_MANAGER, s_bus.I_MANAGER, "LoadUnit", [this.props.unitId]);
-        this.path = path;
+        try {
+            const [path] = await dbus.call(s_bus.O_MANAGER, s_bus.I_MANAGER, "LoadUnit", [this.props.unitId]);
+            this.path = path;
+        } catch (ex) {
+            this.setState({ error: ex.toString() });
+            return;
+        }
 
         this.subscriptions.push(dbus.subscribe(
             { interface: s_bus.I_MANAGER, member: "Reloading" },
@@ -70,7 +75,7 @@ export class Service extends React.Component {
             }));
 
         this.subscriptions.push(dbus.subscribe(
-            { path, interface: s_bus.I_PROPS, member: "PropertiesChanged" }, async () => {
+            { path: this.path, interface: s_bus.I_PROPS, member: "PropertiesChanged" }, async () => {
                 debug("Service detail", this.props.unitId, "PropertiesChanged");
                 await this.updateProperties();
             }));

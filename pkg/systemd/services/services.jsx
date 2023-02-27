@@ -23,7 +23,6 @@ import 'cockpit-dark-theme'; // once per page
 
 import React, { useState, useEffect, useCallback } from "react";
 import { createRoot } from 'react-dom/client';
-import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Select, SelectOption, SelectVariant } from "@patternfly/react-core/dist/esm/components/Select/index.js";
 import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
@@ -762,23 +761,6 @@ class ServicesPageBody extends React.Component {
         if (path.length == 1) {
             const unit_id = path[0];
             const get_unit_path = (unit_id) => this.path_by_id[unit_id];
-            const unit_path = get_unit_path(unit_id);
-            const unit = this.state.unit_by_path[unit_path];
-
-            if (unit_path === undefined || unit === undefined || unit.LoadState === 'not-found') {
-                const path = "/system/services" + (this.props.owner === "user" ? "#/?owner=user" : "");
-                return <EmptyStatePanel
-                            icon={ExclamationCircleIcon}
-                            title={_("Unit not found")}
-                            paragraph={
-                                <Button variant="link"
-                                        component="a"
-                                        onClick={() => cockpit.jump(path, cockpit.transport.host)}>
-                                    {_("View all services")}
-                                </Button>
-                            }
-                />;
-            }
 
             return <Service unitIsValid={unitId => { const path = get_unit_path(unitId); return path !== undefined && this.state.unit_by_path[path].LoadState != 'not-found' }}
                             owner={this.props.owner}

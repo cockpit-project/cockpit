@@ -60,7 +60,7 @@ export class Service extends React.Component {
                                 permitted={superuser.allowed}
                                 loadingUnits={this.props.loadingUnits}
                                 isValid={this.props.unitIsValid}
-                                isPinned={this.props.isPinned}
+                                pinnedUnits={this.props.pinnedUnits}
         />;
 
         const unit_type = this.props.owner == "system" ? "UNIT" : "USER_UNIT";

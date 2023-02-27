@@ -222,6 +222,7 @@ export class ServiceDetails extends React.Component {
             unit_properties: {},
             showDeleteDialog: false,
             unitPaths: [],
+            isPinned: this.props.pinnedUnits.includes(this.props.unit.path),
         };
 
         this.onOnOffSwitch = this.onOnOffSwitch.bind(this);
@@ -329,20 +330,12 @@ export class ServiceDetails extends React.Component {
     }
 
     pinUnit() {
-        let pinnedUnits = [];
-        try {
-            pinnedUnits = JSON.parse(localStorage.getItem('systemd:pinnedUnits')) || [];
-        } catch (err) {
-            console.warn("exception while parsing systemd:pinnedUnits", err);
-        }
+        const newPinned = this.state.isPinned
+            ? this.props.pinnedUnits.filter(unitId => unitId != this.props.unit.path)
+            : [...this.props.pinnedUnits, this.props.unit.path];
 
-        if (this.props.isPinned) {
-            pinnedUnits = pinnedUnits.filter(unitId => unitId != this.props.unit.path);
-        } else {
-            pinnedUnits.push(this.props.unit.path);
-        }
-
-        localStorage.setItem('systemd:pinnedUnits', JSON.stringify(pinnedUnits));
+        localStorage.setItem('systemd:pinnedUnits', JSON.stringify(newPinned));
+        this.setState(prevState => ({ isPinned: !prevState.isPinned }));
         dispatchEvent(new Event('storage'));
     }
 
@@ -614,7 +607,7 @@ export class ServiceDetails extends React.Component {
                     : <>
                         <CardTitle className="service-top-panel">
                             <Text component={TextVariants.h2} className="service-name">{this.props.unit.Description}</Text>
-                            {this.props.isPinned &&
+                            {this.state.isPinned &&
                                 <Tooltip content={_("Pinned unit")}>
                                     <ThumbtackIcon className='service-thumbtack-icon' />
                                 </Tooltip>}
@@ -634,7 +627,7 @@ export class ServiceDetails extends React.Component {
                                                     actionCallback={this.unitAction} fileActionCallback={this.unitFileAction}
                                                     deleteActionCallback={isCustom && isTimer ? this.deleteAction : null}
                                                     disabled={this.state.waitsAction || this.state.waitsFileAction}
-                                                    isPinned={this.props.isPinned} pinUnitCallback={this.pinUnit} />
+                                                    isPinned={this.state.isPinned} pinUnitCallback={this.pinUnit} />
                                 </>
                             }
                         </CardTitle>

@@ -1118,6 +1118,7 @@ Where=/fail
     def testServicesFiltersURLConsistency(self):
         b = self.browser
 
+        # this filter matches nothing
         self.login_and_go("/system/services#/?activestate=[\"Running\"]&filestate=[\"Disabled\"%2C\"Enabled\"]&name=test&type=service&owner=user")
         self.wait_page_load()
 
@@ -1127,6 +1128,12 @@ Where=/fail
         b.wait_visible(".services-text-filter input[value=test]")
         b.wait_visible(".pf-c-nav__list a.pf-m-current:contains(Services)")
         b.wait_visible("#user.pf-m-selected")
+        # there is no running "test" service
+        self.browser.wait_in_text(".pf-c-empty-state", "No matching results")
+        # filter survives a reload, same URL
+        b.reload()
+        b.enter_page("/system/services")
+        self.browser.wait_in_text(".pf-c-empty-state", "No matching results")
 
         # Changing the UI filters should also affect the URL
         b.click("#system")
@@ -1145,6 +1152,24 @@ Where=/fail
         b.wait_visible(".services-text-filter input[value=test]")
         b.click(".services-text-filter button")
         b.wait_js_cond('window.location.hash == "#/"')
+
+        # ensure that there is at least one running service
+        self.make_test_service("/etc/systemd/user")
+        self.run_systemctl(True, "enable --now test.service")
+
+        # drop the name search; all our images have at least stopped and static unit, which should not appear
+        b.go("/system/services#/?activestate=[\"Running\"]&filestate=[\"Disabled\"%2C\"Enabled\"]&type=service&owner=user")
+        self.wait_page_load()
+        b.wait_in_text(".services-list", "Running")
+        # filters out non-matching units
+        self.assertNotIn("Not running", b.text(".services-list"))
+        self.assertNotIn("Static", b.text(".services-list"))
+        # survives a page reload
+        b.reload()
+        b.enter_page("/system/services")
+        b.wait_in_text(".services-list", "Running")
+        self.assertNotIn("Not running", b.text(".services-list"))
+        self.assertNotIn("Static", b.text(".services-list"))
 
 
 @skipDistroPackage()

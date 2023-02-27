@@ -256,13 +256,16 @@ class ServicesPageBody extends React.Component {
             }
         });
 
-        cockpit.addEventListener("locationchanged", () => {
+        const onLocationChanged = () => {
             const options = cockpit.location.options;
             this.setState({
                 filters: { activeState: JSON.parse(options.activestate || '[]'), fileState: JSON.parse(options.filestate || '[]') },
                 currentTextFilter: decodeURIComponent(options.name || ''),
             });
-        });
+        };
+
+        cockpit.addEventListener("locationchanged", onLocationChanged);
+        onLocationChanged(); // initialize
 
         /* Start listening to signals for updates - when in the middle of reload mute all signals
          * - We don't need to listen to 'UnitFilesChanged' signal since every time we

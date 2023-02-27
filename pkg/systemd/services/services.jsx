@@ -155,13 +155,6 @@ class ServicesPageBody extends React.Component {
             currentStatus: null,
         };
 
-        try {
-            this.state.pinnedUnits = JSON.parse(localStorage.getItem('systemd:pinnedUnits')) || [];
-        } catch (err) {
-            console.warn("exception while parsing systemd:pinnedUnits", err);
-            this.state.pinnedUnits = [];
-        }
-
         this.filtersRef = React.createRef();
 
         // Possible LoadState values: stub, loaded, not-found, bad-setting, error, merged, masked
@@ -214,6 +207,7 @@ class ServicesPageBody extends React.Component {
         this.processFailedUnits = this.processFailedUnits.bind(this);
         this.listUnits = this.listUnits.bind(this);
         this.getUnitByPath = this.getUnitByPath.bind(this);
+        this.loadPinnedUnits = this.loadPinnedUnits.bind(this);
         this.onOptionsChanged = this.onOptionsChanged.bind(this);
         this.compareUnits = this.compareUnits.bind(this);
 
@@ -319,14 +313,8 @@ class ServicesPageBody extends React.Component {
                 this.listUnits();
         });
 
-        addEventListener('storage', () => {
-            try {
-                this.setState({ pinnedUnits: JSON.parse(localStorage.getItem('systemd:pinnedUnits')) || [] });
-            } catch (err) {
-                console.warn("exception while parsing systemd:pinnedUnits", err);
-                this.setState({ pinnedUnits: [] });
-            }
-        });
+        addEventListener('storage', this.loadPinnedUnits);
+        this.loadPinnedUnits();
 
         this.timedated_subscription = timedate_client.subscribe({
             path_namespace: "/org/freedesktop/timedate1",
@@ -341,6 +329,15 @@ class ServicesPageBody extends React.Component {
             return false;
 
         return true;
+    }
+
+    loadPinnedUnits() {
+        try {
+            this.setState({ pinnedUnits: JSON.parse(localStorage.getItem('systemd:pinnedUnits')) || [] });
+        } catch (err) {
+            console.warn("exception while parsing systemd:pinnedUnits", err);
+            this.setState({ pinnedUnits: [] });
+        }
     }
 
     /**
@@ -786,7 +783,7 @@ class ServicesPageBody extends React.Component {
                             loadingUnits={this.props.isLoading}
                             getUnitByPath={this.getUnitByPath}
                             unit={unit}
-                            isPinned={this.state.pinnedUnits.includes(unit.path)}
+                            pinnedUnits={this.state.pinnedUnits}
             />;
         }
 

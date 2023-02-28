@@ -1156,6 +1156,9 @@ Where=/fail
         # ensure that there is at least one running service
         self.make_test_service("/etc/systemd/user")
         self.run_systemctl(True, "enable --now test.service")
+        b.click("#user")
+        self.wait_service_state("test.service", "active")
+        self.wait_service_state("test.service", "Enabled")
 
         # drop the name search; all our images have at least stopped and static unit, which should not appear
         b.go("/system/services#/?activestate=[\"Running\"]&filestate=[\"Disabled\"%2C\"Enabled\"]&type=service&owner=user")

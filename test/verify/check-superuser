@@ -484,6 +484,7 @@ class TestSuperuserDashboard(MachineCase):
     @todoPybridge()
     def test(self):
         b = self.browser
+        self.setup_provisioned_hosts()
 
         self.login_and_go()
         b.go("/@10.111.113.2")
@@ -548,6 +549,7 @@ class TestSuperuserOldDashboard(MachineCase):
 
         allow_old_cockpit_ws_messages(self)
         self.allow_hostkey_messages()
+        self.setup_provisioned_hosts()
 
         m.execute("firewall-cmd --add-service cockpit")
         m.start_cockpit()
@@ -608,6 +610,7 @@ class TestSuperuserDashboardOldMachine(MachineCase):
     def test(self):
         b = self.browser
 
+        self.setup_provisioned_hosts()
         self.login_and_go()
         b.go("/@10.111.113.2")
         b.wait_visible("#machine-troubleshoot")

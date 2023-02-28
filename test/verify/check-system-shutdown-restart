@@ -30,8 +30,7 @@ class TestShutdownRestart(MachineCase):
 
     def setUp(self):
         super().setUp()
-        self.machine.execute("hostnamectl set-hostname machine1")
-        self.machines['machine2'].execute("hostnamectl set-hostname machine2")
+        self.setup_provisioned_hosts()
 
     @todoPybridge()
     def testBasic(self):

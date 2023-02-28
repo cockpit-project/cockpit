@@ -113,18 +113,10 @@ class TestHostSwitching(MachineCase, HostSwitcherHelpers):
     def setUp(self):
         super().setUp()
 
-        # Disable preloading on all machines ("machine1" is done in testlib.py)
-        # Preloading on machines with debug build can overload the browser and cause slowness and browser crashes
-        # In these tests we actually switch between machines in quick succession which can make things even worse
-        if self.is_devel_build():
-            for machine in ["machine2", "machine3"]:
-                self.disable_preload("packagekit", "playground", "systemd", machine=self.machines[machine])
-        # Also, quick logouts cause async preloads to run into "ReferenceError: cockpit is not defined"
-        self.disable_preload("packagekit", "playground", "systemd")
-
+        self.setup_provisioned_hosts(disable_preload=True)
+        # Override hostname from machine1 to localhost
         self.machines["machine1"].execute("hostnamectl set-hostname localhost")
-        self.machines["machine2"].execute("hostnamectl set-hostname machine2")
-        self.machines["machine3"].execute("hostnamectl set-hostname machine3")
+
         self.setup_ssh_auth()
 
         # removing machines interrupts channels

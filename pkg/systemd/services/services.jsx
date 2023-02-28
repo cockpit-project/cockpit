@@ -685,15 +685,17 @@ class ServicesPageBody extends React.Component {
             if (unitNew.ActiveState == "active") {
                 const timer_unit = systemd_client[this.props.owner].proxy('org.freedesktop.systemd1.Timer', unitNew.path);
                 timer_unit.wait(() => {
-                    if (timer_unit.valid)
-                        if (this.addTimerProperties(timer_unit, unitNew)) {
+                    if (timer_unit.valid) {
+                        const unit = this.state.unit_by_path[path];
+                        if (unit && this.addTimerProperties(timer_unit, unit)) {
                             this.setState(prevState => ({
                                 unit_by_path: {
                                     ...prevState.unit_by_path,
-                                    [path]: unitNew,
+                                    [path]: unit,
                                 }
                             }));
                         }
+                    }
                 });
             }
         }

@@ -52,7 +52,7 @@ import * as timeformat from "timeformat.js";
 const _ = cockpit.gettext;
 
 function get_locked(name) {
-    return cockpit.spawn(["/usr/bin/passwd", "-S", name], { environ: ["LC_ALL=C"], superuser: "require" })
+    return cockpit.spawn(["passwd", "-S", name], { environ: ["LC_ALL=C"], superuser: "require" })
             .catch(() => "")
             .then(content => {
                 const status = content.split(" ")[1];
@@ -99,7 +99,7 @@ function get_expire(name) {
         };
     }
 
-    return cockpit.spawn(["/usr/bin/chage", "-l", name],
+    return cockpit.spawn(["chage", "-l", name],
                          { environ: ["LC_ALL=C"], err: "message", superuser: "try" })
             .catch(() => "")
             .then(parse_expire);
@@ -172,7 +172,7 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
     }
 
     function logout_account() {
-        cockpit.spawn(["/usr/bin/loginctl", "terminate-user", user],
+        cockpit.spawn(["loginctl", "terminate-user", user],
                       { superuser: "try", err: "message" })
                 .then(() => {
                     get_expire(user).then(setExpiration);
@@ -389,7 +389,7 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups, setError }) => {
             setHistory([...history, { type: 'removed', name: group }]);
 
         setLoading(true);
-        return cockpit.spawn(["/usr/bin/gpasswd", "-d", name, group], { superuser: "require", err: "message" })
+        return cockpit.spawn(["gpasswd", "-d", name, group], { superuser: "require", err: "message" })
                 .then(() => {
                     setIsOpenGroup(false);
                 }, show_unexpected_error);
@@ -400,7 +400,7 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups, setError }) => {
             setHistory([...history, { type: 'added', name: group }]);
 
         setLoading(true);
-        return cockpit.spawn(["/usr/bin/gpasswd", "-a", name, group], { superuser: "require", err: "message" })
+        return cockpit.spawn(["gpasswd", "-a", name, group], { superuser: "require", err: "message" })
                 .then(() => {
                     setIsOpenGroup(false);
                 }, show_unexpected_error);

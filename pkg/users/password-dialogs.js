@@ -58,7 +58,7 @@ function passwd_self(old_pass, new_pass) {
             proc.close("timeout");
         }, 10 * 1000);
 
-        const proc = cockpit.spawn(["/usr/bin/passwd"], { pty: true, environ: ["LC_ALL=C"], err: "out" })
+        const proc = cockpit.spawn(["passwd"], { pty: true, environ: ["LC_ALL=C"], err: "out" })
                 .always(function() {
                     window.clearInterval(timeout);
                 })
@@ -278,7 +278,7 @@ export function reset_password_dialog(account) {
                 caption: _("Reset password"),
                 style: "primary",
                 clicked: () => {
-                    return cockpit.spawn(["/usr/bin/passwd", "-e", account.name],
+                    return cockpit.spawn(["passwd", "-e", account.name],
                                          { superuser: true, err: "message" });
                 }
             }

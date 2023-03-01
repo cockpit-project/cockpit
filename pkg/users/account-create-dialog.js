@@ -257,7 +257,7 @@ export function account_create_dialog(accounts) {
                                     ], { superuser: "require", err: "message" });
                                 if (force_change)
                                     return cockpit.spawn([
-                                        "/usr/bin/passwd",
+                                        "passwd",
                                         "-e",
                                         user_name
                                     ], { superuser: "require", err: "message" });

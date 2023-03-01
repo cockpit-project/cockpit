@@ -115,14 +115,14 @@ function get_locked(name, shadow) {
 async function getLogins(shadow) {
     let lastlog = [];
     try {
-        lastlog = await cockpit.spawn(["/usr/bin/lastlog"], { environ: ["LC_ALL=C"] });
+        lastlog = await cockpit.spawn(["lastlog"], { environ: ["LC_ALL=C"] });
     } catch (err) {
         console.warn("Unexpected error when getting last login information", err);
     }
 
     let currentLogins = [];
     try {
-        const w = await cockpit.spawn(["/usr/bin/w", "-sh"], { environ: ["LC_ALL=C"] });
+        const w = await cockpit.spawn(["w", "-sh"], { environ: ["LC_ALL=C"] });
         currentLogins = w.split('\n').slice(0, -1).map(line => line.split(/ +/)[0]);
     } catch (err) {
         console.warn("Unexpected error when getting logged in accounts", err);

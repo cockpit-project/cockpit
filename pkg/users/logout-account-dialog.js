@@ -35,7 +35,7 @@ export const logoutAccountDialog = (account) => {
                 style: "primary",
                 caption: _("Log out"),
                 clicked: () => {
-                    return cockpit.spawn(["/usr/bin/loginctl", "terminate-user", account.name], { superuser: "try", err: "message" })
+                    return cockpit.spawn(["loginctl", "terminate-user", account.name], { superuser: "try", err: "message" })
                             .catch(err => console.warn("Failed to log user out", err));
                 },
             }

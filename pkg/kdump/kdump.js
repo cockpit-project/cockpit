@@ -29,6 +29,7 @@ import { createRoot } from "react-dom/client";
 import { KdumpPage } from "./kdump-view.jsx";
 import * as kdumpClient from "./kdump-client.js";
 import { superuser } from "superuser";
+import { WithDialogs } from "dialogs.jsx";
 
 import './kdump.scss';
 
@@ -61,7 +62,7 @@ const initStore = function(rootElement) {
         });
     }
     const render = function() {
-        root.render(React.createElement(KdumpPage, {
+        root.render(<WithDialogs>{React.createElement(KdumpPage, {
             kdumpActive: false,
             onSetServiceState: setServiceState,
             stateChanging: dataStore.stateChanging,
@@ -70,7 +71,7 @@ const initStore = function(rootElement) {
             kdumpCmdlineEnabled: dataStore.crashkernel || false,
             onSaveSettings: dataStore.saveSettings,
             onCrashKernel: dataStore.kdumpClient.crashKernel,
-        }));
+        })}</WithDialogs>);
     };
     dataStore.render = render;
 

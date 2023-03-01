@@ -2097,8 +2097,6 @@ class MachineCase(unittest.TestCase):
 ###########################
 
 
-import unittest
-from datetime import timedelta
 
 class ExtendedMachineCase(unittest.TestCase):
     def reboot(self, timeout_sec=None):

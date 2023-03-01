@@ -158,11 +158,16 @@ const getGroupRow = (group, accounts) => {
             ),
             props: { width: 60, },
         },
-        {
-            title: <GroupActions group={group} accounts={accounts} />,
-            props: { className: "pf-c-table__action" }
-        },
     ];
+
+    if (superuser.allowed) {
+        columns.push(
+            {
+                title: <GroupActions group={group} accounts={accounts} />,
+                props: { className: "pf-c-table__action" }
+            }
+        );
+    }
 
     return { columns, props: { key: group.gid } };
 };

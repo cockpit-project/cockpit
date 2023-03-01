@@ -254,12 +254,7 @@ export class KdumpPage extends React.Component {
                 });
     }
 
-    handleTestSettingsClick(e) {
-        // only consider primary mouse button
-        if (!e || e.button !== 0)
-            return;
-        // don't let the click "fall through" to the dialog that we are about to open
-        e.preventDefault();
+    handleTestSettingsClick() {
         // open a dialog to confirm crashing the kernel to test the settings - then do it
         const self = this;
         // open the confirmation dialog
@@ -284,10 +279,7 @@ export class KdumpPage extends React.Component {
         this.setState({ dialogObj });
     }
 
-    handleServiceDetailsClick(e) {
-        // only consider primary mouse button
-        if (!e || e.button !== 0)
-            return;
+    handleServiceDetailsClick() {
         cockpit.jump("/system/services#/kdump.service", cockpit.transport.host);
     }
 
@@ -295,11 +287,7 @@ export class KdumpPage extends React.Component {
         this.setState({ dialogSettings: undefined, dialogObj: undefined });
     }
 
-    handleSettingsClick(e) {
-        // only consider primary mouse button
-        if (!e || e.button !== 0)
-            return;
-        e.preventDefault();
+    handleSettingsClick() {
         const self = this;
         const settings = { };
         Object.keys(self.props.kdumpStatus.config).forEach((key) => {

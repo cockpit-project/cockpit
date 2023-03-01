@@ -37,6 +37,8 @@ import unittest
 import gzip
 import itertools
 import glob
+import unittest
+from datetime import timedelta
 
 from typing import Any, Callable, Dict, List, Optional, Union
 
@@ -2091,6 +2093,36 @@ class MachineCase(unittest.TestCase):
         disallowed_conf = '/etc/cockpit/disallowed-users'
         if not self.machine.ostree_image and self.file_exists(disallowed_conf):
             self.sed_file('/root/d', disallowed_conf)
+
+###########################
+
+
+import unittest
+from datetime import timedelta
+
+class ExtendedMachineCase(unittest.TestCase):
+    def reboot(self, timeout_sec=None):
+        self.allow_restart_journal_messages()
+        self.machine.reboot()
+        if timeout_sec is not None:
+            self.machine.wait_for_ssh(timeout=timedelta(seconds=timeout_sec))
+
+    def wait_reboot(self, timeout_sec=None):
+        self.allow_restart_journal_messages()
+        self.machine.wait_reboot()
+        if timeout_sec is not None:
+            self.machine.wait_for_ssh(timeout=timedelta(seconds=timeout_sec))
+
+
+
+class MyTestCase(ExtendedMachineCase):
+    def test_reboot_with_timeout(self):
+        self.reboot(timeout_sec=30)
+
+    def test_wait_reboot_with_timeout(self):
+        self.wait_reboot(timeout_sec=30)
+
+
 
 
 ###########################

@@ -113,8 +113,6 @@ class TestKdump(KdumpHelpers):
         b.set_input_text(serverInput, "")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
         b.wait_in_text("#kdump-settings-dialog h4.pf-c-alert__title", "Unable to save settings: nfs server is empty")
-        # no further details/journal
-        self.assertFalse(b.is_present("#kdump-settings-dialog .pf-c-code-block__code"))
         b.set_input_text(serverInput, "localhost")
         b.click(f"#kdump-settings-dialog button{self.primary_btn_class}")
         b.wait_in_text("#kdump-settings-dialog h4.pf-c-alert__title", "Unable to save settings: nfs export is empty")

@@ -51,6 +51,8 @@ import detect from "./hw-detect.js";
 import { superuser } from "superuser";
 import { PrivilegedButton } from "cockpit-components-privileged.jsx";
 
+import "./hwinfo.scss";
+
 const _ = cockpit.gettext;
 
 class SystemInfo extends React.Component {

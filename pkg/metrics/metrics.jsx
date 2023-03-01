@@ -55,6 +55,8 @@ import { JournalOutput } from "cockpit-components-logs-panel.jsx";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
 import { FirewalldRequest } from "cockpit-components-firewalld-request.jsx";
+
+import "./metrics.scss";
 import "journal.css";
 
 const MSEC_PER_H = 3600000;

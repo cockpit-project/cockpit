@@ -22,6 +22,8 @@ import '../lib/patternfly/patternfly-4-cockpit.scss';
 import { machines } from "./machines/machines.js";
 import * as indexes from "./indexes.jsx";
 
+import "./shell.scss";
+
 const machines_inst = machines.instance();
 const loader = machines.loader(machines_inst);
 

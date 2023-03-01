@@ -75,6 +75,8 @@ import * as timeformat from "timeformat.js";
 import * as python from "python.js";
 import callTracerScript from 'raw-loader!./callTracer.py';
 
+import "./updates.scss";
+
 const _ = cockpit.gettext;
 
 // "available" heading is built dynamically

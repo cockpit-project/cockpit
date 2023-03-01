@@ -30,6 +30,8 @@ import { KdumpPage } from "./kdump-view.jsx";
 import * as kdumpClient from "./kdump-client.js";
 import { superuser } from "superuser";
 
+import './kdump.scss';
+
 superuser.reload_page_on_change();
 
 const initStore = function(rootElement) {

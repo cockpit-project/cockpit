@@ -40,6 +40,8 @@ import { SuperuserIndicator } from "../shell/superuser.jsx";
 import { ShutdownModal } from 'cockpit-components-shutdown.jsx';
 import { WithDialogs, DialogsContext } from "dialogs.jsx";
 
+import "./overview.scss";
+
 const _ = cockpit.gettext;
 
 class OverviewPage extends React.Component {

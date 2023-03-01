@@ -8,6 +8,8 @@ import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/co
 import { NumberInput } from "@patternfly/react-core/dist/esm/components/NumberInput/index.js";
 import { Toolbar, ToolbarContent, ToolbarGroup, ToolbarItem } from "@patternfly/react-core/dist/esm/components/Toolbar/index.js";
 
+import "./terminal.scss";
+
 import { Terminal } from "cockpit-components-terminal.jsx";
 
 const _ = cockpit.gettext;

@@ -46,6 +46,7 @@ import { useEvent, usePageLocation } from "hooks";
 import { WithDialogs } from "dialogs.jsx";
 
 import s_bus from "./busnames.js";
+import "./services.scss";
 
 const _ = cockpit.gettext;
 

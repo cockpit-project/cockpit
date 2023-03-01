@@ -30,6 +30,8 @@ import * as selinuxClient from "./selinux-client.js";
 import { SETroubleshootPage } from "./setroubleshoot-view.jsx";
 import { superuser } from 'superuser';
 
+import "./setroubleshoot.scss";
+
 const _ = cockpit.gettext;
 
 superuser.reload_page_on_change();

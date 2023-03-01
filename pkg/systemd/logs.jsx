@@ -50,6 +50,8 @@ import { LogEntry } from "./logDetails.jsx";
 
 import { usePageLocation } from "hooks";
 
+import "./logs.scss";
+
 const _ = cockpit.gettext;
 
 const timeFilterOptions = [

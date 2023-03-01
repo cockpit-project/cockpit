@@ -3,6 +3,7 @@ import cockpit from "cockpit";
 import '../lib/patternfly/patternfly-4-cockpit.scss';
 import "../../node_modules/@patternfly/patternfly/components/Button/button.css";
 import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
+import "./speed.css";
 
 let channel = null;
 let websocket = null;

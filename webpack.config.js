@@ -27,13 +27,11 @@ const info = {
 
         "kdump/kdump": [
             "kdump/kdump.js",
-            "kdump/kdump.scss",
         ],
 
         // do *not* call this metrics/metrics -- uBlock origin etc. like to block metrics.{css,js}
         "metrics/index": [
             "metrics/index.js",
-            "metrics/metrics.scss",
         ],
 
         "networkmanager/network": [
@@ -68,7 +66,6 @@ const info = {
         ],
         "playground/speed": [
             "playground/speed",
-            "playground/speed.css",
         ],
         "playground/test": [
             "playground/test",
@@ -88,12 +85,10 @@ const info = {
 
         "selinux/selinux": [
             "selinux/setroubleshoot.js",
-            "selinux/setroubleshoot.scss",
         ],
 
         "shell/index": [
             "shell/index.js",
-            "shell/shell.scss",
         ],
 
         "sosreport/sosreport": [
@@ -102,7 +97,6 @@ const info = {
 
         "static/login": [
             "static/login.js",
-            "static/login.css",
         ],
 
         "storaged/storage": [
@@ -111,23 +105,18 @@ const info = {
 
         "systemd/services": [
             "systemd/services/services.jsx",
-            "systemd/services/services.scss",
         ],
         "systemd/logs": [
             "systemd/logs.jsx",
-            "systemd/logs.scss",
         ],
         "systemd/overview": [
             "systemd/overview.jsx",
-            "systemd/overview.scss",
         ],
         "systemd/terminal": [
             "systemd/terminal.jsx",
-            "systemd/terminal.scss",
         ],
         "systemd/hwinfo": [
             "systemd/hwinfo.jsx",
-            "systemd/hwinfo.scss",
         ],
         "tuned/performance": [
             "tuned/dialog.jsx",
@@ -135,12 +124,10 @@ const info = {
 
         "packagekit/updates": [
             "packagekit/updates.jsx",
-            "packagekit/updates.scss",
         ],
 
         "users/users": [
             "users/local.js",
-            "users/users.scss",
         ]
     },
 

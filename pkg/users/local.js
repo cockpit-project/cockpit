@@ -31,6 +31,8 @@ import { AccountsMain } from "./accounts-list.js";
 import { AccountDetails } from "./account-details.js";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 
+import "./users.scss";
+
 superuser.reload_page_on_change();
 
 export const admins = ['sudo', 'root', 'wheel'];

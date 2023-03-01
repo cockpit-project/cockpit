@@ -32,7 +32,7 @@ const _ = cockpit.gettext;
 export function AccountLogs({ name }) {
     const [logins, setLogins] = useState([]);
     useInit(() => {
-        cockpit.spawn(["/usr/bin/last", "--time-format", "iso", "-n", 25, name], { environ: ["LC_ALL=C"] })
+        cockpit.spawn(["last", "--time-format", "iso", "-n", 25, name], { environ: ["LC_ALL=C"] })
                 .then(data => {
                     let logins = [];
                     data.split('\n').forEach(line => {

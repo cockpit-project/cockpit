@@ -25,6 +25,7 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { Card, CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { CodeBlockCode } from "@patternfly/react-core/dist/esm/components/CodeBlock/index.js";
+import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Form, FormGroup, FormSection } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/components/FormSelect/index.js";
@@ -486,6 +487,9 @@ export class KdumpPage extends React.Component {
                             {_("Kernel crash dump")}
                         </Title>
                         {kdumpSwitch}
+                        <HelperText>
+                            <HelperTextItem variant="indeterminate">{serviceRunning ? _("Enabled") : _("Disabled")}</HelperTextItem>
+                        </HelperText>
                     </Flex>
                 </PageSection>
                 <PageSection>

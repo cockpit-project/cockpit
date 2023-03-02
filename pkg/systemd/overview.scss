@@ -88,7 +88,7 @@
   }
 }
 
-.ct-system-overview {
+.pf-l-gallery.ct-system-overview {
   --cards: 2;
   --pf-l-gallery--GridTemplateColumns: repeat(var(--cards), 1fr);
 
@@ -197,7 +197,7 @@
 @media (max-width: 779px) {
   /* Reduce gutter & padding on smaller widths, for desktop & mobile */
 
-  .pf-l-gallery {
+  .pf-l-gallery.ct-system-overview {
     --pf-l-gallery--m-gutter--GridGap: calc(var(--pf-global--gutter--md)/2);
   }
 
@@ -213,7 +213,7 @@
 @media (min-width: 780px) {
   /* Embiggen subheading & card headings when there's space */
 
-  .ct-system-overview .pf-c-card__title {
+  .pf-l-gallery.ct-system-overview .pf-c-card__title {
     font-size: var(--pf-global--FontSize--2xl);
   }
 

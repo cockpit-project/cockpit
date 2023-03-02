@@ -86,10 +86,6 @@ const info = {
             "playground/journal.jsx",
         ],
 
-        "realmd/domain": [
-            "realmd/operation.js",
-        ],
-
         "selinux/selinux": [
             "selinux/setroubleshoot.js",
             "selinux/setroubleshoot.scss",

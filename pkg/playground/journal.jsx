@@ -21,7 +21,6 @@ import React from "react";
 import { createRoot } from 'react-dom/client';
 
 import '../lib/patternfly/patternfly-4-cockpit.scss';
-import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
 import "page.scss";
 
 import { LogsPanel } from "cockpit-components-logs-panel.jsx";

@@ -90,7 +90,7 @@
 
 // Iterate through supported PF color names for light and dark modes
 @each $color in cyan gold {
-  .group-#{$color} {
+  .group-#{"" + $color} {
     background-color: var(--pf-global--palette--#{$color}-100);
 
     .pf-theme-dark & {

@@ -107,7 +107,10 @@ const getGroupRow = (group, accounts, isUserCreatedGroup) => {
                 <Flex alignItems={{ default: 'alignItemsCenter' }}>
                     <div className={"dot " + groupColorClass} />
                     <FlexItem>
-                        <a href={"#/group/" + group.name}>{group.name}</a>
+                        <a onClick={ev => { cockpit.jump("/users#/group/" + group.name); ev.preventDefault() }}
+                           href={"#/group/" + group.name}>
+                            {group.name}
+                        </a>
                     </FlexItem>
                 </Flex>
             ),
@@ -181,7 +184,10 @@ const getAccountRow = (account, current, groups) => {
         {
             title: (
                 <span>
-                    <a href={"#/" + account.name}>{account.name}</a>
+                    <a onClick={ev => { cockpit.jump("/users#/" + account.name); ev.preventDefault() }}
+                       href={"#/" + account.name}>
+                        {account.name}
+                    </a>
                     {current && <Badge className="pf-u-ml-lg" id="current-account-badge">{_("Your account")}</Badge>}
                 </span>
             ),

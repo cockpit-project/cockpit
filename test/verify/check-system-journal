@@ -529,6 +529,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b = self.browser
         m = self.machine
 
+        m.execute("systemctl restart systemd-sysctl; systemctl start abrtd abrt-journal-core")
         self.addCleanup(m.execute, "rm -rf /var/spool/abrt/*")
         self.crash()
 
@@ -561,6 +562,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b = self.browser
         m = self.machine
 
+        m.execute("systemctl restart systemd-sysctl; systemctl start abrtd abrt-journal-core")
         self.addCleanup(m.execute, "rm -rf /var/spool/abrt/*")
 
         # A bit of a race might happen if you delete the journal entry whilst
@@ -593,6 +595,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b = self.browser
         m = self.machine
 
+        m.execute("systemctl restart systemd-sysctl; systemctl start abrtd abrt-journal-core")
         self.addCleanup(m.execute, "rm -rf /var/spool/abrt/*")
 
         # Restarting the reportd service will trigger some errors. Some depend
@@ -654,6 +657,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
         b = self.browser
         m = self.machine
 
+        m.execute("systemctl restart systemd-sysctl; systemctl start abrtd abrt-journal-core")
         self.addCleanup(m.execute, "rm -rf /var/spool/abrt/*")
 
         self.addCleanup(m.execute, "pkill -f '[m]ock-.*-server' || true")
@@ -690,6 +694,7 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         self.allow_browser_errors("Channel for reportd D-Bus client closed: .*")
 
+        m.execute("systemctl restart systemd-sysctl; systemctl start abrtd abrt-journal-core")
         self.addCleanup(m.execute, "rm -rf /var/spool/abrt/*")
 
         # start mock FAF server

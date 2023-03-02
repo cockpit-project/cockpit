@@ -37,9 +37,12 @@ if rpm -q setroubleshoot-server; then
     dnf remove -y --noautoremove setroubleshoot-server
 fi
 
-if grep -q 'ID=.*fedora' /etc/os-release; then
-    # required by TestLogin.testBasic, but tcsh is not available in CentOS/RHEL
+if grep -q 'ID=.*fedora' /etc/os-release && [ "$PLAN" = "basic" ]; then
+    # Fedora-only packages which are not available in CentOS/RHEL
+    # required by TestLogin.testBasic
     dnf install -y tcsh
+    # required by TestJournal.testAbrt*
+    dnf install -y abrt abrt-addon-ccpp reportd libreport-plugin-bugzilla libreport-fedora
 fi
 
 if grep -q 'ID=.*rhel' /etc/os-release; then

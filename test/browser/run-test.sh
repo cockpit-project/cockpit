@@ -118,15 +118,6 @@ if [ "$PLAN" = "basic" ]; then
     # PCI devices list is not predictable
     EXCLUDES="$EXCLUDES TestSystemInfo.testHardwareInfo"
 
-    # No ABRT in CentOS/RHEL, thus not a test dependency
-    EXCLUDES="$EXCLUDES
-              TestJournal.testAbrtDelete
-              TestJournal.testAbrtReportCancel
-              TestJournal.testAbrtReport
-              TestJournal.testAbrtReportNoReportd
-              TestJournal.testAbrtSegv
-              "
-
     if [ "${TEST_OS#rhel-8}" != "$TEST_OS" ]; then
         # no cockpit-tests package in RHEL 8
         EXCLUDES="$EXCLUDES TestLogin.testSELinuxRestrictedUser"
@@ -160,6 +151,9 @@ if [ "$PLAN" = "basic" ]; then
               TestSystemInfo.testMotd
               TestSystemInfo.testShutdownStatus
 
+              TestJournal.testAbrtDelete
+              TestJournal.testAbrtReportNoReportd
+              TestJournal.testAbrtReportCancel
               TestJournal.testBinary
               TestJournal.testNoMessage
 

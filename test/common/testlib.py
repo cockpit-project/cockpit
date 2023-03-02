@@ -2099,9 +2099,6 @@ class MachineCase(unittest.TestCase):
         disallowed_conf = '/etc/cockpit/disallowed-users'
         if not self.machine.ostree_image and self.file_exists(disallowed_conf):
             self.sed_file('/root/d', disallowed_conf)
-
-
-
 ###########################
 # Global helper functions
 #

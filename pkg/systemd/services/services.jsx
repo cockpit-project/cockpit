@@ -45,6 +45,8 @@ import { superuser } from 'superuser';
 import { useEvent, usePageLocation } from "hooks";
 import { WithDialogs } from "dialogs.jsx";
 
+import s_bus from "./busnames.js";
+
 const _ = cockpit.gettext;
 
 // As long as we have long-running superuser channels, we need to
@@ -53,15 +55,12 @@ const _ = cockpit.gettext;
 superuser.reload_page_on_change();
 
 export const systemd_client = {
-    system: cockpit.dbus("org.freedesktop.systemd1", { bus: "system", superuser: "try" }),
-    user: cockpit.dbus("org.freedesktop.systemd1", { bus: "session" }),
+    system: cockpit.dbus(s_bus.BUS_NAME, { bus: "system", superuser: "try" }),
+    user: cockpit.dbus(s_bus.BUS_NAME, { bus: "session" }),
 };
 const timedate_client = cockpit.dbus('org.freedesktop.timedate1');
 export let clock_realtime_now;
 export let clock_monotonic_now;
-
-export const SD_MANAGER = "org.freedesktop.systemd1.Manager";
-export const SD_OBJ = "/org/freedesktop/systemd1";
 
 export const MAX_UINT64 = 2 ** 64 - 1;
 
@@ -233,7 +232,7 @@ class ServicesPageBody extends React.Component {
 
     componentDidMount() {
         systemd_client[this.props.owner].wait(() => {
-            this.systemd_subscription = systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "Subscribe", null)
+            this.systemd_subscription = systemd_client[this.props.owner].call(s_bus.O_MANAGER, s_bus.I_MANAGER, "Subscribe", null)
                     .finally(this.listUnits)
                     .catch(error => {
                         if (error.name != "org.freedesktop.systemd1.AlreadySubscribed" &&
@@ -298,9 +297,9 @@ class ServicesPageBody extends React.Component {
         });
 
         ["JobNew", "JobRemoved"].forEach(signalName => {
-            systemd_client[this.props.owner].subscribe({ interface: SD_MANAGER, member: signalName }, (path, iface, signal, args) => {
+            systemd_client[this.props.owner].subscribe({ interface: s_bus.I_MANAGER, member: signalName }, (path, iface, signal, args) => {
                 const unit_id = args[2];
-                systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "LoadUnit", [unit_id])
+                systemd_client[this.props.owner].call(s_bus.O_MANAGER, s_bus.I_MANAGER, "LoadUnit", [unit_id])
                         .then(([path]) => {
                             if (!this.seenPaths.has(path))
                                 this.seenPaths.add(path);
@@ -310,7 +309,7 @@ class ServicesPageBody extends React.Component {
             });
         });
 
-        systemd_client[this.props.owner].subscribe({ interface: SD_MANAGER, member: "Reloading" }, (path, iface, signal, args) => {
+        systemd_client[this.props.owner].subscribe({ interface: s_bus.I_MANAGER, member: "Reloading" }, (path, iface, signal, args) => {
             const reloading = args[0];
             if (!reloading && !this.props.isLoading)
                 this.listUnits();
@@ -359,7 +358,7 @@ class ServicesPageBody extends React.Component {
      * might have changed the failed units array
      */
     listFailedUnits() {
-        return systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "ListUnitsFiltered", [["failed"]])
+        return systemd_client[this.props.owner].call(s_bus.O_MANAGER, s_bus.I_MANAGER, "ListUnitsFiltered", [["failed"]])
                 .then(([failed]) => {
                     failed.forEach(result => {
                         const path = result[6];
@@ -410,7 +409,7 @@ class ServicesPageBody extends React.Component {
         // Run ListUnits before LIstUnitFiles so that we avoid the extra LoadUnit calls
         // Now we call LoadUnit only for those that ListUnits didn't tell us about
 
-        systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "ListUnits", null)
+        systemd_client[this.props.owner].call(s_bus.O_MANAGER, s_bus.I_MANAGER, "ListUnits", null)
                 .then(([results]) => {
                     results.forEach(result => {
                         const path = result[6];
@@ -440,7 +439,7 @@ class ServicesPageBody extends React.Component {
                     });
 
                     this.setState({ currentStatus: _("Listing unit files") });
-                    systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "ListUnitFiles", null)
+                    systemd_client[this.props.owner].call(s_bus.O_MANAGER, s_bus.I_MANAGER, "ListUnitFiles", null)
                             .then(([results]) => {
                                 results.forEach(result => {
                                     const unit_path = result[0];
@@ -464,7 +463,7 @@ class ServicesPageBody extends React.Component {
                                         return;
                                     }
 
-                                    promisesLoad.push(systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "LoadUnit", [unit_id]).then(([unit_path]) => {
+                                    promisesLoad.push(systemd_client[this.props.owner].call(s_bus.O_MANAGER, s_bus.I_MANAGER, "LoadUnit", [unit_id]).then(([unit_path]) => {
                                         this.updateProperties(
                                             {
                                                 Id: cockpit.variant("s", unit_id),
@@ -673,7 +672,7 @@ class ServicesPageBody extends React.Component {
         if (unitNew.Id.endsWith("socket")) {
             unitNew.is_socket = true;
             if (unitNew.ActiveState == "active") {
-                const socket_unit = systemd_client[this.props.owner].proxy('org.freedesktop.systemd1.Socket', unitNew.path);
+                const socket_unit = systemd_client[this.props.owner].proxy(s_bus.I_SOCKET, unitNew.path);
                 socket_unit.wait(() => {
                     if (socket_unit.valid)
                         this.addSocketProperties(socket_unit, path, unitNew);
@@ -683,7 +682,7 @@ class ServicesPageBody extends React.Component {
 
         if (unitNew.Id.endsWith("timer")) {
             if (unitNew.ActiveState == "active") {
-                const timer_unit = systemd_client[this.props.owner].proxy('org.freedesktop.systemd1.Timer', unitNew.path);
+                const timer_unit = systemd_client[this.props.owner].proxy(s_bus.I_TIMER, unitNew.path);
                 timer_unit.wait(() => {
                     if (timer_unit.valid)
                         if (this.addTimerProperties(timer_unit, unitNew)) {

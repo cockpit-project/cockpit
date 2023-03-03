@@ -18,7 +18,8 @@
  */
 
 import cockpit from "cockpit";
-import { systemd_client, SD_OBJ, SD_MANAGER, clock_realtime_now } from "./services.jsx";
+import s_bus from "./busnames.js";
+import { systemd_client, clock_realtime_now } from "./services.jsx";
 
 export function create_timer({ name, description, command, delay, delayUnit, delayNumber, repeat, repeatPatterns, specificTime, owner }) {
     const timer_unit = {};
@@ -78,13 +79,13 @@ function create_timer_file({ timer_unit, delay, owner }) {
     const timer_path = "/etc/systemd/system/" + timer_unit.name + ".timer";
     return cockpit.file(service_path, { superuser: 'try' }).replace(service_file)
             .then(() => cockpit.file(timer_path, { superuser: 'try' }).replace(timer_file))
-            .then(tag => systemd_client[owner].call(SD_OBJ, SD_MANAGER, "EnableUnitFiles", [[timer_unit.name + ".timer"], false, false]))
+            .then(tag => systemd_client[owner].call(s_bus.O_MANAGER, s_bus.I_MANAGER, "EnableUnitFiles", [[timer_unit.name + ".timer"], false, false]))
             /* Executing daemon reload after file operations is necessary -
             * see https://github.com/systemd/systemd/blob/main/src/systemctl/systemctl.c [enable_unit function] */
-            .then(() => systemd_client[owner].call(SD_OBJ, SD_MANAGER, "Reload", null))
+            .then(() => systemd_client[owner].call(s_bus.O_MANAGER, s_bus.I_MANAGER, "Reload", null))
             .then(() => {
                 // start calendar timers
                 if (timer_unit.OnCalendar)
-                    return systemd_client[owner].call(SD_OBJ, SD_MANAGER, "StartUnit", [timer_unit.name + ".timer", "replace"]);
+                    return systemd_client[owner].call(s_bus.O_MANAGER, s_bus.I_MANAGER, "StartUnit", [timer_unit.name + ".timer", "replace"]);
             });
 }

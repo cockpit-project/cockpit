@@ -25,7 +25,7 @@ import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 const _ = cockpit.gettext;
 
 export function Validated({ errors, error_key, children }) {
-    const error = errors && errors[error_key];
+    const error = errors?.[error_key];
     // We need to always render the <div> for the has-error
     // class so that the input field keeps the focus when
     // errors are cleared.  Otherwise the DOM changes enough

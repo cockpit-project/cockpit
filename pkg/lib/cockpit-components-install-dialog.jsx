@@ -97,7 +97,7 @@ export function install_dialog(pkg, options) {
                     <div className="spinner spinner-sm" />
                 </>
             );
-        else if (data && data.download_size) {
+        else if (data?.download_size) {
             footer_message = (
                 <div>
                     { format_to_fragments(_("Total size: $0"), <strong>{cockpit.format_bytes(data.download_size)}</strong>) }

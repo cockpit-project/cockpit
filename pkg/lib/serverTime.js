@@ -248,8 +248,7 @@ export function ServerTime() {
         const timesyncd_server_regex = /.*time server (.*)\./i;
 
         const timesyncd_status = (timesyncd_service.state == "running" &&
-                                timesyncd_service.service &&
-                                timesyncd_service.service.StatusText);
+                                timesyncd_service.service?.StatusText);
 
         if (timesyncd_service.state == "running")
             status.service = "systemd-timesyncd.service";
@@ -454,13 +453,13 @@ export function ServerTimeConfig() {
     const systime_button = (
         <Button variant="link" id="system_information_systime_button"
                 onClick={ () => change_systime_dialog(server_time, tz) }
-                data-timedated-initialized={ntp && ntp.initialized}
+                data-timedated-initialized={ntp?.initialized}
                 isInline isDisabled={!superuser.allowed || !tz}>
             { server_time.format(true) }
         </Button>);
 
     let ntp_status = null;
-    if (ntp && ntp.active) {
+    if (ntp?.active) {
         let icon; let header; let body = ""; let footer = null;
         if (ntp.synch) {
             icon = <InfoCircleIcon className="ct-info-circle" />;
@@ -505,7 +504,7 @@ export function ServerTimeConfig() {
 }
 
 function Validated({ errors, error_key, children }) {
-    const error = errors && errors[error_key];
+    const error = errors?.[error_key];
     // We need to always render the <div> for the has-error
     // class so that the input field keeps the focus when
     // errors are cleared.  Otherwise the DOM changes enough
@@ -519,7 +518,7 @@ function Validated({ errors, error_key, children }) {
 }
 
 function ValidatedInput({ errors, error_key, children }) {
-    const error = errors && errors[error_key];
+    const error = errors?.[error_key];
     return (
         <span className={error ? "ct-validation-wrapper has-error" : "ct-validation-wrapper"}>
             { children }

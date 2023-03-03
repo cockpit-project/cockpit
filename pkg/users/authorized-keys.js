@@ -102,7 +102,7 @@ function AuthorizedKeys (user_name, home_dir) {
         return parse_pubkeys(key)
                 .then(keys => {
                     const obj = keys[0];
-                    if (obj && obj.valid) {
+                    if (obj?.valid) {
                         return cockpit
                                 .script(adder, [user_name, home_dir], { superuser: "try", err: "message" })
                                 .input(obj.raw + "\n")

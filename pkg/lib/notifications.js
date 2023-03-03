@@ -151,7 +151,7 @@ class PageStatus {
             return null;
         }
 
-        if (page_status && page_status[host])
+        if (page_status?.[host])
             return page_status[host][page] || null;
         return null;
     }

@@ -145,7 +145,7 @@ export class Modifications extends React.Component {
                 </DataListItemRow>
             </DataListItem>;
         }
-        if (this.props.entries !== null && this.props.entries.length === 0) {
+        if (this.props.entries?.length === 0) {
             emptyRow = <DataListItem>
                 <DataListItemRow>
                     <DataListItemCells dataListCells={[<DataListCell key={fail_message}>{fail_message}</DataListCell>]} />

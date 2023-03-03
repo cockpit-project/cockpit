@@ -36,22 +36,22 @@ function GroupCreateBody({ state, errors, change }) {
     return (
         <Form isHorizontal onSubmit={apply_modal_dialog}>
             <FormGroup label={_("Name")}
-                       helperTextInvalid={errors && errors.name}
-                       validated={(errors && errors.name) ? "error" : "default"}
+                       helperTextInvalid={errors?.name}
+                       validated={(errors?.name) ? "error" : "default"}
                        fieldId="groups-create-name">
                 <TextInput id="groups-create-name"
-                           validated={(errors && errors.name) ? "error" : "default"}
+                           validated={(errors?.name) ? "error" : "default"}
                            value={name} onChange={value => change("name", value)} />
             </FormGroup>
 
             <FormGroup label={_("ID")}
                        hasNoPaddingTop
-                       helperTextInvalid={errors && errors.id}
-                       validated={(errors && errors.id) ? "error" : "default"}
+                       helperTextInvalid={errors?.id}
+                       validated={(errors?.id) ? "error" : "default"}
                        isStack
                        fieldId="groups-create-id">
                 <TextInput id="groups-create-id"
-                           validated={(errors && errors.id) ? "error" : "default"}
+                           validated={(errors?.id) ? "error" : "default"}
                            value={id} onChange={value => change("id", value)} />
             </FormGroup>
         </Form>

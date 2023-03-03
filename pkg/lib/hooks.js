@@ -264,7 +264,7 @@ export function useObject(create, destroy, deps, comps) {
 
     destroy_ref.current = destroy;
     useEffect(() => {
-        return () => destroy_ref.current && destroy_ref.current(ref.current);
+        return () => destroy_ref.current?.(ref.current);
     }, []);
 
     return ref.current;
@@ -298,8 +298,8 @@ export function useEvent(obj, event, handler) {
             forceUpdate();
         }
 
-        obj && obj.addEventListener(event, update);
-        return () => obj && obj.removeEventListener(event, update);
+        obj?.addEventListener(event, update);
+        return () => obj?.removeEventListener(event, update);
     }, [obj, event, handler]);
 }
 

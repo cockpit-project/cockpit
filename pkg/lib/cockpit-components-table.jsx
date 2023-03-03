@@ -80,9 +80,9 @@ export const ListingTable = ({
     const [expanded, setExpanded] = useState({});
     const [newItems, setNewItems] = useState([]);
     const [currentRowsKeys, setCurrentRowsKeys] = useState([]);
-    const [activeSortIndex, setActiveSortIndex] = useState(sortBy ? sortBy.index : 0);
-    const [activeSortDirection, setActiveSortDirection] = useState(sortBy ? sortBy.direction : SortByDirection.asc);
-    const rowKeys = rows.map(row => row.props ? row.props.key : undefined)
+    const [activeSortIndex, setActiveSortIndex] = useState(sortBy?.index ?? 0);
+    const [activeSortDirection, setActiveSortDirection] = useState(sortBy?.direction ?? SortByDirection.asc);
+    const rowKeys = rows.map(row => row.props?.key)
             .filter(key => key !== undefined);
     const rowKeysStr = JSON.stringify(rowKeys);
     const currentRowsKeysStr = JSON.stringify(currentRowsKeys);
@@ -217,7 +217,7 @@ export const ListingTable = ({
                         const { key, ...cellProps } = cell.props || {};
                         const dataLabel = typeof cells[cellIndex] == 'object' ? cells[cellIndex].title : cells[cellIndex];
                         const colKey = dataLabel || cellIndex;
-                        if (cells[cellIndex] && cells[cellIndex].header)
+                        if (cells[cellIndex]?.header)
                             return (
                                 <Th key={key || `row_${rowKey}_cell_${colKey}`} dataLabel={dataLabel} {...cellProps}>
                                     {typeof cell == 'object' ? cell.title : cell}

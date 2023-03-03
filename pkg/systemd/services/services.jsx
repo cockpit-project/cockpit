@@ -849,6 +849,7 @@ class ServicesPageBody extends React.Component {
                                          fileStateDropdownOptions={fileStateDropdownOptions}
                                          filtersRef={this.filtersRef}
                                          loadingUnits={this.props.isLoading}
+                                         options={this.props.options}
                                          onOptionsChanged={this.onOptionsChanged}
                     />
                     <ServicesList key={cockpit.format("$0-list", activeTab)}
@@ -866,9 +867,9 @@ const ServicesPageFilters = ({
     fileStateDropdownOptions,
     filtersRef,
     loadingUnits,
+    options,
     onOptionsChanged,
 }) => {
-    const { options } = usePageLocation();
     const { activestate, filestate, name } = options;
     const [activeStateFilterIsOpen, setActiveStateFilterIsOpen] = useState(false);
     const [currentTextFilter, setCurrentTextFilter] = useState(decodeURIComponent(name || ""));
@@ -1062,6 +1063,7 @@ const ServicesPage = () => {
                     activeTab={activeTab}
                     owner={owner}
                     path={path}
+                    options={options}
                     privileged={superuser.allowed}
                     setTabErrors={setTabErrors}
                     isLoading={isLoading}

@@ -1631,7 +1631,9 @@ class MachineCase(unittest.TestCase):
         if enable_root_login:
             self.enable_root_login()
         self.machine.start_cockpit(tls=tls)
-        self.browser.login_and_go(path, user=user, host=host, superuser=superuser, urlroot=urlroot, tls=tls)
+        # first load after starting cockpit tends to take longer, due to on-demand service start
+        with self.browser.wait_timeout(30):
+            self.browser.login_and_go(path, user=user, host=host, superuser=superuser, urlroot=urlroot, tls=tls)
 
     # List of allowed journal messages during tests; these need to match the *entire* message
     default_allowed_messages = [

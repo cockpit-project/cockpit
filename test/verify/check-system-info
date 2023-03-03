@@ -791,7 +791,8 @@ password=foobar
 
         # Enable insights, results should appear automatically
         m.execute("insights-client --register")
-        b.wait_in_text(".system-health-insights a", "3 hits, including important")
+        with b.wait_timeout(60):
+            b.wait_in_text(".system-health-insights a", "3 hits, including important")
         self.assertIn("123-nice-id", b.attr(".system-health-insights a", "href"))
 
         # Switch to limited access, insights status will disappear completely

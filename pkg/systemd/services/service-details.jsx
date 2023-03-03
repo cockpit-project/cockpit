@@ -40,7 +40,8 @@ import {
 } from "@patternfly/react-icons";
 
 import cockpit from "cockpit";
-import { systemd_client, SD_MANAGER, SD_OBJ, MAX_UINT64 } from "./services.jsx";
+import s_bus from "./busnames.js";
+import { systemd_client, MAX_UINT64 } from "./services.jsx";
 import * as timeformat from "timeformat";
 import { useDialogs, DialogsContext } from "dialogs.jsx";
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
@@ -318,7 +319,7 @@ export class ServiceDetails extends React.Component {
         if (extra_args === undefined)
             extra_args = ["fail"];
         this.setState({ waitsAction: true });
-        const promise = systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, method, [this.props.unit.Names[0]].concat(extra_args));
+        const promise = systemd_client[this.props.owner].call(s_bus.O_MANAGER, s_bus.I_MANAGER, method, [this.props.unit.Names[0]].concat(extra_args));
         if (catchExc) {
             return promise.catch(error => {
                 this.show_error(error.toString());
@@ -344,14 +345,14 @@ export class ServiceDetails extends React.Component {
         const args = [[this.props.unit.Names[0]], false];
         if (force !== undefined)
             args.push(force == "true");
-        const promise = systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, method, args)
+        const promise = systemd_client[this.props.owner].call(s_bus.O_MANAGER, s_bus.I_MANAGER, method, args)
                 .then(([results]) => {
                     if (results.length == 2 && !results[0])
                         this.show_note(_("This unit is not designed to be enabled explicitly."));
                     /* Executing daemon reload after file operations is necessary -
                      * see https://github.com/systemd/systemd/blob/main/src/systemctl/systemctl.c [enable_unit function]
                      */
-                    return systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "Reload", null);
+                    return systemd_client[this.props.owner].call(s_bus.O_MANAGER, s_bus.I_MANAGER, "Reload", null);
                 });
         if (catchExc) {
             return promise.catch(error => {
@@ -403,7 +404,7 @@ export class ServiceDetails extends React.Component {
 
             // Reload after unit/timer removal
             return Promise.all(deletions).then(() =>
-                systemd_client[this.props.owner].call(SD_OBJ, SD_MANAGER, "Reload", null)
+                systemd_client[this.props.owner].call(s_bus.O_MANAGER, s_bus.I_MANAGER, "Reload", null)
                         .then(() => cockpit.jump("/system/services#/?type=timer"))
             );
         });

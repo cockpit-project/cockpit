@@ -681,7 +681,8 @@ export class ServiceDetails extends React.Component {
 }
 ServiceDetails.propTypes = {
     unit: PropTypes.object.isRequired,
-    permitted: PropTypes.bool.isRequired,
+    // not required: can be null initially, we don't wait for the proxy
+    permitted: PropTypes.bool,
     isValid: PropTypes.func.isRequired,
 };
 

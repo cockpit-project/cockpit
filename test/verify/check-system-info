@@ -756,6 +756,13 @@ fi
         if not m.image.startswith("rhel"):
             self.skipTest("insights-client is only on RHEL")
 
+        # insights-client might get started during boot and might then
+        # run concurrently with our explicit "insights-client
+        # --register" below.  insights-client is not designed to be
+        # run concurrently and there is no protection against it,
+        # apparently.  So let's prevent that.
+        m.execute("systemctl disable --now insights-client")
+
         # Pretend that the Subscriptions page can do Insights stuff
         m.write("/etc/cockpit/subscription-manager.override.json", '{ "features": { "insights": true } }')
 

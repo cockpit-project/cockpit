@@ -227,7 +227,7 @@ class ServicesPageBody extends React.Component {
         if (!currentOptions.name)
             delete currentOptions.name;
 
-        cockpit.location.go([], currentOptions);
+        cockpit.location.go(cockpit.location.path, currentOptions);
     }
 
     componentDidMount() {
@@ -1024,7 +1024,7 @@ const ServicesPage = () => {
 
     const activeTab = options.type || 'service';
     const owner = options.owner || 'system';
-    const setOwner = (owner) => cockpit.location.go([], Object.assign(options, { owner }));
+    const setOwner = (owner) => cockpit.location.go(cockpit.location.path, Object.assign(options, { owner }));
 
     if (owner !== 'system' && owner !== 'user') {
         console.warn("not a valid location: " + path);
@@ -1041,7 +1041,7 @@ const ServicesPage = () => {
                         <ServiceTabs activeTab={activeTab}
                                       tabErrors={tabErrors}
                                       onChange={activeTab => {
-                                          cockpit.location.go([], Object.assign(options, { type: activeTab }));
+                                          cockpit.location.go(cockpit.location.path, Object.assign(options, { type: activeTab }));
                                       }} />
                         <FlexItem align={{ default: 'alignRight' }}>
                             {loggedUser && loggedUser !== 'root' && <ToggleGroup>

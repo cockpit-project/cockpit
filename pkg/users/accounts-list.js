@@ -261,7 +261,7 @@ const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_
             } else {
                 delete newOptions.group;
             }
-            cockpit.location.go([], newOptions);
+            cockpit.location.go(cockpit.location.path, newOptions);
         } else {
             setCurrentTextFilter(options.group || "");
         }
@@ -383,7 +383,7 @@ const AccountsList = ({ accounts, current_user, groups }) => {
             } else {
                 delete newOptions.user;
             }
-            cockpit.location.go([], newOptions);
+            cockpit.location.go(cockpit.location.path, newOptions);
         } else {
             setCurrentTextFilter(options.user || "");
         }

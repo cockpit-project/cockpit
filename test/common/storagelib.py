@@ -590,10 +590,9 @@ mount /dev/mapper/dm-test /new-root
 mkfs.ext4 {dev}1
 mkdir /new-root/boot
 mount {dev}1 /new-root/boot
-tar --one-file-system -cf - --exclude /boot --exclude='/var/tmp/*' --exclude='/var/cache/*' \
+tar --selinux --one-file-system -cf - --exclude /boot --exclude='/var/tmp/*' --exclude='/var/cache/*' \
     --exclude='/var/lib/mock/*' --exclude='/var/lib/containers/*' --exclude='/new-root/*' \
-    / | tar -C /new-root -xf -
-touch /new-root/.autorelabel
+    / | tar --selinux -C /new-root -xf -
 tar --one-file-system -C /boot -cf - . | tar -C /new-root/boot -xf -
 umount /new-root/boot
 mount {dev}1 /boot
@@ -614,15 +613,11 @@ grub2-install {dev}
 )
 grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uuid=$luks_uuid"
 ! test -f /etc/kernel/cmdline || cp /etc/kernel/cmdline /new-root/etc/kernel/cmdline
-sed -i -e 's/enforcing/permissive/' /new-root/etc/selinux/config
 """, timeout=300)
         luks_uuid = m.execute(f"blkid -p {dev}2 -s UUID -o value").strip()
         m.spawn("dd if=/dev/zero of=/dev/vda bs=1M count=100; reboot", "reboot", check=False)
         m.wait_reboot(300)
         self.assertEqual(m.execute("findmnt -n -o SOURCE /").strip(), f"/dev/mapper/luks-{luks_uuid}")
-        m.execute("sed -i -e 's/permissive/enforcing/' /etc/selinux/config; setenforce 1")
-        self.allow_journal_messages('audit.*avc:  denied .* comm="systemd" .*')
-        self.allow_journal_messages('audit.*avc:  denied .* comm="setfiles" .*')
 
 
 class StorageCase(MachineCase, StorageHelpers):

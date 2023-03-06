@@ -190,7 +190,7 @@ It's easy to set up your local Linux machine for rapid development of Cockpit's
 JavaScript code (in pkg/). First install Cockpit on your local machine as
 described in:
 
-https://cockpit-project.org/running.html
+<https://cockpit-project.org/running.html>
 
 Next run this command from your top level Cockpit checkout directory, and make
 sure to run it as the same user that you'll use to log into Cockpit below.
@@ -205,7 +205,7 @@ Now you can log into Cockpit on your local Linux machine at the following
 address. Use the same user and password that you used to log into your Linux
 desktop.
 
-http://localhost:9090
+<http://localhost:9090>
 
 After every change to your sources the webpacks need to be rebuilt: You can just
 run `make` to update everything that has changed; for iterating faster, you can

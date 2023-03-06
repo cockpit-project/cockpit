@@ -46,8 +46,6 @@ import { lockAccountDialog } from "./lock-account-dialog.js";
 import { logoutAccountDialog } from "./logout-account-dialog.js";
 import { GroupActions } from "./group-actions.jsx";
 
-import { usePageLocation } from "hooks";
-
 const _ = cockpit.gettext;
 
 const UserActions = ({ account }) => {
@@ -233,9 +231,8 @@ const mapGroupsToAccount = (accounts, groups) => {
     });
 };
 
-const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_gid }) => {
-    const { options } = usePageLocation();
-    const [currentTextFilter, setCurrentTextFilter] = useState(options.group || '');
+const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_gid, currentGroupFilter }) => {
+    const [currentTextFilter, setCurrentTextFilter] = useState(currentGroupFilter || '');
     const columns = [
         { title: _("Group name"), sortable: true },
         { title: _("ID"), sortable: true },
@@ -255,7 +252,7 @@ const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_
     useEffect(() => {
         if (ref.current != currentTextFilter) {
             ref.current = currentTextFilter;
-            const newOptions = { ...options };
+            const newOptions = { ...cockpit.location.options };
             if (currentTextFilter) {
                 newOptions.group = currentTextFilter;
             } else {
@@ -263,9 +260,9 @@ const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_
             }
             cockpit.location.go(cockpit.location.path, newOptions);
         } else {
-            setCurrentTextFilter(options.group || "");
+            setCurrentTextFilter(currentGroupFilter || "");
         }
-    }, [currentTextFilter, options]);
+    }, [currentTextFilter, currentGroupFilter]);
 
     const sortRows = (rows, direction, idx) => {
         // GID and members columns are numeric
@@ -359,9 +356,8 @@ const GroupsList = ({ groups, accounts, isExpanded, setIsExpanded, min_gid, max_
     );
 };
 
-const AccountsList = ({ accounts, current_user, groups }) => {
-    const { options } = usePageLocation();
-    const [currentTextFilter, setCurrentTextFilter] = useState(options.user || '');
+const AccountsList = ({ accounts, current_user, groups, currentUserFilter }) => {
+    const [currentTextFilter, setCurrentTextFilter] = useState(currentUserFilter || '');
     const filtered_accounts = accounts.filter(account => {
         if (currentTextFilter !== "" &&
             (account.name.toLowerCase().indexOf(currentTextFilter.toLowerCase()) === -1) &&
@@ -377,7 +373,7 @@ const AccountsList = ({ accounts, current_user, groups }) => {
     useEffect(() => {
         if (ref.current != currentTextFilter) {
             ref.current = currentTextFilter;
-            const newOptions = { ...options };
+            const newOptions = { ...cockpit.location.options };
             if (currentTextFilter) {
                 newOptions.user = currentTextFilter;
             } else {
@@ -385,9 +381,9 @@ const AccountsList = ({ accounts, current_user, groups }) => {
             }
             cockpit.location.go(cockpit.location.path, newOptions);
         } else {
-            setCurrentTextFilter(options.user || "");
+            setCurrentTextFilter(currentUserFilter || "");
         }
-    }, [currentTextFilter, options]);
+    }, [currentTextFilter, currentUserFilter]);
 
     const columns = [
         { title: _("Username"), sortable: true },
@@ -475,7 +471,7 @@ const AccountsList = ({ accounts, current_user, groups }) => {
     );
 };
 
-export const AccountsMain = ({ accountsInfo, current_user, groups, isGroupsExpanded, setIsGroupsExpanded, min_gid, max_gid }) => {
+export const AccountsMain = ({ accountsInfo, current_user, groups, isGroupsExpanded, setIsGroupsExpanded, min_gid, max_gid, currentUserFilter, currentGroupFilter }) => {
     const accounts = mapGroupsToAccount(accountsInfo, groups).filter(account => {
         if ((account.uid < 1000 && account.uid !== 0) ||
                  account.shell.match(/^(\/usr)?\/sbin\/nologin/) ||
@@ -488,8 +484,15 @@ export const AccountsMain = ({ accountsInfo, current_user, groups, isGroupsExpan
         <Page id="accounts">
             <PageSection>
                 <Stack hasGutter>
-                    <GroupsList accounts={accounts} groups={groups} isExpanded={isGroupsExpanded} setIsExpanded={setIsGroupsExpanded} min_gid={min_gid} max_gid={max_gid} />
-                    <AccountsList accounts={accounts} current_user={current_user} groups={groups} />
+                    <GroupsList
+                        currentGroupFilter={currentGroupFilter}
+                        accounts={accounts} groups={groups}
+                        isExpanded={isGroupsExpanded} setIsExpanded={setIsGroupsExpanded}
+                        min_gid={min_gid} max_gid={max_gid} />
+                    <AccountsList
+                        currentUserFilter={currentUserFilter}
+                        accounts={accounts} current_user={current_user}
+                        groups={groups} />
                 </Stack>
             </PageSection>
         </Page>

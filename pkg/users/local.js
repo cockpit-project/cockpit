@@ -52,7 +52,7 @@ const sortGroups = groups => {
 
 function AccountsPage() {
     const [isGroupsExpanded, setIsGroupsExpanded] = useState(false);
-    const { path } = usePageLocation();
+    const { path, options } = usePageLocation();
     const accounts = useFile("/etc/passwd", { syntax: etc_passwd_syntax });
     const shadow = useFile("/etc/shadow", { superuser: true });
     const groups = useFile("/etc/group", { syntax: etc_group_syntax });
@@ -125,6 +125,8 @@ function AccountsPage() {
                 setIsGroupsExpanded={setIsGroupsExpanded}
                 min_gid={min_gid}
                 max_gid={max_gid}
+                currentUserFilter={options.user}
+                currentGroupFilter={options.group}
             />
         );
     } else if (path.length === 1) {

@@ -215,8 +215,8 @@ export const StorageUsageBar = ({ stats, critical, block, offset, total, small }
         </div>);
 };
 
-export const StorageMenuItem = ({ onClick, onlyNarrow, children }) => (
-    <DropdownItem className={onlyNarrow ? "show-only-when-narrow" : null}
+export const StorageMenuItem = ({ onClick, onlyNarrow, danger, children }) => (
+    <DropdownItem className={(onlyNarrow ? "show-only-when-narrow" : "") + (danger ? " delete-resource-red" : "")}
                   onKeyPress={checked(onClick)}
                   onClick={checked(onClick)}>
         {children}

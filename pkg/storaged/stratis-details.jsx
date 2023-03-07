@@ -598,7 +598,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
             menuitems.push(<StorageMenuItem key="unmount" onClick={unmount}>{_("Unmount")}</StorageMenuItem>);
         menuitems.push(<StorageMenuItem key="rename" onClick={rename_fsys}>{_("Rename")}</StorageMenuItem>);
         menuitems.push(<StorageMenuItem key="snapshot" onClick={snapshot_fsys}>{_("Snapshot")}</StorageMenuItem>);
-        menuitems.push(<StorageMenuItem key="del" onClick={delete_fsys}>{_("Delete")}</StorageMenuItem>);
+        menuitems.push(<StorageMenuItem key="del" onClick={delete_fsys} danger>{_("Delete")}</StorageMenuItem>);
 
         const cols = [
             {

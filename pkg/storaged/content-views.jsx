@@ -147,7 +147,7 @@ function create_tabs(client, target, is_partition, is_extended) {
     }
 
     function add_menu_danger_action(title, func) {
-        tab_menu_danger_actions.push({ title, func });
+        tab_menu_danger_actions.push({ title, func, danger: true });
     }
 
     const tabs = [];
@@ -515,7 +515,7 @@ function block_description(client, block) {
 function append_row(client, rows, level, key, name, desc, tabs, job_object) {
     function menuitem(action) {
         if (action.title)
-            return <StorageMenuItem onlyNarrow={action.only_narrow} key={action.title} onClick={action.func}>{action.title}</StorageMenuItem>;
+            return <StorageMenuItem onlyNarrow={action.only_narrow} key={action.title} onClick={action.func} danger={action.danger}>{action.title}</StorageMenuItem>;
         else
             return <DropdownSeparator className={action.only_narrow ? "show-only-when-narrow" : null} key="sep" />;
     }

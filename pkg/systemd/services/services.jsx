@@ -1025,7 +1025,7 @@ const ServicesPage = () => {
 
     const activeTab = options.type || 'service';
     const owner = options.owner || 'system';
-    const setOwner = (owner) => cockpit.location.go(cockpit.location.path, { ...options, owner });
+    const setOwner = (owner) => cockpit.location.go(cockpit.location.path, { ...cockpit.location.options, owner });
 
     if (owner !== 'system' && owner !== 'user') {
         console.warn("not a valid location: " + path);
@@ -1042,7 +1042,7 @@ const ServicesPage = () => {
                         <ServiceTabs activeTab={activeTab}
                                       tabErrors={tabErrors}
                                       onChange={activeTab => {
-                                          cockpit.location.go(cockpit.location.path, { ...options, type: activeTab });
+                                          cockpit.location.go(cockpit.location.path, { ...cockpit.location.options, type: activeTab });
                                       }} />
                         <FlexItem align={{ default: 'alignRight' }}>
                             {loggedUser && loggedUser !== 'root' && <ToggleGroup>

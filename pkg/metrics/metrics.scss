@@ -673,6 +673,10 @@ html {
 }
 
 // FIXME: We probably want to adapt some of these for the general log message widget
+.cockpit-logline {
+  padding: 0.25rem 0;
+}
+
 .cockpit-log-message {
   text-align: start;
   overflow-wrap: anywhere;
@@ -683,4 +687,60 @@ html {
   -webkit-box-orient: vertical;
   display: webkit-box; /* stylelint-disable-line */
   color: var(--pf-global--active-color--100);
+}
+
+// Log warning icon is incorrectly aligned (especially when messages wrap);
+// this fixes it by realigning and offsetting
+.cockpit-log-warning {
+  transform: translateY(calc((var(--pf-global--spacer--md) - 22px) / -2));
+  margin: 0 var(--pf-global--spacer--xs) 0 0;
+  align-self: baseline;
+}
+
+.metrics-events-popover {
+  .cockpit-log-panel {
+    overflow: auto;
+    // Remove extra whitespace; the modal already has some
+    padding: 0;
+    margin: 0;
+  }
+
+  .pf-c-popover__content {
+    // Remove extra whitespace in the modal
+    --pf-c-popover--c-button--sibling--PaddingRight: 0;
+  }
+}
+
+@media (min-width: 801px) {
+  .metrics-events-popover {
+    .cockpit-log-panel {
+      // Limit the size of the popover to make it more elegant
+      max-height: 65vw;
+    }
+
+    .pf-c-popover__content {
+      // Limit the width of the popover in desktop mode
+      max-width: max(30rem, 40vw);
+    }
+  }
+}
+
+@media (max-width: 800px) {
+  .metrics-events-popover {
+    // Make the popover into a sheet from the bottom in mobile mode
+    inset: auto 0 0 0 !important;
+    transform: none !important;
+    max-height: 100%;
+    min-height: 25vh;
+
+    .pf-c-popover__content {
+      // Limit the width of the popover in desktop mode
+      max-width: max(100vw);
+    }
+
+    // As a sheet at the bottom, it doesn't point to anything
+    .pf-c-popover__arrow {
+      display: none;
+    }
+  }
 }

@@ -216,7 +216,7 @@ class ServicesPageBody extends React.Component {
     }
 
     onOptionsChanged(options) {
-        const currentOptions = { ...cockpit.location.options, ...options };
+        const currentOptions = { ...this.props.options, ...options };
 
         if (!currentOptions.activestate || options.activestate == "[]")
             delete currentOptions.activestate;

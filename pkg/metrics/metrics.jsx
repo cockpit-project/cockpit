@@ -871,25 +871,16 @@ class MetricsMinute extends React.Component {
         super(props);
 
         this.state = {
-            expanded: false,
             logs: null,
             logsUrl: null,
         };
-
-        this.expand = this.expand.bind(this);
         this.onHover = this.onHover.bind(this);
         this.findLogs = this.findLogs.bind(this);
     }
 
-    componentDidUpdate(_, prevState) {
-        if (prevState.expanded === false && this.state.expanded === true)
+    componentDidMount() {
+        if (this.props.isExpanded && this.props.events)
             this.findLogs(this.props.events.start - 4, this.props.events.end + 4); // +- 20s
-    }
-
-    expand(isOpenCurrent) {
-        this.setState({ expanded: isOpenCurrent });
-        if (!isOpenCurrent)
-            this.setState({ logs: null, logsUrl: null });
     }
 
     onHover(ev) {
@@ -1001,19 +992,23 @@ class MetricsMinute extends React.Component {
                 </>
             );
 
+            const resourceDesc = (
+                <span className="type">
+                    {this.props.events.events.map(t => RESOURCES[t].event_description).join(", ")}
+                </span>
+            );
             desc = <div className="metrics-events">
                 <time>{ timeformat.time(timestamp) }</time>
                 <span className="spikes_count" />
-                <Popover position="right" hasAutoWidth className="metrics-events-popover" bodyContent={logsPanel}>
-                    <Button
-                        variant="link" isInline
-                        className="spikes_info"
-                        onClick={() => this.expand(!this.state.expanded)}>
-                        <span className="type">
-                            { this.props.events.events.map(t => RESOURCES[t].event_description).join(", ") }
-                        </span>
-                    </Button>
-                </Popover>
+                {this.state.logs?.length > 0
+                    ? <Popover position="right" hasAutoWidth className="metrics-events-popover" bodyContent={logsPanel}>
+                        <Button
+                            variant="link" isInline
+                            className="spikes_info">
+                            {resourceDesc}
+                        </Button>
+                    </Popover>
+                    : <span className="spikes_info">{resourceDesc}</span>}
             </div>;
         }
 

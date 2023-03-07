@@ -53,11 +53,11 @@ class TestReauthorize(MachineCase):
         m.execute("touch /tmp/playground-test-lock")
         b.click(".lock-channel button")
         b.wait_in_text(".lock-channel span", 'locked')
-        m.execute("! flock -n /tmp/playground-test-lock true")
+        m.execute("! flock --nonblock /tmp/playground-test-lock true")
 
         # Deauthorize user
         b.drop_superuser()
-        m.execute("flock -n /tmp/playground-test-lock true")
+        m.execute("flock --timeout 10 /tmp/playground-test-lock true")
         b.click(".cockpit-internal-reauthorize button")
         b.wait_in_text(".cockpit-internal-reauthorize span", 'result:')
         self.assertEqual(b.text(".cockpit-internal-reauthorize span"), 'result: access-denied')

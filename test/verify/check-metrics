@@ -823,9 +823,9 @@ class TestCurrentMetrics(MachineCase):
 
         m.execute(f"podman stop -t 0 {container_name}")
 
-        # RHEL-8 / CentOS-8's podman user containers do not show up as
+        # RHEL-8 / CentOS-8's / Debian-testing podman user containers do not show up as
         # libpod-$containerid but as podman-3679.scope.
-        if m.image != "centos-8-stream" and not m.image.startswith("rhel-8"):
+        if m.image not in ["centos-8-stream", "debian-testing"] and not m.image.startswith("rhel-8"):
             # copy images for user podman tests; podman insists on user session
             m.execute("podman save quay.io/libpod/busybox | sudo -i -u admin podman load")
 
@@ -1065,9 +1065,9 @@ BEGIN {{
 
         m.execute(f"podman stop -t 0 {container_name}")
 
-        # RHEL-8 / CentOS-8's podman user containers do not show up as
+        # RHEL-8 / CentOS-8's / Debian-testing podman user containers do not show up as
         # libpod-$containerid but as podman-3679.scope.
-        if m.image != "centos-8-stream" and not m.image.startswith("rhel-8"):
+        if m.image not in ["centos-8-stream", "debian-testing"] and not m.image.startswith("rhel-8"):
             # copy images for user podman tests; podman insists on user session
             m.execute("podman save quay.io/libpod/busybox | sudo -i -u admin podman load")
 

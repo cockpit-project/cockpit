@@ -38,6 +38,7 @@ import { ServiceTabs, service_tabs_suffixes } from "./service-tabs.jsx";
 import { ServicesList } from "./services-list.jsx";
 import { CreateTimerDialog } from "./timer-dialog.jsx";
 import { page_status } from "notifications";
+import * as python from "python";
 import * as timeformat from "timeformat";
 import cockpit from "cockpit";
 import { superuser } from 'superuser';
@@ -70,20 +71,43 @@ function debug() {
 }
 
 export function updateTime() {
-    Promise.all([
-        cockpit.file("/proc/uptime").read(),
-        cockpit.spawn(["date", "+%s"])
-    ])
-            .then(([uptime_contents, date_output]) => {
-                clock_realtime_now = parseInt(date_output, 10) * 1000;
-
-                // first number in /proc/uptime is time since boot (CLOCK_BOOTTIME) in seconds with two fractional digits
-                const uptime = parseFloat(uptime_contents.split(' ')[0]);
-                const clock_boottime_now = parseInt(uptime * 1000000, 10);
-
-                monotonic_timer_base = clock_realtime_now * 1000 - clock_boottime_now;
+    // To correctly interpret monotonic timers, we need to read CLOCK_MONOTONIC. This cannot be read with shell tools
+    python.spawn("import time; print(time.clock_gettime_ns(time.CLOCK_REALTIME), time.clock_gettime_ns(time.CLOCK_MONOTONIC))",
+                 null, { err: "message" })
+            .then(output => {
+                const [realtime, monotonic] = output.split(' ').map(ns => parseInt(ns));
+                clock_realtime_now = realtime / 1000000;
+                monotonic_timer_base = (realtime - monotonic) / 1000;
+                debug("Read clocks with Python; realtime", clock_realtime_now, "monotonic base", monotonic_timer_base);
             })
-            .catch(ex => console.warn("Failed to read boot time:", ex.toString()));
+            .catch(ex => {
+                /* If Python is not available, fall back to reading CLOCK_BOOTTIME from /proc/timer-list.
+                 * This is readable by root only */
+                console.log("Failed to read clocks with Python, using fallback:", ex.toString());
+                Promise.allSettled([
+                    cockpit.spawn(["date", "+%s"]),
+                    cockpit.file("/proc/timer_list", { superuser: "try" }).read(),
+                ])
+                        .then(([date_result, timer_list_result]) => {
+                            if (date_result.status === "fulfilled") {
+                                clock_realtime_now = parseInt(date_result.value) * 1000;
+                            } else {
+                                console.warn("Failed to read realtime clock:", date_result.reason.toString());
+                                return;
+                            }
+
+                            // third line is "now at N nsecs"
+                            if (timer_list_result.status === "fulfilled") {
+                                const match = /now at (\d+) nsecs/.exec(timer_list_result.value);
+                                if (match)
+                                    monotonic_timer_base = clock_realtime_now * 1000 - parseInt(match[1]) / 1000;
+
+                                debug("Read clocks with fallback; realtime", clock_realtime_now, "monotonic base", monotonic_timer_base);
+                            } else {
+                                console.log("Failed to read /proc/timer_list:", timer_list_result.reason.toString());
+                            }
+                        });
+            });
 }
 
 /* Notes about the systemd D-Bus API

@@ -1039,7 +1039,7 @@ export class Firewall extends React.Component {
         const enabled = this.state.firewall.enabled;
 
         return (
-            <Page groupProps={{ sticky: 'top' }}
+            <Page
                   isBreadcrumbGrouped
                   breadcrumb={
                       <Breadcrumb>

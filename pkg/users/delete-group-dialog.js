@@ -51,7 +51,7 @@ export function delete_group_dialog(group) {
                 caption: group.userlistPrimary.length > 0 ? _("Force delete") : _("Delete"),
                 style: "danger",
                 clicked: () => {
-                    const prog = ["/usr/sbin/groupdel"];
+                    const prog = ["groupdel"];
                     if (group.userlistPrimary.length > 0)
                         prog.push("-f");
                     prog.push(group.name);

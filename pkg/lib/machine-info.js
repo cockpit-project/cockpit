@@ -20,8 +20,8 @@
 import cockpit from "cockpit";
 const _ = cockpit.gettext;
 
-export const cpu_ram_info = address =>
-    cockpit.spawn(["cat", "/proc/meminfo", "/proc/cpuinfo"], { host: address })
+export const cpu_ram_info = () =>
+    cockpit.spawn(["cat", "/proc/meminfo", "/proc/cpuinfo"])
             .then(text => {
                 const info = { };
                 const memtotal_match = text.match(/MemTotal:[^0-9]*([0-9]+) [kK]B/);

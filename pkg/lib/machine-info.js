@@ -117,25 +117,18 @@ function parseDMIFields(text) {
     return info;
 }
 
-const dmi_info_promises = { };
-
-export function dmi_info(address) {
-    let pr = dmi_info_promises[address];
-    if (!pr) {
-        const dfd = cockpit.defer();
-        dmi_info_promises[address] = pr = dfd.promise();
-
-        cockpit.spawn(["grep", "-r", ".", "/sys/class/dmi/id"], { err: "message", superuser: "try" })
-                .done(output => dfd.resolve(parseDMIFields(output)))
-                .fail((exception, output) => {
-                    // the grep often/usually exits with 2, that's okay as long as we find *some* information
-                    if (!exception.problem && output)
-                        dfd.resolve(parseDMIFields(output));
-                    else
-                        dfd.reject(exception.message);
-                });
-    }
-    return pr;
+export function dmi_info() {
+    const dfd = cockpit.defer();
+    cockpit.spawn(["grep", "-r", ".", "/sys/class/dmi/id"], { err: "message", superuser: "try" })
+            .done(output => dfd.resolve(parseDMIFields(output)))
+            .fail((exception, output) => {
+                // the grep often/usually exits with 2, that's okay as long as we find *some* information
+                if (!exception.problem && output)
+                    dfd.resolve(parseDMIFields(output));
+                else
+                    dfd.reject(exception.message);
+            });
+    return dfd.promise();
 }
 
 // decode a binary Uint8Array with a trailing null byte
@@ -197,16 +190,9 @@ function parseUdevDB(text) {
     return info;
 }
 
-const udev_info_promises = { };
-
-export function udev_info(address) {
-    let pr = udev_info_promises[address];
-    if (!pr) {
-        udev_info_promises[address] = pr = cockpit.spawn(
-            ["udevadm", "info", "--export-db"], { err: "message" })
-                .then(output => parseUdevDB(output));
-    }
-    return pr;
+export function udev_info() {
+    return cockpit.spawn(["udevadm", "info", "--export-db"], { err: "message" })
+            .then(output => parseUdevDB(output));
 }
 
 const memoryRE = /^([ \w]+): (.*)/;
@@ -274,14 +260,7 @@ function processMemory(info) {
     return memoryArray;
 }
 
-const memory_info_promises = {};
-
-export function memory_info(address) {
-    let pr = memory_info_promises[address];
-    if (!pr) {
-        memory_info_promises[address] = pr = cockpit.spawn(
-            ["dmidecode", "-t", "memory"], { environ: ["LC_ALL=C"], err: "message", superuser: "try" })
-                .then(output => parseMemoryInfo(output));
-    }
-    return pr;
+export function memory_info() {
+    return cockpit.spawn(["dmidecode", "-t", "memory"], { environ: ["LC_ALL=C"], err: "message", superuser: "try" })
+            .then(output => parseMemoryInfo(output));
 }

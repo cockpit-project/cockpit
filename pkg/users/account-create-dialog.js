@@ -231,7 +231,7 @@ export function account_create_dialog(accounts) {
     }
 
     function create(real_name, user_name, password, locked, force_change) {
-        return cockpit.spawn(["/usr/sbin/useradd", "-D"], { superuser: "require" })
+        return cockpit.spawn(["useradd", "-D"], { superuser: "require" })
                 .catch(() => "")
                 .then(defaults => {
                     let shell = null;
@@ -240,7 +240,7 @@ export function account_create_dialog(accounts) {
                             shell = item.split("=")[1] || "";
                         }
                     });
-                    const prog = ["/usr/sbin/useradd", "--create-home", "-s", shell || "/bin/bash"];
+                    const prog = ["useradd", "--create-home", "-s", shell || "/bin/bash"];
                     if (real_name) {
                         prog.push('-c');
                         prog.push(real_name);
@@ -251,7 +251,7 @@ export function account_create_dialog(accounts) {
                             .then(() => {
                                 if (locked)
                                     return cockpit.spawn([
-                                        "/usr/sbin/usermod",
+                                        "usermod",
                                         user_name,
                                         "--lock"
                                     ], { superuser: "require", err: "message" });

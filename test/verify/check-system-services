@@ -1175,6 +1175,64 @@ Where=/fail
         self.assertNotIn("Not running", b.text(".services-list"))
         self.assertNotIn("Static", b.text(".services-list"))
 
+    def testAlias(self):
+        m = self.machine
+        b = self.browser
+        self.write_file("/etc/systemd/system/flower-rose.service",
+                        """
+[Unit]
+Description=Smell sweet
+
+[Service]
+ExecStart=/bin/echo Perfume
+RemainAfterExit=yes
+
+[Install]
+Alias=flower-byanyothername.service
+WantedBy=multi-user.target
+""")
+        m.execute("systemctl enable flower-rose.service")
+        self.addCleanup(m.execute, "systemctl disable --now flower-rose.service")
+
+        self.login_and_go("/system/services#/?name=flower")
+
+        # overview: primary unit
+        self.wait_service_present("flower-rose.service")
+        # FIXME: This ought to be "Enabled", but is "Alias" right now
+        # self.wait_service_in_panel("flower-rose.service", "Enabled")
+        self.wait_service_state("flower-rose.service", "inactive")
+
+        # overview: alias
+        self.wait_service_present("flower-byanyothername.service")
+        if m.image.startswith("rhel-8") or m.image.startswith("centos-8"):
+            # old systemd does not have unit file state "alias" yet
+            self.wait_service_in_panel("flower-byanyothername.service", "Enabled")
+        else:
+            self.wait_service_in_panel("flower-byanyothername.service", "Alias")
+        self.wait_service_state("flower-byanyothername.service", "inactive")
+
+        # both react to state changes
+        m.execute("systemctl start flower-byanyothername.service")
+        self.wait_service_state("flower-rose.service", "active")
+        self.wait_service_state("flower-byanyothername.service", "active")
+
+        # details: primary unit
+        self.goto_service("flower-rose.service")
+        b.wait_in_text("#statuses", "Running")
+        # FIXME: This is broken right now and shows "Static"
+        # b.wait_in_text("#statuses", "Automatically starts")
+        b.wait_in_text("#service-details-unit", "/etc/systemd/system/flower-rose.service")
+        b.wait_in_text('.cockpit-log-panel .pf-c-card__body', "Perfume")
+
+        # details: alias
+        b.click(".pf-c-breadcrumb a:contains('Services')")
+        self.goto_service("flower-byanyothername.service")
+        b.wait_in_text("#statuses", "Running")
+        # FIXME: This ought to be "Alias" or "Automatically starts"; shows "Static" right now
+        # b.wait_in_text("#statuses", "Alias")
+        b.wait_in_text("#service-details-unit", "/etc/systemd/system/flower-rose.service")
+        b.wait_in_text('.cockpit-log-panel .pf-c-card__body', "Perfume")
+
 
 @skipDistroPackage()
 class TestTimers(MachineCase):

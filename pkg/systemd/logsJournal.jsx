@@ -217,7 +217,7 @@ export class JournalBox extends React.Component {
         // For that we however need newer systemd that includes https://github.com/systemd/systemd/issues/13937
         this.currentServices = new Set();
         const service_options = Object.assign({ output: "verbose" }, options);
-        let cmd = journal.build_cmd(match, service_options)[0];
+        let cmd = journal.build_cmd(match, service_options);
 
         cmd = cmd.map(i => i.replaceAll(" ", "\\ ")).join(" ");
         cmd = "set -o pipefail; " + cmd + " | grep SYSLOG_IDENTIFIER= | sort -u";

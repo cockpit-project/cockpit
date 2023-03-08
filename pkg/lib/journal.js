@@ -38,7 +38,6 @@ export const journal = { };
  * string format, or arrays of strings.
  *
  * The optional @options object can contain the following:
- *  * "host": the host to load journal from
  *  * "count": number of entries to load and/or pre-stream.
  *    Default is 10
  *  * "follow": if set to false just load entries and don't
@@ -127,11 +126,11 @@ journal.build_cmd = function build_cmd(/* ... */) {
 
     cmd.push("--");
     cmd.push.apply(cmd, matches);
-    return [cmd, options];
+    return cmd;
 };
 
 journal.journalctl = function journalctl(/* ... */) {
-    const [cmd, options] = journal.build_cmd.apply(null, arguments);
+    const cmd = journal.build_cmd.apply(null, arguments);
 
     const dfd = cockpit.defer();
     const promise = dfd.promise();
@@ -153,7 +152,7 @@ journal.journalctl = function journalctl(/* ... */) {
         }
     }
 
-    const proc = cockpit.spawn(cmd, { host: options.host, batch: 8192, latency: 300, superuser: "try" })
+    const proc = cockpit.spawn(cmd, { batch: 8192, latency: 300, superuser: "try" })
             .stream(function(data) {
                 if (buffer)
                     data = buffer + data;

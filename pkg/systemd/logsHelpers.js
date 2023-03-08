@@ -35,7 +35,7 @@ export function checkJournalctlGrep(setShowTextSearch) {
 // Build the journalctl query for the inline help popover
 export const getFilteredQuery = ({ match, options }) => {
     const cmd = journal.build_cmd(match, options);
-    const filtered_cmd = cmd[0].filter(i => i !== "-q" && i !== "--output=json");
+    const filtered_cmd = cmd.filter(i => i !== "-q" && i !== "--output=json");
     if (filtered_cmd[filtered_cmd.length - 1] == "--")
         filtered_cmd.pop();
 

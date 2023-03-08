@@ -59,8 +59,8 @@ export const systemd_client = {
     user: cockpit.dbus(s_bus.BUS_NAME, { bus: "session" }),
 };
 const timedate_client = cockpit.dbus('org.freedesktop.timedate1');
-export let clock_realtime_now;
-export let clock_monotonic_now;
+export let clock_realtime_now = 0; // ms since epoch; call updateTime() before using
+let monotonic_timer_base = null; // µs
 
 export const MAX_UINT64 = 2 ** 64 - 1;
 
@@ -70,16 +70,20 @@ function debug() {
 }
 
 export function updateTime() {
-    cockpit.spawn(["cat", "/proc/uptime"])
-            .then(function(contents) {
-                // first number is time since boot in seconds with two fractional digits
-                const uptime = parseFloat(contents.split(' ')[0]);
-                clock_monotonic_now = parseInt(uptime * 1000000, 10);
-            }, ex => console.log(ex.toString()));
-    cockpit.spawn(["date", "+%s"])
-            .then(time => {
-                clock_realtime_now = parseInt(time, 10) * 1000;
-            }, ex => console.log(ex.toString()));
+    Promise.all([
+        cockpit.file("/proc/uptime").read(),
+        cockpit.spawn(["date", "+%s"])
+    ])
+            .then(([uptime_contents, date_output]) => {
+                clock_realtime_now = parseInt(date_output, 10) * 1000;
+
+                // first number in /proc/uptime is time since boot (CLOCK_BOOTTIME) in seconds with two fractional digits
+                const uptime = parseFloat(uptime_contents.split(' ')[0]);
+                const clock_boottime_now = parseInt(uptime * 1000000, 10);
+
+                monotonic_timer_base = clock_realtime_now * 1000 - clock_boottime_now;
+            })
+            .catch(ex => console.warn("Failed to read boot time:", ex.toString()));
 }
 
 /* Notes about the systemd D-Bus API
@@ -530,14 +534,13 @@ class ServicesPageBody extends React.Component {
         else
             unit.LastTriggerTime = _("unknown");
 
-        const system_boot_time = clock_realtime_now * 1000 - clock_monotonic_now;
         const next_realtime = timer_props.NextElapseUSecRealtime?.v;
         const next_monotonic = timer_props.NextElapseUSecMonotonic?.v;
         let next_run_time = null;
         if (next_realtime > 0 && next_realtime < MAX_UINT64)
             next_run_time = next_realtime;
-        else if (next_monotonic > 0 && next_monotonic < MAX_UINT64)
-            next_run_time = next_monotonic + system_boot_time;
+        else if (next_monotonic > 0 && next_monotonic < MAX_UINT64 && monotonic_timer_base !== null)
+            next_run_time = next_monotonic + monotonic_timer_base;
 
         unit.NextRunTime = next_run_time ? timeformat.dateTime(next_run_time / 1000) : _("unknown");
     }

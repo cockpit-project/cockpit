@@ -110,10 +110,10 @@ const getServicesRow = ({ Id, shortId, AutomaticStartup, UnitFileState, LoadStat
         {
             title: (
                 <Flex id={cockpit.format("$0-service-unit-state", Id)} className='service-unit-status-flex-container'>
-                    {CombinedState && <FlexItem flex={{ default: 'flex_2' }} className={"service-unit-status" + (HasFailed ? " service-unit-status-failed" : "")}>
+                    <FlexItem flex={{ default: 'flex_2' }} className={"service-unit-status" + (HasFailed ? " service-unit-status-failed" : "")}>
                         {HasFailed && <ExclamationCircleIcon className='ct-exclamation-circle' />}
                         {CombinedState}
-                    </FlexItem>}
+                    </FlexItem>
                     <FlexItem flex={{ default: 'flex_1' }}>
                         {tooltipMessage ? <Tooltip id="switch-unit-state" content={tooltipMessage} position={TooltipPosition.left}>{unitFileState}</Tooltip> : unitFileState}
                     </FlexItem>

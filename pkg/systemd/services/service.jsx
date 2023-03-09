@@ -47,32 +47,36 @@ export const Service = ({ dbusClient, owner, unitId, unitIsValid, addTimerProper
     const [reloading, setReloading] = useState(false);
     const [unitProps, setUnitProps] = useState(null);
 
-    const updateProperties = async () => {
+    const updateProperties = () => {
         const path = _path.current?.path;
-        try {
-            const [unit_props] = await dbusClient.call(path, s_bus.I_PROPS, "GetAll", [s_bus.I_UNIT]);
-            // unwrap variants
-            for (const key in unit_props)
-                unit_props[key] = unit_props[key].v;
+        const promises = [dbusClient.call(path, s_bus.I_PROPS, "GetAll", [s_bus.I_UNIT])];
 
-            if (unitId.endsWith(".timer")) {
-                const [timer_props] = await dbusClient.call(path, s_bus.I_PROPS, "GetAll", [s_bus.I_TIMER]);
-                addTimerProperties(timer_props, unit_props);
-            }
+        if (unitId.endsWith(".timer"))
+            promises.push(dbusClient.call(path, s_bus.I_PROPS, "GetAll", [s_bus.I_TIMER]));
+        else if (unitId.endsWith(".socket"))
+            promises.push(dbusClient.call(path, s_bus.I_PROPS, "GetAll", [s_bus.I_SOCKET]));
 
-            if (unitId.endsWith(".socket")) {
-                const [socket_props] = await dbusClient.call(path, s_bus.I_PROPS, "GetAll", [s_bus.I_SOCKET]);
-                unit_props.Listen = socket_props.Listen.v;
-            }
+        Promise.all(promises)
+                .then(replies => {
+                    const unit_props = replies[0][0];
+                    const other_props = replies[1]?.[0];
 
-            unit_props.path = path;
+                    // unwrap variants
+                    for (const key in unit_props)
+                        unit_props[key] = unit_props[key].v;
 
-            debug("Service detail", unitId, "updated properties:", JSON.stringify(unit_props));
-            setUnitProps(unit_props);
-            setError(null);
-        } catch (ex) {
-            setError(ex.toString()); // not-covered: unexpected OS error
-        }
+                    if (unitId.endsWith(".timer"))
+                        addTimerProperties(other_props, unit_props);
+                    else if (unitId.endsWith(".socket"))
+                        unit_props.Listen = other_props.Listen.v;
+
+                    unit_props.path = path;
+
+                    debug("Service detail", unitId, "updated properties:", JSON.stringify(unit_props));
+                    setUnitProps(unit_props);
+                    setError(null);
+                })
+                .catch(ex => setError(ex.toString())); // not-covered: unexpected OS error
     };
 
     // load object path and set up PropertiesChanged subscription whenever unitId changes
@@ -101,11 +105,11 @@ export const Service = ({ dbusClient, owner, unitId, unitIsValid, addTimerProper
     useObject(
         () => dbusClient.subscribe(
             { interface: s_bus.I_MANAGER, member: "Reloading" },
-            async (_, _i, _s, [is_reloading]) => {
+            (_, _i, _s, [is_reloading]) => {
                 debug("Service detail", unitId, "Reloading", is_reloading, "current unit", _path.current?.path);
                 setReloading(is_reloading);
                 if (!is_reloading && _path.current)
-                    await updateProperties();
+                    updateProperties();
             }),
         sub => sub.remove(), []);
 
@@ -113,10 +117,10 @@ export const Service = ({ dbusClient, owner, unitId, unitIsValid, addTimerProper
     * unloaded again and we don't get a PropertiesChanged signal. */
     useObject(
         () => dbusClient.subscribe(
-            { interface: s_bus.I_MANAGER, member: "JobRemoved" }, async (_p, _i, _s, [_job_id, _job_path, unit, result]) => {
+            { interface: s_bus.I_MANAGER, member: "JobRemoved" }, (_p, _i, _s, [_job_id, _job_path, unit, result]) => {
                 if (result === "done" && unitId === _path.current?.unitId) {
                     debug("Service detail", unitId, "JobRemoved", _path.current?.path);
-                    await updateProperties();
+                    updateProperties();
                 }
             }),
         sub => sub.remove(), []);

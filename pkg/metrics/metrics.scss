@@ -318,10 +318,19 @@ html {
   }
 }
 
+$graphs: cpu, memory, disks, network;
+
 .metrics {
+  --cpu-color: plum;
+  --memory-color: lightblue;
+  --disks-color: lightgreen;
+  --network-color: lightsalmon;
+
   --column-size: 10vw;
   --half-column-size: 8vw;
   --data-min-height: 5px;
+
+  --graph-column-size: 60%;
 
   &-hour-compressed {
     --data-min-height: 1px;
@@ -336,7 +345,7 @@ html {
   }
 
   &-graphs {
-    flex-basis: 60%;
+    flex-basis: var(--graph-column-size);
     margin-left: auto;
     display: grid;
     grid-template-columns: repeat(var(--graph-cnt), minmax(var(--column-size), 1fr));
@@ -375,23 +384,23 @@ html {
   }
 
   &-minutes {
-    flex-basis: 60%;
+    flex-basis: var(--graph-column-size);
   }
 
   &-events-hour-header-expanded {
-    width: 40%;
+    width: calc(100% - var(--graph-column-size));
   }
 
   &-selectors,
   &-events-wrapper {
-    flex-basis: 40%;
+    flex-basis: calc(100% - var(--graph-column-size));
     width: 100%;
   }
 
   &-events {
     display: flex;
     column-gap: var(--pf-global--spacer--sm);
-    width: 40%;
+    flex-basis: calc(100% - var(--graph-column-size));
     align-items: baseline;
     font-size: var(--pf-global--FontSize--sm);
 
@@ -399,24 +408,37 @@ html {
       min-width: 3rem;
     }
 
-    .spikes_count {
-      flex-basis: 20%;
+    time:first-child {
+      margin-left: calc(3rem + var(--pf-global--spacer--sm));
 
-      > div {
-        white-space: nowrap;
+      + .spikes_count {
+        padding-left: calc(var(--pf-global--spacer--xl) + var(--pf-global--spacer--md));
+        color: var(--pf-global--Color--200);
       }
     }
 
-    .spikes_info {
+    .spikes_count {
+      > div {
+        white-space: nowrap;
+        align-items: baseline;
+      }
+
+      svg {
+        align-self: center;
+      }
+    }
+
+    > * {
+      line-height: var(--pf-global--LineHeight--md);
+    }
+
+    > *:not(.metrics-events-expander):not(:last-child) {
+      flex: 1;
+      white-space: nowrap;
+    }
+
+    > *:last-child {
       flex-basis: 50%;
-    }
-
-    time {
-      flex-basis: 20%;
-    }
-
-    time:first-child {
-      margin-left: calc(3rem + var(--pf-global--spacer--sm));
     }
 
     // Just embolden the top level time events
@@ -448,6 +470,13 @@ html {
 
   &-time {
     background: var(--metrics-heading-time-color);
+    padding-top: var(--pf-global--spacer--md);
+    padding-bottom: var(--pf-global--spacer--sm);
+
+    // Time has tabular numbers, but it's not what we want for a heading
+    time {
+      font-variant: none !important;
+    }
   }
 
   &-heading {
@@ -519,20 +548,10 @@ html {
       fill: red;
     }
 
-    &-cpu {
-      --color: plum;
-    }
-
-    &-memory {
-      --color: lightblue;
-    }
-
-    &-disks {
-      --color: lightgreen;
-    }
-
-    &-network {
-      --color: lightsalmon;
+    @each $graph in $graphs {
+      &-#{$graph} {
+        --color: var(--#{$graph}-color);
+      }
     }
 
     // compressed minutes without events are simple bars
@@ -597,6 +616,10 @@ html {
     left: 50%;
   }
 
+  &-hour {
+    padding: 0 var(--pf-global--spacer--sm);
+  }
+
   // when hour is expanded remove the border from the bottom of the last minute
   &-hour > .metrics-minute:last-of-type .valid-data::before,
   &-hour > .metrics-minute:last-of-type .valid-data::after {
@@ -615,9 +638,50 @@ html {
   }
 }
 
+@media (min-width: 800px) {
+  .metrics-label-graph-mobile {
+    display: none;
+  }
+}
+
 @media (max-width: 800px) {
-  .metrics-label-graph {
-    font-size: var(--pf-global--FontSize--xs);
+  .metrics {
+    --graph-column-size: 40%;
+
+    time:first-child {
+      + .spikes_count {
+        padding-left: 0;
+      }
+    }
+  }
+
+  .metrics-heading > .metrics-graphs,
+  .metrics-minute > .metrics-events > .spikes_count {
+    display: none;
+  }
+
+  .metrics-label-graph-mobile {
+    padding-left: var(--pf-global--spacer--sm);
+    padding-top: var(--pf-global--spacer--sm);
+    font-size: var(--pf-global--FontSize--sm);
+  }
+
+  .square {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  @each $graph in $graphs {
+    .label-#{$graph} {
+      background-color: var(--#{$graph}-color);
+    }
+  }
+
+  .metrics-hour > .metrics-events {
+    .spikes_info,
+    .spikes_count svg {
+      display: none;
+    }
   }
 }
 

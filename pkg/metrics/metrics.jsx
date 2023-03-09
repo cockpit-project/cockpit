@@ -1162,7 +1162,7 @@ const HourDescription = ({ minute_events, isHourExpanded, onToggleHourExpanded, 
             {spikes > 0 &&
                 <Button variant="plain" className="metrics-events-expander" onClick={() => onToggleHourExpanded(!isHourExpanded)} icon={isHourExpanded ? <AngleDownIcon /> : <AngleRightIcon />} />}
             <time>{ timeformat.time(startTime) }</time>
-            <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsBaseline' }} className="spikes_count">
+            <Flex flexWrap={{ default: 'nowrap' }} spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsBaseline' }} className="spikes_count">
                 {spikes >= 10 && <ResourcesFullIcon color="var(--resource-icon-color-full)" />}
                 {spikes >= 5 && spikes < 10 && <ResourcesAlmostFullIcon color="var(--resource-icon-color-middle)" />}
                 {spikes < 5 && spikes > 0 && <ResourcesAlmostEmptyIcon color="var(--resource-icon-color-empty)" />}
@@ -1759,6 +1759,16 @@ class MetricsHistory extends React.Component {
                                 {columnVisibilityMenuItems}
                             </Select>
                         </Flex>
+                        <Stack className="metrics-label-graph-mobile">
+                            {[["cpu", _("CPU usage/load")], ["memory", _("Memory usage/swap")], ["disks", _("Disk I/O")], ["network", _("Network")]]
+                                    .filter(itm => this.state.selectedVisibility[itm[0]])
+                                    .map(itm => (
+                                        <Flex key={itm[0]} flexWrap={{ default: 'nowrap' }} spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsBaseline' }}>
+                                            <div className={"square label-" + itm[0]} />
+                                            <FlexItem>{itm[1]}</FlexItem>
+                                        </Flex>
+                                    ))}
+                        </Stack>
                         <div className="metrics-graphs">
                             {this.state.selectedVisibility.cpu && <Label label={_("CPU")} items={[_("Usage"), _("Load")]} />}
                             {this.state.selectedVisibility.memory && <Label label={_("Memory")} items={[_("Usage"), ...swapTotal ? [_("Swap")] : []]} />}

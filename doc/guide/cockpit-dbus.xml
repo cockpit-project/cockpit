@@ -123,13 +123,6 @@ client = cockpit.dbus(name, [options])
             <code>"none"</code>.</para></listitem>
       </varlistentry>
       <varlistentry>
-        <term><code>"host"</code></term>
-        <listitem><para>The host to open the channel to. If an alternate user or port is
-          required it can be specified as <code>"user@myhost:port"</code>. If no host is
-          specified then the correct one will be automatically selected based on the page
-          calling this function.</para></listitem>
-      </varlistentry>
-      <varlistentry>
         <term><code>"superuser"</code></term>
         <listitem><para>Set to <code>"require"</code> to talk to this service as root.
           The DBus service will see the DBus method calls and accesses as coming from root,

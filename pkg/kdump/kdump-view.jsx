@@ -24,6 +24,7 @@ import React, { useEffect, useState } from "react";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { Card, CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Form, FormGroup, FormSection } from "@patternfly/react-core/dist/esm/components/Form/index.js";
@@ -51,6 +52,7 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState(null);
     const [isFormValid, setFormValid] = useState(true);
+    const [validationErrors, setValidationErrors] = useState({});
 
     const [storageLocation, setStorageLocation] = useState(Object.keys(settings.targets)[0]);
     // common options
@@ -75,6 +77,15 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
         setDirectory("/var/crash");
         setServer("");
         setStorageLocation(target);
+    };
+
+    const changeSSHKey = value => {
+        if (value.trim() && !value.match("/.+")) {
+            setValidationErrors({ sshkey: _("SSH key isn't a path") });
+        } else {
+            setValidationErrors({});
+        }
+        setSSHKey(value);
     };
 
     const saveSettings = () => {
@@ -133,7 +144,7 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
                    <>
                        <Button variant="primary"
                                isLoading={isSaving}
-                               isDisabled={isSaving || !isFormValid}
+                               isDisabled={isSaving || !isFormValid || Object.keys(validationErrors).length !== 0}
                                onClick={saveSettings}>
                            {_("Save changes")}
                        </Button>
@@ -200,10 +211,14 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
                                        onChange={setServer} isRequired />
                         </FormGroup>
 
-                        <FormGroup fieldId="kdump-settings-ssh-key" label={_("SSH key")}>
+                        <FormGroup fieldId="kdump-settings-ssh-key" label={_("SSH key")}
+                                   helperTextInvalid={validationErrors.sshkey}
+                                   helperTextInvalidIcon={<ExclamationCircleIcon />}
+                                   validated={validationErrors.sshkey ? "error" : "default"}>
                             <TextInput id="kdump-settings-ssh-key" key="ssh"
                                        placeholder="/root/.ssh/kdump_id_rsa" value={sshkey}
-                                       onChange={setSSHKey} />
+                                       onChange={changeSSHKey}
+                                       validated={validationErrors.sshkey ? "error" : "default"} />
                         </FormGroup>
 
                         <FormGroup fieldId="kdump-settings-ssh-directory" label={_("Directory")} isRequired>

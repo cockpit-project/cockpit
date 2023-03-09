@@ -20,7 +20,7 @@
 import '../lib/patternfly/patternfly-4-cockpit.scss';
 import cockpit from "cockpit";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { Card, CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
@@ -50,11 +50,12 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
     const compressionAllowed = settings.compression?.allowed;
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState(null);
+    const [isFormValid, setFormValid] = useState(true);
 
     const [storageLocation, setStorageLocation] = useState(Object.keys(settings.targets)[0]);
     // common options
     const [compressionEnabled, setCompressionEnabled] = useState(settings.compression?.enabled);
-    const [directory, setDirectory] = useState(initialTarget.path);
+    const [directory, setDirectory] = useState(initialTarget.path || "/var/crash");
     // nfs and ssh
     const [server, setServer] = useState(settings.targets.nfs?.server || settings.targets.ssh?.server);
     // nfs
@@ -62,10 +63,16 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
     // ssh
     const [sshkey, setSSHKey] = useState(settings.targets.ssh?.sshkey || "");
 
+    useEffect(() => {
+        // We can't use a ref in a functional component
+        const elem = document.querySelector("#kdump-settings-form");
+        if (elem)
+            setFormValid(elem.checkValidity());
+    }, [storageLocation, directory, sshkey, server, exportPath]);
+
     const changeStorageLocation = target => {
         setError(null);
-        // Reset common options
-        setDirectory("");
+        setDirectory("/var/crash");
         setServer("");
         setStorageLocation(target);
     };
@@ -81,7 +88,9 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
             targets: {
                 [storageLocation]: {
                     type: storageLocation,
-                    path: directory,
+                    // HACK: to not needlessly write a path /var/crash as this is the default,
+                    // set an empty string.
+                    path: directory === "/var/crash" ? "" : directory,
                 }
             },
             _internal: {
@@ -124,7 +133,7 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
                    <>
                        <Button variant="primary"
                                isLoading={isSaving}
-                               isDisabled={isSaving}
+                               isDisabled={isSaving || !isFormValid}
                                onClick={saveSettings}>
                            {_("Save changes")}
                        </Button>
@@ -138,7 +147,7 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
                }>
             {error && <ModalError dialogError={error?.message || error}
                                   dialogErrorDetail={error?.details || null} />}
-            <Form isHorizontal>
+            <Form id="kdump-settings-form" isHorizontal>
                 <FormGroup fieldId="kdump-settings-location" label={_("Location")}>
                     <FormSelect key="location" onChange={changeStorageLocation}
                                 id="kdump-settings-location" value={storageLocation}>

@@ -152,41 +152,43 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
                 </FormGroup>
 
                 {storageLocation === "local" &&
-                    <FormGroup fieldId="kdump-settings-local-directory" label={_("Directory")}>
+                    <FormGroup fieldId="kdump-settings-local-directory" label={_("Directory")} isRequired>
                         <TextInput id="kdump-settings-local-directory" key="directory"
                                    placeholder="/var/crash" value={directory}
                                    data-stored={directory}
-                                   onChange={setDirectory} />
+                                   onChange={setDirectory}
+                                   isRequired />
                     </FormGroup>
                 }
 
                 {storageLocation === "nfs" &&
                     <>
-                        <FormGroup fieldId="kdump-settings-nfs-server" label={_("Server")}>
+                        <FormGroup fieldId="kdump-settings-nfs-server" label={_("Server")} isRequired>
                             <TextInput id="kdump-settings-nfs-server" key="server"
                                     placeholder="penguin.example.com" value={server}
-                                    onChange={setServer} />
+                                    onChange={setServer} isRequired />
                         </FormGroup>
-                        <FormGroup fieldId="kdump-settings-nfs-export" label={_("Export")}>
+                        <FormGroup fieldId="kdump-settings-nfs-export" label={_("Export")} isRequired>
                             <TextInput id="kdump-settings-nfs-export" key="export"
                                     placeholder="/export/cores" value={exportPath}
-                                    onChange={setExportPath} />
+                                    onChange={setExportPath} isRequired />
                         </FormGroup>
-                        <FormGroup fieldId="kdump-settings-nfs-directory" label={_("Directory")}>
+                        <FormGroup fieldId="kdump-settings-nfs-directory" label={_("Directory")} isRequired>
                             <TextInput id="kdump-settings-nfs-directory" key="directory"
                                     placeholder="/var/crash" value={directory}
                                     data-stored={directory}
-                                    onChange={setDirectory} />
+                                    onChange={setDirectory}
+                                    isRequired />
                         </FormGroup>
                     </>
                 }
 
                 {storageLocation === "ssh" &&
                     <>
-                        <FormGroup fieldId="kdump-settings-ssh-server" label={_("Server")}>
+                        <FormGroup fieldId="kdump-settings-ssh-server" label={_("Server")} isRequired>
                             <TextInput id="kdump-settings-ssh-server" key="server"
                                        placeholder="user@server.com" value={server}
-                                       onChange={setServer} />
+                                       onChange={setServer} isRequired />
                         </FormGroup>
 
                         <FormGroup fieldId="kdump-settings-ssh-key" label={_("ssh key")}>
@@ -195,11 +197,12 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
                                        onChange={setSSHKey} />
                         </FormGroup>
 
-                        <FormGroup fieldId="kdump-settings-ssh-directory" label={_("Directory")}>
+                        <FormGroup fieldId="kdump-settings-ssh-directory" label={_("Directory")} isRequired>
                             <TextInput id="kdump-settings-ssh-directory" key="directory"
                                        placeholder="/var/crash" value={directory}
                                        data-stored={directory}
-                                       onChange={setDirectory} />
+                                       onChange={setDirectory}
+                                       isRequired />
                         </FormGroup>
                     </>
                 }

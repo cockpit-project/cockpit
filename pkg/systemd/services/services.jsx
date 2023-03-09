@@ -323,8 +323,7 @@ class ServicesPageBody extends React.Component {
                 return;
 
             // ignore uninteresting unit types
-            if (!path.endsWith("service") && !path.endsWith("timer") && !path.endsWith("socket") &&
-                !path.endsWith("target") && !path.endsWith("path"))
+            if (!this.isUnitHandled(path))
                 return;
 
             if (iface === s_bus.I_TIMER) {
@@ -416,11 +415,10 @@ class ServicesPageBody extends React.Component {
     }
 
     /**
-      * Return a boolean value indicating if the unit specified by name @param is handled
+      * Return if the unit ID or path specified by @name is handled
       */
     isUnitHandled(name) {
-        const suffix = name.substr(name.lastIndexOf('.') + 1);
-        return service_tabs_suffixes.includes(suffix);
+        return service_tabs_suffixes.some(suffix => name.endsWith(suffix));
     }
 
     /* When the page is running in the background, fetch only information about failed units

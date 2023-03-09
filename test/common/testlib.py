@@ -1707,6 +1707,7 @@ class MachineCase(unittest.TestCase):
         r"#1\) Respect the privacy of others.",
         r"#2\) Think before you type.",
         r"#3\) With great power comes great responsibility.",
+        "For security reasons, the password you type will not be visible",
 
         # starting out with empty PCP logs and pmlogger not running causes these metrics channel messages
         "pcp-archive: no such metric: .*: Unknown metric name",

@@ -191,7 +191,7 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
                                        onChange={setServer} isRequired />
                         </FormGroup>
 
-                        <FormGroup fieldId="kdump-settings-ssh-key" label={_("ssh key")}>
+                        <FormGroup fieldId="kdump-settings-ssh-key" label={_("SSH key")}>
                             <TextInput id="kdump-settings-ssh-key" key="ssh"
                                        placeholder="/root/.ssh/kdump_id_rsa" value={sshkey}
                                        onChange={setSSHKey} />

@@ -591,13 +591,11 @@ QUnit.test.skipWithPybridge("publish object failure", function (assert) {
 
     const object = {
         Fails: function(one, two) {
-            const defer = cockpit.defer();
-            const ex = new Error("this is the message");
-            ex.name = "org.Error";
-            window.setTimeout(function() {
-                defer.reject(ex);
-            }, 5);
-            return defer.promise;
+            return new Promise((resolve, reject) => {
+                const ex = new Error("this is the message");
+                ex.name = "org.Error";
+                window.setTimeout(() => reject(ex), 5);
+            });
         }
     };
 

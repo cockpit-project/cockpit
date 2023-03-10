@@ -118,17 +118,10 @@ function parseDMIFields(text) {
 }
 
 export function dmi_info() {
-    const dfd = cockpit.defer();
-    cockpit.spawn(["grep", "-r", ".", "/sys/class/dmi/id"], { err: "message", superuser: "try" })
-            .done(output => dfd.resolve(parseDMIFields(output)))
-            .fail((exception, output) => {
-                // the grep often/usually exits with 2, that's okay as long as we find *some* information
-                if (!exception.problem && output)
-                    dfd.resolve(parseDMIFields(output));
-                else
-                    dfd.reject(exception.message);
-            });
-    return dfd.promise();
+    // the grep often/usually exits with 2, that's okay as long as we find *some* information
+    return cockpit.script("grep -r . /sys/class/dmi/id || true", null,
+                          { err: "message", superuser: "try" })
+            .then((output) => parseDMIFields(output));
 }
 
 // decode a binary Uint8Array with a trailing null byte

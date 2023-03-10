@@ -28,7 +28,7 @@ import { DescriptionList, DescriptionListDescription, DescriptionListGroup, Desc
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Grid, GridItem } from "@patternfly/react-core/dist/esm/layouts/Grid/index.js";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
-import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Page, PageGroup, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Progress, ProgressVariant } from "@patternfly/react-core/dist/esm/components/Progress/index.js";
 import { Select, SelectOption, SelectVariant } from "@patternfly/react-core/dist/esm/components/Select/index.js";
@@ -1727,7 +1727,7 @@ class MetricsHistory extends React.Component {
 
         return (
             <div className="metrics" style={{ "--graph-cnt": selections.length }}>
-                <div className="metrics-heading-sticky">
+                <PageGroup stickyOnBreakpoint={{ default: 'top' }}>
                     <section className="metrics-heading">
                         <Flex className="metrics-selectors" spaceItems={{ default: 'spaceItemsSm' }}>
                             <Select
@@ -1769,37 +1769,41 @@ class MetricsHistory extends React.Component {
                                         </Flex>
                                     ))}
                         </Stack>
-                        <div className="metrics-graphs">
+                        <div className="metrics-graphs metrics-heading-graphs">
                             {this.state.selectedVisibility.cpu && <Label label={_("CPU")} items={[_("Usage"), _("Load")]} />}
                             {this.state.selectedVisibility.memory && <Label label={_("Memory")} items={[_("Usage"), ...swapTotal ? [_("Swap")] : []]} />}
                             {this.state.selectedVisibility.disks && <Label label={_("Disk I/O")} items={[_("Usage")]} />}
                             {this.state.selectedVisibility.network && <Label label={_("Network")} items={[_("Usage")]} />}
                         </div>
                     </section>
-                </div>
-                { this.state.hours.length > 0 &&
-                    <Card>
-                        <CardBody className="metrics-history">
-                            { this.state.hours.map((time, i) => {
-                                const showHeader = i == 0 || timeformat.date(time) != timeformat.date(this.state.hours[i - 1]);
+                </PageGroup>
+                <PageSection className="metrics-history-section" variant={PageSectionVariants.light}>
+                    <>
+                        { this.state.hours.length > 0 &&
+                        <Card isPlain>
+                            <CardBody className="metrics-history">
+                                { this.state.hours.map((time, i) => {
+                                    const showHeader = i == 0 || timeformat.date(time) != timeformat.date(this.state.hours[i - 1]);
 
-                                return (
-                                    <React.Fragment key={timeformat.dateTime(time)}>
-                                        {showHeader && <TextContent><Text component={TextVariants.h3} className="metrics-time"><time>{ timeformat.date(time) }</time></Text></TextContent>}
-                                        <MetricsHour key={time} startTime={parseInt(time)}
-                                                     selectedVisibility={this.state.selectedVisibility}
-                                                     data={this.data[time]} clipLeading={i == 0} />
-                                    </React.Fragment>
-                                );
-                            })}
-                        </CardBody>
-                    </Card> }
-                {nodata_alert}
-                <div className="bottom-panel">
-                    { this.state.loading
-                        ? <EmptyStatePanel loading title={_("Loading...")} />
-                        : <Button onClick={this.handleMoreData}>{_("Load earlier data")}</Button> }
-                </div>
+                                    return (
+                                        <React.Fragment key={timeformat.dateTime(time)}>
+                                            {showHeader && <TextContent><Text component={TextVariants.h3} className="metrics-time"><time>{ timeformat.date(time) }</time></Text></TextContent>}
+                                            <MetricsHour key={time} startTime={parseInt(time)}
+                                                         selectedVisibility={this.state.selectedVisibility}
+                                                         data={this.data[time]} clipLeading={i == 0} />
+                                        </React.Fragment>
+                                    );
+                                })}
+                            </CardBody>
+                        </Card> }
+                        {nodata_alert}
+                        <div className="bottom-panel">
+                            { this.state.loading
+                                ? <EmptyStatePanel loading title={_("Loading...")} />
+                                : <Button onClick={this.handleMoreData}>{_("Load earlier data")}</Button> }
+                        </div>
+                    </>
+                </PageSection>
             </div>
         );
     }
@@ -1834,11 +1838,9 @@ export const Application = () => {
                 <PageSection>
                     <CurrentMetrics />
                 </PageSection>
-                <PageSection variant={PageSectionVariants.light}>
-                    <MetricsHistory firewalldRequest={setFirewalldRequest}
-                                    needsLogout={needsLogout}
-                                    setNeedsLogout={setNeedsLogout} />
-                </PageSection>
+                <MetricsHistory firewalldRequest={setFirewalldRequest}
+                                needsLogout={needsLogout}
+                                setNeedsLogout={setNeedsLogout} />
             </Page>
         </WithDialogs>);
 };

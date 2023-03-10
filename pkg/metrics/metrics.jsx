@@ -1726,7 +1726,7 @@ class MetricsHistory extends React.Component {
         );
 
         return (
-            <div className="metrics">
+            <div className="metrics" style={{ "--graph-cnt": selections.length }}>
                 <div className="metrics-heading-sticky">
                     <section className="metrics-heading">
                         <Flex className="metrics-selectors" spaceItems={{ default: 'spaceItemsSm' }}>

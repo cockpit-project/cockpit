@@ -160,6 +160,9 @@ class TestMultiMachineAdd(MachineCase):
         self.machine2 = self.machines['machine2']
         self.machine3 = self.machines['machine3']
 
+        # Disable preloading on all machines
+        # Preloading on machines debug build can overload the browser and cause slowness and browser crashes,
+        # and failing to load sofware updates breaks pixel tests in release builds
         self.setup_provisioned_hosts(disable_preload=True)
         self.setup_ssh_auth()
 

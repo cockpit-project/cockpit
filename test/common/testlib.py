@@ -2098,16 +2098,11 @@ class MachineCase(unittest.TestCase):
         """Setup provisioned hosts for testing
 
         This sets the hostname of all machines to the name given in the
-        provision dictionary and optionally disabled preload when it runs
-        on a development build.
+        provision dictionary and optionally disabled preload.
         """
-
         for name, m in self.machines.items():
             m.execute(f"hostnamectl set-hostname {name}")
-            # Disable preloading on all machines ("machine1" is done in testlib.py)
-            # Preloading on machines with debug build can overload the browser and cause slowness and browser crashes
-            # In these tests we actually switch between machines in quick succession which can make things even worse
-            if disable_preload and self.is_devel_build():
+            if disable_preload:
                 self.disable_preload("packagekit", "playground", "systemd", machine=m)
 
 

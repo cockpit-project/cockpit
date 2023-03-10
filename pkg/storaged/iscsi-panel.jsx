@@ -51,9 +51,7 @@ export class IscsiPanel extends React.Component {
                 ],
                 Action: {
                     Title: _("Next"),
-                    action: function (vals, progress_callback) {
-                        const dfd = cockpit.defer();
-
+                    action: (vals, progress_callback) => new Promise((resolve, reject) => {
                         const options = { };
                         if (vals.username || vals.password) {
                             options.username = { t: 's', v: vals.username };
@@ -68,7 +66,7 @@ export class IscsiPanel extends React.Component {
                                                   ])
                                 .then(function (results) {
                                     if (!cancelled) {
-                                        dfd.resolve();
+                                        resolve();
                                         iscsi_add(vals, results[0]);
                                     }
                                 })
@@ -91,16 +89,14 @@ export class IscsiPanel extends React.Component {
                                             address: _("Unable to reach server")
                                         };
 
-                                    dfd.reject(error);
+                                    reject(error);
                                 });
 
                         progress_callback(null, function () {
                             cancelled = true;
-                            dfd.reject();
+                            reject();
                         });
-
-                        return dfd.promise();
-                    }
+                    }),
                 }
             });
         }

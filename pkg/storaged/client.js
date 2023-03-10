@@ -448,19 +448,17 @@ function init_model(callback) {
             return cockpit.resolve();
         return client.manager.EnableModules(true).then(
             function() {
-                const defer = cockpit.defer();
                 client.manager_lvm2 = proxy("Manager.LVM2", "Manager");
                 client.manager_iscsi = proxy("Manager.ISCSI.Initiator", "Manager");
-                Promise.allSettled([client.manager_lvm2.wait(), client.manager_iscsi.wait()]).then(() => {
-                    client.features.lvm2 = client.manager_lvm2.valid;
-                    client.features.iscsi = (client.manager_iscsi.valid &&
-                                                      client.manager_iscsi.SessionsSupported !== false);
-                    defer.resolve();
-                });
-                return defer.promise;
+                return Promise.allSettled([client.manager_lvm2.wait(), client.manager_iscsi.wait()])
+                        .then(() => {
+                            client.features.lvm2 = client.manager_lvm2.valid;
+                            client.features.iscsi = (client.manager_iscsi.valid &&
+                                                            client.manager_iscsi.SessionsSupported !== false);
+                        });
             }, function(error) {
                 console.warn("Can't enable storaged modules", error.toString());
-                return cockpit.resolve();
+                return Promise.resolve();
             });
     }
 
@@ -1275,20 +1273,18 @@ client.init = function init_storaged(callback) {
 };
 
 client.wait_for = function wait_for(cond) {
-    const dfd = cockpit.defer();
-
-    function check() {
-        const res = cond();
-        if (res) {
-            client.removeEventListener("changed", check);
-            dfd.resolve(res);
+    return new Promise(resolve => {
+        function check() {
+            const res = cond();
+            if (res) {
+                client.removeEventListener("changed", check);
+                resolve(res);
+            }
         }
-    }
 
-    client.addEventListener("changed", check);
-    check();
-
-    return dfd.promise();
+        client.addEventListener("changed", check);
+        check();
+    });
 };
 
 client.get_config = (name, def) => {

@@ -13,7 +13,6 @@
 }
 
 html {
-  --metrics-heading-color: #eee;
   --metrics-heading-time-color: var(--pf-global--BackgroundColor--light-100);
   --resource-icon-color-empty: var(--pf-global--palette--black-400);
   --resource-icon-color-middle: var(--pf-global--palette--orange-200);
@@ -21,7 +20,6 @@ html {
 }
 
 .pf-theme-dark {
-  --metrics-heading-color: var(--pf-global--BackgroundColor--dark-100);
   --metrics-heading-time-color: var(--pf-global--BackgroundColor--300);
   --metrics-events-border-color: #000;
   --resource-icon-color-empty: var(--pf-global--palette--black-400);
@@ -344,6 +342,11 @@ $graphs: cpu, memory, disks, network;
     display: flex;
   }
 
+  &-heading,
+  &-heading-graphs {
+    align-items: center;
+  }
+
   &-graphs {
     flex-basis: var(--graph-column-size);
     margin-left: auto;
@@ -357,12 +360,12 @@ $graphs: cpu, memory, disks, network;
 
   &-label {
     max-width: 20ch;
-    margin: 0.5rem;
   }
 
   &-sublabels.pf-c-content {
     small {
       font-size: var(--pf-global--FontSize--xs);
+      margin-bottom: var(--pf-global--spacer--xs) !important;
     }
     display: flex;
   }
@@ -460,10 +463,6 @@ $graphs: cpu, memory, disks, network;
 
   &-time,
   &-heading {
-    position: relative;
-    width: calc(100% + var(--pf-c-page__main-section--PaddingRight) + var(--pf-c-page__main-section--PaddingLeft));
-    right: var(--pf-c-page__main-section--PaddingRight);
-
     padding-right: var(--pf-c-page__main-section--PaddingRight);
     padding-left: var(--pf-c-page__main-section--PaddingLeft);
   }
@@ -479,16 +478,8 @@ $graphs: cpu, memory, disks, network;
     }
   }
 
-  &-heading {
-    background: var(--metrics-heading-color);
-    margin-bottom: 0.25rem;
-    box-shadow: var(--pf-global--BoxShadow--sm);
-
-    &-sticky {
-      position: sticky;
-      top: 0;
-      z-index: 99;
-    }
+  &-history-section {
+    padding: 0;
   }
 
   &-history {

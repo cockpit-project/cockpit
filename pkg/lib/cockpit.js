@@ -3392,12 +3392,12 @@ function factory() {
 
         function unknown_interface(path, iface) {
             const message = "DBus interface " + iface + " not available at " + path;
-            return cockpit.reject(new DBusError(["org.freedesktop.DBus.Error.UnknownInterface", [message]]));
+            return Promise.reject(new DBusError(["org.freedesktop.DBus.Error.UnknownInterface", [message]]));
         }
 
         function unknown_method(path, iface, method) {
             const message = "DBus method " + iface + " " + method + " not available at " + path;
-            return cockpit.reject(new DBusError(["org.freedesktop.DBus.Error.UnknownMethod", [message]]));
+            return Promise.reject(new DBusError(["org.freedesktop.DBus.Error.UnknownMethod", [message]]));
         }
 
         function not_implemented(path, iface, method) {

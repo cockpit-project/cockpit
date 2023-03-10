@@ -107,15 +107,15 @@ function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
             if (size - crypto_overhead > vdo.physical_size)
                 return vdo.grow_physical();
             else if (size - crypto_overhead < vdo.physical_size)
-                return cockpit.reject(_("VDO backing devices can not be made smaller"));
+                return Promise.reject(_("VDO backing devices can not be made smaller"));
             else
-                return cockpit.resolve();
+                return Promise.resolve();
         } else if (size < orig_size) {
             // This shouldn't happen.  But if it does, continuing is harmful, so we throw an error.
-            return cockpit.reject(_("Unrecognized data can not be made smaller here."));
+            return Promise.reject(_("Unrecognized data can not be made smaller here."));
         } else {
             // Growing unrecognized content, nothing to do.
-            return cockpit.resolve();
+            return Promise.resolve();
         }
     }
 
@@ -126,7 +126,7 @@ function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
                 opts.passphrase = { t: "s", v: passphrase };
             return crypto.Resize(size - crypto_overhead, opts);
         } else {
-            return cockpit.resolve();
+            return Promise.resolve();
         }
     }
 
@@ -134,7 +134,7 @@ function lvol_and_fsys_resize(client, lvol, size, offline, passphrase) {
         if (size != lvol.Size)
             return lvol.Resize(size, { });
         else
-            return cockpit.resolve();
+            return Promise.resolve();
     }
 
     if (fsys && !fsys.Resize) {

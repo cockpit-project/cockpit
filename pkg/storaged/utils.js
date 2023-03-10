@@ -460,7 +460,7 @@ export function get_available_spaces(client) {
 export function prepare_available_spaces(client, spcs) {
     function prepare(spc) {
         if (spc.type == 'block')
-            return cockpit.resolve(spc.block.path);
+            return Promise.resolve(spc.block.path);
         else if (spc.type == 'free') {
             const block_ptable = client.blocks_ptable[spc.block.path];
             return block_ptable.CreatePartition(spc.start, spc.size, "", "", { });

@@ -56,7 +56,7 @@ function get_tang_adv(url) {
     return cockpit.spawn(["curl", "-sSf", url + "/adv"], { err: "message" })
             .then(JSON.parse)
             .catch(error => {
-                return cockpit.reject(error.toString().replace(/^curl: \([0-9]+\) /, ""));
+                return Promise.reject(error.toString().replace(/^curl: \([0-9]+\) /, ""));
             });
 }
 

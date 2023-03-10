@@ -372,7 +372,7 @@ export function NetworkManagerModel() {
 
     self.synchronize = function synchronize() {
         if (outstanding_refreshes === 0) {
-            return cockpit.resolve();
+            return Promise.resolve();
         } else {
             if (!export_model_deferred)
                 export_model_deferred = cockpit.defer();
@@ -871,7 +871,7 @@ export function NetworkManagerModel() {
                                 set_settings(self, settings);
                             });
                 } catch (e) {
-                    return cockpit.reject(e);
+                    return Promise.reject(e);
                 }
             },
 
@@ -1006,7 +1006,7 @@ export function NetworkManagerModel() {
                                               settings_to_nm(settings), objpath(this), objpath(specific_object))
                             .then(([path, active_connection]) => active_connection);
                 } catch (e) {
-                    return cockpit.reject(e);
+                    return Promise.reject(e);
                 }
             },
 
@@ -1397,7 +1397,7 @@ export function settings_applier(model, device, connection) {
             return device.activate_with_settings(settings);
         } else {
             cockpit.warn("No way to apply settings", connection, settings);
-            return cockpit.resolve();
+            return Promise.resolve();
         }
     };
 }
@@ -1686,7 +1686,7 @@ export function set_member(model, group_connection, group_settings, member_type,
             if (member_settings.connection.group == group_settings.connection.uuid ||
                 member_settings.connection.group == group_settings.connection.id ||
                 member_settings.connection.group == group_iface)
-                return cockpit.resolve();
+                return Promise.resolve();
 
             member_settings.connection.member_type = member_type;
             member_settings.connection.group = group_iface;

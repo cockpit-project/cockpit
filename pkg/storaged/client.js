@@ -443,9 +443,9 @@ function init_model(callback) {
 
     function enable_udisks_features() {
         if (!client.manager.valid)
-            return cockpit.resolve();
+            return Promise.resolve();
         if (!client.manager.EnableModules)
-            return cockpit.resolve();
+            return Promise.resolve();
         return client.manager.EnableModules(true).then(
             function() {
                 client.manager_lvm2 = proxy("Manager.LVM2", "Manager");
@@ -473,10 +473,10 @@ function init_model(callback) {
             function (success) {
                 // hack here
                 client.features.legacy_vdo = success;
-                return cockpit.resolve();
+                return Promise.resolve();
             },
             function () {
-                return cockpit.resolve();
+                return Promise.resolve();
             });
     }
 
@@ -484,10 +484,10 @@ function init_model(callback) {
         return cockpit.spawn(["which", "clevis-luks-bind"], { err: "ignore" }).then(
             function () {
                 client.features.clevis = true;
-                return cockpit.resolve();
+                return Promise.resolve();
             },
             function () {
-                return cockpit.resolve();
+                return Promise.resolve();
             });
     }
 
@@ -500,10 +500,10 @@ function init_model(callback) {
             function () {
                 client.features.nfs = true;
                 client.nfs.start();
-                return cockpit.resolve();
+                return Promise.resolve();
             },
             function () {
-                return cockpit.resolve();
+                return Promise.resolve();
             });
     }
 
@@ -515,7 +515,7 @@ function init_model(callback) {
         return client.stratis_start().catch(error => {
             if (error.problem != "not-found")
                 console.warn("Failed to start Stratis support", error);
-            return cockpit.resolve();
+            return Promise.resolve();
         });
     }
 

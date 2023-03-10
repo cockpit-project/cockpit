@@ -106,7 +106,7 @@ export function ServerTime() {
     self.wait = function wait() {
         if (remote_offset === null)
             return self.update();
-        return cockpit.resolve();
+        return Promise.resolve();
     };
 
     self.update = function update() {

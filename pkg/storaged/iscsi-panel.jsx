@@ -140,7 +140,7 @@ export class IscsiPanel extends React.Component {
                                     if (err.message.indexOf("authorization") != -1)
                                         iscsi_add_with_creds(discover_vals, vals);
                                     else
-                                        return cockpit.reject(err);
+                                        return Promise.reject(err);
                                 });
                     }
                 }
@@ -167,7 +167,7 @@ export class IscsiPanel extends React.Component {
                                             username: true, // makes it red without text below
                                             password: _("Invalid username or password")
                                         };
-                                    return cockpit.reject(err);
+                                    return Promise.reject(err);
                                 });
                     }
                 }

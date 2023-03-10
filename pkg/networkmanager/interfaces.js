@@ -343,7 +343,8 @@ export function NetworkManagerModel() {
         drop_object(path);
     }
 
-    let export_model_deferred = null;
+    let export_model_promise = null;
+    let export_model_promise_resolve = null;
 
     function export_model() {
         function doit() {
@@ -358,9 +359,10 @@ export function NetworkManagerModel() {
 
             self.ready = true;
             self.dispatchEvent('changed');
-            if (export_model_deferred) {
-                export_model_deferred.resolve();
-                export_model_deferred = null;
+            if (export_model_promise) {
+                export_model_promise_resolve();
+                export_model_promise = null;
+                export_model_promise_resolve = null;
             }
         }
 
@@ -374,9 +376,9 @@ export function NetworkManagerModel() {
         if (outstanding_refreshes === 0) {
             return Promise.resolve();
         } else {
-            if (!export_model_deferred)
-                export_model_deferred = cockpit.defer();
-            return export_model_deferred.promise();
+            if (!export_model_promise)
+                export_model_promise = new Promise(resolve => { export_model_promise_resolve = resolve });
+            return export_model_promise;
         }
     };
 

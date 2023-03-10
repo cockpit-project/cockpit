@@ -799,7 +799,7 @@ class TestAccounts(MachineCase):
         performGroupAction(b, 'testgroup0', 'Delete group')
         b.wait_text("#group-confirm-delete-dialog footer .pf-c-button.apply", "Delete")
         b.click("#group-confirm-delete-dialog footer .pf-c-button.apply")
-        b.wait_not_present('#account-confirm-delete-dialog')
+        b.wait_not_present('#group-confirm-delete-dialog')
         b.wait_visible("#groups-list")
         b.wait_not_in_text('#groups-list', "testgroup0")
 

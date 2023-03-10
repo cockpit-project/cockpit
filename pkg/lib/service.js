@@ -137,7 +137,8 @@ export function proxy(name, kind) {
     cockpit.event_target(self);
 
     let unit, details;
-    const wait_callbacks = cockpit.defer();
+    let wait_promise_resolve;
+    const wait_promise = new Promise(resolve => { wait_promise_resolve = resolve });
 
     if (name.indexOf(".") == -1)
         name = name + ".service";
@@ -170,7 +171,7 @@ export function proxy(name, kind) {
         self.unit = unit;
 
         self.dispatchEvent("changed");
-        wait_callbacks.resolve();
+        wait_promise_resolve();
     }
 
     function update_from_details() {
@@ -253,7 +254,7 @@ export function proxy(name, kind) {
     systemd_manager.addEventListener("JobRemoved", on_job_new_removed_refresh);
 
     function wait(callback) {
-        wait_callbacks.promise.then(callback);
+        wait_promise.then(callback);
     }
 
     /* Actions

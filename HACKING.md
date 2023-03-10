@@ -17,6 +17,30 @@ On Debian/Ubuntu:
 
     $ sudo apt install nodejs
 
+
+For running the browser unit tests, the following dependencies are required:
+
+    $ sudo apt-get install chromium-headless dbus
+
+Creating VM images locally (not necessary for running tests) needs the
+following:
+    
+    $ sudo apt-get install virtinst
+
+For running integration tests, the following dependencies are required:
+
+    $ sudo apt-get install curl expect xz-utils rpm libvirt-daemon-system libvirt-daemon-driver-storage-core \
+        libvirt-daemon-driver-qemu libvirt-clients python3-libvirt
+        python3-pyyaml python3-flake8 \chromium-browser
+
+Updating the `node_modules` (in case you need to modify `package.json`)
+requires npm to be installed.
+
+    $ sudo apt-get install npm
+
+Additionally to build cockpit from the `autogen.sh` command below, head to /tools/debian/control 
+and install the packages listed under `Build-Depends`
+
 On Fedora:
 
     $ sudo dnf install nodejs

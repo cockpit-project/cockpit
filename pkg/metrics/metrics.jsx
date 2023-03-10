@@ -1743,7 +1743,7 @@ class MetricsHistory extends React.Component {
                             </Select>
                             <Select
                                 toggleAriaLabel={_("Graph visibility options menu")}
-                                className="metrics-label"
+                                className="select-min metrics-label"
                                 variant={SelectVariant.checkbox}
                                 isCheckboxSelectionBadgeHidden
                                 isOpen={!!this.state.isOpenColumnVisibility}

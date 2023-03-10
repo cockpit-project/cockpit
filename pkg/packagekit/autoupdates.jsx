@@ -32,6 +32,8 @@ import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import { useDialogs } from "dialogs.jsx";
 import { useInit } from "hooks";
 
+import * as PK from "packagekit.js";
+
 const _ = cockpit.gettext;
 
 function debug() {
@@ -219,19 +221,16 @@ export function getBackend(forceReinit) {
     if (!getBackend.promise || forceReinit) {
         debug("getBackend() called first time or forceReinit passed, initializing promise");
         getBackend.promise = new Promise((resolve, reject) => {
-            cockpit.spawn(["bash", "-ec", "command -v zypper dnf apt | head -n1 | xargs --no-run-if-empty basename"], [], { err: "message" })
-                    .then(output => {
-                        output = output.trim();
-                        debug("getBackend(): detection finished, output", output);
-                        const backend = (output === "dnf") ? new DnfImpl() : undefined;
-                        // TODO: apt backend
-                        if (backend)
-                            backend.getConfig().then(() => resolve(backend));
-                        else
-                            resolve(null);
-                    })
+            PK.getBackendName().then(([prop]) => {
+                debug("getBackend(): detection finished, output", prop);
+                const backend = (prop.v === "dnf") ? new DnfImpl() : undefined;
+                // TODO: apt backend
+                if (backend)
+                    backend.getConfig().then(() => resolve(backend));
+                else
+                    resolve(null);
+            })
                     .catch(error => {
-                        // the detection shell script is supposed to always succeed
                         console.error("automatic updates getBackend() detection failed:", error);
                         resolve(null);
                     });

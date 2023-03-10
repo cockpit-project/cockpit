@@ -49,13 +49,11 @@ function AuthorizedKeys (user_name, home_dir) {
     const PUBKEY_RE = /^(\S+)\s+(\S+)\s+(.*)\((\S+)\)$/;
 
     function parse_pubkeys(input) {
-        const df = cockpit.defer();
         const keys = [];
 
-        cockpit
-                .script(lister)
+        return cockpit.script(lister)
                 .input(input + "\n")
-                .done(function(output) {
+                .then(output => {
                     const lines = output.split("\n");
 
                     for (let i = 0; i + 1 < lines.length; i += 2) {
@@ -79,12 +77,12 @@ function AuthorizedKeys (user_name, home_dir) {
                                         .join(" ") || null;
                         }
                     }
+                    return keys;
                 })
-                .always(function() {
-                    df.resolve(keys);
+                .catch(ex => { // not-covered: OS error
+                    cockpit.warn("Failed to list public keys:", ex.toString()); // not-covered: OS error
+                    return []; // not-covered: OS error
                 });
-
-        return df.promise();
     }
 
     function parse_keys(content, tag, ex) {
@@ -97,34 +95,23 @@ function AuthorizedKeys (user_name, home_dir) {
             return update_keys([], tag);
 
         parse_pubkeys(content)
-                .done(function(keys) {
-                    update_keys(keys, tag);
-                });
+                .then(keys => update_keys(keys, tag));
     }
 
     self.add_key = function(key) {
-        const df = cockpit.defer();
-        df.notify(_("Validating key"));
-        parse_pubkeys(key)
-                .done(function(keys) {
+        return parse_pubkeys(key)
+                .then(keys => {
                     const obj = keys[0];
                     if (obj && obj.valid) {
-                        df.notify(_("Adding key"));
-                        cockpit
+                        return cockpit
                                 .script(adder, [user_name, home_dir], { superuser: "try", err: "message" })
                                 .input(obj.raw + "\n")
-                                .done(function() {
-                                    df.resolve();
-                                })
-                                .fail(function(ex) {
-                                    df.reject(_("Error saving authorized keys: ") + ex);
-                                });
+                                // eslint-disable-next-line prefer-promise-reject-errors
+                                .catch(ex => Promise.reject(_("Error saving authorized keys: ") + ex)); // not-covered: OS error
                     } else {
-                        df.reject(_("The key you provided was not valid."));
+                        return Promise.reject(_("The key you provided was not valid."));
                     }
                 });
-
-        return df.promise();
     };
 
     self.remove_key = function(key) {

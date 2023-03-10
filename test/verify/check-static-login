@@ -910,6 +910,8 @@ matchrule = <SUBJECT>^DC=LAN,DC=COCKPIT,CN=alice$
         m.execute("useradd --create-home user")
         m.execute("echo user:foobar | chpasswd")
         m.start_cockpit()
+        # the quick succession of login/logout is too much for packagekit's brain
+        self.disable_preload("packagekit", "playground", "systemd")
 
         def check_server(server, expect_fp_ack):
             b.open('/')

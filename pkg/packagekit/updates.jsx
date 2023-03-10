@@ -876,7 +876,7 @@ class CardsPage extends React.Component {
     }
 
     componentDidMount() {
-        getBackend().then(b => { this.setState({ autoupdates_backend: b }) });
+        getBackend(this.props.backend).then(b => { this.setState({ autoupdates_backend: b }) });
     }
 
     render() {
@@ -894,7 +894,7 @@ class CardsPage extends React.Component {
 
         if (this.state.autoupdates_backend) {
             settingsContent = <Stack hasGutter>
-                <AutoUpdates privileged={this.props.privileged} />
+                <AutoUpdates privileged={this.props.privileged} packagekit_backend={this.props.backend} />
                 <KpatchSettings privileged={this.props.privileged} />
             </Stack>;
         }

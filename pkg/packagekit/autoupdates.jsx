@@ -32,8 +32,6 @@ import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import { useDialogs } from "dialogs.jsx";
 import { useInit } from "hooks";
 
-import * as PK from "packagekit.js";
-
 const _ = cockpit.gettext;
 
 function debug() {
@@ -217,26 +215,18 @@ class DnfImpl extends ImplBase {
 
 // Returns a promise for instantiating "backend"; this will never fail, if
 // automatic updates are not supported, backend will be null.
-export function getBackend(forceReinit) {
+export function getBackend(packagekit_backend, forceReinit) {
     if (!getBackend.promise || forceReinit) {
         debug("getBackend() called first time or forceReinit passed, initializing promise");
         getBackend.promise = new Promise((resolve, reject) => {
-            PK.getBackendName().then(([prop]) => {
-                debug("getBackend(): detection finished, output", prop);
-                const backend = (prop.v === "dnf") ? new DnfImpl() : undefined;
-                // TODO: apt backend
-                if (backend)
-                    backend.getConfig().then(() => resolve(backend));
-                else
-                    resolve(null);
-            })
-                    .catch(error => {
-                        console.error("automatic updates getBackend() detection failed:", error);
-                        resolve(null);
-                    });
+            const backend = (packagekit_backend === "dnf") ? new DnfImpl() : undefined;
+            // TODO: apt backend
+            if (backend)
+                backend.getConfig().then(() => resolve(backend));
+            else
+                resolve(null);
         });
     }
-
     return getBackend.promise;
 }
 
@@ -333,10 +323,10 @@ const AutoUpdatesDialog = ({ backend }) => {
         </Modal>);
 };
 
-export const AutoUpdates = ({ privileged }) => {
+export const AutoUpdates = ({ privileged, packagekit_backend }) => {
     const Dialogs = useDialogs();
     const [backend, setBackend] = useState(null);
-    useInit(() => getBackend().then(setBackend));
+    useInit(() => getBackend(packagekit_backend).then(setBackend));
 
     if (!backend)
         return null;
@@ -397,7 +387,7 @@ export const AutoUpdates = ({ privileged }) => {
                                 if (!backend.installed) {
                                     install_dialog(backend.packageName)
                                             .then(() => {
-                                                getBackend(true).then(b => {
+                                                getBackend(packagekit_backend, true).then(b => {
                                                     setBackend(b);
                                                     Dialogs.show(<AutoUpdatesDialog backend={b} />);
                                                 });

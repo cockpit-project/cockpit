@@ -18,10 +18,6 @@ On Debian/Ubuntu:
     $ sudo apt install nodejs
 
 
-For running the browser unit tests, the following dependencies are required:
-
-    $ sudo apt-get install chromium-headless dbus
-
 Creating VM images locally (not necessary for running tests) needs the
 following:
     

@@ -23,6 +23,7 @@
 @use "table";
 @use "nav";
 @import "@patternfly/patternfly/components/Select/select.css";
+@import "@patternfly/patternfly/utilities/Text/text.css";
 
 :root {
   --ct-color-host-accent: var(--pf-global--active-color--100);
@@ -223,24 +224,8 @@ $desktop: $phone + 1px;
   }
 }
 
-.hostkey-fingerprint {
-  font-size: large;
-  font-weight: bold;
-  margin-top: var(--pf-global--spacer--md);
-  border: none;
-  background-color: transparent;
-}
-
 .hostkey-type {
   font-size: small;
-}
-
-.hostkey-verify-help-cmds {
-  border-radius: 0.25rem;
-  padding: 0.5rem 1rem;
-  background: #ddd;
-  margin-top: var(--pf-global--spacer--md);
-  margin-bottom: var(--pf-global--spacer--md);
 }
 
 /* Alert fixups */

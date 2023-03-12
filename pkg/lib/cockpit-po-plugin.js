@@ -71,7 +71,7 @@ function buildFile(po_file, webpack_module, webpack_compilation) {
                 if (!references.some(str => str.startsWith(`pkg/${config.subdir}`) || str.startsWith('src')))
                     continue;
 
-                if (translation.comments.flag && translation.comments.flag.match(/\bfuzzy\b/))
+                if (translation.comments.flag?.match(/\bfuzzy\b/))
                     continue;
 
                 const key = JSON.stringify(context_prefix + msgid);

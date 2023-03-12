@@ -431,7 +431,7 @@ export const SvgPlot = ({ title, config, plot_state, plot_id, className }) => {
                  // TODO: Figure out a way to handle a11y without entirely hiding the live-updating graphs
                  aria-hidden="true"
                  role="img"
-                 onMouseDown={plot_state.zoom_state && plot_state.zoom_state.enable_zoom_in ? start_dragging : null}
+                 onMouseDown={plot_state.zoom_state?.enable_zoom_in ? start_dragging : null}
                  onMouseUp={selection ? stop_dragging : null}
                  onMouseMove={selection ? drag : null}
                  onMouseLeave={cancel_dragging}>

@@ -43,27 +43,27 @@ function AccountCreateBody({ state, errors, change }) {
     return (
         <Form isHorizontal onSubmit={apply_modal_dialog}>
             <FormGroup label={_("Full name")}
-                       helperTextInvalid={errors && errors.real_name}
-                       validated={(errors && errors.real_name) ? "error" : "default"}
+                       helperTextInvalid={errors?.real_name}
+                       validated={(errors?.real_name) ? "error" : "default"}
                        fieldId="accounts-create-real-name">
                 <TextInput id="accounts-create-real-name"
-                           validated={(errors && errors.real_name) ? "error" : "default"}
+                           validated={(errors?.real_name) ? "error" : "default"}
                            value={real_name} onChange={value => change("real_name", value)} />
             </FormGroup>
 
             <FormGroup label={_("User name")}
-                       helperTextInvalid={errors && errors.user_name}
-                       validated={(errors && errors.user_name) ? "error" : "default"}
+                       helperTextInvalid={errors?.user_name}
+                       validated={(errors?.user_name) ? "error" : "default"}
                        fieldId="accounts-create-user-name">
                 <TextInput id="accounts-create-user-name"
-                           validated={(errors && errors.user_name) ? "error" : "default"}
+                           validated={(errors?.user_name) ? "error" : "default"}
                            value={user_name} onChange={value => change("user_name", value)} />
             </FormGroup>
 
             <PasswordFormFields password_label={_("Password")}
                                 password_confirm_label={_("Confirm")}
-                                error_password={errors && errors.password}
-                                error_password_confirm={errors && errors.password_confirm}
+                                error_password={errors?.password}
+                                error_password_confirm={errors?.password_confirm}
                                 idPrefix="accounts-create-password"
                                 change={change} />
 

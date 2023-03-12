@@ -364,7 +364,7 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups, setError }) => {
     useEffect(() => {
         const usedGroups = groups.filter(group => group.userlist.includes(name));
         const primaryGroup = groups.find(group => group.userlistPrimary.includes(name));
-        const _primaryGroupName = primaryGroup ? primaryGroup.name : undefined;
+        const _primaryGroupName = primaryGroup?.name;
         const _selected = usedGroups.map(group => group.name);
         if (primaryGroup)
             _selected.push(_primaryGroupName);

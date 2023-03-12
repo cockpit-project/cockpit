@@ -225,7 +225,7 @@ export class TransactionError extends Error {
  *          on failure.
  */
 export function cancellableTransaction(method, arglist, progress_cb, signalHandlers) {
-    if (signalHandlers && (signalHandlers.ErrorCode || signalHandlers.Finished))
+    if (signalHandlers?.ErrorCode || signalHandlers?.Finished)
         throw Error("cancellableTransaction handles ErrorCode and Finished signals internally");
 
     return new Promise((resolve, reject) => {

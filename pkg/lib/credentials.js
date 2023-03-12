@@ -172,7 +172,7 @@ function Keys() {
 
         key.fingerprint = parts[1];
 
-        if (parts[2] && !key.name && parts[2].indexOf("/") !== -1)
+        if (!key.name && parts[2] && parts[2].indexOf("/") !== -1)
             key.name = parts[2];
     }
 

@@ -84,7 +84,7 @@ function is_negative(n) {
 }
 
 function invoke_functions(functions, self, args) {
-    const length = functions ? functions.length : 0;
+    const length = functions?.length ?? 0;
     for (let i = 0; i < length; i++) {
         if (functions[i])
             functions[i].apply(self, args);
@@ -294,9 +294,9 @@ function event_mixin(obj, handlers) {
 function calculate_application() {
     let path = window.location.pathname || "/";
     let _url_root = url_root;
-    if (window.mock && window.mock.pathname)
+    if (window.mock?.pathname)
         path = window.mock.pathname;
-    if (window.mock && window.mock.url_root)
+    if (window.mock?.url_root)
         _url_root = window.mock.url_root;
 
     if (_url_root && path.indexOf('/' + _url_root) === 0)
@@ -321,9 +321,9 @@ function calculate_url(suffix) {
     const meta_websocket_root = document.head.querySelector("meta[name='websocket-root']");
     let _url_root = meta_websocket_root ? meta_websocket_root.content.replace(/^\/+|\/+$/g, '') : url_root;
 
-    if (window.mock && window.mock.url)
+    if (window.mock?.url)
         return window.mock.url;
-    if (window.mock && window.mock.url_root)
+    if (window.mock?.url_root)
         _url_root = window.mock.url_root;
 
     let prefix = calculate_application();
@@ -1049,7 +1049,7 @@ function factory() {
         self.encoding = "utf-8";
 
         self.decode = function decode(data, options) {
-            const stream = options && options.stream;
+            const stream = options?.stream;
 
             if (data === null || data === undefined)
                 data = "";
@@ -1328,7 +1328,7 @@ function factory() {
         let then;
         let done = false;
         if (is_object(values[0]) || is_function(values[0]))
-            then = values[0] && values[0].then;
+            then = values[0]?.then;
         if (is_function(then)) {
             state.status = -1;
             then.call(values[0], function(/* ... */) {
@@ -1359,7 +1359,7 @@ function factory() {
 
     function deferred_notify(state, values) {
         const callbacks = state.pending;
-        if ((state.status <= 0) && callbacks && callbacks.length) {
+        if ((state.status <= 0) && callbacks?.length) {
             later_invoke(function() {
                 for (let i = 0, ii = callbacks.length; i < ii; i++) {
                     const result = callbacks[i][0];
@@ -1412,7 +1412,7 @@ function factory() {
         let callback_output = null;
         if (is_function(callback))
             callback_output = callback();
-        if (callback_output && is_function(callback_output.then)) {
+        if (is_function(callback_output?.then)) {
             return callback_output.then(function() {
                 return prep_promise(values, is_resolved);
             }, function() {
@@ -1750,7 +1750,7 @@ function factory() {
         };
 
         function unclaim() {
-            if (source && source.close)
+            if (source?.close)
                 source.close();
             source = null;
 
@@ -2114,7 +2114,7 @@ function factory() {
         self.close = function () {
             for (const id in registered) {
                 const grid = registered[id];
-                if (grid && grid.grid)
+                if (grid?.grid)
                     grid.grid.remove_sink(self);
             }
         };
@@ -2460,7 +2460,7 @@ function factory() {
         const application = cockpit.transport.application();
         self.url_root = url_root || "";
 
-        if (window.mock && window.mock.url_root)
+        if (window.mock?.url_root)
             self.url_root = window.mock.url_root;
 
         if (application.indexOf("cockpit+=") === 0) {
@@ -3144,7 +3144,7 @@ function factory() {
         }
 
         function send(payload) {
-            if (channel && channel.valid) {
+            if (channel?.valid) {
                 dbus_debug("dbus:", payload);
                 channel.send(payload);
                 return true;
@@ -3574,14 +3574,14 @@ function factory() {
         delete base_channel_options.syntax;
 
         function parse(str) {
-            if (options.syntax && options.syntax.parse)
+            if (options.syntax?.parse)
                 return options.syntax.parse(str);
             else
                 return str;
         }
 
         function stringify(obj) {
-            if (options.syntax && options.syntax.stringify)
+            if (options.syntax?.stringify)
                 return options.syntax.stringify(obj);
             else
                 return obj;
@@ -3898,7 +3898,7 @@ function factory() {
         const key = context ? context + '\u0004' + string : string;
         if (po_data) {
             const translated = po_data[key];
-            if (translated && translated[1])
+            if (translated?.[1])
                 return translated[1];
         }
         return string;
@@ -4272,7 +4272,7 @@ function factory() {
         if (options)
             group = options.group;
 
-        if (options && options.admin)
+        if (options?.admin)
             admin = true;
 
         function decide(user) {
@@ -4454,7 +4454,7 @@ function factory() {
                 mapping = { };
                 meta.metrics.forEach(function(metric, i) {
                     const map = { "": i };
-                    const name = options.metrics_path_names ? options.metrics_path_names[i] : metric.name;
+                    const name = options.metrics_path_names?.[i] ?? metric.name;
                     mapping[name] = map;
                     if (metric.instances) {
                         metric.instances.forEach(function(instance, i) {

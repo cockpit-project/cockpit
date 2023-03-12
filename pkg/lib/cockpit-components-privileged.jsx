@@ -57,7 +57,7 @@ export const PrivilegedButton = ({ tooltipId, placement, excuse, buttonId, onCli
 
     return (
         <Privileged allowed={ superuser.allowed } tooltipId={ tooltipId } placement={ placement }
-                    excuse={ cockpit.format(excuse, user ? user.name : '') }>
+                    excuse={ cockpit.format(excuse, user?.name ?? '') }>
             <Button id={ buttonId } variant={ variant } onClick={ onClick }
                     isInline isDisabled={ !superuser.allowed } aria-label={ ariaLabel }>
                 { children }

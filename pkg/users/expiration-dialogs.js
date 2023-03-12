@@ -36,7 +36,7 @@ function AccountExpirationDialogBody({ state, errors, change }) {
 
     return (
         <Form className="expiration-modal" onSubmit={apply_modal_dialog}>
-            <FormGroup validated={errors && errors.date ? "error" : "default"}>
+            <FormGroup validated={errors?.date ? "error" : "default"}>
                 <Radio id="account-expiration-never" name="mode" value="never"
                        label={_("Never expire account")}
                        isChecked={mode == "never"} onChange={() => change("mode", "never")} />
@@ -57,7 +57,7 @@ function AccountExpirationDialogBody({ state, errors, change }) {
                            </Flex>
                        }
                        isChecked={mode == "expires"} onChange={() => change("mode", "expires")} />
-                {errors && errors.date &&
+                {errors?.date &&
                 <FormHelperText isError isHidden={false}>
                     {errors.date}
                 </FormHelperText>}
@@ -74,7 +74,7 @@ export function account_expiration_dialog(account, expire_date) {
     const state = {
         mode: expire_date ? "expires" : "never",
         before: parts,
-        date: expire_date ? expire_date.toISOString().substr(0, 10) : ""
+        date: expire_date?.toISOString().substr(0, 10) ?? ""
     };
 
     let errors = { };
@@ -157,12 +157,12 @@ function PasswordExpirationDialogBody({ state, errors, change }) {
                        label={<>
                            <span id="password-expiration-before">{before}</span>
                            <TextInput className="size-text-ct" id="password-expiration-input"
-                                  validated={(errors && errors.days) ? "error" : "default"}
+                                  validated={(errors?.days) ? "error" : "default"}
                                   value={days} onChange={value => change("days", value)} isDisabled={mode != "expires"} />
                            <span id="password-expiration-after">{after}</span>
                        </>}
                        isChecked={mode == "expires"} onChange={() => change("mode", "expires")} />
-                {(errors && errors.days) &&
+                {(errors?.days) &&
                 <FormHelperText isError isHidden={false}>
                     {errors.days}
                 </FormHelperText>}

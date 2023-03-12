@@ -128,8 +128,8 @@ class DialogFooter extends React.Component {
     }
 
     render() {
-        const cancel_text = ('cancel_button' in this.props && this.props.cancel_button.text) ? this.props.cancel_button.text : _("Cancel");
-        const cancel_variant = ('cancel_button' in this.props && this.props.cancel_button.variant) ? this.props.cancel_button.variant : "link";
+        const cancel_text = this.props?.cancel_button?.text ?? _("Cancel");
+        const cancel_variant = this.props?.cancel_button?.variant ?? "link";
 
         // If an action is in progress, show the spinner with its message and disable all actions.
         // Cancel is only enabled when the action promise has a cancel method, or we get one
@@ -164,7 +164,7 @@ class DialogFooter extends React.Component {
                 className="apply"
                 variant={ action.style || "secondary" }
                 onClick={ this.action_click.bind(this, action.clicked) }
-                isDisabled={ actions_disabled || ('disabled' in action && action.disabled) }
+                isDisabled={ actions_disabled || action?.disabled }
             >{ caption }</Button>
             );
         });
@@ -339,8 +339,8 @@ export function show_modal_dialog(props, footerProps) {
 }
 
 export function apply_modal_dialog(event) {
-    const dialog = event && event.target && event.target.closest("[role=dialog]");
-    const button = dialog && dialog.querySelector("button.apply");
+    const dialog = event?.target?.closest("[role=dialog]");
+    const button = dialog?.querySelector("button.apply");
 
     if (button) {
         const event = new MouseEvent('click', {

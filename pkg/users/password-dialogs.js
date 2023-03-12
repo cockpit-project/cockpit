@@ -137,8 +137,8 @@ function SetPasswordDialogBody({ state, errors, change }) {
             <>
                 <input hidden disabled value={current_user} />
                 <FormGroup label={_("Old password")}
-                           helperTextInvalid={errors && errors.password_old}
-                           validated={(errors && errors.password_old) ? "error" : "default"}
+                           helperTextInvalid={errors?.password_old}
+                           validated={(errors?.password_old) ? "error" : "default"}
                            fieldId="account-set-password-old">
                     <TextInput className="check-passwords" type="password" id="account-set-password-old"
                                autoComplete="current-password" value={password_old} onChange={value => change("password_old", value)} />
@@ -146,8 +146,8 @@ function SetPasswordDialogBody({ state, errors, change }) {
             </> }
             <PasswordFormFields password_label={_("New password")}
                                 password_confirm_label={_("Confirm new password")}
-                                error_password={errors && errors.password}
-                                error_password_confirm={errors && errors.password_confirm}
+                                error_password={errors?.password}
+                                error_password_confirm={errors?.password_confirm}
                                 idPrefix="account-set-password"
                                 change={change} />
         </Form>

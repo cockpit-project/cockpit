@@ -270,7 +270,7 @@ export class Terminal extends React.Component {
 
     connectChannel() {
         const channel = this.props.channel;
-        if (channel && channel.valid) {
+        if (channel?.valid) {
             channel.addEventListener('message', this.onChannelMessage.bind(this));
             channel.addEventListener('close', this.onChannelClose.bind(this));
         }

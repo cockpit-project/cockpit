@@ -93,7 +93,7 @@ function AccountsPage() {
         return (
             <AccountsMain
                 accountsInfo={accountsInfo}
-                current_user={current_user_info && current_user_info.name}
+                current_user={current_user_info?.name}
                 groups={groupsExtraInfo || []}
                 isGroupsExpanded={isGroupsExpanded}
                 setIsGroupsExpanded={setIsGroupsExpanded}
@@ -102,7 +102,7 @@ function AccountsPage() {
     } else if (path.length === 1) {
         return (
             <AccountDetails accounts={accountsInfo} groups={groupsExtraInfo} shadow={shadow || []}
-                            current_user={current_user_info && current_user_info.name} user={path[0]} />
+                            current_user={current_user_info?.name} user={path[0]} />
         );
     }
 }

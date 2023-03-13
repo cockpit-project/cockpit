@@ -18,7 +18,7 @@
  */
 
 function debug() {
-    if (window.debugging == "all" || window.debugging == "style") {
+    if (window.debugging == "all" || window.debugging?.includes("style")) {
         console.debug([`cockpit-dark-theme: ${document.documentElement.id}:`, ...arguments].join(" "));
     }
 }

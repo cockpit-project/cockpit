@@ -194,7 +194,7 @@ const HISTORY_METRICS = [
 ];
 
 function debug() {
-    if (window.debugging == "all" || window.debugging == "metrics")
+    if (window.debugging == "all" || window.debugging?.includes("metrics"))
         console.debug.apply(console, arguments);
 }
 

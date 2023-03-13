@@ -408,7 +408,7 @@ in the browser storage. To do this run the following in your javascript console:
     >> sessionStorage.debugging = "all"
 
 You'll notice that there's a ton of messages that get shown. If you
-want to be more specific, instead of "all" use one of the following
+want to be more specific, instead of "all" use one or more of the following
 specific types:
 
     "all"      // All available debug messages
@@ -417,7 +417,9 @@ specific types:
     "http"     // HTTP (via the server) related debug messages
     "spawn"    // Debug messages related to executing processes
 
-There are other strings related to the code you may be working on.
+There are other strings related to the code you may be working on. For example,
+the metrics page shows debug information with the value `metrics`. Do
+`git grep window.debugging pkg` to find out all available ones.
 
 In addition, if you want your debug setting to survive a browser refresh or
 Cockpit log out, use something like:

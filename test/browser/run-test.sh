@@ -168,6 +168,7 @@ if [ "$PLAN" = "basic" ]; then
               TestServices.testRelationshipsUser
               TestServices.testResetFailed
               TestServices.testTransientUnits
+              TestServices.testUnprivileged
               "
 fi
 

@@ -382,14 +382,6 @@ WantedBy=default.target
         self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Pin unit"], False)
         self.toggle_onoff()
         self.check_service_details(["Running", "Automatically starts"], ["Reload", "Restart", "Stop", "Disallow running (mask)", "Pin unit"], True)
-
-        testUrl = f'/system/services#/test.service{suffix}'
-        # Check without permissions
-        b.relogin(testUrl, superuser=False)
-        self.wait_page_load()
-
-        b.relogin(testUrl, superuser=True)
-        self.wait_page_load()
         self.toggle_onoff()  # later on we need some disabled test
         self.check_service_details(["Disabled"], ["Start", "Disallow running (mask)", "Pin unit"], False)
 
@@ -1233,6 +1225,35 @@ WantedBy=multi-user.target
         b.wait_in_text("#statuses", "Automatically starts")
         b.wait_in_text("#service-details-unit", "/etc/systemd/system/flower-rose.service")
         b.wait_in_text('.cockpit-log-panel .pf-c-card__body', "Perfume")
+
+    def testUnprivileged(self):
+        b = self.browser
+        m = self.machine
+
+        self.make_test_service()
+
+        self.login_and_go("/system/services", superuser=False)
+        self.wait_page_load()
+
+        # service list
+        self.wait_service_in_panel("NetworkManager.service", "Enabled")
+        self.wait_service_state("NetworkManager.service", "active")
+        self.wait_service_in_panel("test.service", "Disabled")
+        self.wait_service_state("test.service", "inactive")
+        # reacts to changes
+        m.execute("systemctl start test.service")
+        self.wait_service_state("test.service", "active")
+
+        # details page
+        self.goto_service("test.service")
+        self.check_service_details(["Read-only", "Running"], [], False, onoff=False, kebab=False)
+        b.wait_in_text("#service-details-unit", "/etc/systemd/system/test.service")
+        # unprivileged users cannot read the system journal on all OSes; only check it on Fedora, where we know it's allowed
+        if m.image.startswith("fedora"):
+            b.wait_in_text('.cockpit-log-panel .pf-c-card__body', "WORKING")
+        # reacts to changes
+        m.execute("systemctl stop test.service")
+        self.check_service_details(["Read-only", "Disabled"], [], False, onoff=False, kebab=False)
 
 
 @skipDistroPackage()

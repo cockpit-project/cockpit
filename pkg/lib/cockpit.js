@@ -226,7 +226,7 @@ window.addEventListener('beforeunload', function() {
 }, false);
 
 function transport_debug() {
-    if (window.debugging == "all" || window.debugging == "channel")
+    if (window.debugging == "all" || window.debugging?.includes("channel"))
         console.debug.apply(console, arguments);
 }
 
@@ -2737,7 +2737,7 @@ function factory() {
     }
 
     function spawn_debug() {
-        if (window.debugging == "all" || window.debugging == "spawn")
+        if (window.debugging == "all" || window.debugging?.includes("spawn"))
             console.debug.apply(console, arguments);
     }
 
@@ -2819,7 +2819,7 @@ function factory() {
     };
 
     function dbus_debug() {
-        if (window.debugging == "all" || window.debugging == "dbus")
+        if (window.debugging == "all" || window.debugging?.includes("dbus"))
             console.debug.apply(console, arguments);
     }
 
@@ -3998,7 +3998,7 @@ function factory() {
     }
 
     function http_debug() {
-        if (window.debugging == "all" || window.debugging == "http")
+        if (window.debugging == "all" || window.debugging?.includes("http"))
             console.debug.apply(console, arguments);
     }
 

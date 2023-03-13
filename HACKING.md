@@ -29,13 +29,11 @@ For running integration tests, the following dependencies are required:
         libvirt-daemon-driver-qemu libvirt-clients python3-libvirt
         python3-pyyaml python3-flake8 \chromium-browser
 
-Updating the `node_modules` (in case you need to modify `package.json`)
-requires npm to be installed.
-
-    $ sudo apt-get install npm
-
 Additionally to build cockpit from the `autogen.sh` command below, head to /tools/debian/control 
 and install the packages listed under `Build-Depends`
+To build the Cockpit binaries from source, required to run the integration tests locally, run
+
+    $ sudo apt-get build-dep cockpit
 
 On Fedora:
 
@@ -53,6 +51,7 @@ files and other components. The following should work in a fresh Git clone:
 
     $ sudo dnf install dnf-utils python-srpm-macros
     $ sudo dnf builddep --spec tools/cockpit.spec
+
 
 For running the browser unit tests, the following dependencies are required:
 

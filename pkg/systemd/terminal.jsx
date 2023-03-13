@@ -40,8 +40,27 @@ const _ = cockpit.gettext;
 
         constructor(props) {
             super(props);
-            const theme = document.cookie.replace(/(?:(?:^|.*;\s*)theme_cookie\s*=\s*([^;]*).*$)|^.*$/, "$1");
-            const size = document.cookie.replace(/(?:(?:^|.*;\s*)size_cookie\s*=\s*([^;]*).*$)|^.*$/, "$1");
+
+            let theme = localStorage.getItem('terminal:theme');
+            let size = localStorage.getItem('terminal:font-size');
+            // HACK: Try to read the configuration from localStorage, if it does not exists fall back
+            // to the old configuration stored in a browser's cookie. After enough time has been
+            // passed this can be dropped.
+            if (theme === null || theme === "") {
+                theme = document.cookie.replace(/(?:(?:^|.*;\s*)theme_cookie\s*=\s*([^;]*).*$)|^.*$/, "$1");
+                if (theme !== "") {
+                    localStorage.setItem('terminal:theme', theme);
+                    this.invalidateCookie("theme_cookie");
+                }
+            }
+            if (size === null || size === "") {
+                size = document.cookie.replace(/(?:(?:^|.*;\s*)size_cookie\s*=\s*([^;]*).*$)|^.*$/, "$1");
+                if (size !== "") {
+                    localStorage.setItem('terminal:font-size', size);
+                    this.invalidateCookie("size_cookie");
+                }
+            }
+
             this.state = {
                 title: 'Terminal',
                 theme: theme || "black-theme",
@@ -70,29 +89,29 @@ const _ = cockpit.gettext;
             this.setState({ title });
         }
 
-        setCookie(key, value) {
-            const cookie = key + "=" + encodeURIComponent(value) +
-                         "; path=/; expires=Sun, 16 Jul 3567 06:23:41 GMT";
+        invalidateCookie(key) {
+            const cookie = key + "=''" +
+                         "; path=/; Max-Age=0;";
             document.cookie = cookie;
         }
 
         onPlus() {
             this.setState((state, _) => {
-                this.setCookie("size_cookie", state.size + 1);
+                localStorage.setItem('terminal:font-size', state.size + 1);
                 return { size: state.size + 1 };
             });
         }
 
         onMinus() {
             this.setState((state, _) => {
-                this.setCookie("size_cookie", state.size - 1);
+                localStorage.setItem('terminal:font-size', state.size - 1);
                 return { size: state.size - 1 };
             });
         }
 
         onThemeChanged(value) {
             this.setState({ theme: value });
-            this.setCookie("theme_cookie", value);
+            localStorage.setItem('terminal:theme', value);
         }
 
         onResetClick(event) {

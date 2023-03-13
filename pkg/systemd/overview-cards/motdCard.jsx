@@ -61,7 +61,7 @@ const MotdEditDialog = ({ text }) => {
                            {_("Save changes")}
                        </Button>
                        <Button variant='link'
-                               onClick={() => this.setState({ motdEditMode: false })}>
+                               onClick={Dialogs.close}>
                            {_("Cancel")}
                        </Button>
                    </>

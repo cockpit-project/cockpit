@@ -459,6 +459,11 @@ class TestSystemInfo(PackageCase):
         b.wait_visible('#motd-box')
         b.wait_text('#motd', "Hello again")
 
+        # Cancel button
+        b.click("#motd-box-edit")
+        b.click("#motd-box-edit-modal button.pf-m-link")
+        b.wait_not_present("motd-box-edit-modal")
+
         b.click("#motd-box-edit")
         b.set_input_text("#motd-box-edit-modal textarea", "Hello cockpit team")
         b.click("#motd-box-edit-modal button.pf-m-primary")

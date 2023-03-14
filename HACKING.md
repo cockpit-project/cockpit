@@ -8,51 +8,36 @@ Here's where to get the code:
 The remainder of the commands assume you're in the top level of the
 Cockpit git repository checkout.
 
-## Getting the development dependencies
+## Setting up development container
 
-Cockpit uses Node.js during development. Node.js is not used at runtime.
-To make changes on Cockpit you'll want to install Node.js.
+The cockpit team maintains a [cockpit/tasks container](https://quay.io/repository/cockpit/tasks)
+for both local development and CI. If you can install [toolbx](https://containertoolbx.org/) or
+[distrobox](https://distrobox.privatedns.org/) on your system, it is highly
+recommended to do that:
 
-On Debian/Ubuntu:
+ - It is *the* official environment for CI, known to work, and gives you reproducible results.
+ - It avoids having to install development packages on your main machine.
+ - It avoids having to map the build and test dependencies to package names of various distributions.
 
-    sudo apt install nodejs
+On Fedora/CentOS/RHEL based distributions, install toolbox with
 
-On Fedora:
+    sudo dnf install toolbox
 
-    sudo dnf install nodejs
+On Debian/Ubuntu based distributions, install it with
 
-On older OS releases you can use the [n utility](https://github.com/tj/n) to
-get a current version of nodejs.
+    sudo apt install podman-toolbox
 
-When relying on CI to run the test suite, this is all that is necessary to work
-on the JavaScript components of Cockpit.
+After that, create a cockpit development toolbox:
 
-To build the Cockpit binaries from source, required to run the integration tests
-locally (see [testing README](test/README.md)), you will need additional header
-files and other components. The following should work in a fresh Git clone:
+    toolbox create --image quay.io/cockpit/tasks -c cockpit
 
-    sudo dnf install dnf-utils python-srpm-macros
-    sudo dnf builddep --spec tools/cockpit.spec
+Enter the toolbox with
 
-For running the browser unit tests, the following dependencies are required:
+    toolbox enter cockpit
 
-    sudo dnf install chromium-headless dbus-daemon
-
-For running integration tests, the following dependencies are required:
-
-    sudo dnf install curl expect xz rpm-build chromium-headless \
-        libvirt-daemon-driver-storage-core libvirt-daemon-driver-qemu libvirt-client python3-libvirt \
-        python3-flake8 python3-pyyaml
-
-Creating VM images locally (not necessary for running tests) needs the
-following:
-
-    sudo dnf install virt-install
-
-Updating the `node_modules` (in case you need to modify `package.json`)
-requires npm to be installed.
-
-    sudo dnf install npm
+Your home directory, user D-Bus, etc. are shared with the host, so you can e.g.
+edit files as you usually do. Building and running tests happens inside the
+toolbox. If desired, you can install additional packages with `sudo dnf install`.
 
 ## Building
 
@@ -454,3 +439,30 @@ And you can run cockpit-ws and cockpit-bridge under valgrind like this:
 
 Note that cockpit-session and cockpit-bridge will run from the installed
 prefix, rather than your build tree.
+
+## Manually installing the development dependencies
+
+_If at all possible, use the cockpit/tasks container with toolbox/distrobox as
+documented above. Installing all necessary development packages manually on
+your machine is intrusive, error prone, difficult, and hard to debug._
+
+You will need at least node.js and NPM.
+
+On Fedora or CentOS (>= 9):
+
+    sudo dnf install npm
+
+On Debian/Ubuntu:
+
+    sudo apt install npm
+
+For running tests, the following dependencies are required:
+
+    sudo dnf install curl expect xz rpm-build chromium-headless dbus-daemon \
+        libvirt-daemon-driver-storage-core libvirt-daemon-driver-qemu libvirt-client python3-libvirt \
+        python3-flake8 python3-pyyaml
+
+For compiling the C parts, you will need the package build dependencies:
+
+    sudo dnf install dnf-utils python-srpm-macros
+    sudo dnf builddep --spec tools/cockpit.spec

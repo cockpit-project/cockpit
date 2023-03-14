@@ -483,56 +483,66 @@ $graphs: cpu, memory, disks, network;
     padding: 0;
   }
 
+  &-data.valid-data {
+    border-top: 1px solid rgb(0 0 0 / 30%);
+  }
+
   &-data {
-    display: grid;
-    contain: strict;
     margin-left: 0.5rem;
     margin-right: 0.5rem;
     // Make SVG and generated before/after line position relative to metrics-data
     position: relative;
 
-    // vertical ruler line for areas with data, and horizontal tick mark for utilization half
-    &.valid-data::before {
-      content: "";
-      position: absolute;
-      z-index: 1;
-      width: 100%;
-      top: 0;
-      bottom: 0;
-      border-right: 1px solid rgb(0 0 0 / 30%);
-    }
-
-    &.valid-data:not(.metrics-data-compressed).have-saturation::after,
-    &.valid-data:not(.metrics-data-compressed)::before {
-      border-top: 1px solid rgb(0 0 0 / 30%);
-    }
-
-    &.valid-data.have-saturation::before {
-      width: 50%;
-    }
-
-    // horizontal tick mark for saturation half, for resources that have it
-    &.valid-data.have-saturation::after {
-      content: "";
-      position: absolute;
-      z-index: 1;
-      width: 50%;
-      left: 50%;
-    }
-
-    > svg {
-      fill: var(--color);
-      min-width: 2px;
+    .polygons {
+      display: flex;
       width: 100%;
       height: 100%;
-      // WebKit has an issue with normal positioning (height exceeds bounds), but absolute works fine
-      position: absolute;
-      top: 0;
-      left: 0;
+
+      > div {
+        height: 100%;
+      }
+
+      > div:not(.polygon-border) {
+        width: 100%;
+      }
     }
 
-    .graph-red {
-      fill: red;
+    .polygon-border {
+      width: 1px;
+      background-color: rgb(0 0 0 / 30%);
+      position: relative;
+      z-index: 0;
+    }
+
+    .polygon {
+      // WebKit has an issue with normal positioning (height exceeds bounds), but absolute works fine
+      clip-path: polygon(var(--points));
+      transform: var(--transform);
+      background-color: var(--color);
+    }
+
+    .polygons-sat {
+      > div:not(.polygon-border) {
+        flex: 1;
+      }
+    }
+
+    .polygon-use {
+      margin-left: auto;
+      background-color: var(--color);
+    }
+
+    .polygon-sat {
+      opacity: 0.7;
+      background-color: var(--color);
+    }
+
+    .compressed .polygon-sat {
+      clip-path: inset(100% 100% 100% calc(var(--saturation) * 100%));
+    }
+
+    .compressed .polygon-use {
+      clip-path: inset(100% calc(var(--utilization) * 100%) 100% 100%);
     }
 
     @each $graph in $graphs {
@@ -540,67 +550,6 @@ $graphs: cpu, memory, disks, network;
         --color: var(--#{$graph}-color);
       }
     }
-
-    // compressed minutes without events are simple bars
-    .compressed {
-      display: grid;
-      grid-template-areas: ". utilization .";
-
-      --util-pct: calc(100% * var(--utilization));
-      grid-template-columns: calc(100% - var(--util-pct)) var(--util-pct);
-
-      > .saturation,
-      > .utilization {
-        background-color: var(--color);
-      }
-
-      > .utilization {
-        grid-area: utilization;
-      }
-
-      > .utilization-red {
-        grid-area: utilization-red;
-        background-color: red;
-      }
-
-      .saturation-red {
-        grid-area: saturation-red;
-        background-color: red;
-      }
-
-      > .saturation {
-        grid-area: saturation;
-        opacity: 0.7;
-      }
-    }
-
-    &.have-saturation .compressed {
-      grid-template-areas: ". utilization saturation .";
-      --util-pct: calc(50% * var(--utilization));
-      --sat-pct: calc(50% * var(--saturation));
-      grid-template-columns: calc(50% - var(--util-pct)) var(--util-pct) var(--sat-pct) calc(50% - var(--sat-pct));
-    }
-  }
-
-  // vertical dotted line through graph center, for areas without data
-  &-data::after {
-    content: "";
-    z-index: -1;
-    top: 0;
-    bottom: 0;
-    position: absolute;
-  }
-
-  &-data.empty-data::after {
-    position: initial;
-    border-right: 1px dotted rgb(0 0 0 / 30%);
-  }
-
-  &-data.empty-data.have-saturation::after {
-    position: absolute;
-    border-left: 1px dotted rgb(0 0 0 / 30%);
-    border-right: none;
-    left: 50%;
   }
 
   &-hour {

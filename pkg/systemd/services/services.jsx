@@ -205,7 +205,8 @@ class ServicesPageBody extends React.Component {
         this.knownIds = new Set();
 
         // active timers: object path → { LastTriggerTime, NextRunTime } (formatted strings)
-        this.timers = {};
+        // lazily initialized when actually showing the Timers tab
+        this.timers = null;
 
         /* ListUnitFiles() result; updated with daemon reload
            name/id (e.g. foo.service) → { Id, UnitFileState, ActiveState ("inactive" or empty for aliases) } */
@@ -326,7 +327,8 @@ class ServicesPageBody extends React.Component {
             if (!this.isUnitHandled(path))
                 return;
 
-            if (iface === s_bus.I_TIMER) {
+            // ignore when timers did not yet get shown
+            if (iface === s_bus.I_TIMER && this.timers !== null) {
                 if (!this.timers[path])
                     this.timers[path] = {};
                 this.addTimerProperties(props, this.timers[path]);
@@ -458,8 +460,6 @@ class ServicesPageBody extends React.Component {
 
         const dbus = systemd_client[this.props.owner];
         const units = {};
-        const timerPaths = [];
-        const timerPromises = [];
 
         Promise.all([
             dbus.call(s_bus.O_MANAGER, s_bus.I_MANAGER, "ListUnits", null),
@@ -482,11 +482,6 @@ class ServicesPageBody extends React.Component {
 
                         units[ObjectPath] = { Id, Description, LoadState, ActiveState };
                         this.knownIds.add(Id);
-                        if (Id.endsWith(".timer")) {
-                            timerPromises.push(dbus.call(ObjectPath, s_bus.I_PROPS, "GetAll",
-                                                         [s_bus.I_TIMER]));
-                            timerPaths.push(ObjectPath);
-                        }
                     });
 
                     // unloaded, but available unit files
@@ -508,21 +503,29 @@ class ServicesPageBody extends React.Component {
                     this.units = units;
                     this.unit_files = unit_files;
                     this.processFailedUnits();
-
-                    return Promise.all(timerPromises);
-                })
-                .then((timerResults) => {
-                    for (let i = 0; i < timerResults.length; i++) {
-                        const [timer_props] = timerResults[i];
-                        const unit = {};
-                        this.addTimerProperties(timer_props, unit);
-                        this.timers[timerPaths[i]] = unit;
-                    }
-
                     this.setState({ isFullyLoaded: true });
                 })
                 .catch(ex => this.setState({ error: cockpit.format(_("Listing units failed: $0"), ex.toString()) })) // not-covered: OS error
                 .finally(() => this.props.setIsLoading(false));
+    }
+
+    loadTimers() {
+        const dbus = systemd_client[this.props.owner];
+        const promises = [];
+        this.timers = {};
+        debug("Loading all timers");
+
+        Object.entries(this.units).forEach(([path, unit]) => {
+            if (unit.Id.endsWith(".timer")) {
+                promises.push(dbus.call(path, s_bus.I_PROPS, "GetAll", [s_bus.I_TIMER])
+                        .then(([props]) => {
+                            this.timers[path] = {};
+                            this.addTimerProperties(props, this.timers[path]);
+                        })
+                        .catch(ex => console.warn("Loading timer information for", path, "failed:", ex.toString()))); // not-covered: OS error
+            }
+        });
+        Promise.allSettled(promises).then(() => this.setState({}));
     }
 
     /**
@@ -646,12 +649,17 @@ class ServicesPageBody extends React.Component {
                 !filters.activeState.includes(this.activeState[unit.ActiveState]))
                 return;
 
-            const augmentedUnit = { ...unit, UnitFileState, ...this.timers[idx] };
+            const augmentedUnit = { ...unit, UnitFileState, ...this.timers?.[idx] };
             this.updateComputedProperties(augmentedUnit);
             selectedUnits.push([unit.Id, augmentedUnit]);
         });
 
         selectedUnits.sort(this.compareUnits);
+
+        // lazy-load timers
+        if (this.props.activeTab === 'timer' && this.timers === null)
+            this.loadTimers();
+
         return selectedUnits;
     }
 

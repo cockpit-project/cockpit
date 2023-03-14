@@ -18,23 +18,24 @@ from lib.constants import TEST_OS_DEFAULT
 
 def getMaximumSpike(test, g_type, saturation, hour, minute):
     # only for minutes with events, which have SVG graphs
-    sel = f"#metrics-hour-{hour} div.metrics-minute[data-minute={minute}] div.metrics-data-{g_type} polygon"
+    sel = f"#metrics-hour-{hour} div.metrics-minute[data-minute={minute}] div.metrics-data-{g_type} div"
     if saturation:
         sel += ":nth-child(2)"
     else:
         sel += ":first-child"
 
     points = test.browser.attr(sel, "points")
-    test.assertNotIn("NaN", points)
-    xs = [float(x.split(",")[0]) for x in points.split()]
+    xs = [float(x.split(" ")[0].rstrip("%")) for x in points.split(", ") if x != ""]
+    test.assertNotIn("NaN", xs)
 
-    return max(xs)
+    return max(xs) / 100
 
 
 def getCompressedMinuteValue(test, g_type, saturation, hour, minute):
     # only for minutes without events, which only have bars
 
-    sel = f"#metrics-hour-{hour} div.metrics-minute[data-minute={minute}] div.metrics-data-{g_type} .compressed"
+    polygon_class = ".polygon-sat" if saturation else ".polygon-use"
+    sel = f"#metrics-hour-{hour} div.metrics-minute[data-minute={minute}] div.metrics-data-{g_type} .compressed{polygon_class}"
     m = re.search(r"--%s:\s*([0-9.]+);" % (saturation and "saturation" or "utilization"), test.browser.attr(sel, "style"))
     test.assertIsNotNone(m)
     return float(m.group(1))

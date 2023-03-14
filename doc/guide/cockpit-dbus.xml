@@ -884,51 +884,6 @@ client.onmeta = (ev, data) => { ... }
       event for the relevant interface.</para>
   </refsection>
 
-  <refsection id="cockpit-dbus-meta">
-    <title>client.meta()</title>
-<programlisting>
-client.meta(data)
-</programlisting>
-    <para>Populate DBus introspection metadata about DBus interfaces. Usually this metadata
-      is automatically introspected from the DBus services called by the <code>client</code>,
-      but in certain cases it is useful to populate this info from javascript code. One such
-      case is when exporting a DBus service from javascript.</para>
-
-    <para>The <link linkend="cockpit-dbus-onmeta"><code>client.onmeta</code></link> event will
-      be emitted by this method call. It's documentation includes information about the form
-      of the <code>data</code>.</para>
-
-  </refsection>
-
-  <refsection id="cockpit-dbus-publish">
-    <title>client.publish()</title>
-<programlisting>
-published = client.publish(path, interface, object, [options])
-</programlisting>
-
-    <para>Publish a DBus <code>interface</code> at the specified object <code>path</code>.
-      Methods on the Javascript <code>object</code> will be invoked when DBus methods on the
-      specified <code>interface</code> are invoked by callers.</para>
-
-    <para>The meta data for the DBus interface must have been populated using the
-      <link linkend="cockpit-dbus-meta"><code>client.meta()</code></link> function. The
-      returned <code>published</code> object is a promise object. It will resolve when the
-      DBus interface has been published on the bus. It is not an error to publish the same
-      interface and path repeatedly: Previously published objects at the interface and
-      path are replaced by those published later.</para>
-  </refsection>
-
-  <refsection id="cockpit-dbus-published">
-    <title>published.remove()</title>
-<programlisting>
-published.remove()
-</programlisting>
-
-    <para>Un-publishes a DBus interface at an object path. This method can be invoked
-      on the <code>published</code> result returned from the
-      <link linkend="cockpit-dbus-publish"><code>client.publish()</code></link> function.</para>
-  </refsection>
-
   <refsection id="cockpit-dbus-variant">
     <title>cockpit.variant()</title>
 <programlisting>

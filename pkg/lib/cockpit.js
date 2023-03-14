@@ -3126,7 +3126,6 @@ function factory() {
 
         let channel = cockpit.channel(args);
         const subscribers = { };
-        const published = { };
         let calls = { };
         let cache;
 
@@ -3212,8 +3211,6 @@ function factory() {
                                 subscription.callback.apply(self, msg.signal);
                         }
                     }
-                } else if (msg.call) {
-                    handle(msg.call, msg.id);
                 } else if (msg.notify) {
                     notify(msg.notify);
                 } else if (msg.meta) {
@@ -3241,15 +3238,6 @@ function factory() {
             Object.assign(cache.meta, data);
             self.dispatchEvent("meta", data);
         }
-
-        self.meta = function(data, options) {
-            if (!channel || !channel.valid)
-                return;
-
-            const message = { ...options, meta: data };
-            send(JSON.stringify(message));
-            meta(data);
-        };
 
         function notify(data) {
             ensure_cache();
@@ -3386,85 +3374,6 @@ function factory() {
                     delete calls[id];
                 }
                 send(JSON.stringify({ unwatch: match }));
-            };
-            return ret;
-        };
-
-        function unknown_interface(path, iface) {
-            const message = "DBus interface " + iface + " not available at " + path;
-            return Promise.reject(new DBusError(["org.freedesktop.DBus.Error.UnknownInterface", [message]]));
-        }
-
-        function unknown_method(path, iface, method) {
-            const message = "DBus method " + iface + " " + method + " not available at " + path;
-            return Promise.reject(new DBusError(["org.freedesktop.DBus.Error.UnknownMethod", [message]]));
-        }
-
-        function not_implemented(path, iface, method) {
-            console.warn("method is not implemented properly: ", path, iface, method);
-            return unknown_method(path, iface, method);
-        }
-
-        function invoke(call) {
-            const path = call[0];
-            const iface = call[1];
-            const method = call[2];
-            const object = published[path + "\n" + iface];
-            const info = cache.meta[iface];
-            if (!object || !info)
-                return unknown_interface(path, iface);
-            if (!info.methods || !(method in info.methods))
-                return unknown_method(path, iface, method);
-            if (typeof object[method] != "function")
-                return not_implemented(path, iface, method);
-            return object[method].apply(object, call[3]);
-        }
-
-        function handle(call, cookie) {
-            const result = invoke(call);
-            if (!cookie)
-                return; /* Discard result */
-            cockpit.when(result).then(function() {
-                let out = Array.prototype.slice.call(arguments, 0);
-                if (out.length == 1 && typeof out[0] == "undefined")
-                    out = [];
-                send(JSON.stringify({ reply: [out], id: cookie }));
-            }, function(ex) {
-                const error = [];
-                error[0] = ex.name || " org.freedesktop.DBus.Error.Failed";
-                error[1] = [cockpit.message(ex) || error[0]];
-                send(JSON.stringify({ error, id: cookie }));
-            });
-        }
-
-        self.publish = function(path, iface, object, options) {
-            const publish = [path, iface];
-
-            const id = String(last_cookie);
-            last_cookie++;
-            const dfd = calls[id] = cockpit.defer();
-
-            const payload = JSON.stringify({ ...options, publish, id });
-
-            if (send(payload))
-                calls[id] = dfd;
-            else
-                dfd.reject(new DBusError(closed));
-
-            const key = path + "\n" + iface;
-            dfd.promise.then(function() {
-                published[key] = object;
-            });
-
-            /* Return a way to remove this object */
-            const ret = dfd.promise;
-            ret.remove = function remove() {
-                if (id in calls) {
-                    dfd.reject(new DBusError("cancelled"));
-                    delete calls[id];
-                }
-                delete published[key];
-                send(JSON.stringify({ unpublish: publish }));
             };
             return ret;
         };

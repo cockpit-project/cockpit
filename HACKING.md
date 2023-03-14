@@ -1,6 +1,6 @@
 # Hacking on Cockpit
 
-Here's where to get the code:
+Start by getting the code:
 
     git clone https://github.com/cockpit-project/cockpit
     cd cockpit/
@@ -45,6 +45,10 @@ Most contributors want to work on the web (HTML/JavaScript) parts of Cockpit.
 First install Cockpit on your local machine as described in:
 
 <https://cockpit-project.org/running.html>
+
+Cockpit uses a lot of build and runtime dependencies from [npm](https://www.npmjs.com). Get them with
+
+    tools/node-modules checkout
 
 Next run this command from your top level Cockpit checkout directory, and make
 sure to run it as the same user that you'll use to log into Cockpit below.

@@ -19,37 +19,37 @@ for more details and recommendations on ensuring it is enabled correctly.
 
 You first need to build cockpit, and install it into a VM:
 
-    $ test/image-prepare
+    test/image-prepare
 
 This uses the default OS image, which is currently Fedora 37. See `$TEST_OS`
 below how to select a different one.
 
 In most cases you want to run an individual test in a suite, for example:
 
-    $ test/verify/check-metrics TestCurrentMetrics.testCPU
+    test/verify/check-metrics TestCurrentMetrics.testCPU
 
 You can get a list of tests by inspecting the `def test*` in the source, or by
 running the suite with `-l`/`--list`:
 
-    $ test/verify/check-metrics -l
+    test/verify/check-metrics -l
 
 Sometimes you may also want to run all tests in a test file suite:
 
-    $ test/verify/check-session
+    test/verify/check-session
 
 To see more verbose output from the test, use the `-v`/`--verbose` and/or `-t`/`--trace` flags:
 
-    $ test/verify/check-session --verbose --trace
+    test/verify/check-session --verbose --trace
 
 If you specify `-s`/`--sit` in addition, then the test will wait on failure and
 allow you to log into cockpit and/or the test instance and diagnose the issue.
 The cockpit and SSH addresses of the test instance will be printed:
 
-    $ test/verify/check-session -st
+    test/verify/check-session -st
 
 You can also run *all* the tests, with some parallelism:
 
-    $ test/common/run-tests --test-dir test/verify --jobs 2
+    test/common/run-tests --test-dir test/verify --jobs 2
 
 However, this will take *really* long. You can specify a subset of tests (see
 `--help`); but usually it's better to run individual tests locally, and let the
@@ -63,11 +63,11 @@ that the initial run may take a few minutes.
 Normally each test starts its own chromium headless browser process on a
 separate random port. To interactively follow what a test is doing:
 
-    $ TEST_SHOW_BROWSER=1 test/verify/check-session --trace
+    TEST_SHOW_BROWSER=1 test/verify/check-session --trace
 
 You can also run a test against Firefox instead of Chromium:
 
-    $ TEST_BROWSER=firefox test/verify/check-session --trace
+    TEST_BROWSER=firefox test/verify/check-session --trace
 
 See below for details.
 
@@ -76,7 +76,7 @@ See below for details.
 You can conduct manual interactive testing against a test image by starting the
 image like so:
 
-     $ bots/vm-run -s cockpit.socket debian-stable
+     bots/vm-run -s cockpit.socket debian-stable
 
 Once the machine is booted and the cockpit socket has been activated, a
 message will be printed describing how to access the virtual machine, via
@@ -138,7 +138,7 @@ ignore the current overlay in `test/images`. It is thorough, but also rather
 slow. If you want to iterate on changing only JavaScript/HTML code, you can use
 this shortcut to copy updated webpacks into a prepared VM overlay image:
 
-    $ make && bots/image-customize -u dist:/usr/share/cockpit/ $TEST_OS
+    make && bots/image-customize -u dist:/usr/share/cockpit/ $TEST_OS
 
 Use `bots/vm-reset` to clean up all prepared overlays in `test/images`.
 
@@ -147,12 +147,12 @@ machine. Although be aware that lots of the tests change state on
 the target machine -- so only do this with the ones marked with
 `@nondestructive`.
 
-    $ test/verify/check-connection --machine=10.1.1.2 --browser 10.1.1.2:9090
+    test/verify/check-connection --machine=10.1.1.2 --browser 10.1.1.2:9090
 
 In particular, you can use our standard test VMs with this mode:
 
-    $ test/image-prepare
-    $ bots/vm-run fedora-37
+    test/image-prepare
+    bots/vm-run fedora-37
 
 Note the SSH and cockpit ports. If this is the only running VM, it will have
 the addresses in the example below, otherwise the port will be different.
@@ -160,7 +160,7 @@ the addresses in the example below, otherwise the port will be different.
 Now you can change the code (see [HACKING.md](../HACKING.md) for webpack watch
 mode), copy it into the VM, and run the test against it:
 
-    $ test/verify/check-connection --machine 127.0.0.2:2201 --browser 127.0.0.2:9091
+    test/verify/check-connection --machine 127.0.0.2:2201 --browser 127.0.0.2:9091
 
 ## Debugging tests
 

@@ -355,6 +355,7 @@ WantedBy=default.target
             self.goto_service("deleteme.timer")
             self.do_action("Delete")
             b.click("#delete-timer-modal-btn")
+            b.wait_not_present(".pf-c-modal-box")
             self.wait_page_load()
             self.assertNotIn("deleteme", m.execute("systemctl list-timers"))
             m.execute(f"! test -f {path}/deleteme.service")

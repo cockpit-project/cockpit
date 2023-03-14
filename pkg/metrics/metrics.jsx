@@ -854,8 +854,8 @@ const SvgGraph = ({ data, resource, have_sat }) => {
     return (
         <div className={"polygons" + (have_sat ? " polygons-sat" : "")}>
             <div
-                 className="polygon"
-                 style={{ "--points": dataPoints("use_" + resource), "--transform": "scaleX(-1)" }}
+                 className="polygon polygon-use"
+                 style={{ "--points": dataPoints("use_" + resource) }}
             />
             <div className="polygon-border" />
             { have_sat && <div

@@ -324,6 +324,11 @@ $graphs: cpu, memory, disks, network;
   --disks-color: lightgreen;
   --network-color: lightsalmon;
 
+  --cpu-color-extreme: mediumorchid;
+  --memory-color-extreme: darkturquoise;
+  --disks-color-extreme: green;
+  --network-color-extreme: salmon;
+
   --column-size: 10vw;
   --half-column-size: 8vw;
   --data-min-height: 5px;
@@ -483,7 +488,7 @@ $graphs: cpu, memory, disks, network;
     padding: 0;
   }
 
-  &-data.valid-data {
+  &-hour:not(.metrics-hour-compressed) .metrics-data.valid-data {
     border-top: 1px solid rgb(0 0 0 / 30%);
   }
 
@@ -517,8 +522,7 @@ $graphs: cpu, memory, disks, network;
     .polygon {
       // WebKit has an issue with normal positioning (height exceeds bounds), but absolute works fine
       clip-path: polygon(var(--points));
-      transform: var(--transform);
-      background-color: var(--color);
+      background: linear-gradient(to right, var(--color) 80%, var(--color-extreme) 100%);
     }
 
     .polygons-sat {
@@ -527,27 +531,33 @@ $graphs: cpu, memory, disks, network;
       }
     }
 
+    .polygon.polygon-use {
+      transform: scale(-1);
+      background: linear-gradient(to right, var(--color) 80%, var(--color-extreme) 100%);
+    }
+
     .polygon-use {
       margin-left: auto;
-      background-color: var(--color);
     }
 
     .polygon-sat {
       opacity: 0.7;
-      background-color: var(--color);
     }
 
     .compressed .polygon-sat {
       clip-path: inset(100% 100% 100% calc(var(--saturation) * 100%));
+      background: linear-gradient(to right, var(--color) 80%, var(--color-extreme) 100%);
     }
 
     .compressed .polygon-use {
       clip-path: inset(100% calc(var(--utilization) * 100%) 100% 100%);
+      background: linear-gradient(to left, var(--color) 80%, var(--color-extreme) 100%);
     }
 
     @each $graph in $graphs {
       &-#{$graph} {
         --color: var(--#{$graph}-color);
+        --color-extreme: var(--#{$graph}-color-extreme);
       }
     }
   }

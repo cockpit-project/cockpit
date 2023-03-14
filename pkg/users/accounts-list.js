@@ -58,7 +58,7 @@ const GroupActions = ({ group, accounts }) => {
 
     const actions = [
         <DropdownItem key="delete-group"
-                      className={group.uid === 0 ? "" : "delete-resource-red"}
+                      className="delete-resource-red"
                       onClick={() => { setKebabOpen(false); delete_group_dialog(group) }}>
             {_("Delete group")}
         </DropdownItem>,

@@ -39,7 +39,55 @@ Your home directory, user D-Bus, etc. are shared with the host, so you can e.g.
 edit files as you usually do. Building and running tests happens inside the
 toolbox. If desired, you can install additional packages with `sudo dnf install`.
 
-## Building
+## Working on Cockpit's session pages
+
+Most contributors want to work on the web (HTML/JavaScript) parts of Cockpit.
+First install Cockpit on your local machine as described in:
+
+<https://cockpit-project.org/running.html>
+
+Next run this command from your top level Cockpit checkout directory, and make
+sure to run it as the same user that you'll use to log into Cockpit below.
+
+    mkdir -p ~/.local/share/
+    ln -s $(pwd)/dist ~/.local/share/cockpit
+
+This will cause cockpit to read JavaScript and HTML files directly from the
+built package output directory instead of using the installed Cockpit UI files.
+
+Now you can log into Cockpit on your local Linux machine at the following
+address. Use the same user and password that you used to log into your Linux
+desktop.
+
+<http://localhost:9090>
+
+After every change to your sources the bundles need to be rebuilt. The
+recommended and fastest way is to do that in "watch" mode on the particular
+page that you are working on:
+
+    tools/webpack-watch systemd
+
+Note that this enables eslint by default -- if you want to disable it, run it
+with `-e`/`--no-eslint`.
+
+Then reload cockpit in your browser after page is built. Press Control-C to
+stop watch mode once you are done with changing the code.
+
+Often you need to test your code in a VM. There is an `-r`/`--rsync`
+option for copying the built page into the given SSH target's
+/usr/share/cockpit/ directory. If you use cockpit's own test VMs and set up the
+SSH `c` alias as described in [test/README.md](./test/README.md), you can use
+one of these commands:
+
+    tools/webpack-make.js kdump -r c
+    tools/webpack-watch kdump -r c
+
+To make Cockpit again use the installed code, rather than that from your git
+checkout directory, run the following, and log into Cockpit again:
+
+    rm ~/.local/share/cockpit
+
+## Working on the non-web parts of Cockpit
 
 Cockpit uses the autotools and thus there are the familiar `./configure`
 script and Makefile targets.
@@ -74,7 +122,7 @@ directory. For QUnit tests (JavaScript), you can run
     ./test-server
 
 which will output a URL to connect to with a browser, such as
-`http://localhost:8765/dist/base1/test-dbus.html`. Adjust the path for different
+<http://localhost:8765/dist/base1/test-dbus.html>. Adjust the path for different
 tests and inspect the results there.
 
 You can also run individual tests by specifying the `TESTS` environment
@@ -168,55 +216,6 @@ This speeds up the build and avoids build failures due to e. g. ill-formatted
 css or other issues:
 
     make STYLELINT=0
-
-## Working on your local machine: Cockpit's session pages
-
-It's easy to set up your local Linux machine for rapid development of Cockpit's
-JavaScript code (in pkg/). First install Cockpit on your local machine as
-described in:
-
-<https://cockpit-project.org/running.html>
-
-Next run this command from your top level Cockpit checkout directory, and make
-sure to run it as the same user that you'll use to log into Cockpit below.
-
-    mkdir -p ~/.local/share/
-    ln -s $(pwd)/dist ~/.local/share/cockpit
-
-This will cause cockpit to read JavaScript and HTML files directly from the
-built package output directory instead of using the installed Cockpit UI files.
-
-Now you can log into Cockpit on your local Linux machine at the following
-address. Use the same user and password that you used to log into your Linux
-desktop.
-
-<http://localhost:9090>
-
-After every change to your sources the webpacks need to be rebuilt: You can just
-run `make` to update everything that has changed; for iterating faster, you can
-run webpack in "watch" mode on the particular page that you are working on,
-which reduces the build time to less than a third. E. g.
-
-    tools/webpack-watch systemd
-
-Note that this enables eslint by default -- if you want to disable it, run it
-with `-e`/`--no-eslint`.
-
-Then reload cockpit in your browser after building the page.
-
-Often you need to test your code in a VM. `webpack-make.js` has an `-r`/`--rsync`
-option for copying the built webpack into the given SSH target's
-/usr/share/cockpit/ directory. If you use cockpit's own test VMs and set up the
-SSH `c` alias as described in [test/README.md](./test/README.md), you can use
-one of these commands:
-
-    tools/webpack-make.js kdump -r c
-    tools/webpack-watch kdump -r c
-
-To make Cockpit again use the installed code, rather than that from your git
-checkout directory, run the following, and log into Cockpit again:
-
-    rm ~/.local/share/cockpit
 
 ## Working on your local machine: Web server
 

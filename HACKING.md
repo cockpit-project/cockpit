@@ -2,8 +2,8 @@
 
 Here's where to get the code:
 
-    $ git clone https://github.com/cockpit-project/cockpit
-    $ cd cockpit/
+    git clone https://github.com/cockpit-project/cockpit
+    cd cockpit/
 
 The remainder of the commands assume you're in the top level of the
 Cockpit git repository checkout.
@@ -15,11 +15,11 @@ To make changes on Cockpit you'll want to install Node.js.
 
 On Debian/Ubuntu:
 
-    $ sudo apt install nodejs
+    sudo apt install nodejs
 
 On Fedora:
 
-    $ sudo dnf install nodejs
+    sudo dnf install nodejs
 
 On older OS releases you can use the [n utility](https://github.com/tj/n) to
 get a current version of nodejs.
@@ -31,28 +31,28 @@ To build the Cockpit binaries from source, required to run the integration tests
 locally (see [testing README](test/README.md)), you will need additional header
 files and other components. The following should work in a fresh Git clone:
 
-    $ sudo dnf install dnf-utils python-srpm-macros
-    $ sudo dnf builddep --spec tools/cockpit.spec
+    sudo dnf install dnf-utils python-srpm-macros
+    sudo dnf builddep --spec tools/cockpit.spec
 
 For running the browser unit tests, the following dependencies are required:
 
-    $ sudo dnf install chromium-headless dbus-daemon
+    sudo dnf install chromium-headless dbus-daemon
 
 For running integration tests, the following dependencies are required:
 
-    $ sudo dnf install curl expect xz rpm-build chromium-headless \
+    sudo dnf install curl expect xz rpm-build chromium-headless \
         libvirt-daemon-driver-storage-core libvirt-daemon-driver-qemu libvirt-client python3-libvirt \
         python3-flake8 python3-pyyaml
 
 Creating VM images locally (not necessary for running tests) needs the
 following:
 
-    $ sudo dnf install virt-install
+    sudo dnf install virt-install
 
 Updating the `node_modules` (in case you need to modify `package.json`)
 requires npm to be installed.
 
-    $ sudo dnf install npm
+    sudo dnf install npm
 
 ## Building
 
@@ -62,7 +62,7 @@ script and Makefile targets.
 After a fresh clone of the Cockpit sources, you need to prepare them by running
 `autogen.sh` like this:
 
-    $ ./autogen.sh --prefix=/usr --enable-debug
+    ./autogen.sh --prefix=/usr --enable-debug
 
 As shown, `autogen.sh` runs 'configure' with the given options, and it also
 prepares the build tree by downloading various nodejs dependencies.
@@ -72,21 +72,21 @@ run `./autogen.sh` instead of `./configure`.
 
 Then run
 
-    $ make
+    make
 
 to build everything. Cockpit has a single non-recursive Makefile. You can only
 run `make` from the top-level and it will always rebuild the whole project.
 
 You can run unit tests of the current checkout:
 
-    $ make check
+    make check
 
 These should finish very quickly and it is good practice to do it often.
 
 For debugging individual tests, there are compiled binaries in the build
 directory. For QUnit tests (JavaScript), you can run
 
-    $ ./test-server
+    ./test-server
 
 which will output a URL to connect to with a browser, such as
 `http://localhost:8765/dist/base1/test-dbus.html`. Adjust the path for different
@@ -95,27 +95,27 @@ tests and inspect the results there.
 You can also run individual tests by specifying the `TESTS` environment
 variable:
 
-    $ make check TESTS=dist/base1/test-chan.html
+    make check TESTS=dist/base1/test-chan.html
 
 There are also static code and syntax checks which you should run often:
 
-    $ test/static-code
+    test/static-code
 
 It is highly recommended to set up a git pre-push hook, to avoid pushing PRs
 that will fail on trivial errors:
 
-    $ ln -s ../../tools/git-hook-pre-push .git/hooks/pre-push
+    ln -s ../../tools/git-hook-pre-push .git/hooks/pre-push
 
 This calls `test/static-code` for each commit you're trying to push.
 
 You can also set up a post-commit hook to do the same, after each commit:
 
-    $ ln -s ../../tools/git-hook-post-commit .git/hooks/post-commit
+    ln -s ../../tools/git-hook-post-commit .git/hooks/post-commit
 
 We also have a hook to ameliorate one of the more annoying drawbacks of using
 git submodules:
 
-    $ ln -s ../../tools/git-hook-pre-rebase .git/hooks/pre-rebase
+    ln -s ../../tools/git-hook-pre-rebase .git/hooks/pre-rebase
 
 ## Running the integration test suite
 
@@ -147,11 +147,11 @@ The linter is executed within every build as a webpack preloader.
 
 For developer convenience, the ESLint can be started explicitly by:
 
-    $ npm run eslint
+    npm run eslint
 
 Violations of some rules can be fixed automatically by:
 
-    $ npm run eslint:fix
+    npm run eslint:fix
 
 Rules configuration can be found in the `.eslintrc.json` file.
 
@@ -159,7 +159,7 @@ During fast iterative development, you can also choose to not run eslint. This
 speeds up the build and avoids build failures due to e. g.  ill-formatted
 comments or unused identifiers:
 
-    $ make ESLINT=0
+    make ESLINT=0
 
 ## Running stylelint
 
@@ -170,11 +170,11 @@ The linter is executed within every build as a webpack preloader.
 
 For developer convenience, the Stylelint can be started explicitly by:
 
-    $ npm run stylelint
+    npm run stylelint
 
 Violations of some rules can be fixed automatically by:
 
-    $ npm run stylelint:fix
+    npm run stylelint:fix
 
 Rules configuration can be found in the `.stylelintrc.json` file.
 
@@ -182,7 +182,7 @@ During fast iterative development, you can also choose to not run stylelint.
 This speeds up the build and avoids build failures due to e. g. ill-formatted
 css or other issues:
 
-    $ make STYLELINT=0
+    make STYLELINT=0
 
 ## Working on your local machine: Cockpit's session pages
 
@@ -195,8 +195,8 @@ described in:
 Next run this command from your top level Cockpit checkout directory, and make
 sure to run it as the same user that you'll use to log into Cockpit below.
 
-    $ mkdir -p ~/.local/share/
-    $ ln -s $(pwd)/dist ~/.local/share/cockpit
+    mkdir -p ~/.local/share/
+    ln -s $(pwd)/dist ~/.local/share/cockpit
 
 This will cause cockpit to read JavaScript and HTML files directly from the
 built package output directory instead of using the installed Cockpit UI files.
@@ -212,7 +212,7 @@ run `make` to update everything that has changed; for iterating faster, you can
 run webpack in "watch" mode on the particular page that you are working on,
 which reduces the build time to less than a third. E. g.
 
-    $ tools/webpack-watch systemd
+    tools/webpack-watch systemd
 
 Note that this enables eslint by default -- if you want to disable it, run it
 with `-e`/`--no-eslint`.
@@ -231,37 +231,37 @@ one of these commands:
 To make Cockpit again use the installed code, rather than that from your git
 checkout directory, run the following, and log into Cockpit again:
 
-    $ rm ~/.local/share/cockpit
+    rm ~/.local/share/cockpit
 
 ## Working on your local machine: Web server
 
 To test changes to the login page or any other resources, you can bind-mount the
 build tree's `dist/static/` directory over the  system one:
 
-    $ sudo mount -o bind dist/static/ /usr/share/cockpit/static/
+    sudo mount -o bind dist/static/ /usr/share/cockpit/static/
 
 Likewise, to test changes to the branding, use
 
-    $ sudo mount -o bind src/branding/ /usr/share/cockpit/branding/
+    sudo mount -o bind src/branding/ /usr/share/cockpit/branding/
 
 After that, run `systemctl stop cockpit.service` to ensure that the web server
 restarts on the next browser request.
 
 To make Cockpit again use the system-installed code, simply umount these again:
 
-    $ sudo umount /usr/share/cockpit/static/ /usr/share/cockpit/branding/
-    $ systemctl stop cockpit.service
+    sudo umount /usr/share/cockpit/static/ /usr/share/cockpit/branding/
+    systemctl stop cockpit.service
 
 Similarly, if you change cockpit-ws itself, you can make the system (systemd
 units, cockpit-tls, etc.) use that:
 
-    $ sudo mount -o bind cockpit-ws /usr/libexec/cockpit-ws
+    sudo mount -o bind cockpit-ws /usr/libexec/cockpit-ws
 
 On Debian based OSes, the path will be `/usr/lib/cockpit/cockpit-ws` instead.
 
 You need to disable SELinux with
 
-    $ sudo setenforce 0
+    sudo setenforce 0
 
 for this to work, as your local build tree does not otherwise have the expected
 SELinux type.
@@ -272,21 +272,21 @@ set correctly, by default they are set to `/usr/local`.
 On RPM based systems this can be set using an autogen.sh argument, and
 afterwards you need to rebuild:
 
-    $ ./autogen.sh rpm
+    ./autogen.sh rpm
 
 ## Installation from upstream sources
 
-    $ make
-    $ sudo make install
+    make
+    sudo make install
 
 This will install Cockpit and all support files. If you have a
 Fedora/RHEL/CentOS based distribution, install a PAM configuration with
 
-    $ sudo cp tools/cockpit.pam /etc/pam.d/cockpit
+    sudo cp tools/cockpit.pam /etc/pam.d/cockpit
 
 If you have a Debian/Ubuntu based distribution, install this PAM config instead:
 
-    $ sudo cp tools/cockpit.debian.pam /etc/pam.d/cockpit
+    sudo cp tools/cockpit.debian.pam /etc/pam.d/cockpit
 
 For other distributions you need to create a PAM config yourself.
 
@@ -356,15 +356,17 @@ This video should be uploaded to Youtube or another service that allows video
 embedding. Use a command like this to record a video including the browser
 frame:
 
-    $ recordmydesktop -x 1 -y 200 --width 1024 --height 576 \
-        --fps 24 --freq 44100 --v_bitrate 2000000
+```
+recordmydesktop -x 1 -y 200 --width 1024 --height 576 \
+   --fps 24 --freq 44100 --v_bitrate 2000000
+```
 
 You can also resize your browser window and move it to the right location with
 a script. In Firefox you can open the Scratchpad (`Shift+F4`) and enter the
 following commands:
 
-    $ window.resizeTo(1024, 576);
-    $ window.moveTo(1, 200);
+    window.resizeTo(1024, 576);
+    window.moveTo(1, 200);
 
 Then run it with `Ctrl+R` when the browser is showing an empty tab, e.g.
 `about:newtab`. You may need to adjust the positions for your environment.
@@ -374,16 +376,16 @@ Then run it with `Ctrl+R` when the browser is showing an empty tab, e.g.
 All messages from the various cockpit processes go to the journal and can be
 seen with commands like:
 
-    $ sudo journalctl -f
+    sudo journalctl -f
 
 Much of Cockpit has more verbose internal debug logging that can be enabled when
 trying to track down a problem. To turn it on add a file to your system like
 this:
 
-    $ sudo mkdir -p /etc/systemd/system/cockpit.service.d
-    $ sudo sh -c 'printf "[Service]\nEnvironment=G_MESSAGES_DEBUG=cockpit-ws,cockpit-bridge\nUser=root\nGroup=\n" > /etc/systemd/system/cockpit.service.d/debug.conf'
-    $ sudo systemctl daemon-reload
-    $ sudo systemctl restart cockpit
+    sudo mkdir -p /etc/systemd/system/cockpit.service.d
+    sudo sh -c 'printf "[Service]\nEnvironment=G_MESSAGES_DEBUG=cockpit-ws,cockpit-bridge\nUser=root\nGroup=\n" > /etc/systemd/system/cockpit.service.d/debug.conf'
+    sudo systemctl daemon-reload
+    sudo systemctl restart cockpit
 
 In the above command you'll notice the string "cockpit-ws". This is a log
 domain. There are various log domains you can enable:
@@ -395,9 +397,9 @@ domain. There are various log domains you can enable:
 
 To revert the above logging changes:
 
-    $ sudo rm /etc/systemd/system/cockpit.service.d/debug.conf
-    $ sudo systemctl daemon-reload
-    $ sudo systemctl restart cockpit
+    sudo rm /etc/systemd/system/cockpit.service.d/debug.conf
+    sudo systemctl daemon-reload
+    sudo systemctl restart cockpit
 
 ## Debug logging in Javascript console
 
@@ -439,15 +441,15 @@ cockpit-bridge, etc.)
 
 This is how you would run cockpit-ws under gdb:
 
-    $ export G_DEBUG=fatal-criticals
-    $ export G_MESSAGES_DEBUG=cockpit-ws,cockpit-wrapper,cockpit-bridge
-    $ gdb --args ./cockpit-ws --port 10000 --no-tls
+    export G_DEBUG=fatal-criticals
+    export G_MESSAGES_DEBUG=cockpit-ws,cockpit-wrapper,cockpit-bridge
+    gdb --args ./cockpit-ws --port 10000 --no-tls
 
 And you can run cockpit-ws and cockpit-bridge under valgrind like this:
 
-    $ export G_DEBUG=fatal-criticals
-    $ export G_MESSAGES_DEBUG=cockpit-ws,cockpit-wrapper,cockpit-bridge
-    $ valgrind --trace-children=yes --trace-children-skip='*unix_chkpwd*' \
+    export G_DEBUG=fatal-criticals
+    export G_MESSAGES_DEBUG=cockpit-ws,cockpit-wrapper,cockpit-bridge
+    valgrind --trace-children=yes --trace-children-skip='*unix_chkpwd*' \
           ./cockpit-ws --port 10000 --no-tls
 
 Note that cockpit-session and cockpit-bridge will run from the installed

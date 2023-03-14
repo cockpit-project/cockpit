@@ -241,6 +241,10 @@ Description=Delete Me Timer
 
 [Timer]
 OnCalendar=*:1/2
+
+# just for user mode
+[Install]
+WantedBy=default.target
 """)
         self.write_file(f"{path}/special@:-characters.service",
                         """
@@ -255,6 +259,10 @@ WantedBy=default.target
 """)
 
         self.make_test_service(path)
+        # ensure we have one running timer; in user mode we do not have
+        # a running logind session at this point yet, so enable instead
+        self.run_systemctl(False, ("enable --global --runtime" if user else "start") + " deleteme.timer")
+        self.addCleanup(self.run_systemctl, user, "stop deleteme.timer || true")
 
         url = "/system/services#/?owner=user" if user else "/system/services"
         self.login_and_go(url, user="admin")
@@ -317,6 +325,9 @@ WantedBy=default.target
         b.wait_visible(self.svc_sel('test.timer'))
         b.wait_text(self.svc_sel('test.timer') + ' .service-unit-triggers', '')
         today = b.eval_js("Intl.DateTimeFormat('en', { dateStyle: 'medium' }).format()")
+        # timer from initial page/units load
+        b.wait_in_text(self.svc_sel('deleteme.timer') + ' .service-unit-next-trigger', today)
+        # timer gets updated on PropertiesChanged event
         self.run_systemctl(user, "start test.timer")
         b.wait_in_text(self.svc_sel('test.timer') + ' .service-unit-next-trigger', today)  # next run
         b.wait_in_text(self.svc_sel('test.timer') + ' .service-unit-last-trigger', "unknown")  # last trigger

@@ -485,7 +485,7 @@ class ServicesPageBody extends React.Component {
                         if (Id.endsWith(".timer")) {
                             timerPromises.push(dbus.call(ObjectPath, s_bus.I_PROPS, "GetAll",
                                                          [s_bus.I_TIMER]));
-                            timerPaths.push(Id);
+                            timerPaths.push(ObjectPath);
                         }
                     });
 

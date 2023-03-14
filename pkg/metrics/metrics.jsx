@@ -846,23 +846,24 @@ class CurrentMetrics extends React.Component {
 
 const SvgGraph = ({ data, resource, have_sat }) => {
     const dataPoints = key => (
-        "0,0 " + // start polygon at (0, 0)
-        data.map((samples, index) => (samples && typeof samples[key] === 'number') ? samples[key].toString() + "," + index.toString() : "").join(" ") +
-        " 0," + (data.length - 1) // close polygon
+        "0 0, " + // start polygon at (0, 0)
+        data.map((samples, index) => (samples && typeof samples[key] === 'number') ? parseInt(samples[key] * 100).toString() + "% " + (((index / SVG_YMAX) * 100).toString() + "%") : "").join(", ") +
+        ", 0 " + ((data.length - 1) / SVG_YMAX) * 100 + "%" // close polygon
     );
 
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox={ "0 0 2 " + SVG_YMAX } preserveAspectRatio="none">
-            <polygon
-                 transform={ have_sat ? "matrix(-1,0,0,-1,1," + SVG_YMAX + ")" : "matrix(-2,0,0,-1,2," + SVG_YMAX + ")" }
-                 points={ dataPoints("use_" + resource) }
+        <>
+            <div
+                 className="polygon polygon-use"
+                 style={{ "--points": dataPoints("use_" + resource) }}
+                 points={dataPoints("use_" + resource)}
             />
-            { have_sat && <polygon
-                transform={ "matrix(1,0,0,-1,1," + SVG_YMAX + ")" }
-                points={ dataPoints("sat_" + resource) }
-                opacity="0.7"
+            { have_sat && <div
+                className="polygon polygon-sat"
+                style={{ "--points": dataPoints("sat_" + resource) }}
+                points={dataPoints("sat_" + resource)}
             /> }
-        </svg>
+        </>
     );
 };
 
@@ -961,10 +962,10 @@ class MetricsMinute extends React.Component {
                 graph = <SvgGraph key={resource} data={this.props.data} resource={resource} have_sat={have_sat} />;
             } else if (first) {
                 // render simple bars for "compressed" minutes without events
-                graph = <div key={resource} className="compressed" style={{ "--utilization": first["use_" + resource] || 0, "--saturation": first["sat_" + resource] || 0 }}>
-                    <div className="utilization" />
-                    { have_sat && <div className="saturation" /> }
-                </div>;
+                graph = <>
+                    <div className="polygon-use compressed" style={{ "--utilization": first["use_" + resource] || 0 }} />
+                    { have_sat && <div className="polygon-sat compressed" style={{ "--saturation": first["sat_" + resource] || 0 }} /> }
+                </>;
             }
 
             return (

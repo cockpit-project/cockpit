@@ -490,6 +490,7 @@ $graphs: cpu, memory, disks, network;
     margin-right: 0.5rem;
     // Make SVG and generated before/after line position relative to metrics-data
     position: relative;
+    grid-template-areas: "utilization";
 
     // vertical ruler line for areas with data, and horizontal tick mark for utilization half
     &.valid-data::before {
@@ -520,15 +521,15 @@ $graphs: cpu, memory, disks, network;
       left: 50%;
     }
 
-    > svg {
-      fill: var(--color);
-      min-width: 2px;
-      width: 100%;
-      height: 100%;
+    .polygon {
       // WebKit has an issue with normal positioning (height exceeds bounds), but absolute works fine
       position: absolute;
       top: 0;
       left: 0;
+      clip-path: polygon(var(--points));
+      background-color: var(--color);
+      height: 100%;
+      width: 100%;
     }
 
     @each $graph in $graphs {
@@ -537,35 +538,32 @@ $graphs: cpu, memory, disks, network;
       }
     }
 
-    // compressed minutes without events are simple bars
-    .compressed {
-      display: grid;
-      grid-template-areas: ". utilization .";
-
-      --util-pct: calc(100% * var(--utilization));
-      grid-template-columns: calc(100% - var(--util-pct)) var(--util-pct);
-
-      > .saturation,
-      > .utilization {
-        background-color: var(--color);
-      }
-
-      > .utilization {
-        grid-area: utilization;
-      }
-
-      > .saturation {
-        grid-area: saturation;
-        opacity: 0.7;
-      }
+    .polygon.polygon-use {
+      transform: scale(-1);
     }
 
-    &.have-saturation .compressed {
-      grid-template-areas: ". utilization saturation .";
-      --util-pct: calc(50% * var(--utilization));
-      --sat-pct: calc(50% * var(--saturation));
-      grid-template-columns: calc(50% - var(--util-pct)) var(--util-pct) var(--sat-pct) calc(50% - var(--sat-pct));
+    .polygon-use {
+      background-color: var(--color);
+      grid-area: utilization;
     }
+
+    .polygon-sat {
+      opacity: 0.7;
+      background-color: var(--color);
+      grid-area: saturation;
+    }
+
+    .compressed.polygon-sat {
+      clip-path: inset(100% 100% 100% calc(var(--saturation) * 100%));
+    }
+
+    .compressed.polygon-use {
+      clip-path: inset(100% calc(var(--utilization) * 100%) 100% 100%);
+    }
+  }
+
+  &-data.have-saturation {
+    grid-template-areas: "utilization saturation";
   }
 
   // vertical dotted line through graph center, for areas without data

@@ -25,10 +25,28 @@ from typing import Dict, Optional
 logger = logging.getLogger(__name__)
 
 
-class CockpitProtocolError(Exception):
-    def __init__(self, message, problem='protocol-error'):
+class CockpitProblem(Exception):
+    """A type of exception that carries a problem code and a message.
+
+    Depending on the scope, this is used to handle shutting down:
+
+      - an individual channel (sends problem code in the close message)
+      - peer connections (sends problem code in close message for each open channel)
+      - the main stdio interaction with the bridge
+
+    It is usually thrown in response to some violation of expected protocol
+    when parsing messages, connecting to a peer, or opening a channel.
+    """
+    def __init__(self, problem: str, message: str, **kwargs):
         super().__init__(message)
+        self.message = message
         self.problem = problem
+        self.kwargs = kwargs
+
+
+class CockpitProtocolError(CockpitProblem):
+    def __init__(self, message, problem='protocol-error'):
+        super().__init__(problem, message)
 
 
 class CockpitProtocol(asyncio.Protocol):
@@ -39,12 +57,13 @@ class CockpitProtocol(asyncio.Protocol):
     """
     transport: Optional[asyncio.Transport] = None
     buffer = b''
+    _closed: bool = False
     _communication_done: Optional[asyncio.Future] = None
 
     def do_ready(self) -> None:
         raise NotImplementedError
 
-    def do_closed(self, transport_was: asyncio.Transport, exc: Optional[Exception]) -> None:
+    def do_closed(self, exc: Optional[Exception]) -> None:
         pass
 
     def transport_control_received(self, command: str, message: Dict[str, object]) -> None:
@@ -100,12 +119,17 @@ class CockpitProtocol(asyncio.Protocol):
         header = bytes(view[:10])
         try:
             newline = header.index(b'\n')
-        except ValueError as exc:
+        except ValueError:
             if len(header) < 10:
                 # Let's try reading more
                 return len(header) - 10
-            raise ValueError("size line is too long") from exc
-        length = int(header[:newline])
+            raise CockpitProtocolError("size line is too long")
+
+        try:
+            length = int(header[:newline])
+        except ValueError:
+            raise CockpitProtocolError("frame size is not an integer")
+
         start = newline + 1
         end = start + length
 
@@ -122,12 +146,25 @@ class CockpitProtocol(asyncio.Protocol):
         self.transport = transport
         self.do_ready()
 
+        if self._closed:
+            logger.debug('  but the protocol already was closed, so closing transport')
+            transport.close()
+
     def connection_lost(self, exc):
         logger.debug('connection_lost')
         assert self.transport is not None
-        transport_was = self.transport
         self.transport = None
-        self.do_closed(transport_was, exc)
+        self.close(exc)
+
+    def close(self, exc: Optional[Exception] = None) -> None:
+        if self._closed:
+            return
+        self._closed = True
+
+        if self.transport:
+            self.transport.close()
+
+        self.do_closed(exc)
 
         if self._communication_done is not None:
             if exc is None:
@@ -169,12 +206,15 @@ class CockpitProtocol(asyncio.Protocol):
         self.write_message('', **kwargs)
 
     def data_received(self, data):
-        self.buffer += data
-        while True:
-            result = self.consume_one_frame(self.buffer)
-            if result <= 0:
-                return
-            self.buffer = self.buffer[result:]
+        try:
+            self.buffer += data
+            while True:
+                result = self.consume_one_frame(self.buffer)
+                if result <= 0:
+                    return
+                self.buffer = self.buffer[result:]
+        except CockpitProtocolError as exc:
+            self.close(exc)
 
     async def communicate(self) -> None:
         """Wait until communication is complete on this protocol."""

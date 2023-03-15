@@ -20,12 +20,13 @@ import cockpit from "cockpit";
 import React, { useState } from "react";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { DatePicker } from "@patternfly/react-core/dist/esm/components/DatePicker/index.js";
-import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Select, SelectOption, SelectVariant } from "@patternfly/react-core/dist/esm/components/Select/index.js";
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { TimePicker } from "@patternfly/react-core/dist/esm/components/TimePicker/index.js";
+import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { CloseIcon, ExclamationCircleIcon, InfoCircleIcon, PlusIcon } from "@patternfly/react-icons";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
 import { useObject, useEvent } from "hooks.js";
@@ -562,26 +563,19 @@ function ChangeSystimeBody({ state, errors, change }) {
     }
 
     const ntp_servers = (
-        <table>
-            <tbody>
-                { custom_ntp.servers.map((s, i) => (
-                    <tr key={i}>
-                        <td style={{ width: "100%" }}>
-                            <input type="text" className="form-control" value={s} placeholder={_("NTP server")}
-                onChange={event => change_server(event, i, event.target.value)} />
-                        </td>
-                        <td>
-                            <Button variant="secondary" onClick={event => add_server(event, i)} icon={ <PlusIcon /> } />
-                        </td>
-                        <td>
-                            <Button variant="secondary" onClick={event => remove_server(event, i)}
-                                    icon={ <CloseIcon /> }
-                                    isDisabled={i == custom_ntp.servers.length - 1} />
-                        </td>
-                    </tr>))
-                }
-            </tbody>
-        </table>);
+        custom_ntp.servers.map((s, i) => (
+            <Flex className="ntp-server-input-group" spaceItems={{ default: 'spaceItemsSm' }} key={i}>
+                <FlexItem grow={{ default: 'grow' }}>
+                    <TextInput value={s} placeholder={_("NTP server")} aria-label={_("NTP server")}
+                               onChange={(value, event) => change_server(event, i, value)} />
+                </FlexItem>
+                <Button variant="secondary" onClick={event => add_server(event, i)}
+                        icon={ <PlusIcon /> } />
+                <Button variant="secondary" onClick={event => remove_server(event, i)}
+                        icon={ <CloseIcon /> } isDisabled={i === custom_ntp.servers.length - 1} />
+            </Flex>
+        ))
+    );
 
     const mode_options = [
         <SelectOption key="manual_time" value="manual_time">{_("Manually")}</SelectOption>,
@@ -648,10 +642,8 @@ function ChangeSystimeBody({ state, errors, change }) {
                 }
                 { mode == "ntp_time_custom" &&
                     <Validated errors={errors} error_key="ntp_servers">
-                        <div id="systime-ntp-servers-row">
-                            <div id="systime-ntp-servers">
-                                { ntp_servers }
-                            </div>
+                        <div id="systime-ntp-servers">
+                            { ntp_servers }
                         </div>
                     </Validated>
                 }

@@ -35,14 +35,15 @@ Enter the toolbox with
 
     toolbox enter cockpit
 
-Your home directory, user D-Bus, etc. are shared with the host, so you can e.g.
-edit files as you usually do. Building and running tests happens inside the
-toolbox. If desired, you can install additional packages with `sudo dnf install`.
+Your home directory, user D-Bus, etc. are shared with the host, so you can
+edit files as you normally would. Building and running tests happens inside the
+toolbox container. If desired, you can install additional packages with
+`sudo dnf install`.
 
 ## Working on Cockpit's session pages
 
-Most contributors want to work on the web (HTML/JavaScript) parts of Cockpit.
-First install Cockpit on your local machine as described in:
+Most contributors want to work on the web (HTML, JavaScript, CSS) parts of Cockpit.
+First, install Cockpit on your local machine as described in:
 
 <https://cockpit-project.org/running.html>
 
@@ -50,14 +51,15 @@ Cockpit uses a lot of build and runtime dependencies from [npm](https://www.npmj
 
     tools/node-modules checkout
 
-Next run this command from your top level Cockpit checkout directory, and make
+Next, run this command from your top level Cockpit checkout directory, and make
 sure to run it as the same user that you'll use to log into Cockpit below.
 
     mkdir -p ~/.local/share/
     ln -s $(pwd)/dist ~/.local/share/cockpit
 
-This will cause cockpit to read JavaScript and HTML files directly from the
-built package output directory instead of using the installed Cockpit UI files.
+This will cause cockpit to read JavaScript, HTML, and CSS files directly from the
+locally built package output directory instead of using the system-installed Cockpit
+files.
 
 Now you can log into Cockpit on your local Linux machine at the following
 address. Use the same user and password that you used to log into your Linux
@@ -65,12 +67,14 @@ desktop.
 
 <http://localhost:9090>
 
-After every change to your sources the bundles need to be rebuilt. The
-recommended and fastest way is to do that in "watch" mode on the particular
-page that you are working on, see [pkg/](./pkg/) for which pages exist.
-E.g. if you want to work on anything in [pkg/systemd](./pkg/systemd/), run:
+After every change to the source files, bundles need to be rebuilt. The
+recommended and fastest way is to do that is using the "watch" mode on 
+the page that you are working on. For example, if you want to work on 
+anything in [pkg/systemd](./pkg/systemd/), run:
 
     tools/webpack-watch systemd
+
+See [pkg/](./pkg/) for a list of all pages.
 
 If you work on a change that affects multiple pages (such as a file in
 pkg/lib/), you can also build all pages:
@@ -80,12 +84,12 @@ pkg/lib/), you can also build all pages:
 Note that this enables eslint and stylelint by default -- if you want to
 disable them, run it with `-e`/`--no-eslint` and/or `-s`/`--no-stylelint`.
 
-Then reload cockpit in your browser after page is built. Press Control-C to
+Reload cockpit in your browser after page is built. Press `Ctrl`-`C` to
 stop watch mode once you are done with changing the code.
 
-Often you need to test your code in a VM. There is an `-r`/`--rsync`
+You often need to test code changes in a VM. There is an `-r`/`--rsync`
 option for copying the built page into the given SSH target's
-/usr/share/cockpit/ directory. If you use cockpit's own test VMs and set up the
+/usr/share/cockpit/ directory. If you use Cockpit's own test VMs and set up the
 SSH `c` alias as described in [test/README.md](./test/README.md), you can use
 one of these commands:
 
@@ -94,15 +98,15 @@ one of these commands:
     tools/webpack-watch -r c kdump
     tools/webpack-watch -r c
 
-To make Cockpit again use the installed code, rather than that from your git
-checkout directory, run the following, and log into Cockpit again:
+To make Cockpit use system packages again, instead of your checkout directory,
+remove the symlink with the following command and log back into Cockpit:
 
     rm ~/.local/share/cockpit
 
 ## Working on the non-web parts of Cockpit
 
-Cockpit uses the autotools and thus there are the familiar `./configure`
-script and Makefile targets.
+Cockpit uses autotools, so there are familiar `./configure` script and
+Makefile targets.
 
 After a fresh clone of the Cockpit sources, you need to prepare them by running
 `autogen.sh` like this:
@@ -112,8 +116,8 @@ After a fresh clone of the Cockpit sources, you need to prepare them by running
 As shown, `autogen.sh` runs 'configure' with the given options, and it also
 prepares the build tree by downloading various nodejs dependencies.
 
-When working with a Git clone, it is therefore best to simply always
-run `./autogen.sh` instead of `./configure`.
+When working with a Git clone, it is best to always run `./autogen.sh`
+instead of `./configure`.
 
 Then run
 
@@ -126,7 +130,7 @@ You can run unit tests of the current checkout:
 
     make check
 
-These should finish very quickly and it is good practice to do it often.
+These should finish very quickly. It is a good practice to do this often.
 
 For debugging individual tests, there are compiled binaries in the build
 directory. For QUnit tests (JavaScript), you can run
@@ -169,14 +173,14 @@ integration tests locally.
 
 ## Testing the Python bridge
 
-There is currently an experimental replacement for `cockpit-bridge` being
-written in Python.  It lives in `src/cockpit` with most of its rules in
+Cockpit currently has an experimental replacement for `cockpit-bridge`
+written in Python.  It resides in `src/cockpit` with most of its rules in
 `src/Makefile.am`.  This directory was chosen because it matches the standard
 so-called "src layout" convention for Python packages, where each package
 (`cockpit`) is a subdirectory of the `src` directory.
 
-There are a growing number of Python unittest tests being written to test
-various bits of the new bridge code.  You can run those with `make pytest` or
+There are a growing number of Python `unittest` tests being written to test
+parts of the new bridge code.  You can run these with `make pytest` or
 `make pytest-cov`.  Those are both just rules to make sure that the
 `systemd_ctypes` submodule is checked out before running `pytest` from the
 source directory.
@@ -194,22 +198,22 @@ For developer convenience, the ESLint can be started explicitly by:
 
     npm run eslint
 
-Violations of some rules can be fixed automatically by:
+Most rule violations can be automatically fixed by running:
 
     npm run eslint:fix
 
 Rules configuration can be found in the `.eslintrc.json` file.
 
 During fast iterative development, you can also choose to not run eslint. This
-speeds up the build and avoids build failures due to e. g.  ill-formatted
-comments or unused identifiers:
+can speed up the build and avoid build failures due to ill-formatted comments,
+unused identifiers, and other JavaScript-related issues:
 
     make ESLINT=0
 
 ## Running stylelint
 
 Cockpit uses [Stylelint](https://stylelint.io/) to automatically check CSS code
-style in `.css` and `scss` files.
+style in `.css` and `.scss` files.
 
 The linter is executed within every build as a webpack preloader.
 
@@ -217,45 +221,47 @@ For developer convenience, the Stylelint can be started explicitly by:
 
     npm run stylelint
 
-Violations of some rules can be fixed automatically by:
+Some rule violations can be automatically fixed by running:
 
     npm run stylelint:fix
 
 Rules configuration can be found in the `.stylelintrc.json` file.
 
 During fast iterative development, you can also choose to not run stylelint.
-This speeds up the build and avoids build failures due to e. g. ill-formatted
-css or other issues:
+This speeds up the build and avoids build failures due to ill-formatted CSS
+or other issues:
 
     make STYLELINT=0
 
 ## Working on your local machine: Web server
 
 To test changes to the login page or any other resources, you can bind-mount the
-build tree's `dist/static/` directory over the  system one:
+build tree's `dist/static/` directory over the system one:
 
     sudo mount -o bind dist/static/ /usr/share/cockpit/static/
 
-Likewise, to test changes to the branding, use
+Likewise, to test changes to the branding, use:
 
     sudo mount -o bind src/branding/ /usr/share/cockpit/branding/
 
 After that, run `systemctl stop cockpit.service` to ensure that the web server
 restarts on the next browser request.
 
-To make Cockpit again use the system-installed code, simply umount these again:
+To make Cockpit use system-installed code again, umount the paths:
 
     sudo umount /usr/share/cockpit/static/ /usr/share/cockpit/branding/
     systemctl stop cockpit.service
 
-Similarly, if you change cockpit-ws itself, you can make the system (systemd
-units, cockpit-tls, etc.) use that:
+Similarly, if you change `cockpit-ws` itself, you can make the system (systemd
+units, cockpit-tls, etc.) use this:
 
     sudo mount -o bind cockpit-ws /usr/libexec/cockpit-ws
 
-On Debian based OSes, the path will be `/usr/lib/cockpit/cockpit-ws` instead.
+On Debian-based OSes (including Ubuntu), the path will be
+`/usr/lib/cockpit/cockpit-ws` instead.
 
-You need to disable SELinux with
+On Fedora, CentOS, Red Hat Enterprise Linux, and related distributions, you also 
+need to disable SELinux with:
 
     sudo setenforce 0
 
@@ -263,9 +269,9 @@ for this to work, as your local build tree does not otherwise have the expected
 SELinux type.
 
 Some cockpit binaries rely on specific paths in /usr/share or libexecdir to be
-set correctly, by default they are set to `/usr/local`.
+set correctly. By default they are set to `/usr/local`.
 
-On RPM based systems this can be set using an autogen.sh argument, and
+On RPM based systems, this can be set using an autogen.sh argument;
 afterwards you need to rebuild:
 
     ./autogen.sh rpm
@@ -317,7 +323,7 @@ this shouldn't be necessary.  In the event that you need to modify
 `npm install` on your new `package.json`.
 
 Your locally rebuilt changes to `node_modules` won't be used by others.  A new
-version will be created by a github workflow when you open your pull request.
+version will be created by a GitHub workflow when you open your pull request.
 
 The `tools/node-modules` script inspects the `GITHUB_BASE` environment variable
 to determine the correct repository to use when fetching and pushing.  It will
@@ -330,7 +336,7 @@ A local cache is maintained in `~/.cache/cockpit-dev`.
 ## Contributing a change
 
 Make a pull request on github.com with your change. All changes get reviewed,
-tested and iterated on before getting into Cockpit. The general workflow is
+tested, and iterated on before getting into Cockpit. The general workflow is
 described in the [wiki](https://github.com/cockpit-project/cockpit/wiki/Workflow).
 Don't feel bad if there's multiple steps back and forth asking for changes or
 tweaks before your change gets in.
@@ -343,19 +349,24 @@ unrelated to the commit message.
 Cockpit is a designed project. Anything that the user will see should have
 design done first. This is done on the wiki and mailing list.
 
-Bigger changes need to be discussed on #cockpit or our mailing list
-[cockpit-devel@lists.fedoraproject.org](https://lists.fedorahosted.org/admin/lists/cockpit-devel.lists.fedorahosted.org/) before you invest too much time and
-energy.
+Bigger changes need to be discussed on the #cockpit IRC channel or our mailing list
+[cockpit-devel@lists.fedoraproject.org](https://lists.fedorahosted.org/admin/lists/cockpit-devel.lists.fedorahosted.org/)
+before you invest too much time and energy.
 
 Feature changes should have a video and/or screenshots that show the change.
-This video should be uploaded to Youtube or another service that allows video
-embedding. Use a command like this to record a video including the browser
+This video should be uploaded directly to GitHub on the pull request or issue
+or uploaded to YouTube or another service that allows video embedding.
+
+Use a command like this to record a video including the browser
 frame:
 
 ```
 recordmydesktop -x 1 -y 200 --width 1024 --height 576 \
    --fps 24 --freq 44100 --v_bitrate 2000000
 ```
+
+(This command only works on X11 and requires the `recordmydesktop` program to
+be installed.)
 
 You can also resize your browser window and move it to the right location with
 a script. In Firefox you can open the Scratchpad (`Shift+F4`) and enter the
@@ -374,7 +385,7 @@ seen with commands like:
 
     sudo journalctl -f
 
-Much of Cockpit has more verbose internal debug logging that can be enabled when
+Much of Cockpit has verbose internal debug logging that can be enabled when
 trying to track down a problem. To turn it on add a file to your system like
 this:
 
@@ -430,10 +441,10 @@ You may want to run cockpit-ws under a debugger such as valgrind or gdb. You can
 run these processes as your own user, although you won't be able to debug all
 the authentication logic in those cases.
 
-First of all make sure Cockpit is installed correctly. Even though we will be
-running cockpit-ws from the built sources this still relies on some of the right
-bits being installed in order for Cockpit to work (ie: PAM stack, UI files,
-cockpit-bridge, etc.)
+First of all, make sure Cockpit is correctly installed. Even though we will be
+running `cockpit-ws` from the built sources, this still relies on some of the right
+software being installed in order for Cockpit to work. (Such as: PAM stack,
+UI files, cockpit-bridge, etc.)
 
 This is how you would run cockpit-ws under gdb:
 

@@ -67,7 +67,8 @@ desktop.
 
 After every change to your sources the bundles need to be rebuilt. The
 recommended and fastest way is to do that in "watch" mode on the particular
-page that you are working on:
+page that you are working on, see [pkg/](./pkg/) for which pages exist.
+E.g. if you want to work on anything in [pkg/systemd](./pkg/systemd/), run:
 
     tools/webpack-watch systemd
 

@@ -49,6 +49,7 @@ class Peer(CockpitProtocolClient, SubprocessProtocol, Endpoint):
     name: str
     init_host: str
     state_listener: Optional[PeerStateListener]
+    subprocess: Optional[SubprocessTransport]
 
     authorize_pending: Optional[str] = None  # the cookie of the pending request
 
@@ -69,11 +70,13 @@ class Peer(CockpitProtocolClient, SubprocessProtocol, Endpoint):
         self.init_host = init_host or router.init_host
 
         self.authorize_pending = None
+        self.subprocess = None
 
     def spawn(self, argv: Sequence[str], env: Sequence[str], **kwargs) -> asyncio.Transport:
         loop = asyncio.get_running_loop()
         user_env = dict(e.split('=', 1) for e in env)
-        return SubprocessTransport(loop, self, argv, env=dict(os.environ, **user_env), **kwargs)
+        self.subprocess = SubprocessTransport(loop, self, argv, env=dict(os.environ, **user_env), **kwargs)
+        return self.subprocess
 
     # Handling of interesting events
     def do_ready(self) -> None:
@@ -100,19 +103,18 @@ class Peer(CockpitProtocolClient, SubprocessProtocol, Endpoint):
         if self.transport is not None:
             self.transport.close()
 
-    def do_closed(self, transport_was: asyncio.Transport, exc: Optional[Exception]) -> None:
+    def do_closed(self, exc: Optional[Exception]) -> None:
         logger.debug('Peer %s connection lost %s', self.name, exc)
 
         self.shutdown('disconnected')
 
-        if self.state_listener is not None:
+        if self.state_listener is not None and self.subprocess is not None:
             # If we don't otherwise has an exception set, but we have stderr output, we can use it.
-            if isinstance(transport_was, SubprocessTransport):
-                # BrokenPipeError just means that we tried to write after the process was gone
-                if exc is None or isinstance(exc, BrokenPipeError):
-                    stderr = transport_was.get_stderr()
-                    if stderr:
-                        exc = RuntimeError(stderr)
+            # BrokenPipeError just means that we tried to write after the process was gone
+            if exc is None or isinstance(exc, BrokenPipeError):
+                stderr = self.subprocess.get_stderr()
+                if stderr:
+                    exc = RuntimeError(stderr)
 
             self.state_listener.peer_state_changed(self, 'closed', exc)
 
@@ -142,10 +144,6 @@ class Peer(CockpitProtocolClient, SubprocessProtocol, Endpoint):
     def process_exited(self) -> None:
         assert isinstance(self.transport, SubprocessTransport)
         logger.debug('Peer %s exited, status %d', self.name, self.transport.get_returncode())
-
-    def close(self) -> None:
-        if self.transport is not None:
-            self.transport.close()
 
     # Forwarding data: from the peer to the router
     def channel_control_received(self, channel: str, command: str, message: Dict[str, object]) -> None:

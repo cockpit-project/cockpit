@@ -311,9 +311,9 @@ class TestSystemInfo(PackageCase):
 
         # Add two NTP servers.
         self.set_change_time_dialog_mode("Automatically using specific NTP servers")
-        b.set_input_text("#systime-ntp-servers tr:nth-child(1) input", "0.pool.ntp.org")
-        b.click('#systime-ntp-servers tr:nth-child(1) button:first-child')
-        b.set_input_text("#systime-ntp-servers tr:nth-child(2) input", "1.pool.ntp.org")
+        b.set_input_text("#systime-ntp-servers div:nth-child(1) input", "0.pool.ntp.org")
+        b.click('#systime-ntp-servers div:nth-child(1) button')
+        b.set_input_text("#systime-ntp-servers div:nth-child(2) input", "1.pool.ntp.org")
         b.click("#system_information_change_systime .apply")
         with b.wait_timeout(120):  # Changing time on Arch can be slow
             b.wait_not_present("#system_information_change_systime")
@@ -331,7 +331,7 @@ class TestSystemInfo(PackageCase):
         b.wait_attr("#system_information_systime_button", "data-timedated-initialized", "true")
         b.click("#system_information_systime_button")
         b.wait_visible("#system_information_change_systime")
-        b.wait_val("#systime-ntp-servers tr:nth-child(1) input", "2.pool.ntp.org")
+        b.wait_val("#systime-ntp-servers div:nth-child(1) input", "2.pool.ntp.org")
         self.set_change_time_dialog_mode("Automatically using NTP")
         b.wait_not_present("#systime-ntp-servers")
         b.click("#system_information_change_systime .apply")
@@ -376,9 +376,9 @@ class TestSystemInfo(PackageCase):
 
         # Add two NTP servers.
         self.set_change_time_dialog_mode("Automatically using additional NTP servers")
-        b.set_input_text("#systime-ntp-servers tr:nth-child(1) input", "0.pool.ntp.org")
-        b.click('#systime-ntp-servers tr:nth-child(1) button:first-child')
-        b.set_input_text("#systime-ntp-servers tr:nth-child(2) input", "1.pool.ntp.org")
+        b.set_input_text("#systime-ntp-servers div:nth-child(1) input", "0.pool.ntp.org")
+        b.click('#systime-ntp-servers div:nth-child(1) button')
+        b.set_input_text("#systime-ntp-servers div:nth-child(2) input", "1.pool.ntp.org")
         b.click("#system_information_change_systime .apply")
         b.wait_not_present("#system_information_change_systime")
 
@@ -396,7 +396,7 @@ class TestSystemInfo(PackageCase):
         b.wait_attr("#system_information_systime_button", "data-timedated-initialized", "true")
         b.click("#system_information_systime_button")
         b.wait_visible("#system_information_change_systime")
-        b.wait_val("#systime-ntp-servers tr:nth-child(1) input", "2.pool.ntp.org")
+        b.wait_val("#systime-ntp-servers div:nth-child(1) input", "2.pool.ntp.org")
         self.set_change_time_dialog_mode("Automatically using NTP")
         b.wait_not_present("#systime-ntp-servers")
         b.click("#system_information_change_systime .apply")

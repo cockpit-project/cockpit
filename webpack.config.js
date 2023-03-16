@@ -237,7 +237,6 @@ process.traceDeprecation = true;
 
 /* These can be overridden, typically from the Makefile.am */
 const srcdir = process.env.SRCDIR || '.';
-const builddir = process.env.BUILDDIR || '.';
 const libdir = path.resolve(srcdir, "pkg" + path.sep + "lib");
 const nodedir = path.relative(process.cwd(), path.resolve(srcdir, "node_modules"));
 const section = process.env.ONLYDIR || null;
@@ -251,27 +250,7 @@ const eslint = process.env.ESLINT ? (process.env.ESLINT !== '0') : !production;
 /* Default to disable csslint for faster production builds */
 const stylelint = process.env.STYLELINT ? (process.env.STYLELINT !== '0') : !production;
 
-/*
- * Note that we're avoiding the use of path.join as webpack and nodejs
- * want relative paths that start with ./ explicitly.
- *
- * In addition we mimic the VPATH style functionality of GNU Makefile
- * where we first check builddir, and then srcdir. In order to avoid
- * people having to run ./configure to hack on Cockpit we also help
- * resolve files that have a '.in' suffix if the resulting file
- * doesn't exist.
- */
-
-function vpath(/* ... */) {
-    const filename = Array.prototype.join.call(arguments, path.sep);
-    let expanded = builddir + path.sep + filename;
-    if (fs.existsSync(expanded))
-        return expanded;
-    expanded = srcdir + path.sep + filename;
-    if (!fs.existsSync(expanded) && fs.existsSync(expanded + ".in"))
-        return expanded + ".in";
-    return expanded;
-}
+const pkgfile = suffix => `${srcdir}/pkg/${suffix}`;
 
 /* Qualify all the paths in entries */
 Object.keys(info.entries).forEach(key => {
@@ -280,18 +259,18 @@ Object.keys(info.entries).forEach(key => {
         return;
     }
 
-    info.entries[key] = info.entries[key].map(value => (value.indexOf("/") === -1) ? value : vpath("pkg", value));
+    info.entries[key] = info.entries[key].map(value => (value.indexOf("/") === -1) ? value : pkgfile(value));
 });
 
 /* Qualify all the paths in files listed */
 const files = [];
 info.files.forEach(value => {
     if (!section || value.indexOf(section) === 0)
-        files.push({ from: vpath("pkg", value), to: value });
+        files.push({ from: pkgfile(value), to: value });
 });
 if (section) {
     const manifest = section + "manifest.json";
-    files.push({ from: vpath("pkg", manifest), to: manifest });
+    files.push({ from: pkgfile(manifest), to: manifest });
 }
 info.files = files;
 
@@ -351,7 +330,7 @@ if (section.startsWith('static'))
 /* Fill in the tests properly */
 info.tests.forEach(test => {
     if (!section || test.indexOf(section) === 0) {
-        info.entries[test] = vpath("pkg", test + ".js");
+        info.entries[test] = pkgfile(test + ".js");
         plugins.push(new Html({
             title: path.basename(test),
             filename: test + ".html",

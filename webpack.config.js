@@ -219,9 +219,9 @@ const plugins = [
     new Copy({ patterns: info.files }),
     new MiniCssExtractPlugin({ filename: "[name].css" }),
     new CockpitPoWebpackPlugin({
-        subdir: section,
+        subdirs: [section],
         // login page does not have cockpit.js, but reads window.cockpit_po
-        wrapper: (section === 'static/') ? 'window.cockpit_po = PO_DATA;' : undefined,
+        wrapper: subdir => subdir == "static" ? "window.cockpit_po = PO_DATA;" : undefined,
     }),
 ];
 

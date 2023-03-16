@@ -163,7 +163,7 @@ process.traceDeprecation = true;
 const srcdir = process.env.SRCDIR || '.';
 const libdir = path.resolve(srcdir, "pkg" + path.sep + "lib");
 const nodedir = path.relative(process.cwd(), path.resolve(srcdir, "node_modules"));
-const section = process.env.ONLYDIR || null;
+const section = process.env.ONLYDIR;
 
 /* A standard nodejs and webpack pattern */
 const production = process.env.NODE_ENV === 'production';
@@ -185,6 +185,8 @@ info.entries.forEach(key => {
     entry[key.replace(/\..*$/, '')] = pkgfile(key);
 });
 
+const all_sections = Array.from(new Set(info.entries.map(key => key.split('/')[0])));
+
 /* Qualify all the paths in files listed */
 const files = [];
 info.files.forEach(value => {
@@ -194,7 +196,13 @@ info.files.forEach(value => {
 if (section) {
     const manifest = section + "manifest.json";
     files.push({ from: pkgfile(manifest), to: manifest });
+} else {
+    all_sections.forEach(section => {
+        const manifest = section + "/manifest.json";
+        files.push({ from: pkgfile(manifest), to: manifest });
+    });
 }
+
 info.files = files;
 
 // main font for all our pages
@@ -219,7 +227,7 @@ const plugins = [
     new Copy({ patterns: info.files }),
     new MiniCssExtractPlugin({ filename: "[name].css" }),
     new CockpitPoWebpackPlugin({
-        subdirs: [section],
+        subdirs: section ? [section] : all_sections,
         // login page does not have cockpit.js, but reads window.cockpit_po
         wrapper: subdir => subdir == "static" ? "window.cockpit_po = PO_DATA;" : undefined,
     }),
@@ -243,11 +251,11 @@ if (eslint) {
 
 if (stylelint) {
     plugins.push(new StylelintPlugin({
-        context: "pkg/" + section,
+        context: "pkg/" + (section || ""),
     }));
 }
 
-if (section.startsWith('static'))
+if (!section || section.startsWith('static'))
     plugins.push(new Copy({ patterns: redhat_fonts }));
 
 /* Fill in the tests properly */
@@ -280,9 +288,17 @@ export default {
         modules: [nodedir, './pkg/lib'],
     },
     entry,
-    // cockpit.js gets included via <script>, everything else should be bundled
-    externals: (section === 'kdump/' || section === 'base1/') ? {} : { cockpit: "cockpit" },
     plugins,
+
+    // cockpit.js gets included via <script> (except on base1 and kdump), everything else should be bundled
+    externals: [
+        ({ context, request }, callback) => {
+            if (request === "cockpit" && !context.includes("/base1") && !context.includes("/kdump"))
+                callback(null, "cockpit");
+            else
+                callback();
+        }
+    ],
 
     devtool: production ? false : "source-map",
     stats: "errors-warnings",

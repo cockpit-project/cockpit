@@ -169,8 +169,8 @@ install-tests::
 	$(INSTALL_PROGRAM) mock-pam-conv-mod.so $(DESTDIR)$(pamdir)/
 
 install-exec-hook::
-	mkdir -p $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d $(DESTDIR)$(sysconfdir)/cockpit/machines.d
-	chmod 755 $(DESTDIR)$(sysconfdir)/cockpit/ws-certs.d $(DESTDIR)$(sysconfdir)/cockpit/machines.d
+	mkdir -p $(DESTDIR)$(prefix)$(sysconfdir)/cockpit/ws-certs.d $(DESTDIR)$(prefix)$(sysconfdir)/cockpit/machines.d
+	chmod 755 $(DESTDIR)$(prefix)$(sysconfdir)/cockpit/ws-certs.d $(DESTDIR)$(prefix)$(sysconfdir)/cockpit/machines.d
 
 dist_check_DATA += \
 	src/ws/mock-combined.crt \

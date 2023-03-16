@@ -29,7 +29,7 @@ import { ExternalLinkSquareAltIcon, HelpIcon } from '@patternfly/react-icons';
 import * as service from "service";
 import { EmptyStatePanel } from 'cockpit-components-empty-state.jsx';
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
-import { ProfilesMenuDialogBody } from '../systemd/overview-cards/profiles-menu-dialog-body.jsx';
+import { ProfilesMenuDialogBody } from './profiles-menu-dialog-body.jsx';
 import { superuser } from 'superuser';
 import { useObject, useEvent } from "hooks";
 import { useDialogs } from "dialogs.jsx";

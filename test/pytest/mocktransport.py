@@ -1,9 +1,53 @@
 import asyncio
 import json
+import os
+import subprocess
 
 from typing import Any, Dict, Iterable, Optional, Tuple
 
 MOCK_HOSTNAME = 'mockbox'
+
+
+def my_subprocesses():
+    try:
+        return subprocess.check_output(['pgrep', '-a', '-P', f'{os.getpid()}'], text=True).splitlines()
+    except subprocess.CalledProcessError:
+        # no processes found?  good!
+        return []
+
+
+def assert_no_subprocesses():
+    running = my_subprocesses()
+    if not running:
+        return
+
+    print('Some subprocesses still running', running)
+    # Clear it out for the sake of the other tests
+    subprocess.call(['pkill', '-9', '-P', f'{os.getpid()}'])
+    for _ in range(100):    # zombie vacuum
+        os.waitpid(-1, os.WNOHANG)  # will eventually throw, failing the test (which we want)
+    assert False  # more than 100?
+
+
+def assert_no_tasks(allow_tasks=0):
+    if len(asyncio.all_tasks()) > allow_tasks:
+        assert asyncio.all_tasks() == []
+
+
+def assert_all_exited(allow_tasks=0):
+    assert_no_subprocesses()
+    assert_no_tasks(allow_tasks)
+
+
+async def settle_down():
+    # Let things settle for a bit
+    for _ in range(100):
+        # We expect at least one task: ourselves!
+        if len(asyncio.all_tasks()) <= 1 and not my_subprocesses():
+            break
+        await asyncio.sleep(0.05)
+    else:
+        assert_all_exited(allow_tasks=1)
 
 
 class MockTransport(asyncio.Transport):
@@ -69,14 +113,14 @@ class MockTransport(asyncio.Transport):
 
     async def stop(self) -> None:
         keep_open = self.protocol.eof_received()
-        if not keep_open:
-            return
+        if keep_open:
+            self.close_future = asyncio.get_running_loop().create_future()
+            try:
+                await self.close_future
+            finally:
+                self.close_future = None
 
-        self.close_future = asyncio.get_running_loop().create_future()
-        try:
-            await self.close_future
-        finally:
-            self.close_future = None
+        await settle_down()
 
     def close(self) -> None:
         if self.close_future is not None:

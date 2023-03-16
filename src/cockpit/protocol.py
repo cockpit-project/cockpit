@@ -18,6 +18,7 @@
 import asyncio
 import json
 import logging
+import uuid
 
 from typing import Dict, Optional
 
@@ -61,7 +62,7 @@ class CockpitProtocol(asyncio.Protocol):
     _communication_done: Optional[asyncio.Future] = None
 
     def do_ready(self) -> None:
-        raise NotImplementedError
+        pass
 
     def do_closed(self, exc: Optional[Exception]) -> None:
         pass
@@ -216,6 +217,9 @@ class CockpitProtocol(asyncio.Protocol):
         except CockpitProtocolError as exc:
             self.close(exc)
 
+    def eof_received(self) -> Optional[bool]:
+        return False
+
     async def communicate(self) -> None:
         """Wait until communication is complete on this protocol."""
         assert self._communication_done is None
@@ -224,37 +228,10 @@ class CockpitProtocol(asyncio.Protocol):
         self._communication_done = None
 
 
-# All CockpitProtocol subclasses should derive from either
-# CockpitProtocolClient or CockpitProtocolServer.  The main difference here is
-# that the server should send its init message immediately upon the connection
-# being established, whereas the client shouldn't do anything until it sees the
-# init message from the server.
-#
-# Both clients and servers need to implement `do_channel_control()` and
-# `do_channel_data()` as well as `do_init()`.
-class CockpitProtocolClient(CockpitProtocol):
-    def do_init(self, message):
-        raise NotImplementedError
-
-    def do_authorize(self, message):
-        raise NotImplementedError
-
-    def transport_control_received(self, command, message):
-        if command == 'init':
-            self.do_init(message)
-        elif command == 'authorize':
-            self.do_authorize(message)
-        elif command == 'send-stderr':
-            self.do_send_stderr(self.transport)
-        else:
-            raise CockpitProtocolError(f'unexpected control message {command} received')
-
-    def do_ready(self):
-        pass
-
-
+# Helpful functionality for "server"-side protocol implementations
 class CockpitProtocolServer(CockpitProtocol):
     init_host: Optional[str] = None
+    authorizations: Optional[Dict[str, asyncio.Future]] = None
 
     def do_send_init(self):
         raise NotImplementedError
@@ -263,12 +240,6 @@ class CockpitProtocolServer(CockpitProtocol):
         pass
 
     def do_kill(self, host: Optional[str], group: Optional[str]) -> None:
-        raise NotImplementedError
-
-    def do_authorize(self, message: Dict[str, object]) -> None:
-        raise NotImplementedError
-
-    def do_send_stderr(self, transport: asyncio.Transport) -> None:
         raise NotImplementedError
 
     def transport_control_received(self, command, message):
@@ -295,3 +266,29 @@ class CockpitProtocolServer(CockpitProtocol):
 
     def do_ready(self):
         self.do_send_init()
+
+    # authorize request/response API
+    async def request_authorization(self, challenge: str, timeout: Optional[int] = None, **kwargs: object) -> str:
+        if self.authorizations is None:
+            self.authorizations = {}
+        cookie = str(uuid.uuid4())
+        future = asyncio.get_running_loop().create_future()
+        try:
+            self.authorizations[cookie] = future
+            self.write_control(command='authorize', challenge=challenge, cookie=cookie, **kwargs)
+            return await asyncio.wait_for(future, timeout)
+        finally:
+            self.authorizations.pop(cookie)
+
+    def do_authorize(self, message: Dict[str, object]) -> None:
+        cookie = message.get('cookie')
+        response = message.get('response')
+
+        if not isinstance(cookie, str) or not isinstance(response, str):
+            raise CockpitProtocolError('invalid authorize response')
+
+        if self.authorizations is None or cookie not in self.authorizations:
+            logger.warning('no matching authorize request')
+            return
+
+        self.authorizations[cookie].set_result(response)

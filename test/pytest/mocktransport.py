@@ -82,6 +82,9 @@ class MockTransport(asyncio.Transport):
         if self.close_future is not None:
             self.close_future.set_result(None)
 
+        if self.protocol is not None:
+            self.protocol.connection_lost(None)
+
     async def next_frame(self) -> Tuple[str, bytes]:
         return await self.queue.get()
 

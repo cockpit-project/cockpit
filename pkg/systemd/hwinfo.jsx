@@ -45,7 +45,7 @@ import { SortByDirection } from "@patternfly/react-table";
 import { ListingTable } from "cockpit-components-table.jsx";
 import { WithDialogs, DialogsContext } from "dialogs.jsx";
 
-import kernelopt_sh from "raw-loader!./kernelopt.sh";
+import kernelopt_sh from "./kernelopt.sh";
 import detect from "./hw-detect.js";
 
 import { superuser } from "superuser";

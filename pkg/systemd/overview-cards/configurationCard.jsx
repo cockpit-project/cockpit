@@ -25,7 +25,7 @@ import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form
 import { List, ListItem } from "@patternfly/react-core/dist/esm/components/List/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 
-import host_keys_script from "raw-loader!./ssh-list-host-keys.sh";
+import host_keys_script from "./ssh-list-host-keys.sh";
 import cockpit from "cockpit";
 import { superuser } from "superuser";
 import { useObject, useEvent } from "hooks.js";

@@ -19,8 +19,8 @@
 
 import cockpit from "cockpit";
 import * as python from "python.js";
-import inotify_py from "raw-loader!inotify.py";
-import watch_appstream_py from "raw-loader!./watch-appstream.py";
+import inotify_py from "inotify.py";
+import watch_appstream_py from "./watch-appstream.py";
 
 let metainfo_db = null;
 

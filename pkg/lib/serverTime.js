@@ -33,7 +33,7 @@ import { useObject, useEvent } from "hooks.js";
 import * as service from "service.js";
 import * as timeformat from "timeformat.js";
 import * as python from "python.js";
-import get_timesync_backend_py from "raw-loader!./get-timesync-backend.py";
+import get_timesync_backend_py from "./get-timesync-backend.py";
 
 import { superuser } from "superuser.js";
 

@@ -22,8 +22,8 @@ import { proxy as serviceProxy } from 'service';
 import { ConfigFile } from './config-client.js';
 import { ConfigFileSUSE } from './config-client-suse.js';
 
-import crashKernelScript from 'raw-loader!./crashkernel.sh';
-import testWritableScript from 'raw-loader!./testwritable.sh';
+import crashKernelScript from './crashkernel.sh';
+import testWritableScript from './testwritable.sh';
 const _ = cockpit.gettext;
 
 /*  initializes the kdump status

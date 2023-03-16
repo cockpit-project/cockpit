@@ -29,7 +29,7 @@ import React from "react";
 import { StorageLink } from "./storage-controls.jsx";
 
 import * as python from "python.js";
-import luksmeta_monitor_hack_py from "raw-loader!./luksmeta-monitor-hack.py";
+import luksmeta_monitor_hack_py from "./luksmeta-monitor-hack.py";
 import * as timeformat from "timeformat.js";
 
 import { CryptoKeyslots } from "./crypto-keyslots.jsx";

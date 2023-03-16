@@ -73,7 +73,7 @@ import * as PK from "packagekit.js";
 import * as timeformat from "timeformat.js";
 
 import * as python from "python.js";
-import callTracerScript from 'raw-loader!./callTracer.py';
+import callTracerScript from './callTracer.py';
 
 import "./updates.scss";
 

@@ -22,8 +22,8 @@ import cockpit from "cockpit";
 import { get_init_superuser_for_options } from "./machines/machines";
 import * as credentials from "credentials";
 
-import ssh_show_default_key_sh from "raw-loader!./machines/ssh-show-default-key.sh";
-import ssh_add_key_sh from "raw-loader!./machines/ssh-add-key.sh";
+import ssh_show_default_key_sh from "./machines/ssh-show-default-key.sh";
+import ssh_add_key_sh from "./machines/ssh-add-key.sh";
 
 import React from 'react';
 import PropTypes from 'prop-types';

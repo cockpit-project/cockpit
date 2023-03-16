@@ -26,7 +26,7 @@ import cockpit from "cockpit";
 import * as service from "service.js";
 import { superuser } from "superuser";
 
-import insights_poll_hack_sh from "raw-loader!./insights-poll-hack.sh";
+import insights_poll_hack_sh from "./insights-poll-hack.sh";
 
 import "./insights.scss";
 

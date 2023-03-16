@@ -19,151 +19,164 @@ import asyncio
 import logging
 import os
 
-from typing import Dict, List, Optional, Sequence
+from typing import Callable, Dict, List, Optional, Sequence
 
-from .router import Endpoint, Router, RoutingError, RoutingRule
-from .protocol import CockpitProtocolClient
+from .router import Endpoint, Router, RoutingRule
+from .protocol import CockpitProtocol, CockpitProblem, CockpitProtocolError
 from .transports import SubprocessTransport, SubprocessProtocol
 
 logger = logging.getLogger(__name__)
 
 
-class PeerStateListener:
-    def peer_state_changed(self, peer: 'Peer', event: str, exc: Optional[Exception] = None) -> None:
-        """Signal a state change in the Peer.
-
-        This is called on:
-            - connection made (event='connect')
-            - init message received (event='init')
-            - connection lost (event='closed', exc possibly set)
-        """
-
-    def peer_authorization_request(self, peer: 'Peer', message: Optional[str], prompt: str, echo: bool) -> None:
-        """Request authentication for connecting to the peer.
-
-        The state listener should respond by calling .authorize_response() on the Peer.
-        """
+class PeerError(CockpitProblem):
+    pass
 
 
-class Peer(CockpitProtocolClient, SubprocessProtocol, Endpoint):
-    name: str
-    init_host: str
-    state_listener: Optional[PeerStateListener]
-    subprocess: Optional[SubprocessTransport]
+class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
+    done_callbacks: List[Callable[[], None]]
+    init_future: Optional[asyncio.Future]
+    start_task: Optional[asyncio.Task]
 
-    authorize_pending: Optional[str] = None  # the cookie of the pending request
-
-    def __init__(self,
-                 router: Router,
-                 name: str,
-                 state_listener: Optional[PeerStateListener] = None,
-                 init_host: Optional[str] = None):
+    def __init__(self, router: Router):
         super().__init__(router)
 
         # All Peers start out frozen — we only unfreeze after we see the first 'init' message
         self.freeze_endpoint()
 
-        self.name = name
-        self.state_listener = state_listener
+        self.done_callbacks = []
+        self.init_future = None
+        self.start_task = None
 
-        assert router.init_host is not None
-        self.init_host = init_host or router.init_host
+    # Initialization
+    async def do_connect_transport(self) -> asyncio.Transport:
+        raise NotImplementedError
 
-        self.authorize_pending = None
-        self.subprocess = None
-
-    def spawn(self, argv: Sequence[str], env: Sequence[str], **kwargs) -> asyncio.Transport:
+    async def spawn(self, argv: Sequence[str], env: Sequence[str], **kwargs) -> asyncio.Transport:
+        # Not actually async...
         loop = asyncio.get_running_loop()
         user_env = dict(e.split('=', 1) for e in env)
-        self.subprocess = SubprocessTransport(loop, self, argv, env=dict(os.environ, **user_env), **kwargs)
-        return self.subprocess
+        return SubprocessTransport(loop, self, argv, env=dict(os.environ, **user_env), **kwargs)
+
+    async def start(self, init_host: Optional[str] = None) -> None:
+        """Request that the Peer is started and connected to the router.
+
+        Creates the transport, connects it to the protocol, and participates in
+        exchanging of init messages.  If anything goes wrong, an exception will
+        be thrown and you must call .close() to make sure the connection is
+        properly shut down.
+        """
+        try:
+            assert self.init_future is None
+
+            # Connect the transport
+            transport = await self.do_connect_transport()
+            assert transport is not None
+            assert self._closed or self.transport is transport
+
+            # Wait for the other side to send "init"
+            self.init_future = asyncio.get_running_loop().create_future()
+            try:
+                await self.init_future
+            finally:
+                self.init_future = None
+
+            # Send "init" back
+            self.write_control(command='init', version=1, host=init_host or self.router.init_host)
+
+            # Thaw the queued messages
+            self.thaw_endpoint()
+
+        except Exception as exc:
+            self.close(exc)
+            raise
+
+    # Background initialization
+    def _start_task_done(self, task: asyncio.Task) -> None:
+        assert task is self.start_task
+        self.start_task = None
+
+        try:
+            task.result()
+        except (OSError, CockpitProblem, asyncio.CancelledError):
+            pass  # Those are expected.  Others will throw.
+
+    def start_in_background(self, init_host: Optional[str] = None) -> None:
+        self.start_task = asyncio.create_task(self.start(init_host))
+        self.start_task.add_done_callback(self._start_task_done)
+
+    # Shutdown
+    def add_done_callback(self, callback: Callable[[], None]) -> None:
+        self.done_callbacks.append(callback)
 
     # Handling of interesting events
-    def do_ready(self) -> None:
-        logger.debug('Peer %s connection established', self.name)
-        if self.state_listener is not None:
-            self.state_listener.peer_state_changed(self, 'connected')
-
-    def do_send_stderr(self, transport: asyncio.Transport) -> None:
-        if isinstance(transport, SubprocessTransport):
-            transport.send_stderr_fd()
-
-    def do_init(self, message: Dict[str, object]) -> None:
-        if self.endpoint_is_frozen():
-            logger.debug('Peer %s connection got init message', self.name)
-            if self.state_listener is not None:
-                self.state_listener.peer_state_changed(self, 'init')
-            self.write_control(command='init', version=1, host=self.init_host)
-            self.thaw_endpoint()
+    def transport_control_received(self, command: str, message: Dict[str, object]) -> None:
+        if command == 'init' and self.init_future is not None:
+            self.init_future.set_result(True)
         else:
-            logger.warning('Peer %s connection got duplicate init message', self.name)
-
-    def shutdown(self, problem: str, **kwargs: object) -> None:
-        self.shutdown_endpoint(problem=problem, **kwargs)
-        if self.transport is not None:
-            self.transport.close()
+            raise CockpitProtocolError(f'Received unexpected control message {command}')
 
     def do_closed(self, exc: Optional[Exception]) -> None:
-        logger.debug('Peer %s connection lost %s', self.name, exc)
+        logger.debug('Peer %s connection lost %s', self.__class__.__name__, exc)
 
-        self.shutdown('disconnected')
-
-        if self.state_listener is not None and self.subprocess is not None:
-            # If we don't otherwise has an exception set, but we have stderr output, we can use it.
-            # BrokenPipeError just means that we tried to write after the process was gone
-            if exc is None or isinstance(exc, BrokenPipeError):
-                stderr = self.subprocess.get_stderr()
-                if stderr:
-                    exc = RuntimeError(stderr)
-
-            self.state_listener.peer_state_changed(self, 'closed', exc)
-
-    def do_authorize(self, message: Dict[str, object]) -> None:
-        cookie = message.get('cookie')
-        prompt = message.get('prompt')
-
-        # If we have stderr output, send it along as the message part of the prompt
-        # This allows forwarding messages like "the usual lecture" from sudo, etc.
-        if isinstance(self.transport, SubprocessTransport):
-            msg = self.transport.get_stderr(reset=True)
+        if exc is None:
+            self.shutdown_endpoint(problem='peer-disconnected')
+        elif isinstance(exc, CockpitProblem):
+            self.shutdown_endpoint(problem=exc.problem, message=exc.message, **exc.kwargs)
         else:
-            msg = None
+            self.shutdown_endpoint(problem='internal-error',
+                                   message=f"[{exc.__class__.__name__}] {str(exc)}")
 
-        logger.debug('Peer %s request, cookie=%s, prompt=%s', self.name, cookie, prompt)
-        if self.state_listener is not None and isinstance(cookie, str) and isinstance(prompt, str):
-            self.authorize_pending = cookie
-            self.state_listener.peer_authorization_request(self, msg, prompt, False)
+        if self.init_future is not None and exc is not None:
+            self.init_future.set_exception(exc)
+        elif self.start_task is not None:
+            self.start_task.cancel()
 
-    def authorize_response(self, response: str) -> None:
-        logger.debug('Peer %s response, cookie=%s, response=%s', self.name, self.authorize_pending, response)
-        cookie = self.authorize_pending
-        if cookie is not None:
-            self.authorize_pending = None
-            self.write_control(command='authorize', cookie=cookie, response=response)
+        for callback in self.done_callbacks:
+            callback()
 
     def process_exited(self) -> None:
         assert isinstance(self.transport, SubprocessTransport)
-        logger.debug('Peer %s exited, status %d', self.name, self.transport.get_returncode())
+        logger.debug('Peer %s exited, status %d', self.__class__.__name__, self.transport.get_returncode())
 
     # Forwarding data: from the peer to the router
     def channel_control_received(self, channel: str, command: str, message: Dict[str, object]) -> None:
+        if self.init_future is not None:
+            raise CockpitProtocolError('Received unexpected channel control message before init')
         self.send_channel_control(**message)
 
     def channel_data_received(self, channel: str, data: bytes) -> None:
+        if self.init_future is not None:
+            raise CockpitProtocolError('Received unexpected channel data before init')
         self.send_channel_data(channel, data)
 
     # Forwarding data: from the router to the peer
     def do_channel_control(self, channel: str, command: str, message: Dict[str, object]) -> None:
+        assert self.init_future is None
         self.write_control(**message)
 
     def do_channel_data(self, channel: str, data: bytes) -> None:
+        assert self.init_future is None
         self.write_channel_data(channel, data)
 
     def do_kill(self, host: Optional[str], group: Optional[str]) -> None:
+        assert self.init_future is None
         self.write_control(command='kill', host=host, group=group)
 
 
-class PeerRoutingRule(RoutingRule, PeerStateListener):
+class ConfiguredPeer(Peer):
+    args: Sequence[str]
+    env: Sequence[str]
+
+    def __init__(self, router: Router, config: Dict[str, object]):
+        self.args = config['spawn']  # type: ignore
+        self.env = config.get('environ', [])  # type: ignore
+        super().__init__(router)
+
+    async def do_connect_transport(self):
+        return await self.spawn(self.args, self.env)
+
+
+class PeerRoutingRule(RoutingRule):
     config: Dict[str, object]
     peer: Optional[Peer]
 
@@ -184,25 +197,14 @@ class PeerRoutingRule(RoutingRule, PeerStateListener):
 
         # Start the peer if it's not running already
         if self.peer is None:
-            try:
-                args = self.config['spawn']
-                env = self.config.get('environ', [])
-                name = self.config.get('label', args[0])  # type: ignore
-
-                peer = Peer(self.router, name, self)  # type: ignore
-                peer.spawn(args, env)  # type: ignore
-                self.peer = peer
-            except OSError as error:
-                raise RoutingError('spawn-error', message=str(error))
+            self.peer = ConfiguredPeer(self.router, self.config)
+            self.peer.add_done_callback(self.peer_closed)
+            self.peer.start_in_background()
 
         return self.peer
 
-    def peer_state_changed(self, peer: 'Peer', event: str, exc: Optional[Exception] = None):
-        logger.debug('%s got peer state event %s %s %s', self, peer, event, exc)
-        if event == 'init':
-            pass
-        elif event == 'closed':
-            self.peer = None
+    def peer_closed(self):
+        self.peer = None
 
     def shutdown(self):
         if self.peer is not None:

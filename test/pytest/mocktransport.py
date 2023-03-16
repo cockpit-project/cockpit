@@ -142,9 +142,10 @@ class MockTransport(asyncio.Transport):
         assert channel == expected_channel
         assert data == expected_data
 
-    async def assert_msg(self, expected_channel, **kwargs) -> None:
+    async def assert_msg(self, expected_channel, **kwargs) -> Dict[str, object]:
         msg = await self.next_msg(expected_channel)
         assert msg == msg | {k.replace('_', '-'): v for k, v in kwargs.items()}, msg
+        return msg
 
     # D-Bus helpers
     internal_bus: str = ''

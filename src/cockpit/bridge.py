@@ -39,7 +39,7 @@ from .packages import Packages, PackagesListener
 from .peer import PeersRoutingRule
 from .remote import HostRoutingRule
 from .router import Router
-from .superuser import SUPERUSER_AUTH_COOKIE, SuperuserRoutingRule
+from .superuser import SuperuserRoutingRule
 from .transports import StdioTransport
 
 logger = logging.getLogger(__name__)
@@ -107,12 +107,6 @@ class Bridge(Router, PackagesListener):
         if isinstance(superuser, dict):
             self.superuser_rule.init(superuser)
 
-    def do_authorize(self, message: Dict[str, object]) -> None:
-        if message.get('cookie') == SUPERUSER_AUTH_COOKIE:
-            response = message.get('response')
-            if isinstance(response, str):
-                self.superuser_rule.answer(response)
-
     def do_send_init(self) -> None:
         self.write_control(command='init', version=1,
                            checksum=self.packages.checksum,
@@ -151,20 +145,15 @@ async def run(args) -> None:
 
 
 def try_to_receive_stderr():
-    # We need to take great care to ensure that `stdin_socket` doesn't fall out
-    # of scope before we call .detach() on it — that would close the stdin fd.
-    stdin_socket = None
+    fds = []
     try:
-        stdin_socket = socket.socket(fileno=0)
-        request = '\n{"command": "send-stderr"}\n'
-        stdin_socket.send(f'{len(request)}\n{request}'.encode('ascii'))
-        _msg, fds, _flags, _addr = socket.recv_fds(stdin_socket, 0, 1)
+        stderr_socket = socket.fromfd(2, socket.AF_UNIX, socket.SOCK_STREAM)
+        ours, theirs = socket.socketpair()
+        socket.send_fds(stderr_socket, [b'\0ferny\0(["send-stderr"], {})'], [theirs.fileno(), 1])
+        theirs.close()
+        _msg, fds, _flags, _addr = socket.recv_fds(ours, 1, 1)
     except OSError:
         return
-    finally:
-        if stdin_socket is not None:
-            stdin_socket.detach()
-        del stdin_socket
 
     if fds:
         # This is our new stderr.  We have to be careful not to leak it.

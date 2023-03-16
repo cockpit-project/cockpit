@@ -17,69 +17,45 @@
 
 import asyncio
 import logging
+import getpass
 import os
-import pwd
-import subprocess
+
+from typing import Dict, List, Optional, Sequence, Union
 
 from ._vendor.systemd_ctypes import bus
-
-from typing import Dict, List, Optional, Sequence, Tuple, Union
-
+from ._vendor import ferny
 from .router import Router, RoutingError, RoutingRule
-from .peer import Peer, PeerStateListener
+from .peer import Peer, PeerError, ConfiguredPeer
 
 logger = logging.getLogger(__name__)
 
-SUPERUSER_AUTH_COOKIE = 'supermarius'
+
+class SuperuserPeer(ConfiguredPeer):
+    responder: ferny.InteractionResponder
+
+    def __init__(self, router: Router, config: Dict[str, object], responder: ferny.InteractionResponder):
+        super().__init__(router, config)
+        self.responder = responder
+
+    async def do_connect_transport(self) -> asyncio.Transport:
+        agent = ferny.InteractionAgent(self.responder)
+        transport = await self.spawn(self.args, self.env, stderr=agent, start_new_session=True)
+        await agent.communicate()
+        return transport
 
 
-class SuperuserStartup:
-    peer: Peer  # the peer that's being started
+class AuthorizeResponder(ferny.InteractionResponder):
+    def __init__(self, router: Router):
+        self.router = router
 
-    def success(self, rule: 'SuperuserRoutingRule') -> None:
-        raise NotImplementedError
-
-    def failed(self, rule: 'SuperuserRoutingRule', exc: Exception) -> None:
-        raise NotImplementedError
-
-    def auth(self, rule: 'SuperuserRoutingRule', message: Optional[str], prompt: str, echo: bool) -> None:
-        raise NotImplementedError
+    async def do_askpass(self, messages: str, prompt: str, hint: str) -> str:
+        hexuser = ''.join(f'{c:02x}' for c in getpass.getuser().encode('ascii'))
+        return await self.router.request_authorization(f'plain1:{hexuser}')
 
 
-class ControlMessageStartup(SuperuserStartup):
-    def success(self, rule: 'SuperuserRoutingRule') -> None:
-        rule.router.write_control(command='superuser-init-done')
-
-    def failed(self, rule: 'SuperuserRoutingRule', exc: Exception) -> None:
-        rule.router.write_control(command='superuser-init-done')
-
-    def auth(self, rule: 'SuperuserRoutingRule', message: Optional[str], prompt: str, echo: bool) -> None:
-        username = pwd.getpwuid(os.getuid()).pw_name
-        hexuser = ''.join(f'{c:02x}' for c in username.encode('ascii'))
-        rule.router.write_control(command='authorize', cookie=SUPERUSER_AUTH_COOKIE, challenge=f'plain1:{hexuser}')
-
-
-class DBusStartup(SuperuserStartup):
-    future: asyncio.Future
-
-    def __init__(self):
-        self.future = asyncio.get_running_loop().create_future()
-
-    def success(self, rule: 'SuperuserRoutingRule') -> None:
-        self.future.set_result(None)
-
-    def failed(self, rule: 'SuperuserRoutingRule', exc: Exception) -> None:
-        self.future.set_exception(bus.BusError('cockpit.Superuser.Error', str(exc)))
-
-    def auth(self, rule: 'SuperuserRoutingRule', message: Optional[str], prompt: str, echo: bool) -> None:
-        rule.prompt(message or '', prompt, '', echo, '')
-
-    async def wait(self) -> None:
-        await self.future
-
-
-class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface='cockpit.Superuser'):
-    startup: Optional[SuperuserStartup]
+class SuperuserRoutingRule(RoutingRule, ferny.InteractionResponder, bus.Object, interface='cockpit.Superuser'):
+    superuser_configs: Dict[str, Dict[str, object]]
+    pending_prompt: Optional[asyncio.Future]
     peer: Optional[Peer]
 
     # D-Bus signals
@@ -105,36 +81,23 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
             # superuser requested, but not active?  That's an error.
             raise RoutingError('access-denied')
 
-    # PeerStateListener hooks
-    def peer_state_changed(self, peer: Peer, event: str, exc: Optional[Exception] = None) -> None:
-        logger.debug('Peer %s state changed -> %s', peer.name, event)
-        if event == 'connected':
-            self.current = 'init'
-            self.peer = peer
-
-        elif event == 'init':
-            self.current = peer.name
-            if self.startup is not None:
-                self.startup.success(self)
-                self.startup = None
-
-        elif event == 'closed':
-            self.current = 'none'
-            self.peer = None
-
-            if self.startup is not None:
-                self.startup.failed(self, exc or ConnectionResetError('connection lost'))
-                self.startup = None
-
-    def peer_authorization_request(self, peer: Peer, message: Optional[str], prompt: str, echo: bool) -> None:
-        if self.startup:
-            self.startup.auth(self, message, prompt, echo)
+    # ferny.InteractionResponder
+    async def do_askpass(self, messages: str, prompt: str, hint: str) -> Optional[str]:
+        assert self.pending_prompt is None
+        echo = hint == "confirm"
+        self.pending_prompt = asyncio.get_running_loop().create_future()
+        try:
+            logger.debug('prompting for %s', prompt)
+            self.prompt(messages, prompt, '', echo, '')
+            return await self.pending_prompt
+        finally:
+            self.pending_prompt = None
 
     def __init__(self, router: Router, privileged: bool = False):
         super().__init__(router)
 
-        # name → (label, spawn, env)
-        self.superuser_rules: Dict[str, Tuple[Optional[str], Sequence[str], Sequence[str]]] = {}
+        self.superuser_configs = {}
+        self.pending_prompt = None
         self.bridges = []
         self.peer = None
         self.startup = None
@@ -142,47 +105,39 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
         if privileged or os.getuid() == 0:
             self.current = 'root'
 
-    def go(self, startup: SuperuserStartup, name: str) -> None:
+    def peer_done(self):
+        self.current = 'none'
+        self.peer = None
+
+    async def go(self, name: str, responder: ferny.InteractionResponder) -> None:
         if self.current != 'none':
             raise bus.BusError('cockpit.Superuser.Error', 'Superuser bridge already running')
+
+        if name == 'any' and self.bridges:
+            name = self.bridges[0]
 
         assert self.peer is None
         assert self.startup is None
 
         try:
-            _label, args, env = self.superuser_rules[name]
+            config = self.superuser_configs[name]
         except KeyError as exc:
             raise bus.BusError('cockpit.Superuser.Error', f'Unknown superuser bridge type "{name}"') from exc
 
-        startup.peer = Peer(self.router, name, self)
+        self.current = 'init'
+        self.peer = SuperuserPeer(self.router, config, responder)
+        self.peer.add_done_callback(self.peer_done)
 
         try:
-            # We want to capture the error messages to send to the user
-            startup.peer.spawn(args, env, stderr=subprocess.PIPE)
-        except OSError as exc:
-            raise bus.BusError('cockpit.Superuser.Error', f'Failed to start peer bridge: {exc}') from exc
+            await self.peer.start()
+        except (OSError, PeerError, ferny.SshError) as exc:
+            raise bus.BusError('cockpit.Superuser.Error', str(exc))
 
-        # We do this step last, only after everything above was successful.  If
-        # anything above raises an error, it will all go away neatly, without
-        # side-effects.
-        self.startup = startup
-
-    def init(self, params: Dict[str, Union[bool, str, Sequence[str]]]) -> None:
-        name = params.get('id')
-        if not isinstance(name, str) or name == 'any':
-            if len(self.bridges) == 0:
-                return
-            name = self.bridges[0]
-        assert isinstance(name, str)
-
-        startup = ControlMessageStartup()
-        try:
-            self.go(startup, name)
-        except bus.BusError as exc:
-            startup.failed(self, exc)
+        self.current = name
 
     def set_configs(self, configs: List[Dict[str, object]]):
-        self.superuser_rules = {}
+        logger.debug("set_configs() with %d items", len(configs))
+        self.superuser_configs = {}
         for config in configs:
             if config.get('privileged', False):
                 spawn = config['spawn']
@@ -194,13 +149,13 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
                     name = label
                 else:
                     name = os.path.basename(spawn[0])
-                environ = config.get('environ', [])
-                assert isinstance(environ, list)
-                self.superuser_rules[name] = label, spawn, environ
-        self.bridges = list(self.superuser_rules)
+                self.superuser_configs[name] = config
+        self.bridges = list(self.superuser_configs)
+
+        logger.debug("  bridges are now %s", self.bridges)
 
         # If the currently-active bridge got removed...
-        if self.peer is not None and self.current not in self.superuser_rules:
+        if self.peer is not None and self.current not in self.superuser_configs:
             self.stop()
 
     def shutdown(self):
@@ -210,12 +165,23 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
         # close() should have disconnected the peer immediately
         assert self.peer is None
 
+    # Connect-on-startup functionality
+    def init(self, params: Dict[str, Union[bool, str, Sequence[str]]]) -> None:
+        name = params.get('id', 'any')
+        assert isinstance(name, str)
+        responder = AuthorizeResponder(self.router)
+        self._init_task = asyncio.create_task(self.go(name, responder))
+        self._init_task.add_done_callback(self._init_done)
+
+    def _init_done(self, task):
+        logger.debug('superuser init done! %s', task.exception())
+        self.router.write_control(command='superuser-init-done')
+        del self._init_task
+
     # D-Bus methods
     @bus.Interface.Method(in_types=['s'])
     async def start(self, name: str) -> None:
-        startup = DBusStartup()
-        self.go(startup, name)
-        await startup.wait()
+        await self.go(name, self)
 
     @bus.Interface.Method()
     def stop(self) -> None:
@@ -223,13 +189,17 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
 
     @bus.Interface.Method(in_types=['s'])
     def answer(self, reply: str) -> None:
-        if self.startup is not None:
-            self.startup.peer.authorize_response(reply)
+        if self.pending_prompt is not None:
+            logger.debug('responding to pending prompt')
+            self.pending_prompt.set_result(reply)
+        else:
+            logger.debug('got Answer, but no prompt pending')
 
     @methods.getter
     def get_methods(self):
         methods = {}
-        for name, (label, _, _) in self.superuser_rules.items():
+        for name, config in self.superuser_configs.items():
+            label = config.get('label')
             if label:
                 methods[name] = {'t': 'a{sv}', 'v': {'label': {'t': 's', 'v': label}}}
         return methods

@@ -153,7 +153,6 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
 
         # try to open dbus on the root bridge
         root_dbus = await self.transport.check_open('dbus-json3', bus='internal', superuser=True)
-        assert self.bridge.open_channels[root_dbus].name == 'pseudo'
 
         # verify that the bridge thinks that it's the root bridge
         await self.transport.assert_bus_props('/superuser', 'cockpit.Superuser',
@@ -251,7 +250,7 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
             await self.transport.assert_bus_notify('/superuser', 'cockpit.Superuser', {'Current': 'none'})
 
             # Start call is now done and returned failure
-            await self.transport.assert_bus_error(start, 'cockpit.Superuser.Error', 'pseudo says: Bad password\n')
+            await self.transport.assert_bus_error(start, 'cockpit.Superuser.Error', 'pseudo says: Bad password')
 
         # double-check
         await self.verify_root_bridge_not_running()
@@ -274,8 +273,8 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
             await self.transport.assert_msg('', command='init')
             self.transport.send_init(superuser={"id": "pseudo"})
 
-            await self.transport.assert_msg('', command='authorize', cookie='supermarius')
-            self.transport.send_json('', command='authorize', cookie='supermarius', response='p4ssw0rd')
+            msg = await self.transport.assert_msg('', command='authorize')
+            self.transport.send_json('', command='authorize', cookie=msg['cookie'], response='p4ssw0rd')
 
             # that should have worked
             await self.transport.assert_msg('', command='superuser-init-done')

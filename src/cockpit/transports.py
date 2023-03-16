@@ -305,10 +305,6 @@ class SubprocessTransport(_Transport, asyncio.SubprocessTransport):
         else:
             return None
 
-    def send_stderr_fd(self) -> None:
-        if self._sock is not None:
-            socket.send_fds(self._sock, [b' '], [2])
-
     def _exited(self, pid: int, code: int) -> None:
         # NB: per AbstractChildWatcher API, this handler should be thread-safe,
         # but we only ever use non-threaded child watcher implementations, so

@@ -59,6 +59,7 @@ import './cockpit-components-table.scss';
  * - afterToggle: function to be called when content is toggled
  * - onSelect: function to be called when a checkbox is clicked. Called with 5 parameters:
  *   event, isSelected, rowIndex, rowData, extraData. rowData contains props with an id property of the clicked row.
+ * - onHeaderSelect: event, isSelected.
  */
 export const ListingTable = ({
     actions = [],
@@ -73,6 +74,7 @@ export const ListingTable = ({
     loading = '',
     onRowClick,
     onSelect,
+    onHeaderSelect,
     rows: tableRows = [],
     showHeader = true,
     sortBy,
@@ -258,7 +260,11 @@ export const ListingTable = ({
                 {showHeader && <Thead>
                     <Tr>
                         {isExpandable && <Th />}
-                        {onSelect && <Th />}
+                        {!onHeaderSelect && onSelect && <Th />}
+                        {onHeaderSelect && onSelect && <Th select={{
+                            onSelect: onHeaderSelect,
+                            isSelected: rows.every(r => r.selected)
+                        }} />}
                         {cells.map((column, columnIndex) => {
                             const columnProps = column.props;
                             const sortParams = (

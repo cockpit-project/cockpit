@@ -1,14 +1,8 @@
 #!/usr/bin/env node
 
-/*
- * Builds with webpack and generates a Makefile include that
- * lists all dependencies, inputs, outputs, and installable files
- */
-
 import webpack from 'webpack';
 import path from 'path';
 import argparse from 'argparse';
-import fs from 'fs';
 import process from 'process';
 import { CockpitRsyncWebpackPlugin } from '../pkg/lib/cockpit-rsync-plugin.js';
 
@@ -40,11 +34,8 @@ if (args.prefix.includes('/')) {
     parser.error("Directory must not contain '/'");
 }
 
-const prefix = args.prefix;
-const makefile = "dist/" + prefix + "/Makefile.deps";
-process.env.ONLYDIR = prefix + "/";
+process.env.ONLYDIR = args.prefix + "/";
 
-const srcdir = (process.env.SRCDIR || ".").replace(/\/$/, '');
 const cwd = process.cwd();
 const config_path = path.resolve(cwd, args.config);
 
@@ -52,7 +43,7 @@ import(config_path).then(module => {
     const config = module.default;
     if (args.rsync) {
         process.env.RSYNC = args.rsync;
-        config.plugins.push(new CockpitRsyncWebpackPlugin({ source: path.dirname(makefile) }));
+        config.plugins.push(new CockpitRsyncWebpackPlugin({ source: "dist/" + args.prefix }));
     }
 
     const compiler = webpack(config);
@@ -89,101 +80,5 @@ function process_result(err, stats) {
     if (stats.hasErrors()) {
         if (!args.watch)
             process.exit(1);
-        return;
     }
-
-    generateDeps(makefile, stats);
-}
-
-function generateDeps(makefile, stats) {
-    const stampfile = '$(srcdir)/' + path.dirname(makefile) + '/manifest.json';
-    const dir = path.relative('', stats.compilation.outputOptions.path);
-    const now = Math.floor(Date.now() / 1000);
-
-    /* If any of these changes, then everything definitely needs to be
-     * rebuilt.  These aren't mentioned in fileDependencies, though.
-     */
-    const inputs = new Set([
-        'package-lock.json',
-        'tools/webpack-make.js',
-        'webpack.config.js',
-        'pkg/lib/cockpit-po-plugin.js',
-    ]);
-
-    for (const file of stats.compilation.fileDependencies) {
-        // node modules  are handled by the dependency on package-lock.json
-        if (file.includes('/node_modules/'))
-            continue;
-
-        // Webpack 5 includes directories: https://github.com/webpack/webpack/issues/11971
-        if (fs.lstatSync(file).isDirectory())
-            continue;
-
-        const input = path.relative(srcdir, file);
-
-        // HACK: webpack looks at files in parent dir: https://github.com/webpack/webpack/issues/14481
-        if (input.startsWith("../")) {
-            process.stderr.write(`webpack-make: Ignoring file dependency ${file} outside of project directory: ${srcdir}\n`);
-            continue;
-        }
-
-        inputs.add(input);
-    }
-
-    const outputs = new Set();
-    const installs = new Set();
-    for (const asset in stats.compilation.assets) {
-        const output = path.join(dir, asset);
-        fs.utimesSync(output, now, now);
-
-        if (!asset.endsWith("/manifest.json") && !asset.endsWith(".map"))
-            outputs.add(output);
-
-        if (asset.includes("/test-"))
-            continue;
-
-        if (asset.endsWith(".map") || asset.endsWith(".LICENSE.txt"))
-            continue;
-
-        installs.add(output);
-    }
-
-    const lines = ["# Generated Makefile data for " + prefix];
-
-    function makeArray(name, set) {
-        lines.push(name + " = \\");
-        for (const value of [...set.keys()].sort()) {
-            lines.push("\t" + value + " \\");
-        }
-        lines.push("\t$(NULL)");
-        lines.push("");
-    }
-
-    makeArray(prefix + "_INPUTS", inputs);
-    makeArray(prefix + "_OUTPUTS", outputs);
-
-    makeArray(prefix + "_INSTALL", installs);
-
-    lines.push(stampfile + ": $(" + prefix + "_INPUTS)");
-    lines.push("");
-
-    for (const name of [...outputs.keys()].sort()) {
-        lines.push(name + ": " + stampfile);
-        lines.push("");
-    }
-
-    for (const name of [...inputs.keys()].sort()) {
-        lines.push(name + ":");
-        lines.push("");
-    }
-
-    lines.push("WEBPACK_INPUTS += $(" + prefix + "_INPUTS)");
-    lines.push("WEBPACK_OUTPUTS += $(" + prefix + "_OUTPUTS)");
-    lines.push("WEBPACK_INSTALL += $(" + prefix + "_INSTALL)");
-    lines.push("WEBPACK_GZ_INSTALL += $(" + prefix + "_GZ_INSTALL)");
-    lines.push("");
-
-    lines.push(prefix + ": " + stampfile);
-
-    fs.writeFileSync(makefile, lines.join("\n") + "\n");
 }

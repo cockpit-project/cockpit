@@ -40,7 +40,8 @@ jobs:
         run: |
           # disable documentation building as this indirectly triggers a build of pkg/static
           ./autogen.sh --disable-doc
-          make -j$(nproc) WEBPACK_PACKAGES=
+          # only build static/ -- it's the fastest one (just takes a few seconds)
+          make -j$(nproc) NODE_ENV=development ONLYDIR=static/
         if: ${{ matrix.language == 'cpp' }}
 
       - name: Perform CodeQL Analysis

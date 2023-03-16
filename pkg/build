@@ -5,59 +5,32 @@ srcdir ?= .
 AM_DEFAULT_VERBOSITY ?= 0
 NODE_ENV ?= production
 
-WEBPACK_PACKAGES = \
-	base1 \
-	apps \
-	kdump \
-	metrics \
-	networkmanager \
-	packagekit \
-	playground \
-	selinux \
-	shell \
-	sosreport \
-	static \
-	storaged \
-	systemd \
-	users \
-	$(NULL)
+# one built file in dist/ which we use as dependency
+DIST_STAMP = $(srcdir)/dist/static/manifest.json
 
-MANIFESTS = $(WEBPACK_PACKAGES:%=$(srcdir)/dist/%/manifest.json)
+# dynamic pkg → dist dependency, to rebuild the webpack if any web related file changes
+# exclude automake unit test log files
+PKG_INPUTS = $(shell find $(srcdir)/pkg -type f ! -name 'test*.trs' ! -name 'test*.log')
 
 .PHONY: all-webpack
-all-webpack: $(MANIFESTS)
+all-webpack: $(DIST_STAMP)
 
 V_TAR = $(V_TAR_$(V))
 V_TAR_ = $(V_TAR_$(AM_DEFAULT_VERBOSITY))
 V_TAR_0 = @echo "  TAR     " $@;
 
-webpack-jumpstart.tar: $(MANIFESTS) package-lock.json tree
+webpack-jumpstart.tar: $(DIST_STAMP) package-lock.json tree
 	$(V_TAR) tar cf webpack-jumpstart.tar dist package-lock.json tree
 
 V_WEBPACK = $(V_WEBPACK_$(V))
 V_WEBPACK_ = $(V_WEBPACK_$(AM_DEFAULT_VERBOSITY))
-V_WEBPACK_0 = @echo "  WEBPACK  $*";
+V_WEBPACK_0 = @echo "  WEBPACK  dist";
 
-WEBPACK_INPUTS =
-WEBPACK_OUTPUTS =
-WEBPACK_INSTALL =
-WEBPACK_GZ_INSTALL =
-WEBPACK_DEPS = $(WEBPACK_PACKAGES:%=$(srcdir)/dist/%/Makefile.deps)
-
-noinst_DATA += $(MANIFESTS)
-EXTRA_DIST += $(MANIFESTS) $(WEBPACK_DEPS) webpack.config.js
-EXTRA_DIST += $(WEBPACK_INPUTS) $(WEBPACK_OUTPUTS)
-
-# Nothing generates this directly, but it's included as a dependency in
-# various places.  It will automatically appear as part of the webpack
-# build.
-$(srcdir)/dist/%/Makefile.deps:
-	@true
-
-$(srcdir)/dist/%/manifest.json: $(srcdir)/package-lock.json
-	$(V_WEBPACK) cd $(srcdir) && NODE_ENV='$(NODE_ENV)' tools/termschutz tools/webpack-make.js $*
-
--include $(WEBPACK_DEPS)
+# delete the stamp first; webpack won't touch it if the contents didn't change,
+# but this is just a representative for all of dist/*
+$(DIST_STAMP): $(srcdir)/package-lock.json $(PKG_INPUTS)
+	@rm -f $(DIST_STAMP)
+	$(V_WEBPACK) cd $(srcdir) && NODE_ENV='$(NODE_ENV)' tools/termschutz node_modules/.bin/webpack
 
 V_NODE_MODULES = $(V_NODE_MODULES_$(V))
 V_NODE_MODULES_ = $(V_NODE_MODULES_$(AM_DEFAULT_VERBOSITY))
@@ -72,7 +45,7 @@ $(srcdir)/package-lock.json: FORCE
 node_modules/%: $(srcdir)/package-lock.json
 	@true
 
-EXTRA_DIST += package.json package-lock.json
+EXTRA_DIST += webpack.config.js package.json package-lock.json
 
 # Write the current git tree hash, and touch the file only if it changed.
 # Make sure the tree is clean, first.  Gets included in the jumpstart tar.

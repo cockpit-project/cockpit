@@ -35,4 +35,4 @@ all-local:: cockpit
 cockpit:
 	$(AM_V_GEN) ln -sf $(srcdir)/dist $@
 
-nobase_data_DATA = $(patsubst dist/%,cockpit/%,$(WEBPACK_INSTALL))
+nobase_data_DATA = $(patsubst dist/%,cockpit/%,$(shell find $(srcdir)/cockpit/ -type f))

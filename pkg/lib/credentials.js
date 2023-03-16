@@ -19,8 +19,8 @@
 
 import cockpit from "cockpit";
 
-import lister from "raw-loader!credentials-ssh-private-keys.sh";
-import remove_key from "raw-loader!credentials-ssh-remove-key.sh";
+import lister from "credentials-ssh-private-keys.sh";
+import remove_key from "credentials-ssh-remove-key.sh";
 
 const _ = cockpit.gettext;
 

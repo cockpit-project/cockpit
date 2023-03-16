@@ -1,7 +1,7 @@
 import cockpit from "cockpit";
 
-import lister from "raw-loader!./ssh-list-public-keys.sh";
-import adder from "raw-loader!./ssh-add-public-key.sh";
+import lister from "./ssh-list-public-keys.sh";
+import adder from "./ssh-add-public-key.sh";
 
 const _ = cockpit.gettext;
 

@@ -380,7 +380,7 @@ export default {
     entry: info.entries,
     // cockpit.js gets included via <script>, everything else should be bundled
     externals: (section === 'kdump/' || section === 'base1/') ? {} : { cockpit: "cockpit" },
-    plugins: plugins,
+    plugins,
 
     devtool: production ? false : "source-map",
     stats: "errors-warnings",
@@ -502,7 +502,12 @@ export default {
                     );
                 },
                 use: ["null-loader"]
-            }
+            },
+            // inlined scripts
+            {
+                test: /\.(sh|py)$/,
+                use: "raw-loader"
+            },
         ],
     }
 };

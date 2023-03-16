@@ -45,7 +45,7 @@ import { StorageButton } from "./storage-controls.jsx";
 import { parse_options, unparse_options } from "./format-dialog.jsx";
 import { edit_config } from "./crypto-tab.jsx";
 
-import clevis_luks_passphrase_sh from "raw-loader!./clevis-luks-passphrase.sh";
+import clevis_luks_passphrase_sh from "./clevis-luks-passphrase.sh";
 
 const _ = cockpit.gettext;
 

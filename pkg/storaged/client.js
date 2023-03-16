@@ -28,12 +28,12 @@ import { read_os_release } from "os-release.js";
 
 import { find_warnings } from "./warnings.jsx";
 
-import inotify_py from "raw-loader!inotify.py";
-import mount_users_py from "raw-loader!./mount-users.py";
-import nfs_mounts_py from "raw-loader!./nfs-mounts.py";
-import vdo_monitor_py from "raw-loader!./vdo-monitor.py";
-import stratis2_set_key_py from "raw-loader!./stratis2-set-key.py";
-import stratis3_set_key_py from "raw-loader!./stratis3-set-key.py";
+import inotify_py from "inotify.py";
+import mount_users_py from "./mount-users.py";
+import nfs_mounts_py from "./nfs-mounts.py";
+import vdo_monitor_py from "./vdo-monitor.py";
+import stratis2_set_key_py from "./stratis2-set-key.py";
+import stratis3_set_key_py from "./stratis3-set-key.py";
 
 /* STORAGED CLIENT
  */

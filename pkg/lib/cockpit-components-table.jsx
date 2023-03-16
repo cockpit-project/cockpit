@@ -43,6 +43,7 @@ import './cockpit-components-table.scss';
                This property is mandatory and should contain a unique `key`, all additional properties are optional.
                Through extraProps the consumers can pass arbitrary properties to the <tr>
  *      expandedContent: (React.Node)[])
+ *      selected: boolean option if the row is selected
  *      initiallyExpanded : the entry will be initially rendered as expanded, but then behaves normally
  *   }[]
  * - emptyCaption: header caption to show if list is empty
@@ -56,6 +57,8 @@ import './cockpit-components-table.scss';
  * - sortMethod: callback function used for sorting rows. Called with 3 parameters: sortMethod(rows, activeSortDirection, activeSortIndex)
  * - style: object of additional css rules
  * - afterToggle: function to be called when content is toggled
+ * - onSelect: function to be called when a checkbox is clicked. Called with 5 parameters:
+ *   event, isSelected, rowIndex, rowData, extraData. rowData contains props with an id property of the clicked row.
  */
 export const ListingTable = ({
     actions = [],
@@ -211,6 +214,9 @@ export const ListingTable = ({
                             rowIndex,
                             onSelect,
                             isSelected: !!row.selected,
+                            props: {
+                                id: rowKey
+                            }
                         }} />
                     }
                     {row.columns.map((cell, cellIndex) => {

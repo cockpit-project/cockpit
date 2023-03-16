@@ -7,6 +7,8 @@ import gettext_parser from "gettext-parser";
 
 const config = {};
 
+const DEFAULT_WRAPPER = 'cockpit.locale(PO_DATA)';
+
 function get_po_files() {
     try {
         const linguas_file = path.resolve(config.srcdir, "po/LINGUAS");
@@ -42,7 +44,7 @@ function get_plural_expr(statement) {
     return expr;
 }
 
-function buildFile(po_file, webpack_module, webpack_compilation) {
+function buildFile(po_file, subdir, webpack_module, webpack_compilation) {
     if (webpack_compilation)
         webpack_compilation.fileDependencies.add(po_file);
 
@@ -68,7 +70,7 @@ function buildFile(po_file, webpack_module, webpack_compilation) {
             for (const [msgid, translation] of Object.entries(context)) {
                 /* Only include msgids which appear in this source directory */
                 const references = translation.comments.reference.split(/\s/);
-                if (!references.some(str => str.startsWith(`pkg/${config.subdir}`) || str.startsWith('src')))
+                if (!references.some(str => str.startsWith(`pkg/${subdir}`) || str.startsWith('src')))
                     continue;
 
                 if (translation.comments.flag?.match(/\bfuzzy\b/))
@@ -85,10 +87,11 @@ function buildFile(po_file, webpack_module, webpack_compilation) {
         }
         chunks.push('\n}');
 
-        const output = config.wrapper.replace('PO_DATA', chunks.join('')) + '\n';
+        const wrapper = config.wrapper?.(subdir) || DEFAULT_WRAPPER;
+        const output = wrapper.replace('PO_DATA', chunks.join('')) + '\n';
 
         const lang = path.basename(po_file).slice(0, -3);
-        const out_path = config.subdir + 'po.' + lang + '.js';
+        const out_path = (subdir ? (subdir + '/') : '') + 'po.' + lang + '.js';
         if (webpack_compilation)
             webpack_compilation.emitAsset(out_path, new webpack_module.sources.RawSource(output));
         else
@@ -99,13 +102,17 @@ function buildFile(po_file, webpack_module, webpack_compilation) {
 
 function init(options) {
     config.srcdir = process.env.SRCDIR || './';
-    config.subdir = options.subdir || '';
-    config.wrapper = options.wrapper || 'cockpit.locale(PO_DATA)';
+    config.subdirs = options.subdirs || [''];
+    config.wrapper = options.wrapper;
     config.outdir = options.outdir || './dist';
 }
 
 function run(webpack_module, webpack_compilation) {
-    return Promise.all(get_po_files().map(f => buildFile(f, webpack_module, webpack_compilation)));
+    const promises = [];
+    config.subdirs.map(subdir =>
+        promises.push(...get_po_files().map(po_file =>
+            buildFile(po_file, subdir, webpack_module, webpack_compilation))));
+    return Promise.all(promises);
 }
 
 export const cockpitPoEsbuildPlugin = options => ({

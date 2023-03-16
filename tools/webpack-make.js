@@ -132,7 +132,6 @@ function generateDeps(makefile, stats) {
 
     const outputs = new Set();
     const installs = new Set();
-    const tests = new Set();
     for (const asset in stats.compilation.assets) {
         const output = path.join(dir, asset);
         fs.utimesSync(output, now, now);
@@ -140,12 +139,8 @@ function generateDeps(makefile, stats) {
         if (!asset.endsWith("/manifest.json") && !asset.endsWith(".map"))
             outputs.add(output);
 
-        if (asset.includes("/test-")) {
-            if (asset.endsWith(".html")) {
-                tests.add(output);
-            }
+        if (asset.includes("/test-"))
             continue;
-        }
 
         if (asset.endsWith(".map") || asset.endsWith(".LICENSE.txt"))
             continue;
@@ -168,7 +163,6 @@ function generateDeps(makefile, stats) {
     makeArray(prefix + "_OUTPUTS", outputs);
 
     makeArray(prefix + "_INSTALL", installs);
-    makeArray(prefix + "_TESTS", tests);
 
     lines.push(stampfile + ": $(" + prefix + "_INPUTS)");
     lines.push("");
@@ -187,7 +181,6 @@ function generateDeps(makefile, stats) {
     lines.push("WEBPACK_OUTPUTS += $(" + prefix + "_OUTPUTS)");
     lines.push("WEBPACK_INSTALL += $(" + prefix + "_INSTALL)");
     lines.push("WEBPACK_GZ_INSTALL += $(" + prefix + "_GZ_INSTALL)");
-    lines.push("TESTS += $(" + prefix + "_TESTS)");
     lines.push("");
 
     lines.push(prefix + ": " + stampfile);

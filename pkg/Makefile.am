@@ -24,6 +24,10 @@ dist_sshmanifest_DATA = pkg/ssh/manifest.json
 
 include pkg/build
 
+# This is how the qunit tests get included.  We need to prevent automake from
+# seeing them during ./autogen.sh, but need make to find them at compile time.
+-include $(wildcard pkg/Makefile.qunit*)
+
 # automake doesn't support stripping initial path components (ie: `dist`) with
 # `nobase_`, so we create a cockpit/ symlink and use that instead.
 # That way, the files land in $(datadir)/cockpit/ and `dist` is avoided.

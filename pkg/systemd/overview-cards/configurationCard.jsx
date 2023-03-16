@@ -32,7 +32,7 @@ import { useObject, useEvent } from "hooks.js";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { ServerTimeConfig } from 'serverTime.js';
 import { RealmdClient, RealmButton } from "./realmd.jsx";
-import { TunedPerformanceProfile } from '../../tuned/dialog.jsx';
+import { TunedPerformanceProfile } from './tuned-dialog.jsx';
 import { CryptoPolicyRow } from './cryptoPolicies.jsx';
 import { useDialogs } from "dialogs.jsx";
 import { useInit } from "hooks";

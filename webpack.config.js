@@ -118,10 +118,6 @@ const info = {
         "systemd/hwinfo": [
             "systemd/hwinfo.jsx",
         ],
-        "tuned/performance": [
-            "tuned/dialog.jsx",
-        ],
-
         "packagekit/updates": [
             "packagekit/updates.jsx",
         ],

@@ -62,13 +62,6 @@ function AccountCreateBody({ state, errors, change }) {
                            value={user_name} onChange={value => change("user_name", value)} />
             </FormGroup>
 
-            <PasswordFormFields password_label={_("Password")}
-                                password_confirm_label={_("Confirm")}
-                                error_password={errors?.password}
-                                error_password_confirm={errors?.password_confirm}
-                                idPrefix="accounts-create-password"
-                                change={change} />
-
             <FormGroup label={_("Authentication")} fieldId="accounts-create-locked" hasNoPaddingTop>
                 <Radio id="account-use-password"
                        label={_("Use password")}
@@ -95,6 +88,13 @@ function AccountCreateBody({ state, errors, change }) {
                     </FlexItem>
                 </Flex>
             </FormGroup>
+
+            <PasswordFormFields password_label={_("Password")}
+                                password_confirm_label={_("Confirm")}
+                                error_password={errors?.password}
+                                error_password_confirm={errors?.password_confirm}
+                                idPrefix="accounts-create-password"
+                                change={change} />
         </Form>
     );
 }

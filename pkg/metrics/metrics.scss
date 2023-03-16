@@ -503,11 +503,6 @@ $graphs: cpu, memory, disks, network;
       border-right: 1px solid rgb(0 0 0 / 30%);
     }
 
-    &.valid-data:not(.metrics-data-compressed).have-saturation::after,
-    &.valid-data:not(.metrics-data-compressed)::before {
-      border-top: 1px solid rgb(0 0 0 / 30%);
-    }
-
     &.valid-data.have-saturation::before {
       width: 50%;
     }
@@ -591,10 +586,12 @@ $graphs: cpu, memory, disks, network;
     padding: 0 var(--pf-global--spacer--sm);
   }
 
-  // when hour is expanded remove the border from the bottom of the last minute
-  &-hour > .metrics-minute:last-of-type .valid-data::before,
-  &-hour > .metrics-minute:last-of-type .valid-data::after {
-    border-top: unset;
+  &-hour:not(.metrics-hour-compressed) .metrics-minute,
+  &-hour.metrics-hour-compressed .metrics-minute:last-of-type {
+    .valid-data.have-saturation::after,
+    .valid-data::before {
+      border-bottom: 1px solid rgb(0 0 0 / 30%);
+    }
   }
 
   .pf-c-card__body:first-child {

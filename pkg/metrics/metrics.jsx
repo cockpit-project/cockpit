@@ -971,7 +971,7 @@ class MetricsMinute extends React.Component {
             return (
                 <div
                     key={ resource + this.props.startTime + this.props.minute }
-                    className={ ("metrics-data metrics-data-" + resource) + (first ? " valid-data" : " empty-data") + (have_sat ? " have-saturation" : "") + (this.props.minute == 0 ? "" : " metrics-data-compressed")}
+                    className={ ("metrics-data metrics-data-" + resource) + (first ? " valid-data" : " empty-data") + (have_sat ? " have-saturation" : "") }
                     aria-hidden="true"
                     { ...(this.props.isExpanded && { onMouseMove: this.onHover }) }
                 >

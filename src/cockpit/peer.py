@@ -206,7 +206,7 @@ class PeerRoutingRule(RoutingRule, PeerStateListener):
         elif event == 'closed':
             self.peer = None
 
-    def rule_removed(self):
+    def shutdown(self):
         if self.peer is not None:
             self.peer.close()
 
@@ -247,4 +247,8 @@ class PeersRoutingRule(RoutingRule):
 
         # close down the old rules that didn't get reclaimed
         for rule in old_rules:
-            rule.rule_removed()
+            rule.shutdown()
+
+    def shutdown(self):
+        for rule in self.rules:
+            rule.shutdown()

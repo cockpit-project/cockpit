@@ -73,6 +73,9 @@ class ChannelRoutingRule(RoutingRule):
         else:
             return None
 
+    def shutdown(self):
+        pass  # we don't hold any state
+
 
 class ChannelError(Exception):
     def __init__(self, problem, **kwargs):

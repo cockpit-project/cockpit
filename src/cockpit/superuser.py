@@ -203,6 +203,13 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
         if self.peer is not None and self.current not in self.superuser_rules:
             self.stop()
 
+    def shutdown(self):
+        if self.peer is not None:
+            self.peer.close()
+
+        # close() should have disconnected the peer immediately
+        assert self.peer is None
+
     # D-Bus methods
     @bus.Interface.Method(in_types=['s'])
     async def start(self, name: str) -> None:
@@ -212,11 +219,7 @@ class SuperuserRoutingRule(PeerStateListener, RoutingRule, bus.Object, interface
 
     @bus.Interface.Method()
     def stop(self) -> None:
-        if self.peer is not None:
-            self.peer.close()
-
-        # close() should have disconnected the peer immediately
-        assert self.peer is None
+        self.shutdown()
 
     @bus.Interface.Method(in_types=['s'])
     def answer(self, reply: str) -> None:

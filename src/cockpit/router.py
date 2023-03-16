@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import asyncio
 import collections
 import logging
 
@@ -126,6 +127,9 @@ class RoutingRule:
         """
         raise NotImplementedError
 
+    def shutdown(self):
+        raise NotImplementedError
+
 
 class Router(CockpitProtocolServer):
     routing_rules: List[RoutingRule]
@@ -215,3 +219,7 @@ class Router(CockpitProtocolServer):
             endpoint.do_channel_control(channel, 'close', {'command': 'close', 'channel': channel})
 
         return bool(self.open_channels)
+
+    def do_closed(self, transport_was: asyncio.Transport, exc: Optional[Exception]) -> None:
+        for rule in self.routing_rules:
+            rule.shutdown()

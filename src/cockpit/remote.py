@@ -30,3 +30,6 @@ class HostRoutingRule(RoutingRule):
         host = options.get('host')
         if host is not None and host != self.router.init_host:
             raise RoutingError('not-supported')
+
+    def shutdown(self):
+        pass  # nothing here (yet)

@@ -21,4 +21,3 @@ install-for-flatpak: \
 	mkdir -p $(DESTDIR)/$(bindir)
 	ln -sfTv $(cockpitclientdir)/cockpit-client $(DESTDIR)/$(bindir)/cockpit-client
 	cp -rT dist/static $(pkgdatadir)/static
-	rm $(pkgdatadir)/static/Makefile.deps

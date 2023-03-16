@@ -3,7 +3,6 @@
  */
 
 import path from 'path';
-import fs from 'fs';
 
 import Copy from 'copy-webpack-plugin';
 import Html from 'html-webpack-plugin';
@@ -16,116 +15,45 @@ import StylelintPlugin from 'stylelint-webpack-plugin';
 import { CockpitPoWebpackPlugin } from './pkg/lib/cockpit-po-plugin.js';
 
 const info = {
-    entries: {
-        "base1/cockpit": [
-            "base1/cockpit.js",
-        ],
-
-        "apps/apps": [
-            "apps/index.jsx"
-        ],
-
-        "kdump/kdump": [
-            "kdump/kdump.js",
-        ],
-
+    entries: [
+        "base1/cockpit.js",
+        "apps/apps.jsx",
+        "kdump/kdump.js",
         // do *not* call this metrics/metrics -- uBlock origin etc. like to block metrics.{css,js}
-        "metrics/index": [
-            "metrics/index.js",
-        ],
+        "metrics/index.js",
 
-        "networkmanager/network": [
-            "networkmanager/app.jsx",
-            "networkmanager/utils.js"
-        ],
+        "networkmanager/networkmanager.jsx",
+        "networkmanager/firewall.jsx",
 
-        "networkmanager/firewall": [
-            "networkmanager/firewall.jsx"
-        ],
+        "playground/index.js",
+        "playground/exception.js",
+        "playground/metrics.js",
+        "playground/pkgs.js",
+        "playground/plot.js",
+        "playground/react-patterns.js",
+        "playground/service.js",
+        "playground/speed.js",
+        "playground/test.js",
+        "playground/translate.js",
+        "playground/preloaded.js",
+        "playground/notifications-receiver.js",
+        "playground/journal.jsx",
 
-        "playground/index": [
-            "playground/index.js",
-        ],
-        "playground/exception": [
-            "playground/exception.js",
-        ],
-        "playground/metrics": [
-            "playground/metrics.js",
-        ],
-        "playground/pkgs": [
-            "playground/pkgs.js",
-        ],
-        "playground/plot": [
-            "playground/plot.js",
-        ],
-        "playground/react-patterns": [
-            "playground/react-patterns",
-        ],
-        "playground/service": [
-            "playground/service",
-        ],
-        "playground/speed": [
-            "playground/speed",
-        ],
-        "playground/test": [
-            "playground/test",
-        ],
-        "playground/translate": [
-            "playground/translate",
-        ],
-        "playground/preloaded": [
-            "playground/preloaded.js",
-        ],
-        "playground/notifications-receiver": [
-            "playground/notifications-receiver.js",
-        ],
-        "playground/journal": [
-            "playground/journal.jsx",
-        ],
+        "selinux/selinux.js",
+        "shell/shell.js",
+        "sosreport/sosreport.jsx",
+        "static/login.js",
+        "storaged/storaged.jsx",
 
-        "selinux/selinux": [
-            "selinux/setroubleshoot.js",
-        ],
+        "systemd/services.jsx",
+        "systemd/logs.jsx",
+        "systemd/overview.jsx",
+        "systemd/terminal.jsx",
+        "systemd/hwinfo.jsx",
 
-        "shell/index": [
-            "shell/index.js",
-        ],
-
-        "sosreport/sosreport": [
-            "sosreport/index.jsx",
-        ],
-
-        "static/login": [
-            "static/login.js",
-        ],
-
-        "storaged/storage": [
-            "storaged/devices.jsx"
-        ],
-
-        "systemd/services": [
-            "systemd/services/services.jsx",
-        ],
-        "systemd/logs": [
-            "systemd/logs.jsx",
-        ],
-        "systemd/overview": [
-            "systemd/overview.jsx",
-        ],
-        "systemd/terminal": [
-            "systemd/terminal.jsx",
-        ],
-        "systemd/hwinfo": [
-            "systemd/hwinfo.jsx",
-        ],
-        "packagekit/updates": [
-            "packagekit/updates.jsx",
-        ],
-
-        "users/users": [
-            "users/local.js",
-        ]
-    },
+        "packagekit/updates.jsx",
+        "users/users.js",
+    ],
 
     tests: [
         "base1/test-base64",
@@ -196,7 +124,7 @@ const info = {
         "playground/notifications-receiver.html",
         "playground/journal.html",
 
-        "selinux/setroubleshoot.html",
+        "selinux/index.html",
 
         "shell/images/server-error.png",
         "shell/images/server-large.png",
@@ -249,13 +177,12 @@ const stylelint = process.env.STYLELINT ? (process.env.STYLELINT !== '0') : !pro
 const pkgfile = suffix => `${srcdir}/pkg/${suffix}`;
 
 /* Qualify all the paths in entries */
-Object.keys(info.entries).forEach(key => {
-    if (section && key.indexOf(section) !== 0) {
-        delete info.entries[key];
+const entry = {};
+info.entries.forEach(key => {
+    if (section && key.indexOf(section) !== 0)
         return;
-    }
 
-    info.entries[key] = info.entries[key].map(value => (value.indexOf("/") === -1) ? value : pkgfile(value));
+    entry[key.replace(/\..*$/, '')] = pkgfile(key);
 });
 
 /* Qualify all the paths in files listed */
@@ -326,7 +253,7 @@ if (section.startsWith('static'))
 /* Fill in the tests properly */
 info.tests.forEach(test => {
     if (!section || test.indexOf(section) === 0) {
-        info.entries[test] = pkgfile(test + ".js");
+        entry[test] = pkgfile(test + ".js");
         plugins.push(new Html({
             title: path.basename(test),
             filename: test + ".html",
@@ -352,7 +279,7 @@ export default {
     resolveLoader: {
         modules: [nodedir, './pkg/lib'],
     },
-    entry: info.entries,
+    entry,
     // cockpit.js gets included via <script>, everything else should be bundled
     externals: (section === 'kdump/' || section === 'base1/') ? {} : { cockpit: "cockpit" },
     plugins,

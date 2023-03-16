@@ -21,7 +21,7 @@ import cockpit from 'cockpit';
 import React, { useState, useEffect, useRef } from 'react';
 import { superuser } from "superuser";
 
-import { admins } from './local.js';
+import { admins } from './users.js';
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Badge } from "@patternfly/react-core/dist/esm/components/Badge/index.js";
 import { Card, CardActions, CardExpandableContent, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";

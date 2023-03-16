@@ -80,7 +80,7 @@ class TestSelinux(MachineCase):
         self.allow_journal_messages("audit: type=1405 .* bool=zebra_write_config val=1 old_val=0.*")
         self.allow_journal_messages(".*couldn't .* /org/fedoraproject/Setroubleshootd: GDBus.Error:org.freedesktop.DBus.Error.NoReply:.*")
 
-        self.login_and_go("/selinux/setroubleshoot")
+        self.login_and_go("/selinux")
 
         # Starting Cockpit might produce some alerts (e.g. from
         # starting rhsm.service), so let's give them some time to
@@ -261,7 +261,7 @@ class TestSelinux(MachineCase):
         # Check that ansible is idempotent
         m.execute("semanage boolean --modify --off zebra_write_config")
         b.reload()
-        b.enter_page("/selinux/setroubleshoot")
+        b.enter_page("/selinux")
         with b.wait_timeout(30):
             b.wait_visible(".pf-c-data-list__cell:contains(Disallow zebra)")
         b.click("button:contains('View automation script')")
@@ -291,17 +291,17 @@ class TestSelinux(MachineCase):
         b.wait_in_text(".xterm-accessibility-tree", "fcontext -a -f a -t samba_share_t -r 's0' '/var/tmp/'")
 
         m.execute("semanage boolean -D; semanage fcontext -D; semanage module -D")
-        b.go("/selinux/setroubleshoot")
-        b.enter_page("/selinux/setroubleshoot")
+        b.go("/selinux")
+        b.enter_page("/selinux")
         b.reload()
-        b.enter_page("/selinux/setroubleshoot")
+        b.enter_page("/selinux")
         with b.wait_timeout(30):
             if m.image.startswith("rhel"):
                 # insights-client sets itself as permissive on RHEL, and `semanage permissive -D` gets OOM-killed
                 b.wait_text_matches("ul[aria-label='System modifications']", "No system modifications|permissive -a insights_client_t")
             else:
                 b.wait_text("ul[aria-label='System modifications']", "No system modifications")
-        b.relogin("/selinux/setroubleshoot", "admin", superuser=False)
+        b.relogin("/selinux", "admin", superuser=False)
         b.wait_text("ul[aria-label='System modifications']", "The logged in user is not permitted to view system modifications")
 
     @skipImage("No cockpit-selinux", "debian-*", "ubuntu-*", "arch")
@@ -310,7 +310,7 @@ class TestSelinux(MachineCase):
         b = self.browser
         m = self.machine
 
-        self.login_and_go("/selinux/setroubleshoot")
+        self.login_and_go("/selinux")
 
         #########################################################
         # wait for the page to be present
@@ -350,8 +350,8 @@ class TestSelinux(MachineCase):
 
         # Switch back into the page and we get the updated status
         b.switch_to_top()
-        b.go("/selinux/setroubleshoot")
-        b.enter_page("/selinux/setroubleshoot")
+        b.go("/selinux")
+        b.enter_page("/selinux")
         assertEnforce(False)
         b.wait_in_text("div.selinux-policy-ct", "Setting deviates")
 

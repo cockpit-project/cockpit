@@ -15,7 +15,7 @@ from cockpit._vendor import systemd_ctypes
 from cockpit.bridge import Bridge
 from cockpit.channels import CHANNEL_TYPES
 
-from mocktransport import MockTransport, MOCK_HOSTNAME
+from mocktransport import MockTransport, MOCK_HOSTNAME, settle_down
 
 asyncio.set_event_loop_policy(systemd_ctypes.EventLoopPolicy())
 
@@ -28,6 +28,9 @@ class test_iface(systemd_ctypes.bus.Object):
 class TestBridge(unittest.IsolatedAsyncioTestCase):
     transport: MockTransport
     bridge: Bridge
+
+    async def asyncTearDown(self):
+        await self.transport.stop()
 
     async def start(self, args=None, send_init=True) -> None:
         if args is None:
@@ -181,6 +184,9 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
 
         # The Stop method call is done now
         await self.transport.assert_msg(self.transport.internal_bus, reply=[[]], id=stop)
+
+        # ...and the process should be gone
+        await settle_down()
 
     @staticmethod
     def format_methods(methods: Dict[str, str]):
@@ -475,6 +481,7 @@ async def test_channel(channeltype, tmp_path):
                 # because the channel sent data and finished, without error.
                 assert 'problem' not in control
                 assert saw_data
+                await settle_down()
                 return
             else:
                 assert False, (payload, args, control)
@@ -498,4 +505,5 @@ async def test_channel(channeltype, tmp_path):
                 continue
             elif command == 'close':
                 assert 'problem' not in control
+                await settle_down()
                 return

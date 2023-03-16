@@ -558,106 +558,104 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
             reply_keys={'message': "[Errno 2] No such file or directory: '/nonexisting'"})
 
 
+@pytest.mark.asyncio
 @pytest.mark.parametrize('channeltype', CHANNEL_TYPES)
-def test_channel(channeltype, tmp_path):
-    async def run() -> None:
-        bridge = Bridge(argparse.Namespace(privileged=False))
-        transport = MockTransport(bridge)
-        await transport.assert_msg('', command='init')
-        transport.send_init()
+async def test_channel(channeltype, tmp_path):
+    bridge = Bridge(argparse.Namespace(privileged=False))
+    transport = MockTransport(bridge)
+    await transport.assert_msg('', command='init')
+    transport.send_init()
 
-        payload = channeltype.payload
-        args = dict(channeltype.restrictions)
+    payload = channeltype.payload
+    args = dict(channeltype.restrictions)
 
-        async def serve_page(reader, writer):
-            while True:
-                line = await reader.readline()
-                if line.strip():
-                    print('HTTP Request line', line)
-                else:
-                    break
-
-            print('Sending HTTP reply')
-            writer.write(b'HTTP/1.1 200 OK\r\n\r\nA document\r\n')
-            await writer.drain()
-            writer.close()
-
-        srv = str(tmp_path / 'sock')
-        await asyncio.start_unix_server(serve_page, srv)
-
-        if payload == 'fslist1':
-            args = {'path': '/', 'watch': False}
-        elif payload == 'fsread1':
-            args = {'path': '/etc/passwd'}
-        elif payload == 'fsreplace1':
-            args = {'path': 'tmpfile'}
-        elif payload == 'fswatch1':
-            args = {'path': '/etc'}
-        elif payload == 'http-stream1':
-            args = {'internal': 'packages', 'method': 'GET', 'path': '/manifests.js',
-                    'headers': {'X-Forwarded-Proto': 'http', 'X-Forwarded-Host': 'localhost'}}
-        elif payload == 'http-stream2':
-            args = {'method': 'GET', 'path': '/bzzt', 'unix': srv}
-        elif payload == 'stream':
-            if 'spawn' in args:
-                args = {'spawn': ['cat']}
+    async def serve_page(reader, writer):
+        while True:
+            line = await reader.readline()
+            if line.strip():
+                print('HTTP Request line', line)
             else:
-                args = {'unix': srv}
-        elif payload == 'metrics1':
-            args['metrics'] = [{'name': 'memory.free'}]
-        elif payload == 'dbus-json3':
-            if not os.path.exists('/run/dbus/system_bus_socket'):
-                pytest.skip('no dbus')
+                break
+
+        print('Sending HTTP reply')
+        writer.write(b'HTTP/1.1 200 OK\r\n\r\nA document\r\n')
+        await writer.drain()
+        writer.close()
+
+    srv = str(tmp_path / 'sock')
+    await asyncio.start_unix_server(serve_page, srv)
+
+    if payload == 'fslist1':
+        args = {'path': '/', 'watch': False}
+    elif payload == 'fsread1':
+        args = {'path': '/etc/passwd'}
+    elif payload == 'fsreplace1':
+        args = {'path': 'tmpfile'}
+    elif payload == 'fswatch1':
+        args = {'path': '/etc'}
+    elif payload == 'http-stream1':
+        args = {'internal': 'packages', 'method': 'GET', 'path': '/manifests.js',
+                'headers': {'X-Forwarded-Proto': 'http', 'X-Forwarded-Host': 'localhost'}}
+    elif payload == 'http-stream2':
+        args = {'method': 'GET', 'path': '/bzzt', 'unix': srv}
+    elif payload == 'stream':
+        if 'spawn' in args:
+            args = {'spawn': ['cat']}
         else:
-            args = {}
+            args = {'unix': srv}
+    elif payload == 'metrics1':
+        args['metrics'] = [{'name': 'memory.free'}]
+    elif payload == 'dbus-json3':
+        if not os.path.exists('/run/dbus/system_bus_socket'):
+            pytest.skip('no dbus')
+    else:
+        args = {}
 
-        print('sending open', payload, args)
-        ch = transport.send_open(payload, **args)
-        saw_data = False
+    print('sending open', payload, args)
+    ch = transport.send_open(payload, **args)
+    saw_data = False
 
-        while True:
-            channel, msg = await transport.next_frame()
-            print(channel, msg)
-            if channel == '':
-                control = json.loads(msg)
-                assert control['channel'] == ch
-                command = control['command']
-                if command == 'done':
-                    saw_data = True
-                elif command == 'ready':
-                    # If we get ready, it's our turn to send data first.
-                    # Hopefully we didn't receive any before.
-                    assert isinstance(bridge.open_channels[ch], channeltype)
-                    assert not saw_data
-                    break
-                elif command == 'close':
-                    # If we got an immediate close message then it should be
-                    # because the channel sent data and finished, without error.
-                    assert 'problem' not in control
-                    assert saw_data
-                    return
-                else:
-                    assert False, (payload, args, control)
-            else:
+    while True:
+        channel, msg = await transport.next_frame()
+        print(channel, msg)
+        if channel == '':
+            control = json.loads(msg)
+            assert control['channel'] == ch
+            command = control['command']
+            if command == 'done':
                 saw_data = True
+            elif command == 'ready':
+                # If we get ready, it's our turn to send data first.
+                # Hopefully we didn't receive any before.
+                assert isinstance(bridge.open_channels[ch], channeltype)
+                assert not saw_data
+                break
+            elif command == 'close':
+                # If we got an immediate close message then it should be
+                # because the channel sent data and finished, without error.
+                assert 'problem' not in control
+                assert saw_data
+                return
+            else:
+                assert False, (payload, args, control)
+        else:
+            saw_data = True
 
-        # If we're here, it's our turn to talk.  Say nothing.
-        print('sending done')
-        transport.send_done(ch)
+    # If we're here, it's our turn to talk.  Say nothing.
+    print('sending done')
+    transport.send_done(ch)
 
-        if payload in ['dbus-json3', 'fswatch1', 'null']:
-            transport.send_close(ch)
+    if payload in ['dbus-json3', 'fswatch1', 'null']:
+        transport.send_close(ch)
 
-        while True:
-            channel, msg = await transport.next_frame()
-            print(channel, msg)
-            if channel == '':
-                control = json.loads(msg)
-                command = control['command']
-                if command == 'done':
-                    continue
-                elif command == 'close':
-                    assert 'problem' not in control
-                    return
-
-    asyncio.run(run())
+    while True:
+        channel, msg = await transport.next_frame()
+        print(channel, msg)
+        if channel == '':
+            control = json.loads(msg)
+            command = control['command']
+            if command == 'done':
+                continue
+            elif command == 'close':
+                assert 'problem' not in control
+                return

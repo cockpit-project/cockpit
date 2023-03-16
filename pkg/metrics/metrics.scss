@@ -531,10 +531,6 @@ $graphs: cpu, memory, disks, network;
       left: 0;
     }
 
-    .graph-red {
-      fill: red;
-    }
-
     @each $graph in $graphs {
       &-#{$graph} {
         --color: var(--#{$graph}-color);
@@ -556,16 +552,6 @@ $graphs: cpu, memory, disks, network;
 
       > .utilization {
         grid-area: utilization;
-      }
-
-      > .utilization-red {
-        grid-area: utilization-red;
-        background-color: red;
-      }
-
-      .saturation-red {
-        grid-area: saturation-red;
-        background-color: red;
       }
 
       > .saturation {

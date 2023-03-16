@@ -280,66 +280,60 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
                                     <output id="account-last-login">{last_login}</output>
                                 </FormGroup>
                                 <FormGroup fieldId="account-locked" label={_("Options")} hasNoPaddingTop>
-                                    <div>
-                                        <div className="account-column-one">
-                                            <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
-                                                <Checkbox id="account-locked"
-                                                          isDisabled={!superuser.allowed || edited_locked != null || user == current_user}
-                                                          isChecked={edited_locked != null ? edited_locked : account.isLocked}
-                                                          onChange={checked => change_locked(checked)}
-                                                          label={_("Disallow interactive password")} />
+                                    <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                                        <Flex className="accounts-column-one" spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                                            <Checkbox id="account-locked"
+                                                        isDisabled={!superuser.allowed || edited_locked != null || user == current_user}
+                                                        isChecked={edited_locked != null ? edited_locked : account.isLocked}
+                                                        onChange={checked => change_locked(checked)}
+                                                        label={_("Disallow interactive password")} />
 
-                                                <Popover bodyContent={_("Other authentication methods are still available even when interactive password authentication is not allowed.")}
-                                                         showClose={false}>
-                                                    <HelpIcon />
-                                                </Popover>
-                                            </Flex>
-                                        </div>
-                                        <Flex flex={{ default: 'inlineFlex' }}>
-                                            <span id="account-expiration-text">
-                                                {expiration.account_text}
-                                            </span>
-                                            <Button onClick={() => account_expiration_dialog(account, expiration.account_date)}
-                                                    isDisabled={!superuser.allowed}
-                                                    variant="link"
-                                                    isInline
-                                                    id="account-expiration-button">
-                                                {_("edit")}
-                                            </Button>
+                                            <Popover bodyContent={_("Other authentication methods are still available even when interactive password authentication is not allowed.")}
+                                                        showClose={false}>
+                                                <HelpIcon />
+                                            </Popover>
                                         </Flex>
-                                    </div>
+                                        <span id="account-expiration-text">
+                                            {expiration.account_text}
+                                        </span>
+                                        <Button onClick={() => account_expiration_dialog(account, expiration.account_date)}
+                                                isDisabled={!superuser.allowed}
+                                                variant="link"
+                                                isInline
+                                                id="account-expiration-button">
+                                            {_("edit")}
+                                        </Button>
+                                    </Flex>
                                 </FormGroup>
                                 { self_mod_allowed &&
                                 <FormGroup fieldId="account-set-password" label={_("Password")}>
-                                    <div>
-                                        <div className="account-column-one">
-                                            { self_mod_allowed &&
-                                            <Button variant="secondary" id="account-set-password"
-                                      onClick={() => set_password_dialog(account, current_user)}>
-                                                {_("Set password")}
-                                            </Button>
-                                            }
-                                            { "\n" }
-                                            { superuser.allowed &&
-                                            <Button variant="secondary" id="password-reset-button"
-                                              onClick={() => reset_password_dialog(account)}>
-                                                {_("Force change")}
-                                            </Button>
-                                            }
-                                        </div>
-                                        <Flex flex={{ default: 'inlineFlex' }}>
-                                            <span id="password-expiration-text">
-                                                {expiration.password_text}
-                                            </span>
-                                            <Button onClick={() => password_expiration_dialog(account, expiration.password_days)}
-                                                    isDisabled={!superuser.allowed}
-                                                    variant="link"
-                                                    isInline
-                                                    id="password-expiration-button">
-                                                {_("edit")}
-                                            </Button>
-                                        </Flex>
+                                    <div className="account-column-one">
+                                        { self_mod_allowed &&
+                                        <Button variant="secondary" id="account-set-password"
+                                    onClick={() => set_password_dialog(account, current_user)}>
+                                            {_("Set password")}
+                                        </Button>
+                                        }
+                                        { "\n" }
+                                        { superuser.allowed &&
+                                        <Button variant="secondary" id="password-reset-button"
+                                            onClick={() => reset_password_dialog(account)}>
+                                            {_("Force change")}
+                                        </Button>
+                                        }
                                     </div>
+                                    <Flex flex={{ default: 'inlineFlex' }}>
+                                        <span id="password-expiration-text">
+                                            {expiration.password_text}
+                                        </span>
+                                        <Button onClick={() => password_expiration_dialog(account, expiration.password_days)}
+                                                isDisabled={!superuser.allowed}
+                                                variant="link"
+                                                isInline
+                                                id="password-expiration-button">
+                                            {_("edit")}
+                                        </Button>
+                                    </Flex>
                                 </FormGroup>
                                 }
                                 { account.home && <FormGroup fieldId="account-home-dir" hasNoPaddingTop label={_("Home directory")}>

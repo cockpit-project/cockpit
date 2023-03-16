@@ -131,7 +131,7 @@ function AccountCreateBody({ state, errors, change, shells }) {
             </FormGroup>
 
             <PasswordFormFields password_label={_("Password")}
-                                password_confirm_label={_("Confirm")}
+                                password_confirm_label={_("Confirm password")}
                                 error_password={errors?.password}
                                 error_password_confirm={errors?.password_confirm}
                                 idPrefix="accounts-create-password"

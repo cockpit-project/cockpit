@@ -29,9 +29,9 @@ import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/
 import { TextContent, TextList, TextListItem } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 
 import { useInit } from "hooks";
-import { useDialogs } from "dialogs.jsx";
+import { useDialogs } from "dialogs";
 
-import "menu-select-widget.scss";
+import "../lib/menu-select-widget.scss";
 
 const _ = cockpit.gettext;
 

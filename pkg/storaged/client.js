@@ -18,17 +18,17 @@
  */
 
 import cockpit from 'cockpit';
-import * as PK from 'packagekit.js';
+import * as PK from 'packagekit';
 import { superuser } from 'superuser';
 
 import * as utils from './utils.js';
 
-import * as python from "python.js";
-import { read_os_release } from "os-release.js";
+import * as python from "python";
+import { read_os_release } from "os-release";
 
 import { find_warnings } from "./warnings.jsx";
 
-import inotify_py from "inotify.py";
+import inotify_py from "../lib/inotify.py";
 import mount_users_py from "./mount-users.py";
 import nfs_mounts_py from "./nfs-mounts.py";
 import vdo_monitor_py from "./vdo-monitor.py";

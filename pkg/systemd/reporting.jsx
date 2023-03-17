@@ -24,7 +24,7 @@ import { Card, CardBody, CardTitle } from "@patternfly/react-core/dist/esm/compo
 import { Split, SplitItem } from "@patternfly/react-core/dist/esm/layouts/Split/index.js";
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { ExternalLinkAltIcon } from "@patternfly/react-icons";
-import { show_modal_dialog } from "cockpit-components-dialog.jsx";
+import { show_modal_dialog } from "cockpit-components-dialog";
 
 import './reporting.scss';
 

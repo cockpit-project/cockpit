@@ -29,7 +29,7 @@ import { createRoot } from "react-dom/client";
 import { KdumpPage } from "./kdump-view.jsx";
 import * as kdumpClient from "./kdump-client.js";
 import { superuser } from "superuser";
-import { WithDialogs } from "dialogs.jsx";
+import { WithDialogs } from "dialogs";
 
 import './kdump.scss';
 

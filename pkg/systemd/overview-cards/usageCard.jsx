@@ -21,7 +21,7 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Card, CardBody, CardFooter, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { Progress, ProgressMeasureLocation, ProgressVariant } from "@patternfly/react-core/dist/esm/components/Progress/index.js";
 
-import * as machine_info from "machine-info.js";
+import * as machine_info from "machine-info";
 import cockpit from "cockpit";
 
 import "./usageCard.scss";

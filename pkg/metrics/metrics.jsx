@@ -44,22 +44,21 @@ import {
 
 import cockpit from 'cockpit';
 import * as machine_info from "../lib/machine-info.js";
-import * as packagekit from "packagekit.js";
+import * as packagekit from "packagekit";
 import * as service from "service";
 import * as timeformat from "timeformat";
 import { superuser } from "superuser";
 import { journal } from "journal";
-import { useObject, useEvent, useInit } from "hooks.js";
-import { WithDialogs, useDialogs } from "dialogs.jsx";
+import { useObject, useEvent, useInit } from "hooks";
+import { WithDialogs, useDialogs } from "dialogs";
 
-import { EmptyStatePanel } from "../lib/cockpit-components-empty-state.jsx";
-import { JournalOutput } from "cockpit-components-logs-panel.jsx";
-import { install_dialog } from "cockpit-components-install-dialog.jsx";
-import { ModalError } from "cockpit-components-inline-notification.jsx";
-import { FirewalldRequest } from "cockpit-components-firewalld-request.jsx";
+import { EmptyStatePanel } from "cockpit-components-empty-state";
+import { JournalOutput } from "cockpit-components-logs-panel";
+import { install_dialog } from "cockpit-components-install-dialog";
+import { ModalError } from "cockpit-components-inline-notification";
+import { FirewalldRequest } from "cockpit-components-firewalld-request";
 
 import "./metrics.scss";
-import "journal.css";
 
 const MSEC_PER_H = 3600000;
 const INTERVAL = 5000;

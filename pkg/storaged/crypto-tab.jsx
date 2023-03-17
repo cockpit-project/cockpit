@@ -28,9 +28,9 @@ import { is_mounted } from "./fsys-tab.jsx";
 import React from "react";
 import { StorageLink } from "./storage-controls.jsx";
 
-import * as python from "python.js";
+import * as python from "python";
 import luksmeta_monitor_hack_py from "./luksmeta-monitor-hack.py";
-import * as timeformat from "timeformat.js";
+import * as timeformat from "timeformat";
 
 import { CryptoKeyslots } from "./crypto-keyslots.jsx";
 

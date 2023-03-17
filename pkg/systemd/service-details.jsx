@@ -43,9 +43,9 @@ import cockpit from "cockpit";
 import s_bus from "./busnames.js";
 import { systemd_client, MAX_UINT64 } from "./services.jsx";
 import * as timeformat from "timeformat";
-import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
-import { useDialogs, DialogsContext } from "dialogs.jsx";
-import { ModalError } from 'cockpit-components-inline-notification.jsx';
+import { EmptyStatePanel } from "cockpit-components-empty-state";
+import { useDialogs, DialogsContext } from "dialogs";
+import { ModalError } from 'cockpit-components-inline-notification';
 
 import './service-details.scss';
 

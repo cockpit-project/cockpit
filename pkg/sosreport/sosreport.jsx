@@ -41,8 +41,8 @@ import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/in
 import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { EyeIcon, EyeSlashIcon } from '@patternfly/react-icons';
 
-import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
-import { ListingTable } from "cockpit-components-table.jsx";
+import { EmptyStatePanel } from "cockpit-components-empty-state";
+import { ListingTable } from "cockpit-components-table";
 
 import cockpit from "cockpit";
 import { superuser } from "superuser";
@@ -50,9 +50,9 @@ import { useObject, useEvent } from "hooks";
 
 import { SuperuserButton } from "../shell/superuser.jsx";
 
-import { fmt_to_fragments } from "utils.jsx";
+import { fmt_to_fragments } from "utils";
 import * as timeformat from "timeformat";
-import { WithDialogs, useDialogs } from "dialogs.jsx";
+import { WithDialogs, useDialogs } from "dialogs";
 
 const _ = cockpit.gettext;
 

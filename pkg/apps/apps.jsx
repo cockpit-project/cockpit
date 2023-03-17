@@ -26,7 +26,7 @@ import cockpit from "cockpit";
 import React, { useState } from "react";
 import { createRoot } from 'react-dom/client';
 
-import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+import { EmptyStatePanel } from "cockpit-components-empty-state";
 import { ApplicationList } from "./application-list.jsx";
 import { Application } from "./application.jsx";
 import { get_metainfo_db } from "./appstream.js";

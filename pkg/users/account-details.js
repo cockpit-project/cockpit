@@ -20,7 +20,7 @@
 import cockpit from 'cockpit';
 import React, { useState, useEffect, useRef } from 'react';
 import { superuser } from "superuser";
-import { apply_modal_dialog } from "cockpit-components-dialog.jsx";
+import { apply_modal_dialog } from "cockpit-components-dialog";
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
@@ -47,7 +47,7 @@ import { account_expiration_dialog, password_expiration_dialog } from "./expirat
 import { set_password_dialog, reset_password_dialog } from "./password-dialogs.js";
 import { AccountLogs } from "./account-logs-panel.jsx";
 import { AuthorizedKeys } from "./authorized-keys-panel.js";
-import * as timeformat from "timeformat.js";
+import * as timeformat from "timeformat";
 
 const _ = cockpit.gettext;
 

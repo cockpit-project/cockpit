@@ -22,10 +22,10 @@ import React from "react";
 
 import { WarningTriangleIcon } from "@patternfly/react-icons";
 
-import { show_modal_dialog } from "cockpit-components-dialog.jsx";
-import * as PK from "packagekit.js";
+import { show_modal_dialog } from "cockpit-components-dialog";
+import * as PK from "packagekit";
 
-import "cockpit-components-install-dialog.css";
+import "cockpit-components-install-dialog";
 
 const _ = cockpit.gettext;
 

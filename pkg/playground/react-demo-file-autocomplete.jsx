@@ -20,7 +20,7 @@
 import React from "react";
 import { createRoot } from 'react-dom/client';
 
-import { FileAutoComplete } from "cockpit-components-file-autocomplete.jsx";
+import { FileAutoComplete } from "cockpit-components-file-autocomplete";
 
 export function showFileAcDemo(rootElement) {
     const root = createRoot(rootElement);

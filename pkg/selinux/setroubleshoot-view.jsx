@@ -35,10 +35,10 @@ import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/T
 import { TextArea } from "@patternfly/react-core/dist/esm/components/TextArea/index.js";
 import { ExclamationCircleIcon, ExclamationTriangleIcon, InfoCircleIcon } from "@patternfly/react-icons";
 
-import { Modifications } from "cockpit-components-modifications.jsx";
-import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
-import { ListingTable } from "cockpit-components-table.jsx";
-import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
+import { Modifications } from "cockpit-components-modifications";
+import { EmptyStatePanel } from "cockpit-components-empty-state";
+import { ListingTable } from "cockpit-components-table";
+import { ListingPanel } from 'cockpit-components-listing-panel';
 import * as timeformat from 'timeformat';
 
 const _ = cockpit.gettext;

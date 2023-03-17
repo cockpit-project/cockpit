@@ -29,7 +29,7 @@ import { TextArea } from "@patternfly/react-core/dist/esm/components/TextArea/in
 import { CheckIcon, CopyIcon, ExternalLinkAltIcon, OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 
 import cockpit from "cockpit";
-import 'cockpit-components-modifications.css';
+import './cockpit-components-modifications.css';
 
 const _ = cockpit.gettext;
 

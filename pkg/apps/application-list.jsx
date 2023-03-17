@@ -28,10 +28,10 @@ import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/d
 import { RebootingIcon } from "@patternfly/react-icons";
 
 import * as PackageKit from "./packagekit.js";
-import { read_os_release } from "os-release.js";
+import { read_os_release } from "os-release";
 import { icon_url, show_error, launch, ProgressBar, CancelButton } from "./utils.jsx";
 import { ActionButton } from "./application.jsx";
-import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+import { EmptyStatePanel } from "cockpit-components-empty-state";
 
 const _ = cockpit.gettext;
 

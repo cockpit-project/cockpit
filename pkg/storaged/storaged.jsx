@@ -25,8 +25,8 @@ import React from "react";
 import { createRoot } from 'react-dom/client';
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
 
-import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
-import { PlotState } from "plot.js";
+import { EmptyStatePanel } from "cockpit-components-empty-state";
+import { PlotState } from "plot";
 
 import client from "./client";
 import { MultipathAlert } from "./multipath.jsx";

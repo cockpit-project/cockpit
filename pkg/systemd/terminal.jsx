@@ -10,7 +10,7 @@ import { Toolbar, ToolbarContent, ToolbarGroup, ToolbarItem } from "@patternfly/
 
 import "./terminal.scss";
 
-import { Terminal } from "cockpit-components-terminal.jsx";
+import { Terminal } from "cockpit-components-terminal";
 
 const _ = cockpit.gettext;
 

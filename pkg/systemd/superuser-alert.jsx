@@ -25,7 +25,7 @@ import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js
 import { LockIcon } from '@patternfly/react-icons';
 
 import { SuperuserButton } from "../shell/superuser.jsx";
-import { superuser } from "superuser.js";
+import { superuser } from "superuser";
 
 const _ = cockpit.gettext;
 

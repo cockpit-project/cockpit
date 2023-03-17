@@ -26,7 +26,7 @@ import { LabelGroup } from "@patternfly/react-core/dist/esm/components/LabelGrou
 import { Menu, MenuContent, MenuItem, MenuList } from "@patternfly/react-core/dist/esm/components/Menu/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 
-import "menu-select-widget.scss";
+import "../../lib/menu-select-widget.scss";
 
 const _ = cockpit.gettext;
 

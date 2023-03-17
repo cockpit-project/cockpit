@@ -28,8 +28,8 @@ import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
 import { TimePicker } from "@patternfly/react-core/dist/esm/components/TimePicker/index.js";
 
-import { install_dialog } from "cockpit-components-install-dialog.jsx";
-import { useDialogs } from "dialogs.jsx";
+import { install_dialog } from "cockpit-components-install-dialog";
+import { useDialogs } from "dialogs";
 import { useInit } from "hooks";
 
 const _ = cockpit.gettext;

@@ -23,7 +23,7 @@ import React from "react";
 import '../lib/patternfly/patternfly-4-cockpit.scss';
 import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
 
-import { show_modal_dialog } from "cockpit-components-dialog.jsx";
+import { show_modal_dialog } from "cockpit-components-dialog";
 
 import { PatternDialogBody } from "./react-demo-dialog.jsx";
 import { showCardsDemo } from "./react-demo-cards.jsx";

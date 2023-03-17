@@ -30,8 +30,8 @@ import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { has_errors, is_valid_char_name } from "./dialog-utils.js";
 import { passwd_change } from "./password-dialogs.js";
-import { password_quality, PasswordFormFields } from "cockpit-components-password.jsx";
-import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";
+import { password_quality, PasswordFormFields } from "cockpit-components-password";
+import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog";
 import { HelpIcon } from '@patternfly/react-icons';
 
 const _ = cockpit.gettext;

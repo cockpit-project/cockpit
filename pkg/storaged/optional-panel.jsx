@@ -24,7 +24,7 @@ import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/
 import { EmptyState, EmptyStateBody, EmptyStateVariant } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
 import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 
-import { install_dialog } from "cockpit-components-install-dialog.jsx";
+import { install_dialog } from "cockpit-components-install-dialog";
 import { StorageButton } from "./storage-controls.jsx";
 
 const _ = cockpit.gettext;

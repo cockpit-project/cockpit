@@ -40,9 +40,9 @@ import { Title } from "@patternfly/react-core/dist/esm/components/Title/index.js
 import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { OutlinedQuestionCircleIcon } from "@patternfly/react-icons";
 
-import { useDialogs, DialogsContext } from "dialogs.jsx";
-import { show_modal_dialog } from "cockpit-components-dialog.jsx";
-import { ModalError } from 'cockpit-components-inline-notification.jsx';
+import { useDialogs, DialogsContext } from "dialogs";
+import { show_modal_dialog } from "cockpit-components-dialog";
+import { ModalError } from 'cockpit-components-inline-notification';
 
 const _ = cockpit.gettext;
 

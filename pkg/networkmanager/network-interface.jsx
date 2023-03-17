@@ -31,7 +31,7 @@ import { ModelContext } from './model-context.jsx';
 import { NetworkInterfaceMembers } from "./network-interface-members.jsx";
 import { NetworkAction } from './dialogs-common.jsx';
 import { NetworkPlots } from "./plots";
-import { fmt_to_fragments } from 'utils.jsx';
+import { fmt_to_fragments } from 'utils';
 
 import {
     array_join,

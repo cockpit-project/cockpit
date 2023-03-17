@@ -30,12 +30,12 @@ import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/
 import { CheckIcon, ExclamationCircleIcon, InProgressIcon } from "@patternfly/react-icons";
 
 import cockpit from "cockpit";
-import { Privileged } from "cockpit-components-privileged.jsx";
+import { Privileged } from "cockpit-components-privileged";
 import { superuser } from "superuser";
-import { useEvent } from "hooks.js";
-import { install_dialog } from "cockpit-components-install-dialog.jsx";
-import * as packagekit from "packagekit.js";
-import { useDialogs } from "dialogs.jsx";
+import { useEvent } from "hooks";
+import { install_dialog } from "cockpit-components-install-dialog";
+import * as packagekit from "packagekit";
+import { useDialogs } from "dialogs";
 
 import "./realmd.scss";
 

@@ -18,7 +18,7 @@
  */
 import cockpit from "cockpit";
 
-import * as machine_info from "machine-info.js";
+import * as machine_info from "machine-info";
 const _ = cockpit.gettext;
 
 // map an info.system key to a /sys/class/dmi/id/* attribute name

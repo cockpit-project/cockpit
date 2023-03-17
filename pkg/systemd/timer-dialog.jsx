@@ -31,12 +31,12 @@ import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/
 import { TimePicker } from "@patternfly/react-core/dist/esm/components/TimePicker/index.js";
 import { MinusIcon, PlusIcon } from '@patternfly/react-icons';
 
-import { ModalError } from 'cockpit-components-inline-notification.jsx';
-import { useDialogs } from "dialogs.jsx";
+import { ModalError } from 'cockpit-components-inline-notification';
+import { useDialogs } from "dialogs";
 
 import { updateTime } from './services.jsx';
 import { create_timer } from './timer-dialog-helpers.js';
-import * as timeformat from "timeformat.js";
+import * as timeformat from "timeformat";
 
 import "./timers.scss";
 

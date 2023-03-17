@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import { SortByDirection } from '@patternfly/react-table';
 
-import { ListingTable } from "cockpit-components-table.jsx";
+import { ListingTable } from "cockpit-components-table";
 import { block_name, get_block_link_parts, go_to_block } from "./utils.js";
 import { OptionalPanel } from "./optional-panel.jsx";
 import { get_fstab_config } from "./fsys-tab.jsx";

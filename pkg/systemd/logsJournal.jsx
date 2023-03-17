@@ -23,8 +23,8 @@ import { superuser } from "superuser";
 
 import React from 'react';
 import { Alert, AlertActionCloseButton } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
-import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
-import { JournalOutput } from "cockpit-components-logs-panel.jsx";
+import { EmptyStatePanel } from "cockpit-components-empty-state";
+import { JournalOutput } from "cockpit-components-logs-panel";
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 import { getGrepFiltersFromOptions, getFilteredQuery } from "./logsHelpers.js";

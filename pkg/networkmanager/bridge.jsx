@@ -26,7 +26,7 @@ import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/
 
 import { MemberInterfaceChoices, NetworkModal, Name, dialogSave } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';
-import { useDialogs } from "dialogs.jsx";
+import { useDialogs } from "dialogs";
 
 import { v4 as uuidv4 } from 'uuid';
 import {

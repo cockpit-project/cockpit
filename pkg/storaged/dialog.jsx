@@ -235,11 +235,11 @@ import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/comp
 import { List, ListItem } from "@patternfly/react-core/dist/esm/components/List/index.js";
 import { ExclamationTriangleIcon, InfoIcon, HelpIcon } from "@patternfly/react-icons";
 
-import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";
-import { ListingTable } from "cockpit-components-table.jsx";
+import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog";
+import { ListingTable } from "cockpit-components-table";
 
 import { fmt_size, block_name, format_size_and_text, format_delay, for_each_async } from "./utils.js";
-import { fmt_to_fragments } from "utils.jsx";
+import { fmt_to_fragments } from "utils";
 import client from "./client.js";
 
 const _ = cockpit.gettext;

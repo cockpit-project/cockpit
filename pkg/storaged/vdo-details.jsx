@@ -31,7 +31,7 @@ import { StdDetailsLayout } from "./details.jsx";
 import { Block } from "./content-views.jsx";
 import { StorageButton, StorageOnOff, StorageBlockNavLink } from "./storage-controls.jsx";
 
-import inotify_py from "inotify.py";
+import inotify_py from "../lib/inotify.py";
 import vdo_monitor_py from "./vdo-monitor.py";
 
 const _ = cockpit.gettext;

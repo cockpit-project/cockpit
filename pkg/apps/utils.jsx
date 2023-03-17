@@ -23,7 +23,7 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Progress } from "@patternfly/react-core/dist/esm/components/Progress/index.js";
 import { Split, SplitItem } from "@patternfly/react-core/dist/esm/layouts/Split/index.js";
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
-import { show_modal_dialog } from "cockpit-components-dialog.jsx";
+import { show_modal_dialog } from "cockpit-components-dialog";
 
 const _ = cockpit.gettext;
 

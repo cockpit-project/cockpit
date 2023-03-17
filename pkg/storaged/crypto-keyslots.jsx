@@ -40,7 +40,7 @@ import {
     SelectOneRadio, TextInput, PassInput, Skip
 } from "./dialog.jsx";
 import { array_find, decode_filename, encode_filename, block_name, for_each_async } from "./utils.js";
-import { fmt_to_fragments } from "utils.jsx";
+import { fmt_to_fragments } from "utils";
 import { StorageButton } from "./storage-controls.jsx";
 import { parse_options, unparse_options } from "./format-dialog.jsx";
 import { edit_config } from "./crypto-tab.jsx";

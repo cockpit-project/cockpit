@@ -25,10 +25,10 @@ import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { ExclamationTriangleIcon, ExternalLinkSquareAltIcon, HelpIcon } from '@patternfly/react-icons';
 
-import { ModalError } from 'cockpit-components-inline-notification.jsx';
-import { PrivilegedButton } from "cockpit-components-privileged.jsx";
+import { ModalError } from 'cockpit-components-inline-notification';
+import { PrivilegedButton } from "cockpit-components-privileged";
 import { ProfilesMenuDialogBody } from "./profiles-menu-dialog-body.jsx";
-import { useDialogs } from "dialogs.jsx";
+import { useDialogs } from "dialogs";
 
 import "./cryptoPolicies.scss";
 

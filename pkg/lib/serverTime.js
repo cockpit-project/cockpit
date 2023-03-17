@@ -27,17 +27,17 @@ import { Select, SelectOption, SelectVariant } from "@patternfly/react-core/dist
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { TimePicker } from "@patternfly/react-core/dist/esm/components/TimePicker/index.js";
 import { CloseIcon, ExclamationCircleIcon, InfoCircleIcon, PlusIcon } from "@patternfly/react-icons";
-import { show_modal_dialog } from "cockpit-components-dialog.jsx";
-import { useObject, useEvent } from "hooks.js";
+import { show_modal_dialog } from "cockpit-components-dialog";
+import { useObject, useEvent } from "hooks";
 
-import * as service from "service.js";
-import * as timeformat from "timeformat.js";
-import * as python from "python.js";
+import * as service from "service";
+import * as timeformat from "timeformat";
+import * as python from "python";
 import get_timesync_backend_py from "./get-timesync-backend.py";
 
-import { superuser } from "superuser.js";
+import { superuser } from "superuser";
 
-import "serverTime.scss";
+import "serverTime";
 
 const _ = cockpit.gettext;
 

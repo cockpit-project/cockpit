@@ -22,7 +22,7 @@ import { journal } from "journal";
 import * as timeformat from "timeformat";
 
 import React from 'react';
-import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+import { EmptyStatePanel } from "cockpit-components-empty-state";
 import { AbrtLogDetails } from "./abrtLog.jsx";
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";

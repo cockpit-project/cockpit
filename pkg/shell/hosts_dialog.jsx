@@ -37,7 +37,7 @@ import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 
-import { ModalError } from "cockpit-components-inline-notification.jsx";
+import { ModalError } from "cockpit-components-inline-notification";
 
 const _ = cockpit.gettext;
 

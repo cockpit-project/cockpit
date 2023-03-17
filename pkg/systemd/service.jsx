@@ -23,11 +23,11 @@ import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Pa
 import { Gallery, GalleryItem } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
-import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+import { EmptyStatePanel } from "cockpit-components-empty-state";
 import { ServiceDetails } from "./service-details.jsx";
-import { LogsPanel } from "cockpit-components-logs-panel.jsx";
+import { LogsPanel } from "cockpit-components-logs-panel";
 import { superuser } from 'superuser';
-import { WithDialogs } from "dialogs.jsx";
+import { WithDialogs } from "dialogs";
 
 import cockpit from "cockpit";
 import { useObject } from "hooks";

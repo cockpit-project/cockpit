@@ -20,7 +20,7 @@
 import cockpit from 'cockpit';
 import React from 'react';
 
-import { show_modal_dialog } from "cockpit-components-dialog.jsx";
+import { show_modal_dialog } from "cockpit-components-dialog";
 
 const _ = cockpit.gettext;
 

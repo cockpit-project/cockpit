@@ -21,13 +21,13 @@ import cockpit from 'cockpit';
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 
-import { fmt_to_fragments } from 'utils.jsx';
+import { fmt_to_fragments } from 'utils';
 import * as utils from './utils.js';
 import { v4 as uuidv4 } from 'uuid';
 
 import "./networking.scss";
 
-import { show_modal_dialog } from "cockpit-components-dialog.jsx";
+import { show_modal_dialog } from "cockpit-components-dialog";
 
 const _ = cockpit.gettext;
 

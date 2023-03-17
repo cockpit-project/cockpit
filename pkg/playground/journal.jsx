@@ -22,9 +22,9 @@ import { createRoot } from 'react-dom/client';
 
 import '../lib/patternfly/patternfly-4-cockpit.scss';
 import "../../node_modules/@patternfly/patternfly/components/Page/page.css";
-import "page.scss";
+import "../lib/page.scss";
 
-import { LogsPanel } from "cockpit-components-logs-panel.jsx";
+import { LogsPanel } from "cockpit-components-logs-panel";
 
 document.addEventListener("DOMContentLoaded", function() {
     const cur_unit_id = "certmonger.service";

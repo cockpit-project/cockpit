@@ -25,19 +25,19 @@ import { createRoot } from "react-dom/client";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
 
-import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+import { EmptyStatePanel } from "cockpit-components-empty-state";
 import { ModelContext } from './model-context.jsx';
 import { NetworkInterfacePage } from './network-interface.jsx';
 import { NetworkPage } from './network-main.jsx';
 import { UsageMonitor } from './helpers.js';
 
-import * as service from 'service.js';
+import * as service from 'service';
 import { init as initDialogs, NetworkManagerModel } from './interfaces.js';
 import { superuser } from 'superuser';
 import { PlotState } from 'plot';
 
 import { useObject, useEvent, usePageLocation } from "hooks";
-import { WithDialogs } from "dialogs.jsx";
+import { WithDialogs } from "dialogs";
 
 const _ = cockpit.gettext;
 

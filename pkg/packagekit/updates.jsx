@@ -62,17 +62,17 @@ import { AutoUpdates, getBackend } from "./autoupdates.jsx";
 import { KpatchSettings, KpatchStatus } from "./kpatch.jsx";
 import { History, PackageList } from "./history.jsx";
 import { page_status } from "notifications";
-import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
-import { ListingTable } from 'cockpit-components-table.jsx';
-import { ModalError } from 'cockpit-components-inline-notification.jsx';
-import { ShutdownModal } from 'cockpit-components-shutdown.jsx';
-import { WithDialogs } from "dialogs.jsx";
+import { EmptyStatePanel } from "cockpit-components-empty-state";
+import { ListingTable } from 'cockpit-components-table';
+import { ModalError } from 'cockpit-components-inline-notification';
+import { ShutdownModal } from 'cockpit-components-shutdown';
+import { WithDialogs } from "dialogs";
 
 import { superuser } from 'superuser';
-import * as PK from "packagekit.js";
-import * as timeformat from "timeformat.js";
+import * as PK from "packagekit";
+import * as timeformat from "timeformat";
 
-import * as python from "python.js";
+import * as python from "python";
 import callTracerScript from './callTracer.py';
 
 import "./updates.scss";

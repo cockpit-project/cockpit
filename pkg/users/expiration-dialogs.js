@@ -26,8 +26,8 @@ import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/
 import { DatePicker } from "@patternfly/react-core/dist/esm/components/DatePicker/index.js";
 
 import { has_errors } from "./dialog-utils.js";
-import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";
-import * as timeformat from "timeformat.js";
+import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog";
+import * as timeformat from "timeformat";
 
 const _ = cockpit.gettext;
 

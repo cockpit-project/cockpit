@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React, { useState } from "react";
 import { useObject, useInit, useEvent } from "hooks";
-import { useDialogs } from "dialogs.jsx";
+import { useDialogs } from "dialogs";
 import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
@@ -28,7 +28,7 @@ import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/components/FormSelect/index.js";
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
-import { ModalError } from 'cockpit-components-inline-notification.jsx';
+import { ModalError } from 'cockpit-components-inline-notification';
 import { host_superuser_storage_key } from './machines/machines';
 import { LockIcon } from '@patternfly/react-icons';
 

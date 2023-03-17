@@ -22,9 +22,9 @@ import React, { useState } from 'react';
 
 import { Card, CardBody, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { Text } from "@patternfly/react-core/dist/esm/components/Text/index.js";
-import { ListingTable } from 'cockpit-components-table.jsx';
+import { ListingTable } from 'cockpit-components-table';
 
-import * as timeformat from "timeformat.js";
+import * as timeformat from "timeformat";
 import { useInit } from "hooks";
 
 const _ = cockpit.gettext;

@@ -31,7 +31,7 @@ import { MinusIcon, PlusIcon } from '@patternfly/react-icons';
 
 import { NetworkModal, dialogSave } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';
-import { useDialogs } from "dialogs.jsx";
+import { useDialogs } from "dialogs";
 
 const _ = cockpit.gettext;
 

@@ -3,8 +3,8 @@ import './plot.css';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { PlotState } from "plot.js";
-import { SvgPlot, bytes_config } from "cockpit-components-plot.jsx";
+import { PlotState } from "plot";
+import { SvgPlot, bytes_config } from "cockpit-components-plot";
 
 const direct_metric = {
     direct: ["mem.util.available"],

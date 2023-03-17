@@ -41,13 +41,13 @@ import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 import firewall from "./firewall-client.js";
-import { ListingTable } from 'cockpit-components-table.jsx';
-import { ModalError } from "cockpit-components-inline-notification.jsx";
-import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+import { ListingTable } from 'cockpit-components-table';
+import { ModalError } from "cockpit-components-inline-notification";
+import { EmptyStatePanel } from "cockpit-components-empty-state";
 import { FirewallSwitch } from "./firewall-switch.jsx";
 
 import { superuser } from "superuser";
-import { WithDialogs, DialogsContext } from "dialogs.jsx";
+import { WithDialogs, DialogsContext } from "dialogs";
 
 import "./networking.scss";
 

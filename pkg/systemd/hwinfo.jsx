@@ -42,14 +42,14 @@ import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 import { ExternalLinkAltIcon } from "@patternfly/react-icons";
 import { SortByDirection } from "@patternfly/react-table";
-import { ListingTable } from "cockpit-components-table.jsx";
-import { WithDialogs, DialogsContext } from "dialogs.jsx";
+import { ListingTable } from "cockpit-components-table";
+import { WithDialogs, DialogsContext } from "dialogs";
 
 import kernelopt_sh from "./kernelopt.sh";
 import detect from "./hw-detect.js";
 
 import { superuser } from "superuser";
-import { PrivilegedButton } from "cockpit-components-privileged.jsx";
+import { PrivilegedButton } from "cockpit-components-privileged";
 
 import "./hwinfo.scss";
 

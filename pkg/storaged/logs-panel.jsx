@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { LogsPanel } from "cockpit-components-logs-panel.jsx";
+import { LogsPanel } from "cockpit-components-logs-panel";
 
 const _ = cockpit.gettext;
 

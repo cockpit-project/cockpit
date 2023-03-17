@@ -32,10 +32,10 @@ import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/T
 import { DropdownSeparator } from "@patternfly/react-core/dist/esm/components/Dropdown/index.js";
 import { ExclamationTriangleIcon } from "@patternfly/react-icons";
 
-import { ListingTable } from "cockpit-components-table.jsx";
-import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
+import { ListingTable } from "cockpit-components-table";
+import { ListingPanel } from 'cockpit-components-listing-panel';
 import { StorageButton, StorageLink, StorageBarMenu, StorageMenuItem, StorageUsageBar } from "./storage-controls.jsx";
-import * as PK from "packagekit.js";
+import * as PK from "packagekit";
 import {
     format_dialog, parse_options, extract_option, unparse_options
 } from "./format-dialog.jsx";

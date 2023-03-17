@@ -25,11 +25,11 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { superuser } from "superuser";
 
-import { usePageLocation, useLoggedInUser, useFile, useInit } from "hooks.js";
+import { usePageLocation, useLoggedInUser, useFile, useInit } from "hooks";
 import { etc_passwd_syntax, etc_group_syntax, etc_shells_syntax } from "./parsers.js";
 import { AccountsMain } from "./accounts-list.js";
 import { AccountDetails } from "./account-details.js";
-import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+import { EmptyStatePanel } from "cockpit-components-empty-state";
 
 import "./users.scss";
 

@@ -26,7 +26,7 @@ import { DescriptionList, DescriptionListDescription, DescriptionListGroup, Desc
 import { PlusIcon, MinusIcon } from "@patternfly/react-icons";
 
 import * as utils from "./utils.js";
-import { fmt_to_fragments } from "utils.jsx";
+import { fmt_to_fragments } from "utils";
 import { StdDetailsLayout } from "./details.jsx";
 import { SidePanel } from "./side-panel.jsx";
 import { VGroup } from "./content-views.jsx";

@@ -25,7 +25,7 @@ import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.
 import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { MinusIcon } from '@patternfly/react-icons';
 
-import { ListingTable } from "cockpit-components-table.jsx";
+import { ListingTable } from "cockpit-components-table";
 import { ModelContext } from './model-context.jsx';
 import { useEvent } from "hooks";
 
@@ -40,7 +40,7 @@ import {
     with_checkpoint,
     is_managed,
 } from './interfaces.js';
-import { fmt_to_fragments } from 'utils.jsx';
+import { fmt_to_fragments } from 'utils';
 
 const _ = cockpit.gettext;
 

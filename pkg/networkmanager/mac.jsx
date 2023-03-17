@@ -23,7 +23,7 @@ import { FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index
 
 import { MacMenu, NetworkModal, dialogSave } from './dialogs-common.jsx';
 import { ModelContext } from './model-context.jsx';
-import { useDialogs } from "dialogs.jsx";
+import { useDialogs } from "dialogs";
 
 const _ = cockpit.gettext;
 

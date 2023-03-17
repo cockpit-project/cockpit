@@ -18,8 +18,8 @@
  */
 
 import cockpit from "cockpit";
-import * as python from "python.js";
-import inotify_py from "inotify.py";
+import * as python from "python";
+import inotify_py from "../lib/inotify.py";
 import watch_appstream_py from "./watch-appstream.py";
 
 let metainfo_db = null;

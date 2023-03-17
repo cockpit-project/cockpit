@@ -28,7 +28,7 @@ cd "$1" || exit 0
 # After that each .pub file gets its on set of blocks
 for file in *.pub; do
     printf "\v"
-    cat "$file"
-    printf "\v%s\v" "$file"
-    ssh-keygen -l -f "$file" || true
+    cat "${file%.*}"
+    printf "\v%s\v" "${file%.*}"
+    ssh-keygen -l -f "${file%.*}" || true
 done

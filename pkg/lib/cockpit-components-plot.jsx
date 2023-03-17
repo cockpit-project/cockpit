@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 
 import React, { useState, useRef, useLayoutEffect } from 'react';
-import { useEvent } from "hooks.js";
+import { useEvent } from "hooks";
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Dropdown, DropdownItem, DropdownSeparator, DropdownToggle } from "@patternfly/react-core/dist/esm/components/Dropdown/index.js";
@@ -29,7 +29,7 @@ import { AngleLeftIcon, AngleRightIcon, SearchMinusIcon } from '@patternfly/reac
 
 import * as timeformat from "timeformat";
 import '@patternfly/patternfly/patternfly-charts.scss';
-import "cockpit-components-plot.scss";
+import "cockpit-components-plot";
 
 const _ = cockpit.gettext;
 

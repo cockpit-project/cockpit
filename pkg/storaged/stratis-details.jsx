@@ -27,8 +27,8 @@ import { List, ListItem } from "@patternfly/react-core/dist/esm/components/List/
 import { PlusIcon, ExclamationTriangleIcon } from "@patternfly/react-icons";
 
 import { FilesystemTab, mounting_dialog, is_mounted, is_valid_mount_point, get_fstab_config } from "./fsys-tab.jsx";
-import { ListingTable } from "cockpit-components-table.jsx";
-import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
+import { ListingTable } from "cockpit-components-table";
+import { ListingPanel } from 'cockpit-components-listing-panel';
 import { StdDetailsLayout } from "./details.jsx";
 import { StorageButton, StorageBarMenu, StorageMenuItem, StorageUsageBar } from "./storage-controls.jsx";
 import { SidePanel } from "./side-panel.jsx";
@@ -47,7 +47,7 @@ import {
     get_available_spaces, prepare_available_spaces,
     reload_systemd, for_each_async
 } from "./utils.js";
-import { fmt_to_fragments } from "utils.jsx";
+import { fmt_to_fragments } from "utils";
 import { mount_explanation } from "./format-dialog.jsx";
 
 const _ = cockpit.gettext;

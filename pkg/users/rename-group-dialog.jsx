@@ -23,7 +23,7 @@ import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 
-import { apply_modal_dialog, show_modal_dialog } from "cockpit-components-dialog.jsx";
+import { apply_modal_dialog, show_modal_dialog } from "cockpit-components-dialog";
 
 const _ = cockpit.gettext;
 

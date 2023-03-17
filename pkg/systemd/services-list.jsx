@@ -23,10 +23,10 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { Badge } from "@patternfly/react-core/dist/esm/components/Badge/index.js";
-import { ListingTable } from 'cockpit-components-table.jsx';
+import { ListingTable } from 'cockpit-components-table';
 import { ExclamationCircleIcon, SearchIcon, ThumbtackIcon } from '@patternfly/react-icons';
 
-import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+import { EmptyStatePanel } from "cockpit-components-empty-state";
 
 import cockpit from "cockpit";
 

@@ -28,14 +28,13 @@ import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/
 import host_keys_script from "./ssh-list-host-keys.sh";
 import cockpit from "cockpit";
 import { superuser } from "superuser";
-import { useObject, useEvent } from "hooks.js";
-import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
-import { ServerTimeConfig } from 'serverTime.js';
+import { useInit, useObject, useEvent } from "hooks";
+import { EmptyStatePanel } from "cockpit-components-empty-state";
+import { ServerTimeConfig } from 'serverTime';
 import { RealmdClient, RealmButton } from "./realmd.jsx";
 import { TunedPerformanceProfile } from './tuned-dialog.jsx';
 import { CryptoPolicyRow } from './cryptoPolicies.jsx';
-import { useDialogs } from "dialogs.jsx";
-import { useInit } from "hooks";
+import { useDialogs } from "dialogs";
 
 import "./configurationCard.scss";
 

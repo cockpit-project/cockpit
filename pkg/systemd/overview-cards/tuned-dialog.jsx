@@ -27,12 +27,12 @@ import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/inde
 import { ExternalLinkSquareAltIcon, HelpIcon } from '@patternfly/react-icons';
 
 import * as service from "service";
-import { EmptyStatePanel } from 'cockpit-components-empty-state.jsx';
-import { ModalError } from 'cockpit-components-inline-notification.jsx';
+import { EmptyStatePanel } from 'cockpit-components-empty-state';
+import { ModalError } from 'cockpit-components-inline-notification';
 import { ProfilesMenuDialogBody } from './profiles-menu-dialog-body.jsx';
 import { superuser } from 'superuser';
 import { useObject, useEvent } from "hooks";
-import { useDialogs } from "dialogs.jsx";
+import { useDialogs } from "dialogs";
 
 const _ = cockpit.gettext;
 

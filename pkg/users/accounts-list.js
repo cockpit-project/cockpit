@@ -34,9 +34,9 @@ import { SearchInput } from "@patternfly/react-core/dist/esm/components/SearchIn
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Text, TextContent, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core/dist/esm/components/Toolbar/index.js";
-import * as timeformat from "timeformat.js";
-import { EmptyStatePanel } from 'cockpit-components-empty-state.jsx';
-import { ListingTable } from 'cockpit-components-table.jsx';
+import * as timeformat from "timeformat";
+import { EmptyStatePanel } from 'cockpit-components-empty-state';
+import { ListingTable } from 'cockpit-components-table';
 import { SearchIcon } from '@patternfly/react-icons';
 import { SortByDirection } from "@patternfly/react-table";
 import { account_create_dialog } from "./account-create-dialog.js";

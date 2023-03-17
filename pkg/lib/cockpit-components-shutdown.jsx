@@ -30,11 +30,11 @@ import { TextArea } from "@patternfly/react-core/dist/esm/components/TextArea/in
 import { DatePicker } from "@patternfly/react-core/dist/esm/components/DatePicker/index.js";
 import { TimePicker } from "@patternfly/react-core/dist/esm/components/TimePicker/index.js";
 
-import { ServerTime } from 'serverTime.js';
-import * as timeformat from "timeformat.js";
-import { DialogsContext } from "dialogs.jsx";
+import { ServerTime } from 'serverTime';
+import * as timeformat from "timeformat";
+import { DialogsContext } from "dialogs";
 
-import "cockpit-components-shutdown.scss";
+import "./cockpit-components-shutdown.scss";
 
 const _ = cockpit.gettext;
 

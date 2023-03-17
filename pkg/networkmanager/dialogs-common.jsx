@@ -37,9 +37,9 @@ import { TeamPortDialog } from './teamport.jsx';
 import { VlanDialog, getGhostSettings as getVlanGhostSettings } from './vlan.jsx';
 import { MtuDialog } from './mtu.jsx';
 import { MacDialog } from './mac.jsx';
-import { ModalError } from 'cockpit-components-inline-notification.jsx';
+import { ModalError } from 'cockpit-components-inline-notification';
 import { ModelContext } from './model-context.jsx';
-import { useDialogs } from "dialogs.jsx";
+import { useDialogs } from "dialogs";
 
 import {
     apply_group_member,

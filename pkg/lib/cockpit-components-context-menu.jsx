@@ -21,7 +21,7 @@ import cockpit from "cockpit";
 import React from "react";
 import PropTypes from "prop-types";
 
-import "context-menu.css";
+import "context-menu";
 
 const _ = cockpit.gettext;
 

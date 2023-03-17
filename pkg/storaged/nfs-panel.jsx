@@ -22,7 +22,7 @@ import React from "react";
 import { SortByDirection } from '@patternfly/react-table';
 import { PlusIcon } from '@patternfly/react-icons';
 
-import { ListingTable } from "cockpit-components-table.jsx";
+import { ListingTable } from "cockpit-components-table";
 import { StorageButton, StorageUsageBar } from "./storage-controls.jsx";
 import { nfs_fstab_dialog } from "./nfs-details.jsx";
 import { OptionalPanel } from "./optional-panel.jsx";

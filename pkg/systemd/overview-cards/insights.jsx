@@ -23,7 +23,7 @@ import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { CheckIcon, ExclamationTriangleIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
 
 import cockpit from "cockpit";
-import * as service from "service.js";
+import * as service from "service";
 import { superuser } from "superuser";
 
 import insights_poll_hack_sh from "./insights-poll-hack.sh";

@@ -25,9 +25,9 @@ import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { TextArea } from "@patternfly/react-core/dist/esm/components/TextArea/index.js";
 import { EditIcon } from '@patternfly/react-icons';
-import { ModalError } from 'cockpit-components-inline-notification.jsx';
+import { ModalError } from 'cockpit-components-inline-notification';
 import { superuser } from "superuser";
-import { useDialogs } from "dialogs.jsx";
+import { useDialogs } from "dialogs";
 import { useInit } from "hooks";
 
 import cockpit from "cockpit";

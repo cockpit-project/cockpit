@@ -31,8 +31,8 @@ import { ActivePagesDialog } from "./active-pages-modal.jsx";
 import { CredentialsModal } from './credentials.jsx';
 import { AboutCockpitModal, LangModal, OopsModal } from "./shell-modals.jsx";
 import { SuperuserIndicator } from "./superuser.jsx";
-import { read_os_release } from "os-release.js";
-import { DialogsContext } from "dialogs.jsx";
+import { read_os_release } from "os-release";
+import { DialogsContext } from "dialogs";
 
 const _ = cockpit.gettext;
 

@@ -23,7 +23,7 @@ import { List, ListItem } from "@patternfly/react-core/dist/esm/components/List/
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Text, TextContent } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 
-import { show_modal_dialog } from "cockpit-components-dialog.jsx";
+import { show_modal_dialog } from "cockpit-components-dialog";
 
 const _ = cockpit.gettext;
 

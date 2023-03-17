@@ -21,7 +21,7 @@
  *
  * Example:
  *
- * import { WithDialogs, useDialogs } from "dialogs.jsx";
+ * import { WithDialogs, useDialogs } from "dialogs";
  *
  * const App = () =>
  *   <WithDialogs>
@@ -71,7 +71,7 @@
  * A class component can declare a static context type and then use
  * "this.context" to find the Dialogs object:
  *
- * import { DialogsContext } from "dialogs.jsx";
+ * import { DialogsContext } from "dialogs";
  *
  * class ExampleButton extends React.Component {
  *   static contextType = DialogsContext;

@@ -26,7 +26,7 @@ import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/d
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
 
-import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+import { EmptyStatePanel } from "cockpit-components-empty-state";
 
 const _ = cockpit.gettext;
 

@@ -28,7 +28,7 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Tab, Tabs } from "@patternfly/react-core/dist/esm/components/Tabs/index.js";
 import { GalleryItem } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 
-import { ListingTable } from 'cockpit-components-table.jsx';
+import { ListingTable } from 'cockpit-components-table';
 import { ReportingTable } from "./reporting.jsx";
 import { journal } from "journal";
 

@@ -24,10 +24,10 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Terminal as Term } from "xterm";
 import { CanvasAddon } from 'xterm-addon-canvas';
 
-import { ContextMenu } from "cockpit-components-context-menu.jsx";
+import { ContextMenu } from "cockpit-components-context-menu";
 import cockpit from "cockpit";
 
-import "console.css";
+import "console";
 
 const _ = cockpit.gettext;
 

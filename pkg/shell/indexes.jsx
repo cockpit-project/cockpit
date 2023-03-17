@@ -27,7 +27,7 @@ import { TopNav } from ".//topnav.jsx";
 import { CockpitHosts } from "./hosts.jsx";
 import { codes, HostModal } from "./hosts_dialog.jsx";
 import { EarlyFailure, EarlyFailureReady } from './failures.jsx';
-import { WithDialogs } from "dialogs.jsx";
+import { WithDialogs } from "dialogs";
 
 import * as base_index from "./base_index";
 

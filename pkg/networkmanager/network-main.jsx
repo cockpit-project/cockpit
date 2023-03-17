@@ -29,9 +29,9 @@ import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/d
 import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 
 import { FirewallSwitch } from "./firewall-switch.jsx";
-import { ListingTable } from "cockpit-components-table.jsx";
+import { ListingTable } from "cockpit-components-table";
 import { NetworkAction } from "./dialogs-common.jsx";
-import { LogsPanel } from "cockpit-components-logs-panel.jsx";
+import { LogsPanel } from "cockpit-components-logs-panel";
 import { NetworkPlots } from "./plots";
 
 import firewall from './firewall-client.js';

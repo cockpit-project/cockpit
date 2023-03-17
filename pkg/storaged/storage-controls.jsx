@@ -30,7 +30,7 @@ import * as utils from "./utils.js";
 import client from "./client.js";
 
 import { dialog_open } from "./dialog.jsx";
-import { fmt_to_fragments } from "utils.jsx";
+import { fmt_to_fragments } from "utils";
 
 const _ = cockpit.gettext;
 

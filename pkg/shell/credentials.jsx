@@ -34,12 +34,12 @@ import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/
 import { InfoCircleIcon } from '@patternfly/react-icons';
 
 import * as credentials from "credentials";
-import { FileAutoComplete } from "cockpit-components-file-autocomplete.jsx";
-import { ListingPanel } from 'cockpit-components-listing-panel.jsx';
-import { ListingTable } from 'cockpit-components-table.jsx';
-import { ModalError } from 'cockpit-components-inline-notification.jsx';
+import { FileAutoComplete } from "cockpit-components-file-autocomplete";
+import { ListingPanel } from 'cockpit-components-listing-panel';
+import { ListingTable } from 'cockpit-components-table';
+import { ModalError } from 'cockpit-components-inline-notification';
 import { useEvent, useObject } from 'hooks';
-import { useDialogs } from "dialogs.jsx";
+import { useDialogs } from "dialogs";
 
 import "./credentials.scss";
 

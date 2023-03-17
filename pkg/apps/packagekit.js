@@ -18,7 +18,7 @@
  */
 
 import cockpit from "cockpit";
-import * as PK from "packagekit.js";
+import * as PK from "packagekit";
 
 class ProgressReporter {
     constructor(base, range, callback) {

@@ -19,7 +19,7 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import { install_dialog } from "cockpit-components-install-dialog.jsx";
+import { install_dialog } from "cockpit-components-install-dialog";
 
 import { SidePanel } from "./side-panel.jsx";
 import { create_mdraid, mdraid_rows } from "./mdraids-panel.jsx";

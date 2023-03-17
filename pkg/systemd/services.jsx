@@ -32,7 +32,7 @@ import { ToggleGroup, ToggleGroupItem } from "@patternfly/react-core/dist/esm/co
 import { Toolbar, ToolbarContent, ToolbarFilter, ToolbarItem, ToolbarToggleGroup } from "@patternfly/react-core/dist/esm/components/Toolbar/index.js";
 import { ExclamationCircleIcon, FilterIcon } from '@patternfly/react-icons';
 
-import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
+import { EmptyStatePanel } from "cockpit-components-empty-state";
 import { Service } from "./service.jsx";
 import { ServiceTabs, service_tabs_suffixes } from "./service-tabs.jsx";
 import { ServicesList } from "./services-list.jsx";
@@ -43,7 +43,7 @@ import * as timeformat from "timeformat";
 import cockpit from "cockpit";
 import { superuser } from 'superuser';
 import { useEvent, usePageLocation } from "hooks";
-import { WithDialogs } from "dialogs.jsx";
+import { WithDialogs } from "dialogs";
 
 import s_bus from "./busnames.js";
 import "./services.scss";

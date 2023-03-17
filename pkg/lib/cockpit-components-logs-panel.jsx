@@ -26,8 +26,8 @@ import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/
 import { ExclamationTriangleIcon, TimesCircleIcon } from '@patternfly/react-icons';
 
 import { journal } from "journal";
-import "journal.css";
-import "cockpit-components-logs-panel.scss";
+import "./journal.css";
+import "./cockpit-components-logs-panel.scss";
 
 const _ = cockpit.gettext;
 

@@ -29,7 +29,7 @@ import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/inde
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { HelpIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
 
-import "cockpit-components-dialog.scss";
+import "./cockpit-components-dialog.scss";
 
 const _ = cockpit.gettext;
 

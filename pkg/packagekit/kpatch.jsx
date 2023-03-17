@@ -35,9 +35,9 @@ import { InfoIcon, InfoCircleIcon } from "@patternfly/react-icons";
 
 import cockpit from "cockpit";
 import { proxy as serviceProxy } from "service";
-import { check_missing_packages } from "packagekit.js";
-import { install_dialog } from "cockpit-components-install-dialog.jsx";
-import { read_os_release } from "os-release.js";
+import { check_missing_packages } from "packagekit";
+import { install_dialog } from "cockpit-components-install-dialog";
+import { read_os_release } from "os-release";
 
 const _ = cockpit.gettext;
 

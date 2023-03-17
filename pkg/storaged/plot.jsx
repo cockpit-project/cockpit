@@ -23,7 +23,7 @@ import React from "react";
 
 import { Split, SplitItem } from "@patternfly/react-core/dist/esm/layouts/Split/index.js";
 import { Grid, GridItem } from "@patternfly/react-core/dist/esm/layouts/Grid/index.js";
-import { ZoomControls, SvgPlot, bytes_per_sec_config } from "cockpit-components-plot.jsx";
+import { ZoomControls, SvgPlot, bytes_per_sec_config } from "cockpit-components-plot";
 
 import { decode_filename, get_other_devices } from "./utils.js";
 

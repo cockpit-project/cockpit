@@ -172,11 +172,19 @@ fi
 
 unpack_from_cache "${tag}"
 
-# "${changed_files}" is empty unless --partial was given
-for file in ${changed_files}; do
-    # remove any webpacks that mention this file.  `grep -s` in case there aren't any left.
-    grep -sl "${file}" dist/*/Makefile.deps | cut -f2 -d/ | while read -r webpack; do
-        message REMOVE "dist/${webpack}"
-        rm -rf "dist/${webpack}"
-    done
-done
+# for --partial, remove webpacks which changed since the jumpstart was built
+if [ -n "${partial}" ]; then
+    # assume that pkg/lib and build system changes affect all of them
+    if echo "$changed_files" | grep -q -E '(pkg/lib|Makefile|package.*.json|webpack.config.js)'; then
+        message REMOVE "dist"
+        rm -r dist
+    else
+        for d in dist/*; do
+            webpack=$(basename $d)
+            if [ "${changed_files#*pkg/${webpack}}" != "${changed_files}" ]; then
+                message REMOVE "dist/${webpack}"
+                rm -r "dist/${webpack}"
+            fi
+        done
+    fi
+fi

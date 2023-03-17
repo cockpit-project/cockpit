@@ -10,7 +10,6 @@ test/common/pixel-tests pull
 
 TEST_SCENARIO="${TEST_SCENARIO:-verify}"
 [ "${TEST_SCENARIO}" = "${TEST_SCENARIO%%devel}" ] || export NODE_ENV=development
-tools/webpack-jumpstart --partial || true
 
 case "$TEST_SCENARIO" in
     verify|devel|firefox|firefox-devel|pybridge)

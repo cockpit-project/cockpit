@@ -50,6 +50,18 @@ function AccountCreateBody({ state, errors, change, shells }) {
         shell, isShellSelectExpanded,
     } = state;
 
+    // We want to let user know that password and confirmation password do not match without them having to constantly click on "Create" to validate the form.
+    // But we also don't want to show an error message while they are typing the confirmation password, only when they are finished typing it.
+    // To solve the issue of telling that user is finished writing the confirmation password, let's do the following:
+    // The dialog does not validate if passwords match until:
+    //     1. they are at least the same length (which signals user has finished typing)
+    // OR
+    //     2. user submits the form (which also signals they are finished typing)
+    // Once that happens, and passwords do not match, the confirm password is validated after each keystroke.
+    let dynamic_password_confirm_error;
+    if (state.password_confirm_dirty)
+        dynamic_password_confirm_error = validate_password_confirm(state.password_confirm, state.password);
+
     return (
         <Form isHorizontal onSubmit={apply_modal_dialog}>
             <FormGroup label={_("Full name")}
@@ -133,7 +145,7 @@ function AccountCreateBody({ state, errors, change, shells }) {
             <PasswordFormFields password_label={_("Password")}
                                 password_confirm_label={_("Confirm password")}
                                 error_password={errors?.password}
-                                error_password_confirm={errors?.password_confirm}
+                                error_password_confirm={dynamic_password_confirm_error || errors?.password_confirm}
                                 idPrefix="accounts-create-password"
                                 change={change} />
         </Form>
@@ -188,6 +200,13 @@ function validate_uid(uid, accounts, min_uid, max_uid, change) {
 
 function validate_home_dir(dir, directoryExpected) {
     return cockpit.spawn(["test", "!", directoryExpected ? "-d" : "-f", dir], { superuser: "require" });
+}
+
+function validate_password_confirm(password_confirm, password) {
+    if (password_confirm !== password)
+        return _("The passwords do not match");
+
+    return null;
 }
 
 function suggest_username(realname) {
@@ -246,6 +265,7 @@ export function account_create_dialog(accounts, min_uid, max_uid, shells) {
         user_name: "",
         password: "",
         password_confirm: "",
+        password_confirm_dirty: false,
         locked: false,
         confirm_weak: false,
         change_passw_force: false,
@@ -308,6 +328,10 @@ export function account_create_dialog(accounts, min_uid, max_uid, shells) {
         if (field == "change_passw_force")
             state.locked = false;
 
+        // Once password and confirm password are the same length, validate them after each keystroke
+        if (field == "password_confirm" && value.length >= state.password.length)
+            state.password_confirm_dirty = true;
+
         if (field == "locked")
             state.change_passw_force = false;
 
@@ -327,9 +351,7 @@ export function account_create_dialog(accounts, min_uid, max_uid, shells) {
         const errs = { };
 
         errs.real_name = validate_real_name(real_name);
-
-        if (password != password_confirm)
-            errs.password_confirm = _("The passwords do not match");
+        errs.password_confirm = validate_password_confirm(password_confirm, password);
 
         if (password.length > 256)
             errs.password = _("Password is longer than 256 characters");
@@ -422,6 +444,11 @@ export function account_create_dialog(accounts, min_uid, max_uid, shells) {
             else {
                 if (!errors.real_name && !errors.user_name && !errors.home_dir && !errors.uid && !errors.password_confirm && state.password.length <= 256)
                     state.confirm_weak = true;
+
+                // Once the form is submitted and passwords do not match, validate confirm password after each keystroke
+                if (errors.password_confirm)
+                    state.password_confirm_dirty = true;
+
                 update();
                 return Promise.reject();
             }

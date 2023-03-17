@@ -57,9 +57,9 @@ def createUser(
     machine,
     user_name,
     real_name,
-    password,
     locked,
     force_password_change,
+    password=None,
     custom_home_dir=None,
     default_shell=None,
     custom_shell=None,
@@ -75,8 +75,9 @@ def createUser(
 
     browser.set_input_text('#accounts-create-user-name', user_name)
     browser.set_input_text('#accounts-create-real-name', real_name)
-    browser.set_input_text('#accounts-create-password-pw1', password)
-    browser.set_input_text('#accounts-create-password-pw2', password)
+    if password:
+        browser.set_input_text('#accounts-create-password-pw1', password)
+        browser.set_input_text('#accounts-create-password-pw2', password)
 
     if locked:
         browser.click('#accounts-create-locked')
@@ -228,6 +229,7 @@ class TestAccounts(MachineCase):
 
         # changing input clears the error message
         b.set_input_text('#accounts-create-password-pw1', "test")
+        b.set_input_text('#accounts-create-password-pw2', "test")
         b.wait_not_present("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error")
 
         # correct password confirmation
@@ -392,6 +394,65 @@ class TestAccounts(MachineCase):
         self.login_and_go("/users")
         # Create a locked user with weak password
         self.sed_file('s/^SHELL=.*$/SHELL=/', '/etc/default/useradd')
+        self.allow_journal_messages(".*required to change your password immediately.*")
+        self.allow_journal_messages(".*user account or password has expired.*")
+
+        createUser(
+            browser=b,
+            machine=m,
+            user_name="js",
+            real_name="Jussi Senior",
+            locked=True,
+            force_password_change=False,
+            verify_created=False,
+        )
+
+        # Check Confirm password is not validated until it's at least the same length as the first password
+        # Once they are the same length, it should valitate the Confirm password after each keystroke
+        b.set_input_text('#accounts-create-password-pw1', "foobar")
+        b.set_input_text('#accounts-create-password-pw2', "bar")
+        b.wait_not_present("#accounts-create-password-pw2-helper")
+        b.set_input_text('#accounts-create-password-pw2', "foobarfoo")
+        b.wait_visible("#accounts-create-password-pw2-helper")
+        b.wait_in_text("#accounts-create-password-pw2-helper", "The passwords do not match")
+        b.set_input_text('#accounts-create-password-pw2', "bar")
+        b.wait_visible("#accounts-create-password-pw2-helper")
+        b.wait_in_text("#accounts-create-password-pw2-helper", "The passwords do not match")
+        b.set_input_text('#accounts-create-password-pw2', "foobar")
+        b.wait_not_present("#accounts-create-password-pw2-helper")
+
+        b.click('#accounts-create-dialog button.cancel')
+        b.wait_not_present('#account-set-password-dialog')
+
+        createUser(
+            browser=b,
+            machine=m,
+            user_name="js",
+            real_name="Jussi Senior",
+            locked=True,
+            force_password_change=False,
+            verify_created=False,
+        )
+
+        # Check Confirm password is not validated until the form is submitted
+        # Once it is submitted, it should valitate the Confirm password after each keystroke
+        b.set_input_text('#accounts-create-password-pw1', "foobar")
+        b.set_input_text('#accounts-create-password-pw2', "bar")
+        b.wait_not_present("#accounts-create-password-pw2-helper")
+        b.click('#accounts-create-dialog button.apply')
+        b.wait_visible("#accounts-create-password-pw2-helper")
+        b.wait_in_text("#accounts-create-password-pw2-helper", "The passwords do not match")
+        b.set_input_text('#accounts-create-password-pw2', "barfoo")
+        b.wait_visible("#accounts-create-password-pw2-helper")
+        b.wait_in_text("#accounts-create-password-pw2-helper", "The passwords do not match")
+        b.set_input_text('#accounts-create-password-pw2', "foobarfoo")
+        b.wait_visible("#accounts-create-password-pw2-helper")
+        b.wait_in_text("#accounts-create-password-pw2-helper", "The passwords do not match")
+        b.set_input_text('#accounts-create-password-pw2', "foobar")
+        b.wait_not_present("#accounts-create-password-pw2-helper")
+
+        b.click('#accounts-create-dialog button.cancel')
+        b.wait_not_present('#account-set-password-dialog')
 
         createUser(
             browser=b,
@@ -604,9 +665,6 @@ class TestAccounts(MachineCase):
         b.set_val('#conversation-input', good_password_2)
         b.click('#login-button')
         b.wait_visible('#content')
-
-        self.allow_journal_messages(".*required to change your password immediately.*")
-        self.allow_journal_messages(".*user account or password has expired.*")
 
     def testCustomUID(self):
         b = self.browser

@@ -34,7 +34,7 @@ export const cockpitRsyncEsbuildPlugin = options => ({
     name: 'cockpitRsyncPlugin',
     setup(build) {
         init(options || {});
-        build.onEnd(() => run(() => {}));
+        build.onEnd(result => result.errors.length === 0 && run(() => {}));
     },
 });
 

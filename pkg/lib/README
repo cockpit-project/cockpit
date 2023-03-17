@@ -1,13 +1,5 @@
-# Cockpit Javascript Runtime Dependencies
+# Cockpit shared components
 
-Cockpit uses various javascript dependencies at runtime in the browser
-such as jQuery, or components that we're building and incubating here.
-
-External dependencies are retrieved via Bower and live in subdirectories
-of the lib/ directory. The components being incubated live in the top
-level of the lib/ directory.
-
-The repository is undergoing a migration to webpack and other bundling
-tooling. Once this is the case, we won't commit NPM components into
-git. But until then the files and LICENSES that we bundle, are committed
-to git.
+This directory contains React components, JavaScript modules, webpack/eslint
+plugins, and build tools which are shared between all Cockpit projects.
+External projects usually clone this directory into their own source tree.

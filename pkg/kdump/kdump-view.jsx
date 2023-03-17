@@ -479,7 +479,7 @@ export class KdumpPage extends React.Component {
                 </Tooltip>);
         }
         return (
-            <Page>
+            <Page isBreadcrumbGrouped additionalGroupedContent={
                 <PageSection variant={PageSectionVariants.light}>
                     <Flex alignItems={{ default: 'alignItemsCenter' }}>
                         <Title headingLevel="h2" size="3xl">
@@ -488,6 +488,7 @@ export class KdumpPage extends React.Component {
                         {kdumpSwitch}
                     </Flex>
                 </PageSection>
+            }>
                 <PageSection>
                     <Card>
                         <CardBody>

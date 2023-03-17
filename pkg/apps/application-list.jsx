@@ -136,7 +136,7 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
     }
 
     return (
-        <Page id="list-page">
+        <Page isBreadcrumbGrouped id="list-page" additionalGroupedContent={
             <PageSection variant={PageSectionVariants.light}>
                 <Flex alignItems={{ default: 'alignItemsCenter' }}>
                     <h2 className="pf-u-font-size-3xl">{_("Applications")}</h2>
@@ -148,6 +148,7 @@ export const ApplicationList = ({ metainfo_db, appProgress, appProgressTitle, ac
                     </FlexItem>
                 </Flex>
             </PageSection>
+        }>
             {comps.length == 0
                 ? <EmptyStatePanel title={ _("No applications installed or available.") } />
                 : <PageSection>

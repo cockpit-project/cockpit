@@ -112,7 +112,7 @@ export const cockpitPoEsbuildPlugin = options => ({
     name: 'cockpitPoEsbuildPlugin',
     setup(build) {
         init({ ...options, outdir: build.initialOptions.outdir });
-        build.onEnd(async () => { await run() });
+        build.onEnd(async result => { result.errors.length === 0 && await run() });
     },
 });
 

@@ -4,22 +4,6 @@ pkg_TESTS = \
 
 TESTS += $(pkg_TESTS)
 
-%.metainfo.xml: %.metainfo.xml.in
-	$(AM_V_GEN) mkdir -p $(dir $@) && msgfmt --xml -d $(top_srcdir)/po --template $< --output $@
-
-metainfodir = ${datarootdir}/metainfo
-nodist_metainfo_DATA = \
-	pkg/sosreport/org.cockpit-project.cockpit-sosreport.metainfo.xml \
-	pkg/kdump/org.cockpit-project.cockpit-kdump.metainfo.xml \
-	pkg/selinux/org.cockpit-project.cockpit-selinux.metainfo.xml \
-	pkg/storaged/org.cockpit-project.cockpit-storaged.metainfo.xml \
-	pkg/networkmanager/org.cockpit-project.cockpit-networkmanager.metainfo.xml \
-	$(NULL)
-
-metainfo_in = $(patsubst %,%.in,$(nodist_metainfo_DATA))
-EXTRA_DIST += $(metainfo_in)
-CLEANFILES += $(nodist_metainfo_DATA)
-
 pixmapsdir = ${datarootdir}/pixmaps
 pixmaps_DATA = pkg/sosreport/cockpit-sosreport.png
 

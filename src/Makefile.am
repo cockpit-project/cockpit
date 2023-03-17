@@ -75,3 +75,22 @@ AM_CFLAGS = \
 	-Werror=return-type \
 	-Werror=missing-include-dirs \
 	$(NULL)
+
+# -----------------------------------------------------------------------------
+#  AppStream metadata
+#
+%.metainfo.xml: %.metainfo.xml.in
+	$(AM_V_GEN) mkdir -p $(dir $@) && msgfmt --xml -d $(top_srcdir)/po --template $< --output $@
+
+metainfodir = ${datarootdir}/metainfo
+nodist_metainfo_DATA = \
+	src/appstream/org.cockpit-project.cockpit-sosreport.metainfo.xml \
+	src/appstream/org.cockpit-project.cockpit-kdump.metainfo.xml \
+	src/appstream/org.cockpit-project.cockpit-selinux.metainfo.xml \
+	src/appstream/org.cockpit-project.cockpit-storaged.metainfo.xml \
+	src/appstream/org.cockpit-project.cockpit-networkmanager.metainfo.xml \
+	$(NULL)
+
+metainfo_in = $(patsubst %,%.in,$(nodist_metainfo_DATA))
+EXTRA_DIST += $(metainfo_in)
+CLEANFILES += $(nodist_metainfo_DATA)

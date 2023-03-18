@@ -15,7 +15,7 @@ parser.add_argument('-r', '--rsync', { help: "rsync webpack to ssh target after 
 parser.add_argument('-w', '--watch', { action: 'store_true', help: "Enable webpack watch mode", default: webpack_watch });
 parser.add_argument('-e', '--no-eslint', { action: 'store_true', help: "Disable eslint linting" });
 parser.add_argument('-s', '--no-stylelint', { action: 'store_true', help: "Disable stylelint linting" });
-parser.add_argument('prefix', { help: "The directory to build (eg. base1, shell, ...)", metavar: "DIRECTORY" });
+parser.add_argument('onlydir', { nargs: '?', help: "The pkg/<DIRECTORY> to build (eg. base1, shell, ...)", metavar: "DIRECTORY" });
 const args = parser.parse_args();
 
 if (args.no_eslint) {
@@ -30,11 +30,12 @@ if (args.no_stylelint) {
     process.env.STYLELINT = "1";
 }
 
-if (args.prefix.includes('/')) {
+if (args.onlydir?.includes('/')) {
     parser.error("Directory must not contain '/'");
 }
 
-process.env.ONLYDIR = args.prefix;
+if (args.onlydir)
+    process.env.ONLYDIR = args.onlydir;
 
 const cwd = process.cwd();
 const config_path = path.resolve(cwd, args.config);
@@ -43,7 +44,7 @@ import(config_path).then(module => {
     const config = module.default;
     if (args.rsync) {
         process.env.RSYNC = args.rsync;
-        config.plugins.push(new CockpitRsyncWebpackPlugin({ source: "dist/" + args.prefix }));
+        config.plugins.push(new CockpitRsyncWebpackPlugin({ source: "dist/" + (args.onlydir || "") }));
     }
 
     const compiler = webpack(config);

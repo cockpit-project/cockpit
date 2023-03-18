@@ -30,7 +30,7 @@ V_WEBPACK_0 = @echo "  WEBPACK  dist";
 # but this is just a representative for all of dist/*
 $(DIST_STAMP): $(srcdir)/package-lock.json $(PKG_INPUTS)
 	@rm -f $(DIST_STAMP)
-	$(V_WEBPACK) cd $(srcdir) && NODE_ENV='$(NODE_ENV)' tools/termschutz node_modules/.bin/webpack
+	$(V_WEBPACK) cd $(srcdir) && NODE_ENV='$(NODE_ENV)' tools/termschutz tools/webpack-make.js
 
 V_NODE_MODULES = $(V_NODE_MODULES_$(V))
 V_NODE_MODULES_ = $(V_NODE_MODULES_$(AM_DEFAULT_VERBOSITY))

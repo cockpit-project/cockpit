@@ -72,6 +72,11 @@ E.g. if you want to work on anything in [pkg/systemd](./pkg/systemd/), run:
 
     tools/webpack-watch systemd
 
+If you work on a change that affects multiple pages (such as a file in
+pkg/lib/), you can also build all pages:
+
+    tools/webpack-watch
+
 Note that this enables eslint and stylelint by default -- if you want to
 disable them, run it with `-e`/`--no-eslint` and/or `-s`/`--no-stylelint`.
 
@@ -84,8 +89,10 @@ option for copying the built page into the given SSH target's
 SSH `c` alias as described in [test/README.md](./test/README.md), you can use
 one of these commands:
 
-    tools/webpack-make.js kdump -r c
-    tools/webpack-watch kdump -r c
+    tools/webpack-make.js -r c kdump
+    tools/webpack-make.js -r c
+    tools/webpack-watch -r c kdump
+    tools/webpack-watch -r c
 
 To make Cockpit again use the installed code, rather than that from your git
 checkout directory, run the following, and log into Cockpit again:

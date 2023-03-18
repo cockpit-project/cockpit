@@ -72,8 +72,8 @@ E.g. if you want to work on anything in [pkg/systemd](./pkg/systemd/), run:
 
     tools/webpack-watch systemd
 
-Note that this enables eslint by default -- if you want to disable it, run it
-with `-e`/`--no-eslint`.
+Note that this enables eslint and stylelint by default -- if you want to
+disable them, run it with `-e`/`--no-eslint` and/or `-s`/`--no-stylelint`.
 
 Then reload cockpit in your browser after page is built. Press Control-C to
 stop watch mode once you are done with changing the code.

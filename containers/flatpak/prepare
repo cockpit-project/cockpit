@@ -27,7 +27,7 @@ ARCHIVE_LOCATION="${1:-}"
 ARCHIVE_SHA256="${2:-}"
 
 if test -z "${ARCHIVE_LOCATION}"; then
-    ARCHIVE_LOCATION="$("${0%/*}/../../tools/make-dist" IGNORE_UNUSED_PATTERNS=1 ONLYDIR=static/)"
+    ARCHIVE_LOCATION="$("${0%/*}/../../tools/make-dist" IGNORE_UNUSED_PATTERNS=1 ONLYDIR=static)"
 fi
 
 case "${ARCHIVE_LOCATION}" in

@@ -47,10 +47,6 @@ First, install Cockpit on your local machine as described in:
 
 <https://cockpit-project.org/running.html>
 
-Cockpit uses a lot of build and runtime dependencies from [npm](https://www.npmjs.com). Get them with
-
-    tools/node-modules checkout
-
 Next, run this command from your top level Cockpit checkout directory, and make
 sure to run it as the same user that you'll use to log into Cockpit below.
 
@@ -68,8 +64,8 @@ desktop.
 <http://localhost:9090>
 
 After every change to the source files, bundles need to be rebuilt. The
-recommended and fastest way is to do that is using the "watch" mode on 
-the page that you are working on. For example, if you want to work on 
+recommended and fastest way is to do that is using the "watch" mode on
+the page that you are working on. For example, if you want to work on
 anything in [pkg/systemd](./pkg/systemd/), run:
 
     tools/webpack-watch systemd
@@ -260,7 +256,7 @@ units, cockpit-tls, etc.) use this:
 On Debian-based OSes (including Ubuntu), the path will be
 `/usr/lib/cockpit/cockpit-ws` instead.
 
-On Fedora, CentOS, Red Hat Enterprise Linux, and related distributions, you also 
+On Fedora, CentOS, Red Hat Enterprise Linux, and related distributions, you also
 need to disable SELinux with:
 
     sudo setenforce 0

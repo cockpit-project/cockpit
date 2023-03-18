@@ -34,7 +34,7 @@ if (args.prefix.includes('/')) {
     parser.error("Directory must not contain '/'");
 }
 
-process.env.ONLYDIR = args.prefix + "/";
+process.env.ONLYDIR = args.prefix;
 
 const cwd = process.cwd();
 const config_path = path.resolve(cwd, args.config);

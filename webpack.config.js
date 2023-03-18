@@ -194,7 +194,7 @@ info.files.forEach(value => {
         files.push({ from: pkgfile(value), to: value });
 });
 if (section) {
-    const manifest = section + "manifest.json";
+    const manifest = section + "/manifest.json";
     files.push({ from: pkgfile(manifest), to: manifest });
 } else {
     all_sections.forEach(section => {

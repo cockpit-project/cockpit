@@ -41,7 +41,7 @@ jobs:
           # disable documentation building as this indirectly triggers a build of pkg/static
           ./autogen.sh --disable-doc
           # only build static/ -- it's the fastest one (just takes a few seconds)
-          make -j$(nproc) NODE_ENV=development ONLYDIR=static/
+          make -j$(nproc) NODE_ENV=development ONLYDIR=static
         if: ${{ matrix.language == 'cpp' }}
 
       - name: Perform CodeQL Analysis

@@ -722,6 +722,8 @@ server_ready (void)
                     G_CALLBACK (on_handle_resource), NULL);
   g_signal_connect (server, "handle-resource::/dist/",
                     G_CALLBACK (on_handle_source), NULL);
+  g_signal_connect (server, "handle-resource::/qunit/",
+                    G_CALLBACK (on_handle_source), NULL);
   g_signal_connect (server, "handle-resource::/favicon.ico",
                     G_CALLBACK (on_handle_favicon), NULL);
   g_signal_connect (server, "handle-resource::/mock/",

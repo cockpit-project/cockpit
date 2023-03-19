@@ -253,10 +253,10 @@ if (section.startsWith('static'))
 /* Fill in the tests properly */
 info.tests.forEach(test => {
     if (!section || test.indexOf(section) === 0) {
-        entry[test] = pkgfile(test + ".js");
+        entry['../qunit/' + test] = pkgfile(test + ".js");
         plugins.push(new Html({
             title: path.basename(test),
-            filename: test + ".html",
+            filename: '../qunit/' + test + ".html",
             template: libdir + path.sep + "qunit-template.html",
             builddir: test.split("/").map(() => "../").join(""),
             script: path.basename(test + '.js'),

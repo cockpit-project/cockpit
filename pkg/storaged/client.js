@@ -1286,12 +1286,20 @@ client.wait_for = function wait_for(cond) {
     });
 };
 
+function try_fields(dict, fields, def) {
+    for (let i = 0; i < fields.length; i++)
+        if (fields[i] && dict[fields[i]])
+            return dict[fields[i]];
+    return def;
+}
+
 client.get_config = (name, def) => {
     if (cockpit.manifests.storage && cockpit.manifests.storage.config) {
-        let val = cockpit.manifests.storage.config[name];
+        const val = cockpit.manifests.storage.config[name];
         if (typeof val === 'object' && val !== null)
-            val = val[client.os_release.ID];
-        return val !== undefined ? val : def;
+            return try_fields(val, [client.os_release.PLATFORM_ID, client.os_release.ID], def);
+        else
+            return val !== undefined ? val : def;
     } else {
         return def;
     }

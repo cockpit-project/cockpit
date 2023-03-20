@@ -35,7 +35,7 @@ export class HealthCard extends React.Component {
     render() {
         return (
             <Card className="system-health">
-                <CardTitle>{_("Health")}</CardTitle>
+                <CardTitle>{_("'sup?")}</CardTitle>
                 <CardBody>
                     <ul className="system-health-events">
                         <PageStatusNotifications />

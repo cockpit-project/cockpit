@@ -233,8 +233,9 @@ class Dialog extends React.Component {
                 </Button>
             </Popover>;
 
-        const error_alert = this.props.error &&
-            <Alert variant='danger' isInline title={React.isValidElement(this.props.error) ? this.props.error : this.props.error.toString() }>{this.props.error.details}</Alert>;
+        const error = this.props.error || this.props.static_error;
+        const error_alert = error &&
+            <Alert variant='danger' isInline title={React.isValidElement(error) ? error : error.toString() }>{error.details}</Alert>;
 
         return (
             <Modal position="top" variant={this.props.variant || "medium"}
@@ -246,7 +247,6 @@ class Dialog extends React.Component {
                    help={help}
                    footer={this.props.footer} title={this.props.title}>
                 <Stack hasGutter>
-                    { this.props.static_error}
                     { error_alert }
                     <StackItem>
                         { this.props.body }

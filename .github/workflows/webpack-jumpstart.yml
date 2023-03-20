@@ -25,7 +25,10 @@ jobs:
              git fetch --no-tags origin ${BASE_SHA}:base ${HEAD_SHA}:head
              git checkout --detach base
              git merge --no-edit head
-             pkg/build webpack-jumpstart.tar -j$(nproc)")"
+             git rev-parse HEAD^{tree} > tree
+             tools/node-modules make_package_lock_json
+             NODE_ENV=production tools/webpack-make.js
+             tar cf webpack-jumpstart.tar dist package-lock.json tree")"
 
           docker container start --attach "${id}" >&2
           docker container cp "${id}":/home/node/cockpit/webpack-jumpstart.tar .

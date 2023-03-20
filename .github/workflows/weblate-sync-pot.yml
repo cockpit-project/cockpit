@@ -11,23 +11,27 @@ jobs:
     environment: cockpit-weblate
     permissions:
       pull-requests: write
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/cockpit-project/unit-tests
+      options: --user root
+    timeout-minutes: 10
     steps:
-      - name: Set up dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y --no-install-recommends gettext
+      # https://github.blog/2022-04-12-git-security-vulnerability-announced/
+      - name: Pacify git's permission check
+        run: git config --global --add safe.directory /__w/
 
       - name: Clone source repository
         uses: actions/checkout@v3
         with:
           path: src
-
-      - name: Install node_modules
-        run: make -C src -f pkg/build package-lock.json
+          fetch-depth: 0
 
       - name: Generate .pot file
-        run: make -C src -f po/Makefile.am po/cockpit.pot
+        run: |
+          cd src
+          ./autogen.sh
+          make po/cockpit.pot
 
       - name: Clone weblate repository
         uses: actions/checkout@v3

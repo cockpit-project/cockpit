@@ -28,11 +28,8 @@ include pkg/build
 # seeing them during ./autogen.sh, but need make to find them at compile time.
 -include $(wildcard pkg/Makefile.qunit*)
 
-# automake doesn't support stripping initial path components (ie: `dist`) with
-# `nobase_`, so we create a cockpit/ symlink and use that instead.
-# That way, the files land in $(datadir)/cockpit/ and `dist` is avoided.
-all-local:: cockpit
-cockpit:
-	$(AM_V_GEN) ln -sf $(srcdir)/dist $@
+install-data-hook::
+	cd $(srcdir)/dist; find -type f -exec install -D -m 644 '{}' '$(DESTDIR)$(datadir)/cockpit/{}' \;
 
-nobase_data_DATA = $(patsubst dist/%,cockpit/%,$(shell find $(srcdir)/cockpit/ -type f))
+uninstall-hook:
+	rm -rf $(DESTDIR)$(datadir)/cockpit

@@ -329,6 +329,7 @@ class AddEditServicesModal extends React.Component {
         };
         this.save = this.save.bind(this);
         this.edit = this.edit.bind(this);
+        this.checkNullValues = this.checkNullValues.bind(this);
         this.onFilterChanged = this.onFilterChanged.bind(this);
         this.onToggleService = this.onToggleService.bind(this);
         this.setId = this.setId.bind(this);
@@ -351,6 +352,10 @@ class AddEditServicesModal extends React.Component {
     getCustomId() {
         const all_ports = this.state.custom_tcp_ports.concat(this.state.custom_udp_ports);
         return "custom--" + all_ports.map(this.getName).join('-');
+    }
+
+    checkNullValues() {
+        return (!this.state.custom_tcp_value && !this.state.custom_udp_value);
     }
 
     edit(event) {
@@ -599,7 +604,7 @@ class AddEditServicesModal extends React.Component {
                                isInline
                                title={_("Adding custom ports will reload firewalld. A reload will result in the loss of any runtime-only configuration!")} />
                        }
-                       <Button variant='primary' onClick={this.props.custom_id ? this.edit : this.save} aria-label={titleText}>
+                       <Button variant='primary' isDisabled={(this.state.custom && this.checkNullValues()) || (!this.state.custom && !this.state.selected.size)} onClick={this.props.custom_id ? this.edit : this.save} aria-label={titleText}>
                            {addText}
                        </Button>
                        <Button variant='link' className='btn-cancel' onClick={Dialogs.close}>

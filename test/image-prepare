@@ -198,8 +198,10 @@ def validate_packages():
 
 
 def install_python_bridge():
-    wheel = subprocess.check_output([f'{BASE_DIR}/tools/make-wheel'], universal_newlines=True)
-    return ['--install', wheel.strip()]
+    import build
+    builder = build.ProjectBuilder(BASE_DIR)
+    wheel = builder.build('wheel', f'{BASE_DIR}/tmp/wheel')
+    return ['--install', wheel]
 
 
 def main():

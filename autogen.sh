@@ -6,6 +6,7 @@ srcdir="${0%/*}"
 
 (
     cd "${srcdir}"
+    modules/checkout
     echo "m4_define(VERSION_NUMBER, [$(git describe --tags --abbrev=0)+git])" > version.m4
     autoreconf -i --warnings obsolete
 )

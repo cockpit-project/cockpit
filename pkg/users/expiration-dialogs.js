@@ -31,7 +31,7 @@ import * as timeformat from "timeformat.js";
 
 const _ = cockpit.gettext;
 
-function AccountExpirationDialogBody({ state, errors, change }) {
+function AccountExpirationDialogBody({ state, errors, change, validate, update }) {
     const { mode, before, date } = state;
 
     return (
@@ -49,6 +49,7 @@ function AccountExpirationDialogBody({ state, errors, change }) {
                                            locale={timeformat.dateFormatLang()}
                                            weekStart={timeformat.firstDayOfWeek()}
                                            onChange={(_, str) => change("date", str)}
+                                           onBlur={() => { validate(); update() }}
                                            invalidFormatText=""
                                            id="account-expiration-input"
                                            value={date}
@@ -81,6 +82,7 @@ export function account_expiration_dialog(account, expire_date) {
 
     function change(field, value) {
         state[field] = value;
+        errors = { };
         update();
     }
 
@@ -106,7 +108,7 @@ export function account_expiration_dialog(account, expire_date) {
         const props = {
             id: "account-expiration",
             title: _("Account expiration"),
-            body: <AccountExpirationDialogBody state={state} errors={errors} change={change} />
+            body: <AccountExpirationDialogBody state={state} errors={errors} change={change} validate={validate} update={update} />
         };
 
         const footer = {

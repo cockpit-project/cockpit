@@ -72,12 +72,12 @@ function debug() {
 
 export function updateTime() {
     // To correctly interpret monotonic timers, we need to read CLOCK_MONOTONIC. This cannot be read with shell tools
-    python.spawn("import time; print(time.clock_gettime_ns(time.CLOCK_REALTIME), time.clock_gettime_ns(time.CLOCK_MONOTONIC))",
+    python.spawn("import time; print(int(time.clock_gettime(time.CLOCK_REALTIME) * 1000000), int(time.clock_gettime(time.CLOCK_MONOTONIC) * 1000000))",
                  null, { err: "message" })
             .then(output => {
-                const [realtime, monotonic] = output.split(' ').map(ns => parseInt(ns));
-                clock_realtime_now = realtime / 1000000;
-                monotonic_timer_base = (realtime - monotonic) / 1000;
+                const [realtime_us, monotonic_us] = output.split(' ').map(t => parseInt(t));
+                clock_realtime_now = realtime_us / 1000;
+                monotonic_timer_base = realtime_us - monotonic_us;
                 debug("Read clocks with Python; realtime", clock_realtime_now, "monotonic base", monotonic_timer_base);
             })
             .catch(ex => {

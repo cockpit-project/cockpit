@@ -38,8 +38,6 @@ jobs:
         run: |
           containers/unit-tests/start \
               --verbose \
-              --submodule=modules/ferny \
-              --submodule=modules/systemd_ctypes \
               --env=FORCE_COLOR=1 \
               --env=CC='${{ matrix.startarg.cc }}' \
               --env=CFLAGS='-O2 -gdwarf-4' \

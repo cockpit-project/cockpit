@@ -19,11 +19,8 @@ jobs:
       - name: Pacify git's permission check
         run: git config --global --add safe.directory /__w/cockpit/cockpit
 
-      - name: Install systemd-ctypes
-        run: tools/systemd_ctypes
-
-      - name: Install ferny
-        run: tools/ferny
+      - name: Install submodules
+        run: modules/checkout
 
       - name: Check --help
         run: PYTHONPATH=src python3 -m cockpit.bridge --help

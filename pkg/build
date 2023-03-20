@@ -15,13 +15,6 @@ PKG_INPUTS = $(shell find $(srcdir)/pkg -type f ! -name 'test*.trs' ! -name 'tes
 .PHONY: all-webpack
 all-webpack: $(DIST_STAMP)
 
-V_TAR = $(V_TAR_$(V))
-V_TAR_ = $(V_TAR_$(AM_DEFAULT_VERBOSITY))
-V_TAR_0 = @echo "  TAR     " $@;
-
-webpack-jumpstart.tar: $(DIST_STAMP) package-lock.json tree
-	$(V_TAR) tar cf webpack-jumpstart.tar dist package-lock.json tree
-
 V_WEBPACK = $(V_WEBPACK_$(V))
 V_WEBPACK_ = $(V_WEBPACK_$(AM_DEFAULT_VERBOSITY))
 V_WEBPACK_0 = @echo "  WEBPACK  dist";
@@ -46,15 +39,3 @@ node_modules/%: $(srcdir)/package-lock.json
 	@true
 
 EXTRA_DIST += webpack.config.js package.json package-lock.json
-
-# Write the current git tree hash, and touch the file only if it changed.
-# Make sure the tree is clean, first.  Gets included in the jumpstart tar.
-tree: FORCE
-	@test -z "$$(git status --porcelain)" || (git status && false)
-	@git rev-parse HEAD^{tree} > tree.tmp && \
-	if cmp -s tree tree.tmp; then \
-		rm tree.tmp; \
-	else \
-		printf "  %-8s %s\n" GEN "tree  [$$(cat tree.tmp)]"; \
-		mv tree.tmp tree; \
-	fi

@@ -109,14 +109,6 @@ clone_from_cache() {
     git -c advice.detachedHead=false -C "${SUBDIR}" checkout ${quiet} "$1"
 }
 
-# This copies the files without setting up the git repository.  The copied
-# files are expected to be in a same-named subdirectory inside the cache
-# repository.
-unpack_from_cache() {
-    message "UNPACK" "${SUBDIR}  [ref: $1]"
-    git_cache archive "$1" "${SUBDIR}" | tar -x --touch "${SUBDIR}"
-}
-
 # This stores a .tar file from stdin into the cache as a tree object.
 # Returns the ID.  Opposite of `git archive`, basically.
 tar_to_cache() {

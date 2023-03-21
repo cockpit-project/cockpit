@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import child_process from 'child_process';
+import fs from 'fs';
 import path from 'path';
 import process from 'process';
 
@@ -16,6 +17,7 @@ parser.add_argument('-r', '--rsync', { help: "rsync webpack to ssh target after 
 parser.add_argument('-w', '--watch', { action: 'store_true', help: "Enable webpack watch mode", default: webpack_watch });
 parser.add_argument('-e', '--no-eslint', { action: 'store_true', help: "Disable eslint linting" });
 parser.add_argument('-s', '--no-stylelint', { action: 'store_true', help: "Disable stylelint linting" });
+parser.add_argument('--test-mtime', { metavar: "PATH", help: "Only rebuild if PATH is older than pkg/* and package-lock.json" });
 parser.add_argument('onlydir', { nargs: '?', help: "The pkg/<DIRECTORY> to build (eg. base1, shell, ...)", metavar: "DIRECTORY" });
 const args = parser.parse_args();
 
@@ -62,6 +64,9 @@ function process_result(err, stats) {
     if (stats.hasErrors()) {
         if (!args.watch)
             process.exit(1);
+    } else if (!args.watch && args.test_mtime) {
+        // webpack won't touch the stamp file if the contents didn't change, so force that
+        fs.closeSync(fs.openSync(args.test_mtime, 'w'));
     }
 }
 
@@ -89,4 +94,39 @@ async function build() {
     }
 }
 
-build();
+// return most recent mtime of a file or directory; 0 if it does not exist
+function most_recent(path) {
+    let stat;
+    try {
+        stat = fs.statSync(path);
+    } catch (ex) {
+        if (ex.code === "ENOENT")
+            return 0;
+        throw ex;
+    }
+
+    let max_mtime = 0;
+    if (stat.isDirectory()) {
+        for (const file of fs.readdirSync(path)) {
+            // ignore automake test logs
+            if (file.endsWith(".log") || file.endsWith(".trs"))
+                continue;
+            max_mtime = Math.max(max_mtime, most_recent(path + "/" + file));
+        }
+    } else {
+        max_mtime = Math.max(max_mtime, stat.mtimeMs);
+    }
+
+    return max_mtime;
+}
+
+// check if anything in pkg/ or our package-lock.js is newer than stampfile
+function needs_update(stampfile) {
+    const lock_mtime = most_recent("package-lock.json");
+    const pkg_mtime = most_recent("pkg");
+    const stamp_mtime = most_recent(stampfile);
+    return lock_mtime > stamp_mtime || pkg_mtime > stamp_mtime;
+}
+
+if (args.watch || !args.test_mtime || needs_update(args.test_mtime))
+    build();

@@ -7,9 +7,6 @@ actions:
     - cp tools/cockpit.spec .
 
   create-archive:
-    # The sandcastle doesn't have enough ram to run webpack, so wait
-    # until the webpack-jumpstart workflow has run and grab the result.
-    - tools/webpack-jumpstart --wait --rebase
     - tools/make-dist
 
 srpm_build_deps:
@@ -18,6 +15,7 @@ srpm_build_deps:
   - gettext
   - glib2-devel
   - make
+  - nodejs
   - systemd-devel
 # use the nicely formatted release NEWS from our upstream release, instead of git shortlog
 copy_upstream_release_description: true

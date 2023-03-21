@@ -22,7 +22,24 @@ dist_pcpmanifest_DATA = pkg/pcp/manifest.json
 sshmanifestdir = $(datadir)/cockpit/ssh
 dist_sshmanifest_DATA = pkg/ssh/manifest.json
 
-include pkg/build
+# one built file in dist/ which we use as dependency
+DIST_STAMP = $(srcdir)/dist/static/manifest.json
+
+# dynamic pkg → dist dependency, to rebuild the webpack if any web related file changes
+# exclude automake unit test log files
+PKG_INPUTS = $(shell find $(srcdir)/pkg -type f ! -name 'test*.trs' ! -name 'test*.log')
+
+V_BUNDLE = $(V_BUNDLE_$(V))
+V_BUNDLE_ = $(V_BUNDLE_$(AM_DEFAULT_VERBOSITY))
+V_BUNDLE_0 = @echo "  BUNDLE   dist";
+
+# delete the stamp first; webpack won't touch it if the contents didn't change,
+# but this is just a representative for all of dist/*
+$(DIST_STAMP): $(srcdir)/package-lock.json $(PKG_INPUTS)
+	@rm -f $(DIST_STAMP)
+	$(V_BUNDLE) cd $(srcdir) && NODE_ENV='$(NODE_ENV)' tools/termschutz tools/webpack-make.js
+
+EXTRA_DIST += webpack.config.js package.json package-lock.json
 
 # This is how the qunit tests get included.  We need to prevent automake from
 # seeing them during ./autogen.sh, but need make to find them at compile time.

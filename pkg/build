@@ -25,17 +25,4 @@ $(DIST_STAMP): $(srcdir)/package-lock.json $(PKG_INPUTS)
 	@rm -f $(DIST_STAMP)
 	$(V_WEBPACK) cd $(srcdir) && NODE_ENV='$(NODE_ENV)' tools/termschutz tools/webpack-make.js
 
-V_NODE_MODULES = $(V_NODE_MODULES_$(V))
-V_NODE_MODULES_ = $(V_NODE_MODULES_$(AM_DEFAULT_VERBOSITY))
-V_NODE_MODULES_0 = @V=0
-
-# We want tools/node-modules to run every time package-lock.json is requested
-# See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html
-FORCE:
-$(srcdir)/package-lock.json: FORCE
-	$(V_NODE_MODULES) $(srcdir)/tools/node-modules make_package_lock_json
-
-node_modules/%: $(srcdir)/package-lock.json
-	@true
-
 EXTRA_DIST += webpack.config.js package.json package-lock.json

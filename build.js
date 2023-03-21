@@ -1,88 +1,262 @@
 #!/usr/bin/env node
 
 import child_process from 'child_process';
+import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import process from 'process';
 
+import { getFiles, getTestFiles, all_subdirs } from './files.js';
+
+const production = process.env.NODE_ENV === 'production';
+const useWasm = os.arch() != 'x64';
+
 // ensure node_modules is present and up to date
 child_process.spawnSync('tools/node-modules', ['make_package_lock_json'], { stdio: 'inherit' });
+
+// List of directories to use when resolving import statements
+const nodePaths = ['pkg/lib'];
+
+// context options for distributed pages in dist/
+const pkgOptions = {
+    ...!production ? { sourcemap: "external" } : {},
+    bundle: true,
+    external: ['*.woff', '*.woff2', '*.jpg', '*.svg', '../../assets*'], // Allow external font files which live in ../../static/fonts
+    legalComments: 'external', // Move all legal comments to a .LEGAL.txt file
+    loader: {
+        ".js": "jsx",
+        ".py": "text",
+        ".sh": "text",
+    },
+    minify: production,
+    nodePaths,
+    outbase: './pkg',
+    outdir: "./dist",
+    target: ['es2020'],
+};
+
+// context options for qunit tests in qunit/
+const qunitOptions = {
+    bundle: true,
+    minify: false,
+    nodePaths,
+    outbase: './pkg',
+    outdir: "./qunit",
+    loader: {
+        ".sh": "text",
+    },
+};
 
 const parser = (await import('argparse')).default.ArgumentParser();
 parser.add_argument('-c', '--config', { help: "Path to webpack.config.js", default: "webpack.config.js" });
 parser.add_argument('-r', '--rsync', { help: "rsync bundles to ssh target after build", metavar: "HOST" });
 parser.add_argument('-w', '--watch', { action: 'store_true', help: "Enable watch mode" });
-parser.add_argument('-e', '--no-eslint', { action: 'store_true', help: "Disable eslint linting" });
-parser.add_argument('-s', '--no-stylelint', { action: 'store_true', help: "Disable stylelint linting" });
+parser.add_argument('-e', '--no-eslint', { action: 'store_true', help: "Disable eslint linting", default: production });
+parser.add_argument('-s', '--no-stylelint', { action: 'store_true', help: "Disable stylelint linting", default: production });
 parser.add_argument('onlydir', { nargs: '?', help: "The pkg/<DIRECTORY> to build (eg. base1, shell, ...)", metavar: "DIRECTORY" });
 const args = parser.parse_args();
 
-if (args.no_eslint) {
-    process.env.ESLINT = "0";
-} else if (args.watch) {
-    process.env.ESLINT = "1";
-}
-
-if (args.no_stylelint) {
-    process.env.STYLELINT = "0";
-} else if (args.watch) {
-    process.env.STYLELINT = "1";
-}
-
-if (args.onlydir?.includes('/')) {
+if (args.onlydir?.includes('/'))
     parser.error("Directory must not contain '/'");
-}
+
+if (useWasm && args.watch)
+    parser.error("watch mode is not supported with esbuild-wasm");
 
 if (args.onlydir)
     process.env.ONLYDIR = args.onlydir;
+if (args.rsync)
+    process.env.RSYNC = args.rsync;
 
-const cwd = process.cwd();
-const config_path = path.resolve(cwd, args.config);
+// keep cockpit.js as global external, except on base1 (as that's what exports it), and kdump (for testing that bundling works)
+const cockpitJSResolvePlugin = {
+    name: 'cockpit-js-resolve',
+    setup(build) {
+        build.onResolve({ filter: /^cockpit$/ }, args => {
+            if (args.resolveDir.endsWith('/base1') || args.resolveDir.endsWith('/kdump'))
+                return null;
+            return { path: args.path, namespace: 'external-global' };
+        });
 
-function process_result(err, stats) {
-    // process.stdout.write(stats.toString({colors: true}) + "\n");
+        build.onLoad({ filter: /.*/, namespace: 'external-global' },
+                     args => ({ contents: `module.exports = ${args.path}` }));
+    },
+};
 
-    if (err) {
-        console.log(JSON.stringify(err));
-        process.exit(1);
+// similar to fs.watch(), but recursively watches all subdirectories
+function watch_dirs(dir, on_change) {
+    const callback = (ev, dir, fname) => {
+        // only listen for "change" events, as renames are noisy
+        if (ev !== "change")
+            return;
+        on_change(path.join(dir, fname));
+    };
+
+    fs.watch(dir, {}, (ev, path) => callback(ev, dir, path));
+
+    // watch all subdirectories in dir
+    const d = fs.opendirSync(dir);
+    let dirent;
+    while ((dirent = d.readSync()) !== null) {
+        if (dirent.isDirectory())
+            watch_dirs(path.join(dir, dirent.name), on_change);
     }
-
-    if (args.watch) {
-        const info = stats.toJson();
-        const time = new Date().toTimeString().split(' ')[0];
-        process.stdout.write(`${time} Build succeeded, took ${info.time / 1000}s\n`);
-    }
-
-    // Failure exit code when compilation fails
-    if (stats.hasErrors() || stats.hasWarnings())
-        console.log(stats.toString("normal"));
-
-    if (stats.hasErrors()) {
-        if (!args.watch)
-            process.exit(1);
-    }
+    d.closeSync();
 }
 
 async function build() {
     // dynamic imports which need node_modules
-    const config = (await import(config_path)).default;
-    const webpack = (await import('webpack')).default;
-    const cockpit_rsync = (await import('./pkg/lib/cockpit-rsync-plugin.js'));
+    const copy = (await import('esbuild-plugin-copy')).default;
+    const esbuild = (await import(useWasm ? 'esbuild-wasm' : 'esbuild')).default;
+    const sassPlugin = (await import('esbuild-sass-plugin')).sassPlugin;
+    const replace = (await import('esbuild-plugin-replace')).replace;
 
-    if (args.rsync) {
-        process.env.RSYNC = args.rsync;
-        config.plugins.push(new cockpit_rsync.CockpitRsyncWebpackPlugin({ source: "dist/" + (args.onlydir || "") }));
-    }
+    const cleanPlugin = (await import('./pkg/lib/esbuild-cleanup-plugin.js')).cleanPlugin;
+    const cockpitCompressPlugin = (await import('./pkg/lib/esbuild-compress-plugin.js')).cockpitCompressPlugin;
+    const cockpitPoEsbuildPlugin = (await import('./pkg/lib/cockpit-po-plugin.js')).cockpitPoEsbuildPlugin;
+    const cockpitRsyncEsbuildPlugin = (await import('./pkg/lib/cockpit-rsync-plugin.js')).cockpitRsyncEsbuildPlugin;
+    const cockpitTestHtmlPlugin = (await import('./pkg/lib/esbuild-test-html-plugin.js')).cockpitTestHtmlPlugin;
+    const eslintPlugin = (await import('./pkg/lib/esbuild-eslint-plugin.js')).eslintPlugin;
+    const stylelintPlugin = (await import('./pkg/lib/esbuild-stylelint-plugin.js')).stylelintPlugin;
 
-    const compiler = webpack(config);
+    const { entryPoints, assetFiles, redhat_fonts } = getFiles(args.onlydir);
+    const tests = getTestFiles();
+    const testEntryPoints = tests.map(test => "pkg/" + test + ".js");
 
-    if (args.watch) {
-        compiler.hooks.watchRun.tap("WebpackInfo", compilation => {
-            const time = new Date().toTimeString().split(' ')[0];
-            process.stdout.write(`${time} Build started\n`);
+    const pkgFirstPlugins = [
+        cleanPlugin({ subdir: args.onlydir }),
+    ];
+
+    const pkgPlugins = [
+        ...args.no_stylelint ? [] : [stylelintPlugin({ filter: /pkg\/.*\.(css?|scss?)$/ })],
+        ...args.no_eslint ? [] : [eslintPlugin({ filter: /pkg\/.*\.(jsx?|js?)$/ })],
+        cockpitJSResolvePlugin,
+        // Redefine grid breakpoints to count with our shell
+        // See https://github.com/patternfly/patternfly-react/issues/3815 and
+        // [Redefine grid breakpoints] section in pkg/lib/_global-variables.scss for explanation
+        replace({
+            include: /\.css$/,
+            values: {
+                '576px': '236px',
+                '768px': '428px',
+                '992px': '652px',
+                '1200px': '876px',
+                '1450px': '1100px',
+            }
+        }),
+        sassPlugin({
+            loadPaths: [...nodePaths, 'node_modules'],
+            quietDeps: true,
+            async transform(source, resolveDir, path) {
+                if (path.includes('patternfly-4-cockpit.scss')) {
+                    return source
+                            .replace(/url.*patternfly-icons-fake-path.*;/g, 'url("../base1/fonts/patternfly.woff") format("woff");')
+                            .replace(/@font-face[^}]*patternfly-fonts-fake-path[^}]*}/g, '');
+                }
+                return source;
+            }
+        }),
+    ];
+
+    const getTime = () => new Date().toTimeString().split(' ')[0];
+
+    const pkgLastPlugins = [
+        cockpitPoEsbuildPlugin({
+            subdirs: args.onlydir ? [args.onlydir] : all_subdirs,
+            // login page does not have cockpit.js, but reads window.cockpit_po
+            wrapper: subdir => subdir == "static" ? "window.cockpit_po = PO_DATA;" : undefined,
+        }),
+        // Esbuild will only copy assets that are explicitly imported and used
+        // in the code. This is a problem for index.html and manifest.json which are not imported
+        copy({ assets: [...assetFiles, ...redhat_fonts] }),
+        // cockpit-ws cannot currently serve compressed login page
+        ...production ? [cockpitCompressPlugin({ subdir: args.onlydir, exclude: /\/static/ })] : [],
+
+        {
+            name: 'notify-end',
+            setup(build) {
+                build.onEnd(() => console.log(`${getTime()}: Build finished`));
+            }
+        },
+
+        ...args.rsync ? [cockpitRsyncEsbuildPlugin({ source: "dist/" + (args.onlydir || '') })] : [],
+    ];
+
+    if (useWasm) {
+        // build each entry point individually, as otherwise it runs out of memory
+        // See https://github.com/evanw/esbuild/issues/3006
+        const numEntries = entryPoints.length;
+        for (const [index, entryPoint] of entryPoints.entries()) {
+            console.log("building", entryPoint);
+            const context = await esbuild.context({
+                ...pkgOptions,
+                entryPoints: [entryPoint],
+                plugins: [
+                    ...(index === 0 ? pkgFirstPlugins : []),
+                    ...pkgPlugins,
+                    ...(index === numEntries - 1 ? pkgLastPlugins : []),
+                ],
+            });
+
+            await context.rebuild();
+            context.dispose();
+        }
+
+        // build all tests in one go, they are small enough
+        console.log("building qunit tests");
+        const context = await esbuild.context({
+            ...qunitOptions,
+            entryPoints: testEntryPoints,
+            plugins: [
+                ...args.no_stylelint ? [] : [stylelintPlugin({ filter: /pkg\/.*\.(css?|scss?)$/ })],
+                ...args.no_eslint ? [] : [eslintPlugin({ filter: /pkg\/.*\.(jsx?|js?)$/ })],
+                cockpitTestHtmlPlugin({ testFiles: tests }),
+            ],
         });
-        compiler.watch(config.watchOptions, process_result);
+
+        await context.rebuild();
+        context.dispose();
     } else {
-        compiler.run(process_result);
+        // with native esbuild, build everything in one go, that's fastest
+        const pkgContext = await esbuild.context({
+            ...pkgOptions,
+            entryPoints,
+            plugins: [...pkgFirstPlugins, ...pkgPlugins, ...pkgLastPlugins],
+        });
+
+        const qunitContext = await esbuild.context({
+            ...qunitOptions,
+            entryPoints: testEntryPoints,
+            plugins: [
+                ...args.no_stylelint ? [] : [stylelintPlugin({ filter: /pkg\/.*\.(css?|scss?)$/ })],
+                ...args.no_eslint ? [] : [eslintPlugin({ filter: /pkg\/.*\.(jsx?|js?)$/ })],
+                cockpitTestHtmlPlugin({ testFiles: tests }),
+            ],
+        });
+
+        try {
+            await Promise.all([pkgContext.rebuild(), qunitContext.rebuild()]);
+        } catch (e) {
+            if (!args.watch)
+                process.exit(1);
+            // ignore errors in watch mode
+        }
+
+        if (args.watch) {
+            const on_change = async path => {
+                console.log("change detected:", path);
+                await Promise.all([pkgContext.cancel(), qunitContext.cancel()]);
+                try {
+                    await Promise.all([pkgContext.rebuild(), qunitContext.rebuild()]);
+                } catch (e) {} // ignore in watch mode
+            };
+
+            watch_dirs('pkg', on_change);
+            // wait forever until Control-C
+            await new Promise(() => {});
+        }
+
+        pkgContext.dispose();
+        qunitContext.dispose();
     }
 }
 

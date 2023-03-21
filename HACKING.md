@@ -186,7 +186,7 @@ The tests require at least `pytest` 7.0.0 or higher to run.
 Cockpit uses [ESLint](https://eslint.org/) to automatically check JavaScript
 code style in `.js` and `.jsx` files.
 
-The linter is executed within every build as a webpack preloader.
+The linter is executed on every build.
 
 For developer convenience, the ESLint can be started explicitly by:
 
@@ -209,7 +209,7 @@ unused identifiers, and other JavaScript-related issues:
 Cockpit uses [Stylelint](https://stylelint.io/) to automatically check CSS code
 style in `.css` and `.scss` files.
 
-The linter is executed within every build as a webpack preloader.
+The linter is executed on every build.
 
 For developer convenience, the Stylelint can be started explicitly by:
 

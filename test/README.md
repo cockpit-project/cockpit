@@ -136,7 +136,7 @@ for details about the tools and configuration for these.
 Each `image-prepare` invocation will always start from the pristine image and
 ignore the current overlay in `test/images`. It is thorough, but also rather
 slow. If you want to iterate on changing only JavaScript/HTML code, you can use
-this shortcut to copy updated webpacks into a prepared VM overlay image:
+this shortcut to copy updated bundles into a prepared VM overlay image:
 
     make && bots/image-customize -u dist:/usr/share/cockpit/ $TEST_OS
 
@@ -157,7 +157,7 @@ In particular, you can use our standard test VMs with this mode:
 Note the SSH and cockpit ports. If this is the only running VM, it will have
 the addresses in the example below, otherwise the port will be different.
 
-Now you can change the code (see [HACKING.md](../HACKING.md) for webpack watch
+Now you can change the code (see [HACKING.md](../HACKING.md) for watch
 mode), copy it into the VM, and run the test against it:
 
     test/verify/check-connection --machine 127.0.0.2:2201 --browser 127.0.0.2:9091

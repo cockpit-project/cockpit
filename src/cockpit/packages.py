@@ -56,7 +56,7 @@ def directory_items(path):
 # HACK: We eventually want to get rid of all ${libexecdir} in manifests:
 # - rewrite cockpit-{ssh,pcp} in Python and import them as module instead of exec'ing
 # - rewrite cockpit-askpass in Python and write it into a temporary file
-# - bundle helper shell scripts into their webpacks
+# - bundle helper shell scripts
 # Until then, we need this libexecdir detection hack.
 LIBEXECDIR = None
 

@@ -8,18 +8,12 @@ message() { printf "  %-8s %s\n" "$1" "$2" >&2; }
 # Set the version number from the state at the time the build was requested
 VERSION="$(git describe --tags --long --dirty | tr '-' '.')"
 
-jumpstart_flags=''
-download_only=''
 while [ $# != 0 ] ; do
     case "$1" in
-        --wait|-w)
-            jumpstart_flags='--wait'; download_only="$1";;
-        --download-only|-d)
-            download_only="$1";;
         *=*)
             break;;
         *)
-            echo "usage: $0 [--wait|-w] [--download-only|-d] [MAKE_VAR=VALUE...]" >&2
+            echo "usage: $0 [MAKE_VAR=VALUE...]" >&2
             exit 1
     esac
     shift
@@ -27,14 +21,6 @@ done
 
 # NB: only the filename of the tarball should be written to stdout.
 # Everything else should go to stderr.
-if [ ! -d dist ]; then
-    if ! tools/webpack-jumpstart ${jumpstart_flags} >&2; then
-        if [ -n "${download_only}" ]; then
-            echo "fatal: webpack-jumpstart failed and ${download_only} specified." >&2
-            exit 1
-        fi
-    fi
-fi
 
 # autogen, if not already done
 if [ ! configure -nt configure.ac ]; then

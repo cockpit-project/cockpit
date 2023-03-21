@@ -26,7 +26,7 @@ jobs:
              git checkout --detach base
              git merge --no-edit head
              git rev-parse HEAD^{tree} > tree
-             NODE_ENV=production tools/webpack-make.js
+             NODE_ENV=production ./build.js
              tar cf webpack-jumpstart.tar dist package-lock.json tree")"
 
           docker container start --attach "${id}" >&2

@@ -30,7 +30,7 @@ V_BUNDLE_ = $(V_BUNDLE_$(AM_DEFAULT_VERBOSITY))
 V_BUNDLE_0 = @echo "  BUNDLE   dist";
 
 $(DIST_STAMP): $(srcdir)/package-lock.json
-	$(V_BUNDLE) cd $(srcdir) && NODE_ENV='$(NODE_ENV)' tools/termschutz -- tools/webpack-make.js --test-mtime "$(DIST_STAMP)"
+	$(V_BUNDLE) cd $(srcdir) && NODE_ENV='$(NODE_ENV)' tools/termschutz -- ./build.js --test-mtime "$(DIST_STAMP)"
 
 EXTRA_DIST += webpack.config.js package.json package-lock.json
 

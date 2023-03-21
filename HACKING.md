@@ -64,18 +64,18 @@ desktop.
 <http://localhost:9090>
 
 After every change to the source files, bundles need to be rebuilt. The
-recommended and fastest way is to do that is using the "watch" mode on
-the page that you are working on. For example, if you want to work on
-anything in [pkg/systemd](./pkg/systemd/), run:
+recommended and fastest way is to do that is using the "watch" mode (`-w` or
+`--watch`) on the page that you are working on. For example, if you want to
+work on anything in [pkg/systemd](./pkg/systemd/), run:
 
-    tools/webpack-watch systemd
+    ./build.js -w systemd
 
 See [pkg/](./pkg/) for a list of all pages.
 
 If you work on a change that affects multiple pages (such as a file in
 pkg/lib/), you can also build all pages:
 
-    tools/webpack-watch
+    ./build.js -w
 
 Note that this enables eslint and stylelint by default -- if you want to
 disable them, run it with `-e`/`--no-eslint` and/or `-s`/`--no-stylelint`.
@@ -89,10 +89,8 @@ option for copying the built page into the given SSH target's
 SSH `c` alias as described in [test/README.md](./test/README.md), you can use
 one of these commands:
 
-    tools/webpack-make.js -r c kdump
-    tools/webpack-make.js -r c
-    tools/webpack-watch -r c kdump
-    tools/webpack-watch -r c
+    ./build.js -w -r c kdump
+    ./build.js -w -r c
 
 To make Cockpit use system packages again, instead of your checkout directory,
 remove the symlink with the following command and log back into Cockpit:

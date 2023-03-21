@@ -6,6 +6,20 @@ noinst_DATA =
 noinst_LIBRARIES =
 noinst_PROGRAMS =
 
+# See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html
+FORCE:
+
+# -----------------------------------------------------------------------------
+#  node_modules/package-lock.json dependency
+
+V_NODE_MODULES = $(V_NODE_MODULES_$(V))
+V_NODE_MODULES_ = $(V_NODE_MODULES_$(AM_DEFAULT_VERBOSITY))
+V_NODE_MODULES_0 = @V=0
+
+# We want tools/node-modules to run every time package-lock.json is requested
+$(srcdir)/package-lock.json: FORCE
+	$(V_NODE_MODULES) $(srcdir)/tools/node-modules make_package_lock_json
+
 # -----------------------------------------------------------------------------
 #  make dist
 

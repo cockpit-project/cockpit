@@ -25,7 +25,7 @@ dist_sshmanifest_DATA = pkg/ssh/manifest.json
 # one built file in dist/ which we use as dependency
 DIST_STAMP = $(srcdir)/dist/static/manifest.json
 
-# dynamic pkg → dist dependency, to rebuild the webpack if any web related file changes
+# dynamic pkg → dist dependency, to rebuild the bundles if any web related file changes
 # exclude automake unit test log files
 PKG_INPUTS = $(shell find $(srcdir)/pkg -type f ! -name 'test*.trs' ! -name 'test*.log')
 
@@ -33,7 +33,7 @@ V_BUNDLE = $(V_BUNDLE_$(V))
 V_BUNDLE_ = $(V_BUNDLE_$(AM_DEFAULT_VERBOSITY))
 V_BUNDLE_0 = @echo "  BUNDLE   dist";
 
-# delete the stamp first; webpack won't touch it if the contents didn't change,
+# delete the stamp first; neither webpack nor esbuild touch it if the contents didn't change,
 # but this is just a representative for all of dist/*
 $(DIST_STAMP): $(srcdir)/package-lock.json $(PKG_INPUTS)
 	@rm -f $(DIST_STAMP)

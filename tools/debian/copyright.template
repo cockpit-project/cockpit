@@ -3,12 +3,12 @@ Upstream-Name: cockpit
 Source: https://github.com/cockpit-project/cockpit
 Comment:
  This does not directly cover the files in dist/*. These are "minified" and
- compressed JavaScript/HTML files built from pkg/* and node_modules/* with
- node, npm, and webpack. Their copyrights and licenses are described below.
- Rebuilding these requires internet access as that process needs to download
- additional npm modules from the Internet, thus upstream ships the pre-minified
- webpacks as part of the upstream release tarball so that the package can be
- built without internet access and lots of extra unpackaged build dependencies.
+ compressed JavaScript/HTML files built from pkg/* and node_modules/*. Their
+ copyrights and licenses are described below. Rebuilding these requires
+ internet access as that process needs to download additional npm modules from
+ the Internet, thus upstream ships the pre-minified bundles as part of the
+ upstream release tarball so that the package can be built without internet
+ access and lots of extra unpackaged build dependencies.
 
 Files: *
 Copyright: 2013-2016  Red Hat, Inc.

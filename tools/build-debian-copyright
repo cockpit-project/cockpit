@@ -75,7 +75,7 @@ with open(TEMPLATE_FILE, encoding='UTF-8') as f:
 
 license_ids = template_licenses(template)
 
-# scan dist/ webpacks for third-party copyrights and licenses
+# scan dist/ bundles for third-party copyrights and licenses
 
 dist_copyrights = {}  # Files: dirglob → set(copyrights)
 dist_licenses = {}  # Files: dirglob → set(licenses)
@@ -103,7 +103,7 @@ for directory, _subdirs, files in os.walk(f'{BASE_DIR}/dist'):
                 if license.lower() not in license_ids:
                     raise KeyError('License {license} not found in {TEMPLATE_FILE}')
 
-            # All webpacks also contain our own code
+            # All bundles also contain our own code
             licenses.add("LGPL-2.1-or-later")
 
             dist_licenses.setdefault(directory_glob, set()).update(licenses)
@@ -112,7 +112,7 @@ for directory, _subdirs, files in os.walk(f'{BASE_DIR}/dist'):
             if not copyrights:
                 raise SystemError('Did not find any copyrights in:\n%s' % comment)
 
-            # All webpacks also contain our own code
+            # All bundles also contain our own code
             copyrights.add(own_copyright)
 
             dist_copyrights.setdefault(directory_glob, set()).update(copyrights)

@@ -111,8 +111,7 @@ cmd_make_package_lock_json() {
     # Run from make to ensure package-lock.json is up to date
 
     # package-lock.json is used as the stamp file for all things that use
-    # node_modules (mostly webpack), so this is the main bit of glue that
-    # drives the entire process
+    # node_modules, so this is the main bit of glue that drives the entire process
 
     # We try our best not to touch package-lock.json unless it actually changes
 

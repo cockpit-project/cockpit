@@ -23,6 +23,7 @@ import React from 'react';
 import { Bullseye } from "@patternfly/react-core/dist/esm/layouts/Bullseye/index.js";
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { Select, SelectOption, SelectVariant } from "@patternfly/react-core/dist/esm/components/Select/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
@@ -42,10 +43,11 @@ function get_default_home_dir(base_home_dir, user_name) {
         : "";
 }
 
-function AccountCreateBody({ state, errors, change }) {
+function AccountCreateBody({ state, errors, change, shells }) {
     const {
         real_name, user_name,
         locked, change_passw_force,
+        shell, isShellSelectExpanded,
     } = state;
 
     return (
@@ -76,6 +78,20 @@ function AccountCreateBody({ state, errors, change }) {
                     onChange={value => change("home_dir", value)}
                     placeholder={_("Path to directory")}
                     value={state.home_dir} />
+            </FormGroup>
+
+            <FormGroup label={_("Shell")}
+                       fieldId="accounts-create-user-shell">
+                <Select variant={SelectVariant.single}
+                        toggleId="accounts-create-user-shell"
+                        onToggle={statusIsExpanded => change("isShellSelectExpanded", statusIsExpanded)}
+                        onSelect={(event, selection) => { change("shell", selection); change("isShellSelectExpanded", false) }}
+                        selections={shell}
+                        isOpen={isShellSelectExpanded}
+                        aria-labelledby="vm-state-select"
+                        menuAppendTo="parent">
+                    { shells.map(shell_path => <SelectOption value={shell_path} key={shell_path} label={shell_path}>{shell_path}</SelectOption>) }
+                </Select>
             </FormGroup>
 
             <FormGroup label={_("User ID")}
@@ -218,7 +234,7 @@ function suggest_username(realname) {
     return remove_diacritics(result);
 }
 
-export function account_create_dialog(accounts, min_uid, max_uid) {
+export function account_create_dialog(accounts, min_uid, max_uid, shells) {
     let dlg = null;
 
     const used_ids = accounts.map(a => a.uid);
@@ -241,6 +257,7 @@ export function account_create_dialog(accounts, min_uid, max_uid) {
         max_uid,
         home_dir: null,
         home_dir_dirty: false,
+        isShellSelectExpanded: false,
     };
     let errors = { };
 
@@ -423,7 +440,7 @@ export function account_create_dialog(accounts, min_uid, max_uid) {
                 </Bullseye>
             );
         } else {
-            props.body = <AccountCreateBody state={state} errors={errors} change={change} />;
+            props.body = <AccountCreateBody state={state} errors={errors} change={change} shells={shells} />;
         }
 
         const footer = {

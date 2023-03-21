@@ -81,9 +81,6 @@ class SourceDirectory(PodmanTemporaryDirectory):
         if not args.no_node_modules:
             run([f'{self.name}/tools/node-modules', 'checkout'], check=True)
 
-            if args.wait:
-                run([f'{self.name}/tools/webpack-jumpstart', '--wait'], check=True)
-
 
 class ResultsDirectory(PodmanTemporaryDirectory):
     def __init__(self):
@@ -125,8 +122,6 @@ def main():
     group = parser.add_argument_group(title='Preparation').add_mutually_exclusive_group()
     group.add_argument('--no-node-modules', action='store_true',
                        help='Disable checking out node_modules/ during preparation')
-    group.add_argument('--wait', action='store_true',
-                       help='Use --wait argument with webpack-jumpstart')
 
     group = parser.add_argument_group(title='Command to run').add_mutually_exclusive_group()
     group.add_argument('-c', metavar='SCRIPT', dest='script', help="Run the provided shell script")

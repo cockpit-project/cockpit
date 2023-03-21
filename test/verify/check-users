@@ -52,7 +52,23 @@ def performUserAction(browser, user, action):
     browser.click(f".pf-c-dropdown__menu-item:contains({action})")
 
 
-def createUser(browser, user_name, real_name, password, locked, force_password_change, custom_home_dir=None, uid=None, expected_uid=None, verify_created=True):
+def createUser(
+    browser,
+    machine,
+    user_name,
+    real_name,
+    password,
+    locked,
+    force_password_change,
+    custom_home_dir=None,
+    default_shell=None,
+    custom_shell=None,
+    uid=None,
+    expected_uid=None,
+    verify_created=True
+):
+    if default_shell is None:
+        default_shell = getUserAddDetails(machine)["SHELL"]
     browser.wait_visible('#accounts-create')
     browser.click('#accounts-create')
     browser.wait_visible('#accounts-create-dialog')
@@ -81,6 +97,11 @@ def createUser(browser, user_name, real_name, password, locked, force_password_c
         expected_home_dir = default_home_dir + "/" + user_name
         browser.wait_visible(f"#accounts-create-user-home-dir[value='{expected_home_dir}']")
 
+    if custom_shell:
+        browser.click("#accounts-create-user-shell")
+        browser.click(f"li button[label='{custom_shell}']")
+    else:
+        browser.wait_in_text('#accounts-create-user-shell', default_shell)
 
     browser.click('#accounts-create-dialog button.apply')
 
@@ -234,11 +255,13 @@ class TestAccounts(MachineCase):
         b.login_and_go("/users")
         createUser(
             browser=b,
+            machine=m,
             user_name="robert",
             real_name="Robert Robertson",
             password=good_password,
             locked=False,
             force_password_change=True,
+            default_shell="/bin/true"
         )
 
         # Test actions in kebab menu
@@ -279,6 +302,7 @@ class TestAccounts(MachineCase):
 
         createUser(
             browser=b,
+            machine=m,
             user_name="robert",
             real_name="Robert Robertson",
             password=good_password,
@@ -371,6 +395,7 @@ class TestAccounts(MachineCase):
 
         createUser(
             browser=b,
+            machine=m,
             user_name="jussi",
             real_name="Jussi Junior",
             password="foo",
@@ -541,6 +566,7 @@ class TestAccounts(MachineCase):
         b.go('/users')
         createUser(
             browser=b,
+            machine=m,
             user_name="robert",
             real_name="Robert Robertson",
             password=good_password,
@@ -584,12 +610,14 @@ class TestAccounts(MachineCase):
 
     def testCustomUID(self):
         b = self.browser
+        m = self.machine
 
         self.login_and_go("/users")
 
         # Test custom UID
         createUser(
             browser=b,
+            machine=m,
             user_name="bob",
             real_name="Bob Bobson",
             password=good_password,
@@ -603,6 +631,7 @@ class TestAccounts(MachineCase):
         # Test dialog predicts corrent next available UID
         createUser(
             browser=b,
+            machine=m,
             user_name="john",
             real_name="John Johnson",
             password=good_password,
@@ -616,6 +645,7 @@ class TestAccounts(MachineCase):
         # Test creation of users with the same UID
         createUser(
             browser=b,
+            machine=m,
             user_name="jack",
             real_name="Jack Jackson",
             password=good_password,
@@ -636,6 +666,7 @@ class TestAccounts(MachineCase):
         # No UID specified -> useradd chooses UID for us
         createUser(
             browser=b,
+            machine=m,
             user_name="nouidspecified",
             real_name="NoUID Specified",
             password=good_password,
@@ -648,6 +679,7 @@ class TestAccounts(MachineCase):
         # UID cannot be lower than UID_MIN
         createUser(
             browser=b,
+            machine=m,
             user_name="failedfailson",
             real_name="Failed Failson",
             password=good_password,
@@ -664,6 +696,7 @@ class TestAccounts(MachineCase):
         # UID cannot be higher than UID_MAX
         createUser(
             browser=b,
+            machine=m,
             user_name="failedfailson",
             real_name="Failed Failson",
             password=good_password,
@@ -680,6 +713,7 @@ class TestAccounts(MachineCase):
         # UID must be a positive integer
         createUser(
             browser=b,
+            machine=m,
             user_name="failedfailson",
             real_name="Failed Failson",
             password=good_password,
@@ -703,6 +737,7 @@ class TestAccounts(MachineCase):
         custom_dir_path = "/home/mycustomdir"
         createUser(
             browser=b,
+            machine=m,
             user_name="jussi",
             real_name="Jussi Junior",
             password=good_password,
@@ -742,6 +777,7 @@ class TestAccounts(MachineCase):
         m.execute("mkdir /home/existingdir")
         createUser(
             browser=b,
+            machine=m,
             user_name="stealer",
             real_name="Stealer OfHomeDirectison",
             password=good_password,
@@ -759,6 +795,26 @@ class TestAccounts(MachineCase):
         b.wait_in_text("#accounts-list", "Stealer OfHomeDirectison")
         # Verify that ownership of home directory was changed to the new user
         self.assertEqual(m.execute("stat -c '%U %G' /home/existingdir").rstrip(), "stealer stealer")
+
+        default_shell = getUserAddDetails(m)["SHELL"]
+        custom_shell = "/bin/sh"
+        if default_shell == custom_shell:
+            custom_shell = "/bin/bash"
+
+        createUser(
+            browser=b,
+            machine=m,
+            user_name="robert",
+            real_name="Robert Robertson",
+            password=good_password,
+            locked=False,
+            custom_shell=custom_shell,
+            force_password_change=False,
+            verify_created=True,
+        )
+
+        b.go("#/robert")
+        b.wait_text("#account-shell", custom_shell)
 
     def testUnprivileged(self):
         m = self.machine

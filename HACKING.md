@@ -208,11 +208,10 @@ Most rule violations can be automatically fixed by running:
 
 Rules configuration can be found in the `.eslintrc.json` file.
 
-During fast iterative development, you can also choose to not run eslint. This
-can speed up the build and avoid build failures due to ill-formatted comments,
-unused identifiers, and other JavaScript-related issues:
-
-    make ESLINT=0
+During fast iterative development, you can also choose to not run eslint, by
+running `./build.js` with the `-e`/`--no-eslint` option. This
+speeds up the build and avoid build failures due to ill-formatted comments,
+unused identifiers, and other JavaScript-related issues.
 
 ## Running stylelint
 
@@ -231,11 +230,9 @@ Some rule violations can be automatically fixed by running:
 
 Rules configuration can be found in the `.stylelintrc.json` file.
 
-During fast iterative development, you can also choose to not run stylelint.
-This speeds up the build and avoids build failures due to ill-formatted CSS
-or other issues:
-
-    make STYLELINT=0
+During fast iterative development, you can also choose to not run stylelint, by
+running `./build.js` with the `-s`/`--no-stylelint` option. This speeds up the
+build and avoids build failures due to ill-formatted CSS or other issues.
 
 ## Working on your local machine: Web server
 

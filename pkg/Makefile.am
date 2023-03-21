@@ -39,7 +39,7 @@ $(DIST_STAMP): $(srcdir)/package-lock.json $(PKG_INPUTS)
 	@rm -f $(DIST_STAMP)
 	$(V_BUNDLE) cd $(srcdir) && NODE_ENV='$(NODE_ENV)' tools/termschutz ./build.js
 
-EXTRA_DIST += webpack.config.js package.json package-lock.json
+EXTRA_DIST += build.js files.js package.json package-lock.json
 
 # This is how the qunit tests get included.  We need to prevent automake from
 # seeing them during ./autogen.sh, but need make to find them at compile time.

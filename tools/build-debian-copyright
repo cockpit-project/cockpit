@@ -82,7 +82,7 @@ dist_licenses = {}  # Files: dirglob → set(licenses)
 
 for directory, _subdirs, files in os.walk(f'{BASE_DIR}/dist'):
     for file in files:
-        if '.LICENSE.txt' not in file:
+        if '.LEGAL.txt' not in file:
             continue
 
         full_filename = os.path.join(directory, file)
@@ -96,6 +96,9 @@ for directory, _subdirs, files in os.walk(f'{BASE_DIR}/dist'):
                 contents = license_file.read()
 
         for comment in contents.split('\n\n'):
+            if (comment.strip() == "" or "Bundled license information:" in comment):
+                continue
+
             licenses = find_patterns(license_patterns, comment)
             if not licenses:
                 raise SystemError('Can not determine licenses of:\n%s' % comment)
@@ -119,7 +122,7 @@ for directory, _subdirs, files in os.walk(f'{BASE_DIR}/dist'):
 
 for pattern in set.union(set(license_patterns), set(copyright_patterns)):
     if pattern not in used_patterns:
-        # We'll have no LICENSE.txt files in that dev builds
+        # We'll have no LEGAL.txt files in that dev builds
         # so of course we won't use any of the patterns
         if os.getenv('NODE_ENV') == 'development' or os.getenv('IGNORE_UNUSED_PATTERNS'):
             continue

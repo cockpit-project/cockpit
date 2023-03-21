@@ -110,9 +110,6 @@ def main():
     group.add_argument('--entrypoint', metavar='CMD', help="Provide the --entrypoint flag to podman")
     group.add_argument('--workdir', help="Provide the --workdir flag to podman")
 
-    group = parser.add_argument_group(title='Clone options')
-    group.add_argument('--submodule', action='append', default=[], help='Check out this submodule')
-
     group = parser.add_argument_group(title='What to build').add_mutually_exclusive_group()
     group.add_argument('--head', action='store_true', help='Build the HEAD commit')
     group.add_argument('-b', dest='branch', metavar='NAME', help='Build the named branch or tag')

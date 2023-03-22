@@ -551,6 +551,9 @@ class Browser:
 
         self.wait_val("{0} > div input[type=text]".format(group_identifier), location)
 
+    def set_test_mock(self, config):
+        self.call_js_func("ph_set_test_mock", config)
+
     def wait_timeout(self, timeout: int):
         browser = self
 
@@ -1022,12 +1025,16 @@ class Browser:
 
     def assert_pixels_in_current_layout(self, selector: str, key: str,
                                         ignore: List[str] = [],
+                                        mock=None,
                                         scroll_into_view: Optional[str] = None,
                                         wait_animations: bool = True):
         """Compare the given element with its reference in the current layout"""
 
         if not (Image and self.pixels_label):
             return
+
+        if mock:
+            self.set_test_mock(mock)
 
         self._adjust_window_for_fixed_content_size()
         self.call_js_func('ph_scrollIntoViewIfNeeded', scroll_into_view or selector)
@@ -1070,6 +1077,7 @@ class Browser:
             raise SystemError("Pixel test references are missing, please run: test/common/pixel-tests pull")
 
         ignore_rects = relative_clips(list(map(lambda item: selector + " " + item, ignore)))
+
         base = self.pixels_label + "-" + key
         if self.current_layout != self.layouts[0]:
             base += "-" + self.current_layout["name"]
@@ -1162,8 +1170,12 @@ class Browser:
                 print("Differences in pixel test " + base)
                 self.failed_pixel_tests += 1
 
+        if mock:
+            self.set_test_mock(None)
+
     def assert_pixels(self, selector: str, key: str,
                       ignore: List[str] = [],
+                      mock=None,
                       skip_layouts: List[str] = [],
                       scroll_into_view: Optional[str] = None,
                       wait_animations: bool = True,
@@ -1181,7 +1193,8 @@ class Browser:
                     time.sleep(wait_delay)
                     if "rtl" in self.current_layout["name"]:
                         self._set_direction("rtl")
-                    self.assert_pixels_in_current_layout(selector, key, ignore=ignore,
+                    self.assert_pixels_in_current_layout(selector, key,
+                                                         ignore=ignore, mock=mock,
                                                          scroll_into_view=scroll_into_view,
                                                          wait_animations=wait_animations)
 

@@ -22,35 +22,35 @@ import { DescriptionList, DescriptionListDescription, DescriptionListGroup, Desc
 
 import cockpit from "cockpit";
 import * as utils from "./utils.js";
+import { useMock } from "hooks.js";
 
 const _ = cockpit.gettext;
 
-export class PartitionTab extends React.Component {
-    render() {
-        const block_part = this.props.client.blocks_part[this.props.block.path];
+export const PartitionTab = ({ client, block }) => {
+    const mock_UUID = useMock()?.part_UUID;
+    const block_part = client.blocks_part[block.path];
 
-        return (
-            <DescriptionList className="pf-m-horizontal-on-sm">
-                <DescriptionListGroup>
-                    <DescriptionListTerm>{_("Name")}</DescriptionListTerm>
-                    <DescriptionListDescription>{block_part.Name || "-"}</DescriptionListDescription>
-                </DescriptionListGroup>
+    return (
+        <DescriptionList className="pf-m-horizontal-on-sm">
+            <DescriptionListGroup>
+                <DescriptionListTerm>{_("Name")}</DescriptionListTerm>
+                <DescriptionListDescription>{block_part.Name || "-"}</DescriptionListDescription>
+            </DescriptionListGroup>
 
-                <DescriptionListGroup>
-                    <DescriptionListTerm>{_("Size")}</DescriptionListTerm>
-                    <DescriptionListDescription>{utils.fmt_size(block_part.Size)}</DescriptionListDescription>
-                </DescriptionListGroup>
+            <DescriptionListGroup>
+                <DescriptionListTerm>{_("Size")}</DescriptionListTerm>
+                <DescriptionListDescription>{utils.fmt_size(block_part.Size)}</DescriptionListDescription>
+            </DescriptionListGroup>
 
-                <DescriptionListGroup>
-                    <DescriptionListTerm>{_("UUID")}</DescriptionListTerm>
-                    <DescriptionListDescription>{block_part.UUID}</DescriptionListDescription>
-                </DescriptionListGroup>
+            <DescriptionListGroup>
+                <DescriptionListTerm>{_("UUID")}</DescriptionListTerm>
+                <DescriptionListDescription>{mock_UUID ?? block_part.UUID}</DescriptionListDescription>
+            </DescriptionListGroup>
 
-                <DescriptionListGroup>
-                    <DescriptionListTerm>{_("Type")}</DescriptionListTerm>
-                    <DescriptionListDescription>{block_part.Type}</DescriptionListDescription>
-                </DescriptionListGroup>
-            </DescriptionList>
-        );
-    }
-}
+            <DescriptionListGroup>
+                <DescriptionListTerm>{_("Type")}</DescriptionListTerm>
+                <DescriptionListDescription>{block_part.Type}</DescriptionListDescription>
+            </DescriptionListGroup>
+        </DescriptionList>
+    );
+};

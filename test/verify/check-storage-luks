@@ -100,7 +100,7 @@ class TestStorageLuks(StorageCase):
         self.content_tab_wait_in_info(1, 3, "Stored passphrase", f"Last modified: {date_no_mins}:")
 
         tab = self.content_tab_expand(1, 3)
-        b.assert_pixels(tab, "tab", ignore=["dt:contains(Stored passphrase) + dd",
+        b.assert_pixels(tab, "tab", ignore=["dt:contains(Stored passphrase) + dd", # contains date
                                             "dt:contains(Cleartext device) + dd"])
 
         # Unmount. This locks it

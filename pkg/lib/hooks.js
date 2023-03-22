@@ -44,6 +44,8 @@ import deep_equal from "deep-equal";
  * - useDeepEqualMemo: A utility hook that can help with things that
  * need deep equal comparisons in places where React only offers
  * Object identity comparisons, such as with useEffect.
+ *
+ * - useMock: For retrieving values injected during testing.
  */
 
 /* - usePageLocation()
@@ -325,4 +327,32 @@ export function useEvent(obj, event, handler) {
 
 export function useInit(func, deps, comps, destroy = null) {
     return useObject(func, destroy, deps || [], comps);
+}
+
+/* - useMock()
+ *
+ * function Component() {
+ *   const mock = useMock();
+ *   const now = Date.now();
+ *
+ *   return <div id="date">{mock?.date ?? now.toString()}</div>;
+ * }
+ *
+ * In the test:
+ *
+ *   b.assert_pixels('#date', mock={'date': "12. January"})
+ *
+ * Normally, "useMock()" will return undefined or null, but a test can
+ * cause it to return some other arbitrary value temporarily.  This is
+ * mostly useful for producing a stable layout for a pixel test.
+ *
+ * The value returned by useMock is typically a object with a few
+ * members. You don't need to worry about the member names; it is
+ * usually not a problem when two unrelated pieces of code happen to
+ * use the same names (like "date" in the example above).
+ */
+
+export function useMock() {
+    useEvent(window, "test_mock_changed");
+    return window.test_mock;
 }

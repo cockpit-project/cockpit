@@ -315,3 +315,8 @@ function ph_element_clip(sel) {
 function ph_count_animations(sel) {
     return ph_find(sel).getAnimations({ subtree: true }).length;
 }
+
+function ph_set_test_mock(config) {
+    window.test_mock = config;
+    window.dispatchEvent(new Event("test_mock_changed"));
+}

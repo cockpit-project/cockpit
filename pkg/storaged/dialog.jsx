@@ -240,6 +240,8 @@ import { ListingTable } from "cockpit-components-table.jsx";
 
 import { fmt_size, block_name, format_size_and_text, format_delay, for_each_async } from "./utils.js";
 import { fmt_to_fragments } from "utils.jsx";
+import { useMock } from "hooks.js";
+
 import client from "./client.js";
 
 const _ = cockpit.gettext;
@@ -1068,6 +1070,7 @@ export const BlockingMessage = (usage) => {
 };
 
 const UsersPopover = ({ users }) => {
+    const mock = useMock()?.busy;
     const max = 10;
     const services = users.filter(u => u.unit);
     const processes = users.filter(u => u.pid);
@@ -1094,7 +1097,7 @@ const UsersPopover = ({ users }) => {
                         ? <p>
                             <b>{_("Processes using the location")}</b>
                             <List>
-                                { processes.slice(0, max).map((u, i) => <ListItem key={i}>{u.comm} (user: {u.user}, pid: {u.pid})</ListItem>) }
+                                { processes.slice(0, max).map((u, i) => <ListItem key={i}>{u.comm} (user: {u.user}, pid: {mock?.pid ?? u.pid})</ListItem>) }
                                 { processes.length > max ? <ListItem key={max}>...</ListItem> : null }
                             </List>
                         </p>
@@ -1175,13 +1178,15 @@ export function init_active_usage_processes(client, usage) {
 }
 
 export const StopProcessesMessage = ({ mount_point, users }) => {
+    const mock = useMock()?.busy;
+
     const process_rows = users.filter(u => u.pid).map(u => {
         return {
             columns: [
-                u.pid,
+                mock?.pid ?? u.pid,
                 { title: u.cmd.substr(0, 100), props: { modifier: "breakWord" } },
                 u.user || "-",
-                { title: format_delay(-u.since * 1000), props: { modifier: "nowrap" } }
+                { title: mock?.since ?? format_delay(-u.since * 1000), props: { modifier: "nowrap" } }
             ]
         };
     });

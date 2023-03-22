@@ -324,6 +324,11 @@ $graphs: cpu, memory, disks, network;
   --disks-color: lightgreen;
   --network-color: lightsalmon;
 
+  --cpu-color-extreme: purple;
+  --memory-color-extreme: dodgerblue;
+  --disks-color-extreme: darkgreen;
+  --network-color-extreme: crimson;
+
   --column-size: 10vw;
   --half-column-size: 8vw;
   --data-min-height: 5px;
@@ -523,7 +528,7 @@ $graphs: cpu, memory, disks, network;
       top: 0;
       left: 0;
       clip-path: polygon(var(--points));
-      background-color: var(--color);
+      background: linear-gradient(to right, var(--color) 70%, var(--color-extreme) 100%);
       height: 100%;
       width: 100%;
     }
@@ -531,6 +536,7 @@ $graphs: cpu, memory, disks, network;
     @each $graph in $graphs {
       &-#{$graph} {
         --color: var(--#{$graph}-color);
+        --color-extreme: var(--#{$graph}-color-extreme);
       }
     }
 
@@ -539,21 +545,21 @@ $graphs: cpu, memory, disks, network;
     }
 
     .polygon-use {
-      background-color: var(--color);
       grid-area: utilization;
     }
 
     .polygon-sat {
       opacity: 0.7;
-      background-color: var(--color);
       grid-area: saturation;
     }
 
     .compressed.polygon-sat {
+      background: linear-gradient(to right, var(--color) 70%, var(--color-extreme) 100%);
       clip-path: inset(100% 100% 100% calc(var(--saturation) * 100%));
     }
 
     .compressed.polygon-use {
+      background: linear-gradient(to left, var(--color) 70%, var(--color-extreme) 100%);
       clip-path: inset(100% calc(var(--utilization) * 100%) 100% 100%);
     }
   }

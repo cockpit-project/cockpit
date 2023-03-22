@@ -19,21 +19,23 @@ recommended to do that:
  - It avoids having to install development packages on your main machine.
  - It avoids having to map the build and test dependencies to package names of various distributions.
 
-On Fedora/CentOS/RHEL based distributions, install toolbox with
+1. Install `toolbox`
 
-    sudo dnf install toolbox
+   - Fedora/CentOS/RHEL based distributions:
 
-On Debian/Ubuntu based distributions, install it with
+         sudo dnf install toolbox
 
-    sudo apt install podman-toolbox
+   - Debian/Ubuntu based distributions:
 
-After that, create a cockpit development toolbox:
+         sudo apt install podman-toolbox
 
-    toolbox create --image quay.io/cockpit/tasks -c cockpit
+2. Create a development toolbox for Cockpit
 
-Enter the toolbox with
+       toolbox create --image quay.io/cockpit/tasks -c cockpit
 
-    toolbox enter cockpit
+3. Enter the toolbox:
+
+       toolbox enter cockpit
 
 Your home directory, user D-Bus, etc. are shared with the host, so you can
 edit files as you normally would. Building and running tests happens inside the

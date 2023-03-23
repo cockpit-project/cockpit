@@ -118,28 +118,6 @@ svg {
   }
 }
 
-// Alignment of checks is incorrect and inconsistent across browsers
-// Upstream issue: https://github.com/patternfly/patternfly/issues/3868
-.pf-c-check > .pf-c-check__input {
-  // Set the height of the input widget to be the same as its label
-  --pf-c-check__input--Height: var(--pf-c-check__label--FontSize);
-  // Offset by the top half of the difference between the height and the line height
-  --pf-c-check__input--MarginTop: calc((var(--pf-c-check__label--LineHeight) - 1) / 2 * var(--pf-c-check__input--Height));
-  // PF3 sets a margin which messes with PF4, so set PF4's rule again here (Cockpit-specific mix of PF3+PF4)
-  margin-top: var(--pf-c-check__input--MarginTop);
-}
-
-// Alignment of checks is incorrect and inconsistent across browsers
-// Upstream issue: https://github.com/patternfly/patternfly/issues/3868
-.pf-c-radio > .pf-c-radio__input {
-  // Set the height of the input widget to be the same as its label
-  --pf-c-radio__input--Height: var(--pf-c-radio__label--FontSize);
-  // Offset by the top half of the difference between the height and the line height
-  --pf-c-radio__input--MarginTop: calc((var(--pf-c-radio__label--LineHeight) - 1) / 2 * var(--pf-c-radio__input--Height));
-  // PF3 sets a margin which messes with PF4, so set PF4's rule again here (Cockpit-specific mix of PF3+PF4)
-  margin-top: var(--pf-c-radio__input--MarginTop);
-}
-
 // Add some spacing to nested form groups - PF4 does not support these yet
 // https://github.com/patternfly/patternfly-design/issues/1012
 .pf-c-form__group-control {

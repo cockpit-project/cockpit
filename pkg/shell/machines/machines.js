@@ -550,7 +550,7 @@ function Loader(machines, session_only) {
         let open = local;
 
         let url;
-        if (!machine.manifests) {
+        if (!machine.manifests || Object.keys(machine.manifests).length === 0) {
             if (machine.checksum)
                 url = "../../" + machine.checksum + "/manifests.json";
             else

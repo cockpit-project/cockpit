@@ -31,6 +31,7 @@ import PropTypes from 'prop-types';
 import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
+import { ClipboardCopy } from "@patternfly/react-core/dist/esm/components/ClipboardCopy/index.js";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
@@ -463,10 +464,10 @@ class HostKey extends React.Component {
             body = <>
                 <Alert variant='danger' isInline title={_("Changed keys are often the result of an operating system reinstallation. However, an unexpected change may indicate a third-party attempt to intercept your connection.")} />
                 <p>{_("To ensure that your connection is not intercepted by a malicious third-party, please verify the host key fingerprint:")}</p>
-                <pre className="hostkey-fingerprint">{fp}</pre>
+                <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-fingerprint pf-u-font-family-monospace">{fp}</ClipboardCopy>
                 <p className="hostkey-type">({key_type})</p>
                 <p>{cockpit.format(_("To verify a fingerprint, run the following on $0 while physically sitting at the machine or through a trusted network:"), this.props.host)}</p>
-                <pre className="hostkey-verify-help-cmds">ssh-keyscan -t {key_type} localhost | ssh-keygen -lf -</pre>
+                <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help-cmds pf-u-font-family-monospace">ssh-keyscan -t {key_type} localhost | ssh-keygen -lf -</ClipboardCopy>
                 <p>{_("The resulting fingerprint is fine to share via public methods, including email.")}</p>
                 <p>{_("If the fingerprint matches, click 'Accept key and connect'. Otherwise, do not connect and contact your administrator.")}</p>
             </>;
@@ -474,10 +475,10 @@ class HostKey extends React.Component {
             body = <>
                 <p>{cockpit.format(_("You are connecting to $0 for the first time."), this.props.host)}</p>
                 <p>{_("To ensure that your connection is not intercepted by a malicious third-party, please verify the host key fingerprint:")}</p>
-                <pre className="hostkey-fingerprint">{fp}</pre>
+                <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-fingerprint pf-u-font-family-monospace">{fp}</ClipboardCopy>
                 <p className="hostkey-type">({key_type})</p>
                 <p>{cockpit.format(_("To verify a fingerprint, run the following on $0 while physically sitting at the machine or through a trusted network:"), this.props.host)}</p>
-                <pre className="hostkey-verify-help-cmds">ssh-keyscan -t {key_type} localhost | ssh-keygen -lf -</pre>
+                <ClipboardCopy isReadOnly hoverTip={_("Copy")} clickTip={_("Copied")} className="hostkey-verify-help-cmds pf-u-font-family-monospace">ssh-keyscan -t {key_type} localhost | ssh-keygen -lf -</ClipboardCopy>
                 <p>{_("The resulting fingerprint is fine to share via public methods, including email.")}</p>
                 <p>{_("If the fingerprint matches, click 'Accept key and connect'. Otherwise, do not connect and contact your administrator.")}</p>
             </>;

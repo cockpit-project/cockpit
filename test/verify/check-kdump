@@ -436,6 +436,7 @@ class TestKdumpNFS(KdumpHelpers):
         # dumps directory does not exist, error
         b.wait_in_text("#kdump-settings-dialog h4.pf-c-alert__title", "Unable to save settings")
         # also shows error details
+        b.click("#kdump-settings-dialog div.pf-c-alert__toggle button")
         b.wait_in_text("#kdump-settings-dialog .pf-c-code-block__code", 'does not exist in dump target "10.111.113.2:/srv/kdump"')
         # create the directory on the NFS server
         self.machines["nfs"].execute("mkdir /srv/kdump/dumps")

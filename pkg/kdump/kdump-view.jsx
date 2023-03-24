@@ -156,8 +156,8 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
                        </Button>
                    </>
                }>
-            {error && <ModalError dialogError={error?.message || error}
-                                  dialogErrorDetail={error?.details || null} />}
+            {error && <ModalError dialogError={error.message || error}
+                                  dialogErrorDetail={error?.details} />}
             <Form id="kdump-settings-form" isHorizontal>
                 <FormGroup fieldId="kdump-settings-location" label={_("Location")}>
                     <FormSelect key="location" onChange={changeStorageLocation}

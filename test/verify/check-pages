@@ -809,6 +809,16 @@ OnCalendar=daily
             b.switch_to_top()
             assert_location("/system")
 
+    def testAllNavEntries(self):
+        b = self.browser
+        self.login_and_go()
+
+        # the <a> links should be unique by their href= attributes, so get these
+        hrefs = b.eval_js("[...document.querySelectorAll('#nav-system .nav-item a')].map(el => el.getAttribute('href'))")
+        for href in hrefs:
+            b.click(f"#nav-system .nav-item a[href='{href}']")
+            b.wait_visible(f"iframe.container-frame[name='cockpit1:localhost{href}'][data-loaded]")
+
 
 if __name__ == '__main__':
     test_main()

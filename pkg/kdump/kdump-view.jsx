@@ -259,18 +259,12 @@ export class KdumpPage extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {
-            dialogObj: undefined, // this is used if there's an open dialog
-        };
         this.handleTestSettingsClick = this.handleTestSettingsClick.bind(this);
-        this.dialogClosed = this.dialogClosed.bind(this);
         this.handleSettingsClick = this.handleSettingsClick.bind(this);
     }
 
     handleTestSettingsClick() {
         // open a dialog to confirm crashing the kernel to test the settings - then do it
-        const self = this;
-        // open the confirmation dialog
         const dialogProps = {
             title: _("Test kdump settings"),
             body: (
@@ -281,23 +275,17 @@ export class KdumpPage extends React.Component {
         const footerProps = {
             actions: [
                 {
-                    clicked: self.props.onCrashKernel.bind(self),
+                    clicked: this.props.onCrashKernel.bind(this),
                     caption: _("Crash system"),
                     style: 'danger',
                 }
             ],
-            dialog_done: self.dialogClosed,
         };
-        const dialogObj = show_modal_dialog(dialogProps, footerProps);
-        this.setState({ dialogObj });
+        show_modal_dialog(dialogProps, footerProps);
     }
 
     handleServiceDetailsClick() {
         cockpit.jump("/system/services#/kdump.service", cockpit.transport.host);
-    }
-
-    dialogClosed() {
-        this.setState({ dialogSettings: undefined, dialogObj: undefined });
     }
 
     handleSettingsClick() {

@@ -4,7 +4,8 @@
  * with `write: false`, but this is easy enough to implement ourselves.
 */
 
-import { opendir } from 'node:fs/promises';
+import path from 'path';
+import fs from "fs";
 import util from 'node:util';
 import child_process from 'node:child_process';
 
@@ -12,14 +13,34 @@ const NAME = 'cockpitCompressPlugin';
 
 const exec = util.promisify(child_process.execFile);
 
-export const cockpitCompressPlugin = ({
+const getAllFiles = function(dirPath, arrayOfFiles) {
+    const files = fs.readdirSync(dirPath);
+
+    arrayOfFiles = arrayOfFiles || [];
+
+    files.forEach(function(file) {
+        if (fs.statSync(dirPath + "/" + file).isDirectory()) {
+            arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles);
+        } else {
+            arrayOfFiles.push(path.join(dirPath, "/", file));
+        }
+    });
+
+    return arrayOfFiles;
+};
+
+export const cockpitCompressPlugin = ({ subdir = '', exclude = null } = {}) => ({
     name: NAME,
     setup(build) {
         build.onEnd(async () => {
             const gzipPromises = [];
-            for await (const dirent of await opendir('dist')) {
-                if (dirent.name.endsWith('.js') || dirent.name.endsWith('.css')) {
-                    gzipPromises.push(exec('gzip', ['-9', 'dist/' + dirent.name]));
+            const path = "./dist/" + subdir;
+
+            for await (const dirent of getAllFiles(path)) {
+                if (exclude && exclude.test(dirent))
+                    continue;
+                if (dirent.endsWith('.js') || dirent.endsWith('.css')) {
+                    gzipPromises.push(exec('gzip', ['-9', dirent]));
                 }
             }
             await Promise.all(gzipPromises);

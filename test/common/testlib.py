@@ -1804,6 +1804,29 @@ class MachineCase(unittest.TestCase):
                 "asyncio-ERROR: Task was destroyed but it is pending!",
                 "task:.*Task pending.*cockpit/channels/dbus.py.*"]
 
+            # happens fairly reliably with TestConnection.testTls and TestHistoryMetrics.testEvents
+            self.allowed_messages += [
+                r'asyncio-ERROR: Exception in callback None\(\)',
+                r'handle: <Handle cancelled>',
+                r'Traceback \(most recent call last\):',
+                r'File "/usr/lib64/python3.6/asyncio/events.py", line .*, in _run',
+                r'self._callback\(\*self._args\)',
+                r'File "/usr/local/lib64/python3.6/site-packages/cockpit/transports.py", line .*, in _read_ready',
+                r'self._protocol.data_received\(data\)',
+                r'File "/usr/local/lib64/python3.6/site-packages/cockpit/protocol.py", line .*, in data_received',
+                r'result = self.consume_one_frame\(self.buffer\)',
+                r'File "/usr/local/lib64/python3.6/site-packages/cockpit/protocol.py", line .*, in consume_one_frame',
+                r'self.frame_received.*',
+                r'File "/usr/local/lib64/python3.6/site-packages/cockpit/protocol.py", line .*, in frame_received',
+                r'self.channel_control_received\(channel, command, message\)',
+                r'File "/usr/local/lib64/python3.6/site-packages/cockpit/peer.py", line .*, in channel_control_received',
+                r'self.send_channel_control.*message.*',
+                r'File "/usr/local/lib64/python3.6/site-packages/cockpit/router.py", line .*, in send_channel_control',
+                r'self.router.drop_channel\(channel\)',
+                r'File "/usr/local/lib64/python3.6/site-packages/cockpit/router.py", line .*, in drop_channel',
+                r'assert channel in self.open_channels, \(self.open_channels, channel\)',
+                r"AssertionError: \({}, '.*'\)"]
+
         messages = machine.journal_messages(matches, 6, cursor=cursor)
 
         if "TEST_AUDIT_NO_SELINUX" not in os.environ:

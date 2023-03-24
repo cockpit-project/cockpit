@@ -17,14 +17,22 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import os
+import unittest
+
 import parent  # noqa: F401
 from testlib import MachineCase, nondestructive, skipDistroPackage, skipOstree, test_main
+from testvm import DEFAULT_IMAGE
 
 
 @skipDistroPackage()
 @nondestructive
 class TestReauthorize(MachineCase):
 
+    @unittest.skipIf(
+        os.environ.get("TEST_SCENARIO") == "pybridge" and
+        (DEFAULT_IMAGE.startswith("centos-8") or DEFAULT_IMAGE.startswith("rhel-8")),
+        "regression from https://github.com/cockpit-project/cockpit/pull/18398")
     def testBasic(self):
         self.allow_journal_messages('.*dropping message while waiting for child to exit.*')
         b = self.browser

@@ -21,9 +21,12 @@ import base64
 import time
 import os
 import subprocess
+import unittest
 
 import parent  # noqa: F401
-from testlib import MachineCase, TEST_DIR, nondestructive, skipBrowser, skipDistroPackage, skipImage, skipOstree, test_main, wait
+from testlib import (MachineCase, TEST_DIR, nondestructive, test_main, wait,
+                     skipBrowser, skipDistroPackage, skipImage, skipOstree)
+from testvm import DEFAULT_IMAGE
 
 
 @skipDistroPackage()
@@ -810,6 +813,10 @@ export XDG_CONFIG_DIRS=/usr/local
 
     @skipOstree("OSTree doesn't have cockpit-ws")
     @skipImage("Kernel does not allow user namespaces", "debian-*")
+    @unittest.skipIf(
+        os.environ.get("TEST_SCENARIO") == "pybridge" and
+        (DEFAULT_IMAGE.startswith("centos-8") or DEFAULT_IMAGE.startswith("rhel-8")),
+        "regression from https://github.com/cockpit-project/cockpit/pull/18398")
     def testCockpitDesktop(self):
         m = self.machine
 

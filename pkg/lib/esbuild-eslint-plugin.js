@@ -6,12 +6,11 @@ import { ESLint } from 'eslint';
 
 const NAME = 'eslintPlugin';
 
-export const eslintPlugin = {
+export const eslintPlugin = ({ filter = /src\/.*\.(jsx?|js?)$/ } = {}) => ({
     name: NAME,
     setup(build) {
         const filesToLint = [];
         const eslint = new ESLint();
-        const filter = /src\/.*\.(jsx?|js?)$/;
 
         build.onLoad({ filter }, ({ path }) => {
             filesToLint.push(path);
@@ -30,4 +29,4 @@ export const eslintPlugin = {
             return null;
         });
     },
-};
+});

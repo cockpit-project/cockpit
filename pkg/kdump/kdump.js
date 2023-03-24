@@ -75,7 +75,7 @@ const initStore = function(rootElement) {
     };
     dataStore.render = render;
 
-    cockpit.file("/proc/cmdline").read()
+    const crashkernelPromise = cockpit.file("/proc/cmdline").read()
             .then(content => {
                 if (content !== null) {
                     dataStore.crashkernel = content.indexOf('crashkernel=') !== -1;
@@ -85,7 +85,7 @@ const initStore = function(rootElement) {
 
     // read memory reserved for kdump from system
     dataStore.kdumpMemory = undefined;
-    cockpit.file("/sys/kernel/kexec_crash_size").read()
+    const crashsizePromise = cockpit.file("/sys/kernel/kexec_crash_size").read()
             .then(content => {
                 const value = parseInt(content, 10);
                 if (!isNaN(value)) {
@@ -102,8 +102,9 @@ const initStore = function(rootElement) {
                     dataStore.kdumpMemory = content.trim();
                 }
             })
-            .catch(() => { dataStore.kdumpMemory = "error" })
-            .finally(render);
+            .catch(() => { dataStore.kdumpMemory = "error" });
+
+    Promise.allSettled([crashkernelPromise, crashsizePromise]).then(render);
 
     // catch kdump config and service changes
     dataStore.kdumpClient.addEventListener('kdumpStatusChanged', function(event, status) {

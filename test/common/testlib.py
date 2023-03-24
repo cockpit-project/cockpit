@@ -1799,6 +1799,7 @@ class MachineCase(unittest.TestCase):
 
         # HACK: pybridge bugs
         if os.environ.get("TEST_SCENARIO") == "pybridge":
+            # https://github.com/cockpit-project/cockpit/issues/18386
             self.allowed_messages += [
                 "asyncio-ERROR: Task was destroyed but it is pending!",
                 "task:.*Task pending.*cockpit/channels/dbus.py.*"]

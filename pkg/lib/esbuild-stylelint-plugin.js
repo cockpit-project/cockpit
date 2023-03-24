@@ -21,6 +21,9 @@ export const stylelintPlugin = ({
         });
 
         build.onEnd(async () => {
+            if (!targetFiles.length)
+                return null;
+
             const result = await stylelint.default.lint({
                 formatter: formatter.default,
                 ...stylelintOptions,

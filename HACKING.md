@@ -42,13 +42,12 @@ edit files as you normally would. Building and running tests happens inside the
 toolbox container. If desired, you can install additional packages with
 `sudo dnf install`.
 
-The Cockpit team occasionally refreshes that container. To re-create yours from
-a new image, run
-```sh
-podman pull quay.io/cockpit/tasks
-toolbox rm cockpit
-```
-and then repeat steps 2 and 3 above.
+The Cockpit team occasionally refreshes the `tasks` container image. 
+To re-create your development container from the latest image, run:
+   podman pull quay.io/cockpit/tasks
+   toolbox rm cockpit
+
+...and then repeat steps 2 and 3 from above.
 
 ## Working on Cockpit's session pages
 

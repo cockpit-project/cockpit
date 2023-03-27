@@ -596,7 +596,7 @@ const ApplyUpdates = ({ transactionProps, actions, onCancel, rebootAfter, setReb
                     <div className="progress-description">
                         <Spinner isSVG size="md" />
                         <strong>{ PK_STATUS_STRINGS[lastAction?.status] || PK_STATUS_STRINGS[PK.Enum.STATUS_UPDATE] }</strong>
-                        &nbsp;{formatPackageId(curPackage)}
+                        &nbsp;{curPackage}
                     </div>
                     <Progress title={remain}
                               value={percentage}

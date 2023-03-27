@@ -48,7 +48,6 @@ const qunitOptions = {
 };
 
 const parser = (await import('argparse')).default.ArgumentParser();
-parser.add_argument('-c', '--config', { help: "Path to webpack.config.js", default: "webpack.config.js" });
 parser.add_argument('-r', '--rsync', { help: "rsync bundles to ssh target after build", metavar: "HOST" });
 parser.add_argument('-w', '--watch', { action: 'store_true', help: "Enable watch mode" });
 parser.add_argument('-e', '--no-eslint', { action: 'store_true', help: "Disable eslint linting", default: production });

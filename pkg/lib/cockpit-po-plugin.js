@@ -7,7 +7,7 @@ import gettext_parser from "gettext-parser";
 
 const config = {};
 
-const DEFAULT_WRAPPER = 'cockpit.locale(PO_DATA)';
+const DEFAULT_WRAPPER = 'cockpit.locale(PO_DATA);';
 
 function get_po_files() {
     try {

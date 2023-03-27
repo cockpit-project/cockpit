@@ -44,6 +44,7 @@ toolbox container. If desired, you can install additional packages with
 
 The Cockpit team occasionally refreshes the `tasks` container image. 
 To re-create your development container from the latest image, run:
+
    podman pull quay.io/cockpit/tasks
    toolbox rm cockpit
 

@@ -18,7 +18,8 @@
  */
 import cockpit from 'cockpit';
 import React, { useState } from 'react';
-import { FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { FormGroup, FormHelperText } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
 import { Progress, ProgressMeasureLocation, ProgressSize } from "@patternfly/react-core/dist/esm/components/Progress/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
@@ -100,12 +101,12 @@ export const PasswordFormFields = ({
                                </button>
                            </Popover>
                        }
-                       helperTextInvalid={error_password}
-                       validated={error_password ? "error" : "default"}
+                       validated={error_password ? "warning" : "default"}
                        id={idPrefix + "-pw1-group"}
                        fieldId={idPrefix + "-pw1"}>
                 <TextInput className="check-passwords" type="password" id={idPrefix + "-pw1"}
-                           autoComplete="new-password" value={password} onChange={onPasswordChanged} />
+                           autoComplete="new-password" value={password} onChange={onPasswordChanged}
+                           validated={error_password ? "warning" : "default"} />
                 <div>
                     <Progress id={idPrefix + "-meter"}
                               className={"ct-password-strength-meter " + variant}
@@ -116,6 +117,13 @@ export const PasswordFormFields = ({
                               value={Number.isInteger(passwordStrength) ? passwordStrength : 0} />
                     <div id={idPrefix + "-password-meter-message"} className="pf-c-form__helper-text" aria-live="polite">{passwordMessage}</div>
                 </div>
+                {error_password && <FormHelperText isHidden={false} component="div">
+                    <HelperText component="ul" aria-live="polite" id="password-error-message">
+                        <HelperTextItem isDynamic variant="warning" component="li">
+                            {error_password}
+                        </HelperTextItem>
+                    </HelperText>
+                </FormHelperText>}
             </FormGroup>
 
             {password_confirm_label && <FormGroup label={password_confirm_label}

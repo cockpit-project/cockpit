@@ -202,6 +202,13 @@ function validate_home_dir(dir, directoryExpected) {
     return cockpit.spawn(["test", "!", directoryExpected ? "-d" : "-f", dir], { superuser: "require" });
 }
 
+function validate_password(password) {
+    if (!password)
+        return _("Empty password");
+
+    return null;
+}
+
 function validate_password_confirm(password_confirm, password) {
     if (password_confirm !== password)
         return _("The passwords do not match");
@@ -351,6 +358,7 @@ export function account_create_dialog(accounts, min_uid, max_uid, shells) {
         const errs = { };
 
         errs.real_name = validate_real_name(real_name);
+        errs.password = validate_password(password);
         errs.password_confirm = validate_password_confirm(password_confirm, password);
 
         if (password.length > 256)
@@ -358,12 +366,16 @@ export function account_create_dialog(accounts, min_uid, max_uid, shells) {
 
         errs.user_name = validate_username(user_name, accounts);
 
-        const promises = [
-            password_quality(password, force_weak)
-                    .catch(ex => {
-                        errs.password = (ex.message || ex.toString()).replaceAll("\n", " "); // not-covered: OS error
-                    })
-        ];
+        const promises = [];
+        // only evaluate password score if no other password error si present
+        if (!errs.password) {
+            promises.push(
+                password_quality(password, force_weak)
+                        .catch(ex => {
+                            errs.password = (ex.message || ex.toString()).replaceAll("\n", " "); // not-covered: OS error
+                        })
+            );
+        }
         if (!force_uid)
             errs.uid = validate_uid(uid, accounts, min_uid, max_uid, change);
 

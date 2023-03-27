@@ -21,9 +21,8 @@ import cockpit from "cockpit";
 import * as utils from "./utils.js";
 
 import React from "react";
-import {
-    HelperText, HelperTextItem, FormHelperText,
-} from "@patternfly/react-core";
+import { FormHelperText } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { HelperText, HelperTextItem, } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import { ExclamationTriangleIcon, InfoCircleIcon } from "@patternfly/react-icons";
 
 import {

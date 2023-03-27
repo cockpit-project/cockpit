@@ -107,8 +107,6 @@ async function build() {
     // dynamic imports which need node_modules
     const copy = (await import('esbuild-plugin-copy')).default;
     const esbuild = (await import(useWasm ? 'esbuild-wasm' : 'esbuild')).default;
-    const sassPlugin = (await import('esbuild-sass-plugin')).sassPlugin;
-    const replace = (await import('esbuild-plugin-replace')).replace;
 
     const cleanPlugin = (await import('./pkg/lib/esbuild-cleanup-plugin.js')).cleanPlugin;
     const cockpitCompressPlugin = (await import('./pkg/lib/esbuild-compress-plugin.js')).cockpitCompressPlugin;
@@ -117,6 +115,8 @@ async function build() {
     const cockpitTestHtmlPlugin = (await import('./pkg/lib/esbuild-test-html-plugin.js')).cockpitTestHtmlPlugin;
     const eslintPlugin = (await import('./pkg/lib/esbuild-eslint-plugin.js')).eslintPlugin;
     const stylelintPlugin = (await import('./pkg/lib/esbuild-stylelint-plugin.js')).stylelintPlugin;
+
+    const esbuildStylesPlugins = (await import('./pkg/lib/esbuild-common.js')).esbuildStylesPlugins;
 
     const { entryPoints, assetFiles, redhat_fonts } = getFiles(args.onlydir);
     const tests = getTestFiles();
@@ -130,38 +130,7 @@ async function build() {
         ...args.no_stylelint ? [] : [stylelintPlugin({ filter: /pkg\/.*\.(css?|scss?)$/ })],
         ...args.no_eslint ? [] : [eslintPlugin({ filter: /pkg\/.*\.(jsx?|js?)$/ })],
         cockpitJSResolvePlugin,
-        // Redefine grid breakpoints to count with our shell
-        // See https://github.com/patternfly/patternfly-react/issues/3815 and
-        // [Redefine grid breakpoints] section in pkg/lib/_global-variables.scss for explanation
-        replace({
-            include: /\.css$/,
-            values: {
-                '576px': '236px',
-                '768px': '428px',
-                '992px': '652px',
-                '1200px': '876px',
-                '1450px': '1100px',
-            }
-        }),
-        replace({
-            include: /DataList.js$/,
-            values: {
-                'import stylesGrid': "// HACK: revert when https://github.com/patternfly/patternfly-react/pull/8864 is released",
-                stylesGrid: 'styles',
-            }
-        }),
-        sassPlugin({
-            loadPaths: [...nodePaths, 'node_modules'],
-            quietDeps: true,
-            async transform(source, resolveDir, path) {
-                if (path.includes('patternfly-4-cockpit.scss')) {
-                    return source
-                            .replace(/url.*patternfly-icons-fake-path.*;/g, 'url("../base1/fonts/patternfly.woff") format("woff");')
-                            .replace(/@font-face[^}]*patternfly-fonts-fake-path[^}]*}/g, '');
-                }
-                return source;
-            }
-        }),
+        ...esbuildStylesPlugins
     ];
 
     const getTime = () => new Date().toTimeString().split(' ')[0];

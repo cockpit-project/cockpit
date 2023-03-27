@@ -1485,7 +1485,10 @@ class TestGrafanaClient(MachineCase):
 
             # Switch to "Dashboards" tab, import "Host Overview"
             bg.click(".page-header__tabs a[href$='/dashboards']")
-            bg.click("tr:contains('PCP Redis: Host Overview') button")
+            with bg.wait_timeout(60):
+                bg.wait_not_in_text(".page-header__title", "Loading")
+            bg.click("tr:contains('PCP Redis: Host Overview') button:contains('Import')")
+            bg.wait_visible("tr:contains('PCP Redis: Host Overview') button:contains('Re-import')")
 
             # .. and the dashboard name becomes clickable
             bg.click("a:contains('PCP Redis: Host Overview')")

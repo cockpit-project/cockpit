@@ -224,19 +224,19 @@ class TestAccounts(MachineCase):
         b.set_input_text('#accounts-create-password-pw1', long_password)
         b.set_input_text('#accounts-create-password-pw2', long_password)
         b.click('#accounts-create-dialog button.apply')
-        b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error", "Password is longer than 256 characters")
+        b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text .pf-m-warning", "Password is longer than 256 characters")
         b.wait_not_present('#accounts-create-dialog button.pf-m-warning')
 
         # changing input clears the error message
         b.set_input_text('#accounts-create-password-pw1', "test")
         b.set_input_text('#accounts-create-password-pw2', "test")
-        b.wait_not_present("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error")
+        b.wait_not_present("#accounts-create-dialog .pf-c-form__helper-text .pf-m-warning")
 
         # correct password confirmation
         b.set_input_text('#accounts-create-password-pw1', good_password)
         b.set_input_text('#accounts-create-password-pw2', good_password)
         b.click('#accounts-create-dialog button.apply')
-        b.wait_not_present("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error")
+        b.wait_not_present("#accounts-create-dialog .pf-c-form__helper-text .pf-m-warning")
         b.wait_not_present('#accounts-create-dialog')
         b.wait_in_text('#accounts-list', "Berta Bestimmt")
 
@@ -466,16 +466,16 @@ class TestAccounts(MachineCase):
         )
 
         # Password is weak, lets change it to another weak - this should still not accept
-        b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error", "Password quality check failed:")
+        b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text .pf-m-warning", "Password quality check failed:")
         b.wait_visible('#accounts-create-dialog button.pf-m-warning')
         b.set_input_text('#accounts-create-password-pw1', "bar")
         b.set_input_text('#accounts-create-password-pw2', "bar")
-        b.wait_not_present("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error")
+        b.wait_not_present("#accounts-create-dialog .pf-c-form__helper-text .pf-m-warning")
         b.wait_not_present('#accounts-create-dialog button.pf-m-warning')
         b.click('#accounts-create-dialog button.apply')
 
         # Password is weak, confirm button should be disabled after first click
-        b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error", "Password quality check failed:")
+        b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text .pf-m-warning", "Password quality check failed:")
         b.wait_visible("button.apply:disabled")
 
         # Lets confirm the weak password now
@@ -557,7 +557,7 @@ class TestAccounts(MachineCase):
         b.set_input_text("#account-set-password-pw2", 'a')
         b.wait_visible("#account-set-password-meter.danger")
         b.click('#account-set-password-dialog button.apply')
-        b.wait_in_text("#account-set-password-dialog .pf-c-form__helper-text.pf-m-error", "Password quality check failed:")
+        b.wait_in_text("#account-set-password-dialog .pf-c-form__helper-text .pf-m-warning", "Password quality check failed:")
         b.wait_visible('#account-set-password-dialog button.pf-m-warning')
 
         # password mismatch
@@ -571,9 +571,9 @@ class TestAccounts(MachineCase):
         long_password = "2a02-x!h4a" * 30
         b.set_input_text('#account-set-password-pw1', long_password)
         b.set_input_text('#account-set-password-pw2', long_password)
-        b.wait_not_present("#account-set-password-dialog .pf-c-form__helper-text.pf-m-error")
+        b.wait_not_present("#account-set-password-dialog .pf-c-form__helper-text .pf-m-warning")
         b.click('#account-set-password-dialog button.apply')
-        b.wait_in_text("#account-set-password-dialog .pf-c-form__helper-text.pf-m-error", "Password is longer than 256 characters")
+        b.wait_in_text("#account-set-password-dialog .pf-c-form__helper-text .pf-m-warning", "Password is longer than 256 characters")
         b.wait_not_present('#account-set-password-dialog button.pf-m-warning')
 
         good_password_2 = "cEwghLY§X9R&m8RLwk4Xfed9Bw="
@@ -581,7 +581,7 @@ class TestAccounts(MachineCase):
         b.set_input_text("#account-set-password-pw1", good_password_2)
         b.set_input_text("#account-set-password-pw2", good_password_2)
         b.wait_visible("#account-set-password-meter.success")
-        b.wait_not_present("#account-set-password-dialog .pf-c-form__helper-text.pf-m-error")
+        b.wait_not_present("#account-set-password-dialog .pf-c-form__helper-text .pf-m-warning")
         b.click('#account-set-password-dialog button.apply')
         b.wait_not_present('#account-set-password-dialog')
 

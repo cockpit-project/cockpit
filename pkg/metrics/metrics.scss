@@ -499,6 +499,8 @@ $graphs: cpu, memory, disks, network;
     // Make SVG and generated before/after line position relative to metrics-data
     position: relative;
     grid-template-areas: "utilization";
+    // Make sure rows expand (WebKit needs this)
+    grid-template-rows: 1fr;
 
     // vertical ruler line for areas with data, and horizontal tick mark for utilization half
     &.valid-data::before {

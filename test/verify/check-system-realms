@@ -580,8 +580,7 @@ class TestIPA(TestRealms, CommonTests):
         m.stop_cockpit()
         m.start_cockpit()
 
-        # check respecting FreeIPA's/sssd's ssh known host keys; this requires the new
-        # --privkey option of sss_ssh_knownhostproxy, thus only works on recent images
+        # check respecting FreeIPA's/sssd's ssh known host keys
         b.login_and_go("/system", user=f'{self.admin_user}@cockpit.lan', password=self.admin_password)
         b.switch_to_top()
         b.click("#hosts-sel button")
@@ -590,10 +589,6 @@ class TestIPA(TestRealms, CommonTests):
         b.set_input_text('#add-machine-address', "x0.cockpit.lan")
         b.click('#hosts_setup_server_dialog button:contains(Add)')
 
-        # with --pubkey support this should Just Work, otherwise confirm fingerprint
-        if '--pubkey' not in m.execute("sss_ssh_knownhostsproxy --help || true"):
-            b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to x0.cockpit.lan for the first time.")
-            b.click('#hosts_setup_server_dialog button:contains(Accept key and connect)')
         b.wait_not_present('#hosts_setup_server_dialog')
         b.wait_visible("a[href='/@x0.cockpit.lan']")
         b.logout()
@@ -1089,10 +1084,6 @@ class TestKerberos(MachineCase):
         b.click("#machine-troubleshoot")
         b.wait_visible('#hosts_setup_server_dialog')
         b.click('#hosts_setup_server_dialog button:contains(Add)')
-        # with --pubkey support the fingerprint is already known, otherwise confirm fingerprint
-        if '--pubkey' not in m.execute("sss_ssh_knownhostsproxy --help || true"):
-            b.wait_in_text('#hosts_setup_server_dialog', "You are connecting to x0.cockpit.lan for the first time.")
-            b.click('#hosts_setup_server_dialog button:contains(Accept key and connect)')
         b.wait_not_present('#hosts_setup_server_dialog')
 
         b.enter_page("/system/terminal", host="x0.cockpit.lan")

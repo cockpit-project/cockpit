@@ -490,6 +490,8 @@ $graphs: cpu, memory, disks, network;
   }
 
   &-data {
+    --gradient: linear-gradient(to right, var(--color) 70%, var(--color-extreme) 100%);
+    --gradient-invert: linear-gradient(to left, var(--color) 70%, var(--color-extreme) 100%);
     display: grid;
     contain: strict;
     margin-left: 0.5rem;
@@ -528,7 +530,7 @@ $graphs: cpu, memory, disks, network;
       top: 0;
       left: 0;
       clip-path: polygon(var(--points));
-      background: linear-gradient(to right, var(--color) 70%, var(--color-extreme) 100%);
+      background: var(--gradient);
       height: 100%;
       width: 100%;
     }
@@ -554,12 +556,12 @@ $graphs: cpu, memory, disks, network;
     }
 
     .compressed.polygon-sat {
-      background: linear-gradient(to right, var(--color) 70%, var(--color-extreme) 100%);
+      background: var(--gradient);
       clip-path: inset(0 calc(100% - var(--saturation) * 100%) 0 0);
     }
 
     .compressed.polygon-use {
-      background: linear-gradient(to left, var(--color) 70%, var(--color-extreme) 100%);
+      background: var(--gradient-invert);
       clip-path: inset(0 0 0 calc(100% - var(--utilization) * 100%));
     }
   }

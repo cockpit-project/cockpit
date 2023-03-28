@@ -601,7 +601,10 @@ $graphs: cpu, memory, disks, network;
   &-hour.metrics-hour-compressed .metrics-minute:last-of-type {
     .valid-data.have-saturation::after,
     .valid-data::before {
-      border-bottom: 1px solid rgb(120 120 120 / 30%);
+      // Fake a border via clip-path, to set it on top, instead of after
+      background: rgb(120 120 120 / 30%);
+      pointer-events: none;
+      clip-path: inset(calc(100% - 1px) 0 0);
     }
   }
 

@@ -125,9 +125,9 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
                 .catch(error => {
                     if (error.details) {
                         // avoid bad summary like "systemd job RestartUnit ["kdump.service","replace"] failed with result failed"
-                        // if we have a more concrete journal
+                        // if we have a more concrete journal and trim journal's `kdump: ` prefix.
                         error.message = _("Unable to save settings");
-                        error.details = <CodeBlockCode>{ error.details }</CodeBlockCode>;
+                        error.details = <CodeBlockCode>{ error.details.replaceAll(/\nkdump: /g, "\n") }</CodeBlockCode>;
                         setError(error);
                     } else {
                         // without a journal, show the error as-is

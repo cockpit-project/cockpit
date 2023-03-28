@@ -68,8 +68,6 @@ typedef struct {
     const char *username;
     const char *knownhosts_file;
     const char *knownhosts_home;
-    const char *knownhosts_sssd;
-    const char *knownhosts_sssd_host;
     const char *host_key_authorize; /* authorize x-host-key response for test_problem() */
     const char *config;
     const char *problem;
@@ -355,22 +353,6 @@ setup (TestCase *tc,
 
       host = g_strdup (new_host->str);
       argv[1] = host;
-    }
-
-  if (fixture->knownhosts_sssd)
-    {
-      g_assert (fixture->knownhosts_sssd_host != NULL);
-      env = g_environ_setenv (env, "COCKPIT_MOCK_SSS_KNOWN_HOSTS_HOST",
-                              fixture->knownhosts_sssd_host, TRUE);
-      env = g_environ_setenv (env, "COCKPIT_MOCK_SSS_KNOWN_HOSTS_KEY",
-                              fixture->knownhosts_sssd, TRUE);
-
-      path = g_strjoin (":",
-                        SRCDIR "/src/ssh/mock-bin",
-                        g_environ_getenv (env, "PATH") ?: "",
-                        NULL);
-
-      env = g_environ_setenv (env, "PATH", path, TRUE);
     }
 
   tc->transport = start_bridge (env, (gchar **) argv);
@@ -817,36 +799,6 @@ static const TestFixture fixture_unknown_host = {
   .hostname = "127.0.0.99",
   .host_key_authorize = INVALID_KEY,
   .problem = "unknown-host"
-};
-
-static const TestFixture fixture_knownhost_sssd_known = {
-  .knownhosts_sssd = MOCK_RSA_KEY,
-  .knownhosts_sssd_host = "127.0.0.1",
-  .knownhosts_file = "/dev/null",
-  .ssh_command = BUILDDIR "/mock-echo"
-};
-
-static const TestFixture fixture_knownhost_sssd_known_multi_key = {
-  .knownhosts_sssd = MOCK_ECDSA_PUB_KEY "\n" MOCK_RSA_KEY,
-  .knownhosts_sssd_host = "127.0.0.1",
-  .knownhosts_file = "/dev/null",
-  .ssh_command = BUILDDIR "/mock-echo"
-};
-
-static const TestFixture fixture_knownhost_sssd_unknown = {
-  .knownhosts_sssd = MOCK_RSA_KEY,
-  .knownhosts_sssd_host = "somehost",
-  .knownhosts_file = "/dev/null",
-  .hostname = "127.0.0.99",
-  .host_key_authorize = INVALID_KEY,
-  .problem = "unknown-host"
-};
-
-static const TestFixture fixture_knownhost_sssd_badkey = {
-  .knownhosts_sssd = MOCK_RSA_KEY_INVALID,
-  .knownhosts_sssd_host = "127.0.0.1",
-  .knownhosts_file = "/dev/null",
-  .problem = "invalid-hostkey"
 };
 
 static const TestFixture fixture_known_host_home = {
@@ -1519,14 +1471,6 @@ main (int argc,
               setup, test_invalid_knownhost, teardown);
   g_test_add ("/ssh-bridge/knownhost-home", TestCase, &fixture_known_host_home,
               setup, test_echo_and_close, teardown);
-  g_test_add ("/ssh-bridge/knownhost-sssd-known", TestCase, &fixture_knownhost_sssd_known,
-              setup, test_echo_and_close, teardown);
-  g_test_add ("/ssh-bridge/knownhost-sssd-known-multi-key", TestCase, &fixture_knownhost_sssd_known_multi_key,
-              setup, test_echo_and_close, teardown);
-  g_test_add ("/ssh-bridge/knownhost-sssd-unknown", TestCase, &fixture_knownhost_sssd_unknown,
-              setup, test_problem, teardown);
-  g_test_add ("/ssh-bridge/knownhost-sssd-badkey", TestCase, &fixture_knownhost_sssd_badkey,
-              setup, test_problem, teardown);
 
   g_test_add ("/ssh-bridge/hostkey-unknown", TestCase, &fixture_prompt_host_key,
               setup, test_hostkey_unknown, teardown);

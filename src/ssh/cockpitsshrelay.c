@@ -457,34 +457,6 @@ write_tmp_knownhosts_file (CockpitSshData *data,
   return TRUE;
 }
 
-/**
- * prepend_host_port:
- *
- * Transform lines of keys to an ssh known_hosts format with lines of
- * "[host]:port key".
- */
-static gchar *
-prepend_host_port (const gchar *host,
-                   guint port,
-                   const gchar *keys)
-{
-  gchar **lines = g_strsplit (keys, "\n", 0);
-  gchar **line;
-  GString *result = g_string_new (NULL);
-
-  for (line = lines; *line; ++line)
-    {
-      if (port == 22)
-        g_string_append_printf (result, "%s %s\n", host, *line);
-      else
-        g_string_append_printf (result, "[%s]:%d %s\n", host, port, *line);
-    }
-
-  g_strfreev (lines);
-  return g_string_free (result, FALSE);
-
-}
-
 static gboolean
 session_has_known_host_in_file (const gchar *file,
                                 CockpitSshData *data,
@@ -543,52 +515,6 @@ set_knownhosts_file (CockpitSshData *data,
   /* check file set by COCKPIT_SSH_KNOWN_HOSTS_FILE */
   if (!host_known)
     host_known = session_has_known_host_in_file (data->ssh_options->knownhosts_file, data, host, port);
-
-
-  /* last (most expensive) fallback is to ask sssd's ssh known_hosts proxy */
-  if (!host_known && tmp_knownhost_file == NULL)
-    {
-      char port_str[10];
-      const gchar *argv [] = {
-          "sss_ssh_knownhostsproxy",
-          "--pubkey",
-          "--port", port_str,
-          host,
-          NULL
-      };
-      GError *error = NULL;
-      gint exit;
-
-      g_debug ("%s: host not known in any local file, asking sssd", data->logname);
-
-      snprintf (port_str, sizeof (port_str), "%u", port);
-
-      if (g_spawn_sync (NULL, (gchar **) argv, NULL, G_SPAWN_SEARCH_PATH, NULL,
-                        NULL, &sout, &serr, &exit, &error))
-        {
-          sout = g_strstrip (sout);
-          if (exit == 0 && strlen (sout) > 0)
-            {
-              gchar *known_hosts = prepend_host_port (host, port, sout);
-              gboolean res = write_tmp_knownhosts_file (data, known_hosts, &problem);
-              g_free (known_hosts);
-              if (!res)
-                goto out;
-
-              host_known = session_has_known_host_in_file (tmp_knownhost_file, data, host, port);
-              if (host_known)
-                data->ssh_options->knownhosts_file = tmp_knownhost_file;
-              else
-                g_warning ("sss_ssh_knownhostsproxy reported key for %s:%u which is not known to session_has_known_host_in_file()", host, port);
-            } else {
-              /* the --pubkey option is not yet known by many older distributions; don't show the error in the log */
-              g_debug ("%s: sss_ssh_knownhostsproxy failed: exit code %i, output '%s', error '%s'", data->logname, exit, sout, serr);
-            }
-        } else {
-          g_debug ("%s: Failed to run sss_ssh_knownhostsproxy: %s", data->logname, error->message);
-          g_clear_error (&error);
-        }
-    }
 
   if (!host_known)
     {

@@ -591,7 +591,12 @@ class TestIPA(TestRealms, CommonTests):
 
         b.wait_not_present('#hosts_setup_server_dialog')
         b.wait_visible("a[href='/@x0.cockpit.lan']")
+        # starts proper session
+        m.execute("until loginctl --no-legend list-sessions | grep -qi 'admin@COCKPIT.LAN.*web console'; do sleep 1; done", timeout=10)
         b.logout()
+
+        # does not leak any processes or the session itself
+        m.execute("while loginctl --no-legend list-sessions | grep -qi 'admin@COCKPIT.LAN.*web console'; do sleep 1; done", timeout=10)
 
         # FIXME: Something above triggers this error message
         self.allow_journal_messages("Received unexpected TLS connection and no certificate was configured")

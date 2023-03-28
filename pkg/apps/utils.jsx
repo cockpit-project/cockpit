@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
-import { Progress } from "@patternfly/react-core/dist/esm/components/Progress/index.js";
+import { Progress, ProgressMeasureLocation } from "@patternfly/react-core/dist/esm/components/Progress/index.js";
 import { Split, SplitItem } from "@patternfly/react-core/dist/esm/layouts/Split/index.js";
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
@@ -49,7 +49,7 @@ export function icon_url(path_or_url) {
     return prefix + '?' + query;
 }
 
-export const ProgressBar = ({ size, title, data }) => {
+export const ProgressBar = ({ size, title, data, ariaLabelledBy }) => {
     if (data.waiting) {
         return (<Split>
             <SplitItem className="progress-title" isFilled>
@@ -60,12 +60,12 @@ export const ProgressBar = ({ size, title, data }) => {
             </SplitItem>
         </Split>);
     } else {
-        return <Progress value={data.percentage} size={size} title={title} />;
+        return <Progress className="progress-bar" value={data.percentage} size={size} measureLocation={ProgressMeasureLocation.inside} aria-labelledby={ariaLabelledBy} />;
     }
 };
 
 export const CancelButton = ({ data }) => (
-    <Button variant="link" isDisabled={!data.cancel} onClick={data.cancel}>
+    <Button variant="secondary" isDisabled={!data.cancel} onClick={data.cancel}>
         {_("Cancel")}
     </Button>);
 

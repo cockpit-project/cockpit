@@ -6,6 +6,10 @@
 // utilities for `pf-u...` classes
 @import "@patternfly/patternfly/utilities/Spacing/spacing.css";
 
+// colors for PF charts
+@import "@patternfly/patternfly/patternfly-charts.css";
+@import "@patternfly/patternfly/patternfly-charts-theme-dark.css";
+
 #app {
   section.pf-c-page__main-breadcrumb {
     padding-bottom: var(--pf-c-page__main-breadcrumb--PaddingTop);
@@ -319,15 +323,17 @@ html {
 $graphs: cpu, memory, disks, network;
 
 .metrics {
-  --cpu-color: plum;
-  --memory-color: lightblue;
-  --disks-color: lightgreen;
-  --network-color: lightsalmon;
+  --cpu-color: var(--pf-chart-color-purple-200);
+  --cpu-color-extreme: var(--pf-chart-color-purple-300);
 
-  --cpu-color-extreme: purple;
-  --memory-color-extreme: dodgerblue;
-  --disks-color-extreme: darkgreen;
-  --network-color-extreme: crimson;
+  --memory-color: var(--pf-chart-color-green-200);
+  --memory-color-extreme: var(--pf-chart-color-green-300);
+
+  --disks-color: var(--pf-chart-color-gold-300);
+  --disks-color-extreme: var(--pf-chart-color-gold-400);
+
+  --network-color: var(--pf-chart-color-black-300);
+  --network-color-extreme: var(--pf-chart-color-black-400);
 
   --column-size: 10vw;
   --half-column-size: 8vw;

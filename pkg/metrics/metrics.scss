@@ -490,12 +490,12 @@ $graphs: cpu, memory, disks, network;
   }
 
   &-data {
-    --gradient: linear-gradient(to right, var(--color) 70%, var(--color-extreme) 100%);
-    --gradient-invert: linear-gradient(to left, var(--color) 70%, var(--color-extreme) 100%);
+    --gradient-fragment: var(--color) 80%, var(--color-extreme) 90%;
+    --gradient: linear-gradient(to right, var(--gradient-fragment));
+    --gradient-flip: linear-gradient(to left, var(--gradient-fragment));
     display: grid;
     contain: strict;
-    margin-left: 0.5rem;
-    margin-right: 0.5rem;
+    margin: 0 var(--pf-global--spacer--sm);
     // Make SVG and generated before/after line position relative to metrics-data
     position: relative;
     grid-template-areas: "utilization";
@@ -563,7 +563,7 @@ $graphs: cpu, memory, disks, network;
     }
 
     .compressed.polygon-use {
-      background: var(--gradient-invert);
+      background: var(--gradient-flip);
       clip-path: inset(0 0 0 calc(100% - var(--utilization) * 100%));
     }
   }

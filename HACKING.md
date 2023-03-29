@@ -350,7 +350,9 @@ unrelated to the commit message.
 Cockpit is a designed project. Anything that the user will see should have
 design done first. This is done on the wiki and mailing list.
 
-Bigger changes need to be discussed on the #cockpit IRC channel or our mailing list
+Bigger changes need to be discussed on the
+[#cockpit:fedoraproject.org](https://matrix.to/#/#cockpit:fedoraproject.org)
+Matrix channel or our mailing list
 [cockpit-devel@lists.fedoraproject.org](https://lists.fedorahosted.org/admin/lists/cockpit-devel.lists.fedorahosted.org/)
 before you invest too much time and energy.
 

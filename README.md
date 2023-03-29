@@ -25,7 +25,7 @@ between these hosts.
 
  * [Making changes to Cockpit](HACKING.md)
  * [How to contribute, developer documentation](https://github.com/cockpit-project/cockpit/wiki/Contributing)
- * IRC Channel: #cockpit on [libera.chat](https://libera.chat/)
+ * Matrix Channel: [#cockpit:fedoraproject.org](https://matrix.to/#/#cockpit:fedoraproject.org)
  * [Mailing List](https://lists.fedorahosted.org/admin/lists/cockpit-devel.lists.fedorahosted.org/)
  * [Guiding Principles](https://cockpit-project.org/ideals.html)
  * [Release Notes](https://cockpit-project.org/blog/category/release.html)

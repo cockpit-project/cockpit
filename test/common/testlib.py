@@ -213,7 +213,7 @@ class Browser:
             self.layouts = [layout for layout in self.layouts if layout["theme"] != "dark"]
         self.current_layout = None
 
-    def open(self, href: str, cookie: Optional[str] = None, tls: bool = False):
+    def open(self, href: str, cookie: Optional[Dict[str, str]] = None, tls: bool = False):
         """Load a page into the browser.
 
         :param href: the path of the Cockpit page to load, such as "/users". Either PAGE or URL needs to be given.

@@ -1169,7 +1169,7 @@ class TestPackageInstall(packagelib.PackageCase):
         m.execute("systemctl unmask packagekit")
         self.login_and_go("/system")
         # Joining a domain should bring up the install dialog
-        b.wait_text(self.domain_sel, "Join domain")
+        b.wait_text(self.domain_sel, "Install realmd support")
         self.waitTooltip("requires installation of realmd")
 
         b.click(self.domain_sel)
@@ -1188,7 +1188,7 @@ class TestPackageInstall(packagelib.PackageCase):
         self.login_and_go("/system")
 
         # Joining a domain should bring up the install dialog
-        b.wait_text(self.domain_sel, "Join domain")
+        b.wait_text(self.domain_sel, "Install realmd support")
         self.waitTooltip("requires installation of realmd")
 
         b.click(self.domain_sel)
@@ -1211,7 +1211,7 @@ class TestPackageInstall(packagelib.PackageCase):
         self.login_and_go("/system")
 
         # Joining a domain should bring up the install dialog
-        b.wait_text(self.domain_sel, "Join domain")
+        b.wait_text(self.domain_sel, "Install realmd support")
         self.waitTooltip("requires installation of realmd")
 
         b.click(self.domain_sel)

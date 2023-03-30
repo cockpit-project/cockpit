@@ -37,18 +37,8 @@ class TestKeys(MachineCase):
         m.execute("useradd user -s /bin/bash -m -c User")
         m.execute("echo user:foobar | chpasswd")
 
-        m.start_cockpit()
-
-        def login(user, password):
-            b.open("/system")
-            b.wait_visible("#login")
-            b.set_val("#login-user-input", user)
-            b.set_val("#login-password-input", password)
-            b.click('#login-button')
-            b.enter_page("/system")
-
-            b.go("/users#/" + user)
-            b.enter_page("/users")
+        def login(user):
+            self.login_and_go("/users#/" + user, user=user, superuser=False)
             b.wait_text("#account-user-name", user)
 
         def add_key(key, fp_sh256, comment):
@@ -66,7 +56,7 @@ class TestKeys(MachineCase):
             self.assertIn(fp_sh256, text)
 
         # no keys
-        login("user", "foobar")
+        login("user")
         b.wait_in_text("#account-authorized-keys", "no authorized public keys")
 
         # add bad
@@ -96,7 +86,7 @@ class TestKeys(MachineCase):
         self.assertNotIn(".ssh", m.execute("ls /home/user"))
 
         # Log in as admin
-        login("admin", "foobar")
+        login("admin")
         b.go("#/user")
 
         if "ubuntu" not in m.image and "debian" not in m.image:
@@ -135,7 +125,7 @@ class TestKeys(MachineCase):
         b.logout()
 
         # User can still see their keys
-        login("user", "foobar")
+        login("user")
         b.wait_in_text("#account-authorized-keys-list tr:first-child", "test-name")
 
         b.click("#account-authorized-keys-list tr:first-child button")

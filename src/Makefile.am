@@ -11,12 +11,12 @@ sbin_PROGRAMS =
 export PYTEST_TIMEOUT = 120
 
 .PHONY: pytest
-pytest: $(BUILT_SOURCES) $(MANIFESTS)
+pytest: $(BUILT_SOURCES) $(DIST_STAMP) $(MANIFESTS)
 	$(MAKE) test-server
 	cd '$(srcdir)' && abs_builddir='$(abs_builddir)' pytest
 
 .PHONY: pytest-cov
-pytest-cov: $(BUILT_SOURCES) $(MANIFESTS)
+pytest-cov: $(BUILT_SOURCES) $(DIST_STAMP) $(MANIFESTS)
 	$(MAKE) test-server
 	cd '$(srcdir)' && abs_builddir='$(abs_builddir)' pytest --cov
 

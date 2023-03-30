@@ -81,6 +81,8 @@ class TestStorageStratis(StorageCase):
         b.click('.sidepanel-row:contains("pool0")')
         b.wait_visible('#storage-detail')
 
+        udisk_contains_stratis_private = "physical-originsub" in m.execute("udisksctl dump")
+
         # Create two filesystems
         b.click("button:contains(Create new filesystem)")
         self.dialog_wait_open()
@@ -152,7 +154,8 @@ class TestStorageStratis(StorageCase):
         b.click('#detail-sidebar .pf-c-card__actions button')
         self.dialog_wait_open()
         self.dialog_set_val('disks', {dev_3: True})
-        b.assert_pixels("#dialog", "add-disk")
+        # FIXME: Remove ignore when fixed: https://bugzilla.redhat.com/show_bug.cgi?id=2183084
+        b.assert_pixels("#dialog", "add-disk", ignore=[".pf-c-data-list__item-content:contains(stratis)"])
         self.dialog_apply()
         self.dialog_wait_close()
 
@@ -197,6 +200,11 @@ class TestStorageStratis(StorageCase):
         m.execute("! findmnt /run/fsys2")
         m.execute("! findmnt /run/fsys2-copy")
         m.execute("! findmnt /run/fsys3")
+
+        # https://bugzilla.redhat.com/show_bug.cgi?id=2183084
+        # Do this assersion in the end so that the previous checks still run.
+        # After the stratis pool is deleted we can't check this, so use the value from earlier.
+        self.assertFalse(udisk_contains_stratis_private)
 
     def testEncrypted(self):
         m = self.machine

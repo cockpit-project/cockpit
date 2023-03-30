@@ -766,6 +766,8 @@ class TestCurrentMetrics(MachineCase):
         self.addCleanup(self.machine.execute, "systemctl stop cockpittest.slice 2>/dev/null || true")
         self.addCleanup(self.machine.execute, "su - admin -c 'XDG_RUNTIME_DIR=/run/user/$(id -u admin) "
                                               "systemctl --user stop cockpittest.slice 2>/dev/null || true'")
+
+        self.busybox_image = self.machine.execute("podman images --format '{{.Repository}}' | grep busybox").strip()
         login(self)
 
     def testCPU(self):
@@ -821,7 +823,7 @@ class TestCurrentMetrics(MachineCase):
         m.execute("systemctl stop load-hog 2>/dev/null || true")  # ok to fail, as the command exits by itself
 
         container_name = "pod-cpu-hog"
-        m.execute(f"podman run --rm -d --name {container_name} quay.io/libpod/busybox /bin/dd if=/dev/urandom of=/dev/null")
+        m.execute(f"podman run --rm -d --name {container_name} {self.busybox_image} /bin/dd if=/dev/urandom of=/dev/null")
 
         container_sha = m.execute(f"podman inspect --format '{{{{.Id}}}}' {container_name}").strip()
         shortid = container_sha[:12]
@@ -841,7 +843,7 @@ class TestCurrentMetrics(MachineCase):
         # libpod-$containerid but as podman-3679.scope.
         if m.image != "centos-8-stream" and not m.image.startswith("rhel-8"):
             # copy images for user podman tests; podman insists on user session
-            m.execute("podman save quay.io/libpod/busybox | sudo -i -u admin podman load")
+            m.execute(f"podman save {self.busybox_image} | sudo -i -u admin podman load")
 
             # Test user containers
             admin_s = ssh_connection.SSHConnection(user="admin",
@@ -849,7 +851,7 @@ class TestCurrentMetrics(MachineCase):
                                                    ssh_port=m.ssh_port,
                                                    identity_file=m.identity_file)
             user_container_name = "user-cpu-hog"
-            admin_s.execute(f"podman run --rm -d --name {user_container_name} quay.io/libpod/busybox /bin/dd if=/dev/urandom of=/dev/null")
+            admin_s.execute(f"podman run --rm -d --name {user_container_name} {self.busybox_image} /bin/dd if=/dev/urandom of=/dev/null")
 
             container_sha = admin_s.execute(f"podman inspect --format '{{{{.Id}}}}' {user_container_name}").strip()
             shortid = container_sha[:12]
@@ -1068,7 +1070,7 @@ BEGIN {{
         container_name = "pod-mem-hog"
         # pipe to tail to keep the data in memory
         m.execute(f"""
-            podman run --rm -d --name {container_name} quay.io/libpod/busybox /bin/sh -c '
+            podman run --rm -d --name {container_name} {self.busybox_image} /bin/sh -c '
             head -c 300m /dev/zero | tail | sleep infinity'""")
 
         # It takes one re-render for the name lookup
@@ -1081,7 +1083,7 @@ BEGIN {{
         # libpod-$containerid but as podman-3679.scope.
         if m.image != "centos-8-stream" and not m.image.startswith("rhel-8"):
             # copy images for user podman tests; podman insists on user session
-            m.execute("podman save quay.io/libpod/busybox | sudo -i -u admin podman load")
+            m.execute(f"podman save {self.busybox_image} | sudo -i -u admin podman load")
 
             # Test user containers
             admin_s = ssh_connection.SSHConnection(user="admin",
@@ -1090,7 +1092,7 @@ BEGIN {{
                                                    identity_file=m.identity_file)
             user_container_name = "user-mem-hog"
             admin_s.execute(f"""
-                podman run --rm -d --name {user_container_name} quay.io/libpod/busybox /bin/sh -c '
+                podman run --rm -d --name {user_container_name} {self.busybox_image} /bin/sh -c '
                 head -c 300m /dev/zero | tail | sleep infinity'
             """)
 

@@ -213,9 +213,6 @@ class Browser:
             self.layouts = [layout for layout in self.layouts if layout["theme"] != "dark"]
         self.current_layout = None
 
-    def title(self):
-        return self.cdp.eval('document.title')
-
     def open(self, href: str, cookie: Optional[str] = None, tls: bool = False):
         """Load a page into the browser.
 

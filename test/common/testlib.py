@@ -346,7 +346,7 @@ class Browser:
                 return c
         return None
 
-    def go(self, hash: str, host: str = "localhost"):
+    def go(self, hash: str):
         self.call_js_func('ph_go', hash)
 
     def mouse(self, selector: str, type: str, x: int = 0, y: int = 0, btn: int = 0, ctrlKey: bool = False, shiftKey: bool = False, altKey: bool = False, metaKey: bool = False):

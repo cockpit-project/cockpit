@@ -188,12 +188,22 @@ class FsReplaceChannel(Channel):
             if self._tag and self._tag != tag_from_path(self._path):
                 raise ChannelError('change-conflict')
 
+            # if the file exists already, keep its permissions
+            try:
+                stat = os.stat(self._path)
+            except FileNotFoundError:
+                pass
+            else:
+                os.chmod(self._temppath, stat.st_mode)
+                os.chown(self._temppath, stat.st_uid, stat.st_gid)
+
             try:
                 os.rename(self._temppath, self._path)
             except OSError:
                 # ensure to not leave the temp file behind
                 self.unlink_temppath()
                 raise
+
             self._tempfile.close()
             self._tempfile = None
 

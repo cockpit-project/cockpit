@@ -177,11 +177,28 @@ cockpit_fsreplace_control (CockpitChannel *channel,
             {
               new_tag = cockpit_get_file_tag (self->tmp_path);
               json_object_set_string_member (options, "tag", new_tag);
+
+              // if the file exists already, keep its permissions
+              struct stat st;
+              if (stat (self->path, &st) == 0) {
+                if (chmod (self->tmp_path, st.st_mode) < 0)
+                  {
+                    close_with_errno (self, "couldn't chmod", errno);
+                    goto out;
+                  }
+                if (chown (self->tmp_path, st.st_uid, st.st_gid) < 0)
+                  {
+                    close_with_errno (self, "couldn't chown", errno);
+                    goto out;
+                  }
+              }
+
               if (rename (self->tmp_path, self->path) < 0)
                 {
                   close_with_errno (self, "couldn't rename", errno);
                   goto out;
                 }
+
             }
         }
     }

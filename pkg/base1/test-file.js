@@ -65,6 +65,17 @@ QUnit.test("simple replace", async assert => {
     await cockpit.file(dir + "/bar").replace("4321\n");
     const res = await cockpit.spawn(["cat", dir + "/bar"]);
     assert.equal(res, "4321\n", "correct content");
+    // keeps existing permissions; as we don't want to assume an umask, test with a narrow and a wide scenario
+    // we cannot test owner changes here, that's done in integration tests
+    for (const mode of ["600", "777"]) {
+        await cockpit.spawn(["chmod", mode, dir + "/bar"]);
+        const content = `"new-${mode}\n`;
+        await cockpit.file(dir + "/bar").replace(content);
+        const res = await cockpit.spawn(["cat", dir + "/bar"]);
+        assert.equal(res, content, "correct content after overwriting");
+        const stat = await cockpit.spawn(["stat", "-c", "%a", dir + "/bar"]);
+        assert.equal(stat.trim(), mode, "correct permissions");
+    }
 });
 
 QUnit.test("stringify replace", async assert => {

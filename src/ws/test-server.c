@@ -749,7 +749,7 @@ server_ready (void)
       g_print ("**********************************************************************\n"
            "Please connect a supported web browser to\n"
            "\n"
-           " %s/dist/base1/test-dbus.html\n"
+           " %s/qunit/base1/test-dbus.html\n"
            "\n"
            "and check that the test suite passes. Press Ctrl+C to exit.\n"
            "**********************************************************************\n"

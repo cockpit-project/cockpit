@@ -17,7 +17,7 @@ XFAIL = {
 }
 
 
-@pytest.mark.parametrize('html', glob.glob('*/test-*.html', root_dir=f'{SRCDIR}/dist'))
+@pytest.mark.parametrize('html', glob.glob('*/test-*.html', root_dir=f'{SRCDIR}/qunit'))
 def test_browser(html):
     if not os.path.exists(f'{BUILDDIR}/test-server'):
         pytest.skip('no test-server')
@@ -34,4 +34,4 @@ def test_browser(html):
     # Merge 2>&1 so that pytest displays an interleaved log
     subprocess.run(['test/common/tap-cdp', f'{BUILDDIR}/test-server',
                     sys.executable, '-m', *coverage, 'cockpit.bridge', '--debug',
-                    f'./dist/{html}'], check=True, stderr=subprocess.STDOUT)
+                    f'./qunit/{html}'], check=True, stderr=subprocess.STDOUT)

@@ -42,7 +42,7 @@ edit files as you normally would. Building and running tests happens inside the
 toolbox container. If desired, you can install additional packages with
 `sudo dnf install`.
 
-The Cockpit team occasionally refreshes the `tasks` container image. 
+The Cockpit team occasionally refreshes the `tasks` container image.
 To re-create your development container from the latest image, run:
 
     podman pull quay.io/cockpit/tasks
@@ -142,13 +142,13 @@ directory. For QUnit tests (JavaScript), you can run
     ./test-server
 
 which will output a URL to connect to with a browser, such as
-<http://localhost:8765/dist/base1/test-dbus.html>. Adjust the path for different
+<http://localhost:8765/qunit/base1/test-dbus.html>. Adjust the path for different
 tests and inspect the results there.
 
 You can also run individual tests by specifying the `TESTS` environment
 variable:
 
-    make check TESTS=dist/base1/test-chan.html
+    make check TESTS=qunit/base1/test-chan.html
 
 There are also static code and syntax checks which you should run often:
 

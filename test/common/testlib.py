@@ -375,7 +375,7 @@ class Browser:
     def mousedown(self, selector: str):
         self.mouse(selector + ":not([disabled]):not([aria-disabled=true])", "mousedown", 0, 0, 0)
 
-    def val(self, selector):
+    def val(self, selector: str):
         """Get the value attribute of a selector.
 
         :param selector: the selector to get the value of
@@ -462,7 +462,7 @@ class Browser:
         else:
             self._key_press_firefox(keys, modifiers, use_ord)
 
-    def _key_press_chromium(self, keys, modifiers=0, use_ord=False):
+    def _key_press_chromium(self, keys: str, modifiers: int = 0, use_ord=False):
         for key in keys:
             args = {"type": "keyDown", "modifiers": modifiers}
 
@@ -480,7 +480,7 @@ class Browser:
             args["type"] = "keyUp"
             self.cdp.invoke("Input.dispatchKeyEvent", **args)
 
-    def _key_press_firefox(self, keys, modifiers=0, use_ord=False):
+    def _key_press_firefox(self, keys: str, modifiers: int = 0, use_ord: bool = False):
         # https://github.com/GoogleChrome/puppeteer/blob/master/lib/USKeyboardLayout.js
         keyMap = {
             8: "Backspace",   # Backspace key
@@ -518,7 +518,7 @@ class Browser:
         else:
             self.wait_text(f"{selector} .pf-c-select__toggle-text", value)
 
-    def set_input_text(self, selector, val, append=False, value_check=True, blur=True):
+    def set_input_text(self, selector: str, val: str, append: bool = False, value_check: bool = True, blur: bool = True):
         self.focus(selector)
         if not append:
             self.key_press("a", 2)  # Ctrl + a
@@ -1401,7 +1401,7 @@ class MachineCase(unittest.TestCase):
         test_method = getattr(self.__class__, self._testMethodName)
         return get_decorator(test_method, self.__class__, "nondestructive")
 
-    def is_devel_build(self):
+    def is_devel_build(self) -> bool:
         return os.environ.get('NODE_ENV') == 'development'
 
     def disable_preload(self, *packages, machine=None):
@@ -1410,7 +1410,7 @@ class MachineCase(unittest.TestCase):
         for pkg in packages:
             machine.write(f"/etc/cockpit/{pkg}.override.json", '{ "preload": [ ] }')
 
-    def enable_preload(self, package, *pages):
+    def enable_preload(self, package: str, *pages: str):
         pages_str = ', '.join(f'"{page}"' for page in pages)
         self.machine.write(f"/etc/cockpit/{package}.override.json", f'{{ "preload": [ {pages_str} ] }}')
 
@@ -1627,7 +1627,9 @@ class MachineCase(unittest.TestCase):
                 self.check_pixel_tests()
         shutil.rmtree(self.tmpdir, ignore_errors=True)
 
-    def login_and_go(self, path=None, user=None, host=None, superuser=True, urlroot=None, tls=False, enable_root_login=False):
+    def login_and_go(self, path: Optional[str] = None, user: Optional[str] = None, host: Optional[str] = None,
+                     superuser: bool = True, urlroot: Optional[str] = None, tls: bool = False,
+                     enable_root_login: bool = False):
         if enable_root_login:
             self.enable_root_login()
         self.machine.start_cockpit(tls=tls)
@@ -1726,7 +1728,7 @@ class MachineCase(unittest.TestCase):
 
     default_allowed_console_errors += os.environ.get("TEST_ALLOW_BROWSER_ERRORS", "").split(",")
 
-    def allow_journal_messages(self, *patterns):
+    def allow_journal_messages(self, *patterns: str):
         """Don't fail if the journal contains a entry completely matching the given regexp"""
         for p in patterns:
             self.allowed_messages.append(p)
@@ -1952,7 +1954,7 @@ class MachineCase(unittest.TestCase):
         # aXe triggers that *shrug*
         self.allow_journal_messages("received invalid message without channel prefix")
 
-    def snapshot(self, title, label=None):
+    def snapshot(self, title: str, label: Optional[str] = None):
         """Take a snapshot of the current screen and save it as a PNG.
 
         Arguments:
@@ -1975,7 +1977,7 @@ class MachineCase(unittest.TestCase):
                 sys.stderr.write("Unexpected exception in copy_js_log():\n")
                 sys.stderr.write(traceback.format_exc())
 
-    def copy_journal(self, title, label=None):
+    def copy_journal(self, title: str, label: Optional[str] = None):
         for name, m in self.machines.items():
             if m.ssh_reachable:
                 log = "%s-%s-%s.log.gz" % (label or self.label(), m.label, title)
@@ -2268,7 +2270,7 @@ def todoPybridge(reason=None, flaky=False):
     return lambda testEntity: testEntity
 
 
-def timeout(seconds):
+def timeout(seconds: str):
     """Change default test timeout of 600s, for long running tests
 
     Can be applied to an individual test method or the entire class. This only

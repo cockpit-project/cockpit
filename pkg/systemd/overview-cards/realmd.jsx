@@ -445,7 +445,7 @@ export const RealmButton = ({ realmd_client }) => {
     useEvent(superuser, "changed");
 
     const buttonTooltip = superuser.allowed ? realmd_client.error : _("Not permitted to configure realms");
-    const buttonText = realmd_client.joined.length ? realmd_client.joined.map(r => r.Name).join(", ") : _("Join domain");
+    const buttonText = !realmd_client.install_realmd ? (realmd_client.joined.length ? realmd_client.joined.map(r => r.Name).join(", ") : _("Join domain")) : _("Install realmd support");
     const buttonDisabled = !superuser.allowed || (realmd_client.error && !realmd_client.install_realmd);
 
     const onClicked = () => {
@@ -467,7 +467,7 @@ export const RealmButton = ({ realmd_client }) => {
                     excuse={ buttonTooltip }>
             <Button id="system_information_domain_button" variant="link"
                     onClick={onClicked}
-                    isInline isDisabled={buttonDisabled} aria-label={_("Join domain")}>
+                    isInline isDisabled={buttonDisabled} aria-label={buttonText}>
                 { buttonText }
             </Button>
         </Privileged>);

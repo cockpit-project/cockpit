@@ -370,7 +370,7 @@ class ServicesPageBody extends React.Component {
 
             if (this.units[objpath]?.UnitFileState === 'transient') {
                 debug("UnitRemoved of transient", objpath);
-                delete this.knownIds.delete(this.units[objpath]?.Id);
+                this.knownIds.delete(this.units[objpath]?.Id);
                 delete this.units[objpath];
                 this.processFailedUnits();
                 this.setState({ });

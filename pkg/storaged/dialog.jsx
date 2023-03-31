@@ -935,10 +935,9 @@ class SizeSliderElement extends React.Component {
             text_val = cockpit.format_number(val / unit);
         }
 
-        const change_unit = (u) => this.setState(prevState => ({
+        const change_unit = (u) => this.setState({
             unit: Number(u),
-            text: (text_val / prevState.unit) * Number(u)
-        }));
+        });
 
         return (
             <Grid hasGutter className="size-slider">

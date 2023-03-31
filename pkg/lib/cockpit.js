@@ -2391,29 +2391,25 @@ function factory() {
 
     let the_user = null;
     cockpit.user = function () {
-        const dfd = cockpit.defer();
-        if (!the_user) {
-            const dbus = cockpit.dbus(null, { bus: "internal" });
-            dbus.call("/user", "org.freedesktop.DBus.Properties", "GetAll",
-                      ["cockpit.User"], { type: "s" })
-                .then(([user]) => {
-                    the_user = {
-                        id: user.Id.v,
-                        name: user.Name.v,
-                        full_name: user.Full.v,
-                        groups: user.Groups.v,
-                        home: user.Home.v,
-                        shell: user.Shell.v
-                    };
-                    dfd.resolve(the_user);
-                })
-                .catch(ex => dfd.reject(ex))
-                .finally(() => dbus.close());
-        } else {
-            dfd.resolve(the_user);
-        }
-
-        return dfd.promise;
+            if (!the_user) {
+                const dbus = cockpit.dbus(null, { bus: "internal" });
+                return dbus.call("/user", "org.freedesktop.DBus.Properties", "GetAll",
+                          ["cockpit.User"], { type: "s" })
+                    .then(([user]) => {
+                        the_user = {
+                            id: user.Id.v,
+                            name: user.Name.v,
+                            full_name: user.Full.v,
+                            groups: user.Groups.v,
+                            home: user.Home.v,
+                            shell: user.Shell.v
+                        };
+                        return the_user;
+                    })
+                    .finally(() => dbus.close());
+            } else {
+                return Promise.resolve(the_user);
+            }
     };
 
     /* ------------------------------------------------------------------------

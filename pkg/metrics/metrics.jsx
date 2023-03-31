@@ -242,7 +242,6 @@ class CurrentMetrics extends React.Component {
             swapUsed: null, // bytes
             cpuUsed: 0, // percentage
             cpuCoresUsed: [], // [ percentage ]
-            cpuTemperature: NaN, // degree Celsius
             loadAvg: null, // [ 1min, 5min, 15min ]
             disksRead: 0, // B/s
             disksWritten: 0, // B/s

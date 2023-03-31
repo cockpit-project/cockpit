@@ -180,11 +180,6 @@ class ServicesPageBody extends React.Component {
         super(props);
         this.state = {
             /* State related to the toolbar components */
-            filters: {
-                activeState: [],
-                fileState: []
-            },
-            currentTextFilter: '',
             isFullyLoaded: false,
             error: null,
         };

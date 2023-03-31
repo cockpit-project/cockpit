@@ -62,9 +62,6 @@ export class OptionalPanel extends React.Component {
     constructor() {
         super();
         this.state = {
-            promise: null,
-            error: null,
-            progress: null,
             just_installed: false,
         };
     }

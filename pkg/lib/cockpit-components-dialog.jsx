@@ -325,7 +325,7 @@ export function show_modal_dialog(props, footerProps) {
             dialogObj.footerProps.dialog_done = closeCallback;
         }
         dialogObj.footerProps.set_error = e => {
-            error = e === 'object' && e != null ? (e.message || e.toString()) : e;
+            error = typeof e === 'object' && e !== null ? (e.message || e.toString()) : e;
             dialogObj.render();
         };
         updateFooterAndRender();

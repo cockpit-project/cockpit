@@ -76,6 +76,7 @@ import * as python from "python.js";
 import callTracerScript from './callTracer.py';
 
 import "./updates.scss";
+import { CodeBlockCode } from '@patternfly/react-core';
 
 const _ = cockpit.gettext;
 
@@ -1472,23 +1473,34 @@ class OsUpdates extends React.Component {
             });
 
             return (
-                <>
+                <div className='update-error-main-view'>
                     <EmptyStatePanel title={ STATE_HEADINGS[this.state.state] }
                                      icon={ ExclamationCircleIcon }
                                      paragraph={
                                          <TextContent>
-                                             <Text component={TextVariants.p}>
-                                                 {this.state.errorMessages
-                                                         .filter((m, index) => index == 0 || m != this.state.errorMessages[index - 1])
-                                                         .map(m => <span key={m}>{m}</span>)}
-                                             </Text>
                                              <Text component={TextVariants.p}>
                                                  {_("Please reload the page after resolving the issue.")}
                                              </Text>
                                          </TextContent>
                                      }
                     />
-                </>
+                    <Grid hasGutter>
+                        <GridItem span="12" className="error-log">
+                            <ExpandableSection toggleText={_("View error log")} onToggle={() => {
+                                const log = document.getElementById("error-log");
+                                log.scrollTop = log.scrollHeight;
+                            }}>
+                                <div id="error-log" className="error-log-content">
+                                    <CodeBlockCode>
+                                        {this.state.errorMessages
+                                                .filter((m, index) => index == 0 || m != this.state.errorMessages[index - 1])
+                                                .map(m => <span key={m}>{m}</span>)}
+                                    </CodeBlockCode>
+                                </div>
+                            </ExpandableSection>
+                        </GridItem>
+                    </Grid>
+                </div>
             );
 
         case "applying":

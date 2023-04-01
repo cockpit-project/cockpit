@@ -43,6 +43,7 @@ import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/inde
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 import { Text, TextContent, TextList, TextListItem, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
+import { CodeBlockCode } from "@patternfly/react-core/dist/esm/components/CodeBlock/index.js";
 
 import {
     BugIcon,
@@ -76,7 +77,6 @@ import * as python from "python.js";
 import callTracerScript from './callTracer.py';
 
 import "./updates.scss";
-import { CodeBlockCode } from '@patternfly/react-core';
 
 const _ = cockpit.gettext;
 

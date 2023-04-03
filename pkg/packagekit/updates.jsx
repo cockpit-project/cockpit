@@ -27,6 +27,7 @@ import { createRoot } from 'react-dom/client';
 import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Badge } from "@patternfly/react-core/dist/esm/components/Badge/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { CodeBlockCode } from "@patternfly/react-core/dist/esm/components/CodeBlock/index.js";
 import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
@@ -43,7 +44,6 @@ import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/inde
 import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 import { Text, TextContent, TextList, TextListItem, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
-import { CodeBlockCode } from "@patternfly/react-core/dist/esm/components/CodeBlock/index.js";
 
 import {
     BugIcon,
@@ -1473,21 +1473,23 @@ class OsUpdates extends React.Component {
             });
 
             return (
-                <EmptyStatePanel title={ STATE_HEADINGS[this.state.state] }
-                                 icon={ ExclamationCircleIcon }
-                                 paragraph={
-                                     <TextContent>
-                                         <Text component={TextVariants.p}>
-                                             {_("Please resolve the issue and reload this page.")}
-                                         </Text>
-                                         <CodeBlockCode className='error-log'>
-                                             {this.state.errorMessages
-                                                     .filter((m, index) => index == 0 || m != this.state.errorMessages[index - 1])
-                                                     .map(m => <span key={m}>{m}</span>)}
-                                         </CodeBlockCode>
-                                     </TextContent>
-                                 }
-                />
+                <Stack hasGutter>
+                    <EmptyStatePanel title={ STATE_HEADINGS[this.state.state] }
+                                    icon={ ExclamationCircleIcon }
+                                    paragraph={
+                                        <TextContent>
+                                            <Text component={TextVariants.p}>
+                                                {_("Please resolve the issue and reload this page.")}
+                                            </Text>
+                                        </TextContent>
+                                    }
+                    />
+                    <CodeBlockCode className='error-log'>
+                        {this.state.errorMessages
+                                .filter((m, index) => index == 0 || m != this.state.errorMessages[index - 1])
+                                .map(m => <span key={m}>{m}</span>)}
+                    </CodeBlockCode>
+                </Stack>
             );
 
         case "applying":

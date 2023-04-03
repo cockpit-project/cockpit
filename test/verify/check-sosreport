@@ -98,7 +98,10 @@ only-plugins=release,date,host,cgroups,networking
         subprocess.call(["gpg", "--batch", "--yes", "--passphrase", "foobar",
                          "--output", report, "--decrypt", report_gpg])
         with tarfile.open(report) as tar:
-            tar.getmember(os.path.join(tar.getnames()[0], "etc/os-release"))
+            # the tarball contains a single subdirectory, get its name
+            names = tar.getnames()
+            topdir = names[0].split("/")[0]
+            tar.getmember(os.path.join(topdir, "etc/os-release"))
 
         b.click("tr:contains(mylabel) button.pf-c-dropdown__toggle")
         b.click("tr:contains(mylabel) li:contains(Delete)")

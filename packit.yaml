@@ -1,11 +1,6 @@
 upstream_project_url: https://github.com/cockpit-project/cockpit
-# HACK: spec must be next to the generated tarball; https://github.com/packit/packit/issues/1621
-specfile_path: cockpit.spec
+specfile_path: tools/cockpit.spec
 actions:
-  post-upstream-clone:
-    # HACK: spec must be next to the generated tarball; https://github.com/packit/packit/issues/1621
-    - cp tools/cockpit.spec .
-
   create-archive:
     - tools/make-dist
 
@@ -44,11 +39,6 @@ jobs:
     project: "cockpit-preview"
     preserve_project: True
     actions:
-      post-upstream-clone:
-        # HACK: spec must be next to the generated tarball; https://github.com/packit/packit/issues/1621
-        - cp tools/cockpit.spec .
-        # HACK: https://github.com/packit/packit/issues/1560
-        - tools/node-modules checkout
       # HACK: tarball for releases (copr_build, koji, etc.), copying spec's Source0; this
       # really should be the default, see https://github.com/packit/packit-service/issues/1505
       create-archive:

@@ -1,0 +1,17 @@
+#!/bin/sh
+# patch given spec file to have the correct version and declare bundled NPM dependencies
+# Usage: fix-spec <spec-file> <version>
+set -eu
+
+spec="$1"
+version="$2"
+
+PROVIDES=$(npm ls --omit dev --package-lock-only --depth=Infinity |
+    grep -Eo '[^[:space:]]+@[^[:space:]]+' |
+    sort -u |
+    # only replace the *last* occurrence of @, not e.g. the one in @patternfly/..
+    sed 's/^/Provides: bundled(npm(/; s/\(.*\)@/\1)) = /')
+
+
+awk -v p="$PROVIDES" '/Version/ { gsub(/0/, "'$version'") }; gsub(/#NPM_PROVIDES/, p) 1' "$spec" > "$spec".new
+mv "$spec".new "$spec"

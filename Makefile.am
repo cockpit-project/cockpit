@@ -26,7 +26,8 @@ $(srcdir)/package-lock.json: FORCE
 EXTRA_DIST = README.md
 CLEANFILES += cockpit-*.tar.xz
 
-# We override distdir as we want to dist some git-tracked files and dist/ without explicitly listing
+# We override distdir as we want to dist some git-tracked files and dist/ without explicitly listing.
+# The spec also gets patched to declare bundled NPM dependencies.
 EXTRA_DIST += $(EXTRA_FILES)
 distdir: $(DISTFILES)
 	@if [ -e '$(srcdir)/.git' ]; then \
@@ -34,7 +35,7 @@ distdir: $(DISTFILES)
 		mv .extra_dist.tmp '$(srcdir)/.extra_dist'; fi
 	$(MAKE) $(AM_MAKEFLAGS) distdir-am EXTRA_FILES="$$(tr '\n' ' ' < $(srcdir)/.extra_dist) .extra_dist"
 	sed -i "s/[@]VERSION@/$(VERSION)/" "$(distdir)/src/client/org.cockpit_project.CockpitClient.metainfo.xml"
-	sed -i "/^Version:/ s/0/$(VERSION)/" "$(distdir)/tools/cockpit.spec"
+	$(srcdir)/tools/fix-spec $(distdir)/tools/cockpit.spec $(VERSION)
 	sed -i "/^pkgver=/ s/0/$(VERSION)/" "$(distdir)/tools/arch/PKGBUILD"
 	sed -i "1 s/0/$(VERSION)/" "$(distdir)/tools/debian/changelog"
 	cp -r "$(srcdir)/dist" "$(distdir)"

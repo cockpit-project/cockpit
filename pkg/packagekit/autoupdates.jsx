@@ -66,6 +66,31 @@ class ImplBase {
     setConfig(enabled, type, day, time) {
         throw new Error("abstract method", enabled, type, day, time);
     }
+
+    parseCalendar(spec) {
+        // see systemd.time(7); we only support what we write, otherwise we treat it as custom config and "unsupported"
+        const daysOfWeek = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+        const validTime = /^((|0|1)[0-9]|2[0-3]):[0-5][0-9]$/;
+
+        const words = spec.trim().toLowerCase()
+                .split(/\s+/);
+
+        // check if we have a day of week
+        if (daysOfWeek.indexOf(words[0]) >= 0) {
+            this.day = words.shift();
+        } else if (words[0] === '*-*-*') {
+            this.day = ""; // daily with "all matches" date specification
+            words.shift();
+        } else {
+            this.day = ""; // daily without date specification
+        }
+
+        // now there should only be a time left
+        if (words.length == 1 && validTime.test(words[0]))
+            this.time = words[0].replace(/^0+/, "");
+        else
+            this.supported = false;
+    }
 }
 
 class DnfImpl extends ImplBase {
@@ -114,31 +139,6 @@ class DnfImpl extends ImplBase {
                         resolve();
                     });
         });
-    }
-
-    parseCalendar(spec) {
-        // see systemd.time(7); we only support what we write, otherwise we treat it as custom config and "unsupported"
-        const daysOfWeek = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
-        const validTime = /^((|0|1)[0-9]|2[0-3]):[0-5][0-9]$/;
-
-        const words = spec.trim().toLowerCase()
-                .split(/\s+/);
-
-        // check if we have a day of week
-        if (daysOfWeek.indexOf(words[0]) >= 0) {
-            this.day = words.shift();
-        } else if (words[0] === '*-*-*') {
-            this.day = ""; // daily with "all matches" date specification
-            words.shift();
-        } else {
-            this.day = ""; // daily without date specification
-        }
-
-        // now there should only be a time left
-        if (words.length == 1 && validTime.test(words[0]))
-            this.time = words[0].replace(/^0+/, "");
-        else
-            this.supported = false;
     }
 
     setConfig(enabled, type, day, time) {
@@ -213,14 +213,125 @@ class DnfImpl extends ImplBase {
     }
 }
 
+class AptImpl extends ImplBase {
+    getConfig() {
+        return new Promise((resolve, reject) => {
+            this.packageName = "unattended-upgrades";
+
+            cockpit.script("set -e; if dpkg -l " + this.packageName + " >/dev/null; then echo installed; fi; " +
+                           "if ! grep 'Origins-Pattern' /etc/apt/apt.conf.d/60cockpit > /dev/null; then echo security; fi; " +
+                           "TIMER=apt-daily-upgrade.timer; " +
+                           "if systemctl --quiet is-enabled $TIMER 2>/dev/null; then echo enabled; " +
+                           "fi; " +
+                           'OUT=$(systemctl cat $TIMER 2>/dev/null || true); ' +
+                           'echo "$OUT" | grep "^OnUnitInactiveSec= *[^ ]" | tail -n1; ' +
+                           'echo "$OUT" | grep "^OnCalendar= *[^ ]" | tail -n1; ',
+                           [], { err: "message" })
+                    .then(output => {
+                        this.installed = (output.indexOf("installed\n") >= 0);
+                        this.enabled = (output.indexOf("enabled\n") >= 0);
+                        this.type = (output.indexOf("security\n") >= 0) ? "security" : "all";
+
+                        // if we have OnCalendar=, use that (we disable OnUnitInactiveSec= in our drop-in)
+                        const calIdx = output.indexOf("OnCalendar=");
+                        if (calIdx >= 0) {
+                            this.parseCalendar(output.substr(calIdx).split('\n')[0].split("=")[1]);
+                        } else {
+                            if (output.indexOf("InactiveSec=1d\n") >= 0)
+                                this.day = this.time = "";
+                            else if (this.installed)
+                                this.supported = false;
+                        }
+
+                        debug(`apt getConfig: supported ${this.supported}, enabled ${this.enabled}, type ${this.type}, day ${this.day}, time ${this.time}, installed ${this.installed}; raw response '${output}'`);
+                        resolve();
+                    })
+                    .catch(error => {
+                        console.error("apt getConfig failed:", error);
+                        this.supported = false;
+                        resolve();
+                    });
+        });
+    }
+
+    setConfig(enabled, type, day, time) {
+        const timerConf = "/etc/systemd/system/apt-daily-upgrade.timer.d/time.conf";
+        let script = "set -e; ";
+        const cockpitConf = "/etc/apt/apt.conf.d/60cockpit";
+
+        // if we enable through Cockpit, make sure that starting the timer doesn't start the .service right away,
+        // due to the packaged default OnBootSec=1h; just set a reasonable initial time which will trigger the code below
+        if (enabled && !this.enabled && !this.time && !this.day)
+            time = "6:00";
+
+        if (time !== null || day !== null) {
+            if (day === "" && time === "") {
+                // restore defaults
+                script += "rm -f " + timerConf + "; ";
+            } else {
+                if (day == null)
+                    day = this.day;
+                if (time == null)
+                    time = this.time;
+                script += "mkdir -p /etc/systemd/system/apt-daily-upgrade.timer.d; ";
+                script += "printf '[Timer]\\nOnBootSec=\\nOnCalendar=" + day + " " + time + "\\n' > " + timerConf + "; ";
+                script += "systemctl daemon-reload; ";
+            }
+        }
+
+        if (enabled !== null) {
+            script += "systemctl " + (enabled ? "enable" : "disable") + " --now apt-daily-upgrade.timer; ";
+
+            if (enabled) {
+                if (type !== null) {
+                    script += "echo 'Unattended-Upgrade::Automatic-Reboot \"true\";\n' > " + cockpitConf + ";";
+
+                    // Only security updates is the default on Debian/Ubuntu
+                    if (type !== "security") {
+                        let conf = 'Unattended-Upgrade::Origins-Pattern {\n';
+                        conf += '\t"origin=*";\n';
+                        // conf += '\t"origin=Debian,codename=${distro_codename}-updates"\n';
+                        // conf += '\t"origin=Debian,codename=${distro_codename}-proposed-updates"\n';
+                        conf += '};\n';
+                        script += `printf '${conf}' >> ${cockpitConf};`;
+                    }
+                }
+            } else {
+                script += "systemctl disable --now apt-daily-upgrade.timer 2>/dev/null || true; ";
+                script += "rm -f " + cockpitConf + ";";
+            }
+        }
+
+        debug(`setConfig(${enabled}, "${type}", "${day}", "${time}"): script "${script}"`);
+
+        return cockpit.script(script, [], { superuser: "require" })
+                .then(() => {
+                    debug("apt setConfig: configuration updated successfully");
+                    if (enabled !== null)
+                        this.enabled = enabled;
+                    if (type !== null)
+                        this.type = type;
+                    if (day !== null)
+                        this.day = day;
+                    if (time !== null)
+                        this.time = time;
+                })
+                .catch(error => console.error("apt setConfig failed:", error.toString()));
+    }
+}
+
 // Returns a promise for instantiating "backend"; this will never fail, if
 // automatic updates are not supported, backend will be null.
 export function getBackend(packagekit_backend, forceReinit) {
     if (!getBackend.promise || forceReinit) {
         debug("getBackend() called first time or forceReinit passed, initializing promise");
         getBackend.promise = new Promise((resolve, reject) => {
-            const backend = (packagekit_backend === "dnf") ? new DnfImpl() : undefined;
-            // TODO: apt backend
+            let backend;
+            if (packagekit_backend === "dnf") {
+                backend = new DnfImpl();
+            } else if (packagekit_backend === "apt") {
+                backend = new AptImpl();
+            }
             if (backend)
                 backend.getConfig().then(() => resolve(backend));
             else

@@ -1420,10 +1420,11 @@ class TestAutoUpdates(NoSubManCase):
 
     def setUp(self):
         super().setUp()
-        # not implemented for yum and apt yet, only dnf
-        self.supported_backend = self.backend in ["dnf"]
+        self.supported_backend = self.backend in ["dnf", "apt"]
         if self.backend == 'dnf':
             self.addCleanup(self.machine.execute, "systemctl disable --now dnf-automatic-install.timer 2>/dev/null; rm -rf /etc/systemd/system/dnf-automatic-*")
+        elif self.backend == 'apt':
+            self.addCleanup(self.machine.execute, "systemctl disable --now apt-daily-upgrade.timer 2>/dev/null; rm -rf /etc/systemd/system/apt-daily-upgrade*")
 
     def closeSettings(self, browser):
         browser.click("#automatic-updates-dialog button:contains('Save changes')")
@@ -1608,7 +1609,8 @@ class TestAutoUpdates(NoSubManCase):
         m = self.machine
 
         self.createPackage("vanilla", "1.0", "1", install=True)
-        self.createPackage("vanilla", "1.0", "2")
+        # for apt, touch reboot-required
+        self.createPackage("vanilla", "1.0", "2", postinst="touch /run/reboot-required")
         self.enableRepo()
 
         m.start_cockpit()
@@ -1630,6 +1632,8 @@ class TestAutoUpdates(NoSubManCase):
 
         if self.backend == 'dnf':
             self.checkUpgradeRebootDnf()
+        elif self.backend == 'apt':
+            self.checkUpgradeRebootApt()
         else:
             raise NotImplementedError(self.backend)
 
@@ -1691,6 +1695,20 @@ class TestAutoUpdates(NoSubManCase):
             "if systemctl status dnf-automatic-install.service; then echo 'expected service to be stopped'; exit 1; fi")
         self.assertNotIn("vanilla", out)
         self.assertNotIn("Shutdown", out)
+
+    def checkUpgradeRebootApt(self):
+        """part of testWithAvailableUpdates() for apt backend"""
+
+        m = self.machine
+        m.execute("systemctl start apt-daily-upgrade.service")
+        # new vanilla package got installed, and triggered reboot
+        self.allow_restart_journal_messages()
+        m.wait_reboot()
+        m.execute("test -f /stamp-vanilla-1.0-2")
+
+        # run it again, now there are no available updates → no reboot
+        m.execute("systemctl start apt-daily-upgrade.service")
+        m.execute("set -e; test -f /stamp-vanilla-1.0-2; test ! -f /run/nologin")
 
 
 @testlib.skipImage("Image uses OSTree", "fedora-coreos", "rhel4edge")

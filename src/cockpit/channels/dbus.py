@@ -159,7 +159,7 @@ class InterfaceCache:
 
 
 def notify_update(notify, path, interface_name, props):
-    notify.setdefault(path, {})[interface_name] = {k: v['v'] for k, v in props.items()}
+    notify.setdefault(path, {})[interface_name] = {k: v.value for k, v in props.items()}
 
 
 class DBusChannel(Channel):

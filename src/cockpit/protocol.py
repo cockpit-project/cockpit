@@ -20,7 +20,9 @@ import json
 import logging
 import uuid
 
-from typing import Dict, Optional
+from typing import ClassVar, Dict, Optional
+
+from ._vendor import systemd_ctypes
 
 
 logger = logging.getLogger(__name__)
@@ -56,6 +58,7 @@ class CockpitProtocol(asyncio.Protocol):
     We need to use this because Python's SelectorEventLoop doesn't supported
     buffered protocols.
     """
+    json_encoder: ClassVar[json.JSONEncoder] = systemd_ctypes.JSONEncoder(indent=2)
     transport: Optional[asyncio.Transport] = None
     buffer = b''
     _closed: bool = False
@@ -200,7 +203,7 @@ class CockpitProtocol(asyncio.Protocol):
                 del kwargs[name]
 
         logger.debug('sending message %s %s', _channel, kwargs)
-        pretty = json.dumps(kwargs, indent=2) + '\n'
+        pretty = CockpitProtocol.json_encoder.encode(kwargs) + '\n'
         self.write_channel_data(_channel, pretty.encode('utf-8'))
 
     def write_control(self, **kwargs):

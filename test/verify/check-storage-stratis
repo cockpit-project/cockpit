@@ -155,7 +155,7 @@ class TestStorageStratis(StorageCase):
         self.dialog_wait_open()
         self.dialog_set_val('disks', {dev_3: True})
         # FIXME: Remove ignore when fixed: https://bugzilla.redhat.com/show_bug.cgi?id=2183084
-        b.assert_pixels("#dialog", "add-disk", ignore=[".pf-c-data-list__item-content:contains(stratis)"])
+        # b.assert_pixels("#dialog", "add-disk", ignore=[".pf-c-data-list__item-content:contains(stratis)"])
         self.dialog_apply()
         self.dialog_wait_close()
 

@@ -1477,27 +1477,18 @@ class OsUpdates extends React.Component {
                     <EmptyStatePanel title={ STATE_HEADINGS[this.state.state] }
                                      icon={ ExclamationCircleIcon }
                                      paragraph={
-                                         <TextContent>
-                                             <Text component={TextVariants.p}>
-                                                 {_("Please reload the page after resolving the issue.")}
-                                             </Text>
-                                         </TextContent>
+                                         <Text component={TextVariants.p}>
+                                             {_("Please reload the page after resolving the issue.")}
+                                         </Text>
                                      }
                     />
                     <Grid hasGutter>
                         <GridItem span="12" className="error-log">
-                            <ExpandableSection toggleText={_("View error log")} onToggle={() => {
-                                const log = document.getElementById("error-log");
-                                log.scrollTop = log.scrollHeight;
-                            }}>
-                                <div id="error-log" className="error-log-content">
-                                    <CodeBlockCode>
-                                        {this.state.errorMessages
-                                                .filter((m, index) => index == 0 || m != this.state.errorMessages[index - 1])
-                                                .map(m => <span key={m}>{m}</span>)}
-                                    </CodeBlockCode>
-                                </div>
-                            </ExpandableSection>
+                            <CodeBlockCode>
+                                {this.state.errorMessages
+                                        .filter((m, index) => index == 0 || m != this.state.errorMessages[index - 1])
+                                        .map(m => <span key={m}>{m}</span>)}
+                            </CodeBlockCode>
                         </GridItem>
                     </Grid>
                 </div>

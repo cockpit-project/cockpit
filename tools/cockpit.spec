@@ -392,6 +392,8 @@ Provides: cockpit-sosreport = %{version}-%{release}
 Recommends: (reportd if abrt)
 %endif
 
+#NPM_PROVIDES
+
 %description system
 This package contains the Cockpit shell and system configuration interfaces.
 

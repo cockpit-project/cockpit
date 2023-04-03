@@ -1473,25 +1473,21 @@ class OsUpdates extends React.Component {
             });
 
             return (
-                <div className='update-error-main-view'>
-                    <EmptyStatePanel title={ STATE_HEADINGS[this.state.state] }
-                                     icon={ ExclamationCircleIcon }
-                                     paragraph={
+                <EmptyStatePanel title={ STATE_HEADINGS[this.state.state] }
+                                 icon={ ExclamationCircleIcon }
+                                 paragraph={
+                                     <TextContent>
                                          <Text component={TextVariants.p}>
-                                             {_("Please reload the page after resolving the issue.")}
+                                             {_("Please resolve the issue and reload this page.")}
                                          </Text>
-                                     }
-                    />
-                    <Grid hasGutter>
-                        <GridItem span="12" className="error-log">
-                            <CodeBlockCode>
-                                {this.state.errorMessages
-                                        .filter((m, index) => index == 0 || m != this.state.errorMessages[index - 1])
-                                        .map(m => <span key={m}>{m}</span>)}
-                            </CodeBlockCode>
-                        </GridItem>
-                    </Grid>
-                </div>
+                                         <CodeBlockCode className='error-log'>
+                                             {this.state.errorMessages
+                                                     .filter((m, index) => index == 0 || m != this.state.errorMessages[index - 1])
+                                                     .map(m => <span key={m}>{m}</span>)}
+                                         </CodeBlockCode>
+                                     </TextContent>
+                                 }
+                />
             );
 
         case "applying":

@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
-import time
 import glob
 import os.path
 import tarfile
@@ -96,19 +95,10 @@ only-plugins=release,date,host,cgroups,networking
 
         # Check that /etc/release was saved. It the files does not exist, getmember raises KeyError
         # Sometimes it takes a bit of time until the file can be opened. Try it 3 times.
-        tries = 0
-        while True:
-            try:
-                subprocess.call(["gpg", "--batch", "--yes", "--passphrase", "foobar",
-                                 "--output", report, "--decrypt", report_gpg])
-                with tarfile.open(report) as tar:
-                    tar.getmember(os.path.join(tar.getnames()[0], "etc/os-release"))
-                break
-            except Exception as ex:
-                tries += 1
-                if tries > 3 or isinstance(ex, KeyError):
-                    raise ex
-                time.sleep(1)
+        subprocess.call(["gpg", "--batch", "--yes", "--passphrase", "foobar",
+                         "--output", report, "--decrypt", report_gpg])
+        with tarfile.open(report) as tar:
+            tar.getmember(os.path.join(tar.getnames()[0], "etc/os-release"))
 
         b.click("tr:contains(mylabel) button.pf-c-dropdown__toggle")
         b.click("tr:contains(mylabel) li:contains(Delete)")

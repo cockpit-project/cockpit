@@ -205,28 +205,13 @@ journal.journalctl = function journalctl(/* ... */) {
     return promise;
 };
 
-function binaryToString(binary) {
-    binary = binary.toString(2);
-    binary = binary.split(',');
-    // eslint-disable-next-line no-control-regex
-    const pattern = /(\u001b|\x1b|\0o33|\0d27)(8|7|H|>|\[(\?\d+(h|l)|[0-2]?(K|J)|\d*(A|B|C|D\D|E|F|G|g|i|m|n|S|s|T|u)|1000D\d+|\d*;\d*(f|H|r|m)|\d+;\d+;\d+m))/gi;
-    let str = [];
-    for (let i = 0; i < binary.length; i++) {
-        str.push(String.fromCharCode(binary[i]));
-    }
-    str = str.join("");
-    str = str.replace(pattern, "");
-    return str;
-}
-
 journal.printable = function printable(value) {
     if (value === undefined || value === null)
         return _("[no data]");
     else if (typeof (value) == "string")
         return value;
     else if (value.length !== undefined)
-        // return cockpit.format(_("[$0 bytes of binary data]"), value.length);
-        return binaryToString(value);
+        return new TextDecoder().decode(new Uint8Array(value));
     else
         return _("[binary data]");
 };

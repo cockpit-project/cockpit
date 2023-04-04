@@ -19,7 +19,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-23 02:48+0000\n"
+"POT-Creation-Date: 2023-04-03 02:47+0000\n"
 "PO-Revision-Date: 2023-02-23 07:10+0000\n"
 "Last-Translator: Transtats <suanand@redhat.com>\n"
 "Language-Team: Chinese (Simplified) <https://translate.fedoraproject.org/"
@@ -163,11 +163,18 @@ msgid "$0 important hit"
 msgid_plural "$0 hits, including important"
 msgstr[0] "$0 次命中（含关键命中）"
 
+#: pkg/users/account-create-dialog.js:351
+#, fuzzy
+#| msgid "$0 disk is missing"
+#| msgid_plural "$0 disks are missing"
+msgid "$0 is an existing file"
+msgstr "找不到 $0 个磁盘"
+
 #: pkg/storaged/content-views.jsx:381 pkg/storaged/content-views.jsx:689
 #: pkg/storaged/stratis-details.jsx:240 pkg/storaged/stratis-details.jsx:585
 #: pkg/storaged/vdo-details.jsx:129 pkg/storaged/vdo-details.jsx:163
 #: pkg/storaged/vgroup-details.jsx:186 pkg/storaged/lvol-tabs.jsx:227
-#: pkg/storaged/lvol-tabs.jsx:294 pkg/storaged/format-dialog.jsx:237
+#: pkg/storaged/lvol-tabs.jsx:294 pkg/storaged/format-dialog.jsx:236
 #: pkg/storaged/mdraid-details.jsx:228 pkg/storaged/mdraid-details.jsx:283
 msgid "$0 is in use"
 msgstr "$0 正在使用"
@@ -177,7 +184,7 @@ msgstr "$0 正在使用"
 msgid "$0 is not available from any repository."
 msgstr "没有提供 $0 组件的仓库。"
 
-#: pkg/shell/hosts_dialog.jsx:456 pkg/static/login.js:757
+#: pkg/shell/hosts_dialog.jsx:457 pkg/static/login.js:757
 msgid "$0 key changed"
 msgstr "已更改 $0 个密钥"
 
@@ -299,7 +306,7 @@ msgstr "$0：于 $1 崩溃"
 msgid "$name (from $host)"
 msgstr "$name（位于 $host）"
 
-#: pkg/storaged/format-dialog.jsx:198 pkg/storaged/format-dialog.jsx:215
+#: pkg/storaged/format-dialog.jsx:197 pkg/storaged/format-dialog.jsx:214
 msgid "(recommended)"
 msgstr "（推荐）"
 
@@ -525,7 +532,7 @@ msgstr "8 日"
 msgid "9th"
 msgstr "9 日"
 
-#: pkg/shell/hosts_dialog.jsx:85
+#: pkg/shell/hosts_dialog.jsx:86
 msgid "A compatible version of Cockpit is not installed on $0."
 msgstr "主机 $0 上找不到版本兼容的 Cockpit。"
 
@@ -550,7 +557,7 @@ msgstr ""
 "网络绑定 (Network Bond) ：将多个网络接口组合成一个逻辑接口以提高吞吐量和冗余"
 "度。"
 
-#: pkg/shell/hosts_dialog.jsx:780
+#: pkg/shell/hosts_dialog.jsx:781
 msgid ""
 "A new SSH key at $0 will be created for $1 on $2 and it will be added to the "
 "$3 file of $4 on $5."
@@ -598,7 +605,7 @@ msgstr "关于网页控制台"
 msgid "Absent"
 msgstr "空缺"
 
-#: pkg/shell/hosts_dialog.jsx:457
+#: pkg/shell/hosts_dialog.jsx:458
 msgid "Accept key and connect"
 msgstr "接受密钥并连接"
 
@@ -606,7 +613,7 @@ msgstr "接受密钥并连接"
 msgid "Accept key and log in"
 msgstr "接受密钥并登录"
 
-#: pkg/users/expiration-dialogs.js:108
+#: pkg/users/expiration-dialogs.js:110
 msgid "Account expiration"
 msgstr "账号使用期限设置"
 
@@ -666,7 +673,7 @@ msgid "Adaptive transmit load balancing"
 msgstr "自适应性传输负载均衡"
 
 #: pkg/users/authorized-keys-panel.js:69 pkg/systemd/timer-dialog.jsx:373
-#: pkg/shell/credentials.jsx:184 pkg/shell/hosts_dialog.jsx:246
+#: pkg/shell/credentials.jsx:184 pkg/shell/hosts_dialog.jsx:247
 #: pkg/storaged/stratis-details.jsx:147 pkg/storaged/nfs-panel.jsx:65
 #: pkg/storaged/iscsi-panel.jsx:136 pkg/storaged/iscsi-panel.jsx:160
 #: pkg/storaged/iscsi-panel.jsx:255 pkg/storaged/vgroup-details.jsx:74
@@ -729,7 +736,7 @@ msgstr "添加密钥"
 msgid "Add member"
 msgstr "添加成员"
 
-#: pkg/shell/hosts.jsx:204 pkg/shell/hosts_dialog.jsx:245
+#: pkg/shell/hosts.jsx:204 pkg/shell/hosts_dialog.jsx:246
 msgid "Add new host"
 msgstr "添加新主机"
 
@@ -976,7 +983,7 @@ msgstr "正在安装更新"
 msgid "Applying updates failed"
 msgstr "更新安装失败"
 
-#: pkg/storaged/format-dialog.jsx:108
+#: pkg/storaged/format-dialog.jsx:107
 msgid "Appropriate for critical mounts, such as /var"
 msgstr ""
 
@@ -994,7 +1001,7 @@ msgid "Asset tag"
 msgstr "资产标签"
 
 #: pkg/storaged/stratis-details.jsx:382 pkg/storaged/stratis-details.jsx:533
-#: pkg/storaged/fsys-tab.jsx:347 pkg/storaged/format-dialog.jsx:363
+#: pkg/storaged/fsys-tab.jsx:347 pkg/storaged/format-dialog.jsx:362
 #, fuzzy
 #| msgid "boot"
 msgid "At boot"
@@ -1042,7 +1049,7 @@ msgstr "认证"
 msgid "Authenticating"
 msgstr "正在认证"
 
-#: pkg/users/account-create-dialog.js:74 pkg/shell/hosts_dialog.jsx:820
+#: pkg/users/account-create-dialog.js:106 pkg/shell/hosts_dialog.jsx:821
 msgid "Authentication"
 msgstr "认证"
 
@@ -1064,7 +1071,7 @@ msgstr "通过Cockpit Web Console进行验证后才能执行特权操作"
 msgid "Authentication required"
 msgstr "需要验证"
 
-#: pkg/shell/hosts_dialog.jsx:806
+#: pkg/shell/hosts_dialog.jsx:807
 msgid "Authorize SSH key"
 msgstr "授权 SSH 密钥"
 
@@ -1088,7 +1095,7 @@ msgstr "自动 (仅 DHCP)"
 msgid "Automatic (DHCP)"
 msgstr "自动 (DHCP)"
 
-#: pkg/shell/hosts_dialog.jsx:846
+#: pkg/shell/hosts_dialog.jsx:847
 msgid "Automatic login"
 msgstr "自动登陆"
 
@@ -1214,11 +1221,11 @@ msgstr "绑定设置"
 msgid "Boot"
 msgstr "引导"
 
-#: pkg/storaged/format-dialog.jsx:111
+#: pkg/storaged/format-dialog.jsx:110
 msgid "Boot fails if filesystem does not mount, preventing remote access"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:122 pkg/storaged/format-dialog.jsx:133
+#: pkg/storaged/format-dialog.jsx:121 pkg/storaged/format-dialog.jsx:132
 #, fuzzy
 #| msgid "The filesystem is not mounted."
 msgid "Boot still succeeds when filesystem does not mount"
@@ -1267,7 +1274,7 @@ msgstr "程序错误"
 msgid "Bus expansion chassis"
 msgstr "总线扩展机箱"
 
-#: pkg/shell/hosts_dialog.jsx:794
+#: pkg/shell/hosts_dialog.jsx:795
 msgid ""
 "By changing the password of the SSH key $0 to the login password of $1 on "
 "$2, the key will be automatically made available and you can log in to $3 "
@@ -1308,7 +1315,7 @@ msgstr "CVE"
 msgid "Cache"
 msgstr "缓存"
 
-#: pkg/shell/hosts_dialog.jsx:249
+#: pkg/shell/hosts_dialog.jsx:250
 msgid "Can be a hostname, IP address, alias name, or ssh:// URI"
 msgstr "可以是主机名、IP 地址、别名或者 ssh:// URI"
 
@@ -1328,9 +1335,9 @@ msgstr "使用当前的过滤器组合找不到任何日志。"
 #: pkg/systemd/reporting.jsx:424 pkg/shell/superuser.jsx:182
 #: pkg/shell/superuser.jsx:220 pkg/shell/superuser.jsx:265
 #: pkg/shell/shell-modals.jsx:112 pkg/shell/credentials.jsx:313
-#: pkg/shell/active-pages-modal.jsx:100 pkg/shell/hosts_dialog.jsx:278
-#: pkg/shell/hosts_dialog.jsx:375 pkg/shell/hosts_dialog.jsx:499
-#: pkg/shell/hosts_dialog.jsx:867 pkg/networkmanager/dialogs-common.jsx:159
+#: pkg/shell/active-pages-modal.jsx:100 pkg/shell/hosts_dialog.jsx:279
+#: pkg/shell/hosts_dialog.jsx:376 pkg/shell/hosts_dialog.jsx:500
+#: pkg/shell/hosts_dialog.jsx:868 pkg/networkmanager/dialogs-common.jsx:159
 #: pkg/networkmanager/firewall.jsx:611 pkg/networkmanager/firewall.jsx:815
 #: pkg/networkmanager/firewall.jsx:910 pkg/storaged/jobs-panel.jsx:137
 #: pkg/packagekit/kpatch.jsx:312 pkg/packagekit/autoupdates.jsx:266
@@ -1379,8 +1386,8 @@ msgstr "容量"
 msgid "Carrier"
 msgstr "载体"
 
-#: pkg/lib/serverTime.js:748 pkg/users/expiration-dialogs.js:115
-#: pkg/users/expiration-dialogs.js:220
+#: pkg/lib/serverTime.js:748 pkg/users/expiration-dialogs.js:117
+#: pkg/users/expiration-dialogs.js:222
 #: pkg/systemd/overview-cards/configurationCard.jsx:282
 #: pkg/storaged/iscsi-panel.jsx:187
 msgid "Change"
@@ -1418,7 +1425,7 @@ msgstr "变更配置"
 msgid "Change system time"
 msgstr "修改系统时间"
 
-#: pkg/shell/hosts_dialog.jsx:792
+#: pkg/shell/hosts_dialog.jsx:793
 msgid "Change the password of $0"
 msgstr "更改 $0 的密码"
 
@@ -1426,7 +1433,7 @@ msgstr "更改 $0 的密码"
 msgid "Change the settings"
 msgstr "修改设置"
 
-#: pkg/static/login.html:88 pkg/shell/hosts_dialog.jsx:464
+#: pkg/static/login.html:88 pkg/shell/hosts_dialog.jsx:465
 msgid ""
 "Changed keys are often the result of an operating system reinstallation. "
 "However, an unexpected change may indicate a third-party attempt to "
@@ -1531,7 +1538,7 @@ msgstr "客户端软件"
 #: pkg/systemd/overview-cards/configurationCard.jsx:197
 #: pkg/systemd/overview-cards/realmd.jsx:262 pkg/shell/superuser.jsx:190
 #: pkg/shell/superuser.jsx:198 pkg/shell/shell-modals.jsx:168
-#: pkg/shell/credentials.jsx:81 pkg/shell/hosts_dialog.jsx:79
+#: pkg/shell/credentials.jsx:81 pkg/shell/hosts_dialog.jsx:80
 #: pkg/networkmanager/interfaces.js:43 pkg/storaged/dialog.jsx:451
 #: pkg/apps/utils.jsx:87
 msgid "Close"
@@ -1581,7 +1588,7 @@ msgstr "Cockpit 是一个交互式 Linux 服务器管理接口。"
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit 与系统上的软件不兼容。"
 
-#: pkg/shell/hosts_dialog.jsx:76
+#: pkg/shell/hosts_dialog.jsx:77
 msgid "Cockpit is not installed"
 msgstr "Cockpit 未安装"
 
@@ -1619,7 +1626,7 @@ msgstr "内核崩溃转储"
 msgid "Collect metrics"
 msgstr "收集指标"
 
-#: pkg/shell/hosts_dialog.jsx:262
+#: pkg/shell/hosts_dialog.jsx:263
 msgid "Color"
 msgstr "颜色"
 
@@ -1656,11 +1663,11 @@ msgstr "兼容所有系统和设备 (MBR)"
 msgid "Compatible with modern system and hard disks > 2TB (GPT)"
 msgstr "兼容现代系统，且硬盘空间大于 2TB (GPT)"
 
-#: pkg/kdump/kdump-view.jsx:240
+#: pkg/kdump/kdump-view.jsx:241
 msgid "Compress crash dumps to save space"
 msgstr "对崩溃转储数据进行压缩以节省空间"
 
-#: pkg/kdump/kdump-view.jsx:235 pkg/storaged/content-views.jsx:970
+#: pkg/kdump/kdump-view.jsx:236 pkg/storaged/content-views.jsx:970
 #: pkg/storaged/vdo-details.jsx:321 pkg/storaged/lvol-tabs.jsx:558
 msgid "Compression"
 msgstr "压缩"
@@ -1693,7 +1700,7 @@ msgstr "配置 kdump"
 msgid "Configuring system settings"
 msgstr "配置系统设置"
 
-#: pkg/users/account-create-dialog.js:102 pkg/storaged/format-dialog.jsx:329
+#: pkg/users/account-create-dialog.js:134 pkg/storaged/format-dialog.jsx:328
 #: pkg/storaged/stratis-panel.jsx:149
 msgid "Confirm"
 msgstr "确认"
@@ -1702,11 +1709,11 @@ msgstr "确认"
 msgid "Confirm deletion of $0"
 msgstr "确认删除 $0"
 
-#: pkg/shell/hosts_dialog.jsx:785
+#: pkg/shell/hosts_dialog.jsx:786
 msgid "Confirm key password"
 msgstr "确认密钥密码"
 
-#: pkg/shell/hosts_dialog.jsx:799
+#: pkg/shell/hosts_dialog.jsx:800
 msgid "Confirm new key password"
 msgstr "确认新的密钥密码"
 
@@ -1820,11 +1827,15 @@ msgid "Convertible"
 msgstr "可转换"
 
 #: pkg/shell/failures.jsx:44 pkg/shell/credentials.jsx:212
+#: pkg/shell/hosts_dialog.jsx:467 pkg/shell/hosts_dialog.jsx:470
+#: pkg/shell/hosts_dialog.jsx:478 pkg/shell/hosts_dialog.jsx:481
 msgid "Copied"
 msgstr "复制的"
 
 #: pkg/lib/cockpit-components-context-menu.jsx:104 pkg/shell/failures.jsx:44
-#: pkg/shell/credentials.jsx:212
+#: pkg/shell/credentials.jsx:212 pkg/shell/hosts_dialog.jsx:467
+#: pkg/shell/hosts_dialog.jsx:470 pkg/shell/hosts_dialog.jsx:478
+#: pkg/shell/hosts_dialog.jsx:481
 msgid "Copy"
 msgstr "复制"
 
@@ -1837,11 +1848,11 @@ msgstr "复制到剪贴板"
 msgid "Core $0"
 msgstr "内核 $0"
 
-#: pkg/shell/hosts_dialog.jsx:349
+#: pkg/shell/hosts_dialog.jsx:350
 msgid "Could not contact $0"
 msgstr "无法联系 $0"
 
-#: pkg/kdump/kdump-view.jsx:141 pkg/kdump/kdump-view.jsx:489
+#: pkg/kdump/kdump-view.jsx:141 pkg/kdump/kdump-view.jsx:478
 msgid "Crash dump location"
 msgstr "崩溃信息存放在"
 
@@ -1849,12 +1860,12 @@ msgstr "崩溃信息存放在"
 msgid "Crash reporting"
 msgstr "崩溃报告"
 
-#: pkg/kdump/kdump-view.jsx:285
+#: pkg/kdump/kdump-view.jsx:280
 msgid "Crash system"
 msgstr "导致系统崩溃"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:187
-#: pkg/users/group-create-dialog.js:142 pkg/users/account-create-dialog.js:365
+#: pkg/users/group-create-dialog.js:142 pkg/users/account-create-dialog.js:449
 #: pkg/storaged/content-views.jsx:206 pkg/storaged/content-views.jsx:321
 #: pkg/storaged/content-views.jsx:986 pkg/storaged/stratis-panel.jsx:170
 #: pkg/storaged/vgroups-panel.jsx:89 pkg/storaged/mdraids-panel.jsx:139
@@ -1873,7 +1884,7 @@ msgstr "创建 RAID 设备"
 msgid "Create Stratis pool"
 msgstr "创建 Stratis 池"
 
-#: pkg/shell/hosts_dialog.jsx:778
+#: pkg/shell/hosts_dialog.jsx:779
 msgid "Create a new SSH key and authorize it"
 msgstr "创建一个新的 SSH 密钥，并对其进行授权"
 
@@ -1881,17 +1892,21 @@ msgstr "创建一个新的 SSH 密钥，并对其进行授权"
 msgid "Create a snapshot of filesystem $0"
 msgstr "创建文件系统 $0 的快照"
 
-#: pkg/users/account-create-dialog.js:416
+#: pkg/users/account-create-dialog.js:525
 #, fuzzy
 #| msgid "Create account with weak password"
 msgid "Create account with non-unique UID"
 msgstr "创建具有弱密码的帐户"
 
-#: pkg/users/account-create-dialog.js:391
+#: pkg/users/account-create-dialog.js:500
 msgid "Create account with weak password"
 msgstr "创建具有弱密码的帐户"
 
-#: pkg/storaged/stratis-details.jsx:411 pkg/storaged/format-dialog.jsx:405
+#: pkg/users/account-create-dialog.js:475
+msgid "Create and change ownership of home directory"
+msgstr ""
+
+#: pkg/storaged/stratis-details.jsx:411 pkg/storaged/format-dialog.jsx:404
 #, fuzzy
 #| msgid "Create new account"
 msgid "Create and mount"
@@ -1913,7 +1928,7 @@ msgstr "创建它"
 msgid "Create logical volume"
 msgstr "创建逻辑卷"
 
-#: pkg/users/account-create-dialog.js:350 pkg/users/accounts-list.js:446
+#: pkg/users/account-create-dialog.js:434 pkg/users/accounts-list.js:446
 msgid "Create new account"
 msgstr "创建新账户"
 
@@ -1933,7 +1948,7 @@ msgstr "创建新逻辑卷"
 msgid "Create new task file with this content."
 msgstr "使用此内容创建新的任务文件。"
 
-#: pkg/storaged/stratis-details.jsx:412 pkg/storaged/format-dialog.jsx:407
+#: pkg/storaged/stratis-details.jsx:412 pkg/storaged/format-dialog.jsx:406
 #, fuzzy
 #| msgid "read only"
 msgid "Create only"
@@ -1943,7 +1958,7 @@ msgstr "只读"
 msgid "Create partition"
 msgstr "创建分区"
 
-#: pkg/storaged/format-dialog.jsx:182
+#: pkg/storaged/format-dialog.jsx:181
 msgid "Create partition on $0"
 msgstr "在$0上创建分区"
 
@@ -2063,7 +2078,7 @@ msgstr "自定义加密策略"
 
 #: pkg/storaged/stratis-details.jsx:379 pkg/storaged/stratis-details.jsx:530
 #: pkg/storaged/fsys-tab.jsx:344 pkg/storaged/nfs-details.jsx:166
-#: pkg/storaged/format-dialog.jsx:396
+#: pkg/storaged/format-dialog.jsx:395
 msgid "Custom mount options"
 msgstr "自定义挂载选项"
 
@@ -2301,8 +2316,8 @@ msgstr "设备"
 msgid "Diagnostic reports"
 msgstr "诊断报告"
 
-#: pkg/kdump/kdump-view.jsx:175 pkg/kdump/kdump-view.jsx:196
-#: pkg/kdump/kdump-view.jsx:224
+#: pkg/kdump/kdump-view.jsx:176 pkg/kdump/kdump-view.jsx:197
+#: pkg/kdump/kdump-view.jsx:225
 msgid "Directory"
 msgstr "目录"
 
@@ -2322,7 +2337,7 @@ msgstr "禁用防火墙"
 msgid "Disable tuned"
 msgstr "禁用 tuned"
 
-#: pkg/kdump/kdump-view.jsx:463 pkg/systemd/services.jsx:251
+#: pkg/kdump/kdump-view.jsx:452 pkg/systemd/services.jsx:251
 #: pkg/systemd/services.jsx:691 pkg/systemd/service-details.jsx:443
 #: pkg/networkmanager/ip-settings.jsx:44 pkg/networkmanager/ip-settings.jsx:55
 #: pkg/networkmanager/firewall-switch.jsx:80 pkg/packagekit/kpatch.jsx:250
@@ -2334,7 +2349,7 @@ msgstr "禁用"
 msgid "Disallow interactive password"
 msgstr "禁用交互式密码"
 
-#: pkg/users/account-create-dialog.js:89
+#: pkg/users/account-create-dialog.js:121
 msgid "Disallow password authentication"
 msgstr "不允许密码验证"
 
@@ -2388,7 +2403,7 @@ msgid "Display language"
 msgstr "显示语言"
 
 #: pkg/storaged/stratis-details.jsx:401 pkg/storaged/stratis-details.jsx:552
-#: pkg/storaged/fsys-tab.jsx:366 pkg/storaged/format-dialog.jsx:383
+#: pkg/storaged/fsys-tab.jsx:366 pkg/storaged/format-dialog.jsx:382
 #, fuzzy
 #| msgid "Not mounted"
 msgid "Do not mount"
@@ -2406,7 +2421,7 @@ msgstr "扩展坞"
 msgid "Does not automatically start"
 msgstr "不自动启动"
 
-#: pkg/storaged/format-dialog.jsx:141
+#: pkg/storaged/format-dialog.jsx:140
 #, fuzzy
 #| msgid "Do not mount automatically on boot"
 msgid "Does not mount during boot"
@@ -2498,7 +2513,7 @@ msgstr "编辑Tang keyserver"
 msgid "Edit custom service in $0 zone"
 msgstr "编辑 $0 区中的自定义服务"
 
-#: pkg/shell/hosts_dialog.jsx:245
+#: pkg/shell/hosts_dialog.jsx:246
 msgid "Edit host"
 msgstr "编辑主机"
 
@@ -2568,7 +2583,7 @@ msgstr "启用服务"
 msgid "Enable the firewall"
 msgstr "启用防火墙"
 
-#: pkg/kdump/kdump-view.jsx:463 pkg/systemd/services.jsx:249
+#: pkg/kdump/kdump-view.jsx:452 pkg/systemd/services.jsx:249
 #: pkg/systemd/services.jsx:250 pkg/systemd/services.jsx:690
 #: pkg/networkmanager/firewall-switch.jsx:80 pkg/packagekit/kpatch.jsx:253
 msgid "Enabled"
@@ -2610,11 +2625,11 @@ msgstr "加密卷不能在这里改变大小。"
 msgid "Encrypted volumes need to be unlocked before they can be resized."
 msgstr "加密卷需要先解锁才能调整大小。"
 
-#: pkg/storaged/content-views.jsx:248 pkg/storaged/format-dialog.jsx:315
+#: pkg/storaged/content-views.jsx:248 pkg/storaged/format-dialog.jsx:314
 msgid "Encryption"
 msgstr "加密"
 
-#: pkg/storaged/crypto-tab.jsx:194 pkg/storaged/format-dialog.jsx:356
+#: pkg/storaged/crypto-tab.jsx:194 pkg/storaged/format-dialog.jsx:355
 msgid "Encryption options"
 msgstr "加密选项"
 
@@ -2723,7 +2738,7 @@ msgstr "密码强度良好"
 msgid "Expansion chassis"
 msgstr "扩展机箱"
 
-#: pkg/users/expiration-dialogs.js:72
+#: pkg/users/expiration-dialogs.js:73
 msgid "Expire account on"
 msgstr "过期账号于"
 
@@ -2731,7 +2746,7 @@ msgstr "过期账号于"
 msgid "Expire account on $0"
 msgstr "过期帐号于 $0"
 
-#: pkg/kdump/kdump-view.jsx:191
+#: pkg/kdump/kdump-view.jsx:192
 msgid "Export"
 msgstr "导出"
 
@@ -2743,7 +2758,7 @@ msgstr "导出到网络"
 msgid "Extended information"
 msgstr "扩展的信息"
 
-#: pkg/storaged/content-views.jsx:637 pkg/storaged/format-dialog.jsx:204
+#: pkg/storaged/content-views.jsx:637 pkg/storaged/format-dialog.jsx:203
 msgid "Extended partition"
 msgstr "扩展分区"
 
@@ -2759,7 +2774,7 @@ msgstr "具有进一步通用标准限制的 FIPS。"
 msgid "Failed"
 msgstr "已失败"
 
-#: pkg/shell/hosts_dialog.jsx:213
+#: pkg/shell/hosts_dialog.jsx:214
 msgid "Failed to add machine: $0"
 msgstr "添加主机失败: $0"
 
@@ -2796,7 +2811,7 @@ msgstr "禁用 tuned 失败"
 msgid "Failed to disable tuned profile"
 msgstr "禁用调优的配置文件失败"
 
-#: pkg/shell/hosts_dialog.jsx:330
+#: pkg/shell/hosts_dialog.jsx:331
 msgid "Failed to edit machine: $0"
 msgstr "编辑主机失败: $0"
 
@@ -2945,23 +2960,23 @@ msgstr "强制密码变更"
 msgid "Format"
 msgstr "格式化"
 
-#: pkg/storaged/format-dialog.jsx:184
+#: pkg/storaged/format-dialog.jsx:183
 msgid "Format $0"
 msgstr "格式化 $0"
 
-#: pkg/storaged/format-dialog.jsx:405
+#: pkg/storaged/format-dialog.jsx:404
 #, fuzzy
 #| msgid "Stop and unmount"
 msgid "Format and mount"
 msgstr "停止并卸载"
 
-#: pkg/storaged/format-dialog.jsx:407
+#: pkg/storaged/format-dialog.jsx:406
 #, fuzzy
 #| msgid "Format"
 msgid "Format only"
 msgstr "格式化"
 
-#: pkg/storaged/format-dialog.jsx:406
+#: pkg/storaged/format-dialog.jsx:405
 msgid "Formatting erases all data on a storage device."
 msgstr "格式化会擦除存储设备上的所有数据。"
 
@@ -2999,7 +3014,7 @@ msgstr "周五"
 msgid "From"
 msgstr "自"
 
-#: pkg/users/account-create-dialog.js:47 pkg/users/account-details.js:261
+#: pkg/users/account-create-dialog.js:55 pkg/users/account-details.js:261
 #: pkg/users/accounts-list.js:392
 msgid "Full name"
 msgstr "全名"
@@ -3113,13 +3128,13 @@ msgstr "更高的互操作性会增加被安全攻击的面积。"
 msgid "History package count"
 msgstr "历史软件包数量"
 
-#: pkg/users/account-details.js:339
+#: pkg/users/account-create-dialog.js:73 pkg/users/account-details.js:339
 #, fuzzy
 #| msgid "Directory"
 msgid "Home directory"
 msgstr "目录"
 
-#: pkg/shell/hosts.jsx:190 pkg/shell/hosts_dialog.jsx:249
+#: pkg/shell/hosts.jsx:190 pkg/shell/hosts_dialog.jsx:250
 msgid "Host"
 msgstr "主机"
 
@@ -3198,7 +3213,7 @@ msgid ""
 msgstr ""
 "如果指纹匹配，点\"Accept key and log in\"。否则，请不要登录并联系您的管理员。"
 
-#: pkg/shell/hosts_dialog.jsx:471 pkg/shell/hosts_dialog.jsx:482
+#: pkg/shell/hosts_dialog.jsx:472 pkg/shell/hosts_dialog.jsx:483
 msgid ""
 "If the fingerprint matches, click 'Accept key and connect'. Otherwise, do "
 "not connect and contact your administrator."
@@ -3215,7 +3230,7 @@ msgstr "忽略"
 msgid "In"
 msgstr "入"
 
-#: pkg/shell/hosts_dialog.jsx:789 pkg/shell/hosts_dialog.jsx:803
+#: pkg/shell/hosts_dialog.jsx:790 pkg/shell/hosts_dialog.jsx:804
 msgid ""
 "In order to allow log in to $0 as $1 without password in the future, use the "
 "login password of $2 on $3 as the key password, or leave the key password "
@@ -3316,6 +3331,12 @@ msgstr "安装 cockpit-pcp"
 msgid "Install kpatch updates"
 msgstr "安装 kpatch 更新"
 
+#: pkg/systemd/overview-cards/realmd.jsx:448
+#, fuzzy
+#| msgid "Install Stratis support"
+msgid "Install realmd support"
+msgstr "安装 Stratis 支持"
+
 #: pkg/packagekit/updates.jsx:1403 pkg/packagekit/updates.jsx:1410
 msgid "Install security updates"
 msgstr "安装安全更新"
@@ -3389,7 +3410,7 @@ msgstr "无效的日期格式"
 msgid "Invalid date format and invalid time format"
 msgstr "无效的日期格式和时间格式"
 
-#: pkg/users/expiration-dialogs.js:98
+#: pkg/users/expiration-dialogs.js:100
 msgid "Invalid expiration date"
 msgstr "无效的过期时间"
 
@@ -3405,7 +3426,7 @@ msgstr "无效的 key"
 msgid "Invalid metric $0"
 msgstr "无效的度量 $0"
 
-#: pkg/users/expiration-dialogs.js:203
+#: pkg/users/expiration-dialogs.js:205
 msgid "Invalid number of days"
 msgstr "无效的天数"
 
@@ -3442,7 +3463,7 @@ msgstr "无效的用户名或密码"
 msgid "IoT gateway"
 msgstr "IoT 网关"
 
-#: pkg/shell/hosts_dialog.jsx:355
+#: pkg/shell/hosts_dialog.jsx:356
 msgid "Is sshd running on a different port?"
 msgstr "sshd 是否在一个不同的端口上运行？"
 
@@ -3460,7 +3481,6 @@ msgid "Join a domain"
 msgstr "加入域"
 
 #: pkg/systemd/overview-cards/realmd.jsx:448
-#: pkg/systemd/overview-cards/realmd.jsx:470
 msgid "Join domain"
 msgstr "加入域"
 
@@ -3496,7 +3516,7 @@ msgstr "未找到日志条目"
 msgid "Jump to"
 msgstr "跳到"
 
-#: pkg/kdump/kdump-view.jsx:413
+#: pkg/kdump/kdump-view.jsx:402
 msgid ""
 "Kdump service not installed. Please ensure package kexec-tools is installed."
 msgstr "Kdump 服务未安装。请保证软件包 kexec-tools 已安装。"
@@ -3505,7 +3525,7 @@ msgstr "Kdump 服务未安装。请保证软件包 kexec-tools 已安装。"
 msgid "Keep connection"
 msgstr "保持连接"
 
-#: pkg/kdump/kdump-view.jsx:459
+#: pkg/kdump/kdump-view.jsx:448
 msgid "Kernel crash dump"
 msgstr "内核崩溃转储"
 
@@ -3530,7 +3550,7 @@ msgstr "内核实时补丁设置"
 msgid "Kernel live patching"
 msgstr "内核实时补丁"
 
-#: pkg/shell/hosts_dialog.jsx:781 pkg/shell/hosts_dialog.jsx:840
+#: pkg/shell/hosts_dialog.jsx:782 pkg/shell/hosts_dialog.jsx:841
 msgid "Key password"
 msgstr "钥匙密码"
 
@@ -3750,7 +3770,7 @@ msgstr "加载系统改变..."
 msgid "Loading unit failed"
 msgstr "登录单元失败：$0"
 
-#: pkg/kdump/kdump-view.jsx:314 pkg/users/account-details.js:188
+#: pkg/kdump/kdump-view.jsx:303 pkg/users/account-details.js:188
 #: pkg/users/accounts-list.js:327 pkg/users/accounts-list.js:351
 #: pkg/users/accounts-list.js:467 pkg/systemd/logDetails.jsx:176
 #: pkg/systemd/services.jsx:687 pkg/systemd/logsJournal.jsx:268
@@ -3763,7 +3783,7 @@ msgstr "载入中..."
 msgid "Local accounts"
 msgstr "本地账户"
 
-#: pkg/kdump/kdump-view.jsx:166
+#: pkg/kdump/kdump-view.jsx:167
 msgid "Local filesystem"
 msgstr "本地文件系统"
 
@@ -3771,7 +3791,7 @@ msgstr "本地文件系统"
 msgid "Local mount point"
 msgstr "挂载点"
 
-#: pkg/kdump/kdump-view.jsx:162 pkg/storaged/dialog.jsx:1063
+#: pkg/kdump/kdump-view.jsx:163 pkg/storaged/dialog.jsx:1063
 #: pkg/storaged/dialog.jsx:1141
 msgid "Location"
 msgstr "位置"
@@ -3806,11 +3826,11 @@ msgid "Locking $target"
 msgstr "锁定 $target"
 
 #: pkg/static/login.html:146 pkg/shell/failures.jsx:75
-#: pkg/shell/hosts_dialog.jsx:749 pkg/static/login.js:666
+#: pkg/shell/hosts_dialog.jsx:750 pkg/static/login.js:666
 msgid "Log in"
 msgstr "登录"
 
-#: pkg/shell/hosts_dialog.jsx:748
+#: pkg/shell/hosts_dialog.jsx:749
 msgid "Log in to $0"
 msgstr "登录到 $0"
 
@@ -4173,7 +4193,7 @@ msgid "Mount"
 msgstr "挂载"
 
 #: pkg/storaged/stratis-details.jsx:397 pkg/storaged/stratis-details.jsx:548
-#: pkg/storaged/fsys-tab.jsx:362 pkg/storaged/format-dialog.jsx:379
+#: pkg/storaged/fsys-tab.jsx:362 pkg/storaged/format-dialog.jsx:378
 msgid "Mount after network becomes available, ignore failure"
 msgstr ""
 
@@ -4190,7 +4210,7 @@ msgid "Mount automatically on $0 on boot"
 msgstr "在引导时在 $0 自动挂载"
 
 #: pkg/storaged/stratis-details.jsx:389 pkg/storaged/stratis-details.jsx:540
-#: pkg/storaged/fsys-tab.jsx:354 pkg/storaged/format-dialog.jsx:371
+#: pkg/storaged/fsys-tab.jsx:354 pkg/storaged/format-dialog.jsx:370
 msgid "Mount before services start"
 msgstr ""
 
@@ -4212,14 +4232,14 @@ msgstr "现在在 $0 挂载"
 
 #: pkg/storaged/stratis-details.jsx:371 pkg/storaged/stratis-details.jsx:522
 #: pkg/storaged/fsys-tab.jsx:336 pkg/storaged/nfs-details.jsx:161
-#: pkg/storaged/format-dialog.jsx:387
+#: pkg/storaged/format-dialog.jsx:386
 msgid "Mount options"
 msgstr "挂载选项"
 
 #: pkg/storaged/stratis-details.jsx:367 pkg/storaged/stratis-details.jsx:518
 #: pkg/storaged/nfs-panel.jsx:103 pkg/storaged/fsys-tab.jsx:331
 #: pkg/storaged/fsys-tab.jsx:754 pkg/storaged/nfs-details.jsx:317
-#: pkg/storaged/format-dialog.jsx:293
+#: pkg/storaged/format-dialog.jsx:292
 msgid "Mount point"
 msgstr "挂载点"
 
@@ -4241,12 +4261,12 @@ msgstr "挂载点必须以“/”开头。"
 
 #: pkg/storaged/stratis-details.jsx:378 pkg/storaged/stratis-details.jsx:529
 #: pkg/storaged/fsys-tab.jsx:343 pkg/storaged/nfs-details.jsx:165
-#: pkg/storaged/format-dialog.jsx:395
+#: pkg/storaged/format-dialog.jsx:394
 msgid "Mount read only"
 msgstr "只读挂载"
 
 #: pkg/storaged/stratis-details.jsx:393 pkg/storaged/stratis-details.jsx:544
-#: pkg/storaged/fsys-tab.jsx:358 pkg/storaged/format-dialog.jsx:375
+#: pkg/storaged/fsys-tab.jsx:358 pkg/storaged/format-dialog.jsx:374
 msgid "Mount without waiting, ignore failure"
 msgstr ""
 
@@ -4254,15 +4274,15 @@ msgstr ""
 msgid "Mounting $target"
 msgstr "挂载 $target"
 
-#: pkg/storaged/format-dialog.jsx:105
+#: pkg/storaged/format-dialog.jsx:104
 msgid "Mounts before services start"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:119
+#: pkg/storaged/format-dialog.jsx:118
 msgid "Mounts in parallel with services"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:130
+#: pkg/storaged/format-dialog.jsx:129
 msgid "Mounts in parallel with services, but after network is available"
 msgstr ""
 
@@ -4309,7 +4329,7 @@ msgstr "NTP 服务器"
 #: pkg/storaged/iscsi-panel.jsx:127 pkg/storaged/iscsi-panel.jsx:184
 #: pkg/storaged/vgroup-details.jsx:162 pkg/storaged/lvol-tabs.jsx:43
 #: pkg/storaged/lvol-tabs.jsx:414 pkg/storaged/lvol-tabs.jsx:475
-#: pkg/storaged/lvol-tabs.jsx:533 pkg/storaged/format-dialog.jsx:288
+#: pkg/storaged/lvol-tabs.jsx:533 pkg/storaged/format-dialog.jsx:287
 #: pkg/storaged/part-tab.jsx:35 pkg/storaged/crypto-panel.jsx:84
 #: pkg/storaged/stratis-panel.jsx:130 pkg/storaged/vgroups-panel.jsx:73
 #: pkg/storaged/mdraids-panel.jsx:74 pkg/packagekit/updates.jsx:447
@@ -4396,7 +4416,7 @@ msgstr "从不"
 msgid "Never expire account"
 msgstr "账号从不过期"
 
-#: pkg/users/expiration-dialogs.js:154 pkg/users/account-details.js:76
+#: pkg/users/expiration-dialogs.js:156 pkg/users/account-details.js:76
 msgid "Never expire password"
 msgstr "密码从不过期"
 
@@ -4408,11 +4428,11 @@ msgstr "从未登录"
 msgid "New NFS mount"
 msgstr "新的 NFS 挂载"
 
-#: pkg/shell/hosts_dialog.jsx:456 pkg/static/login.js:761
+#: pkg/shell/hosts_dialog.jsx:457 pkg/static/login.js:761
 msgid "New host"
 msgstr "新主机"
 
-#: pkg/shell/hosts_dialog.jsx:795
+#: pkg/shell/hosts_dialog.jsx:796
 msgid "New key password"
 msgstr "新密钥密码"
 
@@ -4470,7 +4490,7 @@ msgstr "没有可用的块设备。"
 msgid "No carrier"
 msgstr "无载体"
 
-#: pkg/kdump/kdump-view.jsx:349
+#: pkg/kdump/kdump-view.jsx:338
 msgid "No configuration found"
 msgstr "未找到配置"
 
@@ -4508,7 +4528,7 @@ msgstr "没有可用的磁盘。"
 msgid "No drives attached"
 msgstr "未连接驱动器"
 
-#: pkg/storaged/format-dialog.jsx:220
+#: pkg/storaged/format-dialog.jsx:219
 msgid "No encryption"
 msgstr "无加密"
 
@@ -4516,7 +4536,7 @@ msgstr "无加密"
 msgid "No events"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:202
+#: pkg/storaged/format-dialog.jsx:201
 msgid "No filesystem"
 msgstr "无文件系统"
 
@@ -4573,7 +4593,7 @@ msgstr "没有找到匹配的结果"
 msgid "No media inserted"
 msgstr "没有插入介质"
 
-#: pkg/kdump/kdump-view.jsx:398
+#: pkg/kdump/kdump-view.jsx:387
 msgid ""
 "No memory reserved. Append a crashkernel option to the kernel command line "
 "(e.g. in /etc/default/grub) to reserve memory at boot time. Example: "
@@ -4586,7 +4606,7 @@ msgstr ""
 msgid "No partitioning"
 msgstr "无分区"
 
-#: pkg/users/account-create-dialog.js:130
+#: pkg/users/account-create-dialog.js:162
 msgid "No real name specified"
 msgstr "未指定真实姓名"
 
@@ -4620,11 +4640,11 @@ msgstr "没有系统报告。"
 msgid "No updates"
 msgstr "没有更新"
 
-#: pkg/users/account-create-dialog.js:113
+#: pkg/users/account-create-dialog.js:145
 msgid "No user name specified"
 msgstr "未指定用户名"
 
-#: pkg/kdump/kdump-view.jsx:369 pkg/systemd/overview-cards/tuned-dialog.jsx:232
+#: pkg/kdump/kdump-view.jsx:358 pkg/systemd/overview-cards/tuned-dialog.jsx:232
 #: pkg/networkmanager/firewall.jsx:855
 msgid "None"
 msgstr "无"
@@ -4751,7 +4771,7 @@ msgstr "旧密码"
 msgid "Old password not accepted"
 msgstr "旧密码不被接受"
 
-#: pkg/kdump/kdump-view.jsx:341
+#: pkg/kdump/kdump-view.jsx:330
 msgid "On a mounted device"
 msgstr "在一个已挂载的设备上"
 
@@ -4813,7 +4833,7 @@ msgstr "或者使用捆绑的浏览器"
 msgid "Other"
 msgstr "其他"
 
-#: pkg/users/account-create-dialog.js:93 pkg/users/account-details.js:291
+#: pkg/users/account-create-dialog.js:125 pkg/users/account-details.js:291
 msgid ""
 "Other authentication methods are still available even when interactive "
 "password authentication is not allowed."
@@ -4841,11 +4861,11 @@ msgstr "出"
 msgid "Overview"
 msgstr "概览"
 
-#: pkg/storaged/content-views.jsx:711 pkg/storaged/format-dialog.jsx:309
+#: pkg/storaged/content-views.jsx:711 pkg/storaged/format-dialog.jsx:308
 msgid "Overwrite"
 msgstr "覆盖"
 
-#: pkg/storaged/content-views.jsx:714 pkg/storaged/format-dialog.jsx:312
+#: pkg/storaged/content-views.jsx:714 pkg/storaged/format-dialog.jsx:311
 msgid "Overwrite existing data with zeros (slower)"
 msgstr "用 0 覆盖现有数据（较慢）"
 
@@ -4927,7 +4947,7 @@ msgstr "被动"
 
 #: pkg/storaged/content-views.jsx:279 pkg/storaged/stratis-details.jsx:131
 #: pkg/storaged/stratis-details.jsx:746 pkg/storaged/fsys-tab.jsx:374
-#: pkg/storaged/format-dialog.jsx:321 pkg/storaged/format-dialog.jsx:347
+#: pkg/storaged/format-dialog.jsx:320 pkg/storaged/format-dialog.jsx:346
 #: pkg/storaged/crypto-keyslots.jsx:483 pkg/storaged/crypto-keyslots.jsx:818
 #: pkg/storaged/stratis-panel.jsx:141
 msgid "Passphrase"
@@ -4938,7 +4958,7 @@ msgid "Passphrase can not be empty"
 msgstr "密码不能为空"
 
 #: pkg/storaged/stratis-details.jsx:134 pkg/storaged/fsys-tab.jsx:377
-#: pkg/storaged/format-dialog.jsx:325 pkg/storaged/format-dialog.jsx:351
+#: pkg/storaged/format-dialog.jsx:324 pkg/storaged/format-dialog.jsx:350
 #: pkg/storaged/crypto-keyslots.jsx:204 pkg/storaged/crypto-keyslots.jsx:491
 #: pkg/storaged/crypto-keyslots.jsx:534 pkg/storaged/crypto-keyslots.jsx:537
 #: pkg/storaged/stratis-panel.jsx:145
@@ -4953,16 +4973,16 @@ msgstr "来自其他密钥插槽的密码短语"
 msgid "Passphrase removal may prevent unlocking $0."
 msgstr "删除密码口令可能会阻止解锁 $0。"
 
-#: pkg/storaged/format-dialog.jsx:333 pkg/storaged/crypto-keyslots.jsx:499
+#: pkg/storaged/format-dialog.jsx:332 pkg/storaged/crypto-keyslots.jsx:499
 #: pkg/storaged/crypto-keyslots.jsx:539 pkg/storaged/stratis-panel.jsx:153
 msgid "Passphrases do not match"
 msgstr "口令不匹配"
 
-#: pkg/static/login.html:106 pkg/users/account-create-dialog.js:101
+#: pkg/static/login.html:106 pkg/users/account-create-dialog.js:133
 #: pkg/users/account-details.js:309 pkg/shell/superuser.jsx:144
 #: pkg/shell/credentials.jsx:119 pkg/shell/credentials.jsx:262
-#: pkg/shell/credentials.jsx:318 pkg/shell/hosts_dialog.jsx:825
-#: pkg/shell/hosts_dialog.jsx:834 pkg/storaged/iscsi-panel.jsx:50
+#: pkg/shell/credentials.jsx:318 pkg/shell/hosts_dialog.jsx:826
+#: pkg/shell/hosts_dialog.jsx:835 pkg/storaged/iscsi-panel.jsx:50
 #: pkg/storaged/iscsi-panel.jsx:156
 msgid "Password"
 msgstr "密码"
@@ -4971,11 +4991,11 @@ msgstr "密码"
 msgid "Password changed successfully"
 msgstr "更改密码成功"
 
-#: pkg/users/expiration-dialogs.js:212
+#: pkg/users/expiration-dialogs.js:214
 msgid "Password expiration"
 msgstr "密码过期"
 
-#: pkg/users/password-dialogs.js:194 pkg/users/account-create-dialog.js:283
+#: pkg/users/password-dialogs.js:194 pkg/users/account-create-dialog.js:335
 msgid "Password is longer than 256 characters"
 msgstr "密码长度不能超过 256 个字符"
 
@@ -5034,6 +5054,12 @@ msgstr "服务器上的路径不能为空。"
 #: pkg/storaged/nfs-details.jsx:145
 msgid "Path on server must start with \"/\"."
 msgstr "服务器上的路径必须以“/”开头。"
+
+#: pkg/users/account-create-dialog.js:79
+#, fuzzy
+#| msgid "Directory"
+msgid "Path to directory"
+msgstr "目录"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:163
 #: pkg/shell/credentials.jsx:172
@@ -5137,7 +5163,7 @@ msgstr "请安装 $0 软件包"
 msgid "Please reload the page after resolving the issue."
 msgstr "在解决这个问题后重新载入页面。"
 
-#: pkg/users/expiration-dialogs.js:94
+#: pkg/users/expiration-dialogs.js:96
 msgid "Please specify an expiration date"
 msgstr "请指定一个过期时间"
 
@@ -5161,7 +5187,7 @@ msgstr "瘦卷的池"
 msgid "Pool for thinly provisioned volumes"
 msgstr "瘦分配配置卷的池"
 
-#: pkg/shell/hosts_dialog.jsx:358 pkg/storaged/iscsi-panel.jsx:127
+#: pkg/shell/hosts_dialog.jsx:359 pkg/storaged/iscsi-panel.jsx:127
 msgid "Port"
 msgstr "端口"
 
@@ -5381,7 +5407,7 @@ msgstr "范围必须排序"
 msgid "Rank"
 msgstr "Rank"
 
-#: pkg/kdump/kdump-view.jsx:337
+#: pkg/kdump/kdump-view.jsx:326
 msgid "Raw to a device"
 msgstr "格式化设备"
 
@@ -5401,7 +5427,7 @@ msgstr "只读"
 msgid "Reading"
 msgstr "读取中"
 
-#: pkg/kdump/kdump-view.jsx:363
+#: pkg/kdump/kdump-view.jsx:352
 msgid "Reading..."
 msgstr "读取中..."
 
@@ -5530,23 +5556,23 @@ msgstr "重新加载中"
 msgid "Reloading the state of remaining services"
 msgstr "重新载入剩余的服务状态"
 
-#: pkg/kdump/kdump-view.jsx:347
+#: pkg/kdump/kdump-view.jsx:336
 msgid "Remote over CIFS/SMB"
 msgstr "通过 CIFS/SMB 远程"
 
-#: pkg/kdump/kdump-view.jsx:343
+#: pkg/kdump/kdump-view.jsx:332
 msgid "Remote over FTP"
 msgstr "通过 FTP 远程"
 
-#: pkg/kdump/kdump-view.jsx:170 pkg/kdump/kdump-view.jsx:334
+#: pkg/kdump/kdump-view.jsx:171 pkg/kdump/kdump-view.jsx:323
 msgid "Remote over NFS"
 msgstr "通过 NFS 远程"
 
-#: pkg/kdump/kdump-view.jsx:345
+#: pkg/kdump/kdump-view.jsx:334
 msgid "Remote over SFTP"
 msgstr "通过 SFTP 远程"
 
-#: pkg/kdump/kdump-view.jsx:168 pkg/kdump/kdump-view.jsx:331
+#: pkg/kdump/kdump-view.jsx:169 pkg/kdump/kdump-view.jsx:320
 msgid "Remote over SSH"
 msgstr "通过 SSH 远程"
 
@@ -5751,7 +5777,7 @@ msgstr "报告"
 msgid "Reports:"
 msgstr "报告："
 
-#: pkg/users/expiration-dialogs.js:178
+#: pkg/users/expiration-dialogs.js:180
 msgid "Require password change every $0 days"
 msgstr "要求每 $0 天修改密码"
 
@@ -5759,7 +5785,7 @@ msgstr "要求每 $0 天修改密码"
 msgid "Require password change on $0"
 msgstr "要求于 $0 修改密码"
 
-#: pkg/users/account-create-dialog.js:81
+#: pkg/users/account-create-dialog.js:113
 msgid "Require password change on first login"
 msgstr "在第一次登录时需要更改密码"
 
@@ -5787,7 +5813,7 @@ msgstr "必要"
 msgid "Requisite of"
 msgstr "必备的"
 
-#: pkg/kdump/kdump-view.jsx:482
+#: pkg/kdump/kdump-view.jsx:471
 msgid "Reserved memory"
 msgstr "保留内存"
 
@@ -5834,11 +5860,11 @@ msgstr "恢复连接"
 msgid "Resume"
 msgstr "恢复"
 
-#: pkg/storaged/format-dialog.jsx:228
+#: pkg/storaged/format-dialog.jsx:227
 msgid "Reuse existing encryption"
 msgstr "重用现有的加密"
 
-#: pkg/storaged/format-dialog.jsx:225
+#: pkg/storaged/format-dialog.jsx:224
 msgid "Reuse existing encryption ($0)"
 msgstr "重用现有的加密($0)"
 
@@ -5934,7 +5960,7 @@ msgid ""
 "SOS reporting collects system information to help with diagnosing problems."
 msgstr "SOS 报告会收集系统信息，以帮助诊断问题。"
 
-#: pkg/kdump/kdump-view.jsx:214 pkg/shell/hosts_dialog.jsx:830
+#: pkg/kdump/kdump-view.jsx:215 pkg/shell/hosts_dialog.jsx:831
 msgid "SSH key"
 msgstr "SSH 密钥"
 
@@ -6094,8 +6120,8 @@ msgctxt "storage"
 msgid "Serial number"
 msgstr "序列号"
 
-#: pkg/static/login.html:166 pkg/kdump/kdump-view.jsx:186
-#: pkg/kdump/kdump-view.jsx:208 pkg/networkmanager/ip-settings.jsx:245
+#: pkg/static/login.html:166 pkg/kdump/kdump-view.jsx:187
+#: pkg/kdump/kdump-view.jsx:209 pkg/networkmanager/ip-settings.jsx:245
 #: pkg/storaged/nfs-panel.jsx:102 pkg/storaged/nfs-details.jsx:312
 msgid "Server"
 msgstr "服务器"
@@ -6125,23 +6151,23 @@ msgstr "服务器软件"
 msgid "Service"
 msgstr "服务"
 
-#: pkg/kdump/kdump-view.jsx:392
+#: pkg/kdump/kdump-view.jsx:381
 msgid "Service has an error"
 msgstr "服务有一个错误"
 
-#: pkg/kdump/kdump-view.jsx:388
+#: pkg/kdump/kdump-view.jsx:377
 msgid "Service is running"
 msgstr "服务正在运行"
 
-#: pkg/kdump/kdump-view.jsx:394
+#: pkg/kdump/kdump-view.jsx:383
 msgid "Service is starting"
 msgstr "服务正在启动"
 
-#: pkg/kdump/kdump-view.jsx:390
+#: pkg/kdump/kdump-view.jsx:379
 msgid "Service is stopped"
 msgstr "服务已停止"
 
-#: pkg/kdump/kdump-view.jsx:396
+#: pkg/kdump/kdump-view.jsx:385
 msgid "Service is stopping"
 msgstr "服务正在停止"
 
@@ -6167,7 +6193,7 @@ msgstr "会话"
 msgid "Session is about to expire"
 msgstr "会话即将到期"
 
-#: pkg/shell/hosts_dialog.jsx:246
+#: pkg/shell/hosts_dialog.jsx:247
 msgid "Set"
 msgstr "设置"
 
@@ -6221,7 +6247,7 @@ msgstr "严重性"
 msgid "Shared"
 msgstr "共享"
 
-#: pkg/users/account-details.js:342
+#: pkg/users/account-create-dialog.js:83 pkg/users/account-details.js:342
 #, fuzzy
 #| msgid "shell"
 msgid "Shell"
@@ -6314,7 +6340,7 @@ msgstr "单 rank"
 #: pkg/storaged/nfs-details.jsx:322 pkg/storaged/lvol-tabs.jsx:237
 #: pkg/storaged/lvol-tabs.jsx:304 pkg/storaged/lvol-tabs.jsx:424
 #: pkg/storaged/lvol-tabs.jsx:485 pkg/storaged/lvol-tabs.jsx:538
-#: pkg/storaged/format-dialog.jsx:301 pkg/storaged/part-tab.jsx:40
+#: pkg/storaged/format-dialog.jsx:300 pkg/storaged/part-tab.jsx:40
 msgid "Size"
 msgstr "大小"
 
@@ -6485,7 +6511,7 @@ msgstr "状态"
 msgid "Static"
 msgstr "静态"
 
-#: pkg/kdump/kdump-view.jsx:472 pkg/systemd/service-details.jsx:654
+#: pkg/kdump/kdump-view.jsx:461 pkg/systemd/service-details.jsx:654
 #: pkg/networkmanager/network-interface.jsx:266 pkg/packagekit/updates.jsx:905
 msgid "Status"
 msgstr "状态"
@@ -6550,7 +6576,7 @@ msgstr "存储不能在这个系统上管理。"
 msgid "Storage logs"
 msgstr "存储日志"
 
-#: pkg/storaged/format-dialog.jsx:344
+#: pkg/storaged/format-dialog.jsx:343
 msgid "Store passphrase"
 msgstr "存储口令"
 
@@ -6745,15 +6771,15 @@ msgstr "终端"
 msgid "Terminate session"
 msgstr "终止会话"
 
-#: pkg/kdump/kdump-view.jsx:429 pkg/kdump/kdump-view.jsx:437
+#: pkg/kdump/kdump-view.jsx:418 pkg/kdump/kdump-view.jsx:426
 msgid "Test configuration"
 msgstr "测试配置"
 
-#: pkg/kdump/kdump-view.jsx:433
+#: pkg/kdump/kdump-view.jsx:422
 msgid "Test is only available while the kdump service is running."
 msgstr "测试仅在 kdump 服务已运行时可用。"
 
-#: pkg/kdump/kdump-view.jsx:275
+#: pkg/kdump/kdump-view.jsx:270
 msgid "Test kdump settings"
 msgstr "测试内核转储设置"
 
@@ -6777,7 +6803,7 @@ msgstr "必须安装 $0 软件包。"
 msgid "The $0 package will be installed to create VDO devices."
 msgstr "$0 软件包必须安装才能创建 VDO 设备。"
 
-#: pkg/shell/hosts_dialog.jsx:146
+#: pkg/shell/hosts_dialog.jsx:147
 msgid "The IP address or hostname cannot contain whitespace."
 msgstr "IP 地址或主机名不能包含空格。"
 
@@ -6793,17 +6819,17 @@ msgstr "为了添加备用的磁盘，RAID 设备必须在运行。"
 msgid "The RAID device must be running in order to remove disks."
 msgstr "为了移除磁盘，RAID 设备必须在运行。"
 
-#: pkg/shell/hosts_dialog.jsx:808
+#: pkg/shell/hosts_dialog.jsx:809
 msgid "The SSH key $0 of $1 on $2 will be added to the $3 file of $4 on $5."
 msgstr "$2 上 $1 的 SSH 密钥 $0 将被添加到 $5 上 $4 的 $3 文件中。"
 
-#: pkg/shell/hosts_dialog.jsx:840
+#: pkg/shell/hosts_dialog.jsx:841
 msgid ""
 "The SSH key $0 will be made available for the remainder of the session and "
 "will be available for login to other hosts as well."
 msgstr "SSH 密钥 $0 将会在剩余的会话中可用，也可以在登录到其他主机时可用。"
 
-#: pkg/shell/hosts_dialog.jsx:758
+#: pkg/shell/hosts_dialog.jsx:759
 msgid ""
 "The SSH key for logging in to $0 is protected by a password, and the host "
 "does not allow logging in with a password. Please provide the password of "
@@ -6812,7 +6838,7 @@ msgstr ""
 "登录到 $0 的 SSH 密钥是受密码保护的，主机不允许使用密码登录。请在 $1 提供密钥"
 "的密码。"
 
-#: pkg/shell/hosts_dialog.jsx:763
+#: pkg/shell/hosts_dialog.jsx:764
 msgid ""
 "The SSH key for logging in to $0 is protected. You can log in with either "
 "your login password or by providing the password of the key at $1."
@@ -6842,7 +6868,7 @@ msgid ""
 "The currently logged in user is not permitted to see information about keys."
 msgstr "当前登录的用户不允许查看有关密钥的信息。"
 
-#: pkg/storaged/format-dialog.jsx:354
+#: pkg/storaged/format-dialog.jsx:353
 msgid ""
 "The disk needs to be unlocked before formatting.  Please provide a existing "
 "passphrase."
@@ -6904,7 +6930,7 @@ msgid "The following service will be restarted:"
 msgid_plural "The following services will be restarted:"
 msgstr[0] "以下服务将会被重启："
 
-#: pkg/users/account-create-dialog.js:134
+#: pkg/users/account-create-dialog.js:166
 msgid "The full name must not contain colons."
 msgstr "全名不能含有冒号。"
 
@@ -6918,15 +6944,21 @@ msgid ""
 "and underscores"
 msgstr "组名称只能由字母 a-z、数字、点、破折号和下划线组成"
 
+#: pkg/users/account-create-dialog.js:360
+msgid ""
+"The home directory $0 already exists. Its ownership will be changed to the "
+"new user."
+msgstr ""
+
 #: pkg/storaged/crypto-keyslots.jsx:318
 msgid "The initrd must be regenerated."
 msgstr "必须重新生成 initrd。"
 
-#: pkg/shell/hosts_dialog.jsx:680
+#: pkg/shell/hosts_dialog.jsx:681
 msgid "The key password can not be empty"
 msgstr "密钥密码不能为空"
 
-#: pkg/shell/hosts_dialog.jsx:683 pkg/shell/hosts_dialog.jsx:689
+#: pkg/shell/hosts_dialog.jsx:684 pkg/shell/hosts_dialog.jsx:690
 msgid "The key passwords do not match"
 msgstr "密钥密码不匹配"
 
@@ -6974,15 +7006,15 @@ msgstr "挂载点 $0 正在被这些进程使用："
 msgid "The mount point $0 is in use by these services:"
 msgstr "挂载点 $0 正在被这些服务使用："
 
-#: pkg/shell/hosts_dialog.jsx:686
+#: pkg/shell/hosts_dialog.jsx:687
 msgid "The new key password can not be empty"
 msgstr "新的密钥密码不能为空"
 
-#: pkg/shell/hosts_dialog.jsx:664
+#: pkg/shell/hosts_dialog.jsx:665
 msgid "The password can not be empty"
 msgstr "密钥密码不能为空"
 
-#: pkg/users/password-dialogs.js:191 pkg/users/account-create-dialog.js:280
+#: pkg/users/password-dialogs.js:191 pkg/users/account-create-dialog.js:332
 msgid "The passwords do not match"
 msgstr "密码不匹配"
 
@@ -6990,8 +7022,8 @@ msgstr "密码不匹配"
 msgid "The passwords do not match."
 msgstr "密码不匹配。"
 
-#: pkg/static/login.html:96 pkg/shell/hosts_dialog.jsx:470
-#: pkg/shell/hosts_dialog.jsx:481
+#: pkg/static/login.html:96 pkg/shell/hosts_dialog.jsx:471
+#: pkg/shell/hosts_dialog.jsx:482
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
 "email."
@@ -7034,7 +7066,7 @@ msgid ""
 "effect."
 msgstr "用户必须退出登录并重新登录才能使新配置生效。"
 
-#: pkg/users/account-create-dialog.js:117
+#: pkg/users/account-create-dialog.js:149
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
@@ -7127,7 +7159,7 @@ msgstr "这些信息只保存在系统中。"
 msgid "This logical volume is not completely used by its content."
 msgstr "这个逻辑卷没有被它的内容完全使用。"
 
-#: pkg/shell/hosts_dialog.jsx:152
+#: pkg/shell/hosts_dialog.jsx:153
 msgid "This machine has already been added."
 msgstr "该主机已经被添加。"
 
@@ -7189,7 +7221,7 @@ msgstr ""
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "该单元没有设计为需要明确启用。"
 
-#: pkg/users/account-create-dialog.js:122
+#: pkg/users/account-create-dialog.js:154
 msgid "This user name already exists"
 msgstr "用户名已存在"
 
@@ -7225,11 +7257,11 @@ msgstr ""
 "这将添加 '_SYSTEMD_UNIT='、'COREDUMP_UNIT=' 和 'UNIT=' 匹配项，以查找给定单元"
 "的所有可能消息。可以包含以逗号分隔的多个单元。 "
 
-#: pkg/shell/hosts_dialog.jsx:809
+#: pkg/shell/hosts_dialog.jsx:810
 msgid "This will allow you to log in without password in the future."
 msgstr "这样以后登陆时将不需要密码。"
 
-#: pkg/kdump/kdump-view.jsx:277
+#: pkg/kdump/kdump-view.jsx:272
 msgid ""
 "This will test kdump settings by crashing the kernel and thereby the system. "
 "Depending on the settings, the system may not automatically reboot and the "
@@ -7238,7 +7270,7 @@ msgstr ""
 "这将通过崩溃内核和系统来测试 kdump 设置。取决于这些设置，系统也许不会自动重"
 "启，并且过程将持续一段时间。"
 
-#: pkg/kdump/kdump-view.jsx:442
+#: pkg/kdump/kdump-view.jsx:431
 msgid "This will test the kdump configuration by crashing the kernel."
 msgstr "这将通过崩溃内核来测试 kdump 配置。"
 
@@ -7283,8 +7315,8 @@ msgid ""
 "authenticate against other systems."
 msgstr "提示：确保您的关键密码匹配登录密码来自动验证其他系统。"
 
-#: pkg/static/login.html:91 pkg/shell/hosts_dialog.jsx:465
-#: pkg/shell/hosts_dialog.jsx:476
+#: pkg/static/login.html:91 pkg/shell/hosts_dialog.jsx:466
+#: pkg/shell/hosts_dialog.jsx:477
 msgid ""
 "To ensure that your connection is not intercepted by a malicious third-"
 "party, please verify the host key fingerprint:"
@@ -7297,7 +7329,7 @@ msgid ""
 msgstr ""
 "为了获取软件更新，该系统需要通过红帽客户门户网站或本地订阅服务器注册到红帽。"
 
-#: pkg/shell/hosts_dialog.jsx:468 pkg/shell/hosts_dialog.jsx:479
+#: pkg/shell/hosts_dialog.jsx:469 pkg/shell/hosts_dialog.jsx:480
 #: pkg/static/login.js:766
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
@@ -7431,7 +7463,7 @@ msgstr "开启管理员权限"
 #: pkg/systemd/hwinfo.jsx:83 pkg/systemd/hwinfo.jsx:307
 #: pkg/shell/credentials.jsx:199 pkg/storaged/content-views.jsx:764
 #: pkg/storaged/content-views.jsx:1029 pkg/storaged/fsys-panel.jsx:178
-#: pkg/storaged/format-dialog.jsx:299 pkg/storaged/part-tab.jsx:50
+#: pkg/storaged/format-dialog.jsx:298 pkg/storaged/part-tab.jsx:50
 #: pkg/storaged/unrecognized-tab.jsx:36 pkg/packagekit/autoupdates.jsx:271
 msgid "Type"
 msgstr "类型"
@@ -7462,11 +7494,11 @@ msgstr "无法自动应用该方案"
 msgid "Unable to connect to that address"
 msgstr "无法连接至该地址"
 
-#: pkg/shell/hosts_dialog.jsx:354
+#: pkg/shell/hosts_dialog.jsx:355
 msgid "Unable to contact $0."
 msgstr "无法联系 $0 。"
 
-#: pkg/shell/hosts_dialog.jsx:230
+#: pkg/shell/hosts_dialog.jsx:231
 msgid ""
 "Unable to contact the given host $0. Make sure it has ssh running on port "
 "$1, or specify another port in the address."
@@ -7483,7 +7515,7 @@ msgstr "无法获取警告详情。"
 msgid "Unable to get alert: $0"
 msgstr "无法获取警告： $0"
 
-#: pkg/shell/hosts_dialog.jsx:755
+#: pkg/shell/hosts_dialog.jsx:756
 msgid ""
 "Unable to log in to $0 using SSH key authentication. Please provide the "
 "password. You may want to set up your SSH keys for automatic login."
@@ -7491,7 +7523,7 @@ msgstr ""
 "无法使用 SSH 密钥认证登录到 $0 。请提供密码。您可能需要为自动登录设置 SSH 密"
 "钥。"
 
-#: pkg/shell/hosts_dialog.jsx:753
+#: pkg/shell/hosts_dialog.jsx:754
 msgid ""
 "Unable to log in to $0. The host does not accept password login or any of "
 "your SSH keys."
@@ -7674,7 +7706,7 @@ msgstr "直到"
 msgid "Untrusted host"
 msgstr "不可信的主机"
 
-#: pkg/shell/hosts_dialog.jsx:350
+#: pkg/shell/hosts_dialog.jsx:351
 msgid "Update"
 msgstr "更新"
 
@@ -7759,7 +7791,7 @@ msgstr "使用 deduplication"
 msgid "Use key"
 msgstr "使用密钥"
 
-#: pkg/users/account-create-dialog.js:76
+#: pkg/users/account-create-dialog.js:108
 msgid "Use password"
 msgstr "使用密码"
 
@@ -7780,7 +7812,7 @@ msgstr "已使用"
 msgid "Used for"
 msgstr "用于"
 
-#: pkg/storaged/format-dialog.jsx:144
+#: pkg/storaged/format-dialog.jsx:143
 msgid ""
 "Useful for mounts that are optional or need interaction (such as passphrases)"
 msgstr ""
@@ -7789,36 +7821,36 @@ msgstr ""
 msgid "User"
 msgstr "用户"
 
-#: pkg/users/account-create-dialog.js:65
+#: pkg/users/account-create-dialog.js:97
 #, fuzzy
 #| msgid "User"
 msgid "User ID"
 msgstr "用户"
 
-#: pkg/users/account-create-dialog.js:153
+#: pkg/users/account-create-dialog.js:185
 #, fuzzy
 #| msgid "This volume is already used by another VM."
 msgid "User ID is already used by another user"
 msgstr "这个卷已被另外一个虚拟机使用。"
 
-#: pkg/users/account-create-dialog.js:143
+#: pkg/users/account-create-dialog.js:175
 #, fuzzy
 #| msgid "The group ID must be positive integer"
 msgid "User ID must be a positive integer"
 msgstr "组 ID 必须是正整数"
 
-#: pkg/users/account-create-dialog.js:149
+#: pkg/users/account-create-dialog.js:181
 msgid "User ID must not be higher than $0"
 msgstr ""
 
-#: pkg/users/account-create-dialog.js:146
+#: pkg/users/account-create-dialog.js:178
 #, fuzzy
 #| msgid "Name cannot be longer than $0 bytes"
 msgid "User ID must not be lower than $0"
 msgstr "名称不能长于 $0 字节"
 
-#: pkg/static/login.html:101 pkg/users/account-create-dialog.js:56
-#: pkg/users/account-details.js:275 pkg/shell/hosts_dialog.jsx:258
+#: pkg/static/login.html:101 pkg/users/account-create-dialog.js:64
+#: pkg/users/account-details.js:275 pkg/shell/hosts_dialog.jsx:259
 msgid "User name"
 msgstr "用户名"
 
@@ -8058,7 +8090,7 @@ msgstr "周"
 msgid "When"
 msgstr "当"
 
-#: pkg/shell/hosts_dialog.jsx:258
+#: pkg/shell/hosts_dialog.jsx:259
 msgid "When empty, connect with the current user"
 msgstr "如果为空，与当前用户关联"
 
@@ -8108,7 +8140,7 @@ msgstr "每年"
 msgid "Yes"
 msgstr "是"
 
-#: pkg/shell/hosts_dialog.jsx:475 pkg/static/login.js:763
+#: pkg/shell/hosts_dialog.jsx:476 pkg/static/login.js:763
 msgid "You are connecting to $0 for the first time."
 msgstr "您第一次连接到 $0。"
 
@@ -8130,7 +8162,7 @@ msgstr "您由于不活动而已注销。"
 msgid "You may try to load older entries."
 msgstr "您可以尝试加载较早的条目。"
 
-#: pkg/shell/hosts_dialog.jsx:759 pkg/shell/hosts_dialog.jsx:764
+#: pkg/shell/hosts_dialog.jsx:760 pkg/shell/hosts_dialog.jsx:765
 msgid "You may want to change the password of the key for automatic login."
 msgstr "您可能需要更改自动登录的密钥密码。"
 
@@ -8307,7 +8339,7 @@ msgstr "中央处理器"
 msgid "crash"
 msgstr "崩溃"
 
-#: pkg/kdump/kdump-view.jsx:450
+#: pkg/kdump/kdump-view.jsx:439
 msgid "crashkernel not configured in the kernel command line"
 msgstr "在内核命令行中没有配置 crashkernel"
 
@@ -8322,7 +8354,7 @@ msgstr "故障调试"
 #: pkg/storaged/content-views.jsx:377 pkg/storaged/content-views.jsx:685
 #: pkg/storaged/stratis-details.jsx:236 pkg/storaged/stratis-details.jsx:581
 #: pkg/storaged/vdo-details.jsx:159 pkg/storaged/vgroup-details.jsx:182
-#: pkg/storaged/format-dialog.jsx:233 pkg/storaged/mdraid-details.jsx:279
+#: pkg/storaged/format-dialog.jsx:232 pkg/storaged/mdraid-details.jsx:279
 msgid "delete"
 msgstr "删除"
 
@@ -8440,7 +8472,7 @@ msgstr "对于当前和将来的内核"
 msgid "for current kernel only"
 msgstr "只对于当前的内核"
 
-#: pkg/storaged/format-dialog.jsx:233 pkg/storaged/manifest.json:0
+#: pkg/storaged/format-dialog.jsx:232 pkg/storaged/manifest.json:0
 msgid "format"
 msgstr "格式"
 
@@ -8508,7 +8540,7 @@ msgstr "安装"
 msgid "interface"
 msgstr "接口"
 
-#: pkg/kdump/kdump-view.jsx:322
+#: pkg/kdump/kdump-view.jsx:311
 msgid "invalid: multiple targets defined"
 msgstr "无效：定义了多个目标"
 
@@ -8536,7 +8568,7 @@ msgstr "journalctl 手册页"
 msgid "kdump"
 msgstr "kdump"
 
-#: pkg/kdump/kdump-view.jsx:446
+#: pkg/kdump/kdump-view.jsx:435
 msgid "kdump status"
 msgstr "kdump 状态"
 
@@ -8544,7 +8576,7 @@ msgstr "kdump 状态"
 msgid "keys"
 msgstr "密钥"
 
-#: pkg/kdump/kdump-view.jsx:326 pkg/kdump/kdump-view.jsx:328
+#: pkg/kdump/kdump-view.jsx:315 pkg/kdump/kdump-view.jsx:317
 msgid "locally in $0"
 msgstr "位于 $0 本地"
 
@@ -8600,7 +8632,7 @@ msgstr "缓解方案"
 msgid "mkfs"
 msgstr "mkfs"
 
-#: pkg/kdump/kdump-view.jsx:409
+#: pkg/kdump/kdump-view.jsx:398
 msgid "more details"
 msgstr "更多详情"
 

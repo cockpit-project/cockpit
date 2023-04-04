@@ -23,8 +23,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-23 02:48+0000\n"
-"PO-Revision-Date: 2023-03-20 17:20+0000\n"
+"POT-Creation-Date: 2023-04-03 02:47+0000\n"
+"PO-Revision-Date: 2023-03-30 07:20+0000\n"
 "Last-Translator: Miguel Ángel Sánchez <maletils@gmail.com>\n"
 "Language-Team: Spanish <https://translate.fedoraproject.org/projects/cockpit/"
 "main/es/>\n"
@@ -176,11 +176,18 @@ msgid_plural "$0 hits, including important"
 msgstr[0] "$0 impacto importante"
 msgstr[1] "$0 impactos, incluyendo impactos importantes"
 
+#: pkg/users/account-create-dialog.js:351
+#, fuzzy
+#| msgid "$0 disk is missing"
+#| msgid_plural "$0 disks are missing"
+msgid "$0 is an existing file"
+msgstr "Falta $0 disco"
+
 #: pkg/storaged/content-views.jsx:381 pkg/storaged/content-views.jsx:689
 #: pkg/storaged/stratis-details.jsx:240 pkg/storaged/stratis-details.jsx:585
 #: pkg/storaged/vdo-details.jsx:129 pkg/storaged/vdo-details.jsx:163
 #: pkg/storaged/vgroup-details.jsx:186 pkg/storaged/lvol-tabs.jsx:227
-#: pkg/storaged/lvol-tabs.jsx:294 pkg/storaged/format-dialog.jsx:237
+#: pkg/storaged/lvol-tabs.jsx:294 pkg/storaged/format-dialog.jsx:236
 #: pkg/storaged/mdraid-details.jsx:228 pkg/storaged/mdraid-details.jsx:283
 msgid "$0 is in use"
 msgstr "$0 está en uso"
@@ -192,7 +199,7 @@ msgstr "$0 está en uso"
 msgid "$0 is not available from any repository."
 msgstr "$0 no está disponible en ningún repositorio."
 
-#: pkg/shell/hosts_dialog.jsx:456 pkg/static/login.js:757
+#: pkg/shell/hosts_dialog.jsx:457 pkg/static/login.js:757
 msgid "$0 key changed"
 msgstr "$0 clave cambiada"
 
@@ -329,7 +336,7 @@ msgstr "$0: falló a los $1"
 msgid "$name (from $host)"
 msgstr "$name (del $host)"
 
-#: pkg/storaged/format-dialog.jsx:198 pkg/storaged/format-dialog.jsx:215
+#: pkg/storaged/format-dialog.jsx:197 pkg/storaged/format-dialog.jsx:214
 msgid "(recommended)"
 msgstr "(recomendado)"
 
@@ -556,7 +563,7 @@ msgstr "8"
 msgid "9th"
 msgstr "9"
 
-#: pkg/shell/hosts_dialog.jsx:85
+#: pkg/shell/hosts_dialog.jsx:86
 msgid "A compatible version of Cockpit is not installed on $0."
 msgstr "No se ha instalado una versión compatible de Cockpit en $0."
 
@@ -586,7 +593,7 @@ msgstr ""
 "Una agregación de enlaces de red combina múltiples interfaces de red en una "
 "sola interfaz lógica con un mayor rendimiento o redundancia."
 
-#: pkg/shell/hosts_dialog.jsx:780
+#: pkg/shell/hosts_dialog.jsx:781
 msgid ""
 "A new SSH key at $0 will be created for $1 on $2 and it will be added to the "
 "$3 file of $4 on $5."
@@ -643,7 +650,7 @@ msgstr "Acerca de la consola Web"
 msgid "Absent"
 msgstr "Ausente"
 
-#: pkg/shell/hosts_dialog.jsx:457
+#: pkg/shell/hosts_dialog.jsx:458
 msgid "Accept key and connect"
 msgstr "Aceptar la clave y conectar"
 
@@ -651,7 +658,7 @@ msgstr "Aceptar la clave y conectar"
 msgid "Accept key and log in"
 msgstr "Aceptar la clave y loguearse"
 
-#: pkg/users/expiration-dialogs.js:108
+#: pkg/users/expiration-dialogs.js:110
 msgid "Account expiration"
 msgstr "Expiración de la cuenta"
 
@@ -711,7 +718,7 @@ msgid "Adaptive transmit load balancing"
 msgstr "Transmisión adaptativo para el balanceo de carga"
 
 #: pkg/users/authorized-keys-panel.js:69 pkg/systemd/timer-dialog.jsx:373
-#: pkg/shell/credentials.jsx:184 pkg/shell/hosts_dialog.jsx:246
+#: pkg/shell/credentials.jsx:184 pkg/shell/hosts_dialog.jsx:247
 #: pkg/storaged/stratis-details.jsx:147 pkg/storaged/nfs-panel.jsx:65
 #: pkg/storaged/iscsi-panel.jsx:136 pkg/storaged/iscsi-panel.jsx:160
 #: pkg/storaged/iscsi-panel.jsx:255 pkg/storaged/vgroup-details.jsx:74
@@ -777,7 +784,7 @@ msgstr "Añadir clave"
 msgid "Add member"
 msgstr "Añadir miembro"
 
-#: pkg/shell/hosts.jsx:204 pkg/shell/hosts_dialog.jsx:245
+#: pkg/shell/hosts.jsx:204 pkg/shell/hosts_dialog.jsx:246
 msgid "Add new host"
 msgstr "Añadir un nuevo anfitrión"
 
@@ -1036,7 +1043,7 @@ msgstr "Instalando las actualizaciones"
 msgid "Applying updates failed"
 msgstr "Fallo al instalar las actualizaciones"
 
-#: pkg/storaged/format-dialog.jsx:108
+#: pkg/storaged/format-dialog.jsx:107
 msgid "Appropriate for critical mounts, such as /var"
 msgstr "Apropiado para puntos de montaje críticos, como /var"
 
@@ -1054,7 +1061,7 @@ msgid "Asset tag"
 msgstr "Etiqueta de propiedad"
 
 #: pkg/storaged/stratis-details.jsx:382 pkg/storaged/stratis-details.jsx:533
-#: pkg/storaged/fsys-tab.jsx:347 pkg/storaged/format-dialog.jsx:363
+#: pkg/storaged/fsys-tab.jsx:347 pkg/storaged/format-dialog.jsx:362
 msgid "At boot"
 msgstr "Al arranque"
 
@@ -1101,7 +1108,7 @@ msgstr "Autenticar"
 msgid "Authenticating"
 msgstr "Autenticando"
 
-#: pkg/users/account-create-dialog.js:74 pkg/shell/hosts_dialog.jsx:820
+#: pkg/users/account-create-dialog.js:106 pkg/shell/hosts_dialog.jsx:821
 msgid "Authentication"
 msgstr "Autenticación"
 
@@ -1125,7 +1132,7 @@ msgstr ""
 msgid "Authentication required"
 msgstr "Se necesita autenticación"
 
-#: pkg/shell/hosts_dialog.jsx:806
+#: pkg/shell/hosts_dialog.jsx:807
 msgid "Authorize SSH key"
 msgstr "Autorizar la clave SSH"
 
@@ -1149,7 +1156,7 @@ msgstr "Automático (solo DHCP)"
 msgid "Automatic (DHCP)"
 msgstr "Automático (DHCP)"
 
-#: pkg/shell/hosts_dialog.jsx:846
+#: pkg/shell/hosts_dialog.jsx:847
 msgid "Automatic login"
 msgstr "Acceso automático"
 
@@ -1277,13 +1284,13 @@ msgstr "Configuración de la agregación de enlaces"
 msgid "Boot"
 msgstr "Arranque"
 
-#: pkg/storaged/format-dialog.jsx:111
+#: pkg/storaged/format-dialog.jsx:110
 msgid "Boot fails if filesystem does not mount, preventing remote access"
 msgstr ""
 "El arranque falla si el sistema de archivos no se puede montar, previniendo "
 "acceso remoto"
 
-#: pkg/storaged/format-dialog.jsx:122 pkg/storaged/format-dialog.jsx:133
+#: pkg/storaged/format-dialog.jsx:121 pkg/storaged/format-dialog.jsx:132
 msgid "Boot still succeeds when filesystem does not mount"
 msgstr "El arranque no falla aunque el sistema de archivos no se monte"
 
@@ -1330,7 +1337,7 @@ msgstr "Errores"
 msgid "Bus expansion chassis"
 msgstr "Chasis de expansión de bus"
 
-#: pkg/shell/hosts_dialog.jsx:794
+#: pkg/shell/hosts_dialog.jsx:795
 msgid ""
 "By changing the password of the SSH key $0 to the login password of $1 on "
 "$2, the key will be automatically made available and you can log in to $3 "
@@ -1370,7 +1377,7 @@ msgstr "CVE"
 msgid "Cache"
 msgstr "Antememoria"
 
-#: pkg/shell/hosts_dialog.jsx:249
+#: pkg/shell/hosts_dialog.jsx:250
 msgid "Can be a hostname, IP address, alias name, or ssh:// URI"
 msgstr "Puede ser un hostname, dirección IP, alias, o URI ssh://"
 
@@ -1392,9 +1399,9 @@ msgstr ""
 #: pkg/systemd/reporting.jsx:424 pkg/shell/superuser.jsx:182
 #: pkg/shell/superuser.jsx:220 pkg/shell/superuser.jsx:265
 #: pkg/shell/shell-modals.jsx:112 pkg/shell/credentials.jsx:313
-#: pkg/shell/active-pages-modal.jsx:100 pkg/shell/hosts_dialog.jsx:278
-#: pkg/shell/hosts_dialog.jsx:375 pkg/shell/hosts_dialog.jsx:499
-#: pkg/shell/hosts_dialog.jsx:867 pkg/networkmanager/dialogs-common.jsx:159
+#: pkg/shell/active-pages-modal.jsx:100 pkg/shell/hosts_dialog.jsx:279
+#: pkg/shell/hosts_dialog.jsx:376 pkg/shell/hosts_dialog.jsx:500
+#: pkg/shell/hosts_dialog.jsx:868 pkg/networkmanager/dialogs-common.jsx:159
 #: pkg/networkmanager/firewall.jsx:611 pkg/networkmanager/firewall.jsx:815
 #: pkg/networkmanager/firewall.jsx:910 pkg/storaged/jobs-panel.jsx:137
 #: pkg/packagekit/kpatch.jsx:312 pkg/packagekit/autoupdates.jsx:266
@@ -1445,8 +1452,8 @@ msgstr "Capacidad"
 msgid "Carrier"
 msgstr "Transporte"
 
-#: pkg/lib/serverTime.js:748 pkg/users/expiration-dialogs.js:115
-#: pkg/users/expiration-dialogs.js:220
+#: pkg/lib/serverTime.js:748 pkg/users/expiration-dialogs.js:117
+#: pkg/users/expiration-dialogs.js:222
 #: pkg/systemd/overview-cards/configurationCard.jsx:282
 #: pkg/storaged/iscsi-panel.jsx:187
 msgid "Change"
@@ -1486,7 +1493,7 @@ msgstr "Cambiar el perfil"
 msgid "Change system time"
 msgstr "Cambiar la hora del sistema"
 
-#: pkg/shell/hosts_dialog.jsx:792
+#: pkg/shell/hosts_dialog.jsx:793
 msgid "Change the password of $0"
 msgstr "Cambiar la contraseña de $0"
 
@@ -1494,7 +1501,7 @@ msgstr "Cambiar la contraseña de $0"
 msgid "Change the settings"
 msgstr "Cambiar los ajustes"
 
-#: pkg/static/login.html:88 pkg/shell/hosts_dialog.jsx:464
+#: pkg/static/login.html:88 pkg/shell/hosts_dialog.jsx:465
 msgid ""
 "Changed keys are often the result of an operating system reinstallation. "
 "However, an unexpected change may indicate a third-party attempt to "
@@ -1604,7 +1611,7 @@ msgstr "Cliente de software"
 #: pkg/systemd/overview-cards/configurationCard.jsx:197
 #: pkg/systemd/overview-cards/realmd.jsx:262 pkg/shell/superuser.jsx:190
 #: pkg/shell/superuser.jsx:198 pkg/shell/shell-modals.jsx:168
-#: pkg/shell/credentials.jsx:81 pkg/shell/hosts_dialog.jsx:79
+#: pkg/shell/credentials.jsx:81 pkg/shell/hosts_dialog.jsx:80
 #: pkg/networkmanager/interfaces.js:43 pkg/storaged/dialog.jsx:451
 #: pkg/apps/utils.jsx:87
 msgid "Close"
@@ -1624,7 +1631,7 @@ msgstr "La configuración de autenticación de Cockpit está mal configurada."
 
 #: src/appstream/org.cockpit-project.cockpit-networkmanager.metainfo.xml.in:6
 msgid "Cockpit configuration of NetworkManager and Firewalld"
-msgstr ""
+msgstr "Configuración en Cockpit de NetworkManager y Firewalld"
 
 #: pkg/lib/cockpit.js:3888
 msgid "Cockpit could not contact the given host."
@@ -1658,7 +1665,7 @@ msgstr ""
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit no es compatible con el software del sistema."
 
-#: pkg/shell/hosts_dialog.jsx:76
+#: pkg/shell/hosts_dialog.jsx:77
 msgid "Cockpit is not installed"
 msgstr "Cockpit no está instalado"
 
@@ -1686,19 +1693,17 @@ msgstr "Puede que Cockpit no se muestre correctamente en su navegador"
 
 #: src/appstream/org.cockpit-project.cockpit-sosreport.metainfo.xml.in:7
 msgid "Collect and package diagnostic and support data"
-msgstr ""
+msgstr "Recoger y empaquetar datos de diagnóstico y soporte"
 
 #: src/appstream/org.cockpit-project.cockpit-kdump.metainfo.xml.in:6
-#, fuzzy
-#| msgid "Kernel crash dump"
 msgid "Collect kernel crash dumps"
-msgstr "Volcado de colapso del kernel"
+msgstr "Recoger volcados de colapso del kernel"
 
 #: pkg/metrics/metrics.jsx:1332
 msgid "Collect metrics"
 msgstr "Almacenar métricas"
 
-#: pkg/shell/hosts_dialog.jsx:262
+#: pkg/shell/hosts_dialog.jsx:263
 msgid "Color"
 msgstr "Color"
 
@@ -1737,11 +1742,11 @@ msgstr "Compatible con todos los sistemas y dispositivos (MBR)"
 msgid "Compatible with modern system and hard disks > 2TB (GPT)"
 msgstr "Compatible con los sistemas modernos y discos duros > 2TB (GPT)"
 
-#: pkg/kdump/kdump-view.jsx:240
+#: pkg/kdump/kdump-view.jsx:241
 msgid "Compress crash dumps to save space"
 msgstr "Comprimir volcado de colapsos para ahorrar espacio"
 
-#: pkg/kdump/kdump-view.jsx:235 pkg/storaged/content-views.jsx:970
+#: pkg/kdump/kdump-view.jsx:236 pkg/storaged/content-views.jsx:970
 #: pkg/storaged/vdo-details.jsx:321 pkg/storaged/lvol-tabs.jsx:558
 msgid "Compression"
 msgstr "Compresión"
@@ -1774,7 +1779,7 @@ msgstr "Configurando el servicio de kdump"
 msgid "Configuring system settings"
 msgstr "Cambiando la configuración del sistema"
 
-#: pkg/users/account-create-dialog.js:102 pkg/storaged/format-dialog.jsx:329
+#: pkg/users/account-create-dialog.js:134 pkg/storaged/format-dialog.jsx:328
 #: pkg/storaged/stratis-panel.jsx:149
 msgid "Confirm"
 msgstr "Confirmar"
@@ -1783,11 +1788,11 @@ msgstr "Confirmar"
 msgid "Confirm deletion of $0"
 msgstr "Confirme la eliminación de $0"
 
-#: pkg/shell/hosts_dialog.jsx:785
+#: pkg/shell/hosts_dialog.jsx:786
 msgid "Confirm key password"
 msgstr "Confirme la contraseña de la clave"
 
-#: pkg/shell/hosts_dialog.jsx:799
+#: pkg/shell/hosts_dialog.jsx:800
 msgid "Confirm new key password"
 msgstr "Confirme la nueva contraseña de la clave"
 
@@ -1907,11 +1912,15 @@ msgid "Convertible"
 msgstr "Convertible"
 
 #: pkg/shell/failures.jsx:44 pkg/shell/credentials.jsx:212
+#: pkg/shell/hosts_dialog.jsx:467 pkg/shell/hosts_dialog.jsx:470
+#: pkg/shell/hosts_dialog.jsx:478 pkg/shell/hosts_dialog.jsx:481
 msgid "Copied"
 msgstr "Copiado"
 
 #: pkg/lib/cockpit-components-context-menu.jsx:104 pkg/shell/failures.jsx:44
-#: pkg/shell/credentials.jsx:212
+#: pkg/shell/credentials.jsx:212 pkg/shell/hosts_dialog.jsx:467
+#: pkg/shell/hosts_dialog.jsx:470 pkg/shell/hosts_dialog.jsx:478
+#: pkg/shell/hosts_dialog.jsx:481
 msgid "Copy"
 msgstr "Copiar"
 
@@ -1924,11 +1933,11 @@ msgstr "Copiar al portapapeles"
 msgid "Core $0"
 msgstr "Núcleo $0"
 
-#: pkg/shell/hosts_dialog.jsx:349
+#: pkg/shell/hosts_dialog.jsx:350
 msgid "Could not contact $0"
 msgstr "No se pudo contactar con $0"
 
-#: pkg/kdump/kdump-view.jsx:141 pkg/kdump/kdump-view.jsx:489
+#: pkg/kdump/kdump-view.jsx:141 pkg/kdump/kdump-view.jsx:478
 msgid "Crash dump location"
 msgstr "Ubicación del volcado de colapsos"
 
@@ -1936,12 +1945,12 @@ msgstr "Ubicación del volcado de colapsos"
 msgid "Crash reporting"
 msgstr "Reporte de colapso"
 
-#: pkg/kdump/kdump-view.jsx:285
+#: pkg/kdump/kdump-view.jsx:280
 msgid "Crash system"
 msgstr "Colapsar el sistema"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:187
-#: pkg/users/group-create-dialog.js:142 pkg/users/account-create-dialog.js:365
+#: pkg/users/group-create-dialog.js:142 pkg/users/account-create-dialog.js:449
 #: pkg/storaged/content-views.jsx:206 pkg/storaged/content-views.jsx:321
 #: pkg/storaged/content-views.jsx:986 pkg/storaged/stratis-panel.jsx:170
 #: pkg/storaged/vgroups-panel.jsx:89 pkg/storaged/mdraids-panel.jsx:139
@@ -1960,7 +1969,7 @@ msgstr "Crear un dispositivo RAID"
 msgid "Create Stratis pool"
 msgstr "Crear un grupo de almacenamiento Stratis"
 
-#: pkg/shell/hosts_dialog.jsx:778
+#: pkg/shell/hosts_dialog.jsx:779
 msgid "Create a new SSH key and authorize it"
 msgstr "Crear una clave SSH y autorizarla"
 
@@ -1968,17 +1977,19 @@ msgstr "Crear una clave SSH y autorizarla"
 msgid "Create a snapshot of filesystem $0"
 msgstr "Crear una instantánea del sistema de archivos $0"
 
-#: pkg/users/account-create-dialog.js:416
-#, fuzzy
-#| msgid "Create account with weak password"
+#: pkg/users/account-create-dialog.js:525
 msgid "Create account with non-unique UID"
-msgstr "Crear la cuenta con la contraseña débil"
+msgstr "Crear la cuenta con el UID no único"
 
-#: pkg/users/account-create-dialog.js:391
+#: pkg/users/account-create-dialog.js:500
 msgid "Create account with weak password"
 msgstr "Crear la cuenta con la contraseña débil"
 
-#: pkg/storaged/stratis-details.jsx:411 pkg/storaged/format-dialog.jsx:405
+#: pkg/users/account-create-dialog.js:475
+msgid "Create and change ownership of home directory"
+msgstr ""
+
+#: pkg/storaged/stratis-details.jsx:411 pkg/storaged/format-dialog.jsx:404
 msgid "Create and mount"
 msgstr "Crear y montar"
 
@@ -1998,7 +2009,7 @@ msgstr "Crearlo"
 msgid "Create logical volume"
 msgstr "Crear un volumen lógico"
 
-#: pkg/users/account-create-dialog.js:350 pkg/users/accounts-list.js:446
+#: pkg/users/account-create-dialog.js:434 pkg/users/accounts-list.js:446
 msgid "Create new account"
 msgstr "Crear una cuenta"
 
@@ -2018,7 +2029,7 @@ msgstr "Crear un volumen lógico"
 msgid "Create new task file with this content."
 msgstr "Crear un archivo de tarea con este contenido."
 
-#: pkg/storaged/stratis-details.jsx:412 pkg/storaged/format-dialog.jsx:407
+#: pkg/storaged/stratis-details.jsx:412 pkg/storaged/format-dialog.jsx:406
 msgid "Create only"
 msgstr "Sólo crear"
 
@@ -2026,7 +2037,7 @@ msgstr "Sólo crear"
 msgid "Create partition"
 msgstr "Crear una partición"
 
-#: pkg/storaged/format-dialog.jsx:182
+#: pkg/storaged/format-dialog.jsx:181
 msgid "Create partition on $0"
 msgstr "Crear una partición en $0"
 
@@ -2145,7 +2156,7 @@ msgstr "Política de criptografía personalizada"
 
 #: pkg/storaged/stratis-details.jsx:379 pkg/storaged/stratis-details.jsx:530
 #: pkg/storaged/fsys-tab.jsx:344 pkg/storaged/nfs-details.jsx:166
-#: pkg/storaged/format-dialog.jsx:396
+#: pkg/storaged/format-dialog.jsx:395
 msgid "Custom mount options"
 msgstr "Opciones de montaje personalizadas"
 
@@ -2390,8 +2401,8 @@ msgstr "Dispositivos"
 msgid "Diagnostic reports"
 msgstr "Informes de diagnóstico"
 
-#: pkg/kdump/kdump-view.jsx:175 pkg/kdump/kdump-view.jsx:196
-#: pkg/kdump/kdump-view.jsx:224
+#: pkg/kdump/kdump-view.jsx:176 pkg/kdump/kdump-view.jsx:197
+#: pkg/kdump/kdump-view.jsx:225
 msgid "Directory"
 msgstr "Directorio"
 
@@ -2411,7 +2422,7 @@ msgstr "Desactivar el cortafuegos"
 msgid "Disable tuned"
 msgstr "Deshabilitar tuned"
 
-#: pkg/kdump/kdump-view.jsx:463 pkg/systemd/services.jsx:251
+#: pkg/kdump/kdump-view.jsx:452 pkg/systemd/services.jsx:251
 #: pkg/systemd/services.jsx:691 pkg/systemd/service-details.jsx:443
 #: pkg/networkmanager/ip-settings.jsx:44 pkg/networkmanager/ip-settings.jsx:55
 #: pkg/networkmanager/firewall-switch.jsx:80 pkg/packagekit/kpatch.jsx:250
@@ -2423,7 +2434,7 @@ msgstr "Deshabilitado"
 msgid "Disallow interactive password"
 msgstr "Denegar la autenticación interactiva con contraseña"
 
-#: pkg/users/account-create-dialog.js:89
+#: pkg/users/account-create-dialog.js:121
 msgid "Disallow password authentication"
 msgstr "Denegar autenticación por contraseña"
 
@@ -2480,7 +2491,7 @@ msgid "Display language"
 msgstr "Idioma de visualización"
 
 #: pkg/storaged/stratis-details.jsx:401 pkg/storaged/stratis-details.jsx:552
-#: pkg/storaged/fsys-tab.jsx:366 pkg/storaged/format-dialog.jsx:383
+#: pkg/storaged/fsys-tab.jsx:366 pkg/storaged/format-dialog.jsx:382
 msgid "Do not mount"
 msgstr "No montar"
 
@@ -2496,7 +2507,7 @@ msgstr "Estación de acoplamiento"
 msgid "Does not automatically start"
 msgstr "No se inicia automáticamente en el inicio"
 
-#: pkg/storaged/format-dialog.jsx:141
+#: pkg/storaged/format-dialog.jsx:140
 msgid "Does not mount during boot"
 msgstr "No se monta durante el arranque"
 
@@ -2590,7 +2601,7 @@ msgstr "Editar el servidor de llaves Tang"
 msgid "Edit custom service in $0 zone"
 msgstr "Editar servicio personalizado en la zona $0"
 
-#: pkg/shell/hosts_dialog.jsx:245
+#: pkg/shell/hosts_dialog.jsx:246
 msgid "Edit host"
 msgstr "Editar anfitrión"
 
@@ -2662,7 +2673,7 @@ msgstr "Habilitar servicio"
 msgid "Enable the firewall"
 msgstr "Habilitar el cortafuegos"
 
-#: pkg/kdump/kdump-view.jsx:463 pkg/systemd/services.jsx:249
+#: pkg/kdump/kdump-view.jsx:452 pkg/systemd/services.jsx:249
 #: pkg/systemd/services.jsx:250 pkg/systemd/services.jsx:690
 #: pkg/networkmanager/firewall-switch.jsx:80 pkg/packagekit/kpatch.jsx:253
 msgid "Enabled"
@@ -2708,11 +2719,11 @@ msgstr ""
 "Es necesario que los volúmenes cifrados estén desbloqueados para poder "
 "cambiar sus tamaños."
 
-#: pkg/storaged/content-views.jsx:248 pkg/storaged/format-dialog.jsx:315
+#: pkg/storaged/content-views.jsx:248 pkg/storaged/format-dialog.jsx:314
 msgid "Encryption"
 msgstr "Encriptación"
 
-#: pkg/storaged/crypto-tab.jsx:194 pkg/storaged/format-dialog.jsx:356
+#: pkg/storaged/crypto-tab.jsx:194 pkg/storaged/format-dialog.jsx:355
 msgid "Encryption options"
 msgstr "Opciones de cifrado"
 
@@ -2822,7 +2833,7 @@ msgstr "Contraseña excelente"
 msgid "Expansion chassis"
 msgstr "Chasis de expansión"
 
-#: pkg/users/expiration-dialogs.js:72
+#: pkg/users/expiration-dialogs.js:73
 msgid "Expire account on"
 msgstr "Expirar la cuenta en"
 
@@ -2830,7 +2841,7 @@ msgstr "Expirar la cuenta en"
 msgid "Expire account on $0"
 msgstr "Expirar la cuenta en $0"
 
-#: pkg/kdump/kdump-view.jsx:191
+#: pkg/kdump/kdump-view.jsx:192
 msgid "Export"
 msgstr "Fichero export"
 
@@ -2842,7 +2853,7 @@ msgstr "Exportar a la red"
 msgid "Extended information"
 msgstr "Información extendida"
 
-#: pkg/storaged/content-views.jsx:637 pkg/storaged/format-dialog.jsx:204
+#: pkg/storaged/content-views.jsx:637 pkg/storaged/format-dialog.jsx:203
 msgid "Extended partition"
 msgstr "Partición extendida"
 
@@ -2858,7 +2869,7 @@ msgstr "FIPS con restricciones Common Criteria."
 msgid "Failed"
 msgstr "Falló"
 
-#: pkg/shell/hosts_dialog.jsx:213
+#: pkg/shell/hosts_dialog.jsx:214
 msgid "Failed to add machine: $0"
 msgstr "Fallo al añadir la máquina: $0"
 
@@ -2895,7 +2906,7 @@ msgstr "Falló la desactivación del servicio tuned"
 msgid "Failed to disable tuned profile"
 msgstr "Fallo al desactivar el perfil de tuned"
 
-#: pkg/shell/hosts_dialog.jsx:330
+#: pkg/shell/hosts_dialog.jsx:331
 msgid "Failed to edit machine: $0"
 msgstr "Fallo al editar máquina: $0"
 
@@ -3043,19 +3054,19 @@ msgstr "Cambio forzado de la contraseña"
 msgid "Format"
 msgstr "Formatear"
 
-#: pkg/storaged/format-dialog.jsx:184
+#: pkg/storaged/format-dialog.jsx:183
 msgid "Format $0"
 msgstr "Formatear $0"
 
-#: pkg/storaged/format-dialog.jsx:405
+#: pkg/storaged/format-dialog.jsx:404
 msgid "Format and mount"
 msgstr "Formatear y montar"
 
-#: pkg/storaged/format-dialog.jsx:407
+#: pkg/storaged/format-dialog.jsx:406
 msgid "Format only"
 msgstr "Sólo formatear"
 
-#: pkg/storaged/format-dialog.jsx:406
+#: pkg/storaged/format-dialog.jsx:405
 msgid "Formatting erases all data on a storage device."
 msgstr ""
 "Formateando eliminará todos los datos de un dispositivo de almacenamiento."
@@ -3096,7 +3107,7 @@ msgstr "Los viernes"
 msgid "From"
 msgstr "Desde"
 
-#: pkg/users/account-create-dialog.js:47 pkg/users/account-details.js:261
+#: pkg/users/account-create-dialog.js:55 pkg/users/account-details.js:261
 #: pkg/users/accounts-list.js:392
 msgid "Full name"
 msgstr "Nombre completo"
@@ -3210,11 +3221,11 @@ msgstr "Mayor interoperabilidad a costa de una mayor superficie de ataque."
 msgid "History package count"
 msgstr "Cuenta del histórico de paquetes"
 
-#: pkg/users/account-details.js:339
+#: pkg/users/account-create-dialog.js:73 pkg/users/account-details.js:339
 msgid "Home directory"
 msgstr "Directorio personal"
 
-#: pkg/shell/hosts.jsx:190 pkg/shell/hosts_dialog.jsx:249
+#: pkg/shell/hosts.jsx:190 pkg/shell/hosts_dialog.jsx:250
 msgid "Host"
 msgstr "Anfitrión"
 
@@ -3297,7 +3308,7 @@ msgstr ""
 "Si la huella coincide, pulse \"Aceptar la clave e iniciar sesión\". En caso "
 "contrario, no inicie sesión y contacte con su administrador."
 
-#: pkg/shell/hosts_dialog.jsx:471 pkg/shell/hosts_dialog.jsx:482
+#: pkg/shell/hosts_dialog.jsx:472 pkg/shell/hosts_dialog.jsx:483
 msgid ""
 "If the fingerprint matches, click 'Accept key and connect'. Otherwise, do "
 "not connect and contact your administrator."
@@ -3314,7 +3325,7 @@ msgstr "Ignorar"
 msgid "In"
 msgstr "Entrante"
 
-#: pkg/shell/hosts_dialog.jsx:789 pkg/shell/hosts_dialog.jsx:803
+#: pkg/shell/hosts_dialog.jsx:790 pkg/shell/hosts_dialog.jsx:804
 msgid ""
 "In order to allow log in to $0 as $1 without password in the future, use the "
 "login password of $2 on $3 as the key password, or leave the key password "
@@ -3422,6 +3433,14 @@ msgstr "Instalar cockpit-pcp"
 msgid "Install kpatch updates"
 msgstr "Instalar todas las actualizaciones de kpatch"
 
+# auto translated by TM merge from project: Cockpit, version: rhel-8.0, DocId:
+# cockpit
+#: pkg/systemd/overview-cards/realmd.jsx:448
+#, fuzzy
+#| msgid "Install Stratis support"
+msgid "Install realmd support"
+msgstr "Instalar soporte para Stratis"
+
 #: pkg/packagekit/updates.jsx:1403 pkg/packagekit/updates.jsx:1410
 msgid "Install security updates"
 msgstr "Instalar las actualizaciones de seguridad"
@@ -3504,7 +3523,7 @@ msgstr "Formato de fecha inválido"
 msgid "Invalid date format and invalid time format"
 msgstr "Formato de fecha y hora inválidos"
 
-#: pkg/users/expiration-dialogs.js:98
+#: pkg/users/expiration-dialogs.js:100
 msgid "Invalid expiration date"
 msgstr "Fecha de expiración invalida"
 
@@ -3520,7 +3539,7 @@ msgstr "Llave inválida"
 msgid "Invalid metric $0"
 msgstr "La métrica $0 no es válida"
 
-#: pkg/users/expiration-dialogs.js:203
+#: pkg/users/expiration-dialogs.js:205
 msgid "Invalid number of days"
 msgstr "Numero de días incorrecto"
 
@@ -3557,7 +3576,7 @@ msgstr "Nombre de usuario o contraseña inválidos"
 msgid "IoT gateway"
 msgstr "Pasarela IoT"
 
-#: pkg/shell/hosts_dialog.jsx:355
+#: pkg/shell/hosts_dialog.jsx:356
 msgid "Is sshd running on a different port?"
 msgstr "¿El servicio SSHD está corriendo en un puerto diferente?"
 
@@ -3575,7 +3594,6 @@ msgid "Join a domain"
 msgstr "Unirse a un dominio"
 
 #: pkg/systemd/overview-cards/realmd.jsx:448
-#: pkg/systemd/overview-cards/realmd.jsx:470
 msgid "Join domain"
 msgstr "Unirse a un dominio"
 
@@ -3611,7 +3629,7 @@ msgstr "Entrada de bitácora no encontrada"
 msgid "Jump to"
 msgstr "Ir a"
 
-#: pkg/kdump/kdump-view.jsx:413
+#: pkg/kdump/kdump-view.jsx:402
 msgid ""
 "Kdump service not installed. Please ensure package kexec-tools is installed."
 msgstr ""
@@ -3622,7 +3640,7 @@ msgstr ""
 msgid "Keep connection"
 msgstr "Mantener la conexión"
 
-#: pkg/kdump/kdump-view.jsx:459
+#: pkg/kdump/kdump-view.jsx:448
 msgid "Kernel crash dump"
 msgstr "Volcado de colapso del kernel"
 
@@ -3647,7 +3665,7 @@ msgstr "Ajustes de los parches en vivo del kernel"
 msgid "Kernel live patching"
 msgstr "Aplicación de parches en vivo del kernel"
 
-#: pkg/shell/hosts_dialog.jsx:781 pkg/shell/hosts_dialog.jsx:840
+#: pkg/shell/hosts_dialog.jsx:782 pkg/shell/hosts_dialog.jsx:841
 msgid "Key password"
 msgstr "Contraseña de la clave"
 
@@ -3873,7 +3891,7 @@ msgstr "Cargando modificaciones del sistema..."
 msgid "Loading unit failed"
 msgstr "Fallo al cargar la unidad"
 
-#: pkg/kdump/kdump-view.jsx:314 pkg/users/account-details.js:188
+#: pkg/kdump/kdump-view.jsx:303 pkg/users/account-details.js:188
 #: pkg/users/accounts-list.js:327 pkg/users/accounts-list.js:351
 #: pkg/users/accounts-list.js:467 pkg/systemd/logDetails.jsx:176
 #: pkg/systemd/services.jsx:687 pkg/systemd/logsJournal.jsx:268
@@ -3886,7 +3904,7 @@ msgstr "Cargando..."
 msgid "Local accounts"
 msgstr "Cuentas locales"
 
-#: pkg/kdump/kdump-view.jsx:166
+#: pkg/kdump/kdump-view.jsx:167
 msgid "Local filesystem"
 msgstr "Sistema de archivos local"
 
@@ -3894,7 +3912,7 @@ msgstr "Sistema de archivos local"
 msgid "Local mount point"
 msgstr "Punto de montaje local"
 
-#: pkg/kdump/kdump-view.jsx:162 pkg/storaged/dialog.jsx:1063
+#: pkg/kdump/kdump-view.jsx:163 pkg/storaged/dialog.jsx:1063
 #: pkg/storaged/dialog.jsx:1141
 msgid "Location"
 msgstr "Ubicación"
@@ -3929,11 +3947,11 @@ msgid "Locking $target"
 msgstr "Bloquendo $target"
 
 #: pkg/static/login.html:146 pkg/shell/failures.jsx:75
-#: pkg/shell/hosts_dialog.jsx:749 pkg/static/login.js:666
+#: pkg/shell/hosts_dialog.jsx:750 pkg/static/login.js:666
 msgid "Log in"
 msgstr "Iniciar sesión"
 
-#: pkg/shell/hosts_dialog.jsx:748
+#: pkg/shell/hosts_dialog.jsx:749
 msgid "Log in to $0"
 msgstr "Iniciar sesión en $0"
 
@@ -4066,10 +4084,8 @@ msgstr ""
 "los siguientes:"
 
 #: src/appstream/org.cockpit-project.cockpit-storaged.metainfo.xml.in:6
-#, fuzzy
-#| msgid "Managed interfaces"
 msgid "Manage storage"
-msgstr "Interfaces gestionadas"
+msgstr "Gestionar el almacenamiento"
 
 #: pkg/networkmanager/network-main.jsx:180
 msgid "Managed interfaces"
@@ -4298,7 +4314,7 @@ msgid "Mount"
 msgstr "Montar"
 
 #: pkg/storaged/stratis-details.jsx:397 pkg/storaged/stratis-details.jsx:548
-#: pkg/storaged/fsys-tab.jsx:362 pkg/storaged/format-dialog.jsx:379
+#: pkg/storaged/fsys-tab.jsx:362 pkg/storaged/format-dialog.jsx:378
 msgid "Mount after network becomes available, ignore failure"
 msgstr "Montar después de que la red esté disponible, ignorar si falla"
 
@@ -4315,7 +4331,7 @@ msgid "Mount automatically on $0 on boot"
 msgstr "Montar automáticamente $0 en el arranque"
 
 #: pkg/storaged/stratis-details.jsx:389 pkg/storaged/stratis-details.jsx:540
-#: pkg/storaged/fsys-tab.jsx:354 pkg/storaged/format-dialog.jsx:371
+#: pkg/storaged/fsys-tab.jsx:354 pkg/storaged/format-dialog.jsx:370
 msgid "Mount before services start"
 msgstr "Montar antes de que se inicien los servicios"
 
@@ -4337,14 +4353,14 @@ msgstr "Montar en $0 ahora"
 
 #: pkg/storaged/stratis-details.jsx:371 pkg/storaged/stratis-details.jsx:522
 #: pkg/storaged/fsys-tab.jsx:336 pkg/storaged/nfs-details.jsx:161
-#: pkg/storaged/format-dialog.jsx:387
+#: pkg/storaged/format-dialog.jsx:386
 msgid "Mount options"
 msgstr "Opciones de montaje"
 
 #: pkg/storaged/stratis-details.jsx:367 pkg/storaged/stratis-details.jsx:518
 #: pkg/storaged/nfs-panel.jsx:103 pkg/storaged/fsys-tab.jsx:331
 #: pkg/storaged/fsys-tab.jsx:754 pkg/storaged/nfs-details.jsx:317
-#: pkg/storaged/format-dialog.jsx:293
+#: pkg/storaged/format-dialog.jsx:292
 msgid "Mount point"
 msgstr "Punto de montaje"
 
@@ -4366,12 +4382,12 @@ msgstr "El punto de montaje debe empezar con \"/\"."
 
 #: pkg/storaged/stratis-details.jsx:378 pkg/storaged/stratis-details.jsx:529
 #: pkg/storaged/fsys-tab.jsx:343 pkg/storaged/nfs-details.jsx:165
-#: pkg/storaged/format-dialog.jsx:395
+#: pkg/storaged/format-dialog.jsx:394
 msgid "Mount read only"
 msgstr "Montar en modo sólo lectura"
 
 #: pkg/storaged/stratis-details.jsx:393 pkg/storaged/stratis-details.jsx:544
-#: pkg/storaged/fsys-tab.jsx:358 pkg/storaged/format-dialog.jsx:375
+#: pkg/storaged/fsys-tab.jsx:358 pkg/storaged/format-dialog.jsx:374
 msgid "Mount without waiting, ignore failure"
 msgstr "Montar sin esperas, ignorar si falla"
 
@@ -4379,15 +4395,15 @@ msgstr "Montar sin esperas, ignorar si falla"
 msgid "Mounting $target"
 msgstr "Montando $target"
 
-#: pkg/storaged/format-dialog.jsx:105
+#: pkg/storaged/format-dialog.jsx:104
 msgid "Mounts before services start"
 msgstr "Se monta antes de que se inicien los servicios"
 
-#: pkg/storaged/format-dialog.jsx:119
+#: pkg/storaged/format-dialog.jsx:118
 msgid "Mounts in parallel with services"
 msgstr "Se monta en paralelo con los servicios"
 
-#: pkg/storaged/format-dialog.jsx:130
+#: pkg/storaged/format-dialog.jsx:129
 msgid "Mounts in parallel with services, but after network is available"
 msgstr ""
 "Se monta en paralelo con los servicios, pero después de que la red esté "
@@ -4438,7 +4454,7 @@ msgstr "Servidor NTP"
 #: pkg/storaged/iscsi-panel.jsx:127 pkg/storaged/iscsi-panel.jsx:184
 #: pkg/storaged/vgroup-details.jsx:162 pkg/storaged/lvol-tabs.jsx:43
 #: pkg/storaged/lvol-tabs.jsx:414 pkg/storaged/lvol-tabs.jsx:475
-#: pkg/storaged/lvol-tabs.jsx:533 pkg/storaged/format-dialog.jsx:288
+#: pkg/storaged/lvol-tabs.jsx:533 pkg/storaged/format-dialog.jsx:287
 #: pkg/storaged/part-tab.jsx:35 pkg/storaged/crypto-panel.jsx:84
 #: pkg/storaged/stratis-panel.jsx:130 pkg/storaged/vgroups-panel.jsx:73
 #: pkg/storaged/mdraids-panel.jsx:74 pkg/packagekit/updates.jsx:447
@@ -4529,7 +4545,7 @@ msgstr "Nunca"
 msgid "Never expire account"
 msgstr "La cuenta nunca expira"
 
-#: pkg/users/expiration-dialogs.js:154 pkg/users/account-details.js:76
+#: pkg/users/expiration-dialogs.js:156 pkg/users/account-details.js:76
 msgid "Never expire password"
 msgstr "La clave nunca expira"
 
@@ -4541,11 +4557,11 @@ msgstr "Nunca ha iniciado sesión"
 msgid "New NFS mount"
 msgstr "Nuevo montaje NFS"
 
-#: pkg/shell/hosts_dialog.jsx:456 pkg/static/login.js:761
+#: pkg/shell/hosts_dialog.jsx:457 pkg/static/login.js:761
 msgid "New host"
 msgstr "Añadir un nuevo anfitrión"
 
-#: pkg/shell/hosts_dialog.jsx:795
+#: pkg/shell/hosts_dialog.jsx:796
 msgid "New key password"
 msgstr "Nueva contraseña de la clave"
 
@@ -4603,7 +4619,7 @@ msgstr "No hay dispositivos de bloques disponibles."
 msgid "No carrier"
 msgstr "No hay un proveedor"
 
-#: pkg/kdump/kdump-view.jsx:349
+#: pkg/kdump/kdump-view.jsx:338
 msgid "No configuration found"
 msgstr "No se encontró ninguna configuración"
 
@@ -4641,7 +4657,7 @@ msgstr "No hay discos disponibles."
 msgid "No drives attached"
 msgstr "No hay dispositivos montados"
 
-#: pkg/storaged/format-dialog.jsx:220
+#: pkg/storaged/format-dialog.jsx:219
 msgid "No encryption"
 msgstr "Sin cifrado"
 
@@ -4649,7 +4665,7 @@ msgstr "Sin cifrado"
 msgid "No events"
 msgstr "Sin eventos"
 
-#: pkg/storaged/format-dialog.jsx:202
+#: pkg/storaged/format-dialog.jsx:201
 msgid "No filesystem"
 msgstr "Ningún sistema de archivos"
 
@@ -4706,7 +4722,7 @@ msgstr "No se encontraron resultados"
 msgid "No media inserted"
 msgstr "No hay un medio insertado"
 
-#: pkg/kdump/kdump-view.jsx:398
+#: pkg/kdump/kdump-view.jsx:387
 msgid ""
 "No memory reserved. Append a crashkernel option to the kernel command line "
 "(e.g. in /etc/default/grub) to reserve memory at boot time. Example: "
@@ -4720,7 +4736,7 @@ msgstr ""
 msgid "No partitioning"
 msgstr "No se particiona"
 
-#: pkg/users/account-create-dialog.js:130
+#: pkg/users/account-create-dialog.js:162
 msgid "No real name specified"
 msgstr "No hay un nombre real especificado"
 
@@ -4756,11 +4772,11 @@ msgstr "No hay informes del sistema."
 msgid "No updates"
 msgstr "No actualizar"
 
-#: pkg/users/account-create-dialog.js:113
+#: pkg/users/account-create-dialog.js:145
 msgid "No user name specified"
 msgstr "Nombre de usuario no especificado"
 
-#: pkg/kdump/kdump-view.jsx:369 pkg/systemd/overview-cards/tuned-dialog.jsx:232
+#: pkg/kdump/kdump-view.jsx:358 pkg/systemd/overview-cards/tuned-dialog.jsx:232
 #: pkg/networkmanager/firewall.jsx:855
 msgid "None"
 msgstr "Ninguno"
@@ -4889,7 +4905,7 @@ msgstr "Contraseña vieja"
 msgid "Old password not accepted"
 msgstr "No se aceptó la contraseña vieja"
 
-#: pkg/kdump/kdump-view.jsx:341
+#: pkg/kdump/kdump-view.jsx:330
 msgid "On a mounted device"
 msgstr "En un dispositivo montado"
 
@@ -4954,7 +4970,7 @@ msgstr "O use un navegador integrado"
 msgid "Other"
 msgstr "Otro"
 
-#: pkg/users/account-create-dialog.js:93 pkg/users/account-details.js:291
+#: pkg/users/account-create-dialog.js:125 pkg/users/account-details.js:291
 msgid ""
 "Other authentication methods are still available even when interactive "
 "password authentication is not allowed."
@@ -4984,11 +5000,11 @@ msgstr "Saliente"
 msgid "Overview"
 msgstr "Visión global"
 
-#: pkg/storaged/content-views.jsx:711 pkg/storaged/format-dialog.jsx:309
+#: pkg/storaged/content-views.jsx:711 pkg/storaged/format-dialog.jsx:308
 msgid "Overwrite"
 msgstr "Sobrescribir"
 
-#: pkg/storaged/content-views.jsx:714 pkg/storaged/format-dialog.jsx:312
+#: pkg/storaged/content-views.jsx:714 pkg/storaged/format-dialog.jsx:311
 msgid "Overwrite existing data with zeros (slower)"
 msgstr "Sobrescribir los datos existentes con ceros (más lento)"
 
@@ -5072,7 +5088,7 @@ msgstr "Pasivo"
 
 #: pkg/storaged/content-views.jsx:279 pkg/storaged/stratis-details.jsx:131
 #: pkg/storaged/stratis-details.jsx:746 pkg/storaged/fsys-tab.jsx:374
-#: pkg/storaged/format-dialog.jsx:321 pkg/storaged/format-dialog.jsx:347
+#: pkg/storaged/format-dialog.jsx:320 pkg/storaged/format-dialog.jsx:346
 #: pkg/storaged/crypto-keyslots.jsx:483 pkg/storaged/crypto-keyslots.jsx:818
 #: pkg/storaged/stratis-panel.jsx:141
 msgid "Passphrase"
@@ -5083,7 +5099,7 @@ msgid "Passphrase can not be empty"
 msgstr "La contraseña no puede estar vacía"
 
 #: pkg/storaged/stratis-details.jsx:134 pkg/storaged/fsys-tab.jsx:377
-#: pkg/storaged/format-dialog.jsx:325 pkg/storaged/format-dialog.jsx:351
+#: pkg/storaged/format-dialog.jsx:324 pkg/storaged/format-dialog.jsx:350
 #: pkg/storaged/crypto-keyslots.jsx:204 pkg/storaged/crypto-keyslots.jsx:491
 #: pkg/storaged/crypto-keyslots.jsx:534 pkg/storaged/crypto-keyslots.jsx:537
 #: pkg/storaged/stratis-panel.jsx:145
@@ -5098,16 +5114,16 @@ msgstr "Contraseña de cualquier otro guardaclaves"
 msgid "Passphrase removal may prevent unlocking $0."
 msgstr "Eliminar la contraseña puede prevenir el desbloqueo $0."
 
-#: pkg/storaged/format-dialog.jsx:333 pkg/storaged/crypto-keyslots.jsx:499
+#: pkg/storaged/format-dialog.jsx:332 pkg/storaged/crypto-keyslots.jsx:499
 #: pkg/storaged/crypto-keyslots.jsx:539 pkg/storaged/stratis-panel.jsx:153
 msgid "Passphrases do not match"
 msgstr "La contraseña no coincide"
 
-#: pkg/static/login.html:106 pkg/users/account-create-dialog.js:101
+#: pkg/static/login.html:106 pkg/users/account-create-dialog.js:133
 #: pkg/users/account-details.js:309 pkg/shell/superuser.jsx:144
 #: pkg/shell/credentials.jsx:119 pkg/shell/credentials.jsx:262
-#: pkg/shell/credentials.jsx:318 pkg/shell/hosts_dialog.jsx:825
-#: pkg/shell/hosts_dialog.jsx:834 pkg/storaged/iscsi-panel.jsx:50
+#: pkg/shell/credentials.jsx:318 pkg/shell/hosts_dialog.jsx:826
+#: pkg/shell/hosts_dialog.jsx:835 pkg/storaged/iscsi-panel.jsx:50
 #: pkg/storaged/iscsi-panel.jsx:156
 msgid "Password"
 msgstr "Contraseña"
@@ -5116,11 +5132,11 @@ msgstr "Contraseña"
 msgid "Password changed successfully"
 msgstr "Contraseña cambiada con éxito"
 
-#: pkg/users/expiration-dialogs.js:212
+#: pkg/users/expiration-dialogs.js:214
 msgid "Password expiration"
 msgstr "Expiración de la contraseña"
 
-#: pkg/users/password-dialogs.js:194 pkg/users/account-create-dialog.js:283
+#: pkg/users/password-dialogs.js:194 pkg/users/account-create-dialog.js:335
 msgid "Password is longer than 256 characters"
 msgstr "La contraseña no puede superar los 256 caracteres"
 
@@ -5179,6 +5195,12 @@ msgstr "La ruta en el servidor no puede estar vacía."
 #: pkg/storaged/nfs-details.jsx:145
 msgid "Path on server must start with \"/\"."
 msgstr "La ruta en el servidor debe empezar con \"/\"."
+
+#: pkg/users/account-create-dialog.js:79
+#, fuzzy
+#| msgid "Home directory"
+msgid "Path to directory"
+msgstr "Directorio personal"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:163
 #: pkg/shell/credentials.jsx:172
@@ -5284,7 +5306,7 @@ msgstr "Por favor, instale el paquete $0"
 msgid "Please reload the page after resolving the issue."
 msgstr "Por favor, recarga la página después de resolver el problema."
 
-#: pkg/users/expiration-dialogs.js:94
+#: pkg/users/expiration-dialogs.js:96
 msgid "Please specify an expiration date"
 msgstr "Por favor especifique una fecha de expiración"
 
@@ -5308,7 +5330,7 @@ msgstr "Grupo de aprovisionamiento de volúmenes finos"
 msgid "Pool for thinly provisioned volumes"
 msgstr "Grupo para volúmenes de aprovisionamiento fino"
 
-#: pkg/shell/hosts_dialog.jsx:358 pkg/storaged/iscsi-panel.jsx:127
+#: pkg/shell/hosts_dialog.jsx:359 pkg/storaged/iscsi-panel.jsx:127
 msgid "Port"
 msgstr "Puerto"
 
@@ -5532,7 +5554,7 @@ msgstr "El rango debe estar estrictamente ordenado"
 msgid "Rank"
 msgstr "Posición"
 
-#: pkg/kdump/kdump-view.jsx:337
+#: pkg/kdump/kdump-view.jsx:326
 msgid "Raw to a device"
 msgstr "Raw a un dispositivo"
 
@@ -5552,7 +5574,7 @@ msgstr "Solo lectura"
 msgid "Reading"
 msgstr "Leyendo"
 
-#: pkg/kdump/kdump-view.jsx:363
+#: pkg/kdump/kdump-view.jsx:352
 msgid "Reading..."
 msgstr "Leyendo…"
 
@@ -5683,23 +5705,23 @@ msgstr "Recargando"
 msgid "Reloading the state of remaining services"
 msgstr "Recargando el estado del resto de servicios"
 
-#: pkg/kdump/kdump-view.jsx:347
+#: pkg/kdump/kdump-view.jsx:336
 msgid "Remote over CIFS/SMB"
 msgstr "Remoto sobre CIFS/SMB"
 
-#: pkg/kdump/kdump-view.jsx:343
+#: pkg/kdump/kdump-view.jsx:332
 msgid "Remote over FTP"
 msgstr "Remoto sobre FTP"
 
-#: pkg/kdump/kdump-view.jsx:170 pkg/kdump/kdump-view.jsx:334
+#: pkg/kdump/kdump-view.jsx:171 pkg/kdump/kdump-view.jsx:323
 msgid "Remote over NFS"
 msgstr "Remoto sobre NFS"
 
-#: pkg/kdump/kdump-view.jsx:345
+#: pkg/kdump/kdump-view.jsx:334
 msgid "Remote over SFTP"
 msgstr "Remoto sobre SFTP"
 
-#: pkg/kdump/kdump-view.jsx:168 pkg/kdump/kdump-view.jsx:331
+#: pkg/kdump/kdump-view.jsx:169 pkg/kdump/kdump-view.jsx:320
 msgid "Remote over SSH"
 msgstr "Remoto sobre SSH"
 
@@ -5915,7 +5937,7 @@ msgstr "Informes"
 msgid "Reports:"
 msgstr "Informes:"
 
-#: pkg/users/expiration-dialogs.js:178
+#: pkg/users/expiration-dialogs.js:180
 msgid "Require password change every $0 days"
 msgstr "Hay que cambiar la contraseña cada $0 días"
 
@@ -5923,7 +5945,7 @@ msgstr "Hay que cambiar la contraseña cada $0 días"
 msgid "Require password change on $0"
 msgstr "Hay que cambiar la contraseña en $0"
 
-#: pkg/users/account-create-dialog.js:81
+#: pkg/users/account-create-dialog.js:113
 msgid "Require password change on first login"
 msgstr "Requerir cambiar la contraseña en el primer inicio de sesión"
 
@@ -5955,7 +5977,7 @@ msgstr "Requisito"
 msgid "Requisite of"
 msgstr "Requisito de"
 
-#: pkg/kdump/kdump-view.jsx:482
+#: pkg/kdump/kdump-view.jsx:471
 msgid "Reserved memory"
 msgstr "Memoria reservada"
 
@@ -6009,11 +6031,11 @@ msgstr "Restableciendo la conexión"
 msgid "Resume"
 msgstr "Reanudar"
 
-#: pkg/storaged/format-dialog.jsx:228
+#: pkg/storaged/format-dialog.jsx:227
 msgid "Reuse existing encryption"
 msgstr "Reutilizar cifrado existente"
 
-#: pkg/storaged/format-dialog.jsx:225
+#: pkg/storaged/format-dialog.jsx:224
 msgid "Reuse existing encryption ($0)"
 msgstr "Reutilizar cifrado existente ($0)"
 
@@ -6113,7 +6135,7 @@ msgstr ""
 
 # auto translated by TM merge from project: Cockpit, version: rhel-8.0, DocId:
 # cockpit
-#: pkg/kdump/kdump-view.jsx:214 pkg/shell/hosts_dialog.jsx:830
+#: pkg/kdump/kdump-view.jsx:215 pkg/shell/hosts_dialog.jsx:831
 msgid "SSH key"
 msgstr "Clave SSH"
 
@@ -6238,7 +6260,7 @@ msgstr "Eliminando de forma segura $target"
 
 #: src/appstream/org.cockpit-project.cockpit-selinux.metainfo.xml.in:6
 msgid "Security Enhanced Linux configuration and troubleshooting"
-msgstr ""
+msgstr "Configuración de Security Enhanced Linux y resolución de problemas"
 
 #: pkg/packagekit/updates.jsx:1423
 msgid "Security updates available"
@@ -6279,8 +6301,8 @@ msgctxt "storage"
 msgid "Serial number"
 msgstr "Número de serie"
 
-#: pkg/static/login.html:166 pkg/kdump/kdump-view.jsx:186
-#: pkg/kdump/kdump-view.jsx:208 pkg/networkmanager/ip-settings.jsx:245
+#: pkg/static/login.html:166 pkg/kdump/kdump-view.jsx:187
+#: pkg/kdump/kdump-view.jsx:209 pkg/networkmanager/ip-settings.jsx:245
 #: pkg/storaged/nfs-panel.jsx:102 pkg/storaged/nfs-details.jsx:312
 msgid "Server"
 msgstr "Servidor"
@@ -6310,23 +6332,23 @@ msgstr "Software de servidor"
 msgid "Service"
 msgstr "Servicio"
 
-#: pkg/kdump/kdump-view.jsx:392
+#: pkg/kdump/kdump-view.jsx:381
 msgid "Service has an error"
 msgstr "El servicio tiene un error"
 
-#: pkg/kdump/kdump-view.jsx:388
+#: pkg/kdump/kdump-view.jsx:377
 msgid "Service is running"
 msgstr "Se está ejecutando el servicio"
 
-#: pkg/kdump/kdump-view.jsx:394
+#: pkg/kdump/kdump-view.jsx:383
 msgid "Service is starting"
 msgstr "Se está iniciando el servicio"
 
-#: pkg/kdump/kdump-view.jsx:390
+#: pkg/kdump/kdump-view.jsx:379
 msgid "Service is stopped"
 msgstr "Se ha detenido el servicio"
 
-#: pkg/kdump/kdump-view.jsx:396
+#: pkg/kdump/kdump-view.jsx:385
 msgid "Service is stopping"
 msgstr "Se está deteniendo el servicio"
 
@@ -6352,7 +6374,7 @@ msgstr "Sesión"
 msgid "Session is about to expire"
 msgstr "La sesión está apunto de expirar"
 
-#: pkg/shell/hosts_dialog.jsx:246
+#: pkg/shell/hosts_dialog.jsx:247
 msgid "Set"
 msgstr "Establecer"
 
@@ -6408,7 +6430,7 @@ msgstr "Severidad"
 msgid "Shared"
 msgstr "Compartido"
 
-#: pkg/users/account-details.js:342
+#: pkg/users/account-create-dialog.js:83 pkg/users/account-details.js:342
 msgid "Shell"
 msgstr "Shell"
 
@@ -6501,7 +6523,7 @@ msgstr "Rango único"
 #: pkg/storaged/nfs-details.jsx:322 pkg/storaged/lvol-tabs.jsx:237
 #: pkg/storaged/lvol-tabs.jsx:304 pkg/storaged/lvol-tabs.jsx:424
 #: pkg/storaged/lvol-tabs.jsx:485 pkg/storaged/lvol-tabs.jsx:538
-#: pkg/storaged/format-dialog.jsx:301 pkg/storaged/part-tab.jsx:40
+#: pkg/storaged/format-dialog.jsx:300 pkg/storaged/part-tab.jsx:40
 msgid "Size"
 msgstr "Tamaño"
 
@@ -6681,7 +6703,7 @@ msgstr "Estado"
 msgid "Static"
 msgstr "Estático"
 
-#: pkg/kdump/kdump-view.jsx:472 pkg/systemd/service-details.jsx:654
+#: pkg/kdump/kdump-view.jsx:461 pkg/systemd/service-details.jsx:654
 #: pkg/networkmanager/network-interface.jsx:266 pkg/packagekit/updates.jsx:905
 msgid "Status"
 msgstr "Estado"
@@ -6746,7 +6768,7 @@ msgstr "El almacenamiento no se puede gestionar en este sistema."
 msgid "Storage logs"
 msgstr "Registros de almacenamiento"
 
-#: pkg/storaged/format-dialog.jsx:344
+#: pkg/storaged/format-dialog.jsx:343
 msgid "Store passphrase"
 msgstr "Guardar contraseña"
 
@@ -6945,17 +6967,17 @@ msgstr "Terminal"
 msgid "Terminate session"
 msgstr "Cerrar sesión"
 
-#: pkg/kdump/kdump-view.jsx:429 pkg/kdump/kdump-view.jsx:437
+#: pkg/kdump/kdump-view.jsx:418 pkg/kdump/kdump-view.jsx:426
 msgid "Test configuration"
 msgstr "Comprobar la configuración"
 
-#: pkg/kdump/kdump-view.jsx:433
+#: pkg/kdump/kdump-view.jsx:422
 msgid "Test is only available while the kdump service is running."
 msgstr ""
 "Las pruebas solo están disponibles cuando el servicio kdump esté "
 "ejecutándose."
 
-#: pkg/kdump/kdump-view.jsx:275
+#: pkg/kdump/kdump-view.jsx:270
 msgid "Test kdump settings"
 msgstr "Ajustes de prueba de kdump"
 
@@ -6982,7 +7004,7 @@ msgstr "Se debe instalar el paquete $0."
 msgid "The $0 package will be installed to create VDO devices."
 msgstr "El paquete $0 será instalado para crear dispositivos VDO."
 
-#: pkg/shell/hosts_dialog.jsx:146
+#: pkg/shell/hosts_dialog.jsx:147
 msgid "The IP address or hostname cannot contain whitespace."
 msgstr ""
 "La dirección IP o el nombre de dominio no pueden contener espacios en blanco."
@@ -7000,11 +7022,11 @@ msgstr ""
 msgid "The RAID device must be running in order to remove disks."
 msgstr "El dispositivo RAID debe estar ejecutándose para eliminar discos."
 
-#: pkg/shell/hosts_dialog.jsx:808
+#: pkg/shell/hosts_dialog.jsx:809
 msgid "The SSH key $0 of $1 on $2 will be added to the $3 file of $4 on $5."
 msgstr "La clave SSH $0 de $1 en $2 será añadida al archivo $3 de $4 en $5."
 
-#: pkg/shell/hosts_dialog.jsx:840
+#: pkg/shell/hosts_dialog.jsx:841
 msgid ""
 "The SSH key $0 will be made available for the remainder of the session and "
 "will be available for login to other hosts as well."
@@ -7012,7 +7034,7 @@ msgstr ""
 "La clave SSH $0 estará disponible durante el resto de la sesión y también lo "
 "estará para unirse a otros anfitriones."
 
-#: pkg/shell/hosts_dialog.jsx:758
+#: pkg/shell/hosts_dialog.jsx:759
 msgid ""
 "The SSH key for logging in to $0 is protected by a password, and the host "
 "does not allow logging in with a password. Please provide the password of "
@@ -7022,7 +7044,7 @@ msgstr ""
 "anfitrión no permite iniciar sesión con contraseña. Por favor, introduzca la "
 "contraseña de dicha clave en $1."
 
-#: pkg/shell/hosts_dialog.jsx:763
+#: pkg/shell/hosts_dialog.jsx:764
 msgid ""
 "The SSH key for logging in to $0 is protected. You can log in with either "
 "your login password or by providing the password of the key at $1."
@@ -7059,7 +7081,7 @@ msgid ""
 "The currently logged in user is not permitted to see information about keys."
 msgstr "El usuario actual no tiene permitido ver la información de las claves."
 
-#: pkg/storaged/format-dialog.jsx:354
+#: pkg/storaged/format-dialog.jsx:353
 msgid ""
 "The disk needs to be unlocked before formatting.  Please provide a existing "
 "passphrase."
@@ -7138,7 +7160,7 @@ msgid_plural "The following services will be restarted:"
 msgstr[0] "El siguiente servicio será reiniciado:"
 msgstr[1] "Los siguientes servicios serán reiniciados:"
 
-#: pkg/users/account-create-dialog.js:134
+#: pkg/users/account-create-dialog.js:166
 msgid "The full name must not contain colons."
 msgstr "El nombre completo no debe contener dos puntos."
 
@@ -7154,15 +7176,21 @@ msgstr ""
 "El nombre de grupo sólo puede contener letras (a-z), dígitos, puntos, "
 "guiones y guiones bajos"
 
+#: pkg/users/account-create-dialog.js:360
+msgid ""
+"The home directory $0 already exists. Its ownership will be changed to the "
+"new user."
+msgstr ""
+
 #: pkg/storaged/crypto-keyslots.jsx:318
 msgid "The initrd must be regenerated."
 msgstr "Se debe regenerar el initrd."
 
-#: pkg/shell/hosts_dialog.jsx:680
+#: pkg/shell/hosts_dialog.jsx:681
 msgid "The key password can not be empty"
 msgstr "La contraseña de la clave no puede estar vacía"
 
-#: pkg/shell/hosts_dialog.jsx:683 pkg/shell/hosts_dialog.jsx:689
+#: pkg/shell/hosts_dialog.jsx:684 pkg/shell/hosts_dialog.jsx:690
 msgid "The key passwords do not match"
 msgstr "Las contraseñas de la clave no coinciden"
 
@@ -7212,15 +7240,15 @@ msgstr "El punto de montaje $0 está siendo usado por los siguientes procesos:"
 msgid "The mount point $0 is in use by these services:"
 msgstr "El punto de montaje $0 está siendo usado por los siguientes servicios:"
 
-#: pkg/shell/hosts_dialog.jsx:686
+#: pkg/shell/hosts_dialog.jsx:687
 msgid "The new key password can not be empty"
 msgstr "La nueva contraseña de la clave no puede estar vacía"
 
-#: pkg/shell/hosts_dialog.jsx:664
+#: pkg/shell/hosts_dialog.jsx:665
 msgid "The password can not be empty"
 msgstr "La contraseña no puede estar vacía"
 
-#: pkg/users/password-dialogs.js:191 pkg/users/account-create-dialog.js:280
+#: pkg/users/password-dialogs.js:191 pkg/users/account-create-dialog.js:332
 msgid "The passwords do not match"
 msgstr "Las contraseñas no coinciden"
 
@@ -7228,8 +7256,8 @@ msgstr "Las contraseñas no coinciden"
 msgid "The passwords do not match."
 msgstr "Las contraseñas no coinciden."
 
-#: pkg/static/login.html:96 pkg/shell/hosts_dialog.jsx:470
-#: pkg/shell/hosts_dialog.jsx:481
+#: pkg/static/login.html:96 pkg/shell/hosts_dialog.jsx:471
+#: pkg/shell/hosts_dialog.jsx:482
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
 "email."
@@ -7284,7 +7312,7 @@ msgstr ""
 "El usuario debe cerrar sesión y volver a iniciarla para que la nueva "
 "configuración tome efecto."
 
-#: pkg/users/account-create-dialog.js:117
+#: pkg/users/account-create-dialog.js:149
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
@@ -7385,7 +7413,7 @@ msgstr "La información sólo se almacenará en el sistema."
 msgid "This logical volume is not completely used by its content."
 msgstr "Este volumen lógico no se usa completamente por su contenido."
 
-#: pkg/shell/hosts_dialog.jsx:152
+#: pkg/shell/hosts_dialog.jsx:153
 msgid "This machine has already been added."
 msgstr "Esta máquina ha sido añadida."
 
@@ -7418,10 +7446,14 @@ msgid ""
 "This tool configures the SELinux policy and can help with understanding and "
 "resolving policy violations."
 msgstr ""
+"Esta herramienta configura la política de SELinux y puede ayudarle a "
+"comprender y resolver infracciones de la política."
 
 #: src/appstream/org.cockpit-project.cockpit-kdump.metainfo.xml.in:8
 msgid "This tool configures the system to write kernel crash dumps to disk."
 msgstr ""
+"Esta herramienta configura el sistema para que escriba en disco los volcados "
+"de colapso del kernel."
 
 #: src/appstream/org.cockpit-project.cockpit-sosreport.metainfo.xml.in:9
 msgid ""
@@ -7431,12 +7463,20 @@ msgid ""
 "representatives, developers or system administrators to assist with "
 "technical fault-finding and debugging."
 msgstr ""
+"Esta herramienta genera un archivo de configuración e información de "
+"diagnóstico del sistema en ejecución. El archivo puede ser almacenado "
+"localmente o centralmente para propósitos de registro o seguimiento, o puede "
+"ser enviado a representantes de soporte técnico, desarrolladores o "
+"administradores de sistemas para asistir con la detección de fallos y su "
+"corrección."
 
 #: src/appstream/org.cockpit-project.cockpit-storaged.metainfo.xml.in:8
 msgid ""
 "This tool manages local storage, such as filesystems, LVM2 volume groups, "
 "and NFS mounts."
 msgstr ""
+"Esta herramienta gestiona el almacenamiento local, como sistemas de "
+"archivos, grupos de volúmenes LVM2 y montajes NFS."
 
 #: src/appstream/org.cockpit-project.cockpit-networkmanager.metainfo.xml.in:8
 msgid ""
@@ -7444,12 +7484,16 @@ msgid ""
 "firewalls using NetworkManager and Firewalld. NetworkManager is incompatible "
 "with Ubuntu's default systemd-networkd and Debian's ifupdown scripts."
 msgstr ""
+"Esta herramienta gestiona la configuración de red como agrupaciones, "
+"puentes, grupos, las VLAN y cortafuegos usando NetworkManager y Firewalld. "
+"NetworkManager es incompatible con systemd-networkd habilitado por defecto "
+"en Ubuntu y con los scripts de ifupdown de Debian."
 
 #: pkg/systemd/service-details.jsx:354
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "Esta unidad no está diseñada para que se habilite de forma explícita."
 
-#: pkg/users/account-create-dialog.js:122
+#: pkg/users/account-create-dialog.js:154
 msgid "This user name already exists"
 msgstr "El nombre del usuario ya existe"
 
@@ -7491,11 +7535,11 @@ msgstr ""
 "búsqueda para encontrar todos los mensajes posibles de dicha unidad. Se "
 "pueden añadir más unidades separadas por coma. "
 
-#: pkg/shell/hosts_dialog.jsx:809
+#: pkg/shell/hosts_dialog.jsx:810
 msgid "This will allow you to log in without password in the future."
 msgstr "Esto te permitirá iniciar sesión sin contraseña en el futuro."
 
-#: pkg/kdump/kdump-view.jsx:277
+#: pkg/kdump/kdump-view.jsx:272
 msgid ""
 "This will test kdump settings by crashing the kernel and thereby the system. "
 "Depending on the settings, the system may not automatically reboot and the "
@@ -7505,7 +7549,7 @@ msgstr ""
 "tanto el sistema. Dependiendo de los ajustes, puede que el sistema no se "
 "reinicie automáticamente y el proceso tome un tiempo."
 
-#: pkg/kdump/kdump-view.jsx:442
+#: pkg/kdump/kdump-view.jsx:431
 msgid "This will test the kdump configuration by crashing the kernel."
 msgstr "Esto comprobará la configuración de kdump colapsando el kernel."
 
@@ -7553,8 +7597,8 @@ msgstr ""
 "Consejo: Haga coincidir la contraseña de su clave y su contraseña de acceso "
 "para autenticarse de forma automática en otros sistemas."
 
-#: pkg/static/login.html:91 pkg/shell/hosts_dialog.jsx:465
-#: pkg/shell/hosts_dialog.jsx:476
+#: pkg/static/login.html:91 pkg/shell/hosts_dialog.jsx:466
+#: pkg/shell/hosts_dialog.jsx:477
 msgid ""
 "To ensure that your connection is not intercepted by a malicious third-"
 "party, please verify the host key fingerprint:"
@@ -7571,7 +7615,7 @@ msgstr ""
 "en Red Hat, bien usando el portal cliente de Red Hat o un servidor de "
 "suscripción local."
 
-#: pkg/shell/hosts_dialog.jsx:468 pkg/shell/hosts_dialog.jsx:479
+#: pkg/shell/hosts_dialog.jsx:469 pkg/shell/hosts_dialog.jsx:480
 #: pkg/static/login.js:766
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
@@ -7708,7 +7752,7 @@ msgstr "Habilitar el acceso administrativo"
 #: pkg/systemd/hwinfo.jsx:83 pkg/systemd/hwinfo.jsx:307
 #: pkg/shell/credentials.jsx:199 pkg/storaged/content-views.jsx:764
 #: pkg/storaged/content-views.jsx:1029 pkg/storaged/fsys-panel.jsx:178
-#: pkg/storaged/format-dialog.jsx:299 pkg/storaged/part-tab.jsx:50
+#: pkg/storaged/format-dialog.jsx:298 pkg/storaged/part-tab.jsx:50
 #: pkg/storaged/unrecognized-tab.jsx:36 pkg/packagekit/autoupdates.jsx:271
 msgid "Type"
 msgstr "Tipo"
@@ -7739,11 +7783,11 @@ msgstr "Incapaz de aplicar esta solución automáticamente"
 msgid "Unable to connect to that address"
 msgstr "Incapaz de conectar a esa dirección"
 
-#: pkg/shell/hosts_dialog.jsx:354
+#: pkg/shell/hosts_dialog.jsx:355
 msgid "Unable to contact $0."
 msgstr "Incapaz de contactar con $0."
 
-#: pkg/shell/hosts_dialog.jsx:230
+#: pkg/shell/hosts_dialog.jsx:231
 msgid ""
 "Unable to contact the given host $0. Make sure it has ssh running on port "
 "$1, or specify another port in the address."
@@ -7761,7 +7805,7 @@ msgstr "Incapaz de obtener detalles de la alerta."
 msgid "Unable to get alert: $0"
 msgstr "Incapaz de obtener la alerta: $0"
 
-#: pkg/shell/hosts_dialog.jsx:755
+#: pkg/shell/hosts_dialog.jsx:756
 msgid ""
 "Unable to log in to $0 using SSH key authentication. Please provide the "
 "password. You may want to set up your SSH keys for automatic login."
@@ -7770,7 +7814,7 @@ msgstr ""
 "favor, introduzca la contraseña. Quizás quiera configurar claves SSH para "
 "permitir inicios de sesión automáticos."
 
-#: pkg/shell/hosts_dialog.jsx:753
+#: pkg/shell/hosts_dialog.jsx:754
 msgid ""
 "Unable to log in to $0. The host does not accept password login or any of "
 "your SSH keys."
@@ -7961,7 +8005,7 @@ msgstr "Hasta"
 msgid "Untrusted host"
 msgstr "Anfitrión no seguro"
 
-#: pkg/shell/hosts_dialog.jsx:350
+#: pkg/shell/hosts_dialog.jsx:351
 msgid "Update"
 msgstr "Actualizar"
 
@@ -8047,7 +8091,7 @@ msgstr "Usar deduplicación"
 msgid "Use key"
 msgstr "Usar clave"
 
-#: pkg/users/account-create-dialog.js:76
+#: pkg/users/account-create-dialog.js:108
 msgid "Use password"
 msgstr "Usar contraseña"
 
@@ -8068,7 +8112,7 @@ msgstr "Usado"
 msgid "Used for"
 msgstr "Usado para"
 
-#: pkg/storaged/format-dialog.jsx:144
+#: pkg/storaged/format-dialog.jsx:143
 msgid ""
 "Useful for mounts that are optional or need interaction (such as passphrases)"
 msgstr ""
@@ -8079,36 +8123,28 @@ msgstr ""
 msgid "User"
 msgstr "Usuario"
 
-#: pkg/users/account-create-dialog.js:65
-#, fuzzy
-#| msgid "User"
+#: pkg/users/account-create-dialog.js:97
 msgid "User ID"
-msgstr "Usuario"
+msgstr "ID de Usuario (UID)"
 
-#: pkg/users/account-create-dialog.js:153
-#, fuzzy
-#| msgid "This volume is already used by another VM."
+#: pkg/users/account-create-dialog.js:185
 msgid "User ID is already used by another user"
-msgstr "Otra MV ya utiliza este volumen."
+msgstr "Otro usuario ya utiliza este UID"
 
-#: pkg/users/account-create-dialog.js:143
-#, fuzzy
-#| msgid "The group ID must be positive integer"
+#: pkg/users/account-create-dialog.js:175
 msgid "User ID must be a positive integer"
-msgstr "El ID de grupo debe ser un número entero positivo"
+msgstr "El UID debe ser un número entero positivo"
 
-#: pkg/users/account-create-dialog.js:149
+#: pkg/users/account-create-dialog.js:181
 msgid "User ID must not be higher than $0"
-msgstr ""
+msgstr "El UID no debe ser superior a $0"
 
-#: pkg/users/account-create-dialog.js:146
-#, fuzzy
-#| msgid "Name cannot be longer than $0 bytes"
+#: pkg/users/account-create-dialog.js:178
 msgid "User ID must not be lower than $0"
-msgstr "Nombre no puede superar los $0 bytes"
+msgstr "El UID no debe ser inferior a $0"
 
-#: pkg/static/login.html:101 pkg/users/account-create-dialog.js:56
-#: pkg/users/account-details.js:275 pkg/shell/hosts_dialog.jsx:258
+#: pkg/static/login.html:101 pkg/users/account-create-dialog.js:64
+#: pkg/users/account-details.js:275 pkg/shell/hosts_dialog.jsx:259
 msgid "User name"
 msgstr "Nombre de usuario"
 
@@ -8353,7 +8389,7 @@ msgstr "Semanas"
 msgid "When"
 msgstr "Intervalo"
 
-#: pkg/shell/hosts_dialog.jsx:258
+#: pkg/shell/hosts_dialog.jsx:259
 msgid "When empty, connect with the current user"
 msgstr "Si se deja vacío, se conectará usando el usuario actual"
 
@@ -8404,7 +8440,7 @@ msgstr "Anualmente"
 msgid "Yes"
 msgstr "Sí"
 
-#: pkg/shell/hosts_dialog.jsx:475 pkg/static/login.js:763
+#: pkg/shell/hosts_dialog.jsx:476 pkg/static/login.js:763
 msgid "You are connecting to $0 for the first time."
 msgstr "Te estás conectando con $0 por primera vez."
 
@@ -8427,7 +8463,7 @@ msgstr "Se le ha cerrado la sesión por inactividad."
 msgid "You may try to load older entries."
 msgstr "Intente cargar entradas antiguas."
 
-#: pkg/shell/hosts_dialog.jsx:759 pkg/shell/hosts_dialog.jsx:764
+#: pkg/shell/hosts_dialog.jsx:760 pkg/shell/hosts_dialog.jsx:765
 msgid "You may want to change the password of the key for automatic login."
 msgstr ""
 "Quizás quieras cambiar la contraseña de la clave para iniciar sesión "
@@ -8609,7 +8645,7 @@ msgstr "cpu"
 msgid "crash"
 msgstr "colapso"
 
-#: pkg/kdump/kdump-view.jsx:450
+#: pkg/kdump/kdump-view.jsx:439
 msgid "crashkernel not configured in the kernel command line"
 msgstr ""
 "crashkernel no está configurado en los parámetros de arranque del núcleo"
@@ -8625,7 +8661,7 @@ msgstr "depurar"
 #: pkg/storaged/content-views.jsx:377 pkg/storaged/content-views.jsx:685
 #: pkg/storaged/stratis-details.jsx:236 pkg/storaged/stratis-details.jsx:581
 #: pkg/storaged/vdo-details.jsx:159 pkg/storaged/vgroup-details.jsx:182
-#: pkg/storaged/format-dialog.jsx:233 pkg/storaged/mdraid-details.jsx:279
+#: pkg/storaged/format-dialog.jsx:232 pkg/storaged/mdraid-details.jsx:279
 msgid "delete"
 msgstr "Eliminar"
 
@@ -8743,7 +8779,7 @@ msgstr "para el actual y futuros kernels"
 msgid "for current kernel only"
 msgstr "sólo en el kernel actual"
 
-#: pkg/storaged/format-dialog.jsx:233 pkg/storaged/manifest.json:0
+#: pkg/storaged/format-dialog.jsx:232 pkg/storaged/manifest.json:0
 msgid "format"
 msgstr "formato"
 
@@ -8809,7 +8845,7 @@ msgstr "instalar"
 msgid "interface"
 msgstr "interfaz"
 
-#: pkg/kdump/kdump-view.jsx:322
+#: pkg/kdump/kdump-view.jsx:311
 msgid "invalid: multiple targets defined"
 msgstr "no válido: definidos múltiples objetivos"
 
@@ -8837,7 +8873,7 @@ msgstr "Página de manual de journalctl"
 msgid "kdump"
 msgstr "kdump"
 
-#: pkg/kdump/kdump-view.jsx:446
+#: pkg/kdump/kdump-view.jsx:435
 msgid "kdump status"
 msgstr "estado de kdump"
 
@@ -8845,7 +8881,7 @@ msgstr "estado de kdump"
 msgid "keys"
 msgstr "teclas"
 
-#: pkg/kdump/kdump-view.jsx:326 pkg/kdump/kdump-view.jsx:328
+#: pkg/kdump/kdump-view.jsx:315 pkg/kdump/kdump-view.jsx:317
 msgid "locally in $0"
 msgstr "localmente en $0"
 
@@ -8901,7 +8937,7 @@ msgstr "migitación"
 msgid "mkfs"
 msgstr "mkfs"
 
-#: pkg/kdump/kdump-view.jsx:409
+#: pkg/kdump/kdump-view.jsx:398
 msgid "more details"
 msgstr "más detalles"
 

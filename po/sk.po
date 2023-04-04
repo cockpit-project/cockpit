@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-23 02:48+0000\n"
+"POT-Creation-Date: 2023-04-03 02:47+0000\n"
 "PO-Revision-Date: 2021-11-20 10:16+0000\n"
 "Last-Translator: Matej Marusak <mmarusak@redhat.com>\n"
 "Language-Team: Slovak <https://translate.fedoraproject.org/projects/cockpit/"
@@ -173,11 +173,18 @@ msgstr[0] "$0 dôležitý zásah"
 msgstr[1] "$0 zásahy, vrátane dôležitých"
 msgstr[2] "$0 zásahov, vrátane dôležitých"
 
+#: pkg/users/account-create-dialog.js:351
+#, fuzzy
+#| msgid "$0 disk is missing"
+#| msgid_plural "$0 disks are missing"
+msgid "$0 is an existing file"
+msgstr "$0 disk chýba"
+
 #: pkg/storaged/content-views.jsx:381 pkg/storaged/content-views.jsx:689
 #: pkg/storaged/stratis-details.jsx:240 pkg/storaged/stratis-details.jsx:585
 #: pkg/storaged/vdo-details.jsx:129 pkg/storaged/vdo-details.jsx:163
 #: pkg/storaged/vgroup-details.jsx:186 pkg/storaged/lvol-tabs.jsx:227
-#: pkg/storaged/lvol-tabs.jsx:294 pkg/storaged/format-dialog.jsx:237
+#: pkg/storaged/lvol-tabs.jsx:294 pkg/storaged/format-dialog.jsx:236
 #: pkg/storaged/mdraid-details.jsx:228 pkg/storaged/mdraid-details.jsx:283
 #, fuzzy
 #| msgid "$0 is in active use"
@@ -189,7 +196,7 @@ msgstr "$0 je práve používaný"
 msgid "$0 is not available from any repository."
 msgstr "$0 nie je k dispozícií v žiadom repozitári."
 
-#: pkg/shell/hosts_dialog.jsx:456 pkg/static/login.js:757
+#: pkg/shell/hosts_dialog.jsx:457 pkg/static/login.js:757
 msgid "$0 key changed"
 msgstr "$0 kľúč sa zmenil"
 
@@ -344,7 +351,7 @@ msgstr "$0: pád v $1"
 msgid "$name (from $host)"
 msgstr "$name (z $host)"
 
-#: pkg/storaged/format-dialog.jsx:198 pkg/storaged/format-dialog.jsx:215
+#: pkg/storaged/format-dialog.jsx:197 pkg/storaged/format-dialog.jsx:214
 msgid "(recommended)"
 msgstr "(odporúčaný)"
 
@@ -572,7 +579,7 @@ msgstr "8."
 msgid "9th"
 msgstr "9."
 
-#: pkg/shell/hosts_dialog.jsx:85
+#: pkg/shell/hosts_dialog.jsx:86
 #, fuzzy
 #| msgid ""
 #| "A compatible version of Cockpit is not installed on {{#strong}}{{host}}{{/"
@@ -605,7 +612,7 @@ msgid ""
 "interface with higher throughput or redundancy."
 msgstr ""
 
-#: pkg/shell/hosts_dialog.jsx:780
+#: pkg/shell/hosts_dialog.jsx:781
 #, fuzzy
 #| msgid ""
 #| "A new SSH key at ${key} will be created for ${luser} on ${lhost} and it "
@@ -661,7 +668,7 @@ msgstr "O webovej konzoli"
 msgid "Absent"
 msgstr "Chýba"
 
-#: pkg/shell/hosts_dialog.jsx:457
+#: pkg/shell/hosts_dialog.jsx:458
 msgid "Accept key and connect"
 msgstr "Prijať kľúč a pripojiť"
 
@@ -669,7 +676,7 @@ msgstr "Prijať kľúč a pripojiť"
 msgid "Accept key and log in"
 msgstr "Prijať kľúč a prihlásiť sa"
 
-#: pkg/users/expiration-dialogs.js:108
+#: pkg/users/expiration-dialogs.js:110
 msgid "Account expiration"
 msgstr "Skončenie platnosti účtu"
 
@@ -733,7 +740,7 @@ msgid "Adaptive transmit load balancing"
 msgstr "Prispôsobujúce sa rozkladanie prenosovej zátaže odesielania"
 
 #: pkg/users/authorized-keys-panel.js:69 pkg/systemd/timer-dialog.jsx:373
-#: pkg/shell/credentials.jsx:184 pkg/shell/hosts_dialog.jsx:246
+#: pkg/shell/credentials.jsx:184 pkg/shell/hosts_dialog.jsx:247
 #: pkg/storaged/stratis-details.jsx:147 pkg/storaged/nfs-panel.jsx:65
 #: pkg/storaged/iscsi-panel.jsx:136 pkg/storaged/iscsi-panel.jsx:160
 #: pkg/storaged/iscsi-panel.jsx:255 pkg/storaged/vgroup-details.jsx:74
@@ -800,7 +807,7 @@ msgstr "Pridať kĺúč"
 msgid "Add member"
 msgstr "RAID člen"
 
-#: pkg/shell/hosts.jsx:204 pkg/shell/hosts_dialog.jsx:245
+#: pkg/shell/hosts.jsx:204 pkg/shell/hosts_dialog.jsx:246
 msgid "Add new host"
 msgstr "Pridať nového hostiteľa"
 
@@ -1059,7 +1066,7 @@ msgstr "Aplikujú sa aktulizácie"
 msgid "Applying updates failed"
 msgstr "Aplikácia aktualizácií sa nepodarila"
 
-#: pkg/storaged/format-dialog.jsx:108
+#: pkg/storaged/format-dialog.jsx:107
 msgid "Appropriate for critical mounts, such as /var"
 msgstr ""
 
@@ -1077,7 +1084,7 @@ msgid "Asset tag"
 msgstr "Inventárny štítok"
 
 #: pkg/storaged/stratis-details.jsx:382 pkg/storaged/stratis-details.jsx:533
-#: pkg/storaged/fsys-tab.jsx:347 pkg/storaged/format-dialog.jsx:363
+#: pkg/storaged/fsys-tab.jsx:347 pkg/storaged/format-dialog.jsx:362
 #, fuzzy
 #| msgid "boot"
 msgid "At boot"
@@ -1135,7 +1142,7 @@ msgstr "Overiť sa"
 msgid "Authenticating"
 msgstr "Overuje sa"
 
-#: pkg/users/account-create-dialog.js:74 pkg/shell/hosts_dialog.jsx:820
+#: pkg/users/account-create-dialog.js:106 pkg/shell/hosts_dialog.jsx:821
 msgid "Authentication"
 msgstr "Overovanie"
 
@@ -1157,7 +1164,7 @@ msgstr ""
 msgid "Authentication required"
 msgstr "Vyžaduje sa overenie"
 
-#: pkg/shell/hosts_dialog.jsx:806
+#: pkg/shell/hosts_dialog.jsx:807
 msgid "Authorize SSH key"
 msgstr "Poveriť SSH kľúč"
 
@@ -1181,7 +1188,7 @@ msgstr ""
 msgid "Automatic (DHCP)"
 msgstr "Automaticky (DHCP)"
 
-#: pkg/shell/hosts_dialog.jsx:846
+#: pkg/shell/hosts_dialog.jsx:847
 msgid "Automatic login"
 msgstr "Automatické prihlásenie"
 
@@ -1313,11 +1320,11 @@ msgstr ""
 msgid "Boot"
 msgstr "Zavádzanie"
 
-#: pkg/storaged/format-dialog.jsx:111
+#: pkg/storaged/format-dialog.jsx:110
 msgid "Boot fails if filesystem does not mount, preventing remote access"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:122 pkg/storaged/format-dialog.jsx:133
+#: pkg/storaged/format-dialog.jsx:121 pkg/storaged/format-dialog.jsx:132
 msgid "Boot still succeeds when filesystem does not mount"
 msgstr ""
 
@@ -1364,7 +1371,7 @@ msgstr "Chyby"
 msgid "Bus expansion chassis"
 msgstr ""
 
-#: pkg/shell/hosts_dialog.jsx:794
+#: pkg/shell/hosts_dialog.jsx:795
 msgid ""
 "By changing the password of the SSH key $0 to the login password of $1 on "
 "$2, the key will be automatically made available and you can log in to $3 "
@@ -1405,7 +1412,7 @@ msgstr "CVE"
 msgid "Cache"
 msgstr "Vyrovnávacia pamäť"
 
-#: pkg/shell/hosts_dialog.jsx:249
+#: pkg/shell/hosts_dialog.jsx:250
 msgid "Can be a hostname, IP address, alias name, or ssh:// URI"
 msgstr "Môže byť názov hostiteľa, IP adresa, alias alebo ssh:// URI"
 
@@ -1425,9 +1432,9 @@ msgstr "Nepodarilo sa nájsť žiadne záznamy pre danú kombináciu filtrov."
 #: pkg/systemd/reporting.jsx:424 pkg/shell/superuser.jsx:182
 #: pkg/shell/superuser.jsx:220 pkg/shell/superuser.jsx:265
 #: pkg/shell/shell-modals.jsx:112 pkg/shell/credentials.jsx:313
-#: pkg/shell/active-pages-modal.jsx:100 pkg/shell/hosts_dialog.jsx:278
-#: pkg/shell/hosts_dialog.jsx:375 pkg/shell/hosts_dialog.jsx:499
-#: pkg/shell/hosts_dialog.jsx:867 pkg/networkmanager/dialogs-common.jsx:159
+#: pkg/shell/active-pages-modal.jsx:100 pkg/shell/hosts_dialog.jsx:279
+#: pkg/shell/hosts_dialog.jsx:376 pkg/shell/hosts_dialog.jsx:500
+#: pkg/shell/hosts_dialog.jsx:868 pkg/networkmanager/dialogs-common.jsx:159
 #: pkg/networkmanager/firewall.jsx:611 pkg/networkmanager/firewall.jsx:815
 #: pkg/networkmanager/firewall.jsx:910 pkg/storaged/jobs-panel.jsx:137
 #: pkg/packagekit/kpatch.jsx:312 pkg/packagekit/autoupdates.jsx:266
@@ -1478,8 +1485,8 @@ msgstr "Kapacita"
 msgid "Carrier"
 msgstr "Nosný signál"
 
-#: pkg/lib/serverTime.js:748 pkg/users/expiration-dialogs.js:115
-#: pkg/users/expiration-dialogs.js:220
+#: pkg/lib/serverTime.js:748 pkg/users/expiration-dialogs.js:117
+#: pkg/users/expiration-dialogs.js:222
 #: pkg/systemd/overview-cards/configurationCard.jsx:282
 #: pkg/storaged/iscsi-panel.jsx:187
 msgid "Change"
@@ -1517,7 +1524,7 @@ msgstr "Zmeniť profil"
 msgid "Change system time"
 msgstr "Zmeniť systémový čas"
 
-#: pkg/shell/hosts_dialog.jsx:792
+#: pkg/shell/hosts_dialog.jsx:793
 msgid "Change the password of $0"
 msgstr "Zmeniť heslo kľúča $0"
 
@@ -1525,7 +1532,7 @@ msgstr "Zmeniť heslo kľúča $0"
 msgid "Change the settings"
 msgstr "Zmeniť nastavenia"
 
-#: pkg/static/login.html:88 pkg/shell/hosts_dialog.jsx:464
+#: pkg/static/login.html:88 pkg/shell/hosts_dialog.jsx:465
 msgid ""
 "Changed keys are often the result of an operating system reinstallation. "
 "However, an unexpected change may indicate a third-party attempt to "
@@ -1639,7 +1646,7 @@ msgstr "Klientský software"
 #: pkg/systemd/overview-cards/configurationCard.jsx:197
 #: pkg/systemd/overview-cards/realmd.jsx:262 pkg/shell/superuser.jsx:190
 #: pkg/shell/superuser.jsx:198 pkg/shell/shell-modals.jsx:168
-#: pkg/shell/credentials.jsx:81 pkg/shell/hosts_dialog.jsx:79
+#: pkg/shell/credentials.jsx:81 pkg/shell/hosts_dialog.jsx:80
 #: pkg/networkmanager/interfaces.js:43 pkg/storaged/dialog.jsx:451
 #: pkg/apps/utils.jsx:87
 msgid "Close"
@@ -1691,7 +1698,7 @@ msgstr "Cockpit je interaktívne rozhranie pre správu linuxových serverov."
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit nie je kompatibilný so sofvérom na systéme."
 
-#: pkg/shell/hosts_dialog.jsx:76
+#: pkg/shell/hosts_dialog.jsx:77
 msgid "Cockpit is not installed"
 msgstr "Cockpit nie je nainštalovaný"
 
@@ -1731,7 +1738,7 @@ msgstr ""
 msgid "Collect metrics"
 msgstr "Ukladať metriky"
 
-#: pkg/shell/hosts_dialog.jsx:262
+#: pkg/shell/hosts_dialog.jsx:263
 msgid "Color"
 msgstr "Farba"
 
@@ -1772,11 +1779,11 @@ msgstr "Kompatibilné so všetkými systémami a zariadeniami (MBR)"
 msgid "Compatible with modern system and hard disks > 2TB (GPT)"
 msgstr "Kompatibilné s modernými systémami a pevnými diskami > 2TB (GPT)"
 
-#: pkg/kdump/kdump-view.jsx:240
+#: pkg/kdump/kdump-view.jsx:241
 msgid "Compress crash dumps to save space"
 msgstr "Komprimovať výpisi pamäti jadra pre úsporu miesta"
 
-#: pkg/kdump/kdump-view.jsx:235 pkg/storaged/content-views.jsx:970
+#: pkg/kdump/kdump-view.jsx:236 pkg/storaged/content-views.jsx:970
 #: pkg/storaged/vdo-details.jsx:321 pkg/storaged/lvol-tabs.jsx:558
 msgid "Compression"
 msgstr "Kompresia"
@@ -1809,7 +1816,7 @@ msgstr "Konfigurácia kdump"
 msgid "Configuring system settings"
 msgstr ""
 
-#: pkg/users/account-create-dialog.js:102 pkg/storaged/format-dialog.jsx:329
+#: pkg/users/account-create-dialog.js:134 pkg/storaged/format-dialog.jsx:328
 #: pkg/storaged/stratis-panel.jsx:149
 msgid "Confirm"
 msgstr "Potvrdiť"
@@ -1820,11 +1827,11 @@ msgstr "Potvrdiť"
 msgid "Confirm deletion of $0"
 msgstr "Potvrďte zmazanie $0"
 
-#: pkg/shell/hosts_dialog.jsx:785
+#: pkg/shell/hosts_dialog.jsx:786
 msgid "Confirm key password"
 msgstr "Potvrdiť heslo ku kľúči"
 
-#: pkg/shell/hosts_dialog.jsx:799
+#: pkg/shell/hosts_dialog.jsx:800
 msgid "Confirm new key password"
 msgstr "Potvrdiť nové heslo ku kľúču"
 
@@ -1946,11 +1953,15 @@ msgid "Convertible"
 msgstr "Počítač 2v1"
 
 #: pkg/shell/failures.jsx:44 pkg/shell/credentials.jsx:212
+#: pkg/shell/hosts_dialog.jsx:467 pkg/shell/hosts_dialog.jsx:470
+#: pkg/shell/hosts_dialog.jsx:478 pkg/shell/hosts_dialog.jsx:481
 msgid "Copied"
 msgstr "Skopírované"
 
 #: pkg/lib/cockpit-components-context-menu.jsx:104 pkg/shell/failures.jsx:44
-#: pkg/shell/credentials.jsx:212
+#: pkg/shell/credentials.jsx:212 pkg/shell/hosts_dialog.jsx:467
+#: pkg/shell/hosts_dialog.jsx:470 pkg/shell/hosts_dialog.jsx:478
+#: pkg/shell/hosts_dialog.jsx:481
 msgid "Copy"
 msgstr "Kopírovať"
 
@@ -1963,13 +1974,13 @@ msgstr ""
 msgid "Core $0"
 msgstr ""
 
-#: pkg/shell/hosts_dialog.jsx:349
+#: pkg/shell/hosts_dialog.jsx:350
 #, fuzzy
 #| msgid "Could not contact {{host}}"
 msgid "Could not contact $0"
 msgstr "Nepodarilo sa kontaktovať {{host}}"
 
-#: pkg/kdump/kdump-view.jsx:141 pkg/kdump/kdump-view.jsx:489
+#: pkg/kdump/kdump-view.jsx:141 pkg/kdump/kdump-view.jsx:478
 msgid "Crash dump location"
 msgstr ""
 
@@ -1977,12 +1988,12 @@ msgstr ""
 msgid "Crash reporting"
 msgstr "Nahlasovanie pádu"
 
-#: pkg/kdump/kdump-view.jsx:285
+#: pkg/kdump/kdump-view.jsx:280
 msgid "Crash system"
 msgstr "Havarovať systém"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:187
-#: pkg/users/group-create-dialog.js:142 pkg/users/account-create-dialog.js:365
+#: pkg/users/group-create-dialog.js:142 pkg/users/account-create-dialog.js:449
 #: pkg/storaged/content-views.jsx:206 pkg/storaged/content-views.jsx:321
 #: pkg/storaged/content-views.jsx:986 pkg/storaged/stratis-panel.jsx:170
 #: pkg/storaged/vgroups-panel.jsx:89 pkg/storaged/mdraids-panel.jsx:139
@@ -2005,7 +2016,7 @@ msgstr "Vytvoriť RAID zariadenie"
 msgid "Create Stratis pool"
 msgstr "Vytvoriť oddiel"
 
-#: pkg/shell/hosts_dialog.jsx:778
+#: pkg/shell/hosts_dialog.jsx:779
 msgid "Create a new SSH key and authorize it"
 msgstr "Vytvoriť nový SSH kľúč a poveriť ho"
 
@@ -2015,15 +2026,19 @@ msgstr "Vytvoriť nový SSH kľúč a poveriť ho"
 msgid "Create a snapshot of filesystem $0"
 msgstr "Zachytiť stav"
 
-#: pkg/users/account-create-dialog.js:416
+#: pkg/users/account-create-dialog.js:525
 msgid "Create account with non-unique UID"
 msgstr ""
 
-#: pkg/users/account-create-dialog.js:391
+#: pkg/users/account-create-dialog.js:500
 msgid "Create account with weak password"
 msgstr ""
 
-#: pkg/storaged/stratis-details.jsx:411 pkg/storaged/format-dialog.jsx:405
+#: pkg/users/account-create-dialog.js:475
+msgid "Create and change ownership of home directory"
+msgstr ""
+
+#: pkg/storaged/stratis-details.jsx:411 pkg/storaged/format-dialog.jsx:404
 #, fuzzy
 #| msgid "Create new"
 msgid "Create and mount"
@@ -2047,7 +2062,7 @@ msgstr "Vytvoriť to"
 msgid "Create logical volume"
 msgstr ""
 
-#: pkg/users/account-create-dialog.js:350 pkg/users/accounts-list.js:446
+#: pkg/users/account-create-dialog.js:434 pkg/users/accounts-list.js:446
 msgid "Create new account"
 msgstr ""
 
@@ -2071,7 +2086,7 @@ msgstr ""
 msgid "Create new task file with this content."
 msgstr ""
 
-#: pkg/storaged/stratis-details.jsx:412 pkg/storaged/format-dialog.jsx:407
+#: pkg/storaged/stratis-details.jsx:412 pkg/storaged/format-dialog.jsx:406
 #, fuzzy
 #| msgid "read only"
 msgid "Create only"
@@ -2081,7 +2096,7 @@ msgstr "iba na čítanie"
 msgid "Create partition"
 msgstr "Vytvoriť oddiel"
 
-#: pkg/storaged/format-dialog.jsx:182
+#: pkg/storaged/format-dialog.jsx:181
 msgid "Create partition on $0"
 msgstr ""
 
@@ -2209,7 +2224,7 @@ msgstr ""
 
 #: pkg/storaged/stratis-details.jsx:379 pkg/storaged/stratis-details.jsx:530
 #: pkg/storaged/fsys-tab.jsx:344 pkg/storaged/nfs-details.jsx:166
-#: pkg/storaged/format-dialog.jsx:396
+#: pkg/storaged/format-dialog.jsx:395
 msgid "Custom mount options"
 msgstr ""
 
@@ -2466,8 +2481,8 @@ msgstr "Zariadenia"
 msgid "Diagnostic reports"
 msgstr "Diagnostické hlásenia"
 
-#: pkg/kdump/kdump-view.jsx:175 pkg/kdump/kdump-view.jsx:196
-#: pkg/kdump/kdump-view.jsx:224
+#: pkg/kdump/kdump-view.jsx:176 pkg/kdump/kdump-view.jsx:197
+#: pkg/kdump/kdump-view.jsx:225
 msgid "Directory"
 msgstr "Zložka"
 
@@ -2487,7 +2502,7 @@ msgstr "Vypnúť bránu firewall"
 msgid "Disable tuned"
 msgstr "Vypnúť tuned"
 
-#: pkg/kdump/kdump-view.jsx:463 pkg/systemd/services.jsx:251
+#: pkg/kdump/kdump-view.jsx:452 pkg/systemd/services.jsx:251
 #: pkg/systemd/services.jsx:691 pkg/systemd/service-details.jsx:443
 #: pkg/networkmanager/ip-settings.jsx:44 pkg/networkmanager/ip-settings.jsx:55
 #: pkg/networkmanager/firewall-switch.jsx:80 pkg/packagekit/kpatch.jsx:250
@@ -2501,7 +2516,7 @@ msgstr "Vypnutá"
 msgid "Disallow interactive password"
 msgstr "Heslo správcu domény"
 
-#: pkg/users/account-create-dialog.js:89
+#: pkg/users/account-create-dialog.js:121
 msgid "Disallow password authentication"
 msgstr ""
 
@@ -2562,7 +2577,7 @@ msgid "Display language"
 msgstr "Jazyk zobrazenia"
 
 #: pkg/storaged/stratis-details.jsx:401 pkg/storaged/stratis-details.jsx:552
-#: pkg/storaged/fsys-tab.jsx:366 pkg/storaged/format-dialog.jsx:383
+#: pkg/storaged/fsys-tab.jsx:366 pkg/storaged/format-dialog.jsx:382
 #, fuzzy
 #| msgid "Not mounted"
 msgid "Do not mount"
@@ -2580,7 +2595,7 @@ msgstr "Dokovacia stanica"
 msgid "Does not automatically start"
 msgstr "Nespúšťa sa automaticky"
 
-#: pkg/storaged/format-dialog.jsx:141
+#: pkg/storaged/format-dialog.jsx:140
 #, fuzzy
 #| msgid "Do not mount automatically on boot"
 msgid "Does not mount during boot"
@@ -2674,7 +2689,7 @@ msgstr "Upraviť Tang server s kľúčami"
 msgid "Edit custom service in $0 zone"
 msgstr "Pridať službu do zóny $0"
 
-#: pkg/shell/hosts_dialog.jsx:245
+#: pkg/shell/hosts_dialog.jsx:246
 msgid "Edit host"
 msgstr "Upraviť hostiteľa"
 
@@ -2752,7 +2767,7 @@ msgstr "Zapnúť službu"
 msgid "Enable the firewall"
 msgstr "Zapnúť bránu firewall"
 
-#: pkg/kdump/kdump-view.jsx:463 pkg/systemd/services.jsx:249
+#: pkg/kdump/kdump-view.jsx:452 pkg/systemd/services.jsx:249
 #: pkg/systemd/services.jsx:250 pkg/systemd/services.jsx:690
 #: pkg/networkmanager/firewall-switch.jsx:80 pkg/packagekit/kpatch.jsx:253
 msgid "Enabled"
@@ -2800,11 +2815,11 @@ msgstr ""
 msgid "Encrypted volumes need to be unlocked before they can be resized."
 msgstr ""
 
-#: pkg/storaged/content-views.jsx:248 pkg/storaged/format-dialog.jsx:315
+#: pkg/storaged/content-views.jsx:248 pkg/storaged/format-dialog.jsx:314
 msgid "Encryption"
 msgstr "Šifrovanie"
 
-#: pkg/storaged/crypto-tab.jsx:194 pkg/storaged/format-dialog.jsx:356
+#: pkg/storaged/crypto-tab.jsx:194 pkg/storaged/format-dialog.jsx:355
 msgid "Encryption options"
 msgstr "Možnosti šifrovania"
 
@@ -2917,7 +2932,7 @@ msgstr "Skvelé heslo"
 msgid "Expansion chassis"
 msgstr ""
 
-#: pkg/users/expiration-dialogs.js:72
+#: pkg/users/expiration-dialogs.js:73
 #, fuzzy
 #| msgid "Lock account on $0"
 msgid "Expire account on"
@@ -2929,7 +2944,7 @@ msgstr "Zamknúť účet na $0"
 msgid "Expire account on $0"
 msgstr "Zamknúť účet na $0"
 
-#: pkg/kdump/kdump-view.jsx:191
+#: pkg/kdump/kdump-view.jsx:192
 #, fuzzy
 #| msgid "port"
 msgid "Export"
@@ -2945,7 +2960,7 @@ msgstr "Smerovaná sieť"
 msgid "Extended information"
 msgstr "Rozšírené informácie"
 
-#: pkg/storaged/content-views.jsx:637 pkg/storaged/format-dialog.jsx:204
+#: pkg/storaged/content-views.jsx:637 pkg/storaged/format-dialog.jsx:203
 msgid "Extended partition"
 msgstr "Rozšírený oddiel"
 
@@ -2961,7 +2976,7 @@ msgstr ""
 msgid "Failed"
 msgstr "Neúspešné"
 
-#: pkg/shell/hosts_dialog.jsx:213
+#: pkg/shell/hosts_dialog.jsx:214
 msgid "Failed to add machine: $0"
 msgstr "Nepodarilo sa pridať stroj: $0"
 
@@ -3002,7 +3017,7 @@ msgstr "Nepodarilo sa deaktivovať tuned"
 msgid "Failed to disable tuned profile"
 msgstr "Nepodarilo sa deaktivovať tuned"
 
-#: pkg/shell/hosts_dialog.jsx:330
+#: pkg/shell/hosts_dialog.jsx:331
 msgid "Failed to edit machine: $0"
 msgstr "Nepodarilo sa upraviť stroj: $0"
 
@@ -3171,23 +3186,23 @@ msgstr "Vynútiť zmenu hesla"
 msgid "Format"
 msgstr "Formátovať"
 
-#: pkg/storaged/format-dialog.jsx:184
+#: pkg/storaged/format-dialog.jsx:183
 msgid "Format $0"
 msgstr "Formátovať $0"
 
-#: pkg/storaged/format-dialog.jsx:405
+#: pkg/storaged/format-dialog.jsx:404
 #, fuzzy
 #| msgid "Format disk $0"
 msgid "Format and mount"
 msgstr "Formátovať disk $0"
 
-#: pkg/storaged/format-dialog.jsx:407
+#: pkg/storaged/format-dialog.jsx:406
 #, fuzzy
 #| msgid "Format"
 msgid "Format only"
 msgstr "Formátovať"
 
-#: pkg/storaged/format-dialog.jsx:406
+#: pkg/storaged/format-dialog.jsx:405
 msgid "Formatting erases all data on a storage device."
 msgstr ""
 
@@ -3227,7 +3242,7 @@ msgstr "Piatky"
 msgid "From"
 msgstr ""
 
-#: pkg/users/account-create-dialog.js:47 pkg/users/account-details.js:261
+#: pkg/users/account-create-dialog.js:55 pkg/users/account-details.js:261
 #: pkg/users/accounts-list.js:392
 msgid "Full name"
 msgstr "Celé meno"
@@ -3349,13 +3364,13 @@ msgstr ""
 msgid "History package count"
 msgstr "Počet balíkov"
 
-#: pkg/users/account-details.js:339
+#: pkg/users/account-create-dialog.js:73 pkg/users/account-details.js:339
 #, fuzzy
 #| msgid "Directory"
 msgid "Home directory"
 msgstr "Zložka"
 
-#: pkg/shell/hosts.jsx:190 pkg/shell/hosts_dialog.jsx:249
+#: pkg/shell/hosts.jsx:190 pkg/shell/hosts_dialog.jsx:250
 msgid "Host"
 msgstr "Hostiteľ"
 
@@ -3434,7 +3449,7 @@ msgid ""
 "not log in and contact your administrator."
 msgstr ""
 
-#: pkg/shell/hosts_dialog.jsx:471 pkg/shell/hosts_dialog.jsx:482
+#: pkg/shell/hosts_dialog.jsx:472 pkg/shell/hosts_dialog.jsx:483
 msgid ""
 "If the fingerprint matches, click 'Accept key and connect'. Otherwise, do "
 "not connect and contact your administrator."
@@ -3449,7 +3464,7 @@ msgstr "Ignorovať"
 msgid "In"
 msgstr "Vstup"
 
-#: pkg/shell/hosts_dialog.jsx:789 pkg/shell/hosts_dialog.jsx:803
+#: pkg/shell/hosts_dialog.jsx:790 pkg/shell/hosts_dialog.jsx:804
 msgid ""
 "In order to allow log in to $0 as $1 without password in the future, use the "
 "login password of $2 on $3 as the key password, or leave the key password "
@@ -3555,6 +3570,12 @@ msgstr "Nainštalovať cockpit-pcp"
 msgid "Install kpatch updates"
 msgstr "Nainštalovať všetky aktualizácie"
 
+#: pkg/systemd/overview-cards/realmd.jsx:448
+#, fuzzy
+#| msgid "Install NFS support"
+msgid "Install realmd support"
+msgstr "Nainštalovať podporu pre NFS"
+
 #: pkg/packagekit/updates.jsx:1403 pkg/packagekit/updates.jsx:1410
 msgid "Install security updates"
 msgstr "Nainštalovať bezpečnostné aktualizácie"
@@ -3638,7 +3659,7 @@ msgstr "Neplatný formát dátumu"
 msgid "Invalid date format and invalid time format"
 msgstr "Neplatný formát dátumu a času"
 
-#: pkg/users/expiration-dialogs.js:98
+#: pkg/users/expiration-dialogs.js:100
 msgid "Invalid expiration date"
 msgstr ""
 
@@ -3654,7 +3675,7 @@ msgstr "Neplatný kľúč"
 msgid "Invalid metric $0"
 msgstr ""
 
-#: pkg/users/expiration-dialogs.js:203
+#: pkg/users/expiration-dialogs.js:205
 msgid "Invalid number of days"
 msgstr ""
 
@@ -3691,7 +3712,7 @@ msgstr "Neplatné užívateľské meno alebo heslo"
 msgid "IoT gateway"
 msgstr ""
 
-#: pkg/shell/hosts_dialog.jsx:355
+#: pkg/shell/hosts_dialog.jsx:356
 msgid "Is sshd running on a different port?"
 msgstr ""
 
@@ -3711,7 +3732,6 @@ msgid "Join a domain"
 msgstr "Pripojiť sa k doméne"
 
 #: pkg/systemd/overview-cards/realmd.jsx:448
-#: pkg/systemd/overview-cards/realmd.jsx:470
 msgid "Join domain"
 msgstr "Pripojiť sa k doméne"
 
@@ -3749,7 +3769,7 @@ msgstr ""
 msgid "Jump to"
 msgstr "Preskočiť na"
 
-#: pkg/kdump/kdump-view.jsx:413
+#: pkg/kdump/kdump-view.jsx:402
 msgid ""
 "Kdump service not installed. Please ensure package kexec-tools is installed."
 msgstr ""
@@ -3760,7 +3780,7 @@ msgstr ""
 msgid "Keep connection"
 msgstr "Zachovať spojenie"
 
-#: pkg/kdump/kdump-view.jsx:459
+#: pkg/kdump/kdump-view.jsx:448
 msgid "Kernel crash dump"
 msgstr ""
 
@@ -3793,7 +3813,7 @@ msgstr "Zmeniť nastavenia"
 msgid "Kernel live patching"
 msgstr "Zmeniť nastavenia"
 
-#: pkg/shell/hosts_dialog.jsx:781 pkg/shell/hosts_dialog.jsx:840
+#: pkg/shell/hosts_dialog.jsx:782 pkg/shell/hosts_dialog.jsx:841
 msgid "Key password"
 msgstr "Heslo ku kľúču"
 
@@ -4033,7 +4053,7 @@ msgstr "Načítavajú sa systémové zmeny..."
 msgid "Loading unit failed"
 msgstr "Prihlásenie sa nepodarilo"
 
-#: pkg/kdump/kdump-view.jsx:314 pkg/users/account-details.js:188
+#: pkg/kdump/kdump-view.jsx:303 pkg/users/account-details.js:188
 #: pkg/users/accounts-list.js:327 pkg/users/accounts-list.js:351
 #: pkg/users/accounts-list.js:467 pkg/systemd/logDetails.jsx:176
 #: pkg/systemd/services.jsx:687 pkg/systemd/logsJournal.jsx:268
@@ -4046,7 +4066,7 @@ msgstr "Načítavanie..."
 msgid "Local accounts"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:166
+#: pkg/kdump/kdump-view.jsx:167
 msgid "Local filesystem"
 msgstr ""
 
@@ -4054,7 +4074,7 @@ msgstr ""
 msgid "Local mount point"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:162 pkg/storaged/dialog.jsx:1063
+#: pkg/kdump/kdump-view.jsx:163 pkg/storaged/dialog.jsx:1063
 #: pkg/storaged/dialog.jsx:1141
 msgid "Location"
 msgstr "Umiestnenie"
@@ -4097,11 +4117,11 @@ msgid "Locking $target"
 msgstr "Zamyká sa $target"
 
 #: pkg/static/login.html:146 pkg/shell/failures.jsx:75
-#: pkg/shell/hosts_dialog.jsx:749 pkg/static/login.js:666
+#: pkg/shell/hosts_dialog.jsx:750 pkg/static/login.js:666
 msgid "Log in"
 msgstr "Prihlásiť"
 
-#: pkg/shell/hosts_dialog.jsx:748
+#: pkg/shell/hosts_dialog.jsx:749
 #, fuzzy
 #| msgid "Route to $0"
 msgid "Log in to $0"
@@ -4505,7 +4525,7 @@ msgid "Mount"
 msgstr "Pripojiť"
 
 #: pkg/storaged/stratis-details.jsx:397 pkg/storaged/stratis-details.jsx:548
-#: pkg/storaged/fsys-tab.jsx:362 pkg/storaged/format-dialog.jsx:379
+#: pkg/storaged/fsys-tab.jsx:362 pkg/storaged/format-dialog.jsx:378
 msgid "Mount after network becomes available, ignore failure"
 msgstr ""
 
@@ -4522,7 +4542,7 @@ msgid "Mount automatically on $0 on boot"
 msgstr ""
 
 #: pkg/storaged/stratis-details.jsx:389 pkg/storaged/stratis-details.jsx:540
-#: pkg/storaged/fsys-tab.jsx:354 pkg/storaged/format-dialog.jsx:371
+#: pkg/storaged/fsys-tab.jsx:354 pkg/storaged/format-dialog.jsx:370
 msgid "Mount before services start"
 msgstr ""
 
@@ -4544,14 +4564,14 @@ msgstr ""
 
 #: pkg/storaged/stratis-details.jsx:371 pkg/storaged/stratis-details.jsx:522
 #: pkg/storaged/fsys-tab.jsx:336 pkg/storaged/nfs-details.jsx:161
-#: pkg/storaged/format-dialog.jsx:387
+#: pkg/storaged/format-dialog.jsx:386
 msgid "Mount options"
 msgstr ""
 
 #: pkg/storaged/stratis-details.jsx:367 pkg/storaged/stratis-details.jsx:518
 #: pkg/storaged/nfs-panel.jsx:103 pkg/storaged/fsys-tab.jsx:331
 #: pkg/storaged/fsys-tab.jsx:754 pkg/storaged/nfs-details.jsx:317
-#: pkg/storaged/format-dialog.jsx:293
+#: pkg/storaged/format-dialog.jsx:292
 msgid "Mount point"
 msgstr "Bod pripojenia"
 
@@ -4573,12 +4593,12 @@ msgstr ""
 
 #: pkg/storaged/stratis-details.jsx:378 pkg/storaged/stratis-details.jsx:529
 #: pkg/storaged/fsys-tab.jsx:343 pkg/storaged/nfs-details.jsx:165
-#: pkg/storaged/format-dialog.jsx:395
+#: pkg/storaged/format-dialog.jsx:394
 msgid "Mount read only"
 msgstr "Pripojiť iba na čítanie"
 
 #: pkg/storaged/stratis-details.jsx:393 pkg/storaged/stratis-details.jsx:544
-#: pkg/storaged/fsys-tab.jsx:358 pkg/storaged/format-dialog.jsx:375
+#: pkg/storaged/fsys-tab.jsx:358 pkg/storaged/format-dialog.jsx:374
 msgid "Mount without waiting, ignore failure"
 msgstr ""
 
@@ -4586,15 +4606,15 @@ msgstr ""
 msgid "Mounting $target"
 msgstr "pája sa $target"
 
-#: pkg/storaged/format-dialog.jsx:105
+#: pkg/storaged/format-dialog.jsx:104
 msgid "Mounts before services start"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:119
+#: pkg/storaged/format-dialog.jsx:118
 msgid "Mounts in parallel with services"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:130
+#: pkg/storaged/format-dialog.jsx:129
 msgid "Mounts in parallel with services, but after network is available"
 msgstr ""
 
@@ -4641,7 +4661,7 @@ msgstr "NTP server"
 #: pkg/storaged/iscsi-panel.jsx:127 pkg/storaged/iscsi-panel.jsx:184
 #: pkg/storaged/vgroup-details.jsx:162 pkg/storaged/lvol-tabs.jsx:43
 #: pkg/storaged/lvol-tabs.jsx:414 pkg/storaged/lvol-tabs.jsx:475
-#: pkg/storaged/lvol-tabs.jsx:533 pkg/storaged/format-dialog.jsx:288
+#: pkg/storaged/lvol-tabs.jsx:533 pkg/storaged/format-dialog.jsx:287
 #: pkg/storaged/part-tab.jsx:35 pkg/storaged/crypto-panel.jsx:84
 #: pkg/storaged/stratis-panel.jsx:130 pkg/storaged/vgroups-panel.jsx:73
 #: pkg/storaged/mdraids-panel.jsx:74 pkg/packagekit/updates.jsx:447
@@ -4730,7 +4750,7 @@ msgstr "Nikdy"
 msgid "Never expire account"
 msgstr "Nikdy nezamknúť účet"
 
-#: pkg/users/expiration-dialogs.js:154 pkg/users/account-details.js:76
+#: pkg/users/expiration-dialogs.js:156 pkg/users/account-details.js:76
 msgid "Never expire password"
 msgstr "Nikdy neexpirovať heslo"
 
@@ -4744,11 +4764,11 @@ msgstr "Prihlásený"
 msgid "New NFS mount"
 msgstr "Nové NFS pripojenie"
 
-#: pkg/shell/hosts_dialog.jsx:456 pkg/static/login.js:761
+#: pkg/shell/hosts_dialog.jsx:457 pkg/static/login.js:761
 msgid "New host"
 msgstr "Nový hostiteľ"
 
-#: pkg/shell/hosts_dialog.jsx:795
+#: pkg/shell/hosts_dialog.jsx:796
 msgid "New key password"
 msgstr "Nové heslo ku kľúču"
 
@@ -4808,7 +4828,7 @@ msgstr "Nie sú dostupné žiadne blokové zariadenia."
 msgid "No carrier"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:349
+#: pkg/kdump/kdump-view.jsx:338
 msgid "No configuration found"
 msgstr "Nebola nájdená žiadna konfigurácia"
 
@@ -4846,7 +4866,7 @@ msgstr ""
 msgid "No drives attached"
 msgstr "Nie sú pripojené žiadne jednotky"
 
-#: pkg/storaged/format-dialog.jsx:220
+#: pkg/storaged/format-dialog.jsx:219
 #, fuzzy
 #| msgid "encryption"
 msgid "No encryption"
@@ -4856,7 +4876,7 @@ msgstr "Šifrovanie"
 msgid "No events"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:202
+#: pkg/storaged/format-dialog.jsx:201
 msgid "No filesystem"
 msgstr ""
 
@@ -4917,7 +4937,7 @@ msgstr "Žiadne vyhovujúce výsledky"
 msgid "No media inserted"
 msgstr "Nie je vložené žiadne médium"
 
-#: pkg/kdump/kdump-view.jsx:398
+#: pkg/kdump/kdump-view.jsx:387
 msgid ""
 "No memory reserved. Append a crashkernel option to the kernel command line "
 "(e.g. in /etc/default/grub) to reserve memory at boot time. Example: "
@@ -4928,7 +4948,7 @@ msgstr ""
 msgid "No partitioning"
 msgstr ""
 
-#: pkg/users/account-create-dialog.js:130
+#: pkg/users/account-create-dialog.js:162
 msgid "No real name specified"
 msgstr "Nie je zadaný skutočný názov"
 
@@ -4964,11 +4984,11 @@ msgstr "Žiadne systémové zmeny"
 msgid "No updates"
 msgstr "Žiadne aktualizácie"
 
-#: pkg/users/account-create-dialog.js:113
+#: pkg/users/account-create-dialog.js:145
 msgid "No user name specified"
 msgstr "Nebolo zadané užívateľské meno"
 
-#: pkg/kdump/kdump-view.jsx:369 pkg/systemd/overview-cards/tuned-dialog.jsx:232
+#: pkg/kdump/kdump-view.jsx:358 pkg/systemd/overview-cards/tuned-dialog.jsx:232
 #: pkg/networkmanager/firewall.jsx:855
 msgid "None"
 msgstr "Žiadny"
@@ -5101,7 +5121,7 @@ msgstr "Pôvodné heslo"
 msgid "Old password not accepted"
 msgstr "Pôvodné heslo nebolo prijaté"
 
-#: pkg/kdump/kdump-view.jsx:341
+#: pkg/kdump/kdump-view.jsx:330
 msgid "On a mounted device"
 msgstr "Na pripojenom zariadení"
 
@@ -5164,7 +5184,7 @@ msgstr "Alebo použite pribalený prehliadač"
 msgid "Other"
 msgstr "Iný"
 
-#: pkg/users/account-create-dialog.js:93 pkg/users/account-details.js:291
+#: pkg/users/account-create-dialog.js:125 pkg/users/account-details.js:291
 msgid ""
 "Other authentication methods are still available even when interactive "
 "password authentication is not allowed."
@@ -5192,13 +5212,13 @@ msgstr "Výstup"
 msgid "Overview"
 msgstr "Prehľad"
 
-#: pkg/storaged/content-views.jsx:711 pkg/storaged/format-dialog.jsx:309
+#: pkg/storaged/content-views.jsx:711 pkg/storaged/format-dialog.jsx:308
 #, fuzzy
 #| msgid "Overview"
 msgid "Overwrite"
 msgstr "Prehľad"
 
-#: pkg/storaged/content-views.jsx:714 pkg/storaged/format-dialog.jsx:312
+#: pkg/storaged/content-views.jsx:714 pkg/storaged/format-dialog.jsx:311
 #, fuzzy
 #| msgid "Overwrite existing data with zeros"
 msgid "Overwrite existing data with zeros (slower)"
@@ -5286,7 +5306,7 @@ msgstr "Pasívny"
 
 #: pkg/storaged/content-views.jsx:279 pkg/storaged/stratis-details.jsx:131
 #: pkg/storaged/stratis-details.jsx:746 pkg/storaged/fsys-tab.jsx:374
-#: pkg/storaged/format-dialog.jsx:321 pkg/storaged/format-dialog.jsx:347
+#: pkg/storaged/format-dialog.jsx:320 pkg/storaged/format-dialog.jsx:346
 #: pkg/storaged/crypto-keyslots.jsx:483 pkg/storaged/crypto-keyslots.jsx:818
 #: pkg/storaged/stratis-panel.jsx:141
 msgid "Passphrase"
@@ -5297,7 +5317,7 @@ msgid "Passphrase can not be empty"
 msgstr "Heslová fráza nemôže byť prázdna"
 
 #: pkg/storaged/stratis-details.jsx:134 pkg/storaged/fsys-tab.jsx:377
-#: pkg/storaged/format-dialog.jsx:325 pkg/storaged/format-dialog.jsx:351
+#: pkg/storaged/format-dialog.jsx:324 pkg/storaged/format-dialog.jsx:350
 #: pkg/storaged/crypto-keyslots.jsx:204 pkg/storaged/crypto-keyslots.jsx:491
 #: pkg/storaged/crypto-keyslots.jsx:534 pkg/storaged/crypto-keyslots.jsx:537
 #: pkg/storaged/stratis-panel.jsx:145
@@ -5314,16 +5334,16 @@ msgstr "Heslová fráza nemôže byť prázdna"
 msgid "Passphrase removal may prevent unlocking $0."
 msgstr "Zmazanie heslovej fráze môže brániť odomknutiu $0."
 
-#: pkg/storaged/format-dialog.jsx:333 pkg/storaged/crypto-keyslots.jsx:499
+#: pkg/storaged/format-dialog.jsx:332 pkg/storaged/crypto-keyslots.jsx:499
 #: pkg/storaged/crypto-keyslots.jsx:539 pkg/storaged/stratis-panel.jsx:153
 msgid "Passphrases do not match"
 msgstr "Heslové frázy sa líšia"
 
-#: pkg/static/login.html:106 pkg/users/account-create-dialog.js:101
+#: pkg/static/login.html:106 pkg/users/account-create-dialog.js:133
 #: pkg/users/account-details.js:309 pkg/shell/superuser.jsx:144
 #: pkg/shell/credentials.jsx:119 pkg/shell/credentials.jsx:262
-#: pkg/shell/credentials.jsx:318 pkg/shell/hosts_dialog.jsx:825
-#: pkg/shell/hosts_dialog.jsx:834 pkg/storaged/iscsi-panel.jsx:50
+#: pkg/shell/credentials.jsx:318 pkg/shell/hosts_dialog.jsx:826
+#: pkg/shell/hosts_dialog.jsx:835 pkg/storaged/iscsi-panel.jsx:50
 #: pkg/storaged/iscsi-panel.jsx:156
 msgid "Password"
 msgstr "Heslo"
@@ -5334,11 +5354,11 @@ msgstr "Heslo"
 msgid "Password changed successfully"
 msgstr "Riešenie bolo úspešne aplikované"
 
-#: pkg/users/expiration-dialogs.js:212
+#: pkg/users/expiration-dialogs.js:214
 msgid "Password expiration"
 msgstr "Skončenie platnosti hesla"
 
-#: pkg/users/password-dialogs.js:194 pkg/users/account-create-dialog.js:283
+#: pkg/users/password-dialogs.js:194 pkg/users/account-create-dialog.js:335
 #, fuzzy
 #| msgid "Name cannot be longer than $0 characters"
 msgid "Password is longer than 256 characters"
@@ -5403,6 +5423,12 @@ msgstr ""
 #: pkg/storaged/nfs-details.jsx:145
 msgid "Path on server must start with \"/\"."
 msgstr ""
+
+#: pkg/users/account-create-dialog.js:79
+#, fuzzy
+#| msgid "Directory"
+msgid "Path to directory"
+msgstr "Zložka"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:163
 #: pkg/shell/credentials.jsx:172
@@ -5510,7 +5536,7 @@ msgstr "Nainštalujte $0 balík"
 msgid "Please reload the page after resolving the issue."
 msgstr ""
 
-#: pkg/users/expiration-dialogs.js:94
+#: pkg/users/expiration-dialogs.js:96
 msgid "Please specify an expiration date"
 msgstr ""
 
@@ -5534,7 +5560,7 @@ msgstr ""
 msgid "Pool for thinly provisioned volumes"
 msgstr ""
 
-#: pkg/shell/hosts_dialog.jsx:358 pkg/storaged/iscsi-panel.jsx:127
+#: pkg/shell/hosts_dialog.jsx:359 pkg/storaged/iscsi-panel.jsx:127
 msgid "Port"
 msgstr "Port"
 
@@ -5758,7 +5784,7 @@ msgstr ""
 msgid "Rank"
 msgstr "Rank"
 
-#: pkg/kdump/kdump-view.jsx:337
+#: pkg/kdump/kdump-view.jsx:326
 msgid "Raw to a device"
 msgstr ""
 
@@ -5780,7 +5806,7 @@ msgstr "Iba na čítanie"
 msgid "Reading"
 msgstr "Čítanie"
 
-#: pkg/kdump/kdump-view.jsx:363
+#: pkg/kdump/kdump-view.jsx:352
 msgid "Reading..."
 msgstr "Číta sa..."
 
@@ -5923,23 +5949,23 @@ msgstr "Čítanie"
 msgid "Reloading the state of remaining services"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:347
+#: pkg/kdump/kdump-view.jsx:336
 msgid "Remote over CIFS/SMB"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:343
+#: pkg/kdump/kdump-view.jsx:332
 msgid "Remote over FTP"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:170 pkg/kdump/kdump-view.jsx:334
+#: pkg/kdump/kdump-view.jsx:171 pkg/kdump/kdump-view.jsx:323
 msgid "Remote over NFS"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:345
+#: pkg/kdump/kdump-view.jsx:334
 msgid "Remote over SFTP"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:168 pkg/kdump/kdump-view.jsx:331
+#: pkg/kdump/kdump-view.jsx:169 pkg/kdump/kdump-view.jsx:320
 msgid "Remote over SSH"
 msgstr ""
 
@@ -6154,7 +6180,7 @@ msgstr "Hlásenia:"
 msgid "Reports:"
 msgstr "Hlásenia:"
 
-#: pkg/users/expiration-dialogs.js:178
+#: pkg/users/expiration-dialogs.js:180
 msgid "Require password change every $0 days"
 msgstr ""
 
@@ -6162,7 +6188,7 @@ msgstr ""
 msgid "Require password change on $0"
 msgstr "Vyžadovať zmenu hesla v $0"
 
-#: pkg/users/account-create-dialog.js:81
+#: pkg/users/account-create-dialog.js:113
 #, fuzzy
 #| msgid "Require password change on $0"
 msgid "Require password change on first login"
@@ -6192,7 +6218,7 @@ msgstr "Rekvizita"
 msgid "Requisite of"
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:482
+#: pkg/kdump/kdump-view.jsx:471
 msgid "Reserved memory"
 msgstr "Vyhradená pamäť"
 
@@ -6239,13 +6265,13 @@ msgstr "Obnovuje sa spojenie"
 msgid "Resume"
 msgstr "Obnoviť chod"
 
-#: pkg/storaged/format-dialog.jsx:228
+#: pkg/storaged/format-dialog.jsx:227
 #, fuzzy
 #| msgid "encryption"
 msgid "Reuse existing encryption"
 msgstr "Šifrovanie"
 
-#: pkg/storaged/format-dialog.jsx:225
+#: pkg/storaged/format-dialog.jsx:224
 msgid "Reuse existing encryption ($0)"
 msgstr ""
 
@@ -6349,7 +6375,7 @@ msgid ""
 "SOS reporting collects system information to help with diagnosing problems."
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:214 pkg/shell/hosts_dialog.jsx:830
+#: pkg/kdump/kdump-view.jsx:215 pkg/shell/hosts_dialog.jsx:831
 msgid "SSH key"
 msgstr "SSH kľúč"
 
@@ -6519,8 +6545,8 @@ msgctxt "storage"
 msgid "Serial number"
 msgstr "Sériové číslo"
 
-#: pkg/static/login.html:166 pkg/kdump/kdump-view.jsx:186
-#: pkg/kdump/kdump-view.jsx:208 pkg/networkmanager/ip-settings.jsx:245
+#: pkg/static/login.html:166 pkg/kdump/kdump-view.jsx:187
+#: pkg/kdump/kdump-view.jsx:209 pkg/networkmanager/ip-settings.jsx:245
 #: pkg/storaged/nfs-panel.jsx:102 pkg/storaged/nfs-details.jsx:312
 msgid "Server"
 msgstr "Server"
@@ -6550,23 +6576,23 @@ msgstr ""
 msgid "Service"
 msgstr "Služba"
 
-#: pkg/kdump/kdump-view.jsx:392
+#: pkg/kdump/kdump-view.jsx:381
 msgid "Service has an error"
 msgstr "Služba má chybu"
 
-#: pkg/kdump/kdump-view.jsx:388
+#: pkg/kdump/kdump-view.jsx:377
 msgid "Service is running"
 msgstr "Služba je spustená"
 
-#: pkg/kdump/kdump-view.jsx:394
+#: pkg/kdump/kdump-view.jsx:383
 msgid "Service is starting"
 msgstr "Služba sa spúšťa"
 
-#: pkg/kdump/kdump-view.jsx:390
+#: pkg/kdump/kdump-view.jsx:379
 msgid "Service is stopped"
 msgstr "Služba je zastavená"
 
-#: pkg/kdump/kdump-view.jsx:396
+#: pkg/kdump/kdump-view.jsx:385
 msgid "Service is stopping"
 msgstr "Služba sa zastavuje"
 
@@ -6594,7 +6620,7 @@ msgstr "Sedenie"
 msgid "Session is about to expire"
 msgstr "Relácia čoskoro skončí"
 
-#: pkg/shell/hosts_dialog.jsx:246
+#: pkg/shell/hosts_dialog.jsx:247
 msgid "Set"
 msgstr "Nastaviť"
 
@@ -6652,7 +6678,7 @@ msgstr "Závažnosť"
 msgid "Shared"
 msgstr "Zdielané"
 
-#: pkg/users/account-details.js:342
+#: pkg/users/account-create-dialog.js:83 pkg/users/account-details.js:342
 #, fuzzy
 #| msgid "shell"
 msgid "Shell"
@@ -6749,7 +6775,7 @@ msgstr "Single rank"
 #: pkg/storaged/nfs-details.jsx:322 pkg/storaged/lvol-tabs.jsx:237
 #: pkg/storaged/lvol-tabs.jsx:304 pkg/storaged/lvol-tabs.jsx:424
 #: pkg/storaged/lvol-tabs.jsx:485 pkg/storaged/lvol-tabs.jsx:538
-#: pkg/storaged/format-dialog.jsx:301 pkg/storaged/part-tab.jsx:40
+#: pkg/storaged/format-dialog.jsx:300 pkg/storaged/part-tab.jsx:40
 msgid "Size"
 msgstr "Veľkosť"
 
@@ -6918,7 +6944,7 @@ msgstr "Stav"
 msgid "Static"
 msgstr "Statická"
 
-#: pkg/kdump/kdump-view.jsx:472 pkg/systemd/service-details.jsx:654
+#: pkg/kdump/kdump-view.jsx:461 pkg/systemd/service-details.jsx:654
 #: pkg/networkmanager/network-interface.jsx:266 pkg/packagekit/updates.jsx:905
 msgid "Status"
 msgstr "Stav"
@@ -6985,7 +7011,7 @@ msgstr ""
 msgid "Storage logs"
 msgstr "Záznamy udalostí úložiska"
 
-#: pkg/storaged/format-dialog.jsx:344
+#: pkg/storaged/format-dialog.jsx:343
 msgid "Store passphrase"
 msgstr ""
 
@@ -7196,15 +7222,15 @@ msgstr "Terminál"
 msgid "Terminate session"
 msgstr "Ukončiť sedenie"
 
-#: pkg/kdump/kdump-view.jsx:429 pkg/kdump/kdump-view.jsx:437
+#: pkg/kdump/kdump-view.jsx:418 pkg/kdump/kdump-view.jsx:426
 msgid "Test configuration"
 msgstr "Vyskúšať konfiguráciu"
 
-#: pkg/kdump/kdump-view.jsx:433
+#: pkg/kdump/kdump-view.jsx:422
 msgid "Test is only available while the kdump service is running."
 msgstr "Test je k dispozícií len keď je spustená služba kdump."
 
-#: pkg/kdump/kdump-view.jsx:275
+#: pkg/kdump/kdump-view.jsx:270
 msgid "Test kdump settings"
 msgstr "Vyskúšať nastavenia kdump"
 
@@ -7242,7 +7268,7 @@ msgstr ""
 "Aby bolo možné vytvárať VDO zariadenia je potrebné mať nainštalovaný balík "
 "$0."
 
-#: pkg/shell/hosts_dialog.jsx:146
+#: pkg/shell/hosts_dialog.jsx:147
 msgid "The IP address or hostname cannot contain whitespace."
 msgstr "IP adresa alebo názov stroja nemôže obsahovať prázdny znak."
 
@@ -7259,7 +7285,7 @@ msgstr ""
 msgid "The RAID device must be running in order to remove disks."
 msgstr "RAID zariadenie musí byť spustené aby bolo možné odobrať disky."
 
-#: pkg/shell/hosts_dialog.jsx:808
+#: pkg/shell/hosts_dialog.jsx:809
 #, fuzzy
 #| msgid ""
 #| "The SSH key ${key} of ${luser} on ${lhost} will be added to the ${afile} "
@@ -7269,7 +7295,7 @@ msgstr ""
 "SSH kľúč ${key} užívateľa ${luser} na ${lhost} bude pridaný do súboru "
 "${afile} užívateľa ${ruser} na ${rhost}."
 
-#: pkg/shell/hosts_dialog.jsx:840
+#: pkg/shell/hosts_dialog.jsx:841
 msgid ""
 "The SSH key $0 will be made available for the remainder of the session and "
 "will be available for login to other hosts as well."
@@ -7277,7 +7303,7 @@ msgstr ""
 "SSH kľúč $0 bude sprístupnený po celú reláciu a bude k dispozícií tiež pre "
 "prihlasovanie se k ostatním strojom."
 
-#: pkg/shell/hosts_dialog.jsx:758
+#: pkg/shell/hosts_dialog.jsx:759
 #, fuzzy
 #| msgid ""
 #| "The SSH key for logging in to {{#strong}}{{full_address}}{{/strong}} is "
@@ -7292,7 +7318,7 @@ msgstr ""
 "chránený. Môžete sa buď prihlásiť svojím prihlasovacím heslom alebo zadáním "
 "hesla ku kľúču {{#strong}}{{key}}{{/strong}}."
 
-#: pkg/shell/hosts_dialog.jsx:763
+#: pkg/shell/hosts_dialog.jsx:764
 #, fuzzy
 #| msgid ""
 #| "The SSH key for logging in to {{#strong}}{{full_address}}{{/strong}} is "
@@ -7332,7 +7358,7 @@ msgid ""
 msgstr ""
 "Prihlásený užívateľ nie je oprávnený k zobrazovaniu informácií o kľúčoch."
 
-#: pkg/storaged/format-dialog.jsx:354
+#: pkg/storaged/format-dialog.jsx:353
 msgid ""
 "The disk needs to be unlocked before formatting.  Please provide a existing "
 "passphrase."
@@ -7398,7 +7424,7 @@ msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: pkg/users/account-create-dialog.js:134
+#: pkg/users/account-create-dialog.js:166
 msgid "The full name must not contain colons."
 msgstr ""
 
@@ -7420,15 +7446,21 @@ msgstr ""
 "Užívateľské meno môže obsahovať iba písmená a-z, čísla, bodky, pomlčky a "
 "podtržníky."
 
+#: pkg/users/account-create-dialog.js:360
+msgid ""
+"The home directory $0 already exists. Its ownership will be changed to the "
+"new user."
+msgstr ""
+
 #: pkg/storaged/crypto-keyslots.jsx:318
 msgid "The initrd must be regenerated."
 msgstr ""
 
-#: pkg/shell/hosts_dialog.jsx:680
+#: pkg/shell/hosts_dialog.jsx:681
 msgid "The key password can not be empty"
 msgstr "Heslo ku kľúču nemôže byť prázdne"
 
-#: pkg/shell/hosts_dialog.jsx:683 pkg/shell/hosts_dialog.jsx:689
+#: pkg/shell/hosts_dialog.jsx:684 pkg/shell/hosts_dialog.jsx:690
 msgid "The key passwords do not match"
 msgstr "Heslá ku kľúču sa líšia"
 
@@ -7476,15 +7508,15 @@ msgstr ""
 msgid "The mount point $0 is in use by these services:"
 msgstr ""
 
-#: pkg/shell/hosts_dialog.jsx:686
+#: pkg/shell/hosts_dialog.jsx:687
 msgid "The new key password can not be empty"
 msgstr "Nové heslo ku kľúču nemôže byť prázdne"
 
-#: pkg/shell/hosts_dialog.jsx:664
+#: pkg/shell/hosts_dialog.jsx:665
 msgid "The password can not be empty"
 msgstr "Heslo nemôže byť prázdne"
 
-#: pkg/users/password-dialogs.js:191 pkg/users/account-create-dialog.js:280
+#: pkg/users/password-dialogs.js:191 pkg/users/account-create-dialog.js:332
 msgid "The passwords do not match"
 msgstr "Heslá sa líšia"
 
@@ -7492,8 +7524,8 @@ msgstr "Heslá sa líšia"
 msgid "The passwords do not match."
 msgstr "Heslá sa líšia."
 
-#: pkg/static/login.html:96 pkg/shell/hosts_dialog.jsx:470
-#: pkg/shell/hosts_dialog.jsx:481
+#: pkg/static/login.html:96 pkg/shell/hosts_dialog.jsx:471
+#: pkg/shell/hosts_dialog.jsx:482
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
 "email."
@@ -7537,7 +7569,7 @@ msgid ""
 "effect."
 msgstr ""
 
-#: pkg/users/account-create-dialog.js:117
+#: pkg/users/account-create-dialog.js:149
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
@@ -7637,7 +7669,7 @@ msgstr "Zozbierané informácie budú ukladané lokálne na systéme."
 msgid "This logical volume is not completely used by its content."
 msgstr ""
 
-#: pkg/shell/hosts_dialog.jsx:152
+#: pkg/shell/hosts_dialog.jsx:153
 msgid "This machine has already been added."
 msgstr ""
 
@@ -7699,7 +7731,7 @@ msgstr ""
 msgid "This unit is not designed to be enabled explicitly."
 msgstr ""
 
-#: pkg/users/account-create-dialog.js:122
+#: pkg/users/account-create-dialog.js:154
 msgid "This user name already exists"
 msgstr "Toto užívateľské meno už existuje"
 
@@ -7729,18 +7761,18 @@ msgid ""
 "separated by comma. "
 msgstr ""
 
-#: pkg/shell/hosts_dialog.jsx:809
+#: pkg/shell/hosts_dialog.jsx:810
 msgid "This will allow you to log in without password in the future."
 msgstr "Toto vám umožní sa nabudúce prihlásiť bez hesla."
 
-#: pkg/kdump/kdump-view.jsx:277
+#: pkg/kdump/kdump-view.jsx:272
 msgid ""
 "This will test kdump settings by crashing the kernel and thereby the system. "
 "Depending on the settings, the system may not automatically reboot and the "
 "process may take a while."
 msgstr ""
 
-#: pkg/kdump/kdump-view.jsx:442
+#: pkg/kdump/kdump-view.jsx:431
 msgid "This will test the kdump configuration by crashing the kernel."
 msgstr ""
 
@@ -7790,8 +7822,8 @@ msgstr ""
 "Tip: Nastavte si heslo ku kľúču rovnaké ako pre prihlasovanie a budete se "
 "voči ostatným systémom overovať automaticky."
 
-#: pkg/static/login.html:91 pkg/shell/hosts_dialog.jsx:465
-#: pkg/shell/hosts_dialog.jsx:476
+#: pkg/static/login.html:91 pkg/shell/hosts_dialog.jsx:466
+#: pkg/shell/hosts_dialog.jsx:477
 msgid ""
 "To ensure that your connection is not intercepted by a malicious third-"
 "party, please verify the host key fingerprint:"
@@ -7803,7 +7835,7 @@ msgid ""
 "either using the Red Hat Customer Portal or a local subscription server."
 msgstr ""
 
-#: pkg/shell/hosts_dialog.jsx:468 pkg/shell/hosts_dialog.jsx:479
+#: pkg/shell/hosts_dialog.jsx:469 pkg/shell/hosts_dialog.jsx:480
 #: pkg/static/login.js:766
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
@@ -7937,7 +7969,7 @@ msgstr ""
 #: pkg/systemd/hwinfo.jsx:83 pkg/systemd/hwinfo.jsx:307
 #: pkg/shell/credentials.jsx:199 pkg/storaged/content-views.jsx:764
 #: pkg/storaged/content-views.jsx:1029 pkg/storaged/fsys-panel.jsx:178
-#: pkg/storaged/format-dialog.jsx:299 pkg/storaged/part-tab.jsx:50
+#: pkg/storaged/format-dialog.jsx:298 pkg/storaged/part-tab.jsx:50
 #: pkg/storaged/unrecognized-tab.jsx:36 pkg/packagekit/autoupdates.jsx:271
 msgid "Type"
 msgstr "Typ"
@@ -7968,11 +8000,11 @@ msgstr ""
 msgid "Unable to connect to that address"
 msgstr ""
 
-#: pkg/shell/hosts_dialog.jsx:354
+#: pkg/shell/hosts_dialog.jsx:355
 msgid "Unable to contact $0."
 msgstr ""
 
-#: pkg/shell/hosts_dialog.jsx:230
+#: pkg/shell/hosts_dialog.jsx:231
 msgid ""
 "Unable to contact the given host $0. Make sure it has ssh running on port "
 "$1, or specify another port in the address."
@@ -7987,7 +8019,7 @@ msgstr ""
 msgid "Unable to get alert: $0"
 msgstr ""
 
-#: pkg/shell/hosts_dialog.jsx:755
+#: pkg/shell/hosts_dialog.jsx:756
 #, fuzzy
 #| msgid ""
 #| "Unable to log in to {{#strong}}{{full_address}}{{/strong}} using SSH key "
@@ -8001,7 +8033,7 @@ msgstr ""
 "overenia sa SSH kľúčom. Prosím zadejte heslo. Ak sa chcete prihlasovať "
 "automaticky, nastavte SSH klúče."
 
-#: pkg/shell/hosts_dialog.jsx:753
+#: pkg/shell/hosts_dialog.jsx:754
 #, fuzzy
 #| msgid ""
 #| "Unable to log in to {{#strong}}{{full_address}}{{/strong}}. The host does "
@@ -8211,7 +8243,7 @@ msgstr ""
 msgid "Untrusted host"
 msgstr "Nedôveryhodnotný stroj"
 
-#: pkg/shell/hosts_dialog.jsx:350
+#: pkg/shell/hosts_dialog.jsx:351
 msgid "Update"
 msgstr "Aktualizovať"
 
@@ -8308,7 +8340,7 @@ msgstr "Deduplikácia"
 msgid "Use key"
 msgstr "ssh kľúč"
 
-#: pkg/users/account-create-dialog.js:76
+#: pkg/users/account-create-dialog.js:108
 #, fuzzy
 #| msgid "User password"
 msgid "Use password"
@@ -8335,7 +8367,7 @@ msgstr "Využité"
 msgid "Used for"
 msgstr "Používané"
 
-#: pkg/storaged/format-dialog.jsx:144
+#: pkg/storaged/format-dialog.jsx:143
 msgid ""
 "Useful for mounts that are optional or need interaction (such as passphrases)"
 msgstr ""
@@ -8344,34 +8376,34 @@ msgstr ""
 msgid "User"
 msgstr "Používateľ"
 
-#: pkg/users/account-create-dialog.js:65
+#: pkg/users/account-create-dialog.js:97
 #, fuzzy
 #| msgid "User"
 msgid "User ID"
 msgstr "Používateľ"
 
-#: pkg/users/account-create-dialog.js:153
+#: pkg/users/account-create-dialog.js:185
 msgid "User ID is already used by another user"
 msgstr ""
 
-#: pkg/users/account-create-dialog.js:143
+#: pkg/users/account-create-dialog.js:175
 #, fuzzy
 #| msgid "MTU must be a positive number"
 msgid "User ID must be a positive integer"
 msgstr "MTU musí byť kladné číslo"
 
-#: pkg/users/account-create-dialog.js:149
+#: pkg/users/account-create-dialog.js:181
 msgid "User ID must not be higher than $0"
 msgstr ""
 
-#: pkg/users/account-create-dialog.js:146
+#: pkg/users/account-create-dialog.js:178
 #, fuzzy
 #| msgid "Name cannot be longer than $0 bytes"
 msgid "User ID must not be lower than $0"
 msgstr "Názov nemôže byť dlhší ako $0 bytov"
 
-#: pkg/static/login.html:101 pkg/users/account-create-dialog.js:56
-#: pkg/users/account-details.js:275 pkg/shell/hosts_dialog.jsx:258
+#: pkg/static/login.html:101 pkg/users/account-create-dialog.js:64
+#: pkg/users/account-details.js:275 pkg/shell/hosts_dialog.jsx:259
 msgid "User name"
 msgstr "Užívateľské meno"
 
@@ -8643,7 +8675,7 @@ msgstr "Týždne"
 msgid "When"
 msgstr "Kedy"
 
-#: pkg/shell/hosts_dialog.jsx:258
+#: pkg/shell/hosts_dialog.jsx:259
 msgid "When empty, connect with the current user"
 msgstr ""
 
@@ -8691,7 +8723,7 @@ msgstr ""
 msgid "Yes"
 msgstr "Áno"
 
-#: pkg/shell/hosts_dialog.jsx:475 pkg/static/login.js:763
+#: pkg/shell/hosts_dialog.jsx:476 pkg/static/login.js:763
 msgid "You are connecting to $0 for the first time."
 msgstr ""
 
@@ -8713,7 +8745,7 @@ msgstr "Boli ste odhlásený z dôvodu neaktivity."
 msgid "You may try to load older entries."
 msgstr "Môžte skúsiť načítať skoršie záznamy."
 
-#: pkg/shell/hosts_dialog.jsx:759 pkg/shell/hosts_dialog.jsx:764
+#: pkg/shell/hosts_dialog.jsx:760 pkg/shell/hosts_dialog.jsx:765
 msgid "You may want to change the password of the key for automatic login."
 msgstr ""
 "Pre automatické prihlasovanie sa budete možno chcieť zmeniť heslo ku kľúču."
@@ -8895,7 +8927,7 @@ msgstr "procesor"
 msgid "crash"
 msgstr "pád"
 
-#: pkg/kdump/kdump-view.jsx:450
+#: pkg/kdump/kdump-view.jsx:439
 msgid "crashkernel not configured in the kernel command line"
 msgstr ""
 
@@ -8910,7 +8942,7 @@ msgstr "ladenie"
 #: pkg/storaged/content-views.jsx:377 pkg/storaged/content-views.jsx:685
 #: pkg/storaged/stratis-details.jsx:236 pkg/storaged/stratis-details.jsx:581
 #: pkg/storaged/vdo-details.jsx:159 pkg/storaged/vgroup-details.jsx:182
-#: pkg/storaged/format-dialog.jsx:233 pkg/storaged/mdraid-details.jsx:279
+#: pkg/storaged/format-dialog.jsx:232 pkg/storaged/mdraid-details.jsx:279
 #, fuzzy
 #| msgid "Delete"
 msgid "delete"
@@ -9046,7 +9078,7 @@ msgstr ""
 msgid "for current kernel only"
 msgstr "Pripojiť iba na čítanie"
 
-#: pkg/storaged/format-dialog.jsx:233 pkg/storaged/manifest.json:0
+#: pkg/storaged/format-dialog.jsx:232 pkg/storaged/manifest.json:0
 msgid "format"
 msgstr "Formátovať"
 
@@ -9124,7 +9156,7 @@ msgstr "inštalovať"
 msgid "interface"
 msgstr "rozhranie"
 
-#: pkg/kdump/kdump-view.jsx:322
+#: pkg/kdump/kdump-view.jsx:311
 msgid "invalid: multiple targets defined"
 msgstr "neplatné: viacero definovaných cieľov"
 
@@ -9152,7 +9184,7 @@ msgstr "manuálové stránky k journalctl"
 msgid "kdump"
 msgstr "kdump"
 
-#: pkg/kdump/kdump-view.jsx:446
+#: pkg/kdump/kdump-view.jsx:435
 msgid "kdump status"
 msgstr "stav kdump"
 
@@ -9160,7 +9192,7 @@ msgstr "stav kdump"
 msgid "keys"
 msgstr "kľúče"
 
-#: pkg/kdump/kdump-view.jsx:326 pkg/kdump/kdump-view.jsx:328
+#: pkg/kdump/kdump-view.jsx:315 pkg/kdump/kdump-view.jsx:317
 msgid "locally in $0"
 msgstr "lokálne v $0"
 
@@ -9220,7 +9252,7 @@ msgstr "zmiernenie"
 msgid "mkfs"
 msgstr "mkfs"
 
-#: pkg/kdump/kdump-view.jsx:409
+#: pkg/kdump/kdump-view.jsx:398
 #, fuzzy
 #| msgid "Problem details"
 msgid "more details"

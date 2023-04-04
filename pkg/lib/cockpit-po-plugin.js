@@ -70,7 +70,7 @@ function buildFile(po_file, subdir, webpack_module, webpack_compilation) {
             for (const [msgid, translation] of Object.entries(context)) {
                 /* Only include msgids which appear in this source directory */
                 const references = translation.comments.reference.split(/\s/);
-                if (!references.some(str => str.startsWith(`pkg/${subdir}`) || str.startsWith('src')))
+                if (!references.some(str => str.startsWith(`pkg/${subdir}`) || str.startsWith(config.src_directory)))
                     continue;
 
                 if (translation.comments.flag?.match(/\bfuzzy\b/))
@@ -103,6 +103,7 @@ function buildFile(po_file, subdir, webpack_module, webpack_compilation) {
 function init(options) {
     config.srcdir = process.env.SRCDIR || './';
     config.subdirs = options.subdirs || [''];
+    config.src_directory = options.src_directory || 'src';
     config.wrapper = options.wrapper;
     config.outdir = options.outdir || './dist';
 }

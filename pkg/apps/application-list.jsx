@@ -47,7 +47,11 @@ const ApplicationRow = ({ comp, progress, progress_title, action }) => {
 
     let summary_or_progress;
     if (progress) {
-        summary_or_progress = <ProgressBar title={progress_title} data={progress} />;
+        summary_or_progress = (
+            <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
+                <span id={comp.name + "-progress"} className="progress-title-span">{progress_title}</span>
+                <ProgressBar title={progress_title} data={progress} ariaLabelledBy={comp.name + "-progress"} />
+            </Flex>);
     } else {
         if (error) {
             summary_or_progress = (

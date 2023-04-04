@@ -65,13 +65,16 @@ def createUser(
     custom_shell=None,
     uid=None,
     expected_uid=None,
-    verify_created=True
+    verify_created=True,
+    run_assert_pixels=False,
 ):
     if default_shell is None:
         default_shell = getUserAddDetails(machine)["SHELL"]
     browser.wait_visible('#accounts-create')
     browser.click('#accounts-create')
     browser.wait_visible('#accounts-create-dialog')
+    if run_assert_pixels:
+        browser.assert_pixels("#accounts-create-dialog", "accounts-create-dialog")
 
     browser.set_input_text('#accounts-create-user-name', user_name)
     browser.set_input_text('#accounts-create-real-name', real_name)
@@ -263,7 +266,8 @@ class TestAccounts(MachineCase):
             password=good_password,
             locked=False,
             force_password_change=True,
-            default_shell="/bin/true"
+            default_shell="/bin/true",
+            run_assert_pixels=True
         )
 
         # Test actions in kebab menu

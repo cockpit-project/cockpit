@@ -1036,8 +1036,6 @@ ExecStart=/usr/local/bin/{packageName}
         # error message visible
         b.wait_visible("#app .pf-c-page .pf-c-empty-state__body")
 
-        # self.assertRegex(b.text("#app .pf-c-page .pf-c-empty-state__body .pf-c-content span:first-of-type"),
-        #                  "missing|downloading|not.*available|No such file or directory|download library error")
         self.assertRegex(b.text("#app .pf-c-page .pf-l-stack .pf-c-code-block .pf-c-code-block__content .pf-c-code-block__pre .pf-c-code-block__code span:first-of-type"),
                          "missing|downloading|not.*available|No such file or directory|download library error")
 

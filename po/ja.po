@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-23 02:48+0000\n"
+"POT-Creation-Date: 2023-04-03 02:47+0000\n"
 "PO-Revision-Date: 2023-02-23 07:29+0000\n"
 "Last-Translator: Ludek Janda <ljanda@redhat.com>\n"
 "Language-Team: Japanese <https://translate.fedoraproject.org/projects/"
@@ -156,11 +156,18 @@ msgid "$0 important hit"
 msgid_plural "$0 hits, including important"
 msgstr[0] "「重要な影響」を含む $0 件が該当"
 
+#: pkg/users/account-create-dialog.js:351
+#, fuzzy
+#| msgid "$0 disk is missing"
+#| msgid_plural "$0 disks are missing"
+msgid "$0 is an existing file"
+msgstr "$0 本のディスクがありません"
+
 #: pkg/storaged/content-views.jsx:381 pkg/storaged/content-views.jsx:689
 #: pkg/storaged/stratis-details.jsx:240 pkg/storaged/stratis-details.jsx:585
 #: pkg/storaged/vdo-details.jsx:129 pkg/storaged/vdo-details.jsx:163
 #: pkg/storaged/vgroup-details.jsx:186 pkg/storaged/lvol-tabs.jsx:227
-#: pkg/storaged/lvol-tabs.jsx:294 pkg/storaged/format-dialog.jsx:237
+#: pkg/storaged/lvol-tabs.jsx:294 pkg/storaged/format-dialog.jsx:236
 #: pkg/storaged/mdraid-details.jsx:228 pkg/storaged/mdraid-details.jsx:283
 msgid "$0 is in use"
 msgstr "$0 は使用されています"
@@ -170,7 +177,7 @@ msgstr "$0 は使用されています"
 msgid "$0 is not available from any repository."
 msgstr "$0 は、あらゆるリポジトリーから利用できません。"
 
-#: pkg/shell/hosts_dialog.jsx:456 pkg/static/login.js:757
+#: pkg/shell/hosts_dialog.jsx:457 pkg/static/login.js:757
 msgid "$0 key changed"
 msgstr "$0 キーが変更されました"
 
@@ -292,7 +299,7 @@ msgstr "$0: $1 でクラッシュ"
 msgid "$name (from $host)"
 msgstr "$name ($host)"
 
-#: pkg/storaged/format-dialog.jsx:198 pkg/storaged/format-dialog.jsx:215
+#: pkg/storaged/format-dialog.jsx:197 pkg/storaged/format-dialog.jsx:214
 msgid "(recommended)"
 msgstr "(推奨)"
 
@@ -518,7 +525,7 @@ msgstr "8 日"
 msgid "9th"
 msgstr "9 日"
 
-#: pkg/shell/hosts_dialog.jsx:85
+#: pkg/shell/hosts_dialog.jsx:86
 msgid "A compatible version of Cockpit is not installed on $0."
 msgstr "Cockpit の互換バージョンが $0 にインストールされていません。"
 
@@ -545,7 +552,7 @@ msgstr ""
 "ネットワークボンディングは複数のネットワークインタフェースを高いスループット"
 "または冗長性の単一論理インタフェースにまとめます。"
 
-#: pkg/shell/hosts_dialog.jsx:780
+#: pkg/shell/hosts_dialog.jsx:781
 msgid ""
 "A new SSH key at $0 will be created for $1 on $2 and it will be added to the "
 "$3 file of $4 on $5."
@@ -594,7 +601,7 @@ msgstr "Webコンソールについて"
 msgid "Absent"
 msgstr "不在"
 
-#: pkg/shell/hosts_dialog.jsx:457
+#: pkg/shell/hosts_dialog.jsx:458
 msgid "Accept key and connect"
 msgstr "キーを受け入れて接続"
 
@@ -602,7 +609,7 @@ msgstr "キーを受け入れて接続"
 msgid "Accept key and log in"
 msgstr "キーを受け入れてログイン"
 
-#: pkg/users/expiration-dialogs.js:108
+#: pkg/users/expiration-dialogs.js:110
 msgid "Account expiration"
 msgstr "アカウントの有効期限"
 
@@ -662,7 +669,7 @@ msgid "Adaptive transmit load balancing"
 msgstr "適応送信のロードバランス"
 
 #: pkg/users/authorized-keys-panel.js:69 pkg/systemd/timer-dialog.jsx:373
-#: pkg/shell/credentials.jsx:184 pkg/shell/hosts_dialog.jsx:246
+#: pkg/shell/credentials.jsx:184 pkg/shell/hosts_dialog.jsx:247
 #: pkg/storaged/stratis-details.jsx:147 pkg/storaged/nfs-panel.jsx:65
 #: pkg/storaged/iscsi-panel.jsx:136 pkg/storaged/iscsi-panel.jsx:160
 #: pkg/storaged/iscsi-panel.jsx:255 pkg/storaged/vgroup-details.jsx:74
@@ -725,7 +732,7 @@ msgstr "キーの追加"
 msgid "Add member"
 msgstr "メンバーの追加"
 
-#: pkg/shell/hosts.jsx:204 pkg/shell/hosts_dialog.jsx:245
+#: pkg/shell/hosts.jsx:204 pkg/shell/hosts_dialog.jsx:246
 msgid "Add new host"
 msgstr "新規ホストの追加"
 
@@ -977,7 +984,7 @@ msgstr "アップデートの適用中"
 msgid "Applying updates failed"
 msgstr "アップデートの適用に失敗しました"
 
-#: pkg/storaged/format-dialog.jsx:108
+#: pkg/storaged/format-dialog.jsx:107
 msgid "Appropriate for critical mounts, such as /var"
 msgstr ""
 
@@ -995,7 +1002,7 @@ msgid "Asset tag"
 msgstr "アセットタグ"
 
 #: pkg/storaged/stratis-details.jsx:382 pkg/storaged/stratis-details.jsx:533
-#: pkg/storaged/fsys-tab.jsx:347 pkg/storaged/format-dialog.jsx:363
+#: pkg/storaged/fsys-tab.jsx:347 pkg/storaged/format-dialog.jsx:362
 #, fuzzy
 #| msgid "boot"
 msgid "At boot"
@@ -1043,7 +1050,7 @@ msgstr "認証する"
 msgid "Authenticating"
 msgstr "認証中"
 
-#: pkg/users/account-create-dialog.js:74 pkg/shell/hosts_dialog.jsx:820
+#: pkg/users/account-create-dialog.js:106 pkg/shell/hosts_dialog.jsx:821
 msgid "Authentication"
 msgstr "認証"
 
@@ -1065,7 +1072,7 @@ msgstr "Cockpit Web コンソールでの特権タスクの実行には、認証
 msgid "Authentication required"
 msgstr "認証が必要です"
 
-#: pkg/shell/hosts_dialog.jsx:806
+#: pkg/shell/hosts_dialog.jsx:807
 msgid "Authorize SSH key"
 msgstr "SSH キーの認証"
 
@@ -1089,7 +1096,7 @@ msgstr "自動 (DHCP のみ)"
 msgid "Automatic (DHCP)"
 msgstr "自動 (DHCP)"
 
-#: pkg/shell/hosts_dialog.jsx:846
+#: pkg/shell/hosts_dialog.jsx:847
 msgid "Automatic login"
 msgstr "自動ログイン"
 
@@ -1215,11 +1222,11 @@ msgstr "ボンディング設定"
 msgid "Boot"
 msgstr "ブート"
 
-#: pkg/storaged/format-dialog.jsx:111
+#: pkg/storaged/format-dialog.jsx:110
 msgid "Boot fails if filesystem does not mount, preventing remote access"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:122 pkg/storaged/format-dialog.jsx:133
+#: pkg/storaged/format-dialog.jsx:121 pkg/storaged/format-dialog.jsx:132
 #, fuzzy
 #| msgid "The filesystem is not mounted."
 msgid "Boot still succeeds when filesystem does not mount"
@@ -1268,7 +1275,7 @@ msgstr "バグ"
 msgid "Bus expansion chassis"
 msgstr "バス拡張シャーシ"
 
-#: pkg/shell/hosts_dialog.jsx:794
+#: pkg/shell/hosts_dialog.jsx:795
 msgid ""
 "By changing the password of the SSH key $0 to the login password of $1 on "
 "$2, the key will be automatically made available and you can log in to $3 "
@@ -1310,7 +1317,7 @@ msgstr "CVE"
 msgid "Cache"
 msgstr "キャッシュ"
 
-#: pkg/shell/hosts_dialog.jsx:249
+#: pkg/shell/hosts_dialog.jsx:250
 msgid "Can be a hostname, IP address, alias name, or ssh:// URI"
 msgstr "ホスト名、IP アドレス、エイリアス名、または ssh:// URI を指定できます"
 
@@ -1331,9 +1338,9 @@ msgstr ""
 #: pkg/systemd/reporting.jsx:424 pkg/shell/superuser.jsx:182
 #: pkg/shell/superuser.jsx:220 pkg/shell/superuser.jsx:265
 #: pkg/shell/shell-modals.jsx:112 pkg/shell/credentials.jsx:313
-#: pkg/shell/active-pages-modal.jsx:100 pkg/shell/hosts_dialog.jsx:278
-#: pkg/shell/hosts_dialog.jsx:375 pkg/shell/hosts_dialog.jsx:499
-#: pkg/shell/hosts_dialog.jsx:867 pkg/networkmanager/dialogs-common.jsx:159
+#: pkg/shell/active-pages-modal.jsx:100 pkg/shell/hosts_dialog.jsx:279
+#: pkg/shell/hosts_dialog.jsx:376 pkg/shell/hosts_dialog.jsx:500
+#: pkg/shell/hosts_dialog.jsx:868 pkg/networkmanager/dialogs-common.jsx:159
 #: pkg/networkmanager/firewall.jsx:611 pkg/networkmanager/firewall.jsx:815
 #: pkg/networkmanager/firewall.jsx:910 pkg/storaged/jobs-panel.jsx:137
 #: pkg/packagekit/kpatch.jsx:312 pkg/packagekit/autoupdates.jsx:266
@@ -1382,8 +1389,8 @@ msgstr "容量"
 msgid "Carrier"
 msgstr "キャリア"
 
-#: pkg/lib/serverTime.js:748 pkg/users/expiration-dialogs.js:115
-#: pkg/users/expiration-dialogs.js:220
+#: pkg/lib/serverTime.js:748 pkg/users/expiration-dialogs.js:117
+#: pkg/users/expiration-dialogs.js:222
 #: pkg/systemd/overview-cards/configurationCard.jsx:282
 #: pkg/storaged/iscsi-panel.jsx:187
 msgid "Change"
@@ -1421,7 +1428,7 @@ msgstr "プロファイルの変更"
 msgid "Change system time"
 msgstr "システム時間の変更"
 
-#: pkg/shell/hosts_dialog.jsx:792
+#: pkg/shell/hosts_dialog.jsx:793
 msgid "Change the password of $0"
 msgstr "$0 のパスワードを変更します"
 
@@ -1429,7 +1436,7 @@ msgstr "$0 のパスワードを変更します"
 msgid "Change the settings"
 msgstr "設定の変更"
 
-#: pkg/static/login.html:88 pkg/shell/hosts_dialog.jsx:464
+#: pkg/static/login.html:88 pkg/shell/hosts_dialog.jsx:465
 msgid ""
 "Changed keys are often the result of an operating system reinstallation. "
 "However, an unexpected change may indicate a third-party attempt to "
@@ -1537,7 +1544,7 @@ msgstr "クライアントソフトウェア"
 #: pkg/systemd/overview-cards/configurationCard.jsx:197
 #: pkg/systemd/overview-cards/realmd.jsx:262 pkg/shell/superuser.jsx:190
 #: pkg/shell/superuser.jsx:198 pkg/shell/shell-modals.jsx:168
-#: pkg/shell/credentials.jsx:81 pkg/shell/hosts_dialog.jsx:79
+#: pkg/shell/credentials.jsx:81 pkg/shell/hosts_dialog.jsx:80
 #: pkg/networkmanager/interfaces.js:43 pkg/storaged/dialog.jsx:451
 #: pkg/apps/utils.jsx:87
 msgid "Close"
@@ -1588,7 +1595,7 @@ msgstr "Cockpit は対話型 Linux サーバー管理インターフェースで
 msgid "Cockpit is not compatible with the software on the system."
 msgstr "Cockpit にはシステム上のそのソフトウェアとの互換性がありません。"
 
-#: pkg/shell/hosts_dialog.jsx:76
+#: pkg/shell/hosts_dialog.jsx:77
 msgid "Cockpit is not installed"
 msgstr "Cockpit はインストールされていません"
 
@@ -1629,7 +1636,7 @@ msgstr "カーネルクラッシュダンプ"
 msgid "Collect metrics"
 msgstr "メトリックスの収集"
 
-#: pkg/shell/hosts_dialog.jsx:262
+#: pkg/shell/hosts_dialog.jsx:263
 msgid "Color"
 msgstr "色"
 
@@ -1667,11 +1674,11 @@ msgid "Compatible with modern system and hard disks > 2TB (GPT)"
 msgstr ""
 "最新のシステムとの互換性があり、ハードディスクが 2TB よりも大きい (GPT)"
 
-#: pkg/kdump/kdump-view.jsx:240
+#: pkg/kdump/kdump-view.jsx:241
 msgid "Compress crash dumps to save space"
 msgstr "クラッシュダンプを圧縮し容量を節約する"
 
-#: pkg/kdump/kdump-view.jsx:235 pkg/storaged/content-views.jsx:970
+#: pkg/kdump/kdump-view.jsx:236 pkg/storaged/content-views.jsx:970
 #: pkg/storaged/vdo-details.jsx:321 pkg/storaged/lvol-tabs.jsx:558
 msgid "Compression"
 msgstr "圧縮"
@@ -1704,7 +1711,7 @@ msgstr "kdumpを設定中"
 msgid "Configuring system settings"
 msgstr "システム設定の変更"
 
-#: pkg/users/account-create-dialog.js:102 pkg/storaged/format-dialog.jsx:329
+#: pkg/users/account-create-dialog.js:134 pkg/storaged/format-dialog.jsx:328
 #: pkg/storaged/stratis-panel.jsx:149
 msgid "Confirm"
 msgstr "確定します"
@@ -1713,11 +1720,11 @@ msgstr "確定します"
 msgid "Confirm deletion of $0"
 msgstr "$0 の削除を確定する"
 
-#: pkg/shell/hosts_dialog.jsx:785
+#: pkg/shell/hosts_dialog.jsx:786
 msgid "Confirm key password"
 msgstr "キーパスワードの確認"
 
-#: pkg/shell/hosts_dialog.jsx:799
+#: pkg/shell/hosts_dialog.jsx:800
 msgid "Confirm new key password"
 msgstr "新しいキーパスワードの確認"
 
@@ -1831,11 +1838,15 @@ msgid "Convertible"
 msgstr "変換可能"
 
 #: pkg/shell/failures.jsx:44 pkg/shell/credentials.jsx:212
+#: pkg/shell/hosts_dialog.jsx:467 pkg/shell/hosts_dialog.jsx:470
+#: pkg/shell/hosts_dialog.jsx:478 pkg/shell/hosts_dialog.jsx:481
 msgid "Copied"
 msgstr "コピー済み"
 
 #: pkg/lib/cockpit-components-context-menu.jsx:104 pkg/shell/failures.jsx:44
-#: pkg/shell/credentials.jsx:212
+#: pkg/shell/credentials.jsx:212 pkg/shell/hosts_dialog.jsx:467
+#: pkg/shell/hosts_dialog.jsx:470 pkg/shell/hosts_dialog.jsx:478
+#: pkg/shell/hosts_dialog.jsx:481
 msgid "Copy"
 msgstr "コピー"
 
@@ -1848,11 +1859,11 @@ msgstr "クリップボードにコピー"
 msgid "Core $0"
 msgstr "コア $0"
 
-#: pkg/shell/hosts_dialog.jsx:349
+#: pkg/shell/hosts_dialog.jsx:350
 msgid "Could not contact $0"
 msgstr "$0 に問い合わせられませんでした"
 
-#: pkg/kdump/kdump-view.jsx:141 pkg/kdump/kdump-view.jsx:489
+#: pkg/kdump/kdump-view.jsx:141 pkg/kdump/kdump-view.jsx:478
 msgid "Crash dump location"
 msgstr "クラッシュダンプの場所"
 
@@ -1860,12 +1871,12 @@ msgstr "クラッシュダンプの場所"
 msgid "Crash reporting"
 msgstr "クラッシュの報告"
 
-#: pkg/kdump/kdump-view.jsx:285
+#: pkg/kdump/kdump-view.jsx:280
 msgid "Crash system"
 msgstr "システムのクラッシュ"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:187
-#: pkg/users/group-create-dialog.js:142 pkg/users/account-create-dialog.js:365
+#: pkg/users/group-create-dialog.js:142 pkg/users/account-create-dialog.js:449
 #: pkg/storaged/content-views.jsx:206 pkg/storaged/content-views.jsx:321
 #: pkg/storaged/content-views.jsx:986 pkg/storaged/stratis-panel.jsx:170
 #: pkg/storaged/vgroups-panel.jsx:89 pkg/storaged/mdraids-panel.jsx:139
@@ -1884,7 +1895,7 @@ msgstr "RAID デバイスの作成"
 msgid "Create Stratis pool"
 msgstr "Stratis プールの作成"
 
-#: pkg/shell/hosts_dialog.jsx:778
+#: pkg/shell/hosts_dialog.jsx:779
 msgid "Create a new SSH key and authorize it"
 msgstr "新しい SSH キーを作成し、その鍵を承認"
 
@@ -1892,17 +1903,21 @@ msgstr "新しい SSH キーを作成し、その鍵を承認"
 msgid "Create a snapshot of filesystem $0"
 msgstr "ファイルシステム $0 のスナップショットの作成"
 
-#: pkg/users/account-create-dialog.js:416
+#: pkg/users/account-create-dialog.js:525
 #, fuzzy
 #| msgid "Create account with weak password"
 msgid "Create account with non-unique UID"
 msgstr "脆弱なパスワードを使用したアカウントの作成"
 
-#: pkg/users/account-create-dialog.js:391
+#: pkg/users/account-create-dialog.js:500
 msgid "Create account with weak password"
 msgstr "脆弱なパスワードを使用したアカウントの作成"
 
-#: pkg/storaged/stratis-details.jsx:411 pkg/storaged/format-dialog.jsx:405
+#: pkg/users/account-create-dialog.js:475
+msgid "Create and change ownership of home directory"
+msgstr ""
+
+#: pkg/storaged/stratis-details.jsx:411 pkg/storaged/format-dialog.jsx:404
 #, fuzzy
 #| msgid "Create new account"
 msgid "Create and mount"
@@ -1924,7 +1939,7 @@ msgstr "作成"
 msgid "Create logical volume"
 msgstr "論理ボリュームの作成"
 
-#: pkg/users/account-create-dialog.js:350 pkg/users/accounts-list.js:446
+#: pkg/users/account-create-dialog.js:434 pkg/users/accounts-list.js:446
 msgid "Create new account"
 msgstr "アカウントの新規作成"
 
@@ -1944,7 +1959,7 @@ msgstr "論理ボリュームの新規作成"
 msgid "Create new task file with this content."
 msgstr "このコンテンツで新しいタスクファイルを作成します。"
 
-#: pkg/storaged/stratis-details.jsx:412 pkg/storaged/format-dialog.jsx:407
+#: pkg/storaged/stratis-details.jsx:412 pkg/storaged/format-dialog.jsx:406
 #, fuzzy
 #| msgid "read only"
 msgid "Create only"
@@ -1954,7 +1969,7 @@ msgstr "読み取り専用"
 msgid "Create partition"
 msgstr "パーティションの作成"
 
-#: pkg/storaged/format-dialog.jsx:182
+#: pkg/storaged/format-dialog.jsx:181
 msgid "Create partition on $0"
 msgstr "$0 上でのパーティションの作成"
 
@@ -2076,7 +2091,7 @@ msgstr "カスタム暗号化ポリシー"
 
 #: pkg/storaged/stratis-details.jsx:379 pkg/storaged/stratis-details.jsx:530
 #: pkg/storaged/fsys-tab.jsx:344 pkg/storaged/nfs-details.jsx:166
-#: pkg/storaged/format-dialog.jsx:396
+#: pkg/storaged/format-dialog.jsx:395
 msgid "Custom mount options"
 msgstr "カスタムのマウントオプション"
 
@@ -2322,8 +2337,8 @@ msgstr "デバイス"
 msgid "Diagnostic reports"
 msgstr "診断レポート"
 
-#: pkg/kdump/kdump-view.jsx:175 pkg/kdump/kdump-view.jsx:196
-#: pkg/kdump/kdump-view.jsx:224
+#: pkg/kdump/kdump-view.jsx:176 pkg/kdump/kdump-view.jsx:197
+#: pkg/kdump/kdump-view.jsx:225
 msgid "Directory"
 msgstr "フォルダー"
 
@@ -2343,7 +2358,7 @@ msgstr "ファイアウォールの無効化"
 msgid "Disable tuned"
 msgstr "tuned の無効化"
 
-#: pkg/kdump/kdump-view.jsx:463 pkg/systemd/services.jsx:251
+#: pkg/kdump/kdump-view.jsx:452 pkg/systemd/services.jsx:251
 #: pkg/systemd/services.jsx:691 pkg/systemd/service-details.jsx:443
 #: pkg/networkmanager/ip-settings.jsx:44 pkg/networkmanager/ip-settings.jsx:55
 #: pkg/networkmanager/firewall-switch.jsx:80 pkg/packagekit/kpatch.jsx:250
@@ -2355,7 +2370,7 @@ msgstr "無効"
 msgid "Disallow interactive password"
 msgstr "対話式パスワードを禁止する"
 
-#: pkg/users/account-create-dialog.js:89
+#: pkg/users/account-create-dialog.js:121
 msgid "Disallow password authentication"
 msgstr "パスワード認証を禁止する"
 
@@ -2409,7 +2424,7 @@ msgid "Display language"
 msgstr "表示言語"
 
 #: pkg/storaged/stratis-details.jsx:401 pkg/storaged/stratis-details.jsx:552
-#: pkg/storaged/fsys-tab.jsx:366 pkg/storaged/format-dialog.jsx:383
+#: pkg/storaged/fsys-tab.jsx:366 pkg/storaged/format-dialog.jsx:382
 #, fuzzy
 #| msgid "Not mounted"
 msgid "Do not mount"
@@ -2427,7 +2442,7 @@ msgstr "ドッキングステーション"
 msgid "Does not automatically start"
 msgstr "自動起動しません"
 
-#: pkg/storaged/format-dialog.jsx:141
+#: pkg/storaged/format-dialog.jsx:140
 #, fuzzy
 #| msgid "Do not mount automatically on boot"
 msgid "Does not mount during boot"
@@ -2519,7 +2534,7 @@ msgstr "Tang キーサーバーを編集する"
 msgid "Edit custom service in $0 zone"
 msgstr "$0 ゾーンでカスタムサービスを編集する"
 
-#: pkg/shell/hosts_dialog.jsx:245
+#: pkg/shell/hosts_dialog.jsx:246
 msgid "Edit host"
 msgstr "ホストを編集する"
 
@@ -2589,7 +2604,7 @@ msgstr "サービスを有効にします"
 msgid "Enable the firewall"
 msgstr "ファイアウォールを有効にします"
 
-#: pkg/kdump/kdump-view.jsx:463 pkg/systemd/services.jsx:249
+#: pkg/kdump/kdump-view.jsx:452 pkg/systemd/services.jsx:249
 #: pkg/systemd/services.jsx:250 pkg/systemd/services.jsx:690
 #: pkg/networkmanager/firewall-switch.jsx:80 pkg/packagekit/kpatch.jsx:253
 msgid "Enabled"
@@ -2632,11 +2647,11 @@ msgid "Encrypted volumes need to be unlocked before they can be resized."
 msgstr ""
 "暗号化したボリュームは、サイズを変更する前にロックを解除する必要があります。"
 
-#: pkg/storaged/content-views.jsx:248 pkg/storaged/format-dialog.jsx:315
+#: pkg/storaged/content-views.jsx:248 pkg/storaged/format-dialog.jsx:314
 msgid "Encryption"
 msgstr "暗号化"
 
-#: pkg/storaged/crypto-tab.jsx:194 pkg/storaged/format-dialog.jsx:356
+#: pkg/storaged/crypto-tab.jsx:194 pkg/storaged/format-dialog.jsx:355
 msgid "Encryption options"
 msgstr "暗号化オプション"
 
@@ -2745,7 +2760,7 @@ msgstr "優れたパスワード"
 msgid "Expansion chassis"
 msgstr "拡張シャーシ"
 
-#: pkg/users/expiration-dialogs.js:72
+#: pkg/users/expiration-dialogs.js:73
 msgid "Expire account on"
 msgstr "アカウントの有効期限:"
 
@@ -2753,7 +2768,7 @@ msgstr "アカウントの有効期限:"
 msgid "Expire account on $0"
 msgstr "アカウントの有効期限: $0"
 
-#: pkg/kdump/kdump-view.jsx:191
+#: pkg/kdump/kdump-view.jsx:192
 msgid "Export"
 msgstr "エクスポート"
 
@@ -2765,7 +2780,7 @@ msgstr "ネットワークへエクスポート"
 msgid "Extended information"
 msgstr "拡張情報"
 
-#: pkg/storaged/content-views.jsx:637 pkg/storaged/format-dialog.jsx:204
+#: pkg/storaged/content-views.jsx:637 pkg/storaged/format-dialog.jsx:203
 msgid "Extended partition"
 msgstr "拡張パーティション"
 
@@ -2781,7 +2796,7 @@ msgstr "さらにコモンクライテリアの制限がある FIPS。"
 msgid "Failed"
 msgstr "失敗"
 
-#: pkg/shell/hosts_dialog.jsx:213
+#: pkg/shell/hosts_dialog.jsx:214
 msgid "Failed to add machine: $0"
 msgstr "マシンの追加に失敗しました: $0"
 
@@ -2818,7 +2833,7 @@ msgstr "tuned の無効化に失敗しました"
 msgid "Failed to disable tuned profile"
 msgstr "tuned プロファイルの無効化に失敗しました"
 
-#: pkg/shell/hosts_dialog.jsx:330
+#: pkg/shell/hosts_dialog.jsx:331
 msgid "Failed to edit machine: $0"
 msgstr "マシンの編集に失敗しました: $0"
 
@@ -2968,23 +2983,23 @@ msgstr "パスワード変更の強制"
 msgid "Format"
 msgstr "フォーマット"
 
-#: pkg/storaged/format-dialog.jsx:184
+#: pkg/storaged/format-dialog.jsx:183
 msgid "Format $0"
 msgstr "$0 のフォーマット"
 
-#: pkg/storaged/format-dialog.jsx:405
+#: pkg/storaged/format-dialog.jsx:404
 #, fuzzy
 #| msgid "Stop and unmount"
 msgid "Format and mount"
 msgstr "停止してアンマウント"
 
-#: pkg/storaged/format-dialog.jsx:407
+#: pkg/storaged/format-dialog.jsx:406
 #, fuzzy
 #| msgid "Format"
 msgid "Format only"
 msgstr "フォーマット"
 
-#: pkg/storaged/format-dialog.jsx:406
+#: pkg/storaged/format-dialog.jsx:405
 msgid "Formatting erases all data on a storage device."
 msgstr "フォーマットすると、ストレージデバイスのすべてのデータが削除されます。"
 
@@ -3024,7 +3039,7 @@ msgstr "毎週金曜日"
 msgid "From"
 msgstr "以下から"
 
-#: pkg/users/account-create-dialog.js:47 pkg/users/account-details.js:261
+#: pkg/users/account-create-dialog.js:55 pkg/users/account-details.js:261
 #: pkg/users/accounts-list.js:392
 msgid "Full name"
 msgstr "フルネーム"
@@ -3138,13 +3153,13 @@ msgstr "攻撃対象が増えるという代償を払ってでも、相互運用
 msgid "History package count"
 msgstr "履歴パッケージ数"
 
-#: pkg/users/account-details.js:339
+#: pkg/users/account-create-dialog.js:73 pkg/users/account-details.js:339
 #, fuzzy
 #| msgid "Directory"
 msgid "Home directory"
 msgstr "フォルダー"
 
-#: pkg/shell/hosts.jsx:190 pkg/shell/hosts_dialog.jsx:249
+#: pkg/shell/hosts.jsx:190 pkg/shell/hosts_dialog.jsx:250
 msgid "Host"
 msgstr "ホスト"
 
@@ -3227,7 +3242,7 @@ msgstr ""
 "フィンガープリントが一致する場合は、Accept key and login をクリックします。一"
 "致しない場合は、ログインせずに、管理者にお問い合わせください。"
 
-#: pkg/shell/hosts_dialog.jsx:471 pkg/shell/hosts_dialog.jsx:482
+#: pkg/shell/hosts_dialog.jsx:472 pkg/shell/hosts_dialog.jsx:483
 msgid ""
 "If the fingerprint matches, click 'Accept key and connect'. Otherwise, do "
 "not connect and contact your administrator."
@@ -3244,7 +3259,7 @@ msgstr "無視"
 msgid "In"
 msgstr "内"
 
-#: pkg/shell/hosts_dialog.jsx:789 pkg/shell/hosts_dialog.jsx:803
+#: pkg/shell/hosts_dialog.jsx:790 pkg/shell/hosts_dialog.jsx:804
 msgid ""
 "In order to allow log in to $0 as $1 without password in the future, use the "
 "login password of $2 on $3 as the key password, or leave the key password "
@@ -3348,6 +3363,12 @@ msgstr "cockpit-pcp をインストールする"
 msgid "Install kpatch updates"
 msgstr "kpatch の更新をインストールする"
 
+#: pkg/systemd/overview-cards/realmd.jsx:448
+#, fuzzy
+#| msgid "Install Stratis support"
+msgid "Install realmd support"
+msgstr "Stratis サポートをインストールする"
+
 #: pkg/packagekit/updates.jsx:1403 pkg/packagekit/updates.jsx:1410
 msgid "Install security updates"
 msgstr "セキュリティーアップデートをインストールする"
@@ -3423,7 +3444,7 @@ msgstr "無効な日付形式"
 msgid "Invalid date format and invalid time format"
 msgstr "無効な日付形式と無効な時間形式"
 
-#: pkg/users/expiration-dialogs.js:98
+#: pkg/users/expiration-dialogs.js:100
 msgid "Invalid expiration date"
 msgstr "無効な有効期限"
 
@@ -3439,7 +3460,7 @@ msgstr "無効な鍵"
 msgid "Invalid metric $0"
 msgstr "無効なメトリック $0"
 
-#: pkg/users/expiration-dialogs.js:203
+#: pkg/users/expiration-dialogs.js:205
 msgid "Invalid number of days"
 msgstr "無効な日数"
 
@@ -3476,7 +3497,7 @@ msgstr "無効なユーザー名またはパスワード"
 msgid "IoT gateway"
 msgstr "IoT ゲートウェイ"
 
-#: pkg/shell/hosts_dialog.jsx:355
+#: pkg/shell/hosts_dialog.jsx:356
 msgid "Is sshd running on a different port?"
 msgstr "sshd が別のポートで実行されていますか?"
 
@@ -3494,7 +3515,6 @@ msgid "Join a domain"
 msgstr "ドメインへの参加"
 
 #: pkg/systemd/overview-cards/realmd.jsx:448
-#: pkg/systemd/overview-cards/realmd.jsx:470
 msgid "Join domain"
 msgstr "ドメイン参加"
 
@@ -3530,7 +3550,7 @@ msgstr "ジャーナルエントリーが見つかりません"
 msgid "Jump to"
 msgstr "次にジャンプ"
 
-#: pkg/kdump/kdump-view.jsx:413
+#: pkg/kdump/kdump-view.jsx:402
 msgid ""
 "Kdump service not installed. Please ensure package kexec-tools is installed."
 msgstr ""
@@ -3541,7 +3561,7 @@ msgstr ""
 msgid "Keep connection"
 msgstr "接続の保持"
 
-#: pkg/kdump/kdump-view.jsx:459
+#: pkg/kdump/kdump-view.jsx:448
 msgid "Kernel crash dump"
 msgstr "カーネルクラッシュダンプ"
 
@@ -3566,7 +3586,7 @@ msgstr "カーネルライブパッチの設定"
 msgid "Kernel live patching"
 msgstr "カーネルライブパッチ"
 
-#: pkg/shell/hosts_dialog.jsx:781 pkg/shell/hosts_dialog.jsx:840
+#: pkg/shell/hosts_dialog.jsx:782 pkg/shell/hosts_dialog.jsx:841
 msgid "Key password"
 msgstr "キーパスワード"
 
@@ -3788,7 +3808,7 @@ msgstr "システム変更をロード中..."
 msgid "Loading unit failed"
 msgstr "ユニットの読み込みに失敗しました: $0"
 
-#: pkg/kdump/kdump-view.jsx:314 pkg/users/account-details.js:188
+#: pkg/kdump/kdump-view.jsx:303 pkg/users/account-details.js:188
 #: pkg/users/accounts-list.js:327 pkg/users/accounts-list.js:351
 #: pkg/users/accounts-list.js:467 pkg/systemd/logDetails.jsx:176
 #: pkg/systemd/services.jsx:687 pkg/systemd/logsJournal.jsx:268
@@ -3801,7 +3821,7 @@ msgstr "ロード中..."
 msgid "Local accounts"
 msgstr "ローカルアカウント"
 
-#: pkg/kdump/kdump-view.jsx:166
+#: pkg/kdump/kdump-view.jsx:167
 msgid "Local filesystem"
 msgstr "ローカルファイルシステム"
 
@@ -3809,7 +3829,7 @@ msgstr "ローカルファイルシステム"
 msgid "Local mount point"
 msgstr "ローカルマウントポイント"
 
-#: pkg/kdump/kdump-view.jsx:162 pkg/storaged/dialog.jsx:1063
+#: pkg/kdump/kdump-view.jsx:163 pkg/storaged/dialog.jsx:1063
 #: pkg/storaged/dialog.jsx:1141
 msgid "Location"
 msgstr "場所"
@@ -3844,11 +3864,11 @@ msgid "Locking $target"
 msgstr "$target のロック中"
 
 #: pkg/static/login.html:146 pkg/shell/failures.jsx:75
-#: pkg/shell/hosts_dialog.jsx:749 pkg/static/login.js:666
+#: pkg/shell/hosts_dialog.jsx:750 pkg/static/login.js:666
 msgid "Log in"
 msgstr "ログイン"
 
-#: pkg/shell/hosts_dialog.jsx:748
+#: pkg/shell/hosts_dialog.jsx:749
 msgid "Log in to $0"
 msgstr "$0 へのログイン"
 
@@ -4213,7 +4233,7 @@ msgid "Mount"
 msgstr "マウント"
 
 #: pkg/storaged/stratis-details.jsx:397 pkg/storaged/stratis-details.jsx:548
-#: pkg/storaged/fsys-tab.jsx:362 pkg/storaged/format-dialog.jsx:379
+#: pkg/storaged/fsys-tab.jsx:362 pkg/storaged/format-dialog.jsx:378
 msgid "Mount after network becomes available, ignore failure"
 msgstr ""
 
@@ -4230,7 +4250,7 @@ msgid "Mount automatically on $0 on boot"
 msgstr "起動時に自動的に $0 にマウントします"
 
 #: pkg/storaged/stratis-details.jsx:389 pkg/storaged/stratis-details.jsx:540
-#: pkg/storaged/fsys-tab.jsx:354 pkg/storaged/format-dialog.jsx:371
+#: pkg/storaged/fsys-tab.jsx:354 pkg/storaged/format-dialog.jsx:370
 msgid "Mount before services start"
 msgstr ""
 
@@ -4252,14 +4272,14 @@ msgstr "$0 に今すぐマウントします"
 
 #: pkg/storaged/stratis-details.jsx:371 pkg/storaged/stratis-details.jsx:522
 #: pkg/storaged/fsys-tab.jsx:336 pkg/storaged/nfs-details.jsx:161
-#: pkg/storaged/format-dialog.jsx:387
+#: pkg/storaged/format-dialog.jsx:386
 msgid "Mount options"
 msgstr "マウントオプション"
 
 #: pkg/storaged/stratis-details.jsx:367 pkg/storaged/stratis-details.jsx:518
 #: pkg/storaged/nfs-panel.jsx:103 pkg/storaged/fsys-tab.jsx:331
 #: pkg/storaged/fsys-tab.jsx:754 pkg/storaged/nfs-details.jsx:317
-#: pkg/storaged/format-dialog.jsx:293
+#: pkg/storaged/format-dialog.jsx:292
 msgid "Mount point"
 msgstr "マウントポイント"
 
@@ -4281,12 +4301,12 @@ msgstr "マウントポイントは \"/\" で開始してください。"
 
 #: pkg/storaged/stratis-details.jsx:378 pkg/storaged/stratis-details.jsx:529
 #: pkg/storaged/fsys-tab.jsx:343 pkg/storaged/nfs-details.jsx:165
-#: pkg/storaged/format-dialog.jsx:395
+#: pkg/storaged/format-dialog.jsx:394
 msgid "Mount read only"
 msgstr "読み取り専用でマウント"
 
 #: pkg/storaged/stratis-details.jsx:393 pkg/storaged/stratis-details.jsx:544
-#: pkg/storaged/fsys-tab.jsx:358 pkg/storaged/format-dialog.jsx:375
+#: pkg/storaged/fsys-tab.jsx:358 pkg/storaged/format-dialog.jsx:374
 msgid "Mount without waiting, ignore failure"
 msgstr ""
 
@@ -4294,15 +4314,15 @@ msgstr ""
 msgid "Mounting $target"
 msgstr "$target のマウント"
 
-#: pkg/storaged/format-dialog.jsx:105
+#: pkg/storaged/format-dialog.jsx:104
 msgid "Mounts before services start"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:119
+#: pkg/storaged/format-dialog.jsx:118
 msgid "Mounts in parallel with services"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:130
+#: pkg/storaged/format-dialog.jsx:129
 msgid "Mounts in parallel with services, but after network is available"
 msgstr ""
 
@@ -4349,7 +4369,7 @@ msgstr "NTP サーバー"
 #: pkg/storaged/iscsi-panel.jsx:127 pkg/storaged/iscsi-panel.jsx:184
 #: pkg/storaged/vgroup-details.jsx:162 pkg/storaged/lvol-tabs.jsx:43
 #: pkg/storaged/lvol-tabs.jsx:414 pkg/storaged/lvol-tabs.jsx:475
-#: pkg/storaged/lvol-tabs.jsx:533 pkg/storaged/format-dialog.jsx:288
+#: pkg/storaged/lvol-tabs.jsx:533 pkg/storaged/format-dialog.jsx:287
 #: pkg/storaged/part-tab.jsx:35 pkg/storaged/crypto-panel.jsx:84
 #: pkg/storaged/stratis-panel.jsx:130 pkg/storaged/vgroups-panel.jsx:73
 #: pkg/storaged/mdraids-panel.jsx:74 pkg/packagekit/updates.jsx:447
@@ -4436,7 +4456,7 @@ msgstr "しない"
 msgid "Never expire account"
 msgstr "アカウントを失効しない"
 
-#: pkg/users/expiration-dialogs.js:154 pkg/users/account-details.js:76
+#: pkg/users/expiration-dialogs.js:156 pkg/users/account-details.js:76
 msgid "Never expire password"
 msgstr "パスワードを失効しない"
 
@@ -4448,11 +4468,11 @@ msgstr "ログインされていません"
 msgid "New NFS mount"
 msgstr "NFS の新規マウント"
 
-#: pkg/shell/hosts_dialog.jsx:456 pkg/static/login.js:761
+#: pkg/shell/hosts_dialog.jsx:457 pkg/static/login.js:761
 msgid "New host"
 msgstr "新規ホスト"
 
-#: pkg/shell/hosts_dialog.jsx:795
+#: pkg/shell/hosts_dialog.jsx:796
 msgid "New key password"
 msgstr "新しいキーパスワード"
 
@@ -4510,7 +4530,7 @@ msgstr "ブロックデバイスは利用できません。"
 msgid "No carrier"
 msgstr "キャリアなし"
 
-#: pkg/kdump/kdump-view.jsx:349
+#: pkg/kdump/kdump-view.jsx:338
 msgid "No configuration found"
 msgstr "設定が見つかりません"
 
@@ -4548,7 +4568,7 @@ msgstr "ディスクが利用できません。"
 msgid "No drives attached"
 msgstr "ドライブが割り当てられていません"
 
-#: pkg/storaged/format-dialog.jsx:220
+#: pkg/storaged/format-dialog.jsx:219
 msgid "No encryption"
 msgstr "暗号化なし"
 
@@ -4556,7 +4576,7 @@ msgstr "暗号化なし"
 msgid "No events"
 msgstr ""
 
-#: pkg/storaged/format-dialog.jsx:202
+#: pkg/storaged/format-dialog.jsx:201
 msgid "No filesystem"
 msgstr "ファイルシステムなし"
 
@@ -4613,7 +4633,7 @@ msgstr "一致する結果はありません"
 msgid "No media inserted"
 msgstr "メディアが挿入されていません"
 
-#: pkg/kdump/kdump-view.jsx:398
+#: pkg/kdump/kdump-view.jsx:387
 msgid ""
 "No memory reserved. Append a crashkernel option to the kernel command line "
 "(e.g. in /etc/default/grub) to reserve memory at boot time. Example: "
@@ -4627,7 +4647,7 @@ msgstr ""
 msgid "No partitioning"
 msgstr "パーティションなし"
 
-#: pkg/users/account-create-dialog.js:130
+#: pkg/users/account-create-dialog.js:162
 msgid "No real name specified"
 msgstr "実際の名前が指定されていません"
 
@@ -4663,11 +4683,11 @@ msgstr "システムレポートがありません。"
 msgid "No updates"
 msgstr "更新なし"
 
-#: pkg/users/account-create-dialog.js:113
+#: pkg/users/account-create-dialog.js:145
 msgid "No user name specified"
 msgstr "ユーザー名が指定されていません"
 
-#: pkg/kdump/kdump-view.jsx:369 pkg/systemd/overview-cards/tuned-dialog.jsx:232
+#: pkg/kdump/kdump-view.jsx:358 pkg/systemd/overview-cards/tuned-dialog.jsx:232
 #: pkg/networkmanager/firewall.jsx:855
 msgid "None"
 msgstr "なし"
@@ -4794,7 +4814,7 @@ msgstr "古いパスワード"
 msgid "Old password not accepted"
 msgstr "古いパスワードは受け入れられません"
 
-#: pkg/kdump/kdump-view.jsx:341
+#: pkg/kdump/kdump-view.jsx:330
 msgid "On a mounted device"
 msgstr "マウントされたデバイス上"
 
@@ -4859,7 +4879,7 @@ msgstr "あるいは、バンドルされたブラウザーを使用します"
 msgid "Other"
 msgstr "その他"
 
-#: pkg/users/account-create-dialog.js:93 pkg/users/account-details.js:291
+#: pkg/users/account-create-dialog.js:125 pkg/users/account-details.js:291
 msgid ""
 "Other authentication methods are still available even when interactive "
 "password authentication is not allowed."
@@ -4888,11 +4908,11 @@ msgstr "外"
 msgid "Overview"
 msgstr "概要"
 
-#: pkg/storaged/content-views.jsx:711 pkg/storaged/format-dialog.jsx:309
+#: pkg/storaged/content-views.jsx:711 pkg/storaged/format-dialog.jsx:308
 msgid "Overwrite"
 msgstr "上書き"
 
-#: pkg/storaged/content-views.jsx:714 pkg/storaged/format-dialog.jsx:312
+#: pkg/storaged/content-views.jsx:714 pkg/storaged/format-dialog.jsx:311
 msgid "Overwrite existing data with zeros (slower)"
 msgstr "既存のデータをゼロで上書き (低速)"
 
@@ -4974,7 +4994,7 @@ msgstr "パッシブ"
 
 #: pkg/storaged/content-views.jsx:279 pkg/storaged/stratis-details.jsx:131
 #: pkg/storaged/stratis-details.jsx:746 pkg/storaged/fsys-tab.jsx:374
-#: pkg/storaged/format-dialog.jsx:321 pkg/storaged/format-dialog.jsx:347
+#: pkg/storaged/format-dialog.jsx:320 pkg/storaged/format-dialog.jsx:346
 #: pkg/storaged/crypto-keyslots.jsx:483 pkg/storaged/crypto-keyslots.jsx:818
 #: pkg/storaged/stratis-panel.jsx:141
 msgid "Passphrase"
@@ -4985,7 +5005,7 @@ msgid "Passphrase can not be empty"
 msgstr "パスフレーズは空欄にすることはできません"
 
 #: pkg/storaged/stratis-details.jsx:134 pkg/storaged/fsys-tab.jsx:377
-#: pkg/storaged/format-dialog.jsx:325 pkg/storaged/format-dialog.jsx:351
+#: pkg/storaged/format-dialog.jsx:324 pkg/storaged/format-dialog.jsx:350
 #: pkg/storaged/crypto-keyslots.jsx:204 pkg/storaged/crypto-keyslots.jsx:491
 #: pkg/storaged/crypto-keyslots.jsx:534 pkg/storaged/crypto-keyslots.jsx:537
 #: pkg/storaged/stratis-panel.jsx:145
@@ -5000,16 +5020,16 @@ msgstr "その他のキースロットのパスフレーズ"
 msgid "Passphrase removal may prevent unlocking $0."
 msgstr "パスフレーズの削除で、$0 のロック解除ができない可能性があります。"
 
-#: pkg/storaged/format-dialog.jsx:333 pkg/storaged/crypto-keyslots.jsx:499
+#: pkg/storaged/format-dialog.jsx:332 pkg/storaged/crypto-keyslots.jsx:499
 #: pkg/storaged/crypto-keyslots.jsx:539 pkg/storaged/stratis-panel.jsx:153
 msgid "Passphrases do not match"
 msgstr "パスフレーズが一致しません"
 
-#: pkg/static/login.html:106 pkg/users/account-create-dialog.js:101
+#: pkg/static/login.html:106 pkg/users/account-create-dialog.js:133
 #: pkg/users/account-details.js:309 pkg/shell/superuser.jsx:144
 #: pkg/shell/credentials.jsx:119 pkg/shell/credentials.jsx:262
-#: pkg/shell/credentials.jsx:318 pkg/shell/hosts_dialog.jsx:825
-#: pkg/shell/hosts_dialog.jsx:834 pkg/storaged/iscsi-panel.jsx:50
+#: pkg/shell/credentials.jsx:318 pkg/shell/hosts_dialog.jsx:826
+#: pkg/shell/hosts_dialog.jsx:835 pkg/storaged/iscsi-panel.jsx:50
 #: pkg/storaged/iscsi-panel.jsx:156
 msgid "Password"
 msgstr "パスワード"
@@ -5018,11 +5038,11 @@ msgstr "パスワード"
 msgid "Password changed successfully"
 msgstr "パスワードが正しく変更されました"
 
-#: pkg/users/expiration-dialogs.js:212
+#: pkg/users/expiration-dialogs.js:214
 msgid "Password expiration"
 msgstr "パスワードの有効期限"
 
-#: pkg/users/password-dialogs.js:194 pkg/users/account-create-dialog.js:283
+#: pkg/users/password-dialogs.js:194 pkg/users/account-create-dialog.js:335
 msgid "Password is longer than 256 characters"
 msgstr "パスワードは 256 文字以内で設定する必要があります"
 
@@ -5081,6 +5101,12 @@ msgstr "サーバーのパスは空欄にはできません。"
 #: pkg/storaged/nfs-details.jsx:145
 msgid "Path on server must start with \"/\"."
 msgstr "サーバーのパスは \"/\" で開始してください。"
+
+#: pkg/users/account-create-dialog.js:79
+#, fuzzy
+#| msgid "Directory"
+msgid "Path to directory"
+msgstr "フォルダー"
 
 #: pkg/lib/cockpit-components-file-autocomplete.jsx:163
 #: pkg/shell/credentials.jsx:172
@@ -5186,7 +5212,7 @@ msgstr "$0 パッケージをインストールしてください"
 msgid "Please reload the page after resolving the issue."
 msgstr "問題の解決後にページをリロードしてください。"
 
-#: pkg/users/expiration-dialogs.js:94
+#: pkg/users/expiration-dialogs.js:96
 msgid "Please specify an expiration date"
 msgstr "有効期限を指定してください"
 
@@ -5210,7 +5236,7 @@ msgstr "シンボリューム用プール"
 msgid "Pool for thinly provisioned volumes"
 msgstr "シンプロビジョニングされたボリューム用プール"
 
-#: pkg/shell/hosts_dialog.jsx:358 pkg/storaged/iscsi-panel.jsx:127
+#: pkg/shell/hosts_dialog.jsx:359 pkg/storaged/iscsi-panel.jsx:127
 msgid "Port"
 msgstr "ポート"
 
@@ -5430,7 +5456,7 @@ msgstr "範囲の順序は厳密でなければなりません"
 msgid "Rank"
 msgstr "ランク"
 
-#: pkg/kdump/kdump-view.jsx:337
+#: pkg/kdump/kdump-view.jsx:326
 msgid "Raw to a device"
 msgstr "デバイスに対する Raw"
 
@@ -5450,7 +5476,7 @@ msgstr "読み取り専用"
 msgid "Reading"
 msgstr "読み取り中"
 
-#: pkg/kdump/kdump-view.jsx:363
+#: pkg/kdump/kdump-view.jsx:352
 msgid "Reading..."
 msgstr "読み取り中 ..."
 
@@ -5581,23 +5607,23 @@ msgstr "リロード中"
 msgid "Reloading the state of remaining services"
 msgstr "残りのサービス状態の再読み込み"
 
-#: pkg/kdump/kdump-view.jsx:347
+#: pkg/kdump/kdump-view.jsx:336
 msgid "Remote over CIFS/SMB"
 msgstr "CIFS/SMB 経由のリモート"
 
-#: pkg/kdump/kdump-view.jsx:343
+#: pkg/kdump/kdump-view.jsx:332
 msgid "Remote over FTP"
 msgstr "FTP 経由のリモート"
 
-#: pkg/kdump/kdump-view.jsx:170 pkg/kdump/kdump-view.jsx:334
+#: pkg/kdump/kdump-view.jsx:171 pkg/kdump/kdump-view.jsx:323
 msgid "Remote over NFS"
 msgstr "NFS 経由のリモート"
 
-#: pkg/kdump/kdump-view.jsx:345
+#: pkg/kdump/kdump-view.jsx:334
 msgid "Remote over SFTP"
 msgstr "SFTP 経由のリモート"
 
-#: pkg/kdump/kdump-view.jsx:168 pkg/kdump/kdump-view.jsx:331
+#: pkg/kdump/kdump-view.jsx:169 pkg/kdump/kdump-view.jsx:320
 msgid "Remote over SSH"
 msgstr "SSH 経由のリモート"
 
@@ -5804,7 +5830,7 @@ msgstr "レポート"
 msgid "Reports:"
 msgstr "レポート:"
 
-#: pkg/users/expiration-dialogs.js:178
+#: pkg/users/expiration-dialogs.js:180
 msgid "Require password change every $0 days"
 msgstr "$0 日ごとのパスワードの変更が必要"
 
@@ -5812,7 +5838,7 @@ msgstr "$0 日ごとのパスワードの変更が必要"
 msgid "Require password change on $0"
 msgstr "$0 でパスワードの変更が必要"
 
-#: pkg/users/account-create-dialog.js:81
+#: pkg/users/account-create-dialog.js:113
 msgid "Require password change on first login"
 msgstr "初回ログイン時にパスワードの変更が必要"
 
@@ -5840,7 +5866,7 @@ msgstr "必須"
 msgid "Requisite of"
 msgstr "必須の"
 
-#: pkg/kdump/kdump-view.jsx:482
+#: pkg/kdump/kdump-view.jsx:471
 msgid "Reserved memory"
 msgstr "予約済みメモリー"
 
@@ -5889,11 +5915,11 @@ msgstr "接続の復元"
 msgid "Resume"
 msgstr "再開"
 
-#: pkg/storaged/format-dialog.jsx:228
+#: pkg/storaged/format-dialog.jsx:227
 msgid "Reuse existing encryption"
 msgstr "既存の暗号化を再利用"
 
-#: pkg/storaged/format-dialog.jsx:225
+#: pkg/storaged/format-dialog.jsx:224
 msgid "Reuse existing encryption ($0)"
 msgstr "既存の暗号化を再利用 ($0)"
 
@@ -5989,7 +6015,7 @@ msgid ""
 "SOS reporting collects system information to help with diagnosing problems."
 msgstr "SOS レポートは、問題の診断に役立つシステム情報を収集します。"
 
-#: pkg/kdump/kdump-view.jsx:214 pkg/shell/hosts_dialog.jsx:830
+#: pkg/kdump/kdump-view.jsx:215 pkg/shell/hosts_dialog.jsx:831
 msgid "SSH key"
 msgstr "SSH キー"
 
@@ -6152,8 +6178,8 @@ msgctxt "storage"
 msgid "Serial number"
 msgstr "シリアルナンバー"
 
-#: pkg/static/login.html:166 pkg/kdump/kdump-view.jsx:186
-#: pkg/kdump/kdump-view.jsx:208 pkg/networkmanager/ip-settings.jsx:245
+#: pkg/static/login.html:166 pkg/kdump/kdump-view.jsx:187
+#: pkg/kdump/kdump-view.jsx:209 pkg/networkmanager/ip-settings.jsx:245
 #: pkg/storaged/nfs-panel.jsx:102 pkg/storaged/nfs-details.jsx:312
 msgid "Server"
 msgstr "サーバー"
@@ -6183,23 +6209,23 @@ msgstr "サーバーソフトウェア"
 msgid "Service"
 msgstr "サービス"
 
-#: pkg/kdump/kdump-view.jsx:392
+#: pkg/kdump/kdump-view.jsx:381
 msgid "Service has an error"
 msgstr "サービスでエラーが発生しました"
 
-#: pkg/kdump/kdump-view.jsx:388
+#: pkg/kdump/kdump-view.jsx:377
 msgid "Service is running"
 msgstr "サービスが実行中です"
 
-#: pkg/kdump/kdump-view.jsx:394
+#: pkg/kdump/kdump-view.jsx:383
 msgid "Service is starting"
 msgstr "サービスが起動中です"
 
-#: pkg/kdump/kdump-view.jsx:390
+#: pkg/kdump/kdump-view.jsx:379
 msgid "Service is stopped"
 msgstr "サービスが停止されています"
 
-#: pkg/kdump/kdump-view.jsx:396
+#: pkg/kdump/kdump-view.jsx:385
 msgid "Service is stopping"
 msgstr "サービスが停止中です"
 
@@ -6225,7 +6251,7 @@ msgstr "セッション"
 msgid "Session is about to expire"
 msgstr "セッションはまもなく終了します"
 
-#: pkg/shell/hosts_dialog.jsx:246
+#: pkg/shell/hosts_dialog.jsx:247
 msgid "Set"
 msgstr "セット"
 
@@ -6279,7 +6305,7 @@ msgstr "重大度"
 msgid "Shared"
 msgstr "共有"
 
-#: pkg/users/account-details.js:342
+#: pkg/users/account-create-dialog.js:83 pkg/users/account-details.js:342
 #, fuzzy
 #| msgid "shell"
 msgid "Shell"
@@ -6372,7 +6398,7 @@ msgstr "シングルランク"
 #: pkg/storaged/nfs-details.jsx:322 pkg/storaged/lvol-tabs.jsx:237
 #: pkg/storaged/lvol-tabs.jsx:304 pkg/storaged/lvol-tabs.jsx:424
 #: pkg/storaged/lvol-tabs.jsx:485 pkg/storaged/lvol-tabs.jsx:538
-#: pkg/storaged/format-dialog.jsx:301 pkg/storaged/part-tab.jsx:40
+#: pkg/storaged/format-dialog.jsx:300 pkg/storaged/part-tab.jsx:40
 msgid "Size"
 msgstr "サイズ"
 
@@ -6545,7 +6571,7 @@ msgstr "状態"
 msgid "Static"
 msgstr "静的"
 
-#: pkg/kdump/kdump-view.jsx:472 pkg/systemd/service-details.jsx:654
+#: pkg/kdump/kdump-view.jsx:461 pkg/systemd/service-details.jsx:654
 #: pkg/networkmanager/network-interface.jsx:266 pkg/packagekit/updates.jsx:905
 msgid "Status"
 msgstr "ステータス"
@@ -6610,7 +6636,7 @@ msgstr "ストレージは、このシステムで管理できません。"
 msgid "Storage logs"
 msgstr "ストレージログ"
 
-#: pkg/storaged/format-dialog.jsx:344
+#: pkg/storaged/format-dialog.jsx:343
 msgid "Store passphrase"
 msgstr "パスフレーズの保存"
 
@@ -6809,15 +6835,15 @@ msgstr "端末"
 msgid "Terminate session"
 msgstr "セッションの終了"
 
-#: pkg/kdump/kdump-view.jsx:429 pkg/kdump/kdump-view.jsx:437
+#: pkg/kdump/kdump-view.jsx:418 pkg/kdump/kdump-view.jsx:426
 msgid "Test configuration"
 msgstr "設定のテスト"
 
-#: pkg/kdump/kdump-view.jsx:433
+#: pkg/kdump/kdump-view.jsx:422
 msgid "Test is only available while the kdump service is running."
 msgstr "テストは kdump サービスが実行中の間だけ利用可能です。"
 
-#: pkg/kdump/kdump-view.jsx:275
+#: pkg/kdump/kdump-view.jsx:270
 msgid "Test kdump settings"
 msgstr "kdump 設定のテスト"
 
@@ -6843,7 +6869,7 @@ msgstr "$0 パッケージがインストールされている必要がありま
 msgid "The $0 package will be installed to create VDO devices."
 msgstr "$0 パッケージがインストールされ、VDO デバイスを作成します。"
 
-#: pkg/shell/hosts_dialog.jsx:146
+#: pkg/shell/hosts_dialog.jsx:147
 msgid "The IP address or hostname cannot contain whitespace."
 msgstr "IP アドレスまたはホスト名には空白を含めることができません。"
 
@@ -6860,11 +6886,11 @@ msgstr ""
 msgid "The RAID device must be running in order to remove disks."
 msgstr "ディスクを取り外す場合は、RAID デバイスが実行中である必要があります。"
 
-#: pkg/shell/hosts_dialog.jsx:808
+#: pkg/shell/hosts_dialog.jsx:809
 msgid "The SSH key $0 of $1 on $2 will be added to the $3 file of $4 on $5."
 msgstr "$2 の $1 の SSH キー $0 は、$5 上の $4 の $3 ファイルに追加されます。"
 
-#: pkg/shell/hosts_dialog.jsx:840
+#: pkg/shell/hosts_dialog.jsx:841
 msgid ""
 "The SSH key $0 will be made available for the remainder of the session and "
 "will be available for login to other hosts as well."
@@ -6872,7 +6898,7 @@ msgstr ""
 "SSH キー $0 はセッションの残りの時間に利用できるようになり、他のホストにもロ"
 "グインできるようになります。"
 
-#: pkg/shell/hosts_dialog.jsx:758
+#: pkg/shell/hosts_dialog.jsx:759
 msgid ""
 "The SSH key for logging in to $0 is protected by a password, and the host "
 "does not allow logging in with a password. Please provide the password of "
@@ -6881,7 +6907,7 @@ msgstr ""
 "$0 にログインするための SSH キーはパスワードで保護され、パスワードによるログ"
 "インを許可しません。$1 にキーのパスワードを指定してください。"
 
-#: pkg/shell/hosts_dialog.jsx:763
+#: pkg/shell/hosts_dialog.jsx:764
 msgid ""
 "The SSH key for logging in to $0 is protected. You can log in with either "
 "your login password or by providing the password of the key at $1."
@@ -6912,7 +6938,7 @@ msgid ""
 msgstr ""
 "現在ログイン中のユーザーは、キーに関する情報を見ることを許可されていません。"
 
-#: pkg/storaged/format-dialog.jsx:354
+#: pkg/storaged/format-dialog.jsx:353
 msgid ""
 "The disk needs to be unlocked before formatting.  Please provide a existing "
 "passphrase."
@@ -6990,7 +7016,7 @@ msgid "The following service will be restarted:"
 msgid_plural "The following services will be restarted:"
 msgstr[0] "以下のサービスが再起動します:"
 
-#: pkg/users/account-create-dialog.js:134
+#: pkg/users/account-create-dialog.js:166
 msgid "The full name must not contain colons."
 msgstr "フルネームにはコロンを含めることはできません。"
 
@@ -7006,15 +7032,21 @@ msgstr ""
 "グループ名には、a-z、数字、ドット、ダッシュ、およびアンダースコアだけが指定で"
 "きます"
 
+#: pkg/users/account-create-dialog.js:360
+msgid ""
+"The home directory $0 already exists. Its ownership will be changed to the "
+"new user."
+msgstr ""
+
 #: pkg/storaged/crypto-keyslots.jsx:318
 msgid "The initrd must be regenerated."
 msgstr "initrd を再生成する必要があります。"
 
-#: pkg/shell/hosts_dialog.jsx:680
+#: pkg/shell/hosts_dialog.jsx:681
 msgid "The key password can not be empty"
 msgstr "キーのパスワードは空にすることはできません"
 
-#: pkg/shell/hosts_dialog.jsx:683 pkg/shell/hosts_dialog.jsx:689
+#: pkg/shell/hosts_dialog.jsx:684 pkg/shell/hosts_dialog.jsx:690
 msgid "The key passwords do not match"
 msgstr "キーのパスワードが一致しません"
 
@@ -7062,15 +7094,15 @@ msgstr "マウントポイント $0 は、以下のプロセスにより使用�
 msgid "The mount point $0 is in use by these services:"
 msgstr "マウントポイント $0 は、以下のサービスにより使用されています:"
 
-#: pkg/shell/hosts_dialog.jsx:686
+#: pkg/shell/hosts_dialog.jsx:687
 msgid "The new key password can not be empty"
 msgstr "新しいキーのパスワードは空にすることはできません"
 
-#: pkg/shell/hosts_dialog.jsx:664
+#: pkg/shell/hosts_dialog.jsx:665
 msgid "The password can not be empty"
 msgstr "パスワードは空にできません"
 
-#: pkg/users/password-dialogs.js:191 pkg/users/account-create-dialog.js:280
+#: pkg/users/password-dialogs.js:191 pkg/users/account-create-dialog.js:332
 msgid "The passwords do not match"
 msgstr "パスワードが一致しません"
 
@@ -7078,8 +7110,8 @@ msgstr "パスワードが一致しません"
 msgid "The passwords do not match."
 msgstr "パスワードが一致しません。"
 
-#: pkg/static/login.html:96 pkg/shell/hosts_dialog.jsx:470
-#: pkg/shell/hosts_dialog.jsx:481
+#: pkg/static/login.html:96 pkg/shell/hosts_dialog.jsx:471
+#: pkg/shell/hosts_dialog.jsx:482
 msgid ""
 "The resulting fingerprint is fine to share via public methods, including "
 "email."
@@ -7131,7 +7163,7 @@ msgstr ""
 "新しい設定を有効にするには、ユーザーはログアウトしてログインし直す必要があり"
 "ます。"
 
-#: pkg/users/account-create-dialog.js:117
+#: pkg/users/account-create-dialog.js:149
 msgid ""
 "The user name can only consist of letters from a-z, digits, dots, dashes and "
 "underscores."
@@ -7230,7 +7262,7 @@ msgstr "この情報は、システムにのみ保存されます。"
 msgid "This logical volume is not completely used by its content."
 msgstr "この論理ボリュームは、コンテンツによって完全には使用されていません。"
 
-#: pkg/shell/hosts_dialog.jsx:152
+#: pkg/shell/hosts_dialog.jsx:153
 msgid "This machine has already been added."
 msgstr "このマシンはすでに追加されています。"
 
@@ -7294,7 +7326,7 @@ msgstr ""
 msgid "This unit is not designed to be enabled explicitly."
 msgstr "このユニットは明示的に有効にするよう設計されていません。"
 
-#: pkg/users/account-create-dialog.js:122
+#: pkg/users/account-create-dialog.js:154
 msgid "This user name already exists"
 msgstr "このユーザー名はすでに存在します"
 
@@ -7335,11 +7367,11 @@ msgstr ""
 "ニットに対する考えられるメッセージをすべて特定します。複数のユニットをコンマ"
 "で区切ることができます。 "
 
-#: pkg/shell/hosts_dialog.jsx:809
+#: pkg/shell/hosts_dialog.jsx:810
 msgid "This will allow you to log in without password in the future."
 msgstr "これにより、今後はパスワードなしでログインできるようになります。"
 
-#: pkg/kdump/kdump-view.jsx:277
+#: pkg/kdump/kdump-view.jsx:272
 msgid ""
 "This will test kdump settings by crashing the kernel and thereby the system. "
 "Depending on the settings, the system may not automatically reboot and the "
@@ -7349,7 +7381,7 @@ msgstr ""
 "れます。設定に応じて、再起動が自動的に行われず、処理にしばらく時間がかかるこ"
 "とがあります。"
 
-#: pkg/kdump/kdump-view.jsx:442
+#: pkg/kdump/kdump-view.jsx:431
 msgid "This will test the kdump configuration by crashing the kernel."
 msgstr "kdump 設定はカーネルをクラッシュすることによりテストされます。"
 
@@ -7397,8 +7429,8 @@ msgstr ""
 "ヒント: 他のシステムに対して自動的に認証する場合は、鍵のパスワードをログイン"
 "パスワードに一致させます。"
 
-#: pkg/static/login.html:91 pkg/shell/hosts_dialog.jsx:465
-#: pkg/shell/hosts_dialog.jsx:476
+#: pkg/static/login.html:91 pkg/shell/hosts_dialog.jsx:466
+#: pkg/shell/hosts_dialog.jsx:477
 msgid ""
 "To ensure that your connection is not intercepted by a malicious third-"
 "party, please verify the host key fingerprint:"
@@ -7415,7 +7447,7 @@ msgstr ""
 "があります。登録には、Red Hat カスタマーポータルまたはローカルのサブスクリプ"
 "ションサーバーを使用します。"
 
-#: pkg/shell/hosts_dialog.jsx:468 pkg/shell/hosts_dialog.jsx:479
+#: pkg/shell/hosts_dialog.jsx:469 pkg/shell/hosts_dialog.jsx:480
 #: pkg/static/login.js:766
 msgid ""
 "To verify a fingerprint, run the following on $0 while physically sitting at "
@@ -7550,7 +7582,7 @@ msgstr "管理者アクセスをオンにする"
 #: pkg/systemd/hwinfo.jsx:83 pkg/systemd/hwinfo.jsx:307
 #: pkg/shell/credentials.jsx:199 pkg/storaged/content-views.jsx:764
 #: pkg/storaged/content-views.jsx:1029 pkg/storaged/fsys-panel.jsx:178
-#: pkg/storaged/format-dialog.jsx:299 pkg/storaged/part-tab.jsx:50
+#: pkg/storaged/format-dialog.jsx:298 pkg/storaged/part-tab.jsx:50
 #: pkg/storaged/unrecognized-tab.jsx:36 pkg/packagekit/autoupdates.jsx:271
 msgid "Type"
 msgstr "タイプ"
@@ -7581,11 +7613,11 @@ msgstr "このソリューションを自動的に適用できません"
 msgid "Unable to connect to that address"
 msgstr "そのアドレスに接続できません"
 
-#: pkg/shell/hosts_dialog.jsx:354
+#: pkg/shell/hosts_dialog.jsx:355
 msgid "Unable to contact $0."
 msgstr "$0 と通信できません。"
 
-#: pkg/shell/hosts_dialog.jsx:230
+#: pkg/shell/hosts_dialog.jsx:231
 msgid ""
 "Unable to contact the given host $0. Make sure it has ssh running on port "
 "$1, or specify another port in the address."
@@ -7602,7 +7634,7 @@ msgstr "アラート詳細を取得できません。"
 msgid "Unable to get alert: $0"
 msgstr "アラートを取得できません: $0"
 
-#: pkg/shell/hosts_dialog.jsx:755
+#: pkg/shell/hosts_dialog.jsx:756
 msgid ""
 "Unable to log in to $0 using SSH key authentication. Please provide the "
 "password. You may want to set up your SSH keys for automatic login."
@@ -7610,7 +7642,7 @@ msgstr ""
 "SSH キー認証で $0 にログインできません。パスワードを入力してください。SSH "
 "キーを自動ログイン用に設定しておいてください。"
 
-#: pkg/shell/hosts_dialog.jsx:753
+#: pkg/shell/hosts_dialog.jsx:754
 msgid ""
 "Unable to log in to $0. The host does not accept password login or any of "
 "your SSH keys."
@@ -7795,7 +7827,7 @@ msgstr "フィルター終了時刻"
 msgid "Untrusted host"
 msgstr "信用できないホスト"
 
-#: pkg/shell/hosts_dialog.jsx:350
+#: pkg/shell/hosts_dialog.jsx:351
 msgid "Update"
 msgstr "更新"
 
@@ -7880,7 +7912,7 @@ msgstr "重複排除の使用"
 msgid "Use key"
 msgstr "キーの使用"
 
-#: pkg/users/account-create-dialog.js:76
+#: pkg/users/account-create-dialog.js:108
 msgid "Use password"
 msgstr "ユーザーパスワード"
 
@@ -7901,7 +7933,7 @@ msgstr "使用済み"
 msgid "Used for"
 msgstr "用途"
 
-#: pkg/storaged/format-dialog.jsx:144
+#: pkg/storaged/format-dialog.jsx:143
 msgid ""
 "Useful for mounts that are optional or need interaction (such as passphrases)"
 msgstr ""
@@ -7910,36 +7942,36 @@ msgstr ""
 msgid "User"
 msgstr "ユーザー"
 
-#: pkg/users/account-create-dialog.js:65
+#: pkg/users/account-create-dialog.js:97
 #, fuzzy
 #| msgid "User"
 msgid "User ID"
 msgstr "ユーザー"
 
-#: pkg/users/account-create-dialog.js:153
+#: pkg/users/account-create-dialog.js:185
 #, fuzzy
 #| msgid "This volume is already used by another VM."
 msgid "User ID is already used by another user"
 msgstr "このボリュームは、別の VM によってすでに使用されています。"
 
-#: pkg/users/account-create-dialog.js:143
+#: pkg/users/account-create-dialog.js:175
 #, fuzzy
 #| msgid "The group ID must be positive integer"
 msgid "User ID must be a positive integer"
 msgstr "グループ ID は正の整数である必要があります"
 
-#: pkg/users/account-create-dialog.js:149
+#: pkg/users/account-create-dialog.js:181
 msgid "User ID must not be higher than $0"
 msgstr ""
 
-#: pkg/users/account-create-dialog.js:146
+#: pkg/users/account-create-dialog.js:178
 #, fuzzy
 #| msgid "Name cannot be longer than $0 bytes"
 msgid "User ID must not be lower than $0"
 msgstr "名前は、$0 バイトを超えることができません"
 
-#: pkg/static/login.html:101 pkg/users/account-create-dialog.js:56
-#: pkg/users/account-details.js:275 pkg/shell/hosts_dialog.jsx:258
+#: pkg/static/login.html:101 pkg/users/account-create-dialog.js:64
+#: pkg/users/account-details.js:275 pkg/shell/hosts_dialog.jsx:259
 msgid "User name"
 msgstr "ユーザー名"
 
@@ -8180,7 +8212,7 @@ msgstr "週"
 msgid "When"
 msgstr "条件"
 
-#: pkg/shell/hosts_dialog.jsx:258
+#: pkg/shell/hosts_dialog.jsx:259
 msgid "When empty, connect with the current user"
 msgstr "空の場合は、現在のユーザーに接続します"
 
@@ -8231,7 +8263,7 @@ msgstr "毎年"
 msgid "Yes"
 msgstr "はい"
 
-#: pkg/shell/hosts_dialog.jsx:475 pkg/static/login.js:763
+#: pkg/shell/hosts_dialog.jsx:476 pkg/static/login.js:763
 msgid "You are connecting to $0 for the first time."
 msgstr "初めて $0 に接続しています。"
 
@@ -8253,7 +8285,7 @@ msgstr "アクティビティーがないためログアウトされました。
 msgid "You may try to load older entries."
 msgstr "古いエントリーのロードを試行することができます。"
 
-#: pkg/shell/hosts_dialog.jsx:759 pkg/shell/hosts_dialog.jsx:764
+#: pkg/shell/hosts_dialog.jsx:760 pkg/shell/hosts_dialog.jsx:765
 msgid "You may want to change the password of the key for automatic login."
 msgstr "自動ログイン用の鍵のパスワードの変更が必要な場合があります。"
 
@@ -8432,7 +8464,7 @@ msgstr "CPU"
 msgid "crash"
 msgstr "クラッシュ"
 
-#: pkg/kdump/kdump-view.jsx:450
+#: pkg/kdump/kdump-view.jsx:439
 msgid "crashkernel not configured in the kernel command line"
 msgstr "カーネルコマンドラインで crashkernel が設定されていません"
 
@@ -8447,7 +8479,7 @@ msgstr "デバッグ"
 #: pkg/storaged/content-views.jsx:377 pkg/storaged/content-views.jsx:685
 #: pkg/storaged/stratis-details.jsx:236 pkg/storaged/stratis-details.jsx:581
 #: pkg/storaged/vdo-details.jsx:159 pkg/storaged/vgroup-details.jsx:182
-#: pkg/storaged/format-dialog.jsx:233 pkg/storaged/mdraid-details.jsx:279
+#: pkg/storaged/format-dialog.jsx:232 pkg/storaged/mdraid-details.jsx:279
 msgid "delete"
 msgstr "削除"
 
@@ -8565,7 +8597,7 @@ msgstr "現在のカーネルおよび将来のカーネルの場合"
 msgid "for current kernel only"
 msgstr "現在のカーネルのみの場合"
 
-#: pkg/storaged/format-dialog.jsx:233 pkg/storaged/manifest.json:0
+#: pkg/storaged/format-dialog.jsx:232 pkg/storaged/manifest.json:0
 msgid "format"
 msgstr "フォーマット"
 
@@ -8633,7 +8665,7 @@ msgstr "インストール"
 msgid "interface"
 msgstr "インターフェース"
 
-#: pkg/kdump/kdump-view.jsx:322
+#: pkg/kdump/kdump-view.jsx:311
 msgid "invalid: multiple targets defined"
 msgstr "無効: 複数のターゲットが定義されています"
 
@@ -8661,7 +8693,7 @@ msgstr "journalctl man ページ"
 msgid "kdump"
 msgstr "kdump"
 
-#: pkg/kdump/kdump-view.jsx:446
+#: pkg/kdump/kdump-view.jsx:435
 msgid "kdump status"
 msgstr "kdump ステータス"
 
@@ -8669,7 +8701,7 @@ msgstr "kdump ステータス"
 msgid "keys"
 msgstr "鍵"
 
-#: pkg/kdump/kdump-view.jsx:326 pkg/kdump/kdump-view.jsx:328
+#: pkg/kdump/kdump-view.jsx:315 pkg/kdump/kdump-view.jsx:317
 msgid "locally in $0"
 msgstr "$0 (ローカル)"
 
@@ -8725,7 +8757,7 @@ msgstr "軽減"
 msgid "mkfs"
 msgstr "mkfs"
 
-#: pkg/kdump/kdump-view.jsx:409
+#: pkg/kdump/kdump-view.jsx:398
 msgid "more details"
 msgstr "詳細"
 

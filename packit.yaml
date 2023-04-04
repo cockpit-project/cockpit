@@ -25,9 +25,11 @@ jobs:
     targets:
       - fedora-37
       - fedora-38
+      - fedora-latest-aarch64
       - fedora-development
       - centos-stream-8-x86_64
       - centos-stream-9-x86_64
+      - centos-stream-9-aarch64
 
   # run build/unit tests on some interesting architectures
   - job: copr_build

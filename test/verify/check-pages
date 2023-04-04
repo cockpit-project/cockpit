@@ -565,6 +565,7 @@ OnCalendar=daily
 
         stuff = os.path.join(self.vm_tmpdir, "stuff")
         # prepare a directory for testing file autocomplete widget
+        m.execute(f"mkdir -p {stuff}/dir")
         m.execute(f"mkdir -p {stuff}/dir1")
         m.write(f"{stuff}/file1.txt", "")
 
@@ -575,9 +576,18 @@ OnCalendar=daily
         b.key_press(stuff + "/")
         # need to wait for the widget's "fast typing" inhibition delay to trigger the completion popup
         b.wait_in_text("#file-autocomplete-widget li:nth-of-type(1) button", stuff + "/")
-        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(2) button", "dir1/")
-        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(3) button", "file1.txt")
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(2) button", "dir/")
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(3) button", "dir1/")
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(4) button", "file1.txt")
         b.click("#file-autocomplete-widget li:nth-of-type(2) button")
+
+        # clear the file completion widget
+        b.click("#demo-file-ac div:first-of-type div:first-of-type button:nth-of-type(1)")
+        # test if input matches one entry, but is the prefix of other entry, widget should not descend into directory
+        b.focus("#demo-file-ac input[type=text]")
+        b.key_press(stuff + "/dir")
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(1) button", stuff + "/dir")
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(2) button", stuff + "/dir1")
 
         # clear the file completion widget
         b.click("#demo-file-ac div:first-of-type div:first-of-type button:nth-of-type(1)")
@@ -585,8 +595,8 @@ OnCalendar=daily
         b.focus("#demo-file-ac input[type=text]")
         b.key_press(stuff + "/")
         b.wait_in_text("#file-autocomplete-widget li:nth-of-type(1) button", stuff + "/")
-        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(3) button", "file1.txt")
-        b.click("#file-autocomplete-widget li:nth-of-type(3) button")
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(4) button", "file1.txt")
+        b.click("#file-autocomplete-widget li:nth-of-type(4) button")
         b.wait_not_present("#file-autocomplete-widget li")
 
         # now update file1, check robustness with dynamic events
@@ -598,7 +608,7 @@ OnCalendar=daily
         b.wait_in_text("#file-autocomplete-widget li:nth-of-type(1) button", "file1.txt")
         b.key_press(["\b"] * 4)
         # input is now $stuff/, so all listings should be available
-        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(3) button", "file1.txt")
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(4) button", "file1.txt")
 
         # add new file
         m.execute(f"touch {stuff}/other")
@@ -610,7 +620,7 @@ OnCalendar=daily
         b.key_press(["\b"] * 6)
         time.sleep(1)
         b.key_press("stuff/")
-        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(4) button", "other")
+        b.wait_in_text("#file-autocomplete-widget li:nth-of-type(5) button", "other")
 
     @skipOstree("No PCP available")
     def testPlots(self):

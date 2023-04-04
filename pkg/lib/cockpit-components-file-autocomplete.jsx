@@ -61,9 +61,13 @@ export class FileAutoComplete extends React.Component {
                     .find(entry => (entry.type == 'directory' && entry.path == path + '/') || (entry.type == 'file' && entry.path == path));
 
             if (match) {
+                // If match file path is a prefix of another file, do not update current directory,
+                // since we cannot tell file/directory user wants to select
+                // https://bugzilla.redhat.com/show_bug.cgi?id=2097662
+                const isPrefix = this.state.displayFiles.filter(entry => entry.path.startsWith(value)).length > 1;
                 // If the inserted string corresponds to a directory listed in the results
                 // update the current directory and refetch results
-                if (match.type == 'directory')
+                if (match.type == 'directory' && !isPrefix)
                     cb(match.path);
                 else
                     this.setState({ value: match.path });

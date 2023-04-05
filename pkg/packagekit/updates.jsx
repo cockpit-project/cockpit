@@ -27,6 +27,7 @@ import { createRoot } from 'react-dom/client';
 import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
 import { Badge } from "@patternfly/react-core/dist/esm/components/Badge/index.js";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { CodeBlock, CodeBlockCode } from "@patternfly/react-core/dist/esm/components/CodeBlock/index.js";
 import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover/index.js";
@@ -1470,25 +1471,26 @@ class OsUpdates extends React.Component {
                 type: "error",
                 title: STATE_HEADINGS[this.state.state],
             });
-
             return (
-                <>
+                <Stack>
                     <EmptyStatePanel title={ STATE_HEADINGS[this.state.state] }
-                                     icon={ ExclamationCircleIcon }
-                                     paragraph={
-                                         <TextContent>
-                                             <Text component={TextVariants.p}>
-                                                 {this.state.errorMessages
-                                                         .filter((m, index) => index == 0 || m != this.state.errorMessages[index - 1])
-                                                         .map(m => <span key={m}>{m}</span>)}
-                                             </Text>
-                                             <Text component={TextVariants.p}>
-                                                 {_("Please reload the page after resolving the issue.")}
-                                             </Text>
-                                         </TextContent>
-                                     }
+                                    icon={ ExclamationCircleIcon }
+                                    paragraph={
+                                        <TextContent>
+                                            <Text component={TextVariants.p}>
+                                                {_("Please resolve the issue and reload this page.")}
+                                            </Text>
+                                        </TextContent>
+                                    }
                     />
-                </>
+                    <CodeBlock className='pf-u-mx-auto error-log'>
+                        <CodeBlockCode>
+                            {this.state.errorMessages
+                                    .filter((m, index) => index == 0 || m != this.state.errorMessages[index - 1])
+                                    .map(m => <span key={m}>{m}</span>)}
+                        </CodeBlockCode>
+                    </CodeBlock>
+                </Stack>
             );
 
         case "applying":

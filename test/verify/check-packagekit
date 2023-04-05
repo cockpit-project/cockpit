@@ -1078,7 +1078,7 @@ ExecStart=/usr/local/bin/{packageName}
         self.allow_journal_messages(".*")
 
         # error message visible
-        b.wait_in_text("#app .pf-c-page .pf-c-empty-state__body", "PackageKit crashed")
+        b.wait_in_text("#app .pf-c-page .pf-l-stack .pf-c-code-block__content", "PackageKit crashed")
 
     @nondestructive
     def testNoPackageKit(self):
@@ -1103,7 +1103,7 @@ ExecStart=/usr/local/bin/{packageName}
             b.login_and_go("/updates")
 
             # error message present
-            b.wait_in_text(".pf-c-page__main-section .pf-c-empty-state__body", "PackageKit is not installed")
+            b.wait_in_text(".pf-c-page__main-section .pf-l-stack .pf-c-code-block__content", "PackageKit is not installed")
 
             # update status on front page should show error
             b.go("/system")
@@ -1143,7 +1143,7 @@ ExecStart=/usr/local/bin/{packageName}
         # but applying updates is not; FIXME: this is a crappy UX
         b.click("#available-updates button#install-all")
         # error message visible
-        b.wait_in_text("#app .pf-c-empty-state__body", "authentication")
+        b.wait_in_text("#app .pf-c-code-block__content", "authentication")
 
         # page adjusts automatically to privilege change
         b.become_superuser()

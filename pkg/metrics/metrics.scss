@@ -6,6 +6,10 @@
 // utilities for `pf-u...` classes
 @import "@patternfly/patternfly/utilities/Spacing/spacing.css";
 
+// colors for PF charts
+@import "@patternfly/patternfly/patternfly-charts.css";
+@import "@patternfly/patternfly/patternfly-charts-theme-dark.css";
+
 #app {
   section.pf-c-page__main-breadcrumb {
     padding-bottom: var(--pf-c-page__main-breadcrumb--PaddingTop);
@@ -319,10 +323,17 @@ html {
 $graphs: cpu, memory, disks, network;
 
 .metrics {
-  --cpu-color: plum;
-  --memory-color: lightblue;
-  --disks-color: lightgreen;
-  --network-color: lightsalmon;
+  --cpu-color: var(--pf-chart-color-purple-200);
+  --cpu-color-extreme: var(--pf-chart-color-purple-300);
+
+  --memory-color: var(--pf-chart-color-green-200);
+  --memory-color-extreme: var(--pf-chart-color-green-300);
+
+  --disks-color: var(--pf-chart-color-gold-300);
+  --disks-color-extreme: var(--pf-chart-color-gold-400);
+
+  --network-color: var(--pf-chart-color-black-300);
+  --network-color-extreme: var(--pf-chart-color-black-400);
 
   --column-size: 10vw;
   --half-column-size: 8vw;
@@ -485,13 +496,17 @@ $graphs: cpu, memory, disks, network;
   }
 
   &-data {
+    --gradient-fragment: var(--color) 80%, var(--color-extreme) 90%;
+    --gradient: linear-gradient(to right, var(--gradient-fragment));
+    --gradient-flip: linear-gradient(to left, var(--gradient-fragment));
     display: grid;
     contain: strict;
-    margin-left: 0.5rem;
-    margin-right: 0.5rem;
+    margin: 0 var(--pf-global--spacer--sm);
     // Make SVG and generated before/after line position relative to metrics-data
     position: relative;
     grid-template-areas: "utilization";
+    // Make sure rows expand (WebKit needs this)
+    grid-template-rows: 1fr;
 
     // vertical ruler line for areas with data, and horizontal tick mark for utilization half
     &.valid-data::before {
@@ -523,7 +538,7 @@ $graphs: cpu, memory, disks, network;
       top: 0;
       left: 0;
       clip-path: polygon(var(--points));
-      background-color: var(--color);
+      background: var(--gradient);
       height: 100%;
       width: 100%;
     }
@@ -531,6 +546,7 @@ $graphs: cpu, memory, disks, network;
     @each $graph in $graphs {
       &-#{$graph} {
         --color: var(--#{$graph}-color);
+        --color-extreme: var(--#{$graph}-color-extreme);
       }
     }
 
@@ -539,22 +555,22 @@ $graphs: cpu, memory, disks, network;
     }
 
     .polygon-use {
-      background-color: var(--color);
       grid-area: utilization;
     }
 
     .polygon-sat {
       opacity: 0.7;
-      background-color: var(--color);
       grid-area: saturation;
     }
 
     .compressed.polygon-sat {
-      clip-path: inset(100% 100% 100% calc(var(--saturation) * 100%));
+      background: var(--gradient);
+      clip-path: inset(0 calc(100% - var(--saturation) * 100%) 0 0);
     }
 
     .compressed.polygon-use {
-      clip-path: inset(100% calc(var(--utilization) * 100%) 100% 100%);
+      background: var(--gradient-flip);
+      clip-path: inset(0 0 0 calc(100% - var(--utilization) * 100%));
     }
   }
 
@@ -591,7 +607,10 @@ $graphs: cpu, memory, disks, network;
   &-hour.metrics-hour-compressed .metrics-minute:last-of-type {
     .valid-data.have-saturation::after,
     .valid-data::before {
-      border-bottom: 1px solid rgb(0 0 0 / 30%);
+      // Fake a border via clip-path, to set it on top, instead of after
+      background: rgb(120 120 120 / 30%);
+      pointer-events: none;
+      clip-path: inset(calc(100% - 1px) 0 0);
     }
   }
 

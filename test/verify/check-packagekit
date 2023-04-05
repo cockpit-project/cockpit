@@ -1039,7 +1039,6 @@ ExecStart=/usr/local/bin/{packageName}
         self.assertRegex(b.text("#app .pf-c-page .pf-l-stack .pf-c-code-block .pf-c-code-block__content .pf-c-code-block__pre .pf-c-code-block__code span:first-of-type"),
                          "missing|downloading|not.*available|No such file or directory|download library error")
 
-
         # not expecting any buttons
         self.assertFalse(b.is_present("#app button"))
 

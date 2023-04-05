@@ -1047,6 +1047,13 @@ cockpit_session_launch (CockpitAuth *self,
       return NULL;
     }
 
+  /* this might be unset, which means "allow if cockpit-ssh is installed"; if it isn't, this will fail later on */
+  if (host && !cockpit_conf_bool ("WebService", "LoginTo", TRUE)) {
+      g_set_error (error, COCKPIT_ERROR, COCKPIT_ERROR_AUTHENTICATION_FAILED,
+                   "Direct remote login is disabled");
+      return NULL;
+    }
+
   /* These are the credentials we'll carry around for this session */
   g_autoptr(CockpitCreds) creds = build_session_credentials (self, request, application, host, type, authorization);
 

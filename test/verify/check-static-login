@@ -148,6 +148,15 @@ account    required     pam_succeed_if.so user ingroup %s""" % m.get_admin_group
         b.wait_visible("#login")
         b.wait_not_visible("#option-group")
 
+        # LoginTo= also disables direct URL
+        b.open("/=192.168.99.99/")
+        b.wait_visible("#login")
+        b.wait_not_visible("#option-group")
+        # logging in does not go via cockpit-ssh (which would cause a connection failure)
+        b.try_login()
+        # this isn't the most helpful error message, but this is essentially hacking
+        b.wait_text("#login-error-message", "Wrong user name or password")
+
         # Default options be to display these options
         m.execute("rm /etc/cockpit/cockpit.conf")
         m.restart_cockpit()

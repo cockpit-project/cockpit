@@ -208,6 +208,10 @@ def main():
     parser = argparse.ArgumentParser(
         description='Prepare testing environment, download images and build and install cockpit',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-e', '--env', metavar='NAME=VAL', action='append',
+                        help="Add a line to /etc/environment")
+    parser.add_argument('-d', '--debug', action='append_const', dest='env', const='COCKPIT_DEBUG=all',
+                        help="Equivalent to --env=COCKPIT_DEBUG=all")
     parser.add_argument('-v', '--verbose', action='store_true', help='Display verbose progress details')
     parser.add_argument('-q', '--quick', action='store_true', help='Skip unit tests to build faster')
     parser.add_argument('-o', '--overlay', action='store_true', help='Install into existing test/image/ overlay instead of from pristine base image')
@@ -240,6 +244,9 @@ def main():
 
     if args.python:
         customize += install_python_bridge()
+
+    if args.env:
+        customize += ['--run-command', r'printf "%s\n" >>/etc/environment ' + shlex.join(args.env)]
 
     customize.append(args.image)
 

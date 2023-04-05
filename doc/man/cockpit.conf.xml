@@ -102,9 +102,15 @@ ForwardedForHeader = X-Forwarded-For
         <term><option>LoginTo</option></term>
         <listitem>
           <para>When set to <literal>true</literal> the <emphasis>Connect to</emphasis> option
-            on the login screen is visible and allows logging into another server. If this
-            option is not specified then it will be automatically detected based on whether
-            the <command>cockpit-ssh</command> process is available or not.</para>
+            on the login screen is visible and allows logging into another server. When set to
+            <literal>false</literal>, direct remote logins are disallowed. If this option is not specified
+            then it will be automatically detected based on whether the
+            <command>cockpit-ssh</command> process is available or not.</para>
+
+          <para>If cockpit-ws is exposed to the public internet, and also has access to a private
+            internal network, it is recommended to explicitly set <literal>LoginTo=false</literal>. This prevents
+            unauthenticated remote attackers from scanning the internal network for existing machines
+            and open ports.</para>
         </listitem>
       </varlistentry>
       <varlistentry>

@@ -379,6 +379,8 @@ function Machines() {
         let port_spot = -1;
 
         if (conn_to) {
+            if (conn_to.substring(0, 6) === "ssh://")
+                conn_to = conn_to.substring(6);
             user_spot = conn_to.lastIndexOf('@');
             port_spot = conn_to.lastIndexOf(':');
         }

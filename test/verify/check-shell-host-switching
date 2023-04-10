@@ -74,7 +74,8 @@ class HostSwitcherHelpers:
             b.assert_pixels("#hosts_setup_server_dialog", pixel_label)
         b.click('#hosts_setup_server_dialog .pf-m-primary:contains("Add")')
         if not known_host:
-            b.wait_in_text('#hosts_setup_server_dialog', f"You are connecting to {address} for the first time")
+            b.wait_in_text('#hosts_setup_server_dialog',
+                           f"You are connecting to {address.removeprefix('ssh://')} for the first time")
             b.click('#hosts_setup_server_dialog .pf-m-primary')
         if expect_password_auth:
             b.wait_in_text("#hosts_setup_server_dialog", "Unable to log in to")
@@ -271,6 +272,45 @@ class TestHostSwitching(testlib.MachineCase, HostSwitcherHelpers):
         self.add_new_machine(b, "admin@10.111.113.2", known_host=True, user="someone", expect_password_auth=True)
         self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
         self.connect_and_wait(b, "10.111.113.2", "someone")
+        self.machine_remove(b, "10.111.113.2", second_to_last=True)
+
+        # reset session store to forget previous user/host connections
+        b.relogin()
+        b.click("#hosts-sel button")
+
+        # ssh:// prefix and implied user
+        self.add_new_machine(b, "ssh://10.111.113.2", known_host=True)
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
+        self.connect_and_wait(b, "10.111.113.2", "admin")
+        self.machine_remove(b, "10.111.113.2", second_to_last=True)
+
+        # ssh:// prefix and separate "User name:" field
+        self.add_new_machine(b, "ssh://10.111.113.2", known_host=True, user="admin")
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
+        self.connect_and_wait(b, "10.111.113.2", "admin")
+        self.machine_remove(b, "10.111.113.2", second_to_last=True)
+
+        self.add_new_machine(b, "ssh://10.111.113.2", known_host=True, user="someone", expect_password_auth=True)
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
+        self.connect_and_wait(b, "10.111.113.2", "someone")
+        self.machine_remove(b, "10.111.113.2", second_to_last=True)
+
+        # ssh:// prefix with user name
+        self.add_new_machine(b, "ssh://someone@10.111.113.2", known_host=True, expect_password_auth=True)
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
+        self.connect_and_wait(b, "10.111.113.2", "someone")
+        self.machine_remove(b, "10.111.113.2", second_to_last=True)
+
+        # ssh:// prefix with user and different "User name:" field, latter wins
+        self.add_new_machine(b, "ssh://admin@10.111.113.2", known_host=True, user="someone", expect_password_auth=True)
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
+        self.connect_and_wait(b, "10.111.113.2", "someone")
+        self.machine_remove(b, "10.111.113.2", second_to_last=True)
+
+        # ssh:// prefix with user name and port in the connection target
+        self.add_new_machine(b, "ssh://admin@10.111.113.2:22", known_host=True)
+        self.wait_host_addresses(b, ["localhost", "10.111.113.2"])
+        self.connect_and_wait(b, "10.111.113.2")
         self.machine_remove(b, "10.111.113.2", second_to_last=True)
 
         self.allow_journal_messages(".*server offered unsupported authentication methods: password public-key.*")

@@ -97,17 +97,20 @@ class TestKeys(MachineCase):
 
         b.wait_in_text("#account-authorized-keys", "no authorized public keys")
 
+        def check_perms():
+            perms = m.execute("getfacl -a /home/user/.ssh")
+            self.assertIn("owner: user", perms)
+
+            perms = m.execute("getfacl -a /home/user/.ssh/authorized_keys")
+            self.assertIn("owner: user", perms)
+            self.assertIn("user::rw-", perms)
+            self.assertIn("group::---", perms)
+            self.assertIn("other::---", perms)
+
         # Adding keys sets permissions properly
         b.wait_text("#account-user-name", "user")
         add_key(KEY, FP_SHA256, "test-name")
-        perms = m.execute("getfacl -a /home/user/.ssh")
-        self.assertIn("owner: user", perms)
-
-        perms = m.execute("getfacl -a /home/user/.ssh/authorized_keys")
-        self.assertIn("owner: user", perms)
-        self.assertIn("user::rw-", perms)
-        self.assertIn("group::---", perms)
-        self.assertIn("other::---", perms)
+        check_perms()
 
         b.wait_js_func("ph_count_check", "#account-authorized-keys-list tr", 1)
 
@@ -121,7 +124,9 @@ class TestKeys(MachineCase):
         b.wait_not_in_text("#account-authorized-keys", "Invalid key")
         b.wait_js_func("ph_count_check", "#account-authorized-keys-list tr", 1)
         data = m.execute("cat /home/user/.ssh/authorized_keys")
-        self.assertEqual(data, KEY + '\n')
+        self.assertEqual(data, KEY + "\n\n")
+        # Permissions are still ok
+        check_perms()
         b.logout()
 
         # User can still see their keys

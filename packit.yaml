@@ -49,6 +49,13 @@ jobs:
     project: "cockpit-preview"
     preserve_project: True
     actions:
+      # same as the global one, but specifying actions: does not inherit
+      post-upstream-clone:
+        # build patched spec
+        - tools/node-modules make_package_lock_json
+        - cp tools/cockpit.spec .
+        # packit will compute and set the version by itself
+        - tools/fix-spec ./cockpit.spec 0
       # HACK: tarball for releases (copr_build, koji, etc.), copying spec's Source0; this
       # really should be the default, see https://github.com/packit/packit-service/issues/1505
       create-archive:

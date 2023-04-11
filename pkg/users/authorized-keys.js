@@ -114,24 +114,12 @@ function AuthorizedKeys (user_name, home_dir) {
                 });
     };
 
-    self.remove_key = function(key) {
-        return file.modify(function(content) {
-            let lines = null;
-            const new_lines = [];
-
-            if (!content)
-                return "";
-
-            lines = content.trim().split('\n');
-            for (let i = 0; i < lines.length; i++) {
-                if (lines[i] === key)
-                    key = undefined;
-                else
-                    new_lines.push(lines[i]);
-            }
-            return new_lines.join("\n");
-        });
-    };
+    // don't use cockpit.file.modify() here, as that doesn't preserve permissions
+    // (https://github.com/cockpit-project/cockpit/issues/18033)
+    self.remove_key = key => cockpit.spawn(
+        ["sed", "-i", "\\!^" + key + "$!d", filename],
+        { superuser: "try", err: "message" }
+    );
 
     self.close = function() {
         if (watch)

@@ -81,7 +81,7 @@ def parse_vlq(segment):
     return values
 
 
-def parse_sourcemap(f, line_starts, webpack_name):
+def parse_sourcemap(f, line_starts, dir_name):
     smap = json.load(f)
     sources = smap['sources']
     mappings = smap['mappings']
@@ -112,20 +112,20 @@ def parse_sourcemap(f, line_starts, webpack_name):
                 src_col += parse[3]
 
             if src in our_sources:
-                norm_src = os.path.normpath(src.replace(f"webpack://{webpack_name}/", ""))
+                norm_src = os.path.normpath(os.path.join(dir_name, src))
                 our_map.append((line_starts[dst_line] + dst_col, norm_src, src_line))
 
     return our_map
 
 
 class DistFile:
-    def __init__(self, path, webpack_name):
+    def __init__(self, path):
         line_starts = [0]
         with open(path, newline='') as f:
             for line in f.readlines():
                 line_starts.append(line_starts[-1] + len(line))
         with open(path + ".map") as f:
-            self.smap = parse_sourcemap(f, line_starts, webpack_name)
+            self.smap = parse_sourcemap(f, line_starts, os.path.relpath(os.path.dirname(path), BASE_DIR))
 
     def find_sources_slow(self, start, end):
         res = []
@@ -158,7 +158,7 @@ def get_dist_map(package):
     return dmap
 
 
-def get_distfile(url, dist_map, webpack_name):
+def get_distfile(url, dist_map):
     parts = url.split("/")
     if len(parts) < 3 or "cockpit" not in parts:
         return None
@@ -172,7 +172,7 @@ def get_distfile(url, dist_map, webpack_name):
     else:
         path = f"{BASE_DIR}/dist/" + base + "/" + file
     if os.path.exists(path) and os.path.exists(path + ".map"):
-        return DistFile(path, webpack_name)
+        return DistFile(path)
     else:
         sys.stderr.write(f"SKIP {url} -> {path}\n")
         return None
@@ -367,7 +367,7 @@ def write_lcov(covdata, outlabel):
     # from each mention.
 
     for script in covdata:
-        distfile = get_distfile(script['url'], dist_map, package["name"])
+        distfile = get_distfile(script['url'], dist_map)
         if distfile:
             ranges = sorted(covranges(script['functions']),
                             key=lambda r: r['endOffset'] - r['startOffset'], reverse=True)

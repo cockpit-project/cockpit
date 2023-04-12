@@ -151,11 +151,13 @@ PROMPT_COMMAND='printf "\033]0;%s@%s:%s\007" "${USER}" "${HOSTNAME%%.*}" "${PWD/
 
             # Right click and pick copy
             b.mouse(sel, "contextmenu", btn=2)
-            b.click('.contextMenu .contextMenuOption:first-child')
+            # Skipping mobile and medium layouts as these are the same with the default desktop layout
+            b.assert_pixels("#terminal .contextMenu", "context-menu", skip_layouts=["mobile", "medium"])
+            b.click('.contextMenu li:first-child button')
 
             # Right click and pick paste
             b.mouse(sel, "contextmenu", btn=2)
-            b.click('.contextMenu .contextMenuOption:nth-child(2)')
+            b.click('.contextMenu li:nth-child(2) button')
 
             # Wait for text to show up
             wait_line(echo_result_line + 1, prompt + "XYZ")

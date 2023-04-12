@@ -1,27 +1,31 @@
 .contextMenu {
-  position: fixed;
-  /* xterm accessibility tree has z-index 100 and we need to be in front of it
-     * to be able to handle mouse events.
-     */
-  z-index: 101;
-  background: white;
-  padding-top: 2px;
-  padding-bottom: 2px;
+  background: var(--pf-global--BackgroundColor--100);
   box-shadow: 0 2px 10px var(--ct-color-subtle-copy);
+  position: fixed;
+  /* Move the menu under the mouse */
+  transform: translate(calc(-1 * var(--pf-global--spacer--sm)), calc(-1 * var(--pf-global--spacer--sm)));
+  /* xterm accessibility tree has z-index 100 and we need to be in front of it
+   * to be able to handle mouse events. */
+  z-index: 101;
 }
 
 .contextMenuOption {
-  padding: 5px 15px;
-  min-width: 220px;
-  font-size: 13px;
-  display: flex;
-  justify-content: space-between;
   background-color: transparent;
   border: none;
+  display: flex;
+  font-size: var(--pf-global--FontSize--md);
+  gap: var(--pf-global--spacer--lg);
+  justify-content: space-between;
+  padding: var(--pf-global--spacer--sm) var(--pf-global--spacer--md);
+  width: 100%;
 }
 
 .contextMenuOption:hover,
 .contextMenuOption:active {
-  background-color: var(--ct-color-link);
-  color: white;
+  background-color: var(--pf-global--Color--light-300);
+  color: var(--pf-global--Color--100);
+}
+
+.contextMenuShortcut {
+  opacity: 0.75;
 }

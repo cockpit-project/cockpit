@@ -453,19 +453,21 @@ class TestStorageStratis(StorageCase):
 
 
 @skipImage("No Stratis", "debian-*", "ubuntu-*", "arch")
-@skipImage("No Stratis on demand", "rhel-8-*")
 class TestStoragePackagesStratis(PackageCase, StorageCase):
 
     def testStratisOndemandInstallation(self):
         m = self.machine
         b = self.browser
 
-        m.execute("systemctl stop stratisd")
-        self.write_file("/etc/cockpit/storaged.override.json",
-                        """{ "config": { "stratis_package": "fake-stratisd" } }""")
-        self.createPackage("fake-stratisd", "999", "1")
-        self.enableRepo()
-        m.execute("pkcon refresh")
+        # RHEL 8 should not offer installation of Stratis from Cockpit
+        # itself.
+        #
+        ondemand_stratis = "rhel-8" not in m.image
+
+        m.execute("systemctl stop stratisd && dnf remove -y stratisd stratis")
+        if ondemand_stratis:
+            self.addPackageSet("stratis")
+            self.enableRepo()
 
         self.login_and_go("/storage")
 
@@ -473,16 +475,21 @@ class TestStoragePackagesStratis(PackageCase, StorageCase):
         m.add_disk("4G", serial="DISK1")
         b.wait_in_text("#drives", dev_1)
 
-        self.devices_dropdown("Create Stratis pool")
-        self.dialog_wait_open()
-        b.wait_in_text("#dialog", "The fake-stratisd package must be installed")
-        with b.wait_timeout(60):
+        if ondemand_stratis:
+            self.devices_dropdown("Create Stratis pool")
+            self.dialog_wait_open()
+            b.wait_in_text("#dialog", "The stratisd package must be installed")
             self.dialog_apply()
-        self.dialog_wait_val("name", "pool0")
-        self.dialog_set_val("disks", {dev_1: True})
-        self.dialog_apply()
-        self.dialog_wait_close()
-        b.wait_in_text("#devices", "pool0")
+            with b.wait_timeout(60):
+                self.dialog_wait_val("name", "pool0")
+            self.dialog_set_val("disks", {dev_1: True})
+            self.dialog_apply()
+            self.dialog_wait_close()
+            b.wait_in_text("#devices", "pool0")
+        else:
+            b.click("#devices .pf-c-dropdown button.pf-c-dropdown__toggle")
+            b.wait_visible("#devices .pf-c-dropdown a:contains('Create RAID device')")
+            b.wait_not_present("#devices .pf-c-dropdown a:contains('Create Stratis pool')")
 
 
 if __name__ == '__main__':

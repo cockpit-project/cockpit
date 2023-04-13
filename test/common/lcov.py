@@ -444,12 +444,9 @@ def get_review_comments(diff_info_file):
 def prepare_for_code_coverage():
     # This gives us a convenient link at the top of the logs, see link-patterns.json
     print("Code coverage report in Coverage/index.html")
-    try:
-        os.makedirs("lcov", exist_ok=True)
-        with open("lcov/github-pr.diff", "w") as f:
-            subprocess.check_call(["git", "-c", "diff.noprefix=false", "diff", "--patience", "main"], stdout=f)
-    except subprocess.CalledProcessError:
-        pass
+    os.makedirs("lcov", exist_ok=True)
+    with open("lcov/github-pr.diff", "w") as f:
+        subprocess.check_call(["git", "-c", "diff.noprefix=false", "diff", "--patience", "main"], stdout=f)
 
 
 def create_coverage_report():
@@ -460,36 +457,33 @@ def create_coverage_report():
     except subprocess.CalledProcessError:
         title = "?"
     if len(lcov_files) > 0:
-        try:
-            all_file = f"{BASE_DIR}/lcov/all.info"
-            diff_file = f"{BASE_DIR}/lcov/diff.info"
-            subprocess.check_call(["lcov", "--quiet", "--output", all_file] +
-                                  sum(map(lambda f: ["--add", f], lcov_files), []))
-            subprocess.check_call(["lcov", "--quiet", "--output", diff_file,
-                                   "--extract", all_file, "*/github-pr.diff"])
-            summary = subprocess.check_output(["genhtml", "--no-function-coverage",
-                                               "--prefix", os.getcwd(),
-                                               "--title", title,
-                                               "--output-dir", f"{output}/Coverage", all_file]).decode()
+        all_file = f"{BASE_DIR}/lcov/all.info"
+        diff_file = f"{BASE_DIR}/lcov/diff.info"
+        subprocess.check_call(["lcov", "--quiet", "--output", all_file] +
+                              sum(map(lambda f: ["--add", f], lcov_files), []))
+        subprocess.check_call(["lcov", "--quiet", "--output", diff_file,
+                               "--extract", all_file, "*/github-pr.diff"])
+        summary = subprocess.check_output(["genhtml", "--no-function-coverage",
+                                           "--prefix", os.getcwd(),
+                                           "--title", title,
+                                           "--output-dir", f"{output}/Coverage", all_file]).decode()
 
-            coverage = summary.split("\n")[-2]
-            match = re.search(r".*lines\.*:\s*([\d\.]*%).*", coverage)
-            if match:
-                print("Overall line coverage:", match.group(1))
+        coverage = summary.split("\n")[-2]
+        match = re.search(r".*lines\.*:\s*([\d\.]*%).*", coverage)
+        if match:
+            print("Overall line coverage:", match.group(1))
 
-            comments = get_review_comments(diff_file)
-            rev = os.environ.get("TEST_REVISION", None)
-            pull = os.environ.get("TEST_PULL", None)
-            if rev and pull:
-                api = github.GitHub()
-                old_comments = api.get(f"pulls/{pull}/comments?sort=created&direction=desc&per_page=100") or []
-                for oc in old_comments:
-                    if ("body" in oc and "path" in oc and "line" in oc and
-                       "not executed by any test." in oc["body"]):
-                        api.delete(f"pulls/comments/{oc['id']}")
-                if len(comments) > 0:
-                    api.post(f"pulls/{pull}/reviews",
-                             {"commit_id": rev, "event": "COMMENT",
-                              "comments": comments})
-        except subprocess.CalledProcessError as e:
-            print(f"Failed to create coverage report: {e}")
+        comments = get_review_comments(diff_file)
+        rev = os.environ.get("TEST_REVISION", None)
+        pull = os.environ.get("TEST_PULL", None)
+        if rev and pull:
+            api = github.GitHub()
+            old_comments = api.get(f"pulls/{pull}/comments?sort=created&direction=desc&per_page=100") or []
+            for oc in old_comments:
+                if ("body" in oc and "path" in oc and "line" in oc and
+                   "not executed by any test." in oc["body"]):
+                    api.delete(f"pulls/comments/{oc['id']}")
+            if len(comments) > 0:
+                api.post(f"pulls/{pull}/reviews",
+                         {"commit_id": rev, "event": "COMMENT",
+                          "comments": comments})

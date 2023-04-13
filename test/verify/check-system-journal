@@ -471,18 +471,18 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
 
         m.execute(r"printf 'MESSAGE=Hello \01 World\nPRIORITY=3\nFOO=bar\nBIN=a\01b\02c\03\n' | logger --journald")
         self.login_and_go("/system/logs#/?tag=logger&since=@" + self.test_start_time)
-        b.click("#journal-box .cockpit-logline .cockpit-log-message:contains('[13 bytes of binary data]')")
-        b.wait_text(".pf-c-card__title", "[13 bytes of binary data]")
+        b.click("#journal-box .cockpit-logline .cockpit-log-message:contains('Hello \01 World')")
+        b.wait_text(".pf-c-card__title", "Hello \01 World")
 
         def wait_field(name, value):
             row_sel = "dt:contains('" + name + "')"
             b.wait_visible(row_sel + "+ dd:contains('" + value + "')")
 
         wait_field("FOO", "bar")
-        wait_field("BIN", "[6 bytes of binary data]")
+        wait_field("BIN", "a\01b\02c\03")
 
         b.click('.pf-c-breadcrumb li:first')
-        b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('[13 bytes of binary data]')")
+        b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Hello \01 World')")
 
     @nondestructive
     def testNoMessage(self):

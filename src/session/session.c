@@ -504,6 +504,7 @@ map_gssapi_to_local (gss_name_t name,
             }
           else
             {
+              assert (display.value != NULL);
               str = strndupx (display.value, display.length); /* display names are not allowed to contain \0 */
               if (getpwnam (str))
                 {

@@ -2,6 +2,55 @@
 // Pull in variables (for breakpoints)
 @use "global-variables" as *;
 
+// https://github.com/patternfly/patternfly/pull/5478
+.pf-c-form__group-label-help {
+  --pf-c-form__group-label-help--BackgroundColor: transparent;
+  background-color: var(--pf-c-form__group-label-help--BackgroundColor);
+}
+
+// https://github.com/patternfly/patternfly-react/pull/8953
+.pf-c-input-group__text {
+  padding-left: var(--pf-global--spacer--sm);
+  padding-right: var(--pf-global--spacer--sm);
+}
+
+// PF Select is deprecated - no issue reported upstream - this needs to be removed from our codebase
+// Make select have the expected width
+.pf-c-select[data-popper-reference-hidden=false] {
+  width: auto;
+}
+
+// https://github.com/patternfly/patternfly-react/pull/8954
+// Icons get sizing wrong
+svg:not(.ct-plot) {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+}
+
+// https://github.com/patternfly/patternfly-react/pull/8949
+// Card titles have wrong font settings
+.pf-c-card__title {
+  font-family: var(--pf-c-card__title-text--FontFamily);
+  font-size: var(--pf-c-card__title-text--FontSize);
+  font-weight: var(--pf-c-card__title-text--FontWeight);
+  line-height: var(--pf-c-card__title-text--LineHeight);
+}
+
+// https://github.com/patternfly/patternfly/issues/5501
+.pf-theme-dark {
+  .pf-c-alert.pf-m-custom {
+    --pf-c-alert--BackgroundColor: var(--pf-global--palette--black-600);
+    --pf-c-alert__title--Color: var(--pf-global--custom-color--200);
+  }
+}
+
+// https://github.com/patternfly/patternfly-react/issues/8993
+.pf-c-about-modal-box__close {
+  --pf-c-about-modal-box__close--c-button--BackgroundColor: var(--pf-global--BackgroundColor--dark-200);
+  --pf-c-about-modal-box__close--c-button--hover--BackgroundColor: var(--pf-global--BackgroundColor--dark-400);
+}
+
 /* WORKAROUND: Navigation problems with Tertiary Nav widget on mobile */
 /* See: https://github.com/patternfly/patternfly-design/issues/840 */
 /* Helper mod to wrap pf-c-nav__tertiary */
@@ -92,12 +141,16 @@ select.pf-c-form-control {
   // https://github.com/patternfly/patternfly/issues/3959
   --pf-c-card__header-toggle--MarginTop: 0;
 
-  .pf-c-card__header:not(.ct-card-expandable-header) {
+  .pf-c-card__header:not(.ct-card-expandable-header),
+  .pf-c-card__header:not(.ct-card-expandable-header) .pf-c-card__header-main {
     // upstream fix (pending): https://github.com/patternfly/patternfly/pull/3714
+    display: flex;
     flex-wrap: wrap;
     row-gap: var(--pf-global--spacer--sm);
     justify-content: space-between;
+  }
 
+  .pf-c-card__header:not(.ct-card-expandable-header) {
     > .pf-c-card__actions {
       flex-wrap: wrap;
       row-gap: var(--pf-global--spacer--sm);

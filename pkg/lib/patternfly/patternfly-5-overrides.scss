@@ -1,0 +1,39 @@
+// https://github.com/patternfly/patternfly/pull/5478
+.pf-c-form__group-label-help {
+  --pf-c-form__group-label-help--BackgroundColor: transparent;
+  background-color: var(--pf-c-form__group-label-help--BackgroundColor);
+}
+
+// https://github.com/patternfly/patternfly-react/pull/8953
+.pf-c-input-group__text {
+  padding-left: var(--pf-global--spacer--sm);
+  padding-right: var(--pf-global--spacer--sm);
+}
+
+// PF Select is deprecated - no issue reported upstream - this needs to be removed from our codebase
+// Make toggle icon visible
+.pf-c-select__toggle-arrow {
+  width: 1em;
+  height: 1em;
+}
+// Make select have the expected width
+.pf-c-select[data-popper-reference-hidden=false] {
+  width: auto;
+}
+
+// https://github.com/patternfly/patternfly-react/pull/8954
+// Empty state icons get sizing wrong
+.pf-c-empty-state__icon svg {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+}
+
+// https://github.com/patternfly/patternfly-react/pull/8949
+// Card titles have wrong font settings
+.pf-c-card__title {
+  font-family: var(--pf-c-card__title-text--FontFamily);
+  font-size: var(--pf-c-card__title-text--FontSize);
+  font-weight: var(--pf-c-card__title-text--FontWeight);
+  line-height: var(--pf-c-card__title-text--LineHeight);
+}

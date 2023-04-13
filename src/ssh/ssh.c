@@ -20,12 +20,21 @@
 #include "config.h"
 
 #include <gio/gio.h>
+#include <glib-unix.h>
 
 #include "common/cockpithacks-glib.h"
 #include "common/cockpitsystem.h"
 
 #include "cockpitsshrelay.h"
 
+static gboolean
+on_exit_signal (gpointer data)
+{
+  GMainLoop *loop = data;
+  g_debug ("Received exit signal, shutting down");
+  g_main_loop_quit (loop);
+  return TRUE;
+}
 
 int
 main (int argc,
@@ -69,10 +78,16 @@ main (int argc,
   relay = cockpit_ssh_relay_new (argv[1]);
   g_signal_connect_swapped (relay, "disconnect", G_CALLBACK (g_main_loop_quit), loop);
 
+  guint sig_term = g_unix_signal_add (SIGTERM, on_exit_signal, loop);
+  guint sig_int = g_unix_signal_add (SIGINT, on_exit_signal, loop);
+
   g_main_loop_run (loop);
 
   ret = cockpit_ssh_relay_result (relay);
   g_object_unref (relay);
+
+  g_source_remove (sig_term);
+  g_source_remove (sig_int);
 
 out:
   g_option_context_free (context);

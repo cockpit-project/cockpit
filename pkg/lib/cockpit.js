@@ -1412,7 +1412,7 @@ function factory() {
         let callback_output = null;
         if (is_function(callback))
             callback_output = callback();
-        if (is_function(callback_output?.then)) {
+        if (callback_output && is_function(callback_output.then)) {
             return callback_output.then(function() {
                 return prep_promise(values, is_resolved);
             }, function() {

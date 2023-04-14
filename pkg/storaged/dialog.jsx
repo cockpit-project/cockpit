@@ -237,6 +237,7 @@ import { ExclamationTriangleIcon, InfoIcon, HelpIcon } from "@patternfly/react-i
 
 import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
+import { FormHelper } from "cockpit-components-form-helper";
 
 import { fmt_size, block_name, format_size_and_text, format_delay, for_each_async } from "./utils.js";
 import { fmt_to_fragments } from "utils.jsx";
@@ -284,18 +285,18 @@ const Row = ({ field, values, errors, onChange }) => {
                 </>
             );
         return (
-            <FormGroup label={titleLabel} validated={validated}
-                       helperTextInvalid={error} helperText={explanation} hasNoPaddingTop={field.hasNoPaddingTop}>
+            <FormGroup label={titleLabel} hasNoPaddingTop={field.hasNoPaddingTop}>
                 { field_elts }
                 { nested_elts }
+                <FormHelper helperText={explanation} helperTextInvalid={validated && error} />
             </FormGroup>
         );
     } else if (!field.bare) {
         return (
-            <FormGroup validated={validated}
-                       helperTextInvalid={error} helperText={explanation} hasNoPaddingTop={field.hasNoPaddingTop}>
+            <FormGroup validated={validated} hasNoPaddingTop={field.hasNoPaddingTop}>
                 { field_elts }
                 { nested_elts }
+                <FormHelper helperText={explanation} helperTextInvalid={validated && error} />
             </FormGroup>
         );
     } else

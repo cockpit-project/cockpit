@@ -313,7 +313,7 @@ class StorageHelpers:
 
     def dialog_wait_error(self, field, val):
         # XXX - allow for more than one error
-        self.browser.wait_in_text('#dialog .pf-c-form__helper-text.pf-m-error', val)
+        self.browser.wait_in_text('#dialog .pf-c-form__helper-text .pf-m-error', val)
 
     def dialog_wait_not_present(self, field):
         self.browser.wait_not_present(self.dialog_field(field))

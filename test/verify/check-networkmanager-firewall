@@ -351,7 +351,7 @@ class TestFirewall(NetworkCase):
             b.wait_val("#service-name", expected)
 
         def check_error(text):
-            b.wait_visible(f".pf-c-form__helper-text.pf-m-error:contains({text})")
+            b.wait_visible(f".pf-c-form__helper-text .pf-m-error:contains({text})")
 
         def save(identifier, tcp, udp, desc="", submit_text="Add ports"):
             b.click(f"button:contains({submit_text})")

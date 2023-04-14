@@ -41,6 +41,7 @@ import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 import firewall from "./firewall-client.js";
+import { FormHelper } from "cockpit-components-form-helper";
 import { ListingTable } from 'cockpit-components-table.jsx';
 import { ModalError } from "cockpit-components-inline-notification.jsx";
 import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
@@ -673,31 +674,28 @@ class AddEditServicesModal extends React.Component {
                     }
                     { !this.state.custom ||
                         <>
-                            <FormGroup label="TCP"
-                                       validated={this.state.tcp_error ? "error" : "default"}
-                                       helperText={_("Comma-separated ports, ranges, and services are accepted")}
-                                       helperTextInvalid={this.state.tcp_error}>
+                            <FormGroup label="TCP">
                                 <TextInput id="tcp-ports" type="text" onChange={this.validate}
                                            validated={this.state.tcp_error ? "error" : "default"}
                                            isDisabled={this.state.avail_services == null}
                                            value={this.state.custom_tcp_value}
                                            placeholder={_("Example: 22,ssh,8080,5900-5910")} />
+                                <FormHelper helperTextInvalid={this.state.tcp_error} helperText={_("Comma-separated ports, ranges, and services are accepted")} />
                             </FormGroup>
 
-                            <FormGroup label="UDP"
-                                       validated={this.state.udp_error ? "error" : "default"}
-                                       helperText={_("Comma-separated ports, ranges, and services are accepted")}
-                                       helperTextInvalid={this.state.udp_error}>
+                            <FormGroup label="UDP">
                                 <TextInput id="udp-ports" type="text" onChange={this.validate}
                                            validated={this.state.udp_error ? "error" : "default"}
                                            isDisabled={this.state.avail_services == null}
                                            value={this.state.custom_udp_value}
                                            placeholder={_("Example: 88,2019,nfs,rsync")} />
+                                <FormHelper helperTextInvalid={this.state.udp_error} helperText={_("Comma-separated ports, ranges, and services are accepted")} />
                             </FormGroup>
 
-                            <FormGroup label={_("ID")} helperText={_("If left empty, ID will be generated based on associated port services and port numbers")}>
+                            <FormGroup label={_("ID")}>
                                 <TextInput id="service-name" onChange={this.setId} isDisabled={!!this.props.custom_id || this.state.avail_services == null}
                                            value={this.state.custom_id} />
+                                <FormHelper helperText={_("If left empty, ID will be generated based on associated port services and port numbers")} />
                             </FormGroup>
 
                             <FormGroup label={_("Description")}>
@@ -854,7 +852,7 @@ class ActivateZoneModal extends React.Component {
                         <div id="add-zone-services-readonly">
                             { (this.state.zone && firewall.zones[this.state.zone].services.join(", ")) || _("None") }
                         </div>
-                        <FormHelperText isHidden={false}>{_("The cockpit service is automatically included")}</FormHelperText>
+                        <FormHelper helperText={_("The cockpit service is automatically included")} />
                     </FormGroup>
 
                     <FormGroup label={ _("Interfaces") } hasNoPaddingTop isInline>

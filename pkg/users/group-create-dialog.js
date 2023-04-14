@@ -23,6 +23,7 @@ import React from 'react';
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";
+import { FormHelper } from "cockpit-components-form-helper";
 
 import { has_errors, is_valid_char_name } from "./dialog-utils.js";
 
@@ -36,23 +37,21 @@ function GroupCreateBody({ state, errors, change }) {
     return (
         <Form isHorizontal onSubmit={apply_modal_dialog}>
             <FormGroup label={_("Name")}
-                       helperTextInvalid={errors?.name}
-                       validated={(errors?.name) ? "error" : "default"}
                        fieldId="groups-create-name">
                 <TextInput id="groups-create-name"
                            validated={(errors?.name) ? "error" : "default"}
                            value={name} onChange={value => change("name", value)} />
+                <FormHelper fieldId="groups-create-name" helperTextInvalid={errors?.name} />
             </FormGroup>
 
             <FormGroup label={_("ID")}
                        hasNoPaddingTop
-                       helperTextInvalid={errors?.id}
-                       validated={(errors?.id) ? "error" : "default"}
                        isStack
                        fieldId="groups-create-id">
                 <TextInput id="groups-create-id"
                            validated={(errors?.id) ? "error" : "default"}
                            value={id} onChange={value => change("id", value)} />
+                <FormHelper fieldId="groups-create-id" helperTextInvalid={errors?.id} />
             </FormGroup>
         </Form>
     );

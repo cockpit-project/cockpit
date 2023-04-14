@@ -26,6 +26,7 @@ import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/
 import { has_errors } from "./dialog-utils.js";
 import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";
 import { password_quality, PasswordFormFields } from "cockpit-components-password.jsx";
+import { FormHelper } from "cockpit-components-form-helper";
 
 const _ = cockpit.gettext;
 
@@ -137,11 +138,10 @@ function SetPasswordDialogBody({ state, errors, change }) {
             <>
                 <input hidden disabled value={current_user} />
                 <FormGroup label={_("Old password")}
-                           helperTextInvalid={errors?.password_old}
-                           validated={(errors?.password_old) ? "error" : "default"}
                            fieldId="account-set-password-old">
                     <TextInput className="check-passwords" type="password" id="account-set-password-old"
                                autoComplete="current-password" value={password_old} onChange={value => change("password_old", value)} />
+                    <FormHelper helperTextInvalid={errors?.password_old} />
                 </FormGroup>
             </> }
             <PasswordFormFields password_label={_("New password")}

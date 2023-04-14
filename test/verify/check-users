@@ -180,7 +180,7 @@ class TestAccounts(MachineCase):
         b.set_input_text('#accounts-create-password-pw1', good_password)
         b.set_input_text('#accounts-create-password-pw2', good_password)
         b.click('#accounts-create-dialog button.apply')
-        b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error", "The full name must not contain colons.")
+        b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text .pf-m-error", "The full name must not contain colons.")
         b.click('#accounts-create-dialog button.cancel')
         b.wait_visible("#accounts")
 
@@ -219,7 +219,7 @@ class TestAccounts(MachineCase):
         # wrong password confirmation
         b.set_input_text('#accounts-create-password-pw2', good_password + 'b')
         b.click('#accounts-create-dialog button.apply')
-        b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text.pf-m-error", "The passwords do not match")
+        b.wait_in_text("#accounts-create-dialog .pf-c-form__helper-text .pf-m-error", "The passwords do not match")
         b.wait_not_present('#accounts-create-dialog button.pf-m-warning')
 
         # too long password
@@ -568,7 +568,7 @@ class TestAccounts(MachineCase):
         b.set_input_text("#account-set-password-pw1", good_password + 'a')
         b.set_input_text("#account-set-password-pw2", good_password + 'b')
         b.click('#account-set-password-dialog button.apply')
-        b.wait_in_text("#account-set-password-dialog .pf-c-form__helper-text.pf-m-error", "The passwords do not match")
+        b.wait_in_text("#account-set-password-dialog .pf-c-form__helper-text .pf-m-error", "The passwords do not match")
         b.wait_not_present('#account-set-password-dialog button.pf-m-warning')
 
         # too long password
@@ -986,7 +986,7 @@ class TestAccounts(MachineCase):
         # Try an invalid date
         b.set_input_text("#account-expiration-input input", "blah")
         b.click("#account-expiration .pf-c-modal-box__footer button:contains(Change)")
-        b.wait_text("#account-expiration .pf-c-form__helper-text.pf-m-error", "Invalid expiration date")
+        b.wait_text("#account-expiration .pf-c-form__helper-text .pf-m-error", "Invalid expiration date")
 
         # Now a valid date 30 days in the future
         when = datetime.datetime.now() + datetime.timedelta(days=30)
@@ -1015,7 +1015,7 @@ class TestAccounts(MachineCase):
         # Try an invalid number
         b.set_input_text("#password-expiration-input", "-3")
         b.click("#password-expiration .pf-c-modal-box__footer button:contains(Change)")
-        b.wait_text("#password-expiration .pf-c-form__helper-text.pf-m-error", "Invalid number of days")
+        b.wait_text("#password-expiration .pf-c-form__helper-text .pf-m-error", "Invalid number of days")
 
         # Expire password every 30 days
         b.set_input_text("#password-expiration-input", "30")

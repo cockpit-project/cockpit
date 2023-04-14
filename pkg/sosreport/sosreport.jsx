@@ -53,6 +53,7 @@ import { SuperuserButton } from "../shell/superuser.jsx";
 import { fmt_to_fragments } from "utils.jsx";
 import * as timeformat from "timeformat";
 import { WithDialogs, useDialogs } from "dialogs.jsx";
+import { FormHelper } from "cockpit-components-form-helper";
 
 const _ = cockpit.gettext;
 
@@ -304,8 +305,7 @@ const SOSDialog = () => {
             <FormGroup label={_("Report label")}>
                 <TextInput id="sos-dialog-ti-1" value={label} onChange={setLabel} />
             </FormGroup>
-            <FormGroup label={_("Encryption passphrase")}
-                       helperText={_("Leave empty to skip encryption")}>
+            <FormGroup label={_("Encryption passphrase")}>
                 <InputGroup>
                     <TextInput type={showPassphrase ? "text" : "password"} value={passphrase} onChange={setPassphrase}
                                id="sos-dialog-ti-2" autoComplete="new-password" />
@@ -313,6 +313,7 @@ const SOSDialog = () => {
                         { showPassphrase ? <EyeSlashIcon /> : <EyeIcon /> }
                     </Button>
                 </InputGroup>
+                <FormHelper helperText={_("Leave empty to skip encryption")} />
             </FormGroup>
             <FormGroup label={_("Options")} hasNoPaddingTop>
                 <Checkbox label={_("Obfuscate network addresses, hostnames, and usernames")}

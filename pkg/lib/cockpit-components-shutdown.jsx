@@ -33,6 +33,7 @@ import { TimePicker } from "@patternfly/react-core/dist/esm/components/TimePicke
 import { ServerTime } from 'serverTime.js';
 import * as timeformat from "timeformat.js";
 import { DialogsContext } from "dialogs.jsx";
+import { FormHelper } from "cockpit-components-form-helper";
 
 import "cockpit-components-shutdown.scss";
 
@@ -197,9 +198,7 @@ export class ShutdownModal extends React.Component {
                         <FormGroup fieldId="message" label={_("Message to logged in users")}>
                             <TextArea id="message" resizeOrientation="vertical" value={this.state.message} onChange={v => this.setState({ message: v })} />
                         </FormGroup>
-                        <FormGroup fieldId="delay" label={_("Delay")}
-                                   helperTextInvalid={this.state.dateError}
-                                   validated={this.state.dateError ? "error" : "default"}>
+                        <FormGroup fieldId="delay" label={_("Delay")}>
                             <Flex className="shutdown-delay-group" alignItems={{ default: 'alignItemsCenter' }}>
                                 <Select toggleId="delay" isOpen={this.state.isOpen} selections={this.state.selected}
                                         isDisabled={!this.state.formFilled}
@@ -234,6 +233,7 @@ export class ShutdownModal extends React.Component {
                                                 onChange={(_, time, h, m) => this.updateTime(time, h, m) } />
                                 </>}
                             </Flex>
+                            <FormHelper fieldId="delay" helperTextInvalid={this.state.dateError} />
                         </FormGroup>
                     </Form>
                     {this.state.error && <Alert isInline variant='danger' title={this.state.error} />}

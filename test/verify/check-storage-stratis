@@ -411,6 +411,7 @@ class TestStorageStratis(StorageCase):
                          'mount_point': '/foo',
                          'at_boot': at_boot})
             b.wait_in_text("#detail-content", "fsys1")
+            self.wait_mounted(1, 1)
 
         def destroy():
             self.content_dropdown_action(1, "Delete")

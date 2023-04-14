@@ -60,7 +60,8 @@ class TestNetworkingBasic(NetworkCase):
                 ".cockpit-log-panel .pf-c-card__body",
                 "#networking-firewall-summary .pf-c-card__body",
             ],
-            skip_layouts=['mobile', 'rtl']
+            # IPv6 addresses vary wildly, and their different rendered widths change the column widths
+            skip_layouts=['medium', 'mobile', 'rtl']
         )
 
         # Details of test iface

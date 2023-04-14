@@ -1712,6 +1712,9 @@ class MachineCase(unittest.TestCase):
         "pcp-archive: no such metric: .*: Unknown metric name",
         "pcp-archive: instance name lookup failed:.*",
         "pcp-archive: couldn't create pcp archive context for.*",
+
+        # timedatex.service shuts down after timeout, runs into race condition with property watching
+        ".*org.freedesktop.timedate1: couldn't get all properties.*Error:org.freedesktop.DBus.Error.NoReply.*",
     ]
 
     default_allowed_messages += os.environ.get("TEST_ALLOW_JOURNAL_MESSAGES", "").split(",")

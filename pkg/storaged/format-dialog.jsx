@@ -280,6 +280,9 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
     else
         at_boot = "local";
 
+    const action_title = create_partition ? _("Create and mount") : _("Format and mount");
+    const action_variant = { tag: "nomount", Title: create_partition ? _("Create only") : _("Format only") };
+
     const dlg = dialog_open({
         Title: title,
         Teardown: TeardownMessage(usage),
@@ -399,11 +402,18 @@ function format_dialog_internal(client, path, start, size, enable_dos_extended, 
         update: function (dlg, vals, trigger) {
             if (trigger == "at_boot")
                 dlg.set_options("at_boot", { explanation: mount_explanation[vals.at_boot] });
+            else if (trigger == "type") {
+                if (dlg.get_value("type") == "empty") {
+                    dlg.update_actions({ Variants: null, Title: _("Format") });
+                } else {
+                    dlg.update_actions({ Variants: [action_variant], Title: action_title });
+                }
+            }
         },
         Action: {
-            Title: create_partition ? _("Create and mount") : _("Format and mount"),
+            Title: action_title,
             Danger: (create_partition ? null : _("Formatting erases all data on a storage device.")),
-            Variants: [{ tag: "nomount", Title: create_partition ? _("Create only") : _("Format only") }],
+            Variants: [action_variant],
             wrapper: job_progress_wrapper(client, block.path, client.blocks_cleartext[block.path]?.path),
             action: function (vals) {
                 const mount_now = vals.variant != "nomount";

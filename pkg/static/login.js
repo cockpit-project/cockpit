@@ -14,7 +14,7 @@ import "./login.css";
     }
 
     /* Dark mode */
-    const theme = localStorage.getItem('shell:style');
+    const theme = localStorage.getItem('shell:style') || 'auto';
     if ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && theme === "auto") || theme === "dark") {
         document.documentElement.classList.add('pf-theme-dark');
     } else {

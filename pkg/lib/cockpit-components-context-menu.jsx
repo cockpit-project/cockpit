@@ -21,7 +21,9 @@ import cockpit from "cockpit";
 import React from "react";
 import PropTypes from "prop-types";
 
-import "context-menu.css";
+import { Menu, MenuContent, MenuList, MenuItem } from "@patternfly/react-core/dist/esm/components/Menu";
+
+import "context-menu.scss";
 
 const _ = cockpit.gettext;
 
@@ -99,16 +101,20 @@ export const ContextMenu = ({ parentId, getText, setText }) => {
     }, [event]);
 
     return visible &&
-        <div ref={root} className="contextMenu">
-            <button className="contextMenuOption" onClick={getText}>
-                <div className="contextMenuName"> { _("Copy") } </div>
-                <div className="contextMenuShortcut">{ _("Ctrl+Insert") }</div>
-            </button>
-            <button className="contextMenuOption" onClick={setText}>
-                <div className="contextMenuName"> { _("Paste") } </div>
-                <div className="contextMenuShortcut">{ _("Shift+Insert") }</div>
-            </button>
-        </div>;
+        <Menu ref={root} className="contextMenu">
+            <MenuContent ref={root}>
+                <MenuList>
+                    <MenuItem className="contextMenuOption" onClick={getText}>
+                        <div className="contextMenuName"> { _("Copy") } </div>
+                        <div className="contextMenuShortcut">{ _("Ctrl+Insert") }</div>
+                    </MenuItem>
+                    <MenuItem className="contextMenuOption" onClick={setText}>
+                        <div className="contextMenuName"> { _("Paste") } </div>
+                        <div className="contextMenuShortcut">{ _("Shift+Insert") }</div>
+                    </MenuItem>
+                </MenuList>
+            </MenuContent>
+        </Menu>;
 };
 
 ContextMenu.propTypes = {

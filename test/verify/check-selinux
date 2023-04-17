@@ -284,7 +284,7 @@ class TestSelinux(MachineCase):
         b.key_press("\"\r")
         # Right click and paste
         b.mouse(".terminal", "contextmenu", btn=2)
-        b.click('.contextMenu .contextMenuOption:nth-child(2)')
+        b.click('.contextMenu li:nth-child(2) button')
         b.wait_in_text(".xterm-accessibility-tree", "semanage import <<EOF")
         b.wait_in_text(".xterm-accessibility-tree", "boolean -D")
         b.wait_in_text(".xterm-accessibility-tree", "boolean -m -0 zebra_write_config")

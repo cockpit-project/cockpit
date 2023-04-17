@@ -211,11 +211,12 @@ class Test:
 
 
 class GlobalMachine:
-    def __init__(self, restrict=True, cpus=None, memory_mb=None):
+    def __init__(self, restrict=True, cpus=None, memory_mb=None, machine_class=testvm.VirtMachine):
         self.image = testvm.DEFAULT_IMAGE
         self.network = testvm.VirtNetwork(image=self.image)
         self.networking = self.network.host(restrict=restrict)
-        self.machine = testvm.VirtMachine(verbose=True, networking=self.networking, image=self.image, cpus=cpus, memory_mb=memory_mb)
+        self.machine = machine_class(verbose=True, networking=self.networking, image=self.image, cpus=cpus, memory_mb=memory_mb)
+        self.machine_class = machine_class
         if not os.path.exists(self.machine.image_file):
             self.machine.pull(self.machine.image_file)
         self.machine.start()
@@ -229,7 +230,7 @@ class GlobalMachine:
         # It is important to re-use self.networking here, so that the
         # machine keeps its browser and control port.
         self.machine.kill()
-        self.machine = testvm.VirtMachine(verbose=True, networking=self.networking, image=self.image)
+        self.machine = self.machine_class(verbose=True, networking=self.networking, image=self.image)
         self.machine.start()
 
     def kill(self):
@@ -311,6 +312,7 @@ def detect_tests(test_files, image, opts):
     parallel_tests = []
     serial_tests = []
     seen_classes = {}
+    machine_class = None
     test_id = 1
 
     for filename in test_files:
@@ -322,6 +324,12 @@ def detect_tests(test_files, image, opts):
         loader.exec_module(module)
         for test_suite in unittest.TestLoader().loadTestsFromModule(module):
             for test in test_suite:
+                if hasattr(test, "machine_class") and test.machine_class is not None:
+                    if machine_class is not None and machine_class != test.machine_class:
+                        raise ValueError(f"only one unique machine_class can be used per project, provided with {machine_class} and {test.machine_class}")
+
+                    machine_class = test.machine_class
+
                 # ensure that test classes are unique, so that they can be selected properly
                 cls = test.__class__.__name__
                 if seen_classes.get(cls) not in [None, filename]:
@@ -359,12 +367,12 @@ def detect_tests(test_files, image, opts):
     # robust, reproducible, and provides an even distribution of both directions
     serial_tests.sort(key=lambda t: t.command[-1], reverse=bool(binascii.crc32(image.encode()) & 1))
 
-    return (serial_tests, parallel_tests)
+    return (serial_tests, parallel_tests, machine_class)
 
 
 def list_tests(opts):
     test_files = glob.glob(os.path.join(opts.test_dir, opts.test_glob))
-    serial_tests, parallel_tests = detect_tests(test_files, "dummy", opts)
+    serial_tests, parallel_tests, _ = detect_tests(test_files, "dummy", opts)
     names = {t.command[-1] for t in serial_tests + parallel_tests}
     for n in sorted(names):
         print(n)
@@ -379,7 +387,7 @@ def run(opts, image):
 
     test_files = glob.glob(os.path.join(opts.test_dir, opts.test_glob))
     changed_tests = get_affected_tests(opts.test_dir, opts.base, test_files)
-    serial_tests, parallel_tests = detect_tests(test_files, image, opts)
+    serial_tests, parallel_tests, machine_class = detect_tests(test_files, image, opts)
     serial_tests_len = len(serial_tests)
     parallel_tests_len = len(parallel_tests)
 
@@ -400,7 +408,8 @@ def run(opts, image):
 
         for i in range(num_global):
             global_machines.append(GlobalMachine(restrict=not opts.enable_network, cpus=opts.nondestructive_cpus,
-                                                 memory_mb=opts.nondestructive_memory_mb))
+                                                 memory_mb=opts.nondestructive_memory_mb,
+                                                 machine_class=machine_class or testvm.VirtMachine))
 
     # test scheduling loop
     while True:

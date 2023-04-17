@@ -169,7 +169,7 @@ class DialogFooter extends React.Component {
                 variant={ variant }
                 isDanger={ action.danger }
                 onClick={ this.action_click.bind(this, action.clicked) }
-                isDisabled={ actions_disabled || action?.disabled }
+                isDisabled={ actions_disabled || action.disabled }
             >{ caption }</Button>
             );
         });
@@ -344,7 +344,7 @@ export function show_modal_dialog(props, footerProps) {
 }
 
 export function apply_modal_dialog(event) {
-    const dialog = event?.target?.closest("[role=dialog]");
+    const dialog = event.target?.closest("[role=dialog]");
     const button = dialog?.querySelector("button.apply");
 
     if (button) {

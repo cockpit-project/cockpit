@@ -59,16 +59,15 @@ export const Service = ({ dbusClient, owner, unitId, unitIsValid, addTimerProper
         Promise.all(promises)
                 .then(replies => {
                     const unit_props = replies[0][0];
-                    const other_props = replies[1]?.[0];
 
                     // unwrap variants
                     for (const key in unit_props)
                         unit_props[key] = unit_props[key].v;
 
                     if (unitId.endsWith(".timer"))
-                        addTimerProperties(other_props, unit_props);
+                        addTimerProperties(replies[1][0], unit_props);
                     else if (unitId.endsWith(".socket"))
-                        unit_props.Listen = other_props.Listen.v;
+                        unit_props.Listen = replies[1][0].Listen.v;
 
                     unit_props.path = path;
 

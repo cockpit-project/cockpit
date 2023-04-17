@@ -121,7 +121,7 @@ class Peer(CockpitProtocol, SubprocessProtocol, Endpoint):
         if exc is None:
             self.shutdown_endpoint(problem='peer-disconnected')
         elif isinstance(exc, CockpitProblem):
-            self.shutdown_endpoint(problem=exc.problem, message=exc.message, **exc.kwargs)
+            self.shutdown_endpoint(problem=exc.problem, **exc.kwargs)
         else:
             self.shutdown_endpoint(problem='internal-error',
                                    message=f"[{exc.__class__.__name__}] {str(exc)}")

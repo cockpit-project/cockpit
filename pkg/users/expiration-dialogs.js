@@ -20,7 +20,7 @@
 import cockpit from 'cockpit';
 import React from 'react';
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
-import { Form, FormGroup, FormHelperText } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { DatePicker } from "@patternfly/react-core/dist/esm/components/DatePicker/index.js";
@@ -28,6 +28,7 @@ import { DatePicker } from "@patternfly/react-core/dist/esm/components/DatePicke
 import { has_errors } from "./dialog-utils.js";
 import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";
 import * as timeformat from "timeformat.js";
+import { FormHelper } from "cockpit-components-form-helper";
 
 const _ = cockpit.gettext;
 
@@ -58,10 +59,7 @@ function AccountExpirationDialogBody({ state, errors, change, validate, update }
                            </Flex>
                        }
                        isChecked={mode == "expires"} onChange={() => change("mode", "expires")} />
-                {errors?.date &&
-                <FormHelperText isError isHidden={false}>
-                    {errors.date}
-                </FormHelperText>}
+                <FormHelper helperTextInvalid={errors?.date} />
             </FormGroup>
         </Form>
     );
@@ -164,10 +162,7 @@ function PasswordExpirationDialogBody({ state, errors, change }) {
                            <span id="password-expiration-after">{after}</span>
                        </>}
                        isChecked={mode == "expires"} onChange={() => change("mode", "expires")} />
-                {(errors?.days) &&
-                <FormHelperText isError isHidden={false}>
-                    {errors.days}
-                </FormHelperText>}
+                <FormHelper helperTextInvalid={errors?.days} />
             </FormGroup>
         </Form>
     );

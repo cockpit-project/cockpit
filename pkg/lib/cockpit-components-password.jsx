@@ -25,6 +25,8 @@ import { Progress, ProgressMeasureLocation, ProgressSize } from "@patternfly/rea
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { HelpIcon } from '@patternfly/react-icons';
 
+import { FormHelper } from "cockpit-components-form-helper";
+
 import './cockpit-components-password.scss';
 
 const _ = cockpit.gettext;
@@ -127,12 +129,11 @@ export const PasswordFormFields = ({
             </FormGroup>
 
             {password_confirm_label && <FormGroup label={password_confirm_label}
-                       helperTextInvalid={error_password_confirm}
-                       validated={error_password_confirm ? "error" : "default"}
                        id={idPrefix + "-pw2-group"}
                        fieldId={idPrefix + "-pw2"}>
                 <TextInput type="password" id={idPrefix + "-pw2"} autoComplete="new-password"
                            value={passwordConfirm} onChange={value => { setConfirmPassword(value); change("password_confirm", value) }} />
+                <FormHelper fieldId={idPrefix + "-pw2"} helperTextInvalid={error_password_confirm} />
             </FormGroup>}
         </>
     );

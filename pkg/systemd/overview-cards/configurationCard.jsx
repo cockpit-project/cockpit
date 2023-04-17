@@ -288,20 +288,17 @@ const PageSystemInformationChangeHostname = () => {
                 <FormGroup fieldId="sich-pretty-hostname" label={_("Pretty host name")}>
                     <TextInput id="sich-pretty-hostname" value={pretty} onChange={onPrettyChanged} />
                 </FormGroup>
-                <FormGroup fieldId="sich-hostname" label={_("Real host name")}
-                           validated={error.length ? "error" : "default"}
-                           helperTextInvalid={
-                               <FormHelperText isHidden={false} component="div">
-                                   <HelperText>
-                                       {error.map((err, i) =>
-                                           <HelperTextItem key={i} variant="error">
-                                               {err}
-                                           </HelperTextItem>
-                                       )}
-                                   </HelperText>
-                               </FormHelperText>
-                           }>
+                <FormGroup fieldId="sich-hostname" label={_("Real host name")}>
                     <TextInput id="sich-hostname" value={hostname} onChange={onHostnameChanged} validated={error.length ? "error" : "default"} />
+                    <FormHelperText isHidden={error.length == 0} component="div">
+                        <HelperText>
+                            {error.map((err, i) =>
+                                <HelperTextItem key={i} variant="error">
+                                    {err}
+                                </HelperTextItem>
+                            )}
+                        </HelperText>
+                    </FormHelperText>
                 </FormGroup>
             </Form>
         </Modal>

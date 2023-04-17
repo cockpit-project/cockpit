@@ -17,12 +17,15 @@
 
 import argparse
 import asyncio
+import ctypes
 import json
 import logging
 import pwd
 import os
 import shlex
+import signal
 import socket
+import subprocess
 
 from typing import Dict, Iterable, List, Tuple, Type
 
@@ -181,6 +184,34 @@ def setup_logging(debug: bool):
             logging.getLogger(module).setLevel(logging.DEBUG)
 
 
+def start_ssh_agent() -> None:
+    prctl = ctypes.CDLL(None).prctl
+    PR_SET_PDEATHSIG = 1
+
+    # NB: We prefer SIGTERM to SIGKILL here since the agent needs to have a
+    # chance to clean up its listener socket.
+    try:
+        proc = subprocess.Popen(['ssh-agent',
+                                 '-D',  # no-daemon
+                                 '-s',  # shell-style output
+                                 ], stdout=subprocess.PIPE, universal_newlines=True,
+                                preexec_fn=lambda: prctl(PR_SET_PDEATHSIG, signal.SIGTERM))
+        assert proc.stdout is not None
+
+        # Wait for the agent to write at least one line and look for the
+        # listener socket.  If we fail to find it, kill the agent — something
+        # went wrong.
+        for token in shlex.shlex(proc.stdout.readline(), punctuation_chars=True):
+            if token.startswith('SSH_AUTH_SOCK='):
+                os.environ['SSH_AUTH_SOCK'] = token.replace('SSH_AUTH_SOCK=', '', 1)
+                break
+        else:
+            proc.terminate()
+
+    except OSError as exc:
+        logger.warning("Could not start ssh-agent: %s", exc)
+
+
 def main() -> None:
     polyfills.install()
 
@@ -210,6 +241,10 @@ def main() -> None:
     elif args.bridges:
         print(json.dumps(Packages().get_bridge_configs(), indent=2))
         return
+
+    # The privileged bridge doesn't need ssh-agent, but the main one does
+    if 'SSH_AUTH_SOCK' not in os.environ and not args.privileged:
+        start_ssh_agent()
 
     # asyncio.run() shim for Python 3.6 support
     run_async(run(args), debug=args.debug)

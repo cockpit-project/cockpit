@@ -23,7 +23,6 @@ import pwd
 import os
 import shlex
 import socket
-import sys
 
 from typing import Dict, Iterable, List, Tuple, Type
 
@@ -185,13 +184,6 @@ def setup_logging(debug: bool):
 def main() -> None:
     polyfills.install()
 
-    # The --privileged bridge gets spawned with its stderr being consumed by a
-    # pipe used for reading authentication-related message from sudo.  The
-    # absolute first thing we want to do is to recover the original stderr that
-    # we had.
-    if '--privileged' in sys.argv:
-        try_to_receive_stderr()
-
     parser = argparse.ArgumentParser(description='cockpit-bridge is run automatically inside of a Cockpit session.')
     parser.add_argument('--privileged', action='store_true', help='Privileged copy of the bridge')
     parser.add_argument('--packages', action='store_true', help='Show Cockpit package information')
@@ -201,15 +193,26 @@ def main() -> None:
     parser.add_argument('--version', action='store_true', help='Show Cockpit version information')
     args = parser.parse_args()
 
+    # If we were run with --privileged then our stderr is currently being
+    # consumed by the main bridge looking for startup-related error messages.
+    # Let's switch back to the original stderr stream, which has a side-effect
+    # of indicating that our startup is more or less complete.  Any errors
+    # after this point will land in the journal.
+    if args.privileged:
+        try_to_receive_stderr()
+
     setup_logging(args.debug)
 
+    # Special modes
     if args.packages:
         Packages().show()
+        return
     elif args.bridges:
         print(json.dumps(Packages().get_bridge_configs(), indent=2))
-    else:
-        # asyncio.run() shim for Python 3.6 support
-        run_async(run(args), debug=args.debug)
+        return
+
+    # asyncio.run() shim for Python 3.6 support
+    run_async(run(args), debug=args.debug)
 
 
 if __name__ == '__main__':

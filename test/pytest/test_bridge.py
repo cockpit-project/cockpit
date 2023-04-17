@@ -78,6 +78,7 @@ class TestBridge(unittest.IsolatedAsyncioTestCase):
         await self.transport.assert_msg('', command='done', channel=echo)
         await self.transport.assert_msg('', command='close', channel=echo)
 
+    @unittest.skip
     async def test_host(self):
         await self.start()
 

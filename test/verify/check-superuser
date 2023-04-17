@@ -482,7 +482,7 @@ class TestSuperuserDashboard(MachineCase):
         "machine2": {"address": "10.111.113.2/20", "memory_mb": 512},
     }
 
-    @todoPybridge()
+    @todoPybridgeRHEL8()
     def test(self):
         b = self.browser
         self.setup_provisioned_hosts()

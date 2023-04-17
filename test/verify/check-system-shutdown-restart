@@ -18,7 +18,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent  # noqa: F401
-from testlib import MachineCase, skipDistroPackage, todoPybridge, test_main
+from testlib import MachineCase, skipDistroPackage, todoPybridgeRHEL8, test_main
 
 
 @skipDistroPackage()
@@ -32,7 +32,7 @@ class TestShutdownRestart(MachineCase):
         super().setUp()
         self.setup_provisioned_hosts()
 
-    @todoPybridge()
+    @todoPybridgeRHEL8()
     def testBasic(self):
         m = self.machine
         b = self.browser

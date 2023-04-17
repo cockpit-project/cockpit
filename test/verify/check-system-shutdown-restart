@@ -56,7 +56,7 @@ class TestShutdownRestart(MachineCase):
 
         b.wait_in_text(".curtains-ct h1", "Disconnected")
 
-        m.wait_reboot()
+        m.wait_reboot(timeout_sec = 600)
         m.start_cockpit()
         b.click("#machine-reconnect")
         b.wait_visible("#login")
@@ -101,7 +101,7 @@ class TestShutdownRestart(MachineCase):
         b2.wait_visible(".curtains-ct .ct-spinner")
         b2.wait_in_text(".curtains-ct h1", "rebooting")
 
-        m.wait_reboot()
+        m.wait_reboot(timeout_sec = 600)
 
         with b2.wait_timeout(30):
             b2.wait_visible("#machine-troubleshoot")

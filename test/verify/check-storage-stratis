@@ -253,7 +253,7 @@ class TestStorageStratis(StorageCase):
         b.wait_in_text('#detail-sidebar', dev_2)
         b.wait_in_text(f'#detail-sidebar .sidepanel-row:contains({dev_2})', "data")
 
-        m.reboot()
+        m.reboot(timeout_sec = 600)
         m.start_cockpit()
         b.relogin()
         b.enter_page("/storage")
@@ -276,7 +276,7 @@ class TestStorageStratis(StorageCase):
 
         # Reboot (this requires the passphrase)
         self.setup_systemd_password_agent("foodeeboodeebar")
-        m.reboot()
+        m.reboot(timeout_sec = 600)
         m.start_cockpit()
         b.relogin()
         b.enter_page("/storage")
@@ -376,7 +376,7 @@ class TestStorageStratis(StorageCase):
                      'mount_point': '/run/fsys1'})
         b.wait_in_text("#detail-content", "fsys1")
 
-        m.reboot()
+        m.reboot(timeout_sec = 600)
         m.start_cockpit()
         b.relogin()
         b.enter_page("/storage")

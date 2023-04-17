@@ -468,21 +468,26 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
     def testBinary(self):
         b = self.browser
         m = self.machine
-
+        bin_data = (r"Hel\01" * 250) + "a"
         m.execute(r"printf 'MESSAGE=Hello \01 World\nPRIORITY=3\nFOO=bar\nBIN=a\01b\02c\03\n' | logger --journald")
-        self.login_and_go("/system/logs#/?tag=logger&since=@" + self.test_start_time)
-        b.click("#journal-box .cockpit-logline .cockpit-log-message:contains('Hello \01 World')")
-        b.wait_text(".pf-c-card__title", "Hello \01 World")
+        m.execute(fr"printf 'MESSAGE={bin_data}\nPRIORITY=3\nFOO=bar\nBIN={bin_data}\n' | logger --journald")
 
         def wait_field(name, value):
             row_sel = "dt:contains('" + name + "')"
             b.wait_visible(row_sel + "+ dd:contains('" + value + "')")
 
-        wait_field("FOO", "bar")
-        wait_field("BIN", "a\01b\02c\03")
+        def repeat(msg, bin_msg):
+            b.click(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{msg}')")
+            b.wait_text(".pf-c-card__title", msg)
+            wait_field("FOO", "bar")
+            wait_field("BIN", bin_msg)
+            b.click('.pf-c-breadcrumb li:first')
+            b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{msg}')")
 
-        b.click('.pf-c-breadcrumb li:first')
-        b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('Hello \01 World')")
+        self.login_and_go("/system/logs#/?tag=logger&since=@" + self.test_start_time)
+        repeat("Hello \01 World", "a\01b\02c\03")  # Test when binary msg is <= 100 bytes
+        b.go("/system/logs#/?tag=logger&since=@" + self.test_start_time)
+        repeat("[1001 bytes of binary data]", "[1001 bytes of binary data]")  # Test when binary msg is > 1000 bytes
 
     @nondestructive
     def testNoMessage(self):

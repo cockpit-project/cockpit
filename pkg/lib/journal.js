@@ -210,10 +210,11 @@ journal.printable = function printable(value) {
         return _("[no data]");
     else if (typeof (value) == "string")
         return value;
-    else if (value.length !== undefined)
+    else if (value.length !== undefined && value.length <= 1000)
         return new TextDecoder().decode(new Uint8Array(value));
-    else
-        return _("[binary data]");
+    else {
+        return _((value.length ? `[${value.length} bytes of ` : "[") + "binary data]");
+    }
 };
 
 /* Render the journal entries by passing suitable DOM elements back to

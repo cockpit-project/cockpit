@@ -1576,7 +1576,7 @@ class MachineCase(unittest.TestCase):
                         "        umount $d || true; dmsetup remove --force $d || true; "
                         "    done; "
                         "    umount /dev/$dev 2>/dev/null || true; "
-                        "done; until rmmod scsi_debug; do sleep 1; done")
+                        "done; until rmmod scsi_debug; do sleep 0.2; done")
 
         def terminate_sessions():
             # on OSTree we don't get "web console" sessions with the cockpit/ws container; just SSH; but also, some tests start
@@ -1585,8 +1585,8 @@ class MachineCase(unittest.TestCase):
                                         loginctl terminate-user $u 2>/dev/null || true
                                         loginctl kill-user $u 2>/dev/null || true
                                         pkill -9 -u $u || true
-                                        while pgrep -u $u; do sleep 1; done
-                                        while mountpoint -q /run/user/$u && ! umount /run/user/$u; do sleep 1; done
+                                        while pgrep -u $u; do sleep 0.2; done
+                                        while mountpoint -q /run/user/$u && ! umount /run/user/$u; do sleep 0.2; done
                                         rm -rf /run/user/$u
                                     done""")
 
@@ -1603,7 +1603,7 @@ class MachineCase(unittest.TestCase):
             sessions = self.machine.execute("loginctl --no-legend list-sessions | awk '/web console/ { print $1 }'").strip().split()
             for s in sessions:
                 try:
-                    m.execute(f"while loginctl show-session {s}; do sleep 1; done", timeout=30)
+                    m.execute(f"while loginctl show-session {s}; do sleep 0.2; done", timeout=30)
                 except RuntimeError:
                     # show the status in debug logs, to see what's wrong
                     m.execute(f"loginctl session-status {s} >&2")

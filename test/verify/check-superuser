@@ -19,11 +19,9 @@
 
 import os
 import time
-import unittest
 
 import parent  # noqa: F401
-from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, todoPybridge, test_main
-from testvm import DEFAULT_IMAGE
+from testlib import MachineCase, nondestructive, skipDistroPackage, skipImage, todoPybridge, todoPybridgeRHEL8, test_main
 
 
 def allow_old_cockpit_ws_messages(test):
@@ -214,10 +212,7 @@ session include system-auth
         b.wait_not_present(".pf-c-modal-box:contains('Problem becoming administrator')")
         b.check_superuser_indicator("Limited access")
 
-    @unittest.skipIf(
-        os.environ.get("TEST_SCENARIO") == "pybridge" and
-        (DEFAULT_IMAGE.startswith("centos-8") or DEFAULT_IMAGE.startswith("rhel-8")),
-        "regression from https://github.com/cockpit-project/cockpit/pull/18398")
+    @todoPybridgeRHEL8(reason="regression from https://github.com/cockpit-project/cockpit/pull/18398")
     def testRemoveBridgeConfig(self):
         m = self.machine
         b = self.browser

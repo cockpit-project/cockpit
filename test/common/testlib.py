@@ -79,6 +79,7 @@ __all__ = (
     'skipPackage',
     'todo',
     'todoPybridge',
+    'todoPybridgeRHEL8',
     'enableAxe',
     'timeout',
     'Error',
@@ -2267,6 +2268,13 @@ def todo(reason='', flaky=False):
 def todoPybridge(reason=None, flaky=False):
     if os.getenv('TEST_SCENARIO') == 'pybridge':
         return todo(reason or 'still fails with python bridge', flaky)
+    return lambda testEntity: testEntity
+
+
+def todoPybridgeRHEL8(reason=None, flaky=False):
+    if os.getenv('TEST_SCENARIO') == 'pybridge' and (
+            testvm.DEFAULT_IMAGE.startswith('rhel-8') or testvm.DEFAULT_IMAGE.startswith('centos-8')):
+        return todo(reason or 'known fail on el8 with python bridge', flaky)
     return lambda testEntity: testEntity
 
 

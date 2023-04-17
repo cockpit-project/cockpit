@@ -614,10 +614,6 @@ class TestIPA(TestRealms, CommonTests):
         # should have stopped cert tracking
         wait(lambda: "status:" not in m.execute("ipa-getcert list"))
 
-    @todoPybridge()
-    def testQualifiedUsers(self):
-        super().testQualifiedUsers()
-
     def testUnqualifiedUsers(self):
         '''Extend the common test with 2FA login'''
 
@@ -1025,7 +1021,6 @@ class TestKerberos(MachineCase):
         self.machine.execute(WAIT_KRB_SCRIPT.format("admin"), timeout=300)
 
     @skipBrowser("Firefox cannot work with cookies", "firefox")
-    @todoPybridge()
     def testNegotiate(self):
         self.allow_hostkey_messages()
         b = self.browser

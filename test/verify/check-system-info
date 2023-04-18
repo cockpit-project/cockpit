@@ -841,6 +841,7 @@ fi
                                     'done')
 
     @onlyImage("insights-client is only on RHEL", "rhel*")
+    @nondestructive
     def testInsightsStatus(self):
         m = self.machine
         b = self.browser
@@ -853,18 +854,18 @@ fi
         m.execute("systemctl disable --now insights-client")
 
         # Pretend that the Subscriptions page can do Insights stuff
-        m.write("/etc/cockpit/subscription-manager.override.json", '{ "features": { "insights": true } }')
+        self.write_file("/etc/cockpit/subscription-manager.override.json", '{ "features": { "insights": true } }')
 
         # Run a mock version of the Insights API locally and configure
         # insights-client to access it. That requires a good enough
         # TLS mock insights server certificate
-        m.upload(["verify/files/mock-insights", "../src/tls/ca/alice.key", "../src/tls/ca/alice.pem"], "/var/tmp")
-        m.spawn("/var/tmp/mock-insights", "mock-insights")
+        m.upload(["verify/files/mock-insights", "../src/tls/ca/alice.key", "../src/tls/ca/alice.pem"], self.vm_tmpdir)
+        pid = m.spawn(f"{self.vm_tmpdir}/mock-insights", "mock-insights")
+        self.addCleanup(m.execute, f"kill {pid}")
         m.execute("while ! ss -tulpn | grep 8443; do sleep 1; done")
 
         hostname = m.execute("hostname").rstrip()
-        m.write("/etc/insights-client/insights-client.conf",
-                f"""
+        self.write_file("/etc/insights-client/insights-client.conf", f"""
 [insights-client]
 auto_config=False
 auto_update=False
@@ -880,6 +881,7 @@ password=foobar
 
         # Enable insights, results should appear automatically
         m.execute("insights-client --register")
+        self.addCleanup(m.execute, "insights-client --unregister")
         with b.wait_timeout(60):
             b.wait_in_text(".system-health-insights a", "3 hits, including important")
         self.assertIn("123-nice-id", b.attr(".system-health-insights a", "href"))

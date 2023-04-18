@@ -19,7 +19,7 @@
 
 import parent  # noqa: F401
 from storagelib import StorageCase, json
-from testlib import test_main
+from testlib import nondestructive, test_main
 
 import unittest
 import testvm
@@ -127,6 +127,7 @@ class TestStorageHidden(StorageCase):
         self.assertEqual(m.execute(f"grep {mount_point_2} /etc/fstab || true"), "")
 
     @unittest.skipUnless("ubuntu" in testvm.DEFAULT_IMAGE, "Only test snaps on Ubuntu")
+    @nondestructive
     def testHiddenSnap(self):
         m = self.machine
         b = self.browser

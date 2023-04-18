@@ -26,9 +26,8 @@ KEY = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEAkRTvQCSEZNPXpA5bP82ilQn3TMeQ6z2NO3
 
 
 @skipDistroPackage()
+@nondestructive
 class TestKeys(MachineCase):
-
-    @nondestructive
     def testAuthorizedKeys(self):
         m = self.machine
         b = self.browser
@@ -192,6 +191,8 @@ auth       optional     pam_ssh_add.so
 session    optional     pam_ssh_add.so
 """, append=True)
 
+        self.restore_dir("/home/admin")
+
         # Put all the keys in place
         m.execute("mkdir -p /home/admin/.ssh")
         m.upload([
@@ -293,6 +294,7 @@ session    optional     pam_ssh_add.so
         # Add bad keys
         # generate a new key
         m.execute("ssh-keygen -t rsa -N '' -f /tmp/new.rsa")
+        self.addCleanup(m.execute, "rm -f /tmp/new.rsa*")
         m.execute("chown admin:admin /tmp/new.rsa")
         new_pk = m.execute("cat /tmp/new.rsa.pub").strip().split()[0]
         m.execute("rm /tmp/new.rsa.pub")
@@ -382,6 +384,7 @@ session    optional     pam_ssh_add.so
 
         # Test adding key with passphrase
         m.execute("ssh-keygen -t rsa -N 'foobar' -f /tmp/new_with_passphrase.rsa")
+        self.addCleanup(m.execute, "rm -f /tmp/new_with_passphrase.rsa*")
         m.execute("chown admin:admin /tmp/new_with_passphrase.rsa")
         m.execute("rm /tmp/new_with_passphrase.rsa.pub")
 

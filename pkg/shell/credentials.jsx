@@ -177,7 +177,7 @@ const AddNewKey = ({ load, unlockKey, onClose }) => {
             </GridItem>
             <GridItem span={1}>
                 <Button id="ssh-file-add"
-                        isDisabled={addNewKeyLoading}
+                        isDisabled={addNewKeyLoading || !newKeyPath}
                         isLoading={addNewKeyLoading}
                         onClick={addCustomKey}
                         variant="secondary">

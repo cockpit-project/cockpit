@@ -19,12 +19,13 @@
 
 import parent  # noqa: F401
 from packagelib import PackageCase
-from testlib import skipImage, skipOstree, skipPackage, test_main
+from testlib import skipImage, skipOstree, skipPackage, test_main, nondestructive
 
 
 @skipImage("TODO: bug in refreshing removed/installed state on Arch Linux", "arch")
 @skipOstree("Not supported")
 @skipPackage("cockpit-apps")
+@nondestructive
 class TestApps(PackageCase):
 
     def setUp(self):
@@ -84,20 +85,22 @@ class TestApps(PackageCase):
 
         self.allow_journal_messages("can't remove watch: Invalid argument")
 
+        self.restore_dir("/usr/share/metainfo", reboot_safe=True)
+        self.restore_dir("/usr/share/app-info", reboot_safe=True)
+        self.restore_dir("/var/cache/app-info", reboot_safe=True)
+
         # Make sure none of the appstream directories exist.  They
         # will be created later and we need to cope with that.
-
         m.execute("rm -rf /usr/share/metainfo /usr/share/app-info /var/cache/app-info")
 
         # instead of the actual distro packages, use our own fake repo data package
-        m.write("/etc/cockpit/apps.override.json",
-                '{ "config": { "appstream_data_packages": [ "appstream-data-test" ] } }')
+        self.write_file("/etc/cockpit/apps.override.json",
+                        '{ "config": { "appstream_data_packages": [ "appstream-data-test" ] } }')
 
         if urlroot != "":
             m.write("/etc/cockpit/cockpit.conf", f"[WebService]\nUrlRoot={urlroot}")
 
-        m.start_cockpit()
-        b.login_and_go("/apps", urlroot=urlroot)
+        self.login_and_go("/apps", urlroot=urlroot)
         b.wait_visible(".pf-c-empty-state")
 
         self.createAppStreamPackage("app-1", "1.0", "1")
@@ -137,10 +140,10 @@ class TestApps(PackageCase):
                                     "Error .* data: Connection reset by peer")
 
         # Reset everything
-        m.execute("rm -rf /usr/share/metainfo /usr/share/app-info /var/cache/app-info")
+        m.execute("for d in /usr/share/metainfo /usr/share/app-info /var/cache/app-info; do mkdir -p $d; mount -t tmpfs tmpfs $d; done")
+        self.addCleanup(m.execute, "for d in /usr/share/metainfo /usr/share/app-info /var/cache/app-info; do umount $d; done")
 
-        m.start_cockpit()
-        b.login_and_go("/apps")
+        self.login_and_go("/apps")
         b.wait_visible(".pf-c-empty-state")
 
         m.write("/usr/share/app-info/xmls/test.xml", """
@@ -195,10 +198,10 @@ class TestApps(PackageCase):
         m = self.machine
 
         # Reset everything
-        m.execute("rm -rf /usr/share/metainfo /usr/share/app-info /var/cache/app-info")
+        m.execute("for d in /usr/share/metainfo /usr/share/app-info /var/cache/app-info; do mkdir -p $d; mount -t tmpfs tmpfs $d; done")
+        self.addCleanup(m.execute, "for d in /usr/share/metainfo /usr/share/app-info /var/cache/app-info; do umount $d; done")
 
-        m.start_cockpit()
-        b.login_and_go("/apps")
+        self.login_and_go("/apps")
         b.wait_visible(".pf-c-empty-state")
 
         self.allow_journal_messages(".*/usr/share/app-info/xmls/test.xml.*",

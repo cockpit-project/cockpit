@@ -18,7 +18,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent  # noqa: F401
-from testlib import Error, MachineCase, skipBrowser, skipDistroPackage, skipImage, skipOstree, test_main
+from testlib import Error, MachineCase, nondestructive, skipBrowser, skipDistroPackage, skipImage, skipOstree, test_main
 from lib.constants import TEST_OS_DEFAULT
 
 import time
@@ -304,9 +304,13 @@ class TestSelinux(MachineCase):
         b.relogin("/selinux", "admin", superuser=False)
         b.wait_text("ul[aria-label='System modifications']", "The logged in user is not permitted to view system modifications")
 
-    @skipImage("No cockpit-selinux", "debian-*", "ubuntu-*", "arch")
-    @skipOstree("No cockpit-selinux")
-    def testEnforcingToggle(self):
+
+@skipDistroPackage()
+@skipImage("No cockpit-selinux", "debian-*", "ubuntu-*", "arch")
+@skipOstree("No cockpit-selinux")
+@nondestructive
+class TestSelinuxEnforcing(MachineCase):
+    def test(self):
         b = self.browser
         m = self.machine
 
@@ -323,6 +327,7 @@ class TestSelinux(MachineCase):
 
         # SELinux should be enabled and enforcing at the beginning
         assertEnforce(True)
+        self.addCleanup(m.execute, "setenforce 1")
         m.execute("getenforce | grep -q 'Enforcing'")
 
         # now set to permissive using the ui button

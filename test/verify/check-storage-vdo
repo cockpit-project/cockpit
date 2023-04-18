@@ -246,7 +246,8 @@ class TestStorageLegacyVDO(StorageCase):
         self.dialog_wait_open()
         b.wait_in_text("#dialog", "unmount, stop")
         self.dialog_apply()
-        self.dialog_wait_close()
+        with b.wait_timeout(60):
+            self.dialog_wait_close()
         b.wait_not_present('#detail-content table')
 
         # Delete

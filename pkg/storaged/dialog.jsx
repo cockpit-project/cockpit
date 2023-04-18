@@ -692,7 +692,7 @@ export const SelectSpaces = (tag, title, options) => {
         title,
         options,
         initial_value: [],
-
+        hasNoPaddingTop: options.spaces.length == 0,
         render: (val, change) => {
             if (options.spaces.length === 0)
                 return <span className="text-danger">{options.empty_warning}</span>;

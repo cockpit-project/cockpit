@@ -21,7 +21,7 @@ import re
 import time
 
 import parent  # noqa: F401
-from testlib import enableAxe, nondestructive, skipDistroPackage, skipImage, skipOstree, test_main, wait
+from testlib import enableAxe, nondestructive, onlyImage, skipDistroPackage, skipImage, skipOstree, test_main, wait
 from packagelib import PackageCase
 
 
@@ -840,12 +840,10 @@ fi
                                     '.*warning: setlocale: LC_ALL: cannot change locale.*',
                                     'done')
 
+    @onlyImage("insights-client is only on RHEL", "rhel*")
     def testInsightsStatus(self):
         m = self.machine
         b = self.browser
-
-        if not m.image.startswith("rhel"):
-            self.skipTest("insights-client is only on RHEL")
 
         # insights-client might get started during boot and might then
         # run concurrently with our explicit "insights-client

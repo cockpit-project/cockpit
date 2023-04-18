@@ -531,23 +531,10 @@ class Browser:
             self.wait_val(selector, val)
 
     def set_file_autocomplete_val(self, group_identifier: str, location: str):
-        file_item_selector_template = "{0} li button:contains({1})"
-
-        path = ''
-        index = 0
-        for path_part in filter(None, location.split('/')):
-            self.click("{0} > div .pf-c-select__toggle-button".format(group_identifier))
-            self._wait_present(group_identifier + " .pf-c-select__menu")
-            path += '/' + path_part
-            file_item_selector = file_item_selector_template.format(group_identifier, path)
-            self.click(file_item_selector)
-            if index != len(list(filter(None, location.split('/')))) - 1 or location[-1] == '/':
-                self.wait_val("{0} > div input[type=text]".format(group_identifier), path + '/')
-            else:
-                self.wait_val("{0} > div input[type=text]".format(group_identifier), path)
-            index += 1
-
-        self.wait_val("{0} > div input[type=text]".format(group_identifier), location)
+        self.set_input_text(f"{group_identifier} .pf-c-select__toggle-typeahead", location)
+        # click away the selection list, to force a state update
+        self.click(f"{group_identifier} .pf-c-select__toggle-typeahead")
+        self.wait_not_present(f"{group_identifier} .pf-c-select__menu")
 
     def wait_timeout(self, timeout: int):
         browser = self

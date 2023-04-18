@@ -19,7 +19,7 @@ const nodePaths = ['pkg/lib'];
 
 // context options for distributed pages in dist/
 const pkgOptions = {
-    ...!production ? { sourcemap: "external" } : {},
+    ...!production ? { sourcemap: "linked" } : {},
     bundle: true,
     external: ['*.woff', '*.woff2', '*.jpg', '*.svg', '../../assets*'], // Allow external font files which live in ../../static/fonts
     legalComments: 'external', // Move all legal comments to a .LEGAL.txt file

@@ -69,7 +69,7 @@ def createUser(
     run_assert_pixels=False,
 ):
     if default_shell is None:
-        default_shell = getUserAddDetails(machine)["SHELL"]
+        default_shell = getUserAddDetails(machine)["SHELL"] or "/bin/bash"
     browser.wait_visible('#accounts-create')
     browser.click('#accounts-create')
     browser.wait_visible('#accounts-create-dialog')
@@ -102,10 +102,9 @@ def createUser(
         browser.wait_visible(f"#accounts-create-user-home-dir[value='{expected_home_dir}']")
 
     if custom_shell:
-        browser.click("#accounts-create-user-shell")
-        browser.click(f"li button[label='{custom_shell}']")
+        browser.select_from_dropdown("#accounts-create-user-shell", custom_shell)
     else:
-        browser.wait_in_text('#accounts-create-user-shell', default_shell)
+        browser.wait_visible(f"#accounts-create-user-shell[data-selected='{default_shell}']")
 
     browser.click('#accounts-create-dialog button.apply')
 

@@ -148,6 +148,7 @@ if [ "$PLAN" = "basic" ]; then
               TestSOS.testCancel
               TestSOS.testAppStream
 
+              TestSystemInfo.testInsightsStatus
               TestSystemInfo.testMotd
               TestSystemInfo.testShutdownStatus
 

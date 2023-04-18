@@ -297,7 +297,7 @@ session    optional     pam_ssh_add.so
         b.wait_visible("#credential-keys")
         b.wait_not_present("#ssh-file-add")
         b.click("#ssh-file-add-custom")
-        b.set_input_text("#credentials-modal .pf-c-select__toggle-typeahead", "/bad")
+        b.set_file_autocomplete_val("#ssh-file-add-key", "/bad")
         b.click("#ssh-file-add")
         b.wait_text("#credentials-modal .pf-m-error > .pf-c-helper-text__item-text", "Not a valid private key")
 

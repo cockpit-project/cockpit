@@ -204,13 +204,6 @@ session    optional     pam_ssh_add.so
         m.execute("chmod 600 /home/admin/.ssh/*")
         m.execute("chown -R admin:admin /home/admin/.ssh")
 
-        # Determine OpenSSH version
-        ver = m.execute("ssh -V 2>&1 |  grep -Eo 'OpenSSH_[[:digit:]]+.[[:digit:]]+'")
-        if ver:
-            openssh_version = [int(x) for x in ver.split("_")[1].split(".")]
-        else:
-            openssh_version = [0]
-
         self.login_and_go()
 
         id_rsa = "2048 SHA256:SRvBhCmkCEVnJ6ascVH0AoVEbS3nPbowZkNevJnXtgw"
@@ -324,12 +317,9 @@ session    optional     pam_ssh_add.so
         # keys are marked as "agent_only", thereby limiting functionality
         keys = list_keys()
         keys_length = 3 if auto_load else 2
-        if openssh_version >= [7, 8]:
-            # Keys are like: 256 SHA256:x6S6fxMuEyqhpwNRAIK7ms6bZDY6xK9wzdDr2kCaWVY id_ed25519 (ED25519)
-            # We need the id_ed25519 part, (name or comment)
-            new_key = keys.splitlines()[keys_length - 1].split(' ')[2]
-        else:
-            new_key = "new.rsa"
+        # Keys are like: 256 SHA256:x6S6fxMuEyqhpwNRAIK7ms6bZDY6xK9wzdDr2kCaWVY id_ed25519 (ED25519)
+        # We need the id_ed25519 part, (name or comment)
+        new_key = keys.splitlines()[keys_length - 1].split(' ')[2]
         toggleKeyState(new_key)
 
         toggleExpandedStateKey(new_key)
@@ -342,45 +332,8 @@ session    optional     pam_ssh_add.so
 
         # OpenSSH 7.8 and up has a new default key format where
         # keys are marked as "agent_only", thereby limiting functionality
-        if openssh_version >= [7, 8]:
-            # "agent_only" keys cannot be turned off, or have their passwords changed
-            waitKeyLoaded(new_key, True)
-        else:
-            # Change password of key
-            selectTab('new.rsa', 'Password')
-            b.set_input_text("#" + new_key + "-old-password", "")
-            b.set_input_text("#" + new_key + "-old-new", "foobar")
-            b.set_input_text("#" + new_key + "-old-two", "foobar")
-            b.click("#" + new_key + "-change-password")
-
-            waitTabActive(new_key, 'Details')
-
-            # Turn key off, it goes away
-            toggleKeyState(new_key)
-            waitKeyPresent(new_key, False)
-
-            # Key now has password that needs to be entered to add
-            b.wait_not_visible("tr.load-custom-key")
-            b.click("#credential-keys a")
-            b.wait_visible("tr.load-custom-key")
-            b.wait_visible("#ssh-file-add")
-            b.set_val("#ssh-file-container input[type=text]", "/bad")
-            b.click("#ssh-file-add")
-
-            b.set_val("#ssh-file-container input[type=text]", "/tmp/new.rsa")
-            b.click("#ssh-file-add")
-            b.wait_not_visible("tr.load-custom-key")
-            b.wait_visible("tbody.ssh-add-key-body[data-name='/tmp/new.rsa']")
-
-            b.set_input_text(f"{new_key}-password", "badbad")
-            b.click(f"{new_key}-unlock")
-
-            b.wait_in_text("#credential-dialog .pf-c-alert", "Password not accepted")
-            b.set_input_text(f"#{new_key}-password", "foobar")
-            b.click("#{new_key}-unlock")
-
-            waitKeyLoaded(new_key, True)
-            waitKeyPresent(new_key, False)
+        # "agent_only" keys cannot be turned off, or have their passwords changed
+        waitKeyLoaded(new_key, True)
 
         # Test adding key with passphrase
         m.execute("ssh-keygen -t rsa -N 'foobar' -f /tmp/new_with_passphrase.rsa")

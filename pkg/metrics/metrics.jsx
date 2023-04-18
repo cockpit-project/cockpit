@@ -36,7 +36,7 @@ import { Stack, StackItem } from "@patternfly/react-core/dist/esm/layouts/Stack/
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 import { Text, TextContent, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { Tooltip } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
-import { Table, Thead, Tbody, TableGridBreakpoint, TableVariant, TableText, RowWrapper, cellWidth, fitContent } from '@patternfly/react-table';
+import { Table, Thead, Td, Th, Tr, Tbody, TableGridBreakpoint, TableVariant, TableText } from '@patternfly/react-table';
 import {
     AngleRightIcon, AngleDownIcon, ExclamationTriangleIcon, ExclamationCircleIcon, CogIcon, ExternalLinkAltIcon,
     ResourcesFullIcon, ResourcesAlmostFullIcon, ResourcesAlmostEmptyIcon
@@ -215,6 +215,25 @@ function decompress_samples(samples, state) {
         } else if (typeof sample === 'number') {
             state[i] = sample;
         }
+    });
+}
+
+function make_rows(rows, rowWrapper, _columns) {
+    return rows.map((columns, rowIndex) => {
+        const props = rowWrapper ? rowWrapper(columns) : {};
+
+        return (
+            <Tr key={"row-" + rowIndex} {...props}>
+                {columns.map((column, columnIndex) => {
+                    const dataLabel = _columns && _columns[columnIndex];
+                    return (
+                        <Td data-label={dataLabel} key={"column-" + columnIndex}>
+                            {column}
+                        </Td>
+                    );
+                })}
+            </Tr>
+        );
     });
 }
 
@@ -523,9 +542,7 @@ class CurrentMetrics extends React.Component {
                     </Tooltip>);
             }
             const value_text = <TableText wrapModifier="nowrap">{value}</TableText>;
-            return {
-                cells: [{ title: name_text }, { title: value_text }]
-            };
+            return [name_text, value_text];
         }
 
         // top 5 CPU and memory consuming systemd units
@@ -663,18 +680,21 @@ class CurrentMetrics extends React.Component {
             : [];
 
         let allDisks = null;
+        const rowWrapperDisks = row => ({ 'device-name': row[0] });
+        const diskColumns = [_("Device"), _("Read"), _("Write")];
         if (disksUsage.length > 1) {
             const disksTableContent = (
                 <Table
                     variant={TableVariant.compact}
                     gridBreakPoint={TableGridBreakpoint.gridLg}
                     borders={false}
-                    aria-label={ _("Disks usage") }
-                    cells={ [{ title: _("Device"), transforms: [fitContent] }, _("Read"), _("Write")] }
-                    rows={disksUsage}
-                    rowWrapper={ props => <RowWrapper device-name={ props.row[0] } {...props} /> }>
-                    <Thead />
-                    <Tbody className="pf-m-tabular-nums disks-nowrap" />
+                    aria-label={ _("Disks usage") }>
+                    <Thead>
+                        <Tr>{diskColumns.map(col => <Th key={col}>{col}</Th>)}</Tr>
+                    </Thead>
+                    <Tbody className="pf-m-tabular-nums disks-nowrap">
+                        {make_rows(disksUsage, rowWrapperDisks, diskColumns)}
+                    </Tbody>
                 </Table>
             );
 
@@ -684,6 +704,11 @@ class CurrentMetrics extends React.Component {
                 </Popover>
             );
         }
+
+        const rowWrapperIface = row => ({ 'data-interface': row[0] });
+        const topServicesCPUColumns = [_("Service"), "%"];
+        const topServicesMemoryColumns = [_("Service"), _("Used")];
+        const ifaceColumns = [_("Interface"), _("In"), _("Out")];
 
         return (
             <Gallery className="current-metrics" hasGutter>
@@ -734,11 +759,16 @@ class CurrentMetrics extends React.Component {
                                 variant={TableVariant.compact}
                                 gridBreakPoint={TableGridBreakpoint.none}
                                 borders={false}
-                                aria-label={ _("Top 5 CPU services") }
-                                cells={ [{ title: _("Service"), transforms: [cellWidth(80)] }, "%"] }
-                                rows={this.state.topServicesCPU}>
-                                <Thead />
-                                <Tbody />
+                                aria-label={ _("Top 5 CPU services") }>
+                                <Thead>
+                                    <Tr>
+                                        <Th width={80}>{_("Service")}</Th>
+                                        <Th>%</Th>
+                                    </Tr>
+                                </Thead>
+                                <Tbody>
+                                    {make_rows(this.state.topServicesCPU, undefined, topServicesCPUColumns)}
+                                </Tbody>
                             </Table> }
                     </CardBody>
                 </Card>
@@ -767,11 +797,16 @@ class CurrentMetrics extends React.Component {
                                 variant={TableVariant.compact}
                                 gridBreakPoint={TableGridBreakpoint.none}
                                 borders={false}
-                                aria-label={ _("Top 5 memory services") }
-                                cells={ [{ title: _("Service"), transforms: [cellWidth(80)] }, _("Used")] }
-                                rows={this.state.topServicesMemory}>
-                                <Thead />
-                                <Tbody />
+                                aria-label={ _("Top 5 memory services") }>
+                                <Thead>
+                                    <Tr>
+                                        <Th width={80}>{_("Service")}</Th>
+                                        <Th>{_("Used")}</Th>
+                                    </Tr>
+                                </Thead>
+                                <Tbody>
+                                    {make_rows(this.state.topServicesMemory, undefined, topServicesMemoryColumns)}
+                                </Tbody>
                             </Table> }
                     </CardBody>
                 </Card>
@@ -830,11 +865,13 @@ class CurrentMetrics extends React.Component {
                             // this would require breaking out the units/s into its own row
                             gridBreakPoint={TableGridBreakpoint.gridLg}
                             borders={false}
-                            aria-label={ _("Network usage") }
-                            cells={ [_("Interface"), _("In"), _("Out")] } rows={netIO}
-                            rowWrapper={ props => <RowWrapper data-interface={ props.row[0] } {...props} /> }>
-                            <Thead />
-                            <Tbody className="network-nowrap-shrink" />
+                            aria-label={ _("Network usage") }>
+                            <Thead>
+                                <Tr>{ifaceColumns.map(col => <Th key={col}>{col}</Th>)}</Tr>
+                            </Thead>
+                            <Tbody className="network-nowrap-shrink">
+                                {make_rows(netIO, rowWrapperIface, ifaceColumns)}
+                            </Tbody>
                         </Table>
                     </CardBody>
                 </Card>

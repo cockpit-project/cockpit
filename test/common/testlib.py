@@ -2087,12 +2087,13 @@ class MachineCase(unittest.TestCase):
         if not self.is_nondestructive():
             return  # skip for efficiency reasons
 
+        if post_restore_action:
+            self.addCleanup(self.machine.execute, post_restore_action)
+
         if self.file_exists(path):
             backup = os.path.join(self.vm_tmpdir, path.replace('/', '_'))
             self.machine.execute("mkdir -p %(vm_tmpdir)s; cp -a %(path)s %(backup)s" % {
                 "vm_tmpdir": self.vm_tmpdir, "path": path, "backup": backup})
-            if post_restore_action:
-                self.addCleanup(self.machine.execute, post_restore_action)
             self.addCleanup(self.machine.execute, "mv %(backup)s %(path)s" % {"path": path, "backup": backup})
         else:
             self.addCleanup(self.machine.execute, "rm -rf %s" % path)

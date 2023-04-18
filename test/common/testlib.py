@@ -71,6 +71,7 @@ __all__ = (
     'MachineCase',
     'nondestructive',
     'no_retry_when_changed',
+    'onlyImage',
     'skipImage',
     'skipDistroPackage',
     'skipMobile',
@@ -2182,6 +2183,12 @@ def skipBrowser(reason: str, *args: str):
 
 def skipImage(reason: str, *args: str):
     if any(fnmatch.fnmatch(testvm.DEFAULT_IMAGE, arg) for arg in args):
+        return unittest.skip("{0}: {1}".format(testvm.DEFAULT_IMAGE, reason))
+    return lambda testEntity: testEntity
+
+
+def onlyImage(reason: str, *args: str):
+    if not any(fnmatch.fnmatch(testvm.DEFAULT_IMAGE, arg) for arg in args):
         return unittest.skip("{0}: {1}".format(testvm.DEFAULT_IMAGE, reason))
     return lambda testEntity: testEntity
 

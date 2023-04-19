@@ -205,15 +205,15 @@ journal.journalctl = function journalctl(/* ... */) {
     return promise;
 };
 
-journal.printable = function printable(value) {
+journal.printable = function printable(value, key) {
     if (value === undefined || value === null)
         return _("[no data]");
     else if (typeof (value) == "string")
         return value;
-    else if (value.length !== undefined && value.length <= 1000)
+    else if (value.length !== undefined && value.length <= 1000 && key != "BIN")
         return new TextDecoder().decode(new Uint8Array(value));
     else {
-        return _((value.length ? `[${value.length} bytes of ` : "[") + "binary data]");
+        return _("[binary data]");
     }
 };
 
@@ -301,7 +301,7 @@ journal.renderer = function renderer(output_funcs) {
             bootid: journal_entry._BOOT_ID,
             ident: journal_entry.SYSLOG_IDENTIFIER || journal_entry._COMM,
             prio: journal_entry.PRIORITY,
-            message: journal.printable(journal_entry.MESSAGE)
+            message: journal.printable(journal_entry.MESSAGE, "MESSAGE")
         };
     }
 

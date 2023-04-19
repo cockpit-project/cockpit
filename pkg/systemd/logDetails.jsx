@@ -62,13 +62,13 @@ const LogDetails = ({ entry }) => {
                         </CardActions>
                     }
                 </CardHeader>
-                <CardTitle>{journal.printable(entry.MESSAGE)}</CardTitle>
+                <CardTitle>{journal.printable(entry.MESSAGE, "MESSAGE")}</CardTitle>
                 <CardBody>
                     <DescriptionList className="pf-m-horizontal-on-sm">
                         { general.map(key =>
                             <DescriptionListGroup key={key}>
                                 <DescriptionListTerm>{key}</DescriptionListTerm>
-                                <DescriptionListDescription>{journal.printable(entry[key])}</DescriptionListDescription>
+                                <DescriptionListDescription>{journal.printable(entry[key], key)}</DescriptionListDescription>
                             </DescriptionListGroup>
                         )}
                     </DescriptionList>

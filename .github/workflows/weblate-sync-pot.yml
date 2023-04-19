@@ -9,9 +9,8 @@ on:
 jobs:
   pot-upload:
     environment: cockpit-weblate
-    permissions:
-      pull-requests: write
     runs-on: ubuntu-latest
+    permissions: {}
     container:
       image: ghcr.io/cockpit-project/unit-tests
       options: --user root

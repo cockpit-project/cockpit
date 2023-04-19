@@ -3,6 +3,7 @@ on: [pull_request, workflow_dispatch]
 jobs:
   unit-tests:
     runs-on: ubuntu-22.04
+    permissions: {}
     strategy:
       matrix:
         startarg:

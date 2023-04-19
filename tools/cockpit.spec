@@ -502,7 +502,7 @@ fi
 test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
 
 # check for deprecated PAM config
-if grep --color=auto pam_cockpit_cert %{_sysconfdir}/pam.d/cockpit; then
+if test -f %{_sysconfdir}/pam.d/cockpit &&  grep -q pam_cockpit_cert %{_sysconfdir}/pam.d/cockpit; then
     echo '**** WARNING:'
     echo '**** WARNING: pam_cockpit_cert is a no-op and will be removed in a'
     echo '**** WARNING: future release; remove it from your /etc/pam.d/cockpit.'

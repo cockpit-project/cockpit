@@ -31,6 +31,7 @@ import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js
 import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { has_errors, is_valid_char_name } from "./dialog-utils.js";
 import { passwd_change } from "./password-dialogs.js";
+import { FormHelper } from "cockpit-components-form-helper";
 import { password_quality, PasswordFormFields } from "cockpit-components-password.jsx";
 import { show_modal_dialog, apply_modal_dialog } from "cockpit-components-dialog.jsx";
 import { HelpIcon } from '@patternfly/react-icons';
@@ -65,31 +66,28 @@ function AccountCreateBody({ state, errors, change, shells }) {
     return (
         <Form isHorizontal onSubmit={apply_modal_dialog}>
             <FormGroup label={_("Full name")}
-                       helperTextInvalid={errors?.real_name}
-                       validated={(errors?.real_name) ? "error" : "default"}
                        fieldId="accounts-create-real-name">
                 <TextInput id="accounts-create-real-name"
                            validated={(errors?.real_name) ? "error" : "default"}
                            value={real_name} onChange={value => change("real_name", value)} />
+                <FormHelper fieldId="accounts-create-real-name" helperTextInvalid={errors?.real_name} />
             </FormGroup>
 
             <FormGroup label={_("User name")}
-                       helperTextInvalid={errors?.user_name}
-                       validated={(errors?.user_name) ? "error" : "default"}
                        fieldId="accounts-create-user-name">
                 <TextInput id="accounts-create-user-name"
                            validated={(errors?.user_name) ? "error" : "default"}
                            value={user_name} onChange={value => change("user_name", value)} />
+                <FormHelper fieldId="accounts-create-user-name" helperTextInvalid={errors?.user_name} />
             </FormGroup>
 
             <FormGroup label={_("Home directory")}
-                       helperTextInvalid={errors && errors.home_dir}
-                       validated={(errors && errors.home_dir) ? "error" : "default"}
                        fieldId="accounts-create-user-home-dir">
                 <TextInput id="accounts-create-user-home-dir"
                     onChange={value => change("home_dir", value)}
                     placeholder={_("Path to directory")}
                     value={state.home_dir} />
+                <FormHelper fieldId="accounts-create-user-home-dir" helperTextInvalid={errors?.home_dir} />
             </FormGroup>
 
             <FormGroup label={_("Shell")}
@@ -107,12 +105,11 @@ function AccountCreateBody({ state, errors, change, shells }) {
             </FormGroup>
 
             <FormGroup label={_("User ID")}
-                       helperTextInvalid={errors && errors.uid}
-                       validated={errors?.uid ? "error" : "default"}
                        fieldId="accounts-create-user-uid">
                 <TextInput id="accounts-create-user-uid"
                     onChange={value => change("uid", value)}
                     value={state.uid} />
+                <FormHelper fieldId="accounts-create-user-uid" helperTextInvalid={errors?.uid} />
             </FormGroup>
 
             <FormGroup label={_("Authentication")} fieldId="accounts-create-locked" hasNoPaddingTop>

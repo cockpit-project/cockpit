@@ -143,6 +143,10 @@ class Channel(Endpoint):
             self.close(**exc.kwargs)
 
     def do_kill(self, host: Optional[str], group: Optional[str]) -> None:
+        # Already closing?  Ignore.
+        if self._close_args is not None:
+            return
+
         if host is not None:
             return
         if group is not None and self.group != group:

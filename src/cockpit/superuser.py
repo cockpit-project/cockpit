@@ -130,7 +130,7 @@ class SuperuserRoutingRule(RoutingRule, ferny.InteractionResponder, bus.Object, 
 
         try:
             await self.peer.start()
-        except (OSError, PeerError, ferny.SshError) as exc:
+        except (OSError, PeerError, ferny.InteractionError) as exc:
             raise bus.BusError('cockpit.Superuser.Error', str(exc))
 
         self.current = name

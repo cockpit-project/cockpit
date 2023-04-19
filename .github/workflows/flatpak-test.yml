@@ -5,8 +5,7 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: none
+    permissions: {}
     timeout-minutes: 20
     steps:
       - name: Install required build and test dependencies

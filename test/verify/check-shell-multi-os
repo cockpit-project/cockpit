@@ -18,7 +18,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
 import parent  # noqa: F401
-from testlib import MachineCase, skipDistroPackage, test_main, todoPybridge, wait
+from testlib import MachineCase, skipDistroPackage, todoPybridgeRHEL8, test_main, wait
 
 
 def wait_addresses(b, expected):
@@ -95,7 +95,7 @@ class TestMultiOS(MachineCase):
                 .proxy("org.freedesktop.DBus", "/").call("GetId");
         })""", address)
 
-    @todoPybridge()
+    @todoPybridgeRHEL8()
     def testCentOS7(self):
         dev_m = self.machine
         dev_b = self.browser
@@ -167,7 +167,7 @@ class TestMultiOSDirect(MachineCase):
         "centos-7": {"address": "10.111.113.5/20", "image": "centos-7", "memory_mb": 512}
     }
 
-    @todoPybridge()
+    @todoPybridgeRHEL8()
     def testCentos7Direct(self):
         b = self.browser
 

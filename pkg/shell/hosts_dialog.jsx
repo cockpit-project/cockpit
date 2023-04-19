@@ -38,6 +38,7 @@ import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 
+import { FormHelper } from "cockpit-components-form-helper";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
 
 const _ = cockpit.gettext;
@@ -247,18 +248,19 @@ class AddMachine extends React.Component {
         const submitText = this.state.old_machine ? _("Set") : _("Add");
 
         const body = <Form isHorizontal>
-            <FormGroup label={_("Host")} helperText={_("Can be a hostname, IP address, alias name, or ssh:// URI")}
-                validated={this.state.addressError ? "error" : "default"} helperTextInvalid={this.state.addressError}>
+            <FormGroup label={_("Host")}>
                 <TextInput id="add-machine-address" onChange={address => this.setState({ address })}
                         validated={this.state.addressError ? "error" : "default"} onBlur={this.onAddressChange}
                         isDisabled={this.props.old_address === "localhost"} list="options" value={this.state.address} />
                 <datalist id="options">
                     {invisible.map(a => <option key={a} value={a} />)}
                 </datalist>
+                <FormHelper helperTextInvalid={this.state.addressError} helperText={_("Can be a hostname, IP address, alias name, or ssh:// URI")} />
             </FormGroup>
-            <FormGroup label={_("User name")} helperText={_("When empty, connect with the current user")}>
+            <FormGroup label={_("User name")}>
                 <TextInput id="add-machine-user" onChange={value => this.setState({ user: value, userChanged: true })}
                         isDisabled={this.props.old_address === "localhost"} value={this.state.user} />
+                <FormHelper helperText={_("When empty, connect with the current user")} />
             </FormGroup>
             <FormGroup label={_("Color")}>
                 <input type="color" value={this.state.color} onChange={e => this.setState({ color: e.target.value }) } />
@@ -779,13 +781,15 @@ class ChangeAuth extends React.Component {
                 auto_text = _("Create a new SSH key and authorize it");
                 auto_details = <>
                     <p>{cockpit.format(_("A new SSH key at $0 will be created for $1 on $2 and it will be added to the $3 file of $4 on $5."), key, luser, lhost, afile, ruser, rhost)}</p>
-                    <FormGroup label={_("Key password")} validated={this.state.login_setup_new_key_password_error ? "error" : "default"} helperTextInvalid={this.state.login_setup_new_key_password_error}>
+                    <FormGroup label={_("Key password")}>
                         <TextInput id="login-setup-new-key-password" onChange={value => this.setState({ login_setup_new_key_password: value })}
                                 type="password" value={this.state.login_setup_new_key_password} validated={this.state.login_setup_new_key_password_error ? "error" : "default"} />
+                        <FormHelper helperTextInvalid={this.state.login_setup_new_key_password_error} />
                     </FormGroup>
-                    <FormGroup label={_("Confirm key password")} validated={this.state.login_setup_new_key_password2_error ? "error" : "default"} helperTextInvalid={this.state.login_setup_new_key_password2_error}>
+                    <FormGroup label={_("Confirm key password")}>
                         <TextInput id="login-setup-new-key-password2" onChange={value => this.setState({ login_setup_new_key_password2: value })}
                                 type="password" value={this.state.login_setup_new_key_password2} validated={this.state.login_setup_new_key_password2_error ? "error" : "default"} />
+                        <FormHelper helperTextInvalid={this.state.login_setup_new_key_password2_error} />
                     </FormGroup>
                     <p>{cockpit.format(_("In order to allow log in to $0 as $1 without password in the future, use the login password of $2 on $3 as the key password, or leave the key password blank."), rhost, ruser, luser, lhost)}</p>
                 </>;
@@ -793,13 +797,16 @@ class ChangeAuth extends React.Component {
                 auto_text = cockpit.format(_("Change the password of $0"), key);
                 auto_details = <>
                     <p>{cockpit.format(_("By changing the password of the SSH key $0 to the login password of $1 on $2, the key will be automatically made available and you can log in to $3 without password in the future."), key, luser, lhost, afile, rhost)}</p>
-                    <FormGroup label={_("New key password")} validated={this.state.login_setup_new_key_password_error ? "error" : "default"} helperTextInvalid={this.state.login_setup_new_key_password_error}>
+                    <FormGroup label={_("New key password")}>
                         <TextInput id="login-setup-new-key-password" onChange={value => this.setState({ login_setup_new_key_password: value })}
                                 type="password" value={this.state.login_setup_new_key_password} validated={this.state.login_setup_new_key_password_error ? "error" : "default"} />
+                        <FormHelper helperTextInvalid={this.state.login_setup_new_key_password_error} />
                     </FormGroup>
                     <FormGroup label={_("Confirm new key password")} validated={this.state.login_setup_new_key_password2_error ? "error" : "default"} helperTextInvalid={this.state.login_setup_new_key_password2_error}>
                         <TextInput id="login-setup-new-key-password2" onChange={value => this.setState({ login_setup_new_key_password2: value })}
                                 type="password" value={this.state.login_setup_new_key_password2} validated={this.state.login_setup_new_key_password2_error ? "error" : "default"} />
+
+                        <FormHelper helperTextInvalid={this.state.login_setup_new_key_password2_error} />
                     </FormGroup>
                     <p>{cockpit.format(_("In order to allow log in to $0 as $1 without password in the future, use the login password of $2 on $3 as the key password, or leave the key password blank."), rhost, ruser, luser, lhost)}</p>
                 </>;
@@ -832,15 +839,19 @@ class ChangeAuth extends React.Component {
                         </FormGroup>
                     }
                     {((both && this.state.auth === "password") || (!both && offer_login_password)) &&
-                        <FormGroup label={_("Password")} validated={this.state.custom_password_error ? "error" : "default"} helperTextInvalid={this.state.custom_password_error}>
+                        <FormGroup label={_("Password")}>
                             <TextInput id="login-custom-password" onChange={value => this.setState({ custom_password: value })}
                                        type="password" value={this.state.custom_password} validated={this.state.custom_password_error ? "error" : "default"} />
+                            <FormHelper helperTextInvalid={this.state.custom_password_error} />
                         </FormGroup>
                     }
                     {((both && this.state.auth === "key") || (!both && offer_key_password)) &&
-                        <FormGroup label={_("Key password")} helperText={cockpit.format(_("The SSH key $0 will be made available for the remainder of the session and will be available for login to other hosts as well."), this.state.identity_path)} validated={this.state.locked_identity_password_error ? "error" : "default"} helperTextInvalid={this.state.locked_identity_password_error}>
+                        <FormGroup label={_("Key password")}>
                             <TextInput id="locked-identity-password" onChange={value => this.setState({ locked_identity_password: value })}
                                     type="password" autoComplete="new-password" value={this.state.locked_identity_password} validated={this.state.locked_identity_password_error ? "error" : "default"} />
+                            <FormHelper
+                                helperText={cockpit.format(_("The SSH key $0 will be made available for the remainder of the session and will be available for login to other hosts as well."), this.state.identity_path)}
+                                helperTextInvalid={this.state.locked_identity_password_error} />
                         </FormGroup>
                     }
                     {offer_key_setup &&

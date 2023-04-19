@@ -31,6 +31,7 @@ import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/
 import { TimePicker } from "@patternfly/react-core/dist/esm/components/TimePicker/index.js";
 import { MinusIcon, PlusIcon } from '@patternfly/react-icons';
 
+import { FormHelper } from "cockpit-components-form-helper";
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 import { useDialogs } from "dialogs.jsx";
 
@@ -154,31 +155,30 @@ const CreateTimerDialogBody = ({ owner }) => {
             {dialogError && <ModalError dialogError={_("Timer creation failed")} dialogErrorDetail={dialogError} />}
             <Form isHorizontal onSubmit={onSubmit}>
                 <FormGroup label={_("Name")}
-                           fieldId="servicename"
-                           validated={submitted && validationFailed.name ? "error" : "default"}
-                           helperTextInvalid={!name.trim().length ? _("This field cannot be empty") : _("Only alphabets, numbers, : , _ , . , @ , - are allowed")}>
+                           fieldId="servicename">
                     <TextInput id='servicename'
                                value={name}
                                validated={submitted && validationFailed.name ? "error" : "default"}
                                onChange={setName} />
+                    <FormHelper fieldId="servicename"
+                                helperTextInvalid={submitted && validationFailed.name && (!name.trim().length ? _("This field cannot be empty") : _("Only alphabets, numbers, : , _ , . , @ , - are allowed"))} />
                 </FormGroup>
                 <FormGroup label={_("Description")}
-                           fieldId="description"
-                           validated={submitted && validationFailed.description ? "error" : "default"}
-                           helperTextInvalid={_("This field cannot be empty")}>
+                           fieldId="description">
                     <TextInput id='description'
                                value={description}
                                validated={submitted && validationFailed.description ? "error" : "default"}
                                onChange={setDescription} />
+                    <FormHelper fieldId="description" helperTextInvalid={submitted && validationFailed.description && _("This field cannot be empty")} />
                 </FormGroup>
                 <FormGroup label={_("Command")}
-                           fieldId="command"
-                           validated={submitted && validationFailed.command ? "error" : "default"}
-                           helperTextInvalid={commandNotFound ? _("Command not found") : _("This field cannot be empty")}>
+                           fieldId="command">
                     <TextInput id='command'
                                value={command}
                                validated={submitted && validationFailed.command ? "error" : "default"}
                                onChange={str => { setCommandNotFound(false); setCommand(str) }} />
+                    <FormHelper fieldId="command"
+                                helperTextInvalid={submitted && validationFailed.command && (commandNotFound ? _("Command not found") : _("This field cannot be empty"))} />
                 </FormGroup>
                 <FormGroup label={_("Trigger")} hasNoPaddingTop>
                     <Flex>
@@ -197,9 +197,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                     </Flex>
                     { delay == "system-boot" &&
                     <FormGroup className="delay-group"
-                               label={_("Delay")}
-                               validated={submitted && validationFailed.delayNumber ? "error" : "default"}
-                               helperTextInvalid={_("Delay must be a number")}>
+                               label={_("Delay")}>
                         <Flex>
                             <TextInput className="delay-number"
                                        value={delayNumber}
@@ -215,6 +213,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                                 <FormSelectOption value="weeks" label={_("Weeks")} />
                             </FormSelect>
                         </Flex>
+                        <FormHelper helperTextInvalid={submitted && validationFailed.delayNumber && _("Delay must be a number")} />
                     </FormGroup> }
                     { delay == "specific-time" &&
                     <>
@@ -285,9 +284,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                             }
 
                             return (
-                                <FormGroup label={label} key={item.key}
-                                           validated={validated}
-                                           helperTextInvalid={helperTextInvalid}>
+                                <FormGroup label={label} key={item.key}>
                                     <Flex className="specific-repeat-group" data-index={idx}>
                                         {repeat == "minutely" &&
                                             <TextInput className='delay-number'
@@ -391,6 +388,7 @@ const CreateTimerDialogBody = ({ owner }) => {
                                             </InputGroup>
                                         </FlexItem>}
                                     </Flex>
+                                    <FormHelper helperTextInvalid={validated && helperTextInvalid} />
                                 </FormGroup>
                             );
                         })}

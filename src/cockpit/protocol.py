@@ -40,16 +40,15 @@ class CockpitProblem(Exception):
     It is usually thrown in response to some violation of expected protocol
     when parsing messages, connecting to a peer, or opening a channel.
     """
-    def __init__(self, problem: str, message: str, **kwargs):
-        super().__init__(message)
-        self.message = message
+    def __init__(self, problem: str, **kwargs):
+        super().__init__(kwargs.get('message') or problem)
         self.problem = problem
         self.kwargs = kwargs
 
 
 class CockpitProtocolError(CockpitProblem):
     def __init__(self, message, problem='protocol-error'):
-        super().__init__(problem, message)
+        super().__init__(problem, message=message)
 
 
 class CockpitProtocol(asyncio.Protocol):

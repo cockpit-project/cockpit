@@ -24,7 +24,6 @@ import React, { useEffect, useState } from "react";
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { Card, CardBody } from "@patternfly/react-core/dist/esm/components/Card/index.js";
-import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Form, FormGroup, FormSection } from "@patternfly/react-core/dist/esm/components/Form/index.js";
@@ -42,6 +41,7 @@ import { OutlinedQuestionCircleIcon } from "@patternfly/react-icons";
 
 import { useDialogs, DialogsContext } from "dialogs.jsx";
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
+import { FormHelper } from "cockpit-components-form-helper";
 import { ModalError } from 'cockpit-components-inline-notification.jsx';
 
 const _ = cockpit.gettext;
@@ -212,14 +212,12 @@ const KdumpSettingsModal = ({ settings, initialTarget, handleSave }) => {
                                        onChange={setServer} isRequired />
                         </FormGroup>
 
-                        <FormGroup fieldId="kdump-settings-ssh-key" label={_("SSH key")}
-                                   helperTextInvalid={validationErrors.sshkey}
-                                   helperTextInvalidIcon={<ExclamationCircleIcon />}
-                                   validated={validationErrors.sshkey ? "error" : "default"}>
+                        <FormGroup fieldId="kdump-settings-ssh-key" label={_("SSH key")}>
                             <TextInput id="kdump-settings-ssh-key" key="ssh"
                                        placeholder="/root/.ssh/kdump_id_rsa" value={sshkey}
                                        onChange={changeSSHKey}
                                        validated={validationErrors.sshkey ? "error" : "default"} />
+                            <FormHelper helperTextInvalid={validationErrors.sshkey} />
                         </FormGroup>
 
                         <FormGroup fieldId="kdump-settings-ssh-directory" label={_("Directory")} isRequired>

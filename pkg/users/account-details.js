@@ -443,16 +443,6 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups, setError }) => {
     return (
         <FormGroup
             fieldId="account-groups"
-            helperText={
-                (history.length > 0)
-                    ? <HelperText className="pf-c-form__helper-text">
-                        <Flex>
-                            {loggedIn && <HelperTextItem id="account-groups-helper" variant="warning">{_("The user must log out and log back in for the new configuration to take effect.")}</HelperTextItem>}
-                            {history.length > 0 && <Button variant="link" id="group-undo-btn" isInline icon={<UndoIcon />} onClick={undoGroupChanges}>{_("Undo")}</Button>}
-                        </Flex>
-                    </HelperText>
-                    : ''
-            }
             id="account-groups-form-group"
             label={_("Groups")}
             validated={history.length > 0 ? "warning" : "default"}
@@ -477,6 +467,15 @@ export const AccountGroupsSelect = ({ name, loggedIn, groups, setError }) => {
                     ))}
                 </Select>
                 : chipGroupComponent()}
+            {(history.length > 0)
+                ? <HelperText className="pf-c-form__helper-text">
+                    <Flex>
+                        {loggedIn && <HelperTextItem id="account-groups-helper" variant="warning">{_("The user must log out and log back in for the new configuration to take effect.")}</HelperTextItem>}
+                        {history.length > 0 && <Button variant="link" id="group-undo-btn" isInline icon={<UndoIcon />} onClick={undoGroupChanges}>{_("Undo")}</Button>}
+                    </Flex>
+                </HelperText>
+                : ''
+            }
         </FormGroup>
     );
 };

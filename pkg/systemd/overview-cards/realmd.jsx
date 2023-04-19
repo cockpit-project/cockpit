@@ -33,6 +33,7 @@ import cockpit from "cockpit";
 import { Privileged } from "cockpit-components-privileged.jsx";
 import { superuser } from "superuser";
 import { useEvent } from "hooks.js";
+import { FormHelper } from "cockpit-components-form-helper";
 import { install_dialog } from "cockpit-components-install-dialog.jsx";
 import * as packagekit from "packagekit.js";
 import { useDialogs } from "dialogs.jsx";
@@ -421,9 +422,7 @@ const JoinDialog = ({ realmd_client }) => {
                }
                title={ _("dialog-title", "Join a domain") }>
             <Form isHorizontal onSubmit={onJoin}>
-                <FormGroup label={ _("Domain address") } fieldId="realms-op-address" validated={addressValid}
-                           helperText={domainHelperText} helperTextInvalid={domainHelperText}
-                           helperTextIcon={domainHelperIcon} helperTextInvalidIcon={domainHelperIcon}>
+                <FormGroup label={ _("Domain address") } fieldId="realms-op-address" validated={addressValid}>
                     <TextInput id="realms-op-address" placeholder="domain.example.com"
                                data-discover={ (!addressValid || addressValid == "default") ? null : "done" }
                                value={address} onChange={validateAddress} isDisabled={pending} />
@@ -435,6 +434,7 @@ const JoinDialog = ({ realmd_client }) => {
                 <FormGroup label={ _("Domain administrator password") } fieldId="realms-op-admin-password">
                     <TextInput id="realms-op-admin-password" type="password" value={adminPassword} onChange={setAdminPassword} isDisabled={pending} />
                 </FormGroup>
+                <FormHelper fieldId="realms-op-address" helperText={domainHelperText} helperTextInvalid={addressValid == "error" && domainHelperText} icon={domainHelperIcon} />
             </Form>
         </Modal>);
 };

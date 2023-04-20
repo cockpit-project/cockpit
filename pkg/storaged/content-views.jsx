@@ -572,7 +572,7 @@ function append_row(client, rows, level, key, name, desc, tabs, job_object) {
             title: desc.size.length
                 ? <StorageUsageBar stats={desc.size} critical={desc.critical_size || 0.95} block={name} />
                 : utils.fmt_size(desc.size),
-            props: { className: "ct-text-align-right" }
+            props: { className: "pf-u-text-align-right" }
         },
         { title: <>{tabs.actions}{menu}</>, props: { className: "pf-c-table__action content-action" } },
     ];
@@ -621,7 +621,7 @@ function append_partitions(client, rows, level, block) {
             _("Free space"),
             { },
             { },
-            { title: utils.fmt_size(size), props: { className: "ct-text-align-right" } },
+            { title: utils.fmt_size(size), props: { className: "pf-u-text-align-right" } },
             { title: <>{btn}{menu}</>, props: { className: "pf-c-table__action content-action" } },
         ];
 

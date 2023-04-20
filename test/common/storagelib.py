@@ -622,7 +622,7 @@ grubby --update-kernel=ALL --args="root=UUID=$uuid rootflags=defaults rd.luks.uu
 """, timeout=300)
         luks_uuid = m.execute(f"blkid -p {dev}2 -s UUID -o value").strip()
         m.spawn("dd if=/dev/zero of=/dev/vda bs=1M count=100; reboot", "reboot", check=False)
-        m.wait_reboot(timeout_sec = 300)
+        m.wait_reboot(300)
         self.assertEqual(m.execute("findmnt -n -o SOURCE /").strip(), f"/dev/mapper/luks-{luks_uuid}")
 
 

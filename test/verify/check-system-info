@@ -746,7 +746,7 @@ machine         : 8561
                        (self.expect_smt_default and ':not(:checked)' or ':checked'))
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
 
-        m.wait_reboot(timeout_sec = 600)
+        self.machine.wait_reboot()
         if self.expect_smt_default:
             self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
         else:
@@ -791,7 +791,7 @@ fi
         b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input' +
                        (self.expect_smt_default and ':checked' or ':not(:checked)'))
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
-        m.wait_reboot(timeout_sec = 600)
+        self.machine.wait_reboot()
         if self.expect_smt_default:
             self.assertIn('nosmt', m.execute('cat /proc/cmdline'))
         else:
@@ -800,7 +800,7 @@ fi
         # updates mitigations=nosmt when that is present
         m.upload(["../pkg/systemd/kernelopt.sh"], "/tmp/")
         m.execute("/tmp/kernelopt.sh remove nosmt; /tmp/kernelopt.sh set mitigations=auto,nosmt")
-        m.reboot(timeout_sec = 600)
+        self.machine.reboot()
         self.login_and_go('/system/hwinfo')
         b.click('#hwinfo button:contains(Mitigations)')
         b.wait_visible('#cpu-mitigations-dialog .nosmt-heading:contains(nosmt)')
@@ -808,7 +808,7 @@ fi
         b.click('#cpu-mitigations-dialog #nosmt-switch input')
         b.wait_visible('#cpu-mitigations-dialog #nosmt-switch input:not(:checked)')
         b.click('#cpu-mitigations-dialog Button:contains(Save and reboot)')
-        m.wait_reboot(timeout_sec = 600)
+        self.machine.wait_reboot()
         self.assertNotIn('nosmt', m.execute('cat /proc/cmdline'))
         self.assertIn('mitigations=auto', m.execute('cat /proc/cmdline'))
 
@@ -1068,7 +1068,7 @@ password=foobar
         b.click(".system-health-crypto-policies button.pf-c-button.pf-m-link")
         b.wait_in_text(".pf-c-menu__item.pf-m-selected .pf-c-label.pf-m-orange", "inconsistent")
         b.click("#crypto-policy-save-reboot")
-        m.wait_reboot(timeout_sec = 600)
+        self.machine.wait_reboot()
         m.start_cockpit()
         self.login_and_go("/system")
         b.wait_text("#crypto-policy-button", "Default")

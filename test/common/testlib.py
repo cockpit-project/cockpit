@@ -1551,7 +1551,7 @@ class MachineCase(unittest.TestCase):
             self.addCleanup(m.execute, "rm -rf /run/faillock")
 
         # cockpit configuration
-        self.addCleanup(m.execute, "rm -f /etc/cockpit/cockpit.conf /etc/cockpit/machines.d/* /etc/cockpit/*.override.json")
+        self.restore_dir("/etc/cockpit")
 
         if not m.ostree_image:
             # for storage tests

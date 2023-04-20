@@ -468,21 +468,27 @@ ExecStart=/bin/sh -c 'sleep 5; for s in $(seq 10); do echo SLOW; sleep 0.1; done
     def testBinary(self):
         b = self.browser
         m = self.machine
-
-        m.execute(r"printf 'MESSAGE=Hello \01 World\nPRIORITY=3\nFOO=bar\nBIN=a\01b\02c\03\n' | logger --journald")
-        self.login_and_go("/system/logs#/?tag=logger&since=@" + self.test_start_time)
-        b.click("#journal-box .cockpit-logline .cockpit-log-message:contains('[13 bytes of binary data]')")
-        b.wait_text(".pf-c-card__title", "[13 bytes of binary data]")
+        bin_data_long = {"MSG": (r"Hel\01" * 250) + "a", "BIN": (r"Hel\01" * 250) + "a"}
+        bin_data_short = {"MSG": "Hello \01 World", "BIN": "a\01b\02c\03"}
 
         def wait_field(name, value):
             row_sel = "dt:contains('" + name + "')"
             b.wait_visible(row_sel + "+ dd:contains('" + value + "')")
 
-        wait_field("FOO", "bar")
-        wait_field("BIN", "[6 bytes of binary data]")
+        def check_entry(msg, bin_msg):
+            b.click(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{msg}')")
+            b.wait_text(".pf-c-card__title", msg)
+            wait_field("FOO", "bar")
+            wait_field("BIN", bin_msg)
+            b.click('.pf-c-breadcrumb li:first')
+            b.wait_visible(f"#journal-box .cockpit-logline .cockpit-log-message:contains('{msg}')")
 
-        b.click('.pf-c-breadcrumb li:first')
-        b.wait_visible("#journal-box .cockpit-logline .cockpit-log-message:contains('[13 bytes of binary data]')")
+        m.execute(fr"printf 'MESSAGE={bin_data_short['MSG']}\nPRIORITY=3\nFOO=bar\nBIN={bin_data_short['BIN']}\n' | logger --journald")
+        self.login_and_go("/system/logs#/?tag=logger&since=@" + self.test_start_time)
+        check_entry(bin_data_short["MSG"], "[binary data]")  # Test when binary msg is <= 1000 bytes
+        m.execute(fr"printf 'MESSAGE={bin_data_long['MSG']}\nPRIORITY=3\nFOO=bar\nBIN={bin_data_long['BIN']}\n' | logger --journald")
+        b.go("/system/logs#/?tag=logger&since=@" + self.test_start_time)
+        check_entry("[binary data]", "[binary data]")  # Test when binary msg is > 1000 bytes
 
     @nondestructive
     def testNoMessage(self):

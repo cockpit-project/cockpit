@@ -295,10 +295,10 @@ export class AbrtLogDetails extends React.Component {
                         <CardBody>
                             <Tabs activeKey={this.state.active_tab} onSelect={this.handleSelect}>
                                 <Tab eventKey="general" title={_("General")}>
-                                    <Table lines={general.map(key => [key, journal.printable(this.props.entry[key])])} />
+                                    <Table lines={general.map(key => [key, journal.printable(this.props.entry[key], key)])} />
                                 </Tab>
                                 <Tab eventKey="info" title={_("Problem info")}>
-                                    <Table lines={info.map(key => [key, journal.printable(this.state.details[key][2])])} />
+                                    <Table lines={info.map(key => [key, journal.printable(this.state.details[key][2], key)])} />
                                 </Tab>
                                 <Tab eventKey="details" title={_("Problem details")}>
                                     <Accordion asDefinitionList>

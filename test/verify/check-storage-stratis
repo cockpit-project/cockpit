@@ -78,6 +78,17 @@ class TestStorageStratis(StorageCase):
         self.dialog_cancel()
         self.dialog_wait_close()
 
+        if not m.image.startswith("rhel-8-9") and m.image != "centos-8-stream":
+            # Stop the pool (only works with Stratis 3)
+            pool_uuid = m.execute("stratis --unhyphenated-uuids pool list --name pool0 | grep ^UUID | cut -d' ' -f2").strip()
+            m.execute("stratis pool stop pool0")
+            b.wait_in_text(f'.sidepanel-row:contains("{pool_uuid}")', "Stopped Stratis pool")
+
+            # Start it
+            b.click(f'.sidepanel-row:contains("{pool_uuid}") button')
+            b.wait_in_text("#devices", "pool0")
+            b.wait_in_text("#devices", "8 GB Stratis pool")
+
         b.click('.sidepanel-row:contains("pool0")')
         b.wait_visible('#storage-detail')
 
@@ -259,14 +270,14 @@ class TestStorageStratis(StorageCase):
         b.enter_page("/storage")
         b.wait_visible("#storage-detail")
 
-        b.wait_in_text('#detail-header', "Locked encrypted Stratis pool")
+        b.wait_in_text('#detail-header', "Stopped Stratis pool")
         b.wait_in_text('#detail-sidebar', dev_1)
         b.wait_in_text('#detail-sidebar', dev_2)
 
         # Unlock the pool
-        b.click('#detail-header button:contains(Unlock)')
+        b.click('#detail-header button:contains(Start)')
         self.dialog({'passphrase': "foodeeboodeebar"})
-        b.wait_not_in_text('#detail-header', "Locked")
+        b.wait_not_in_text('#detail-header', "Stopped")
         b.wait_in_text('#detail-header', "Encrypted Stratis pool pool0")
 
         # Mount the filesystem

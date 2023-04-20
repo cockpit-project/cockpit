@@ -378,13 +378,13 @@ function update_indices() {
             client.blocks_stratis_blockdev[block.path] = client.stratis_blockdevs[path];
     }
 
-    client.blocks_stratis_locked_pool = { };
-    for (const uuid in client.stratis_manager.LockedPools) {
-        const devs = client.stratis_manager.LockedPools[uuid].devs.v;
+    client.blocks_stratis_stopped_pool = { };
+    for (const uuid in client.stratis_manager.StoppedPools) {
+        const devs = client.stratis_manager.StoppedPools[uuid].devs.v;
         for (const d of devs) {
             block = client.slashdevs_block[d.devnode];
             if (block)
-                client.blocks_stratis_locked_pool[block.path] = uuid;
+                client.blocks_stratis_stopped_pool[block.path] = uuid;
         }
     }
 
@@ -945,7 +945,7 @@ client.stratis_start = () => {
 // not allowed.  If we need to bump it, it should be bumped here for all
 // of them at the same time.
 //
-const stratis3_interface_revision = "r0";
+const stratis3_interface_revision = "r2";
 
 function stratis3_start() {
     const stratis = cockpit.dbus("org.storage.stratis3", { superuser: "try" });
@@ -957,7 +957,7 @@ function stratis3_start() {
     client.stratis_pools = { };
     client.stratis_blockdevs = { };
     client.stratis_filesystems = { };
-    client.stratis_manager.LockedPools = {};
+    client.stratis_manager.StoppedPools = {};
 
     return client.stratis_manager.wait()
             .then(() => {
@@ -966,8 +966,8 @@ function stratis3_start() {
                             .input(passphrase);
                 };
 
-                client.stratis_unlock_pool = (uuid) => {
-                    return client.stratis_manager.UnlockPool(uuid, "keyring");
+                client.stratis_start_pool = (uuid, unlock_method) => {
+                    return client.stratis_manager.StartPool(uuid, [!!unlock_method, unlock_method || ""]);
                 };
 
                 client.stratis_create_pool = (name, devs, key_desc) => {
@@ -1017,7 +1017,7 @@ function stratis2_start() {
     client.stratis_pools = { };
     client.stratis_blockdevs = { };
     client.stratis_filesystems = { };
-    client.stratis_manager.LockedPools = {};
+    client.stratis_manager.StoppedPools = {};
 
     return client.stratis_manager.wait()
             .then(() => {
@@ -1029,7 +1029,7 @@ function stratis2_start() {
                             .input(passphrase);
                 };
 
-                client.stratis_unlock_pool = (uuid) => {
+                client.stratis_start_pool = (uuid) => {
                     return client.stratis_manager.UnlockPool(uuid);
                 };
 
@@ -1138,10 +1138,10 @@ function stratis2_fetch_properties(proxy, props) {
 function stratis2_fetch_manager_properties(proxy) {
     stratis2_fetch_properties(proxy, ["LockedPoolsWithDevs"]).then(values => {
         if (values.LockedPoolsWithDevs) {
-            proxy.LockedPools = { };
+            proxy.StoppedPools = { };
             for (const uuid in values.LockedPoolsWithDevs) {
                 const l = values.LockedPoolsWithDevs[uuid];
-                proxy.LockedPools[uuid] = {
+                proxy.StoppedPools[uuid] = {
                     devs: l.devs,
                     key_description: { t: "(bv)", v: [true, l.key_description] },
                 };

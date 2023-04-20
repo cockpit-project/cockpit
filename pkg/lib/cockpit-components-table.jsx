@@ -151,9 +151,10 @@ export const ListingTable = ({
                             </Text>
                         </TextContent>
                     </EmptyStateBody>
+                    {actions.length > 0 &&
                     <EmptyStateFooter>
-                        {actions.length > 0 ? <EmptyStateActions>{actions}</EmptyStateActions> : null}
-                    </EmptyStateFooter>
+                        <EmptyStateActions>{actions}</EmptyStateActions>
+                    </EmptyStateFooter>}
                 </EmptyState>
             );
         if (!isEmptyStateInTable)

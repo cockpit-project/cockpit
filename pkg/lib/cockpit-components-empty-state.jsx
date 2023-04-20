@@ -32,7 +32,7 @@ export const EmptyStatePanel = ({ title, paragraph, loading, icon, action, isAct
             <EmptyStateBody>
                 {paragraph}
             </EmptyStateBody>
-            <EmptyStateFooter>
+            {(action || secondary) && <EmptyStateFooter>
                 { action && (typeof action == "string"
                     ? <Button variant="primary" className={slimType}
                           isLoading={isActionInProgress}
@@ -40,7 +40,7 @@ export const EmptyStatePanel = ({ title, paragraph, loading, icon, action, isAct
                           onClick={onAction}>{action}</Button>
                     : action)}
                 { secondary && <EmptyStateActions>{secondary}</EmptyStateActions> }
-            </EmptyStateFooter>
+            </EmptyStateFooter>}
         </EmptyState>
     );
 };

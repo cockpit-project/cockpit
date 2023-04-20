@@ -929,7 +929,7 @@ class CardsPage extends React.Component {
                     {this.props.cockpitUpdate &&
                         <Flex flex={{ default: 'inlineFlex' }} className="cockpit-update-warning">
                             <FlexItem>
-                                <ExclamationTriangleIcon className="ct-icon-exclamation-triangle cockpit-update-warning-icon" size="sm" />
+                                <ExclamationTriangleIcon className="ct-icon-exclamation-triangle cockpit-update-warning-icon" />
                                 <strong className="cockpit-update-warning-text">
                                     <span className="pf-screen-reader">{_("Danger alert:")}</span>
                                     {_("Web Console will restart")}

@@ -210,7 +210,7 @@ journal.printable = function printable(value, key) {
         return _("[no data]");
     else if (typeof (value) == "string")
         return value;
-    else if (value.length !== undefined && value.length <= 1000 && key != "BIN")
+    else if (value.length !== undefined && value.length <= 1000 && key == "MESSAGE")
         return new TextDecoder().decode(new Uint8Array(value));
     else {
         return _("[binary data]");

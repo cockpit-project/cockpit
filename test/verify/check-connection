@@ -699,14 +699,14 @@ class TestConnection(MachineCase):
         self.assertIn('id="login"', m.curl('-k', 'https://localhost:9090/', headers=large_headers))
         m.stop_cockpit()
 
-        self.restore_dir("/etc/cockpit")
         m.execute("rm -f /etc/cockpit/ws-certs.d/* /etc/cockpit/cockpit.conf")
         m.write("/etc/cockpit/cockpit.conf", "[WebService]\nLoginTitle = A Custom Title\n")
 
         m.execute(f"{self.libexecdir}/cockpit-certificate-ensure")
         self.assertTrue(m.execute("ls /etc/cockpit/ws-certs.d/*"))
 
-        m.execute(f"{self.ws_executable} --port 9000 --address 127.0.0.1 0<&- &>/dev/null &")
+        pid = m.spawn(f"{self.ws_executable} --port 9000 --address 127.0.0.1", "cockpit-ws.log")
+        self.addCleanup(m.execute, f"kill {pid}")
 
         # The port may not be available immediately, so wait for it
         wait(lambda: 'A Custom Title' in m.curl('-k', 'https://localhost:9000/'))

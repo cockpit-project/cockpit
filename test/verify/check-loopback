@@ -17,12 +17,15 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 
+import os
+
 import parent  # noqa: F401
-from testlib import MachineCase, skipDistroPackage, skipOstree, test_main
+from testlib import MachineCase, nondestructive, skipDistroPackage, skipOstree, test_main
 
 
 @skipOstree("OSTree always uses loopback")
 @skipDistroPackage()
+@nondestructive
 class TestLoopback(MachineCase):
 
     def testBasic(self):
@@ -30,14 +33,21 @@ class TestLoopback(MachineCase):
         m = self.machine
 
         # Start Cockpit with option to access SSH
-        m.spawn(f"{self.libexecdir}/cockpit-ws --local-ssh --no-tls", "cockpit-ws")
+        m.stop_cockpit()
+        pid = m.spawn(f"{self.libexecdir}/cockpit-ws --local-ssh --no-tls", "cockpit-ws")
+        self.addCleanup(m.execute, "kill %i" % pid)
         m.wait_for_cockpit_running()
 
         b.login_and_go("/system", user="admin")
         b.logout()
         b.wait_visible("#login")
 
-        m.execute("while B=$(command -v cockpit-bridge); do rm $B; done")
+        self.restore_file("/usr/bin/cockpit-bridge")
+        m.execute("rm /usr/bin/cockpit-bridge")
+        if os.environ.get("TEST_SCENARIO") == "pybridge":
+            self.restore_file("/usr/local/bin/cockpit-bridge")
+            m.execute("rm /usr/local/bin/cockpit-bridge")
+
         b.set_val('#login-user-input', "admin")
         b.set_val('#login-password-input', "foobar")
         b.click('#login-button')
@@ -45,8 +55,9 @@ class TestLoopback(MachineCase):
         self.assertIn("no-cockpit", b.text('#login-fatal'))
 
         m.disconnect()
+        self.restore_dir("/etc/ssh", post_restore_action="systemctl try-restart sshd.service")
         m.execute("sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config $(ls /etc/ssh/sshd_config.d/* 2>/dev/null || true)")
-        m.execute("( ! systemctl is-active sshd.socket || systemctl stop sshd.socket) && systemctl restart sshd.service")
+        m.execute("systemctl try-restart sshd.service")
         m.wait_execute()
 
         b.reload()

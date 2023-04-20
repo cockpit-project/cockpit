@@ -1074,6 +1074,7 @@ const UsersPopover = ({ users }) => {
 
     return (
         <Popover
+            appendTo={document.body}
             bodyContent={
                 <>
                     { services.length > 0
@@ -1125,7 +1126,7 @@ export const TeardownMessage = (usage) => {
                     use.actions.length ? use.actions.join(", ") : "-",
                     {
                         title: <UsersPopover users={use.users || []} />,
-                        props: { className: "ct-text-align-right" }
+                        props: { className: "pf-u-text-align-right" }
                     }
                 ]
             });

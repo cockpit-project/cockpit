@@ -25,6 +25,7 @@
 @import "@patternfly/patternfly/components/Progress/progress.scss";
 @import "@patternfly/patternfly/utilities/Flex/flex.scss";
 @import "@patternfly/patternfly/utilities/Text/text.scss";
+@import "@patternfly/patternfly/utilities/Alignment/alignment.scss";
 
 #storage .pf-c-card {
   @extend .ct-card;
@@ -397,10 +398,6 @@ td.storage-action {
 
 #mounts .pf-c-progress__measure, #nfs-mounts .pf-c-progress__measure, #detail-content .pf-c-progress__measure {
   min-width: 7rem;
-}
-
-td.ct-text-align-right {
-  text-align: right;
 }
 
 // Hatched effect for progressbars that are parts of a group, but not the main

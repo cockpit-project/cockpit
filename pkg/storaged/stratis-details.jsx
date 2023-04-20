@@ -659,7 +659,7 @@ export const StratisPoolDetails = ({ client, pool }) => {
                 title: <StorageUsageBar stats={[Number(fsys.Used[0] && Number(fsys.Used[1])),
                     Number(pool.TotalPhysicalSize)]}
                                         critical={1} total={total} offset={offset} />,
-                props: { className: "ct-text-align-right" }
+                props: { className: "pf-u-text-align-right" }
             },
             {
                 title: <>{actions}<StorageBarMenu key="menu" menuItems={menuitems} isKebab /></>,

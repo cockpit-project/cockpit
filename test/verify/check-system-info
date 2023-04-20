@@ -853,6 +853,10 @@ fi
         # apparently.  So let's prevent that.
         m.execute("systemctl disable --now insights-client")
 
+        self.restore_dir("/etc/insights-client")
+        self.restore_dir("/etc/yum")
+        self.restore_dir("/var/lib/insights")
+
         # Pretend that the Subscriptions page can do Insights stuff
         self.write_file("/etc/cockpit/subscription-manager.override.json", '{ "features": { "insights": true } }')
 

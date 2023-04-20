@@ -81,11 +81,11 @@ export class JournalOutput {
                 onKeyPress={ev => this.onEvent(ev, entry.__CURSOR, full_content)}>
                 <div className="cockpit-log-warning" role="cell">
                     { warning
-                        ? <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" size="sm" />
+                        ? <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />
                         : null
                     }
                     { problem
-                        ? <TimesCircleIcon className="ct-icon-times-circle" size="sm" />
+                        ? <TimesCircleIcon className="ct-icon-times-circle" />
                         : null
                     }
                 </div>

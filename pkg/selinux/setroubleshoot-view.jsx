@@ -362,7 +362,7 @@ export class SETroubleshootPage extends React.Component {
                 ];
                 // if the alert has level "red", it's critical
                 const criticalAlert = (itm.details && 'level' in itm.details && itm.details.level == "red")
-                    ? <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" size="md" />
+                    ? <ExclamationTriangleIcon className="ct-icon-exclamation-triangle pf-c-icon pf-m-lg" />
                     : null;
                 const columns = [
                     { title: criticalAlert },

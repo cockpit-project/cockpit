@@ -244,7 +244,7 @@ export class TopNav extends React.Component {
                                         document.getElementById("toggle-docs").focus();
                                     }}
                                     toggle={
-                                        <DropdownToggle id="toggle-docs" icon={<HelpIcon size="md" />} onToggle={(_event, isOpen) => { this.setState({ docsOpened: isOpen }) }}>
+                                        <DropdownToggle id="toggle-docs" icon={<HelpIcon className="toggle-docs-icon pf-c-icon pf-m-lg" />} onToggle={(_event, isOpen) => { this.setState({ docsOpened: isOpen }) }}>
                                             {_("Help")}
                                         </DropdownToggle>
                                     }
@@ -262,7 +262,7 @@ export class TopNav extends React.Component {
                                         document.getElementById("toggle-menu").focus();
                                     }}
                                     toggle={
-                                        <DropdownToggle id="toggle-menu" icon={<CogIcon size="md" />} onToggle={(_event, isOpen) => this.setState({ menuOpened: isOpen, showActivePages: _event.altKey }) }>
+                                        <DropdownToggle id="toggle-menu" icon={<CogIcon className="pf-c-icon pf-m-lg" />} onToggle={(_event, isOpen) => this.setState({ menuOpened: isOpen, showActivePages: _event.altKey }) }>
                                             {_("Session")}
                                         </DropdownToggle>
                                     }

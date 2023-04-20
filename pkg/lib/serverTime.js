@@ -612,7 +612,7 @@ function ChangeSystimeBody({ state, errors, change }) {
                     { mode_options }
                 </Select>
                 { mode == "manual_time" &&
-                    <div id="systime-manual-row">
+                    <Flex spaceItems={{ default: 'spaceItemsSm' }} id="systime-manual-row">
                         <ValidatedInput errors={errors} error_key="manual_date">
                             <DatePicker id="systime-date-input"
                                         aria-label={_("Pick date")}
@@ -638,7 +638,7 @@ function ChangeSystimeBody({ state, errors, change }) {
                         </ValidatedInput>
                         <Validated errors={errors} error_key="manual_date" />
                         <Validated errors={errors} error_key="manual_time" />
-                    </div>
+                    </Flex>
                 }
                 { mode == "ntp_time_custom" &&
                     <Validated errors={errors} error_key="ntp_servers">

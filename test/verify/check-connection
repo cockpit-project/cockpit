@@ -705,7 +705,8 @@ class TestConnection(MachineCase):
         m.execute(f"{self.libexecdir}/cockpit-certificate-ensure")
         self.assertTrue(m.execute("ls /etc/cockpit/ws-certs.d/*"))
 
-        m.execute(f"{self.ws_executable} --port 9000 --address 127.0.0.1 0<&- &>/dev/null &")
+        pid = m.spawn(f"{self.ws_executable} --port 9000 --address 127.0.0.1", "cockpit-ws.log")
+        self.addCleanup(m.execute, f"kill {pid}")
 
         # The port may not be available immediately, so wait for it
         wait(lambda: 'A Custom Title' in m.curl('-k', 'https://localhost:9000/'))

@@ -699,7 +699,6 @@ class TestConnection(MachineCase):
         self.assertIn('id="login"', m.curl('-k', 'https://localhost:9090/', headers=large_headers))
         m.stop_cockpit()
 
-        self.restore_dir("/etc/cockpit")
         m.execute("rm -f /etc/cockpit/ws-certs.d/* /etc/cockpit/cockpit.conf")
         m.write("/etc/cockpit/cockpit.conf", "[WebService]\nLoginTitle = A Custom Title\n")
 

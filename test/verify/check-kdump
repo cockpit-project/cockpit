@@ -27,7 +27,7 @@ class KdumpHelpers(MachineCase):
         # all current Fedora/CentOS/RHEL images use BootLoaderSpec
         self.machine.execute("grubby --args=crashkernel=256M --update-kernel=ALL")
         self.machine.execute("mkdir -p /var/crash")
-        self.machine.reboot()
+        self.reboot()
         self.allow_restart_journal_messages()
         self.machine.start_cockpit()
         self.browser.switch_to_top()

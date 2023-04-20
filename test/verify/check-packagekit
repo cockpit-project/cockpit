@@ -523,7 +523,7 @@ ExecStart=/usr/local/bin/{self.packageName}
                         b.wait_in_text(".curtains-ct h1", "Disconnected")
 
                         # ensure that rebooting actually worked
-                        self.machine.wait_reboot()
+                        self.wait_reboot()
                         m.start_cockpit()
                         b.reload()
                         b.login_and_go("/updates")
@@ -550,7 +550,7 @@ ExecStart=/usr/local/bin/{self.packageName}
                         b.wait_in_text(".curtains-ct h1", "Disconnected")
 
                         # ensure that rebooting actually worked
-                        self.machine.wait_reboot()
+                        self.wait_reboot()
                         m.start_cockpit()
                         b.reload()
                         b.login_and_go("/updates")
@@ -852,7 +852,7 @@ ExecStart=/usr/local/bin/{packageName}
             b.wait_in_text(".curtains-ct h1", "Disconnected")
 
             # ensure that rebooting actually worked
-            self.machine.wait_reboot()
+            self.wait_reboot()
             m.start_cockpit()
             b.reload()
             b.login_and_go("/updates")
@@ -1008,7 +1008,7 @@ ExecStart=/usr/local/bin/{packageName}
         # reboots automatically
         b.switch_to_top()
         b.wait_in_text(".curtains-ct h1", "Disconnected")
-        self.machine.wait_reboot()
+        self.wait_reboot()
         self.allow_restart_journal_messages()
 
     @nondestructive

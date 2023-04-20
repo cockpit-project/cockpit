@@ -338,7 +338,7 @@ class CommonTests:
         b.click("#shutdown-dialog button:contains(Reboot)")
         b.switch_to_top()
         b.wait_in_text(".curtains-ct h1", "Disconnected")
-        self.machine.wait_reboot()
+        self.wait_reboot()
 
         self.allow_journal_messages(".*No authentication agent found.*")
         self.allow_restart_journal_messages()

@@ -36,7 +36,7 @@ import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 import { Title } from "@patternfly/react-core/dist/esm/components/Title/index.js";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core/dist/esm/components/Toolbar/index.js";
-import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Page, PageBreadcrumb, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
@@ -1042,26 +1042,25 @@ export class Firewall extends React.Component {
         const enabled = this.state.firewall.enabled;
 
         return (
-            <Page groupProps={{ sticky: 'top' }}
-                  isBreadcrumbGrouped
-                  breadcrumb={
-                      <Breadcrumb>
-                          <BreadcrumbItem onClick={go_up} className="pf-c-breadcrumb__link">{_("Networking")}</BreadcrumbItem>
-                          <BreadcrumbItem isActive>{_("Firewall")}</BreadcrumbItem>
-                      </Breadcrumb>}
-                  additionalGroupedContent={
-                      <PageSection id="firewall-heading" variant={PageSectionVariants.light} className="firewall-heading">
-                          <Flex alignItems={{ default: 'alignItemsCenter' }} justifyContent={{ default: 'justifyContentSpaceBetween' }}>
-                              <Flex alignItems={{ default: 'alignItemsCenter' }} id="firewall-heading-title-group">
-                                  <Title headingLevel="h2" size="3xl">
-                                      {_("Firewall")}
-                                  </Title>
-                                  <FirewallSwitch firewall={firewall} />
-                                  <p>{_("Incoming requests are blocked by default. Outgoing requests are not blocked.")}</p>
-                              </Flex>
-                              { enabled && !firewall.readonly && <span className="btn-group">{addZoneAction}</span> }
-                          </Flex>
-                      </PageSection>}>
+            <Page>
+                <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
+                    <Breadcrumb>
+                        <BreadcrumbItem onClick={go_up} className="pf-c-breadcrumb__link">{_("Networking")}</BreadcrumbItem>
+                        <BreadcrumbItem isActive>{_("Firewall")}</BreadcrumbItem>
+                    </Breadcrumb>
+                </PageBreadcrumb>
+                <PageSection id="firewall-heading" variant={PageSectionVariants.light} className="firewall-heading">
+                    <Flex alignItems={{ default: 'alignItemsCenter' }} justifyContent={{ default: 'justifyContentSpaceBetween' }}>
+                        <Flex alignItems={{ default: 'alignItemsCenter' }} id="firewall-heading-title-group">
+                            <Title headingLevel="h2" size="3xl">
+                                {_("Firewall")}
+                            </Title>
+                            <FirewallSwitch firewall={firewall} />
+                            <p>{_("Incoming requests are blocked by default. Outgoing requests are not blocked.")}</p>
+                        </Flex>
+                        { enabled && !firewall.readonly && <span className="btn-group">{addZoneAction}</span> }
+                    </Flex>
+                </PageSection>
                 <PageSection id="zones-listing">
                     { enabled && <Stack hasGutter>
                         {

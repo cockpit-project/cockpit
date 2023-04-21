@@ -24,7 +24,7 @@ import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
 import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
-import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Page, PageBreadcrumb, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Switch } from "@patternfly/react-core/dist/esm/components/Switch/index.js";
 
 import { ModelContext } from './model-context.jsx';
@@ -689,19 +689,18 @@ export const NetworkInterfacePage = ({
             .map((component, idx) => <React.Fragment key={idx}>{component}</React.Fragment>);
 
     return (
-        <Page groupProps={{ sticky: 'top' }}
-              isBreadcrumbGrouped
-              id="network-interface"
-              data-test-wait={operationInProgress}
-              breadcrumb={
-                  <Breadcrumb>
-                      <BreadcrumbItem to='#/'>
-                          {_("Networking")}
-                      </BreadcrumbItem>
-                      <BreadcrumbItem isActive>
-                          {dev_name}
-                      </BreadcrumbItem>
-                  </Breadcrumb>}>
+        <Page id="network-interface"
+              data-test-wait={operationInProgress}>
+            <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
+                <Breadcrumb>
+                    <BreadcrumbItem to='#/'>
+                        {_("Networking")}
+                    </BreadcrumbItem>
+                    <BreadcrumbItem isActive>
+                        {dev_name}
+                    </BreadcrumbItem>
+                </Breadcrumb>
+            </PageBreadcrumb>
             <PageSection variant={PageSectionVariants.light}>
                 <NetworkPlots plot_state={plot_state} />
             </PageSection>

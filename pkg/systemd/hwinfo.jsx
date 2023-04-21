@@ -35,7 +35,7 @@ import { DescriptionList, DescriptionListDescription, DescriptionListGroup, Desc
 import { EmptyState } from "@patternfly/react-core/dist/esm/components/EmptyState/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
-import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Page, PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
@@ -317,13 +317,13 @@ class HardwareInfo extends React.Component {
         }
 
         return (
-            <Page groupProps={{ sticky: 'top' }}
-                  isBreadcrumbGrouped
-                  breadcrumb={
-                      <Breadcrumb>
-                          <BreadcrumbItem onClick={ () => cockpit.jump("/system", cockpit.transport.host)} className="pf-c-breadcrumb__link">{ _("Overview") }</BreadcrumbItem>
-                          <BreadcrumbItem isActive>{ _("Hardware information") }</BreadcrumbItem>
-                      </Breadcrumb>}>
+            <Page>
+                <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
+                    <Breadcrumb>
+                        <BreadcrumbItem onClick={ () => cockpit.jump("/system", cockpit.transport.host)} className="pf-c-breadcrumb__link">{ _("Overview") }</BreadcrumbItem>
+                        <BreadcrumbItem isActive>{ _("Hardware information") }</BreadcrumbItem>
+                    </Breadcrumb>
+                </PageBreadcrumb>
                 <PageSection>
                     <Gallery hasGutter>
                         <Card>

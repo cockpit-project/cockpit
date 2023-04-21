@@ -29,7 +29,7 @@ import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/comp
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Card, CardActions, CardBody, CardHeader, CardHeaderMain, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
-import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Page, PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Gallery, GalleryItem } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 
 const _ = cockpit.gettext;
@@ -191,16 +191,15 @@ export class LogEntry extends React.Component {
         }
 
         return (
-            <Page groupProps={{ sticky: 'top' }}
-                  isBreadcrumbGrouped
-                  id="log-details"
-                  breadcrumb={
-                      <Breadcrumb>
-                          <BreadcrumbItem onClick={this.goHome} className="pf-c-breadcrumb__link">{_("Logs")}</BreadcrumbItem>
-                          <BreadcrumbItem isActive>
-                              {breadcrumb}
-                          </BreadcrumbItem>
-                      </Breadcrumb>}>
+            <Page id="log-details">
+                <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
+                    <Breadcrumb>
+                        <BreadcrumbItem onClick={this.goHome} className="pf-c-breadcrumb__link">{_("Logs")}</BreadcrumbItem>
+                        <BreadcrumbItem isActive>
+                            {breadcrumb}
+                        </BreadcrumbItem>
+                    </Breadcrumb>
+                </PageBreadcrumb>
                 <PageSection>
                     <Gallery hasGutter>
                         {content}

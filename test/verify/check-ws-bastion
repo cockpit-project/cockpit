@@ -34,7 +34,7 @@ class TestWsBastionContainer(MachineCase):
         # stop ws container from previous runs
         self.machine.stop_cockpit()
         # undo cockpit/ws install steps
-        self.machine.execute("rm /etc/systemd/system/cockpit.service")
+        self.restore_file("/etc/systemd/system/cockpit.service")
         self.addCleanup(self.machine.execute, "podman rm -f --all")
 
     def approve_key(self, b, hostname):

@@ -101,20 +101,11 @@ a.disabled:hover {
 /* Dialog patterns */
 
 .dialog-wait-ct {
-  margin-top: 3px;
   /* Right align footer idle messages after the buttons */
   margin-left: auto;
-}
-
-.dialog-wait-ct .spinner {
-  display: inline-block;
-  /* Add spacing between possible messages and the spinner */
-  margin-left: var(--pf-global--spacer--md);
-}
-
-.dialog-wait-ct span {
-  vertical-align: 4px;
-  padding-left: 10px;
+  display: flex;
+  column-gap: var(--pf-global--spacer--sm);
+  align-items: center;
 }
 
 :root {

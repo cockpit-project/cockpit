@@ -862,7 +862,8 @@ export XDG_CONFIG_DIRS=/usr/local
 
         for (pages, asserts) in cases:
             for page in pages:
-                m.execute(f'''su - -c 'BROWSER="curl --silent --compressed -o /tmp/out.html" {self.libexecdir}/cockpit-desktop {page}' admin''')
+                m.execute(f'''su - -c 'BROWSER="curl --silent --compressed -o /tmp/out.html" {self.libexecdir}/cockpit-desktop {page}' admin''',
+                          timeout=10)
 
                 out = m.execute("cat /tmp/out.html")
                 for a in asserts:
@@ -894,7 +895,7 @@ curl --silent --compressed -o /tmp/out.html "$@"
 until pgrep -f '[c]ockpit-bridge.*--privileged'; do sleep 1; done
 """)
         m.execute("chmod 755 /tmp/browser.sh")
-        m.execute(f"su - -c 'BROWSER=/tmp/browser.sh {self.libexecdir}/cockpit-desktop system' admin")
+        m.execute(f"su - -c 'BROWSER=/tmp/browser.sh {self.libexecdir}/cockpit-desktop system' admin", timeout=10)
         self.assertIn('id="overview"', m.execute("cat /tmp/out.html"))
 
         self.allow_journal_messages("couldn't register polkit authentication agent.*")

@@ -20,6 +20,8 @@
 import cockpit from "cockpit";
 import React from "react";
 
+import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { Spinner } from "@patternfly/react-core/dist/esm/components/Spinner/index.js";
 import { WarningTriangleIcon } from "@patternfly/react-icons";
 
 import { show_modal_dialog } from "cockpit-components-dialog.jsx";
@@ -92,10 +94,10 @@ export function install_dialog(pkg, options) {
 
         if (progress_message)
             footer_message = (
-                <>
+                <Flex spaceItems={{ default: 'spaceItemsSm' }} alignItems={{ default: 'alignItemsCenter' }}>
                     <span>{ progress_message }</span>
-                    <div className="spinner spinner-sm" />
-                </>
+                    <Spinner isSvg size="sm" />
+                </Flex>
             );
         else if (data?.download_size) {
             footer_message = (

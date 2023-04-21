@@ -23,7 +23,7 @@ import os
 import subprocess
 
 import parent  # noqa: F401
-from testlib import (MachineCase, TEST_DIR, nondestructive, todoPybridgeRHEL8, test_main, wait,
+from testlib import (MachineCase, TEST_DIR, nondestructive, todoPybridge, test_main, wait,
                      skipBrowser, skipDistroPackage, skipImage, skipOstree)
 
 
@@ -823,7 +823,7 @@ export XDG_CONFIG_DIRS=/usr/local
 
     @skipOstree("OSTree doesn't have cockpit-ws")
     @skipImage("Kernel does not allow user namespaces", "debian-*")
-    @todoPybridgeRHEL8(reason="regression from https://github.com/cockpit-project/cockpit/pull/18398")
+    @todoPybridge()
     @nondestructive
     def testCockpitDesktop(self):
         m = self.machine
@@ -889,10 +889,15 @@ ResultAny=yes
 ResultInactive=yes
 ResultActive=yes""")
 
-        self.write_file(r"/tmp/browser.sh", """#!/bin/sh -e
+        if os.environ.get("TEST_SCENARIO") == "pybridge":
+            pgrep = "^/usr/bin/python.*cockpit-bridge.*--privileged"
+        else:
+            pgrep = "^/usr/bin/cockpit-bridge.*--privileged"
+
+        self.write_file("/tmp/browser.sh", f"""#!/bin/sh -e
 curl --silent --compressed -o /tmp/out.html "$@"
 # wait until privileged bridge starts
-until pgrep -f '[c]ockpit-bridge.*--privileged'; do sleep 1; done
+until pgrep -f '{pgrep}'; do sleep 1; done
 """)
         m.execute("chmod 755 /tmp/browser.sh")
         m.execute(f"su - -c 'BROWSER=/tmp/browser.sh {self.libexecdir}/cockpit-desktop system' admin", timeout=10)

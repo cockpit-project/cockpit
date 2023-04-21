@@ -28,7 +28,6 @@ class KdumpHelpers(MachineCase):
         self.machine.execute("grubby --args=crashkernel=256M --update-kernel=ALL")
         self.machine.execute("mkdir -p /var/crash")
         self.reboot()
-        self.allow_restart_journal_messages()
         self.machine.start_cockpit()
         self.browser.switch_to_top()
         self.browser.relogin("/kdump")

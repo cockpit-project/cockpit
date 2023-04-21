@@ -1009,7 +1009,6 @@ ExecStart=/usr/local/bin/{packageName}
         b.switch_to_top()
         b.wait_in_text(".curtains-ct h1", "Disconnected")
         self.wait_reboot()
-        self.allow_restart_journal_messages()
 
     @nondestructive
     def testUpdateError(self):

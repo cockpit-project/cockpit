@@ -132,12 +132,6 @@ rsync:
 	$(MAKE) install DESTDIR=tmp/rsync >/dev/null
 	rsync --recursive --links --checksum --verbose --inplace tmp/rsync/ $(RSYNC_DEST)
 
-CLEANFILES += compile_commands.json
-noinst_DATA += compile_commands.json
-compile_commands.json: Makefile
-	$(AM_V_GEN) $(srcdir)/tools/make-compile-commands
-
-
 # We use these to add conditionally-enabled extra rules
 # automake doesn't like mixing `::` and `if`
 

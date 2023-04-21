@@ -23,7 +23,7 @@ import os
 import subprocess
 
 import parent  # noqa: F401
-from testlib import (MachineCase, TEST_DIR, nondestructive, todoPybridge, test_main, wait,
+from testlib import (MachineCase, TEST_DIR, nondestructive, test_main, wait,
                      skipBrowser, skipDistroPackage, skipImage, skipOstree)
 
 
@@ -823,7 +823,6 @@ export XDG_CONFIG_DIRS=/usr/local
 
     @skipOstree("OSTree doesn't have cockpit-ws")
     @skipImage("Kernel does not allow user namespaces", "debian-*")
-    @todoPybridge()
     @nondestructive
     def testCockpitDesktop(self):
         m = self.machine

@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Page, PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Grid, GridItem } from "@patternfly/react-core/dist/esm/layouts/Grid/index.js";
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
@@ -135,14 +135,13 @@ export class Details extends React.Component {
             body = <GridItem span={12}>{_("Not found")}</GridItem>;
 
         return (
-            <Page groupProps={{ sticky: 'top' }}
-                  isBreadcrumbGrouped
-                  id="storage-detail"
-                  breadcrumb={
-                      <Breadcrumb>
-                          <BreadcrumbItem to="#/">{_("Storage")}</BreadcrumbItem>
-                          <BreadcrumbItem isActive>{name}</BreadcrumbItem>
-                      </Breadcrumb>}>
+            <Page id="storage-detail">
+                <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
+                    <Breadcrumb>
+                        <BreadcrumbItem to="#/">{_("Storage")}</BreadcrumbItem>
+                        <BreadcrumbItem isActive>{name}</BreadcrumbItem>
+                    </Breadcrumb>
+                </PageBreadcrumb>
                 <PageSection>
                     <Grid hasGutter>
                         {body}

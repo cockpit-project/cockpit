@@ -23,7 +23,7 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
 import { Card, CardActions, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
 import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
-import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Page, PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Stack } from "@patternfly/react-core/dist/esm/layouts/Stack/index.js";
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 
@@ -141,16 +141,14 @@ export const Application = ({ metainfo_db, id, progress, progress_title, action 
     }
 
     return (
-        <Page groupProps={{ sticky: 'top' }}
-              id="app-page"
-              className="application-details"
-              isBreadcrumbGrouped
-              breadcrumb={
-                  <Breadcrumb>
-                      <BreadcrumbItem to="#/">{_("Applications")}</BreadcrumbItem>
-                      <BreadcrumbItem isActive>{comp ? comp.name : id}</BreadcrumbItem>
-                  </Breadcrumb>
-              }>
+        <Page id="app-page"
+              className="application-details">
+            <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
+                <Breadcrumb>
+                    <BreadcrumbItem to="#/">{_("Applications")}</BreadcrumbItem>
+                    <BreadcrumbItem isActive>{comp ? comp.name : id}</BreadcrumbItem>
+                </Breadcrumb>
+            </PageBreadcrumb>
             <PageSection>
                 {render_comp()}
             </PageSection>

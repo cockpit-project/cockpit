@@ -30,7 +30,7 @@ import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
 import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import { Label } from "@patternfly/react-core/dist/esm/components/Label/index.js";
 import { LabelGroup } from "@patternfly/react-core/dist/esm/components/LabelGroup/index.js";
-import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Page, PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Gallery } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 import { Select, SelectOption, SelectVariant } from "@patternfly/react-core/dist/esm/components/Select/index.js";
 import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text/index.js";
@@ -229,14 +229,13 @@ export function AccountDetails({ accounts, groups, shadow, current_user, user })
         last_login = timeformat.dateTime(new Date(account.lastLogin));
 
     return (
-        <Page groupProps={{ sticky: 'top' }}
-              isBreadcrumbGrouped
-              id="account"
-              breadcrumb={
-                  <Breadcrumb>
-                      <BreadcrumbItem to="#/">{_("Accounts")}</BreadcrumbItem>
-                      <BreadcrumbItem isActive>{title_name}</BreadcrumbItem>
-                  </Breadcrumb>}>
+        <Page id="account">
+            <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
+                <Breadcrumb>
+                    <BreadcrumbItem to="#/">{_("Accounts")}</BreadcrumbItem>
+                    <BreadcrumbItem isActive>{title_name}</BreadcrumbItem>
+                </Breadcrumb>
+            </PageBreadcrumb>
             <PageSection>
                 <Gallery hasGutter>
                     <Card className="account-details" id="account-details">

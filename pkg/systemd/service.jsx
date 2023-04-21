@@ -19,7 +19,7 @@
 
 import React, { useRef, useState } from "react";
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core/dist/esm/components/Breadcrumb/index.js";
-import { Page, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
+import { Page, PageBreadcrumb, PageSection } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 import { Gallery, GalleryItem } from "@patternfly/react-core/dist/esm/layouts/Gallery/index.js";
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
@@ -146,16 +146,15 @@ export const Service = ({ dbusClient, owner, unitId, unitIsValid, addTimerProper
 
     return (
         <WithDialogs>
-            <Page groupProps={{ sticky: 'top' }}
-                    isBreadcrumbGrouped
-                    id="service-details"
-                    breadcrumb={
-                        <Breadcrumb>
-                            <BreadcrumbItem to={"#" + cockpit.location.href.replace(/\/[^?]*/, '')}>{_("Services")}</BreadcrumbItem>
-                            <BreadcrumbItem isActive>
-                                {cur_unit_id}
-                            </BreadcrumbItem>
-                        </Breadcrumb>}>
+            <Page id="service-details">
+                <PageBreadcrumb stickyOnBreakpoint={{ default: "top" }}>
+                    <Breadcrumb>
+                        <BreadcrumbItem to={"#" + cockpit.location.href.replace(/\/[^?]*/, '')}>{_("Services")}</BreadcrumbItem>
+                        <BreadcrumbItem isActive>
+                            {cur_unit_id}
+                        </BreadcrumbItem>
+                    </Breadcrumb>
+                </PageBreadcrumb>
                 <PageSection>
                     <Gallery hasGutter>
                         <GalleryItem id="service-details-unit">

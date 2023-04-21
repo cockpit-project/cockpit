@@ -25,9 +25,14 @@ import unittest
 import testvm
 
 
-class TestStorageHidden(StorageCase):
+class TestStorageHiddenLuks(StorageCase):
 
-    def testHiddenLuks(self):
+    # LUKS uses memory hard PBKDF, 1 GiB is not enough; see https://bugzilla.redhat.com/show_bug.cgi?id=1881829
+    provision = {
+        "0": {"memory_mb": 1536}
+    }
+
+    def test(self):
         m = self.machine
         b = self.browser
 
@@ -85,6 +90,9 @@ class TestStorageHidden(StorageCase):
         b.wait_visible("#storage")
         self.assertEqual(m.execute(f"grep {mount_point_1} /etc/fstab || true"), "")
         self.assertEqual(m.execute(f"grep {'my-crypto-tag'} /etc/crypttab || true"), "")
+
+
+class TestStorageHidden(StorageCase):
 
     def testHiddenRaid(self):
         m = self.machine
